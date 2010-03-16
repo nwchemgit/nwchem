@@ -1,0 +1,1357 @@
+ argument  1 = Ne_b2plyp_cc-vqz.nw
+ 
+
+
+============================== echo of input deck ==============================
+#
+# These are the comparison numbers directly from Stefan Grimme:
+#
+#here it is (noFC, spherical basis, for total energies add col_1+0.27*col_2):
+#      B2-LYP                unscaled RI-PT2
+# Ne  -128.8393325785       -0.3656412777
+
+echo
+
+start Ne_b2plyp_cc-vqz
+
+memory total 1000 mb
+
+geometry
+ Ne     0.0 0.0 0.0
+end
+
+basis "ao basis" spherical
+  * library cc-pvqz
+end
+
+mp2
+  freeze 0
+  scratchdisk 4096
+end
+
+dft
+  xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
+  rungfive semidirect
+  convergence energy 1e-8
+  iterations 100
+end
+
+task dft energy
+
+dft
+  xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
+  rungfive direct
+  direct
+  convergence energy 1e-8
+  iterations 100
+end
+
+task dft energy
+
+# This won't reproduce Turbomole exactly because it's not the same basis
+# but it should come darn close to the complete DFT result
+basis "cc-pVQZ-RI" spherical
+#BASIS SET: (8s,7p,6d,5f,3g,1h)
+Ne    S
+    537.49100000             1.0000000
+Ne    S
+    116.22800000             1.0000000
+Ne    S
+     34.986200000            1.0000000
+Ne    S
+      8.0017500000           1.0000000
+Ne    S
+      4.4437800000           1.0000000
+Ne    S
+      2.4229600000           1.0000000
+Ne    S
+      1.1501200000           1.0000000
+Ne    S
+      0.47590500000          1.0000000
+Ne    P
+     99.166000000            1.0000000
+Ne    P
+     28.822000000            1.0000000
+Ne    P
+      8.4094200000           1.0000000
+Ne    P
+      5.5649600000           1.0000000
+Ne    P
+      2.6574400000           1.0000000
+Ne    P
+      1.3281700000           1.0000000
+Ne    P
+      0.73485000000          1.0000000
+Ne    D
+     28.745200000            1.0000000
+Ne    D
+      8.9240100000           1.0000000
+Ne    D
+      5.9214600000           1.0000000
+Ne    D
+      2.7948000000           1.0000000
+Ne    D
+      1.6289400000           1.0000000
+Ne    D
+      0.59989500000          1.0000000
+Ne    F
+     13.309000000            1.0000000
+Ne    F
+      6.5987600000           1.0000000
+Ne    F
+      3.0465600000           1.0000000
+Ne    F
+      2.0938000000           1.0000000
+Ne    F
+      1.0360700000           1.0000000
+Ne    G
+      8.2858100000           1.0000000
+Ne    G
+      4.2402700000           1.0000000
+Ne    G
+      2.2925000000           1.0000000
+Ne    H
+      4.4923100000           1.0000000
+end
+
+set "ri-mp2 basis" "cc-pVQZ-RI"
+
+dft
+  xc HFexch 0.53 becke88 0.47 lyp 0.73 mp2 0.27
+  rungfive ri
+  convergence energy 1e-8
+  iterations 100
+end
+
+task dft energy
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 5.1
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                                         
+                                         
+ 
+ 
+                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
+                2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+ 
+                            >>> All Rights Reserved <<<
+ 
+ 
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC05-76RL01830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = torun
+    program       = /home/jhammond/nwchem/bin/LINUX64/nwchem
+    date          = Tue Feb  3 10:13:44 2009
+
+    compiled      = Tue_Feb_03_09:56:21_2009
+    source        = /home/jhammond/nwchem
+    nwchem branch = Development
+    input         = Ne_b2plyp_cc-vqz.nw
+    prefix        = Ne_b2plyp_cc-vqz.
+    data base     = ./Ne_b2plyp_cc-vqz.db
+    status        = startup
+    nproc         =    4
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =   32768001 doubles =    250.0 Mbytes
+    stack     =   32768001 doubles =    250.0 Mbytes
+    global    =   65536000 doubles =    500.0 Mbytes (distinct from heap & stack)
+    total     =  131072002 doubles =   1000.0 Mbytes
+    verify    = yes
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Ne                  10.0000     0.00000000     0.00000000     0.00000000
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      Ne                19.992440
+ 
+
+ Effective nuclear repulsion energy (a.u.)       0.0000000000
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+ 
+ 
+            XYZ format geometry
+            -------------------
+     1
+ geometry
+ Ne                    0.00000000     0.00000000     0.00000000
+ 
+  library name resolved from: .nwchemrc
+  library file name is: </home/jhammond/nwchem/src/basis/libraries/>
+  
+
+
+ Summary of "ao basis" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                          cc-pvqz                   on all atoms 
+
+
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+                      Basis "ao basis" -> "ao basis" (spherical)
+                      -----
+  Ne (Neon)
+  ---------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  9.99200000E+04  0.000086
+  1 S  1.49600000E+04  0.000669
+  1 S  3.39900000E+03  0.003518
+  1 S  9.58900000E+02  0.014667
+  1 S  3.11200000E+02  0.050962
+  1 S  1.11700000E+02  0.143744
+  1 S  4.33200000E+01  0.304562
+  1 S  1.78000000E+01  0.400105
+  1 S  7.50300000E+00  0.218644
+ 
+  2 S  9.99200000E+04 -0.000020
+  2 S  1.49600000E+04 -0.000158
+  2 S  3.39900000E+03 -0.000824
+  2 S  9.58900000E+02 -0.003500
+  2 S  3.11200000E+02 -0.012233
+  2 S  1.11700000E+02 -0.037017
+  2 S  4.33200000E+01 -0.086113
+  2 S  1.78000000E+01 -0.158381
+  2 S  7.50300000E+00 -0.114288
+ 
+  3 S  2.33700000E+00  1.000000
+ 
+  4 S  9.00100000E-01  1.000000
+ 
+  5 S  3.30100000E-01  1.000000
+ 
+  6 P  9.96800000E+01  0.006566
+  6 P  2.31500000E+01  0.045979
+  6 P  7.10800000E+00  0.173419
+ 
+  7 P  2.44100000E+00  1.000000
+ 
+  8 P  8.33900000E-01  1.000000
+ 
+  9 P  2.66200000E-01  1.000000
+ 
+ 10 D  6.47100000E+00  1.000000
+ 
+ 11 D  2.21300000E+00  1.000000
+ 
+ 12 D  7.47000000E-01  1.000000
+ 
+ 13 F  4.65700000E+00  1.000000
+ 
+ 14 F  1.52400000E+00  1.000000
+ 
+ 15 G  2.98300000E+00  1.000000
+ 
+
+
+ Summary of "ao basis" -> "ao basis" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ Ne                         cc-pvqz                 15       55   5s4p3d2f1g
+
+
+  Caching 1-el integrals 
+  itol2e modified to match energy
+  convergence criterion.
+  tol_rho modified to match energy
+  convergence criterion.
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     1
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations: 100
+          AO basis - number of functions:    55
+                     number of shells:    15
+          Convergence on energy requested: 1.00D-08
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+ 
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  0.530          
+                     Becke 1988 Exchange Functiona  0.470          
+              Lee-Yang-Parr Correlation Functional  0.730          
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          Ne                  0.50       49           3.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:    49
+          Spatial weights used:  Erf1
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters        100 iters           100 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-11
+          AO Gaussian exp screening on grid/accAOfunc:  18
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-09
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:        -128.54346269
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =    -128.543470
+ 1-e energy   =    -182.591517
+ 2-e energy   =      54.048048
+ HOMO         =      -0.848959
+ LUMO         =       0.808904
+ 
+   Time after variat. SCF:      0.3
+   Time prior to 1st pass:      0.3
+
+ #quartets = 7.260D+03 #integrals = 1.371D+05 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./Ne_b2plyp_cc-vqz.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =     11        Max. records in file   =  72473
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Grid_pts file          = ./Ne_b2plyp_cc-vqz.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =      3        Max. recs in file   =    386494
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       32.01            32007570
+          Stack Space remaining (MW):       32.77            32767637
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1   -128.8370362192 -1.29D+02  1.40D-03  1.06D-01     0.6
+ d= 0,ls=0.0,diis     2   -128.8393304612 -2.29D-03  4.42D-05  2.26D-04     0.7
+ d= 0,ls=0.0,diis     3   -128.8393333952 -2.93D-06  2.44D-05  1.68D-05     0.8
+ d= 0,ls=0.0,diis     4   -128.8393338586 -4.63D-07  9.09D-06  7.87D-06     0.9
+ d= 0,ls=0.0,diis     5   -128.8393342312 -3.73D-07  2.47D-07  1.12D-09     1.0
+ d= 0,ls=0.0,diis     6   -128.8393342313 -6.67D-11  1.81D-08  5.88D-12     1.1
+
+
+         Total DFT energy =     -128.839334231289
+      One electron energy =     -182.536056701490
+           Coulomb energy =       66.084504024462
+    Exchange-Corr. energy =      -12.387781554262
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =        9.999999314470
+
+     Total iterative time =      0.8s
+
+
+ 
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+ 
+ Vector    1  Occ=2.000000D+00  E=-3.171835D+01
+              MO Center=  7.6D-18, -2.2D-20, -5.6D-18, r^2= 9.4D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1     -0.993374  1 Ne s          
+ 
+ Vector    2  Occ=2.000000D+00  E=-1.650991D+00
+              MO Center= -1.4D-16,  1.0D-16, -2.0D-17, r^2= 2.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.573053  1 Ne s                  2      0.357478  1 Ne s          
+     3      0.301535  1 Ne s                  5      0.283240  1 Ne s          
+ 
+ Vector    3  Occ=2.000000D+00  E=-6.854165D-01
+              MO Center=  4.2D-18,  4.3D-17, -3.1D-17, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12     -0.290639  1 Ne px                 9     -0.249181  1 Ne px         
+    13      0.222833  1 Ne py                14     -0.217585  1 Ne pz         
+    10      0.191048  1 Ne py                11     -0.186548  1 Ne pz         
+    15     -0.173542  1 Ne px         
+ 
+ Vector    4  Occ=2.000000D+00  E=-6.854165D-01
+              MO Center=  1.1D-16,  9.2D-17, -6.1D-17, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12     -0.311071  1 Ne px                 9     -0.266698  1 Ne px         
+    13     -0.222282  1 Ne py                10     -0.190575  1 Ne py         
+    14      0.187869  1 Ne pz                15     -0.185742  1 Ne px         
+    11      0.161070  1 Ne pz                 6     -0.155147  1 Ne px         
+ 
+ Vector    5  Occ=2.000000D+00  E=-6.854165D-01
+              MO Center= -7.3D-17, -1.8D-16, -6.6D-17, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      0.314374  1 Ne pz                13      0.287062  1 Ne py         
+    11      0.269531  1 Ne pz                10      0.246115  1 Ne py         
+    17      0.187715  1 Ne pz                16      0.171407  1 Ne py         
+     8      0.156795  1 Ne pz         
+ 
+ Vector    6  Occ=0.000000D+00  E= 6.913953D-01
+              MO Center=  8.8D-16,  4.5D-16,  2.1D-15, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16     -1.094727  1 Ne py                13      0.601294  1 Ne py         
+    15      0.434020  1 Ne px                17     -0.432831  1 Ne pz         
+    12     -0.238392  1 Ne px                14      0.237738  1 Ne pz         
+ 
+ Vector    7  Occ=0.000000D+00  E= 6.913953D-01
+              MO Center= -1.6D-15, -1.7D-15, -5.5D-16, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17     -0.926652  1 Ne pz                15     -0.845271  1 Ne px         
+    14      0.508976  1 Ne pz                12      0.464277  1 Ne px         
+ 
+ Vector    8  Occ=0.000000D+00  E= 6.913953D-01
+              MO Center=  3.4D-15,  3.3D-15, -2.6D-15, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15      0.819321  1 Ne px                17     -0.726716  1 Ne pz         
+    16      0.612159  1 Ne py                12     -0.450023  1 Ne px         
+    14      0.399159  1 Ne pz                13     -0.336237  1 Ne py         
+ 
+ Vector    9  Occ=0.000000D+00  E= 7.987500D-01
+              MO Center= -1.1D-15, -1.8D-15,  8.5D-16, r^2= 1.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.902489  1 Ne s                  4     -1.835135  1 Ne s          
+ 
+ Vector   10  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center= -1.5D-15, -4.1D-16, -1.9D-15, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    30      0.917344  1 Ne d  0              28     -0.417923  1 Ne d -2       
+    31     -0.272216  1 Ne d  1       
+ 
+ Vector   11  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center= -9.3D-16,  6.5D-16,  6.0D-16, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29     -0.612106  1 Ne d -1              28      0.587131  1 Ne d -2       
+    31     -0.434459  1 Ne d  1              32     -0.431891  1 Ne d  2       
+ 
+ Vector   12  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center= -3.1D-17, -1.1D-15,  1.1D-15, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    31      0.859373  1 Ne d  1              30      0.389312  1 Ne d  0       
+    28      0.340750  1 Ne d -2              32     -0.302799  1 Ne d  2       
+ 
+ Vector   13  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center=  1.4D-15, -2.2D-16, -1.8D-16, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    32     -0.832308  1 Ne d  2              29      0.590713  1 Ne d -1       
+    31     -0.177530  1 Ne d  1       
+ 
+ Vector   14  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center=  3.1D-16,  6.8D-16,  1.3D-16, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28     -0.670681  1 Ne d -2              29     -0.607467  1 Ne d -1       
+    32     -0.352960  1 Ne d  2              30     -0.299142  1 Ne d  0       
+    31      0.256574  1 Ne d  1       
+ 
+ Vector   15  Occ=0.000000D+00  E= 3.657264D+00
+              MO Center= -2.7D-15, -1.9D-15,  2.0D-15, r^2= 6.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      1.733256  1 Ne px                 9     -1.115297  1 Ne px         
+    15     -0.726407  1 Ne px                14     -0.316367  1 Ne pz         
+     6     -0.220396  1 Ne px                11      0.203573  1 Ne pz         
+ 
+
+ Parallel integral file used       4 records with       0 large values
+
+                   NWChem MP2 Semi-direct Energy/Gradient Module
+                   ---------------------------------------------
+ 
+ 
+  #avail    536870912.000000     
+  Basis functions       =     55
+  Molecular orbitals    =     55
+  Frozen core           =      0
+  Frozen virtuals       =      0
+  Active alpha occupied =      5
+  Active beta occupied  =      5
+  Active alpha virtual  =     50
+  Active beta virtual   =     50
+  Use MO symmetry       = F
+  Use skeleton AO sym   = F
+
+  AO/Fock/Back tols     =   1.0D-09  1.0D-09  1.0D-09
+  #avail    536870912.000000     
+  #avail    536870912.000000     
+  #avail    536870912.000000     
+
+ GA uses MA = F    GA memory limited = T
+
+ Available: 
+  local mem=  6.55D+07
+ global mem=  6.55D+07
+ local disk=  5.37D+08
+   1 passes of   5:        2157137                      22197                    103675.
+ 
+ Semi-direct pass number   1 of   1  for RHF alpha+beta  at        2.1s
+Node 0 wrote      0.8 Mb in      0.0 s     Agg I/O rate:   801.6 Mb/s
+ Done moints_semi at        2.8s
+ Done maket at        2.9s
+ Done multipass loop at        2.9s
+
+
+          -------------------------------------------
+          DFT energy                -128.839334231289
+          Unscaled MP2 energy         -0.365650520038
+          Total DFT+MP2 energy      -128.938059871700
+          -------------------------------------------
+
+ -----------------------
+ Performance information
+ -----------------------
+
+ Timer overhead =  2.00D-07 seconds/call
+
+               Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
+             ---------------    -------------------     ------------------------------   -------------------
+Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
+mp2: moin     1     1     1   0.70    0.71    0.73     0.76    0.76    0.76    0.76      0.0     0.0     0.0   
+mp2: make     1     1     1   2.00E-2 2.07E-2 2.20E-2  3.97E-2 3.99E-2 4.01E-2 4.01E-2   0.0     0.0     0.0   
+mp2: tota     1     1     1   0.91    0.93    0.95      1.0     1.0     1.0     1.0      0.0     0.0     0.0   
+
+ The average no. of pstat calls per process was 3.00D+00
+ with a timing overhead of 6.00D-07s
+
+
+ Task  times  cpu:        2.0s     wall:        2.8s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+  Caching 1-el integrals 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     1
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations: 100
+          This is a Direct SCF calculation.
+          AO basis - number of functions:    55
+                     number of shells:    15
+          Convergence on energy requested: 1.00D-08
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+ 
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  0.530          
+                     Becke 1988 Exchange Functiona  0.470          
+              Lee-Yang-Parr Correlation Functional  0.730          
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          Ne                  0.50       49           3.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:    49
+          Spatial weights used:  Erf1
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters        100 iters           100 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-11
+          AO Gaussian exp screening on grid/accAOfunc:  18
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-09
+
+
+ Loading old vectors from job with title :
+
+
+
+   Time after variat. SCF:      2.1
+   Time prior to 1st pass:      2.1
+
+ Grid_pts file          = ./Ne_b2plyp_cc-vqz.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =      3        Max. recs in file   =    386494
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       32.73            32728478
+          Stack Space remaining (MW):       32.77            32767637
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1   -128.8393342313 -1.29D+02  5.66D-10  8.46D-15     2.3
+ d= 0,ls=0.0,diis     2   -128.8393342313  0.00D+00  2.51D-10  5.73D-15     2.4
+
+
+         Total DFT energy =     -128.839334231289
+      One electron energy =     -182.536053270292
+           Coulomb energy =       66.084500036550
+    Exchange-Corr. energy =      -12.387780997547
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =        9.999999314470
+
+     Total iterative time =      0.4s
+
+
+ 
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+ 
+ Vector    1  Occ=2.000000D+00  E=-3.171835D+01
+              MO Center= -6.0D-19, -8.7D-19, -5.1D-20, r^2= 9.4D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1     -0.993374  1 Ne s          
+ 
+ Vector    2  Occ=2.000000D+00  E=-1.650991D+00
+              MO Center= -2.5D-16, -4.2D-17,  1.6D-16, r^2= 2.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4     -0.573053  1 Ne s                  2     -0.357478  1 Ne s          
+     3     -0.301535  1 Ne s                  5     -0.283240  1 Ne s          
+ 
+ Vector    3  Occ=2.000000D+00  E=-6.854165D-01
+              MO Center=  1.5D-16, -8.4D-17, -5.9D-17, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.306020  1 Ne px                 9      0.262368  1 Ne px         
+    13     -0.249013  1 Ne py                10     -0.213493  1 Ne py         
+    15      0.182727  1 Ne px                14     -0.160664  1 Ne pz         
+     6      0.152628  1 Ne px         
+ 
+ Vector    4  Occ=2.000000D+00  E=-6.854165D-01
+              MO Center= -6.9D-17,  1.3D-17, -3.6D-17, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14     -0.394472  1 Ne pz                11     -0.338203  1 Ne pz         
+    17     -0.235542  1 Ne pz                 8     -0.196744  1 Ne pz         
+ 
+ Vector    5  Occ=2.000000D+00  E=-6.854165D-01
+              MO Center=  1.2D-16,  1.9D-16,  9.6D-18, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13     -0.332147  1 Ne py                10     -0.284768  1 Ne py         
+    12     -0.266645  1 Ne px                 9     -0.228610  1 Ne px         
+    16     -0.198327  1 Ne py                 7     -0.165659  1 Ne py         
+    15     -0.159215  1 Ne px         
+ 
+ Vector    6  Occ=0.000000D+00  E= 6.913953D-01
+              MO Center=  2.5D-16, -3.1D-16,  9.7D-16, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      1.159182  1 Ne pz                14     -0.636697  1 Ne pz         
+    15      0.461280  1 Ne px                12     -0.253364  1 Ne px         
+ 
+ Vector    7  Occ=0.000000D+00  E= 6.913953D-01
+              MO Center= -2.2D-15,  7.0D-16,  1.8D-15, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15     -0.922707  1 Ne px                16      0.721362  1 Ne py         
+    12      0.506809  1 Ne px                17      0.449880  1 Ne pz         
+    13     -0.396218  1 Ne py                14     -0.247103  1 Ne pz         
+ 
+ Vector    8  Occ=0.000000D+00  E= 6.913953D-01
+              MO Center= -1.5D-15, -1.9D-15,  1.9D-15, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      1.017899  1 Ne py                15      0.714127  1 Ne px         
+    13     -0.559095  1 Ne py                12     -0.392244  1 Ne px         
+    17     -0.167477  1 Ne pz         
+ 
+ Vector    9  Occ=0.000000D+00  E= 7.987500D-01
+              MO Center=  3.2D-15,  7.4D-16, -1.4D-15, r^2= 1.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.902489  1 Ne s                  4     -1.835135  1 Ne s          
+ 
+ Vector   10  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center=  3.5D-16, -8.9D-17, -3.7D-16, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      0.722543  1 Ne d -2              30     -0.537785  1 Ne d  0       
+    29     -0.415987  1 Ne d -1              32      0.338208  1 Ne d  2       
+ 
+ Vector   11  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center= -7.3D-16,  1.4D-15, -1.2D-15, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    30     -0.768193  1 Ne d  0              29      0.509139  1 Ne d -1       
+    32     -0.347460  1 Ne d  2              31      0.340061  1 Ne d  1       
+ 
+ Vector   12  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center= -8.1D-18,  3.9D-17, -4.6D-16, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    31      0.959245  1 Ne d  1              29     -0.269901  1 Ne d -1       
+    32      0.243693  1 Ne d  2              30      0.157344  1 Ne d  0       
+ 
+ Vector   13  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center=  3.7D-16, -4.4D-17, -4.7D-18, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    32     -0.677456  1 Ne d  2              28      0.656109  1 Ne d -2       
+    30      0.378588  1 Ne d  0              31      0.237806  1 Ne d  1       
+ 
+ Vector   14  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center=  2.7D-16,  2.2D-15, -1.8D-15, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29      0.764324  1 Ne d -1              32      0.587606  1 Ne d  2       
+    28      0.334037  1 Ne d -2              30      0.226511  1 Ne d  0       
+ 
+ Vector   15  Occ=0.000000D+00  E= 3.657264D+00
+              MO Center= -4.1D-16, -7.2D-16, -1.6D-15, r^2= 6.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      1.405565  1 Ne px                13      1.042254  1 Ne py         
+     9     -0.904439  1 Ne px                10     -0.670659  1 Ne py         
+    15     -0.589072  1 Ne px                16     -0.436809  1 Ne py         
+    14     -0.251685  1 Ne pz                 6     -0.178728  1 Ne px         
+    11      0.161952  1 Ne pz         
+ 
+                          Direct MP2
+                          ----------
+          Basis functions:                       55
+          Shells:                                15
+          Block length:                          32
+          Active occupied range:             1 -  5
+          Active virtual range:              6 - 55
+          MO coefficients read from:  ./Ne_b2plyp_cc-vqz.movecs
+          Operator matrices in core:             15
+          AO passes required:                     1
+          Use AO Integral blocking
+          Twofold algorithm used
+
+     Pass:    1     Index range:    1  -    5     Time:      0.52
+
+
+          -------------------------------------------
+          DFT energy                -128.839334231289
+          Unscaled MP2 energy         -0.365650520717
+          Total DFT+MP2 energy      -128.938059871883
+          -------------------------------------------
+
+
+          Total MP2 time:           0.59
+
+ Task  times  cpu:        1.1s     wall:        1.3s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+  library name resolved from: .nwchemrc
+  library file name is: </home/jhammond/nwchem/src/basis/libraries/>
+  
+                      Basis "cc-pVQZ-RI" -> "" (spherical)
+                      -----
+  Ne (Neon)
+  ---------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  5.37491000E+02  1.000000
+ 
+  2 S  1.16228000E+02  1.000000
+ 
+  3 S  3.49862000E+01  1.000000
+ 
+  4 S  8.00175000E+00  1.000000
+ 
+  5 S  4.44378000E+00  1.000000
+ 
+  6 S  2.42296000E+00  1.000000
+ 
+  7 S  1.15012000E+00  1.000000
+ 
+  8 S  4.75905000E-01  1.000000
+ 
+  9 P  9.91660000E+01  1.000000
+ 
+ 10 P  2.88220000E+01  1.000000
+ 
+ 11 P  8.40942000E+00  1.000000
+ 
+ 12 P  5.56496000E+00  1.000000
+ 
+ 13 P  2.65744000E+00  1.000000
+ 
+ 14 P  1.32817000E+00  1.000000
+ 
+ 15 P  7.34850000E-01  1.000000
+ 
+ 16 D  2.87452000E+01  1.000000
+ 
+ 17 D  8.92401000E+00  1.000000
+ 
+ 18 D  5.92146000E+00  1.000000
+ 
+ 19 D  2.79480000E+00  1.000000
+ 
+ 20 D  1.62894000E+00  1.000000
+ 
+ 21 D  5.99895000E-01  1.000000
+ 
+ 22 F  1.33090000E+01  1.000000
+ 
+ 23 F  6.59876000E+00  1.000000
+ 
+ 24 F  3.04656000E+00  1.000000
+ 
+ 25 F  2.09380000E+00  1.000000
+ 
+ 26 F  1.03607000E+00  1.000000
+ 
+ 27 G  8.28581000E+00  1.000000
+ 
+ 28 G  4.24027000E+00  1.000000
+ 
+ 29 G  2.29250000E+00  1.000000
+ 
+ 30 H  4.49231000E+00  1.000000
+ 
+
+
+ Summary of "cc-pVQZ-RI" -> "" (spherical)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ Ne                      user specified             30      132   8s7p6d5f3g1h
+
+
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+  Caching 1-el integrals 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     1
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations: 100
+          This is a Direct SCF calculation.
+          AO basis - number of functions:    55
+                     number of shells:    15
+          Convergence on energy requested: 1.00D-08
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+ 
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  0.530          
+                     Becke 1988 Exchange Functiona  0.470          
+              Lee-Yang-Parr Correlation Functional  0.730          
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          Ne                  0.50       49           3.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:    49
+          Spatial weights used:  Erf1
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters        100 iters           100 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-11
+          AO Gaussian exp screening on grid/accAOfunc:  18
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-09
+
+
+ Loading old vectors from job with title :
+
+
+
+   Time after variat. SCF:      3.1
+   Time prior to 1st pass:      3.1
+
+ Grid_pts file          = ./Ne_b2plyp_cc-vqz.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =      3        Max. recs in file   =    386494
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       32.73            32728478
+          Stack Space remaining (MW):       32.77            32767637
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1   -128.8393342313 -1.29D+02  8.85D-12  1.11D-18     3.3
+ d= 0,ls=0.0,diis     2   -128.8393342313 -5.68D-14  2.27D-12  3.12D-19     3.5
+
+
+         Total DFT energy =     -128.839334231289
+      One electron energy =     -182.536053411586
+           Coulomb energy =       66.084500198903
+    Exchange-Corr. energy =      -12.387781018605
+ Nuclear repulsion energy =        0.000000000000
+
+ Numeric. integr. density =        9.999999314470
+
+     Total iterative time =      0.4s
+
+
+ 
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+ 
+ Vector    1  Occ=2.000000D+00  E=-3.171835D+01
+              MO Center=  3.7D-18,  2.2D-18,  1.0D-18, r^2= 9.4D-03
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.993374  1 Ne s          
+ 
+ Vector    2  Occ=2.000000D+00  E=-1.650991D+00
+              MO Center=  4.8D-17,  2.6D-17,  5.1D-17, r^2= 2.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4     -0.573053  1 Ne s                  2     -0.357478  1 Ne s          
+     3     -0.301535  1 Ne s                  5     -0.283240  1 Ne s          
+ 
+ Vector    3  Occ=2.000000D+00  E=-6.854165D-01
+              MO Center=  1.1D-16,  3.0D-16, -3.4D-16, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14     -0.297586  1 Ne pz                13      0.290985  1 Ne py         
+    11     -0.255137  1 Ne pz                10      0.249478  1 Ne py         
+    17     -0.177691  1 Ne pz                16      0.173749  1 Ne py         
+ 
+ Vector    4  Occ=2.000000D+00  E=-6.854165D-01
+              MO Center=  2.2D-16, -8.1D-17, -8.7D-17, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.335634  1 Ne px                 9      0.287758  1 Ne px         
+    13     -0.231292  1 Ne py                15      0.200409  1 Ne px         
+    10     -0.198299  1 Ne py                 6      0.167398  1 Ne px         
+ 
+ Vector    5  Occ=2.000000D+00  E=-6.854165D-01
+              MO Center=  2.1D-15,  1.8D-15,  2.4D-15, r^2= 3.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14     -0.278547  1 Ne pz                12     -0.246129  1 Ne px         
+    11     -0.238814  1 Ne pz                 9     -0.211020  1 Ne px         
+    13     -0.208089  1 Ne py                10     -0.178406  1 Ne py         
+    17     -0.166322  1 Ne pz         
+ 
+ Vector    6  Occ=0.000000D+00  E= 6.913953D-01
+              MO Center=  1.2D-15, -1.9D-15,  2.2D-15, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      1.023092  1 Ne pz                16     -0.719601  1 Ne py         
+    14     -0.561948  1 Ne pz                13      0.395251  1 Ne py         
+ 
+ Vector    7  Occ=0.000000D+00  E= 6.913953D-01
+              MO Center= -3.6D-15,  2.4D-15,  1.3D-16, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    15     -1.148092  1 Ne px                12      0.630605  1 Ne px         
+    17      0.360024  1 Ne pz                16      0.355542  1 Ne py         
+    14     -0.197748  1 Ne pz                13     -0.195286  1 Ne py         
+ 
+ Vector    8  Occ=0.000000D+00  E= 6.913953D-01
+              MO Center= -8.2D-15, -1.2D-14, -1.1D-14, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      0.964317  1 Ne py                17      0.630720  1 Ne pz         
+    13     -0.529665  1 Ne py                15      0.496415  1 Ne px         
+    14     -0.346432  1 Ne pz                12     -0.272663  1 Ne px         
+ 
+ Vector    9  Occ=0.000000D+00  E= 7.987500D-01
+              MO Center=  3.6D-15,  1.5D-15, -2.8D-15, r^2= 1.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5     -1.902489  1 Ne s                  4      1.835135  1 Ne s          
+ 
+ Vector   10  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center=  2.6D-15, -1.8D-15,  4.9D-16, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      0.884829  1 Ne d -2              31      0.420959  1 Ne d  1       
+    30      0.316223  1 Ne d  0              32      0.187868  1 Ne d  2       
+ 
+ Vector   11  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center= -1.7D-16,  2.8D-16,  6.1D-16, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    32     -0.852679  1 Ne d  2              30      0.605750  1 Ne d  0       
+ 
+ Vector   12  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center=  5.7D-15,  1.0D-14,  6.3D-15, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    29     -0.774673  1 Ne d -1              31      0.476085  1 Ne d  1       
+    28     -0.409818  1 Ne d -2              30      0.254176  1 Ne d  0       
+    32      0.198478  1 Ne d  2       
+ 
+ Vector   13  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center= -7.8D-16, -1.9D-15,  1.9D-15, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    30      0.751802  1 Ne d  0              32      0.543368  1 Ne d  2       
+    31     -0.321583  1 Ne d  1              29      0.300169  1 Ne d -1       
+    28     -0.211550  1 Ne d -2       
+ 
+ Vector   14  Occ=0.000000D+00  E= 1.831683D+00
+              MO Center=  8.1D-17, -1.9D-16,  4.6D-16, r^2= 6.8D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    31      0.768209  1 Ne d  1              29      0.635879  1 Ne d -1       
+    28     -0.317062  1 Ne d -2       
+ 
+ Vector   15  Occ=0.000000D+00  E= 3.657264D+00
+              MO Center= -1.6D-16, -6.1D-16, -5.6D-16, r^2= 6.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12     -1.348873  1 Ne px                14     -0.914233  1 Ne pz         
+     9      0.867959  1 Ne px                13     -0.685546  1 Ne py         
+    11      0.588281  1 Ne pz                15      0.565312  1 Ne px         
+    10      0.441128  1 Ne py                17      0.383155  1 Ne pz         
+    16      0.287312  1 Ne py                 6      0.171519  1 Ne px         
+ 
+                               NWChem RI-MP2 Module
+                               --------------------
+
+
+
+ Corr_Mk_Ref: MO vectors './Ne_b2plyp_cc-vqz.movecs' don't exist or aren't converged.
+ DFT Reference Information:
+            File: './Ne_b2plyp_cc-vqz.movecs'
+           Title: ''
+    Size (AOxMO):     55 x     55
+       Total Occ:              10.00
+ RI-MP2 Calculation Information:
+          Nr. of AO basis functions:         55
+     Nr. of fitting basis functions:        132
+               Nr. of MO spin cases:          1
+        Nr. of MOs to be correlated:         55
+     Nr. of occupied MOs correlated:          5
+      Nr. of virtual MOs correlated:         50
+ 
+          RI integral approximation: 'V'
+    Threshold for Schwarz screening:  1.000E-09
+ Smallest eigenvalue retained in fit  1.000E-08
+     Base file name for MO integrals 'mo3cint'
+    Type of storage for MO integrals 'EAF library'
+ 
+ Transformation block size    5, requiring     1 integral passes.
+ XForm_3cInts: Completed     1:    5 pass.             @Tue Feb  3 10:13:49 2009
+ Energy evaluation using block sizes     5    5
+ RIMP2_V_E2: Approx. ints. done (    1:    5,    1:    5) @Tue Feb  3 10:13:49 2009
+ RIMP2_V_E2: Copy to B done (    1:    5,    1:    5)  @Tue Feb  3 10:13:49 2009
+ RIMP2_V_E2: Denominators done (    1:    5,    1:    5) @Tue Feb  3 10:13:49 2009
+ RIMP2_V_E2: Completed block (    1:    5,    1:    5) @Tue Feb  3 10:13:49 2009
+
+
+          -------------------------------------------
+          DFT energy                -128.839334231289
+          Unscaled MP2 energy         -0.365641761810
+          Total DFT+MP2 energy      -128.938057506978
+          -------------------------------------------
+
+ -----------------------
+ Performance information
+ -----------------------
+
+ Timer overhead =  4.00D-07 seconds/call
+
+               Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
+             ---------------    -------------------     ------------------------------   -------------------
+Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
+Overall       1     1     1   0.72    0.77    0.87      1.0     1.0     1.0     1.0      0.0     0.0     0.0   
+3c integr     1     1     1   7.90E-2 0.11    0.13     0.14    0.14    0.14    0.14      0.0     0.0     0.0   
+Energy        1     1     1   2.00E-3 5.00E-3 8.00E-3  2.07E-2 2.08E-2 2.09E-2 2.09E-2   0.0     0.0     0.0   
+3c integr     1     1     1   7.60E-2 0.10    0.13     8.17E-2 0.11    0.13    0.13      0.0     0.0     0.0   
+First 2/3     3     3     3   1.00E-3 1.25E-3 2.00E-3  1.21E-3 1.90E-3 2.37E-3 7.92E-4   0.0     0.0     0.0   
+Final 1/3     1     1     1    0.0    1.00E-3 3.00E-3  4.86E-3 5.21E-3 5.55E-3 5.55E-3   0.0     0.0     0.0   
+Write 3c      1     1     1    0.0     0.0     0.0     2.66E-4 4.31E-4 5.35E-4 5.35E-4   0.0     0.0     0.0   
+Read 3c i     1     1     1    0.0     0.0     0.0     8.51E-5 1.01E-4 1.10E-4 1.10E-4   0.0     0.0     0.0   
+Fitting b     1     1     1   1.30E-2 2.45E-2 3.30E-2  6.93E-2 6.94E-2 6.95E-2 6.95E-2   0.0     0.0     0.0   
+Schwarz i     1     1     1   1.00E-3 1.57E-2 5.80E-2  6.27E-2 6.30E-2 6.32E-2 6.32E-2   0.0     0.0     0.0   
+Form 4ci      1     1     1    0.0    1.50E-3 5.00E-3  6.76E-3 6.81E-3 6.91E-3 6.91E-3   0.0     0.0     0.0   
+Form A &      1     1     1    0.0    5.00E-4 1.00E-3  1.17E-3 1.21E-3 1.23E-3 1.23E-3   0.0     0.0     0.0   
+Denominat     1     1     1    0.0     0.0     0.0     1.71E-4 1.77E-4 1.84E-4 1.84E-4   0.0     0.0     0.0   
+Pair Ener     1     1     1    0.0     0.0     0.0     4.20E-5 1.16E-4 1.66E-4 1.66E-4   0.0     0.0     0.0   
+
+ The average no. of pstat calls per process was 1.60D+01
+ with a timing overhead of 6.40D-06s
+
+
+ Task  times  cpu:        0.7s     wall:        1.0s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  245      245     8708     5445     7822        0        0        0     
+number of processes/call 1.08e+00 1.20e+00 1.02e+00 0.00e+00 0.00e+00
+bytes total:             1.31e+07 5.04e+06 7.48e+06 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            2.10e+06 1.16e+06 2.73e+06 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 1585320 bytes
+ 
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        23	        49
+	current total bytes		         0	         0
+	maximum total bytes		   6083120	  49076872
+	maximum total K-bytes		      6084	     49077
+	maximum total M-bytes		         7	        50
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 5.1.1" (2008), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+          Please use the following citation when publishing results
+          obtained with NWChem:
+
+          E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+          M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond, P. Nichols,
+          S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan, R. J. Harrison,
+          M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+          A. Vazquez-Mayagoitia, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+          L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl,
+          J. Garza, K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman
+          K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark,
+          D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening
+          M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi,
+          R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima,
+          S. Niu, L. Pollack, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
+          G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
+          "NWChem, A Computational Chemistry Package for Parallel Computers, 
+          Version 5.1.1" (2008),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:        3.8s     wall:        5.2s

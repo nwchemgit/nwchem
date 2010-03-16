@@ -1,11 +1,11 @@
 echo
 
-title "testjob-cd"
+title "dmo_tddft_cd"
 
 memory 800 mb
 #memory global 73 mb stack 20 mb heap 5 mb
 
-start testjob-cd
+start dmo_tddft_cd
 
 geometry units angstrom
 symmetry c1
@@ -45,7 +45,8 @@ tddft
   rpa
   singlet
   notriplet
-  nroots 20
+  nroots 1
   cdspectrum
 end
-task tddft energy
+#task tddft energy
+task dft energy

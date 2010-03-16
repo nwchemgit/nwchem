@@ -1,4 +1,4 @@
- argument  1 = acr_lcblyp.nw
+ argument  1 = acr-camb3lyp-cdfit.nw
  
 
 
@@ -131,9 +131,9 @@ task tddft energy
     compiled      = Sat_Nov_22_13:50:19_2008
     source        = /home/niri/nwchem/nwchem-atten
     nwchem branch = Development
-    input         = acr_lcblyp.nw
-    prefix        = acr_lcblyp.
-    data base     = ./acr_lcblyp.db
+    input         = acr-camb3lyp-cdfit.nw
+    prefix        = acr-camb3lyp-cdfit.
+    data base     = ./acr-camb3lyp-cdfit.db
     status        = startup
     nproc         =    4
     time left     =     -1s
@@ -666,7 +666,7 @@ task tddft energy
 
    Time prior to 1st pass:      2.7
 
- Integral file          = ./acr_lcblyp.aoints.0
+ Integral file          = ./acr-camb3lyp-cdfit.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
  Max. records in memory =      0        Max. records in file   =  32677
  No. of bits per label  =      8        No. of bits per value  =     64
@@ -678,7 +678,7 @@ task tddft energy
 File balance: exchanges=     2  moved=    23  time=   0.0
 
 
- Grid_pts file          = ./acr_lcblyp.gridpts.0
+ Grid_pts file          = ./acr-camb3lyp-cdfit.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
  Max. records in memory =     16        Max. recs in file   =    172840
 
@@ -1004,7 +1004,7 @@ File balance: exchanges=     2  moved=    23  time=   0.0
  
 
 ------------------------------------------------------------
-EAF file 0: "./acr_lcblyp.aoints.0" size=146800640 bytes
+EAF file 0: "./acr-camb3lyp-cdfit.aoints.0" size=146800640 bytes
 ------------------------------------------------------------
                write      read    awrite     aread      wait
                -----      ----    ------     -----      ----

@@ -3,7 +3,7 @@
                                          
  
  
-              Northwest Computational Chemistry Package (NWChem) 5.1
+              Northwest Computational Chemistry Package (NWChem) 6.0
               ------------------------------------------------------
  
  
@@ -15,8 +15,9 @@
                                          
  
  
-                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
-                   2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007
+                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,
+                2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+                                     2009, 2010
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
  
@@ -74,16 +75,16 @@
 
     hostname      = curie
     program       = ../../../bin/LINUX64/nwchem
-    date          = Thu Apr 24 17:47:03 2008
+    date          = Mon Mar 15 16:31:14 2010
 
-    compiled      = Thu_Apr_24_17:46:01_2008
-    source        = /home/niri/nwchem/nwchem-dev
-    nwchem branch = Development
+    compiled      = Mon_Mar_15_16:14:53_2010
+    source        = /home/niri/nwchem/nwchem-6.0
+    nwchem branch = 6.0
     input         = xe_zora_sf.nw
     prefix        = xe_zora_sf.
     data base     = ./xe_zora_sf.db
     status        = startup
-    nproc         =    4
+    nproc         =        4
     time left     =     -1s
 
 
@@ -145,7 +146,7 @@
  Xe                    0.00000000     0.00000000     0.00000000
  
   library name resolved from: environment
-  library file name is: </home/niri/nwchem/nwchem-dev/src/basis/libraries/>
+  library file name is: </home/niri/nwchem/nwchem-6.0/src/basis/libraries/>
   
                       Basis "ao basis" -> "" (spherical)
                       -----
@@ -155,9 +156,9 @@
        -------------- ---------------------------------------------------------
   1 S  2.87346870E+05  0.001607
   1 S  4.30953010E+04  0.012300
-  1 S  9.78412850E+03  0.061803
+  1 S  9.78412850E+03  0.061802
   1 S  2.75363840E+03  0.215388
-  1 S  8.95439180E+02  0.462149
+  1 S  8.95439180E+02  0.462148
   1 S  3.08623680E+02  0.386397
  
   2 S  5.83956090E+02 -0.114385
@@ -200,7 +201,7 @@
  12 D  1.31561200E+02 -0.089163
  12 D  1.96601230E+01 -0.499840
  12 D  4.88163950E+01 -0.302543
- 12 D  7.95644190E+00 -0.313405
+ 12 D  7.95644190E+00 -0.313404
  
  13 D  6.82453850E+00 -0.253755
  13 D  2.60497700E+00 -0.566071
@@ -217,6 +218,7 @@
  xe                    DZVP (DFT Orbital)           14       36   6s5p3d
 
 
+ 
                                  NWChem DFT Module
                                  -----------------
  
@@ -296,7 +298,7 @@
  HOMO         =      -0.458186
  LUMO         =       0.337287
  
-   Time after variat. SCF:      0.6
+   Time after variat. SCF:      0.7
 
  Read atomic ZORA corrections from ./xe_zora_sf.zora_sf
 
@@ -304,7 +306,7 @@
 
  Grid_pts file          = ./xe_zora_sf.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     28        Max. recs in file   =    438727
+ Max. records in memory =     28        Max. recs in file   =     91669
 
 
  Wrote atomic ZORA corrections to ./xe_zora_sf.zora_sf
@@ -316,7 +318,7 @@
 
  Integral file          = ./xe_zora_sf.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      3        Max. records in file   =  82265
+ Max. records in memory =      3        Max. records in file   =  17186
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -334,20 +336,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  d= 0,ls=0.0,diis     3  -7499.1658382275 -3.81D-03  9.79D-03  2.40D-02     4.2
  d= 0,ls=0.0,diis     4  -7499.1703204225 -4.48D-03  1.69D-04  4.31D-06     4.6
  d= 0,ls=0.0,diis     5  -7499.1703216238 -1.20D-06  4.69D-06  1.20D-08     4.9
- d= 0,ls=0.0,diis     6  -7499.1703216251 -1.33D-09  2.19D-07  8.23D-12     5.2
+ d= 0,ls=0.0,diis     6  -7499.1703216251 -1.34D-09  2.19D-07  8.23D-12     5.2
 
 
-         Total DFT energy =    -7499.170321625114
-      One electron energy =   -10208.585045534781
-           Coulomb energy =     2885.249764137664
+         Total DFT energy =    -7499.170321625105
+      One electron energy =   -10208.585045534770
+           Coulomb energy =     2885.249764137660
     Exchange-Corr. energy =     -175.835040227996
  Nuclear repulsion energy =        0.000000000000
 
-       Scaling correction =       98.787354190610
+       Scaling correction =       98.787354190609
 
  Numeric. integr. density =       53.999999999778
 
-     Total iterative time =      2.4s
+     Total iterative time =      2.5s
 
 
  
@@ -365,7 +367,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center= -3.1D-08, -3.1D-08,  6.1D-09, r^2= 1.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      0.712685  1 Xe pz                13     -0.685800  1 Xe px         
+    15      0.712686  1 Xe pz                13     -0.685800  1 Xe px         
     14     -0.685800  1 Xe py                12      0.423632  1 Xe pz         
     10     -0.407651  1 Xe px                11     -0.407651  1 Xe py         
  
@@ -373,42 +375,42 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center=  2.4D-08,  2.4D-08,  3.6D-08, r^2= 2.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    27     -0.729598  1 Xe d -2              30      0.462588  1 Xe d  1       
-    28     -0.462588  1 Xe d -1              29     -0.450756  1 Xe d  0       
-    22      0.288102  1 Xe d -2              25     -0.182666  1 Xe d  1       
-    23      0.182666  1 Xe d -1              24      0.177994  1 Xe d  0       
+    27     -0.729598  1 Xe d -2              28     -0.462588  1 Xe d -1       
+    30      0.462588  1 Xe d  1              29     -0.450756  1 Xe d  0       
+    22      0.288102  1 Xe d -2              23      0.182666  1 Xe d -1       
+    25     -0.182666  1 Xe d  1              24      0.177994  1 Xe d  0       
  
  Vector   20  Occ=2.000000D+00  E=-2.282008D+00
               MO Center=  1.8D-08,  1.8D-08,  3.8D-08, r^2= 2.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    28      0.630515  1 Xe d -1              30      0.630515  1 Xe d  1       
-    31     -0.606935  1 Xe d  2              23     -0.248977  1 Xe d -1       
-    25     -0.248977  1 Xe d  1              26      0.239665  1 Xe d  2       
+    30     -0.630515  1 Xe d  1              28     -0.630515  1 Xe d -1       
+    31      0.606935  1 Xe d  2              25      0.248977  1 Xe d  1       
+    23      0.248977  1 Xe d -1              26     -0.239665  1 Xe d  2       
  
  Vector   21  Occ=2.000000D+00  E=-2.282007D+00
               MO Center=  6.2D-09,  6.2D-09,  5.3D-08, r^2= 2.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    29     -0.977494  1 Xe d  0              24      0.385991  1 Xe d  0       
-    27      0.385642  1 Xe d -2              30     -0.172127  1 Xe d  1       
-    28      0.172127  1 Xe d -1              22     -0.152282  1 Xe d -2       
+    29      0.977494  1 Xe d  0              24     -0.385991  1 Xe d  0       
+    27     -0.385642  1 Xe d -2              28     -0.172127  1 Xe d -1       
+    30      0.172127  1 Xe d  1              22      0.152282  1 Xe d -2       
  
  Vector   22  Occ=2.000000D+00  E=-2.282007D+00
               MO Center= -1.2D-08, -1.2D-08,  1.1D-08, r^2= 2.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    31     -0.891683  1 Xe d  2              28     -0.429168  1 Xe d -1       
-    30     -0.429168  1 Xe d  1              26      0.352106  1 Xe d  2       
-    23      0.169469  1 Xe d -1              25      0.169469  1 Xe d  1       
+    31      0.891683  1 Xe d  2              30      0.429168  1 Xe d  1       
+    28      0.429168  1 Xe d -1              26     -0.352106  1 Xe d  2       
+    25     -0.169469  1 Xe d  1              23     -0.169469  1 Xe d -1       
  
  Vector   23  Occ=2.000000D+00  E=-2.282007D+00
               MO Center= -4.9D-10, -4.9D-10,  1.3D-08, r^2= 2.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    27      0.694576  1 Xe d -2              28     -0.581481  1 Xe d -1       
-    30      0.581481  1 Xe d  1              22     -0.274273  1 Xe d -2       
-    23      0.229614  1 Xe d -1              25     -0.229614  1 Xe d  1       
+    27      0.694576  1 Xe d -2              30      0.581481  1 Xe d  1       
+    28     -0.581481  1 Xe d -1              22     -0.274273  1 Xe d -2       
+    25     -0.229614  1 Xe d  1              23      0.229614  1 Xe d -1       
  
  Vector   24  Occ=2.000000D+00  E=-7.078225D-01
               MO Center=  1.9D-07,  1.9D-07,  1.8D-07, r^2= 1.1D+00
@@ -423,7 +425,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
     17      0.638761  1 Xe py                16      0.638761  1 Xe px         
     14      0.364869  1 Xe py                13      0.364869  1 Xe px         
-    18     -0.343993  1 Xe pz                15     -0.196493  1 Xe pz         
+    18     -0.343992  1 Xe pz                15     -0.196493  1 Xe pz         
     11      0.158779  1 Xe py                10      0.158779  1 Xe px         
  
  Vector   26  Occ=2.000000D+00  E=-3.086992D-01
@@ -446,11 +448,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center=  6.3D-06,  6.3D-06,  9.5D-06, r^2= 5.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      0.998595  1 Xe pz                18     -0.889447  1 Xe pz         
-    19      0.635740  1 Xe px                20      0.635740  1 Xe py         
-    16     -0.566253  1 Xe px                17     -0.566252  1 Xe py         
-    15     -0.346165  1 Xe pz                13     -0.220381  1 Xe px         
-    14     -0.220381  1 Xe py         
+    21     -0.998594  1 Xe pz                18      0.889447  1 Xe pz         
+    20     -0.635740  1 Xe py                19     -0.635740  1 Xe px         
+    17      0.566253  1 Xe py                16      0.566253  1 Xe px         
+    15      0.346165  1 Xe pz                14      0.220381  1 Xe py         
+    13      0.220381  1 Xe px         
  
  Vector   29  Occ=0.000000D+00  E= 1.779447D-01
               MO Center= -6.0D-09, -6.0D-09, -6.3D-09, r^2= 5.1D+00
@@ -458,17 +460,17 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
     20      0.950137  1 Xe py                19     -0.950137  1 Xe px         
     17     -0.846286  1 Xe py                16      0.846286  1 Xe px         
-    14     -0.329368  1 Xe py                13      0.329367  1 Xe px         
+    14     -0.329367  1 Xe py                13      0.329367  1 Xe px         
  
  Vector   30  Occ=0.000000D+00  E= 1.779450D-01
               MO Center= -4.6D-06, -4.6D-06,  5.4D-06, r^2= 5.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     21      0.899072  1 Xe pz                18     -0.800802  1 Xe pz         
-    20     -0.706113  1 Xe py                19     -0.706113  1 Xe px         
-    17      0.628934  1 Xe py                16      0.628934  1 Xe px         
-    15     -0.311666  1 Xe pz                14      0.244776  1 Xe py         
-    13      0.244776  1 Xe px         
+    19     -0.706113  1 Xe px                20     -0.706113  1 Xe py         
+    16      0.628934  1 Xe px                17      0.628934  1 Xe py         
+    15     -0.311666  1 Xe pz                13      0.244776  1 Xe px         
+    14      0.244776  1 Xe py         
  
  Vector   31  Occ=0.000000D+00  E= 2.570410D-01
               MO Center= -1.7D-06, -1.7D-06, -1.5D-05, r^2= 2.8D+00
@@ -481,24 +483,24 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center= -3.9D-08, -3.9D-08, -6.0D-08, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    36     -0.713854  1 Xe d  2              35      0.544015  1 Xe d  1       
-    33      0.544015  1 Xe d -1              31     -0.241846  1 Xe d  2       
-    30      0.184307  1 Xe d  1              28      0.184307  1 Xe d -1       
+    36     -0.713854  1 Xe d  2              33      0.544015  1 Xe d -1       
+    35      0.544015  1 Xe d  1              31     -0.241846  1 Xe d  2       
+    28      0.184307  1 Xe d -1              30      0.184307  1 Xe d  1       
  
  Vector   33  Occ=0.000000D+00  E= 2.839263D-01
               MO Center=  1.5D-08,  1.5D-08,  2.7D-08, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     34      0.649717  1 Xe d  0              32      0.544692  1 Xe d -2       
-    33      0.437418  1 Xe d -1              35     -0.437418  1 Xe d  1       
+    35     -0.437418  1 Xe d  1              33      0.437418  1 Xe d -1       
     29      0.220118  1 Xe d  0              27      0.184536  1 Xe d -2       
  
  Vector   34  Occ=0.000000D+00  E= 2.839266D-01
               MO Center=  5.7D-08,  5.7D-08, -2.0D-08, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    32      0.778333  1 Xe d -2              34     -0.702122  1 Xe d  0       
-    27      0.263691  1 Xe d -2              29     -0.237872  1 Xe d  0       
+    32     -0.778333  1 Xe d -2              34      0.702122  1 Xe d  0       
+    27     -0.263691  1 Xe d -2              29      0.237872  1 Xe d  0       
  
  Vector   35  Occ=0.000000D+00  E= 2.839267D-01
               MO Center=  5.9D-08,  5.9D-08, -1.2D-07, r^2= 1.9D+00
@@ -513,15 +515,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
               MO Center=  2.9D-08,  2.9D-08, -3.9D-08, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    36     -0.769354  1 Xe d  2              35     -0.504771  1 Xe d  1       
-    33     -0.504771  1 Xe d -1              31     -0.260649  1 Xe d  2       
-    30     -0.171011  1 Xe d  1              28     -0.171011  1 Xe d -1       
+    36      0.769354  1 Xe d  2              35      0.504771  1 Xe d  1       
+    33      0.504771  1 Xe d -1              31      0.260649  1 Xe d  2       
+    30      0.171011  1 Xe d  1              28      0.171011  1 Xe d -1       
  
 
  Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        5.2s     wall:        5.8s
+ Task  times  cpu:        5.2s     wall:        5.7s
  
  
                                 NWChem Input Module
@@ -538,11 +540,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  105      105     4566      984      217        0        0        0     
-number of processes/call 1.04e+00 1.14e+00 1.35e+00 0.00e+00 0.00e+00
-bytes total:             4.53e+06 8.87e+05 2.25e+06 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            1.54e+05 7.38e+04 1.16e+05 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 393984 bytes
+calls:  109      109     4152      848      100        0        0        0     
+number of processes/call 1.03e+00 1.16e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             4.16e+06 9.71e+05 1.04e+06 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            1.00e+05 7.38e+04 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 404352 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -568,7 +570,7 @@ MA usage statistics:
 
             High Performance Computational Chemistry Group, "NWChem, A
             Computational Chemistry Package for Parallel Computers, 
-            Version 5.1" (2007), Pacific Northwest National Laboratory,
+            Version 5.1.1" (2008), Pacific Northwest National Laboratory,
             Richland, Washington 99352-0999, USA.
 
 
@@ -579,23 +581,24 @@ MA usage statistics:
           obtained with NWChem:
 
           E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
-          M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond, P. Nichols,
-          S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan, R. J. Harrison,
-          M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
-          Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
-          E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-          R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
-          D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
-          K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-          B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
-          X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
-          G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong,
-          and Z. Zhang,
+          M. Valiev, H. J. J. Van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+          J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+          R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+          M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu,
+          T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, 
+          G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+          R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, 
+          D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan, 
+          K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe, 
+          B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, 
+          X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, 
+          G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. van Lenthe, 
+          A. Wong, and Z. Zhang,
           "NWChem, A Computational Chemistry Package for Parallel Computers, 
-          Version 5.1" (2007),
+          Version 5.1.1" (2008),
                       Pacific Northwest National Laboratory,
                       Richland, Washington 99352-0999, USA.
 
 
 
- Total times  cpu:        5.2s     wall:        5.9s
+ Total times  cpu:        5.2s     wall:        5.8s

@@ -1,0 +1,24 @@
+echo
+start h2_bnl
+
+geometry units angstrom
+H        0.0000000000      0.0000000000      0.38707500000
+H        0.0000000000      0.0000000000     -0.38707500000
+end
+
+basis spherical
+ * library "cc-pVTZ"
+end
+
+basis "cd basis"
+H  library "DGauss A2 DFT Coulomb Fitting"
+end
+
+set int:cando_txs f
+
+dft
+ xc xbnl07 0.90 lyp 1.00 hfexch 1.00
+ cam 0.5 cam_alpha 0.0 cam_beta 1.0
+end
+
+task dft energy

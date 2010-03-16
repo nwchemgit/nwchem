@@ -1,5 +1,5 @@
 echo
-start
+start acr-camb3lyp-cdfit
 
 geometry units bohr
 C         -3.4889915040            0.0757243564            0.0000000000

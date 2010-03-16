@@ -1,0 +1,28 @@
+start h2o-cambeckehh
+
+geometry units angstrom
+O      0.00000000     0.00000000     0.11726921
+H      0.75698224     0.00000000    -0.46907685
+H     -0.75698224     0.00000000    -0.46907685
+end
+
+basis spherical
+  * library aug-cc-pvdz
+end
+
+set int:cando_txs f
+
+dft
+  xc beckehandh
+  iterations 100
+  direct
+end
+task dft energy
+
+dft
+  xc xcamlsd 1.0 pw91lda 0.5 HFExch 1.0
+  cam 0.3 cam_alpha 0.5 cam_beta 0.5
+  iterations 100
+  direct
+end
+task dft energy

@@ -1,4 +1,4 @@
-start h2o
+start h2o-camb3lyp-pol
 
 geometry units angstrom
 O      0.00000000     0.00000000     0.11726921
@@ -13,10 +13,10 @@ end
 set int:cando_txs f
 
 dft
-  xc xcampbe96 1.0 cpbe96 1.0 HFexch 1.0
-  cam 0.30 cam_alpha 0.25 cam_beta 0.75
-  iterations 100
-  direct
+  xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00  
+  cam 0.33 cam_alpha 0.19 cam_beta 0.46  
+  direct  
+  iterations 100 
 end
 task dft energy
 

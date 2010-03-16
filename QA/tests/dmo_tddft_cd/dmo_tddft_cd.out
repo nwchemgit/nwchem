@@ -5,12 +5,12 @@
 ============================== echo of input deck ==============================
 echo
 
-title "testjob-cd"
+title "dmo_tddft_cd"
 
 memory 800 mb
 #memory global 73 mb stack 20 mb heap 5 mb
 
-start testjob-cd
+start dmo_tddft_cd
 
 geometry units angstrom
 symmetry c1
@@ -50,7 +50,7 @@ tddft
   rpa
   singlet
   notriplet
-  nroots 20
+  nroots 1
   cdspectrum
 end
 task tddft energy
@@ -61,8 +61,8 @@ task tddft energy
                                          
  
  
-             Northwest Computational Chemistry Package (NWChem) 5.1.1
-             --------------------------------------------------------
+              Northwest Computational Chemistry Package (NWChem) 6.0
+              ------------------------------------------------------
  
  
                     Environmental Molecular Sciences Laboratory
@@ -73,8 +73,9 @@ task tddft energy
                                          
  
  
-                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
-                2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,
+                2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+                                     2009, 2010
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
  
@@ -132,16 +133,16 @@ task tddft energy
 
     hostname      = curie
     program       = ../../../bin/LINUX64/nwchem
-    date          = Wed Feb 10 14:12:06 2010
+    date          = Mon Mar 15 14:50:49 2010
 
-    compiled      = Wed_Feb_10_13:00:30_2010
+    compiled      = Fri_Mar_12_14:59:26_2010
     source        = /home/niri/nwchem/nwchem-6.0
-    nwchem branch = Development
+    nwchem branch = 6.0
     input         = dmo_tddft_cd.nw
-    prefix        = testjob-cd.
-    data base     = ./testjob-cd.db
+    prefix        = dmo_tddft_cd.
+    data base     = ./dmo_tddft_cd.db
     status        = startup
-    nproc         =        2
+    nproc         =        4
     time left     =     -1s
 
 
@@ -170,8 +171,8 @@ task tddft energy
                                 -------------------
  
  
-                                    testjob-cd
-                                    ----------
+                                   dmo_tddft_cd
+                                   ------------
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -363,7 +364,7 @@ task tddft energy
                                  -----------------
  
  
-                                    testjob-cd
+                                   dmo_tddft_cd
  
  
                       Basis "ao basis" -> "ao basis" (cartesian)
@@ -509,36 +510,36 @@ task tddft energy
    Time after variat. SCF:      0.1
    Time prior to 1st pass:      0.1
 
- Grid_pts file          = ./testjob-cd.gridpts.0
+ Grid_pts file          = ./dmo_tddft_cd.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     38        Max. recs in file   =    186469
+ Max. records in memory =     20        Max. recs in file   =     91699
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       25.75            25746837
+           Heap Space remaining (MW):       25.97            25968039
           Stack Space remaining (MW):       26.21            26214027
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -190.5361766407 -3.15D+02  6.72D-02  6.56D-01     1.0
- d= 0,ls=0.0,diis     2   -190.4339547358  1.02D-01  4.11D-02  1.46D+00     1.6
- d= 0,ls=0.0,diis     3   -190.6456241546 -2.12D-01  2.42D-03  1.64D-03     2.2
- d= 0,ls=0.0,diis     4   -190.6458729810 -2.49D-04  8.46D-04  3.44D-04     2.8
- d= 0,ls=0.0,diis     5   -190.6459360558 -6.31D-05  9.86D-05  4.14D-06     3.4
- d= 0,ls=0.0,diis     6   -190.6459366158 -5.60D-07  2.85D-05  5.67D-07     4.0
- d= 0,ls=0.0,diis     7   -190.6459367052 -8.94D-08  1.39D-06  4.58D-10     4.6
- d= 0,ls=0.0,diis     8   -190.6459367053 -1.12D-10  1.42D-07  4.90D-12     5.2
+ d= 0,ls=0.0,diis     1   -190.5361765920 -3.15D+02  6.72D-02  6.56D-01     0.5
+ d= 0,ls=0.0,diis     2   -190.4339541773  1.02D-01  4.11D-02  1.46D+00     0.8
+ d= 0,ls=0.0,diis     3   -190.6456241574 -2.12D-01  2.42D-03  1.64D-03     1.1
+ d= 0,ls=0.0,diis     4   -190.6458729811 -2.49D-04  8.46D-04  3.44D-04     1.4
+ d= 0,ls=0.0,diis     5   -190.6459360558 -6.31D-05  9.86D-05  4.14D-06     1.7
+ d= 0,ls=0.0,diis     6   -190.6459366158 -5.60D-07  2.85D-05  5.67D-07     2.0
+ d= 0,ls=0.0,diis     7   -190.6459367052 -8.94D-08  1.39D-06  4.58D-10     2.3
+ d= 0,ls=0.0,diis     8   -190.6459367053 -1.12D-10  1.42D-07  4.90D-12     2.7
 
 
-         Total DFT energy =     -190.645936705327
-      One electron energy =     -505.513429833329
-           Coulomb energy =      217.428569709801
-    Exchange-Corr. energy =      -27.142240303087
+         Total DFT energy =     -190.645936705326
+      One electron energy =     -505.513429835970
+           Coulomb energy =      217.428569712514
+    Exchange-Corr. energy =      -27.142240303157
  Nuclear repulsion energy =      124.581163721287
 
- Numeric. integr. density =       31.999995118064
+ Numeric. integr. density =       31.999995118062
 
-     Total iterative time =      5.1s
+     Total iterative time =      2.6s
 
 
  
@@ -794,7 +795,7 @@ task tddft energy
                                 -------------------
  
  
-                                    testjob-cd
+                                   dmo_tddft_cd
  
  
             General Information
@@ -828,7 +829,7 @@ task tddft energy
           No. of electrons :    32
            Alpha electrons :    16
             Beta electrons :    16
-              No. of roots :    20
+              No. of roots :     1
           Max subspacesize :   160
             Max iterations :   100
                Target root :     1
@@ -839,613 +840,58 @@ task tddft energy
  
             Memory Information
             ------------------
-          Available GA space size is         104856924 doubles
+          Available GA space size is         209714524 doubles
           Available MA space size is          52428330 doubles
           Length of a trial vector is          160
           Algorithm : Incore multiple tensor contraction
-          Estimated peak GA usage is            219664 doubles
-          Estimated peak MA usage is            282000 doubles
+          Estimated peak GA usage is            110832 doubles
+          Estimated peak MA usage is               800 doubles
 
   Entering Davidson iterations
   Restricted singlet excited states
 
   Iter   NTrls   NConv    DeltaV     DeltaE      Time   
   ----  ------  ------  ---------  ---------  --------- 
-    1     20       0     0.39E+00   0.10+100       13.0
-    2     60       0     0.27E-01   0.86E-01       25.1
-    3    100       0     0.53E-01   0.35E-02       25.3
-    4    140       8     0.96E-03   0.71E-03       25.3
-    5    160      20     0.71E-09   0.13E-06       13.1
+    1      1       0     0.26E-01   0.10+100        0.8
+    2      3       0     0.93E-02   0.15E-02        1.1
+    3      5       0     0.29E-02   0.48E-04        1.2
+    4      7       0     0.14E-02   0.48E-05        1.1
+    5      9       0     0.46E-03   0.88E-06        1.1
+    6     11       0     0.13E-03   0.98E-07        1.1
+    7     12       1     0.65E-04   0.75E-08        0.8
   ----  ------  ------  ---------  ---------  --------- 
   Convergence criterion met
  
   Ground state a     -190.645936705 a.u.
  
   -------------------------------------------------------
-  Root  1 singlet a     0.309531494 a.u. (  8.4227841 eV)
+  Root  1 singlet a     0.309531495 a.u. (  8.4227841 eV)
   -------------------------------------------------------
-     Transition Moments    X  0.02712   Y  0.00013   Z  0.00431
-     Transition Moments   XX -0.13921  XY  0.08588  XZ  0.12048
-     Transition Moments   YY  0.03454  YZ -0.08784  ZZ  0.13197
-     Transition Moments  XXX  1.32506 XXY  0.44725 XXZ -0.18391
-     Transition Moments  XYY  0.00583 XYZ -0.02660 XZZ -0.34285
-     Transition Moments  YYY -0.21069 YYZ  0.35779 YZZ -0.15862
-     Transition Moments  ZZZ -0.24422
+     Transition Moments    X  0.02711   Y  0.00013   Z  0.00432
+     Transition Moments   XX -0.13920  XY  0.08586  XZ  0.12047
+     Transition Moments   YY  0.03453  YZ -0.08786  ZZ  0.13198
+     Transition Moments  XXX  1.32496 XXY  0.44720 XXZ -0.18393
+     Transition Moments  XYY  0.00580 XYZ -0.02662 XZZ -0.34287
+     Transition Moments  YYY -0.21072 YYZ  0.35776 YZZ -0.15864
+     Transition Moments  ZZZ -0.24416
      Dipole Oscillator Strength                          0.00016
  
      Electric Transition Dipole:
-            X    0.0271173   Y   0.0001305   Z   0.0043124
+            X    0.0271097   Y   0.0001259   Z   0.0043152
      Magnetic Transition Dipole:
-            X    0.0007570   Y   0.0021943   Z   0.0009872
-     Rotatory Strength (1E-40 esu**2cm**2):            1.6198003
+            X    0.0007570   Y   0.0021942   Z   0.0009872
+     Rotatory Strength (1E-40 esu**2cm**2):            1.6189669
  
      Occ. 16  a   ---  Virt. 17  a   -0.99717 X
-  -------------------------------------------------------
-  Root  2 singlet a     0.387314393 a.u. ( 10.5393654 eV)
-  -------------------------------------------------------
-     Transition Moments    X  0.00997   Y  0.01288   Z  0.04767
-     Transition Moments   XX  0.20702  XY  0.13739  XZ -0.02216
-     Transition Moments   YY  0.07143  YZ -0.13431  ZZ -0.06121
-     Transition Moments  XXX  0.81874 XXY  0.17619 XXZ  0.05197
-     Transition Moments  XYY  0.36293 XYZ  0.26308 XZZ -0.05658
-     Transition Moments  YYY  0.38885 YYZ -0.41179 YZZ -0.17772
-     Transition Moments  ZZZ -0.41514
-     Dipole Oscillator Strength                          0.00066
- 
-     Electric Transition Dipole:
-            X    0.0099731   Y   0.0128786   Z   0.0476734
-     Magnetic Transition Dipole:
-            X   -0.0007302   Y  -0.0000152   Z  -0.0003577
-     Rotatory Strength (1E-40 esu**2cm**2):           -1.5850155
- 
-     Occ. 16  a   ---  Virt. 18  a   -0.99601 X
-     Occ. 16  a   ---  Virt. 19  a    0.06015 X
-  -------------------------------------------------------
-  Root  3 singlet a     0.448075868 a.u. ( 12.1927699 eV)
-  -------------------------------------------------------
-     Transition Moments    X -0.83449   Y  0.33059   Z -0.24989
-     Transition Moments   XX  0.53855  XY -0.47105  XZ  0.23664
-     Transition Moments   YY  0.01300  YZ  0.00296  ZZ -0.13679
-     Transition Moments  XXX -9.34531 XXY  1.27591 XXZ -0.30807
-     Transition Moments  XYY -2.13754 XYZ -0.25767 XZZ -1.44993
-     Transition Moments  YYY  1.92461 YYZ -0.45576 YZZ  0.46764
-     Transition Moments  ZZZ -0.91675
-     Dipole Oscillator Strength                          0.25932
- 
-     Electric Transition Dipole:
-            X   -0.8344944   Y   0.3305912   Z  -0.2498886
-     Magnetic Transition Dipole:
-            X    0.0005215   Y  -0.0004940   Z  -0.0014404
-     Rotatory Strength (1E-40 esu**2cm**2):          -15.4129756
- 
-     Occ. 10  a   ---  Virt. 17  a   -0.05135 X
-     Occ. 10  a   ---  Virt. 25  a    0.06353 X
-     Occ. 11  a   ---  Virt. 18  a   -0.06877 X
-     Occ. 14  a   ---  Virt. 17  a    0.05157 X
-     Occ. 14  a   ---  Virt. 18  a   -0.26588 X
-     Occ. 15  a   ---  Virt. 17  a    0.94219 X
-     Occ. 15  a   ---  Virt. 17  a   -0.06339 Y
-     Occ. 15  a   ---  Virt. 18  a   -0.06079 X
-     Occ. 16  a   ---  Virt. 19  a   -0.07689 X
-  -------------------------------------------------------
-  Root  4 singlet a     0.472053845 a.u. ( 12.8452442 eV)
-  -------------------------------------------------------
-     Transition Moments    X  0.07585   Y -0.04859   Z  0.02439
-     Transition Moments   XX  0.07663  XY -0.19593  XZ  0.01905
-     Transition Moments   YY -0.31668  YZ -0.20312  ZZ -0.01920
-     Transition Moments  XXX -0.00273 XXY  0.17731 XXZ -0.19798
-     Transition Moments  XYY  1.27590 XYZ  0.33735 XZZ  0.07184
-     Transition Moments  YYY  0.52695 YYZ  0.68115 YZZ -0.07488
-     Transition Moments  ZZZ -0.03872
-     Dipole Oscillator Strength                          0.00274
- 
-     Electric Transition Dipole:
-            X    0.0758478   Y  -0.0485882   Z   0.0243946
-     Magnetic Transition Dipole:
-            X    0.0000062   Y   0.0001722   Z  -0.0002286
-     Rotatory Strength (1E-40 esu**2cm**2):           -0.8704552
- 
-     Occ. 11  a   ---  Virt. 17  a    0.05652 X
-     Occ. 14  a   ---  Virt. 17  a    0.61052 X
-     Occ. 15  a   ---  Virt. 17  a   -0.06801 X
-     Occ. 15  a   ---  Virt. 18  a   -0.77731 X
-     Occ. 16  a   ---  Virt. 19  a    0.06342 X
-  -------------------------------------------------------
-  Root  5 singlet a     0.482792163 a.u. ( 13.1374488 eV)
-  -------------------------------------------------------
-     Transition Moments    X -0.03890   Y  0.05690   Z -0.10221
-     Transition Moments   XX -0.34439  XY  0.24779  XZ  0.04796
-     Transition Moments   YY -0.06116  YZ  0.16368  ZZ -0.54591
-     Transition Moments  XXX  0.89944 XXY -0.74700 XXZ -0.45862
-     Transition Moments  XYY  0.51516 XYZ  0.32342 XZZ  0.22708
-     Transition Moments  YYY  0.25687 YYZ  0.19307 YZZ -0.05358
-     Transition Moments  ZZZ -1.70142
-     Dipole Oscillator Strength                          0.00489
- 
-     Electric Transition Dipole:
-            X   -0.0389003   Y   0.0568997   Z  -0.1022074
-     Magnetic Transition Dipole:
-            X   -0.0001517   Y  -0.0002016   Z  -0.0003763
-     Rotatory Strength (1E-40 esu**2cm**2):            2.1250363
- 
-     Occ. 14  a   ---  Virt. 17  a   -0.31537 X
-     Occ. 15  a   ---  Virt. 17  a    0.06198 X
-     Occ. 15  a   ---  Virt. 18  a   -0.18299 X
-     Occ. 16  a   ---  Virt. 19  a    0.91331 X
-     Occ. 16  a   ---  Virt. 20  a    0.07943 X
-     Occ. 16  a   ---  Virt. 21  a    0.06341 X
-  -------------------------------------------------------
-  Root  6 singlet a     0.506830149 a.u. ( 13.7915560 eV)
-  -------------------------------------------------------
-     Transition Moments    X  0.07189   Y  0.01135   Z -0.00396
-     Transition Moments   XX -0.00693  XY -0.18649  XZ  0.06104
-     Transition Moments   YY -0.12376  YZ  0.24786  ZZ  0.17531
-     Transition Moments  XXX  2.13015 XXY -0.11407 XXZ -0.33569
-     Transition Moments  XYY  0.10076 XYZ  0.09440 XZZ -0.36042
-     Transition Moments  YYY -0.12060 YYZ  0.18504 YZZ  0.74393
-     Transition Moments  ZZZ -0.02697
-     Dipole Oscillator Strength                          0.00180
- 
-     Electric Transition Dipole:
-            X    0.0718881   Y   0.0113540   Z  -0.0039615
-     Magnetic Transition Dipole:
-            X   -0.0024975   Y   0.0013356   Z  -0.0011105
-     Rotatory Strength (1E-40 esu**2cm**2):          -10.3352418
- 
-     Occ. 12  a   ---  Virt. 17  a   -0.06439 X
-     Occ. 13  a   ---  Virt. 17  a   -0.97943 X
-     Occ. 14  a   ---  Virt. 17  a   -0.07484 X
-     Occ. 15  a   ---  Virt. 18  a   -0.05059 X
-     Occ. 15  a   ---  Virt. 19  a    0.06084 X
-     Occ. 16  a   ---  Virt. 20  a    0.11748 X
-  -------------------------------------------------------
-  Root  7 singlet a     0.518707889 a.u. ( 14.1147658 eV)
-  -------------------------------------------------------
-     Transition Moments    X  0.13497   Y -0.00360   Z -0.33786
-     Transition Moments   XX  0.22439  XY -0.00345  XZ  0.07128
-     Transition Moments   YY  0.17727  YZ -0.22579  ZZ -0.28715
-     Transition Moments  XXX  2.33227 XXY -0.50495 XXZ -1.37409
-     Transition Moments  XYY -0.32598 XYZ  0.40157 XZZ  0.06353
-     Transition Moments  YYY  0.12851 YYZ -1.04496 YZZ  0.82125
-     Transition Moments  ZZZ -2.76539
-     Dipole Oscillator Strength                          0.04578
- 
-     Electric Transition Dipole:
-            X    0.1349661   Y  -0.0036038   Z  -0.3378648
-     Magnetic Transition Dipole:
-            X   -0.0006179   Y   0.0003318   Z  -0.0005004
-     Rotatory Strength (1E-40 esu**2cm**2):            5.4577968
- 
-     Occ. 13  a   ---  Virt. 17  a   -0.14464 X
-     Occ. 14  a   ---  Virt. 17  a    0.17140 X
-     Occ. 15  a   ---  Virt. 18  a    0.13666 X
-     Occ. 16  a   ---  Virt. 19  a    0.15690 X
-     Occ. 16  a   ---  Virt. 20  a   -0.92747 X
-     Occ. 16  a   ---  Virt. 21  a    0.06219 X
-     Occ. 16  a   ---  Virt. 22  a   -0.16602 X
-  -------------------------------------------------------
-  Root  8 singlet a     0.529265248 a.u. ( 14.4020463 eV)
-  -------------------------------------------------------
-     Transition Moments    X -0.23663   Y -0.11711   Z  0.02134
-     Transition Moments   XX -0.60411  XY -0.13197  XZ  0.15193
-     Transition Moments   YY  0.05573  YZ -0.21112  ZZ  0.58774
-     Transition Moments  XXX -2.89900 XXY -1.11973 XXZ -0.40036
-     Transition Moments  XYY -1.11309 XYZ -0.04466 XZZ -0.31020
-     Transition Moments  YYY  0.10954 YYZ -0.63485 YZZ -0.12075
-     Transition Moments  ZZZ  1.79907
-     Dipole Oscillator Strength                          0.02476
- 
-     Electric Transition Dipole:
-            X   -0.2366261   Y  -0.1171058   Z   0.0213352
-     Magnetic Transition Dipole:
-            X    0.0001633   Y  -0.0004912   Z  -0.0013054
-     Rotatory Strength (1E-40 esu**2cm**2):           -0.5796379
- 
-     Occ.  9  a   ---  Virt. 17  a    0.05182 X
-     Occ. 11  a   ---  Virt. 17  a   -0.06800 X
-     Occ. 12  a   ---  Virt. 17  a   -0.22277 X
-     Occ. 14  a   ---  Virt. 17  a    0.24958 X
-     Occ. 14  a   ---  Virt. 18  a    0.10484 X
-     Occ. 14  a   ---  Virt. 19  a   -0.06048 X
-     Occ. 15  a   ---  Virt. 18  a    0.19328 X
-     Occ. 15  a   ---  Virt. 19  a    0.07478 X
-     Occ. 16  a   ---  Virt. 17  a   -0.05274 X
-     Occ. 16  a   ---  Virt. 20  a    0.24951 X
-     Occ. 16  a   ---  Virt. 21  a    0.48176 X
-     Occ. 16  a   ---  Virt. 22  a   -0.70584 X
-     Occ. 16  a   ---  Virt. 25  a    0.09723 X
-     Occ. 16  a   ---  Virt. 26  a    0.06443 X
-  -------------------------------------------------------
-  Root  9 singlet a     0.538221410 a.u. ( 14.6457560 eV)
-  -------------------------------------------------------
-     Transition Moments    X -0.13582   Y -0.10088   Z -0.13264
-     Transition Moments   XX  0.38289  XY -0.47437  XZ -0.20431
-     Transition Moments   YY -0.02114  YZ  0.17513  ZZ -0.34168
-     Transition Moments  XXX  0.02122 XXY -2.63536 XXZ -0.42061
-     Transition Moments  XYY -0.65404 XYZ -0.84894 XZZ -0.46838
-     Transition Moments  YYY  0.56763 YYZ  0.31474 YZZ -0.37979
-     Transition Moments  ZZZ -1.17830
-     Dipole Oscillator Strength                          0.01658
- 
-     Electric Transition Dipole:
-            X   -0.1358236   Y  -0.1008766   Z  -0.1326408
-     Magnetic Transition Dipole:
-            X    0.0014682   Y   0.0014602   Z  -0.0037569
-     Rotatory Strength (1E-40 esu**2cm**2):            9.7947443
- 
-     Occ.  9  a   ---  Virt. 17  a    0.06978 X
-     Occ. 10  a   ---  Virt. 17  a   -0.19318 X
-     Occ. 11  a   ---  Virt. 17  a   -0.10938 X
-     Occ. 12  a   ---  Virt. 17  a   -0.76992 X
-     Occ. 12  a   ---  Virt. 18  a    0.05127 X
-     Occ. 13  a   ---  Virt. 17  a    0.05265 X
-     Occ. 14  a   ---  Virt. 17  a    0.14572 X
-     Occ. 14  a   ---  Virt. 18  a    0.37009 X
-     Occ. 15  a   ---  Virt. 17  a    0.07062 X
-     Occ. 15  a   ---  Virt. 18  a    0.08309 X
-     Occ. 15  a   ---  Virt. 19  a    0.09779 X
-     Occ. 15  a   ---  Virt. 20  a    0.06952 X
-     Occ. 16  a   ---  Virt. 19  a    0.09016 X
-     Occ. 16  a   ---  Virt. 21  a   -0.30126 X
-     Occ. 16  a   ---  Virt. 22  a    0.21038 X
-  -------------------------------------------------------
-  Root 10 singlet a     0.545363174 a.u. ( 14.8400934 eV)
-  -------------------------------------------------------
-     Transition Moments    X -0.18593   Y -0.09293   Z  0.09853
-     Transition Moments   XX  0.60286  XY -0.03288  XZ -0.68493
-     Transition Moments   YY -0.16812  YZ  0.42328  ZZ -0.21567
-     Transition Moments  XXX -4.81326 XXY  1.28245 XXZ  1.51064
-     Transition Moments  XYY -0.53036 XYZ -1.12968 XZZ  0.05975
-     Transition Moments  YYY -1.12579 YYZ  0.82023 YZZ -0.28380
-     Transition Moments  ZZZ  0.30537
-     Dipole Oscillator Strength                          0.01924
- 
-     Electric Transition Dipole:
-            X   -0.1859312   Y  -0.0929251   Z   0.0985332
-     Magnetic Transition Dipole:
-            X    0.0001788   Y   0.0009380   Z   0.0012864
-     Rotatory Strength (1E-40 esu**2cm**2):            0.4106136
- 
-     Occ. 12  a   ---  Virt. 17  a    0.21715 X
-     Occ. 14  a   ---  Virt. 17  a    0.13084 X
-     Occ. 14  a   ---  Virt. 18  a   -0.06717 X
-     Occ. 15  a   ---  Virt. 18  a    0.12178 X
-     Occ. 15  a   ---  Virt. 19  a    0.18001 X
-     Occ. 16  a   ---  Virt. 19  a    0.10051 X
-     Occ. 16  a   ---  Virt. 20  a    0.08264 X
-     Occ. 16  a   ---  Virt. 21  a   -0.78800 X
-     Occ. 16  a   ---  Virt. 22  a   -0.48136 X
-  -------------------------------------------------------
-  Root 11 singlet a     0.552403358 a.u. ( 15.0316666 eV)
-  -------------------------------------------------------
-     Transition Moments    X -0.40932   Y  0.10603   Z -0.19406
-     Transition Moments   XX -0.33766  XY -0.18759  XZ  0.19536
-     Transition Moments   YY  0.13581  YZ -0.26820  ZZ -0.32884
-     Transition Moments  XXX -4.86218 XXY -0.96553 XXZ -0.81461
-     Transition Moments  XYY -1.45211 XYZ  0.32591 XZZ -0.54340
-     Transition Moments  YYY  1.27580 YYZ -0.55758 YZZ  0.32178
-     Transition Moments  ZZZ -1.13102
-     Dipole Oscillator Strength                          0.07971
- 
-     Electric Transition Dipole:
-            X   -0.4093190   Y   0.1060328   Z  -0.1940643
-     Magnetic Transition Dipole:
-            X   -0.0002879   Y  -0.0001510   Z  -0.0016982
-     Rotatory Strength (1E-40 esu**2cm**2):           27.8707081
- 
-     Occ. 10  a   ---  Virt. 17  a   -0.16310 X
-     Occ. 12  a   ---  Virt. 17  a    0.42649 X
-     Occ. 12  a   ---  Virt. 18  a    0.08560 X
-     Occ. 14  a   ---  Virt. 18  a    0.51779 X
-     Occ. 15  a   ---  Virt. 17  a    0.12682 X
-     Occ. 15  a   ---  Virt. 18  a    0.07095 X
-     Occ. 15  a   ---  Virt. 19  a    0.64259 X
-     Occ. 15  a   ---  Virt. 22  a   -0.06111 X
-     Occ. 15  a   ---  Virt. 25  a    0.05024 X
-     Occ. 16  a   ---  Virt. 19  a    0.06043 X
-     Occ. 16  a   ---  Virt. 21  a    0.14135 X
-     Occ. 16  a   ---  Virt. 22  a    0.16594 X
-     Occ. 16  a   ---  Virt. 23  a   -0.05067 X
-  -------------------------------------------------------
-  Root 12 singlet a     0.558365190 a.u. ( 15.1938964 eV)
-  -------------------------------------------------------
-     Transition Moments    X  0.60568   Y -0.23684   Z -0.03670
-     Transition Moments   XX  0.13562  XY  0.52209  XZ  0.07311
-     Transition Moments   YY -0.09650  YZ -0.17440  ZZ -0.04416
-     Transition Moments  XXX  8.65344 XXY -1.95015 XXZ -0.85398
-     Transition Moments  XYY  1.95145 XYZ  0.80793 XZZ  1.08607
-     Transition Moments  YYY -1.87176 YYZ -0.01718 YZZ  0.15539
-     Transition Moments  ZZZ -0.73877
-     Dipole Oscillator Strength                          0.15794
- 
-     Electric Transition Dipole:
-            X    0.6056813   Y  -0.2368388   Z  -0.0366973
-     Magnetic Transition Dipole:
-            X   -0.0022692   Y   0.0012422   Z   0.0009369
-     Rotatory Strength (1E-40 esu**2cm**2):         -110.0219107
- 
-     Occ. 10  a   ---  Virt. 17  a    0.28265 X
-     Occ. 11  a   ---  Virt. 17  a   -0.10143 X
-     Occ. 12  a   ---  Virt. 17  a   -0.22420 X
-     Occ. 13  a   ---  Virt. 17  a    0.06533 X
-     Occ. 13  a   ---  Virt. 18  a    0.08241 X
-     Occ. 14  a   ---  Virt. 17  a    0.08763 X
-     Occ. 14  a   ---  Virt. 18  a   -0.55689 X
-     Occ. 15  a   ---  Virt. 17  a   -0.15626 X
-     Occ. 15  a   ---  Virt. 18  a    0.06970 X
-     Occ. 15  a   ---  Virt. 19  a    0.64929 X
-     Occ. 15  a   ---  Virt. 20  a    0.11957 X
-     Occ. 15  a   ---  Virt. 22  a    0.12468 X
-     Occ. 16  a   ---  Virt. 21  a    0.08833 X
-     Occ. 16  a   ---  Virt. 22  a    0.14566 X
-  -------------------------------------------------------
-  Root 13 singlet a     0.569360579 a.u. ( 15.4930963 eV)
-  -------------------------------------------------------
-     Transition Moments    X -0.29820   Y -0.22885   Z -0.06064
-     Transition Moments   XX -1.55713  XY  0.48720  XZ -0.07159
-     Transition Moments   YY -0.09778  YZ  0.14076  ZZ -0.06142
-     Transition Moments  XXX -4.90001 XXY  0.32167 XXZ -0.31447
-     Transition Moments  XYY -1.45248 XYZ -0.29864 XZZ -0.06488
-     Transition Moments  YYY -1.64049 YYZ -0.15488 YZZ -0.15663
-     Transition Moments  ZZZ -0.28770
-     Dipole Oscillator Strength                          0.05503
- 
-     Electric Transition Dipole:
-            X   -0.2981996   Y  -0.2288546   Z  -0.0606401
-     Magnetic Transition Dipole:
-            X   -0.0009599   Y  -0.0005322   Z   0.0021403
-     Rotatory Strength (1E-40 esu**2cm**2):           17.9761032
- 
-     Occ. 10  a   ---  Virt. 17  a    0.16011 X
-     Occ. 10  a   ---  Virt. 18  a    0.11043 X
-     Occ. 11  a   ---  Virt. 17  a   -0.63735 X
-     Occ. 12  a   ---  Virt. 17  a    0.20294 X
-     Occ. 12  a   ---  Virt. 18  a    0.19049 X
-     Occ. 13  a   ---  Virt. 18  a    0.05117 X
-     Occ. 14  a   ---  Virt. 17  a    0.34506 X
-     Occ. 14  a   ---  Virt. 19  a   -0.11920 X
-     Occ. 14  a   ---  Virt. 21  a   -0.08638 X
-     Occ. 14  a   ---  Virt. 22  a    0.08999 X
-     Occ. 15  a   ---  Virt. 18  a    0.25715 X
-     Occ. 15  a   ---  Virt. 19  a   -0.26825 X
-     Occ. 15  a   ---  Virt. 21  a   -0.05535 X
-     Occ. 16  a   ---  Virt. 19  a    0.17104 X
-     Occ. 16  a   ---  Virt. 20  a    0.13155 X
-     Occ. 16  a   ---  Virt. 22  a    0.24229 X
-     Occ. 16  a   ---  Virt. 23  a   -0.23981 X
-     Occ. 16  a   ---  Virt. 24  a    0.05234 X
-  -------------------------------------------------------
-  Root 14 singlet a     0.579807169 a.u. ( 15.7773625 eV)
-  -------------------------------------------------------
-     Transition Moments    X  0.22613   Y  0.03044   Z  0.04846
-     Transition Moments   XX  0.74257  XY  0.30090  XZ  0.05254
-     Transition Moments   YY -0.00981  YZ  0.16698  ZZ -0.09645
-     Transition Moments  XXX  3.48725 XXY  0.85465 XXZ  0.74393
-     Transition Moments  XYY  1.13725 XYZ  0.00824 XZZ  0.39811
-     Transition Moments  YYY -0.11519 YYZ  0.26194 YZZ -0.09870
-     Transition Moments  ZZZ  0.28884
-     Dipole Oscillator Strength                          0.02103
- 
-     Electric Transition Dipole:
-            X    0.2261334   Y   0.0304397   Z   0.0484623
-     Magnetic Transition Dipole:
-            X   -0.0000063   Y  -0.0001492   Z  -0.0000979
-     Rotatory Strength (1E-40 esu**2cm**2):           -0.6920269
- 
-     Occ. 11  a   ---  Virt. 17  a    0.25464 X
-     Occ. 15  a   ---  Virt. 20  a   -0.08126 X
-     Occ. 16  a   ---  Virt. 23  a   -0.94777 X
-     Occ. 16  a   ---  Virt. 24  a   -0.08792 X
-  -------------------------------------------------------
-  Root 15 singlet a     0.583025958 a.u. ( 15.8649503 eV)
-  -------------------------------------------------------
-     Transition Moments    X -0.20555   Y  0.22572   Z  0.10048
-     Transition Moments   XX  0.12279  XY -0.81363  XZ  0.13047
-     Transition Moments   YY  0.04297  YZ  0.02135  ZZ  0.15908
-     Transition Moments  XXX -3.06836 XXY  0.95453 XXZ  0.12320
-     Transition Moments  XYY -0.47379 XYZ -0.01262 XZZ -1.28467
-     Transition Moments  YYY  0.46152 YYZ  0.61386 YZZ  0.34535
-     Transition Moments  ZZZ  0.36863
-     Dipole Oscillator Strength                          0.04015
- 
-     Electric Transition Dipole:
-            X   -0.2055534   Y   0.2257153   Z   0.1004791
-     Magnetic Transition Dipole:
-            X   -0.0014299   Y  -0.0006182   Z   0.0002983
-     Rotatory Strength (1E-40 esu**2cm**2):           11.9110678
- 
-     Occ.  9  a   ---  Virt. 17  a    0.15876 X
-     Occ. 10  a   ---  Virt. 17  a    0.42677 X
-     Occ. 10  a   ---  Virt. 18  a   -0.14645 X
-     Occ. 11  a   ---  Virt. 17  a   -0.33218 X
-     Occ. 12  a   ---  Virt. 18  a   -0.16909 X
-     Occ. 13  a   ---  Virt. 18  a    0.53748 X
-     Occ. 13  a   ---  Virt. 19  a   -0.05140 X
-     Occ. 14  a   ---  Virt. 17  a   -0.22328 X
-     Occ. 14  a   ---  Virt. 18  a    0.26228 X
-     Occ. 14  a   ---  Virt. 19  a    0.07582 X
-     Occ. 14  a   ---  Virt. 21  a    0.05893 X
-     Occ. 14  a   ---  Virt. 22  a   -0.08012 X
-     Occ. 15  a   ---  Virt. 18  a   -0.22416 X
-     Occ. 15  a   ---  Virt. 19  a    0.07659 X
-     Occ. 15  a   ---  Virt. 20  a   -0.25880 X
-     Occ. 16  a   ---  Virt. 19  a   -0.11940 X
-     Occ. 16  a   ---  Virt. 20  a   -0.07428 X
-     Occ. 16  a   ---  Virt. 22  a   -0.14652 X
-     Occ. 16  a   ---  Virt. 23  a   -0.07218 X
-     Occ. 16  a   ---  Virt. 24  a   -0.09478 X
-     Occ. 16  a   ---  Virt. 25  a    0.05410 X
-  -------------------------------------------------------
-  Root 16 singlet a     0.591060141 a.u. ( 16.0835716 eV)
-  -------------------------------------------------------
-     Transition Moments    X  0.02395   Y -0.12852   Z -0.02372
-     Transition Moments   XX  0.24610  XY  0.42870  XZ  0.15372
-     Transition Moments   YY  0.00294  YZ  0.04345  ZZ -0.14559
-     Transition Moments  XXX  2.64864 XXY  0.52781 XXZ  0.45172
-     Transition Moments  XYY  0.09453 XYZ -0.02495 XZZ -0.33552
-     Transition Moments  YYY -0.60185 YYZ  0.17441 YZZ -0.41989
-     Transition Moments  ZZZ -0.45707
-     Dipole Oscillator Strength                          0.00696
- 
-     Electric Transition Dipole:
-            X    0.0239548   Y  -0.1285192   Z  -0.0237174
-     Magnetic Transition Dipole:
-            X    0.0002660   Y  -0.0008755   Z  -0.0001840
-     Rotatory Strength (1E-40 esu**2cm**2):            7.9626668
- 
-     Occ. 10  a   ---  Virt. 17  a   -0.05718 X
-     Occ. 10  a   ---  Virt. 18  a    0.08291 X
-     Occ. 11  a   ---  Virt. 17  a    0.44189 X
-     Occ. 12  a   ---  Virt. 18  a    0.33077 X
-     Occ. 13  a   ---  Virt. 18  a    0.73592 X
-     Occ. 14  a   ---  Virt. 17  a    0.12649 X
-     Occ. 14  a   ---  Virt. 19  a   -0.12397 X
-     Occ. 14  a   ---  Virt. 21  a   -0.05038 X
-     Occ. 14  a   ---  Virt. 22  a    0.05826 X
-     Occ. 15  a   ---  Virt. 18  a    0.15965 X
-     Occ. 15  a   ---  Virt. 19  a   -0.06420 X
-     Occ. 15  a   ---  Virt. 21  a   -0.08387 X
-     Occ. 15  a   ---  Virt. 23  a    0.05575 X
-     Occ. 16  a   ---  Virt. 19  a    0.08445 X
-     Occ. 16  a   ---  Virt. 20  a    0.05429 X
-     Occ. 16  a   ---  Virt. 22  a    0.06914 X
-     Occ. 16  a   ---  Virt. 24  a    0.15780 X
-     Occ. 16  a   ---  Virt. 25  a   -0.05231 X
-  -------------------------------------------------------
-  Root 17 singlet a     0.593850429 a.u. ( 16.1594992 eV)
-  -------------------------------------------------------
-     Transition Moments    X -0.00803   Y  0.19013   Z  0.11403
-     Transition Moments   XX -0.37160  XY  0.28461  XZ  0.01401
-     Transition Moments   YY  0.19387  YZ  0.00377  ZZ  0.12443
-     Transition Moments  XXX -0.98576 XXY  0.78713 XXZ  0.37485
-     Transition Moments  XYY -0.63622 XYZ  0.21106 XZZ -0.25625
-     Transition Moments  YYY  0.46902 YYZ  0.25307 YZZ -0.06526
-     Transition Moments  ZZZ  0.59718
-     Dipole Oscillator Strength                          0.01948
- 
-     Electric Transition Dipole:
-            X   -0.0080299   Y   0.1901321   Z   0.1140262
-     Magnetic Transition Dipole:
-            X   -0.0001761   Y  -0.0001367   Z   0.0001412
-     Rotatory Strength (1E-40 esu**2cm**2):           -0.5476767
- 
-     Occ.  8  a   ---  Virt. 17  a    0.06368 X
-     Occ. 10  a   ---  Virt. 17  a   -0.18488 X
-     Occ. 10  a   ---  Virt. 18  a   -0.14338 X
-     Occ. 11  a   ---  Virt. 17  a   -0.18055 X
-     Occ. 12  a   ---  Virt. 17  a    0.07842 X
-     Occ. 12  a   ---  Virt. 18  a   -0.22532 X
-     Occ. 13  a   ---  Virt. 18  a    0.22897 X
-     Occ. 14  a   ---  Virt. 17  a   -0.08306 X
-     Occ. 15  a   ---  Virt. 18  a   -0.05874 X
-     Occ. 15  a   ---  Virt. 19  a   -0.08168 X
-     Occ. 15  a   ---  Virt. 20  a    0.84870 X
-     Occ. 15  a   ---  Virt. 22  a    0.09950 X
-     Occ. 15  a   ---  Virt. 23  a   -0.05085 X
-     Occ. 16  a   ---  Virt. 22  a   -0.05103 X
-     Occ. 16  a   ---  Virt. 23  a   -0.09992 X
-     Occ. 16  a   ---  Virt. 24  a   -0.13081 X
-  -------------------------------------------------------
-  Root 18 singlet a     0.598295421 a.u. ( 16.2804537 eV)
-  -------------------------------------------------------
-     Transition Moments    X -0.40251   Y  0.15125   Z -0.17631
-     Transition Moments   XX  0.49467  XY -0.22397  XZ  0.09666
-     Transition Moments   YY  0.12194  YZ  0.06907  ZZ -0.13157
-     Transition Moments  XXX -3.77309 XXY  0.98850 XXZ  0.04669
-     Transition Moments  XYY -1.09757 XYZ  0.47120 XZZ -0.97213
-     Transition Moments  YYY  0.26692 YYZ -0.57664 YZZ  0.63374
-     Transition Moments  ZZZ -0.95716
-     Dipole Oscillator Strength                          0.08615
- 
-     Electric Transition Dipole:
-            X   -0.4025148   Y   0.1512536   Z  -0.1763072
-     Magnetic Transition Dipole:
-            X   -0.0015531   Y  -0.0006034   Z   0.0025928
-     Rotatory Strength (1E-40 esu**2cm**2):            4.9583087
- 
-     Occ. 10  a   ---  Virt. 17  a    0.73448 X
-     Occ. 11  a   ---  Virt. 17  a    0.29451 X
-     Occ. 11  a   ---  Virt. 18  a   -0.06653 X
-     Occ. 13  a   ---  Virt. 18  a   -0.23781 X
-     Occ. 14  a   ---  Virt. 18  a    0.23726 X
-     Occ. 14  a   ---  Virt. 22  a    0.05429 X
-     Occ. 15  a   ---  Virt. 17  a    0.10367 X
-     Occ. 15  a   ---  Virt. 18  a    0.09733 X
-     Occ. 15  a   ---  Virt. 19  a   -0.09066 X
-     Occ. 15  a   ---  Virt. 20  a    0.33452 X
-     Occ. 15  a   ---  Virt. 21  a   -0.22032 X
-     Occ. 15  a   ---  Virt. 22  a   -0.12804 X
-     Occ. 15  a   ---  Virt. 23  a    0.09773 X
-     Occ. 16  a   ---  Virt. 22  a    0.05822 X
-     Occ. 16  a   ---  Virt. 25  a    0.06141 X
-  -------------------------------------------------------
-  Root 19 singlet a     0.601237203 a.u. ( 16.3605037 eV)
-  -------------------------------------------------------
-     Transition Moments    X  0.03226   Y  0.09714   Z -0.04309
-     Transition Moments   XX  0.04766  XY -0.00336  XZ  0.25251
-     Transition Moments   YY  0.20781  YZ -0.07198  ZZ -0.01464
-     Transition Moments  XXX  0.44889 XXY  0.29551 XXZ  0.10983
-     Transition Moments  XYY  0.30666 XYZ  0.46788 XZZ  0.05401
-     Transition Moments  YYY  0.49354 YYZ -0.24778 YZZ  0.35159
-     Transition Moments  ZZZ -0.69915
-     Dipole Oscillator Strength                          0.00494
- 
-     Electric Transition Dipole:
-            X    0.0322576   Y   0.0971397   Z  -0.0430926
-     Magnetic Transition Dipole:
-            X   -0.0001438   Y  -0.0000285   Z   0.0002108
-     Rotatory Strength (1E-40 esu**2cm**2):           -1.0655994
- 
-     Occ. 10  a   ---  Virt. 18  a   -0.06071 X
-     Occ. 11  a   ---  Virt. 17  a   -0.06449 X
-     Occ. 12  a   ---  Virt. 18  a   -0.17338 X
-     Occ. 14  a   ---  Virt. 17  a   -0.05343 X
-     Occ. 14  a   ---  Virt. 19  a    0.07097 X
-     Occ. 15  a   ---  Virt. 18  a   -0.05460 X
-     Occ. 15  a   ---  Virt. 20  a    0.06290 X
-     Occ. 16  a   ---  Virt. 22  a   -0.06895 X
-     Occ. 16  a   ---  Virt. 23  a   -0.09504 X
-     Occ. 16  a   ---  Virt. 24  a    0.95961 X
-  -------------------------------------------------------
-  Root 20 singlet a     0.619090711 a.u. ( 16.8463226 eV)
-  -------------------------------------------------------
-     Transition Moments    X -0.27306   Y  0.12389   Z -0.09028
-     Transition Moments   XX -0.21054  XY -0.01397  XZ  0.11595
-     Transition Moments   YY  0.22536  YZ -0.22266  ZZ -0.32944
-     Transition Moments  XXX -3.08180 XXY  1.91264 XXZ  0.09656
-     Transition Moments  XYY -1.07230 XYZ  0.36211 XZZ -0.57443
-     Transition Moments  YYY  0.67726 YYZ -0.26324 YZZ  0.41791
-     Transition Moments  ZZZ -0.61655
-     Dipole Oscillator Strength                          0.04047
- 
-     Electric Transition Dipole:
-            X   -0.2730584   Y   0.1238922   Z  -0.0902826
-     Magnetic Transition Dipole:
-            X   -0.0014452   Y   0.0000654   Z   0.0002006
-     Rotatory Strength (1E-40 esu**2cm**2):           24.8488285
- 
-     Occ.  8  a   ---  Virt. 17  a   -0.05421 X
-     Occ.  9  a   ---  Virt. 17  a    0.17770 X
-     Occ. 10  a   ---  Virt. 17  a    0.06550 X
-     Occ. 10  a   ---  Virt. 18  a    0.06839 X
-     Occ. 12  a   ---  Virt. 18  a    0.13556 X
-     Occ. 13  a   ---  Virt. 18  a   -0.07373 X
-     Occ. 14  a   ---  Virt. 18  a    0.11933 X
-     Occ. 15  a   ---  Virt. 17  a    0.06998 X
-     Occ. 15  a   ---  Virt. 19  a   -0.05393 X
-     Occ. 15  a   ---  Virt. 22  a    0.93638 X
-     Occ. 15  a   ---  Virt. 25  a   -0.05363 X
-     Occ. 15  a   ---  Virt. 26  a   -0.05933 X
-     Occ. 16  a   ---  Virt. 25  a    0.06457 X
  
               Target root =      1
           Target symmetry = none
-      Ground state energy =   -190.645936705327
-        Excitation energy =      0.309531493529
-     Excited state energy =   -190.336405211798
+      Ground state energy =   -190.645936705326
+        Excitation energy =      0.309531494841
+     Excited state energy =   -190.336405210485
  
 
- Task  times  cpu:      107.3s     wall:      117.5s
+ Task  times  cpu:       10.0s     wall:       11.5s
  
  
                                 NWChem Input Module
@@ -1462,11 +908,11 @@ task tddft energy
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 7.27e+04 7.27e+04 1.52e+06 1.29e+05 1.49e+06  920        0        0     
-number of processes/call 1.01e+00 1.13e+00 1.09e+00 1.17e+00 0.00e+00
-bytes total:             1.43e+08 5.42e+07 1.16e+08 2.49e+06 0.00e+00 0.00e+00
-bytes remote:            3.39e+07 1.92e+06 6.34e+07 -4.33e+05 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 1230528 bytes
+calls:  755      755     7.62e+04 3820     6.17e+04   66        0        0     
+number of processes/call 1.02e+00 1.31e+00 1.15e+00 1.55e+00 0.00e+00
+bytes total:             7.12e+06 8.91e+05 4.33e+06 8.99e+04 0.00e+00 0.00e+00
+bytes remote:            4.02e+06 2.87e+05 3.17e+06 -8.35e+03 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 186848 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -1478,9 +924,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        19	        48
 	current total bytes		         0	         0
-	maximum total bytes		   3740512	  22511736
-	maximum total K-bytes		      3741	     22512
-	maximum total M-bytes		         4	        23
+	maximum total bytes		   1970896	  22511736
+	maximum total K-bytes		      1971	     22512
+	maximum total M-bytes		         2	        23
 
 
 
@@ -1506,9 +952,10 @@ MA usage statistics:
           M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond, J. Autschbach,
           P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan, R. J. Harrison,
           M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
-          A. Vazquez-Mayagoitia, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
-          L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl,
-          J. Garza, K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman
+          A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu, T. Van Voorhis,
+          A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, 
+          G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza,
+          K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman
           K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark,
           D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening
           M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi,
@@ -1522,4 +969,4 @@ MA usage statistics:
 
 
 
- Total times  cpu:      107.3s     wall:      117.6s
+ Total times  cpu:       10.1s     wall:       11.6s

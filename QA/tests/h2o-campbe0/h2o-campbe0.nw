@@ -1,4 +1,4 @@
-start h2o
+start  h2o-campbe0
 
 geometry units angstrom
 O      0.00000000     0.00000000     0.11726921
@@ -13,16 +13,16 @@ end
 set int:cando_txs f
 
 dft
-  xc beckehandh
+  xc xcampbe96 1.0 cpbe96 1.0 HFexch 1.0
+  cam 0.30 cam_alpha 0.25 cam_beta 0.75
   iterations 100
   direct
 end
 task dft energy
 
-dft
-  xc xcamlsd 1.0 pw91lda 0.5 HFExch 1.0
-  cam 0.3 cam_alpha 0.5 cam_beta 0.5
-  iterations 100
-  direct
+property
+  center com
+  dipole
+  aoresponse 1 0.0
 end
-task dft energy
+task dft property

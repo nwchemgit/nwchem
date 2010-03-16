@@ -1,0 +1,37 @@
+start h2o_bnl
+
+geometry noautoz noautosym units angstrom
+O        0.000000    0.119088    0.000000
+H        0.759830   -0.476352    0.000000
+H       -0.759830   -0.476350    0.000000
+end
+
+basis spherical
+ * library cc-pvtz
+end
+
+basis "cd basis"
+O  library "Ahlrichs Coulomb Fitting"
+H  library "Ahlrichs Coulomb Fitting"
+end
+
+set int:acc_std 1d-15
+set int:cando_txs f
+
+dft
+ xc xbnl07 0.90 lyp 1.00 hfexch 1.00
+ cam 0.5 cam_alpha 0.0 cam_beta 1.0
+end
+task dft energy
+
+property
+ dipole
+end
+task dft property
+
+tddft
+ nroots 5
+ notriplet
+ algorithm 3
+end
+task tddft energy

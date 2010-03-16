@@ -15,4 +15,9 @@ basis
   H library 6-31g*
 end
 
-task scf gradient
+scf
+ rohf
+ singlet
+end
+
+task scf energy

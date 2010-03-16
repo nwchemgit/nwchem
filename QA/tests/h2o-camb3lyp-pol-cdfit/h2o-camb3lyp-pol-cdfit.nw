@@ -1,4 +1,4 @@
-start h2o
+start h2o-camb3lyp-pol-cdfit
 
 geometry units angstrom
 O      0.00000000     0.00000000     0.11726921
