@@ -349,12 +349,6 @@ c           if(.not.geom_create_from_file(filename,rtdb)) call errquit
             call geom_zmt_input(geom,coords,tags,charge,mass,
      $           ncenter,scale,oprint,found_cart)
 c
-c           If we have a mixed cartesian/zmatrix input in the 
-c           zmatrix input we have to do autoz to define the 
-c           correct internals
-c
-            if (found_cart) oautoz = .true.
-c
 c           If (ofinite = .true.) set invnucexp finite nucleus values
 c
             if (ofinite) then
