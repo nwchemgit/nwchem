@@ -96,3 +96,37 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.unix procs $np oniom3
 ./runtests.unix procs $np cytosine_ccsd
 ./runtests.unix procs $np h2o_selci
+#
+#--- range-separated functionals tests
+./runtests.mpi.unix procs $1 acr-camb3lyp-cdfit
+./runtests.mpi.unix procs $1 acr-camb3lyp-direct
+./runtests.mpi.unix procs $1 acr_lcblyp
+./runtests.mpi.unix procs $1 h2_bnl
+./runtests.mpi.unix procs $1 h2o_bnl
+./runtests.mpi.unix procs $1 h2o-camb3lyp-pol-cdfit
+./runtests.mpi.unix procs $1 h2o-camb3lyp-pol
+./runtests.mpi.unix procs $1 h2o-cambeckehh
+./runtests.mpi.unix procs $1 h2o-campbe0
+./runtests.mpi.unix procs $1 h2o-lcpbe
+./runtests.mpi.unix procs $1 o2_bnl
+./runtests.mpi.unix procs $1 o2_hfattn
+#
+#--- dft + dispersion tests
+./runtests.mpi.unix procs $1 disp_dimer_ch4
+#
+#--- double hybrid tests
+./runtests.mpi.unix procs $1 Ne_scf-mp2_cc-vqz
+./runtests.mpi.unix procs $1 Ne_b2plyp_cc-vqz
+./runtests.mpi.unix procs $1 He_scf-mp2_cc-vqz
+./runtests.mpi.unix procs $1 He_b2plyp_cc-vqz
+./runtests.mpi.unix procs $1 Ar_scf-mp2_cc-vqz
+./runtests.mpi.unix procs $1 Ar_b2plyp_cc-vqz
+#
+#--- cdspectrum tests
+./runtests.mpi.unix procs $1 dmo_tddft_cd
+#
+#--- spherical atom symmetry test
+./runtests.mpi.unix procs $1 ptatom
+
+
+
