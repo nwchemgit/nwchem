@@ -228,7 +228,7 @@ c 1111         format(' Done: me,ishc,ishd,n1,n2,nxtbuf,n3c_dbl, ',
 c     &                     ' n_batch, iwhat(n_batch), ndone ',/,10i5)
 c              call util_flush(LuOut)
 c
-              if( nxtbuf.lt.n3c_dbl) then
+              if( nxtbuf.lt.n3c_dbl .and. n_batch.lt.n_bmax) then
 #ifdef NXTLEFT
                 call nxtask_nleft (nproc, icount, n1, nbufs)
 #else
@@ -289,11 +289,24 @@ c                  get next task
 c
                    if(oprint_semi_file) write(LuOut,*) 
      .                  ' me ',ga_nodeid(),' asking task '
+c
+                   if (n_batch.lt.n_bmax) then
+c
+c                    I can accomodate more stuff so lets get another
+c                    task
+c
 #ifdef NXTLEFT
-                   call nxtask_nleft (nproc, icount, n1, nbufs)
+                     call nxtask_nleft (nproc, icount, n1, nbufs)
 #else                   
-                   n1 = nxtask(nproc,icount)
+                     n1 = nxtask(nproc,icount)
 #endif
+                   else
+c
+c                    My local store is full, so don't get another task
+c                    instead proceed to the end and let someone else
+c                    pick up the remaining chunks.
+c
+                   endif
                    if(oprint_semi_file) write(LuOut,*) 
      .                  ' me ',ga_nodeid(),' got task ',n1
                 else
