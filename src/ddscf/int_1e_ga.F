@@ -585,7 +585,13 @@ c
       call int_mem_1e(max1e, mem1)
       call ga_get2eri(ibas, g_loc, oskel, max1e, mem1, int_call)
       if (oskel) call sym_symmetrize(geom,ibas,.false.,g_loc)
-c     
+c
+c     ----- restore ocache -----
+c
+      if(type.eq.6 .or. type.eq.7) then
+         ocache=ocache_save
+      endif
+c
       call ga_dadd(1.0d0, g_loc, 1.0d0, g, g)
       call ga_sync()            ! So that no nasty races can result
       if (.not. ga_destroy(g_loc)) call errquit('i1ega: gad?',0,
