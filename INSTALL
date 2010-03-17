@@ -498,6 +498,7 @@ BUILDING WITH PYTHON:
  
        % setenv PYTHONHOME /usr/local/Python-1.5.1
        % setenv PYTHONVERSION 1.5
+       % setenv USE_PYTHON64  y
 
        (Note that the third number in the version should not be kept:
         2.2.3 should be set as 2.2 )
