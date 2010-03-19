@@ -2022,8 +2022,8 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP))
 
    DEFINES = -DLINUX -DXLFLINUX
    FDEBUG  = -g -O2
-   COPTIMIZE  = -g -O2
-   FOPTIMIZE = -O5 -qfloat=rsqrt:fltint
+   COPTIMIZE = -g -O3 -qstrict
+   FOPTIMIZE = -g -O5 -qfloat=rsqrt:fltint
    FOPTIONS = -qEXTNAME -qxlf77=leadzero -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
 
 #for BGL
@@ -2044,7 +2044,8 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP))
     RANLIB = $(BGCOMPILERS)/powerpc-bgp-linux-ranlib
     DEFINES  += -DDCMF -DBGP
     FOPTIONS += -qthreaded -qnosave -qalign=4k
-    FOPTIMIZE += -qarch=450d -qtune=450 -qcache=auto -qunroll=auto
+    FOPTIMIZE += -qarch=450d -qtune=450
+    COPTIMIZE += -qarch=450 -qtune=450
 
     XLF11 = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
    endif
