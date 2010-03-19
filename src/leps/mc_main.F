@@ -130,8 +130,8 @@ c      goto 100
 C********* MC driver ******
 
 C******* RESTART point 1******
-      if(.not.mc_driver(rtdb,naccept)) call errquit('mc_driver:failed',
-     & , UNKNOWN_ERR)
+      if(.not.mc_driver(rtdb,naccept)) 
+     &   call errquit('mc_driver:failed',0,UNKNOWN_ERR)
       write(iw,*) 'Number of initial points generated: ', naccept  
 
       if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
@@ -558,7 +558,7 @@ c       write(6,*)'Now broadcasting,again'
 c       write(6,*)'Now in destroying list'
 C Destroy GA "proc list"
       if (.not. ga_destroy(g_proc)) call errquit('mc_setup_ga:
-     &ga_destroy(g_proc) failed', GA_ERR)
+     &ga_destroy(g_proc) failed', 0, GA_ERR)
 
 C Create Zeros GAs
 C this may not be needed, or will be needed for setting hared data for a subgroup
