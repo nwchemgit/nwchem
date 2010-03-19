@@ -1,4 +1,4 @@
-#  cc-pVQZ(seg-opt)  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
+#  cc-pVQZ(seg-opt)  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
 # Elements                             References
 # --------                             ----------
 #  H     : T.H. Dunning, Jr. J. Chem. Phys. 90, 1007 (1989).
@@ -154,4 +154,3 @@ O    F
 O    G
       1.8460000              1.0000000        
 end
-

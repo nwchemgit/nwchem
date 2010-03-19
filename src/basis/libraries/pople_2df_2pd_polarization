@@ -1,4 +1,4 @@
-#  Pople (2df,2pd) Polarization  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
+#  Pople (2df,2pd) Polarization  EMSL  Basis Set Exchange Library  3/19/10 12:41 PM
 # Elements                             References
 # --------                             ----------
 # H-Ne: M.J. Frisch, J.A. Pople and J.S. Binkley, J. Chem. Phys. 80, 3265 (1984)
@@ -101,4 +101,3 @@ Ca    D
 Ca    F
       1.3300000              1.0000000        
 end
-

@@ -1,4 +1,4 @@
-#  aug-cc-pV6Z Diffuse  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
+#  aug-cc-pV6Z Diffuse  EMSL  Basis Set Exchange Library  3/19/10 12:41 PM
 # Elements                             References
 # --------                             ---------
 # H    :  K.A. Peterson, D.E. Woon (unpublished)
@@ -228,4 +228,3 @@ Ar    H
 Ar    I
       0.9926000              1.0000000        
 end
-

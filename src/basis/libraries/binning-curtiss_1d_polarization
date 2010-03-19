@@ -1,4 +1,4 @@
-#  Binning-Curtiss (1d) Polarization  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  Binning-Curtiss (1d) Polarization  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
 # !
 #   
 
@@ -27,4 +27,3 @@ basis "Kr_Binning-Curtiss (1d) Polarization" SPHERICAL
 Kr    D
       0.3180000              1.0000000        
 end
-

@@ -1,4 +1,4 @@
-#  MIDI!  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  MIDI!  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
 # S. Huzinaga, Ed.,J. Andzelm, M. Klobukowski, E. Radzio-Andzelm, Y. Sakai, 
 #  H. Tatewaki in Gaussian Basis Sets for Molecular Calculations: 
 #  Elsevier, Amsterdam, 1984. 
@@ -276,4 +276,3 @@ I    D
 I    D
       0.4000000              1.0000000        
 end
-

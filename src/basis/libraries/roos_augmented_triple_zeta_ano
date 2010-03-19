@@ -1,4 +1,4 @@
-#  Roos Augmented Triple Zeta ANO  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  Roos Augmented Triple Zeta ANO  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
 # Elements                             References
 # --------                             ----------
 # H - Ne:  P.O. Widmark, P.A. Malmqvist, B. Roos, Theor. Chim. Acta, 77,
@@ -1322,4 +1322,3 @@ Zn    G
       1.4482000             -0.5052273             -0.4297044        
       0.5692000             -0.1957453             -0.4738866        
 end
-

@@ -1,4 +1,4 @@
-#  Stuttgart RSC Segmented/ECP  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
+#  Stuttgart RSC Segmented/ECP  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
 # Elements                             References
 # --------                             ----------
 # La - Lu:  X. Cao and M. Dolg, J. Chem. Phys. (to be published)
@@ -1250,3 +1250,8 @@ Lu    G
 Lu    G
       0.4244000              1.0000000        
 end
+# ELEMENTS                      REFERENCES
+# --------                       ----------
+# La - Lu     X. Cao and M. Dolg, J. Chem. Phys. (to be published)
+#   
+

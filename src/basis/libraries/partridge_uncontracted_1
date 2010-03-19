@@ -1,4 +1,4 @@
-#  Partridge Uncontracted 1  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  Partridge Uncontracted 1  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
 # Elements                             References
 # --------                             ----------
 # Li - Ne, K - Zn: H. Partridge, J. Chem. Phys. 90, 1043 (1989).
@@ -2545,4 +2545,3 @@ Sr    D
 Sr    D
       0.8152040              1.0000000        
 end
-

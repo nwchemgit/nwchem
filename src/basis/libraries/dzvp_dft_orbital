@@ -1,4 +1,4 @@
-#  DZVP (DFT Orbital)  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  DZVP (DFT Orbital)  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
 # N. Godbout, D. R. Salahub, J. Andzelm, and E. Wimmer, Can. J. Chem. 70, 560
 #  (1992)
 #   
@@ -2192,4 +2192,3 @@ Xe    D
 Xe    D
       0.2750000              1.0000000        
 end
-

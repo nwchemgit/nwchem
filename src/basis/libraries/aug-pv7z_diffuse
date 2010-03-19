@@ -1,4 +1,4 @@
-#  aug-pV7Z Diffuse  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  aug-pV7Z Diffuse  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
 # Elements                             References
 # --------                             ---------
 # H    : (not yet defined)
@@ -98,4 +98,3 @@ S    I
 S    K
       0.7110000              1.0000000        
 end
-

@@ -1,4 +1,4 @@
-#  MIDI (Huzinaga)  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  MIDI (Huzinaga)  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
 # S. HUZINAGA, ED.,J. ANDZELM, M. KLOBUKOWSKI, E. RADZIO-ANDZELM, Y. SAKAI, 
 #  H. TATEWAKI IN GAUSSIAN BASIS SETS FOR MOLECULAR CALCULATIONS: 
 #  ELSEVIER, AMSTERDAM, 1984.
@@ -17,7 +17,7 @@ He    S
      13.6267360              0.0802410        
       1.9993490              0.4091430        
 He    S
-      0.3829930              0.6572780        
+      0.3829930              1.0000000        
 end
 basis "Li_MIDI (Huzinaga)" CARTESIAN
 Li    S
@@ -317,7 +317,7 @@ K    S
       0.2523120             -0.1529800        
       0.0376310              0.6817280        
 K    S
-      0.0162180              0.4144830        
+      0.0162180              1.0000000        
 K    P
      85.7898460              0.0980350        
      19.2547940              0.4510410        
@@ -378,4 +378,3 @@ Cs    D
       2.7248240              0.5788860        
       1.0266780              0.3325980        
 end
-

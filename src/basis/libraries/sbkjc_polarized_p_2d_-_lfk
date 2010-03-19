@@ -1,4 +1,4 @@
-#  SBKJC Polarized (p,2d) - LFK  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
+#  SBKJC Polarized (p,2d) - LFK  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
 # Elements                             References
 # --------                             ----------
 # H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar K Ca Ge As Se Br Kr Rb Sr Sn Sb Te I Xe Cs Ba Pb Bi Po At Rn : N.P. Labello, A.M. Ferreira, H.A. Kurtz, An augmented effective core potential basis set for the calculation of molecular polarizabilities., J. Comput. Chem. 26, 1464-1471 (2005), and N.P. Labello, A.M. Ferreira, H.A. Kurtz, Correlated, relativistic, and basis set limit molecular polarizability calculations to evaluate an augmented effective core potential basis set.  
@@ -12,9 +12,9 @@ H    S
       5.447178000            0.15628500       
       0.824547000            0.90469100       
 H    S
-      0.183192000            1.00000000       
+      0.183192000            1.0000000        
 H    S
-      0.059570700            1.00000000       
+      0.059570700            1.0000000        
 H    P
       5.307440100            0.93519500       
       0.847700400            1.00000000       
@@ -27,9 +27,9 @@ He    S
      13.626700000            0.17523000       
       1.999350000            0.89348300       
 He    S
-      0.382993000            1.00000000       
+      0.382993000            1.0000000        
 He    S
-      0.065332100            1.00000000       
+      0.065332100            1.0000000        
 He    P
      13.735414200            0.99172000       
       1.9974015000           1.00000000       
@@ -39,7 +39,7 @@ He    P
 end
 basis "Li_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Li    P
-      0.006572900            1.00000000       
+      0.006572900            1.0000000        
 Li    SP
       0.617700000           -0.16287000             0.10588100       
       0.143400000            0.12643000             0.44383400       
@@ -55,7 +55,7 @@ Li    D
 end
 basis "Be_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Be    P
-      0.100498500            1.00000000       
+      0.100498500            1.0000000        
 Be    SP
       1.447000000           -0.15647000             0.08924000       
       0.352200000            0.10919000             0.30999000       
@@ -71,7 +71,7 @@ Be    D
 end
 basis "B_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 B    P
-      0.107314400            1.00000000       
+      0.107314400            1.0000000        
 B    SP
       2.710000000           -0.14987000             0.09474000       
       0.655200000            0.08442000             0.30807000       
@@ -87,7 +87,7 @@ B    D
 end
 basis "C_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 C    P
-      0.037013900            1.00000000       
+      0.037013900            1.0000000        
 C    SP
       4.286000000           -0.14722000             0.10257000       
       1.046000000            0.08125000             0.32987000       
@@ -103,7 +103,7 @@ C    D
 end
 basis "N_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 N    P
-      0.051469700            1.00000000       
+      0.051469700            1.0000000        
 N    SP
       6.403000000           -0.13955000             0.10336000       
       1.580000000            0.05492000             0.33205000       
@@ -119,7 +119,7 @@ N    D
 end
 basis "O_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 O    P
-      0.012743300            1.00000000       
+      0.012743300            1.0000000        
 O    SP
       8.519000000           -0.14551000             0.11007000       
       2.073000000            0.08286000             0.34969000       
@@ -135,7 +135,7 @@ O    D
 end
 basis "F_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 F    P
-      0.082786100            1.00000000       
+      0.082786100            1.0000000        
 F    SP
      11.120000000           -0.14451000             0.11300000       
       2.687000000            0.08971000             0.35841000       
@@ -151,7 +151,7 @@ F    D
 end
 basis "Ne_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Ne    P
-      0.086528000            1.00000000       
+      0.086528000            1.0000000        
 Ne    SP
      14.070000000           -0.14463000             0.11514000       
       3.389000000            0.09331000             0.36479000       
@@ -167,7 +167,7 @@ Ne    D
 end
 basis "Na_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Na    P
-      0.005309400            1.00000000       
+      0.005309400            1.0000000        
 Na    SP
       0.429900000           -0.20874000             0.04506100       
       0.088970000            0.31206000             1.54135300       
@@ -183,7 +183,7 @@ Na    D
 end
 basis "Mg_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Mg    P
-      0.010641000            1.00000000       
+      0.010641000            1.0000000        
 Mg    SP
       0.660600000           -0.24451000            -0.04421000       
       0.184500000            0.25323000             0.27323000       
@@ -199,7 +199,7 @@ Mg    D
 end
 basis "Al_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Al    P
-      0.016716500            1.00000000       
+      0.016716500            1.0000000        
 Al    SP
       0.901100000           -0.30377000            -0.07929000       
       0.449500000            0.13382000             0.16540000       
@@ -215,7 +215,7 @@ Al    D
 end
 basis "Si_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Si    P
-      0.022439300            1.00000000       
+      0.022439300            1.0000000        
 Si    SP
       1.167000000           -0.32403000            -0.08450000       
       0.526800000            0.18438000             0.23786000       
@@ -231,7 +231,7 @@ Si    D
 end
 basis "P_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 P    P
-      0.028406200            1.00000000       
+      0.028406200            1.0000000        
 P    SP
       1.459000000           -0.34091000            -0.09378000       
       0.654900000            0.21535000             0.29205000       
@@ -247,7 +247,7 @@ P    D
 end
 basis "S_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 S    P
-      0.028605500            1.00000000       
+      0.028605500            1.0000000        
 S    SP
       1.817000000           -0.34015000            -0.10096000       
       0.837900000            0.19601000             0.31244000       
@@ -263,7 +263,7 @@ S    D
 end
 basis "Cl_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Cl    P
-      0.038649300            1.00000000       
+      0.038649300            1.0000000        
 Cl    SP
       2.225000000           -0.33098000            -0.12604000       
       1.173000000            0.11528000             0.29952000       
@@ -279,7 +279,7 @@ Cl    D
 end
 basis "Ar_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Ar    P
-      0.050456100            1.00000000       
+      0.050456100            1.0000000        
 Ar    SP
       2.706000000           -0.31286000            -0.10927000       
       1.278000000            0.11821000             0.32601000       
@@ -295,7 +295,7 @@ Ar    D
 end
 basis "K_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 K    P
-      0.004642200            1.00000000       
+      0.004642200            1.0000000        
 K    SP
       0.220100000           -0.28602700             0.00107300       
       0.048250000            0.48205000            -0.18041800       
@@ -311,7 +311,7 @@ K    D
 end
 basis "Ca_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Ca    P
-      0.008688551            1.00000000       
+      0.008688551            1.0000000        
 Ca    SP
       0.260400000           -0.67646600            -0.27037400       
       0.143900000            0.52569300             0.40780700       
@@ -327,7 +327,7 @@ Ca    D
 end
 basis "Ge_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Ge    P
-      0.022495800            1.00000000       
+      0.022495800            1.0000000        
 Ge    SP
       1.834000000            0.49386000             0.00641400       
       1.529000000           -0.85735400            -0.08605200       
@@ -344,7 +344,7 @@ Ge    D
 end
 basis "As_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 As    P
-      0.028146700            1.00000000       
+      0.028146700            1.0000000        
 As    SP
       2.709000000            0.12147900            -0.00292000       
       1.578000000           -0.51891800            -0.09505400       
@@ -361,7 +361,7 @@ As    D
 end
 basis "Se_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Se    P
-      0.030351600            1.00000000       
+      0.030351600            1.0000000        
 Se    SP
       3.711000000            0.05574400            -0.00601400       
       1.586000000           -0.51052000            -0.12144700       
@@ -378,7 +378,7 @@ Se    D
 end
 basis "Br_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Br    P
-      0.027070900            1.00000000       
+      0.027070900            1.0000000        
 Br    SP
       3.276000000            0.20057000             0.00541100       
       2.044000000           -0.64929600            -0.13239100       
@@ -395,7 +395,7 @@ Br    D
 end
 basis "Kr_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Kr    P
-      0.039460100            1.00000000       
+      0.039460100            1.0000000        
 Kr    SP
       3.081000000            0.53378900             0.03590600       
       2.413000000           -1.00146500            -0.16969500       
@@ -412,7 +412,7 @@ Kr    D
 end
 basis "Rb_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Rb    P
-      0.003522100            1.00000000       
+      0.003522100            1.0000000        
 Rb    SP
       0.154300000           -0.75339000             1.31107200       
       0.098920000            0.40627000            -1.15134400       
@@ -428,7 +428,7 @@ Rb    D
 end
 basis "Sr_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Sr    P
-      0.012354400            1.00000000       
+      0.012354400            1.0000000        
 Sr    SP
       0.183600000           -1.07513900            -0.95554900       
       0.125200000            0.94703700             0.85644700       
@@ -444,7 +444,7 @@ Sr    D
 end
 basis "Sn_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Sn    P
-      0.019696200            1.00000000       
+      0.019696200            1.0000000        
 Sn    SP
       2.604000000            0.03104200            -0.00505300       
       0.753200000           -0.61185900            -0.18010000       
@@ -461,7 +461,7 @@ Sn    D
 end
 basis "Sb_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Sb    P
-      0.023441400            1.00000000       
+      0.023441400            1.0000000        
 Sb    SP
       0.992200000            0.69007600             0.18022900       
       0.808900000           -1.58049500            -0.48709300       
@@ -478,7 +478,7 @@ Sb    D
 end
 basis "Te_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Te    P
-      0.029530900            1.00000000       
+      0.029530900            1.0000000        
 Te    SP
       2.364000000            0.08717900            -0.00398200       
       0.976900000           -0.77682600            -0.23690000       
@@ -495,7 +495,7 @@ Te    D
 end
 basis "I_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 I    P
-      0.024411800            1.00000000       
+      0.024411800            1.0000000        
 I    SP
       2.625000000            0.07366000            -0.00888000       
       1.014000000           -0.83687000            -0.25735100       
@@ -512,7 +512,7 @@ I    D
 end
 basis "Xe_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Xe    P
-      0.032459400            1.00000000       
+      0.032459400            1.0000000        
 Xe    SP
       1.739000000            0.34909100            -0.00542900       
       1.169000000           -1.19751200            -0.27734200       
@@ -529,7 +529,7 @@ Xe    D
 end
 basis "Cs_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Cs    P
-      0.002987700            1.00000000       
+      0.002987700            1.0000000        
 Cs    SP
       0.115700000           -0.51999400             0.68570500       
       0.053170000            0.49336100             0.68810000       
@@ -545,7 +545,7 @@ Cs    D
 end
 basis "Ba_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Ba    P
-      0.040933500            1.00000000       
+      0.040933500            1.0000000        
 Ba    SP
       0.126600000           -1.56028700            -0.68663700       
       0.094330000            1.48253800             0.80734600       
@@ -561,7 +561,7 @@ Ba    D
 end
 basis "Pb_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Pb    P
-      0.015897300            1.00000000       
+      0.015897300            1.0000000        
 Pb    SP
       1.534000000            0.22565200             0.02825700       
       0.992300000           -0.65899800            -0.14065900       
@@ -578,7 +578,7 @@ Pb    D
 end
 basis "Bi_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Bi    P
-      0.018973100            1.00000000       
+      0.018973100            1.0000000        
 Bi    SP
       1.746000000            0.16232700             0.01608700       
       0.992500000           -0.65385400            -0.15828400       
@@ -595,7 +595,7 @@ Bi    D
 end
 basis "Po_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Po    P
-      0.034300200            1.00000000       
+      0.034300200            1.0000000        
 Po    SP
       1.897000000            0.13269000             0.00679600       
       1.000000000           -0.68154600            -0.17614200       
@@ -612,7 +612,7 @@ Po    D
 end
 basis "At_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 At    P
-      0.022411400            1.00000000       
+      0.022411400            1.0000000        
 At    SP
       2.676000000            0.06897300            -0.00265200       
       0.980500000           -0.71866800            -0.19497100       
@@ -629,7 +629,7 @@ At    D
 end
 basis "Rn_SBKJC Polarized (p,2d) - LFK" SPHERICAL
 Rn    P
-      0.025004800            1.00000000       
+      0.025004800            1.0000000        
 Rn    SP
       2.489000000            0.08282000             0.00472700       
       1.013000000           -0.80320000            -0.23118000       
@@ -644,3 +644,11 @@ Rn    D
       0.119848800            1.00000000       
       0.047685800            0.74112900       
 end
+# H - HE: J.S. BINKLEY, J.A. POPLE, W.J.HEHRE, J. AM. CHEM.SOC. 102, 939 (1980)
+# LI - AR: W.J. STEVENS, H. BASCH, M. KRAUSS, J. CHEM. PHYS. 81, 6026 (1984)
+# K - RN:  W.J. STEVENS, M. KRAUSS, H. BASCH, P. G. Jasien, Can. J. Chem. 70,
+# 612 (1992)
+# CE - LU: T. R. CUNDARI AND W.J. STEVENS, J. CHEM. PHYS. 98, 5555 (1993)
+# 
+
+

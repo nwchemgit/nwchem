@@ -1,4 +1,4 @@
-#  Core/valence Functions (cc-pCVTZ(old))  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
+#  Core/valence Functions (cc-pCVTZ(old))  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
 # Elements                             References
 # --------                             ----------
 # Al - Ar: unpublished
@@ -102,4 +102,3 @@ Ar    D
 Ar    F
      13.6750000              1.0000000        
 end
-

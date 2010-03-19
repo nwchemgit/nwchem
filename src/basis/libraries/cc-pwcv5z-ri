@@ -1,4 +1,4 @@
-#  cc-pwCV5Z-RI  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  cc-pwCV5Z-RI  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
 # Elements                             References
 # --------                             ----------
 # Cu Zn Ag Cd Au Hg: Christof Hattig, auxiliary basis sets for RI-MP2 calculations, TURBOMOLE basis set library 6.0, 1 (2009).
@@ -966,4 +966,3 @@ Hg    L
 Hg    L
       2.6260800000           1.0000000        
 end
-

@@ -1,4 +1,4 @@
-#  Roos Augmented Double Zeta ANO  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  Roos Augmented Double Zeta ANO  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
 # Elements                             References
 # --------                             ----------
 # H - Ne:  P.O. Widmark, P.A. Malmqvist, B. Roos, Theor. Chim. Acta, 77, 
@@ -1267,4 +1267,3 @@ Zn    F
       0.4091000              0.1630365              0.4724145        
       0.1621000              0.0236161              0.0987123        
 end
-

@@ -1,4 +1,4 @@
-#  Pople-style Diffuse  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
+#  Pople-style Diffuse  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
 # Elements                             Reference
 # --------                             ----------
 # H, Li-Cl: T. Clark, J. Chandrasekhar,  G.W. Spitznagel, P.V.R. Schleyer, 
@@ -82,4 +82,3 @@ basis "Ca_Pople-style Diffuse" SPHERICAL
 Ca    SP
       0.0071000              1.0000000              1.0000000        
 end
-

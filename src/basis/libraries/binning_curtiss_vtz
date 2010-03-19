@@ -1,4 +1,4 @@
-#  Binning/Curtiss VTZ  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  Binning/Curtiss VTZ  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
 # R. C. BINNING AND L. A. CURTISS, J. COMP. CHEM. 11, 1206 (1990). 
 #  T. H. DUNNING, JR. J. CHEM. PHYS. 66, 1382 (1977).
 #   
@@ -198,7 +198,7 @@ Se    D
       9.3360000              0.3197200        
       3.3830000              0.4173800        
 Se    D
-      1.1450000              0.2318400        
+      1.1450000              1.0000000        
 end
 basis "Br_Binning/Curtiss VTZ" SPHERICAL
 Br    S
@@ -298,4 +298,3 @@ Kr    D
 Kr    D
       1.4940000              1.0000000        
 end
-

@@ -1,4 +1,4 @@
-#  WTBS  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
+#  WTBS  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
 # S. Huzinaga and B. Miguel, Chem. Phys. Lett. 175, 289 (1990). 
 #  S. Huzinaga and M. Klobukowski, Chem. Phys. Lett. 212, 260 (1993)
 #   
@@ -5761,4 +5761,3 @@ Rn    F
       3.3996865              1.04486313D-01   
       1.8442936              2.66013197D-02   
 end
-

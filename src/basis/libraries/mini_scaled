@@ -1,4 +1,4 @@
-#  MINI (Scaled)  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  MINI (Scaled)  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
 # S. HUZINAGA, ED.,J. ANDZELM, M. KLOBUKOWSKI, E. RADZIO-ANDZELM, Y. SAKAI, 
 #  H. TATEWAKI IN GAUSSIAN BASIS SETS FOR MOLECULAR CALCULATIONS: 
 #  ELSEVIER, AMSTERDAM, 1984. 
@@ -342,4 +342,3 @@ Ca    P
       0.7666510              0.5843850        
       0.2843190              0.2876660        
 end
-

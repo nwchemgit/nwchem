@@ -1,4 +1,4 @@
-#  Stuttgart RLC ECP  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
+#  Stuttgart RLC ECP  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
 # Elements                             References
 # --------                             ----------
 # Li - Be: P. Fuentealba, H. Preuss, H. Stoll, L. v. Szentpaly, Chem. Phys. Lett.
@@ -1449,6 +1449,12 @@ Lr    G
 Lr    G
       0.9500000              1.0000000        
 end
+# ELEMENTS                      REFERENCES
+# ---------                       ----------
+# 
+
+
+#  Stuttgart RLC ECP  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
 # ELEMENTS                      REFERENCES
 # ---------                       ----------
 # 

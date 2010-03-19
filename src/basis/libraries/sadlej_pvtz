@@ -1,4 +1,4 @@
-#  Sadlej pVTZ  EMSL  Basis Set Exchange Library  2/17/10 4:58 PM
+#  Sadlej pVTZ  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
 # A. J. Sadlej, Collec. Czech. Chem. Commun.  53, 1995 (1988)
 # A. J. Sadlej and M. Urban, J. Mol. Struct. (THEOCHEM) 234, 147 (1991)
 # A. J. Sadlej, Theor. Chim. Acta 79, 123 (1992)
@@ -837,4 +837,3 @@ I    F
       1.6595878              0.4082540        
       0.6526591              0.2750830        
 end
-

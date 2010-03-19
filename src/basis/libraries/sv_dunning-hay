@@ -1,4 +1,4 @@
-#  SV (Dunning-Hay)  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  SV (Dunning-Hay)  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
 # T.H. DUNNING JR. AND P.J. HAY, IN METHODS OF ELECTRONIC STRUCTURE THEORY, 
 #  VOL. 2, H.F. SCHAEFER III, ED., PLENUM PRESS (1977).
 #   
@@ -187,4 +187,3 @@ Ne    P
 Ne    P
       0.3444000              1.0000000        
 end
-

@@ -1,4 +1,4 @@
-#  aug-cc-pV(T+d)Z Diffuse  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  aug-cc-pV(T+d)Z Diffuse  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
 # Elements                             References
 # --------                             ---------
 # Al - Ar: T.H. Dunning, Jr., K. A. Peterson and A. K. Wilson, J. Chem. Phys.
@@ -66,4 +66,3 @@ Ar    D
 Ar    F
       0.4060000              1.0000000        
 end
-

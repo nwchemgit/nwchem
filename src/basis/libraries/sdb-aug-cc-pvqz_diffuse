@@ -1,4 +1,4 @@
-#  SDB-aug-cc-pVQZ Diffuse  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
+#  SDB-aug-cc-pVQZ Diffuse  EMSL  Basis Set Exchange Library  3/19/10 12:41 PM
 # Elements                             References
 # --------                             ---------
 # Ga - Br: J.M.L. Martin and A. Sundermann, J. Chem. Phys. 114, 3408 (2001).
@@ -126,4 +126,3 @@ I    F
 I    G
       0.2442490              1.0000000        
 end
-

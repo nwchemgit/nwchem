@@ -1,4 +1,4 @@
-#  SBKJC VDZ ECP  EMSL  Basis Set Exchange Library  2/17/10 4:56 PM
+#  SBKJC VDZ ECP  EMSL  Basis Set Exchange Library  3/19/10 12:41 PM
 # H - HE: J.S. BINKLEY, J.A. POPLE, W.J.HEHRE, J. AM. CHEM. SOC. 102, 939 (1980) 
 #  LI- AR: W.J. STEVENS, H. BASCH, M. KRAUSS, J. CHEM. PHYS. 81, 6026 (1984) 
 #  K - RN: W.J. STEVENS, M. KRAUSS, H. BASCH, P. G. JASIEN, CAN. J. CHEM. 70, 
@@ -1088,3 +1088,11 @@ Rn    SP
 Rn    SP
       0.0650000              1.0000000              1.0000000        
 end
+# H - HE: J.S. BINKLEY, J.A. POPLE, W.J.HEHRE, J. AM. CHEM.SOC. 102, 939 (1980)
+# LI - AR: W.J. STEVENS, H. BASCH, M. KRAUSS, J. CHEM. PHYS. 81, 6026 (1984)
+# K - RN:  W.J. STEVENS, M. KRAUSS, H. BASCH, P. G. Jasien, Can. J. Chem. 70,
+# 612 (1992)
+# CE - LU: T. R. CUNDARI AND W.J. STEVENS, J. CHEM. PHYS. 98, 5555 (1993)
+# 
+
+
