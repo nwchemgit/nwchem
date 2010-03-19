@@ -2077,6 +2077,8 @@ errorpython2:
 endif
 #
 ifdef USE_PYTHON64
+  CORE_LIBS += $(PYTHONHOME)/lib64/python$(PYTHONVERSION)/config/libpython$(PYTHONVERSION).a
+else
   CORE_LIBS += $(PYTHONHOME)/lib/python$(PYTHONVERSION)/config/libpython$(PYTHONVERSION).a
 endif
 endif
