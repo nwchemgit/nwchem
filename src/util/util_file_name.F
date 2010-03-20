@@ -353,6 +353,10 @@ c
 c     only catamount all fs are parallel, therefore we need only node0
       iocheckk=ga_nodeid().eq.0
 #endif     
+#ifdef BGP
+c     on BGP all fs are parallel, therefore we need only node0
+      iocheckk=ga_nodeid().eq.0
+#endif     
 c
       if (nodeid() .gt. 0) goto 10000
 c
