@@ -317,7 +317,7 @@ tools: $(STAMP)
 	@test -e $(INSTALLDIR)/lib/libga.a && echo "Already Installed" || (cd $(BUILDDIR) && $(MAKE) install)
 
 clean:
-	@test -e $(BUILDDIR)/Makefile && {cd $(BUILDDIR) && $(MAKE) clean} || echo "Not configured"
+	@test -e $(BUILDDIR)/Makefile && { cd $(BUILDDIR) && $(MAKE) clean; } || echo "Not configured"
 endif
 #
 # Common targets shared between GNUmakefile's and automake Makefiles
