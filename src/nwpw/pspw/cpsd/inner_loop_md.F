@@ -440,8 +440,9 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
         if (fei) 
      >    call dcopy(3*natmx,dbl_mb(fion(1)),1,dbl_mb(ftest(1)),1)
         call ion_FixIon(dbl_mb(fion(1)))
+c        call meta_force(dbl_mb(fion(1)))
 
-c        !**** center of mass constraint ****
+        !**** center of mass constraint ****
 c        if (.not.allow_translation) then
 c          call remove_center_F_mass(dbl_mb(fion(1)))
 c        end if
@@ -705,6 +706,7 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
       if (fei) call fei_output(E(2),dbl_mb(ftest(1)))
 
 
+*     **** Nose thermostat energies ****
       if (nose) then
         E(9)  = Nose_e_energy()
         E(10) = Nose_r_energy()
@@ -712,6 +714,7 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
       else
         E(1) = E(2)+E(3)+E(4)
       end if
+
 
 *     ******** pressure ******
       if (calc_pressure) then
@@ -739,6 +742,10 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
      >                            pressure,p1,p2,stress)
       end if
 
+*     **** metadynamics energy ****
+c      E(24) = meta_energy()
+c      E(1)  = E(1) + E(24)
+
 
 *      **** write ecce data ****
        call ecce_print_module_entry('task car-parrinello')
@@ -757,10 +764,6 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
        call ecce_print1('orbital gradient norm', mt_dbl, E(4), 1)
 c       call ecce_print1('gradient max', mt_dbl, E(1), 1)
        call ecce_print_module_exit('task car-parrinello', 'ok')
-
-
-
-
 
 
       call nwpw_timing_end(10)

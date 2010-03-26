@@ -420,6 +420,9 @@ cccc#include "frac_occ.fh"
 *     **** initialize QM/MM ****
       call pspw_qmmm_init(rtdb)
 
+*     **** initialize metadynamics ****
+      call meta_initialize(rtdb)
+
 *     **** initialize dplot ****
       call dplot_iteration_init()
 
@@ -793,6 +796,9 @@ c      call xyz_write()
          eke = eke + E(3)
 
          !**** calculate pressure ****
+
+         !**** metadynamics update ****
+         call meta_update()
 
          if (taskid.eq.MASTER) then 
 
@@ -1220,6 +1226,7 @@ c         end if
       call pspw_end_SIC()
       call pspw_end_HFX()
       call pspw_qmmm_end()
+      call meta_finalize()
       call dplot_iteration_end()
 c      call frac_occ_end()
       if (control_Nose()) call Nose_end()
