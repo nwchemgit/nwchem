@@ -1,7 +1,7 @@
 
 
       logical metafound
-      integer tmeta(2)
+      integer tmeta(2),metacount,maxmetacount
 
       integer bxmeta(2),bymeta(2),by2meta(2)
       integer bwsigmameta(2)
@@ -15,6 +15,6 @@
      >                      bindxmeta,bnxmeta,bnmeta,
      >                      axmeta,aymeta,ay2meta,awsigmameta,
      >                      aindxmeta,anxmeta,anmeta,
-     >                      tmeta,metafound
+     >                      tmeta,metacount,maxmetacount,metafound
 
 

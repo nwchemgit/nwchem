@@ -1,10 +1,10 @@
 
 c     **********************************************
 c     *                                            *
-c     *            meta_intialize                  *
+c     *            meta_initialize                 *
 c     *                                            *
 c     **********************************************
-      subroutine meta_intialize(rtdb)
+      subroutine meta_initialize(rtdb)
       implicit none
       integer rtdb
 
@@ -14,14 +14,18 @@ c     **********************************************
 #include "metadynamics.fh"
 
 *     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
       logical value
-      integer i
+      integer i,j
       real*8 x,y,z,r,rmax,dr,pi,da
       character*80 rtdb_name
 
 *     **** external functions ****
-      real*8   lattice_unita
-      external lattice_unita
+      real*8      lattice_unita
+      character*7 c_index_name
+      external    lattice_unita
+      external    c_index_name
 
       rtdb_name = 'metadynamics_nbond'
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,bnmeta)) bnmeta = 0
@@ -29,8 +33,14 @@ c     **********************************************
       rtdb_name = 'metadynamics_nangle'
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,anmeta)) anmeta = 0
 
+
       metafound = (bnmeta.gt.0).or.(anmeta.gt.0)
       if (metafound) then
+         rtdb_name = 'metadynamics_update'
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,maxmetacount)) 
+     >      maxmetacount = 1
+         metacount = 0
+
          value = .true.
          if (bnmeta.gt.0) then
             bnxmeta = 501
@@ -43,12 +53,28 @@ c     **********************************************
             value = value.and.
      >              MA_alloc_get(mt_dbl,bnmeta*bnxmeta,'by2meta',
      >                           by2meta(2),by2meta(1))
+            call dcopy(bnmeta*bnxmeta,0.0d0,0,dbl_mb(bymeta(1)),1)
+            call dcopy(bnmeta*bnxmeta,0.0d0,0,dbl_mb(by2meta(1)),1)
+
             value = value.and.
      >              MA_alloc_get(mt_dbl,2*bnmeta,'bwsigmameta',
      >                           bwsigmameta(2),bwsigmameta(1))
             value = value.and.
      >              MA_alloc_get(mt_int,2*bnmeta,'bindxmeta',
      >                           bindxmeta(2),bindxmeta(1))
+            do j=1,bnmeta
+               rtdb_name = 
+     >         'metadynamics_bond_index:'//c_index_name(j)
+                value = value.and.
+     >             rtdb_get(rtdb,rtdb_name,mt_int,2,
+     >                      int_mb(bindxmeta(1)+(j-1)*2))
+               rtdb_name = 
+     >        'metadynamics_bond_ksigma:'//c_index_name(j)
+               value = value.and.
+     >             rtdb_get(rtdb,rtdb_name,mt_dbl,2,
+     >                      dbl_mb(bwsigmameta(1)+(j-1)*2))
+            end do
+
             x = lattice_unita(1,1)
             y = lattice_unita(2,1)
             z = lattice_unita(3,1)
@@ -82,12 +108,30 @@ c     **********************************************
             value = value.and.
      >              MA_alloc_get(mt_dbl,anmeta*anxmeta,'ay2meta',
      >                           ay2meta(2),ay2meta(1))
+            call dcopy(anmeta*anxmeta,0.0d0,0,dbl_mb(aymeta(1)),1)
+            call dcopy(anmeta*anxmeta,0.0d0,0,dbl_mb(ay2meta(1)),1)
+
             value = value.and.
      >              MA_alloc_get(mt_dbl,2*anmeta,'awsigmameta',
      >                           awsigmameta(2),awsigmameta(1))
             value = value.and.
-     >              MA_alloc_get(mt_int,2*anmeta,'aindxmeta',
+     >              MA_alloc_get(mt_int,3*anmeta,'aindxmeta',
      >                           aindxmeta(2),aindxmeta(1))
+            do j=1,anmeta
+               rtdb_name =
+     >         'metadynamics_angle_index:'//c_index_name(j)
+                value = value.and.
+     >             rtdb_get(rtdb,rtdb_name,mt_int,3,
+     >                      int_mb(aindxmeta(1)+(j-1)*3))
+               rtdb_name = 
+     >        'metadynamics_angle_ksigma:'//c_index_name(j)
+               value = value.and.
+     >             rtdb_get(rtdb,rtdb_name,mt_dbl,2,
+     >                      dbl_mb(awsigmameta(1)+(j-1)*2))
+            end do
+
+
+
             pi = 4.0d0*datan(1.0d0)
             da = pi/dble(anxmeta-1)
             do i=1,anxmeta
@@ -102,7 +146,125 @@ c     **********************************************
      >    call errquit('cannot allocate heap memory for metadynamics',0,
      >       MA_ERR)
 
+*     **** write out header info ****
+      call Parallel_taskid(taskid)
+      if (taskid.eq.MASTER) then
+         write(*,*) 
+         write(*,*)  "MetaDynamics parameters:"
+         do i=1,bnmeta
+             write(*,'(A,5x,2I4,4x,A,F11.6,4x,A,F11.6)')
+     >       "   - Bond Parameters =  ",
+     >                  (int_mb(bindxmeta(1)+2*(i-1)+j-1),j=1,2),
+     >                  'w=',
+     >                  dbl_mb(bwsigmameta(1)+(i-1)*2),
+     >                  'sigma=',
+     >                  dbl_mb(bwsigmameta(1)+(i-1)*2+1)
 
+         end do
+         do i=1,anmeta
+             write(*,'(A,3I4,4x,A,F11.6,4x,A,F11.6)')
+     >       "   - Angle Parameters =  ",
+     >                  (int_mb(aindxmeta(1)+3*(i-1)+j-1),j=1,3),
+     >                  'w=',
+     >                  dbl_mb(awsigmameta(1)+2*(i-1)),
+     >                  'sigma=',
+     >                  dbl_mb(awsigmameta(1)+2*(i-1)+1)
+
+         end do
+
+      end if
+      
+      end if
+      return
+      end
+
+c     **********************************************
+c     *                                            *
+c     *            meta_finalize                   *
+c     *                                            *
+c     **********************************************
+      subroutine meta_finalize()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "metadynamics.fh"
+
+*     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical value
+      integer i,j,yshift,k
+      real*8 r
+      character*80 filename
+      character*255 full_filename
+
+*     **** external functions ****
+      character*7 c_index_name
+      external    c_index_name
+
+      call Parallel_taskid(taskid)
+
+      if (metafound) then
+
+*        **** print out potentials ******
+         !yshift  = bymeta(1) +(j-1)*bnxmeta
+         do i=1,bnxmeta
+           r = dbl_mb(bxmeta(1)+i-1)
+           write(101,*) r,
+                   (dbl_mb(bymeta(1)+(j-1)*bnxmeta+i-1),j=1,bnmeta)
+         end do
+
+
+         value = .true.
+         if (bnmeta.gt.0) then
+            if (taskid.eq.MASTER) then
+            do j=1,bnmeta
+
+               filename = "bmeta-"//c_index_name(j)//".dat"
+               call util_file_name_noprefix(filename,.false.,
+     >                                      .false.,
+     >                                      full_filename)
+               open(unit=53,file=full_filename,form='formatted')
+               yshift  = bymeta(1) +(j-1)*bnxmeta
+               do i=1,bnxmeta
+                   write(53,'(2E15.6)') 
+     >                  dbl_mb(bxmeta(1)+i-1),dbl_mb(yshift+i-1)
+               end do
+               close(53)
+            end do
+            end if
+            value = value.and.MA_free_heap(bxmeta(2))
+            value = value.and.MA_free_heap(bymeta(2))
+            value = value.and.MA_free_heap(by2meta(2))
+            value = value.and.MA_free_heap(bwsigmameta(2))
+            value = value.and.MA_free_heap(bindxmeta(2))
+         end if
+         if (anmeta.gt.0) then
+           if (taskid.eq.MASTER) then
+            do j=1,anmeta
+
+               filename = "ameta-"//c_index_name(j)//".dat"
+               call util_file_name_noprefix(filename,.false.,
+     >                                      .false.,
+     >                                      full_filename)
+               open(unit=53,file=full_filename,form='formatted')
+               yshift  = aymeta(1) +(j-1)*anxmeta
+               do i=1,bnxmeta
+                   write(53,'(2E15.6)')
+     >                  dbl_mb(axmeta(1)+i-1),dbl_mb(yshift+i-1)
+               end do
+               close(53)
+            end do
+            end if
+            value = value.and.MA_free_heap(axmeta(2))
+            value = value.and.MA_free_heap(aymeta(2))
+            value = value.and.MA_free_heap(ay2meta(2))
+            value = value.and.MA_free_heap(awsigmameta(2))
+            value = value.and.MA_free_heap(aindxmeta(2))
+         end if
+         value = value.and.MA_free_heap(tmeta(2))
       end if
 
       return
@@ -304,10 +466,15 @@ c     **** bond dihedral ****
       real*8  r0,r,dr,w,sigma,yp1,ypn
 
 *     **** external functions ****
-      integer  meta_collective
+      real*8   meta_collective
       external meta_collective
 
       if (metafound) then
+
+         metacount = metacount + 1
+         if (metacount.ge.maxmetacount) then
+         metacount = 0
+
          if (bnmeta.gt.0) then
             dr = dbl_mb(bxmeta(1)+1) - dbl_mb(bxmeta(1))
             do j=1,bnmeta
@@ -342,7 +509,7 @@ c     **** bond dihedral ****
 
          if (anmeta.gt.0) then
             dr = dbl_mb(axmeta(1)+1) - dbl_mb(axmeta(1))
-            do j=1,bnmeta
+            do j=1,anmeta
                r0    = meta_collective(2,int_mb(aindxmeta(1)+(j-1)*3))
                w     = dbl_mb(awsigmameta(1)+(j-1)*2)
                sigma = dbl_mb(awsigmameta(1)+(j-1)*2+1)
@@ -369,6 +536,7 @@ c     **** bond dihedral ****
      >                 dbl_mb(yshift),anxmeta,yp1,ypn,
      >                 dbl_mb(y2shift),dbl_mb(tmeta(1)))
             end do
+         end if
 
          end if
 
@@ -492,6 +660,20 @@ c     **** bond dihedral ****
       end if
 
       meta_energy = v 
+      return
+      end
+
+*     ***********************************************
+*     *                                             *
+*     *              meta_found                     *
+*     *                                             *
+*     ***********************************************
+      logical function meta_found()
+      implicit none
+
+#include "metadynamics.fh"
+
+      meta_found = metafound
       return
       end
 

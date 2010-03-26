@@ -1,4 +1,9 @@
-      subroutine metadynamcis_input(rtdb)
+*     *********************************************
+*     *                                           *
+*     *           metadynamics_input              *
+*     *                                           *
+*     *********************************************
+      subroutine metadynamics_input(rtdb)
       implicit none
       integer rtdb
 
@@ -13,9 +18,10 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 4)
+      parameter (num_dirs = 5)
       character*30 dirs(num_dirs)
-      data dirs / 'bond',
+      data dirs / 'update',
+     >            'bond',
      >            'angle',
      >            'dihedral',
      >            'end'/
@@ -47,15 +53,28 @@ c
      >  call errquit(
      >  'metadynamics_input: unknown directive',0,INPUT_ERR)
 
-      goto ( 100, 200, 300,
+      goto ( 100, 200, 300, 400,
      >      9999) ind
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind,INPUT_ERR)
 
 c
-c  bond
+c  update
 c
  100  if (inp_i(sindx(1))) then
+         rtdb_name = 'metadynamics_update'
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,sindx)
+         if (.not. value) call errquit(
+     >   'metadynamics_input:failed writing update',0, RTDB_ERR)
+      end if
+
+      goto 10
+
+
+c
+c  bond
+c
+ 200  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_f(sdist(1))) then
       if (inp_f(sdist(2))) then
@@ -80,7 +99,7 @@ c
 c
 c  angle
 c
- 200  if (inp_i(sindx(1))) then
+ 300  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_i(sindx(3))) then
       if (inp_f(sdist(1))) then
@@ -107,7 +126,7 @@ c
 c
 c  dihedral
 c
- 300  if (inp_i(sindx(1))) then
+ 400  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_i(sindx(3))) then
       if (inp_i(sindx(4))) then
