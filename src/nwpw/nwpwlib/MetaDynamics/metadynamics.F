@@ -213,7 +213,7 @@ c     **********************************************
          do i=1,bnxmeta
            r = dbl_mb(bxmeta(1)+i-1)
            write(101,*) r,
-                   (dbl_mb(bymeta(1)+(j-1)*bnxmeta+i-1),j=1,bnmeta)
+     >     (dbl_mb(bymeta(1)+(j-1)*bnxmeta+i-1),j=1,bnmeta)
          end do
 
 
