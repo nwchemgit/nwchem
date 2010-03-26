@@ -522,7 +522,7 @@ c        **** add to current rows of C ****
          do while ((iter.lt.MAXITER).and.(notdone))
             g = (eig(l+1)-eig(l))/(2.0d0*tu(l))
             r = dsqrt(g**2+1.0d0)
-            g = eig(m)-eig(l)+tu(l)/(g+dsign(r,g))
+c            g = eig(m)-eig(l)+tu(l)/(g+dsign(r,g))
             s = 1.0d0
             c = 1.0d0
             p = 0.0d0
@@ -719,8 +719,8 @@ c        **** add to current rows of C ****
 
 
          if (mu.ne.0.0d0) then
-           if (icur1.eq.taskid_i)
-     >        beta = V(ii1,jj0) + dsign(mu,V(ii1,jj0))
+c           if (icur1.eq.taskid_i)
+c     >        beta = V(ii1,jj0) + dsign(mu,V(ii1,jj0))
               if (np_i.gt.1) 
      >        call GA_PGROUP_BRDCST(comm_i,9+MSGDBL,beta,mdtob(2),icur1)
 
