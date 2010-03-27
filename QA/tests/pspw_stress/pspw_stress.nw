@@ -29,6 +29,7 @@ nwpw
    end
    ewald_ncut 8
    mulliken
+   lcao #old default
 end
 set nwpw:lcao_iterations 20
 set nwpw:minimizer 2
