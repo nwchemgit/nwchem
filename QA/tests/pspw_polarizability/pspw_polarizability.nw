@@ -48,6 +48,7 @@ PSPW
    END
    loop 10 10
    tolerances 1.0d-12 1.0d-12
+   lcao #old default
 END
 
 geometry units au noautosym
