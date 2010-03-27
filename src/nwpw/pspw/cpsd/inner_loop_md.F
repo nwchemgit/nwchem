@@ -53,7 +53,7 @@ ccccccc#include "frac_occ.fh"
 
 
 *     **** local variables ****
-      logical move,fei
+      logical move,fei,meta
       integer n2ft3d,np,np_i,np_j
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr,gga
       integer nx,ny,nz
@@ -125,10 +125,15 @@ c     real*8     fion(3,natmx)
       logical  Dneall_m_push_get_block,Dneall_m_pop_stack
       external Dneall_m_push_get_block,Dneall_m_pop_stack
 
+      logical  meta_found
+      external meta_found
+      real*8   meta_energy
+      external meta_energy
+
       call Parallel_np(np)
       call Pack_npack(0,npack0)
 
-
+      meta = meta_found()
       n2ft3d = 2*nfft3d
       field_exist       = pspw_charge_found()
       sic               = pspw_SIC()
@@ -440,7 +445,7 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
         if (fei) 
      >    call dcopy(3*natmx,dbl_mb(fion(1)),1,dbl_mb(ftest(1)),1)
         call ion_FixIon(dbl_mb(fion(1)))
-c        call meta_force(dbl_mb(fion(1)))
+        if (meta) call meta_force(dbl_mb(fion(1)))
 
         !**** center of mass constraint ****
 c        if (.not.allow_translation) then
@@ -743,9 +748,10 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
       end if
 
 *     **** metadynamics energy ****
-c      E(24) = meta_energy()
-c      E(1)  = E(1) + E(24)
-
+      if (meta) then
+         E(24) = meta_energy()
+         E(1)  = E(1) + E(24)
+      end if
 
 *      **** write ecce data ****
        call ecce_print_module_entry('task car-parrinello')
