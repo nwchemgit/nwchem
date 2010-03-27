@@ -25,6 +25,7 @@ nwpw
      ngrid 32 32 32
    end
    xc pbe96
+   lcao #old default
 end
 task pspw energy
 
