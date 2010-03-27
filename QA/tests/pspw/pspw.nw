@@ -25,6 +25,7 @@ nwpw
      ngrid 8 8 8
      SC 20.0      #Not checking automatic unit cell generation
    end
+   lcao #added 3/26/10 because of changed default
 end
 task pspw energy
 nwpw 
