@@ -140,7 +140,7 @@ c     **********************************************
             end do
          end if
          value = value.and.
-     >           MA_alloc_get(mt_dbl,anxmeta,'tmeta',
+     >           MA_alloc_get(mt_dbl,501,'tmeta',
      >                        tmeta(2),tmeta(1))
          if (.not.value)
      >    call errquit('cannot allocate heap memory for metadynamics',0,
@@ -374,12 +374,13 @@ c     **** bond distance ***
          call lattice_min_difference(dx,dy,dz)
          r  = dsqrt(dx**2 + dy**2 + dz**2)
 
-         fmeta(1,indx(1)) = fmeta(1,indx(1)) + (dx/r)*dv
-         fmeta(2,indx(1)) = fmeta(2,indx(1)) + (dy/r)*dv
-         fmeta(3,indx(1)) = fmeta(3,indx(1)) + (dz/r)*dv
-         fmeta(1,indx(2)) = fmeta(1,indx(2)) - (dx/r)*dv
-         fmeta(2,indx(2)) = fmeta(2,indx(2)) - (dy/r)*dv
-         fmeta(3,indx(2)) = fmeta(3,indx(2)) - (dz/r)*dv
+         fmeta(1,indx(1)) = fmeta(1,indx(1)) - (dx/r)*dv
+         fmeta(2,indx(1)) = fmeta(2,indx(1)) - (dy/r)*dv
+         fmeta(3,indx(1)) = fmeta(3,indx(1)) - (dz/r)*dv
+         fmeta(1,indx(2)) = fmeta(1,indx(2)) + (dx/r)*dv
+         fmeta(2,indx(2)) = fmeta(2,indx(2)) + (dy/r)*dv
+         fmeta(3,indx(2)) = fmeta(3,indx(2)) + (dz/r)*dv
+
 c     **** bond angle ***
       else if (ntype.eq.2) then
          x1 = ion_rion(1,indx(1))
@@ -586,8 +587,8 @@ c     **** bond dihedral ****
 
          if (anmeta.gt.0) then
             dr = dbl_mb(axmeta(1)+1) - dbl_mb(axmeta(1))
-            do j=1,bnmeta
-               r     = meta_collective(1,int_mb(aindxmeta(1)+(j-1)*2))
+            do j=1,anmeta
+               r     = meta_collective(1,int_mb(aindxmeta(1)+(j-1)*3))
                w     = dbl_mb(awsigmameta(1)+(j-1)*2)
                sigma = dbl_mb(awsigmameta(1)+(j-1)*2+1)
                yshift  = aymeta(1) +(j-1)*anxmeta
