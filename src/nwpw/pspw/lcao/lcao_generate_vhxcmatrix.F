@@ -47,6 +47,10 @@
      >        MA_push_get(mt_dbl,(2*n2ft3d),'tmp2',tmp2(2),tmp2(1))
       value = value.and.
      >        MA_push_get(mt_dbl,(2*n2ft3d),'dnall',dnall(2),dnall(1))
+      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(xcp(1)),1)
+      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)
+      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(tmp2(1)),1)
+      call dcopy(2*n2ft3d,0.0d0,0,dbl_mb(dnall(1)),1)
       xvc  = tmp1(1)
       rho  = tmp1(1)+n2ft3d
       vpsi = tmp2(1)
@@ -73,8 +77,6 @@ c           call D3dB_r_SMul(1,0.5d0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
       end do
 
 
-
-
       gga = control_gga()
       if (gga.eq.0) then
         call vxc(n2ft3d,ispin,dbl_mb(dnall(1)),
@@ -91,6 +93,7 @@ c           call D3dB_r_SMul(1,0.5d0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
 *     **** get exchange-correlation energy ****
       call D3dB_rr_dot(1,dbl_mb(dnall(1)),dbl_mb(tmp1(1)),exc)
       call D3dB_rr_dot(1,dn(1,1),dbl_mb(xcp(1)),pxc)
+
       if (ispin.eq.1) then
          exc= exc + exc
          pxc= pxc + pxc
@@ -103,11 +106,11 @@ c           call D3dB_r_SMul(1,0.5d0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
       end if
       exc = exc*dv
       pxc = pxc*dv
+
       value = MA_pop_stack(dnall(2))
       if (.not. value) 
      > call errquit('lcao_geneate_vhxcmatrix: popping stack memory',1,
      &       MA_ERR)
-
 
 *     ************************************
 *     **** generate coulomb potential ****
