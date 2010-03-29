@@ -3,7 +3,6 @@
 *
 
 ***********************************************************************
-** for karol
 *                      cpmdv5-mpi  (MPI code)                         *
 *                                                                     *
 *     This is a developing cpsdv5 parallel code for NWChem            *
@@ -1226,7 +1225,7 @@ c         end if
       call pspw_end_SIC()
       call pspw_end_HFX()
       call pspw_qmmm_end()
-      call meta_finalize()
+      call meta_finalize(rtdb)
       call dplot_iteration_end()
 c      call frac_occ_end()
       if (control_Nose()) call Nose_end()
