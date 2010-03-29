@@ -27,6 +27,12 @@ c     **********************************************
       external    lattice_unita
       external    c_index_name
 
+      call Parallel_taskid(taskid)
+      metaprintcount = 0
+      rtdb_name = 'metadynamics_print'
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,maxmetaprintcount)) 
+     >   maxmetaprintcount=100
+
       rtdb_name = 'metadynamics_nbond'
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,bnmeta)) bnmeta = 0
 
@@ -53,8 +59,26 @@ c     **********************************************
             value = value.and.
      >              MA_alloc_get(mt_dbl,bnmeta*bnxmeta,'by2meta',
      >                           by2meta(2),by2meta(1))
+
+*           **** load old spline fits ****
             call dcopy(bnmeta*bnxmeta,0.0d0,0,dbl_mb(bymeta(1)),1)
             call dcopy(bnmeta*bnxmeta,0.0d0,0,dbl_mb(by2meta(1)),1)
+            rtdb_name = 'metadynamics_bymeta'
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,bnmeta*bnxmeta,
+     >                       dbl_mb(bymeta(1)))) then
+               call dcopy(bnmeta*bnxmeta,0.0d0,0,dbl_mb(bymeta(1)),1)
+            else
+               if (taskid.eq.MASTER) 
+     >            write(*,*) "  ... reading bond metadynamics data"
+            end if
+            rtdb_name = 'metadynamics_by2meta'
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,bnmeta*bnxmeta,
+     >                       dbl_mb(by2meta(1)))) then
+               call dcopy(bnmeta*bnxmeta,0.0d0,0,dbl_mb(by2meta(1)),1)
+            else
+               if (taskid.eq.MASTER) 
+     >            write(*,*) "  ... reading more bond metadynamics data"
+            end if
 
             value = value.and.
      >              MA_alloc_get(mt_dbl,2*bnmeta,'bwsigmameta',
@@ -108,8 +132,27 @@ c     **********************************************
             value = value.and.
      >              MA_alloc_get(mt_dbl,anmeta*anxmeta,'ay2meta',
      >                           ay2meta(2),ay2meta(1))
+
+*           **** load old spline fits ****
             call dcopy(anmeta*anxmeta,0.0d0,0,dbl_mb(aymeta(1)),1)
             call dcopy(anmeta*anxmeta,0.0d0,0,dbl_mb(ay2meta(1)),1)
+            rtdb_name = 'metadynamics_aymeta'
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,anmeta*anxmeta,
+     >                       dbl_mb(aymeta(1)))) then
+               call dcopy(anmeta*anxmeta,0.0d0,0,dbl_mb(aymeta(1)),1)
+            else
+               if (taskid.eq.MASTER) 
+     >           write(*,*) "  ... reading angle metadynamics data"
+            end if
+            rtdb_name = 'metadynamics_ay2meta'
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,anmeta*anxmeta,
+     >                       dbl_mb(ay2meta(1)))) then
+               call dcopy(anmeta*anxmeta,0.0d0,0,dbl_mb(ay2meta(1)),1)
+            else
+               if (taskid.eq.MASTER) 
+     >           write(*,*) "  ... reading more angle metadynamics data"
+            end if
+
 
             value = value.and.
      >              MA_alloc_get(mt_dbl,2*anmeta,'awsigmameta',
@@ -183,10 +226,12 @@ c     *                                            *
 c     *            meta_finalize                   *
 c     *                                            *
 c     **********************************************
-      subroutine meta_finalize()
+      subroutine meta_finalize(rtdb)
       implicit none
+      integer rtdb
 
 #include "mafdecls.fh"
+#include "rtdb.fh"
 #include "errquit.fh"
 #include "metadynamics.fh"
 
@@ -197,7 +242,7 @@ c     **********************************************
       logical value
       integer i,j,yshift,k
       real*8 r
-      character*80 filename
+      character*80 filename,rtdb_name
       character*255 full_filename
 
 *     **** external functions ****
@@ -209,32 +254,19 @@ c     **********************************************
       if (metafound) then
 
 *        **** print out potentials ******
-         !yshift  = bymeta(1) +(j-1)*bnxmeta
-         do i=1,bnxmeta
-           r = dbl_mb(bxmeta(1)+i-1)
-           write(101,*) r,
-     >     (dbl_mb(bymeta(1)+(j-1)*bnxmeta+i-1),j=1,bnmeta)
-         end do
-
+         call meta_print_potentials()
 
          value = .true.
          if (bnmeta.gt.0) then
-            if (taskid.eq.MASTER) then
-            do j=1,bnmeta
 
-               filename = "bmeta-"//c_index_name(j)//".dat"
-               call util_file_name_noprefix(filename,.false.,
-     >                                      .false.,
-     >                                      full_filename)
-               open(unit=53,file=full_filename,form='formatted')
-               yshift  = bymeta(1) +(j-1)*bnxmeta
-               do i=1,bnxmeta
-                   write(53,'(2E15.6)') 
-     >                  dbl_mb(bxmeta(1)+i-1),dbl_mb(yshift+i-1)
-               end do
-               close(53)
-            end do
-            end if
+*           **** write out current spline fits ****
+            rtdb_name = 'metadynamics_bymeta'
+            value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                        bnmeta*bnxmeta,dbl_mb(bymeta(1)))
+            rtdb_name = 'metadynamics_by2meta'
+            value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                        bnmeta*bnxmeta,dbl_mb(by2meta(1)))
+
             value = value.and.MA_free_heap(bxmeta(2))
             value = value.and.MA_free_heap(bymeta(2))
             value = value.and.MA_free_heap(by2meta(2))
@@ -242,22 +274,15 @@ c     **********************************************
             value = value.and.MA_free_heap(bindxmeta(2))
          end if
          if (anmeta.gt.0) then
-           if (taskid.eq.MASTER) then
-            do j=1,anmeta
 
-               filename = "ameta-"//c_index_name(j)//".dat"
-               call util_file_name_noprefix(filename,.false.,
-     >                                      .false.,
-     >                                      full_filename)
-               open(unit=53,file=full_filename,form='formatted')
-               yshift  = aymeta(1) +(j-1)*anxmeta
-               do i=1,bnxmeta
-                   write(53,'(2E15.6)')
-     >                  dbl_mb(axmeta(1)+i-1),dbl_mb(yshift+i-1)
-               end do
-               close(53)
-            end do
-            end if
+*           **** write out current spline fits ****
+            rtdb_name = 'metadynamics_aymeta'
+            value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                        anmeta*anxmeta,dbl_mb(aymeta(1)))
+            rtdb_name = 'metadynamics_ay2meta'
+            value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                        anmeta*anxmeta,dbl_mb(ay2meta(1)))
+
             value = value.and.MA_free_heap(axmeta(2))
             value = value.and.MA_free_heap(aymeta(2))
             value = value.and.MA_free_heap(ay2meta(2))
@@ -541,6 +566,12 @@ c     **** bond dihedral ****
 
          end if
 
+         metaprintcount = metaprintcount + 1
+         if (metaprintcount.ge.maxmetaprintcount) then
+            metaprintcount = 0
+            call meta_print_potentials()
+         end if
+
       end if
  
       return
@@ -678,3 +709,74 @@ c     **** bond dihedral ****
       return
       end
 
+
+c     **********************************************
+c     *                                            *
+c     *            meta_print_potentials           *
+c     *                                            *
+c     **********************************************
+      subroutine meta_print_potentials()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "metadynamics.fh"
+
+*     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      integer i,j,yshift,k
+      real*8 r
+      character*80 filename
+      character*255 full_filename
+
+*     **** external functions ****
+      character*7 c_index_name
+      external    c_index_name
+
+      call Parallel_taskid(taskid)
+
+      if (metafound) then
+
+*        **** print out potentials ******
+         if (bnmeta.gt.0) then
+            if (taskid.eq.MASTER) then
+            do j=1,bnmeta
+
+               filename = "bmeta"//c_index_name(j)//".dat"
+               call util_file_name_noprefix(filename,.false.,
+     >                                      .false.,
+     >                                      full_filename)
+               open(unit=53,file=full_filename,form='formatted')
+               yshift  = bymeta(1) +(j-1)*bnxmeta
+               do i=1,bnxmeta
+                   write(53,'(2F15.6)') 
+     >                  dbl_mb(bxmeta(1)+i-1),dbl_mb(yshift+i-1)
+               end do
+               close(53)
+            end do
+            end if
+         end if
+         if (anmeta.gt.0) then
+           if (taskid.eq.MASTER) then
+            do j=1,anmeta
+
+               filename = "ameta"//c_index_name(j)//".dat"
+               call util_file_name_noprefix(filename,.false.,
+     >                                      .false.,
+     >                                      full_filename)
+               open(unit=53,file=full_filename,form='formatted')
+               yshift  = aymeta(1) +(j-1)*anxmeta
+               do i=1,bnxmeta
+                   write(53,'(2F15.6)')
+     >                  dbl_mb(axmeta(1)+i-1),dbl_mb(yshift+i-1)
+               end do
+               close(53)
+            end do
+            end if
+         end if
+      end if
+
+      return
+      end
