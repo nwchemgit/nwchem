@@ -263,13 +263,11 @@
 
 
 
-
 *     ********************************
 *     **** generate phaze factors ****
 *     ********************************
       call phafac()
       if (psp_semicore(0)) call semicore_density_update()
-
 
 *     **** get ewald energy ****
       Eion = 0.0d0
@@ -277,7 +275,6 @@
 
 *     **** get free-space ion-ion energy ****
       if (control_version().eq.4) Eion = ion_ion_e()
-
 
 
 *     **********************************
