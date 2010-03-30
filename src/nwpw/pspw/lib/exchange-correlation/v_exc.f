@@ -44,7 +44,6 @@
       parameter (fc  =  1.923661d+00,  fd  =  2.564881d+00)
       parameter (crs =  7.876233d-01)
 
-
       call nwpw_timing_start(4)
       pi=4.0d0*datan(1.0d0)
 
