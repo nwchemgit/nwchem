@@ -250,6 +250,7 @@
       call mask_init()
       call Pack_init()
       call D3dB_pfft_init()
+      call ga_sync()
 
 *     **** read ions ****
       value = ion_init(rtdb)
