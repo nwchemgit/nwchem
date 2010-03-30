@@ -231,6 +231,7 @@
       call mask_init()
       call Pack_Init()
       call D3dB_pfft_init()
+      call ga_sync()
 
 
 *     **** read in wavefunctions and initialize psi ****
