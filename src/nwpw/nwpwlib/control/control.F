@@ -969,8 +969,8 @@ c
 *     ****  ewald ngrid ************
 cccc set to some reasonable default !
       if (.not.rtdb_get(rtdb,'nwpw:ewald_ngrid',mt_int,3,ewald_grid)) 
-     > then
-     	ewald_grid(1)=ngrid(1)
+     > then 
+        ewald_grid(1)=ngrid(1)
         ewald_grid(2)=ngrid(2)
         ewald_grid(3)=ngrid(3)
       end if
@@ -981,6 +981,11 @@ cccc set to some reasonable default !
      >       (ngrid(3).lt.np_dimensions(1))) then
             mapping = 2
          end if
+      end if
+
+*     **** minimizer ****
+      if (.not.rtdb_get(rtdb,'nwpw:minimizer',mt_int,1,minimizer)) then
+         minimizer = 1   ! make the default Grassmann cg
       end if
 
       control_read = value
@@ -2951,29 +2956,17 @@ c      end
 
 *     *****************************
 *     *                	 	  *
-*     *    	control_minimizer *
+*     *   control_minimizer       *
 *     *                 	  *
 *     *****************************
       integer function control_minimizer()
       implicit none
 
-#include "mafdecls.fh"
-#include "rtdb.fh"
-
-*     **** control_rtdb common block ****
-      integer rtdb
-      common / control_rtdb1 / rtdb
-
-      integer minimizer
-
-      if (.not.rtdb_get(rtdb,'nwpw:minimizer',mt_int,1,minimizer)) then
-         minimizer = 1   ! make the default Grassmann cg
-      end if
+#include "control.fh"
 
       control_minimizer = minimizer
       return
       end
-
 
 
 

@@ -25,7 +25,7 @@
       logical     rotation,translation,balance,spin_orbit
       logical     two_comp_ppot
       integer     maxit_orb,maxit_orbs,scf_algorithm,ks_algorithm
-      integer     symm_number
+      integer     symm_number,minimizer
       common / control_block / unita,tolerances,scaling,sa_decay,
      >                         time_step,fake_mass,ks_alpha,
      >                         ecut,wcut,rcut,attenuation,
@@ -37,7 +37,7 @@
      >                         code,
      >                         ispin,multiplicity,
      >                         maxit_orb,maxit_orbs,scf_algorithm,
-     >                         ks_algorithm,
+     >                         ks_algorithm,minimizer,
      >                         symm_number,
      >                         move,frac_coord,SA,fei,fei_quench,
      >                         gram_schmidt,rotation,translation,
