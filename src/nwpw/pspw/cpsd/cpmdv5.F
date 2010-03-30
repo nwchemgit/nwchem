@@ -258,6 +258,7 @@ cccc#include "frac_occ.fh"
       call Pack_npack(1,npack1)
 
       call D3dB_pfft_init()
+      call ga_sync()
 
 *     ***** allocate psi2, psi1, and psi0 wavefunctions ****
       call psi_get_ne_occupation(ispin,ne,smearoccupation)

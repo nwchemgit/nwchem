@@ -239,6 +239,7 @@ cccc#include "frac_occ.fh"
       call Pack_npack(1,npack1)      
 
       call D3dB_pfft_init()
+      call ga_sync()
 
 
  
