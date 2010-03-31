@@ -1749,7 +1749,6 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
 *       ********************************************************
         if (psp_semicore(0)) then
            call semicore_density(dbl_mb(tmp1(1)))
-c           call D3dB_r_SMul(1,0.5d0,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
            call D3dB_r_SMul1(1,0.5d0,dbl_mb(tmp1(1)))
         else
            call dcopy(n2ft3d,0.0d0,0,dbl_mb(tmp1(1)),1)

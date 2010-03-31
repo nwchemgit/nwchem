@@ -3137,16 +3137,13 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                  dcpl_mb(dng1(1)),
      >                   dbl_mb(rho1_all(1)),
      >                  occupation_on,dbl_mb(occ1(1)))
-
       Eout =  electron_energy(dcpl_mb(psi1(1)),
      >                        dbl_mb(rho1(1)),
      >                        dcpl_mb(dng1(1)),
      >                        dbl_mb(rho1_all(1)),
      >                        occupation_on,dbl_mb(occ1(1)))
-
       call electron_gen_hml(dcpl_mb(psi1(1)),
      >                       dbl_mb(tmp1(1)))
-
       call electron_get_Tgradient(dcpl_mb(psi1(1)),
      >                             dbl_mb(tmp1(1)),
      >                            THpsi)
@@ -5611,6 +5608,8 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
      >        MA_alloc_get(mt_dbl,4*nfft3d,
      >                     'rho2_all',rho2_all(2),rho2_all(1))
       if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(rho1_all(1)),1)
+      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(rho2_all(1)),1)
 
 *     *****  read initial wavefunctions into psi1  ****
       rtdb = control_rtdb()
