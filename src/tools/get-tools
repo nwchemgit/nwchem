@@ -13,7 +13,9 @@ fi
 
 TOOLDIR=`pwd`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
+GA_NEW_SVN=https://svn.pnl.gov/svn/hpctools/branches/cvs-dev/ga
 GA_NEW=ga-dev
+GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-4-3
 GA_OLD=ga-4-3
 
 # If OLD_GA is set at all in the user's environment then it means 'yes'
@@ -51,22 +53,31 @@ then
     rm -rf $TOOLDIR/tcgmsg
     rm -rf $TOOLDIR/tcgmsg-mpi
 fi
-svn checkout https://svn.pnl.gov/svn/hpctools/branches/ga-4-3 $GA_OLD
-pushd $GA_OLD
+svn checkout $GA_OLD_SVN $GA_OLD
+cd $GA_OLD
 rm -f README
 rm -f license.txt
 rm -f INSTALL
 rm -f NOTES
 rm -f GNUmakefile
 cp -f -R * ..
-popd
+cd $TOOLDIR
 
 # Update the autotools build of GA.
-if test -e $TOOLDIR/build
+#if test -e $TOOLDIR/build
+#then
+#    echo "You have an old copy of the ga tools using configure"
+#    echo "Deleting it now"
+#    rm -rf $TOOLDIR/build
+#    rm -rf $TOOLDIR/install
+#fi
+if test -d $GA_NEW
 then
-    echo "You have an old copy of the ga tools using configure"
-    echo "Deleting it now"
-    rm -rf $TOOLDIR/build
-    rm -rf $TOOLDIR/install
+    echo "Updating existing $GA_NEW"
+    cd $GA_NEW
+    svn update
+    cd $TOOLDIR
+else
+    echo "Checking out $GA_NEW_SVN"
+    svn checkout $GA_NEW_SVN $GA_NEW
 fi
-svn checkout https://svn.pnl.gov/svn/hpctools/branches/cvs-dev/ga $GA_NEW

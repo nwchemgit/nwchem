@@ -3,6 +3,8 @@
 #
 include ../config/makefile.h
 
+SHELL = /bin/sh
+
 ifdef OLD_GA
 #
 # GNUmakefile-based build of GA
@@ -302,19 +304,45 @@ ifeq ($(TARGET),BGP)
 endif
 # End conversion of env vars to configure options
 
-CONFIGURE_PATH = ../ga-dev/configure
+GA_DIR = ga-dev
+CONFIGURE_PATH = ../$(GA_DIR)/configure
 BUILDDIR = build
 INSTALLDIR = install
 TOOLDIR = $(shell pwd)
 CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) $(MAYBE_MPI_INCLUDE) $(MAYBE_MPI_LIB) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_F77)
 
-tools: $(STAMP)
+$(INSTALLDIR)/lib/libga.a: $(BUILDDIR) $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
 	@echo ''
 	@echo '*** Building Parallel Tools ****'
 	@echo ''
-	@test -e $(BUILDDIR)/armci/config.status && echo "Already Configured with $(CONFIGURE_ARGS)" || (rm -rf $(BUILDDIR) $(INSTALLDIR) && mkdir $(BUILDDIR) && cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS))
-	@test -e $(BUILDDIR)/libga.la && echo "Already Built" || (rm -rf $(INSTALLDIR) && cd $(BUILDDIR) && $(MAKE))
-	@test -e $(INSTALLDIR)/lib/libga.a && echo "Already Installed" || (cd $(BUILDDIR) && $(MAKE) install)
+	@(cd $(BUILDDIR) && $(MAKE)) || exit 1
+	@echo ''
+	@echo '*** Installing Parallel Tools ****'
+	@echo ''
+	@(cd $(BUILDDIR) && $(MAKE) install) || exit 1
+
+$(BUILDDIR)/Makefile: $(GA_DIR)/Makefile.in $(BUILDDIR)/config.status
+	cd $(BUILDDIR) && $(SHELL) ./config.status
+
+$(BUILDDIR)/armci/Makefile: $(GA_DIR)/armci/Makefile.in $(BUILDDIR)/armci/config.status
+	cd $(BUILDDIR)/armci && $(SHELL) ./config.status
+
+$(BUILDDIR)/armci/config.status: $(BUILDDIR)/config.status
+$(BUILDDIR)/config.status: $(GA_DIR)/configure
+	@echo ''
+	@echo '*** Configuring Parallel Tools ****'
+	@echo ''
+	@(cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS)) || exit 1
+
+.PHONY: $(BUILDDIR) $(GA_DIR)
+$(BUILDDIR):
+	(test -d $(BUILDDIR)) || mkdir $(BUILDDIR);
+$(GA_DIR)/Makefile.in:       $(GA_DIR)
+$(GA_DIR)/armci/Makefile.in: $(GA_DIR)
+$(GA_DIR)/configure:         $(GA_DIR)
+$(GA_DIR)/armci/configure:   $(GA_DIR)
+$(GA_DIR):
+	(test -d $(GA_DIR)) || ./get-tools
 
 clean:
 	@test -e $(BUILDDIR)/Makefile && { cd $(BUILDDIR) && $(MAKE) clean; } || echo "Not configured"
