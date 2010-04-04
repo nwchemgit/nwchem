@@ -672,9 +672,10 @@ c
         else if(dtype.eq.MT_INT) then
           call ga_brdcst(msg_smd,int_mb(ind),
      >     ndim*ma_sizeof(dtype,1,mt_byte),root)
+c could be problems here!!!!
         else if(dtype.eq.MT_STR) then
           call ga_brdcst(msg_smd,byte_mb(ind),
-     >     smd_string_size*ndim*ma_sizeof(dtype,1,mt_byte),root)
+     >     smd_string_size*ndim*ma_sizeof(MT_BYTE,1,mt_byte),root)
          else if(dtype.eq.MT_BYTE) then
           call ga_brdcst(msg_smd,byte_mb(ind),
      >     ndim*ma_sizeof(dtype,1,mt_byte),root)
@@ -816,7 +817,7 @@ c
         call ga_brdcst(msg_smd,dtype,
      >       ma_sizeof(mt_int,1,mt_byte),root)
         call ga_brdcst(msg_smd,buffer,
-     >     72*ma_sizeof(mt_int,1,mt_byte),root)
+     >     72*ma_sizeof(mt_byte,1,mt_byte),root)
      
         call ga_sync()
      
@@ -834,8 +835,9 @@ c
           call ga_brdcst(msg_smd,int_mb(ind),
      >     ndim*ma_sizeof(dtype,1,mt_byte),root)
         else if(dtype.eq.MT_STR) then
+          write(*,*) "found string: ",MT_STR,MT_BYTE,buffer
           call ga_brdcst(msg_smd,byte_mb(ind),
-     >     smd_string_size*ndim*ma_sizeof(dtype,1,mt_byte),root)
+     >     smd_string_size*ndim*ma_sizeof(MT_BYTE,1,mt_byte),root)
        else if(dtype.eq.MT_BYTE) then
           call ga_brdcst(msg_smd,byte_mb(ind),
      >     ndim*ma_sizeof(dtype,1,mt_byte),root)
