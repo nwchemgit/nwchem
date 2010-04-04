@@ -6,7 +6,7 @@ c
       double precision  boltzmann,convfct1,convfct2,pii,twopi,sqrpi
 
       integer MT_STR
-      parameter (MT_STR = 1009)
+      parameter (MT_STR = 3009)
 
       parameter(boltzmann=  8.31451115d-1)
       parameter(convfct1 = 14.39965173d0)
