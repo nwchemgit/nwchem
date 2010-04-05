@@ -6049,10 +6049,14 @@ c     end if
 #include "psi.fh"
 
 
-*     **** Lubin Water Analysis ***
+*     **** Lubin Water Analysis ****
       call pspw_Lubin_water_analysis(rtdb,ispin,ne,2*nfft3d,
      >                                 dbl_mb(rho1(1)))
 
+*     **** Atom Analysis ****
+      call pspw_atom_analysis(rtdb,ispin,2*nfft3d,dbl_mb(rho1(1)))
+
+*     **** Mulliken Analysis ****
       call pspw_analysis(0,rtdb,ispin,ne,dcpl_mb(psi2(1)),
      >                                   dbl_mb(eig(1)))
 
