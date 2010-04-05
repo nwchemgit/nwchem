@@ -835,7 +835,6 @@ c
           call ga_brdcst(msg_smd,int_mb(ind),
      >     ndim*ma_sizeof(dtype,1,mt_byte),root)
         else if(dtype.eq.MT_STR) then
-          write(*,*) "found string: ",MT_STR,MT_BYTE,buffer
           call ga_brdcst(msg_smd,byte_mb(ind),
      >     smd_string_size*ndim*ma_sizeof(MT_BYTE,1,mt_byte),root)
        else if(dtype.eq.MT_BYTE) then
