@@ -41,7 +41,7 @@ c
 c
       odistrib = .false.
       master = 0
-      pname = "smd_init_dynamics"
+      pname = "smd_init_energy"
 c
       sp_atom      = "atom"
       sp_param     = "parameters"
@@ -131,7 +131,10 @@ c
       call smd_rtdb_init(.false.,rtdb)
       call smd_cutoff_init()
       call smd_temper_init()
+      write(*,*) "initializing atom"
       call smd_atom_init_system()
+      write(*,*) "initialized atom"
+      call util_flush(6)
       call smd_param_init_system()
       call smd_lat_init_system()
       call smd_pot_init_system()
@@ -154,8 +157,10 @@ c     -------------------
       call smd_system_print(6)
 
       end if
+      call util_message("done with setup "//pname)
       call ga_sync()
       call smd_data_brdcst_create(master)
+      call util_message("done with setup 1"//pname)
       return
       end
 
