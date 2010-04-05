@@ -8,10 +8,10 @@ c
 *     *					*
 *     ***********************************
 
-      subroutine Orb_pop_aorb(ispin,ne,npack1,nemax,c2,
+      subroutine Orb_pop_aorb(flag,ispin,ne,npack1,nemax,c2,
      >                        lmax,a,sum)
       implicit none
-      integer    iunit
+      integer    iunit,flag
       integer    ispin,ne(2)
       integer    npack1,nemax
       complex*16 c2(npack1,*)
@@ -30,7 +30,7 @@ c
       integer i,k,l,n,ll,l1,l2,jj
       integer llmax,nfft3d
       real*8  w,pi,twopi
-      integer n1(2),n2(2)
+      integer n1(2),n2(2),q,pj,taskid_j,nnn
 
 *     *** MA Arrays ****
       integer phi(2)
@@ -58,17 +58,28 @@ c
       pi = 4.0d0*datan(1.0d0)
       twopi = 2.0d0*pi
 
+      nnn = 36*nemax*ion_nion_qm()
+      call dcopy(nnn,0.0d0,0,A,1)
+      call Parallel2d_taskid_j(taskid_j)
+
       call phafac()
       do i=1,ion_nion_qm()
 
 
         DO spin=1,ispin
           do n=n1(spin),n2(spin)
+            if (flag.eq.0) then
+               call Dneall_ntoqp(n,q,pj)
+            else
+               q = n
+               pj=taskid_j
+            end if
+            if (pj.eq.taskid_j) then
 
 * S-COMPONENT
             jj=aorbs_get_basis_number(i,1)
             call aorbs_aorb(jj,dcpl_mb(phi(1)))
-            call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+            call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
             A(1,N,I)=w
 
 
@@ -78,19 +89,19 @@ c
 *             **** px component ****
               jj=aorbs_get_basis_number(i,4)
               call aorbs_aorb(jj,dcpl_mb(phi(1)))
-              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
               A(2,N,I)=w
 
 *             **** py component ****
               jj=aorbs_get_basis_number(i,3)
               call aorbs_aorb(jj,dcpl_mb(phi(1)))
-              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
               A(3,N,I)=w
 
 *             **** pz component ****
               jj=aorbs_get_basis_number(i,2)
               call aorbs_aorb(jj,dcpl_mb(phi(1)))
-              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
               A(4,N,I)=w
             ENDIF
 
@@ -100,37 +111,43 @@ c
 *             **** dzz component ****
               jj=aorbs_get_basis_number(i,9)
               call aorbs_aorb(jj,dcpl_mb(phi(1)))
-              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
               A(5,N,I)=w
 
 *             **** dx2-y2 component ****
               jj=aorbs_get_basis_number(i,5)
               call aorbs_aorb(jj,dcpl_mb(phi(1)))
-              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
               A(6,N,I)=w
 
 *             **** dxy component ****
               jj=aorbs_get_basis_number(i,8)
               call aorbs_aorb(jj,dcpl_mb(phi(1)))
-              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
               A(7,N,I)=w
 
 *             **** dyz component ****
               jj=aorbs_get_basis_number(i,7)
               call aorbs_aorb(jj,dcpl_mb(phi(1)))
-              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
               A(8,N,I)=w
 
 *             **** dzx component ****
               jj=aorbs_get_basis_number(i,6)
               call aorbs_aorb(jj,dcpl_mb(phi(1)))
-              call Pack_cc_dot(1,dcpl_mb(phi(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
               A(9,N,I)=w
             ENDIF 
 
+            end if
           end do
         end do
       end do
+      if (flag.eq.0) then
+         call Parallel_Vector_SumAll(nnn,A)
+      else
+         call D3dB_Vector_SumAll(nnn,A)
+      end if
  
       DO SPIN=1,ISPIN
         DO N=N1(SPIN),N2(SPIN)

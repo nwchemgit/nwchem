@@ -8,10 +8,10 @@ c
 *     *					*
 *     ***********************************
 
-      subroutine Orb_pop_kawai(ispin,ne,npack1,nemax,c2,
+      subroutine Orb_pop_kawai(flag,ispin,ne,npack1,nemax,c2,
      >                        lmax,b0,a,sum)
       implicit none
-      integer    iunit
+      integer    iunit,flag
       integer    ispin,ne(2)
       integer    npack1,nemax
       complex*16 c2(npack1,*)
@@ -32,7 +32,7 @@ c
       integer llmax,nfft3d
       real*8  omega,w,pi,twopi
       real*8  f0,f1,f2,f21,f22,f23,f24,f25
-      integer n1(2),n2(2)
+      integer n1(2),n2(2),q,pj,nnn,taskid_j
 
 *     *** MA Arrays ****
       integer exr(2),cw(2)
@@ -45,6 +45,7 @@ c
       real*8   lattice_omega
       external lattice_omega
 
+      call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
 
       n1(1) = 1
@@ -89,6 +90,9 @@ c
       F24=F23
       F25=F23
 
+      nnn = 36*nemax*ion_nion_qm()
+      call dcopy(nnn,0.0d0,0,A,1)
+
       call phafac()
       do i=1,ion_nion_qm()
 
@@ -99,9 +103,18 @@ c
 
         DO spin=1,ispin
           do n=n1(spin),n2(spin)
+          if (flag.eq.0) then
+             call Dneall_ntoqp(n,q,pj)
+          else
+             q = n
+             pj = taskid_j
+          end if
+          if (pj.eq.taskid_j) then
+
+
 
 * S-COMPONENT
-            call Pack_cc_dot(1,dcpl_mb(exr(1)),c2(1,n),w)
+            call Pack_cc_idot(1,dcpl_mb(exr(1)),c2(1,q),w)
             A(1,N,I)=F0/B0(0,ion_katm_qm(I))*w
 
 
@@ -113,7 +126,7 @@ c
                 dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
      >                            *DCMPLX(0.0d0,-dbl_mb(gx(1)+K-1))
               end do
-              call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
               A(2,N,I)=F1/B0(1,ion_katm_qm(I))*w
 
 *             **** py component ****
@@ -121,7 +134,7 @@ c
                 dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
      >                            *DCMPLX(0.0d0,-dbl_mb(gy(1)+K-1))
               end do
-              call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
               A(3,N,I)=F1/B0(1,ion_katm_qm(I))*w
 
 *             **** pz component ****
@@ -129,7 +142,7 @@ c
                 dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
      >                            *DCMPLX(0.0d0,-dbl_mb(gz(1)+K-1))
               end do
-              call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
               A(4,N,I)=F1/B0(1,ion_katm_qm(I))*w
             ENDIF
 
@@ -143,7 +156,7 @@ c               CW(K)=EXR(K)*(3.0d0*g(K,3)**2-1.0)/(2.0d0*dsqrt(3.0d0)
      >            *(3.0d0*dbl_mb(gz(1)+k-1)**2 - 1.0d0)
      >            /(2.0d0*dsqrt(3.0d0))
               end do
-              call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
               A(5,N,I)=F2/B0(2,ion_katm_qm(I))*w
 
 *             **** dx2-y2 component ****
@@ -153,7 +166,7 @@ c               CW(K)=EXR(K)*(g(K,1)**2-g(K,2)**2)/(2.0d0)
      >            *( dbl_mb(gx(1)+k-1)**2
      >             - dbl_mb(gy(1)+k-1)**2)/(2.0d0)
               end do
-              call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
               A(6,N,I)=F2/B0(2,ion_katm_qm(I))*w
 
 *             **** dxy component ****
@@ -162,7 +175,7 @@ c               CW(K)=EXR(K)*g(K,1)*g(K,2)
                 dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
      >            *( dbl_mb(gx(1)+k-1)*dbl_mb(gy(1)+k-1)**2)
               end do
-              call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
               A(7,N,I)=F2/B0(2,ion_katm_qm(I))*w
 
 *             **** dyz component ****
@@ -171,7 +184,7 @@ c               CW(K)=EXR(K)*g(K,2)*g(K,3)
                 dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
      >            *( dbl_mb(gy(1)+k-1)*dbl_mb(gz(1)+k-1)**2)
               end do
-              call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
               A(8,N,I)=F2/B0(2,ion_katm_qm(I))*w
 
 *             **** dzx component ****
@@ -180,13 +193,19 @@ c               CW(K)=EXR(K)*g(K,3)*g(K,1)
                 dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
      >            *( dbl_mb(gz(1)+k-1)*dbl_mb(gx(1)+k-1)**2)
               end do
-              call Pack_cc_dot(1,dcpl_mb(cw(1)),c2(1,n),w)
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
               A(9,N,I)=F2/B0(2,ion_katm_qm(I))*w
             ENDIF 
 
+          end if
           end do
         end do
       end do
+      if (flag.eq.0) then
+         call Parallel_Vector_SumAll(nnn,A)
+      else
+         call D3dB_Vector_SumAll(nnn,A)
+      end if
  
       DO SPIN=1,ISPIN
         DO N=N1(SPIN),N2(SPIN)

@@ -8,7 +8,7 @@ c
 *     *					*
 *     ***********************************
 
-      subroutine Orb_Analysis(iunit,
+      subroutine Orb_Analysis(iunit,flag,
      >                        ispin,ne,npack1,nemax,c2,
      >                        lmax,b0,a,sum)
       
@@ -16,7 +16,7 @@ c
 #include "errquit.fh"
 
 
-      integer    iunit
+      integer    iunit,flag
       integer    ispin,ne(2)
       integer    npack1,nemax
       complex*16 c2(npack1,*)
@@ -63,9 +63,9 @@ c
 *     **** calculated POPULATION ANALYSIS ****
 
       if (control_mulliken_kawai()) then
-        call Orb_pop_kawai(ispin,ne,npack1,nemax,c2,lmax,b0,a,sum)
+        call Orb_pop_kawai(flag,ispin,ne,npack1,nemax,c2,lmax,b0,a,sum)
       else
-        call Orb_pop_aorb(ispin,ne,npack1,nemax,c2,lmax,a,sum)
+        call Orb_pop_aorb(flag,ispin,ne,npack1,nemax,c2,lmax,a,sum)
       end if
 
 *     **** write out POPULATION ANALYSIS ****

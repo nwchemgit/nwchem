@@ -229,7 +229,7 @@ c     **** ouput xyz format ****
       if (taskid.eq.MASTER) 
      > OPEN(UNIT=65,FILE=id,FORM='FORMATTED')
       
-      call Orb_Analysis(65,ispin,ne,npack1,nemax,psi,
+      call Orb_Analysis(65,flag,ispin,ne,npack1,nemax,psi,
      >                        int_mb(lorb(1)),
      >                        dbl_mb(b0(1)),
      >                        dbl_mb(a(1)),
