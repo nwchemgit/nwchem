@@ -17,7 +17,7 @@
 #include "rtdb.fh"
 #include "control.fh"
 
-      logical value 
+      logical value,np_default
       integer ispin0,ne(2),nbrill,np1,np2
 
 *     **** control_nose common block ****
@@ -75,7 +75,9 @@
          np_dimensions(1) = np
          np_dimensions(2) = 1
          np_dimensions(3) = 1
+         np_default = .true.
       else
+         np_default = .false.
          if (.not.((code.eq.5).or.(code.eq.10))) np_dimensions(3) = 1
          if (np_dimensions(3).lt.1) np_dimensions(3) = 1
          if (np_dimensions(2).lt.1) np_dimensions(2) = 1
@@ -980,6 +982,25 @@ cccc set to some reasonable default !
          if ((ngrid(2).ne.ngrid(3)).or.
      >       (ngrid(3).lt.np_dimensions(1))) then
             mapping = 2
+         end if
+      end if
+      if (np_default) then
+         if (.not.((code.eq.5).or.(code.eq.10))) then
+            do while ((np_dimensions(1).gt.ngrid(1)).and.
+     >                (mod(np_dimensions(1),2).eq.0))
+               np_dimensions(1) = np_dimensions(1)/2
+               np_dimensions(2) = np_dimensions(2)*2
+            end do
+            do while ((np_dimensions(1).gt.ngrid(2)).and.
+     >                (mod(np_dimensions(1),2).eq.0))
+               np_dimensions(1) = np_dimensions(1)/2
+               np_dimensions(2) = np_dimensions(2)*2
+            end do
+            do while ((np_dimensions(1).gt.ngrid(3)).and.
+     >                (mod(np_dimensions(1),2).eq.0))
+               np_dimensions(1) = np_dimensions(1)/2
+               np_dimensions(2) = np_dimensions(2)*2
+            end do
          end if
       end if
 
