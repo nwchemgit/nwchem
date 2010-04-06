@@ -877,7 +877,7 @@ c     implicit none
       if (nreq.gt.0) then
 
 *     **** allocate status memory ****
-      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*nreq*2,
+      if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*nreq*4,
      >                     'status',status(2),status(1)))
      > call errquit('Parallel_mpiWaitAll:out of stack',0,MA_ERR)
 
@@ -894,6 +894,9 @@ c     implicit none
       call MPI_WAITALL(stupid_msglen,
      >                 int_mb(request2(1)),
      >                 int_mb(status(1)),stupid_ierr)
+c      call MPI_WAITALL(stupid_msglen,
+c     >                 int_mb(request2(1)),
+c     >                 MPI_STATUSES_IGNORE,stupid_ierr)
       if (.not.MA_pop_stack(request2(2)))
      > call errquit(' Parallel_mpiWaitAll:popping stack',1,MA_ERR)
 
@@ -906,6 +909,7 @@ c     *** danger! ***
 
 #else
       call MPI_WAITALL(nreq,req,int_mb(status(1)),mpierr)
+c      call MPI_WAITALL(nreq,req,MPI_STATUSES_IGNORE,mpierr)
 #endif
 
 *     *** may need to check status here??? ***

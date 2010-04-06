@@ -19,6 +19,7 @@
 
       logical value,np_default
       integer ispin0,ne(2),nbrill,np1,np2
+      integer nmult(5)
 
 *     **** control_nose common block ****
       logical nose
@@ -53,7 +54,7 @@
 
 *     **** get parallel mappings ****
       if (.not.rtdb_get(rtdb,'nwpw:mapping',mt_int,1,mapping)) then
-         mapping = 1
+         mapping = 2
       end if
 
 *     **** set mapping1d ****
@@ -102,7 +103,7 @@
          !*** temporary restriction until ne parallelized in band ***
          if ((code.eq.5).or.(code.eq.10)) np_dimensions(2) = 1
 
-         np_dimensions(1) = np/np_dimensions(2)
+         np_dimensions(1) = np/(np_dimensions(2)*np_dimensions(3))
 
       endif
 #endif
@@ -984,22 +985,32 @@ cccc set to some reasonable default !
             mapping = 2
          end if
       end if
+
       if (np_default) then
-         if (.not.((code.eq.5).or.(code.eq.10))) then
+         if ( (code.eq.1).or.
+     >        (code.eq.2).or.
+     >        (code.eq.3).or.
+     >        (code.eq.9).or.
+     >        (code.eq.11)) then
+            nmult(1) = 2
+            nmult(2) = 3
+            nmult(3) = 5
+            do i=1,3
             do while ((np_dimensions(1).gt.ngrid(1)).and.
-     >                (mod(np_dimensions(1),2).eq.0))
-               np_dimensions(1) = np_dimensions(1)/2
-               np_dimensions(2) = np_dimensions(2)*2
+     >                (mod(np_dimensions(1),nmult(i)).eq.0))
+               np_dimensions(1) = np_dimensions(1)/nmult(i)
+               np_dimensions(2) = np_dimensions(2)*nmult(i)
             end do
             do while ((np_dimensions(1).gt.ngrid(2)).and.
-     >                (mod(np_dimensions(1),2).eq.0))
-               np_dimensions(1) = np_dimensions(1)/2
-               np_dimensions(2) = np_dimensions(2)*2
+     >                (mod(np_dimensions(1),nmult(i)).eq.0))
+               np_dimensions(1) = np_dimensions(1)/nmult(i)
+               np_dimensions(2) = np_dimensions(2)*nmult(i)
             end do
             do while ((np_dimensions(1).gt.ngrid(3)).and.
-     >                (mod(np_dimensions(1),2).eq.0))
-               np_dimensions(1) = np_dimensions(1)/2
-               np_dimensions(2) = np_dimensions(2)*2
+     >                (mod(np_dimensions(1),nmult(i)).eq.0))
+               np_dimensions(1) = np_dimensions(1)/nmult(i)
+               np_dimensions(2) = np_dimensions(2)*nmult(i)
+            end do
             end do
          end if
       end if
