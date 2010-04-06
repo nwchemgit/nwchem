@@ -1095,8 +1095,8 @@ ifeq ($(BUILDING_PYTHON),python)
 endif
 endif
 ifeq ($(TARGET),MACX)
-  FC = g77
-  _FC = g77
+  FC = gfortran
+  _FC = gfortran
 #
 # MacOSX 
 #
@@ -1120,7 +1120,7 @@ else
     CORE_SUBDIRS_EXTRA =  blas lapack
 endif
                _CPU = $(shell machine  )
-                    FC = g77
+                    FC = gfortran
                INSTALL = @echo nwchem is built
                RANLIB = ranlib
              MAKEFLAGS = -j 1 --no-print-directory
