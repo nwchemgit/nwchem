@@ -27,6 +27,7 @@ c
       logical mode
       character*72 tag
       character*256 movecs
+      character*256 rtdb_name
       double precision e1, e2,e3,e4,e5,e6,e7,e8,e9,e10,e11
       character*255 prefix, prefix0,key
       integer i1
@@ -39,13 +40,20 @@ c     set prefix for all generated files (e.g. movecs)
 c     so that it does not clash with other calculations
 c     -------------------------------------------------
       call util_file_prefix_get(prefix0)
-      i1 = inp_strlen(prefix0)
-      write(prefix,'(A,I4.4)')
-     >    prefix0(1:i1),im
-      call util_file_prefix_set(prefix)
+c      i1 = inp_strlen(prefix0)
+c      write(prefix,'(A,I4.4)')
+c     >    prefix0(1:i1),im
+c      call util_file_prefix_set(prefix)
+c      call util_message("prefix is set to "//prefix)
 c     -------------------------------------------------
 c     get rtdb handle from smd database (in-core)
-      call smd_rtdb_get_handle(rtdb)
+c      call smd_rtdb_get_handle(rtdb)
+      call smd_rtdb_close("keep")
+      call smd_rtdb_open_clone(im,rtdb)
+      
+c      call smd_rtdb_get_string("smd:rtdb_name",1,
+c     >                           rtdb_name,result)
+
 c     -------------------------------------------------
 c     set the theory (but this may not be necessary)
 c     if I do task fragment dft energy
@@ -64,7 +72,7 @@ c      ---------------------
       result = task_energy_doit(rtdb,theory,qm_energy)
 c
       if(ga_nodeid().eq.0)
-     >  write(*,*) "finished energy",theory,group_id
+     >  write(*,*) "finished energy",theory,qm_energy
 c
       if(theory.ne."dft") goto 100
       if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
@@ -93,7 +101,9 @@ c
      &                 RTDB_ERR)
       call smd_fragment_charge_print()
 
+      call smd_rtdb_close("delete")
       call util_file_prefix_set(prefix0)
+      call smd_rtdb_open_master(rtdb)
       smd_monomer_energy = .true.
 
       return

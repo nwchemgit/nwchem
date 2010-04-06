@@ -29,6 +29,7 @@ c
       write(*,*) "initializing fragment"
       call smd_init("fragment",rtdb)
       call ga_sync()
+      write(*,*) "finshed initializing fragment"
 c
       call util_message("task_smd_fragment_energy")
       result = task_fragment_energy_serial(rtdb)   
@@ -37,6 +38,7 @@ c
      $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
       task_fragment_energy = .true.
 
+      call util_message("done with task_smd_fragment_energy")
       return
       END
 
@@ -60,7 +62,10 @@ c
       integer i
       integer group_id,group_nproc,ngroup
 c
-      call smd_monomer_energy(1)
+      call util_io_enable()
+      call util_message("calling smd_monomer")
+      call smd_monomer_energy(1,"dft")
+      call smd_monomer_energy(2,"dft")
 c
       write(*,*) "Goodbye from task_smd"
       task_fragment_energy_serial = .true.
