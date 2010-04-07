@@ -289,6 +289,8 @@ c     ------------
       tag = "fragment"
       call smd_system_set_component(tag,sp_fragment)
 
+      call smd_system_set_component("global","global")
+
       tag = "excl_list"
       call smd_system_set_component(tag,sp_exlist)
 
@@ -356,6 +358,7 @@ c      call smd_ewald_init()
       call ga_sync()
       call smd_data_brdcst_create(master)
       call smd_fragment_init_system()
+      call smd_global_init_system()
       return
       end
 

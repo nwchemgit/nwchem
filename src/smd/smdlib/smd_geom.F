@@ -127,41 +127,41 @@ c
       if(.not.result) nobq=.false.
       write(*,*) "nobq is",nobq
       if(.not.nobq) then
-      nbq = nt - nm
-      if(.not.bq_create("monomer charges",bq_handle))
-     + call errquit(pname//'Failed bq_create',0,CALC_ERR)
+        nbq = nt - nm
+        if(.not.bq_create("monomer charges",bq_handle))
+     +   call errquit(pname//'Failed bq_create',0,CALC_ERR)
 
-      if(.not.bq_alloc(bq_handle,nbq))
-     + call errquit(pname//'Failed bq_create',0,CALC_ERR)
+        if(.not.bq_alloc(bq_handle,nbq))
+     +   call errquit(pname//'Failed bq_create',0,CALC_ERR)
 
 
-      if(.not.bq_index_coord(bq_handle,i_cbq))
-     + call errquit(pname//'Failed bq_index',0,CALC_ERR)
+        if(.not.bq_index_coord(bq_handle,i_cbq))
+     +   call errquit(pname//'Failed bq_index',0,CALC_ERR)
 
-      if(.not.bq_index_charge(bq_handle,i_qbq))
-     + call errquit(pname//'Failed bq_index',0,CALC_ERR)
+        if(.not.bq_index_charge(bq_handle,i_qbq))
+     +   call errquit(pname//'Failed bq_index',0,CALC_ERR)
 
-      scale = 1.88972598858d0
+        scale = 1.88972598858d0
 
-      do i=1,i0-1
-         do j=1,3
-            dbl_mb(i_cbq+3*(i-1)+j-1)=dbl_mb(i_ct+nt*(j-1)+i-1)*scale
-         end do
-         dbl_mb(i_qbq+i-1)=dbl_mb(i_q+i-1)
-      end do
+        do i=1,i0-1
+           do j=1,3
+              dbl_mb(i_cbq+3*(i-1)+j-1)=dbl_mb(i_ct+nt*(j-1)+i-1)*scale
+           end do
+           dbl_mb(i_qbq+i-1)=dbl_mb(i_q+i-1)
+        end do
 
-      do i=i0,nbq
-         do j=1,3
-            dbl_mb(i_cbq+3*(i-1)+j-1)=dbl_mb(i_ct+nt*(j-1)+i-1+nm)
-     >                                *scale
-         end do
-         dbl_mb(i_qbq+i-1)=dbl_mb(i_q+nm+i-1)
-      end do
+        do i=i0,nbq
+           do j=1,3
+              dbl_mb(i_cbq+3*(i-1)+j-1)=dbl_mb(i_ct+nt*(j-1)+i-1+nm)
+     >                                  *scale
+           end do
+           dbl_mb(i_qbq+i-1)=dbl_mb(i_q+nm+i-1)
+        end do
 
-c      call bq_print_xyz(bq_handle,98)
+c        call bq_print_xyz(bq_handle,98)
 
-      if(.not.bq_activate(bq_handle))
-     + call errquit(pname//'Failed bq_activate',0,CALC_ERR)
+        if(.not.bq_activate(bq_handle))
+     +   call errquit(pname//'Failed bq_activate',0,CALC_ERR)
 c
 
       end if

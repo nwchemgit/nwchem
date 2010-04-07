@@ -10,6 +10,7 @@ c
      c                       "type",
      c                       "potential",
      c                       "coordinates",
+     c                       "global",
      c                       "charge",
      c                       "fragment",
      c                       "velocity",

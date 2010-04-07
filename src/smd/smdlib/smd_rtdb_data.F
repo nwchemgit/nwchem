@@ -32,14 +32,142 @@ c
       logical result
       character*30 pname
 
-      pname = "smd_rtdb_close"
+      pname = "smd_rtdb_open"
       call smd_rtdb_get_handle(rtdb)
       if(rtdb.ge.0) call errquit(pname//"close rtdb first")
       if(.not.rtdb_open(fname,action,rtdb)) 
      >     call errquit(pname//" while rtdb_open",0,0)
+      write(*,*) "rtdb handle is",rtdb
       call smd_rtdb_set_handle(rtdb)
 
       end 
+
+      subroutine smd_rtdb_open_clone(taskid,rtdb)
+c     rtdb cloning
+c     1. make a numbered name (taskid)
+c     2. copy file
+c     3. open rtdb
+c
+c     taskid[IN] task number
+c     rtdb[OUT]  rtdb handle
+c
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "rtdb.fh"
+      integer taskid,rtdb
+c     
+      character*(smd_string_size)  buffer
+      character*256  rtdb_name
+      character*256  rtdb_name_group
+      integer i1,i2
+      logical result
+      logical master
+      character*255 prefix, prefix0
+      character*30 pname
+c
+      pname = "smd_task_rtdb_clone"
+c
+      call ga_sync()
+      master = ga_nodeid().eq.0
+c
+      call util_file_prefix_get(prefix0)
+      i1 = inp_strlen(prefix0)
+      write(prefix,'(A,I4.4)')
+     >    prefix0(1:i1),taskid
+      call util_file_prefix_set(prefix)
+      call util_message("prefix is set to "//prefix)
+c     get absolute name of the original database
+      call smd_rtdb_get_name(rtdb_name)
+      write(*,*) "rtdb_name",rtdb_name
+      call util_file_name_resolve(rtdb_name,.false.)
+      write(*,*) "resolved rtdb_name",rtdb_name
+c     create name for group database in scratch
+c      write(buffer,'(I4.4,A3)') taskid,".db"
+      write(buffer,'(A2)') "db"
+      call util_file_name(buffer,.true.,.false.,rtdb_name_group)
+      write(*,*) "resolved group_rtdb_name",rtdb_name_group
+      call util_flush(6)
+c
+      if(master) then
+        inquire(file=rtdb_name,exist=result)
+        if(.not.result) then
+          call errquit("cannot find rtdb"//
+     >                 rtdb_name,
+     >                 0,0)
+        end if
+        call util_file_copy(rtdb_name,rtdb_name_group)
+      end if
+
+      call smd_rtdb_open(rtdb_name_group,"old")
+c      if(.not.rtdb_open(rtdb_name_group,"old",rtdb))
+c     + call errquit('Failed to open group rtdb',0, GEOM_ERR)
+      call smd_rtdb_get_handle(rtdb)
+      write(*,*) "got new rtdb handle",rtdb
+      call ga_sync()
+
+      return
+      end
+
+      subroutine smd_rtdb_open_master(rtdb)
+c     rtdb cloning
+c     1. make a numbered name (taskid)
+c     2. copy file
+c     3. open rtdb
+c
+c     taskid[IN] task number
+c     rtdb[OUT]  rtdb handle
+c
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "rtdb.fh"
+      integer taskid,rtdb
+c     
+      character*(smd_string_size)  buffer
+      character*256  rtdb_name
+      character*256  rtdb_name_group
+      integer i1,i2
+      logical result
+      logical master
+      character*255 prefix, prefix0
+      character*30 pname
+c
+      pname = "smd_task_rtdb_clone"
+c
+      call ga_sync()
+      master = ga_nodeid().eq.0
+c
+c     get absolute name of the original database
+      call smd_rtdb_get_name(rtdb_name)
+      write(*,*) "rtdb_name",rtdb_name
+      call util_file_name_resolve(rtdb_name,.false.)
+      write(*,*) "resolved rtdb_name",rtdb_name
+c
+      if(master) then
+        inquire(file=rtdb_name,exist=result)
+        if(.not.result) then
+          call errquit("cannot find rtdb"//
+     >                 rtdb_name,
+     >                 0,0)
+        end if
+      end if
+
+      call smd_rtdb_open(rtdb_name,"old")
+      call smd_rtdb_get_handle(rtdb)
+      write(*,*) "got new rtdb handle",rtdb
+      call ga_sync()
+
+      return
+      end
 
       subroutine smd_rtdb_get_handle(rtdb)
       implicit none
@@ -239,6 +367,7 @@ c
       subroutine smd_rtdb_init(parallel,rtdb)
       implicit none
 #include "rtdb.fh"
+#include "inp.fh"
 #include "smd_rtdb_data.fh"
 #include "mafdecls.fh"
 #include "smd_const_data.fh"
@@ -249,14 +378,15 @@ c
       character*(smd_string_size) namespace
       character*(smd_string_size) tag
       logical ignore,result,oldmode
+      character*256 big_buffer
+      character*72 buffer
       character*30 pname
+      integer istart,iend
 
       pname = "smd_rtdb_init"
       oldmode = rtdb_parallel(parallel)
       smd_rtdb = rtdb
-c      if(.not. rtdb_getfname(rtdb, smd_rtdb_name)) call
-c     *        errquit('rtdb_getfname failed',0,0)
-
+c
       smd_istart=0
       smd_iend  =0
       smd_nproc =0
@@ -271,6 +401,19 @@ c     *        errquit('rtdb_getfname failed',0,0)
      >       pname//'no component '//tag,0,0)
 
       call smd_namespace_create(namespace)
+c
+c     fetch and store rtdb name
+c     -------------------------
+      if(.not. rtdb_getfname(rtdb, big_buffer)) call
+     *        errquit('rtdb_getfname failed',0,0)
+      istart = 0
+   10 if (inp_strtok(big_buffer, '/', istart, iend)) then
+      buffer = big_buffer(istart:iend)
+      goto 10
+      endif
+      call smd_data_put_string(namespace,"smd:rtdb_name",1,
+     >                         buffer)
+c     -------------------------
 
       call smd_data_namespace_rtdb_get(rtdb,namespace,"smd")
       call smd_data_namespace_rtdb_get(rtdb,namespace,"geom:source")
