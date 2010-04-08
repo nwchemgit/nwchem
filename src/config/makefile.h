@@ -1246,6 +1246,84 @@ endif
 
 
 endif
+ifeq ($(TARGET),MACX64)
+  FC = gfortran
+  _FC = gfortran
+#
+# MacOSX 64bit
+#
+# 
+  ifndef USE_MPI
+  mpimacx64:
+	@echo You must define USE_MPI=y to compile
+	@echo nwchem on 64bit MAC OS X.
+	@echo Please type
+	@echo 
+	@echo " make  USE_MPI=y"
+	@echo "  or "
+	@echo " make  FC=gfortran USE_MPI=y"
+	@echo 
+	@exit 1
+  endif
+  ifndef USE_64TO32
+  macx64to32:
+	@echo You must define USE_64TO32=y to compile
+	@echo nwchem on 64bit MAC OS X.
+	@echo Please type
+	@echo 
+	@echo " make  USE_64TO32=y"
+	@echo "  or "
+	@echo " make  FC=gfortran USE_64TO32=y"
+	@echo 
+	@exit 1
+  endif
+#
+ifdef USE_VECLIB
+    CORE_SUBDIRS_EXTRA =  blas
+else
+    CORE_SUBDIRS_EXTRA =  blas lapack
+endif
+               _CPU = $(shell machine  )
+                    FC = gfortran
+               INSTALL = @echo nwchem is built
+               RANLIB = ranlib
+             MAKEFLAGS = -j 1 --no-print-directory
+             DEFINES =-DMACX
+
+      ifeq ($(FC),gfortran)
+    _FC=gfortran
+#gcc version 
+        LINK.f = gfortran  $(LDFLAGS) 
+        FOPTIONS   = -Wextra #-Wunused #-ffast-math
+        FOPTIONS += -fdefault-integer-8
+        FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
+       DEFINES  += -DGFORTRAN -DGCC4
+       DEFINES  += -DEXT_INT
+#
+         FOPTIMIZE+= -funroll-all-loops -mtune=native 
+         FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops 
+#         FOPTIMIZE=-O1
+#         FVECTORIZE=-O1
+       endif
+    ifdef  USE_GPROF
+      FOPTIONS += -pg
+      LDOPTIONS += -pg
+      COPTIONS += -pg
+    endif
+ifdef USE_VECLIB
+             CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lblas
+else
+             CORE_LIBS +=   -llapack $(BLASOPT)  -lblas
+endif
+  _GCC4= $(shell gcc -v  2>&1|egrep spec|head -n 1|awk ' / 3./  {print "N";exit}; / 2./ {print "N";exit};{print "Y"}')
+    ifeq ($(_GCC4),Y) 
+#      EXTRA_LIBS += 
+    else
+      EXTRA_LIBS += -lm -lcc_dynamic
+    endif
+#
+
+endif
 
 
 ifeq ($(TARGET),$(findstring $(TARGET),LINUX CYGNUS CYGWIN INTERIX))

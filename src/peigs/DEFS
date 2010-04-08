@@ -514,6 +514,14 @@ ifeq ($(FC),xlf)
 	endif
 endif
 	endif
+ifeq ($(peigs_TARGET),MACX64)
+#MACOSX Snow Leopard
+	peigs_CPU  = PENTIUM
+        peigs_COMM = TCGMSG
+        peigs_CODEOBJ = DBLE
+        peigs_CC += -DSTD_DBL #-DSTD_INT
+        peigs_FC += -D$(peigs_CPU) -DSTD_DBL  -D$(peigs_COMM)
+endif
 
 ifeq ($(peigs_TARGET),$(findstring $(peigs_TARGET),LINUX64 CATAMOUNT))
 #alpha with /tcgmsg
