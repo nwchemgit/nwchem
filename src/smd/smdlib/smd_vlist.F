@@ -36,7 +36,7 @@ c
 c
       return
       end
-
+c
       subroutine smd_vlist_init(oexlist,sp_vlist,sp_exlist,sp_coord)
       implicit none
 #include "errquit.fh"
@@ -67,11 +67,11 @@ c
 c
       pname = "smd_vlist_init"
 c
-c      write(*,*) "in "//pname
+      write(*,*) "in "//pname
 c
 c     get coordinate information
 c     --------------------------
-      tag = "coords"
+      tag = "coords_alt"
       call smd_get_ind_dim(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(
@@ -220,7 +220,7 @@ c
 c
       pname = "smd_vlist_update"
 c
-c      write(*,*) "in "//pname
+      write(*,*) "in "//pname
 c
       if((.not.olist).and.(.not.ocoord)) return
 c
@@ -251,7 +251,7 @@ c
 c
 c     get coordinate information
 c     --------------------------
-      tag = "coords"
+      tag = "coords_alt"
       call smd_get_ind_dim(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(
@@ -364,11 +364,11 @@ c
 c
       pname = "smd_vlist_init"
 c
-c      write(*,*) "in "//pname
+      write(*,*) "in "//pname
 c
 c     get coordinate information
 c     --------------------------
-      tag = "coords"
+      tag = "coords_alt"
       call smd_get_ind_dim(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(
@@ -425,7 +425,7 @@ c     cl     [out] list of vectors (ri-rj)
       implicit none
 #include "errquit.fh"
       integer np,nl
-      double precision c(np,3)
+      double precision c(3,np)
       integer point(np)
       integer list(nl)
       double precision cl(nl,3)
@@ -453,9 +453,9 @@ c
      >       call errquit(
      >       pname//'out of bounds',0, RTDB_ERR)
 
-         cl(nlist,1)=c(i,1)-c(j,1)
-         cl(nlist,2)=c(i,2)-c(j,2)
-         cl(nlist,3)=c(i,3)-c(j,3)
+         cl(nlist,1)=c(1,i)-c(1,j)
+         cl(nlist,2)=c(2,i)-c(2,j)
+         cl(nlist,3)=c(3,i)-c(3,j)
 
         enddo
 
@@ -490,7 +490,7 @@ c     result [out] status of subroutine
       integer np
       integer nl
       double precision vcutsq
-      double precision c(np,3)
+      double precision c(3,np)
       integer xp(np)
       integer xl(*)
       integer point(np)
@@ -520,9 +520,9 @@ c
        do j=i+1,np
 
          k = k +1
-         ct(k,1)=c(i,1)-c(j,1)
-         ct(k,2)=c(i,2)-c(j,2)
-         ct(k,3)=c(i,3)-c(j,3)
+         ct(k,1)=c(1,i)-c(1,j)
+         ct(k,2)=c(2,i)-c(2,j)
+         ct(k,3)=c(3,i)-c(3,j)
 
        end do
 
@@ -602,7 +602,7 @@ c     result [out] status of subroutine
       integer np
       integer nl
       double precision vcutsq
-      double precision c(np,3)
+      double precision c(3,np)
       integer point(np)
       integer list(nl)
       double precision cl(nl,3)
@@ -629,9 +629,9 @@ c
        do j=i+1,np
 
          k = k +1
-         ct(k,1)=c(i,1)-c(j,1)
-         ct(k,2)=c(i,2)-c(j,2)
-         ct(k,3)=c(i,3)-c(j,3)
+         ct(k,1)=c(1,i)-c(1,j)
+         ct(k,2)=c(2,i)-c(2,j)
+         ct(k,3)=c(3,i)-c(3,j)
 
        end do
 
