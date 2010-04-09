@@ -66,6 +66,34 @@ c
       return
 
       end
+      subroutine smd_coordfile_read_coords1(nt,c)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "inp.fh"
+#include "msgids.fh"
+#include "global.fh"
+#include "rtdb.fh"
+      integer nt
+      double precision c(3,nt)
+c
+      character*(180) buffer
+      character*(4)  tag
+      integer i
+      integer un
+      character*(30) pname
+      character*(33) filename
+      logical result
+c
+      pname = "smd_coordfile_read_coords"
+c
+c
+      call smd_coordfile_read_coords_seq1(nt,c)
+
+      return
+
+      end
       subroutine smd_coordfile_read_coords_par(nt,c)
       implicit none
 #include "mafdecls.fh"
@@ -247,6 +275,39 @@ c
 
 c
       call smd_pdb_read_coords(filename,nt,c)
+
+      return
+
+      end
+
+      subroutine smd_coordfile_read_coords_seq1(nt,c)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "inp.fh"
+      integer nt
+      double precision c(3,nt)
+c
+      character*(180) buffer
+      character*(4)  tag
+      integer i
+      integer un
+      character*(30) pname
+      character*(33) filename
+      logical result
+
+
+      pname = "smd_coordfile_read_coords"
+c
+c
+      call smd_coordfile(filename,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no coord file found',0, 0)
+
+c
+      call smd_pdb_read_coords1(filename,nt,c)
 
       return
 

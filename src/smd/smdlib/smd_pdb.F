@@ -68,6 +68,48 @@ c
 
       end
 
+      subroutine smd_pdb_read_coords1(filename,nt,c)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "inp.fh"
+      character*(*) filename
+      integer nt
+      double precision c(3,nt)
+c
+      character*(180) buffer
+      character*(4)  tag
+      integer i
+      integer un
+      character*(30) pname
+
+      pname = "smd_pdb_read_coords"
+c
+      if(.not.util_get_io_unit(un))
+     >   call errquit(pname//"cannot get file number",0,0)
+c
+      open(unit=un,status="old",form="formatted",file=filename)
+      i = 0
+100   continue
+      read(un,'(A180)',end=200) buffer
+      call util_flush(34)
+      if(buffer(1:4).eq."ATOM") then
+        i = i +1
+        if(i.gt.nt)
+     >  call errquit(pname//"insufficient array size",0,0)
+        read(buffer,*) tag,tag,tag,tag,tag,
+     >                 c(1,i),c(2,i),c(3,i)
+       end if
+      goto 100
+200   continue
+      close(un)
+
+      if(i.ne.nt)
+     >  call errquit(pname//"incompatible array sizes",0,0)
+      return
+
+      end
       subroutine smd_pdb_read_atomres(filename,nt,ta,tr,ir)
       implicit none
 #include "mafdecls.fh"

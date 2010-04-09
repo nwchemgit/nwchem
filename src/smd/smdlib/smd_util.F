@@ -59,6 +59,26 @@ c
 
       end
 
+      subroutine smd_util_test_array(na,
+     >                           fff1,fff2)
+
+      implicit none
+      integer na
+      double precision fff1(na,3)
+      double precision fff2(3,na)
+c
+      integer i
+      do i=1,na
+         if(fff1(i,3).ne.fff2(3,i)) then
+           write(*,*) "failed array test"
+           stop
+         end if
+      end do
+      write(*,*) "arrays are the same"
+      return
+
+      end
+
       subroutine smd_util_print_charge_array(un,na,lo,hi,
      >                           fff)
 

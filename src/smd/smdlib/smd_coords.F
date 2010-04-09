@@ -63,6 +63,7 @@ c     create coords data structures
 c     ---------------------------
       call smd_namespace_create(sp_coords)
       call smd_data_create(sp_coords,"coords",3*na,MT_DBL)
+      call smd_data_create(sp_coords,"coords_alt",3*na,MT_DBL)
 
       return
       end
@@ -81,7 +82,7 @@ c
 c
       character*32 pname
       character*72 tag
-      integer i_c
+      integer i_c,i_c1
       integer na
       logical result
 c
@@ -97,13 +98,23 @@ c     ----------------------------------------
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 c
+      tag = "coords_alt"
+      call smd_get_ind_dim(tag,i_c1,na,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+cc
       na = na/3
 
 
       call smd_coordfile_read_coords(na,
      +                          dbl_mb(i_c))
 
+      call smd_coordfile_read_coords1(na,
+     +                          dbl_mb(i_c1))
 
+      call smd_util_test_array(na,dbl_mb(i_c),
+     +                         dbl_mb(i_c1))
       return
       end
 
