@@ -621,3 +621,128 @@ c      local variables
        return
        end
 
+      subroutine bq_print_xyz(handle,un)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+
+       integer handle
+       integer un
+c      local variables
+       integer i,printlevel
+       integer k
+       integer h_c,i_c
+       integer h_q,i_q
+       character*(32) pname
+       logical status,oprint
+
+       pname = "bq_print_info"
+
+       call util_print_get_level(printlevel)
+       oprint = (ga_nodeid().eq.0).and.(printlevel.le.print_medium)
+
+       if(handle .lt.0 .or. handle .gt. max_bq) then
+           call errquit(
+     &      pname//' unable to locate handle ',
+     &      0,0)
+       end if
+
+       if(bq_ncent(handle).eq.0) then
+          write(*,*) "No charges are found"
+          return
+       end if
+
+       h_q = bq_charge(handle)
+       h_c = bq_coord(handle)
+
+       if(.not.ma_get_index( h_c, i_c) ) call errquit(
+     &      pname//' unable to locate coord handle',
+     &      0, MA_ERR)
+
+
+       if(.not.ma_get_index( h_q, i_q) ) call errquit(
+     &      pname//' unable to locate charge handle',
+     &      0, MA_ERR)
+
+         write(un,*) bq_ncent(handle)
+         write(un,*)
+         do i=1,bq_ncent(handle)
+           write(un,FMT=9000)
+     >           i,(dbl_mb(i_c+3*(i-1)+k-1)*0.529177249d00,k=1,3)
+
+         end do
+         write(*,*)
+         write(*,*)
+
+9000   format(i5,2x,"Bq",4x,3f15.8)
+
+       return
+       end
+
+      subroutine bq_print_xyzq(handle,un)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+
+       integer handle
+       integer un
+c      local variables
+       integer i,printlevel
+       integer k
+       integer h_c,i_c
+       integer h_q,i_q
+       character*(32) pname
+       logical status,oprint
+
+       pname = "bq_print_info"
+
+       call util_print_get_level(printlevel)
+       oprint = (ga_nodeid().eq.0).and.(printlevel.le.print_medium)
+
+       if(handle .lt.0 .or. handle .gt. max_bq) then
+           call errquit(
+     &      pname//' unable to locate handle ',
+     &      0,0)
+       end if
+
+       if(bq_ncent(handle).eq.0) then
+          write(*,*) "No charges are found"
+          return
+       end if
+
+       h_q = bq_charge(handle)
+       h_c = bq_coord(handle)
+
+       if(.not.ma_get_index( h_c, i_c) ) call errquit(
+     &      pname//' unable to locate coord handle',
+     &      0, MA_ERR)
+
+
+       if(.not.ma_get_index( h_q, i_q) ) call errquit(
+     &      pname//' unable to locate charge handle',
+     &      0, MA_ERR)
+
+         write(un,*) bq_ncent(handle)
+         write(un,*)
+         do i=1,bq_ncent(handle)
+           write(un,FMT=9000)
+     >           i,(dbl_mb(i_c+3*(i-1)+k-1)*0.529177249d00,k=1,3),
+     >             dbl_mb(i_q+i-1)
+
+         end do
+         write(*,*)
+         write(*,*)
+
+9000   format(i5,2x,"Bq",4x,4f15.8)
+
+       return
+       end
+
