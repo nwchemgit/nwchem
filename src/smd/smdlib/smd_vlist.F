@@ -428,7 +428,7 @@ c     cl     [out] list of vectors (ri-rj)
       double precision c(3,np)
       integer point(np)
       integer list(nl)
-      double precision cl(nl,3)
+      double precision cl(3,nl)
 c
       integer i,j
       integer nlist
@@ -453,9 +453,9 @@ c
      >       call errquit(
      >       pname//'out of bounds',0, RTDB_ERR)
 
-         cl(nlist,1)=c(1,i)-c(1,j)
-         cl(nlist,2)=c(2,i)-c(2,j)
-         cl(nlist,3)=c(3,i)-c(3,j)
+         cl(1,nlist)=c(1,i)-c(1,j)
+         cl(2,nlist)=c(2,i)-c(2,j)
+         cl(3,nlist)=c(3,i)-c(3,j)
 
         enddo
 
@@ -495,8 +495,8 @@ c     result [out] status of subroutine
       integer xl(*)
       integer point(np)
       integer list(nl)
-      double precision cl(nl,3)
-      double precision ct(np,3)
+      double precision cl(3,nl)
+      double precision ct(3,np)
       logical result
 c
       integer i,j,k
@@ -520,14 +520,14 @@ c
        do j=i+1,np
 
          k = k +1
-         ct(k,1)=c(1,i)-c(1,j)
-         ct(k,2)=c(2,i)-c(2,j)
-         ct(k,3)=c(3,i)-c(3,j)
+         ct(1,k)=c(1,i)-c(1,j)
+         ct(2,k)=c(2,i)-c(2,j)
+         ct(3,k)=c(3,i)-c(3,j)
 
        end do
 
 
-       call smd_lat_rebox(np,ct)
+       call smd_lat_rebox1(np,ct)
 
 
        k = 0
@@ -540,9 +540,9 @@ c
 
         else
 
-         rij(1)=ct(k,1)
-         rij(2)=ct(k,2)
-         rij(3)=ct(k,3)
+         rij(1)=ct(1,k)
+         rij(2)=ct(2,k)
+         rij(3)=ct(3,k)
 
          rijsq=rij(1)*rij(1)+rij(2)*rij(2)+rij(3)*rij(3)
 
@@ -557,9 +557,9 @@ c
           endif
 
           list(nlist)=j
-          cl(nlist,1)=rij(1)
-          cl(nlist,2)=rij(2)
-          cl(nlist,3)=rij(3)
+          cl(1,nlist)=rij(1)
+          cl(2,nlist)=rij(2)
+          cl(3,nlist)=rij(3)
 
          endif
 
@@ -605,8 +605,8 @@ c     result [out] status of subroutine
       double precision c(3,np)
       integer point(np)
       integer list(nl)
-      double precision cl(nl,3)
-      double precision ct(np,3)
+      double precision cl(3,nl)
+      double precision ct(3,np)
       logical result
 c
       integer i,j,k
@@ -629,14 +629,14 @@ c
        do j=i+1,np
 
          k = k +1
-         ct(k,1)=c(1,i)-c(1,j)
-         ct(k,2)=c(2,i)-c(2,j)
-         ct(k,3)=c(3,i)-c(3,j)
+         ct(1,k)=c(1,i)-c(1,j)
+         ct(2,k)=c(2,i)-c(2,j)
+         ct(3,k)=c(3,i)-c(3,j)
 
        end do
 
 
-       call smd_lat_rebox(np,ct)
+       call smd_lat_rebox1(np,ct)
 
 
        k = 0
@@ -644,9 +644,9 @@ c
 
         k = k + 1
 
-         rij(1)=ct(k,1)
-         rij(2)=ct(k,2)
-         rij(3)=ct(k,3)
+         rij(1)=ct(1,k)
+         rij(2)=ct(2,k)
+         rij(3)=ct(3,k)
 
          rijsq=rij(1)*rij(1)+rij(2)*rij(2)+rij(3)*rij(3)
 
@@ -661,9 +661,9 @@ c
           endif
 
           list(nlist)=j
-          cl(nlist,1)=rij(1)
-          cl(nlist,2)=rij(2)
-          cl(nlist,3)=rij(3)
+          cl(1,nlist)=rij(1)
+          cl(2,nlist)=rij(2)
+          cl(3,nlist)=rij(3)
 
          endif
 
@@ -743,7 +743,8 @@ c      write(*,*) "out",pname
 
       END
 
-      SUBROUTINE smd_vlist_test0(natms,tstep,rcut,vcut,ivv,vvv,lupdate)
+      SUBROUTINE smd_vlist_test0
+     +    (natms,tstep,rcut,vcut,ivv,vvv,lupdate)
 
       implicit none
 c

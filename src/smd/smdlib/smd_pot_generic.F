@@ -44,7 +44,7 @@ c       e          [out]   energy
       integer pt(np)
       integer point(na)
       integer list(nl)
-      double precision ccc(nl,3)
+      double precision ccc(3,nl)
       double precision fff(na,3)
       double precision e,etmp
 c
@@ -80,9 +80,9 @@ c     ------------------
        j=list(jnab)
 
        nlist = nlist + 1
-       x=ccc(nlist,1)
-       y=ccc(nlist,2)
-       z=ccc(nlist,3)
+       x=ccc(1,nlist)
+       y=ccc(2,nlist)
+       z=ccc(3,nlist)
 
        rsq=x*x+y*y+z*z
 

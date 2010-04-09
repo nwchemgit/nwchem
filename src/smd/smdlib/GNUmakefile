@@ -17,7 +17,7 @@
                 smd_coordfile.o task_smd_dynamics.o smd_system_data.o \
                 smd_temper_data.o smd_mass.o smd_leapf.o \
                 smd_leapf_shake.o smd_geom.o smd_message.o \
-                smd_interface.o smd_monomer.o \
+                smd_interface.o \
                 smd_tasklist.o smd_fragment.o \
                 smd_task.o  smd_group.o smd_global.o
 LIB_INCLUDES = -I../include

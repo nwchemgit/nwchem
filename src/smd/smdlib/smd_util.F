@@ -43,6 +43,47 @@ c
 
       END
 
+      SUBROUTINE smd_util_rebox1(n,latt,rlatt,aaa)
+
+      implicit none
+
+      integer n
+      double precision rlatt(3,3),latt(3,3)
+      double precision  aaa(3,n)
+c
+      integer i
+      double precision  ssx,ssy,ssz,xss,yss,zss
+      logical oprint
+
+
+      if(n.eq.1) then
+       oprint =.true.
+      else
+       oprint = .false.
+      end if
+      oprint = .false.
+      do i=1,n
+
+       if(oprint) 
+     >          write(*,*) "rebox",aaa(1,i),aaa(2,i),aaa(3,i)
+       ssx=(rlatt(1,1)*aaa(1,i)+rlatt(1,2)*aaa(2,i)+rlatt(1,3)*aaa(3,i))
+       ssy=(rlatt(2,1)*aaa(1,i)+rlatt(2,2)*aaa(2,i)+rlatt(2,3)*aaa(3,i))
+       ssz=(rlatt(3,1)*aaa(1,i)+rlatt(3,2)*aaa(2,i)+rlatt(3,3)*aaa(3,i))
+
+       xss=ssx-nint(ssx)
+       yss=ssy-nint(ssy)
+       zss=ssz-nint(ssz)
+
+       aaa(1,i)=(latt(1,1)*xss+latt(1,2)*yss+latt(1,3)*zss)
+       aaa(2,i)=(latt(2,1)*xss+latt(2,2)*yss+latt(2,3)*zss)
+       aaa(3,i)=(latt(3,1)*xss+latt(3,2)*yss+latt(3,3)*zss)
+
+      enddo
+
+      return
+
+      END
+
       subroutine smd_util_print_force_array(un,na,
      >                           fff)
 
@@ -75,6 +116,42 @@ c
          end if
       end do
       write(*,*) "arrays are the same"
+      return
+
+      end
+
+      subroutine smd_util_swap_array(n1,n2,f)
+      implicit none
+#include "mafdecls.fh"
+      integer n1,n2
+      double precision f(n1,n2)
+c
+      integer i_c,h_c
+
+      if(.not.ma_push_get(mt_dbl,n1*n2,'util tmp',h_c,i_c))
+     + call errquit('Failed to allocate memory for util tmp',
+     + 0, 0)
+      call smd_util_swap_array1(n1,n2,f,dbl_mb(i_c))
+      if(.not.ma_pop_stack(h_c))
+     & call errquit('Failed to deallocate stack h_c',0,
+     &       0)
+      return
+
+      end
+      subroutine smd_util_swap_array1(n1,n2,f1,f2)
+
+      implicit none
+      integer n1,n2
+      double precision f1(n1,n2)
+      double precision f2(n2,n1)
+c
+      integer i1,i2
+
+      do i1=1,n1
+      do i2=1,n2
+         f2(n2,n1)=f1(n1,n2)
+      end do
+      end do
       return
 
       end
