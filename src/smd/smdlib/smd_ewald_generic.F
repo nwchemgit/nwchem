@@ -29,7 +29,7 @@
       double complex eiky(1:na,-nk:nk)
       double complex eikz(1:na,-nk:nk)
       double precision rlatt(3,3)
-      double precision ccc(na,3)
+      double precision ccc(3,na)
       double precision fff(3,na)
       double precision q(na)
       integer kmax(3)
@@ -49,9 +49,9 @@
        eikx(i,0)=(1.0,0.0)
        eiky(i,0)=(1.0,0.0)
        eikz(i,0)=(1.0,0.0)
-       rx=rlatt(1,1)*ccc(i,1)+rlatt(1,2)*ccc(i,2)+rlatt(1,3)*ccc(i,3)
-       ry=rlatt(2,1)*ccc(i,1)+rlatt(2,2)*ccc(i,2)+rlatt(2,3)*ccc(i,3)
-       rz=rlatt(3,1)*ccc(i,1)+rlatt(3,2)*ccc(i,2)+rlatt(3,3)*ccc(i,3)
+       rx=rlatt(1,1)*ccc(1,i)+rlatt(1,2)*ccc(2,i)+rlatt(1,3)*ccc(3,i)
+       ry=rlatt(2,1)*ccc(1,i)+rlatt(2,2)*ccc(2,i)+rlatt(2,3)*ccc(3,i)
+       rz=rlatt(3,1)*ccc(1,i)+rlatt(3,2)*ccc(2,i)+rlatt(3,3)*ccc(3,i)
        eikx(i,1)=dcmplx(dcos(twopi*rx),dsin(twopi*rx))
        eiky(i,1)=dcmplx(dcos(twopi*ry),dsin(twopi*ry))
        eikz(i,1)=dcmplx(dcos(twopi*rz),dsin(twopi*rz))
@@ -164,7 +164,7 @@
       integer epoint(na)
       double precision q(na)
       integer elist(nl)
-      double precision ccc(na,3),fff(3,na)
+      double precision ccc(3,na),fff(3,na)
       double precision e
 c
       integer i,j,k,jnab
@@ -190,9 +190,9 @@ c       write(*,*) "i,jbeg,jend",i,jbeg,jend
 
        j=elist(jnab)
 
-       x=ccc(i,1)-ccc(j,1)
-       y=ccc(i,2)-ccc(j,2)
-       z=ccc(i,3)-ccc(j,3)
+       x=ccc(1,i)-ccc(1,j)
+       y=ccc(2,i)-ccc(2,j)
+       z=ccc(3,i)-ccc(3,j)
 c
 c      reboxing here
 c      ------------
