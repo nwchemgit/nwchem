@@ -94,7 +94,7 @@ c
       na = na/3
 
       write(un,*) "printing force"
-      call smd_util_print_force_array(un,na,dbl_mb(i_f))
+      call smd_util_print_force_array1(un,na,dbl_mb(i_f))
 
       return
       end

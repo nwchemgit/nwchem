@@ -100,6 +100,22 @@ c
 
       end
 
+      subroutine smd_util_print_force_array1(un,na,
+     >                           fff)
+
+      implicit none
+      integer un
+      integer na
+      double precision fff(3,na)
+c
+      integer i
+      do i=1,na
+         write(un,*) i, fff(1,i),fff(2,i),fff(3,i)
+      end do
+      return
+
+      end
+
       subroutine smd_util_test_array(na,
      >                           fff1,fff2)
 

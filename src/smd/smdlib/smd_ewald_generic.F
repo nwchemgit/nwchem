@@ -30,7 +30,7 @@
       double complex eikz(1:na,-nk:nk)
       double precision rlatt(3,3)
       double precision ccc(na,3)
-      double precision fff(na,3)
+      double precision fff(3,na)
       double precision q(na)
       integer kmax(3)
 
@@ -117,9 +117,9 @@
 
             force=-factor*2.0*twopi*convfct1/vol*kcoeff*
      $            dimag(rhosum*dconjg(eikr(i)))*q(i)
-            fff(i,1)=fff(i,1)+convfct2*rkx*force
-            fff(i,2)=fff(i,2)+convfct2*rky*force
-            fff(i,3)=fff(i,3)+convfct2*rkz*force
+            fff(1,i)=fff(1,i)+convfct2*rkx*force
+            fff(2,i)=fff(2,i)+convfct2*rky*force
+            fff(3,i)=fff(3,i)+convfct2*rkz*force
 
            enddo
 
@@ -164,7 +164,7 @@
       integer epoint(na)
       double precision q(na)
       integer elist(nl)
-      double precision ccc(na,3),fff(na,3)
+      double precision ccc(na,3),fff(3,na)
       double precision e
 c
       integer i,j,k,jnab
@@ -222,13 +222,13 @@ c      done reboxing
      $       ((1-erfxc(ar))-2*ar/sqrpi*exp(-ar*ar))
      $       /(dr*rsq)
 
-        fff(i,1)=fff(i,1)+convfct2*force*x
-        fff(i,2)=fff(i,2)+convfct2*force*y
-        fff(i,3)=fff(i,3)+convfct2*force*z
+        fff(1,i)=fff(1,i)+convfct2*force*x
+        fff(2,i)=fff(2,i)+convfct2*force*y
+        fff(3,i)=fff(3,i)+convfct2*force*z
 
-        fff(j,1)=fff(j,1)-convfct2*force*x
-        fff(j,2)=fff(j,2)-convfct2*force*y
-        fff(j,3)=fff(j,3)-convfct2*force*z
+        fff(1,j)=fff(1,j)-convfct2*force*x
+        fff(2,j)=fff(2,j)-convfct2*force*y
+        fff(3,j)=fff(3,j)-convfct2*force*z
 
        endif
 
@@ -263,7 +263,7 @@ c      done reboxing
       double precision q(na)
       integer list(nl)
       double precision ccc(3,nl)
-      double precision fff(na,3)
+      double precision fff(3,na)
       double precision e
 c
       integer i,j,k,jnab
@@ -307,13 +307,13 @@ c        write(*,*) q(i),q(j),ar,dr
         force=convfct1*q(i)*q(j)
      $       *(erfxc(ar)+2*ar/sqrpi*exp(-ar*ar))/(dr*rsq)
 
-        fff(i,1)=fff(i,1)+convfct2*force*x
-        fff(i,2)=fff(i,2)+convfct2*force*y
-        fff(i,3)=fff(i,3)+convfct2*force*z
+        fff(1,i)=fff(1,i)+convfct2*force*x
+        fff(2,i)=fff(2,i)+convfct2*force*y
+        fff(3,i)=fff(3,i)+convfct2*force*z
 
-        fff(j,1)=fff(j,1)-convfct2*force*x
-        fff(j,2)=fff(j,2)-convfct2*force*y
-        fff(j,3)=fff(j,3)-convfct2*force*z
+        fff(1,j)=fff(1,j)-convfct2*force*x
+        fff(2,j)=fff(2,j)-convfct2*force*y
+        fff(3,j)=fff(3,j)-convfct2*force*z
 
        endif
 

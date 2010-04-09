@@ -45,7 +45,7 @@ c       e          [out]   energy
       integer point(na)
       integer list(nl)
       double precision ccc(3,nl)
-      double precision fff(na,3)
+      double precision fff(3,na)
       double precision e,etmp
 c
       integer i,j,k,jnab
@@ -103,13 +103,13 @@ c     ------------------
          force=(12*p1(potindex)/dr**12
      $          -6*p2(potindex)/dr**6)/rsq
 
-         fff(i,1)=fff(i,1)+convfct2*force*x
-         fff(i,2)=fff(i,2)+convfct2*force*y
-         fff(i,3)=fff(i,3)+convfct2*force*z
+         fff(1,i)=fff(1,i)+convfct2*force*x
+         fff(2,i)=fff(2,i)+convfct2*force*y
+         fff(3,i)=fff(3,i)+convfct2*force*z
 
-         fff(j,1)=fff(j,1)-convfct2*force*x
-         fff(j,2)=fff(j,2)-convfct2*force*y
-         fff(j,3)=fff(j,3)-convfct2*force*z
+         fff(1,j)=fff(1,j)-convfct2*force*x
+         fff(2,j)=fff(2,j)-convfct2*force*y
+         fff(3,j)=fff(3,j)-convfct2*force*z
 
 
         elseif(pt(potindex).eq.2)then
@@ -124,13 +124,13 @@ c     ------------------
      $         /p2(potindex)-6*p3(potindex)/dr**6)
      $         /rsq
 
-         fff(i,1)=fff(i,1)+convfct2*force*x
-         fff(i,2)=fff(i,2)+convfct2*force*y
-         fff(i,3)=fff(i,3)+convfct2*force*z
+         fff(1,i)=fff(1,i)+convfct2*force*x
+         fff(2,i)=fff(2,i)+convfct2*force*y
+         fff(3,i)=fff(3,i)+convfct2*force*z
 
-         fff(j,1)=fff(j,1)-convfct2*force*x
-         fff(j,2)=fff(j,2)-convfct2*force*y
-         fff(j,3)=fff(j,3)-convfct2*force*z
+         fff(1,j)=fff(1,j)-convfct2*force*x
+         fff(2,j)=fff(2,j)-convfct2*force*y
+         fff(3,j)=fff(3,j)-convfct2*force*z
 
         endif
 
