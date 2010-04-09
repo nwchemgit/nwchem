@@ -27,13 +27,13 @@ c
       double precision cm(3)
       logical nobq
 c
-      logical geom_cart_set_gen
-      external geom_cart_set_gen
+      logical geom_cart_set_gen1
+      external geom_cart_set_gen1
       pname = "smd_geom_monomer_create"
 c
       call smd_rtdb_get_handle(rtdb)
 c     
-      tag = "coords"
+      tag = "coords_alt"
       call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
@@ -101,7 +101,7 @@ c      call smd_coords_print_pdb1("new.pdb",dbl_mb(i_ct))
       if(.not.geom_create(igeom,"geometry"))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
-      if(.not.geom_cart_set_gen(igeom,i0,nm,nt,smd_string_size,
+      if(.not.geom_cart_set_gen1(igeom,i0,nm,nt,smd_string_size,
      + byte_mb(i_ta),
      + dbl_mb(i_ct),dbl_mb(i_qf)))
      + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
@@ -145,18 +145,19 @@ c
 
         do i=1,i0-1
            do j=1,3
-              dbl_mb(i_cbq+3*(i-1)+j-1)=dbl_mb(i_ct+nt*(j-1)+i-1)*scale
+              dbl_mb(i_cbq+3*(i-1)+j-1)=dbl_mb(i_ct+3*(i-1)+j-1)*scale
            end do
            dbl_mb(i_qbq+i-1)=dbl_mb(i_q+i-1)
         end do
 
         do i=i0,nbq
            do j=1,3
-              dbl_mb(i_cbq+3*(i-1)+j-1)=dbl_mb(i_ct+nt*(j-1)+i-1+nm)
+              dbl_mb(i_cbq+3*(i-1)+j-1)=dbl_mb(i_ct+3*(i-1)+j-1+3*nm)
      >                                  *scale
            end do
            dbl_mb(i_qbq+i-1)=dbl_mb(i_q+nm+i-1)
         end do
+
 
         call bq_print_xyz(bq_handle,98)
 
@@ -164,6 +165,7 @@ c
      +   call errquit(pname//'Failed bq_activate',0,CALC_ERR)
 c
 
+        call bq_print_info(bq_handle)
       end if
 
       if(.not.ma_pop_stack(h_ct))
@@ -194,13 +196,16 @@ c
       character*32 pname
 
       pname = "smd_geom_end"
+      call util_message("in "//pname)
       if(bq_get_active(bq_handle)) then
+      call util_message("found bq, destroying it")
 
       if(.not.bq_destroy(bq_handle))
      + call errquit(pname//'Failed bq_destroy',0,CALC_ERR)
 
       end if
 
+      call util_message("out "//pname)
       return
       end
 c
@@ -216,8 +221,8 @@ c
       integer nt
       integer nm
       integer i0
-      double precision cm(nm,3)
-      double precision c(nt,3)
+      double precision cm(3,nm)
+      double precision c(3,nt)
 c
       integer i,j
       double precision cshift(3)
@@ -226,20 +231,20 @@ c
 c     assemble a complete residue
 c     ---------------------------
       do j=1,3
-         cshift(j)=c(i0,j)
+         cshift(j)=c(j,i0)
       end do
 
       do i=1,nm
       do j=1,3
-         cm(i,j)=c(i0+i-1,j)-cshift(j)
+         cm(j,i)=c(j,i0+i-1)-cshift(j)
       end do
       end do
  
-      call smd_lat_rebox(nm,cm) 
+      call smd_lat_rebox1(nm,cm) 
 
       do i=1,nm
       do j=1,3
-         cm(i,j)=cm(i,j)+cshift(j)
+         cm(j,i)=cm(j,i)+cshift(j)
       end do
       end do
 c
@@ -253,7 +258,7 @@ c     ------------------------------
       
       do i=1,nm
       do j=1,3
-         com(j)=com(j)+cm(i,j)
+         com(j)=com(j)+cm(j,i)
       end do
       end do
 
@@ -263,11 +268,11 @@ c     ------------------------------
 
       do i=1,nt
       do j=1,3
-         c(i,j)=c(i,j)-com(j)
+         c(j,i)=c(j,i)-com(j)
       end do
       end do
  
-      call smd_lat_rebox(nt,c) 
+      call smd_lat_rebox1(nt,c) 
 
 c
       return
@@ -306,7 +311,7 @@ c
 c
       call smd_rtdb_get_handle(rtdb)
 c     
-      tag = "coords"
+      tag = "coords_alt"
       call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
