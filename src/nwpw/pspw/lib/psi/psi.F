@@ -6393,3 +6393,20 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 
 
+*     ***********************
+*     *                     *
+*     *    psi_MP2_energy   *
+*     *                     *
+*     ***********************
+      subroutine psi_MP2_energy(rtdb)
+      implicit none
+      integer rtdb
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+      return
+      end
+
+
