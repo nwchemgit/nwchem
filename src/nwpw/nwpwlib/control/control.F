@@ -2685,6 +2685,31 @@ c      end
       return
       end
 
+*     *****************************
+*     *                           *
+*     *        control_MP2        *
+*     *                           *
+*     *****************************
+      logical function control_MP2()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+
+      logical mp2
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      if( .not. rtdb_get(rtdb,'nwpw:MP2',mt_log,1,mp2))
+     >  mp2 = .false.
+
+      control_MP2 = mp2
+      return
+      end
+
 
 *     ****************************
 *     *                	 	 *
