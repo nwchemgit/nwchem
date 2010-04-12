@@ -165,7 +165,7 @@ c
      +   call errquit(pname//'Failed bq_activate',0,CALC_ERR)
 c
 
-        call bq_print_info(bq_handle)
+c        call bq_print_info(bq_handle)
       end if
 
       if(.not.ma_pop_stack(h_ct))
