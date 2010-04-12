@@ -7,8 +7,8 @@
       double precision tstep
       double precision ekin
       double precision mass(natms)
-      double precision fff(natms,3)
-      double precision vvv(natms,3)
+      double precision fff(3,natms)
+      double precision vvv(3,natms)
       double precision ccc(natms,3)
 c
       integer i,iatm
@@ -18,23 +18,23 @@ c
       ekin=0.0
 
       do i=1,natms
-       tmpvx=vvv(i,1)
-       tmpvy=vvv(i,2)
-       tmpvz=vvv(i,3)
+       tmpvx=vvv(1,i)
+       tmpvy=vvv(2,i)
+       tmpvz=vvv(3,i)
 
-       vvv(i,1)=vvv(i,1)+fff(i,1)*tstep/mass(i)
-       vvv(i,2)=vvv(i,2)+fff(i,2)*tstep/mass(i)
-       vvv(i,3)=vvv(i,3)+fff(i,3)*tstep/mass(i)
+       vvv(1,i)=vvv(1,i)+fff(1,i)*tstep/mass(i)
+       vvv(2,i)=vvv(2,i)+fff(2,i)*tstep/mass(i)
+       vvv(3,i)=vvv(3,i)+fff(3,i)*tstep/mass(i)
 
-       tmpvx=0.5*(tmpvx+vvv(i,1))
-       tmpvy=0.5*(tmpvy+vvv(i,2))
-       tmpvz=0.5*(tmpvz+vvv(i,3))
+       tmpvx=0.5*(tmpvx+vvv(1,i))
+       tmpvy=0.5*(tmpvy+vvv(2,i))
+       tmpvz=0.5*(tmpvz+vvv(3,i))
 
        ekin=ekin+mass(i)*(tmpvx**2+tmpvy**2+tmpvz**2)
 
-       ccc(i,1)=ccc(i,1)+tstep*vvv(i,1)
-       ccc(i,2)=ccc(i,2)+tstep*vvv(i,2)
-       ccc(i,3)=ccc(i,3)+tstep*vvv(i,3)
+       ccc(i,1)=ccc(i,1)+tstep*vvv(1,i)
+       ccc(i,2)=ccc(i,2)+tstep*vvv(2,i)
+       ccc(i,3)=ccc(i,3)+tstep*vvv(3,i)
        
       enddo 
 

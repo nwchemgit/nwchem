@@ -31,8 +31,8 @@ c
       double precision consdist(ntcons)
       double precision ncc(natms,3),nvv(natms,3),dcc(natms,3)
       double precision nrij(ntcons,3),orij(ntcons,3)
-      double precision fff(natms,3)
-      double precision vvv(natms,3)
+      double precision fff(3,natms)
+      double precision vvv(3,natms)
       double precision ccc(natms,3)
 
       integer i,j,it,maxit,iatm1,iatm2
@@ -68,9 +68,9 @@ c
        ncc(i,2)=ccc(i,2)
        ncc(i,3)=ccc(i,3)
 
-       nvv(i,1)=vvv(i,1)+fff(i,1)*tstep/mass(i)
-       nvv(i,2)=vvv(i,2)+fff(i,2)*tstep/mass(i)
-       nvv(i,3)=vvv(i,3)+fff(i,3)*tstep/mass(i)
+       nvv(i,1)=vvv(1,i)+fff(1,i)*tstep/mass(i)
+       nvv(i,2)=vvv(2,i)+fff(2,i)*tstep/mass(i)
+       nvv(i,3)=vvv(3,i)+fff(3,i)*tstep/mass(i)
 
        ccc(i,1)=ncc(i,1)+tstep*nvv(i,1)
        ccc(i,2)=ncc(i,2)+tstep*nvv(i,2)
@@ -156,19 +156,19 @@ c
        nvv(i,2)=(ccc(i,2)-ncc(i,2))*rtstep
        nvv(i,3)=(ccc(i,3)-ncc(i,3))*rtstep
 
-       tmpvx=0.5*(nvv(i,1)+vvv(i,1))
-       tmpvy=0.5*(nvv(i,2)+vvv(i,2))
-       tmpvz=0.5*(nvv(i,3)+vvv(i,3))
+       tmpvx=0.5*(nvv(i,1)+vvv(1,i))
+       tmpvy=0.5*(nvv(i,2)+vvv(2,i))
+       tmpvz=0.5*(nvv(i,3)+vvv(3,i))
 
        ekin=ekin+mass(i)*(tmpvx**2+tmpvy**2+tmpvz**2)
 
-       fff(i,1)=(nvv(i,1)-vvv(i,1))*mass(i)*rtstep
-       fff(i,2)=(nvv(i,2)-vvv(i,2))*mass(i)*rtstep
-       fff(i,3)=(nvv(i,3)-vvv(i,3))*mass(i)*rtstep
+       fff(1,i)=(nvv(i,1)-vvv(1,i))*mass(i)*rtstep
+       fff(2,i)=(nvv(i,2)-vvv(2,i))*mass(i)*rtstep
+       fff(3,i)=(nvv(i,3)-vvv(3,i))*mass(i)*rtstep
 
-       vvv(i,1)=nvv(i,1)
-       vvv(i,2)=nvv(i,2)
-       vvv(i,3)=nvv(i,3)
+       vvv(1,i)=nvv(i,1)
+       vvv(2,i)=nvv(i,2)
+       vvv(3,i)=nvv(i,3)
 
       enddo
 

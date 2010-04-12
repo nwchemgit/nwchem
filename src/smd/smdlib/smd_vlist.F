@@ -752,8 +752,8 @@ c
       double precision rcut,vcut
       double precision tstep
       logical lupdate
-      double precision ivv(natms,3)
-      double precision vvv(natms,3)
+      double precision ivv(3,natms)
+      double precision vvv(3,natms)
 c
       integer i,exceed
 
@@ -775,9 +775,9 @@ c
 
        do i=1,natms
 
-        ivv(i,1)=0.0
-        ivv(i,2)=0.0
-        ivv(i,3)=0.0
+        ivv(1,i)=0.0
+        ivv(2,i)=0.0
+        ivv(3,i)=0.0
 
        enddo
 
@@ -789,9 +789,9 @@ c
 
        do i=1,natms
 
-        ivv(i,1)=ivv(i,1)+vvv(i,1)
-        ivv(i,2)=ivv(i,2)+vvv(i,2)
-        ivv(i,3)=ivv(i,3)+vvv(i,3)
+        ivv(1,i)=ivv(1,i)+vvv(1,i)
+        ivv(2,i)=ivv(2,i)+vvv(2,i)
+        ivv(3,i)=ivv(3,i)+vvv(3,i)
 
        enddo
 
@@ -799,9 +799,9 @@ c
 
        do i=1,natms
 
-        dispxsq=ivv(i,1)**2
-        dispysq=ivv(i,2)**2
-        dispzsq=ivv(i,3)**2
+        dispxsq=ivv(1,i)**2
+        dispysq=ivv(2,i)**2
+        dispzsq=ivv(3,i)**2
         disprsq=tstepsq*(dispxsq+dispysq+dispzsq)
         if(disprsq.gt.dispmax) then
           exceed=exceed+1
@@ -814,9 +814,9 @@ c
 
         do i=1,natms
 
-         ivv(i,1)=0
-         ivv(i,2)=0
-         ivv(i,3)=0
+         ivv(1,i)=0
+         ivv(2,i)=0
+         ivv(3,i)=0
 
         enddo
 

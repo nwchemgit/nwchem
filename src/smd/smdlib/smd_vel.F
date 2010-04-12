@@ -294,7 +294,7 @@ c     --------------
 
       integer natms
       double precision targetke
-      double precision vvv(natms,3)
+      double precision vvv(3,natms)
       double precision typmass(*)
       integer atmtype(*)
 c
@@ -314,15 +314,15 @@ c
 
        iatm=atmtype(i)
        call tool_randm(iseed,x)
-       vvv(i,1)=(x-0.5)/sqrt(typmass(iatm))
+       vvv(1,i)=(x-0.5)/sqrt(typmass(iatm))
        call tool_randm(iseed,x)
-       vvv(i,2)=(x-0.5)/sqrt(typmass(iatm))
+       vvv(2,i)=(x-0.5)/sqrt(typmass(iatm))
        call tool_randm(iseed,x)
-       vvv(i,3)=(x-0.5)/sqrt(typmass(iatm))
+       vvv(3,i)=(x-0.5)/sqrt(typmass(iatm))
 
-       comxvv=comxvv+vvv(i,1)*typmass(iatm)
-       comyvv=comyvv+vvv(i,2)*typmass(iatm)
-       comzvv=comzvv+vvv(i,3)*typmass(iatm)
+       comxvv=comxvv+vvv(1,i)*typmass(iatm)
+       comyvv=comyvv+vvv(2,i)*typmass(iatm)
+       comzvv=comzvv+vvv(3,i)*typmass(iatm)
        commass=commass+typmass(iatm)
 
       enddo
@@ -333,9 +333,9 @@ c
 
       do i=1,natms
 
-       vvv(i,1)=vvv(i,1)-comxvv
-       vvv(i,2)=vvv(i,2)-comyvv
-       vvv(i,3)=vvv(i,3)-comzvv
+       vvv(1,i)=vvv(1,i)-comxvv
+       vvv(2,i)=vvv(2,i)-comyvv
+       vvv(3,i)=vvv(3,i)-comzvv
 
       enddo
 
@@ -345,7 +345,7 @@ c
 
        iatm=atmtype(i)
        instanke=instanke
-     $         +typmass(iatm)*((vvv(i,1)**2+vvv(i,2)**2+vvv(i,3)**2))
+     $         +typmass(iatm)*((vvv(1,i)**2+vvv(2,i)**2+vvv(3,i)**2))
 
       enddo
 
@@ -355,9 +355,9 @@ c
 
       do i=1,natms
 
-       vvv(i,1)=xscale*vvv(i,1)
-       vvv(i,2)=xscale*vvv(i,2)
-       vvv(i,3)=xscale*vvv(i,3)
+       vvv(1,i)=xscale*vvv(1,i)
+       vvv(2,i)=xscale*vvv(2,i)
+       vvv(3,i)=xscale*vvv(3,i)
 
       enddo
 
@@ -367,7 +367,7 @@ c
 
        iatm=atmtype(i)
        instanke=instanke
-     $         +typmass(iatm)*((vvv(i,1)**2+vvv(i,2)**2+vvv(i,3)**2))
+     $         +typmass(iatm)*((vvv(1,i)**2+vvv(2,i)**2+vvv(3,i)**2))
 
       enddo
 
@@ -384,13 +384,13 @@ c      write(*,*) "current ke comp1",targetke,instanke
       implicit none
 
       integer un,natms
-      double precision vvv(natms,3)
+      double precision vvv(3,natms)
 c
       integer i
 
       do i=1,natms
 
-       read(un,*) vvv(i,1),vvv(i,2),vvv(i,3)
+       read(un,*) vvv(1,i),vvv(2,i),vvv(3,i)
 
       enddo
 
@@ -403,13 +403,13 @@ c
       implicit none
 
       integer un,natms
-      double precision vvv(natms,3)
+      double precision vvv(3,natms)
 c
       integer i
 
       do i=1,natms
 
-       write(un,*) vvv(i,1),vvv(i,2),vvv(i,3)
+       write(un,*) vvv(1,i),vvv(2,i),vvv(3,i)
 
       enddo
 
@@ -423,7 +423,7 @@ c
 
       integer natms
       double precision targetke
-      double precision vvv(natms,3)
+      double precision vvv(3,natms)
       double precision typmass(*)
       integer atmtype(*)
 c
@@ -437,7 +437,7 @@ c
 
        iatm=atmtype(i)
        ke=ke
-     $          +typmass(iatm)*((vvv(i,1)**2+vvv(i,2)**2+vvv(i,3)**2))
+     $          +typmass(iatm)*((vvv(1,i)**2+vvv(2,i)**2+vvv(3,i)**2))
 
       enddo
 
