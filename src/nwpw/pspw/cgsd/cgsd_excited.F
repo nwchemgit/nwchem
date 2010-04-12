@@ -34,12 +34,12 @@ c#include "rtdb.fh"
       integer rtdb
 
 *     **** external functions ****
-      logical     control_DOS,control_Mulliken
+      logical     control_DOS,control_Mulliken,control_MP2
       logical     epsi_initialize,epsi_finalize
       logical     control_check_number_virtuals
       integer     psi_ne_excited,control_excited_ne,control_rtdb
       real*8      psi_virtual
-      external    control_DOS,control_Mulliken
+      external    control_DOS,control_Mulliken,control_MP2
       external    epsi_initialize,epsi_finalize
       external    control_check_number_virtuals
       external    psi_ne_excited,control_excited_ne,control_rtdb
@@ -127,6 +127,10 @@ cccccccc  call Dnex_init(ispin,nexcited,control_mapping1d()) ccccccc
          call kp_structure(rtdb)
       end if
 
+*     **** calculate MP2 Energy ***
+      if (control_MP2()) then
+         call psi_MP2_energy(rtdb)
+      end if
 
 
 *     **** write out excited wavefunctions ***
