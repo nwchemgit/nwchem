@@ -403,7 +403,7 @@ c     --------------------
      +                   int_mb(i_list),
      +                   dbl_mb(i_clist))
 
-      call smd_lat_rebox(nl,dbl_mb(i_clist))
+      call smd_lat_rebox1(nl,dbl_mb(i_clist))
 
       return
       end
