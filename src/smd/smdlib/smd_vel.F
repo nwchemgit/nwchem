@@ -168,7 +168,7 @@ c
       if(.not.util_get_io_unit(un))
      >   call errquit("cannot get file number",0,0)
 c
-      open(unit=un,status="old",form="formatted",file=filename)
+      open(unit=un,status="unknown",form="formatted",file=filename)
 c
 c     get velocity array
 c     ------------------

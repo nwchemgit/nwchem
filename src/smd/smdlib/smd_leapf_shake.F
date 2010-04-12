@@ -41,6 +41,10 @@ c
       double precision   tmpvx,tmpvy,tmpvz
       double precision   tstepsq,rtstep,tol,mxdiff
       double precision   nrijsq,dijsq,diffsq,dotprod
+      character*(42) pname
+
+      pname = "smd_leapf_shake"
+      write(*,*) "in "//pname
 
       ekin=0.0
       tstepsq=tstep**2
@@ -48,6 +52,7 @@ c
       tol=1.0d-8
       maxit=100
       mxdiff = 0.0d0
+
 
       do i=1,ntcons
 
@@ -174,6 +179,8 @@ c
 
 
       ekin=0.5*ekin
+
+      write(*,*) "out "//pname
     
       return
 

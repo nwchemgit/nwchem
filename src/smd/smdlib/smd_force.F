@@ -156,8 +156,7 @@ c      write(*,*) "in "//pname
 
       call smd_force_zero()
       call smd_coulomb_compute()
-      call smd_force_print(33)
       call smd_pot_compute()
-      call smd_force_print(34)
+      call smd_force_print(37)
       return
       end

@@ -209,7 +209,7 @@ c
       character*80 tag
       integer nt,na
       integer i_f
-      integer i_m,i_c,i_v
+      integer i_m,i_c,i_v,i_c1
       logical result
       integer rtdb
       double precision ekin, tstep
@@ -261,6 +261,13 @@ c     ---------------
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
+
+      tag = "coords_alt"
+      call smd_get_ind(tag,i_c1,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, 0)
+
 
 c
 c     get time step
@@ -372,6 +379,8 @@ c     -------------
      &         MA_ERR)
 
       end if
+      call smd_util_equal_array(na,dbl_mb(i_c),dbl_mb(i_c1))
+
 
       return
       end

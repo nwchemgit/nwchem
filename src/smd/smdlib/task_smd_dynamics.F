@@ -40,7 +40,8 @@ c
      >       RTDB_ERR)
 c
       do i=1,ndata
-        call smd_vlist_test(vupdate)
+c        call smd_vlist_test(vupdate)
+        vupdate=.true.
         call smd_vlist_update(vupdate,.true.)
         call smd_force_compute()
         call smd_coords_update()

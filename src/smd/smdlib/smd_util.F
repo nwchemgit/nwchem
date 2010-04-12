@@ -94,7 +94,7 @@ c
 c
       integer i
       do i=1,na
-         write(un,*) i, fff(i,1),fff(i,2),fff(i,3)
+         write(un,'(I4,2X,3(E16.8,2X))') i, fff(i,1),fff(i,2),fff(i,3)
       end do
       return
 
@@ -110,7 +110,7 @@ c
 c
       integer i
       do i=1,na
-         write(un,*) i, fff(1,i),fff(2,i),fff(3,i)
+         write(un,'(I4,2X,3(E16.8,2X))') i, fff(1,i),fff(2,i),fff(3,i)
       end do
       return
 
@@ -132,6 +132,24 @@ c
          end if
       end do
       write(*,*) "arrays are the same"
+      return
+
+      end
+
+      subroutine smd_util_equal_array(na,
+     >                           fff1,fff2)
+
+      implicit none
+      integer na
+      double precision fff1(na,3)
+      double precision fff2(3,na)
+c
+      integer i,k
+      do i=1,na
+      do k=1,3
+         fff2(k,i)=fff1(i,k)  
+      end do
+      end do
       return
 
       end
