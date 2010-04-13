@@ -353,9 +353,13 @@ $(GA_DIR)/configure:
 $(GA_DIR)/armci/configure:
 	@echo "You must run ./get-tools" && exit 1
 
-check_cc:
-	@echo "$(CC)" > $(BUILDDIR)/cc.next; \
-	if test -e $(BUILDDIR)/cc.last; then \
+.PHONY: $(BUILDDIR)/cc.next
+$(BUILDDIR)/cc.next:
+	@rm -f $(BUILDDIR)/cc.next;
+	@echo "$(CC)" > $(BUILDDIR)/cc.next;
+
+check_cc: $(BUILDDIR)/cc.next
+	@if test -e $(BUILDDIR)/cc.last; then \
 	  if ! diff $(BUILDDIR)/cc.last $(BUILDDIR)/cc.next; then \
 	    touch $(GA_DIR)/configure; \
 	    echo "CC changed since last make"; \
@@ -364,9 +368,13 @@ check_cc:
 	rm -f $(BUILDDIR)/cc.last; \
 	mv $(BUILDDIR)/cc.next $(BUILDDIR)/cc.last;
 
-check_fc:
-	@echo "$(FC)" > $(BUILDDIR)/fc.next; \
-	if test -e $(BUILDDIR)/fc.last; then \
+.PHONY: $(BUILDDIR)/fc.next
+$(BUILDDIR)/fc.next:
+	@rm -f $(BUILDDIR)/fc.next;
+	@echo "$(FC)" > $(BUILDDIR)/fc.next;
+
+check_fc: $(BUILDDIR)/fc.next
+	@if test -e $(BUILDDIR)/fc.last; then \
 	  if ! diff $(BUILDDIR)/fc.last $(BUILDDIR)/fc.next; then \
 	    touch $(GA_DIR)/configure; \
 	    echo "FC changed since last make"; \
