@@ -262,13 +262,6 @@ c     ---------------
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
 
-c      tag = "coords_alt"
-c      call smd_get_ind(tag,i_c1,result)
-c      if(.not. result) 
-c     >  call errquit(
-c     >       pname//'error getting index for'//tag,0, 0)
-c
-
 c
 c     get time step
 c     -------------
@@ -379,8 +372,6 @@ c     -------------
      &         MA_ERR)
 
       end if
-c      call smd_util_equal_array(na,dbl_mb(i_c),dbl_mb(i_c1))
-
 
       return
       end

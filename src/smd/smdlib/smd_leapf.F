@@ -9,7 +9,7 @@
       double precision mass(natms)
       double precision fff(3,natms)
       double precision vvv(3,natms)
-      double precision ccc(natms,3)
+      double precision ccc(3,natms)
 c
       integer i,iatm
 
@@ -32,9 +32,9 @@ c
 
        ekin=ekin+mass(i)*(tmpvx**2+tmpvy**2+tmpvz**2)
 
-       ccc(i,1)=ccc(i,1)+tstep*vvv(1,i)
-       ccc(i,2)=ccc(i,2)+tstep*vvv(2,i)
-       ccc(i,3)=ccc(i,3)+tstep*vvv(3,i)
+       ccc(1,i)=ccc(1,i)+tstep*vvv(1,i)
+       ccc(2,i)=ccc(2,i)+tstep*vvv(2,i)
+       ccc(3,i)=ccc(3,i)+tstep*vvv(3,i)
        
       enddo 
 

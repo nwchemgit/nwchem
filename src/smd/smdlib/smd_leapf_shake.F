@@ -29,7 +29,7 @@ c
       integer          icon1(ntcons)
       integer          icon2(ntcons)
       double precision consdist(ntcons)
-      double precision ncc(natms,3),nvv(natms,3),dcc(natms,3)
+      double precision ncc(3,natms),nvv(3,natms),dcc(natms,3)
       double precision nrij(ntcons,3),orij(ntcons,3)
       double precision fff(3,natms)
       double precision vvv(3,natms)
@@ -69,17 +69,17 @@ c
 
       do i=1,natms
 
-       ncc(i,1)=ccc(1,i)
-       ncc(i,2)=ccc(2,i)
-       ncc(i,3)=ccc(3,i)
+       ncc(1,i)=ccc(1,i)
+       ncc(2,i)=ccc(2,i)
+       ncc(3,i)=ccc(3,i)
 
-       nvv(i,1)=vvv(1,i)+fff(1,i)*tstep/mass(i)
-       nvv(i,2)=vvv(2,i)+fff(2,i)*tstep/mass(i)
-       nvv(i,3)=vvv(3,i)+fff(3,i)*tstep/mass(i)
+       nvv(1,i)=vvv(1,i)+fff(1,i)*tstep/mass(i)
+       nvv(2,i)=vvv(2,i)+fff(2,i)*tstep/mass(i)
+       nvv(3,i)=vvv(3,i)+fff(3,i)*tstep/mass(i)
 
-       ccc(1,i)=ncc(i,1)+tstep*nvv(i,1)
-       ccc(2,i)=ncc(i,2)+tstep*nvv(i,2)
-       ccc(3,i)=ncc(i,3)+tstep*nvv(i,3)
+       ccc(1,i)=ncc(1,i)+tstep*nvv(1,i)
+       ccc(2,i)=ncc(2,i)+tstep*nvv(2,i)
+       ccc(3,i)=ncc(3,i)+tstep*nvv(3,i)
 
       enddo 
 
@@ -157,23 +157,23 @@ c
 
       do i=1,natms
 
-       nvv(i,1)=(ccc(1,i)-ncc(i,1))*rtstep
-       nvv(i,2)=(ccc(2,i)-ncc(i,2))*rtstep
-       nvv(i,3)=(ccc(3,i)-ncc(i,3))*rtstep
+       nvv(1,i)=(ccc(1,i)-ncc(1,i))*rtstep
+       nvv(2,i)=(ccc(2,i)-ncc(2,i))*rtstep
+       nvv(3,i)=(ccc(3,i)-ncc(3,i))*rtstep
 
-       tmpvx=0.5*(nvv(i,1)+vvv(1,i))
-       tmpvy=0.5*(nvv(i,2)+vvv(2,i))
-       tmpvz=0.5*(nvv(i,3)+vvv(3,i))
+       tmpvx=0.5*(nvv(1,i)+vvv(1,i))
+       tmpvy=0.5*(nvv(2,i)+vvv(2,i))
+       tmpvz=0.5*(nvv(3,i)+vvv(3,i))
 
        ekin=ekin+mass(i)*(tmpvx**2+tmpvy**2+tmpvz**2)
 
-       fff(1,i)=(nvv(i,1)-vvv(1,i))*mass(i)*rtstep
-       fff(2,i)=(nvv(i,2)-vvv(2,i))*mass(i)*rtstep
-       fff(3,i)=(nvv(i,3)-vvv(3,i))*mass(i)*rtstep
+       fff(1,i)=(nvv(1,i)-vvv(1,i))*mass(i)*rtstep
+       fff(2,i)=(nvv(2,i)-vvv(2,i))*mass(i)*rtstep
+       fff(3,i)=(nvv(3,i)-vvv(3,i))*mass(i)*rtstep
 
-       vvv(1,i)=nvv(i,1)
-       vvv(2,i)=nvv(i,2)
-       vvv(3,i)=nvv(i,3)
+       vvv(1,i)=nvv(1,i)
+       vvv(2,i)=nvv(2,i)
+       vvv(3,i)=nvv(3,i)
 
       enddo
 
