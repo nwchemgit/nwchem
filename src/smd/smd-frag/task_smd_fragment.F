@@ -64,6 +64,7 @@ c
 c
       call util_io_enable()
       call util_message("calling smd_monomer")
+      call smd_monomer_energy(2,"dft")
       call smd_monomer_energy(1,"dft")
       call smd_monomer_energy(2,"dft")
 c

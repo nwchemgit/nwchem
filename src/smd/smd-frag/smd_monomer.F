@@ -48,6 +48,7 @@ c      call util_message("prefix is set to "//prefix)
 c     -------------------------------------------------
 c     get rtdb handle from smd database (in-core)
 c      call smd_rtdb_get_handle(rtdb)
+c      call smd_global_pull_coords(im)
       call smd_rtdb_close("keep")
       call smd_rtdb_open_clone(im,rtdb)
       
