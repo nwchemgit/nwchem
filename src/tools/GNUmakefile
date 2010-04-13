@@ -340,15 +340,18 @@ $(BUILDDIR)/config.status: $(GA_DIR)/configure
 	@echo ''
 	@(cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS)) || exit 1
 
-.PHONY: $(BUILDDIR) $(GA_DIR)
+.PHONY: $(BUILDDIR)
 $(BUILDDIR):
 	(test -d $(BUILDDIR)) || mkdir $(BUILDDIR);
-$(GA_DIR)/Makefile.in:       $(GA_DIR)
-$(GA_DIR)/armci/Makefile.in: $(GA_DIR)
-$(GA_DIR)/configure:         $(GA_DIR)
-$(GA_DIR)/armci/configure:   $(GA_DIR)
-$(GA_DIR):
-	(test -d $(GA_DIR)) || ./get-tools
+
+$(GA_DIR)/Makefile.in:
+	@echo "You must run ./get-tools" && exit 1
+$(GA_DIR)/armci/Makefile.in:
+	@echo "You must run ./get-tools" && exit 1
+$(GA_DIR)/configure:
+	@echo "You must run ./get-tools" && exit 1
+$(GA_DIR)/armci/configure:
+	@echo "You must run ./get-tools" && exit 1
 
 check_cc:
 	@echo "$(CC)" > $(BUILDDIR)/cc.next; \

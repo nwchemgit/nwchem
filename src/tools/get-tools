@@ -53,15 +53,17 @@ then
     rm -rf $TOOLDIR/tcgmsg
     rm -rf $TOOLDIR/tcgmsg-mpi
 fi
-svn checkout $GA_OLD_SVN $GA_OLD
-cd $GA_OLD
-rm -f README
-rm -f license.txt
-rm -f INSTALL
-rm -f NOTES
-rm -f GNUmakefile
-cp -f -R * ..
-cd $TOOLDIR
+if svn checkout $GA_OLD_SVN $GA_OLD
+then
+    cd $GA_OLD
+    rm -f README
+    rm -f license.txt
+    rm -f INSTALL
+    rm -f NOTES
+    rm -f GNUmakefile
+    cp -f -R * ..
+    cd $TOOLDIR
+fi
 
 # Update the autotools build of GA.
 #if test -e $TOOLDIR/build
