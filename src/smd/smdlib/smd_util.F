@@ -2,7 +2,7 @@ c
 c $Id: smd_util.F,v 1.1 2008/10/01 22:32:32 marat Exp $
 c
 
-      SUBROUTINE smd_util_rebox(n,latt,rlatt,aaa)
+      SUBROUTINE smd_util_rebox_alt(n,latt,rlatt,aaa)
 
       implicit none
 
@@ -43,7 +43,7 @@ c
 
       END
 
-      SUBROUTINE smd_util_rebox1(n,latt,rlatt,aaa)
+      SUBROUTINE smd_util_rebox(n,latt,rlatt,aaa)
 
       implicit none
 
@@ -83,22 +83,6 @@ c
       return
 
       END
-
-      subroutine smd_util_print_force_array(un,na,
-     >                           fff)
-
-      implicit none
-      integer un
-      integer na
-      double precision fff(na,3)
-c
-      integer i
-      do i=1,na
-         write(un,'(I4,2X,3(E16.8,2X))') i, fff(i,1),fff(i,2),fff(i,3)
-      end do
-      return
-
-      end
 
       subroutine smd_util_print_force_array1(un,na,
      >                           fff)

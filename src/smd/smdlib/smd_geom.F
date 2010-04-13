@@ -33,7 +33,7 @@ c
 c
       call smd_rtdb_get_handle(rtdb)
 c     
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
@@ -240,7 +240,7 @@ c     ---------------------------
       end do
       end do
  
-      call smd_lat_rebox1(nm,cm) 
+      call smd_lat_rebox(nm,cm) 
 
       do i=1,nm
       do j=1,3
@@ -272,7 +272,7 @@ c     ------------------------------
       end do
       end do
  
-      call smd_lat_rebox1(nt,c) 
+      call smd_lat_rebox(nt,c) 
 
 c
       return
@@ -311,7 +311,7 @@ c
 c
       call smd_rtdb_get_handle(rtdb)
 c     
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(

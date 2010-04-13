@@ -8,7 +8,7 @@ c
      c                       "param:charge",
      c                       "param:mass",
      c                       "param:resname",
-     c                       "coords_alt",
+     c                       "coords",
      c                       "type:id",
      c                       "atom:iconst",
      c                       "atom:name",

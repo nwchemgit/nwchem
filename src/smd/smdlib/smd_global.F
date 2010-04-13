@@ -87,7 +87,7 @@ c     get coordinate information
 c     --------------------------
       call smd_global_pull("coords")
 
-c      tag = "coords_alt"
+c      tag = "coords"
 c      call smd_get_ind_dim(tag,i_c,np,result)
 c      if(.not. result) 
 c     >  call errquit(
@@ -147,7 +147,7 @@ c
 c
 c     get coordinate information
 c     --------------------------
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind_dim(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(
@@ -231,7 +231,7 @@ c
 c
       if(atag.eq."coords") then
         gtag = "coordinates"
-        ltag = "coords_alt"
+        ltag = "coords"
       else
         call errquit(
      >       pname//'unknown tag'//atag,0, 0)
@@ -296,7 +296,7 @@ c
 c
       if(atag.eq."coords") then
         gtag = "coordinates"
-        ltag = "coords_alt"
+        ltag = "coords"
       else if(atag.eq."gradients") then
         gtag = "gradients"
         ltag = "force"
@@ -369,7 +369,7 @@ c
 c
 c     get coordinate information
 c     --------------------------
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind_dim(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(

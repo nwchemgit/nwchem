@@ -71,7 +71,7 @@ c
 c
 c     get coordinate information
 c     --------------------------
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind_dim(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(
@@ -251,7 +251,7 @@ c
 c
 c     get coordinate information
 c     --------------------------
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind_dim(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(
@@ -368,7 +368,7 @@ c
 c
 c     get coordinate information
 c     --------------------------
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind_dim(tag,i_c,np,result)
       if(.not. result) 
      >  call errquit(
@@ -403,7 +403,7 @@ c     --------------------
      +                   int_mb(i_list),
      +                   dbl_mb(i_clist))
 
-      call smd_lat_rebox1(nl,dbl_mb(i_clist))
+      call smd_lat_rebox(nl,dbl_mb(i_clist))
 
       return
       end
@@ -527,7 +527,7 @@ c
        end do
 
 
-       call smd_lat_rebox1(np,ct)
+       call smd_lat_rebox(np,ct)
 
 
        k = 0
@@ -636,7 +636,7 @@ c
        end do
 
 
-       call smd_lat_rebox1(np,ct)
+       call smd_lat_rebox(np,ct)
 
 
        k = 0

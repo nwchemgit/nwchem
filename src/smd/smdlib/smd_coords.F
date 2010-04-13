@@ -62,7 +62,7 @@ c
 c     create coords data structures
 c     ---------------------------
       call smd_namespace_create(sp_coords)
-      call smd_data_create(sp_coords,"coords_alt",3*na,MT_DBL)
+      call smd_data_create(sp_coords,"coords",3*na,MT_DBL)
 
       return
       end
@@ -91,7 +91,7 @@ c      write(*,*) "in "//pname
 c
 c     fill in coordinates from pdb file if any
 c     ----------------------------------------
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind_dim(tag,i_c1,na,result)
       if(.not. result) 
      >  call errquit(
@@ -127,14 +127,14 @@ c
 c
 c     get atomic coordinates
 c     ----------------------
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind_dim(tag,i_c,na,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
       na = na/3
 
-      call smd_lat_rebox1(na,
+      call smd_lat_rebox(na,
      >                    dbl_mb(i_c))
 
       return
@@ -163,7 +163,7 @@ c
 c
 c     get atomic coordinates
 c     ----------------------
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind(tag,i_c,na,result)
       if(.not. result)
      >  call errquit(
@@ -243,7 +243,7 @@ c     ---------------
 c
 c     get coord array
 c     ---------------
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
@@ -392,7 +392,7 @@ c
 c
 c     get atomic coordinates
 c     ----------------------
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind_dim(tag,i_c,na,result)
       if(.not. result)
      >  call errquit(

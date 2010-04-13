@@ -97,7 +97,7 @@ c
 
        enddo
 
-       call smd_lat_rebox1(ntcons,nrij) 
+       call smd_lat_rebox(ntcons,nrij) 
 
        do j=1,natms
         dcc(1,j)=0.0

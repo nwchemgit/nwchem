@@ -247,7 +247,7 @@ c
       return
       end
 
-      subroutine smd_lat_rebox(n,c)
+      subroutine smd_lat_rebox_alt(n,c)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -290,7 +290,7 @@ c     -------------------------
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
-      call smd_util_rebox(n,
+      call smd_util_rebox_alt(n,
      >                    dbl_mb(i_lc),
      >                    dbl_mb(i_lrc),
      >                    c)
@@ -298,7 +298,7 @@ c     -------------------------
       return
       end
 
-      subroutine smd_lat_rebox1(n,c)
+      subroutine smd_lat_rebox(n,c)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -341,7 +341,7 @@ c     -------------------------
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
-      call smd_util_rebox1(n,
+      call smd_util_rebox(n,
      >                    dbl_mb(i_lc),
      >                    dbl_mb(i_lrc),
      >                    c)

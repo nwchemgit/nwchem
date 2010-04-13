@@ -214,7 +214,7 @@ c
 c
 c     get coord data
 c     --------------
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
@@ -362,7 +362,7 @@ c     ---------------------
 c
 c     get coord data
 c     --------------
-      tag = "coords_alt"
+      tag = "coords"
       call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
