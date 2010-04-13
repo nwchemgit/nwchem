@@ -77,6 +77,12 @@ clean:
 	$(RM) -r include/* *.stamp
 	(cd ./$(ARMCI_DIR_NAME)/src; $(MAKE) LIB_DISTRIB=../../lib clean )
 
+STAMP = $(TARGET)-$(MP_VER)-$(GA_VER).stamp
+
+$(STAMP): 
+	$(MAKE) clean
+	echo "" > $(STAMP)
+
 else
 #
 # GNU Autotools-based build of GA
@@ -311,7 +317,7 @@ INSTALLDIR = install
 TOOLDIR = $(shell pwd)
 CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) $(MAYBE_MPI_INCLUDE) $(MAYBE_MPI_LIB) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_F77)
 
-$(INSTALLDIR)/lib/libga.a: $(BUILDDIR) $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
+$(INSTALLDIR)/lib/libga.a: $(BUILDDIR) check_cc check_fc $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
 	@echo ''
 	@echo '*** Building Parallel Tools ****'
 	@echo ''
@@ -344,20 +350,37 @@ $(GA_DIR)/armci/configure:   $(GA_DIR)
 $(GA_DIR):
 	(test -d $(GA_DIR)) || ./get-tools
 
+check_cc:
+	@echo "$(CC)" > $(BUILDDIR)/cc.next; \
+	if test -e $(BUILDDIR)/cc.last; then \
+	  if ! diff $(BUILDDIR)/cc.last $(BUILDDIR)/cc.next; then \
+	    touch $(GA_DIR)/configure; \
+	    echo "CC changed since last make"; \
+	  fi; \
+	fi; \
+	rm -f $(BUILDDIR)/cc.last; \
+	mv $(BUILDDIR)/cc.next $(BUILDDIR)/cc.last;
+
+check_fc:
+	@echo "$(FC)" > $(BUILDDIR)/fc.next; \
+	if test -e $(BUILDDIR)/fc.last; then \
+	  if ! diff $(BUILDDIR)/fc.last $(BUILDDIR)/fc.next; then \
+	    touch $(GA_DIR)/configure; \
+	    echo "FC changed since last make"; \
+	  fi; \
+	fi; \
+	rm -f $(BUILDDIR)/fc.last; \
+	mv $(BUILDDIR)/fc.next $(BUILDDIR)/fc.last;
+
 clean:
 	@test -e $(BUILDDIR)/Makefile && { cd $(BUILDDIR) && $(MAKE) clean; } || echo "Not configured"
+
 endif
 #
 # Common targets shared between GNUmakefile's and automake Makefiles
 #
 
 realclean: clean
-
-STAMP = $(TARGET)-$(MP_VER)-$(GA_VER).stamp
-
-$(STAMP): 
-	$(MAKE) clean
-	echo "" > $(STAMP)
 
 .PHONY: cleanF
 cleanF:
