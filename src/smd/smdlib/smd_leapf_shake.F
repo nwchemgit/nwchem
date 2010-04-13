@@ -29,8 +29,8 @@ c
       integer          icon1(ntcons)
       integer          icon2(ntcons)
       double precision consdist(ntcons)
-      double precision ncc(3,natms),nvv(3,natms),dcc(natms,3)
-      double precision nrij(ntcons,3),orij(ntcons,3)
+      double precision ncc(3,natms),nvv(3,natms),dcc(3,natms)
+      double precision nrij(3,ntcons),orij(3,ntcons)
       double precision fff(3,natms)
       double precision vvv(3,natms)
       double precision ccc(3,natms)
@@ -59,9 +59,9 @@ c
        iatm1=icon1(i)
        iatm2=icon2(i)
 
-       orij(i,1)=ccc(1,iatm1)-ccc(1,iatm2)
-       orij(i,2)=ccc(2,iatm1)-ccc(2,iatm2)
-       orij(i,3)=ccc(3,iatm1)-ccc(3,iatm2)
+       orij(1,i)=ccc(1,iatm1)-ccc(1,iatm2)
+       orij(2,i)=ccc(2,iatm1)-ccc(2,iatm2)
+       orij(3,i)=ccc(3,iatm1)-ccc(3,iatm2)
 
       enddo
 
@@ -91,18 +91,18 @@ c
         iatm1=icon1(j)
         iatm2=icon2(j)
 
-        nrij(j,1)=ccc(1,iatm1)-ccc(1,iatm2)
-        nrij(j,2)=ccc(2,iatm1)-ccc(2,iatm2)
-        nrij(j,3)=ccc(3,iatm1)-ccc(3,iatm2)
+        nrij(1,j)=ccc(1,iatm1)-ccc(1,iatm2)
+        nrij(2,j)=ccc(2,iatm1)-ccc(2,iatm2)
+        nrij(3,j)=ccc(3,iatm1)-ccc(3,iatm2)
 
        enddo
 
-       call smd_lat_rebox(ntcons,nrij) 
+       call smd_lat_rebox1(ntcons,nrij) 
 
        do j=1,natms
-        dcc(j,1)=0.0
-        dcc(j,2)=0.0
-        dcc(j,3)=0.0
+        dcc(1,j)=0.0
+        dcc(2,j)=0.0
+        dcc(3,j)=0.0
        enddo
 
        do j=1,ntcons
@@ -110,25 +110,25 @@ c
         iatm1=icon1(j)
         iatm2=icon2(j)
 
-        nrijsq=nrij(j,1)**2+nrij(j,2)**2+nrij(j,3)**2
+        nrijsq=nrij(1,j)**2+nrij(2,j)**2+nrij(3,j)**2
         dijsq=consdist(j)**2
         diffsq=dijsq-nrijsq
         mxdiff=max(mxdiff,abs(diffsq)/consdist(j))
 
-        dotprod=orij(j,1)*nrij(j,1)
-     $         +orij(j,2)*nrij(j,2)
-     $         +orij(j,3)*nrij(j,3)
+        dotprod=orij(1,j)*nrij(1,j)
+     $         +orij(2,j)*nrij(2,j)
+     $         +orij(3,j)*nrij(3,j)
 
         rma= tstepsq/mass(iatm1)
         rmb=-tstepsq/mass(iatm2)
         force=diffsq/(-2.0*(rma-rmb)*dotprod)
 
-        dcc(iatm1,1)=dcc(iatm1,1)-rma*orij(j,1)*force
-        dcc(iatm1,2)=dcc(iatm1,2)-rma*orij(j,2)*force
-        dcc(iatm1,3)=dcc(iatm1,3)-rma*orij(j,3)*force
-        dcc(iatm2,1)=dcc(iatm2,1)-rmb*orij(j,1)*force
-        dcc(iatm2,2)=dcc(iatm2,2)-rmb*orij(j,2)*force
-        dcc(iatm2,3)=dcc(iatm2,3)-rmb*orij(j,3)*force
+        dcc(1,iatm1)=dcc(1,iatm1)-rma*orij(1,j)*force
+        dcc(2,iatm1)=dcc(2,iatm1)-rma*orij(2,j)*force
+        dcc(3,iatm1)=dcc(3,iatm1)-rma*orij(3,j)*force
+        dcc(1,iatm2)=dcc(1,iatm2)-rmb*orij(1,j)*force
+        dcc(2,iatm2)=dcc(2,iatm2)-rmb*orij(2,j)*force
+        dcc(3,iatm2)=dcc(3,iatm2)-rmb*orij(3,j)*force
 
 
        enddo
@@ -138,12 +138,12 @@ c
         iatm1=icon1(j)
         iatm2=icon2(j)
 
-        ccc(1,iatm1)=ccc(1,iatm1)+0.5*dcc(iatm1,1)
-        ccc(2,iatm1)=ccc(2,iatm1)+0.5*dcc(iatm1,2)
-        ccc(3,iatm1)=ccc(3,iatm1)+0.5*dcc(iatm1,3)
-        ccc(1,iatm2)=ccc(1,iatm2)+0.5*dcc(iatm2,1)
-        ccc(2,iatm2)=ccc(2,iatm2)+0.5*dcc(iatm2,2)
-        ccc(3,iatm2)=ccc(3,iatm2)+0.5*dcc(iatm2,3)
+        ccc(1,iatm1)=ccc(1,iatm1)+0.5*dcc(1,iatm1)
+        ccc(2,iatm1)=ccc(2,iatm1)+0.5*dcc(2,iatm1)
+        ccc(3,iatm1)=ccc(3,iatm1)+0.5*dcc(3,iatm1)
+        ccc(1,iatm2)=ccc(1,iatm2)+0.5*dcc(1,iatm2)
+        ccc(2,iatm2)=ccc(2,iatm2)+0.5*dcc(2,iatm2)
+        ccc(3,iatm2)=ccc(3,iatm2)+0.5*dcc(3,iatm2)
 
        enddo
 
