@@ -62,7 +62,6 @@ c
 c     create coords data structures
 c     ---------------------------
       call smd_namespace_create(sp_coords)
-      call smd_data_create(sp_coords,"coords",3*na,MT_DBL)
       call smd_data_create(sp_coords,"coords_alt",3*na,MT_DBL)
 
       return
@@ -92,12 +91,6 @@ c      write(*,*) "in "//pname
 c
 c     fill in coordinates from pdb file if any
 c     ----------------------------------------
-      tag = "coords"
-      call smd_get_ind_dim(tag,i_c,na,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-c
       tag = "coords_alt"
       call smd_get_ind_dim(tag,i_c1,na,result)
       if(.not. result) 
@@ -106,15 +99,9 @@ c
 cc
       na = na/3
 
-
-      call smd_coordfile_read_coords(na,
-     +                          dbl_mb(i_c))
-
       call smd_coordfile_read_coords1(na,
      +                          dbl_mb(i_c1))
 
-      call smd_util_test_array(na,dbl_mb(i_c),
-     +                         dbl_mb(i_c1))
       return
       end
 
@@ -140,14 +127,14 @@ c
 c
 c     get atomic coordinates
 c     ----------------------
-      tag = "coords"
+      tag = "coords_alt"
       call smd_get_ind_dim(tag,i_c,na,result)
       if(.not. result)
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
       na = na/3
 
-      call smd_lat_rebox(na,
+      call smd_lat_rebox1(na,
      >                    dbl_mb(i_c))
 
       return
@@ -176,7 +163,7 @@ c
 c
 c     get atomic coordinates
 c     ----------------------
-      tag = "coords"
+      tag = "coords_alt"
       call smd_get_ind(tag,i_c,na,result)
       if(.not. result)
      >  call errquit(
@@ -184,7 +171,7 @@ c     ----------------------
       na = na/3
 
       write(un,*) "printing coord" 
-      call smd_util_print_force_array(un,na,
+      call smd_util_print_force_array1(un,na,
      >                           dbl_mb(i_c))  
 
       return
@@ -405,7 +392,7 @@ c
 c
 c     get atomic coordinates
 c     ----------------------
-      tag = "coords"
+      tag = "coords_alt"
       call smd_get_ind_dim(tag,i_c,na,result)
       if(.not. result)
      >  call errquit(
@@ -444,9 +431,10 @@ c
      >           (byte_mb(i_ta+i0+j-1),j=1,4),
      >           (byte_mb(i_tr+i0+j-1),j=1,3),
      >            int_mb(i_ir+i-1),
-     >            dbl_mb(i_c+(i-1)),
-     >            dbl_mb(i_c+(i-1)+na),
-     >            dbl_mb(i_c+(i-1)+2*na)
+     >            (dbl_mb(i_c+3*(i-1)+j-1),j=1,3)
+C     >            dbl_mb(i_c+(i-1)),
+C     >            dbl_mb(i_c+(i-1)+na),
+C     >            dbl_mb(i_c+(i-1)+2*na)
 
       end do
       close(un)
@@ -475,7 +463,7 @@ c
       integer na
       integer nta
       integer i,i0,j
-      integer i_c,i_ta,i_tr,i_ir
+      integer i_ta,i_tr,i_ir
       logical result
 c
       pname = "smd_coords_print"
@@ -483,15 +471,6 @@ c
       if(.not.util_get_io_unit(un)) 
      >   call errquit("cannot get file number",0,0)
       open(unit=un,status="unknown",form="formatted",file=fname)
-c
-c     get atomic coordinates
-c     ----------------------
-      tag = "coords"
-      call smd_get_ind_dim(tag,i_c,na,result)
-      if(.not. result)
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-      na = na/3
 c
       tag = "atom:name"
       call smd_get_ind(tag,i_ta,result)
