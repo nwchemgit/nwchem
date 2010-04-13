@@ -256,18 +256,18 @@ c     ---------------
 c
 c     get coord array
 c     ---------------
-      tag = "coords"
+      tag = "coords_alt"
       call smd_get_ind(tag,i_c,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, 0)
 
-      tag = "coords_alt"
-      call smd_get_ind(tag,i_c1,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, 0)
-
+c      tag = "coords_alt"
+c      call smd_get_ind(tag,i_c1,result)
+c      if(.not. result) 
+c     >  call errquit(
+c     >       pname//'error getting index for'//tag,0, 0)
+c
 
 c
 c     get time step
@@ -379,7 +379,7 @@ c     -------------
      &         MA_ERR)
 
       end if
-      call smd_util_equal_array(na,dbl_mb(i_c),dbl_mb(i_c1))
+c      call smd_util_equal_array(na,dbl_mb(i_c),dbl_mb(i_c1))
 
 
       return

@@ -33,7 +33,7 @@ c
       double precision nrij(ntcons,3),orij(ntcons,3)
       double precision fff(3,natms)
       double precision vvv(3,natms)
-      double precision ccc(natms,3)
+      double precision ccc(3,natms)
 
       integer i,j,it,maxit,iatm1,iatm2
 
@@ -59,9 +59,9 @@ c
        iatm1=icon1(i)
        iatm2=icon2(i)
 
-       orij(i,1)=ccc(iatm1,1)-ccc(iatm2,1)
-       orij(i,2)=ccc(iatm1,2)-ccc(iatm2,2)
-       orij(i,3)=ccc(iatm1,3)-ccc(iatm2,3)
+       orij(i,1)=ccc(1,iatm1)-ccc(1,iatm2)
+       orij(i,2)=ccc(2,iatm1)-ccc(2,iatm2)
+       orij(i,3)=ccc(3,iatm1)-ccc(3,iatm2)
 
       enddo
 
@@ -69,17 +69,17 @@ c
 
       do i=1,natms
 
-       ncc(i,1)=ccc(i,1)
-       ncc(i,2)=ccc(i,2)
-       ncc(i,3)=ccc(i,3)
+       ncc(i,1)=ccc(1,i)
+       ncc(i,2)=ccc(2,i)
+       ncc(i,3)=ccc(3,i)
 
        nvv(i,1)=vvv(1,i)+fff(1,i)*tstep/mass(i)
        nvv(i,2)=vvv(2,i)+fff(2,i)*tstep/mass(i)
        nvv(i,3)=vvv(3,i)+fff(3,i)*tstep/mass(i)
 
-       ccc(i,1)=ncc(i,1)+tstep*nvv(i,1)
-       ccc(i,2)=ncc(i,2)+tstep*nvv(i,2)
-       ccc(i,3)=ncc(i,3)+tstep*nvv(i,3)
+       ccc(1,i)=ncc(i,1)+tstep*nvv(i,1)
+       ccc(2,i)=ncc(i,2)+tstep*nvv(i,2)
+       ccc(3,i)=ncc(i,3)+tstep*nvv(i,3)
 
       enddo 
 
@@ -91,9 +91,9 @@ c
         iatm1=icon1(j)
         iatm2=icon2(j)
 
-        nrij(j,1)=ccc(iatm1,1)-ccc(iatm2,1)
-        nrij(j,2)=ccc(iatm1,2)-ccc(iatm2,2)
-        nrij(j,3)=ccc(iatm1,3)-ccc(iatm2,3)
+        nrij(j,1)=ccc(1,iatm1)-ccc(1,iatm2)
+        nrij(j,2)=ccc(2,iatm1)-ccc(2,iatm2)
+        nrij(j,3)=ccc(3,iatm1)-ccc(3,iatm2)
 
        enddo
 
@@ -138,12 +138,12 @@ c
         iatm1=icon1(j)
         iatm2=icon2(j)
 
-        ccc(iatm1,1)=ccc(iatm1,1)+0.5*dcc(iatm1,1)
-        ccc(iatm1,2)=ccc(iatm1,2)+0.5*dcc(iatm1,2)
-        ccc(iatm1,3)=ccc(iatm1,3)+0.5*dcc(iatm1,3)
-        ccc(iatm2,1)=ccc(iatm2,1)+0.5*dcc(iatm2,1)
-        ccc(iatm2,2)=ccc(iatm2,2)+0.5*dcc(iatm2,2)
-        ccc(iatm2,3)=ccc(iatm2,3)+0.5*dcc(iatm2,3)
+        ccc(1,iatm1)=ccc(1,iatm1)+0.5*dcc(iatm1,1)
+        ccc(2,iatm1)=ccc(2,iatm1)+0.5*dcc(iatm1,2)
+        ccc(3,iatm1)=ccc(3,iatm1)+0.5*dcc(iatm1,3)
+        ccc(1,iatm2)=ccc(1,iatm2)+0.5*dcc(iatm2,1)
+        ccc(2,iatm2)=ccc(2,iatm2)+0.5*dcc(iatm2,2)
+        ccc(3,iatm2)=ccc(3,iatm2)+0.5*dcc(iatm2,3)
 
        enddo
 
@@ -157,9 +157,9 @@ c
 
       do i=1,natms
 
-       nvv(i,1)=(ccc(i,1)-ncc(i,1))*rtstep
-       nvv(i,2)=(ccc(i,2)-ncc(i,2))*rtstep
-       nvv(i,3)=(ccc(i,3)-ncc(i,3))*rtstep
+       nvv(i,1)=(ccc(1,i)-ncc(i,1))*rtstep
+       nvv(i,2)=(ccc(2,i)-ncc(i,2))*rtstep
+       nvv(i,3)=(ccc(3,i)-ncc(i,3))*rtstep
 
        tmpvx=0.5*(nvv(i,1)+vvv(1,i))
        tmpvy=0.5*(nvv(i,2)+vvv(2,i))
