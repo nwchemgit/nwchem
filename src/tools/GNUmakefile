@@ -267,26 +267,47 @@ endif # LAPI
 
 ifdef USE_MPI
     MPI_COMBINED =
-ifneq ($(MPI_INCLUDE),)
+    ifneq ($(MPI_INCLUDE),)
         MPI_COMBINED += $(MPI_INCLUDE)
-endif
-ifneq ($(MPI_LIB),)
+    endif
+    ifneq ($(MPI_LIB),)
         MPI_COMBINED += $(MPI_LIB)
-endif
-ifneq ($(LIBMPI),)
+    endif
+    ifneq ($(LIBMPI),)
         MPI_COMBINED += $(LIBMPI)
-endif
-ifneq ($(MPI_LOC),)
+    endif
+    ifneq ($(MPI_LOC),)
         MPI_COMBINED += $(MPI_LOC)
-endif
-MPI_COMBINED := $(strip $(MPI_COMBINED))
-ifeq ($(MPI_COMBINED),)
-    MAYBE_MPI = --with-mpi
-else
-    MAYBE_MPI = --with-mpi="$(MPI_COMBINED)"
-endif
+    endif
+    MPI_COMBINED := $(strip $(MPI_COMBINED))
+    ifeq ($(MPI_COMBINED),)
+        MAYBE_MPI = --with-mpi
+        ifeq ($(MPICC),)
+            ifneq ($(CC),)
+                MAYBE_MPICC = MPICC="$(strip $(CC))"
+            endif
+        else
+            MAYBE_MPICC = MPICC="$(strip $(MPICC))"
+        endif
+        ifeq ($(MPIF77),)
+            ifneq ($(FC),)
+                MAYBE_MPIF77 = MPIF77="$(strip $(FC))"
+            else
+                ifneq ($(F77),)
+                    MAYBE_MPIF77 = MPIF77="$(strip $(F77))"
+                endif
+            endif
+        else
+            MAYBE_MPIF77 = MPIF77="$(strip $(MPIF77))"
+        endif
+        ifneq ($(MPIFC),)
+            MAYBE_MPIF77 = MPIF77="$(strip $(MPIFC))"
+        endif
+    else
+        MAYBE_MPI = --with-mpi="$(MPI_COMBINED)"
+    endif
 else # USE_MPI
-	MAYBE_MPI = --without-mpi
+    MAYBE_MPI = --without-mpi
 endif # USE_MPI
 
 ifneq ($(CC),)
@@ -296,9 +317,9 @@ endif
 ifneq ($(FC),)
     MAYBE_F77 = F77="$(strip $(FC))"
 else
-ifneq ($(F77),)
-    MAYBE_F77 = F77="$(strip $(F77))"
-endif
+    ifneq ($(F77),)
+        MAYBE_F77 = F77="$(strip $(F77))"
+    endif
 endif
 
 ifneq ($(BLASOPT),)
@@ -315,7 +336,7 @@ CONFIGURE_PATH = ../$(GA_DIR)/configure
 BUILDDIR = build
 INSTALLDIR = install
 TOOLDIR = $(shell pwd)
-CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) $(MAYBE_MPI_INCLUDE) $(MAYBE_MPI_LIB) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_F77)
+CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) $(MAYBE_MPI_INCLUDE) $(MAYBE_MPI_LIB) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77)
 
 $(INSTALLDIR)/lib/libga.a: $(BUILDDIR) check_cc check_fc $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
 	@echo ''
