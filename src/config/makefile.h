@@ -2262,6 +2262,10 @@ ifdef USE_MPI
 ifndef LIBMPI 
   LIBMPI = -lmpi 
 endif 
+SKIP_LIBMPI = mpifrt mpfort mpif77 mpxlf mpif90 ftn
+ifneq (,$(findstring $(notdir $(FC)), $(SKIP_LIBMPI)))
+  LIBMPI =
+endif
 ifdef MPI_LIB 
       CORE_LIBS += -L$(MPI_LIB) 
 endif 
