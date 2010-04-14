@@ -13,13 +13,13 @@ USES_BLAS =
 include ../config/makefile.h
 include ../config/makelib.h
 ifdef USE_FDIST
-ifdef USE_MPI
-LIB_DEFINES += -DMPI_TIME
-ifdef MPI_INCLUDE
-LIB_INCLUDES += -I$(MPI_INCLUDE)
-endif
-else
-endif
+  ifdef USE_MPI
+    LIB_DEFINES += -DMPI_TIME
+    ifneq ($(MPI_INCLUDE),)
+      LIB_INCLUDES += -I$(MPI_INCLUDE)
+    endif
+  else
+  endif
 endif
  
 

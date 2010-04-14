@@ -328,21 +328,26 @@ Original code:
 	
 	/* Loop thru the include files figuring out where each is */
 	
-	while (nincfile--) {
-	    char *incname = incfiles[nincfile];
-	    char path[256];
+    while (nincfile--) {
+        char *incname = incfiles[nincfile];
+        char path[256];
 
-	    for (i=0; i<nincdir; i++) {
-		(void) sprintf(path, "%s/%s", incdirlist[i], incname);
-		if (access(path, R_OK) == 0)
-		    break;
-		path[0] = 0;
-	    }
-	    if (!path[0])
-		(void) sprintf(path, "$(INCDIR)/%s", incname);
-	    printf("%s ",path);
-	    free(incname);
-	}
+        for (i=0; i<nincdir; i++) {
+            (void) sprintf(path, "%s/%s", incdirlist[i], incname);
+            if (access(path, R_OK) == 0) {
+                break;
+            }
+            path[0] = 0;
+        }
+        if (!path[0]) {
+            (void) sprintf(path, "$(INCDIR)/%s", incname);
+        }
+        /* Skip mpif.h header since it is an external header. */
+        if (0 != strcmp(incname, "mpif.h")) {
+            printf("%s ",path);
+        }
+        free(incname);
+    }
 	printf("\n");
 	free(objname);
     }

@@ -27,7 +27,9 @@ endif
 
 ifeq ($(USE_MPIF),y)
   LIB_DEFINES += -DMPI
-  LIB_INCLUDES += -I$(MPI_INCLUDE)
+  ifneq ($(MPI_INCLUDE),)
+    LIB_INCLUDES += -I$(MPI_INCLUDE)
+  endif
 else
   USES_BLAS += D3dB-tcgmsg.F
   LIB_DEFINES += -DTCGMSG

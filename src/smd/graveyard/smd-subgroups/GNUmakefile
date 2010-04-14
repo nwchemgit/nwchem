@@ -34,19 +34,11 @@
       LIBRARY = libsmd.a
 
 
-  LIB_DEFINES = -DMPI -I$(MPI_INCLUDE)
-
-
-
+  LIB_DEFINES = -DMPI
+ifneq ($(MPI_INCLUDE),)
+  LIB_DEFINES += -I$(MPI_INCLUDE)
+endif
 
 include ../../config/makefile.h
 include ../../config/makelib.h
-
-
-
-
-
-
-
-
 
