@@ -277,6 +277,22 @@ c
       end do
 
       end
+      subroutine smd_set_char_to_ma1(myname,ilo,ihi,nt,t)
+      implicit none
+c
+      integer nt,ilo,ihi
+      character*(32) t(nt)
+      character*(*) myname(ihi-ilo+1)
+
+      integer i,j
+
+      do i=1,ihi-ilo+1
+        j=ilo+i-1
+        t(j) = myname(i)
+        write(*,*) "j,t(j),i,myname(i)", j,t(j),i,myname(i) 
+      end do
+
+      end
       subroutine smd_set_char_to_ma(nt,myname,t)
       implicit none
 c
@@ -317,6 +333,19 @@ c
 
       do i=1,nt
         t(i) = myname(i)
+      end do
+
+      end
+      subroutine smd_wipe_ma_char(nt,t)
+      implicit none
+c
+      integer nt
+      character*(32) t(nt)
+
+      integer i
+
+      do i=1,nt
+        t(i) = " "
       end do
 
       end

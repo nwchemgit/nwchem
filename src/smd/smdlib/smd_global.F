@@ -326,7 +326,7 @@ c     ---------------------------
         ihi = 3*(i0-1)+3*nm
         if(oper.eq."put") then
           call nga_put(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
-        else if(oper.eq."put") then
+        else if(oper.eq."get") then
           call nga_get(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
         else
           call errquit(
@@ -402,7 +402,7 @@ c     ---------------------------
         ihi = np
         if(oper.eq."put") then
           call nga_put(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
-        else if(oper.eq."put") then
+        else if(oper.eq."get") then
           call nga_get(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
         else
           call errquit(

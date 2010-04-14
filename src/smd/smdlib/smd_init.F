@@ -359,6 +359,7 @@ c      call smd_ewald_init()
       call smd_data_brdcst_create(master)
       call smd_fragment_init_system()
       call smd_global_init_system()
+      call smd_rtdb_push_clone(11)
       return
       end
 
