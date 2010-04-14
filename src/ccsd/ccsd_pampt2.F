@@ -18,6 +18,7 @@ c
       logical occd
 c
       integer nodes,iam
+#include "mafdecls.fh"
 #include "ccsd_debug.fh"
 #include "bas.fh"
 #include "rtdb.fh"
@@ -27,6 +28,7 @@ c
 c
       integer i,j,a,b,av,bv,ij,ad1,ad2,ad3,ad4,offt2,icnt,nvp1,
      &        ilo,ihi,jlo,jhi,lhoo,lhoov
+      integer iin,jin
       double precision eccsd,fac
 c
       double precision zip,one,half,two
@@ -48,8 +50,16 @@ c
       lnvv=nvir*nvir
       offt2=(idiis-1)*lhoov
 c
+#if 0
       call ga_get(g_t2,offt2+1,offt2+lnov,nvir+1,nvir+1,
      &            t1,lnov)
+#else
+      if(ga_nodeid().eq.0)
+     G      call ga_get(g_t2,offt2+1,offt2+lnov,nvir+1,nvir+1,
+     &            t1,lnov)
+      call ga_brdcst(65537, t1, 
+     G     MA_sizeof(MT_DBL,1,MT_BYTE)*lnov, 0)
+#endif
 c
 c ------------------------------------------------------------
 c fill square GAs
@@ -60,17 +70,19 @@ c
         if (a.ge.ilo.and.a.le.ihi)then
           call ga_get(g_t2,offt2+1,offt2+lhoov,a,a,
      &                 scra,lhoov)
-          do i=1,nocc
-            call dfill(lnov,0.0d00,scrb,1)
-            do j=1,i
+cstaggering to avoid congestion in ga_put
+         do iin=ga_nodeid()+1,ga_nodeid()+nocc
+            i=mod(iin,nocc)+1
+            call dfill(nvir,0.0d00,scrb,1)
+            do jin=ga_nodeid()+1,ga_nodeid()+i
+               j=mod(jin,i)+1
               do b=1,nvir
                 ad1=(b-1)*lhoo+i*(i-1)/2+j
-                ad2=(j-1)*nvir+b
-                scrb(ad2)=scra(ad1)
+                scrb(b)=scra(ad1)
               enddo
+              ad1=(i-1)*nvir+a
+              call ga_put(g_nt2,(j-1)*nvir+1,j*nvir,ad1,ad1,scrb,nvir)
             enddo
-            ad1=(i-1)*nvir+a
-            call ga_put(g_nt2,1,i*nvir,ad1,ad1,scrb,i*nvir)
           enddo
         endif
       enddo
@@ -81,7 +93,9 @@ c
       do i=1,nocc
         ad1=(i-1)*nvir
         if (ad1+1.ge.ilo.and.ad1+1.le.ihi)then
-          do j=1,i-1
+cstagger          do j=1,i-1
+          do jin=ga_nodeid()+1,ga_nodeid()+i-1
+             j=mod(jin,i-1)+1
             ad2=(j-1)*nvir
             if (ad2+1.ge.jlo.and.ad2+1.le.jhi)then
               call ga_get(g_nt2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
@@ -120,7 +134,8 @@ c
       do i=1,nocc
         ad1=(i-1)*nvir
         if (ad1+1.ge.ilo.and.ad1+1.le.ihi)then
-          do j=1,i
+          do jin=ga_nodeid()+1,ga_nodeid()+i
+             j=mod(jin,i)+1
             ad2=(j-1)*nvir
             if (ad2+1.ge.jlo.and.ad2+1.le.jhi)then
               call ga_get(g_nht2,ad2+1,ad2+nvir,ad1+1,ad1+nvir,
@@ -145,7 +160,8 @@ c
       call ga_distribution(g_ht2,iam,jlo,jhi,ilo,ihi)
       do a=1,nvir
         if (a.ge.ilo.and.a.le.ihi)then
-          do i=1,nocc
+          do iin=1,nocc
+             i=mod(iin,nocc)+1
             ad1=(i-1)*nvir+a
             call ga_get(g_nht2,1,lnov,ad1,ad1,scrb,lnov)
             do j=1,i

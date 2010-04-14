@@ -33,7 +33,7 @@ c
       end
       
 
-c  $Id: moints_trp.F,v 2.18 2005-01-14 22:08:49 edo Exp $
+c  $Id: moints_trp.F,v 2.18 2005/01/14 22:08:49 edo Exp $
 c
 c
 c     No-one knows what this stuff is doing ... are the next comments correct?
@@ -221,7 +221,6 @@ c
        call ga_sync
 
        ploop = 0
-       call ga_sync
        next = nxtask(num_nodes, 1)
 c
 c  4-fold shell loop
@@ -394,35 +393,11 @@ c
            endif
          enddo
        enddo
-       call ga_sync
        next = nxtask(-num_nodes, 1)
-       call ga_sync
-
-*       d1 = ga_ddot(g_coul,g_coul)
-*       d2 = ga_ddot(g_exch,g_exch)
-*       if (ga_nodeid() .eq. 0) then
-*	   write(6,*) ' GACOUL1 ', d1
-*	   write(6,*) ' GAEXCH1 ', d2
-*       endif
-c
-       call ga_sync
 c
 c Clean-up
 c
-       if (.not. ma_pop_stack(l_ssni))
-     $     call errquit('moints: failed to pop', l_ssni, MA_ERR)
-       if (.not. ma_pop_stack(l_xmo))
-     $     call errquit('moints: failed to pop', l_xmo,
-     &       MA_ERR)
-       if (.not. ma_pop_stack(l_rbfmap))
-     $     call errquit('moints: failed to pop', l_rbfmap, MA_ERR)
-       if (.not. ma_pop_stack(l_bfmap))
-     $     call errquit('moints: failed to pop', l_bfmap, MA_ERR)
-       if (.not. ma_pop_stack(l_ghi))
-     $     call errquit('moints: failed to pop', l_ghi, MA_ERR)
-       if (.not. ma_pop_stack(l_glo))
-     $     call errquit('moints: failed to pop', l_glo, MA_ERR)
-       if (.not. ma_pop_stack(l_shmap))
+       if (.not. ma_chop_stack(l_shmap))
      $     call errquit('moints: failed to pop', l_shmap, MA_ERR)
 c
        status = ma_push_get(MT_DBL,(nbf*nbf),'hlp',l_hlp,k_hlp)
@@ -464,7 +439,6 @@ c
  334   format(/,10x,'**** COMMUNICATION DISABLED ****')
 #endif
 c
-       call ga_sync()
        return
        end
 
@@ -477,6 +451,7 @@ c
      $                           scale, ssni, ssv, h1, h2, xc, c,
      $                           g_exch, ncor, nocc )
        implicit none
+#include "global.fh"
        integer nbf, ostart, ohi, olo, nvir, vlo, vhi
        integer ilo, ihi, jlo, jhi
        double precision scale
@@ -488,7 +463,7 @@ c
 
 c
        integer aoff,nni,nnj,ab,ivlo,ivhi,jvlo,jvhi,ofroz
-       integer ssij
+       integer ssij,ain,olb
        integer a,b,i,j,v
        double precision cc
 c
@@ -502,7 +477,11 @@ c
        jvlo = (jlo-1)*nvir + 1
        jvhi = jhi*nvir
 
-       do a=olo,ohi
+cedo       do a=olo,ohi
+cstaggering to avoid congestion in ga-acc
+       olb=ohi-olo+1
+       do ain=ga_nodeid()+1,ga_nodeid()+olb
+          a=mod(ain,olb)+olo
          call dgemm('t', 'n', nvir, ssij, nbf, 1.d0,
      $               xc(1,vlo), nbf, ssni(1,jlo,ilo,a),
      $               nbf, 0.d0, ssv, nvir )
@@ -553,7 +532,6 @@ c
       double precision tmp(nbf,nbf)
       logical osym
       integer syms(*)
-
       integer nvir, clo, chi, rlo, rhi, my_id
       integer ofroz, a1, a2, aa1, aa, aoff, k_local, ld
 #ifdef BAD_GACCESS
@@ -602,12 +580,14 @@ c
      $     jlo, jhi, ssni, h2, c, g_coul,
      &     ncor, nocc )
       implicit none
+#include "global.fh"
       integer nbf, ostart, olo, ohi, ilo, ihi, jlo, jhi
       double precision ssni(nbf,jlo:jhi,ilo:ihi,olo:ohi)
       double precision h1(21)   ! cartesian H shell 
       double precision h2(jlo:jhi,ilo:ihi)
       double precision c(nbf,nbf)
       integer g_coul,ncor,nocc
+      integer ain,olb
 c     
       double precision tmp
       integer nni, ijlo, ijhi, ilen, jlen, ijlen
@@ -620,7 +600,11 @@ c
       jlen = jhi - jlo + 1
       nni = ilen*nbf
       ijlen = ilen*jlen
-      do a=olo,ohi
+cedo      do a=olo,ohi
+cstaggering
+       olb=ohi-olo+1
+       do ain=ga_nodeid()+1,ga_nodeid()+olb
+          a=mod(ain,olb)+olo
          do b=ostart,ostart+nocc-1
             do i = ilo,ihi
                do j = jlo,jhi

@@ -1,9 +1,13 @@
+#ifdef CRAYXT
+#warning undeffing nxtval
+#undef NXT
+#endif      
       subroutine ccsd_itm(nocc,nvir,nact,hiu,giu,habe,gabe,
      &                    hia,t1,ht1,
      &                    scra,scrb,scrc,scrd,scre,scrf,
      &                    g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                    iprt)
-C     $Id: ccsd_itm.F,v 2.13 2004-12-16 02:40:47 edo Exp $
+C     $Id: ccsd_itm.F,v 2.13 2004/12/16 02:40:47 edo Exp $
       implicit none
 #include "errquit.fh"
       integer nocc,nvir,nact,g_nt2,g_nht2,g_ncoul,g_nexch,
@@ -395,23 +399,34 @@ c
 c
       inode=-1
       call ga_sync
+#ifdef NXT
       next=nxtask(nodes, 1)
+#endif
       do a=1,nvir
           do i=1,nocc
             ad1=(i-1)*nvir+a
         inode=inode+1
+#ifdef NXT
         if (inode.eq.next)then
+#else
+            if (mod(inode, nodes) .eq. iam) then
+#endif
             call ga_get(g_nt2,1,lnov,ad1,ad1,scre,1)
             call dgemm('n','n',nvir,nocc,nocc,-1.0d00,scre,
      &                 nvir,giu,nocc,0.0d00,scrf,nvir)
             call ga_acc(g_nht2,1,lnov,ad1,ad1,scrf,lnov,1.0d00)
+#ifdef NXT
       next=nxtask(nodes, 1)
+#endif
           endif
         enddo
       enddo
+#ifdef NXT
       call ga_sync
       next=nxtask(-nodes, 1)
+#endif
       call ga_sync
+
 c
       if (.not.ga_destroy(g_tmt2))
      &    call errquit('ga_dest g_tmt2 fail',0, GA_ERR)

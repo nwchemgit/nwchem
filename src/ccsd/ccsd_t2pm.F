@@ -1,6 +1,6 @@
       subroutine ccsd_ht2pm(basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,
      &                      g_nht2,cmo,scra,scrb,offsh)
-C     $Id: ccsd_t2pm.F,v 2.20 2006-07-13 23:33:21 bert Exp $
+C     $Id: ccsd_t2pm.F,v 2.20 2006/07/13 23:33:21 bert Exp $
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,g_sht2,g_nht2,
@@ -542,7 +542,7 @@ c
               endif
             endif
 c
-            do iii=iamoff,trishel+iamoff-1
+            do iii=iamoff,trishel+iamoff-1 !begin loop
                jjj=iii
                if(iii.gt.trishel-1) jjj=iii-trishel
                ish=(tklst(jjj+1,2)-1)/nsh+1
@@ -599,7 +599,7 @@ c
      &                        nsh,eri1,
      &                        eri2,scra,scrb,lnoo,nocc,offsh,nbf,g_st2,
      &                        shinf,max_sht2_blk,snsi,sisn,t1ao)
-c
+c     
 c Reset some indices
 c
                    bnijkl=1
@@ -613,6 +613,14 @@ c
                    kcount=kcount+1
                    ish_idx(kcount)=(ksh-1)*nsh+ish
                    if (schwarz1) then
+                      if(bnijkl+max2e.gt.maxints) then
+                         write(6,'(I6,A)') ga_nodeid(),
+     W                        ' : increase stack memory '
+cold     W                     (trishel+iamoff-iii+1)*2*max2e*8/1024/1024,
+cold     M                        ' MBytes '
+                         call util_flush(6)
+                         call errquit(' ccsdsxy: not enough MA',0,0)
+                      endif
                      call int_2e4c(basis, ish, jsh, basis, ksh, lsh,
      $                             mem2, scre, max2e, eri1(bnijkl) )
                    else
@@ -622,6 +630,11 @@ c
                      if (jsh.eq.lsh) then
                         call dcopy(lnijkl,eri1(bnijkl),1,eri2(bnijkl),1)
                      else
+                      if(bnijkl+max2e.gt.maxints) then
+                         write(6,*) ' increase stack memory'
+                         call util_flush(6)
+                         call errquit(' ccsdsxy: not enough MA',0,0)
+                      endif
                         call int_2e4c(basis,ish,lsh,basis,ksh,jsh,
      $                                mem2,scre,max2e,eri2(bnijkl))
                      endif
@@ -636,7 +649,7 @@ c
                    goto 111
                 endif
                 flush=.false.
-            enddo
+            enddo!end loop
 c
             if (use_storage) then
               ijk(2)=jcount

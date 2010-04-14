@@ -477,6 +477,12 @@ c
 #include "schwarz.fh"
 #include "eaf.fh"
 #include "ccsdps.fh"
+#define NBGET 1
+c
+#ifdef CRAYXT
+#warning undefining NBGET
+#undef NBGET
+#endif
       integer idim,jlo,jhi,nsh,llo,lhi,lnoo,nocc
       integer idx(idim)
       integer nbf,g_st2,max_st2_blk
@@ -493,12 +499,13 @@ c
       integer i,j,k,l,kmax,lmax,ik,ad1
       integer ipp,imm,ippp,ict,off1,off2,off3
       integer mlkj,mkl,mkj,ii,jj
-      integer kmsh,imsh,nmfi,nmfk,nbhandle,blk1,blk2
+      integer blk1,blk2,ikin,ik0
+#ifdef NBGET
+      integer kmsh,imsh,nmfi,nmfk,nbhandle
       integer kmlo,kmhi,imlo,imhi
+#endif
       double precision gp,gm
       logical keqi,jeql
-c
-      nbhandle=4321+ga_nodeid()
 c
       if (occsdps) then
          call pstat_on(ps_t2eri)
@@ -511,11 +518,36 @@ c
       ippp=ipp+1
       imm=nocc*(nocc-1)/2
       ict=1
+cstag
+c     figure out initial ict
+      ikin=ga_nodeid()
+      ik0=mod(ikin,(idim-3+1))+3
+      if(ik0.gt.3) then
+         do ik=3,ik0-1
+            ksh=(idx(ik)-1)/nsh+1
+            ish=idx(ik)-(ksh-1)*nsh
+            nfk=shinf(ksh,1)
+            nfi=shinf(ish,1)
+            ict=ict+nfi*nfk*nfl*nfj
+      if(nfi.lt.0) then
+         write(6,1964) ga_nodeid(),' : nfi ',nfi, ' ish ',ish,
+     A        ' nsh ',nsh, ' ik ',ik
+ 1964    format(I5,A,I24,A,I10,A,I10,A,I10)
+         call util_flush(6)
+         call errquit(' t2eri: bug1 ',0,0)
+      endif
+      if(nfk.lt.0) then
+         write(6,*) ga_nodeid(),' : nfk ',nfk, ' ksh ',ksh,' nsh ',nsh
+         call util_flush(6)
+         call errquit(' t2eri: bug2 ',0,0)
+      endif
+         enddo
+      endif
+c     
+c Get first block ik=ik0
 c
-c Get first block ik
-c
-      ksh=(idx(3)-1)/nsh+1
-      ish=idx(3)-(ksh-1)*nsh
+      ksh=(idx(ik0)-1)/nsh+1
+      ish=idx(ik0)-(ksh-1)*nsh
       nfk=shinf(ksh,1)
       klo=shinf(ksh,2)
       khi=shinf(ksh,3)
@@ -523,13 +555,25 @@ c
       ilo=shinf(ish,2)
       ihi=shinf(ish,3)
       ad1=offsh(ish,ksh,2)
-      call ga_get(g_st2,1,lnoo,ad1+1,ad1+nfi*nfk,t2(0),lnoo)
       blk1=0
       blk2=max_st2_blk
+#ifdef NBGET
+      nbhandle=4321+ga_nodeid()
+      call ga_get(g_st2,1,lnoo,ad1+1,ad1+nfi*nfk,t2(0),lnoo)
 c
 c Now loop over remaining blocks
 c
-      do ik=4,idim
+cold       do ik=4,idim
+         do ikin=ga_nodeid()+1,(idim-3)+ga_nodeid()
+            ik=mod(ikin,(idim-3+1))+3
+            if(ik.eq.4) ict=1
+#else
+cold       do ik=3,idim
+         do ikin=ga_nodeid(),(idim-3)+ga_nodeid()
+            ik=mod(ikin,(idim-3+1))+3
+            if(ik.eq.3) ict=1
+#endif
+#ifdef NBGET
 c
 c Prefetch block ik, start using previous block
 c
@@ -545,6 +589,18 @@ c
 c       call pstat_on(ps_t2erin)
         call ga_nbget(g_st2,1,lnoo,ad1+1,ad1+nmfi*nmfk,t2(blk2),lnoo,
      &                nbhandle)
+#else
+        ksh=(idx(ik)-1)/nsh+1
+        ish=idx(ik)-(ksh-1)*nsh
+        nfk=shinf(ksh,1)
+        klo=shinf(ksh,2)
+        khi=shinf(ksh,3)
+        nfi=shinf(ish,1)
+        ilo=shinf(ish,2)
+        ihi=shinf(ish,3)
+        ad1=offsh(ish,ksh,2)
+        call ga_get(g_st2,1,lnoo,ad1+1,ad1+nfi*nfk,t2(0),lnoo)
+#endif
 c       call pstat_off(ps_t2erin)
 c
 c  Do the actual work
@@ -575,6 +631,11 @@ c Increase offset of integral block to next ik block
 c
         ict=ict+nfi*nfj*nfk*nfl
 c
+c Wait for non-blocking get to finish and replace blk with correct pointer
+c
+c       call pstat_on(ps_t2erih)
+#ifdef NBGET
+c
 c Replace ish and ksh data with new ones from imsh and kmsh
 c
         ish=imsh
@@ -585,19 +646,21 @@ c
         klo=kmlo
         ihi=imhi
         khi=kmhi
-c
-c Wait for non-blocking get to finish and replace blk with correct pointer
-c
-c       call pstat_on(ps_t2erih)
         call ga_nbwait(nbhandle)
-c       call pstat_off(ps_t2erih)
         blk1=-blk1+max_st2_blk
         blk2=-blk2+max_st2_blk
+#else
+        blk1=0
+        blk2=0
+#endif
+c       call pstat_off(ps_t2erih)
       enddo
 c
 c  Do the actual work on final block
 c
+#ifdef NBGET
       keqi=ish.eq.ksh
+      if(ik.eq.3) ict=1
       if (keqi) then
          call ccsd_idx1_wrk2(snsi,sisn,eri1(ict),eri2(ict),t1ao,nfj,
      &                       nfl,nocc,nbf,ilo,ihi,klo,khi)
@@ -618,6 +681,7 @@ c
          call t2eri_wrk_noeq(eri1(ict),eri2(ict),t2(blk1),ht2,
      &                       nfi,nfj,nfk,nfl,nocc,lnoo)
       endif
+#endif
 c
       if (occsdps) then
          call pstat_off(ps_t2eri)

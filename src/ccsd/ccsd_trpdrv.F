@@ -188,6 +188,7 @@ c
 c     
 c     Get Djka = Dcj,ka for given j, a, klo<=k<=khi, all c
 c     
+#ifndef  CRAYXT
                   do k = klo, khi
                      start = 1 + (j-1)*nvir + (k-1)*lnov
                      len   = nvir
@@ -202,6 +203,45 @@ c
                      trp_time(9) = trp_time(9) + (tt1-tt0)
 #endif
                   enddo
+#else
+      call ccsd_getdjka(djka,
+     G     g_objv,nvir,lnov,
+     K     j,av,klo,khi)
+#endif
+c     
+c     Get Tia = Tbl,ia for given a,  all i,bl
+c     
+                     start = 1 + lnoov 
+                     len   = lnov*nocc
+                     end   = start + len - 1
+                     call ga_get(g_objv,start,end,av,av,Tia,len)
+c     
+c     Get Xia = Tal,ib for given a, all i,bl
+c     
+                     start = 1 + lnoov + lnoov 
+                     len   = lnov*nocc
+                     end   = start + len - 1
+                     call ga_get(g_objv,start,end,av,av,Xia,len)
+c     
+c     Get Jij = J(c,l,i,j) for given j, all i,cl
+c     
+                     start = lnovv +  1
+                     len   = lnov*nocc
+                     end   = start + len - 1
+                     call ga_get(g_objo,start,end,j,j,Jij,len)
+c     
+c     Get Kij = K(c,l,i,j) for given j, all,i cl
+c     
+                     start = lnovv + lnoov +  1
+                     len   = lnov*nocc
+                     end   = start + len - 1
+                     call ga_get(g_objo,start,end,j,j,Kij,len)
+c     
+c     Get Dia = Dcj,ia for given j, i, a, all c
+c     
+                     call ccsd_getdjka(djia,
+     G                    g_objv,nvir,lnov,
+     K                    j,av,1,nocc)
 c     
                   do i=1,nocc
 c     
@@ -218,6 +258,7 @@ c
                      tt1 = ga_wtime()
                      trp_time(10) = trp_time(10) + (tt1-tt0)
 #endif
+#ifndef CRAXYT
 c     
 c     Get Jij = J(c,l,i,j) for given j, i, all cl
 c     
@@ -245,6 +286,7 @@ c
 #ifdef DEBUG_PRINT
                      tt1 = ga_wtime()
                      trp_time(12) = trp_time(12) + (tt1-tt0)
+#endif
 #endif
 c     
 c     Get Jia = J(b,c,i,a) for given a, i, all bc
@@ -274,6 +316,7 @@ c
                      tt1 = ga_wtime()
                      trp_time(14) = trp_time(14) + (tt1-tt0)
 #endif
+#if 0
 c     
 c     Get Dia = Dcj,ia for given j, i, a, all c
 c     
@@ -316,74 +359,48 @@ c
                      tt1 = ga_wtime()
                      trp_time(17) = trp_time(17) + (tt1-tt0)
 #endif
+#endif
 c     
                      do k=klo,min(khi,i)
-                        call dfill(lnvv,zip,f1n,1)
-                        call dfill(lnvv,zip,f1t,1)
-                        call dfill(lnvv,zip,f2n,1)
-                        call dfill(lnvv,zip,f2t,1)
-                        call dfill(lnvv,zip,f3n,1)
-                        call dfill(lnvv,zip,f3t,1)
-                        call dfill(lnvv,zip,f4n,1)
-                        call dfill(lnvv,zip,f4t,1)
+                        call dcopy(lnvv,zip,0,f1n,1)
+                        call dcopy(lnvv,zip,0,f1t,1)
+                        call dcopy(lnvv,zip,0,f2n,1)
+                        call dcopy(lnvv,zip,0,f2t,1)
+                        call dcopy(lnvv,zip,0,f3n,1)
+                        call dcopy(lnvv,zip,0,f3t,1)
+                        call dcopy(lnvv,zip,0,f4n,1)
+                        call dcopy(lnvv,zip,0,f4t,1)
 c     
 c     sum(d) (Jia, Kia)bd * Tkj,cd -> Fbc
 c     
-#ifdef DEBUG_PRINT
-                        tt0 = ga_wtime()
-#endif
                         call ccsd_dovvv(Jia, Kia,
      $                       Tkj(1+(k-klo)*lnvv),f1n,f2n,f3n,f4n,
      $                       nocc,nvir)
-#ifdef DEBUG_PRINT
-                        tt1 = ga_wtime()
-                        trp_time(18) = trp_time(18) + (tt1-tt0)
-#endif
 c     
 c     sum(d) (Jka, Kka)bd * Tij,cd -> Fbc
 c     
-#ifdef DEBUG_PRINT
-                        tt0 = ga_wtime()
-#endif
                         call ccsd_dovvv(Jka(1+(k-klo)*lnvv),
      $                       Kka(1+(k-klo)*lnvv),
      $                       Tij,f1t,f2t,f3t,f4t,nocc,nvir)
-#ifdef DEBUG_PRINT
-                        tt1 = ga_wtime()
-                        trp_time(19) = trp_time(19) + (tt1-tt0)
-#endif
 c     
                         ad1=(k-1)*lnov
                         ad2=(i-1)*lnov
 c     
 c     sum(l) (Jij, Kij)cl  * Tkl,ab -> Fbc
 c     
-#ifdef DEBUG_PRINT
-                        tt0 = ga_wtime()
-#endif
                         call ccsd_doooo(Jkj(1+(k-klo)*lnov),
      $                       Kkj(1+(k-klo)*lnov),
-     $                       Tia,Xia,
+     $                       Tia(1+(i-1)*lnov),Xia(1+(i-1)*lnov),
      $                       f1n,f2n,
      $                       f3n,f4n,nocc,nvir)
-#ifdef DEBUG_PRINT
-                        tt1 = ga_wtime()
-                        trp_time(20) = trp_time(20) + (tt1-tt0)
-#endif
 c     
 c     sum(l) (Jkj, Kkj)cl  * Tli,ba -> Fbc
 c     
-#ifdef DEBUG_PRINT
-                        tt0 = ga_wtime()
-#endif
-                        call ccsd_doooo(Jij, Kij,
+                        call ccsd_doooo(Jij(1+(i-1)*lnov), 
+     K                       Kij(1+(i-1)*lnov),
      $                       Tka(1+(k-klo)*lnov),Xka(1+(k-klo)*lnov),
      $                       f1t,f2t,
      $                       f3t,f4t,nocc,nvir)
-#ifdef DEBUG_PRINT
-                        tt1 = ga_wtime()
-                        trp_time(21) = trp_time(21) + (tt1-tt0)
-#endif
 c
                         if (iprt.gt.50)then
                            call prtfmat(f1n,f1t,f2n,f2t,f3n,f3t,f4n,
@@ -397,35 +414,21 @@ c
                         ad2=(i-1)*lnov+(j-1)*nvir
                         ad3=(k-1)*nvir+1
 c
-#ifdef DEBUG_PRINT
-                        tt0 = ga_wtime()
-#endif
                         call ccsd_tengy(f1n,f1t,f2n,f2t,f3n,f3t,f4n,
      $                       f4t,
-     &                       Dja(1+(i-1)*nvir),Djia,
+     &                       Dja(1+(i-1)*nvir),Djia(1+(i-1)*nvir),
      $                       t1(ad3),eorb,eaijk,emp4,emp5,
      $                       ncor,nocc,nvir)
-#ifdef DEBUG_PRINT
-                        tt1 = ga_wtime()
-                        trp_time(22) = trp_time(22) + (tt1-tt0)
-#endif
 c     
                         if (i.ne.k)then
                            ad1=(j-1)*lnov+(k-1)*nvir
                            ad2=(k-1)*lnov+(j-1)*nvir
                            ad3=(i-1)*nvir+1
-#ifdef DEBUG_PRINT
-                           tt0 = ga_wtime()
-#endif
                            call ccsd_tengy(f1t,f1n,f2t,f2n,
      $                          f3t,f3n,f4t,f4n,
      $                          Dja(1+(k-1)*nvir),Djka(1+(k-klo)*nvir), 
      $                          t1(ad3),eorb,eaijk,emp4,emp5,
      $                          ncor,nocc,nvir)
-#ifdef DEBUG_PRINT
-                           tt1 = ga_wtime()
-                           trp_time(23) = trp_time(23) + (tt1-tt0)
-#endif
 c     
                         end if
                      end do
@@ -609,6 +612,80 @@ c
          call qexit('tengy',0)
       endif
 c
+      return
+      end
+      subroutine ccsd_getdjka(djka,
+     G     g_objv,nvir,lnov,
+     K     j,av,klo,khi)
+      implicit none
+#include "mafdecls.fh"
+#include "global.fh"
+      double precision djka(*)
+      integer g_objv, nvir,lnov
+      integer av,klo,khi,j
+c
+      integer k,l_kk,k_kk,lenk,start,end,iptr,i,startc
+      logical failed
+c
+      start = 1 + (j-1)*nvir + (klo-1)*lnov
+      end =  (j-1)*nvir + (khi)*lnov
+      lenk=end-start+1
+      lenk=min(lenk,(ma_inquire_avail(MT_DBL)*66)/100)
+crestrict to 5M to avoid OOMs
+      lenk=min(lenk,5000000)
+ 1    continue
+      failed=.not.ma_push_get(MT_Dbl,lenk,
+     Q     'tdjka',l_kk,k_kk)
+      if(failed) then
+         lenk=lenk/2
+         goto 1
+      endif
+chack
+chack      lenk=lenk/3 -3
+chackend
+c     round it to the nearest multiple of lnov
+      lenk=(lenk/lnov)*lnov
+      iptr=1
+      failed=.false.
+ 2    continue
+      if(ga_nodeid().eq.0) write(6,'(A,2I8,I10,I8,2I14)') 
+     I     ' kk av j lenk lenkfull ' ,
+     A     klo,khi,av,j,lenk,end-start+1
+      call ccsd_cpyloop(g_objv,start,end,lenk,
+     V     av,nvir,lnov, iptr,
+     A     dbl_mb(k_kk),djka)
+      if(start-1.ne.end)then
+         if(failed)
+     A     call errquit('getdjka:craaap ', 0, 0)
+         lenk=end-start+1
+         goto 2
+      endif
+      if (.not.ma_pop_stack(l_kk))
+     &     call errquit('ccsdgetdjka: cannot pop stack',11,0)
+
+      return
+      end
+      subroutine ccsd_cpyloop(g_objv,start,end,lenk,
+     V     av,nvir,lnov, iptr,
+     A     kk,djka)
+      implicit none
+      integer g_objv,start,end,lenk,
+     V     av,nvir,lnov
+      double precision kk(*),djka(*)
+c
+      integer startc,iptr,i,k
+c
+      do i=1,(end-start+1)/lenk
+         call ga_get(g_objv,start,start+lenk-1,av,av,
+     $        kk,lenk)
+         startc=1
+         do k = 1,lenk/lnov
+            call dcopy(nvir,kk(startc),1,Djka(iptr),1)
+            iptr=iptr+nvir
+            startc=startc+lnov
+         enddo
+         start=start+lenk
+      enddo
       return
       end
 

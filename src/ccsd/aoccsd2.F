@@ -49,7 +49,7 @@ c triples
       integer vchunk,noper,occ_lo,vir_lo,vir_hi,oseg_lo,oseg_hi,
      &        nvpass
       integer ga_create_jkblocked
-      logical oexch,ocoul,ohalf,oprint
+      logical oexch,ocoul,ohalf,oprint,oprinthigh
       double precision eccsdt,eccsd,empt(2),tx(3)
       Integer Nodes, IAm, memdrv, memtrn
 c
@@ -95,7 +95,12 @@ c gradient
       integer k_z1
       integer g_nt2
       integer ilo,ihi,jlo,jhi,offt2,nvp1
-      Logical Do_Z
+      integer gmem_needed,gmem_avail,nvnnodes,ff,ff2,ff3,iin,jin
+      integer memlimit
+      integer MSG_MIN_LOCAL_MEM
+      parameter(MSG_MIN_LOCAL_MEM=1971)
+      external ccsd_createg
+      Logical Do_Z,ccsd_createg
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 C^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -116,6 +121,7 @@ c
          call qenter('aoccsd',0)
       endif
       oprint = util_print('information',print_low)
+      oprinthigh = util_print('ccsd extra',print_high)
 c
       nodes = ga_nnodes()
       iam = ga_nodeid()
@@ -190,6 +196,47 @@ c
 c
         lhoo=nocc*(nocc+1)/2
         lhoov=nvir*nocc*(nocc+1)/2
+c
+c     check if enough GA is there for the next 3 gacreate
+c
+       gmem_avail=(ga_memory_avail()/MA_sizeof(MT_DBL,1,MT_BYTE))
+       nvnnodes=max(1,(nvir+1)/ga_nnodes()+1)
+       call ga_igop(MSG_MIN_LOCAL_MEM,gmem_avail,1,'min')
+c     mem for t2
+       gmem_needed=2*mxvec*lhoov*nvnnodes
+c     mem for nt2 (see ccsd_iterdrv2)
+       ff=lnov/nvir/int(dsqrt(dble(ga_nnodes())))+2
+       gmem_needed = gmem_needed + 2*nvir*nvir*ff*ff
+c     mem needed for x c sht2 (see pampt3)
+       ff2=max(1,nocc*nocc/ga_nnodes()+1)
+       ff3=max(1,nbf*nbf/ga_nnodes()+1)
+       gmem_needed = gmem_needed + 2*ff2*nbf*nbf+ff3*nocc*nocc
+       
+       if(gmem_needed.gt.gmem_avail) then
+                mxvec=min(10,((gmem_avail-ff3*nocc*nocc)/2
+     -         -(nvir*nvir*ff*ff)-
+     -         ff2*nbf*nbf)/
+     /         (lhoov*nvnnodes))
+                if(ga_nodeid().eq.0) then
+                   write(luout,*) ' ff = ',ff
+                   write(luout,*) ' mxvec decreased to ',mxvec
+                endif
+                if(mxvec.eq.0) then
+                if(ga_nodeid().eq.0) then
+                   write(luout,'(A,2I16)')
+     W               ' gmems (dbls): needed and avail ',
+     W                  gmem_needed,gmem_avail
+                   write(luout,'(A,2I10)') ' lhoov nv ',lhoov,nvir
+                   write(luout,'(A,I16)') ' gneede for mxvec=1 ',
+     W                  nvnnodes*(2*lhoov+lhoov)
+                   call util_flush(luout)
+                endif
+               
+                 call errquit(' bailing out',0,0)
+                endif
+       endif
+       
+
 *ga:1:0
       if (.not.ga_create(MT_DBL,mxvec*lhoov,nvir+1,'g_t2', 
      &                   mxvec*lhoov,0,g_t2))
@@ -216,26 +263,44 @@ c
          if (.not.ga_create(MT_DBL,lnov,lnov,'g_nt2',
      &      nvir,nvir,g_nt2))
      &      call errquit('ga_create failed g_nt2',0, GA_ERR)
+         call ga_zero(g_nt2)
+      if(ga_nodeid().eq.0.and.oprinthigh) then
+         call ga_distribution(g_nt2, 0, ilo, ihi, jlo, jhi)
+         write(luout,'(A,4I12)') ' distr for nt2 ',
+     I        ilo, ihi, jlo, jhi
+         call util_flush(luout)
+      endif
 c
+#if 0
       call ga_get(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,
      $            dbl_mb(k_t1),lnov)
+#else
+      if(ga_nodeid().eq.0)
+     G      call ga_get(g_t2,offt2+1,offt2+lnov,nvp1,nvp1,
+     $            dbl_mb(k_t1),lnov)
+      call ga_brdcst(65537, dbl_mb(k_t1), 
+     G     MA_sizeof(MT_DBL,1,MT_BYTE)*lnov, 0)
+#endif
 c
       call ga_distribution(g_t2,iam,jlo,jhi,ilo,ihi)
       do a=1,nvir
         if (a.ge.ilo.and.a.le.ihi)then
           call ga_get(g_t2,offt2+1,offt2+lhoov,a,a,
      &                 dbl_mb(k_scra),lhoov)
-          do i=1,nocc
-            call dfill(lnov,0.0d00,dbl_mb(k_scrb),1)
-            do j=1,i
+cstaggering
+          do iin=ga_nodeid()+1,ga_nodeid()+nocc
+             i=mod(iin,nocc)+1
+             call ycopy(lnov,0.0d00,0,dbl_mb(k_scrb),1)
+            do jin=1+ga_nodeid(),i+ga_nodeid()
+               j=mod(jin,i)+1
               do b=1,nvir
                 ad1=(b-1)*lhoo+i*(i-1)/2+j
-                ad2=(j-1)*nvir+b
-                dbl_mb(k_scrb+ad2-1)=dbl_mb(k_scra+ad1-1)
+                dbl_mb(k_scrb+b-1)=dbl_mb(k_scra+ad1-1)
               enddo
-            enddo
             ad1=(i-1)*nvir+a
-            call ga_put(g_nt2,1,i*nvir,ad1,ad1,dbl_mb(k_scrb),i*nvir)
+            call ga_put(g_nt2,(j-1)*nvir+1,j*nvir,ad1,ad1,
+     D           dbl_mb(k_scrb),nvir)
+            enddo
           enddo
         endif
       enddo
@@ -277,9 +342,16 @@ c
 c
       lnobj=2*lnoov+max(lnoov,lnooo)
 *ga:1:0
-      if (.not.ga_create(MT_DBL,lnobj,nvir+1,'objv',lnobj,1,
-     &                   g_objv))
+      if(ga_nnodes().lt.3) then
+         if (.not.ga_create(MT_DBL,lnobj,nvir+1,'objv',lnobj,1,
+     &        g_objv))
      &     call errquit('ga_create g_objv failed',0, GA_ERR)
+      else
+         if(.not.ccsd_createg(g_objv, lnobj, nvir+1, 
+     R        lnoov, max(lnoov,lnooo), lnoov,min(nocc,nvir),
+     O        oprinthigh))
+     &     call errquit('ga_create g_objv failed',0, GA_ERR)
+      endif
       call ga_zero(g_objv)
 c
       lnobj=lnoov+max(lnooo,lnoov)
@@ -522,8 +594,16 @@ c
 *      if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',lbfo,0,g_objo))
 *     &     call errquit('ga_create failed for g_objo',0)
 *ga:1:0
+      if(ga_nnodes().lt.3) then
       if (.not.ga_create(MT_DBL,lbfo,nocc,'objo',lbfo,1,g_objo))
      &     call errquit('ga_create failed for g_objo',0, GA_ERR)
+      else
+         if(.not.ccsd_createg(g_objo, lbfo, nocc,
+     R        lnovv, lnoov, lnoov,min(nocc,nvir),
+     O        oprinthigh))
+     &     call errquit('ga_create g_objo failed',0, GA_ERR)
+      endif
+c
 c
       call ga_zero(g_objo)
       call ccsd_rdtrpo
@@ -541,6 +621,11 @@ c     Iteratively determine nvpass (vchunk) and
 c     internal chunking for the tripes (kchunk)
 c
       mem_avail = ma_inquire_avail(MT_DBL)
+c     we can hack the mem available (in MB)
+      if ( rtdb_get(rtdb, 'ccsdt:memlimit', mt_int, 1, memlimit))
+     $  mem_avail=min(mem_avail,memlimit*1024*1024/
+     /     MA_sizeof(MT_DBL,1,MT_BYTE))
+
       call ga_igop(msg_cc_mem, mem_avail, 1, 'min')
 c
       nvpass = 1
@@ -549,7 +634,9 @@ c
  7652 kchunk = (nocc - 1)/nkpass + 1
       vchunk = (nvir - 1)/nvpass + 1
 c
-      memdrv = lnvv*(11+3*kchunk) + lnov*(5+4*kchunk) + nvir*(1+kchunk)
+cold      memdrv = lnvv*(11+3*kchunk) + lnov*(5+4*kchunk) + nvir*(1+kchunk)
+      memdrv = lnvv*(11+3*kchunk) + lnov*(1+4*nocc+4*kchunk) +
+     +     nvir*(1+kchunk)
       memtrn = moints_trp_mem(basis, vchunk, blen)
 c
       if (iam .eq. 0.and.oprint) then
@@ -604,9 +691,9 @@ c
          nvpass = nvpass + 1
          oseg_lo = oseg_hi + 1
          oseg_hi = min(oseg_hi+vchunk,vir_hi)
-         if (iam.eq.0.and.oprint)write(*,846)nvpass
- 846     format(' commencing integral evaluation ',i8)
          tx(1)=tcgtime()
+         if (iam.eq.0)write(*,846)nvpass,tx(1)
+ 846     format(' commencing integral evaluation ',i8,' at ',f14.2)
          call moints_trp(basis,  ohalf, occ_lo, oseg_lo, oseg_hi,
      &      vir_lo, vir_hi,
      &      g_coul, ocoul, g_exch, oexch,
@@ -642,14 +729,14 @@ c
      $     l_trp_Tkj,k_trp_Tkj))
      $     call errquit('aoccsd2: triples: k_trp_Tkj ', kchunk*lnvv,
      &       MA_ERR)
-      if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Tia',
+      if (.not. ma_push_get(MT_DBL, lnov*nocc,'k_trp_Tia',
      $     l_trp_Tia,k_trp_Tia))
      $     call errquit('aoccsd2: triples: k_trp_Tia ', lnov, MA_ERR)
       if (.not. ma_push_get(MT_DBL, kchunk*lnov,'k_trp_Tka',
      $     l_trp_Tka,k_trp_Tka))
      $     call errquit('aoccsd2: triples: k_trp_Tka ', kchunk*lnov,
      &       MA_ERR)
-      if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Xia',
+      if (.not. ma_push_get(MT_DBL, lnov*nocc,'k_trp_Xia',
      $     l_trp_Xia,k_trp_Xia))
      $     call errquit('aoccsd2: triples: k_trp_Xia ', lnov, MA_ERR)
       if (.not. ma_push_get(MT_DBL, kchunk*lnov,'k_trp_Xka',
@@ -670,14 +757,14 @@ c
      $     l_trp_Kka,k_trp_Kka))
      $     call errquit('aoccsd2: triples: k_trp_Kka ', kchunk*lnvv,
      &       MA_ERR)
-      if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Jij',
+      if (.not. ma_push_get(MT_DBL, lnov*nocc,'k_trp_Jij',
      $     l_trp_Jij,k_trp_Jij))
      $     call errquit('aoccsd2: triples: k_trp_Jij ', lnov, MA_ERR)
       if (.not. ma_push_get(MT_DBL, kchunk*lnov,'k_trp_Jkj',
      $     l_trp_Jkj,k_trp_Jkj))
      $     call errquit('aoccsd2: triples: k_trp_Jkj ', kchunk*lnov,
      &       MA_ERR)
-      if (.not. ma_push_get(MT_DBL, lnov,'k_trp_Kij',
+      if (.not. ma_push_get(MT_DBL, lnov*nocc,'k_trp_Kij',
      $     l_trp_Kij,k_trp_Kij))
      $     call errquit('aoccsd2: triples: k_trp_Kij ', lnov, MA_ERR)
       if (.not. ma_push_get(MT_DBL, kchunk*lnov,'k_trp_Kkj',
@@ -691,7 +778,7 @@ c
      $     l_trp_Djka,k_trp_Djka))
      $     call errquit('aoccsd2: triples: k_trp_Djka ', nvir*kchunk,
      &       MA_ERR)
-      if (.not. ma_push_get(MT_DBL, nvir,'k_trp_Djia',
+      if (.not. ma_push_get(MT_DBL, nvir*nocc,'k_trp_Djia',
      $     l_trp_Djia,k_trp_Djia))
      $     call errquit('aoccsd2: triples: k_trp_Djia ', nvir, MA_ERR)
 c
@@ -889,5 +976,115 @@ c
      &     call errquit('g_objv ga_destroy failed',0, GA_ERR)
 c
       if(.not.occsdps) call qstat()
+      return
+      end
+      logical function ccsd_createg(g, rows, cols, r1, r2, r3, mcm,
+     O     oprint)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+c
+      integer g
+      integer rows, cols, r1, r2, r3 ,mcm
+      logical oprint
+c
+      integer mapr(3),l_mapc,k_mapc,i,nproc,
+     C     nblocks,blksize,nblocksr,
+     R     l_mapr,k_mapr,j
+c
+      nproc=ga_nnodes()
+c
+      nblocks=min(nproc/3,cols)
+      blksize=max(cols/nblocks,1)
+c
+      if(ga_nodeid().eq.0.and.oprint) then
+         write(6,1) 'nprocs ',nproc
+         write(6,1) 'rows cols nprocs ',rows,cols,nproc
+         write(6,1) 'r1 r2 r2 mcm',r1,r2,r3,mcm
+      endif
+      nblocksr=max(r1/mcm+r2/mcm+r3/mcm,1)
+ 11    continue
+      if(nblocks*nblocksr.gt.nproc) then
+         nblocksr=nproc/nblocks
+         mcm=(r1+r2+r3)/nblocksr
+         if(ga_nodeid().eq.0.and.oprint) then
+            write(6,*) ' nblocksr ',nblocksr,
+     c           nblocks*nblocksr
+            write(6,*) ' np/nb ',
+     D        dble(nproc)/dble(nblocks),nproc,nblocks
+            write(6,*) ' new nblocksr ',nblocksr
+            write(6,*) ' mcm increased to ',mcm
+            write(6,1) ' segs ',r1/mcm,r2/mcm,r3/mcm
+            write(6,1) ' nsegs*nbc ',
+     C           (r1/mcm+r2/mcm+r3/mcm)*nblocks
+         endif
+ 12      nblocksr=max(r1/mcm,1)+max(r2/mcm,1)+max(r3/mcm,1)
+         if(nblocks*nblocksr.gt.nproc) then
+         if(ga_nodeid().eq.0.and.oprint) 
+     W           write(6,1) ' ouch ',nblocksr,nblocks,nproc
+            mcm=mcm*2
+            goto 12
+         endif
+      endif
+      mapr(1)=1
+      mapr(2)=r1+1
+      mapr(3)=r1+r2+1
+      if(.not.ma_push_get(MT_int,nblocks,
+     .        'ga block maps',l_mapc,k_mapc))
+     .     call errquit('ccsd_createg: not enough local mem',0,0)
+      if(.not.ma_push_get(MT_int,nblocksr,
+     .        'ga block mapr',l_mapr,k_mapr))
+     .     call errquit('ccsd_createg: not enough local mem',0,0)
+      nblocksr=0
+      do i=1,max(r1/mcm,1)
+         int_mb(k_mapr+i-1)=1+(i-1)*mcm
+         nblocksr=nblocksr+1
+      enddo
+       if(ga_nodeid().eq.0.and.oprint) then
+          write(6,*) ' 1st seg nblocksr ',nblocksr
+          write(6,*) ' last map ',int_mb(k_mapr+nblocksr-1)
+       endif
+      do i=1,max(r2/mcm,1)
+         int_mb(k_mapr+nblocksr)=r1+(i-1)*mcm
+         nblocksr=nblocksr+1
+      enddo
+      if(ga_nodeid().eq.0.and.oprint) then
+         write(6,*) ' 2nd seg nblocksr ',nblocksr
+         write(6,*) ' last map ',int_mb(k_mapr+nblocksr-1)
+      endif
+      do i=1,max(r3/mcm,1)
+         int_mb(k_mapr+nblocksr)=r1+r2+(i-1)*mcm
+         nblocksr=nblocksr+1
+      enddo
+      if(ga_nodeid().eq.0.and.oprint) then
+         write(6,*) ' 3rd seg nblocksr ',nblocksr
+         write(6,*) ' last map ',int_mb(k_mapr+nblocksr-1)
+         do i=1,nblocksr
+            write(6,'(" MM ",5I13)')  i,int_mb(k_mapr+i-1)
+         enddo
+      endif
+      do i=1,nblocks
+         int_mb(k_mapc+i-1)=(i-1)*blksize+1
+      enddo
+      if(ga_nodeid().eq.0.and.oprint) then
+         write(6,*) ' after maps nblocksr ',nblocksr
+         write(6,1) 'rows cols nprocs ',rows,cols,nproc
+         write(6,1) 'r1 r2 r2 ',r1,r2,r3
+         write(6,1) 'mapr ',mapr
+         write(6,1) ' blksize nblocks ',blksize,nblocks
+         write(6,1) ' map1 maplast',int_mb(k_mapc),
+     I        int_mb(k_mapc+nblocks-1)
+     
+ 1     format(A,7I10)
+       call util_flush(6)
+      endif
+      call ga_sync()
+      ccsd_createg =  ga_create_irreg(MT_DBL, rows, cols, 'dunno',
+     $     int_mb(k_mapr), nblocksr,
+     $     int_mb(k_mapc), nblocks, g)
+
+      if (.not.ma_chop_stack(l_mapc))
+     &     call errquit('ccsd_createg: cannot chop stack',0,0)
+      
       return
       end
