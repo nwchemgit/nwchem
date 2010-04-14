@@ -508,6 +508,10 @@ c
           log_mb(smd_index(ns,nd)+i-1) = .false.
         end do
       end if
+      if(smd_type(ns,nd).eq.MT_STR) then
+        call smd_wipe_ma_char(smd_dim(ns,nd),
+     +                        byte_mb(smd_index(ns,nd)))
+      end if
 cc     should probably fill logical and char arrays
 
       end
@@ -726,28 +730,28 @@ c
         ind   = smd_index(ns,k) 
         buffer = smd_dname(ns,k)
         if(dtype.eq. MT_DBL) then
-          write(un,*) "DATA NAME",buffer
+          write(un,*) "DATA NAME ",buffer
           write(un,*) "DATA TYPE"," double"
           write(un,*) "DATA SIZE",ndim
           do i=1,ndim
           write(un,*) dbl_mb(ind+i-1)
           end do
         else if(dtype.eq.MT_LOG) then
-          write(un,*) "DATA NAME",buffer
+          write(un,*) "DATA NAME ",buffer
           write(un,*) "DATA TYPE"," logical"
           write(un,*) "DATA SIZE",ndim
           do i=1,ndim
           write(un,*) log_mb(ind+i-1)
           end do
          else if(dtype.eq.MT_INT) then
-          write(un,*) "DATA NAME",buffer
+          write(un,*) "DATA NAME ",buffer
           write(un,*) "DATA TYPE"," integer"
           write(un,*) "DATA SIZE",ndim
           do i=1,ndim
           write(un,*) int_mb(ind+i-1)
           end do
         else if(dtype.eq.MT_STR) then
-          write(un,*) "DATA NAME",buffer
+          write(un,*) "DATA NAME ",buffer
           write(un,*) "DATA TYPE"," string"
           write(un,*) "DATA SIZE",ndim
 c          call smd_ma_char_print(ndim*smd_string_size,byte_mb(ind),un)
@@ -1106,6 +1110,49 @@ c      ndim1 = smd_tag_size*ndim
       return
       end
 
+      subroutine smd_data_put_string1(sname,dname,ilo,ihi,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+#include "smd_const_data.fh"
+#include "inp.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ilo,ihi
+      integer dtype
+      character*(*) datum(ihi-ilo+1)
+c
+      integer ind
+      integer ndim
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i,l
+      integer ndim1
+      integer offset
+
+      pname = "smd_data_create"
+
+c      ndim1 = smd_tag_size*ndim
+
+      ndim=ihi-ilo+1
+      do i=1,ndim
+       l = inp_strlen(datum(i))
+       if(l.gt.smd_string_size)
+     >     call errquit(pname//"too big size",l,0) 
+       write(*,*) "datum",i,datum(i)
+      end do
+      call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
+      if(.not.result)
+     >     call errquit(pname//"cannot find"//dname,0,0) 
+      offset = smd_string_size*(ilo-1)
+      call smd_set_char_to_ma1(datum,ilo,ihi,ndim1,byte_mb(ind))
+      return
+      end
+
       subroutine smd_data_get_string(sname,dname,ndim,datum,result)
       implicit none
 c
@@ -1216,15 +1263,16 @@ c
       if(result) goto 300
       call smd_data_put_int(sname,"smd:rtdb_handle",1,rtdb)
 
-      if(.not. rtdb_getfname(rtdb, big_buffer)) call
-     *        errquit('rtdb_getfname failed',0,0)
-      istart = 0
-   10 if (inp_strtok(big_buffer, '/', istart, iend)) then
-      buffer = big_buffer(istart:iend)
-      goto 10
-      endif
-      call smd_data_put_string(sname,"smd:rtdb_name",1,
-     >                         buffer)
+c      if(.not. rtdb_getfname(rtdb, big_buffer)) call
+c     *        errquit('rtdb_getfname failed',0,0)
+c      istart = 0
+c   10 if (inp_strtok(big_buffer, '/', istart, iend)) then
+c      buffer = big_buffer(istart:iend)
+c      goto 10
+c      endif
+c      call smd_data_put_string(sname,"smd:rtdb_name",1,
+c     >                         buffer)
 
       return
       end
+
