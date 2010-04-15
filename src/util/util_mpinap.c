@@ -4,10 +4,8 @@
 #include <stdio.h>
 #ifdef MPI
 #include <mpi.h>
-#else
-#  include <global.h>
 #endif
-#include "global.h"
+#include "ga.h"
 #include "macdecls.h"
 /* This makes each process sleep for Mpirank/factor microsec*/
 /*#define DEBUG 1*/
