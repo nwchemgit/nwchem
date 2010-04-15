@@ -13,8 +13,7 @@ c
       character*(smd_string_size) tag
       logical ignore,result,oldmode
       character*256 big_buffer
-      character*72 buffer(smd_rtdb_nmax)
-      character*72 buffer1
+      character*(smd_string_size) buffer1
       logical oscratch(smd_rtdb_nmax)
       character*30 pname
       integer i
@@ -32,78 +31,75 @@ c
       ignore = rtdb_get(rtdb,"smd:iend",mt_int,1,smd_iend)
       ignore = rtdb_get(rtdb,"smd:nproc",mt_int,1,smd_nproc)
 
+c
+c     create rtdb namespace
+c     ---------------------
       tag = "rtdb"
       call smd_system_get_component(namespace,tag,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no component '//tag,0,0)
-
       call smd_namespace_create(namespace)
-
-
 c
 c     fetch and store rtdb name
 c     -------------------------
       if(.not. rtdb_getfname(rtdb, big_buffer)) call
      *        errquit('rtdb_getfname failed',0,0)
-      do i=1,smd_rtdb_nmax
-        buffer(i) = " "
-        oscratch(i)=.false.
-      end do
       istart = 0
    10 if (inp_strtok(big_buffer, '/', istart, iend)) then
-      buffer(1) = big_buffer(istart:iend)
+      buffer1 = big_buffer(istart:iend)
       goto 10
       endif
 c
-c      call smd_data_put_string(namespace,"smd:rtdb_name",smd_rtdb_nmax,
-c     >                         buffer)
       tag  = "smd:rtdb_name"
       call smd_data_create(namespace,tag,smd_rtdb_nmax,
      >                         MT_STR)
       call smd_data_put_string1(namespace,tag,1,1,
-     >                              buffer(1))
-      call smd_data_get_string1(namespace,tag,1,1,
      >                              buffer1)
-      write(*,*) "buffer1",buffer1
-c     -------------------------
-      call util_file_prefix_get(buffer(1))
+c
+c     store prefix
+c     ------------
+      call util_file_prefix_get(buffer1)
       tag  = "smd:prefix"
       call smd_data_create(namespace,tag,smd_rtdb_nmax,
      >                         MT_STR)
       call smd_data_put_string1(namespace,tag,1,1,
-     >                         buffer(1))
-
+     >                         buffer1)
+c
+c     store location of rtdb (perm by default)
+c     ---------------------------------------
       tag  = "smd:rtdb_scratch"
       call smd_data_create(namespace,tag,smd_rtdb_nmax,
      >                         MT_LOG)
+      do i=1,smd_rtdb_nmax
+        oscratch(i)=.false.
+      end do
       call smd_data_put_log1(namespace,tag,1,1,
      >                         .false.)
-
+c
+c     store rtdb pointer
+c     ------------------
       tag  = "smd:rtdb_pointer"
       call smd_data_create(namespace,tag,1,
      >                         MT_INT)
       call smd_data_put_int1(namespace,tag,1,1,
      >                         1)
-
+c
+c     store rtdb handle
+c     ------------------
       tag  = "smd:rtdb_handle"
       call smd_data_create(namespace,tag,1,
      >                         MT_INT)
       call smd_data_put_int1(namespace,tag,1,1,
      >                         rtdb)
-
-
-      call smd_data_namespace_print(namespace,6)
+c
+c     digest some of rtdb contents
+c     ----------------------------
       call smd_data_namespace_rtdb_get(rtdb,namespace,"smd")
       call smd_data_namespace_rtdb_get(rtdb,namespace,"geom:source")
-      call smd_rtdb_push_name("rewt","qwet",.true.)
-      call smd_data_namespace_print(namespace,16)
-      call smd_rtdb_get_name(buffer1)
-      write(*,*) "got rtdb name", buffer1
-      call smd_rtdb_get_prefix(buffer1)
-      write(*,*) "got prefix name", buffer1
-      call smd_rtdb_pop_name()
-      call smd_data_namespace_print(namespace,17)
+c
+c     restore rtdb access mode
+c     -----------------------
       oldmode = rtdb_parallel(oldmode)
 c    
       return
