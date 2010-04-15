@@ -363,6 +363,8 @@ c
       call smd_rtdb_close("keep")
 c
       call smd_rtdb_push_open_clone(13,.true.)
+      call smd_rtdb_pop()
+      call smd_rtdb_open()
       stop
       return
       end
