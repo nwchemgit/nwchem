@@ -14,6 +14,7 @@ c
       logical ignore,result,oldmode
       character*256 big_buffer
       character*72 buffer(smd_rtdb_nmax)
+      character*72 buffer1
       logical oscratch(smd_rtdb_nmax)
       character*30 pname
       integer i
@@ -62,6 +63,9 @@ c     >                         buffer)
      >                         MT_STR)
       call smd_data_put_string1(namespace,tag,1,1,
      >                              buffer(1))
+      call smd_data_get_string1(namespace,tag,1,1,
+     >                              buffer1)
+      write(*,*) "buffer1",buffer1
 c     -------------------------
       call util_file_prefix_get(buffer(1))
       tag  = "smd:prefix"
@@ -70,15 +74,39 @@ c     -------------------------
       call smd_data_put_string1(namespace,tag,1,1,
      >                         buffer(1))
 
-      call smd_data_put_int(namespace,"smd:rtdb_pointer",1,
+      tag  = "smd:rtdb_scratch"
+      call smd_data_create(namespace,tag,smd_rtdb_nmax,
+     >                         MT_LOG)
+      call smd_data_put_log1(namespace,tag,1,1,
+     >                         .false.)
+
+      tag  = "smd:rtdb_pointer"
+      call smd_data_create(namespace,tag,1,
+     >                         MT_INT)
+      call smd_data_put_int1(namespace,tag,1,1,
      >                         1)
 
-      call smd_data_namespace_print(namespace,50)
+      tag  = "smd:rtdb_handle"
+      call smd_data_create(namespace,tag,1,
+     >                         MT_INT)
+      call smd_data_put_int1(namespace,tag,1,1,
+     >                         rtdb)
+
+
+      call smd_data_namespace_print(namespace,6)
       call smd_data_namespace_rtdb_get(rtdb,namespace,"smd")
       call smd_data_namespace_rtdb_get(rtdb,namespace,"geom:source")
+      call smd_rtdb_push_name("rewt","qwet",.true.)
+      call smd_data_namespace_print(namespace,16)
+      call smd_rtdb_get_name1(buffer1)
+      write(*,*) "got rtdb name", buffer1
+      call smd_rtdb_get_prefix1(buffer1)
+      write(*,*) "got prefix name", buffer1
+      call smd_rtdb_pop_name()
+      call smd_data_namespace_print(namespace,17)
       oldmode = rtdb_parallel(oldmode)
-
-      stop
+c    
+      return
       end 
 
       subroutine smd_rtdb_close(action)
@@ -114,6 +142,7 @@ c
       integer rtdb
       logical result
       character*30 pname
+      logical oscratch
 
       pname = "smd_rtdb_open"
       call smd_rtdb_get_handle(rtdb)
@@ -125,7 +154,47 @@ c
 
       end 
 
-      subroutine smd_rtdb_push_clone(taskid)
+      subroutine smd_rtdb_open1()
+c     opens rtdb whose name was already stored
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "smd_const_data.fh"
+#include "mafdecls.fh"
+c
+      integer rtdb
+      logical result
+      character*30 pname
+      character*(smd_path_size) rtdb_name
+      character*(smd_string_size) prefix
+      logical oscratch
+
+      pname = "smd_rtdb_open1"
+      call util_io_enable()
+      write(*,*) "in "//pname
+      call util_message("in "//pname)
+c     check if other rtdb is open
+c     ---------------------------
+      call smd_rtdb_get_handle(rtdb)
+      if(rtdb.ge.0) call errquit(pname//"close rtdb first",0,0)
+      call util_message("1: "//pname)
+c     get new rtdb name
+c     -----------------
+      call smd_rtdb_get_name_full(rtdb_name)
+      call util_message("1: "//pname)
+c      note that mode is to old so the actual file should be there!
+      if(.not.rtdb_open(rtdb_name,"old",rtdb)) 
+     >     call errquit(pname//" cannot find rtdb "//rtdb_name,0,0)
+      call util_message("2: "//pname)
+      write(*,*) "rtdb handle is",rtdb
+      call smd_rtdb_set_handle(rtdb)
+      call smd_rtdb_get_prefix1(prefix)
+      call util_file_prefix_set(prefix)
+      call util_message("out "//pname)
+
+      end 
+
+      subroutine smd_rtdb_push_clone_old(taskid)
 c     rtdb cloning
 c     1. make a numbered name (taskid)
 c     2. copy file
@@ -199,6 +268,188 @@ c
       call smd_rtdb_open(rtdb_name_full,"old")
       call smd_rtdb_push_name(prefix,rtdb_name)
 
+      call ga_sync()
+      write(*,*) "out "//pname
+
+      return
+      end
+
+      subroutine smd_rtdb_push_open_clone(taskid,oscratch)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "rtdb.fh"
+      integer taskid
+      logical oscratch
+c     
+      character*30 pname
+c
+      pname = "smd_rtdb_push_open_clone"
+      call smd_rtdb_push_clone(taskid,oscratch)
+      call smd_rtdb_open1()
+      call ga_sync()
+      write(*,*) "out "//pname
+
+      return
+      end
+
+      subroutine smd_rtdb_push_clone(taskid,oscratch)
+c     rtdb cloning
+c     1. make a numbered name (taskid)
+c     2. copy file
+c
+c     taskid[IN] task number
+c     rtdb[OUT]  rtdb handle
+c
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "rtdb.fh"
+      integer taskid
+      logical oscratch
+c     
+      character*(smd_string_size)  sname
+      character*(smd_string_size)  rtdb_name0,rtdb_name
+      character*(smd_path_size)  rtdb_name_full0
+      character*(smd_path_size)  rtdb_name_full
+      integer i1,i2
+      logical result
+      logical master
+      character*(smd_string_size) prefix, prefix0
+      integer rtdb
+      integer n,nmax
+      character*30 pname
+c
+      pname = "smd_rtdb_push_clone1"
+c      
+      write(*,*) "in "//pname
+      call ga_sync()
+      master = ga_nodeid().eq.0
+c     get full path to current rtdb 
+      call smd_rtdb_get_name_full(rtdb_name_full0)
+c
+c     create new prefix name
+c     ----------------------
+      call smd_rtdb_get_prefix1(prefix0)
+      i1 = inp_strlen(prefix0)
+      write(prefix,'(A,I4.4)')
+     >    prefix0(1:i1),taskid
+      i1 = inp_strlen(prefix)
+      write(rtdb_name,'(A,A3)')
+     >    prefix(1:i1),".db"
+c
+c     create new rtdb name
+c     --------------------
+c      call util_file_prefix("db",rtdb_name)
+c
+c     push names in 
+c     -------------
+      call util_flush(6)
+      write(*,*) "before smd_rtdb_push_name",rtdb_name,prefix,oscratch
+      call smd_rtdb_push_name(rtdb_name,prefix,oscratch)
+c
+c     get full path to new rtdb 
+c     ----------------------------
+      call smd_rtdb_get_name_full(rtdb_name_full)
+c
+c     actually copy the file
+c     ----------------------
+      if(master) then
+        inquire(file=rtdb_name_full0,exist=result)
+        if(.not.result) then
+          call errquit("cannot find rtdb"//
+     >                 rtdb_name_full0,
+     >                 0,0)
+        end if
+        call util_file_copy(rtdb_name_full0,rtdb_name_full)
+      end if
+
+c
+c
+c      call smd_rtdb_close("keep")
+c      call smd_rtdb_open(rtdb_name_full,"old")
+c      call smd_rtdb_push_name(prefix,rtdb_name)
+c
+      call ga_sync()
+      write(*,*) "out "//pname
+
+      return
+      end
+
+      subroutine smd_rtdb_pop()
+c     rtdb cloning
+c     1. make a numbered name (taskid)
+c     2. copy file
+c
+c     taskid[IN] task number
+c     rtdb[OUT]  rtdb handle
+c
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "rtdb.fh"
+      integer taskid
+      logical oscratch
+c     
+      character*(smd_string_size)  sname
+      character*(smd_string_size)  rtdb_name0,rtdb_name
+      character*(smd_path_size)  rtdb_name_full0
+      character*(smd_path_size)  rtdb_name_full
+      integer i1,i2
+      logical result
+      logical master
+      character*(smd_string_size) prefix, prefix0
+      integer rtdb
+      integer n,nmax
+      character*30 pname
+c
+      pname = "smd_rtdb_pop"
+c      
+      write(*,*) "in "//pname
+      call ga_sync()
+      master = ga_nodeid().eq.0
+c     get full path to current rtdb 
+      call smd_rtdb_get_name_full(rtdb_name_full0)
+      if(master) then
+        call util_file_unlink(rtdb_name_full0)
+      end if
+
+c      call smd_rtdb_pop(rtdb_name,prefix,oscratch)
+c
+c     get full path to new rtdb 
+c     ----------------------------
+      call smd_rtdb_get_name_full(rtdb_name_full)
+c
+c     actually copy the file
+c     ----------------------
+      if(master) then
+        inquire(file=rtdb_name_full0,exist=result)
+        if(.not.result) then
+          call errquit("cannot find rtdb"//
+     >                 rtdb_name_full0,
+     >                 0,0)
+        end if
+        call util_file_copy(rtdb_name_full0,rtdb_name_full)
+      end if
+
+c
+c
+c      call smd_rtdb_close("keep")
+c      call smd_rtdb_open(rtdb_name_full,"old")
+c      call smd_rtdb_push_name(prefix,rtdb_name)
+c
       call ga_sync()
       write(*,*) "out "//pname
 
@@ -334,16 +585,26 @@ c
       implicit none
 #include "rtdb.fh"
 #include "smd_rtdb_data.fh"
+#include "smd_const_data.fh"
 #include "mafdecls.fh"
 c
       integer rtdb
 c
       logical result
       character*30 pname
+      character*(smd_string_size) tag,sname
 
       pname = "smd_rtdb_get_handle"
-      call smd_rtdb_get_int("smd:rtdb_handle",1,rtdb,result)
-      if(.not.result) call errquit(pname//"no rtdb component",0,0)
+      call util_message("in "//pname)
+      tag = "rtdb"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      tag = "smd:rtdb_handle"
+      call smd_data_get_int1(sname,tag,1,1,rtdb)
+      call util_message("out "//pname)
 
       end 
 
@@ -351,16 +612,26 @@ c
       implicit none
 #include "rtdb.fh"
 #include "smd_rtdb_data.fh"
+#include "smd_const_data.fh"
 #include "mafdecls.fh"
 c
       integer rtdb
 c
       logical result
       character*30 pname
+      character*(smd_string_size) tag,sname
 
-      pname = "smd_rtdb_set_handle"
-      call smd_rtdb_put_int("smd:rtdb_handle",1,rtdb,result)
-      if(.not.result) call errquit(pname//"no rtdb component",0,0)
+      pname = "smd_rtdb_get_handle"
+      call util_message("in "//pname)
+      tag = "rtdb"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      tag = "smd:rtdb_handle"
+      call smd_data_put_int1(sname,tag,1,1,rtdb)
+      call util_message("out "//pname)
 
       end 
 
@@ -435,7 +706,7 @@ c
 
       end 
 
-      subroutine smd_rtdb_get_name1(rtdb_name)
+      subroutine smd_rtdb_get_prefix1(aname)
       implicit none
 #include "rtdb.fh"
 #include "smd_rtdb_data.fh"
@@ -443,145 +714,9 @@ c
 #include "mafdecls.fh"
 #include "errquit.fh"
 c
-      character*(*) rtdb_name
+      character*(*) aname
 c
-      character*(smd_string_size)  buffer(smd_rtdb_nmax)
-      character*(smd_string_size)  tag,sname
-      integer rtdb
-      character*30 pname
-      integer n
-      logical result
-
-      pname = "smd_rtdb_get_name1"
-      tag = "rtdb"
-      call smd_system_get_component(sname,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-      call smd_data_get_string(sname,"smd:rtdb_name",smd_rtdb_nmax,
-     >                          buffer,result)
-      if(.not.result) call errquit(pname//"no component",0,0)
-
-      call smd_data_get_int(sname,"smd:rtdb_pointer",1,
-     >                         n,result)
-      if(.not.result) call errquit(pname//"no component",0,0)
-
-      rtdb_name = buffer(n)
-
-      end 
-
-      subroutine smd_rtdb_push_name(rtdb_name,prefix)
-      implicit none
-#include "rtdb.fh"
-#include "smd_rtdb_data.fh"
-#include "smd_const_data.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-c
-      character*(*) rtdb_name,prefix
-c
-      character*(smd_string_size)  buffer(smd_rtdb_nmax)
-      character*(smd_string_size)  tag,sname
-      integer rtdb
-      character*30 pname
-      integer n
-      logical result
-
-      pname = "smd_rtdb_push_name"
-      tag = "rtdb"
-      call smd_system_get_component(sname,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-
-      call smd_data_get_int(sname,"smd:rtdb_pointer",1,
-     >                         n,result)
-      if(.not.result) call errquit(pname//"no component",0,0)
-c
-      n=n+1
-      if(n.gt.smd_rtdb_nmax) 
-     > call errquit(pname//"out of stack",0,0)
-      call smd_data_put_int(sname,"smd:rtdb_pointer",1,n)
-
-      call smd_data_get_string(sname,"smd:rtdb_name",smd_rtdb_nmax,
-     >                          buffer,result)
-      if(.not.result) call errquit(pname//"no component",0,0)
-      buffer(n)=rtdb_name
-      call smd_data_put_string(sname,"smd:rtdb_name",smd_rtdb_nmax,
-     >                          buffer)
-
-      call smd_data_get_string(sname,"smd:prefix",smd_rtdb_nmax,
-     >                          buffer,result)
-      if(.not.result) call errquit(pname//"no component",0,0)
-      buffer(n)=prefix
-      call smd_data_put_string(sname,"smd:prefix",smd_rtdb_nmax,
-     >                          buffer)
-
-
-      end 
-
-      subroutine smd_rtdb_pop_name()
-      implicit none
-#include "rtdb.fh"
-#include "smd_rtdb_data.fh"
-#include "smd_const_data.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-c
-      character*(smd_string_size)  buffer(smd_rtdb_nmax)
-      character*(smd_string_size)  tag,sname
-      integer rtdb
-      character*30 pname
-      integer n
-      logical result
-
-      pname = "smd_rtdb_push_name"
-      tag = "rtdb"
-      call smd_system_get_component(sname,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-
-      call smd_data_get_int(sname,"smd:rtdb_pointer",1,
-     >                         n,result)
-      if(.not.result) call errquit(pname//"no component",0,0)
-c
-      n=n-1
-      if(n.le.0) 
-     > call errquit(pname//"out of stack",0,0)
-      call smd_data_put_int(sname,"smd:rtdb_pointer",1,n)
-
-      call smd_data_get_string(sname,"smd:rtdb_name",smd_rtdb_nmax,
-     >                          buffer,result)
-      if(.not.result) call errquit(pname//"no component",0,0)
-      buffer(n+1)=" "
-      call smd_data_put_string(sname,"smd:rtdb_name",smd_rtdb_nmax,
-     >                          buffer)
-
-      call smd_data_get_string(sname,"smd:prefix",smd_rtdb_nmax,
-     >                          buffer,result)
-      if(.not.result) call errquit(pname//"no component",0,0)
-      buffer(n+1)=" "
-      call smd_data_put_string(sname,"smd:prefix",smd_rtdb_nmax,
-     >                          buffer)
-
-
-      end 
-
-      subroutine smd_rtdb_get_prefix1(prefix)
-      implicit none
-#include "rtdb.fh"
-#include "smd_rtdb_data.fh"
-#include "smd_const_data.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-c
-      character*(*) prefix
-c
-      character*(smd_string_size)  buffer(smd_rtdb_nmax)
+      character*(smd_string_size)  buffer
       character*(smd_string_size)  tag,sname
       integer rtdb
       character*30 pname
@@ -595,16 +730,176 @@ c
      >  call errquit(
      >       pname//'no component '//tag,0,0)
 
-      call smd_data_get_string(sname,"smd:prefix",smd_rtdb_nmax,
-     >                          buffer,result)
-      if(.not.result) call errquit(pname//"no component",0,0)
+      call smd_data_get_int1(sname,"smd:rtdb_pointer",1,1,
+     >                         n)
 
-      call smd_data_get_int(sname,"smd:rtdb_pointer",1,
-     >                         n,result)
-      if(.not.result) call errquit(pname//"no component",0,0)
+      call smd_data_get_string1(sname,"smd:prefix",n,n,
+     >                          buffer)
 
-      prefix = buffer(n)
 
+      aname = buffer
+
+      end 
+
+      subroutine smd_rtdb_get_name1(rtdb_name)
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "smd_const_data.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+c
+      character*(*) rtdb_name
+c
+      character*(smd_string_size)  buffer
+      character*(smd_string_size)  tag,sname
+      integer rtdb
+      character*30 pname
+      integer n
+      logical result
+
+      pname = "smd_rtdb_get_name1"
+      tag = "rtdb"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      call smd_data_get_int1(sname,"smd:rtdb_pointer",1,1,
+     >                         n)
+
+      call smd_data_get_string1(sname,"smd:rtdb_name",n,n,
+     >                          buffer)
+
+
+      rtdb_name = buffer
+
+      end 
+
+      subroutine smd_rtdb_get_name_full(rtdb_name)
+c     obtain current rtdb name with fully resolved path
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "smd_const_data.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+c
+      character*(*) rtdb_name
+c
+      character*(smd_string_size)  tag,sname
+      character*30 pname
+      integer n
+      logical result
+      logical oscratch
+
+      pname = "smd_rtdb_get_name_full"
+      tag = "rtdb"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      tag = "smd:rtdb_pointer"
+      call smd_data_get_int1(sname,tag,1,1,n)
+
+      tag = "smd:rtdb_name"
+      call smd_data_get_string1(sname,tag,n,n,rtdb_name)
+
+      tag  = "smd:rtdb_scratch"
+      call smd_data_get_log1(sname,tag,n,n,oscratch)
+
+      call util_file_name_resolve(rtdb_name,oscratch)
+
+      end 
+
+      subroutine smd_rtdb_push_name(rtdb_name,prefix,oscratch)
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "smd_const_data.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+c
+      character*(*) rtdb_name,prefix
+      logical oscratch
+c
+      character*(smd_string_size)  buffer(smd_rtdb_nmax)
+      character*(smd_string_size)  tag,sname
+      integer rtdb
+      character*30 pname
+      integer n
+      logical result
+
+      pname = "smd_rtdb_push_name"
+      write(*,*) "in "//pname
+      tag = "rtdb"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+
+      tag = "smd:rtdb_pointer"
+      call smd_data_get_int1(sname,tag,1,1, n)
+      if(.not.result) call errquit(pname//"no component "//tag,0,0)
+c
+      n=n+1
+      if(n.gt.smd_rtdb_nmax) 
+     > call errquit(pname//"out of stack",0,0)
+      tag = "smd:rtdb_pointer"
+      call smd_data_put_int1(sname,tag,1,1,n)
+
+      tag = "smd:rtdb_name"
+      call smd_data_put_string1(sname,tag,n,n,rtdb_name)
+
+      tag = "smd:prefix"
+      call smd_data_put_string1(sname,tag,n,n,prefix)
+
+      tag  = "smd:rtdb_scratch"
+      call smd_data_put_log1(sname,tag,n,n,oscratch)
+
+      return
+      end 
+
+      subroutine smd_rtdb_pop_name()
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "smd_const_data.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+c
+      character*(smd_string_size)  tag,sname
+      integer rtdb
+      character*30 pname
+      integer n
+      logical result
+
+      pname = "smd_rtdb_pop_name"
+      tag = "rtdb"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      tag = "smd:rtdb_pointer"
+      call smd_data_get_int1(sname,tag,1,1, n)
+      if(.not.result) call errquit(pname//"no component "//tag,0,0)
+      if(n-1.le.0) 
+     > call errquit(pname//"out of stack",0,0)
+c
+      tag = "smd:rtdb_name"
+      call smd_data_put_string1(sname,tag,n,n," ")
+
+      tag = "smd:prefix"
+      call smd_data_put_string1(sname,tag,n,n," ")
+c
+      n=n-1
+      tag = "smd:rtdb_pointer"
+      call smd_data_put_int1(sname,tag,1,1,n)
+
+      return
       end 
 
       subroutine smd_rtdb_get_name(rtdb_name)
@@ -765,6 +1060,7 @@ c
       call smd_system_get_component(sname,"rtdb",result)
       if(.not.result) call errquit(pname//"no rtdb component",0,0)
       call smd_data_get_int(sname,dname,ndim,datum,result)
+      if(.not.result) call errquit(pname//"no component"//dname,0,0)
       return
       end
 
