@@ -30,6 +30,7 @@ c
       call smd_init("fragment",rtdb)
       call ga_sync()
       write(*,*) "finshed initializing fragment"
+      return
 c
       call util_message("task_smd_fragment_energy")
       result = task_fragment_energy_serial(rtdb)   
