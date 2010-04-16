@@ -30,11 +30,15 @@ c
       call smd_init("fragment",rtdb)
       call ga_sync()
       write(*,*) "finshed initializing fragment"
-      return
 c
+c     close main rtdb as we may be going into groups
+c     ----------------------------------------------
+      call smd_rtdb_close("keep")
       call util_message("task_smd_fragment_energy")
-      result = task_fragment_energy_serial(rtdb)   
+      result = task_fragment_energy_serial()   
 
+      call smd_rtdb_open(rtdb)
+      energy =0.0d0
       if (.not. rtdb_put(rtdb,'fragment:energy',mt_dbl,1,energy))
      $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
       task_fragment_energy = .true.
@@ -43,7 +47,7 @@ c
       return
       END
 
-      function task_fragment_energy_serial(rtdb)
+      function task_fragment_energy_serial()
       implicit none
       integer rtdb
 
