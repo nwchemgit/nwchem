@@ -33,7 +33,7 @@ end
 
 
 dft
-#print low
+print medium
 xc b3lyp
 iterations 200
 end
@@ -45,6 +45,7 @@ end
 set smd:theory "dft"
 set dft:xcreplicated f
 
+#set smd:nobq .true.
 
 set subgroups_number 2
 set smd:fragment_istart 1
