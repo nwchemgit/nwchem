@@ -636,6 +636,46 @@ c
       return
       end
 
+      subroutine smd_data_inquire_type(sname,dname,dtype)
+      implicit none
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer dtype
+c      
+      integer ndim
+      logical result
+      integer i,ns
+      character*72 buffer
+      character*30 pname
+
+      pname = "smd_data_inquire_type"    
+ 
+      buffer = sname
+
+      ndim  = 0
+      dtype = 0 
+      call smd_data_get_sindex(buffer,ns,result)
+      if(.not.result) goto 100
+
+      result = .false.
+      buffer = dname
+      do i=1,smd_nd(ns)
+       if(smd_dname(ns,i).eq.buffer) then
+         result = .true.
+         dtype=smd_type(ns,i)
+         goto 100
+       end if
+      end do
+
+100   continue
+      if(.not.result)
+     +   call errquit(pname//'data not found'//buffer,
+     +         0,
+     +         0)
+      return
+      end
+
       subroutine smd_data_namespace_brdcst(sname,root)
       implicit none
 c
@@ -951,6 +991,186 @@ c
       return
       end
 
+      subroutine smd_data_put_int1(sname,dname,ilo,ihi,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ilo,ihi
+      integer datum(ihi-ilo+1)
+c
+      integer ndim
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_data_put_int1"
+
+      ndim = ihi-ilo+1
+      call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
+      do i=1,ndim
+        int_mb(ind+ilo+i-2) = datum(i)
+      end do
+      return
+      end
+
+      subroutine smd_data_get_int1(sname,dname,ilo,ihi,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ilo,ihi
+      integer datum(ihi-ilo+1)
+c
+      integer ndim
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_data_put_int1"
+
+      ndim = ihi-ilo+1
+      call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
+      do i=1,ndim
+        datum(i) = int_mb(ind+ilo+i-2)
+      end do
+      return
+      end
+
+      subroutine smd_data_put_dbl1(sname,dname,ilo,ihi,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ilo,ihi
+      double precision datum(ihi-ilo+1)
+c
+      integer ndim
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_data_put_dbl1"
+
+      ndim = ihi-ilo+1
+      call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
+      do i=1,ndim
+        dbl_mb(ind+ilo+i-2) = datum(i)
+      end do
+      return
+      end
+
+      subroutine smd_data_get_dbl1(sname,dname,ilo,ihi,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ilo,ihi
+      double precision datum(ihi-ilo+1)
+c
+      integer ndim
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_data_put_dbl1"
+
+      ndim = ihi-ilo+1
+      call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
+      do i=1,ndim
+        datum(i) = dbl_mb(ind+ilo+i-2)
+      end do
+      return
+      end
+
+      subroutine smd_data_put_log1(sname,dname,ilo,ihi,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ilo,ihi
+      logical datum(ihi-ilo+1)
+c
+      integer ndim
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_data_put_int1"
+
+      ndim = ihi-ilo+1
+      call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
+      do i=1,ndim
+        log_mb(ind+ilo+i-2) = datum(i)
+      end do
+      return
+      end
+
+      subroutine smd_data_get_log1(sname,dname,ilo,ihi,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ilo,ihi
+      logical datum(ihi-ilo+1)
+c
+      integer ndim
+      integer ind
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i
+      integer ndim1
+
+      pname = "smd_data_put_int1"
+
+      ndim = ihi-ilo+1
+      call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
+      do i=1,ndim
+        datum(i) = log_mb(ind+ilo+i-2) 
+      end do
+      return
+      end
+
       subroutine smd_data_put_int(sname,dname,ndim,datum)
       implicit none
 c
@@ -1143,13 +1363,47 @@ c      ndim1 = smd_tag_size*ndim
        l = inp_strlen(datum(i))
        if(l.gt.smd_string_size)
      >     call errquit(pname//"too big size",l,0) 
-       write(*,*) "datum",i,datum(i)
       end do
       call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
       if(.not.result)
      >     call errquit(pname//"cannot find"//dname,0,0) 
       offset = smd_string_size*(ilo-1)
       call smd_set_char_to_ma1(datum,ilo,ihi,ndim1,byte_mb(ind))
+      return
+      end
+
+      subroutine smd_data_get_string1(sname,dname,ilo,ihi,datum)
+      implicit none
+c
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_data.fh"
+#include "smd_const_data.fh"
+#include "inp.fh"
+      character*(*) sname
+      character*(*) dname
+      integer ilo,ihi
+      integer dtype
+      character*(*) datum(ihi-ilo+1)
+c
+      integer ind
+      integer ndim
+      logical result
+      integer ns,nd
+      character*30 pname
+      character*72 buffer
+      integer i,l
+      integer ndim1
+      integer offset
+
+      pname = "smd_data_get_string1"
+
+      ndim=ihi-ilo+1
+      call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
+      if(.not.result)
+     >     call errquit(pname//"cannot find"//dname,0,0) 
+      offset = smd_string_size*(ilo-1)
+      call smd_set_ma_to_char1(datum,ilo,ihi,ndim1,byte_mb(ind))
       return
       end
 
@@ -1261,7 +1515,7 @@ c
       result = rtdb_next(rtdb,big_buffer)
       token = big_buffer
       if(result) goto 300
-      call smd_data_put_int(sname,"smd:rtdb_handle",1,rtdb)
+c      call smd_data_put_int(sname,"smd:rtdb_handle",1,rtdb)
 
 c      if(.not. rtdb_getfname(rtdb, big_buffer)) call
 c     *        errquit('rtdb_getfname failed',0,0)
