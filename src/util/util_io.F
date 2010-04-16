@@ -2,6 +2,15 @@ c
 c $Id: util_io.F,v 1.3 2008-04-14 22:04:21 marat Exp $
 c
 
+      block data initial_util_io_data
+      implicit none
+#include "util_io_data.fh"
+c     
+      data io_on /.false./
+      data io_unit /6/
+
+      end
+
       function util_get_io_unit(fn)
 
       implicit none
@@ -74,10 +83,29 @@ c
       implicit none
 #include "stdio.fh"
 #include "global.fh"
+#include "util_io_data.fh"
       character*(*) buffer
 
+      if(.not.io_on) return
+c
+      write(io_unit,*) buffer,ga_nodeid()
+      call util_flush(io_unit) 
       return
-      write(LuOut,*) buffer,ga_nodeid()
-      call util_flush(LuOut) 
+      end
+
+      subroutine util_io_enable()
+      implicit none
+#include "stdio.fh"
+#include "util_io_data.fh"
+      io_on = .true.
+      return
+      end
+
+      subroutine util_io_disable()
+      implicit none
+#include "stdio.fh"
+#include "util_io_data.fh"
+      io_on = .false.
+      return
       end
 
