@@ -1359,6 +1359,57 @@ c
       end do
 c
       end
+      function geom_cart_set_gen1(geom, i0,ncent,nt,ns, t, c, q)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+#include "stdio.fh"
+c     
+      logical geom_cart_set_gen1
+      integer geom              ! [input]
+      integer i0                ! [input]
+      integer ncent             ! [input]
+      integer nt             ! [input]
+      integer ns             ! [input]
+      character*1 t(nt*ns)     ! [input]
+      double precision c(3,nt) ! [input]
+      double precision q(nt) ! [input]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      integer i,j
+      double precision scale
+      integer k
+      character*16 atag
+c
+      geom_cart_set_gen1 = geom_check_handle(geom, 'geom_cart_set')
+      if (.not. geom_cart_set_gen1) return
+c
+      if (ncent.le.0 .or. ncent.gt.max_cent) then
+         write(LuOut,*) ' geom_cart_set: too many centers ',ncent,
+     $        names(geom)(1:lenn(geom))
+         return
+      end if
+c
+      if (ncenter(geom).ne.ncent) then
+         ncenter_unique(geom) = ncent ! Assume symmetry is unchanged !!!!!
+      endif
+      ncenter(geom) = ncent
+      scale = angstrom_to_au
+      do i = 1, ncent
+         j = i0+i-1
+         atag = ""
+         do k=1,16
+           atag(k:k) = t((j-1)*ns+k)
+         end do
+         tags(i,geom) = atag
+         charge(i,geom) = q(j)
+         coords(1,i,geom) = scale*c(1,j)
+         coords(2,i,geom) = scale*c(2,j)
+         coords(3,i,geom) = scale*c(3,j)
+         unique_cent(i,geom) = i
+      end do
+c
+      end
       function geom_cart_set1(geom, i0,ncent,nt, t, c, q)
       implicit none
 #include "nwc_const.fh"
