@@ -1,0 +1,10 @@
+*
+* $Id: smd_data.fh,v 1.1 2008/10/01 22:32:29 marat Exp $
+*
+      logical io_on
+      integer io_unit
+
+      common /util_io_data/ 
+     &                   io_on,
+     &                   io_unit
+
