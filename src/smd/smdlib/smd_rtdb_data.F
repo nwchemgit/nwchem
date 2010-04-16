@@ -20,7 +20,6 @@ c
       integer istart,iend
 
       pname = "smd_rtdb_init"
-      write(*,*) "in "//pname
       oldmode = rtdb_parallel(parallel)
       smd_rtdb = rtdb
 c
@@ -126,7 +125,7 @@ c
 
       end 
 
-      subroutine smd_rtdb_open()
+      subroutine smd_rtdb_open(rtdb)
 c     opens rtdb whose name was already stored
       implicit none
 #include "rtdb.fh"
@@ -135,6 +134,7 @@ c     opens rtdb whose name was already stored
 #include "mafdecls.fh"
 c
       integer rtdb
+c
       logical result
       character*30 pname
       character*(smd_path_size) rtdb_name
@@ -143,30 +143,23 @@ c
 
       pname = "smd_rtdb_open"
       call util_io_enable()
-      write(*,*) "in "//pname
-      call util_message("in "//pname)
 c     check if other rtdb is open
 c     ---------------------------
       call smd_rtdb_get_handle(rtdb)
       if(rtdb.ge.0) call errquit(pname//"close rtdb first",0,0)
-      call util_message("1: "//pname)
 c     get new rtdb name
 c     -----------------
       call smd_rtdb_get_name_full(rtdb_name)
-      call util_message("1: "//pname)
 c      note that mode is to old so the actual file should be there!
       if(.not.rtdb_open(rtdb_name,"old",rtdb)) 
      >     call errquit(pname//" cannot find rtdb "//rtdb_name,0,0)
-      call util_message("2: "//pname)
-      write(*,*) "rtdb handle is",rtdb
       call smd_rtdb_set_handle(rtdb)
       call smd_rtdb_get_prefix(prefix)
       call util_file_prefix_set(prefix)
-      call util_message("out "//pname)
 
       end 
 
-      subroutine smd_rtdb_push_open_clone(taskid,oscratch)
+      subroutine smd_rtdb_push_open_clone(taskid,oscratch,rtdb)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -177,14 +170,14 @@ c      note that mode is to old so the actual file should be there!
 #include "rtdb.fh"
       integer taskid
       logical oscratch
+      integer rtdb
 c     
       character*30 pname
 c
       pname = "smd_rtdb_push_open_clone"
       call smd_rtdb_push_clone(taskid,oscratch)
-      call smd_rtdb_open()
+      call smd_rtdb_open(rtdb)
       call ga_sync()
-      write(*,*) "out "//pname
 
       return
       end
@@ -222,7 +215,6 @@ c
 c
       pname = "smd_rtdb_push_clone1"
 c      
-      write(*,*) "in "//pname
       call ga_sync()
       master = ga_nodeid().eq.0
 c     get full path to current rtdb 
@@ -238,14 +230,9 @@ c     ----------------------
       write(rtdb_name,'(A,A3)')
      >    prefix(1:i1),".db"
 c
-c     create new rtdb name
-c     --------------------
-c      call util_file_prefix("db",rtdb_name)
-c
 c     push names in 
 c     -------------
       call util_flush(6)
-      write(*,*) "before smd_rtdb_push_name",rtdb_name,prefix,oscratch
       call smd_rtdb_push_name(rtdb_name,prefix,oscratch)
 c
 c     get full path to new rtdb 
@@ -263,15 +250,8 @@ c     ----------------------
         end if
         call util_file_copy(rtdb_name_full0,rtdb_name_full)
       end if
-
-c
-c
-c      call smd_rtdb_close("keep")
-c      call smd_rtdb_open(rtdb_name_full,"old")
-c      call smd_rtdb_push_name(prefix,rtdb_name)
 c
       call ga_sync()
-      write(*,*) "out "//pname
 
       return
       end
@@ -284,7 +264,6 @@ c
 c
       pname = "smd_rtdb_pop"
 c      
-      write(*,*) "in "//pname
       call smd_rtdb_close("delete")
       call smd_rtdb_pop_name()
       return
@@ -304,7 +283,6 @@ c
       character*(smd_string_size) tag,sname
 
       pname = "smd_rtdb_get_handle"
-      call util_message("in "//pname)
       tag = "rtdb"
       call smd_system_get_component(sname,tag,result)
       if(.not.result)
@@ -313,7 +291,6 @@ c
 
       tag = "smd:rtdb_handle"
       call smd_data_get_int1(sname,tag,1,1,rtdb)
-      call util_message("out "//pname)
 
       end 
 
@@ -331,7 +308,6 @@ c
       character*(smd_string_size) tag,sname
 
       pname = "smd_rtdb_get_handle"
-      call util_message("in "//pname)
       tag = "rtdb"
       call smd_system_get_component(sname,tag,result)
       if(.not.result)
@@ -340,7 +316,6 @@ c
 
       tag = "smd:rtdb_handle"
       call smd_data_put_int1(sname,tag,1,1,rtdb)
-      call util_message("out "//pname)
 
       end 
 
@@ -521,7 +496,6 @@ c
       logical result
 
       pname = "smd_rtdb_push_name"
-      write(*,*) "in "//pname
       tag = "rtdb"
       call smd_system_get_component(sname,tag,result)
       if(.not.result)

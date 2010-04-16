@@ -196,7 +196,7 @@ c
       character*32 pname
 
       pname = "smd_geom_end"
-      call util_message("in "//pname)
+      call smd_message_post("in "//pname)
       if(bq_get_active(bq_handle)) then
       call util_message("found bq, destroying it")
 
@@ -205,7 +205,8 @@ c
 
       end if
 
-      call util_message("out "//pname)
+      call smd_rtdb_pop()
+      call smd_message_post("out "//pname)
       return
       end
 c

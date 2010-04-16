@@ -289,7 +289,6 @@ c
       do i=1,ihi-ilo+1
         j=ilo+i-1
         myname(i)=t(j)
-        write(*,*) "j,t(j),i,myname(i)", j,t(j),i,myname(i) 
       end do
 
       end
@@ -305,7 +304,6 @@ c
       do i=1,ihi-ilo+1
         j=ilo+i-1
         t(j) = myname(i)
-        write(*,*) "j,t(j),i,myname(i)", j,t(j),i,myname(i) 
       end do
 
       end

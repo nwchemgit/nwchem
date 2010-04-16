@@ -92,8 +92,8 @@ c      call ga_print_distribution(ga_coords)
 c      call ga_print(ga_coords)
 c
       call smd_global_pull("gradients")
-      call ga_print_distribution(ga_grads)
-      call ga_print(ga_grads)
+c      call ga_print_distribution(ga_grads)
+c      call ga_print(ga_grads)
 
 
      
