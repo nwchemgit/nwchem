@@ -2,7 +2,7 @@ c
 c $Id: smd_const_data.fh,v 1.1 2008/10/01 22:32:29 marat Exp $
 c
 
-      integer smd_tag_size,smd_string_size
+      integer smd_tag_size,smd_string_size,smd_path_size
       double precision  boltzmann,convfct1,convfct2,pii,twopi,sqrpi
 
       integer MT_STR
@@ -16,4 +16,5 @@ c
       parameter(sqrpi    =  1.772453850905516d0)
       parameter(smd_tag_size = 32)
       parameter(smd_string_size = 32)
+      parameter(smd_path_size = 255)
 
