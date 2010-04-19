@@ -1365,8 +1365,10 @@ c      ndim1 = smd_tag_size*ndim
      >     call errquit(pname//"too big size",l,0) 
       end do
       call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
-      if(.not.result)
-     >     call errquit(pname//"cannot find"//dname,0,0) 
+      if(.not.result) then
+           buffer = dname
+           call errquit(pname//"cannot find"//buffer,0,0) 
+      end if
       offset = smd_string_size*(ilo-1)
       call smd_set_char_to_ma1(datum,ilo,ihi,ndim1,byte_mb(ind))
       return
@@ -1401,7 +1403,7 @@ c
       ndim=ihi-ilo+1
       call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
       if(.not.result)
-     >     call errquit(pname//"cannot find"//dname,0,0) 
+     >     call errquit(pname//"cannot find",0,0) 
       offset = smd_string_size*(ilo-1)
       call smd_set_ma_to_char1(datum,ilo,ihi,ndim1,byte_mb(ind))
       return

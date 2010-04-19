@@ -4,7 +4,7 @@
 
 #       SUBDIRS = smd-subgroups
 #       SUBDIRS = smd-serial
-       SUBDIRS = smddb smd-frag smd-energy smd-input smdlib 
+       SUBDIRS = smddb smd-frag smd-energy smd-input smdlib smd-scheduler
 #                 smd-scheduler
 #       SUBDIRS = smd-parallel
 

@@ -17,6 +17,7 @@ c
       external task_smd_energy_sp
       character*30 operation,pname
       character*69 buffer
+      integer world_me
 c
       double precision energy
 c
@@ -25,6 +26,25 @@ c
 c
       energy = 0.0d0
       pname = "task_fragment_energy"
+      call util_io_enable()
+c     testing
+c     server-client loop
+c     ------------------
+      world_me = ga_nodeid()
+      
+      if(world_me.eq.0) then
+         call util_message("executing server code")
+         call sched_grp_server_code()
+      else
+         call util_message("executing client code")
+         call sched_grp_client_code()
+      endif
+
+      call ga_sync()
+      return
+c     end testing
+c     close main rtdb as we may be going into groups
+
 c
       write(*,*) "initializing fragment"
       call smd_init("fragment",rtdb)

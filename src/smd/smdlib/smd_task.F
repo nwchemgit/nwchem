@@ -31,14 +31,17 @@ c     commences task(taskid) for a group (p_grp)
 
       integer rtdb_grp 
       double precision etime1,etime2
+      character*30 pname
 c
+      pname = "smd_process_task"
+      call util_message("in "//pname)
       if(ga_pgroup_get_default().ne.p_grp) 
      $  call errquit('Default group not properly set',p_grp,0)
 c
       call cpu_time(etime1)
       write(*,*) "started rtdb cloning"
       call util_flush(6)
-      call smd_task_rtdb_clone(tskid,rtdb_grp)
+c      call smd_task_rtdb_clone(tskid,rtdb_grp)
       write(*,*) "finished rtdb cloning"
       call util_flush(6)
       call cpu_time(etime2)
@@ -47,12 +50,12 @@ c      write(*,*) "time monomer rtdb",etime2-etime1
 c      call smd_rtdb_set_handle(rtdb_grp)
 c
       call ga_pgroup_sync(p_grp)
-      call smd_monomer_energy(tskid)
+c      call smd_monomer_energy(tskid)
       call ga_pgroup_sync(p_grp)
 c
 c      call smd_charge_ga_print()
       call ga_sync()
-      call smd_rtdb_close("delete")
+c      call smd_rtdb_close("delete")
 c      if(.not.rtdb_close(rtdb_grp, 'delete'))
 c     + call errquit('Failed to close group rtdb',0, GEOM_ERR)
 c
@@ -140,83 +143,84 @@ c     task_list IN Task list to insert tasks into
       double precision diff
       integer istart,iend,nrpoc
 
-c      istart=1
-c      iend=4
-      call smd_rtdb_get_istart(istart)
-      call smd_rtdb_get_iend(iend)
-      call smd_rtdb_get_nproc(nproc)
-      if(populate_done)
-     &  call errquit('trying to populate_tasks'// 
-     &    ' after done',0,0)
-
-      call smd_system_ntot(na)
-      call smd_system_nres(nr)
-
-
-      ntsks = 0
-      if(populate_first_time) then
-
-c         call smd_charge_get_ptr(i_q)
+      return
+cc      istart=1
+cc      iend=4
+c      call smd_rtdb_get_istart(istart)
+c      call smd_rtdb_get_iend(iend)
+c      call smd_rtdb_get_nproc(nproc)
+c      if(populate_done)
+c     &  call errquit('trying to populate_tasks'// 
+c     &    ' after done',0,0)
 c
-c         if(.not.ma_alloc_get(MT_DBL,
-c     +        na,
-c     +        "tmp q",
-c     +        tmp_h_q,
-c     +        tmp_i_q))
-c     +        call errquit('memory allocation',
-c     +        na,
-c     +        MA_ERR)
+c      call smd_system_ntot(na)
+c      call smd_system_nres(nr)
 c
-c         old_i_q = i_q
-c         new_i_q = tmp_i_q
-
-c         do i = 1, nr
-        do i = istart,iend
-            call sched_grp_insert_task(task_list, i, nproc)
-            ntsks = ntsks + 1
-         enddo
-         
-         populate_first_time = .false.
-      else
 c
-c         call smd_charge_ga_handle(ga_charges)
+c      ntsks = 0
+c      if(populate_first_time) then
 c
-c         lo(1) = 1
-c         hi(1) = na
-c         ld(1) = 1
-c         call nga_get(ga_charges,lo, hi, dbl_mb(new_i_q), ld)
+cc         call smd_charge_get_ptr(i_q)
+cc
+cc         if(.not.ma_alloc_get(MT_DBL,
+cc     +        na,
+cc     +        "tmp q",
+cc     +        tmp_h_q,
+cc     +        tmp_i_q))
+cc     +        call errquit('memory allocation',
+cc     +        na,
+cc     +        MA_ERR)
+cc
+cc         old_i_q = i_q
+cc         new_i_q = tmp_i_q
 c
-c         changed_flag = .false.
-c         do i = 1, na
-c            diff = dabs(dbl_mb(new_i_q+i-1)-dbl_mb(old_i_q+i-1))
-c            if(diff.gt.0.00001) then
-c              write(*,*) "charge difference",
-c     >                   diff
-c              changed_flag = .true.
-c              goto 100
-c            end if
-c         end do
-c 100     continue
-c
-c         if(changed_flag) then
-cc            do i = 1, nr
-c           do i = istart,iend
-c               call sched_grp_insert_task(task_list, i, 1)
-c               ntsks = ntsks + 1
-c            enddo
-c         endif
-c
-c         !Flip new and old pointers
-c         i = new_i_q
-c         new_i_q = old_i_q
-c         old_i_q = i
-      end if
-
-c      if(ntsks.eq.0) then
-c         if(.not.ma_free_heap(tmp_h_q))
-c     $        call errquit('memory deallocation',0,tmp_h_q)
-c         populate_done=.true.
+cc         do i = 1, nr
+c        do i = istart,iend
+c            call sched_grp_insert_task(task_list, i, nproc)
+c            ntsks = ntsks + 1
+c         enddo
+c         
+c         populate_first_time = .false.
+c      else
+cc
+cc         call smd_charge_ga_handle(ga_charges)
+cc
+cc         lo(1) = 1
+cc         hi(1) = na
+cc         ld(1) = 1
+cc         call nga_get(ga_charges,lo, hi, dbl_mb(new_i_q), ld)
+cc
+cc         changed_flag = .false.
+cc         do i = 1, na
+cc            diff = dabs(dbl_mb(new_i_q+i-1)-dbl_mb(old_i_q+i-1))
+cc            if(diff.gt.0.00001) then
+cc              write(*,*) "charge difference",
+cc     >                   diff
+cc              changed_flag = .true.
+cc              goto 100
+cc            end if
+cc         end do
+cc 100     continue
+cc
+cc         if(changed_flag) then
+ccc            do i = 1, nr
+cc           do i = istart,iend
+cc               call sched_grp_insert_task(task_list, i, 1)
+cc               ntsks = ntsks + 1
+cc            enddo
+cc         endif
+cc
+cc         !Flip new and old pointers
+cc         i = new_i_q
+cc         new_i_q = old_i_q
+cc         old_i_q = i
 c      end if
-
+c
+cc      if(ntsks.eq.0) then
+cc         if(.not.ma_free_heap(tmp_h_q))
+cc     $        call errquit('memory deallocation',0,tmp_h_q)
+cc         populate_done=.true.
+cc      end if
+c
       end !populate_tasks
 

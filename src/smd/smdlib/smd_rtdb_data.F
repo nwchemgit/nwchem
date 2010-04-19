@@ -703,7 +703,7 @@ c
       call smd_system_get_component(sname,"rtdb",result)
       if(.not.result) call errquit(pname//"no rtdb component",0,0)
       call smd_data_get_int(sname,dname,ndim,datum,result)
-      if(.not.result) call errquit(pname//"no component"//dname,0,0)
+      if(.not.result) call errquit(pname//"no component",0,0)
       return
       end
 

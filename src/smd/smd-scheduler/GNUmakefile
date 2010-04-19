@@ -3,6 +3,11 @@
 #
 
           OBJ = sched_groups.o sched_perf.o 
+  LIB_DEFINES = -DMPI
+  ifneq ($(MPI_INCLUDE),)
+    LIB_DEFINES += -I$(MPI_INCLUDE)
+    endif
+
 LIB_INCLUDES = -I../include
 
 

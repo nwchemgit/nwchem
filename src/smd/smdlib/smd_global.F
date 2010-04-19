@@ -227,7 +227,7 @@ c
         ltag = "coords"
       else
         call errquit(
-     >       pname//'unknown tag'//atag,0, 0)
+     >       pname//'unknown tag',0, 0)
 
       end if
 c
@@ -302,7 +302,7 @@ c
         ltag = "coords"
       else
         call errquit(
-     >       pname//'unknown tag'//atag,0, 0)
+     >       pname//'unknown tag',0, 0)
 
       end if
 c
@@ -330,7 +330,7 @@ c     ---------------------------
           call nga_get(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
         else
           call errquit(
-     >       pname//'unknown operation'//oper,0, 0)
+     >       pname//'unknown operation',0, 0)
         end if
       end if
       call ga_sync()
@@ -378,7 +378,7 @@ c
         ltag = "force"
       else 
         call errquit(
-     >       pname//'unknown tag'//atag,0, 0)
+     >       pname//'unknown tag',0, 0)
 
       end if
 c
@@ -406,7 +406,7 @@ c     ---------------------------
           call nga_get(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
         else
           call errquit(
-     >       pname//'unknown operation'//oper,0, 0)
+     >       pname//'unknown operation',0, 0)
         end if
       end if
       call ga_sync()
@@ -454,7 +454,7 @@ c
         ltag = "force"
       else 
         call errquit(
-     >       pname//'unknown tag'//atag,0, 0)
+     >       pname//'unknown tag',0, 0)
 
       end if
 c
