@@ -30,6 +30,7 @@ c
 c     testing
 c     server-client loop
 c     ------------------
+      task_fragment_energy =.true.
       world_me = ga_nodeid()
       
       if(world_me.eq.0) then
