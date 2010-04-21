@@ -20,17 +20,70 @@ c
       integer world_me
 c
       double precision energy
+      logical oparallel
 c
+      logical  task_fragment_energy_parallel
+      external task_fragment_energy_parallel
       logical task_fragment_energy_serial
       external task_fragment_energy_serial
 c
-      energy = 0.0d0
       pname = "task_fragment_energy"
+c
+      write(*,*) "initializing fragment"
+      call smd_init("fragment",rtdb)
+      call ga_sync()
+      write(*,*) "finshed initializing fragment"
+c
+c     close main rtdb as we may be going into groups
+c     ----------------------------------------------
+      call smd_rtdb_close("keep")
+c
+      energy = 0.0d0
       call util_io_enable()
+      call smd_task_mode(oparallel)
+      if (oparallel) then
+        call util_message("executing in parallel mode")
+        result = task_fragment_energy_parallel()
+      else
+        call util_message("executing in serial mode")
+        result = .true.
+        call smd_task_iterate()
+c        result = task_fragment_energy_serial()   
+      end if
+      call smd_rtdb_open(rtdb)
+      energy =0.0d0
+      if (.not. rtdb_put(rtdb,'fragment:energy',mt_dbl,1,energy))
+     $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
+      task_fragment_energy = .true.
+
+      call util_message("done with task_smd_fragment_energy")
+      return
+      END
+
+      function task_fragment_energy_parallel()
+      implicit none
+      integer rtdb
+
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+      logical task_fragment_energy_parallel
+      logical result,ofragment
+c
+      character*30 operation,pname
+      character*69 buffer
+      integer world_me
+c
+c
+c
+      pname = "task_fragment_energy_parallel"
 c     testing
 c     server-client loop
 c     ------------------
-      task_fragment_energy =.true.
+      task_fragment_energy_parallel =.true.
       world_me = ga_nodeid()
       
       if(world_me.eq.0) then
@@ -44,27 +97,7 @@ c     ------------------
       call ga_sync()
       return
 c     end testing
-c     close main rtdb as we may be going into groups
-
-c
-      write(*,*) "initializing fragment"
-      call smd_init("fragment",rtdb)
-      call ga_sync()
-      write(*,*) "finshed initializing fragment"
-c
-c     close main rtdb as we may be going into groups
-c     ----------------------------------------------
-      call smd_rtdb_close("keep")
-      call util_message("task_smd_fragment_energy")
-      result = task_fragment_energy_serial()   
-
-      call smd_rtdb_open(rtdb)
-      energy =0.0d0
-      if (.not. rtdb_put(rtdb,'fragment:energy',mt_dbl,1,energy))
-     $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
-      task_fragment_energy = .true.
-
-      call util_message("done with task_smd_fragment_energy")
+      call util_message("out "//pname)
       return
       END
 
@@ -82,17 +115,12 @@ c     ----------------------------------------------
       logical task_fragment_energy_serial
       character*72 namespace
       character*32 pname
-      double precision etime1,etime2,etime3,etime4,etime5,etime6
-      double precision energy,ewald1,ewald2,evdw
-      logical operiodic
-      integer i
-      integer group_id,group_nproc,ngroup
 c
       call util_io_enable()
       call util_message("calling smd_monomer")
-      call smd_monomer_energy(2,"dft")
-      call smd_monomer_energy(1,"dft")
-      call smd_monomer_energy(2,"dft")
+      call smd_monomer(2)
+      call smd_monomer(1)
+      call smd_monomer(2)
 c
       write(*,*) "Goodbye from task_smd"
       task_fragment_energy_serial = .true.

@@ -400,7 +400,66 @@ c
 c
       return
       end
+cc      
+      subroutine smd_geom_push_gradients(im)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
 c
+      integer im
+c     
+      character*32 tag,pname
+      logical result
+      integer i_ir,i_f
+      integer i_g,h_g
+      integer i,j
+      integer nt,nm,i0,nqm
+      integer rtdb
+      integer ma_type,n
+c
+      pname = "smd_geom_push_gradients"
+c
+      call smd_rtdb_get_handle(rtdb)
+c     
+      tag = "atom:resid"
+      call smd_get_ind_dim(tag,i_ir,nt,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+      tag = "force"
+      call smd_get_ind(tag,i_f,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c    
+      call smd_geom_monomer_index_size(im,nt,int_mb(i_ir),nm,i0)
+c
+      if (rtdb_ma_get(rtdb, 'task:gradient', ma_type,
+     $        n, h_g)) then
+
+        if (.not. ma_get_index(h_g, i_g))
+     $           call errquit(pname,h_g,
+     &       MA_ERR)
+       end if
+
+      do i=1,n
+        write(*,*) "gradient ref",dbl_mb(i_g+i-1)
+      end do
+      write(*,*) "i0,nm=",i0,nm
+      do i=1,3*nm
+        dbl_mb(i_f+3*(i0-1)+i-1) = dbl_mb(i_g+i-1)
+        write(*,*) "gradient",dbl_mb(i_f+i0+i-1)
+      end do
+      call smd_force_print(89)
+      
+      return
+      end
+cc
       subroutine smd_geom_monomer_index_size(im,nt,ir,nm,i0)
       implicit none
 #include "errquit.fh"

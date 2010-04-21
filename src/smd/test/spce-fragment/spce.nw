@@ -42,13 +42,18 @@ esp
 print medium
 end
 
-set smd:theory "dft"
+set smd:fragment:istart 1
+set smd:fragment:iend 4
+set smd:fragment:theory "dft"
+set smd:fragment:parallel .false.
+
 set dft:xcreplicated f
 
 #set smd:nobq .true.
 
 set subgroups_number 2
-set smd:fragment_istart 1
-set smd:fragment_iend 2
+set smd:fragment_istart 2
+set smd:fragment_iend 3
 set smd:fragment_nproc 1
-task smd fragment energy 
+
+task smd fragment dft gradient

@@ -6,6 +6,7 @@
 
       LIBRARY = libsmd.a
 
+LIB_INCLUDES = -I../include
 #  LIB_DEFINES = -DMPI -I$(MPI_INCLUDE)
 
 

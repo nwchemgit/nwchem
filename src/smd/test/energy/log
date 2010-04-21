@@ -15,8 +15,9 @@
                                          
 
 
-                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
-                2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,
+                2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
+                                     2009, 2010
                         Pacific Northwest National Laboratory,
                              Battelle Memorial Institute.
 
@@ -72,18 +73,18 @@
            Job information
            ---------------
 
-    hostname      = marat-macbook.emsl.pnl.gov
-    program       = nwchem
-    date          = Wed Feb 10 13:43:44 2010
+    hostname      = swift
+    program       = ../../../../bin/LINUX64/nwchem
+    date          = Sat Apr  3 20:21:17 2010
 
-    compiled      = Wed_Feb_10_13:43:37_2010
-    source        = /opt/codes/nwchem/nwchem-2-8-10
+    compiled      = Sat_Apr_03_20:21:09_2010
+    source        = /home/marat/codes/nwchem-dev
     nwchem branch = Development
     input         = spce.nw
     prefix        = test.
-    data base     = /opt/codes/nwchem/nwchem-2-8-10/src/smd/test/energy/perm/test.db
+    data base     = ./perm/test.db
     status        = startup
-    nproc         =        1
+    nproc         =        2
     time left     =     -1s
 
 
@@ -102,9 +103,10 @@
            Directory information
            ---------------------
 
-  0 permanent = /opt/codes/nwchem/nwchem-2-8-10/src/smd/test/energy/perm
-  0 scratch   = /opt/codes/nwchem/nwchem-2-8-10/src/smd/test/energy/data
+  0 permanent = ./perm
+  0 scratch   = ./data
 
+ done with setup smd_init_energy                                     1
 
 
 
@@ -113,15 +115,21 @@
 
 
  in smd_input_vel                   
- current tokeninput                                                                                                                                                                                                                                                                     2           5
- current tokenoutput                                                                                                                                                                                                                                                                    4           5
+ current tokeninput                                                                                                                                                                                                                                                                              2                    5
+ current tokenoutput                                                                                                                                                                                                                                                                             4                    5
+ initializing atom
+ iin smd_atom_init                                       0
  in smd_atom_init                   
- BOND           1           2           1   1.0000000000000000        0.0000000000000000     
- BOND           1           3           1   1.0000000000000000        0.0000000000000000     
- BOND           2           3           1   1.6329929999999999        0.0000000000000000     
- BOND           4           5           1   1.0000000000000000        0.0000000000000000     
- BOND           4           6           1   1.0000000000000000        0.0000000000000000     
- BOND           5           6           1   1.6329929999999999        0.0000000000000000     
+ here 1 smd_atom_init                                       0
+ here 2 smd_atom_init                                       0
+ out smd_atom_init                                       0
+ initialized atom
+ BOND                    1                    2                    1   1.00000000000000        0.00000000000000     
+ BOND                    1                    3                    1   1.00000000000000        0.00000000000000     
+ BOND                    2                    3                    1   1.63299300000000        0.00000000000000     
+ BOND                    4                    5                    1   1.00000000000000        0.00000000000000     
+ BOND                    4                    6                    1   1.00000000000000        0.00000000000000     
+ BOND                    5                    6                    1   1.63299300000000        0.00000000000000     
  in smd_system_print              
 atom            = atom            
 parameters      = parameters      
@@ -142,6 +150,29 @@ temperature     = temperature
 rtdb            = rtdb            
 ewald           = ewald           
 bond            = bond            
+ done with setup smd_init_energy                                     0
+ found string:                  1009                 1009 smd:coordfile                                                           
+ found string:                  1009                 1009 smd:veloc:input                                                         
+ found string:                  1009                 1009 smd:veloc:output                                                        
+ found string:                  1009                 1009 smd:paramfile                                                           
+ found string:                  1009                 1009 smd:rtdb_name                                                           
+ found string:                  1009                 1009 atom:name                                                               
+ found string:                  1009                 1009 atom:resname                                                            
+ found string:                  1009                 1009 param:atomname                                                          
+ found string:                  1009                 1009 param:typename                                                          
+ found string:                  1009                 1009 param:resname                                                           
+ done with setup 1smd_init_energy                                     0
+ found string:                  1009                 1009 smd:coordfile                                                           
+ found string:                  1009                 1009 smd:veloc:input                                                         
+ found string:                  1009                 1009 smd:veloc:output                                                        
+ found string:                  1009                 1009 smd:paramfile                                                           
+ found string:                  1009                 1009 smd:rtdb_name                                                           
+ found string:                  1009                 1009 atom:name                                                               
+ found string:                  1009                 1009 atom:resname                                                            
+ found string:                  1009                 1009 param:atomname                                                          
+ found string:                  1009                 1009 param:typename                                                          
+ found string:                  1009                 1009 param:resname                                                           
+ done with setup 1smd_init_energy                                     1
  in smd_energy_compute              
 total            :      -108.017929
 vdw              :        29.368021
@@ -151,16 +182,16 @@ ewald reciprocal :         1.114522
 ewald excluded   :       719.864835
 ewald real       :      -124.182812
 
-Total CPU time :                0.059
+Total CPU time :                0.066
 
 Initialization :                0.000
 
-Verlet         :                0.028
+Verlet         :                0.025
 
-Force          :                0.031
+Force          :                0.041
  Goodbye from task_smd
 
- Task  times  cpu:        0.2s     wall:        0.2s
+ Task  times  cpu:        0.1s     wall:        0.1s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -186,8 +217,8 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        69	         5
 	current total bytes		         0	         0
-	maximum total bytes		   4060396	   4319428
-	maximum total K-bytes		      4061	      4320
+	maximum total bytes		   4648000	   4933920
+	maximum total K-bytes		      4648	      4934
 	maximum total M-bytes		         5	         5
 
 
@@ -218,18 +249,19 @@ MA usage statistics:
           obtained with NWChem:
 
           E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
-          M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond, J. Autschbach,
-          P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan, R. J. Harrison,
-          M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
-          A. Vazquez-Mayagoitia, M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
-          L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl,
-          J. Garza, K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman
-          K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark,
-          D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening
-          M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi,
-          R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima,
-          S. Niu, L. Pollack, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
-          G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
+          M. Valiev, H. J. J. Van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+          J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+          R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
+          M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu,
+          T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, 
+          G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+          R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, 
+          D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan, 
+          K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe, 
+          B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, 
+          X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, 
+          G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. van Lenthe, 
+          A. Wong, and Z. Zhang,
           "NWChem, A Computational Chemistry Package for Parallel Computers, 
           Version 5.1.1" (2008),
                       Pacific Northwest National Laboratory,
@@ -237,4 +269,21 @@ MA usage statistics:
 
 
 
- Total times  cpu:        0.2s     wall:        0.2s
+ Total times  cpu:        0.1s     wall:        0.2s
+ in smd_energy_compute              
+total            :      -108.017929
+vdw              :        29.368021
+electrostatic    :      -137.385950
+ewald self       :      -734.182495
+ewald reciprocal :         1.114522
+ewald excluded   :       719.864835
+ewald real       :      -124.182812
+
+Total CPU time :                0.066
+
+Initialization :                0.000
+
+Verlet         :                0.024
+
+Force          :                0.041
+ Goodbye from task_smd

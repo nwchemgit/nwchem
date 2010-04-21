@@ -307,6 +307,20 @@ c
       end do
 
       end
+      subroutine smd_set_char_to_ma2(myname,nt,t)
+      implicit none
+c
+      integer nt
+      character*(32) t(nt)
+      character*(*) myname
+
+      integer i,j
+
+      do i=1,nt
+        t(i) = myname
+      end do
+
+      end
       subroutine smd_set_char_to_ma(nt,myname,t)
       implicit none
 c

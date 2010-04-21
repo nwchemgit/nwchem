@@ -300,6 +300,9 @@ c
       if(atag.eq."coords") then
         gtag = "coordinates"
         ltag = "coords"
+      else if(atag.eq."gradients") then
+        gtag = "gradients"
+        ltag = "force"
       else
         call errquit(
      >       pname//'unknown tag',0, 0)
@@ -409,6 +412,63 @@ c     ---------------------------
      >       pname//'unknown operation',0, 0)
         end if
       end if
+      call ga_sync()
+     
+ 
+      return
+      end
+
+      subroutine smd_global_print(atag)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      character*(*) atag
+c
+      character*32 sp_global
+      character*32 pname,tag,ltag,gtag
+      integer na,np
+      integer i_c,i_ir
+      integer nm,i0,nt
+      integer i,k
+      logical result
+      integer ilo,ihi
+c
+      integer ndims
+      integer ga_handle
+c
+      pname = "smd_global_pull_res"
+c
+      tag = "global"
+      call smd_system_get_component(sp_global,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+      if(atag.eq."coords") then
+        gtag = "coordinates"
+        ltag = "coords"
+      else if(atag.eq."gradients") then
+        gtag = "gradients"
+        ltag = "force"
+      else 
+        call errquit(
+     >       pname//'unknown tag',0, 0)
+
+      end if
+c
+c     get global array
+c     ---------------
+      call smd_data_get_int(sp_global,gtag,1,ga_handle,result)
+      if(.not.result) call errquit(
+     >       pname//'no coordindates ',0,0)
+
+      call ga_print(ga_handle)
+
       call ga_sync()
      
  

@@ -1,11 +1,11 @@
 memory total 2000 Mb
-permanent_dir /opt/codes/nwchem/nwchem-2-8-10/src/smd/test/energy/perm
-scratch_dir /opt/codes/nwchem/nwchem-2-8-10/src/smd/test/energy/data
+permanent_dir ./perm
+scratch_dir ./data
 start test
 
-geometry
-source spce-big.pdb
-end
+#geometry
+#source spce-big.pdb
+#end
 
 smd
  lat_a 19.66155506  0.00000000  0.00000000
@@ -13,7 +13,7 @@ smd
  lat_c  0.00000000  0.00000000 19.66155506
 # veloc input spce.vel0 output spce.vel
  veloc input random output spce.vel
-# coord spce-big.pdb
+ coord spce-big.pdb
  param smd.par
  ndata 2 nequil 1 nprint 10
  temp 300

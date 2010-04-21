@@ -1,6 +1,8 @@
 memory total 2000 Mb
 start test
 
+permanent_dir ./perm
+scratch_dir ./data
 
 smd
  lat_a 19.66155506  0.00000000  0.00000000

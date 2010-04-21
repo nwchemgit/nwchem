@@ -96,6 +96,8 @@ c     digest some of rtdb contents
 c     ----------------------------
       call smd_data_namespace_rtdb_get(rtdb,namespace,"smd")
       call smd_data_namespace_rtdb_get(rtdb,namespace,"geom:source")
+      call smd_data_namespace_rtdb_get(rtdb,namespace,"task:theory")
+      call smd_data_namespace_rtdb_get(rtdb,namespace,"task:operation")
 c
 c     restore rtdb access mode
 c     -----------------------
@@ -703,7 +705,6 @@ c
       call smd_system_get_component(sname,"rtdb",result)
       if(.not.result) call errquit(pname//"no rtdb component",0,0)
       call smd_data_get_int(sname,dname,ndim,datum,result)
-      if(.not.result) call errquit(pname//"no component",0,0)
       return
       end
 

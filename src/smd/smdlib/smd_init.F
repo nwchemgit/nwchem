@@ -227,11 +227,14 @@ c
       character*72 sp_rtdb
       character*72 sp_ewald
       character*72 sp_fragment
+      character*72 sp_task
 c
       logical olattice
       logical obond
       integer master
       logical odistrib
+c
+      call util_io_enable()
 c
       odistrib = .true.
 c
@@ -258,6 +261,7 @@ c
       sp_temperature = "temperature"
       sp_rtdb = "rtdb"
       sp_ewald = "ewald"
+      sp_task = "mytask"
 c
 c
 c     CREATE SYSTEM
@@ -323,6 +327,9 @@ c     ------------
 
       tag = "ewald"
       call smd_system_set_component(tag,sp_ewald)
+c      
+      tag = "task"
+      call smd_system_set_component(tag,sp_task)
 c
 c      write(*,*) "in "//pname
 c     DEFINE ALL THE COMPONENTS
@@ -347,6 +354,7 @@ c      call smd_bond_init_system()
 c      call smd_shakelist_init_system()
 c      call smd_bondlist_init_system()
       call smd_mass_init_system()
+      call smd_task_init_system()
 c
 c     finish system setup
 c     -------------------

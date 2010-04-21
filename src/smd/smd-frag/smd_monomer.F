@@ -1,17 +1,14 @@
-      function smd_monomer_energy(im,theory)
+      function smd_monomer(itsk)
       implicit none
-c     calculates monomer (im) energy
-c     in the field (classical) of others
-c     im[IN]  monomer id
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"
 #include "global.fh"
-      logical smd_monomer_energy
-      integer im
-      character*(*) theory
+      logical smd_monomer
+      integer im,itsk
+      character*(30) theory
 c
       integer rtdb
       character*72 operation
@@ -21,6 +18,10 @@ c
       double precision qm_energy
       logical task_energy_doit
       external task_energy_doit
+      logical task_gradient
+      external task_gradient
+      logical task_energy
+      external task_energy
       logical esp
       external esp
       integer util_sgroup_mygroup
@@ -34,10 +35,21 @@ c
       integer i1
       integer group_id
 
-      pname = "smd_monomer_energy"
+      pname = "smd_monomer"
 
-      call smd_monomer_init(im,theory,operation,rtdb)
-      result = task_energy_doit(rtdb,theory,qm_energy)
+      call smd_monomer_init(itsk,im,theory,operation,rtdb)
+      write(*,*) "operation is", operation
+      if(inp_compare(.false., 'energy', operation)) then
+c         result = task_energy_doit(rtdb,theory,qm_energy)
+         result = task_energy(rtdb)
+      else if(inp_compare(.false., 'gradient', operation)) then
+        result = task_gradient(rtdb)
+        call smd_geom_push_gradients(im)
+        call smd_global_update_res("gradients","put",im)
+        call smd_global_print("gradients")
+      else
+        call errquit(pname//"unknown operation "//operation,0,0)
+      end if
 c
       if(ga_nodeid().eq.0)
      >  write(*,*) "finished energy",theory,qm_energy
@@ -56,7 +68,7 @@ c
       call smd_geom_push_charges(im)
       if(ga_nodeid().eq.0)
      &     call smd_fragment_charge_set(im)
-
+ 
       call util_message("finished smd_geom_push_charges")
 
 100   continue
@@ -68,24 +80,23 @@ c
      &                 RTDB_ERR)
       call smd_fragment_charge_print()
 
-      smd_monomer_energy = .true.
+      smd_monomer = .true.
 
       call smd_geom_monomer_end()
       call util_message("finished "//pname)
       return
       end function
 
-      subroutine smd_monomer_init(im,theory,operation,rtdb)
+      subroutine smd_monomer_init(itsk,im,theory,operation,rtdb)
       implicit none
-c     calculates monomer (im) energy
-c     in the field (classical) of others
-c     im[IN]  monomer id
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"
 #include "global.fh"
+#include "smd_const_data.fh"
+      integer itsk
       integer im
       character*(*) theory
       character*(*) operation
@@ -95,13 +106,32 @@ c
       character*32 pname
       integer group_id
       logical oscratch
+      character*(smd_string_size)  tag,sname,buffer
+      logical result 
 
       pname = "smd_monomer_init"
 c
-      call smd_message_post("in "//pname)
+      tag = "task"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c      
+      tag="task:operation"
+      call smd_data_get_string1(sname,tag,itsk,itsk,
+     >                          operation)
+      write(*,*) "found operation",operation
+c
+      tag="task:theory"
+      call smd_data_get_string1(sname,tag,itsk,itsk,
+     >                          theory)
+      write(*,*) "found theory",theory
+c
+      tag = "task:frag_id"
+      call smd_data_get_int1(sname,tag,itsk,itsk,im)
 c
       oscratch = .true.
-      call smd_rtdb_push_open_clone(im,oscratch,rtdb)
+      call smd_rtdb_push_open_clone(itsk,oscratch,rtdb)
       
 c     set the theory 
 c     --------------

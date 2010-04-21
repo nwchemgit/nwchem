@@ -15,8 +15,161 @@ c
 #include "smd_task_data.fh"
       data populate_first_time /.true./
       data populate_done /.false./
+      data itask /0/
       end
+c
+      subroutine smd_task_init_system()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      character*32 sp_task
+      character*32 tag,pname
+      logical result
 
+      pname = "smd_task_init_system"
+c
+      tag = "task"
+      call util_message("in "//pname)
+      call smd_system_get_component(sp_task,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+      call smd_task_init(sp_task)
+
+      return
+      end
+c      
+      subroutine smd_task_init(namespace)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "smd_task_data.fh"
+#include "geom.fh"
+c     
+      character*(*) namespace
+c
+      character*32 pname
+      character*80 tag
+      character*80 tag1
+      character*30 theory,operation
+      integer nt,ns,i1,i2,i,j
+      integer i_ifr,i_sop,i_sth,i_ifu
+      logical result
+      logical oparallel
+c
+      pname = "smd_task_init"
+c
+      call util_message("in "//pname)
+c
+c     create task namespace
+c     ---------------------
+      call smd_namespace_create(namespace)
+c
+c     find which monomers to do as given in the input file
+c     ----------------------------------------------------
+      tag1="smd:fragment:istart"
+      call smd_rtdb_get_int(tag1,1,i1,result)
+      if(.not.result) then
+        write(*,*) "need to set value for  "//tag1
+        call errquit("cannot find "//tag1,0,0)
+      end if
+      tag1="smd:fragment:iend"
+      call smd_rtdb_get_int(tag1,1,i2,result)
+      if(.not.result) then
+        write(*,*) "need to set value for  "//tag1
+        call errquit("cannot find "//tag1,0,0)
+      end if
+      nt = i2-i1+1
+c
+c     find theory and operation as given in task directive
+c     ----------------------------------------------------
+c      tag1="task:theory"
+c     at this point theory has to be set explicitly
+c     as it deafults to smd
+      tag1="smd:fragment:theory"
+      call smd_rtdb_get_string(tag1,1,theory,result)
+      if(.not.result) then
+        write(*,*) "need to set value for  "//tag1
+        call errquit("cannot find "//tag1,0,0)
+      end if
+
+      tag1="task:operation"
+      call smd_rtdb_get_string(tag1,1,operation,result)
+      if(.not.result) then
+        write(*,*) "need to set value for  "//tag1
+        call errquit("cannot find "//tag1,0,0)
+      end if
+c
+c     find if parallel mode is on
+c     ---------------------------
+      tag1="smd:fragment:parallel"
+      call smd_rtdb_get_log(tag1,1,oparallel,result)
+      if(.not.result) then
+        write(*,*) "need to set value for  "//tag1
+        call errquit("cannot find "//tag1,0,0)
+      end if
+
+      tag1="task:operation"
+      call smd_rtdb_get_string(tag1,1,operation,result)
+      if(.not.result) then
+        write(*,*) "need to set value for  "//tag1
+        call errquit("cannot find "//tag1,0,0)
+      end if
+  
+c
+c     create task data structures
+c     ---------------------------
+      tag = "task:parallel"
+      call smd_data_put_log(namespace,tag,1,oparallel)
+      tag = "task:ntasks"
+      call smd_data_put_int(namespace,tag,1,nt)
+      tag = "task:func_id"
+      call smd_data_create_get(namespace,tag,nt,MT_INT,i_ifu)
+      tag = "task:frag_id"
+      call smd_data_create_get(namespace,tag,nt,MT_INT,i_ifr)
+      tag = "task:theory"
+      call smd_data_create_get(namespace,tag,nt,MT_STR,i_sth)
+      tag = "task:operation"
+      call smd_data_create_get(namespace,tag,nt,MT_STR,i_sop)
+c
+c    fill up fragment id
+c    -------------------
+      j=0
+      do i=i1,i2
+        int_mb(i_ifr+j) = i
+        j=j+1
+      enddo
+c
+      do i=1,nt
+        int_mb(i_ifu+i-1) = i_smd_monomer
+      enddo
+c
+c     fill in theory
+c     --------------
+      call smd_set_char_to_ma2(theory,nt,byte_mb(i_sth))
+c
+c     fill in operation
+c     -----------------
+      call smd_set_char_to_ma2(operation,nt,byte_mb(i_sop))
+
+      call smd_data_namespace_print(namespace,6)
+
+      call util_message("out "//pname)
+
+      return
+      end
+c
       subroutine smd_process_task(tskid, p_grp)
 c
 c     commences task(taskid) for a group (p_grp)
@@ -50,7 +203,7 @@ c      write(*,*) "time monomer rtdb",etime2-etime1
 c      call smd_rtdb_set_handle(rtdb_grp)
 c
       call ga_pgroup_sync(p_grp)
-c      call smd_monomer_energy(tskid)
+c      call smd_monomer(tskid)
       call ga_pgroup_sync(p_grp)
 c
 c      call smd_charge_ga_print()
@@ -60,7 +213,7 @@ c      if(.not.rtdb_close(rtdb_grp, 'delete'))
 c     + call errquit('Failed to close group rtdb',0, GEOM_ERR)
 c
       end subroutine
-
+c
       subroutine smd_task_rtdb_clone(taskid,rtdb)
 c     rtdb cloning
 c     1. make a numbered name (taskid)
@@ -122,10 +275,187 @@ c     + call errquit('Failed to open group rtdb',0, GEOM_ERR)
 
       return
       end
+c
+      subroutine smd_task_mode(oparallel)
+      implicit none
 
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_task_data.fh"
+#include "smd_const_data.fh"
 
-c     task_list IN Task list to insert tasks into
+      logical oparallel
+      character*(smd_string_size)  tag,sname
+      logical result
+      character*30 pname
+c      
+      pname = "smd_task_mode"
+      call util_message("in "//pname)
+      tag = "task"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+c     get number of tasks
+c     -------------------
+      tag = "task:parallel"
+      call smd_data_get_log(sname,tag,1,oparallel,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+      call util_message("out "//pname)
+      return
+
+      end subroutine
+c
+      subroutine smd_task_execute(itsk)
+      implicit none
+      integer itsk
+
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_task_data.fh"
+#include "smd_const_data.fh"
+
+      integer nt
+      character*(smd_string_size)  tag,sname
+      logical result
+      character*30 pname
+      integer i,nproc,ifunc
+c      
+      pname = "smd_task_execute"
+      call util_message("in "//pname)
+      tag = "task"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+c     get number of tasks
+c     -------------------
+      tag = "task:func_id"
+      call smd_data_get_int1(sname,tag,itsk,itsk,ifunc)
+      if(ifunc.eq.i_smd_monomer) then
+       call smd_monomer(itsk)
+      else
+       call errquit(
+     >       pname//'unknown function ',ifunc,0)
+      end if
+      call util_message("out "//pname)
+      return
+
+      end subroutine
+c
+      subroutine smd_task_iterate()
+      implicit none
+      integer itsk
+
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_task_data.fh"
+#include "smd_const_data.fh"
+
+      integer nt
+      character*(smd_string_size)  tag,sname
+      logical result
+      character*30 pname
+      integer i
+c      
+      pname = "smd_task_iterate"
+      call util_message("in "//pname)
+      tag = "task"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+c     get number of tasks
+c     -------------------
+      tag = "task:ntasks"
+      call smd_data_get_int(sname,tag,1,nt,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+      do i=1,nt
+        call smd_task_execute(i)
+      end do
+      call util_message("out "//pname)
+      return
+
+      end subroutine
+c      
       subroutine smd_task_populate(task_list)
+      implicit none
+      integer task_list
+
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_task_data.fh"
+#include "smd_const_data.fh"
+
+      integer nt
+      character*(smd_string_size)  tag,sname
+      logical result
+      character*30 pname
+      integer i,nproc
+c      
+      pname = "smd_task_populate"
+      call util_message("in "//pname)
+      tag = "task"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+c     get number of tasks
+c     -------------------
+      tag = "task:ntasks"
+      call smd_data_get_int(sname,tag,1,nt,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+
+c      if(populate_done)
+c     &  call errquit('trying to populate_tasks'// 
+c     &    ' after done',0,0)
+
+      nproc = 1
+      if(populate_first_time) then
+
+c       push in all available tasks
+c       ---------------------------
+        do i = 1,nt
+            write(*,*) "inserting task",i
+            call sched_grp_insert_task(task_list, i, nproc)
+        enddo
+        populate_first_time = .false.
+      end if
+      call util_message("out "//pname)
+      return
+
+      end subroutine
+c
+      subroutine smd_task_populate0(task_list)
       integer task_list
 
 #include "inp.fh"
