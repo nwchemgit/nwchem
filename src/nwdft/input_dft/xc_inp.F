@@ -88,9 +88,10 @@ c     xcampbe96 => 8400
 c     mp2       => 8500
 c     b2plyp    => 8510
 c     xcamlsd   => 8520
+c     xwpbe     => 8530
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=99)
+      parameter (num_dirs=100)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -126,7 +127,7 @@ c
      &     'xm06-L','cm06-L','m06-hf','xm06-hf','cm06-hf','m06',
      &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x','xbnl07',
      &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
-     &     'xcamlsd','ssb-d','kt1','kt2'/
+     &     'xcamlsd','ssb-d','xwpbe','kt1','kt2'/
 c     becke97-d, ssb-d
       logical disp
 c
@@ -163,7 +164,7 @@ c
      &  5000,5100,5200,5300,5400,5500,5600,5700,5800,
      &  5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
      &  7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,
-     &  8200,4800,8300,8400,8500,8510,8520,4600,4700,4701,1999) ind
+     &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -2494,6 +2495,38 @@ c
       endif
       if (.not. inp_f(xfac(42))) then
          xfac(42) = 1.0d0
+      endif
+c
+      goto 10
+c
+c     xwpbe; HSE screened exchange
+c
+ 8530 if (inp_a(test)) then
+         if (inp_compare(.false.,'local', test)) then
+            write(LuOut,*)' xwpbe "local" is equivalent to the',
+     &                ' slater exchange local functional. '
+            write(LuOut,*)' Resubmit using slater exchange. '
+            call errquit(' xc_inp - functional description ',0,
+     &       INPUT_ERR)
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            nlxfac(43) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(43) = .true.
+            nlxfac(43) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(43) = .true.
+         nlxfac(43) = .true.
+      endif
+      if (.not. inp_f(xfac(43))) then
+         xfac(43) = 1.0d0
       endif
 c
       goto 10
