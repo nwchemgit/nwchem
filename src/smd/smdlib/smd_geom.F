@@ -73,6 +73,8 @@ c
 c    
       call smd_geom_monomer_index_size(im,nt,int_mb(i_ir),nm,i0)
 c
+      call smd_geom_find_neighbors(i0)
+c
       write(*,*) "monomer size",i0,nm
 c
       if(.not.ma_push_get(mt_dbl,3*nm,'tmp',h_cd,i_cd))
@@ -502,3 +504,174 @@ c
   
       end
 
+      subroutine smd_geom_find_neighbors(icr)
+
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_const_data.fh"
+      integer icr
+c
+      character*30 pname
+      character*32 tag
+      integer i_f,i_c,i_rlat
+      integer i_lat
+      integer i_l,i_p
+      integer i_ir
+      integer i_inb,h_nb
+      integer nl,na,nb
+      double precision rcutsq
+      logical result
+      integer i
+
+      pname = "smd_geom_find_neighbors"
+c
+c     get verlet list data
+c     --------------------
+      tag = "vlist:pointer"
+      call smd_get_ind(tag,i_p,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+
+      tag = "vlist:list"
+      call smd_get_ind_dim(tag,i_l,nl,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+
+      tag = "vlist:distances"
+      call smd_get_ind(tag,i_c,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+      tag = "atom:resid"
+      call smd_get_ind_dim(tag,i_ir,na,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+
+c
+c     get cutoff data
+c     ---------------
+      call smd_cutoff_get_rcut(rcutsq)
+      rcutsq = rcutsq*rcutsq
+c      
+      if(.not.ma_push_get(mt_int,na,'tmp inb',h_nb,i_inb))
+     + call errquit(pname//'Failed to allocate memory for tmp inb',
+     + na, MA_ERR)
+
+
+      call    smd_geom_find_neighbors_gen(icr,
+     >                                  na,
+     >                                  nl,
+     >                                  rcutsq,
+     >                                  int_mb(i_ir),
+     >                                  dbl_mb(i_c),
+     >                                  int_mb(i_p),
+     >                                  int_mb(i_l),
+     >                                  nb,
+     >                                  int_mb(i_inb))
+
+      if(.not.ma_pop_stack(h_nb))
+     & call errquit(pname//'Failed to deallocate stack h_nb',na,
+     &       MA_ERR)
+
+      return
+
+      END
+      subroutine smd_geom_find_neighbors_gen(icr,
+     >                           na,
+     >                           nl,
+     >                           rcutsq,
+     >                           ir,
+     >                           ccc,
+     >                           point,
+     >                           list,
+     >                           nb,
+     >                           inb)
+
+      implicit none
+
+#include "smd_const_data.fh"
+
+
+c       icr        [in] residue number to find neighbors
+c       na         [in] number of atoms
+c       nl         [in] size of verlet list
+c       rcutsq     [in] cutoff radius 
+c       ir(na)     [in] residue index
+c       point(na)  [in] verlet pointer
+c       list(nl)   [in] verlet list
+c       ccc(3,nl)  [in] verlet pair distance vector
+c       nb         [out] number of neighbors
+c       inb(na)    [out] indices of neighbors
+
+      integer icr
+      integer na
+      integer nl
+      double precision rcutsq
+      integer ir(na)
+      integer point(na)
+      integer list(nl)
+      integer nb
+      double precision ccc(3,nl)
+      integer inb(na)
+c
+      integer i,j,k,jnab
+      integer jbeg,jend
+      integer ii
+      integer ir1,ir2,nt
+
+      double precision  rsq
+
+      double precision x,y,z
+      character*30 pname
+
+      pname = "smd_geom_find_neighbors_gen"
+
+      call util_message("in "//pname)
+
+      do i=1,na
+        write(*,*) "residue index",i,ir(i)
+      end do
+      ii = 0
+      do i=1,na-1
+
+       ir1 = ir(i)
+       jbeg=point(i)
+       jend=point(i+1)-1
+       write(*,*) "jbeg,jend,i",jbeg,jend,i
+
+      do jnab=jbeg,jend
+
+       j=list(jnab)
+       ir2 = ir(j)
+       if(ir1.eq.icr.or.ir2.eq.icr) then
+
+         x=ccc(1,jnab)
+         y=ccc(2,jnab)
+         z=ccc(3,jnab)
+
+         rsq=x*x+y*y+z*z
+
+         if(rsq.lt.rcutsq) then
+
+          ii = ii + 1
+          inb(ii) = ir(j)
+          write(*,*) "setting neighbor index",ii,j,inb(ii),ir(j)
+         endif
+       end if
+
+
+      end do
+      end do
+
+      nb = ii
+      do i=1,nb
+        write(*,*) "neighbor is",i,inb(i)
+      end do
+      return
+
+      end
