@@ -24,6 +24,7 @@ c
       logical opes
 c      logical oembed
       logical ofragment
+      logical osmd
       character*30 test, operation
       character*32 theory
       character*128 err_string
@@ -36,6 +37,7 @@ c
       oqmmm     = .false.
       opes      = .false.
       ofragment = .false.
+      osmd      = .false.
 c      oembed    = .false.
 c
       call rtdb_clean(rtdb, 'task:') ! Delete ALL previous task parameters
@@ -107,6 +109,10 @@ c         else if (inp_compare(.false.,test,'embed')) then
 c            oembed = .true.
          else if (inp_compare(.false.,test,'fragment')) then
             ofragment = .true.
+            write(*,*) "found fragment",ofragment
+         else if (inp_compare(.false.,test,'smd')) then
+            osmd = .true.
+            write(*,*) "found smd",osmd
          else if (inp_compare(.false.,test,'pes')) then
             opes = .true.
          else if (inp_compare(.false.,test,
@@ -201,6 +207,11 @@ c
      $        analytic)) call errquit('task_input: rtdb is corrupt',0,
      &       RTDB_ERR)
       endif
+      if (osmd) then
+        if (.not.rtdb_put(rtdb, 'task:smd', mt_log, 1, .true.))
+     &       call errquit('task_input:task:smd rtdb is corrupt',911,
+     &       RTDB_ERR)
+      end if
       if (ofragment) then
         if (.not.rtdb_put(rtdb, 'task:fragment', mt_log, 1, .true.))
      &       call errquit('task_input:task:pes rtdb is corrupt',911,

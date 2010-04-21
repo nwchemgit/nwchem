@@ -45,6 +45,7 @@ c
       logical task_hessian, task_saddle, task_lst, task_neb
       logical task_dynamics, task_rfcf
       logical oqmmm,opes, task_python, task_thermo,task_bq,task_nbo
+      logical osmd, ofragment
 c     logical oembed
       logical task_version, task_vscf
       logical task_raman 
@@ -63,6 +64,8 @@ c
 c      logical task_pes
 c      external task_pes
 c
+      logical task_fragment_energy
+      external task_fragment_energy
       external qmmm_init
 c
 c     external embed_init
@@ -141,6 +144,12 @@ c
 *
       if (.not.rtdb_get(rtdb,'task:QMMM',mt_log,1,oqmmm))
      &    oqmmm = .false.
+c      
+      if (.not.rtdb_get(rtdb,'task:smd',mt_log,1,osmd))
+     &    osmd = .false.
+c      
+      if (.not.rtdb_get(rtdb,'task:fragment',mt_log,1,ofragment))
+     &    ofragment = .false.
 c
       if (.not.rtdb_get(rtdb,'task:pes',mt_log,1,opes))
      &    opes = .false.
@@ -191,6 +200,12 @@ c
 c
 c 
 c
+      if(osmd.and.ofragment) then
+         write(*,*) "osmd,ofragment",osmd,ofragment
+         status = task_fragment_energy(rtdb)
+         call ga_sync()
+         goto 99999
+      end if
       if(oqmmm.and.opes) then
          status = task_qmmm_pes(rtdb)
          call ga_sync()

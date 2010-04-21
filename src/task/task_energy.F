@@ -48,8 +48,8 @@ c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('task:energy: theory not specified',0, RTDB_ERR)
 c
-      if( .not. rtdb_get(rtdb,'task:fragment',mt_log,1,task_fragment))
-     &    task_fragment = .false.
+c      if( .not. rtdb_get(rtdb,'task:fragment',mt_log,1,task_fragment))
+c     &    task_fragment = .false.
 c
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
@@ -65,10 +65,9 @@ cc
           if (.not. rtdb_get(rtdb, 'qmmm:energy', mt_dbl, 1, energy))
      $           call errquit('task_energy: no energy in rtdb?',0,
      &       RTDB_ERR)
-      else if(task_fragment) then
-          write(*,*) "found task fragment"
-          status = task_fragment_energy(rtdb)
-          stop
+c      else if(task_fragment) then
+c          write(*,*) "found task fragment"
+c          status = task_fragment_energy(rtdb)
 c      else if (task_embed) then
 c          status = embed_energy(rtdb)
 c          if (.not. rtdb_get(rtdb, 'embed:energy', mt_dbl, 1, energy))

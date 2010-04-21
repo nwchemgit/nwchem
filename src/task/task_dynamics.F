@@ -62,8 +62,8 @@ c
 c     Actually do the deed
 c
       if(theory.eq."smd") then
-         write(*,*) "smd dynamics is disabled for now"
-c        status = task_smd_dynamics(rtdb)
+c         write(*,*) "smd dynamics is disabled for now"
+        status = task_smd_dynamics(rtdb)
 c      else if(theory.eq.'leps') then
 c        status = task_freq(rtdb)
 c        status = mc_main(rtdb,leps_gradient,theory)
