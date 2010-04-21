@@ -108,6 +108,9 @@ c
       logical task_qmmm_optimize
       external task_qmmm_optimize
 c
+      logical task_smd_dynamics
+      external task_smd_dynamics
+c
       logical task_qmmm_dynamics
       external task_qmmm_dynamics
 c
@@ -357,6 +360,8 @@ c        end if
       else if (inp_compare(.false.,'dynamics',operation)) then
          if(oqmmm) then
            status = task_qmmm_dynamics(rtdb)
+         else if(osmd) then
+           status = task_smd_dynamics(rtdb)
          else
            status = task_dynamics(rtdb)
          endif

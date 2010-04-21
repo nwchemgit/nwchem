@@ -277,6 +277,9 @@ c
      &       RTDB_ERR)
       endif
 c
+      if (theory .eq. ' ') then
+        if(osmd) theory="smd"
+      end if        
       if (theory .ne. ' ') then
          if (.not. rtdb_cput(rtdb, 'task:theory', 1, theory))
      $        call errquit('task_input: rtdb is corrupt', 0,
