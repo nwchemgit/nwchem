@@ -735,6 +735,18 @@ c
          endif
       endif
 c
+c xwpbe exchange: HSE screened exchange
+c 
+      if (abs(xfac(43)).gt.eps)then
+         if (.not. do_2nd) then
+           call xc_xwpbe(tol_rho, xfac(43), lxfac(43), nlxfac(43), 
+     &           rho, Amat, nq, ipol, Ex, qwght, ldew, func)
+         else
+           call xc_xwpbe_d2(tol_rho, xfac(43), lxfac(43), nlxfac(43), 
+     &          rho, Amat, Amat2, nq, ipol, Ex, qwght, .false., func)
+         endif
+      endif
+c
 c     cpw6b95 is special in that the GGA part is
 c     defined to be dependent on
 c     the E(LDA) ...

@@ -39,7 +39,8 @@ HEADERS = xc.fh
         xc_bc95.o xc_xm05.o xc_cm05.o xc_xpw6.o\
         xc_xvs98.o xc_cvs98.o xc_xm06.o xc_cm06.o \
         xc_spbe96.o xc_kt1.o xc_ssbD_1.o \
-        xc_camb88.o xc_att_xc.o xc_camxpbe96.o xc_camxlsd.o steric_energy.o
+        xc_camb88.o xc_att_xc.o xc_camxpbe96.o xc_camxlsd.o xc_xwpbe.o hse08fx.o \
+	steric_energy.o
 
 
      LIBRARY = libnwdft.a
