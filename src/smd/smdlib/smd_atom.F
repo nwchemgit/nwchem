@@ -39,11 +39,14 @@ c
 c
       character*32 pname
       character*80 tag
+      integer i
       integer nt,ns
       integer i_t,i_tr,i_ir,i_qf
       integer i_iconst
       logical result
-      integer nr
+      integer nr,nrmax
+      integer i_sr
+      integer i_mr,i_pr
 c
       logical geom_tag_to_charge_gen
       external geom_tag_to_charge_gen
@@ -74,6 +77,8 @@ c     ---------------------------
       tag  = "atom:resname"
       call smd_data_create_get(namespace,tag,nt,MT_STR,i_tr)
       tag = "atom:resid"
+      call smd_data_create_get(namespace,tag,nt,MT_INT,i_sr)
+      tag = "atom:resid0"
       call smd_data_create_get(namespace,tag,nt,MT_INT,i_ir)
       tag = "atom:formal_charge"
       call smd_data_create_get(namespace,tag,nt,MT_DBL,i_qf)
@@ -101,18 +106,245 @@ c
      >                        byte_mb(i_t),dbl_mb(i_qf)))
      >  call errquit(
      >       pname//'error setting formal charge',0, RTDB_ERR)
-
 c
-c     store number of residues
-c     -----------------------
-      call smd_atom_nres(namespace,nr)
+c     find total number of residues
+c     -----------------------------
+      call smd_atom_compute_nres(nr,nt,int_mb(i_ir))
+      write(*,*) "number of residues",nr
       tag  = "nres"
       call smd_data_put_int(namespace,tag,1,nr)
+c
+c     determine res size and boundaries
+c     ---------------------------------
+      tag = "atom:res_size"
+      call smd_data_create_get(namespace,tag,nr,MT_INT,i_mr)
+      tag = "atom:res_pointer"
+      call smd_data_create_get(namespace,tag,nr,MT_INT,i_pr)
+      call smd_atom_compute_res(nt,nr,int_mb(i_ir),int_mb(i_sr),
+     +                          int_mb(i_mr),int_mb(i_pr))
+c
+      do i=1,nt
+        write(57,*) int_mb(i_ir+i-1),int_mb(i_sr+i-1)
+      end do
+      do i=1,nr
+        write(58,*) i,int_mb(i_mr+i-1),int_mb(i_pr+i-1)
+      end do
       call util_message("out "//pname)
 
       return
       end
+c      
+      subroutine smd_atom_compute_res(nt,nr,ir,is,mr,pr)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c
+      integer nt
+      integer nr
+      integer ir(nt)
+      integer is(nt)
+      integer mr(nr)
+      integer pr(nr)
+      integer i0
+c
+      integer i,j
+      integer h_it,i_it
+      integer irc
+      character*30 pname
+c
+      pname = "smd_atom_compute_res_seq"
+c
+      if(.not.ma_push_get(mt_log,nr,'tmp',h_it,i_it))
+     + call errquit(pname//'Failed to allocate memory for tmp',
+     + nr, MA_ERR)
+c
+      do i=1,nr
+        log_mb(i_it+i-1)=.false.
+        pr(i) = 0
+        mr(i) = 0
+      end do
 
+      irc=1
+      is(1)=1
+      pr(1)=1
+      mr(1)=1
+      do i=2,nt
+        if(ir(i).ne.ir(i-1)) then
+          if(log_mb(i_it+ir(i)-1))
+     +      call errquit(pname//"discont. residue",
+     +      0,0)
+
+          log_mb(i_it+ir(i)-1)=.true.
+          irc=irc+1
+          pr(irc)=i
+        end if        
+        is(i) = irc
+        mr(irc) = mr(irc)+1
+      end do
+c      
+      if(.not.ma_pop_stack(h_it))
+     & call errquit(pname//'Failed to deallocate stack h_it',0,
+     &       MA_ERR)
+c      
+      end subroutine
+c
+      subroutine smd_atom_compute_res_seq(nt,ir,is)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c
+      integer nt
+      integer ir(nt)
+      integer is(nt)
+      integer i0
+c
+      integer i,j,nrmax
+      integer h_it,i_it
+      integer irc
+      character*30 pname
+c
+      pname = "smd_atom_compute_res_seq"
+c
+c     find maximum residue number
+c     ---------------------------
+      nrmax = 0
+      do i=1,nt
+        if(ir(i).ge.nrmax) 
+     +     nrmax = ir(i)
+      end do
+      write(*,*) "maximum residue number is",nrmax
+c
+c
+      if(.not.ma_push_get(mt_log,nrmax,'tmp',h_it,i_it))
+     + call errquit(pname//'Failed to allocate memory for tmp',
+     + nrmax, MA_ERR)
+c
+      do i=1,nrmax
+        log_mb(i_it+i-1)=.false.
+      end do
+
+      irc=1
+      is(1)=1
+      do i=2,nt
+        if(ir(i).ne.ir(i-1)) then
+          if(log_mb(i_it+ir(i)-1))
+     +      call errquit(pname//"discont. residue",
+     +      0,0)
+
+          log_mb(i_it+ir(i)-1)=.true.
+          irc=irc+1
+        end if        
+        is(i) = irc
+      end do
+c      
+      if(.not.ma_pop_stack(h_it))
+     & call errquit(pname//'Failed to deallocate stack h_it',0,
+     &       MA_ERR)
+c      
+      end subroutine
+c
+      subroutine smd_atom_compute_nres(nr,nt,ir)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c
+      integer nr
+      integer nt
+      integer ir(nt)
+      integer i0
+c
+      integer i,j,nrmax
+      integer h_it,i_it
+      character*30 pname
+c
+      pname = "smd_atom_compute_nres"
+c
+c     find maximum residue number
+c     ---------------------------
+      nrmax = 0
+      do i=1,nt
+        if(ir(i).ge.nrmax) 
+     +     nrmax = ir(i)
+      end do
+c
+      if(.not.ma_push_get(mt_int,nrmax,'tmp',h_it,i_it))
+     + call errquit(pname//'Failed to allocate memory for tmp',
+     + nrmax, MA_ERR)
+c
+      do i=1,nrmax
+        int_mb(i_it+i-1)=0
+      end do
+c
+      int_mb(i_it+ir(1)-1)=1
+      do i=2,nt
+        if(ir(i).ne.ir(i-1)) int_mb(i_it+ir(i)-1)=1
+      end do
+c
+      nr = 0
+      do i=1,nrmax
+        nr = nr+int_mb(i_it+i-1)
+      end do
+c      
+      if(.not.ma_pop_stack(h_it))
+     & call errquit(pname//'Failed to deallocate stack h_it',0,
+     &       MA_ERR)
+c      
+      end subroutine
+ccc      
+ccc      
+c      subroutine smd_atom_compute_res_size(nt,ir,nr,sr)
+c      implicit none
+c#include "errquit.fh"
+c#include "inp.fh"
+c#include "mafdecls.fh"
+c#include "rtdb.fh"
+c#include "util.fh"
+c#include "global.fh"
+cc
+c      integer nt
+c      integer ir(nt)
+c      integer nr
+c      integer sr(nr)
+c      integer i0
+cc
+c      integer i,j
+cc
+cc     count number of atoms in residue im
+cc     contigious storage is presumed
+cc     -----------------------------------
+c      nm = 0
+c      do i=1,nt
+c       j = i
+c       if(im.eq.ir(i)) then
+c100     continue
+c        nm = nm + 1
+c        j = j + 1
+c        if(im.eq.ir(j)) then
+c         goto 100
+c        else
+c         goto 101 
+c        end if
+c       end if
+c      end do
+c101   continue
+c      i0=i
+c      return
+cc
+c  
+c      end
+c
       subroutine smd_atom_ntot(ntot)
       implicit none
 #include "errquit.fh"
