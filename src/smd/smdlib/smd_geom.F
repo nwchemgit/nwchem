@@ -523,6 +523,8 @@ c
       double precision rcutsq
       logical result
       integer i
+      integer i_tmp
+      integer nr
 
       pname = "smd_geom_find_neighbors"
 c
@@ -551,20 +553,29 @@ c
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c      
+      tag = "nres"
+      call smd_get_ind(tag,i_tmp,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
 
+      nr = int_mb(i_tmp)
+      write(*,*) "number of residues is", nr
 c
 c     get cutoff data
 c     ---------------
       call smd_cutoff_get_rcut(rcutsq)
       rcutsq = rcutsq*rcutsq
 c      
-      if(.not.ma_push_get(mt_int,na,'tmp inb',h_nb,i_inb))
+      if(.not.ma_push_get(mt_int,nr,'tmp inb',h_nb,i_inb))
      + call errquit(pname//'Failed to allocate memory for tmp inb',
      + na, MA_ERR)
 
 
       call    smd_geom_find_neighbors_gen(icr,
      >                                  na,
+     >                                  nr,
      >                                  nl,
      >                                  rcutsq,
      >                                  int_mb(i_ir),
@@ -582,6 +593,96 @@ c
 
       END
       subroutine smd_geom_find_neighbors_gen(icr,
+     >                           na,
+     >                           nr,
+     >                           nl,
+     >                           rcutsq,
+     >                           ir,
+     >                           ccc,
+     >                           point,
+     >                           list,
+     >                           nb,
+     >                           inb)
+
+      implicit none
+
+#include "smd_const_data.fh"
+
+
+c       icr        [in] residue number to find neighbors
+c       na         [in] number of atoms
+c       nr         [in] number of residues
+c       nl         [in] size of verlet list
+c       rcutsq     [in] cutoff radius 
+c       ir(na)     [in] residue index
+c       point(na)  [in] verlet pointer
+c       list(nl)   [in] verlet list
+c       ccc(3,nl)  [in] verlet pair distance vector
+c       nb         [out] number of neighbors
+c       inb(na)    [out] indices of neighbors
+
+      integer icr
+      integer na
+      integer nr
+      integer nl
+      double precision rcutsq
+      integer ir(na)
+      integer point(na)
+      integer list(nl)
+      integer nb
+      double precision ccc(3,nl)
+      integer inb(na)
+c
+      integer i,j,k,jnab
+      integer jbeg,jend
+      integer ii
+      integer ir1,ir2,nt
+
+      double precision  rsq
+
+      double precision x,y,z
+      character*30 pname
+
+      pname = "smd_geom_find_neighbors_gen"
+
+      call util_message("in "//pname)
+
+      do i=1,nr
+        inb(i) = 0
+      end do
+
+      nb = 0
+      do i=1,na-1
+
+       ir1 = ir(i)
+       jbeg=point(i)
+       jend=point(i+1)-1
+
+      do jnab=jbeg,jend
+
+       j=list(jnab)
+       ir2 = ir(j)
+       if(ir1.eq.icr) then
+         inb(ir2) = 1
+         nb = nb + 1
+       else if(ir2.eq.icr) then
+         inb(ir1) = 1
+         nb = nb +1
+       end if
+      end do
+      end do
+
+      write(79,*) "neighbors of residue",icr
+      do i=1,nr
+      if(inb(i).eq.1) then
+        write(79,*) i
+      end if
+      end do
+      return
+
+      end
+c      
+      subroutine smd_geom_find_neighbors_gen1(icr,
      >                           na,
      >                           nl,
      >                           rcutsq,

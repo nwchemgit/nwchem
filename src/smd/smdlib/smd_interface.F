@@ -15,6 +15,7 @@ c
      c                       "atom:resname",
      c                       "atom:formal_charge",
      c                       "atom:resid",    
+     c                       "nres",
      c                       "exlist:pointer",
      c                       "exlist:list",
      c                       "vlist:pointer",
@@ -52,6 +53,7 @@ c
      c                       "parameters",
      c                       "coordinates",
      c                       "type",
+     c                       "atom",
      c                       "atom",
      c                       "atom",
      c                       "atom",
@@ -202,7 +204,7 @@ c
       logical result,ocase
       integer i,nrec
 
-      pname = "smd_get_ind_dim"
+      pname = "smd_get_ind"
 c
       result = .false.
 c     case sensitive
@@ -221,6 +223,10 @@ c     case sensitive
 c
       call smd_data_get_index(sp,atag,ind,result)
       if(.not.result) then
+        write(*,*) "WARNING"
+        write(*,*) "in "//pname
+        write(*,*) "looking for "//atag
+        write(*,*) "in "//sp
         call smd_message_post(pname//'error getting index for'//buffer) 
         goto 200
       end if

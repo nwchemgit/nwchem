@@ -43,6 +43,7 @@ c
       integer i_t,i_tr,i_ir,i_qf
       integer i_iconst
       logical result
+      integer nr
 c
       logical geom_tag_to_charge_gen
       external geom_tag_to_charge_gen
@@ -101,6 +102,12 @@ c
      >  call errquit(
      >       pname//'error setting formal charge',0, RTDB_ERR)
 
+c
+c     store number of residues
+c     -----------------------
+      call smd_atom_nres(namespace,nr)
+      tag  = "nres"
+      call smd_data_put_int(namespace,tag,1,nr)
       call util_message("out "//pname)
 
       return
