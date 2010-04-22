@@ -172,7 +172,7 @@ c
       integer ne(2),ispin,npack1,nemax
       common / ORB_BLOCK / sum,a,b0,lorb,ne,ispin,npack1,nemax
 
-      call Orb_Analysis(33,ispin,ne,npack1,nemax,psi,
+      call Orb_Analysis(33,0,ispin,ne,npack1,nemax,psi,
      >                        int_mb(lorb(1)),
      >                        dbl_mb(b0(1)),
      >                        dbl_mb(a(1)),
