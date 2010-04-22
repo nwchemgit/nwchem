@@ -1,7 +1,9 @@
 c
 czora...Scale zora eigenvalues and energy
 c
-          subroutine dft_zora_scale(geom, 
+          subroutine dft_zora_scale(
+     &                   rtdb,g_dens_ini,nexc, ! FA
+     &                   geom, 
      &                   ao_bas_han,
      &                   nbf,
      &                   nbf_ao,
@@ -21,9 +23,13 @@ c
 #include "stdio.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "zora.fh" ! FA
+#include "rtdb.fh" ! FA
+#include "geom.fh" ! FA
 
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
+      external get_rhoS
 
       integer g_dens(2)
       integer g_movecs(2)
@@ -47,6 +53,18 @@ c
 
       double precision focc(nbf*ipol)  ! occupation no.
       double precision evals(ipol*nbf) ! eigenvalues
+
+      integer rtdb                 ! Added by FA
+      integer g_zora_scr(2)        ! Added by FA
+      integer g_dens_ini(2)        ! Added by FA
+      integer nexc,noc1            ! Added by FA
+      logical do_zgc_old           ! Added by FA
+      double precision zora_eint,  ! Added by FA
+     &                 zora_denom  ! Added by FA
+      double precision scf_dbl     ! Added by FA  
+      logical status               ! Added by FA
+      integer noelfgz4             ! Added by FA 
+      data noelfgZ4/1/             ! Added by FA 
 c
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c     debugging
@@ -73,56 +91,98 @@ c     consolidate the density before leaving
 c     call ga_dadd(1.d0,g_dens(1),1.d0,g_dens(2),g_dens(1))
 c
 ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
-c
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++
+      status=rtdb_get(rtdb,'prop:efieldgradZ4',MT_INT,1,noelfgZ4) ! FA
+      do_zgc_old=do_zora_get_correction                           ! FA
+      do_zora_get_correction=.true. ! -1  ! FORCE-ZORA-CALC-INTS
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++
+      if (ipol.eq.1) then
+        scf_dbl=2.0d00
+        noc1=noc(1)
+      else if (ipol.eq.2) then 
+        scf_dbl=1.0d00   
+        noc1=noc(1)+noc(2)    
+      endif
+c ----- execute this code ONLY when EFGZ4 is requested -- START
+      if(noelfgZ4.eq.0) then
+       if (ga_nodeid().eq.0) call print_EFGZ4_version()
+       if (.not.ga_create(MT_DBL,ipol,noc1,'dft_zora_scale: g_Ci',
+     $       0,0,g_Ci)) call errquit('dft_zora_scale: g_Ci',0,
+     &       GA_ERR)
+      call ga_zero(g_Ci)
+      endif
+c ----- execute this code ONLY when EFGZ4 is requested -- END
+
+c===================================
+       if(.not.ga_duplicate(g_zora_scale_sf(1),g_zora_scr(1),'sf 1'))
+     &  call errquit('dft_zora_utils: ga_duplicate failed',1,GA_ERR)
+        if(ipol.gt.1) then
+         if(.not.ga_duplicate(g_zora_scale_sf(2),g_zora_scr(2),'sf 2'))
+     &   call errquit('dft_zora_utils: ga_duplicate failed',1,GA_ERR)
+        endif
+        call ga_zero(g_zora_scr(1))
+        if (ipol.gt.1) call ga_zero(g_zora_scr(2))
+c===================================
 c     allocate memory
       if (.not.MA_Push_Get(MT_Dbl, nbf_ao, 'vec aux',
      &            l_vecs, k_vecs))
      &     call errquit('xc_sic: cannot allocate vec aux',0, MA_ERR)
-      g_orb = ga_create_atom_blocked(geom, ao_bas_han, 'orbs')
+      g_orb     = ga_create_atom_blocked(geom, ao_bas_han, 'orbs')
       g_dens_sf = ga_create_atom_blocked(geom, ao_bas_han,'orbs dens')
 c
 c     scale the eigenvalues and energy
       ener_scal = 0.d0
-      do ispin=1,ipol
+      do ispin = 1,ipol
        do iorb = 1,nbf
-c
         call ga_get(g_movecs(ispin), 1, nbf, iorb, iorb,
-     &                      dbl_mb(k_vecs), 1)
+     &              dbl_mb(k_vecs), 1)
         call ga_zero(g_orb)
         call ga_put(g_orb, 1, nbf, iorb, iorb,
-     &                    dbl_mb(k_vecs), 1)
-c
+     &              dbl_mb(k_vecs), 1)
         call ga_zero(g_dens_sf)
-        call ga_dgemm('n', 't', nbf, nbf, noc(ispin), 1.0d00,
-     &                      g_orb, g_orb, 0.d00, g_dens_sf)
+        call ga_dgemm('n', 't', nbf, nbf, noc(ispin),1.0d00,
+     &                g_orb, g_orb, 0.d00, g_dens_sf)
 c
         eval_scal = evals(iorb)
         if (ispin.gt.1) eval_scal = evals(iorb + nbf)
-c
-        eval_scal 
-     &    = eval_scal/(1.d0 + ga_ddot(g_dens_sf,g_zora_scale_sf(ispin)))
-c
-        ener_scal = ener_scal
-     &     - eval_scal*ga_ddot(g_dens_sf,g_zora_scale_sf(ispin))
-c
-c       ener_scal = ener_scal + ga_ddot(g_orb_dens,g_zora_scale_sf(ispin))
+        zora_eint = ga_ddot(g_dens_sf,g_zora_scale_sf(ispin)) ! FA
+        zora_denom= 1.d0+zora_eint                            ! FA   
+        eval_scal = eval_scal/zora_denom                      ! FA 
+        ener_scal = ener_scal-eval_scal*zora_eint 
 c
         if (ispin.le.1) then
-            evals(iorb) = eval_scal
-c            write(luout,*) iorb,evals(iorb),eval_scal
+            evals(iorb)     = eval_scal
         else
             evals(iorb+nbf) = eval_scal
-c            write(luout,*) iorb,evals(iorb+nbf),eval_scal
         end if
-c
+c ----- execute this code ONLY when EFGZ4 is requested -- START
+      if(noelfgZ4.eq.0) then
+        if ((ipol.eq.1 .and. iorb.le.noc(1)).or.
+     &      (ipol.eq.2 .and. 
+     &      (ispin.eq.1 .and. iorb.le.noc(1)).or.
+     &      (ispin.eq.2 .and. iorb.le.noc(2)))) then
+         call ga_fill_patch(g_Ci,ispin,ispin,iorb,iorb,zora_denom) 
+        end if
+      endif
+c ----- execute this code ONLY when EFGZ4 is requested -- END
        end do ! orbital loop
       end do ! polarization loop
 c
 c     double the energy for closed-shell calculations
-      if (ipol.eq.1) ener_scal = 2.d0*ener_scal
-      
+      if (ipol.eq.1) ener_scal = 2.d0*ener_scal     
 c      write(luout,*) "scaled_energy:",ener_scal
 
+c ----- execute this code ONLY when EFGZ4 is requested -- START
+      if(noelfgZ4.eq.0) then
+c      if (ga_nodeid().eq.0) write(LuOut,*) "---g_Ci -- START"
+c      call ga_print(g_Ci)
+c      if (ga_nodeid().eq.0) write(LuOut,*) "---g_Ci -- END"
+       call get_rhoS(rtdb,g_dens_ini,nexc,
+     &              geom,ao_bas_han,nbf,nbf_ao,
+     &              g_movecs,g_zora_scale_sf,
+     &              noc,ipol)
+      endif 
+c ----- execute this code ONLY when EFGZ4 is requested -- END
 c     deallocate emory
       if (.not.ma_pop_stack(l_vecs))
      &   call errquit('dft_scf: cannot pop stack',0, MA_ERR)
@@ -130,9 +190,9 @@ c     deallocate emory
      &  'zora_scale_evals: ga_destroy failed ',0, GA_ERR)
       if (.not. ga_destroy(g_dens_sf)) call errquit(
      &  'zora_scale_evals: ga_destroy failed ',0, GA_ERR)
-
-c      stop
-
+c +++++++++++++++ RESTORE VALUE +++++++++++++START
+      do_zora_get_correction=do_zgc_old
+c +++++++++++++++ RESTORE VALUE +++++++++++++END  
       return
       end
 c

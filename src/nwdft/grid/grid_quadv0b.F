@@ -211,11 +211,26 @@ c
 czora...start
 czora...calculate the zora correction (hartree and nuclear potentials included in correction)
       if (do_scf .and. do_zora_get_correction) then 
-
 czora...calculate the zora correction (consolidated density => hartree piece)
-        call grid_zoracorr(nqpts,qxyz,qwght,natoms,g_dens,amat)
-
+c         if (ga_nodeid().eq.0) 
+c    &       write(*,*) "Using grid_zoracorr() ..."
+          call grid_zoracorr(nqpts,qxyz,qwght,natoms,g_dens,amat)
+c         if (ga_nodeid().eq.0) 
+c    &        write(*,*) "Using grid_zoracorr_FA() ..."
+c         call grid_zoracorr_FA(nqpts,qxyz,qwght,natoms,g_dens,amat) ! FA
 czora...evaluate zora contributions
+           if (zora_calc_type.eq.4.and.so_term.eq.0) then
+           call zora_tabcd_EFG(0,l3d,
+     T        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
+     &        0d0,0d0,0d0,0d0,
+     &        Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 0d0,
+     N        0d0,0,1,
+     I        ipol,nqpts,mbf_ao,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2, 
+     G        grad, AO_bas_han,natoms, iniz, ifin, 
+     G        g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
+     &        rdens_atom, cetobfr,
+     &        .false.,0d0,0d0)
+           else
            call zora_tabcd(0,l3d,
      T        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
      &        0d0,0d0,0d0,0d0,
@@ -226,7 +241,7 @@ czora...evaluate zora contributions
      G        g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,
      &        .false.,0d0,0d0)
-
+           endif 
       else  ! do_zora_get_correction
 c
       if (odftps) call pstat_on(ps_excf)

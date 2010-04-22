@@ -202,6 +202,7 @@ c
       integer g_zora_sf(2), g_zora_scale_sf(2)
       integer g_zora_so(3), g_zora_scale_so(3)
       integer g_zora_scr(2)
+      integer ii,g_dens_ini(2)   ! Added by FA
       double precision Ezora_sf
 c
       logical spinor
@@ -837,6 +838,15 @@ c
         if (.not.dft_zora_read_so(zorafilename, nbf_ao, ipol, nmo, mult,
      &     g_zora_sf, g_zora_scale_sf, g_zora_so, g_zora_scale_so)) then
 c
+c ----- copy g_dens - FA ------- START
+c        write(*,*) "copying g_dens --> g_dens_ini ..START"
+         do ii=1,2
+          if(.not.ga_duplicate(g_dens(ii),g_dens_ini(ii),'gdens 1'))
+     &    call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
+          call ga_copy(g_dens(ii),g_dens_ini(ii))   
+         end do
+c        write(*,*) "copying g_dens --> g_dens_ini ..END"
+c ----- copy g_dens - FA ------- END
 czora...Calculate the spin-free and spin-orbit parts
 c
 c        spin-free component ===========================================
@@ -1786,7 +1796,9 @@ czora...Scale the zora eigenvalues and energy
 c
          ener_scal = 0.d0
          if (do_zora) then
-            call dft_zora_scale_so(geom,
+            call dft_zora_scale_so(
+     &                   rtdb,g_dens_ini,nexc, ! Added by FA
+     &                   geom,
      &                   ao_bas_han,
      &                   nbf,
      &                   nbf_ao,
@@ -1799,6 +1811,7 @@ c
      &                   dbl_mb(k_eval(1)),
      &                   dbl_mb(k_occ),
      &                   nTotOcc,
+     &                   noc, ! FA
      &                   ipol,
      &                   ener_scal)
          end if

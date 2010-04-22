@@ -21,6 +21,8 @@
       OBJ= \
 	grid_sic.o \
 	grid_zoracorr.o \
+	grid_zoracorr_FA.o \
+        gridQpqPotential.o \
 	grid_checks.o \
         grid_balance.o \
 	grid_rtrunc.o \

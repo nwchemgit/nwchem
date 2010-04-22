@@ -1,9 +1,17 @@
+c NOTE.- This is a modified code of zora_tabcd() for
+c        calculation of EFG numerically
+c        or to evaluate numerically any type of integral
+c        < chi | Amat | chi >
+c        Amat is array defined in grid_zoracorr, it is shaped
+c        by the operator used.  In my case I wanted to evaluate
+c        numerically EFGs
+c        Fredy Aquino  12-21-09
 czora...Build the zora contribution to the fock matrix
 czora...This is routine is analogous to the xc_tabcd routine that
 czora...contructs the exchange-correlation contribution
 czora...TODO: Clean up and more comments
 c
-      subroutine zora_tabcd(what,l3d,
+      subroutine zora_tabcd_EFG(what,l3d,
      ,     tol_rho, Tmat, TTmat, Amat, Bmat, Cmat, Dmat, 
      N     Emat,Fmat,qxyz,xyz,
      &     chi, delchi, heschi, 
@@ -129,7 +137,7 @@ c
       data indh / 1, 2, 3,
      &            2, 4, 5,
      &            3, 5, 6 /
-
+c
 c         0: l3d=.f.    & n3d=1
 ccc	rhs: l3d=.true. & n3d=3
 ccc	lhs: l3d=.true. & n3d=1
@@ -172,9 +180,7 @@ c     Compute the matrix product for the XC potential and energy:
 c
 c              T = transpose(A*B) + transpose(C*D)
 c
-
          call starttimer(monitor_screen1)
-
          A_MAX = dabsmax(nq*ipol,Amat(1,1,imat))
          if (GRAD) then
             C_MAX = dabsmax(nq*3*ipol,Cmat(1,1,1,imat))
@@ -182,9 +188,7 @@ c
             C_MAX = 0d0
          endif
          AC_MAX = max(A_MAX,C_MAX)
-
          call endtimer(monitor_screen1)
-
 c
 c     repl stuff
 c
@@ -203,55 +207,30 @@ c
          if(GRAD) FUNC_MAXI = max(FUNC_MAXI,rdelchi_atom(iat))
          doitt=(AC_MAX*FUNC_MAXI).ge.tol_rho
          call endtimer(monitor_screen2)
+
          if(what.eq.2.or.doitt) then
-         ifinia = ifin(iat)
-         ifirst = cetobfr(1,iat)
-         ilast = cetobfr(2,iat)
-         nnia = ifinia - inizia + 1
-         nbfia = ilast - ifirst + 1
+          ifinia = ifin(iat)
+          ifirst = cetobfr(1,iat)
+          ilast  = cetobfr(2,iat)
+          nnia   = ifinia - inizia + 1
+          nbfia  = ilast - ifirst + 1
          do ii = 1, ipol
             do mu = 1, nnia
-
                call starttimer(monitor_mult1)
-
                mu1 = mu+inizia-1
                if (GRAD) then
                  do n = 1, nq
-                  chi1 = chi(n,mu1)
-
                   Bmat(n,mu) = 0.d0
-
-                  if (so_term .eq. 1) then        ! z-component
-                    Dmat(n,1,mu) = delchi(n,1,mu1)*Amat(n,ii,imat)
-                    Dmat(n,2,mu) = delchi(n,2,mu1)*Amat(n,ii,imat)
-                    Dmat(n,3,mu) = 0.d0
-                  else if (so_term .eq. 2) then   ! y-component
-                    Dmat(n,3,mu) = delchi(n,3,mu1)*Amat(n,ii,imat)
-                    Dmat(n,1,mu) = delchi(n,1,mu1)*Amat(n,ii,imat)
-                    Dmat(n,2,mu) = 0.d0
-                  else if (so_term .eq. 3) then   ! x-component
-                    Dmat(n,2,mu) = delchi(n,2,mu1)*Amat(n,ii,imat)
-                    Dmat(n,3,mu) = delchi(n,3,mu1)*Amat(n,ii,imat)
-                    Dmat(n,1,mu) = 0.d0
-                  else if (so_term .eq. 0) then   ! spin-free
-                    Dmat(n,1,mu) = delchi(n,1,mu1)*Amat(n,ii,imat)
-                    Dmat(n,2,mu) = delchi(n,2,mu1)*Amat(n,ii,imat)
-                    Dmat(n,3,mu) = delchi(n,3,mu1)*Amat(n,ii,imat)
-                  end if
-
+                  Dmat(n,1,mu) = chi(n,mu1)*Amat(n,ii,imat) 
                  enddo   ! nq: over grid points
                else
-                  do n = 1, nq
-                     Bmat(n,mu) = 0.d0
-                  enddo   ! nq: over grid points
+                 do n = 1, nq
+                  Bmat(n,mu) = 0.d0
+                 enddo   ! nq: over grid points
                endif
-
             enddo  ! mu: over the basis set
-
 c     Monitoring 
-
             call endtimer(monitor_mult1)
-c
             call starttimer(monitor_screen3)
             B_MAX = dabsmax(nnia*nq,Bmat)
             if (GRAD) then
@@ -284,11 +263,8 @@ c
                doitt=(BD_MAX*FUNC_MAXJ).ge.tol_rho
                call endtimer(monitor_screen4)
                if(what.eq.2.or.doitt) then
- 
 c     Monitoring 
-
             call starttimer(monitor_mult2)
-
                if(what.eq.3) then
                      Rij(1) = 0.5d0*(xyz(1,jat)-xyz(1,iat))
                      Rij(2) = 0.5d0*(xyz(2,jat)-xyz(2,iat))
@@ -306,68 +282,16 @@ c
 c              Loop over x, y, z directions for derivative XC mats
 c
                do jdir = 1,n3d
-c
-                  if(what.eq.3) then
-                     ix1 = mod(jdir,3)+1
-                     ix2 = mod(jdir+1,3)+1
-                     raa=rij(ix1)
-                     rbb=rij(ix2)
-                     do iq = 1, nq
-                        scr(iq) = raa*qxyz(ix2,iq) - rbb*qxyz(ix1,iq)
-                     enddo
-                     do inia = 1, nnia
-                        do iq = 1, nq
-                           Emat(iq,inia) = scr(iq)*Bmat(iq,inia)
-                        enddo
-                        if (GRAD) then
-                           do iq = 1, nq
-                               Emat(iq,inia) = 0.d0
-                           enddo
-                        endif
-                     enddo
-                     if (GRAD) then
-                        do inia = 1, nnia
-                              do iq = 1, nq
-                               Fmat(iq,1,inia) = 0.d0
-                               Fmat(iq,2,inia) = 0.d0
-                               Fmat(iq,3,inia) = 0.d0
-                           enddo
-                        enddo
-                     endif
-                  endif
-c
                   if (GRAD) then
                    indT = 0
                    do nu = 1, nnja
                      nu1 = nu+inizja-1
                      do mu = 1, nnia
                       indT = indT + 1
-
-czora...               build Tmat
-
-                      if (so_term .eq. 1) then       ! z-component
-                       Tmat(indT) = 
-     &                   ddot(nq,Dmat(1,1,mu),1,delchi(1,2,nu1),1)
-     &                 - ddot(nq,Dmat(1,2,mu),1,delchi(1,1,nu1),1)
-                      else if (so_term .eq. 2) then  ! y-component
-                       Tmat(indT) = 
-     &                   ddot(nq,Dmat(1,3,mu),1,delchi(1,1,nu1),1)
-     &                 - ddot(nq,Dmat(1,1,mu),1,delchi(1,3,nu1),1)
-                      else if (so_term .eq. 3) then  ! x-component
-                       Tmat(indT) = 
-     &                   ddot(nq,Dmat(1,2,mu),1,delchi(1,3,nu1),1)
-     &                 - ddot(nq,Dmat(1,3,mu),1,delchi(1,2,nu1),1)
-                      else if (so_term .eq. 0) then  ! spin-free
-                       Tmat(indT) =
-     &                   ddot(nq,Dmat(1,1,mu),1,delchi(1,1,nu1),1)
-     &                 + ddot(nq,Dmat(1,2,mu),1,delchi(1,2,nu1),1)
-     &                 + ddot(nq,Dmat(1,3,mu),1,delchi(1,3,nu1),1)
-                      end if
-
+                      Tmat(indT)=ddot(nq,Dmat(1,1,mu),1,chi(1,nu1),1)  
                      enddo ! mu: over the basis set
                    enddo ! nu: over the basis set
-
-                  endif
+                  endif ! END-if-GRAD
 
                   if(n3d.eq.1) then
                      call dfill(max_at_bf2, 0.d0, TTmat, 1)
@@ -392,9 +316,7 @@ czora...               build Tmat
                enddo            ! jdir (loop over x, y, z directions for nmr)
 
 c     Monitoring 
-
-            call endtimer(monitor_mult2)
-            
+            call endtimer(monitor_mult2)           
                   doitt=.true.
             call starttimer(monitor_screen5)
                if(what.eq.0) then
@@ -437,18 +359,10 @@ c     Monitoring
                      else
                         call upd_atom_block(g_update(ii),
      &                       basis,iat,jat,ttmat)
-
-
                      endif
                   endif
-
-
-
 c     Monitoring
-
                call endtimer( monitor_comm_ga_acc1)
-
-
                if(what.ne.0.or.l3d) then
 c
 c                 check to see if can skip and use ga_symmetrize
@@ -456,11 +370,8 @@ c
                   if ((w013.and.iat.ne.jat).or.what.eq.2) then
 c     For CPKS RHS, we update with transpose even for iat = jat,
 c     since that is necessary to get both contributions
-c     mu * del(nu) and del(mu) * nu
-                     
-
+c     mu * del(nu) and del(mu) * nu                  
                      call starttimer(monitor_comp_transp)
-
                      if(n3d.eq.1) then
                         call transp_mat(TTmat, Tmat,
      ,                       nbfia, nbfja)
@@ -472,16 +383,10 @@ c     mu * del(nu) and del(mu) * nu
      ,                       nbfia, nbfja)
                      endif
 
-                     call endtimer(monitor_comp_transp)
-
-                     
+                     call endtimer(monitor_comp_transp)                     
 c     Monitoring 
-
-                     call starttimer(monitor_comm_ga_acc2)
-
-                     
+                     call starttimer(monitor_comm_ga_acc2)                     
                      if(l3d) then
-
                         call dft_3dacc(g_zora, tmat,
      &                       jrsh,jrsh2,
      %                       jfirst, jlast, ifirst, ilast, nbfja)
@@ -501,16 +406,11 @@ c     Monitoring
                         endif
                      endif
 c     Monitoring 
-
-                     call endtimer(monitor_comm_ga_acc2)
-
-                     
+                     call endtimer(monitor_comm_ga_acc2)                     
                   endif
                endif
-
             endif
            endif
-
  168       continue
         enddo ! ipol loop
       endif

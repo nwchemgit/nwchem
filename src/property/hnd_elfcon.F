@@ -61,6 +61,7 @@ c
 c
 c     ----- calculate electronic integral component(s) at all points -----
 c
+
       ijshell = 0
       do ishell = 1, nshell
 c

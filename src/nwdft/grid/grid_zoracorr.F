@@ -11,16 +11,20 @@ c
 #include "stdio.fh"
 #include "zora.fh"
 #include "geom.fh"
+#include "global.fh"  ! FA
 c
+      external gridQpqPotential
       integer nqpts
       integer g_dens(2),igrid,natoms,npol
-      double precision qxyz(*),qwght(*)![in]
+      double precision qxyz(3,*),qwght(*)![in]
       double precision amat(nqpts,ipol)
       double precision amat_coul(nqpts,ipol)
       double precision amat_nucl(nqpts)
+      double precision amat_Qnucl(nqpts) ! Added by FA
       double precision tol
       double precision zoraCorr, totPot
       integer iatom
+
       double precision nucCharge, nucCoords(3)
       character*16 tags(natoms)
       logical lSuccess
@@ -40,6 +44,7 @@ c     == preliminaries ==
            amat_coul(igrid,2) = 0.d0            
         end if 
         amat_nucl(igrid) = 0.d0
+        amat_Qnucl(igrid) = 0.d0 ! Added by FA
         closegridpts(igrid) = 0
       end do
 c
@@ -55,29 +60,41 @@ c     == calculate the hartree potential on a supplied list of points ==
 c
 c     == calculate the total nuclear potential on the grid ==
       call gridNuclearPotential(geom,natoms,nqpts,qxyz,qwght,
-     &    closegridpts,amat_nucl)
+     &                          closegridpts,amat_nucl)
+      if ((zora_calc_type.eq.3).or.(zora_calc_type.eq.4)) then
+c     == calculate Quadrupole potential on the grid ==
+       call gridQpqPotential(nqpts,qxyz,amat_Qnucl,
+     &                       closegridpts)   
+      end if
 c
 c     == assemble zora correction ==
       zoraCorr = 0.d0
       totPot = 0.d0
       do igrid = 1,nqpts
        if (ipol.gt.1) then
-        totPot = - amat_coul(igrid,1) - amat_coul(igrid,2) 
-     &         + amat_nucl(igrid)
+        totPot = -amat_coul(igrid,1)-amat_coul(igrid,2) 
+     &           + amat_nucl(igrid)
        else
-        totPot = - amat_coul(igrid,1) + amat_nucl(igrid)
+        totPot = -amat_coul(igrid,1)+amat_nucl(igrid)
        end if
 c
 c      == assemble the appropriate correction ==
-       if (zora_calc_type.eq.0) then  ! pure kinetic test
-          zoraCorr = 0.5d0
+       if      (zora_calc_type.eq.0) then  ! pure kinetic test
+             zoraCorr = 0.5d0
        else if (zora_calc_type.eq.1) then ! zora correction
              zoraCorr = totPot/(4.d0*clight_au2 - 2.d0*totPot)
        else if (zora_calc_type.eq.2) then ! zora energy scaling
              denomFac = (2.d0*clight_au2 - totPot)
              zoraCorr = clight_au2/denomFac/denomFac
+       else if (zora_calc_type.eq.3) then ! zora EFG      - Added by FA
+             denomFac = (2.d0*clight_au2 - totPot)
+             zoraCorr = clight_au2/denomFac/denomFac
+             zoraCorr = zoraCorr*amat_Qnucl(igrid)
+       else if (zora_calc_type.eq.4) then ! Numerical EFG - Added by FA
+             zoraCorr = amat_Qnucl(igrid)
+c            zoraCorr = 1.0   ! For Atomic Nr FA-04-05-10
        else
-          zoraCorr = 0.d0
+             zoraCorr = 0.d0
        end if
 c
 c      == multiply by the integration weight ==
@@ -90,12 +107,10 @@ c
 c      == fill array ==
        amat(igrid,1) = zoraCorr
        if (ipol.gt.1) amat(igrid,2) = zoraCorr
-c
       end do
 c
       return
       end
-c
 czora...
 czora...Calculate the nuclear potential on the grid
 czora...
@@ -117,36 +132,29 @@ c
       double precision amat_nucl(nqpts)
       integer closegridpts(*)
 c
-c     write(luout,*) "zoracutoff:",zoracutoff
-c
 c     == get the total nuclear potential on the grid ==
-c
-c     == loop over the grid points ==
-      do igrid = 1,nqpts
-c
-      amat_nucl(igrid) = 0.d0
-c     == loop over the atoms ==
-      do iatom = 1,natoms
-c
+c 
+      do igrid = 1,nqpts   ! == loop over the grid points ==
+       amat_nucl(igrid) = 0.d0  
+       do iatom = 1,natoms ! == loop over the atoms ==
 c     == get an atom (needs error handling) ==
-      lSuccess = geom_cent_get(geom, iatom, tags, nucCoords, 
-     &          nucCharge)
-c
+        lSuccess = geom_cent_get(geom, iatom, tags, nucCoords, 
+     &             nucCharge)
 c     == distance from the grid points to the atom centers == 
-      rx = nucCoords(1) - qxyz(1,igrid)
-      ry = nucCoords(2) - qxyz(2,igrid)
-      rz = nucCoords(3) - qxyz(3,igrid)
-      dist = dsqrt(rx*rx + ry*ry + rz*rz)
-c
-c     == check cutoff ==
-      if (dist.gt.zoracutoff) then
-         amat_nucl(igrid) = amat_nucl(igrid) - nucCharge/dist
-      else
-         closegridpts(igrid) = igrid
-      end if
-c
-      end do
+        rx = nucCoords(1) - qxyz(1,igrid)
+        ry = nucCoords(2) - qxyz(2,igrid)
+        rz = nucCoords(3) - qxyz(3,igrid)
+        dist = dsqrt(rx*rx + ry*ry + rz*rz)
+        if (dist.gt.zoracutoff) then ! == check cutoff ==
+          amat_nucl(igrid) = amat_nucl(igrid) - nucCharge/dist
+        else
+          closegridpts(igrid) = igrid
+        end if
+       end do
       end do
 c
       return
       end 
+c
+
+

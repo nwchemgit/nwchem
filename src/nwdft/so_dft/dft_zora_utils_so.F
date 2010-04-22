@@ -1,7 +1,10 @@
 czora...
 czora...Scale zora eigenvalues and energy
 czora...
-          subroutine dft_zora_scale_so(geom, 
+          subroutine dft_zora_scale_so(
+     &                   rtdb,
+     &                   g_dens_ini,nexc,
+     &                   geom, 
      &                   ao_bas_han,
      &                   nbf,
      &                   nbf_ao,
@@ -14,6 +17,7 @@ czora...
      &                   evals,
      &                   focc,
      &                   noc,
+     &                   nocc, ! FA
      &                   ipol,
      &                   ener_scal)
 
@@ -23,10 +27,14 @@ czora...
 #include "stdio.fh"
 #include "global.fh"
 #include "msgids.fh"
+#include "zora.fh"
+#include "rtdb.fh" ! FA
 
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
-
+      external get_rhoS_so         ! FA
+      external hnd_efgmap_Z4_so    ! FA
+      external print_EFGZ4_version ! FA
       integer g_dens(2)
       integer g_moso(2)
       integer g_orb(2)
@@ -35,12 +43,9 @@ czora...
       integer g_s
       integer g_zora_scale_sf(2)
       integer g_zora_scale_so(3)
-
       double precision numelecs, ener_kin
-
       integer l_vecsre, k_vecsre
       integer l_vecsim, k_vecsim
-
       integer iorb
       double precision eval_scal
       double precision ener_scal
@@ -61,7 +66,34 @@ czora...
 
       double precision focc(*)  ! occupation no.
       double precision evals(*) ! eigenvalues
-c
+      double precision zora_denom          ! Added by FA
+      integer rtdb                         ! Added by FA
+      integer nexc,g_dens_ini(2)           ! Added by FA
+      integer j,j1,iorb1,nocc(2)           ! Added by FA
+      logical do_zgc_old                   ! Added by FA
+      integer ac_AB(2),iter                ! Added by FA
+      character*1  soxyz(3)                ! Added by FA
+      double precision ener_sf_1,ener_sf_2 ! Added by FA
+      logical status                       ! Added by FA 
+      integer noelfgz4                     ! Added by FA 
+      data noelfgZ4/1/                     ! Added by FA 
+      soxyz(1)='z'
+      soxyz(2)='y'
+      soxyz(3)='x'
+       if (ga_nodeid().eq.0) call print_EFGZ4_version()
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++
+      status=rtdb_get(rtdb,'prop:efieldgradZ4',MT_INT,1,noelfgZ4) ! FA
+      do_zgc_old=do_zora_get_correction
+      do_zora_get_correction= .true. !-1  ! FORCE-ZORA-CALC-INTS
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++
+c ----- execute this code ONLY when EFGZ4 is requested -- START
+      if(noelfgZ4.eq.0) then
+       if (.not.ga_create(MT_DBL,2,nocc(1)+nocc(2),      ! FA
+     &      'dft_zora_scale: g_Ci',0,0,g_Ci))            ! FA
+     &  call errquit('dft_zora_scale_so: g_Ci',0,GA_ERR) ! FA
+       call ga_zero(g_Ci)                                ! FA
+      endif
+c ----- execute this code ONLY when EFGZ4 is requested -- END
 c     allocate memory
 c
       if (.not.MA_Push_Get(MT_Dbl, nbf_mo, 'real vec aux',
@@ -114,52 +146,71 @@ c        ener_kin = ga_ddot(g_scratch(2),g_zora_scale_sf(2))
 c        write(luout,*) "Kinetic energy spin down again:",ener_kin
 c      end if
 czora...debug
-
+      j=0 ! FA
+      ac_AB(1)=1
+      ac_AB(2)=1
       ener_scal = 0.d0
-      ener_tot = 0.d0
+      ener_tot  = 0.d0
       do iorb = 1, nbf_mo
-c      write(luout,*) iorb, evals(iorb)
        call ga_get(g_moso(1),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsre),1)
        call ga_zero(g_orb(1))
-       call ga_put(g_orb(1),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsre),1)
+       call  ga_put(g_orb(1),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsre),1)
 
        call ga_get(g_moso(2),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsim),1)
        call ga_zero(g_orb(2))
-       call ga_put(g_orb(2),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsim),1)
+       call  ga_put(g_orb(2),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsim),1)
 
        call dft_densm_so(g_dens_so, g_orb, nbf_ao, noc)
        call ga_zero(g_scr(1))
        call ga_zero(g_scr(2))
        call ga_dens_sf(g_scr, g_dens_so(1), nbf_ao)
-
-       ener_sf = ga_ddot(g_scr(1),g_zora_scale_sf(1)) +
-     &        ga_ddot(g_scr(2),g_zora_scale_sf(2))
-
-       call ga_zero(g_scr(1))
-       call ga_dens_so(g_scr(1), g_dens_so, nbf_ao, 'z')
-       ener_so_z = ga_ddot(g_scr(1), g_zora_scale_so(1)) 
-
-       call ga_zero(g_scr(1))
-       call ga_dens_so(g_scr(1), g_dens_so, nbf_ao, 'y')
-       ener_so_y = ga_ddot(g_scr(1), g_zora_scale_so(2)) 
-
-       call ga_zero(g_scr(1))
-       call ga_dens_so(g_scr(1), g_dens_so, nbf_ao, 'x')
-       ener_so_x = ga_ddot(g_scr(1), g_zora_scale_so(3)) 
-
-       ener_tot = ener_sf + ener_so_z + ener_so_y + ener_so_x
+       ener_sf_1=ga_ddot(g_scr(1),g_zora_scale_sf(1))
+       ener_sf_2=ga_ddot(g_scr(2),g_zora_scale_sf(2))
+       ener_sf=ener_sf_1+ener_sf_2
+       ener_tot=ener_sf
+       do iter=1,3
+        call ga_zero(g_scr(1))
+        call ga_dens_so(g_scr(1),g_dens_so,nbf_ao,soxyz(iter))
+        ener_tot=ener_tot+ga_ddot(g_scr(1),g_zora_scale_so(iter)) 
+       end do
+       zora_denom=1.d0+ener_tot
        eval_scal = evals(iorb)
-       eval_scal = eval_scal/(1.d0 + ener_tot) 
+       eval_scal = eval_scal/zora_denom
        ener_scal = ener_scal - eval_scal*ener_tot 
-
-c       ener_scal = ener_scal 
-c     &    + ener_sf + ener_so_z + ener_so_y + ener_so_x
-
        evals(iorb) = eval_scal
-c      write(luout,*) iorb, evals(iorb), eval_scal
-
-      end do 
-c      write(luout,*) "ener_scal:",ener_scal
+c ----- execute this code ONLY when EFGZ4 is requested -- START
+       if(noelfgZ4.eq.0) then
+        j1=j+1                          ! FA
+        if (ac_AB(j1).le.nocc(j1)) then ! FA
+         call ga_fill_patch(g_Ci,j1,j1,ac_AB(j1),ac_AB(j1),zora_denom) ! FA
+         ac_AB(j1)=ac_AB(j1)+1          ! FA
+        end if                          ! FA
+        j=1-j                           ! FA
+       endif
+c ----- execute this code ONLY when EFGZ4 is requested -- END
+       end do 
+c ----- execute this code ONLY when EFGZ4 is requested -- START
+       if(noelfgZ4.eq.0) then
+c       if (ga_nodeid().eq.0) write(*,*) "---g_Ci_so -- START"
+c       call ga_print(g_Ci)
+c       if (ga_nodeid().eq.0) write(*,*) "---g_Ci_so -- END"
+c       write(luout,*) "ener_scal:",ener_scal
+        call get_rhoS_so(rtdb,g_dens_ini,nexc,
+     &                   geom,ao_bas_han,
+     &                   nbf,nbf_ao,nbf_mo,
+     &                   g_dens,g_moso,g_zora_scale_sf,
+     &                   noc,nocc,ipol)
+c -------- computing EFGs --------- START
+        call hnd_efgmap_Z4_so(rtdb,ao_bas_han,geom,
+     &                        nbf,nbf_ao,nbf_mo,
+     &                        g_dens,g_moso,
+     &                        noc,nocc)
+         if (ga_nodeid().eq.0) 
+     &     write(*,*) "STOP-eval-EFG-so ..."
+         stop
+c -------- computing EFGs --------- END
+       endif
+c ----- execute this code ONLY when EFGZ4 is requested -- START
 
 c     deallocate memory
       if (.not. ma_chop_stack(l_vecsim)) 
@@ -181,7 +232,9 @@ c     deallocate memory
      & call errquit('dft_zora_scale_so: ga_destroy failed',0, GA_ERR)
       if (.not. ga_destroy(g_scr(2))) 
      & call errquit('dft_zora_scale_so: ga_destroy failed',0, GA_ERR)
-
+c +++++++++++++++ RESTORE VALUE +++++++++++++START
+      do_zora_get_correction=do_zgc_old
+c +++++++++++++++ RESTORE VALUE +++++++++++++END  
       return
       end
 c

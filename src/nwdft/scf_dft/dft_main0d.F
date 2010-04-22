@@ -136,6 +136,9 @@ c
 c     == Get the grid cutoff or set default ==
       if(.not.rtdb_get(rtdb,'zora:cutoff',mt_dbl,1,zoracutoff))
      &  zoracutoff = 1.0d-08
+      if(.not.rtdb_get(rtdb,'zora:cutoff_EFG',          ! FA
+     &                 mt_dbl,1,zoracutoff_EFG))        ! FA
+     &  zoracutoff_EFG = 1.0d-04                        ! FA
 c
 c     == Get the light speed and other constants, if specified ==
       call rel_init_con(rtdb)

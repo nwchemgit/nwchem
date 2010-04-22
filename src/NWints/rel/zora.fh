@@ -17,10 +17,30 @@ czora...calculation control
 czora...0 = pure kinetic calculated on a grid (for testing)
 czora...1 = zora correction to the kinetic energy
 czora...2 = zora energy scaling
+czora...3 = zora EFG - Added by Fredy Aquino
 
+        double precision zoracutoff_EFG
+        common/zora_tols_EFG/zoracutoff_EFG
         integer zora_calc_type
         common/zora_calc/zora_calc_type
+czora .. Electric Field Gradient correction integral
+        integer zora_Qpq
+c Reference: van Lenthe, J.Chem.Phys.,V112,p8279,(2000)
+c            \int d^r' \rho^S_i(\vec{r}') Q_pq(\vec{r},\vec{r}')
+c           zora_Qpq = 1  -> Evaluates Qxx
+c                    = 2  -> Evaluates Qyy
+c                    = 3  -> Evaluates Qzz
+c                    = 4  -> Evaluates Qxy
+c                    = 5  -> Evaluates Qxz
+c                    = 6  -> Evaluates Qyz
+        double precision xyz_EFGcoords(3) ! Added by FA
+        common/zora_EFG/zora_Qpq,xyz_EFGcoords
 c
 czora...zora cutoff
         double precision zoracutoff
         common/zora_tols/zoracutoff
+
+        integer g_Ci,g_rhoS,g_AtNr
+        integer nlist
+        common/zora_ints/g_Ci,g_rhoS
+        common/zora_listAt/g_AtNr,nlist

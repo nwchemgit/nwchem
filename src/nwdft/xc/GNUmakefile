@@ -22,6 +22,7 @@ HEADERS = xc.fh
 	xc_pw91lda.o \
 	xc_rhogen.o \
 	xc_tabcd.o \
+	zora_tabcd_EFG.o \
 	zora_tabcd.o \
 	xc_vwn_1.o \
 	xc_vwn_1_rpa.o \

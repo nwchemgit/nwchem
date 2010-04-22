@@ -30,6 +30,7 @@ c
       integer efield
       integer efieldmap
       integer efieldgrad
+      integer efieldgradZ4 ! Added by FA
       integer efieldgradmap
       integer electrondensity
       integer electrondensitymap
@@ -40,10 +41,13 @@ c
       integer hyperfine
       integer spinspin, spnspnpairs
       integer giao, giaoatoms
+      integer efgz4atoms ! Added by FA
       integer center
       integer l_at, k_at, l_pr, k_pr
       double precision point(3)
       logical status
+
+      integer atomnr(100) ! FA-04-22-10
 
 c ... jochen:
       integer aoresponse, nfreq, l_fr, k_fr, 
@@ -72,6 +76,7 @@ c
       efield            = 1
       efieldmap         = 1
       efieldgrad        = 1
+      efieldgradZ4      = 1
       efieldgradmap     = 1
       electrondensity   = 1
       electrondensitymap= 1
@@ -88,6 +93,7 @@ c
       point(2)          = 0.0d+0
       point(3)          = 0.0d+0
       giaoatoms         = 0
+      efgz4atoms        = 0 ! FA
       spnspnpairs       = 0
 
 c ... jochen:
@@ -238,6 +244,53 @@ c ... jochen end
          efieldgrad      = 0
       elseif ( inp_compare(.false., 'efieldgrad', test)) then
          efieldgrad      = 0
+      elseif ( inp_compare(.false., 'efieldgradZ4', test)) then ! Added FA
+         efieldgradZ4    = 0 ! Added by FA
+c ================== TEST ==============START
+c ==========================================
+          if (inp_i(efgz4atoms)) then
+            if (.not. ma_push_get(mt_int,efgz4atoms,'atoms',l_at,k_at))
+     &         call errquit('prp_input ma_push_get fail k_pr',0,MA_ERR)
+            icount = 0
+c            write(*,*) "PROPERTY: efgz4atoms=",efgz4atoms
+            do ii = 1, efgz4atoms
+c              write(*,42) ii,int_mb(k_at+ii-1)
+c 42           format('BEF:efgz4_atms(',i3,')=',i5)
+              status = inp_i(int_mb(k_at+ii-1))
+              atomnr(ii)=int_mb(k_at+ii-1)
+c              write(*,43) ii,int_mb(k_at+ii-1)
+c 43           format('AFT:efgz4_atms(',i3,')=',i5)
+              if (status) then
+                icount = icount+1
+              else
+                write(6,'(a,a,i4,a)') 
+     &             'EFGZ4 property input found',
+     &             ' fewer atoms than expected, only',icount,
+     &             ' will be used'
+                efgz4atoms = icount
+                if (icount.eq.0) then 
+                  if (.not.ma_pop_stack(l_at)) call
+     &        errquit('prop_input: ma_pop_stack failed k_at',0,MA_ERR)
+                endif
+                goto 13
+              endif
+            enddo
+          else
+            efgz4atoms=0 ! check
+          endif
+   13     continue      
+c         write(*,*) "in prop: efgz4atoms=",efgz4atoms
+c --------- storing selected atmnr in rtdb ------- START
+         if (.not. rtdb_put(rtdb, 'prop:atnr',mt_int,
+     $                      1,efgz4atoms))
+     $      call errquit('prop_input-EFGZ4: rtdb_put failed',
+     $                   555, RTDB_ERR)
+        if (.not. rtdb_put(rtdb, 'prop:atnr1',mt_int,
+     $                     efgz4atoms,atomnr))
+     $      call errquit('prop_input-EFGZ41: rtdb_put failed',
+     $                   555, RTDB_ERR)
+c --------- storing selected atmnr in rtdb ------- END
+c ==========================================
       elseif ( inp_compare(.false., 'efieldmap', test)) then
          efieldmap       = 0
          efield          = 0
@@ -272,6 +325,7 @@ c ... jochen end
          electrondensity    = 0
          efieldgradmap   = 0
          efieldgrad      = 0
+         efieldgradZ4    = 0 ! Added by FA
          efieldmap       = 0
          efield          = 0
          esp             = 0
@@ -357,6 +411,9 @@ c
       if (.not. rtdb_put(rtdb, 'prop:efieldgrad', mt_int, 1,
      $                               efieldgrad        ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:efieldgradZ4', mt_int, 1,! Added FA
+     $                               efieldgradZ4        ))   ! Added FA  
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR) !FA
       if (.not. rtdb_put(rtdb, 'prop:efieldgradmap', mt_int, 1,
      $                               efieldgradmap     ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)

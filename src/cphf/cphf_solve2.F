@@ -211,14 +211,22 @@ c !!! BGJ
          cosmo_on = .true.
          cosmo_phase = 2
       endif
-
+      if (ga_nodeid().eq.0) then  ! Added by FA-04-05-10
+       write(*,*) "FA-1: Before ev. Fock matrices ..."
+      endif
       if(scftype .eq. 'UHF')then
          call uhf_init(rtdb)
          call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
       else
+       if (ga_nodeid().eq.0) then  ! Added by FA-04-05-10
+        write(*,*) "FA-2: ENTER ev. ROHF-Fock matrices ..."
+       endif
          call rohf_init(rtdb)
          call rohf_energy(g_movecs,eone,etwo,enrep,energy,g_work,
      ,        rtdb)
+      endif
+      if (ga_nodeid().eq.0) then  ! Added by FA-04-05-10
+       write(*,*) "FA-3: After ev. Fock matrices ..."
       endif
 c !!! BGJ
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))

@@ -90,6 +90,12 @@ c
          if(.not. inp_f(zoracutoff)) zoracutoff = 1.0d-08  ! set a default cutoff
          if (.not. rtdb_put(rtdb,'zora:cutoff',mt_dbl,1,zoracutoff))
      &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)
+c------------- zoracutoff_EFG, used in get_rhoS() from dft_zora_utils.F -- FA-01-01-10
+      elseif(inp_compare(.false.,'zora:cutoff_EFG',test)) then                      ! FA
+         if(.not. inp_f(zoracutoff_EFG)) zoracutoff_EFG = 1.0d-04 ! set dflt cutoff   FA
+         if (.not. rtdb_put(rtdb,'zora:cutoff_EFG',                                 ! FA
+     &                      mt_dbl,1,zoracutoff_EFG))                               ! FA
+     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)                    ! FA
 c
       else if (inp_compare(.false.,'end', test)) then
 c

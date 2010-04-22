@@ -107,7 +107,9 @@ c
 c
       ntot_cube=0
       StericEnergyTotal = 0.d0 ! steric energy
-c 
+c
+c     write(*,*) "n_rec_in_file=",n_rec_in_file
+
       do 200 iqsh = 1, n_rec_in_file
 c
 c     Define the current range of radial shells and integration center.
@@ -118,6 +120,8 @@ c
      '        errquit(' buffersize exceed by qpts ',nqpts, DISK_ERR)
         if(nqpts.eq.0) goto 200
         istep=0
+
+c       write(*,*) "nsubb=",nsubb
 
         do  ncube=1,nsubb
 c     

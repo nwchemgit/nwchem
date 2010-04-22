@@ -17,12 +17,19 @@ c ... jochen: added some aoresponse stuff here
       logical     status
       logical     some
       logical     out 
-      data nodip,noqdp,nootp,nopop,nospin,noloc,nodpl,nodhp,nod2hp,
-     1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noden,
+c     data nodip,noqdp,nootp,nopop,nospin,noloc,nodpl,nodhp,nod2hp,
+c    1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noden,
+c    2     nogiao,noston,nospinspin, noaoresponse
+c    3    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
+c    4       1,    1,    1,    1,    1,    1,    1,    1, 
+c    5       1,    1,    1,    1/
+c     Modified by Fredy Aquino to Add EFG-ZORA4
+       data nodip,noqdp,nootp,nopop,nospin,noloc,nodpl,nodhp,nod2hp,
+     1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noelfgZ4,noden,
      2     nogiao,noston,nospinspin, noaoresponse
      3    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
      4       1,    1,    1,    1,    1,    1,    1,    1, 
-     5       1,    1,    1,    1/
+     5       1,    1,    1,    1,    1/
 c
       out   =.false.
       some  =.true.        
@@ -38,6 +45,7 @@ c
       status=rtdb_get(rtdb,'prop:esp',MT_INT,1,noelp)               !done
       status=rtdb_get(rtdb,'prop:efield',MT_INT,1,noelf)            !done
       status=rtdb_get(rtdb,'prop:efieldgrad',MT_INT,1,noelfg)       !done
+      status=rtdb_get(rtdb,'prop:efieldgradZ4',MT_INT,1,noelfgZ4) !done FA
       status=rtdb_get(rtdb,'prop:electrondensity',MT_INT,1,noden)   !done
       status=rtdb_get(rtdb,'prop:stoneanalysis',MT_INT,1,noston)
       status=rtdb_get(rtdb,'prop:giao',MT_INT,1,nogiao)             !done
@@ -123,6 +131,33 @@ c
 c     ----- electric field gradient -----
 c
       if(noelfg.eq.0) call hnd_efgmap(rtdb,basis,geom)
+c
+c     ----- electric field gradient with ZORA 4 ----- FA-11-24-09
+c
+      if(noelfgZ4.eq.0) then
+        if (ga_nodeid().eq.0) then
+         write(*,*) " ===================================="
+         write(*,*) " ========= ZORA-EFG =========== START"
+         write(*,*) " ===================================="
+        endif
+       call hnd_efgmap(rtdb,basis,geom)
+        if (ga_nodeid().eq.0) then
+         write(*,*) " ===================================="
+         write(*,*) " ========= ZORA-EFG =========== END"
+         write(*,*) " ===================================="
+        endif
+        if (ga_nodeid().eq.0) then
+         write(*,*) " ++++++++++++++++++++++++++++++++++++++++"
+         write(*,*) " +++++++++ ZORA4-SR-EFG +++++++++++ START"
+         write(*,*) " ++++++++++++++++++++++++++++++++++++++++"
+        endif
+       call hnd_efgmap_Z4(rtdb,basis,geom)
+        if (ga_nodeid().eq.0) then
+         write(*,*) " ++++++++++++++++++++++++++++++++++++++++"
+         write(*,*) " +++++++++ ZORA4-SR-EFG +++++++++++ END"
+         write(*,*) " ++++++++++++++++++++++++++++++++++++++++"
+        endif
+      end if
 c
 c     ----- electron and spin densities -----
 c

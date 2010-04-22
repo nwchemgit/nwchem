@@ -178,6 +178,7 @@ c
       integer g_zora_sf(2), g_zora_scale_sf(2)
       integer g_zora_scr(2)
       double precision ener_scal
+      integer g_dens_ini(2)    ! Added by FA
 c
 c     timings 
 c
@@ -700,6 +701,20 @@ c
 c
 czora...Calculate the zora spin-free atomic corrections
 c
+c ----- copy g_dens - FA ------- START
+c        if (ga_nodeid().eq.0) 
+c    &      write(*,*) "copying g_dens --> g_dens_ini ..START"
+         if(.not.ga_duplicate(g_dens(1),g_dens_ini(1),'gdens 1'))
+     &   call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
+          call ga_copy(g_dens(1),g_dens_ini(1))   
+          if (ipol.gt.1) then
+         if(.not.ga_duplicate(g_dens(2),g_dens_ini(2),'gdens 2'))
+     &   call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
+          call ga_copy(g_dens(2),g_dens_ini(2))    
+          endif
+c        if (ga_nodeid().eq.0) 
+c    &      write(*,*) "copying g_dens --> g_dens_ini ..END"
+c ----- copy g_dens - FA ------- END
           so_term = 0
           zora_calc_type = 1  ! zora corrections
           call ga_zero(g_zora_scr(1))
@@ -1517,7 +1532,9 @@ czora...Scale the zora eigenvalues and energy
 c
       ener_scal = 0.d0
       if (do_zora) then
-        call dft_zora_scale(geom, 
+        call dft_zora_scale(
+     &                   rtdb,g_dens_ini,nexc,  ! Added by FA
+     &                   geom, 
      &                   ao_bas_han,
      &                   nbf,
      &                   nbf_ao,
