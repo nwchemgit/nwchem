@@ -849,7 +849,7 @@ c      end do
       call paw_proj_sub2(nfft3d,int_mb(gm(1)),
      >                   dbl_mb(ray(1)),dbl_mb(rayleigh(1)))
 
-      call D3dB_t_write(1,6,dbl_mb(rayleigh(1)),dcpl_mb(tmp(1)))
+      call D3dB_t_write(1,6,dbl_mb(rayleigh(1)),dcpl_mb(tmp(1)),0)
 
 
       if (taskid.eq.MASTER) then 
