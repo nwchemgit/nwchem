@@ -40,8 +40,9 @@ c
       call smd_monomer_init(itsk,im,theory,operation,rtdb)
       write(*,*) "operation is", operation
       if(inp_compare(.false., 'energy', operation)) then
-c         result = task_energy_doit(rtdb,theory,qm_energy)
-         result = task_energy(rtdb)
+         result = .true.
+         return
+c         result = task_energy(rtdb)
       else if(inp_compare(.false., 'gradient', operation)) then
         result = task_gradient(rtdb)
         call smd_geom_push_gradients(im)

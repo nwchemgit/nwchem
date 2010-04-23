@@ -27,7 +27,8 @@ c
       double precision cm(3)
       integer i_mr,i_pr
       integer i_nb,h_nb,nb
-      integer i_pbq,h_pbq,npbq,ir
+      integer i_pbq,h_pbq,ir
+      integer i_lbq,h_lbq,i_rbq,h_rbq
       logical nobq
       integer ng
       integer i_im,h_im
@@ -132,6 +133,7 @@ c
 c
       nb = nr
       call smd_geom_find_neighbors(im,nb,int_mb(i_nb))
+c      call smd_util_sort(nb,int_mb(i_nb))
       write(*,*) "found neighbors",nb,(int_mb(i_nb+i-1),i=1,nb)
 c
 c     total number of atoms in the geometry
@@ -183,32 +185,11 @@ c     --------------------
      +                       dbl_mb(i_ms1),
      +                       dbl_mb(i_q1),
      +                       byte_mb(i_t1),
-     +                       dbl_mb(i_c),
+     +                       dbl_mb(i_ct),
      +                       dbl_mb(i_m),
-     +                       dbl_mb(i_q),
+     +                       dbl_mb(i_qf),
      +                       byte_mb(i_ta))
- 
-       if(.not.geom_create(igeom,"geometry"))
-     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
-
-      if(.not.geom_cart_set_gen1(igeom,i0,nm,nt,smd_string_size,
-     + byte_mb(i_ta),
-     + dbl_mb(i_ct),dbl_mb(i_qf)))
-     + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
-
-      if(.not.geom_masses_set(igeom,nm,dbl_mb(i_m+i0-1)))
-     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
-      call geom_compute_values(igeom)
-c
-      if (.not. geom_print_xyz(igeom,97))
-     + call errquit('qmmmsi geom_print_xyz',0, GEOM_ERR)
-c
-      if(.not.geom_rtdb_store(rtdb,igeom,"geometry"))
-     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
-
-       if(.not.geom_destroy(igeom))
-     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
-c
+c 
       if(.not.ma_pop_stack(h_t1))
      & call errquit(pname//'Failed to deallocate stack h_l',nm,
      &       MA_ERR)
@@ -233,28 +214,29 @@ c
      & call errquit(pname//'Failed to deallocate stack h_l',nm,
      &       MA_ERR)
 
-      npbq = 2*(nb+1)
-      if(.not.ma_push_get(mt_int,npbq,'tmp',h_pbq,i_pbq))
+       if(.not.ma_push_get(mt_int,nb+1,'tmp',h_rbq,i_rbq))
+     + call errquit(pname//'Failed to allocate memory for tmp l',
+     + nb, MA_ERR)
+       if(.not.ma_push_get(mt_int,nb+1,'tmp',h_lbq,i_lbq))
      + call errquit(pname//'Failed to allocate memory for tmp l',
      + nb, MA_ERR)
       
-      int_mb(i_pbq) = 1
-      int_mb(i_pbq+npbq-1) = nt
+      int_mb(i_lbq) = 1
+      int_mb(i_rbq+nb) = nt
       j=1
       do i=1,nb
         ir=int_mb(i_nb+i-1)
-        write(44,*) "residue ir",ir,int_mb(i_pr+ir-1)-1
-        i0=max(int_mb(i_pr+ir-1)-1,1)
-        j = j+1
-        int_mb(i_pbq+j-1) =  i0
-        i0=int_mb(i_pr+ir)
-        j = j+1
-        int_mb(i_pbq+j-1) =  i0
+        write(44,*) "residue ir",ir,int_mb(i_pr+ir-1),
+     +               int_mb(i_pr+ir)   
+        int_mb(i_rbq+i-1) = int_mb(i_pr+ir-1)-1
+        int_mb(i_lbq+i) = int_mb(i_pr+ir)
       end do
-      call smd_util_sort(npbq,int_mb(i_pbq))
+      call smd_util_sort(nb+1,int_mb(i_rbq))
+      call smd_util_sort(nb+1,int_mb(i_lbq))
       write(44,*) "boundaries for bqs"
-      do i=1,npbq
-        write(44,*) i,int_mb(i_pbq+i-1)
+      do i=1,nb+1
+        write(44,*) i,int_mb(i_lbq+i-1),
+     +              int_mb(i_rbq+i-1)
       end do
 c      call smd_coords_print(55)
 c
@@ -281,10 +263,8 @@ c
         scale = 1.88972598858d0
 
         j=0
-        do ip=1,npbq,2
-        do i=int_mb(i_pbq+ip-1),int_mb(i_pbq+ip)
-           write(*,*) "bq do limits",
-     >       int_mb(i_pbq+ip-1),int_mb(i_pbq+ip)
+        do ip=1,nb+1
+        do i=int_mb(i_lbq+ip-1),int_mb(i_rbq+ip-1)
            j = j+1
            do k=1,3
               dbl_mb(i_cbq+3*(j-1)+k-1)=dbl_mb(i_ct+3*(i-1)+k-1)
@@ -292,7 +272,7 @@ c
               write(*,*) dbl_mb(i_cbq+3*(j-1)+k-1),
      >                   dbl_mb(i_ct+3*(i-1)+k-1)
            end do
-           dbl_mb(i_qbq+j-1)=dbl_mb(i_q+nm+i-1)
+           dbl_mb(i_qbq+j-1)=dbl_mb(i_q+i-1)
         end do
         end do
 
@@ -304,8 +284,11 @@ c
 
 c        call bq_print_info(bq_handle)
       end if
-      if(.not.ma_pop_stack(h_pbq))
-     & call errquit(pname//'Failed to deallocate stack h_pbq',nm,
+      if(.not.ma_pop_stack(h_lbq))
+     & call errquit(pname//'Failed to deallocate stack h_lbq',nm,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_rbq))
+     & call errquit(pname//'Failed to deallocate stack h_rbq',nm,
      &       MA_ERR)
 
       if(.not.ma_pop_stack(h_nb))
@@ -502,17 +485,17 @@ c     --------------------
         write(*,*) "positions",
      +             int_mb(i_im+i-1),int_mb(i_nm+i-1)  
       end do
-      call smd_geom_create_0(rtdb,nb,ng,nt,
-     +                       int_mb(i_nm),
-     +                       int_mb(i_im),
-     +                       dbl_mb(i_c1),
-     +                       dbl_mb(i_ms1),
-     +                       dbl_mb(i_q1),
-     +                       byte_mb(i_t1),
-     +                       dbl_mb(i_c),
-     +                       dbl_mb(i_m),
-     +                       dbl_mb(i_q),
-     +                       byte_mb(i_ta))
+c      call smd_geom_create_0(rtdb,nb,ng,nt,
+c     +                       int_mb(i_nm),
+c     +                       int_mb(i_im),
+c     +                       dbl_mb(i_c1),
+c     +                       dbl_mb(i_ms1),
+c     +                       dbl_mb(i_q1),
+c     +                       byte_mb(i_t1),
+c     +                       dbl_mb(i_ct),
+c     +                       dbl_mb(i_m),
+c     +                       dbl_mb(i_qf),
+c     +                       byte_mb(i_ta))
  
        if(.not.geom_create(igeom,"geometry"))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
@@ -697,10 +680,10 @@ c
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
 c
-      if (.not. geom_print_xyz(igeom,95))
+      if (.not. geom_print_xyz(igeom,97))
      + call errquit('qmmmsi geom_print_xyz',0, GEOM_ERR)
 c
-      if(.not.geom_rtdb_store(rtdb,igeom,"geometry0"))
+      if(.not.geom_rtdb_store(rtdb,igeom,"geometry"))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
 
        if(.not.geom_destroy(igeom))

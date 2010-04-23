@@ -28,9 +28,6 @@ c     local variables:
  2      continue
         pass = pass +1
       end do
-      do i=1,n-1
-       if(a(i).eq.a(i+1)) a(i)=-1 
-      end do
 
       return
  
