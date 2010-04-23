@@ -2,6 +2,52 @@ c
 c $Id: smd_util.F,v 1.1 2008/10/01 22:32:32 marat Exp $
 c
 
+      subroutine smd_print_pdb(nt,myname,c,q,t)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_const_data.fh"
+#include "util.fh"
+#include "inp.fh"
+      integer nt
+      double precision c(3,nt)
+      double precision q(nt)
+      character*(smd_string_size) t(nt)
+      character*(*) myname
+      character*(nw_max_path_len) filename
+
+      integer i
+      integer n
+      integer nf
+      integer ns
+      integer un
+
+      call util_file_prefix(" ",filename)
+      nf=inp_strlen(filename)-1
+      ns=inp_strlen(myname)
+      filename = filename(1:nf)//myname(1:ns)
+c
+      if(.not.util_get_io_unit(un)) 
+     >   call errquit("cannot get file number",0,0)
+c
+
+      open(unit=un,status="unknown",form="formatted",file=filename)
+      write(*,*) "pdb is in "//filename
+      do i=1,nt
+       write(un,FMT=9000)
+     >           i,t(i),c(1,i),
+     >            c(2,i),
+     >            c(3,i), q(i)
+
+      end do
+9000  FORMAT("ATOM",T7,I5,T13,A4,T31,F8.3,T39,F8.3,T47,F8.3,T55,F6.2)
+
+      call util_flush(un)
+      close(un)
+
+
+      end
+
       SUBROUTINE smd_util_rebox_alt(n,latt,rlatt,aaa)
 
       implicit none

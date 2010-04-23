@@ -107,10 +107,9 @@ c
      >  call errquit(
      >       pname//'error setting formal charge',0, RTDB_ERR)
 c
-c     find total number of residues
+c     find/store total number of residues
 c     -----------------------------
       call smd_atom_compute_nres(nr,nt,int_mb(i_ir))
-      write(*,*) "number of residues",nr
       tag  = "nres"
       call smd_data_put_int(namespace,tag,1,nr)
 c
@@ -123,12 +122,6 @@ c     ---------------------------------
       call smd_atom_compute_res(nt,nr,int_mb(i_ir),int_mb(i_sr),
      +                          int_mb(i_mr),int_mb(i_pr))
 c
-      do i=1,nt
-        write(57,*) int_mb(i_ir+i-1),int_mb(i_sr+i-1)
-      end do
-      do i=1,nr
-        write(58,*) i,int_mb(i_mr+i-1),int_mb(i_pr+i-1)
-      end do
       call util_message("out "//pname)
 
       return
