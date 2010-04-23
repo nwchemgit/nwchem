@@ -20,7 +20,7 @@ c
       character*255 movecs_in
       character*255 movecs_out
       character*255 test
-      integer nbofile
+      integer nbofile, nboopt
       integer dipole
       integer quadrupole
       integer octupole
@@ -66,6 +66,7 @@ c
 c>>>  Default property settings.
 c
       nbofile           = 0
+      nboopt            = 0
 c
       dipole            = 1
       quadrupole        = 1
@@ -313,6 +314,11 @@ c ==========================================
          dipole  = 0
       elseif ( inp_compare(.false., 'nbofile', test)) then
          nbofile = 1
+c ... jochen: read an option (integer value) to define 
+c     what NBO options will appear    
+          if (inp_i(nboopt)) then 
+             continue           ! just read the number
+          end if
       elseif ( inp_compare(.false., 'all', test)) then
          giao = 0
          boyslocalization = 0
@@ -383,6 +389,10 @@ c>>>    place integer parameters in rtdb
 c       
       if (.not. rtdb_put(rtdb, 'prop:nbofile', mt_int, 1,
      $                               nbofile           ))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c ... jochen: also write NBO option key to RTDB:
+      if (.not. rtdb_put(rtdb, 'prop:nboopt', mt_int, 1,
+     $                               nboopt           ))
      $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:dipole', mt_int, 1,
      $                               dipole            ))

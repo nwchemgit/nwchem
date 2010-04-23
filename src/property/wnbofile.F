@@ -95,6 +95,9 @@ c
       logical sshell, pshell, dshell, fshell, gshell
       data cname / 'CS = ', 'CP = ', 'CD = ', 'CF = ', 'CG = ' /
 
+      integer nboopt
+
+
       lfn = 25
 
       if(ga_nodeid().eq.0) then
@@ -103,6 +106,12 @@ c
         len = inp_strlen(nbo_fname)
         write(LUout,9250) nbo_fname(1:len)
       endif 
+
+c ... jochen: read NBO option key fron RTDB.
+      nboopt = 0
+      if (.not.rtdb_get(rtdb, 'prop:nboopt', mt_int, 1,nboopt)) 
+     &    call errquit('wnbofile: nboopt RTDB failed',0, RTDB_ERR)
+c ... jochen end
 c
 c>>>  load geometry and symmetry info
 c
@@ -189,7 +198,19 @@ c
  9000   format('$GENNBO  UPPER  BODM  BOHR  NATOMS=',i5,
      $         '  NBAS=',i5,2x,a4,'  $END')
 c
-        write(lfn,'(a)')'$NBO     $END'
+c ... jochen: here we write more detailed NBO input if requested. 
+        if (nboopt.eq.0) then ! default
+           write(lfn,'(a)')'$NBO     $END'
+        else if (nboopt.eq.1) then ! generate NLMOs, too, and dump info to files
+           write(lfn,'(a/a)')'$NBO BNDIDX NBONLMO=W AONBO=W AONLMO=W ',
+     $          ' NLMOMO=W STERIC FILE=nbodata $END'
+        else if (nboopt.eq.2) then ! generate even more info, incl AO overlap etc.
+           write(lfn,'(a/a)')'$NBO BNDIDX NBONLMO=W AONBO=W AONLMO=W ',
+     $          ' NLMOMO=W AOMO=W SAO=W STERIC FILE=nbodata $END'
+        else ! other options not supported. Fall back to default
+           write(lfn,'(a)')'$NBO     $END'
+        end if
+c ... jochen end
       endif
 c
 c>>>  End $GENNBO and $NBO keylist data.
