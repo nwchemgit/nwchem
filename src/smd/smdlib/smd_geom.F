@@ -17,6 +17,332 @@ c
       integer i_ir,i_ta,i_q,i_c,i_m,i_qf
       integer i_ct,h_ct
       integer i_cd,h_cd
+      integer i,j,ip,k
+      integer nt,nm,i0,nr
+      integer rtdb
+      integer igeom
+      integer bq_handle
+      integer nbq,i_qbq,i_cbq
+      double precision scale
+      double precision cm(3)
+      integer i_mr,i_pr
+      integer i_nb,h_nb,nb
+      integer i_pbq,h_pbq,npbq,ir
+      logical nobq
+      integer ng
+      integer i_im,h_im
+      integer i_nm,h_nm
+      integer i_c1,h_c1
+      integer i_t1,h_t1
+      integer i_q1,h_q1
+      integer i_ms1,h_ms1
+c
+      logical geom_cart_set_gen1
+      external geom_cart_set_gen1
+      pname = "smd_geom_monomer_create"
+c
+      call smd_rtdb_get_handle(rtdb)
+c     
+      tag = "coords"
+      call smd_get_ind(tag,i_c,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+
+      tag = "charge"
+      call smd_get_ind(tag,i_q,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c
+      tag = "atom:name"
+      call smd_get_ind(tag,i_ta,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c
+      tag = "atom:formal_charge"
+      call smd_get_ind(tag,i_qf,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+      tag = "atom:resid"
+      call smd_get_ind_dim(tag,i_ir,nt,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+      tag = "atom:res_pointer"
+      call smd_get_ind_dim(tag,i_pr,nr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+      tag = "atom:res_size"
+      call smd_get_ind_dim(tag,i_mr,nr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+      tag = "mass"
+      call smd_get_ind(tag,i_m,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+
+c    
+      call smd_geom_monomer_index_size(im,nt,int_mb(i_ir),nm,i0)
+      write(*,*) "test nm",nm,int_mb(i_mr+im-1)
+      write(*,*) "test i0",i0,int_mb(i_pr+im-1)
+
+      write(*,*) "monomer size",i0,nm
+c
+      if(.not.ma_push_get(mt_dbl,3*nm,'tmp',h_cd,i_cd))
+     + call errquit(pname//'Failed to allocate memory for tmp l',
+     + nm, MA_ERR)
+ 
+c
+      if(.not.ma_push_get(mt_dbl,3*nt,'tmp',h_ct,i_ct))
+     + call errquit(pname//'Failed to allocate memory for tmp l',
+     + nm, MA_ERR)
+ 
+c
+c     shift box so that monomer is in the center
+c     -----------------------------------------
+      do i=1,3*nt
+        dbl_mb(i_ct+i-1) = dbl_mb(i_c+i-1)
+      end do
+
+c      call smd_coords_print_pdb("old.pdb")
+     
+
+      call smd_geom_recenter(nt,nm,i0,dbl_mb(i_cd),
+     >                       dbl_mb(i_ct))
+
+c      call smd_coords_print_pdb1("new.pdb",dbl_mb(i_ct))
+       call smd_print_pdb(nt,"smd.pdb",
+     +                       dbl_mb(i_ct),
+     +                       dbl_mb(i_q),
+     +                       byte_mb(i_ta))
+c
+      if(.not.ma_push_get(mt_int,nr,'tmp',h_nb,i_nb))
+     + call errquit(pname//'Failed to allocate memory for tmp l',
+     + nm, MA_ERR)
+c
+      nb = nr
+      call smd_geom_find_neighbors(im,nb,int_mb(i_nb))
+      write(*,*) "found neighbors",nb,(int_mb(i_nb+i-1),i=1,nb)
+c
+c     total number of atoms in the geometry
+c     ------------------------------------
+      ng = 0
+      do i=1,nb
+        j=int_mb(i_nb+i-1)
+        ng=ng+int_mb(i_mr+j-1)
+      end do
+      write(*,*) "ng=",ng
+c      
+c     memory for temp geom
+c     --------------------
+      if(.not.ma_push_get(mt_int,nb,'tmp',h_im,i_im))
+     + call errquit(pname//'Failed to allocate memory for tmp l',
+     + nb, MA_ERR)
+
+      if(.not.ma_push_get(mt_int,nb,'tmp',h_nm,i_nm))
+     + call errquit(pname//'Failed to allocate memory for tmp l',
+     + nb, MA_ERR)
+
+      if(.not.ma_push_get(mt_dbl,3*ng,'tmp',h_c1,i_c1))
+     + call errquit(pname//'Failed to allocate memory for tmp l',
+     + ng, MA_ERR)
+
+      if(.not.ma_push_get(mt_dbl,ng,'tmp',h_ms1,i_ms1))
+     + call errquit(pname//'Failed to allocate memory for tmp l',
+     + ng, MA_ERR)
+
+      if(.not.ma_push_get(mt_dbl,ng,'tmp',h_q1,i_q1))
+     + call errquit(pname//'Failed to allocate memory for tmp l',
+     + ng, MA_ERR)
+
+      if(.not.ma_push_get(mt_byte,ng*smd_string_size,'tmp',h_t1,i_t1))
+     + call errquit(pname//'Failed to allocate memory for tmp l',
+     + ng, MA_ERR)
+
+      do i=1,nb
+        j=int_mb(i_nb+i-1)
+        int_mb(i_im+i-1)=int_mb(i_pr+j-1)
+        int_mb(i_nm+i-1)=int_mb(i_mr+j-1)
+        write(*,*) "positions",
+     +             int_mb(i_im+i-1),int_mb(i_nm+i-1)  
+      end do
+      call smd_geom_create_0(rtdb,nb,ng,nt,
+     +                       int_mb(i_nm),
+     +                       int_mb(i_im),
+     +                       dbl_mb(i_c1),
+     +                       dbl_mb(i_ms1),
+     +                       dbl_mb(i_q1),
+     +                       byte_mb(i_t1),
+     +                       dbl_mb(i_c),
+     +                       dbl_mb(i_m),
+     +                       dbl_mb(i_q),
+     +                       byte_mb(i_ta))
+ 
+       if(.not.geom_create(igeom,"geometry"))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+
+      if(.not.geom_cart_set_gen1(igeom,i0,nm,nt,smd_string_size,
+     + byte_mb(i_ta),
+     + dbl_mb(i_ct),dbl_mb(i_qf)))
+     + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
+
+      if(.not.geom_masses_set(igeom,nm,dbl_mb(i_m+i0-1)))
+     + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
+      call geom_compute_values(igeom)
+c
+      if (.not. geom_print_xyz(igeom,97))
+     + call errquit('qmmmsi geom_print_xyz',0, GEOM_ERR)
+c
+      if(.not.geom_rtdb_store(rtdb,igeom,"geometry"))
+     + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
+
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+c
+      if(.not.ma_pop_stack(h_t1))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_q1))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_ms1))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_c1))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_nm))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_im))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+
+      npbq = 2*(nb+1)
+      if(.not.ma_push_get(mt_int,npbq,'tmp',h_pbq,i_pbq))
+     + call errquit(pname//'Failed to allocate memory for tmp l',
+     + nb, MA_ERR)
+      
+      int_mb(i_pbq) = 1
+      int_mb(i_pbq+npbq-1) = nt
+      j=1
+      do i=1,nb
+        ir=int_mb(i_nb+i-1)
+        write(44,*) "residue ir",ir,int_mb(i_pr+ir-1)-1
+        i0=max(int_mb(i_pr+ir-1)-1,1)
+        j = j+1
+        int_mb(i_pbq+j-1) =  i0
+        i0=int_mb(i_pr+ir)
+        j = j+1
+        int_mb(i_pbq+j-1) =  i0
+      end do
+      call smd_util_sort(npbq,int_mb(i_pbq))
+      write(44,*) "boundaries for bqs"
+      do i=1,npbq
+        write(44,*) i,int_mb(i_pbq+i-1)
+      end do
+c      call smd_coords_print(55)
+c
+c     now do the charges
+c
+      call smd_rtdb_get_log("smd:nobq",1,nobq,result)
+      if(.not.result) nobq=.false.
+      write(*,*) "nobq is",nobq
+      if(.not.nobq) then
+        nbq = nt - ng
+        if(.not.bq_create("monomer charges",bq_handle))
+     +   call errquit(pname//'Failed bq_create',0,CALC_ERR)
+
+        if(.not.bq_alloc(bq_handle,nbq))
+     +   call errquit(pname//'Failed bq_create',0,CALC_ERR)
+
+
+        if(.not.bq_index_coord(bq_handle,i_cbq))
+     +   call errquit(pname//'Failed bq_index',0,CALC_ERR)
+
+        if(.not.bq_index_charge(bq_handle,i_qbq))
+     +   call errquit(pname//'Failed bq_index',0,CALC_ERR)
+
+        scale = 1.88972598858d0
+
+        j=0
+        do ip=1,npbq,2
+        do i=int_mb(i_pbq+ip-1),int_mb(i_pbq+ip)
+           write(*,*) "bq do limits",
+     >       int_mb(i_pbq+ip-1),int_mb(i_pbq+ip)
+           j = j+1
+           do k=1,3
+              dbl_mb(i_cbq+3*(j-1)+k-1)=dbl_mb(i_ct+3*(i-1)+k-1)
+     >                                  *scale
+              write(*,*) dbl_mb(i_cbq+3*(j-1)+k-1),
+     >                   dbl_mb(i_ct+3*(i-1)+k-1)
+           end do
+           dbl_mb(i_qbq+j-1)=dbl_mb(i_q+nm+i-1)
+        end do
+        end do
+
+        call bq_print_xyz(bq_handle,98)
+
+        if(.not.bq_activate(bq_handle))
+     +   call errquit(pname//'Failed bq_activate',0,CALC_ERR)
+c
+
+c        call bq_print_info(bq_handle)
+      end if
+      if(.not.ma_pop_stack(h_pbq))
+     & call errquit(pname//'Failed to deallocate stack h_pbq',nm,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_nb))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_ct))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+      if(.not.ma_pop_stack(h_cd))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+c
+
+
+      return
+      end
+
+      subroutine smd_geom_monomer_create2(im)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "bq.fh"
+#include "smd_const_data.fh"
+c
+      integer im
+c     
+      character*32 tag,pname
+      logical result
+      integer i_ir,i_ta,i_q,i_c,i_m,i_qf
+      integer i_ct,h_ct
+      integer i_cd,h_cd
       integer i,j
       integer nt,nm,i0,nr
       integer rtdb
@@ -27,6 +353,7 @@ c
       double precision cm(3)
       integer i_mr,i_pr
       integer i_nb,h_nb,nb
+      integer i_nbq,h_nbq
       logical nobq
       integer ng
       integer i_im,h_im
@@ -207,6 +534,31 @@ c
 
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
+c
+      if(.not.ma_pop_stack(h_t1))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_q1))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_ms1))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_c1))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_nm))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+
+      if(.not.ma_pop_stack(h_im))
+     & call errquit(pname//'Failed to deallocate stack h_l',nm,
+     &       MA_ERR)
+
 
 c      call smd_coords_print(55)
 c
@@ -256,30 +608,6 @@ c
 
 c        call bq_print_info(bq_handle)
       end if
-      if(.not.ma_pop_stack(h_t1))
-     & call errquit(pname//'Failed to deallocate stack h_l',nm,
-     &       MA_ERR)
-
-      if(.not.ma_pop_stack(h_q1))
-     & call errquit(pname//'Failed to deallocate stack h_l',nm,
-     &       MA_ERR)
-
-      if(.not.ma_pop_stack(h_ms1))
-     & call errquit(pname//'Failed to deallocate stack h_l',nm,
-     &       MA_ERR)
-
-      if(.not.ma_pop_stack(h_c1))
-     & call errquit(pname//'Failed to deallocate stack h_l',nm,
-     &       MA_ERR)
-
-      if(.not.ma_pop_stack(h_nm))
-     & call errquit(pname//'Failed to deallocate stack h_l',nm,
-     &       MA_ERR)
-
-      if(.not.ma_pop_stack(h_im))
-     & call errquit(pname//'Failed to deallocate stack h_l',nm,
-     &       MA_ERR)
-
 
       if(.not.ma_pop_stack(h_nb))
      & call errquit(pname//'Failed to deallocate stack h_l',nm,

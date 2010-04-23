@@ -2,6 +2,40 @@ c
 c $Id: smd_util.F,v 1.1 2008/10/01 22:32:32 marat Exp $
 c
 
+      subroutine smd_util_sort(n,a)
+      implicit none
+      integer n
+      integer a(n)
+c
+c     local variables:
+      integer i
+      integer pass  
+      integer sorted 
+      integer temp
+      character*32 pname
+      
+      pass = 1
+      sorted = 0
+      do while(sorted .eq. 0) 
+        sorted = 1
+        do 2 i = 1,n-pass
+          if(a(i) .gt. a(i+1)) then
+            temp = a(i)
+            a(i) = a(i+1)
+            a(i+1) = temp
+            sorted = 0
+          endif
+ 2      continue
+        pass = pass +1
+      end do
+      do i=1,n-1
+       if(a(i).eq.a(i+1)) a(i)=-1 
+      end do
+
+      return
+ 
+      end
+
       subroutine smd_print_pdb(nt,myname,c,q,t)
       implicit none
 #include "mafdecls.fh"
