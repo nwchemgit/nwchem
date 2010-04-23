@@ -672,13 +672,14 @@ c      local variables
          write(un,*)
          do i=1,bq_ncent(handle)
            write(un,FMT=9000)
-     >           i,(dbl_mb(i_c+3*(i-1)+k-1)*0.529177249d00,k=1,3)
+     >           i,(dbl_mb(i_c+3*(i-1)+k-1)*0.529177249d00,k=1,3),
+     >              dbl_mb(i_q+i-1)
 
          end do
          write(*,*)
          write(*,*)
 
-9000   format(i5,2x,"Bq",4x,3f15.8)
+9000   format(i5,2x,"Bq",4x,4f15.8)
 
        return
        end
