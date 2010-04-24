@@ -6393,6 +6393,43 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       end
 
 
+
+*     *********************************
+*     *                               *
+*     *     psi_1pressure_stress      *
+*     *                               *
+*     *********************************
+
+      subroutine psi_1pressure_stress(pressure,p1,p2,stress)
+      implicit none
+      real*8 pressure,p1,p2,stress(3,3)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+*     ***** rhoall common block ****
+      integer rho1_all(2)
+      integer rho2_all(2)
+      common / rhoall_block / rho1_all,rho2_all
+ 
+*     ***** external functions *****
+      real*8   psi_1vnl,rho_1exc,rho_1pxc
+      external psi_1vnl,rho_1exc,rho_1pxc
+
+      call cgsd_pressure_stress(ispin,neq,
+     >                          dcpl_mb(psi1(1)),
+     >                          dbl_mb(rho1_all(1)),
+     >                          dcpl_mb(dng1(1)),
+     >                          psi_1vnl(),rho_1exc(),rho_1pxc(),
+     >                          pressure,p1,p2,stress)
+
+
+      return
+      end
+
+
+
 *     ***********************
 *     *                     *
 *     *    psi_MP2_energy   *
