@@ -2,7 +2,7 @@
 * $Id: nwpw_message.F,v 1.10 2008-11-03 06:06:10 bylaska Exp $
 *
 
-      SUBROUTINE nwpw_MESSAGE(N)
+      SUBROUTINE nwpw_message(N)
       implicit none
 #include "stdio.fh"
 *     ================================================
@@ -10,7 +10,7 @@
 *     I/O UNIT=10.  THIS ROUTINE IS MACHINE-DEPENDENT.
 *     ================================================
 
-      CHARACTER*17 MSG(10)
+      CHARACTER*17 MSG(11)
       integer N
       character*26 dd
       DATA MSG(1) /'JOB STARTED'/
@@ -23,8 +23,9 @@
       DATA MSG(8) /'ITERATION STARTED'/
       DATA MSG(9) /'ITERATION STARTED'/
       DATA MSG(10) /'ITERATION STARTED'/
+      DATA MSG(11) /'ITERATION STARTED'/
  
-      IF(N.GT.10.OR.N.LE.0) RETURN
+      IF(N.GT.11.OR.N.LE.0) RETURN
       call util_date(dd)
       WRITE(luout,1000) MSG(N), dd
       IF(N.EQ.2)  WRITE(luout,1001)
@@ -33,6 +34,7 @@
       IF(N.EQ.8)  WRITE(luout,1004)
       IF(N.EQ.9)  WRITE(luout,1005)
       IF(N.EQ.10) WRITE(luout,1006)
+      IF(N.EQ.11) WRITE(luout,1007)
       RETURN
 
  1000 FORMAT(5X,'>>>  ',A,' AT ',A24,'  <<<')
@@ -61,6 +63,11 @@
      >     4x, 
      > '-------------------------------------------------------------',
      > '-----------------------')
+ 1007 FORMAT(4x,'iter.',9x,'KE+Energy',13x,'Energy',
+     >     8x,'KE_ion', 3x,'Temperature',3x,'Pressure'/
+     >     4x, 
+     > '-------------------------------------------------------------',
+     > '----------------------------------')
 
 
       END
