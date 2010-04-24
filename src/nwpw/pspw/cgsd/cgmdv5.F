@@ -27,6 +27,8 @@
 *     *** local variables and parameters ****
       double precision kb
       parameter (kb=3.16679d-6)
+      real*8 autoatm
+      parameter (autoatm =290.360032539d6)
 
       
 *     **** parallel variables ****
@@ -579,7 +581,7 @@ c         end if
          else
            write(6,1394)
          end if
-        if (calc_pressure) write(6,1293)
+        if (calc_pressure) write(6,1393)
          if (control_SA()) then
            write(luout,1396) sa_decay(2)
          end if
@@ -592,7 +594,10 @@ c         end if
 ******************     simple MD loop        **********************
 *                |***************************|
       if (taskid.eq.MASTER) call current_second(cpu2)
-      if (taskid.eq.MASTER) call nwpw_message(10)
+      if ((taskid.eq.MASTER).and.(.not.calc_pressure)) 
+     >   call nwpw_message(10)
+      if ((taskid.eq.MASTER).and.(calc_pressure)) 
+     >   call nwpw_message(11)
 
 
 *     **** write initial position to xyz data ****
@@ -607,6 +612,14 @@ c         end if
       call ecce_print_module_entry('task Born-Oppenheimer')
       !call ecce_print_module_entry('driver')
       call movecs_ecce_print_off()
+
+
+*     **** finalize pressure ****
+      if (calc_pressure) then
+         call psp_stress_end()
+      end if
+
+
 
 
 *     ************************************
@@ -727,18 +740,41 @@ c       **** inner loop ****
         E25 = E25 + EV
         E26 = E26 + EV*EV
 
+        if (calc_pressure) then
+           call psi_1pressure_stress(pressure,p1,p2,stress)
+        end if
+
         if (oprint) then
-           if (nose) then
-           write(luout,1350) icount*it_in,EV+eki1+Nose_r_energy(),
-     >                       EV,eki1,ion_Temperature()
-           write(31,1360) icount*it_in*dt+emotion_time_shift,
-     >                    EV+eki1+Nose_r_energy(),
-     >                    EV,eki1,ion_Temperature()
+           if (calc_pressure) then
+             if (nose) then
+             write(luout,1350) icount*it_in,EV+eki1+Nose_r_energy(),
+     >                         EV,eki1,ion_Temperature(),
+     >                         pressure*autoatm
+             write(31,1360) icount*it_in*dt+emotion_time_shift,
+     >                      EV+eki1+Nose_r_energy(),
+     >                      EV,eki1,ion_Temperature(),
+     >                      pressure*autoatm
+             else
+             write(luout,1350) icount*it_in,EV+eki1,EV,eki1,
+     >                         ion_Temperature(),
+     >                         pressure*autoatm
+             write(31,1360) icount*it_in*dt+emotion_time_shift,
+     >                      EV+eki1,EV,eki1,ion_Temperature(),
+     >                      pressure*autoatm
+             end if
            else
-           write(luout,1350) icount*it_in,EV+eki1,EV,eki1,
-     >                       ion_Temperature()
-           write(31,1360) icount*it_in*dt+emotion_time_shift,
-     >                    EV+eki1,EV,eki1,ion_Temperature()
+             if (nose) then
+             write(luout,1350) icount*it_in,EV+eki1+Nose_r_energy(),
+     >                         EV,eki1,ion_Temperature()
+             write(31,1360) icount*it_in*dt+emotion_time_shift,
+     >                      EV+eki1+Nose_r_energy(),
+     >                      EV,eki1,ion_Temperature()
+             else
+             write(luout,1350) icount*it_in,EV+eki1,EV,eki1,
+     >                         ion_Temperature()
+             write(31,1360) icount*it_in*dt+emotion_time_shift,
+     >                      EV+eki1,EV,eki1,ion_Temperature()
+             end if
            end if
            call util_flush(6)
            call util_flush(31)
@@ -1161,7 +1197,7 @@ c      call frac_occ_end()
      >           ' ( ',I4,' inner ',I4,' outer )')
  1330 FORMAT(5X, ' integration agorithm=   ',A)
  1340 FORMAT(/5X, ' cooling/heatting rate= ',e12.5,' (ion)')
- 1350 FORMAT(I8,2E19.10,E14.5,4F14.2,2E19.10,F8.4)
+ 1350 FORMAT(I8,2E19.10,E14.5,4F14.2,2E19.10,2F8.4)
  1360 format(100e19.10)
 
  1393 format(/' Pressure Output Generated         ')
