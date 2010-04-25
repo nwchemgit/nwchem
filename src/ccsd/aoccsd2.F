@@ -290,7 +290,7 @@ c
 cstaggering
           do iin=ga_nodeid()+1,ga_nodeid()+nocc
              i=mod(iin,nocc)+1
-             call ycopy(lnov,0.0d00,0,dbl_mb(k_scrb),1)
+             call dcopy(lnov,0.0d00,0,dbl_mb(k_scrb),1)
             do jin=1+ga_nodeid(),i+ga_nodeid()
                j=mod(jin,i)+1
               do b=1,nvir

@@ -79,7 +79,7 @@ endif
      ccden_1pdm.F \
      geaxpy.f \
      ccsd_mktau_ga.F \
-     ccden_2pdmb.F \
+     ccden_2pdmb.F aoccsd2.F \
      moints_trp.F
 
  #LIB_DEFINES = 
