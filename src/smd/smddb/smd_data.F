@@ -450,6 +450,8 @@ c
       character*72 buffer
       integer i
       integer ma_type,ma_ndim
+      integer ndim0,dtype0
+      logical okeep
 
       pname = "smd_data_create"
 
@@ -460,42 +462,53 @@ c
      +         0,
      +         0)
 
-      
-      call smd_data_destroy(sname,dname,result)
-      smd_nd(ns) = smd_nd(ns) + 1
-      if(smd_nd(ns).gt.smd_max_nd) 
-     +   call errquit(pname//'increase dataspace size to',
-     +         smd_nd(ns),
-     +         0)
-
-      nd = smd_nd(ns)
-      smd_dim(ns,nd)=ndim
-      smd_type(ns,nd)=dtype
-      smd_dname(ns,nd)=dname
-
-      if(dtype.eq.MT_STR) then
-        ma_type = MT_BYTE
-        ma_ndim = ndim*smd_string_size
+c     see if the data already exists and is of the same nature
+      call smd_data_inquire(sname,dname,ndim0,dtype0,result)
+      okeep = result.and.
+     +        ndim.eq.ndim0.and.
+     +        dtype.eq.dtype0 
+      if(okeep) then
+        call smd_data_get_dindex(sname,dname,nd,result)
+        if(.not.result) 
+     +   call errquit(pname//"no index",0,0)
       else
-        ma_type = dtype
-        ma_ndim = ndim
-      end if
+        call smd_data_destroy(sname,dname,result)
+        smd_nd(ns) = smd_nd(ns) + 1
+        if(smd_nd(ns).gt.smd_max_nd) 
+     +     call errquit(pname//'increase dataspace size to',
+     +           smd_nd(ns),
+     +           0)
 
-      if(.not.ma_alloc_get(ma_type,
-     +   ma_ndim,
-     +   smd_dname(ns,nd),
-     +   smd_handle(ns,nd),
-     +   smd_index(ns,nd)))
-     +   call errquit(pname//'memory allocation'//smd_dname(ns,nd),
-     +         smd_dim(ns,nd),
-     +         MA_ERR)
+        nd = smd_nd(ns)
+        smd_dim(ns,nd)=ndim
+        smd_type(ns,nd)=dtype
+        smd_dname(ns,nd)=dname
 
-      if(smd_type(ns,nd).eq.MT_DBL) then
-        call dfill(smd_dim(ns,nd),
-     +             0.d0,
-     +             dbl_mb(smd_index(ns,nd)),
-     +             1)
-      end if
+        if(dtype.eq.MT_STR) then
+          ma_type = MT_BYTE
+          ma_ndim = ndim*smd_string_size
+        else
+          ma_type = dtype
+          ma_ndim = ndim
+        end if
+
+        if(.not.ma_alloc_get(ma_type,
+     +     ma_ndim,
+     +     smd_dname(ns,nd),
+     +     smd_handle(ns,nd),
+     +     smd_index(ns,nd)))
+     +     call errquit(pname//'memory allocation'//smd_dname(ns,nd),
+     +           smd_dim(ns,nd),
+     +           MA_ERR)
+
+        if(smd_type(ns,nd).eq.MT_DBL) then
+          call dfill(smd_dim(ns,nd),
+     +               0.d0,
+     +               dbl_mb(smd_index(ns,nd)),
+     +               1)
+        end if
+
+      end if 
 
       if(smd_type(ns,nd).eq.MT_INT) then
         call ifill(smd_dim(ns,nd),
@@ -535,6 +548,8 @@ c
       character*72 buffer
       integer i
       integer ma_type,ma_ndim
+      integer dtype0,ndim0
+      logical okeep
 
       pname = "smd_data_create"
 
@@ -545,37 +560,49 @@ c
      +         0,
      +         0)
 
-      
-      call smd_data_destroy(sname,dname,result)
-      smd_nd(ns) = smd_nd(ns) + 1
-      if(smd_nd(ns).gt.smd_max_nd) 
-     +   call errquit(pname//'increase dataspace size to',
-     +         smd_nd(ns),
-     +         0)
-
-      nd = smd_nd(ns)
-      smd_dim(ns,nd)=ndim
-      smd_type(ns,nd)=dtype
-      smd_dname(ns,nd)=dname
-
-      if(dtype.eq.MT_STR) then
-        ma_type = MT_BYTE
-        ma_ndim = ndim*smd_string_size
+c     see if the data already exists and is of the same nature
+      call smd_data_inquire(sname,dname,ndim0,dtype0,result)
+      okeep = result.and.
+     +        ndim.eq.ndim0.and.
+     +        dtype.eq.dtype0 
+      if(okeep) then
+        call smd_data_get_dindex(sname,dname,nd,result)
+        if(.not.result) 
+     +   call errquit(pname//"no index",0,0)
+        write(*,*) "found same data"
       else
-        ma_type = dtype
-        ma_ndim = ndim
+        write(*,*) "creating new data"
+        call smd_data_destroy(sname,dname,result)
+        smd_nd(ns) = smd_nd(ns) + 1
+        if(smd_nd(ns).gt.smd_max_nd) 
+     +     call errquit(pname//'increase dataspace size to',
+     +           smd_nd(ns),
+     +           0)
+
+        nd = smd_nd(ns)
+        smd_dim(ns,nd)=ndim
+        smd_type(ns,nd)=dtype
+        smd_dname(ns,nd)=dname
+
+        if(dtype.eq.MT_STR) then
+          ma_type = MT_BYTE
+          ma_ndim = ndim*smd_string_size
+        else
+          ma_type = dtype
+          ma_ndim = ndim
+        end if
+
+        if(.not.ma_alloc_get(ma_type,
+     +     ma_ndim,
+     +     smd_dname(ns,nd),
+     +     smd_handle(ns,nd),
+     +     smd_index(ns,nd)))
+     +     call errquit(pname//'memory allocation'//smd_dname(ns,nd),
+     +           smd_dim(ns,nd),
+     +           MA_ERR)
+
+
       end if
-
-      if(.not.ma_alloc_get(ma_type,
-     +   ma_ndim,
-     +   smd_dname(ns,nd),
-     +   smd_handle(ns,nd),
-     +   smd_index(ns,nd)))
-     +   call errquit(pname//'memory allocation'//smd_dname(ns,nd),
-     +         smd_dim(ns,nd),
-     +         MA_ERR)
-
-
       ind = smd_index(ns,nd)
 c
       if(smd_type(ns,nd).eq.MT_DBL) then
