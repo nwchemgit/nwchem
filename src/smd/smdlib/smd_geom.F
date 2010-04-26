@@ -641,6 +641,7 @@ c
       integer i0,i1,n0,k
       character*30 pname
       integer igeom
+      integer nact,i_act,h_act
 c
       pname = "smd_geom_create_0"
 c
@@ -694,6 +695,23 @@ c
       do i=1,n1
         write(*,*) (c1(k,i),k=1,3)
       end do
+c      
+      nact = nm(1)
+      if(.not.ma_push_get(mt_int,nact,'tmp',h_act,i_act))
+     + call errquit(pname//'Failed to allocate memory for tmp l',
+     + nm, MA_ERR)
+      do i=1,nact
+       int_mb(i_act+i-1) = i
+      end do
+      if (.not.rtdb_put(rtdb, 'geometry:actlist',
+     >       mt_int,nact,int_mb(i_act)))
+     $       call errquit(pname,0,
+     &       RTDB_ERR)
+
+      if(.not.ma_pop_stack(h_act))
+     & call errquit(pname//'Failed to deallocate stack h_l',0,
+     &       MA_ERR)
+
       return
 c
   
