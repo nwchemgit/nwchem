@@ -228,6 +228,7 @@ c
       character*72 sp_ewald
       character*72 sp_fragment
       character*72 sp_task
+      character*72 sp_geom
 c
       logical olattice
       logical obond
@@ -262,6 +263,7 @@ c
       sp_rtdb = "rtdb"
       sp_ewald = "ewald"
       sp_task = "mytask"
+      sp_geom = "mygeom"
 c
 c
 c     CREATE SYSTEM
@@ -330,6 +332,9 @@ c     ------------
 c      
       tag = "task"
       call smd_system_set_component(tag,sp_task)
+c
+      tag = "geom"
+      call smd_system_set_component(tag,sp_geom)
 c
 c      write(*,*) "in "//pname
 c     DEFINE ALL THE COMPONENTS

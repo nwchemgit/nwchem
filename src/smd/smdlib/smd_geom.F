@@ -1,3 +1,55 @@
+      subroutine smd_geom_init_system(im)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+      integer im
+c     
+      character*32 sp_geom,sp_atom
+      character*32 tag,pname
+      logical result
+      integer h_itmp,i_itmp
+      integer nb,nr
+
+      pname = "smd_geom_init_system"
+c
+      tag = "geom"
+      call smd_system_get_component(sp_geom,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+      call smd_namespace_create(sp_geom)
+c
+      tag = "atom"
+      call smd_system_get_component(sp_atom,tag,result)
+      tag  = "nres"
+      call smd_data_get_int(sp_atom,tag,1,nr,result)
+      if(.not.result)
+     & call errquit(pname//'Failed to get'//tag,0,0)
+
+c
+c     determine neighbors around im
+c     -----------------------------
+      if(.not.ma_push_get(mt_int,nr,'tmp i',h_itmp,i_itmp))
+     + call errquit(pname//'Failed to allocate memory for h_itmp',0,0)
+c
+      nb = nr
+      call smd_geom_find_neighbors(im,nb,int_mb(i_itmp))
+      tag = "neighbor_index"
+      call smd_data_put_int(sp_geom,tag,nb,int_mb(i_itmp))
+
+      if(.not.ma_pop_stack(h_itmp))
+     & call errquit(pname//'Failed to deallocate stack h_itmp',0,
+     &       MA_ERR)
+
+      call smd_data_namespace_print(sp_geom,6)
+
+      return
+      end
+
       subroutine smd_geom_monomer_create(im)
       implicit none
 #include "errquit.fh"
@@ -974,6 +1026,9 @@ c
       double precision cshift(3)
       double precision com(3)
 c
+      call smd_geom_cog(nt,nm,i0,c,com) 
+      write(*,*) "computed cog 0",(com(j), j=1,3)
+c
 c     assemble a complete residue
 c     ---------------------------
       do j=1,3
@@ -983,6 +1038,7 @@ c     ---------------------------
       do i=1,nm
       do j=1,3
          cm(j,i)=c(j,i0+i-1)-cshift(j)
+      write(*,*) "do 1",cm(j,i),c(j,i0+i-1),cshift(j)
       end do
       end do
  
@@ -1012,6 +1068,8 @@ c     ------------------------------
       com(2) = com(2)/nm
       com(3) = com(3)/nm
 
+      write(*,*) "computed cog 1",(com(j), j=1,3)
+
       do i=1,nt
       do j=1,3
          c(j,i)=c(j,i)-com(j)
@@ -1020,6 +1078,84 @@ c     ------------------------------
  
       call smd_lat_rebox(nt,c) 
 
+c
+      return
+c
+  
+      end
+
+      subroutine smd_geom_cog(nt,nm,i0,c,cog)
+c     finds center of geometry for a give segment
+c     nt      [in]  total number of atoms
+c     nm      [in]  number of atoms in the segment
+c     i0      [in]  starting index for the segment
+c     c[3,nt] [in]  coordinates of the overall system
+c     cog[3]  [out] center of mass coordinates
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c
+      integer nt
+      integer nm
+      integer i0
+      double precision c(3,nt)
+      double precision cog(3)
+c
+      integer i,j
+      double precision cshift(3)
+      integer i_ftmp,h_ftmp
+      character*30 pname
+c
+      pname = "smd_geom_cog"
+c      
+      if(.not.ma_push_get(mt_dbl,3*nm,'tmp i',h_ftmp,i_ftmp))
+     + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
+c
+c     put 1st atom in the middle
+c     ---------------------------
+      do j=1,3
+         cshift(j)=c(j,i0)
+      end do
+
+      do i=1,nm
+      do j=1,3
+         dbl_mb(i_ftmp+(i-1)*3+j-1)=
+     +         c(j,i0+i-1)-cshift(j)
+      end do
+      end do
+ 
+c     fold in other coordinates potentially
+c     cutoff by the box boundary
+      call smd_lat_rebox(nm,dbl_mb(i_ftmp)) 
+c     calculate cog for shifted segment
+c     --------------------------------- 
+      cog(1) = 0.0d0
+      cog(2) = 0.0d0
+      cog(3) = 0.0d0
+      
+      do i=1,nm
+      do j=1,3
+         cog(j)=cog(j)+dbl_mb(i_ftmp+(i-1)*3+j-1)
+      end do
+      end do
+
+      cog(1) = cog(1)/nm
+      cog(2) = cog(2)/nm
+      cog(3) = cog(3)/nm
+c
+c     correct for the shift
+c     ---------------------
+      do j=1,3
+        cog(j) = cog(j)+cshift(j)
+      end do
+c
+      if(.not.ma_pop_stack(h_ftmp))
+     & call errquit(pname//'Failed to deallocate stack h_ftmp',0,
+     &       MA_ERR)
 c
       return
 c
@@ -1267,7 +1403,7 @@ c
       integer nl,na
       double precision rcutsq
       logical result
-      integer i
+      integer i,j
       integer i_tmp
       integer nr,nrmax
 
@@ -1328,14 +1464,34 @@ c
      >                                  int_mb(i_l),
      >                                  int_mb(i_inb))
 
-      nb = 1
-      inb(nb) = icr
+      j = 1
+      inb(j) = icr
       do i=1,nr
        if(int_mb(i_inb+i-1).ne.0) then
-         nb = nb+1
-         inb(nb) = i
+         j = j+1
+         inb(j) = i
        end if
       end do
+      nb = j
+
+c      j = 0
+c      do i=1,nr
+c       if(int_mb(i_inb+i-1).ne.0) then
+c         j = j+1
+c         int_mb(i_inb+j-1) = i
+c       end if
+c      end do
+c      nb=j+1
+c      int_mb(i_inb+nb-1) = int_mb(i_inb)
+c      int_mb(i_inb) = icr 
+c
+c      write(*,*) "test :"//pname
+c      do i=1,nb
+c         write(*,*) int_mb(i_inb+i-1),inb(i)
+c      end do
+
+
+
       if(.not.ma_pop_stack(h_nb))
      & call errquit(pname//'Failed to deallocate stack h_nb',na,
      &       MA_ERR)
@@ -1343,6 +1499,7 @@ c
       return
 
       END
+c
       subroutine smd_geom_find_neighbors_gen(icr,
      >                           na,
      >                           nr,

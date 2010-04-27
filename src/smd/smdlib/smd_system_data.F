@@ -26,6 +26,7 @@ c
      c                       "rtdb",
      c                       "ewald",
      c                       "task",
+     c                       "geom",
      c                       "bond"/
 
 
