@@ -872,13 +872,20 @@ c
      >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
        end if
 
+       if (inp_compare(.false.,zone_name,'kerker')) then
+         if (.not.inp_f(alpha)) 
+     >   call errquit('nwpw_input: error reading kerker g0',
+     >                4800,RTDB_ERR)
+         if(.not.rtdb_put(rtdb,'nwpw:kerker_g0',mt_dbl,1,alpha))
+     >   call errquit('nwpw_input: error writing to rtdb',4800,RTDB_ERR)
+       end if
        if (inp_compare(.false.,zone_name,'alpha')) then
-          if (.not.inp_f(alpha)) 
-     >      call errquit('nwpw_input: error reading scf alpha',
-     >                   4800,RTDB_ERR)
-          if(.not.rtdb_put(rtdb,'nwpw:ks_alpha',mt_dbl,1,alpha))
-     >    call errquit('nwpw_input: error writing to rtdb',
-     >                 4800,RTDB_ERR)
+         if (.not.inp_f(alpha)) 
+     >   call errquit('nwpw_input: error reading scf alpha',
+     >                4800,RTDB_ERR)
+         if(.not.rtdb_put(rtdb,'nwpw:ks_alpha',mt_dbl,1,alpha))
+     >   call errquit('nwpw_input: error writing to rtdb',
+     >                4800,RTDB_ERR)
        end if
        if (inp_compare(.false.,zone_name,'iterations')) then
           if (.not.inp_i(nx)) 
