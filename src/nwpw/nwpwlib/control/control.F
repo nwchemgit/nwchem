@@ -343,6 +343,9 @@ c
       if (.not.rtdb_get(rtdb,'nwpw:ks_algorithm',
      >                  mt_int,1,ks_algorithm))
      >   ks_algorithm = 0
+      if (.not.rtdb_get(rtdb,'nwpw:kerker_g0',
+     >                  mt_dbl,1,kerker_g0))
+     >   kerker_g0 = 0.0d0
 
 *     **** set maxit_orb maxit_orbs ***
       if (.not.rtdb_get(rtdb,
@@ -604,6 +607,10 @@ c
       if (.not.rtdb_get(rtdb,'nwpw:ks_algorithm',
      >                  mt_int,1,ks_algorithm))
      >   ks_algorithm = 0
+      if (.not.rtdb_get(rtdb,'nwpw:kerker_g0',
+     >                  mt_dbl,1,kerker_g0))
+     >   kerker_g0 = 0.0d0
+
 
 *     **** set maxit_orb maxit_orbs ***
       if (.not.rtdb_get(rtdb,
@@ -1805,6 +1812,20 @@ c         mtensor(3,3) = z
 #include "control.fh"
 
       control_ks_alpha = ks_alpha
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		control_kerker_g0	*
+*     *					*
+*     ***********************************
+      real*8 function control_kerker_g0()
+      implicit none 
+
+#include "control.fh"
+
+      control_kerker_g0 = kerker_g0
       return
       end
 
