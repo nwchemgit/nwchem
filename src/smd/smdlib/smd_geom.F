@@ -21,6 +21,7 @@ c
       integer i_pr,i_mr
       integer i_im,i_nm
       integer i_c1,i_ms1,i_t1,i_q1
+      integer i_sht
 
       pname = "smd_geom_init_system"
 c
@@ -71,7 +72,6 @@ c
         write(*,*) "positions",
      +             int_mb(i_im+i-1),int_mb(i_nm+i-1)  
       end do
- 
 c
 c     total number of atoms in the geometry
 c     ------------------------------------
@@ -109,6 +109,14 @@ c     ----------------------
      + call errquit(pname//'Failed to allocate memory for h_ct',
      + nt, MA_ERR)
       call dcopy(3*nt,dbl_mb(i_c),1,dbl_mb(i_ct),1) 
+c
+c     determine the center of geometry for central residue
+c     ----------------------------------------------------
+      tag = "shift vector"
+      call smd_data_create_get(sp_geom,tag,3,MT_DBL,i_sht)
+      call smd_geom_cog(nt,int_mb(i_nm),int_mb(i_im),
+     +                  dbl_mb(i_c),dbl_mb(i_sht))
+ 
 
       call smd_data_namespace_print(sp_geom,6)
 
@@ -874,6 +882,7 @@ c     ------------
      >       pname//'incompatibe dimensions',0, MA_ERR)
 
       call smd_geom_cog(n,nm(1),im(1),c,shift)
+      write(*,*) "shift=",(shift(k),k=1,3)
       j=0
       do i=1,m
        i0=im(i)-1
@@ -1198,6 +1207,7 @@ c
 c
       do i=1,nt
       do j=1,3
+         write(103,*) c(j,i),cog(j),c(j,i)-cog(j)
          c(j,i)=c(j,i)-cog(j)
       end do
       end do

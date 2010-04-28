@@ -27,6 +27,7 @@ c
      c                       "ewald",
      c                       "task",
      c                       "geom",
+     c                       "bq",
      c                       "bond"/
 
 
