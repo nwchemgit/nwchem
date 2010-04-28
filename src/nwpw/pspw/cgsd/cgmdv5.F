@@ -142,8 +142,8 @@
       external control_minimizer,control_scf_algorithm
       integer  control_ks_algorithm
       external control_ks_algorithm
-      real*8   control_ks_alpha
-      external control_ks_alpha
+      real*8   control_ks_alpha,control_kerker_g0
+      external control_ks_alpha,control_kerker_g0
       logical  control_print,control_balance
       external control_print,control_balance
       integer  control_mapping,control_mapping1d,control_np_orbital
@@ -551,6 +551,7 @@ c         end if
            if (control_scf_algorithm().eq.3) 
      >       write(luout,1293) "Anderson density mixing"
            write(luout,1294) control_ks_alpha()
+           write(luout,1301) control_kerker_g0()
          end if
          write(luout,1310)
          if (.not.control_translation()) write(luout,1271)
@@ -1189,6 +1190,7 @@ c      call frac_occ_end()
  1295 FORMAT(5X, ' Kohn-Sham iterations = ',I3,
      >           ' (',I3,' outer)')
  1300 FORMAT(//)
+ 1301 FORMAT(5X, ' Kerker damping       =',F7.4)
  1310 FORMAT(/' molecular dynamics parameters:')
  1320 FORMAT(5X, ' time step=',F10.2,5X,' iterations=',I8,
      >           ' ( ',I4,' inner ',I4,' outer )')

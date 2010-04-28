@@ -127,8 +127,8 @@
       external control_minimizer,control_scf_algorithm
       integer  control_ks_algorithm
       external control_ks_algorithm
-      real*8   control_ks_alpha
-      external control_ks_alpha
+      real*8   control_ks_alpha,control_kerker_g0
+      external control_ks_alpha,control_kerker_g0
       logical  control_print,control_balance
       external control_print,control_balance
       integer  control_mapping,control_mapping1d,control_np_orbital
@@ -481,6 +481,7 @@ c     value = psi_initialize()
            if (minimizer.eq.5) write(luout,1296) "potential"
            if (minimizer.eq.8) write(luout,1296) "density"
            write(luout,1294) control_ks_alpha()
+           write(luout,1301) control_kerker_g0()
          end if
         if (control_fractional()) then
            write(6,1297)
@@ -772,6 +773,7 @@ c      call frac_occ_end()
  1298 FORMAT(5X, ' smearing algorithm   = ',A)
  1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)')
  1300 FORMAT(//)
+ 1301 FORMAT(5X, ' Kerker damping       =',F7.4)
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
