@@ -143,6 +143,7 @@ c     pull the global charges/coords onto local set
 c
 c      create geometry object
 c      ---------------------
+      call smd_geom_init_system(im)
       call smd_geom_monomer_create(im)
 c
       call smd_message_post("out "//pname)
