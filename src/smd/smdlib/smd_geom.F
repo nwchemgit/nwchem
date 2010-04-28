@@ -954,7 +954,7 @@ c
       if (.not. geom_print_xyz(igeom,105))
      + call errquit('qmmmsi geom_print_xyz',0, GEOM_ERR)
 c
-      if(.not.geom_rtdb_store(rtdb,igeom,"geometry0"))
+      if(.not.geom_rtdb_store(rtdb,igeom,"geometry"))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
 
        if(.not.geom_destroy(igeom))

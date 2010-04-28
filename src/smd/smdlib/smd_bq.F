@@ -155,8 +155,8 @@ c
       end do
       call bq_print_xyz(bq_handle,101)
 
-c      if(.not.bq_activate(bq_handle))
-c     + call errquit(pname//'Failed bq_activate',0,CALC_ERR)
+      if(.not.bq_activate(bq_handle))
+     + call errquit(pname//'Failed bq_activate',0,CALC_ERR)
 c
 
 c        call bq_print_info(bq_handle)
