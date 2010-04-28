@@ -132,8 +132,8 @@
       external control_mapping,control_minimizer,control_np_dimensions
       integer  control_scf_algorithm
       external control_scf_algorithm
-      real*8   control_ks_alpha
-      external control_ks_alpha
+      real*8   control_ks_alpha,control_kerker_g0
+      external control_ks_alpha,control_kerker_g0
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
       real*8   cpsi_occupation,control_fractional_temperature
@@ -501,6 +501,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
            if (minimizer.eq.5) write(luout,1296) "potential"
            if (minimizer.eq.8) write(luout,1296) "density"
            write(6,1294) control_ks_alpha()
+           write(6,1301) control_kerker_g0()
          end if
          if (control_fractional()) then
            write(6,1297)
@@ -775,11 +776,12 @@ cc      call band_kp_structure(rtdb)
  1294 FORMAT(5X, ' scf mixing parameter =',F7.4)
  1295 FORMAT(5X, ' Kohn-Sham iterations = ',I3,
      >           ' (',I3,' outer)')
- 1296 FORMAT(5X, ' SCF mixing type      = ',A)
+ 1296 FORMAT(5X, ' scf mixing type      = ',A)
  1297 FORMAT(/' fractional smearing parameters:')
  1298 FORMAT(5X, ' smearing algorithm   = ',A)
  1299 FORMAT(5X, ' smearing parameter   = ',E9.3,' (',F7.1,' K)')
  1300 FORMAT(//)
+ 1301 FORMAT(5X, ' Kerker damping       =',F7.4)
  1305 FORMAT(10X,'================ iteration =========================')
  1310 FORMAT(I8,E20.10,3E15.5)
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
