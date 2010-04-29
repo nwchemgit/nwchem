@@ -91,6 +91,8 @@ c     ------------------------------------
 c      
       tag = "coordinates"
       call smd_data_create_get(sp_geom,tag,3*ng,MT_DBL,i_c1)
+      tag = "gradients"
+      call smd_data_create(sp_geom,tag,3*ng,MT_DBL)
       tag = "mass"
       call smd_data_create_get(sp_geom,tag,ng,MT_DBL,i_ms1)
       tag = "charge"
@@ -164,7 +166,6 @@ c
 
       return
       end
-
 
       subroutine smd_geom_create_3(rtdb,m,n1,n,
      +                             nm,im,
@@ -498,10 +499,6 @@ c
        end do
       end do
 
-      do i=1,nt
-       write(110,*) i,dbl_mb(i_q+i-1)
-      end do
-c       
 c
       return
       end
@@ -517,24 +514,42 @@ cc
 c
       integer im
 c     
-      character*32 tag,pname
+      character*32 tag,pname,sp_geom
       logical result
-      integer i_ir,i_f
-      integer i_g,h_g
-      integer i,j
-      integer nt,nm,i0,nqm
+      integer i_f
+      integer i_g1
+      integer i,j,i1,i0
+      integer nt
       integer rtdb
-      integer ma_type,n
+      integer i_im,i_nm
+      integer nb,k,n0
 c
       pname = "smd_geom_push_gradients"
 c
-      call smd_rtdb_get_handle(rtdb)
-c     
-      tag = "atom:resid"
-      call smd_get_ind_dim(tag,i_ir,nt,result)
-      if(.not. result) 
+      tag = "geom"
+      call smd_system_get_component(sp_geom,tag,result)
+      if(.not.result)
      >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+     >       pname//'no component '//tag,0,0)
+c
+      tag = "gradients"
+      call smd_data_get_ind_dim(sp_geom,tag,i_g1,nt,result)
+      if(.not. result)  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+      nt = nt/3
+c
+      tag = "position"
+      call smd_data_get_ind_dim(sp_geom,tag,i_im,nb,result)
+      if(.not. result)  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+c      
+      tag = "size"
+      call smd_data_get_ind_dim(sp_geom,tag,i_nm,nb,result)
+      if(.not. result)  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+c    
+c
+      call smd_rtdb_get_handle(rtdb)
 c
       tag = "force"
       call smd_get_ind(tag,i_f,result)
@@ -542,24 +557,27 @@ c
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 c    
-      call smd_geom_monomer_index_size(im,nt,int_mb(i_ir),nm,i0)
+      if (.not.rtdb_get(rtdb, 'task:gradient', mt_dbl,
+     $        3*nt, dbl_mb(i_g1))) 
+     $           call errquit(pname,0,RTDB_ERR)
+
+      do i=1,3*nt
+        write(*,*) "gradient ref",dbl_mb(i_g1+i-1)
+      end do
 c
-      if (rtdb_ma_get(rtdb, 'task:gradient', ma_type,
-     $        n, h_g)) then
-
-        if (.not. ma_get_index(h_g, i_g))
-     $           call errquit(pname,h_g,
-     &       MA_ERR)
-       end if
-
-      do i=1,n
-        write(*,*) "gradient ref",dbl_mb(i_g+i-1)
+      j=0
+      do i=1,nb
+       i0=int_mb(i_im+i-1)-1
+       n0=int_mb(i_nm+i-1)
+       do i1=1,n0
+         j = j+1
+         do k=1,3
+           dbl_mb(i_f+3*(i0+i1-1)+k-1) = dbl_mb(i_g1+3*(j-1)+k-1)
+         end do
+       end do
       end do
-      write(*,*) "i0,nm=",i0,nm
-      do i=1,3*nm
-        dbl_mb(i_f+3*(i0-1)+i-1) = dbl_mb(i_g+i-1)
-        write(*,*) "gradient",dbl_mb(i_f+i0+i-1)
-      end do
+
+
       call smd_force_print(89)
       
       return
