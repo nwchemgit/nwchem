@@ -147,17 +147,26 @@ c     ----------------------------------------------------
      +                  dbl_mb(i_c),dbl_mb(i_sht))
 c       
       call smd_rtdb_get_handle(rtdb)
-      call smd_geom_create1(rtdb,nb,ng,nt,
+c      call smd_geom_create(rtdb,nb,ng,nt,
+c     +                       int_mb(i_nm),
+c     +                       int_mb(i_im),
+c     +                       dbl_mb(i_c1),
+c     +                       dbl_mb(i_ms1),
+c     +                       dbl_mb(i_qf1),
+c     +                       byte_mb(i_t1),
+c     +                       dbl_mb(i_c),
+c     +                       dbl_mb(i_m),
+c     +                       dbl_mb(i_qf),
+c     +                       byte_mb(i_ta))
+
+      call smd_geom_create1(rtdb,nb,nt,
      +                       int_mb(i_nm),
      +                       int_mb(i_im),
-     +                       dbl_mb(i_c1),
-     +                       dbl_mb(i_ms1),
-     +                       dbl_mb(i_qf1),
-     +                       byte_mb(i_t1),
      +                       dbl_mb(i_c),
      +                       dbl_mb(i_m),
      +                       dbl_mb(i_qf),
      +                       byte_mb(i_ta))
+
 
 
       call smd_data_namespace_print(sp_geom,6)
@@ -281,9 +290,8 @@ c
   
       end
 c
-      subroutine smd_geom_create1(rtdb,m,n1,n,
+      subroutine smd_geom_create1(rtdb,m,n,
      +                             nm,im,
-     +                             c1,ms1,q1,t1,
      +                             c,ms,q,t)
       implicit none
 #include "errquit.fh"
@@ -298,13 +306,9 @@ c
       logical geom_cart_set_gen1
       external geom_cart_set_gen1
 c      
-      integer rtdb,m,n1,n
+      integer rtdb,m,n
       integer nm(m)
       integer im(m)
-      double precision c1(3,n1)
-      double precision ms1(n1)
-      double precision q1(n1)
-      character*(smd_string_size) t1(n1)
       double precision c(3,n)
       double precision ms(n)
       double precision q(n)
@@ -314,6 +318,7 @@ c
       integer i,j
       integer i0,i1,n0,k
       character*30 pname
+      character*(smd_string_size) tag
       integer igeom
       integer nact,i_act,h_act
       double precision shift(3)
@@ -321,21 +326,47 @@ c
       integer i_q1,h_q1
       integer i_c1,h_c1
       integer i_ms1,h_ms1
-      integer ns
+      integer n1,ns
+      integer i_c,i_qf,i_m,i_ta
+      logical result
 c
       pname = "smd_geom_create_0"
 c
       ns = smd_string_size
-c
-c     sanity check
-c     ------------
-      i0=0
-      do i=1,m
-        i0 = i0 + nm(i)
-      end do
-      if(n1.ne.i0) 
+c     
+c     get copy of coordinates
+c     ----------------------
+      tag = "coords"
+      call smd_get_ind_dim(tag,i_c,n,result)
+      if(.not. result) 
      >  call errquit(
-     >       pname//'incompatibe dimensions',0, MA_ERR)
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c
+      tag = "mass"
+      call smd_get_ind(tag,i_m,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+      tag = "atom:name"
+      call smd_get_ind(tag,i_ta,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c
+      tag = "atom:formal_charge"
+      call smd_get_ind(tag,i_qf,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+c c
+c     size
+c     ----
+      n1=0
+      do i=1,m
+        n1 = n1 + nm(i)
+      end do
 c      
       if(.not.ma_push_get(mt_dbl,3*n1,'tmp c',h_c1,i_c1))
      + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
@@ -357,10 +388,7 @@ c
            dbl_mb(i_c1+(j-1)*3+k-1)=c(k,i0+i1)-shift(k)
          end do
          dbl_mb(i_ms1+j-1)=ms(i0+i1)
-c         ms1(j)=ms(i0+i1)
          dbl_mb(i_q1+j-1)=q(i0+i1)
-c         q1(j)=q(i0+i1)
-c         t1(j)=t(i0+i1)
          do k=1,ns
            byte_mb(i_t1+(j-1)*ns+k-1)=t((i0+i1-1)*ns+k)
          end do
@@ -393,11 +421,6 @@ c
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
 c
-      write(*,*) "coordinates"
-      do i=1,n1
-        write(*,*) (c1(k,i),k=1,3)
-      end do
-c      
       nact = nm(1)
       if(.not.ma_push_get(mt_int,nact,'tmp',h_act,i_act))
      + call errquit(pname//'Failed to allocate memory for tmp l',
