@@ -43,7 +43,7 @@ c
          result = task_energy(rtdb)
       else if(inp_compare(.false., 'gradient', operation)) then
         result = task_gradient(rtdb)
-        call smd_geom_push_gradients(im)
+        call smd_geom_push_gradients()
         call smd_global_update_res("gradients","put",im)
         call smd_global_print("gradients")
       else
@@ -64,7 +64,7 @@ c
 c
       call util_message("finished esp")
 c
-      call smd_geom_push_charges(im)
+      call smd_geom_push_charges()
       if(ga_nodeid().eq.0)
      &     call smd_fragment_charge_set(im)
  
@@ -144,7 +144,9 @@ c
 c      create geometry object
 c      ---------------------
       call smd_geom_init_system(im)
-      call smd_geom_monomer_create(im)
+      call smd_bq_init()
+c      call smd_geom_monomer_create(im)
+      call ga_sync()
 c
       call smd_message_post("out "//pname)
 
