@@ -582,6 +582,86 @@ c
       
       return
       end
+c
+      subroutine smd_geom_push_coords()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "geom.fh"
+c
+      integer im
+c     
+      character*32 tag,pname,sp_geom
+      logical result
+      integer i_c
+      integer i_c1
+      integer i,j,i1,i0
+      integer nt
+      integer rtdb
+      integer i_im,i_nm
+      integer nb,k,n0
+      integer igeom
+c
+      pname = "smd_geom_push_gradients"
+c
+      tag = "geom"
+      call smd_system_get_component(sp_geom,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+      tag = "coordinates"
+      call smd_data_get_ind_dim(sp_geom,tag,i_c1,nt,result)
+      if(.not. result)  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+      nt = nt/3
+c
+      tag = "position"
+      call smd_data_get_ind_dim(sp_geom,tag,i_im,nb,result)
+      if(.not. result)  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+c      
+      tag = "size"
+      call smd_data_get_ind_dim(sp_geom,tag,i_nm,nb,result)
+      if(.not. result)  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+c    
+c
+      call smd_rtdb_get_handle(rtdb)
+c
+      tag = "coords"
+      call smd_get_ind(tag,i_c,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c      
+      if(.not.geom_create(igeom,"geometry"))
+     + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+c      
+      if(.not.geom_rtdb_load(rtdb,igeom,"geometry"))
+     + call errquit(pname//'Failed to load geometry'//tag,0, GEOM_ERR)
+c    
+      if(.not.geom_cart_coords_get(igeom,dbl_mb(i_c1)))
+     $           call errquit(pname,0,RTDB_ERR)
+c
+      j=0
+      do i=1,nb
+       i0=int_mb(i_im+i-1)-1
+       n0=int_mb(i_nm+i-1)
+       do i1=1,n0
+         j = j+1
+         do k=1,3
+           dbl_mb(i_c+3*(i0+i1-1)+k-1) = dbl_mb(i_c1+3*(j-1)+k-1)
+         end do
+       end do
+      end do
+
+      return
+      end
 cc
       subroutine smd_geom_monomer_index_size(im,nt,ir,nm,i0)
       implicit none
