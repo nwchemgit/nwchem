@@ -389,7 +389,7 @@ c
   
       end
 c
-      subroutine smd_geom_push_charges(im)
+      subroutine smd_geom_push_charges()
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -503,7 +503,7 @@ c
       return
       end
 cc      
-      subroutine smd_geom_push_gradients(im)
+      subroutine smd_geom_push_gradients()
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
