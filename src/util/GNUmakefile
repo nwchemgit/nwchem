@@ -119,6 +119,9 @@ ifeq ($(NWCHEM_TARGET),CATAMOUNT)
    LIB_DEFINES += -I/opt/xt-catamount/default/catamount/linux/include/ -I/opt/xt-catamount/default/catamount/linux/include/amd64/
   EXTRA_OBJ += util_allocga.o xt3_dclock.o  util_fullbuff.o util_sigprof.o
 endif
+ifeq ($(ARMCI_NETWORK),PORTALS)
+   LIB_DEFINES += -DGANXTVAL
+endif
 ifeq ($(TARGET),FUJITSU_VPP)
    LIB_DEFINES = \
                  -Wp,-DBINDIR=\"$(BINDIR)\" \
@@ -176,7 +179,7 @@ endif
               util_test.o util_ga_test.o util.o util_patch_test.o \
               util_ndim_test.o util_perf_test.o util_test_lu.o util_test_eig.o \
               util_dra_test.o util_eaf_test.o util_sf_test.o \
-              ga_lkain_2cpl3.o util_io.o util_xyz.o util_ma.o util_mpinap.o \
+              ga_lkain_2cpl3.o util_io.o util_xyz.o util_ma.o \
               $(EXTRA_OBJ)
 ifndef USE_MLIB
               OBJ_OPTIMIZE += icopy.o dsum.o dgefa.o
