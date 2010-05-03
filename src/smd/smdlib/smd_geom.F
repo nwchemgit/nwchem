@@ -141,33 +141,14 @@ c
 c
 c     determine the center of geometry for central residue
 c     ----------------------------------------------------
-      tag = "shift vector"
-      call smd_data_create_get(sp_geom,tag,3,MT_DBL,i_sht)
-      call smd_geom_cog(nt,int_mb(i_nm),int_mb(i_im),
-     +                  dbl_mb(i_c),dbl_mb(i_sht))
-c       
-      call smd_rtdb_get_handle(rtdb)
-c      call smd_geom_create(rtdb,nb,ng,nt,
-c     +                       int_mb(i_nm),
-c     +                       int_mb(i_im),
-c     +                       dbl_mb(i_c1),
-c     +                       dbl_mb(i_ms1),
-c     +                       dbl_mb(i_qf1),
-c     +                       byte_mb(i_t1),
-c     +                       dbl_mb(i_c),
-c     +                       dbl_mb(i_m),
-c     +                       dbl_mb(i_qf),
-c     +                       byte_mb(i_ta))
-
-      call smd_geom_create1(rtdb,nb,nt,
-     +                       int_mb(i_nm),
-     +                       int_mb(i_im),
-     +                       dbl_mb(i_c),
-     +                       dbl_mb(i_m),
-     +                       dbl_mb(i_qf),
-     +                       byte_mb(i_ta))
-
-
+c      tag = "shift vector"
+c      call smd_data_create_get(sp_geom,tag,3,MT_DBL,i_sht)
+c      call smd_geom_cog(nt,int_mb(i_nm),int_mb(i_im),
+c     +                  dbl_mb(i_c),dbl_mb(i_sht))
+cc       
+c      call util_message("here")
+c      call smd_rtdb_get_handle(rtdb)
+      call smd_geom_create1()
 
       call smd_data_namespace_print(sp_geom,6)
 
@@ -289,10 +270,73 @@ c
 c
   
       end
-c
-      subroutine smd_geom_create1(rtdb,m,n,
+c      
+      subroutine smd_geom_arrays_help(m,n1,n,
      +                             nm,im,
+     +                             c1,ms1,q1,t1,
      +                             c,ms,q,t)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "smd_const_data.fh"
+c
+      integer m,n1,n
+      integer nm(m)
+      integer im(m)
+      double precision c1(3,n1)
+      double precision ms1(n1)
+      double precision q1(n1)
+      character*(smd_string_size) t1(n1)
+      double precision c(3,n)
+      double precision ms(n)
+      double precision q(n)
+      character*(smd_string_size) t(n)
+c
+      integer i,j
+      integer i0,i1,n0,k
+      character*30 pname
+      integer igeom
+      integer nact,i_act,h_act
+      double precision shift(3)
+c
+      pname = "smd_geom_create_0"
+c
+c     sanity check
+c     ------------
+      i0=0
+      do i=1,m
+        i0 = i0 + nm(i)
+      end do
+      if(n1.ne.i0) 
+     >  call errquit(
+     >       pname//'incompatibe dimensions',0, MA_ERR)
+
+      j=0
+      do i=1,m
+       i0=im(i)-1
+       n0=nm(i)
+       do i1=1,n0
+         j = j+1
+         do k=1,3
+           c1(k,j)=c(k,i0+i1)
+         end do
+         ms1(j)=ms(i0+i1)
+         q1(j)=q(i0+i1)
+         t1(j)=t(i0+i1)
+       end do
+      end do
+c      
+      return
+c
+  
+      end
+c
+      subroutine smd_geom_create1()
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -307,18 +351,12 @@ c
       external geom_cart_set_gen1
 c      
       integer rtdb,m,n
-      integer nm(m)
-      integer im(m)
-      double precision c(3,n)
-      double precision ms(n)
-      double precision q(n)
-      character*1 t(n*smd_string_size)
-
 c
       integer i,j
       integer i0,i1,n0,k
       character*30 pname
       character*(smd_string_size) tag
+      character*(smd_string_size) sp_geom
       integer igeom
       integer nact,i_act,h_act
       double precision shift(3)
@@ -328,9 +366,28 @@ c
       integer i_ms1,h_ms1
       integer n1,ns
       integer i_c,i_qf,i_m,i_ta
+      integer i_im,i_nm
+      integer ioff
       logical result
 c
       pname = "smd_geom_create_0"
+c
+      tag = "geom"
+      call smd_system_get_component(sp_geom,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+      tag = "position"
+      call smd_data_get_ind_dim(sp_geom,tag,i_im,m,result)
+      if(.not. result)  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+c      
+      tag = "size"
+      call smd_data_get_ind_dim(sp_geom,tag,i_nm,m,result)
+      if(.not. result)  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+c    
 c
       ns = smd_string_size
 c     
@@ -365,7 +422,7 @@ c     size
 c     ----
       n1=0
       do i=1,m
-        n1 = n1 + nm(i)
+        n1 = n1 + int_mb(i_nm+i-1)
       end do
 c      
       if(.not.ma_push_get(mt_dbl,3*n1,'tmp c',h_c1,i_c1))
@@ -377,25 +434,56 @@ c
       if(.not.ma_push_get(mt_byte,n1*smd_string_size,'tmp t',h_t1,i_t1))
      + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
 c
-      call smd_geom_cog(n,nm(1),im(1),c,shift)
+      call smd_geom_cog(n,int_mb(i_nm),int_mb(i_im),
+     +                  dbl_mb(i_c),shift)
+      tag = "shift vector"
+      call smd_data_namespace_print(sp_geom,6)
+      call smd_data_put_dbl(sp_geom,tag,3,shift)
       j=0
       do i=1,m
-       i0=im(i)-1
-       n0=nm(i)
+       i0=int_mb(i_im+i-1)-1
+       n0=int_mb(i_nm+i-1)
        do i1=1,n0
          j = j+1
+         ioff = i0+i1-1
          do k=1,3
-           dbl_mb(i_c1+(j-1)*3+k-1)=c(k,i0+i1)-shift(k)
+           dbl_mb(i_c1+(j-1)*3+k-1)=
+c     +         dbl_mb(i_c+ioff*3+k-1)-shift(k)
+     +         dbl_mb(i_c+ioff*3+k-1)
          end do
-         dbl_mb(i_ms1+j-1)=ms(i0+i1)
-         dbl_mb(i_q1+j-1)=q(i0+i1)
+         dbl_mb(i_ms1+j-1)=dbl_mb(i_m+ioff)
+         dbl_mb(i_q1+j-1)=dbl_mb(i_qf+ioff)
          do k=1,ns
-           byte_mb(i_t1+(j-1)*ns+k-1)=t((i0+i1-1)*ns+k)
+           byte_mb(i_t1+(j-1)*ns+k-1)=byte_mb(i_ta+ioff*ns+k-1)
          end do
        end do
       end do
 c      
+c      call smd_print_pdb(n1,"-0.pdb",dbl_mb(i_c1),
+c     +                   dbl_mb(i_q1),byte_mb(i_t1))
+      call smd_util_print_force_array1(141,n1,dbl_mb(i_c1))
+      do i=1,n1
+        do k=1,3
+        dbl_mb(i_c1+(i-1)*3+k-1)=dbl_mb(i_c1+(i-1)*3+k-1)-shift(k)
+        end do
+      end do
+c      call smd_print_pdb(n1,"-1.pdb",dbl_mb(i_c1),
+c     +                   dbl_mb(i_q1),byte_mb(i_t1))
       call smd_lat_rebox(n1,dbl_mb(i_c1)) 
+      call smd_util_print_force_array1(140,n1,dbl_mb(i_c1))
+c      call smd_print_pdb(n1,"-2.pdb",dbl_mb(i_c1),
+c     +                   dbl_mb(i_q1),byte_mb(i_t1))
+
+c      do i=1,n1
+c        do k=1,3
+c        dbl_mb(i_c1+(i-1)*3+k-1)=dbl_mb(i_c1+(i-1)*3+k-1)+shift(k)
+c        end do
+c      end do
+c      call smd_print_pdb(n1,"-3.pdb",dbl_mb(i_c1),
+c     +                   dbl_mb(i_q1),byte_mb(i_t1))
+c      call smd_lat_rebox(n1,dbl_mb(i_c1)) 
+c      call smd_print_pdb(n1,"-4.pdb",dbl_mb(i_c1),
+c     +                   dbl_mb(i_q1),byte_mb(i_t1))
 c
        i0=1
        if(.not.geom_create(igeom,"geometry"))
@@ -414,6 +502,7 @@ c
 c
       call ga_sync()
 c
+      call smd_rtdb_get_handle(rtdb)
       if(.not.geom_rtdb_store(rtdb,igeom,"geometry"))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
 
@@ -421,10 +510,10 @@ c
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
 c
-      nact = nm(1)
+      nact = int_mb(i_nm)
       if(.not.ma_push_get(mt_int,nact,'tmp',h_act,i_act))
      + call errquit(pname//'Failed to allocate memory for tmp l',
-     + nm, MA_ERR)
+     + nact, MA_ERR)
       do i=1,nact
        int_mb(i_act+i-1) = i
       end do
@@ -584,7 +673,7 @@ c
       integer nt,nm,nqm
       integer rtdb
       integer igeom
-      integer i_q1
+      integer i_q1,h_q1
       integer ng
       integer nb
       integer i_nm,i_im
@@ -610,8 +699,13 @@ c
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 c      
-      tag = "charge"
-      call smd_data_get_ind_dim(sp_geom,tag,i_q1,ng,result)
+c      tag = "charge"
+c      call smd_data_get_ind_dim(sp_geom,tag,i_q1,ng,result)
+c      if(.not. result)  call errquit(
+c     >       pname//'error getting index for'//tag,0,0 )
+c
+      tag="ntot"
+      call smd_data_get_int(sp_geom,tag,1,ng,result)
       if(.not. result)  call errquit(
      >       pname//'error getting index for'//tag,0,0 )
 c
@@ -656,6 +750,9 @@ c     ---------------------------------------
       if(.not.geom_rtdb_load(rtdb,igeom,tag(1:inp_strlen(tag))))
      + call errquit(pname//'Failed to load geometry'//tag,0, GEOM_ERR)
 
+      if(.not.ma_push_get(mt_dbl,ng,'tmp q',h_q1,i_q1))
+     + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
+
       if(.not.geom_cart_get_charges(igeom,ng,dbl_mb(i_q1)))
      + call errquit(pname//'Failed to get charges',0, GEOM_ERR)
 
@@ -672,10 +769,18 @@ c
        end do
       end do
 
+      if(.not.ma_pop_stack(h_q1))
+     & call errquit(pname//'Failed to deallocate stack ',0,
+     &       MA_ERR)
+c      
+      do i=1,nt
+         write(113,*) i,dbl_mb(i_q+i-1) 
+      end do
+
 c
       return
       end
-cc      
+c      
       subroutine smd_geom_get_gradients()
       implicit none
 #include "errquit.fh"
@@ -690,9 +795,9 @@ c
       character*32 tag,pname,sp_geom
       logical result
       integer i_f
-      integer i_g1
+      integer i_g1,h_g1
       integer i,j,i1,i0
-      integer nt
+      integer ng
       integer rtdb
       integer i_im,i_nm
       integer nb,k,n0
@@ -705,11 +810,16 @@ c
      >  call errquit(
      >       pname//'no component '//tag,0,0)
 c
-      tag = "gradients"
-      call smd_data_get_ind_dim(sp_geom,tag,i_g1,nt,result)
+      tag="ntot"
+      call smd_data_get_int(sp_geom,tag,1,ng,result)
       if(.not. result)  call errquit(
      >       pname//'error getting index for'//tag,0,0 )
-      nt = nt/3
+c
+c      tag = "gradients"
+c      call smd_data_get_ind_dim(sp_geom,tag,i_g1,nt,result)
+c      if(.not. result)  call errquit(
+c     >       pname//'error getting index for'//tag,0,0 )
+c      nt = nt/3
 c
       tag = "position"
       call smd_data_get_ind_dim(sp_geom,tag,i_im,nb,result)
@@ -730,11 +840,14 @@ c
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 c    
+      if(.not.ma_push_get(mt_dbl,3*ng,'tmp g',h_g1,i_g1))
+     + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
+c      
       if (.not.rtdb_get(rtdb, 'task:gradient', mt_dbl,
-     $        3*nt, dbl_mb(i_g1))) 
+     $        3*ng, dbl_mb(i_g1))) 
      $           call errquit(pname,0,RTDB_ERR)
 
-      do i=1,3*nt
+      do i=1,3*ng
         write(*,*) "gradient ref",dbl_mb(i_g1+i-1)
       end do
 c
@@ -751,6 +864,10 @@ c
       end do
 
 
+      if(.not.ma_pop_stack(h_g1))
+     & call errquit(pname//'Failed to deallocate stack ',0,
+     &       MA_ERR)
+
       call smd_force_print(89)
       
       return
@@ -765,19 +882,21 @@ c
 #include "util.fh"
 #include "global.fh"
 #include "geom.fh"
+#include "smd_const_data.fh"
 c
       integer im
 c     
       character*32 tag,pname,sp_geom
       logical result
       integer i_c
-      integer i_c1
+      integer i_c1,h_c1
       integer i,j,i1,i0
       integer nt
       integer rtdb
       integer i_im,i_nm
       integer nb,k,n0
       integer igeom
+      double precision sht(3)
 c
       pname = "smd_geom_get_gradients"
 c
@@ -787,11 +906,10 @@ c
      >  call errquit(
      >       pname//'no component '//tag,0,0)
 c
-      tag = "coordinates"
-      call smd_data_get_ind_dim(sp_geom,tag,i_c1,nt,result)
+      tag="ntot"
+      call smd_data_get_int(sp_geom,tag,1,nt,result)
       if(.not. result)  call errquit(
      >       pname//'error getting index for'//tag,0,0 )
-      nt = nt/3
 c
       tag = "position"
       call smd_data_get_ind_dim(sp_geom,tag,i_im,nb,result)
@@ -811,15 +929,38 @@ c
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-c      
+c     
       if(.not.geom_create(igeom,"geometry"))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 c      
       if(.not.geom_rtdb_load(rtdb,igeom,"geometry"))
      + call errquit(pname//'Failed to load geometry'//tag,0, GEOM_ERR)
 c    
+      if(.not.ma_push_get(mt_dbl,3*nt,'tmp g',h_c1,i_c1))
+     + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
+c    
       if(.not.geom_cart_coords_get(igeom,dbl_mb(i_c1)))
      $           call errquit(pname,0,RTDB_ERR)
+      call dscal(3*nt,cau2ang,dbl_mb(i_c1),1)
+c
+      dbl_mb(i_c1)=dbl_mb(i_c1)+0.3
+      if (.not. geom_print_xyz(igeom,106))
+     + call errquit('qmmmsi geom_print_xyz',0, GEOM_ERR)
+c
+      tag = "shift vector"
+      call smd_data_get_dbl(sp_geom,tag,3,sht,result)
+      if(.not. result)  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+       
+      call smd_util_print_force_array1(130,nt,dbl_mb(i_c1))
+      do i=1,nt
+        do k=1,3
+          dbl_mb(i_c1+3*(i-1)+k-1)=dbl_mb(i_c1+3*(i-1)+k-1)+
+     >                             sht(k)
+        end do
+      end do
+      call smd_util_print_force_array1(131,nt,dbl_mb(i_c1))
+      call smd_lat_rebox(nt,dbl_mb(i_c1)) 
 c
       j=0
       do i=1,nb
@@ -832,6 +973,14 @@ c
          end do
        end do
       end do
+
+      if(.not.ma_pop_stack(h_c1))
+     & call errquit(pname//'Failed to deallocate stack ',0,
+     &       MA_ERR)
+
+      call smd_coords_print_pdb("test.pdb")
+      call ga_sync()
+      stop
 
       return
       end
