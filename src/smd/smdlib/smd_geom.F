@@ -448,8 +448,7 @@ c
          ioff = i0+i1-1
          do k=1,3
            dbl_mb(i_c1+(j-1)*3+k-1)=
-c     +         dbl_mb(i_c+ioff*3+k-1)-shift(k)
-     +         dbl_mb(i_c+ioff*3+k-1)
+     +         dbl_mb(i_c+ioff*3+k-1)-shift(k)
          end do
          dbl_mb(i_ms1+j-1)=dbl_mb(i_m+ioff)
          dbl_mb(i_q1+j-1)=dbl_mb(i_qf+ioff)
@@ -458,33 +457,8 @@ c     +         dbl_mb(i_c+ioff*3+k-1)-shift(k)
          end do
        end do
       end do
-c      
-c      call smd_print_pdb(n1,"-0.pdb",dbl_mb(i_c1),
-c     +                   dbl_mb(i_q1),byte_mb(i_t1))
-      call smd_util_print_force_array1(141,n1,dbl_mb(i_c1))
-      do i=1,n1
-        do k=1,3
-        dbl_mb(i_c1+(i-1)*3+k-1)=dbl_mb(i_c1+(i-1)*3+k-1)-shift(k)
-        end do
-      end do
-c      call smd_print_pdb(n1,"-1.pdb",dbl_mb(i_c1),
-c     +                   dbl_mb(i_q1),byte_mb(i_t1))
       call smd_lat_rebox(n1,dbl_mb(i_c1)) 
-      call smd_util_print_force_array1(140,n1,dbl_mb(i_c1))
-c      call smd_print_pdb(n1,"-2.pdb",dbl_mb(i_c1),
-c     +                   dbl_mb(i_q1),byte_mb(i_t1))
 
-c      do i=1,n1
-c        do k=1,3
-c        dbl_mb(i_c1+(i-1)*3+k-1)=dbl_mb(i_c1+(i-1)*3+k-1)+shift(k)
-c        end do
-c      end do
-c      call smd_print_pdb(n1,"-3.pdb",dbl_mb(i_c1),
-c     +                   dbl_mb(i_q1),byte_mb(i_t1))
-c      call smd_lat_rebox(n1,dbl_mb(i_c1)) 
-c      call smd_print_pdb(n1,"-4.pdb",dbl_mb(i_c1),
-c     +                   dbl_mb(i_q1),byte_mb(i_t1))
-c
        i0=1
        if(.not.geom_create(igeom,"geometry"))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
@@ -943,23 +917,17 @@ c
      $           call errquit(pname,0,RTDB_ERR)
       call dscal(3*nt,cau2ang,dbl_mb(i_c1),1)
 c
-      dbl_mb(i_c1)=dbl_mb(i_c1)+0.3
-      if (.not. geom_print_xyz(igeom,106))
-     + call errquit('qmmmsi geom_print_xyz',0, GEOM_ERR)
-c
       tag = "shift vector"
       call smd_data_get_dbl(sp_geom,tag,3,sht,result)
       if(.not. result)  call errquit(
      >       pname//'error getting index for'//tag,0,0 )
        
-      call smd_util_print_force_array1(130,nt,dbl_mb(i_c1))
       do i=1,nt
         do k=1,3
           dbl_mb(i_c1+3*(i-1)+k-1)=dbl_mb(i_c1+3*(i-1)+k-1)+
      >                             sht(k)
         end do
       end do
-      call smd_util_print_force_array1(131,nt,dbl_mb(i_c1))
       call smd_lat_rebox(nt,dbl_mb(i_c1)) 
 c
       j=0
@@ -977,10 +945,6 @@ c
       if(.not.ma_pop_stack(h_c1))
      & call errquit(pname//'Failed to deallocate stack ',0,
      &       MA_ERR)
-
-      call smd_coords_print_pdb("test.pdb")
-      call ga_sync()
-      stop
 
       return
       end
