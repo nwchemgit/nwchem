@@ -344,7 +344,7 @@ c
       real*8 xtrj(ntrj,3,nfrdim),xprj(ntrj,3,nfrdim),xa(nsa,3)
       integer isel(nsa)
 c
-      integer i,j,k,l,m,ivmin,ivmax
+      integer i,j,k,l,m,ivmin,ivmax,ndxval
       real*8 value,vmin,vmax,vming,vmaxg
 c
 c      write(*,'(3f12.6)') ((xtrj(5,i,k),i=1,3),k=1,5)
@@ -383,6 +383,8 @@ c
       if(me.eq.0) then
       open(unit=lfntcl,file=filtcl(1:index(filtcl,' ')-1),
      + form='formatted',status='unknown',err=9999)
+      open(unit=lfnamp,file=filamp(1:index(filamp,' ')-1),
+     + form='formatted',status='unknown',err=9999)
       k=0
       l=0
       do 15 i=1,nsel
@@ -399,6 +401,7 @@ c
       write(lfnamp,'(i5,f12.6)') i,sqrt(value)
    15 continue
       close(unit=lfntcl)
+      close(unit=lfnamp)
  9999 continue
       endif
 c
@@ -422,6 +425,14 @@ c
       call dia_wrtpdb(lfnmin,filmin,byte_mb(i_snam),isel,
      + xprj(1,1,ivmin),isel,xprj,.true.,.false.,isel)
       endif
+c
+      open(unit=lfnval,file=filval(1:index(filval,' ')-1),
+     + form='formatted',status='unknown',err=9999)
+      ndxval=me*nfrme*20
+      call fseek(lfnval,ndxval,0)
+      write(lfnval,5566) (ndxval+i,val(i),i=1,nfrme)
+ 5566 format(i8,f12.6)
+      close(unit=lfnval)
 c
       return
       end
