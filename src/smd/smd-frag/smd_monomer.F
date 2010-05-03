@@ -42,8 +42,10 @@ c
       if(inp_compare(.false., 'energy', operation)) then
          result = task_energy(rtdb)
       else if(inp_compare(.false., 'gradient', operation)) then
+        call smd_geom_get_coords()
         result = task_gradient(rtdb)
-        call smd_geom_push_gradients()
+        call smd_geom_get_gradients()
+        call smd_geom_get_coords()
         call smd_global_update_res("gradients","put",im)
         call smd_global_print("gradients")
       else
@@ -64,11 +66,11 @@ c
 c
       call util_message("finished esp")
 c
-      call smd_geom_push_charges()
+      call smd_geom_get_charges()
       if(ga_nodeid().eq.0)
      &     call smd_fragment_charge_set(im)
  
-      call util_message("finished smd_geom_push_charges")
+      call util_message("finished smd_geom_get_charges")
 
 100   continue
       call util_message("finished smd_geom_monomer_end")
