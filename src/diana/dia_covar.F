@@ -402,6 +402,8 @@ c
  9999 continue
       endif
 c
+c     write the minimum and maximum projection structures as pdb formatted files
+c
       ivmin=1
       ivmax=1
       do 17 k=2,nfrme
@@ -420,25 +422,6 @@ c
       call dia_wrtpdb(lfnmin,filmin,byte_mb(i_snam),isel,
      + xprj(1,1,ivmin),isel,xprj,.true.,.false.,isel)
       endif
-c
-c      write(*,'(3f12.6)') ((xprj(5,i,k),i=1,3),k=1,5)
-c
-c      if(valmin.gt.valmax) then
-c      call dia_wrtpdb(lfnmax,filmax,byte_mb(i_snam),isel,xp,
-c     + isel,xp,.true.,.false.,int_mb(i_ndxw))
-c      valmax=val
-c      call dia_wrtpdb(lfnmin,filmin,byte_mb(i_snam),isel,xp,
-c     + isel,xp,.true.,.false.,int_mb(i_ndxw))
-c      valmin=val
-c      elseif(val.lt.valmin) then
-c      call dia_wrtpdb(lfnmin,filmin,byte_mb(i_snam),isel,xp,
-c     + isel,xp,.true.,.false.,int_mb(i_ndxw))
-c      valmin=val
-c      elseif(val.gt.valmax) then
-c      call dia_wrtpdb(lfnmax,filmax,byte_mb(i_snam),isel,xp,
-c     + isel,xp,.true.,.false.,int_mb(i_ndxw))
-c      valmax=val
-c      endif
 c
       return
       end
