@@ -337,14 +337,15 @@ c
 #include "dia_common.fh"
 #include "global.fh"
 #include "mafdecls.fh"
+#include "msgids.fh"
 c
       integer ndex(nsel)
       real*8 vct(*),val(nfrdim),pnorm,vval
       real*8 xtrj(ntrj,3,nfrdim),xprj(ntrj,3,nfrdim),xa(nsa,3)
       integer isel(nsa)
 c
-      integer i,j,k,l,m
-      real*8 value
+      integer i,j,k,l,m,ivmin,ivmax
+      real*8 value,vmin,vmax,vming,vmaxg
 c
 c      write(*,'(3f12.6)') ((xtrj(5,i,k),i=1,3),k=1,5)
 c      write(*,'(5i5)') (ndex(i),i=1,5)
@@ -400,6 +401,26 @@ c
       close(unit=lfntcl)
  9999 continue
       endif
+c
+      ivmin=1
+      ivmax=1
+      do 17 k=2,nfrme
+      if(val(k).gt.val(ivmax)) ivmax=k
+      if(val(k).lt.val(ivmin)) ivmin=k
+   17 continue
+      vmax=val(ivmax)
+      vmin=val(ivmin)
+      call ga_dgop(mag_d01,vmax,1,'max')
+      call ga_dgop(mag_d02,vmin,1,'min')
+      if(val(ivmax).eq.vmax) then
+      call dia_wrtpdb(lfnmax,filmax,byte_mb(i_snam),isel,
+     + xprj(1,1,ivmax),isel,xprj,.true.,.false.,isel)
+      endif
+      if(val(ivmin).eq.vmin) then
+      call dia_wrtpdb(lfnmin,filmin,byte_mb(i_snam),isel,
+     + xprj(1,1,ivmin),isel,xprj,.true.,.false.,isel)
+      endif
+c
 c      write(*,'(3f12.6)') ((xprj(5,i,k),i=1,3),k=1,5)
 c
 c      if(valmin.gt.valmax) then
