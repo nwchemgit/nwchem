@@ -1,0 +1,60 @@
+memory total 2000 Mb
+start test 
+
+#permanent_dir /home/marat/codes/nwchem-smd/src/smd/test/spce-fragment/perm 
+permanent_dir ./perm
+scratch_dir ./data
+
+smd
+ lat_a 19.66155506  0.00000000  0.00000000
+ lat_b  0.00000000 19.66155506  0.00000000
+ lat_c  0.00000000  0.00000000 19.66155506
+ veloc input spce.vel0 output spce.vel
+# veloc input random output spce.vel
+# charge input charge.dat0 output charge.dat
+ coord spce.pdb
+ param smd.par
+ ndata 2 nequil 1 nprint 10
+ temp 300
+ step 0.001
+ rcut 9.0
+ verlet 1.9
+# verlet 9.5
+ ewald 0.35
+ kvec 6 6 6 
+end
+
+set smd:theory "dft"
+set smd:nobq .false.
+
+
+basis noprint
+* library 6-31G
+end
+
+
+dft
+print medium
+xc b3lyp
+iterations 200
+end
+
+esp
+print medium
+end
+
+set smd:fragment:istart 24
+set smd:fragment:iend 24
+set smd:fragment:theory "dft"
+set smd:fragment:parallel .false.
+
+set dft:xcreplicated f
+
+#set smd:nobq .true.
+
+set subgroups_number 2
+set smd:fragment_istart 2
+set smd:fragment_iend 2
+set smd:fragment_nproc 1
+
+task smd fragment dft gradient
