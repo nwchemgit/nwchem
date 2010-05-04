@@ -392,6 +392,7 @@ c     -------------------
      >  call errquit(
      >       pname//'no component '//tag,0,0)
       do i=1,nt
+        if(ga_nodeid().eq.0) write(*,*) "executing task",i
         call smd_task_execute(i)
       end do
       call util_message("out "//pname)

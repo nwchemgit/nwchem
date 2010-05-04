@@ -365,6 +365,7 @@ c      call smd_shakelist_init_system()
 c      call smd_bondlist_init_system()
       call smd_mass_init_system()
       call smd_task_init_system()
+      call smd_geom_init_system0()
 c
 c     finish system setup
 c     -------------------

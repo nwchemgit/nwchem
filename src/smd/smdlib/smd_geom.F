@@ -1,3 +1,46 @@
+      subroutine smd_geom_init_system0()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+c     
+      character*(smd_string_size) sp_geom,sp_atom
+      character*(smd_string_size) tag,pname
+      logical result
+      integer h_itmp,i_itmp
+      integer nb,nr
+      integer h_c,i_c,h_ct,i_ct
+      integer i_nb
+      integer nt
+      integer ng
+      integer i,j
+      integer i_pr,i_mr
+      integer i_im,i_nm
+      integer i_c1,i_ms1,i_t1,i_qf1
+      integer i_sht
+      integer i_qf,i_m,i_ta
+      integer rtdb
+
+      pname = "smd_geom_init_system0"
+
+      write(*,*) "in "//pname
+c
+      tag = "geom"
+      call smd_system_get_component(sp_geom,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+      call util_message(pname//":0")
+      call smd_namespace_create(sp_geom)
+      write(*,*) "out of "//pname
+
+      return
+      end
+
       subroutine smd_geom_init_system(im)
       implicit none
 #include "errquit.fh"
@@ -35,7 +78,9 @@ c
       if(.not.result)
      >  call errquit(
      >       pname//'no component '//tag,0,0)
-      call smd_namespace_create(sp_geom)
+c      call util_message(pname//":0")
+c      call smd_namespace_create(sp_geom)
+c      call util_message(pname//":1")
 c
       tag = "atom:res_pointer"
       call smd_get_ind_dim(tag,i_pr,nr,result)
