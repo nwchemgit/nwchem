@@ -27,7 +27,7 @@ c
 
       pname = "smd_geom_init_system0"
 
-      write(*,*) "in "//pname
+c      write(*,*) "in "//pname
 c
       tag = "geom"
       call smd_system_get_component(sp_geom,tag,result)
@@ -36,7 +36,7 @@ c
      >       pname//'no component '//tag,0,0)
       call util_message(pname//":0")
       call smd_namespace_create(sp_geom)
-      write(*,*) "out of "//pname
+c      write(*,*) "out of "//pname
 
       return
       end
@@ -71,7 +71,7 @@ c
 
       pname = "smd_geom_init_system"
 
-      write(*,*) "in "//pname
+c      write(*,*) "in "//pname
 c
       tag = "geom"
       call smd_system_get_component(sp_geom,tag,result)
@@ -119,8 +119,6 @@ c
         j=int_mb(i_nb+i-1)
         int_mb(i_im+i-1)=int_mb(i_pr+j-1)
         int_mb(i_nm+i-1)=int_mb(i_mr+j-1)
-        write(*,*) "positions",
-     +             int_mb(i_im+i-1),int_mb(i_nm+i-1)  
       end do
 c
 c     total number of atoms in the geometry
@@ -130,7 +128,6 @@ c     ------------------------------------
         j=int_mb(i_nb+i-1)
         ng=ng+int_mb(i_mr+j-1)
       end do
-      write(*,*) "ng=",ng
       tag = "ntot"
       call smd_data_put_int(sp_geom,tag,1,ng)
 c      
@@ -195,9 +192,7 @@ c      call util_message("here")
 c      call smd_rtdb_get_handle(rtdb)
       call smd_geom_create1()
 
-      call smd_data_namespace_print(sp_geom,6)
-
-      write(*,*) "out of "//pname
+c      write(*,*) "out of "//pname
 
       return
       end
@@ -280,8 +275,10 @@ c
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
 c
+      if(ga_nodeid().eq.0) then
       if (.not. geom_print_xyz(igeom,105))
      + call errquit('qmmmsi geom_print_xyz',0, GEOM_ERR)
+      end if
 c
       if(.not.geom_rtdb_store(rtdb,igeom,"geometry"))
      + call errquit('qmmm: Failed to store geom to rtdb',0, RTDB_ERR)
@@ -290,11 +287,6 @@ c
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
 c
-      write(*,*) "coordinates"
-      do i=1,n1
-        write(*,*) (c1(k,i),k=1,3)
-      end do
-c      
       nact = nm(1)
       if(.not.ma_push_get(mt_int,nact,'tmp',h_act,i_act))
      + call errquit(pname//'Failed to allocate memory for tmp l',
@@ -482,7 +474,6 @@ c
       call smd_geom_cog(n,int_mb(i_nm),int_mb(i_im),
      +                  dbl_mb(i_c),shift)
       tag = "shift vector"
-      call smd_data_namespace_print(sp_geom,6)
       call smd_data_put_dbl(sp_geom,tag,3,shift)
       j=0
       do i=1,m
@@ -516,8 +507,10 @@ c
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
 c
+      if(ga_nodeid().eq.0) then
       if (.not. geom_print_xyz(igeom,105))
      + call errquit('qmmmsi geom_print_xyz',0, GEOM_ERR)
+      end if
 c
       call ga_sync()
 c
@@ -792,11 +785,6 @@ c
      & call errquit(pname//'Failed to deallocate stack ',0,
      &       MA_ERR)
 c      
-      do i=1,nt
-         write(113,*) i,dbl_mb(i_q+i-1) 
-      end do
-
-c
       return
       end
 c      
@@ -866,10 +854,6 @@ c
      $        3*ng, dbl_mb(i_g1))) 
      $           call errquit(pname,0,RTDB_ERR)
 
-      do i=1,3*ng
-        write(*,*) "gradient ref",dbl_mb(i_g1+i-1)
-      end do
-c
       j=0
       do i=1,nb
        i0=int_mb(i_im+i-1)-1
@@ -887,8 +871,6 @@ c
      & call errquit(pname//'Failed to deallocate stack ',0,
      &       MA_ERR)
 
-      call smd_force_print(89)
-      
       return
       end
 c
@@ -1095,7 +1077,6 @@ c
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 
       nr = int_mb(i_tmp)
-      write(*,*) "number of residues is", nr
 c
 c     get cutoff data
 c     ---------------
@@ -1232,12 +1213,12 @@ c
       end do
       end do
 
-      write(79,*) "neighbors of residue",icr
-      do i=1,nr
-      if(inb(i).eq.1) then
-        write(79,*) i
-      end if
-      end do
+c      write(79,*) "neighbors of residue",icr
+c      do i=1,nr
+c      if(inb(i).eq.1) then
+c        write(79,*) i
+c      end if
+c      end do
       return
 
       end
@@ -1294,16 +1275,12 @@ c
 
       call util_message("in "//pname)
 
-      do i=1,na
-        write(*,*) "residue index",i,ir(i)
-      end do
       ii = 0
       do i=1,na-1
 
        ir1 = ir(i)
        jbeg=point(i)
        jend=point(i+1)-1
-       write(*,*) "jbeg,jend,i",jbeg,jend,i
 
       do jnab=jbeg,jend
 
@@ -1321,7 +1298,6 @@ c
 
           ii = ii + 1
           inb(ii) = ir(j)
-          write(*,*) "setting neighbor index",ii,j,inb(ii),ir(j)
          endif
        end if
 
@@ -1330,9 +1306,9 @@ c
       end do
 
       nb = ii
-      do i=1,nb
-        write(*,*) "neighbor is",i,inb(i)
-      end do
+c      do i=1,nb
+c        write(*,*) "neighbor is",i,inb(i)
+c      end do
       return
 
       end

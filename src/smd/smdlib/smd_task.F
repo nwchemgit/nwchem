@@ -163,8 +163,6 @@ c     fill in operation
 c     -----------------
       call smd_set_char_to_ma2(operation,nt,byte_mb(i_sop))
 
-      call smd_data_namespace_print(namespace,6)
-
       call util_message("out "//pname)
 
       return
@@ -192,10 +190,8 @@ c
      $  call errquit('Default group not properly set',p_grp,0)
 c
       call cpu_time(etime1)
-      write(*,*) "started rtdb cloning"
       call util_flush(6)
 c      call smd_task_rtdb_clone(tskid,rtdb_grp)
-      write(*,*) "finished rtdb cloning"
       call util_flush(6)
       call cpu_time(etime2)
 c      write(*,*) "time monomer rtdb",etime2-etime1
@@ -249,13 +245,10 @@ c
 c
 c     geti absolute name of the original database
       call smd_rtdb_get_name(rtdb_name)
-      write(*,*) "rtdb_name",rtdb_name
       call util_file_name_resolve(rtdb_name,.false.)
-      write(*,*) "resolved rtdb_name",rtdb_name
 c     create name for group database in scratch
       write(buffer,'(I4.4,A3)') taskid,".db"
       call util_file_name(buffer,.true.,.false.,rtdb_name_group)
-      write(*,*) "resolved group_rtdb_name",rtdb_name_group
       call util_flush(6)
 c
       if(master) then
@@ -271,8 +264,6 @@ c
       call smd_rtdb_open(rtdb_name_group,"old")
 c      if(.not.rtdb_open(rtdb_name_group,"old",rtdb))
 c     + call errquit('Failed to open group rtdb',0, GEOM_ERR)
-      write(*,*) "got new rtdb handle",rtdb
-
       return
       end
 c
@@ -446,7 +437,6 @@ c     &    ' after done',0,0)
 c       push in all available tasks
 c       ---------------------------
         do i = 1,nt
-            write(*,*) "inserting task",i
             call sched_grp_insert_task(task_list, i, nproc)
         enddo
         populate_first_time = .false.

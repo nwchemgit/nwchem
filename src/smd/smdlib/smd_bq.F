@@ -23,9 +23,7 @@ c
       integer nbq,i_qbq,i_cbq
       double precision scale
       double precision cm(3)
-      integer i_pr
       integer i_nb,h_nb,nb
-      integer ir
       integer i_lbq,h_lbq,i_rbq,h_rbq
       logical nobq
       integer ng
@@ -63,12 +61,6 @@ c
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 c
-      tag = "atom:res_pointer"
-      call smd_get_ind_dim(tag,i_pr,nr,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-c      
 c     geometry data
 c     -------------
       tag = "position"
@@ -96,11 +88,11 @@ c
       tag = "left index"
       call smd_data_create_get(sp_bq,tag,nb+1,MT_INT,i_lbq)
 c
+c     set the boundary regions for bq 
+c     -------------------------------
       int_mb(i_lbq) = 1
       int_mb(i_rbq+nb) = nt
-      j=1
       do i=1,nb
-        ir=int_mb(i_nb+i-1)
         int_mb(i_rbq+i-1) = int_mb(i_im+i-1)-1
         int_mb(i_lbq+i) = int_mb(i_im+i-1)+
      >                    int_mb(i_nm+i-1)   

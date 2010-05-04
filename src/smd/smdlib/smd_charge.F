@@ -475,7 +475,6 @@ c
       logical result
       call smd_chargefile_output(filename,result)
 c
-      write(*,*) "writing charge to",filename
       if(result) then
         call smd_charge_write(filename) 
       end if

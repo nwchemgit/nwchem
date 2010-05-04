@@ -174,8 +174,6 @@ c     --------------------------------------------------------
         int_mb(i_list+i-1)=int_mb(i_l+i-1)
       end do
 
-      call smd_data_namespace_print(sp_vlist,78)
-       
       if(.not.ma_pop_stack(h_ct))
      & call errquit(pname//'Failed to deallocate stack h_l',nl,
      &       MA_ERR)

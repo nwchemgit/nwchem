@@ -47,6 +47,7 @@ set smd:fragment:istart 24
 set smd:fragment:iend 24
 set smd:fragment:theory "dft"
 set smd:fragment:parallel .false.
+set smd:noesp .true.
 
 set dft:xcreplicated f
 

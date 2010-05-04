@@ -36,11 +36,12 @@ c
       character*255 prefix, prefix0,key
       integer i1
       integer group_id
+      logical noesp
 
       pname = "smd_monomer"
 
       call smd_monomer_init(itsk,im,theory,operation,rtdb)
-      write(*,*) "operation is", operation
+c      write(*,*) "operation is", operation
       if(inp_compare(.false., 'energy', operation)) then
          result = task_energy(rtdb)
       else if(inp_compare(.false., 'gradient', operation)) then
@@ -64,6 +65,11 @@ c        call smd_global_print("coords")
 c
       if(ga_nodeid().eq.0)
      >  write(*,*) "finished energy",theory,qm_energy
+c      
+      if(.not.rtdb_get(rtdb,'smd:noesp',mt_log,1,noesp))
+     +     noesp = .false.
+c
+      if(noesp) goto 100
 c
       if(theory.ne."dft") goto 100
       if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
@@ -131,12 +137,12 @@ c
       tag="task:operation"
       call smd_data_get_string1(sname,tag,itsk,itsk,
      >                          operation)
-      write(*,*) "found operation",operation
+c      write(*,*) "found operation",operation
 c
       tag="task:theory"
       call smd_data_get_string1(sname,tag,itsk,itsk,
      >                          theory)
-      write(*,*) "found theory",theory
+c      write(*,*) "found theory",theory
 c
       tag = "task:frag_id"
       call smd_data_get_int1(sname,tag,itsk,itsk,im)
