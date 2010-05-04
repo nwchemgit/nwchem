@@ -475,6 +475,54 @@ c     ---------------
       return
       end
 
+      subroutine smd_global_end()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      character*32 sp_global
+      character*32 pname,tag,ltag,gtag
+      integer na,np
+      integer i_c,i_ir
+      integer nm,i0,nt
+      integer i,k
+      logical result
+      integer ilo,ihi
+c
+      integer ndims
+      integer ga_handle
+c
+      pname = "smd_global_end"
+c
+      tag = "global"
+      call smd_system_get_component(sp_global,tag,result)
+      if(.not.result) return
+c
+c     get global array
+c     ---------------
+      gtag="coordinates"
+      call smd_data_get_int(sp_global,gtag,1,ga_handle,result)
+      if(result) then
+       if(.not.ga_destroy(ga_handle)) call errquit(
+     >       pname//'cannot destroy '//gtag,0,0)
+      end if
+
+      gtag="gradients"
+      call smd_data_get_int(sp_global,gtag,1,ga_handle,result)
+      if(result) then
+       if(.not.ga_destroy(ga_handle)) call errquit(
+     >       pname//'cannot destroy '//gtag,0,0)
+      end if
+    
+      call smd_namespace_destroy(sp_global)
+ 
+      return
+      end
+
       subroutine smd_global_pull(atag)
       implicit none
 #include "errquit.fh"

@@ -18,6 +18,8 @@ c
       double precision qm_energy
       logical task_energy_doit
       external task_energy_doit
+      logical task_optimize
+      external task_optimize
       logical task_gradient
       external task_gradient
       logical task_energy
@@ -42,13 +44,22 @@ c
       if(inp_compare(.false., 'energy', operation)) then
          result = task_energy(rtdb)
       else if(inp_compare(.false., 'gradient', operation)) then
-        call smd_geom_get_coords()
         result = task_gradient(rtdb)
         call smd_geom_get_gradients()
         call smd_geom_get_coords()
         call smd_global_update_res("gradients","put",im)
+        call ga_sync()
+        write(*,*) "global gradients"
+        call ga_sync()
         call smd_global_print("gradients")
-      else
+      else if(inp_compare(.false., 'optimize', operation)) then
+        result = task_optimize(rtdb)
+        call smd_geom_get_coords()
+        call smd_global_update_res("coords","put",im)
+        call ga_sync()
+        call ga_sync()
+        call smd_global_print("coords")
+       else
         call errquit(pname//"unknown operation "//operation,0,0)
       end if
 c

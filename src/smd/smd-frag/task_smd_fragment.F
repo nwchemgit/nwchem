@@ -57,6 +57,8 @@ c        result = task_fragment_energy_serial()
       task_fragment_energy = .true.
 
       call util_message("done with task_smd_fragment_energy")
+      call smd_global_end()
+      call smd_end()
       return
       END
 

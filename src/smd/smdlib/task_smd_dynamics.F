@@ -49,7 +49,7 @@ c        call smd_vlist_test(vupdate)
         call smd_energy_print(6)
       end do
 c
-      call smd_end(rtdb)
+      call smd_end()
 c
       if (.not. rtdb_put(rtdb,'smd:energy',mt_dbl,1,energy))
      $     call errquit(pname//'failed put energy', 0, RTDB_ERR)

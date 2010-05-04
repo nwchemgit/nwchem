@@ -542,14 +542,14 @@ c
       integer ind
 c
       logical result
-      character*30 pname
+      character*30 pname,buffer
 
       pname = "smd_data_create_get"
 
       call smd_data_create(sname,dname,ndim,dtype)
       call smd_data_get_index(sname,dname,ind,result)
       if(.not.result) 
-     +  call errquit(pname//" error",0,0)
+     +  call errquit(pname//" error 1",0,0)
       end
 
       subroutine smd_data_create_get0(sname,dname,ndim,dtype,ind)
