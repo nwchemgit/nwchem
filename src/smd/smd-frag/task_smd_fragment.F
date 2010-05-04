@@ -57,6 +57,10 @@ c        result = task_fragment_energy_serial()
       task_fragment_energy = .true.
 
       call util_message("done with task_smd_fragment_energy")
+      if(ga_nodeid().eq.0) then
+       write(*,*) "smd_charge_write_default()"
+       call smd_charge_write_default()
+      end if
       call smd_global_end()
       call smd_end()
       return
