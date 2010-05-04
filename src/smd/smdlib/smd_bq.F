@@ -33,6 +33,12 @@ c
 c
       pname = "smd_geom_bq_init"
 c
+      call smd_rtdb_get_handle(rtdb)
+c
+      if(.not.rtdb_get(rtdb,'smd:nobq',mt_log,1,nobq))
+     +     nobq = .false.
+      if(nobq) return
+c
       tag = "geom"
       call smd_system_get_component(sp_geom,tag,result)
       if(.not.result)
@@ -46,7 +52,6 @@ c
      >       pname//'no component '//tag,0,0)
       call smd_namespace_create(sp_bq)
 c
-      call smd_rtdb_get_handle(rtdb)
 c     
       tag = "coords"
       call smd_get_ind_dim(tag,i_c,nt,result)

@@ -144,7 +144,6 @@ c
       logical oscratch
 
       pname = "smd_rtdb_open"
-      call util_io_enable()
 c     check if other rtdb is open
 c     ---------------------------
       call smd_rtdb_get_handle(rtdb)

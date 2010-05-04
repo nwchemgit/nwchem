@@ -236,7 +236,6 @@ c
       integer master
       logical odistrib
 c
-      call util_io_enable()
 c
       odistrib = .true.
 c
