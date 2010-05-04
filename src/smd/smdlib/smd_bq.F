@@ -101,10 +101,9 @@ c
       j=1
       do i=1,nb
         ir=int_mb(i_nb+i-1)
-        write(44,*) "residue ir",ir,int_mb(i_pr+ir-1),
-     +               int_mb(i_pr+ir)   
-        int_mb(i_rbq+i-1) = int_mb(i_pr+ir-1)-1
-        int_mb(i_lbq+i) = int_mb(i_pr+ir)
+        int_mb(i_rbq+i-1) = int_mb(i_im+i-1)-1
+        int_mb(i_lbq+i) = int_mb(i_im+i-1)+
+     >                    int_mb(i_nm+i-1)   
       end do
       call smd_util_sort(nb+1,int_mb(i_rbq))
       call smd_util_sort(nb+1,int_mb(i_lbq))
