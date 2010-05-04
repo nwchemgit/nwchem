@@ -49,16 +49,15 @@ c
         call smd_geom_get_coords()
         call smd_global_update_res("gradients","put",im)
         call ga_sync()
-        write(*,*) "global gradients"
         call ga_sync()
-        call smd_global_print("gradients")
+c        call smd_global_print("gradients")
       else if(inp_compare(.false., 'optimize', operation)) then
         result = task_optimize(rtdb)
         call smd_geom_get_coords()
         call smd_global_update_res("coords","put",im)
         call ga_sync()
         call ga_sync()
-        call smd_global_print("coords")
+c        call smd_global_print("coords")
        else
         call errquit(pname//"unknown operation "//operation,0,0)
       end if

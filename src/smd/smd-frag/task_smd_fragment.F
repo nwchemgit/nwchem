@@ -39,7 +39,8 @@ c     ----------------------------------------------
       call smd_rtdb_close("keep")
 c
       energy = 0.0d0
-      call util_io_enable()
+      if(ga_nodeid().eq.0) 
+     +    call util_io_enable()
       call smd_task_mode(oparallel)
       if (oparallel) then
         call util_message("executing in parallel mode")
