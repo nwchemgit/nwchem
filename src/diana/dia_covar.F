@@ -344,7 +344,7 @@ c
       real*8 xtrj(ntrj,3,nfrdim),xprj(ntrj,3,nfrdim),xa(nsa,3)
       integer isel(nsa)
 c
-      integer i,j,k,l,m,ivmin,ivmax,ndxval
+      integer i,j,k,l,m,ivmin,ivmax,ndxval,i_valt,l_valt
       real*8 value,vmin,vmax,vming,vmaxg
 c
 c      write(*,'(3f12.6)') ((xtrj(5,i,k),i=1,3),k=1,5)
@@ -426,13 +426,25 @@ c
      + xprj(1,1,ivmin),isel,xprj,.true.,.false.,isel)
       endif
 c
+      ndxval=np*nfrme
+      if(.not.ma_push_get(mt_dbl,ndxval,'val',l_valt,i_valt))
+     + call md_abort('Failed to allocate val',0)
+      do 18 i=1,ndxval
+      dbl_mb(i_valt-1+i)=0.0d0
+   18 continue
+      do 19 i=1,nfrme
+      dbl_mb(i_valt+me*nfrme+i-1)=val(i)
+   19 continue
+      call ga_dgop(mag_d03,dbl_mb(i_valt),ndxval,'+')
+      if(me.eq.0) then
       open(unit=lfnval,file=filval(1:index(filval,' ')-1),
      + form='formatted',status='unknown',err=9999)
-      ndxval=me*nfrme*20
-      call fseek(lfnval,ndxval,0)
-      write(lfnval,5566) (ndxval+i,val(i),i=1,nfrme)
+      write(lfnval,5566) (i,val(i),i=1,ndxval)
  5566 format(i8,f12.6)
       close(unit=lfnval)
+      endif
+      if(.not.ma_pop_stack(l_valt))
+     + call md_abort('Failed to deallocate val',0)
 c
       return
       end
