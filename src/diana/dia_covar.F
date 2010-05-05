@@ -439,7 +439,7 @@ c
       if(me.eq.0) then
       open(unit=lfnval,file=filval(1:index(filval,' ')-1),
      + form='formatted',status='unknown',err=9999)
-      write(lfnval,5566) (i,val(i),i=1,ndxval)
+      write(lfnval,5566) (i,dbl_mb(i_valt-1+i),i=1,ndxval)
  5566 format(i8,f12.6)
       close(unit=lfnval)
       endif
