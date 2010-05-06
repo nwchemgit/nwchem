@@ -240,6 +240,12 @@ c
        nodesloop=0
        if(doloop) nodesloop=1
        call ga_igop(65536,nodesloop,1,'+')
+cedo better use at last 2k procs since they 
+cedo we should not have any congestion at 2k
+       if(nodesloop.lt.2048) then
+          nodesloop=min(2048,ga_nnodes())
+          doloop=(ga_nodeid().lt.nodesloop) 
+       endif
        if(ga_nodeid().eq.0) then
           write(6,*) ' using ',nodesloop,
      C      ' nodes out of ',ga_nnodes()
