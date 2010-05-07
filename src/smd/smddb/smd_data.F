@@ -464,7 +464,6 @@ c
      +         0)
 
 c     see if the data already exists and is of the same nature
-      call util_message("inquiring for data")
       call smd_data_inquire(sname,dname,ndim0,dtype0,oexists)
       if(oexists) 
      +  call smd_data_get_dindex(sname,dname,nd,result)
@@ -472,9 +471,6 @@ c     see if the data already exists and is of the same nature
      +        ndim.eq.ndim0.and.
      +        dtype.eq.dtype0 
       if(okeep) goto 10
-      write(*,*) "destroying data"//sname//dname
-      call util_flush(6)
-c      call smd_data_destroy(sname,dname,result)
       
       if(oexists) then
       if(.not.ma_free_heap(smd_handle(ns,nd)))
