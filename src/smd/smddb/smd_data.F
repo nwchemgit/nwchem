@@ -453,6 +453,7 @@ c
       integer ndim0,dtype0
       logical okeep,oexists
 
+      call util_io_enable()
       pname = "smd_data_create"
 
       buffer = sname
@@ -463,6 +464,7 @@ c
      +         0)
 
 c     see if the data already exists and is of the same nature
+      call util_message("inquiring for data")
       call smd_data_inquire(sname,dname,ndim0,dtype0,oexists)
       if(oexists) 
      +  call smd_data_get_dindex(sname,dname,nd,result)
@@ -470,8 +472,16 @@ c     see if the data already exists and is of the same nature
      +        ndim.eq.ndim0.and.
      +        dtype.eq.dtype0 
       if(okeep) goto 10
-      call smd_data_destroy(sname,dname,result)
-      if(.not.oexists) then
+      write(*,*) "destroying data"//sname//dname
+      call util_flush(6)
+c      call smd_data_destroy(sname,dname,result)
+      
+      if(oexists) then
+      if(.not.ma_free_heap(smd_handle(ns,nd)))
+     +     call errquit(pname//'memory deallocation'//smd_dname(ns,nd),
+     +           smd_dim(ns,nd),
+     +           0)
+      else 
         smd_nd(ns) = smd_nd(ns) + 1
         if(smd_nd(ns).gt.smd_max_nd) 
      +     call errquit(pname//'increase dataspace size to',
@@ -525,6 +535,7 @@ c     see if the data already exists and is of the same nature
      +                        byte_mb(smd_index(ns,nd)))
       end if
 cc     should probably fill logical and char arrays
+      call util_io_disable()
 
       end
 
@@ -1582,3 +1593,50 @@ c     >                         buffer)
       return
       end
 
+      subroutine smd_data_test()
+C$Id: test.F,v 1.6 2004-08-13 11:23:27 edo Exp $
+      implicit none
+c
+#include "mafdecls.fh"
+#include "smd_const_data.fh"
+c
+      integer rtdb, ma_handle, ma_index
+      integer itest(3), ibuf(3)
+      integer itest1(4)
+      real ftest(4), fbuf(4)
+      double precision dtest(4), dbuf(5)
+      double precision dtest1(5)
+      character *20 cbuf(4), ccbuf(4)
+      character *20 name,rtdb_fname
+      character *26 date
+      logical status
+      integer type, nelem, i
+      character*(smd_string_size) sname,tag
+c
+      data itest/1, 2, 3/
+      data itest1/10, 20, 30,40/
+      data ftest/1.0e0, 2.0e0, 3.0e0, 4.0e0/
+      data dtest/1.0d0, 2.0d0, 3.0d0, 4.0d0/
+      data dtest1/10.0d0, 20.0d0, 30.0d0, 40.0d0, 50.0d0/
+c
+      cbuf(1) = 'Have'
+      cbuf(2) = 'a'
+      cbuf(3) = 'nice'
+      cbuf(4) = 'day, Robert!'
+c
+      write(*,*) "Doing a test aren't you :)"
+      sname="marat"
+
+      call smd_namespace_create(sname)
+      tag = "itest"
+      call smd_data_put_int(sname,tag,3,itest)
+c      
+      tag = "dtest"
+      call smd_data_put_dbl(sname,tag,4,dtest)
+c
+      call smd_data_namespace_print(sname,6) 
+
+      tag = "itest"
+      call smd_data_put_int(sname,tag,4,itest1)
+      call smd_data_namespace_print(sname,6) 
+      end

@@ -16,6 +16,9 @@ include ../../config/makefile.h
 include ../../config/makelib.h
 
 
+test:	test.o $(LIBRARY_PATH)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ $(LIBS)
+
 
 
 
