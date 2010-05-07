@@ -91,7 +91,7 @@ c
 
       return
       end
-      subroutine smd_group_end(rtdb)
+      subroutine smd_group_end()
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -111,8 +111,6 @@ c
       if(.not. ga_pgroup_destroy(smd_group_handle))
      + call errquit('Failed to destroy group',0, 0)
       call ga_sync()
-      if(.not.rtdb_open(smd_group_rtdb_world,'old',rtdb))
-     + call errquit('Failed to open world rtdb',0, 0)
 
       smd_ngroup =-1
       smd_group_nproc =-1
@@ -426,4 +424,21 @@ c set the group
       return
       end
 
+      subroutine smd_group_message(buffer)
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "smd_group_data.fh"
+      character*(*) buffer
+c
+      integer un
+
+      if(ga_nodeid().eq.0) then
+      un = 160+smd_group_id
+      write(un,*) buffer,ga_nodeid()
+      call util_flush(un) 
+      end if
+      call ga_sync()
+      return
+      end
 

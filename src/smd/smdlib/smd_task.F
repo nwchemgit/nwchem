@@ -360,12 +360,15 @@ c
 #include "global.fh"
 #include "smd_task_data.fh"
 #include "smd_const_data.fh"
+#include "msgids.fh"
 
       integer nt
       character*(smd_string_size)  tag,sname
       logical result
       character*30 pname
-      integer i
+      integer i,j,nsb
+      integer group_id
+      integer ga_it
 c      
       pname = "smd_task_iterate"
       call util_message("in "//pname)
@@ -382,10 +385,40 @@ c     -------------------
       if(.not.result)
      >  call errquit(
      >       pname//'no component '//tag,0,0)
-      do i=1,nt
-        if(ga_nodeid().eq.0) write(*,*) "executing task",i
-        call smd_task_execute(i)
-      end do
+c      
+      tag="smd:subgroups"
+      call smd_rtdb_get_int(tag,1,nsb,result)
+      if(.not.result) nsb = 1
+c
+      if(.not.nga_create(mt_int, 1, 1, 
+     >    'task counter',1, ga_it)) 
+     >  call errquit(
+     >       pname//'nga_create error ',0, RTDB_ERR)
+
+
+c     ---------------------------
+      if(ga_nodeid().eq.0) then
+         call nga_put(ga_it,1,1,1,1)
+      end if
+      call ga_sync()
+ 
+      call smd_group_create_simple(2)
+      call smd_group_id_get(group_id)
+      if(ga_nodeid().eq.0) 
+     +    write(*,*) "Hello from group",group_id,i
+c
+10    continue    
+      if(ga_nodeid().eq.0)
+     >   j=NGA_Read_inc(ga_it, 1, 1)
+      call ga_brdcst(msg_qmmm_misc,j,ma_sizeof(mt_int,1,mt_byte),0)
+      if(j.gt.nt) goto 20
+      if(ga_nodeid().eq.0) write(*,*) "executing task",j
+      call smd_task_execute(j)
+      goto 10
+c
+20    continue
+      call ga_sync(ga_pgroup_get_world())
+      call smd_group_end()
       call util_message("out "//pname)
       return
 

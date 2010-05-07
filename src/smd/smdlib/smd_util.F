@@ -2,6 +2,16 @@ c
 c $Id: smd_util.F,v 1.1 2008/10/01 22:32:32 marat Exp $
 c
 
+      subroutine smd_util_global_sync()
+      implicit none
+c
+#include "global.fh"      
+      call ga_sync(ga_pgroup_get_world())
+
+      return
+ 
+      end
+
       subroutine smd_util_sort(n,a)
       implicit none
       integer n

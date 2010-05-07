@@ -71,14 +71,14 @@ c
 
       pname = "smd_geom_init_system"
 
-c      write(*,*) "in "//pname
+      call util_message("in "//pname)
+      call smd_util_global_sync()
 c
       tag = "geom"
       call smd_system_get_component(sp_geom,tag,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no component '//tag,0,0)
-c      call util_message(pname//":0")
 c      call smd_namespace_create(sp_geom)
 c      call util_message(pname//":1")
 c
@@ -101,6 +101,7 @@ c     -----------------------------
      + call errquit(pname//'Failed to allocate memory for h_itmp',0,0)
 c
       nb = nr
+      call smd_group_message("1: "//pname)
       call smd_geom_find_neighbors(im,nb,int_mb(i_itmp))
       tag = "neighbor_index"
       call smd_data_put_int(sp_geom,tag,nb,int_mb(i_itmp))
@@ -108,6 +109,7 @@ c
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0,0 )
+      call smd_group_message("2: "//pname)
 c
 c     determine position and size (atom based) of the cluster residues
 c
@@ -120,6 +122,7 @@ c
         int_mb(i_im+i-1)=int_mb(i_pr+j-1)
         int_mb(i_nm+i-1)=int_mb(i_mr+j-1)
       end do
+      call smd_group_message("3: "//pname)
 c
 c     total number of atoms in the geometry
 c     ------------------------------------
@@ -147,6 +150,7 @@ c
       if(.not.ma_pop_stack(h_itmp))
      & call errquit(pname//'Failed to deallocate stack h_itmp',0,
      &       MA_ERR)
+      call smd_group_message("4: "//pname)
 c     
 c     get copy of coordinates
 c     ----------------------
@@ -175,24 +179,18 @@ c
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 c
 c    
+      call smd_group_message("5: "//pname)
 
       if(.not.ma_push_get(mt_dbl,3*nt,'tmp',h_ct,i_ct))
      + call errquit(pname//'Failed to allocate memory for h_ct',
      + nt, MA_ERR)
       call dcopy(3*nt,dbl_mb(i_c),1,dbl_mb(i_ct),1) 
-c
-c     determine the center of geometry for central residue
-c     ----------------------------------------------------
-c      tag = "shift vector"
-c      call smd_data_create_get(sp_geom,tag,3,MT_DBL,i_sht)
-c      call smd_geom_cog(nt,int_mb(i_nm),int_mb(i_im),
-c     +                  dbl_mb(i_c),dbl_mb(i_sht))
-cc       
-c      call util_message("here")
-c      call smd_rtdb_get_handle(rtdb)
+c      
       call smd_geom_create1()
+      call smd_group_message("6: "//pname)
 
-c      write(*,*) "out of "//pname
+      call smd_util_global_sync()
+      call util_message("out "//pname)
 
       return
       end
