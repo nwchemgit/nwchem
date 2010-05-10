@@ -402,7 +402,7 @@ c     ---------------------------
       end if
       call ga_sync()
  
-      call smd_group_create_simple(2)
+      call smd_group_create_simple(nsb)
       call smd_group_id_get(group_id)
       if(ga_nodeid().eq.0) 
      +    write(*,*) "Hello from group",group_id,i
