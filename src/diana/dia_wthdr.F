@@ -46,6 +46,8 @@ c      write(cdnum,'(a1,i3.3)') '_',icopf
 c      fname=filcop(1:lq-1)//cdnum//filcop(lq:index(filcop,' ')-1)
 c      endif
 c
+      write(*,3323) filcop(1:index(filcop,' ')-1)
+ 3323 format(/,' Opening copy file ',a,/)
       if(binary) then
       open(unit=lfncop,file=filcop(1:index(filcop,' ')-1),
      + form='unformatted',status='unknown',err=9999)
@@ -54,7 +56,7 @@ c
      + form='formatted',status='unknown',err=9999)
       endif
       write(*,3333) filcop(1:index(filcop,' ')-1)
- 3333 format(/,' Opening copy file ',a,/)
+ 3333 format(/,' Opened copy file ',a,/)
 c
 c      endif
 c
@@ -222,6 +224,16 @@ c     number of frames
       numtit=1
       write(lfncop) numtit,dcdtit(1)
       ldcd=.false.
+      endif
+c
+      if(fmt.eq.'pdb') then
+      write(lfncop,7000)
+ 7000 format(
+     + 'HEADER',/,
+     + 'TITLE     ',/,
+     + 'TITLE    2',/,
+     + 'TITLE    3',/,
+     + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996')
       endif
 c
       endif
