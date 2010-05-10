@@ -259,7 +259,11 @@ c
 c     copy frames to file
 c     -------------------
 c
-cc      if(inp_compare(.false.,'copy',item)) then
+      if(inp_compare(.false.,'copy',item)) then
+      if(.not.inp_i(nbatch)) nbatch=0
+      if(.not.inp_a(item)) call md_abort('No copy file name',0)
+      write(lfncmd,1024) nbatch,item(1:index(item,' ')-1)
+ 1024 format('copy   ',i7,a)
 cc      if(.not.inp_a(filcop)) call md_abort('Error in copy',0)
 cc      lsol=.false.
 cc      if(filcop(1:6).eq.'solute') then
@@ -281,9 +285,9 @@ cc      else
 cc      write(lfncmd,1024) rang,filcop(1:index(filcop,' ')-1)
 cc 1024 format('copy   ',f12.6,a)
 cc      endif
-cc      numcmd=numcmd+1
-cc      goto 2
-cc      endif
+      numcmd=numcmd+1
+      goto 2
+      endif
 c
 c     clean up frames to file
 c     -----------------------

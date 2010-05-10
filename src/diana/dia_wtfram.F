@@ -1,5 +1,5 @@
       subroutine dia_wtfram(fmt,sgmnam,x,w,isel,tag,val,
-     + iwsel,ndxw)
+     + iwsel,ndxw,ifr)
 c
 c $Id: dia_wtfram.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
 c
@@ -10,6 +10,7 @@ c
 c
       real*8 x(msa,3),w(mwm,mwa,3),val(nsa,2)
       integer isel(msa),iwsel(mwm),ndxw(nwm)
+      integer ifr
       character*24 tag(msa,2)
       character*3 fmt
       character*16 sgmnam(msa)
@@ -262,10 +263,10 @@ c
       endif
 c
       if(fmt.eq.'pdb') then
-      write(fname,'(a,i5.5,a)') root(1:index(root,'.')-1),indx,'.pdb '
-      write(*,'(a,a)') 'Writing ',fname
-      call dia_wrtpdb(lfnchg,fname,sgmnam,isel,x,iwsel,w,
-     + logs,logw,ndxw)
+c      write(fname,'(a,i5.5,a)') root(1:index(root,'.')-1),indx,'.pdb '
+c      write(*,'(a,a)') 'Writing ',fname
+      call dia_wrtpdb(lfncop,fname,sgmnam,isel,x,iwsel,w,
+     + logs,logw,ndxw,ifr)
       endif
 c
       if(fmt.eq.'pov') then

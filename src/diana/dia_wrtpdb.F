@@ -1,5 +1,5 @@
       subroutine dia_wrtpdb(lfnpdb,filpdb,sgmnam,isel,xs,
-     + iwsel,xw,logs,logw,ndxw)
+     + iwsel,xw,logs,logw,ndxw,ifr)
 c
 c $Id: dia_wrtpdb.F,v 1.1 2006-12-10 01:03:24 d3j191 Exp $
 c
@@ -9,7 +9,7 @@ c
 c
       character*16 sgmnam(msa)
       integer isel(msa),iwsel(mwm),ndxw(nwm)
-      integer lfnpdb
+      integer lfnpdb,ifr
       real*8 xs(msa,3),xw(mwm,mwa,3)
       character*255 filpdb
       logical logs,logw
@@ -19,20 +19,14 @@ c
 c
       if(me.eq.0) then
 c
-      length=index(filpdb,' ')-1
-      open(unit=lfnpdb,file=filpdb(1:length),form='formatted',
-     + status='unknown')
+c      length=index(filpdb,' ')-1
+c      open(unit=lfnpdb,file=filpdb(1:length),form='formatted',
+c     + status='unknown')
+cc
+c      rewind(lfnpdb)
 c
-      rewind(lfnpdb)
-c
-      write(lfnpdb,1000) (1.0d1*box(i),i=1,3),90.0,90.0,90.0
- 1000 format(
-     + 'HEADER',/,
-     + 'TITLE     ',/,
-     + 'TITLE    2',/,
-     + 'TITLE    3',/,
-     + 'REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996',/,
-     + 'CRYST1',3f9.3,3f7.2)
+      write(lfnpdb,1000) (1.0d1*box(i),i=1,3),90.0,90.0,90.0,ifr
+ 1000 format('MODEL',i10,/,'CRYST1',3f9.3,3f7.2)
 c
       if(logs) then
       do 1 i=1,nsa
@@ -72,7 +66,7 @@ c
       write(lfnpdb,1004)
  1004 format('END')
 c
-      close(unit=lfnpdb)
+c      close(unit=lfnpdb)
 c
       endif
 c

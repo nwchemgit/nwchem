@@ -231,6 +231,7 @@ c
       filmin=fil(1:index(fil,' ')-1)//'_min.pdb'
       filmax=fil(1:index(fil,' ')-1)//'_max.pdb'
       filamp=fil(1:index(fil,' ')-1)//'.amp'
+      i=index(filprj,'.')
       else
       filprj=fil
       fmt=filprj(i+1:i+3)
@@ -291,7 +292,7 @@ c     + int_mb(i_isel),.false.)
 c
       call ga_sync()
 c
-      call dia_wrttrj(ga_prj,fil(1:i-1),fmt,nbatch,.false.)
+      call dia_wrttrj(ga_prj,filtrj(1:i-1),fmt,nbatch,.false.)
 c
       if(me.eq.0) then
       if(.not.ma_push_get(mt_dbl,nfrtot,'ipcav',l_pcav,i_pcav))

@@ -94,6 +94,12 @@ c
       elseif(cmd.eq.'xaver ') then
       call dia_average()
 c
+c     copy the trajectory that is currently in memory
+c     -----------------------------------------------
+c
+      elseif(cmd.eq.'copy ') then
+      call dia_copy()
+c
 c     calculate one-dimensional root mean square deviation
 c     ----------------------------------------------------
 c

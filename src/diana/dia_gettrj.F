@@ -290,7 +290,7 @@ c
       call ga_get(ga_t,1,3*nsa,ifr,ifr,dbl_mb(i_xdat),nsa)
       call dia_wtfram(fmt,byte_mb(i_snam),dbl_mb(i_xdat),dbl_mb(i_wdat),
      + int_mb(i_isel),byte_mb(i_tag),dbl_mb(i_val),int_mb(i_wsel),
-     + int_mb(i_ndxw))
+     + int_mb(i_ndxw),ifr)
 c
       if(ibatch.eq.nbatch.or.ifr.eq.nfrtot) then
       ibatch=0
@@ -316,6 +316,37 @@ c
  1000 format(i5)
 c
       call ga_brdcst(mag_d01,iomode,ma_sizeof(mt_int,1,mt_byte),0)
+c
+      return
+      end
+      subroutine dia_copy()
+c
+      implicit none
+c
+#include "dia_common.fh"
+#include "dia_params.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "msgids.fh"
+c
+      character*255 fil
+      character*3 fmt
+      integer i,nbatch
+c
+      read(card(8:14),1000) nbatch
+ 1000 format(i7)
+      fil=card(15:80)
+      i=index(fil,'.')
+      if(i.eq.0) then
+      fmt='trj'
+      filcop=fil(1:index(fil,' ')-1)//'.trj'
+      i=index(filcop,'.')
+      else
+      filcop=fil
+      fmt=filcop(i+1:i+3)
+      endif
+c
+      call dia_wrttrj(ga_trj,filcop(1:i-1),fmt,nbatch,.false.)
 c
       return
       end
