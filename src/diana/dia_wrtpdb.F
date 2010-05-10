@@ -25,7 +25,7 @@ c     + status='unknown')
 cc
 c      rewind(lfnpdb)
 c
-      write(lfnpdb,1000) (1.0d1*box(i),i=1,3),90.0,90.0,90.0,ifr
+      write(lfnpdb,1000) ifr,(1.0d1*box(i),i=1,3),90.0,90.0,90.0
  1000 format('MODEL',i10,/,'CRYST1',3f9.3,3f7.2)
 c
       if(logs) then

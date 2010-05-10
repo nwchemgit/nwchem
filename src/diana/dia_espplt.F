@@ -72,6 +72,8 @@ c
       write(filepz,1000) strepz(1:index(strepz,' ')-1),
      + me*nfrdim+k,'.epz '
  1000 format(a,i5.5,a)
+      write(*,2000) me,k,nfrdim,filepz(1:index(filepz,' ')-1)
+ 2000 format(3i5,a)
 c
 c     calculate the electrostatic potential on the grid
 c
