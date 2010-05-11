@@ -38,14 +38,17 @@ dft
 print medium
 xc b3lyp
 iterations 200
+noio
+direct
+GRID nodisk
 end
 
 esp
 print medium
 end
 
-set smd:fragment:istart 24
-set smd:fragment:iend 25
+set smd:fragment:istart 1
+set smd:fragment:iend 2
 set smd:fragment:theory "dft"
 set smd:fragment:parallel .false.
 
