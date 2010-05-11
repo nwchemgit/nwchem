@@ -345,7 +345,7 @@ c
 
       end
 
-      subroutine smd_group_create_simple(group_want)
+      subroutine smd_group_create_simple0(group_want)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -405,7 +405,7 @@ c set the group
       return
       end
 
-      subroutine smd_group_create_simple_old(group_want)
+      subroutine smd_group_create_simple(group_want)
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"
