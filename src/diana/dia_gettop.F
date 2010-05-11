@@ -28,7 +28,7 @@ c
       if(.not.ma_push_get(mt_int,2*msb,'sbnd',l_sbnd,i_sbnd))
      + call md_abort('Could not allocate sbnd',0)
       call dia_rdtop(byte_mb(i_snam),dbl_mb(i_qdat),dbl_mb(i_qwdat),
-     + int_mb(i_iram),int_mb(i_imol),int_mb(i_sbnd))
+     + int_mb(i_iram),int_mb(i_imol),int_mb(i_atmn),int_mb(i_sbnd))
       if(.not.ma_push_get(mt_int,2*nsa,'tmp',l_tmp,i_tmp))
      + call md_abort('Failed to allocate temp array',0)
       call dia_equivalent(byte_mb(i_snam),int_mb(i_imol),

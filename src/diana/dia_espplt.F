@@ -18,8 +18,9 @@ c
       read(string(1:4),'(i4)') ngrid
       read(string(5:8),'(i4)') iesppb
       read(string(9:20),'(f12.6)') rcut
-      strplt=string(21:80)
-      strepz=string(21:80)
+      fmtesp=string(21:23)
+      strplt=string(24:80)
+      strepz=string(24:80)
 c
       call ga_distribution(ga_trj,me,il,ih,jl,jh)
       call ga_access(ga_trj,il,ih,jl,jh,ndx,ld)
@@ -27,11 +28,11 @@ c
       call ga_access(ga_trt,ilt,iht,jlt,jht,ndxt,ldt)
 c
       call dia_pltgrd(int_mb(i_isel),dbl_mb(i_qdat),
-     + dbl_mb(ndx),dbl_mb(ndxt))
+     + dbl_mb(ndx),dbl_mb(ndxt),int_mb(i_atmn))
 c
       return
       end
-      subroutine dia_pltgrd(isel,qs,xtrj,trt)
+      subroutine dia_pltgrd(isel,qs,xtrj,trt,iatmn)
 c
       implicit none
 c
@@ -39,13 +40,14 @@ c
 #include "mafdecls.fh"
 #include "msgids.fh"
 c
-      integer isel(nsa)
+      integer isel(nsa),iatmn(nsa)
       real*8 qs(nsa),xtrj(ntrj,3,nfrdim),trt(6,nfrdim)
 c
       integer i,j,k
       real*8 d
 c
 c     allocate memory for grid
+c
 c
       do 12 j=1,3
       if(iesppb.eq.0.or.rcut.lt.0.0d0.or.
@@ -69,15 +71,16 @@ c
 c
       write(filplt,1000) strplt(1:index(strplt,' ')-1),
      + me*nfrdim+k,'.plt '
+      write(filcub,1000) strplt(1:index(strplt,' ')-1),
+     + me*nfrdim+k,'.cube '
       write(filepz,1000) strepz(1:index(strepz,' ')-1),
      + me*nfrdim+k,'.epz '
  1000 format(a,i5.5,a)
-      write(*,2000) me,k,nfrdim,filepz(1:index(filepz,' ')-1)
- 2000 format(3i5,a)
 c
 c     calculate the electrostatic potential on the grid
 c
-      call dia_espgrd(isel,xtrj(1,1,k),trt(1,k),qs,dbl_mb(i_grid))
+      call dia_espgrd(isel,xtrj(1,1,k),trt(1,k),qs,dbl_mb(i_grid),
+     + iatmn)
 c
     1 continue
 c
@@ -91,7 +94,7 @@ c
       call md_abort('dia_pltgrd: error',0)
       return
       end
-      subroutine dia_espgrd(isel,x,t,q,g)
+      subroutine dia_espgrd(isel,x,t,q,g,iatmn)
 c
       implicit none
 c
@@ -106,7 +109,7 @@ c
 #endif
 c
       real*8 x(nsa,3),q(nsa),g(ngx,ngy,ngz),t(6)
-      integer isel(nsa)
+      integer isel(nsa),iatmn(nsa)
 c
       integer ix,iy,iz,i,j,k,nxfr,nxto
       real*8 xg,yg,zg,value
@@ -188,6 +191,7 @@ c
       dy=dy-anint(dy/box(2))*box(2)
 #endif
       endif
+      endif
       if(iesppb.eq.1.or.iesppb.eq.3) then
       if(abs(dz).gt.boxh(3)) then
 #if defined(CRAY_T3D) || defined(CRAY_T3E)
@@ -195,7 +199,6 @@ c
 #else
       dz=dz-anint(dz/box(3))*box(3)
 #endif
-      endif
       endif
       endif
       g(ix,iy,iz)=g(ix,iy,iz)+138.9354d0*
@@ -207,7 +210,9 @@ c
     4 continue
 c
 c     write to plt file
+c     -----------------
 c
+      if(fmtesp.eq.'plt'.or.fmtesp.eq.'all') then
       open(unit=lfnplt,file=filplt(1:index(filplt,' ')-1),
      + form='formatted',status='unknown')
       rewind(lfnplt)
@@ -223,6 +228,38 @@ c
       write(lfnplt,1003) (((g(ix,iy,iz),ix=1,ngx),iy=1,ngy),iz=1,ngz)
  1003 format(2e20.12)
       close(unit=lfnplt)
+      endif
+c
+c     write to cube file
+c     ------------------
+c
+      if(fmtesp.eq.'cub'.or.fmtesp.eq.'all') then
+      open(unit=lfncub,file=filcub(1:index(filcub,' ')-1),
+     + form='formatted',status='unknown')
+      rewind(lfncub)
+      write(lfncub,2004) nsa,10.0d0*xmin(1),10.0d0*xmin(2),
+     + 10.0d0*xmin(3)
+ 2004 format(i5,3f12.6)
+      write(lfncub,2005) ngx,10.0d0*spac(1),0.0d0,0.0d0
+      write(lfncub,2005) ngy,0.0d0,10.0d0*spac(2),0.0d0
+      write(lfncub,2005) ngz,0.0d0,0.0d0,10.0d0*spac(3)
+ 2005 format(i5,3f12.6)
+      do 14 i=1,nsa
+      write(lfncub,2006) iatmn(i),q(i),
+     + 10.0d0*x(i,1),10.0d0*x(i,2),10.0d0*x(i,3)
+ 2006 format(i5,4f12.6)
+   14 continue
+      do 16 ix=1,ngx
+      do 15 iy=1,ngy
+      write(lfncub,1007) (g(ix,iy,iz),iz=1,ngz)
+ 1007 format(6e13.5)
+   15 continue
+   16 continue
+      close(unit=lfncub)
+      endif
+c
+c     write the x and y averaged potentials
+c     -------------------------------------
 c
       open(unit=lfnepz,file=filepz(1:index(filepz,' ')-1),
      + form='formatted',status='unknown')

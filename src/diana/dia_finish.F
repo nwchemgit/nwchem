@@ -43,6 +43,8 @@ c
      + call md_abort('Failed to deallocate xp',0)
       if(.not.ma_pop_stack(l_xadat))
      + call md_abort('Failed to deallocate xadat',0)
+      if(.not.ma_pop_stack(l_atmn))
+     + call md_abort('Failed to deallocate atmn',0)
       if(.not.ma_pop_stack(l_qdat))
      + call md_abort('Failed to deallocate qdat',0)
       if(.not.ma_pop_stack(l_xdat))

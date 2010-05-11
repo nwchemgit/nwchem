@@ -25,6 +25,7 @@ c     and ignore current state
 c
       ignore=rtdb_parallel(.false.)
 c
+      lfncub=59
       lfnram=60
       lfndat=61
       lfnexp=62

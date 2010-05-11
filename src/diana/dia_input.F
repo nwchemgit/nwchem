@@ -25,6 +25,7 @@ c
       integer iesppb,lent,idpdb,indx,icent,jcent,nwhb,nclean
       integer i,iorder,norder,ngrid
       character*8 option
+      character*3 espfmt
 c
       if(ga_nodeid().eq.0) then
       call util_print_centered(6,'Data Intensive Analysis Input Module',
@@ -256,8 +257,11 @@ c
       goto 2
       endif
 c
-c     copy frames to file
-c     -------------------
+c     copy frames to new file
+c     -----------------------
+c
+c     trj: nwchem format
+c     pdb: concatenated pdb formatted trajectory
 c
       if(inp_compare(.false.,'copy',item)) then
       if(.not.inp_i(nbatch)) nbatch=0
@@ -938,17 +942,28 @@ c
       if(.not.inp_i(ngrid)) ngrid=10
       if(.not.inp_f(rcut)) rcut=1.0d0
       iesppb=0
+      espfmt='   '
+  345 continue
       if(inp_a(item)) then
       if(inp_compare(.false.,'periodic',item)) then
       if(.not.inp_i(iesppb)) iesppb=3
-      if(inp_a(filplt)) continue
+      goto 345
+      elseif(inp_compare(.false.,'plt',item)) then
+      espfmt='fmt'
+      goto 345
+      elseif(inp_compare(.false.,'cube',item)) then
+      espfmt='cub'
+      goto 345
+      elseif(inp_compare(.false.,'all',item)) then
+      espfmt='all'
+      goto 345
       else
       filplt=item
       endif
       endif
-      write(lfncmd,1011) ngrid,iesppb,rcut,
+      write(lfncmd,1011) ngrid,iesppb,rcut,espfmt,
      + filplt(1:index(filplt,' ')-1)
- 1011 format('espplt ',i4,i4,f12.6,a)
+ 1011 format('espplt ',i4,i4,f12.6,a3,a)
       numcmd=numcmd+1
       goto 1
       endif

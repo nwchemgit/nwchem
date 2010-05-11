@@ -95,7 +95,7 @@ c
       nwrit=0
       nframe=0
  1010 continue
-      if(dia_rdfram(dbl_mb(i_xdat),dbl_mb(i_wdat))) then
+      if(dia_rdfram(dbl_mb(i_xdat),dbl_mb(i_wdat),t)) then
       nread=nread+1
       if(nread.lt.ifrfr) goto 1010
       if(nframe.eq.(nframe/ifrsk)*ifrsk) then
@@ -104,6 +104,7 @@ c
       call ga_put(ga_trj,1,3*nsa,ndata,ndata,dbl_mb(i_xdat),nsa)
       if(lslvnt) call ga_put(ga_trw,1,3*nwm*nwa,ndata,ndata,
      + dbl_mb(i_wdat),nwm*nwa)
+      call ga_put(ga_trt,1,6,ndata,ndata,t,6)
       endif
       endif
       nframe=nframe+1
@@ -209,6 +210,7 @@ c      call fseek(lfntrj,ioffhd+(ifr-1)*iofffr,0,9999)
       if(lslvnt) call ga_put(ga_trw,1,3*nwm*nwa,ndata,ndata,
      + dbl_mb(i_wdat),nwm*nwa)
       call ga_put(ga_trt,1,6,nfram,nfram,t,6)
+      write(*,'(i5,6f12.6)') nfram,t
       endif
   102 continue
   103 continue
@@ -333,20 +335,20 @@ c
       character*3 fmt
       integer i,nbatch
 c
-      if(me.eq.0) print*,card
       read(card(8:14),1000) nbatch
  1000 format(i7)
       fil=card(15:80)
       i=index(fil,'.')
       if(i.eq.0) then
       fmt='trj'
-      fil=fil(1:index(fil,' ')-1)//'.trj'
+      filcop=fil(1:index(fil,' ')-1)//'.trj'
       i=index(filcop,'.')
       else
-      fmt=fil(i+1:i+3)
+      filcop=fil
+      fmt=filcop(i+1:i+3)
       endif
 c
-      call dia_wrttrj(ga_trj,fil(1:i-1),fmt,nbatch,.false.)
+      call dia_wrttrj(ga_trj,filcop(1:i-1),fmt,nbatch,.false.)
 c
       return
       end

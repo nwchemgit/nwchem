@@ -1,4 +1,4 @@
-      logical function dia_rdfram(x,w)
+      logical function dia_rdfram(x,w,t)
 c
 c $Id: dia_rdfram.F,v 1.7 2007-03-08 23:07:21 d3j191 Exp $
 c
@@ -9,7 +9,7 @@ c
 #include "msgids.fh"
 #include "util.fh"
 c
-      real*8 x(msa,3),w(mwm,mwa,3)
+      real*8 x(msa,3),w(mwm,mwa,3),t(6)
       integer ftell
       external ftell
 c
@@ -37,6 +37,9 @@ c
       if(card(1:5).ne.'frame') goto 1
       read(lfntrj,1001,err=9999,end=9999) timp,temp,pres,datum,tijd
  1001 format(2f12.6,e12.5,2a10)
+      t(1)=timp
+      t(2)=temp
+      t(3)=pres
       if(lclean.and.timp.lt.timr) then
       write(*,2221) timp,temp,pres,datum,tijd
  2221 format(' skip  ',2f12.6,e12.5,2a10)
@@ -58,6 +61,9 @@ c
       read(lfntrj,1022) box(2),box(3)
  1022 format(12x,f12.6,/,24x,f12.6)
       endif
+      t(4)=box(1)
+      t(5)=box(2)
+      t(6)=box(3)
       read(lfntrj,1000) card
       if(card(8:8).eq.'F'.or.card(8:8).eq.'T') then
       read(card,1006) lxw,lvw,lfw,lpw,lsx,lsv,lfs,lps,inwm,inwa,nsa
