@@ -24,7 +24,7 @@
       integer nfft3d
       integer nfft(3)
       real*8  unita(3,3)
-      character*30 filename
+      character*50 filename
       character*255 full_filename
 
       integer MASTER,taskid,taskid_j,taskid_k
@@ -39,7 +39,7 @@ c     complex*16 tmp(*)
 *     ***** local functions ****
       logical      control_print
       external     control_print
-      character*30 control_output_psi
+      character*50 control_output_psi
       external     control_output_psi
       double precision control_unita
       external         control_unita
@@ -291,7 +291,7 @@ c     complex*16 tmp(*)
       integer nfft3d
       integer nfft(3)
       real*8  unita(3,3)
-      character*30 filename
+      character*50 filename
       character*255 full_filename
       character*255 bfull_filename
       integer MASTER,taskid,taskid_j,taskid_k
@@ -304,7 +304,7 @@ c     complex*16 tmp(*)
       logical value
 
 *     ***** local functions ****
-      character*30 control_output_psi
+      character*50 control_output_psi
       external     control_output_psi
       double precision control_unita
       external         control_unita
@@ -428,7 +428,7 @@ c     complex*16 tmp(*)
       integer nfft3d
       integer nfft(3)
       real*8  unita(3,3)
-      character*30 filename
+      character*50 filename
       character*255 full_filename
 
       integer MASTER,taskid,taskid_j,taskid_k
@@ -443,7 +443,7 @@ c     complex*16 tmp(*)
 *     ***** local functions ****
       logical      control_print
       external     control_print
-      character*30 control_output_epsi
+      character*50 control_output_epsi
       external     control_output_epsi
       double precision control_unita
       external         control_unita

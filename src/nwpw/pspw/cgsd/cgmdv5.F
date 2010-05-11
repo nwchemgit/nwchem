@@ -72,7 +72,7 @@
       integer i,k,ia,nion,minimizer,mapping,icount_shift,icount
       integer nbq,mapping1d,it_in,it_out
 
-      character*30 filename
+      character*50 filename
       character*255 full_filename
 
 
@@ -116,7 +116,7 @@
 
       character*12 control_boundry
       external     control_boundry
-      character*30 control_cell_name
+      character*50 control_cell_name
       external     control_cell_name
 
       logical      psp_semicore

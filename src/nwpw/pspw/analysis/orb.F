@@ -31,7 +31,7 @@ c
 
       logical value,found,mulliken_kawai
       integer nion,npsp,k
-      character*30 filename
+      character*50 filename
       character*255 id,full_filename
 
 *     **** external functions ****

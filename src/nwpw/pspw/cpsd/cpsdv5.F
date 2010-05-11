@@ -93,8 +93,8 @@ cccc#include "frac_occ.fh"
       integer hversion,hnfft(3),hispin,hne(2)
       real*8 hunita(3,3)
       integer ind
-      character*30 filename
-      character*30 control_input_psi
+      character*50 filename
+      character*50 control_input_psi
       external     control_input_psi
       logical  wvfnc_expander
       external wvfnc_expander

@@ -20,7 +20,7 @@
       integer version,l
       integer nfft(3)
       real*8  unita(3,3)
-      character*30 filename
+      character*50 filename
       character*255 full_filename
 
       integer MASTER,taskid
@@ -31,7 +31,7 @@
 *     ***** local functions ****
       logical      control_print
       external     control_print
-      character*30 control_input_psi
+      character*50 control_input_psi
       external     control_input_psi
       double precision control_unita
       external         control_unita
@@ -118,7 +118,7 @@ c     **** send header to all nodes ****
       integer version,l
       integer nfft(3)
       real*8  unita(3,3)
-      character*30 filename
+      character*50 filename
       character*255 full_filename
 
       integer MASTER,taskid
@@ -129,7 +129,7 @@ c     **** send header to all nodes ****
 *     ***** local functions ****
       logical      control_print
       external     control_print
-      character*30 control_input_epsi
+      character*50 control_input_epsi
       external     control_input_epsi
       double precision control_unita
       external         control_unita
@@ -218,7 +218,7 @@ c     **** send header to all nodes ****
       integer version,l
       integer nfft(3),nbrill
       real*8  unita(3,3)
-      character*30 filename
+      character*50 filename
       character*255 full_filename
 
       integer MASTER,taskid
@@ -229,7 +229,7 @@ c     **** send header to all nodes ****
 *     ***** local functions ****
       logical      control_print
       external     control_print
-      character*30 control_input_psi
+      character*50 control_input_psi
       external     control_input_psi
       double precision control_unita
       external         control_unita

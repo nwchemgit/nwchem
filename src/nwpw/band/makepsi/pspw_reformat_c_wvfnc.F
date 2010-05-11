@@ -12,7 +12,7 @@
  
 *     **** local variables ****
       logical value,oprint,hprint
-      character*30 wavefunction_filename,filename
+      character*50 wavefunction_filename,filename
       character*255 full_filename,full_filename2
       character*255 full_filename3
       integer version,ierr
@@ -28,7 +28,7 @@
       logical  control_print
       external control_print
 
-      character*30 control_input_psi
+      character*50 control_input_psi
       external     control_input_psi
 
 

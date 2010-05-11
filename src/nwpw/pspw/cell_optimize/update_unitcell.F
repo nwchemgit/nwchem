@@ -17,7 +17,7 @@
       double precision unita(3,3)
       double precision unita2(3,3)
       double precision stress(3,3)
-      character*30 cell_name,rtdb_unita
+      character*50 cell_name,rtdb_unita
 
       value = .true.
 

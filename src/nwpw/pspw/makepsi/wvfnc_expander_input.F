@@ -21,8 +21,8 @@ c
       character*30 dirs(num_dirs)
       character*255 test
 
-      character*30 new_wavefunction_filename
-      character*30 old_wavefunction_filename
+      character*50 new_wavefunction_filename
+      character*50 old_wavefunction_filename
       integer ngrid(3)
       data dirs / 'old_wavefunction_filename:',
      >            'new_wavefunction_filename:',

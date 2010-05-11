@@ -25,7 +25,7 @@
       integer nfft3d,npack1
       integer nfft(3)
       real*8  unita(3,3)
-      character*30 filename
+      character*50 filename
       character*255 full_filename
 
 *     **** local variables ****
@@ -44,7 +44,7 @@ c     complex*16 tmp(*)
 *     ***** local functions ****
       logical control_spin_orbit,control_print
       external control_spin_orbit,control_print
-      character*30 control_input_psi
+      character*50 control_input_psi
       external     control_input_psi
       double precision control_unita
       external         control_unita
@@ -521,7 +521,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
       integer nfft3d,npack1
       integer nfft(3)
       real*8  unita(3,3)
-      character*30 filename
+      character*50 filename
       character*255 full_filename
 
 *     **** local variables ****
@@ -540,7 +540,7 @@ c     complex*16 tmp(*)
 *     ***** local functions ****
       logical control_spin_orbit,control_print
       external control_spin_orbit,control_print
-      character*30 control_input_epsi
+      character*50 control_input_epsi
       external     control_input_epsi
       double precision control_unita
       external         control_unita

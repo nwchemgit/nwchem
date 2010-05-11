@@ -21,7 +21,7 @@
       parameter(MASTER=0)
 
       logical value
-      character*30 tag1
+      character*50 tag1
       integer      ptr,i,size,nfft3d,neall,mm(2),ms,psi2(2)
       real*8       coef(15),scal
 
@@ -154,7 +154,7 @@ c       call Grsm_gg_daxpy(nfft3d,neall,scal,psitmp,psi)
       parameter(MASTER=0)
 
       logical      value
-      character*30 tag2
+      character*50 tag2
       integer      ptr,i,ii,j,size,nion,start
       integer M(2),ipiv(2),info
       integer rion1(2),rion2(2),gion(2)
@@ -349,7 +349,7 @@ c      write(*,*) "diff:",dsqrt(gx)
 
 
 *     **** local variables ****
-      character*30 tag1,tag2
+      character*50 tag1,tag2
       integer      pointer
 
 *     **** external functions ****
@@ -398,7 +398,7 @@ c      write(*,*) "diff:",dsqrt(gx)
       integer ptr,nion,rion(2),ii,size
       integer icheck,msglen
       real*8  diff
-      character*30 tag2
+      character*50 tag2
 
 *     **** external functions ****
       integer  psi_history_pointer_start,psi_history_size

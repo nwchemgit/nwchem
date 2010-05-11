@@ -97,7 +97,7 @@ cccc#include "frac_occ.fh"
 
       character*12 control_boundry
       external     control_boundry
-      character*30 control_cell_name
+      character*50 control_cell_name
       external     control_cell_name
 
       logical      psp_semicore

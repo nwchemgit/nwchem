@@ -38,7 +38,7 @@
       logical value,found,found_bak
       integer taskid,l1,l2
       real*8 ch_tmp
-      character*30 filename
+      character*50 filename
       character*255 full_filename,full_bak
 
 

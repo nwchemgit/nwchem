@@ -16,10 +16,10 @@
 
       integer ne(2),ispin
 
-      character*25 new_wavefunction_filename
-      character*25 old_wavefunction_filename
+      character*50 new_wavefunction_filename
+      character*50 old_wavefunction_filename
       character*255 full_filename,full_filename2
-      character*30 cell_name,rtdb_unita
+      character*50 cell_name,rtdb_unita
 
       integer ngrid(3)
       integer cfull(2)

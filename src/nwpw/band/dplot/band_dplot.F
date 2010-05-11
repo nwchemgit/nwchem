@@ -361,8 +361,8 @@
       complex*16 phafac
 
       character*72 cube_comment
-      character*30 name1,name2,name3
-      character*30 filename
+      character*50 name1,name2,name3
+      character*50 filename
       integer name1_len,name2_len,name3_len,ind,ind2
 
 
@@ -775,7 +775,7 @@ c      if (ispin.gt.1) call C3dB_r_SMul(1,scal2,dn(1,2),dn(1,2))
       implicit none
 #include "errquit.fh"
       integer rtdb
-      character*30 filename
+      character*50 filename
       integer      number
       character*72 cube_comment
       real*8 rho(*)
@@ -940,7 +940,7 @@ c     if (.not. value) call errquit('closing geometry',0)
      >                             number,cube_comment,rho)
       implicit none
       integer rtdb
-      character*30 filename
+      character*50 filename
       integer      number
       character*72 cube_comment
       real*8 rho(*)
@@ -1305,7 +1305,7 @@ c     if (.not. value) call errquit('closing geometry',0)
      >                                        orb,kv,isreal)
       implicit none
       integer rtdb
-      character*30 filename
+      character*50 filename
       integer      number
       character*72 cube_comment
       complex*16   orb(*)

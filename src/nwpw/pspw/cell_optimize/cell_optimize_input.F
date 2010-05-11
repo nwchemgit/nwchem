@@ -39,7 +39,7 @@ c
      >              'a12', 'a22', 'a32',
      >              'a13', 'a23', 'a33' /
 
-      character*30     cell_name
+      character*50     cell_name
       integer          optimize_strategy,cycles
       integer          optimize_lattice(6)
       integer          optimize_lattice_vectors(9)

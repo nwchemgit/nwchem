@@ -61,9 +61,9 @@ c
       integer ind               ! Index of matched directive
       integer       number,number2,count,ia
       integer       name1_len,name2_len,name3_len
-      character*30  name1,name2,name3
-      character*30  filename
-      character*30  wavefunction_filename
+      character*50  name1,name2,name3
+      character*50  filename
+      character*50  wavefunction_filename
       character*255 test
       real*8        position_tolerance
       real*8        o(3),x(3),y(3),z(3)

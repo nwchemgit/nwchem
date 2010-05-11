@@ -18,7 +18,7 @@
 
 *    *** local variables ***
       integer l
-      character*30 filename
+      character*50 filename
       character*255 full_filename
 
       integer MASTER,taskid
@@ -27,7 +27,7 @@
 
 
 *     ***** local functions ****
-      character*30 control_input_psi
+      character*50 control_input_psi
       external     control_input_psi
 
       call Parallel_taskid(taskid)

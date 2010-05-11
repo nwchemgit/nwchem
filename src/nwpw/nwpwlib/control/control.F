@@ -35,8 +35,8 @@
       common / control_print1 / print_level
 
       !character*30 cell_name
-      character*30 rtdb_unita,rtdb_ngrid,rtdb_boundry
-      character*30 exchange_correlation
+      character*50 rtdb_unita,rtdb_ngrid,rtdb_boundry
+      character*50 exchange_correlation
       integer i,l,ind,np
 
       integer  control_num_kvectors
@@ -1196,8 +1196,8 @@ c      end if
       implicit none
       integer rtdb
       real*8 unita(3,3)
-      character*30 rtdb_unita
-      character*30 cell_name
+      character*50 rtdb_unita
+      character*50 cell_name
       
 
 
@@ -1210,7 +1210,7 @@ c      end if
       logical value,box_orient
       integer geom,box_type,l
       real*8  box_delta
-      character*30 rtdb_name
+      character*50 rtdb_name
 
       value = (unita(1,1) .eq. 0.0d0).and.
      >        (unita(2,1) .eq. 0.0d0).and.
@@ -2115,7 +2115,7 @@ c      end
 *     *		control_output_psi	*
 *     *					*
 *     ***********************************
-      character*30 function control_output_psi()
+      character*50 function control_output_psi()
       implicit none
 
 #include "control.fh"
@@ -2129,7 +2129,7 @@ c      end
 *     *		control_output_epsi	*
 *     *					*
 *     ***********************************
-      character*30 function control_output_epsi()
+      character*50 function control_output_epsi()
       implicit none
 
 #include "control.fh"
@@ -2144,7 +2144,7 @@ c      end
 *     *		control_input_psi	*
 *     *					*
 *     ***********************************
-      character*30 function control_input_psi()
+      character*50 function control_input_psi()
       implicit none
 
 #include "control.fh"
@@ -2160,7 +2160,7 @@ c      end
 *     *		control_input_epsi	*
 *     *					*
 *     ***********************************
-      character*30 function control_input_epsi()
+      character*50 function control_input_epsi()
       implicit none
 
 #include "control.fh"
@@ -2175,7 +2175,7 @@ c      end
 *     *		control_output_v_psi	*
 *     *					*
 *     ***********************************
-      character*30 function control_output_v_psi()
+      character*50 function control_output_v_psi()
       implicit none
 
 #include "control.fh"
@@ -2190,7 +2190,7 @@ c      end
 *     *		control_input_v_psi	*
 *     *					*
 *     ***********************************
-      character*30 function control_input_v_psi()
+      character*50 function control_input_v_psi()
       implicit none
 
 #include "control.fh"
@@ -2206,7 +2206,7 @@ c      end
 *     *		control_xyz		*
 *     *					*
 *     ***********************************
-      character*30 function control_xyz()
+      character*50 function control_xyz()
       implicit none
 
 
@@ -2221,7 +2221,7 @@ c      end
 *     *         control_cell_name       *
 *     *                                 *
 *     ***********************************
-      character*30 function control_cell_name()
+      character*50 function control_cell_name()
       implicit none
 
 
@@ -2649,7 +2649,7 @@ c      end
 #include "util.fh"
 
       logical value
-      character*30 operation
+      character*50 operation
 
       logical  control_qmmm
       external control_qmmm
@@ -2750,8 +2750,8 @@ c      end
 
 *     **** local variables ****
       logical value
-      character*30 zone_name
-      character*30 rtdb_name
+      character*50 zone_name
+      character*50 rtdb_name
       integer num_kvectors,l
 
       if (.not.rtdb_cget(rtdb,'band:zone_name',1,zone_name))
@@ -2785,8 +2785,8 @@ c      end
       common / control_rtdb1 / rtdb
 
 *     **** local variables ****
-      character*30 zone_name
-      character*30 rtdb_name
+      character*50 zone_name
+      character*50 rtdb_name
       integer num_kvectors,l
       integer kvs(2)
 
@@ -2871,8 +2871,8 @@ c      end
       common / control_rtdb1 / rtdb
 
 *     **** local variables ****
-      character*30 zone_name
-      character*30 rtdb_name
+      character*50 zone_name
+      character*50 rtdb_name
       integer l
 
       if (.not.rtdb_cget(rtdb,'band:zone_name',1,zone_name))
@@ -2908,8 +2908,8 @@ c      end
       common / control_rtdb1 / rtdb
 
 *     **** local variables ****
-      character*30 zone_name
-      character*30 rtdb_name
+      character*50 zone_name
+      character*50 rtdb_name
       integer num_kvectors,i,i1,i2
       integer kvs(2)
       real*8  d1,d2
@@ -3716,8 +3716,8 @@ c      end
 
 *     **** local variables ****
       logical value
-      character*30 zone_name
-      character*30 rtdb_name
+      character*50 zone_name
+      character*50 rtdb_name
       integer num_kvectors,l
 
       value = rtdb_cget(rtdb,'band_structure:zone_name',1,zone_name)
@@ -3756,8 +3756,8 @@ c      end
 
 *     **** local variables ****
       logical value
-      character*30 zone_name
-      character*30 rtdb_name
+      character*50 zone_name
+      character*50 rtdb_name
       integer num_kvectors,l
       integer kvs(2)
 

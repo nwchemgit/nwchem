@@ -5530,8 +5530,8 @@ c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1)))
       external control_rtdb,control_ngrid,control_symmetry
       integer  psi_get_version
       external psi_get_version
-      character*30 filename
-      character*30 control_input_psi
+      character*50 filename
+      character*50 control_input_psi
       external     control_input_psi
       logical  wvfnc_expander,Dneall_m_allocate,band_reformat_c_wvfnc
       external wvfnc_expander,Dneall_m_allocate,band_reformat_c_wvfnc
@@ -5863,8 +5863,8 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
       integer rtdb,ind
       integer  control_rtdb,control_ngrid
       external control_rtdb,control_ngrid
-      character*30 filename
-      character*30 control_input_epsi
+      character*50 filename
+      character*50 control_input_epsi
       external     control_input_epsi
       logical  wvfnc_expander
       external wvfnc_expander

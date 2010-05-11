@@ -13,7 +13,7 @@
 #include "errquit.fh"
       logical oprint
       integer it_max
-      character*30 wavefunction_filename
+      character*50 wavefunction_filename
       integer      version
       integer      ngrid(3)
       real*8       unita(3,3)

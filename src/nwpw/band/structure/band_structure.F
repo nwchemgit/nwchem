@@ -61,7 +61,7 @@
       integer npoints,nbrillall,if1,if2
       integer mapping,tmp(2)
       character*255 full_filename
-      character*30 filename
+      character*50 filename
       character*72 cube_comment
 
 

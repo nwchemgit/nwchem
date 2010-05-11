@@ -23,7 +23,7 @@
       integer na,nb,cyclic,indxa(20)
       double precision blist(20)
 
-      character*30 filename
+      character*50 filename
       character*255 full_filename,string
 
 

@@ -19,7 +19,7 @@ c
       logical value
       integer indx1(2),n1,ma1
       integer indx2(2),n2,ma2
-      character*30 filename
+      character*50 filename
       character*255 mfilename,gfilename
 
       value = .true.

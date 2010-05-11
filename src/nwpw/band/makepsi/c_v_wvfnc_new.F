@@ -9,7 +9,7 @@
      >                      ispin,
      >                      ne,nbrillioun,spin_orbit)
       implicit none
-      character*30 v_wavefunction_filename
+      character*50 v_wavefunction_filename
       integer      version
       integer      ngrid(3)
       real*8       unita(3,3)

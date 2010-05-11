@@ -10,7 +10,7 @@
 
       subroutine wvfnc_adjust(wavefunction_filename,ispin,nein)
       implicit none
-      character*30 wavefunction_filename
+      character*50 wavefunction_filename
       integer      ispin,nein(2)
 
 #include "mafdecls.fh"

@@ -91,7 +91,7 @@ c      parameter (autoatm =290.360032539d6)
       real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2),sa_alpha(2)
       integer nfft3,mapping,mapping1d
       parameter (nfft3=32)
-      character*30 filename
+      character*50 filename
       character*255 full_filename
   
 

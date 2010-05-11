@@ -26,7 +26,7 @@
       integer rt2(2),vt2(2),qt2(2),mt2(2),tt2(2)
       real*8  amatrix(3,3),amatrix2(3,3)
 
-      character*30 cell_name,filename
+      character*50 cell_name,filename
       character*30 rtdb_unita,rtdb_ngrid
 
 *     **** external functions ****

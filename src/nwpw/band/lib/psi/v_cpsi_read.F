@@ -26,7 +26,7 @@
       integer nfft3d,npack1
       integer nfft(3)
       real*8  unita(3,3)
-      character*30 filename
+      character*50 filename
       character*255 full_filename
 
 *     **** local variables ****
@@ -47,7 +47,7 @@ c     complex*16 tmp(*)
 *     ***** local functions ****
       logical control_spin_orbit,control_print
       external control_spin_orbit,control_print
-      character*30 control_input_v_psi
+      character*50 control_input_v_psi
       external     control_input_v_psi
       double precision control_unita
       external         control_unita

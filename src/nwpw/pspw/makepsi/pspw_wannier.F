@@ -36,8 +36,8 @@ c      double precision unita(3,3),b(3),alpha
 
 c      complex*16 wx,wy,wz
 
-c      character*30 new_wavefunction_filename
-c      character*30 old_wavefunction_filename
+c      character*50 new_wavefunction_filename
+c      character*50 old_wavefunction_filename
 c      character*255 full_filename,full_filename2
 
 *     **** external functions ****
@@ -50,7 +50,7 @@ c      character*255 full_filename,full_filename2
       integer      control_np_orbital,control_wannier_maxiter
       real*8       lattice_unita,lattice_unitg,control_wannier_timestep
       real*8       lattice_ecut,lattice_wcut,lattice_omega
-      character*30 control_input_psi,control_output_psi
+      character*50 control_input_psi,control_output_psi
       external     control_read
       external     control_ngrid,control_ispin,control_mapping
       external     control_mapping1d

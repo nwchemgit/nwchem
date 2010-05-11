@@ -20,11 +20,11 @@
 
       logical found
       integer idum,msglen
-      character*30 filename
+      character*50 filename
       character*255 full_filename
 
 *     **** external functions ****
-      character*30 control_input_psi
+      character*50 control_input_psi
       external     control_input_psi
 
 
@@ -71,11 +71,11 @@
 
       logical found
       integer idum,msglen
-      character*30 filename
+      character*50 filename
       character*255 full_filename
 
 *     **** external functions ****
-      character*30 control_input_epsi
+      character*50 control_input_epsi
       external     control_input_epsi
 
 

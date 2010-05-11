@@ -13,7 +13,7 @@
 #include "errquit.fh"
       logical oprint_in
       integer it_max
-      character*30 wavefunction_filename
+      character*50 wavefunction_filename
       integer      version
       integer      ngrid(3)
       real*8       unita(3,3)
@@ -41,7 +41,7 @@
       real*8  Etotal,Eorbs,Ehart,Eexc,Eion,EV,de,olde,pxc
       real*8  cpu1,cpu2,cpu3,cpu4,cpu5,t1,t2,t3,t4,av
       real*8  scal1,scal2,dv
-      character*30 filename
+      character*50 filename
 
 *     **** external functions ****
       logical     psp_semicore,aorbs_init,aorbs_readall
@@ -76,7 +76,7 @@
       external     control_boundry
 
       integer      control_excited_ne
-      character*30 control_input_epsi
+      character*50 control_input_epsi
       external     control_excited_ne
       external     control_input_epsi
 

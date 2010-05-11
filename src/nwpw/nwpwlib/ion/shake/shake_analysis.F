@@ -20,7 +20,7 @@
       parameter (MASTER=0)
 
       logical value
-      character*30  filename
+      character*50  filename
       character*255 full_filename
 
 *     **** external functions ****

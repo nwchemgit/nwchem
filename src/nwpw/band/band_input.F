@@ -52,10 +52,10 @@ c
      >            'unrestricted',
      >            'end'/
 
-       character*30 cell_name,zone_name
-       character*30 input_wavefunction_filename
-       character*30 output_wavefunction_filename
-       character*30 exchange_correlation
+       character*50 cell_name,zone_name
+       character*50 input_wavefunction_filename
+       character*50 output_wavefunction_filename
+       character*50 exchange_correlation
        double precision fake_mass,time_step,rcut
        integer loop(2),ncut
        double precision tolerances(3),ecut,wcut,fe

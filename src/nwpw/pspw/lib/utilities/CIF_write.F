@@ -17,7 +17,7 @@
       parameter (MASTER=0)
 
       integer       flen
-      character*30 filename
+      character*50 filename
       character*255 full_filename
 
       if (rtdb_cget(rtdb,'pspw:cif_filename',1,filename)) then

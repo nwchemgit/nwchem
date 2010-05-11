@@ -9,7 +9,7 @@
      >						ispin,
      >						nein)
       implicit none
-      character*30 wavefunction_filename
+      character*50 wavefunction_filename
       integer      version
       integer      ngrid(3)
       real*8       unita(3,3)
@@ -89,7 +89,7 @@
       implicit none
       integer NMAX
       integer filling(4,NMAX,2)
-      character*30 wavefunction_filename
+      character*50 wavefunction_filename
       integer      version
       integer      ngrid(3)
       real*8       unita(3,3)

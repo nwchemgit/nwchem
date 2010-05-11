@@ -2735,8 +2735,8 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
       integer  control_rtdb,control_ngrid
       external control_rtdb,control_ngrid
-      character*30 filename
-      character*30 control_input_psi
+      character*50 filename
+      character*50 control_input_psi
       external     control_input_psi
       logical  wvfnc_expander,Dneall_m_allocate
       external wvfnc_expander,Dneall_m_allocate
@@ -2984,8 +2984,8 @@ c      call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
       integer rtdb,ind
       integer  control_rtdb,control_ngrid
       external control_rtdb,control_ngrid
-      character*30 filename
-      character*30 control_input_epsi
+      character*50 filename
+      character*50 control_input_epsi
       external     control_input_epsi
       logical  wvfnc_expander
       external wvfnc_expander

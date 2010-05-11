@@ -469,8 +469,8 @@ c               dn(i,ms) = dn(i,ms) + scal2*(psi_r(i,n)**2)
       real*8  scal1,scal2
 
       character*72 cube_comment
-      character*30 name1,name2
-      character*30 filename
+      character*50 name1,name2
+      character*50 filename
       integer name1_len,name2_len,ind,ind2
 
       integer n_truncate,idx_truncate(2),rgrid(2),trunc(2)
@@ -810,7 +810,7 @@ c     >                        dbl_mb(rho(1)),dbl_mb(rho(1)))
       implicit none
 #include "errquit.fh"
       integer rtdb
-      character*30 filename
+      character*50 filename
       integer      number
       character*72 cube_comment
       real*8 rho(*)
@@ -1443,7 +1443,7 @@ c        call Pack_cc_Mul(1,dcpl_mb(exi(1)),psi(1,n),psi(1,n))
      >                             number,cube_comment,rho)
       implicit none
       integer rtdb
-      character*30 filename
+      character*50 filename
       integer      number
       character*72 cube_comment
       real*8 rho(*)
@@ -1820,7 +1820,7 @@ c     if (.not. value) call errquit('closing geometry',0)
      >                             number,cube_comment,rho)
       implicit none
       integer rtdb
-      character*30 filename
+      character*50 filename
       integer      number
       character*72 cube_comment
       real*8 rho(*)

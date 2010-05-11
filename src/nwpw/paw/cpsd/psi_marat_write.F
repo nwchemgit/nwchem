@@ -33,7 +33,7 @@ c     complex*16 tmp(*)
       logical value
 
 *     ***** local functions ****
-      character*30 control_output_psi
+      character*50 control_output_psi
       external     control_output_psi
       double precision control_unita,lattice_omega
       external         control_unita,lattice_omega

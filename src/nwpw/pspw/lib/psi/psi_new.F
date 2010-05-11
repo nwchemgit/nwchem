@@ -26,11 +26,11 @@
       real*8  unita(3,3)
       logical lcao_print,lcao_skip,adjust_skip
       integer lcao_iterations
-      character*30 filename
+      character*50 filename
 
 
 *     ***** external functions ****
-      character*30 control_input_psi
+      character*50 control_input_psi
       external     control_input_psi
       double precision control_unita
       external         control_unita
@@ -180,10 +180,10 @@
       integer version,rtdb
       integer ngrid(3)
       real*8  unita(3,3)
-      character*30 filename
+      character*50 filename
 
 *     ***** local functions ****
-      character*30 control_input_epsi
+      character*50 control_input_epsi
       external     control_input_epsi
       double precision control_unita
       external         control_unita

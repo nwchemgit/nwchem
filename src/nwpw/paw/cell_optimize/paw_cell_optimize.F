@@ -13,7 +13,7 @@
       parameter (MASTER=0)
       logical value,value2
 
-      character*30     cell_name
+      character*50     cell_name
       integer          optimize_strategy,cycles
       integer          optimize_lattice(6)
       double precision lattice_tolerances(6)

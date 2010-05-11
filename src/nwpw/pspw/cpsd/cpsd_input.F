@@ -53,10 +53,10 @@ c
      >            'odft',
      >            'end'/
 
-       character*30 cell_name
-       character*30 input_wavefunction_filename
-       character*30 output_wavefunction_filename
-       character*30 exchange_correlation
+       character*50 cell_name
+       character*50 input_wavefunction_filename
+       character*50 output_wavefunction_filename
+       character*50 exchange_correlation
        logical geometry_optimize,frac_coord,mulliken
        double precision fake_mass,time_step,rcut
        integer loop(2),npsp,ncut
@@ -350,10 +350,10 @@ c*     **** local variables ****
 c      logical value
 c      integer ind             
 c
-c      character*30 cell_name
-c      character*30 input_wavefunction_filename
-c      character*30 output_wavefunction_filename
-c      character*30 exchange_correlation
+c      character*50 cell_name
+c      character*50 input_wavefunction_filename
+c      character*50 output_wavefunction_filename
+c      character*50 exchange_correlation
 c      logical geometry_optimize,frac_coord,mulliken
 c      double precision fake_mass,time_step,rcut
 c      integer loop(2),npsp,ncut

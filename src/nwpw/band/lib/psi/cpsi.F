@@ -1920,8 +1920,8 @@ c         end do
       integer rtdb,ind
       integer  control_rtdb,control_ngrid
       external control_rtdb,control_ngrid
-      character*30 filename
-      character*30 control_input_psi
+      character*50 filename
+      character*50 control_input_psi
       external     control_input_psi
       logical  c_wvfnc_expander,control_spin_orbit
       external c_wvfnc_expander,control_spin_orbit
@@ -2214,7 +2214,7 @@ c      value = value.and.MA_free_heap(psi1(2))
 
 
 *     **** local variables ****
-      character*30 filename
+      character*50 filename
 
 *     **** external functions ****
       character*7 c_index_name
@@ -2246,7 +2246,7 @@ c      value = value.and.MA_free_heap(psi1(2))
 
 
 *     **** local variables ****
-      character*30 filename
+      character*50 filename
 
 *     **** external functions ****
       character*7 c_index_name
@@ -2711,8 +2711,8 @@ c    ** external **
       integer rtdb,ind
       integer  control_rtdb,control_ngrid
       external control_rtdb,control_ngrid
-      character*30 filename
-      character*30 control_input_epsi
+      character*50 filename
+      character*50 control_input_epsi
       external     control_input_epsi
       logical  c_wvfnc_expander
       external c_wvfnc_expander

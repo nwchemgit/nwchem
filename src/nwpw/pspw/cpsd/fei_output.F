@@ -12,7 +12,7 @@
       parameter(MASTER=0)
 
       logical       found,found_bak
-      character*30  filename
+      character*50  filename
       character*2 tag2
       character*4 tag4
       character*255 full_filename,full_bak

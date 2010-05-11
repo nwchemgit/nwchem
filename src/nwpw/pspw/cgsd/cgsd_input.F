@@ -40,10 +40,10 @@ c
      >            'odft',
      >            'end'/
 
-       character*30 cell_name
-       character*30 input_wavefunction_filename
-       character*30 output_wavefunction_filename
-       character*30 exchange_correlation
+       character*50 cell_name
+       character*50 input_wavefunction_filename
+       character*50 output_wavefunction_filename
+       character*50 exchange_correlation
        double precision fake_mass,time_step,rcut
        integer loop(2),npsp,ncut
        double precision tolerances(3),ecut,wcut,fe
@@ -341,16 +341,16 @@ c
 *     ***** local variables *****
       integer ind               
       logical      value
-      character*30 cell_name
-      character*30 input_wavefunction_filename
-      character*30 output_wavefunction_filename
-      character*30 exchange_correlation
+      character*50 cell_name
+      character*50 input_wavefunction_filename
+      character*50 output_wavefunction_filename
+      character*50 exchange_correlation
       double precision fake_mass,time_step,rcut
       integer loop(2),npsp,ncut
       double precision tolerances(3),ecut,wcut
       logical frac_coord,mulliken,allow_translation
       integer ispin,multiplicity
-      character*30 rtdb_name
+      character*50 rtdb_name
       character*25 boundry
       double precision unita(3,3)
       integer ngrid(3)

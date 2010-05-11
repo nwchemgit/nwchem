@@ -77,18 +77,18 @@ c
      >            'initial_ion_temperature',
      >            'end'/
 
-       character*30 cell_name
-       character*30 input_wavefunction_filename
-       character*30 output_wavefunction_filename
-       character*30 input_v_wavefunction_filename
-       character*30 output_v_wavefunction_filename
-       character*30 xyz_filename
-       character*30 emotion_filename
-       character*30 eigmotion_filename
-       character*30 hmotion_filename
-       character*30 omotion_filename
-       character*30 ion_motion_filename
-       character*30 exchange_correlation,zone_name
+       character*50 cell_name
+       character*50 input_wavefunction_filename
+       character*50 output_wavefunction_filename
+       character*50 input_v_wavefunction_filename
+       character*50 output_v_wavefunction_filename
+       character*50 xyz_filename
+       character*50 emotion_filename
+       character*50 eigmotion_filename
+       character*50 hmotion_filename
+       character*50 omotion_filename
+       character*50 ion_motion_filename
+       character*50 exchange_correlation,zone_name
        logical geometry_optimize,frac_coord,mulliken,mulliken_kawai
        double precision fake_mass,time_step,rcut
        integer loop(2),npsp,ncut
@@ -547,18 +547,18 @@ c
       logical value
       integer ind               
 
-      character*30 cell_name
-      character*30 input_wavefunction_filename
-      character*30 output_wavefunction_filename
-      character*30 input_v_wavefunction_filename
-      character*30 output_v_wavefunction_filename
-      character*30 xyz_filename
-      character*30 emotion_filename
-      character*30 eigmotion_filename
-      character*30 hmotion_filename
-      character*30 omotion_filename
-      character*30 ion_motion_filename
-      character*30 exchange_correlation
+      character*50 cell_name
+      character*50 input_wavefunction_filename
+      character*50 output_wavefunction_filename
+      character*50 input_v_wavefunction_filename
+      character*50 output_v_wavefunction_filename
+      character*50 xyz_filename
+      character*50 emotion_filename
+      character*50 eigmotion_filename
+      character*50 hmotion_filename
+      character*50 omotion_filename
+      character*50 ion_motion_filename
+      character*50 exchange_correlation
       logical geometry_optimize,frac_coord,mulliken
       double precision fake_mass,time_step,rcut
       integer loop(2),npsp,ncut

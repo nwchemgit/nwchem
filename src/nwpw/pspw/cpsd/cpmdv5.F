@@ -97,7 +97,7 @@ cccc#include "frac_occ.fh"
       real*8 w,sumall,pressure,stress(3,3),p1,p2
       real*8 Te_init,Tr_init,Te_new,Tr_new,sa_decay(2),sa_alpha(2)
       integer mapping,mapping1d
-      character*30 filename
+      character*50 filename
       character*255 full_filename,full_bak
   
 

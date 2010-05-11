@@ -15,11 +15,11 @@
 
       logical found,found_bak
       integer taskid,l1,l2
-      character*30 filename
+      character*50 filename
       character*255 full_filename,full_bak
 
 *     **** external functions ****
-      character*30 control_xyz
+      character*50 control_xyz
       external     control_xyz
 
 

@@ -18,7 +18,7 @@ c     $Id: CIF_write.F,v 1.5 2008-06-02 15:20:03 bylaska Exp $
 
       logical       shift_cell,found
       integer       flen,l
-      character*30 filename
+      character*50 filename
       character*255 full_filename
       character ch_tmp
       logical  control_print
