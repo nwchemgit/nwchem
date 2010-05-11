@@ -417,7 +417,7 @@ c
       goto 10
 c
 20    continue
-      call ga_sync(ga_pgroup_get_world())
+      call ga_pgroup_sync(ga_pgroup_get_world())
       call smd_group_end()
       call util_message("out "//pname)
       return
@@ -470,7 +470,7 @@ c     &    ' after done',0,0)
 c       push in all available tasks
 c       ---------------------------
         do i = 1,nt
-            call sched_grp_insert_task(task_list, i, nproc)
+c            call sched_grp_insert_task(task_list, i, nproc)
         enddo
         populate_first_time = .false.
       end if
@@ -530,7 +530,7 @@ c         new_i_q = tmp_i_q
 
 c         do i = 1, nr
         do i = istart,iend
-            call sched_grp_insert_task(task_list, i, nproc)
+c            call sched_grp_insert_task(task_list, i, nproc)
             ntsks = ntsks + 1
          enddo
          

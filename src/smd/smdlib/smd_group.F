@@ -357,6 +357,66 @@ c
       integer group_want
       integer nproc,myproc,nchunkq,nremainq,i,j,n
       integer num_proc
+      integer i_l,nl,h_l, plo, phi
+
+      character*30 pname
+c
+      pname = "smd_group_create_simple"
+c 
+      smd_ngroup = group_want
+c
+      nproc = ga_nnodes()
+      myproc = ga_nodeid()
+
+      nchunkq=nproc/smd_ngroup
+      nremainq=mod(nproc,smd_ngroup)
+
+      nl = nchunkq+nremainq
+      if(.not.ma_push_get(mt_int,nl,'proclist',h_l,i_l))
+     + call errquit(pname//'Failed to allocate memory for i_l',
+     + nl, MA_ERR)
+
+      call ifill(nl,-1,int_mb(i_l),1)
+
+
+      n = 0
+      plo = 0
+      do i=1,smd_ngroup
+         num_proc = nchunkq
+         if(i .le. nremainq) num_proc = num_proc + 1
+         phi = plo + num_proc
+         do j=1,num_proc
+            int_mb(i_l+j-1) = plo+j
+         enddo
+         if ( myproc.ge.plo .and. myproc.lt.num_proc) then
+            smd_group_handle = ga_pgroup_create(int_mb(i_l), num_proc)
+            smd_group_nproc = num_proc
+         endif
+      enddo
+
+c set the group
+
+      if(.not.ma_pop_stack(h_l))
+     & call errquit(pname//'Failed to deallocate stack h_itmp',0,
+     &       MA_ERR)
+
+      call ga_pgroup_set_default(smd_group_handle)
+
+      return
+      end
+
+      subroutine smd_group_create_simple_old(group_want)
+      implicit none
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_group_data.fh"
+c
+c     Create subgroup of a constant size
+c
+      integer group_want
+      integer nproc,myproc,nchunkq,nremainq,i,j,n
+      integer num_proc
       integer i_l,nl,h_l
 
       character*30 pname

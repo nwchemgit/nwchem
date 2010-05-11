@@ -95,10 +95,10 @@ c     ------------------
       
       if(world_me.eq.0) then
          call util_message("executing server code")
-         call sched_grp_server_code()
+c         call sched_grp_server_code()
       else
          call util_message("executing client code")
-         call sched_grp_client_code()
+c         call sched_grp_client_code()
       endif
 
       call ga_sync()
