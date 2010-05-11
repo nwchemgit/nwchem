@@ -395,6 +395,10 @@ c
 
 c set the group
 
+      if(.not.ma_pop_stack(h_l))
+     & call errquit(pname//'Failed to deallocate stack h_itmp',0,
+     &       MA_ERR)
+
       call ga_pgroup_set_default(smd_group_handle)
 
       return
