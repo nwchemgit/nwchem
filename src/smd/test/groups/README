@@ -1,0 +1,4 @@
+failure on franklin
+
+aprun -n 8 -N 1 ../../../../bin/LINUX64/nwchem spce.nw
+
