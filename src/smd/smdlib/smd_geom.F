@@ -72,7 +72,6 @@ c
       pname = "smd_geom_init_system"
 
       call util_message("in "//pname)
-      call smd_util_global_sync()
 c
       tag = "geom"
       call smd_system_get_component(sp_geom,tag,result)
@@ -134,19 +133,6 @@ c     ------------------------------------
       tag = "ntot"
       call smd_data_put_int(sp_geom,tag,1,ng)
 c      
-      tag = "coordinates"
-      call smd_data_create_get(sp_geom,tag,3*ng,MT_DBL,i_c1)
-      tag = "gradients"
-      call smd_data_create(sp_geom,tag,3*ng,MT_DBL)
-      tag = "mass"
-      call smd_data_create_get(sp_geom,tag,ng,MT_DBL,i_ms1)
-      tag = "charge"
-      call smd_data_create(sp_geom,tag,ng,MT_DBL)
-      tag = "formal charge"
-      call smd_data_create_get(sp_geom,tag,ng,MT_DBL,i_qf1)
-      tag = "tag"
-      call smd_data_create_get(sp_geom,tag,ng,MT_STR,i_t1)
-c      
       if(.not.ma_pop_stack(h_itmp))
      & call errquit(pname//'Failed to deallocate stack h_itmp',0,
      &       MA_ERR)
@@ -179,17 +165,9 @@ c
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 c
 c    
-      call smd_group_message("5: "//pname)
-
-      if(.not.ma_push_get(mt_dbl,3*nt,'tmp',h_ct,i_ct))
-     + call errquit(pname//'Failed to allocate memory for h_ct',
-     + nt, MA_ERR)
-      call dcopy(3*nt,dbl_mb(i_c),1,dbl_mb(i_ct),1) 
-c      
       call smd_geom_create()
       call smd_group_message("6: "//pname)
 
-      call smd_util_global_sync()
       call util_message("out "//pname)
 
       return
