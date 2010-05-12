@@ -3137,6 +3137,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >                  dcpl_mb(dng1(1)),
      >                   dbl_mb(rho1_all(1)),
      >                  occupation_on,dbl_mb(occ1(1)))
+
       Eout =  electron_energy(dcpl_mb(psi1(1)),
      >                        dbl_mb(rho1(1)),
      >                        dcpl_mb(dng1(1)),

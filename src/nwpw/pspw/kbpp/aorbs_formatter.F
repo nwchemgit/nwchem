@@ -17,7 +17,7 @@ c
       logical       value
       integer       i,j,l
       integer	    locp,lmax
-      character*20  psp_filename,formatted_filename
+      character*50  psp_filename,formatted_filename
       character*4   element
       real*8        rlocal
 

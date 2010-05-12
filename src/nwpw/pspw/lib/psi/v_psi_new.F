@@ -73,7 +73,7 @@
       logical      found
       integer      l
       character*50  filename
-      character*34  filename2
+      character*50  filename2
       character*255 full_filename,full_filename2
 
 *     ***** local functions ****

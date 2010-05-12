@@ -23,8 +23,8 @@ c
      >            'end'/
 
       character*255 test
-      character*25  new_wavefunction_filename
-      character*25  old_wavefunction_filename
+      character*50  new_wavefunction_filename
+      character*50  old_wavefunction_filename
       integer it
       double precision tstep
 

@@ -23,7 +23,7 @@ c
       character*22 dirs(num_dirs)
       character*255 test
 
-      character*25 cell_name,wavefunction_filename
+      character*50 cell_name,wavefunction_filename
       integer   up_filling(4,NMAX),nup
       integer down_filling(4,NMAX),ndown
       logical restricted

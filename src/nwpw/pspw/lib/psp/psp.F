@@ -1015,7 +1015,6 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
 #endif
            sd_function = (k.eq.0)
 
-
 *          **** phase factor does not matter therefore ****
 *          **** (-i)^l is the same as (i)^l in the     ****
 *          **** Rayleigh scattering formula            ****
@@ -1471,7 +1470,7 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                       tmp,tmp2,
      >                       ierr)
       implicit none 
-      character*20 fname
+      character*50 fname
       character*(*) comment
       integer psp_type
       integer version
@@ -1716,7 +1715,7 @@ c     logocal semicore(0:nkatmx)
       integer tmp(2),tmp2(2),ierr
       logical value,found,correct_box
       character*5  element
-      character*20 fname
+      character*50 fname
 
 *     **** parallel i/o variable ****
       integer MASTER,taskid

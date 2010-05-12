@@ -20,8 +20,8 @@
       integer ne(2),ispin
       logical  restricted
 
-      character*25 cell_name,wavefunction_filename
-      character*25 rtdb_unita,rtdb_ngrid
+      character*50 cell_name,wavefunction_filename
+      character*50 rtdb_unita,rtdb_ngrid
       character*255 full_filename
 
 

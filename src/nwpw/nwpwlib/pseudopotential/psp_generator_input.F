@@ -19,7 +19,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 33)
+      parameter (num_dirs = 34)
       integer NMAX              ! maximum wavfunctions
       parameter (NMAX = 100)
  
@@ -33,7 +33,7 @@ c
       character*25  pseudopotential_type
       character*25  solver_type
       character*25  correlation_type
-      character*25  exchange_type
+      character*25  exchange_type,semicore_type
       character*25  pseudopotential_filename
       integer number_core,number_valence
       integer n_number(NMAX)
@@ -86,6 +86,7 @@ c
      >            'locp',
      >            'aperiodic_cutoff',
      >            'screening_cutoff',
+     >            'semicore_type',
      >            'end'/
 
 
@@ -110,6 +111,7 @@ c
       lmax = '?'
       locp = '?'
       r_semicore = -1.0d0
+      semicore_type = 'fuchs'
       rlocal00  = 1.0d0
       screening_cut = 0.0d0
 
@@ -129,7 +131,7 @@ c
      >       1000,1100,1200,1300,1400,
      >       100,  200, 300, 400, 500, 600, 700,800,900,
      >       1000,1100,1200,1300,1400,
-     >       700,710,1500,1600,
+     >       700,710,1500,1600,1450,
      >      9999) ind
       call errquit(
      >      'psp_generator_input: unimplemented directive', ind,
@@ -399,6 +401,16 @@ c
      >     'psp_generator_input: failed to read semicore_radius',0,
      &       INPUT_ERR)
       goto 10
+
+c
+c  semicore_type
+c 
+ 1450 if (.not. inp_a(semicore_type))
+     >     call errquit(
+     >     'psp_generator_input: failed to read semicore_type',0,
+     &       INPUT_ERR)
+      goto 10
+ 
  
 c
 c  aperiodic cutoff radius
@@ -436,8 +448,10 @@ c
       write(17,*) "<correlation>  ",correlation_type,"  <end>"
       write(17,*) "<exchange>     ",exchange_type,   "  <end>"
       write(17,*) "<pseudopotential> ",pseudopotential_type," <end>"
-      if (r_semicore.gt. 0.0d0) 
-     >  write(17,*) "<semicore> ",r_semicore," <end>" 
+      if (r_semicore.gt. 0.0d0) then
+        write(17,*) "<semicore> ",r_semicore," <end>" 
+        write(17,*) "<semicore_type> ",semicore_type," <end>" 
+      end if
       if (lmax.ne.'?') write(17,*) "<lmax> ",lmax," <end>"
       if (max_rcut.gt.0) then
          write(17,*) "<rcut>"

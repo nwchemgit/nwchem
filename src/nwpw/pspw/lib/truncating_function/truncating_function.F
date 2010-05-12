@@ -23,12 +23,12 @@ c
 
       subroutine Truncating_Function_init(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "truncating_function.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
@@ -43,7 +43,7 @@ c      integer rho(2),f(2)
       real*8  unita(3,3),r,f,x,y,z
       integer tmp1(2),tmp2(2),rgrid(2)
       character*4  element
-      character*20 fname
+      character*50 fname
       character*255 full_filename
       integer nx,ny,nz
       real*8  scal1

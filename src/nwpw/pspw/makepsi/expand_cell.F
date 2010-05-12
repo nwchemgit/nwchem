@@ -27,7 +27,7 @@
       real*8  amatrix(3,3),amatrix2(3,3)
 
       character*50 cell_name,filename
-      character*30 rtdb_unita,rtdb_ngrid
+      character*50 rtdb_unita,rtdb_ngrid
 
 *     **** external functions ****
       logical  geom_amatrix_set,wvfnc_expand_cell

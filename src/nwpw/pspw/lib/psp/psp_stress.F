@@ -501,7 +501,7 @@ c     >                     dbl_mb(tmp2(1)))
      >                       tmp,tmp2,
      >                       ierr)
       implicit none 
-      character*20 fname
+      character*50 fname
       integer version
       integer nfft(3)
       real*8  unita(3,3)
@@ -632,7 +632,7 @@ c       close(11)
       integer tmp(2),tmp2(2),ierr
       logical value,found,correct_box
       character*5  element
-      character*20 fname
+      character*50 fname
 
 *     **** parallel i/o variable ****
       integer MASTER,taskid

@@ -1448,7 +1448,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccc
      >                       ierr)
       implicit none 
       character*(*) comment
-      character*20 fname
+      character*50 fname
       integer psp_type
       integer version
       integer nfft(3)
@@ -1756,7 +1756,7 @@ cccccccccccccccccccc
       integer tmp(2),tmp2(2),ierr
       logical value,found,correct_box,mprint
       character*5  element
-      character*20 fname
+      character*50 fname
 
 *     **** parallel i/o variable ****
       integer MASTER,taskid

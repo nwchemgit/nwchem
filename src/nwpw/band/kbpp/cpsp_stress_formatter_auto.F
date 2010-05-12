@@ -19,8 +19,8 @@ c
 *     ***** local variables *****
       logical       value
       integer       i,j,l
-      integer	    locp,lmax
-      character*20  psp_filename,formatted_filename
+      integer       locp,lmax
+      character*50  psp_filename,formatted_filename
       character*5   element
       real*8        rlocal
       integer       nbrillioun,kv(2),nb

@@ -21,7 +21,7 @@
       implicit none
       logical          oprint_in
       integer          version
-      character*25     psp_filename,formatted_filename
+      character*50     psp_filename,formatted_filename
       integer          ngrid(3),lmax_in,locp_in
       double precision unita(3,3)
       integer nbrillioun

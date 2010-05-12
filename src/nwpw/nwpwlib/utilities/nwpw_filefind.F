@@ -10,7 +10,7 @@
 
       logical function nwpw_filefind(fname)
       implicit none
-      character*20 fname
+      character*50 fname
 
 #include "tcgmsg.fh"
 #include "msgtypesf.h"

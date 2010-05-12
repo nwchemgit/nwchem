@@ -19,9 +19,9 @@ c
       character*50 rtdb_name
       logical      reset_kbpp_number
       integer      kbpp_number,ia,kbpp_len
-      character*25 kbpp_name
-      character*25 cell_name,psp_filename,formatted_filename
-      character*25 formatted_stress_filename
+      character*50 kbpp_name
+      character*50 cell_name,psp_filename,formatted_filename
+      character*50 formatted_stress_filename
       integer locp,lmax
       character l_read
       real*8    rlocal

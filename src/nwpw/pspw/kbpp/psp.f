@@ -5,7 +5,7 @@
 *
       implicit none
 
-      character*25     psp_filename,formatted_filename
+      character*50     psp_filename,formatted_filename
       integer          nfft1,nfft2,nfft3
       double precision unita(3,3)
 

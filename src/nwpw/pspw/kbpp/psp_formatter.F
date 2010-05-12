@@ -25,15 +25,15 @@ c
       real*8        rlocal
       integer       l
       integer	    locp,lmax
-      character*25  cell_name,psp_filename,formatted_filename
-      character*30  rtdb_unita
-      character*30  rtdb_ngrid
-      character*30  rtdb_boundry
+      character*50  cell_name,psp_filename,formatted_filename
+      character*50  rtdb_unita
+      character*50  rtdb_ngrid
+      character*50  rtdb_boundry
       integer       ia,kn,kbpp_len,kbpp_number
-      character*30  rtdb_name,kbpp_name
+      character*50  rtdb_name,kbpp_name
 
 *     ***** simulation cell  variables *****
-      character*25     boundry
+      character*50     boundry
       double precision unita(3,3)
       integer          ngrid(3)
 
@@ -143,7 +143,7 @@ c
       logical       value
       integer       i,j,l
       integer	    locp,lmax
-      character*20  psp_filename,formatted_filename
+      character*50  psp_filename,formatted_filename
       character*5   element
       real*8        rlocal
 

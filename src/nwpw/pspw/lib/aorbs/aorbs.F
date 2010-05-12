@@ -378,7 +378,7 @@ c     >                          + (ia-1)*npack1*norbs_max))
      >                       tmp,tmp2,
      >                       ierr)
       implicit none 
-      character*20 fname
+      character*50 fname
       integer version
       integer nfft(3)
       real*8  unita(3,3)
@@ -485,7 +485,7 @@ c       close(11)
       logical value,found,correct_box,value2
       character*2  atom
       character*4  element
-      character*20 fname
+      character*50 fname
 
 *     **** parallel i/o variable ****
       integer MASTER,taskid

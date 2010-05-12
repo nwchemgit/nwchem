@@ -22,8 +22,8 @@ c
       character*22 dirs(num_dirs)
       character*255 test
 
-      character*30 rtdb_name
-      character*25 zone_name
+      character*50 rtdb_name
+      character*50 zone_name
       integer          num_kvectors,k,l
       double precision kvector(4)
       integer kvs(2),kvs_new(2)
@@ -166,7 +166,7 @@ c
 
       !**** local variables ****
       logical timereverse
-      character*30 rtdb_name
+      character*50 rtdb_name
       integer i1,i2,i3,k,l,num_kvectors
       integer kvs(2),nn(3)
       real*8  kx,ky,kz,xx,yy,zz,xxx,yyy,zzz,weight
@@ -334,7 +334,7 @@ c
 #include "rtdb.fh"
 
       !**** local variables ****
-      character*30 rtdb_name
+      character*50 rtdb_name
       integer i1,i2,i3,k,l,num_kvectors
       integer kvs(2)
       real*8  kx,ky,kz,xx,yy,zz,xxx,yyy,zzz
@@ -417,7 +417,7 @@ c
 
 *     *** local variables ***
       integer i,k,ii,ind,count,count2
-      character*25 test
+      character*50 test
 
       integer num_cells         ! No. of known directives
       parameter (num_cells = 8)
@@ -517,7 +517,7 @@ c
 
 *     *** local variables ***
       integer ind
-      character*25 test
+      character*50 test
 
       integer num_points
       parameter (num_points = 24)
