@@ -369,6 +369,7 @@ c
       integer i,j,nsb
       integer group_id
       integer ga_it
+      logical osb
 c      
       pname = "smd_task_iterate"
       call util_message("in "//pname)
@@ -387,8 +388,7 @@ c     -------------------
      >       pname//'no component '//tag,0,0)
 c      
       tag="smd:subgroups"
-      call smd_rtdb_get_int(tag,1,nsb,result)
-      if(.not.result) nsb = 1
+      call smd_rtdb_get_int(tag,1,nsb,osb)
 c
       if(.not.nga_create(mt_int, 1, 1, 
      >    'task counter',1, ga_it)) 
@@ -402,10 +402,12 @@ c     ---------------------------
       end if
       call ga_sync()
  
+      if(osb) then
       call smd_group_create_simple(nsb)
       call smd_group_id_get(group_id)
       if(ga_nodeid().eq.0) 
      +    write(*,*) "Hello from group",group_id,i
+      end if
 c
 10    continue    
       if(ga_nodeid().eq.0)
@@ -417,8 +419,10 @@ c
       goto 10
 c
 20    continue
+      if(osb) then
       call ga_pgroup_sync(ga_pgroup_get_world())
       call smd_group_end()
+      end if
       call util_message("out "//pname)
       return
 
