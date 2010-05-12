@@ -98,8 +98,6 @@ c
      + call md_abort('Failed to allocate memory for xdat',me)
       if(.not.ma_push_get(mt_dbl,nsa,'qdat',l_qdat,i_qdat))
      + call md_abort('Failed to allocate memory for qdat',me)
-      if(.not.ma_push_get(mt_int,nsa,'atmn',l_atmn,i_atmn))
-     + call md_abort('Could not allocate atmn',0)
       if(.not.ma_push_get(mt_dbl,3*nsa,'xadat',l_xadat,i_xadat))
      + call md_abort('Failed to allocate memory for xadat',me)
       if(.not.ma_push_get(mt_dbl,3*nsa,'xp',l_xp,i_xp))
@@ -114,6 +112,8 @@ c
      + call md_abort('Failed to allocate memory for wsel',me)
       if(.not.ma_push_get(mt_int,mwm,'ndxw',l_ndxw,i_ndxw))
      + call md_abort('Failed to allocate memory for ndxw',me)
+      if(.not.ma_push_get(mt_int,nsa,'atmn',l_atmn,i_atmn))
+     + call md_abort('Could not allocate atmn',0)
       endif
 c
 c     set the number of analyzed frames to zero

@@ -276,5 +276,7 @@ c
     8 continue
       close(unit=lfnepz)
 c
+      if(.not.ma_verify_allocator_stuff())
+     + print*,'ERROR IN ESPPLT'
       return
       end

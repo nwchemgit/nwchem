@@ -92,7 +92,7 @@ c
      + i_wrk,l_wrk,i_ssel,l_ssel,i_swt,l_swt,i_hbnd,l_hbnd,
      + i_sbnd,l_sbnd,i_osel,l_osel,i_owt,l_owt,i_qwdat,l_qwdat,
      + i_rdf,l_rdf,i_iequi,l_iequi,ga_trj,ga_trt,ga_trw,ga_tval,ga_tvec,
-     + i_tval,l_tval,i_tvec,l_tvec
+     + i_tval,l_tval,i_tvec,l_tvec,i_atmn,l_atmn
 c
       integer nsa,msa,nwm,mwm,nwa,mwa,ndata,nq,nave,nsel,npov,nwsel,
      + nwrit,indx,msgm,nsgm,msb,mwb,nselo,nsai,msai,nwmi,mwmi,nwai,mwai

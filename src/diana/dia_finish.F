@@ -28,7 +28,10 @@ c
 c
 c     deallocate memory
 c
+      call ma_summarize_allocated_blocks()
       if(ltask) then
+      if(.not.ma_pop_stack(l_atmn))
+     + call md_abort('Failed to deallocate atmn',0)
       if(.not.ma_pop_stack(l_ndxw))
      + call md_abort('Failed to deallocate ndxw',0)
       if(.not.ma_pop_stack(l_wsel))
@@ -43,8 +46,6 @@ c
      + call md_abort('Failed to deallocate xp',0)
       if(.not.ma_pop_stack(l_xadat))
      + call md_abort('Failed to deallocate xadat',0)
-      if(.not.ma_pop_stack(l_atmn))
-     + call md_abort('Failed to deallocate atmn',0)
       if(.not.ma_pop_stack(l_qdat))
      + call md_abort('Failed to deallocate qdat',0)
       if(.not.ma_pop_stack(l_xdat))
