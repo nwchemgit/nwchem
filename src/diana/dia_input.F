@@ -23,7 +23,7 @@ c
       real*8 arota,rrdf
       logical lref,lfil,lsol,lsuper,lselo,lequiv,lslvnt
       integer iesppb,lent,idpdb,indx,icent,jcent,nwhb,nclean
-      integer i,iorder,norder,ngrid
+      integer i,iorder,norder,ngrid,nfram
       character*8 option
       character*3 espfmt
 c
@@ -134,14 +134,15 @@ c     define trajectory file(s)
 c     -------------------------
 c
       if(inp_compare(.false.,'file',item)) then
+      if(.not.inp_i(nfram)) nfram=0
       if(.not.inp_a(filtrj)) call md_abort('Error in trajectory file',0)
       if(index(filtrj,'.trj').le.0.and.index(filtrj,'.sco').le.0.and.
      + index(filtrj,'.coo').le.0)
      + filtrj=filtrj(1:index(filtrj,' ')-1)//'.trj '
       if(.not.inp_i(ifrst)) ifrst=0
       if(.not.inp_i(ilast)) ilast=0
-      write(lfncmd,1001) ifrst,ilast,filtrj(1:index(filtrj,' ')-1)
- 1001 format('file   ',2i5,a)
+      write(lfncmd,1001) ifrst,ilast,nfram,filtrj(1:index(filtrj,' ')-1)
+ 1001 format('file   ',3i5,a)
       numcmd=numcmd+1
       lfil=.true.
       goto 2

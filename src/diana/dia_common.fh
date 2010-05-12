@@ -39,6 +39,7 @@ c
       integer mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,ngrd(3)
       integer ngx,ngy,ngz,iesppb,ngrid,mgrd,ldist,icent,jcent,numwhb
       integer nclean,nfrtot,nfrdim,nfrndx,nfrme,ntrj,ntval,ntvec
+      integer nframi
       integer ndist,idist(mxdist,2,3)
       integer nangl,iangl(mxangl,3,3)
       integer ntors,itors(mxtors,4,3)
@@ -54,7 +55,7 @@ c
      + lcop,lsup,ifrfr,ifrto,ifrsk,nfrtot,nfrdim,nfrndx,nfrme,ntrj,
      + iscof,icopf,isupf,mcopf,msupf,ncop,nsup,ifrst,ilast,ltrj,lplt,
      + ngrd,ngx,ngy,ngz,iesppb,ngrid,mgrd,ldist,icent,jcent,numwhb,
-     + ndist,nangl,ntors,nimps,idist,iangl,itors,iimps,nclean,
+     + ndist,nangl,ntors,nimps,idist,iangl,itors,iimps,nclean,nframi,
      + ntval,ntvec
 c
       integer nfilf,iomode,ioffhd,iofffr

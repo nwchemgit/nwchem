@@ -34,7 +34,7 @@ c
 c
       if(fmttrj.eq.'trj') then
       write(*,3333) fname(1:index(fname,' ')-1)
- 3333 format(/,' Opening trj file ',a)
+ 3333 format(/,' Opening trj file ',a,' in dia_rdhdr')
       open(unit=lfntrj,file=fname(1:index(fname,' ')-1),
      + status='old',err=9999)
       rewind(lfntrj)
@@ -47,6 +47,7 @@ c
      + status='unknown')
       rewind(44)
       read(lfntrj,1003) nwa,nsa,nsb,nwb,ib,nfilf
+      if(nfilf.eq.0) nfilf=nframi
       write(44,1003) nwa,nsa,nsb,nwb,ib,nfilf
  1003 format(6i10)
       if(nsa.gt.msa) call md_abort('Error in trj',0)

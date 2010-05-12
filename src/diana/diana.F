@@ -44,5 +44,14 @@ c
 c
       diana=.true.
 c
+      if(me.eq.0) then
+      write(6,*)
+      write(6,*)
+      call util_print_centered
+     + (6,'Data Intensive Analysis Module End',40,.true.)
+      write(6,*)
+      write(6,*)
+      endif
+c
       return
       end

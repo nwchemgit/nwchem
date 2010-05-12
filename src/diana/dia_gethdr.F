@@ -15,8 +15,8 @@ c
 #include "msgids.fh"
 #include "util.fh"
 c
-      read(card(8:17),'(2i5)') ifrst,ilast
-      filtrj=card(18:80)
+      read(card(8:22),'(3i5)') ifrst,ilast,nframi
+      filtrj=card(23:80)
 c
       fmttrj='trj'
       if(index(filtrj,'.sco').gt.0) fmttrj='sco'
