@@ -335,7 +335,7 @@ c
 #include "global.fh"
 #include "msgids.fh"
 c
-      character*255 fil
+      character*255 fil,fname
       character*3 fmt
       integer i,nbatch
 c
@@ -345,14 +345,14 @@ c
       i=index(fil,'.')
       if(i.eq.0) then
       fmt='trj'
-      filcop=fil(1:index(fil,' ')-1)//'.trj'
-      i=index(filcop,'.')
+      fname=fil(1:index(fil,' ')-1)//'.trj'
+      i=index(fname,'.')
       else
-      filcop=fil
-      fmt=filcop(i+1:i+3)
+      fname=fil
+      fmt=fname(i+1:i+3)
       endif
 c
-      call dia_wrttrj(ga_trj,filcop(1:i-1),fmt,nbatch,.false.)
+      call dia_wrttrj(ga_trj,fname(1:i-1),fmt,nbatch,.false.)
 c
       return
       end
