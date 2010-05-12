@@ -28,7 +28,7 @@ c
 c
 c     deallocate memory
 c
-      call ma_summarize_allocated_blocks()
+c      call ma_summarize_allocated_blocks()
       if(ltask) then
       if(.not.ma_pop_stack(l_atmn))
      + call md_abort('Failed to deallocate atmn',0)
