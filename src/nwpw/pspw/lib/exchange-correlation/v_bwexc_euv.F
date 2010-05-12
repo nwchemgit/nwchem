@@ -88,8 +88,9 @@ c        *****                          agr,fn,fdn      *****
      >        MA_push_get(mt_dbl, n2ft3d,'rhog',rhog(2),rhog(1))
         value = value.and.
      >        MA_push_get(mt_dbl, n2ft3d,'xce',xce(2),xce(1))
-
       if (.not. value) call errquit('out of stack memory',0,0)
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(rho(1)),1)
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(agr(1)),1)
 
 
 
@@ -320,6 +321,9 @@ c        *****                          agr,fn,fdn      *****
         value = value.and.
      >        MA_push_get(mt_dbl, n2ft3d,'xce',xce(2),xce(1))
         if (.not. value) call errquit('out of stack memory',0,0)
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhoup(1)),1)
+      call dcopy(n2ft3d,0.0d0,0,dbl_mb(rhodn(1)),1)
+      call dcopy(3*n2ft3d,0.0d0,0,dbl_mb(xagr(1)),1)
 
 
 c        ***** calculate rhoup  ****
