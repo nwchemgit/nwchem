@@ -46,8 +46,8 @@ c      write(cdnum,'(a1,i3.3)') '_',icopf
 c      fname=filcop(1:lq-1)//cdnum//filcop(lq:index(filcop,' ')-1)
 c      endif
 c
-      write(*,3323) filcop(1:index(filcop,' ')-1)
- 3323 format(/,' Opening copy file ',a,/)
+c      write(*,3323) filcop(1:index(filcop,' ')-1)
+c 3323 format(/,' Opening copy file ',a,/)
       if(binary) then
       open(unit=lfncop,file=filcop(1:index(filcop,' ')-1),
      + form='unformatted',status='unknown',err=9999)
