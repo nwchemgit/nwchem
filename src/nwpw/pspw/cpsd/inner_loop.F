@@ -169,6 +169,7 @@ c     real*8     fion(3,natmx)
       value = value.and.
      >        MA_push_get(mt_dbl,(nemax),'sumi',sumi(2),sumi(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(dnall(1)),1)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
 
@@ -274,7 +275,6 @@ c        call mask_C(0,dcpl_mb(dng(1)))
         if (psp_semicore(0)) then
            if (move .or. (it.eq.1)) call semicore_density_update()
            call semicore_density(dcpl_mb(tmp1(1)))
-c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
            call D3dB_r_SMul1(1,0.5d0,dcpl_mb(tmp1(1)))
         else
            call dcopy(n2ft3d,0.0d0,0,dcpl_mb(tmp1(1)),1)

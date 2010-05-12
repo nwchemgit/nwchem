@@ -189,6 +189,7 @@ c     real*8     fion(3,natmx)
      >        MA_push_get(mt_dbl,(3*natmx),'ftest',ftest(2),ftest(1))
       if (.not.value) 
      > call errquit('inner_loop_md:pushing stack',0, MA_ERR)
+      call dcopy(4*nfft3d,0.0d0,0,dbl_mb(dnall(1)),1)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xcp(1)),1)
       call dcopy(4*nfft3d,0.0d0,0,dbl_mb(xce(1)),1)
 
