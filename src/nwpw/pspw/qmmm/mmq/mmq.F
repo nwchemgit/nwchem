@@ -19,7 +19,7 @@
 *     **** local variables ****
       integer l,ia,nzv
       character*5  element
-      character*20 fname
+      character*50 fname
 
 *     **** external functions *****
       integer     ion_nkatm

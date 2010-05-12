@@ -91,7 +91,7 @@
       logical value,found
       integer ia,npack0,npack1
       character*4 element
-      character*20 fname
+      character*50 fname
       integer vl_ptr
 
 
@@ -328,7 +328,7 @@ c      end
       logical value,found
       integer ia,nkatm
       character*4 element
-      character*20 fname
+      character*50 fname
 
 *     **** external functions ****
       logical     nwpw_filefind,paw_proj_format_ok
@@ -375,7 +375,7 @@ c      end
 *     **** local variables ****
       integer ia,ngrid(3)
       real*8  unita(3,3)
-      character*20 fname
+      character*50 fname
 
 
       do ia=1,prj_nkatm
@@ -501,7 +501,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       logical value
       integer ii,msglen,l,nbasis,ngrid(3),nfft3d
       real*8  unita(3,3)
-      character*20  fname
+      character*50  fname
       character*255 full_filename
       integer tmp1(2),tmp2(2)
       complex*16 sum1
@@ -652,7 +652,7 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
       integer tmp(2),prj(2),rayleigh(2),Gx(2),Gy(2),Gz(2),f(2)
       integer g(2),gm(2),ng,ray(2)
 
-      character*20 jppname,atomname
+      character*50 jppname,atomname
       character*255 full_filename
 
       !*** external functions ***

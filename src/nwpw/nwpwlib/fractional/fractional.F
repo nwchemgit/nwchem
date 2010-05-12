@@ -19,8 +19,8 @@ c     $Id: fractional.F,v 1.2 2003-10-17 22:56:36 carlfahl Exp $
       double precision rxyz(3),q
       character*16     t
 
-      character*30 cell_name
-      character*30 rtdb_unita
+      character*50 cell_name
+      character*50 rtdb_unita
 
       integer nion,rion(2)      
       real*8  tion(3)
@@ -161,8 +161,8 @@ c     $Id: fractional.F,v 1.2 2003-10-17 22:56:36 carlfahl Exp $
       double precision rxyz(3),q
       character*16     t
 
-      character*30 cell_name
-      character*30 rtdb_unita
+      character*50 cell_name
+      character*50 rtdb_unita
 
       integer nion,rion(2)      
       real*8  tion(3)

@@ -21,8 +21,8 @@ c
       character*22 dirs(num_dirs)
       character*255 test
 
-      character*30 rtdb_name
-      character*25 name,boundry
+      character*50 rtdb_name
+      character*50 name,boundry
       double precision unita(3,3)
       double precision lat_a,lat_b,lat_c
       double precision alpha,beta,gamma

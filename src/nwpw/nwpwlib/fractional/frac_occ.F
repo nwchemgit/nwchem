@@ -20,7 +20,7 @@ c
 
 
 *     **** local variables ****
-      character*30 rtdb_name
+      character*50 rtdb_name
       integer i,j
       integer num_states,occ(2),s(2)
 

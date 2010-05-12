@@ -26,7 +26,7 @@ c
       logical frac_coord,mulliken,allow_translation
       integer ispin,multiplicity
       character*50 rtdb_name
-      character*25 boundry
+      character*50 boundry
       double precision unita(3,3)
       integer ngrid(3),nx,ny,nz,ewald_ngrid(3)
 

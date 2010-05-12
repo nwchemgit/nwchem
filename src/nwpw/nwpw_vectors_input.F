@@ -41,7 +41,7 @@ c
       character*255 fragments(maxfrag)
       integer nfrag
       character*80 project(2)
-      character*20 swapname
+      character*50 swapname
       logical olock
       data dirs /'input', 'output', 'atomic', 'hcore', 'swap',
      $     'project', 'lock', 'fragment'/

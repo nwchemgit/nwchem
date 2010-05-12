@@ -25,7 +25,7 @@ c
       integer i,j
       integer nkatm,nkatm_qm
       real*8  sigma_epsilon(2),ei,si,ej,sj
-      character*30 rtdbname
+      character*50 rtdbname
 
 *     **** external functions ****
       character*4 ion_atom

@@ -3148,7 +3148,7 @@ c      end
 
       integer l,k
       character*5  element
-      character*20 rtdb_name
+      character*50 rtdb_name
 
       element = '     '
       element = atom
