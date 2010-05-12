@@ -188,8 +188,12 @@ c
 c
 c     construct file name for file ifil
 c
+      if(lq.gt.0) then
       write(cnum,'(i3.3)') ifil
       fname=filtrj(1:lq-1)//cnum//filtrj(lq+1:index(filtrj,' ')-1)
+      else
+      fname=filtrj(1:index(filtrj,' ')-1)
+      endif
 c
 c     determine first frame to read from this file
 c
@@ -210,7 +214,7 @@ c      call fseek(lfntrj,ioffhd+(ifr-1)*iofffr,0,9999)
       if(lslvnt) call ga_put(ga_trw,1,3*nwm*nwa,ndata,ndata,
      + dbl_mb(i_wdat),nwm*nwa)
       call ga_put(ga_trt,1,6,nfram,nfram,t,6)
-      write(*,'(i5,6f12.6)') nfram,t
+c      write(*,'(i5,6f12.6)') nfram,t
       endif
   102 continue
   103 continue

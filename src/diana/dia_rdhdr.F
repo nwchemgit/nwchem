@@ -34,7 +34,7 @@ c
 c
       if(fmttrj.eq.'trj') then
       write(*,3333) fname(1:index(fname,' ')-1)
- 3333 format(/,' Opening trj file ',a,' in dia_rdhdr')
+ 3333 format(/,' Opening trj file ',a)
       open(unit=lfntrj,file=fname(1:index(fname,' ')-1),
      + status='old',err=9999)
       rewind(lfntrj)
