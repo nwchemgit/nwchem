@@ -175,8 +175,9 @@ c
       if(np.gt.1) then
       call ga_brdcst(mag_d01,ltop,ma_sizeof(mt_log,1,mt_byte),0)
       if(ltop) then
-      call ga_brdcst(mag_d03,qs,nsa*ma_sizeof(mt_dbl,1,mt_byte),0)
-      call ga_brdcst(mag_d03,iram,7*msgm*ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(mag_d02,qs,nsa*ma_sizeof(mt_dbl,1,mt_byte),0)
+      call ga_brdcst(mag_d03,iatmn,nsa*ma_sizeof(mt_int,1,mt_byte),0)
+      call ga_brdcst(mag_d04,iram,7*msgm*ma_sizeof(mt_int,1,mt_byte),0)
       endif
       endif
 c
