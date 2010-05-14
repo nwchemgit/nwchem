@@ -116,6 +116,9 @@ c
       real*8 dx,dy,dz
       real*8 boxh(3),xd(3)
 c
+      real*8 nm2au
+      parameter(nm2au=1.88972598858d01)
+c
       mgrd=ngx*ngy*ngz
       lplt=1
 c
@@ -240,16 +243,16 @@ c
       write(lfncub,2003)
  2003 format('NWChem-DIANA generated Electrostatic Potential',/,
      + 'Coordinates converted to Angstrom')
-      write(lfncub,2004) nsa,10.0d0*xmin(1),10.0d0*xmin(2),
-     + 10.0d0*xmin(3)
+      write(lfncub,2004) nsa,nm2au*xmin(1),nm2au*xmin(2),
+     + nm2au*xmin(3)
  2004 format(i5,3f12.6)
-      write(lfncub,2005) ngx,10.0d0*spac(1),0.0d0,0.0d0
-      write(lfncub,2005) ngy,0.0d0,10.0d0*spac(2),0.0d0
-      write(lfncub,2005) ngz,0.0d0,0.0d0,10.0d0*spac(3)
+      write(lfncub,2005) ngx,nm2au*spac(1),0.0d0,0.0d0
+      write(lfncub,2005) ngy,0.0d0,nm2au*spac(2),0.0d0
+      write(lfncub,2005) ngz,0.0d0,0.0d0,nm2au*spac(3)
  2005 format(i5,3f12.6)
       do 14 i=1,nsa
       write(lfncub,2006) iatmn(i),q(i),
-     + 10.0d0*x(i,1),10.0d0*x(i,2),10.0d0*x(i,3)
+     + nm2au*x(i,1),nm2au*x(i,2),nm2au*x(i,3)
  2006 format(i5,4f12.6)
    14 continue
       do 16 ix=1,ngx
