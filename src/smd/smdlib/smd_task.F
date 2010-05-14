@@ -97,12 +97,12 @@ c     ----------------------------------------------------
 c      tag1="task:theory"
 c     at this point theory has to be set explicitly
 c     as it deafults to smd
-      tag1="smd:fragment:theory"
-      call smd_rtdb_get_string(tag1,1,theory,result)
-      if(.not.result) then
-        write(*,*) "need to set value for  "//tag1
-        call errquit("cannot find "//tag1,0,0)
-      end if
+c      tag1="smd:fragment:theory"
+c      call smd_rtdb_get_string(tag1,1,theory,result)
+c      if(.not.result) then
+c        write(*,*) "need to set value for  "//tag1
+c        call errquit("cannot find "//tag1,0,0)
+c      end if
 
       tag1="task:operation"
       call smd_rtdb_get_string(tag1,1,operation,result)
@@ -138,8 +138,8 @@ c     ---------------------------
       call smd_data_create_get(namespace,tag,nt,MT_INT,i_ifu)
       tag = "task:frag_id"
       call smd_data_create_get(namespace,tag,nt,MT_INT,i_ifr)
-      tag = "task:theory"
-      call smd_data_create_get(namespace,tag,nt,MT_STR,i_sth)
+c      tag = "task:theory"
+c      call smd_data_create_get(namespace,tag,nt,MT_STR,i_sth)
       tag = "task:operation"
       call smd_data_create_get(namespace,tag,nt,MT_STR,i_sop)
 c
@@ -147,6 +147,7 @@ c    fill up fragment id
 c    -------------------
       j=0
       do i=i1,i2
+cdebug
         int_mb(i_ifr+j) = i
         j=j+1
       enddo
@@ -157,7 +158,7 @@ c
 c
 c     fill in theory
 c     --------------
-      call smd_set_char_to_ma2(theory,nt,byte_mb(i_sth))
+c      call smd_set_char_to_ma2(theory,nt,byte_mb(i_sth))
 c
 c     fill in operation
 c     -----------------
@@ -369,6 +370,7 @@ c
       integer i,j,nsb
       integer group_id
       integer ga_it
+      logical odelay
       logical osb
 c      
       pname = "smd_task_iterate"
@@ -390,6 +392,10 @@ c
       tag="smd:subgroups"
       call smd_rtdb_get_int(tag,1,nsb,osb)
 c
+      tag="smd:delay"
+      call smd_rtdb_get_log(tag,1,odelay,result)
+      if(.not.result) odelay=.false.
+c
       if(.not.nga_create(mt_int, 1, 1, 
      >    'task counter',1, ga_it)) 
      >  call errquit(
@@ -410,6 +416,12 @@ c     ---------------------------
       end if
 c
 10    continue    
+      if(odelay) then
+       if(group_id.ne.1) then
+         write(*,*) "sleeping in ",group_id
+         call sleep(80)
+       end if
+      end if
       if(ga_nodeid().eq.0)
      >   j=NGA_Read_inc(ga_it, 1, 1)
       call ga_brdcst(msg_qmmm_misc,j,ma_sizeof(mt_int,1,mt_byte),0)

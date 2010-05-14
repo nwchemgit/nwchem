@@ -68,8 +68,16 @@ c
       integer i_sht
       integer i_qf,i_m,i_ta
       integer rtdb
+      integer igroup,lug
 
       pname = "smd_geom_init_system"
+c
+      call smd_group_id_get(igroup)
+      call smd_group_luout_get(lug)
+c
+       write(lug,*) "monomer ",im, "in group ",igroup
+       call util_flush(lug)
+c
 
       call util_message("in "//pname)
 c
@@ -206,8 +214,12 @@ c
       integer i_im,i_nm
       integer ioff
       logical result
+      integer igroup,lug
 c
       pname = "smd_geom_create_0"
+c
+      call smd_group_id_get(igroup)
+      call smd_group_luout_get(lug)
 c
       tag = "geom"
       call smd_system_get_component(sp_geom,tag,result)
@@ -298,6 +310,8 @@ c
        i0=1
        if(.not.geom_create(igeom,"geometry"))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
+       write(lug,*) "created geometry ",igeom, "in group ",igroup
+       call util_flush(lug)
 
       if(.not.geom_cart_set_gen1(igeom,i0,n1,n1,smd_string_size,
      + byte_mb(i_t1),dbl_mb(i_c1),dbl_mb(i_q1)))
@@ -310,6 +324,9 @@ c
       if(ga_nodeid().eq.0) then
       if (.not. geom_print_xyz(igeom,105))
      + call errquit('qmmmsi geom_print_xyz',0, GEOM_ERR)
+      write(*,*) "geometry was printed"
+      call util_flush(105)
+      call util_flush(6)
       end if
 c
       call ga_sync()
@@ -321,6 +338,8 @@ c
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
+       write(lug,*) "destroyed geometry ",igeom, "in group ",igroup
+       call util_flush(lug)
 c
       nact = int_mb(i_nm)
       if(.not.ma_push_get(mt_int,nact,'tmp',h_act,i_act))
@@ -768,6 +787,9 @@ c
          end do
        end do
       end do
+
+       if(.not.geom_destroy(igeom))
+     + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
       if(.not.ma_pop_stack(h_c1))
      & call errquit(pname//'Failed to deallocate stack ',0,

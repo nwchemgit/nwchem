@@ -2,6 +2,7 @@
       implicit none
 #include "smd_group_data.fh"
 c     
+      data  smd_group_luout /6/
       data  smd_ngroup /-1/
       data  smd_group_nproc /-1/
       data  smd_group_id /-1/
@@ -452,13 +453,18 @@ c
             smd_group_nproc = num_proc
          endif
       enddo
-
-c set the group
+ 
+      write(*,*) "processor ",myproc, "blongs to ",smd_group_id 
+      call util_flush(6)
+      call ga_sync()
 
       if(.not.ma_pop_stack(h_l))
      & call errquit(pname//'Failed to deallocate stack h_itmp',0,
      &       MA_ERR)
+      call smd_group_message("4: "//pname)
 
+c set the group
+      smd_group_luout = 170+smd_group_id
       call ga_pgroup_set_default(smd_group_handle)
 
       return
@@ -477,6 +483,14 @@ c set the group
 #include "smd_group_data.fh"
       integer  group_id
       group_id = smd_group_id
+      return
+      end
+
+      subroutine smd_group_luout_get(group_luout)
+      implicit none
+#include "smd_group_data.fh"
+      integer  group_luout
+      group_luout = smd_group_luout
       return
       end
 
