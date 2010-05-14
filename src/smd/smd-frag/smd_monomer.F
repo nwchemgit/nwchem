@@ -50,21 +50,19 @@ c      write(*,*) "operation is", operation
         call smd_geom_get_coords()
         call smd_global_update_res("gradients","put",im)
         call ga_sync()
-        call ga_sync()
 c        call smd_global_print("gradients")
       else if(inp_compare(.false., 'optimize', operation)) then
         result = task_optimize(rtdb)
         call smd_geom_get_coords()
         call smd_global_update_res("coords","put",im)
         call ga_sync()
-        call ga_sync()
 c        call smd_global_print("coords")
        else
         call errquit(pname//"unknown operation "//operation,0,0)
       end if
 c
-      if(ga_nodeid().eq.0)
-     >  write(*,*) "finished energy",theory,qm_energy
+c      if(ga_nodeid().eq.0)
+c     >  write(*,*) "finished energy",theory,qm_energy
 c      
       if(.not.rtdb_get(rtdb,'smd:noesp',mt_log,1,noesp))
      +     noesp = .false.
@@ -139,9 +137,9 @@ c
      >                          operation)
 c      write(*,*) "found operation",operation
 c
-      tag="task:theory"
-      call smd_data_get_string1(sname,tag,itsk,itsk,
-     >                          theory)
+c      tag="task:theory"
+c      call smd_data_get_string1(sname,tag,itsk,itsk,
+c     >                          theory)
 c      write(*,*) "found theory",theory
 c
       tag = "task:frag_id"
@@ -152,8 +150,8 @@ c
       
 c     set the theory 
 c     --------------
-      if (.not.(rtdb_cput(rtdb,'task:theory',1,theory)))
-     *     call errquit('rtdb_put task:theory failed',0,0)
+c      if (.not.(rtdb_cput(rtdb,'task:theory',1,theory)))
+c     *     call errquit('rtdb_put task:theory failed',0,0)
 c
 c     pull the global charges/coords onto local set
       call smd_fragment_charge_get_all()
