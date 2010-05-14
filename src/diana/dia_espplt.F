@@ -237,6 +237,9 @@ c
       open(unit=lfncub,file=filcub(1:index(filcub,' ')-1),
      + form='formatted',status='unknown')
       rewind(lfncub)
+      write(lfncub,2003)
+ 2003 format('NWChem-DIANA generated Electrostatic Potential',/,
+     + 'Coordinates converted to Angstrom')
       write(lfncub,2004) nsa,10.0d0*xmin(1),10.0d0*xmin(2),
      + 10.0d0*xmin(3)
  2004 format(i5,3f12.6)
