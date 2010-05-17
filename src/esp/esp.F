@@ -11,6 +11,7 @@ c
 #include "rtdb.fh"
 #include "inp.fh"
 #include "util.fh"
+#include "stdio.fh"
 c
       integer irtdb0
 c
@@ -23,7 +24,8 @@ c
       me=ga_nodeid()
       np=ga_nnodes()
       irtdb=irtdb0
-      lfnout=6
+c      lfnout=6
+      lfnout=luout
       lfngrd=24
       lfner=25
       lfnplt=26
