@@ -72,7 +72,7 @@ c
 
       call util_file_prefix_get(buffer)
       i1 = inp_strlen(buffer)
-      write(buffer1,'(A,I4.4,I4.4)')
+      write(buffer1,'(A,I4.4,I4.4,".out")')
      >    buffer(1:i1),smd_group_id,ga_nodeid()
       
       if(.not.util_get_io_unit(fn))

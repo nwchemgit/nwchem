@@ -14,7 +14,6 @@ c
 c
       pname = "smd_system_periodic"
 c
-c      write(*,*) "in "//pname
 c
 c     get components
 c     --------------
@@ -41,8 +40,6 @@ c
       logical oshake,oshake_rtdb
 c
       pname = "smd_system_shake"
-c
-      write(*,*) "in "//pname
 c
 c     get components
 c     --------------
@@ -172,8 +169,6 @@ c
 c
       pname = "smd_system_tstep"
 c
-      write(*,*) "in "//pname
-c
       call smd_rtdb_get_handle(rtdb)
       tag="smd:step"
       result = rtdb_get(rtdb,tag,mt_dbl,1,t)
@@ -199,8 +194,6 @@ c
       integer rtdb
 c
       pname = "smd_system_ndata"
-c
-      write(*,*) "in "//pname
 c
       call smd_rtdb_get_handle(rtdb)
       tag="smd:ndata"

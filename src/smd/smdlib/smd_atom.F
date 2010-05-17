@@ -53,8 +53,7 @@ c
 c
       pname = "smd_atom_init"
 c
-      call util_message("iin "//pname)
-      write(*,*) "in "//pname
+      call util_message("in "//pname)
 c
 c     get total number of atoms from pdb file
 c     ---------------------------------------
@@ -213,7 +212,6 @@ c     ---------------------------
         if(ir(i).ge.nrmax) 
      +     nrmax = ir(i)
       end do
-      write(*,*) "maximum residue number is",nrmax
 c
 c
       if(.not.ma_push_get(mt_log,nrmax,'tmp',h_it,i_it))

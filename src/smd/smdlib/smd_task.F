@@ -286,7 +286,7 @@ c
       character*30 pname
 c      
       pname = "smd_task_mode"
-      call util_message("in "//pname)
+c      call util_message("in "//pname)
       tag = "task"
       call smd_system_get_component(sname,tag,result)
       if(.not.result)
@@ -300,7 +300,7 @@ c     -------------------
       if(.not.result)
      >  call errquit(
      >       pname//'no component '//tag,0,0)
-      call util_message("out "//pname)
+c      call util_message("out "//pname)
       return
 
       end subroutine
@@ -374,7 +374,7 @@ c
       logical osb
 c      
       pname = "smd_task_iterate"
-      call util_message("in "//pname)
+c      call util_message("in "//pname)
       tag = "task"
       call smd_system_get_component(sname,tag,result)
       if(.not.result)
@@ -412,13 +412,13 @@ c     ---------------------------
       call smd_group_create_simple(nsb)
       call smd_group_id_get(group_id)
       if(ga_nodeid().eq.0) 
-     +    write(*,*) "Hello from group",group_id,i
+     +    write(luout,*) "Hello from group",group_id,i
       end if
 c
 10    continue    
       if(odelay) then
        if(group_id.ne.1) then
-         write(*,*) "sleeping in ",group_id
+         write(luout,*) "sleeping in ",group_id
          call sleep(80)
        end if
       end if
@@ -426,7 +426,7 @@ c
      >   j=NGA_Read_inc(ga_it, 1, 1)
       call ga_brdcst(msg_qmmm_misc,j,ma_sizeof(mt_int,1,mt_byte),0)
       if(j.gt.nt) goto 20
-      if(ga_nodeid().eq.0) write(*,*) "executing task",j
+      if(ga_nodeid().eq.0) write(luout,*) "executing task",j
       call smd_task_execute(j)
       goto 10
 c
@@ -435,7 +435,9 @@ c
       call ga_pgroup_sync(ga_pgroup_get_world())
       call smd_group_end()
       end if
-      call util_message("out "//pname)
+      if(.not.ga_destroy(ga_it)) call errquit(
+     >       pname//'cannot destroy ga_it ',0,0)
+c      call util_message("out "//pname)
       return
 
       end subroutine

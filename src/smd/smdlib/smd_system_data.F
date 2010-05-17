@@ -163,7 +163,6 @@ c
       character*30 pname
       pname = "smd_system_print"
 c
-      write(*,*) "in "//pname
       do i=1,smd_system_nc
         if(smd_system_cname(i).ne."") then
         write(un,'(A16,"= ",A16)') smd_system_rname(i),

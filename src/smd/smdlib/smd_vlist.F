@@ -67,7 +67,6 @@ c
 c
       pname = "smd_vlist_init"
 c
-      write(*,*) "in "//pname
 c
 c     get coordinate information
 c     --------------------------
@@ -224,7 +223,6 @@ c
 c
       pname = "smd_vlist_update"
 c
-      write(*,*) "in "//pname
 c
       if((.not.olist).and.(.not.ocoord)) return
 c
@@ -368,7 +366,6 @@ c
 c
       pname = "smd_vlist_init"
 c
-      write(*,*) "in "//pname
 c
 c     get coordinate information
 c     --------------------------
@@ -742,7 +739,6 @@ c     -----------------------------
        call smd_vlist_test0(na,t,rcut,vcut,
      >     dbl_mb(i_vd),dbl_mb(i_v),lupdate)
 
-c      write(*,*) "out",pname
       return
 
       END
@@ -809,7 +805,6 @@ c
         disprsq=tstepsq*(dispxsq+dispysq+dispzsq)
         if(disprsq.gt.dispmax) then
           exceed=exceed+1
-          write(*,*) "verlet update disp",disprsq,dispmax
         end if
         if(exceed.ge.2)lupdate=.true.
        enddo

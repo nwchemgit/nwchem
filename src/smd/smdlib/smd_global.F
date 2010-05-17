@@ -22,7 +22,6 @@ c
 
       call ga_sync()
       call smd_global_init(sp_global)
-      write(*,*) "out of "//pname
       call ga_sync()
 c
       return
@@ -49,7 +48,6 @@ c
 c
       pname = "smd_global_init"
 c
-c      write(*,*) "in "//pname
 c
 c     get total number of atoms 
 c     -------------------------
