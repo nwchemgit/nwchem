@@ -29,10 +29,8 @@ c
 c
       pname = "task_fragment_energy"
 c
-      write(*,*) "initializing fragment"
       call smd_init("fragment",rtdb)
       call ga_sync()
-      write(*,*) "finshed initializing fragment"
 c
 c     close main rtdb as we may be going into groups
 c     ----------------------------------------------

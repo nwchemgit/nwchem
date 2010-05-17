@@ -352,8 +352,6 @@ c     ------------------
       if(inp_cur_field().eq.np) return
       if (.not.inp_a(token))
      + call errquit(pname,0, INPUT_ERR)
-      write(*,*) "current token",token,
-     +           inp_cur_field(),np
 c
 c     input files
 c     -----------
@@ -419,8 +417,6 @@ c     ------------------
       if(inp_cur_field().eq.np) return
       if (.not.inp_a(token))
      + call errquit(pname,0, INPUT_ERR)
-      write(*,*) "current token",token,
-     +           inp_cur_field(),np
 c
 c     input files
 c     -----------
