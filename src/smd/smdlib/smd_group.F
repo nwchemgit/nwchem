@@ -55,6 +55,56 @@ c      call util_file_prefix_set(smd_group_prefix)
 
       return
       end
+      subroutine smd_group_set_io()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_group_data.fh"
+#include "stdio.fh"
+c     
+      integer fn,i1
+c
+      character*255 buffer,buffer1
+
+      call util_file_prefix_get(buffer)
+      i1 = inp_strlen(buffer)
+      write(buffer1,'(A,I4.4,I4.4)')
+     >    buffer(1:i1),smd_group_id,ga_nodeid()
+      
+      if(.not.util_get_io_unit(fn))
+     + call errquit('no units available',0, 0)
+
+      close(luout)
+      luout = fn
+      open(unit=luout,status="unknown",form="formatted",file=buffer1)
+
+      return
+      end
+
+      subroutine smd_group_unset_io()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_group_data.fh"
+#include "stdio.fh"
+c     
+      integer fn,i1
+c
+      character*255 buffer,buffer1
+
+      close(luout)
+      luout = 6
+
+      return
+      end
       subroutine smd_group_prefix_set(im)
       implicit none
 #include "errquit.fh"
@@ -108,6 +158,7 @@ c
 
       character*36 buffer
 
+      call smd_group_unset_io()
       call ga_pgroup_set_default(ga_pgroup_get_world())
       if(.not. ga_pgroup_destroy(smd_group_handle))
      + call errquit('Failed to destroy group',0, 0)
@@ -466,7 +517,7 @@ c
 c set the group
       smd_group_luout = 170+smd_group_id
       call ga_pgroup_set_default(smd_group_handle)
-
+      call smd_group_set_io()
       return
       end
 
