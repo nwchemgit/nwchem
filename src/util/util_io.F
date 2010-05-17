@@ -2,6 +2,15 @@ c
 c $Id: util_io.F,v 1.3 2008-04-14 22:04:21 marat Exp $
 c
 
+#ifdef USE_SUBGROUPS
+      block data util_stdio_data
+      implicit none
+#include "stdio.fh"
+c     
+      data  luout /6/
+
+      end
+#endif
       block data initial_util_io_data
       implicit none
 #include "util_io_data.fh"
