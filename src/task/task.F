@@ -204,7 +204,6 @@ c
 c 
 c
       if(osmd.and.ofragment) then
-         write(*,*) "osmd,ofragment",osmd,ofragment
          status = task_fragment_energy(rtdb)
          call ga_sync()
          goto 99999

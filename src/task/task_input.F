@@ -109,10 +109,8 @@ c         else if (inp_compare(.false.,test,'embed')) then
 c            oembed = .true.
          else if (inp_compare(.false.,test,'fragment')) then
             ofragment = .true.
-            write(*,*) "found fragment",ofragment
          else if (inp_compare(.false.,test,'smd')) then
             osmd = .true.
-            write(*,*) "found smd",osmd
          else if (inp_compare(.false.,test,'pes')) then
             opes = .true.
          else if (inp_compare(.false.,test,
