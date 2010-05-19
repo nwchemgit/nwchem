@@ -55,6 +55,7 @@ c
 #include "global.fh"
 #include "smd_const_data.fh"
 #include "smd_task_data.fh"
+#include "smd_fids.fh"
 #include "geom.fh"
 c     
       character*(*) namespace
@@ -316,7 +317,7 @@ c
 #include "errquit.fh"
 #include "util.fh"
 #include "global.fh"
-#include "smd_task_data.fh"
+#include "smd_fids.fh"
 #include "smd_const_data.fh"
 
       integer nt

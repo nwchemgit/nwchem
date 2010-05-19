@@ -2,8 +2,6 @@
       logical populate_first_time !populating the first time
       logical populate_done !Done with tasks 
       integer itask
-      integer i_smd_monomer
-      parameter(i_smd_monomer= 1000)
 
       common /pop_data/
      &                   populate_first_time,
