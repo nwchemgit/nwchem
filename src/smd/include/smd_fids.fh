@@ -1,0 +1,4 @@
+
+      integer i_smd_monomer
+      parameter(i_smd_monomer= 1000)
+
