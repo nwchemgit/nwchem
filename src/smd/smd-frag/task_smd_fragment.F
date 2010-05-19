@@ -57,7 +57,6 @@ c        result = task_fragment_energy_serial()
 
       call util_message("done with task_smd_fragment_energy")
       if(ga_nodeid().eq.0) then
-       write(*,*) "smd_charge_write_default()"
        call smd_charge_write_default()
       end if
       call smd_global_end()
@@ -131,204 +130,89 @@ c
       task_fragment_energy_serial = .true.
       return
       END
+
+      subroutine task_fragment_populate()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "smd_fids.fh"
+c     
+      character*32 pname
+      character*80 tag
+      character*80 namespace
+      character*80 tag1
+      character*30 operation
+      integer nt,ns,i1,i2,i,j
+      integer i_ifr,i_sop,i_sth,i_ifu
+      logical result
+      logical oparallel
 c
-c      function task_smd_fragment_energy0(rtdb)
-c      implicit none
-c      integer rtdb
+      pname = "task_fragment_populate"
 c
-c#include "inp.fh"
-c#include "mafdecls.fh"
-c#include "rtdb.fh"
-c#include "stdio.fh"
-c#include "errquit.fh"
-c#include "util.fh"
-c#include "global.fh"
-c      logical task_smd_fragment_energy0
-c      character*72 namespace
-c      character*32 pname
-c      double precision etime1,etime2,etime3,etime4,etime5,etime6
-c      double precision energy,ewald1,ewald2,evdw
-c      logical operiodic
-c      integer i
-c      integer group_id,group_nproc,ngroup
-c      double precision eps
-cc
-c      logical smd_tasklist_get1
-c      external smd_tasklist_get1
-c      logical smd_tasklist_get
-c      external smd_tasklist_get
-cc
+      call util_message("in "//pname)
 c
-c      pname = "task_smd_fragment_energy"
-cc
-c      eps = 1.0
-cc
-c      call smd_tasklist_init()
-cc     
-c      call ga_sync()
-cc
-c      call smd_group_init(rtdb)
-cc
-c      call smd_group_ngroup_get(ngroup)
-c      call smd_group_id_get(group_id)
-c      call smd_group_nproc_get(group_nproc)
+c     find which monomers to do as given in the input file
+c     ----------------------------------------------------
+      tag1="smd:fragment:istart"
+      call smd_rtdb_get_int(tag1,1,i1,result)
+      if(.not.result) then
+        write(*,*) "need to set value for  "//tag1
+        call errquit("cannot find "//tag1,0,0)
+      end if
+      tag1="smd:fragment:iend"
+      call smd_rtdb_get_int(tag1,1,i2,result)
+      if(.not.result) then
+        write(*,*) "need to set value for  "//tag1
+        call errquit("cannot find "//tag1,0,0)
+      end if
+      nt = i2-i1+1
 c
-c99    continue
-c      if(.not.smd_tasklist_get1(i))
-c     >  goto 100 
+      tag1="task:operation"
+      call smd_rtdb_get_string(tag1,1,operation,result)
+      if(.not.result) then
+        write(*,*) "need to set value for  "//tag1
+        call errquit("cannot find "//tag1,0,0)
+      end if
 c
-c      if(ga_nodeid().eq.0)
-c     > write(*,*) "got task",i,group_id
-c      call smd_monomer_energy(i)
-cc
-c      goto 99
+c     create task namespace
+c     ---------------------
+      namespace = "fragment task"
+      call smd_namespace_create(namespace)
 c
-c      call cpu_time(etime6)
-c      write(luout,'(/,a,f20.3)')'Total CPU time : ',(etime6-etime1)
-c      write(luout,'(/,a,f20.3)')'Initialization : ',(etime2-etime1)
-c      write(luout,'(/,a,f20.3)')'Verlet         : ',(etime3-etime2)
-c      write(luout,'(/,a,f20.3)')'Force          : ',(etime4-etime3)
+c     create task data structures
+c     ---------------------------
+      tag = "task:ntasks"
+      call smd_data_put_int(namespace,tag,1,nt)
+      tag = "task:func_id"
+      call smd_data_create_get(namespace,tag,nt,MT_INT,i_ifu)
+      tag = "task:frag_id"
+      call smd_data_create_get(namespace,tag,nt,MT_INT,i_ifr)
+      tag = "task:operation"
+      call smd_data_create_get(namespace,tag,nt,MT_STR,i_sop)
 c
-c      write(*,*) "Goodbye from task_smd"
-c100   continue
-c      call ga_pgroup_sync(ga_pgroup_get_world())
-c      call smd_fragment_charge_diff(eps)
-c      if(eps.gt.0.0001) then
-c        call smd_tasklist_set()
-c        eps = 0.0d0
-c        goto 99
-c      end if
+c    fill up fragment id
+c    -------------------
+      j=0
+      do i=i1,i2
+cdebug
+        int_mb(i_ifr+j) = i
+        j=j+1
+      enddo
 c
-c      call ga_pgroup_sync(ga_pgroup_get_world())
-c       call smd_group_end(rtdb)
-c       energy = 0.0d0
-c       if (.not. rtdb_put(rtdb,'smd:energy',mt_dbl,1,energy))
-c     $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
-c      if(ga_nodeid().eq.0) then
-c       write(*,*) "smd_charge_write_default()"
-c       call smd_charge_write_default()
-c      end if
-c      call smd_end(rtdb)
-c      task_smd_fragment_energy0 = .true.
-c      return
-c      END
+      do i=1,nt
+        int_mb(i_ifu+i-1) = i_smd_monomer
+      enddo
 c
-c      function task_smd_fragment(rtdb)
-c      implicit none
-c      integer rtdb
-c
-c#include "inp.fh"
-c#include "mafdecls.fh"
-c#include "global.fh"
-c#include "rtdb.fh"
-c#include "stdio.fh"
-c#include "errquit.fh"
-c      logical task_smd_fragment
-c      logical result,ofragment
-cc
-c      logical task_smd_fragment_energy
-c      external task_smd_fragment_energy
-c      logical task_smd_energy_sp
-c      external task_smd_energy_sp
-c      character*30 operation,pname
-c      character*69 buffer
-cc
-c      double precision energy
-cc
-c      energy = 0.0d0
-c      pname = "task_smd_fragment"
-cc
-c      write(*,*) "initializing fragment"
-c      call smd_init("fragment",rtdb)
-c      call ga_sync()
-cc
-c      if (.not. rtdb_cget(rtdb,'task:operation', 1,operation))
-c     $      call errquit(pname,0, RTDB_ERR)
-c
-c      if(operation.eq."energy") then
-c        call util_message("task_smd_fragment_energy")
-c        result = task_smd_fragment_energy(rtdb)   
-c      else
-c        call errquit(pname//"unknown operation"//operation,
-c     +               0, RTDB_ERR)
-c      end if
-c      if (.not. rtdb_put(rtdb,'smd:energy',mt_dbl,1,energy))
-c     $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
-c      task_smd_fragment = .true.
-c
-c      return
-c      END
-c
-c      function task_smd_fragment_energy(rtdb)
-c      implicit none
-c      integer rtdb
-c
-c#include "inp.fh"
-c#include "mafdecls.fh"
-c#include "rtdb.fh"
-c#include "stdio.fh"
-c#include "errquit.fh"
-c#include "util.fh"
-c#include "global.fh"
-c      logical task_smd_fragment_energy
-c      character*72 namespace
-c      character*32 pname,rtdb_fname
-c      double precision etime1,etime2,etime3,etime4,etime5,etime6
-c      double precision energy,ewald1,ewald2,evdw
-c      logical operiodic
-c      integer i
-c      integer group_id,group_nproc,ngroup
-c      double precision eps
-c      integer world_me
-cc
-c      logical smd_tasklist_get1
-c      external smd_tasklist_get1
-c      logical smd_tasklist_get
-c      external smd_tasklist_get
-cc
-c
-c      pname = "task_smd_fragment_energy"
-cc
-cc     closing world rtdb now
-cc     its name is saved in smd data structure
-cc     ---------------------------------------
-c      call smd_rtdb_close('keep')
-cc      if(.not.rtdb_close(rtdb, 'keep'))
-cc     + call errquit('Failed to close world rtdb',0, RTDB_ERR)
-c      call ga_sync() 
-c      call smd_data_print(60+ga_nodeid())
-c      call ga_sync() 
-cc
-cc     server-client loop
-cc     ------------------
-c      world_me = ga_nodeid()
-c      
-c      if(world_me.eq.0) then
-c         call util_message("executing server code")
-c         call sched_grp_server_code()
-c      else
-c         call util_message("executing client code")
-c         call sched_grp_client_code()
-c      endif
-c
-c      call ga_sync()
-cc      call cpu_time(etime4)
-c      call smd_rtdb_get_name(rtdb_fname)
-c      if (.not. rtdb_open(rtdb_fname,'old',rtdb)) call errquit
-c     *     (' rtdb_open old failed ',0,0)
-cc
-c
-c
-c      write(*,*) "ending smd"
-c      call smd_data_print(30+ga_nodeid())
-c      call ga_sync()
-c      call smd_end(rtdb)
-c      task_smd_fragment_energy = .true.
-c      return
-c      END
-c
-cc     ------------------------------
-cc     simple subgroup implementation
-cc     ------------------------------
-c
-c
+c     fill in operation
+c     -----------------
+      call smd_set_char_to_ma2(operation,nt,byte_mb(i_sop))
+
+      call util_message("out "//pname)
+
+      return
+      end
