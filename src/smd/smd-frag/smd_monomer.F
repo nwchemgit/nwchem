@@ -147,11 +147,11 @@ c
 c
       oscratch = .true.
       call smd_rtdb_push_open_clone(itsk,oscratch,rtdb)
-      
-c     set the theory 
+      write(luout,*) "now all my output hsould go here" 
+c     get the theory 
 c     --------------
-c      if (.not.(rtdb_cput(rtdb,'task:theory',1,theory)))
-c     *     call errquit('rtdb_put task:theory failed',0,0)
+      if (.not.(rtdb_cget(rtdb,'task:theory',1,theory)))
+     *     call errquit('rtdb_cget task:theory failed',0,0)
 c
 c     pull the global charges/coords onto local set
       call smd_fragment_charge_get_all()
