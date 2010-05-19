@@ -158,7 +158,7 @@ c
 
       character*36 buffer
 
-      call smd_group_unset_io()
+c      call smd_group_unset_io()
       call ga_pgroup_set_default(ga_pgroup_get_world())
       if(.not. ga_pgroup_destroy(smd_group_handle))
      + call errquit('Failed to destroy group',0, 0)
@@ -517,7 +517,7 @@ c
 c set the group
       smd_group_luout = 170+smd_group_id
       call ga_pgroup_set_default(smd_group_handle)
-      call smd_group_set_io()
+c      call smd_group_set_io()
       return
       end
 
