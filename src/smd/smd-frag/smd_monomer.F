@@ -74,7 +74,6 @@ c
       call util_message("finished smd_geom_get_charges")
 
 100   continue
-      call util_message("finished smd_geom_monomer_end")
 
       write(key,'(a,'':converged'')') theory(1:inp_strlen(theory))
       if (.not. rtdb_put(rtdb, key, mt_log, 1, .false.))
