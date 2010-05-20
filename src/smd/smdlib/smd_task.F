@@ -338,8 +338,10 @@ c     get number of tasks
 c     -------------------
       tag = "task:func_id"
       call smd_data_get_int1(sname,tag,itsk,itsk,ifunc)
+      tag = "task:itsk"
+      call smd_data_put_int(sname,tag,1,itsk)
       if(ifunc.eq.i_smd_monomer) then
-       call smd_monomer(itsk)
+       call smd_monomer()
       else
        call errquit(
      >       pname//'unknown function ',ifunc,0)

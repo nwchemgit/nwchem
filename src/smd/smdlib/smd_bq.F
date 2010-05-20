@@ -117,7 +117,6 @@ c
         nbq=nbq+int_mb(i_rbq+i-1)-
      +              int_mb(i_lbq+i-1)+1
       end do
-      write(*,*) "nbq=",nbq
       if(.not.bq_create("monomer charges test",bq_handle))
      + call errquit(pname//'Failed bq_create',0,CALC_ERR)
 

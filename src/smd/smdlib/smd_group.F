@@ -67,9 +67,13 @@ c      call util_file_prefix_set(smd_group_prefix)
 #include "stdio.fh"
 c     
       integer fn,i1
+      logical result,ogroupio
 c
       character*255 buffer,buffer1
 
+      call smd_rtdb_get_log("smd:groupio",1,ogroupio,result)
+      if(.not.result) return
+      if(.not.ogroupio) return
       call util_file_prefix_get(buffer)
       i1 = inp_strlen(buffer)
       write(buffer1,'(A,I4.4,I4.4,".out")')
@@ -158,7 +162,7 @@ c
 
       character*36 buffer
 
-c      call smd_group_unset_io()
+      call smd_group_unset_io()
       call ga_pgroup_set_default(ga_pgroup_get_world())
       if(.not. ga_pgroup_destroy(smd_group_handle))
      + call errquit('Failed to destroy group',0, 0)
@@ -517,7 +521,7 @@ c
 c set the group
       smd_group_luout = 170+smd_group_id
       call ga_pgroup_set_default(smd_group_handle)
-c      call smd_group_set_io()
+      call smd_group_set_io()
       return
       end
 
