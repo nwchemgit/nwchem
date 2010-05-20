@@ -12,6 +12,10 @@ c
 c
       character*80 pname
       character*80 tag
+      logical ignore
+
+      ignore=MA_set_hard_fail(.true.)
+      ignore=MA_set_auto_verify(.true.)
 
       pname = "smd_init"
       tag = operation

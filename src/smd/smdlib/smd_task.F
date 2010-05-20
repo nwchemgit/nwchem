@@ -375,6 +375,7 @@ c
       integer ga_it
       logical odelay
       logical osb
+      integer iskip
 c      
       pname = "smd_task_iterate"
 c      call util_message("in "//pname)
@@ -399,6 +400,10 @@ c
       call smd_rtdb_get_log(tag,1,odelay,result)
       if(.not.result) odelay=.false.
 c
+      tag="smd:iskip"
+      call smd_rtdb_get_int(tag,1,iskip,result)
+      if(.not.result) iskip=0
+c
       if(.not.nga_create(mt_int, 1, 1, 
      >    'task counter',1, ga_it)) 
      >  call errquit(
@@ -419,6 +424,7 @@ c     ---------------------------
       end if
 c
 10    continue    
+      if(group_id.eq.iskip) goto 20
       if(odelay) then
        if(group_id.ne.1) then
          write(luout,*) "sleeping in ",group_id
@@ -429,7 +435,7 @@ c
      >   j=NGA_Read_inc(ga_it, 1, 1)
       call ga_brdcst(msg_qmmm_misc,j,ma_sizeof(mt_int,1,mt_byte),0)
       if(j.gt.nt) goto 20
-      if(ga_nodeid().eq.0) write(luout,*) "executing task",j
+      if(ga_nodeid().eq.0) write(luout,*) "executing task",j,group_id
       call smd_task_execute(j)
       goto 10
 c
