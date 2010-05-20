@@ -89,6 +89,23 @@ c
 
       end
 
+      subroutine smd_file_open(un,myname)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "smd_const_data.fh"
+#include "util.fh"
+#include "inp.fh"
+      integer un
+      character*(*) myname
+c
+      if(.not.util_get_io_unit(un)) 
+     >   call errquit("cannot get file number",0,0)
+c
+      open(unit=un,status="unknown",form="formatted",file=myname)
+
+      end
+
       SUBROUTINE smd_util_rebox_alt(n,latt,rlatt,aaa)
 
       implicit none

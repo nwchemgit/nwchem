@@ -516,7 +516,6 @@ c
       if(.not.ma_pop_stack(h_l))
      & call errquit(pname//'Failed to deallocate stack h_itmp',0,
      &       MA_ERR)
-      call smd_group_message("4: "//pname)
 
 c set the group
       smd_group_luout = 170+smd_group_id

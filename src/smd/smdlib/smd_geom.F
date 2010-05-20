@@ -68,15 +68,11 @@ c
       integer i_sht
       integer i_qf,i_m,i_ta
       integer rtdb
-      integer igroup,lug
+      integer igroup
 
       pname = "smd_geom_init_system"
 c
       call smd_group_id_get(igroup)
-      call smd_group_luout_get(lug)
-c
-       write(lug,*) "monomer ",im, "in group ",igroup
-       call util_flush(lug)
 c
 
       call util_message("in "//pname)
@@ -108,7 +104,6 @@ c     -----------------------------
      + call errquit(pname//'Failed to allocate memory for h_itmp',0,0)
 c
       nb = nr
-      call smd_group_message("1: "//pname)
       call smd_geom_find_neighbors(im,nb,int_mb(i_itmp))
       tag = "neighbor_index"
       call smd_data_put_int(sp_geom,tag,nb,int_mb(i_itmp))
@@ -116,7 +111,6 @@ c
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0,0 )
-      call smd_group_message("2: "//pname)
 c
 c     determine position and size (atom based) of the cluster residues
 c
@@ -129,7 +123,6 @@ c
         int_mb(i_im+i-1)=int_mb(i_pr+j-1)
         int_mb(i_nm+i-1)=int_mb(i_mr+j-1)
       end do
-      call smd_group_message("3: "//pname)
 c
 c     total number of atoms in the geometry
 c     ------------------------------------
@@ -144,7 +137,6 @@ c
       if(.not.ma_pop_stack(h_itmp))
      & call errquit(pname//'Failed to deallocate stack h_itmp',0,
      &       MA_ERR)
-      call smd_group_message("4: "//pname)
 c     
 c     get copy of coordinates
 c     ----------------------
@@ -174,7 +166,6 @@ c
 c
 c    
       call smd_geom_create()
-      call smd_group_message("6: "//pname)
 
       call util_message("out "//pname)
 
@@ -214,12 +205,12 @@ c
       integer i_im,i_nm
       integer ioff
       logical result
-      integer igroup,lug
+      integer igroup
+      integer un
 c
       pname = "smd_geom_create_0"
 c
       call smd_group_id_get(igroup)
-      call smd_group_luout_get(lug)
 c
       tag = "geom"
       call smd_system_get_component(sp_geom,tag,result)
@@ -310,8 +301,6 @@ c
        i0=1
        if(.not.geom_create(igeom,"geometry"))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
-       write(lug,*) "created geometry ",igeom, "in group ",igroup
-       call util_flush(lug)
 
       if(.not.geom_cart_set_gen1(igeom,i0,n1,n1,smd_string_size,
      + byte_mb(i_t1),dbl_mb(i_c1),dbl_mb(i_q1)))
@@ -322,11 +311,11 @@ c
       call geom_compute_values(igeom)
 c
       if(ga_nodeid().eq.0) then
-      if (.not. geom_print_xyz(igeom,105))
+      call smd_file_open(un,"tmp.xyz")
+      if (.not. geom_print_xyz(igeom,un))
      + call errquit('qmmmsi geom_print_xyz',0, GEOM_ERR)
-      write(*,*) "geometry was printed"
-      call util_flush(105)
-      call util_flush(6)
+      call util_flush(un)
+      close(un)
       end if
 c
       call ga_sync()
@@ -338,8 +327,6 @@ c
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
-       write(lug,*) "destroyed geometry ",igeom, "in group ",igroup
-       call util_flush(lug)
 c
       nact = int_mb(i_nm)
       if(.not.ma_push_get(mt_int,nact,'tmp',h_act,i_act))

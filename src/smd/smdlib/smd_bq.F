@@ -9,6 +9,7 @@
 #include "geom.fh"
 #include "bq.fh"
 #include "smd_const_data.fh"
+#include "stdio.fh"
 c
       integer im
 c     
@@ -99,11 +100,11 @@ c     -------------------------------
       end do
       call smd_util_sort(nb+1,int_mb(i_rbq))
       call smd_util_sort(nb+1,int_mb(i_lbq))
-      write(44,*) "boundaries for bqs"
-      do i=1,nb+1
-        write(44,*) i,int_mb(i_lbq+i-1),
-     +              int_mb(i_rbq+i-1)
-      end do
+c      write(44,*) "boundaries for bqs"
+c      do i=1,nb+1
+c        write(44,*) i,int_mb(i_lbq+i-1),
+c     +              int_mb(i_rbq+i-1)
+c      end do
 c
 c     now do the charges
 c
@@ -112,6 +113,8 @@ c
         nbq=nbq+int_mb(i_rbq+i-1)-
      +              int_mb(i_lbq+i-1)+1
       end do
+      if(ga_nodeid().eq.0) 
+     +  write(luout,*) "Total number of Bq's",nbq
       if(.not.bq_create("monomer charges test",bq_handle))
      + call errquit(pname//'Failed bq_create',0,CALC_ERR)
 
@@ -132,8 +135,6 @@ c
          do k=1,3
             dbl_mb(i_cbq+3*(j-1)+k-1)=dbl_mb(i_c+3*(i-1)+k-1)
      >                                -dbl_mb(i_sht+k-1)       
-         write(102,*) dbl_mb(i_c+3*(i-1)+k-1),dbl_mb(i_sht+k-1),
-     >                dbl_mb(i_cbq+3*(j-1)+k-1)
          end do
          dbl_mb(i_qbq+j-1)=dbl_mb(i_q+i-1)
       end do
