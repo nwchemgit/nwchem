@@ -144,7 +144,7 @@ c
       do i=1,3*nbq
         dbl_mb(i_cbq+i-1) = dbl_mb(i_cbq+i-1)*scale
       end do
-      call bq_print_xyz(bq_handle,101)
+c      call bq_print_xyz(bq_handle,101)
 
       if(.not.bq_activate(bq_handle))
      + call errquit(pname//'Failed bq_activate',0,CALC_ERR)

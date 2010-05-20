@@ -103,6 +103,11 @@ c
       integer fn,i1
 c
       character*255 buffer,buffer1
+      logical result,ogroupio
+
+      call smd_rtdb_get_log("smd:groupio",1,ogroupio,result)
+      if(.not.result) return
+      if(.not.ogroupio) return
 
       close(luout)
       luout = 6
