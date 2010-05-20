@@ -1,4 +1,4 @@
-      function smd_monomer(itsk)
+      function smd_monomer()
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -7,15 +7,13 @@
 #include "errquit.fh"
 #include "global.fh"
       logical smd_monomer
-      integer im,itsk
+      integer im
       character*(30) theory
 c
       integer rtdb
       character*72 operation
-      character*72 namespace
       character*32 pname
       logical result
-      double precision qm_energy
       logical task_energy_doit
       external task_energy_doit
       logical task_optimize
@@ -28,20 +26,12 @@ c
       external esp
       integer util_sgroup_mygroup
       external util_sgroup_mygroup
-      logical mode
-      character*72 tag
-      character*256 movecs
-      character*256 rtdb_name
-      double precision e1, e2,e3,e4,e5,e6,e7,e8,e9,e10,e11
-      character*255 prefix, prefix0,key
-      integer i1
-      integer group_id
+      character*255 key
       logical noesp
 
       pname = "smd_monomer"
 
-      call smd_monomer_init(itsk,im,theory,operation,rtdb)
-c      write(*,*) "operation is", operation
+      call smd_monomer_init(im,theory,operation,rtdb)
       if(inp_compare(.false., 'energy', operation)) then
          result = task_energy(rtdb)
       else if(inp_compare(.false., 'gradient', operation)) then
@@ -61,9 +51,6 @@ c        call smd_global_print("coords")
         call errquit(pname//"unknown operation "//operation,0,0)
       end if
 c
-c      if(ga_nodeid().eq.0)
-c     >  write(*,*) "finished energy",theory,qm_energy
-c      
       if(.not.rtdb_get(rtdb,'smd:noesp',mt_log,1,noesp))
      +     noesp = .false.
 c
@@ -97,12 +84,12 @@ c
 
       smd_monomer = .true.
 
-      call smd_geom_monomer_end()
+      call smd_monomer_end()
       call util_message("finished "//pname)
       return
       end function
 
-      subroutine smd_monomer_init(itsk,im,theory,operation,rtdb)
+      subroutine smd_monomer_init(im,theory,operation,rtdb)
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -111,18 +98,16 @@ c
 #include "errquit.fh"
 #include "global.fh"
 #include "smd_const_data.fh"
-      integer itsk
       integer im
       character*(*) theory
       character*(*) operation
       integer rtdb
 c
-      character*72 namespace
       character*32 pname
-      integer group_id
       logical oscratch
-      character*(smd_string_size)  tag,sname,buffer
+      character*(smd_string_size)  tag,sname
       logical result 
+      integer itsk
 
       pname = "smd_monomer_init"
 c
@@ -131,23 +116,29 @@ c
       if(.not.result)
      >  call errquit(
      >       pname//'no component '//tag,0,0)
+c
+c     get actual task reference
+c     -------------------------
+      tag = "task:itsk"
+      call smd_data_get_int(sname,tag,1,itsk,result)
+      if(.not.result)
+     *     call errquit('cannot find'//tag,0,0)
+      write(luout,*) "found itsk",itsk
 c      
       tag="task:operation"
       call smd_data_get_string1(sname,tag,itsk,itsk,
      >                          operation)
-c      write(*,*) "found operation",operation
-c
-c      tag="task:theory"
-c      call smd_data_get_string1(sname,tag,itsk,itsk,
-c     >                          theory)
-c      write(*,*) "found theory",theory
 c
       tag = "task:frag_id"
       call smd_data_get_int1(sname,tag,itsk,itsk,im)
 c
+      tag = "task:itsk"
+      call smd_data_get_int(sname,tag,1,itsk,result)
+      if(.not.result)
+     *     call errquit('cannot find'//tag,0,0)
+c
       oscratch = .true.
       call smd_rtdb_push_open_clone(itsk,oscratch,rtdb)
-      write(luout,*) "now all my output hsould go here" 
 c     get the theory 
 c     --------------
       if (.not.(rtdb_cget(rtdb,'task:theory',1,theory)))
@@ -161,7 +152,6 @@ c      create geometry object
 c      ---------------------
       call smd_geom_init_system(im)
       call smd_bq_init()
-c      call smd_geom_monomer_create(im)
       call ga_sync()
 c
       call smd_message_post("out "//pname)
@@ -169,4 +159,25 @@ c
       return
       end subroutine
 
+      subroutine smd_monomer_end()
+      implicit none
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "bq.fh"
+#include "smd_const_data.fh"
+
+      character*30 pname
+      integer bq_handle
+    
+      pname = "smd_monomer_end"
+      if(bq_get_active(bq_handle)) then
+        if(.not.bq_destroy(bq_handle))
+     +   call errquit(pname//'Failed bq_destroy',0,CALC_ERR)
+      end if
+
+      call smd_rtdb_pop()
+ 
+      return
+      end subroutine
 
