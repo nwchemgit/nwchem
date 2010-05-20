@@ -374,36 +374,6 @@ c
   
       end
 c
-      subroutine smd_geom_monomer_end()
-      implicit none
-#include "errquit.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "global.fh"
-#include "geom.fh"
-#include "bq.fh"
-c
-      integer bq_handle
-
-      character*32 pname
-
-      pname = "smd_geom_end"
-      call smd_message_post("in "//pname)
-      if(bq_get_active(bq_handle)) then
-      call util_message("found bq, destroying it")
-
-      if(.not.bq_destroy(bq_handle))
-     + call errquit(pname//'Failed bq_destroy',0,CALC_ERR)
-
-      end if
-
-      call smd_rtdb_pop()
-      call smd_message_post("out "//pname)
-      return
-      end
-c
       subroutine smd_geom_cog(nt,nm,i0,c,cog)
 c     finds center of geometry for a give segment
 c     nt      [in]  total number of atoms

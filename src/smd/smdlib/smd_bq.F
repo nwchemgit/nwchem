@@ -23,7 +23,7 @@ c
       integer nbq,i_qbq,i_cbq
       double precision scale
       double precision cm(3)
-      integer i_nb,h_nb,nb
+      integer nb
       integer i_lbq,h_lbq,i_rbq,h_rbq
       logical nobq
       integer ng
@@ -78,11 +78,6 @@ c
       if(.not. result)  call errquit(
      >       pname//'error getting index for'//tag,0,0 )
 c      
-      tag = "neighbor_index"
-      call smd_data_get_ind_dim(sp_geom,tag,i_nb,nb,result)
-      if(.not. result)  call errquit(
-     >       pname//'error getting index for'//tag,0,0 )
-
       tag = "shift vector"
       call smd_data_get_index(sp_geom,tag,i_sht,result)
       if(.not. result)  call errquit(
