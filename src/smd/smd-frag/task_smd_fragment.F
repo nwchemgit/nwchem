@@ -1,4 +1,4 @@
-      function task_fragment_energy(rtdb)
+      function task_smd_fragment(rtdb)
       implicit none
       integer rtdb
 
@@ -8,14 +8,14 @@
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"
-      logical task_fragment_energy
+      logical task_smd_fragment
       logical result
 c
       character*30 pname
 c
       double precision energy
 c
-      pname = "task_fragment_energy"
+      pname = "task_smd_fragment"
 c
       call smd_init("fragment",rtdb)
       call ga_sync()
@@ -34,7 +34,7 @@ c
       energy =0.0d0
       if (.not. rtdb_put(rtdb,'fragment:energy',mt_dbl,1,energy))
      $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
-      task_fragment_energy = .true.
+      task_smd_fragment = .true.
 
       call util_message("done with task_smd_fragment_energy")
       if(ga_nodeid().eq.0) then
