@@ -63,7 +63,8 @@ c
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "errquit.fh"
-      logical task_smd_fragment
+      integer rtdb
+      logical task_smd_fragment_espcharge
       logical result
 c
       character*30 pname
@@ -71,40 +72,25 @@ c
 c
       double precision energy
 c
-      pname = "task_smd_fragment"
+      pname = "task_smd_fragment_esp_charge"
 c
       if (.not. rtdb_cget(rtdb,'task:operation', 1,operation))
      $      call errquit(pname,0, RTDB_ERR)
-c
-      call smd_init("fragment",rtdb)
-      call ga_sync()
-      if(operation.eq."espcharge")
-         call task_fragment_espcharge(rtdb)
-         goto 10
-      end if
 c
 c     close main rtdb as we may be going into groups
 c     ----------------------------------------------
       call smd_rtdb_close("keep")
 c
-      energy = 0.0d0
-      if(ga_nodeid().eq.0) 
-     +    call util_io_enable()
-      result = .true.
+      call task_fragment_populate()
       call smd_task_iterate()
 10    continue
       call smd_rtdb_open(rtdb)
       energy =0.0d0
-      if (.not. rtdb_put(rtdb,'fragment:energy',mt_dbl,1,energy))
-     $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
-      task_smd_fragment = .true.
+      task_smd_fragment_espcharge = .true.
 
-      call util_message("done with task_smd_fragment_energy")
       if(ga_nodeid().eq.0) then
        call smd_charge_write_default()
       end if
-      call smd_global_end()
-      call smd_end()
       return
       END
 
