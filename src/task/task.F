@@ -64,8 +64,8 @@ c
 c      logical task_pes
 c      external task_pes
 c
-      logical task_fragment_energy
-      external task_fragment_energy
+      logical task_smd_fragment
+      external task_smd_fragment
       external qmmm_init
 c
 c     external embed_init
@@ -204,7 +204,7 @@ c
 c 
 c
       if(osmd.and.ofragment) then
-         status = task_fragment_energy(rtdb)
+         status = task_smd_fragment(rtdb)
          call ga_sync()
          goto 99999
       end if
