@@ -117,6 +117,9 @@ c            oembed = .true.
      >                        'steepest_descent')) then
             operation='steepest_descent'
          else if (inp_compare(.false.,test,
+     >                        'espcharge')) then
+            operation='espcharge'
+         else if (inp_compare(.false.,test,
      >                        'Car-Parrinello')) then
             operation='Car-Parrinello'
          else if (inp_compare(.false.,test,
