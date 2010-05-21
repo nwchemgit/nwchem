@@ -47,39 +47,49 @@ c        call smd_global_print("gradients")
         call smd_global_update_res("coords","put",im)
         call ga_sync()
 c        call smd_global_print("coords")
-       else
-        call errquit(pname//"unknown operation "//operation,0,0)
-      end if
-c
-      if(.not.rtdb_get(rtdb,'smd:noesp',mt_log,1,noesp))
-     +     noesp = .false.
-c
-      if(noesp) goto 100
-c
-      if(theory.ne."dft") goto 100
-      if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
-     +     call errquit('esp: rtdb_put newgrd failed',0,0)
-
-
-      if(.not.esp(rtdb))
+      else if(inp_compare(.false., 'espcharge', operation)) then
+         result = task_energy(rtdb)
+         if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
+     +        call errquit('esp: rtdb_put newgrd failed',0,0)
+         if(.not.esp(rtdb))
      &    call errquit(pname//'failed esp call', 100,
      &                 RTDB_ERR)
+          call smd_geom_get_charges()
+          if(ga_nodeid().eq.0)
+     &         call smd_fragment_charge_set(im)
+      else
+        call errquit(pname//"unknown operation "//operation,0,0)
+      end if
+cc
+c      if(.not.rtdb_get(rtdb,'smd:noesp',mt_log,1,noesp))
+c     +     noesp = .false.
+cc
+c      if(noesp) goto 100
+cc
+c      if(theory.ne."dft") goto 100
+c      if(.not.rtdb_put(rtdb,'esp:newgrd',mt_int,1,1))
+c     +     call errquit('esp: rtdb_put newgrd failed',0,0)
 c
-      call util_message("finished esp")
 c
-      call smd_geom_get_charges()
-      if(ga_nodeid().eq.0)
-     &     call smd_fragment_charge_set(im)
- 
-      call util_message("finished smd_geom_get_charges")
-
+c      if(.not.esp(rtdb))
+c     &    call errquit(pname//'failed esp call', 100,
+c     &                 RTDB_ERR)
+cc
+c      call util_message("finished esp")
+cc
+c      call smd_geom_get_charges()
+c      if(ga_nodeid().eq.0)
+c     &     call smd_fragment_charge_set(im)
+c 
+c      call util_message("finished smd_geom_get_charges")
+c
 100   continue
 
       write(key,'(a,'':converged'')') theory(1:inp_strlen(theory))
       if (.not. rtdb_put(rtdb, key, mt_log, 1, .false.))
      &    call errquit(pname//'  rtdb_put', 0,
      &                 RTDB_ERR)
-      call smd_fragment_charge_print()
+c      call smd_fragment_charge_print()
 
       smd_monomer = .true.
 
