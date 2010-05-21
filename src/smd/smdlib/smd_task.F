@@ -114,12 +114,12 @@ c      end if
 c
 c     find if parallel mode is on
 c     ---------------------------
-      tag1="smd:fragment:parallel"
-      call smd_rtdb_get_log(tag1,1,oparallel,result)
-      if(.not.result) then
-        write(*,*) "need to set value for  "//tag1
-        call errquit("cannot find "//tag1,0,0)
-      end if
+c      tag1="smd:fragment:parallel"
+c      call smd_rtdb_get_log(tag1,1,oparallel,result)
+c      if(.not.result) then
+c        write(*,*) "need to set value for  "//tag1
+c        call errquit("cannot find "//tag1,0,0)
+c      end if
 
       tag1="task:operation"
       call smd_rtdb_get_string(tag1,1,operation,result)
@@ -131,8 +131,8 @@ c     ---------------------------
 c
 c     create task data structures
 c     ---------------------------
-      tag = "task:parallel"
-      call smd_data_put_log(namespace,tag,1,oparallel)
+c      tag = "task:parallel"
+c      call smd_data_put_log(namespace,tag,1,oparallel)
       tag = "task:ntasks"
       call smd_data_put_int(namespace,tag,1,nt)
       tag = "task:func_id"
