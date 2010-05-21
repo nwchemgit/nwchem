@@ -1,0 +1,23 @@
+MOL HOH
+#     index    name   type  mass      charge   
+ATOM  1        OW     O     15.999    -0.82
+ATOM  2       2HW     H     1.008     0.41
+ATOM  3       3HW     H     1.008     0.41
+
+BOND OW  2HW 1  1.0       0.0
+BOND OW  3HW 1  1.0       0.0
+BOND HW2 3HW 1  1.632993  0.0
+
+MOL WTT
+#     index    name   type  mass      charge   
+ATOM  1        O      O     15.999    -0.82
+ATOM  2        H1     H     1.008     0.41
+ATOM  3        H2     H     1.008     0.41
+
+BOND  O  H1   1 1.0       0.0
+BOND  O  H2   1 1.0       0.0
+BOND  H1 H2   1 1.632993  0.0
+
+
+POT   O  O  1  27290.95482 27.12257 0.00000
+
