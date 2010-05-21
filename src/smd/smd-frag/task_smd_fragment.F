@@ -13,9 +13,10 @@
 c
       character*30 pname
       character*30 operation
-c
       double precision energy
 c
+      logical task_smd_fragment_espcharge
+      external task_smd_fragment_espcharge
       pname = "task_smd_fragment"
 c
       if (.not. rtdb_cget(rtdb,'task:operation', 1,operation))
@@ -23,15 +24,15 @@ c
 c
       call smd_init("fragment",rtdb)
       call ga_sync()
-      if(operation.eq."espcharge")
-         call task_smd_fragment_espcharge(rtdb)
-         goto 10
-      end if
 c
 c     close main rtdb as we may be going into groups
 c     ----------------------------------------------
       call smd_rtdb_close("keep")
 c
+      if(inp_compare(.false., 'espcharge', operation)) then
+         result=task_smd_fragment_espcharge()
+         goto 10
+      end if
       energy = 0.0d0
       if(ga_nodeid().eq.0) 
      +    call util_io_enable()
@@ -53,10 +54,8 @@ c
       return
       END
 
-      function task_smd_fragment_espcharge(rtdb)
+      function task_smd_fragment_espcharge()
       implicit none
-      integer rtdb
-
 #include "inp.fh"
 #include "mafdecls.fh"
 #include "global.fh"
@@ -68,29 +67,40 @@ c
       logical result
 c
       character*30 pname
-      character*30 operation
+      character*30 operation,tag1
 c
       double precision energy
+      double precision eps,eps1
+      integer nc
+      integer i
 c
       pname = "task_smd_fragment_esp_charge"
+c      
+      tag1="smd:fragment:chargetol"
+      call smd_rtdb_get_dbl(tag1,1,eps,result)
+      if(.not.result) eps = 1.0D-4
+c      
+      tag1="smd:fragment:ncycles"
+      call smd_rtdb_get_int(tag1,1,nc,result)
+      if(.not.result) nc=10
 c
-      if (.not. rtdb_cget(rtdb,'task:operation', 1,operation))
-     $      call errquit(pname,0, RTDB_ERR)
-c
-c     close main rtdb as we may be going into groups
-c     ----------------------------------------------
-      call smd_rtdb_close("keep")
-c
-      call task_fragment_populate()
+      
+      call task_fragment_espcharge_populate("espcharge","t_espcharge")
+      call smd_system_set_component("task","t_espcharge")
+      do i=1,nc
       call smd_task_iterate()
-10    continue
-      call smd_rtdb_open(rtdb)
-      energy =0.0d0
-      task_smd_fragment_espcharge = .true.
-
+      call smd_fragment_charge_diff(eps1)
       if(ga_nodeid().eq.0) then
+       write(luout,*) "current charge difference is",eps1
        call smd_charge_write_default()
       end if
+      if(eps1.le.eps) then
+        if(ga_nodeid().eq.0) 
+     +        write(luout,*) "achieved charge convergence"
+         goto 10
+      end if
+      end do
+10    continue
       return
       END
 
@@ -179,7 +189,7 @@ c     -----------------
       return
       end
 
-      subroutine task_fragment_espcharge_populate()
+      subroutine task_fragment_espcharge_populate(operation,sname)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -189,12 +199,13 @@ c     -----------------
 #include "global.fh"
 #include "smd_const_data.fh"
 #include "smd_fids.fh"
+      character*(*) operation
+      character*(*) sname
 c     
       character*32 pname
       character*80 tag
       character*80 namespace
       character*80 tag1
-      character*30 operation
       integer nt,i1,i2,i,j
       integer i_ifr,i_sop,i_ifu
       logical result
@@ -219,28 +230,21 @@ c     ----------------------------------------------------
       end if
       nt = i2-i1+1
 c
-      tag1="task:operation"
-      call smd_rtdb_get_string(tag1,1,operation,result)
-      if(.not.result) then
-        write(*,*) "need to set value for  "//tag1
-        call errquit("cannot find "//tag1,0,0)
-      end if
-c
 c     create task namespace
 c     ---------------------
       namespace = "fragment task"
-      call smd_namespace_create(namespace)
+      call smd_namespace_create(sname)
 c
 c     create task data structures
 c     ---------------------------
       tag = "task:ntasks"
-      call smd_data_put_int(namespace,tag,1,nt)
+      call smd_data_put_int(sname,tag,1,nt)
       tag = "task:func_id"
-      call smd_data_create_get(namespace,tag,nt,MT_INT,i_ifu)
+      call smd_data_create_get(sname,tag,nt,MT_INT,i_ifu)
       tag = "task:frag_id"
-      call smd_data_create_get(namespace,tag,nt,MT_INT,i_ifr)
+      call smd_data_create_get(sname,tag,nt,MT_INT,i_ifr)
       tag = "task:operation"
-      call smd_data_create_get(namespace,tag,nt,MT_STR,i_sop)
+      call smd_data_create_get(sname,tag,nt,MT_STR,i_sop)
 c
 c    fill up fragment id
 c    -------------------
@@ -257,7 +261,6 @@ c
 c     fill in operation
 c     -----------------
       call smd_set_char_to_ma2(operation,nt,byte_mb(i_sop))
-      call smd_system_set_component("task",namespace)
 
       call util_message("out "//pname)
 
