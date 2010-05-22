@@ -290,7 +290,8 @@ c           Start with gas_phase run
 c
             cosmo_last = .true.
             cosmo_on = .true.
-            cosmo_phase = 1
+            if(.not.rtdb_get(rtdb,'cosmo_phase',mt_int,1,cosmo_phase))
+     >         cosmo_phase = 1
          endif
       endif
       oinitialized = .true.
