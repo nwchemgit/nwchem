@@ -38,7 +38,7 @@ c#include "subgr.fh"
  
       logical md_driver
       external md_driver
-      logical status 
+      logical status, task_qmmm 
       integer iw
       integer cntnrg
       theory=blanks
@@ -55,7 +55,7 @@ c#include "subgr.fh"
       cntnrg=0
       iw=6
       mc_driver=.false.      
-                
+      task_qmmm=.false.                
       write(iw,*) 'MC driver input parameters:\n
      $  number of steps, temperature, stepsize, ratio',
      &  mcstep,temp,stepsize,ratio
@@ -63,11 +63,18 @@ c#include "subgr.fh"
       nreject=0
 C will need an array of coordinaates      
 C allocate memory for the init_points array
+      if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
+     &    task_qmmm = .false.
+
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, thr))
      $     call errquit('mc_driver: theory not specified',0, RTDB_ERR)
       call concat(thr,task,theory)
 C      write(*,*) 'Theory is:  ',theory
 
+      if(task_qmmm) then
+        theory='qmmm:energy'
+      endif
+   
       if (.not. geom_create(geom, 'geometry'))
      & call errquit('mc_driver_getgeom: failed creating geometry',
      & 0,GEOM_ERR)
