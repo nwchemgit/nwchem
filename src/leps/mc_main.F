@@ -39,7 +39,7 @@
       logical ircflag,mc_data_set_forward,mc_data_set_backward
       integer i_sc, mc_data_get_i_sc, nonreact,reactive,reverse
       integer i_s, mc_data_get_i_s,mc_data_get_mcsteps
-      double precision avg,rc,temp,mc_data_get_temp
+      double precision avg,rc,rc1,temp,mc_data_get_temp
       logical md_data_set_temp
       logical mc_data_set_side_prev, mc_data_set_nxing
       logical mc_data_set_trajnum
@@ -367,6 +367,7 @@ C --- loop over trajectories finished
 
       if (ga_nodeid().eq.0) then
 c loop over each mdstep to get kappa for each step      
+       rc1=0.0
        do k=0,nsteps-1
           nonreact=0
           reactive=0
@@ -383,36 +384,48 @@ c      int_mb(i_sc+(trajnum-1)*2*nsteps+mdstep-1) = side
 c                if (dbug)
                  write(iw,*) 'tr number for non-reactive traj: ', i 
              else if (sidef.eq.mc_data_get_forside0()) then
-                reactive=reactive+1
-                dbl_mb(prp_tmp+i-1)=0.5*dbl_mb(prp_tmp+i-1)
+                dbl_mb(prp_tmp+i-1)=0.5*dbl_mb(prp_tmp+i-1)     
+c                 reactive=reactive+1
              else
-                reverse=reverse+1
+c                reverse=reverse+1
                 dbl_mb(prp_tmp+i-1)=-0.5*dbl_mb(prp_tmp+i-1)
+             endif
+             if (dbl_mb(prp_tmp+i-1).gt.0.0) then
+                reactive=reactive+1
+             else if (dbl_mb(prp_tmp+i-1).lt.0.0) then
+                reverse=reverse+1
              endif
           enddo
 
           j=0 
           avg=0 
 
+
           do i=0,mcsteps
             if (int_mb(i_s+i).eq.1) then
               j=j+1
             endif
-            if(dbug) then 
+c            if(dbug) then 
               write(iw,*) 'Mc step: ',i,'adding: ',j,' val: ',
      &        dbl_mb(prp_tmp+j-1)
-            endif
+c            endif
               avg=avg+dbl_mb(prp_tmp+j-1)
           enddo
 
           avg=avg/(mcsteps+1)
           temp = mc_data_get_temp()
-          rc =avg/sqrt((temp*boltz)/(twopi))
+          rc=avg
+c          rc =avg/sqrt((temp*boltz)/(twopi))
+
+          if(k.eq.0) rc1=rc
 
           write(iw,9001) 'non-reactive, reactive,reverse traj: ',
      &         nonreact,reactive,reverse
-c       write(iw,*)  ' Average prp value: ',avg
-          write(iw,9002)  'MD Step,  Recrossing coef: ',k+1,rc
+          write(iw,*)  ' Average prp value: ',avg
+          write(iw,*)  'Analytical avg: ',sqrt((temp*boltz)/(twopi)) 
+          write(iw,9002)  'MD Step,  Recrossing coef: ',k+1,rc/rc1
+          write(iw,9002)  'MD Step,  Recrossing coef anl: ',k+1,
+     $          rc/sqrt((temp*boltz)/(twopi))          
 C   --- reset the original prp values         
           do i=1,naccept+1
              dbl_mb(prp_tmp+i-1) = dbl_mb(prp+i-1)
