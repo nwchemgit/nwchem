@@ -58,6 +58,7 @@ c      write(*,*) 'after concat'
 
 
       nsteps = md_data_get_nsteps()
+      if (mc_data_get_ifirc()) nsteps=1
       dt = md_data_get_timestep()   
       temp =md_data_get_temp()
       write(iw,*) '\nInput parameters: \nNumber of steps, stepsize, 
@@ -187,7 +188,7 @@ c --- calculate energy for the corrected geometry
      &                 RTDB_ERR)
          Etot=ek+E1
          if (ga_nodeid().eq.0) then
-           write(iwtr,*) natom
+           write(iwtr,1001) natom
            write(iwtr,1000) '@MD trajectory ',trajnum, ' MD step ',
      &   step,' V: ',E1,' Ek: ',ek,' Tot E: ',Etot
  
@@ -212,6 +213,7 @@ C      endif
       md_driver=.true. 
       return
  1000 format(A,i4,a,i4,a,F14.8,a,F14.8,a,F14.8)
+ 1001 format(i4)
       end
 
       subroutine predict (n,dt,r,v,a,b,c )
@@ -565,7 +567,6 @@ c         write(iw,9010) 'init values are:i,r,b,c:',i,r(i),b(i),c(i)
        double precision c(3,n),cnv
        character*16 t(n)
        cnv=1.889725989
-       cnv=1.0
 c       if (rfile.eq.10) then
 c        write(rfile,*) n 
 c        write(rfile,*) 
