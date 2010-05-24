@@ -42,7 +42,7 @@ c
       endif
 c
       if(fmt.eq.'pdb') then
-      call dia_wrtpdb(lfncop,fil,byte_mb(i_snam),int_mb(i_isel),
+      call dia_wrtpdb(.true.,lfncop,fil,byte_mb(i_snam),int_mb(i_isel),
      + dbl_mb(i_xadat),int_mb(i_wsel),dbl_mb(i_wdat),.false.,.false.,
      + int_mb(i_ndxw))
       elseif(fmt.eq.'xyz') then

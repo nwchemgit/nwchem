@@ -419,11 +419,11 @@ c
       call ga_dgop(mag_d01,vmax,1,'max')
       call ga_dgop(mag_d02,vmin,1,'min')
       if(val(ivmax).eq.vmax) then
-      call dia_wrtpdb(lfnmax,filmax,byte_mb(i_snam),isel,
+      call dia_wrtpdb(.true.,lfnmax,filmax,byte_mb(i_snam),isel,
      + xprj(1,1,ivmax),isel,xprj,.true.,.false.,isel)
       endif
       if(val(ivmin).eq.vmin) then
-      call dia_wrtpdb(lfnmin,filmin,byte_mb(i_snam),isel,
+      call dia_wrtpdb(.true.,lfnmin,filmin,byte_mb(i_snam),isel,
      + xprj(1,1,ivmin),isel,xprj,.true.,.false.,isel)
       endif
 c

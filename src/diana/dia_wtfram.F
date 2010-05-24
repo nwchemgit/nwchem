@@ -265,7 +265,7 @@ c
       if(fmt.eq.'pdb') then
 c      write(fname,'(a,i5.5,a)') root(1:index(root,'.')-1),indx,'.pdb '
 c      write(*,'(a,a)') 'Writing ',fname
-      call dia_wrtpdb(lfncop,fname,sgmnam,isel,x,iwsel,w,
+      call dia_wrtpdb(.false.,lfncop,fname,sgmnam,isel,x,iwsel,w,
      + logs,logw,ndxw,ifr)
       endif
 c
