@@ -1,36 +1,18 @@
-      block data initial_smd_system_data
+      subroutine smd_comp_init_system()
       implicit none
-#include "smd_system_data.fh"
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
 c     
-      data smd_system_cname /smd_system_nc*" "/
+      character*(smd_string_size) namespace
 
-      data smd_system_rname /"atom",
-     c                       "parameters",
-     c                       "lattice",
-     c                       "type",
-     c                       "potential",
-     c                       "coordinates",
-     c                       "global",
-     c                       "charge",
-     c                       "fragment",
-     c                       "velocity",
-     c                       "mass",
-     c                       "energy",
-     c                       "force",
-     c                       "excl_list",
-     c                       "verlet_list",
-     c                       "shakelist",
-     c                       "bondlist",
-     c                       "cutoff",
-     c                       "temperature",
-     c                       "rtdb",
-     c                       "ewald",
-     c                       "task",
-     c                       "geom",
-     c                       "bq",
-     c                       "bond"/
-
-
+      namespace = "component"
+      call smd_namespace_create(namespace)
+      return
       end
 
       subroutine smd_system_set_component(aname,sp_name)
@@ -40,12 +22,13 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
-#include "smd_system_data.fh"
+#include "smd_const_data.fh"
 c     
       character*(*) aname
       character*(*) sp_name
 c
-      character*32 pname,tag
+      character*(smd_string_size) namespace
+      character*(smd_string_size) pname,tag
       integer nrec
       integer i
       logical result
@@ -53,21 +36,42 @@ c
 c
       pname = "smd_system_set_component"
 c
+      namespace = "component"
+c
 c      write(*,*) "in "//pname
 c
-c     case sensitive
-      ocase = .true.
+      call smd_data_put_string(namespace,aname,1,sp_name)
 c
-      nrec = smd_system_nc
-c
-      tag = aname
-      result = inp_match(nrec,ocase,aname,smd_system_rname,i)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'no component '//tag,0, RTDB_ERR)
+      return
+      end
 
-      smd_system_cname(i) = sp_name
-      
+      subroutine smd_system_get_component(aname,sp_name,result)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+c     
+      character*(*) aname
+      character*(*) sp_name
+      logical result
+c
+      character*(smd_string_size) namespace
+      character*(smd_string_size) pname,tag
+      integer nrec
+      integer i
+      logical ocase
+c
+      pname = "smd_system_set_component"
+c
+      namespace = "component"
+c
+c      write(*,*) "in "//pname
+c
+      call smd_data_get_string(namespace,sp_name,1,aname,result)
+c
       return
       end
 
@@ -78,72 +82,25 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
-#include "smd_system_data.fh"
+#include "smd_const_data.fh"
 c     
       character*(*) aname
+      logical result
 c
-      character*32 pname,tag
+      character*(smd_string_size) namespace
+      character*(smd_string_size) pname,tag
       integer nrec
       integer i
-      logical result
       logical ocase
 c
       pname = "smd_system_set_component"
 c
-c      write(*,*) "in "//pname
-c
-c     case sensitive
-      ocase = .true.
-c
-      nrec = smd_system_nc
-c
-      tag = aname
-      result = inp_match(nrec,ocase,aname,smd_system_rname,i)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'no component '//tag,0, RTDB_ERR)
-
-      smd_system_cname(i) = " "
-      
-      return
-      end
-
-      subroutine smd_system_get_component(sp_name,aname,oexist)
-      implicit none
-#include "errquit.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "global.fh"
-#include "smd_system_data.fh"
-c     
-      character*(*) aname
-      character*(*) sp_name
-c
-      character*32 pname,tag
-      integer nrec
-      integer i
-      logical oexist,result
-      logical ocase
-c
-      pname = "smd_system_get_component"
+      namespace = "component"
 c
 c      write(*,*) "in "//pname
 c
-c     case sensitive
-      ocase = .true.
+      call smd_data_destroy(namespace,aname,result)
 c
-      nrec = smd_system_nc
-c
-      tag = aname
-      result = inp_match(nrec,ocase,aname,smd_system_rname,i)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'no component '//tag,0, RTDB_ERR)
-
-      sp_name = smd_system_cname(i)
-      oexist = sp_name.ne." "
-      
       return
       end
 
@@ -162,13 +119,9 @@ c
 c
       character*30 pname
       pname = "smd_system_print"
+
+      call smd_data_namespace_print("component",un)
 c
-      do i=1,smd_system_nc
-        if(smd_system_cname(i).ne."") then
-        write(un,'(A16,"= ",A16)') smd_system_rname(i),
-     >                 smd_system_cname(i)
-        end if
-      end do
       
       return
       end

@@ -323,12 +323,17 @@ c
 c     get lattice params if any
 c     -------------------------
       call smd_system_get_component(sp_lattice,"lattice",result)
+      write(*,*) "lattice result",result,
+     +     ga_nodeid()
       if(.not.result) then
-        call util_warning(
-     >       pname//'skipping reboxing as there is no lattice ',0,0)
-        return
+c        call util_warning(
+c     >       pname//'skipping reboxing as there is no lattice ',0,0)
+c        return
+         goto 10
       end if
 
+      write(*,*) "before smd_data_get_index in lattice",
+     +     ga_nodeid()
       tag = "lat:cell"
       call smd_data_get_index(sp_lattice,tag,i_lc,result)
       if(.not. result)
@@ -346,5 +351,6 @@ c     -------------------------
      >                    dbl_mb(i_lrc),
      >                    c)
 
+10    continue
       return
       end
