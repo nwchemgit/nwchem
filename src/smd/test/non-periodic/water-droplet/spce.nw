@@ -1,0 +1,48 @@
+echo
+memory total 2000 Mb
+start test 
+
+permanent_dir ./perm
+scratch_dir ./data
+
+smd
+# veloc input random output spce.vel
+# charge input charge.dat0 output charge.dat
+ coord h2o_opt.pdb
+ param smd.par
+ rcut 9.0
+ verlet 1.9
+# verlet 9.5
+ ewald 0.35
+ kvec 6 6 6 
+end
+
+
+basis noprint
+* library 6-31G
+end
+
+
+dft
+print medium
+#xc b3lyp
+xc hfexch
+iterations 200
+noio
+direct
+GRID nodisk
+end
+
+esp
+print medium
+end
+
+set smd:fragment:istart 1
+set smd:fragment:iend 1
+set smd:fragment:parallel .false.
+
+set smd:subgroups 1
+set dft:xcreplicated f
+set fock:replicated .false.
+
+task smd fragment dft gradient
