@@ -5,7 +5,6 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
-#include "smd_system_data.fh"
 c
       logical smd_system_periodic
 c     
@@ -31,7 +30,6 @@ c     --------------
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
-#include "smd_system_data.fh"
 c
       logical smd_system_shake
 c     
@@ -158,7 +156,6 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
-#include "smd_system_data.fh"
 c
       double precision t
       logical smd_system_tstep
@@ -184,7 +181,6 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
-#include "smd_system_data.fh"
 c
       integer nd
       logical smd_system_ndata

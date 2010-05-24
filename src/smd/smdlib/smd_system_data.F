@@ -111,7 +111,6 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "global.fh"
-#include "smd_system_data.fh"
 c     
       integer un
 c
