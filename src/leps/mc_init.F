@@ -12,7 +12,7 @@
 #include "geom.fh"
 
       logical     ircflag 
-      integer     natom,geom, i,k,l, ivib, gseed
+      integer     natom,geom, i,k,l, ivib, gseed,mode
       integer     c_start,c_array
       integer     tag,charge,mass,force
       integer     mc_data_get_i_c_array,mc_data_get_i_c
@@ -20,7 +20,7 @@
       integer     mc_data_get_i_m, mc_data_get_i_f
       integer     naccept, mc_data_get_naccept
       integer     mc_data_get_i_in_vel, mc_data_get_i_in_acc
-      integer     mc_data_get_i_prp 
+      integer     mc_data_get_i_prp, mc_data_get_mode 
       integer     prp,vel,acc  
       integer     i_eval,mc_data_get_i_eval,i_evec,mc_data_get_i_evec
       double precision kB,temp,temp10,vau,pimg      
@@ -70,7 +70,8 @@ C                             ( = ATOMIC MASS UNIT IN GRAMS )
 C      boltz   = 1.380662D-16
 C                             ( = BOLTZMANN CONSTANT IN ERG/DEG. )
 
-
+      mode=0
+      mode=mc_data_get_mode()
       gseed = -1234
       kB = boltz
       temp = mc_data_get_temp()
@@ -136,6 +137,7 @@ c         call printcoord(iw,natom,dbl_mb(force),byte_mb(tag))
                 vau=0.0
             else
                 vau=gks_gasdev(gseed)*sqrt(kb*temp)
+                if(ivib.eq.1) vau=abs(vau) 
                 vau=vau*(unitt/unitl/sqrt(uma))
 c                vau=0.005449
             endif
@@ -213,17 +215,35 @@ C----- set the velocity and acc to zero
          enddo
 c         write(*,*) "MC-init: temperature is:",temp  
          do ivib=1,3*natom
-            if (abs(dbl_mb(i_eval+ivib-1)).lt.0.1) then
+            vau=gks_gasdev(gseed)*sqrt(kb*temp)
+            if (ivib.eq.1) then
+                 vau=abs(vau)
+                 pimg=vau
+                 dbl_mb(prp+i-1)=pimg
+            else if (abs(dbl_mb(i_eval+ivib-1)).lt.0.1.or.
+     $      (ivib.eq.mode)) then
                 vau=0.0
             else
-                vau=gks_gasdev(gseed)*sqrt(kb*temp)
-                if (ivib.eq.1) then
-                    pimg=vau
-                    dbl_mb(prp+i-1)=pimg
-                endif
-                vau=vau*(unitt/unitl/sqrt(uma))
+c              write(iw,*) 'Before conversion vau is: ', vau
+              vau=vau
+            endif 
+            vau=vau*(unitt/unitl/sqrt(uma))
+C  the energy is multiplied by 3N-7 because it's 1 mode 
+c            if (abs(dbl_mb(i_eval+ivib-1)).lt.0.1.or.
+c     $      .not.(ivib.eq.mode)) then
+c                vau=0.0
+c            else
+c                vau=gks_gasdev(gseed)*sqrt(kb*temp)
+c                if (ivib.eq.1) then
+c                    pimg=vau
+c                    dbl_mb(prp+i-1)=pimg
+c                endif
+c                vau=(3*natom-7)*vau*(unitt/unitl/sqrt(uma))
+c            endif
+            if (vau.ne.0.0) then 
+               write(iw,*) 'For i,ivib:',i,ivib,' vau is: ', vau
+               write(iw,*) 'For i,ivib:',i,ivib,' pimg is: ', pimg
             endif
-c            write(*,*) 'For ivib:',ivib,' vau is: ', vau
             do k=1,3*natom
                dbl_mb(vel+(i-1)*3*natom+k-1) = 
      &            dbl_mb(vel+(i-1)*3*natom+k-1)
