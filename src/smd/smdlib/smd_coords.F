@@ -462,6 +462,9 @@ c
       if(ga_nodeid().eq.0) then
       call util_file_name("pdb", oscratch, .false., fname) 
       call smd_coords_print_pdb(fname)
+      write(*,*) "saved coord file into",
+     +    ga_pgroup_nodeid(ga_pgroup_get_world()),
+     +    fname
       end if
       return
       end
@@ -536,5 +539,24 @@ c
 9000  FORMAT("ATOM",T7,I5,T13,4A,T18,3A,T23,
      >       I4,T31,F8.3,T39,F8.3,T47,F8.3)
 
+      return
+      end
+
+      subroutine smd_coord_write_default()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      character*(255) filename
+      logical result
+      call smd_coordfile_output(filename,result)
+c
+      if(result) then
+        call smd_coords_print_pdb(filename) 
+      end if
       return
       end

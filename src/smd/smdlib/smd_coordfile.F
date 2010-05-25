@@ -338,3 +338,23 @@ c     first check if source file was already defined in geom
 
       end
 
+      subroutine smd_coordfile_output(filename,result)
+      implicit none
+#include "rtdb.fh"
+#include "smd_rtdb_data.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+
+c
+      character*(*) filename
+      logical result
+c
+      character*30 pname
+
+      pname = "smd_coordfile"
+
+      call smd_rtdb_get_string("smd:coord:output",1,
+     >                           filename,result)
+
+      end
+
