@@ -99,8 +99,9 @@ C-------- Store the gradient into the database
      & call errquit('leps_gradient:  no grad ', 0,
      & RTDB_ERR)
 
-
-      call leps_gradient0(natom,nelem,dbl_mb(i_g))
+      if(ga_nodeid().eq.0) then
+         call leps_gradient0(natom,nelem,dbl_mb(i_g))
+      endif
 
       if(.not.ma_free_heap(h_c))
      &     call errquit('memory deallocation:coord',0,RTDB_ERR)
@@ -179,16 +180,17 @@ c
 
 c------from leps energy
       double precision c(3,3),dr(3,3,3),dvk(3,3,3),dvj(3,3,3)
-      double precision r(3),vj(3),sqrj
-      double precision de(3),alp(3),re(3),del(3)
+      double precision r(3),e1(3),e3(3),vj(3),sqrj
+      double precision d1(3),be1(3),re1(3),d3(3),be3(3),re3(3)
       double precision tobohr, tohartree
       parameter (tobohr=0.529177249d+00)
       parameter (tohartree=627.509451d+00)
-      data de     /109.4d+00,109.4d+00,109.4d+00/
-      data alp    /1.943d+00,1.943d+00,1.943d+00/
-      data re     /0.741d+00,0.741d+00,0.741d+00/
-      data del    /0.135d+00,0.135d+00,0.135d+00/
-
+      data d1     /234.524674,234.524674,64.925971/
+      data be1    /0.929968,0.929968,0.432955/
+      data re1    /1.776382,1.776382,2.094857/
+      data d3     /220.244820,220.244820,284.999867/
+      data be3    /4.822681,4.822681,1.016811/
+      data re3    /1.785014,1.785014,2.186060/
       out1=.false.
       dot=0.0
       cosa=0.0 
@@ -261,25 +263,25 @@ c      write (*,*) 'dr(3,3,3):',dr(3,3,3)
 c      write(6,*) 'dr  = ',dr
       if(coll) then
       do i=1,3
-            vj(i)=  (de(i)/(4.0*(1.0+del(i))))*
-     1     (     (1.0  +3.0*del(i))*exp(-2.0*alp(i)*(r(i)-re(i)))
-     2      -2.0*(3.0+      del(i))*exp(-    alp(i)*(r(i)-re(i))) )
+            e1(i) = d1(i)*(1.0 - exp(-be1(i)*(r(i)-re1(i))))**2-d1(i)
+            e3(i) = d3(i)*(1.0 + exp(-be3(i)*(r(i)-re3(i))))**2-d3(i)
+C            vk(i) = (e1(i) + e3(i))/2.0
+            vj(i) = (e1(i) - e3(i))/2.0
       enddo
 
 
       do jat=1,n
         do j=1,3
           do i=1,3
-            dvk(i,j,jat)=  (de(i)/(4.0*(1.0+del(i))))*
-     1     (     (3.0+      del(i))*exp(-2.0*alp(i)*(r(i)-re(i)))
-     2                               *   (-2.0*alp(i)* dr(i,j,jat))
-     3      -2.0*(1.0  +3.0*del(i))*exp(-    alp(i)*(r(i)-re(i)))
-     4                               *   (-    alp(i)* dr(i,j,jat)) )
-            dvj(i,j,jat)=  (de(i)/(4.0*(1.0+del(i))))*
-     1     (     (1.0  +3.0*del(i))*exp(-2.0*alp(i)*(r(i)-re(i)))
-     2                               *   (-2.0*alp(i)* dr(i,j,jat))
-     3      -2.0*(3.0+      del(i))*exp(-    alp(i)*(r(i)-re(i)))
-     4                               *   (-    alp(i)* dr(i,j,jat)) )
+            dvk(i,j,jat)= d1(i)*(1.0 - exp(-be1(i)*(r(i)-re1(i))))*
+     1      -exp(-be1(i)*(r(i)-re1(i)))*-be1(i)* dr(i,j,jat)
+     2      +             (d3(i)*(1.0 - exp(-be3(i)*(r(i)-re3(i))))*
+     3      -exp(-be3(i)*(r(i)-re3(i)))*-be3(i)* dr(i,j,jat))
+
+            dvj(i,j,jat)= d1(i)*(1.0 - exp(-be1(i)*(r(i)-re1(i))))*
+     1      -exp(-be1(i)*(r(i)-re1(i)))*-be1(i)* dr(i,j,jat)
+     2      -             (d3(i)*(1.0 - exp(-be3(i)*(r(i)-re3(i))))*
+     3      -exp(-be3(i)*(r(i)-re3(i)))*-be3(i)* dr(i,j,jat))
           enddo
         enddo
       enddo

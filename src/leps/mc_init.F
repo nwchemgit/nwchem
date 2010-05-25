@@ -23,6 +23,7 @@
       integer     mc_data_get_i_prp, mc_data_get_mode 
       integer     prp,vel,acc  
       integer     i_eval,mc_data_get_i_eval,i_evec,mc_data_get_i_evec
+      integer     mc_data_get_gseed
       double precision kB,temp,temp10,vau,pimg      
       double precision mc_data_get_temp,gks_gasdev
       logical     grad
@@ -73,6 +74,7 @@ C                             ( = BOLTZMANN CONSTANT IN ERG/DEG. )
       mode=0
       mode=mc_data_get_mode()
       gseed = -1234
+      gseed = -abs(mc_data_get_gseed())
       kB = boltz
       temp = mc_data_get_temp()
       temp10=10.0   

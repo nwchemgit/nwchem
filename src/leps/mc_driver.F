@@ -32,7 +32,7 @@ c#include "subgr.fh"
       character*64 theory,blanks
       character*32 thr,task
       data blanks(1:64) /' '/
-      double precision seed,nseed
+      double precision seed,nseed,mc_data_get_seed
       integer iworld,idef
       COMMON/DYSEED/SEED,NSEED
  
@@ -46,6 +46,7 @@ c#include "subgr.fh"
       call mc_data_inp_set(rtdb)
       natom=0
       seed= 523.4
+      seed = mc_data_get_seed()
       mcstep=mc_data_get_mcsteps() ! number of monte carlo steps  
       temp=mc_data_get_temp()      ! temperature, should be the same as in md
       stepsize=mc_data_get_stepsize() ! stepsize scale for the geometry displacement

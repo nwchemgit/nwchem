@@ -152,10 +152,13 @@ c      double precision leps_energy_test
       eleps = 0.15 
 
       end
+
       subroutine leps_energy1(n,c0,eleps)
 c      subroutine leps_energy1(n,c0,eleps)
 C THis function calculates the leps energy and returns teh value
 C n is the number of atoms, c is array holding the coordinates 
+C coef for SN2 reaction Cl-Ch3-Cl-
+C ref. J.Chem.Phys Vol86, No3, 1356. Bergsma et.al.
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"
@@ -169,17 +172,20 @@ C n is the number of atoms, c is array holding the coordinates
 c      double precision leps_energy1
       integer n
       double precision c(3,3),c0(3,3),eleps
-      double precision r(3),vk(3),vj(3),vleps
-      double precision dot,cosa,small,de(3),alp(3),re(3),del(3)
+      double precision r(3),e1(3),e3(3),vq(3),vj(3),vleps
+      double precision dot,cosa,small
+      double precision d1(3),be1(3),re1(3),d3(3),be3(3),re3(3)
       double precision tobohr, tohartree
       integer i,j 
       logical coll,out1
       parameter (tobohr=0.529177249d+00)
       parameter (tohartree=627.509451d+00)
-      data de     /109.4d+00,109.4d+00,109.4d+00/
-      data alp    /1.943d+00,1.943d+00,1.943d+00/
-      data re     /0.741d+00,0.741d+00,0.741d+00/
-      data del    /0.135d+00,0.135d+00,0.135d+00/
+      data d1     /234.524674,234.524674,64.925971/
+      data be1    /0.929968,0.929968,0.432955/
+      data re1    /1.776382,1.776382,2.094857/
+      data d3     /220.244820,220.244820,284.999867/
+      data be3    /4.822681,4.822681,1.016811/
+      data re3    /1.785014,1.785014,2.186060/
 
       small = 1d-10
       out1=.false.
@@ -226,29 +232,26 @@ C if a=180 or 0 degrees, cosa== -1 or 1
               
       if(out1) then
          write(*,*) 'coll=',coll 
-         write(*,*) 'de     = ',de
-         write(*,*) 'alp    = ',alp
-         write(*,*)  're     = ',re
-         write(*,*) 'del    = ',del
+         write(*,*) 'd     = ',d1,d3
+         write(*,*) 'be    = ',be1,be3
+         write(*,*)  're     = ',re1,re3
       endif
       if(coll) then
          do i=1,3
-            vk(i)=  (de(i)/(4.0*(1.0+del(i))))*
-     1     (     (3.0+      del(i))*exp(-2.0*alp(i)*(r(i)-re(i)))
-     2      -2.0*(1.0  +3.0*del(i))*exp(-    alp(i)*(r(i)-re(i))) )
-            vj(i)=  (de(i)/(4.0*(1.0+del(i))))*
-     1     (     (1.0  +3.0*del(i))*exp(-2.0*alp(i)*(r(i)-re(i)))
-     2      -2.0*(3.0+      del(i))*exp(-    alp(i)*(r(i)-re(i))) )
+            e1(i) = d1(i)*(1.0 - exp(-be1(i)*(r(i)-re1(i))))**2-d1(i)
+            e3(i) = d3(i)*(1.0 + exp(-be3(i)*(r(i)-re3(i))))**2-d3(i)
+            vq(i) = (e1(i) + e3(i))/2.0
+            vj(i) = (e1(i) - e3(i))/2.0
          enddo
-         vleps= vk(1)+vk(2)+vk(3)
-     1         -sqrt(((vj(1)-vj(2))**2 + (vj(2)-vj(3))**2 +
-     2                (vj(1)-vj(3))**2                      )/2.0 )
+         vleps = vq(1)+vq(2)+vq(3)  
+     1         -sqrt(vj(1)**2+vj(2)**2+vj(3)**2
+     2              -vj(1)*vj(2)-vj(2)*vj(3)-vj(3)*vj(1))
 
 C------- convert the energy from kcal_mol (because de is inkcal_mol) to hartree
          eleps=vleps/tohartree
          if(out1) then
              write(6,*)'r      = ',r
-             write(6,*)'vk     = ',vk
+             write(6,*)'vq     = ',vq
              write(6,*)'vj     = ',vj
              write(6,*)'eleps (hartree) = ',eleps
 c            call fiflsh(iw)
