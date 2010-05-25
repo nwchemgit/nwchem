@@ -8,7 +8,7 @@ scratch_dir ./data
 smd
 # veloc input random output spce.vel
 # charge input charge.dat0 output charge.dat
- coord h2o_opt.pdb
+ coord input h2o_opt.pdb
  param smd.par
  rcut 9.0
  verlet 1.9
