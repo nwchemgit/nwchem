@@ -2060,6 +2060,7 @@ c
 #include "global.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "stdio.fh"
       integer geom, istep
 c
 c     Print out stuff
@@ -2086,9 +2087,9 @@ c
       if (oprint) then 
          mark = '@'
          if (istep .gt. 1) mark = ' '
-         write(6,1) mark, mark
+         write(luout,1) mark, mark
          mark = '@'
-         write(6,2) mark, istep-1, energy, de,
+         write(luout,2) mark, istep-1, energy, de,
      $     gmax, grms, xrms, xmax, util_wallsec(),
      $     cvg1, cvg2, cvg3, cvg4
  1       format(
@@ -2111,13 +2112,13 @@ c
             diff = diff + abs(g(i)-gq(i))
          enddo
          if (diff .gt. 1d-6)
-     $        write(6,*) ' Internal coordinate gradient before',
+     $        write(luout,*) ' Internal coordinate gradient before',
      $        ' constraints'
          if (.not. geom_print_zmatrix(geom, gq, 'Gradient',.true.))
      $        call errquit('tfgx: print internal gradient?',geom,
      &       GEOM_ERR)
          if (diff .gt. 1d-6) then
-            write(6,*) ' Internal coordinate gradient after',
+            write(luout,*) ' Internal coordinate gradient after',
      $           ' constraints'
             if (.not. geom_print_zmatrix(geom, g, 'Gradient',.true.))
      $           call errquit('tfgx: print internal gradient?',geom,
