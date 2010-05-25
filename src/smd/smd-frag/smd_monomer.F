@@ -60,7 +60,7 @@ c        call smd_global_print("coords")
       else
         call errquit(pname//"unknown operation "//operation,0,0)
       end if
-      call smd_coords_save(im,.true.)
+      call smd_coords_save(.true.)
 cc
 c      if(.not.rtdb_get(rtdb,'smd:noesp',mt_log,1,noesp))
 c     +     noesp = .false.
