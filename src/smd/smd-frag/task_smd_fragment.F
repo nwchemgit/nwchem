@@ -136,8 +136,8 @@ c
       if(.not.result) nc=10
 c
       call smd_global_create_copy("coords",gh)      
-      call task_fragment_optim_populate("optimization","t_opt")
-      call smd_system_set_component("task","t_espcharge")
+      call task_fragment_optim_populate("optimize","t_opt")
+      call smd_system_set_component("task","t_opt")
 
       do i=1,nc
       call smd_task_iterate()
