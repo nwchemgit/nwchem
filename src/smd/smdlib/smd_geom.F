@@ -182,6 +182,7 @@ c
 #include "global.fh"
 #include "geom.fh"
 #include "smd_const_data.fh"
+#include "smd_system.fh"
 c
       logical geom_cart_set_gen1
       external geom_cart_set_gen1
@@ -207,8 +208,11 @@ c
       logical result
       integer igroup
       integer un
+      logical operiodic
 c
       pname = "smd_geom_create_0"
+c
+      operiodic = smd_system_periodic()
 c
       call smd_group_id_get(igroup)
 c
@@ -227,7 +231,6 @@ c
       call smd_data_get_ind_dim(sp_geom,tag,i_nm,m,result)
       if(.not. result)  call errquit(
      >       pname//'error getting index for'//tag,0,0 )
-c    
 c
       ns = smd_string_size
 c     
@@ -274,10 +277,21 @@ c
       if(.not.ma_push_get(mt_byte,n1*smd_string_size,'tmp t',h_t1,i_t1))
      + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
 c
-      call smd_geom_cog(n,int_mb(i_nm),int_mb(i_im),
+c     determine translation vector to put 1st residue in the center
+c     -------------------------------------------------------------
+      if(operiodic) then
+        call smd_geom_cog(n,int_mb(i_nm),int_mb(i_im),
      +                  dbl_mb(i_c),shift)
+      else
+        do i=1,3
+          shift(i) = 0.0d0
+        end do
+      end if
       tag = "shift vector"
       call smd_data_put_dbl(sp_geom,tag,3,shift)
+c
+c     copy geometry of the region into temp buffers
+c     ---------------------------------------------
       j=0
       do i=1,m
        i0=int_mb(i_im+i-1)-1
@@ -296,12 +310,16 @@ c
          end do
        end do
       end do
-      call smd_lat_rebox(n1,dbl_mb(i_c1)) 
+      if(operiodic)
+     + call smd_lat_rebox(n1,dbl_mb(i_c1)) 
 
-       i0=1
+c
+c     create geometry
+c     ---------------
        if(.not.geom_create(igeom,"geometry"))
      + call errquit('qmmm: Failed to create geometry',0, GEOM_ERR)
 
+      i0=1
       if(.not.geom_cart_set_gen1(igeom,i0,n1,n1,smd_string_size,
      + byte_mb(i_t1),dbl_mb(i_c1),dbl_mb(i_q1)))
      + call errquit('qmmm: Failed to initialize geometry',0, GEOM_ERR)
@@ -328,6 +346,8 @@ c
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 
 c
+c     set active atoms for optimizations (this really should not be here)
+c     -----------------------------------------------------------------
       nact = int_mb(i_nm)
       if(.not.ma_push_get(mt_int,nact,'tmp',h_act,i_act))
      + call errquit(pname//'Failed to allocate memory for tmp l',
@@ -340,19 +360,7 @@ c
      $       call errquit(pname,0,
      &       RTDB_ERR)
 
-      if(.not.ma_pop_stack(h_act))
-     & call errquit(pname//'Failed to deallocate stack h_l',0,
-     &       MA_ERR)
-      if(.not.ma_pop_stack(h_t1))
-     & call errquit(pname//'Failed to deallocate stack h_l',0,
-     &       MA_ERR)
-      if(.not.ma_pop_stack(h_ms1))
-     & call errquit(pname//'Failed to deallocate stack h_l',0,
-     &       MA_ERR)
-      if(.not.ma_pop_stack(h_q1))
-     & call errquit(pname//'Failed to deallocate stack h_l',0,
-     &       MA_ERR)
-      if(.not.ma_pop_stack(h_c1))
+      if(.not.ma_chop_stack(h_c1))
      & call errquit(pname//'Failed to deallocate stack h_l',0,
      &       MA_ERR)
 

@@ -333,7 +333,7 @@ c     first check if source file was already defined in geom
       call smd_rtdb_get_string("geom:source",1,
      >                          filename,result)
       if(.not.result)   
-     > call smd_rtdb_get_string("smd:coordfile",1,
+     > call smd_rtdb_get_string("smd:coord:input",1,
      >                           filename,result)
 
       end

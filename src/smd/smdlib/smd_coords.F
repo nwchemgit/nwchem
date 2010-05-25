@@ -444,6 +444,28 @@ C     >            dbl_mb(i_c+(i-1)+2*na)
       return
       end
 
+      subroutine smd_coords_save(oscratch)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+      logical oscratch
+c     
+      character*256 fname
+      character*30 pname
+c
+      pname = "smd_coords_save"
+c
+      if(ga_nodeid().eq.0) then
+      call util_file_name("pdb", oscratch, .false., fname) 
+      call smd_coords_print_pdb(fname)
+      end if
+      return
+      end
+
       subroutine smd_coords_print_pdb1(fname,c)
       implicit none
 #include "errquit.fh"
