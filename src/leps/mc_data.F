@@ -338,7 +338,15 @@ c      write(*,*) 'In mc_data_allocatte: i_sc: ',i_sc
       if (.not.rtdb_get(rtdb,"mymc:ratio",mt_dbl,1,ratio))
      >      call errquit('failed to get ratio',0,
      >       RTDB_ERR)
-
+      if (.not.rtdb_get(rtdb,"mymc:mode",mt_int,1,mode))
+     >      call errquit('failed to get mode',0,
+     >       RTDB_ERR)
+       if (.not.rtdb_get(rtdb,"mymc:seed",mt_dbl,1,seed))
+     >      call errquit('failed to get seed',0,
+     >       RTDB_ERR)
+       if (.not.rtdb_get(rtdb,"mymc:gseed",mt_int,1,gseed))
+     >      call errquit('failed to get gseed',0,
+     >       RTDB_ERR)
       end
 
       subroutine mc_data_set(rtdb,geom)
@@ -426,6 +434,32 @@ c      write(*,*) 'In mc_data_allocatte: i_sc: ',i_sc
       mc_data_get_mcsteps = mcsteps
 
       end
+
+      function mc_data_get_mode()
+      implicit none
+#include "mc_data.fh"
+      integer mc_data_get_mode
+
+      mc_data_get_mode = mode
+
+      end
+      function mc_data_get_seed()
+      implicit none
+#include "mc_data.fh"
+      double precision mc_data_get_seed
+ 
+      mc_data_get_seed = seed 
+ 
+      end
+ 
+       function mc_data_get_gseed()
+       implicit none
+#include "mc_data.fh"
+       integer mc_data_get_gseed
+ 
+       mc_data_get_gseed = gseed
+ 
+       end
 
       function mc_data_get_i_evec()
       implicit none
