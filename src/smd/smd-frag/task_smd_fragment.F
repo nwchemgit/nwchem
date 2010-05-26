@@ -15,6 +15,8 @@ c
       character*30 operation
       double precision energy
 c
+      logical task_smd_fragment_optimize
+      external task_smd_fragment_optimize
       logical task_smd_fragment_espcharge
       external task_smd_fragment_espcharge
       pname = "task_smd_fragment"
@@ -31,6 +33,9 @@ c     ----------------------------------------------
 c
       if(inp_compare(.false., 'espcharge', operation)) then
          result=task_smd_fragment_espcharge()
+         goto 10
+      else if(inp_compare(.false., 'optimize', operation)) then
+         result=task_smd_fragment_optimize()
          goto 10
       end if
       energy = 0.0d0
@@ -146,6 +151,7 @@ c
        write(luout,*) "current coord difference is",eps1
        call smd_coord_write_default()
       end if
+      call smd_coords_save_numbered(i,.false.)
       if(eps1.le.eps) then
         if(ga_nodeid().eq.0) 
      +        write(luout,*) "achieved coord convergence"
