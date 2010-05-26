@@ -159,7 +159,10 @@ c
       end if
       end do
 10    continue
-      return
+      if(ga_nodeid().eq.0) then
+       call smd_coord_write_default()
+      end if
+       return
       END
 
       subroutine task_fragment_populate()
