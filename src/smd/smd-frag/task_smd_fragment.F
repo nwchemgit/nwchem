@@ -145,6 +145,7 @@ c
       call smd_system_set_component("task","t_opt")
 
       do i=1,nc
+      call smd_vlist_update(.true.,.true.)
       call smd_task_iterate()
       call smd_global_diff("coords",gh,eps1)      
       if(ga_nodeid().eq.0) then
