@@ -470,8 +470,10 @@ c
      >  call errquit(
      >       pname//'ga_duplicate error',0, RTDB_ERR)
 
+      call ga_copy(ga_handle,gh)
       call ga_sync()
-     
+      call ga_print(ga_handle) 
+      call ga_print(gh) 
  
       return
       end
@@ -522,8 +524,8 @@ c     ---------------
      >       pname//'no coordindates ',0,0)
 c
       call ga_add(1.0d0,gh,-1.0d0,gh0,gh)
-      call ga_norm_infinity(gh0,eps)
-      call ga_copy(gh,gh0)
+      call ga_norm_infinity(gh,eps)
+      call ga_copy(gh0,gh)
 
       call ga_sync()
      

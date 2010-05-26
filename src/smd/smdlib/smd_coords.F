@@ -469,6 +469,33 @@ c
       return
       end
 
+      subroutine smd_coords_save_numbered(ic,oscratch)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+      integer ic
+      logical oscratch
+c     
+      character*256 fname
+      character*30 pname,stub
+c
+      pname = "smd_coords_save"
+c
+      if(ga_nodeid().eq.0) then
+      write(stub,'(I4.4,A)') ic,".pdb"
+      call util_file_name(stub, oscratch, .false., fname) 
+      call smd_coords_print_pdb(fname)
+      write(*,*) "saved coord file into",
+     +    ga_pgroup_nodeid(ga_pgroup_get_world()),
+     +    fname
+      end if
+      return
+      end
+
       subroutine smd_coords_print_pdb1(fname,c)
       implicit none
 #include "errquit.fh"

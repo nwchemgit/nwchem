@@ -50,6 +50,7 @@ c      write(*,*) "out of "//pname
 #include "util.fh"
 #include "global.fh"
 #include "smd_const_data.fh"
+#include "stdio.fh"
       integer im
 c     
       character*(smd_string_size) sp_geom,sp_atom
@@ -105,6 +106,11 @@ c     -----------------------------
 c
       nb = nr
       call smd_geom_find_neighbors(im,nb,int_mb(i_itmp))
+      if(ga_nodeid().eq.0) then
+        write(luout,*) "cluster information",
+     +    (int_mb(i_itmp+i-1),i=1,nb)
+        call util_flush(luout)
+      end if
       tag = "neighbor_index"
       call smd_data_put_int(sp_geom,tag,nb,int_mb(i_itmp))
       call smd_data_get_index(sp_geom,tag,i_nb,result)
