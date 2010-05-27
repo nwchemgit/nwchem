@@ -169,6 +169,92 @@ c
       return
       end subroutine
 
+      subroutine smd_monomer_locks(itsk,nt,ilock)
+      implicit none
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+      integer itsk
+      integer nt
+      integer ilock(nt)
+c      
+      integer im
+      integer rtdb
+c
+      character*32 pname
+      logical oscratch
+      character*(smd_string_size)  tag,sname
+      character*(smd_string_size)  operation
+      logical result 
+      integer ifr,nfr
+      integer i_mr,nr,nb
+      integer i_itmp,h_itmp
+      integer i,j
+
+      pname = "smd_monomer_init"
+c
+      tag = "task"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+c     get actual task reference
+c     -------------------------
+C      tag = "task:itsk"
+C      call smd_data_get_int(sname,tag,1,itsk,result)
+C      if(.not.result)
+C     *     call errquit('cannot find'//tag,0,0)
+C      write(luout,*) "found itsk",itsk
+c      
+      tag="task:operation"
+      call smd_data_get_string1(sname,tag,itsk,itsk,
+     >                          operation)
+c
+      tag = "task:frag_id"
+      call smd_data_get_int1(sname,tag,itsk,itsk,im)
+      call smd_data_get_ind_dim(sname,tag,ifr,nfr,result)
+      if(.not.result)
+     +     call errquit('cannot find'//tag,0,0)
+c
+      tag = "atom:res_size"
+      call smd_get_ind_dim(tag,i_mr,nr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+cc      
+      if(.not.ma_push_get(mt_int,nr,'tmp i',h_itmp,i_itmp))
+     + call errquit(pname//'Failed to allocate memory for h_itmp',0,0)
+c
+      nb = nr
+      call smd_geom_find_neighbors(im,nb,int_mb(i_itmp))
+      do j=1,nb
+       write(*,*) "locks in",j,int_mb(i_itmp+j-1)
+      end do
+      do i=1,nfr
+        ilock(i) = 0
+        do j=2,nb
+          if(int_mb(ifr+i-1).eq.int_mb(i_itmp+j-1))  
+     +       ilock(i) = 1
+        end do
+      end do
+      call util_flush(6)
+      do i=1,nt
+       write(*,*) "locks out",i,ilock(i),int_mb(ifr+i-1)
+      end do
+c
+      call util_flush(6)
+      if(.not.ma_chop_stack(h_itmp))
+     & call errquit(pname//'Failed to chop stack ',0,
+     &       MA_ERR)
+      return
+      end subroutine
+
+
       subroutine smd_monomer_end()
       implicit none
 #include "mafdecls.fh"
