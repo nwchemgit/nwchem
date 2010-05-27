@@ -731,7 +731,7 @@ c
       if(.not.ma_push_get(mt_dbl,3*nt,'tmp h_c1',h_c1,i_c1))
      + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
 c    
-      if(.not.geom_ncent(geom, ncent))
+      if(.not.geom_ncent(igeom, ncent))
      $           call errquit(pname,0,RTDB_ERR)
       if(ncent.ne.nt) call errquit(
      >       pname//' ncent ne nt',nt,ncent )

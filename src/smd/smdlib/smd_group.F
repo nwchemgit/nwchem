@@ -106,6 +106,11 @@ c
 c
       character*255 buffer,buffer1
       character*10 fs
+      logical ogroupio,result
+
+      call smd_rtdb_get_log("smd:groupio",1,ogroupio,result)
+      if(.not.result) return
+      if(.not.ogroupio) return
  
       write(fs,'(I10)') im
       call inp_adjustl(fs)
