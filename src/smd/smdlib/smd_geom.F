@@ -637,7 +637,7 @@ c
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 c    
-      if(.not.ma_push_get(mt_dbl,3*ng,'tmp g',h_g1,i_g1))
+      if(.not.ma_push_get(mt_dbl,3*ng,'tmp h_g1',h_g1,i_g1))
      + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
 c      
       if (.not.rtdb_get(rtdb, 'task:gradient', mt_dbl,
@@ -688,6 +688,7 @@ c
       integer nb,k,n0
       integer igeom
       double precision sht(3)
+      integer ncent
 c
       pname = "smd_geom_get_gradients"
 c
@@ -727,9 +728,15 @@ c
       if(.not.geom_rtdb_load(rtdb,igeom,"geometry"))
      + call errquit(pname//'Failed to load geometry'//tag,0, GEOM_ERR)
 c    
-      if(.not.ma_push_get(mt_dbl,3*nt,'tmp g',h_c1,i_c1))
+      if(.not.ma_push_get(mt_dbl,3*nt,'tmp h_c1',h_c1,i_c1))
      + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
 c    
+      if(.not.geom_ncent(geom, ncent))
+     $           call errquit(pname,0,RTDB_ERR)
+      if(ncent.ne.nt) call errquit(
+     >       pname//' ncent ne nt',nt,ncent )
+
+
       if(.not.geom_cart_coords_get(igeom,dbl_mb(i_c1)))
      $           call errquit(pname,0,RTDB_ERR)
       call dscal(3*nt,cau2ang,dbl_mb(i_c1),1)
@@ -753,6 +760,9 @@ c
        n0=int_mb(i_nm+i-1)
        do i1=1,n0
          j = j+1
+         if(j.gt.nt) 
+     +     call errquit(
+     >       pname//'out of bounds j nt',j,nt )
          do k=1,3
            dbl_mb(i_c+3*(i0+i1-1)+k-1) = dbl_mb(i_c1+3*(j-1)+k-1)
          end do

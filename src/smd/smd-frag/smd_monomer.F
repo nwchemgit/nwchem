@@ -32,11 +32,9 @@ c
       pname = "smd_monomer"
 
       call smd_monomer_init(im,theory,operation,rtdb)
-      write(*,*) "setting custom io"
       call smd_group_set_io_custom(im,"frag")
-      write(*,*) "finshed setting custom io"
       if(inp_compare(.false., 'energy', operation)) then
-c         result = task_energy(rtdb)
+         result = task_energy(rtdb)
       else if(inp_compare(.false., 'gradient', operation)) then
         result = task_gradient(rtdb)
         call smd_geom_get_gradients()

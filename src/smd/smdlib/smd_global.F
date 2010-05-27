@@ -472,8 +472,6 @@ c
 
       call ga_copy(ga_handle,gh)
       call ga_sync()
-      call ga_print(ga_handle) 
-      call ga_print(gh) 
  
       return
       end
