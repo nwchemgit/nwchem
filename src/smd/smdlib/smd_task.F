@@ -451,6 +451,159 @@ c      call util_message("out "//pname)
 
       end subroutine
 c      
+      subroutine smd_task_iterate1()
+      implicit none
+      integer itsk
+
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_task_data.fh"
+#include "smd_const_data.fh"
+#include "msgids.fh"
+
+      integer nt
+      character*(smd_string_size)  tag,sname
+      logical result
+      character*30 pname
+      integer i,j,nsb
+      integer group_id
+      integer ga_it
+      integer ga_task
+      logical osb
+      integer ga_gate
+      integer inc
+      integer i_l,h_l
+      integer ga_locks
+c      
+      pname = "smd_task_iterate"
+c      call util_message("in "//pname)
+      tag = "task"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+c     get number of tasks
+c     -------------------
+      tag = "task:ntasks"
+      call smd_data_get_int(sname,tag,1,nt,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c      
+      tag="smd:subgroups"
+      call smd_rtdb_get_int(tag,1,nsb,osb)
+c      
+      if(.not.ma_push_get(mt_int,nt,'locks',h_l,i_l))
+     + call errquit(pname//'Failed to allocate stack',0,0)
+c      
+      if(.not.nga_create(mt_int, 1, nt, 
+     >    'task locks',1, ga_locks)) 
+     >  call errquit(
+     >       pname//'nga_create error ',0, RTDB_ERR)
+      call ga_fill(ga_locks,0)
+c      
+      if(.not.nga_create(mt_int, 1, nt, 
+     >    'task status',1, ga_task)) 
+     >  call errquit(
+     >       pname//'nga_create error ',0, RTDB_ERR)
+      call ga_fill(ga_task,0)
+c
+      if(.not.nga_create(mt_int, 1, 1, 
+     >    'task counter',1, ga_it)) 
+     >  call errquit(
+     >       pname//'nga_create error ',0, RTDB_ERR)
+      if(ga_nodeid().eq.0) then
+         call nga_put(ga_it,1,1,1,1)
+      end if
+      call ga_sync()
+
+      if(.not.nga_create(mt_int, 1, 1, 
+     >    'task gate',1, ga_gate)) 
+     >  call errquit(
+     >       pname//'nga_create error ',0, RTDB_ERR)
+      if(ga_nodeid().eq.0) then
+         call nga_put(ga_gate,1,1,0,1)
+      end if
+      call ga_sync()
+c     ---------------------------
+      if(osb) then
+      call smd_group_create_simple(nsb)
+      call smd_group_id_get(group_id)
+      if(ga_nodeid().eq.0) 
+     +    write(luout,*) "Hello from group",group_id
+      end if
+c
+c     filter out one task
+c     -------------------
+      inc = 1
+10    continue    
+      if(ga_nodeid().eq.0) then
+        j=NGA_Read_inc(ga_gate, 1, inc)
+        inc = -inc
+      end if
+      call ga_brdcst(msg_qmmm_misc,j,ma_sizeof(mt_int,1,mt_byte),0)
+      if(j.eq.0) then
+        if(ga_nodeid().eq.0) 
+     +     write(luout,*) "group ",group_id," is going through"
+        goto 20 
+      end if
+      goto 10
+c
+c     end of filter
+20    continue
+      do i=1,nt
+        call nga_get(ga_task,i,i,j,1)
+        write(*,*) "got j=",j,ga_nodeid(),group_id
+        if(j.eq.0) then
+          if(ga_nodeid().eq.0)
+     +     call nga_put(ga_task,i,i,1,1)
+          goto 30
+        end if
+      end do
+c      goto 40
+30    continue
+      if(ga_nodeid().eq.0)
+     >   write(*,*) "got task",i,group_id
+c
+      call smd_monomer_locks(i,nt,int_mb(i_l))
+      call util_flush(luout)
+      call ga_init_fence()
+      if(ga_nodeid().eq.0)
+     +     call nga_acc(ga_locks,1,nt,int_mb(i_l),1,1)
+      call ga_fence()
+      call ga_sync()
+      call ga_print(ga_locks) 
+      call util_flush(luout)
+      do i=1,nt
+        write(*,*) "i_l ",i,int_mb(i_l+i-1)
+      end do
+      call util_flush(luout)
+c     
+c     let the other tasks through
+c     ---------------------------
+      if(ga_nodeid().eq.0)
+     >   j=NGA_Read_inc(ga_gate, 1, inc)
+
+40    continue
+      if(ga_nodeid().eq.0) 
+     +  call util_flush(6)
+      if(osb) then
+      call ga_pgroup_sync(ga_pgroup_get_world())
+      call smd_group_end()
+      end if
+      if(.not.ga_destroy(ga_it)) call errquit(
+     >       pname//'cannot destroy ga_it ',0,0)
+c      call util_message("out "//pname)
+      return
+
+      end subroutine
+c      
       subroutine smd_task_populate(task_list)
       implicit none
       integer task_list

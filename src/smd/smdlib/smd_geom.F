@@ -817,6 +817,7 @@ c
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "smd_const_data.fh"
+#include "stdio.fh"
       integer icr
       integer nb
       integer inb(nb)
@@ -900,7 +901,8 @@ c
        end if
       end do
       nb = j
-
+        write(luout,*) "cluster information",
+     +    (inb(i),i=1,nb)
 c      j = 0
 c      do i=1,nr
 c       if(int_mb(i_inb+i-1).ne.0) then
