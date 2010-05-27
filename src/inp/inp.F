@@ -802,6 +802,30 @@ c
       enddo
 c
       end
+      subroutine inp_adjustl(a)
+      implicit none
+#include "errquit.fh"
+#include "inpP.fh"
+      character*(*) a
+      intrinsic  len
+      logical ois_ws
+      character*1 xtest
+      integer i, length,s
+c
+      ois_ws(xtest) = (xtest.eq.xblnk .or. xtest.eq.xtab)
+c
+      length = len(a)
+      do i = 1, length
+        if (.not. ois_ws(a(i:i))) goto 10
+      end do
+10    continue
+      s=i-1
+      do i=s+1,length
+       a(i-s:i-s) = a(i:i) 
+       a(i:i)=""
+      enddo
+c
+      end
       subroutine inp_ucase(string)
       implicit none
 #include "errquit.fh"
