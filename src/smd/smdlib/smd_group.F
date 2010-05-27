@@ -88,6 +88,43 @@ c
 
       return
       end
+      subroutine smd_group_set_io_custom(im,stub)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_group_data.fh"
+#include "stdio.fh"
+      integer im
+      character*(*) stub
+c     
+      integer fn,i1,i2
+      integer iw
+c
+      character*255 buffer,buffer1
+      character*10 fs
+ 
+      write(fs,'(I10)') im
+      call inp_adjustl(fs)
+      i1 = inp_strlen(stub)
+      i2 = inp_strlen(fs)
+      write(buffer1,'(A,A,".out")')
+     >    stub(1:i1),fs(1:i2)
+      
+      if(.not.util_get_io_unit(fn))
+     + call errquit('no units available',0, 0)
+      write(*,*) "buffer1 ",buffer1
+
+      close(luout)
+      luout = fn
+      open(unit=luout,status="unknown",form="formatted",file=buffer1)
+      write(luout,*) "Calculation from group",smd_group_id
+
+      return
+      end
 
       subroutine smd_group_unset_io()
       implicit none
