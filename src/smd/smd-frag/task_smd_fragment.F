@@ -148,10 +148,8 @@ c
       call smd_vlist_update(.true.,.true.)
       call smd_task_iterate1()
       call smd_global_diff("coords",gh,eps1)      
-      if(ga_nodeid().eq.0) then
-       write(luout,*) "current coord difference is",eps1
-       call smd_coord_write_default()
-      end if
+      if(ga_nodeid().eq.0) 
+     + write(luout,*) "current coord difference is",eps1
       call smd_coords_save_numbered(i,.false.)
       if(eps1.le.eps) then
         if(ga_nodeid().eq.0) 
@@ -160,9 +158,8 @@ c
       end if
       end do
 10    continue
-      if(ga_nodeid().eq.0) then
-       call smd_coord_write_default()
-      end if
+      if(ga_nodeid().eq.0) 
+     + call smd_coord_write_default()
        return
       END
 
