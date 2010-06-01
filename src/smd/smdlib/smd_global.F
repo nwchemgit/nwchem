@@ -6,6 +6,7 @@
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
+#include "msgids.fh"
 c     
       character*32 sp_global
       character*32 tag,pname
@@ -84,173 +85,8 @@ c
 c     get coordinate information
 c     --------------------------
       call smd_global_update("coords","put")
-c      call smd_global_update_res("coords","put",2)
-
-c      call ga_print_distribution(ga_coords)
-c      call ga_print(ga_coords)
+      call smd_global_update("gradients","put")
 c
-      call smd_global_pull("gradients")
-c      call ga_print_distribution(ga_grads)
-c      call ga_print(ga_grads)
-
-
-     
-      return
-      end
-
-      subroutine smd_global_pull_res_coords(ires)
-      implicit none
-#include "errquit.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "global.fh"
-c     
-      integer ires
-c
-      character*32 sp_global
-      character*32 pname,tag,sp_coords
-      integer na,np
-      integer i_c,i_ir
-      integer nm,i0,nt
-      integer i,k
-      logical result
-      integer ilo,ihi
-c
-      integer ndims
-      integer ga_coords,ga_grads
-c
-      pname = "smd_global_init"
-c
-      tag = "global"
-      call smd_system_get_component(sp_global,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-c
-      tag = "coordinates"
-      call smd_system_get_component(sp_coords,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-c
-c     get coordinate information
-c     --------------------------
-      tag = "coords"
-      call smd_get_ind_dim(tag,i_c,np,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-c
-      tag = "atom:resid"
-      call smd_get_ind_dim(tag,i_ir,nt,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
-       call smd_geom_monomer_index_size(ires,nt,int_mb(i_ir),nm,i0)
-
-c       write(*,*) "coords of monomer",ires,nm
-c       do i=1,3*nm
-c         write(*,*) (dbl_mb(i_c+3*(i0-1)+i-1))
-c       end do
-c       write(*,*) "coords of monomer done"
-      call smd_data_get_int(sp_global,"coordinates",1,ga_coords,result)
-      if(.not.result) call errquit(
-     >       pname//'no coordindates ',0,0)
-
-c      if(ga_nodeid().eq.0) then
-c         call ga_summarize(.false.)
-c         write(*,*) "ga coord handle",ga_coords
-c         call util_flush(6)
-c      end if
-c      call ga_zero(ga_coords)
-      if(ga_nodeid().eq.0) then
-        ilo = 3*(i0-1)+1
-        ihi = 3*(i0-1)+3*nm
-        call nga_put(ga_coords,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
-      end if
-      call ga_sync()
-c      write(*,*) "coords after pushing monomer",ires
-c      call ga_print_distribution(ga_coords)
-c      call ga_print(ga_coords)
-     
-      return
-      end
-
-      subroutine smd_global_pull_res(atag,ires)
-      implicit none
-#include "errquit.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "global.fh"
-c     
-      character*(*) atag
-      integer ires
-c
-      character*32 sp_global
-      character*32 pname,tag,ltag,gtag
-      integer na,np
-      integer i_c,i_ir
-      integer nm,i0,nt
-      integer i,k
-      logical result
-      integer ilo,ihi
-c
-      integer ndims
-      integer ga_handle
-c
-      pname = "smd_global_pull_res"
-c
-      tag = "global"
-      call smd_system_get_component(sp_global,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-c
-      tag = "atom:resid"
-      call smd_get_ind_dim(tag,i_ir,nt,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-
-      call smd_geom_monomer_index_size(ires,nt,int_mb(i_ir),nm,i0)
-c
-      if(atag.eq."coords") then
-        gtag = "coordinates"
-        ltag = "coords"
-      else
-        call errquit(
-     >       pname//'unknown tag',0, 0)
-
-      end if
-c
-c     get local array
-c     ---------------
-      call smd_get_ind_dim(ltag,i_c,np,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-c
-c     get global array
-c     ---------------
-      call smd_data_get_int(sp_global,gtag,1,ga_handle,result)
-      if(.not.result) call errquit(
-     >       pname//'no coordindates ',0,0)
-c
-c     push data onto global array
-c     ---------------------------
-      if(ga_nodeid().eq.0) then
-        ilo = 3*(i0-1)+1
-        ihi = 3*(i0-1)+3*nm
-        call nga_put(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
-      end if
-      call ga_sync()
-     
       return
       end
 
@@ -262,6 +98,7 @@ c     ---------------------------
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
+#include "msgids.fh"
 c     
       character*(*) atag
       character*(*) oper
@@ -322,19 +159,22 @@ c     ---------------
 c
 c     put/get data on/from global array
 c     ---------------------------
-      if(ga_nodeid().eq.0) then
         ilo = 3*(i0-1)+1
         ihi = 3*(i0-1)+3*nm
         if(oper.eq."put") then
-          call nga_put(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
+          if(ga_nodeid().eq.0) then
+            call nga_put(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
+          end if
         else if(oper.eq."get") then
-          call nga_get(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
+          if(ga_nodeid().eq.0) then
+            call nga_get(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
+          end if
+          call ga_brdcst(msg_smd,dbl_mb(i_c+ilo-1),
+     >     3*nm*ma_sizeof(mt_dbl,1,mt_byte),0)
         else
           call errquit(
      >       pname//'unknown operation',0, 0)
         end if
-      end if
-      call ga_sync()
      
       return
       end
@@ -347,6 +187,7 @@ c     ---------------------------
 #include "rtdb.fh"
 #include "util.fh"
 #include "global.fh"
+#include "msgids.fh"
 c     
       character*(*) atag
       character*(*) oper
@@ -398,19 +239,22 @@ c     ---------------
 c
 c     put/get data on/from global array
 c     ---------------------------
-      if(ga_nodeid().eq.0) then
-        ilo = 1
-        ihi = np
-        if(oper.eq."put") then
+      ilo = 1
+      ihi = np
+      if(oper.eq."put") then
+        if(ga_nodeid().eq.0) then
           call nga_put(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
-        else if(oper.eq."get") then
-          call nga_get(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
-        else
-          call errquit(
-     >       pname//'unknown operation',0, 0)
         end if
+      else if(oper.eq."get") then
+        if(ga_nodeid().eq.0) then
+          call nga_get(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
+        end if
+        call ga_brdcst(msg_smd,dbl_mb(i_c+ilo-1),
+     >     np*ma_sizeof(mt_dbl,1,mt_byte),0)
+      else
+        call errquit(
+     >     pname//'unknown operation',0, 0)
       end if
-      call ga_sync()
      
  
       return
@@ -471,7 +315,6 @@ c
      >       pname//'ga_duplicate error',0, RTDB_ERR)
 
       call ga_copy(ga_handle,gh)
-      call ga_sync()
  
       return
       end
@@ -525,7 +368,6 @@ c
       call ga_norm_infinity(gh,eps)
       call ga_copy(gh0,gh)
 
-      call ga_sync()
      
  
       return
@@ -582,7 +424,6 @@ c     ---------------
 
       call ga_print(ga_handle)
 
-      call ga_sync()
      
  
       return
@@ -636,123 +477,3 @@ c     ---------------
       return
       end
 
-      subroutine smd_global_pull(atag)
-      implicit none
-#include "errquit.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "global.fh"
-c     
-      character*(*) atag
-c
-      character*32 sp_global
-      character*32 pname,tag,ltag,gtag
-      integer na,np
-      integer i_c,i_ir
-      integer nm,i0,nt
-      integer i,k
-      logical result
-      integer ilo,ihi
-c
-      integer ndims
-      integer ga_handle
-c
-      pname = "smd_global_pull_res"
-c
-      tag = "global"
-      call smd_system_get_component(sp_global,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-c
-      if(atag.eq."coords") then
-        gtag = "coordinates"
-        ltag = "coords"
-      else if(atag.eq."gradients") then
-        gtag = "gradients"
-        ltag = "force"
-      else 
-        call errquit(
-     >       pname//'unknown tag',0, 0)
-
-      end if
-c
-c     get local array
-c     ---------------
-      call smd_get_ind_dim(ltag,i_c,np,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-c
-c     get global array
-c     ---------------
-      call smd_data_get_int(sp_global,gtag,1,ga_handle,result)
-      if(.not.result) call errquit(
-     >       pname//'no coordindates ',0,0)
-c
-c     push data onto global array
-c     ---------------------------
-      if(ga_nodeid().eq.0) then
-        ilo = 1
-        ihi = np
-        call nga_put(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
-      end if
-      call ga_sync()
-     
-      return
-      end
-
-      subroutine smd_global_pull_coords()
-      implicit none
-#include "errquit.fh"
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "util.fh"
-#include "global.fh"
-c     
-      character*32 sp_global
-      character*32 pname,tag,sp_coords
-      integer na,np
-      integer i_c,i_ir
-      integer nm,i0,nt
-      integer i,k
-      logical result
-      integer ilo,ihi
-c
-      integer ndims
-      integer ga_coords,ga_grads
-c
-      pname = "smd_global_init"
-c
-      tag = "global"
-      call smd_system_get_component(sp_global,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-c
-      tag = "coordinates"
-      call smd_system_get_component(sp_coords,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
-c
-c     get coordinate information
-c     --------------------------
-      tag = "coords"
-      call smd_get_ind_dim(tag,i_c,np,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-      if(ga_nodeid().eq.0) then
-        ilo = 1
-        ihi = np
-        call nga_put(ga_coords,ilo,ihi, dbl_mb(i_c), 1)
-      end if
-      call ga_sync()
-     
-      return
-      end

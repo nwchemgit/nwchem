@@ -31,8 +31,11 @@ c
 
       pname = "smd_monomer"
 
+
       call smd_monomer_init(im,theory,operation,rtdb)
       call smd_group_set_io_custom(im,"frag")
+      if(ga_nodeid().eq.0) 
+     +  write(*,*) "starting task",im
       if(inp_compare(.false., 'energy', operation)) then
          result = task_energy(rtdb)
       else if(inp_compare(.false., 'gradient', operation)) then
@@ -44,8 +47,12 @@ c
 c        call smd_global_print("gradients")
       else if(inp_compare(.false., 'optimize', operation)) then
         result = task_optimize(rtdb)
+      if(ga_nodeid().eq.0) 
+     +  write(*,*) "finished optimization",im
         call smd_geom_get_coords()
+        write(*,*) "finished smd_geom_get_coords",ga_nodeid(),im
         call smd_global_update_res("coords","put",im)
+        write(*,*) "finished global update",ga_nodeid(),im
         call ga_sync()
 c        call smd_global_print("coords")
       else if(inp_compare(.false., 'espcharge', operation)) then
@@ -61,7 +68,11 @@ c        call smd_global_print("coords")
       else
         call errquit(pname//"unknown operation "//operation,0,0)
       end if
+      if(ga_nodeid().eq.0) 
+     +  write(*,*) "before smd_coords_save",im
       call smd_coords_save(.true.)
+      if(ga_nodeid().eq.0) 
+     +  write(*,*) "ending task",im
 cc
 c      if(.not.rtdb_get(rtdb,'smd:noesp',mt_log,1,noesp))
 c     +     noesp = .false.
@@ -119,6 +130,7 @@ c
       character*(smd_string_size)  tag,sname
       logical result 
       integer itsk
+      character*64 msg
 
       pname = "smd_monomer_init"
 c
@@ -157,7 +169,11 @@ c     --------------
 c
 c     pull the global charges/coords onto local set
       call smd_fragment_charge_get_all()
+      write(msg,'(A20," 1 ",I3)') pname,im
+      call smd_coords_check(msg)
       call smd_global_update("coords","get")
+      write(msg,'(A20," 2 ",I3)') pname,im
+      call smd_coords_check(msg)
 c
 c      create geometry object
 c      ---------------------

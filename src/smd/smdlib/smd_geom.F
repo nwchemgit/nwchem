@@ -70,8 +70,12 @@ c
       integer i_qf,i_m,i_ta
       integer rtdb
       integer igroup
+      character*64 msg
 
       pname = "smd_geom_init_system"
+c
+c      write(msg,'(A20," 1 ",I3)') pname,im
+c      call smd_coords_check(msg)
 c
       call smd_group_id_get(igroup)
 c
@@ -189,15 +193,17 @@ c
 #include "geom.fh"
 #include "smd_const_data.fh"
 #include "smd_system.fh"
+#include "stdio.fh"
 c
       logical geom_cart_set_gen1
       external geom_cart_set_gen1
 c      
-      integer rtdb,m,n
+      integer rtdb,m,n,ncent
 c
       integer i,j
       integer i0,i1,n0,k
-      character*30 pname
+      character*20 pname
+      character*64 msg
       character*(smd_string_size) tag
       character*(smd_string_size) sp_geom
       integer igeom
@@ -215,10 +221,14 @@ c
       integer igroup
       integer un
       logical operiodic
+      integer im
 c
-      pname = "smd_geom_create_0"
+      pname = "smd_geom_create"
 c
-      operiodic = smd_system_periodic()
+      call smd_task_get_counter(im)
+      write(msg,'(A20," 1 ",I3)') pname,im
+c      call smd_coords_check(msg)
+c      operiodic = smd_system_periodic()
 c
       call smd_group_id_get(igroup)
 c
@@ -333,6 +343,23 @@ c     ---------------
       if(.not.geom_masses_set(igeom,n1,dbl_mb(i_ms1)))
      + call errquit('qmmm: Failed to initialize masses',0, GEOM_ERR)
       call geom_compute_values(igeom)
+      if(.not.geom_ncent(igeom, ncent))
+     $           call errquit(pname,0,RTDB_ERR)
+
+      un = 110 + ga_nodeid()
+      write(un,'(A20,4I4)') "ncent,n1,im,node is",
+     +        ncent,n1,im,ga_nodeid()
+      call util_flush(un)
+      call ga_sync()
+      if(im.eq.21) then
+         un = 100 + ga_nodeid()
+         write(un,*) "output from ", ga_nodeid()
+         write(un,'(A20,4I4)') "ncent,n1,im,node is",
+     +        ncent,n1,im,ga_nodeid()
+c         call smd_data_namespace_print(sp_geom,un)
+         call smd_data_print(un)
+         call util_flush(un)
+      end if
 c
       if(ga_nodeid().eq.0) then
       call smd_file_open(un,"tmp.xyz")
@@ -370,6 +397,9 @@ c     -----------------------------------------------------------------
      & call errquit(pname//'Failed to deallocate stack h_l',0,
      &       MA_ERR)
 
+
+c      write(msg,'(A20," 2 ",I3)') pname,im
+c      call smd_coords_check(msg)
       return
 c
   
@@ -674,23 +704,31 @@ c
 #include "global.fh"
 #include "geom.fh"
 #include "smd_const_data.fh"
+#include "stdio.fh"
 c
       integer im
 c     
-      character*32 tag,pname,sp_geom
+      character*32 tag,sp_geom
+      character*20 pname
       logical result
       integer i_c
       integer i_c1,h_c1
       integer i,j,i1,i0
       integer nt
       integer rtdb
-      integer i_im,i_nm
+      integer i_im,i_nm,i_nb
       integer nb,k,n0
       integer igeom
       double precision sht(3)
       integer ncent
+      character*64 msg
 c
-      pname = "smd_geom_get_gradients"
+      pname = "smd_geom_get_coords"
+c
+      call smd_task_get_counter(im)
+c
+c      write(msg,'(A20," 1 ",I3)') pname,im
+c      call smd_coords_check(msg)
 c
       tag = "geom"
       call smd_system_get_component(sp_geom,tag,result)
@@ -711,6 +749,12 @@ c
       tag = "size"
       call smd_data_get_ind_dim(sp_geom,tag,i_nm,nb,result)
       if(.not. result)  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+c
+      tag = "neighbor_index"
+      call smd_data_get_index(sp_geom,tag,i_nb,result)
+      if(.not. result) 
+     >  call errquit(
      >       pname//'error getting index for'//tag,0,0 )
 c    
 c
@@ -733,9 +777,17 @@ c
 c    
       if(.not.geom_ncent(igeom, ncent))
      $           call errquit(pname,0,RTDB_ERR)
-      if(ncent.ne.nt) call errquit(
-     >       pname//' ncent ne nt',nt,ncent )
-
+      if(ncent.ne.nt) then
+        call smd_task_get_counter(im)
+        write(luout,*) "node",ga_nodeid()
+        write(luout,*) "ncent,nt,im",ncent,nt,im
+        write(luout,*) "current neighbor index",
+     +       (int_mb(i_nb+i-1),i=1,nb)
+c
+        call util_flush(luout)
+        call errquit(
+     >       pname//' ncent ne nt',im,0 )
+      end if
 
       if(.not.geom_cart_coords_get(igeom,dbl_mb(i_c1)))
      $           call errquit(pname,0,RTDB_ERR)
@@ -753,6 +805,7 @@ c
         end do
       end do
       call smd_lat_rebox(nt,dbl_mb(i_c1)) 
+      
 c
       j=0
       do i=1,nb
@@ -769,6 +822,8 @@ c
        end do
       end do
 
+c      write(msg,'(A20," 2 ",I3)') pname,im
+c      call smd_coords_check(msg)
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
 

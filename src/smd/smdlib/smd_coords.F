@@ -140,6 +140,78 @@ c     ----------------------
       return
       end
 
+      subroutine smd_coords_check(msg)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+c 
+      character*(*) msg
+c     
+      character*32 sp_coords
+c
+      character*72 tag
+      character*30 pname
+      integer na
+      integer i_c
+      integer i_c1,h_c1
+      logical result
+      double precision diff,diff0
+      integer i
+      character*64 buffer
+
+      pname = "smd_coords_rebox"
+
+c
+c     get atomic coordinates
+c     ----------------------
+      tag = "coords"
+      call smd_get_ind_dim(tag,i_c,na,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+      na = na/3
+
+      if(.not.ma_push_get(mt_dbl,3*na,'tmp c',h_c1,i_c1))
+     + call errquit(pname//'Failed to allocate memory for h_c1',0,0)
+
+      if(ga_nodeid().eq.0) then
+      call ga_brdcst(msg_qmmm_misc,dbl_mb(i_c),
+     >     3*na*ma_sizeof(mt_int,1,mt_byte),0)
+      else
+      call ga_brdcst(msg_qmmm_misc,dbl_mb(i_c1),
+     >     3*na*ma_sizeof(mt_int,1,mt_byte),0)
+      end if
+
+      diff0=0.0d0
+      buffer = msg
+      if(ga_nodeid().ne.0) then
+      do i=1,3*na
+         diff=dbl_mb(i_c+i-1)-dbl_mb(i_c1+i-1)
+         diff = abs(diff)
+         if(diff.gt.diff0) diff0=diff
+         if(diff.gt.1e-4) then
+           write(*,*) "big diff in ",
+     +            buffer(1:inp_strlen(buffer)),diff0,
+     +            ga_nodeid()
+           call errquit(buffer,i,0)
+         end if
+      end do
+      end if
+      
+      write(*,*) "coord check is ok in ",
+     +            buffer(1:inp_strlen(buffer)),diff0,
+     +            ga_nodeid()
+      if(.not.ma_chop_stack(h_c1))
+     & call errquit(pname//'Failed to deallocate stack h_l',0,
+     &       MA_ERR)
+      return
+      end
+
       subroutine smd_coords_print(un)
       implicit none
 #include "errquit.fh"

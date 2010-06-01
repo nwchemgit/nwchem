@@ -351,6 +351,43 @@ c     -------------------
 
       end subroutine
 c
+      subroutine smd_task_get_counter(im)
+      implicit none
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+      integer im
+c
+      character*32 pname
+      logical oscratch
+      character*(smd_string_size)  tag,sname
+      logical result 
+      integer itsk
+
+      pname = "smd_monomer_init"
+c
+      tag = "task"
+      call smd_system_get_component(sname,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+c     get actual task reference
+c     -------------------------
+      tag = "task:itsk"
+      call smd_data_get_int(sname,tag,1,itsk,result)
+      if(.not.result)
+     *     call errquit('cannot find'//tag,0,0)
+      write(luout,*) "found itsk",itsk
+c      
+      tag = "task:frag_id"
+      call smd_data_get_int1(sname,tag,itsk,itsk,im)
+      end subroutine
+c
       subroutine smd_task_iterate()
       implicit none
       integer itsk

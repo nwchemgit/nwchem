@@ -31,7 +31,7 @@ c
      >       pname//'unknown operation'//tag,0, 0)
       end if
 
-
+      call smd_coords_check("smd_init")
       return
       end
 
