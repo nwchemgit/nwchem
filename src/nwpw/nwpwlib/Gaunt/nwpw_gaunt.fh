@@ -1,0 +1,10 @@
+c
+c $Id: nwpw_gaunt.fh,v 1.2 2006-02-11 02:50:47 bylaska Exp $
+c
+c
+c
+      double precision nwpw_gen_gaunt_coeff,nwpw_gen_gaunt2_coeff
+      double precision nwpw_gen_gaunt3_coeff
+      external         nwpw_gen_gaunt_coeff,nwpw_gen_gaunt2_coeff
+      external         nwpw_gen_gaunt3_coeff
+
