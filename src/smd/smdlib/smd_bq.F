@@ -113,6 +113,7 @@ c
         nbq=nbq+int_mb(i_rbq+i-1)-
      +              int_mb(i_lbq+i-1)+1
       end do
+      if(nbq.eq.0) return
       if(ga_nodeid().eq.0) 
      +  write(luout,*) "Total number of Bq's",nbq
       if(.not.bq_create("monomer charges test",bq_handle))
