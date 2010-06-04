@@ -1072,7 +1072,15 @@ c
 
       ndim = ihi-ilo+1
       call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
-      do i=1,ndim
+      if(.not.result) then
+           buffer = dname
+           call errquit(pname//"cannot find"//buffer,0,0) 
+      end if
+      if(ihi.gt.ndim1) then
+          buffer = dname
+          call errquit(pname//"out of bounds"//buffer,0,0)
+      end if
+       do i=1,ndim
         int_mb(ind+ilo+i-2) = datum(i)
       end do
       return
@@ -1102,7 +1110,15 @@ c
 
       ndim = ihi-ilo+1
       call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
-      do i=1,ndim
+      if(.not.result) then
+           buffer = dname
+           call errquit(pname//"cannot find"//buffer,0,0) 
+      end if
+      if(ihi.gt.ndim1) then
+          buffer = dname
+          call errquit(pname//"out of bounds"//buffer,0,0)
+      end if
+       do i=1,ndim
         datum(i) = int_mb(ind+ilo+i-2)
       end do
       return
@@ -1132,6 +1148,14 @@ c
 
       ndim = ihi-ilo+1
       call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
+      if(.not.result) then
+           buffer = dname
+           call errquit(pname//"cannot find"//buffer,0,0) 
+      end if
+      if(ihi.gt.ndim1) then
+          buffer = dname
+          call errquit(pname//"out of bounds"//buffer,0,0)
+      end if
       do i=1,ndim
         dbl_mb(ind+ilo+i-2) = datum(i)
       end do
@@ -1162,7 +1186,15 @@ c
 
       ndim = ihi-ilo+1
       call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
-      do i=1,ndim
+      if(.not.result) then
+           buffer = dname
+           call errquit(pname//"cannot find"//buffer,0,0) 
+      end if
+      if(ihi.gt.ndim1) then
+          buffer = dname
+          call errquit(pname//"out of bounds"//buffer,0,0)
+      end if
+       do i=1,ndim
         datum(i) = dbl_mb(ind+ilo+i-2)
       end do
       return
@@ -1192,7 +1224,15 @@ c
 
       ndim = ihi-ilo+1
       call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
-      do i=1,ndim
+      if(.not.result) then
+           buffer = dname
+           call errquit(pname//"cannot find"//buffer,0,0) 
+      end if
+      if(ihi.gt.ndim1) then
+          buffer = dname
+          call errquit(pname//"out of bounds"//buffer,0,0)
+      end if
+       do i=1,ndim
         log_mb(ind+ilo+i-2) = datum(i)
       end do
       return
@@ -1222,6 +1262,14 @@ c
 
       ndim = ihi-ilo+1
       call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
+      if(.not.result) then
+           buffer = dname
+           call errquit(pname//"cannot find"//buffer,0,0) 
+      end if
+      if(ihi.gt.ndim1) then
+          buffer = dname
+          call errquit(pname//"out of bounds"//buffer,0,0)
+      end if
       do i=1,ndim
         datum(i) = log_mb(ind+ilo+i-2) 
       end do
@@ -1426,6 +1474,10 @@ c      ndim1 = smd_tag_size*ndim
            buffer = dname
            call errquit(pname//"cannot find"//buffer,0,0) 
       end if
+      if(ihi.gt.ndim1) then
+          buffer = dname
+          call errquit(pname//"out of bounds"//buffer,0,0)
+      end if
       offset = smd_string_size*(ilo-1)
       call smd_set_char_to_ma1(datum,ilo,ihi,ndim1,byte_mb(ind))
       return
@@ -1459,8 +1511,14 @@ c
 
       ndim=ihi-ilo+1
       call smd_data_get_ind_dim(sname,dname,ind,ndim1,result)
-      if(.not.result)
-     >     call errquit(pname//"cannot find",0,0) 
+      if(.not.result) then
+           buffer = dname
+           call errquit(pname//"cannot find"//buffer,0,0) 
+      end if
+      if(ihi.gt.ndim1) then
+          buffer = dname
+          call errquit(pname//"out of bounds"//buffer,0,0)
+      end if
       offset = smd_string_size*(ilo-1)
       call smd_set_ma_to_char1(datum,ilo,ihi,ndim1,byte_mb(ind))
       return
