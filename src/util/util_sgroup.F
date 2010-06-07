@@ -239,8 +239,11 @@ C     Make sure all nodes are done using RTDB file
         write(LuOut,*) 'Closing subgroup '
       endif
       if (sgprint) call util_flush(LuOut)
+
       call ga_pgroup_set_default(my_ga_grp(depth-1))
+      if (myproc .eq. 0) then 
       ignore = ga_pgroup_destroy(my_ga_0_grp(depth))
+      endif
       ignore = ga_pgroup_destroy(mypgroup_old)
       my_ga_0_grp(depth) = -999
       my_ga_grp(depth) = -999
