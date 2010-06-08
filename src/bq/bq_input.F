@@ -18,13 +18,13 @@ c     ***   end
 c     ***
 c     *** units - keyword specifying that a value will be entered by the user
 c     *** for the string variable <units>. The default units for the geometry 
-c     *** input are Angstrøms (Note: atomic units or Bohr are used within the
+c     *** input are AngstrÃ¸ms (Note: atomic units or Bohr are used within the
 c     *** code, regardless of the option specified for the input units.  The 
 c     *** code recognizes the following possible values  for the string variable <units>:         
-c     ***   angstroms or an -- Angstroms (Å), the default (converts to A.U. using the Åto A.U. conversion factor)
+c     ***   angstroms or an -- Angstroms (Ã…), the default (converts to A.U. using the Ã…to A.U. conversion factor)
 c     ***   au or atomic or bohr -- Atomic units (A.U.)
-c     ***   nm or nanometers -- nanometers (converts to A.U. using a conversion factor computed as  times the Å to A.U. conversion factor)
-c     ***   pm or picometers -- picometers (converts to A.U. using a conversion factor computed as  times the Å to A.U. conversion factor)
+c     ***   nm or nanometers -- nanometers (converts to A.U. using a conversion factor computed as  times the Ã… to A.U. conversion factor)
+c     ***   pm or picometers -- picometers (converts to A.U. using a conversion factor computed as  times the Ã… to A.U. conversion factor)
 
 
       subroutine bq_input(rtdb)
