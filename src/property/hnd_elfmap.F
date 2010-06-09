@@ -37,6 +37,7 @@ c     property grid points variables (MV)
       character*26 prp_date
       logical do_points
       integer l_tefld,k_tefld
+      logical rtdb_par
 c->d3p975
       character*30 theory
       integer nbf
@@ -172,6 +173,11 @@ c     ----- form -efc- contribution -----
 c           from cosmo point charges !!!!
 c
          if (cosmo_last) then
+c
+c           Switch the run time data base temporarily to sequential
+c           as access as this code is executed on process 0 only.
+c
+            rtdb_par = rtdb_parallel(.false.)
             if (.not.rtdb_get(rtdb,'cosmo:nefc',mt_int,1,nefc))
      &         call errquit('hnd_elfmap: rtdb get failed for nefc ',911,
      &         RTDB_ERR)
@@ -185,6 +191,10 @@ c
             if (.not.rtdb_get(rtdb,'cosmo:efcz',mt_dbl,nefc,
      &         dbl_mb(k_efcz))) call
      &         errquit('hnd_elfmap: rtdb get failed efcz',913,rtdb_err)
+c
+c           Switch run time data base access back to original setting.
+c
+            rtdb_par = rtdb_parallel(rtdb_par)
             do 220 i = 1,nefc
                xn = dbl_mb(k_efcc+3*(i-1)  ) - xp
                yn = dbl_mb(k_efcc+3*(i-1)+1) - yp
@@ -218,10 +228,11 @@ c     &                       elfld
          else
            if (.not. geom_cent_tag(geom,iat,at_tag)) call
      &        errquit('hnd_elfmap: geom_cent_tag failed',0,GEOM_ERR)
-         if (.not. geom_tag_to_element(at_tag,symbol,element,atn)) then 
-            if(symbol.ne."bq") call
-     &      errquit('hnd_elfmap: geom_tag_to_element failed',0,GEOM_ERR)
-         end if
+           if (.not.geom_tag_to_element(at_tag,symbol,element,atn)) then
+             if(symbol.ne."bq") call
+     &         errquit('hnd_elfmap: geom_tag_to_element failed',
+     &                 0,GEOM_ERR)
+           end if
            write(luout,9995) iat,symbol,xp,yp,zp,elf(1),elf(2),elf(3),
      &                       elfld
 c
