@@ -118,6 +118,34 @@ c
       subroutine fock_2e_do_block(basis, geom, nat, bfr,
      $     task_bf, blocks, nblock, maxblock)
       implicit none
+c
+c     This subroutine groups atoms into blocks such that
+c     1. no block contains more than 10 atoms
+c     2. no block contains more that task_bf basis functions
+c     3. no block starts or ends with atoms without basis functions
+c        (e.g. point charges)
+c     4. all blocks contain at least 1 basis function
+c     The resulting blocks are the basis for the work distribution
+c     in the distributed data Fock build.
+c
+c     The subroutine returns:
+c     - blocks   -- the array of blocks such that blocks(1,i) is the
+c                   atom of lowest rank and blocks(2,i) is the atom of
+c                   highest rank
+c     - nblock   -- the number of blocks
+c     - maxblock -- the maximum number of basis functions in any block
+c
+c     Ad 3. This condition on the blocks has to be imposed because of
+c           an inconsistency of the data in the array bfr. This array
+c           has for any atom i bfr(1,i) the basis function of lowest
+c           rank, and bfr(2,i) the basis function of highest rank on
+c           that atom. However, if atom i has no basis functions then
+c           bfr(1,i) = 0, and bfr(2,i) = -1, i.e. these are arbitrary
+c           values. The result is that the number of basis functions
+c           in a block cannot be established correctly by looking
+c           at the first and last atom of the block if condition
+c           3 is not met.
+c
 #include "global.fh"
 #include "util.fh"
       integer basis
@@ -125,7 +153,7 @@ c
       integer nat
       integer bfr(2,nat)
       integer task_bf
-      integer blocks(2,*), nblock, maxblock
+      integer blocks(2,*), nblock, maxblock, minblock
 c
       integer iat, n, iatlo, i, na, nnext
       logical firstprint
@@ -155,16 +183,47 @@ c
          blocks(2,nblock) = nat
       endif
 c
+      n = 0
+      do i = 1, nblock
+c
+c       Remove any leading atoms without basis functions
+c
+        do while (bfr(2,blocks(1,i))-bfr(1,blocks(1,i))+1 .le. 0 .and.
+     $            blocks(1,i).lt.blocks(2,i))
+          blocks(1,i) = blocks(1,i) + 1
+        enddo
+c
+c       Remove any trailing atoms without basis functions
+c
+        do while (bfr(2,blocks(2,i))-bfr(1,blocks(2,i))+1 .le. 0 .and.
+     $            blocks(2,i).gt.blocks(1,i))
+          blocks(2,i) = blocks(2,i) - 1
+        enddo
+c
+c       Keep a block only if it has at least one basis function
+c
+        if (bfr(2,blocks(2,i))-bfr(1,blocks(2,i))+1 .gt. 0) then
+          n = n + 1
+          blocks(1,n) = blocks(1,i)
+          blocks(2,n) = blocks(2,i)
+        endif
+c
+      enddo
+      nblock = n
+c
       maxblock = 0
+      minblock = task_bf
       do i = 1, nblock
          maxblock = max(maxblock,
+     $        bfr(2,blocks(2,i))-bfr(1,blocks(1,i))+1)
+         minblock = min(minblock,
      $        bfr(2,blocks(2,i))-bfr(1,blocks(1,i))+1)
       enddo
 c
       if (ga_nodeid().eq.0 .and. util_print('tasks',print_high)
      $     .and. firstprint) then
          firstprint = .false.
-         write(6,1) task_bf, maxblock, nblock
+         write(6,1) minblock, maxblock, nblock
          write(6,2) (blocks(1,i), blocks(2,i),i=1, nblock)
          write(6,*)
          call util_flush(6)

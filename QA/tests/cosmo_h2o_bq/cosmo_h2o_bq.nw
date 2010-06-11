@@ -1,0 +1,57 @@
+echo
+memory total 2000 Mb
+start cosmo_h2o_bq_dat
+
+#permanent_dir ./perm
+#scratch_dir ./data
+
+geometry "bq_end" nocenter noautosym noautoz
+H    0.290  -1.478   2.133
+O    -0.526  -1.642   2.602
+H   -0.729  -0.989   3.278
+Bq   1.49104334820998       -1.12622254780829        2.48477745219171  charge     -1.038081477585204E-002
+bQ   0.641777452191707      -0.276956651790021        2.48477745219171 charge      1.038081477585204E-002
+end
+
+geometry "bq_mid" nocenter noautosym noautoz
+H    0.290  -1.478   2.133
+Bq   1.49104334820998       -1.12622254780829        2.48477745219171  charge     -1.038081477585204E-002
+bQ   0.641777452191707      -0.276956651790021        2.48477745219171 charge      1.038081477585204E-002
+O    -0.526  -1.642   2.602
+H   -0.729  -0.989   3.278
+end
+
+basis "atoms_only"
+* library 6-31G
+end
+
+basis "atoms_bq"
+* library 6-31G
+bQ library h 6-31G
+Bq library h cc-pVQZ
+end
+
+dft
+print medium tasks
+xc hfexch
+iterations 200
+noio
+direct
+GRID nodisk
+end
+
+set "geometry" "bq_end"
+set "ao basis" "atoms_only"
+set dft:xcreplicated f
+set fock:replicated .false.
+task dft energy
+
+set "geometry" "bq_mid"
+set dft:xcreplicated f
+set fock:replicated .false.
+task dft energy
+
+set "ao basis" "atoms_bq"
+set dft:xcreplicated f
+set fock:replicated .false.
+task dft energy
