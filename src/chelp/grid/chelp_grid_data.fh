@@ -1,0 +1,25 @@
+c
+c $Id: qmmm_geom_data.fh,v 1.3 2005-06-15 05:39:00 marat Exp $
+c
+c     grid array size
+      integer nrchelp
+c     pointer to grid array
+      integer i_rchelp,h_rchelp
+c     pointer to atomic radius array
+      integer i_rdchelp,h_rdchelp
+cc     grid dimensions
+c      double precision chelp_nr(3)
+cc     grid spacing
+c      double precision chelp_dr
+cc     grid padding
+c      double precision chelp_rpad
+cc     grid bounds
+c      double precision chelp_rmin(3)
+c      double precision chelp_rmax(3)
+
+      common/chelp_grid_data/ i_rchelp,
+     &                 h_rchelp,
+     &                 h_rdchelp,
+     &                 i_rdchelp, 
+     &                 nrchelp
+
