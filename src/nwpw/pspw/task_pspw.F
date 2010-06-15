@@ -44,12 +44,12 @@ c     *** define external functions ****
       logical  psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       logical  v_wvfnc_init,wvfnc_expander,cell_optimize,mmsdv1,mmmdv1
       logical  pspw_dplot,pspw_stress,pspw_noit_energy,cpmdv6
-      logical  pspw_wannier,expand_cell,wvfnc_ionize
+      logical  pspw_wannier,pspw_wannier_old,expand_cell,wvfnc_ionize
       logical  wvfnc_convert_restricted,nwpw_rdf
       external psp_formatter,wvfnc_init,cpsdv5,cpmdv5,cgsdv5,cgmdv5
       external v_wvfnc_init,wvfnc_expander,cell_optimize,mmsdv1,mmmdv1
       external pspw_dplot,pspw_stress,pspw_noit_energy,cpmdv6
-      external pspw_wannier,expand_cell,wvfnc_ionize
+      external pspw_wannier,pspw_wannier_old,expand_cell,wvfnc_ionize
       external wvfnc_convert_restricted,nwpw_rdf
 c
 c
@@ -253,9 +253,15 @@ c
  1400 if (ga_nodeid().eq.MASTER) then
         write(*,*)  ">>>> PSPW Parallel Module - Wannier <<<<"
       end if
+      if (.not.rtdb_get(rtdb,'nwpw:wannier_old',mt_log,1,dummy))
+     >  dummy = .false.
       value = .true.
       value = rtdb_parallel(.true.)
-      value = pspw_wannier(rtdb)
+      if (dummy) then
+         value = pspw_wannier_old(rtdb)
+      else
+         value = pspw_wannier(rtdb)
+      end if
       call ga_sync()
       goto 9999
 
