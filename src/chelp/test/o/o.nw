@@ -1,0 +1,21 @@
+echo
+permanent_dir ./perm
+scratch_dir ./data
+start o
+
+memory global 40 mb stack 23 mb heap 5 mb
+
+geometry noautosym nocenter noautoz units au
+ O 0       0        0
+end
+
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+set chelp:prune .true.
+set chelp:prune:exterior .true.
+
+task dft chelp
