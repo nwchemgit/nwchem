@@ -1927,6 +1927,8 @@ c
       data one    /1.0d+00/
       data two    /2.0d+00/
       integer g_dens(ndens)
+      double precision bohr
+      parameter (bohr=0.529177249d0)
 c
       logical util_io_unit
       external util_io_unit
@@ -2515,7 +2517,7 @@ c
 c
 c     printing cosmo charges for bq module
 c     -------------------------------------
-      cosmo_file = "cosmo.xyzq"
+      cosmo_file = "cosmo.xyz"
       call util_file_name_resolve(cosmo_file,.false.)
       if(ga_nodeid().eq.0) then
         if(.not.util_io_unit(80,90,fn))
@@ -2526,12 +2528,15 @@ c     -------------------------------------
         write(*,*) "printing cosmo charges for bq module",
      +     cosmo_file
 
+        write(fn,*) nefc
+        write(fn,*) "cosmo charges"
         do ief=1,nefc
            write(fn,*) 
-     +      efcz(  ief),
-     +      efcc(1,ief),
-     +      efcc(2,ief),
-     +      efcc(3,ief)
+     +      "Bq",
+     +      efcc(1,ief)*bohr,
+     +      efcc(2,ief)*bohr,
+     +      efcc(3,ief)*bohr,
+     +     -efcz(  ief)
         end do
         close(fn)
       end if
