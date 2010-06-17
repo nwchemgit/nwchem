@@ -142,8 +142,8 @@ c      local variables
        logical  bq_namespace
        external bq_namespace
 
-       logical  bq_pset
-       external bq_pset
+       logical  bq_pset_mem
+       external bq_pset_mem
 
        pname = "bq_rtdb_load"
 
@@ -170,7 +170,6 @@ c      local variables
      &      0, RTDB_ERR)
 
        call bq_tag_coord(namespace,tag)
-       write(*,*) tag
        if(.not. rtdb_ma_get(irtdb,tag,ma_type,n,h_c))
      &      call errquit(
      &      pname//' uuunable to get coord',
@@ -183,7 +182,7 @@ c      local variables
      &      pname//' unable to get charge',
      &      0, RTDB_ERR)
 
-       if(.not. bq_pset(handle,ncent,h_q,h_c))
+       if(.not. bq_pset_mem(handle,ncent,h_q,h_c))
      &      call errquit(
      &      pname//' unable to pset bq',
      &      0, 0)

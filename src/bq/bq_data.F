@@ -273,6 +273,36 @@ c      local variables
        return
        end
 
+      function bq_pset_mem(handle,n,h_q,h_c)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+       integer handle
+       integer n
+       integer h_q,h_c
+       logical bq_pset_mem
+c      local variables
+       character*(32) pname
+
+       pname = "bq_pset_mem"
+
+       if(handle .lt.0 .or. handle .gt. max_bq) then
+         bq_pset_mem = .false.
+         return
+       else
+         bq_pset_mem = .true.
+       end if
+
+       bq_ncent(handle)  = n
+       bq_charge(handle) = h_q
+       bq_coord(handle)  = h_c
+       bq_mem(handle)    = .true.
+
+       return
+       end
+
       function bq_get(handle,n,q,c)
       implicit none
 #include "mafdecls.fh"

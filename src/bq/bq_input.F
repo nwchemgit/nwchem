@@ -1,32 +1,5 @@
 c $Id: bq_input.F,v 1.8 2006-10-06 06:56:59 marat Exp $
 
-
-
-c     ***  The (current) format of the bq input is as folllows:
-c     ***
-c     ***   bq [units <string units default angstroms> ] 
-c     ***      [(angstrom_to_au || ang2au) <real angstrom_to_au default 1.8897265>]
-c     ***
-c     ***       [bq_filename <string filename default bqcharges>]
-c     ***       [bq_rtdb <string rtdb_charge_tag default cosmo:efcz> <string rtdb_coord_tag default cosmo:efcc>]
-c     ***
-c     ***
-c     ***       { <real charge> <real x y z>
-c     ***         ... }
-c     ***
-c     ***   end
-c     ***
-c     *** units - keyword specifying that a value will be entered by the user
-c     *** for the string variable <units>. The default units for the geometry 
-c     *** input are Angstrøms (Note: atomic units or Bohr are used within the
-c     *** code, regardless of the option specified for the input units.  The 
-c     *** code recognizes the following possible values  for the string variable <units>:         
-c     ***   angstroms or an -- Angstroms (Å), the default (converts to A.U. using the Åto A.U. conversion factor)
-c     ***   au or atomic or bohr -- Atomic units (A.U.)
-c     ***   nm or nanometers -- nanometers (converts to A.U. using a conversion factor computed as  times the Å to A.U. conversion factor)
-c     ***   pm or picometers -- picometers (converts to A.U. using a conversion factor computed as  times the Å to A.U. conversion factor)
-
-
       subroutine bq_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -67,7 +40,7 @@ c
 c      write(*,*) "in "//pname
 c
 c
-      max_nbq = min( 4*7000, ma_inquire_avail(MT_INT))
+      max_nbq = min( 4*7000, ma_inquire_avail(MT_DBL))
       max_nbq = max_nbq/4
 c
       if ( .not. ma_push_get( MT_DBL, 3*max_nbq, 
@@ -86,8 +59,8 @@ c
 c
       call dfill(max_nbq,0.0d0,dbl_mb(i_qbq),1)
 
-c      if(inp_n_field().gt.2) 
-c     >  call errquit(pname//'too many fields',0,0)
+      if(inp_n_field().gt.2) 
+     >  call errquit(pname//'too many fields',0,0)
 
       namespace = bq_default
 
@@ -95,21 +68,24 @@ c     >  call errquit(pname//'too many fields',0,0)
 
 
 c     *** get scale using the form used in geometry ***
-      call bq_get_scalefrominput(scale)
+c      this is not right as it is ignoring the  namespace   
+c      call bq_get_scalefrominput(scale)
 
-c      scale = 1.88972598858d0
-c      do i=1,inp_n_field()-1
-c        call inp_set_field(i)
-c        if (.not. inp_a(field))   
-c     &    call errquit(pname//': inp_read failed',0,0)
-c        if (inp_compare(.false.,field,'au')) then
-c          scale = 1.0d0       
-c        else if (inp_compare(.false.,field,'angstroms')) then
-c          scale = 1.88972598858d0
-c        else
-c         namespace=field 
-c        end if 
-c      end do
+      scale = 1.88972598858d0
+      do i=1,inp_n_field()-1
+        call inp_set_field(i)
+        if (.not. inp_a(field))   
+     &    call errquit(pname//': inp_read failed',0,0)
+        if (inp_compare(.false.,field,'au')) then
+          scale = 1.0d0       
+        else if (inp_compare(.false.,field,'nm')) then
+          scale = 18.8972598858d0
+        else if (inp_compare(.false.,field,'angstroms')) then
+          scale = 1.88972598858d0
+        else
+         namespace=field 
+        end if 
+      end do
 
      
       ncenter = 0
@@ -138,8 +114,8 @@ c      end do
             end if
             call util_file_name_resolve(filename, .false.)
 
+            ncenter = max_nbq
             call bq_readfile(filename,ncenter,
-     &                       charge_scale,
      &                       dbl_mb(i_qbq),
      &                       dbl_mb(i_cbq))
             goto 20
@@ -296,40 +272,45 @@ c     -----------------------------------
       return
       end
 
-
 *     *************************************************
 *     *                                               *
 *     *               bq_readfile                     *
 *     *                                               *
 *     *************************************************
-      subroutine bq_readfile(filename,ncenter,s,charge,coord)
+      subroutine bq_readfile(filename,ncenter,q,c)
       implicit none
+#include "util.fh"
+#include "errquit.fh"
+#include "inp.fh"
       character*(*) filename
       integer       ncenter
-      double precision s
-      real*8        charge(*)
-      real*8        coord(3,*)
+      double precision   q(ncenter)
+      double precision   c(3,ncenter)
 
 c
-      double precision q,c(3)
+      integer fn,fn1,k,i,ipos
+      character*180 buffer
+      character*30 pname,atag
 
-      ncenter = 0
-      open(unit=99,file=filename,status='old')
-        do while(.true.)
-           read(99,*,ERR=30,END=30) q,c(1),c(2),c(3)
-           charge(ncenter+1)  = charge(ncenter+1)+s*q
-           coord(1,ncenter+1) = c(1)
-           coord(2,ncenter+1) = c(2)
-           coord(3,ncenter+1) = c(3)
-           ncenter = ncenter + 1
-        end do
-  30  close(99)
+      pname = "bq_readfile"
+
+      if(.not.util_io_unit(80,90,fn))
+     +  call errquit(pname//"cannot get io unit",0,0)
+      open(unit=fn,file=filename,status='old',form="formatted")
+      i=0
+10    continue        
+       read(fn,'(A180)',ERR=30,END=30) buffer
+       if(inp_contains(.false.,"bq",buffer,ipos)) then
+         i=i+1
+         if(i.gt.ncenter)
+     +     call errquit(pname//"increase bq stack",i,0)
+         read(buffer,*) atag,(c(k,i),k=1,3),q(i)
+       end if
+      goto 10
+  30  close(fn)
+      ncenter = i
       return
       end
-
-
-
-
 *     *************************************************
 *     *                                               *
 *     *               bq_fromrtdb                     *

@@ -5,6 +5,7 @@ c $Id: bq_main.F,v 1.6 2008-04-22 21:59:58 niri Exp $
 #include "rtdb.fh"
 #include "bq.fh"
 #include "errquit.fh"
+#include "global.fh"
 
       integer rtdb
       logical bq_init
@@ -15,6 +16,8 @@ c
 
       pname = "bq_init"
       
+c
+c      write(*,*) "in "//pname
 c
       bq_init = .true.
       if(.not. rtdb_cget(rtdb,"bq" , 1,namespace)) then
@@ -39,6 +42,8 @@ c
       end if
 
 
+      if(ga_nodeid().eq.0) 
+     +   call bq_print_xyz(handle,91)
 
       end
 
@@ -49,6 +54,9 @@ c
 #include "errquit.fh"
       logical bq_end
       
+      character*30 pname
+      pname ="bq_end"
+c      write(*,*) "in "//pname
       bq_end = bq_destroy_all()
 
       end
@@ -61,6 +69,7 @@ c
 #include "geom.fh"
 #include "global.fh"
 #include "bq_params.fh"
+#include "stdio.fh"
 c
       integer rtdb
       double precision ebq
@@ -155,7 +164,7 @@ c
       end do
 c
       if(ga_nodeid().eq.0) then
-        write(*,*) "Bq nuclear interaction energy =", ebq 
+        write(luout,*) "Bq nuclear interaction energy =", ebq 
       end if
 c 
       if(.not.ma_pop_stack(h_t))
@@ -181,6 +190,7 @@ c
 #include "geom.fh"
 #include "global.fh"
 #include "bq_params.fh"
+#include "stdio.fh"
 c
       integer geom
       double precision e
@@ -279,8 +289,8 @@ c
       end do
 c
       if(ga_nodeid().eq.0) then
-        write(*,*) "Nuclear repulsion energy =", e 
-        write(*,*) "Bq nuclear interaction energy =", ebq 
+        write(luout,*) "Nuclear repulsion energy =", e 
+        write(luout,*) "Bq nuclear interaction energy =", ebq 
       end if
 c 
       e = e + ebq
