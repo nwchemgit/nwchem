@@ -68,6 +68,7 @@ c
       integer iwhat_max
       integer l_3cwhat, k_3cwhat, l_3cERI, k_3cERI
       integer n_semi_bufs, fd
+      logical cosmo_esp
 cc    Jorge Garza/Begin
 c
 c     Variables used to obtain the exact exchange-correlation potential
@@ -1591,6 +1592,16 @@ c
  914  format(' (electrostatic) solvation energy = ',f20.10,
      $     ' (',f8.2,' kcal/mol)'                       )
  1970 continue
+c     calculate final cosmo charges
+      if (.not.rtdb_get(rtdb,'cosmo_esp',mt_log,1,cosmo_esp)) 
+     +  cosmo_esp=.false.
+      if (cosmo_esp) then
+      if(ga_nodeid().eq.0)
+     +  write(luout,*) "calculating cosmo esp charges"
+      call cosmo_charges(rtdb,
+     $   ao_bas_han,geom,ecosmo,odbug,ipol,g_movecs,mclosed,mopen,
+     $   nbf_ao, nmo)
+      end if
 c
 c     Vector analysis stolen from rohf.F
 c

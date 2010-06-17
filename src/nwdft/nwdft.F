@@ -125,6 +125,8 @@ c     == Local declarations ==
       integer bases(3), i3
       logical LResult, oprint, converged
       logical dyall_mod_dir  ! do modified Dirac calculation
+      logical cosmo_esp
+      logical ignore
 c
       logical dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
       external dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
@@ -190,6 +192,14 @@ c     == old checkpoint files, etc. ==
       call dft_rdinput(rtdb)
 c
 c     == Cosmo initialization ==
+      if (.not.rtdb_get(rtdb,'cosmo_esp',mt_log,1,cosmo_esp)) 
+     +  cosmo_esp=.false.
+
+      if(cosmo_esp) then
+       call cosmo_initialize(rtdb,geom,ao_bas_han,oprint)
+       ignore=rtdb_delete(rtdb,'slv:cosmo')
+      end if
+
       cosmo_last = .false.
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
          if(cosmo_on) then
@@ -329,6 +339,8 @@ c     == Clean up cosmo stuff, if necessary ==
          cosmo_on = .false.
          cosmo_phase = 1
       endif
+      if(cosmo_esp)
+     +  call cosmo_tidy()
 c     
 c     == Destroy basis set handles and geom object ==
       XCFIT    = .TRUE.
