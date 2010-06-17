@@ -12,12 +12,14 @@
 c
       integer rtdb
       character*72 operation
-      character*32 pname
+      character*32 pname,tag
       logical result
       logical task_energy_doit
       external task_energy_doit
       logical task_optimize
       external task_optimize
+      logical task_property
+      external task_property
       logical task_gradient
       external task_gradient
       logical task_energy
@@ -28,6 +30,7 @@ c
       external util_sgroup_mygroup
       character*255 key
       logical noesp
+      double precision dipole(3)
 
       pname = "smd_monomer"
 
@@ -38,6 +41,12 @@ c
      +  write(*,*) "starting task",im
       if(inp_compare(.false., 'energy', operation)) then
          result = task_energy(rtdb)
+      else if(inp_compare(.false., 'dipole', operation)) then
+         result = task_energy(rtdb)
+         call smd_geom_get_dipole()
+         call smd_global_update_res("dipoles","put",im)
+      else if(inp_compare(.false., 'property', operation)) then
+         result = task_property(rtdb)
       else if(inp_compare(.false., 'gradient', operation)) then
         result = task_gradient(rtdb)
         call smd_geom_get_gradients()
@@ -172,6 +181,7 @@ c     pull the global charges/coords onto local set
       write(msg,'(A20," 1 ",I3)') pname,im
       call smd_coords_check(msg)
       call smd_global_update("coords","get")
+      call smd_global_update("dipoles","get")
       write(msg,'(A20," 2 ",I3)') pname,im
       call smd_coords_check(msg)
 c
@@ -179,6 +189,7 @@ c      create geometry object
 c      ---------------------
       call smd_geom_init_system(im)
       call smd_bq_init()
+c      call smd_bq_dipole_init()
       call ga_sync()
 c
       call smd_message_post("out "//pname)
@@ -270,7 +281,6 @@ c
      &       MA_ERR)
       return
       end subroutine
-
 
       subroutine smd_monomer_end()
       implicit none

@@ -121,6 +121,100 @@ c     ---------------------------------
       call smd_atom_compute_res(nt,nr,int_mb(i_ir),int_mb(i_sr),
      +                          int_mb(i_mr),int_mb(i_pr))
 c
+      tag = "res_dipoles"
+      call smd_data_create(namespace,tag,3*nr,MT_DBL)
+c
+      call util_message("out "//pname)
+
+      return
+      end
+c      
+      subroutine smd_atom_dipole_read(oparallel)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "geom.fh"
+#include "msgids.fh"
+c     
+      logical oparallel
+c
+      character*32 pname
+      character*80 tag,filename
+      integer i
+      integer i_fd,nr,un
+      logical result
+      integer k
+c
+      pname = "smd_atom_dipole_read"
+c
+      call util_message("in "//pname)
+      tag = "res_dipoles"
+      call smd_get_ind_dim(tag,i_fd,nr,result)
+      nr=nr/3
+      if(.not.result) 
+     + call errquit(pname//'Failed to get'//tag,
+     + 0, 0)
+      call smd_rtdb_get_string("smd:dipole:input",1,
+     >                           filename,result)
+      if(.not.result) return
+c
+      if(ga_nodeid().eq.0) then
+      call smd_file_open(un,filename)
+      do i=1,nr
+        read(un,*) (dbl_mb(i_fd+(i-1)*3+k-1),k=1,3)
+      end do
+      close(un)
+      end if
+      if(oparallel) then
+          call ga_brdcst(msg_smd,dbl_mb(i_fd),
+     >     3*nr*ma_sizeof(mt_dbl,1,mt_byte),0)
+      end if
+      call util_message("out "//pname)
+
+      return
+      end
+
+      subroutine smd_atom_dipole_write()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "geom.fh"
+c     
+c
+      character*32 pname
+      character*80 tag,filename
+      integer i
+      integer i_fd,nr,un
+      logical result
+      integer k
+c
+      pname = "smd_atom_dipole_read"
+c
+      call util_message("in "//pname)
+      tag = "res_dipoles"
+      call smd_get_ind_dim(tag,i_fd,nr,result)
+      nr=nr/3
+      if(.not.result) 
+     + call errquit(pname//'Failed to get'//tag,
+     + 0, 0)
+      call smd_rtdb_get_string("smd:dipole:output",1,
+     >                           filename,result)
+      if(.not.result) return
+c
+      call smd_file_open(un,filename)
+      do i=1,nr
+        write(un,*) (dbl_mb(i_fd+(i-1)*3+k-1),k=1,3)
+      end do
       call util_message("out "//pname)
 
       return
@@ -293,6 +387,34 @@ c
      &       MA_ERR)
 c      
       end subroutine
+c      
+      subroutine smd_atom_get_dipoles()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "geom.fh"
+c
+      character*32 tag,pname
+      logical result
+      integer i_fd,nr
+      integer rtdb
+c
+      pname = "smd_atom_get_dipoles"
+c
+      call smd_rtdb_get_handle(rtdb)
+c
+      tag = "res_dipoles"
+      call smd_get_ind_dim(tag,i_fd,nr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+      
+      return
+      end
 ccc      
 ccc      
 c      subroutine smd_atom_compute_res_size(nt,ir,nr,sr)

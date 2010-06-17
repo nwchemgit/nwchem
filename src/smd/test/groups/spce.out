@@ -141,18 +141,18 @@ task smd fragment dft gradient
            Job information
            ---------------
 
-    hostname      = marat-macbook.emsl.pnl.gov
+    hostname      = swift
     program       = nwchem
-    date          = Mon May 10 13:54:09 2010
+    date          = Tue May 11 11:25:44 2010
 
-    compiled      = Mon_May_10_13:52:42_2010
-    source        = /opt/codes/nwchem/nwchem-dev
+    compiled      = Tue_May_11_10:59:35_2010
+    source        = /home/marat/codes/nwchem-dev
     nwchem branch = Development
     input         = spce.nw
     prefix        = test.
     data base     = ./perm/test.db
     status        = startup
-    nproc         =        2
+    nproc         =        8
     time left     =     -1s
 
 
@@ -182,8 +182,8 @@ task smd fragment dft gradient
 
 
  in smd_input_vel                   
- current tokeninput                                                                                                                                                                                                                                                                     2           5
- current tokenoutput                                                                                                                                                                                                                                                                    4           5
+ current tokeninput                                                                                                                                                                                                                                                                              2                    5
+ current tokenoutput                                                                                                                                                                                                                                                                             4                    5
  found smd T
  found fragment T
  osmd,ofragment T T
@@ -217,34 +217,61 @@ bq              = mybq
 bond            = bond            
  out of smd_global_init_system          
  finshed initializing fragment
- in smd_task_mode                            0
- out smd_task_mode                            0
- executing in serial mode           0
- in smd_task_iterate                         0
- Hello from group           1           0
- executing task           2
- in smd_task_execute                         0
+ in smd_task_mode                                     0
+ out smd_task_mode                                     0
+ executing in serial mode                    0
+ in smd_task_iterate                                  0
+ Hello from group                    1                    1
+ executing task                    1
+ in smd_task_execute                                  0
  osmd,ofragment T T
  initializing fragment
  out of smd_global_init_system          
  finshed initializing fragment
- Hello from group           2   167802416
- executing task           1
- in smd_geom_init_system                       0
- in smd_geom_find_neighbors_gen              0
- 1: smd_geom_find_neighbors_gen              0
- nbq=         759
+ osmd,ofragment T T
+ initializing fragment
+ out of smd_global_init_system          
+ finshed initializing fragment
+ osmd,ofragment T T
+ initializing fragment
+ out of smd_global_init_system          
+ finshed initializing fragment
+ osmd,ofragment T T
+ initializing fragment
+ out of smd_global_init_system          
+ finshed initializing fragment
+ Hello from group                    2                    1
+ executing task                    2
+ osmd,ofragment T T
+ initializing fragment
+ out of smd_global_init_system          
+ finshed initializing fragment
+ osmd,ofragment T T
+ initializing fragment
+ out of smd_global_init_system          
+ finshed initializing fragment
+ osmd,ofragment T T
+ initializing fragment
+ out of smd_global_init_system          
+ finshed initializing fragment
+ in smd_geom_init_system                                0
+ in smd_geom_find_neighbors_gen                       0
+ 1: smd_geom_find_neighbors_gen                       0
+5: WARNING:armci_set_mem_offset: offset changed -223464972288 to -327291678720
+ nbq=                  759
 
 
+ operation isgradient                                                                
 
                                  NWChem DFT Module
                                  -----------------
 
 
   Caching 1-el integrals 
- nbq=         756
+ nbq=                  756
 
 
+ operation isgradient                                                                
 
                                  NWChem DFT Module
                                  -----------------
@@ -381,22 +408,22 @@ bond            = bond
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul: 1.00D-08
 
- Nuclear repulsion energy =   78.492950967372749     
- Bq nuclear interaction energy =   1.6242480739695448     
+ Nuclear repulsion energy =   78.4929509673727     
+ Bq nuclear interaction energy =   1.62424807396955     
 
       Superposition of Atomic Density Guess
       -------------------------------------
 
  Sum of atomic energies:        -227.25245193
- Nuclear repulsion energy =   129.96505663012479     
- Bq nuclear interaction energy =   1.4942431689668494     
+ Nuclear repulsion energy =   129.965056630125     
+ Bq nuclear interaction energy =   1.49424316896683     
 
       Superposition of Atomic Density Guess
       -------------------------------------
 
  Sum of atomic energies:        -303.00326924
- Nuclear repulsion energy =   78.492950967372749     
- Bq nuclear interaction energy =   1.6242480739695448     
+ Nuclear repulsion energy =   78.4929509673727     
+ Bq nuclear interaction energy =   1.62424807396955     
 
       Non-variational initial energy
       ------------------------------
@@ -407,8 +434,8 @@ bond            = bond
  HOMO         =      -0.486089
  LUMO         =       0.042024
 
- Nuclear repulsion energy =   129.96505663012479     
- Bq nuclear interaction energy =   1.4942431689668494     
+ Nuclear repulsion energy =   129.965056630125     
+ Bq nuclear interaction energy =   1.49424316896683     
 
       Non-variational initial energy
       ------------------------------
@@ -419,102 +446,102 @@ bond            = bond
  HOMO         =      -0.443490
  LUMO         =       0.049767
 
- Nuclear repulsion energy =   78.492950967372749     
- Bq nuclear interaction energy =   1.6242480739695448     
-   Time after variat. SCF:      0.9
-   Time prior to 1st pass:      0.9
+ Nuclear repulsion energy =   78.4929509673727     
+ Bq nuclear interaction energy =   1.62424807396955     
+   Time after variat. SCF:      1.3
+   Time prior to 1st pass:      1.3
 
  Integral file          = ./data/test0002.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =     11        Max. records in file   = 220023
+ Max. records in memory =      4        Max. records in file   =  56197
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  #quartets = 5.367D+04 #integrals = 2.256D+05 #direct =  0.0% #cached =100.0%
 
- Nuclear repulsion energy =   78.492950967372749     
- Bq nuclear interaction energy =   1.6242480739695448     
-
- Grid_pts file          = ./data/test0002.gridpts.0
- Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     66        Max. recs in file   =   1173365
-
- Nuclear repulsion energy =   129.96505663012479     
- Bq nuclear interaction energy =   1.4942431689668494     
-   Time after variat. SCF:      1.3
-   Time prior to 1st pass:      1.3
+ Nuclear repulsion energy =   129.965056630125     
+ Bq nuclear interaction energy =   1.49424316896683     
+   Time after variat. SCF:      0.4
+   Time prior to 1st pass:      0.4
 
  Integral file          = ./data/test0001.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =     32        Max. records in file   = 220023
+ Max. records in memory =      9        Max. records in file   =  37465
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  #quartets = 1.309D+05 #integrals = 5.315D+05 #direct =  0.0% #cached =100.0%
 
- Nuclear repulsion energy =   129.96505663012479     
- Bq nuclear interaction energy =   1.4942431689668494     
+ Nuclear repulsion energy =   78.4929509673727     
+ Bq nuclear interaction energy =   1.62424807396955     
+
+ Grid_pts file          = ./data/test0002.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     18        Max. recs in file   =    599287
+
+ Nuclear repulsion energy =   129.965056630125     
+ Bq nuclear interaction energy =   1.49424316896683     
 
  Grid_pts file          = ./data/test0001.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     88        Max. recs in file   =   1173365
+ Max. records in memory =     23        Max. recs in file   =    299699
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       63.98            63976723
-          Stack Space remaining (MW):       65.53            65528741
+           Heap Space remaining (MW):       65.02            65021405
+          Stack Space remaining (MW):       65.54            65535569
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -229.1723446806 -3.09D+02  2.73D-02  9.63D-01     3.5
- Nuclear repulsion energy =   78.492950967372749     
- Bq nuclear interaction energy =   1.6242480739695448     
- d= 0,ls=0.0,diis     2   -229.1602248367  1.21D-02  1.41D-02  1.28D+00     5.4
+ d= 0,ls=0.0,diis     1   -229.1723445395 -3.09D+02  2.73D-02  9.63D-01     2.5
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       62.33            62329591
-          Stack Space remaining (MW):       65.53            65528617
+           Heap Space remaining (MW):       64.63            64631766
+          Stack Space remaining (MW):       65.54            65535421
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -305.5793139337 -4.37D+02  2.44D-02  1.25D+00     5.6
- Nuclear repulsion energy =   78.492950967372749     
- Bq nuclear interaction energy =   1.6242480739695448     
- d= 0,ls=0.0,diis     3   -229.2745881449 -1.14D-01  1.57D-03  1.78D-02     7.2
- Nuclear repulsion energy =   129.96505663012479     
- Bq nuclear interaction energy =   1.4942431689668494     
- d= 0,ls=0.0,diis     2   -305.5639161065  1.54D-02  1.25D-02  1.66D+00     8.7
- Nuclear repulsion energy =   78.492950967372749     
- Bq nuclear interaction energy =   1.6242480739695448     
- d= 0,ls=0.0,diis     4   -229.2760367242 -1.45D-03  4.94D-04  1.44D-03     9.1
- Nuclear repulsion energy =   78.492950967372749     
- Bq nuclear interaction energy =   1.6242480739695448     
- d= 0,ls=0.0,diis     5   -229.2761658642 -1.29D-04  6.90D-05  2.64D-05    11.0
- Nuclear repulsion energy =   129.96505663012479     
- Bq nuclear interaction energy =   1.4942431689668494     
- d= 0,ls=0.0,diis     3   -305.7137679558 -1.50D-01  1.48D-03  2.45D-02    11.7
- Nuclear repulsion energy =   78.492950967372749     
- Bq nuclear interaction energy =   1.6242480739695448     
- d= 0,ls=0.0,diis     6   -229.2761683619 -2.50D-06  1.07D-05  3.13D-07    12.8
- Nuclear repulsion energy =   129.96505663012479     
- Bq nuclear interaction energy =   1.4942431689668494     
- d= 0,ls=0.0,diis     4   -305.7157820085 -2.01D-03  4.41D-04  1.96D-03    14.8
- Nuclear repulsion energy =   78.492950967372749     
- Bq nuclear interaction energy =   1.6242480739695448     
- d= 0,ls=0.0,diis     7   -229.2761683834 -2.15D-08  4.34D-06  1.31D-07    14.8
- Nuclear repulsion energy =   78.492950967372749     
- Bq nuclear interaction energy =   1.6242480739695448     
+ d= 0,ls=0.0,diis     1   -305.5793138596 -4.37D+02  2.44D-02  1.25D+00     2.3
+ Nuclear repulsion energy =   78.4929509673727     
+ Bq nuclear interaction energy =   1.62424807396955     
+ d= 0,ls=0.0,diis     2   -229.1602247829  1.21D-02  1.41D-02  1.28D+00     3.6
+ Nuclear repulsion energy =   78.4929509673727     
+ Bq nuclear interaction energy =   1.62424807396955     
+ d= 0,ls=0.0,diis     3   -229.2745881489 -1.14D-01  1.57D-03  1.78D-02     4.6
+ Nuclear repulsion energy =   129.965056630125     
+ Bq nuclear interaction energy =   1.49424316896683     
+ d= 0,ls=0.0,diis     2   -305.5639159735  1.54D-02  1.25D-02  1.66D+00     4.0
+ Nuclear repulsion energy =   78.4929509673727     
+ Bq nuclear interaction energy =   1.62424807396955     
+ d= 0,ls=0.0,diis     4   -229.2760367235 -1.45D-03  4.94D-04  1.44D-03     5.7
+ Nuclear repulsion energy =   129.965056630125     
+ Bq nuclear interaction energy =   1.49424316896683     
+ d= 0,ls=0.0,diis     3   -305.7137679594 -1.50D-01  1.48D-03  2.45D-02     5.7
+ Nuclear repulsion energy =   78.4929509673727     
+ Bq nuclear interaction energy =   1.62424807396955     
+ d= 0,ls=0.0,diis     5   -229.2761658640 -1.29D-04  6.90D-05  2.64D-05     6.8
+ Nuclear repulsion energy =   78.4929509673727     
+ Bq nuclear interaction energy =   1.62424807396955     
+ d= 0,ls=0.0,diis     6   -229.2761683619 -2.50D-06  1.07D-05  3.13D-07     7.9
+ Nuclear repulsion energy =   129.965056630125     
+ Bq nuclear interaction energy =   1.49424316896683     
+ d= 0,ls=0.0,diis     4   -305.7157820049 -2.01D-03  4.41D-04  1.96D-03     7.4
+ Nuclear repulsion energy =   78.4929509673727     
+ Bq nuclear interaction energy =   1.62424807396955     
+ d= 0,ls=0.0,diis     7   -229.2761683833 -2.15D-08  4.34D-06  1.31D-07     8.9
+ Nuclear repulsion energy =   78.4929509673727     
+ Bq nuclear interaction energy =   1.62424807396955     
 
 
-         Total DFT energy =     -229.276168383422
-      One electron energy =     -473.130997020647
-           Coulomb energy =      191.754442565888
-    Exchange-Corr. energy =      -28.016812970006
+         Total DFT energy =     -229.276168383339
+      One electron energy =     -473.130997015351
+           Coulomb energy =      191.754442560064
+    Exchange-Corr. energy =      -28.016812969394
  Nuclear repulsion energy =       80.117199041342
 
- Numeric. integr. density =       30.000003818392
+ Numeric. integr. density =       30.000003818452
 
-     Total iterative time =     13.9s
+     Total iterative time =      7.7s
 
 
 
@@ -722,8 +749,8 @@ bond            = bond
     34     -0.389385  7 O  py                13     -0.355915  3 H  s          
     33      0.333691  7 O  px                10      0.247574  2 H  s          
 
- Nuclear repulsion energy =   78.492950967372749     
- Bq nuclear interaction energy =   1.6242480739695448     
+ Nuclear repulsion energy =   78.4929509673727     
+ Bq nuclear interaction energy =   1.62424807396955     
 
  center of mass
  --------------
@@ -740,7 +767,7 @@ bond            = bond
 
      L   x y z        total         alpha         beta         nuclear
      -   - - -        -----         -----         ----         -------
-     0   0 0 0     -0.000000    -15.000000    -15.000000     30.000000
+     0   0 0 0      0.000000    -15.000000    -15.000000     30.000000
 
      1   1 0 0     -0.144839     14.675947     14.675947    -29.496733
      1   0 1 0      1.344862     30.098824     30.098824    -58.852785
@@ -754,7 +781,7 @@ bond            = bond
      2   0 0 2    -22.569694   -124.812035   -124.812035    227.054375
 
 
- Parallel integral file used       6 records with       0 large values
+ Parallel integral file used       8 records with       0 large values
 
 
 
@@ -766,6 +793,9 @@ bond            = bond
   charge          =   0.00
   wavefunction    = closed shell
 
+ Nuclear repulsion energy =   129.965056630125     
+ Bq nuclear interaction energy =   1.49424316896683     
+ d= 0,ls=0.0,diis     5   -305.7159575088 -1.76D-04  6.58D-05  3.86D-05     9.1
 
 
                          DFT ENERGY GRADIENTS
@@ -785,14 +815,11 @@ bond            = bond
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.27   |       0.40   |
+                 |  CPU   |       0.08   |       0.12   |
                  ----------------------------------------
-                 |  WALL  |       0.29   |       0.44   |
+                 |  WALL  |       0.09   |       0.12   |
                  ----------------------------------------
- Nuclear repulsion energy =   129.96505663012479     
- Bq nuclear interaction energy =   1.4942431689668494     
- d= 0,ls=0.0,diis     5   -305.7159575094 -1.76D-04  6.58D-05  3.86D-05    17.8
- finished energydft                             2.13071225400445271E-313
+ finished energydft                             5.928787750094959E-323
 
 
                      NWChem Electrostatic Potential Fit Module
@@ -821,52 +848,52 @@ bond            = bond
 
  Recovering from shell      0
 
-00/00/00  00:00:00   er shell      1 of     27
-00/00/00  00:00:00   er shell      2 of     27
-00/00/00  00:00:00   er shell      3 of     27
-00/00/00  00:00:00   er shell      4 of     27
-00/00/00  00:00:00   er shell      5 of     27
-00/00/00  00:00:00   er shell      6 of     27
-00/00/00  00:00:00   er shell      7 of     27
-00/00/00  00:00:00   er shell      8 of     27
-00/00/00  00:00:00   er shell      9 of     27
-00/00/00  00:00:00   er shell     10 of     27
-00/00/00  00:00:00   er shell     11 of     27
-00/00/00  00:00:00   er shell     12 of     27
-00/00/00  00:00:00   er shell     13 of     27
-00/00/00  00:00:00   er shell     14 of     27
-00/00/00  00:00:00   er shell     15 of     27
-00/00/00  00:00:00   er shell     16 of     27
-00/00/00  00:00:00   er shell     17 of     27
-00/00/00  00:00:00   er shell     18 of     27
-00/00/00  00:00:00   er shell     19 of     27
-00/00/00  00:00:00   er shell     20 of     27
-00/00/00  00:00:00   er shell     21 of     27
-00/00/00  00:00:00   er shell     22 of     27
-00/00/00  00:00:00   er shell     23 of     27
-00/00/00  00:00:00   er shell     24 of     27
-00/00/00  00:00:00   er shell     25 of     27
-00/00/00  00:00:00   er shell     26 of     27
-00/00/00  00:00:00   er shell     27 of     27
- Nuclear repulsion energy =   129.96505663012479     
- Bq nuclear interaction energy =   1.4942431689668494     
- d= 0,ls=0.0,diis     6   -305.7159612076 -3.70D-06  1.44D-05  1.14D-06    20.7
- Nuclear repulsion energy =   129.96505663012479     
- Bq nuclear interaction energy =   1.4942431689668494     
- d= 0,ls=0.0,diis     7   -305.7159612870 -7.94D-08  5.30D-06  3.56D-07    23.6
- Nuclear repulsion energy =   129.96505663012479     
- Bq nuclear interaction energy =   1.4942431689668494     
+05/11/10   11:25:54  er shell      1 of     27
+05/11/10   11:25:54  er shell      2 of     27
+05/11/10   11:25:54  er shell      3 of     27
+05/11/10   11:25:54  er shell      4 of     27
+05/11/10   11:25:54  er shell      5 of     27
+05/11/10   11:25:54  er shell      6 of     27
+05/11/10   11:25:54  er shell      7 of     27
+05/11/10   11:25:54  er shell      8 of     27
+05/11/10   11:25:54  er shell      9 of     27
+05/11/10   11:25:54  er shell     10 of     27
+05/11/10   11:25:54  er shell     11 of     27
+05/11/10   11:25:54  er shell     12 of     27
+05/11/10   11:25:54  er shell     13 of     27
+05/11/10   11:25:54  er shell     14 of     27
+05/11/10   11:25:54  er shell     15 of     27
+05/11/10   11:25:54  er shell     16 of     27
+05/11/10   11:25:54  er shell     17 of     27
+05/11/10   11:25:54  er shell     18 of     27
+05/11/10   11:25:54  er shell     19 of     27
+05/11/10   11:25:54  er shell     20 of     27
+05/11/10   11:25:54  er shell     21 of     27
+05/11/10   11:25:54  er shell     22 of     27
+05/11/10   11:25:54  er shell     23 of     27
+05/11/10   11:25:54  er shell     24 of     27
+05/11/10   11:25:54  er shell     25 of     27
+05/11/10   11:25:54  er shell     26 of     27
+05/11/10   11:25:54  er shell     27 of     27
+ Nuclear repulsion energy =   129.965056630125     
+ Bq nuclear interaction energy =   1.49424316896683     
+ d= 0,ls=0.0,diis     6   -305.7159612072 -3.70D-06  1.44D-05  1.14D-06    10.8
+ Nuclear repulsion energy =   129.965056630125     
+ Bq nuclear interaction energy =   1.49424316896683     
+ d= 0,ls=0.0,diis     7   -305.7159612866 -7.94D-08  5.30D-06  3.56D-07    12.5
+ Nuclear repulsion energy =   129.965056630125     
+ Bq nuclear interaction energy =   1.49424316896683     
 
 
-         Total DFT energy =     -305.715961287044
-      One electron energy =     -681.820479866339
-           Coulomb energy =      281.984731616112
-    Exchange-Corr. energy =      -37.339512835908
- Nuclear repulsion energy =      131.459299799092
+         Total DFT energy =     -305.715961286555
+      One electron energy =     -681.820479872818
+           Coulomb energy =      281.984731623098
+    Exchange-Corr. energy =      -37.339512835926
+ Nuclear repulsion energy =      131.459299799091
 
- Numeric. integr. density =       39.999988177270
+ Numeric. integr. density =       39.999988176443
 
-     Total iterative time =     22.3s
+     Total iterative time =     12.1s
 
 
 
@@ -1108,8 +1135,8 @@ bond            = bond
      8     -0.303967   1 O  py                4      0.291797   1 O  py        
     10     -0.248597   2 H  s                12     -0.231532   3 H  s         
 
- Nuclear repulsion energy =   129.96505663012479     
- Bq nuclear interaction energy =   1.4942431689668494     
+ Nuclear repulsion energy =   129.965056630125     
+ Bq nuclear interaction energy =   1.49424316896683     
 
  center of mass
  --------------
@@ -1117,16 +1144,16 @@ bond            = bond
 
  moments of inertia (a.u.)
  ------------------
-         893.056624476366        -150.105728752458         115.491656277579
-        -150.105728752458        1219.257164067744          44.725116952845
-         115.491656277579          44.725116952845         538.375853846397
+         893.056624476368        -150.105728752460         115.491656277579
+        -150.105728752460        1219.257164067749          44.725116952846
+         115.491656277579          44.725116952846         538.375853846403
 
      Multipole analysis of the density
      ---------------------------------
 
      L   x y z        total         alpha         beta         nuclear
      -   - - -        -----         -----         ----         -------
-     0   0 0 0     -0.000000    -20.000000    -20.000000     40.000000
+     0   0 0 0      0.000000    -20.000000    -20.000000     40.000000
 
      1   1 0 0     -2.023362     -5.037186     -5.037186      8.051010
      1   0 1 0     -1.878300    -27.640029    -27.640029     53.401758
@@ -1140,7 +1167,7 @@ bond            = bond
      2   0 0 2     -6.311865   -235.581159   -235.581159    464.850452
 
 
- Parallel integral file used      13 records with       0 large values
+ Parallel integral file used      15 records with       0 large values
 
 
 
@@ -1174,11 +1201,11 @@ bond            = bond
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.42   |       0.62   |
+                 |  CPU   |       0.13   |       0.20   |
                  ----------------------------------------
-                 |  WALL  |       0.44   |       0.67   |
+                 |  WALL  |       0.13   |       0.20   |
                  ----------------------------------------
- finished energydft                             2.75196330672412255E-314
+ finished energydft                             5.928787750094959E-323
 
 
                      NWChem Electrostatic Potential Fit Module
@@ -1207,42 +1234,42 @@ bond            = bond
 
  Recovering from shell      0
 
-00/00/00  00:00:00   er shell      1 of     36
-00/00/00  00:00:00   er shell      2 of     36
-00/00/00  00:00:00   er shell      3 of     36
-00/00/00  00:00:00   er shell      4 of     36
-00/00/00  00:00:00   er shell      5 of     36
-00/00/00  00:00:00   er shell      6 of     36
-00/00/00  00:00:00   er shell      7 of     36
-00/00/00  00:00:00   er shell      8 of     36
-00/00/00  00:00:00   er shell      9 of     36
-00/00/00  00:00:00   er shell     10 of     36
-00/00/00  00:00:00   er shell     11 of     36
-00/00/00  00:00:00   er shell     12 of     36
-00/00/00  00:00:00   er shell     13 of     36
-00/00/00  00:00:00   er shell     14 of     36
-00/00/00  00:00:00   er shell     15 of     36
-00/00/00  00:00:00   er shell     16 of     36
-00/00/00  00:00:00   er shell     17 of     36
-00/00/00  00:00:00   er shell     18 of     36
-00/00/00  00:00:00   er shell     19 of     36
-00/00/00  00:00:00   er shell     20 of     36
-00/00/00  00:00:00   er shell     21 of     36
-00/00/00  00:00:00   er shell     22 of     36
-00/00/00  00:00:00   er shell     23 of     36
-00/00/00  00:00:00   er shell     24 of     36
-00/00/00  00:00:00   er shell     25 of     36
-00/00/00  00:00:00   er shell     26 of     36
-00/00/00  00:00:00   er shell     27 of     36
-00/00/00  00:00:00   er shell     28 of     36
-00/00/00  00:00:00   er shell     29 of     36
-00/00/00  00:00:00   er shell     30 of     36
-00/00/00  00:00:00   er shell     31 of     36
-00/00/00  00:00:00   er shell     32 of     36
-00/00/00  00:00:00   er shell     33 of     36
-00/00/00  00:00:00   er shell     34 of     36
-00/00/00  00:00:00   er shell     35 of     36
-00/00/00  00:00:00   er shell     36 of     36
+05/11/10   11:26:00  er shell      1 of     36
+05/11/10   11:26:00  er shell      2 of     36
+05/11/10   11:26:00  er shell      3 of     36
+05/11/10   11:26:00  er shell      4 of     36
+05/11/10   11:26:00  er shell      5 of     36
+05/11/10   11:26:00  er shell      6 of     36
+05/11/10   11:26:00  er shell      7 of     36
+05/11/10   11:26:00  er shell      8 of     36
+05/11/10   11:26:00  er shell      9 of     36
+05/11/10   11:26:00  er shell     10 of     36
+05/11/10   11:26:00  er shell     11 of     36
+05/11/10   11:26:00  er shell     12 of     36
+05/11/10   11:26:00  er shell     13 of     36
+05/11/10   11:26:00  er shell     14 of     36
+05/11/10   11:26:00  er shell     15 of     36
+05/11/10   11:26:00  er shell     16 of     36
+05/11/10   11:26:00  er shell     17 of     36
+05/11/10   11:26:00  er shell     18 of     36
+05/11/10   11:26:00  er shell     19 of     36
+05/11/10   11:26:00  er shell     20 of     36
+05/11/10   11:26:00  er shell     21 of     36
+05/11/10   11:26:00  er shell     22 of     36
+05/11/10   11:26:00  er shell     23 of     36
+05/11/10   11:26:00  er shell     24 of     36
+05/11/10   11:26:00  er shell     25 of     36
+05/11/10   11:26:00  er shell     26 of     36
+05/11/10   11:26:00  er shell     27 of     36
+05/11/10   11:26:00  er shell     28 of     36
+05/11/10   11:26:00  er shell     29 of     36
+05/11/10   11:26:00  er shell     30 of     36
+05/11/10   11:26:00  er shell     31 of     36
+05/11/10   11:26:00  er shell     32 of     36
+05/11/10   11:26:00  er shell     33 of     36
+05/11/10   11:26:00  er shell     34 of     36
+05/11/10   11:26:00  er shell     35 of     36
+05/11/10   11:26:00  er shell     36 of     36
 
  Recovery file deleted
 
@@ -1253,36 +1280,39 @@ bond            = bond
                                       ESP   
                                             
  
-    1 OW  -0.012  -0.026  -0.026   -0.783583
-    2 2H  -0.048   0.067  -0.015    0.461179
-    3 3H   0.060  -0.042   0.041    0.475961
-    4 OW   0.087  -0.111  -0.253   -1.068722
-    5 2H   0.040  -0.086  -0.168    0.515343
-    6 3H   0.076  -0.209  -0.268    0.494451
-    7 OW  -0.227  -0.186   0.045   -1.077329
-    8 2H  -0.315  -0.145   0.019    0.518824
-    9 3H  -0.154  -0.120   0.026    0.463874
+    1 OW   0.037   0.007  -0.009   -1.054297
+    2 2H  -0.038   0.002  -0.075    0.518761
+    3 3H   0.001  -0.009   0.083    0.476384
+    4 OW  -0.094   0.064   0.223   -0.919820
+    5 2H  -0.154   0.008   0.280    0.480710
+    6 3H  -0.019   0.100   0.278    0.477705
+    7 OW   0.211   0.179  -0.112   -1.102968
+    8 2H   0.157   0.119  -0.053    0.594270
+    9 3H   0.308   0.152  -0.108    0.460252
+   10 OW  -0.097   0.052  -0.246   -0.930441
+   11 2H  -0.098  -0.041  -0.284    0.502277
+   12 3H  -0.190   0.086  -0.238    0.497167
                                 ------------
                                     0.000000
 
- Dipole moment                      1.739964
+ Dipole moment                      3.175098
 
- Quadrupole moment Qxx              3.456168
-                   Qyy              9.486934
-                   Qzz            -12.943101
+ Quadrupole moment Qxx              3.830445
+                   Qyy            -26.448928
+                   Qzz             22.618483
 
- RMS deviation kJ/mol               0.165817
+ RMS deviation kJ/mol               0.156998
 
- RMS deviation %                   35.371936
+ RMS deviation %                   18.171022
  smd_charge_write_default()
 
- Task  times  cpu:       28.2s     wall:       31.0s
+ Task  times  cpu:       16.0s     wall:       16.6s
  Summary of allocated global arrays
 -----------------------------------
   array 0 => double precision fragment_charges(768),  handle: -1000 
   array 1 => double precision fragment_charges0(768),  handle: -999 
   array 2 => double precision fragment_energies(768),  handle: -998 
-  array 3 => integer task counter(1),  handle: -995 
+  array 3 => long task counter(1),  handle: -995 
 
 
 
@@ -1290,36 +1320,24 @@ bond            = bond
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  163      159     5.05e+04 1796     3.00e+04    0        0     8394     
-number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             1.19e+07 1.74e+06 5.49e+06 0.00e+00 0.00e+00 3.36e+04
-bytes remote:            1.23e+04 2.15e+04 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 502204 bytes
+calls:  163      159     2.48e+04 1064     1.28e+04    0        0     2277     
+number of processes/call 1.08e+00 1.41e+00 1.02e+00 0.00e+00 0.00e+00
+bytes total:             9.03e+06 1.26e+06 3.70e+06 0.00e+00 0.00e+00 1.82e+04
+bytes remote:            6.19e+06 5.85e+05 2.57e+06 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 231912 bytes
 MA_summarize_allocated_blocks: starting scan ...
-stack block 'tmp', handle 85, address 0x50133814:
-	type of elements:		double precision
-	number of elements:		6912
-	address of client space:	0x50133850
-	index for client space:		163586259
-	total number of bytes:		55360
-stack block 'proclist', handle 72, address 0x50141054:
-	type of elements:		integer
-	number of elements:		1
-	address of client space:	0x50141090
-	index for client space:		327186341
-	total number of bytes:		68
-MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 2 stack blocks
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
 
 	allocation statistics:
 					      heap	     stack
 					      ----	     -----
-	current number of blocks	         0	         2
-	maximum number of blocks	       111	        50
-	current total bytes		         0	     55428
-	maximum total bytes		  12474228	  22566636
-	maximum total K-bytes		     12475	     22567
-	maximum total M-bytes		        13	        23
+	current number of blocks	         0	         0
+	maximum number of blocks	       105	        48
+	current total bytes		         0	         0
+	maximum total bytes		   7233880	  22513448
+	maximum total K-bytes		      7234	     22514
+	maximum total M-bytes		         8	        23
 
 
                                 NWChem Input Module
@@ -1369,7 +1387,15 @@ MA usage statistics:
 
 
 
- Total times  cpu:       28.2s     wall:       31.1s
+ Total times  cpu:       16.0s     wall:       16.7s
+ nbq=                  756
+
+
+ operation isgradient                                                                
+ nbq=                  756
+
+
+ operation isgradient                                                                
 
  Recovery file deleted
 
@@ -1380,27 +1406,40 @@ MA usage statistics:
                                       ESP   
                                             
  
-    1 OW   0.037   0.007  -0.009   -1.054297
-    2 2H  -0.038   0.002  -0.075    0.518761
-    3 3H   0.001  -0.009   0.083    0.476384
-    4 OW  -0.094   0.064   0.223   -0.919820
-    5 2H  -0.154   0.008   0.280    0.480710
-    6 3H  -0.019   0.100   0.278    0.477705
-    7 OW   0.211   0.179  -0.112   -1.102968
-    8 2H   0.157   0.119  -0.053    0.594270
-    9 3H   0.308   0.152  -0.108    0.460252
-   10 OW  -0.097   0.052  -0.246   -0.930441
-   11 2H  -0.098  -0.041  -0.284    0.502277
-   12 3H  -0.190   0.086  -0.238    0.497167
+    1 OW  -0.012  -0.026  -0.026   -0.783583
+    2 2H  -0.048   0.067  -0.015    0.461179
+    3 3H   0.060  -0.042   0.041    0.475961
+    4 OW   0.087  -0.111  -0.253   -1.068722
+    5 2H   0.040  -0.086  -0.168    0.515343
+    6 3H   0.076  -0.209  -0.268    0.494451
+    7 OW  -0.227  -0.186   0.045   -1.077329
+    8 2H  -0.315  -0.145   0.019    0.518824
+    9 3H  -0.154  -0.120   0.026    0.463874
                                 ------------
                                     0.000000
 
- Dipole moment                      3.175098
+ Dipole moment                      1.739964
 
- Quadrupole moment Qxx              3.830445
-                   Qyy            -26.448928
-                   Qzz             22.618483
+ Quadrupole moment Qxx              3.456168
+                   Qyy              9.486934
+                   Qzz            -12.943101
 
- RMS deviation kJ/mol               0.156998
+ RMS deviation kJ/mol               0.165817
 
- RMS deviation %                   18.171025
+ RMS deviation %                   35.371958
+ nbq=                  756
+
+
+ operation isgradient                                                                
+ nbq=                  759
+
+
+ operation isgradient                                                                
+ nbq=                  759
+
+
+ operation isgradient                                                                
+ nbq=                  759
+
+
+ operation isgradient                                                                

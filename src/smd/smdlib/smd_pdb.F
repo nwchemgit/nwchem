@@ -50,7 +50,6 @@ c
       i = 0
 100   continue
       read(un,'(A180)',end=200) buffer
-      call util_flush(34)
       if(buffer(1:4).eq."ATOM") then
         i = i +1
         if(i.gt.nt)

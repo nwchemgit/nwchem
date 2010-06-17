@@ -41,11 +41,12 @@ c
 c
       character*32 pname,tag,sp_coords
       integer na,np
+      integer nres
       integer i_c
       logical result
 c
       integer ndims
-      integer ga_coords,ga_grads
+      integer ga_coords,ga_grads,ga_dip
 c
       pname = "smd_global_init"
 c
@@ -56,6 +57,10 @@ c     -------------------------
       if(na.le.0)
      >  call errquit(
      >       pname//'no atoms ',0, RTDB_ERR)
+c
+c     get total number of residues
+c     ----------------------------
+      call smd_system_nres(nres)
 c
       tag = "coordinates"
       call smd_system_get_component(sp_coords,tag,result)
@@ -79,7 +84,14 @@ c     gradients
      >  call errquit(
      >       pname//'nga_create error ',0, RTDB_ERR)
       call smd_data_put_int(sp_global,"gradients",1,ga_grads)
-c
+c     dipoles
+      if(.not.nga_create(mt_dbl, 1, 3*nres, 
+     >    'residue dipoles',1, ga_dip)) 
+     >  call errquit(
+     >       pname//'nga_create error ',0, RTDB_ERR)
+      call smd_data_put_int(sp_global,"res-dipoles",1,ga_dip)
+      call ga_print(ga_dip)
+cc
       call ga_sync()
 c
 c     get coordinate information
@@ -112,6 +124,7 @@ c
       integer i,k
       logical result
       integer ilo,ihi
+      integer i_pr,i_mr
 c
       integer ndims
       integer ga_handle
@@ -129,13 +142,36 @@ c
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c      
+      tag = "atom:res_pointer"
+      call smd_get_ind(tag,i_pr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+      tag = "atom:res_size"
+      call smd_get_ind(tag,i_mr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+      
+c      call smd_geom_monomer_index_size(ires,nt,int_mb(i_ir),nm,i0)
 
-      call smd_geom_monomer_index_size(ires,nt,int_mb(i_ir),nm,i0)
 c
       if(atag.eq."coords") then
+        i0=int_mb(i_pr+ires-1)
+        nm=int_mb(i_mr+ires-1)
         gtag = "coordinates"
         ltag = "coords"
+      else if(atag.eq."dipoles") then
+        i0=ires
+        nm=1
+        gtag = "res-dipoles"
+        ltag = "res_dipoles"
       else if(atag.eq."gradients") then
+        i0=int_mb(i_pr+ires-1)
+        nm=int_mb(i_mr+ires-1)
         gtag = "gradients"
         ltag = "force"
       else
@@ -175,7 +211,6 @@ c     ---------------------------
           call errquit(
      >       pname//'unknown operation',0, 0)
         end if
-     
       return
       end
 
@@ -218,6 +253,9 @@ c
       else if(atag.eq."gradients") then
         gtag = "gradients"
         ltag = "force"
+      else if(atag.eq."dipoles") then
+        gtag = "res-dipoles"
+        ltag = "res_dipoles"
       else 
         call errquit(
      >       pname//'unknown tag',0, 0)
@@ -256,7 +294,7 @@ c     ---------------------------
      >     pname//'unknown operation',0, 0)
       end if
      
- 
+      call ga_print(ga_handle) 
       return
       end
 
@@ -295,6 +333,9 @@ c
       if(atag.eq."coords") then
         gtag = "coordinates"
         ltag = "coords"
+      else if(atag.eq."dipoles") then
+        gtag = "res-dipoles"
+        ltag = "res_dipoles"
       else if(atag.eq."gradients") then
         gtag = "gradients"
         ltag = "force"
@@ -350,6 +391,8 @@ c
 c
       if(atag.eq."coords") then
         gtag = "coordinates"
+      else if(atag.eq."dipoles") then
+        gtag = "res-dipoles"
       else if(atag.eq."gradients") then
         gtag = "gradients"
       else 
@@ -363,6 +406,9 @@ c     ---------------
       call smd_data_get_int(sp_global,gtag,1,gh0,result)
       if(.not.result) call errquit(
      >       pname//'no coordindates ',0,0)
+c
+      call ga_print(gh)
+      call ga_print(gh0)
 c
       call ga_add(1.0d0,gh,-1.0d0,gh0,gh)
       call ga_norm_infinity(gh,eps)

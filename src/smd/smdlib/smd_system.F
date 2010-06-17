@@ -84,7 +84,7 @@ c
       return
       end
 
-      function smd_system_nres(nr)
+      subroutine smd_system_nres(nr)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -93,7 +93,6 @@ c
 #include "util.fh"
 #include "global.fh"
 c     
-      logical smd_system_nres
       integer nr
 c
       character*72 tag,sp_atom
@@ -101,16 +100,20 @@ c
       integer i_iconst
       logical result
 
-      pname = "smd_system_ntot"
+      pname = "smd_system_nres"
 
       tag = "atom"
       call smd_system_get_component(sp_atom,tag,result)
-      if(.not.result) goto 100
+      if(.not.result)
+     >  call errquit(
+     >       pname//'failed getting '//tag,0,0)
 
-      call smd_atom_nres(sp_atom,nr)
+      tag  = "nres"
+      call smd_data_get_int(sp_atom,tag,1,nr,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'failed getting '//tag,0,0)
 
-100   continue
-      smd_system_nres = result
       return
       end
 

@@ -228,7 +228,7 @@ c
       call smd_task_get_counter(im)
       write(msg,'(A20," 1 ",I3)') pname,im
 c      call smd_coords_check(msg)
-c      operiodic = smd_system_periodic()
+      operiodic = smd_system_periodic()
 c
       call smd_group_id_get(igroup)
 c
@@ -433,6 +433,90 @@ c
 c
       pname = "smd_geom_cog"
 c      
+      write(*,*) "number of atoms in the segment",nm
+      if(.not.ma_push_get(mt_dbl,3*nm,'tmp i',h_ftmp,i_ftmp))
+     + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
+c
+c     put 1st atom in the middle
+c     ---------------------------
+      do j=1,3
+         cshift(j)=c(j,i0)
+      end do
+
+      write(*,*) "cordinates"
+      do i=1,nm
+      do j=1,3
+         write(*,*) c(j,i0+i-1)
+         dbl_mb(i_ftmp+(i-1)*3+j-1)=
+     +         c(j,i0+i-1)-cshift(j)
+      end do
+      end do
+ 
+c     fold in other coordinates potentially
+c     cutoff by the box boundary
+      call smd_lat_rebox(nm,dbl_mb(i_ftmp)) 
+c     calculate cog for shifted segment
+c     --------------------------------- 
+      cog(1) = 0.0d0
+      cog(2) = 0.0d0
+      cog(3) = 0.0d0
+      
+      do i=1,nm
+      do j=1,3
+         cog(j)=cog(j)+dbl_mb(i_ftmp+(i-1)*3+j-1)
+      end do
+      end do
+
+      cog(1) = cog(1)/nm
+      cog(2) = cog(2)/nm
+      cog(3) = cog(3)/nm
+c
+c     correct for the shift
+c     ---------------------
+      do j=1,3
+        cog(j) = cog(j)+cshift(j)
+      end do
+c
+      if(.not.ma_pop_stack(h_ftmp))
+     & call errquit(pname//'Failed to deallocate stack h_ftmp',0,
+     &       MA_ERR)
+c
+      return
+c
+  
+      end
+c      
+      subroutine smd_geom_coc(nt,nm,i0,q,c,cog)
+c     finds center of charge   for a give segment
+c     nt      [in]  total number of atoms
+c     nm      [in]  number of atoms in the segment
+c     i0      [in]  starting index for the segment
+c     q[nt]   [in]  charges  of the overall system
+c     c[3,nt] [in]  coordinates of the overall system
+c     cog[3]  [out] center of mass coordinates
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c
+      integer nt
+      integer nm
+      integer i0
+      double precision q(nt)
+      double precision c(3,nt)
+      double precision cog(3)
+c
+      integer i,j
+      double precision cshift(3)
+      integer i_ftmp,h_ftmp
+      character*30 pname
+      double precision qtot
+c
+      pname = "smd_geom_coc"
+c      
       if(.not.ma_push_get(mt_dbl,3*nm,'tmp i',h_ftmp,i_ftmp))
      + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
 c
@@ -458,15 +542,17 @@ c     ---------------------------------
       cog(2) = 0.0d0
       cog(3) = 0.0d0
       
+      qtot = 0.0d0
       do i=1,nm
       do j=1,3
-         cog(j)=cog(j)+dbl_mb(i_ftmp+(i-1)*3+j-1)
+         cog(j)=cog(j)+q(i0+i-1)*dbl_mb(i_ftmp+(i-1)*3+j-1)
       end do
+      qtot = qtot + q(i0+i-1)
       end do
 
-      cog(1) = cog(1)/nm
-      cog(2) = cog(2)/nm
-      cog(3) = cog(3)/nm
+      cog(1) = cog(1)/qtot
+      cog(2) = cog(2)/qtot
+      cog(3) = cog(3)/qtot
 c
 c     correct for the shift
 c     ---------------------
@@ -691,6 +777,78 @@ c
      & call errquit(pname//'Failed to deallocate stack ',0,
      &       MA_ERR)
 
+      return
+      end
+c      
+      subroutine smd_geom_get_dipole()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c
+      integer im
+c     
+      character*32 tag,pname,sp_geom,theory,sp_atom
+      character*255 key
+      logical result
+      integer i,j,i1,i0
+      integer ng
+      integer rtdb
+      integer i_nb
+      integer nb,k,n0
+      double precision dipole(3)
+      integer ihi,ilo,ic,nr
+c
+      pname = "smd_geom_get_dipole"
+c
+      tag = "atom"
+      call smd_system_get_component(sp_atom,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+      tag = "geom"
+      call smd_system_get_component(sp_geom,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c    
+c
+      call smd_rtdb_get_handle(rtdb)
+c
+c     get the theory 
+c     --------------
+      if (.not.(rtdb_cget(rtdb,'task:theory',1,theory)))
+     +     call errquit('rtdb_cget task:theory failed',0,0)
+c
+       key = theory(1:inp_strlen(theory))//":dipole"
+         if (.not.rtdb_get(rtdb,key,mt_dbl,3,
+     +            dipole))
+     +            call errquit(key,
+     +            0,RTDB_ERR)
+         if(ga_nodeid().eq.0) 
+     +     write(*,*) "dipole is",dipole(1),dipole(2),
+     +                 dipole(3)
+c      
+      tag = "neighbor_index"
+      call smd_data_get_ind_dim(sp_geom,tag,i_nb,nb,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+      if(nb.gt.1) 
+     >  call errquit(
+     >       pname//'not a monomer',0, RTDB_ERR)
+c
+      ic = int_mb(i_nb)
+      ilo=3*(ic-1)+1
+      ihi=3*(ic-1)+3
+      tag = "res_dipoles"
+      write(*,*) "ic,ilo,ihi",ic,ilo,ihi
+      call smd_data_put_dbl1(sp_atom,tag,ilo,ihi,dipole)
+      call smd_data_namespace_print(sp_atom,6)
       return
       end
 c
