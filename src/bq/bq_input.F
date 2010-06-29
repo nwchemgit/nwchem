@@ -291,9 +291,12 @@ c
       integer fn,fn1,k,i,ipos
       character*180 buffer
       character*30 pname,atag
-
+c
+      logical util_io_unit
+      external util_io_unit
+c
       pname = "bq_readfile"
-
+c
       if(.not.util_io_unit(80,90,fn))
      +  call errquit(pname//"cannot get io unit",0,0)
       open(unit=fn,file=filename,status='old',form="formatted")
