@@ -4,7 +4,7 @@
      3  lhf,ldft,lhybrid,lhasdft,lhashf,
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
-     6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult)
+     6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult,lecut,ecut,diff_max)
 c
 c $Id: tddft_init.F,v 1.13 2004-10-27 21:18:42 edo Exp $
 c
@@ -90,6 +90,9 @@ c
       integer itol2e
       logical nodezero
       logical dummy
+      logical lecut
+      double precision ecut
+      double precision diff_max
 c
       logical int_normalize
       external int_normalize
@@ -253,6 +256,19 @@ C       call util_file_name('tddft',.false.,.false.,vector)
 C       if (.not.rtdb_cput(rtdb,'tddft:vector',1,vector))
 C    1  call errquit('tddft_init: failed to write vector',0, RTDB_ERR)
 C     endif
+c
+c --------------------------------------------
+c Get the energy cutoff on the occupied states
+c --------------------------------------------
+      if (.not.rtdb_get(rtdb,'tddft:lecut',mt_log,1,lecut))
+     &   lecut = .false.
+      if (.not.rtdb_get(rtdb,'tddft:ecut',mt_dbl,1,ecut)) then
+         ecut  = 0.d0
+         lecut = .false.
+      end if
+      if (.not.rtdb_get(rtdb,'tddft:diff_max',mt_dbl,1,diff_max))
+     &   diff_max = 100000.d0
+c
 c ----------------------
 c 2-e integral tolerance
 c ----------------------

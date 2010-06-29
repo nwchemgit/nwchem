@@ -1,7 +1,7 @@
       subroutine tddft_iguess(rtdb,geom,nbf_ao,ipol,
      1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_buffer1,g_buffer2,
      2  d_trials,g_movecs,evl,ntrials,nproducts,algorithm,targetsym,
-     3  symmetry,l_irs,k_irs,tda)
+     3  symmetry,l_irs,k_irs,tda,lecut,ecut)
 c
 c $Id: tddft_iguess.F,v 1.11 2003-10-17 22:58:29 carlfahl Exp $
 c
@@ -78,6 +78,12 @@ C     logical vector_exists
       integer nov_verify(2)
       logical tda_verify
       double precision r
+c
+      integer necut
+      double precision ecut,evl_diff
+      logical lecut,evl_lower 
+      double precision au2ev   ! Conversion factor from a.u. to eV
+      parameter (au2ev=27.2113961d0)
 c
       nodezero=(ga_nodeid().eq.0)
       do i=1,ipol
@@ -231,11 +237,21 @@ c Compute orbital energy differences
 c ----------------------------------
 c
       l=0
+      necut = 0
       do i=1,ipol
         do j=nfc(i)+1,nocc(i)
           do k=nocc(i)+1,nmo(i)-nfv(i)
-            l=l+1
-            dbl_mb(k_ediff+l-1)=evl(k,i)-evl(j,i)
+            evl_diff = evl(k,i)-evl(j,i)
+            if (lecut) then
+               if (evl(j,i).le.ecut) then
+                  necut=necut+1
+                  l=necut
+                  dbl_mb(k_ediff+l-1)=evl_diff
+               end if
+            else
+               l=l+1
+               dbl_mb(k_ediff+l-1)=evl_diff
+            endif  ! lecut
           enddo
         enddo
       enddo
@@ -266,26 +282,40 @@ c
       do m=1,n
         swap=huge
         l=0
+        necut=0
         found=.false.
         do i=1,ipol
-          do j=nfc(i)+1,nocc(i)
-            do k=nocc(i)+1,nmo(i)-nfv(i)
-              jsym=ieor(isym-1,int_mb(k_irs(i)+j-1)-1)+1
-              jsym=ieor(jsym-1,int_mb(k_irs(i)+k-1)-1)+1
-              call sym_irrepname(geom,jsym,oname)
-              l=l+1
-              if (((.not.symmetry).or.(targetsym.eq.oname))
-     1          .and.(dbl_mb(k_ediff+l-1).lt.swap)) then
-                int_mb(k_sorto+m-1)=j
-                int_mb(k_sortv+m-1)=k
-                int_mb(k_sortp+m-1)=i
-                int_mb(k_sorta+m-1)=l
-                int_mb(k_irrep+m-1)=jsym
-                swap=dbl_mb(k_ediff+l-1)
-                found=.true.
-              endif
-            enddo
+         do j=nfc(i)+1,nocc(i)
+          do k=nocc(i)+1,nmo(i)-nfv(i)
+             jsym=ieor(isym-1,int_mb(k_irs(i)+j-1)-1)+1
+             jsym=ieor(jsym-1,int_mb(k_irs(i)+k-1)-1)+1
+             call sym_irrepname(geom,jsym,oname)
+             if (lecut) then
+               evl_lower = .false.
+               if (evl(j,i).le.ecut) then
+                 evl_lower = .true.
+                 necut=necut+1
+                 l=necut
+               endif
+             else
+               l=l+1
+             endif
+c
+             if (.not.lecut .or. evl_lower) then
+               if (((.not.symmetry).or.(targetsym.eq.oname))
+     1             .and.(dbl_mb(k_ediff+l-1).lt.swap)) then
+                   int_mb(k_sorto+m-1)=j
+                   int_mb(k_sortv+m-1)=k
+                   int_mb(k_sortp+m-1)=i
+                   int_mb(k_sorta+m-1)=l
+                   int_mb(k_irrep+m-1)=jsym
+                   swap=dbl_mb(k_ediff+l-1)
+                   found=.true.
+               endif
+             endif
+c
           enddo
+         enddo
         enddo
         if (.not.found) call errquit
      1    ('tddft_iguess: too many roots requested',nroots, INPUT_ERR)
@@ -296,9 +326,10 @@ c ---------------------------------------------------
 c Print the smallest eigenvalue differences for debug
 c ---------------------------------------------------
 c
-      if (nodezero.and.util_print('initial guess',print_debug)) then
+      if (nodezero) then
         write(LuOut,*)
         write(LuOut,9000) n
+        write(LuOut,9020)
         write(LuOut,9010)
         write(LuOut,9020)
         do m=1,n
@@ -307,15 +338,15 @@ c
      1      int_mb(k_sorto+m-1),int_mb(k_sortv+m-1),oname,
      2      evl(int_mb(k_sortv+m-1),int_mb(k_sortp+m-1)),
      3      evl(int_mb(k_sorto+m-1),int_mb(k_sortp+m-1)),
-     4      evl(int_mb(k_sortv+m-1),int_mb(k_sortp+m-1))-
-     5      evl(int_mb(k_sorto+m-1),int_mb(k_sortp+m-1))
+     4      (evl(int_mb(k_sortv+m-1),int_mb(k_sortp+m-1))-
+     5      evl(int_mb(k_sorto+m-1),int_mb(k_sortp+m-1)))*au2ev
         enddo
         write(LuOut,9020)
       endif
  9000 format(i5,' smallest eigenvalue differences')
  9010 format('  No. Spin  Occ  Vir  Irrep   E(Vir)    E(Occ)   E(Diff)')
  9020 format('--------------------------------------------------------')
- 9030 format(4i5,1x,a4,1x,3f10.5)
+ 9030 format(4i5,1x,a4,1x,2f10.5,f18.2)
 c
 c --------------------------------------------------------
 c Check if nroots is too large, if so, reduce it

@@ -102,6 +102,10 @@ c
       integer dummy
       logical nodezero
 c
+      logical lecut   
+      double precision ecut
+      double precision diff_max
+c
       nodezero=(ga_nodeid().eq.0)
 c
 c -------------------------
@@ -127,7 +131,7 @@ c
      3  lhf,ldft,lhybrid,lhasdft,lhashf,
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
-     6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult)
+     6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult,lecut,ecut,diff_max)
 c
 c ----------------------------------------------------
 c Determine memory size and alter maxvecs if necessary
@@ -244,7 +248,7 @@ c
           call tddft_iguess(rtdb,geom,nbf_ao,ipol,nocc,nmo,nfc,nfv,
      1      nroots,maxvecs,g_trials,g_buffer1,g_buffer2,d_trials,
      2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm,
-     3      targetsym,symmetry,l_irs,k_irs,tda)
+     3      targetsym,symmetry,l_irs,k_irs,tda,lecut,ecut)
           if (util_print('trial vectors',print_debug)) then
             do i=1,ntrials
               call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
@@ -277,7 +281,7 @@ c
           call tddft_iguess(rtdb,geom,nbf_ao,ipol,nocc,nmo,nfc,nfv,
      1      nroots,maxvecs,g_trials,g_buffer1,g_buffer2,d_trials,
      2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm,
-     3      targetsym,symmetry,l_irs,k_irs,tda)
+     3      targetsym,symmetry,l_irs,k_irs,tda,lecut,ecut)
           if (util_print('trial vectors',print_debug)) then
             do i=1,ntrials
               call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
@@ -310,7 +314,7 @@ c
         call tddft_iguess(rtdb,geom,nbf_ao,ipol,nocc,nmo,nfc,nfv,
      1    nroots,maxvecs,g_trials,g_buffer1,g_buffer2,d_trials,
      2    g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm,
-     3    targetsym,symmetry,l_irs,k_irs,tda)
+     3    targetsym,symmetry,l_irs,k_irs,tda,lecut,ecut)
         if (util_print('trial vectors',print_debug)) then
           do i=1,ntrials
             call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,

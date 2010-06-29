@@ -11,6 +11,7 @@ c        [FREEZE [[core] (atomic || <integer nfzc default 0>)] \
 c                 [virtual <integer nfzv default 0>]]
 c        [(CIS||RPA) default RPA]
 c        [NROOTS <integer nroots default 1>]
+c        [ECUT   <not default: double ecut default -ihuge>]
 c        [MAXVECS <integer maxvecs default 1000>]
 c        [(SINGLET||NOSINGLET) default SINGLET]
 c        [(TRIPLET||NOTRIPLET) default TRIPLET]
@@ -23,13 +24,8 @@ c        [ALGORITHM <integer algorithm default 1>]
 c        [VECTOR <character vector default jobname'.tddft']
 c        [PRINT (none||low||medium||high||debug)
 c          <string list_of_names ...>]
-c
-c ... jochen:
-c     added keyword for CD spectra
-c     [CDSPECTRUM <not default: compute rotatory strengths>]
-c     [VELOCITY]  <not default: compute velocity rep. of trans. dipoles>]
-c     /jochen
-c
+c        [CDSPECTRUM <not default: compute rotatory strengths>]
+c        [VELOCITY]  <not default: compute velocity rep. of trans. dipoles>]
 c     END
 c     
       implicit none
@@ -48,6 +44,9 @@ C     character*80 vector
       logical singlet,triplet
       logical tda,symmetry, cdspectrum, velocity, gmhcoupling
       double precision thresh
+      double precision ecut
+      logical lecut
+      double precision diff_max
 c
 c ------------------
 c Set default values
@@ -67,6 +66,21 @@ c     NROOTS (the number of excited states sought)
 c
       nroots=1
       if (.not.rtdb_put(rtdb,'tddft:nroots',mt_int,1,nroots))
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
+c
+c     ECUT (energy cutoff)
+c
+      ecut  = 0.d0  ! default
+      lecut = .false. ! default
+      if (.not.rtdb_put(rtdb,'tddft:ecut',mt_dbl,1,ecut))
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'tddft:lecut',mt_log,1,lecut))
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
+c
+c     DIFF_MAX (largest eigenvalue difference) : For solver
+c
+      diff_max = 100000.d0 ! default
+      if (.not.rtdb_put(rtdb,'tddft:diff_max',mt_dbl,1,diff_max))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
 c
 c     MAXVECS (the maximum number of trial vectors)
@@ -185,6 +199,34 @@ c
         endif
         if (.not.rtdb_put(rtdb,'tddft:nroots',mt_int,1,nroots))
      1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c
+c     ECUT (energy cutoff for occupied states)
+c
+      else if (inp_compare(.false.,test,'ecut')) then
+        lecut = .true.
+        if (.not.inp_f(ecut)) then
+          write(LuOut,*) 'tddft_input: ecut value not found; ',
+     1      'default value of 0.d0 will be used'
+          ecut  = 0.d0  ! default
+        endif
+        if (.not.rtdb_put(rtdb,'tddft:ecut',mt_dbl,1,ecut))
+     &    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'tddft:lecut',mt_log,1,lecut))
+     &    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c
+c      DIFF_MAX (maximum eigenvalue difference): For Solver
+c
+      else if (inp_compare(.false.,test,'diff_max')) then
+        if (.not.inp_f(diff_max)) then
+          write(LuOut,*) 'tddft_input: diff_max value not found; ',
+     1      'default value of 100000.0 will be used'
+          diff_max = 100000.d0
+        endif
+        if (.not.rtdb_put(rtdb,'tddft:diff_max',mt_dbl,1,diff_max))
+     &    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
 c
 c     MAXVECS (the maximum number of trial vectors)

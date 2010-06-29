@@ -114,6 +114,7 @@ c
       integer l_y(2),k_y(2)
       integer l_corr,k_corr
       integer dummy,request
+      double precision osc_str
 c
 c     jochen 11/2009: add calculation of rotatory strengths (CD spectra)    
       logical cdspectrum ! true if CDSPECTRUM in TDDFT input
@@ -895,14 +896,16 @@ c
      1        (triplet.and.(mult.ne.3))) then
             write(LuOut,9210)
           else
+            osc_str = 
+     &        2.0d0/3.0d0*(tmom(2)**2+tmom(3)**2+tmom(4)**2)*apbval(n)
             write(LuOut,9200) tmom(2),tmom(3),tmom(4),
      1                        tmom(5),tmom(6),tmom(7),
      2                        tmom(8),tmom(9),tmom(10),
      2                        tmom(11),tmom(12),tmom(13),
      2                        tmom(14),tmom(15),tmom(16),
      2                        tmom(17),tmom(18),tmom(19),
-     2                        tmom(20),
-     1      2.0d0/3.0d0*(tmom(2)**2+tmom(3)**2+tmom(4)**2)*apbval(n)
+     2                        tmom(20),osc_str
+            write(222,*)apbval(n)*au2ev,osc_str
 c
             if (cdspectrum) then
                write (LuOut,*)

@@ -175,6 +175,9 @@ c
       logical nodezero
       integer i,n
       integer dummy,request
+      logical lecut
+      double precision ecut
+      double precision diff_max
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -224,6 +227,18 @@ c     nresiduals=min(nroots+min(nroots/5,10),maxvecs)
      1    l_residual_2,k_residual_2)) call errquit
      2    ('tddft_davidson: failed to allocate residual_2',0, MA_ERR)
       endif
+c
+c --------------------------------------------
+c Get the energy cutoff on the occupied states
+c --------------------------------------------
+      if (.not.rtdb_get(rtdb,'tddft:lecut',mt_log,1,lecut))
+     &   lecut = .false.
+      if (.not.rtdb_get(rtdb,'tddft:ecut',mt_dbl,1,ecut)) then
+         ecut  = 0.d0
+         lecut = .false.
+      end if
+      if (.not.rtdb_get(rtdb,'tddft:diff_max',mt_dbl,1,diff_max))
+     &   diff_max = 100000.d0
 c
 c -------------------------
 c Top of Davidson iteration
@@ -415,10 +430,10 @@ c
           do n=nproducts+1,ntrials
             if (algorithm.eq.1) then
               call tddft_epsilon(n,g_trials,g_prod_p,
-     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
               if (.not.tda) then
                 call tddft_epsilon(n,g_trials,g_prod_m,
-     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
               endif
             else
               do i=1,ipol
@@ -432,7 +447,7 @@ c
                 dummy=dra_wait(request)
               enddo
               call tddft_epsilon(1,g_buffer1,g_buffer2,
-     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
               do i=1,ipol
                 dummy=dra_write_section(.false.,
      1            g_buffer2(i),1,nov(i),1,1,
@@ -451,7 +466,7 @@ c
                   dummy=dra_wait(request)
                 enddo
                 call tddft_epsilon(1,g_buffer1,g_buffer2,
-     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
                 do i=1,ipol
                   dummy=dra_write_section(.false.,
      1              g_buffer2(i),1,nov(i),1,1,
@@ -594,10 +609,10 @@ c --------------------------------------
 c
             if (algorithm.eq.2) then
               call tddft_epsilon(n,g_trials,g_prod_p,
-     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
               if (.not.tda) then
                 call tddft_epsilon(n,g_trials,g_prod_m,
-     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
               endif
             else
               do i=1,ipol
@@ -611,7 +626,7 @@ c
                 dummy=dra_wait(request)
               enddo
               call tddft_epsilon(1,g_buffer1,g_buffer2,
-     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
               do i=1,ipol
                 dummy=dra_write_section(.false.,
      1            g_buffer2(i),1,nov(i),1,1,
@@ -630,7 +645,7 @@ c
                   dummy=dra_wait(request)
                 enddo
                 call tddft_epsilon(1,g_buffer1,g_buffer2,
-     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl)
+     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
                 do i=1,ipol
                   dummy=dra_write_section(.false.,
      1              g_buffer2(i),1,nov(i),1,1,
@@ -727,7 +742,8 @@ c
      3    dbl_mb(k_apbval),dbl_mb(k_ambvec),dbl_mb(k_residual_1),
      4    dbl_mb(k_residual_2),g_residuals_1,g_residuals_2,thresh,
      5    dbl_mb(k_valsav),maxresidual,maxomega,converged,maxvecs,
-     6    evl,nconverged,nnewtrials,nresiduals,algorithm)
+     6    evl,nconverged,nnewtrials,nresiduals,algorithm,lecut,ecut,
+     7    diff_max)
         ccpu=ccpu+util_cpusec()
         cwall=cwall+util_wallsec()
         if (nodezero.and.util_print('timings',print_high))

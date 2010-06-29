@@ -3,7 +3,8 @@
      2  d_prod_p,d_prod_m,apbvec,apbval,
      3  ambvec,residual_1,residual_2,g_residuals_1,g_residuals_2,
      4  thresh,valsav,maxresidual,maxomega,converged,maxvecs,evl,
-     5  nconverged,nnewtrials,nresiduals,algorithm)
+     5  nconverged,nnewtrials,nresiduals,algorithm,lecut,ecut,
+     6  diff_max)
 c
 c $Id: tddft_residual.F,v 1.9 2003-10-17 22:58:29 carlfahl Exp $
 c
@@ -82,6 +83,9 @@ c
       integer iproc
       integer ilo,ihi,jlo,jhi
       integer dummy,request
+      double precision ecut,evl_diff
+      logical lecut
+      double precision diff_max
 c
       iproc=ga_nodeid()
       nodezero=(ga_nodeid().eq.0)
@@ -311,7 +315,15 @@ c
               k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
               j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
               call ga_get(g_residuals_1(i),l,l,n,n,r,1)
-              r=r/(evl(k,i)-evl(j,i)-apbval(n))
+              if (lecut) then
+                 evl_diff = diff_max
+                 if (evl(j,i).le.ecut) then
+                    evl_diff = evl(k,i)-evl(j,i)
+                 end if
+              else
+                evl_diff = evl(k,i)-evl(j,i)
+              endif
+              r=r/(evl_diff-apbval(n))
               call ga_put(g_residuals_1(i),l,l,n,n,r,1)
             enddo
           enddo
@@ -399,6 +411,14 @@ c
                 k=mod(l-1,nmo(i)-nfv(i)-nocc(i))+nocc(i)+1
                 j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
                 call ga_get(g_residuals_2(i),l,l,n,n,r,1)
+                if (lecut) then
+                  evl_diff = diff_max
+                  if (evl(j,i).le.ecut) then
+                    evl_diff = evl(k,i)-evl(j,i)
+                  end if
+                else
+                  evl_diff = evl(k,i)-evl(j,i)
+                endif
                 r=r/(evl(k,i)-evl(j,i)-apbval(n))
                 call ga_put(g_residuals_2(i),l,l,n,n,r,1)
               enddo
