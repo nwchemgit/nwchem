@@ -83,6 +83,8 @@ $(STAMP):
 	$(MAKE) clean
 	echo "" > $(STAMP)
 
+realclean: clean
+
 else
 #
 # GNU Autotools-based build of GA
@@ -337,16 +339,22 @@ BUILDDIR = build
 INSTALLDIR = install
 TOOLDIR = $(shell pwd)
 CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) $(MAYBE_MPI_INCLUDE) $(MAYBE_MPI_LIB) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77)
+SPACE :=
+SPACE +=
+STAMP_FC = $(subst $(SPACE),-,$(strip $(FC))).FC.stamp
+STAMP_CC = $(subst $(SPACE),-,$(strip $(CC))).CC.stamp
 
-$(INSTALLDIR)/lib/libga.a: $(BUILDDIR) check_cc check_fc $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
-	@echo ''
-	@echo '*** Building Parallel Tools ****'
-	@echo ''
-	@(cd $(BUILDDIR) && $(MAKE)) || exit 1
+$(INSTALLDIR)/lib/libga.a: $(BUILDDIR)/.libs/libga.a
 	@echo ''
 	@echo '*** Installing Parallel Tools ****'
 	@echo ''
 	@(cd $(BUILDDIR) && $(MAKE) install) || exit 1
+
+$(BUILDDIR)/.libs/libga.a: $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
+	@echo ''
+	@echo '*** Building Parallel Tools ****'
+	@echo ''
+	@(cd $(BUILDDIR) && $(MAKE)) || exit 1
 
 $(BUILDDIR)/Makefile: $(GA_DIR)/Makefile.in $(BUILDDIR)/config.status
 	cd $(BUILDDIR) && $(SHELL) ./config.status
@@ -355,15 +363,12 @@ $(BUILDDIR)/armci/Makefile: $(GA_DIR)/armci/Makefile.in $(BUILDDIR)/armci/config
 	cd $(BUILDDIR)/armci && $(SHELL) ./config.status
 
 $(BUILDDIR)/armci/config.status: $(BUILDDIR)/config.status
-$(BUILDDIR)/config.status: $(GA_DIR)/configure
+$(BUILDDIR)/config.status: $(GA_DIR)/configure $(STAMP_FC) $(STAMP_CC)
 	@echo ''
 	@echo '*** Configuring Parallel Tools ****'
 	@echo ''
+	@(test -d $(BUILDDIR)) || mkdir $(BUILDDIR);
 	@(cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS)) || exit 1
-
-.PHONY: $(BUILDDIR)
-$(BUILDDIR):
-	(test -d $(BUILDDIR)) || mkdir $(BUILDDIR);
 
 $(GA_DIR)/Makefile.in:
 	@echo "You must run ./get-tools" && exit 1
@@ -373,46 +378,23 @@ $(GA_DIR)/configure:
 	@echo "You must run ./get-tools" && exit 1
 $(GA_DIR)/armci/configure:
 	@echo "You must run ./get-tools" && exit 1
-
-.PHONY: $(BUILDDIR)/cc.next
-$(BUILDDIR)/cc.next:
-	@rm -f $(BUILDDIR)/cc.next;
-	@echo "$(CC)" > $(BUILDDIR)/cc.next;
-
-check_cc: $(BUILDDIR)/cc.next
-	@if test -e $(BUILDDIR)/cc.last; then \
-	  if ! diff $(BUILDDIR)/cc.last $(BUILDDIR)/cc.next; then \
-	    touch $(GA_DIR)/configure; \
-	    echo "CC changed since last make"; \
-	  fi; \
-	fi; \
-	rm -f $(BUILDDIR)/cc.last; \
-	mv $(BUILDDIR)/cc.next $(BUILDDIR)/cc.last;
-
-.PHONY: $(BUILDDIR)/fc.next
-$(BUILDDIR)/fc.next:
-	@rm -f $(BUILDDIR)/fc.next;
-	@echo "$(FC)" > $(BUILDDIR)/fc.next;
-
-check_fc: $(BUILDDIR)/fc.next
-	@if test -e $(BUILDDIR)/fc.last; then \
-	  if ! diff $(BUILDDIR)/fc.last $(BUILDDIR)/fc.next; then \
-	    touch $(GA_DIR)/configure; \
-	    echo "FC changed since last make"; \
-	  fi; \
-	fi; \
-	rm -f $(BUILDDIR)/fc.last; \
-	mv $(BUILDDIR)/fc.next $(BUILDDIR)/fc.last;
+$(STAMP_FC): 
+	rm -f *.FC.stamp
+	echo "" > $(STAMP_FC)
+$(STAMP_CC): 
+	rm -f *.CC.stamp
+	echo "" > $(STAMP_CC)
 
 clean:
 	@test -e $(BUILDDIR)/Makefile && { cd $(BUILDDIR) && $(MAKE) clean; } || echo "Not configured"
+
+realclean:
+	@rm -rf $(BUILDDIR) $(INSTALLDIR)
 
 endif
 #
 # Common targets shared between GNUmakefile's and automake Makefiles
 #
-
-realclean: clean
 
 .PHONY: cleanF
 cleanF:
