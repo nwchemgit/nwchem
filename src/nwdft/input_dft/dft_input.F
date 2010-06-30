@@ -25,7 +25,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 35)
+      parameter (num_dirs = 37)
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -45,6 +45,8 @@ c
       integer nel_fon(2),nmo_fon(2),ispin
       logical steric
       logical efield
+      logical swapab
+      logical frozemb
       double precision efield_x
       double precision efield_y
       double precision efield_z
@@ -54,7 +56,8 @@ c
      $           'max_ovl','mulliken','mult','noio','noprint','odft', 
      $           'print','tolerances', 'xc','sym','adapt','sic', 
      $           'smear','fon','lb94','cs00','cdft','cam','disp',
-     $           'dftmp2','molden','noscf','steric','efield','end'/
+     $           'dftmp2','molden','noscf','steric','efield','swapab',
+     $           'frozemb','end'/
 c
 c Qin / cdft
       integer nconstr
@@ -90,7 +93,7 @@ c
       goto (100,  200,  300,  400,  450,  500,  600,  700,  800,
      $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
-     $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 9999) ind
+     $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -555,6 +558,22 @@ c
       if (.not. inp_f(efield_z)) 
      &   call errquit('dft_input: efield_z not found', 3300, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'dft:efield_z', mt_dbl, 1, efield_z))
+     &   call errquit('dft_input: rtdb_put failed', 3300, RTDB_ERR)
+c
+      goto 10
+c
+c     swapab
+c
+ 3400 swapab = .true.
+      if (.not.rtdb_put(rtdb,'dft:swapab', mt_log, 1, swapab))
+     &   call errquit('dft_input: rtdb_put failed', 3300, RTDB_ERR)
+c
+      goto 10
+c
+c     frozen embedding
+c
+ 3500 frozemb = .true.
+      if (.not.rtdb_put(rtdb,'dft:frozemb', mt_log, 1, frozemb))
      &   call errquit('dft_input: rtdb_put failed', 3300, RTDB_ERR)
 c
       goto 10
