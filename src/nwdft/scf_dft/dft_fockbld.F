@@ -8,7 +8,7 @@
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time,
-     ,     g_zora_sf )
+     ,     g_zora_sf,g_frozemb )
 c     
 c     $Id: dft_fockbld.F,v 1.36 2008-11-11 00:40:33 niri Exp $
 c     
@@ -59,10 +59,12 @@ c
 c
       double precision Ebq
 c
-czora...start
-      integer g_zora_sf(*)
-      double precision Ezora_sf
-czora...end
+      integer g_zora_sf(*)       ! spin-free zora ga
+      double precision Ezora_sf  ! spin-free zora energy
+c
+      integer g_frozemb(*)       ! frozen embedding ga
+      logical frozemb            ! frozen embedding flag
+      double precision Efrozemb  ! energy
 c
 c     timings
 c
@@ -263,7 +265,7 @@ c     == Calculate the HF exchange (exact Coulomb), DFT exchange-correlation ==
 c
       if (odftps) call pstat_off(ps_xc)
 c
-c     == Add ZORA contributions ==
+c     add zora contributions
       if (do_zora) then
         Ezora_sf =0.d0
         if (ipol.gt.1) then
@@ -279,6 +281,19 @@ c
      &   call ga_dadd(1.d0,g_vxc(2),1.d0,g_zora_sf(2),g_vxc(2))
 c
       end if  ! do_zora
+c
+c     == if frozen embedding ==
+      frozemb = .false.
+      Efrozemb = 0.d0
+      if (.not.rtdb_get(rtdb, 'dft:frozemb', mt_log, 1, frozemb))
+     &    frozemb=.false.
+        if (frozemb) then
+          Efrozemb = ga_ddot(g_dens(1),g_frozemb(1))
+          call ga_dadd(1.d0,g_vxc(1),1.d0,g_frozemb(1),g_vxc(1))
+c          if (ipol.gt.1)
+c     &      call ga_dadd(1.d0,g_vxc(2),1.d0,g_frozemb(2),g_vxc(2))
+           Ecore = Ecore + Efrozemb   ! add in linearized frozen embedding energy to core
+        end if
 c
 c     == Add exact pot contributions ==
       if (exact_pot.eq.1) then

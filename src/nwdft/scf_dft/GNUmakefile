@@ -38,7 +38,8 @@
 	dft_canorg.o \
 	dft_diagn.o \
 	dft_dump_info.o \
-	dft_fant.o
+	dft_fant.o \
+	get_frozemb.o
 
      LIBRARY = libnwdft.a
 

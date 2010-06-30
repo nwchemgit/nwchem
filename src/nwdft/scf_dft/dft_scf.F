@@ -17,6 +17,7 @@ c
       integer g_dens(2), g_movecs(2), g_vxc(4), 
      &        g_fock, g_svecs, 
      &        g_xcinv
+      integer g_frozemb
 c
       integer g_dens_at(2) 
 c
@@ -128,7 +129,7 @@ c
       double precision dft_dencvg, dft_time
       external dft_dencvg
       integer l_ir, k_ir
-      logical last_time_energy,noscf
+      logical last_time_energy,noscf,frozemb
       logical fon, reorth
       character*7 name
       character*4 scftype
@@ -764,6 +765,19 @@ c
 c     
 c     Top of infinite SCF iteration loop
 c
+c     == if frozen embedding ==
+      frozemb = .false.
+      if (.not.rtdb_get(rtdb, 'dft:frozemb', mt_log, 1, frozemb))
+     &    frozemb=.false.
+      if (frozemb) then ! get the frozen density embedding potential
+        if (.not. ga_duplicate(g_fock, g_frozemb, 'froz matrix'))
+     &     call errquit('dft_scf:failed duplicate',g_frozemb, GA_ERR)
+        call ga_zero(g_frozemb)
+        call get_frozemb(rtdb,g_frozemb)
+c      call ga_print(g_frozemb)
+c      call ga_print(g_s)
+      end if
+c
 c     Write prep time required
 c
       if (me.eq.0.and.oprint)then
@@ -917,7 +931,7 @@ c
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time,
-     &     g_zora_sf)
+     &     g_zora_sf,g_frozemb)
       if(util_print('dft timings', print_high))
      &      time2=util_cpusec()  ! end fock matrix build time
 c
@@ -1845,6 +1859,21 @@ c !!! BGJ
      &       CALC_ERR)
       endif
 c !!! BGJ
+c
+      if (.not. ga_destroy(g_tmp)) call errquit
+     &   ('dft_scf: could not destroy g_tmp', 0, GA_ERR)
+      if (.not. ga_destroy(g_focks(1))) call errquit
+     &        ('dft_scf: could not destroy g_focks1', 0, GA_ERR)
+      if (ipol.gt.1) then
+         if (.not. ga_destroy(g_focks(2))) call errquit
+     &           ('dft_scf: could not destroy g_focks2', 0, GA_ERR)
+      end if
+c
+c     == if frozen embedding ==
+      if (frozemb) then
+       if (.not. ga_destroy(g_frozemb)) call errquit
+     &   ('dft_scf: could not destroy g_frozemb', 0, GA_ERR)
+      end if
 c
       if (.not. ga_destroy(g_tmp)) call errquit
      &   ('dft_scf: could not destroy g_tmp', 0, GA_ERR)
