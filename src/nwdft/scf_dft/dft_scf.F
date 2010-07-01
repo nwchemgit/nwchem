@@ -1875,15 +1875,6 @@ c     == if frozen embedding ==
      &   ('dft_scf: could not destroy g_frozemb', 0, GA_ERR)
       end if
 c
-      if (.not. ga_destroy(g_tmp)) call errquit
-     &   ('dft_scf: could not destroy g_tmp', 0, GA_ERR)
-      if (.not. ga_destroy(g_focks(1))) call errquit
-     &        ('dft_scf: could not destroy g_focks1', 0, GA_ERR)
-      if (ipol.gt.1) then
-         if (.not. ga_destroy(g_focks(2))) call errquit
-     &           ('dft_scf: could not destroy g_focks2', 0, GA_ERR)
-      end if
-c
 cdft...Deallocate cdft arrays
       if(lcdft) then
         do i = 1, nconstr
