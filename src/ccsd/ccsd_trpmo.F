@@ -19,7 +19,9 @@ c
 c
       iam = ga_nodeid()
       call ga_sync
+#ifdef CRAYXT
       call util_mpinap(100)
+#endif
 c
       nvp1=nvir+1
       lnoo=nocc*nocc
