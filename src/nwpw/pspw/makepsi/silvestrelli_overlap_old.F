@@ -73,11 +73,11 @@
       do j=1,n
       
         call D3dB_rr_Mul(1,dbl_mb(Tc(1)),
-     >                      psi_r(1+(j-1)*n2ft3d),
-     >                      dbl_mb(psic))
+     >                     psi_r(1+(j-1)*n2ft3d),
+     >                     dbl_mb(psic))
         call D3dB_rr_Mul(1,dbl_mb(Ts(1)),
-     >                      psi_r(1+(j-1)*n2ft3d),
-     >                      dbl_mb(psis))
+     >                     psi_r(1+(j-1)*n2ft3d),
+     >                     dbl_mb(psis))
 
         do i=j,n
           call D3dB_rr_dot(1,psi_r(1+(i-1)*n2ft3d),

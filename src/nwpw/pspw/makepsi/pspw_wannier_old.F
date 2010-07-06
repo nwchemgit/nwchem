@@ -15,9 +15,9 @@
       parameter (MASTER=0)
 
       logical value,oprint
-      integer version,mapping
-      integer i,j,ms,n,ne(2),ispin,ngrid(3),nemax
-      integer nfft3d,n2ft3d,npack1
+      integer version,mapping,mapping1d
+      integer i,j,ms,n,ne(2),ispin,ngrid(3),nemax,neq(2)
+      integer nfft3d,n2ft3d,npack1,nemaxq
       integer indx
       integer np
 
@@ -36,13 +36,15 @@
 *     **** external functions ****
       logical      control_read
       integer      control_ngrid,control_ispin,control_mapping
-      integer      pack_nwave,pack_nwave_all
+      integer      pack_nwave,pack_nwave_all,control_mapping1d
+      integer      control_np_orbital
       real*8       lattice_unita,lattice_unitg
       real*8       lattice_ecut,lattice_wcut,lattice_omega
-      character*30 control_input_psi,control_output_psi
+      character*50 control_input_psi,control_output_psi
       external     control_read
       external     control_ngrid,control_ispin,control_mapping
-      external     pack_nwave,pack_nwave_all
+      external     pack_nwave,pack_nwave_all,control_mapping1d
+      external     control_np_orbital
       external     lattice_unita,lattice_unitg
       external     lattice_ecut,lattice_wcut,lattice_omega
       external     control_input_psi,control_output_psi
@@ -82,7 +84,7 @@
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
       mapping = control_mapping()
-
+      call Parallel2d_Init(control_np_orbital())
 
 
       !**** Make sure ngrid is consistent with mapping ***
@@ -179,13 +181,21 @@
 
 *     ***** allocate psi and psi_r wavefunctions ****
       call psi_get_ne(ispin,ne)
-      value = MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+      mapping1d = control_mapping1d()
+      call Dne_init(ispin,ne,mapping1d)
+      call Dneall_neq(neq)
+      nemaxq = neq(1)+neq(2)
+
+
+
+
+      value = MA_alloc_get(mt_dcpl,npack1*nemaxq,
      >                     'psi',psi(2),psi(1))
       value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dcpl,npack1*nemaxq,
      >                     'psi2',psi2(2),psi2(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,n2ft3d*(ne(1)+ne(2)),
+     >        MA_alloc_get(mt_dbl,n2ft3d*nemaxq,
      >                     'psi_r',psi_r(2),psi_r(1))
       if (.not. value) 
      >   call errquit('pspw_wannier:out of heap memory',0,0)
@@ -228,15 +238,14 @@
 
       end if
 
-
 *     **** psi_r <-- FFT(psi) - complex to real FFT ****
-      nemax = ne(1)+ne(2)
-      do n=1,nemax
+      !nemax = ne(1)+ne(2)
+      do n=1,nemaxq
          call Pack_c_Copy(1,dcpl_mb(psi(1)  +(n-1)*npack1),
      >                       dbl_mb(psi_r(1)+(n-1)*n2ft3d))
       end do
-      call Grsm_gh_fftb(nfft3d,nemax,dbl_mb(psi_r(1)))
-      call Grsm_h_Zero_Ends(nfft3d,nemax,dbl_mb(psi_r(1)))
+      call Grsm_gh_fftb(nfft3d,nemaxq,dbl_mb(psi_r(1)))
+      call Grsm_h_Zero_Ends(nfft3d,nemaxq,dbl_mb(psi_r(1)))
 
 
 *     ***** allocate X,Y,Z  ****
@@ -411,6 +420,7 @@ c        end if
       call G_end()
       call D3dB_pfft_end()
       call D3dB_end(1)
+      call Dne_end()
 
       value =           MA_free_heap(A(2))      
       value = value.and.MA_free_heap(X(2))
@@ -424,6 +434,8 @@ c        end if
 
 
  9000 if (oprint) call nwpw_message(4)
+      call Parallel2d_Finalize()
+      call Parallel_Finalize()
       pspw_wannier_old = value
       return 
 
