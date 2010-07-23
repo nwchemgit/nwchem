@@ -59,7 +59,7 @@ c
       from_compile     = .false.
       noslash          = .false.
 
-*     **** Try to get from NWPW_NWPW_LIBRARY environment variable ****
+*     **** Try to get from NWCHEM_NWPW_LIBRARY environment variable ****
       call util_getenv('NWCHEM_NWPW_LIBRARY',libname)
       lgth=inp_strlen(libname)
       if (lgth.gt.0) then
@@ -75,7 +75,7 @@ c
          end if
       end if
 
-*     **** Try to get from NWPW_NWPW_LIBRARY nwchemrc ****
+*     **** Try to get from NWCHEM_NWPW_LIBRARY nwchemrc ****
 *2: check for NWCHEM_NWPW_LIBRARY defined in users .nwchemrc file
 *   assumed structure in .nwchemrc file is variable [whitespace] value
 *   one setting per line
@@ -176,7 +176,7 @@ c
          goto 99
       else
          write(luout,*)' warning:::::::::::::: from_compile'
-         write(luout,*)' NWPW_NWPW_LIBRARY is: <',
+         write(luout,*)' NWCHEM_NWPW_LIBRARY is: <',
      &        libname(1:inp_strlen(libname)),'>'
          write(luout,*)' but file does ','not exist or you ',
      &        'do not have ','access to it !'
