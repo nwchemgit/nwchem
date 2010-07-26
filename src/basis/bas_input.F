@@ -918,9 +918,8 @@ c
      &           standard(ind:ind) .eq. ')' ) goto 31
              lena = lena + 1
              if (standard(ind:ind) .eq. ',' .or.
-     &           standard(ind:ind) .eq. '/' ) then
-c    &           standard(ind:ind) .eq. '/' .or.
-c    &           standard(ind:ind) .eq. ' ' ) then
+     &           standard(ind:ind) .eq. '/' .or.
+     &           standard(ind:ind) .eq. ' ' ) then
                  filestring(lena:lena) = '_'
              elseif (standard(ind:ind) .eq. '*') then
                  filestring(lena:lena) = 's'
