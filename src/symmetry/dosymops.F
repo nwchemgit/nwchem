@@ -126,8 +126,11 @@ c
             dy=dabs(coords(2,i)-coords_new(2,l))
             dz=dabs(coords(3,i)-coords_new(3,l))
             if(dx+dy+dz.le.3*tol) then
-               if (oprint)write(6,*) ' ATOM ',i,' is already present '
-               goto 300
+c              If the tags don't match, we are probably in trouble
+               if(tags(i) .eq. tags_new(i)) then
+                 if (oprint)write(6,*) ' ATOM ',i,' is already present '
+                 goto 300
+               endif
             endif
          enddo
          if (oprint) write(6,544) 
