@@ -1534,13 +1534,16 @@ c
             symops(j,4)=symops(j,4)+1.0d+00
          elseif(symops(j,4).gt.1.0d+00) then
             symops(j,4)=symops(j,4)-1.0d+00
+         endif
+c        Not even sure if this is possible, but check anyway
+         if(symops(j,4).lt.0.0d+00 .or. symops(j,4).gt.1.0d+00) goto 551
 c
 c---> Set translation components 1/3 and 2/3 of the generator
 c      products to double precision.
 c      Otherwise get 1/3=0.33333334 and 2/3=0.66666666.
 c      (A similar loop for generator products appears in "gensymt.f")
 c
-         elseif(symops(j,4).le..3334.and.symops(j,4).ge..3333) then
+         if(symops(j,4).le..3334.and.symops(j,4).ge..3333) then
             symops(j,4)=1.0d+00/3.0d+00
          elseif(symops(j,4).le..6667.and.symops(j,4).ge..6666) then
             symops(j,4)=2.0d+00/3.0d+00
