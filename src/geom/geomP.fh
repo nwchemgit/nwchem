@@ -210,7 +210,7 @@ c
       character*16 tags
       character*10 group_name
       character*10 user_units
-      character*10 sym_spgnames,sym_molgnames
+      character*10 sym_spgnames,sym_molgnames,sym_carnames
       character*8 zmt_varname, zmt_source,
      $     zmt_ijbond_nam, zmt_ijkang_nam, zmt_ijklto_nam,
      $     zmt_ijklop_nam, zmt_ijklnb_nam
@@ -223,6 +223,7 @@ c
      $     group_name(max_geom),
      $     user_units(max_geom),
      $     sym_spgnames(230),
+     $     sym_carnames(230),
      $     sym_molgnames(46),
      $     zmt_varname(max_izmat,max_geom),
      $     zmt_source(max_geom),
