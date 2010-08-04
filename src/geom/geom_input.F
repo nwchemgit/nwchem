@@ -871,7 +871,7 @@ c        status = geom_set_user_units(geom,'fractional')
 
 *     **** local variables ****
       logical       periodic
-      integer       atn,l
+      integer       atn,l,istart,iend,i
       double precision x,y,z
       double precision a,b,c,alpha,beta,gmma
       double precision amat(3,3),pi,ca,cb,cg,sg,sgstar
@@ -909,10 +909,27 @@ c        status = geom_set_user_units(geom,'fractional')
             periodic = .true.                                         ! PBC=ON
             read(55,'(a)') tempstring                                 ! blank line
             read(55,'(a)') tempstring                                 ! DATE
-            read(55,*) tempstring, a,b,c,alpha,beta,gmma,tempstring2  ! cell parameters and symmetry
-
+c           we have to go through all this work, because some files have / in the group or ^M on the line ends
+            read(55,233) tempstring, a,b,c,alpha,beta,gmma,tempstring2! cell parameters and symmetry
+ 233        format(a3,6F10.5,A)
             l = inp_strlen(tempstring2)
-            symstring = tempstring2(2:(l-1))
+            istart=2
+            iend=3
+            do i = 1, l
+              if(tempstring2(i:i) .eq. '(') then
+                istart = i+1
+                goto 244
+              endif
+            end do
+ 244        continue
+            do i = istart, l
+              if(tempstring2(i:i) .eq. ')') then
+                iend = i-1
+                goto 255
+              endif
+            end do
+ 255        continue
+            symstring = tempstring2(istart:iend)
 
 *           **** generate amatrix used by CARFILE****
             pi = 4.0d0*datan(1.0d0)
