@@ -942,8 +942,8 @@ c           we have to go through all this work, because some files have / in th
             sg = dsin(gmma)
             sgstar = dsqrt(1.0d0-ca*ca-cb*cb-cg*cg+2.0d0*ca*cb*cg)
             amat(1,1) = a
-            amat(1,2) = b*cg
-            amat(1,3) = c*cb
+            amat(2,1) = b*cg
+            amat(3,1) = c*cb
             amat(1,2) = 0.0d0
             amat(2,2) = b*sg
             amat(3,2) = 0.0d0
