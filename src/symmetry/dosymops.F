@@ -164,13 +164,14 @@ c
                 if(dabs(xnew(iop,ii)).lt.1.0d-10) then
                   xnew(iop,ii)=0.0d0
                 endif
+                if(dabs((dabs(xnew(iop,ii))-1.0d0)).lt.1.0d-10) then
+                   xnew(iop,ii)=0.0d0
+                endif
                 if(xnew(iop,ii).lt.(0.0d0)) then
                   xnew(iop,ii)=xnew(iop,ii)+1.0d0
+                  goto 3000
                 elseif (xnew(iop,ii).ge.1.0d0) then
                   xnew(iop,ii)=xnew(iop,ii)-1.0d0
-                endif
-                if ( (xnew(iop,ii).lt.(0.0d0)) .or.
-     >               (xnew(iop,ii).ge.1.0d0)    ) then
                   goto 3000
                 endif
   380         continue
@@ -179,12 +180,14 @@ c
                 if(dabs(xnew(iop,ii)).lt.1.0d-10) then
                   xnew(iop,ii)=0.0d0
                 endif
+                if(dabs((dabs(xnew(iop,ii))-1.0d0)).lt.1.0d-10) then
+                   xnew(iop,ii)=0.0d0
+                endif
                 if(xnew(iop,ii).lt.0.0d0) then
                   xnew(iop,ii)=xnew(iop,ii)+1.0d0
+                  goto 3020
                 elseif (xnew(iop,ii).ge.1.0d0) then
                   xnew(iop,ii)=xnew(iop,ii)-1.0d0
-                endif
-                if(xnew(iop,ii).lt.0.0d0.or.xnew(iop,ii).ge.1.0d0)then
                   goto 3020
                 endif
  382         continue

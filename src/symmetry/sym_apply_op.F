@@ -31,10 +31,9 @@ c
             endif
             if(r1(i).lt.0.0) then
                r1(i)=r1(i)+1.0d0
+               goto 3000
             elseif (r1(i).ge.1.0d0) then
                r1(i)=r1(i)-1.0d0
-            endif
-            if(r1(i).lt.0.0d0.or.r1(i).ge.1.0d0) then
                goto 3000
             endif
  380     continue
@@ -46,10 +45,9 @@ c
             endif
             if(r1(i).lt.0.0d0) then
                r1(i)=r1(i)+1.0d0
+               goto 3020
             elseif (r1(i).ge.1.0d0) then
                r1(i)=r1(i)-1.0d0
-            endif
-            if(r1(i).lt.0.0d0.or.r1(i).ge.1.0d0) then
                goto 3020
             endif
  382     continue
