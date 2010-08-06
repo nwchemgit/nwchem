@@ -80,12 +80,16 @@ c
           do 910 j=1,3
  2000       if(coords(j,i).lt.(0.0d+00)) then
               coords(j,i)=coords(j,i)+1.0d+00
+              goto 2000
             elseif (coords(j,i).ge.1.0d+00) then
               coords(j,i)=coords(j,i)-1.0d+00
-            endif
-            if ( (coords(j,i).lt.(0.0d0)) .or.
-     >           (coords(j,i).ge.1.0d0)   ) then
               goto 2000
+            endif
+            if(dabs(coords(j,i)) .lt. 1.0d-10) then
+              coords(j,i) = 0.0d+00
+            endif
+            if(dabs(dabs(coords(j,i))-1.0d+00) .lt. 1.0d-10) then
+              coords(j,i) = 0.0d+00
             endif
   910     continue
   900   continue
@@ -95,18 +99,38 @@ c surfaces
             do 912 j=1,2
  2002          if(coords(j,i).lt.0.0d+00) then
                   coords(j,i)=coords(j,i)+1.0d+00
-               elseif (coords(j,i).gt.1.0d+00) then
-                  coords(j,i)=coords(j,i)-1.0d+00
-               endif
-               if(coords(j,i).lt.0.0d0.or.coords(j,i).gt.1.0d0) then
                   goto 2002
+               elseif (coords(j,i).ge.1.0d+00) then
+                  coords(j,i)=coords(j,i)-1.0d+00
+                  goto 2002
+               endif
+               if(dabs(coords(j,i)) .lt. 1.0d-10) then
+                 coords(j,i) = 0.0d+00
+               endif
+               if(dabs(dabs(coords(j,i))-1.0d+00) .lt. 1.0d-10) then
+                 coords(j,i) = 0.0d+00
                endif
  912        continue
  902     continue
 c         
       elseif(itype.eq.1) then
-         call errquit('dosymops:polymer code not implemented', 1,
-     &       CAPMIS_ERR)
+         do 904 i=1,nata
+            j = 3
+ 2004          if(coords(j,i).lt.0.0d+00) then
+                  coords(j,i)=coords(j,i)+1.0d+00
+                  goto 2004
+               elseif (coords(j,i).ge.1.0d+00) then
+                  coords(j,i)=coords(j,i)-1.0d+00
+                  goto 2004
+               endif
+               if(dabs(coords(j,i)) .lt. 1.0d-10) then
+                 coords(j,i) = 0.0d+00
+               endif
+               if(dabs(dabs(coords(j,i))-1.0d+00) .lt. 1.0d-10) then
+                 coords(j,i) = 0.0d+00
+               endif
+ 904     continue
+c         
       endif
 c
 c symops*coordinates
