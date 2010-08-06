@@ -450,7 +450,7 @@ c
  30   continue
 
 
-*     **** do cartesian to frac conversion here???? ****
+*     **** do cartesian to frac conversion here ****
       if (ecce_periodic) then
          write(*,*) "ecce periodic conversion"
          call dscal(3*ncenter, scale, coords, 1)
@@ -871,7 +871,7 @@ c        status = geom_set_user_units(geom,'fractional')
 
 *     **** local variables ****
       logical       periodic
-      integer       atn,l,istart,iend,i
+      integer       atn,l,istart,iend,i,j
       double precision x,y,z
       double precision a,b,c,alpha,beta,gmma
       double precision amat(3,3),pi,ca,cb,cg,sg,sgstar
@@ -946,10 +946,30 @@ c           we have to go through all this work, because some files have / in th
             amat(3,1) = c*cb
             amat(1,2) = 0.0d0
             amat(2,2) = b*sg
-            amat(3,2) = 0.0d0
+            amat(2,3) = 0.0d0
             amat(1,3) = 0.0d0
-            amat(2,3) = c*(ca-cb*cg)/sg
+            amat(3,2) = c*(ca-cb*cg)/sg
             amat(3,3) = c*sgstar/sg
+!   WARNING: we swap X & Y to match NWChem space groups
+            do i=1,3
+              ca = amat(i,1)
+              amat(i,1) = amat(i,2)
+              amat(i,2) = ca
+            enddo
+            do i=1,3
+              ca = amat(1,i)
+              amat(1,i) = amat(2,i)
+              amat(2,i) = ca
+            enddo 
+            do i = 1,3
+             do j= 1,i
+                ca = amat(i,j)
+                amat(i,j)=amat(j,i)
+                amat(j,i) = ca
+             enddo
+            enddo
+
+
             call dscal(9,scale,amat,1)
 
             if (.not.geom_amatrix_set(geom,amat))
@@ -989,8 +1009,9 @@ c           we have to go through all this work, because some files have / in th
      >          call errquit(' geom_carfile_input: default mass failed',
      >          911, INPUT_ERR)
 
-               coords(1,ncenter+1) = x
-               coords(2,ncenter+1) = y
+!   WARNING: we swap X & Y to match NWChem space groups
+               coords(1,ncenter+1) = y
+               coords(2,ncenter+1) = x
                coords(3,ncenter+1) = z
                charge(ncenter+1) = atn
 
