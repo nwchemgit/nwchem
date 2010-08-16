@@ -29,7 +29,7 @@ c
       logical ofinite, oatomfinite
       logical include_bqbq
       logical oprint_sym
-      logical ecce_periodic
+      logical ecce_periodic,sysset,symset
       integer i,j,ii
       integer max_center        ! parameter for local array dimension
       double precision scale    ! For unit conversion
@@ -116,6 +116,8 @@ c
       found_ang2au_conv = .false.
       found_au2ang_conv = .false.
       ecce_periodic     = .false.
+      sysset            = .false.
+      symset            = .false.
 c
       call dfill(3*max_center, 0.0d0, velocities, 1)
 c
@@ -320,10 +322,12 @@ c           if(.not.geom_create_from_file(filename,rtdb)) call errquit
              osource = .true.
              goto 20
          else if (inp_compare(.false.,'symmetry',field)) then
+            symset    = .true.
             osymmetry = .true.
             call geom_sym_input(geom, oprint_sym, threquiv)
             goto 20
          else if (inp_compare(.false.,'system', field)) then
+            sysset    = .true.
             osymmetry = .true.
             oautoz    = .false.
             call geom_sys_input(geom,scale,ecce_periodic)
@@ -332,6 +336,7 @@ c           if(.not.geom_create_from_file(filename,rtdb)) call errquit
             call geom_carfile_input(geom,coords,tags,charge,mass,
      >                              ncenter,scale,ecce_periodic)
             osymmetry = ecce_periodic
+            oautoz    = .false.
             goto 20
          else if (inp_compare(.false.,'zcoord', field)) then
             call geom_autoz_input(geom,oprint)
@@ -469,6 +474,19 @@ c
          end if
       end if
 
+
+*     *** WARNING: swapping X & Y to match NWChem space groups ***
+*     **** do symmetry/system conversion ****
+      if (sysset.and.symset) then
+         write(*,*) "a-b axis conversion"
+         do ii=1,ncenter
+            t(1) = coords(1,ii)
+            t(2) = coords(2,ii)
+            coords(1,ii) = t(2)
+            coords(2,ii) = t(1)
+         end do
+      end if
+*     ***  WARNING: swappping X & Y to match NWChem space groups ***
 
 c
       if(ofile.or.osource) return
