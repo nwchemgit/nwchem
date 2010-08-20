@@ -1169,7 +1169,12 @@ endif
         LINK.f = gfortran  $(LDFLAGS) 
         FOPTIONS   = -Wextra #-Wunused #-ffast-math
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
-       DEFINES  += -DGFORTRAN
+        DEFINES  += -DGFORTRAN
+        ifdef USE_OPENMP
+           FOPTIONS  += -fopenmp
+           LDOPTIONS += -fopenmp
+           DEFINES += -DUSE_OPENMP
+        endif
         ifeq ($(_CPU),ppc970)
 #G5
          FVECTORIZE = -ffast-math  -O2 -ftree-vectorize 
