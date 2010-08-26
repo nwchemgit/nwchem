@@ -169,9 +169,11 @@ c
 c     Output the analysis
 c
             write(6,22)
- 22         format(1x,2(' Bfn.     Coefficient        Function',4x))
+ 22         format(1x,2(' Bfn.         Coefficient        Function  ',
+     $                  4x,4x))
             write(6,23)
- 23         format(1x,2(' ---- -------------------  ------------',4x))
+ 23         format(1x,2(' ----     -------------------  ------------',
+     $                  4x,4x))
             do klo = 0, min(n-1,9), 2
                khi = min(klo+1,n-1)
                write(6,2) (
@@ -180,7 +182,7 @@ c
      $              dbl_mb(k_vecsim+int_mb(k_list+k)),
      $              (byte_mb(k_tags+int_mb(k_list+k)*16+m),m=0,15), 
      $              k = klo,khi)
- 2             format(1x,2(i5,2x,f9.6,f9.6,2x,16a1,4x))
+ 2             format(1x,2(i5,2x,f11.6,f11.6,2x,16a1,4x))
             enddo
             write(6,*)
          enddo
