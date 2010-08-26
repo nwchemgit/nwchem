@@ -1,3 +1,55 @@
+c****f* ddscf_fock_2e/fock_builders_note
+c
+c     NOTES
+c
+c     Originally the Fock builders in this file were written to deal 
+c     with straightforward Hartree-Fock cases. Recently the
+c     functionality of the code has been extended to include NMR and
+c     spin-orbit coupling. In these cases the operators become complex
+c     which has consequences for the assumptions that may be exploited
+c     in the Fock builders.
+c
+c     The main consequence of having complex operators is that the 
+c     Fock and density matrices involved become complex valued as well.
+c     A common approach to deal with this is to separate the real and
+c     imaginary parts of the matrices and deal with them separately. 
+c     The advantage is that existing code can be used that way.
+c     There is a catch, however...
+c
+c     The argument below applies equally to Fock and density matrices
+c     even though we refer to density matrices here as they are simpler.
+c     The density matrix is defined as:
+c
+c                        *                   *     *
+c        D(r,r') = sum  f (r) f (r') = sum  x (r) c   c   x (r')       '
+c                     i  i     i          i  r     ri  si  s
+c
+c     It is clear from this equation that the following relationship
+c     holds:
+c
+c               *
+c        D   = D
+c         rs    sr
+c
+c     which implies
+c
+c        Re(D  ) = Re(D  ),  Im(D  ) = -Im(D  )
+c            rs        sr        rs         sr
+c
+c     i.e. the real part of the density matrix is symmetric, whereas
+c     the imaginary part is anti-symmetric.
+c
+c     In the traditional Hartree-Fock case the imaginary part is zero,
+c     and the symmetry property can be used at will. For the general
+c     case, however, the code has to correctly handle both symmetric and
+c     anti-symmetric cases. Extreme care is required when permuting
+c     matrix indeces to ensure the correctness of the result. Also
+c     test cases have to be selected carefully as traditional Fock
+c     based algorithms will not be affected by mistakes.
+c
+c     Huub van Dam, August 2010.
+c
+c******
       subroutine fock_init_cmul(idim,jdim,ldim)
       implicit none
 #include "nwc_const.fh"
@@ -33,6 +85,105 @@ c
       enddo
 c
       end
+c
+c****f* ddscf_fock_2e/fock_2e_label
+c
+c     NAME
+c
+c       fock_2e_label -- Distributed data Fock-matrix builder
+c
+c     SYNOPSIS
+c
+c       subroutine fock_2e_label(nfock, tol2e, neri, ilab, jlab,
+c                  klab, llab, eri, ilo, ihi, jlo, jhi, klo, khi,
+c                  llo, lhi, dij, dik, dli, djk, dlj, dlk,
+c                  fij, fik, fli, fjk, flj, flk)
+c
+c     FUNCTION
+c
+c       This routine adds Fock matrix contributions to nfock Fock
+c       matrices given the corresponding density matrices, and a set of
+c       Electron Repulsion Integrals (ERI). It uses a distributed data
+c       approach, i.e. only the given blocks of the Fock and density
+c       matrices are accessible. The ERI are presented along with their
+c       labels, where the labels run as
+c
+c         * ilo <= ilab(n) <= ihi
+c         * jlo <= jlab(n) <= jhi
+c         * klo <= klab(n) <= khi
+c         * llo <= llab(n) <= lhi
+c
+c       To compute the indeces in the various blocks the routine uses
+c       the arrays im, jm and lm from the common block cfockmul. 
+c       This common block is initialized in subroutine fock_init_cmul
+c       for every distinct set of Fock and density matrix blocks.
+c
+c       This routine is implemented to be consistent with the 
+c       requirements noted in ddscf_fock_2e/fock_builders_note .
+c       This means that given Re(D) this routine calculate Re(F),
+c       and given Im(D) it calculates -Im(F). The latter condition
+c       follows from the fact that the data communication is spread
+c       much more evenly across the machine if the indices on one of
+c       matrices are interchanged. I.e. if to calculate Fij one uses
+c       Dji rather than Dij. Due to the properties of the density
+c       and Fock matrices this leads to the introduction of a sign
+c       for the imaginary Fock matrices.
+c
+c     INPUTS
+c
+c       nfock - the number of Fock matrices
+c
+c       tol2e - the ERI tolerance (integrals smaller than this value
+c               will be ignored)
+c
+c       neri  - the number of ERI
+c
+c       ilab(neri) - the i-labels for each integral
+c
+c       jlab(neri) - the j-labels for each integral
+c
+c       klab(neri) - the k-labels for each integral
+c
+c       llab(neri) - the l-labels for each integral
+c
+c       eri(neri)  - the ERI themselves
+c
+c       ilo, ihi   - the lower and upper limit on the i-basis functions
+c
+c       jlo, jhi   - the lower and upper limit on the j-basis functions
+c
+c       klo, khi   - the lower and upper limit on the k-basis functions
+c
+c       llo, lhi   - the lower and upper limit on the l-basis functions
+c
+c       dij - density matrix block representing D(nfock,ilo:ihi,jlo:jhi)
+c
+c       dik - density matrix block representing D(nfock,ilo:ihi,klo:khi)
+c
+c       dli - density matrix block representing D(nfock,llo:lhi,ilo:ihi)
+c
+c       djk - density matrix block representing D(nfock,jlo:jhi,klo:khi)
+c
+c       dlj - density matrix block representing D(nfock,llo:lhi,jlo:jhi)
+c
+c       dlk - density matrix block representing D(nfock,llo:lhi,klo:khi)
+c
+c     OUTPUT
+c
+c       fij - Fock matrix block representing F(nfock,ilo:ihi,jlo:jhi)
+c
+c       fik - Fock matrix block representing F(nfock,ilo:ihi,klo:khi)
+c
+c       fli - Fock matrix block representing F(nfock,llo:lhi,ilo:ihi)
+c
+c       fjk - Fock matrix block representing F(nfock,jlo:jhi,klo:khi)
+c
+c       flj - Fock matrix block representing F(nfock,llo:lhi,jlo:jhi)
+c
+c       flk - Fock matrix block representing F(nfock,llo:lhi,klo:khi)
+c
+c     SOURCE
+c
       subroutine fock_2e_label(nfock, tol2e, neri, 
      $     ilab, jlab, klab, llab, eri,
      $     ilo, ihi, jlo, jhi,
@@ -140,6 +291,106 @@ c
       endif
 c
       end
+c
+c******
+c
+c****f* ddscf_fock_2e/fock_2e_1_label
+c
+c     NAME
+c
+c       fock_2e_1_label -- Distributed data Fock-matrix builder for
+c                          1 matrix
+c
+c     SYNOPSIS
+c
+c       subroutine fock_2e_1_label(tol2e, neri, ilab, jlab,
+c                  klab, llab, eri, ilo, ihi, jlo, jhi, klo, khi,
+c                  llo, lhi, dij, dik, dli, djk, dlj, dlk,
+c                  fij, fik, fli, fjk, flj, flk)
+c
+c     FUNCTION
+c
+c       This routine adds Fock matrix contributions to 1 Fock
+c       matrix given the corresponding density matrix, and a set of
+c       Electron Repulsion Integrals (ERI). It uses a distributed data
+c       approach, i.e. only the given blocks of the Fock and density
+c       matrices are accessible. The ERI are presented along with their
+c       labels, where the labels run as
+c
+c         * ilo <= ilab(n) <= ihi
+c         * jlo <= jlab(n) <= jhi
+c         * klo <= klab(n) <= khi
+c         * llo <= llab(n) <= lhi
+c
+c       To compute the indeces in the various blocks the routine uses
+c       the arrays im, jm and lm from the common block cfockmul. 
+c       This common block is initialized in subroutine fock_init_cmul
+c       for every distinct set of Fock and density matrix blocks.
+c
+c       This routine is implemented to be consistent with the 
+c       requirements noted in ddscf_fock_2e/fock_builders_note .
+c       This means that given Re(D) this routine calculate Re(F),
+c       and given Im(D) it calculates -Im(F). The latter condition
+c       follows from the fact that the data communication is spread
+c       much more evenly across the machine if the indices on one of
+c       matrices are interchanged. I.e. if to calculate Fij one uses
+c       Dji rather than Dij. Due to the properties of the density
+c       and Fock matrices this leads to the introduction of a sign
+c       for the imaginary Fock matrices.
+c
+c     INPUTS
+c
+c       tol2e - the ERI tolerance (integrals smaller than this value
+c               will be ignored)
+c
+c       neri  - the number of ERI
+c
+c       ilab(neri) - the i-labels for each integral
+c
+c       jlab(neri) - the j-labels for each integral
+c
+c       klab(neri) - the k-labels for each integral
+c
+c       llab(neri) - the l-labels for each integral
+c
+c       eri(neri)  - the ERI themselves
+c
+c       ilo, ihi   - the lower and upper limit on the i-basis functions
+c
+c       jlo, jhi   - the lower and upper limit on the j-basis functions
+c
+c       klo, khi   - the lower and upper limit on the k-basis functions
+c
+c       llo, lhi   - the lower and upper limit on the l-basis functions
+c
+c       dij - density matrix block representing D(ilo:ihi,jlo:jhi)
+c
+c       dik - density matrix block representing D(ilo:ihi,klo:khi)
+c
+c       dli - density matrix block representing D(llo:lhi,ilo:ihi)
+c
+c       djk - density matrix block representing D(jlo:jhi,klo:khi)
+c
+c       dlj - density matrix block representing D(llo:lhi,jlo:jhi)
+c
+c       dlk - density matrix block representing D(llo:lhi,klo:khi)
+c
+c     OUTPUT
+c
+c       fij - Fock matrix block representing F(ilo:ihi,jlo:jhi)
+c
+c       fik - Fock matrix block representing F(ilo:ihi,klo:khi)
+c
+c       fli - Fock matrix block representing F(llo:lhi,ilo:ihi)
+c
+c       fjk - Fock matrix block representing F(jlo:jhi,klo:khi)
+c
+c       flj - Fock matrix block representing F(llo:lhi,jlo:jhi)
+c
+c       flk - Fock matrix block representing F(llo:lhi,klo:khi)
+c
+c     SOURCE
+c
       subroutine fock_2e_1_label(tol2e, neri, 
      $     ilab, jlab, klab, llab, eri,
      $     ilo, ihi, jlo, jhi,
@@ -213,6 +464,106 @@ c
       end do
 c     
       end
+c
+c******
+c
+c****f* ddscf_fock_2e/fock_2e_2_label
+c
+c     NAME
+c
+c       fock_2e_2_label -- Distributed data Fock-matrix builder for
+c                          2 matrices
+c
+c     SYNOPSIS
+c
+c       subroutine fock_2e_2_label(tol2e, neri, ilab, jlab,
+c                  klab, llab, eri, ilo, ihi, jlo, jhi, klo, khi,
+c                  llo, lhi, dij, dik, dli, djk, dlj, dlk,
+c                  fij, fik, fli, fjk, flj, flk)
+c
+c     FUNCTION
+c
+c       This routine adds Fock matrix contributions to 2 Fock
+c       matrices given the corresponding density matrices, and a set of
+c       Electron Repulsion Integrals (ERI). It uses a distributed data
+c       approach, i.e. only the given blocks of the Fock and density
+c       matrices are accessible. The ERI are presented along with their
+c       labels, where the labels run as
+c
+c         * ilo <= ilab(n) <= ihi
+c         * jlo <= jlab(n) <= jhi
+c         * klo <= klab(n) <= khi
+c         * llo <= llab(n) <= lhi
+c
+c       To compute the indeces in the various blocks the routine uses
+c       the arrays im, jm and lm from the common block cfockmul. 
+c       This common block is initialized in subroutine fock_init_cmul
+c       for every distinct set of Fock and density matrix blocks.
+c
+c       This routine is implemented to be consistent with the 
+c       requirements noted in ddscf_fock_2e/fock_builders_note .
+c       This means that given Re(D) this routine calculate Re(F),
+c       and given Im(D) it calculates -Im(F). The latter condition
+c       follows from the fact that the data communication is spread
+c       much more evenly across the machine if the indices on one of
+c       matrices are interchanged. I.e. if to calculate Fij one uses
+c       Dji rather than Dij. Due to the properties of the density
+c       and Fock matrices this leads to the introduction of a sign
+c       for the imaginary Fock matrices.
+c
+c     INPUTS
+c
+c       tol2e - the ERI tolerance (integrals smaller than this value
+c               will be ignored)
+c
+c       neri  - the number of ERI
+c
+c       ilab(neri) - the i-labels for each integral
+c
+c       jlab(neri) - the j-labels for each integral
+c
+c       klab(neri) - the k-labels for each integral
+c
+c       llab(neri) - the l-labels for each integral
+c
+c       eri(neri)  - the ERI themselves
+c
+c       ilo, ihi   - the lower and upper limit on the i-basis functions
+c
+c       jlo, jhi   - the lower and upper limit on the j-basis functions
+c
+c       klo, khi   - the lower and upper limit on the k-basis functions
+c
+c       llo, lhi   - the lower and upper limit on the l-basis functions
+c
+c       dij - density matrix block representing D(2,ilo:ihi,jlo:jhi)
+c
+c       dik - density matrix block representing D(2,ilo:ihi,klo:khi)
+c
+c       dli - density matrix block representing D(2,llo:lhi,ilo:ihi)
+c
+c       djk - density matrix block representing D(2,jlo:jhi,klo:khi)
+c
+c       dlj - density matrix block representing D(2,llo:lhi,jlo:jhi)
+c
+c       dlk - density matrix block representing D(2,llo:lhi,klo:khi)
+c
+c     OUTPUT
+c
+c       fij - Fock matrix block representing F(2,ilo:ihi,jlo:jhi)
+c
+c       fik - Fock matrix block representing F(2,ilo:ihi,klo:khi)
+c
+c       fli - Fock matrix block representing F(2,llo:lhi,ilo:ihi)
+c
+c       fjk - Fock matrix block representing F(2,jlo:jhi,klo:khi)
+c
+c       flj - Fock matrix block representing F(2,llo:lhi,jlo:jhi)
+c
+c       flk - Fock matrix block representing F(2,llo:lhi,klo:khi)
+c
+c     SOURCE
+c
       subroutine fock_2e_2_label(tol2e, neri, 
      $     ilab, jlab, klab, llab, eri,
      $     ilo, ihi, jlo, jhi,
@@ -294,6 +645,106 @@ c
       end do
 c
       end
+c
+c******
+c
+c****f* ddscf_fock_2e/fock_2e_3_label
+c
+c     NAME
+c
+c       fock_2e_3_label -- Distributed data Fock-matrix builder for
+c                          3 matrices
+c
+c     SYNOPSIS
+c
+c       subroutine fock_2e_3_label(tol2e, neri, ilab, jlab,
+c                  klab, llab, eri, ilo, ihi, jlo, jhi, klo, khi,
+c                  llo, lhi, dij, dik, dli, djk, dlj, dlk,
+c                  fij, fik, fli, fjk, flj, flk)
+c
+c     FUNCTION
+c
+c       This routine adds Fock matrix contributions to 3 Fock
+c       matrices given the corresponding density matrices, and a set of
+c       Electron Repulsion Integrals (ERI). It uses a distributed data
+c       approach, i.e. only the given blocks of the Fock and density
+c       matrices are accessible. The ERI are presented along with their
+c       labels, where the labels run as
+c
+c         * ilo <= ilab(n) <= ihi
+c         * jlo <= jlab(n) <= jhi
+c         * klo <= klab(n) <= khi
+c         * llo <= llab(n) <= lhi
+c
+c       To compute the indeces in the various blocks the routine uses
+c       the arrays im, jm and lm from the common block cfockmul. 
+c       This common block is initialized in subroutine fock_init_cmul
+c       for every distinct set of Fock and density matrix blocks.
+c
+c       This routine is implemented to be consistent with the 
+c       requirements noted in ddscf_fock_2e/fock_builders_note .
+c       This means that given Re(D) this routine calculate Re(F),
+c       and given Im(D) it calculates -Im(F). The latter condition
+c       follows from the fact that the data communication is spread
+c       much more evenly across the machine if the indices on one of
+c       matrices are interchanged. I.e. if to calculate Fij one uses
+c       Dji rather than Dij. Due to the properties of the density
+c       and Fock matrices this leads to the introduction of a sign
+c       for the imaginary Fock matrices.
+c
+c     INPUTS
+c
+c       tol2e - the ERI tolerance (integrals smaller than this value
+c               will be ignored)
+c
+c       neri  - the number of ERI
+c
+c       ilab(neri) - the i-labels for each integral
+c
+c       jlab(neri) - the j-labels for each integral
+c
+c       klab(neri) - the k-labels for each integral
+c
+c       llab(neri) - the l-labels for each integral
+c
+c       eri(neri)  - the ERI themselves
+c
+c       ilo, ihi   - the lower and upper limit on the i-basis functions
+c
+c       jlo, jhi   - the lower and upper limit on the j-basis functions
+c
+c       klo, khi   - the lower and upper limit on the k-basis functions
+c
+c       llo, lhi   - the lower and upper limit on the l-basis functions
+c
+c       dij - density matrix block representing D(3,ilo:ihi,jlo:jhi)
+c
+c       dik - density matrix block representing D(3,ilo:ihi,klo:khi)
+c
+c       dli - density matrix block representing D(3,llo:lhi,ilo:ihi)
+c
+c       djk - density matrix block representing D(3,jlo:jhi,klo:khi)
+c
+c       dlj - density matrix block representing D(3,llo:lhi,jlo:jhi)
+c
+c       dlk - density matrix block representing D(3,llo:lhi,klo:khi)
+c
+c     OUTPUT
+c
+c       fij - Fock matrix block representing F(3,ilo:ihi,jlo:jhi)
+c
+c       fik - Fock matrix block representing F(3,ilo:ihi,klo:khi)
+c
+c       fli - Fock matrix block representing F(3,llo:lhi,ilo:ihi)
+c
+c       fjk - Fock matrix block representing F(3,jlo:jhi,klo:khi)
+c
+c       flj - Fock matrix block representing F(3,llo:lhi,jlo:jhi)
+c
+c       flk - Fock matrix block representing F(3,llo:lhi,klo:khi)
+c
+c     SOURCE
+c
       subroutine fock_2e_3_label(tol2e, neri, 
      $     ilab, jlab, klab, llab, eri,
      $     ilo, ihi, jlo, jhi,
@@ -381,6 +832,106 @@ c
       end do
 c
       end
+c
+c******
+c
+c****f* ddscf_fock_2e/fock_2e_4_label
+c
+c     NAME
+c
+c       fock_2e_4_label -- Distributed data Fock-matrix builder for
+c                          4 matrices
+c
+c     SYNOPSIS
+c
+c       subroutine fock_2e_4_label(tol2e, neri, ilab, jlab,
+c                  klab, llab, eri, ilo, ihi, jlo, jhi, klo, khi,
+c                  llo, lhi, dij, dik, dli, djk, dlj, dlk,
+c                  fij, fik, fli, fjk, flj, flk)
+c
+c     FUNCTION
+c
+c       This routine adds Fock matrix contributions to 4 Fock
+c       matrices given the corresponding density matrices, and a set of
+c       Electron Repulsion Integrals (ERI). It uses a distributed data
+c       approach, i.e. only the given blocks of the Fock and density
+c       matrices are accessible. The ERI are presented along with their
+c       labels, where the labels run as
+c
+c         * ilo <= ilab(n) <= ihi
+c         * jlo <= jlab(n) <= jhi
+c         * klo <= klab(n) <= khi
+c         * llo <= llab(n) <= lhi
+c
+c       To compute the indeces in the various blocks the routine uses
+c       the arrays im, jm and lm from the common block cfockmul. 
+c       This common block is initialized in subroutine fock_init_cmul
+c       for every distinct set of Fock and density matrix blocks.
+c
+c       This routine is implemented to be consistent with the 
+c       requirements noted in ddscf_fock_2e/fock_builders_note .
+c       This means that given Re(D) this routine calculate Re(F),
+c       and given Im(D) it calculates -Im(F). The latter condition
+c       follows from the fact that the data communication is spread
+c       much more evenly across the machine if the indices on one of
+c       matrices are interchanged. I.e. if to calculate Fij one uses
+c       Dji rather than Dij. Due to the properties of the density
+c       and Fock matrices this leads to the introduction of a sign
+c       for the imaginary Fock matrices.
+c
+c     INPUTS
+c
+c       tol2e - the ERI tolerance (integrals smaller than this value
+c               will be ignored)
+c
+c       neri  - the number of ERI
+c
+c       ilab(neri) - the i-labels for each integral
+c
+c       jlab(neri) - the j-labels for each integral
+c
+c       klab(neri) - the k-labels for each integral
+c
+c       llab(neri) - the l-labels for each integral
+c
+c       eri(neri)  - the ERI themselves
+c
+c       ilo, ihi   - the lower and upper limit on the i-basis functions
+c
+c       jlo, jhi   - the lower and upper limit on the j-basis functions
+c
+c       klo, khi   - the lower and upper limit on the k-basis functions
+c
+c       llo, lhi   - the lower and upper limit on the l-basis functions
+c
+c       dij - density matrix block representing D(4,ilo:ihi,jlo:jhi)
+c
+c       dik - density matrix block representing D(4,ilo:ihi,klo:khi)
+c
+c       dli - density matrix block representing D(4,llo:lhi,ilo:ihi)
+c
+c       djk - density matrix block representing D(4,jlo:jhi,klo:khi)
+c
+c       dlj - density matrix block representing D(4,llo:lhi,jlo:jhi)
+c
+c       dlk - density matrix block representing D(4,llo:lhi,klo:khi)
+c
+c     OUTPUT
+c
+c       fij - Fock matrix block representing F(4,ilo:ihi,jlo:jhi)
+c
+c       fik - Fock matrix block representing F(4,ilo:ihi,klo:khi)
+c
+c       fli - Fock matrix block representing F(4,llo:lhi,ilo:ihi)
+c
+c       fjk - Fock matrix block representing F(4,jlo:jhi,klo:khi)
+c
+c       flj - Fock matrix block representing F(4,llo:lhi,jlo:jhi)
+c
+c       flk - Fock matrix block representing F(4,llo:lhi,klo:khi)
+c
+c     SOURCE
+c
       subroutine fock_2e_4_label(tol2e, neri, 
      $     ilab, jlab, klab, llab, eri,
      $     ilo, ihi, jlo, jhi,
@@ -474,6 +1025,8 @@ c
       end do
 c
       end
+c
+c******
 c!!
 c!!   READ THIS !!!!!!!!!!!!
 c!!
@@ -484,6 +1037,99 @@ c!!     2) labels are offsets within the range, rather than
 c!!        full labels (i.e., there is no need to subtract ilo)
 c!!     3) No need to pass ranges since im/jm/lm are used
 c!!
+c
+c****f* ddscf_fock_2e/fock_2e_mod_label
+c
+c     NAME
+c
+c       fock_2e_mod_label -- Modified distributed data Fock-matrix
+c                            builder
+c
+c     SYNOPSIS
+c
+c       subroutine fock_2e_mod_label(nfock, tol2e, neri, labels, eri,
+c                  dij, dik, dli, djk, dlj, dlk,
+c                  fij, fik, fli, fjk, flj, flk)
+c
+c     FUNCTION
+c
+c       This routine adds Fock matrix contributions to nfock Fock
+c       matrices given the corresponding density matrices, and a set of
+c       Electron Repulsion Integrals (ERI). It uses a distributed data
+c       approach, i.e. only the given blocks of the Fock and density
+c       matrices are accessible. 
+c
+c       The routine has been modified relative to its counter part
+c       subroutine fock_2e_label so that the labels given enumerate 
+c       basis functions within the current sub-ranges rather than the
+c       full basis set. As a result the current sub-ranges need not
+c       be explicitly specified. I.e. the labels satisfy the conditions
+c
+c         * 0 <= labels(1,n) <= ihi-ilo
+c         * 0 <= labels(2,n) <= jhi-jlo
+c         * 0 <= labels(3,n) <= khi-klo
+c         * 0 <= labels(4,n) <= lhi-llo
+c
+c       where ilo through to llo and ihi through to lhi are defined
+c       as in subroutine fock_2e_label.
+c
+c       To compute the indeces in the various blocks the routine uses
+c       the arrays im, jm and lm from the common block cfockmul. 
+c       This common block is initialized in subroutine fock_init_cmul
+c       for every distinct set of Fock and density matrix blocks.
+c
+c       This routine is implemented to be consistent with the 
+c       requirements noted in ddscf_fock_2e/fock_builders_note .
+c       This means that given Re(D) this routine calculate Re(F),
+c       and given Im(D) it calculates -Im(F). The latter condition
+c       follows from the fact that the data communication is spread
+c       much more evenly across the machine if the indices on one of
+c       matrices are interchanged. I.e. if to calculate Fij one uses
+c       Dji rather than Dij. Due to the properties of the density
+c       and Fock matrices this leads to the introduction of a sign
+c       for the imaginary Fock matrices.
+c
+c     INPUTS
+c
+c       nfock - the number of Fock matrices
+c
+c       tol2e - the ERI tolerance (integrals smaller than this value
+c               will be ignored)
+c
+c       neri  - the number of ERI
+c
+c       labels(4,neri) - the (i,j,k,l)-labels for each integral
+c
+c       eri(neri)  - the ERI themselves
+c
+c       dij - density matrix block representing D(nfock,ilo:ihi,jlo:jhi)
+c
+c       dik - density matrix block representing D(nfock,ilo:ihi,klo:khi)
+c
+c       dli - density matrix block representing D(nfock,llo:lhi,ilo:ihi)
+c
+c       djk - density matrix block representing D(nfock,jlo:jhi,klo:khi)
+c
+c       dlj - density matrix block representing D(nfock,llo:lhi,jlo:jhi)
+c
+c       dlk - density matrix block representing D(nfock,llo:lhi,klo:khi)
+c
+c     OUTPUT
+c
+c       fij - Fock matrix block representing F(nfock,ilo:ihi,jlo:jhi)
+c
+c       fik - Fock matrix block representing F(nfock,ilo:ihi,klo:khi)
+c
+c       fli - Fock matrix block representing F(nfock,llo:lhi,ilo:ihi)
+c
+c       fjk - Fock matrix block representing F(nfock,jlo:jhi,klo:khi)
+c
+c       flj - Fock matrix block representing F(nfock,llo:lhi,jlo:jhi)
+c
+c       flk - Fock matrix block representing F(nfock,llo:lhi,klo:khi)
+c
+c     SOURCE
+c
       subroutine fock_2e_mod_label(nfock, tol2e, neri, 
      $     labels, eri,
      $     dij, dik, dli, djk, dlj, dlk, 
@@ -858,6 +1504,73 @@ c
       end do
 c
       end
+c
+c******
+c
+c****f* ddscf_fock_2e/fock_2e_rep_label
+c
+c     NAME
+c
+c       fock_2e_rep_label -- Replicated data Fock-matrix builder
+c
+c     SYNOPSIS
+c
+c       subroutine fock_2e_rep_label(nfock, nbf, jfac, kfac,
+c                  tol2e, neri, ilab, jlab, klab, llab, eri,
+c                  dens, fock)
+c
+c     FUNCTION
+c
+c       This routine adds Fock matrix contributions to nfock Fock
+c       matrices given nfock density matrices, and a set of Electron
+c       Repulsion Integrals (ERI). It assumes that a replicated data
+c       approach is being used, i.e. the complete Fock and density
+c       matrices are accessible. The ERI are presented along with their
+c       labels, where the labels run from 1 to NBF, where NBF is the
+c       total number of basis functions. Finally the Coulomb and
+c       exchange contributions can be scaled to support Coulomb-fitting
+c       and DFT calculations. 
+c
+c       This routine is implemented to be consistent with the 
+c       requirements noted in ddscf_fock_2e/fock_builders_note .
+c       This means that given Re(D) this routine calculate Re(F),
+c       and given Im(D) it calculates -Im(F), so that the results
+c       are consistent with the distributed data case (see also
+c       subroutine fock_2e_label).
+c
+c     INPUTS
+c
+c       nfock - the number of Fock matrices
+c
+c       nbf   - the number of basis functions
+c
+c       jfac(nfock) - the Coulomb contribution scale factors
+c
+c       kfac(nfock) - the exchange contribution scale factors
+c
+c       tol2e - the ERI tolerance (integrals smaller than this value
+c               will be ignored)
+c
+c       neri  - the number of ERI
+c
+c       ilab(neri) - the i-labels for each integral
+c
+c       jlab(neri) - the j-labels for each integral
+c
+c       klab(neri) - the k-labels for each integral
+c
+c       llab(neri) - the l-labels for each integral
+c
+c       eri(neri) - the ERI themselves
+c
+c       dens(1:nfock*nbf*nbf) - the density matrices
+c
+c     OUTPUT
+c
+c       fock(1:nfock*nbf*nbf) - the Fock matrices
+c
+c     SOURCE
+c
       subroutine fock_2e_rep_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, ilab, jlab, klab, llab, eri, dens, fock)
 c     
@@ -969,7 +1682,7 @@ c
       double precision jfac, kfac
 c     
       integer i, j, k, l, ind
-      integer ij, kl, ik, il, jl, jk
+      integer ij, lk, ik, li, lj, jk
       double precision g, gk, gj, fij, fkl, fik, fil, fjl, fjk
 c     
       do ind = 1, neri
@@ -983,48 +1696,28 @@ c
             k = klab(ind)
             l = llab(ind)
 c
+c           At some point (up to r18591) there was a replacement logic
+c           based code here. This approach optimized for pipelining
+c           instructions. However, to manage the needed scaling of the
+c           integrals the code calculated Im(F) instead of -Im(F)
+c           which caused conflicts with the other Fock builders,
+c           in particular the distributed data ones.
 c
-c     Logic behind this choice is that indices vary mostly with
-c     i>=j and k>=l with kl varying fastest ... improved cache hits?
-c     If change this mapping must change overwrite logic below
+            ij = i + im1(j)
+            lk = l + im1(k)
 c
-            ij = im1(i) + j
-            kl = im1(k) + l
-            if (ij .eq. kl) gj = gj + gj
+            fock(ij) = fock(ij) + gj*dens(lk)
+            fock(lk) = fock(lk) + gj*dens(ij)
 c
-c     Using overwrite logic ... separates stores/loads, and enables
-c     partial pipelining of */+ pairs ... at least in principle
+            ik = i + im1(k)
+            li = l + im1(i)
+            lj = l + im1(j)
+            jk = j + im1(k)
 c
-            fij = fock(ij) + gj*dens(kl)
-            fkl = fock(kl) + gj*dens(ij)
-            if (i .eq. j) gk = gk + gk
-            fock(ij) = fij
-            fock(kl) = fkl
-c
-            if (k .eq. l) gk = gk + gk
-c
-            ik = im1(i) + k
-            il = im1(i) + l
-            jl = im1(j) + l
-            jk = im1(j) + k
-c
-            fik = fock(ik) + gk*dens(jl)
-            fil = fock(il) + gk*dens(jk)
-            fjk = fock(jk) + gk*dens(il)
-            fjl = fock(jl) + gk*dens(ik)
-            fock(ik) = fik
-            fock(il) = fil
-            fock(jl) = fjl
-            fock(jk) = fjk
-c
-c     Code without overwrite logic
-c
-c$$$            fock(ij) = fock(ij) + gj*dens(kl)
-c$$$            fock(kl) = fock(kl) + gj*dens(ij)
-c$$$            fock(ik) = fock(ik) + gk*dens(jl)
-c$$$            fock(il) = fock(il) + gk*dens(jk)
-c$$$            fock(jl) = fock(jl) + gk*dens(ik)
-c$$$            fock(jk) = fock(jk) + gk*dens(il)
+            fock(ik) = fock(ik) + gk*dens(lj)
+            fock(li) = fock(li) + gk*dens(jk)
+            fock(jk) = fock(jk) + gk*dens(li)
+            fock(lj) = fock(lj) + gk*dens(ik)
          end if
       end do
 c     
@@ -1248,6 +1941,68 @@ c
       end do
 c     
       end
+c
+c******
+c
+c****f* ddscf_fock_2e/fock_2e_rep_mod_label
+c
+c     NAME
+c
+c       fock_2e_rep_mod_label -- Modified replicated data Fock-matrix
+c                                builder
+c
+c     SYNOPSIS
+c
+c       subroutine fock_2e_rep_mod_label(nfock, nbf, jfac, kfac,
+c                  tol2e, neri, labels, eri, dens, fock)
+c
+c     FUNCTION
+c
+c       This routine adds Fock matrix contributions to nfock Fock
+c       matrices given nfock density matrices, and a set of Electron
+c       Repulsion Integrals (ERI). It assumes that a replicated data
+c       approach is being used, i.e. the complete Fock and density
+c       matrices are accessible. The ERI are presented along with their
+c       labels, where the labels run from 0 to NBF-1, where NBF is the
+c       total number of basis functions. Finally the Coulomb and
+c       exchange contributions can be scaled to support Coulomb-fitting
+c       and DFT calculations. 
+c
+c       This routine is implemented to be consistent with the 
+c       requirements noted in ddscf_fock_2e/fock_builders_note .
+c       This means that given Re(D) this routine calculate Re(F),
+c       and given Im(D) it calculates -Im(F), so that the results
+c       are consistent with the distributed data case (see also
+c       subroutine fock_2e_label).
+c
+c     INPUTS
+c
+c       nfock - the number of Fock matrices
+c
+c       nbf   - the number of basis functions
+c
+c       jfac(nfock) - the Coulomb contribution scale factors
+c
+c       kfac(nfock) - the exchange contribution scale factors
+c
+c       tol2e - the ERI tolerance (integrals smaller than this value
+c               will be ignored)
+c
+c       neri  - the number of ERI
+c
+c       labels(4,neri) - the labels associated with each integral
+c                        labels(1:4,iq) = (i,j,k,l)
+c
+c       eri(neri) - the ERI themselves
+c
+c       dens(0:nfock*nbf*nbf-1) - the density matrices
+c
+c     OUTPUT
+c
+c       fock(0:nfock*nbf*nbf-1) - the Fock matrices
+c
+c     SOURCE
+c
       subroutine fock_2e_rep_mod_label(nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
 c     
@@ -1347,10 +2102,10 @@ c
       double precision jfac, kfac
 c     
       integer i, j, k, l, ind
-      integer ij, ik, jk, kl, il, jl
+      integer ij, ik, jk, lk, li, lj
       double precision g, gk, gj, fij, fkl, fik, fil, fjl, fjk
 c
-#ifdef SOLARIS
+c#ifdef SOLARIS
 *     Overwrite logic seems slower on UltraSparc
       do ind = 1, neri
          g = eri(ind)
@@ -1361,63 +2116,63 @@ c
             j = labels(2,ind)
             k = labels(3,ind)
             l = labels(4,ind)
-            ij = im(i) + j
-            kl = im(k) + l
-            ik = im(i) + k
-            il = im(i) + l
-            jl = im(j) + l
-            jk = im(j) + k
-            fock(ij) = fock(ij) + gj*dens(kl)
-            fock(kl) = fock(kl) + gj*dens(ij)
-            fock(ik) = fock(ik) + gk*dens(jl)
-            fock(il) = fock(il) + gk*dens(jk)
-            fock(jl) = fock(jl) + gk*dens(ik)
-            fock(jk) = fock(jk) + gk*dens(il)
+            ij = i + im(j)
+            lk = l + im(k)
+            ik = i + im(k)
+            li = l + im(i)
+            lj = l + im(j)
+            jk = j + im(k)
+            fock(ij) = fock(ij) + gj*dens(lk)
+            fock(lk) = fock(lk) + gj*dens(ij)
+            fock(ik) = fock(ik) + gk*dens(lj)
+            fock(li) = fock(li) + gk*dens(jk)
+            fock(lj) = fock(lj) + gk*dens(ik)
+            fock(jk) = fock(jk) + gk*dens(li)
          end if
       end do
-#else
-      do ind = 1, neri
-         g = eri(ind)
-         if (abs(g) .gt. tol2e) then
-            gj = g*jfac
-            gk = g*kfac
-            i = labels(1,ind)
-            j = labels(2,ind)
-            k = labels(3,ind)
-            l = labels(4,ind)
-c
-c     Logic behind this choice is that indices vary mostly with
-c     i>=j and k>=l with kl varying fastest ... improved cache hits?
-c     If change this mapping must change overwrite logic below
-c
-            ij = im(i) + j      ! NOT im1 since go from 0
-            kl = im(k) + l
-            if (ij .eq. kl) gj = gj + gj
-c
-c     Using overwrite logic ... separates stores/loads, and enables
-c     partial pipelining of */+ pairs ... at least in principle
-c
-            fij = fock(ij) + gj*dens(kl)
-            fkl = fock(kl) + gj*dens(ij)
-            if (i .eq. j) gk = gk + gk
-            fock(ij) = fij
-            fock(kl) = fkl
-            if (k .eq. l) gk = gk + gk
-            ik = im(i) + k
-            il = im(i) + l
-            jl = im(j) + l
-            jk = im(j) + k
-            fik = fock(ik) + gk*dens(jl)
-            fil = fock(il) + gk*dens(jk)
-            fjk = fock(jk) + gk*dens(il)
-            fjl = fock(jl) + gk*dens(ik)
-            fock(ik) = fik
-            fock(il) = fil
-            fock(jl) = fjl
-            fock(jk) = fjk
-         end if
-      end do
-#endif
+c#else
+c      do ind = 1, neri
+c         g = eri(ind)
+c         if (abs(g) .gt. tol2e) then
+c            gj = g*jfac
+c            gk = g*kfac
+c            i = labels(1,ind)
+c            j = labels(2,ind)
+c            k = labels(3,ind)
+c            l = labels(4,ind)
+cc
+cc     Logic behind this choice is that indices vary mostly with
+cc     i>=j and k>=l with kl varying fastest ... improved cache hits?
+cc     If change this mapping must change overwrite logic below
+cc
+c            ij = im(i) + j      ! NOT im1 since go from 0
+c            kl = im(k) + l
+c            if (ij .eq. kl) gj = gj + gj
+cc
+cc     Using overwrite logic ... separates stores/loads, and enables
+cc     partial pipelining of */+ pairs ... at least in principle
+cc
+c            fij = fock(ij) + gj*dens(kl)
+c            fkl = fock(kl) + gj*dens(ij)
+c            if (i .eq. j) gk = gk + gk
+c            fock(ij) = fij
+c            fock(kl) = fkl
+c            if (k .eq. l) gk = gk + gk
+c            ik = im(i) + k
+c            il = im(i) + l
+c            jl = im(j) + l
+c            jk = im(j) + k
+c            fik = fock(ik) + gk*dens(jl)
+c            fil = fock(il) + gk*dens(jk)
+c            fjk = fock(jk) + gk*dens(il)
+c            fjl = fock(jl) + gk*dens(ik)
+c            fock(ik) = fik
+c            fock(il) = fil
+c            fock(jl) = fjl
+c            fock(jk) = fjk
+c         end if
+c      end do
+c#endif
 c     
       end
 c$$$      subroutine fock_2e_rep_mod_1_label(nfock, nbf, jfac, kfac, tol2e,
@@ -1520,7 +2275,7 @@ c
       double precision jfac(*), kfac(*)
 c     
       integer i, j, k, l, ind
-      integer ij, ik, jk, kl, il, jl
+      integer ij, ik, jk, lk, li, lj
       double precision g, gk1, gj1, gj2, gk2
 c
       do ind = 1, neri
@@ -1531,30 +2286,30 @@ c
             k = labels(3,ind)
             l = labels(4,ind)
 c
-            ij = im(i) + j      ! NOT im1 since go from 0
-            ik = im(i) + k
-            il = im(i) + l
-            jl = im(j) + l
-            jk = im(j) + k
-            kl = im(k) + l
+            ij = i + im(j)      ! NOT im1 since go from 0
+            ik = i + im(k)
+            li = l + im(i)
+            lj = l + im(j)
+            jk = j + im(k)
+            lk = l + im(k)
 c
             gj1 = g*jfac(1)
             gk1 = g*kfac(1)
-            fock(1,ij) = fock(1,ij) + gj1*dens(1,kl)
-            fock(1,kl) = fock(1,kl) + gj1*dens(1,ij)
-            fock(1,ik) = fock(1,ik) + gk1*dens(1,jl)
-            fock(1,il) = fock(1,il) + gk1*dens(1,jk)
-            fock(1,jl) = fock(1,jl) + gk1*dens(1,ik)
-            fock(1,jk) = fock(1,jk) + gk1*dens(1,il)
+            fock(1,ij) = fock(1,ij) + gj1*dens(1,lk)
+            fock(1,lk) = fock(1,lk) + gj1*dens(1,ij)
+            fock(1,ik) = fock(1,ik) + gk1*dens(1,lj)
+            fock(1,li) = fock(1,li) + gk1*dens(1,jk)
+            fock(1,lj) = fock(1,lj) + gk1*dens(1,ik)
+            fock(1,jk) = fock(1,jk) + gk1*dens(1,li)
 c
             gj2 = g*jfac(2)
             gk2 = g*kfac(2)
-            fock(2,ij) = fock(2,ij) + gj2*dens(2,kl)
-            fock(2,kl) = fock(2,kl) + gj2*dens(2,ij)
-            fock(2,ik) = fock(2,ik) + gk2*dens(2,jl)
-            fock(2,il) = fock(2,il) + gk2*dens(2,jk)
-            fock(2,jl) = fock(2,jl) + gk2*dens(2,ik)
-            fock(2,jk) = fock(2,jk) + gk2*dens(2,il)
+            fock(2,ij) = fock(2,ij) + gj2*dens(2,lk)
+            fock(2,lk) = fock(2,lk) + gj2*dens(2,ij)
+            fock(2,ik) = fock(2,ik) + gk2*dens(2,lj)
+            fock(2,li) = fock(2,li) + gk2*dens(2,jk)
+            fock(2,lj) = fock(2,lj) + gk2*dens(2,ik)
+            fock(2,jk) = fock(2,jk) + gk2*dens(2,li)
          end if
       end do
 c     
@@ -1577,7 +2332,7 @@ c
       double precision jfac(*), kfac(*)
 c     
       integer i, j, k, l, ind
-      integer ij, ik, jk, kl, il, jl
+      integer ij, ik, jk, lk, li, lj
       double precision g, gk1, gj1, gj2, gk2, gj3, gk3
 c
       do ind = 1, neri
@@ -1588,39 +2343,39 @@ c
             k = labels(3,ind)
             l = labels(4,ind)
 c
-            ij = im(i) + j      ! NOT im1 since go from 0
-            ik = im(i) + k
-            il = im(i) + l
-            jl = im(j) + l
-            jk = im(j) + k
-            kl = im(k) + l
+            ij = i + im(j)     ! NOT im1 since go from 0
+            lk = l + im(k)
+            ik = i + im(k)
+            jk = j + im(k)
+            li = l + im(i)
+            lj = l + im(j)
 c
             gj1 = g*jfac(1)
             gk1 = g*kfac(1)
-            fock(1,ij) = fock(1,ij) + gj1*dens(1,kl)
-            fock(1,kl) = fock(1,kl) + gj1*dens(1,ij)
-            fock(1,ik) = fock(1,ik) + gk1*dens(1,jl)
-            fock(1,il) = fock(1,il) + gk1*dens(1,jk)
-            fock(1,jl) = fock(1,jl) + gk1*dens(1,ik)
-            fock(1,jk) = fock(1,jk) + gk1*dens(1,il)
+            fock(1,ij) = fock(1,ij) + gj1*dens(1,lk)
+            fock(1,lk) = fock(1,lk) + gj1*dens(1,ij)
+            fock(1,ik) = fock(1,ik) + gk1*dens(1,lj)
+            fock(1,li) = fock(1,li) + gk1*dens(1,jk)
+            fock(1,lj) = fock(1,lj) + gk1*dens(1,ik)
+            fock(1,jk) = fock(1,jk) + gk1*dens(1,li)
 c
             gj2 = g*jfac(2)
             gk2 = g*kfac(2)
-            fock(2,ij) = fock(2,ij) + gj2*dens(2,kl)
-            fock(2,kl) = fock(2,kl) + gj2*dens(2,ij)
-            fock(2,ik) = fock(2,ik) + gk2*dens(2,jl)
-            fock(2,il) = fock(2,il) + gk2*dens(2,jk)
-            fock(2,jl) = fock(2,jl) + gk2*dens(2,ik)
-            fock(2,jk) = fock(2,jk) + gk2*dens(2,il)
+            fock(2,ij) = fock(2,ij) + gj2*dens(2,lk)
+            fock(2,lk) = fock(2,lk) + gj2*dens(2,ij)
+            fock(2,ik) = fock(2,ik) + gk2*dens(2,lj)
+            fock(2,li) = fock(2,li) + gk2*dens(2,jk)
+            fock(2,lj) = fock(2,lj) + gk2*dens(2,ik)
+            fock(2,jk) = fock(2,jk) + gk2*dens(2,li)
 c
             gj3 = g*jfac(3)
             gk3 = g*kfac(3)
-            fock(3,ij) = fock(3,ij) + gj3*dens(3,kl)
-            fock(3,kl) = fock(3,kl) + gj3*dens(3,ij)
-            fock(3,ik) = fock(3,ik) + gk3*dens(3,jl)
-            fock(3,il) = fock(3,il) + gk3*dens(3,jk)
-            fock(3,jl) = fock(3,jl) + gk3*dens(3,ik)
-            fock(3,jk) = fock(3,jk) + gk3*dens(3,il)
+            fock(3,ij) = fock(3,ij) + gj3*dens(3,lk)
+            fock(3,lk) = fock(3,lk) + gj3*dens(3,ij)
+            fock(3,ik) = fock(3,ik) + gk3*dens(3,lj)
+            fock(3,li) = fock(3,li) + gk3*dens(3,jk)
+            fock(3,lj) = fock(3,lj) + gk3*dens(3,ik)
+            fock(3,jk) = fock(3,jk) + gk3*dens(3,li)
          end if
       end do
 c     
@@ -1630,7 +2385,7 @@ c
      $     neri, labels, eri, dens, fock)
 c     
 c     $Id: fock_2e_lab.F,v 1.13 2003-10-17 22:54:32 carlfahl Exp $
-c     
+c
       implicit none
 #include "nwc_const.fh"
 #include "cfockmul.fh"
@@ -1644,14 +2399,17 @@ c
       double precision jfac(nfock), kfac(nfock)
 c     
       integer i, j, k, l, ind
-      integer ij, ik, jk, kl, il, jl
+      integer ij, ik, jk, lk, li, lj, kj
       double precision g, gj, gk, gk1, gj1, gj2, gk2, gj3, gk3, gj4, gk4
-      double precision 
-     $     fock1ij, fock1kl, fock2ij, fock2kl, fock3ij, fock3kl, 
-     $     fock4ij, fock4kl, fock1ik, fock1il, fock1jl, fock1jk,
-     $     fock2ik, fock2il, fock2jl, fock2jk, fock3ik, fock3il,
-     $     fock3jl, fock3jk, fock4ik, fock4il, fock4jl, fock4jk
 c     
+c
+c     At some point (up to r18591) there was a replacement logic
+c     based code here. This approach optimized for pipelining
+c     instructions. However, to manage the needed scaling of the
+c     integrals the code calculated Im(F) instead of -Im(F)
+c     which caused conflicts with the other Fock builders,
+c     in particular the distributed data ones.
+c
       if (
      $     jfac(1).eq.1.0d0 .and. jfac(2).eq.0.0d0 .and. 
      $     jfac(3).eq.1.0d0 .and. jfac(4).eq.0.0d0 .and. 
@@ -1665,51 +2423,32 @@ c
                k = labels(3,ind)
                l = labels(4,ind)
 c     
-               ij = (im(i) + j)*4
-               kl = (im(k) + l)*4
+               ij = (i + im(j))*4
+               lk = (l + im(k))*4
 c     
                gj = g
-               if (ij .eq. kl) gj = gj + gj
 c     
-               fock1ij = fock(  ij) + gj*dens(  kl)
-               fock3ij = fock(2+ij) + gj*dens(2+kl)
-               fock1kl = fock(  kl) + gj*dens(  ij)
-               fock3kl = fock(2+kl) + gj*dens(2+ij)
+               fock(  ij) = fock(  ij) + gj*dens(  lk)
+               fock(2+ij) = fock(2+ij) + gj*dens(2+lk)
+               fock(  lk) = fock(  lk) + gj*dens(  ij)
+               fock(2+lk) = fock(2+lk) + gj*dens(2+ij)
 c     
                gk = g * 0.5d0
 c
-               fock(  ij) = fock1ij
-               fock(2+ij) = fock3ij
-               fock(  kl) = fock1kl
-               fock(2+kl) = fock3kl
-c     
-               if (i .eq. j) gk = gk + gk
-c     
-               ik = (im(i) + k)*4 + 1
-               jl = (im(j) + l)*4 + 1
+               ik = (i + im(k))*4 + 1
+               lj = (l + im(j))*4 + 1
 c
-               if (k .eq. l) gk = gk + gk
-c
-               il = (im(i) + l)*4 + 1
-               jk = (im(j) + k)*4 + 1
+               jk = (j + im(k))*4 + 1
+               li = (l + im(i))*4 + 1
 c     
-               fock2ik = fock(  ik) + gk*dens(  jl)
-               fock4ik = fock(2+ik) + gk*dens(2+jl)
-               fock2il = fock(  il) + gk*dens(  jk)
-               fock4il = fock(2+il) + gk*dens(2+jk)
-               fock2jl = fock(  jl) + gk*dens(  ik)
-               fock4jl = fock(2+jl) + gk*dens(2+ik)
-               fock2jk = fock(  jk) + gk*dens(  il)
-               fock4jk = fock(2+jk) + gk*dens(2+il)
-c     
-               fock(  ik) = fock2ik
-               fock(2+ik) = fock4ik
-               fock(  il) = fock2il
-               fock(2+il) = fock4il
-               fock(  jl) = fock2jl
-               fock(2+jl) = fock4jl
-               fock(  jk) = fock2jk
-               fock(2+jk) = fock4jk
+               fock(  ik) = fock(  ik) + gk*dens(  lj)
+               fock(2+ik) = fock(2+ik) + gk*dens(2+lj)
+               fock(  li) = fock(  li) + gk*dens(  jk)
+               fock(2+li) = fock(2+li) + gk*dens(2+jk)
+               fock(  lj) = fock(  lj) + gk*dens(  ik)
+               fock(2+lj) = fock(2+lj) + gk*dens(2+ik)
+               fock(  jk) = fock(  jk) + gk*dens(  li)
+               fock(2+jk) = fock(2+jk) + gk*dens(2+li)
 c     
             end if
          end do
@@ -1724,87 +2463,60 @@ c
                k = labels(3,ind)
                l = labels(4,ind)
 c     
-               ij = (im(i) + j)*4 
-               kl = (im(k) + l)*4
+               ij = (i + im(j))*4 
+               lk = (l + im(k))*4
+c
+               ik = (i + im(k))*4
+               jk = (j + im(k))*4
+               li = (l + im(i))*4
+               lj = (l + im(j))*4
 c     
                gj = g
-               if (ij .eq. kl) gj = gj + gj
                gj1 = gj*jfac(1)
                gj2 = gj*jfac(2)
                gj3 = gj*jfac(3)
                gj4 = gj*jfac(4)
 c     
-               fock1ij = fock(  ij) + gj1*dens(  kl)
-               fock2ij = fock(1+ij) + gj2*dens(1+kl)
-               fock3ij = fock(2+ij) + gj3*dens(2+kl)
-               fock4ij = fock(3+ij) + gj4*dens(3+kl)
-               fock1kl = fock(  kl) + gj1*dens(  ij)
-               fock2kl = fock(1+kl) + gj2*dens(1+ij)
-               fock3kl = fock(2+kl) + gj3*dens(2+ij)
-               fock4kl = fock(3+kl) + gj4*dens(3+ij)
-c     
-               fock(  ij) = fock1ij
-               fock(1+ij) = fock2ij
-               fock(2+ij) = fock3ij
-               fock(3+ij) = fock4ij
-               fock(  kl) = fock1kl
-               fock(1+kl) = fock2kl
-               fock(2+kl) = fock3kl
-               fock(3+kl) = fock4kl
-c     
+               fock(  ij) = fock(  ij) + gj1*dens(  lk)
+               fock(1+ij) = fock(1+ij) + gj2*dens(1+lk)
+               fock(2+ij) = fock(2+ij) + gj3*dens(2+lk)
+               fock(3+ij) = fock(3+ij) + gj4*dens(3+lk)
+               fock(  lk) = fock(  lk) + gj1*dens(  ij)
+               fock(1+lk) = fock(1+lk) + gj2*dens(1+ij)
+               fock(2+lk) = fock(2+lk) + gj3*dens(2+ij)
+               fock(3+lk) = fock(3+lk) + gj4*dens(3+ij)
 c     
                gk = g
-               if (i .eq. j) gk = gk + gk
-               if (k .eq. l) gk = gk + gk
                gk1 = gk*kfac(1)
                gk2 = gk*kfac(2)
                gk3 = gk*kfac(3)
                gk4 = gk*kfac(4)
 c     
-               ik = (im(i) + k)*4
-               il = (im(i) + l)*4
-               jl = (im(j) + l)*4
-               jk = (im(j) + k)*4
-c     
-               fock1ik = fock(  ik) + gk1*dens(  jl)
-               fock2ik = fock(1+ik) + gk2*dens(1+jl)
-               fock3ik = fock(2+ik) + gk3*dens(2+jl)
-               fock4ik = fock(3+ik) + gk4*dens(3+jl)
-               fock1il = fock(  il) + gk1*dens(  jk)
-               fock2il = fock(1+il) + gk2*dens(1+jk)
-               fock3il = fock(2+il) + gk3*dens(2+jk)
-               fock4il = fock(3+il) + gk4*dens(3+jk)
-               fock1jl = fock(  jl) + gk1*dens(  ik)
-               fock2jl = fock(1+jl) + gk2*dens(1+ik)
-               fock3jl = fock(2+jl) + gk3*dens(2+ik)
-               fock4jl = fock(3+jl) + gk4*dens(3+ik)
-               fock1jk = fock(  jk) + gk1*dens(  il)
-               fock2jk = fock(1+jk) + gk2*dens(1+il)
-               fock3jk = fock(2+jk) + gk3*dens(2+il)
-               fock4jk = fock(3+jk) + gk4*dens(3+il)
-c     
-               fock(  ik) = fock1ik
-               fock(1+ik) = fock2ik
-               fock(2+ik) = fock3ik
-               fock(3+ik) = fock4ik
-               fock(  il) = fock1il
-               fock(1+il) = fock2il
-               fock(2+il) = fock3il
-               fock(3+il) = fock4il
-               fock(  jl) = fock1jl
-               fock(1+jl) = fock2jl
-               fock(2+jl) = fock3jl
-               fock(3+jl) = fock4jl
-               fock(  jk) = fock1jk
-               fock(1+jk) = fock2jk
-               fock(2+jk) = fock3jk
-               fock(3+jk) = fock4jk
+               fock(  ik) = fock(  ik) + gk1*dens(  lj)
+               fock(1+ik) = fock(1+ik) + gk2*dens(1+lj)
+               fock(2+ik) = fock(2+ik) + gk3*dens(2+lj)
+               fock(3+ik) = fock(3+ik) + gk4*dens(3+lj)
+               fock(  li) = fock(  li) + gk1*dens(  jk)
+               fock(1+li) = fock(1+li) + gk2*dens(1+jk)
+               fock(2+li) = fock(2+li) + gk3*dens(2+jk)
+               fock(3+li) = fock(3+li) + gk4*dens(3+jk)
+               fock(  lj) = fock(  lj) + gk1*dens(  ik)
+               fock(1+lj) = fock(1+lj) + gk2*dens(1+ik)
+               fock(2+lj) = fock(2+lj) + gk3*dens(2+ik)
+               fock(3+lj) = fock(3+lj) + gk4*dens(3+ik)
+               fock(  jk) = fock(  jk) + gk1*dens(  li)
+               fock(1+jk) = fock(1+jk) + gk2*dens(1+li)
+               fock(2+jk) = fock(2+jk) + gk3*dens(2+li)
+               fock(3+jk) = fock(3+jk) + gk4*dens(3+li)
 c     
             end if
          end do
       endif
 c     
       end
+c
+c******
+c
       subroutine fock_2e_rep_mod_4_label_new_ok
      $     (nfock, nbf, jfac, kfac, tol2e,
      $     neri, labels, eri, dens, fock)
