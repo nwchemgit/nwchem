@@ -17,6 +17,7 @@ c
 #include "cdft.fh"
 #include "util.fh"
 #include "sym.fh"
+#include "case.fh"
 c
       double precision jfac(4),kfac(4)
       integer g_jk(4), g_d(4), g_dens(2)
@@ -34,29 +35,12 @@ c
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
       double precision tol2e, denmax1, denmax2, denmax
 c
-c     fock matrix test using jan_all_ao_integrals
-c
-      logical jantest
-      integer l_aoint,k_aoint, i,j,k,l,
-     &     l_fock, k_fock, l_dens, k_dens
-c
       call ga_inquire(g_densso(1),type,nao,nao)
       nao=nao/2
-      jantest=.false.
-      if(jantest)then 
-c     
-c     Make all AO integrals
-c     
-         if (.not. ma_push_get(mt_dbl,nao**4,'aoint',l_aoint,k_aoint))
-     $        call errquit('allocation of AO integrals failed',nao**4,
-     &       MA_ERR)
-         if (.not. ma_push_get(mt_dbl,nao,'fock',l_fock,k_fock))
-     $        call errquit('allocation of fock matrix',nao, MA_ERR)
-         if (.not. ma_push_get(mt_dbl,nao,'dens',l_dens,k_dens))
-     $        call errquit('allocation of dens matrix',nao, MA_ERR)
-c         call jan_all_ao_integrals
-c     &        (rtdb,ao_bas_han,nao,'mulliken',dbl_mb(k_aoint))
-      endif
+c
+c     Check if this is a cam type calculation
+      call case_setflags(.false.)
+      if (cam_exch) call case_setflags(.true.)
 c         
 c******************************************************************************
 c
@@ -136,44 +120,11 @@ c            call ga_print(g_dens(2))
          endif
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
+         call ga_scale(g_jk(2),dble(-1.0d0))
+         call ga_scale(g_jk(4),dble(-1.0d0))
          call asym_fock2e(g_jk(2))
          call asym_fock2e(g_jk(4))
-      if(jantest)then 
-         do l=1,nao
-            call dfill(nao,0.0d0,dbl_mb(k_fock),1)
-            do i=1,nao
-               do k=1,nao
-                  call dfill(nao,0.0d0,dbl_mb(k_dens),1)
-                  call ga_get(g_d(1),1,nao,k,k,dbl_mb(k_dens),nao)
-                  do j=1,nao
-                     dbl_mb(k_fock+i-1)=
-     &                    dbl_mb(k_fock+i-1)+
-     &                    dbl_mb(k_aoint+nao**3*(l-1)+
-     &                    nao**2*(k-1)+nao*(j-1)+i-1)*
-     &                    dbl_mb(k_dens+j-1)
-                  enddo
-               enddo
-            enddo
-            call ga_put(g_jk(1),1,nao,l,l,dbl_mb(k_fock),nao)
-         enddo
-         do l=1,nao
-            call dfill(nao,0.0d0,dbl_mb(k_fock),1)
-            do i=1,nao
-               do k=1,nao
-                  call dfill(nao,0.0d0,dbl_mb(k_dens),1)
-                  call ga_get(g_d(3),1,nao,k,k,dbl_mb(k_dens),nao)
-                  do j=1,nao
-                     dbl_mb(k_fock+i-1)=
-     &                    dbl_mb(k_fock+i-1)+
-     &                    dbl_mb(k_aoint+nao**3*(l-1)+
-     &                    nao**2*(k-1)+nao*(j-1)+i-1)*
-     &                    dbl_mb(k_dens+j-1)
-                  enddo
-               enddo
-            enddo
-            call ga_put(g_jk(3),1,nao,l,l,dbl_mb(k_fock),nao)
-         enddo
-      endif
+c
          exc(1) = exc(1) + xfac(1)*0.5d0*( ! All exchange energy (i.i=-1)
      $        onem*ga_ddot(g_dens(1),g_jk(2)) +
      $        onem*ga_ddot(g_dens(2),g_jk(4)))
@@ -187,9 +138,7 @@ c
          if (oprint_intermediate_xc)then
             if(me.eq.0)write(*,*)'Fock XC matrix:Im(Kaa) and Im(Kbb):'
             call ga_print(g_jk(2))
-            if(jantest)call ga_print(g_jk(1))
             call ga_print(g_jk(4))
-            if(jantest)call ga_print(g_jk(3))
          endif
  1001    continue
          call ga_zero(g_jk(1))
@@ -197,7 +146,10 @@ c
          call ga_zero(g_jk(3))
          call ga_zero(g_jk(4))
 c
-c     Re(Kab) and Re(Kba) (g_dens(1) and g_dens(2))
+c     Re(Kab) and Re(Kba) (g_dens(1) and g_dens(2)) ???
+c     HvD: g_dens(1:2) are anti-symmetric and therefore Im(D) so we
+c     should be calculating Im(Kab) and Im(Kba) unless I am very
+c     mistaken.
 c     
          call ga_dens_abbar(g_dens, g_densso, nao)
          denmax1 = 0.0d0
@@ -213,46 +165,13 @@ c
          g_d(4)  = g_dens(2)
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
+         call ga_scale(g_jk(2),dble(-1.0d0))
+         call ga_scale(g_jk(4),dble(-1.0d0))
          call ga_transpose(g_jk(4),g_jk(1))
          call ga_add(dble(0.5d0),g_jk(2),dble(0.5d0),g_jk(1), 
      &        g_jk(2))          !g_jk(2) has Kab
          call ga_transpose(g_jk(2),g_jk(4))
-      if(jantest)then 
-         do l=1,nao
-            call dfill(nao,0.0d0,dbl_mb(k_fock),1)
-            do i=1,nao
-               do k=1,nao
-                  call dfill(nao,0.0d0,dbl_mb(k_dens),1)
-                  call ga_get(g_d(1),1,nao,k,k,dbl_mb(k_dens),nao)
-                  do j=1,nao
-                     dbl_mb(k_fock+i-1)=
-     &                    dbl_mb(k_fock+i-1)+
-     &                    dbl_mb(k_aoint+nao**3*(l-1)+
-     &                    nao**2*(k-1)+nao*(j-1)+i-1)*
-     &                    dbl_mb(k_dens+j-1)
-                  enddo
-               enddo
-            enddo
-            call ga_put(g_jk(1),1,nao,l,l,dbl_mb(k_fock),nao)
-         enddo
-         do l=1,nao
-            call dfill(nao,0.0d0,dbl_mb(k_fock),1)
-            do i=1,nao
-               do k=1,nao
-                  call dfill(nao,0.0d0,dbl_mb(k_dens),1)
-                  call ga_get(g_d(3),1,nao,k,k,dbl_mb(k_dens),nao)
-                  do j=1,nao
-                     dbl_mb(k_fock+i-1)=
-     &                    dbl_mb(k_fock+i-1)+
-     &                    dbl_mb(k_aoint+nao**3*(l-1)+
-     &                    nao**2*(k-1)+nao*(j-1)+i-1)*
-     &                    dbl_mb(k_dens+j-1)
-                  enddo
-               enddo
-            enddo
-            call ga_put(g_jk(3),1,nao,l,l,dbl_mb(k_fock),nao)
-         enddo
-      endif
+c
          exc(1) = exc(1) - xfac(1)*0.5d0*( ! All exchange energy 
      $        ga_ddot(g_dens(1),g_jk(2)) +
      $        ga_ddot(g_dens(2),g_jk(4)))
@@ -265,9 +184,7 @@ c
          if (oprint_intermediate_xc)then
             if(me.eq.0)write(*,*)'Fock XC matrix:Re(Kab) and Im(Kab):'
             call ga_print(g_jk(2))
-            if(jantest)call ga_print(g_jk(1))
             call ga_print(g_jk(4))
-            if(jantest)call ga_print(g_jk(3))
          endif
 c
  1002    continue 
@@ -292,48 +209,13 @@ c
          g_d(4)  = g_dens(2)
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
+         call ga_scale(g_jk(2),dble(-1.0d0))
+         call ga_scale(g_jk(4),dble(-1.0d0))
          call ga_transpose(g_jk(4),g_jk(1))
          call ga_add(dble(0.5d0),g_jk(2),dble(-0.5d0),g_jk(1),
      &        g_jk(2))
          call ga_transpose(g_jk(2),g_jk(4))
          call ga_scale(g_jk(4),dble(-1.0d0))
-c
-      if(jantest)then 
-         do l=1,nao
-            call dfill(nao,0.0d0,dbl_mb(k_fock),1)
-            do i=1,nao
-               do k=1,nao
-                  call dfill(nao,0.0d0,dbl_mb(k_dens),1)
-                  call ga_get(g_d(1),1,nao,k,k,dbl_mb(k_dens),nao)
-                  do j=1,nao
-                     dbl_mb(k_fock+i-1)=
-     &                    dbl_mb(k_fock+i-1)+
-     &                    dbl_mb(k_aoint+nao**3*(l-1)+
-     &                    nao**2*(k-1)+nao*(j-1)+i-1)*
-     &                    dbl_mb(k_dens+j-1)
-                  enddo
-               enddo
-            enddo
-            call ga_put(g_jk(1),1,nao,l,l,dbl_mb(k_fock),nao)
-         enddo
-         do l=1,nao
-            call dfill(nao,0.0d0,dbl_mb(k_fock),1)
-            do i=1,nao
-               do k=1,nao
-                  call dfill(nao,0.0d0,dbl_mb(k_dens),1)
-                  call ga_get(g_d(3),1,nao,k,k,dbl_mb(k_dens),nao)
-                  do j=1,nao
-                     dbl_mb(k_fock+i-1)=
-     &                    dbl_mb(k_fock+i-1)+
-     &                    dbl_mb(k_aoint+nao**3*(l-1)+
-     &                    nao**2*(k-1)+nao*(j-1)+i-1)*
-     &                    dbl_mb(k_dens+j-1)
-                  enddo
-               enddo
-            enddo
-            call ga_put(g_jk(3),1,nao,l,l,dbl_mb(k_fock),nao)
-         enddo
-      endif
 c
          exc(1) = exc(1) + xfac(1)*0.5d0*( ! All exchange energy 
      $        onem*ga_ddot(g_dens(1),g_jk(2)) +
@@ -347,18 +229,7 @@ c
          if (oprint_intermediate_xc)then
             if(me.eq.0)write(*,*)'Fock XC matrix:Re(Kba) and Im(Kba):'
             call ga_print(g_jk(2))
-            if(jantest)call ga_print(g_jk(1))
             call ga_print(g_jk(4))
-            if(jantest)call ga_print(g_jk(3))
-         endif
-c
-         if(jantest)then 
-            if (.not. ma_pop_stack(l_dens)) call errquit('dens',0,
-     &       MA_ERR)
-            if (.not. ma_pop_stack(l_fock)) call errquit('fock',0,
-     &       MA_ERR)
-            if (.not. ma_pop_stack(l_aoint)) call errquit('aoint',0,
-     &       MA_ERR)
          endif
 c
  1003    continue
@@ -383,9 +254,12 @@ c         call ga_print(g_fockso(2))
       endif
       call ga_sync
 c     
+c     Unset attenuation before exiting
+      if (cam_exch) call case_setflags(.false.)
+
       return
       end
-
+c
       subroutine asym_fock2e(g_fock)
       implicit none
 #include "errquit.fh"
@@ -405,4 +279,3 @@ c
 c
       return
       end
-
