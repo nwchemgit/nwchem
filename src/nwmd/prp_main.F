@@ -826,6 +826,10 @@ c
       call ga_sync()
       call ga_pgroup_set_default(igp_handle)
 c
+      else if(ipg.eq.npg-1.or.npg.eq.1) then
+      if(me.eq.0) then
+      close(unit=lfngib,status='keep')
+      endif
       endif
 c
       if(ipg.eq.npg-1.or.npg.eq.1) then
