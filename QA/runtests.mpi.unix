@@ -35,6 +35,11 @@
 # are overwritten.  The name of the output file is formed by replacing
 # the trailing .nw with .out.  In this directory is also put the
 # output of nwparse for the verified and the test outputs.
+if ($?NONSTD_MPI) then
+  set NONSTD_MPI = 1
+else
+  set NONSTD_MPI = 0
+endif
 
 set NWCHEM_PROJ_PATH = $NWCHEM_TOP/bin/$NWCHEM_TARGET
 
@@ -92,7 +97,7 @@ endif
 if ($NPROC) then
 # find mpirun  
    if ($?MPIRUN_PATH) then   
-      set MPIRUN = $MPIRUN_PATH   
+      set MPIRUN = "$MPIRUN_PATH "
    else 
       echo " mpirun assumed in your current path"
       echo " if this is not the case then :"
@@ -103,7 +108,7 @@ if ($NPROC) then
 endif
 # find the -np option ??
    if ($?MPIRUN_NPOPT) then   
-      set NPOPT = $MPIRUN_NPOPT   
+      set NPOPT = "$MPIRUN_NPOPT "
    else 
       echo " mpirun processor definition option assumed to be"
       echo "   -np "
@@ -159,10 +164,12 @@ foreach TEST ($args_2_use)
   echo "     cleaning scratch"
 
   /bin/rm -rf $SCRATCHDIR
-  mkdir $SCRATCHDIR
-  if ($status) then
-    echo failed to make $SCRATCHDIR
-    exit 1
+  if (! -d $SCRATCHDIR) then
+    mkdir $SCRATCHDIR
+    if ($status) then
+      echo failed to make $SCRATCHDIR
+      exit 1
+    endif
   endif
 
   echo "     copying input and verified output files"
@@ -189,6 +196,9 @@ foreach TEST ($args_2_use)
     set md_test_run = 1
   endif
   if( -f $TESTDIR/$PDBFILE) then
+    set md_test_run = 1
+  endif
+  if( -f $TESTDIR/$TESTFILE) then
     set md_test_run = 1
   endif
 #
@@ -234,6 +244,7 @@ foreach TEST ($args_2_use)
 # copy the MD files
 #
   if($md_test_run) then
+    if (-f $TESTDIR/amber.par) cp $TESTDIR/amber.par $SCRATCHDIR
     cp $TESTDIR/$TESTFILE $TESTOUTPUTS/$STUB.ok.tst
     if(-f $TESTDIR/$TOPOLOGYFILE) cp $TESTDIR/$TOPOLOGYFILE $SCRATCHDIR
     if(-f $TESTDIR/$RESTARTFILE) cp $TESTDIR/$RESTARTFILE $SCRATCHDIR
@@ -265,24 +276,30 @@ foreach TEST ($args_2_use)
   set x="%Uu %Ss %E %P (%Xt+%Dds+%Kavg+%Mmax)k %Ii+%Oo %Fpf %Wswaps"
   set time=(1 "$x")
 
-  echo -n "     "
+  echo " "
 
 #
 # MD creates it own $STUB.out
 #
   if($md_test_run) then
     if ($NPROC) then
-       $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $STUB.nwout
-       @ runstatus = $status
+      if ($NONSTD_MPI) then
+        $MPIRUN $NWCHEM $INPUTFILE >& $OUTPUTFILE
+        @ runstatus = $status
+      else
+        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $OUTPUTFILE
+        @ runstatus = $status
+      endif
     else
-       $NWCHEM $INPUTFILE >& $STUB.nwout
+       $NWCHEM $INPUTFILE >& $OUTPUTFILE
        @ runstatus = $status
     endif
     if(-f $OUTPUTFILE) cp $OUTPUTFILE $TESTOUTPUTS/$OUTPUTFILE
     if(-f $TESTFILE) then 
-     cp $TESTFILE $TESTOUTPUTS/$TESTFILE
-    else 
-     cp $TOPOLOGYFILE $TESTOUTPUTS/$TOPOLOGYFILE
+      cp $TESTFILE $TESTOUTPUTS/$TESTFILE
+    endif 
+    if(-f $TOPOLOGYFILE) then 
+      cp $TOPOLOGYFILE $TESTOUTPUTS/$TOPOLOGYFILE
     endif
   else
 #
@@ -291,9 +308,25 @@ foreach TEST ($args_2_use)
 #echo "mpirun is" $MPIRUN
 #echo "-np otp equal to " $NPOPT
 #echo "nwchem exex is" $NWCHEM
+#if($NONSTD_MPI) then
+#echo " command is"     $MPIRUN $NWCHEM $INPUTFILE  $TESTOUTPUTS/$OUTPUTFILE
+#else
 #echo " command is"     $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE  $TESTOUTPUTS/$OUTPUTFILE
-      $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
-       @ runstatus = $status
+#endif
+      if ($NONSTD_MPI) then
+#       In case we are using some non-standard MPI environment (e.g. slurm)
+#       we cannot expect we can construct a sensible command line here. 
+#       Therefore we will depend on some command baked at a point where we
+#       know what we are doing (i.e. above this script) and simply use that
+#       verbatim. Set MPIRUN_PATH for this purpose, its value is transfered 
+#       to MPIRUN at some point in this script.
+        $MPIRUN $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+        @ runstatus = $status
+      else
+#       In the case of standard MPI we construct the appropriate command here.
+        $MPIRUN $NPOPT $NPROC $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
+        @ runstatus = $status
+      endif
     else
       $NWCHEM $INPUTFILE >& $TESTOUTPUTS/$OUTPUTFILE
        @ runstatus = $status
@@ -301,7 +334,6 @@ foreach TEST ($args_2_use)
 #
   endif
 #
-
   if ($runstatus) then
     echo "     NWChem execution failed"
     set overall_status = 1
@@ -317,7 +349,7 @@ foreach TEST ($args_2_use)
     echo -n "     verifying nwout ...... "
 # verify $STUB.nwout here for QMD & QM/MM
     echo "skipped"
-set diff1status=0
+    set diff1status=0
   else
 
 # Now verify the output

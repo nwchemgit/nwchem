@@ -6,8 +6,8 @@ md
 step 0.001 equil 0 data 10
 cutoff 1.0
 leapfrog
-pme grid 64 order 12 fft 1
-print step 1 stat 10 topol extra
+pme grid 16 order 4 fft 1
+print step 1 stat 10 topol extra out6
 update pairs 1 center 0 rdf 0 
 record rest 0 prop 10 sync 0
 record coord 0 scoor 0

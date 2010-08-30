@@ -1,60 +1,60 @@
 Time             =     0.001
-Temperature      =   293.53
-Volume           =    52.02
-Pressure         =    -5.95E+07
-Energy           =   -5.950E+04
+Temperature      =   302.85
+Volume           =     0.00
+Pressure         =     8.76E+07
+Energy           =    0.000E+00
 
 Time             =     0.002
-Temperature      =   294.05
-Volume           =    52.02
-Pressure         =    -5.83E+07
-Energy           =   -5.950E+04
+Temperature      =   303.77
+Volume           =     6.48
+Pressure         =     8.68E+07
+Energy           =   -7.311E+03
 
 Time             =     0.003
-Temperature      =   294.84
-Volume           =    52.02
-Pressure         =    -5.75E+07
-Energy           =   -5.950E+04
+Temperature      =   304.04
+Volume           =     6.48
+Pressure         =     8.72E+07
+Energy           =   -7.311E+03
 
 Time             =     0.004
-Temperature      =   295.83
-Volume           =    52.02
-Pressure         =    -5.70E+07
-Energy           =   -5.950E+04
+Temperature      =   303.59
+Volume           =     6.48
+Pressure         =     8.89E+07
+Energy           =   -7.311E+03
 
 Time             =     0.005
-Temperature      =   296.95
-Volume           =    52.02
-Pressure         =    -5.67E+07
-Energy           =   -5.950E+04
+Temperature      =   302.47
+Volume           =     6.48
+Pressure         =     9.20E+07
+Energy           =   -7.311E+03
 
 Time             =     0.006
-Temperature      =   298.14
-Volume           =    52.02
-Pressure         =    -5.67E+07
-Energy           =   -5.950E+04
+Temperature      =   300.78
+Volume           =     6.48
+Pressure         =     9.62E+07
+Energy           =   -7.311E+03
 
 Time             =     0.007
-Temperature      =   299.29
-Volume           =    52.02
-Pressure         =    -5.67E+07
-Energy           =   -5.950E+04
+Temperature      =   298.76
+Volume           =     6.48
+Pressure         =     1.01E+08
+Energy           =   -7.311E+03
 
 Time             =     0.008
-Temperature      =   300.31
-Volume           =    52.02
-Pressure         =    -5.67E+07
-Energy           =   -5.950E+04
+Temperature      =   296.67
+Volume           =     6.48
+Pressure         =     1.06E+08
+Energy           =   -7.311E+03
 
 Time             =     0.009
-Temperature      =   301.12
-Volume           =    52.02
-Pressure         =    -5.64E+07
-Energy           =   -5.950E+04
+Temperature      =   294.80
+Volume           =     6.48
+Pressure         =     1.11E+08
+Energy           =   -7.311E+03
 
 Time             =     0.010
-Temperature      =   301.64
-Volume           =    52.02
-Pressure         =    -5.58E+07
-Energy           =   -5.950E+04
+Temperature      =   293.41
+Volume           =     6.48
+Pressure         =     1.14E+08
+Energy           =   -7.311E+03
 

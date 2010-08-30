@@ -1,16 +1,22 @@
- argument  1 = caa.nw
+ argument  1 = a3n.nw
 
 
 
 ============================== echo of input deck ==============================
 echo
 memory heap 1 mb stack 36 mb global 12 mb
-start caa
+start a3n
+
 prepare
-system caa_em
-new_top new_seq
+ system a3n_em
+ new_top new_seq
+ histidine HID
+ chain A
+ maxscf 1
 end
+
 task prepare
+
 ================================================================================
 
 
@@ -53,14 +59,14 @@ task prepare
 
     hostname      = arcen
     program       = /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/bin/LINUX64/nwchem
-    date          = Thu Aug 26 23:01:31 2010
+    date          = Fri Aug 27 10:42:42 2010
 
     compiled      = Thu_Aug_26_21:55:56_2010
     source        = /home/d3y133/nwchem-releases/nwchem-6.0-gfortran
     nwchem branch = 6.0
-    input         = caa.nw
-    prefix        = caa.
-    data base     = ./caa.db
+    input         = a3n.nw
+    prefix        = a3n.
+    data base     = ./a3n.db
     status        = startup
     nproc         =        4
     time left     =     -1s
@@ -110,11 +116,13 @@ task prepare
                                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_x/amber.par
                                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/amber.par
                                        ./amber.par
- PDB geometry                          caa.pdb
 
- Created segment                       ./FE.sgm
+ Deleted existing topology             a3n.top
+ PDB geometry                          a3n.pdb
 
- Created sequence                      ./caa.seq
+ Created segment                       ./HEM.sgm
+
+ Created sequence                      ./a3n.seq
 
  
  Parameter file                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_s/amber.par
@@ -122,11 +130,11 @@ task prepare
  Parameter file                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/amber.par
  Parameter file                        ./amber.par
  
- Total charge                             -8.000000
+ Total charge                              0.000000
 
- Created topology                      caa.top
+ Created topology                      a3n.top
 
- Topology                              caa.top
+ Topology                              a3n.top
 
  No command file found: Default restart directives
 
@@ -138,11 +146,41 @@ task prepare
 
  Crystal waters done
 
+   20HID        ND1     23GLU        OE1      2.432181
+   20HID        HD1     23GLU        OE1      2.363419
+   20HID        NE2     24TYR        OH       2.624814
+   45HID        ND1     44PRO        N        0.472804
+   45HID        HD1     44PRO        N        0.564285
+   45HID        NE2    142HEM        O2D      0.257868
+   50HID        ND1     30GLU        OE2      1.916157
+   50HID        HD1     30GLU        OE2      1.861133
+   50HID        NE2     51GLY        N        2.057722
+   58HID        ND1     59GLY        N        0.636245
+   58HID        HD1     57GLY        O        0.631919
+   58HID        NE2    142HEM        N D      0.692143
+   72HID        ND1     68ASN        O        2.313834
+   72HID        HD1     68ASN        O        2.247642
+   72HID        NE2     68ASN        OD1      2.437731
+   87HID        ND1     83LEU        O        1.053184
+   87HID        HD1     83LEU        O        1.103705
+   87HID        NE2    142HEM        N B      0.947674
+   89HID        ND1     88ALA        O        1.693034
+   89HID        HD1     88ALA        O        1.695320
+   89HID        NE2    139LYS        O        1.771694
+  103HID        ND1    104CYS        N        2.391246
+  103HID        HD1    104CYS        N        2.437006
+  103HID        NE2    104CYS        N        2.376584
+  112HID        ND1     24TYR        OH       2.503189
+  112HID        HD1     24TYR        OH       2.582214
+  112HID        NE2     27GLU        OE1      2.330383
+  122HID        ND1    123ALA        N        3.047795
+  122HID        HD1    118THR        O        3.124558
+  122HID        NE2    123ALA        N        2.899230
 
- Created restart                       caa_em.rst
+ Created restart                       a3n_em.rst
 
 
- Task  times  cpu:        0.2s     wall:        0.3s
+ Task  times  cpu:        0.8s     wall:        0.8s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -168,9 +206,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	         7	        33
 	current total bytes		         0	         0
-	maximum total bytes		     10584	   4475584
-	maximum total K-bytes		        11	      4476
-	maximum total M-bytes		         1	         5
+	maximum total bytes		     72984	   7490824
+	maximum total K-bytes		        73	      7491
+	maximum total M-bytes		         1	         8
 
 
                                 NWChem Input Module
@@ -209,4 +247,4 @@ MA usage statistics:
     X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
        M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:        0.3s     wall:        0.3s
+ Total times  cpu:        0.8s     wall:        0.8s

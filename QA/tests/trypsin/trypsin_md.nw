@@ -1,0 +1,17 @@
+start .trypsin
+
+md
+ system trypsin_md
+ equil 0 data 100 step 0.002
+ print step 10 stat 100
+ record rest 5000 coord 100 prop 100
+ isotherm
+ isobar
+ cutoff 1.0
+ pme grid 32
+ load pairs 10 size 0.75
+ cells 4 4 4
+ test 10
+end
+
+task md dynamics

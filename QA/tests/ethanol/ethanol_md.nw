@@ -12,6 +12,7 @@ end
 task prepare
 
 md
+ print out6
  system ethanol_md
  step 0.001 equil 0 data 100
  cutoff 1.2 

@@ -19,60 +19,36 @@
 #ifdef CRAY_T3D
       integer oldact, fsigctl
 #endif
-#ifdef PARALLEL_DIAG
-      integer junk(4)
-#endif
 c
 c     $Id: nwchem.F,v 1.163 2009-03-09 22:03:48 d3p307 Exp $
-*---------------------------------------------------------------------*
-*        COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000       *
-*             2001, 2002, 2003, 2004, 2005, 2006, 2007,2008           *
-*              Pacific Northwest National Laboratory,                 * 
-*                  Battelle Memorial Institute.                       *
-*---------------------------------------------------------------------*
-*---------------------> All Rights Reserved <-------------------------*
-*---------------------------------------------------------------------*
 c
-*--------------------------------------------------------------------*
-*                             DISCLAIMER                             *
-*--------------------------------------------------------------------*
-* This material was prepared as an account of work sponsored by an   *
-* agency of the United States Government.  Neither the United States *
-* Government nor the United States Department of Energy, nor         *
-* Battelle, nor any of their employees, MAKES ANY WARRANTY, EXPRESS  *
-* OR IMPLIED, OR ASSUMES ANY LEGAL LIABILITY OR RESPONSIBILITY FOR   *
-* THE ACCURACY, COMPLETENESS, OR USEFULNESS OF ANY INFORMATION,      *
-* APPARATUS, PRODUCT, SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS  *
-* THAT ITS USE WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.            *
-*--------------------------------------------------------------------*
-*--------------------------------------------------------------------*
-*                            LIMITED USE                             *
-*--------------------------------------------------------------------*
-* This software (including any documentation) is being made          *
-* available to you for your internal use only, solely for use in     *
-* performance of work directly for the U.S. Federal Government or    *
-* work under contracts with the U.S. Department of Energy or other   *
-* U.S. Federal Government agencies.  This software is a version      *
-* which has not yet been evaluated and cleared for commercialization.*
-* Adherence to this notice may be necessary for the author, Battelle *
-* Memorial Institute, to successfully assert copyright in and        *
-* commercialize this software.  This software is not intended for    * 
-* duplication or distribution to third parties without the           *
-* permission of the Manager of Software Products at Pacific          *
-* Northwest National Laboratory, Richland, Washington, 99352.        *
-*--------------------------------------------------------------------*
-*--------------------------------------------------------------------*
-*                            ACKNOWLEDGMENT                          *
-*--------------------------------------------------------------------*
-* This software and its documentation were produced with Government  *
-* support under Contract Number DE-AC06-76RLO-1830 awarded by the    *
-* United States Department of Energy.  The Government retains a      *
-* paid-up non-exclusive, irrevocable worldwide license to reproduce, *
-* prepare derivative works, perform publicly and display publicly by *
-* or for the Government, including the right to distribute to other  *
-* Government contractors.                                            *
-*--------------------------------------------------------------------*
-c     
+c      ======================================================================================================
+c      Northwest Computational Chemistry Package (NWChem) 6.0
+c
+c      Environmental Molecular Sciences Laboratory (EMSL)
+c      Pacific Northwest National Laboratory
+c      Richland, WA 99352
+c
+c      NWChem is an open-source computational chemistry package distributed under the terms of
+c      the Educational Community License (ECL) 2.0
+c
+c      Copyright (c) 1994-2010 Pacific Northwest National Laboratory, Batelle Memorial Institute
+c
+c      This software and its documentation were developed at the EMSL at Pacific Northwest National Laboratory,
+c      a multiprogram national laboratory, operated for the U.S. Department of Energy by Battelle under
+c      Contract Number DE-AC05-76RL01830. Support for this work was provided by the Department of Energy
+c      Office of Biological and Environmental Research, Office of Basic Energy Science, and the Office of
+c      Advanced Scientific Computing.
+c
+c      Licensed under the Educational Community License, Version 2.0 (the "License"); you may
+c      not use this file except in compliance with the License. You may obtain a copy of the
+c      License at http://www.osedu.org/licenses/ECL-2.0
+c
+c      Unless required by applicable law or agreed to in writing, software distributed under the
+c      License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+c      either express or implied. See the License for the specific language governing
+c      permissions and limitations under the License.
+c      ======================================================================================================
 c
       character*(nw_max_path_len) input_filename, rtdb_name
       double precision total_wall, total_cpu
@@ -83,10 +59,11 @@ c
 c     Create parallel processes and initialize IPC layer
 c
       call pbeginf()
-#ifdef PARALLEL_DIAG
+c
+c     MXINIT is needed by PeIGS and PFFT to initialize
+c     the communication fabric they use.
+c
       call mxinit
-      call mxpara(junk)
-#endif
 c
 c     Initialize timers so they are relative to job start
 c
@@ -394,7 +371,7 @@ c
       write(LuOut,*)
       write(LuOut,*)
       call util_print_centered(LuOut,
-     $     'Northwest Computational Chemistry Package (NWChem) 5.1.1',
+     $     'Northwest Computational Chemistry Package (NWChem) 6.0',
      $     40, .true.)
       write(LuOut,*)
       write(LuOut,*)
@@ -407,10 +384,29 @@ c
       call util_print_centered(LuOut,'Richland, WA 99352',
      $     40, .false.)
       write(LuOut,*)
+      call util_print_centered(LuOut,'Copyright (c) 1994-2010',
+     $     40, .false.)
       call util_print_centered(LuOut,
-     $     '                                                          ',
-     $     40, .true.)
+     $     'Pacific Northwest National Laboratory',
+     $     40, .false.)
+      call util_print_centered(LuOut,'Battelle Memorial Institute',
+     $     40, .false.)
       write(LuOut,*)
+      call util_print_centered(LuOut,
+     $'NWChem is an open-source computational chemistry package'
+     $ , 40, .false.)
+      call util_print_centered(LuOut,
+     $'distributed under the terms of the'
+     $ , 40, .false.)
+      call util_print_centered(LuOut,
+     $'Educational Community License (ECL) 2.0'
+     $ , 40, .false.)
+      call util_print_centered(LuOut,
+     $'A copy of the license is included with this distribution' 
+     $ , 40, .false.)
+      call util_print_centered(LuOut,
+     $'in the LICENSE.TXT file'
+     $ , 40, .false.)
       write(LuOut,*)
       call util_legal()
 c
@@ -466,7 +462,7 @@ C
 C  Print version information to ecce.out file
 C
       compiled(inp_strlen(compiled)+1:inp_strlen(compiled)+25) = 
-     $         ' Version 5.1.1'
+     $         ' Version 6.0'
       call ecce_print_version(compiled(1:inp_strlen(compiled)))
 C
       If ( Inp_StrLen(BatchID) .gt. 0) then
@@ -562,13 +558,13 @@ c
      &    cstatus,
      &    fstatus
  3    format(/
-     $     '    heap      = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
-     $     '    stack     = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
-     $     '    global    = ', i10,' doubles',' = ',f8.1,' Mbytes',
+     $     '    heap     = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
+     $     '    stack    = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
+     $     '    global   = ', i10,' doubles',' = ',f8.1,' Mbytes',
      &     ' ',A,/,
-     $     '    total     = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
-     $     '    verify    = ', a3,/,
-     $     '    hardfail  = ', a3,//)
+     $     '    total    = ', i10,' doubles',' = ',f8.1,' Mbytes',/,
+     $     '    verify   = ', a3,/,
+     $     '    hardfail = ', a3,//)
 c
       call util_print_centered(LuOut, 
      &     'Directory information', 20, .true.)
@@ -580,6 +576,7 @@ c
       if(ga_nodeid().eq.0) write(LuOut,*)
 c
       end
+c
       subroutine nw_print_restart_info(rtdb)
       implicit none
 #include "global.fh"

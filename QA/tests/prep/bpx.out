@@ -1,19 +1,4 @@
- argument  1 = caa.nw
-
-
-
-============================== echo of input deck ==============================
-echo
-memory heap 1 mb stack 36 mb global 12 mb
-start caa
-prepare
-system caa_em
-new_top new_seq
-end
-task prepare
-================================================================================
-
-
+ argument  1 = bpx.nw
                                          
                                          
 
@@ -53,14 +38,14 @@ task prepare
 
     hostname      = arcen
     program       = /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/bin/LINUX64/nwchem
-    date          = Thu Aug 26 23:01:31 2010
+    date          = Thu Aug 26 23:01:27 2010
 
     compiled      = Thu_Aug_26_21:55:56_2010
     source        = /home/d3y133/nwchem-releases/nwchem-6.0-gfortran
     nwchem branch = 6.0
-    input         = caa.nw
-    prefix        = caa.
-    data base     = ./caa.db
+    input         = bpx.nw
+    prefix        = something.
+    data base     = ./something.db
     status        = startup
     nproc         =        4
     time left     =     -1s
@@ -70,10 +55,10 @@ task prepare
            Memory information
            ------------------
 
-    heap     =     131073 doubles =      1.0 Mbytes
-    stack    =    4718593 doubles =     36.0 Mbytes
-    global   =    1572864 doubles =     12.0 Mbytes (distinct from heap & stack)
-    total    =    6422530 doubles =     49.0 Mbytes
+    heap     =   13107201 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428802 doubles =    400.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -110,11 +95,20 @@ task prepare
                                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_x/amber.par
                                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/amber.par
                                        ./amber.par
- PDB geometry                          caa.pdb
 
- Created segment                       ./FE.sgm
+ Deleted existing topology             bpx.top
+ PDB geometry                          bpx.pdb
 
- Created sequence                      ./caa.seq
+ Created segment                       ./DC_5.sgm
+ Created segment                       ./DC.sgm
+ Created segment                       ./DG.sgm
+ Created segment                       ./DA.sgm
+ Created segment                       ./DT.sgm
+ Created segment                       ./DC_3.sgm
+ Created segment                       ./DG_5.sgm
+ Created segment                       ./DG_3.sgm
+
+ Created sequence                      ./bpx.seq
 
  
  Parameter file                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_s/amber.par
@@ -122,11 +116,11 @@ task prepare
  Parameter file                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/amber.par
  Parameter file                        ./amber.par
  
- Total charge                             -8.000000
+ Total charge                            -21.000000
 
- Created topology                      caa.top
+ Created topology                      bpx.top
 
- Topology                              caa.top
+ Topology                              bpx.top
 
  No command file found: Default restart directives
 
@@ -138,11 +132,38 @@ task prepare
 
  Crystal waters done
 
+   34HIE        ND1    404DC         N1       1.847154
+   34HIE        NE2    404DC         N4       1.823344
+   34HIE        HE2    404DC         N4       1.818439
+   51HIE        ND1     50PRO        O        3.613796
+   51HIE        NE2     50PRO        O        3.468243
+   51HIE        HE2     50PRO        O        3.433606
+  134HIE        ND1    137ARG        NH1      4.640401
+  134HIE        NE2    227THR        O        4.655478
+  134HIE        HE2    227THR        O        4.687726
+  135HIE        ND1    104SER        O        3.957134
+  135HIE        NE2    104SER        OG       3.848808
+  135HIE        HE2    104SER        OG       3.799660
+  197HIE        ND1    199SER        OG       4.493020
+  197HIE        NE2    170ASP        OD2      4.675821
+  197HIE        HE2    170ASP        OD2      4.771454
+  212HIE        ND1    208PRO        O        4.704344
+  212HIE        NE2    216GLU        OE2      4.862730
+  212HIE        HE2    216GLU        OE2      4.934996
+  222HIE        ND1    219GLN        O        5.650199
+  222HIE        NE2    220LYS        O        5.813304
+  222HIE        HE2    220LYS        O        5.892839
+  252HIE        ND1    145ASP        OD2      5.053602
+  252HIE        NE2    142TYR        OH       5.134310
+  252HIE        HE2    240GLN        OE1      5.201515
+  285HIE        ND1    325TRP        NE1      2.480030
+  285HIE        NE2    323ILE        O        2.588533
+  285HIE        HE2    323ILE        O        2.656477
 
- Created restart                       caa_em.rst
+ Created restart                       bpx_em.rst
 
 
- Task  times  cpu:        0.2s     wall:        0.3s
+ Task  times  cpu:        2.3s     wall:        2.4s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -168,9 +189,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	         7	        33
 	current total bytes		         0	         0
-	maximum total bytes		     10584	   4475584
-	maximum total K-bytes		        11	      4476
-	maximum total M-bytes		         1	         5
+	maximum total bytes		     13784	  15627456
+	maximum total K-bytes		        14	     15628
+	maximum total M-bytes		         1	        16
 
 
                                 NWChem Input Module
@@ -209,4 +230,4 @@ MA usage statistics:
     X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
        M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:        0.3s     wall:        0.3s
+ Total times  cpu:        2.3s     wall:        2.4s

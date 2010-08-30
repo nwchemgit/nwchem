@@ -1,15 +1,24 @@
- argument  1 = caa.nw
+ argument  1 = fsc.nw
 
 
 
 ============================== echo of input deck ==============================
 echo
 memory heap 1 mb stack 36 mb global 12 mb
-start caa
+start fsc
+
 prepare
-system caa_em
-new_top new_seq
+ system fsc_em
+ new_top new_seq
 end
+
+task prepare
+
+prepare
+ read rst fsc_em.rst
+ write pdb fsc_em.pdb
+end
+
 task prepare
 ================================================================================
 
@@ -53,14 +62,14 @@ task prepare
 
     hostname      = arcen
     program       = /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/bin/LINUX64/nwchem
-    date          = Thu Aug 26 23:01:31 2010
+    date          = Thu Aug 26 23:01:33 2010
 
     compiled      = Thu_Aug_26_21:55:56_2010
     source        = /home/d3y133/nwchem-releases/nwchem-6.0-gfortran
     nwchem branch = 6.0
-    input         = caa.nw
-    prefix        = caa.
-    data base     = ./caa.db
+    input         = fsc.nw
+    prefix        = fsc.
+    data base     = ./fsc.db
     status        = startup
     nproc         =        4
     time left     =     -1s
@@ -110,11 +119,12 @@ task prepare
                                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_x/amber.par
                                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/amber.par
                                        ./amber.par
- PDB geometry                          caa.pdb
 
- Created segment                       ./FE.sgm
+ Deleted existing topology             fsc.top
+ PDB geometry                          fsc.pdb
 
- Created sequence                      ./caa.seq
+
+ Created sequence                      ./fsc.seq
 
  
  Parameter file                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_s/amber.par
@@ -122,27 +132,69 @@ task prepare
  Parameter file                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/amber.par
  Parameter file                        ./amber.par
  
- Total charge                             -8.000000
+ Total charge                              0.000000
 
- Created topology                      caa.top
+ Created topology                      fsc.top
 
- Topology                              caa.top
+ Topology                              fsc.top
 
  No command file found: Default restart directives
 
- Z-matrix definitions done
-
- Geometric rules definitions done
-
- Grid specifications for non-bonded atoms done
-
  Crystal waters done
 
+ Solute centered in x-dimension
+ Solute centered in y-dimension
+ Solute centered in z-dimension
 
- Created restart                       caa_em.rst
+ Boxsize determined to                     5.563100    5.398600    6.141000
+
+    6HID        ND1      7THR        O        0.945448
+    6HID        HD1      7THR        O        1.037411
+    6HID        NE2     37ARG        NH1      0.736789
+   29HIE        ND1     47ASN        OD1      1.704052
+   29HIE        NE2     47ASN        OD1      1.854083
+   29HIE        HE2     47ASN        OD1      1.938611
+
+ Created restart                       fsc_em.rst
 
 
- Task  times  cpu:        0.2s     wall:        0.3s
+ Task  times  cpu:        0.5s     wall:        0.6s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                  Prepare Module
+                                  --------------
+
+ Force field                           amber
+
+
+ Directories used for fragment and segment files
+
+                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_s/
+                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_x/
+                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/
+                                       ./
+
+ Parameter files used to resolve force field parameters
+
+                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_s/amber.par
+                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_x/amber.par
+                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/amber.par
+                                       ./amber.par
+ Using existing topology               fsc.top
+ Topology                              fsc.top
+
+ Restart generation using command file directives
+
+ Read restart                          fsc_em.rst
+
+ Created pdb                           fsc_em.pdb
+
+
+ Task  times  cpu:        0.2s     wall:        0.2s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -168,9 +220,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	         7	        33
 	current total bytes		         0	         0
-	maximum total bytes		     10584	   4475584
-	maximum total K-bytes		        11	      4476
-	maximum total M-bytes		         1	         5
+	maximum total bytes		   1404048	   4783384
+	maximum total K-bytes		      1405	      4784
+	maximum total M-bytes		         2	         5
 
 
                                 NWChem Input Module
@@ -209,4 +261,4 @@ MA usage statistics:
     X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
        M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:        0.3s     wall:        0.3s
+ Total times  cpu:        0.7s     wall:        0.9s

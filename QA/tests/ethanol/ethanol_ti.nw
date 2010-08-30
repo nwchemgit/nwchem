@@ -3,6 +3,7 @@ memory noverify heap 1 mb stack 32 mb global 8 mb
 start ethanol_ti
 
 md
+ print out6
  system ethanol_ti
  cutoff 0.9
  leapfrog
@@ -11,7 +12,7 @@ md
  sss delta 0.075
  isotherm 298.15 trelax 0.1
  isobar
- print step 1 stat 1
+ print step 1 stat 10
  update pairs 1 center 1 long 1 rdf 0
  record rest 0
  record prop 0 sync 1
@@ -20,6 +21,6 @@ md
  record free 1   
  load pairs
  test 10     #This is only used for testing, not for general users.
- end
+end
 
 task md thermodynamics
