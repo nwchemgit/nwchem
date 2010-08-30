@@ -888,6 +888,17 @@ c
          if (standard(ind:ind).eq.'_') standard(ind:ind) = ' '
       enddo
 c
+c     check for user typing multiple spaces in basis set by accident
+c
+  21  lenn = inp_strlen(standard)
+      do ind = 1, lenn-1
+         if (standard(ind:ind+1).eq.'  ') then
+            standard(ind+1:lenn-1) = standard(ind+2:lenn)
+            standard(lenn:lenn) = ' '
+            goto 21
+         endif
+      enddo
+c
       string = symbol
       lenn = inp_strlen(string)
       string(lenn+1:lenn+1) = '_'
