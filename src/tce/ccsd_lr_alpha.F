@@ -380,12 +380,16 @@ c
       wall=-util_wallsec()
       do axisA = 1, 3
         do axisB = 1, axisA
+c
+c         initialize alpha here to ensure all elements are sensible
+c         as the body of the if-statement is not always executed
+c
+          alpha(axisA,axisB)=0.0d0
+c
           if (respaxis(axisA).and.respaxis(axisB)) then
             irrep_a=sym_abelian_axis(geom,axisA)
             irrep_b=sym_abelian_axis(geom,axisB)
             irrep_y=irrep_g
-c
-            alpha(axisA,axisB)=0.0d0
 c
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,1)
@@ -502,9 +506,14 @@ c
       cpu=cpu+util_cpusec()
       wall=wall+util_wallsec()
 c
-      do j = 1, 3
-        do i = 1, 3
+c     Take a copy of alpha for the diagonalization, remember though
+c     that only a triangle of alpha was calculated, the rest contains
+c     junk.
+c
+      do i = 1, 3
+        do j = 1, i
           alphacopy(i,j)=alpha(i,j)
+          alphacopy(j,i)=alpha(i,j)
         enddo
       enddo
 c

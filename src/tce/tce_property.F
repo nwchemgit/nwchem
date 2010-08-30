@@ -918,6 +918,7 @@ c ------------------------------------------------- c
           wall=-util_wallsec()
           do axisA = 1, 3
           do axisB = 1, axisA
+          alpha(axisA,axisB)=0.0d0
           if (respaxis(axisA).and.respaxis(axisB)) then
             irrep_a=sym_abelian_axis(geom,axisA)
             irrep_b=sym_abelian_axis(geom,axisB)
@@ -1084,6 +1085,7 @@ c         Evaluate Dipole Polarizability
 c
           do axisA = 1, 3
           do axisB = 1, axisA
+          alpha(axisA,axisB)=0.0d0
           if (respaxis(axisA).and.respaxis(axisB)) then
             irrep_a=sym_abelian_axis(geom,axisA)
             irrep_b=sym_abelian_axis(geom,axisB)
@@ -1091,8 +1093,6 @@ c
 c
 c            if (nodezero) write(LuOut,*) "axisA = ",axisA
 c            if (nodezero) write(LuOut,*) "axisB = ",axisB
-c
-            alpha(axisA,axisB)=0.0d0
 c
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,size_a0)

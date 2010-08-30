@@ -1394,12 +1394,11 @@ c
       wall=-util_wallsec()
       do axisA = 1, 3
         do axisB = 1, axisA
+          alpha(axisA,axisB)=0.0d0
           if (respaxis(axisA).and.respaxis(axisB)) then
             irrep_a=sym_abelian_axis(geom,axisA)
             irrep_b=sym_abelian_axis(geom,axisB)
             irrep_y=irrep_g
-c
-            alpha(axisA,axisB)=0.0d0
 c
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,1) ! size_a0 = 1
@@ -1514,9 +1513,10 @@ c
       cpu=cpu+util_cpusec()
       wall=wall+util_wallsec()
 c
-      do j = 1, 3
-        do i = 1, 3
+      do i = 1, 3
+        do j = 1, i
           alphacopy(i,j)=alpha(i,j)
+          alphacopy(j,i)=alpha(i,j)
         enddo
       enddo
 c

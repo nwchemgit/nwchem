@@ -2597,11 +2597,11 @@ c
           wall=-util_wallsec()
           do axisA = 1, 3
           do axisB = 1, axisA
+          alpha(axisA,axisB)=0.0d0
           if (respaxis(axisA).and.respaxis(axisB)) then
             irrep_a=sym_abelian_axis(geom,axisA)
             irrep_b=sym_abelian_axis(geom,axisB)
             irrep_y=irrep_g
-            alpha(axisA,axisB)=0.0d0
 c
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,size_a0)
@@ -2741,9 +2741,10 @@ c
           cpu=cpu+util_cpusec()
           wall=wall+util_wallsec()
 c
-          do j = 1, 3
-            do i = 1, 3
+          do i = 1, 3
+            do j = 1, i
               alphacopy(i,j)=alpha(i,j)
+              alphacopy(j,i)=alpha(i,j)
             enddo
           enddo
 c
@@ -3913,12 +3914,11 @@ c
           wall=-util_wallsec()
           do axisA = 1, 3
           do axisB = 1, axisA
+          alpha(axisA,axisB)=0.0d0
           if (respaxis(axisA).and.respaxis(axisB)) then
             irrep_a=sym_abelian_axis(geom,axisA)
             irrep_b=sym_abelian_axis(geom,axisB)
             irrep_y=irrep_g
-c
-            alpha(axisA,axisB)=0.0d0
 c
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,size_a0)
@@ -4035,9 +4035,10 @@ c
           cpu=cpu+util_cpusec()
           wall=wall+util_wallsec()
 c
-          do j = 1, 3
-            do i = 1, 3
+          do i = 1, 3
+            do j = 1, i
               alphacopy(i,j)=alpha(i,j)
+              alphacopy(j,i)=alpha(i,j)
             enddo
           enddo
 c
@@ -4283,6 +4284,7 @@ c         Evaluate Dipole Polarizability
 c
           do axisA = 1, 3
           do axisB = 1, axisA
+          alpha(axisA,axisB)=0.0d0
           if (respaxis(axisA).and.respaxis(axisB)) then
             irrep_a=sym_abelian_axis(geom,axisA)
             irrep_b=sym_abelian_axis(geom,axisB)
@@ -4290,8 +4292,6 @@ c
 c
 c            if (nodezero) write(LuOut,*) "axisA = ",axisA
 c            if (nodezero) write(LuOut,*) "axisB = ",axisB
-c
-            alpha(axisA,axisB)=0.0d0
 c
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,size_a0)
@@ -4369,9 +4369,10 @@ c
           cpu=cpu+util_cpusec()
           wall=wall+util_wallsec()
 c
-          do j = 1, 3
-            do i = 1, 3
+          do i = 1, 3
+            do j = 1, i
               alphacopy(i,j)=alpha(i,j)
+              alphacopy(j,i)=alpha(i,j)
             enddo
           enddo
 c
@@ -4660,16 +4661,16 @@ c
           cpu=-util_cpusec()
           wall=-util_wallsec()
           do axisA = 1, 3
-            irrep_a=sym_abelian_axis(geom,axisA)
+          irrep_a=sym_abelian_axis(geom,axisA)
           do axisB = 1, 3
-            irrep_b=sym_abelian_axis(geom,axisB)
+          irrep_b=sym_abelian_axis(geom,axisB)
+          alpha(axisA,axisB)=0.0d0
           if ( respaxis(axisA).and.respaxis(axisB) ) then
 c
             alpha1=0.0d0
             alpha2=0.0d0
             alpha3=0.0d0
             alpha4=0.0d0
-            alpha(axisA,axisB)=0.0d0
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,size_a0)
 c
@@ -5610,6 +5611,7 @@ c         Evaluate Dipole Polarizability
 c
           do axisA = 1, 3
           do axisB = 1, axisA
+          alpha(axisA,axisB)=0.0d0
           if (respaxis(axisA).and.respaxis(axisB)) then
             irrep_a=sym_abelian_axis(geom,axisA)
             irrep_b=sym_abelian_axis(geom,axisB)
@@ -5617,8 +5619,6 @@ c
 c
 c            if (nodezero) write(LuOut,*) "axisA = ",axisA
 c            if (nodezero) write(LuOut,*) "axisB = ",axisB
-c
-            alpha(axisA,axisB)=0.0d0
 c
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,size_a0)
@@ -5696,9 +5696,10 @@ c
           cpu=cpu+util_cpusec()
           wall=wall+util_wallsec()
 c
-          do j = 1, 3
-            do i = 1, 3
+          do i = 1, 3
+            do j = 1, i
               alphacopy(i,j)=alpha(i,j)
+              alphacopy(j,i)=alpha(i,j)
             enddo
           enddo
 c

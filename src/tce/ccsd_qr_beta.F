@@ -440,6 +440,7 @@ c
         irrep_a=sym_abelian_axis(geom,axisA)
         do axisB = 1, axisA
           irrep_b=sym_abelian_axis(geom,axisB)
+          alpha(axisA,axisB)=0.0d0
           if ( respaxis(axisA).and.respaxis(axisB) ) then
 c
 #ifdef DEBUG_PRINT
@@ -454,7 +455,6 @@ c
             alpha2=0.0d0
             alpha3=0.0d0
             alpha4=0.0d0
-            alpha(axisA,axisB)=0.0d0
             call tce_filename('a0',filename)
             call createfile(filename,d_a0,1)
             call tce_zero(d_a0,1)
@@ -528,9 +528,10 @@ c
       cpu=cpu+util_cpusec()
       wall=wall+util_wallsec()
 c
-      do j = 1, 3
-        do i = 1, 3
+      do i = 1, 3
+        do j = 1, i
           alphacopy(i,j)=alpha(i,j)
+          alphacopy(j,i)=alpha(i,j)
         enddo
       enddo
 c
