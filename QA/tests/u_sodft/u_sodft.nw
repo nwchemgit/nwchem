@@ -1,4 +1,4 @@
-
+start u_sodft_dat
 echo
 permanent_dir . 
 title "u_sodft"
@@ -89,6 +89,9 @@ SO
   2    0.995641      1.867860 
 END
 
+# HF
+
+set fock:replicated t
 dft  
   mult 1
   xc hfexch
@@ -103,5 +106,185 @@ end
 
 task sodft energy 
 
+set fock:replicated t
+dft  
+  direct
+  mult 1
+  xc hfexch
+  vectors hcore 
+  grid fine
+  convergence energy 1.000000E-06
+  convergence density 1.000000E-05
+  convergence gradient 1E-05
+  iterations 100  
+  mulliken
+end
 
+task sodft energy 
 
+set fock:replicated f
+dft  
+  mult 1
+  xc hfexch
+  vectors hcore 
+  grid fine
+  convergence energy 1.000000E-06
+  convergence density 1.000000E-05
+  convergence gradient 1E-05
+  iterations 100  
+  mulliken
+end
+
+task sodft energy 
+
+set fock:replicated f
+dft  
+  direct
+  mult 1
+  xc hfexch
+  vectors hcore 
+  grid fine
+  convergence energy 1.000000E-06
+  convergence density 1.000000E-05
+  convergence gradient 1E-05
+  iterations 100  
+  mulliken
+end
+
+task sodft energy 
+
+# LDA
+
+set fock:replicated t
+dft  
+  mult 1
+  xc slater vwn_5
+  vectors hcore 
+  grid fine
+  convergence energy 1.000000E-06
+  convergence density 1.000000E-05
+  convergence gradient 1E-05
+  iterations 100  
+  mulliken
+end
+
+task sodft energy 
+
+set fock:replicated t
+dft  
+  direct
+  mult 1
+  xc slater vwn_5
+  vectors hcore 
+  grid fine
+  convergence energy 1.000000E-06
+  convergence density 1.000000E-05
+  convergence gradient 1E-05
+  iterations 100  
+  mulliken
+end
+
+task sodft energy 
+
+set fock:replicated f
+dft  
+  mult 1
+  xc slater vwn_5
+  vectors hcore 
+  grid fine
+  convergence energy 1.000000E-06
+  convergence density 1.000000E-05
+  convergence gradient 1E-05
+  iterations 100  
+  mulliken
+end
+
+task sodft energy 
+
+set fock:replicated f
+dft  
+  direct
+  mult 1
+  xc slater vwn_5
+  vectors hcore 
+  grid fine
+  convergence energy 1.000000E-06
+  convergence density 1.000000E-05
+  convergence gradient 1E-05
+  iterations 100  
+  mulliken
+end
+
+task sodft energy 
+
+# CAM-B3LYP
+
+set fock:replicated t
+dft  
+  direct
+  mult 1
+  xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
+  cam 0.33 cam_alpha 0.19 cam_beta 0.46
+  vectors hcore 
+  grid fine
+  convergence energy 1.000000E-06
+  convergence density 1.000000E-05
+  convergence gradient 1E-05
+  iterations 100  
+  mulliken
+end
+
+task sodft energy 
+
+set fock:replicated f
+dft  
+  direct
+  mult 1
+  xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
+  cam 0.33 cam_alpha 0.19 cam_beta 0.46
+  vectors hcore 
+  grid fine
+  convergence energy 1.000000E-06
+  convergence density 1.000000E-05
+  convergence gradient 1E-05
+  iterations 100  
+  mulliken
+end
+
+task sodft energy 
+
+# CAM-PBE0
+
+set fock:replicated t
+dft  
+  direct
+  mult 1
+  xc xcampbe96 1.0 cpbe96 1.0 HFexch 1.0
+  cam 0.30 cam_alpha 0.25 cam_beta 0.75
+  vectors hcore 
+  grid fine
+  convergence energy 1.000000E-06
+  convergence density 1.000000E-05
+  convergence gradient 1E-05
+  iterations 100  
+  mulliken
+end
+
+task sodft energy 
+
+set fock:replicated f
+dft  
+  direct
+  mult 1
+  xc xcampbe96 1.0 cpbe96 1.0 HFexch 1.0
+  cam 0.30 cam_alpha 0.25 cam_beta 0.75
+  vectors hcore 
+  grid fine
+  convergence energy 1.000000E-06
+  convergence density 1.000000E-05
+  convergence gradient 1E-05
+  iterations 100  
+  mulliken
+end
+
+task sodft energy 
