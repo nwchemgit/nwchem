@@ -56,13 +56,13 @@ ga_antisymmetrize_(Integer *g_a) {
 
 
   
-  ngai_inquire(g_a, &type, &ndim, dims);
+  nga_inquire_(g_a, &type, &ndim, dims);
   
   if (dims[ndim-1] != dims[ndim-2]) 
     GA_Error("ga_sym: can only sym square matrix", 0L);
   
   /* Find the local distribution */
-  ngai_distribution(g_a, &me, alo, ahi);
+  nga_distribution_(g_a, &me, alo, ahi);
  
  
   have_data = ahi[0]>0;
@@ -84,13 +84,13 @@ ga_antisymmetrize_(Integer *g_a) {
 
     for (i=0; i < ndim-1; i++) 
       ldb[i] = bhi[i] - blo[i] + 1; 
-    ngai_get(g_a, blo, bhi, b_ptr, ldb);
+    nga_get_(g_a, blo, bhi, b_ptr, ldb);
   }
   GA_Sync(); 
 
   if(have_data) {
     gai_subtr(alo, ahi, a_ptr, b_ptr, alpha, type, nelem, ndim);
-    ngai_release_update(g_a, alo, ahi);
+    nga_release_update_(g_a, alo, ahi);
     ga_free(b_ptr);
   }
   GA_Sync();
