@@ -274,14 +274,14 @@ C            vk(i) = (e1(i) + e3(i))/2.0
         do j=1,3
           do i=1,3
             dvk(i,j,jat)= d1(i)*(1.0 - exp(-be1(i)*(r(i)-re1(i))))*
-     1      -exp(-be1(i)*(r(i)-re1(i)))*-be1(i)* dr(i,j,jat)
+     1       (-1)*exp(-be1(i)*(r(i)-re1(i)))*(-be1(i))* dr(i,j,jat)
      2      +             (d3(i)*(1.0 - exp(-be3(i)*(r(i)-re3(i))))*
-     3      -exp(-be3(i)*(r(i)-re3(i)))*-be3(i)* dr(i,j,jat))
+     3      (-exp(-be3(i)*(r(i)-re3(i))))*(-be3(i))* dr(i,j,jat))
 
             dvj(i,j,jat)= d1(i)*(1.0 - exp(-be1(i)*(r(i)-re1(i))))*
-     1      -exp(-be1(i)*(r(i)-re1(i)))*-be1(i)* dr(i,j,jat)
+     1      (-exp(-be1(i)*(r(i)-re1(i))))*(-be1(i))* dr(i,j,jat)
      2      -             (d3(i)*(1.0 - exp(-be3(i)*(r(i)-re3(i))))*
-     3      -exp(-be3(i)*(r(i)-re3(i)))*-be3(i)* dr(i,j,jat))
+     3      (-exp(-be3(i)*(r(i)-re3(i))))*(-be3(i))* dr(i,j,jat))
           enddo
         enddo
       enddo

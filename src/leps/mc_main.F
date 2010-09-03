@@ -10,7 +10,7 @@
 #include "util.fh"
 #include "global.fh"
 #include "geom.fh"
-#include "util_sgroup.fh"  !for subgroup support
+#include "util_sgroup.fh"  
 #include "const_data.fh"
 #include "eaf.fh"
 #include "subgr.fh"
@@ -119,6 +119,8 @@ c      goto 100
 c      call task_energy(rtdb)
 c      goto 100 
 
+      write(iw,*) 'testing energy calculation\n'
+      call task_energy(rtdb)
 
       write(iw,*)  '\n\t\t METROPOLIS MONTE CARLO RECROSSING \n'
       
@@ -130,8 +132,8 @@ c      goto 100
 C********* MC driver ******
 
 C******* RESTART point 1******
-      if(.not.mc_driver(rtdb,naccept)) 
-     &   call errquit('mc_driver:failed',0,UNKNOWN_ERR)
+      if(.not.mc_driver(rtdb,naccept)) call errquit('mc_driver:failed',
+     &    UNKNOWN_ERR)
       write(iw,*) 'Number of initial points generated: ', naccept  
 
       if(util_sgroup_mygroup().eq.1.and.ga_nodeid().eq.0) then
@@ -744,7 +746,7 @@ C  End Main Program
 #include "inp.fh"
 #include "stdio.fh"
 #include "util.fh"
-#include "util_sgroup.fh"  !for subgroup support
+#include "util_sgroup.fh"  
 #include "const_data.fh"
 #include "subgr.fh"
 #include "errquit.fh"
@@ -810,7 +812,7 @@ C ******** Start reading restart file *********
 #include "inp.fh"
 #include "stdio.fh"
 #include "util.fh"
-#include "util_sgroup.fh"  !for subgroup support
+#include "util_sgroup.fh"  
 #include "const_data.fh"
 #include "subgr.fh"
 #include "errquit.fh"
@@ -863,22 +865,28 @@ C ******** End reading restart file **********
       integer asize,fileout
       integer array(asize)
       write(fileout,*) array
+      return
       end
       subroutine print_array_dbl(array,asize,fileout)
       implicit none
       integer asize,fileout
       double precision array(asize)
       write(fileout,*) array
+      return
       end
       subroutine read_array_int(array,asize,filein)
       implicit none
       integer asize,filein
       integer array(asize)
       read(filein,*) array
+      return
       end
       subroutine read_array_dbl(array,asize,filein)
       implicit none
       integer asize,filein
       double precision array(asize)
       read(filein,*) array
+      return
       end
+
+
