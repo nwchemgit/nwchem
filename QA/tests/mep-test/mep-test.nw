@@ -1,5 +1,6 @@
 TITLE "mep test"
 
+echo
 start meptest2
 
 GEOMETRY   noautosym
@@ -27,7 +28,6 @@ evib 0.0005
 stride 0.1
 print low
 backward
-nomswg
 end
 
 task dft mepgs
