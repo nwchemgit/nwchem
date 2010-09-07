@@ -17,6 +17,10 @@ c
       logical ignore
       integer mh
 c
+c     === set defaults ===
+c
+      mswg = .false.
+c
 c     ----- read values from input -----
 c
  10   if(.not.inp_read())
