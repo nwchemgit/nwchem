@@ -502,10 +502,6 @@ c
      &    call errquit('hnd_giaox: ma_push_get failed k_para',0,MA_ERR)
       if (.not. ma_push_get(mt_dbl,9*sh_atom,'sh dia',l_dia,k_dia)) call
      &    errquit('hnd_giaox: ma_push_get failed k_dia',0,MA_ERR)
-      do ixy = 1, 9*sh_atom
-         dbl_mb(k_para+ixy-1) = 0.0d0
-         dbl_mb(k_dia+ixy-1)  = 0.0d0
-      enddo
 c
 c     Before we start getting the integrals we need to reinitialize the
 c     integrals. They were terminated by the cphf.
@@ -515,6 +511,10 @@ c
       call hnd_giao_init(basis,1)
 c
 c     s(para)xy = Sum(n,l) D1x(n,l) * H01y(n,l)
+c
+      do ixy = 1, 9*sh_atom
+         dbl_mb(k_para+ixy-1) = 0.0d0  ! initialize the paramagnetic part
+      enddo
 c
       alo(1) = nbf
       alo(2) = -1
@@ -552,13 +552,19 @@ c
             enddo
          enddo
       enddo
+      call mat_transpose(dbl_mb(k_para+ioff)) ! transpose the paramagnetic part
+c
       if (.not.ga_destroy(g_d1)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_d1',0,GA_ERR)
       if (.not.ga_destroy(g_h01)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_h01',0,GA_ERR)
 c
-c     s(para)xy = s(para)xy + Sum(n,l) D0(n,l) * H11(para)xy(n,l) 
+c     s(dia)xy = Sum(n,l) D0(n,l) * H11(dia)xy(n,l) 
 c     Ordering of H11 blocks is Bxx,Bxy,Bxz,Byx,etc 
+c
+      do ixy = 1, 9*sh_atom
+         dbl_mb(k_dia+ixy-1)  = 0.0d0  ! initialize the diamagnetic part
+      enddo
 c
       alo(1) = nbf
       alo(2) = -1
@@ -568,6 +574,7 @@ c
       ahi(3) = 9*sh_atom
       if (.not.nga_create(MT_DBL,3,ahi,'H11 matrix',alo,g_h11)) call 
      &    errquit('hnd_giaox: nga_create failed g_h11 all',0,GA_ERR)
+c
       call ga_zero(g_h11)
       call int_giao_1ega(basis,basis,g_h11,'h11 para',dbl_mb(k_xyz),
      &                   sh_atom,oskel)
@@ -582,15 +589,19 @@ c
             alo(3) = ixy
             ahi(3) = ixy
             val=nga_ddot_patch(g_dens(1),'n',blo,bhi,g_h11,'n',alo,ahi)
-            dbl_mb(k_para+ixy-1) = dbl_mb(k_para+ixy-1) + val * ppm 
+            dbl_mb(k_dia+ixy-1) = dbl_mb(k_dia+ixy-1) + val * ppm 
          enddo
       enddo
 c       
-c     s(dia)xy  = Sum(n,l) D0(n,l) * H11(dia)xy(n,l)
+c     s(dia)xy  = s(dia)xy + Sum(n,l) D0(n,l) * H11(dia)xy(n,l)
 c
       call ga_zero(g_h11)
       call int_giao_1ega(basis,basis,g_h11,'h11 dia',dbl_mb(k_xyz),
      &                   sh_atom,oskel)
+      alo(1) = 1
+      ahi(1) = nbf
+      alo(2) = 1
+      ahi(2) = nbf
       ixy = 0
       do iatom = 1, sh_atom
          do ix = 1, 9
@@ -601,6 +612,7 @@ c
             dbl_mb(k_dia+ixy-1) =  dbl_mb(k_dia+ixy-1) + val * ppm 
          enddo
       enddo
+c
       if (.not.ga_destroy(g_dens(1))) call 
      &    errquit('hnd_giaox: ga_destroy failed g_dens',0,GA_ERR)
       if (.not.ga_destroy(g_h11)) call 
@@ -617,10 +629,6 @@ c
      &       errquit('hnd_giaox: geom_cent_tag failed',0,GEOM_ERR)
          if (.not. geom_tag_to_element(tag, symbol, element, atn)) call
      &       errquit('hnd_giaox: geom_tag_to_element failed',0,GEOM_ERR)
-c
-c     Symmetrize the tensors
-c
-         call hnd_giasym(dbl_mb(k_dia+ioff),dbl_mb(k_para+ioff))
 c
 c      Print tensor pieces and sum for total shielding tensor
 c
@@ -784,6 +792,7 @@ c
       return
       end
 c
+c     symmetrize matrix
       subroutine hnd_giasym(dia,para)
       implicit none
       double precision dia(3,3), para(3,3)
@@ -798,6 +807,23 @@ c
             val = (para(i,j) + para(j,i)) / 2.0d0
             para(i,j) = val
             para(j,i) = val
+         enddo
+      enddo
+      return
+      end
+
+c     transpose matrix
+      subroutine mat_transpose(mat)
+      implicit none
+      double precision mat(3,3)
+      double precision val
+      integer i,j
+c
+      do i = 1, 2
+         do j = i+1, 3
+            val = mat(i,j)
+            mat(i,j) = mat(j,i)
+            mat(j,i) = val
          enddo
       enddo
       return
