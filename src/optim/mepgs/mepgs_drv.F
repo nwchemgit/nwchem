@@ -79,13 +79,13 @@ c
       if (forward) then
         if (.not. geom_rtdb_load(rtdb, geom, 'ircforward'))
      &    call errquit('hnd_opt: no geometry ', 911, RTDB_ERR)
-        write(6,5000) 
+        if (ga_nodeid().eq.0) write(6,5000) 
 5000    format(/,10x,24('-'),/,10x,'Forward IRC optimization',
      $         /,10x,24('-'))
       else if (backward) then 
         if (.not. geom_rtdb_load(rtdb, geom, 'ircbackward'))
      &    call errquit('hnd_opt: no geometry ', 911, RTDB_ERR)
-        write(6,5100) 
+        if (ga_nodeid().eq.0) write(6,5100) 
 5100    format(/,10x,25('-'),/,10x,'Backward IRC optimization',
      $         /,10x,25('-'))
       end if
@@ -117,12 +117,12 @@ c
 c
 c     **** Check energy decrease agreement ****
 c
-      write(6,6000) evib
+      if (ga_nodeid().eq.0) write(6,6000) evib
 6000  format(/,10x,'Expected decrease in energy', 10x, f12.6)
-      write(6,6100) energyts - energy
+      if (ga_nodeid().eq.0) write(6,6100) energyts - energy
 6100  format(/,10x,'Obtained decrease in energy', 10x, f12.6)
       if ((energyts - energy) .lt. 0.0d0) then
-        write(6,6200) 
+        if (ga_nodeid().eq.0) write(6,6200) 
 6200    format(/,1x,25('-')/,1x,'The energy has increased'/,1x,25('-') )
         ircdone = .false.
         goto 2000
@@ -314,6 +314,7 @@ c
      $     call errquit('mepgs: systype?',0, GEOM_ERR)
 c
       if (oprint) then
+        if (ga_nodeid().eq.0) then
          write(6,1) evib, stride, nircopt, inhess, mswg
  1       format(
      $      ' energy decrease                  (evib) = ', 1p,d9.1,0p,/,
@@ -327,6 +328,7 @@ c
      2          /,10x,36('-'),/)
 c
          call util_flush(6)
+        end if
       endif
 c     
 c     Nvar is the no. of variables in the optimization
@@ -706,7 +708,9 @@ c
       if (.not. rtdb_get(rtdb,'gsopt:hscale',mt_dbl,1,hscale))
      $     hscale = 1d0
       call dscal(nvar*nvar, hscale, dbl_mb(k_hess), 1)
-      if (oprint .and. hscale.ne.1d0) write(6,78) hscale
+      if (oprint .and. hscale.ne.1d0) then
+         if (ga_nodeid().eq.0)  write(6,78) hscale
+      end if
  78   format(' Scaling initial hessian by ',f6.2)
 c
       call geom_hnd_put_data('irc.hess',dbl_mb(k_hess), nvar*nvar)
@@ -1008,9 +1012,10 @@ c
       if (.not. redogs) then
         stotal = stotal + svalue
         mark = '&'
-        write(6,1) mark, mark
+        if (ga_nodeid().eq.0) write(6,1) mark, mark
         mark = '&'
-        write(6,2) mark, irccyc-1, energy, svalue, stotal
+        if (ga_nodeid().eq.0) 
+     &    write(6,2) mark, irccyc-1, energy, svalue, stotal
  1       format(
      $        /,a1,'  Point      Energy     svalue   stotal ',
      $        /,a1,' -------  ------------ -------- --------')
@@ -1148,7 +1153,7 @@ c
         if (imepgs.gt.nircopt) goto 200
 c
         start = util_wallsec()
-        if (oprint) write(6,1) imepgs-1
+        if (oprint.and.ga_nodeid().eq.0) write(6,1) imepgs-1
  1      format(/,10x,11('-'),/,10x,'GS Step',i4,/,10x,11('-'))
         if ((ga_nodeid() .eq. 0) .and.
      $       util_print('geometry',print_default)) then
@@ -1412,7 +1417,7 @@ c
 c
 c     **** Failed to converge ****
 c
- 200  if (oprint) write(6,201)
+ 200  if (oprint.and.ga_nodeid().eq.0) write(6,201)
  201  format(/,1x,63('-')/,1x,'Failed to converge in maximum number',
      $     ' of steps or available time'/,1x,63('-')/)
       ircdone = .false.
@@ -1420,7 +1425,7 @@ c
 c     **** Procedure finished ****
 c
  100  if (ircdone) then
-         if (oprint) write(6,101)
+         if (oprint.and.ga_nodeid().eq.0) write(6,101)
  101     format(/,6x,22('-'),/,6x,'IRC Optimization converged',/,
      $        6x,22('-'),/)
       endif
@@ -1519,7 +1524,7 @@ c
         if(istep.gt.nptopt) goto 200
 c
         start = util_wallsec()
-        if (oprint) write(6,1) istep-1
+        if (oprint.and. ga_nodeid().eq.0) write(6,1) istep-1
  1      format(/,10x,'--------',/,10x,'Step',i4,/,10x,'--------')
         if ((ga_nodeid() .eq. 0) .and.
      $       util_print('geometry',print_default)) then
@@ -1659,13 +1664,13 @@ c
 c
       enddo                     ! End of iterative loop
 c      istep = istep - 1         ! Since we fell out
- 200  if (oprint) write(6,201)
+ 200  if (oprint.and.ga_nodeid().eq.0) write(6,201)
  201  format(/,1x,63('-')/,1x,'Failed to converge in maximum number',
      $     ' of steps or available time'/,1x,63('-')/)
       converged = .false.
 c
  100  if (converged) then
-         if (oprint) write(6,101) 
+         if (oprint.and.ga_nodeid().eq.0) write(6,101) 
  101     format(/,6x,22('-'),/,6x,'Optimization converged',/,
      $        6x,22('-'),/)
       endif
@@ -1857,7 +1862,9 @@ c
       if (.not. rtdb_get(rtdb,'gsopt:hscale',mt_dbl,1,hscale))
      $     hscale = 1d0
       call dscal(nvar*nvar, hscale, dbl_mb(k_hess), 1)
-      if (oprint .and. hscale.ne.1d0) write(6,78) hscale
+      if (oprint .and. hscale.ne.1d0) then
+         if (ga_nodeid().eq.0) write(6,78) hscale
+      end if
  78   format(' Scaling initial hessian by ',f6.2)
 c
       call geom_hnd_put_data('gsopt.hess',dbl_mb(k_hess), nvar*nvar)
@@ -2080,7 +2087,7 @@ c
       if (.not. geom_systype_get(geom, isystype))
      $     call errquit('gsopt: systype?',0, GEOM_ERR)
 c
-      if (oprint) then
+      if (oprint.and.ga_nodeid().eq.0) then
          write(6,1) gmax_tol, grms_tol, xmax_tol, xrms_tol, 
      $        eprec,
      $        nptopt, inhess, modupd
@@ -2358,9 +2365,9 @@ c
       if (oprint) then 
          mark = '@'
          if (istep .gt. 1) mark = ' '
-         write(6,1) mark, mark
+         if (ga_nodeid().eq.0) write(6,1) mark, mark
          mark = '@'
-         write(6,2) mark, istep-1, energy, de,
+         if (ga_nodeid().eq.0) write(6,2) mark, istep-1, energy, de,
      $     gmax, grms, xrms, xmax, util_wallsec(),
      $     cvg1, cvg2, cvg3, cvg4
  1       format(
@@ -3179,9 +3186,9 @@ c
  200  continue
 
       if (oprint) then
-        write (6,5030) lambda
+        if (ga_nodeid().eq.0) write (6,5030) lambda
  5030   format ('lambda for step: ',g10.3)
-        write (6,5040) slength
+        if (ga_nodeid().eq.0) write (6,5040) slength
  5040   format ('step magnitude : ',g10.3)
       end if
 
@@ -3389,7 +3396,7 @@ c
 !
       error = .true. 
       
-      if (oprint) write (6,5000) 
+      if (oprint.and.ga_nodeid().eq.0) write (6,5000) 
 5000  format ('lambda iteration did not converge')
 
  200  continue
@@ -3442,12 +3449,12 @@ c
      &       RTDB_ERR)
       if (ga_nodeid().eq.0 .and.
      $    util_print('task_freq', print_low)) then
-        write(6,*)
-        write(6,*)
+        write(LuOut,*)
+        write(LuOut,*)
         call util_print_centered(6,
      $      'NWChem Nuclear Hessian and Frequency Analysis',
      $      40,.true.)
-        write(6,*)
+        write(LuOut,*)
       endif
 *
       if (rtdb_get(rtdb,'vib:reuse',mt_log,1,ignore)) then
@@ -3461,9 +3468,10 @@ c
         if (.not.status) call errquit
      &      ('task_freq: task_hessian failed',911, CALC_ERR)
       else
-        call util_print_centered(6,
-     &      'reusing previously generated Hessian',
-     &      40,.true.)
+        if (ga_nodeid().eq.0)
+     &    call util_print_centered(LuOut,
+     &        'reusing previously generated Hessian',
+     &        40,.true.)
         status = .true.
       endif
 *
@@ -3471,7 +3479,7 @@ c
       if ((ga_nodeid()).eq.0) then
         if (o_reuse) then
           if (rtdb_cget(rtdb,'vib:reuse_hessian_file',1,filehess)) then
-            write(6,*)' re-using hessian in file ',
+            write(LuOut,*)' re-using hessian in file ',
      &          filehess(1:inp_strlen(filehess))
           else
 * in case of manual restart and renaming of hess file
@@ -3908,6 +3916,9 @@ c      **** Store "backward" direction ****
 c
       call dcopy(nat3,master,1,coords,1)
       call daxpy(nat3,-1.0d00,steps,1,coords,1)
+c
+c     **** Unmass weight coordinates ****
+c
       do iatom=1, natom
         do ixyz=1,3
           coords(ixyz,iatom) = coords(ixyz,iatom)/sqrt(atmass(iatom))
@@ -3986,19 +3997,19 @@ CJMC
 c     *** Avoid scaling --> Gives better agreement ***
 c     *** with quadratic model for moving away from TS *** 
 CJMC
-      SCALE = 1.0D0 ! Hessian scaling factor
+      SCALE = 1.D0 ! Hessian scaling factor
 *dscal
       call dscal(nhesst,scale,hesst,1) ! Scale Hessian for diagonaization
+
 CCCCCCCCCCCCCCCCCCCCCC
 CCCC     MASS     CCCC
 CCCCCCCCCCCCCCCCCCCCCC
-      if (mswg) then
         call vib_dsquar(hesst, mwhess, nat3, nat3)
         call geom_hnd_put_data('irc.hess', mwhess, nat3**2)
-      end if
 CCCCCCCCCCCCCCCCCCCCCC
 CCCC     MASS     CCCC
 CCCCCCCCCCCCCCCCCCCCCC
+
       END
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
 CCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCCC
