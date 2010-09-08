@@ -443,49 +443,52 @@ c
       call util_char_ga_brdcst(Msg_startup, scratch_dir, 0)
       call util_char_ga_brdcst(Msg_startup, permanent_dir, 0)
 *
-* now confirm (on each node) that scratch_dir and permanent_dir can have files
+* now confirm (on each node) that scratch_dir and permanent_dir
+* can have files
 *
       call ga_sync()
 *check permanent directory
       if(iocheckk) then
-      call util_file_name('dir_check_p',.false.,.true.,a_temporary_file)
-      inquire(file=a_temporary_file, exist=already)
-      if(already) then
-        iend = inp_strlen(a_temporary_file)
-        write(luout,*)' Warning: test file already exited: ',
-     &      a_temporary_file(1:iend)
-C        Assume all is well in the world, since file might be chmod 000
-         bad_permanent_dir = .false.
-         goto 91111
-      endif
-      open(unit=42,file=a_temporary_file,status='new',err=91101)
-      close(unit=42,status='delete')
-      call util_file_unlink(a_temporary_file)
-      bad_permanent_dir = .false.
-      goto 91111
-91101 bad_permanent_dir = .true.
-91111 continue
+        call util_file_name('dir_check_p',.false.,.true.,
+     &                      a_temporary_file)
+        inquire(file=a_temporary_file, exist=already)
+        bad_permanent_dir = .true.
+        if(already) then
+          iend = inp_strlen(a_temporary_file)
+          write(luout,*)' Warning: test file already existed: ',
+     &                  a_temporary_file(1:iend)
+C         Assume all is well in the world, since file might be 
+C         chmod 000
+          bad_permanent_dir = .false.
+        else
+          open(UNIT=42,FILE=a_temporary_file,STATUS="new",ERR=91111)
+          close(UNIT=42,STATUS="delete")
+          call util_file_unlink(a_temporary_file)
+          bad_permanent_dir = .false.
+        endif
+91111   continue
 *check scratch directory
-      call util_file_name('dir_check_s',.true.,.true.,a_temporary_file)
-      inquire(file=a_temporary_file, exist=already)
-      if(already) then
-        iend = inp_strlen(a_temporary_file)
-        write(luout,*)' Warning: test file already exited: ',
-     &      a_temporary_file(1:iend)
-C        Assume all is well in the world, since file might be chmod 000
-         bad_permanent_dir = .false.
-         goto 91122
-      endif
-      open(unit=43,file=a_temporary_file,status='new',err=91102)
-      close(unit=43,status='delete')
-      call util_file_unlink(a_temporary_file)
-      bad_scratch_dir = .false.
-      goto 91122
-91102 bad_scratch_dir = .true.
-91122 continue
+        call util_file_name('dir_check_s',.true.,.true.,
+     &                      a_temporary_file)
+        inquire(file=a_temporary_file, exist=already)
+        bad_scratch_dir = .true.
+        if(already) then
+          iend = inp_strlen(a_temporary_file)
+          write(luout,*)' Warning: test file already existed: ',
+     &                  a_temporary_file(1:iend)
+C         Assume all is well in the world, since file might be
+C         chmod 000
+          bad_scratch_dir = .false.
+        else
+          open(UNIT=43,FILE=a_temporary_file,STATUS="new",ERR=91122)
+          close(UNIT=43,STATUS="delete")
+          call util_file_unlink(a_temporary_file)
+          bad_scratch_dir = .false.
+        endif
+91122   continue
       else
-         bad_permanent_dir=.false.
-         bad_scratch_dir=.false.
+        bad_permanent_dir=.false.
+        bad_scratch_dir=.false.
       endif
 *
       if (bad_permanent_dir) then
@@ -651,7 +654,7 @@ c
      &       DISK_ERR)
       call ga_sync()
       ierr = eaf_stat(mine, avail0, fstype)
-#ifdef CRAYXT
+#if defined(CRAYXT) || defined(BGP)
       nuse=ga_nnodes()
       avail1=-16d0*nuse+avail0
       ierr=eaf_delete(mine)
