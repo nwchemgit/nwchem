@@ -83,7 +83,12 @@ c
 c - integrals for ccsd_sxy (calculate as much as possible once and read after that)
 c - input switch to avoid using disk
       if (.not. rtdb_get(rtdb, 'ccsd:usedisk', mt_log, 1, use_disk))
+#ifdef CRAYXT
+c     direct by default to avoid io
+     $   use_disk=.false.
+#else
      $   use_disk=.true.
+#endif
       if (use_disk) then
          store_avail=util_scratch_dir_avail_for_me()
 c - convert back to bytes

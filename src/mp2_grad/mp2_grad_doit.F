@@ -120,6 +120,10 @@ c
       endif
 c     
       call util_file_name('kh',.true.,.true.,fnamek)
+#ifdef CRAYXT
+c just 256mb for crayxt
+      avail_file=256*1024d0*128d0
+#else
       if(rtdb_get(rtdb,'mp2:scratchdisk',mt_dbl,1,avail_file)) then
          avail_file=avail_file*1024d0*128d0
          if (oprint_mem.and.(ga_nodeid().eq.0)) 
@@ -127,6 +131,7 @@ c
       else
          avail_file=util_scratch_dir_avail_for_me()*128.0d0
       endif
+#endif
 c
       if (task .eq. 'gradient') then
         call intd_init(rtdb,1,basis) ! int_init allocates some memory
