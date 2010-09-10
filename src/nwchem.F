@@ -19,6 +19,7 @@
 #ifdef CRAY_T3D
       integer oldact, fsigctl
 #endif
+      integer*4 io_code
 c
 c     $Id: nwchem.F,v 1.163 2009-03-09 22:03:48 d3p307 Exp $
 c
@@ -301,9 +302,13 @@ c
       total_cpu  = total_cpu  + util_cpusec()
       if (ga_nodeid() .eq. 0) then
         if (util_print('total time', print_low)) then
-          write(LuOut,1) total_cpu, total_wall
+          write(LuOut,1,iostat=io_code) total_cpu, total_wall
  1        format(/' Total times  cpu:',f11.1,'s     wall:',f11.1,'s')
-          call util_flush(LuOut)
+          if(io_code.ne.0.and.
+     A         util_print('total time', print_high))  then
+             write(luout,*) ' iostat ',io_code
+             call util_flush(LuOut)
+           endif
         endif
       endif
       call ecce_print1('all tasks cpu time',mt_dbl,total_cpu,1)
