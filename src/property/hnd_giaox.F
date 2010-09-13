@@ -553,7 +553,7 @@ c
          enddo
       enddo
       call mat_transpose(dbl_mb(k_para)) ! transpose the paramagnetic part
-c
+cf
       if (.not.ga_destroy(g_d1)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_d1',0,GA_ERR)
       if (.not.ga_destroy(g_h01)) call 
@@ -620,8 +620,8 @@ c
 c
 c     Print out tensor information, and write to Ecce file if necessary
 c
-      call ecce_print_module_entry('nmr')
 c
+      call ecce_print_module_entry('nmr')
       do iatom = 1, sh_atom
          ioff = (iatom-1)*9
          if (.not. geom_cent_get(geom, int_mb(k_tmp+iatom-1), tag, 
