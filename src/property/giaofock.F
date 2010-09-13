@@ -95,7 +95,7 @@ c
             ahi(1) = ii
             alo(4) = ii
             ahi(4) = ii
-            call nga_add_patch(-2.0d0,g_xc,alo,ahi,1.0d0,g_fock,
+            call nga_add_patch(-2.0d0,g_xc,alo,ahi,1.d0,g_fock,
      &                         alo(2),ahi(2),g_fock,alo(2),ahi(2))
          enddo
          if (.not.ga_destroy(g_xc)) call
@@ -411,8 +411,8 @@ c
                         f_ij(i,j,v) = f_ij(i,j,v) + er2fac
                         f_ji(j,i,v) = f_ji(j,i,v) - er2fac
                         erif3=eri(integ,v+3)*facij
-                        errsum=(erif+erif3)*0.5d0
-                        errdif=(erif-erif3)*0.5d0
+                        errsum=(erif+erif3)*0.5d0*kfac
+                        errdif=(erif-erif3)*0.5d0*kfac
                         f_ik(i,k,v) = f_ik(i,k,v) - d_jl(j,l)*errdif
                         f_jk(j,k,v) = f_jk(j,k,v) + d_il(i,l)*errsum
                         f_il(i,l,v) = f_il(i,l,v) - d_jk(j,k)*errsum
