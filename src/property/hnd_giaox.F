@@ -552,7 +552,7 @@ c
             enddo
          enddo
       enddo
-      call mat_transpose(dbl_mb(k_para+ioff)) ! transpose the paramagnetic part
+      call mat_transpose(dbl_mb(k_para)) ! transpose the paramagnetic part
 c
       if (.not.ga_destroy(g_d1)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_d1',0,GA_ERR)

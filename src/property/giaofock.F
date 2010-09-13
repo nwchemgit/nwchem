@@ -149,7 +149,7 @@ c
 c
       integer ish, jsh, ksh, lsh, idim, jdim, kdim, ldim
       integer ibflo, ibfhi, jbflo, jbfhi, kbflo, kbfhi, lbflo, lbfhi
-      logical ieqj, keql
+      logical ieqj, keql, ijeqkl, keqi
 c
       logical ijfirst,jifirst,ikfirst,jlfirst,ilfirst,jkfirst
       integer ijhand,jihand,ikhand,jlhand,ilhand,jkhand
@@ -215,7 +215,6 @@ c
             jdim = jbfhi - jbflo + 1
             call dcopy(3*idim*jdim, 0d0, 0, f_ij, 1)
             call dcopy(3*jdim*idim, 0d0, 0, f_ji, 1)
-            ieqj = ish.eq.jsh
             if (next .eq. ijblock) then
                do ksh = 1, nshell
                   if (.not. bas_cn2bfr(basis, ksh, kbflo, kbfhi))
@@ -247,7 +246,6 @@ c
      $                    ibflo, ibfhi, lbflo, lbfhi, d_il,dilhand)
 c
                      ldim = lbfhi - lbflo + 1
-                     keql = ksh.eq.lsh
 c
                      call dcopy(3*jdim*ldim, 0d0, 0, f_jl, 1)
                      call dcopy(3*idim*ldim, 0d0, 0, f_il, 1)
@@ -264,7 +262,8 @@ c
                      call new_giao_doit(leri,eri,tol2e,
      $                          d_kl, d_ik, d_jl, d_il, d_jk, 
      $                    f_ij, f_ji, f_ik, f_jl, f_il, f_jk, 
-     $                    blen, idim, jdim, kdim, ldim, ieqj, keql,kfac)
+     $                    blen, idim, jdim, kdim, ldim, ish,
+     $                    jsh, ksh, lsh, kfac)
 c
                      call new_acc_giaofock_block(g_fock, blen, 
      $                    jbflo, jbfhi, lbflo, lbfhi, f_jl,
@@ -362,12 +361,13 @@ c
 c
       subroutine new_giao_doit(leri,eri,tol2e, d_kl, d_ik, d_jl, d_il, 
      $                         d_jk, f_ij, f_ji, f_ik, f_jl, f_il, f_jk,
-     $                         blen,idim,jdim,kdim,ldim,ieqj,keql,kfac)
+     $                         blen,idim,jdim,kdim,ldim,ish,jsh,ksh,lsh,
+     $                         kfac)
       implicit none
 c
       integer blen
       integer leri
-      integer idim, jdim, kdim, ldim
+      integer idim, jdim, kdim, ldim, ish, jsh, ksh, lsh
       double precision eri(leri,6)
       double precision tol2e, kfac
       double precision
@@ -380,43 +380,44 @@ c
      $     f_il(idim,ldim,3), f_jk(jdim,kdim,3)
       double precision fac,er2fac,errsum,errdif,
      V     erif,erif3,facij
-      logical ieqj, keql,doik,dojk
-      double precision eps
-      parameter(eps=1d-12)
+      logical ieqj, keql, ijeqkl, keqi, doit
 c
       integer integ, i, j, k, l, v,m
 c
+      ieqj   = ish.eq.jsh
+      ijeqkl = ish.eq.ksh.and.jsh.eq.lsh
+      keql   = ksh.eq.lsh
       do v = 1, 3
          integ = 0
          do i = 1, idim
             do j = 1, jdim
                facij = 1.0d0
-               if (ieqj.and.i.ge.j) facij = 0.5d0
+               if (ieqj.and.i.eq.j) facij = 0.5d0
                do k = 1, kdim
-                  dojk=abs(d_jk(j,k)).gt.eps
-                  doik=abs(d_ik(i,k)).gt.eps
                   do l= 1, ldim
                      integ = integ + 1
 c
 c  Needs the following if statements, otherwise integrals are included double
 c
-                     fac=facij
-                     if (keql.and.k.ge.l) fac = facij/2.0d0
-                     erif=eri(integ,v)*fac
-                     if(abs(d_kl(k,l)).gt.eps) then
-                        er2fac=erif*2.0d0*d_kl(k,l)
+                     doit = .true.
+                     if (ieqj.and.j.gt.i)               doit = .false.
+                     if (ijeqkl.and.k.gt.i)             doit = .false.
+                     if (keql.and.l.gt.k)               doit = .false.
+                     if (doit) then
+                        fac = facij
+                        if (keql.and.k.eq.l) fac = fac*0.5d0
+                        erif=eri(integ,v)*fac
+                        er2fac=erif*d_kl(k,l)*2.0d0
                         f_ij(i,j,v) = f_ij(i,j,v) + er2fac
                         f_ji(j,i,v) = f_ji(j,i,v) - er2fac
-                     endif
-                     erif3=eri(integ,v+3)*fac
-                     errsum=(erif+erif3)*0.5d0*kfac
-                     errdif=(erif-erif3)*0.5d0*kfac
-                     f_ik(i,k,v) = f_ik(i,k,v) - d_jl(j,l)*errdif
-                     f_jk(j,k,v) = f_jk(j,k,v) + d_il(i,l)*errsum
-                     if (dojk)
-     F                    f_il(i,l,v) = f_il(i,l,v) - d_jk(j,k)*errsum
-                     if (doik)
-     F                    f_jl(j,l,v) = f_jl(j,l,v) + d_ik(i,k)*errdif
+                        erif3=eri(integ,v+3)*facij
+                        errsum=(erif+erif3)*0.5d0
+                        errdif=(erif-erif3)*0.5d0
+                        f_ik(i,k,v) = f_ik(i,k,v) - d_jl(j,l)*errdif
+                        f_jk(j,k,v) = f_jk(j,k,v) + d_il(i,l)*errsum
+                        f_il(i,l,v) = f_il(i,l,v) - d_jk(j,k)*errsum
+                        f_jl(j,l,v) = f_jl(j,l,v) + d_ik(i,k)*errdif
+                     endif 
                   end do
                end do
             end do
