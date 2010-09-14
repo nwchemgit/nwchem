@@ -6280,7 +6280,7 @@ c     ****************************************
       subroutine Dneall_ggm_sym_Multiply(mb,A1,A2,n2ft3d,hml)
       implicit none
       integer    mb
-      complex*16 A1(*),A2(*)
+      real*8     A1(*),A2(*)
       integer    n2ft3d
       real*8     hml(*)
            
