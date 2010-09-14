@@ -346,20 +346,6 @@ c     ---------------
       if(.not.geom_ncent(igeom, ncent))
      $           call errquit(pname,0,RTDB_ERR)
 
-      un = 110 + ga_nodeid()
-      write(un,'(A20,4I4)') "ncent,n1,im,node is",
-     +        ncent,n1,im,ga_nodeid()
-      call util_flush(un)
-      call ga_sync()
-      if(im.eq.21) then
-         un = 100 + ga_nodeid()
-         write(un,*) "output from ", ga_nodeid()
-         write(un,'(A20,4I4)') "ncent,n1,im,node is",
-     +        ncent,n1,im,ga_nodeid()
-c         call smd_data_namespace_print(sp_geom,un)
-         call smd_data_print(un)
-         call util_flush(un)
-      end if
 c
       if(ga_nodeid().eq.0) then
       call smd_file_open(un,"tmp.xyz")
@@ -433,7 +419,8 @@ c
 c
       pname = "smd_geom_cog"
 c      
-      write(*,*) "number of atoms in the segment",nm
+      if(ga_nodeid().eq.0)  
+     +  write(*,*) "number of atoms in the segment",nm
       if(.not.ma_push_get(mt_dbl,3*nm,'tmp i',h_ftmp,i_ftmp))
      + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
 c
@@ -443,14 +430,14 @@ c     ---------------------------
          cshift(j)=c(j,i0)
       end do
 
-      write(*,*) "cordinates"
-      do i=1,nm
-      do j=1,3
-         write(*,*) c(j,i0+i-1)
-         dbl_mb(i_ftmp+(i-1)*3+j-1)=
-     +         c(j,i0+i-1)-cshift(j)
-      end do
-      end do
+c      write(*,*) "cordinates"
+c      do i=1,nm
+c      do j=1,3
+c         write(*,*) c(j,i0+i-1)
+c         dbl_mb(i_ftmp+(i-1)*3+j-1)=
+c     +         c(j,i0+i-1)-cshift(j)
+c      end do
+c      end do
  
 c     fold in other coordinates potentially
 c     cutoff by the box boundary
@@ -1124,8 +1111,8 @@ c
        end if
       end do
       nb = j
-        write(luout,*) "cluster information",
-     +    (inb(i),i=1,nb)
+c        write(luout,*) "cluster information",
+c     +    (inb(i),i=1,nb)
 c      j = 0
 c      do i=1,nr
 c       if(int_mb(i_inb+i-1).ne.0) then

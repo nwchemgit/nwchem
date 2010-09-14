@@ -155,7 +155,7 @@ c     -------------------------
       call smd_data_get_int(sname,tag,1,itsk,result)
       if(.not.result)
      *     call errquit('cannot find'//tag,0,0)
-      write(luout,*) "found itsk",itsk
+c      write(luout,*) "found itsk",itsk
 c      
       tag="task:operation"
       call smd_data_get_string1(sname,tag,itsk,itsk,
@@ -178,12 +178,12 @@ c     --------------
 c
 c     pull the global charges/coords onto local set
       call smd_fragment_charge_get_all()
-      write(msg,'(A20," 1 ",I3)') pname,im
-      call smd_coords_check(msg)
+c      write(msg,'(A20," 1 ",I3)') pname,im
+c      call smd_coords_check(msg)
       call smd_global_update("coords","get")
       call smd_global_update("dipoles","get")
-      write(msg,'(A20," 2 ",I3)') pname,im
-      call smd_coords_check(msg)
+c      write(msg,'(A20," 2 ",I3)') pname,im
+c      call smd_coords_check(msg)
 c
 c      create geometry object
 c      ---------------------

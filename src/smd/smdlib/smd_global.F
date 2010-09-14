@@ -90,7 +90,7 @@ c     dipoles
      >  call errquit(
      >       pname//'nga_create error ',0, RTDB_ERR)
       call smd_data_put_int(sp_global,"res-dipoles",1,ga_dip)
-      call ga_print(ga_dip)
+c      call ga_print(ga_dip)
 cc
       call ga_sync()
 c
@@ -294,7 +294,7 @@ c     ---------------------------
      >     pname//'unknown operation',0, 0)
       end if
      
-      call ga_print(ga_handle) 
+c      call ga_print(ga_handle) 
       return
       end
 
@@ -407,8 +407,8 @@ c     ---------------
       if(.not.result) call errquit(
      >       pname//'no coordindates ',0,0)
 c
-      call ga_print(gh)
-      call ga_print(gh0)
+c      call ga_print(gh)
+c      call ga_print(gh0)
 c
       call ga_add(1.0d0,gh,-1.0d0,gh0,gh)
       call ga_norm_infinity(gh,eps)

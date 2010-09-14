@@ -382,7 +382,7 @@ c     -------------------------
       call smd_data_get_int(sname,tag,1,itsk,result)
       if(.not.result)
      *     call errquit('cannot find'//tag,0,0)
-      write(luout,*) "found itsk",itsk
+c      write(luout,*) "found itsk",itsk
 c      
       tag = "task:frag_id"
       call smd_data_get_int1(sname,tag,itsk,itsk,im)
