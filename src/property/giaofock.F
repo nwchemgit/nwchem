@@ -401,7 +401,6 @@ c  Needs the following if statements, otherwise integrals are included double
 c
                      doit = .true.
                      if (ieqj.and.j.gt.i)               doit = .false.
-                     if (ijeqkl.and.k.gt.i)             doit = .false.
                      if (keql.and.l.gt.k)               doit = .false.
                      if (doit) then
                         fac = facij
@@ -410,12 +409,12 @@ c
                         er2fac=erif*d_kl(k,l)*2.0d0
                         f_ij(i,j,v) = f_ij(i,j,v) + er2fac
                         f_ji(j,i,v) = f_ji(j,i,v) - er2fac
-                        erif3=eri(integ,v+3)*facij
+                        erif3=eri(integ,v+3)*fac
                         errsum=(erif+erif3)*0.5d0*kfac
                         errdif=(erif-erif3)*0.5d0*kfac
                         f_ik(i,k,v) = f_ik(i,k,v) - d_jl(j,l)*errdif
-                        f_jk(j,k,v) = f_jk(j,k,v) + d_il(i,l)*errsum
                         f_il(i,l,v) = f_il(i,l,v) - d_jk(j,k)*errsum
+                        f_jk(j,k,v) = f_jk(j,k,v) + d_il(i,l)*errsum
                         f_jl(j,l,v) = f_jl(j,l,v) + d_ik(i,k)*errdif
                      endif 
                   end do
