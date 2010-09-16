@@ -551,8 +551,8 @@ c
                dbl_mb(k_para+ixy-1) = dbl_mb(k_para+ixy-1) * ppm
             enddo
          enddo
+         call mat_transpose(dbl_mb(k_para+ixy-9)) ! transpose the paramagnetic part
       enddo
-      call mat_transpose(dbl_mb(k_para)) ! transpose the paramagnetic part
 cf
       if (.not.ga_destroy(g_d1)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_d1',0,GA_ERR)
