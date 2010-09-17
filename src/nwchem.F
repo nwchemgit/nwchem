@@ -19,7 +19,11 @@
 #ifdef CRAY_T3D
       integer oldact, fsigctl
 #endif
+#ifdef PSCALE
+      integer io_code
+#else
       integer*4 io_code
+#endif
 c
 c     $Id: nwchem.F,v 1.163 2009-03-09 22:03:48 d3p307 Exp $
 c
