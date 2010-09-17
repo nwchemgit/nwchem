@@ -10,7 +10,7 @@ h -0.514 -0.890 -0.350
 end
 
 basis
-* library 6-311++G**
+* library 6-311G
 end
 
 charge 0
