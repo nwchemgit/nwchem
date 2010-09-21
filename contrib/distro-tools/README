@@ -1,0 +1,40 @@
+DISTRO TOOLS
+============
+
+In this directory some tools are provided to help generate binary
+distributions of NWChem. 
+
+gen_default.nwchemrc
+
+    This script will generate the default nwchemrc file on a users
+    machine. This goes into the directory ${target}/etc.
+
+build_nwchem_bin_distro
+
+    This script takes as a command line argument the directory name
+    were the source code distribution lives. It expects 
+    gen_default.nwchemrc to sit next to this directory and expects
+    to be run from that directory. It will then create a directory
+    for the binary and the suplemental material, copy all relevant
+    material into it, and generate the various archives.
+
+    Example: In the directory nwchem_releases we have:
+
+       ./nwchem-6.0-linux/
+       ./gen_default.nwchemrc
+       ./build_nwchem_bin_distro
+
+    We can then run:
+
+       ./build_nwchem_bin_distro nwchem-6.0-linux
+
+    After which the directory will contain:
+
+       ./nwchem-6.0-linux/
+       ./gen_default.nwchemrc
+       ./build_nwchem_bin_distro
+       ./nwchem-6.0-binary/
+       ./nwchem-6.0-binary.tgz
+       ./nwchem-6.0-binary.MANIFEST
+       ./nwchem-6.0-binary.tar.bz2
+

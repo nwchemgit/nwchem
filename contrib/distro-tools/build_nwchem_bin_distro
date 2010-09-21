@@ -1,0 +1,28 @@
+#!/bin/bash
+distro=nwchem-6.0-binary
+source=`pwd`/$1
+target=`pwd`/${distro}
+echo "Generating binary distro"
+echo "Source: " ${source}
+echo "Target: " ${target}
+if [ -d ${target} ] ; then
+  echo "Old version of" $target "already exists. Deleting it now..."
+  rm -vrf ${target} ;
+  echo "Old version deleted."
+fi
+mkdir ${target}
+mkdir ${target}/bin
+cp ${source}/bin/LINUX64/* ${target}/bin
+mkdir ${target}/etc
+cp gen_default.nwchemrc ${target}/etc
+cp -a ${source}/examples ${target}/examples
+cp ${source}/INSTALL.binbuilds ${target}
+mkdir ${target}/usr.local.lib.nwchem
+cp -a ${source}/src/data/* ${target}/usr.local.lib.nwchem/.
+cp -a ${source}/src/basis/libraries ${target}/usr.local.lib.nwchem/.
+cp -a ${source}/src/nwpw/libraryps ${target}/usr.local.lib.nwchem/.
+cp -a ${source}/QA ${target}/.
+find ${target} -name .svn -exec rm -rf {} \; -print
+tar -vzcf ${target}.tgz ${distro} 2>&1 > ${target}.MANIFEST
+tar -cf ${target}.tar ${distro}
+bzip2 ${target}.tar
