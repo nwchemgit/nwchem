@@ -38,3 +38,9 @@ build_nwchem_bin_distro
        ./nwchem-6.0-binary.MANIFEST
        ./nwchem-6.0-binary.tar.bz2
 
+build_nwchem
+
+    This script sets up a set of environment variables and builds 
+    NWChem accordingly. I can easily be adapted to any particular build
+    of interest. At present it is set up to build a statically linked
+    executable with the GNU compilers.
