@@ -175,6 +175,8 @@ C
      &    write(*,'(a,a)')
      &    ' routine      calls  cpu(0)   ',
      &    'cpu-min  cpu-ave  cpu-max   i/o '
+cedo  fix for hangs when nrout is not constant among procs
+      call ga_dgop(msg_qstat_3,nrout,1,'min')
       do 300 i=1,nrout
          tcp_min = tcp(i)
          call ga_dgop(msg_qstat_1,tcp_min,1,'min')
