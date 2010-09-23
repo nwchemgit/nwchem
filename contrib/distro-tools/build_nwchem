@@ -30,7 +30,29 @@ export NWCHEM_TOP=`pwd`
 export NWCHEM_TARGET=LINUX64
 export NWCHEM_MODULES="all"
 export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/LINUX64/nwchem
-export LDOPTIONS="-static -static-libgcc"
+export LDOPTIONS="-static -static-libgcc -static-libgfortran"
+option=$1
+if [ $1 == "python" ]; then
+  export PYTHONVERSION=2.4
+  export PYTHONHOME=/usr
+  export PYTHONPATH=./:$NWCHEM_TOP/contrib/python/
+  export NWCHEM_MODULES="$NWCHEM_MODULES python"
+  echo "Building NWChem including Python $PYTHONVERSION"
+  echo "===================================="
+  option=""
+elif [ $1 == "python64" ]; then
+  export USE_PYTHON64=yes
+  export PYTHONVERSION=2.4
+  export PYTHONHOME=/usr
+  export PYTHONPATH=./:$NWCHEM_TOP/contrib/python/
+  export NWCHEM_MODULES="$NWCHEM_MODULES python"
+  echo "Building NWChem including Python $PYTHONVERSION"
+  echo "===================================="
+  option=""
+else
+  echo "Building NWChem"
+  echo "==============="
+fi
 cd $NWCHEM_TOP/src
 make DIAG=PAR FC=gfortran CC=gcc LDOPTIONS="$LDOPTIONS" nwchem_config
-make DIAG=PAR FC=gfortran CC=gcc LDOPTIONS="$LDOPTIONS" $1
+make DIAG=PAR FC=gfortran CC=gcc LDOPTIONS="$LDOPTIONS" $option

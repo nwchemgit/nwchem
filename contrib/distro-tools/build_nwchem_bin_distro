@@ -1,20 +1,43 @@
 #!/bin/bash
-distro=nwchem-6.0-binary
+if [ $# != 3 ] ; then
+  echo "Usage: $0 source-directory linux-version gcc-version"
+  echo ""
+  echo "The source-directory is the directory in which the compiled code"
+  echo "lives. This code and the data files are copied from there into"
+  echo "the distribution directory."
+  echo ""
+  echo "The linux-version is your version of Linux on the machine you"
+  echo "you built the executable on. Typically you will want to name the"
+  echo "distribution (RedHat, Suse, Ubuntu, etc.) and the corresponding"
+  echo "release number, e.g. RedHat-5-5."
+  echo ""
+  echo "The gcc-version is the version number of the GNU compiler suite"
+  echo "you are using. You can get this from running:"
+  echo ""
+  echo "    gcc --version"
+  echo ""
+  echo "The disto directory name is constructed using both the"
+  echo "linux-version and the gcc-version."
+  exit 1
+fi
 source=`pwd`/$1
+linux=$2
+gcc=$3
+distro=nwchem-6.0-binary-${linux}-${gcc}
 target=`pwd`/${distro}
 echo "Generating binary distro"
 echo "Source: " ${source}
 echo "Target: " ${target}
 if [ -d ${target} ] ; then
   echo "Old version of" $target "already exists. Deleting it now..."
-  rm -vrf ${target} ;
+  rm -rf ${target}
   echo "Old version deleted."
 fi
 mkdir ${target}
 mkdir ${target}/bin
 cp ${source}/bin/LINUX64/* ${target}/bin
 mkdir ${target}/etc
-cp gen_default.nwchemrc ${target}/etc
+cp ${source}/contrib/distro-tools/gen_default.nwchemrc ${target}/etc
 cp -a ${source}/examples ${target}/examples
 cp ${source}/INSTALL.binbuilds ${target}
 mkdir ${target}/usr.local.lib.nwchem
