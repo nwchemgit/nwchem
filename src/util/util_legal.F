@@ -1,124 +1,31 @@
+c
       subroutine util_legal()
+c
 * $Id: util_legal.F,v 1.54 2009-03-09 22:30:58 niri Exp $
-*--------------------------------------------------------------------*
-* COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000             *
-*       2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008               *
-*              Pacific Northwest National Laboratory,                *
-*              Battelle Memorial Institute.                          *
-*--------------------------------------------------------------------*
-*-----------------> All Rights Reserved <----------------------------*
-*--------------------------------------------------------------------*
 c
 c routine to print legal disclaimer to stdout
 c
       implicit none
 #include "stdio.fh"
 c
-c
-      integer center_pt
-      logical FF, FT
-c
-      FF = .false.
-      FT = .true.
-      center_pt = 40
-c
-      call util_print_centered(luout,
-     & 'COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,',
-     &    center_pt+1, FF)
-      call util_print_centered(luout,
-     & '2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,',
-     &    center_pt+1, FF)
-      call util_print_centered(luout,
-     & '  2009, 2010',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    '    Pacific Northwest National Laboratory, ',
-     &    center_pt, FF)
-      call util_print_centered(luout,
-     &    '    Battelle Memorial Institute.           ',
-     &    center_pt, FF)
-      write(luout,*)
-      call util_print_centered(luout,
-     &    ' >>> All Rights Reserved <<< ',
-     &    center_pt, FF)
-      write(luout,*)
-      write(luout,*)
-c
-      call util_print_centered(luout,
-     &    'DISCLAIMER',
-     &    center_pt, FT)
+      call util_print_centered(luout, 'ACKNOWLEDGMENT', 40, .true.)
       write(luout,1)
  1    format(/
-     &     12x, 
-     &     'This material was prepared as an account of work sponsored'/
-     &     12x, 
-     &     'by an agency of the United States Government.  Neither the'/
-     &     12x, 
-     &     'United States Government nor the United States Department'/
-     &     12x, 
-     &     'of Energy, nor Battelle, nor any of their employees, MAKES'/
-     &     12x, 
-     &     'ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL'/
-     &     12x, 
-     &    'LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,'/
-     &     12x, 
-     &     'OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,'/
-     &     12x, 
-     &     'SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE'/
-     &     12x, 
-     &     'WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.'//)
-c
-      call util_print_centered(luout, 'LIMITED USE', center_pt, FT)
-      write(luout,2)
- 2    format(/
-     &     12x,
-     &     'This software (including any documentation) is being made'/
-     &     12x, 
-     &    'available to you for your internal use only, solely for use'/
-     &     12x, 
-     &     'in performance of work directly for the U.S. Federal'/
-     &     12x, 
-     &    'Government or work under contracts with the U.S. Department'/
-     &     12x, 
-     &     'of Energy or other U.S. Federal Government agencies.  This'/
-     &     12x, 
-     &     'software is a version which has not yet been evaluated and'/
-     &     12x, 
-     &     'cleared for commercialization.  Adherence to this notice'/
-     &     12x, 
-     &     'may be necessary for the author, Battelle Memorial'/
-     &     12x, 
-     &     'Institute, to successfully assert copyright in and'/
-     &     12x, 
-     &     'commercialize this software. This software is not intended'/
-     &     12x, 
-     &     'for duplication or distribution to third parties without'/
-     &     12x, 
-     &     'the permission of the Manager of Software Products at'/
-     &     12x, 
-     &     'Pacific Northwest National Laboratory, Richland,'/
-     &     12x, 
-     &     'Washington, 99352.'//)
-c
-      call util_print_centered(luout, 'ACKNOWLEDGMENT', center_pt, FT)
-      write(luout,3)
- 3    format(/
-     &     12x, 
-     &     'This software and its documentation were produced with'/
-     &     12x, 
-     &    'Government support under Contract Number DE-AC05-76RL01830'/
-     &     12x, 
-     &     'awarded by the United States Department of Energy.  The'/
-     &     12x, 
-     &     'Government retains a paid-up non-exclusive, irrevocable'/
-     &     12x, 
-     &     'worldwide license to reproduce, prepare derivative works,'/
-     &     12x, 
-     &     'perform publicly and display publicly by or for the'/
-     &     12x, 
-     &     'Government, including the right to distribute to other'/
-     &     12x, 
-     &     'Government contractors.'//)
+     &12x,
+     &'This software and its documentation were developed at the'/
+     &12x, 
+     &'EMSL at Pacific Northwest National Laboratory, a multiprogram'/
+     &12x, 
+     &'national laboratory, operated for the U.S. Department of Energy'/
+     &12x, 
+     &'by Battelle under Contract Number DE-AC05-76RL01830. Support'/
+     &12x, 
+     &'for this work was provided by the Department of Energy Office'/
+     &12x, 
+     &'of Biological and Environmental Research, Office of Basic'/
+     &12x, 
+     &'Energy Sciences, and the Office of Advanced Scientific Computing.
+     &'//)
 c
       end
       subroutine util_cite()
@@ -127,20 +34,73 @@ c
 #include "stdio.fh"
 #include "util.fh"
 c
-      integer center_pt
-      logical FF, FT
+      character*80 chr01,chr02,chr03,chr04,chr05,chr06,chr07,chr08
+      character*80 chr09,chr10,chr11,chr12,chr13
+      data chr01/
+     +'E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straa
+     +tsma,'/
+      data chr02/
+     +'M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. H
+     +ammond,'/
+      data chr03/
+     +'J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-
+     +D. Fan,'/
+      data chr04/
+     +'R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Niep
+     +locha,'/
+      data chr05/
+     +'V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. S
+     +wart,'/
+      data chr06/
+     +'Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. B
+     +rown,'/
+      data chr07/
+     +'G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,'/
+      data chr08/
+     +'R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell
+     +,'/
+      data chr09/
+     +'D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Dee
+     +gan,'/
+      data chr10/
+     +'K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaff
+     +e,'/
+      data chr11/
+     +'B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefiel
+     +d,'/
+      data chr12/
+     +'X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. 
+     +Sandrone,'/
+      data chr13/
+     +'M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zha
+     +ng.'/
+
 c
-      FF = .false.
-      FT = .true.
-      center_pt = 40
+c     == default ==
+      write(luout,*)
+      write(luout,*)
+      call util_nwchem_paper()
+      write(luout,*)
+      call util_print_centered(luout, 'AUTHORS & CONTRIBUTORS', 40, 
+     & .true.)
+      call util_print_centered(luout, chr01, 40, .false.)
+      call util_print_centered(luout, chr02, 40, .false.)
+      call util_print_centered(luout, chr03, 40, .false.)
+      call util_print_centered(luout, chr04, 40, .false.)
+      call util_print_centered(luout, chr05, 40, .false.)
+      call util_print_centered(luout, chr06, 40, .false.)
+      call util_print_centered(luout, chr07, 40, .false.)
+      call util_print_centered(luout, chr08, 40, .false.)
+      call util_print_centered(luout, chr09, 40, .false.)
+      call util_print_centered(luout, chr10, 40, .false.)
+      call util_print_centered(luout, chr11, 40, .false.)
+      call util_print_centered(luout, chr12, 40, .false.)
+      call util_print_centered(luout, chr13, 40, .false.)
 c
-      write(luout,'(/,/)')
-      call util_print_centered(luout, 'ACKNOWLEDGEMENT', center_pt, FT)
-      write(luout,10000)
-      call util_print_centered(luout, 'CITATION', center_pt, FT)
-      write(luout,10001)
+c     == print high ==
       if (util_print('references',print_high)) then
-        call util_print_centered(luout, 'REFERENCES', center_pt, FT)
+        write(luout,*)
+        call util_print_centered(luout, 'REFERENCES', 40, .true.)
         write(luout,10002)
         write(luout,10101) 1
         write(luout,10102) 2
@@ -154,83 +114,33 @@ c
         write(luout,10110) 10
         write(luout,10111) 11
       endif
-10000 format(
-     &    /,12x,
-     &    'Please use the following acknowledgement where appropriate ',
-     &    /,12x,
-     &    'for results obtained with NWChem:',
-     &    /,/,12x,
-     &    'High Performance Computational Chemistry Group, "NWChem, A',
-     &    /,12x,
-     &    'Computational Chemistry Package for Parallel Computers, ',
-     &    /,12x,
-     &    'Version 5.1.1" (2008), ',
-     &    'Pacific Northwest National Laboratory,',
-     &    /,12x,
-     &    'Richland, Washington 99352-0999, USA.'
-     &    /,/)
-10001 format(
-     &    /,10x,
-     &    'Please use the following citation when publishing results',
-     &    /,10x,
-     &    'obtained with NWChem:'
-     &    /,/,
-     + 10x,'E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,',
-     + ' T. P. Straatsma,',/,
-     + 10x,'M. Valiev, H. J. J. Van Dam, D. Wang, E. Apra,', 
-     + ' T. L. Windus,', ' J. Hammond,',/, 
-     + 10x,'J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler,', 
-     + ' Y. Zhao, P.-D. Fan,',/,
-     + 10x,'R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha,', 
-     + ' V. Tipparaju,',/,
-     + 10x,'M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,', 
-     + ' Q. Wu,',/,
-     + 10x,'T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby,', 
-     + ' E. Brown, ',/, 
-     + 10x,'G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza,',
-     + ' K. Hirao,',/,
-     + 10x,'R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski,',
-     + ' J. Anchell, ',/,
-     + 10x,'D. Bernholdt, P. Borowski, T. Clark, D. Clerc,',
-     + ' H. Dachsel, M. Deegan, ',/,
-     + 10x,'K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess,',
-     + ' J. Jaffe, ',/,
-     + 10x,'B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin,',
-     + ' R. Littlefield, ',/,
-     + 10x,'X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack,',
-     + ' M. Rosing, ',/, 
-     + 10x,'G. Sandrone, M. Stave, H. Taylor, G. Thomas,', 
-     + ' J. van Lenthe, ',/,
-     + 10x 'A. Wong, and Z. Zhang,',/,
-     + 10x,'"NWChem, A Computational Chemistry Package for Parallel ',
-     &    'Computers, ',
-     &    /,10x,
-     &    'Version 5.1.1" (2008),',
-     &    /,22x,'Pacific Northwest National Laboratory,',
-     &    /,22x,'Richland, Washington 99352-0999, USA.'
-     &    /,/)
+c
 10002 format(
      &    /,10x,
      &    'Where appropriate, please cite the following reference(s) ',
      &    /,10x,
      &    'when publishing results obtained with NWChem:'
      &    /,/,10x)
+c
 10101 format(1x,i5,'.',1x,
      &    'D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, ',
      &    'R. J. Harrison, ',/,8x,'R. A. Kendall, R. A. Kutteh, ',
      &    'X. Long, J. B. Nicholas, J. A. Nichols, ',/,8x,
      &    'H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefi',
-     &    'eld and J. Nieplocha,',/,8x,'"Parallel Computational ',
-     &    'Chemistry Made Easier: The Development of NWChem,"',/,8x,
+     &    'eld and',/,8x,'J. Nieplocha,',/,8x,
+     &    '"Parallel Computational Chemistry Made Easier: ',/,8x,
+     &    'The Development of NWChem,"',/,8x,
      &    'Int. J. Quantum Chem. Symposium  29, 475-483 ',
      &    '(1995).'
      &    /,/)
+c
 10102 format(1x,i5,'.',1x,
      &    'M. F. Guest, E. Apra, D. E. Bernholdt, H. A. Fruchtl, ',
      &    'R. J. Harrison, ',/,8x,'R. A. Kendall, R. A. Kutteh, ',
      &    'X. Long, J. B. Nicholas, J. A. Nichols, ',/,8x,
      &    'H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield',
-     &    ' and J. Nieplocha,',/,8x,'"High Performance Computatio',
+     &    ' and',/,8x,'J. Nieplocha,',/,8x,
+     &    '"High Performance Computatio',
      &    'nal Chemistry: NWChem and Fully Distributed',/,8x,
      &    'Parallel Applications", in Advances in Parallel Comput',
      &    'ing, 10, High',/,8x,'Performance Computing: Technology,',
@@ -238,6 +148,7 @@ c
      &    'L. Gradinetti, G. Joubert, and J. Kowalik, ',/,8x,
      &    '(Elsevier Science B. V. pp. 395-427, 1995).'
      &    /,/)
+c
 10103 format(1x,i5,'.',1x,
      &    'M. F. Guest, E. Apra, D. E. Bernholdt, H. A. Fruchtl, ',
      &    'R. J. Harrison, ',/,8x,'R. A. Kendall, R. A. Kutteh, ',
@@ -253,61 +164,68 @@ c
      &    ' for Computer Simulation, ',/,8x,
      &    'San Diego, CA, 1995. pp. 511-521.',
      &    /,/)
+c
 10104 format(1x,i5,'.',1x,
      &    'M. F. Guest, E. Apra, D. E. Bernholdt, H. A. Fruchtl, ',
      &    'R. J. Harrison,',/,8x,'R. A. Kendall, R. A. Kutteh, ',
      &    'X. Long, J. B. Nicholas, J. A. Nichols, ',/,8x,'H. L. ',
-     &    'Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and ',
+     &    'Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and',/,8x,
      &    'J. Nieplocha,',/,8x,'"Advances in Parallel Distributed',
-     &    ' Data Software; Computational Chemistry ',/,8x,
+     &    ' Data Software; Computational Chemistry',/,8x,
      &    'and NWChem", in Applied Parallel Computing.  Computati',
      &    'ons in Physics,',/,8x,'Chemistry, and Engineering ',
      &    'Science, Eds. J. Wasnieski, J. Dongarra, and ',/,8x,
      &    'K. Madsen, Lecture Notes in Computer Science, 1041,',/,8x,
      &    '(Springer-Verlag, Berlin, 278-294, 1996).'
      &    /,/)
+c
 10105 format(1x,i5,'.',1x,
      &    'M. F. Guest, E. Apra, D. E. Bernholdt, H. A. Fruchtl, ',
      &    'R. J. Harrison,',/,8x,'R. A. Kendall, R. A. Kutteh, ',
      &    'X. Long, J. B. Nicholas, J. A. Nichols, ',/,8x,
      &    'H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield',
-     &    ' and J. Nieplocha, ',/,8x,
+     &    ' and',/,8x,'J. Nieplocha, ',/,8x,
      &    '"High-Performance Computing in Chemistry; NWChem", ',
      &    'Future ',/,8x,
      &    'Generations Computer Systems  12(4), 273, (1996).'
      &    /,/)
+c
 10106 format(1x,i5,'.',1x,
      &    'R. A. Kendall, E. Apra, D. E. Bernholdt, E. J. Bylaska, ',
      &    'M. Dupuis,',/,8x,'G. I. Fann, R. J. Harrison, J. Ju, ',
      &    'J. A. Nichols, J. Nieplocha,',/,8x,'T. P. Straatsma, ',
-     &    'T. L. Windus, A. T. Wong, Computer Phys. Comm. 128, ',
+     &    'T. L. Windus, A. T. Wong,',/,8x,'Computer Phys. Comm. 128, ',
      &    '260 (2000).'
      &    /,/)
+c
 10107 format(1x,i5,'.',1x,
      + 'T. P. Straatsma and V. Helms, in Molecular Dynamics on',
-     + ' Parallel Computers',/,8x,
+     + ' Parallel',/,8x,'Computers',
      + '2000, R. Esser et al. editors, p 70.',//)
+c
 10108 format(1x,i5,'.',1x,
      + ' T. P. Straatsma, M. Philippopoulos and J. A. McCammon,',
      + /,8x,' Computer Phys. Comm. 128, ',
      &    '377 (2000).'
      &    /,/)
+c
 c    ***PAW references***
 10109 format(1x,i5,'.',1x,
      + ' M. Valiev, E. J. Bylaska, A. Gramada, and J. H. Weare,'
      + /,8x,' Reviews in Modern Quantum Chemistry, pages 1684-1734',
      + /,8x,' (World Scientific, Singapore, 2002).'
      &    /,/)
+c
 10110 format(1x,i5,'.',1x,
      + ' E. J. Bylaska, M. Valiev, R. Kawai, and J. H. Weare,',
      + /,8x,' Computer Phys. Comm. 143, ',
      &    '11 (2002).'
      &    /,/)
+c
 10111 format(1x,i5,'.',1x,
      + ' M. Valiev and J. H. Weare,',
      + /,8x,' J. Phys. Chem. A, 103, ',
      &    '10588 (1999).'
      &    /,/)
-
 c
       end
