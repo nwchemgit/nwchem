@@ -45,3 +45,26 @@ c
         call dscal(nvec,vnorm,vectors(1,col),1)
       enddo
       end
+      subroutine vib_vecphase(coord,vectors,nvec)
+      implicit none
+#include "util.fh"
+c
+c...  Fix the phase of the normal modes. To do this we compute the
+c...  dot-product of every normal mode with the nuclear coordinates
+c...  (which provide a fixed reference point) and we insist that this
+c...  shall be non-negative.
+c
+      integer nvec
+      double precision vectors(nvec,nvec)
+      double precision coord(nvec)
+c
+      double precision vnorm
+      integer col
+      do col = 1,nvec
+        vnorm = ddot(nvec,coord,1,vectors(1,col),1)
+        if (vnorm.lt.0.0d0) then
+          vnorm = -1.0d0
+          call dscal(nvec,vnorm,vectors(1,col),1)
+        endif
+      enddo
+      end

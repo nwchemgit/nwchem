@@ -383,7 +383,7 @@ c
       ok = 0
 c
 c Write scf energy at the end of the movecs file. If energy
-c is not in rtdb, it's given a value of zero.
+c is not in rtdb, it is given a value of zero.
 c
       write(key,'(a,'':energy'')') scftype(1:inp_strlen(scftype))
       if (.not. rtdb_get(rtdb, key, mt_dbl, 1, energy)) then
@@ -434,7 +434,7 @@ c
      &       MA_ERR)
 c
 c Write scf energy at the end of the movecs file. If energy
-c is not in rtdb, it's given a value of zero.
+c is not in rtdb, it is given a value of zero.
 c
          write(unitno, err=1001) energy, enrep
 c         

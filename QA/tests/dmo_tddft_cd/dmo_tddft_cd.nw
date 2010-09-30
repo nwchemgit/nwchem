@@ -48,5 +48,4 @@ tddft
   nroots 1
   cdspectrum
 end
-#task tddft energy
-task dft energy
+task tddft energy

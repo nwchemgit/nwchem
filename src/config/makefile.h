@@ -14,12 +14,12 @@
 # RELEASE is empty for the development branch of NWChem and is the
 # version number for releases.  If RELEASE is not empty and if NWCHEM_TOP 
 # does not already contain the value of RELEASE, it is appended with 
-# a hypehn to NWCHEM_TOP in order to derive the directory path TOPDIR.
+# a hyphen to NWCHEM_TOP in order to derive the directory path TOPDIR.
 
 # For development tree 
 RELEASE := 
 # For current release tree
-#RELEASE := 5.1
+#RELEASE := 6.0
 
 #
 

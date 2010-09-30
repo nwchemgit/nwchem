@@ -704,6 +704,7 @@ c
 #include "eaf.fh"
 #include "rtdb.fh"
 #include "sym.fh"
+#include "stdio.fh"
 c     
       integer rtdb              ! [input]
       integer basis             ! [input]
@@ -933,7 +934,8 @@ c
 c     
       if (oenergy) then
          call ga_dgop(1,energy,1,'+')
-         write(6,*) ' The energy from the two PDM is ', energy
+         if (ga_nodeid().eq.0) 
+     +     write(LuOut,*) ' The energy from the two PDM is ', energy
       end if
 c     
       end

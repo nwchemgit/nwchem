@@ -164,16 +164,16 @@ c
          call ga_copy_patch('n', g_gmovecs(1), 1, nbf_ao, 
      .        1, nmo(1),
      ,        g_movecs(1), 1,nbf_ao,1,nmo(1))
-      if (.not. ga_destroy(g_gmovecs(1))) call errquit
-     &     ('dft_scf: could not destroy g_denso', 0, GA_ERR)
+         if (.not. ga_destroy(g_gmovecs(1))) call errquit
+     &      ('dft_scf: could not destroy g_gmovecs', 0, GA_ERR)
          if(ipol.eq.2) then
             nmo(2)=nmo(1)
             call ga_zero(g_movecs(2))
             call ga_copy_patch('n', g_gmovecs(2), 1, nbf_ao, 
      .           1, nmo(2),
      ,           g_movecs(2), 1,nbf_ao,1,nmo(2))
-         if (.not. ga_destroy(g_gmovecs(2))) call errquit
-     &        ('dft_scf: could not destroy g_denso', 0, GA_ERR)
+            if (.not. ga_destroy(g_gmovecs(2))) call errquit
+     &         ('dft_scf: could not destroy g_gmovecs', 0, GA_ERR)
          endif
       endif
       return

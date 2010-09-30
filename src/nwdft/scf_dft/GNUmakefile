@@ -25,7 +25,7 @@
 	dft_fdist_init.o \
 	cdft_util.o \
 	dft_zora_utils.o \
-        dft_zora_rhos.o
+	dft_zora_rhos.o
 	OBJ=\
 	dft_swapab.o \
 	dft_main0d.o \
@@ -34,7 +34,7 @@
 	dft_scfutil.o \
 	dft_symbr.o \
 	dft_pstat.o\
-        fukui.o \
+	fukui.o \
 	dft_canorg.o \
 	dft_diagn.o \
 	dft_dump_info.o \

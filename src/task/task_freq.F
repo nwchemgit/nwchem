@@ -57,12 +57,12 @@ c
      &       RTDB_ERR)
       if (ga_nodeid().eq.0 .and.
      $    util_print('task_freq', print_low)) then
-        write(6,*)
-        write(6,*)
-        call util_print_centered(6,
+        write(LuOut,*)
+        write(LuOut,*)
+        call util_print_centered(LuOut,
      $      'NWChem Nuclear Hessian and Frequency Analysis',
      $      40,.true.)
-        write(6,*)
+        write(LuOut,*)
       endif
 *
       if (rtdb_get(rtdb,'vib:reuse',mt_log,1,ignore)) then
@@ -76,9 +76,10 @@ c
         if (.not.status) call errquit
      &      ('task_freq: task_hessian failed',911, CALC_ERR)
       else
-        call util_print_centered(6,
-     &      'reusing previously generated Hessian',
-     &      40,.true.)
+        if (ga_nodeid().eq.0)
+     &    call util_print_centered(LuOut,
+     &        'reusing previously generated Hessian',
+     &        40,.true.)
         status = .true.
       endif
 *
@@ -86,7 +87,7 @@ c
       if ((ga_nodeid()).eq.0) then
         if (o_reuse) then
           if (rtdb_cget(rtdb,'vib:reuse_hessian_file',1,filehess)) then
-            write(6,*)' re-using hessian in file ',
+            write(LuOut,*)' re-using hessian in file ',
      &          filehess(1:inp_strlen(filehess))
           else
 * in case of manual restart and renaming of hess file

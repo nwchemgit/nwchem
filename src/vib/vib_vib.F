@@ -227,6 +227,7 @@ C
       CALL vib_CALLG(DBL_MB(IHESSt),nhesst,DBL_MB(IHESSP),
      &    dbl_mb(iscr),dbl_mb(iscr+nat3),DBL_MB(IEGVAL),
      &    DBL_MB(IEGVEC), NAT3,NAT3)
+      call vib_vecphase(dbl_mb(icoord),dbl_mb(iegvec),nat3)
       call dfill(5*nat3,0.0d00,dbl_mb(iscr),1)    ! zero scratch used
 C
       CALL vib_WRTFREQ(rtdb,DBL_MB(IEGVAL),NAT3,ZEROPE,NPRI) ! Write out the zero-point energy
