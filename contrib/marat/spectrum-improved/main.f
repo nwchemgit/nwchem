@@ -88,7 +88,7 @@ c
        double precision x,dx
        double precision dl
 
-       open(11,file="spectrum.out",
+       open(11,file="spectrum.txt",
      $            form='formatted',status='unknown')
 c
        do i=1,n

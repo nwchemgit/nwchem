@@ -1,0 +1,17 @@
+
+      integer tbond,tmass,tangle,tdihedral,timproper,tnonbond
+      parameter(tbond=1)
+      parameter(tmass=2)
+      parameter(tangle=3)
+      parameter(tdihedral=4)
+      parameter(timproper=5)
+      parameter(tnonbond=6)
+
+      double precision deg_to_rad
+      parameter(deg_to_rad=0.0174532925d0)
+
+      double precision kcal_to_kj
+      parameter(kcal_to_kj=4.1840d0)
+
+      double precision ang_to_nm
+      parameter(ang_to_nm=0.1d0)
