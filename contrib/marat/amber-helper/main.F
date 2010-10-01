@@ -1,4 +1,3 @@
-C     created marat valiev
        program main
        implicit none
 #include "amber_params.fh"       
@@ -16,6 +15,7 @@ C     created marat valiev
        integer u_dihedral
        integer u_improper
        integer u_mass
+       integer u_nonbonded
 c
        buffer = "amber.in"
        inquire(file=buffer,exist=ofile)
@@ -42,7 +42,13 @@ c
        u_mass     = 15
        open(u_mass,file="mass.dat",
      $            form='formatted',status='unknown')
+       u_nonbonded     = 16
+       open(u_nonbonded,file="nonbonded.dat",
+     $            form='formatted',status='unknown')
        buffer = " "
+c
+c      parse all the sections except nonbonding
+c      ----------------------------------------
 10     continue 
        read(10,'(A180)',ERR=30,END=30) buffer
        call test_for_type(buffer,itype)
@@ -58,27 +64,23 @@ c
        else if(itype.eq.timproper) then
          call parse_improper(u_improper,buffer)
        end if
-C       if(INDEX(buffer(1:4),"BOND").ne.0) then
-C         write(*,*) "found bond"
-C         write(*,*) "b[1]",buffer(1:1)
-C       end if
        go to 10
-c       n = 0
-c10     continue
-c       buffer = " "
-c       read(10,'(A180)',ERR=30,END=30) buffer
-c       if(buffer.ne." ".and.buffer(1:1).ne."#") then
-c         n = n+1
-c         if(n.gt.nmax) then
-c           write(6,*) "increase nmax"
-c           return
-c         end if
-c         read(buffer,*) lmax(n),f(n),sigma(n)
-c       end if
-c       goto 10
-30     close(10)
-1000   FORMAT("Root :", 3G12.6)
-1001   FORMAT("Max. extinction :", G12.6)
+30     continue
+c
+c      now parse nonbonding section
+c      ----------------------------
+       write(*,*) "parsing nonbonding section"
+       rewind(10)
+11     continue
+       read(10,'(A180)',ERR=31,END=31) buffer
+       call test_for_type(buffer,itype)
+       if(buffer.eq." ") goto 11
+       if(itype.eq.tnonbond) then
+         call parse_nonbonded(u_nonbonded,u_mass,buffer)
+       end if
+       goto 11
+31     continue
+       close(10)
        end
       subroutine test_for_type(buffer,itype)
       implicit none
@@ -122,6 +124,23 @@ c       goto 10
       
       read(buffer,*) atyp1,m
       write(un,*) atyp1,m
+      end subroutine
+      subroutine locate_mass(un,atyp,m)
+      implicit none
+#include "amber_params.fh"
+      integer un
+      character*5 atyp   ![IN] atom name
+      double precision m ![OUT] mass
+c      
+      character*5 atyp1
+      m = -1.0
+      rewind(un)
+10    continue
+      read(un,*,ERR=30,END=30) atyp1,m
+      if(atyp.eq.atyp1) return
+      go to 10
+30    continue
+      return
       end subroutine
       subroutine parse_bond(un,buffer)
       implicit none
@@ -209,17 +228,19 @@ c       goto 10
       write(un,1001) atyp1,atyp2,atyp3,atyp4,phase,pk,INT(pn)
  1001 format(a5,"-",a5,"-",a5,"-",a5,f10.5,e12.5,i5)
       end subroutine
-      subroutine parse_nonbonded(un,buffer)
+      subroutine parse_nonbonded(un,un_mass,buffer)
       implicit none
 #include "amber_params.fh"
-      integer un
+      integer un,un_mass
       character*180 buffer
+      character*180 buffer1
       integer itype
       character*5 atyp1
       integer idivf
       double precision p1,p2
       double precision rmass
       double precision conv1,conv2
+      integer atn
       
       read(buffer,*) atyp1,p1,p2
       conv1 = ang_to_nm
@@ -227,8 +248,12 @@ c       goto 10
       write(*,*) "conv1,conv2",conv1,conv2
       p1 = p1*conv1
       p2 = p2*conv2
+      call locate_mass(un_mass,atyp1,rmass)
+      call get_atn_from_mass(atn,rmass)
       write(un,1001) atyp1,rmass,p2,p1
  1001 format(a5,f10.5,2e12.5,24X,4x,"1",1x,"1111111111")
+      write(un,1002) atn,0.5d0*p2,p1
+ 1002 format(10x,i5,2e12.5)
       end subroutine
       subroutine  get_atn_from_mass(atn,mass)
 c
