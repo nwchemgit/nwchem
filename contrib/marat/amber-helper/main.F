@@ -1,3 +1,4 @@
+C     created marat valiev
        program main
        implicit none
 #include "amber_params.fh"       
