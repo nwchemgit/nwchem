@@ -39,20 +39,6 @@ installation before beginning.  The sections for this guide are
                                   you set the default memory for your system
    Troubleshooting             -  if you have build problems
 
-SOURCE CODE PROTECTION:
-----------------------
-Your User agreement states that you will protect the source code from
-the general public.  You are not allowed to redistribute the software
-in any form.  Please make sure the source code is protected by issuing
-the following commands in the root NWChem directory (where this file
-lives):
-
-find . -exec chmod go-rwx "{}" ";"
-
-After building the code using the Basic Build Instructions, the binary and 
-data files may be placed in a public place for users.  See the General Site 
-Installation instructions for more information about which files to move.
-
 
 BASIC BUILD INSTRUCTIONS:
 -------------------------
