@@ -34,6 +34,7 @@ echo "charmm_x ${path_to_nwchem}/usr.local.lib.nwchem/charmm_x/"    >> default.n
 touch ${path_to_nwchem}/bin/nwdef.csh
 echo "# automatically generated on system `hostname` timestamp: `date`" >> ${path_to_nwchem}/bin/nwdef.csh
 echo "setenv NWCHEM_NWPW_LIBRARY ${path_to_nwchem}/usr.local.lib.nwchem/libraryps/" >> ${path_to_nwchem}/bin/nwdef.csh
+echo "setenv NWCHEM_BASIS_LIBRARY ${path_to_nwchem}/usr.local.lib.nwchem/libraries/" >> ${path_to_nwchem}/bin/nwdef.csh
 echo "set path=(${path_to_nwchem}/bin " '$path' " )" >> ${path_to_nwchem}/bin/nwdef.csh
 chmod ugo+x ${path_to_nwchem}/bin/nwdef.csh
 exit 0
