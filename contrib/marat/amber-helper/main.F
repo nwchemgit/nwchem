@@ -101,6 +101,7 @@ c      ----------------------------
        call append_section(u_param,u_dihedral)
        call append_section(u_param,u_improper)
        end
+c      
       subroutine test_for_type(buffer,itype)
       implicit none
 #include "amber_params.fh"
@@ -161,13 +162,15 @@ c
 30    continue
       return
       end subroutine
-      subroutine parse_bond(un,buffer)
+      subroutine parse_bond1(un,buffer)
       implicit none
 #include "amber_params.fh"
       integer un
       character*180 buffer
+      character*1 a1
       integer itype
       character*5 atyp1,atyp2
+      character*2 test
       double precision p1,p2
       double precision conv1,conv2
       
@@ -180,6 +183,117 @@ c
       p2 = p2*conv2
       write(un,1001) atyp1,atyp2,p1,p2
  1001 format(a5,"-",a5,f10.5,e12.5)
+      end subroutine
+      subroutine parse_bond(un,buffer)
+      implicit none
+#include "amber_params.fh"
+      integer un
+      character*180 buffer
+      character*180 stmp
+      character*20 sdbl
+      character*1 a1
+      integer itype
+      integer i,j,k,l
+      integer, parameter:: nfd=4
+      character*1 sep(4)
+      character*20 sp(nfd)
+      character*5 atyp1,atyp2
+      character*2 test
+      double precision p1,p2
+      double precision conv1,conv2
+      logical ostatus
+      
+      l=1
+      sep = "-"
+      call get_next_token(l,buffer,sep,atyp1,ostatus)
+      write(*,*) "found token",atyp1,ostatus,l
+      sep = " "
+      call get_next_token(l,buffer,sep,atyp1,ostatus)
+      write(*,*) "found token",atyp1,ostatus,l
+      call get_next_token(l,buffer,sep,sdbl,ostatus)
+      write(*,*) "found token",sdbl,ostatus,l
+      call get_next_token(l,buffer,sep,sdbl,ostatus)
+      write(*,*) "found token",sdbl,ostatus,l
+      stop
+      stmp = " "
+      sep = " "
+      sp= " "
+      sep(1) = "-"
+      l=len_trim(buffer)
+      j=1
+      k=0
+      do i=1,l
+       a1=buffer(i:i)
+       if(a1.eq." ") then
+         if(k.gt.0) then
+           write(*,*) "detected and of token",j
+           sp(j)=stmp
+           stmp=" "
+           k=0
+           j=j+1
+           if(j.gt.nfd) goto 30
+         end if
+       else if(a1.eq.sep(j)) then
+         sp(j)=stmp
+         stmp=" "
+         j=j+1
+         k=0
+         if(j.gt.nfd) goto 30
+       else
+         k = k+1
+         stmp(k:k) = a1
+         write(*,*) "j,k,stmp",j,k,stmp(k:k)
+       end if
+      end do
+      sp(j)=stmp
+30    continue
+      write(*,*) "sp",(sp(j),j=1,4)
+c      read(buffer,1000) atyp1,atyp2,p2,p1
+c 1000 FORMAT(A2,1X,A2,2F10.2)       
+      conv1 = ang_to_nm
+      conv2 = 2*kcal_to_kj/(ang_to_nm)**2
+      write(*,*) "conv1,conv2",conv1,conv2
+      p1 = p1*conv1
+      p2 = p2*conv2
+      write(un,1001) atyp1,atyp2,p1,p2
+ 1001 format(a5,"-",a5,f10.5,e12.5)
+      end subroutine
+c
+      subroutine get_next_token(i0,buffer,sep,token,ostatus)
+      implicit none
+#include "amber_params.fh"
+      integer i0
+      character(LEN=*) buffer
+      character(LEN=*) token
+      character*1 sep
+      logical ostatus
+c      
+      character*1 a1
+      integer i,k,lb,lt
+c      
+      token = " "
+      ostatus = .false.
+      lb=len(buffer)
+      lt=len(token)
+      write(*,*) "     get_next_token i0",i0,lb,lt
+      k=0
+      do i=i0,lb
+       a1=buffer(i:i)
+       write(*,*) "a1,i",a1,i
+       if(a1.eq." ") then
+         if(k.gt.0) goto 30
+       else if(a1.eq.sep.and.sep.ne." ") then
+         goto 30
+       else 
+         k = k+1
+         if(k.gt.lt) goto 30
+         token(k:k) = a1
+         write(*,*) "    token(k:k)",token(k:k)
+       end if
+      end do
+30    continue
+      i0=i+1
+      ostatus = k.gt.0
       end subroutine
       subroutine parse_angle(un,buffer)
       implicit none
