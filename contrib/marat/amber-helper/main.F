@@ -206,50 +206,12 @@ c
       l=1
       sep = "-"
       call get_next_token(l,buffer,sep,atyp1,ostatus)
-      write(*,*) "found token",atyp1,ostatus,l
       sep = " "
-      call get_next_token(l,buffer,sep,atyp1,ostatus)
-      write(*,*) "found token",atyp1,ostatus,l
+      call get_next_token(l,buffer,sep,atyp2,ostatus)
       call get_next_token(l,buffer,sep,sdbl,ostatus)
-      write(*,*) "found token",sdbl,ostatus,l
+      read(sdbl,*) p2
       call get_next_token(l,buffer,sep,sdbl,ostatus)
-      write(*,*) "found token",sdbl,ostatus,l
-      stop
-      stmp = " "
-      sep = " "
-      sp= " "
-      sep(1) = "-"
-      l=len_trim(buffer)
-      j=1
-      k=0
-      do i=1,l
-       a1=buffer(i:i)
-       if(a1.eq." ") then
-         if(k.gt.0) then
-           write(*,*) "detected and of token",j
-           sp(j)=stmp
-           stmp=" "
-           k=0
-           j=j+1
-           if(j.gt.nfd) goto 30
-         end if
-       else if(a1.eq.sep(j)) then
-         sp(j)=stmp
-         stmp=" "
-         j=j+1
-         k=0
-         if(j.gt.nfd) goto 30
-       else
-         k = k+1
-         stmp(k:k) = a1
-         write(*,*) "j,k,stmp",j,k,stmp(k:k)
-       end if
-      end do
-      sp(j)=stmp
-30    continue
-      write(*,*) "sp",(sp(j),j=1,4)
-c      read(buffer,1000) atyp1,atyp2,p2,p1
-c 1000 FORMAT(A2,1X,A2,2F10.2)       
+      read(sdbl,*) p1
       conv1 = ang_to_nm
       conv2 = 2*kcal_to_kj/(ang_to_nm)**2
       write(*,*) "conv1,conv2",conv1,conv2
