@@ -320,18 +320,19 @@ c
       end do
 c
       end
-
       subroutine append_section(un,un1)
       implicit none
 #include "amber_params.fh"
       integer un
       integer un1
 c      
+      integer i
       character*80 buffer
       rewind(un1)
 10    continue
       read(un1,'(A80)',ERR=30,END=30) buffer
-      write(un,*) buffer
+      i = len_trim(buffer)
+      write(un,*) buffer(1:i)
       go to 10
 30    continue
       return
