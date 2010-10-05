@@ -16,6 +16,7 @@
        integer u_improper
        integer u_mass
        integer u_nonbonded
+       integer u_param
 c
        buffer = "amber.in"
        inquire(file=buffer,exist=ofile)
@@ -30,20 +31,33 @@ c
        u_bond = 11
        open(u_bond,file="bond.dat",
      $            form='formatted',status='unknown')
+       write(u_bond,'(A5)') 
+     $ "Bonds"
        u_angle = 12
        open(u_angle,file="angle.dat",
      $            form='formatted',status='unknown')
+       write(u_angle,'(A6)') 
+     $ "Angles"
        u_dihedral = 13
        open(u_dihedral,file="dihedral.dat",
      $            form='formatted',status='unknown')
+       write(u_dihedral,'(A16)') 
+     $ "Proper dihedrals"
        u_improper = 14
        open(u_improper,file="improper.dat",
      $            form='formatted',status='unknown')
+       write(u_improper,'(A18)') 
+     $ "Improper dihedrals"
        u_mass     = 15
        open(u_mass,file="mass.dat",
      $            form='formatted',status='unknown')
        u_nonbonded     = 16
        open(u_nonbonded,file="nonbonded.dat",
+     $            form='formatted',status='unknown')
+       write(u_nonbonded,'(A5)') 
+     $ "Atoms"
+       u_param     = 17
+       open(u_param,file="amber.par",
      $            form='formatted',status='unknown')
        buffer = " "
 c
@@ -81,6 +95,11 @@ c      ----------------------------
        goto 11
 31     continue
        close(10)
+       call append_section(u_param,u_nonbonded)
+       call append_section(u_param,u_bond)
+       call append_section(u_param,u_angle)
+       call append_section(u_param,u_dihedral)
+       call append_section(u_param,u_improper)
        end
       subroutine test_for_type(buffer,itype)
       implicit none
@@ -302,6 +321,21 @@ c
 c
       end
 
+      subroutine append_section(un,un1)
+      implicit none
+#include "amber_params.fh"
+      integer un
+      integer un1
+c      
+      character*80 buffer
+      rewind(un1)
+10    continue
+      read(un1,'(A80)',ERR=30,END=30) buffer
+      write(un,*) buffer
+      go to 10
+30    continue
+      return
+      end subroutine
 c      function geom_tag_to_element(tag, symbol, element, atn)
 c      implicit none
 c      logical geom_tag_to_element
