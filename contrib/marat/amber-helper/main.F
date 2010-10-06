@@ -18,6 +18,7 @@
        integer u_nonbonded
        integer u_param
 c
+       write(*,*) "here"
        buffer = "amber.in"
        inquire(file=buffer,exist=ofile)
        if(ofile) then
@@ -95,6 +96,8 @@ c      ----------------------------
        goto 11
 31     continue
        close(10)
+       write(*,*) "here"
+       call append_header(u_param)
        call append_section(u_param,u_nonbonded)
        call append_section(u_param,u_bond)
        call append_section(u_param,u_angle)
@@ -162,28 +165,6 @@ c
 30    continue
       return
       end subroutine
-      subroutine parse_bond1(un,buffer)
-      implicit none
-#include "amber_params.fh"
-      integer un
-      character*180 buffer
-      character*1 a1
-      integer itype
-      character*5 atyp1,atyp2
-      character*2 test
-      double precision p1,p2
-      double precision conv1,conv2
-      
-      read(buffer,1000) atyp1,atyp2,p2,p1
- 1000 FORMAT(A2,1X,A2,2F10.2)       
-      conv1 = ang_to_nm
-      conv2 = 2*kcal_to_kj/(ang_to_nm)**2
-      write(*,*) "conv1,conv2",conv1,conv2
-      p1 = p1*conv1
-      p2 = p2*conv2
-      write(un,1001) atyp1,atyp2,p1,p2
- 1001 format(a5,"-",a5,f10.5,e12.5)
-      end subroutine
       subroutine parse_bond(un,buffer)
       implicit none
 #include "amber_params.fh"
@@ -216,7 +197,6 @@ c      read(sdbl,*) p2
       call get_next_token(l,buffer,sep,sdbl,ostatus)
       write(*,*) "p1",sdbl
 c      read(sdbl,*) p1
-      stop
       conv1 = ang_to_nm
       conv2 = 2*kcal_to_kj/(ang_to_nm)**2
       write(*,*) "conv1,conv2",conv1,conv2
@@ -228,12 +208,11 @@ c      read(sdbl,*) p1
 c
       subroutine get_next_token(i0,buffer,sep,token,ostatus)
       implicit none
-#include "amber_params.fh"
-      integer i0
-      character(LEN=*) buffer
-      character(LEN=*) token
-      character*1 sep
-      logical ostatus
+      integer ,         intent(inout) :: i0
+      character(LEN=*), intent(in)    :: buffer
+      character(LEN=*), intent(out)   :: token
+      character*1,      intent(in)    :: sep
+      logical,          intent(out)   :: ostatus
 c      
       character*1 a1
       integer i,k,lb,lt
@@ -245,9 +224,8 @@ c
       k=0
       do i=i0,lb
        a1=buffer(i:i)
-       write(*,*) "a1,i",a1,i
-       if(a1.eq." ".and.sep.eq." ") then
-          if(k.gt.0) goto 30
+       if(a1.eq." ") then
+          if(k.gt.0.and.sep.eq." ") goto 30
        else if(a1.eq.sep.and.sep.ne." ") then
           goto 30
        else
@@ -255,6 +233,15 @@ c
          if(k.gt.lt) goto 30
          token(k:k) = a1
        end if
+c       if(a1.eq." ".and.sep.eq." ") then
+c          if(k.gt.0) goto 30
+c       else if(a1.eq.sep.and.sep.ne." ") then
+c          goto 30
+c       else
+c         k = k+1
+c         if(k.gt.lt) goto 30
+c         token(k:k) = a1
+c       end if
       end do
 30    continue
       i0=i+1
@@ -269,9 +256,20 @@ c
       character*5 atyp1,atyp2,atyp3
       double precision p1,p2
       double precision conv1,conv2
-      
-      read(buffer,1000) atyp1,atyp2,atyp3,p2,p1
- 1000 FORMAT(A2,1X,A2,1X,A2,2F10.2)       
+      integer l
+      logical ostatus
+      character*20 sdbl
+
+      l=1
+      call get_next_token(l,buffer,"-",atyp1,ostatus)
+      call get_next_token(l,buffer,"-",atyp2,ostatus)
+      call get_next_token(l,buffer," ",atyp3,ostatus)
+      call get_next_token(l,buffer," ",sdbl,ostatus)
+      read(sdbl,*) p2
+      call get_next_token(l,buffer," ",sdbl,ostatus)
+      read(sdbl,*) p1
+c      read(buffer,1000) atyp1,atyp2,atyp3,p2,p1
+c 1000 FORMAT(A2,1X,A2,1X,A2,2F10.2)       
       conv1 = deg_to_rad
       conv2 = 2*kcal_to_kj
       write(*,*) "conv1,conv2",conv1,conv2
@@ -290,9 +288,26 @@ c
       integer idivf
       double precision pk,phase,pn
       double precision conv1,conv2
+      integer l
+      logical ostatus
+      character*20 sdbl
+
+      l=1
+      call get_next_token(l,buffer,"-",atyp1,ostatus)
+      call get_next_token(l,buffer,"-",atyp2,ostatus)
+      call get_next_token(l,buffer,"-",atyp3,ostatus)
+      call get_next_token(l,buffer," ",atyp4,ostatus)
+      call get_next_token(l,buffer," ",sdbl,ostatus)
+      read(sdbl,*) idivf
+      call get_next_token(l,buffer," ",sdbl,ostatus)
+      read(sdbl,*) pk
+      call get_next_token(l,buffer," ",sdbl,ostatus)
+      read(sdbl,*) phase
+      call get_next_token(l,buffer," ",sdbl,ostatus)
+      read(sdbl,*) pn
       
-      read(buffer,1000) atyp1,atyp2,atyp3,atyp4,idivf,pk,phase,pn
- 1000 FORMAT(A2,1X,A2,1X,A2,1X,A2,I4,3F15.2)
+c      read(buffer,1000) atyp1,atyp2,atyp3,atyp4,idivf,pk,phase,pn
+c 1000 FORMAT(A2,1X,A2,1X,A2,1X,A2,I4,3F15.2)
       conv1 = deg_to_rad
       conv2 = kcal_to_kj
       write(*,*) "conv1,conv2",conv1,conv2
@@ -313,9 +328,24 @@ c
       integer idivf
       double precision pk,phase,pn
       double precision conv1,conv2
+      integer l
+      logical ostatus
+      character*20 sdbl
+
+      l=1
+      call get_next_token(l,buffer,"-",atyp1,ostatus)
+      call get_next_token(l,buffer,"-",atyp2,ostatus)
+      call get_next_token(l,buffer,"-",atyp3,ostatus)
+      call get_next_token(l,buffer," ",atyp4,ostatus)
+      call get_next_token(l,buffer," ",sdbl,ostatus)
+      read(sdbl,*) pk
+      call get_next_token(l,buffer," ",sdbl,ostatus)
+      read(sdbl,*) phase
+      call get_next_token(l,buffer," ",sdbl,ostatus)
+      read(sdbl,*) pn
       
-      read(buffer,1000) atyp1,atyp2,atyp3,atyp4,pk,phase,pn
- 1000 FORMAT(A2,1X,A2,1X,A2,1X,A2,3F15.2)
+c      read(buffer,1000) atyp1,atyp2,atyp3,atyp4,pk,phase,pn
+c 1000 FORMAT(A2,1X,A2,1X,A2,1X,A2,3F15.2)
       conv1 = deg_to_rad
       conv2 = kcal_to_kj
       write(*,*) "conv1,conv2",conv1,conv2
@@ -411,122 +441,36 @@ c
 10    continue
       read(un1,'(A80)',ERR=30,END=30) buffer
       i = len_trim(buffer)
-      write(un,*) buffer(1:i)
+      write(un,'(A)') buffer(1:i)
       go to 10
 30    continue
       return
       end subroutine
-c      function geom_tag_to_element(tag, symbol, element, atn)
-c      implicit none
-c      logical geom_tag_to_element
-c      character*2 symbols(nelements)
-c      character*16 elements(nelements)
-c      character*16 tag          ! [input]
-c      character*(*) symbol      ! [output]
-c      character*(*) element     ! [output]
-c      integer atn               ! [output]
-cc
-cc     attempt to figure out which element a tag refers to
-cc     and return the symbol, name and atomic no.
-cc
-c      integer lbuf, ind
-c      character*16 buf
-c      character*1 sym1(14)      ! 1 character atomic symbols+atomic no.s
-c      integer atn1(14)
-c      character*2 amber_types_name(40)
-c      integer amber_types_atn(40)
-c
-c      data amber_types_name/ 
-c     $ 'CT','C ','CA','CM','CC','CV','CW','CR','CB','C*','CN','CK','CQ',
-c     $ 'N ' ,'NA' ,'NB' ,'NC' ,'N*' ,'N2' ,'N3',
-c     $ 'OW' ,'OH' ,'OS' ,'O ' ,'O2', 
-c     $ 'S ' ,'SH' ,
-c     $ 'P ',
-c     $ 'H ','HW','HO','HS','HA','HC','H1','H2','H3','HP','H4','H5'/ 
-c      data amber_types_atn/ 
-c     $ 6,6,6,6,6,6,6,6,6,6,6,6,6,
-c     $ 7,7,7,7,7,7,7,
-c     $ 8,8,8,8,8,
-c     $ 16,16,
-c     $ 15,
-c     $ 1,1,1,1,1,1,1,1,1,1,1,1/
-c
-c      data sym1/'H','B','C','N','O','F','P','S','K','V','Y','I','W','U'/
-c      data atn1/ 1 , 5 , 6 , 7 , 8 , 9 , 15, 16, 19, 23, 39, 53, 74, 92/
-c
-c      geom_tag_to_element = .false.
-cc
-cc     eliminate conventions that refer to centers used for
-cc     computation purposes .. just bq and x for now
-cc
-c      buf = tag
-c      lbuf = inp_strlen(buf)
-c      if (lbuf .eq. 0) return
-cc
-c      call inp_lcase(buf)
-c      if (buf(1:2) .eq. 'bq' .or. 
-c     $     ((buf(1:1).eq.'x') .and. (buf(2:2).ne.'e'))) then ! X but not Xe
-c         element = 'point charge' ! Note that false is returned
-c         symbol  = 'bq'
-c         atn     = 0
-c         return
-c      end if
-cc
-cc     Attempt to match the first 4 characters of the
-cc     full names of the elements
-cc
-c      atn = 0
-c      if (lbuf .ge. 4) then
-c        do ind = 1,nelements
-c          if (inp_compare(.false.,buf(1:4),elements(ind)(1:4))) then
-c            symbol  = symbols(ind)
-c            element = elements(ind)
-c            atn     = ind
-c            geom_tag_to_element = .true.
-c            return
-c          endif
-c        enddo
-c      end if
-cc
-cc     Failed ... attempt to match the first two characters
-cc     against two character element names
-cc
-c      if (buf(2:2) .ne. ' ') then
-c         if (inp_match(nelements,.false.,buf(1:2),symbols,ind)) then
-c            symbol  = symbols(ind)
-c            element = elements(ind)
-c            atn     = ind
-c            geom_tag_to_element = .true.
-c            return
-c         end if
-c      end if
-cc
-cc     Last ditch attempt ... match against 1 character symbols
-cc
-c      if (inp_match(14, .false., buf(1:1), sym1, ind)) then
-c         ind = atn1(ind)
-c         symbol  = symbols(ind)
-c         element = elements(ind)
-c         atn     = ind
-c         geom_tag_to_element = .true.
-c         return
-c      end if
-cc
-c      if (inp_match(14, .false., buf(2:2), sym1, ind)) then
-c         ind = atn1(ind)
-c         symbol  = symbols(ind)
-c         element = elements(ind)
-c         atn     = ind
-c         geom_tag_to_element = .true.
-c         return
-c      end if
-ccc
-cc     Nothing matched
-cc
-c      symbol = ' '
-c      element = ' '
-c      atn = 0
-c      return
-cc
-c      end
+      subroutine append_header(un)
+      implicit none
+#include "amber_params.fh"
+      integer un
+      integer un1
+c      
+      integer i
+      character*80 buffer
+      write(*,*) "appending header"
+      buffer = "#Generated amber.par file"
+      i = len_trim(buffer)
+      write(un,1000) buffer(1:i)
+      buffer = "Electrostatic 1-4 scaling factor     0.833333"     
+      i = len_trim(buffer)
+      write(un,1000) buffer(1:i)
+      buffer = "Relative dielectric constant     1.000000" 
+      i = len_trim(buffer)
+      write(un,1000) buffer(1:i)
+      buffer = "Parameters epsilon R*"
+      i = len_trim(buffer)
+      write(un,1000) buffer(1:i)
+      buffer = "#"
+      i = len_trim(buffer)
+      write(un,1000) buffer(1:i)
+1000  FORMAT(A)
+      return
+      end subroutine
 
