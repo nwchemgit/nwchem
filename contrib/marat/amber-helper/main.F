@@ -206,12 +206,17 @@ c
       l=1
       sep = "-"
       call get_next_token(l,buffer,sep,atyp1,ostatus)
+      write(*,*) "atyp1",atyp1
       sep = " "
       call get_next_token(l,buffer,sep,atyp2,ostatus)
+      write(*,*) "atyp2",atyp2
       call get_next_token(l,buffer,sep,sdbl,ostatus)
-      read(sdbl,*) p2
+      write(*,*) "p2",sdbl
+c      read(sdbl,*) p2
       call get_next_token(l,buffer,sep,sdbl,ostatus)
-      read(sdbl,*) p1
+      write(*,*) "p1",sdbl
+c      read(sdbl,*) p1
+      stop
       conv1 = ang_to_nm
       conv2 = 2*kcal_to_kj/(ang_to_nm)**2
       write(*,*) "conv1,conv2",conv1,conv2
@@ -237,20 +242,18 @@ c
       ostatus = .false.
       lb=len(buffer)
       lt=len(token)
-      write(*,*) "     get_next_token i0",i0,lb,lt
       k=0
       do i=i0,lb
        a1=buffer(i:i)
        write(*,*) "a1,i",a1,i
-       if(a1.eq." ") then
-         if(k.gt.0) goto 30
+       if(a1.eq." ".and.sep.eq." ") then
+          if(k.gt.0) goto 30
        else if(a1.eq.sep.and.sep.ne." ") then
-         goto 30
-       else 
+          goto 30
+       else
          k = k+1
          if(k.gt.lt) goto 30
          token(k:k) = a1
-         write(*,*) "    token(k:k)",token(k:k)
        end if
       end do
 30    continue
