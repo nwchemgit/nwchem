@@ -141,20 +141,7 @@ c
 c     Set up SCF and DFT stuff for shielding and spinspin CPHF
 c     Also for general more improved accuracy of properties
 c
-      ithresh = 1.0d-6
-      if (.not. rtdb_get(rtdb, 'scf:thresh', MT_DBL, 1, tthresh))
-     $    tthresh = 1.0d-4
-      if (tthresh.lt.ithresh) ithresh = tthresh
-      if (.not. rtdb_put(rtdb, 'scf:thresh', MT_DBL, 1, ithresh))
-     $    call errquit('hnd_property: rtdb_put failed',ithresh,
-     &                 RTDB_ERR)
       if (theory.eq.'dft' .and. .not. nocheck) then
-         if (.not. rtdb_get(rtdb, 'dft:g_conv', MT_DBL, 1, tthresh))
-     $       tthresh = 1.0d-4
-         if (tthresh.lt.ithresh) ithresh = tthresh
-         if (.not. rtdb_put(rtdb, 'dft:g_conv', MT_DBL, 1, ithresh))
-     $       call errquit('hnd_property: rtdb_put failed',ithresh,
-     &                    RTDB_ERR)
 c
 c     set grid to fine or leave the user to set it to xfine
 c
