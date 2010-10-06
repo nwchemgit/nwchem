@@ -99,6 +99,11 @@ BASIC BUILD INSTRUCTIONS:
 
        % setenv NWCHEM_TOP /home/adrian/nwchem
 
+   For release versions the directory name must include the release tag.
+   A suitable name would be e.g.
+
+       % setenv NWCHEM_TOP /home/adrian/nwchem-<release tag>
+
    All the following directions assume that the current working
    directory is $NWCHEM_TOP/src so issue the command 
    "cd $NWCHEM_TOP/src"

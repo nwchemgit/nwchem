@@ -62,7 +62,7 @@ error2:
 	@echo     setenv NWCHEM_TARGET SOLARIS
 	@echo Known targets are SOLARIS, SGI_N32, ...
 	@echo See the INSTALL instructions for a complete list
-	@exit 1
+	@exit 2
 endif
 
      TARGET := $(NWCHEM_TARGET)
@@ -71,7 +71,30 @@ ifeq (,$(RELEASE))
      CODE_BRANCH := Development
 else
 ifeq (,$(findstring $(RELEASE),$(NWCHEM_TOP)))
-     TOPDIR := $(NWCHEM_TOP)-$(RELEASE)
+error3:
+	@echo
+	@echo
+	@echo === ERROR: invalid directory name $(NWCHEM_TOP) ===
+	@echo
+	@echo NWChem insists that the release number is part of the
+	@echo top level directory name. It does not matter where
+	@echo the release number appears but it has to be present.
+	@echo
+	@echo Examples of valid top level directory names are:
+	@echo
+	@echo "   - $(NWCHEM_TOP)-$(RELEASE)"
+	@echo "   - $(RELEASE)-nwchem-build"
+	@echo "   - nwchem-$(RELEASE)-again"
+	@echo "   - nwchem$(RELEASE)"
+	@echo "   - aaa$(RELEASE)zzz"
+	@echo
+	@echo Please move the source code directoy to one that
+	@echo matches this naming requirement.
+	@echo
+	@echo === ERROR: invalid directory name $(NWCHEM_TOP) ===
+	@echo
+	@echo
+	@exit 3
 else
      TOPDIR := $(NWCHEM_TOP)
 endif
