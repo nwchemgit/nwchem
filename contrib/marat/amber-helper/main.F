@@ -1,3 +1,17 @@
+***********************************************************************
+*    This program converts amber style parameters contained in amber.in
+*    into NWChem format into amber.par
+*    Comments:
+*    The program expects AMBER parameters to be in amber.in file
+*    No fixed formatting is assumed and
+*    lines prefixed by # will be ignored 
+*    NWChem parameter file will be generated in amber.par.
+*    If amber.par is present prior to run, the code will issue an
+*    error.
+*        
+*    Date:   10/07/2010
+*    Author: Marat Valiev (PNNL)
+***********************************************************************
        program main
        implicit none
 #include "amber_params.fh"       
@@ -18,54 +32,48 @@
        integer u_nonbonded
        integer u_param
 c
-       write(*,*) "here"
        buffer = "amber.in"
        inquire(file=buffer,exist=ofile)
        if(ofile) then
           open(10,file=buffer,
      $            form='formatted',status='old')
        else
-         write(6,*) "no file found"//buffer
+         write(6,*) "no file found "//buffer
          return
        end if 
 
        u_bond = 11
-       open(u_bond,file="bond.dat",
-     $            form='formatted',status='unknown')
+       open(u_bond,form='formatted',status='scratch')
        write(u_bond,'(A5)') 
      $ "Bonds"
        u_angle = 12
-       open(u_angle,file="angle.dat",
-     $            form='formatted',status='unknown')
+       open(u_angle,form='formatted',status='scratch')
        write(u_angle,'(A6)') 
      $ "Angles"
        u_dihedral = 13
-       open(u_dihedral,file="dihedral.dat",
-     $            form='formatted',status='unknown')
+       open(u_dihedral,form='formatted',status='scratch')
        write(u_dihedral,'(A16)') 
      $ "Proper dihedrals"
        u_improper = 14
-       open(u_improper,file="improper.dat",
-     $            form='formatted',status='unknown')
+       open(u_improper,form='formatted',status='scratch')
        write(u_improper,'(A18)') 
      $ "Improper dihedrals"
        u_mass     = 15
-       open(u_mass,file="mass.dat",
-     $            form='formatted',status='unknown')
+       open(u_mass,form='formatted',status='scratch')
        u_nonbonded     = 16
-       open(u_nonbonded,file="nonbonded.dat",
-     $            form='formatted',status='unknown')
+       open(u_nonbonded,form='formatted',status='scratch')
        write(u_nonbonded,'(A5)') 
      $ "Atoms"
        u_param     = 17
        open(u_param,file="amber.par",
-     $            form='formatted',status='unknown')
+     $            form='formatted',status='new')
        buffer = " "
 c
 c      parse all the sections except nonbonding
 c      ----------------------------------------
 10     continue 
        read(10,'(A180)',ERR=30,END=30) buffer
+       if(buffer(1:1).eq."#") goto 10
        call test_for_type(buffer,itype)
        if(buffer.eq." ") goto 10
        if(itype.eq.tbond) then
@@ -84,7 +92,6 @@ c      ----------------------------------------
 c
 c      now parse nonbonding section
 c      ----------------------------
-       write(*,*) "parsing nonbonding section"
        rewind(10)
 11     continue
        read(10,'(A180)',ERR=31,END=31) buffer
@@ -96,13 +103,13 @@ c      ----------------------------
        goto 11
 31     continue
        close(10)
-       write(*,*) "here"
        call append_header(u_param)
        call append_section(u_param,u_nonbonded)
        call append_section(u_param,u_bond)
        call append_section(u_param,u_angle)
        call append_section(u_param,u_dihedral)
        call append_section(u_param,u_improper)
+       call append_footer(u_param)
        end
 c      
       subroutine test_for_type(buffer,itype)
@@ -113,27 +120,21 @@ c
       if(INDEX(buffer(1:4),"BOND").ne.0) then
         itype = tbond 
         buffer=" "
-        write(*,*) "found BOND"
       else if(INDEX(buffer(1:4),"MASS").ne.0) then
         itype = tmass
-        write(*,*) "found MASS"
         buffer=" "
       else if(INDEX(buffer(1:5),"ANGLE").ne.0) then
         itype = tangle
-        write(*,*) "found ANGLE"
         buffer=" "
       else if(INDEX(buffer(1:8),"NONBOND").ne.0) then
         itype = tnonbond
-        write(*,*) "found NONBOND"
         buffer=" "
       else if(INDEX(buffer(1:8),"IMPROPER").ne.0) then
         itype = timproper
-        write(*,*) "found IMPROPER"
         buffer=" "
       else if(INDEX(buffer(1:8),"DIHEDRAL").ne.0) then
         itype = tdihedral
         buffer=" "
-        write(*,*) "found DIHEDRAL"
       end if
       end subroutine
       subroutine parse_mass(un,buffer)
@@ -187,23 +188,18 @@ c
       l=1
       sep = "-"
       call get_next_token(l,buffer,sep,atyp1,ostatus)
-      write(*,*) "atyp1",atyp1
       sep = " "
       call get_next_token(l,buffer,sep,atyp2,ostatus)
-      write(*,*) "atyp2",atyp2
       call get_next_token(l,buffer,sep,sdbl,ostatus)
-      write(*,*) "p2",sdbl
-c      read(sdbl,*) p2
+      read(sdbl,*) p2
       call get_next_token(l,buffer,sep,sdbl,ostatus)
-      write(*,*) "p1",sdbl
-c      read(sdbl,*) p1
+      read(sdbl,*) p1
       conv1 = ang_to_nm
       conv2 = 2*kcal_to_kj/(ang_to_nm)**2
-      write(*,*) "conv1,conv2",conv1,conv2
       p1 = p1*conv1
       p2 = p2*conv2
       write(un,1001) atyp1,atyp2,p1,p2
- 1001 format(a5,"-",a5,f10.5,e12.5)
+ 1001 format(a5,"-",a5,f10.5,es12.5)
       end subroutine
 c
       subroutine get_next_token(i0,buffer,sep,token,ostatus)
@@ -272,11 +268,10 @@ c      read(buffer,1000) atyp1,atyp2,atyp3,p2,p1
 c 1000 FORMAT(A2,1X,A2,1X,A2,2F10.2)       
       conv1 = deg_to_rad
       conv2 = 2*kcal_to_kj
-      write(*,*) "conv1,conv2",conv1,conv2
       p1 = p1*conv1
       p2 = p2*conv2
       write(un,1001) atyp1,atyp2,atyp3,p1,p2
- 1001 format(a5,"-",a5,"-",a5,f10.5,e12.5)
+ 1001 format(a5,"-",a5,"-",a5,f10.5,es12.5)
       end subroutine
       subroutine parse_dihedral(un,buffer)
       implicit none
@@ -310,13 +305,12 @@ c      read(buffer,1000) atyp1,atyp2,atyp3,atyp4,idivf,pk,phase,pn
 c 1000 FORMAT(A2,1X,A2,1X,A2,1X,A2,I4,3F15.2)
       conv1 = deg_to_rad
       conv2 = kcal_to_kj
-      write(*,*) "conv1,conv2",conv1,conv2
       phase = phase*conv1
       pk = pk*conv2/idivf
       if(atyp1.eq."X") atyp1=" "
       if(atyp4.eq."X") atyp4=" "
       write(un,1001) atyp1,atyp2,atyp3,atyp4,phase,pk,INT(pn)
- 1001 format(a5,"-",a5,"-",a5,"-",a5,f10.5,e12.5,i5)
+ 1001 format(a5,"-",a5,"-",a5,"-",a5,f10.5,es12.5,i5)
       end subroutine
       subroutine parse_improper(un,buffer)
       implicit none
@@ -348,13 +342,12 @@ c      read(buffer,1000) atyp1,atyp2,atyp3,atyp4,pk,phase,pn
 c 1000 FORMAT(A2,1X,A2,1X,A2,1X,A2,3F15.2)
       conv1 = deg_to_rad
       conv2 = kcal_to_kj
-      write(*,*) "conv1,conv2",conv1,conv2
       phase = phase*conv1
       pk = pk*conv2
       if(atyp1.eq."X") atyp1=" "
       if(atyp2.eq."X") atyp2=" "
       write(un,1001) atyp1,atyp2,atyp3,atyp4,phase,pk,INT(pn)
- 1001 format(a5,"-",a5,"-",a5,"-",a5,f10.5,e12.5,i5)
+ 1001 format(a5,"-",a5,"-",a5,"-",a5,f10.5,es12.5,i5)
       end subroutine
       subroutine parse_nonbonded(un,un_mass,buffer)
       implicit none
@@ -373,15 +366,14 @@ c 1000 FORMAT(A2,1X,A2,1X,A2,1X,A2,3F15.2)
       read(buffer,*) atyp1,p1,p2
       conv1 = ang_to_nm
       conv2 = kcal_to_kj
-      write(*,*) "conv1,conv2",conv1,conv2
       p1 = p1*conv1
       p2 = p2*conv2
       call locate_mass(un_mass,atyp1,rmass)
       call get_atn_from_mass(atn,rmass)
       write(un,1001) atyp1,rmass,p2,p1
- 1001 format(a5,f10.5,2e12.5,24X,4x,"1",1x,"1111111111")
+ 1001 format(a5,f10.5,2es12.5,24X,4x,"1",1x,"1111111111 ")
       write(un,1002) atn,0.5d0*p2,p1
- 1002 format(10x,i5,2e12.5)
+ 1002 format(10x,i5,2es12.5)
       end subroutine
       subroutine  get_atn_from_mass(atn,mass)
 c
@@ -454,7 +446,6 @@ c
 c      
       integer i
       character*80 buffer
-      write(*,*) "appending header"
       buffer = "#Generated amber.par file"
       i = len_trim(buffer)
       write(un,1000) buffer(1:i)
@@ -468,6 +459,20 @@ c
       i = len_trim(buffer)
       write(un,1000) buffer(1:i)
       buffer = "#"
+      i = len_trim(buffer)
+      write(un,1000) buffer(1:i)
+1000  FORMAT(A)
+      return
+      end subroutine
+      subroutine append_footer(un)
+      implicit none
+#include "amber_params.fh"
+      integer un
+      integer un1
+c      
+      integer i
+      character*80 buffer
+      buffer = "End"
       i = len_trim(buffer)
       write(un,1000) buffer(1:i)
 1000  FORMAT(A)

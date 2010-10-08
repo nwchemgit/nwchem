@@ -1,0 +1,14 @@
+1. To compile set evironmental variable FC to your Fortran90 compiler 
+    (.eg. setenv FC gfortran) and run make
+2. To run type
+   ./amber-helper
+3. The program expects AMBER parameters to be in amber.in file 
+   (see included amber.in.ref for example). No fixed formatting is assumed and
+   lines prefixed by # will be ignored (see example file)
+4. NWChem parameter file will be generated in amber.par. 
+   If amber.par is present prior to run, the code will issue an error.
+5. For information regarding units for NWChem amber.par file see enclosed
+   parameter-file.pdf
+
+   Marat Valiev, PNNL
+   October 7, 2010
