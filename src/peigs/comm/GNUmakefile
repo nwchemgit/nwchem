@@ -3,7 +3,7 @@
 #
 include ../../config/makefile.h
 include ../DEFS
-NOCASENS = CYGNUS MACX CYGWIN INTERIX
+NOCASENS = CYGNUS MACX64 MACX CYGWIN INTERIX
 ifneq ($(peigs_TARGET),$(findstring $(peigs_TARGET), $(NOCASENS)))
 	REMOVESF=TRUE
 endif
