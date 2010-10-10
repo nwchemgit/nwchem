@@ -1,6 +1,6 @@
 EXE	= amber-helper
 SRCS = \
-main.F
+main.F test.F
 OBJS =$(SRCS:.f=.o)
 ${EXE}: $(OBJS) ;
 	${FC} -o ${EXE} ${OBJS}

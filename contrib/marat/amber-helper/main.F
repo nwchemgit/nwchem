@@ -1,13 +1,15 @@
 ***********************************************************************
 *    This program converts amber style parameters contained in amber.in
 *    into NWChem format into amber.par
-*    Comments:
+*    Comments: To run type
+*    ./amber-helper file_in file_out
+*    where file_in is AMBER parameter file and
+*    file_out NWChem parameter file to be created.
+*    In the absence of command line arguments
+*    file_in = "amber.in" and file_out="amber.par"
 *    The program expects AMBER parameters to be in amber.in file
-*    No fixed formatting is assumed and
+*    No fixed formatting in AMBER parameter file is assumed and
 *    lines prefixed by # will be ignored 
-*    NWChem parameter file will be generated in amber.par.
-*    If amber.par is present prior to run, the code will issue an
-*    error.
 *        
 *    Date:   10/07/2010
 *    Author: Marat Valiev (PNNL)
@@ -31,11 +33,24 @@
        integer u_mass
        integer u_nonbonded
        integer u_param
+       character*180 file_in
+       character*180 file_out
+       integer l
+       integer istatus
 c
-       buffer = "amber.in"
-       inquire(file=buffer,exist=ofile)
+       n = command_argument_count()
+c      default values for input/output files       
+       file_in  = "amber.in "
+       file_out = "amber.par"
+c      parse command line if any
+       call get_command_argument(1,buffer,l,istatus)
+       if(istatus.eq.0) file_in = buffer
+       call get_command_argument(2,buffer,l,istatus)
+       if(istatus.eq.0) file_out = buffer
+c       
+       inquire(file=file_in,exist=ofile)
        if(ofile) then
-          open(10,file=buffer,
+          open(10,file=file_in,
      $            form='formatted',status='old')
        else
          write(6,*) "no file found "//buffer
@@ -65,7 +80,7 @@ c
        write(u_nonbonded,'(A5)') 
      $ "Atoms"
        u_param     = 17
-       open(u_param,file="amber.par",
+       open(u_param,file=file_out,
      $            form='formatted',status='new')
        buffer = " "
 c
