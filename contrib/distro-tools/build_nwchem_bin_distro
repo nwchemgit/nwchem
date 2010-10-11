@@ -45,7 +45,13 @@ cp -a ${source}/src/data/* ${target}/usr.local.lib.nwchem/.
 cp -a ${source}/src/basis/libraries ${target}/usr.local.lib.nwchem/.
 cp -a ${source}/src/nwpw/libraryps ${target}/usr.local.lib.nwchem/.
 cp -a ${source}/QA ${target}/.
+if [ -d ${target}/QA/testoutputs ] ; then
+   echo "Found validation results in " $target "Deleting it now..."
+   rm -rf ${target}/QA/testoutputs
+   echo "Validation results removed."
+fi
+find ${target}/QA -name "doalltests*" -exec rm -f {} \; -print
 find ${target} -name .svn -exec rm -rf {} \; -print
 tar -vzcf ${target}.tgz ${distro} 2>&1 > ${target}.MANIFEST
 tar -cf ${target}.tar ${distro}
-bzip2 ${target}.tar
+bzip2 -f ${target}.tar

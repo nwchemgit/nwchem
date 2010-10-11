@@ -1,0 +1,84 @@
+#!/bin/bash
+if [ $# != 1 ] ; then
+  echo "Usage: $0 source-directory"
+  echo ""
+  echo "The source-directory is the directory in which the source code"
+  echo "lives. This code and the data files are copied from there into"
+  echo "the distribution directory. Any artifacts from testing the code"
+  echo "are removed and the resulting directory packaged as a compressed"
+  echo "tar-file."
+  exit 1
+fi
+source=`pwd`/$1
+distro=nwchem-6.0
+target=`pwd`/${distro}
+echo "Generating source distro"
+echo "Source: " ${source}
+echo "Target: " ${target}
+if [ -d ${target} ] ; then
+  echo "Old version of" $target "already exists!?"
+  echo "Please move or remove it."
+  exit 2
+fi
+cp -a ${source} ${target}
+export NWCHEM_TOP=${target}
+#
+# Make sure we include the Global Arrays
+#
+echo -n "Check for Global Arrays... "
+if [ -d ${target}/src/tools/global ] ; then
+  echo "OK"
+else
+  echo "No Global Arrays."
+  echo "Running get-tools to get them..."
+  pushd ${target}/src/tools/global
+  ./get-tools
+  popd
+  if [ -d ${target}/src/tools/global ] ; then
+    echo "Retrieved Global Arrays"
+  else
+    echo "Failed to get Global Arrays. Aborting..."
+    exit 3
+  fi
+fi
+#
+# Add version info (might actually depend on the build so defer...)
+#
+#pushd ${target}/src/util
+#make version
+#popd
+#
+# Clean the distribution up before packaging it.
+#
+echo -n "Cleaning up any build/testing garbage... "
+# Next line is to deal with the diana module...
+svn revert ${target}/src/config/make_nwchem_config
+pushd ${target}/src
+make -j 1 realclean                                         2>&1 > /dev/null
+popd
+if [ -d ${target}/lib ] ; then
+  rm -rf ${target}/lib
+fi
+if [ -d ${target}/src/tools/lib ] ; then
+  rm -rf ${target}/src/tools/lib
+fi
+if [ -d ${target}/src/tools/include ] ; then
+  rm -rf ${target}/src/tools/include
+fi
+if [ -d ${target}/src/stubs.F ] ; then
+  rm -rf ${target}/src/stubs.F
+fi
+find ${target} -name .svn -exec rm -rf {} \;                2>&1 > /dev/null
+find ${target} -name testoutputs -exec rm -rf {} \;         2>&1 > /dev/null
+find ${target} -name bin -exec rm -rf {} \;                 2>&1 > /dev/null
+find ${target} -name include_stamp -exec rm -rf {} \;       2>&1 > /dev/null
+find ${target} -name dependencies -exec rm -rf {} \;        2>&1 > /dev/null
+find ${target} -name "doalltests.*" -exec rm -rf {} \;      2>&1 > /dev/null
+find ${target} -name "build_nwchem*.log" -exec rm -rf {} \; 2>&1 > /dev/null
+echo "Done."
+#
+# Now package it all up
+#
+echo -n "Tarring everything up... "
+tar -vzcf ${target}.tar.gz ${distro} 2>&1 > ${target}.MANIFEST
+echo "Done."
