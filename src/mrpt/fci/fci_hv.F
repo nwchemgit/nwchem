@@ -38,8 +38,8 @@ c
 c
       numav = min(nwalko, 256)
 c
- 10   kblmax = max(kdimmx, numav*avgdim) ! Max dets per block
-      i1dim  = max(nonemx, numav*avgone)
+ 10   kblmax = max(kdimmx, int(numav*avgdim)) ! Max dets per block
+      i1dim  = max(nonemx, int(numav*avgone))
 c
       ihmod = 1                 ! Modified h ... h + 1/2 sum(k) (ik|kj)
       ionel = ihmod + nacttr    ! 1-e coupling coefficients
