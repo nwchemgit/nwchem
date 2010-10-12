@@ -664,7 +664,7 @@ c
 #include "stdio.fh"
 c
 c     In the database may be an entry 'reorder' which is a list
-c     containing the new ordering of the atoms. The MO blocks over each atom's
+c     containing the new ordering of the atoms. The MO blocks over each atoms
 c     range of basis functions will be reordered according to this list.
 c
 c     Apply these to the input vectors only (eigenvalues and
@@ -926,7 +926,7 @@ c
          if (basissum.ne.filebasissum .or. geomsum.ne.filegeomsum) 
      $        goto 10
 c     
-c     Cool ... it's converged!
+c     Cool ... it is converged!
 c
          status = .true.
       endif
