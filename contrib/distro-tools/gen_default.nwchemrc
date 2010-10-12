@@ -22,6 +22,7 @@ cd ./etc
 touch default.nwchemrc
 echo "# automatically generated on system `hostname` timestamp: `date`" >> default.nwchemrc
 echo "nwchem_basis_library ${path_to_nwchem}/usr.local.lib.nwchem/libraries/" >> default.nwchemrc
+echo "nwchem_nwpw_library ${path_to_nwchem}/usr.local.lib.nwchem/libraries/" >> default.nwchemrc
 echo "ffield amber"                                        >> default.nwchemrc
 echo "amber_1 ${path_to_nwchem}/usr.local.lib.nwchem/amber_s/"       >> default.nwchemrc
 echo "amber_2 ${path_to_nwchem}/usr.local.lib.nwchem/amber_x/"       >> default.nwchemrc
