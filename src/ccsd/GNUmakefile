@@ -2,6 +2,8 @@
 
 include ../config/makefile.h
 
+ LIB_DEFINES =
+
  OBJ = 	ccden_driver.o \
 		ccden_interm2.o \
 		ccden_1pdm.o \
@@ -81,6 +83,12 @@ endif
      ccsd_mktau_ga.F \
      ccden_2pdmb.F aoccsd2.F \
      moints_trp.F
+
+ifdef BGP
+ OBJ_OPTIMIZE += ccsd_trpdrv_bgp2.o ccsd_tengy_bgp2.o
+ USES_BLAS += ccsd_trpdrv_bgp2.F
+ LIB_DEFINES += -DBGP
+endif
 
  #LIB_DEFINES = 
  #LIB_DEFINES = -DDEBUG_PRINT
