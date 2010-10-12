@@ -24,7 +24,7 @@ c
      &     g_exch,oseg_lo,oseg_hi
 c     
       double precision eaijk,eccsdt
-      integer a,b,c,i,j,k,akold,av,inode,len,ad1,ad2,ad3,
+      integer a,b,c,i,j,k,akold,av,inode,len,
      &     next,nxtask
       external nxtask
 C     
@@ -383,9 +383,6 @@ c
      $                       Kka(1+(k-klo)*lnvv),
      $                       Tij,f1t,f2t,f3t,f4t,nocc,nvir)
 c     
-                        ad1=(k-1)*lnov
-                        ad2=(i-1)*lnov
-c     
 c     sum(l) (Jij, Kij)cl  * Tkl,ab -> Fbc
 c     
                         call ccsd_doooo(Jkj(1+(k-klo)*lnov),
@@ -410,24 +407,17 @@ c
                         eaijk=eorb(ncor+i)+eorb(ncor+j)+eorb(ncor+k)
      $                       -eorb(a)
 c
-                        ad1=(j-1)*lnov+(i-1)*nvir
-                        ad2=(i-1)*lnov+(j-1)*nvir
-                        ad3=(k-1)*nvir+1
-c
                         call ccsd_tengy(f1n,f1t,f2n,f2t,f3n,f3t,f4n,
      $                       f4t,
      &                       Dja(1+(i-1)*nvir),Djia(1+(i-1)*nvir),
-     $                       t1(ad3),eorb,eaijk,emp4,emp5,
+     $                       t1((k-1)*nvir+1),eorb,eaijk,emp4,emp5,
      $                       ncor,nocc,nvir)
 c     
                         if (i.ne.k)then
-                           ad1=(j-1)*lnov+(k-1)*nvir
-                           ad2=(k-1)*lnov+(j-1)*nvir
-                           ad3=(i-1)*nvir+1
                            call ccsd_tengy(f1t,f1n,f2t,f2n,
      $                          f3t,f3n,f4t,f4n,
      $                          Dja(1+(k-1)*nvir),Djka(1+(k-klo)*nvir), 
-     $                          t1(ad3),eorb,eaijk,emp4,emp5,
+     $                          t1((i-1)*nvir+1),eorb,eaijk,emp4,emp5,
      $                          ncor,nocc,nvir)
 c     
                         end if
@@ -528,8 +518,9 @@ c      f4n(b,c)=f4n(b,c)-t2(a,l,b,i)*vooo(c,j,l,k)
       implicit none
       double precision fintc(*),fintx(*),t2(*),f1(*),f2(*),f3(*),f4(*)
       integer nocc,nvir
-      double precision one
+      double precision one,zero
       data one/1.0d00/
+      data zero/0.0d00/
 #include "ccsdps.fh"
       if (occsdps) then
          call pstat_on(ps_dovvv)
