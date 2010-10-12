@@ -47,17 +47,3 @@ E) The ./etc directory has an executable c-shell script to generate a
 
    Of course users can copy this file instead of making the symbolic
    link described above and change these defaults at their discretion.
-
-F) Please note that the .nwchemrc does not handle the pseudopotential
-   libraries used in the planewave part of the code.  The user will
-   need to set an environment variable, NWCHEM_NWPW_LIBRARY, to the
-   appropriate location.  For example:
-   setenv NWCHEM_NWPW_LIBRARY /usr/local/lib/NWChem/data/
-   IMPORTANT: If you don't put the last slash ("/") after "data",
-         nwchem will not be able to find the nwpw library files.
-
-On Win32 platforms, please use the following setting to pick the
-right basis set library
-   set NWCHEM_BASIS_LIBRARY=C:\....\libraries\
-where C:\....\libraries\ is the location of the directory the basis
-libraries (see not above for last slash)
