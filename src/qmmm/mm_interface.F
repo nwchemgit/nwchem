@@ -232,6 +232,20 @@ c
       return
       end
 
+      subroutine mm_restart_filename_prefix(filename)
+      implicit none
+c
+#include "util.fh"
+#include "md_common.fh"
+#include "inp.fh"
+c
+      character*(*) filename
+      integer j
+
+      j = index(filrst,'.rst')-1
+      filename = filrst(1:j)
+      end
+
       subroutine mm_restart_filename(filename)
       implicit none
 c
@@ -343,6 +357,20 @@ c
       if(qmmm_print_debug()) write(*,*) "in "//pname
       call md_wrtrst(lfnrst,rfile,.false.)
       call md_wrtrst(lfnqrs,filqrs,.false.)
+c
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      return
+      end
+
+      subroutine mm_write_restart_default_dynamics()
+      implicit none
+#include "md_common.fh"
+#include "qmmm.fh"
+      character*32 pname
+c
+      pname = "mm_write_restart_default_dynamics"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+      call md_wrtrst(lfnrst,rfile,.true.)
 c
       if(qmmm_print_debug()) write(*,*) "out "//pname
       return
@@ -2801,6 +2829,51 @@ c     mm local variables
               end do
            end if
          end do
+      end do
+
+
+      if(qmmm_print_debug()) write(*,*) "out "//pname
+      end
+
+      subroutine mm_print_solvent_force(un)
+      implicit none
+
+#include "qmmm_params.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "geom.fh"
+#include "qmmm.fh"
+#include "msgids.fh"
+#include "mm_utils.fh"
+
+      integer un
+
+      integer i,j,k,m,j1,ioff
+
+c     mm local variables
+      integer mwa
+      integer mwm
+      integer nwm
+      integer pfw
+      integer pwl
+      character*32 pname
+      pname = "mm_print_solvent_force"
+      if(qmmm_print_debug()) write(*,*) "in "//pname
+
+
+      call mm_get_mwa(mwa)
+      call mm_get_mwm(mwm)
+      call mm_get_nwmloc(nwm)
+      call mm_get_pfw(pfw)
+      call mm_get_pwl(pwl)
+ 
+      do i=1,nwm
+       do m=1,mwa
+         j1=(j-1)*mwa+m
+         write(un,*)  
+     +    (dbl_mb(pfw+(i-1)+(k-1)*mwm+(m-1)*3*mwm),k=1,3)
+       end do
       end do
 
 

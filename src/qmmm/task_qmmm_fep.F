@@ -13,6 +13,7 @@ c
 #include "qmmm_params.fh"
 #include "qmmm.fh"
 #include "global.fh"
+#include "stdio.fh"
 c
       integer rtdb
       logical task_qmmm_fep
@@ -34,9 +35,70 @@ c     external functions
       character*255 geom_in(2)
       double precision lambda(2)
       logical oesp,ogeom,oderiv,task_qmmm_fep_deriv
+      logical oesp_density
       integer mequi 
+      integer nsamples
+      integer trn(3)
+      character*30 region(3)
+      integer nregion
+      character*84 tag
 
       pname = "task_qmmm_fep"
+
+      if (.not. rtdb_cput(rtdb, 'task:operation', 1, "dynamics"))
+     $    call errquit(pname,0, RTDB_ERR)
+c
+c     check for correct region
+c     ------------------------
+      tag ="qmmm:region"
+      if (.not.rtdb_cget(rtdb,tag,nregion,region)) then
+        nregion = 1
+        region(1)="mm"
+        if (.not.rtdb_put(rtdb,tag(1:inp_strlen(tag))//"_n",
+     >                 mt_int,1,nregion)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+        if (.not.rtdb_cput(rtdb,tag,nregion,region)) 
+     >      call errquit(pname//tag,0,RTDB_ERR)
+      else if(region(1).ne."mm_solute".or.
+     >        region(1).ne."solvent".or.
+     >        region(1).ne."mm") then
+            call errquit("only classical regions supported",0,RTDB_ERR)
+      end if
+c
+      oesp_density = .false.
+      if (.not. rtdb_cget(rtdb, 'qmmm:density_treatment', 
+     $                   1, tag)) then
+        
+        oesp_density = .true.
+        if (.not. rtdb_put(rtdb, 'qmmm:esp_density', mt_log, 
+     $                   1, oesp_density))   
+     $       call errquit(pname,0,RTDB_ERR)
+      tag = "espfit"
+      if (.not. rtdb_cput(rtdb, 'qmmm:density_treatment', 
+     $                   1, tag))   
+     $       call errquit(pname,0,RTDB_ERR)
+      end if
+      
+      if(tag.ne."espfit") then
+        if(ga_nodeid().eq.0) then
+        call banner(luout,"density espfit is strongly reccomended ",
+     $              "*",.true.,.true.,.true.)
+        end if
+      end if
+      if (rtdb_get(rtdb,'qmmm:nsamples',mt_int,1,nsamples)) then
+        call mm_set_high_precision()
+        call mm_set_nfc(1,1)
+        call mm_set_mdacq(nsamples)
+        trn(1) = 1
+        trn(2) = nsamples
+        trn(3) = 1
+        if (.not.rtdb_put(rtdb,"qmmm:trajectory_n",mt_int,3,trn))
+     >      call errquit(pname//'failed to put trn',0,
+     >       RTDB_ERR)
+        call mm_init(rtdb)
+      else
+        call errquit(pname//'define nsamples now',0,RTDB_ERR)
+      end if
 
       if (.not. rtdb_get(rtdb,'qmmm:fep_deriv',mt_log,1,oderiv))
      +  oderiv = .false.
@@ -340,6 +402,7 @@ c     >   call errquit(pname,0, RTDB_ERR)
 c 
 
 c       note that region will be set in dynamics
+        if(ga_nodeid().eq.0) write(*,*) "GENERATING MD TRAJECTORY"
         ostatus = qmmm_dynamics(rtdb)
 c
         call mm_end()
@@ -351,6 +414,10 @@ c
 c       disable coord dumps
         call mm_set_nfc(0,0)
 c       do the perturbation resampling
+        if(ga_nodeid().eq.0) then
+          write(*,*) "STARTING RESAMPLING OF MD TRAJECTORY"
+          write(*,*) "trajectory file", filetrj
+        end if
         ostatus = qmmm_fep_deriv(rtdb,geom_in,esp_in,
      >                     filetrj)     
 c       restore coord dumps
@@ -635,6 +702,8 @@ c
 c
       if(master) then
         write(fn,*) nf0+nf,taver,faver1,de1,faver2,de2
+        write(*,*) "Total free energy difference (kcal/mol):",
+     +               (de1-de2)*627.51
       end if
 c
       if(.not.ma_free_heap(h_t))
@@ -1072,7 +1141,8 @@ c
 c
       if(master) then
         write(fn,*) nf0+nf,taver,faver,de
-        write(*,*) "debug",nf0+nf,tsum,fsum,de
+        write(*,*) "Total free energy difference (kcal/mol):",
+     +               de*627.51
       end if
 c
       if(.not.ma_free_heap(h_t))

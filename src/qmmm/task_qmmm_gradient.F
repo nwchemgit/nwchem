@@ -289,9 +289,13 @@ c
 c     get definition of neb region
 c     ----------------------------
       if (.not. rtdb_cget(irtdb,"qmmm:neb_region",
-     +                    1,neb_region))
-     + call errquit(pname//'Failed neb region',
+     +                    1,neb_region)) then
+       neb_region="qmlink"
+       if (.not. rtdb_cput(irtdb,"qmmm:neb_region",
+     +                     1,neb_region)) 
+     +  call errquit(pname//'Failed neb region',
      + 1, RTDB_ERR)
+      end if
 c
 c     load restart file from perm dir if any
 c     --------------------------------------

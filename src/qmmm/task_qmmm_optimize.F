@@ -437,17 +437,37 @@ c     $Id: task_qmmm_optimize.F,v 1.59 2009-02-03 18:13:20 marat Exp $
 #include "mm_utils.fh"
 
       character*(*) region,method
+      character*(40) buffer
 c
-      if (region.eq."all") then
+      if (region.eq."qm") then
+        method = "bfgs"
+      else if (region.eq."qmlink") then
+        method = "bfgs"
+      else if (region.eq."mm_solute") then
+        method = "lbfgs"
+      else if (region.eq."mm") then
+        method = "sd"
+      else if (region.eq."solute") then
         method = "sd"
       else if (region.eq."solvent") then
         method = "sd"
-      else if (region.eq."solvent") then
+      else if (region.eq."all") then
         method = "sd"
       else
-        method = "lbfgs"
+        buffer = region
+        call errquit("Unknown region "//buffer,0,0)
       end if
-
+c
+c      if (region.eq."all") then
+c        method = "sd"
+c      else if (region.eq."solvent") then
+c        method = "sd"
+c      else if (region.eq."solvent") then
+c        method = "sd"
+c      else
+c        method = "lbfgs"
+c      end if
+c
       return
 
       end

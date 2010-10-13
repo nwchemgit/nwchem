@@ -203,6 +203,7 @@ c     local variables
       character*32 pname
       integer nbeads,i
       logical ofile
+      logical custom_path
 
       pname = "qmmm_geom_init_neb"
 
@@ -211,8 +212,14 @@ c     local variables
 
 c     get neb region definition
 c     -------------------------
-      if (.not.rtdb_cget(irtdb,"qmmm:neb_region",1,region)) 
-     >      call errquit(pname//"neb_region",0,RTDB_ERR)
+      if (.not. rtdb_cget(irtdb,"qmmm:neb_region",
+     +                    1,region)) then
+       region="qmlink"
+       if (.not. rtdb_cput(irtdb,"qmmm:neb_region",
+     +                     1,region)) 
+     +  call errquit(pname//'Failed neb region',
+     + 1, RTDB_ERR)
+      end if
 c
         filename0 = ' '
         call mm_restart_filename(filename0)
@@ -233,12 +240,18 @@ c     ---------------------------------------------
         call qmmm_geom_create_rst(irtdb,"neb_start",rstfile(1))
         call qmmm_geom_create_rst(irtdb,"neb_end",rstfile(2))
         call mm_reload_rst(irtdb,filename0)
+        custom_path = .false.
+        if(.not.rtdb_put(irtdb,'neb:custom_path',mt_log,1,custom_path)) 
+     >         call errquit(pname,0,RTDB_ERR)
       else
+       custom_path = .true.
+       if(.not.rtdb_put(irtdb,'neb:custom_path',mt_log,1,custom_path)) 
+     >        call errquit(pname,0,RTDB_ERR)
        if (.not.rtdb_get(irtdb,'neb:nbeads',mt_int,1,nbeads)) then
           nbeads = 5
        end if
        if (.not.rtdb_cget(irtdb,"qmmm:neb_path",1,prefix))
-     >   call mm_system_prefix(prefix)
+     >   call mm_restart_filename_prefix(prefix)
        do i=1,nbeads
          filename = ' '
          write(filename,13) 

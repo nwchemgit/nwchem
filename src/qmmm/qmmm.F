@@ -64,6 +64,8 @@ c
       logical aux_geom
       logical oprint
       logical oinit
+      logical qmmm_active_region
+      logical numerical
 c
 c     do nothing if already initialized
 c     ---------------------------------
@@ -116,10 +118,16 @@ c     --------------------------------------------
       if(.not.rtdb_cget(irtdb,'task:theory',1,theory))
      + call errquit('task: no task input for theory?',0, RTDB_ERR)
 
+      qmmm_active_region=.false.
+      numerical=.false.
       if(operation.eq."freq") then
         aux_geom = .true.
+        numerical = .true.
+        qmmm_active_region=.true.
       else if(operation.eq."hessian") then
         aux_geom = .true.
+        numerical = .true.
+        qmmm_active_region=.true.
       else if(operation.eq."gradient") then
         aux_geom = .false.
       else if(operation.eq."energy") then
@@ -136,6 +144,19 @@ c     --------------------------------------------
 
       if(oprint) 
      >  write(*,*) "aux_geom",aux_geom
+c
+c     this will allow frozen/esp density treatment of fixed QM region
+c     ---------------------------------------------------------------
+      if(qmmm_active_region) then
+      if (.not. rtdb_put(irtdb,'qmmm:active_region',mt_log,1,.true.))
+     $     call errquit('qmmm: failed qmmm:init', 0, RTDB_ERR)
+      end if
+      if (numerical) then
+       if (.not. rtdb_put(irtdb, 'task:numerical', mt_log, 1, 
+     $        numerical)) call errquit('qmmm: rtdb
+     $             is corrupt',0, RTDB_ERR)
+      endif
+
 
       call qmmm_geom_init(irtdb,aux_geom)
       if(operation.eq."neb") then

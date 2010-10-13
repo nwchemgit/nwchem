@@ -120,6 +120,7 @@ c     Actually do the deed
 c
       if(oesp) call qmmm_esp_reset(rtdb)
       call md_md()
+      call mm_write_restart_default_dynamics()
 c
 c     restore interface
       call qmmm_set_interface(interface)

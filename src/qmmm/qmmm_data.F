@@ -178,12 +178,13 @@ c     ------------------
       tag ="qmmm:region"
       if (.not.rtdb_get(irtdb,tag(1:inp_strlen(tag))//"_n",
      >                 mt_int,1,nregion)) then
-        if(operation.ne."energy" .and.
-     >     operation.ne."gradient" .and.
-     >     operation.ne."property" .and.
-     >     operation.ne."neb" )
-     >     call errquit(pname//'cannot find '//tag,0,
-     >       RTDB_ERR)
+c        if(operation.ne."energy" .and.
+c     >     operation.ne."gradient" .and.
+c     >     operation.ne."property" .and.
+c     >     operation.ne."fep" .and.
+c     >     operation.ne."neb" )
+c     >     call errquit(pname//'cannot find '//tag,0,
+c     >       RTDB_ERR)
         nregion = 0
       end if      
       if(nregion.ne.0) then

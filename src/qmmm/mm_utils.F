@@ -52,6 +52,43 @@
 
        end
 
+       subroutine mm_get_mdacq(mdacq0)
+         implicit none
+#include "md_common.fh"
+         integer mdacq0
+         
+         mdacq0 = mdacq
+
+       end
+
+       subroutine mm_set_mdacq(mdacq0)
+         implicit none
+#include "md_common.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+         integer mdacq0
+         
+         mdacq = mdacq0
+         ldacq = mdacq0
+     
+        if(.not.rtdb_put(irtdb,'md:mdacq',mt_int,1,mdacq0))
+     + call md_abort('md_input: rtdb_put failed',0)
+        if(.not.rtdb_put(irtdb,'md:ldacq',mt_int,1,mdacq0))
+     + call md_abort('md_input: rtdb_put failed',0)
+   
+       end
+
+       subroutine mm_set_high_precision()
+         implicit none
+#include "md_common.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+         nprec = 2
+         if(.not.rtdb_put(irtdb,'md:nprec',mt_int,1,nprec))
+     + call md_abort('md_input: rtdb_put failed',0)
+
+       end
+
        subroutine mm_get_mequi(mequi0)
          implicit none
 #include "md_common.fh"

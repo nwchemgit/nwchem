@@ -103,6 +103,19 @@ c     --------------
         goto 2
       endif
 c
+c     nsamples
+c     ----------
+      if(inp_compare(.false.,'nsamples',token)) then
+        if(.not.inp_i(itoken(1))) 
+     +      call errquit('qmmm_input: nsamples',0,
+     +         INPUT_ERR)
+        tag = "qmmm:nsamples"
+        if (.not.rtdb_put(rtdb,tag,mt_int,1,itoken)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
+        goto 2
+      endif
+c
 c     trajectory
 c     ----------
       if(inp_compare(.false.,'trajectory',token)) then
@@ -160,6 +173,10 @@ c
          call errquit('qmmm_input: density',0,
      &         INPUT_ERR)
         end if
+        tag="qmmm:density_treatment"
+        if (.not.rtdb_cput(rtdb,tag,1,token)) 
+     >      call errquit(pname//'failed to store'//tag,0,
+     >       RTDB_ERR)
         if(inp_compare(.false.,'static',token)) then
           tag="qmmm:frozen_density"
           if (.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
@@ -176,7 +193,7 @@ c
           tag="qmmm:esp_density"
           ignore = rtdb_delete(rtdb,tag)
         else
-           call errquit(pname//'unknown token'//tag,0,
+           call errquit(pname//'unknown token'//token,0,
      >       RTDB_ERR)
         end if
         goto 2
