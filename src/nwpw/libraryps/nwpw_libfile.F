@@ -31,8 +31,8 @@ c
       logical nwrcopen,from_environment,from_nwchemrc,from_compile
 
       character*255 libname,rtdb_name,library,library_name
-      character*255 file_nwchemrc,userhome
       character*128 test
+      character*24  basis_library
       integer lgth,l,ind,rtdb,unitrc
 
 *     **** external functions ****
@@ -40,6 +40,8 @@ c
       external util_find_dir
       logical  control_print
       external control_print
+      logical  util_nwchemrc_get
+      external util_nwchemrc_get
       integer  control_rtdb
       external control_rtdb
 c
@@ -80,88 +82,34 @@ c
 *   assumed structure in .nwchemrc file is variable [whitespace] value
 *   one setting per line
 *
-      call util_getenv('HOME',userhome)
-      if (debug) then
-        write(luout,*)'env return value of HOME: <',
-     &      userhome(1:inp_strlen(userhome)),'>'
-      endif
-      lgth = inp_strlen(userhome)
-      if (lgth.gt.0) then
-        file_nwchemrc = userhome(1:lgth)//'/.nwchemrc'
-
+      basis_library='nwchem_nwpw_library'
+      call inp_save_state() ! save state of any inp unit
+      if (.not.util_nwchemrc_get(basis_library,libname)) then
         if (debug) then
-          write(luout,*)' file_nwchemrc: <',
-     &        file_nwchemrc(1:inp_strlen(file_nwchemrc)),'>'
+          write(luout,*)'util_nwchemrc_get failed'
         endif
-
+      else
+        lgth = inp_strlen(libname)
         does_it_exist = .false.
-        inquire(file=file_nwchemrc,exist=does_it_exist)
-        if (does_it_exist) then
-          call inp_save_state() ! save state of any inp unit
-*
-          unitrc = 68
-00001     continue
-          unitrc = unitrc + 1
-          if (unitrc.gt.80) then
-            write(luout,*)' could not find a free unit 69->80'
-            call errquit('bas_input: no free units for library',911,
-     &       BASIS_ERR)
-          endif
-          is_it_open = .false.
-          inquire(unit=unitrc,opened=is_it_open)
-          if (is_it_open) goto 00001
-          nwrcopen=.false.
-* found unitrc
-          open (unit=unitrc,  file=file_nwchemrc,
-     &        status='old', err=99998,
-     &        form='formatted',
-     &        access='sequential')
-          nwrcopen=.true.
-          call inp_init(unitrc,LuOut)
-00002     continue
-          if (.not.inp_read()) then
-            if (inp_eof()) then
-              goto 99998
-            else
-              call errquit('fatal parsing error in nwchemrc file',911,
-     &       INPUT_ERR)
-            endif
-          endif
-          if (.not.inp_a(test)) call errquit('inp_a error 1',911,
-     &       UNKNOWN_ERR)
-          foundit = inp_compare(.false.,test,'nwchem_nwpw_library')
-          if (foundit) then
-            if (.not.inp_a(test)) call errquit('inp_a error 2',911,
-     &       UNKNOWN_ERR)
-            libname = test
-            lgth = inp_strlen(libname)
-            does_it_exist = .false.
-            if (libname(lgth:lgth).eq.'/') then
-               does_it_exist=util_find_dir(libname)
-            else
-               inquire(file=libname,exist=does_it_exist)
-               noslash=does_it_exist
-            endif
-            if (does_it_exist)then
-              from_nwchemrc = .true.
-              call inp_restore_state() ! restore state of any inp unit
-              goto 99
-            else
-              write(luout,*)' warning:::::::::::::: from_nwchemrc'
-              write(luout,*)' NWCHEM_NWPW_LIBRARY set to: <',
-     &            libname(1:inp_strlen(libname)),'>'
-              write(luout,*)' but file does not exist !'
-              write(luout,*)' using compiled in library'
-            endif
-            goto 99998
-          else
-            goto 00002
-          endif
-*
-99998     continue
+        if (libname(lgth:lgth).eq.'/') then
+          does_it_exist=util_find_dir(libname)
+        else
+          inquire(file=libname,exist=does_it_exist)
+          noslash=does_it_exist
+        endif
+        if (does_it_exist)then
+          from_nwchemrc = .true.
           call inp_restore_state() ! restore state of any inp unit
+          goto 99
+        else
+          write(luout,*)' warning:::::::::::::: from_nwchemrc'
+          write(luout,*)' NWCHEM_NWPW_LIBRARY set to: <',
+     &      libname(1:inp_strlen(libname)),'>'
+          write(luout,*)' but file does not exist !'
+          write(luout,*)' using compiled in library'
         endif
       endif
+      call inp_restore_state() ! restore state of any inp unit
 
 *     **** Try to get from compile ****
       from_compile = .true.

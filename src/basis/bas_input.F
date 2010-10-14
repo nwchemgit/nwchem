@@ -1092,6 +1092,8 @@ c
       end
       subroutine bas_library_file(libname)
       implicit none
+      logical util_nwchemrc_get
+      external util_nwchemrc_get
 #include "errquit.fh"
 #include "inp.fh"
 #include "stdio.fh"
@@ -1100,8 +1102,8 @@ c
       character*(*) libname ! [output] filename for library file
 *local
       character*256 compiled_name
-      character*256 file_nwchemrc, userhome
       character*128 test
+      character*24  basis_library
       integer length
       integer unitrc
       logical from_environment
@@ -1167,88 +1169,31 @@ c
           write(luout,*)' using .nwchemrc or compiled library'
         endif
       endif
-*2: check for NWCHEM_BASIS_LIBRARY defined in users .nwchemrc file
-*   assumed structure in .nwchemrc file is variable [whitespace] value
-*   one setting per line
+*2: check for NWCHEM_BASIS_LIBRARY defined in nwchemrc config file
 *
-      call util_getenv('HOME',userhome)
-      if (debug) then
-        write(luout,*)'env return value of HOME: <',
-     &      userhome(1:inp_strlen(userhome)),'>'
-      endif
-      length = inp_strlen(userhome)
-      if (length.gt.0) then
-        file_nwchemrc = userhome(1:length)//'/.nwchemrc'
+      basis_library='nwchem_basis_library'
+      if(.not.util_nwchemrc_get(basis_library,libname)) then
         if (debug) then
-          write(luout,*)' file_nwchemrc: <',
-     &        file_nwchemrc(1:inp_strlen(file_nwchemrc)),'>'
+          write(luout,*)'util_nwchemrc_get failed'
         endif
+      else
+        length = inp_strlen(libname)
         does_it_exist = .false.
-        inquire(file=file_nwchemrc,exist=does_it_exist)
-        if (does_it_exist) then
-          call inp_save_state() ! save state of any inp unit
-*
-          unitrc = 68
-00001     continue
-          unitrc = unitrc + 1
-          if (unitrc.gt.80) then
-            write(luout,*)' could not find a free unit 69->80'
-            call errquit('bas_input: no free units for library',911,
-     &       BASIS_ERR)
-          endif
-          is_it_open = .false.
-          inquire(unit=unitrc,opened=is_it_open)
-          if (is_it_open) goto 00001
-          nwrcopen=.false.
-* found unitrc
-          open (unit=unitrc,  file=file_nwchemrc,
-     &        status='old', err=99998,
-     &        form='formatted',
-     &        access='sequential')
-          nwrcopen=.true.
-          call inp_init(unitrc,LuOut)
-00002     continue
-          if (.not.inp_read()) then
-            if (inp_eof()) then
-              goto 99998
-            else
-              call errquit('fatal parsing error in nwchemrc file',911,
-     &       INPUT_ERR)
-            endif
-          endif
-          if (.not.inp_a(test)) call errquit('inp_a error 1',911,
-     &       UNKNOWN_ERR)
-          foundit = inp_compare(.false.,test,'nwchem_basis_library')
-          if (foundit) then
-            if (.not.inp_a(test)) call errquit('inp_a error 2',911,
-     &       UNKNOWN_ERR)
-            libname = test
-            length = inp_strlen(libname)
-            does_it_exist = .false.
-            if (libname(length:length).eq.'/') then
-               does_it_exist=util_find_dir(libname)
-            else
-               inquire(file=libname,exist=does_it_exist)
-               noslash=does_it_exist
-            endif
-            if (does_it_exist)then
-              from_nwchemrc = .true.
-              call inp_restore_state() ! restore state of any inp unit
-              goto 99999
-            else
-              write(luout,*)' warning:::::::::::::: from_nwchemrc'
-              write(luout,*)' NWCHEM_BASIS_LIBRARY set to: <',
-     &            libname(1:inp_strlen(libname)),'>'
-              write(luout,*)' but file does not exist !'
-              write(luout,*)' using compiled in library'
-            endif
-            goto 99998
-          else
-            goto 00002
-          endif
-*
-99998     continue
-          call inp_restore_state() ! restore state of any inp unit
+        if (libname(length:length).eq.'/') then
+           does_it_exist=util_find_dir(libname)
+        else
+           inquire(file=libname,exist=does_it_exist)
+           noslash=does_it_exist
+        endif
+        if (does_it_exist)then
+          from_nwchemrc = .true.
+          goto 99999
+        else
+          write(luout,*)' warning:::::::::::::: from_nwchemrc'
+          write(luout,*)' NWCHEM_BASIS_LIBRARY set to: <',
+     &        libname(1:inp_strlen(libname)),'>'
+          write(luout,*)' but file does not exist !'
+          write(luout,*)' using compiled in library'
         endif
       endif
       libname = compiled_name
@@ -1285,7 +1230,7 @@ c
       if(noslash) then
          write(luout,*) "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
          write(luout,*) "! DANGEROUS: nwchem_basis_library set equal !"
-         write(luout,*) "! to a filename and not to a directory since!"
+         write(luout,*) "! to a filename and not to a directory      !"
          write(luout,*) "! since you did not use the ending slash.   !"
          write(luout,*) "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
       endif
