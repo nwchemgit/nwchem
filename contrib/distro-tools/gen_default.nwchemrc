@@ -20,23 +20,23 @@ cd ..
 set path_to_nwchem = `pwd`
 cd ./etc
 touch default.nwchemrc
-echo "# automatically generated on system `hostname` timestamp: `date`" >> default.nwchemrc
+echo "# automatically generated on system `hostname` timestamp: `date`"       >> default.nwchemrc
 echo "nwchem_basis_library ${path_to_nwchem}/usr.local.lib.nwchem/libraries/" >> default.nwchemrc
-echo "nwchem_nwpw_library ${path_to_nwchem}/usr.local.lib.nwchem/libraries/" >> default.nwchemrc
-echo "ffield amber"                                        >> default.nwchemrc
-echo "amber_1 ${path_to_nwchem}/usr.local.lib.nwchem/amber_s/"       >> default.nwchemrc
-echo "amber_2 ${path_to_nwchem}/usr.local.lib.nwchem/amber_x/"       >> default.nwchemrc
-echo "#amber_3 ${path_to_nwchem}/usr.local.lib.nwchem/amber_q/"       >> default.nwchemrc
-echo "#amber_4 ${path_to_nwchem}/usr.local.lib.nwchem/amber_u/"       >> default.nwchemrc
-echo "spce ${path_to_nwchem}/usr.local.lib.nwchem/solvents/spce.rst"       >> default.nwchemrc
-echo "charmm_s ${path_to_nwchem}/usr.local.lib.nwchem/charmm_s/"    >> default.nwchemrc
-echo "charmm_x ${path_to_nwchem}/usr.local.lib.nwchem/charmm_x/"    >> default.nwchemrc
+echo "nwchem_nwpw_library ${path_to_nwchem}/usr.local.lib.nwchem/libraryps/"  >> default.nwchemrc
+echo "ffield amber"                                                           >> default.nwchemrc
+echo "amber_1 ${path_to_nwchem}/usr.local.lib.nwchem/amber_s/"                >> default.nwchemrc
+echo "amber_2 ${path_to_nwchem}/usr.local.lib.nwchem/amber_x/"                >> default.nwchemrc
+echo "#amber_3 ${path_to_nwchem}/usr.local.lib.nwchem/amber_q/"               >> default.nwchemrc
+echo "#amber_4 ${path_to_nwchem}/usr.local.lib.nwchem/amber_u/"               >> default.nwchemrc
+echo "spce ${path_to_nwchem}/usr.local.lib.nwchem/solvents/spce.rst"          >> default.nwchemrc
+echo "charmm_s ${path_to_nwchem}/usr.local.lib.nwchem/charmm_s/"              >> default.nwchemrc
+echo "charmm_x ${path_to_nwchem}/usr.local.lib.nwchem/charmm_x/"              >> default.nwchemrc
 
 touch ${path_to_nwchem}/bin/nwdef.csh
-echo "# automatically generated on system `hostname` timestamp: `date`" >> ${path_to_nwchem}/bin/nwdef.csh
-echo "setenv NWCHEM_NWPW_LIBRARY ${path_to_nwchem}/usr.local.lib.nwchem/libraryps/" >> ${path_to_nwchem}/bin/nwdef.csh
+echo "# automatically generated on system `hostname` timestamp: `date`"              >> ${path_to_nwchem}/bin/nwdef.csh
+echo "setenv NWCHEM_NWPW_LIBRARY ${path_to_nwchem}/usr.local.lib.nwchem/libraryps/"  >> ${path_to_nwchem}/bin/nwdef.csh
 echo "setenv NWCHEM_BASIS_LIBRARY ${path_to_nwchem}/usr.local.lib.nwchem/libraries/" >> ${path_to_nwchem}/bin/nwdef.csh
-echo "set path=(${path_to_nwchem}/bin " '$path' " )" >> ${path_to_nwchem}/bin/nwdef.csh
+echo "set path=(${path_to_nwchem}/bin " '$path' " )"                                 >> ${path_to_nwchem}/bin/nwdef.csh
 chmod ugo+x ${path_to_nwchem}/bin/nwdef.csh
 exit 0
 
