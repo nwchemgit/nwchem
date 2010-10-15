@@ -1,0 +1,81 @@
+Here are a list of potential problems that you might run into:
+
+1.  Older compilers:
+older gfortran versions do not have fseek (added in  4.3.1), and you need it for some modules
+
+-static-libgfortran is not supported by all versions (remove from contrib/distro-tools/build_nwchem, and enviroment)
+
+Some versions use -arch, others use -m32/-m64 to determine if 32 or 64 bit application.
+
+Some older compilers will not link (ld: warning: can't find atom for N_GSYM stabs mbc_int:)
+-g0 needed to avoid this kind of problem (or use newer compiler)
+
+older gfortrans do not have fseek() (added in  4.3.1)
+
+2. *.gcc files
+The makefile makes tas.o from tas.gcc, and that line in the GA makefile does not use that flags that the *.c files use.
+So, you may have to compile it by hand so that the right kind of *.o gets made (right arch type).
+You might have to use 'lipo' to clean the *.a file.
+
+3. Incomplete include files.
+If you get an error about _FE_INEXACT, etc. being undefined, then add these lines to util/macx_trapfpe.c in in i386 section
+#ifndef _FE_INEXACT
+#define _FE_INEXACT          0x0020
+#define _FE_UNDERFLOW        0x0010
+#define _FE_OVERFLOW         0x0008
+#define _FE_DIVBYZERO        0x0004
+#define _FE_INVALID          0x0001
+#define _FE_ALL_EXCEPT       0x003D
+#endif
+
+4. Mixed arch *.a files.
+During the build process you might accidently generate a *.a file that is multi-arch.
+This will cause link errors.
+If the wrong type of *.o is in the *.a, you can use "lipo" to remove it.
+
+5. One arch only compilers.
+Some gfortran versions only make -m32 and some only make -m64 programs.
+This is OK, if it is the right arch.
+
+==========================
+
+People have had success with building MacOS X versions.
+Using gfortran-4.6
+Replaced any "-arch i386" with -m32 that cause trouble
+export NWCHEM_TARGET=MACX
+export NWCHEM_MODULES=pnnl (or whatever you want)
+export NWCHEM_TOP=/Users/${USER}/Documents/nwchem (or whatever you want)
+export PYTHONHOME="/System/Library/Frameworks/Python.framework/Versions/2.5/"
+export PYTHONVERSION=2.5
+export LDOPTIONS="-static-libgcc -mmacosx-version-min=10.5 -static-libgfortran"
+
+Edit peigs/DEFS:
+-        peigs_CC += -DSTD_DBL -DSTD_INT
++        peigs_CC += -DSTD_DBL -DSTD_INT -m32
+Edit config/makefile.h
+-  INCLUDES = -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH)
++  INCLUDES = -I. $(LIB_INCLUDES) -I$(INCDIR) $(INCPATH) -m32
+
+make -k  realclean
+make nwchem_config
+make  CDEFS='-m32'
+
+===========================
+
+A user also reports building a 64-bit version doing this:
+Delete all references to -m32 (basically in config)
+Delete USE_64TO32 warnings in config
+
+export NWCHEM_TARGET=MACX64
+export NWCHEM_MODULES=pnnl
+export NWCHEM_TOP=/Users/${USER}/Documents/nwchem
+export PYTHONHOME="/System/Library/Frameworks/Python.framework/Versions/2.5/"
+export PYTHONVERSION=2.5
+export LDOPTIONS="-static-libgcc -mmacosx-version-min=10.5 -static-libgfortran"
+export USE_MPI=y
+
+make -k  realclean
+make nwchem_config
+make
+
+
