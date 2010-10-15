@@ -37,6 +37,15 @@ void macx_trapfpe_(void) {
 #define _FPU_MASK_OM  0x08
 #define _FPU_RESERVED 0xF0C0 
 
+#ifndef _FE_DIVBYZERO
+#define _FE_DIVBYZERO FE_DIVBYZERO
+#endif
+#ifndef _FE_OVERFLOW
+#define _FE_OVERFLOW  FE_OVERFLOW
+#endif
+#ifndef _FE_INVALID
+#define _FE_INVALID FE_INVALID
+#endif
 typedef unsigned int fpu_control_t __attribute__ ((__mode__ (__HI__)));
 extern fpu_control_t __fpu_control;
 
