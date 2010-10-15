@@ -1,0 +1,9 @@
+#!/bin/csh -f
+#
+# $Id: domdtests,v 1.63 2008-12-07 19:26:52 d3j191 Exp $
+#
+#---   restore original nwchemrc file
+#
+if (-f ~/nwchemrc-backup) then
+  mv -f ~/nwchemrc-backup ~/.nwchemrc 
+endif

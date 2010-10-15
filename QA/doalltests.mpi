@@ -1,0 +1,9 @@
+#!/bin/bash
+export NWCHEM_TOP=`pwd`/..
+export NWCHEM_TARGET=LINUX64
+export NWCHEM_TEST=${NWCHEM_TOP}/QA/tests
+export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem
+./domknwchemrc
+./domdtests.mpi 4
+./doqmtests.mpi 4 fast
+./dormnwchemrc
