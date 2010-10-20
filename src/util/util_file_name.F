@@ -302,6 +302,133 @@ c
       util_file_parse_dir = .false.
 c
       end
+c
+c-----------------------------------------------------------------------
+c
+      subroutine util_set_default_scratch_dir(scratch_dir)
+      implicit none
+c
+c     Sets the default scratch directory name (this may yet be 
+c     overriden by the name specified in the input). 
+c
+c     The order of precedence is as follows:
+c     1) the value of NWCHEM_SCRATCH_DIR environment variable
+c     2) the value of scratch_dir key in nwchemrc file(s)
+c     3) the value of the compiled in name
+c
+#include "stdio.fh"
+#include "inp.fh"
+#include "util.fh"
+c
+      character*(*) scratch_dir ! output
+c
+      logical from_environment
+      logical from_nwchemrc
+      logical from_compile
+      logical debug
+c
+      debug = .false.
+c
+c     1: check for NWCHEM_SCRATCH_DIR environment variable
+c
+      call util_getenv('NWCHEM_SCRATCH_DIR',scratch_dir)
+      if (debug) then
+        write(luout,*)
+     &      'env return value of NWCHEM_SCRATCH_DIR <',
+     &      scratch_dir(1:inp_strlen(scratch_dir)),'>'
+      endif
+      from_environment = (inp_strlen(scratch_dir).gt.0)
+c
+c     2: check for scratch_dir defined in nwchemrc config file(s)
+c
+      if (.not.from_environment) then
+        if (.not.util_nwchemrc_get('scratch_dir',scratch_dir)) then
+          if (debug) then
+            write(luout,*)'util_nwchemrc_get failed for scratch_dir'
+          endif
+        else
+          from_nwchemrc = .true.
+          if (debug) then
+            write(luout,*)
+     &          'nwchemrc return value of scratch_dir <',
+     &          scratch_dir(1:inp_strlen(scratch_dir)),'>'
+          endif
+        endif
+      endif
+c
+c     3: use compiled in default setting
+c
+      if (.not.from_environment.and..not.from_nwchemrc) then
+        scratch_dir = ' '
+        from_compile = .true.
+      endif
+c
+      end
+c
+c-----------------------------------------------------------------------
+c
+      subroutine util_set_default_permanent_dir(permanent_dir)
+      implicit none
+c
+c     Sets the default permanent directory name (this may yet be 
+c     overriden by the name specified in the input). 
+c
+c     The order of precedence is as follows:
+c     1) the value of NWCHEM_PERMANENT_DIR environment variable
+c     2) the value of permanent_dir key in nwchemrc file(s)
+c     3) the value of the compiled in name
+c
+#include "stdio.fh"
+#include "inp.fh"
+#include "util.fh"
+c
+      character*(*) permanent_dir ! output
+c
+      logical from_environment
+      logical from_nwchemrc
+      logical from_compile
+      logical debug
+c
+      debug = .false.
+c
+c     1: check for NWCHEM_PERMANENT_DIR environment variable
+c
+      call util_getenv('NWCHEM_PERMANENT_DIR',permanent_dir)
+      if (debug) then
+        write(luout,*)
+     &      'env return value of NWCHEM_PERMANENT_DIR <',
+     &      permanent_dir(1:inp_strlen(permanent_dir)),'>'
+      endif
+      from_environment = (inp_strlen(permanent_dir).gt.0)
+c
+c     2: check for scratch_dir defined in nwchemrc config file(s)
+c
+      if (.not.from_environment) then
+        if (.not.util_nwchemrc_get('permanent_dir',permanent_dir)) then
+          if (debug) then
+            write(luout,*)'util_nwchemrc_get failed for permanent_dir'
+          endif
+        else
+          from_nwchemrc = .true.
+          if (debug) then
+            write(luout,*)
+     &          'nwchemrc return value of permanent_dir <',
+     &          permanent_dir(1:inp_strlen(permanent_dir)),'>'
+          endif
+        endif
+      endif
+c
+c     3: use compiled in default setting
+c
+      if (.not.from_environment.and..not.from_nwchemrc) then
+        permanent_dir = ' '
+        from_compile = .true.
+      endif
+c
+      end
+c
+c-----------------------------------------------------------------------
+c
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
 C$Id: util_file_name.F,v 1.40 2008-05-20 17:46:34 marat Exp $
@@ -348,6 +475,8 @@ c     Only process 0 reads ... everyone else jumps to the broadcast
 c
       scratch_dir = ' '
       permanent_dir = ' '
+      call util_set_default_scratch_dir(scratch_dir)
+      call util_set_default_permanent_dir(permanent_dir)
       iocheckk=.true.
 #ifdef CRAYXT
 c     only catamount all fs are parallel, therefore we need only node0

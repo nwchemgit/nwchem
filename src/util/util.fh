@@ -9,6 +9,7 @@ C$Id: util.fh,v 1.14 2008-02-12 17:56:24 marat Exp $
       integer util_batch_job_time_remaining
       integer util_time_remaining
       logical util_test_time_remaining
+      logical util_nwchemrc_get
       external util_print
       external ddot
       external util_cpusec
@@ -17,6 +18,7 @@ C$Id: util.fh,v 1.14 2008-02-12 17:56:24 marat Exp $
       external util_batch_job_time_remaining
       external util_time_remaining
       external util_test_time_remaining
+      external util_nwchemrc_get
 c
       logical util_xyz_seek
       external util_xyz_seek

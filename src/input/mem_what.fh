@@ -1,0 +1,9 @@
+c
+c      Identifiers for the memory quantities
+c
+       integer MEM_TOTAL, MEM_HEAP, MEM_STACK, MEM_GLOBAL
+       parameter(MEM_TOTAL  = -32000)
+       parameter(MEM_HEAP   = -32001)
+       parameter(MEM_STACK  = -32002)
+       parameter(MEM_GLOBAL = -32003)
+c

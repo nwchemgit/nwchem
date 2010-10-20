@@ -11,6 +11,7 @@ C SYNOPSIS
      $   Stack, SSource, Global, GSource)
       Implicit NONE
 #include "errquit.fh"
+#include "mem_what.fh"
       Integer Total  ! [inout] Total memory limit (in doubles)
       Integer Heap   ! [inout] Heap memory limit (in doubles)
       Integer Stack  ! [inout] Stack memory limit (in doubles)
@@ -36,6 +37,8 @@ C          (for total only)
 C
 C EXTERNAL ROUTINES
 #include "inp.fh"
+      logical  memory_env_nwchemrc_get
+      external memory_env_nwchemrc_get
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C PARAMETERS
 C
@@ -140,6 +143,22 @@ C
       SGiven = inp_compare(.false., SSource, 'U')
       HGiven = inp_compare(.false., HSource, 'U')
       GGiven = inp_compare(.false., GSource, 'U')
+      If ( .NOT. TGiven ) Then
+        TGiven = memory_env_nwchemrc_get(MEM_TOTAL,Total)
+        If (TGiven) TSource = 'U'
+      EndIf
+      If ( .NOT. HGiven ) Then
+        HGiven = memory_env_nwchemrc_get(MEM_HEAP,Heap)
+        If (HGiven) HSource = 'U'
+      EndIf
+      If ( .NOT. SGiven ) Then
+        SGiven = memory_env_nwchemrc_get(MEM_STACK,Stack)
+        If (SGiven) SSource = 'U'
+      EndIf
+      If ( .NOT. GGiven ) Then
+        GGiven = memory_env_nwchemrc_get(MEM_GLOBAL,Global)
+        If (GGiven) GSource = 'U'
+      EndIf
       If ( .NOT. ( TGiven .OR. inp_compare(.false.,TSource, 'N')))
      $   Call ErrQuit('Memory_Defaults: Bad value for argument', 2,
      &       INPUT_ERR)
@@ -245,13 +264,13 @@ C
          EndIf
       EndIf
 *
-*        rjh: ensure that heap+stack are at least 6 mb
+*     rjh: ensure that heap+stack are at least 6 mb
 *
-	 if (heap+stack .lt. 750000) then
-	   heap = 750000/2
-	   stack= 750000/2
-	   global=total-heap-stack
-         endif
+      if (heap+stack .lt. 750000) then
+         heap = 750000/2
+         stack= 750000/2
+         global=total-heap-stack
+      endif
 *
 c$$$      Write (0, *) 'memory_defaults: T H S G ',
 c$$$     $     Total, TSource, Heap, HSource, Stack, SSource, Global,
@@ -279,3 +298,101 @@ C
 C
       Return
       End
+c
+c-----------------------------------------------------------------------
+c
+      logical function memory_env_nwchemrc_get(iwhat,iwords)
+      implicit none
+c
+c     Get the number of words of the memory quantity specified by iwhat
+c     from either environment variables or nwchemrc files. If an
+c     environment variable or nwchemrc key was found with a valid value
+c     the function returns .true. and the corresponding value in iwords.
+c     Otherwise the function returns .false. and iwords is unchanged.
+c
+#include "mem_what.fh"
+#include "util.fh"
+#include "global.fh"
+#include "inp.fh"
+#include "stdio.fh"
+c
+      integer iwhat  ! [input] id specifying what memory quantity to get
+      integer iwords ! [input/output] how many words of memory
+c
+      logical success
+      integer ival
+      character*32 strval
+      character*32 strenv, strkey
+      logical debug
+c
+      debug = .false.
+c
+      success = .false.
+      memory_env_nwchemrc_get = success
+      if (iwhat.eq.MEM_TOTAL) then
+        strenv = "NWCHEM_MEMORY_TOTAL"
+        strkey = "memory_total"
+      else if (iwhat.eq.MEM_HEAP) then
+        strenv = "NWCHEM_MEMORY_HEAP"
+        strkey = "memory_heap"
+      else if (iwhat.eq.MEM_STACK) then
+        strenv = "NWCHEM_MEMORY_STACK"
+        strkey = "memory_stack"
+      else if (iwhat.eq.MEM_GLOBAL) then
+        strenv = "NWCHEM_MEMORY_GLOBAL"
+        strkey = "memory_global"
+      else
+        if (debug) then
+          write(LuOut,
+     +    '(i7," :memory_env_nwchemrc_get failed: invalid iwhat: ",i8)')
+     +    ga_nodeid(),iwhat
+        endif
+        return
+      endif
+c
+c     Now try and get the value.
+c     1. Try environment variable.
+c
+      call util_getenv(strenv(1:inp_strlen(strenv)),strval)
+      if (debug) then
+        write(LuOut,*)ga_nodeid(),"memory_env_nwchemrc_get: "
+     +        //strenv(1:inp_strlen(strenv))//"=<"
+     +        //strval(1:inp_strlen(strval))//">"
+      endif
+      if (inp_strlen(strval).gt.0) then
+        read(strval,'(i32)',ERR=900)ival
+        if (ival.gt.0) then
+          success = .true.
+        endif
+ 900    continue
+      endif
+c
+c     2. Try nwchemrc file(s)
+c
+      if (.not.success) then
+        if (util_nwchemrc_get(strkey(1:inp_strlen(strkey)),strval)) then
+          read(strval,'(i32)',ERR=910)ival
+          if (ival.gt.0) then
+            success = .true.
+          endif
+ 910      continue
+        endif
+        if (debug) then
+          write(LuOut,*)ga_nodeid(),"memory_env_nwchemrc_get: "
+     +          //strkey(1:inp_strlen(strkey))//"=<"
+     +          //strval(1:inp_strlen(strval))//">"
+        endif
+      endif
+c
+c     Check the outcome and return results accordingly
+c
+      memory_env_nwchemrc_get = success
+      if (success) iwords = ival
+      if (debug) then
+        write(LuOut,*)ga_nodeid(),"memory_env_nwchemrc_get: ",success,
+     +                ival,iwords
+      endif
+c
+      return
+      end
+

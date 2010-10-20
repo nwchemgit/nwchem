@@ -31,11 +31,23 @@ echo "#amber_4 ${path_to_nwchem}/usr.local.lib.nwchem/amber_u/"               >>
 echo "spce ${path_to_nwchem}/usr.local.lib.nwchem/solvents/spce.rst"          >> default.nwchemrc
 echo "charmm_s ${path_to_nwchem}/usr.local.lib.nwchem/charmm_s/"              >> default.nwchemrc
 echo "charmm_x ${path_to_nwchem}/usr.local.lib.nwchem/charmm_x/"              >> default.nwchemrc
+echo "# scratch_dir /scratch"                                                 >> default.nwchemrc
+echo "# permanent_dir /data"                                                  >> default.nwchemrc
+echo "# memory_total  50000000 # 400 MB, double precision words only"         >> default.nwchemrc
+echo "# memory_heap   12500000 # 100 MB, double precision words only"         >> default.nwchemrc
+echo "# memory_stack  12500000 # 100 MB, double precision words only"         >> default.nwchemrc
+echo "# memory_global 25000000 # 200 MB, double precision words only"         >> default.nwchemrc
 
 touch ${path_to_nwchem}/bin/nwdef.csh
 echo "# automatically generated on system `hostname` timestamp: `date`"              >> ${path_to_nwchem}/bin/nwdef.csh
 echo "setenv NWCHEM_NWPW_LIBRARY ${path_to_nwchem}/usr.local.lib.nwchem/libraryps/"  >> ${path_to_nwchem}/bin/nwdef.csh
 echo "setenv NWCHEM_BASIS_LIBRARY ${path_to_nwchem}/usr.local.lib.nwchem/libraries/" >> ${path_to_nwchem}/bin/nwdef.csh
+echo "# setenv NWCHEM_SCRATCH_DIR /scratch"                                          >> ${path_to_nwchem}/bin/nwdef.csh
+echo "# setenv NWCHEM_PERMANENT_DIR /data"                                           >> ${path_to_nwchem}/bin/nwdef.csh
+echo "# setenv NWCHEM_MEMORY_TOTAL  50000000 # 400 MB, double precision words only"  >> ${path_to_nwchem}/bin/nwdef.csh
+echo "# setenv NWCHEM_MEMORY_HEAP   12500000 # 100 MB, double precision words only"  >> ${path_to_nwchem}/bin/nwdef.csh
+echo "# setenv NWCHEM_MEMORY_STACK  12500000 # 100 MB, double precision words only"  >> ${path_to_nwchem}/bin/nwdef.csh
+echo "# setenv NWCHEM_MEMORY_GLOBAL 25000000 # 200 MB, double precision words only"  >> ${path_to_nwchem}/bin/nwdef.csh
 echo "set path=(${path_to_nwchem}/bin " '$path' " )"                                 >> ${path_to_nwchem}/bin/nwdef.csh
 chmod ugo+x ${path_to_nwchem}/bin/nwdef.csh
 exit 0
