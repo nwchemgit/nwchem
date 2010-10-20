@@ -55,7 +55,7 @@ c
          write(LuOut,*) 'Add a memory card of the following format: '
          write(LuOut,3)
          write(LuOut,*) 'memory total <default + ', icode, '>'
-         man_sec = 'NWChem -> Top Level Directives -> Memory'
+         man_sec = 'Overview -> Top Level Directives -> Memory'
       endif
 c
       if (errcode .eq. STACK_ERR) then
@@ -66,7 +66,7 @@ c
          write(LuOut,*) 'Add a memory card of the following format: '
          write(LuOut,3)
          write(LuOut,*) 'memory stack <default + ', icode, '>'
-         man_sec = 'NWChem -> Top Level Directives -> Memory'
+         man_sec = 'Overview -> Top Level Directives -> Memory'
       endif
 c     
       if (errcode .eq. HEAP_ERR) then
@@ -77,7 +77,7 @@ c
          write(LuOut,*) 'Add a memory card of the following format: '
          write(LuOut,3)
          write(LuOut,*) 'memory heap <default + ', icode, '>'
-         man_sec = 'NWChem -> Top Level Directives -> Memory'
+         man_sec = 'Overview -> Top Level Directives -> Memory'
       endif
 #endif
 c     
@@ -108,13 +108,13 @@ c
       if (errcode .eq. GA_ERR) then
          write(LuOut,*) 'You need to assign at least ', icode,
      &        ' bytes more global memory'
-         man_sec = 'NWChem -> Top Level Directives -> Memory'
+         man_sec = 'Overview -> Top Level Directives -> Memory'
       endif
 c     
       if (errcode .eq. MA_ERR) then
          write(LuOut,*) 'You need to assign at least ', icode,
      &        ' bytes more local memory'
-         man_sec = 'NWChem -> Top Level Directives -> Memory'
+         man_sec = 'Overview -> Top Level Directives -> Memory'
       endif
 #endif
 c
@@ -135,8 +135,7 @@ c
 c
       write(LuOut,1) 
       write(LuOut,*) 'For more information see the NWChem manual at ',
-     &     'http://www.emsl.pnl.gov/docs/nwchem/nwchem',
-     &     '.html'
+     &     'http://www.nwchem-sw.org/index.php/NWChem_Documentation'
       write(LuOut,3)
       write(LuOut,*) 'For further details see manual section: ',
      &     man_sec
