@@ -35,6 +35,23 @@ ifeq ($(HOSTNAME),ng127)
  LIB_DEFINES += -DDFLT_TOT_MEM=235929600 -DELAN3HACK
 endif
 
+ifeq ($(HOSTNAME),cu0login1)
+  LIB_DEFINES += -DDFLT_TOT_MEM=419430400
+endif
+ifeq ($(HOSTNAME),cu0login2)
+  LIB_DEFINES += -DDFLT_TOT_MEM=419430400
+endif
+ifeq ($(HOSTNAME),cu0login3)
+  LIB_DEFINES += -DDFLT_TOT_MEM=419430400
+endif
+ifeq ($(HOSTNAME),cu0login4)
+  LIB_DEFINES += -DDFLT_TOT_MEM=419430400
+endif
+ifeq ($(HOSTNAME),cu0login5)
+  LIB_DEFINES += -DDFLT_TOT_MEM=419430400
+endif
+
+
 # END_WIN32_IGNORE
 
 include ../config/makelib.h
