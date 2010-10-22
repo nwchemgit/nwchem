@@ -17,7 +17,7 @@ C Array of atomic symbols
      *   'cs','ba','la','ce','pr','nd','pm','sm','eu','gd','tb',
      *        'dy','ho','er','tm','yb','lu','hf','ta','w ','re',
      *        'os','ir','pt','au','hg','tl','pb','bi','po','at','rn',
-     *   'fr','ra','ac','th','pa','u','np','pu','am','cm','bk',
+     *   'fr','ra','ac','th','pa','u ','np','pu','am','cm','bk',
      *        'cf','es','fm','md','no','lr'/
 C
       drdy_atsym = asymb(iat)

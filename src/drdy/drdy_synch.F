@@ -25,11 +25,14 @@ C $Id: drdy_synch.F,v 1.11 2003-10-17 22:54:46 carlfahl Exp $
       integer current_print_level
       logical status
       logical status_rtdb, status_ignore
+      logical extra_sync
+      integer found_task
 *
 *      write(fu6,*)' drdy_synch called with code ',opcode,
 *     &    ' from ',calling_routine,' node =',me_drdy
 *      call util_flush(6)
       if (me_drdy.eq.master) then
+        extra_sync = .true.
         if (.not.
      &        rtdb_cput(my_rtdb,'scf:input vectors',1,'atomic')) then
           write(fu6,*)' could not reset input vectors to atomic '
@@ -68,6 +71,7 @@ c
               write(fu6,*) 'could not process drdy:theory input'
               call errquit('drdy_synch: fatal error ',555, RTDB_ERR)
             endif
+            extra_sync=.false.
           endif
 c
 c Otherwise we need to set the information for the single point
@@ -108,10 +112,27 @@ c
               write(fu6,*) 'could not process drdy:theorysp input'
               call errquit('drdy_synch: fatal error ',555, RTDB_ERR)
             endif
+            extra_sync = .false.
           endif
         endif
+* input routines have ga_sync() calls in them, so we have to do a ga_sync()
+* call to match that, but if we don't do input reading, then we fake it
+* on the master
+        if (extra_sync)  then
+*         So, we didn't parse any input, so fake it
+          call ga_sync()
+          found_task = 0
+          call ga_igop(33,found_task,1,'+')
+        endif
       endif
+
 00001 continue
+      if (me_drdy.ne.master) then
+        call ga_sync()
+        found_task = 0
+        call ga_igop(33,found_task,1,'+')
+      endif
+
 *      write(fu6,*)' B4 msg_drdy_opcode = ',msg_drdy_opcode,
 *     &    ' opcode = ',opcode,' node=',me_drdy
 *      call util_flush(6)

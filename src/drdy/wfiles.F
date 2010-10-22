@@ -23,6 +23,9 @@ C
 C
       Equivalence (char2,cmd)
 C
+      logical status_rtdb, status_ignore
+      status_rtdb   = rtdb_parallel(.false.)
+
       nstrs = 6
       if (swf.eq.sreact) then
          schar(1) = 's'
@@ -124,6 +127,7 @@ C
          endif
       endif
 C
+      status_ignore = rtdb_parallel(status_rtdb)
       return
 600   format(10x,'save file, system command=  ',A255)
 601   format(10x,'error saving file with system command=  ',A255)

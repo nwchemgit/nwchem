@@ -31,8 +31,10 @@ C
       Integer ncenter_B4_autosym, ncenter, nata
       Integer current_print_level,nops
       logical oautosym
+      logical status_rtdb, status_ignore
 *     logical copy_sym, copy_c1, oautosym
 *
+
       call util_print_get_level(current_print_level)
       call util_print_set_level(print_none)
 *
@@ -64,6 +66,8 @@ c
 c Now figure out if we are going to use autosym and if so, get the
 c value for the threshold and take care of the symmetry
 c
+      status_rtdb   = rtdb_parallel(.false.)
+
       if (.not. rtdb_get(my_rtdb,'drdy:autosym',mt_log,1,oautosym))
      &  call errquit('nwc_gen: problem getting autosym from rtdb',555,
      &       RTDB_ERR)
@@ -134,6 +138,9 @@ c
 c
 c Actually do the deed
 c
+      status_ignore   = rtdb_parallel(status_rtdb)
+      status_rtdb   = rtdb_parallel(.false.)
+
       if ((op.ge.DRDY_CODE_SPENERGY).and.
      &    (op.le.DRDY_CODE_HESSIAN)) then
         call drdy_synch(op,'nwc_gen')
@@ -141,6 +148,8 @@ c
         write(luout,*) 'Trying to calculate an unknown op code'
         call errquit('nwc_gen: Unknown op code',op, INPUT_ERR)
       endif
+      status_ignore   = rtdb_parallel(status_rtdb)
+      status_rtdb   = rtdb_parallel(.false.)
 c
 c Get the appropriate values to hand back
 c
@@ -174,6 +183,7 @@ C     original orientation
         call drdy_rotf(fmat,amat,rr,natom,n3,n3tm)
       endif
 *
+      status_ignore = rtdb_parallel(status_rtdb)
       return
 10    Format (1x,'Symmetry group is ',a3)
 1000  Format (1x,79a1)
