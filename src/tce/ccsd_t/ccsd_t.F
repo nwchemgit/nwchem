@@ -52,7 +52,8 @@ c    opening l_t1_local and l_x1_local
      1      call errquit('ccsd_t: t1_local size=',size_t1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
 c    copy d_t1 ==> l_t1_local
-        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+ccx        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+      call get_block(d_t1,dbl_mb(k_t1_local),size_t1,0)
 c -------------------------------
 C
       nprocs = GA_NNODES()
@@ -256,7 +257,8 @@ c    opening l_t1_local and l_x1_local
      1      call errquit('ccsd_t: t1_local',11,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
 c    copy d_t1 ==> l_t1_local
-        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+cc        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+      call get_block(d_t1,dbl_mb(k_t1_local),size_t1,0)
 c -------------------------------
 C
       nprocs = GA_NNODES()
@@ -502,7 +504,8 @@ c    opening l_t1_local and l_x1_local
      1      call errquit('ccsd_t: t1_local',21,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
 c    copy d_t1 ==> l_t1_local
-        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+cc        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+      call get_block(d_t1,dbl_mb(k_t1_local),size_t1,0)
 c -------------------------------
 C
       nprocs = GA_NNODES()

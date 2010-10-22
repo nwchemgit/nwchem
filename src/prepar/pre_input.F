@@ -140,7 +140,6 @@ c
       write(68,7801)
 c 7801 format('rdcoor ',/,'center',/,'boxsiz')
  7801 format('rdcoor ')
-      numcmd=numcmd+1
       lrdcoo=.true.
       numcmd=0
 c

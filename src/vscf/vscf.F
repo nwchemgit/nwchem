@@ -2105,12 +2105,13 @@ C
  9022 format(41x,e14.7,3(e14.7,2x))
       END
 c*module vscf    *deck rdtrip
-      SUBROUTINE RDTRIP(tripV,NM,N,NSTART)
+      SUBROUTINE RDTRIP(tripV,NM,N,NSTART,ltrip)
  
       IMPLICIT DOUBLE PRECISION(A-H,O-Z)
  
 #include "global.fh"
  
+      integer ltrip
       DIMENSION TRIPV(NM,NM,NM,N,N,N)
       dimension nstart(7)
  
@@ -2121,7 +2122,7 @@ c*module vscf    *deck rdtrip
                   do l1=1, N
                      do l2=1, N
                         do l3=1, N
-                           read(IR,9025,end=9024,err=9024) 
+                           read(ltrip,9025,end=9024,err=9024) 
      &                           tripV(i,j,k,l1,l2,l3)
                            nstart(2)=i
                            nstart(3)=l1
@@ -2642,7 +2643,7 @@ c
       endif
       if (trip_exists.and.ncoup.eq.3) then
          if(ga_nodeid().eq.0) write(LuOut,9050)
-         CALL RDTRIP(XTRIPV,NNM,NGRID,nstart)
+         CALL RDTRIP(XTRIPV,NNM,NGRID,nstart,ltrip)
       endif
 c
 c     Restart if user specified restart keyword and we are reusing 

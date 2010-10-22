@@ -232,8 +232,10 @@ c    opening l_t1_local and l_x1_local
         call ma_zero(dbl_mb(k_x1_local),size_x1)
 c    copy d_t1 ==> l_t1_local
 c    copy x1(ivec) ==> l_x1_local
-        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
-        call ga_get(d_x1,1,size_x1,1,1,dbl_mb(k_x1_local),1)
+cc        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+cc        call ga_get(d_x1,1,size_x1,1,1,dbl_mb(k_x1_local),1)
+       call get_block(d_t1,dbl_mb(k_t1_local),size_t1,0)
+       call get_block(d_x1,dbl_mb(k_x1_local),size_x1,0)
 c -------------------------------
 c
 c     Caution! k_right & k_den are not even allocated yet

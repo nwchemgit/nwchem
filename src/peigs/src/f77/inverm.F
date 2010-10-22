@@ -803,11 +803,11 @@ C-----END OF COMPLEX INNER PRODUCT SUBROUTINE---------------------------
 C
 C-----LPERM-PERMUTES VECTORS--------------------------------------------
 C
-      SUBROUTINE LPERM(W,U,IPERM)
+c     SUBROUTINE LPERM(W,U,IPERM)
 C
 C-----------------------------------------------------------------------
-      DOUBLE PRECISION  U(*),W(*)
-      INTEGER  IPR(1),IPT(1)
+c     DOUBLE PRECISION  U(*),W(*)
+c     INTEGER  IPR(1),IPT(1)
 C-----------------------------------------------------------------------
 C     SUBROUTINE HAS 2 BRANCHES:  IPERM = 1,  CALCULATES
 C     U = P*W
@@ -816,31 +816,31 @@ C     IPERM = 2, CALCULATES
 C     U = P'*W  LET J = IPT(K) THEN U(K) = W(J), K=1,N.
 C-----------------------------------------------------------------------
 C
-      IF(IPERM.EQ.2) GO TO 30
+c     IF(IPERM.EQ.2) GO TO 30
 C
 C-----------------------------------------------------------------------
 C     IPERM = 1
-      DO 10 K = 1,N
-      J = IPR(K)
-   10 U(K) = W(J)
-      GO TO 60
+c     DO 10 K = 1,N
+c     J = IPR(K)
+c  10 U(K) = W(J)
+c     GO TO 60
 C----------------------------------------------------------------------
 C     IPERM = 2
-   30 DO 40 K = 1,N
-      J = IPT(K)
-   40 U(K) = W(J)
+c  30 DO 40 K = 1,N
+c     J = IPT(K)
+c  40 U(K) = W(J)
 C----------------------------------------------------------------------
-   60 CONTINUE
-      DO 50 K = 1,N
-   50 W(K) = U(K)
+c  60 CONTINUE
+c     DO 50 K = 1,N
+c  50 W(K) = U(K)
 C
-      RETURN
+c     RETURN
 C
 C-----------------------------------------------------------------------
 cwarning      ENTRY LPERME(IPR,IPT,N)
 C-----------------------------------------------------------------------
 C
 C-----END OF LPERM-------------------------------------------------
-      RETURN
-      END
+c     RETURN
+c     END
 

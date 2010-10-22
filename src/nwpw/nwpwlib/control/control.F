@@ -70,6 +70,7 @@
       np_dimensions(1) = np
       np_dimensions(2) = 1
       np_dimensions(3) = 1
+      np_default = .true.
 #else
       if(.not.rtdb_get(rtdb,'nwpw:np_dimensions',
      >                 mt_int,3,np_dimensions)) then

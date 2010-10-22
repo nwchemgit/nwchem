@@ -38,7 +38,7 @@
       logical  paw_noit_energy
       external paw_noit_energy
 
-
+      value     = .true.
 *     **** initialize and read in geometry object ****
       value     = value.and.geom_create(geom,'geometry')
       value     = value.and.geom_rtdb_load(rtdb,geom,'geometry')

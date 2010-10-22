@@ -347,6 +347,7 @@ c
       external    bead_index_name
       external    inp_strlen
 
+      value     = .true.
       taglen    = inp_strlen(tag)
 
       rtdb_name = tag(1:taglen)//':perm_movecs'
@@ -357,7 +358,8 @@ c
 
       
       rtdb_name = tag(1:taglen)//':size'
-      value = rtdb_get(bead_rtdb,rtdb_name,mt_int,1,size) 
+      value = value.and.
+     >        rtdb_get(bead_rtdb,rtdb_name,mt_int,1,size) 
       if (i.gt.size) return
 
       rtdb_name = tag(1:taglen)//bead_index_name(i)//':movecs_name'

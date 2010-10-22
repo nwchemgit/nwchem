@@ -75,7 +75,7 @@ c
       call tce_mo1e_offset(l_f1_offset,k_f1_offset,size_1e)
       call createfile(filename,d_f1,size_1e)
       if (recompf) then
-        call tce_mo1e(g_ao1e,d_f1)
+        call tce_mo1e(g_ao1e,d_f1,k_f1_offset)
       else
         call tce_mo1e_epsilon(d_f1)
       endif

@@ -95,6 +95,11 @@ c...  for texas blocking in moints_semi
 c     
       logical oblk
 c     
+      oprint_mem = util_print('multipass',print_default) .and. 
+     $     ga_nodeid().eq.0
+      oprint_where = util_print('where',print_default) .and. 
+     $     ga_nodeid().eq.0
+c     
       if (scftype .eq. 'RHF') then
          info = ' for RHF alpha+beta'
       else if (passab .eq. 1) then
@@ -152,11 +157,6 @@ c
       call ga_igop(12,avail_ga,1,'min')
       avail_ga = avail_ga/8  ! convert to words
       call ga_dgop(13,avail_file,1,'min')
-c     
-      oprint_mem = util_print('multipass',print_default) .and. 
-     $     ga_nodeid().eq.0
-      oprint_where = util_print('where',print_default) .and. 
-     $     ga_nodeid().eq.0
 c     
       if (oprint_mem) then
          write(6,201) ga_uses_ma(), ga_memory_limited()

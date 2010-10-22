@@ -858,7 +858,7 @@ c
       call createfile(filename,d_f1,size_1e)
       if (.not.read_integrals(1)) then
         if (recompf) then
-          call tce_mo1e(g_ao1e,d_f1)
+          call tce_mo1e(g_ao1e,d_f1,k_f1_offset)
         else
           call tce_mo1e_epsilon(d_f1)
         endif
@@ -6941,8 +6941,10 @@ c - T1/X1 LOCALIZATION ----------
         call ma_zero(dbl_mb(k_x1_local),size_x1)
 c    copy d_t1 ==> l_t1_local
 c    copy x1(ivec) ==> l_x1_local
-        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
-        call ga_get(x1(ivec),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+cc        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+cc        call ga_get(x1(ivec),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+      call get_block(d_t1,dbl_mb(k_t1_local),size_t1,0)
+      call get_block(x1(ivec),dbl_mb(k_x1_local),size_x1,0)
 ccx       end if
 c -------------------------------
          if(ccsd_var.eq.'cc2') then
@@ -7351,8 +7353,10 @@ c - T1/X1 LOCALIZATION ----------
      1      call errquit('x1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
         call ma_zero(dbl_mb(k_x1_local),size_x1)
-        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
-        call ga_get(x1(iroot),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+cc        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+cc        call ga_get(x1(iroot),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+        call get_block(d_t1,dbl_mb(k_t1_local),size_t1,0)
+        call get_block(x1(iroot),dbl_mb(k_x1_local),size_x1,0)
 c -------------------------------
          if(ccsd_var.eq.'cc2') then
           call cc2_x1(d_f1,xp1(iroot),k_t1_local,d_t2,d_v2,
@@ -7491,8 +7495,10 @@ c - T1/X1 LOCALIZATION ----------
      1      call errquit('x1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
         call ma_zero(dbl_mb(k_x1_local),size_x1)
-        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
-        call ga_get(x1(ipos),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+cc        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+cc        call ga_get(x1(ipos),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+        call get_block(d_t1,dbl_mb(k_t1_local),size_t1,0)
+        call get_block(x1(ipos),dbl_mb(k_x1_local),size_x1,0)
 c -------------------------------
          if(ccsd_var.eq.'cc2') then
           call cc2_x1(d_f1,xp1(ipos),k_t1_local,d_t2,d_v2,

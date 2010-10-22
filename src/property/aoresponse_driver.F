@@ -88,6 +88,7 @@ c
       integer response_order
       data response_order/1/ ! 1 for linear, 2 for quadratic, etc
 
+      double precision dummy(3)
       double precision origin(3)
       data origin/0d0,0d0,0d0/
 
@@ -412,9 +413,9 @@ c       use g_dipmag array for that. h is the one-electron part of
 c       the Fock-operator
 c       
         call ga_zero(g_dipmag)
-        call int_giao_1ega(basis,basis,g_dipmag,'l10',dbl_mb(k_xyz),
+        call int_giao_1ega(basis,basis,g_dipmag,'l10',dummy,
      &     sh_atom,oskel)
-        call int_giao_1ega(basis,basis,g_dipmag,'tv10',dbl_mb(k_xyz),
+        call int_giao_1ega(basis,basis,g_dipmag,'tv10',dummy,
      &     sh_atom,oskel)
 
         

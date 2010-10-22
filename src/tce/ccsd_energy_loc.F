@@ -42,7 +42,8 @@ c
      1                       l_t1_local,k_t1_local))
      1      call errquit('ccsd_energy_loc: t1_local',1,MA_ERR)
         call ma_zero(dbl_mb(k_t1_local),size_t1)
-        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+cc        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+        call get_block(d_t1,dbl_mb(k_t1_local),size_t1,0)
         call tce_filename('e',filename)
         call createfile(filename,d_e,1) ! size_e = 1
         call ccsd_e(d_f1,d_e,k_t1_local,d_t2,d_v2,
@@ -51,15 +52,26 @@ c
         call reconcilefile(d_e,1)
         call tce_filename('r1',filename)
         call createfile(filename,d_r1,size_t1)
-        call ccsd_t1(d_f1,d_r1,k_t1_local,d_t2,d_v2,
-     1               k_f1_offset,k_t1_offset,
-     2               k_t1_offset,k_t2_offset,k_v2_offset)
+        if(ccsd_var.eq.'cc2') then
+           call cc2_t1(d_f1,d_r1,d_t1,d_t2,d_v2,k_f1_offset,
+     &                 k_t1_offset,k_t1_offset,k_t2_offset,k_v2_offset)
+        else
+           call ccsd_t1(d_f1,d_r1,k_t1_local,d_t2,d_v2,
+     1                  k_f1_offset,k_t1_offset,
+     2                  k_t1_offset,k_t2_offset,k_v2_offset)
+        end if
         call reconcilefile(d_r1,size_t1)
         call tce_filename('r2',filename)
         call createfile(filename,d_r2,size_t2)
-        call ccsd_t2(d_f1,d_r2,k_t1_local,d_t2,d_v2,
-     1               k_f1_offset,k_t2_offset,
-     2               k_t1_offset,k_t2_offset,k_v2_offset)
+        if(ccsd_var.eq.'cc2') then
+           call cc2_t2(d_f1,d_r2,d_t1,d_t2,d_v2,k_f1_offset,k_t2_offset,
+     &                 k_t1_offset,k_t2_offset,k_v2_offset,size_t2,
+     &                 k_t1_local)
+        else
+           call ccsd_t2(d_f1,d_r2,k_t1_local,d_t2,d_v2,
+     1                  k_f1_offset,k_t2_offset,
+     2                  k_t1_offset,k_t2_offset,k_v2_offset)
+        end if
         call reconcilefile(d_r2,size_t2)
         call tce_residual_t1(d_r1,k_t1_offset,r1)
         call tce_residual_t2(d_r2,k_t2_offset,r2)
@@ -76,8 +88,13 @@ c          write(LuOut,9101) cpusecs(37),cpusecs(38)
         if (residual .lt. thresh) then
         if (nodezero) then
           write(LuOut,9060)
-          write(LuOut,9070) "CCSD",corr
-          write(LuOut,9080) "CCSD",ref + corr
+          if(ccsd_var.eq.'cc2') then
+             write(LuOut,9070) "CC2 ",corr
+             write(LuOut,9080) "CC2 ",ref + corr
+          else
+             write(LuOut,9070) "CCSD",corr
+             write(LuOut,9080) "CCSD",ref + corr
+          end if
         endif
         call deletefile(d_r2)
         call deletefile(d_r1)

@@ -2587,6 +2587,7 @@ c
 c     eliminate conventions that refer to centers used for
 c     computation purposes .. just bq and x for now
 c
+      match = .false.
       do i=1,nt
         match = .false.
         offset = (i-1)*ns
@@ -2722,6 +2723,7 @@ c
 c     eliminate conventions that refer to centers used for
 c     computation purposes .. just bq and x for now
 c
+      match = .false.
       do i=1,nt
         match = .false.
         buf = tag(i)
@@ -2844,6 +2846,7 @@ c
 c     eliminate conventions that refer to centers used for
 c     computation purposes .. just bq and x for now
 c
+      match = .false.
       do i=1,nt
         match = .false.
         buf = tag(nt)
@@ -6745,7 +6748,7 @@ c     local variables
       logical geom_rtdb_store,geom_destroy
       external geom_rtdb_store,geom_destroy
  
-
+      master = ga_nodeid().eq.0
       pname = "geom_create_from_file"
 c
 c     we assume that xyz file has a title
@@ -6926,6 +6929,7 @@ c     local variables
       external geom_rtdb_store,geom_destroy
  
 
+      master = ga_nodeid().eq.0
       pname = "geom_create_from_trj"
       geom_create_from_trj = .false.
 c

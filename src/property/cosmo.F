@@ -2634,6 +2634,7 @@ c     ----- numerical recipes (p.70), cambridge university press -----
 c          w.h.press, b.p.flannery, s.a.teukolsky, w.t.vetterling
 c
 #include "errquit.fh"
+#include "stdio.fh"
 c
       logical     dbug
       double precision efcc(3,n),efcs(n)
