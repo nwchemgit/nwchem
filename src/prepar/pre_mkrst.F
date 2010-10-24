@@ -20,8 +20,8 @@ c
       external pre_pdbsiz,pre_solvat,pre_boxsiz,pre_misfit,pre_wrtpdb
       logical pre_rdrst,pre_disres,pre_fix,pre_rstsiz,pre_wtrst
       external pre_rdrst,pre_disres,pre_fix,pre_rstsiz,pre_wtrst
-      logical util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
-      external util_nwchemrc_get,pre_rrst,pre_rstsz,pre_wrtxyz
+      logical pre_rrst,pre_rstsz,pre_wrtxyz
+      external pre_rrst,pre_rstsz,pre_wrtxyz
       logical pre_align,pre_repeat,pre_transl,pre_removw,pre_wrtpov
       external pre_align,pre_repeat,pre_transl,pre_removw,pre_wrtpov
       logical pre_rot,pre_crop,pre_his
