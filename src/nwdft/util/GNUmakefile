@@ -12,6 +12,7 @@
 	get_col.o \
 	movecs_log.o \
 	nbf_to_mbf.o \
+	dft_frozemb.o \
 	sca_lab_mat.o dft_utilmap.o
 
 
