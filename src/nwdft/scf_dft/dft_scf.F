@@ -171,19 +171,15 @@ c     for vdw contrib
       double precision dum
       logical disp
 c
-czora...zora essentials
-c
-      Logical dft_zora_read, dft_zora_write, dft_zora_inquire_file
-      External dft_zora_read, dft_zora_write, dft_zora_inquire_file
-
+c     == zora related ==
+      logical dft_zora_read, dft_zora_write, dft_zora_inquire_file
+      external dft_zora_read, dft_zora_write, dft_zora_inquire_file
       character*255 zorafilename
-      integer g_zora_sf(2), g_zora_scale_sf(2)
-      integer g_zora_scr(2)
+      integer g_zora_sf(2)
+      integer g_zora_scale_sf(2)
       double precision ener_scal
-      integer g_dens_ini(2)    ! Added by FA
 c
 c     timings 
-c
       double precision time1,time2
 c
       gotsmear(ss)=abs(ss).gt.1d-9
@@ -389,15 +385,13 @@ c
       nExc    = idecomp + 1
       Etnew = 0.d0
 c     
-c     SCF energy convergence criterion. 
-c     
+c     == scf energy convergence criterion ==
       if (.not. ga_duplicate(g_fock, g_tmp, 'tmp matrix'))
      &  call errquit('dft_scf:failed duplicate',g_fock, GA_ERR)
       if (.not. ga_duplicate(g_fock, g_focks(1), ' alpha fock'))
      &  call errquit('dft_scf:failed duplicate',g_fock, GA_ERR)
 c     
-c     Set up local convergence parameters
-c     
+c     == set up local convergence parameters ==
       diising = diis
       damping = damp
       levelshifting = levelshift
@@ -442,15 +436,13 @@ c
          diising = .true.
       endif
 c     
-c     Initialize DIIS call counter.
-c     
+c     == initialize DIIS call counter ==
       icall(1) = 0
       icall(2) = 0
 c     
-c     Begin the SCF cycle.
+c     == Begin the SCF cycle ==
 c     
-c     allocate eigenvalue array, including second pointer to beta block
-c
+c     == allocate eigenvalue array, including second pointer to beta block ==
       leneval = nbf_ao * ipol
       if (.not.MA_Push_Get(MT_Dbl,leneval,'eval',l_eval,k_eval(1)))
      &     call errquit('dft_scf: cannot allocate eval',0, MA_ERR)
@@ -458,8 +450,7 @@ c
          k_eval(2) = k_eval(1) + nbf_ao
       endif 
 c     
-c     Dump DFT parameters (if debugging) to see if they make sense
-c     
+c     == dump DFT parameters (if debugging) to see if they make sense ==
       if (me.eq.0.and.oprint_info)call dft_dump_info(me)
 
       if (ipol.eq.1)then
@@ -468,12 +459,11 @@ c
          scftype = 'UHF'
       endif
 c
-c     needed for dftmp2
+c     == needed for dftmp2 ==
       if (.not. rtdb_cput(rtdb,'scf:scftype', 1, scftype))
      &   call errquit('dft_scf: rtdb_cput scftype failed', 0, RTDB_ERR)
 c
-c     allocate array for irreps
-c
+c     == allocate array for irreps ==
       if (.not.MA_Push_Get(mt_int,ipol*nbf_ao,'dft:irreps',l_ir,k_ir))
      &   call errquit('dft_scf: cannot allocate irreps',0, MA_ERR)
       call ifill(ipol*nbf_ao,1,int_mb(k_ir),1)
@@ -485,38 +475,77 @@ c
       if (.not. bas_name(ao_bas_han, basis_name, basis_trans))
      $     call errquit('dft_scf: bas_name?', 0, BASIS_ERR)
 c
-c     get info for int2e_ and set sleazy tolerance
-c     
+c     == get info for int2e_ and set sleazy tolerance ==
       if (.not.rtdb_get(rtdb,'dft:tol2e_sleazy',
      ,     mt_dbl,1,tol2e_sleazy)) tol2e_sleazy = 1.d-4
       call scf_get_fock_param(rtdb, tol2e_sleazy)
-!c
-!c     Force sleazy SCF into "direct" mode.
-!c
+c
+c     == force sleazy SCF into "direct" mode ==
       call fock_force_direct(rtdb)
 c
-czora...force an atomic guess only if the zora correction file is absent
+c     == get atomic zora contributions ==
       if (do_zora) then
+        if (me.eq.0) write(luout,*) "== Performing ZORA calculations =="
 c
-czora...get a filename for the zora data
+c       == get filename for the zora data ==
         call util_file_name('zora_sf',.false.,.false.,zorafilename)
 c
-        if (.not.dft_zora_inquire_file(zorafilename)) then
-            movecs_in = "atomic"
+c       == generate an superposition of atomic densities ==
+        call ga_zero(g_dens_at(1))
+        if (ipol.gt.1) call ga_zero(g_dens_at(2))
+        call guess_dens(rtdb, geom, ao_bas_han, g_dens_at)
+        if (oskel) call ga_symmetrize(g_dens_at(1))
+        if(ipol.gt.1) then
+            call ga_copy(g_dens_at(1),g_dens_at(2))
+            call ga_dscal(g_dens_at(1),dble(ntotel-nclosed)/(ntotel))
+            call ga_dscal(g_dens_at(2),dble(nclosed)/(ntotel))
+            if(oskel) call ga_symmetrize(g_dens_at(2))
         end if
 c
-      end if
-czora...
+c       == zora arrays ==
+        if(.not.ga_duplicate(g_vxc(1),g_zora_sf(1),'sf 1'))
+     &     call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
+        call ga_zero(g_zora_sf(1))
+        if(ipol.gt.1) then
+         if(.not.ga_duplicate(g_vxc(2),g_zora_sf(2),'sf 2'))
+     &     call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
+           call ga_zero(g_zora_sf(2))
+        endif
 c
+c       == zora energy scaling arrays ==
+        if(.not.ga_duplicate(g_vxc(1),g_zora_scale_sf(1),'scale 1'))
+     &     call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
+        call ga_zero(g_zora_scale_sf(1))
+        if(ipol.gt.1) then
+         if(.not.ga_duplicate(g_vxc(2),g_zora_scale_sf(2),'scale 2'))
+     &     call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
+           call ga_zero(g_zora_scale_sf(2))
+        endif
+c
+c       == try reading the zora atomic corrections from file ==
+        if (.not.dft_zora_read(zorafilename, nbf_ao, ipol, nmo,
+     &            mult, g_zora_sf, g_zora_scale_sf)) then
+c
+c       == calculate the zora spin-free atomic corrections ==
+        call zora_getv_sf(rtdb, g_dens_at, g_zora_sf, g_zora_scale_sf,
+     &        nexc)
+c
+c        == write out the atomic zora corrections to file ==
+         if (.not.dft_zora_write(rtdb, ao_bas_han, zorafilename,
+     &     nbf_ao, ipol, nmo, mult, g_zora_sf, g_zora_scale_sf))
+     &    call errquit('dft_scf: dft_zora_write failed', 0, DISK_ERR)
+c
+        end if   ! zora file read
+      end if  ! do_zora
+c
+c     == determine guess ==
       call dft_guessin(movecs_in,ldmix,ncanorg,fon,
      ,     vecs_or_dens,
      ,     ipol,nbf_ao,g_movecs,g_gmovecs,
      ,     toll_s,svals)
-
+c
+c     == better have static ldb at high node counts ==
       if (odftps) call pstat_on(ps_guess)
-c
-c     better have static ldb at high node counts
-c
       if (.not.rtdb_get(rtdb,'dft:staticguess',
      ,     mt_log,1,staticguess)) staticguess=.false.
       if(staticguess) llldb=util_statldb(.true.,rtdb)
@@ -533,6 +562,7 @@ c
      &     write(LuOut,'(2x," Time after variat. SCF: ",f8.1)')
      &     util_cpusec()
       if (odftps) call pstat_off(ps_guess)
+
       if(.not.rtdb_get(rtdb,'quickguess',mt_log,1,quickguess)) 
      .     quickguess=.false.
       if(quickguess.and.movecs_in.eq.'atomic') then
@@ -648,106 +678,6 @@ c     Restore SCF parameters
 c
       call scf_get_fock_param(rtdb, tol2e)
 c
-czora...Get the zora contributions
-c
-      if (do_zora) then
-c
-czora...scratch array
-c
-       if(.not.ga_duplicate(g_vxc(1),g_zora_scr(1),'scratch 1'))
-     &  call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
-        call ga_zero(g_zora_scr(1))
-        if (ipol.gt.1) then
-         if(.not.ga_duplicate(g_vxc(2),g_zora_scr(2),'scratch 2'))
-     &   call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
-         call ga_zero(g_zora_scr(2))
-        endif
-c
-czora...Create zora correction arrays
-c
-       if(.not.ga_duplicate(g_vxc(1),g_zora_sf(1),'sf 1'))
-     &  call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
-        call ga_zero(g_zora_sf(1))
-        if(ipol.gt.1) then
-         if(.not.ga_duplicate(g_vxc(2),g_zora_sf(2),'sf 2'))
-     &   call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
-         call ga_zero(g_zora_sf(2))
-        endif
-c
-czora...Energy scaling arrays
-c
-       if(.not.ga_duplicate(g_vxc(1),g_zora_scale_sf(1),'scale 1'))
-     &  call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
-        call ga_zero(g_zora_scale_sf(1))
-        if(ipol.gt.1) then
-         if(.not.ga_duplicate(g_vxc(2),g_zora_scale_sf(2),'scale 2'))
-     &   call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
-         call ga_zero(g_zora_scale_sf(2))
-        endif
-c
-czora...Preliminaries
-c
-        do_zora_get_correction = .true.
-c
-czora...Capture the atomic density
-c
-        call ga_zero(g_dens_at(1))
-        if (ipol.gt.1) call ga_zero(g_dens_at(2))
-        call ga_copy(g_dens(1),g_dens_at(1))
-        if (ipol.gt.1) call ga_copy(g_dens(1),g_dens_at(1))
-c
-czora...Try reading in the zora atomic corrections from file
-c
-        if (.not.dft_zora_read(zorafilename, nbf_ao, ipol, nmo, 
-     &            mult, g_zora_sf, g_zora_scale_sf)) then 
-c
-czora...Calculate the zora spin-free atomic corrections
-c
-c ----- copy g_dens - FA ------- START
-c        if (ga_nodeid().eq.0) 
-c    &      write(*,*) "copying g_dens --> g_dens_ini ..START"
-         if(.not.ga_duplicate(g_dens(1),g_dens_ini(1),'gdens 1'))
-     &   call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
-          call ga_copy(g_dens(1),g_dens_ini(1))   
-          if (ipol.gt.1) then
-         if(.not.ga_duplicate(g_dens(2),g_dens_ini(2),'gdens 2'))
-     &   call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
-          call ga_copy(g_dens(2),g_dens_ini(2))    
-          endif
-c        if (ga_nodeid().eq.0) 
-c    &      write(*,*) "copying g_dens --> g_dens_ini ..END"
-c ----- copy g_dens - FA ------- END
-          so_term = 0
-          zora_calc_type = 1  ! zora corrections
-          call ga_zero(g_zora_scr(1))
-          if (ipol.gt.1) call ga_zero(g_zora_scr(2))
-          call zora_getv(rtdb, g_dens, g_zora_scr, nexc)
-          call ga_copy(g_zora_scr(1),g_zora_sf(1))
-          if (ipol.gt.1) call ga_copy(g_zora_scr(2),g_zora_sf(2))
-c
-czora...Calculate the zora spin-free energy scaling corrections
-c
-          zora_calc_type = 2  ! energy scaling
-          call ga_zero(g_zora_scr(1))
-          if (ipol.gt.1) call ga_zero(g_zora_scr(2))
-          call zora_getv(rtdb, g_dens, g_zora_scr, nexc)
-          call ga_copy(g_zora_scr(1),g_zora_scale_sf(1))
-          if (ipol.gt.1) call ga_copy(g_zora_scr(2),g_zora_scale_sf(2))
-c
-czora...Write out the atomic zora corrections to file
-c
-          if (.not.dft_zora_write(rtdb, ao_bas_han, zorafilename, 
-     &     nbf_ao, ipol, nmo, mult, g_zora_sf, g_zora_scale_sf))
-     &    call errquit('dft_scf: dft_zora_write failed', 0, DISK_ERR)
-c
-        end if   ! zora file read
-c
-czora...Reset
-        do_zora_get_correction = .false.
-c
-      end if  ! do_zora
-czora...end
-c     
 c     If open shell put the total density matrix in g_dens(1)
 c
       if(ipol.eq.2)then             
@@ -773,7 +703,7 @@ c     == if frozen embedding ==
         if (.not. ga_duplicate(g_fock, g_frozemb, 'froz matrix'))
      &     call errquit('dft_scf:failed duplicate',g_frozemb, GA_ERR)
         call ga_zero(g_frozemb)
-        call get_frozemb(rtdb,g_frozemb)
+        call dft_frozemb(rtdb,g_frozemb)
 c      call ga_print(g_frozemb)
 c      call ga_print(g_s)
       end if
@@ -1543,12 +1473,11 @@ c
       if (odftps) call pstat_on(ps_scfend)
       call ga_sync()
 c
-czora...Scale the zora eigenvalues and energy
-c
+c     Scale the zora eigenvalues and energy
       ener_scal = 0.d0
       if (do_zora) then
         call dft_zora_scale(
-     &                   rtdb,g_dens_ini,nexc,  ! Added by FA
+     &                   rtdb,g_dens_at,nexc,  ! Added by FA
      &                   geom, 
      &                   ao_bas_han,
      &                   nbf,
@@ -1891,17 +1820,13 @@ cdft...Deallocate cdft arrays
         endif
       endif
 c
-czora...Deallocate zora related arrays
+c     Deallocate zora related arrays
       if (do_zora) then
-       if (.not. ga_destroy(g_zora_scr(1))) call errquit(
-     &          'dft_scf: ga_destroy failed ',0, GA_ERR)
        if (.not. ga_destroy(g_zora_sf(1))) call errquit(
      &          'dft_scf: ga_destroy failed ',0, GA_ERR)
        if (.not. ga_destroy(g_zora_scale_sf(1))) call errquit(
      &          'dft_scf: ga_destroy failed ',0, GA_ERR)
        if(ipol.gt.1) then
-         if (.not. ga_destroy(g_zora_scr(2))) call errquit(
-     &        'dft_scf: ga_destroy failed ',0, GA_ERR)
          if (.not. ga_destroy(g_zora_sf(2))) call errquit(
      &        'dft_scf: ga_destroy failed ',0, GA_ERR)
          if (.not. ga_destroy(g_zora_scale_sf(2))) call errquit(

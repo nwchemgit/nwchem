@@ -23,9 +23,7 @@
 	diis_driver.o \
 	diis_hamwgt.o \
 	dft_fdist_init.o \
-	cdft_util.o \
-	dft_zora_utils.o \
-	dft_zora_rhos.o
+	cdft_util.o
 	OBJ=\
 	dft_swapab.o \
 	dft_main0d.o \
@@ -38,8 +36,7 @@
 	dft_canorg.o \
 	dft_diagn.o \
 	dft_dump_info.o \
-	dft_fant.o \
-	get_frozemb.o
+	dft_fant.o
 
      LIBRARY = libnwdft.a
 

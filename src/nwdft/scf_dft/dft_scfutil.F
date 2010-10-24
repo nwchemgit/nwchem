@@ -24,6 +24,7 @@ c
       endif
       return
       end
+c
       subroutine dft_prevals(when,me,oprint_eval,oprint_vecs,noc,
      ,  g_movecs,evals,occ)
       implicit none
@@ -81,5 +82,44 @@ c
          call ga_print(g_movecs)
          if (ipol.eq.2)call ga_print(g_movecs(2))
       endif
+      return 
+      end
+c
+      subroutine dft_prevals2(me,noc,g_movecs,evals,occ)
+      implicit none
+#include "util.fh"
+#include "cdft.fh"
+#include "stdio.fh"
+      logical oprint_eval,oprint_vecs
+      character*5 when
+      integer me
+      integer noc(2),g_movecs(2)
+      double precision evals(*),occ(*)
+c
+      if(me.eq.0) then
+            call util_print_centered(LuOut,'Alpha eigenvalues',
+     &           20,.false.)
+         call util_print_centered(LuOut,
+     &        '(all occupied plus 10 virtual)',20,.true.)
+         call output(evals, 1,noc(1)+nbf_ao,
+     &        1, 1, nbf_ao, 1, 1)
+         call util_print_centered(LuOut,'Alpha occupations',
+     &        20,.true.)
+         call output(occ, 1, noc(1)+nbf_ao,nbf_ao,
+     &        1, 1, nbf_ao, 1, 1)
+         if (ipol.eq.2)then
+            write(LuOut,*)
+            call util_print_centered(LuOut,'Beta eigenvalues',
+     &           20,.true.)
+            call output(evals(1+nbf_ao), 1, noc(1)+nbf_ao,
+     &           1, 1, nbf_ao, 1, 1)
+            call util_print_centered(LuOut,'Beta occupations',
+     &           20,.true.)
+            call output(occ(nbf_ao+1),1,noc(1)+nbf_ao,
+     &           1, 1, nbf_ao, 1, 1)
+         endif
+         call util_flush(LuOut)
+      endif
+c
       return 
       end

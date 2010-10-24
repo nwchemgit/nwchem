@@ -443,7 +443,6 @@ c    / to find out the total density on the grid points centered from iatm to fa
       integer i
       logical grid_file_rewind
       external grid_file_rewind
-
 c
 c     ao basis set info used by xc_eval_basis
 c

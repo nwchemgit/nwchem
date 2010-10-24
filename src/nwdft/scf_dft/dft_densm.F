@@ -69,9 +69,9 @@ c
      *                 g_vecs(isp),g_dens(isp),toll)
                 enddo
                 return
-             endif
-          endif  
-          if (odftps) call pstat_on(ps_dgemm)
+            endif
+         endif  
+         if (odftps) call pstat_on(ps_dgemm)
          do isp=1,ipol
             call ga_dgemm('N', 'T', nbf, nbf, 
      $           noc(isp), 2d0/dble(ipol), g_vecs(isp),

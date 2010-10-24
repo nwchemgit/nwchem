@@ -25,7 +25,6 @@ c
       me = ga_nodeid()
       nproc = ga_nnodes()
       ndep=nbf-nmo
-      
 c
 c     
 c        Build Xij
@@ -60,6 +59,7 @@ c
 c     
       return
       end
+c
       integer function dft_lindep(nbf,toll_s,svals,oprint,luout)
       implicit none
       integer nbf ! [in]
@@ -96,6 +96,7 @@ c
       dft_lindep=nmo
       return
       end
+c
       subroutine dft_guessin(movecs_in,ldmix,ncanorg,fon,
      ,     vecs_or_dens,
      ,     ipol,nbf_ao,g_movecs,g_gmovecs,

@@ -120,6 +120,7 @@ c
      &     '           Kinetic energy =', f20.12/)
          endif
       endif
+     
 c
 c     if requested separate calculation of bq-electron energy (MV)
 c     ----------------------------------------------------------- 
@@ -252,12 +253,6 @@ c     == Compute the XC potential and energy ==
 c
       if (odftps) call pstat_on(ps_xc)
 c
-czora...We have the correction, turn off the correction
-czora...so_term is set via a common block (zora.fh)
-czora...so_term = 0 (spin-free and the matrices are symmetric)
-      do_zora_get_correction = .false.
-      so_term = 0
-c
 c     == Calculate the HF exchange (exact Coulomb), DFT exchange-correlation ==
       call xc_getv(rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
      &             g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
@@ -270,7 +265,7 @@ c     add zora contributions
         Ezora_sf =0.d0
         if (ipol.gt.1) then
           Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
-     &      + ga_ddot(g_dens(2),g_zora_sf(2))
+     &             + ga_ddot(g_dens(2),g_zora_sf(2))
         else
           Ezora_sf = ga_ddot(g_dens(1),g_zora_sf(1))
         end if
