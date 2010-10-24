@@ -40,8 +40,6 @@ c
       external util_find_dir
       logical  control_print
       external control_print
-      logical  util_nwchemrc_get
-      external util_nwchemrc_get
       integer  control_rtdb
       external control_rtdb
 c
