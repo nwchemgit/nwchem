@@ -25,7 +25,6 @@ c
 #include "global.fh"
 #include "util.fh"
 #include "grid_quad.fh"
-#include "zora.fh"
 #include "steric.fh"
 #include "msgids.fh"
 c

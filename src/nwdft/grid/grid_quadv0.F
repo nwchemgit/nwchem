@@ -53,7 +53,6 @@ c
 #include "util.fh"
 #include "rtdb.fh"
 #include "dft2drv.fh"
-#include "zora.fh"
 #include "steric.fh"
 
       logical rtdb_status       
@@ -363,6 +362,8 @@ c
      *  call xc_rep_init(rtdb, geom, ao_bas_han,g_dens,g_vxc,
      &     nbf_ao,ipol,do_scf.and.(.not.l3d),.false.)
 c      
+c     Grid quadrature
+c
       if(grid_written) then
 
          if (iAOacc .le. 0) then
@@ -442,7 +443,7 @@ c Qin
          endif
 c end Qin
 
-      endif
+      endif ! grid_written
 c     
       if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,.false.)) call
      .     errquit(' gridquadv0: xcrepclose failed ',0, DISK_ERR)
@@ -457,20 +458,8 @@ c         write(0,*) ' symmetr scf l r',do_scf,do_cpks_l,do_cpks_r,
 c     A        calc_type
 c         call ga_print(g_vxc(1))
 c
-czora...start
-czora...only symmetrize the zora spin-free term 
-          if (do_zora) then
-            if (so_term.eq.0) then
-              call ga_symmetrize(g_vxc(1))
-              if(ipol.gt.1) call ga_symmetrize(g_vxc(2))
-            end if
-            call ga_sync()
-            call util_flush(LuOut)
-          else 
-            call ga_symmetrize(g_vxc(1))
-            if(ipol.gt.1) call ga_symmetrize(g_vxc(2))
-          end if
-czora...end
+          call ga_symmetrize(g_vxc(1))
+          if(ipol.gt.1) call ga_symmetrize(g_vxc(2))
 c
 c         call ga_print(g_vxc(1))
       endif

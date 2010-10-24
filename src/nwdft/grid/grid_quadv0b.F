@@ -30,7 +30,6 @@ c
 #include "grid_quad.fh"
 #include "grid_sic.fh"
 #include "dftps.fh"
-#include "zora.fh"
 #include "geom.fh"
 c
       integer  nqpts    ! [in] no. grid points  to be processed
@@ -208,42 +207,6 @@ c     add beta to 1 to get alpha+beta
      &        rho(iscf_rho), 1)
       endif     
 c
-czora...start
-czora...calculate the zora correction (hartree and nuclear potentials included in correction)
-      if (do_scf .and. do_zora_get_correction) then 
-czora...calculate the zora correction (consolidated density => hartree piece)
-c         if (ga_nodeid().eq.0) 
-c    &       write(*,*) "Using grid_zoracorr() ..."
-          call grid_zoracorr(nqpts,qxyz,qwght,natoms,g_dens,amat)
-c         if (ga_nodeid().eq.0) 
-c    &        write(*,*) "Using grid_zoracorr_FA() ..."
-c         call grid_zoracorr_FA(nqpts,qxyz,qwght,natoms,g_dens,amat) ! FA
-czora...evaluate zora contributions
-           if (zora_calc_type.eq.4.and.so_term.eq.0) then
-           call zora_tabcd_EFG(0,l3d,
-     T        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
-     &        0d0,0d0,0d0,0d0,
-     &        Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 0d0,
-     N        0d0,0,1,
-     I        ipol,nqpts,mbf_ao,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2, 
-     G        grad, AO_bas_han,natoms, iniz, ifin, 
-     G        g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
-     &        rdens_atom, cetobfr,
-     &        .false.,0d0,0d0)
-           else
-           call zora_tabcd(0,l3d,
-     T        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
-     &        0d0,0d0,0d0,0d0,
-     &        Dbl_MB(ichi_ao), Dbl_MB(idelchi_ao), 0d0,
-     N        0d0,0,1,
-     I        ipol,nqpts,mbf_ao,nbf_ao_mxnbf_ce,nbf_ao_mxnbf_ce2, 
-     G        grad, AO_bas_han,natoms, iniz, ifin, 
-     G        g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
-     &        rdens_atom, cetobfr,
-     &        .false.,0d0,0d0)
-           endif 
-      else  ! do_zora_get_correction
-c
       if (odftps) call pstat_on(ps_excf)
       do_2nd = (do_cpks_l .or. do_cpks_r)
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), 
@@ -336,7 +299,6 @@ c
      &       CALC_ERR)
          endif
 c
-      end if ! do_zora_get_correction
       endif
 
  2010 continue

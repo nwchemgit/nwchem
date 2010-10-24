@@ -20,9 +20,6 @@
 	grid_file.o grid_eaf.o
       OBJ= \
 	grid_sic.o \
-	grid_zoracorr.o \
-	grid_zoracorr_FA.o \
-	gridQpqPotential.o \
 	grid_checks.o \
 	grid_balance.o \
 	grid_rtrunc.o \
@@ -60,5 +57,3 @@ grid_quadvw1.F grid_xcfit.F grid_sympts.F grid_ssw.F grid_finpts.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
-
-

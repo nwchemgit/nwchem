@@ -343,15 +343,19 @@ c
          iangquad = 8
       else
          if (iangquad.lt.1)then
+          if(ga_nodeid().eq.0) then
            write(LuOut,*)' IANGQUAD =',iangquad
            write(LuOut,*)' IANGQUAD must be in the range: 1-',IAC_MAX,
      *     '; resetting. '
-           iangquad = 8
+          end if
+          iangquad = 8
          endif
          if (iangquad.gt.IAC_MAX)then
-           write(LuOut,*)' IANGQUAD =',iangquad
-           write(LuOut,*)' IANGQUAD must be in the range: 1-',IAC_MAX,
+           if(ga_nodeid().eq.0) then
+            write(LuOut,*)' IANGQUAD =',iangquad
+            write(LuOut,*)' IANGQUAD must be in the range: 1-',IAC_MAX,
      *     '; resetting. '
+           end if
            iangquad = 8
          endif
       endif
