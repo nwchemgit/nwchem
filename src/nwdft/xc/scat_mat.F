@@ -4,7 +4,6 @@ C$Id: scat_mat.F,v 1.10 2007-07-10 21:43:02 niri Exp $
       implicit none
 
 #include "stdio.fh"
-#include "zora.fh"
 
       integer mi,mj,Ni,Nj
       integer ifirst,jfirst
