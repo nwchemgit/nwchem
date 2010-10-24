@@ -1092,8 +1092,6 @@ c
       end
       subroutine bas_library_file(libname)
       implicit none
-      logical util_nwchemrc_get
-      external util_nwchemrc_get
 #include "errquit.fh"
 #include "inp.fh"
 #include "stdio.fh"
