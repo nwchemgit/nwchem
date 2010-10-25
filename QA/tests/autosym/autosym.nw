@@ -50,4 +50,62 @@ geometry autosym 0.01
  H      3.90850329    -2.54189105      .00000012
 end
 
+#
+# These verify that the code to detect axis of rotation is correct
+# The S4 (H2O)4 should not be C4 when autosym is used
+# This can happen if off-axis is labled as proper C1 axis
+# The C2V H2COH2 should not be Cs when autosym is used
+# This can happen if Z is thought to be S4, and then proven wrong
+#
+geometry units angstrom noautoz
+  O      -1.367062       1.364510       0.007273
+  O      -1.364510      -1.367062      -0.007273
+  O       1.364510       1.367062      -0.007273
+  O       1.367062      -1.364510       0.007273
+  H      -0.395152       1.503429      -0.005375
+  H      -1.503429      -0.395152       0.005375
+  H       1.503429       0.395152       0.005375
+  H       0.395152      -1.503429      -0.005375
+  H      -1.687281       1.875361       0.755434
+  H      -1.875361      -1.687281      -0.755434
+  H       1.875361       1.687281      -0.755434
+  H       1.687281      -1.875361       0.755434
+symmetry s4
+end
+
+geometry units angstrom noautoz
+H        1   0   4
+H       -1   0   4
+C        0   0   3
+O        0   0   2
+H        0   1   1
+H        0  -1   1
+symmetry c2v
+end
+
+geometry units angstrom noautoz autosym
+  O      -1.367062       1.364510       0.007273
+  O      -1.364510      -1.367062      -0.007273
+  O       1.364510       1.367062      -0.007273
+  O       1.367062      -1.364510       0.007273
+  H      -0.395152       1.503429      -0.005375
+  H      -1.503429      -0.395152       0.005375
+  H       1.503429       0.395152       0.005375
+  H       0.395152      -1.503429      -0.005375
+  H      -1.687281       1.875361       0.755434
+  H      -1.875361      -1.687281      -0.755434
+  H       1.875361       1.687281      -0.755434
+  H       1.687281      -1.875361       0.755434
+end
+
+geometry units angstrom noautoz autosym
+H        1   0   4
+H       -1   0   4
+C        0   0   3
+O        0   0   2
+H        0   1   1
+H        0  -1   1
+end
+
+
 
