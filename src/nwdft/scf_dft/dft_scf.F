@@ -490,18 +490,6 @@ c
 c       == get filename for the zora data ==
         call util_file_name('zora_sf',.false.,.false.,zorafilename)
 c
-c       == generate an superposition of atomic densities ==
-        call ga_zero(g_dens_at(1))
-        if (ipol.gt.1) call ga_zero(g_dens_at(2))
-        call guess_dens(rtdb, geom, ao_bas_han, g_dens_at)
-        if (oskel) call ga_symmetrize(g_dens_at(1))
-        if(ipol.gt.1) then
-            call ga_copy(g_dens_at(1),g_dens_at(2))
-            call ga_dscal(g_dens_at(1),dble(ntotel-nclosed)/(ntotel))
-            call ga_dscal(g_dens_at(2),dble(nclosed)/(ntotel))
-            if(oskel) call ga_symmetrize(g_dens_at(2))
-        end if
-c
 c       == zora arrays ==
         if(.not.ga_duplicate(g_vxc(1),g_zora_sf(1),'sf 1'))
      &     call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
@@ -526,12 +514,24 @@ c       == try reading the zora atomic corrections from file ==
         if (.not.dft_zora_read(zorafilename, nbf_ao, ipol, nmo,
      &            mult, g_zora_sf, g_zora_scale_sf)) then
 c
+c       == generate an superposition of atomic densities ==
+        call ga_zero(g_dens_at(1))
+        if (ipol.gt.1) call ga_zero(g_dens_at(2))
+        call guess_dens(rtdb, geom, ao_bas_han, g_dens_at)
+        if (oskel) call ga_symmetrize(g_dens_at(1))
+        if(ipol.gt.1) then
+            call ga_copy(g_dens_at(1),g_dens_at(2))
+            call ga_dscal(g_dens_at(1),dble(ntotel-nclosed)/(ntotel))
+            call ga_dscal(g_dens_at(2),dble(nclosed)/(ntotel))
+            if(oskel) call ga_symmetrize(g_dens_at(2))
+        end if
+c
 c       == calculate the zora spin-free atomic corrections ==
         call zora_getv_sf(rtdb, g_dens_at, g_zora_sf, g_zora_scale_sf,
      &        nexc)
 c
-c        == write out the atomic zora corrections to file ==
-         if (.not.dft_zora_write(rtdb, ao_bas_han, zorafilename,
+c       == write out the atomic zora corrections to file ==
+        if (.not.dft_zora_write(rtdb, ao_bas_han, zorafilename,
      &     nbf_ao, ipol, nmo, mult, g_zora_sf, g_zora_scale_sf))
      &    call errquit('dft_scf: dft_zora_write failed', 0, DISK_ERR)
 c

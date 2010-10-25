@@ -529,6 +529,65 @@ c
 c      == get filename for zora data ==
        call util_file_name('zora_so',.false.,.false.,zorafilename)
 c
+c      == zora: scalar arrays ==
+       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_sf',0,0,
+     &    g_zora_sf(1)))
+     &    call errquit('dft_scf_so: error creating g_zora_sf',0, 
+     &       GA_ERR)
+       call ga_zero(g_zora_sf(1))
+       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_sf',0,0,
+     &    g_zora_sf(2)))
+     &    call errquit('dft_scf_so: error creating g_zora_sf',0, 
+     &       GA_ERR)
+       call ga_zero(g_zora_sf(2))
+c
+c      == zora: scalar energy scaling arrays ==
+       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_sf',0,0,
+     &    g_zora_scale_sf(1)))
+     & call errquit('dft_scf_so: error creating g_zora_scale_sf',0, 
+     &    GA_ERR)
+       call ga_zero(g_zora_scale_sf(1))
+       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_sf',0,0,
+     &    g_zora_scale_sf(2)))
+     & call errquit('dft_scf_so: error creating g_zora_scale_sf',0, 
+     &    GA_ERR)
+       call ga_zero(g_zora_scale_sf(2))
+c
+c      == zora: spin-orbit arrays ==
+       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_so 1',0,0,
+     &    g_zora_so(1)))
+     & call errquit('dft_scf_so: error creating g_zora_so 1',0, GA_ERR)
+       call ga_zero(g_zora_so(1))
+       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_so 2',0,0,
+     & g_zora_so(2)))
+     & call errquit('dft_scf_so: error creating g_zora_so 2',0, GA_ERR)
+       call ga_zero(g_zora_so(2))
+       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_so 3',0,0,
+     & g_zora_so(3)))
+     & call errquit('dft_scf_so: error creating g_zora_so 3',0, GA_ERR)
+       call ga_zero(g_zora_so(3))
+c
+c      == zora: spin-orbit energy scaling arrays ==
+       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_so 1',0,0,
+     & g_zora_scale_so(1)))
+     & call errquit('dft_scf_so: error creating g_zora_scale_so 1',0, 
+     &    GA_ERR)
+       call ga_zero(g_zora_scale_so(1))
+       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_so 2',0,0,
+     & g_zora_scale_so(2)))
+     & call errquit('dft_scf_so: error creating g_zora_scale_so 2',0, 
+     &    GA_ERR)
+       call ga_zero(g_zora_scale_so(2))
+       if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_so 3',0,0,
+     &   g_zora_scale_so(3)))
+     &   call errquit('dft_scf_so: error creating g_zora_scale_so',0, 
+     &    GA_ERR)
+       call ga_zero(g_zora_scale_so(3))
+c
+c      == try reading the zora contributions from file ==
+       if (.not.dft_zora_read_so(zorafilename, nbf_ao, ipol, nmo, mult,
+     &     g_zora_sf, g_zora_scale_sf, g_zora_so, g_zora_scale_so)) then
+c
 c       == generate an superposition of atomic densities ==
         call ga_zero(g_dens_at(1))
         if (ipol.gt.1) call ga_zero(g_dens_at(2))
@@ -541,65 +600,6 @@ c       == generate an superposition of atomic densities ==
             if(oskel) call ga_symmetrize(g_dens_at(2))
         end if
 c
-c       == zora: scalar arrays ==
-        if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_sf',0,0,
-     &    g_zora_sf(1)))
-     &    call errquit('dft_scf_so: error creating g_zora_sf',0, 
-     &       GA_ERR)
-        call ga_zero(g_zora_sf(1))
-        if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_sf',0,0,
-     &    g_zora_sf(2)))
-     &    call errquit('dft_scf_so: error creating g_zora_sf',0, 
-     &       GA_ERR)
-        call ga_zero(g_zora_sf(2))
-c
-c       == zora: scalar energy scaling arrays ==
-        if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_sf',0,0,
-     &  g_zora_scale_sf(1)))
-     &  call errquit('dft_scf_so: error creating g_zora_scale_sf',0, 
-     &    GA_ERR)
-        call ga_zero(g_zora_scale_sf(1))
-        if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_sf',0,0,
-     &  g_zora_scale_sf(2)))
-     &  call errquit('dft_scf_so: error creating g_zora_scale_sf',0, 
-     &    GA_ERR)
-        call ga_zero(g_zora_scale_sf(2))
-c
-c       == zora: spin-orbit arrays ==
-        if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_so 1',0,0,
-     &  g_zora_so(1)))
-     &  call errquit('dft_scf_so: error creating g_zora_so 1',0, GA_ERR)
-        call ga_zero(g_zora_so(1))
-        if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_so 2',0,0,
-     &  g_zora_so(2)))
-     &  call errquit('dft_scf_so: error creating g_zora_so 2',0, GA_ERR)
-        call ga_zero(g_zora_so(2))
-        if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_so 3',0,0,
-     &  g_zora_so(3)))
-     &  call errquit('dft_scf_so: error creating g_zora_so 3',0, GA_ERR)
-        call ga_zero(g_zora_so(3))
-c
-c       == zora: spin-orbit energy scaling arrays ==
-        if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_so 1',0,0,
-     &  g_zora_scale_so(1)))
-     &  call errquit('dft_scf_so: error creating g_zora_scale_so 1',0, 
-     &    GA_ERR)
-        call ga_zero(g_zora_scale_so(1))
-        if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_so 2',0,0,
-     &  g_zora_scale_so(2)))
-     &  call errquit('dft_scf_so: error creating g_zora_scale_so 2',0, 
-     &    GA_ERR)
-        call ga_zero(g_zora_scale_so(2))
-        if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_so 3',0,0,
-     &   g_zora_scale_so(3)))
-     &   call errquit('dft_scf_so: error creating g_zora_scale_so',0, 
-     &    GA_ERR)
-        call ga_zero(g_zora_scale_so(3))
-c
-c       == try reading the zora contributions from file ==
-        if (.not.dft_zora_read_so(zorafilename, nbf_ao, ipol, nmo, mult,
-     &     g_zora_sf, g_zora_scale_sf, g_zora_so, g_zora_scale_so)) then
-c
 c       == calculate the zora atomic corrections ==
         call zora_getv_so(rtdb, g_dens_at, g_zora_sf, g_zora_scale_sf,
      &        g_zora_so, g_zora_scale_so, nexc)
@@ -611,7 +611,7 @@ c       == write out the atomic zora corrections to file ==
      &    call errquit('dft_scf_so: dft_zora_write_so failed', 0, 
      &            DISK_ERR)
 c
-        end if ! zora file read
+       end if ! zora file read
       end if  ! do_zora
 c
       call ga_sync()
