@@ -4275,10 +4275,11 @@ C     if you removed all the atoms along the axis.  Example, take a d2d molecule
 C     and stretch the last atom on one end that is on the Z-axis.  The S4 is now
 C     C2 axis, but NWChem thinks that it is still 4 fold, since the code ignores
 C     Atoms on the axis when determining order of the axis.
+C     Do not do *2 axis because no one cares about C1 axis (and confuses code)
 C
       DO IAXIS=1,3
        if((.not.proper(IAXIS)).and.(.not.improp(IAXIS)).and.
-     *   (mod(AXORDR(IAXIS),2).eq.0)) then
+     *   (mod(AXORDR(IAXIS),2).eq.0.and.AXORDR(IAXIS).gt.2)) then
          AXORDR(IAXIS) = AXORDR(IAXIS)/2
          IF(IAXIS.EQ.1) THEN
             I=2
