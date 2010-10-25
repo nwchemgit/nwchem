@@ -1,9 +1,27 @@
 #!/bin/bash
+#
+# This is only a sample script to run all the relevant QA test cases.
+#
+# You will at least need to change NWCHEM_TARGET to match the target for your
+# system. If you system is managed using a queueing system, additional settings
+# for this will be needed. Please see the local documentation on your set up
+# for details.
+#
+# In addition you may need to specify additional setting for libraries or you
+# may need to load special modules. Please, check local documentation for
+# guidance.
+#
 export NWCHEM_TOP=`pwd`/..
 export NWCHEM_TARGET=LINUX64
 export NWCHEM_TEST=${NWCHEM_TOP}/QA/tests
 export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem
+nproc=4
 ./domknwchemrc
-./domdtests.mpi 4
-./doqmtests.mpi 4 fast
+status=$?
+if [[ $status != 0 ]]; then
+  echo "ERROR: The script domknwchemrc failed. Exiting."
+  exit $status
+fi
+./domdtests.mpi $nproc
+./doqmtests.mpi $nproc fast
 ./dormnwchemrc
