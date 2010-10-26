@@ -1,0 +1,28 @@
+echo
+start hi_zora_so
+
+geometry noautoz units angstrom
+ H   0.00000000     0.00000000    -1.61179148
+ I   0.00000000     0.00000000     0.02355241
+end
+
+basis spherical
+* library "DZVP (DFT Orbital)"
+end
+
+set dft:no_prune T
+set dft:job_grid_acc 1d-20
+set dft:tol_rho 1d-30
+
+dft
+ grid xfine
+ grid lebedev H 350 18 I 350 18 
+ xc b3lyp
+end
+
+relativistic
+  zora on
+  zora:cutoff 1d-30 
+end
+
+task sodft
