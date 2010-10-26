@@ -1,6 +1,8 @@
-start
+echo
+start o2_zora_so
 
 geometry noautoz units angstrom
+symmetry c1
  O 0 0 -0.60000000
  O 0 0  0.60000000
 end
@@ -22,7 +24,8 @@ driver
 end
 
 relativistic
-   zora on
+  zora on
+  zora:cutoff 1d-30
 end
 
 task sodft optimize
