@@ -346,7 +346,7 @@ c     **** MM/MM LJ self image energy ****
          jj = katm(j)
          e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+jj-1)
          s1 = dbl_mb(sigma_all(1)  +(jj-1)*nkatm+jj-1)
-         if ((e2.gt.1.0d-11)) then
+         if ((e1.gt.1.0d-11)) then
             E = E + pspw_VLJ_E_periodic_image(e1,s1,nshl3d,rcell)
          end if
        end if
