@@ -1,3 +1,4 @@
+echo
 # This example produces a SIGFPE inside texas (abcd_1)
 # during the computation of the integral file
 # due to aaa() appearing to be NaN.  If SIGFPE is turned

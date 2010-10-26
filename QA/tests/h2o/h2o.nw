@@ -20,4 +20,4 @@ scf
  singlet
 end
 
-task scf energy
+task scf gradient

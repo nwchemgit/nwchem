@@ -68,7 +68,7 @@ task scf saddle  # go for the TS
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 4.0
+              Northwest Computational Chemistry Package (NWChem) 6.0
               ------------------------------------------------------
 
 
@@ -76,78 +76,43 @@ task scf saddle  # go for the TS
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                                         
-                                         
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
 
-
-            COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
-                        Pacific Northwest National Laboratory,
-                             Battelle Memorial Institute.
-
-                            >>> All Rights Reserved <<<
-
-
-                                    DISCLAIMER
-                                    ----------
-
-            This material was prepared as an account of work sponsored
-            by an agency of the United States Government.  Neither the
-            United States Government nor the United States Department
-            of Energy, nor Battelle, nor any of their employees, MAKES
-            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
-            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
-            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
-            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
-            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
-
-
-                                    LIMITED USE
-                                    -----------
-
-            This software (including any documentation) is being made
-            available to you for your internal use only, solely for use
-            in performance of work directly for the U.S. Federal
-            Government or work under contracts with the U.S. Department
-            of Energy or other U.S. Federal Government agencies.  This
-            software is a version which has not yet been evaluated and
-            cleared for commercialization.  Adherence to this notice
-            may be necessary for the author, Battelle Memorial
-            Institute, to successfully assert copyright in and
-            commercialize this software. This software is not intended
-            for duplication or distribution to third parties without
-            the permission of the Manager of Software Products at
-            Pacific Northwest National Laboratory, Richland,
-            Washington, 99352.
-
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
 
                                   ACKNOWLEDGMENT
                                   --------------
 
-            This software and its documentation were produced with
-            Government support under Contract Number DE-AC06-76RLO-1830
-            awarded by the United States Department of Energy.  The
-            Government retains a paid-up non-exclusive, irrevocable
-            worldwide license to reproduce, prepare derivative works,
-            perform publicly and display publicly by or for the
-            Government, including the right to distribute to other
-            Government contractors.
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
 
 
            Job information
            ---------------
 
-    hostname      = snickers
-    program       = /msrc/home/sohirata/nwchem/bin/LINUX/nwchem
-    date          = Fri Jan  4 16:28:50 2002
+    hostname      = arcen
+    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
+    date          = Mon Oct 25 15:34:07 2010
 
-    compiled      = Fri Jan  4 13:57:12 PST 2002
-    source        = /msrc/home/sohirata/nwchem
+    compiled      = Mon_Oct_25_14:31:37_2010
+    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
     nwchem branch = Development
     input         = dielsalder.nw
     prefix        = dielsalder.
-    data base     = ./dielsalder.db
+    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.db
     status        = startup
-    nproc         =    1
+    nproc         =        4
     time left     =     -1s
 
 
@@ -155,19 +120,19 @@ task scf saddle  # go for the TS
            Memory information
            ------------------
 
-    heap      =    8847354 doubles =     67.5 Mbytes
-    stack     =    2949107 doubles =     22.5 Mbytes
-    global    =   11796484 doubles =     90.0 Mbytes (within heap+stack)
-    total     =   11796461 doubles =     90.0 Mbytes
-    verify    = yes
-    hardfail  = no 
+    heap     =   16384001 doubles =    125.0 Mbytes
+    stack    =   16384001 doubles =    125.0 Mbytes
+    global   =   32768000 doubles =    250.0 Mbytes (distinct from heap & stack)
+    total    =   65536002 doubles =    500.0 Mbytes
+    verify   = yes
+    hardfail = no 
 
 
            Directory information
            ---------------------
 
-  0 permanent = .
-  0 scratch   = .
+  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
 
 
 
@@ -176,9 +141,8 @@ task scf saddle  # go for the TS
                                 -------------------
 
 
-                                                                                             parent diels-alder - constrained geometry optimization + saddle search
-                                                                                             ----------------------------------------------------------------------
-
+      parent diels-alder - constrained geometry optimization + saddle search
+      ----------------------------------------------------------------------
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -367,6 +331,29 @@ task scf saddle  # go for the TS
   114 Torsion                 13     2     1    14           0.00000
   115 Torsion                 16     6     7    17           0.00000
 
+
+            XYZ format geometry
+            -------------------
+    17
+ geometry
+ C                     0.51736776    -1.27307394     0.66145412
+ C                     0.51736776    -1.27307394    -0.66145412
+ C                    -0.32721991    -0.08740284     1.13282212
+ C                    -0.32721991    -0.08740284    -1.13282212
+ C                    -1.38763410    -0.03891873     0.00000000
+ C                     0.51579187     1.18907994     0.78501047
+ C                     0.51579187     1.18907994    -0.78501047
+ H                    -0.68715068    -0.12954641    -2.14778696
+ H                    -0.68715068    -0.12954641     2.14778696
+ H                    -1.96557378     0.87756377     0.00000000
+ H                     1.51406292     1.12990977    -1.19517710
+ H                     1.51406292     1.12990977     1.19517710
+ H                     1.06785483    -1.92154068    -1.31030500
+ H                     1.06785483    -1.92154068     1.31030500
+ H                    -2.03743015    -0.90298264     0.00000000
+ H                     0.03399885     2.07902398     1.17132500
+ H                     0.03399885     2.07902398    -1.17132500
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -444,7 +431,7 @@ task scf saddle  # go for the TS
 
 
   library name resolved from: .nwchemrc
-  library file name is: </msrc/proj/nwchem/share/library>
+  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
   
                       Basis "ao basis" -> "" (cartesian)
                       -----
@@ -684,6 +671,29 @@ task scf saddle  # go for the TS
   114 Torsion                 13     2     1    14           0.00000
   115 Torsion                 16     6     7    17           0.00000
 
+
+            XYZ format geometry
+            -------------------
+    17
+ geometry
+ C                     0.41904559    -1.44953633     0.67734149
+ C                     0.41904559    -1.44953633    -0.67734149
+ C                    -0.44229648    -0.27204472     1.17092544
+ C                    -0.44229648    -0.27204472    -1.17092544
+ C                    -1.51608290    -0.23897588     0.00000000
+ C                     0.72826300     1.54114217     0.74414234
+ C                     0.72826300     1.54114217    -0.74414234
+ H                    -0.80872035    -0.32844533    -2.18291716
+ H                    -0.80872035    -0.32844533     2.18291716
+ H                    -2.11535824     0.66383296     0.00000000
+ H                     1.72307844     1.49097324    -1.16387689
+ H                     1.72307844     1.49097324     1.16387689
+ H                     0.97168042    -2.10072291    -1.32163626
+ H                     0.97168042    -2.10072291     1.32163626
+ H                    -2.14194745    -1.12071655     0.00000000
+ H                     0.23503031     2.42084465     1.13952537
+ H                     0.23503031     2.42084465    -1.13952537
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -763,7 +773,7 @@ task scf saddle  # go for the TS
  rms cartesian step threshold       (xrms) =   0.001200
  fixed trust radius                (trust) =   0.300000
  maximum step size to saddle      (sadstp) =   0.100000
- energy precision                  (eprec) =   1.0E-07
+ energy precision                  (eprec) =   1.0D-07
  maximum number of steps          (nptopt) =   20
  initial hessian option           (inhess) =    0
  line search option               (linopt) =    1
@@ -889,27 +899,27 @@ task scf saddle  # go for the TS
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = ./dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at       1.5s
+ Forming initial guess at       0.3s
 
 
- Starting SCF solution at       2.8s
+ Starting SCF solution at       0.4s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.211796673145
-      One-electron energy =   -925.208201369818
-      Two-electron energy =    372.126710174548
+         Total SCF energy =   -269.211796672699
+      One-electron energy =   -925.208201369835
+      Two-electron energy =    372.126710175012
  Nuclear repulsion energy =    283.869694522125
 
-        Time for solution =      9.4s
+        Time for solution =      1.0s
 
 
                               NWChem Gradients Module
@@ -942,7 +952,7 @@ task scf saddle  # go for the TS
 
 @ Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
 @ ---- ---------------- -------- -------- -------- -------- -------- --------
-@    0    -269.21179667  0.0E+00  0.03357  0.00625  0.00000  0.00000     24.2
+@    0    -269.21179667  0.0D+00  0.03357  0.00625  0.00000  0.00000      2.7
                                                        ok       ok  
 
   Internal coordinate gradient before constraints
@@ -1207,8 +1217,8 @@ task scf saddle  # go for the TS
   114 Torsion                 13     2     1    14           0.00000    0.00000
   115 Torsion                 16     6     7    17           0.00000    0.00000
 
- Restricting large step in mode   17 eval= 3.7E-02 step= 5.2E-01 new= 3.0E-01
- Restricting large step in mode   22 eval= 4.0E-02 step=-3.8E-01 new=-3.0E-01
+ Restricting large step in mode   17 eval= 3.7D-02 step= 5.2D-01 new= 3.0D-01
+ Restricting large step in mode   22 eval= 4.0D-02 step=-3.8D-01 new=-3.0D-01
                                  NWChem SCF Module
                                  -----------------
 
@@ -1224,32 +1234,32 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at      25.4s
+ Forming initial guess at       2.9s
 
 
- Starting SCF solution at      25.5s
+ Starting SCF solution at       3.0s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.236222463473
-      One-electron energy =   -933.645157439876
-      Two-electron energy =    376.308305594608
- Nuclear repulsion energy =    288.100629381795
+         Total SCF energy =   -269.236222463055
+      One-electron energy =   -933.645157481420
+      Two-electron energy =    376.308305615514
+ Nuclear repulsion energy =    288.100629402851
 
-        Time for solution =      9.2s
+        Time for solution =      0.8s
 
 
  Line search: 
-     step= 1.00 grad=-3.1E-02 hess= 6.6E-03 energy=   -269.236222 mode=downhill
+     step= 1.00 grad=-3.1D-02 hess= 6.6D-03 energy=   -269.236222 mode=downhill
  new step= 2.36                   predicted energy=   -269.248334
 
           --------
@@ -1278,9 +1288,9 @@ task scf saddle  # go for the TS
    12 H                    1.0000     1.63184075     1.36593772     1.23749936
    13 H                    1.0000     1.00989348    -1.96073911    -1.29598157
    14 H                    1.0000     1.00989348    -1.96073911     1.29598157
-   15 H                    1.0000    -2.03968178    -0.98539316     0.00000000
-   16 H                    1.0000     0.17502435     2.27355136     1.24142802
-   17 H                    1.0000     0.17502435     2.27355136    -1.24142802
+   15 H                    1.0000    -2.03968178    -0.98539317     0.00000000
+   16 H                    1.0000     0.17502435     2.27355137     1.24142802
+   17 H                    1.0000     0.17502435     2.27355137    -1.24142802
 
       Atomic Mass 
       ----------- 
@@ -1289,13 +1299,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     294.2670026590
+ Effective nuclear repulsion energy (a.u.)     294.2670024655
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -1.3711332083    -1.0600132788     0.0000000000
+    -1.3711331954    -1.0600133058     0.0000000000
 
       Symmetry information
       --------------------
@@ -1324,28 +1334,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at      36.3s
+ Forming initial guess at       4.1s
 
 
- Starting SCF solution at      36.4s
+ Starting SCF solution at       4.1s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.247880486051
-      One-electron energy =   -945.885512661900
-      Two-electron energy =    382.370629516799
- Nuclear repulsion energy =    294.267002659049
+         Total SCF energy =   -269.247880485479
+      One-electron energy =   -945.885512277779
+      Two-electron energy =    382.370629326782
+ Nuclear repulsion energy =    294.267002465518
 
-        Time for solution =      9.3s
+        Time for solution =      0.8s
 
 
                               NWChem Gradients Module
@@ -1378,7 +1388,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    1    -269.24788049 -3.6E-02  0.02408  0.00485  0.15304  0.29792     58.1
+@    1    -269.24788049 -3.6D-02  0.02408  0.00485  0.15304  0.29792      5.5
                                                                     
 
   Internal coordinate gradient before constraints
@@ -1643,8 +1653,8 @@ task scf saddle  # go for the TS
   114 Torsion                 13     2     1    14           0.00000    0.00000
   115 Torsion                 16     6     7    17           0.00000    0.00000
 
- Restricting large step in mode    3 eval= 1.6E-02 step=-4.9E-01 new=-3.0E-01
- Restricting large step in mode    7 eval= 2.4E-02 step= 3.1E-01 new= 3.0E-01
+ Restricting large step in mode    3 eval= 1.6D-02 step=-4.9D-01 new=-3.0D-01
+ Restricting large step in mode    7 eval= 2.4D-02 step= 3.1D-01 new= 3.0D-01
                                  NWChem SCF Module
                                  -----------------
 
@@ -1660,32 +1670,32 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at      59.3s
+ Forming initial guess at       5.8s
 
 
- Starting SCF solution at      59.3s
+ Starting SCF solution at       5.8s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.258566516384
-      One-electron energy =   -945.413311591601
-      Two-electron energy =    382.158245167099
- Nuclear repulsion energy =    293.996499908118
+         Total SCF energy =   -269.258566515668
+      One-electron energy =   -945.413311492643
+      Two-electron energy =    382.158245118024
+ Nuclear repulsion energy =    293.996499858951
 
-        Time for solution =      9.8s
+        Time for solution =      0.8s
 
 
  Line search: 
-     step= 1.00 grad=-1.5E-02 hess= 4.0E-03 energy=   -269.258567 mode=downhill
+     step= 1.00 grad=-1.5D-02 hess= 4.0D-03 energy=   -269.258567 mode=downhill
  new step= 1.83                   predicted energy=   -269.261317
 
           --------
@@ -1704,19 +1714,19 @@ task scf saddle  # go for the TS
     2 C                    6.0000     0.46294143    -1.32139260    -0.69242283
     3 C                    6.0000    -0.47332724    -0.34579499     1.15878891
     4 C                    6.0000    -0.47332724    -0.34579499    -1.15878891
-    5 C                    6.0000    -1.42184445    -0.07478955     0.00000000
+    5 C                    6.0000    -1.42184445    -0.07478956     0.00000000
     6 C                    6.0000     0.69270703     1.46165603     0.69674466
     7 C                    6.0000     0.69270703     1.46165603    -0.69674466
     8 H                    1.0000    -0.82150475    -0.34319577    -2.17204034
     9 H                    1.0000    -0.82150475    -0.34319577     2.17204034
-   10 H                    1.0000    -1.94866754     0.86342147     0.00000000
-   11 H                    1.0000     1.62667249     1.25541095    -1.19514346
-   12 H                    1.0000     1.62667249     1.25541095     1.19514346
+   10 H                    1.0000    -1.94866755     0.86342147     0.00000000
+   11 H                    1.0000     1.62667249     1.25541095    -1.19514345
+   12 H                    1.0000     1.62667249     1.25541095     1.19514345
    13 H                    1.0000     1.09623545    -1.91097161    -1.32431160
    14 H                    1.0000     1.09623545    -1.91097161     1.32431160
    15 H                    1.0000    -2.13422206    -0.91664871     0.00000000
-   16 H                    1.0000     0.10802926     2.22257742     1.19460211
-   17 H                    1.0000     0.10802926     2.22257742    -1.19460211
+   16 H                    1.0000     0.10802926     2.22257742     1.19460210
+   17 H                    1.0000     0.10802926     2.22257742    -1.19460210
 
       Atomic Mass 
       ----------- 
@@ -1725,13 +1735,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     293.8640507983
+ Effective nuclear repulsion energy (a.u.)     293.8640508589
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.7695660344    -0.9839828803     0.0000000000
+    -0.7695660280    -0.9839828681     0.0000000000
 
       Symmetry information
       --------------------
@@ -1760,28 +1770,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at      70.4s
+ Forming initial guess at       6.9s
 
 
- Starting SCF solution at      70.5s
+ Starting SCF solution at       6.9s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.261551431570
-      One-electron energy =   -945.186909342350
-      Two-electron energy =    382.061307112530
- Nuclear repulsion energy =    293.864050798250
+         Total SCF energy =   -269.261551431036
+      One-electron energy =   -945.186909463170
+      Two-electron energy =    382.061307173216
+ Nuclear repulsion energy =    293.864050858919
 
-        Time for solution =      9.8s
+        Time for solution =      0.8s
 
 
                               NWChem Gradients Module
@@ -1814,7 +1824,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    2    -269.26155143 -1.4E-02  0.01313  0.00261  0.08449  0.20885     92.6
+@    2    -269.26155143 -1.4D-02  0.01313  0.00261  0.08449  0.20885      8.4
                                                                     
 
   Internal coordinate gradient before constraints
@@ -2079,7 +2089,7 @@ task scf saddle  # go for the TS
   114 Torsion                 13     2     1    14           0.00000    0.00000
   115 Torsion                 16     6     7    17           0.00000    0.00000
 
- Restricting large step in mode    2 eval= 1.1E-02 step=-6.0E-01 new=-3.0E-01
+ Restricting large step in mode    2 eval= 1.1D-02 step=-6.0D-01 new=-3.0D-01
                                  NWChem SCF Module
                                  -----------------
 
@@ -2095,32 +2105,32 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at      93.9s
+ Forming initial guess at       8.6s
 
 
- Starting SCF solution at      94.0s
+ Starting SCF solution at       8.7s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.265813579073
-      One-electron energy =   -947.946053213401
-      Two-electron energy =    383.425417884310
- Nuclear repulsion energy =    295.254821750018
+         Total SCF energy =   -269.265813578602
+      One-electron energy =   -947.946053167823
+      Two-electron energy =    383.425417862341
+ Nuclear repulsion energy =    295.254821726880
 
-        Time for solution =      9.5s
+        Time for solution =      0.8s
 
 
  Line search: 
-     step= 1.00 grad=-5.4E-03 hess= 1.2E-03 energy=   -269.265814 mode=downhill
+     step= 1.00 grad=-5.4D-03 hess= 1.2D-03 energy=   -269.265814 mode=downhill
  new step= 2.31                   predicted energy=   -269.267842
 
           --------
@@ -2142,11 +2152,11 @@ task scf saddle  # go for the TS
     5 C                    6.0000    -1.38347376    -0.07510258     0.00000000
     6 C                    6.0000     0.69557541     1.45633211     0.69132602
     7 C                    6.0000     0.69557541     1.45633211    -0.69132602
-    8 H                    1.0000    -0.76841107    -0.29420400    -2.18912171
-    9 H                    1.0000    -0.76841107    -0.29420400     2.18912171
+    8 H                    1.0000    -0.76841107    -0.29420401    -2.18912171
+    9 H                    1.0000    -0.76841107    -0.29420401     2.18912171
    10 H                    1.0000    -1.87035094     0.88211347     0.00000000
-   11 H                    1.0000     1.57761320     1.19845617    -1.23551091
-   12 H                    1.0000     1.57761320     1.19845617     1.23551091
+   11 H                    1.0000     1.57761319     1.19845617    -1.23551092
+   12 H                    1.0000     1.57761319     1.19845617     1.23551092
    13 H                    1.0000     1.09909647    -1.86232476    -1.31233884
    14 H                    1.0000     1.09909647    -1.86232476     1.31233884
    15 H                    1.0000    -2.14390676    -0.86263864     0.00000000
@@ -2160,13 +2170,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     297.1445724890
+ Effective nuclear repulsion energy (a.u.)     297.1445722926
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.4432666354    -0.7965904564     0.0000000000
+    -0.4432666392    -0.7965904455     0.0000000000
 
       Symmetry information
       --------------------
@@ -2195,28 +2205,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     104.7s
+ Forming initial guess at       9.8s
 
 
- Starting SCF solution at     104.8s
+ Starting SCF solution at       9.8s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.267675011568
-      One-electron energy =   -951.678172578038
-      Two-electron energy =    385.265925077500
- Nuclear repulsion energy =    297.144572488970
+         Total SCF energy =   -269.267675011049
+      One-electron energy =   -951.678172188924
+      Two-electron energy =    385.265924885250
+ Nuclear repulsion energy =    297.144572292625
 
-        Time for solution =      9.5s
+        Time for solution =      0.8s
 
 
                               NWChem Gradients Module
@@ -2249,7 +2259,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    3    -269.26767501 -6.1E-03  0.01590  0.00242  0.06923  0.16422    126.9
+@    3    -269.26767501 -6.1D-03  0.01590  0.00242  0.06923  0.16422     11.2
                                                                     
 
   Internal coordinate gradient before constraints
@@ -2514,7 +2524,7 @@ task scf saddle  # go for the TS
   114 Torsion                 13     2     1    14           0.00000    0.00000
   115 Torsion                 16     6     7    17           0.00000    0.00000
 
- Restricting large step in mode    1 eval= 7.6E-03 step= 4.2E-01 new= 3.0E-01
+ Restricting large step in mode    1 eval= 7.6D-03 step= 4.2D-01 new= 3.0D-01
                                  NWChem SCF Module
                                  -----------------
 
@@ -2530,32 +2540,32 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     128.0s
+ Forming initial guess at      11.5s
 
 
- Starting SCF solution at     128.1s
+ Starting SCF solution at      11.5s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.269592235951
-      One-electron energy =   -950.882474304038
-      Two-electron energy =    384.867985580950
- Nuclear repulsion energy =    296.744896487137
+         Total SCF energy =   -269.269592235434
+      One-electron energy =   -950.882474315381
+      Two-electron energy =    384.867985587421
+ Nuclear repulsion energy =    296.744896492527
 
-        Time for solution =      9.9s
+        Time for solution =      0.8s
 
 
  Line search: 
-     step= 1.00 grad=-3.1E-03 hess= 1.2E-03 energy=   -269.269592 mode=downhill
+     step= 1.00 grad=-3.1D-03 hess= 1.2D-03 energy=   -269.269592 mode=downhill
  new step= 1.28                   predicted energy=   -269.269688
 
           --------
@@ -2572,16 +2582,16 @@ task scf saddle  # go for the TS
  ---- ---------------- ---------- -------------- -------------- --------------
     1 C                    6.0000     0.45559573    -1.31371584     0.69576694
     2 C                    6.0000     0.45559573    -1.31371584    -0.69576694
-    3 C                    6.0000    -0.44948783    -0.36154006     1.15421518
-    4 C                    6.0000    -0.44948783    -0.36154006    -1.15421518
+    3 C                    6.0000    -0.44948783    -0.36154006     1.15421517
+    4 C                    6.0000    -0.44948783    -0.36154006    -1.15421517
     5 C                    6.0000    -1.38950294    -0.05723781     0.00000000
     6 C                    6.0000     0.68908908     1.46241404     0.68856079
     7 C                    6.0000     0.68908908     1.46241404    -0.68856079
     8 H                    1.0000    -0.75136061    -0.26318508    -2.17601245
     9 H                    1.0000    -0.75136061    -0.26318508     2.17601245
    10 H                    1.0000    -1.85422401     0.91558776     0.00000000
-   11 H                    1.0000     1.56216225     1.18009919    -1.23797553
-   12 H                    1.0000     1.56216225     1.18009919     1.23797553
+   11 H                    1.0000     1.56216225     1.18009918    -1.23797552
+   12 H                    1.0000     1.56216225     1.18009918     1.23797552
    13 H                    1.0000     1.12748760    -1.87515046    -1.31059627
    14 H                    1.0000     1.12748760    -1.87515046     1.31059627
    15 H                    1.0000    -2.17178327    -0.81522762     0.00000000
@@ -2595,13 +2605,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.6390462463
+ Effective nuclear repulsion energy (a.u.)     296.6390462899
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.2206662159    -0.9562875596     0.0000000000
+    -0.2206662206    -0.9562875476     0.0000000000
 
       Symmetry information
       --------------------
@@ -2630,28 +2640,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     139.1s
+ Forming initial guess at      12.6s
 
 
- Starting SCF solution at     139.2s
+ Starting SCF solution at      12.6s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.269692439722
-      One-electron energy =   -950.670200104117
-      Two-electron energy =    384.761461418083
- Nuclear repulsion energy =    296.639046246312
+         Total SCF energy =   -269.269692439220
+      One-electron energy =   -950.670200190926
+      Two-electron energy =    384.761461461783
+ Nuclear repulsion energy =    296.639046289923
 
-        Time for solution =      8.1s
+        Time for solution =      0.7s
 
 
                               NWChem Gradients Module
@@ -2684,7 +2694,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    4    -269.26969244 -2.0E-03  0.00268  0.00056  0.03491  0.09009    159.9
+@    4    -269.26969244 -2.0D-03  0.00268  0.00056  0.03491  0.09009     13.9
                                                                     
 
   Internal coordinate gradient before constraints
@@ -2964,32 +2974,32 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     161.1s
+ Forming initial guess at      14.1s
 
 
- Starting SCF solution at     161.1s
+ Starting SCF solution at      14.1s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270006087380
-      One-electron energy =   -951.041402389858
-      Two-electron energy =    384.943929332282
- Nuclear repulsion energy =    296.827466970196
+         Total SCF energy =   -269.270006086908
+      One-electron energy =   -951.041402440256
+      Two-electron energy =    384.943929357811
+ Nuclear repulsion energy =    296.827466995537
 
-        Time for solution =      9.2s
+        Time for solution =      0.8s
 
 
  Line search: 
-     step= 1.00 grad=-5.4E-04 hess= 2.3E-04 energy=   -269.270006 mode=downhill
+     step= 1.00 grad=-5.4D-04 hess= 2.3D-04 energy=   -269.270006 mode=downhill
  new step= 1.19                   predicted energy=   -269.270014
 
           --------
@@ -3011,13 +3021,13 @@ task scf saddle  # go for the TS
     5 C                    6.0000    -1.38079760    -0.05751013     0.00000000
     6 C                    6.0000     0.68491912     1.46205706     0.68629606
     7 C                    6.0000     0.68491912     1.46205706    -0.68629606
-    8 H                    1.0000    -0.73760865    -0.24248801    -2.18306878
-    9 H                    1.0000    -0.73760865    -0.24248801     2.18306878
+    8 H                    1.0000    -0.73760866    -0.24248802    -2.18306878
+    9 H                    1.0000    -0.73760866    -0.24248802     2.18306878
    10 H                    1.0000    -1.82545576     0.92355300     0.00000000
    11 H                    1.0000     1.55768151     1.17024609    -1.23379732
    12 H                    1.0000     1.55768151     1.17024609     1.23379732
-   13 H                    1.0000     1.12959913    -1.87010408    -1.31345629
-   14 H                    1.0000     1.12959913    -1.87010408     1.31345629
+   13 H                    1.0000     1.12959914    -1.87010408    -1.31345629
+   14 H                    1.0000     1.12959914    -1.87010408     1.31345629
    15 H                    1.0000    -2.17550369    -0.80499384     0.00000000
    16 H                    1.0000    -0.00755563     2.08305616     1.22358644
    17 H                    1.0000    -0.00755563     2.08305616    -1.22358644
@@ -3029,13 +3039,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.8644401831
+ Effective nuclear repulsion energy (a.u.)     296.8644401858
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.2716040338    -1.0365618192     0.0000000000
+    -0.2716040219    -1.0365618109     0.0000000000
 
       Symmetry information
       --------------------
@@ -3064,28 +3074,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     171.5s
+ Forming initial guess at      15.2s
 
 
- Starting SCF solution at     171.5s
+ Starting SCF solution at      15.2s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270014386414
-      One-electron energy =   -951.114021047195
-      Two-electron energy =    384.979566477699
- Nuclear repulsion energy =    296.864440183082
+         Total SCF energy =   -269.270014385937
+      One-electron energy =   -951.114021053101
+      Two-electron energy =    384.979566481333
+ Nuclear repulsion energy =    296.864440185831
 
-        Time for solution =      8.5s
+        Time for solution =      0.7s
 
 
                               NWChem Gradients Module
@@ -3118,7 +3128,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    5    -269.27001439 -3.2E-04  0.00122  0.00028  0.01814  0.05447    192.6
+@    5    -269.27001439 -3.2D-04  0.00122  0.00028  0.01814  0.05447     16.5
                                               ok                    
 
   Internal coordinate gradient before constraints
@@ -3398,32 +3408,32 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     193.6s
+ Forming initial guess at      16.8s
 
 
- Starting SCF solution at     193.7s
+ Starting SCF solution at      16.8s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270099556597
-      One-electron energy =   -951.345068918761
-      Two-electron energy =    385.093336076282
- Nuclear repulsion energy =    296.981633285882
+         Total SCF energy =   -269.270099556129
+      One-electron energy =   -951.345068952847
+      Two-electron energy =    385.093336093580
+ Nuclear repulsion energy =    296.981633303138
 
-        Time for solution =      8.5s
+        Time for solution =      0.7s
 
 
  Line search: 
-     step= 1.00 grad=-1.2E-04 hess= 4.0E-05 energy=   -269.270100 mode=downhill
+     step= 1.00 grad=-1.2D-04 hess= 4.0D-05 energy=   -269.270100 mode=downhill
  new step= 1.57                   predicted energy=   -269.270113
 
           --------
@@ -3440,8 +3450,8 @@ task scf saddle  # go for the TS
  ---- ---------------- ---------- -------------- -------------- --------------
     1 C                    6.0000     0.44793929    -1.31597714     0.69897491
     2 C                    6.0000     0.44793929    -1.31597714    -0.69897491
-    3 C                    6.0000    -0.45009356    -0.36609466     1.15549754
-    4 C                    6.0000    -0.45009356    -0.36609466    -1.15549754
+    3 C                    6.0000    -0.45009355    -0.36609466     1.15549754
+    4 C                    6.0000    -0.45009355    -0.36609466    -1.15549754
     5 C                    6.0000    -1.38482775    -0.05895625     0.00000000
     6 C                    6.0000     0.68412639     1.46008422     0.68793382
     7 C                    6.0000     0.68412639     1.46008422    -0.68793382
@@ -3463,13 +3473,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     297.0491859135
+ Effective nuclear repulsion energy (a.u.)     297.0491859364
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.4264056178    -1.1453536432     0.0000000000
+    -0.4264056051    -1.1453536419     0.0000000000
 
       Symmetry information
       --------------------
@@ -3498,28 +3508,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     203.4s
+ Forming initial guess at      17.8s
 
 
- Starting SCF solution at     203.5s
+ Starting SCF solution at      17.8s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270112469526
-      One-electron energy =   -951.478177587952
-      Two-electron energy =    385.158879204919
- Nuclear repulsion energy =    297.049185913507
+         Total SCF energy =   -269.270112469057
+      One-electron energy =   -951.478177632817
+      Two-electron energy =    385.158879227399
+ Nuclear repulsion energy =    297.049185936361
 
-        Time for solution =      7.9s
+        Time for solution =      0.7s
 
 
                               NWChem Gradients Module
@@ -3552,7 +3562,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    6    -269.27011247 -9.8E-05  0.00144  0.00028  0.00664  0.01625    224.5
+@    6    -269.27011247 -9.8D-05  0.00144  0.00028  0.00664  0.01625     19.1
                                               ok                    
 
   Internal coordinate gradient before constraints
@@ -3832,32 +3842,32 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     225.5s
+ Forming initial guess at      19.3s
 
 
- Starting SCF solution at     225.6s
+ Starting SCF solution at      19.4s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270151169432
-      One-electron energy =   -951.266136929742
-      Two-electron energy =    385.054499123876
- Nuclear repulsion energy =    296.941486636433
+         Total SCF energy =   -269.270151168969
+      One-electron energy =   -951.266137022117
+      Two-electron energy =    385.054499169812
+ Nuclear repulsion energy =    296.941486683336
 
-        Time for solution =      8.7s
+        Time for solution =      0.7s
 
 
  Line search: 
-     step= 1.00 grad=-5.8E-05 hess= 1.9E-05 energy=   -269.270151 mode=downhill
+     step= 1.00 grad=-5.8D-05 hess= 1.9D-05 energy=   -269.270151 mode=downhill
  new step= 1.52                   predicted energy=   -269.270156
 
           --------
@@ -3886,9 +3896,9 @@ task scf saddle  # go for the TS
    12 H                    1.0000     1.56542140     1.18246288     1.22684620
    13 H                    1.0000     1.12662924    -1.86885037    -1.31552609
    14 H                    1.0000     1.12662924    -1.86885037     1.31552609
-   15 H                    1.0000    -2.17857822    -0.80997093     0.00000000
-   16 H                    1.0000    -0.00821096     2.07628925     1.22767218
-   17 H                    1.0000    -0.00821096     2.07628925    -1.22767218
+   15 H                    1.0000    -2.17857822    -0.80997092     0.00000000
+   16 H                    1.0000    -0.00821097     2.07628925     1.22767218
+   17 H                    1.0000    -0.00821097     2.07628925    -1.22767218
 
       Atomic Mass 
       ----------- 
@@ -3897,13 +3907,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.8852612332
+ Effective nuclear repulsion energy (a.u.)     296.8852612514
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.5331946650    -1.2731849019     0.0000000000
+    -0.5331946731    -1.2731849280     0.0000000000
 
       Symmetry information
       --------------------
@@ -3932,28 +3942,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     235.5s
+ Forming initial guess at      20.3s
 
 
- Starting SCF solution at     235.6s
+ Starting SCF solution at      20.4s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270156372571
-      One-electron energy =   -951.155393930295
-      Two-electron energy =    384.999976324485
- Nuclear repulsion energy =    296.885261233239
+         Total SCF energy =   -269.270156372108
+      One-electron energy =   -951.155393966132
+      Two-electron energy =    384.999976342619
+ Nuclear repulsion energy =    296.885261251405
 
-        Time for solution =      8.3s
+        Time for solution =      0.7s
 
 
                               NWChem Gradients Module
@@ -3986,7 +3996,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    7    -269.27015637 -4.4E-05  0.00040  0.00010  0.00443  0.01496    256.6
+@    7    -269.27015637 -4.4D-05  0.00040  0.00010  0.00443  0.01496     21.7
                                      ok       ok                    
 
   Internal coordinate gradient before constraints
@@ -4266,32 +4276,32 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     257.6s
+ Forming initial guess at      21.9s
 
 
- Starting SCF solution at     257.7s
+ Starting SCF solution at      21.9s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270164469321
-      One-electron energy =   -951.265768227693
-      Two-electron energy =    385.054571709341
- Nuclear repulsion energy =    296.941032049030
+         Total SCF energy =   -269.270164468855
+      One-electron energy =   -951.265768268280
+      Two-electron energy =    385.054571729875
+ Nuclear repulsion energy =    296.941032069550
 
-        Time for solution =      8.3s
+        Time for solution =      0.7s
 
 
  Line search: 
-     step= 1.00 grad=-1.2E-05 hess= 4.1E-06 energy=   -269.270164 mode=downhill
+     step= 1.00 grad=-1.2D-05 hess= 4.1D-06 energy=   -269.270164 mode=downhill
  new step= 1.49                   predicted energy=   -269.270165
 
           --------
@@ -4311,18 +4321,18 @@ task scf saddle  # go for the TS
     3 C                    6.0000    -0.45244391    -0.36854390     1.15670501
     4 C                    6.0000    -0.45244391    -0.36854390    -1.15670501
     5 C                    6.0000    -1.38700499    -0.05892205     0.00000000
-    6 C                    6.0000     0.68306168     1.45620034     0.68666720
-    7 C                    6.0000     0.68306168     1.45620034    -0.68666720
-    8 H                    1.0000    -0.72726863    -0.23252880    -2.18203101
-    9 H                    1.0000    -0.72726863    -0.23252880     2.18203101
+    6 C                    6.0000     0.68306168     1.45620035     0.68666720
+    7 C                    6.0000     0.68306168     1.45620035    -0.68666720
+    8 H                    1.0000    -0.72726863    -0.23252881    -2.18203101
+    9 H                    1.0000    -0.72726863    -0.23252881     2.18203101
    10 H                    1.0000    -1.82210785     0.92591859     0.00000000
    11 H                    1.0000     1.56484068     1.18231004    -1.22903405
    12 H                    1.0000     1.56484068     1.18231004     1.22903405
    13 H                    1.0000     1.12763641    -1.86821243    -1.31491602
    14 H                    1.0000     1.12763641    -1.86821243     1.31491602
-   15 H                    1.0000    -2.17934570    -0.80839339     0.00000000
-   16 H                    1.0000    -0.00942561     2.07421470     1.22652317
-   17 H                    1.0000    -0.00942561     2.07421470    -1.22652317
+   15 H                    1.0000    -2.17934570    -0.80839338     0.00000000
+   16 H                    1.0000    -0.00942561     2.07421470     1.22652318
+   17 H                    1.0000    -0.00942561     2.07421470    -1.22652318
 
       Atomic Mass 
       ----------- 
@@ -4331,13 +4341,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.9686861176
+ Effective nuclear repulsion energy (a.u.)     296.9686860775
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.5251944989    -1.3116376087     0.0000000000
+    -0.5251944970    -1.3116375817     0.0000000000
 
       Symmetry information
       --------------------
@@ -4366,28 +4376,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     267.2s
+ Forming initial guess at      22.9s
 
 
- Starting SCF solution at     267.2s
+ Starting SCF solution at      22.9s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270165466685
-      One-electron energy =   -951.320489041547
-      Two-electron energy =    385.081637457268
- Nuclear repulsion energy =    296.968686117594
+         Total SCF energy =   -269.270165466218
+      One-electron energy =   -951.320488962162
+      Two-electron energy =    385.081637418484
+ Nuclear repulsion energy =    296.968686077460
 
-        Time for solution =      8.1s
+        Time for solution =      0.7s
 
 
                               NWChem Gradients Module
@@ -4420,7 +4430,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    8    -269.27016547 -9.1E-06  0.00056  0.00007  0.00200  0.00457    288.0
+@    8    -269.27016547 -9.1D-06  0.00056  0.00007  0.00200  0.00457     24.1
                                               ok                    
 
   Internal coordinate gradient before constraints
@@ -4700,32 +4710,32 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     288.6s
+ Forming initial guess at      24.3s
 
 
- Starting SCF solution at     288.7s
+ Starting SCF solution at      24.3s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270167941060
-      One-electron energy =   -951.247832163663
-      Two-electron energy =    385.045747287963
- Nuclear repulsion energy =    296.931916934639
+         Total SCF energy =   -269.270167940594
+      One-electron energy =   -951.247832207091
+      Two-electron energy =    385.045747309965
+ Nuclear repulsion energy =    296.931916956531
 
-        Time for solution =      8.0s
+        Time for solution =      0.6s
 
 
  Line search: 
-     step= 1.00 grad=-3.8E-06 hess= 1.3E-06 energy=   -269.270168 mode=downhill
+     step= 1.00 grad=-3.8D-06 hess= 1.3D-06 energy=   -269.270168 mode=downhill
  new step= 1.45                   predicted energy=   -269.270168
 
           --------
@@ -4750,8 +4760,8 @@ task scf saddle  # go for the TS
     8 H                    1.0000    -0.72698917    -0.23089991    -2.18222270
     9 H                    1.0000    -0.72698917    -0.23089991     2.18222270
    10 H                    1.0000    -1.82396654     0.92450571     0.00000000
-   11 H                    1.0000     1.56475685     1.18259962    -1.23064707
-   12 H                    1.0000     1.56475685     1.18259962     1.23064707
+   11 H                    1.0000     1.56475685     1.18259962    -1.23064708
+   12 H                    1.0000     1.56475685     1.18259962     1.23064708
    13 H                    1.0000     1.12745008    -1.86900816    -1.31463169
    14 H                    1.0000     1.12745008    -1.86900816     1.31463169
    15 H                    1.0000    -2.17947852    -0.80930908     0.00000000
@@ -4765,13 +4775,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.9153995385
+ Effective nuclear repulsion energy (a.u.)     296.9153995232
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.5140384080    -1.3229194316     0.0000000000
+    -0.5140383898    -1.3229194647     0.0000000000
 
       Symmetry information
       --------------------
@@ -4800,28 +4810,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     297.4s
+ Forming initial guess at      25.1s
 
 
- Starting SCF solution at     297.5s
+ Starting SCF solution at      25.2s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270168199213
-      One-electron energy =   -951.215191608826
-      Two-electron energy =    385.029623871121
- Nuclear repulsion energy =    296.915399538491
+         Total SCF energy =   -269.270168198752
+      One-electron energy =   -951.215191578958
+      Two-electron energy =    385.029623856968
+ Nuclear repulsion energy =    296.915399523239
 
-        Time for solution =      7.7s
+        Time for solution =      0.6s
 
 
                               NWChem Gradients Module
@@ -4854,7 +4864,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    9    -269.27016820 -2.7E-06  0.00033  0.00005  0.00125  0.00351    317.8
+@    9    -269.27016820 -2.7D-06  0.00033  0.00005  0.00125  0.00351     26.4
                                      ok       ok                    
 
   Internal coordinate gradient before constraints
@@ -4975,12 +4985,12 @@ task scf saddle  # go for the TS
   101 Torsion                  8     4     7    11         -74.02989    0.00002
   102 Torsion                  8     4     7    17          41.43598   -0.00001
   103 Torsion                  8     4     2    13          14.44190    0.00002
-  104 Torsion                  8     4     5    10         -52.51338   -0.00004
+  104 Torsion                  8     4     5    10         -52.51337   -0.00004
   105 Torsion                  8     4     5    15          70.55118   -0.00003
   106 Torsion                  9     3     6    12          74.02989   -0.00002
   107 Torsion                  9     3     6    16         -41.43598    0.00001
   108 Torsion                  9     3     1    14         -14.44190   -0.00002
-  109 Torsion                  9     3     5    10          52.51338    0.00004
+  109 Torsion                  9     3     5    10          52.51337    0.00004
   110 Torsion                  9     3     5    15         -70.55118    0.00003
   111 Torsion                 11     7     6    12           0.00000    0.00000
   112 Torsion                 11     7     6    16         155.46115    0.00002
@@ -5106,12 +5116,12 @@ task scf saddle  # go for the TS
   101 Torsion                  8     4     7    11         -74.02989    0.00001
   102 Torsion                  8     4     7    17          41.43598   -0.00002
   103 Torsion                  8     4     2    13          14.44190    0.00002
-  104 Torsion                  8     4     5    10         -52.51338   -0.00004
+  104 Torsion                  8     4     5    10         -52.51337   -0.00004
   105 Torsion                  8     4     5    15          70.55118   -0.00002
   106 Torsion                  9     3     6    12          74.02989   -0.00001
   107 Torsion                  9     3     6    16         -41.43598    0.00002
   108 Torsion                  9     3     1    14         -14.44190   -0.00002
-  109 Torsion                  9     3     5    10          52.51338    0.00004
+  109 Torsion                  9     3     5    10          52.51337    0.00004
   110 Torsion                  9     3     5    15         -70.55118    0.00002
   111 Torsion                 11     7     6    12           0.00000    0.00000
   112 Torsion                 11     7     6    16         155.46115    0.00000
@@ -5134,32 +5144,32 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     318.3s
+ Forming initial guess at      26.5s
 
 
- Starting SCF solution at     318.4s
+ Starting SCF solution at      26.5s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270169439389
-      One-electron energy =   -951.239648374134
-      Two-electron energy =    385.041721154556
- Nuclear repulsion energy =    296.927757780188
+         Total SCF energy =   -269.270169438928
+      One-electron energy =   -951.239648482985
+      Two-electron energy =    385.041721208903
+ Nuclear repulsion energy =    296.927757835154
 
-        Time for solution =      6.3s
+        Time for solution =      0.5s
 
 
  Line search: 
-     step= 1.00 grad=-1.6E-06 hess= 3.8E-07 energy=   -269.270169 mode=downhill
+     step= 1.00 grad=-1.6D-06 hess= 3.8D-07 energy=   -269.270169 mode=downhill
  new step= 2.12                   predicted energy=   -269.270170
 
           --------
@@ -5176,21 +5186,21 @@ task scf saddle  # go for the TS
  ---- ---------------- ---------- -------------- -------------- --------------
     1 C                    6.0000     0.44718902    -1.31869851     0.69936318
     2 C                    6.0000     0.44718902    -1.31869851    -0.69936318
-    3 C                    6.0000    -0.45231202    -0.36833227     1.15687105
-    4 C                    6.0000    -0.45231202    -0.36833227    -1.15687105
+    3 C                    6.0000    -0.45231202    -0.36833228     1.15687105
+    4 C                    6.0000    -0.45231202    -0.36833228    -1.15687105
     5 C                    6.0000    -1.38675824    -0.05986912     0.00000000
     6 C                    6.0000     0.68355714     1.45623995     0.68704403
     7 C                    6.0000     0.68355714     1.45623995    -0.68704403
     8 H                    1.0000    -0.72635652    -0.22981674    -2.18202581
     9 H                    1.0000    -0.72635652    -0.22981674     2.18202581
-   10 H                    1.0000    -1.82572928     0.92326818     0.00000000
+   10 H                    1.0000    -1.82572927     0.92326818     0.00000000
    11 H                    1.0000     1.56460340     1.18218001    -1.22988488
    12 H                    1.0000     1.56460340     1.18218001     1.22988488
    13 H                    1.0000     1.12684422    -1.86975044    -1.31446876
    14 H                    1.0000     1.12684422    -1.86975044     1.31446876
    15 H                    1.0000    -2.17841519    -0.81040943     0.00000000
-   16 H                    1.0000    -0.00868724     2.07596422     1.22487151
-   17 H                    1.0000    -0.00868724     2.07596422    -1.22487151
+   16 H                    1.0000    -0.00868724     2.07596421     1.22487151
+   17 H                    1.0000    -0.00868724     2.07596421    -1.22487151
 
       Atomic Mass 
       ----------- 
@@ -5199,13 +5209,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.9415608224
+ Effective nuclear repulsion energy (a.u.)     296.9415609775
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.5115044098    -1.3203361811     0.0000000000
+    -0.5115044257    -1.3203361911     0.0000000000
 
       Symmetry information
       --------------------
@@ -5234,28 +5244,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     325.7s
+ Forming initial guess at      27.3s
 
 
- Starting SCF solution at     325.8s
+ Starting SCF solution at      27.3s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270169919202
-      One-electron energy =   -951.266964760391
-      Two-electron energy =    385.055234018790
- Nuclear repulsion energy =    296.941560822399
+         Total SCF energy =   -269.270169918738
+      One-electron energy =   -951.266965067246
+      Two-electron energy =    385.055234170964
+ Nuclear repulsion energy =    296.941560977544
 
-        Time for solution =      7.4s
+        Time for solution =      0.6s
 
 
                               NWChem Gradients Module
@@ -5282,13 +5292,13 @@ task scf saddle  # go for the TS
   13 H       2.129427  -3.533316  -2.483986    0.000014   0.000019   0.000045
   14 H       2.129427  -3.533316   2.483986    0.000014   0.000019  -0.000045
   15 H      -4.116608  -1.531452   0.000000   -0.000113   0.000086   0.000000
-  16 H      -0.016416   3.923004   2.314672    0.000030  -0.000009  -0.000122
-  17 H      -0.016416   3.923004  -2.314672    0.000030  -0.000009   0.000122
+  16 H      -0.016417   3.923004   2.314672    0.000030  -0.000009  -0.000122
+  17 H      -0.016417   3.923004  -2.314672    0.000030  -0.000009   0.000122
 
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@   10    -269.27016992 -1.7E-06  0.00011  0.00003  0.00117  0.00333    345.8
+@   10    -269.27016992 -1.7D-06  0.00011  0.00003  0.00117  0.00333     28.5
                                      ok       ok       ok           
 
   Internal coordinate gradient before constraints
@@ -5568,32 +5578,32 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     346.3s
+ Forming initial guess at      28.6s
 
 
- Starting SCF solution at     346.3s
+ Starting SCF solution at      28.6s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270170414270
-      One-electron energy =   -951.260936949782
-      Two-electron energy =    385.052312299754
- Nuclear repulsion energy =    296.938454235758
+         Total SCF energy =   -269.270170413807
+      One-electron energy =   -951.260937054366
+      Two-electron energy =    385.052312351930
+ Nuclear repulsion energy =    296.938454288629
 
-        Time for solution =      6.6s
+        Time for solution =      0.6s
 
 
  Line search: 
-     step= 1.00 grad=-6.7E-07 hess= 1.8E-07 energy=   -269.270170 mode=downhill
+     step= 1.00 grad=-6.7D-07 hess= 1.8D-07 energy=   -269.270170 mode=downhill
  new step= 1.90                   predicted energy=   -269.270171
 
           --------
@@ -5608,23 +5618,23 @@ task scf saddle  # go for the TS
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 C                    6.0000     0.44715035    -1.31855243     0.69940286
-    2 C                    6.0000     0.44715035    -1.31855243    -0.69940286
-    3 C                    6.0000    -0.45236214    -0.36815217     1.15686742
-    4 C                    6.0000    -0.45236214    -0.36815217    -1.15686742
+    1 C                    6.0000     0.44715035    -1.31855242     0.69940286
+    2 C                    6.0000     0.44715035    -1.31855242    -0.69940286
+    3 C                    6.0000    -0.45236214    -0.36815216     1.15686742
+    4 C                    6.0000    -0.45236214    -0.36815216    -1.15686742
     5 C                    6.0000    -1.38671052    -0.05967484     0.00000000
-    6 C                    6.0000     0.68339064     1.45650145     0.68707513
-    7 C                    6.0000     0.68339064     1.45650145    -0.68707513
-    8 H                    1.0000    -0.72576640    -0.22958142    -2.18219406
-    9 H                    1.0000    -0.72576640    -0.22958142     2.18219406
+    6 C                    6.0000     0.68339064     1.45650146     0.68707513
+    7 C                    6.0000     0.68339064     1.45650146    -0.68707513
+    8 H                    1.0000    -0.72576639    -0.22958142    -2.18219406
+    9 H                    1.0000    -0.72576639    -0.22958142     2.18219406
    10 H                    1.0000    -1.82695851     0.92293969     0.00000000
-   11 H                    1.0000     1.56451438     1.18158060    -1.22980611
-   12 H                    1.0000     1.56451438     1.18158060     1.22980611
-   13 H                    1.0000     1.12646380    -1.86982655    -1.31479314
-   14 H                    1.0000     1.12646380    -1.86982655     1.31479314
-   15 H                    1.0000    -2.17749502    -0.81112144     0.00000000
-   16 H                    1.0000    -0.00842197     2.07623984     1.22579256
-   17 H                    1.0000    -0.00842197     2.07623984    -1.22579256
+   11 H                    1.0000     1.56451438     1.18158059    -1.22980611
+   12 H                    1.0000     1.56451438     1.18158059     1.22980611
+   13 H                    1.0000     1.12646380    -1.86982655    -1.31479315
+   14 H                    1.0000     1.12646380    -1.86982655     1.31479315
+   15 H                    1.0000    -2.17749501    -0.81112145     0.00000000
+   16 H                    1.0000    -0.00842197     2.07623984     1.22579257
+   17 H                    1.0000    -0.00842197     2.07623984    -1.22579257
 
       Atomic Mass 
       ----------- 
@@ -5633,13 +5643,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.9356710735
+ Effective nuclear repulsion energy (a.u.)     296.9356709952
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.5158777961    -1.3073947268     0.0000000000
+    -0.5158778220    -1.3073946450     0.0000000000
 
       Symmetry information
       --------------------
@@ -5668,28 +5678,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     354.7s
+ Forming initial guess at      29.4s
 
 
- Starting SCF solution at     354.8s
+ Starting SCF solution at      29.4s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270170551690
-      One-electron energy =   -951.255535169002
-      Two-electron energy =    385.049693543778
- Nuclear repulsion energy =    296.935671073533
+         Total SCF energy =   -269.270170551222
+      One-electron energy =   -951.255535015611
+      Two-electron energy =    385.049693469159
+ Nuclear repulsion energy =    296.935670995230
 
-        Time for solution =      6.6s
+        Time for solution =      0.5s
 
 
                               NWChem Gradients Module
@@ -5722,7 +5732,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@   11    -269.27017055 -6.3E-07  0.00007  0.00001  0.00072  0.00232    374.2
+@   11    -269.27017055 -6.3D-07  0.00007  0.00001  0.00072  0.00232     30.6
                                      ok       ok       ok           
 
   Internal coordinate gradient before constraints
@@ -5813,13 +5823,13 @@ task scf saddle  # go for the TS
    71 Torsion                  2     4     5    10         152.68302    0.00001
    72 Torsion                  2     4     5    15         -84.35169   -0.00001
    73 Torsion                  3     6     7     4           0.00000    0.00000
-   74 Torsion                  3     6     7    11        -104.57161    0.00001
+   74 Torsion                  3     6     7    11        -104.57160    0.00001
    75 Torsion                  3     6     7    17          99.95443    0.00000
    76 Torsion                  3     1     2     4           0.00000    0.00000
    77 Torsion                  3     1     2    13         172.48420    0.00003
    78 Torsion                  3     5     4     7         -71.71552   -0.00005
    79 Torsion                  3     5     4     8        -177.06654   -0.00002
-   80 Torsion                  4     7     6    12         104.57161   -0.00001
+   80 Torsion                  4     7     6    12         104.57160   -0.00001
    81 Torsion                  4     7     6    16         -99.95443    0.00000
    82 Torsion                  4     2     1    14        -172.48420   -0.00003
    83 Torsion                  4     5     3     6          71.71552    0.00005
@@ -5851,8 +5861,8 @@ task scf saddle  # go for the TS
   109 Torsion                  9     3     5    10          52.24085   -0.00001
   110 Torsion                  9     3     5    15         -70.72444    0.00002
   111 Torsion                 11     7     6    12           0.00000    0.00000
-  112 Torsion                 11     7     6    16         155.47396    0.00001
-  113 Torsion                 12     6     7    17        -155.47396   -0.00001
+  112 Torsion                 11     7     6    16         155.47397    0.00001
+  113 Torsion                 12     6     7    17        -155.47397   -0.00001
   114 Torsion                 13     2     1    14           0.00000    0.00000
   115 Torsion                 16     6     7    17           0.00000    0.00000
 
@@ -5944,13 +5954,13 @@ task scf saddle  # go for the TS
    71 Torsion                  2     4     5    10         152.68302    0.00000
    72 Torsion                  2     4     5    15         -84.35169   -0.00001
    73 Torsion                  3     6     7     4           0.00000    0.00000
-   74 Torsion                  3     6     7    11        -104.57161    0.00000
+   74 Torsion                  3     6     7    11        -104.57160    0.00000
    75 Torsion                  3     6     7    17          99.95443    0.00001
    76 Torsion                  3     1     2     4           0.00000    0.00000
    77 Torsion                  3     1     2    13         172.48420    0.00000
    78 Torsion                  3     5     4     7         -71.71552   -0.00001
    79 Torsion                  3     5     4     8        -177.06654    0.00000
-   80 Torsion                  4     7     6    12         104.57161    0.00000
+   80 Torsion                  4     7     6    12         104.57160    0.00000
    81 Torsion                  4     7     6    16         -99.95443   -0.00001
    82 Torsion                  4     2     1    14        -172.48420    0.00000
    83 Torsion                  4     5     3     6          71.71552    0.00001
@@ -5982,8 +5992,8 @@ task scf saddle  # go for the TS
   109 Torsion                  9     3     5    10          52.24085   -0.00001
   110 Torsion                  9     3     5    15         -70.72444    0.00001
   111 Torsion                 11     7     6    12           0.00000    0.00000
-  112 Torsion                 11     7     6    16         155.47396   -0.00001
-  113 Torsion                 12     6     7    17        -155.47396    0.00001
+  112 Torsion                 11     7     6    16         155.47397   -0.00001
+  113 Torsion                 12     6     7    17        -155.47397    0.00001
   114 Torsion                 13     2     1    14           0.00000    0.00000
   115 Torsion                 16     6     7    17           0.00000    0.00000
 
@@ -6002,32 +6012,32 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     374.7s
+ Forming initial guess at      30.7s
 
 
- Starting SCF solution at     374.8s
+ Starting SCF solution at      30.7s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270170659904
-      One-electron energy =   -951.257030242321
-      Two-electron energy =    385.050381204549
- Nuclear repulsion energy =    296.936478377868
+         Total SCF energy =   -269.270170659441
+      One-electron energy =   -951.257030252819
+      Two-electron energy =    385.050381210228
+ Nuclear repulsion energy =    296.936478383151
 
-        Time for solution =      6.6s
+        Time for solution =      0.5s
 
 
  Line search: 
-     step= 1.00 grad=-1.5E-07 hess= 4.1E-08 energy=   -269.270171 mode=downhill
+     step= 1.00 grad=-1.5D-07 hess= 4.1D-08 energy=   -269.270171 mode=downhill
  new step= 1.83                   predicted energy=   -269.270171
 
           --------
@@ -6042,23 +6052,23 @@ task scf saddle  # go for the TS
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 C                    6.0000     0.44712722    -1.31846170     0.69941373
-    2 C                    6.0000     0.44712722    -1.31846170    -0.69941373
-    3 C                    6.0000    -0.45228180    -0.36802454     1.15689065
-    4 C                    6.0000    -0.45228180    -0.36802454    -1.15689065
-    5 C                    6.0000    -1.38683877    -0.05963798     0.00000000
-    6 C                    6.0000     0.68350739     1.45658546     0.68701700
-    7 C                    6.0000     0.68350739     1.45658546    -0.68701700
-    8 H                    1.0000    -0.72571152    -0.22933948    -2.18219805
-    9 H                    1.0000    -0.72571152    -0.22933948     2.18219805
-   10 H                    1.0000    -1.82730979     0.92278535     0.00000000
-   11 H                    1.0000     1.56440543     1.18148921    -1.22976310
-   12 H                    1.0000     1.56440543     1.18148921     1.22976310
-   13 H                    1.0000     1.12628652    -1.86977366    -1.31485740
-   14 H                    1.0000     1.12628652    -1.86977366     1.31485740
-   15 H                    1.0000    -2.17720594    -0.81158436     0.00000000
-   16 H                    1.0000    -0.00826934     2.07602424     1.22590171
-   17 H                    1.0000    -0.00826934     2.07602424    -1.22590171
+    1 C                    6.0000     0.44712722    -1.31846169     0.69941374
+    2 C                    6.0000     0.44712722    -1.31846169    -0.69941374
+    3 C                    6.0000    -0.45228180    -0.36802453     1.15689065
+    4 C                    6.0000    -0.45228180    -0.36802453    -1.15689065
+    5 C                    6.0000    -1.38683879    -0.05963798     0.00000000
+    6 C                    6.0000     0.68350741     1.45658546     0.68701700
+    7 C                    6.0000     0.68350741     1.45658546    -0.68701700
+    8 H                    1.0000    -0.72571152    -0.22933945    -2.18219805
+    9 H                    1.0000    -0.72571152    -0.22933945     2.18219805
+   10 H                    1.0000    -1.82730982     0.92278534     0.00000000
+   11 H                    1.0000     1.56440541     1.18148921    -1.22976310
+   12 H                    1.0000     1.56440541     1.18148921     1.22976310
+   13 H                    1.0000     1.12628651    -1.86977366    -1.31485740
+   14 H                    1.0000     1.12628651    -1.86977366     1.31485740
+   15 H                    1.0000    -2.17720591    -0.81158441     0.00000000
+   16 H                    1.0000    -0.00826933     2.07602421     1.22590171
+   17 H                    1.0000    -0.00826933     2.07602421    -1.22590171
 
       Atomic Mass 
       ----------- 
@@ -6067,13 +6077,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.9371521961
+ Effective nuclear repulsion energy (a.u.)     296.9371524332
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.5138023170    -1.3013328059     0.0000000000
+    -0.5138020625    -1.3013322317     0.0000000000
 
       Symmetry information
       --------------------
@@ -6102,28 +6112,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     382.0s
+ Forming initial guess at      31.4s
 
 
- Starting SCF solution at     382.1s
+ Starting SCF solution at      31.4s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270170686782
-      One-electron energy =   -951.258277253321
-      Two-electron energy =    385.050954370459
- Nuclear repulsion energy =    296.937152196080
+         Total SCF energy =   -269.270170686314
+      One-electron energy =   -951.258277700560
+      Two-electron energy =    385.050954581053
+ Nuclear repulsion energy =    296.937152433192
 
-        Time for solution =      6.6s
+        Time for solution =      0.5s
 
 
                               NWChem Gradients Module
@@ -6156,7 +6166,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@   12    -269.27017069 -1.4E-07  0.00004  0.00001  0.00026  0.00087    401.4
+@   12    -269.27017069 -1.4D-07  0.00004  0.00001  0.00026  0.00087     32.5
                                      ok       ok       ok       ok  
 
   Internal coordinate gradient before constraints
@@ -6196,12 +6206,12 @@ task scf saddle  # go for the TS
    20 Bend                     1     2    13               125.12863    0.00000
    21 Bend                     1     3     6                99.39231    0.00001
    22 Bend                     1     3     5               106.68249   -0.00003
-   23 Bend                     1     3     9               124.80745    0.00001
+   23 Bend                     1     3     9               124.80746    0.00001
    24 Bend                     2     1     3               109.27012    0.00002
    25 Bend                     2     1    14               125.12863    0.00000
    26 Bend                     2     4     7                99.39231    0.00001
    27 Bend                     2     4     5               106.68249   -0.00003
-   28 Bend                     2     4     8               124.80745    0.00001
+   28 Bend                     2     4     8               124.80746    0.00001
    29 Bend                     3     6     7               102.33217   -0.00006
    30 Bend                     3     6    12                95.93508    0.00002
    31 Bend                     3     6    16                92.21562    0.00003
@@ -6216,9 +6226,9 @@ task scf saddle  # go for the TS
    40 Bend                     4     5    10               115.91269    0.00001
    41 Bend                     4     5    15               107.80853   -0.00001
    42 Bend                     5     3     6                89.23149    0.00005
-   43 Bend                     5     3     9               123.10932    0.00001
+   43 Bend                     5     3     9               123.10931    0.00001
    44 Bend                     5     4     7                89.23149    0.00005
-   45 Bend                     5     4     8               123.10932    0.00001
+   45 Bend                     5     4     8               123.10931    0.00001
    46 Bend                     6     3     9               103.24141   -0.00004
    47 Bend                     6     7    11               120.46051    0.00001
    48 Bend                     6     7    17               120.12799    0.00001
@@ -6229,7 +6239,7 @@ task scf saddle  # go for the TS
    53 Bend                    11     7    17               115.08463   -0.00001
    54 Bend                    12     6    16               115.08463   -0.00001
    55 Torsion                  1     2     4     7          73.31206    0.00006
-   56 Torsion                  1     2     4     5         -18.71539    0.00001
+   56 Torsion                  1     2     4     5         -18.71540    0.00001
    57 Torsion                  1     2     4     8        -173.25002    0.00002
    58 Torsion                  1     3     6     7          67.75487   -0.00001
    59 Torsion                  1     3     6    12         -55.23170   -0.00001
@@ -6238,7 +6248,7 @@ task scf saddle  # go for the TS
    62 Torsion                  1     3     5    10        -152.69969   -0.00001
    63 Torsion                  1     3     5    15          84.31656    0.00000
    64 Torsion                  2     1     3     6         -73.31206   -0.00006
-   65 Torsion                  2     1     3     5          18.71539   -0.00001
+   65 Torsion                  2     1     3     5          18.71540   -0.00001
    66 Torsion                  2     1     3     9         173.25002   -0.00002
    67 Torsion                  2     4     7     6         -67.75487    0.00001
    68 Torsion                  2     4     7    11          55.23170    0.00001
@@ -6247,13 +6257,13 @@ task scf saddle  # go for the TS
    71 Torsion                  2     4     5    10         152.69969    0.00001
    72 Torsion                  2     4     5    15         -84.31656    0.00000
    73 Torsion                  3     6     7     4           0.00000    0.00000
-   74 Torsion                  3     6     7    11        -104.55848    0.00001
+   74 Torsion                  3     6     7    11        -104.55847    0.00001
    75 Torsion                  3     6     7    17          99.94070    0.00000
    76 Torsion                  3     1     2     4           0.00000    0.00000
    77 Torsion                  3     1     2    13         172.48808    0.00002
    78 Torsion                  3     5     4     7         -71.70631   -0.00003
    79 Torsion                  3     5     4     8        -177.05737   -0.00002
-   80 Torsion                  4     7     6    12         104.55848   -0.00001
+   80 Torsion                  4     7     6    12         104.55847   -0.00001
    81 Torsion                  4     7     6    16         -99.94070    0.00000
    82 Torsion                  4     2     1    14        -172.48808   -0.00002
    83 Torsion                  4     5     3     6          71.70631    0.00003
@@ -6276,14 +6286,14 @@ task scf saddle  # go for the TS
   100 Torsion                  7     6     3     9        -162.95096   -0.00001
   101 Torsion                  8     4     7    11         -74.06247    0.00001
   102 Torsion                  8     4     7    17          41.44205    0.00000
-  103 Torsion                  8     4     2    13          14.26256    0.00000
-  104 Torsion                  8     4     5    10         -52.22760    0.00000
-  105 Torsion                  8     4     5    15          70.75615   -0.00001
+  103 Torsion                  8     4     2    13          14.26255    0.00000
+  104 Torsion                  8     4     5    10         -52.22759    0.00000
+  105 Torsion                  8     4     5    15          70.75616   -0.00001
   106 Torsion                  9     3     6    12          74.06247   -0.00001
   107 Torsion                  9     3     6    16         -41.44205    0.00000
-  108 Torsion                  9     3     1    14         -14.26256    0.00000
-  109 Torsion                  9     3     5    10          52.22760    0.00000
-  110 Torsion                  9     3     5    15         -70.75615    0.00001
+  108 Torsion                  9     3     1    14         -14.26255    0.00000
+  109 Torsion                  9     3     5    10          52.22759    0.00000
+  110 Torsion                  9     3     5    15         -70.75616    0.00001
   111 Torsion                 11     7     6    12           0.00000    0.00000
   112 Torsion                 11     7     6    16         155.50083    0.00001
   113 Torsion                 12     6     7    17        -155.50083   -0.00001
@@ -6327,12 +6337,12 @@ task scf saddle  # go for the TS
    20 Bend                     1     2    13               125.12863    0.00000
    21 Bend                     1     3     6                99.39231    0.00000
    22 Bend                     1     3     5               106.68249    0.00000
-   23 Bend                     1     3     9               124.80745    0.00000
+   23 Bend                     1     3     9               124.80746    0.00000
    24 Bend                     2     1     3               109.27012    0.00000
    25 Bend                     2     1    14               125.12863    0.00000
    26 Bend                     2     4     7                99.39231    0.00000
    27 Bend                     2     4     5               106.68249    0.00000
-   28 Bend                     2     4     8               124.80745    0.00000
+   28 Bend                     2     4     8               124.80746    0.00000
    29 Bend                     3     6     7               102.33217    0.00000
    30 Bend                     3     6    12                95.93508    0.00000
    31 Bend                     3     6    16                92.21562    0.00000
@@ -6347,9 +6357,9 @@ task scf saddle  # go for the TS
    40 Bend                     4     5    10               115.91269    0.00000
    41 Bend                     4     5    15               107.80853    0.00001
    42 Bend                     5     3     6                89.23149    0.00000
-   43 Bend                     5     3     9               123.10932    0.00000
+   43 Bend                     5     3     9               123.10931    0.00000
    44 Bend                     5     4     7                89.23149    0.00000
-   45 Bend                     5     4     8               123.10932    0.00000
+   45 Bend                     5     4     8               123.10931    0.00000
    46 Bend                     6     3     9               103.24141    0.00000
    47 Bend                     6     7    11               120.46051    0.00000
    48 Bend                     6     7    17               120.12799    0.00001
@@ -6360,7 +6370,7 @@ task scf saddle  # go for the TS
    53 Bend                    11     7    17               115.08463   -0.00001
    54 Bend                    12     6    16               115.08463   -0.00001
    55 Torsion                  1     2     4     7          73.31206    0.00000
-   56 Torsion                  1     2     4     5         -18.71539    0.00000
+   56 Torsion                  1     2     4     5         -18.71540    0.00000
    57 Torsion                  1     2     4     8        -173.25002    0.00000
    58 Torsion                  1     3     6     7          67.75487    0.00000
    59 Torsion                  1     3     6    12         -55.23170    0.00000
@@ -6369,7 +6379,7 @@ task scf saddle  # go for the TS
    62 Torsion                  1     3     5    10        -152.69969    0.00000
    63 Torsion                  1     3     5    15          84.31656    0.00001
    64 Torsion                  2     1     3     6         -73.31206    0.00000
-   65 Torsion                  2     1     3     5          18.71539    0.00000
+   65 Torsion                  2     1     3     5          18.71540    0.00000
    66 Torsion                  2     1     3     9         173.25002    0.00000
    67 Torsion                  2     4     7     6         -67.75487    0.00000
    68 Torsion                  2     4     7    11          55.23170    0.00000
@@ -6378,13 +6388,13 @@ task scf saddle  # go for the TS
    71 Torsion                  2     4     5    10         152.69969    0.00000
    72 Torsion                  2     4     5    15         -84.31656   -0.00001
    73 Torsion                  3     6     7     4           0.00000    0.00000
-   74 Torsion                  3     6     7    11        -104.55848    0.00000
+   74 Torsion                  3     6     7    11        -104.55847    0.00000
    75 Torsion                  3     6     7    17          99.94070    0.00001
    76 Torsion                  3     1     2     4           0.00000    0.00000
    77 Torsion                  3     1     2    13         172.48808    0.00000
    78 Torsion                  3     5     4     7         -71.70631    0.00000
    79 Torsion                  3     5     4     8        -177.05737    0.00000
-   80 Torsion                  4     7     6    12         104.55848    0.00000
+   80 Torsion                  4     7     6    12         104.55847    0.00000
    81 Torsion                  4     7     6    16         -99.94070   -0.00001
    82 Torsion                  4     2     1    14        -172.48808    0.00000
    83 Torsion                  4     5     3     6          71.70631    0.00000
@@ -6407,14 +6417,14 @@ task scf saddle  # go for the TS
   100 Torsion                  7     6     3     9        -162.95096    0.00000
   101 Torsion                  8     4     7    11         -74.06247    0.00000
   102 Torsion                  8     4     7    17          41.44205    0.00000
-  103 Torsion                  8     4     2    13          14.26256    0.00000
-  104 Torsion                  8     4     5    10         -52.22760    0.00000
-  105 Torsion                  8     4     5    15          70.75615   -0.00001
+  103 Torsion                  8     4     2    13          14.26255    0.00000
+  104 Torsion                  8     4     5    10         -52.22759    0.00000
+  105 Torsion                  8     4     5    15          70.75616   -0.00001
   106 Torsion                  9     3     6    12          74.06247    0.00000
   107 Torsion                  9     3     6    16         -41.44205    0.00000
-  108 Torsion                  9     3     1    14         -14.26256    0.00000
-  109 Torsion                  9     3     5    10          52.22760    0.00000
-  110 Torsion                  9     3     5    15         -70.75615    0.00001
+  108 Torsion                  9     3     1    14         -14.26255    0.00000
+  109 Torsion                  9     3     5    10          52.22759    0.00000
+  110 Torsion                  9     3     5    15         -70.75616    0.00001
   111 Torsion                 11     7     6    12           0.00000    0.00000
   112 Torsion                 11     7     6    16         155.50083    0.00000
   113 Torsion                 12     6     7    17        -155.50083    0.00000
@@ -6429,7 +6439,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@   12    -269.27017069 -1.4E-07  0.00004  0.00001  0.00026  0.00087    401.4
+@   12    -269.27017069 -1.4D-07  0.00004  0.00001  0.00026  0.00087     32.5
                                      ok       ok       ok       ok  
 
   Internal coordinate gradient before constraints
@@ -6469,12 +6479,12 @@ task scf saddle  # go for the TS
    20 Bend                     1     2    13               125.12863    0.00000
    21 Bend                     1     3     6                99.39231    0.00001
    22 Bend                     1     3     5               106.68249   -0.00003
-   23 Bend                     1     3     9               124.80745    0.00001
+   23 Bend                     1     3     9               124.80746    0.00001
    24 Bend                     2     1     3               109.27012    0.00002
    25 Bend                     2     1    14               125.12863    0.00000
    26 Bend                     2     4     7                99.39231    0.00001
    27 Bend                     2     4     5               106.68249   -0.00003
-   28 Bend                     2     4     8               124.80745    0.00001
+   28 Bend                     2     4     8               124.80746    0.00001
    29 Bend                     3     6     7               102.33217   -0.00006
    30 Bend                     3     6    12                95.93508    0.00002
    31 Bend                     3     6    16                92.21562    0.00003
@@ -6489,9 +6499,9 @@ task scf saddle  # go for the TS
    40 Bend                     4     5    10               115.91269    0.00001
    41 Bend                     4     5    15               107.80853   -0.00001
    42 Bend                     5     3     6                89.23149    0.00005
-   43 Bend                     5     3     9               123.10932    0.00001
+   43 Bend                     5     3     9               123.10931    0.00001
    44 Bend                     5     4     7                89.23149    0.00005
-   45 Bend                     5     4     8               123.10932    0.00001
+   45 Bend                     5     4     8               123.10931    0.00001
    46 Bend                     6     3     9               103.24141   -0.00004
    47 Bend                     6     7    11               120.46051    0.00001
    48 Bend                     6     7    17               120.12799    0.00001
@@ -6502,7 +6512,7 @@ task scf saddle  # go for the TS
    53 Bend                    11     7    17               115.08463   -0.00001
    54 Bend                    12     6    16               115.08463   -0.00001
    55 Torsion                  1     2     4     7          73.31206    0.00006
-   56 Torsion                  1     2     4     5         -18.71539    0.00001
+   56 Torsion                  1     2     4     5         -18.71540    0.00001
    57 Torsion                  1     2     4     8        -173.25002    0.00002
    58 Torsion                  1     3     6     7          67.75487   -0.00001
    59 Torsion                  1     3     6    12         -55.23170   -0.00001
@@ -6511,7 +6521,7 @@ task scf saddle  # go for the TS
    62 Torsion                  1     3     5    10        -152.69969   -0.00001
    63 Torsion                  1     3     5    15          84.31656    0.00000
    64 Torsion                  2     1     3     6         -73.31206   -0.00006
-   65 Torsion                  2     1     3     5          18.71539   -0.00001
+   65 Torsion                  2     1     3     5          18.71540   -0.00001
    66 Torsion                  2     1     3     9         173.25002   -0.00002
    67 Torsion                  2     4     7     6         -67.75487    0.00001
    68 Torsion                  2     4     7    11          55.23170    0.00001
@@ -6520,13 +6530,13 @@ task scf saddle  # go for the TS
    71 Torsion                  2     4     5    10         152.69969    0.00001
    72 Torsion                  2     4     5    15         -84.31656    0.00000
    73 Torsion                  3     6     7     4           0.00000    0.00000
-   74 Torsion                  3     6     7    11        -104.55848    0.00001
+   74 Torsion                  3     6     7    11        -104.55847    0.00001
    75 Torsion                  3     6     7    17          99.94070    0.00000
    76 Torsion                  3     1     2     4           0.00000    0.00000
    77 Torsion                  3     1     2    13         172.48808    0.00002
    78 Torsion                  3     5     4     7         -71.70631   -0.00003
    79 Torsion                  3     5     4     8        -177.05737   -0.00002
-   80 Torsion                  4     7     6    12         104.55848   -0.00001
+   80 Torsion                  4     7     6    12         104.55847   -0.00001
    81 Torsion                  4     7     6    16         -99.94070    0.00000
    82 Torsion                  4     2     1    14        -172.48808   -0.00002
    83 Torsion                  4     5     3     6          71.70631    0.00003
@@ -6549,14 +6559,14 @@ task scf saddle  # go for the TS
   100 Torsion                  7     6     3     9        -162.95096   -0.00001
   101 Torsion                  8     4     7    11         -74.06247    0.00001
   102 Torsion                  8     4     7    17          41.44205    0.00000
-  103 Torsion                  8     4     2    13          14.26256    0.00000
-  104 Torsion                  8     4     5    10         -52.22760    0.00000
-  105 Torsion                  8     4     5    15          70.75615   -0.00001
+  103 Torsion                  8     4     2    13          14.26255    0.00000
+  104 Torsion                  8     4     5    10         -52.22759    0.00000
+  105 Torsion                  8     4     5    15          70.75616   -0.00001
   106 Torsion                  9     3     6    12          74.06247   -0.00001
   107 Torsion                  9     3     6    16         -41.44205    0.00000
-  108 Torsion                  9     3     1    14         -14.26256    0.00000
-  109 Torsion                  9     3     5    10          52.22760    0.00000
-  110 Torsion                  9     3     5    15         -70.75615    0.00001
+  108 Torsion                  9     3     1    14         -14.26255    0.00000
+  109 Torsion                  9     3     5    10          52.22759    0.00000
+  110 Torsion                  9     3     5    15         -70.75616    0.00001
   111 Torsion                 11     7     6    12           0.00000    0.00000
   112 Torsion                 11     7     6    16         155.50083    0.00001
   113 Torsion                 12     6     7    17        -155.50083   -0.00001
@@ -6600,12 +6610,12 @@ task scf saddle  # go for the TS
    20 Bend                     1     2    13               125.12863    0.00000
    21 Bend                     1     3     6                99.39231    0.00000
    22 Bend                     1     3     5               106.68249    0.00000
-   23 Bend                     1     3     9               124.80745    0.00000
+   23 Bend                     1     3     9               124.80746    0.00000
    24 Bend                     2     1     3               109.27012    0.00000
    25 Bend                     2     1    14               125.12863    0.00000
    26 Bend                     2     4     7                99.39231    0.00000
    27 Bend                     2     4     5               106.68249    0.00000
-   28 Bend                     2     4     8               124.80745    0.00000
+   28 Bend                     2     4     8               124.80746    0.00000
    29 Bend                     3     6     7               102.33217    0.00000
    30 Bend                     3     6    12                95.93508    0.00000
    31 Bend                     3     6    16                92.21562    0.00000
@@ -6620,9 +6630,9 @@ task scf saddle  # go for the TS
    40 Bend                     4     5    10               115.91269    0.00000
    41 Bend                     4     5    15               107.80853    0.00001
    42 Bend                     5     3     6                89.23149    0.00000
-   43 Bend                     5     3     9               123.10932    0.00000
+   43 Bend                     5     3     9               123.10931    0.00000
    44 Bend                     5     4     7                89.23149    0.00000
-   45 Bend                     5     4     8               123.10932    0.00000
+   45 Bend                     5     4     8               123.10931    0.00000
    46 Bend                     6     3     9               103.24141    0.00000
    47 Bend                     6     7    11               120.46051    0.00000
    48 Bend                     6     7    17               120.12799    0.00001
@@ -6633,7 +6643,7 @@ task scf saddle  # go for the TS
    53 Bend                    11     7    17               115.08463   -0.00001
    54 Bend                    12     6    16               115.08463   -0.00001
    55 Torsion                  1     2     4     7          73.31206    0.00000
-   56 Torsion                  1     2     4     5         -18.71539    0.00000
+   56 Torsion                  1     2     4     5         -18.71540    0.00000
    57 Torsion                  1     2     4     8        -173.25002    0.00000
    58 Torsion                  1     3     6     7          67.75487    0.00000
    59 Torsion                  1     3     6    12         -55.23170    0.00000
@@ -6642,7 +6652,7 @@ task scf saddle  # go for the TS
    62 Torsion                  1     3     5    10        -152.69969    0.00000
    63 Torsion                  1     3     5    15          84.31656    0.00001
    64 Torsion                  2     1     3     6         -73.31206    0.00000
-   65 Torsion                  2     1     3     5          18.71539    0.00000
+   65 Torsion                  2     1     3     5          18.71540    0.00000
    66 Torsion                  2     1     3     9         173.25002    0.00000
    67 Torsion                  2     4     7     6         -67.75487    0.00000
    68 Torsion                  2     4     7    11          55.23170    0.00000
@@ -6651,13 +6661,13 @@ task scf saddle  # go for the TS
    71 Torsion                  2     4     5    10         152.69969    0.00000
    72 Torsion                  2     4     5    15         -84.31656   -0.00001
    73 Torsion                  3     6     7     4           0.00000    0.00000
-   74 Torsion                  3     6     7    11        -104.55848    0.00000
+   74 Torsion                  3     6     7    11        -104.55847    0.00000
    75 Torsion                  3     6     7    17          99.94070    0.00001
    76 Torsion                  3     1     2     4           0.00000    0.00000
    77 Torsion                  3     1     2    13         172.48808    0.00000
    78 Torsion                  3     5     4     7         -71.70631    0.00000
    79 Torsion                  3     5     4     8        -177.05737    0.00000
-   80 Torsion                  4     7     6    12         104.55848    0.00000
+   80 Torsion                  4     7     6    12         104.55847    0.00000
    81 Torsion                  4     7     6    16         -99.94070   -0.00001
    82 Torsion                  4     2     1    14        -172.48808    0.00000
    83 Torsion                  4     5     3     6          71.70631    0.00000
@@ -6680,14 +6690,14 @@ task scf saddle  # go for the TS
   100 Torsion                  7     6     3     9        -162.95096    0.00000
   101 Torsion                  8     4     7    11         -74.06247    0.00000
   102 Torsion                  8     4     7    17          41.44205    0.00000
-  103 Torsion                  8     4     2    13          14.26256    0.00000
-  104 Torsion                  8     4     5    10         -52.22760    0.00000
-  105 Torsion                  8     4     5    15          70.75615   -0.00001
+  103 Torsion                  8     4     2    13          14.26255    0.00000
+  104 Torsion                  8     4     5    10         -52.22759    0.00000
+  105 Torsion                  8     4     5    15          70.75616   -0.00001
   106 Torsion                  9     3     6    12          74.06247    0.00000
   107 Torsion                  9     3     6    16         -41.44205    0.00000
-  108 Torsion                  9     3     1    14         -14.26256    0.00000
-  109 Torsion                  9     3     5    10          52.22760    0.00000
-  110 Torsion                  9     3     5    15         -70.75615    0.00001
+  108 Torsion                  9     3     1    14         -14.26255    0.00000
+  109 Torsion                  9     3     5    10          52.22759    0.00000
+  110 Torsion                  9     3     5    15         -70.75616    0.00001
   111 Torsion                 11     7     6    12           0.00000    0.00000
   112 Torsion                 11     7     6    16         155.50083    0.00000
   113 Torsion                 12     6     7    17        -155.50083    0.00000
@@ -6703,23 +6713,23 @@ task scf saddle  # go for the TS
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 C                    6.0000     0.44712722    -1.31846170     0.69941373
-    2 C                    6.0000     0.44712722    -1.31846170    -0.69941373
-    3 C                    6.0000    -0.45228180    -0.36802454     1.15689065
-    4 C                    6.0000    -0.45228180    -0.36802454    -1.15689065
-    5 C                    6.0000    -1.38683877    -0.05963798     0.00000000
-    6 C                    6.0000     0.68350739     1.45658546     0.68701700
-    7 C                    6.0000     0.68350739     1.45658546    -0.68701700
-    8 H                    1.0000    -0.72571152    -0.22933948    -2.18219805
-    9 H                    1.0000    -0.72571152    -0.22933948     2.18219805
-   10 H                    1.0000    -1.82730979     0.92278535     0.00000000
-   11 H                    1.0000     1.56440543     1.18148921    -1.22976310
-   12 H                    1.0000     1.56440543     1.18148921     1.22976310
-   13 H                    1.0000     1.12628652    -1.86977366    -1.31485740
-   14 H                    1.0000     1.12628652    -1.86977366     1.31485740
-   15 H                    1.0000    -2.17720594    -0.81158436     0.00000000
-   16 H                    1.0000    -0.00826934     2.07602424     1.22590171
-   17 H                    1.0000    -0.00826934     2.07602424    -1.22590171
+    1 C                    6.0000     0.44712722    -1.31846169     0.69941374
+    2 C                    6.0000     0.44712722    -1.31846169    -0.69941374
+    3 C                    6.0000    -0.45228180    -0.36802453     1.15689065
+    4 C                    6.0000    -0.45228180    -0.36802453    -1.15689065
+    5 C                    6.0000    -1.38683879    -0.05963798     0.00000000
+    6 C                    6.0000     0.68350741     1.45658546     0.68701700
+    7 C                    6.0000     0.68350741     1.45658546    -0.68701700
+    8 H                    1.0000    -0.72571152    -0.22933945    -2.18219805
+    9 H                    1.0000    -0.72571152    -0.22933945     2.18219805
+   10 H                    1.0000    -1.82730982     0.92278534     0.00000000
+   11 H                    1.0000     1.56440541     1.18148921    -1.22976310
+   12 H                    1.0000     1.56440541     1.18148921     1.22976310
+   13 H                    1.0000     1.12628651    -1.86977366    -1.31485740
+   14 H                    1.0000     1.12628651    -1.86977366     1.31485740
+   15 H                    1.0000    -2.17720591    -0.81158441     0.00000000
+   16 H                    1.0000    -0.00826933     2.07602421     1.22590171
+   17 H                    1.0000    -0.00826933     2.07602421    -1.22590171
 
       Atomic Mass 
       ----------- 
@@ -6728,13 +6738,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.9371521961
+ Effective nuclear repulsion energy (a.u.)     296.9371524332
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.5138023170    -1.3013328059     0.0000000000
+    -0.5138020625    -1.3013322317     0.0000000000
 
       Symmetry information
       --------------------
@@ -6788,64 +6798,64 @@ task scf saddle  # go for the TS
    20 Bend                     1     2    13               125.12863   -1.90135
    21 Bend                     1     3     6                99.39231   -6.29419
    22 Bend                     1     3     5               106.68249    7.61072
-   23 Bend                     1     3     9               124.80745    7.99606
+   23 Bend                     1     3     9               124.80746    7.99606
    24 Bend                     2     1     3               109.27012    0.57813
    25 Bend                     2     1    14               125.12863   -1.90135
    26 Bend                     2     4     7                99.39231   -6.29419
    27 Bend                     2     4     5               106.68249    7.61072
-   28 Bend                     2     4     8               124.80745    7.99606
+   28 Bend                     2     4     8               124.80746    7.99606
    29 Bend                     3     6     7               102.33217    1.14631
    30 Bend                     3     6    12                95.93508  -16.15797
-   31 Bend                     3     6    16                92.21562  -18.65311
+   31 Bend                     3     6    16                92.21562  -18.65312
    32 Bend                     3     1    14               125.13570    0.99399
    33 Bend                     3     5     4                99.22687    4.29811
    34 Bend                     3     5    10               115.91269    2.89331
    35 Bend                     3     5    15               107.80853   -4.16344
    36 Bend                     4     7     6               102.33217    1.14631
    37 Bend                     4     7    11                95.93508  -16.15797
-   38 Bend                     4     7    17                92.21562  -18.65311
+   38 Bend                     4     7    17                92.21562  -18.65312
    39 Bend                     4     2    13               125.13570    0.99399
    40 Bend                     4     5    10               115.91269    2.89331
    41 Bend                     4     5    15               107.80853   -4.16344
    42 Bend                     5     3     6                89.23149  -12.27276
-   43 Bend                     5     3     9               123.10932    5.51289
+   43 Bend                     5     3     9               123.10931    5.51289
    44 Bend                     5     4     7                89.23149  -12.27276
-   45 Bend                     5     4     8               123.10932    5.51289
+   45 Bend                     5     4     8               123.10931    5.51289
    46 Bend                     6     3     9               103.24141  -10.72372
    47 Bend                     6     7    11               120.46051    7.61061
-   48 Bend                     6     7    17               120.12799    8.72108
+   48 Bend                     6     7    17               120.12799    8.72109
    49 Bend                     7     4     8               103.24141  -10.72372
    50 Bend                     7     6    12               120.46051    7.61061
-   51 Bend                     7     6    16               120.12799    8.72108
+   51 Bend                     7     6    16               120.12799    8.72109
    52 Bend                    10     5    15               109.42384   -1.63301
    53 Bend                    11     7    17               115.08463    6.72303
    54 Bend                    12     6    16               115.08463    6.72303
    55 Torsion                  1     2     4     7          73.31206    1.23452
-   56 Torsion                  1     2     4     5         -18.71539   13.95815
+   56 Torsion                  1     2     4     5         -18.71540   13.95815
    57 Torsion                  1     2     4     8        -173.25002  -13.25341
    58 Torsion                  1     3     6     7          67.75487    1.01205
    59 Torsion                  1     3     6    12         -55.23170   -1.47869
    60 Torsion                  1     3     6    16        -170.73622    4.25487
    61 Torsion                  1     3     5     4         -27.86991   21.27979
    62 Torsion                  1     3     5    10        -152.69969   14.03671
-   63 Torsion                  1     3     5    15          84.31656   17.37852
+   63 Torsion                  1     3     5    15          84.31656   17.37851
    64 Torsion                  2     1     3     6         -73.31206   -1.23452
-   65 Torsion                  2     1     3     5          18.71539  -13.95815
+   65 Torsion                  2     1     3     5          18.71540  -13.95815
    66 Torsion                  2     1     3     9         173.25002   13.25341
    67 Torsion                  2     4     7     6         -67.75487   -1.01205
    68 Torsion                  2     4     7    11          55.23170    1.47869
    69 Torsion                  2     4     7    17         170.73622   -4.25487
    70 Torsion                  2     4     5     3          27.86991  -21.27979
    71 Torsion                  2     4     5    10         152.69969  -14.03671
-   72 Torsion                  2     4     5    15         -84.31656  -17.37852
+   72 Torsion                  2     4     5    15         -84.31656  -17.37851
    73 Torsion                  3     6     7     4           0.00000    0.00000
-   74 Torsion                  3     6     7    11        -104.55848   15.40005
+   74 Torsion                  3     6     7    11        -104.55847   15.40005
    75 Torsion                  3     6     7    17          99.94070  -17.93524
    76 Torsion                  3     1     2     4           0.00000    0.00000
    77 Torsion                  3     1     2    13         172.48808   -3.37773
    78 Torsion                  3     5     4     7         -71.70631  -12.68169
    79 Torsion                  3     5     4     8        -177.05737    7.00428
-   80 Torsion                  4     7     6    12         104.55848  -15.40005
+   80 Torsion                  4     7     6    12         104.55847  -15.40005
    81 Torsion                  4     7     6    16         -99.94070   17.93524
    82 Torsion                  4     2     1    14        -172.48808    3.37773
    83 Torsion                  4     5     3     6          71.70631   12.68169
@@ -6858,24 +6868,24 @@ task scf saddle  # go for the TS
    90 Torsion                  5     4     7    11         162.01639    5.30245
    91 Torsion                  5     4     7    17         -82.47910   -0.43111
    92 Torsion                  5     4     2    13         168.79718   17.48330
-   93 Torsion                  6     3     1    14          99.17537   -4.75967
+   93 Torsion                  6     3     1    14          99.17537   -4.75966
    94 Torsion                  6     3     5    10         -53.12347    5.43862
    95 Torsion                  6     3     5    15        -176.10722    8.78042
    96 Torsion                  6     7     4     8         162.95096   -0.69811
-   97 Torsion                  7     4     2    13         -99.17537    4.75967
+   97 Torsion                  7     4     2    13         -99.17537    4.75966
    98 Torsion                  7     4     5    10          53.12347   -5.43862
    99 Torsion                  7     4     5    15         176.10722   -8.78042
   100 Torsion                  7     6     3     9        -162.95096    0.69811
   101 Torsion                  8     4     7    11         -74.06247    1.79264
   102 Torsion                  8     4     7    17          41.44205   -3.94093
-  103 Torsion                  8     4     2    13          14.26256   -9.72827
-  104 Torsion                  8     4     5    10         -52.22760   14.24736
-  105 Torsion                  8     4     5    15          70.75615   10.90555
+  103 Torsion                  8     4     2    13          14.26255   -9.72827
+  104 Torsion                  8     4     5    10         -52.22759   14.24736
+  105 Torsion                  8     4     5    15          70.75616   10.90555
   106 Torsion                  9     3     6    12          74.06247   -1.79264
   107 Torsion                  9     3     6    16         -41.44205    3.94093
-  108 Torsion                  9     3     1    14         -14.26256    9.72827
-  109 Torsion                  9     3     5    10          52.22760  -14.24736
-  110 Torsion                  9     3     5    15         -70.75615  -10.90555
+  108 Torsion                  9     3     1    14         -14.26255    9.72827
+  109 Torsion                  9     3     5    10          52.22759  -14.24736
+  110 Torsion                  9     3     5    15         -70.75616  -10.90555
   111 Torsion                 11     7     6    12           0.00000    0.00000
   112 Torsion                 11     7     6    16         155.50083   33.33529
   113 Torsion                 12     6     7    17        -155.50083  -33.33529
@@ -6945,7 +6955,7 @@ task scf saddle  # go for the TS
 
 
 
- Task  times  cpu:      384.6s     wall:      400.1s
+ Task  times  cpu:       30.0s     wall:       32.2s
 
 
                                 NWChem Input Module
@@ -6976,23 +6986,23 @@ task scf saddle  # go for the TS
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 C                    6.0000     0.45235592    -1.30521871     0.69941373
-    2 C                    6.0000     0.45235592    -1.30521871    -0.69941373
-    3 C                    6.0000    -0.44705310    -0.35478155     1.15689065
-    4 C                    6.0000    -0.44705310    -0.35478155    -1.15689065
-    5 C                    6.0000    -1.38161007    -0.04639499     0.00000000
-    6 C                    6.0000     0.68873610     1.46982845     0.68701700
-    7 C                    6.0000     0.68873610     1.46982845    -0.68701700
-    8 H                    1.0000    -0.72048282    -0.21609649    -2.18219806
-    9 H                    1.0000    -0.72048282    -0.21609649     2.18219806
-   10 H                    1.0000    -1.82208109     0.93602835     0.00000000
-   11 H                    1.0000     1.56963413     1.19473221    -1.22976310
-   12 H                    1.0000     1.56963413     1.19473221     1.22976310
-   13 H                    1.0000     1.13151522    -1.85653067    -1.31485740
-   14 H                    1.0000     1.13151522    -1.85653067     1.31485740
-   15 H                    1.0000    -2.17197724    -0.79834137     0.00000000
-   16 H                    1.0000    -0.00304064     2.08926723     1.22590171
-   17 H                    1.0000    -0.00304064     2.08926723    -1.22590171
+    1 C                    6.0000     0.45235592    -1.30521870     0.69941374
+    2 C                    6.0000     0.45235592    -1.30521870    -0.69941374
+    3 C                    6.0000    -0.44705310    -0.35478154     1.15689065
+    4 C                    6.0000    -0.44705310    -0.35478154    -1.15689065
+    5 C                    6.0000    -1.38161009    -0.04639499     0.00000000
+    6 C                    6.0000     0.68873611     1.46982845     0.68701700
+    7 C                    6.0000     0.68873611     1.46982845    -0.68701700
+    8 H                    1.0000    -0.72048282    -0.21609647    -2.18219805
+    9 H                    1.0000    -0.72048282    -0.21609647     2.18219805
+   10 H                    1.0000    -1.82208112     0.93602833     0.00000000
+   11 H                    1.0000     1.56963411     1.19473220    -1.22976310
+   12 H                    1.0000     1.56963411     1.19473220     1.22976310
+   13 H                    1.0000     1.13151520    -1.85653067    -1.31485740
+   14 H                    1.0000     1.13151520    -1.85653067     1.31485740
+   15 H                    1.0000    -2.17197721    -0.79834142     0.00000000
+   16 H                    1.0000    -0.00304063     2.08926720     1.22590171
+   17 H                    1.0000    -0.00304063     2.08926720    -1.22590171
 
       Atomic Mass 
       ----------- 
@@ -7001,7 +7011,7 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.9371520909
+ Effective nuclear repulsion energy (a.u.)     296.9371523280
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -7055,12 +7065,12 @@ task scf saddle  # go for the TS
    20 Bend                     1     2    13               125.12863
    21 Bend                     1     3     6                99.39231
    22 Bend                     1     3     5               106.68249
-   23 Bend                     1     3     9               124.80745
+   23 Bend                     1     3     9               124.80746
    24 Bend                     2     1     3               109.27012
    25 Bend                     2     1    14               125.12863
    26 Bend                     2     4     7                99.39231
    27 Bend                     2     4     5               106.68249
-   28 Bend                     2     4     8               124.80745
+   28 Bend                     2     4     8               124.80746
    29 Bend                     3     6     7               102.33217
    30 Bend                     3     6    12                95.93508
    31 Bend                     3     6    16                92.21562
@@ -7075,9 +7085,9 @@ task scf saddle  # go for the TS
    40 Bend                     4     5    10               115.91269
    41 Bend                     4     5    15               107.80853
    42 Bend                     5     3     6                89.23149
-   43 Bend                     5     3     9               123.10932
+   43 Bend                     5     3     9               123.10931
    44 Bend                     5     4     7                89.23149
-   45 Bend                     5     4     8               123.10932
+   45 Bend                     5     4     8               123.10931
    46 Bend                     6     3     9               103.24141
    47 Bend                     6     7    11               120.46051
    48 Bend                     6     7    17               120.12799
@@ -7088,7 +7098,7 @@ task scf saddle  # go for the TS
    53 Bend                    11     7    17               115.08463
    54 Bend                    12     6    16               115.08463
    55 Torsion                  1     2     4     7          73.31206
-   56 Torsion                  1     2     4     5         -18.71539
+   56 Torsion                  1     2     4     5         -18.71540
    57 Torsion                  1     2     4     8        -173.25002
    58 Torsion                  1     3     6     7          67.75487
    59 Torsion                  1     3     6    12         -55.23170
@@ -7097,7 +7107,7 @@ task scf saddle  # go for the TS
    62 Torsion                  1     3     5    10        -152.69969
    63 Torsion                  1     3     5    15          84.31656
    64 Torsion                  2     1     3     6         -73.31206
-   65 Torsion                  2     1     3     5          18.71539
+   65 Torsion                  2     1     3     5          18.71540
    66 Torsion                  2     1     3     9         173.25002
    67 Torsion                  2     4     7     6         -67.75487
    68 Torsion                  2     4     7    11          55.23170
@@ -7106,13 +7116,13 @@ task scf saddle  # go for the TS
    71 Torsion                  2     4     5    10         152.69969
    72 Torsion                  2     4     5    15         -84.31656
    73 Torsion                  3     6     7     4           0.00000
-   74 Torsion                  3     6     7    11        -104.55848
+   74 Torsion                  3     6     7    11        -104.55847
    75 Torsion                  3     6     7    17          99.94070
    76 Torsion                  3     1     2     4           0.00000
    77 Torsion                  3     1     2    13         172.48808
    78 Torsion                  3     5     4     7         -71.70631
    79 Torsion                  3     5     4     8        -177.05737
-   80 Torsion                  4     7     6    12         104.55848
+   80 Torsion                  4     7     6    12         104.55847
    81 Torsion                  4     7     6    16         -99.94070
    82 Torsion                  4     2     1    14        -172.48808
    83 Torsion                  4     5     3     6          71.70631
@@ -7135,19 +7145,42 @@ task scf saddle  # go for the TS
   100 Torsion                  7     6     3     9        -162.95096
   101 Torsion                  8     4     7    11         -74.06247
   102 Torsion                  8     4     7    17          41.44205
-  103 Torsion                  8     4     2    13          14.26256
-  104 Torsion                  8     4     5    10         -52.22760
-  105 Torsion                  8     4     5    15          70.75615
+  103 Torsion                  8     4     2    13          14.26255
+  104 Torsion                  8     4     5    10         -52.22759
+  105 Torsion                  8     4     5    15          70.75616
   106 Torsion                  9     3     6    12          74.06247
   107 Torsion                  9     3     6    16         -41.44205
-  108 Torsion                  9     3     1    14         -14.26256
-  109 Torsion                  9     3     5    10          52.22760
-  110 Torsion                  9     3     5    15         -70.75615
+  108 Torsion                  9     3     1    14         -14.26255
+  109 Torsion                  9     3     5    10          52.22759
+  110 Torsion                  9     3     5    15         -70.75616
   111 Torsion                 11     7     6    12           0.00000
   112 Torsion                 11     7     6    16         155.50083
   113 Torsion                 12     6     7    17        -155.50083
   114 Torsion                 13     2     1    14           0.00000
   115 Torsion                 16     6     7    17           0.00000
+
+
+            XYZ format geometry
+            -------------------
+    17
+ geometry
+ C                     0.45235592    -1.30521870     0.69941374
+ C                     0.45235592    -1.30521870    -0.69941374
+ C                    -0.44705310    -0.35478154     1.15689065
+ C                    -0.44705310    -0.35478154    -1.15689065
+ C                    -1.38161009    -0.04639499     0.00000000
+ C                     0.68873611     1.46982845     0.68701700
+ C                     0.68873611     1.46982845    -0.68701700
+ H                    -0.72048282    -0.21609647    -2.18219805
+ H                    -0.72048282    -0.21609647     2.18219805
+ H                    -1.82208112     0.93602833     0.00000000
+ H                     1.56963411     1.19473220    -1.22976310
+ H                     1.56963411     1.19473220     1.22976310
+ H                     1.13151520    -1.85653067    -1.31485740
+ H                     1.13151520    -1.85653067     1.31485740
+ H                    -2.17197721    -0.79834142     0.00000000
+ H                    -0.00304063     2.08926720     1.22590171
+ H                    -0.00304063     2.08926720    -1.22590171
 
  ==============================================================================
                                 internuclear distances
@@ -7228,7 +7261,7 @@ task scf saddle  # go for the TS
  rms cartesian step threshold       (xrms) =   0.001200
  fixed trust radius                (trust) =   0.100000
  maximum step size to saddle      (sadstp) =   0.100000
- energy precision                  (eprec) =   1.0E-07
+ energy precision                  (eprec) =   1.0D-07
  maximum number of steps          (nptopt) =   20
  initial hessian option           (inhess) =    0
  line search option               (linopt) =    0
@@ -7289,23 +7322,23 @@ task scf saddle  # go for the TS
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 C                    6.0000     0.45235592    -1.30521871     0.69941373
-    2 C                    6.0000     0.45235592    -1.30521871    -0.69941373
-    3 C                    6.0000    -0.44705310    -0.35478155     1.15689065
-    4 C                    6.0000    -0.44705310    -0.35478155    -1.15689065
-    5 C                    6.0000    -1.38161007    -0.04639499     0.00000000
-    6 C                    6.0000     0.68873610     1.46982845     0.68701700
-    7 C                    6.0000     0.68873610     1.46982845    -0.68701700
-    8 H                    1.0000    -0.72048282    -0.21609649    -2.18219806
-    9 H                    1.0000    -0.72048282    -0.21609649     2.18219806
-   10 H                    1.0000    -1.82208109     0.93602835     0.00000000
-   11 H                    1.0000     1.56963413     1.19473221    -1.22976310
-   12 H                    1.0000     1.56963413     1.19473221     1.22976310
-   13 H                    1.0000     1.13151522    -1.85653067    -1.31485740
-   14 H                    1.0000     1.13151522    -1.85653067     1.31485740
-   15 H                    1.0000    -2.17197724    -0.79834137     0.00000000
-   16 H                    1.0000    -0.00304064     2.08926723     1.22590171
-   17 H                    1.0000    -0.00304064     2.08926723    -1.22590171
+    1 C                    6.0000     0.45235592    -1.30521870     0.69941374
+    2 C                    6.0000     0.45235592    -1.30521870    -0.69941374
+    3 C                    6.0000    -0.44705310    -0.35478154     1.15689065
+    4 C                    6.0000    -0.44705310    -0.35478154    -1.15689065
+    5 C                    6.0000    -1.38161009    -0.04639499     0.00000000
+    6 C                    6.0000     0.68873611     1.46982845     0.68701700
+    7 C                    6.0000     0.68873611     1.46982845    -0.68701700
+    8 H                    1.0000    -0.72048282    -0.21609647    -2.18219805
+    9 H                    1.0000    -0.72048282    -0.21609647     2.18219805
+   10 H                    1.0000    -1.82208112     0.93602833     0.00000000
+   11 H                    1.0000     1.56963411     1.19473220    -1.22976310
+   12 H                    1.0000     1.56963411     1.19473220     1.22976310
+   13 H                    1.0000     1.13151520    -1.85653067    -1.31485740
+   14 H                    1.0000     1.13151520    -1.85653067     1.31485740
+   15 H                    1.0000    -2.17197721    -0.79834142     0.00000000
+   16 H                    1.0000    -0.00304063     2.08926720     1.22590171
+   17 H                    1.0000    -0.00304063     2.08926720    -1.22590171
 
       Atomic Mass 
       ----------- 
@@ -7314,7 +7347,7 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.9371520909
+ Effective nuclear repulsion energy (a.u.)     296.9371523280
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -7349,28 +7382,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     401.8s
+ Forming initial guess at      32.6s
 
 
- Starting SCF solution at     401.9s
+ Starting SCF solution at      32.6s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270170686767
-      One-electron energy =   -951.258277044751
-      Two-electron energy =    385.050954267039
- Nuclear repulsion energy =    296.937152090946
+         Total SCF energy =   -269.270170686301
+      One-electron energy =   -951.258277491928
+      Two-electron energy =    385.050954477602
+ Nuclear repulsion energy =    296.937152328025
 
-        Time for solution =      3.8s
+        Time for solution =      0.2s
 
 
                               NWChem Gradients Module
@@ -7392,18 +7425,18 @@ task scf saddle  # go for the TS
    8 H      -1.361515  -0.408363  -4.123756    0.000012  -0.000001  -0.000004
    9 H      -1.361515  -0.408363   4.123756    0.000012  -0.000001   0.000004
   10 H      -3.443234   1.768837   0.000000   -0.000005  -0.000026   0.000000
-  11 H       2.966178   2.257717  -2.323915   -0.000036   0.000012   0.000011
-  12 H       2.966178   2.257717   2.323915   -0.000036   0.000012  -0.000011
+  11 H       2.966178   2.257716  -2.323915   -0.000036   0.000012   0.000011
+  12 H       2.966178   2.257716   2.323915   -0.000036   0.000012  -0.000011
   13 H       2.138254  -3.508334  -2.484720   -0.000012   0.000011   0.000003
   14 H       2.138254  -3.508334   2.484720   -0.000012   0.000011  -0.000003
-  15 H      -4.104442  -1.508646   0.000000   -0.000042   0.000021   0.000000
+  15 H      -4.104442  -1.508647   0.000000   -0.000042   0.000021   0.000000
   16 H      -0.005746   3.948143   2.316618    0.000037  -0.000014   0.000001
   17 H      -0.005746   3.948143  -2.316618    0.000037  -0.000014  -0.000001
 
 
 @ Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
 @ ---- ---------------- -------- -------- -------- -------- -------- --------
-@    0    -269.27017069  0.0E+00  0.00131  0.00017  0.00000  0.00000    418.3
+@    0    -269.27017069  0.0D+00  0.00131  0.00017  0.00000  0.00000     33.5
                                               ok       ok       ok  
 
 
@@ -7440,12 +7473,12 @@ task scf saddle  # go for the TS
    20 Bend                     1     2    13               125.12863    0.00000
    21 Bend                     1     3     6                99.39231    0.00001
    22 Bend                     1     3     5               106.68249   -0.00003
-   23 Bend                     1     3     9               124.80745    0.00001
+   23 Bend                     1     3     9               124.80746    0.00001
    24 Bend                     2     1     3               109.27012    0.00002
    25 Bend                     2     1    14               125.12863    0.00000
    26 Bend                     2     4     7                99.39231    0.00001
    27 Bend                     2     4     5               106.68249   -0.00003
-   28 Bend                     2     4     8               124.80745    0.00001
+   28 Bend                     2     4     8               124.80746    0.00001
    29 Bend                     3     6     7               102.33217   -0.00006
    30 Bend                     3     6    12                95.93508    0.00002
    31 Bend                     3     6    16                92.21562    0.00003
@@ -7460,9 +7493,9 @@ task scf saddle  # go for the TS
    40 Bend                     4     5    10               115.91269    0.00001
    41 Bend                     4     5    15               107.80853   -0.00001
    42 Bend                     5     3     6                89.23149    0.00005
-   43 Bend                     5     3     9               123.10932    0.00001
+   43 Bend                     5     3     9               123.10931    0.00001
    44 Bend                     5     4     7                89.23149    0.00005
-   45 Bend                     5     4     8               123.10932    0.00001
+   45 Bend                     5     4     8               123.10931    0.00001
    46 Bend                     6     3     9               103.24141   -0.00004
    47 Bend                     6     7    11               120.46051    0.00001
    48 Bend                     6     7    17               120.12799    0.00001
@@ -7473,7 +7506,7 @@ task scf saddle  # go for the TS
    53 Bend                    11     7    17               115.08463   -0.00001
    54 Bend                    12     6    16               115.08463   -0.00001
    55 Torsion                  1     2     4     7          73.31206    0.00006
-   56 Torsion                  1     2     4     5         -18.71539    0.00001
+   56 Torsion                  1     2     4     5         -18.71540    0.00001
    57 Torsion                  1     2     4     8        -173.25002    0.00002
    58 Torsion                  1     3     6     7          67.75487   -0.00001
    59 Torsion                  1     3     6    12         -55.23170   -0.00001
@@ -7482,7 +7515,7 @@ task scf saddle  # go for the TS
    62 Torsion                  1     3     5    10        -152.69969   -0.00001
    63 Torsion                  1     3     5    15          84.31656    0.00000
    64 Torsion                  2     1     3     6         -73.31206   -0.00006
-   65 Torsion                  2     1     3     5          18.71539   -0.00001
+   65 Torsion                  2     1     3     5          18.71540   -0.00001
    66 Torsion                  2     1     3     9         173.25002   -0.00002
    67 Torsion                  2     4     7     6         -67.75487    0.00001
    68 Torsion                  2     4     7    11          55.23170    0.00001
@@ -7491,13 +7524,13 @@ task scf saddle  # go for the TS
    71 Torsion                  2     4     5    10         152.69969    0.00001
    72 Torsion                  2     4     5    15         -84.31656    0.00000
    73 Torsion                  3     6     7     4           0.00000    0.00000
-   74 Torsion                  3     6     7    11        -104.55848    0.00001
+   74 Torsion                  3     6     7    11        -104.55847    0.00001
    75 Torsion                  3     6     7    17          99.94070    0.00000
    76 Torsion                  3     1     2     4           0.00000    0.00000
    77 Torsion                  3     1     2    13         172.48808    0.00002
    78 Torsion                  3     5     4     7         -71.70631   -0.00003
    79 Torsion                  3     5     4     8        -177.05737   -0.00002
-   80 Torsion                  4     7     6    12         104.55848   -0.00001
+   80 Torsion                  4     7     6    12         104.55847   -0.00001
    81 Torsion                  4     7     6    16         -99.94070    0.00000
    82 Torsion                  4     2     1    14        -172.48808   -0.00002
    83 Torsion                  4     5     3     6          71.70631    0.00003
@@ -7520,14 +7553,14 @@ task scf saddle  # go for the TS
   100 Torsion                  7     6     3     9        -162.95096   -0.00001
   101 Torsion                  8     4     7    11         -74.06247    0.00001
   102 Torsion                  8     4     7    17          41.44205    0.00000
-  103 Torsion                  8     4     2    13          14.26256    0.00000
-  104 Torsion                  8     4     5    10         -52.22760    0.00000
-  105 Torsion                  8     4     5    15          70.75615   -0.00001
+  103 Torsion                  8     4     2    13          14.26255    0.00000
+  104 Torsion                  8     4     5    10         -52.22759    0.00000
+  105 Torsion                  8     4     5    15          70.75616   -0.00001
   106 Torsion                  9     3     6    12          74.06247   -0.00001
   107 Torsion                  9     3     6    16         -41.44205    0.00000
-  108 Torsion                  9     3     1    14         -14.26256    0.00000
-  109 Torsion                  9     3     5    10          52.22760    0.00000
-  110 Torsion                  9     3     5    15         -70.75615    0.00001
+  108 Torsion                  9     3     1    14         -14.26255    0.00000
+  109 Torsion                  9     3     5    10          52.22759    0.00000
+  110 Torsion                  9     3     5    15         -70.75616    0.00001
   111 Torsion                 11     7     6    12           0.00000    0.00000
   112 Torsion                 11     7     6    16         155.50083    0.00001
   113 Torsion                 12     6     7    17        -155.50083   -0.00001
@@ -7572,12 +7605,12 @@ task scf saddle  # go for the TS
    20 Bend                     1     2    13               125.12863    0.00000
    21 Bend                     1     3     6                99.39231    0.00000
    22 Bend                     1     3     5               106.68249    0.00000
-   23 Bend                     1     3     9               124.80745    0.00000
+   23 Bend                     1     3     9               124.80746    0.00000
    24 Bend                     2     1     3               109.27012    0.00000
    25 Bend                     2     1    14               125.12863    0.00000
    26 Bend                     2     4     7                99.39231    0.00000
    27 Bend                     2     4     5               106.68249    0.00000
-   28 Bend                     2     4     8               124.80745    0.00000
+   28 Bend                     2     4     8               124.80746    0.00000
    29 Bend                     3     6     7               102.33217    0.00000
    30 Bend                     3     6    12                95.93508    0.00000
    31 Bend                     3     6    16                92.21562    0.00000
@@ -7592,9 +7625,9 @@ task scf saddle  # go for the TS
    40 Bend                     4     5    10               115.91269    0.00000
    41 Bend                     4     5    15               107.80853    0.00000
    42 Bend                     5     3     6                89.23149    0.00000
-   43 Bend                     5     3     9               123.10932    0.00000
+   43 Bend                     5     3     9               123.10931    0.00000
    44 Bend                     5     4     7                89.23149    0.00000
-   45 Bend                     5     4     8               123.10932    0.00000
+   45 Bend                     5     4     8               123.10931    0.00000
    46 Bend                     6     3     9               103.24141    0.00000
    47 Bend                     6     7    11               120.46051    0.00000
    48 Bend                     6     7    17               120.12799    0.00000
@@ -7605,7 +7638,7 @@ task scf saddle  # go for the TS
    53 Bend                    11     7    17               115.08463    0.00000
    54 Bend                    12     6    16               115.08463    0.00000
    55 Torsion                  1     2     4     7          73.31206    0.00000
-   56 Torsion                  1     2     4     5         -18.71539    0.00000
+   56 Torsion                  1     2     4     5         -18.71540    0.00000
    57 Torsion                  1     2     4     8        -173.25002    0.00000
    58 Torsion                  1     3     6     7          67.75487    0.00000
    59 Torsion                  1     3     6    12         -55.23170    0.00000
@@ -7614,7 +7647,7 @@ task scf saddle  # go for the TS
    62 Torsion                  1     3     5    10        -152.69969    0.00000
    63 Torsion                  1     3     5    15          84.31656    0.00000
    64 Torsion                  2     1     3     6         -73.31206    0.00000
-   65 Torsion                  2     1     3     5          18.71539    0.00000
+   65 Torsion                  2     1     3     5          18.71540    0.00000
    66 Torsion                  2     1     3     9         173.25002    0.00000
    67 Torsion                  2     4     7     6         -67.75487    0.00000
    68 Torsion                  2     4     7    11          55.23170    0.00000
@@ -7623,13 +7656,13 @@ task scf saddle  # go for the TS
    71 Torsion                  2     4     5    10         152.69969    0.00000
    72 Torsion                  2     4     5    15         -84.31656    0.00000
    73 Torsion                  3     6     7     4           0.00000    0.00000
-   74 Torsion                  3     6     7    11        -104.55848    0.00000
+   74 Torsion                  3     6     7    11        -104.55847    0.00000
    75 Torsion                  3     6     7    17          99.94070    0.00000
    76 Torsion                  3     1     2     4           0.00000    0.00000
    77 Torsion                  3     1     2    13         172.48808    0.00000
    78 Torsion                  3     5     4     7         -71.70631    0.00000
    79 Torsion                  3     5     4     8        -177.05737    0.00000
-   80 Torsion                  4     7     6    12         104.55848    0.00000
+   80 Torsion                  4     7     6    12         104.55847    0.00000
    81 Torsion                  4     7     6    16         -99.94070    0.00000
    82 Torsion                  4     2     1    14        -172.48808    0.00000
    83 Torsion                  4     5     3     6          71.70631    0.00000
@@ -7652,14 +7685,14 @@ task scf saddle  # go for the TS
   100 Torsion                  7     6     3     9        -162.95096    0.00000
   101 Torsion                  8     4     7    11         -74.06247    0.00000
   102 Torsion                  8     4     7    17          41.44205    0.00000
-  103 Torsion                  8     4     2    13          14.26256    0.00000
-  104 Torsion                  8     4     5    10         -52.22760    0.00000
-  105 Torsion                  8     4     5    15          70.75615    0.00000
+  103 Torsion                  8     4     2    13          14.26255    0.00000
+  104 Torsion                  8     4     5    10         -52.22759    0.00000
+  105 Torsion                  8     4     5    15          70.75616    0.00000
   106 Torsion                  9     3     6    12          74.06247    0.00000
   107 Torsion                  9     3     6    16         -41.44205    0.00000
-  108 Torsion                  9     3     1    14         -14.26256    0.00000
-  109 Torsion                  9     3     5    10          52.22760    0.00000
-  110 Torsion                  9     3     5    15         -70.75615    0.00000
+  108 Torsion                  9     3     1    14         -14.26255    0.00000
+  109 Torsion                  9     3     5    10          52.22759    0.00000
+  110 Torsion                  9     3     5    15         -70.75616    0.00000
   111 Torsion                 11     7     6    12           0.00000    0.00000
   112 Torsion                 11     7     6    16         155.50083    0.00000
   113 Torsion                 12     6     7    17        -155.50083    0.00000
@@ -7679,23 +7712,23 @@ task scf saddle  # go for the TS
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 C                    6.0000     0.45225329    -1.30541211     0.69942880
-    2 C                    6.0000     0.45225329    -1.30541211    -0.69942880
+    1 C                    6.0000     0.45225329    -1.30541211     0.69942881
+    2 C                    6.0000     0.45225329    -1.30541211    -0.69942881
     3 C                    6.0000    -0.44717225    -0.35498453     1.15692328
     4 C                    6.0000    -0.44717225    -0.35498453    -1.15692328
-    5 C                    6.0000    -1.38174790    -0.04660519     0.00000000
-    6 C                    6.0000     0.68895749     1.47020843     0.68697904
-    7 C                    6.0000     0.68895749     1.47020843    -0.68697904
-    8 H                    1.0000    -0.72060897    -0.21631159    -2.18223046
-    9 H                    1.0000    -0.72060897    -0.21631159     2.18223046
-   10 H                    1.0000    -1.82224136     0.93580808     0.00000000
-   11 H                    1.0000     1.56985482     1.19511720    -1.22972881
-   12 H                    1.0000     1.56985482     1.19511720     1.22972881
-   13 H                    1.0000     1.13141546    -1.85672405    -1.31486934
-   14 H                    1.0000     1.13141546    -1.85672405     1.31486934
-   15 H                    1.0000    -2.17209586    -0.79857175     0.00000000
-   16 H                    1.0000    -0.00282666     2.08963757     1.22586531
-   17 H                    1.0000    -0.00282666     2.08963757    -1.22586531
+    5 C                    6.0000    -1.38174791    -0.04660519     0.00000000
+    6 C                    6.0000     0.68895750     1.47020843     0.68697903
+    7 C                    6.0000     0.68895750     1.47020843    -0.68697903
+    8 H                    1.0000    -0.72060897    -0.21631157    -2.18223046
+    9 H                    1.0000    -0.72060897    -0.21631157     2.18223046
+   10 H                    1.0000    -1.82224140     0.93580806     0.00000000
+   11 H                    1.0000     1.56985481     1.19511719    -1.22972880
+   12 H                    1.0000     1.56985481     1.19511719     1.22972880
+   13 H                    1.0000     1.13141544    -1.85672405    -1.31486934
+   14 H                    1.0000     1.13141544    -1.85672405     1.31486934
+   15 H                    1.0000    -2.17209584    -0.79857180     0.00000000
+   16 H                    1.0000    -0.00282665     2.08963753     1.22586531
+   17 H                    1.0000    -0.00282665     2.08963753    -1.22586531
 
       Atomic Mass 
       ----------- 
@@ -7704,13 +7737,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.9137912929
+ Effective nuclear repulsion energy (a.u.)     296.9137915573
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-    -0.0013096571    -0.0022963219     0.0000000000
+    -0.0013096556    -0.0022963192     0.0000000000
 
       Symmetry information
       --------------------
@@ -7739,28 +7772,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     418.8s
+ Forming initial guess at      33.6s
 
 
- Starting SCF solution at     418.9s
+ Starting SCF solution at      33.6s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270167304195
-      One-electron energy =   -951.211924043685
-      Two-electron energy =    385.027965446560
- Nuclear repulsion energy =    296.913791292931
+         Total SCF energy =   -269.270167303741
+      One-electron energy =   -951.211924544972
+      Two-electron energy =    385.027965683939
+ Nuclear repulsion energy =    296.913791557292
 
-        Time for solution =      6.2s
+        Time for solution =      0.5s
 
 
                               NWChem Gradients Module
@@ -7779,8 +7812,8 @@ task scf saddle  # go for the TS
    5 C      -2.611125  -0.088071   0.000000   -0.000045  -0.000056   0.000000
    6 C       1.301941   2.778291   1.298202    0.000652   0.001050  -0.000211
    7 C       1.301941   2.778291  -1.298202    0.000652   0.001050   0.000211
-   8 H      -1.361754  -0.408770  -4.123818    0.000003  -0.000012  -0.000004
-   9 H      -1.361754  -0.408770   4.123818    0.000003  -0.000012   0.000004
+   8 H      -1.361753  -0.408770  -4.123818    0.000003  -0.000012  -0.000004
+   9 H      -1.361753  -0.408770   4.123818    0.000003  -0.000012   0.000004
   10 H      -3.443537   1.768421   0.000000   -0.000007  -0.000029   0.000000
   11 H       2.966595   2.258444  -2.323850   -0.000024   0.000042   0.000016
   12 H       2.966595   2.258444   2.323850   -0.000024   0.000042  -0.000016
@@ -7793,7 +7826,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    1    -269.27016730  3.4E-06  0.00129  0.00017  0.00035  0.00073    437.8
+@    1    -269.27016730  3.4D-06  0.00129  0.00017  0.00035  0.00073     34.7
                                               ok       ok       ok  
 
 
@@ -7840,7 +7873,7 @@ task scf saddle  # go for the TS
    30 Bend                     3     6    12                95.93590    0.00003
    31 Bend                     3     6    16                92.21641    0.00004
    32 Bend                     3     1    14               125.13537   -0.00002
-   33 Bend                     3     5     4                99.22758    0.00001
+   33 Bend                     3     5     4                99.22757    0.00001
    34 Bend                     3     5    10               115.91279    0.00001
    35 Bend                     3     5    15               107.80796   -0.00001
    36 Bend                     4     7     6               102.33021   -0.00007
@@ -7853,13 +7886,13 @@ task scf saddle  # go for the TS
    43 Bend                     5     3     9               123.10956    0.00001
    44 Bend                     5     4     7                89.23304    0.00006
    45 Bend                     5     4     8               123.10956    0.00001
-   46 Bend                     6     3     9               103.24015   -0.00004
+   46 Bend                     6     3     9               103.24014   -0.00004
    47 Bend                     6     7    11               120.46074    0.00000
    48 Bend                     6     7    17               120.12808    0.00001
-   49 Bend                     7     4     8               103.24015   -0.00004
+   49 Bend                     7     4     8               103.24014   -0.00004
    50 Bend                     7     6    12               120.46074    0.00000
    51 Bend                     7     6    16               120.12808    0.00001
-   52 Bend                    10     5    15               109.42399   -0.00001
+   52 Bend                    10     5    15               109.42400   -0.00001
    53 Bend                    11     7    17               115.08449   -0.00001
    54 Bend                    12     6    16               115.08449   -0.00001
    55 Torsion                  1     2     4     7          73.31391    0.00006
@@ -7870,7 +7903,7 @@ task scf saddle  # go for the TS
    60 Torsion                  1     3     6    16        -170.73647    0.00000
    61 Torsion                  1     3     5     4         -27.86958    0.00000
    62 Torsion                  1     3     5    10        -152.70004   -0.00002
-   63 Torsion                  1     3     5    15          84.31639   -0.00001
+   63 Torsion                  1     3     5    15          84.31638   -0.00001
    64 Torsion                  2     1     3     6         -73.31391   -0.00006
    65 Torsion                  2     1     3     5          18.71512    0.00000
    66 Torsion                  2     1     3     9         173.24937   -0.00002
@@ -7879,16 +7912,16 @@ task scf saddle  # go for the TS
    69 Torsion                  2     4     7    17         170.73647    0.00000
    70 Torsion                  2     4     5     3          27.86958    0.00000
    71 Torsion                  2     4     5    10         152.70004    0.00002
-   72 Torsion                  2     4     5    15         -84.31639    0.00001
+   72 Torsion                  2     4     5    15         -84.31638    0.00001
    73 Torsion                  3     6     7     4           0.00000    0.00000
    74 Torsion                  3     6     7    11        -104.55825    0.00000
-   75 Torsion                  3     6     7    17          99.94046    0.00000
+   75 Torsion                  3     6     7    17          99.94045    0.00000
    76 Torsion                  3     1     2     4           0.00000    0.00000
    77 Torsion                  3     1     2    13         172.48878    0.00002
    78 Torsion                  3     5     4     7         -71.70737   -0.00003
    79 Torsion                  3     5     4     8        -177.05799   -0.00002
    80 Torsion                  4     7     6    12         104.55825    0.00000
-   81 Torsion                  4     7     6    16         -99.94046    0.00000
+   81 Torsion                  4     7     6    16         -99.94045    0.00000
    82 Torsion                  4     2     1    14        -172.48878   -0.00002
    83 Torsion                  4     5     3     6          71.70737    0.00003
    84 Torsion                  4     5     3     9         177.05799    0.00002
@@ -7908,12 +7941,12 @@ task scf saddle  # go for the TS
    98 Torsion                  7     4     5    10          53.12309   -0.00001
    99 Torsion                  7     4     5    15         176.10666   -0.00002
   100 Torsion                  7     6     3     9        -162.95107   -0.00001
-  101 Torsion                  8     4     7    11         -74.06237    0.00001
+  101 Torsion                  8     4     7    11         -74.06238    0.00001
   102 Torsion                  8     4     7    17          41.44218    0.00000
   103 Torsion                  8     4     2    13          14.26250    0.00000
   104 Torsion                  8     4     5    10         -52.22754    0.00000
   105 Torsion                  8     4     5    15          70.75604   -0.00001
-  106 Torsion                  9     3     6    12          74.06237   -0.00001
+  106 Torsion                  9     3     6    12          74.06238   -0.00001
   107 Torsion                  9     3     6    16         -41.44218    0.00000
   108 Torsion                  9     3     1    14         -14.26250    0.00000
   109 Torsion                  9     3     5    10          52.22754    0.00000
@@ -7925,7 +7958,7 @@ task scf saddle  # go for the TS
   115 Torsion                 16     6     7    17           0.00000    0.00000
 
  Hessian eigenvalues: positive= 114 negative=  1 zero=  0
- Hessian has correct structure - following negative mode, overlap= 8.4E-01
+ Hessian has correct structure - following negative mode, overlap= 8.4D-01
 
  The mode being followed to the saddle point
 
@@ -7972,7 +8005,7 @@ task scf saddle  # go for the TS
    30 Bend                     3     6    12                95.93590   -0.06895
    31 Bend                     3     6    16                92.21641   -0.07059
    32 Bend                     3     1    14               125.13537    0.00263
-   33 Bend                     3     5     4                99.22758    0.04630
+   33 Bend                     3     5     4                99.22757    0.04630
    34 Bend                     3     5    10               115.91279    0.02107
    35 Bend                     3     5    15               107.80796   -0.05322
    36 Bend                     4     7     6               102.33021   -0.01417
@@ -7985,13 +8018,13 @@ task scf saddle  # go for the TS
    43 Bend                     5     3     9               123.10956    0.01509
    44 Bend                     5     4     7                89.23304   -0.05408
    45 Bend                     5     4     8               123.10956    0.01509
-   46 Bend                     6     3     9               103.24015   -0.02841
+   46 Bend                     6     3     9               103.24014   -0.02841
    47 Bend                     6     7    11               120.46074    0.03471
    48 Bend                     6     7    17               120.12808    0.02859
-   49 Bend                     7     4     8               103.24015   -0.02841
+   49 Bend                     7     4     8               103.24014   -0.02841
    50 Bend                     7     6    12               120.46074    0.03471
    51 Bend                     7     6    16               120.12808    0.02859
-   52 Bend                    10     5    15               109.42399    0.00966
+   52 Bend                    10     5    15               109.42400    0.00966
    53 Bend                    11     7    17               115.08449   -0.00188
    54 Bend                    12     6    16               115.08449   -0.00188
    55 Torsion                  1     2     4     7          73.31391    0.02554
@@ -8002,7 +8035,7 @@ task scf saddle  # go for the TS
    60 Torsion                  1     3     6    16        -170.73647    0.01333
    61 Torsion                  1     3     5     4         -27.86958    0.12589
    62 Torsion                  1     3     5    10        -152.70004    0.05595
-   63 Torsion                  1     3     5    15          84.31639    0.07047
+   63 Torsion                  1     3     5    15          84.31638    0.07047
    64 Torsion                  2     1     3     6         -73.31391   -0.02554
    65 Torsion                  2     1     3     5          18.71512   -0.08915
    66 Torsion                  2     1     3     9         173.24937    0.02453
@@ -8011,16 +8044,16 @@ task scf saddle  # go for the TS
    69 Torsion                  2     4     7    17         170.73647   -0.01333
    70 Torsion                  2     4     5     3          27.86958   -0.12589
    71 Torsion                  2     4     5    10         152.70004   -0.05595
-   72 Torsion                  2     4     5    15         -84.31639   -0.07047
+   72 Torsion                  2     4     5    15         -84.31638   -0.07047
    73 Torsion                  3     6     7     4           0.00000    0.00000
    74 Torsion                  3     6     7    11        -104.55825    0.08042
-   75 Torsion                  3     6     7    17          99.94046   -0.08439
+   75 Torsion                  3     6     7    17          99.94045   -0.08439
    76 Torsion                  3     1     2     4           0.00000    0.00000
    77 Torsion                  3     1     2    13         172.48878    0.01788
    78 Torsion                  3     5     4     7         -71.70737   -0.08056
    79 Torsion                  3     5     4     8        -177.05799   -0.01244
    80 Torsion                  4     7     6    12         104.55825   -0.08042
-   81 Torsion                  4     7     6    16         -99.94046    0.08439
+   81 Torsion                  4     7     6    16         -99.94045    0.08439
    82 Torsion                  4     2     1    14        -172.48878   -0.01788
    83 Torsion                  4     5     3     6          71.70737    0.08056
    84 Torsion                  4     5     3     9         177.05799    0.01244
@@ -8040,12 +8073,12 @@ task scf saddle  # go for the TS
    98 Torsion                  7     4     5    10          53.12309   -0.01062
    99 Torsion                  7     4     5    15         176.10666   -0.02514
   100 Torsion                  7     6     3     9        -162.95107    0.00622
-  101 Torsion                  8     4     7    11         -74.06237    0.00410
+  101 Torsion                  8     4     7    11         -74.06238    0.00410
   102 Torsion                  8     4     7    17          41.44218   -0.01361
   103 Torsion                  8     4     2    13          14.26250   -0.04156
   104 Torsion                  8     4     5    10         -52.22754    0.05750
   105 Torsion                  8     4     5    15          70.75604    0.04298
-  106 Torsion                  9     3     6    12          74.06237   -0.00410
+  106 Torsion                  9     3     6    12          74.06238   -0.00410
   107 Torsion                  9     3     6    16         -41.44218    0.01361
   108 Torsion                  9     3     1    14         -14.26250    0.04156
   109 Torsion                  9     3     5    10          52.22754   -0.05750
@@ -8056,7 +8089,7 @@ task scf saddle  # go for the TS
   114 Torsion                 13     2     1    14           0.00000    0.00000
   115 Torsion                 16     6     7    17           0.00000    0.00000
 
- Search mode= 1 eval=-4.7E-02 grad= 1.5E-03 step= 3.2E-02
+ Search mode= 1 eval=-4.7D-02 grad= 1.5D-03 step= 3.2D-02
 
           --------
           Step   2
@@ -8072,21 +8105,21 @@ task scf saddle  # go for the TS
  ---- ---------------- ---------- -------------- -------------- --------------
     1 C                    6.0000     0.45170565    -1.30528041     0.70025514
     2 C                    6.0000     0.45170565    -1.30528041    -0.70025514
-    3 C                    6.0000    -0.44767428    -0.35719867     1.15706454
-    4 C                    6.0000    -0.44767428    -0.35719867    -1.15706454
-    5 C                    6.0000    -1.38077037    -0.04590829     0.00000000
-    6 C                    6.0000     0.68972735     1.47188243     0.68597938
-    7 C                    6.0000     0.68972735     1.47188243    -0.68597938
-    8 H                    1.0000    -0.71970174    -0.21542764    -2.18224410
-    9 H                    1.0000    -0.71970174    -0.21542764     2.18224410
-   10 H                    1.0000    -1.81933924     0.93742172     0.00000000
+    3 C                    6.0000    -0.44767428    -0.35719868     1.15706454
+    4 C                    6.0000    -0.44767428    -0.35719868    -1.15706454
+    5 C                    6.0000    -1.38077038    -0.04590829     0.00000000
+    6 C                    6.0000     0.68972735     1.47188242     0.68597938
+    7 C                    6.0000     0.68972735     1.47188242    -0.68597938
+    8 H                    1.0000    -0.71970174    -0.21542765    -2.18224410
+    9 H                    1.0000    -0.71970174    -0.21542765     2.18224410
+   10 H                    1.0000    -1.81933924     0.93742171     0.00000000
    11 H                    1.0000     1.56889977     1.19374174    -1.22994814
    12 H                    1.0000     1.56889977     1.19374174     1.22994814
-   13 H                    1.0000     1.13220676    -1.85538811    -1.31538847
-   14 H                    1.0000     1.13220676    -1.85538811     1.31538847
+   13 H                    1.0000     1.13220675    -1.85538812    -1.31538848
+   14 H                    1.0000     1.13220675    -1.85538812     1.31538848
    15 H                    1.0000    -2.17268589    -0.79618552     0.00000000
-   16 H                    1.0000    -0.00493515     2.08685318     1.22622359
-   17 H                    1.0000    -0.00493515     2.08685318    -1.22622359
+   16 H                    1.0000    -0.00493516     2.08685317     1.22622360
+   17 H                    1.0000    -0.00493516     2.08685317    -1.22622360
 
       Atomic Mass 
       ----------- 
@@ -8095,13 +8128,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.9237041505
+ Effective nuclear repulsion energy (a.u.)     296.9237041424
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     0.0026391557    -0.0034297771     0.0000000000
+     0.0026388644    -0.0034303126     0.0000000000
 
       Symmetry information
       --------------------
@@ -8130,28 +8163,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     438.8s
+ Forming initial guess at      34.9s
 
 
- Starting SCF solution at     438.9s
+ Starting SCF solution at      34.9s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270158602439
-      One-electron energy =   -951.229431672681
-      Two-electron energy =    385.035568919704
- Nuclear repulsion energy =    296.923704150537
+         Total SCF energy =   -269.270158601972
+      One-electron energy =   -951.229431657112
+      Two-electron energy =    385.035568912753
+ Nuclear repulsion energy =    296.923704142387
 
-        Time for solution =      8.4s
+        Time for solution =      0.7s
 
 
                               NWChem Gradients Module
@@ -8184,7 +8217,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    2    -269.27015860  8.7E-06  0.00010  0.00002  0.00235  0.00548    460.0
+@    2    -269.27015860  8.7D-06  0.00010  0.00002  0.00235  0.00548     36.2
                                      ok       ok                    
 
 
@@ -8316,7 +8349,7 @@ task scf saddle  # go for the TS
   115 Torsion                 16     6     7    17           0.00000    0.00000
 
  Hessian eigenvalues: positive= 114 negative=  1 zero=  0
- Hessian has correct structure - following negative mode, overlap= 1.0E+00
+ Hessian has correct structure - following negative mode, overlap= 1.0D+00
 
  The mode being followed to the saddle point
 
@@ -8447,7 +8480,7 @@ task scf saddle  # go for the TS
   114 Torsion                 13     2     1    14           0.00000    0.00000
   115 Torsion                 16     6     7    17           0.00000    0.00000
 
- Search mode= 1 eval=-4.6E-02 grad= 1.2E-05 step= 2.6E-04
+ Search mode= 1 eval=-4.6D-02 grad= 1.2D-05 step= 2.6D-04
 
           --------
           Step   3
@@ -8461,21 +8494,21 @@ task scf saddle  # go for the TS
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 C                    6.0000     0.45183659    -1.30510526     0.70032084
-    2 C                    6.0000     0.45183659    -1.30510526    -0.70032084
+    1 C                    6.0000     0.45183659    -1.30510527     0.70032084
+    2 C                    6.0000     0.45183659    -1.30510527    -0.70032084
     3 C                    6.0000    -0.44776807    -0.35717871     1.15705961
     4 C                    6.0000    -0.44776807    -0.35717871    -1.15705961
     5 C                    6.0000    -1.38084743    -0.04582287     0.00000000
-    6 C                    6.0000     0.68977086     1.47179730     0.68599864
-    7 C                    6.0000     0.68977086     1.47179730    -0.68599864
-    8 H                    1.0000    -0.71983275    -0.21550724    -2.18226763
-    9 H                    1.0000    -0.71983275    -0.21550724     2.18226763
+    6 C                    6.0000     0.68977086     1.47179729     0.68599864
+    7 C                    6.0000     0.68977086     1.47179729    -0.68599864
+    8 H                    1.0000    -0.71983275    -0.21550725    -2.18226763
+    9 H                    1.0000    -0.71983275    -0.21550725     2.18226763
    10 H                    1.0000    -1.81940455     0.93741680     0.00000000
-   11 H                    1.0000     1.56900253     1.19362654    -1.22984663
-   12 H                    1.0000     1.56900253     1.19362654     1.22984663
+   11 H                    1.0000     1.56900253     1.19362653    -1.22984663
+   12 H                    1.0000     1.56900253     1.19362653     1.22984663
    13 H                    1.0000     1.13229456    -1.85527432    -1.31537858
    14 H                    1.0000     1.13229456    -1.85527432     1.31537858
-   15 H                    1.0000    -2.17281055    -0.79614743     0.00000000
+   15 H                    1.0000    -2.17281056    -0.79614743     0.00000000
    16 H                    1.0000    -0.00494186     2.08676491     1.22619105
    17 H                    1.0000    -0.00494186     2.08676491    -1.22619105
 
@@ -8486,13 +8519,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.9229248987
+ Effective nuclear repulsion energy (a.u.)     296.9229249368
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     0.0034354392    -0.0005443171     0.0000000000
+     0.0034351800    -0.0005449240     0.0000000000
 
       Symmetry information
       --------------------
@@ -8521,28 +8554,28 @@ task scf saddle  # go for the TS
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./dielsalder.movecs
-  output vectors  = ./dielsalder.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/dielsalder.movecs
   use symmetry    = T
   symmetry adapt  = T
 
 
- Forming initial guess at     460.5s
+ Forming initial guess at      36.3s
 
 
- Starting SCF solution at     460.6s
+ Starting SCF solution at      36.3s
 
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -269.270158740982
-      One-electron energy =   -951.228038832639
-      Two-electron energy =    385.034955192944
- Nuclear repulsion energy =    296.922924898714
+         Total SCF energy =   -269.270158740517
+      One-electron energy =   -951.228038907985
+      Two-electron energy =    385.034955230678
+ Nuclear repulsion energy =    296.922924936790
 
-        Time for solution =      6.3s
+        Time for solution =      0.5s
 
 
                               NWChem Gradients Module
@@ -8575,7 +8608,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    3    -269.27015874 -1.4E-07  0.00002  0.00000  0.00016  0.00033    479.5
+@    3    -269.27015874 -1.4D-07  0.00002  0.00000  0.00016  0.00033     37.4
                                      ok       ok       ok       ok  
 
 
@@ -8714,7 +8747,7 @@ task scf saddle  # go for the TS
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    3    -269.27015874 -1.4E-07  0.00002  0.00000  0.00016  0.00033    479.5
+@    3    -269.27015874 -1.4D-07  0.00002  0.00000  0.00016  0.00033     37.4
                                      ok       ok       ok       ok  
 
 
@@ -8854,21 +8887,21 @@ task scf saddle  # go for the TS
 
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
-    1 C                    6.0000     0.45183659    -1.30510526     0.70032084
-    2 C                    6.0000     0.45183659    -1.30510526    -0.70032084
+    1 C                    6.0000     0.45183659    -1.30510527     0.70032084
+    2 C                    6.0000     0.45183659    -1.30510527    -0.70032084
     3 C                    6.0000    -0.44776807    -0.35717871     1.15705961
     4 C                    6.0000    -0.44776807    -0.35717871    -1.15705961
     5 C                    6.0000    -1.38084743    -0.04582287     0.00000000
-    6 C                    6.0000     0.68977086     1.47179730     0.68599864
-    7 C                    6.0000     0.68977086     1.47179730    -0.68599864
-    8 H                    1.0000    -0.71983275    -0.21550724    -2.18226763
-    9 H                    1.0000    -0.71983275    -0.21550724     2.18226763
+    6 C                    6.0000     0.68977086     1.47179729     0.68599864
+    7 C                    6.0000     0.68977086     1.47179729    -0.68599864
+    8 H                    1.0000    -0.71983275    -0.21550725    -2.18226763
+    9 H                    1.0000    -0.71983275    -0.21550725     2.18226763
    10 H                    1.0000    -1.81940455     0.93741680     0.00000000
-   11 H                    1.0000     1.56900253     1.19362654    -1.22984663
-   12 H                    1.0000     1.56900253     1.19362654     1.22984663
+   11 H                    1.0000     1.56900253     1.19362653    -1.22984663
+   12 H                    1.0000     1.56900253     1.19362653     1.22984663
    13 H                    1.0000     1.13229456    -1.85527432    -1.31537858
    14 H                    1.0000     1.13229456    -1.85527432     1.31537858
-   15 H                    1.0000    -2.17281055    -0.79614743     0.00000000
+   15 H                    1.0000    -2.17281056    -0.79614743     0.00000000
    16 H                    1.0000    -0.00494186     2.08676491     1.22619105
    17 H                    1.0000    -0.00494186     2.08676491    -1.22619105
 
@@ -8879,13 +8912,13 @@ task scf saddle  # go for the TS
       H                  1.007825
 
 
- Effective nuclear repulsion energy (a.u.)     296.9229248987
+ Effective nuclear repulsion energy (a.u.)     296.9229249368
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
         X                 Y               Z
  ---------------- ---------------- ----------------
-     0.0034354392    -0.0005443171     0.0000000000
+     0.0034351800    -0.0005449240     0.0000000000
 
       Symmetry information
       --------------------
@@ -8944,14 +8977,14 @@ task scf saddle  # go for the TS
    27 Bend                     2     4     5               106.75479    0.07230
    28 Bend                     2     4     8               124.88611    0.07866
    29 Bend                     3     6     7               102.33661    0.00444
-   30 Bend                     3     6    12                95.71873   -0.21636
+   30 Bend                     3     6    12                95.71873   -0.21635
    31 Bend                     3     6    16                91.93765   -0.27797
    32 Bend                     3     1    14               125.16329    0.02759
-   33 Bend                     3     5     4                99.26198    0.03511
+   33 Bend                     3     5     4                99.26198    0.03512
    34 Bend                     3     5    10               115.94543    0.03275
    35 Bend                     3     5    15               107.75887   -0.04966
    36 Bend                     4     7     6               102.33661    0.00444
-   37 Bend                     4     7    11                95.71873   -0.21636
+   37 Bend                     4     7    11                95.71873   -0.21635
    38 Bend                     4     7    17                91.93765   -0.27797
    39 Bend                     4     2    13               125.16329    0.02759
    40 Bend                     4     5    10               115.94543    0.03275
@@ -8977,7 +9010,7 @@ task scf saddle  # go for the TS
    60 Torsion                  1     3     6    16        -170.70707    0.02914
    61 Torsion                  1     3     5     4         -27.61431    0.25560
    62 Torsion                  1     3     5    10        -152.52691    0.17278
-   63 Torsion                  1     3     5    15          84.51712    0.20055
+   63 Torsion                  1     3     5    15          84.51712    0.20056
    64 Torsion                  2     1     3     6         -73.33130   -0.01924
    65 Torsion                  2     1     3     5          18.54392   -0.17147
    66 Torsion                  2     1     3     9         173.47048    0.22046
@@ -8986,7 +9019,7 @@ task scf saddle  # go for the TS
    69 Torsion                  2     4     7    17         170.70707   -0.02914
    70 Torsion                  2     4     5     3          27.61431   -0.25560
    71 Torsion                  2     4     5    10         152.52691   -0.17278
-   72 Torsion                  2     4     5    15         -84.51712   -0.20055
+   72 Torsion                  2     4     5    15         -84.51712   -0.20056
    73 Torsion                  3     6     7     4           0.00000    0.00000
    74 Torsion                  3     6     7    11        -104.32341    0.23506
    75 Torsion                  3     6     7    17          99.63591   -0.30479
@@ -9094,13 +9127,7 @@ task scf saddle  # go for the TS
 
 
 
- Task  times  cpu:       76.3s     wall:       77.9s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
+ Task  times  cpu:        4.6s     wall:        4.9s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -9111,11 +9138,11 @@ task scf saddle  # go for the TS
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 8126     8126     5.13e+05 1.95e+05 2.82e+05   17        0        0     
-bytes total:             4.14e+08 2.02e+08 1.63e+08 3.54e+03 0.00e+00 0.00e+00
-bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 780552 bytes
-
+calls: 8822     8822     1.76e+05 2.58e+04 1.06e+05    0        0     3.38e+04 
+number of processes/call 1.19e+00 1.46e+00 1.06e+00 0.00e+00 0.00e+00
+bytes total:             2.54e+08 8.99e+07 6.75e+07 0.00e+00 0.00e+00 2.71e+05
+bytes remote:            1.16e+08 2.60e+07 4.06e+07 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 286880 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -9124,58 +9151,47 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        34	        29
+	maximum number of blocks	        20	        29
 	current total bytes		         0	         0
-	maximum total bytes		  66347340	  31464540
-	maximum total K-bytes		     66348	     31465
-	maximum total M-bytes		        67	        32
+	maximum total bytes		  16807368	  22511208
+	maximum total K-bytes		     16808	     22512
+	maximum total M-bytes		        17	        23
+
+
+                                NWChem Input Module
+                                -------------------
 
 
 
-                                  ACKNOWLEDGEMENT
-                                  ---------------
-
-            Please use the following acknowledgement where appropriate 
-            for results obtained with NWChem:
-
-            High Performance Computational Chemistry Group, "NWChem, A
-            Computational Chemistry Package for Parallel Computers, 
-            Version 4.0.1" (2001), Pacific Northwest National Laboratory,
-            Richland, Washington 99352-0999, USA.
 
 
                                      CITATION
                                      --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
 
-            Please use the following citation when publishing results
-            obtained with NWChem:
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
 
-            R. J. Harrison, J. A. Nichols, T. P. Straatsma, M. Dupuis, E. J. Bylaska,
-            G. I. Fann, T. L. Windus, E. Apra, J. Anchell, D. Bernholdt, P. Borowski,
-            T. Clark, D. Clerc, H. Dachsel, B. de Jong, M. Deegan, K. Dyall, D. Elwood,
-            H. Fruchtl, E. Glendenning, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
-            R. Kendall, R. Kobayashi, R, Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
-            J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor, G. Thomas,
-            J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,
-            "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 4.0.1" (2001),
-                      Pacific Northwest National Laboratory,
-                      Richland, Washington 99352-0999, USA.
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
+      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
-
-                                    REFERENCES
-                                    ----------
-
-            Where appropriate, please cite the following reference(s) 
-            when publishing results obtained with NWChem:
-
-
-     1. D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, R. J. Harrison, 
-        R. A. Kendall, R. A. Kutteh, X. Long, J. B. Nicholas, J. A. Nichols, 
-        H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and J. Nieplocha,
-        "Parallel Computational Chemistry Made Easier: The Development of NWChem,"
-        Int. J. Quantum Chem. Symposium  29, 475-483 (1995).
-
-
-
- Total times  cpu:      461.6s     wall:      479.6s
+ Total times  cpu:       34.9s     wall:       37.4s

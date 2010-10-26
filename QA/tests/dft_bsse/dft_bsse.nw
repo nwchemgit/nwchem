@@ -1,3 +1,4 @@
+echo
 start dft_bsse
 
 charge 0

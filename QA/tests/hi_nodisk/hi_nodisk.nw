@@ -1,3 +1,4 @@
+echo
 start hi_nodisk
 
 geometry noautoz units angstrom

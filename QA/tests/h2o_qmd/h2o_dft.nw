@@ -1,3 +1,4 @@
+echo
 start h2o_dft
 
 memory global 8 mb stack 16 mb heap 10 mb

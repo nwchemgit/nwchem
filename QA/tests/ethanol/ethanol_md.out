@@ -1,4 +1,44 @@
  argument  1 = ethanol_md.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+memory noverify heap 1 mb stack 32 mb global 8 mb
+
+start ethanol_md
+
+prepare
+ system ethanol_test
+ free
+ modify segment 1 final self
+ new_top new_seq
+end
+
+task prepare
+
+md
+ print out6
+ system ethanol_md
+ step 0.001 equil 0 data 100
+ cutoff 1.2
+ leapfrog
+ isotherm 298.16 trelax 0.1 0.1
+ isobar 1.025e5 trelax 0.4 compress 4.53e-10
+ print step 10 stat 100 extra topol
+ update pairs 1 center 1 long 1 rdf 0
+ record rest 0
+ record prop 0 sync 0
+ record coord 0 scoor 0
+ record veloc 0 svelo 0
+ load pairs
+ test 10        #This is for testing only, not for general users.
+end
+
+task md dynamics
+================================================================================
+
+
                                          
                                          
 
@@ -37,15 +77,15 @@
            ---------------
 
     hostname      = arcen
-    program       = /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/bin/LINUX64/nwchem
-    date          = Fri Aug 27 10:09:38 2010
+    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
+    date          = Mon Oct 25 15:19:39 2010
 
-    compiled      = Thu_Aug_26_21:55:56_2010
-    source        = /home/d3y133/nwchem-releases/nwchem-6.0-gfortran
-    nwchem branch = 6.0
+    compiled      = Mon_Oct_25_14:31:37_2010
+    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
+    nwchem branch = Development
     input         = ethanol_md.nw
     prefix        = ethanol_md.
-    data base     = ./ethanol_md.db
+    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/ethanol_md.db
     status        = startup
     nproc         =        4
     time left     =     -1s
@@ -66,8 +106,8 @@
            Directory information
            ---------------------
 
-  0 permanent = .
-  0 scratch   = .
+  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
 
 
 
@@ -84,20 +124,55 @@
 
  Directories used for fragment and segment files
 
-                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/
-                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_s/
-                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_x/
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/
                                        ./
 
  Parameter files used to resolve force field parameters
 
-                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/amber.par
-                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_s/amber.par
-                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_x/amber.par
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/amber.par
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/amber.par
                                        ./amber.par
 
  Deleted existing topology             ethanol.top
  PDB geometry                          ethanol.pdb
+
+
+ Creating fragment for residue etl  
+
+ Atom type definitions                 /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/amber.par
+ Atom type definitions                 /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/amber.par
+ Bond charge definitions               /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/amber.par
+ Bond charge definitions               /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/amber.par
+
+ Fragment                              etl
+
+  num name  type   link cntr  grp pgrp    charge     polarizab
+
+    1  C1   CT        0    0    0    1    1   -0.150000    0.000000
+    2 2H1   HC        0    0    0    1    1    0.050000    0.000000
+    3 3H1   HC        0    0    0    1    1    0.050000    0.000000
+    4 4H1   HC        0    0    0    1    1    0.050000    0.000000
+    5  C2   CT        0    0    0    1    1    0.200000    0.000000
+    6 2H2   H1        0    0    0    1    1    0.050000    0.000000
+    7 3H2   H1        0    0    0    1    1    0.050000    0.000000
+    8  O    OH        0    0    0    1    1   -0.490000    0.000000
+    9  H    HO        0    0    0    1    1    0.190000    0.000000
+                                           ------------
+                         total charge     0.000000
+
+ Connectivity
+
+       1-  2
+       1-  3
+       1-  4
+       1-  5
+       5-  6
+       5-  7
+       5-  8
+       8-  9
+ 
+ Created fragment                      ./etl.frg
 
  Created segment                       ./etl.sgm
 
@@ -105,9 +180,8 @@
 
  
  modify segment     1 set 3 self 
- Parameter file                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/amber.par
- Parameter file                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_s/amber.par
- Parameter file                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_x/amber.par
+ Parameter file                        /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/amber.par
+ Parameter file                        /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/amber.par
  
  Total charge                              0.000000    0.000000    0.000000
 
@@ -131,9 +205,9 @@
 
 
 
- MOLECULAR DYNAMICS                                                                                          08/27/10   10:09:38 
+ MOLECULAR DYNAMICS                                                                                          10/25/10   15:19:39 
 
- Title   NWChem:MD input                                                                                     08/27/10   10:09:38 
+ Title   NWChem:MD input                                                                                     10/25/10   15:19:39 
                                                                                          
                                                                                          
 
@@ -212,7 +286,7 @@
                                                                                               
               Generated by the NWChem prepare module                                          
  Version          4.600000
- Date         08/27/10   10:09:38 
+ Date         10/25/10   15:19:39 
  Force field  amber     
 
  RESTART FILE INFORMATION
@@ -384,21 +458,19 @@
 
          Charge
 
-    1   -0.180000   -0.180000   -0.180000
-    2    0.060000    0.060000    0.060000
-    3   -0.032000   -0.032000   -0.032000
-    4    0.148500    0.148500    0.148500
-    5   -0.700000   -0.700000   -0.700000
-    6    0.435000    0.435000    0.435000
-    7   -0.847600   -0.847600   -0.847600
-    8    0.423800    0.423800    0.423800
-    9    0.000000    0.000000    0.000000
-   10   -0.180000   -0.180000    0.000000
-   11    0.060000    0.060000    0.000000
-   12   -0.032000   -0.032000    0.000000
-   13    0.148500    0.148500    0.000000
-   14   -0.700000   -0.700000    0.000000
-   15    0.435000    0.435000    0.000000
+    1   -0.150000   -0.150000   -0.150000
+    2    0.050000    0.050000    0.050000
+    3    0.200000    0.200000    0.200000
+    4   -0.490000   -0.490000   -0.490000
+    5    0.190000    0.190000    0.190000
+    6   -0.847600   -0.847600   -0.847600
+    7    0.423800    0.423800    0.423800
+    8    0.000000    0.000000    0.000000
+    9   -0.150000   -0.150000    0.000000
+   10    0.050000    0.050000    0.000000
+   11    0.200000    0.200000    0.000000
+   12   -0.490000   -0.490000    0.000000
+   13    0.190000    0.190000    0.000000
 
 
          Polarization
@@ -416,8 +488,6 @@
    11    0.000000    0.000000    0.000000
    12    0.000000    0.000000    0.000000
    13    0.000000    0.000000    0.000000
-   14    0.000000    0.000000    0.000000
-   15    0.000000    0.000000    0.000000
 
  SOLUTE
 
@@ -456,7 +526,7 @@
  Dimension workarrays solvent    465
                       solute      19
 
- MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    08/27/10   10:09:38 
+ MOLECULAR DYNAMICS TIME STEP INFORMATION                                                                    10/25/10   15:19:39 
 
     Time      Temp    Pres      Volume Tscalw Tscals  Pscal    U(ele)    U(vdW)      U(pot)     U(kin)     U(tot) 
      ps         K      Pa        nm**3                         kJ/mol    kJ/mol      kJ/mol     kJ/mol     kJ/mol 
@@ -464,121 +534,121 @@
                  U(bnd)     U(ang)     U(dih)     U(imp)     Ui(ele)    Ui(vdW)    Uw(ele)    Uw(vdW)    U(kin)     U(pot)     U(tot)
                  kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol     kJ/mol  
 
-    0.01000  301.09 8.40E+07     8.037 1.0000 1.0034 1.0001-1.3356E+04 2.4897E+03-1.0841E+04 1.9864E+03-8.8544E+03
-   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.14       9.56       7.55       0.00     -41.36
-   solute  1       0.13      13.08       0.00      12.19      29.43       0.00    -106.16      -6.26       0.00     -57.59     -57.59
-    0.02000  312.01 7.30E+07     8.043 0.9997 1.0018 1.0001-1.3443E+04 2.5137E+03-1.0911E+04 2.0585E+03-8.8524E+03
-   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.55       9.65       7.81       0.00     -41.69
-   solute  1       1.32       5.48       0.00      11.59      29.50       0.00     -87.16      -4.85       0.00     -44.12     -44.12
-    0.03000  298.89 9.09E+07     8.051 1.0000 1.0020 1.0001-1.3367E+04 2.5170E+03-1.0826E+04 1.9719E+03-8.8542E+03
-   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.28       9.65       7.48       0.00     -41.41
-   solute  1       0.02      13.62       0.00      10.66      29.19       0.00     -77.29      -5.35       0.00     -29.15     -29.15
-    0.04000  301.19 5.83E+07     8.058 0.9999 1.0009 1.0001-1.3344E+04 2.4799E+03-1.0840E+04 1.9871E+03-8.8531E+03
-   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.18       9.53       7.53       0.00     -41.43
-   solute  1       2.73      11.34       0.00      10.36      29.75       0.00     -81.34      -9.81       0.00     -36.97     -36.97
-    0.05000  299.16 6.02E+07     8.063 1.0000 1.0002 1.0001-1.3336E+04 2.4753E+03-1.0837E+04 1.9737E+03-8.8629E+03
-   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.10       9.52       7.47       0.00     -41.36
-   solute  1       2.41      10.88       0.00      11.30      30.11       0.00     -93.00     -12.28       0.00     -50.58     -50.58
-    0.06000  297.18 5.86E+07     8.068 1.0000 1.0000 1.0001-1.3307E+04 2.4604E+03-1.0825E+04 1.9606E+03-8.8640E+03
-   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -55.99       9.46       7.42       0.00     -41.31
-   solute  1       0.41      10.54       0.00      11.32      30.84       0.00     -94.38     -12.38       0.00     -53.66     -53.66
-    0.07000  309.33 2.31E+07     8.072 0.9999 0.9999 1.0000-1.3354E+04 2.4291E+03-1.0902E+04 2.0408E+03-8.8617E+03
-   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.14       9.33       7.72       0.00     -41.58
-   solute  1       1.35      11.25       0.00      10.11      29.93       0.00     -99.66      -8.94       0.00     -55.96     -55.96
-    0.08000  321.36 2.09E+07     8.073 0.9996 0.9996 1.0000-1.3472E+04 2.4575E+03-1.1001E+04 2.1201E+03-8.8805E+03
-   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.62       9.44       8.02       0.00     -41.97
-   solute  1       0.06       4.87       0.00       9.20      30.48       0.00     -94.90      -7.72       0.00     -58.00     -58.00
-    0.09000  302.97 8.05E+07     8.079 0.9999 0.9995 1.0001-1.3401E+04 2.4985E+03-1.0888E+04 1.9988E+03-8.8894E+03
-   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.37       9.61       7.54       0.00     -41.55
-   solute  1       0.48       6.96       0.00       6.59      29.93       0.00     -87.31     -10.33       0.00     -53.68     -53.68
-    0.10000  312.20 7.78E+07     8.086 0.9998 0.9991 1.0001-1.3484E+04 2.5238E+03-1.0946E+04 2.0597E+03-8.8862E+03
-   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.67       9.72       7.77       0.00     -41.73
-   solute  1       0.97       7.67       0.00       5.61      30.09       0.00     -93.02     -12.86       0.00     -61.54     -61.54
+    0.01000  300.75 9.39E+07     8.037 1.0000 1.0030 1.0001-1.3361E+04 2.4881E+03-1.0850E+04 1.9842E+03-8.8656E+03
+   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.13       9.55       7.54       0.00     -41.35
+   solute  1       0.21      10.48       0.00      12.60      10.77       0.00     -62.10      -6.94       0.00     -34.98     -34.98
+    0.02000  311.13 8.11E+07     8.045 0.9998 1.0026 1.0001-1.3456E+04 2.5107E+03-1.0923E+04 2.0527E+03-8.8707E+03
+   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.55       9.64       7.79       0.00     -41.69
+   solute  1       1.29       7.65       0.00      12.69      10.89       0.00     -45.68      -6.74       0.00     -19.90     -19.90
+    0.03000  298.14 9.72E+07     8.053 1.0000 1.0019 1.0001-1.3375E+04 2.5124E+03-1.0840E+04 1.9669E+03-8.8729E+03
+   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.29       9.65       7.46       0.00     -41.42
+   solute  1       0.00      10.39       0.00      11.84      10.79       0.00     -30.96      -8.87       0.00      -6.81      -6.81
+    0.04000  300.60 6.22E+07     8.060 0.9999 1.0011 1.0001-1.3355E+04 2.4739E+03-1.0855E+04 1.9832E+03-8.8723E+03
+   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.22       9.53       7.51       0.00     -41.47
+   solute  1       2.52      12.59       0.00      10.26      10.87       0.00     -31.44     -14.91       0.00     -10.11     -10.11
+    0.05000  298.26 6.68E+07     8.066 1.0000 1.0003 1.0001-1.3333E+04 2.4702E+03-1.0840E+04 1.9678E+03-8.8719E+03
+   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.12       9.53       7.45       0.00     -41.37
+   solute  1       3.71       9.86       0.00       9.78      10.84       0.00     -35.58     -20.05       0.00     -21.44     -21.44
+    0.06000  297.91 6.20E+07     8.072 1.0000 1.0000 1.0001-1.3320E+04 2.4555E+03-1.0844E+04 1.9655E+03-8.8781E+03
+   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.06       9.48       7.44       0.00     -41.35
+   solute  1       0.38      10.90       0.00       9.35      10.96       0.00     -37.66     -23.02       0.00     -29.08     -29.08
+    0.07000  307.78 2.43E+07     8.076 0.9999 0.9998 1.0000-1.3344E+04 2.4180E+03-1.0906E+04 2.0306E+03-8.8756E+03
+   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.17       9.35       7.68       0.00     -41.60
+   solute  1       1.64       9.51       0.00       8.45      10.67       0.00     -33.36     -24.13       0.00     -27.21     -27.21
+    0.08000  320.19 1.97E+07     8.077 0.9996 0.9994 1.0000-1.3462E+04 2.4402E+03-1.1008E+04 2.1124E+03-8.8958E+03
+   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.62       9.44       7.98       0.00     -41.96
+   solute  1       0.21       5.07       0.00       8.70      10.80       0.00     -35.19     -24.37       0.00     -34.77     -34.77
+    0.09000  302.33 7.67E+07     8.082 0.9999 1.0000 1.0001-1.3392E+04 2.4814E+03-1.0894E+04 1.9946E+03-8.8990E+03
+   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.36       9.60       7.54       0.00     -41.54
+   solute  1       0.46       8.86       0.00       7.35      10.85       0.00     -32.08     -24.54       0.00     -29.10     -29.10
+    0.10000  308.67 8.02E+07     8.090 0.9999 0.9995 1.0001-1.3456E+04 2.5079E+03-1.0935E+04 2.0365E+03-8.8982E+03
+   solvent         0.00       0.00       0.00       0.00       5.22       0.00     -56.60       9.70       7.68       0.00     -41.68
+   solute  1       0.08       6.79       0.00       6.66      10.86       0.00     -32.94     -24.80       0.00     -33.34     -33.34
 
- MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  08/27/10   10:09:39 
+ MOLECULAR DYNAMICS STATISTICAL INFORMATION                                                                  10/25/10   15:19:40 
 
                                            Statistics over last      100 steps     Statistics over last      100 steps
                                            Average     RMS fluct     Drift/ps      Average     RMS fluct     Drift/ps
 
  Step                                    5.05000E+01  2.88661E+01  1.00000E+03   5.05000E+01  2.88661E+01  1.00000E+03             
  Time                                    5.05000E-02  2.88661E-02  1.00000E+00   5.05000E-02  2.88661E-02  1.00000E+00           ps
- Number solvent-solvent interactions SR  2.69237E+04  5.71364E+01 -1.92810E+03   2.69237E+04  5.71364E+01 -1.92810E+03             
- Number solvent-solute interactions  SR  2.37210E+02  5.15655E-01  1.13351E+01   2.37210E+02  5.15655E-01  1.13351E+01             
+ Number solvent-solvent interactions SR  2.69195E+04  5.79204E+01 -1.94683E+03   2.69195E+04  5.79204E+01 -1.94683E+03             
+ Number solvent-solute interactions  SR  2.37060E+02  4.65188E-01  9.61296E+00   2.37060E+02  4.65188E-01  9.61296E+00             
  Number solute-solute interactions   SR  3.00000E+00  0.00000E+00  2.13184E-14   3.00000E+00  0.00000E+00  2.13184E-14             
  Number of solvent SHAKE iterations      2.30000E+01  0.00000E+00  5.11642E-13   2.30000E+01  0.00000E+00  5.11642E-13             
- Number of solute SHAKE iterations       3.06000E+00  2.37487E-01  2.23222E+00   3.06000E+00  2.37487E-01  2.23222E+00             
- Volume                                  8.06038E+00  1.56141E-02  5.33988E-01   8.06038E+00  1.56141E-02  5.33988E-01        nm**3
- Mass density                            9.78185E+02  1.89624E+00 -6.48347E+01   9.78185E+02  1.89624E+00 -6.48347E+01      kg/m**3
- Pressure                                6.41438E+07  2.48224E+07 -4.11716E+08   6.41438E+07  2.48224E+07 -4.11716E+08           Pa
- Pressure scaling                        1.00007E+00  2.81113E-05 -4.66268E-04   1.00007E+00  2.81113E-05 -4.66268E-04             
- Temperature                             3.04866E+02  7.38141E+00  8.75308E+01   3.04866E+02  7.38141E+00  8.75308E+01            K
- Temperature solvent                     3.05312E+02  7.45261E+00  6.95837E+01   3.05312E+02  7.45261E+00  6.95837E+01            K
- Temperature solute                      2.71585E+02  5.31428E+01  1.42587E+03   2.71585E+02  5.31428E+01  1.42587E+03            K
- Temperature scaling solvent             9.99887E-01  1.16014E-04 -1.03498E-03   9.99887E-01  1.16014E-04 -1.03498E-03             
- Temperature scaling solute              1.00075E+00  1.30925E-03 -3.34932E-02   1.00075E+00  1.30925E-03 -3.34932E-02             
- Energy electrostatic                   -1.33801E+04  5.28778E+01 -5.45075E+02  -1.33801E+04  5.28778E+01 -5.45075E+02       kJ/mol
- Energy van der Waals                    2.48366E+03  2.75813E+01 -3.38450E+02   2.48366E+03  2.75813E+01 -3.38450E+02       kJ/mol
- Energy potential                       -1.08757E+04  5.36403E+01 -9.56065E+02  -1.08757E+04  5.36403E+01 -9.56065E+02       kJ/mol
- Energy kinetic                          2.01135E+03  4.86988E+01  5.77483E+02   2.01135E+03  4.86988E+01  5.77483E+02       kJ/mol
- Energy total                           -8.86438E+03  1.22857E+01 -3.78582E+02  -8.86438E+03  1.22857E+01 -3.78582E+02       kJ/mol
+ Number of solute SHAKE iterations       3.12000E+00  3.24962E-01  5.08851E+00   3.12000E+00  3.24962E-01  5.08851E+00             
+ Volume                                  8.06321E+00  1.66978E-02  5.69627E-01   8.06321E+00  1.66978E-02  5.69627E-01        nm**3
+ Mass density                            9.77841E+02  2.02675E+00 -6.91207E+01   9.77841E+02  2.02675E+00 -6.91207E+01      kg/m**3
+ Pressure                                6.81265E+07  2.70473E+07 -5.42893E+08   6.81265E+07  2.70473E+07 -5.42893E+08           Pa
+ Pressure scaling                        1.00008E+00  3.06311E-05 -6.14827E-04   1.00008E+00  3.06311E-05 -6.14827E-04             
+ Temperature                             3.04009E+02  6.89061E+00  7.31368E+01   3.04009E+02  6.89061E+00  7.31368E+01            K
+ Temperature solvent                     3.04543E+02  6.97613E+00  5.59540E+01   3.04543E+02  6.97613E+00  5.59540E+01            K
+ Temperature solute                      2.64233E+02  5.34904E+01  1.35448E+03   2.64233E+02  5.34904E+01  1.35448E+03            K
+ Temperature scaling solvent             9.99898E-01  1.09420E-04 -8.44687E-04   9.99898E-01  1.09420E-04 -8.44687E-04             
+ Temperature scaling solute              1.00094E+00  1.44293E-03 -3.50198E-02   1.00094E+00  1.44293E-03 -3.50198E-02             
+ Energy electrostatic                   -1.33811E+04  4.82267E+01 -2.17656E+02  -1.33811E+04  4.82267E+01 -2.17656E+02       kJ/mol
+ Energy van der Waals                    2.47572E+03  2.95734E+01 -5.23471E+02   2.47572E+03  2.95734E+01 -5.23471E+02       kJ/mol
+ Energy potential                       -1.08849E+04  5.03911E+01 -8.09972E+02  -1.08849E+04  5.03911E+01 -8.09972E+02       kJ/mol
+ Energy kinetic                          2.00570E+03  4.54607E+01  4.82519E+02   2.00570E+03  4.54607E+01  4.82519E+02       kJ/mol
+ Energy total                           -8.87919E+03  1.09249E+01 -3.27453E+02  -8.87919E+03  1.09249E+01 -3.27453E+02       kJ/mol
  Energy solvent intra electrostatic      1.36242E+03  0.00000E+00  7.64052E-11   1.36242E+03  0.00000E+00  7.64052E-11       kJ/mol
  Energy solvent intra van der Waals      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solvent inter electrostatic     -1.46890E+04  5.50719E+01 -5.28984E+02  -1.46890E+04  5.50719E+01 -5.28984E+02       kJ/mol
- Energy solvent inter van der Waals      2.49033E+03  2.69795E+01 -2.74510E+02   2.49033E+03  2.69795E+01 -2.74510E+02       kJ/mol
+ Energy solvent inter electrostatic     -1.46913E+04  4.93020E+01 -4.72757E+02  -1.46913E+04  4.93020E+01 -4.72757E+02       kJ/mol
+ Energy solvent inter van der Waals      2.49054E+03  2.49995E+01 -2.70464E+02   2.49054E+03  2.49995E+01 -2.70464E+02       kJ/mol
  Energy solvent bonds                    0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent Urey-Bradley             0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent proper dihedrals         0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent improper dihedrals       0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent polarization             0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
  Energy solvent kinetic                  0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Synchronization time                    6.40910E-03  1.63162E-03 -2.15234E-03   6.40910E-03  1.63162E-03 -2.15234E-03            s
- Efficiency load balancing               7.76247E-01  3.98014E-02  8.23766E-03   7.76247E-01  3.98014E-02  8.23766E-03             
- Time per step                           6.89009E-03  4.38432E-04 -1.35694E-03   6.89009E-03  4.38432E-04 -1.35694E-03            s
- Virial tensor element (1,1)             7.59592E+01  1.19681E+02  6.09003E+02   7.59592E+01  1.19681E+02  6.09003E+02       kJ/mol
- Virial tensor element (1,2)            -8.61400E+01  2.09889E+02  2.48451E+02  -8.61400E+01  2.09889E+02  2.48451E+02       kJ/mol
- Virial tensor element (1,3)            -3.05814E+02  3.03392E+02  4.69900E+02  -3.05814E+02  3.03392E+02  4.69900E+02       kJ/mol
- Virial tensor element (2,1)            -6.73496E+01  2.86661E+02 -9.77612E+02  -6.73496E+01  2.86661E+02 -9.77612E+02       kJ/mol
- Virial tensor element (2,2)             7.12902E+02  1.77725E+02  2.46665E+03   7.12902E+02  1.77725E+02  2.46665E+03       kJ/mol
- Virial tensor element (2,3)            -1.22102E+02  3.78452E+02 -2.53900E+03  -1.22102E+02  3.78452E+02 -2.53900E+03       kJ/mol
- Virial tensor element (3,1)            -2.52098E+02  2.62137E+02 -2.59790E+03  -2.52098E+02  2.62137E+02 -2.59790E+03       kJ/mol
- Virial tensor element (3,2)            -1.02052E+02  3.50758E+02 -5.46052E+03  -1.02052E+02  3.50758E+02 -5.46052E+03       kJ/mol
- Virial tensor element (3,3)             2.74462E+02  3.15764E+02  4.12050E+03   2.74462E+02  3.15764E+02  4.12050E+03       kJ/mol
- Pressure tensor element (1,1)           3.82477E+07  7.25795E+06 -6.59338E+07   3.82477E+07  7.25795E+06 -6.59338E+07           Pa
- Pressure tensor element (1,2)           6.19933E+06  1.43118E+07 -4.66618E+07   6.19933E+06  1.43118E+07 -4.66618E+07           Pa
- Pressure tensor element (1,3)           1.72207E+07  2.03883E+07 -4.85928E+07   1.72207E+07  2.03883E+07 -4.85928E+07           Pa
- Pressure tensor element (2,1)           4.90309E+06  1.94269E+07  3.79895E+07   4.90309E+06  1.94269E+07  3.79895E+07           Pa
- Pressure tensor element (2,2)          -2.11791E+06  1.09911E+07 -9.98273E+07  -2.11791E+06  1.09911E+07 -9.98273E+07           Pa
- Pressure tensor element (2,3)           8.15176E+06  2.54479E+07  2.06913E+08   8.15176E+06  2.54479E+07  2.06913E+08           Pa
- Pressure tensor element (3,1)           1.35167E+07  1.72146E+07  1.62777E+08   1.35167E+07  1.72146E+07  1.62777E+08           Pa
- Pressure tensor element (3,2)           6.76161E+06  2.36436E+07  4.07912E+08   6.76161E+06  2.36436E+07  4.07912E+08           Pa
- Pressure tensor element (3,3)           2.80140E+07  2.03156E+07 -2.45955E+08   2.80140E+07  2.03156E+07 -2.45955E+08           Pa
- Kinetic energy element (1,1)            3.16415E+02  1.34308E+01 -1.57704E+02   3.16415E+02  1.34308E+01 -1.57704E+02       kJ/mol
- Kinetic energy element (1,2)            2.06832E+00  9.49731E+00 -2.16439E+02   2.06832E+00  9.49731E+00 -2.16439E+02       kJ/mol
- Kinetic energy element (1,3)           -2.75555E+01  8.09428E+00 -1.10561E+02  -2.75555E+01  8.09428E+00 -1.10561E+02       kJ/mol
- Kinetic energy element (2,1)            2.06832E+00  9.49731E+00 -2.16439E+02   2.06832E+00  9.49731E+00 -2.16439E+02       kJ/mol
- Kinetic energy element (2,2)            3.40985E+02  2.56485E+01  5.08389E+02   3.40985E+02  2.56485E+01  5.08389E+02       kJ/mol
- Kinetic energy element (2,3)           -1.66026E+00  1.33611E+01  2.47482E+02  -1.66026E+00  1.33611E+01  2.47482E+02       kJ/mol
- Kinetic energy element (3,1)           -2.75555E+01  8.09428E+00 -1.10561E+02  -2.75555E+01  8.09428E+00 -1.10561E+02       kJ/mol
- Kinetic energy element (3,2)           -1.66026E+00  1.33611E+01  2.47482E+02  -1.66026E+00  1.33611E+01  2.47482E+02       kJ/mol
- Kinetic energy element (3,3)            3.41074E+02  1.41298E+01  2.86744E+02   3.41074E+02  1.41298E+01  2.86744E+02       kJ/mol
- Box x-dimension                         2.00502E+00  1.29498E-03  4.42836E-02   2.00502E+00  1.29498E-03  4.42836E-02           nm
- Box y-dimension                         2.00502E+00  1.29498E-03  4.42836E-02   2.00502E+00  1.29498E-03  4.42836E-02           nm
- Box z-dimension                         2.00502E+00  1.29498E-03  4.42836E-02   2.00502E+00  1.29498E-03  4.42836E-02           nm
- Energy solute   1 intra-electrostatic   2.98898E+01  4.66210E-01  9.96901E+00   2.98898E+01  4.66210E-01  9.96901E+00       kJ/mol
+ Synchronization time                    6.48592E-03  1.76428E-03 -2.19058E-03   6.48592E-03  1.76428E-03 -2.19058E-03            s
+ Efficiency load balancing               7.75551E-01  4.32780E-02  1.93410E-02   7.75551E-01  4.32780E-02  1.93410E-02             
+ Time per step                           6.93698E-03  4.82093E-04 -1.28436E-03   6.93698E-03  4.82093E-04 -1.28436E-03            s
+ Virial tensor element (1,1)             5.80121E+01  1.12905E+02  6.69772E+02   5.80121E+01  1.12905E+02  6.69772E+02       kJ/mol
+ Virial tensor element (1,2)            -8.70061E+01  2.21149E+02  4.84411E+02  -8.70061E+01  2.21149E+02  4.84411E+02       kJ/mol
+ Virial tensor element (1,3)            -2.47990E+02  2.98406E+02  1.24746E+03  -2.47990E+02  2.98406E+02  1.24746E+03       kJ/mol
+ Virial tensor element (2,1)            -7.23239E+01  2.88246E+02 -8.82206E+02  -7.23239E+01  2.88246E+02 -8.82206E+02       kJ/mol
+ Virial tensor element (2,2)             6.87003E+02  1.86520E+02  3.48322E+03   6.87003E+02  1.86520E+02  3.48322E+03       kJ/mol
+ Virial tensor element (2,3)            -9.89426E+01  3.56612E+02 -2.39893E+03  -9.89426E+01  3.56612E+02 -2.39893E+03       kJ/mol
+ Virial tensor element (3,1)            -1.91701E+02  2.69410E+02 -1.64520E+03  -1.91701E+02  2.69410E+02 -1.64520E+03       kJ/mol
+ Virial tensor element (3,2)            -8.38554E+01  3.48341E+02 -6.02837E+03  -8.38554E+01  3.48341E+02 -6.02837E+03       kJ/mol
+ Virial tensor element (3,3)             2.53363E+02  3.18478E+02  4.83625E+03   2.53363E+02  3.18478E+02  4.83625E+03       kJ/mol
+ Pressure tensor element (1,1)           3.95805E+07  7.10735E+06 -7.32122E+07   3.95805E+07  7.10735E+06 -7.32122E+07           Pa
+ Pressure tensor element (1,2)           6.09699E+06  1.51070E+07 -6.89540E+07   6.09699E+06  1.51070E+07 -6.89540E+07           Pa
+ Pressure tensor element (1,3)           1.32601E+07  2.01242E+07 -1.00702E+08   1.32601E+07  2.01242E+07 -1.00702E+08           Pa
+ Pressure tensor element (2,1)           5.08262E+06  1.94738E+07  2.52563E+07   5.08262E+06  1.94738E+07  2.52563E+07           Pa
+ Pressure tensor element (2,2)          -6.32166E+05  1.13082E+07 -1.68561E+08  -6.32166E+05  1.13082E+07 -1.68561E+08           Pa
+ Pressure tensor element (2,3)           6.63245E+06  2.38648E+07  1.94797E+08   6.63245E+06  2.38648E+07  1.94797E+08           Pa
+ Pressure tensor element (3,1)           9.38003E+06  1.78421E+07  9.86557E+07   9.38003E+06  1.78421E+07  9.86557E+07           Pa
+ Pressure tensor element (3,2)           5.58010E+06  2.34733E+07  4.44376E+08   5.58010E+06  2.34733E+07  4.44376E+08           Pa
+ Pressure tensor element (3,3)           2.91781E+07  2.05074E+07 -3.01120E+08   2.91781E+07  2.05074E+07 -3.01120E+08           Pa
+ Kinetic energy element (1,1)            3.17239E+02  1.23182E+01 -1.78117E+02   3.17239E+02  1.23182E+01 -1.78117E+02       kJ/mol
+ Kinetic energy element (1,2)            9.01180E-01  1.01438E+01 -2.61408E+02   9.01180E-01  1.01438E+01 -2.61408E+02       kJ/mol
+ Kinetic energy element (1,3)           -2.74672E+01  7.27889E+00 -1.02646E+02  -2.74672E+01  7.27889E+00 -1.02646E+02       kJ/mol
+ Kinetic energy element (2,1)            9.01180E-01  1.01438E+01 -2.61408E+02   9.01180E-01  1.01438E+01 -2.61408E+02       kJ/mol
+ Kinetic energy element (2,2)            3.38816E+02  2.63086E+01  5.16795E+02   3.38816E+02  2.63086E+01  5.16795E+02       kJ/mol
+ Kinetic energy element (2,3)           -1.12814E+00  1.33201E+01  2.29337E+02  -1.12814E+00  1.33201E+01  2.29337E+02       kJ/mol
+ Kinetic energy element (3,1)           -2.74672E+01  7.27889E+00 -1.02646E+02  -2.74672E+01  7.27889E+00 -1.02646E+02       kJ/mol
+ Kinetic energy element (3,2)           -1.12814E+00  1.33201E+01  2.29337E+02  -1.12814E+00  1.33201E+01  2.29337E+02       kJ/mol
+ Kinetic energy element (3,3)            3.39041E+02  1.33922E+01  2.43776E+02   3.39041E+02  1.33922E+01  2.43776E+02       kJ/mol
+ Box x-dimension                         2.00525E+00  1.38461E-03  4.72298E-02   2.00525E+00  1.38461E-03  4.72298E-02           nm
+ Box y-dimension                         2.00525E+00  1.38461E-03  4.72298E-02   2.00525E+00  1.38461E-03  4.72298E-02           nm
+ Box z-dimension                         2.00525E+00  1.38461E-03  4.72298E-02   2.00525E+00  1.38461E-03  4.72298E-02           nm
+ Energy solute   1 intra-electrostatic   1.08235E+01  7.86302E-02  8.42824E-02   1.08235E+01  7.86302E-02  8.42824E-02       kJ/mol
  Energy solute   1 intra-van der Waals   0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solute   1-solvent electrostatic-9.15935E+01  7.88660E+00  1.52922E+01  -9.15935E+01  7.88660E+00  1.52922E+01       kJ/mol
- Energy solute   1-solvent van der Waals-8.75830E+00  2.74472E+00 -5.94684E+01  -8.75830E+00  2.74472E+00 -5.94684E+01       kJ/mol
- Energy solute   1 bonds                 9.08071E-01  8.91649E-01 -4.68778E+00   9.08071E-01  8.91649E-01 -4.68778E+00       kJ/mol
- Energy solute   1 angles                9.56765E+00  2.72822E+00 -1.21413E+01   9.56765E+00  2.72822E+00 -1.21413E+01       kJ/mol
+ Energy solute   1-solvent electrostatic-3.90811E+01  1.04738E+01  2.58856E+02  -3.90811E+01  1.04738E+01  2.58856E+02       kJ/mol
+ Energy solute   1-solvent van der Waals-1.69785E+01  7.53472E+00 -2.45500E+02  -1.69785E+01  7.53472E+00 -2.45500E+02       kJ/mol
+ Energy solute   1 bonds                 1.08739E+00  1.11397E+00 -3.07231E+00   1.08739E+00  1.11397E+00 -3.07231E+00       kJ/mol
+ Energy solute   1 angles                9.38554E+00  2.52197E+00 -4.84726E-01   9.38554E+00  2.52197E+00 -4.84726E-01       kJ/mol
  Energy solute   1 Urey-Bradley          0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solute   1 proper dihedrals      1.02036E+01  1.89734E+00 -5.57119E+01   1.02036E+01  1.89734E+00 -5.57119E+01       kJ/mol
+ Energy solute   1 proper dihedrals      1.00296E+01  1.93239E+00 -6.52872E+01   1.00296E+01  1.93239E+00 -6.52872E+01       kJ/mol
  Energy solute   1 improper dihedrals    0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solute   1 van der Waals 3rd     2.08617E+00  1.00609E+00 -4.47096E+00   2.08617E+00  1.00609E+00 -4.47096E+00       kJ/mol
- Energy solute   1 electrostatic 3rd     8.19956E+00  2.01601E+00 -4.13520E+01   8.19956E+00  2.01601E+00 -4.13520E+01       kJ/mol
+ Energy solute   1 van der Waals 3rd     2.15916E+00  1.05207E+00 -7.50682E+00   2.15916E+00  1.05207E+00 -7.50682E+00       kJ/mol
+ Energy solute   1 electrostatic 3rd    -2.39562E+01  5.94394E-01 -3.83975E+00  -2.39562E+01  5.94394E-01 -3.83975E+00       kJ/mol
  Energy solute   1 van der Waals nb      0.00000E+00  0.00000E+00  0.00000E+00   0.00000E+00  0.00000E+00  0.00000E+00       kJ/mol
- Energy solute   1 electrostatic nb      2.98898E+01  4.66210E-01  9.96901E+00   2.98898E+01  4.66210E-01  9.96901E+00       kJ/mol
- Energy solute   1 kinetic               2.37097E+01  4.63944E+00  1.24481E+02   2.37097E+01  4.63944E+00  1.24481E+02       kJ/mol
- Energy solute   1 potential             1.06790E+01  5.69968E+00 -1.30483E+02   1.06790E+01  5.69968E+00 -1.30483E+02       kJ/mol
+ Energy solute   1 electrostatic nb      1.08235E+01  7.86302E-02  8.42824E-02   1.08235E+01  7.86302E-02  8.42824E-02       kJ/mol
+ Energy solute   1 kinetic               2.30679E+01  4.66978E+00  1.18248E+02   2.30679E+01  4.66978E+00  1.18248E+02       kJ/mol
+ Energy solute   1 potential            -1.85008E+01  5.09448E+00 -7.34286E+01  -1.85008E+01  5.09448E+00 -7.34286E+01       kJ/mol
 
  TIMING ANALYSIS
 
@@ -597,10 +667,10 @@
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:    7        7     1159     2406      700        0        0        0     
+calls:    7        7     1162     2274      700        0        0        0     
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             5.27e+06 7.17e+06 4.55e+06 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            1.30e+06 5.61e+04 7.71e+05 0.00e+00 0.00e+00 0.00e+00
+bytes total:             5.27e+06 7.15e+06 4.55e+06 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            1.30e+06 5.62e+04 7.72e+05 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 184936 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -612,6 +682,6 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        22	        90
 	current total bytes		         0	         0
-	maximum total bytes		  17298112	  32494344
+	maximum total bytes		  17298208	  32494344
 	maximum total K-bytes		     17299	     32495
 	maximum total M-bytes		        18	        33

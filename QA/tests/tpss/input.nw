@@ -1,3 +1,4 @@
+echo
 title "Test TPSS"
 
 start tpss

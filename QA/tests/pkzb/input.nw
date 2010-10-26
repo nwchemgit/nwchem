@@ -1,3 +1,4 @@
+echo
 title "Test PKZB functional"
 
 start pkzb

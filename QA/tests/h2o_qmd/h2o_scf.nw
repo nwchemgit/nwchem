@@ -1,3 +1,4 @@
+echo
 memory global 8 mb stack 16 mb heap 10 mb
 
 start h2o_scf

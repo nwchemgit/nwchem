@@ -1,3 +1,4 @@
+echo
 start n2
 
 permanent_dir /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_ccsd_dplot/perm

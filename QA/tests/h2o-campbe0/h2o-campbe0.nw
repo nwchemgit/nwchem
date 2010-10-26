@@ -1,3 +1,4 @@
+echo
 start  h2o-campbe0
 
 geometry units angstrom

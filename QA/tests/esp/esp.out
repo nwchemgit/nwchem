@@ -1,5 +1,5 @@
  argument  1 = esp.nw
- 
+
 
 
 ============================== echo of input deck ==============================
@@ -50,89 +50,53 @@ task esp
 
                                          
                                          
- 
- 
-              Northwest Computational Chemistry Package (NWChem) 5.0
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.0
               ------------------------------------------------------
- 
- 
+
+
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
- 
-                                         
-                                         
- 
- 
-                     COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
-                   1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006
-                        Pacific Northwest National Laboratory,
-                             Battelle Memorial Institute.
- 
-                            >>> All Rights Reserved <<<
- 
- 
-                                    DISCLAIMER
-                                    ----------
 
-            This material was prepared as an account of work sponsored
-            by an agency of the United States Government.  Neither the
-            United States Government nor the United States Department
-            of Energy, nor Battelle, nor any of their employees, MAKES
-            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
-            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
-            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
-            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
-            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
 
-
-                                    LIMITED USE
-                                    -----------
-
-            This software (including any documentation) is being made
-            available to you for your internal use only, solely for use
-            in performance of work directly for the U.S. Federal
-            Government or work under contracts with the U.S. Department
-            of Energy or other U.S. Federal Government agencies.  This
-            software is a version which has not yet been evaluated and
-            cleared for commercialization.  Adherence to this notice
-            may be necessary for the author, Battelle Memorial
-            Institute, to successfully assert copyright in and
-            commercialize this software. This software is not intended
-            for duplication or distribution to third parties without
-            the permission of the Manager of Software Products at
-            Pacific Northwest National Laboratory, Richland,
-            Washington, 99352.
-
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
 
                                   ACKNOWLEDGMENT
                                   --------------
 
-            This software and its documentation were produced with
-            Government support under Contract Number DE-AC06-76RLO-1830
-            awarded by the United States Department of Energy.  The
-            Government retains a paid-up non-exclusive, irrevocable
-            worldwide license to reproduce, prepare derivative works,
-            perform publicly and display publicly by or for the
-            Government, including the right to distribute to other
-            Government contractors.
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
 
 
            Job information
            ---------------
 
-    hostname      = h5
-    program       = /home/d3p307/nwchem/bin/LINUX64/nwchem
-    date          = Wed Aug  9 09:46:12 2006
+    hostname      = arcen
+    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
+    date          = Mon Oct 25 15:27:39 2010
 
-    compiled      = Wed Aug  9 09:44:29 PDT 2006
-    source        = /home/d3p307/nwchem
+    compiled      = Mon_Oct_25_14:31:37_2010
+    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
     nwchem branch = Development
     input         = esp.nw
     prefix        = esp.
-    data base     = ./esp.db
+    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/esp.db
     status        = startup
-    nproc         =    2
+    nproc         =        4
     time left     =     -1s
 
 
@@ -140,27 +104,27 @@ task esp
            Memory information
            ------------------
 
-    heap      =   13107201 doubles =    100.0 Mbytes
-    stack     =   13107201 doubles =    100.0 Mbytes
-    global    =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
-    total     =   52428802 doubles =    400.0 Mbytes
-    verify    = yes
-    hardfail  = no 
+    heap     =   16384001 doubles =    125.0 Mbytes
+    stack    =   16384001 doubles =    125.0 Mbytes
+    global   =   32768000 doubles =    250.0 Mbytes (distinct from heap & stack)
+    total    =   65536002 doubles =    500.0 Mbytes
+    verify   = yes
+    hardfail = no 
 
 
            Directory information
            ---------------------
- 
-  0 permanent = .
-  0 scratch   = .
- 
- 
- 
- 
+
+  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+
+
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -169,13 +133,13 @@ task esp
           ------
           auto-z
           ------
- 
- 
+
+
                              Geometry "geometry" -> ""
                              -------------------------
- 
+
  Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 C                    6.0000    -0.13469819     0.01135064    -0.79334376
@@ -187,14 +151,14 @@ task esp
     7 H                    1.0000    -0.85621877     1.89747777     0.02345031
     8 S                   16.0000     0.12398459    -0.78224976     0.80829573
     9 H                    1.0000     0.02540731    -2.02583360     0.34584145
- 
+
       Atomic Mass 
       ----------- 
- 
+
       C                 12.000000
       H                  1.007825
       S                 31.972070
- 
+
 
  Effective nuclear repulsion energy (a.u.)     107.6002871063
 
@@ -203,14 +167,14 @@ task esp
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000     0.0000000000
- 
+
 
 
                                 Z-matrix (autoz)
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value
       ----------- --------  ----- ----- ----- ----- ----- ----------
     1 Stretch                  1     2                       1.08924
@@ -246,8 +210,8 @@ task esp
    31 Torsion                  5     1     8     9        -179.94498
    32 Torsion                  6     5     1     8          60.11552
    33 Torsion                  7     5     1     8         -60.07668
- 
- 
+
+
             XYZ format geometry
             -------------------
      9
@@ -261,7 +225,7 @@ task esp
  H                    -0.85621877     1.89747777     0.02345031
  S                     0.12398459    -0.78224976     0.80829573
  H                     0.02540731    -2.02583360     0.34584145
- 
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -305,6 +269,9 @@ task esp
 
 
 
+  library name resolved from: .nwchemrc
+  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
+  
                       Basis "ao basis" -> "" (cartesian)
                       -----
   H (Hydrogen)
@@ -314,9 +281,9 @@ task esp
   1 S  1.87311370E+01  0.033495
   1 S  2.82539370E+00  0.234727
   1 S  6.40121700E-01  0.813757
- 
+
   2 S  1.61277800E-01  1.000000
- 
+
   C (Carbon)
   ----------
             Exponent  Coefficients 
@@ -327,21 +294,21 @@ task esp
   1 S  2.92101550E+01  0.232184
   1 S  9.28666300E+00  0.467941
   1 S  3.16392700E+00  0.362312
- 
+
   2 S  7.86827240E+00 -0.119332
   2 S  1.88128850E+00 -0.160854
   2 S  5.44249300E-01  1.143456
- 
+
   3 P  7.86827240E+00  0.068999
   3 P  1.88128850E+00  0.316424
   3 P  5.44249300E-01  0.744308
- 
+
   4 S  1.68714400E-01  1.000000
- 
+
   5 P  1.68714400E-01  1.000000
- 
+
   6 D  8.00000000E-01  1.000000
- 
+
   S (Sulphur)
   -----------
             Exponent  Coefficients 
@@ -352,35 +319,35 @@ task esp
   1 S  2.12711000E+02  0.238487
   1 S  6.79896000E+01  0.483307
   1 S  2.30515000E+01  0.338074
- 
+
   2 S  4.23735000E+02 -0.002377
   2 S  1.00710000E+02 -0.031693
   2 S  3.21599000E+01 -0.113317
   2 S  1.18079000E+01  0.056090
   2 S  4.63110000E+00  0.592255
   2 S  1.87025000E+00  0.455006
- 
+
   3 P  4.23735000E+02  0.004061
   3 P  1.00710000E+02  0.030681
   3 P  3.21599000E+01  0.130452
   3 P  1.18079000E+01  0.327205
   3 P  4.63110000E+00  0.452851
   3 P  1.87025000E+00  0.256042
- 
+
   4 S  2.61584000E+00 -0.250374
   4 S  9.22167000E-01  0.066957
   4 S  3.41287000E-01  1.054510
- 
+
   5 P  2.61584000E+00 -0.014511
   5 P  9.22167000E-01  0.310263
   5 P  3.41287000E-01  0.754483
- 
+
   6 S  1.17167000E-01  1.000000
- 
+
   7 P  1.17167000E-01  1.000000
- 
+
   8 D  6.50000000E-01  1.000000
- 
+
 
 
  Summary of "ao basis" -> "" (cartesian)
@@ -394,8 +361,8 @@ task esp
 
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =    61
@@ -405,7 +372,7 @@ task esp
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = ./esp.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/esp.movecs
   use symmetry    = F
   symmetry adapt  = F
 
@@ -422,12 +389,12 @@ task esp
 
  Forming initial guess at       0.1s
 
- 
+
       Superposition of Atomic Density Guess
       -------------------------------------
- 
+
  Sum of atomic energies:        -475.76558448
- 
+
       Non-variational initial energy
       ------------------------------
 
@@ -436,9 +403,9 @@ task esp
  2-e energy   =     281.689142
  HOMO         =      -0.279370
  LUMO         =       0.069197
- 
 
- Starting SCF solution at       0.6s
+
+ Starting SCF solution at       0.3s
 
 
 
@@ -446,40 +413,40 @@ task esp
          Quadratically convergent ROHF
 
  Convergence threshold     :          1.000E-04
- Maximum no. of iterations :           20
+ Maximum no. of iterations :           30
  Final Fock-matrix accuracy:          1.000E-07
  ----------------------------------------------
 
 
- Integral file          = ./esp.aoints.0
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/esp.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =     30        Max. records in file   = 186822
+ Max. records in memory =     16        Max. records in file   =  20851
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  #quartets = 1.326D+05 #integrals = 1.786D+06 #direct =  0.0% #cached =100.0%
 
 
-File balance: exchanges=     0  moved=     0  time=   0.0
+File balance: exchanges=     4  moved=     0  time=   0.0
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -476.6977387392  6.18D-01  1.41D-01      1.2
-                 2     -476.7316198979  1.96D-01  4.48D-02      1.3
-                 3     -476.7348940111  1.11D-02  3.29D-03      1.4
-                 4     -476.7349087672  7.80D-05  2.09D-05      1.6
+                 1     -476.6977387392  6.18D-01  1.41D-01      0.6
+                 2     -476.7316198979  1.96D-01  4.48D-02      0.6
+                 3     -476.7348940111  1.11D-02  3.29D-03      0.7
+                 4     -476.7349087672  7.80D-05  2.09D-05      0.8
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -476.734908767212
-      One-electron energy =   -869.242531172131
-      Two-electron energy =    284.907335298666
+         Total SCF energy =   -476.734908767213
+      One-electron energy =   -869.242531172190
+      Two-electron energy =    284.907335298725
  Nuclear repulsion energy =    107.600287106252
 
-        Time for solution =      1.1s
+        Time for solution =      0.6s
 
 
              Final eigenvalues
@@ -513,10 +480,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    25    0.3701
    26    0.5314
    27    0.5472
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
+
  Vector    8  Occ=2.000000D+00  E=-1.072123D+00
               MO Center= -6.4D-02,  1.7D-01, -3.9D-01, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -524,7 +491,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     46      0.317634  8 S  s                  2      0.265880  1 C  s          
      6      0.247719  1 C  s                 23      0.192903  5 C  s          
     27      0.168104  5 C  s                 42     -0.167650  8 S  s          
- 
+
  Vector    9  Occ=2.000000D+00  E=-9.478366D-01
               MO Center= -5.9D-03,  2.6D-01, -6.2D-02, r^2= 3.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -532,7 +499,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     46      0.449730  8 S  s                 27     -0.260126  5 C  s          
     23     -0.254885  5 C  s                 42     -0.230276  8 S  s          
     50      0.186893  8 S  s          
- 
+
  Vector   10  Occ=2.000000D+00  E=-8.192700D-01
               MO Center= -8.4D-02,  1.9D-01, -5.1D-01, r^2= 3.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -540,7 +507,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      6      0.302272  1 C  s                 46     -0.302096  8 S  s          
      2      0.241461  1 C  s                 27     -0.198309  5 C  s          
     50     -0.167668  8 S  s                 23     -0.160534  5 C  s          
- 
+
  Vector   11  Occ=2.000000D+00  E=-6.293042D-01
               MO Center= -1.2D-01,  5.4D-01, -7.4D-01, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -548,7 +515,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      3      0.338527  1 C  px                24      0.265725  5 C  px         
      7      0.174615  1 C  px                16      0.167664  2 H  s          
     18     -0.167458  3 H  s          
- 
+
  Vector   12  Occ=2.000000D+00  E=-6.188525D-01
               MO Center= -6.8D-02,  3.0D-01, -4.3D-01, r^2= 3.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -556,7 +523,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     48      0.323682  8 S  py                26      0.247700  5 C  pz         
      5      0.232779  1 C  pz                20     -0.183566  4 H  s          
     60     -0.163057  9 H  s                 61     -0.152258  9 H  s          
- 
+
  Vector   13  Occ=2.000000D+00  E=-5.403535D-01
               MO Center= -5.8D-02,  8.8D-01, -4.3D-01, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -564,7 +531,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     26      0.314548  5 C  pz                 4     -0.237235  1 C  py         
     25      0.194014  5 C  py                48     -0.169424  8 S  py         
     30      0.168180  5 C  pz                46     -0.159512  8 S  s          
- 
+
  Vector   14  Occ=2.000000D+00  E=-5.156756D-01
               MO Center= -8.2D-02,  1.0D+00, -5.9D-01, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -573,7 +540,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     28      0.208277  5 C  px                37      0.199167  6 H  s          
     39     -0.198948  7 H  s                 38      0.171010  6 H  s          
     40     -0.170813  7 H  s                  7     -0.163231  1 C  px         
- 
+
  Vector   15  Occ=2.000000D+00  E=-5.012135D-01
               MO Center= -5.6D-02,  2.0D-01, -3.5D-01, r^2= 3.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -582,7 +549,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     25      0.312135  5 C  py                61     -0.207797  9 H  s          
     60     -0.181696  9 H  s                  8     -0.179933  1 C  py         
     29      0.164532  5 C  py                20      0.157604  4 H  s          
- 
+
  Vector   16  Occ=2.000000D+00  E=-4.536593D-01
               MO Center=  6.6D-02, -4.3D-01,  4.3D-01, r^2= 2.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -591,14 +558,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      5     -0.276811  1 C  pz                46      0.215533  8 S  s          
     45     -0.198238  8 S  pz                53      0.190955  8 S  pz         
      9     -0.189179  1 C  pz         
- 
+
  Vector   17  Occ=2.000000D+00  E=-3.535646D-01
               MO Center=  1.0D-01, -7.4D-01,  6.6D-01, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     47      0.662532  8 S  px                51      0.442535  8 S  px         
     43     -0.248264  8 S  px         
- 
+
  Vector   18  Occ=0.000000D+00  E= 1.740067D-01
               MO Center=  5.9D-02, -5.5D-01,  4.0D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -608,7 +575,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     53      0.385218  8 S  pz                17     -0.385115  2 H  s          
     19     -0.384415  3 H  s                 21     -0.341502  4 H  s          
     48     -0.310471  8 S  py                 9      0.276122  1 C  pz         
- 
+
  Vector   19  Occ=0.000000D+00  E= 2.359748D-01
               MO Center=  4.6D-02, -9.1D-01,  3.6D-01, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -618,7 +585,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      8     -0.559451  1 C  py                52      0.459037  8 S  py         
     21      0.429225  4 H  s                  9      0.381831  1 C  pz         
     30      0.326130  5 C  pz                38     -0.279362  6 H  s          
- 
+
  Vector   20  Occ=0.000000D+00  E= 2.614616D-01
               MO Center= -1.0D-01,  6.5D-01, -6.6D-01, r^2= 5.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -628,7 +595,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     17     -0.854842  2 H  s                 38     -0.735034  6 H  s          
     40     -0.734049  7 H  s                 52      0.658602  8 S  py         
      6      0.489372  1 C  s                  8     -0.433425  1 C  py         
- 
+
  Vector   21  Occ=0.000000D+00  E= 2.906077D-01
               MO Center= -1.8D-01,  4.2D-03, -1.0D+00, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -638,7 +605,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     40     -0.567803  7 H  s                 51      0.311340  8 S  px         
      3     -0.282994  1 C  px                28     -0.279286  5 C  px         
      9      0.226981  1 C  pz         
- 
+
  Vector   22  Occ=0.000000D+00  E= 2.935499D-01
               MO Center= -1.1D-01,  7.8D-01, -7.1D-01, r^2= 5.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -648,7 +615,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     40     -1.049416  7 H  s                 38     -1.048219  6 H  s          
      9      0.556157  1 C  pz                30      0.317898  5 C  pz         
     21     -0.268384  4 H  s                 52     -0.196902  8 S  py         
- 
+
  Vector   23  Occ=0.000000D+00  E= 3.253301D-01
               MO Center= -1.6D-01,  1.5D+00, -1.1D+00, r^2= 4.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -658,7 +625,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      9     -0.753111  1 C  pz                27     -0.536714  5 C  s          
     61     -0.497750  9 H  s                 53     -0.477306  8 S  pz         
      6      0.460990  1 C  s                 50      0.454157  8 S  s          
- 
+
  Vector   24  Occ=0.000000D+00  E= 3.290857D-01
               MO Center= -2.5D-02,  1.5D+00, -3.2D-01, r^2= 4.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -668,7 +635,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19      0.723423  3 H  s                 17     -0.722123  2 H  s          
     24     -0.279136  5 C  px                30      0.263278  5 C  pz         
      9     -0.158628  1 C  pz                51     -0.153918  8 S  px         
- 
+
  Vector   25  Occ=0.000000D+00  E= 3.700634D-01
               MO Center= -7.6D-02,  7.1D-01, -5.2D-01, r^2= 3.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -678,7 +645,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     21     -0.441386  4 H  s                  9      0.344459  1 C  pz         
     40     -0.316655  7 H  s                 38     -0.316316  6 H  s          
     19      0.311252  3 H  s                 17      0.310404  2 H  s          
- 
+
  Vector   26  Occ=0.000000D+00  E= 5.314332D-01
               MO Center=  8.5D-02, -1.2D+00,  6.1D-01, r^2= 2.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -688,7 +655,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     52     -0.842698  8 S  py                 9     -0.671039  1 C  pz         
     48      0.467707  8 S  py                19     -0.465476  3 H  s          
     17     -0.465049  2 H  s                  8      0.456343  1 C  py         
- 
+
  Vector   27  Occ=0.000000D+00  E= 5.472055D-01
               MO Center=  1.6D-01, -3.5D-01,  9.5D-01, r^2= 3.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -698,7 +665,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     53      0.663461  8 S  pz                46     -0.536084  8 S  s          
     29      0.378532  5 C  py                27      0.311203  5 C  s          
     21     -0.298381  4 H  s                 40     -0.294739  7 H  s          
- 
+
 
  center of mass
  --------------
@@ -709,7 +676,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
          369.759574576837          18.133249359438         -20.152758710445
           18.133249359438         156.771941242628         128.356523224931
          -20.152758710445         128.356523224931         241.416121558411
- 
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -724,42 +691,42 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     7 H    1     0.82   0.52  0.30
     8 S   16    16.05   2.00  2.00  5.98  1.26  2.99  0.57  1.15  0.11
     9 H    1     0.91   0.51  0.41
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     34.000000
- 
+
      1   1 0 0     -0.117115      0.000000      0.000000
      1   0 1 0     -0.000217      0.000000      0.000000
      1   0 0 1     -0.691149      0.000000      0.000000
- 
+
      2   2 0 0    -21.760996      0.000000     12.729985
      2   1 1 0      0.093452      0.000000     -9.858197
      2   1 0 1      0.084299      0.000000     11.095325
      2   0 2 0    -18.661767      0.000000    141.243464
      2   0 1 1      0.253685      0.000000    -71.037383
      2   0 0 2    -21.305549      0.000000     83.420407
- 
-
- Parallel integral file used      42 records with       0 large values
 
 
- Task  times  cpu:        1.6s     wall:        1.8s
- 
- 
+ Parallel integral file used      44 records with       0 large values
+
+
+ Task  times  cpu:        0.8s     wall:        0.9s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
- 
- 
+
+
+
+
                      NWChem Electrostatic Potential Fit Module
                      -----------------------------------------
- 
- 
+
+
  Atom parameters
 
  Number of atoms is                                    9
@@ -800,38 +767,38 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Recovering from shell      0
 
-08/09/06   09:46:14  er shell      1 of     32
-08/09/06   09:46:14  er shell      2 of     32
-08/09/06   09:46:14  er shell      3 of     32
-08/09/06   09:46:14  er shell      4 of     32
-08/09/06   09:46:14  er shell      5 of     32
-08/09/06   09:46:14  er shell      6 of     32
-08/09/06   09:46:14  er shell      7 of     32
-08/09/06   09:46:14  er shell      8 of     32
-08/09/06   09:46:14  er shell      9 of     32
-08/09/06   09:46:14  er shell     10 of     32
-08/09/06   09:46:14  er shell     11 of     32
-08/09/06   09:46:14  er shell     12 of     32
-08/09/06   09:46:14  er shell     13 of     32
-08/09/06   09:46:14  er shell     14 of     32
-08/09/06   09:46:14  er shell     15 of     32
-08/09/06   09:46:14  er shell     16 of     32
-08/09/06   09:46:14  er shell     17 of     32
-08/09/06   09:46:14  er shell     18 of     32
-08/09/06   09:46:14  er shell     19 of     32
-08/09/06   09:46:14  er shell     20 of     32
-08/09/06   09:46:14  er shell     21 of     32
-08/09/06   09:46:14  er shell     22 of     32
-08/09/06   09:46:14  er shell     23 of     32
-08/09/06   09:46:14  er shell     24 of     32
-08/09/06   09:46:14  er shell     25 of     32
-08/09/06   09:46:14  er shell     26 of     32
-08/09/06   09:46:14  er shell     27 of     32
-08/09/06   09:46:14  er shell     28 of     32
-08/09/06   09:46:14  er shell     29 of     32
-08/09/06   09:46:14  er shell     30 of     32
-08/09/06   09:46:14  er shell     31 of     32
-08/09/06   09:46:14  er shell     32 of     32
+10/25/10   15:27:41  er shell      1 of     32
+10/25/10   15:27:41  er shell      2 of     32
+10/25/10   15:27:41  er shell      3 of     32
+10/25/10   15:27:41  er shell      4 of     32
+10/25/10   15:27:41  er shell      5 of     32
+10/25/10   15:27:41  er shell      6 of     32
+10/25/10   15:27:41  er shell      7 of     32
+10/25/10   15:27:41  er shell      8 of     32
+10/25/10   15:27:41  er shell      9 of     32
+10/25/10   15:27:41  er shell     10 of     32
+10/25/10   15:27:41  er shell     11 of     32
+10/25/10   15:27:41  er shell     12 of     32
+10/25/10   15:27:41  er shell     13 of     32
+10/25/10   15:27:41  er shell     14 of     32
+10/25/10   15:27:41  er shell     15 of     32
+10/25/10   15:27:41  er shell     16 of     32
+10/25/10   15:27:41  er shell     17 of     32
+10/25/10   15:27:41  er shell     18 of     32
+10/25/10   15:27:41  er shell     19 of     32
+10/25/10   15:27:41  er shell     20 of     32
+10/25/10   15:27:41  er shell     21 of     32
+10/25/10   15:27:41  er shell     22 of     32
+10/25/10   15:27:41  er shell     23 of     32
+10/25/10   15:27:41  er shell     24 of     32
+10/25/10   15:27:41  er shell     25 of     32
+10/25/10   15:27:41  er shell     26 of     32
+10/25/10   15:27:41  er shell     27 of     32
+10/25/10   15:27:41  er shell     28 of     32
+10/25/10   15:27:41  er shell     29 of     32
+10/25/10   15:27:41  er shell     30 of     32
+10/25/10   15:27:41  er shell     31 of     32
+10/25/10   15:27:41  er shell     32 of     32
 
  Recovery file deleted
 
@@ -839,7 +806,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Stage 2 constraint charge     0.000000 on atoms   -2H     4H 
  Stage 2 constraint charge     0.000000 on atoms   -6H     7H 
 
- Fit not completed: singular constraint matrix
+ Possible fit problem: singular constraint matrix
+
+
+ Possible fit problem: singular constraint matrix
+
+
+ Possible fit problem: singular constraint matrix
 
 
 
@@ -848,35 +821,29 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                                       ESP         ESP         RESP        RESP        RESP2 
                                                  constr                  constr      constr 
  
-    1 C   -0.013   0.001  -0.079    0.002157    0.016178   -0.011240    0.040533    0.000000
-    2 H    0.063  -0.031  -0.150    0.063083    0.060469    0.059805    0.048537    0.000000
-    3 H   -0.110  -0.028  -0.121    0.064547    0.060469    0.061282    0.048537    0.000000
-    4 H   -0.024   0.202  -0.162    0.056072    0.060469    0.028540    0.048537    0.000000
-    5 C   -0.009   0.155  -0.066   -0.205414   -0.222314   -0.101684   -0.174365    0.000000
-    6 H    0.088   0.187  -0.027    0.093700    0.096908    0.065696    0.080757    0.000000
-    7 H   -0.086   0.190   0.002    0.093052    0.096908    0.064932    0.080757    0.000000
-    8 S    0.012  -0.078   0.081   -0.353482   -0.354905   -0.355211   -0.359060    0.000000
-    9 H    0.003  -0.203   0.035    0.186285    0.185818    0.187879    0.185767    0.000000
+    1 C   -0.013   0.001  -0.079    0.002157    0.016178   -0.011240    0.040533    0.060525
+    2 H    0.063  -0.031  -0.150    0.063083    0.060469    0.059805    0.048537    0.028598
+    3 H   -0.110  -0.028  -0.121    0.064547    0.060469    0.061282    0.048537    0.028598
+    4 H   -0.024   0.202  -0.162    0.056072    0.060469    0.028540    0.048537    0.028598
+    5 C   -0.009   0.155  -0.066   -0.205414   -0.222314   -0.101684   -0.174365   -0.030220
+    6 H    0.088   0.187  -0.027    0.093700    0.096908    0.065696    0.080757    0.028598
+    7 H   -0.086   0.190   0.002    0.093052    0.096908    0.064932    0.080757    0.028598
+    8 S    0.012  -0.078   0.081   -0.353482   -0.354905   -0.355211   -0.359060   -0.359060
+    9 H    0.003  -0.203   0.035    0.186285    0.185818    0.187879    0.185767    0.185767
                                 ------------------------------------------------------------
                                     0.000000    0.000000    0.000000    0.000000    0.000000
 
- Dipole moment                      0.720175    0.720729    0.715763    0.717630    0.000000
+ Dipole moment                      0.720175    0.720729    0.715763    0.717630    0.738547
 
- Quadrupole moment Qxx             -2.051130   -2.052243   -2.006731   -2.015635    0.000000
-                   Qyy              5.643355    5.637125    5.585703    5.568518    0.000000
-                   Qzz             -3.592225   -3.584882   -3.578971   -3.552882    0.000000
+ Quadrupole moment Qxx             -2.603851   -2.606585   -2.552273   -2.566959   -2.768112
+                   Qyy              5.174416    5.169360    5.111871    5.101485    4.878052
+                   Qzz             -2.570564   -2.562774   -2.559598   -2.534526   -2.109940
 
- RMS deviation kJ/mol               0.143188    0.143231    0.143994    0.143699    0.536712
+ RMS deviation kJ/mol               0.143188    0.143231    0.143994    0.143699    0.155962
 
- RMS deviation %                   63.498224   62.362524   70.377352   66.603537  100.000000
+ RMS deviation %                   63.498224   62.362524   70.377352   66.603537  112.802615
 
- Task  times  cpu:        0.5s     wall:        0.6s
- 
- 
-                                NWChem Input Module
-                                -------------------
- 
- 
+ Task  times  cpu:        0.5s     wall:        0.5s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -887,12 +854,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  194      194     3075     3408     1328        0        0        0     
-number of processes/call 1.19e+00 1.06e+00 1.07e+00 0.00e+00 0.00e+00
-bytes total:             6.10e+06 3.03e+06 1.04e+06 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            1.72e+06 2.36e+05 1.66e+05 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 311416 bytes
- 
+calls:  200      200     2535     1098     1272        0        0       67     
+number of processes/call 1.33e+00 1.44e+00 1.11e+00 0.00e+00 0.00e+00
+bytes total:             4.33e+06 1.26e+06 6.91e+05 0.00e+00 0.00e+00 5.36e+02
+bytes remote:            2.28e+06 4.73e+05 4.05e+05 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 124864 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -903,46 +869,45 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        17	        20
 	current total bytes		         0	         0
-	maximum total bytes		  15753376	  22510504
-	maximum total K-bytes		     15754	     22511
-	maximum total M-bytes		        16	        23
+	maximum total bytes		   8413344	  22510488
+	maximum total K-bytes		      8414	     22511
+	maximum total M-bytes		         9	        23
+
+
+                                NWChem Input Module
+                                -------------------
 
 
 
-                                  ACKNOWLEDGEMENT
-                                  ---------------
-
-            Please use the following acknowledgement where appropriate 
-            for results obtained with NWChem:
-
-            High Performance Computational Chemistry Group, "NWChem, A
-            Computational Chemistry Package for Parallel Computers, 
-            Version 5.0" (2006), Pacific Northwest National Laboratory,
-            Richland, Washington 99352-0999, USA.
 
 
                                      CITATION
                                      --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
 
-            Please use the following citation when publishing results
-            obtained with NWChem:
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
 
-            E. Apra, T. L. Windus, T. P. Straatsma, E. J. Bylaska, W. de Jong, K. Kowalski
-            S. Hirata, M. Valiev, M. T. Hackler,  Y. Zhao,
-            R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha,
-            V. Tipparaju, M. Krishnan, A. A. Auer, E. Brown, G. Cisneros,
-            G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. Kendall,
-            J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt,
-            P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall,
-            D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe, B. Johnson,
-            J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long,
-            B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
-             M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
-            "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 5.0" (2006),
-                      Pacific Northwest National Laboratory,
-                      Richland, Washington 99352-0999, USA.
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
+      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
-
-
- Total times  cpu:        2.2s     wall:        2.5s
+ Total times  cpu:        1.3s     wall:        1.5s

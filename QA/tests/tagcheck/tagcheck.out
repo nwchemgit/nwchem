@@ -47,7 +47,7 @@ task scf gradient
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 4.0
+              Northwest Computational Chemistry Package (NWChem) 6.0
               ------------------------------------------------------
 
 
@@ -55,78 +55,43 @@ task scf gradient
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                                         
-                                         
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
 
-
-            COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
-                        Pacific Northwest National Laboratory,
-                             Battelle Memorial Institute.
-
-                            >>> All Rights Reserved <<<
-
-
-                                    DISCLAIMER
-                                    ----------
-
-            This material was prepared as an account of work sponsored
-            by an agency of the United States Government.  Neither the
-            United States Government nor the United States Department
-            of Energy, nor Battelle, nor any of their employees, MAKES
-            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
-            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
-            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
-            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
-            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
-
-
-                                    LIMITED USE
-                                    -----------
-
-            This software (including any documentation) is being made
-            available to you for your internal use only, solely for use
-            in performance of work directly for the U.S. Federal
-            Government or work under contracts with the U.S. Department
-            of Energy or other U.S. Federal Government agencies.  This
-            software is a version which has not yet been evaluated and
-            cleared for commercialization.  Adherence to this notice
-            may be necessary for the author, Battelle Memorial
-            Institute, to successfully assert copyright in and
-            commercialize this software. This software is not intended
-            for duplication or distribution to third parties without
-            the permission of the Manager of Software Products at
-            Pacific Northwest National Laboratory, Richland,
-            Washington, 99352.
-
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
 
                                   ACKNOWLEDGMENT
                                   --------------
 
-            This software and its documentation were produced with
-            Government support under Contract Number DE-AC06-76RLO-1830
-            awarded by the United States Department of Energy.  The
-            Government retains a paid-up non-exclusive, irrevocable
-            worldwide license to reproduce, prepare derivative works,
-            perform publicly and display publicly by or for the
-            Government, including the right to distribute to other
-            Government contractors.
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
 
 
            Job information
            ---------------
 
-    hostname      = snickers
-    program       = /msrc/home/sohirata/nwchem/bin/LINUX/nwchem
-    date          = Wed Jan 16 16:02:33 2002
+    hostname      = arcen
+    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
+    date          = Mon Oct 25 15:21:44 2010
 
-    compiled      = Wed Jan 16 14:22:46 PST 2002
-    source        = /msrc/home/sohirata/nwchem
+    compiled      = Mon_Oct_25_14:31:37_2010
+    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
     nwchem branch = Development
     input         = tagcheck.nw
     prefix        = tagbug.
-    data base     = ./tagbug.db
+    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tagbug.db
     status        = startup
-    nproc         =    1
+    nproc         =        4
     time left     =     -1s
 
 
@@ -134,19 +99,19 @@ task scf gradient
            Memory information
            ------------------
 
-    heap      =     786426 doubles =      6.0 Mbytes
-    stack     =    3932147 doubles =     30.0 Mbytes
-    global    =    4718596 doubles =     36.0 Mbytes (within heap+stack)
-    total     =    4718573 doubles =     36.0 Mbytes
-    verify    = yes
-    hardfail  = no 
+    heap     =     393217 doubles =      3.0 Mbytes
+    stack    =    3932161 doubles =     30.0 Mbytes
+    global   =     393216 doubles =      3.0 Mbytes (distinct from heap & stack)
+    total    =    4718594 doubles =     36.0 Mbytes
+    verify   = yes
+    hardfail = no 
 
 
            Directory information
            ---------------------
 
-  0 permanent = .
-  0 scratch   = .
+  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
 
 
 
@@ -155,20 +120,19 @@ task scf gradient
                                 -------------------
 
 
-                                                                                                                  tag matching check with ECPs
-                                                                                                                  ----------------------------
-
+                           tag matching check with ECPs
+                           ----------------------------
   library name resolved from: .nwchemrc
-  library file name is: </msrc/proj/nwchem/share/library>
+  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
   
 
  **** WARNING Zero Coefficient **** on atom "              Ca"
  angular momentum value: 0  standard basis set name: "lanl2dz ecp"
  input line that generated warning:
- 61196:   0.14470000000                 0.       1.0251221000
+   314:       0.1447000              0.0000000              1.0251221
   
   library name resolved from: .nwchemrc
-  library file name is: </msrc/proj/nwchem/share/library>
+  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
   
 
  Scaling coordinates for geometry "geometry" by  1.889725989
@@ -220,6 +184,17 @@ task scf gradient
 
      1    3    5
 
+
+            XYZ format geometry
+            -------------------
+     5
+ geometry
+ h                     0.00000000     0.00000000     2.77715371
+ h                     0.00000000     0.00000000    -2.77715371
+ F                     0.00000000     0.00000000     1.81331659
+ F                     0.00000000     0.00000000    -1.81331659
+ cA                    0.00000000     0.00000000     0.00000000
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -265,7 +240,7 @@ task scf gradient
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = ./tagbug.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tagbug.movecs
   use symmetry    = T
   symmetry adapt  = T
 
@@ -292,22 +267,22 @@ task scf gradient
         b3u         5
 
 
- Forming initial guess at       1.7s
+ Forming initial guess at       0.1s
 
 
       Superposition of Atomic Density Guess
       -------------------------------------
 
- Sum of atomic energies:        -226.93867894
+ Sum of atomic energies:        -229.82090707
 
       Non-variational initial energy
       ------------------------------
 
- Total energy =    -219.297313
- 1-e energy   =    -451.237088
- 2-e energy   =     151.727846
- HOMO         =      -0.849050
- LUMO         =      -0.639863
+ Total energy =    -225.641045
+ 1-e energy   =    -459.761177
+ 2-e energy   =     153.908203
+ HOMO         =      -0.758158
+ LUMO         =      -0.529545
 
 
       Symmetry analysis of molecular orbitals - initial
@@ -318,7 +293,7 @@ task scf gradient
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:   14 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:   12 vectors were symmetry contaminated
 
   Numbering of irreducible representations: 
 
@@ -327,14 +302,14 @@ task scf gradient
 
   Orbital symmetries:
 
-     1 b1u         2 ag          3 ag          4 b1u         5 b3u     
-     6 b2u         7 ag          8 b1u         9 ag         10 b1u     
-    11 b3u        12 b2u        13 b2g        14 b3g        15 ag      
-    16 b2u        17 b3u        18 b1u        19 b1u        20 b2u     
-    21 b3u        22 ag         23 b1u        24 ag         25 b3g     
+     1 ag          2 b1u         3 ag          4 b1u         5 b2u     
+     6 b3u         7 ag          8 b1u         9 ag         10 b1u     
+    11 b2g        12 b3g        13 b3u        14 b2u        15 ag      
+    16 b2u        17 b3u        18 b1u        19 b1u        20 b3u     
+    21 b2u        22 ag         23 b1u        24 ag         25 b2g     
 
 
- Starting SCF solution at       2.0s
+ Starting SCF solution at       0.1s
 
 
 
@@ -342,39 +317,42 @@ task scf gradient
          Quadratically convergent ROHF
 
  Convergence threshold     :          1.000E-04
- Maximum no. of iterations :           20
+ Maximum no. of iterations :           30
  Final Fock-matrix accuracy:          1.000E-07
  ----------------------------------------------
 
 
- #quartets = 7.437E+03 #integrals = 2.242E+04 #direct =  0.0% #cached =100.0%
+ #quartets = 7.437D+03 #integrals = 2.241D+04 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./tagbug.aoints.0
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tagbug.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  16698
+ Max. records in memory =      2        Max. records in file   =  20851
  No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -235.3352810031  3.27E+00  1.88E+00      1.4
-                 2     -235.9721122499  9.51E-01  5.38E-01      1.5
-                 3     -236.0138379642  3.44E-01  1.91E-01      1.5
-                 4     -236.0201575240  8.31E-02  3.40E-02      1.5
-                 5     -236.0206263740  5.35E-03  1.73E-03      1.6
-                 6     -236.0206290565  5.47E-06  3.60E-06      1.6
+                 1     -235.5626055863  2.68D+00  1.43D+00      0.1
+                 2     -235.9807161028  8.59D-01  3.21D-01      0.1
+                 3     -236.0157055354  3.30D-01  2.19D-01      0.1
+                 4     -236.0203022311  6.74D-02  3.38D-02      0.1
+                 5     -236.0206282828  2.86D-03  1.38D-03      0.1
+                 6     -236.0206290569  2.59D-06  1.21D-06      0.2
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -236.020629056511
-      One-electron energy =   -498.606757533754
-      Two-electron energy =    182.374199195139
+         Total SCF energy =   -236.020629056898
+      One-electron energy =   -498.606757108755
+      Two-electron energy =    182.374198769755
  Nuclear repulsion energy =     80.211929282103
 
-        Time for solution =      0.5s
+        Time for solution =      0.1s
 
 
 
@@ -391,8 +369,8 @@ task scf gradient
      1 b1u         2 ag          3 ag          4 b1u         5 ag      
      6 b1u         7 b3u         8 b2u         9 ag         10 b1u     
     11 b2g        12 b3g        13 b3u        14 b2u        15 ag      
-    16 b1u        17 b2u        18 b3u        19 b2u        20 b3u     
-    21 b1u        22 ag         23 b1u        24 b3g        25 b2g     
+    16 b1u        17 b3u        18 b2u        19 b2u        20 b3u     
+    21 b1u        22 ag         23 b1u        24 b2g        25 b3g     
 
              Final eigenvalues
              -----------------
@@ -430,8 +408,8 @@ task scf gradient
 
  moments of inertia (a.u.)
  ------------------
-         501.676661422714           0.000000000000           0.000000000000
-           0.000000000000         501.676661422714           0.000000000000
+         501.676661422715           0.000000000000           0.000000000000
+           0.000000000000         501.676661422715           0.000000000000
            0.000000000000           0.000000000000           0.000000000000
 
   Mulliken analysis of the total density
@@ -456,15 +434,15 @@ task scf gradient
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1      0.000000      0.000000      0.000000
 
-     2   2 0 0    -29.330387      0.000000      0.000000
+     2   2 0 0    -29.330397      0.000000      0.000000
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
-     2   0 2 0    -29.330387      0.000000      0.000000
+     2   0 2 0    -29.330397      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
-     2   0 0 2     -8.308269      0.000000    266.441652
+     2   0 0 2     -8.308235      0.000000    266.441652
 
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
                               NWChem Gradients Module
                               -----------------------
@@ -476,9 +454,6 @@ task scf gradient
   wavefunction    =   RHF     
 
   Using symmetry
-
- Read molecular orbitals from ./tagbug.movecs
-
 
 
                          RHF ENERGY GRADIENTS
@@ -494,12 +469,12 @@ task scf gradient
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.18   |       1.54   |
+                 |  CPU   |       0.03   |       0.12   |
                  ----------------------------------------
-                 |  WALL  |       0.17   |       1.54   |
+                 |  WALL  |       0.04   |       0.12   |
                  ----------------------------------------
 
- Task  times  cpu:        2.7s     wall:        2.8s
+ Task  times  cpu:        0.3s     wall:        0.4s
 
 
                                 NWChem Input Module
@@ -518,17 +493,18 @@ task scf gradient
   unset: scf:gradient
   unset: scf:noprint
   unset: scf:energy
+  unset: scf:alpha irreps
   library name resolved from: .nwchemrc
-  library file name is: </msrc/proj/nwchem/share/library>
+  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
   
 
  **** WARNING Zero Coefficient **** on atom "              Ca"
  angular momentum value: 0  standard basis set name: "lanl2dz ecp"
  input line that generated warning:
- 61196:   0.14470000000                 0.       1.0251221000
+   314:       0.1447000              0.0000000              1.0251221
   
   library name resolved from: .nwchemrc
-  library file name is: </msrc/proj/nwchem/share/library>
+  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
   
 
  Scaling coordinates for geometry "geometry" by  1.889725989
@@ -580,6 +556,17 @@ task scf gradient
 
      1    3    5
 
+
+            XYZ format geometry
+            -------------------
+     5
+ geometry
+ h                     0.00000000     0.00000000     2.77715371
+ h                     0.00000000     0.00000000    -2.77715371
+ F                     0.00000000     0.00000000     1.81331659
+ F                     0.00000000     0.00000000    -1.81331659
+ cA                    0.00000000     0.00000000     0.00000000
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -625,7 +612,7 @@ task scf gradient
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = ./tagbug.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tagbug.movecs
   use symmetry    = T
   symmetry adapt  = T
 
@@ -652,22 +639,22 @@ task scf gradient
         b3u         5
 
 
- Forming initial guess at       5.1s
+ Forming initial guess at       0.5s
 
 
       Superposition of Atomic Density Guess
       -------------------------------------
 
- Sum of atomic energies:        -226.93867894
+ Sum of atomic energies:        -229.82090707
 
       Non-variational initial energy
       ------------------------------
 
- Total energy =    -219.297313
- 1-e energy   =    -451.237088
- 2-e energy   =     151.727846
- HOMO         =      -0.849050
- LUMO         =      -0.639863
+ Total energy =    -225.641045
+ 1-e energy   =    -459.761177
+ 2-e energy   =     153.908203
+ HOMO         =      -0.758158
+ LUMO         =      -0.529545
 
 
       Symmetry analysis of molecular orbitals - initial
@@ -687,14 +674,14 @@ task scf gradient
 
   Orbital symmetries:
 
-     1 b1u         2 ag          3 ag          4 b1u         5 b3u     
-     6 b2u         7 ag          8 b1u         9 ag         10 b1u     
-    11 b3u        12 b2u        13 b2g        14 b3g        15 ag      
-    16 b2u        17 b3u        18 b1u        19 b1u        20 b2u     
-    21 b3u        22 ag         23 b1u        24 ag         25 b3g     
+     1 ag          2 b1u         3 ag          4 b1u         5 b2u     
+     6 b3u         7 ag          8 b1u         9 ag         10 b1u     
+    11 b2g        12 b3g        13 b3u        14 b2u        15 ag      
+    16 b2u        17 b3u        18 b1u        19 b1u        20 b3u     
+    21 b2u        22 ag         23 b1u        24 ag         25 b2g     
 
 
- Starting SCF solution at       5.4s
+ Starting SCF solution at       0.5s
 
 
 
@@ -702,39 +689,42 @@ task scf gradient
          Quadratically convergent ROHF
 
  Convergence threshold     :          1.000E-04
- Maximum no. of iterations :           20
+ Maximum no. of iterations :           30
  Final Fock-matrix accuracy:          1.000E-07
  ----------------------------------------------
 
 
- #quartets = 7.437E+03 #integrals = 2.242E+04 #direct =  0.0% #cached =100.0%
+ #quartets = 7.437D+03 #integrals = 2.241D+04 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./tagbug.aoints.0
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tagbug.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  16698
+ Max. records in memory =      2        Max. records in file   =  20851
  No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -235.3352810031  3.27E+00  1.88E+00      4.8
-                 2     -235.9721122499  9.51E-01  5.38E-01      4.8
-                 3     -236.0138379642  3.44E-01  1.91E-01      4.9
-                 4     -236.0201575240  8.31E-02  3.40E-02      4.9
-                 5     -236.0206263740  5.35E-03  1.73E-03      4.9
-                 6     -236.0206290565  5.47E-06  3.60E-06      5.0
+                 1     -235.5626055863  2.68D+00  1.43D+00      0.4
+                 2     -235.9807161028  8.59D-01  3.21D-01      0.4
+                 3     -236.0157055354  3.30D-01  2.19D-01      0.5
+                 4     -236.0203022311  6.74D-02  3.38D-02      0.5
+                 5     -236.0206282828  2.86D-03  1.38D-03      0.5
+                 6     -236.0206290569  2.59D-06  1.21D-06      0.5
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -236.020629056511
-      One-electron energy =   -498.606757533754
-      Two-electron energy =    182.374199195139
+         Total SCF energy =   -236.020629056898
+      One-electron energy =   -498.606757108755
+      Two-electron energy =    182.374198769755
  Nuclear repulsion energy =     80.211929282103
 
-        Time for solution =      0.5s
+        Time for solution =      0.1s
 
 
 
@@ -749,10 +739,10 @@ task scf gradient
   Orbital symmetries:
 
      1 b1u         2 ag          3 ag          4 b1u         5 ag      
-     6 b1u         7 b3u         8 b2u         9 ag         10 b1u     
+     6 b1u         7 b2u         8 b3u         9 ag         10 b1u     
     11 b2g        12 b3g        13 b3u        14 b2u        15 ag      
-    16 b1u        17 b2u        18 b3u        19 b2u        20 b3u     
-    21 b1u        22 ag         23 b1u        24 b3g        25 b2g     
+    16 b1u        17 b3u        18 b2u        19 b3u        20 b2u     
+    21 b1u        22 ag         23 b1u        24 b2g        25 b3g     
 
              Final eigenvalues
              -----------------
@@ -790,8 +780,8 @@ task scf gradient
 
  moments of inertia (a.u.)
  ------------------
-         501.676661422714           0.000000000000           0.000000000000
-           0.000000000000         501.676661422714           0.000000000000
+         501.676661422715           0.000000000000           0.000000000000
+           0.000000000000         501.676661422715           0.000000000000
            0.000000000000           0.000000000000           0.000000000000
 
   Mulliken analysis of the total density
@@ -816,15 +806,15 @@ task scf gradient
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1      0.000000      0.000000      0.000000
 
-     2   2 0 0    -29.330387      0.000000      0.000000
+     2   2 0 0    -29.330397      0.000000      0.000000
      2   1 1 0      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000
-     2   0 2 0    -29.330387      0.000000      0.000000
+     2   0 2 0    -29.330397      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
-     2   0 0 2     -8.308269      0.000000    266.441652
+     2   0 0 2     -8.308235      0.000000    266.441652
 
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
                               NWChem Gradients Module
                               -----------------------
@@ -836,9 +826,6 @@ task scf gradient
   wavefunction    =   RHF     
 
   Using symmetry
-
- Read molecular orbitals from ./tagbug.movecs
-
 
 
                          RHF ENERGY GRADIENTS
@@ -854,18 +841,12 @@ task scf gradient
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.17   |       1.55   |
+                 |  CPU   |       0.03   |       0.12   |
                  ----------------------------------------
-                 |  WALL  |       0.17   |       1.54   |
+                 |  WALL  |       0.04   |       0.12   |
                  ----------------------------------------
 
- Task  times  cpu:        2.7s     wall:        2.7s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
+ Task  times  cpu:        0.3s     wall:        0.4s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -876,11 +857,11 @@ task scf gradient
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  746      746     3.30e+04 7292     1.08e+04    2        0        0     
-bytes total:             1.07e+07 3.71e+06 5.20e+06 2.40e+02 0.00e+00 0.00e+00
-bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 122688 bytes
-
+calls:  784      784     1.05e+04 2241     6116        0        0      492     
+number of processes/call 1.09e+00 1.20e+00 1.05e+00 0.00e+00 0.00e+00
+bytes total:             6.26e+06 2.00e+06 1.30e+06 0.00e+00 0.00e+00 3.94e+03
+bytes remote:            1.91e+06 5.14e+05 1.01e+06 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 61784 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -889,58 +870,47 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        49	        29
+	maximum number of blocks	        35	        29
 	current total bytes		         0	         0
-	maximum total bytes		   1196932	  23290204
-	maximum total K-bytes		      1197	     23291
-	maximum total M-bytes		         2	        24
+	maximum total bytes		   1074288	  22509664
+	maximum total K-bytes		      1075	     22510
+	maximum total M-bytes		         2	        23
+
+
+                                NWChem Input Module
+                                -------------------
 
 
 
-                                  ACKNOWLEDGEMENT
-                                  ---------------
-
-            Please use the following acknowledgement where appropriate 
-            for results obtained with NWChem:
-
-            High Performance Computational Chemistry Group, "NWChem, A
-            Computational Chemistry Package for Parallel Computers, 
-            Version 4.0.1" (2001), Pacific Northwest National Laboratory,
-            Richland, Washington 99352-0999, USA.
 
 
                                      CITATION
                                      --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
 
-            Please use the following citation when publishing results
-            obtained with NWChem:
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
 
-            R. J. Harrison, J. A. Nichols, T. P. Straatsma, M. Dupuis, E. J. Bylaska,
-            G. I. Fann, T. L. Windus, E. Apra, J. Anchell, D. Bernholdt, P. Borowski,
-            T. Clark, D. Clerc, H. Dachsel, B. de Jong, M. Deegan, K. Dyall, D. Elwood,
-            H. Fruchtl, E. Glendenning, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
-            R. Kendall, R. Kobayashi, R, Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
-            J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor, G. Thomas,
-            J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,
-            "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 4.0.1" (2001),
-                      Pacific Northwest National Laboratory,
-                      Richland, Washington 99352-0999, USA.
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
+      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
-
-                                    REFERENCES
-                                    ----------
-
-            Where appropriate, please cite the following reference(s) 
-            when publishing results obtained with NWChem:
-
-
-     1. D. E. Bernholdt, E. Apra, H. A. Fruchtl, M.F. Guest, R. J. Harrison, 
-        R. A. Kendall, R. A. Kutteh, X. Long, J. B. Nicholas, J. A. Nichols, 
-        H. L. Taylor, A. T. Wong, G. I. Fann, R. J. Littlefield and J. Nieplocha,
-        "Parallel Computational Chemistry Made Easier: The Development of NWChem,"
-        Int. J. Quantum Chem. Symposium  29, 475-483 (1995).
-
-
-
- Total times  cpu:        6.8s     wall:        7.8s
+ Total times  cpu:        0.7s     wall:        0.8s

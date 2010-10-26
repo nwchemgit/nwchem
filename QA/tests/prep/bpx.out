@@ -1,4 +1,21 @@
  argument  1 = bpx.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+start something
+
+prepare
+ system bpx_em
+ new_top new_seq
+ chain *
+end
+
+task prepare
+================================================================================
+
+
                                          
                                          
 
@@ -37,15 +54,15 @@
            ---------------
 
     hostname      = arcen
-    program       = /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/bin/LINUX64/nwchem
-    date          = Thu Aug 26 23:01:27 2010
+    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
+    date          = Mon Oct 25 15:19:29 2010
 
-    compiled      = Thu_Aug_26_21:55:56_2010
-    source        = /home/d3y133/nwchem-releases/nwchem-6.0-gfortran
-    nwchem branch = 6.0
+    compiled      = Mon_Oct_25_14:31:37_2010
+    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
+    nwchem branch = Development
     input         = bpx.nw
     prefix        = something.
-    data base     = ./something.db
+    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/something.db
     status        = startup
     nproc         =        4
     time left     =     -1s
@@ -55,10 +72,10 @@
            Memory information
            ------------------
 
-    heap     =   13107201 doubles =    100.0 Mbytes
-    stack    =   13107201 doubles =    100.0 Mbytes
-    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
-    total    =   52428802 doubles =    400.0 Mbytes
+    heap     =   16384001 doubles =    125.0 Mbytes
+    stack    =   16384001 doubles =    125.0 Mbytes
+    global   =   32768000 doubles =    250.0 Mbytes (distinct from heap & stack)
+    total    =   65536002 doubles =    500.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -66,8 +83,8 @@
            Directory information
            ---------------------
 
-  0 permanent = .
-  0 scratch   = .
+  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
 
 
 
@@ -84,19 +101,15 @@
 
  Directories used for fragment and segment files
 
-                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_s/
-                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_x/
-                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/
                                        ./
 
  Parameter files used to resolve force field parameters
 
-                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_s/amber.par
-                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_x/amber.par
-                                       /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/amber.par
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/amber.par
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/amber.par
                                        ./amber.par
-
- Deleted existing topology             bpx.top
  PDB geometry                          bpx.pdb
 
  Created segment                       ./DC_5.sgm
@@ -111,9 +124,8 @@
  Created sequence                      ./bpx.seq
 
  
- Parameter file                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_s/amber.par
- Parameter file                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_x/amber.par
- Parameter file                        /home/d3y133/nwchem-releases/nwchem-6.0-gfortran/QA/../src/data/amber_q/amber.par
+ Parameter file                        /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/amber.par
+ Parameter file                        /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/amber.par
  Parameter file                        ./amber.par
  
  Total charge                            -21.000000
@@ -163,7 +175,7 @@
  Created restart                       bpx_em.rst
 
 
- Task  times  cpu:        2.3s     wall:        2.4s
+ Task  times  cpu:        2.2s     wall:        2.4s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -217,7 +229,7 @@ MA usage statistics:
                               AUTHORS & CONTRIBUTORS
                               ----------------------
       E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
-     M. Valiev, H. J. J. Van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
      J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
       R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
       V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
@@ -230,4 +242,4 @@ MA usage statistics:
     X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
        M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:        2.3s     wall:        2.4s
+ Total times  cpu:        2.2s     wall:        2.4s

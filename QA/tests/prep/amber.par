@@ -1,23 +1,39 @@
 # !!!NOTE: JUNK DATA!!!
 #
-# The two parameters in this file were needed to get the caa test case to work.
+# The FE parameters in this file were needed to get the caa test case to work.
 # The parameters were simply copied from something else and the atom names
 # adjusted so that the required force field parameters are found. However,
 # the values listed here have no scientific justification. Therefore, if you
 # have an application that needs these parameters DO NOT use the ones listed
 # here!!!
 #
+# The Cl parameters in this file are needed to get the fsc test case to work.
+# The values here are copied from the amber.par file in nwchem/src/data/amber_q.
+#
 This is the AMBER96 user defined parameter file for NWChem 3.2 and ARGOS 7.0
 Electrostatic 1-4 scaling factor     0.833333
 Relative dielectric constant     1.000000
 Parameters epsilon R*
 Atoms
+Cl     35.45300 4.44950E-01 2.50000E-01                            1 1111111111
+             17 2.22475E-01 2.50000E-01
 Cross
 Bonds
 S    -FE      0.20100 4.18400E+04
 Angles
 CT   -S    -FE      1.91986 3.55810E+02
+CT   -CT   -Cl      1.91986 3.55810E+02
+Cl   -CT   -Cl      1.94604 4.18600E+02
 Proper dihedrals
 Atom types
+Cl       17  0    0    0  0      0  0      0      0      0
+                                 0  0      0      0      0
+                                 0  0      0      0      0
+#
+# cation definitions
+#
+CL       17  0    0    0  1      0  0      0      0      0
+                                 0  0      0      0      0
+                                 0  0      0      0      0
 End
 #

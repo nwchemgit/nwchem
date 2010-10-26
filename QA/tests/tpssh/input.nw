@@ -1,3 +1,4 @@
+echo
 title "Test TPSSH"
 
 start tpssh

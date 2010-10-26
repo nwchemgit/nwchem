@@ -1,3 +1,4 @@
+echo
 title "water dimer - aperiodic cubic cell"
 
 start water2psp

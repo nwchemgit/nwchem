@@ -1,3 +1,4 @@
+echo
 title "paw testing"
 
 start paw_test

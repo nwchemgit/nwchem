@@ -45,76 +45,33 @@ task prepare
              A copy of the license is included with this distribution
                               in the LICENSE.TXT file
 
-                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,
-                2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
-                                     2009, 2010
-                        Pacific Northwest National Laboratory,
-                             Battelle Memorial Institute.
-
-                            >>> All Rights Reserved <<<
-
-
-                                    DISCLAIMER
-                                    ----------
-
-            This material was prepared as an account of work sponsored
-            by an agency of the United States Government.  Neither the
-            United States Government nor the United States Department
-            of Energy, nor Battelle, nor any of their employees, MAKES
-            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
-            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
-            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
-            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
-            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
-
-
-                                    LIMITED USE
-                                    -----------
-
-            This software (including any documentation) is being made
-            available to you for your internal use only, solely for use
-            in performance of work directly for the U.S. Federal
-            Government or work under contracts with the U.S. Department
-            of Energy or other U.S. Federal Government agencies.  This
-            software is a version which has not yet been evaluated and
-            cleared for commercialization.  Adherence to this notice
-            may be necessary for the author, Battelle Memorial
-            Institute, to successfully assert copyright in and
-            commercialize this software. This software is not intended
-            for duplication or distribution to third parties without
-            the permission of the Manager of Software Products at
-            Pacific Northwest National Laboratory, Richland,
-            Washington, 99352.
-
-
                                   ACKNOWLEDGMENT
                                   --------------
 
-            This software and its documentation were produced with
-            Government support under Contract Number DE-AC05-76RL01830
-            awarded by the United States Department of Energy.  The
-            Government retains a paid-up non-exclusive, irrevocable
-            worldwide license to reproduce, prepare derivative works,
-            perform publicly and display publicly by or for the
-            Government, including the right to distribute to other
-            Government contractors.
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
 
 
            Job information
            ---------------
 
     hostname      = arcen
-    program       = /home/d3y133/nwchem-releases/nwchem-dev/bin/LINUX64/nwchem
-    date          = Thu Sep  9 08:15:10 2010
+    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
+    date          = Mon Oct 25 15:19:27 2010
 
-    compiled      = Wed_Sep_08_10:16:49_2010
-    source        = /home/d3y133/nwchem-releases/nwchem-dev
+    compiled      = Mon_Oct_25_14:31:37_2010
+    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
     nwchem branch = Development
     input         = aal.nw
     prefix        = aal.
-    data base     = ./aal.db
+    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/aal.db
     status        = startup
-    nproc         =        1
+    nproc         =        4
     time left     =     -1s
 
 
@@ -133,8 +90,8 @@ task prepare
            Directory information
            ---------------------
 
-  0 permanent = .
-  0 scratch   = .
+  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
 
 
 
@@ -151,30 +108,58 @@ task prepare
 
  Directories used for fragment and segment files
 
-                                       /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_s/
-                                       /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_x/
-                                       /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_q/
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/
                                        ./
 
  Parameter files used to resolve force field parameters
 
-                                       /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_s/amber.par
-                                       /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_x/amber.par
-                                       /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_q/amber.par
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/amber.par
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/amber.par
                                        ./amber.par
  PDB geometry                          aal.pdb
+
+
+ Creating fragment for residue IPS  
+
+ Atom type definitions                 /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/amber.par
+ Atom type definitions                 /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/amber.par
+ Atom type definitions                 ./amber.par
+ Bond charge definitions               /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/amber.par
+ Bond charge definitions               /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/amber.par
+ Bond charge definitions               ./amber.par
+
+ Fragment                              IPS
+
+  num name  type   link cntr  grp pgrp    charge     polarizab
+
+    1  P    P         0    0    0    1    1    0.000000    0.000000
+    2  O1   O2        0    0    0    1    1    0.000000    0.000000
+    3  O2   O2        0    0    0    1    1    0.000000    0.000000
+    4  O3   O2        0    0    0    1    1    0.000000    0.000000
+    5  O4   O2        0    0    0    1    1    0.000000    0.000000
+                                           ------------
+                         total charge     0.000000
+
+ Connectivity
+
+       1-  2
+       1-  3
+       1-  4
+       1-  5
+ 
+ Created fragment                      ./IPS.frg
 
  Created segment                       ./IPS.sgm
 
  Created sequence                      ./aal.seq
 
  
- Parameter file                        /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_s/amber.par
- Parameter file                        /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_x/amber.par
- Parameter file                        /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_q/amber.par
+ Parameter file                        /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/amber.par
+ Parameter file                        /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/amber.par
  Parameter file                        ./amber.par
  
- Total charge                             10.000000
+ Total charge                             12.000000
 
  Created topology                      aal.top
 
@@ -194,7 +179,7 @@ task prepare
  Created restart                       aal_em.rst
 
 
- Task  times  cpu:        0.5s     wall:        0.6s
+ Task  times  cpu:        0.6s     wall:        0.6s
 
 
                                 NWChem Input Module
@@ -209,16 +194,14 @@ task prepare
 
  Directories used for fragment and segment files
 
-                                       /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_s/
-                                       /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_x/
-                                       /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_q/
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/
                                        ./
 
  Parameter files used to resolve force field parameters
 
-                                       /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_s/amber.par
-                                       /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_x/amber.par
-                                       /home/d3y133/nwchem-releases/nwchem-dev/QA/../src/data/amber_q/amber.par
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_s/amber.par
+                                       /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/data/amber_x/amber.par
                                        ./amber.par
  Using existing topology               aal.top
  Topology                              aal.top
@@ -230,7 +213,7 @@ task prepare
  Created pdb                           aal_em.pdb
 
 
- Task  times  cpu:        0.0s     wall:        0.0s
+ Task  times  cpu:        0.1s     wall:        0.1s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -268,44 +251,33 @@ MA usage statistics:
 
 
 
-
-                                  ACKNOWLEDGEMENT
-                                  ---------------
-
-            Please use the following acknowledgement where appropriate 
-            for results obtained with NWChem:
-
-            High Performance Computational Chemistry Group, "NWChem, A
-            Computational Chemistry Package for Parallel Computers, 
-            Version 5.1.1" (2008), Pacific Northwest National Laboratory,
-            Richland, Washington 99352-0999, USA.
-
-
                                      CITATION
                                      --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
 
-          Please use the following citation when publishing results
-          obtained with NWChem:
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
 
-          E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
-          M. Valiev, H. J. J. Van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
-          J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
-          R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
-          M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu,
-          T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, 
-          G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-          R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, 
-          D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan, 
-          K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe, 
-          B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, 
-          X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, 
-          G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. van Lenthe, 
-          A. Wong, and Z. Zhang,
-          "NWChem, A Computational Chemistry Package for Parallel Computers, 
-          Version 5.1.1" (2008),
-                      Pacific Northwest National Laboratory,
-                      Richland, Washington 99352-0999, USA.
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
+      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
-
-
- Total times  cpu:        0.6s     wall:        0.6s
+ Total times  cpu:        0.6s     wall:        0.7s

@@ -1,3 +1,4 @@
+echo
 start h2o_bnl
 
 geometry noautoz noautosym units angstrom
