@@ -7,6 +7,7 @@
 	dft_zora_rhos_so.o\
 	grid_zoracorr.o\
 	grid_zoracorr_FA.o\
+	gridNuclearPotential.o\
 	gridQpqPotential.o\
 	zora_getv.o\
 	zora_getv_sf.o\
