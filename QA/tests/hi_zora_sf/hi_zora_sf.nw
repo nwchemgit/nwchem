@@ -1,3 +1,4 @@
+echo
 start hi_zora_sf
 
 geometry noautoz units angstrom
@@ -9,18 +10,19 @@ basis spherical
 * library "DZVP (DFT Orbital)"
 end
 
+set dft:no_prune T
+set dft:job_grid_acc 1d-20
+set dft:tol_rho 1d-30
+
 dft
  grid xfine
+ grid lebedev H 350 18 I 350 18 
  xc b3lyp
-end
-
-driver
-  maxiter 100 
 end
 
 relativistic
   zora on
+  zora:cutoff 1d-30 
 end
 
-task dft optimize
-task dft freq
+task dft
