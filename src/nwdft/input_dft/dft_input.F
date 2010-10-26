@@ -25,7 +25,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 37)
+      parameter (num_dirs = 38)
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -47,6 +47,7 @@ c
       logical efield
       logical swapab
       logical frozemb
+      logical cgmin
       double precision efield_x
       double precision efield_y
       double precision efield_z
@@ -57,7 +58,7 @@ c
      $           'print','tolerances', 'xc','sym','adapt','sic', 
      $           'smear','fon','lb94','cs00','cdft','cam','disp',
      $           'dftmp2','molden','noscf','steric','efield','swapab',
-     $           'frozemb','end'/
+     $           'frozemb','cgmin','end'/
 c
 c Qin / cdft
       integer nconstr
@@ -94,7 +95,7 @@ c
      $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
      $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 
-     $     9999) ind
+     $     3600, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -567,7 +568,7 @@ c     swapab
 c
  3400 swapab = .true.
       if (.not.rtdb_put(rtdb,'dft:swapab', mt_log, 1, swapab))
-     &   call errquit('dft_input: rtdb_put failed', 3300, RTDB_ERR)
+     &   call errquit('dft_input: rtdb_put failed', 3400, RTDB_ERR)
 c
       goto 10
 c
@@ -575,7 +576,15 @@ c     frozen embedding
 c
  3500 frozemb = .true.
       if (.not.rtdb_put(rtdb,'dft:frozemb', mt_log, 1, frozemb))
-     &   call errquit('dft_input: rtdb_put failed', 3300, RTDB_ERR)
+     &   call errquit('dft_input: rtdb_put failed', 3500, RTDB_ERR)
+c
+      goto 10
+c
+c     conjugate-gradient direct minimization 
+c
+ 3600 cgmin = .true.
+      if (.not.rtdb_put(rtdb,'dft:cgmin', mt_log, 1, cgmin))
+     &   call errquit('dft_input: rtdb_put failed', 3600, RTDB_ERR)
 c
       goto 10
 c
