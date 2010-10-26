@@ -1,4 +1,5 @@
-start
+echo
+start i2_zora_so
 
 geometry noautoz units au
  I 0 0 -2.52247277
@@ -21,7 +22,8 @@ driver
 end
 
 relativistic
-   zora on
+  zora on
+  zora:cutoff 1d-30
 end
 
 task sodft optimize
