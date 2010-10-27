@@ -1,89 +1,294 @@
- argument  1 = ../pspw_md.nw
+ argument  1 = pspw_md.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+title SiC2-MD
+
+start SiC2-MD
+
+memory global 12 mb stack 12 mb heap 15 mb
+
+geometry units au noautosym
+Si 0.000000000 2.00000000  0.00000000 mass 28.0
+C 1.2400000000 0.00000000  0.00000000
+C -1.2400000000 0.00000000 0.00000000
+end
+
+
+
+PSPW
+   #******* Generate a Pseudopotential for Carbon **********************
+   PSP_GENERATOR
+      pseudopotential_filename: C.psp   # C.psp is the name of the datafile
+                                        # generated
+
+      element: C                        # label used for the carbon atom
+      charge: 6.0                       # nuclear charge of carbon atom
+      mass_number: 12.0                 # mass (a.u.) of carbon atom
+      solver_type: pauli                # Pauli or Schrodinger op
+      pseudopotential_type: hamann      # Hamann and Troullier-Martins options
+                                        #  available
+
+      atomic_filling: 1 2   # Ncore and Nvalence states
+        1 s 2.0             # core state    1s^2
+        2 s 2.0             # valence state 2s^2
+        2 p 2.0             # valence state 2p^2
+      cutoff: 3   # number of cutoff values
+         s 0.80   # cutoff value for Vs
+         p 0.85   # cutoff value for Vp
+         d 0.85   # cutoff value for Vd
+   END
+
+   #******* Generate a Pseudopotential for Silicon **********************
+   PSP_GENERATOR
+      pseudopotential_filename: Si.psp  # Si.psp is the name of the datafile
+                                        # generated
+
+      element: Si                       # label used for the carbon atom
+      charge: 14.0                       # nuclear charge of carbon atom
+      mass_number: 28.0                 # mass (a.u.) of carbon atom
+      solver_type: pauli                # Pauli or Schrodinger op
+      pseudopotential_type: hamann      # Hamann and Troullier-Martins options
+
+      atomic_filling: 3 2   # Ncore and Nvalence states
+        1 s 2.0             # core state  1s^2
+        2 s 2.0             # coren state 2s^2
+        2 p 6.0             # coren state 2p^2
+        3 s 2.0             # valence state 3s^2
+        3 p 2.0             # valence state 3p^2
+   END
+
+   ANALYSIS
+      psp_filename: C.psp
+      psp_filename: Si.psp
+   END
+
+   #**** define a simulation cell *****
+   SIMULATION_CELL
+      cell_name: small
+      boundry_conditions: periodic
+      lattice_vectors:
+         20.0  0.0  0.0
+          0.0 20.0  0.0
+          0.0  0.0 20.0
+      ngrid: 24 24 24
+   END
+END
+
+PSPW
+   #******* Generate a Formmatted pseudopotential for carbon *****
+   PSP_FORMATTER
+      cell_name: small
+      psp_filename: C.psp
+      formatted_filename: C.vpp
+      locp: 0
+   END
+END
+task pspw psp_formatter
+
+PSPW
+   #******* Generate a Formmatted pseudopotential for silicon*****
+   PSP_FORMATTER
+      cell_name: small
+      psp_filename: Si.psp
+      formatted_filename: Si.vpp
+   END
+END
+task pspw psp_formatter
+
+PSPW
+   #******* Generate a initial wavefunction based on planewaves ****
+   WAVEFUNCTION_INITIALIZER
+      restricted
+      wavefunction_filename: sic2.00.elc
+      cell_name: small
+      up_filling: 6
+        0  0  0  0
+        0  1  0 -1
+        1 -1  0 -1
+        1  1  1 -1
+        1 -1 -1 +1
+        0  2  0 -1
+   END
+END
+task pspw wavefunction_initializer
+
+PSPW
+   #***** optimize the wavefunctions ********
+   STEEPEST_DESCENT
+      cell_name: small
+      formatted_filename: C.vpp
+      formatted_filename: Si.vpp
+      input_wavefunction_filename:  sic2.00.elc
+      output_wavefunction_filename: sic2.00.elc
+      fake_mass: 400000.0d0
+      time_step: 51.8d0
+      loop: 10 10
+      tolerances: 1.0d-9 1.0d-9 1.0d-4
+      energy_cutoff:       21.0d0
+      wavefunction_cutoff: 21.0d0
+      Mulliken
+   END
+END
+task pspw steepest_descent
+
+#***** Setup conjugate gradient code ****
+PSPW
+   CONJUGATE_GRADIENT
+      cell_name: small
+      formatted_filename: C.vpp
+      formatted_filename: Si.vpp
+      input_wavefunction_filename:  sic2.00.elc
+      output_wavefunction_filename: sic2.00.elc
+      loop: 25 100
+      Mulliken
+      tolerances: 1.0d-12 1.0d-9 1.0d-4
+   END
+END
+task pspw energy
+task pspw steepest_descent
+
+
+#******* Generate a initial wavefunction based on planewaves ****
+PSPW
+   V_WAVEFUNCTION_INITIALIZER
+      restricted
+      up_filling: 6
+      v_wavefunction_filename: sic2.00.velc
+      cell_name: small
+   END
+END
+TASK PSPW v_wavefunction_initializer
+
+
+
+PSPW
+   #***** optimize the wavefunctions and ion positions ********
+   Car-Parrinello
+      cell_name: small
+      formatted_filename: C.vpp
+      formatted_filename: Si.vpp
+      input_wavefunction_filename:    sic2.00.elc
+      output_wavefunction_filename:   sic2.01.elc
+      input_v_wavefunction_filename:  sic2.00.velc
+      output_v_wavefunction_filename: sic2.01.velc
+      fake_mass: 500.0d0
+      time_step: 5.0d0
+      loop: 10 10
+      scaling: 1.0d0 1.0d0
+      energy_cutoff:       21.0d0
+      wavefunction_cutoff: 21.0d0
+      xyz_filename: sic2.energy.xyz
+      Mulliken
+      omotion_filename: sic2.energy.omov
+   END
+END
+task pspw Car-Parrinello
+
+
+geometry units au noautosym
+Si 0.000000000 2.00000000  0.00000000 mass 28.0
+C 1.2400000000 0.00000000  0.00000000
+C -1.2400000000 0.00000000 0.00000000
+end
+
+PSPW
+   #***** optimize the wavefunctions and ion positions ********
+   Car-Parrinello
+      cell_name: small
+      formatted_filename: C.vpp
+      formatted_filename: Si.vpp
+      input_wavefunction_filename:    sic2.00.elc
+      output_wavefunction_filename:   sic2.01.elc
+      input_v_wavefunction_filename:  sic2.00.velc
+      output_v_wavefunction_filename: sic2.01.velc
+      fake_mass: 500.0d0
+      time_step: 5.0d0
+      loop: 10 10
+      scaling: 1.0d0 1.0d0
+      energy_cutoff:       21.0d0
+      wavefunction_cutoff: 21.0d0
+      xyz_filename: sic2.hoover.xyz
+      Mulliken
+      Nose-Hoover:
+      omotion_filename: sic2.hoover.omov
+   END
+END
+task pspw Car-Parrinello
+
+
+###########################################
+######## testing constraints ##############
+###########################################
+
+### fixed atom contraints ###
+set geometry:actlist 1 3
+task pspw Car-Parrinello
+
+set geometry:actlist 1:3  #release fixed atom constraint
+
+
+### shake contraints ###
+set nwpw:shake_constraint "1 2   L 2.60000"
+task pspw Car-Parrinello
+
+set nwpw:shake_constraint "1 2   L 3.00000"
+task pspw Car-Parrinello
+
+================================================================================
+
+
                                          
                                          
- 
- 
-              Northwest Computational Chemistry Package (NWChem) 5.1
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.0
               ------------------------------------------------------
- 
- 
+
+
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
- 
-                                         
-                                         
- 
- 
-                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
-                   2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007
-                        Pacific Northwest National Laboratory,
-                             Battelle Memorial Institute.
- 
-                            >>> All Rights Reserved <<<
- 
- 
-                                    DISCLAIMER
-                                    ----------
 
-            This material was prepared as an account of work sponsored
-            by an agency of the United States Government.  Neither the
-            United States Government nor the United States Department
-            of Energy, nor Battelle, nor any of their employees, MAKES
-            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
-            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
-            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
-            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
-            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
 
-
-                                    LIMITED USE
-                                    -----------
-
-            This software (including any documentation) is being made
-            available to you for your internal use only, solely for use
-            in performance of work directly for the U.S. Federal
-            Government or work under contracts with the U.S. Department
-            of Energy or other U.S. Federal Government agencies.  This
-            software is a version which has not yet been evaluated and
-            cleared for commercialization.  Adherence to this notice
-            may be necessary for the author, Battelle Memorial
-            Institute, to successfully assert copyright in and
-            commercialize this software. This software is not intended
-            for duplication or distribution to third parties without
-            the permission of the Manager of Software Products at
-            Pacific Northwest National Laboratory, Richland,
-            Washington, 99352.
-
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
 
                                   ACKNOWLEDGMENT
                                   --------------
 
-            This software and its documentation were produced with
-            Government support under Contract Number DE-AC05-76RL01830
-            awarded by the United States Department of Energy.  The
-            Government retains a paid-up non-exclusive, irrevocable
-            worldwide license to reproduce, prepare derivative works,
-            perform publicly and display publicly by or for the
-            Government, including the right to distribute to other
-            Government contractors.
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
 
 
            Job information
            ---------------
 
-    hostname      = seattle-1
-    program       = nwchem
-    date          = Sat Dec  1 15:28:51 2007
+    hostname      = arcen
+    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
+    date          = Tue Oct 26 15:08:25 2010
 
-    compiled      = Sat_Dec_01_14:52:04_2007
-    source        = /home/bylaska/nwchem-releases/nwchem
+    compiled      = Tue_Oct_26_14:47:56_2010
+    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
     nwchem branch = Development
-    input         = ../pspw_md.nw
+    input         = pspw_md.nw
     prefix        = SiC2-MD.
-    data base     = ./SiC2-MD.db
+    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.db
     status        = startup
-    nproc         =    1
+    nproc         =        4
     time left     =     -1s
 
 
@@ -91,52 +296,52 @@
            Memory information
            ------------------
 
-    heap      =    1966081 doubles =     15.0 Mbytes
-    stack     =    1572865 doubles =     12.0 Mbytes
-    global    =    1572864 doubles =     12.0 Mbytes (distinct from heap & stack)
-    total     =    5111810 doubles =     39.0 Mbytes
-    verify    = yes
-    hardfail  = no 
+    heap     =    1966081 doubles =     15.0 Mbytes
+    stack    =    1572865 doubles =     12.0 Mbytes
+    global   =    1572864 doubles =     12.0 Mbytes (distinct from heap & stack)
+    total    =    5111810 doubles =     39.0 Mbytes
+    verify   = yes
+    hardfail = no 
 
 
            Directory information
            ---------------------
- 
-  0 permanent = .
-  0 scratch   = .
- 
- 
- 
- 
+
+  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+
+
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
                                       SiC2-MD
                                       -------
 
           ------
           auto-z
           ------
- 
- 
+
+
                              Geometry "geometry" -> ""
                              -------------------------
- 
+
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 Si                  14.0000     0.00000000     0.92307692     0.00000000
     2 C                    6.0000     1.24000000    -1.07692308     0.00000000
     3 C                    6.0000    -1.24000000    -1.07692308     0.00000000
- 
+
       Atomic Mass 
       ----------- 
- 
+
       Si                28.000000
       C                 12.000000
- 
+
 
  Effective nuclear repulsion energy (a.u.)      85.9079551361
 
@@ -145,14 +350,14 @@
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000     0.0000000000
- 
+
 
 
                                 Z-matrix (autoz)
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value
       ----------- --------  ----- ----- ----- ----- ----- ----------
     1 Stretch                  1     2                       1.24527
@@ -161,8 +366,8 @@
     4 Bend                     1     2     3                58.20109
     5 Bend                     1     3     2                58.20109
     6 Bend                     2     1     3                63.59783
- 
- 
+
+
             XYZ format geometry
             -------------------
      3
@@ -170,36 +375,7 @@
  Si                    0.00000000     0.48847131     0.00000000
  C                     0.65617979    -0.56988319     0.00000000
  C                    -0.65617979    -0.56988319     0.00000000
- 
- ==============================================================================
-                                internuclear distances
- ------------------------------------------------------------------------------
-       center one      |      center two      | atomic units |       a.u.
- ------------------------------------------------------------------------------
-    2 C                |   1 Si               |     2.35321  |     2.35321
-    3 C                |   1 Si               |     2.35321  |     2.35321
-    3 C                |   2 C                |     2.48000  |     2.48000
- ------------------------------------------------------------------------------
-                         number of included internuclear distances:          3
- ==============================================================================
 
-
-
- ==============================================================================
-                                 internuclear angles
- ------------------------------------------------------------------------------
-        center 1       |       center 2       |       center 3       |  degrees
- ------------------------------------------------------------------------------
-    2 C                |   1 Si               |   3 C                |    63.60
-    2 C                |   1 Si               |   3 C                |    63.60
-    3 C                |   1 Si               |   2 C                |    63.60
- ------------------------------------------------------------------------------
-                            number of included internuclear angles:          3
- ==============================================================================
-
-
-
- >>>> PSPW Serial Module - 1d pseudopotential solver <<<<
 All electron atom solver
 
 Atom name: C
@@ -224,14 +400,13 @@ R_max    : 4.467913e+01
 Ngrid    : 2785
 ------------------------------------------------------------
 n	l	population	Eigenvalue	Outer Peak
-n	l	population	Eigenvalue	Outer Peak
 1	s	2.00		-9.952135e+00	1.743589e-01
 2	s	2.00		-5.012954e-01	1.213506e+00
 2	p	2.00		-1.990710e-01	1.189537e+00
 ------------------------------------------------------------
 electronic charge      = -6.000000e+00
 electronic core charge = -2.000000e+00
-total atom charge      = -9.396928e-13
+total atom charge      = -9.370282e-13
 
 Total E       = -3.744197e+01
 
@@ -287,20 +462,18 @@ E_exchange    = -1.176866e+00
 E_correlation = -1.935145e-01
 <Vc>          = -2.214593e-01
 
-Outputing pseudowavefunctions: ./C.psw.plt
-Outputing pseudopotentials: ./C.psp.plt
- Creating datafile for Kleinman-Bylander input: ./C.psp
+Outputing pseudowavefunctions: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.psw.plt
+Outputing pseudopotentials: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.psp.plt
+ Creating datafile for Kleinman-Bylander input: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.psp
   + Appending pseudopotentials:    s thru d
   + Appending pseudowavefunctions: s thru d
-Outputing all-electron wavefunctions: ./C.1s ./C.2s ./C.2p ./C.3d
-Outputing atom density: ./C.dns.plt
-Outputing core density: ./C.cdns.plt
-Outputing core density gradient: ./C.cddns.plt
-Outputing semicore density: ./C.sdns.plt
-Outputing semicore density gradient: ./C.sddns.plt
-Outputing all-electron potential(non-screened): ./C.pot.plt
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:28:52 2007  <<<
- >>>> PSPW Serial Module - 1d pseudopotential solver <<<<
+Outputing all-electron wavefunctions: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.1s /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.2s /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.2p /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.3d
+Outputing atom density: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.dns.plt
+Outputing core density: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.cdns.plt
+Outputing core density gradient: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.cddns.plt
+Outputing semicore density: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.sdns.plt
+Outputing semicore density gradient: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.sddns.plt
+Outputing all-electron potential(non-screened): /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.pot.plt
 All electron atom solver
 
 Atom name: Si
@@ -324,7 +497,6 @@ amesh    : 1.005000e+00
 R_max    : 4.470524e+01
 Ngrid    : 2955
 ------------------------------------------------------------
-n	l	population	Eigenvalue	Outer Peak
 n	l	population	Eigenvalue	Outer Peak
 1	s	2.00		-6.535740e+01	7.252218e-02
 2	s	2.00		-5.098976e+00	4.545499e-01
@@ -390,38 +562,69 @@ E_exchange    = -8.005235e-01
 E_correlation = -1.635775e-01
 <Vc>          = -1.892953e-01
 
-Outputing pseudowavefunctions: ./Si.psw.plt
-Outputing pseudopotentials: ./Si.psp.plt
- Creating datafile for Kleinman-Bylander input: ./Si.psp
+Outputing pseudowavefunctions: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.psw.plt
+Outputing pseudopotentials: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.psp.plt
+ Creating datafile for Kleinman-Bylander input: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.psp
   + Appending pseudopotentials:    s thru d
   + Appending pseudowavefunctions: s thru d
-Outputing all-electron wavefunctions: ./Si.1s ./Si.2s ./Si.2p ./Si.3s ./Si.3p ./Si.3d
-Outputing atom density: ./Si.dns.plt
-Outputing core density: ./Si.cdns.plt
-Outputing core density gradient: ./Si.cddns.plt
-Outputing semicore density: ./Si.sdns.plt
-Outputing semicore density gradient: ./Si.sddns.plt
-Outputing all-electron potential(non-screened): ./Si.pot.plt
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:28:53 2007  <<<
- 
-== C.psp   expansion coefficients ==
+Outputing all-electron wavefunctions: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.1s /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.2s /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.2p /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.3s /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.3p /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.3d
+Outputing atom density: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.dns.plt
+Outputing core density: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.cdns.plt
+Outputing core density gradient: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.cddns.plt
+Outputing semicore density: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.sdns.plt
+Outputing semicore density gradient: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.sddns.plt
+Outputing all-electron potential(non-screened): /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.pot.plt
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |       a.u.
+ ------------------------------------------------------------------------------
+    2 C                |   1 Si               |     2.35321  |     2.35321
+    3 C                |   1 Si               |     2.35321  |     2.35321
+    3 C                |   2 C                |     2.48000  |     2.48000
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          3
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 C                |   1 Si               |   3 C                |    63.60
+    2 C                |   1 Si               |   3 C                |    63.60
+    3 C                |   1 Si               |   2 C                |    63.60
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          3
+ ==============================================================================
+
+
+
+ >>>> PSPW Serial Module - 1d pseudopotential solver <<<<
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:25 2010  <<<
+ >>>> PSPW Serial Module - 1d pseudopotential solver <<<<
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:25 2010  <<<
+
+== C.psp                                                                    expansion coefficients ==
 
 ATOM       S            P            D            F
 C  :   0.68658E+00 -0.40340E-02
- 
- 
- 
-== Si.psp   expansion coefficients ==
+
+
+
+== Si.psp                                                                    expansion coefficients ==
 
 ATOM       S            P            D            F
 Si :   0.21389E+00 -0.31100E-03
- 
- 
+
+
  >>>> PSPW parallel Module - psp_formatter <<<<
- 
- Formatting rtdb psp inputblock: kbppa                         
-               1  of            1
- 
+
+ Formatting rtdb psp inputblock: kbppa                                             
+                        1  of                     1
+
       ********************************************
       *                                          *
       *     KBPPV3 - Pseudopotential Formatter   *
@@ -433,18 +636,18 @@ Si :   0.21389E+00 -0.31100E-03
       * developed by the group of                *
       * Prof. John H. Weare                      *
       ********************************************
-     >>>  JOB STARTED       AT Sat Dec  1 15:28:54 2007  <<<
- 
+     >>>  JOB STARTED       AT Tue Oct 26 15:08:26 2010  <<<
+
  Pseudpotential Data
  -------------------
    atom     :C 
    charge   :   4.00000000000000     
    mass no. :   12.0000000000000     
-   highest angular component      :           2
-   highest angular component used :           2
-   local potential used           :           0
+   highest angular component      :                    2
+   highest angular component used :                    2
+   local potential used           :                    0
   cutoffs:      0.800     0.850     0.850
- 
+
  Simulation Cell
  ---------------
   boundry: periodic
@@ -452,21 +655,21 @@ Si :   0.21389E+00 -0.31100E-03
   unita  :    20.000     0.000     0.000
                0.000    20.000     0.000
                0.000     0.000    20.000
- 
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:28:54 2007  <<<
 
- Task  times  cpu:        1.3s     wall:        1.3s
- 
- 
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:26 2010  <<<
+
+ Task  times  cpu:        0.4s     wall:        0.4s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
  >>>> PSPW parallel Module - psp_formatter <<<<
- 
- Formatting rtdb psp inputblock: kbppa                         
-               1  of            2
- 
+
+ Formatting rtdb psp inputblock: kbppa                                             
+                        1  of                     2
+
       ********************************************
       *                                          *
       *     KBPPV3 - Pseudopotential Formatter   *
@@ -478,18 +681,18 @@ Si :   0.21389E+00 -0.31100E-03
       * developed by the group of                *
       * Prof. John H. Weare                      *
       ********************************************
-     >>>  JOB STARTED       AT Sat Dec  1 15:28:56 2007  <<<
- 
+     >>>  JOB STARTED       AT Tue Oct 26 15:08:26 2010  <<<
+
  Pseudpotential Data
  -------------------
    atom     :C 
    charge   :   4.00000000000000     
    mass no. :   12.0000000000000     
-   highest angular component      :           2
-   highest angular component used :           2
-   local potential used           :           0
+   highest angular component      :                    2
+   highest angular component used :                    2
+   local potential used           :                    0
   cutoffs:      0.800     0.850     0.850
- 
+
  Simulation Cell
  ---------------
   boundry: periodic
@@ -497,12 +700,12 @@ Si :   0.21389E+00 -0.31100E-03
   unita  :    20.000     0.000     0.000
                0.000    20.000     0.000
                0.000     0.000    20.000
- 
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:28:56 2007  <<<
- 
- Formatting rtdb psp inputblock: kbppb                         
-               2  of            2
- 
+
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:26 2010  <<<
+
+ Formatting rtdb psp inputblock: kbppb                                             
+                        2  of                     2
+
       ********************************************
       *                                          *
       *     KBPPV3 - Pseudopotential Formatter   *
@@ -514,18 +717,18 @@ Si :   0.21389E+00 -0.31100E-03
       * developed by the group of                *
       * Prof. John H. Weare                      *
       ********************************************
-     >>>  JOB STARTED       AT Sat Dec  1 15:28:56 2007  <<<
- 
+     >>>  JOB STARTED       AT Tue Oct 26 15:08:26 2010  <<<
+
  Pseudpotential Data
  -------------------
    atom     :Si
    charge   :   4.00000000000000     
    mass no. :   28.0000000000000     
-   highest angular component      :           2
-   highest angular component used :           2
-   local potential used           :           2
+   highest angular component      :                    2
+   highest angular component used :                    2
+   local potential used           :                    2
   cutoffs:      1.059     1.286     1.286
- 
+
  Simulation Cell
  ---------------
   boundry: periodic
@@ -533,16 +736,16 @@ Si :   0.21389E+00 -0.31100E-03
   unita  :    20.000     0.000     0.000
                0.000    20.000     0.000
                0.000     0.000    20.000
- 
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:28:56 2007  <<<
 
- Task  times  cpu:        2.2s     wall:        2.2s
- 
- 
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:27 2010  <<<
+
+ Task  times  cpu:        0.8s     wall:        0.8s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
  >>>> PSPW Serial Module - wavefunction_initializer <<<<
  writing <spin= 1,psi=  1>    -     (  0  0  0 :   0)
  writing <spin= 1,psi=  2>    -     (  0  1  0 :  -1)
@@ -550,16 +753,16 @@ Si :   0.21389E+00 -0.31100E-03
  writing <spin= 1,psi=  4>    -     (  1  1  1 :  -1)
  writing <spin= 1,psi=  5>    -     (  1 23 23 :   1)
  writing <spin= 1,psi=  6>    -     (  0  2  0 :  -1)
-  JOB HAS BEEN COMPLETED.  CODE=           0
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:28:56 2007  <<<
+  JOB HAS BEEN COMPLETED.  CODE=                    0
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:27 2010  <<<
 
  Task  times  cpu:        0.0s     wall:        0.0s
- 
- 
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
  >>>> PSPW Parallel Module - steepest_descent <<<<
           ****************************************************
           *                                                  *
@@ -576,14 +779,22 @@ Si :   0.21389E+00 -0.31100E-03
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Sat Dec  1 15:28:57 2007  <<<
+     >>>  JOB STARTED       AT Tue Oct 26 15:08:27 2010  <<<
           ================ PSPW input data ===================
 
- input psi filename:./sic2.00.elc
+ input psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.elc
 
- number of processors used:  1
- processor grid           :   1 x   1
- parallel mapping         : slab
+ initializing pspw_APC data structure
+ ------------------------------------
+ nga, ngs:                    3                    9
+ Gc      :   2.50000000000000     
+ APC gamma:                    1  0.600000000000000     
+ APC gamma:                    2  0.900000000000000     
+ APC gamma:                    3   1.35000000000000     
+
+ number of processors used:         4
+ processor grid           :   4 x   1
+ parallel mapping         : hilbert
  parallel mapping         : balanced
 
  options:
@@ -626,9 +837,9 @@ Si :   0.21389E+00 -0.31100E-03
       reciprocal: b1=<   0.314   0.000   0.000 >
                   b2=<   0.000   0.314   0.000 >
                   b3=<   0.000   0.000   0.314 >
-      volume :     8000.0
-      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
-      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
+      volume :       8000.0
+      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
+      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
       ewald summation: cut radius=    6.37  and  1
                         madelung= 1.76011888
 
@@ -636,11 +847,12 @@ Si :   0.21389E+00 -0.31100E-03
       translation contrained
       time step=     51.80     ficticious mass=  400000.0
       tolerance=.100E-08 (energy)   0.100E-08 (electron)   0.100E-03 (ion)
+      maximum iterations =     100 (   10 inner   10 outer )
 
 
 
           ================ iteration =========================
-     >>>  ITERATION STARTED AT Sat Dec  1 15:28:57 2007  <<<
+     >>>  ITERATION STARTED AT Tue Oct 26 15:08:27 2010  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
       10   -0.3625376276E+01   -0.69988E-02    0.93852E-01    0.00000E+00
@@ -654,7 +866,7 @@ Si :   0.21389E+00 -0.31100E-03
       90   -0.1351717722E+02   -0.13652E-03    0.92810E-03    0.00000E+00
      100   -0.1356964194E+02   -0.10128E-03    0.66819E-03    0.00000E+00
  *** arived at the Maximum iiteration.   terminated.
-     >>>  ITERATION ENDED   AT Sat Dec  1 15:29:03 2007  <<<
+     >>>  ITERATION ENDED   AT Tue Oct 26 15:08:27 2010  <<<
 
 
 
@@ -665,7 +877,7 @@ Si :   0.21389E+00 -0.31100E-03
         3 C    (   -1.24000   -1.07692    0.00000 ) - atomic mass=  12.000          
         G.C.   (    0.00000   -0.41026    0.00000 )
         C.O.M. (    0.00000    0.00000    0.00000 )
- 
+
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
 
@@ -694,10 +906,10 @@ Si :   0.21389E+00 -0.31100E-03
 
 
 === Spin Contamination ===
- 
- <Sexact^2> =   0.000000000000000E+000
- <S^2>      =   0.000000000000000E+000
- 
+
+ <Sexact^2> =    0.00000000000000     
+ <S^2>      =    0.00000000000000     
+
 
 
 == Center of Charge ==
@@ -719,34 +931,38 @@ mu   =  (    0.5308,    5.5913,   -0.2609 ) au
 
 mu   =  (    0.5308,   -0.2774,   -0.2609 ) au
 |mu| =     0.6533 au,       1.6604 Debye
- 
- Generated formatted atomic orbitals, filename: ./Si.aorb
- 
- Generated formatted atomic orbitals, filename: ./C.aorb
- 
- 
- 
+  library name resolved from: .nwchemrc
+  NWCHEM_NWPW_LIBRARY set to: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/nwpw/libraryps/>
+
+ Generated formatted atomic orbitals, filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/Si.aorb
+  library name resolved from: .nwchemrc
+  NWCHEM_NWPW_LIBRARY set to: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/nwpw/libraryps/>
+
+ Generated formatted atomic orbitals, filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/C.aorb
+
+
+
  *************************************************************
  **                                                         **
  **                  PSPW Mulliken analysis                 **
  **                                                         **
  ** Population analysis algorithm devloped by Ryoichi Kawai **
  **                                                         **
- **                   Sat Dec  1 15:29                      **
+ **                   Tue Oct 26 15:08                      **
  **                                                         **
  *************************************************************
 
 
 == XYZ OUTPUT ==
 
- 
-           3
- 
+
+                    3
+
 Si            0.000000      0.488471      0.000000
 C             0.656179     -0.569883      0.000000
 C            -0.656179     -0.569883      0.000000
- 
- 
+
+
  =====================================================
  | POPULATION ANALYSIS OF FILLED MOLECULAR ORBITALS  |
  =====================================================
@@ -939,13 +1155,13 @@ NO  ATOM  L  POPULATION
 
       s         p         d         f
     0.6444    0.3556    0.0000    0.0000
- 
- 
+
+
  ========================================
  |   POPULATION ANALYSIS ON EACH ATOM   |
  ========================================
- 
- 
+
+
 NO  ATOM  SPIN    TOTAL       s          p          d          f
  1   Si     UP      1.85532    0.48822    1.36710
  1   Si     DOWN    1.85532    0.48822    1.36710
@@ -963,52 +1179,89 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
   UP       26.45%      73.55%       0.00%       0.00% 
  TOTAL     26.45%      73.55%       0.00%       0.00% 
 
- output psi filename:./sic2.00.elc
- 
+ *************************************************************
+ **                                                         **
+ **          PSPW Atomic Point Charge (APC) Analysis        **
+ **                                                         **
+ **   Point charge analysis based on paper by P.E. Blochl   **
+ **         (J. Chem. Phys. vol 103, page 7422, 1995)       **
+ **                                                         **
+ *************************************************************
+
+ pspw_APC data structure
+ -----------------------
+ nga, ngs:                    3                    9
+ Gc      :   2.50000000000000     
+ APC gamma:                    1  0.600000000000000     
+ APC gamma:                    2  0.900000000000000     
+ APC gamma:                    3   1.35000000000000     
+
+ charge analysis on each atom
+ ----------------------------
+
+    no  atom        Qelc        Qion      Qtotal
+    --  ----     -------     -------     -------
+     1  Si        -3.454       4.000       0.546
+     2  C         -4.174       4.000      -0.174
+     3  C         -4.372       4.000      -0.372
+     Total Q     -12.000      12.000       0.000
+
+
+ gaussian coefficients of model density
+ --------------------------------------
+
+    no  atom     g=0.000     g=0.600     g=0.900     g=1.350
+    --  ----     -------     -------     -------     -------
+     1  Si         4.000     -10.503      20.793     -13.744
+     2  C          4.000      -4.260       7.155      -7.069
+     3  C          4.000      -6.879      12.237      -9.730
+
+ output psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.elc
+
  -----------------
  cputime in seconds
- prologue    :   0.465977907180786     
- main loop   :    5.87789893150330     
- epilogue    :    2.61094903945923     
- total       :    8.95482587814331     
- cputime/step:   5.877898931503296E-002
- 
+ prologue    :   0.207674980163574     
+ main loop   :   0.646337985992432     
+ epilogue    :    1.04060506820679     
+ total       :    1.89461803436279     
+ cputime/step:   6.463379859924317E-003
+
 
 
 Time spent doing                        total          step
-  FFTs                       :   0.381765E+00  0.381765E-02
-  dot products               :   0.893814E+00  0.893814E-02
-  geodesic                   :   0.147175E+00  0.147175E-02
-  ffm_dgemm                  :   0.292414E+00  0.292414E-02
-  fmf_dgemm                  :   0.539196E-01  0.539196E-03
-  m_diagonalize              :   0.208139E-03  0.208139E-05
+  FFTs                       :   0.458657E-01  0.458657E-03
+  dot products               :   0.720774E-01  0.720774E-03
+  geodesic                   :   0.147178E-01  0.147178E-03
+  ffm_dgemm                  :   0.315984E-01  0.315984E-03
+  fmf_dgemm                  :   0.290375E-01  0.290375E-03
+  m_diagonalize              :   0.460148E-04  0.460148E-06
     - m_tredq                :   0.000000E+00  0.000000E+00
     - m_getdiags             :   0.000000E+00  0.000000E+00
     - m_tqliq                :   0.000000E+00  0.000000E+00
     - m_eigsrt               :   0.000000E+00  0.000000E+00
-  exchange correlation       :   0.460989E+00  0.460989E-02
-  local pseudopotentials     :   0.744097E-01  0.744097E-03
-  non-local pseudopotentials :   0.106470E+01  0.106470E-01
-  hartree potentials         :   0.173516E-01  0.173516E-03
-  ion-ion interaction        :   0.838900E-02  0.838900E-04
-  structure factors          :   0.848656E-01  0.848656E-03
-  phase factors              :   0.277686E-02  0.277686E-04
-  masking and packing        :   0.360647E+00  0.360647E-02
-  queue fft                  :   0.252694E+01  0.252694E-01
-  queue fft (serial)         :   0.164783E+01  0.164783E-01
-  queue fft (message passing):   0.667660E+00  0.667660E-02
+  exchange correlation       :   0.122019E+00  0.122019E-02
+  local pseudopotentials     :   0.821204E-02  0.821204E-04
+  non-local pseudopotentials :   0.120918E+00  0.120918E-02
+  hartree potentials         :   0.812966E-03  0.812966E-05
+  ion-ion interaction        :   0.121951E-02  0.121951E-04
+  structure factors          :   0.127372E-01  0.127372E-03
+  phase factors              :   0.648499E-03  0.648499E-05
+  masking and packing        :   0.378369E-01  0.378369E-03
+  queue fft                  :   0.225366E+00  0.225366E-02
+  queue fft (serial)         :   0.135410E+00  0.135410E-02
+  queue fft (message passing):   0.834166E-01  0.834166E-03
   HFX potential              :   0.000000E+00  0.000000E+00
   qmmm LJ                    :   0.000000E+00  0.000000E+00
   qmmm residual Q            :   0.000000E+00  0.000000E+00
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:29:05 2007  <<<
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:28 2010  <<<
 
- Task  times  cpu:        8.4s     wall:        9.0s
- 
- 
+ Task  times  cpu:        1.9s     wall:        1.9s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
           ****************************************************
           *                                                  *
           *               NWPW PSPW Calculation              *
@@ -1024,14 +1277,22 @@ Time spent doing                        total          step
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Sat Dec  1 15:29:06 2007  <<<
+     >>>  JOB STARTED       AT Tue Oct 26 15:08:28 2010  <<<
           ================ input data ========================
 
- input psi filename:./sic2.00.elc
+ input psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.elc
 
- number of processors used:         1
- processor grid           :   1 x   1
- parallel mapping         :      slab
+ initializing pspw_APC data structure
+ ------------------------------------
+ nga, ngs:                    3                    9
+ Gc      :   2.50000000000000     
+ APC gamma:                    1  0.600000000000000     
+ APC gamma:                    2  0.900000000000000     
+ APC gamma:                    3   1.35000000000000     
+
+ number of processors used:         4
+ processor grid           :   4 x   1
+ parallel mapping         :   hilbert
  parallel mapping         :  balanced
 
  options:
@@ -1040,22 +1301,22 @@ Time spent doing                        total          step
       exchange-correlation = LDA (Vosko et al) parameterization
 
  elements involved in the cluster:
-      1: Si    core charge: 4.0  lmax=  2
+      1: Si    core charge:  4.0000  lmax=  2
              comment    : Hamann pseudopotential
              pseudpotential type            :   0
              highest angular component      :   2
              local potential used           :   2
              number of non-local projections:   4
              cutoff =   1.059   1.286   1.286
- 
-      2: C     core charge: 4.0  lmax=  2
+
+      2: C     core charge:  4.0000  lmax=  2
              comment    : Hamann pseudopotential
              pseudpotential type            :   0
              highest angular component      :   2
              local potential used           :   0
              number of non-local projections:   8
              cutoff =   0.800   0.850   0.850
- 
+
 
  total charge:   0.000
 
@@ -1066,7 +1327,7 @@ Time spent doing                        total          step
  number of orbitals : spin up=     6 (   6 per task)  down=     6 (   6 per task) (fourier space)
 
  supercell:
-      cell_name:  small                         
+      cell_name:  small                                             
       lattice:    a1=<  20.000   0.000   0.000 >
                   a2=<   0.000  20.000   0.000 >
                   a3=<   0.000   0.000  20.000 >
@@ -1075,10 +1336,10 @@ Time spent doing                        total          step
                   b3=<   0.000   0.000   0.314 >
       lattice:    a=      20.000 b=     20.000 c=      20.000
                   alpha=  90.000 beta=  90.000 gamma=  90.000
-                  omega=  8000.0
+                  omega=      8000.0
 
-      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
-      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
+      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
+      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
       ewald summation: cut radius=    6.37  and  1
                         madelung= 1.76011888
 
@@ -1095,35 +1356,35 @@ Time spent doing                        total          step
 
 
           ====== Grassmann conjugate gradient iteration ======
-     >>>  ITERATION STARTED AT Sat Dec  1 15:29:06 2007  <<<
+     >>>  ITERATION STARTED AT Tue Oct 26 15:08:29 2010  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
       25   -0.1374159877E+02   -0.46056E-04    0.26388E-05
       50   -0.1374175929E+02   -0.47411E-06    0.43474E-07
-      75   -0.1374176139E+02   -0.86920E-08    0.68908E-09
-     100   -0.1374176143E+02   -0.16550E-09    0.13038E-10
-     125   -0.1374176143E+02   -0.40963E-11    0.30571E-12
-     150   -0.1374176143E+02   -0.93792E-12    0.48458E-13
+      75   -0.1374176139E+02   -0.86923E-08    0.68911E-09
+     100   -0.1374176143E+02   -0.16549E-09    0.13033E-10
+     125   -0.1374176143E+02   -0.41389E-11    0.30362E-12
+     150   -0.1374176143E+02   -0.95568E-12    0.45860E-13
   *** tolerance ok. iteration terminated
-     >>>  ITERATION ENDED   AT Sat Dec  1 15:29:41 2007  <<<
+     >>>  ITERATION ENDED   AT Tue Oct 26 15:08:33 2010  <<<
 
 
 ==  Summary Of Results  ==
- 
+
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
  total     energy    :  -0.1374176143E+02 (   -0.45806E+01/ion)
- total orbital energy:  -0.5436114779E+01 (   -0.90602E+00/electron)
- hartree   energy    :   0.1962419406E+02 (    0.32707E+01/electron)
- exc-corr  energy    :  -0.4584145059E+01 (   -0.76402E+00/electron)
+ total orbital energy:  -0.5436114750E+01 (   -0.90602E+00/electron)
+ hartree   energy    :   0.1962419409E+02 (    0.32707E+01/electron)
+ exc-corr  energy    :  -0.4584145066E+01 (   -0.76402E+00/electron)
  ion-ion   energy    :   0.9908523769E+01 (    0.33028E+01/ion)
 
- kinetic (planewave) :   0.8992200517E+01 (    0.14987E+01/electron)
- V_local (planewave) :  -0.4733131490E+02 (   -0.78886E+01/electron)
- V_nl    (planewave) :  -0.3512198192E+00 (   -0.58537E-01/electron)
- V_Coul  (planewave) :   0.3924838812E+02 (    0.65414E+01/electron)
- V_xc.   (planewave) :  -0.5994168700E+01 (   -0.99903E+00/electron)
- Virial Coefficient  :  -0.1604536650E+01
+ kinetic (planewave) :   0.8992200529E+01 (    0.14987E+01/electron)
+ V_local (planewave) :  -0.4733131494E+02 (   -0.78886E+01/electron)
+ V_nl    (planewave) :  -0.3512198193E+00 (   -0.58537E-01/electron)
+ V_Coul  (planewave) :   0.3924838819E+02 (    0.65414E+01/electron)
+ V_xc.   (planewave) :  -0.5994168709E+01 (   -0.99903E+00/electron)
+ Virial Coefficient  :  -0.1604536646E+01
 
  orbital energies:
     -0.1534737E+00 (  -4.176eV)
@@ -1137,10 +1398,10 @@ Time spent doing                        total          step
 
 
 === Spin Contamination ===
- 
- <Sexact^2> =   0.000000000000000E+000
- <S^2>      =   0.000000000000000E+000
- 
+
+ <Sexact^2> =    0.00000000000000     
+ <S^2>      =    0.00000000000000     
+
 
 
 == Center of Charge ==
@@ -1162,30 +1423,30 @@ mu   =  (    0.2231,    5.3188,    0.0000 ) au
 
 mu   =  (    0.2231,   -0.5499,    0.0000 ) au
 |mu| =     0.5934 au,       1.5083 Debye
- 
- 
- 
+
+
+
  *************************************************************
  **                                                         **
  **                  PSPW Mulliken analysis                 **
  **                                                         **
  ** Population analysis algorithm devloped by Ryoichi Kawai **
  **                                                         **
- **                   Sat Dec  1 15:29                      **
+ **                   Tue Oct 26 15:08                      **
  **                                                         **
  *************************************************************
 
 
 == XYZ OUTPUT ==
 
- 
-           3
- 
+
+                    3
+
 Si            0.000000      0.488471      0.000000
 C             0.656179     -0.569883      0.000000
 C            -0.656179     -0.569883      0.000000
- 
- 
+
+
  =====================================================
  | POPULATION ANALYSIS OF FILLED MOLECULAR ORBITALS  |
  =====================================================
@@ -1378,13 +1639,13 @@ NO  ATOM  L  POPULATION
 
       s         p         d         f
     0.6405    0.3595    0.0000    0.0000
- 
- 
+
+
  ========================================
  |   POPULATION ANALYSIS ON EACH ATOM   |
  ========================================
- 
- 
+
+
 NO  ATOM  SPIN    TOTAL       s          p          d          f
  1   Si     UP      2.03868    0.64805    1.39063
  1   Si     DOWN    2.03868    0.64805    1.39063
@@ -1402,54 +1663,104 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
   UP       28.83%      71.17%       0.00%       0.00% 
  TOTAL     28.83%      71.17%       0.00%       0.00% 
 
- output psi filename:./sic2.00.elc
+ *************************************************************
+ **                                                         **
+ **          PSPW Atomic Point Charge (APC) Analysis        **
+ **                                                         **
+ **   Point charge analysis based on paper by P.E. Blochl   **
+ **         (J. Chem. Phys. vol 103, page 7422, 1995)       **
+ **                                                         **
+ *************************************************************
+
+ pspw_APC data structure
+ -----------------------
+ nga, ngs:                    3                    9
+ Gc      :   2.50000000000000     
+ APC gamma:                    1  0.600000000000000     
+ APC gamma:                    2  0.900000000000000     
+ APC gamma:                    3   1.35000000000000     
+
+ charge analysis on each atom
+ ----------------------------
+
+    no  atom        Qelc        Qion      Qtotal
+    --  ----     -------     -------     -------
+     1  Si        -4.000       4.000       0.000
+     2  C         -3.931       4.000       0.069
+     3  C         -4.070       4.000      -0.070
+     Total Q     -12.000      12.000       0.000
+
+
+ gaussian coefficients of model density
+ --------------------------------------
+
+    no  atom     g=0.000     g=0.600     g=0.900     g=1.350
+    --  ----     -------     -------     -------     -------
+     1  Si         4.000     -10.187      21.035     -14.847
+     2  C          4.000      -2.673       4.273      -5.530
+     3  C          4.000      -3.749       6.479      -6.800
+
+
+=== Electric Field at Atoms ===
+
+      1 Si   Atomic Electric Field =(   -0.00093   -0.00699    0.00000 )
+                    (ion)          =(    0.00000    1.21935    0.00000 )
+                    (electronic)   =(   -0.00093   -1.22633    0.00000 )
+      2 C    Atomic Electric Field =(    0.01213    0.02226    0.00000 )
+                    (ion)          =(    1.02305   -0.60967    0.00000 )
+                    (electronic)   =(   -1.01092    0.63193    0.00000 )
+      3 C    Atomic Electric Field =(   -0.06560   -0.00170    0.00000 )
+                    (ion)          =(   -1.02305   -0.60967    0.00000 )
+                    (electronic)   =(    0.95745    0.60797    0.00000 )
+
+ output psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.elc
 
 
 == Timing ==
 
 cputime in seconds
-  prologue    :   0.481011E+00
-  main loop   :   0.347259E+02
-  epilogue    :   0.171907E+00
-  total       :   0.353788E+02
-  cputime/step:   0.573982E-01       (     605 evalulations,     135 linesearches)
+  prologue    :   0.196169E+00
+  main loop   :   0.437436E+01
+  epilogue    :   0.259578E-01
+  total       :   0.459649E+01
+  cputime/step:   0.738912E-02       (     592 evalulations,     135 linesearches)
 
 
 Time spent doing                        total          step
-  FFTs                       :   0.208676E+01  0.344918E-02
-  dot products               :   0.416686E+01  0.688738E-02
-  geodesic                   :   0.286505E+01  0.473562E-02
-  ffm_dgemm                  :   0.365657E+00  0.604391E-03
-  fmf_dgemm                  :   0.177934E+01  0.294106E-02
-  m_diagonalize              :   0.284507E-01  0.470260E-04
+  FFTs                       :   0.264312E+00  0.446472E-03
+  dot products               :   0.401969E+00  0.679002E-03
+  geodesic                   :   0.859920E+00  0.145257E-02
+  ffm_dgemm                  :   0.384699E-01  0.649829E-04
+  fmf_dgemm                  :   0.703706E+00  0.118869E-02
+  m_diagonalize              :   0.564661E-02  0.953820E-05
     - m_tredq                :   0.000000E+00  0.000000E+00
     - m_getdiags             :   0.000000E+00  0.000000E+00
     - m_tqliq                :   0.000000E+00  0.000000E+00
     - m_eigsrt               :   0.000000E+00  0.000000E+00
-  exchange correlation       :   0.277701E+01  0.459011E-02
-  local pseudopotentials     :   0.585079E-03  0.967073E-06
-  non-local pseudopotentials :   0.582206E+01  0.962325E-02
-  hartree potentials         :   0.234784E+00  0.388072E-03
-  ion-ion interaction        :   0.489950E-02  0.809835E-05
-  structure factors          :   0.217729E+00  0.359882E-03
-  phase factors              :   0.426769E-04  0.705404E-07
-  masking and packing        :   0.202475E+01  0.334670E-02
-  queue fft                  :   0.149225E+02  0.246653E-01
-  queue fft (serial)         :   0.972061E+01  0.160671E-01
-  queue fft (message passing):   0.397294E+01  0.656685E-02
+  exchange correlation       :   0.746213E+00  0.126049E-02
+  local pseudopotentials     :   0.860691E-04  0.145387E-06
+  non-local pseudopotentials :   0.672160E+00  0.113541E-02
+  hartree potentials         :   0.194857E-01  0.329151E-04
+  ion-ion interaction        :   0.970602E-03  0.163953E-05
+  structure factors          :   0.215161E-01  0.363447E-04
+  phase factors              :   0.278940E-04  0.471182E-07
+  masking and packing        :   0.210517E+00  0.355603E-03
+  queue fft                  :   0.134818E+01  0.227733E-02
+  queue fft (serial)         :   0.805533E+00  0.136070E-02
+  queue fft (message passing):   0.501863E+00  0.847742E-03
   HFX potential              :   0.000000E+00  0.000000E+00
   qmmm LJ                    :   0.000000E+00  0.000000E+00
   qmmm residual Q            :   0.000000E+00  0.000000E+00
- 
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:29:41 2007  <<<
 
- Task  times  cpu:       34.0s     wall:       35.4s
- 
- 
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:33 2010  <<<
+
+ Task  times  cpu:        4.5s     wall:        4.6s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
  >>>> PSPW Parallel Module - steepest_descent <<<<
           ****************************************************
           *                                                  *
@@ -1466,14 +1777,22 @@ Time spent doing                        total          step
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Sat Dec  1 15:29:41 2007  <<<
+     >>>  JOB STARTED       AT Tue Oct 26 15:08:33 2010  <<<
           ================ PSPW input data ===================
 
- input psi filename:./sic2.00.elc
+ input psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.elc
 
- number of processors used:  1
- processor grid           :   1 x   1
- parallel mapping         : slab
+ initializing pspw_APC data structure
+ ------------------------------------
+ nga, ngs:                    3                    9
+ Gc      :   2.50000000000000     
+ APC gamma:                    1  0.600000000000000     
+ APC gamma:                    2  0.900000000000000     
+ APC gamma:                    3   1.35000000000000     
+
+ number of processors used:         4
+ processor grid           :   4 x   1
+ parallel mapping         : hilbert
  parallel mapping         : balanced
 
  options:
@@ -1516,9 +1835,9 @@ Time spent doing                        total          step
       reciprocal: b1=<   0.314   0.000   0.000 >
                   b2=<   0.000   0.314   0.000 >
                   b3=<   0.000   0.000   0.314 >
-      volume :     8000.0
-      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
-      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
+      volume :       8000.0
+      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
+      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
       ewald summation: cut radius=    6.37  and  1
                         madelung= 1.76011888
 
@@ -1526,17 +1845,18 @@ Time spent doing                        total          step
       translation contrained
       time step=     51.80     ficticious mass=  400000.0
       tolerance=.100E-08 (energy)   0.100E-08 (electron)   0.100E-03 (ion)
+      maximum iterations =     100 (   10 inner   10 outer )
 
 
 
           ================ iteration =========================
-     >>>  ITERATION STARTED AT Sat Dec  1 15:29:41 2007  <<<
+     >>>  ITERATION STARTED AT Tue Oct 26 15:08:33 2010  <<<
     iter.           Energy         DeltaE       DeltaRho 
     ------------------------------------------------------
-      10   -0.1374176143E+02   -0.26528E-01    0.81616E-14    0.00000E+00
-      20   -0.1374176143E+02   -0.64470E-15    0.63879E-14    0.00000E+00
+      10   -0.1374176143E+02   -0.26528E-01    0.84885E-14    0.00000E+00
+      20   -0.1374176143E+02   -0.74072E-15    0.66311E-14    0.00000E+00
   *** tolerance ok.     iteration terminated.
-     >>>  ITERATION ENDED   AT Sat Dec  1 15:29:43 2007  <<<
+     >>>  ITERATION ENDED   AT Tue Oct 26 15:08:33 2010  <<<
 
 
 
@@ -1547,21 +1867,21 @@ Time spent doing                        total          step
         3 C    (   -1.24000   -1.07692    0.00000 ) - atomic mass=  12.000          
         G.C.   (    0.00000   -0.41026    0.00000 )
         C.O.M. (    0.00000    0.00000    0.00000 )
- 
+
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
 
  total     energy    :  -0.1374176143E+02 (   -0.45806E+01/ion)
- total orbital energy:  -0.5436114927E+01 (   -0.90602E+00/electron)
+ total orbital energy:  -0.5436114924E+01 (   -0.90602E+00/electron)
  hartree   energy    :   0.1962419391E+02 (    0.32707E+01/electron)
- exc-corr  energy    :  -0.4584145038E+01 (   -0.76402E+00/electron)
+ exc-corr  energy    :  -0.4584145039E+01 (   -0.76402E+00/electron)
  ion-ion   energy    :   0.9908523769E+01 (    0.33028E+01/ion)
 
- K.S. kinetic energy :   0.8992200471E+01 (    0.14987E+01/electron)
+ K.S. kinetic energy :   0.8992200465E+01 (    0.14987E+01/electron)
  K.S. V_l  energy    :  -0.4733131472E+02 (   -0.78886E+01/electron)
- K.S. V_nl energy    :  -0.3512198254E+00 (   -0.58537E-01/electron)
+ K.S. V_nl energy    :  -0.3512198213E+00 (   -0.58537E-01/electron)
  K.S. V_Hart energy  :   0.3924838782E+02 (    0.65414E+01/electron)
- K.S. V_xc energy    :  -0.5994168672E+01 (   -0.99903E+00/electron)
+ K.S. V_xc energy    :  -0.5994168674E+01 (   -0.99903E+00/electron)
  Virial Coefficient  :  -0.1604536670E+01
 
  orbital energies:
@@ -1576,10 +1896,10 @@ Time spent doing                        total          step
 
 
 === Spin Contamination ===
- 
- <Sexact^2> =   0.000000000000000E+000
- <S^2>      =   0.000000000000000E+000
- 
+
+ <Sexact^2> =    0.00000000000000     
+ <S^2>      =    0.00000000000000     
+
 
 
 == Center of Charge ==
@@ -1601,30 +1921,30 @@ mu   =  (    0.2231,    5.3188,    0.0000 ) au
 
 mu   =  (    0.2231,   -0.5499,    0.0000 ) au
 |mu| =     0.5934 au,       1.5083 Debye
- 
- 
- 
+
+
+
  *************************************************************
  **                                                         **
  **                  PSPW Mulliken analysis                 **
  **                                                         **
  ** Population analysis algorithm devloped by Ryoichi Kawai **
  **                                                         **
- **                   Sat Dec  1 15:29                      **
+ **                   Tue Oct 26 15:08                      **
  **                                                         **
  *************************************************************
 
 
 == XYZ OUTPUT ==
 
- 
-           3
- 
+
+                    3
+
 Si            0.000000      0.488471      0.000000
 C             0.656179     -0.569883      0.000000
 C            -0.656179     -0.569883      0.000000
- 
- 
+
+
  =====================================================
  | POPULATION ANALYSIS OF FILLED MOLECULAR ORBITALS  |
  =====================================================
@@ -1646,7 +1966,7 @@ NO  ATOM  L  POPULATION
                                 s
  2   C      0    0.00098    0.03130
                                px         py         pz
- 2   C      1    0.13375    0.20169    0.30508    0.00000
+ 2   C      1    0.13375    0.20169    0.30507    0.00000
                                 s
  3   C      0    0.00608   -0.07795
                                px         py         pz
@@ -1817,13 +2137,13 @@ NO  ATOM  L  POPULATION
 
       s         p         d         f
     0.6405    0.3595    0.0000    0.0000
- 
- 
+
+
  ========================================
  |   POPULATION ANALYSIS ON EACH ATOM   |
  ========================================
- 
- 
+
+
 NO  ATOM  SPIN    TOTAL       s          p          d          f
  1   Si     UP      2.03868    0.64805    1.39063
  1   Si     DOWN    2.03868    0.64805    1.39063
@@ -1841,63 +2161,100 @@ NO  ATOM  SPIN    TOTAL       s          p          d          f
   UP       28.83%      71.17%       0.00%       0.00% 
  TOTAL     28.83%      71.17%       0.00%       0.00% 
 
- output psi filename:./sic2.00.elc
- 
+ *************************************************************
+ **                                                         **
+ **          PSPW Atomic Point Charge (APC) Analysis        **
+ **                                                         **
+ **   Point charge analysis based on paper by P.E. Blochl   **
+ **         (J. Chem. Phys. vol 103, page 7422, 1995)       **
+ **                                                         **
+ *************************************************************
+
+ pspw_APC data structure
+ -----------------------
+ nga, ngs:                    3                    9
+ Gc      :   2.50000000000000     
+ APC gamma:                    1  0.600000000000000     
+ APC gamma:                    2  0.900000000000000     
+ APC gamma:                    3   1.35000000000000     
+
+ charge analysis on each atom
+ ----------------------------
+
+    no  atom        Qelc        Qion      Qtotal
+    --  ----     -------     -------     -------
+     1  Si        -4.000       4.000       0.000
+     2  C         -3.931       4.000       0.069
+     3  C         -4.070       4.000      -0.070
+     Total Q     -12.000      12.000       0.000
+
+
+ gaussian coefficients of model density
+ --------------------------------------
+
+    no  atom     g=0.000     g=0.600     g=0.900     g=1.350
+    --  ----     -------     -------     -------     -------
+     1  Si         4.000     -10.187      21.035     -14.847
+     2  C          4.000      -2.673       4.273      -5.530
+     3  C          4.000      -3.749       6.479      -6.800
+
+ output psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.elc
+
  -----------------
  cputime in seconds
- prologue    :   0.471596002578735     
- main loop   :    1.18219113349915     
- epilogue    :   0.217079877853394     
- total       :    1.87086701393127     
- cputime/step:   5.910955667495728E-002
- 
+ prologue    :   0.205297946929932     
+ main loop   :   0.129551172256470     
+ epilogue    :   4.244899749755859E-002
+ total       :   0.377298116683960     
+ cputime/step:   6.477558612823486E-003
+
 
 
 Time spent doing                        total          step
-  FFTs                       :   0.765395E-01  0.382698E-02
-  dot products               :   0.186286E+00  0.931432E-02
-  geodesic                   :   0.333860E-01  0.166930E-02
-  ffm_dgemm                  :   0.589285E-01  0.294642E-02
-  fmf_dgemm                  :   0.118697E-01  0.593483E-03
-  m_diagonalize              :   0.170946E-03  0.854731E-05
+  FFTs                       :   0.912903E-02  0.456452E-03
+  dot products               :   0.143063E-01  0.715314E-03
+  geodesic                   :   0.297213E-02  0.148606E-03
+  ffm_dgemm                  :   0.639822E-02  0.319911E-03
+  fmf_dgemm                  :   0.592470E-02  0.296235E-03
+  m_diagonalize              :   0.369549E-04  0.184774E-05
     - m_tredq                :   0.000000E+00  0.000000E+00
     - m_getdiags             :   0.000000E+00  0.000000E+00
     - m_tqliq                :   0.000000E+00  0.000000E+00
     - m_eigsrt               :   0.000000E+00  0.000000E+00
-  exchange correlation       :   0.927622E-01  0.463811E-02
-  local pseudopotentials     :   0.141299E-01  0.706494E-03
-  non-local pseudopotentials :   0.218698E+00  0.109349E-01
-  hartree potentials         :   0.446558E-02  0.223279E-03
-  ion-ion interaction        :   0.172091E-02  0.860453E-04
-  structure factors          :   0.385239E-01  0.192620E-02
-  phase factors              :   0.412226E-03  0.206113E-04
-  masking and packing        :   0.870214E-01  0.435107E-02
-  queue fft                  :   0.509006E+00  0.254503E-01
-  queue fft (serial)         :   0.334517E+00  0.167259E-01
-  queue fft (message passing):   0.134039E+00  0.670196E-02
+  exchange correlation       :   0.249674E-01  0.124837E-02
+  local pseudopotentials     :   0.165867E-02  0.829333E-04
+  non-local pseudopotentials :   0.236702E-01  0.118351E-02
+  hartree potentials         :   0.195737E-03  0.978683E-05
+  ion-ion interaction        :   0.244856E-03  0.122428E-04
+  structure factors          :   0.865338E-02  0.432669E-03
+  phase factors              :   0.141382E-03  0.706911E-05
+  masking and packing        :   0.121828E-01  0.609140E-03
+  queue fft                  :   0.457065E-01  0.228532E-02
+  queue fft (serial)         :   0.270735E-01  0.135368E-02
+  queue fft (message passing):   0.173268E-01  0.866338E-03
   HFX potential              :   0.000000E+00  0.000000E+00
   qmmm LJ                    :   0.000000E+00  0.000000E+00
   qmmm residual Q            :   0.000000E+00  0.000000E+00
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:29:43 2007  <<<
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:33 2010  <<<
 
- Task  times  cpu:        1.7s     wall:        1.9s
- 
- 
+ Task  times  cpu:        0.4s     wall:        0.4s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
  >>>> PSPW Serial Module - v_wavefunction_initializer <<<<
-  JOB HAS BEEN COMPLETED.  CODE=           0
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:29:43 2007  <<<
+  JOB HAS BEEN COMPLETED.  CODE=                    0
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:33 2010  <<<
 
  Task  times  cpu:        0.0s     wall:        0.0s
- 
- 
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
  >>>> PSPW Parallel Module - Car-Parrinello <<<<
           ****************************************************
           *                                                  *
@@ -1915,16 +2272,16 @@ Time spent doing                        total          step
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Sat Dec  1 15:29:43 2007  <<<
+     >>>  JOB STARTED       AT Tue Oct 26 15:08:33 2010  <<<
           ================ input data ========================
 
- input psi filename:./sic2.00.elc
+ input psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.elc
 
- input vpsi filename:./sic2.00.velc
+ input vpsi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.velc
 
- number of processors used:  1
- processor grid           :   1 x   1
- parallel mapping         : slab
+ number of processors used:         4
+ processor grid           :   4 x   1
+ parallel mapping         : hilbert
  parallel mapping         : balanced
 
  options:
@@ -1973,9 +2330,9 @@ Time spent doing                        total          step
       reciprocal: b1=<   0.314   0.000   0.000 >
                   b2=<   0.000   0.314   0.000 >
                   b3=<   0.000   0.000   0.314 >
-      volume :     8000.0
-      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
-      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
+      volume :       8000.0
+      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
+      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
       ewald summation: cut radius=    6.37  and  1
                         madelung= 1.76011888
 
@@ -1983,6 +2340,7 @@ Time spent doing                        total          step
       translation contrained
       time step=      5.00     ficticious mass=     500.0
       cooling/heatting rates:  0.10000E+01 (psi)   0.10000E+01 (ion)
+      maximum iterations =     100 (   10 inner   10 outer )
       initial kinetic energy:  0.00000E+00 (psi)   0.00000E+00 (ion)
                                                    0.00000E+00 (c.o.m.)
       after scaling:           0.00000E+00 (psi)   0.00000E+00 (ion)
@@ -1996,7 +2354,7 @@ Time spent doing                        total          step
 
 
           ============ Car-Parrinello iteration ==============
-     >>>  ITERATION STARTED AT Sat Dec  1 15:29:43 2007  <<<
+     >>>  ITERATION STARTED AT Tue Oct 26 15:08:34 2010  <<<
     iter.         KE+Energy             Energy        KE_psi        KE_ion   Temperature
     ------------------------------------------------------------------------------------
       10  -0.1374191809E+02  -0.1389893378E+02   0.77571E-02   0.14926E+00      11836.45
@@ -2007,10 +2365,10 @@ Time spent doing                        total          step
       60  -0.1374193554E+02  -0.1446032147E+02   0.37786E-01   0.68060E+00     101394.00
       70  -0.1374192680E+02  -0.1442389115E+02   0.33158E-01   0.64881E+00     106770.34
       80  -0.1374193156E+02  -0.1438958545E+02   0.28967E-01   0.61869E+00     110019.28
-      90  -0.1374192740E+02  -0.1435456725E+02   0.25265E-01   0.58737E+00     111848.12
-     100  -0.1374192309E+02  -0.1432394662E+02   0.25336E-01   0.55669E+00     112656.86
+      90  -0.1374192740E+02  -0.1435456726E+02   0.25265E-01   0.58737E+00     111848.12
+     100  -0.1374192309E+02  -0.1432394662E+02   0.25336E-01   0.55669E+00     112656.87
  *** arived at the Maximum iteration.   terminated.
-     >>>  ITERATION ENDED   AT Sat Dec  1 15:29:52 2007  <<<
+     >>>  ITERATION ENDED   AT Tue Oct 26 15:08:34 2010  <<<
 
 
  Elapsed time of simulation was  12.094 fs
@@ -2032,27 +2390,27 @@ Time spent doing                        total          step
         3 C    (   -0.00044   -0.00392    0.00000 )
         G.C.   (   -0.00003   -0.00140    0.00000 )
         C.O.M. (    0.00000    0.00000    0.00000 )
- 
+
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
  total     energy    :  -0.1432394662E+02 (   -0.47746E+01/ion)
- total orbital energy:  -0.4010495166E+01 (   -0.66842E+00/electron)
- hartree   energy    :   0.1169202171E+02 (    0.19487E+01/electron)
- exc-corr  energy    :  -0.3700616017E+01 (   -0.61677E+00/electron)
- ion-ion   energy    :   0.2478124208E+00 (    0.82604E-01/ion)
+ total orbital energy:  -0.4010495169E+01 (   -0.66842E+00/electron)
+ hartree   energy    :   0.1169202174E+02 (    0.19487E+01/electron)
+ exc-corr  energy    :  -0.3700616020E+01 (   -0.61677E+00/electron)
+ ion-ion   energy    :   0.2478124472E+00 (    0.82604E-01/ion)
 
- Kinetic energy (elc)    :   0.2533555761E-01 (    0.42226E-02/elc)
- Kinetic energy (ion)    :   0.5566879704E+00 (    0.18556E+00/ion)
+ Kinetic energy (elc)    :   0.2533555677E-01 (    0.42226E-02/elc)
+ Kinetic energy (ion)    :   0.5566879753E+00 (    0.18556E+00/ion)
 
  final kinetic energy:   0.25336E-01 (psi)   0.55669E+00 (ion)
-                                             0.16494E-28 (c.o.m.)
+                                             0.83123E-28 (c.o.m.)
  Temperature :           0.4 K (elc)
  Temperature :      112656.9 K (ion)
              :           0.0 K (c.o.m.)
 
- Eaverage           :      -0.1433741616E+02
- Evariance          :       0.2850181174E-01
- Cv - f*kb/(2*nion) :       0.2363832098E-06
+ Vaverage  Eaverage :      -0.1433741616E+02  -0.1374195908E+02
+ Vvariance Evariance:       0.2850181192E-01   0.1908944114E-08
+ Cv - f*kb/(2*nion) :       0.2363832084E-06
 
  orbital energies:
     -0.1764203E+00 (  -4.801eV)
@@ -2066,10 +2424,10 @@ Time spent doing                        total          step
 
 
 === Spin Contamination ===
- 
- <Sexact^2> =   0.000000000000000E+000
- <S^2>      =   0.000000000000000E+000
- 
+
+ <Sexact^2> =    0.00000000000000     
+ <S^2>      =    0.00000000000000     
+
 
 
 == Center of Charge ==
@@ -2092,124 +2450,132 @@ mu   =  (   -0.3811,   13.5490,    0.0000 ) au
 mu   =  (   -0.1318,    1.3145,    0.0000 ) au
 |mu| =     1.3211 au,       3.3576 Debye
 
- output psi filename:./sic2.01.elc
+ output psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.01.elc
 
- output vpsi filename:./sic2.01.velc
- 
+ output vpsi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.01.velc
+
  ===== Calculating pair distribution function ====
- 
- 
- frames used:            10
- natoms:                  3
+
+
+ frames used:                     10
+ natoms:                           3
  delr:           1.000000000000000E-002
  volume:          8000.00000000000     
- maxbin:                999
- MOTION filename:     
- ./SiC2-MD.ion_motion                                                           
-                                                                                
-                                                                                
-                   
- g(r)   filename:     
- ./PAIR_DISTRIBUTION                                                            
-                                                                                
-                                                                                
-                   
- 
- 
+ maxbin:                         999
+ MOTION filename:     /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion                                                                                                                                                                          
+ g(r)   filename:     /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/PAIR_DISTRIBUTION                                                                                                                                                                           
+
+
+ ===== Calculating radial distribution functions ====
+
+
+ frames used:                    10
+ natoms:                          3
+ nkatoms:                         2
+ atoms:       Si C                                                                                                                                                                                                                                                           
+ delr:          1.000000000000000E-002
+ volume:         8000.00000000000     
+    a1:        20.000   0.000   0.000
+    a2:         0.000  20.000   0.000
+    a3:         0.000   0.000  20.000
+ maxbin:                        999
+ MOTION filename:    /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiSi.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiSi.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CSi.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CSi.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CC.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CC.hist 
+
+
  ===== Calculating velocity auto correlation ====
- 
- 
- frames used:           10
- natoms:                 3
+
+
+ frames used:                    10
+ natoms:                          3
  volume:         8000.00000000000     
  time interval (au)       :    50.0000000000000     
  Max time      (au)       :    450.000000000000     
  frequency interval (cm-1):    2759.76477774143     
  Max frequency (cm-1)     :    13798.8238887072     
- MOTION filename: 
- ./SiC2-MD.ion_motion                                                           
-                                                                                
-                                                                                
-                   
- <v*v>  filename: 
- ./VEL_CORRELATION                                                              
-                                                                                
-                                                                                
-                   
- s(k)   filename: 
- ./POWER_SPECTRUM                                                               
-                                                                                
-                                                                                
-                   
- 
- 
+ MOTION filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion                                                                                                                                                                          
+ <v*v>  filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/VEL_CORRELATION                                                                                                                                                                             
+ s(k)   filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/POWER_SPECTRUM                                                                                                                                                                              
+
+
  -----------------
  cputime in seconds
- prologue    :   0.545147895812988     
- main loop   :    8.45250010490417     
- epilogue    :   0.174191951751709     
- total       :    9.17183995246887     
- cputime/step:   8.452500104904175E-002
- 
+ prologue    :   0.209090949104858     
+ main loop   :   0.884179114295410     
+ epilogue    :   7.808995246887207E-002
+ total       :    1.17136001586914     
+ cputime/step:   8.841791142954102E-003
+
 
 
 Time spent doing                        total          step
-  FFTs                       :   0.353525E+00  0.353525E-02
-  dot products               :   0.118764E+01  0.118764E-01
-  geodesic                   :   0.330243E-01  0.330243E-03
-  ffm_dgemm                  :   0.265531E+00  0.265531E-02
-  fmf_dgemm                  :   0.492244E-01  0.492244E-03
-  m_diagonalize              :   0.169992E-03  0.169992E-05
+  FFTs                       :   0.456168E-01  0.456168E-03
+  dot products               :   0.119659E+00  0.119659E-02
+  geodesic                   :   0.398206E-02  0.398206E-04
+  ffm_dgemm                  :   0.318892E-01  0.318892E-03
+  fmf_dgemm                  :   0.302019E-01  0.302019E-03
+  m_diagonalize              :   0.348091E-04  0.348091E-06
     - m_tredq                :   0.000000E+00  0.000000E+00
     - m_getdiags             :   0.000000E+00  0.000000E+00
     - m_tqliq                :   0.000000E+00  0.000000E+00
     - m_eigsrt               :   0.000000E+00  0.000000E+00
-  exchange correlation       :   0.452217E+00  0.452217E-02
-  local pseudopotentials     :   0.110973E+00  0.110973E-02
-  non-local pseudopotentials :   0.194875E+01  0.194875E-01
-  hartree potentials         :   0.964737E-02  0.964737E-04
-  ion-ion interaction        :   0.158315E+00  0.158315E-02
-  structure factors          :   0.381955E+00  0.381955E-02
-  phase factors              :   0.216413E-02  0.216413E-04
-  masking and packing        :   0.436937E+00  0.436937E-02
-  queue fft                  :   0.230012E+01  0.230012E-01
-  queue fft (serial)         :   0.148806E+01  0.148806E-01
-  queue fft (message passing):   0.615119E+00  0.615119E-02
+  exchange correlation       :   0.126633E+00  0.126633E-02
+  local pseudopotentials     :   0.145602E-01  0.145602E-03
+  non-local pseudopotentials :   0.203306E+00  0.203306E-02
+  hartree potentials         :   0.904285E-03  0.904285E-05
+  ion-ion interaction        :   0.238726E-01  0.238726E-03
+  structure factors          :   0.747486E-01  0.747486E-03
+  phase factors              :   0.514507E-03  0.514507E-05
+  masking and packing        :   0.608932E-01  0.608932E-03
+  queue fft                  :   0.233551E+00  0.233551E-02
+  queue fft (serial)         :   0.137219E+00  0.137219E-02
+  queue fft (message passing):   0.893424E-01  0.893424E-03
   HFX potential              :   0.000000E+00  0.000000E+00
   qmmm LJ                    :   0.000000E+00  0.000000E+00
   qmmm residual Q            :   0.000000E+00  0.000000E+00
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:29:52 2007  <<<
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:35 2010  <<<
 
- Task  times  cpu:        7.0s     wall:        9.2s
- 
- 
+ Task  times  cpu:        1.1s     wall:        1.2s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
 
           ------
           auto-z
           ------
- 
- 
+
+
                          Geometry "geometry" -> "        "
                          ---------------------------------
- 
+
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 Si                  14.0000     0.00000000     0.92307692     0.00000000
     2 C                    6.0000     1.24000000    -1.07692308     0.00000000
     3 C                    6.0000    -1.24000000    -1.07692308     0.00000000
- 
+
       Atomic Mass 
       ----------- 
- 
+
       Si                28.000000
       C                 12.000000
- 
+
 
  Effective nuclear repulsion energy (a.u.)      85.9079551361
 
@@ -2218,14 +2584,14 @@ Time spent doing                        total          step
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000     0.0000000000
- 
+
 
 
                                 Z-matrix (autoz)
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value
       ----------- --------  ----- ----- ----- ----- ----- ----------
     1 Stretch                  1     2                       1.24527
@@ -2234,8 +2600,8 @@ Time spent doing                        total          step
     4 Bend                     1     2     3                58.20109
     5 Bend                     1     3     2                58.20109
     6 Bend                     2     1     3                63.59783
- 
- 
+
+
             XYZ format geometry
             -------------------
      3
@@ -2243,7 +2609,7 @@ Time spent doing                        total          step
  Si                    0.00000000     0.48847131     0.00000000
  C                     0.65617979    -0.56988319     0.00000000
  C                    -0.65617979    -0.56988319     0.00000000
- 
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -2289,16 +2655,16 @@ Time spent doing                        total          step
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Sat Dec  1 15:29:52 2007  <<<
+     >>>  JOB STARTED       AT Tue Oct 26 15:08:35 2010  <<<
           ================ input data ========================
 
- input psi filename:./sic2.00.elc
+ input psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.elc
 
- input vpsi filename:./sic2.00.velc
+ input vpsi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.velc
 
- number of processors used:  1
- processor grid           :   1 x   1
- parallel mapping         : slab
+ number of processors used:         4
+ processor grid           :   4 x   1
+ parallel mapping         : hilbert
  parallel mapping         : balanced
 
  options:
@@ -2347,9 +2713,9 @@ Time spent doing                        total          step
       reciprocal: b1=<   0.314   0.000   0.000 >
                   b2=<   0.000   0.314   0.000 >
                   b3=<   0.000   0.000   0.314 >
-      volume :     8000.0
-      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
-      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
+      volume :       8000.0
+      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
+      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
       ewald summation: cut radius=    6.37  and  1
                         madelung= 1.76011888
 
@@ -2357,6 +2723,7 @@ Time spent doing                        total          step
       translation contrained
       time step=      5.00     ficticious mass=     500.0
       cooling/heatting rates:  0.10000E+01 (psi)   0.10000E+01 (ion)
+      maximum iterations =     100 (   10 inner   10 outer )
       initial kinetic energy:  0.00000E+00 (psi)   0.00000E+00 (ion)
                                                    0.00000E+00 (c.o.m.)
       after scaling:           0.00000E+00 (psi)   0.00000E+00 (ion)
@@ -2372,7 +2739,7 @@ Time spent doing                        total          step
 
 
           ============ Car-Parrinello iteration ==============
-     >>>  ITERATION STARTED AT Sat Dec  1 15:29:53 2007  <<<
+     >>>  ITERATION STARTED AT Tue Oct 26 15:08:35 2010  <<<
     iter.         KE+Energy             Energy        KE_psi        KE_ion   Temperature
     ------------------------------------------------------------------------------------
       10  -0.1374035461E+02  -0.1379255747E+02   0.64944E-03   0.16747E-02        862.43
@@ -2386,7 +2753,7 @@ Time spent doing                        total          step
       90  -0.1374044840E+02  -0.1399889172E+02   0.55153E-03   0.13157E-02        351.27
      100  -0.1374045403E+02  -0.1402039871E+02   0.52052E-03   0.13241E-02        343.98
  *** arived at the Maximum iteration.   terminated.
-     >>>  ITERATION ENDED   AT Sat Dec  1 15:30:02 2007  <<<
+     >>>  ITERATION ENDED   AT Tue Oct 26 15:08:36 2010  <<<
 
 
  Elapsed time of simulation was  12.094 fs
@@ -2408,29 +2775,29 @@ Time spent doing                        total          step
         3 C    (   -0.00009   -0.00018    0.00000 )
         G.C.   (    0.00000   -0.00006    0.00000 )
         C.O.M. (    0.00000    0.00000    0.00000 )
- 
+
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
  total     energy    :  -0.1402039871E+02 (   -0.46735E+01/ion)
- total orbital energy:  -0.5304537249E+01 (   -0.88409E+00/electron)
- hartree   energy    :   0.1885919262E+02 (    0.31432E+01/electron)
- exc-corr  energy    :  -0.4477462728E+01 (   -0.74624E+00/electron)
- ion-ion   energy    :   0.8767262215E+01 (    0.29224E+01/ion)
+ total orbital energy:  -0.5304537233E+01 (   -0.88409E+00/electron)
+ hartree   energy    :   0.1885919264E+02 (    0.31432E+01/electron)
+ exc-corr  energy    :  -0.4477462730E+01 (   -0.74624E+00/electron)
+ ion-ion   energy    :   0.8767262216E+01 (    0.29224E+01/ion)
 
- Kinetic energy (elc)    :   0.5205188896E-03 (    0.86753E-04/elc)
- Kinetic energy (ion)    :   0.1324084486E-02 (    0.44136E-03/ion)
- thermostat energy (elc) :  -0.3050783315E-03 (   -0.50846E-04/elc)
- thermostat energy (ion) :   0.2784051586E+00 (    0.92802E-01/ion)
+ Kinetic energy (elc)    :   0.5205189559E-03 (    0.86753E-04/elc)
+ Kinetic energy (ion)    :   0.1324084484E-02 (    0.44136E-03/ion)
+ thermostat energy (elc) :  -0.3050787149E-03 (   -0.50846E-04/elc)
+ thermostat energy (ion) :   0.2784051587E+00 (    0.92802E-01/ion)
 
  final kinetic energy:   0.52052E-03 (psi)   0.13241E-02 (ion)
-                                             0.35613E-28 (c.o.m.)
+                                             0.42216E-29 (c.o.m.)
  Temperature :           0.0 K (elc)
  Temperature :         344.0 K (ion)
              :           0.0 K (c.o.m.)
 
- Eaverage           :      -0.1412521554E+02
- Evariance          :       0.6189824913E-01
- Cv - f*kb/(2*nion) :       0.5506494279E-01
+ Vaverage  Eaverage :      -0.1412521554E+02  -0.6955561061E+01
+ Vvariance Evariance:       0.6189824938E-01   0.4838245275E+02
+ Cv - f*kb/(2*nion) :       0.5506494304E-01
 
  orbital energies:
     -0.1602921E+00 (  -4.362eV)
@@ -2444,10 +2811,10 @@ Time spent doing                        total          step
 
 
 === Spin Contamination ===
- 
- <Sexact^2> =   0.000000000000000E+000
- <S^2>      =   0.000000000000000E+000
- 
+
+ <Sexact^2> =    0.00000000000000     
+ <S^2>      =    0.00000000000000     
+
 
 
 == Center of Charge ==
@@ -2470,101 +2837,109 @@ mu   =  (    0.2897,    6.3442,    0.0000 ) au
 mu   =  (    0.1843,   -0.5336,    0.0000 ) au
 |mu| =     0.5645 au,       1.4348 Debye
 
- output psi filename:./sic2.01.elc
+ output psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.01.elc
 
- output vpsi filename:./sic2.01.velc
- 
+ output vpsi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.01.velc
+
  ===== Calculating pair distribution function ====
- 
- 
- frames used:            20
- natoms:                  3
+
+
+ frames used:                     20
+ natoms:                           3
  delr:           1.000000000000000E-002
  volume:          8000.00000000000     
- maxbin:                999
- MOTION filename:     
- ./SiC2-MD.ion_motion                                                           
-                                                                                
-                                                                                
-                   
- g(r)   filename:     
- ./PAIR_DISTRIBUTION                                                            
-                                                                                
-                                                                                
-                   
- 
- 
+ maxbin:                         999
+ MOTION filename:     /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion                                                                                                                                                                          
+ g(r)   filename:     /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/PAIR_DISTRIBUTION                                                                                                                                                                           
+
+
+ ===== Calculating radial distribution functions ====
+
+
+ frames used:                    20
+ natoms:                          3
+ nkatoms:                         2
+ atoms:       Si C                                                                                                                                                                                                                                                           
+ delr:          1.000000000000000E-002
+ volume:         8000.00000000000     
+    a1:        20.000   0.000   0.000
+    a2:         0.000  20.000   0.000
+    a3:         0.000   0.000  20.000
+ maxbin:                        999
+ MOTION filename:    /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiSi.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiSi.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CSi.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CSi.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CC.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CC.hist 
+
+
  ===== Calculating velocity auto correlation ====
- 
- 
- frames used:           20
- natoms:                 3
+
+
+ frames used:                    20
+ natoms:                          3
  volume:         8000.00000000000     
  time interval (au)       :    50.0000000000000     
  Max time      (au)       :    950.000000000000     
  frequency interval (cm-1):    1379.88238887072     
  Max frequency (cm-1)     :    13798.8238887072     
- MOTION filename: 
- ./SiC2-MD.ion_motion                                                           
-                                                                                
-                                                                                
-                   
- <v*v>  filename: 
- ./VEL_CORRELATION                                                              
-                                                                                
-                                                                                
-                   
- s(k)   filename: 
- ./POWER_SPECTRUM                                                               
-                                                                                
-                                                                                
-                   
- 
- 
+ MOTION filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion                                                                                                                                                                          
+ <v*v>  filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/VEL_CORRELATION                                                                                                                                                                             
+ s(k)   filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/POWER_SPECTRUM                                                                                                                                                                              
+
+
  -----------------
  cputime in seconds
- prologue    :   0.568841934204102     
- main loop   :    9.22687387466431     
- epilogue    :   0.185803174972534     
- total       :    9.98151898384094     
- cputime/step:   9.226873874664307E-002
- 
+ prologue    :   0.209208966301514     
+ main loop   :   0.895559071494507     
+ epilogue    :   7.978701591491699E-002
+ total       :    1.18455505371094     
+ cputime/step:   8.955590714945068E-003
+
 
 
 Time spent doing                        total          step
-  FFTs                       :   0.390202E+00  0.390202E-02
-  dot products               :   0.138890E+01  0.138890E-01
-  geodesic                   :   0.370889E-01  0.370889E-03
-  ffm_dgemm                  :   0.294122E+00  0.294122E-02
-  fmf_dgemm                  :   0.543768E-01  0.543768E-03
-  m_diagonalize              :   0.178099E-03  0.178099E-05
+  FFTs                       :   0.453774E-01  0.453774E-03
+  dot products               :   0.125483E+00  0.125483E-02
+  geodesic                   :   0.411487E-02  0.411487E-04
+  ffm_dgemm                  :   0.316837E-01  0.316837E-03
+  fmf_dgemm                  :   0.302546E-01  0.302546E-03
+  m_diagonalize              :   0.360012E-04  0.360012E-06
     - m_tredq                :   0.000000E+00  0.000000E+00
     - m_getdiags             :   0.000000E+00  0.000000E+00
     - m_tqliq                :   0.000000E+00  0.000000E+00
     - m_eigsrt               :   0.000000E+00  0.000000E+00
-  exchange correlation       :   0.472411E+00  0.472411E-02
-  local pseudopotentials     :   0.127881E+00  0.127881E-02
-  non-local pseudopotentials :   0.219271E+01  0.219271E-01
-  hartree potentials         :   0.973153E-02  0.973153E-04
-  ion-ion interaction        :   0.173815E+00  0.173815E-02
-  structure factors          :   0.407189E+00  0.407189E-02
-  phase factors              :   0.243258E-02  0.243258E-04
-  masking and packing        :   0.491112E+00  0.491112E-02
-  queue fft                  :   0.254332E+01  0.254332E-01
-  queue fft (serial)         :   0.164314E+01  0.164314E-01
-  queue fft (message passing):   0.686204E+00  0.686204E-02
+  exchange correlation       :   0.126824E+00  0.126824E-02
+  local pseudopotentials     :   0.151872E-01  0.151872E-03
+  non-local pseudopotentials :   0.208984E+00  0.208984E-02
+  hartree potentials         :   0.922400E-03  0.922400E-05
+  ion-ion interaction        :   0.249903E-01  0.249903E-03
+  structure factors          :   0.749682E-01  0.749682E-03
+  phase factors              :   0.508547E-03  0.508547E-05
+  masking and packing        :   0.605690E-01  0.605690E-03
+  queue fft                  :   0.230566E+00  0.230566E-02
+  queue fft (serial)         :   0.138407E+00  0.138407E-02
+  queue fft (message passing):   0.854203E-01  0.854203E-03
   HFX potential              :   0.000000E+00  0.000000E+00
   qmmm LJ                    :   0.000000E+00  0.000000E+00
   qmmm residual Q            :   0.000000E+00  0.000000E+00
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:30:02 2007  <<<
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:36 2010  <<<
 
- Task  times  cpu:        7.8s     wall:       10.0s
- 
- 
+ Task  times  cpu:        1.2s     wall:        1.2s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
  >>>> PSPW Parallel Module - Car-Parrinello <<<<
           ****************************************************
           *                                                  *
@@ -2582,19 +2957,19 @@ Time spent doing                        total          step
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Sat Dec  1 15:30:02 2007  <<<
+     >>>  JOB STARTED       AT Tue Oct 26 15:08:36 2010  <<<
           ================ input data ========================
 
- input psi filename:./sic2.00.elc
+ input psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.elc
 
- input vpsi filename:./sic2.00.velc
- 
+ input vpsi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.velc
+
  Fixed ion positions:    2
- 
 
- number of processors used:  1
- processor grid           :   1 x   1
- parallel mapping         : slab
+
+ number of processors used:         4
+ processor grid           :   4 x   1
+ parallel mapping         : hilbert
  parallel mapping         : balanced
 
  options:
@@ -2643,9 +3018,9 @@ Time spent doing                        total          step
       reciprocal: b1=<   0.314   0.000   0.000 >
                   b2=<   0.000   0.314   0.000 >
                   b3=<   0.000   0.000   0.314 >
-      volume :     8000.0
-      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
-      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
+      volume :       8000.0
+      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
+      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
       ewald summation: cut radius=    6.37  and  1
                         madelung= 1.76011888
 
@@ -2653,6 +3028,7 @@ Time spent doing                        total          step
       translation contrained
       time step=      5.00     ficticious mass=     500.0
       cooling/heatting rates:  0.10000E+01 (psi)   0.10000E+01 (ion)
+      maximum iterations =     100 (   10 inner   10 outer )
       initial kinetic energy:  0.00000E+00 (psi)   0.95436E-03 (ion)
                                                    0.85321E-04 (c.o.m.)
       after scaling:           0.00000E+00 (psi)   0.84935E-03 (ion)
@@ -2668,10 +3044,10 @@ Time spent doing                        total          step
 
 
           ============ Car-Parrinello iteration ==============
-     >>>  ITERATION STARTED AT Sat Dec  1 15:30:03 2007  <<<
+     >>>  ITERATION STARTED AT Tue Oct 26 15:08:36 2010  <<<
     iter.         KE+Energy             Energy        KE_psi        KE_ion   Temperature
     ------------------------------------------------------------------------------------
-      10  -0.1365324987E+02  -0.1400909069E+02   0.44664E-03   0.81465E-03        111.22
+      10  -0.1365324988E+02  -0.1400909069E+02   0.44664E-03   0.81465E-03        111.22
       20  -0.1365422168E+02  -0.1403487686E+02   0.26723E-03   0.14885E-02        185.21
       30  -0.1365530267E+02  -0.1405687574E+02   0.21368E-03   0.14295E-02        224.77
       40  -0.1365642422E+02  -0.1407637383E+02   0.19500E-03   0.14180E-02        242.87
@@ -2682,7 +3058,7 @@ Time spent doing                        total          step
       90  -0.1366171910E+02  -0.1415718964E+02   0.42755E-03   0.14156E-02        273.62
      100  -0.1366262593E+02  -0.1417073561E+02   0.48952E-03   0.13940E-02        275.80
  *** arived at the Maximum iteration.   terminated.
-     >>>  ITERATION ENDED   AT Sat Dec  1 15:30:12 2007  <<<
+     >>>  ITERATION ENDED   AT Tue Oct 26 15:08:37 2010  <<<
 
 
  Elapsed time of simulation was  12.094 fs
@@ -2704,29 +3080,29 @@ Time spent doing                        total          step
         3 C    (   -0.00006   -0.00028    0.00000 )
         G.C.   (   -0.00001   -0.00006    0.00000 )
         C.O.M. (    0.00000    0.00000    0.00000 )
- 
+
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
  total     energy    :  -0.1417073561E+02 (   -0.47236E+01/ion)
- total orbital energy:  -0.5202835196E+01 (   -0.86714E+00/electron)
- hartree   energy    :   0.1838984350E+02 (    0.30650E+01/electron)
- exc-corr  energy    :  -0.4413310243E+01 (   -0.73555E+00/electron)
- ion-ion   energy    :   0.8066261840E+01 (    0.26888E+01/ion)
+ total orbital energy:  -0.5202835213E+01 (   -0.86714E+00/electron)
+ hartree   energy    :   0.1838984348E+02 (    0.30650E+01/electron)
+ exc-corr  energy    :  -0.4413310242E+01 (   -0.73555E+00/electron)
+ ion-ion   energy    :   0.8066261845E+01 (    0.26888E+01/ion)
 
- Kinetic energy (elc)    :   0.4895179323E-03 (    0.81586E-04/elc)
- Kinetic energy (ion)    :   0.1394007482E-02 (    0.46467E-03/ion)
- thermostat energy (elc) :   0.1140830118E+00 (    0.19014E-01/elc)
- thermostat energy (ion) :   0.3921431451E+00 (    0.13071E+00/ion)
+ Kinetic energy (elc)    :   0.4895179363E-03 (    0.81586E-04/elc)
+ Kinetic energy (ion)    :   0.1394007483E-02 (    0.46467E-03/ion)
+ thermostat energy (elc) :   0.1140830094E+00 (    0.19014E-01/elc)
+ thermostat energy (ion) :   0.3921431453E+00 (    0.13071E+00/ion)
 
  final kinetic energy:   0.48952E-03 (psi)   0.13940E-02 (ion)
-                                             0.40562E-29 (c.o.m.)
+                                             0.59985E-30 (c.o.m.)
  Temperature :           0.0 K (elc)
  Temperature :         275.8 K (ion)
              :           0.0 K (c.o.m.)
 
- Eaverage           :      -0.1411618157E+02
- Evariance          :       0.4229216548E-01
- Cv - f*kb/(2*nion) :       0.5852360324E-01
+ Vaverage  Eaverage :      -0.1411618157E+02  -0.4698816584E+01
+ Vvariance Evariance:       0.4229216563E-01   0.4415861393E+02
+ Cv - f*kb/(2*nion) :       0.5852360335E-01
 
  orbital energies:
     -0.1702269E+00 (  -4.632eV)
@@ -2740,10 +3116,10 @@ Time spent doing                        total          step
 
 
 === Spin Contamination ===
- 
- <Sexact^2> =   0.000000000000000E+000
- <S^2>      =   0.000000000000000E+000
- 
+
+ <Sexact^2> =    0.00000000000000     
+ <S^2>      =    0.00000000000000     
+
 
 
 == Center of Charge ==
@@ -2766,101 +3142,109 @@ mu   =  (    0.6063,    7.3608,    0.0000 ) au
 mu   =  (    0.2513,   -0.3398,    0.0000 ) au
 |mu| =     0.4226 au,       1.0740 Debye
 
- output psi filename:./sic2.01.elc
+ output psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.01.elc
 
- output vpsi filename:./sic2.01.velc
- 
+ output vpsi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.01.velc
+
  ===== Calculating pair distribution function ====
- 
- 
- frames used:            30
- natoms:                  3
+
+
+ frames used:                     30
+ natoms:                           3
  delr:           1.000000000000000E-002
  volume:          8000.00000000000     
- maxbin:                999
- MOTION filename:     
- ./SiC2-MD.ion_motion                                                           
-                                                                                
-                                                                                
-                   
- g(r)   filename:     
- ./PAIR_DISTRIBUTION                                                            
-                                                                                
-                                                                                
-                   
- 
- 
+ maxbin:                         999
+ MOTION filename:     /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion                                                                                                                                                                          
+ g(r)   filename:     /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/PAIR_DISTRIBUTION                                                                                                                                                                           
+
+
+ ===== Calculating radial distribution functions ====
+
+
+ frames used:                    30
+ natoms:                          3
+ nkatoms:                         2
+ atoms:       Si C                                                                                                                                                                                                                                                           
+ delr:          1.000000000000000E-002
+ volume:         8000.00000000000     
+    a1:        20.000   0.000   0.000
+    a2:         0.000  20.000   0.000
+    a3:         0.000   0.000  20.000
+ maxbin:                        999
+ MOTION filename:    /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiSi.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiSi.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CSi.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CSi.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CC.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CC.hist 
+
+
  ===== Calculating velocity auto correlation ====
- 
- 
- frames used:           30
- natoms:                 3
+
+
+ frames used:                    30
+ natoms:                          3
  volume:         8000.00000000000     
  time interval (au)       :    50.0000000000000     
  Max time      (au)       :    1450.00000000000     
  frequency interval (cm-1):    919.921592580478     
  Max frequency (cm-1)     :    13798.8238887072     
- MOTION filename: 
- ./SiC2-MD.ion_motion                                                           
-                                                                                
-                                                                                
-                   
- <v*v>  filename: 
- ./VEL_CORRELATION                                                              
-                                                                                
-                                                                                
-                   
- s(k)   filename: 
- ./POWER_SPECTRUM                                                               
-                                                                                
-                                                                                
-                   
- 
- 
+ MOTION filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion                                                                                                                                                                          
+ <v*v>  filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/VEL_CORRELATION                                                                                                                                                                             
+ s(k)   filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/POWER_SPECTRUM                                                                                                                                                                              
+
+
  -----------------
  cputime in seconds
- prologue    :   0.574629068374634     
- main loop   :    9.24683785438538     
- epilogue    :   0.186186075210571     
- total       :    10.0076529979706     
- cputime/step:   9.246837854385376E-002
- 
+ prologue    :   0.209156990051270     
+ main loop   :   0.889441967010498     
+ epilogue    :   8.251619338989258E-002
+ total       :    1.18111515045166     
+ cputime/step:   8.894419670104981E-003
+
 
 
 Time spent doing                        total          step
-  FFTs                       :   0.392797E+00  0.392797E-02
-  dot products               :   0.139855E+01  0.139855E-01
-  geodesic                   :   0.366809E-01  0.366809E-03
-  ffm_dgemm                  :   0.295781E+00  0.295781E-02
-  fmf_dgemm                  :   0.538983E-01  0.538983E-03
-  m_diagonalize              :   0.178099E-03  0.178099E-05
+  FFTs                       :   0.463127E-01  0.463127E-03
+  dot products               :   0.120892E+00  0.120892E-02
+  geodesic                   :   0.406265E-02  0.406265E-04
+  ffm_dgemm                  :   0.322621E-01  0.322621E-03
+  fmf_dgemm                  :   0.302997E-01  0.302997E-03
+  m_diagonalize              :   0.350475E-04  0.350475E-06
     - m_tredq                :   0.000000E+00  0.000000E+00
     - m_getdiags             :   0.000000E+00  0.000000E+00
     - m_tqliq                :   0.000000E+00  0.000000E+00
     - m_eigsrt               :   0.000000E+00  0.000000E+00
-  exchange correlation       :   0.473320E+00  0.473320E-02
-  local pseudopotentials     :   0.129385E+00  0.129385E-02
-  non-local pseudopotentials :   0.221899E+01  0.221899E-01
-  hartree potentials         :   0.986314E-02  0.986314E-04
-  ion-ion interaction        :   0.173447E+00  0.173447E-02
-  structure factors          :   0.403792E+00  0.403792E-02
-  phase factors              :   0.271082E-02  0.271082E-04
-  masking and packing        :   0.500781E+00  0.500781E-02
-  queue fft                  :   0.256450E+01  0.256450E-01
-  queue fft (serial)         :   0.164406E+01  0.164406E-01
-  queue fft (message passing):   0.696983E+00  0.696983E-02
+  exchange correlation       :   0.127063E+00  0.127063E-02
+  local pseudopotentials     :   0.136618E-01  0.136618E-03
+  non-local pseudopotentials :   0.204601E+00  0.204601E-02
+  hartree potentials         :   0.912864E-03  0.912864E-05
+  ion-ion interaction        :   0.248382E-01  0.248382E-03
+  structure factors          :   0.746254E-01  0.746254E-03
+  phase factors              :   0.491381E-03  0.491381E-05
+  masking and packing        :   0.604607E-01  0.604607E-03
+  queue fft                  :   0.228825E+00  0.228825E-02
+  queue fft (serial)         :   0.137232E+00  0.137232E-02
+  queue fft (message passing):   0.847389E-01  0.847389E-03
   HFX potential              :   0.000000E+00  0.000000E+00
   qmmm LJ                    :   0.000000E+00  0.000000E+00
   qmmm residual Q            :   0.000000E+00  0.000000E+00
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:30:12 2007  <<<
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:37 2010  <<<
 
- Task  times  cpu:        7.9s     wall:       10.0s
- 
- 
+ Task  times  cpu:        1.2s     wall:        1.2s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
  >>>> PSPW Parallel Module - Car-Parrinello <<<<
           ****************************************************
           *                                                  *
@@ -2878,19 +3262,19 @@ Time spent doing                        total          step
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Sat Dec  1 15:30:12 2007  <<<
+     >>>  JOB STARTED       AT Tue Oct 26 15:08:37 2010  <<<
           ================ input data ========================
 
- input psi filename:./sic2.00.elc
+ input psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.elc
 
- input vpsi filename:./sic2.00.velc
- Molecular Constraint File:./SHAKE
- 
+ input vpsi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.velc
+ Molecular Constraint File:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SHAKE
+
 Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 2.600 )
 
- number of processors used:  1
- processor grid           :   1 x   1
- parallel mapping         : slab
+ number of processors used:         4
+ processor grid           :   4 x   1
+ parallel mapping         : hilbert
  parallel mapping         : balanced
 
  options:
@@ -2939,9 +3323,9 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 2.600 )
       reciprocal: b1=<   0.314   0.000   0.000 >
                   b2=<   0.000   0.314   0.000 >
                   b3=<   0.000   0.000   0.314 >
-      volume :     8000.0
-      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
-      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
+      volume :       8000.0
+      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
+      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
       ewald summation: cut radius=    6.37  and  1
                         madelung= 1.76011888
 
@@ -2949,10 +3333,11 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 2.600 )
       translation contrained
       time step=      5.00     ficticious mass=     500.0
       cooling/heatting rates:  0.10000E+01 (psi)   0.10000E+01 (ion)
+      maximum iterations =     100 (   10 inner   10 outer )
       initial kinetic energy:  0.00000E+00 (psi)   0.13940E-02 (ion)
-                                                   0.40562E-29 (c.o.m.)
+                                                   0.59985E-30 (c.o.m.)
       after scaling:           0.00000E+00 (psi)   0.13940E-02 (ion)
-      increased energy:        0.00000E+00 (psi)   0.21684E-18 (ion)
+      increased energy:        0.00000E+00 (psi)  -0.43368E-18 (ion)
 
  Nose-Hoover Simulation - Thermostat Parameters:
      link =   1 Te =  298.15 Qe = 0.545E+00 2*pi/we= 0.100E+03 Ee0= 0.537E-03
@@ -2964,10 +3349,10 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 2.600 )
 
 
           ============ Car-Parrinello iteration ==============
-     >>>  ITERATION STARTED AT Sat Dec  1 15:30:13 2007  <<<
+     >>>  ITERATION STARTED AT Tue Oct 26 15:08:37 2010  <<<
     iter.         KE+Energy             Energy        KE_psi        KE_ion   Temperature
     ------------------------------------------------------------------------------------
-      10  -0.1331788960E+02  -0.1406801596E+02   0.66753E-03   0.15769E-03        324.94
+      10  -0.1331788961E+02  -0.1406801596E+02   0.66753E-03   0.15769E-03        324.94
       20  -0.1331798567E+02  -0.1410887001E+02   0.35662E-03   0.25533E-03        188.98
       30  -0.1331793158E+02  -0.1413176076E+02   0.22705E-03   0.28993E-02        209.30
       40  -0.1331799896E+02  -0.1414747740E+02   0.18342E-03   0.91455E-03        244.70
@@ -2978,7 +3363,7 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 2.600 )
       90  -0.1331799029E+02  -0.1420908671E+02   0.17702E-03   0.14535E-02        278.25
      100  -0.1331799365E+02  -0.1421886284E+02   0.18991E-03   0.14303E-02        280.25
  *** arived at the Maximum iteration.   terminated.
-     >>>  ITERATION ENDED   AT Sat Dec  1 15:30:22 2007  <<<
+     >>>  ITERATION ENDED   AT Tue Oct 26 15:08:38 2010  <<<
 
 
  Elapsed time of simulation was  12.094 fs
@@ -3000,29 +3385,29 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 2.600 )
         3 C    (   -0.00012   -0.00027    0.00000 )
         G.C.   (   -0.00003   -0.00005    0.00000 )
         C.O.M. (    0.00000    0.00000    0.00000 )
- 
+
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
  total     energy    :  -0.1421886284E+02 (   -0.47396E+01/ion)
- total orbital energy:  -0.4971503295E+01 (   -0.82858E+00/electron)
- hartree   energy    :   0.1839384066E+02 (    0.30656E+01/electron)
- exc-corr  energy    :  -0.4412370922E+01 (   -0.73540E+00/electron)
- ion-ion   energy    :   0.7791109471E+01 (    0.25970E+01/ion)
+ total orbital energy:  -0.4971503303E+01 (   -0.82858E+00/electron)
+ hartree   energy    :   0.1839384069E+02 (    0.30656E+01/electron)
+ exc-corr  energy    :  -0.4412370926E+01 (   -0.73540E+00/electron)
+ ion-ion   energy    :   0.7791109500E+01 (    0.25970E+01/ion)
 
- Kinetic energy (elc)    :   0.1899067864E-03 (    0.31651E-04/elc)
- Kinetic energy (ion)    :   0.1430346341E-02 (    0.47678E-03/ion)
- thermostat energy (elc) :   0.4646044383E+00 (    0.77434E-01/elc)
- thermostat energy (ion) :   0.4346444982E+00 (    0.14488E+00/ion)
+ Kinetic energy (elc)    :   0.1899067829E-03 (    0.31651E-04/elc)
+ Kinetic energy (ion)    :   0.1430346351E-02 (    0.47678E-03/ion)
+ thermostat energy (elc) :   0.4646044379E+00 (    0.77434E-01/elc)
+ thermostat energy (ion) :   0.4346444964E+00 (    0.14488E+00/ion)
 
  final kinetic energy:   0.18991E-03 (psi)   0.14303E-02 (ion)
-                                             0.90142E-29 (c.o.m.)
+                                             0.65634E-30 (c.o.m.)
  Temperature :           0.0 K (elc)
  Temperature :         280.3 K (ion)
              :           0.0 K (c.o.m.)
 
- Eaverage           :      -0.1412735635E+02
- Evariance          :       0.3260405296E-01
- Cv - f*kb/(2*nion) :       0.4369448762E-01
+ Vaverage  Eaverage :      -0.1412735635E+02  -0.3539833420E+01
+ Vvariance Evariance:       0.3260405306E-01   0.3759176801E+02
+ Cv - f*kb/(2*nion) :       0.4369448779E-01
 
  orbital energies:
     -0.1678027E+00 (  -4.566eV)
@@ -3036,10 +3421,10 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 2.600 )
 
 
 === Spin Contamination ===
- 
- <Sexact^2> =   0.000000000000000E+000
- <S^2>      =   0.000000000000000E+000
- 
+
+ <Sexact^2> =    0.00000000000000     
+ <S^2>      =    0.00000000000000     
+
 
 
 == Center of Charge ==
@@ -3062,101 +3447,109 @@ mu   =  (    0.4849,    7.5063,    0.0000 ) au
 mu   =  (    0.1407,   -0.4953,    0.0000 ) au
 |mu| =     0.5149 au,       1.3086 Debye
 
- output psi filename:./sic2.01.elc
+ output psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.01.elc
 
- output vpsi filename:./sic2.01.velc
- 
+ output vpsi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.01.velc
+
  ===== Calculating pair distribution function ====
- 
- 
- frames used:            40
- natoms:                  3
+
+
+ frames used:                     40
+ natoms:                           3
  delr:           1.000000000000000E-002
  volume:          8000.00000000000     
- maxbin:                999
- MOTION filename:     
- ./SiC2-MD.ion_motion                                                           
-                                                                                
-                                                                                
-                   
- g(r)   filename:     
- ./PAIR_DISTRIBUTION                                                            
-                                                                                
-                                                                                
-                   
- 
- 
+ maxbin:                         999
+ MOTION filename:     /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion                                                                                                                                                                          
+ g(r)   filename:     /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/PAIR_DISTRIBUTION                                                                                                                                                                           
+
+
+ ===== Calculating radial distribution functions ====
+
+
+ frames used:                    40
+ natoms:                          3
+ nkatoms:                         2
+ atoms:       Si C                                                                                                                                                                                                                                                           
+ delr:          1.000000000000000E-002
+ volume:         8000.00000000000     
+    a1:        20.000   0.000   0.000
+    a2:         0.000  20.000   0.000
+    a3:         0.000   0.000  20.000
+ maxbin:                        999
+ MOTION filename:    /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiSi.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiSi.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CSi.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CSi.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CC.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CC.hist 
+
+
  ===== Calculating velocity auto correlation ====
- 
- 
- frames used:           40
- natoms:                 3
+
+
+ frames used:                    40
+ natoms:                          3
  volume:         8000.00000000000     
  time interval (au)       :    50.0000000000000     
  Max time      (au)       :    1950.00000000000     
  frequency interval (cm-1):    689.941194435358     
  Max frequency (cm-1)     :    13798.8238887072     
- MOTION filename: 
- ./SiC2-MD.ion_motion                                                           
-                                                                                
-                                                                                
-                   
- <v*v>  filename: 
- ./VEL_CORRELATION                                                              
-                                                                                
-                                                                                
-                   
- s(k)   filename: 
- ./POWER_SPECTRUM                                                               
-                                                                                
-                                                                                
-                   
- 
- 
+ MOTION filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion                                                                                                                                                                          
+ <v*v>  filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/VEL_CORRELATION                                                                                                                                                                             
+ s(k)   filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/POWER_SPECTRUM                                                                                                                                                                              
+
+
  -----------------
  cputime in seconds
- prologue    :   0.559024810791016     
- main loop   :    9.11280202865601     
- epilogue    :   0.180613040924072     
- total       :    9.85243988037109     
- cputime/step:   9.112802028656006E-002
- 
+ prologue    :   0.210034133003784     
+ main loop   :   0.892344950629639     
+ epilogue    :   8.442306518554688E-002
+ total       :    1.18680214881897     
+ cputime/step:   8.923449506296387E-003
+
 
 
 Time spent doing                        total          step
-  FFTs                       :   0.384126E+00  0.384126E-02
-  dot products               :   0.135391E+01  0.135391E-01
-  geodesic                   :   0.360882E-01  0.360882E-03
-  ffm_dgemm                  :   0.288072E+00  0.288072E-02
-  fmf_dgemm                  :   0.534749E-01  0.534749E-03
-  m_diagonalize              :   0.175953E-03  0.175953E-05
+  FFTs                       :   0.473539E-01  0.473539E-03
+  dot products               :   0.120664E+00  0.120664E-02
+  geodesic                   :   0.406194E-02  0.406194E-04
+  ffm_dgemm                  :   0.329793E-01  0.329793E-03
+  fmf_dgemm                  :   0.303774E-01  0.303774E-03
+  m_diagonalize              :   0.371933E-04  0.371933E-06
     - m_tredq                :   0.000000E+00  0.000000E+00
     - m_getdiags             :   0.000000E+00  0.000000E+00
     - m_tqliq                :   0.000000E+00  0.000000E+00
     - m_eigsrt               :   0.000000E+00  0.000000E+00
-  exchange correlation       :   0.469643E+00  0.469643E-02
-  local pseudopotentials     :   0.123848E+00  0.123848E-02
-  non-local pseudopotentials :   0.214214E+01  0.214214E-01
-  hartree potentials         :   0.996733E-02  0.996733E-04
-  ion-ion interaction        :   0.170619E+00  0.170619E-02
-  structure factors          :   0.403147E+00  0.403147E-02
-  phase factors              :   0.296783E-02  0.296783E-04
-  masking and packing        :   0.485647E+00  0.485647E-02
-  queue fft                  :   0.249190E+01  0.249190E-01
-  queue fft (serial)         :   0.161994E+01  0.161994E-01
-  queue fft (message passing):   0.662794E+00  0.662794E-02
+  exchange correlation       :   0.127841E+00  0.127841E-02
+  local pseudopotentials     :   0.139124E-01  0.139124E-03
+  non-local pseudopotentials :   0.201744E+00  0.201744E-02
+  hartree potentials         :   0.926938E-03  0.926938E-05
+  ion-ion interaction        :   0.246315E-01  0.246315E-03
+  structure factors          :   0.751137E-01  0.751137E-03
+  phase factors              :   0.506163E-03  0.506163E-05
+  masking and packing        :   0.620670E-01  0.620670E-03
+  queue fft                  :   0.230581E+00  0.230581E-02
+  queue fft (serial)         :   0.137330E+00  0.137330E-02
+  queue fft (message passing):   0.863580E-01  0.863580E-03
   HFX potential              :   0.000000E+00  0.000000E+00
   qmmm LJ                    :   0.000000E+00  0.000000E+00
   qmmm residual Q            :   0.000000E+00  0.000000E+00
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:30:22 2007  <<<
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:38 2010  <<<
 
- Task  times  cpu:        7.6s     wall:        9.9s
- 
- 
+ Task  times  cpu:        1.2s     wall:        1.2s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
  >>>> PSPW Parallel Module - Car-Parrinello <<<<
           ****************************************************
           *                                                  *
@@ -3174,19 +3567,19 @@ Time spent doing                        total          step
           *    developed by the group of Prof. John H. Weare *
           *                                                  *
           ****************************************************
-     >>>  JOB STARTED       AT Sat Dec  1 15:30:22 2007  <<<
+     >>>  JOB STARTED       AT Tue Oct 26 15:08:38 2010  <<<
           ================ input data ========================
 
- input psi filename:./sic2.00.elc
+ input psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.elc
 
- input vpsi filename:./sic2.00.velc
- Molecular Constraint File:./SHAKE
- 
+ input vpsi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.00.velc
+ Molecular Constraint File:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SHAKE
+
 Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 3.000 )
 
- number of processors used:  1
- processor grid           :   1 x   1
- parallel mapping         : slab
+ number of processors used:         4
+ processor grid           :   4 x   1
+ parallel mapping         : hilbert
  parallel mapping         : balanced
 
  options:
@@ -3235,9 +3628,9 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 3.000 )
       reciprocal: b1=<   0.314   0.000   0.000 >
                   b2=<   0.000   0.314   0.000 >
                   b3=<   0.000   0.000   0.314 >
-      volume :     8000.0
-      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
-      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves     3562 per task)
+      volume :       8000.0
+      density cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
+      wavefnc cutoff=  7.106  fft= 24x 24x 24(     3562 waves      890 per task)
       ewald summation: cut radius=    6.37  and  1
                         madelung= 1.76011888
 
@@ -3245,10 +3638,11 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 3.000 )
       translation contrained
       time step=      5.00     ficticious mass=     500.0
       cooling/heatting rates:  0.10000E+01 (psi)   0.10000E+01 (ion)
+      maximum iterations =     100 (   10 inner   10 outer )
       initial kinetic energy:  0.00000E+00 (psi)   0.14303E-02 (ion)
-                                                   0.90142E-29 (c.o.m.)
+                                                   0.65634E-30 (c.o.m.)
       after scaling:           0.00000E+00 (psi)   0.14303E-02 (ion)
-      increased energy:        0.00000E+00 (psi)   0.00000E+00 (ion)
+      increased energy:        0.00000E+00 (psi)   0.21684E-18 (ion)
 
  Nose-Hoover Simulation - Thermostat Parameters:
      link =   1 Te =  298.15 Qe = 0.545E+00 2*pi/we= 0.100E+03 Ee0= 0.537E-03
@@ -3260,21 +3654,21 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 3.000 )
 
 
           ============ Car-Parrinello iteration ==============
-     >>>  ITERATION STARTED AT Sat Dec  1 15:30:23 2007  <<<
+     >>>  ITERATION STARTED AT Tue Oct 26 15:08:38 2010  <<<
     iter.         KE+Energy             Energy        KE_psi        KE_ion   Temperature
     ------------------------------------------------------------------------------------
-      10   0.5221628875E+04  -0.1381623009E+02   0.17216E-02   0.19051E-07     234530.62
-      20   0.5221628483E+04  -0.1397465315E+02   0.91620E-03   0.13487E-07     122849.37
+      10   0.5221628875E+04  -0.1381623010E+02   0.17216E-02   0.19051E-07     234530.62
+      20   0.5221628483E+04  -0.1397465316E+02   0.91620E-03   0.13487E-07     122849.37
       30   0.5221628426E+04  -0.1407510918E+02   0.59953E-03   0.97612E-08      83220.54
       40   0.5221628432E+04  -0.1414488821E+02   0.43034E-03   0.71169E-08      62922.85
-      50   0.5221628452E+04  -0.1419572721E+02   0.32617E-03   0.51935E-08      50585.04
+      50   0.5221628452E+04  -0.1419572722E+02   0.32617E-03   0.51935E-08      50585.04
       60   0.5221628473E+04  -0.1423389127E+02   0.25645E-03   0.37787E-08      42292.41
       70   0.5221628493E+04  -0.1426313234E+02   0.20714E-03   0.27343E-08      36335.73
-      80   0.5221628509E+04  -0.1428586801E+02   0.17088E-03   0.19648E-08      31849.84
-      90   0.5221628523E+04  -0.1430373839E+02   0.14345E-03   0.14019E-08      28349.86
+      80   0.5221628509E+04  -0.1428586802E+02   0.17088E-03   0.19648E-08      31849.84
+      90   0.5221628523E+04  -0.1430373840E+02   0.14345E-03   0.14019E-08      28349.86
      100   0.5221628534E+04  -0.1431789982E+02   0.12229E-03   0.99525E-09      25542.94
  *** arived at the Maximum iteration.   terminated.
-     >>>  ITERATION ENDED   AT Sat Dec  1 15:30:32 2007  <<<
+     >>>  ITERATION ENDED   AT Tue Oct 26 15:08:39 2010  <<<
 
 
  Elapsed time of simulation was  12.094 fs
@@ -3296,29 +3690,29 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 3.000 )
         3 C    (    0.00000    0.00000    0.00000 )
         G.C.   (    0.00000    0.00000    0.00000 )
         C.O.M. (    0.00000    0.00000    0.00000 )
- 
+
  number of electrons: spin up=    6.00000  down=    6.00000 (real space)
 
  total     energy    :  -0.1431789982E+02 (   -0.47726E+01/ion)
- total orbital energy:  -0.4371170514E+01 (   -0.72853E+00/electron)
- hartree   energy    :   0.1785369235E+02 (    0.29756E+01/electron)
- exc-corr  energy    :  -0.4338093058E+01 (   -0.72302E+00/electron)
- ion-ion   energy    :   0.6575251379E+01 (    0.21918E+01/ion)
+ total orbital energy:  -0.4371170525E+01 (   -0.72853E+00/electron)
+ hartree   energy    :   0.1785369237E+02 (    0.29756E+01/electron)
+ exc-corr  energy    :  -0.4338093062E+01 (   -0.72302E+00/electron)
+ ion-ion   energy    :   0.6575251405E+01 (    0.21918E+01/ion)
 
- Kinetic energy (elc)    :   0.1222880682E-03 (    0.20381E-04/elc)
- Kinetic energy (ion)    :   0.9952495270E-09 (    0.33175E-09/ion)
- thermostat energy (elc) :   0.1395810007E+01 (    0.23264E+00/elc)
+ Kinetic energy (elc)    :   0.1222880674E-03 (    0.20381E-04/elc)
+ Kinetic energy (ion)    :   0.9952494792E-09 (    0.33175E-09/ion)
+ thermostat energy (elc) :   0.1395809997E+01 (    0.23263E+00/elc)
  thermostat energy (ion) :   0.5234550502E+04 (    0.17449E+04/ion)
 
  final kinetic energy:   0.12229E-03 (psi)   0.99525E-09 (ion)
-                                             0.34913E-29 (c.o.m.)
+                                             0.22407E-29 (c.o.m.)
  Temperature :           0.0 K (elc)
  Temperature :       25542.9 K (ion)
              :           0.0 K (c.o.m.)
 
- Eaverage           :      -0.1413410783E+02
- Evariance          :       0.3104081426E-01
- Cv - f*kb/(2*nion) :       0.5007844563E-05
+ Vaverage  Eaverage :      -0.1413410783E+02  -0.2832124871E+01
+ Vvariance Evariance:       0.3104081431E-01   0.3208852888E+02
+ Cv - f*kb/(2*nion) :       0.5007844572E-05
 
  orbital energies:
     -0.1472118E+00 (  -4.006eV)
@@ -3332,10 +3726,10 @@ Linear Constraint:  fixed bonds - ( atoms:  1  2 dist: 3.000 )
 
 
 === Spin Contamination ===
- 
- <Sexact^2> =   0.000000000000000E+000
- <S^2>      =   0.000000000000000E+000
- 
+
+ <Sexact^2> =    0.00000000000000     
+ <S^2>      =    0.00000000000000     
+
 
 
 == Center of Charge ==
@@ -3358,101 +3752,103 @@ mu   =  (    0.3508,    8.0814,    0.0000 ) au
 mu   =  (    0.2584,   -0.7779,    0.0000 ) au
 |mu| =     0.8198 au,       2.0835 Debye
 
- output psi filename:./sic2.01.elc
+ output psi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.01.elc
 
- output vpsi filename:./sic2.01.velc
- 
+ output vpsi filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/sic2.01.velc
+
  ===== Calculating pair distribution function ====
- 
- 
- frames used:            50
- natoms:                  3
+
+
+ frames used:                     50
+ natoms:                           3
  delr:           1.000000000000000E-002
  volume:          8000.00000000000     
- maxbin:                999
- MOTION filename:     
- ./SiC2-MD.ion_motion                                                           
-                                                                                
-                                                                                
-                   
- g(r)   filename:     
- ./PAIR_DISTRIBUTION                                                            
-                                                                                
-                                                                                
-                   
- 
- 
+ maxbin:                         999
+ MOTION filename:     /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion                                                                                                                                                                          
+ g(r)   filename:     /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/PAIR_DISTRIBUTION                                                                                                                                                                           
+
+
+ ===== Calculating radial distribution functions ====
+
+
+ frames used:                    50
+ natoms:                          3
+ nkatoms:                         2
+ atoms:       Si C                                                                                                                                                                                                                                                           
+ delr:          1.000000000000000E-002
+ volume:         8000.00000000000     
+    a1:        20.000   0.000   0.000
+    a2:         0.000  20.000   0.000
+    a3:         0.000   0.000  20.000
+ maxbin:                        999
+ MOTION filename:    /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiSi.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiSi.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CSi.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CSi.hist 
+
+ creating gr filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CC.gr 
+ creating hist filename:/home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/CC.hist 
+
+
  ===== Calculating velocity auto correlation ====
- 
- 
- frames used:           50
- natoms:                 3
+
+
+ frames used:                    50
+ natoms:                          3
  volume:         8000.00000000000     
  time interval (au)       :    50.0000000000000     
  Max time      (au)       :    2450.00000000000     
  frequency interval (cm-1):    551.952955548287     
  Max frequency (cm-1)     :    13798.8238887072     
- MOTION filename: 
- ./SiC2-MD.ion_motion                                                           
-                                                                                
-                                                                                
-                   
- <v*v>  filename: 
- ./VEL_CORRELATION                                                              
-                                                                                
-                                                                                
-                   
- s(k)   filename: 
- ./POWER_SPECTRUM                                                               
-                                                                                
-                                                                                
-                   
- 
- 
+ MOTION filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/SiC2-MD.ion_motion                                                                                                                                                                          
+ <v*v>  filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/VEL_CORRELATION                                                                                                                                                                             
+ s(k)   filename: /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/POWER_SPECTRUM                                                                                                                                                                              
+
+
  -----------------
  cputime in seconds
- prologue    :   0.573163032531738     
- main loop   :    9.15753602981567     
- epilogue    :   0.177674055099487     
- total       :    9.90837311744690     
- cputime/step:   9.157536029815674E-002
- 
+ prologue    :   0.211707116173340     
+ main loop   :   0.892783879233765     
+ epilogue    :   8.624601364135742E-002
+ total       :    1.19073700904846     
+ cputime/step:   8.927838792337646E-003
+
 
 
 Time spent doing                        total          step
-  FFTs                       :   0.392026E+00  0.392026E-02
-  dot products               :   0.137840E+01  0.137840E-01
-  geodesic                   :   0.367477E-01  0.367477E-03
-  ffm_dgemm                  :   0.294612E+00  0.294612E-02
-  fmf_dgemm                  :   0.535269E-01  0.535269E-03
-  m_diagonalize              :   0.175953E-03  0.175953E-05
+  FFTs                       :   0.467915E-01  0.467915E-03
+  dot products               :   0.120995E+00  0.120995E-02
+  geodesic                   :   0.413680E-02  0.413680E-04
+  ffm_dgemm                  :   0.325323E-01  0.325323E-03
+  fmf_dgemm                  :   0.310059E-01  0.310059E-03
+  m_diagonalize              :   0.360012E-04  0.360012E-06
     - m_tredq                :   0.000000E+00  0.000000E+00
     - m_getdiags             :   0.000000E+00  0.000000E+00
     - m_tqliq                :   0.000000E+00  0.000000E+00
     - m_eigsrt               :   0.000000E+00  0.000000E+00
-  exchange correlation       :   0.473446E+00  0.473446E-02
-  local pseudopotentials     :   0.127602E+00  0.127602E-02
-  non-local pseudopotentials :   0.218304E+01  0.218304E-01
-  hartree potentials         :   0.977755E-02  0.977755E-04
-  ion-ion interaction        :   0.174075E+00  0.174075E-02
-  structure factors          :   0.407738E+00  0.407738E-02
-  phase factors              :   0.244045E-02  0.244045E-04
-  masking and packing        :   0.493113E+00  0.493113E-02
-  queue fft                  :   0.253197E+01  0.253197E-01
-  queue fft (serial)         :   0.163379E+01  0.163379E-01
-  queue fft (message passing):   0.687076E+00  0.687076E-02
+  exchange correlation       :   0.127770E+00  0.127770E-02
+  local pseudopotentials     :   0.138020E-01  0.138020E-03
+  non-local pseudopotentials :   0.203272E+00  0.203272E-02
+  hartree potentials         :   0.992973E-03  0.992973E-05
+  ion-ion interaction        :   0.245771E-01  0.245771E-03
+  structure factors          :   0.752648E-01  0.752648E-03
+  phase factors              :   0.494242E-03  0.494242E-05
+  masking and packing        :   0.606567E-01  0.606567E-03
+  queue fft                  :   0.229152E+00  0.229152E-02
+  queue fft (serial)         :   0.136997E+00  0.136997E-02
+  queue fft (message passing):   0.853076E-01  0.853076E-03
   HFX potential              :   0.000000E+00  0.000000E+00
   qmmm LJ                    :   0.000000E+00  0.000000E+00
   qmmm residual Q            :   0.000000E+00  0.000000E+00
-     >>>  JOB COMPLETED     AT Sat Dec  1 15:30:32 2007  <<<
+     >>>  JOB COMPLETED     AT Tue Oct 26 15:08:39 2010  <<<
 
- Task  times  cpu:        7.8s     wall:        9.9s
- 
- 
-                                NWChem Input Module
-                                -------------------
- 
- 
+ Task  times  cpu:        1.2s     wall:        1.2s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -3468,48 +3864,6 @@ number of processes/call 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
 bytes total:             0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 0 bytes
- 
-
-
-
-                                  ACKNOWLEDGEMENT
-                                  ---------------
-
-            Please use the following acknowledgement where appropriate 
-            for results obtained with NWChem:
-
-            High Performance Computational Chemistry Group, "NWChem, A
-            Computational Chemistry Package for Parallel Computers, 
-            Version 5.1" (2007), Pacific Northwest National Laboratory,
-            Richland, Washington 99352-0999, USA.
-
-
-                                     CITATION
-                                     --------
-
-            Please use the following citation when publishing results
-            obtained with NWChem:
-
-            E. Apra, T. L. Windus, T. P. Straatsma, E. J. Bylaska, W. de Jong,
-            K. Kowalski, S. Hirata, M. Valiev, D. Wang, M. T. Hackler,
-            Y. Zhao, R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha,
-            V. Tipparaju, M. Krishnan, A. A. Auer, E. Brown, G. Cisneros,
-            G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. Kendall,
-            J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt,
-            P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall,
-            D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
-            B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
-            X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing,
-            G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong,
-            and Z. Zhang,
-            "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 5.1" (2007),
-                      Pacific Northwest National Laboratory,
-                      Richland, Washington 99352-0999, USA.
-
-
-
- Total times  cpu:       87.2s     wall:      101.0s
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -3518,8 +3872,47 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	       172	        20
+	maximum number of blocks	       253	        20
 	current total bytes		         0	         0
-	maximum total bytes		   9659196	   1971792
-	maximum total K-bytes		      9660	      1972
-	maximum total M-bytes		        10	         2
+	maximum total bytes		   3236632	    800096
+	maximum total K-bytes		      3237	       801
+	maximum total M-bytes		         4	         1
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
+      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+
+ Total times  cpu:       14.4s     wall:       14.7s

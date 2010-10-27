@@ -1,16 +1,5 @@
-refund: UserID = sohirata
-refund: LSF Job ID = 92434
-refund: RMS Job ID = parallel.1041754
-refund: Number of processors = 4
-refund: Amount of time requested = 0:30
- 
-Processor list
- 
-m791 m791 m793 m793
- 
-ARMCI configured for 2 cluster nodes. Network protocol is 'Quadrics ELAN'.
- argument  1 = /home/sohirata/nwchem/QA/tests/tce_h2o_eomcc/tce_h2o_eomcc.nw
- 
+ argument  1 = tce_h2o_eomcc.nw
+
 
 
 ============================== echo of input deck ==============================
@@ -80,95 +69,59 @@ thresh 1.0d-12
 nroots 1
 end
 
-task tce energy
+#task tce energy
 ================================================================================
 
 
                                          
                                          
- 
- 
-              Northwest Computational Chemistry Package (NWChem) 4.5
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.0
               ------------------------------------------------------
- 
- 
+
+
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
- 
-                                         
-                                         
- 
- 
-                     COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
-                            1999, 2000, 2001, 2002, 2003
-                        Pacific Northwest National Laboratory,
-                             Battelle Memorial Institute.
- 
-                            >>> All Rights Reserved <<<
- 
- 
-                                    DISCLAIMER
-                                    ----------
 
-            This material was prepared as an account of work sponsored
-            by an agency of the United States Government.  Neither the
-            United States Government nor the United States Department
-            of Energy, nor Battelle, nor any of their employees, MAKES
-            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
-            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
-            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
-            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
-            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
 
-
-                                    LIMITED USE
-                                    -----------
-
-            This software (including any documentation) is being made
-            available to you for your internal use only, solely for use
-            in performance of work directly for the U.S. Federal
-            Government or work under contracts with the U.S. Department
-            of Energy or other U.S. Federal Government agencies.  This
-            software is a version which has not yet been evaluated and
-            cleared for commercialization.  Adherence to this notice
-            may be necessary for the author, Battelle Memorial
-            Institute, to successfully assert copyright in and
-            commercialize this software. This software is not intended
-            for duplication or distribution to third parties without
-            the permission of the Manager of Software Products at
-            Pacific Northwest National Laboratory, Richland,
-            Washington, 99352.
-
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
 
                                   ACKNOWLEDGMENT
                                   --------------
 
-            This software and its documentation were produced with
-            Government support under Contract Number DE-AC06-76RLO-1830
-            awarded by the United States Department of Energy.  The
-            Government retains a paid-up non-exclusive, irrevocable
-            worldwide license to reproduce, prepare derivative works,
-            perform publicly and display publicly by or for the
-            Government, including the right to distribute to other
-            Government contractors.
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
 
 
            Job information
            ---------------
 
-    hostname      = m791
-    program       = /scratch/nwchem
-    date          = Mon Mar 15 12:56:47 2004
+    hostname      = arcen
+    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
+    date          = Tue Oct 26 15:11:36 2010
 
-    compiled      = Mon Mar 15 12:51:39 PST 2004
-    source        = /home/sohirata/nwchem
+    compiled      = Tue_Oct_26_14:47:56_2010
+    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
     nwchem branch = Development
-    input         = /home/sohirata/nwchem/QA/tests/tce_h2o_eomcc/tce_h2o_eomcc.nw
+    input         = tce_h2o_eomcc.nw
     prefix        = tce_h2o_eomcc.
-    data base     = ./tce_h2o_eomcc.db
+    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o_eomcc.db
     status        = startup
-    nproc         =    4
+    nproc         =        4
     time left     =     -1s
 
 
@@ -176,53 +129,53 @@ task tce energy
            Memory information
            ------------------
 
-    heap      =   13107186 doubles =    100.0 Mbytes
-    stack     =   13107199 doubles =    100.0 Mbytes
-    global    =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
-    total     =   52428785 doubles =    400.0 Mbytes
-    verify    = yes
-    hardfail  = no 
+    heap     =   16384001 doubles =    125.0 Mbytes
+    stack    =   16384001 doubles =    125.0 Mbytes
+    global   =   32768000 doubles =    250.0 Mbytes (distinct from heap & stack)
+    total    =   65536002 doubles =    500.0 Mbytes
+    verify   = yes
+    hardfail = no 
 
 
            Directory information
            ---------------------
- 
-  0 permanent = .
-  0 scratch   = /scratch
- 
- 
- 
- 
+
+  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+
+
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
- 
+
 
           ------
           auto-z
           ------
- 
- 
+
+
                              Geometry "geometry" -> ""
                              -------------------------
- 
+
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 H                    1.0000     1.47461105     0.00000000     0.86340171
     2 O                    8.0000     0.00000000     0.00000000    -0.21585043
     3 H                    1.0000    -1.47461105     0.00000000     0.86340171
- 
+
       Atomic Mass 
       ----------- 
- 
+
       H                  1.007825
       O                 15.994910
- 
+
 
  Effective nuclear repulsion energy (a.u.)       9.0948490908
 
@@ -231,20 +184,29 @@ task tce energy
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000     0.0000000000
- 
+
 
 
                                 Z-matrix (autoz)
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value
       ----------- --------  ----- ----- ----- ----- ----- ----------
     1 Stretch                  1     2                       0.96700
     2 Stretch                  2     3                       0.96700
     3 Bend                     1     2     3               107.60000
- 
+
+
+            XYZ format geometry
+            -------------------
+     3
+ geometry
+ H                     0.78033062     0.00000000     0.45689254
+ O                     0.00000000     0.00000000    -0.11422314
+ H                    -0.78033062     0.00000000     0.45689254
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -270,6 +232,9 @@ task tce energy
 
 
 
+  library name resolved from: .nwchemrc
+  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
+  
 
 
  Summary of "ao basis" -> "" (cartesian)
@@ -288,7 +253,7 @@ task tce energy
   1 S  3.42525091E+00  0.154329
   1 S  6.23913730E-01  0.535328
   1 S  1.68855400E-01  0.444635
- 
+
   O (Oxygen)
   ----------
             Exponent  Coefficients 
@@ -296,15 +261,15 @@ task tce energy
   1 S  1.30709320E+02  0.154329
   1 S  2.38088610E+01  0.535328
   1 S  6.44360830E+00  0.444635
- 
+
   2 S  5.03315130E+00 -0.099967
   2 S  1.16959610E+00  0.399513
   2 S  3.80389000E-01  0.700115
- 
+
   3 P  5.03315130E+00  0.155916
   3 P  1.16959610E+00  0.607684
   3 P  3.80389000E-01  0.391957
- 
+
 
 
  Summary of "ao basis" -> "ao basis" (cartesian)
@@ -317,8 +282,8 @@ task tce energy
 
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =     7
@@ -328,7 +293,7 @@ task tce energy
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = ./tce_h2o_eomcc.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o_eomcc.movecs
   use symmetry    = F
   symmetry adapt  = F
 
@@ -342,14 +307,14 @@ task tce energy
 
 
 
- Forming initial guess at       0.4s
+ Forming initial guess at       0.0s
 
- 
+
       Superposition of Atomic Density Guess
       -------------------------------------
- 
+
  Sum of atomic energies:         -74.71095592
- 
+
       Non-variational initial energy
       ------------------------------
 
@@ -358,9 +323,9 @@ task tce energy
  2-e energy   =      37.855454
  HOMO         =      -0.256142
  LUMO         =       0.488053
- 
 
- Starting SCF solution at       0.4s
+
+ Starting SCF solution at       0.1s
 
 
 
@@ -368,17 +333,17 @@ task tce energy
          Quadratically convergent ROHF
 
  Convergence threshold     :          1.000E-14
- Maximum no. of iterations :           20
+ Maximum no. of iterations :           30
  Final Fock-matrix accuracy:          0.000E+00
  ----------------------------------------------
 
 
- #quartets = 1.200D+02 #integrals = 2.800D+02 #direct =  0.0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.790D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /scratch/tce_h2o_eomcc.aoints.0
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o_eomcc.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  10734
+ Max. records in memory =      2        Max. records in file   =  20842
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -387,23 +352,24 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.9239094231  6.49D-01  5.52D-01      0.5
-                 2      -74.9617970553  1.35D-01  9.96D-02      0.5
-                 3      -74.9626616081  3.16D-03  2.92D-03      0.5
-                 4      -74.9626630620  7.11D-06  6.49D-06      0.5
-                 5      -74.9626630620  5.50D-13  4.15D-13      0.6
-                 6      -74.9626630620  5.11D-15  3.25D-15      0.6
+                 1      -74.9239094230  6.49D-01  5.52D-01      0.0
+                 2      -74.9617970552  1.35D-01  9.96D-02      0.0
+                 3      -74.9626616081  3.16D-03  2.92D-03      0.1
+                 4      -74.9626630620  7.11D-06  6.49D-06      0.1
+                 5      -74.9626630620  5.61D-13  4.30D-13      0.1
+                 6      -74.9626630620  1.25D-14  8.88D-15      0.1
+                 7      -74.9626630620  3.90D-15  2.50D-15      0.1
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -74.962663062035
-      One-electron energy =   -122.219010674855
-      Two-electron energy =     38.161498522000
+         Total SCF energy =    -74.962663062005
+      One-electron energy =   -122.219010674867
+      Two-electron energy =     38.161498522042
  Nuclear repulsion energy =      9.094849090820
 
-        Time for solution =      0.2s
+        Time for solution =      0.1s
 
 
              Final eigenvalues
@@ -417,62 +383,62 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     5   -0.3881
     6    0.5899
     7    0.7400
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
+
  Vector    2  Occ=2.000000D+00  E=-1.259694D+00
-              MO Center=  8.0D-17,  1.4D-20,  6.7D-02, r^2= 5.4D-01
+              MO Center=  1.2D-16, -1.2D-22,  6.7D-02, r^2= 5.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.837663  2 O  s                  2     -0.233394  2 O  s          
      1      0.158623  1 H  s                  7      0.158623  3 H  s          
- 
+
  Vector    3  Occ=2.000000D+00  E=-6.175019D-01
-              MO Center=  3.8D-16, -8.7D-36,  1.4D-01, r^2= 8.5D-01
+              MO Center= -2.9D-15, -6.1D-37,  1.4D-01, r^2= 8.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.601814  2 O  px                 1      0.443956  1 H  s          
-     7     -0.443956  3 H  s          
- 
+     4      0.601814  2 O  px                 7     -0.443956  3 H  s          
+     1      0.443956  1 H  s          
+
  Vector    4  Occ=2.000000D+00  E=-4.443043D-01
-              MO Center= -1.1D-16,  3.5D-19, -1.6D-01, r^2= 6.2D-01
+              MO Center=  2.5D-15, -3.0D-21, -1.6D-01, r^2= 6.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      0.784227  2 O  pz                 3     -0.524383  2 O  s          
-     7      0.278248  3 H  s                  1      0.278248  1 H  s          
- 
+     1      0.278248  1 H  s                  7      0.278248  3 H  s          
+
  Vector    5  Occ=2.000000D+00  E=-3.881364D-01
-              MO Center= -7.6D-36, -4.4D-19, -1.1D-01, r^2= 4.2D-01
+              MO Center= -2.1D-41,  3.7D-21, -1.1D-01, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      1.000000  2 O  py         
- 
+
  Vector    6  Occ=0.000000D+00  E= 5.899401D-01
-              MO Center=  4.5D-15,  7.6D-20,  3.8D-01, r^2= 1.1D+00
+              MO Center=  1.6D-15, -6.5D-22,  3.8D-01, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.874577  2 O  s                  1     -0.793258  1 H  s          
      7     -0.793258  3 H  s                  6      0.724694  2 O  pz         
- 
+
  Vector    7  Occ=0.000000D+00  E= 7.399956D-01
-              MO Center= -4.9D-15,  8.6D-34,  2.3D-01, r^2= 1.0D+00
+              MO Center= -1.2D-15,  1.2D-38,  2.3D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.993707  2 O  px                 7      0.827832  3 H  s          
      1     -0.827832  1 H  s          
- 
+
 
  center of mass
  --------------
- x =  -0.00000000 y =   0.00000000 z =  -0.09506603
+ x =   0.00000000 y =   0.00000000 z =  -0.09506603
 
  moments of inertia (a.u.)
  ------------------
-           2.085045547333           0.000000000000          -0.000000000000
+           2.085045547333           0.000000000000           0.000000000000
            0.000000000000           6.468031635326           0.000000000000
-          -0.000000000000           0.000000000000           4.382986087993
- 
+           0.000000000000           0.000000000000           4.382986087993
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -481,31 +447,31 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     1 H    1     0.82   0.82
     2 O    8     8.36   2.00  1.82  4.54
     3 H    1     0.82   0.82
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     10.000000
- 
-     1   1 0 0     -0.000000      0.000000      0.000000
+
+     1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
      1   0 0 1      0.666093      0.000000      0.000000
- 
+
      2   2 0 0     -3.162719      0.000000      4.348956
-     2   1 1 0     -0.000000      0.000000      0.000000
-     2   1 0 1     -0.000000      0.000000      0.000000
+     2   1 1 0      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000
      2   0 2 0     -4.535291      0.000000      0.000000
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -4.042077      0.000000      1.863656
- 
+
 
  Parallel integral file used       4 records with       0 large values
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
- 
+
               ======================================================
                    This portion of the program was automatically
                   generated by a Tensor Contraction Engine (TCE).
@@ -515,7 +481,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                       TCE is a product of Battelle and PNNL.
               Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
               ======================================================
- 
+
             General Information
             -------------------
       Number of processors :     4
@@ -536,27 +502,35 @@ File balance: exchanges=     0  moved=     0  time=   0.0
         Use of symmetry is : off
       Symmetry adaption is : off
          Schwarz screening : 0.00D+00
- 
+
           Correlation Information
           -----------------------
           Calculation type : Coupled-cluster singles & doubles                           
-   Perturbative correction : none                
+   Perturbative correction : none                                                        
             Max iterations :      100
         Residual threshold : 0.10D-11
-          Amplitude update :  5-th order DIIS
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
      No. of excited states :     1
                Target root :     1
            Target symmetry : none
       Symmetry restriction : off
    Dipole & oscillator str : on 
                 I/O scheme : Global Array Library
- 
+
             Memory Information
             ------------------
-          Available GA space size is     104857551 doubles
-          Available MA space size is      26213572 doubles
- 
- Maximum block size        45 doubles
+          Available GA space size is     131071951 doubles
+          Available MA space size is      32767342 doubles
+
+ Maximum block size        48 doubles
+
+ tile_dim =      4
 
  Block   Spin    Irrep     Size     Offset   Alpha
  -------------------------------------------------
@@ -570,143 +544,157 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Parallel file system coherency ......... OK
 
  SCF dipole moments / hartree & Debye
- --------------------------------
- X       0.0000000     -0.0000000
- Y      -0.0000000      0.0000000
- Z      -0.6660932      1.6930530
- --------------------------------
- 
+ ------------------------------------
+   X         0.0000000      0.0000000
+   Y         0.0000000      0.0000000
+   Z        -0.6660932     -1.6930528
+ Total       0.6660932      1.6930528
+ ------------------------------------
+
  Cpu & wall time / sec            0.0            0.0
- 
- X axis ( a   symmetry)
- 
- dipole file size   =         36
- dipole file name   = /scratch/tce_h2o_eom
- 
- Y axis ( a   symmetry)
- 
- dipole file size   =         36
- dipole file name   = /scratch/tce_h2o_eom
- 
- Z axis ( a   symmetry)
- 
- dipole file size   =         36
- dipole file name   = /scratch/tce_h2o_eom
- 
- Epsilons used as Fock matrix
- 1-e file size   =         36
- 1-e file name   = /scratch/tce_h2o_eom
- Cpu & wall time / sec            0.0            0.0
- 
+
+ X   axis ( a   symmetry)
+
+ dipole file size   =               36
+ dipole file name   = /home/d3y133/nwchem-
+
+ Y   axis ( a   symmetry)
+
+ dipole file size   =               36
+ dipole file name   = /home/d3y133/nwchem-
+
+ Z   axis ( a   symmetry)
+
+ dipole file size   =               36
+ dipole file name   = /home/d3y133/nwchem-
+
+ #quartets = 1.200D+02 #integrals = 2.790D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o_eomcc.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  20842
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Fock matrix recomputed
+ 1-e file size   =               36
+ 1-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.1
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
  2-e (intermediate) file size =            4508
- 2-e (intermediate) file name = /scratch/tce_h2o_eom
+ 2-e (intermediate) file name = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.0
- 
- 2-e file size   =       2080
- 2-e file name   = /scratch/tce_h2o_eom
+
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+
+ 2-e file size   =             2080
+ 2-e file name   = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.0
- 
- t1 file size   =          8
- t1 file name   = /scratch/tce_h2o_eom
- 
- t2 file size   =        128
- t2 file name   = /scratch/tce_h2o_eom
+ do_pt =  F
+ do_lam_pt =  F
+ do_cr_pt =  F
+ do_lcr_pt =  F
+ do_2t_pt =  F
+ T1-number-of-tasks                    1
+
+ t1 file size   =                8
+ t1 file name   = /home/d3y133/nwchem-
+ t1 file handle =       -998
+ T2-number-of-boxes                    2
+
+ t2 file size   =              128
+ t2 file name   = /home/d3y133/nwchem-
+ t2 file handle =       -992
 
  CCSD iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0889407309209  -0.0357688187473     0.0     0.0
-    2   0.0315030450409  -0.0453269251683     0.0     0.0
-    3   0.0124394119103  -0.0483090630471     0.0     0.0
-    4   0.0052450894417  -0.0493595497801     0.0     0.0
-    5   0.0023289798283  -0.0497617101003     0.0     0.0
-    6   0.0000464754951  -0.0500493708823     0.0     0.0
-    7   0.0000200945148  -0.0500497147269     0.0     0.0
-    8   0.0000095099546  -0.0500498210870     0.0     0.0
-    9   0.0000046207365  -0.0500498745605     0.0     0.0
-   10   0.0000022786514  -0.0500499049171     0.0     0.0
-   11   0.0000000685702  -0.0500499431766     0.0     0.0
-   12   0.0000000234919  -0.0500499483521     0.0     0.0
-   13   0.0000000108893  -0.0500499496976     0.0     0.0
-   14   0.0000000053593  -0.0500499502234     0.0     0.0
-   15   0.0000000026929  -0.0500499504626     0.0     0.0
-   16   0.0000000000924  -0.0500499506906     0.0     0.0
-   17   0.0000000000367  -0.0500499506907     0.0     0.0
-   18   0.0000000000166  -0.0500499506910     0.0     0.0
-   19   0.0000000000079  -0.0500499506911     0.0     0.0
-   20   0.0000000000038  -0.0500499506912     0.0     0.0
-   21   0.0000000000001  -0.0500499506913     0.0     0.0
- --------------------------------------------------------
+ -----------------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall    V2*C2
+ -----------------------------------------------------------------
+    1   0.0896017185935  -0.0357602502577     0.0     0.0     0.0
+    2   0.0312828808795  -0.0454262467227     0.0     0.0     0.0
+    3   0.0122030116753  -0.0483612964859     0.0     0.0     0.0
+    4   0.0050680646764  -0.0493854982431     0.0     0.0     0.0
+    5   0.0022128012739  -0.0497749890217     0.0     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                    5                    5
+    6   0.0000455716084  -0.0500493621853     0.0     0.0     0.0
+    7   0.0000198537238  -0.0500496118310     0.0     0.0     0.0
+    8   0.0000094375380  -0.0500497736304     0.0     0.0     0.0
+    9   0.0000046008377  -0.0500498540713     0.0     0.0     0.0
+   10   0.0000022776216  -0.0500498956792     0.0     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                   10                    5
+   11   0.0000000685620  -0.0500499439753     0.0     0.0     0.0
+   12   0.0000000215709  -0.0500499486693     0.0     0.0     0.0
+   13   0.0000000099411  -0.0500499498136     0.0     0.0     0.0
+   14   0.0000000048814  -0.0500499502730     0.0     0.0     0.0
+   15   0.0000000024493  -0.0500499504862     0.0     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                   15                    5
+   16   0.0000000000837  -0.0500499506919     0.0     0.0     0.0
+   17   0.0000000000350  -0.0500499506910     0.0     0.0     0.0
+   18   0.0000000000162  -0.0500499506911     0.0     0.0     0.0
+   19   0.0000000000078  -0.0500499506913     0.0     0.0     0.0
+   20   0.0000000000038  -0.0500499506914     0.0     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                   20                    5
+   21   0.0000000000001  -0.0500499506915     0.0     0.0     0.0
+ -----------------------------------------------------------------
  Iterations converged
- CCSD correlation energy / hartree =        -0.050049950691288
- CCSD total energy / hartree       =       -75.012713012726095
+ CCSD correlation energy / hartree =        -0.050049950691463
+ CCSD total energy / hartree       =       -75.012713012696764
 
  Singles contributions
-   9a   (alpha) ---   3a   (alpha)            -0.01439
 
  Doubles contributions
-   9a   (alpha)  10a   (alpha) ---   1a   (alpha)   2a   (alpha)            -0.01109
-   9a   (alpha)  10a   (alpha) ---   2a   (alpha)   1a   (alpha)             0.01109
-   9a   (alpha)  10a   (alpha) ---   2a   (alpha)   3a   (alpha)             0.01185
-   9a   (alpha)  10a   (alpha) ---   3a   (alpha)   2a   (alpha)            -0.01185
-  10a   (alpha)   9a   (alpha) ---   1a   (alpha)   2a   (alpha)             0.01109
-  10a   (alpha)   9a   (alpha) ---   2a   (alpha)   1a   (alpha)            -0.01109
-  10a   (alpha)   9a   (alpha) ---   2a   (alpha)   3a   (alpha)            -0.01185
-  10a   (alpha)   9a   (alpha) ---   3a   (alpha)   2a   (alpha)             0.01185
-   9a   (alpha)  11a   (beta ) ---   1a   (alpha)   5a   (beta )            -0.03233
-   9a   (alpha)  11a   (beta ) ---   1a   (alpha)   7a   (beta )            -0.03438
-   9a   (alpha)  11a   (beta ) ---   2a   (alpha)   6a   (beta )            -0.04567
-   9a   (alpha)  11a   (beta ) ---   3a   (alpha)   5a   (beta )            -0.03438
-   9a   (alpha)  11a   (beta ) ---   3a   (alpha)   7a   (beta )            -0.04812
-   9a   (alpha)  11a   (beta ) ---   4a   (alpha)   8a   (beta )            -0.02648
-   9a   (alpha)  12a   (beta ) ---   1a   (alpha)   6a   (beta )            -0.03174
-   9a   (alpha)  12a   (beta ) ---   2a   (alpha)   5a   (beta )            -0.02065
-   9a   (alpha)  12a   (beta ) ---   2a   (alpha)   7a   (beta )            -0.03601
-   9a   (alpha)  12a   (beta ) ---   3a   (alpha)   6a   (beta )            -0.04786
-  10a   (alpha)  11a   (beta ) ---   1a   (alpha)   6a   (beta )            -0.02065
-  10a   (alpha)  11a   (beta ) ---   2a   (alpha)   5a   (beta )            -0.03174
-  10a   (alpha)  11a   (beta ) ---   2a   (alpha)   7a   (beta )            -0.04786
-  10a   (alpha)  11a   (beta ) ---   3a   (alpha)   6a   (beta )            -0.03601
-  10a   (alpha)  12a   (beta ) ---   1a   (alpha)   5a   (beta )            -0.01698
-  10a   (alpha)  12a   (beta ) ---   2a   (alpha)   6a   (beta )            -0.07787
-  10a   (alpha)  12a   (beta ) ---   3a   (alpha)   7a   (beta )            -0.04195
-  10a   (alpha)  12a   (beta ) ---   4a   (alpha)   8a   (beta )            -0.01091
 
  CCSD Lambda iterations
- --------------------------------------
- Iter          Residuum     Cpu    Wall
- --------------------------------------
-    1   0.1040037154583     0.0     0.1
-    2   0.0072780341937     0.0     0.1
-    3   0.0009634259036     0.0     0.1
-    4   0.0001616551619     0.1     0.1
-    5   0.0000299192958     0.1     0.1
-    6   0.0000000282132     0.0     0.1
-    7   0.0000000042851     0.1     0.1
-    8   0.0000000008688     0.0     0.1
-    9   0.0000000001992     0.1     0.1
-   10   0.0000000000486     0.0     0.1
-   11   0.0000000000000     0.0     0.1
- --------------------------------------
+ ---------------------------------------------
+ Iter          Residuum            Cpu    Wall
+ ---------------------------------------------
+    1          0.1040037154589     0.0     0.0
+    2          0.0072780341936     0.0     0.1
+    3          0.0009634259036     0.0     0.1
+    4          0.0001616551619     0.0     0.0
+    5          0.0000299192958     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                    5                    5
+    6          0.0000000282132     0.0     0.1
+    7          0.0000000042851     0.0     0.0
+    8          0.0000000008688     0.0     0.0
+    9          0.0000000001992     0.0     0.0
+   10          0.0000000000486     0.0     0.1
+ MICROCYCLE DIIS UPDATE:                   10                    5
+   11          0.0000000000000     0.0     0.1
+ ---------------------------------------------
  Iterations converged
 
+ Singles contributions
+
+ Doubles contributions
+
  CCSD dipole moments / hartree & Debye
- --------------------------------
- X       0.0000000     -0.0000000
- Y      -0.0000000      0.0000000
- Z      -0.6223689      1.5819160
- --------------------------------
- 
+ ------------------------------------
+   X         0.0000000      0.0000000
+   Y         0.0000000      0.0000000
+   Z        -0.6223689     -1.5819158
+ Total       0.6223689      1.5819158
+ ------------------------------------
+
  Ground-state symmetry is a   
- 
+
  =========================================
  Excited-state calculation ( a   symmetry)
  =========================================
- 
- x1 file size   =          8
- 
- x2 file size   =        128
+ Dim. of EOMCC iter. space      500
+
+ x1 file size   =                8
+
+ x2 file size   =              128
+ EOMCCSD SOLVER TYPE 1
 
  No. of initial right vectors    1
 
@@ -716,27 +704,37 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  --------------------------------------------------------------
 
  Iteration   1 using    1 trial vectors
-   0.3441834723239   0.4960382793056   13.49789     0.0     0.1
+   0.3441834723226   0.4960382793046   13.49789     0.0     0.0
 
  Iteration   2 using    2 trial vectors
-   0.0569282647092   0.4422999231348   12.03560     0.0     0.1
+   0.0569282647087   0.4422999231339   12.03560     0.0     0.0
 
  Iteration   3 using    3 trial vectors
-   0.0097995551546   0.4407319040407   11.99293     0.0     0.1
+   0.0097995551543   0.4407319040398   11.99293     0.0     0.0
 
  Iteration   4 using    4 trial vectors
-   0.0019045964964   0.4406584247345   11.99093     0.0     0.1
+   0.0019045964962   0.4406584247336   11.99093     0.0     0.0
 
  Iteration   5 using    5 trial vectors
-   0.0004988184955   0.4406563205074   11.99087     0.1     0.1
+   0.0004988184955   0.4406563205065   11.99087     0.0     0.0
 
  Iteration   6 using    6 trial vectors
-   0.0000114045018   0.4406554471827   11.99085     0.0     0.1
+   0.0000114045018   0.4406554471818   11.99085     0.0     0.0
 
  Iteration   7 using    7 trial vectors
-   0.0000000000000   0.4406555021961   11.99085     0.1     0.1
+   0.0000000000000   0.4406555021952   11.99085     0.0     0.0
  --------------------------------------------------------------
  Iterations converged
+ largest EOMCCSD amplitudes: R1 and R2
+
+ Singles contributions
+     6a   (alpha) ---     5a   (alpha)       -0.9481694324
+
+ Doubles contributions
+     6a   (alpha)     7a   (beta ) ---     3a   (alpha)     5a   (beta )       -0.1062858495
+     6a   (alpha)     7a   (beta ) ---     5a   (alpha)     3a   (beta )       -0.1323331866
+     7a   (alpha)     6a   (beta ) ---     3a   (alpha)     5a   (beta )       -0.1323331866
+     7a   (alpha)     6a   (beta ) ---     5a   (alpha)     3a   (beta )       -0.1062858495
 
  No. of initial left vectors    1
 
@@ -746,31 +744,31 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  --------------------------------------------------------------
 
  Iteration   1 using    1 trial vectors
-   0.3565391650608   0.4960382793056   13.49789     0.0     0.1
+   0.3565391650593   0.4960382793046   13.49789     0.0     0.0
 
  Iteration   2 using    2 trial vectors
-   0.0565907280953   0.4434021510540   12.06559     0.0     0.1
+   0.0565907280948   0.4434021510531   12.06559     0.0     0.1
 
  Iteration   3 using    3 trial vectors
-   0.0102635918271   0.4408328613598   11.99568     0.1     0.1
+   0.0102635918268   0.4408328613589   11.99568     0.0     0.1
 
  Iteration   4 using    4 trial vectors
-   0.0018484727153   0.4406558563645   11.99086     0.1     0.1
+   0.0018484727152   0.4406558563636   11.99086     0.0     0.1
 
  Iteration   5 using    5 trial vectors
-   0.0005054326050   0.4406526252965   11.99077     0.1     0.1
+   0.0005054326049   0.4406526252956   11.99077     0.0     0.1
 
  Iteration   6 using    6 trial vectors
-   0.0000128184531   0.4406555468792   11.99085     0.1     0.1
+   0.0000128184531   0.4406555468784   11.99085     0.0     0.1
 
  Iteration   7 using    7 trial vectors
-   0.0000000000000   0.4406555021961   11.99085     0.1     0.1
+   0.0000000000000   0.4406555021952   11.99085     0.0     0.1
  --------------------------------------------------------------
  Iterations converged
 
  Excited state root  1
- Excitation energy / hartree =        0.440655502196069
-                   / eV      =       11.990851413901668
+ Excitation energy / hartree =        0.440655502195206
+                   / eV      =       11.990851413878174
 
  EOM-CCSD transition moments / hartree
  --------------------------------------------
@@ -779,36 +777,35 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  --------------------------------------------
 
  EOM-CCSD dipole moments / hartree & Debye
- --------------------------------
- X       0.0000000     -0.0000000
- Y       0.0000000     -0.0000000
- Z      -0.0028046      0.0071286
- --------------------------------
+ ------------------------------------
+   X         0.0000000      0.0000000
+   Y         0.0000000      0.0000000
+   Z        -0.0028046     -0.0071286
+ Total 
 
  Singles contributions
-   9a   (alpha) ---   4a   (alpha)            -0.94817
+     6a   (alpha) ---     5a   (alpha)       -0.9481694324
 
  Doubles contributions
-   9a   (alpha)  12a   (beta ) ---   2a   (alpha)   8a   (beta )            -0.10629
-   9a   (alpha)  12a   (beta ) ---   4a   (alpha)   6a   (beta )            -0.13233
-  10a   (alpha)  11a   (beta ) ---   2a   (alpha)   8a   (beta )            -0.13233
-  10a   (alpha)  11a   (beta ) ---   4a   (alpha)   6a   (beta )            -0.10629
- 
- EOM-CCSD ground state energy / hartree  =      -75.012713012726095
- EOM-CCSD excitation energy / hartree    =        0.440655502196069
- EOM-CCSD excited state energy / hartree =      -74.572057510530029
+     6a   (alpha)     7a   (beta ) ---     3a   (alpha)     5a   (beta )       -0.1062858495
+     6a   (alpha)     7a   (beta ) ---     5a   (alpha)     3a   (beta )       -0.1323331866
+     7a   (alpha)     6a   (beta ) ---     3a   (alpha)     5a   (beta )       -0.1323331866
+     7a   (alpha)     6a   (beta ) ---     5a   (alpha)     3a   (beta )       -0.1062858495
 
- Task  times  cpu:        2.3s     wall:        2.8s
- 
- 
+ Parallel integral file used       4 records with       0 large values
+
+
+ Task  times  cpu:        1.2s     wall:        1.8s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =     7
@@ -817,8 +814,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./tce_h2o_eomcc.movecs
-  output vectors  = ./tce_h2o_eomcc.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o_eomcc.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o_eomcc.movecs
   use symmetry    = F
   symmetry adapt  = F
 
@@ -834,11 +831,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
   The SCF is already converged 
 
-         Total SCF energy =    -74.962663062035
+         Total SCF energy =    -74.962663062005
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
- 
+
               ======================================================
                    This portion of the program was automatically
                   generated by a Tensor Contraction Engine (TCE).
@@ -848,7 +845,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                       TCE is a product of Battelle and PNNL.
               Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
               ======================================================
- 
+
             General Information
             -------------------
       Number of processors :     4
@@ -869,27 +866,35 @@ File balance: exchanges=     0  moved=     0  time=   0.0
         Use of symmetry is : off
       Symmetry adaption is : off
          Schwarz screening : 0.00D+00
- 
+
           Correlation Information
           -----------------------
           Calculation type : Coupled-cluster singles, doubles, & triples                 
-   Perturbative correction : none                
+   Perturbative correction : none                                                        
             Max iterations :      100
         Residual threshold : 0.10D-11
-          Amplitude update :  5-th order DIIS
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
      No. of excited states :     1
                Target root :     1
            Target symmetry : none
       Symmetry restriction : off
    Dipole & oscillator str : on 
                 I/O scheme : Global Array Library
- 
+
             Memory Information
             ------------------
-          Available GA space size is     104857551 doubles
-          Available MA space size is      26213572 doubles
- 
- Maximum block size        12 doubles
+          Available GA space size is     131071951 doubles
+          Available MA space size is      32767342 doubles
+
+ Maximum block size        13 doubles
+
+ tile_dim =      4
 
  Block   Spin    Irrep     Size     Offset   Alpha
  -------------------------------------------------
@@ -903,118 +908,158 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Parallel file system coherency ......... OK
 
  SCF dipole moments / hartree & Debye
- --------------------------------
- X       0.0000000     -0.0000000
- Y      -0.0000000      0.0000000
- Z      -0.6660932      1.6930530
- --------------------------------
- 
+ ------------------------------------
+   X         0.0000000      0.0000000
+   Y         0.0000000      0.0000000
+   Z        -0.6660932     -1.6930528
+ Total       0.6660932      1.6930528
+ ------------------------------------
+
  Cpu & wall time / sec            0.0            0.0
- 
- X axis ( a   symmetry)
- 
- dipole file size   =         36
- dipole file name   = /scratch/tce_h2o_eom
- 
- Y axis ( a   symmetry)
- 
- dipole file size   =         36
- dipole file name   = /scratch/tce_h2o_eom
- 
- Z axis ( a   symmetry)
- 
- dipole file size   =         36
- dipole file name   = /scratch/tce_h2o_eom
- 
- Epsilons used as Fock matrix
- 1-e file size   =         36
- 1-e file name   = /scratch/tce_h2o_eom
- Cpu & wall time / sec            0.0            0.0
- 
+
+ X   axis ( a   symmetry)
+
+ dipole file size   =               36
+ dipole file name   = /home/d3y133/nwchem-
+
+ Y   axis ( a   symmetry)
+
+ dipole file size   =               36
+ dipole file name   = /home/d3y133/nwchem-
+
+ Z   axis ( a   symmetry)
+
+ dipole file size   =               36
+ dipole file name   = /home/d3y133/nwchem-
+
+ #quartets = 1.200D+02 #integrals = 2.790D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o_eomcc.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  20842
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Fock matrix recomputed
+ 1-e file size   =               36
+ 1-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.1
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
  2-e (intermediate) file size =            4508
- 2-e (intermediate) file name = /scratch/tce_h2o_eom
+ 2-e (intermediate) file name = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.0
- 
- 2-e file size   =       2080
- 2-e file name   = /scratch/tce_h2o_eom
+
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+
+ 2-e file size   =             2080
+ 2-e file name   = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.0
- 
- t1 file size   =          8
- t1 file name   = /scratch/tce_h2o_eom
- 
- t2 file size   =        128
- t2 file name   = /scratch/tce_h2o_eom
- 
- t3 file size   =       1536
- t3 file name   = /scratch/tce_h2o_eom
+ do_pt =  F
+ do_lam_pt =  F
+ do_cr_pt =  F
+ do_lcr_pt =  F
+ do_2t_pt =  F
+ T1-number-of-tasks                    1
+
+ t1 file size   =                8
+ t1 file name   = /home/d3y133/nwchem-
+ t1 file handle =       -998
+ T2-number-of-boxes                    2
+
+ t2 file size   =              128
+ t2 file name   = /home/d3y133/nwchem-
+ t2 file handle =       -992
+
+ t3 file size   =             1536
+ t3 file name   = /home/d3y133/nwchem-
 
  CCSDT iterations
  --------------------------------------------------------
  Iter          Residuum       Correlation     Cpu    Wall
  --------------------------------------------------------
-    1   0.0889407309209  -0.0357688187473     0.1     0.1
-    2   0.0317313531660  -0.0453269251683     0.1     0.1
-    3   0.0125661245792  -0.0483604817132     0.1     0.1
-    4   0.0052980581011  -0.0494406196526     0.1     0.1
-    5   0.0023475122758  -0.0498563539367     0.0     0.1
-    6   0.0000549228307  -0.0501538271293     0.1     0.1
-    7   0.0000213675912  -0.0501553455010     0.1     0.1
-    8   0.0000100948043  -0.0501551809754     0.1     0.1
-    9   0.0000050171959  -0.0501551099180     0.0     0.1
-   10   0.0000025607657  -0.0501550916268     0.1     0.1
-   11   0.0000001970883  -0.0501550999217     0.1     0.1
-   12   0.0000000748568  -0.0501550980945     0.1     0.1
-   13   0.0000000377541  -0.0501550989725     0.1     0.1
-   14   0.0000000203782  -0.0501550994910     0.1     0.1
-   15   0.0000000112130  -0.0501550997345     0.1     0.1
-   16   0.0000000002725  -0.0501550999524     0.1     0.1
-   17   0.0000000000934  -0.0501550999544     0.1     0.1
-   18   0.0000000000421  -0.0501550999540     0.1     0.1
-   19   0.0000000000201  -0.0501550999534     0.1     0.1
-   20   0.0000000000099  -0.0501550999530     0.1     0.1
-   21   0.0000000000010  -0.0501550999526     0.1     0.1
-   22   0.0000000000004  -0.0501550999526     0.1     0.1
+    1   0.0889407309207  -0.0357688187475     0.0     0.1
+    2   0.0317313531660  -0.0453269251685     0.0     0.1
+    3   0.0125661245792  -0.0483604817134     0.0     0.1
+    4   0.0052980581011  -0.0494406196527     0.1     0.1
+    5   0.0023475122758  -0.0498563539369     0.0     0.1
+ MICROCYCLE DIIS UPDATE:                    5                    5
+    6   0.0000549228307  -0.0501538271294     0.1     0.1
+    7   0.0000213675912  -0.0501553455012     0.1     0.1
+    8   0.0000100948043  -0.0501551809756     0.1     0.1
+    9   0.0000050171959  -0.0501551099182     0.1     0.1
+   10   0.0000025607657  -0.0501550916270     0.1     0.1
+ MICROCYCLE DIIS UPDATE:                   10                    5
+   11   0.0000001970883  -0.0501550999219     0.1     0.1
+   12   0.0000000748568  -0.0501550980947     0.1     0.1
+   13   0.0000000377541  -0.0501550989727     0.0     0.1
+   14   0.0000000203782  -0.0501550994911     0.1     0.1
+   15   0.0000000112130  -0.0501550997346     0.0     0.1
+ MICROCYCLE DIIS UPDATE:                   15                    5
+   16   0.0000000002725  -0.0501550999526     0.0     0.1
+   17   0.0000000000934  -0.0501550999546     0.0     0.1
+   18   0.0000000000421  -0.0501550999541     0.1     0.1
+   19   0.0000000000201  -0.0501550999535     0.0     0.1
+   20   0.0000000000099  -0.0501550999532     0.1     0.1
+ MICROCYCLE DIIS UPDATE:                   20                    5
+   21   0.0000000000010  -0.0501550999528     0.1     0.1
+   22   0.0000000000004  -0.0501550999528     0.0     0.1
  --------------------------------------------------------
  Iterations converged
- CCSDT correlation energy / hartree =        -0.050155099952586
- CCSDT total energy / hartree       =       -75.012818161987393
+ CCSDT correlation energy / hartree =        -0.050155099952754
+ CCSDT total energy / hartree       =       -75.012818161958052
+
+ Singles contributions
+
+ Doubles contributions
 
  CCSDT Lambda iterations
- --------------------------------------
- Iter          Residuum     Cpu    Wall
- --------------------------------------
-    1   0.1040037154583     0.2     0.2
-    2   0.0072767266854     0.2     0.2
-    3   0.0009675944793     0.2     0.2
-    4   0.0001622993520     0.2     0.2
-    5   0.0000301764588     0.2     0.2
-    6   0.0000003709234     0.2     0.2
-    7   0.0000000346059     0.2     0.2
-    8   0.0000000065516     0.2     0.2
-    9   0.0000000014811     0.2     0.2
-   10   0.0000000003650     0.2     0.2
-   11   0.0000000000004     0.2     0.2
- --------------------------------------
+ ---------------------------------------------
+ Iter          Residuum            Cpu    Wall
+ ---------------------------------------------
+    1          0.1040037154589     0.2     0.2
+    2          0.0072767266854     0.1     0.2
+    3          0.0009675944793     0.1     0.2
+    4          0.0001622993520     0.2     0.2
+    5          0.0000301764588     0.2     0.2
+ MICROCYCLE DIIS UPDATE:                    5                    5
+    6          0.0000003709234     0.2     0.2
+    7          0.0000000346059     0.2     0.2
+    8          0.0000000065516     0.2     0.2
+    9          0.0000000014811     0.2     0.2
+   10          0.0000000003650     0.2     0.2
+ MICROCYCLE DIIS UPDATE:                   10                    5
+   11          0.0000000000004     0.1     0.2
+ ---------------------------------------------
  Iterations converged
 
  CCSDT dipole moments / hartree & Debye
- --------------------------------
- X       0.0000000     -0.0000000
- Y      -0.0000000      0.0000000
- Z      -0.6233020      1.5842877
- --------------------------------
- 
+ ------------------------------------
+   X         0.0000000      0.0000000
+   Y         0.0000000      0.0000000
+   Z        -0.6233020     -1.5842875
+ Total       0.6233020      1.5842875
+ ------------------------------------
+
  Ground-state symmetry is a   
- 
+
  =========================================
  Excited-state calculation ( a   symmetry)
  =========================================
- 
- x1 file size   =          8
- 
- x2 file size   =        128
- 
- x3 file size   =       1536
+ Dim. of EOMCC iter. space      500
+
+ x1 file size   =                8
+
+ x2 file size   =              128
+
+ x3 file size   =             1536
 
  No. of initial right vectors    1
 
@@ -1024,51 +1069,61 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  --------------------------------------------------------------
 
  Iteration   1 using    1 trial vectors
-   0.3461770845399   0.4960076643288   13.49706     0.1     0.2
+   0.3461770845386   0.4960076643278   13.49706     0.1     0.1
 
  Iteration   2 using    2 trial vectors
-   0.1334485244437   0.4428753953903   12.05126     0.1     0.2
+   0.1334485244421   0.4428753953894   12.05126     0.1     0.2
 
  Iteration   3 using    3 trial vectors
-   0.0225188526762   0.4422391652004   12.03395     0.1     0.2
+   0.0225188526759   0.4422391651996   12.03395     0.1     0.2
 
  Iteration   4 using    4 trial vectors
-   0.0066047174376   0.4417450577920   12.02050     0.2     0.2
+   0.0066047174376   0.4417450577911   12.02050     0.1     0.2
 
  Iteration   5 using    5 trial vectors
-   0.0017720282808   0.4416197173619   12.01709     0.1     0.2
+   0.0017720282807   0.4416197173611   12.01709     0.1     0.2
 
  Iteration   6 using    6 trial vectors
-   0.0005046983510   0.4416563095187   12.01808     0.1     0.2
+   0.0005046983510   0.4416563095179   12.01808     0.1     0.2
 
  Iteration   7 using    7 trial vectors
-   0.0000621070760   0.4416633636094   12.01828     0.2     0.2
+   0.0000621070760   0.4416633636085   12.01828     0.1     0.2
 
  Iteration   8 using    8 trial vectors
-   0.0000055123261   0.4416639040935   12.01829     0.1     0.2
+   0.0000055123261   0.4416639040927   12.01829     0.1     0.2
 
  Iteration   9 using    9 trial vectors
-   0.0000006325718   0.4416639045879   12.01829     0.2     0.2
+   0.0000006325718   0.4416639045870   12.01829     0.1     0.2
 
  Iteration  10 using   10 trial vectors
-   0.0000001139694   0.4416639137557   12.01829     0.2     0.2
+   0.0000001139694   0.4416639137548   12.01829     0.1     0.2
 
  Iteration  11 using   11 trial vectors
-   0.0000000105573   0.4416639130941   12.01829     0.2     0.2
+   0.0000000105573   0.4416639130933   12.01829     0.1     0.2
 
  Iteration  12 using   12 trial vectors
-   0.0000000010417   0.4416639130905   12.01829     0.2     0.2
+   0.0000000010417   0.4416639130896   12.01829     0.1     0.2
 
  Iteration  13 using   13 trial vectors
-   0.0000000001120   0.4416639130817   12.01829     0.2     0.3
+   0.0000000001120   0.4416639130808   12.01829     0.1     0.2
 
  Iteration  14 using   14 trial vectors
-   0.0000000000072   0.4416639130808   12.01829     0.2     0.3
+   0.0000000000072   0.4416639130799   12.01829     0.1     0.2
 
  Iteration  15 using   15 trial vectors
-   0.0000000000004   0.4416639130808   12.01829     0.2     0.3
+   0.0000000000004   0.4416639130799   12.01829     0.1     0.2
  --------------------------------------------------------------
  Iterations converged
+ largest EOMCCSDT amplitudes: R1 and R2
+
+ Singles contributions
+     6a   (alpha) ---     5a   (alpha)        0.9467112356
+
+ Doubles contributions
+     6a   (alpha)     7a   (beta ) ---     3a   (alpha)     5a   (beta )        0.1065361727
+     6a   (alpha)     7a   (beta ) ---     5a   (alpha)     3a   (beta )        0.1332297366
+     7a   (alpha)     6a   (beta ) ---     3a   (alpha)     5a   (beta )        0.1332297366
+     7a   (alpha)     6a   (beta ) ---     5a   (alpha)     3a   (beta )        0.1065361727
 
  No. of initial left vectors    1
 
@@ -1078,55 +1133,55 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  --------------------------------------------------------------
 
  Iteration   1 using    1 trial vectors
-   0.7275463977354   0.4960076643288   13.49706     0.2     0.3
+   0.7275463977356   0.4960076643278   13.49706     0.1     0.2
 
  Iteration   2 using    2 trial vectors
-   0.1670849518591   0.4530513627007   12.32816     0.2     0.2
+   0.1670849518584   0.4530513626998   12.32816     0.1     0.2
 
  Iteration   3 using    3 trial vectors
-   0.0274556060245   0.4425919141803   12.04354     0.2     0.3
+   0.0274556060243   0.4425919141794   12.04354     0.2     0.2
 
  Iteration   4 using    4 trial vectors
-   0.0061770106315   0.4416648387517   12.01832     0.2     0.3
+   0.0061770106314   0.4416648387508   12.01832     0.1     0.2
 
  Iteration   5 using    5 trial vectors
-   0.0022608123609   0.4416272848063   12.01729     0.2     0.3
+   0.0022608123609   0.4416272848054   12.01729     0.1     0.2
 
  Iteration   6 using    6 trial vectors
-   0.0006809775878   0.4416535201309   12.01801     0.2     0.3
+   0.0006809775878   0.4416535201301   12.01801     0.2     0.2
 
  Iteration   7 using    7 trial vectors
-   0.0000784111541   0.4416682316758   12.01841     0.2     0.3
+   0.0000784111541   0.4416682316749   12.01841     0.2     0.2
 
  Iteration   8 using    8 trial vectors
-   0.0000096743988   0.4416644033117   12.01831     0.2     0.3
+   0.0000096743988   0.4416644033108   12.01831     0.2     0.2
 
  Iteration   9 using    9 trial vectors
-   0.0000019435613   0.4416639675665   12.01829     0.3     0.3
+   0.0000019435613   0.4416639675657   12.01829     0.2     0.2
 
  Iteration  10 using   10 trial vectors
-   0.0000001205143   0.4416639146623   12.01829     0.3     0.3
+   0.0000001205143   0.4416639146615   12.01829     0.2     0.2
 
  Iteration  11 using   11 trial vectors
-   0.0000000116307   0.4416639132239   12.01829     0.3     0.3
+   0.0000000116307   0.4416639132230   12.01829     0.2     0.2
 
  Iteration  12 using   12 trial vectors
-   0.0000000007324   0.4416639130888   12.01829     0.3     0.3
+   0.0000000007324   0.4416639130879   12.01829     0.2     0.2
 
  Iteration  13 using   13 trial vectors
-   0.0000000000549   0.4416639130825   12.01829     0.3     0.4
+   0.0000000000549   0.4416639130817   12.01829     0.2     0.2
 
  Iteration  14 using   14 trial vectors
-   0.0000000000051   0.4416639130808   12.01829     0.3     0.4
+   0.0000000000051   0.4416639130800   12.01829     0.2     0.3
 
  Iteration  15 using   15 trial vectors
-   0.0000000000001   0.4416639130808   12.01829     0.3     0.4
+   0.0000000000001   0.4416639130799   12.01829     0.2     0.3
  --------------------------------------------------------------
  Iterations converged
 
  Excited state root  1
- Excitation energy / hartree =        0.441663913080807
-                   / eV      =       12.018291681917812
+ Excitation energy / hartree =        0.441663913079934
+                   / eV      =       12.018291681894068
 
  EOM-CCSDT transition moments / hartree
  --------------------------------------------
@@ -1135,400 +1190,25 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  --------------------------------------------
 
  EOM-CCSDT dipole moments / hartree & Debye
- --------------------------------
- X       0.0000000     -0.0000000
- Y       0.0000000     -0.0000000
- Z       0.0239176     -0.0607928
- --------------------------------
+ ------------------------------------
+   X         0.0000000      0.0000000
+   Y         0.0000000      0.0000000
+   Z         0.0239176      0.0607928
+ Total 
 
  Singles contributions
-   9a   (alpha) ---   4a   (alpha)             0.94671
+     6a   (alpha) ---     5a   (alpha)        0.9467112356
 
  Doubles contributions
-   9a   (alpha)  12a   (beta ) ---   2a   (alpha)   8a   (beta )             0.10654
-   9a   (alpha)  12a   (beta ) ---   4a   (alpha)   6a   (beta )             0.13323
-  10a   (alpha)  11a   (beta ) ---   2a   (alpha)   8a   (beta )             0.13323
-  10a   (alpha)  11a   (beta ) ---   4a   (alpha)   6a   (beta )             0.10654
- 
- EOM-CCSDT ground state energy / hartree  =      -75.012818161987393
- EOM-CCSDT excitation energy / hartree    =        0.441663913080807
- EOM-CCSDT excited state energy / hartree =      -74.571154248906594
+     6a   (alpha)     7a   (beta ) ---     3a   (alpha)     5a   (beta )        0.1065361727
+     6a   (alpha)     7a   (beta ) ---     5a   (alpha)     3a   (beta )        0.1332297366
+     7a   (alpha)     6a   (beta ) ---     3a   (alpha)     5a   (beta )        0.1332297366
+     7a   (alpha)     6a   (beta ) ---     5a   (alpha)     3a   (beta )        0.1065361727
 
- Task  times  cpu:       10.3s     wall:       12.5s
- 
- 
-                                NWChem Input Module
-                                -------------------
- 
- 
-                                 NWChem SCF Module
-                                 -----------------
- 
- 
-
-  ao basis        = "ao basis"
-  functions       =     7
-  atoms           =     3
-  closed shells   =     5
-  open shells     =     0
-  charge          =   0.00
-  wavefunction    = RHF 
-  input vectors   = ./tce_h2o_eomcc.movecs
-  output vectors  = ./tce_h2o_eomcc.movecs
-  use symmetry    = F
-  symmetry adapt  = F
+ Parallel integral file used       4 records with       0 large values
 
 
- Summary of "ao basis" -> "ao basis" (cartesian)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- H                           sto-3g                  1        1   1s
- O                           sto-3g                  3        5   2s1p
-
-
-
-  The SCF is already converged 
-
-         Total S#F energy =    -74.962663062035
-
-                   NWChem Extensible Many-Electron Theory Module
-                   ---------------------------------------------
- 
-              ======================================================
-                   This portion of the program was automatically
-                  generated by a Tensor Contraction Engine (TCE).
-                  The development of this portion of the program
-                 and TCE was supported by US Department of Energy,
-                Office of Science, Office of Basic Energy Science.
-                      TCE is a product of Battelle and PNNL.
-              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
-              ======================================================
- 
-            General Information
-            -------------------
-      Number of processors :     4
-         Wavefunction type : Restricted Hartree-Fock
-          No. of electrons :    10
-           Alpha electrons :     5
-            Beta electrons :     5
-           No. of orbitals :    14
-            Alpha orbitals :     7
-             Beta orbitals :     7
-        Alpha frozen cores :     1
-         Beta frozen cores :     1
-     Alpha frozen virtuals :     0
-      Beta frozen virtuals :     0
-         Spin multiplicity : singlet 
-    Number of AO functions :     7
-       Number of AO shells :     5
-        Use of symmetry is : off
-      Symmetry adaption is : off
-         Schwarz screening : 0.00D+00
- 
-          Correlation Information
-          -----------------------
-          Calculation type : Coupled-cluster singles, doubles, triples, & quadruples     
-   Perturbative correction : none                
-            Max iterations :      100
-        Residual threshold : 0.10D-11
-          Amplitude update :  5-th order DIIS
-     No. of excited states :     1
-               Target root :     1
-           Target symmetry : none
-      Symmetry restriction : off
-   Dipole & oscillator str : on 
-                I/O scheme : Global Array Library
- 
-            Memory Information
-            ------------------
-          Available GA space size is     104857551 doubles
-          Available MA space size is      26213572 doubles
- 
- Maximum block size         6 doubles
-
- Block   Spin    Irrep     Size     Offset   Alpha
- -------------------------------------------------
-   1    alpha     a      4 doubles       0       1
-   2    beta      a      4 doubles       4       1
-   3    alpha     a      2 doubles       8       3
-   4    beta      a      2 doubles      10       3
-
- Global array virtual files algorithm will be used
-
- Parallel file system coherency ......... OK
-
- SCF dipole moments / hartree & Debye
- --------------------------------
- X       0.0000000     -0.0000000
- Y      -0.0000000      0.0000000
- Z      -0.6660932      1.6930530
- --------------------------------
- 
- Cpu & wall time / sec            0.0            0.0
- 
- X axis ( a   symmetry)
- 
- dipole file size   =         36
- dipole file name   = /scratch/tce_h2o_eom
- 
- Y axis ( a   symmetry)
- 
- dipole file size   =         36
- dipole file name   = /scratch/tce_h2o_eom
- 
- Z axis ( a   symmetry)
- 
- dipole file size   =         36
- dipole file name   = /scratch/tce_h2o_eom
- 
- Epsilons used as Fock matrix
- 1-e file size   =         36
- 1-e file name   = /scratch/tce_h2o_eom
- Cpu & wall time / sec            0.0            0.0
- 
- 2-e (intermediate) file size =            4508
- 2-e (intermediate) file name = /scratch/tce_h2o_eom
- Cpu & wall time / sec            0.0            0.0
- 
- 2-e file size   =       2080
- 2-e file name   = /scratch/tce_h2o_eom
- Cpu & wall time / sec            0.0            0.0
- 
- t1 file size   =          8
- t1 file name   = /scratch/tce_h2o_eom
- 
- t2 file size   =        128
- t2 file name   = /scratch/tce_h2o_eom
- 
- t3 file size   =       1536
- t3 file name   = /scratch/tce_h2o_eom
- 
- t4 file size   =      16384
- t4 file name   = /scratch/tce_h2o_eom
-
- CCSDTQ iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0889407309209  -0.0357688187473     0.3     0.4
-    2   0.0318247491402  -0.0453269251683     0.3     0.3
-    3   0.0126315517674  -0.0483728056170     0.3     0.4
-    4   0.0053278860854  -0.0494603600493     0.2     0.3
-    5   0.0023575924571  -0.0498791173439     0.3     0.4
-    6   0.0001811854750  -0.0501742022893     0.2     0.4
-    7   0.0000564255118  -0.0501783123123     0.3     0.4
-    8   0.0000238647480  -0.0501784712837     0.2     0.3
-    9   0.0000111479780  -0.0501784846426     0.3     0.3
-   10   0.0000055964894  -0.0501784991862     0.3     0.3
-   11   0.0000003559366  -0.0501785425096     0.3     0.4
-   12   0.0000001469986  -0.0501785348163     0.3     0.3
-   13   0.0000000713783  -0.0501785348489     0.3     0.4
-   14   0.0000000370791  -0.0501785351578     0.3     0.4
-   15   0.0000000198899  -0.0501785353178     0.3     0.3
-   16   0.0000000006549  -0.0501785354233     0.3     0.4
-   17   0.0000000002507  -0.0501785354235     0.2     0.3
-   18   0.0000000001239  -0.0501785354252     0.3     0.3
-   19   0.0000000000637  -0.0501785354259     0.3     0.4
-   20   0.0000000000338  -0.0501785354263     0.3     0.3
-   21   0.0000000000025  -0.0501785354269     0.3     0.4
-   22   0.0000000000009  -0.0501785354269     0.3     0.4
- --------------------------------------------------------
- Iterations converged
- C#SDTQ correlation energy / hartree =        -0.050178535426851
- C#SDTQ total energy / hartree       =       -75.012841597461656
-
- CCSDTQ Lambda iterations
- --------------------------------------
- Iter          Residuum     Cpu    Wall
- --------------------------------------
-    1   0.1040037154583     1.3     1.5
-    2   0.0197061336360     1.2     1.4
-    3   0.0061318016947     1.2     1.4
-    4   0.0014187786085     1.2     1.5
-    5   0.0003035341947     1.2     1.4
-    6   0.0000008390045     1.1     1.4
-    7   0.0000001301237     1.2     1.4
-    8   0.0000000333322     1.2     1.5
-    9   0.0000000091655     1.2     1.4
-   10   0.0000000025933     1.2     1.5
-   11   0.0000000000024     1.2     1.4
-   12   0.0000000000008     1.2     1.4
- --------------------------------------
- Iterations converged
-
- CCSDTQ dipole moments / hartree & Debye
- --------------------------------
- X       0.0000000     -0.0000000
- Y      -0.0000000      0.0000000
- Z      -0.6232079      1.5840486
- --------------------------------
- 
- Ground-state symmetry is a   
- 
- =========================================
- Excited-state calculation ( a   symmetry)
- =========================================
- 
- x1 file size   =          8
- 
- x2 file size   =        128
- 
- x3 file size   =       1536
- 
- x4 file size   =      16384
-
- No. of initial right vectors    1
-
- EOM-CCSDTQ right-hand side iterations
- --------------------------------------------------------------
-      Residuum       Omega / hartree  Omega / eV    Cpu    Wall
- --------------------------------------------------------------
-
- Iteration   1 using    1 trial vectors
-   0.3462116329553   0.4960193646030   13.49738     0.6     0.8
-
- Iteration   2 using    2 trial vectors
-   0.1363240428587   0.4428255687716   12.04990     0.6     0.8
-
- Iteration   3 using    3 trial vectors
-   0.0361835596183   0.4421882505812   12.03256     0.6     0.8
-
- Iteration   4 using    4 trial vectors
-   0.0101728129282   0.4417903432146   12.02173     0.6     0.8
-
- Iteration   5 using    5 trial vectors
-   0.0031020550684   0.4416240152506   12.01721     0.6     0.8
-
- Iteration   6 using    6 trial vectors
-   0.0007108625585   0.4416324214601   12.01743     0.7     0.8
-
- Iteration   7 using    7 trial vectors
-   0.0001631297982   0.4416434345703   12.01773     0.7     0.9
-
- Iteration   8 using    8 trial vectors
-   0.0000255605607   0.4416466834532   12.01782     0.7     0.9
-
- Iteration   9 using    9 trial vectors
-   0.0000024299471   0.4416467562077   12.01782     0.7     0.9
-
- Iteration  10 using   10 trial vectors
-   0.0000003304952   0.4416467937098   12.01783     0.8     1.0
-
- Iteration  11 using   11 trial vectors
-   0.0000000390187   0.4416467976393   12.01783     0.8     1.0
-
- Iteration  12 using   12 trial vectors
-   0.0000000025768   0.4416467977441   12.01783     0.8     1.0
-
- Iteration  13 using   13 trial vectors
-   0.0000000002804   0.4416467977539   12.01783     0.9     1.1
-
- Iteration  14 using   14 trial vectors
-   0.0000000000127   0.4416467977539   12.01783     0.9     1.1
-
- Iteration  15 using   15 trial vectors
-   0.0000000000017   0.4416467977540   12.01783     1.0     1.2
-
- Iteration  16 using   16 trial vectors
-   0.0000000000001   0.4416467977540   12.01783     1.0     1.2
- --------------------------------------------------------------
- Iterations converged
-
- No. of initial left vectors    1
-
- EOM-CCSDTQ left-hand side iterations
- --------------------------------------------------------------
-      Residuum       Omega / hartree  Omega / eV    Cpu    Wall
- --------------------------------------------------------------
-
- Iteration   1 using    1 trial vectors
-   0.7275465610279   0.4960193646030   13.49738     1.3     1.5
-
- Iteration   2 using    2 trial vectors
-   0.3766039771778   0.4530748592346   12.32880     1.2     1.5
-
- Iteration   3 using    3 trial vectors
-   0.0723303277503   0.4420410662739   12.02855     1.2     1.5
-
- Iteration   4 using    4 trial vectors
-   0.0066715390324   0.4416357292169   12.01752     1.3     1.5
-
- Iteration   5 using    5 trial vectors
-   0.0027921395427   0.4416533787930   12.01801     1.2     1.5
-
- Iteration   6 using    6 trial vectors
-   0.0009927933653   0.4416623337190   12.01825     1.3     1.6
-
- Iteration   7 using    7 trial vectors
-   0.0001918870609   0.4416515381241   12.01795     1.3     1.6
-
- Iteration   8 using    8 trial vectors
-   0.0000172244768   0.4416473051968   12.01784     1.3     1.6
-
- Iteration   9 using    9 trial vectors
-   0.0000042511684   0.4416467635630   12.01783     1.4     1.6
-
- Iteration  10 using   10 trial vectors
-   0.0000001711587   0.4416467989524   12.01783     1.4     1.7
-
- Iteration  11 using   11 trial vectors
-   0.0000000228150   0.4416467976192   12.01783     1.4     1.7
-
- Iteration  12 using   12 trial vectors
-   0.0000000026119   0.4416467976952   12.01783     1.5     1.7
-
- Iteration  13 using   13 trial vectors
-   0.0000000003229   0.4416467977513   12.01783     1.5     1.8
-
- Iteration  14 using   14 trial vectors
-   0.0000000000234   0.4416467977532   12.01783     1.5     1.8
-
- Iteration  15 using   15 trial vectors
-   0.0000000000023   0.4416467977539   12.01783     1.6     1.9
-
- Iteration  16 using   16 trial vectors
-   0.0000000000003   0.4416467977540   12.01783     1.6     1.9
- --------------------------------------------------------------
- Iterations converged
-
- Excited state root  1
- E#citation energy / hartree =        0.441646797754022
-                   / eV      =       12.017825949981284
-
- EOM-CCSDTQ transition moments / hartree
- --------------------------------------------
- X    0.0000000 Y    0.1061430 Z    0.0000000
- Oscillator Strength                0.0033172
- --------------------------------------------
-
- EOM-CCSDTQ dipole moments / hartree & Debye
- --------------------------------
- X       0.0000000     -0.0000000
- Y       0.0000000     -0.0000000
- Z       0.0249259     -0.0633557
- --------------------------------
-
- Singles contributions
-   9a   (alpha) ---   4a   (alpha)             0.94662
-
- Doubles contributions
-   9a   (alpha)  12a   (beta ) ---   2a   (alpha)   8a   (beta )             0.10658
-   9a   (alpha)  12a   (beta ) ---   4a   (alpha)   6a   (beta )             0.13331
-  10a   (alpha)  11a   (beta ) ---   2a   (alpha)   8a   (beta )             0.13331
-  10a   (alpha)  11a   (beta ) ---   4a   (alpha)   6a   (beta )             0.10658
- 
- EOM-C#SDTQ ground state energy / hartree  =      -75.012841597461656
- EOM-C#SDTQ excitation energy / hartree    =        0.441646797754022
- EOM-C#SDTQ excited state energy / hartree =      -74.571194799707640
-
- Task  times  cpu:       55.8s     wall:       68.5s
- 
- 
-                                NWChem Input Module
-                                -------------------
- 
- 
+ Task  times  cpu:        7.2s     wall:       10.0s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -1539,12 +1219,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 2.40e+04 2.40e+04 1.53e+05 1314     1.04e+05    0        0        0     
-number of processes/call 2.34e+00 1.73e+00 1.77e+00 0.00e+00 0.00e+00
-bytes total:             1.39e+09 6.44e+06 1.54e+09 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            1.07e+09 4.83e+06 9.72e+08 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 2389168 bytes
- 
+calls: 1.93e+04 1.93e+04 8.42e+04 1.17e+04 3.81e+04    0        0     2.04e+04 
+number of processes/call 2.53e+00 1.19e+00 2.26e+00 0.00e+00 0.00e+00
+bytes total:             1.40e+08 2.52e+06 8.84e+07 0.00e+00 0.00e+00 1.63e+05
+bytes remote:            9.33e+07 1.72e+06 4.61e+07 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 200728 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -1553,48 +1232,47 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        17	        50
+	maximum number of blocks	        17	        48
 	current total bytes		         0	         0
-	maximum total bytes		   1054680	  16000856
-	maximum total K-bytes		      1055	     16001
-	maximum total M-bytes		         2	        17
+	maximum total bytes		   1053592	  22509016
+	maximum total K-bytes		      1054	     22510
+	maximum total M-bytes		         2	        23
+
+
+                                NWChem Input Module
+                                -------------------
 
 
 
-                                  ACKNOWLEDGEMENT
-                                  ---------------
-
-            Please use the following acknowledgement where appropriate 
-            for results obtained with NWChem:
-
-            High Performance Computational Chemistry Group, "NWChem, A
-            Computational Chemistry Package for Parallel Computers, 
-            Version 4.5" (2003), Pacific Northwest National Laboratory,
-            Richland, Washington 99352-0999, USA.
 
 
                                      CITATION
                                      --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
 
-            Please use the following citation when publishing results
-            obtained with NWChem:
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
 
-            T. P. Straatsma, E. Apra, T. L. Windus, M. Dupuis, E. J. Bylaska,
-            W. de Jong, S. Hirata, D. M. A. Smith, M. T. Hackler, L. Pollack,
-            R. J. Harrison, J. Nieplocha, V. Tipparaju, M. Krishnan, A. A. Auer,
-            E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
-            R. Kendall, J. A. Nichols, K. Tsemekhman, M. Valiev,
-            K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark,
-            D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood,
-            E. Glendening, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
-            R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
-            T. Nakajima, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
-            G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
-            "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 4.5" (2003),
-                      Pacific Northwest National Laboratory,
-                      Richland, Washington 99352-0999, USA.
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
+      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
-
-
- Total times  cpu:       68.6s     wall:       84.1s
+ Total times  cpu:        8.4s     wall:       11.9s

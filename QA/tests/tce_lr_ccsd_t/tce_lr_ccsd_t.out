@@ -1,19 +1,5 @@
-ARMCI configured for 4 cluster nodes. Network protocol is 'Quadrics ELAN-4'.
  argument  1 = tce_lr_ccsd_t.nw
- Entered input_file-info
- input_file-info: before ga_brdcst
- Entered input_file-info
- input_file-info: before ga_brdcst
- Entered input_file-info
- Entered input_file-info
- input_file-info: before ga_brdcst
- Entered input_file-info
- input_file-info: before ga_brdcst
- Entered input_file-info
- input_file-info: before ga_brdcst
- Entered input_file-info
- input_file-info: before ga_brdcst
- 
+
 
 
 ============================== echo of input deck ==============================
@@ -55,144 +41,98 @@ end
 task tce energy
 
 
- Entered input_file-info
- input_file-info: before ga_brdcst
 ================================================================================
 
 
- input_file-info: before ga_brdcst
- input_file-info: after ga_brdcst
- input_file-info: after ga_brdcst
- input_file-info: after ga_brdcst
- input_file-info: after ga_brdcst
- input_file-info: after ga_brdcst
- input_file-info: after ga_brdcst
- input_file-info: after ga_brdcst
- input_file-info: after ga_brdcst
                                          
                                          
- 
- 
-              Northwest Computational Chemistry Package (NWChem) 4.7
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.0
               ------------------------------------------------------
- 
- 
+
+
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
- 
-                                         
-                                         
- 
- 
-                     COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
-                         1999, 2000, 2001, 2002, 2003, 2004
-                        Pacific Northwest National Laboratory,
-                             Battelle Memorial Institute.
- 
-                            >>> All Rights Reserved <<<
- 
- 
-                                    DISCLAIMER
-                                    ----------
 
-            This material was prepared as an account of work sponsored
-            by an agency of the United States Government.  Neither the
-            United States Government nor the United States Department
-            of Energy, nor Battelle, nor any of their employees, MAKES
-            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
-            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
-            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
-            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
-            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
 
-
-                                    LIMITED USE
-                                    -----------
-
-            This software (including any documentation) is being made
-            available to you for your internal use only, solely for use
-            in performance of work directly for the U.S. Federal
-            Government or work under contracts with the U.S. Department
-            of Energy or other U.S. Federal Government agencies.  This
-            software is a version which has not yet been evaluated and
-            cleared for commercialization.  Adherence to this notice
-            may be necessary for the author, Battelle Memorial
-            Institute, to successfully assert copyright in and
-            commercialize this software. This software is not intended
-            for duplication or distribution to third parties without
-            the permission of the Manager of Software Products at
-            Pacific Northwest National Laboratory, Richland,
-            Washington, 99352.
-
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
 
                                   ACKNOWLEDGMENT
                                   --------------
 
-            This software and its documentation were produced with
-            Government support under Contract Number DE-AC06-76RLO-1830
-            awarded by the United States Department of Energy.  The
-            Government retains a paid-up non-exclusive, irrevocable
-            worldwide license to reproduce, prepare derivative works,
-            perform publicly and display publicly by or for the
-            Government, including the right to distribute to other
-            Government contractors.
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
 
 
            Job information
            ---------------
 
-    hostname      = m572
-    program       = /home/kowalski/nwchem-newintegrals2/bin/LINUX64/nwchem
-    date          = Tue Jun  6 17:03:29 2006
+    hostname      = arcen
+    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
+    date          = Tue Oct 26 15:28:25 2010
 
-    compiled      = Mon Jun  5 08:40:49 PDT 2006
-    source        = /home/kowalski/nwchem-newintegrals2
+    compiled      = Tue_Oct_26_14:47:56_2010
+    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
     nwchem branch = Development
     input         = tce_lr_ccsd_t.nw
     prefix        = tce_lr_ccsd_t.
-    data base     = ./tce_lr_ccsd_t.db
+    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_lr_ccsd_t.db
     status        = startup
-    nproc         =    8
-    time left     =   1740s
-    batch job id  = 321678
+    nproc         =        4
+    time left     =     -1s
+
+
 
            Memory information
            ------------------
 
-    heap      =   13107201 doubles =    100.0 Mbytes
-    stack     =   13107201 doubles =    100.0 Mbytes
-    global    =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
-    total     =   52428802 doubles =    400.0 Mbytes
-    verify    = yes
-    hardfail  = no 
+    heap     =   16384001 doubles =    125.0 Mbytes
+    stack    =   16384001 doubles =    125.0 Mbytes
+    global   =   32768000 doubles =    250.0 Mbytes (distinct from heap & stack)
+    total    =   65536002 doubles =    500.0 Mbytes
+    verify   = yes
+    hardfail = no 
 
 
            Directory information
            ---------------------
- 
-  0 permanent = .
-  0 scratch   = /scratch
- 
- 
- 
- 
+
+  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+
+
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
  C1  symmetry detected
 
           ------
           auto-z
           ------
- 
- 
+
+
                              Geometry "geometry" -> ""
                              -------------------------
- 
+
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 O                    8.0000    -1.51182534     2.99016206    -0.42783828
@@ -205,15 +145,15 @@ task tce energy
     8 H                    1.0000     2.06094266    -3.25435771    -0.54998220
     9 H                    1.0000    -0.30555563    -5.17566260    -0.00033336
    10 H                    1.0000     2.75125738     3.16320517    -0.26308642
- 
+
       Atomic Mass 
       ----------- 
- 
+
       O                 15.994910
       C                 12.000000
       N                 14.003070
       H                  1.007825
- 
+
 
  Effective nuclear repulsion energy (a.u.)     178.4092336437
 
@@ -222,14 +162,14 @@ task tce energy
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000     0.0000000000
- 
+
 
 
                                 Z-matrix (autoz)
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value
       ----------- --------  ----- ----- ----- ----- ----- ----------
     1 Stretch                  1     2                       1.23198
@@ -268,8 +208,8 @@ task tce energy
    34 Torsion                  6     3     5     9         -69.17241
    35 Torsion                  7     3     5     8         -71.54407
    36 Torsion                  7     3     5     9          50.81860
- 
- 
+
+
             XYZ format geometry
             -------------------
     10
@@ -284,7 +224,7 @@ task tce energy
  H                     1.09060397    -1.72213206    -0.29103807
  H                    -0.16169309    -2.73884290    -0.00017641
  H                     1.45590281     1.67389621    -0.13921935
- 
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -329,6 +269,9 @@ task tce energy
 
 
 
+  library name resolved from: .nwchemrc
+  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
+  
 
 
  Summary of "ao basis" -> "" (cartesian)
@@ -347,15 +290,15 @@ task tce energy
   1 S  1.30709320E+02  0.154329
   1 S  2.38088610E+01  0.535328
   1 S  6.44360830E+00  0.444635
- 
+
   2 S  5.03315130E+00 -0.099967
   2 S  1.16959610E+00  0.399513
   2 S  3.80389000E-01  0.700115
- 
+
   3 P  5.03315130E+00  0.155916
   3 P  1.16959610E+00  0.607684
   3 P  3.80389000E-01  0.391957
- 
+
   C (Carbon)
   ----------
             Exponent  Coefficients 
@@ -363,15 +306,15 @@ task tce energy
   1 S  7.16168370E+01  0.154329
   1 S  1.30450960E+01  0.535328
   1 S  3.53051220E+00  0.444635
- 
+
   2 S  2.94124940E+00 -0.099967
   2 S  6.83483100E-01  0.399513
   2 S  2.22289900E-01  0.700115
- 
+
   3 P  2.94124940E+00  0.155916
   3 P  6.83483100E-01  0.607684
   3 P  2.22289900E-01  0.391957
- 
+
   N (Nitrogen)
   ------------
             Exponent  Coefficients 
@@ -379,15 +322,15 @@ task tce energy
   1 S  9.91061690E+01  0.154329
   1 S  1.80523120E+01  0.535328
   1 S  4.88566020E+00  0.444635
- 
+
   2 S  3.78045590E+00 -0.099967
   2 S  8.78496600E-01  0.399513
   2 S  2.85714400E-01  0.700115
- 
+
   3 P  3.78045590E+00  0.155916
   3 P  8.78496600E-01  0.607684
   3 P  2.85714400E-01  0.391957
- 
+
   H (Hydrogen)
   ------------
             Exponent  Coefficients 
@@ -395,7 +338,7 @@ task tce energy
   1 S  3.42525091E+00  0.154329
   1 S  6.23913730E-01  0.535328
   1 S  1.68855400E-01  0.444635
- 
+
 
 
  Summary of "ao basis" -> "ao basis" (cartesian)
@@ -410,8 +353,8 @@ task tce energy
 
                                  NWChem SCF Module
                                  -----------------
- 
- 
+
+
 
   ao basis        = "ao basis"
   functions       =    30
@@ -421,7 +364,7 @@ task tce energy
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = ./tce_lr_ccsd_t.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_lr_ccsd_t.movecs
   use symmetry    = F
   symmetry adapt  = F
 
@@ -437,14 +380,14 @@ task tce energy
 
 
 
- Forming initial guess at       0.5s
+ Forming initial guess at       0.0s
 
- 
+
       Superposition of Atomic Density Guess
       -------------------------------------
- 
+
  Sum of atomic energies:        -277.86119423
- 
+
       Non-variational initial energy
       ------------------------------
 
@@ -453,9 +396,9 @@ task tce energy
  2-e energy   =     281.568505
  HOMO         =      -0.141928
  LUMO         =       0.242918
- 
 
- Starting SCF solution at       0.6s
+
+ Starting SCF solution at       0.1s
 
 
 
@@ -463,7 +406,7 @@ task tce energy
          Quadratically convergent ROHF
 
  Convergence threshold     :          1.000E-10
- Maximum no. of iterations :           20
+ Maximum no. of iterations :           30
  Final Fock-matrix accuracy:          1.000E-10
  ----------------------------------------------
 
@@ -471,9 +414,9 @@ task tce energy
  #quartets = 2.074D+04 #integrals = 1.114D+05 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /scratch/tce_lr_ccsd_t.aoints.0
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_lr_ccsd_t.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  10901
+ Max. records in memory =      2        Max. records in file   =  20842
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -482,24 +425,24 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -278.9142726326  1.46D+00  5.23D-01      0.8
-                 2     -279.0866757810  3.66D-01  1.11D-01      0.8
-                 3     -279.1025082797  1.32D-01  6.29D-02      0.8
-                 4     -279.1049215674  7.51D-03  3.71D-03      0.9
-                 5     -279.1049321210  3.23D-05  1.96D-05      1.0
-                 6     -279.1049321215  1.53D-09  5.09D-10      1.1
-                 7     -279.1049321215  4.94D-12  1.44D-12      1.1
+                 1     -278.9142726327  1.46D+00  5.23D-01      0.2
+                 2     -279.0866757811  3.66D-01  1.11D-01      0.2
+                 3     -279.1025082797  1.32D-01  6.29D-02      0.2
+                 4     -279.1049215675  7.51D-03  3.71D-03      0.2
+                 5     -279.1049321211  3.23D-05  1.96D-05      0.2
+                 6     -279.1049321215  1.53D-09  5.09D-10      0.3
+                 7     -279.1049321215  4.95D-12  1.44D-12      0.3
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -279.104932121485
-      One-electron energy =   -738.118748876661
-      Two-electron energy =    280.604583111484
+         Total SCF energy =   -279.104932121548
+      One-electron energy =   -738.118748876782
+      Two-electron energy =    280.604583111542
  Nuclear repulsion energy =    178.409233643692
 
-        Time for solution =      0.5s
+        Time for solution =      0.2s
 
 
              Final eigenvalues
@@ -536,17 +479,17 @@ File balance: exchanges=     0  moved=     0  time=   0.0
    28    0.7718
    29    0.7889
    30    0.9758
- 
+
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
- 
+
  Vector    6  Occ=2.000000D+00  E=-1.378358D+00
               MO Center=  3.7D-01,  1.0D+00, -2.6D-02, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      0.589451   4 O  s                 2      0.430694   1 O  s         
      7      0.299601   2 C  s                16     -0.167628   4 O  s         
- 
+
  Vector    7  Occ=2.000000D+00  E=-1.262063D+00
               MO Center=  5.8D-02,  1.1D+00, -7.6D-02, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -554,14 +497,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2      0.635394   1 O  s                17     -0.567400   4 O  s         
      1     -0.179261   1 O  s                 8     -0.172774   2 C  px        
     16      0.155557   4 O  s         
- 
+
  Vector    8  Occ=2.000000D+00  E=-1.147356D+00
               MO Center=  9.6D-03, -1.6D+00, -7.7D-02, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     22      0.649112   5 N  s                12      0.301633   3 C  s         
     21     -0.197606   5 N  s         
- 
+
  Vector    9  Occ=2.000000D+00  E=-9.144175D-01
               MO Center= -2.7D-01, -6.2D-01,  2.0D-01, r^2= 2.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -569,7 +512,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     12      0.474992   3 C  s                22     -0.343475   5 N  s         
      7      0.277335   2 C  s                 9     -0.204446   2 C  py        
      2     -0.201399   1 O  s                11     -0.160012   3 C  s         
- 
+
  Vector   10  Occ=2.000000D+00  E=-7.393796D-01
               MO Center=  2.9D-01,  1.2D-01,  1.1D-01, r^2= 3.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -579,7 +522,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19     -0.258886   4 O  py                2     -0.194188   1 O  s         
     26     -0.184226   6 H  s                 8      0.177900   2 C  px        
     23      0.170649   5 N  px               13      0.166786   3 C  px        
- 
+
  Vector   11  Occ=2.000000D+00  E=-6.298644D-01
               MO Center=  2.1D-01, -8.3D-01, -9.5D-02, r^2= 3.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -589,7 +532,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     28      0.283910   8 H  s                 9     -0.216084   2 C  py        
      8     -0.212110   2 C  px                3     -0.202917   1 O  px        
     14      0.152404   3 C  py        
- 
+
  Vector   12  Occ=2.000000D+00  E=-6.073345D-01
               MO Center= -3.7D-01, -3.7D-01,  3.4D-01, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -599,7 +542,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      4      0.216914   1 O  py               23      0.210377   5 N  px        
     20      0.202253   4 O  pz                7     -0.171830   2 C  s         
     26     -0.156423   6 H  s         
- 
+
  Vector   13  Occ=2.000000D+00  E=-5.931554D-01
               MO Center= -1.9D-01, -1.4D-01, -6.8D-02, r^2= 3.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -609,7 +552,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      8      0.285443   2 C  px                7     -0.221227   2 C  s         
     19     -0.216380   4 O  py               29     -0.210449   9 H  s         
     23     -0.171315   5 N  px                5     -0.160196   1 O  pz        
- 
+
  Vector   14  Occ=2.000000D+00  E=-5.666575D-01
               MO Center=  2.2D-01,  1.8D-01, -1.5D-02, r^2= 3.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -619,7 +562,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      9      0.285128   2 C  py               24      0.264634   5 N  py        
     29     -0.238202   9 H  s                30      0.199191  10 H  s         
     18     -0.194687   4 O  px        
- 
+
  Vector   15  Occ=2.000000D+00  E=-5.067861D-01
               MO Center=  1.2D-04, -2.1D-01,  7.0D-02, r^2= 2.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -629,7 +572,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     26     -0.265324   6 H  s                 5      0.243602   1 O  pz        
     28     -0.230584   8 H  s                19      0.185358   4 O  py        
     15     -0.167841   3 C  pz               24      0.156201   5 N  py        
- 
+
  Vector   16  Occ=2.000000D+00  E=-5.018053D-01
               MO Center= -1.5D-01, -2.5D-01,  5.0D-02, r^2= 2.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -639,7 +582,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     25     -0.237884   5 N  pz                5      0.194391   1 O  pz        
     28      0.177980   8 H  s                 4      0.177421   1 O  py        
      9      0.151884   2 C  py               29     -0.150319   9 H  s         
- 
+
  Vector   17  Occ=2.000000D+00  E=-4.504676D-01
               MO Center=  2.5D-01,  7.1D-01, -6.4D-03, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -649,7 +592,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      9     -0.287956   2 C  py               14      0.266589   3 C  py        
      2      0.254642   1 O  s                30      0.251544  10 H  s         
      8      0.178210   2 C  px                3     -0.172495   1 O  px        
- 
+
  Vector   18  Occ=2.000000D+00  E=-3.483694D-01
               MO Center= -3.0D-02,  3.5D-01, -1.8D-01, r^2= 3.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -659,7 +602,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      4      0.305065   1 O  py               18      0.286819   4 O  px        
     19     -0.221675   4 O  py               22      0.188188   5 N  s         
     10      0.171721   2 C  pz               23     -0.162693   5 N  px        
- 
+
  Vector   19  Occ=2.000000D+00  E=-3.416789D-01
               MO Center= -1.1D-01,  1.1D+00, -9.1D-02, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -668,7 +611,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      5     -0.511644   1 O  pz               10     -0.226030   2 C  pz        
     18      0.224949   4 O  px                4      0.174416   1 O  py        
     14      0.158468   3 C  py        
- 
+
  Vector   20  Occ=2.000000D+00  E=-3.243026D-01
               MO Center= -1.9D-01, -8.0D-01, -1.9D-01, r^2= 3.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -678,7 +621,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      4      0.286682   1 O  py               15     -0.200560   3 C  pz        
     23      0.191049   5 N  px                5      0.182258   1 O  pz        
     18      0.158226   4 O  px        
- 
+
  Vector   21  Occ=0.000000D+00  E= 3.010083D-01
               MO Center= -3.0D-01,  8.4D-01, -2.0D-02, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -686,7 +629,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     10      0.796264   2 C  pz                5     -0.676616   1 O  pz        
     20     -0.304490   4 O  pz               27     -0.234193   7 H  s         
      9      0.184594   2 C  py               22      0.157652   5 N  s         
- 
+
  Vector   22  Occ=0.000000D+00  E= 5.468606D-01
               MO Center=  5.7D-01,  6.2D-01,  3.4D-02, r^2= 2.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -696,7 +639,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     19     -0.446077   4 O  py                8      0.372685   2 C  px        
     26      0.354833   6 H  s                22     -0.306856   5 N  s         
     18      0.273781   4 O  px               12     -0.240145   3 C  s         
- 
+
  Vector   23  Occ=0.000000D+00  E= 5.883044D-01
               MO Center= -6.2D-01, -7.7D-01,  1.3D-01, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -706,7 +649,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     22     -0.391514   5 N  s                14      0.337486   3 C  py        
      8      0.306202   2 C  px                9      0.300244   2 C  py        
      4     -0.296127   1 O  py               23      0.258283   5 N  px        
- 
+
  Vector   24  Occ=0.000000D+00  E= 6.285995D-01
               MO Center= -8.7D-02, -1.4D+00,  3.1D-01, r^2= 2.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -716,7 +659,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     29     -0.577417   9 H  s                26      0.374458   6 H  s         
     23      0.264596   5 N  px               24     -0.247024   5 N  py        
     13      0.243173   3 C  px               10     -0.184422   2 C  pz        
- 
+
  Vector   25  Occ=0.000000D+00  E= 6.625233D-01
               MO Center= -2.3D-02, -9.6D-01,  4.2D-01, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -726,7 +669,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     14     -0.480530   3 C  py               25     -0.390058   5 N  pz        
     30     -0.378414  10 H  s                26     -0.319887   6 H  s         
     24     -0.299879   5 N  py               19      0.296456   4 O  py        
- 
+
  Vector   26  Occ=0.000000D+00  E= 6.896512D-01
               MO Center=  2.7D-01,  5.1D-01,  1.7D-01, r^2= 2.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -736,7 +679,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     18      0.487224   4 O  px               26      0.460326   6 H  s         
     14     -0.417738   3 C  py               27      0.343366   7 H  s         
      4      0.251910   1 O  py                2     -0.203613   1 O  s         
- 
+
  Vector   27  Occ=0.000000D+00  E= 7.478098D-01
               MO Center= -1.9D-01, -1.6D+00, -6.1D-03, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -746,7 +689,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     12     -0.329482   3 C  s                14      0.276877   3 C  py        
     23     -0.256708   5 N  px                7      0.234295   2 C  s         
     13     -0.185351   3 C  px               28      0.160544   8 H  s         
- 
+
  Vector   28  Occ=0.000000D+00  E= 7.717517D-01
               MO Center= -1.7D-02, -9.4D-01, -8.9D-02, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -756,7 +699,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      8      0.432986   2 C  px               13     -0.419344   3 C  px        
     29      0.415460   9 H  s                18      0.401761   4 O  px        
      7      0.342636   2 C  s                 9      0.308566   2 C  py        
- 
+
  Vector   29  Occ=0.000000D+00  E= 7.888585D-01
               MO Center=  4.1D-02, -3.4D-01,  7.0D-03, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -766,7 +709,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      9      0.499305   2 C  py               28      0.468849   8 H  s         
     29     -0.416189   9 H  s                17     -0.322415   4 O  s         
     12      0.271380   3 C  s                25      0.244283   5 N  pz        
- 
+
  Vector   30  Occ=0.000000D+00  E= 9.758004D-01
               MO Center= -3.0D-01,  8.0D-01, -3.0D-02, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
@@ -776,7 +719,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      3     -0.478916   1 O  px                7      0.458129   2 C  s         
     13      0.402527   3 C  px               12      0.298137   3 C  s         
     19     -0.277440   4 O  py               10     -0.257814   2 C  pz        
- 
+
 
  center of mass
  --------------
@@ -787,7 +730,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
          463.557664900521           0.000000000000           0.000000000000
            0.000000000000         186.569835669949           0.000000000000
            0.000000000000           0.000000000000         602.599918363713
- 
+
   Mulliken analysis of the total density
   --------------------------------------
 
@@ -803,31 +746,31 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     8 H    1     0.82   0.82
     9 H    1     0.83   0.83
    10 H    1     0.78   0.78
- 
+
        Multipole analysis of the density wrt the origin
        ------------------------------------------------
- 
+
      L   x y z        total         open         nuclear
      -   - - -        -----         ----         -------
      0   0 0 0      0.000000      0.000000     40.000000
- 
+
      1   1 0 0      0.382360      0.000000      0.000000
      1   0 1 0     -0.377683      0.000000      0.000000
      1   0 0 1      0.566607      0.000000      0.000000
- 
+
      2   2 0 0    -20.208286      0.000000     92.874955
      2   1 1 0      2.406411      0.000000      5.151374
      2   1 0 1     -0.967480      0.000000     -2.554475
      2   0 2 0    -18.697049      0.000000    246.623557
      2   0 1 1     -1.702131      0.000000     -2.159941
      2   0 0 2    -20.596076      0.000000     16.061493
- 
 
- Parallel integral file used       8 records with       0 large values
+
+ Parallel integral file used       4 records with       0 large values
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
- 
+
               ======================================================
                    This portion of the program was automatically
                   generated by a Tensor Contraction Engine (TCE).
@@ -837,10 +780,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                       TCE is a product of Battelle and PNNL.
               Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
               ======================================================
- 
+
             General Information
             -------------------
-      Number of processors :     8
+      Number of processors :     4
          Wavefunction type : Restricted Hartree-Fock
           No. of electrons :    40
            Alpha electrons :    20
@@ -858,24 +801,31 @@ File balance: exchanges=     0  moved=     0  time=   0.0
         Use of symmetry is : off
       Symmetry adaption is : off
          Schwarz screening : 0.10D-09
- 
+
           Correlation Information
           -----------------------
           Calculation type : Coupled-cluster singles & doubles w/ perturbation           
    Perturbative correction : locally renormalized (T)                                    
             Max iterations :      100
         Residual threshold : 0.10D-06
-          DIIS level shift : 0.00D+00
-          Amplitude update :  5-th order DIIS
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
                 I/O scheme : Global Array Library
- 
+
             Memory Information
             ------------------
-          Available GA space size is     209714300 doubles
-          Available MA space size is      26212657 doubles
- 
+          Available GA space size is     131071100 doubles
+          Available MA space size is      32766257 doubles
+
  Maximum block size supplied by input
  Maximum block size        10 doubles
+
+ tile_dim =     10
 
  Block   Spin    Irrep     Size     Offset   Alpha
  -------------------------------------------------
@@ -893,279 +843,108 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  #quartets = 2.074D+04 #integrals = 1.114D+05 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /scratch/tce_lr_ccsd_t.aoints.0
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_lr_ccsd_t.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  10901
+ Max. records in memory =      2        Max. records in file   =  20842
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- 
+
  Fock matrix recomputed
  1-e file size   =              625
- 1-e file name   = /scratch/tce_lr_ccsd
- Cpu & wall time / sec            0.2            0.2
- 
+ 1-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.1            0.2
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
  2-e (intermediate) file size =         1316700
- 2-e (intermediate) file name = /scratch/tce_lr_ccsd
- Cpu & wall time / sec            0.5            0.5
- 
+ 2-e (intermediate) file name = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.6            0.6
+
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+
  2-e file size   =           566186
- 2-e file name   = /scratch/tce_lr_ccsd
- Cpu & wall time / sec            0.1            0.1
- 
+ 2-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+ do_pt =  F
+ do_lam_pt =  F
+ do_cr_pt =  F
+ do_lcr_pt =  F
+ do_2t_pt =  F
+ T1-number-of-tasks                    2
+
  t1 file size   =              150
- t1 file name   = /scratch/tce_lr_ccsd
- before tce_guess_t2
- after tce_guess_t2
- 
+ t1 file name   = /home/d3y133/nwchem-
+ t1 file handle =       -999
+ T2-number-of-boxes                    7
+
  t2 file size   =            39400
- t2 file name   = /scratch/tce_lr_ccsd
+ t2 file name   = /home/d3y133/nwchem-
+ t2 file handle =       -996
 
  CCSD iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.1663509361523  -0.2466205697697     0.2     0.2
-    2   0.0609920665233  -0.2816081769257     0.1     0.1
-    3   0.0259033336376  -0.2926871146503     0.2     0.2
-    4   0.0120140655519  -0.2964872020508     0.1     0.1
-    5   0.0058667228220  -0.2981675671405     0.1     0.1
- MICROCYCLE DIIS UPDATE:                     5                     5
-    6   0.0009355320002  -0.2994727790905     0.1     0.1
-    7   0.0004019538916  -0.2994780884528     0.1     0.1
-    8   0.0002267306552  -0.2994870615853     0.1     0.1
-    9   0.0001256221695  -0.2994884782476     0.1     0.1
-   10   0.0000770437687  -0.2994902401133     0.1     0.1
- MICROCYCLE DIIS UPDATE:                    10                     5
-   11   0.0000166228922  -0.2994917407583     0.1     0.1
-   12   0.0000088303094  -0.2994928044454     0.1     0.1
-   13   0.0000042363859  -0.2994932513587     0.1     0.1
-   14   0.0000027230193  -0.2994933880403     0.1     0.1
-   15   0.0000015316636  -0.2994934350392     0.1     0.1
- MICROCYCLE DIIS UPDATE:                    15                     5
-   16   0.0000004275148  -0.2994934757348     0.1     0.1
-   17   0.0000001781161  -0.2994934710387     0.1     0.1
-   18   0.0000000983848  -0.2994934689318     0.1     0.1
- --------------------------------------------------------
+ -----------------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall    V2*C2
+ -----------------------------------------------------------------
+    1   0.1663509361517  -0.2466205697731     0.1     0.1     0.0
+    2   0.0609920665233  -0.2816081769282     0.1     0.1     0.0
+    3   0.0259033336376  -0.2926871146528     0.1     0.1     0.0
+    4   0.0120140655520  -0.2964872020532     0.1     0.1     0.0
+    5   0.0058667228221  -0.2981675671430     0.1     0.1     0.0
+ MICROCYCLE DIIS UPDATE:                    5                    5
+    6   0.0009355320003  -0.2994727790930     0.1     0.1     0.0
+    7   0.0004019538916  -0.2994780884553     0.1     0.1     0.0
+    8   0.0002267306552  -0.2994870615878     0.1     0.1     0.0
+    9   0.0001256221695  -0.2994884782501     0.1     0.1     0.0
+   10   0.0000770437687  -0.2994902401159     0.1     0.1     0.0
+ MICROCYCLE DIIS UPDATE:                   10                    5
+   11   0.0000166228922  -0.2994917407608     0.1     0.1     0.0
+   12   0.0000088303094  -0.2994928044479     0.1     0.1     0.0
+   13   0.0000042363859  -0.2994932513612     0.1     0.1     0.0
+   14   0.0000027230193  -0.2994933880429     0.1     0.1     0.0
+   15   0.0000015316636  -0.2994934350417     0.1     0.1     0.0
+ MICROCYCLE DIIS UPDATE:                   15                    5
+   16   0.0000004275148  -0.2994934757373     0.1     0.1     0.0
+   17   0.0000001781161  -0.2994934710412     0.1     0.1     0.0
+   18   0.0000000983848  -0.2994934689343     0.1     0.1     0.0
+ -----------------------------------------------------------------
  Iterations converged
- CCSD correlation energy / hartree =        -0.299493468931823
- CCSD total energy / hartree       =      -279.404425590416736
+ CCSD correlation energy / hartree =        -0.299493468934347
+ CCSD total energy / hartree       =      -279.404425590481935
 
  Singles contributions
-  31a   (alpha) ---   7a   (alpha)             0.01458
-  31a   (alpha) ---   8a   (alpha)            -0.01028
-  31a   (alpha) ---  10a   (alpha)             0.03241
-  31a   (alpha) ---  11a   (alpha)             0.03169
-  32a   (alpha) ---  15a   (alpha)             0.01217
-  33a   (alpha) ---  15a   (alpha)             0.01050
-  39a   (alpha) ---  13a   (alpha)             0.01326
-  39a   (alpha) ---  14a   (alpha)             0.01353
 
  Doubles contributions
-  31a   (alpha)  32a   (alpha) ---  13a   (alpha)  14a   (alpha)            -0.01517
-  31a   (alpha)  32a   (alpha) ---  14a   (alpha)  13a   (alpha)             0.01517
-  31a   (alpha)  38a   (alpha) ---  13a   (alpha)  14a   (alpha)            -0.01322
-  31a   (alpha)  38a   (alpha) ---  14a   (alpha)  13a   (alpha)             0.01322
-  31a   (alpha)  39a   (alpha) ---  13a   (alpha)  14a   (alpha)            -0.01843
-  31a   (alpha)  39a   (alpha) ---  14a   (alpha)  13a   (alpha)             0.01843
-  31a   (alpha)  39a   (alpha) ---  14a   (alpha)  15a   (alpha)             0.01282
-  31a   (alpha)  39a   (alpha) ---  15a   (alpha)  14a   (alpha)            -0.01282
-  31a   (alpha)  40a   (alpha) ---  12a   (alpha)  13a   (alpha)            -0.01310
-  31a   (alpha)  40a   (alpha) ---  12a   (alpha)  14a   (alpha)             0.01760
-  31a   (alpha)  40a   (alpha) ---  13a   (alpha)  12a   (alpha)             0.01310
-  31a   (alpha)  40a   (alpha) ---  14a   (alpha)  12a   (alpha)            -0.01760
-  32a   (alpha)  31a   (alpha) ---  13a   (alpha)  14a   (alpha)             0.01517
-  32a   (alpha)  31a   (alpha) ---  14a   (alpha)  13a   (alpha)            -0.01517
-  38a   (alpha)  31a   (alpha) ---  13a   (alpha)  14a   (alpha)             0.01322
-  38a   (alpha)  31a   (alpha) ---  14a   (alpha)  13a   (alpha)            -0.01322
-  39a   (alpha)  31a   (alpha) ---  13a   (alpha)  14a   (alpha)             0.01843
-  39a   (alpha)  31a   (alpha) ---  14a   (alpha)  13a   (alpha)            -0.01843
-  39a   (alpha)  31a   (alpha) ---  14a   (alpha)  15a   (alpha)            -0.01282
-  39a   (alpha)  31a   (alpha) ---  15a   (alpha)  14a   (alpha)             0.01282
-  40a   (alpha)  31a   (alpha) ---  12a   (alpha)  13a   (alpha)             0.01310
-  40a   (alpha)  31a   (alpha) ---  12a   (alpha)  14a   (alpha)            -0.01760
-  40a   (alpha)  31a   (alpha) ---  13a   (alpha)  12a   (alpha)            -0.01310
-  40a   (alpha)  31a   (alpha) ---  14a   (alpha)  12a   (alpha)             0.01760
-  31a   (alpha)  41a   (beta ) ---   7a   (alpha)  22a   (beta )            -0.01890
-  32a   (alpha)  42a   (beta ) ---   1a   (alpha)  16a   (beta )            -0.01148
-  32a   (alpha)  42a   (beta ) ---   4a   (alpha)  19a   (beta )            -0.01043
-  32a   (alpha)  42a   (beta ) ---   5a   (alpha)  20a   (beta )            -0.02062
-  32a   (alpha)  46a   (beta ) ---   1a   (alpha)  20a   (beta )            -0.01055
-  33a   (alpha)  43a   (beta ) ---   4a   (alpha)  19a   (beta )            -0.01232
-  33a   (alpha)  43a   (beta ) ---   6a   (alpha)  21a   (beta )            -0.01276
-  34a   (alpha)  44a   (beta ) ---   3a   (alpha)  18a   (beta )            -0.01141
-  34a   (alpha)  44a   (beta ) ---   4a   (alpha)  19a   (beta )            -0.01098
-  34a   (alpha)  44a   (beta ) ---   6a   (alpha)  21a   (beta )            -0.01197
-  34a   (alpha)  44a   (beta ) ---   7a   (alpha)  22a   (beta )            -0.02382
-  34a   (alpha)  45a   (beta ) ---   7a   (alpha)  19a   (beta )            -0.01173
-  34a   (alpha)  45a   (beta ) ---   7a   (alpha)  22a   (beta )            -0.01234
-  34a   (alpha)  47a   (beta ) ---   7a   (alpha)  22a   (beta )            -0.01299
-  35a   (alpha)  44a   (beta ) ---   4a   (alpha)  22a   (beta )            -0.01173
-  35a   (alpha)  44a   (beta ) ---   7a   (alpha)  22a   (beta )            -0.01234
-  35a   (alpha)  45a   (beta ) ---   3a   (alpha)  18a   (beta )            -0.01642
-  35a   (alpha)  45a   (beta ) ---   5a   (alpha)  20a   (beta )            -0.01231
-  35a   (alpha)  45a   (beta ) ---   7a   (alpha)  22a   (beta )            -0.01542
-  36a   (alpha)  42a   (beta ) ---   5a   (alpha)  16a   (beta )            -0.01055
-  36a   (alpha)  46a   (beta ) ---   4a   (alpha)  19a   (beta )            -0.01377
-  36a   (alpha)  46a   (beta ) ---   5a   (alpha)  20a   (beta )            -0.02314
-  37a   (alpha)  44a   (beta ) ---   7a   (alpha)  22a   (beta )            -0.01299
-  37a   (alpha)  47a   (beta ) ---   3a   (alpha)  18a   (beta )            -0.01154
-  37a   (alpha)  47a   (beta ) ---   4a   (alpha)  19a   (beta )            -0.01034
-  37a   (alpha)  47a   (beta ) ---   6a   (alpha)  21a   (beta )            -0.01230
-  37a   (alpha)  47a   (beta ) ---   7a   (alpha)  22a   (beta )            -0.01156
-  38a   (alpha)  48a   (beta ) ---   5a   (alpha)  20a   (beta )            -0.01071
-  38a   (alpha)  48a   (beta ) ---   6a   (alpha)  21a   (beta )            -0.01970
-  38a   (alpha)  49a   (beta ) ---   5a   (alpha)  21a   (beta )             0.01001
-  39a   (alpha)  48a   (beta ) ---   6a   (alpha)  20a   (beta )             0.01001
-  39a   (alpha)  49a   (beta ) ---   6a   (alpha)  21a   (beta )            -0.01817
-  40a   (alpha)  50a   (beta ) ---   2a   (alpha)  17a   (beta )            -0.01362
-  31a   (alpha)  41a   (beta ) ---   7a   (alpha)  25a   (beta )            -0.01406
-  31a   (alpha)  41a   (beta ) ---   7a   (alpha)  26a   (beta )            -0.01719
-  31a   (alpha)  41a   (beta ) ---   7a   (alpha)  28a   (beta )            -0.01667
-  31a   (alpha)  41a   (beta ) ---   7a   (alpha)  29a   (beta )             0.02224
-  32a   (alpha)  42a   (beta ) ---   1a   (alpha)  27a   (beta )            -0.01170
-  32a   (alpha)  46a   (beta ) ---   5a   (alpha)  27a   (beta )            -0.01326
-  34a   (alpha)  44a   (beta ) ---   7a   (alpha)  30a   (beta )             0.01049
-  34a   (alpha)  45a   (beta ) ---   7a   (alpha)  30a   (beta )             0.01074
-  34a   (alpha)  47a   (beta ) ---   3a   (alpha)  23a   (beta )            -0.01010
-  34a   (alpha)  47a   (beta ) ---   7a   (alpha)  30a   (beta )             0.01127
-  35a   (alpha)  44a   (beta ) ---   7a   (alpha)  30a   (beta )             0.01047
-  35a   (alpha)  47a   (beta ) ---   3a   (alpha)  23a   (beta )             0.01198
-  36a   (alpha)  41a   (beta ) ---   5a   (alpha)  25a   (beta )            -0.01132
-  36a   (alpha)  41a   (beta ) ---   5a   (alpha)  26a   (beta )            -0.01030
-  36a   (alpha)  42a   (beta ) ---   5a   (alpha)  27a   (beta )            -0.01243
-  37a   (alpha)  47a   (beta ) ---   6a   (alpha)  23a   (beta )            -0.01098
-  40a   (alpha)  41a   (beta ) ---   2a   (alpha)  28a   (beta )            -0.01087
-  40a   (alpha)  41a   (beta ) ---   2a   (alpha)  29a   (beta )             0.01491
-  40a   (alpha)  50a   (beta ) ---   2a   (alpha)  27a   (beta )             0.01065
-  31a   (alpha)  41a   (beta ) ---  10a   (alpha)  22a   (beta )            -0.01406
-  31a   (alpha)  41a   (beta ) ---  11a   (alpha)  22a   (beta )            -0.01719
-  31a   (alpha)  41a   (beta ) ---  13a   (alpha)  22a   (beta )            -0.01667
-  31a   (alpha)  41a   (beta ) ---  14a   (alpha)  22a   (beta )             0.02224
-  31a   (alpha)  46a   (beta ) ---  10a   (alpha)  20a   (beta )            -0.01132
-  31a   (alpha)  46a   (beta ) ---  11a   (alpha)  20a   (beta )            -0.01030
-  31a   (alpha)  50a   (beta ) ---  13a   (alpha)  17a   (beta )            -0.01087
-  31a   (alpha)  50a   (beta ) ---  14a   (alpha)  17a   (beta )             0.01491
-  32a   (alpha)  42a   (beta ) ---  12a   (alpha)  16a   (beta )            -0.01170
-  32a   (alpha)  46a   (beta ) ---  12a   (alpha)  20a   (beta )            -0.01243
-  34a   (alpha)  44a   (beta ) ---  15a   (alpha)  22a   (beta )             0.01049
-  34a   (alpha)  45a   (beta ) ---  15a   (alpha)  22a   (beta )             0.01047
-  35a   (alpha)  44a   (beta ) ---  15a   (alpha)  22a   (beta )             0.01074
-  36a   (alpha)  42a   (beta ) ---  12a   (alpha)  20a   (beta )            -0.01326
-  37a   (alpha)  44a   (beta ) ---   8a   (alpha)  18a   (beta )            -0.01010
-  37a   (alpha)  44a   (beta ) ---  15a   (alpha)  22a   (beta )             0.01127
-  37a   (alpha)  45a   (beta ) ---   8a   (alpha)  18a   (beta )             0.01198
-  37a   (alpha)  47a   (beta ) ---   8a   (alpha)  21a   (beta )            -0.01098
-  40a   (alpha)  50a   (beta ) ---  12a   (alpha)  17a   (beta )             0.01065
-  31a   (alpha)  41a   (beta ) ---   8a   (alpha)  23a   (beta )            -0.01475
-  31a   (alpha)  41a   (beta ) ---   8a   (alpha)  25a   (beta )             0.01207
-  31a   (alpha)  41a   (beta ) ---   8a   (alpha)  29a   (beta )            -0.01393
-  31a   (alpha)  41a   (beta ) ---  10a   (alpha)  23a   (beta )             0.01207
-  31a   (alpha)  41a   (beta ) ---  10a   (alpha)  25a   (beta )            -0.02759
-  31a   (alpha)  41a   (beta ) ---  10a   (alpha)  26a   (beta )            -0.02424
-  31a   (alpha)  41a   (beta ) ---  10a   (alpha)  28a   (beta )            -0.02241
-  31a   (alpha)  41a   (beta ) ---  10a   (alpha)  29a   (beta )             0.03296
-  31a   (alpha)  41a   (beta ) ---  10a   (alpha)  30a   (beta )            -0.01528
-  31a   (alpha)  41a   (beta ) ---  11a   (alpha)  25a   (beta )            -0.02424
-  31a   (alpha)  41a   (beta ) ---  11a   (alpha)  26a   (beta )            -0.02586
-  31a   (alpha)  41a   (beta ) ---  11a   (alpha)  28a   (beta )            -0.02330
-  31a   (alpha)  41a   (beta ) ---  11a   (alpha)  29a   (beta )             0.03107
-  31a   (alpha)  41a   (beta ) ---  11a   (alpha)  30a   (beta )            -0.01542
-  31a   (alpha)  41a   (beta ) ---  13a   (alpha)  25a   (beta )            -0.02241
-  31a   (alpha)  41a   (beta ) ---  13a   (alpha)  26a   (beta )            -0.02330
-  31a   (alpha)  41a   (beta ) ---  13a   (alpha)  28a   (beta )            -0.04831
-  31a   (alpha)  41a   (beta ) ---  13a   (alpha)  29a   (beta )             0.05676
-  31a   (alpha)  41a   (beta ) ---  13a   (alpha)  30a   (beta )            -0.02759
-  31a   (alpha)  41a   (beta ) ---  14a   (alpha)  23a   (beta )            -0.01393
-  31a   (alpha)  41a   (beta ) ---  14a   (alpha)  25a   (beta )             0.03296
-  31a   (alpha)  41a   (beta ) ---  14a   (alpha)  26a   (beta )             0.03107
-  31a   (alpha)  41a   (beta ) ---  14a   (alpha)  28a   (beta )             0.05676
-  31a   (alpha)  41a   (beta ) ---  14a   (alpha)  29a   (beta )            -0.08713
-  31a   (alpha)  41a   (beta ) ---  14a   (alpha)  30a   (beta )             0.03201
-  31a   (alpha)  41a   (beta ) ---  15a   (alpha)  25a   (beta )            -0.01528
-  31a   (alpha)  41a   (beta ) ---  15a   (alpha)  26a   (beta )            -0.01542
-  31a   (alpha)  41a   (beta ) ---  15a   (alpha)  28a   (beta )            -0.02759
-  31a   (alpha)  41a   (beta ) ---  15a   (alpha)  29a   (beta )             0.03201
-  31a   (alpha)  41a   (beta ) ---  15a   (alpha)  30a   (beta )            -0.02037
-  31a   (alpha)  42a   (beta ) ---  14a   (alpha)  29a   (beta )             0.01177
-  31a   (alpha)  46a   (beta ) ---  14a   (alpha)  23a   (beta )            -0.01179
-  31a   (alpha)  49a   (beta ) ---  14a   (alpha)  29a   (beta )             0.01602
-  31a   (alpha)  50a   (beta ) ---  10a   (alpha)  27a   (beta )             0.01077
-  31a   (alpha)  50a   (beta ) ---  11a   (alpha)  27a   (beta )             0.01082
-  31a   (alpha)  50a   (beta ) ---  13a   (alpha)  27a   (beta )             0.01633
-  31a   (alpha)  50a   (beta ) ---  14a   (alpha)  27a   (beta )            -0.02190
-  32a   (alpha)  41a   (beta ) ---  14a   (alpha)  29a   (beta )             0.01177
-  32a   (alpha)  42a   (beta ) ---   9a   (alpha)  24a   (beta )            -0.01065
-  32a   (alpha)  42a   (beta ) ---  12a   (alpha)  27a   (beta )            -0.01944
-  32a   (alpha)  42a   (beta ) ---  13a   (alpha)  28a   (beta )            -0.01051
-  32a   (alpha)  42a   (beta ) ---  14a   (alpha)  29a   (beta )            -0.01093
-  32a   (alpha)  46a   (beta ) ---   9a   (alpha)  27a   (beta )             0.01003
-  33a   (alpha)  43a   (beta ) ---   8a   (alpha)  23a   (beta )            -0.01145
-  33a   (alpha)  43a   (beta ) ---  10a   (alpha)  25a   (beta )            -0.01878
-  33a   (alpha)  43a   (beta ) ---  10a   (alpha)  26a   (beta )             0.01647
-  33a   (alpha)  43a   (beta ) ---  11a   (alpha)  25a   (beta )             0.01647
-  33a   (alpha)  43a   (beta ) ---  11a   (alpha)  26a   (beta )            -0.02266
-  34a   (alpha)  44a   (beta ) ---  10a   (alpha)  25a   (beta )            -0.01024
-  34a   (alpha)  44a   (beta ) ---  11a   (alpha)  26a   (beta )            -0.01297
-  34a   (alpha)  44a   (beta ) ---  15a   (alpha)  30a   (beta )            -0.01697
-  35a   (alpha)  45a   (beta ) ---   8a   (alpha)  23a   (beta )            -0.01024
-  35a   (alpha)  45a   (beta ) ---  10a   (alpha)  25a   (beta )            -0.01002
-  35a   (alpha)  45a   (beta ) ---  15a   (alpha)  30a   (beta )            -0.01566
-  36a   (alpha)  41a   (beta ) ---   8a   (alpha)  29a   (beta )            -0.01179
-  36a   (alpha)  42a   (beta ) ---  12a   (alpha)  24a   (beta )             0.01003
-  36a   (alpha)  46a   (beta ) ---   8a   (alpha)  23a   (beta )            -0.01036
-  36a   (alpha)  46a   (beta ) ---   9a   (alpha)  24a   (beta )            -0.01121
-  36a   (alpha)  46a   (beta ) ---  11a   (alpha)  26a   (beta )            -0.01006
-  36a   (alpha)  46a   (beta ) ---  12a   (alpha)  27a   (beta )            -0.01825
-  37a   (alpha)  47a   (beta ) ---   8a   (alpha)  23a   (beta )            -0.02183
-  37a   (alpha)  47a   (beta ) ---   8a   (alpha)  24a   (beta )            -0.01119
-  37a   (alpha)  47a   (beta ) ---   8a   (alpha)  25a   (beta )            -0.01287
-  37a   (alpha)  47a   (beta ) ---   9a   (alpha)  23a   (beta )            -0.01119
-  37a   (alpha)  47a   (beta ) ---  10a   (alpha)  23a   (beta )            -0.01287
-  37a   (alpha)  47a   (beta ) ---  10a   (alpha)  25a   (beta )            -0.01080
-  37a   (alpha)  47a   (beta ) ---  15a   (alpha)  30a   (beta )            -0.01498
-  38a   (alpha)  48a   (beta ) ---  10a   (alpha)  25a   (beta )            -0.01233
-  38a   (alpha)  48a   (beta ) ---  11a   (alpha)  26a   (beta )            -0.01382
-  39a   (alpha)  41a   (beta ) ---  14a   (alpha)  29a   (beta )             0.01602
-  39a   (alpha)  49a   (beta ) ---   8a   (alpha)  23a   (beta )            -0.01043
-  40a   (alpha)  41a   (beta ) ---  12a   (alpha)  25a   (beta )             0.01077
-  40a   (alpha)  41a   (beta ) ---  12a   (alpha)  26a   (beta )             0.01082
-  40a   (alpha)  41a   (beta ) ---  12a   (alpha)  28a   (beta )             0.01633
-  40a   (alpha)  41a   (beta ) ---  12a   (alpha)  29a   (beta )            -0.02190
-  40a   (alpha)  50a   (beta ) ---  12a   (alpha)  27a   (beta )            -0.01986
- 
- LR-CCSD(T)IA correlation energy / hartree =        -0.307053292108550
- LR-CCSD(T)IA total energy / hartree       =      -279.411985413593470
- 
- LR-CCSD(T)IB correlation energy / hartree =        -0.305197418403852
- LR-CCSD(T)IB total energy / hartree       =      -279.410129539888771
- 
- LR-CCSD(T)IIA correlation energy / hartree =        -0.307599613504941
- LR-CCSD(T)IIA total energy / hartree       =      -279.412531734989841
- 
- LR-CCSD(T)IIB correlation energy / hartree =        -0.305743739800242
- LR-CCSD(T)IIB total energy / hartree       =      -279.410675861285142
- 
- LR-CCSD(T)IIIA correlation energy / hartree =        -0.308248545878469
- LR-CCSD(T)IIIA total energy / hartree       =      -279.413180667363406
- 
- LR-CCSD(T)IIIB correlation energy / hartree =        -0.306276971451125
- LR-CCSD(T)IIIB total energy / hartree       =      -279.411209092936019
- 
- Cpu & wall time / sec            1.8            1.8
+ LR-CCSD(T)
 
- Parallel integral file used       8 records with       0 large values
+ LR-CCSD(T)IA correlation energy / hartree =        -0.307053292111625
+ LR-CCSD(T)IA total energy / hartree       =      -279.411985413659238
+
+ LR-CCSD(T)IB correlation energy / hartree =        -0.305197418406767
+ LR-CCSD(T)IB total energy / hartree       =      -279.410129539954369
+
+ LR-CCSD(T)IIA correlation energy / hartree =        -0.307599613508071
+ LR-CCSD(T)IIA total energy / hartree       =      -279.412531735055666
+
+ LR-CCSD(T)IIB correlation energy / hartree =        -0.305743739803214
+ LR-CCSD(T)IIB total energy / hartree       =      -279.410675861350796
+
+ LR-CCSD(T)IIIA correlation energy / hartree =        -0.308248545881664
+ LR-CCSD(T)IIIA total energy / hartree       =      -279.413180667429231
+
+ LR-CCSD(T)IIIB correlation energy / hartree =        -0.306276971454144
+ LR-CCSD(T)IIIB total energy / hartree       =      -279.411209093001730
+
+ Cpu & wall time / sec            1.3            1.3
+
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        5.7s     wall:        6.0s
- 
- 
-                                NWChem Input Module
-                                -------------------
- 
- 
+ Task  times  cpu:        4.8s     wall:        4.9s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -1176,12 +955,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 1049     1049     1.00e+04 1687     4854        0        0        0     
-number of processes/call 1.78e+00 1.27e+00 1.31e+00 0.00e+00 0.00e+00
-bytes total:             1.60e+08 8.23e+06 6.05e+07 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            1.31e+08 5.79e+06 5.15e+07 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 1883528 bytes
- 
+calls: 2552     2552     1.81e+04 3315     8828        0        0     2.23e+04 
+number of processes/call 1.21e+00 1.14e+00 1.17e+00 0.00e+00 0.00e+00
+bytes total:             4.44e+08 2.27e+07 1.75e+08 0.00e+00 0.00e+00 1.78e+05
+bytes remote:            2.67e+08 1.53e+07 1.28e+08 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 3768840 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -1190,48 +968,47 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        17	        31
+	maximum number of blocks	        17	        34
 	current total bytes		         0	         0
-	maximum total bytes		   1061608	  16015408
-	maximum total K-bytes		      1062	     16016
-	maximum total M-bytes		         2	        17
+	maximum total bytes		   1061608	  22509752
+	maximum total K-bytes		      1062	     22510
+	maximum total M-bytes		         2	        23
+
+
+                                NWChem Input Module
+                                -------------------
 
 
 
-                                  ACKNOWLEDGEMENT
-                                  ---------------
-
-            Please use the following acknowledgement where appropriate 
-            for results obtained with NWChem:
-
-            High Performance Computational Chemistry Group, "NWChem, A
-            Computational Chemistry Package for Parallel Computers, 
-            Version 4.7" (2005), Pacific Northwest National Laboratory,
-            Richland, Washington 99352-0999, USA.
 
 
                                      CITATION
                                      --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
 
-            Please use the following citation when publishing results
-            obtained with NWChem:
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
 
-            T. P. Straatsma, E. Apra, T. L. Windus, E. J. Bylaska, W. de Jong,
-            S. Hirata, M. Valiev, M. T. Hackler, L. Pollack, R. J. Harrison,
-            M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju,
-            M. Krishnan, A. A. Auer, E. Brown, G. Cisneros, G. I. Fann,
-            H. Fruchtl, J. Garza, K. Hirao, R. Kendall, J. A. Nichols,
-            K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski,
-            T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood,
-            E. Glendening, M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju,
-            R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng,
-            T. Nakajima, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
-            G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
-            "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 4.7" (2005),
-                      Pacific Northwest National Laboratory,
-                      Richland, Washington 99352-0999, USA.
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
+      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
-
-
- Total times  cpu:        6.1s     wall:        6.4s
+ Total times  cpu:        4.8s     wall:        5.0s

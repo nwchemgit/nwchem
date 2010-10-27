@@ -79,7 +79,7 @@ tce
 ccsdtq
 end
 
-task tce energy
+#task tce energy
 
 tce
 qcisd
@@ -103,7 +103,7 @@ tce
 cisdtq
 end
 
-task tce energy
+#task tce energy
 
 tce
 mbpt2
@@ -121,7 +121,7 @@ tce
 mbpt4
 end
 
-task tce energy
+#task tce energy
 ================================================================================
 
 
@@ -129,7 +129,7 @@ task tce energy
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 4.1
+              Northwest Computational Chemistry Package (NWChem) 6.0
               ------------------------------------------------------
 
 
@@ -137,79 +137,43 @@ task tce energy
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                                         
-                                         
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
 
-
-                     COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
-                               1999, 2000, 2001, 2002
-                        Pacific Northwest National Laboratory,
-                             Battelle Memorial Institute.
-
-                            >>> All Rights Reserved <<<
-
-
-                                    DISCLAIMER
-                                    ----------
-
-            This material was prepared as an account of work sponsored
-            by an agency of the United States Government.  Neither the
-            United States Government nor the United States Department
-            of Energy, nor Battelle, nor any of their employees, MAKES
-            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
-            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
-            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
-            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
-            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
-
-
-                                    LIMITED USE
-                                    -----------
-
-            This software (including any documentation) is being made
-            available to you for your internal use only, solely for use
-            in performance of work directly for the U.S. Federal
-            Government or work under contracts with the U.S. Department
-            of Energy or other U.S. Federal Government agencies.  This
-            software is a version which has not yet been evaluated and
-            cleared for commercialization.  Adherence to this notice
-            may be necessary for the author, Battelle Memorial
-            Institute, to successfully assert copyright in and
-            commercialize this software. This software is not intended
-            for duplication or distribution to third parties without
-            the permission of the Manager of Software Products at
-            Pacific Northwest National Laboratory, Richland,
-            Washington, 99352.
-
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
 
                                   ACKNOWLEDGMENT
                                   --------------
 
-            This software and its documentation were produced with
-            Government support under Contract Number DE-AC06-76RLO-1830
-            awarded by the United States Department of Energy.  The
-            Government retains a paid-up non-exclusive, irrevocable
-            worldwide license to reproduce, prepare derivative works,
-            perform publicly and display publicly by or for the
-            Government, including the right to distribute to other
-            Government contractors.
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
 
 
            Job information
            ---------------
 
-    hostname      = kitkat
-    program       = /msrc/home/sohirata/nwchem/bin/LINUX/nwchem
-    date          = Fri Nov 15 22:48:29 2002
+    hostname      = arcen
+    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
+    date          = Tue Oct 26 15:11:21 2010
 
-    compiled      = Fri Nov 15 22:39:31 PST 2002
-    source        = /msrc/home/sohirata/nwchem
+    compiled      = Tue_Oct_26_14:47:56_2010
+    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
     nwchem branch = Development
     input         = tce_h2o.nw
     prefix        = tce_h2o.
-    data base     = ./tce_h2o.db
+    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.db
     status        = startup
-    nproc         =    1
+    nproc         =        4
     time left     =     -1s
 
 
@@ -217,19 +181,19 @@ task tce energy
            Memory information
            ------------------
 
-    heap      =   19660794 doubles =    150.0 Mbytes
-    stack     =    6553587 doubles =     50.0 Mbytes
-    global    =   26214404 doubles =    200.0 Mbytes (within heap+stack)
-    total     =   26214381 doubles =    200.0 Mbytes
-    verify    = yes
-    hardfail  = no 
+    heap     =   16384001 doubles =    125.0 Mbytes
+    stack    =   16384001 doubles =    125.0 Mbytes
+    global   =   32768000 doubles =    250.0 Mbytes (distinct from heap & stack)
+    total    =   65536002 doubles =    500.0 Mbytes
+    verify   = yes
+    hardfail = no 
 
 
            Directory information
            ---------------------
 
-  0 permanent = .
-  0 scratch   = .
+  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
 
 
 
@@ -296,6 +260,15 @@ task tce energy
     2 Stretch                  2     3                       0.96700
     3 Bend                     1     2     3               107.60000
 
+
+            XYZ format geometry
+            -------------------
+     3
+ geometry
+ H                     0.78033062     0.00000000     0.45689254
+ O                     0.00000000     0.00000000    -0.11422314
+ H                    -0.78033062     0.00000000     0.45689254
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -322,7 +295,7 @@ task tce energy
 
 
   library name resolved from: .nwchemrc
-  library file name is: </msrc/proj/nwchem/share/library>
+  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
   
                       Basis "ao basis" -> "" (cartesian)
                       -----
@@ -373,7 +346,7 @@ task tce energy
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = ./tce_h2o.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
   use symmetry    = T
   symmetry adapt  = T
 
@@ -395,7 +368,7 @@ task tce energy
         b2          1
 
 
- Forming initial guess at       0.1s
+ Forming initial guess at       0.0s
 
 
       Superposition of Atomic Density Guess
@@ -426,7 +399,7 @@ task tce energy
      6 a1          7 b1      
 
 
- Starting SCF solution at       0.2s
+ Starting SCF solution at       0.1s
 
 
 
@@ -434,35 +407,38 @@ task tce energy
          Quadratically convergent ROHF
 
  Convergence threshold     :          1.000E-10
- Maximum no. of iterations :           20
+ Maximum no. of iterations :           30
  Final Fock-matrix accuracy:          1.000E-10
  ----------------------------------------------
 
 
- #quartets = 7.900E+01 #integrals = 1.640E+02 #direct =  0.0% #cached =100.0%
+ #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./tce_h2o.aoints.0
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117162
+ Max. records in memory =      2        Max. records in file   =  20842
  No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.9239094230  6.49E-01  5.52E-01      0.1
-                 2      -74.9617970554  1.35E-01  9.96E-02      0.1
-                 3      -74.9626616082  3.16E-03  2.92E-03      0.1
-                 4      -74.9626630621  7.11E-06  6.49E-06      0.2
-                 5      -74.9626630621  5.69E-13  4.35E-13      0.2
+                 1      -74.9239094230  6.49D-01  5.52D-01      0.1
+                 2      -74.9617970553  1.35D-01  9.96D-02      0.1
+                 3      -74.9626616082  3.16D-03  2.92D-03      0.1
+                 4      -74.9626630621  7.11D-06  6.49D-06      0.1
+                 5      -74.9626630621  5.60D-13  4.27D-13      0.1
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =    -74.962663062148
-      One-electron energy =   -122.219010644891
-      Two-electron energy =     38.161498509339
+         Total SCF energy =    -74.962663062122
+      One-electron energy =   -122.219010644908
+      Two-electron energy =     38.161498509382
  Nuclear repulsion energy =      9.094849073405
 
         Time for solution =      0.1s
@@ -496,46 +472,46 @@ task tce energy
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
 
- Vector    2  Occ=2.000000E+00  E=-1.259694E+00  Symmetry=a1
-              MO Center=  9.8E-16, -1.7E-18,  6.7E-02, r^2= 5.4E-01
+ Vector    2  Occ=2.000000D+00  E=-1.259694D+00  Symmetry=a1
+              MO Center=  6.7D-16,  6.3D-18,  6.7D-02, r^2= 5.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.837663  2 O  s                  2     -0.233394  2 O  s          
      1      0.158623  1 H  s                  7      0.158623  3 H  s          
 
- Vector    3  Occ=2.000000E+00  E=-6.175019E-01  Symmetry=b1
-              MO Center= -5.4E-16,  2.5E-31,  1.4E-01, r^2= 8.5E-01
+ Vector    3  Occ=2.000000D+00  E=-6.175019D-01  Symmetry=b1
+              MO Center= -6.9D-16,  3.7D-48,  1.4D-01, r^2= 8.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.601814  2 O  px                 1      0.443956  1 H  s          
-     7     -0.443956  3 H  s          
+     4      0.601814  2 O  px                 7     -0.443956  3 H  s          
+     1      0.443956  1 H  s          
 
- Vector    4  Occ=2.000000E+00  E=-4.443043E-01  Symmetry=a1
-              MO Center= -7.8E-17, -3.8E-17, -1.6E-01, r^2= 6.2E-01
+ Vector    4  Occ=2.000000D+00  E=-4.443043D-01  Symmetry=a1
+              MO Center=  0.0D+00,  1.4D-19, -1.6D-01, r^2= 6.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      0.784227  2 O  pz                 3     -0.524383  2 O  s          
-     7      0.278248  3 H  s                  1      0.278248  1 H  s          
+     1      0.278248  1 H  s                  7      0.278248  3 H  s          
 
- Vector    5  Occ=2.000000E+00  E=-3.881364E-01  Symmetry=b2
-              MO Center= -3.0E-32,  4.6E-17, -1.1E-01, r^2= 4.2E-01
+ Vector    5  Occ=2.000000D+00  E=-3.881364D-01  Symmetry=b2
+              MO Center=  7.1D-33, -1.3D-17, -1.1D-01, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      1.000000  2 O  py         
 
- Vector    6  Occ=0.000000E+00  E= 5.899401E-01  Symmetry=a1
-              MO Center= -1.9E-16, -5.8E-18,  3.8E-01, r^2= 1.1E+00
+ Vector    6  Occ=0.000000D+00  E= 5.899401D-01  Symmetry=a1
+              MO Center= -5.6D-17,  6.2D-18,  3.8D-01, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.874577  2 O  s                  7     -0.793258  3 H  s          
-     1     -0.793258  1 H  s                  6      0.724694  2 O  pz         
+     3      0.874577  2 O  s                  1     -0.793258  1 H  s          
+     7     -0.793258  3 H  s                  6      0.724694  2 O  pz         
 
- Vector    7  Occ=0.000000E+00  E= 7.399956E-01  Symmetry=b1
-              MO Center= -1.7E-16,  1.2E-33,  2.3E-01, r^2= 1.0E+00
+ Vector    7  Occ=0.000000D+00  E= 7.399956D-01  Symmetry=b1
+              MO Center=  0.0D+00, -1.2D-32,  2.3D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.993707  2 O  px                 7      0.827832  3 H  s          
-     1     -0.827832  1 H  s          
+     4      0.993707  2 O  px                 1     -0.827832  1 H  s          
+     7      0.827832  3 H  s          
 
 
  center of mass
@@ -576,16 +552,24 @@ task tce energy
      2   0 0 2     -4.042077      0.000000      1.863656
 
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
 
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
 
             General Information
             -------------------
-           Number of nodes :     1
+      Number of processors :     4
          Wavefunction type : Restricted Hartree-Fock
           No. of electrons :    10
            Alpha electrons :     5
@@ -602,96 +586,124 @@ task tce energy
        Number of AO shells :     5
         Use of symmetry is : on 
       Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
+         Schwarz screening : 0.10D-09
 
           Correlation Information
           -----------------------
           Calculation type : Linearized coupled-cluster doubles                          
+   Perturbative correction : none                                                        
             Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
+        Residual threshold : 0.10D-06
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+                I/O scheme : Global Array Library
 
             Memory Information
             ------------------
-          Available GA+MA space size is   26213608 doubles
+          Available GA space size is     131071951 doubles
+          Available MA space size is      32767323 doubles
 
- Maximum block size        50 doubles
+ Maximum block size        48 doubles
 
- Suggested orbital blocking
+ tile_dim =      3
 
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    beta      b2     1 doubles       9
-   7    alpha     a1     1 doubles      10
-   8    alpha     b1     1 doubles      11
-   9    beta      a1     1 doubles      12
-  10    beta      b1     1 doubles      13
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a1     3 doubles       0       1
+   2    alpha     b1     1 doubles       3       2
+   3    alpha     b2     1 doubles       4       3
+   4    beta      a1     3 doubles       5       1
+   5    beta      b1     1 doubles       8       2
+   6    beta      b2     1 doubles       9       3
+   7    alpha     a1     1 doubles      10       7
+   8    alpha     b1     1 doubles      11       8
+   9    beta      a1     1 doubles      12       7
+  10    beta      b1     1 doubles      13       8
 
  Global array virtual files algorithm will be used
 
- I/O self test is being performed ... passed
+ Parallel file system coherency ......... OK
 
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./tce_h2o.aoints.0
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117162
+ Max. records in memory =      2        Max. records in file   =  20842
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- 1-e file size   =         42
- 1-e file name   = ./tce_h2o.f1        
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Fock matrix recomputed
+ 1-e file size   =               21
+ 1-e file name   = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.1
 
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
  2-e (intermediate) file size =            5439
- 2-e (intermediate) file name = ./tce_h2o.v2i       
+ 2-e (intermediate) file name = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.0
 
- 2-e file size   =       1523
- 2-e file name   = ./tce_h2o.v2        
- Cpu & wall time / sec            0.0            0.0
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
 
- t2 file size   =         84
- t2 file name   = ./tce_h2o.t2        
+ 2-e file size   =             1150
+ 2-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+ do_pt =  F
+ do_lam_pt =  F
+ do_cr_pt =  F
+ do_lcr_pt =  F
+ do_2t_pt =  F
+ T2-number-of-boxes                   17
+
+ t2 file size   =               59
+ t2 file name   = /home/d3y133/nwchem-
+ t2 file handle =       -999
 
  LCCD iterations
  --------------------------------------------------------
  Iter          Residuum       Correlation     Cpu    Wall
  --------------------------------------------------------
-    1   0.0911648577666  -0.0358672469179     0.1     0.1
-    2   0.0331057978841  -0.0456688331762     0.1     0.1
-    3   0.0132696245153  -0.0487789560245     0.1     0.1
-    4   0.0055419126908  -0.0498772600387     0.1     0.1
-    5   0.0023745184649  -0.0502938208909     0.1     0.1
-    6   0.0010415453378  -0.0504590532365     0.1     0.1
-    7   0.0004680516573  -0.0505264767480     0.1     0.1
-    8   0.0002155248921  -0.0505545218087     0.1     0.1
-    9   0.0001015471507  -0.0505663584451     0.1     0.1
-   10   0.0000488134527  -0.0505714170408     0.1     0.1
-   11   0.0000238506473  -0.0505736045361     0.1     0.1
-   12   0.0000118008846  -0.0505745616183     0.1     0.1
-   13   0.0000058931261  -0.0505749853767     0.0     0.1
-   14   0.0000029624141  -0.0505751752869     0.1     0.1
-   15   0.0000014960796  -0.0505752614432     0.1     0.1
-   16   0.0000007579756  -0.0505753010071     0.1     0.1
-   17   0.0000003848718  -0.0505753193920     0.1     0.1
-   18   0.0000001957228  -0.0505753280327     0.1     0.1
-   19   0.0000000996391  -0.0505753321372     0.1     0.1
+    1   0.0911549474654  -0.0358672469176     0.0     0.0
+    2   0.0328777475505  -0.0456688331758     0.0     0.0
+    3   0.0130114512219  -0.0487789560242     0.0     0.0
+    4   0.0053761196128  -0.0498772600384     0.0     0.0
+    5   0.0022847002104  -0.0502938208906     0.0     0.0
+    6   0.0009958296364  -0.0504590532362     0.0     0.0
+    7   0.0004453585573  -0.0505264767477     0.0     0.0
+    8   0.0002043846418  -0.0505545218084     0.0     0.0
+    9   0.0000961073528  -0.0505663584447     0.0     0.0
+   10   0.0000461627522  -0.0505714170405     0.0     0.0
+   11   0.0000225585993  -0.0505736045358     0.0     0.0
+   12   0.0000111696912  -0.0505745616180     0.0     0.0
+   13   0.0000055836768  -0.0505749853764     0.0     0.0
+   14   0.0000028100492  -0.0505751752866     0.0     0.0
+   15   0.0000014207161  -0.0505752614428     0.0     0.0
+   16   0.0000007205320  -0.0505753010068     0.0     0.0
+   17   0.0000003661911  -0.0505753193917     0.0     0.0
+   18   0.0000001863681  -0.0505753280324     0.0     0.0
+   19   0.0000000949393  -0.0505753321369     0.0     0.0
  --------------------------------------------------------
  Iterations converged
- LCCD correlation energy / hartree =        -0.050575332137243
- LCCD total energy / hartree       =       -75.013238394285040
+ LCCD correlation energy / hartree =        -0.050575332136919
+ LCCD total energy / hartree       =       -75.013238394258437
 
- Parallel integral file used       1 records with       0 large values
+ Doubles contributions
+
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        1.4s     wall:        1.6s
+ Task  times  cpu:        0.2s     wall:        0.4s
 
 
                                 NWChem Input Module
@@ -710,8 +722,8 @@ task tce energy
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./tce_h2o.movecs
-  output vectors  = ./tce_h2o.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
   use symmetry    = T
   symmetry adapt  = T
 
@@ -735,16 +747,24 @@ task tce energy
 
   The SCF is already converged 
 
-         Total SCF energy =    -74.962663062148
+         Total SCF energy =    -74.962663062122
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
 
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
 
             General Information
             -------------------
-           Number of nodes :     1
+      Number of processors :     4
          Wavefunction type : Restricted Hartree-Fock
           No. of electrons :    10
            Alpha electrons :     5
@@ -761,1572 +781,124 @@ task tce energy
        Number of AO shells :     5
         Use of symmetry is : on 
       Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
+         Schwarz screening : 0.10D-09
 
           Correlation Information
           -----------------------
           Calculation type : Linearized coupled-cluster singles & doubles                
+   Perturbative correction : none                                                        
             Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
+        Residual threshold : 0.10D-06
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+                I/O scheme : Global Array Library
 
             Memory Information
             ------------------
-          Available GA+MA space size is   26213608 doubles
+          Available GA space size is     131071951 doubles
+          Available MA space size is      32767323 doubles
 
- Maximum block size        50 doubles
+ Maximum block size        48 doubles
 
- Suggested orbital blocking
+ tile_dim =      3
 
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    beta      b2     1 doubles       9
-   7    alpha     a1     1 doubles      10
-   8    alpha     b1     1 doubles      11
-   9    beta      a1     1 doubles      12
-  10    beta      b1     1 doubles      13
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a1     3 doubles       0       1
+   2    alpha     b1     1 doubles       3       2
+   3    alpha     b2     1 doubles       4       3
+   4    beta      a1     3 doubles       5       1
+   5    beta      b1     1 doubles       8       2
+   6    beta      b2     1 doubles       9       3
+   7    alpha     a1     1 doubles      10       7
+   8    alpha     b1     1 doubles      11       8
+   9    beta      a1     1 doubles      12       7
+  10    beta      b1     1 doubles      13       8
 
  Global array virtual files algorithm will be used
 
- I/O self test is being performed ... passed
+ Parallel file system coherency ......... OK
 
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./tce_h2o.aoints.0
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117162
+ Max. records in memory =      2        Max. records in file   =  20842
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- 1-e file size   =         42
- 1-e file name   = ./tce_h2o.f1        
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Fock matrix recomputed
+ 1-e file size   =               21
+ 1-e file name   = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.1
 
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
  2-e (intermediate) file size =            5439
- 2-e (intermediate) file name = ./tce_h2o.v2i       
+ 2-e (intermediate) file name = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.0
 
- 2-e file size   =       1523
- 2-e file name   = ./tce_h2o.v2        
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+
+ 2-e file size   =             1150
+ 2-e file name   = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.0
+ do_pt =  F
+ do_lam_pt =  F
+ do_cr_pt =  F
+ do_lcr_pt =  F
+ do_2t_pt =  F
+ T1-number-of-tasks                    2
 
- t1 file size   =          8
- t1 file name   = ./tce_h2o.t1        
+ t1 file size   =                4
+ t1 file name   = /home/d3y133/nwchem-
+ t1 file handle =       -999
+ T2-number-of-boxes                   17
 
- t2 file size   =         84
- t2 file name   = ./tce_h2o.t2        
+ t2 file size   =               59
+ t2 file name   = /home/d3y133/nwchem-
+ t2 file handle =       -996
 
  LCCSD iterations
  --------------------------------------------------------
  Iter          Residuum       Correlation     Cpu    Wall
  --------------------------------------------------------
-    1   0.0911648577666  -0.0358672469179     0.1     0.1
-    2   0.0337364406491  -0.0456688331762     0.1     0.1
-    3   0.0139751262033  -0.0488814525557     0.1     0.1
-    4   0.0061411593382  -0.0500622006789     0.1     0.1
-    5   0.0028230029670  -0.0505317882748     0.1     0.1
-    6   0.0013513348454  -0.0507293168669     0.1     0.1
-    7   0.0006701826379  -0.0508160055407     0.1     0.1
-    8   0.0003420238474  -0.0508553869899     0.1     0.1
-    9   0.0001783597643  -0.0508738183788     0.1     0.1
-   10   0.0000944698677  -0.0508826754245     0.1     0.1
-   11   0.0000505881326  -0.0508870324011     0.1     0.1
-   12   0.0000272986341  -0.0508892199741     0.1     0.1
-   13   0.0000148111991  -0.0508903377023     0.1     0.1
-   14   0.0000080672983  -0.0508909172213     0.1     0.1
-   15   0.0000044065311  -0.0508912213224     0.1     0.1
-   16   0.0000024120104  -0.0508913824560     0.1     0.1
-   17   0.0000013223663  -0.0508914685004     0.1     0.1
-   18   0.0000007258630  -0.0508915147311     0.1     0.1
-   19   0.0000003988148  -0.0508915396913     0.1     0.1
-   20   0.0000002192881  -0.0508915532190     0.1     0.1
-   21   0.0000001206483  -0.0508915605729     0.1     0.1
-   22   0.0000000664110  -0.0508915645802     0.1     0.1
+    1   0.0911549474654  -0.0358672469176     0.0     0.0
+    2   0.0335164677532  -0.0456688331758     0.0     0.0
+    3   0.0137331855374  -0.0488814525554     0.0     0.0
+    4   0.0059926025982  -0.0500622006785     0.0     0.0
+    5   0.0027473243012  -0.0505317882745     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                    5                    5
+    6   0.0000936440600  -0.0508915922403     0.0     0.0
+    7   0.0000365182270  -0.0508909308997     0.0     0.0
+    8   0.0000181977205  -0.0508912068659     0.0     0.0
+    9   0.0000093963583  -0.0508913594575     0.0     0.0
+   10   0.0000049259871  -0.0508914415030     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                   10                    5
+   11   0.0000003515987  -0.0508915300796     0.0     0.0
+   12   0.0000001292860  -0.0508915543386     0.0     0.0
+   13   0.0000000605738  -0.0508915627188     0.0     0.0
  --------------------------------------------------------
  Iterations converged
- LCCSD correlation energy / hartree =        -0.050891564580181
- LCCSD total energy / hartree       =       -75.013554626727981
+ LCCSD correlation energy / hartree =        -0.050891562718781
+ LCCSD total energy / hartree       =       -75.013554624840296
 
- Parallel integral file used       1 records with       0 large values
+ Singles contributions
 
+ Doubles contributions
 
- Task  times  cpu:        2.3s     wall:        2.4s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-                                 NWChem SCF Module
-                                 -----------------
-
-
-
-  ao basis        = "ao basis"
-  functions       =     7
-  atoms           =     3
-  closed shells   =     5
-  open shells     =     0
-  charge          =   0.00
-  wavefunction    = RHF 
-  input vectors   = ./tce_h2o.movecs
-  output vectors  = ./tce_h2o.movecs
-  use symmetry    = T
-  symmetry adapt  = T
-
-
- Summary of "ao basis" -> "ao basis" (cartesian)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- H                           sto-3g                  1        1   1s
- O                           sto-3g                  3        5   2s1p
-
-
-      Symmetry analysis of basis
-      --------------------------
-
-        a1          4
-        a2          0
-        b1          2
-        b2          1
-
-
-  The SCF is already converged 
-
-         Total SCF energy =    -74.962663062148
-
-                   NWChem Extensible Many-Electron Theory Module
-                   ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
-
-
-            General Information
-            -------------------
-           Number of nodes :     1
-         Wavefunction type : Restricted Hartree-Fock
-          No. of electrons :    10
-           Alpha electrons :     5
-            Beta electrons :     5
-           No. of orbitals :    14
-            Alpha orbitals :     7
-             Beta orbitals :     7
-        Alpha frozen cores :     0
-         Beta frozen cores :     0
-     Alpha frozen virtuals :     0
-      Beta frozen virtuals :     0
-         Spin multiplicity : singlet 
-    Number of AO functions :     7
-       Number of AO shells :     5
-        Use of symmetry is : on 
-      Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
-
-          Correlation Information
-          -----------------------
-          Calculation type : Coupled-cluster doubles                                     
-            Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
-
-            Memory Information
-            ------------------
-          Available GA+MA space size is   26213608 doubles
-
- Maximum block size        50 doubles
-
- Suggested orbital blocking
-
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    beta      b2     1 doubles       9
-   7    alpha     a1     1 doubles      10
-   8    alpha     b1     1 doubles      11
-   9    beta      a1     1 doubles      12
-  10    beta      b1     1 doubles      13
-
- Global array virtual files algorithm will be used
-
- I/O self test is being performed ... passed
-
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./tce_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117162
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- 1-e file size   =         42
- 1-e file name   = ./tce_h2o.f1        
- Cpu & wall time / sec            0.0            0.1
-
- 2-e (intermediate) file size =            5439
- 2-e (intermediate) file name = ./tce_h2o.v2i       
- Cpu & wall time / sec            0.0            0.0
-
- 2-e file size   =       1523
- 2-e file name   = ./tce_h2o.v2        
- Cpu & wall time / sec            0.0            0.0
-
- t2 file size   =         84
- t2 file name   = ./tce_h2o.t2        
-
- CCD iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0891232379551  -0.0358672469179     0.1     0.1
-    2   0.0311027626902  -0.0454155709939     0.1     0.1
-    3   0.0119645205800  -0.0483002301743     0.1     0.1
-    4   0.0047961503152  -0.0492738741276     0.1     0.1
-    5   0.0019759254241  -0.0496282245921     0.1     0.1
-    6   0.0008353835279  -0.0497632787166     0.1     0.1
-    7   0.0003626274436  -0.0498162452743     0.1     0.1
-    8   0.0001615184932  -0.0498374259722     0.1     0.1
-    9   0.0000736411282  -0.0498460252992     0.1     0.1
-   10   0.0000342395635  -0.0498495637923     0.1     0.1
-   11   0.0000161665558  -0.0498510387532     0.1     0.1
-   12   0.0000077211439  -0.0498516615661     0.1     0.1
-   13   0.0000037179933  -0.0498519280172     0.1     0.1
-   14   0.0000018006145  -0.0498520435214     0.1     0.1
-   15   0.0000008754644  -0.0498520942504     0.1     0.1
-   16   0.0000004267929  -0.0498521168160     0.1     0.1
-   17   0.0000002084418  -0.0498521269768     0.1     0.1
-   18   0.0000001019272  -0.0498521316044     0.1     0.1
-   19   0.0000000498843  -0.0498521337341     0.1     0.1
- --------------------------------------------------------
- Iterations converged
- CCD correlation energy / hartree =        -0.049852133734110
- CCD total energy / hartree       =       -75.012515195881903
-
- Parallel integral file used       1 records with       0 large values
-
-
- Task  times  cpu:        2.5s     wall:        2.7s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-                                 NWChem SCF Module
-                                 -----------------
-
-
-
-  ao basis        = "ao basis"
-  functions       =     7
-  atoms           =     3
-  closed shells   =     5
-  open shells     =     0
-  charge          =   0.00
-  wavefunction    = RHF 
-  input vectors   = ./tce_h2o.movecs
-  output vectors  = ./tce_h2o.movecs
-  use symmetry    = T
-  symmetry adapt  = T
-
-
- Summary of "ao basis" -> "ao basis" (cartesian)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- H                           sto-3g                  1        1   1s
- O                           sto-3g                  3        5   2s1p
-
-
-      Symmetry analysis of basis
-      --------------------------
-
-        a1          4
-        a2          0
-        b1          2
-        b2          1
-
-
-  The SCF is already converged 
-
-         Total SCF energy =    -74.962663062148
-
-                   NWChem Extensible Many-Electron Theory Module
-                   ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
-
-
-            General Information
-            -------------------
-           Number of nodes :     1
-         Wavefunction type : Restricted Hartree-Fock
-          No. of electrons :    10
-           Alpha electrons :     5
-            Beta electrons :     5
-           No. of orbitals :    14
-            Alpha orbitals :     7
-             Beta orbitals :     7
-        Alpha frozen cores :     0
-         Beta frozen cores :     0
-     Alpha frozen virtuals :     0
-      Beta frozen virtuals :     0
-         Spin multiplicity : singlet 
-    Number of AO functions :     7
-       Number of AO shells :     5
-        Use of symmetry is : on 
-      Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
-
-          Correlation Information
-          -----------------------
-          Calculation type : Coupled-cluster singles & doubles                           
-            Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
-
-            Memory Information
-            ------------------
-          Available GA+MA space size is   26213608 doubles
-
- Maximum block size        50 doubles
-
- Suggested orbital blocking
-
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    beta      b2     1 doubles       9
-   7    alpha     a1     1 doubles      10
-   8    alpha     b1     1 doubles      11
-   9    beta      a1     1 doubles      12
-  10    beta      b1     1 doubles      13
-
- Global array virtual files algorithm will be used
-
- I/O self test is being performed ... passed
-
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./tce_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117161
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- 1-e file size   =         42
- 1-e file name   = ./tce_h2o.f1        
- Cpu & wall time / sec            0.0            0.1
-
- 2-e (intermediate) file size =            5439
- 2-e (intermediate) file name = ./tce_h2o.v2i       
- Cpu & wall time / sec            0.0            0.0
-
- 2-e file size   =       1523
- 2-e file name   = ./tce_h2o.v2        
- Cpu & wall time / sec            0.0            0.0
-
- t1 file size   =          8
- t1 file name   = ./tce_h2o.t1        
-
- t2 file size   =         84
- t2 file name   = ./tce_h2o.t2        
-
- CCSD iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0891232379551  -0.0358672469179     0.4     0.4
-    2   0.0317596201320  -0.0454068882657     0.4     0.4
-    3   0.0126828916023  -0.0483870059027     0.4     0.4
-    4   0.0053832778844  -0.0494370597647     0.4     0.4
-    5   0.0023954452285  -0.0498391184890     0.4     0.4
-    6   0.0011108272683  -0.0500021724029     0.4     0.4
-    7   0.0005330437725  -0.0500711904756     0.4     0.4
-    8   0.0002625570400  -0.0501014381364     0.4     0.4
-    9   0.0001317707641  -0.0501150974135     0.4     0.4
-   10   0.0000669953658  -0.0501214303300     0.4     0.4
-   11   0.0000343654836  -0.0501244348663     0.4     0.4
-   12   0.0000177357555  -0.0501258887096     0.4     0.4
-   13   0.0000091923943  -0.0501266039080     0.4     0.4
-   14   0.0000047789221  -0.0501269605251     0.4     0.4
-   15   0.0000024899940  -0.0501271402835     0.4     0.4
-   16   0.0000012995442  -0.0501272316751     0.4     0.4
-   17   0.0000006791083  -0.0501272784536     0.4     0.4
-   18   0.0000003552400  -0.0501273025229     0.4     0.4
-   19   0.0000001859739  -0.0501273149581     0.4     0.4
-   20   0.0000000974237  -0.0501273214031     0.4     0.4
- --------------------------------------------------------
- Iterations converged
- CCSD correlation energy / hartree =        -0.050127321403066
- CCSD total energy / hartree       =       -75.012790383550865
-
- Parallel integral file used       1 records with       0 large values
-
-
- Task  times  cpu:        8.2s     wall:        8.7s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-                                 NWChem SCF Module
-                                 -----------------
-
-
-
-  ao basis        = "ao basis"
-  functions       =     7
-  atoms           =     3
-  closed shells   =     5
-  open shells     =     0
-  charge          =   0.00
-  wavefunction    = RHF 
-  input vectors   = ./tce_h2o.movecs
-  output vectors  = ./tce_h2o.movecs
-  use symmetry    = T
-  symmetry adapt  = T
-
-
- Summary of "ao basis" -> "ao basis" (cartesian)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- H                           sto-3g                  1        1   1s
- O                           sto-3g                  3        5   2s1p
-
-
-      Symmetry analysis of basis
-      --------------------------
-
-        a1          4
-        a2          0
-        b1          2
-        b2          1
-
-
-  The SCF is already converged 
-
-         Total SCF energy =    -74.962663062148
-
-                   NWChem Extensible Many-Electron Theory Module
-                   ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
-
-
-            General Information
-            -------------------
-           Number of nodes :     1
-         Wavefunction type : Restricted Hartree-Fock
-          No. of electrons :    10
-           Alpha electrons :     5
-            Beta electrons :     5
-           No. of orbitals :    14
-            Alpha orbitals :     7
-             Beta orbitals :     7
-        Alpha frozen cores :     0
-         Beta frozen cores :     0
-     Alpha frozen virtuals :     0
-      Beta frozen virtuals :     0
-         Spin multiplicity : singlet 
-    Number of AO functions :     7
-       Number of AO shells :     5
-        Use of symmetry is : on 
-      Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
-
-          Correlation Information
-          -----------------------
-          Calculation type : Coupled-cluster singles, doubles, & triples                 
-            Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
-
-            Memory Information
-            ------------------
-          Available GA+MA space size is   26213608 doubles
-
- Maximum block size        13 doubles
-
- Suggested orbital blocking
-
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    beta      b2     1 doubles       9
-   7    alpha     a1     1 doubles      10
-   8    alpha     b1     1 doubles      11
-   9    beta      a1     1 doubles      12
-  10    beta      b1     1 doubles      13
-
- Global array virtual files algorithm will be used
-
- I/O self test is being performed ... passed
-
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./tce_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117161
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- 1-e file size   =         42
- 1-e file name   = ./tce_h2o.f1        
- Cpu & wall time / sec            0.0            0.1
-
- 2-e (intermediate) file size =            5439
- 2-e (intermediate) file name = ./tce_h2o.v2i       
- Cpu & wall time / sec            0.0            0.0
-
- 2-e file size   =       1523
- 2-e file name   = ./tce_h2o.v2        
- Cpu & wall time / sec            0.0            0.0
-
- t1 file size   =          8
- t1 file name   = ./tce_h2o.t1        
-
- t2 file size   =         84
- t2 file name   = ./tce_h2o.t2        
-
- t3 file size   =        536
- t3 file name   = ./tce_h2o.t3        
-
- CCSDT iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0891232379551  -0.0358672469179     3.3     3.5
-    2   0.0319586681193  -0.0454068882657     3.3     3.5
-    3   0.0127820074736  -0.0484384289628     3.3     3.5
-    4   0.0054223035920  -0.0495179574335     3.3     3.5
-    5   0.0024083692905  -0.0499335337158     3.3     3.5
-    6   0.0011142394623  -0.0501025442581     3.2     3.5
-    7   0.0005338474506  -0.0501741705504     3.3     3.5
-    8   0.0002732847872  -0.0502055501645     3.3     3.5
-    9   0.0001453917036  -0.0502196924956     3.2     3.5
-   10   0.0000776178093  -0.0502262268656     3.4     3.5
-   11   0.0000414440815  -0.0502293131676     3.3     3.5
-   12   0.0000221087764  -0.0502307991976     3.3     3.5
-   13   0.0000117826216  -0.0502315266333     3.3     3.5
-   14   0.0000062755829  -0.0502318877163     3.4     3.5
-   15   0.0000033420719  -0.0502320690240     3.2     3.5
-   16   0.0000017804806  -0.0502321609182     3.2     3.5
-   17   0.0000009492933  -0.0502322078450     3.3     3.5
-   18   0.0000005067016  -0.0502322319523     3.3     3.5
-   19   0.0000002708358  -0.0502322443952     3.3     3.5
-   20   0.0000001449923  -0.0502322508415     3.3     3.5
-   21   0.0000000777548  -0.0502322541909     3.3     3.5
- --------------------------------------------------------
- Iterations converged
- CCSDT correlation energy / hartree =        -0.050232254190868
- CCSDT total energy / hartree       =       -75.012895316338671
-
- Parallel integral file used       1 records with       0 large values
-
-
- Task  times  cpu:       69.4s     wall:       73.3s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-                                 NWChem SCF Module
-                                 -----------------
-
-
-
-  ao basis        = "ao basis"
-  functions       =     7
-  atoms           =     3
-  closed shells   =     5
-  open shells     =     0
-  charge          =   0.00
-  wavefunction    = RHF 
-  input vectors   = ./tce_h2o.movecs
-  output vectors  = ./tce_h2o.movecs
-  use symmetry    = T
-  symmetry adapt  = T
-
-
- Summary of "ao basis" -> "ao basis" (cartesian)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- H                           sto-3g                  1        1   1s
- O                           sto-3g                  3        5   2s1p
-
-
-      Symmetry analysis of basis
-      --------------------------
-
-        a1          4
-        a2          0
-        b1          2
-        b2          1
-
-
-  The SCF is already converged 
-
-         Total S#F energy =    -74.962663062148
-
-                   NWChem Extensible Many-Electron Theory Module
-                   ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
-
-
-            General Information
-            -------------------
-           Number of nodes :     1
-         Wavefunction type : Restricted Hartree-Fock
-          No. of electrons :    10
-           Alpha electrons :     5
-            Beta electrons :     5
-           No. of orbitals :    14
-            Alpha orbitals :     7
-             Beta orbitals :     7
-        Alpha frozen cores :     0
-         Beta frozen cores :     0
-     Alpha frozen virtuals :     0
-      Beta frozen virtuals :     0
-         Spin multiplicity : singlet 
-    Number of AO functions :     7
-       Number of AO shells :     5
-        Use of symmetry is : on 
-      Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
-
-          Correlation Information
-          -----------------------
-          Calculation type : Coupled-cluster singles, doubles, triples, & quadruples     
-            Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
-
-            Memory Information
-            ------------------
-          Available GA+MA space size is   26213608 doubles
-
- Maximum block size         7 doubles
-
- Suggested orbital blocking
-
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    beta      b2     1 doubles       9
-   7    alpha     a1     1 doubles      10
-   8    alpha     b1     1 doubles      11
-   9    beta      a1     1 doubles      12
-  10    beta      b1     1 doubles      13
-
- Global array virtual files algorithm will be used
-
- I/O self test is being performed ... passed
-
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./tce_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117161
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- 1-e file size   =         42
- 1-e file name   = ./tce_h2o.f1        
- Cpu & wall time / sec            0.0            0.1
-
- 2-e (intermediate) file size =            5439
- 2-e (intermediate) file name = ./tce_h2o.v2i       
- Cpu & wall time / sec            0.0            0.0
-
- 2-e file size   =       1523
- 2-e file name   = ./tce_h2o.v2        
- Cpu & wall time / sec            0.0            0.0
-
- t1 file size   =          8
- t1 file name   = ./tce_h2o.t1        
-
- t2 file size   =         84
- t2 file name   = ./tce_h2o.t2        
-
- t3 file size   =        536
- t3 file name   = ./tce_h2o.t3        
-
- t4 file size   =       3252
- t4 file name   = ./tce_h2o.t4        
-
- CCSDTQ iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0891232379551  -0.0358672469179    25.5    26.9
-    2   0.0320493326713  -0.0454068882657    25.3    26.9
-    3   0.0128445596003  -0.0484507601396    25.3    26.9
-    4   0.0054508409820  -0.0495376824274    25.7    26.9
-    5   0.0030676475121  -0.0499562762752    25.6    26.9
-    6   0.0017783736136  -0.0501262000279    25.5    26.9
-    7   0.0010291631969  -0.0501979645869    25.5    26.9
-    8   0.0005935613281  -0.0502292648950    25.5    26.9
-    9   0.0003402928779  -0.0502433017002    25.3    26.9
-   10   0.0001936758955  -0.0502497546177    25.5    26.9
-   11   0.0001094411152  -0.0502527878044    25.6    26.9
-   12   0.0000614589542  -0.0502542419683    25.7    26.9
-   13   0.0000343439946  -0.0502549512257    25.5    26.9
-   14   0.0000191225981  -0.0502553022923    25.4    26.9
-   15   0.0000106215225  -0.0502554782249    25.9    26.9
-   16   0.0000058912105  -0.0502555672981    25.6    26.9
-   17   0.0000032655223  -0.0502556127740    25.6    26.9
-   18   0.0000018101250  -0.0502556361499    25.4    26.9
-   19   0.0000010038866  -0.0502556482320    25.4    26.9
-   20   0.0000005572356  -0.0502556545047    25.5    26.9
-   21   0.0000003096594  -0.0502556577731    25.6    26.9
-   22   0.0000001723050  -0.0502556594813    25.6    26.9
-   23   0.0000000960125  -0.0502556603762    25.4    26.9
- --------------------------------------------------------
- Iterations converged
- C#SDTQ correlation energy / hartree =        -0.050255660376239
- C#SDTQ total energy / hartree       =       -75.012918722524034
-
- Parallel integral file used       1 records with       0 large values
-
-
- Task  times  cpu:      587.2s     wall:      619.1s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-                                 NWChem SCF Module
-                                 -----------------
-
-
-
-  ao basis        = "ao basis"
-  functions       =     7
-  atoms           =     3
-  closed shells   =     5
-  open shells     =     0
-  charge          =   0.00
-  wavefunction    = RHF 
-  input vectors   = ./tce_h2o.movecs
-  output vectors  = ./tce_h2o.movecs
-  use symmetry    = T
-  symmetry adapt  = T
-
-
- Summary of "ao basis" -> "ao basis" (cartesian)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- H                           sto-3g                  1        1   1s
- O                           sto-3g                  3        5   2s1p
-
-
-      Symmetry analysis of basis
-      --------------------------
-
-        a1          4
-        a2          0
-        b1          2
-        b2          1
-
-
-  The SCF is already converged 
-
-         Total SCF energy =    -74.962663062148
-
-                   NWChem Extensible Many-Electron Theory Module
-                   ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
-
-
-            General Information
-            -------------------
-           Number of nodes :     1
-         Wavefunction type : Restricted Hartree-Fock
-          No. of electrons :    10
-           Alpha electrons :     5
-            Beta electrons :     5
-           No. of orbitals :    14
-            Alpha orbitals :     7
-             Beta orbitals :     7
-        Alpha frozen cores :     0
-         Beta frozen cores :     0
-     Alpha frozen virtuals :     0
-      Beta frozen virtuals :     0
-         Spin multiplicity : singlet 
-    Number of AO functions :     7
-       Number of AO shells :     5
-        Use of symmetry is : on 
-      Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
-
-          Correlation Information
-          -----------------------
-          Calculation type : Quadratic configuration interaction singles & doubles       
-            Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
-
-            Memory Information
-            ------------------
-          Available GA+MA space size is   26213608 doubles
-
- Maximum block size        50 doubles
-
- Suggested orbital blocking
-
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    beta      b2     1 doubles       9
-   7    alpha     a1     1 doubles      10
-   8    alpha     b1     1 doubles      11
-   9    beta      a1     1 doubles      12
-  10    beta      b1     1 doubles      13
-
- Global array virtual files algorithm will be used
-
- I/O self test is being performed ... passed
-
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./tce_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117161
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- 1-e file size   =         42
- 1-e file name   = ./tce_h2o.f1        
- Cpu & wall time / sec            0.0            0.1
-
- 2-e (intermediate) file size =            5439
- 2-e (intermediate) file name = ./tce_h2o.v2i       
- Cpu & wall time / sec            0.0            0.0
-
- 2-e file size   =       1523
- 2-e file name   = ./tce_h2o.v2        
- Cpu & wall time / sec            0.0            0.0
-
- t1 file size   =          8
- t1 file name   = ./tce_h2o.t1        
-
- t2 file size   =         84
- t2 file name   = ./tce_h2o.t2        
-
- QCISD iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0891232379551  -0.0358672469179     0.2     0.2
-    2   0.0317257099006  -0.0454155709939     0.2     0.2
-    3   0.0126456367685  -0.0484027267056     0.2     0.2
-    4   0.0053551060857  -0.0494550503673     0.2     0.2
-    5   0.0023769164494  -0.0498575168248     0.2     0.2
-    6   0.0010995391638  -0.0500204996690     0.2     0.2
-    7   0.0005265330271  -0.0500893848674     0.2     0.2
-    8   0.0002589591596  -0.0501195301468     0.2     0.2
-    9   0.0001298495605  -0.0501331238044     0.2     0.2
-   10   0.0000659979437  -0.0501394176248     0.2     0.2
-   11   0.0000338600060  -0.0501423997120     0.2     0.2
-   12   0.0000174851650  -0.0501438409500     0.2     0.2
-   13   0.0000090708154  -0.0501445491809     0.2     0.2
-   14   0.0000047212666  -0.0501449019939     0.2     0.2
-   15   0.0000024633572  -0.0501450796971     0.2     0.2
-   16   0.0000012876299  -0.0501451699885     0.2     0.2
-   17   0.0000006740077  -0.0501452161830     0.2     0.2
-   18   0.0000003531961  -0.0501452399448     0.2     0.2
-   19   0.0000001852450  -0.0501452522192     0.2     0.2
-   20   0.0000000972262  -0.0501452585806     0.2     0.2
- --------------------------------------------------------
- Iterations converged
- QCISD correlation energy / hartree =        -0.050145258580641
- QCISD total energy / hartree       =       -75.012808320728439
-
- Parallel integral file used       1 records with       0 large values
-
-
- Task  times  cpu:        3.9s     wall:        4.1s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-                                 NWChem SCF Module
-                                 -----------------
-
-
-
-  ao basis        = "ao basis"
-  functions       =     7
-  atoms           =     3
-  closed shells   =     5
-  open shells     =     0
-  charge          =   0.00
-  wavefunction    = RHF 
-  input vectors   = ./tce_h2o.movecs
-  output vectors  = ./tce_h2o.movecs
-  use symmetry    = T
-  symmetry adapt  = T
-
-
- Summary of "ao basis" -> "ao basis" (cartesian)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- H                           sto-3g                  1        1   1s
- O                           sto-3g                  3        5   2s1p
-
-
-      Symmetry analysis of basis
-      --------------------------
-
-        a1          4
-        a2          0
-        b1          2
-        b2          1
-
-
-  The SCF is already converged 
-
-         Total SCF energy =    -74.962663062148
-
-                   NWChem Extensible Many-Electron Theory Module
-                   ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
-
-
-            General Information
-            -------------------
-           Number of nodes :     1
-         Wavefunction type : Restricted Hartree-Fock
-          No. of electrons :    10
-           Alpha electrons :     5
-            Beta electrons :     5
-           No. of orbitals :    14
-            Alpha orbitals :     7
-             Beta orbitals :     7
-        Alpha frozen cores :     0
-         Beta frozen cores :     0
-     Alpha frozen virtuals :     0
-      Beta frozen virtuals :     0
-         Spin multiplicity : singlet 
-    Number of AO functions :     7
-       Number of AO shells :     5
-        Use of symmetry is : on 
-      Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
-
-          Correlation Information
-          -----------------------
-          Calculation type : Configuration interaction singles & doubles                 
-            Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
-
-            Memory Information
-            ------------------
-          Available GA+MA space size is   26213608 doubles
-
- Maximum block size        50 doubles
-
- Suggested orbital blocking
-
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    beta      b2     1 doubles       9
-   7    alpha     a1     1 doubles      10
-   8    alpha     b1     1 doubles      11
-   9    beta      a1     1 doubles      12
-  10    beta      b1     1 doubles      13
-
- Global array virtual files algorithm will be used
-
- I/O self test is being performed ... passed
-
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./tce_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117161
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- 1-e file size   =         42
- 1-e file name   = ./tce_h2o.f1        
- Cpu & wall time / sec            0.0            0.1
-
- 2-e (intermediate) file size =            5439
- 2-e (intermediate) file name = ./tce_h2o.v2i       
- Cpu & wall time / sec            0.0            0.0
-
- 2-e file size   =       1523
- 2-e file name   = ./tce_h2o.v2        
- Cpu & wall time / sec            0.0            0.0
-
- t1 file size   =          8
- t1 file name   = ./tce_h2o.t1        
-
- t2 file size   =         84
- t2 file name   = ./tce_h2o.t2        
-
- CISD iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0873220807006  -0.0358672469179     0.1     0.1
-    2   0.0302015224503  -0.0451885533450     0.1     0.1
-    3   0.0117565455768  -0.0479815151709     0.1     0.1
-    4   0.0048663549419  -0.0489269349114     0.1     0.1
-    5   0.0021113076817  -0.0492763580004     0.1     0.1
-    6   0.0009550822419  -0.0494137146080     0.1     0.1
-    7   0.0004475699917  -0.0494702010370     0.1     0.1
-    8   0.0002155485115  -0.0494942750180     0.1     0.1
-    9   0.0001058728585  -0.0495048504371     0.1     0.1
-   10   0.0000527153828  -0.0495096209921     0.1     0.1
-   11   0.0000264915046  -0.0495118237302     0.1     0.1
-   12   0.0000133970118  -0.0495128615375     0.1     0.1
-   13   0.0000068044587  -0.0495133589169     0.1     0.1
-   14   0.0000034666264  -0.0495136006864     0.1     0.1
-   15   0.0000017700286  -0.0495137195654     0.1     0.1
-   16   0.0000009052457  -0.0495137785584     0.1     0.1
-   17   0.0000004635503  -0.0495138080470     0.1     0.1
-   18   0.0000002376041  -0.0495138228718     0.1     0.1
-   19   0.0000001218860  -0.0495138303581     0.1     0.1
-   20   0.0000000625657  -0.0495138341519     0.1     0.1
- --------------------------------------------------------
- Iterations converged
- CISD correlation energy / hartree =        -0.049513834151865
- CISD total energy / hartree       =       -75.012176896299664
-
- Parallel integral file used       1 records with       0 large values
-
-
- Task  times  cpu:        2.2s     wall:        2.3s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-                                 NWChem SCF Module
-                                 -----------------
-
-
-
-  ao basis        = "ao basis"
-  functions       =     7
-  atoms           =     3
-  closed shells   =     5
-  open shells     =     0
-  charge          =   0.00
-  wavefunction    = RHF 
-  input vectors   = ./tce_h2o.movecs
-  output vectors  = ./tce_h2o.movecs
-  use symmetry    = T
-  symmetry adapt  = T
-
-
- Summary of "ao basis" -> "ao basis" (cartesian)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- H                           sto-3g                  1        1   1s
- O                           sto-3g                  3        5   2s1p
-
-
-      Symmetry analysis of basis
-      --------------------------
-
-        a1          4
-        a2          0
-        b1          2
-        b2          1
-
-
-  The SCF is already converged 
-
-         Total SCF energy =    -74.962663062148
-
-                   NWChem Extensible Many-Electron Theory Module
-                   ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
-
-
-            General Information
-            -------------------
-           Number of nodes :     1
-         Wavefunction type : Restricted Hartree-Fock
-          No. of electrons :    10
-           Alpha electrons :     5
-            Beta electrons :     5
-           No. of orbitals :    14
-            Alpha orbitals :     7
-             Beta orbitals :     7
-        Alpha frozen cores :     0
-         Beta frozen cores :     0
-     Alpha frozen virtuals :     0
-      Beta frozen virtuals :     0
-         Spin multiplicity : singlet 
-    Number of AO functions :     7
-       Number of AO shells :     5
-        Use of symmetry is : on 
-      Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
-
-          Correlation Information
-          -----------------------
-          Calculation type : Configuration interaction singles, doubles, & triples       
-            Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
-
-            Memory Information
-            ------------------
-          Available GA+MA space size is   26213608 doubles
-
- Maximum block size        13 doubles
-
- Suggested orbital blocking
-
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    beta      b2     1 doubles       9
-   7    alpha     a1     1 doubles      10
-   8    alpha     b1     1 doubles      11
-   9    beta      a1     1 doubles      12
-  10    beta      b1     1 doubles      13
-
- Global array virtual files algorithm will be used
-
- I/O self test is being performed ... passed
-
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./tce_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117161
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- 1-e file size   =         42
- 1-e file name   = ./tce_h2o.f1        
- Cpu & wall time / sec            0.0            0.1
-
- 2-e (intermediate) file size =            5439
- 2-e (intermediate) file name = ./tce_h2o.v2i       
- Cpu & wall time / sec            0.0            0.0
-
- 2-e file size   =       1523
- 2-e file name   = ./tce_h2o.v2        
- Cpu & wall time / sec            0.0            0.0
-
- t1 file size   =          8
- t1 file name   = ./tce_h2o.t1        
-
- t2 file size   =         84
- t2 file name   = ./tce_h2o.t2        
-
- t3 file size   =        536
- t3 file name   = ./tce_h2o.t3        
-
- CISDT iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0873220807006  -0.0358672469179     0.8     0.8
-    2   0.0303917768984  -0.0451885533450     0.8     0.8
-    3   0.0118527867357  -0.0480325984905     0.8     0.8
-    4   0.0051819361969  -0.0490027242960     0.8     0.8
-    5   0.0027476404500  -0.0493643665158     0.8     0.8
-    6   0.0014820796448  -0.0495081333033     0.8     0.8
-    7   0.0008041689489  -0.0495680860418     0.8     0.8
-    8   0.0004359370934  -0.0495940674277     0.8     0.8
-    9   0.0002354928827  -0.0496057064682     0.8     0.8
-   10   0.0001267317258  -0.0496110766608     0.8     0.8
-   11   0.0000679876882  -0.0496136203248     0.8     0.8
-   12   0.0000363920752  -0.0496148530590     0.7     0.8
-   13   0.0000194533334  -0.0496154622069     0.8     0.8
-   14   0.0000103923104  -0.0496157680937     0.8     0.8
-   15   0.0000055515527  -0.0496159237052     0.8     0.8
-   16   0.0000029668371  -0.0496160036880     0.8     0.8
-   17   0.0000015866895  -0.0496160451306     0.8     0.8
-   18   0.0000008493987  -0.0496160667380     0.8     0.8
-   19   0.0000004552237  -0.0496160780578     0.8     0.8
-   20   0.0000002442764  -0.0496160840101     0.8     0.8
-   21   0.0000001312547  -0.0496160871488     0.8     0.8
-   22   0.0000000706232  -0.0496160888076     0.8     0.8
- --------------------------------------------------------
- Iterations converged
- CISDT correlation energy / hartree =        -0.049616088807569
- CISDT total energy / hartree       =       -75.012279150955365
-
- Parallel integral file used       1 records with       0 large values
-
-
- Task  times  cpu:       17.5s     wall:       18.8s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-                                 NWChem SCF Module
-                                 -----------------
-
-
-
-  ao basis        = "ao basis"
-  functions       =     7
-  atoms           =     3
-  closed shells   =     5
-  open shells     =     0
-  charge          =   0.00
-  wavefunction    = RHF 
-  input vectors   = ./tce_h2o.movecs
-  output vectors  = ./tce_h2o.movecs
-  use symmetry    = T
-  symmetry adapt  = T
-
-
- Summary of "ao basis" -> "ao basis" (cartesian)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- H                           sto-3g                  1        1   1s
- O                           sto-3g                  3        5   2s1p
-
-
-      Symmetry analysis of basis
-      --------------------------
-
-        a1          4
-        a2          0
-        b1          2
-        b2          1
-
-
-  The SCF is already converged 
-
-         Total S#F energy =    -74.962663062148
-
-                   NWChem Extensible Many-Electron Theory Module
-                   ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
-
-
-            General Information
-            -------------------
-           Number of nodes :     1
-         Wavefunction type : Restricted Hartree-Fock
-          No. of electrons :    10
-           Alpha electrons :     5
-            Beta electrons :     5
-           No. of orbitals :    14
-            Alpha orbitals :     7
-             Beta orbitals :     7
-        Alpha frozen cores :     0
-         Beta frozen cores :     0
-     Alpha frozen virtuals :     0
-      Beta frozen virtuals :     0
-         Spin multiplicity : singlet 
-    Number of AO functions :     7
-       Number of AO shells :     5
-        Use of symmetry is : on 
-      Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
-
-          Correlation Information
-          -----------------------
-          Calculation type : Configuration interaction singles through quadruples        
-            Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
-
-            Memory Information
-            ------------------
-          Available GA+MA space size is   26213608 doubles
-
- Maximum block size         7 doubles
-
- Suggested orbital blocking
-
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    beta      b2     1 doubles       9
-   7    alpha     a1     1 doubles      10
-   8    alpha     b1     1 doubles      11
-   9    beta      a1     1 doubles      12
-  10    beta      b1     1 doubles      13
-
- Global array virtual files algorithm will be used
-
- I/O self test is being performed ... passed
-
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./tce_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117161
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- 1-e file size   =         42
- 1-e file name   = ./tce_h2o.f1        
- Cpu & wall time / sec            0.0            0.1
-
- 2-e (intermediate) file size =            5439
- 2-e (intermediate) file name = ./tce_h2o.v2i       
- Cpu & wall time / sec            0.0            0.0
-
- 2-e file size   =       1523
- 2-e file name   = ./tce_h2o.v2        
- Cpu & wall time / sec            0.0            0.0
-
- t1 file size   =          8
- t1 file name   = ./tce_h2o.t1        
-
- t2 file size   =         84
- t2 file name   = ./tce_h2o.t2        
-
- t3 file size   =        536
- t3 file name   = ./tce_h2o.t3        
-
- t4 file size   =       3252
- t4 file name   = ./tce_h2o.t4        
-
- CISDTQ iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.4134577631900  -0.0358672469179     4.4     4.6
-    2   0.2400353899733  -0.0451885533450     4.3     4.6
-    3   0.1188475873210  -0.0482596161394     4.3     4.6
-    4   0.0563885277383  -0.0494100779016     4.4     4.6
-    5   0.0266249826611  -0.0498808297729     4.3     4.6
-    6   0.0126770643025  -0.0500841561044     4.3     4.6
-    7   0.0061175319722  -0.0501752064495     4.4     4.6
-    8   0.0029972908585  -0.0502171077223     4.3     4.6
-    9   0.0014912249511  -0.0502368364368     4.2     4.6
-   10   0.0007527965853  -0.0502463148805     4.3     4.6
-   11   0.0003850760861  -0.0502509520612     4.3     4.6
-   12   0.0001992693050  -0.0502532579215     4.3     4.6
-   13   0.0001041403145  -0.0502544211582     4.4     4.6
-   14   0.0000548750915  -0.0502550154007     4.3     4.6
-   15   0.0000291121194  -0.0502553222709     4.4     4.6
-   16   0.0000155297991  -0.0502554822006     4.3     4.6
-   17   0.0000083212963  -0.0502555661936     4.3     4.6
-   18   0.0000044747696  -0.0502556105885     4.3     4.6
-   19   0.0000024132244  -0.0502556341777     4.3     4.6
-   20   0.0000013044428  -0.0502556467661     4.3     4.6
-   21   0.0000007064072  -0.0502556535078     4.3     4.6
-   22   0.0000003831162  -0.0502556571288     4.2     4.6
-   23   0.0000002080302  -0.0502556590783     4.4     4.6
-   24   0.0000001130689  -0.0502556601298     4.2     4.6
-   25   0.0000000615039  -0.0502556606980     4.5     4.6
- --------------------------------------------------------
- Iterations converged
- C#SDTQ correlation energy / hartree =        -0.050255660698002
- C#SDTQ total energy / hartree       =       -75.012918722845797
-
- Parallel integral file used       1 records with       0 large values
-
-
- Task  times  cpu:      108.7s     wall:      115.1s
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-                                 NWChem SCF Module
-                                 -----------------
-
-
-
-  ao basis        = "ao basis"
-  functions       =     7
-  atoms           =     3
-  closed shells   =     5
-  open shells     =     0
-  charge          =   0.00
-  wavefunction    = RHF 
-  input vectors   = ./tce_h2o.movecs
-  output vectors  = ./tce_h2o.movecs
-  use symmetry    = T
-  symmetry adapt  = T
-
-
- Summary of "ao basis" -> "ao basis" (cartesian)
- ------------------------------------------------------------------------------
-       Tag                 Description            Shells   Functions and Types
- ---------------- ------------------------------  ------  ---------------------
- H                           sto-3g                  1        1   1s
- O                           sto-3g                  3        5   2s1p
-
-
-      Symmetry analysis of basis
-      --------------------------
-
-        a1          4
-        a2          0
-        b1          2
-        b2          1
-
-
-  The SCF is already converged 
-
-         Total SCF energy =    -74.962663062148
-
-                   NWChem Extensible Many-Electron Theory Module
-                   ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
-
-
-            General Information
-            -------------------
-           Number of nodes :     1
-         Wavefunction type : Restricted Hartree-Fock
-          No. of electrons :    10
-           Alpha electrons :     5
-            Beta electrons :     5
-           No. of orbitals :    14
-            Alpha orbitals :     7
-             Beta orbitals :     7
-        Alpha frozen cores :     0
-         Beta frozen cores :     0
-     Alpha frozen virtuals :     0
-      Beta frozen virtuals :     0
-         Spin multiplicity : singlet 
-    Number of AO functions :     7
-       Number of AO shells :     5
-        Use of symmetry is : on 
-      Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
-
-          Correlation Information
-          -----------------------
-          Calculation type : Second-order tensor many-body perturbation theory           
-            Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
-
-            Memory Information
-            ------------------
-          Available GA+MA space size is   26213608 doubles
-
- Maximum block size        50 doubles
-
- Suggested orbital blocking
-
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    beta      b2     1 doubles       9
-   7    alpha     a1     1 doubles      10
-   8    alpha     b1     1 doubles      11
-   9    beta      a1     1 doubles      12
-  10    beta      b1     1 doubles      13
-
- Global array virtual files algorithm will be used
-
- I/O self test is being performed ... passed
-
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
-
-
- Integral file          = ./tce_h2o.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117161
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
- 1-e file size   =         42
- 1-e file name   = ./tce_h2o.f1        
- Cpu & wall time / sec            0.0            0.1
-
- 2-e (intermediate) file size =            5439
- 2-e (intermediate) file name = ./tce_h2o.v2i       
- Cpu & wall time / sec            0.0            0.0
-
- 2-e file size   =       1523
- 2-e file name   = ./tce_h2o.v2        
- Cpu & wall time / sec            0.0            0.0
-
- t1 file size   =          8
- t1 file name   = ./tce_h2o.t1        
-
- t2 file size   =         84
- t2 file name   = ./tce_h2o.t2        
-
- MBPT(2) iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0000000000001  -0.0358672469179     0.0     0.0
- --------------------------------------------------------
- Iterations converged
- MBPT(2) correlation energy / hartree =        -0.035867246917894
- MBPT(2) total energy / hartree       =       -74.998530309065686
-
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
  Task  times  cpu:        0.1s     wall:        0.2s
@@ -2348,8 +920,8 @@ task tce energy
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./tce_h2o.movecs
-  output vectors  = ./tce_h2o.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
   use symmetry    = T
   symmetry adapt  = T
 
@@ -2373,16 +945,24 @@ task tce energy
 
   The SCF is already converged 
 
-         Total SCF energy =    -74.962663062148
+         Total SCF energy =    -74.962663062122
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
 
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
 
             General Information
             -------------------
-           Number of nodes :     1
+      Number of processors :     4
          Wavefunction type : Restricted Hartree-Fock
           No. of electrons :    10
            Alpha electrons :     5
@@ -2399,92 +979,123 @@ task tce energy
        Number of AO shells :     5
         Use of symmetry is : on 
       Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
+         Schwarz screening : 0.10D-09
 
           Correlation Information
           -----------------------
-          Calculation type : Third-order tensor many-body perturbation theory            
+          Calculation type : Coupled-cluster doubles                                     
+   Perturbative correction : none                                                        
             Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
+        Residual threshold : 0.10D-06
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+                I/O scheme : Global Array Library
 
             Memory Information
             ------------------
-          Available GA+MA space size is   26213608 doubles
+          Available GA space size is     131071951 doubles
+          Available MA space size is      32767323 doubles
 
- Maximum block size        50 doubles
+ Maximum block size        48 doubles
 
- Suggested orbital blocking
+ tile_dim =      3
 
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    beta      b2     1 doubles       9
-   7    alpha     a1     1 doubles      10
-   8    alpha     b1     1 doubles      11
-   9    beta      a1     1 doubles      12
-  10    beta      b1     1 doubles      13
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a1     3 doubles       0       1
+   2    alpha     b1     1 doubles       3       2
+   3    alpha     b2     1 doubles       4       3
+   4    beta      a1     3 doubles       5       1
+   5    beta      b1     1 doubles       8       2
+   6    beta      b2     1 doubles       9       3
+   7    alpha     a1     1 doubles      10       7
+   8    alpha     b1     1 doubles      11       8
+   9    beta      a1     1 doubles      12       7
+  10    beta      b1     1 doubles      13       8
 
  Global array virtual files algorithm will be used
 
- I/O self test is being performed ... passed
+ Parallel file system coherency ......... OK
 
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./tce_h2o.aoints.0
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117161
+ Max. records in memory =      2        Max. records in file   =  20842
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- 1-e file size   =         42
- 1-e file name   = ./tce_h2o.f1        
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Fock matrix recomputed
+ 1-e file size   =               21
+ 1-e file name   = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.1
 
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
  2-e (intermediate) file size =            5439
- 2-e (intermediate) file name = ./tce_h2o.v2i       
+ 2-e (intermediate) file name = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.0
 
- 2-e file size   =       1523
- 2-e file name   = ./tce_h2o.v2        
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+
+ 2-e file size   =             1150
+ 2-e file name   = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.0
+ do_pt =  F
+ do_lam_pt =  F
+ do_cr_pt =  F
+ do_lcr_pt =  F
+ do_2t_pt =  F
+ T2-number-of-boxes                   17
 
- t1 file size   =          8
- t1 file name   = ./tce_h2o.t1        
+ t2 file size   =               59
+ t2 file name   = /home/d3y133/nwchem-
+ t2 file handle =       -999
 
- t2 file size   =         84
- t2 file name   = ./tce_h2o.t2        
-
- MBPT(2) iterations
+ CCD iterations
  --------------------------------------------------------
  Iter          Residuum       Correlation     Cpu    Wall
  --------------------------------------------------------
-    1   0.0000000000001  -0.0358672469179     0.0     0.0
+    1   0.0891177206620  -0.0358672469176     0.0     0.0
+    2   0.0308573916575  -0.0454155709936     0.0     0.0
+    3   0.0117135881766  -0.0483002301740     0.0     0.0
+    4   0.0046464499439  -0.0492738741273     0.0     0.0
+    5   0.0018995321925  -0.0496282245918     0.0     0.0
+    6   0.0007984311655  -0.0497632787163     0.0     0.0
+    7   0.0003450986587  -0.0498162452740     0.0     0.0
+    8   0.0001532674141  -0.0498374259719     0.0     0.0
+    9   0.0000697691487  -0.0498460252989     0.0     0.0
+   10   0.0000324234185  -0.0498495637920     0.0     0.0
+   11   0.0000153134188  -0.0498510387529     0.0     0.0
+   12   0.0000073191835  -0.0498516615658     0.0     0.0
+   13   0.0000035278622  -0.0498519280169     0.0     0.0
+   14   0.0000017102881  -0.0498520435211     0.0     0.0
+   15   0.0000008323644  -0.0498520942501     0.0     0.0
+   16   0.0000004061423  -0.0498521168157     0.0     0.0
+   17   0.0000001985102  -0.0498521269764     0.0     0.0
+   18   0.0000000971351  -0.0498521316040     0.0     0.0
  --------------------------------------------------------
  Iterations converged
- MBPT(2) correlation energy / hartree =        -0.035867246917894
- MBPT(2) total energy / hartree       =       -74.998530309065686
+ CCD correlation energy / hartree =        -0.049852131604041
+ CCD total energy / hartree       =       -75.012515193725562
 
- MBPT(3) iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0911648577666   0.0000000000000     0.1     0.1
-    2   0.0000000000000  -0.0098015862583     0.1     0.1
- --------------------------------------------------------
- Iterations converged
- MBPT(3) correlation energy / hartree =        -0.009801586258269
- MBPT(3) total energy / hartree       =       -75.008331895323963
+ Doubles contributions
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        0.4s     wall:        0.4s
+ Task  times  cpu:        0.2s     wall:        0.3s
 
 
                                 NWChem Input Module
@@ -2503,8 +1114,8 @@ task tce energy
   open shells     =     0
   charge          =   0.00
   wavefunction    = RHF 
-  input vectors   = ./tce_h2o.movecs
-  output vectors  = ./tce_h2o.movecs
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
   use symmetry    = T
   symmetry adapt  = T
 
@@ -2528,16 +1139,24 @@ task tce energy
 
   The SCF is already converged 
 
-         Total S#F energy =    -74.962663062148
+         Total SCF energy =    -74.962663062122
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
 
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
 
             General Information
             -------------------
-           Number of nodes :     1
+      Number of processors :     4
          Wavefunction type : Restricted Hartree-Fock
           No. of electrons :    10
            Alpha electrons :     5
@@ -2554,115 +1173,1295 @@ task tce energy
        Number of AO shells :     5
         Use of symmetry is : on 
       Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
+         Schwarz screening : 0.10D-09
 
           Correlation Information
           -----------------------
-          Calculation type : Fourth-order tensor many-body perturbation theory           
+          Calculation type : Coupled-cluster singles & doubles                           
+   Perturbative correction : none                                                        
             Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
+        Residual threshold : 0.10D-06
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+                I/O scheme : Global Array Library
 
             Memory Information
             ------------------
-          Available GA+MA space size is   26213608 doubles
+          Available GA space size is     131071951 doubles
+          Available MA space size is      32767323 doubles
 
- Maximum block size         7 doubles
+ Maximum block size        48 doubles
 
- Suggested orbital blocking
+ tile_dim =      3
 
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    beta      b2     1 doubles       9
-   7    alpha     a1     1 doubles      10
-   8    alpha     b1     1 doubles      11
-   9    beta      a1     1 doubles      12
-  10    beta      b1     1 doubles      13
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a1     3 doubles       0       1
+   2    alpha     b1     1 doubles       3       2
+   3    alpha     b2     1 doubles       4       3
+   4    beta      a1     3 doubles       5       1
+   5    beta      b1     1 doubles       8       2
+   6    beta      b2     1 doubles       9       3
+   7    alpha     a1     1 doubles      10       7
+   8    alpha     b1     1 doubles      11       8
+   9    beta      a1     1 doubles      12       7
+  10    beta      b1     1 doubles      13       8
 
  Global array virtual files algorithm will be used
 
- I/O self test is being performed ... passed
+ Parallel file system coherency ......... OK
 
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./tce_h2o.aoints.0
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117161
+ Max. records in memory =      2        Max. records in file   =  20842
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- 1-e file size   =         42
- 1-e file name   = ./tce_h2o.f1        
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Fock matrix recomputed
+ 1-e file size   =               21
+ 1-e file name   = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.1
 
- 2-e (intermediate) file size =            5439
- 2-e (intermediate) file name = ./tce_h2o.v2i       
- Cpu & wall time / sec            0.1            0.0
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
 
- 2-e file size   =       1523
- 2-e file name   = ./tce_h2o.v2        
+ 2-e (intermediate) file size =            5439
+ 2-e (intermediate) file name = /home/d3y133/nwchem-
  Cpu & wall time / sec            0.0            0.0
 
- t1 file size   =          8
- t1 file name   = ./tce_h2o.t1        
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
 
- t2 file size   =         84
- t2 file name   = ./tce_h2o.t2        
+ 2-e file size   =             1150
+ 2-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+ do_pt =  F
+ do_lam_pt =  F
+ do_cr_pt =  F
+ do_lcr_pt =  F
+ do_2t_pt =  F
+ T1-number-of-tasks                    2
 
- t3 file size   =        536
- t3 file name   = ./tce_h2o.t3        
+ t1 file size   =                4
+ t1 file name   = /home/d3y133/nwchem-
+ t1 file handle =       -999
+ T2-number-of-boxes                   17
 
- t4 file size   =       3252
- t4 file name   = ./tce_h2o.t4        
+ t2 file size   =               59
+ t2 file name   = /home/d3y133/nwchem-
+ t2 file handle =       -996
 
- MBPT(2) iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0000000000001  -0.0358672469179     0.0     0.0
- --------------------------------------------------------
+ CCSD iterations
+ -----------------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall    V2*C2
+ -----------------------------------------------------------------
+    1   0.0897601078239  -0.0358585641894     0.0     0.0     0.0
+    2   0.0313117545719  -0.0455071034747     0.0     0.0     0.0
+    3   0.0122095698575  -0.0484393273641     0.0     0.0     0.0
+    4   0.0050707879659  -0.0494630321156     0.0     0.0     0.0
+    5   0.0022141947765  -0.0498524060395     0.0     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                    5                    5
+    6   0.0000692311650  -0.0501270084239     0.0     0.0     0.0
+    7   0.0000230257072  -0.0501268014102     0.0     0.0     0.0
+    8   0.0000109377652  -0.0501270716486     0.0     0.0     0.0
+    9   0.0000054238135  -0.0501271911884     0.0     0.0     0.0
+   10   0.0000027298712  -0.0501272494713     0.0     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                   10                    5
+   11   0.0000002032357  -0.0501273047241     0.0     0.0     0.0
+   12   0.0000000693062  -0.0501273203236     0.0     0.0     0.0
+ -----------------------------------------------------------------
  Iterations converged
- M#PT(2) correlation energy / hartree =        -0.035867246917894
- M#PT(2) total energy / hartree       =       -74.998530309065686
+ CCSD correlation energy / hartree =        -0.050127320323625
+ CCSD total energy / hartree       =       -75.012790382445147
 
- MBPT(3) iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.4134577631900   0.0000000000000     1.1     1.2
-    2   0.0000000000001  -0.0098015862583     1.1     1.2
- --------------------------------------------------------
- Iterations converged
- M#PT(3) correlation energy / hartree =        -0.009801586258269
- M#PT(3) total energy / hartree       =       -75.008331895323963
+ Singles contributions
 
- MBPT(4) iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0321439369509   0.0000000000000     0.4     0.5
-    2   0.0000000000000  -0.0030104405169     0.5     0.5
- --------------------------------------------------------
- Iterations converged
- M#PT(4) correlation energy / hartree =        -0.003010440516877
- M#PT(4) total energy / hartree       =       -75.011342335840837
+ Doubles contributions
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       4 records with       0 large values
 
 
- Task  times  cpu:        3.3s     wall:        3.5s
+ Task  times  cpu:        0.3s     wall:        0.5s
 
 
                                 NWChem Input Module
                                 -------------------
 
 
+                                 NWChem SCF Module
+                                 -----------------
+
+
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+      Symmetry analysis of basis
+      --------------------------
+
+        a1          4
+        a2          0
+        b1          2
+        b2          1
+
+
+  The SCF is already converged 
+
+         Total SCF energy =    -74.962663062122
+
+                   NWChem Extensible Many-Electron Theory Module
+                   ---------------------------------------------
+
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
+
+            General Information
+            -------------------
+      Number of processors :     4
+         Wavefunction type : Restricted Hartree-Fock
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+           No. of orbitals :    14
+            Alpha orbitals :     7
+             Beta orbitals :     7
+        Alpha frozen cores :     0
+         Beta frozen cores :     0
+     Alpha frozen virtuals :     0
+      Beta frozen virtuals :     0
+         Spin multiplicity : singlet 
+    Number of AO functions :     7
+       Number of AO shells :     5
+        Use of symmetry is : on 
+      Symmetry adaption is : on 
+         Schwarz screening : 0.10D-09
+
+          Correlation Information
+          -----------------------
+          Calculation type : Coupled-cluster singles, doubles, & triples                 
+   Perturbative correction : none                                                        
+            Max iterations :      100
+        Residual threshold : 0.10D-06
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+                I/O scheme : Global Array Library
+
+            Memory Information
+            ------------------
+          Available GA space size is     131071951 doubles
+          Available MA space size is      32767323 doubles
+
+ Maximum block size        13 doubles
+
+ tile_dim =      3
+
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a1     3 doubles       0       1
+   2    alpha     b1     1 doubles       3       2
+   3    alpha     b2     1 doubles       4       3
+   4    beta      a1     3 doubles       5       1
+   5    beta      b1     1 doubles       8       2
+   6    beta      b2     1 doubles       9       3
+   7    alpha     a1     1 doubles      10       7
+   8    alpha     b1     1 doubles      11       8
+   9    beta      a1     1 doubles      12       7
+  10    beta      b1     1 doubles      13       8
+
+ Global array virtual files algorithm will be used
+
+ Parallel file system coherency ......... OK
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  20842
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Fock matrix recomputed
+ 1-e file size   =               21
+ 1-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.1
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
+ 2-e (intermediate) file size =            5439
+ 2-e (intermediate) file name = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+
+ 2-e file size   =             1150
+ 2-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+ do_pt =  F
+ do_lam_pt =  F
+ do_cr_pt =  F
+ do_lcr_pt =  F
+ do_2t_pt =  F
+ T1-number-of-tasks                    2
+
+ t1 file size   =                4
+ t1 file name   = /home/d3y133/nwchem-
+ t1 file handle =       -999
+ T2-number-of-boxes                   17
+
+ t2 file size   =               59
+ t2 file name   = /home/d3y133/nwchem-
+ t2 file handle =       -996
+
+ t3 file size   =              448
+ t3 file name   = /home/d3y133/nwchem-
+
+ CCSDT iterations
+ --------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall
+ --------------------------------------------------------
+    1   0.0891177206620  -0.0358672469176     0.1     0.2
+    2   0.0317506022722  -0.0454068882654     0.1     0.2
+    3   0.0125739889031  -0.0484384289625     0.1     0.2
+    4   0.0053018405961  -0.0495179574331     0.1     0.2
+    5   0.0023495583721  -0.0499335337155     0.1     0.2
+ MICROCYCLE DIIS UPDATE:                    5                    5
+    6   0.0002729597818  -0.0502341149478     0.1     0.2
+    7   0.0000752931483  -0.0502322070236     0.1     0.2
+    8   0.0000289278538  -0.0502321181425     0.1     0.2
+    9   0.0000132136934  -0.0502321414998     0.1     0.2
+   10   0.0000065116905  -0.0502321746435     0.1     0.2
+ MICROCYCLE DIIS UPDATE:                   10                    5
+   11   0.0000004892877  -0.0502322211017     0.1     0.2
+   12   0.0000002378068  -0.0502322466160     0.1     0.2
+   13   0.0000001218330  -0.0502322534558     0.1     0.2
+   14   0.0000000644296  -0.0502322559708     0.1     0.2
+ --------------------------------------------------------
+ Iterations converged
+ CCSDT correlation energy / hartree =        -0.050232255970837
+ CCSDT total energy / hartree       =       -75.012895318092362
+
+ Singles contributions
+
+ Doubles contributions
+
+ Parallel integral file used       4 records with       0 large values
+
+
+ Task  times  cpu:        1.6s     wall:        2.6s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                 NWChem SCF Module
+                                 -----------------
+
+
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+      Symmetry analysis of basis
+      --------------------------
+
+        a1          4
+        a2          0
+        b1          2
+        b2          1
+
+
+  The SCF is already converged 
+
+         Total SCF energy =    -74.962663062122
+
+                   NWChem Extensible Many-Electron Theory Module
+                   ---------------------------------------------
+
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
+
+            General Information
+            -------------------
+      Number of processors :     4
+         Wavefunction type : Restricted Hartree-Fock
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+           No. of orbitals :    14
+            Alpha orbitals :     7
+             Beta orbitals :     7
+        Alpha frozen cores :     0
+         Beta frozen cores :     0
+     Alpha frozen virtuals :     0
+      Beta frozen virtuals :     0
+         Spin multiplicity : singlet 
+    Number of AO functions :     7
+       Number of AO shells :     5
+        Use of symmetry is : on 
+      Symmetry adaption is : on 
+         Schwarz screening : 0.10D-09
+
+          Correlation Information
+          -----------------------
+          Calculation type : Quadratic configuration interaction singles & doubles       
+   Perturbative correction : none                                                        
+            Max iterations :      100
+        Residual threshold : 0.10D-06
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+                I/O scheme : Global Array Library
+
+            Memory Information
+            ------------------
+          Available GA space size is     131071951 doubles
+          Available MA space size is      32767323 doubles
+
+ Maximum block size        48 doubles
+
+ tile_dim =      3
+
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a1     3 doubles       0       1
+   2    alpha     b1     1 doubles       3       2
+   3    alpha     b2     1 doubles       4       3
+   4    beta      a1     3 doubles       5       1
+   5    beta      b1     1 doubles       8       2
+   6    beta      b2     1 doubles       9       3
+   7    alpha     a1     1 doubles      10       7
+   8    alpha     b1     1 doubles      11       8
+   9    beta      a1     1 doubles      12       7
+  10    beta      b1     1 doubles      13       8
+
+ Global array virtual files algorithm will be used
+
+ Parallel file system coherency ......... OK
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  20842
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Fock matrix recomputed
+ 1-e file size   =               21
+ 1-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.1
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
+ 2-e (intermediate) file size =            5439
+ 2-e (intermediate) file name = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+
+ 2-e file size   =             1150
+ 2-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+ do_pt =  F
+ do_lam_pt =  F
+ do_cr_pt =  F
+ do_lcr_pt =  F
+ do_2t_pt =  F
+ T1-number-of-tasks                    2
+
+ t1 file size   =                4
+ t1 file name   = /home/d3y133/nwchem-
+ t1 file handle =       -999
+ T2-number-of-boxes                   17
+
+ t2 file size   =               59
+ t2 file name   = /home/d3y133/nwchem-
+ t2 file handle =       -996
+
+ QCISD iterations
+ --------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall
+ --------------------------------------------------------
+    1   0.0891177206620  -0.0358672469176     0.0     0.0
+    2   0.0314891573449  -0.0454155709936     0.0     0.0
+    3   0.0124105651434  -0.0484027267052     0.0     0.0
+    4   0.0052211105587  -0.0494550503670     0.0     0.0
+    5   0.0023126791371  -0.0498575168245     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                    5                    5
+    6   0.0000688468594  -0.0501454892252     0.0     0.0
+    7   0.0000266940783  -0.0501447946232     0.0     0.0
+    8   0.0000129723792  -0.0501450040999     0.0     0.0
+    9   0.0000064684200  -0.0501451211080     0.0     0.0
+   10   0.0000032593270  -0.0501451821242     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                   10                    5
+   11   0.0000002033939  -0.0501452429166     0.0     0.0
+   12   0.0000000725157  -0.0501452571492     0.0     0.0
+ --------------------------------------------------------
+ Iterations converged
+ QCISD correlation energy / hartree =        -0.050145257149164
+ QCISD total energy / hartree       =       -75.012808319270690
+
+ Singles contributions
+
+ Doubles contributions
+
+ Parallel integral file used       4 records with       0 large values
+
+
+ Task  times  cpu:        0.2s     wall:        0.3s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                 NWChem SCF Module
+                                 -----------------
+
+
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+      Symmetry analysis of basis
+      --------------------------
+
+        a1          4
+        a2          0
+        b1          2
+        b2          1
+
+
+  The SCF is already converged 
+
+         Total SCF energy =    -74.962663062122
+
+                   NWChem Extensible Many-Electron Theory Module
+                   ---------------------------------------------
+
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
+
+            General Information
+            -------------------
+      Number of processors :     4
+         Wavefunction type : Restricted Hartree-Fock
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+           No. of orbitals :    14
+            Alpha orbitals :     7
+             Beta orbitals :     7
+        Alpha frozen cores :     0
+         Beta frozen cores :     0
+     Alpha frozen virtuals :     0
+      Beta frozen virtuals :     0
+         Spin multiplicity : singlet 
+    Number of AO functions :     7
+       Number of AO shells :     5
+        Use of symmetry is : on 
+      Symmetry adaption is : on 
+         Schwarz screening : 0.10D-09
+
+          Correlation Information
+          -----------------------
+          Calculation type : Configuration interaction singles & doubles                 
+   Perturbative correction : none                                                        
+            Max iterations :      100
+        Residual threshold : 0.10D-06
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+                I/O scheme : Global Array Library
+
+            Memory Information
+            ------------------
+          Available GA space size is     131071951 doubles
+          Available MA space size is      32767323 doubles
+
+ Maximum block size        48 doubles
+
+ tile_dim =      3
+
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a1     3 doubles       0       1
+   2    alpha     b1     1 doubles       3       2
+   3    alpha     b2     1 doubles       4       3
+   4    beta      a1     3 doubles       5       1
+   5    beta      b1     1 doubles       8       2
+   6    beta      b2     1 doubles       9       3
+   7    alpha     a1     1 doubles      10       7
+   8    alpha     b1     1 doubles      11       8
+   9    beta      a1     1 doubles      12       7
+  10    beta      b1     1 doubles      13       8
+
+ Global array virtual files algorithm will be used
+
+ Parallel file system coherency ......... OK
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  20842
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Fock matrix recomputed
+ 1-e file size   =               21
+ 1-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.1
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
+ 2-e (intermediate) file size =            5439
+ 2-e (intermediate) file name = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+
+ 2-e file size   =             1150
+ 2-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+ do_pt =  F
+ do_lam_pt =  F
+ do_cr_pt =  F
+ do_lcr_pt =  F
+ do_2t_pt =  F
+ T1-number-of-tasks                    2
+
+ t1 file size   =                4
+ t1 file name   = /home/d3y133/nwchem-
+ t1 file handle =       -999
+ T2-number-of-boxes                   17
+
+ t2 file size   =               59
+ t2 file name   = /home/d3y133/nwchem-
+ t2 file handle =       -996
+
+ CISD iterations
+ --------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall
+ --------------------------------------------------------
+    1   0.0873192013228  -0.0358672469176     0.0     0.0
+    2   0.0299298803655  -0.0451885533447     0.0     0.0
+    3   0.0114951605847  -0.0479815151706     0.0     0.0
+    4   0.0047204923828  -0.0489269349111     0.0     0.0
+    5   0.0020426518354  -0.0492763580001     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                    5                    5
+    6   0.0000612066896  -0.0495143523281     0.0     0.0
+    7   0.0000217194898  -0.0495135936569     0.0     0.0
+    8   0.0000101526161  -0.0495137004979     0.0     0.0
+    9   0.0000049160034  -0.0495137596994     0.0     0.0
+   10   0.0000024131752  -0.0495137913183     0.0     0.0
+ MICROCYCLE DIIS UPDATE:                   10                    5
+   11   0.0000001617288  -0.0495138219900     0.0     0.0
+   12   0.0000000548450  -0.0495138325180     0.0     0.0
+ --------------------------------------------------------
+ Iterations converged
+ CISD correlation energy / hartree =        -0.049513832517979
+ CISD total energy / hartree       =       -75.012176894639495
+
+ Singles contributions
+
+ Doubles contributions
+
+ Parallel integral file used       4 records with       0 large values
+
+
+ Task  times  cpu:        0.1s     wall:        0.2s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                 NWChem SCF Module
+                                 -----------------
+
+
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+      Symmetry analysis of basis
+      --------------------------
+
+        a1          4
+        a2          0
+        b1          2
+        b2          1
+
+
+  The SCF is already converged 
+
+         Total SCF energy =    -74.962663062122
+
+                   NWChem Extensible Many-Electron Theory Module
+                   ---------------------------------------------
+
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
+
+            General Information
+            -------------------
+      Number of processors :     4
+         Wavefunction type : Restricted Hartree-Fock
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+           No. of orbitals :    14
+            Alpha orbitals :     7
+             Beta orbitals :     7
+        Alpha frozen cores :     0
+         Beta frozen cores :     0
+     Alpha frozen virtuals :     0
+      Beta frozen virtuals :     0
+         Spin multiplicity : singlet 
+    Number of AO functions :     7
+       Number of AO shells :     5
+        Use of symmetry is : on 
+      Symmetry adaption is : on 
+         Schwarz screening : 0.10D-09
+
+          Correlation Information
+          -----------------------
+          Calculation type : Configuration interaction singles, doubles, & triples       
+   Perturbative correction : none                                                        
+            Max iterations :      100
+        Residual threshold : 0.10D-06
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+                I/O scheme : Global Array Library
+
+            Memory Information
+            ------------------
+          Available GA space size is     131071951 doubles
+          Available MA space size is      32767323 doubles
+
+ Maximum block size        13 doubles
+
+ tile_dim =      3
+
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a1     3 doubles       0       1
+   2    alpha     b1     1 doubles       3       2
+   3    alpha     b2     1 doubles       4       3
+   4    beta      a1     3 doubles       5       1
+   5    beta      b1     1 doubles       8       2
+   6    beta      b2     1 doubles       9       3
+   7    alpha     a1     1 doubles      10       7
+   8    alpha     b1     1 doubles      11       8
+   9    beta      a1     1 doubles      12       7
+  10    beta      b1     1 doubles      13       8
+
+ Global array virtual files algorithm will be used
+
+ Parallel file system coherency ......... OK
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  20842
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Fock matrix recomputed
+ 1-e file size   =               21
+ 1-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.1
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
+ 2-e (intermediate) file size =            5439
+ 2-e (intermediate) file name = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+
+ 2-e file size   =             1150
+ 2-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+ do_pt =  F
+ do_lam_pt =  F
+ do_cr_pt =  F
+ do_lcr_pt =  F
+ do_2t_pt =  F
+ T1-number-of-tasks                    2
+
+ t1 file size   =                4
+ t1 file name   = /home/d3y133/nwchem-
+ t1 file handle =       -999
+ T2-number-of-boxes                   17
+
+ t2 file size   =               59
+ t2 file name   = /home/d3y133/nwchem-
+ t2 file handle =       -996
+
+ t3 file size   =              448
+ t3 file name   = /home/d3y133/nwchem-
+
+ CISDT iterations
+ --------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall
+ --------------------------------------------------------
+    1   0.0873192013228  -0.0358672469176     0.0     0.1
+    2   0.0301538077400  -0.0451885533447     0.0     0.1
+    3   0.0116176381053  -0.0480325984902     0.0     0.1
+    4   0.0051819361969  -0.0490027242957     0.0     0.1
+    5   0.0027476404500  -0.0493643665155     0.0     0.1
+ MICROCYCLE DIIS UPDATE:                    5                    5
+    6   0.0002424263030  -0.0496183024672     0.0     0.1
+    7   0.0000731004940  -0.0496163210812     0.0     0.1
+    8   0.0000293170080  -0.0496160610315     0.0     0.1
+    9   0.0000137974462  -0.0496160279078     0.0     0.1
+   10   0.0000070343981  -0.0496160373460     0.0     0.1
+ MICROCYCLE DIIS UPDATE:                   10                    5
+   11   0.0000006121358  -0.0496160648097     0.0     0.1
+   12   0.0000002354913  -0.0496160820905     0.0     0.1
+   13   0.0000001210578  -0.0496160873206     0.0     0.1
+   14   0.0000000639848  -0.0496160892643     0.0     0.1
+ --------------------------------------------------------
+ Iterations converged
+ CISDT correlation energy / hartree =        -0.049616089264278
+ CISDT total energy / hartree       =       -75.012279151385798
+
+ Singles contributions
+
+ Doubles contributions
+
+ Parallel integral file used       4 records with       0 large values
+
+
+ Task  times  cpu:        0.6s     wall:        0.9s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                 NWChem SCF Module
+                                 -----------------
+
+
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+      Symmetry analysis of basis
+      --------------------------
+
+        a1          4
+        a2          0
+        b1          2
+        b2          1
+
+
+  The SCF is already converged 
+
+         Total SCF energy =    -74.962663062122
+
+                   NWChem Extensible Many-Electron Theory Module
+                   ---------------------------------------------
+
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
+
+            General Information
+            -------------------
+      Number of processors :     4
+         Wavefunction type : Restricted Hartree-Fock
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+           No. of orbitals :    14
+            Alpha orbitals :     7
+             Beta orbitals :     7
+        Alpha frozen cores :     0
+         Beta frozen cores :     0
+     Alpha frozen virtuals :     0
+      Beta frozen virtuals :     0
+         Spin multiplicity : singlet 
+    Number of AO functions :     7
+       Number of AO shells :     5
+        Use of symmetry is : on 
+      Symmetry adaption is : on 
+         Schwarz screening : 0.10D-09
+
+          Correlation Information
+          -----------------------
+          Calculation type : Second-order tensor many-body perturbation theory           
+   Perturbative correction : none                                                        
+            Max iterations :      100
+        Residual threshold : 0.10D-06
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+                I/O scheme : Global Array Library
+
+            Memory Information
+            ------------------
+          Available GA space size is     131071951 doubles
+          Available MA space size is      32767323 doubles
+
+ Maximum block size        48 doubles
+
+ tile_dim =      3
+
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a1     3 doubles       0       1
+   2    alpha     b1     1 doubles       3       2
+   3    alpha     b2     1 doubles       4       3
+   4    beta      a1     3 doubles       5       1
+   5    beta      b1     1 doubles       8       2
+   6    beta      b2     1 doubles       9       3
+   7    alpha     a1     1 doubles      10       7
+   8    alpha     b1     1 doubles      11       8
+   9    beta      a1     1 doubles      12       7
+  10    beta      b1     1 doubles      13       8
+
+ Global array virtual files algorithm will be used
+
+ Parallel file system coherency ......... OK
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  20842
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Fock matrix recomputed
+ 1-e file size   =               21
+ 1-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.1
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
+ 2-e (intermediate) file size =            5439
+ 2-e (intermediate) file name = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+
+ 2-e file size   =             1150
+ 2-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+ do_pt =  F
+ do_lam_pt =  F
+ do_cr_pt =  F
+ do_lcr_pt =  F
+ do_2t_pt =  F
+ T1-number-of-tasks                    2
+
+ t1 file size   =                4
+ t1 file name   = /home/d3y133/nwchem-
+ t1 file handle =       -999
+ T2-number-of-boxes                   17
+
+ t2 file size   =               59
+ t2 file name   = /home/d3y133/nwchem-
+ t2 file handle =       -996
+
+ MBPT(2) iterations
+ --------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall
+ --------------------------------------------------------
+    1   0.0000000000000  -0.0358672469176     0.0     0.0
+ --------------------------------------------------------
+ Iterations converged
+ MBPT(2) correlation energy / hartree =        -0.035867246917598
+ MBPT(2) total energy / hartree       =       -74.998530309039126
+
+ Parallel integral file used       4 records with       0 large values
+
+
+ Task  times  cpu:        0.0s     wall:        0.1s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                 NWChem SCF Module
+                                 -----------------
+
+
+
+  ao basis        = "ao basis"
+  functions       =     7
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                           sto-3g                  1        1   1s
+ O                           sto-3g                  3        5   2s1p
+
+
+      Symmetry analysis of basis
+      --------------------------
+
+        a1          4
+        a2          0
+        b1          2
+        b2          1
+
+
+  The SCF is already converged 
+
+         Total SCF energy =    -74.962663062122
+
+                   NWChem Extensible Many-Electron Theory Module
+                   ---------------------------------------------
+
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
+
+            General Information
+            -------------------
+      Number of processors :     4
+         Wavefunction type : Restricted Hartree-Fock
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+           No. of orbitals :    14
+            Alpha orbitals :     7
+             Beta orbitals :     7
+        Alpha frozen cores :     0
+         Beta frozen cores :     0
+     Alpha frozen virtuals :     0
+      Beta frozen virtuals :     0
+         Spin multiplicity : singlet 
+    Number of AO functions :     7
+       Number of AO shells :     5
+        Use of symmetry is : on 
+      Symmetry adaption is : on 
+         Schwarz screening : 0.10D-09
+
+          Correlation Information
+          -----------------------
+          Calculation type : Third-order tensor many-body perturbation theory            
+   Perturbative correction : none                                                        
+            Max iterations :      100
+        Residual threshold : 0.10D-06
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+                I/O scheme : Global Array Library
+
+            Memory Information
+            ------------------
+          Available GA space size is     131071951 doubles
+          Available MA space size is      32767323 doubles
+
+ Maximum block size        48 doubles
+
+ tile_dim =      3
+
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a1     3 doubles       0       1
+   2    alpha     b1     1 doubles       3       2
+   3    alpha     b2     1 doubles       4       3
+   4    beta      a1     3 doubles       5       1
+   5    beta      b1     1 doubles       8       2
+   6    beta      b2     1 doubles       9       3
+   7    alpha     a1     1 doubles      10       7
+   8    alpha     b1     1 doubles      11       8
+   9    beta      a1     1 doubles      12       7
+  10    beta      b1     1 doubles      13       8
+
+ Global array virtual files algorithm will be used
+
+ Parallel file system coherency ......... OK
+
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/tce_h2o.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  20842
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Fock matrix recomputed
+ 1-e file size   =               21
+ 1-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.1
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
+ 2-e (intermediate) file size =            5439
+ 2-e (intermediate) file name = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+
+ 2-e file size   =             1150
+ 2-e file name   = /home/d3y133/nwchem-
+ Cpu & wall time / sec            0.0            0.0
+ do_pt =  F
+ do_lam_pt =  F
+ do_cr_pt =  F
+ do_lcr_pt =  F
+ do_2t_pt =  F
+ T1-number-of-tasks                    2
+
+ t1 file size   =                4
+ t1 file name   = /home/d3y133/nwchem-
+ t1 file handle =       -999
+ T2-number-of-boxes                   17
+
+ t2 file size   =               59
+ t2 file name   = /home/d3y133/nwchem-
+ t2 file handle =       -996
+
+ MBPT(2) iterations
+ --------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall
+ --------------------------------------------------------
+    1   0.0000000000000  -0.0358672469176     0.0     0.0
+ --------------------------------------------------------
+ Iterations converged
+ MBPT(2) correlation energy / hartree =        -0.035867246917598
+ MBPT(2) total energy / hartree       =       -74.998530309039126
+
+ MBPT(3) iterations
+ --------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall
+ --------------------------------------------------------
+    1   0.0911549474654   0.0000000000000     0.0     0.0
+    2   0.0000000000000  -0.0098015862582     0.0     0.0
+ --------------------------------------------------------
+ Iterations converged
+ MBPT(3) correlation energy / hartree =        -0.009801586258240
+ MBPT(3) total energy / hartree       =       -75.008331895297360
+
+ Parallel integral file used       4 records with       0 large values
+
+
+ Task  times  cpu:        0.0s     wall:        0.1s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -2673,11 +2472,11 @@ task tce energy
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 5228     5228     7.71e+06 2.61e+04 7.52e+06    0        0        0     
-bytes total:             3.99e+08 6.12e+07 8.48e+08 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 757040 bytes
-
+calls: 4421     4421     1.53e+05 4301     6.79e+04    0        0     8.05e+04 
+number of processes/call 1.15e+00 1.30e+00 1.08e+00 0.00e+00 0.00e+00
+bytes total:             7.23e+06 5.19e+05 4.09e+06 0.00e+00 0.00e+00 6.44e+05
+bytes remote:            4.91e+06 3.30e+05 2.61e+06 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 29768 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -2686,46 +2485,47 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        37	        33
+	maximum number of blocks	        18	        30
 	current total bytes		         0	         0
-	maximum total bytes		   1813068	  14487260
-	maximum total K-bytes		      1814	     14488
-	maximum total M-bytes		         2	        15
+	maximum total bytes		   1053744	  22509016
+	maximum total K-bytes		      1054	     22510
+	maximum total M-bytes		         2	        23
+
+
+                                NWChem Input Module
+                                -------------------
 
 
 
-                                  ACKNOWLEDGEMENT
-                                  ---------------
-
-            Please use the following acknowledgement where appropriate 
-            for results obtained with NWChem:
-
-            High Performance Computational Chemistry Group, "NWChem, A
-            Computational Chemistry Package for Parallel Computers, 
-            Version 4.1" (2002), Pacific Northwest National Laboratory,
-            Richland, Washington 99352-0999, USA.
 
 
                                      CITATION
                                      --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
 
-            Please use the following citation when publishing results
-            obtained with NWChem:
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
 
-            R. J. Harrison, J. A. Nichols, T. P. Straatsma, M. Dupuis,
-            E. J. Bylaska, G. I. Fann, T. L. Windus, E. Apra, W. de Jong,
-            S. Hirata, M. T. Hackler, J. Anchell, D. Bernholdt, P. Borowski,
-            T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood,
-            H. Fruchtl, E. Glendening, M. Gutowski, K. Hirao, A. Hess,
-            J. Jaffe, B. Johnson, J. Ju, R. Kendall, R. Kobayashi, R. Kutteh,
-            Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima,
-            J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
-            G. Thomas, J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,
-            "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 4.1" (2002),
-                      Pacific Northwest National Laboratory,
-                      Richland, Washington 99352-0999, USA.
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
+      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
-
-
- Total times  cpu:      807.5s     wall:      852.6s
+ Total times  cpu:        3.3s     wall:        5.7s

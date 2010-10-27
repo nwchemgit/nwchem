@@ -90,6 +90,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.mpi.unix procs $np xe_zora_sf
 ./runtests.mpi.unix procs $np i2_zora_so
 ./runtests.mpi.unix procs $np o2_zora_so
+./runtests.mpi.unix procs $np hi_zora_so
 #
 # qmmm tests
 #./runtests.mpi.unix procs $np asa_qmmm
