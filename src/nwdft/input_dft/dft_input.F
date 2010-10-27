@@ -239,8 +239,8 @@ c
       if (mult .le. 0) then
          write(LuOut,*)' dft_input: spin multiplicity value error'
          write(LuOut,*)' value must be greater than zero, not ',mult
-         write(LuOut,*)' use mult=1 for singlet'
-         write(LuOut,*)' use mult=2 for doublet'
+         write(LuOut,*)' use mult 1 for singlet'
+         write(LuOut,*)' use mult 2 for doublet'
          write(LuOut,*)' etc.'
          call errquit('dft_input: bad mult', 1202, INPUT_ERR)
       endif
