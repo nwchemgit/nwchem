@@ -236,14 +236,6 @@ c
      &             ' ignoring option using default of singlet'
          mult = 1
       endif 
-      if (mult .le. 0) then
-         write(LuOut,*)' dft_input: spin multiplicity value error'
-         write(LuOut,*)' value must be greater than zero, not ',mult
-         write(LuOut,*)' use mult 1 for singlet'
-         write(LuOut,*)' use mult 2 for doublet'
-         write(LuOut,*)' etc.'
-         call errquit('dft_input: bad mult', 1202, INPUT_ERR)
-      endif
       if (.not. rtdb_put(rtdb, 'dft:mult', mt_int, 1, mult))
      &   call errquit('dft_input: rtdb_put failed', 1200, RTDB_ERR)
       nopen = mult - 1
