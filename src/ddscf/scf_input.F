@@ -120,6 +120,15 @@ c     nopen <integer nopen>
 c     
          if (.not. inp_i(nopen)) call errquit
      $        ('scf_input: nopen <nopen>',0, INPUT_ERR)
+         if (nopen .lt. 0) then
+
+          write(6,*)' scf_input: nopen value error'
+          write(6,*)' value must be at least zero, not ',nopen
+          write(6,*)' use nopen=0 for singlet'
+          write(6,*)' use nopen=1 for doublet'
+          write(6,*)' etc.'
+          call errquit('scf_input: bad nopen', 0, INPUT_ERR)
+         endif
 c     
       else if (inp_compare(.false.,'rhf', test) .or.
      $        inp_compare(.false.,'uhf', test) .or.
@@ -160,6 +169,10 @@ c
 c
       else if (inp_compare(.false.,'octet', test)) then
          nopen = 7
+         multiplicity = test
+c
+      else if (inp_compare(.false.,'nonet', test)) then
+         nopen = 8
          multiplicity = test
 c     
       else if (inp_compare(.false.,'chunk', test)) then
