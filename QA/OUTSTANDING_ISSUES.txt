@@ -1,0 +1,33 @@
+dft_bsse: 
+
+   Trunk version loses the Bq centers although they have basis functions
+   on them.
+
+pyqa:
+
+   Prints the contents of the RTDB. However, in the trunk version these arrays
+   are much longer than in the release. As a result this really polutes the
+   output.
+
+pspw_stress:
+
+   The Mulliken charges are very different from the 6.0 release data and the
+   current baseline.
+
+pspw_SiC:
+
+   The Mulliken charges are very different from the 6.0 release data and the
+   current baseline.
+
+vectors_rotate:
+
+   The multipole analysis shows results that seem significantly different from
+   what they should be.
+
+h2o-ssb-d:
+
+   The dispersion correction does not seem to get included.
+
+h2o-ssb-d-opt:
+
+   The dispersion correction does not seem to get included.
