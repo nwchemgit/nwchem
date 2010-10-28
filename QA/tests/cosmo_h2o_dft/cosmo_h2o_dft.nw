@@ -1,0 +1,37 @@
+echo
+start cosmo_h2o_dft
+title "cosmo_h2o_dft"
+
+geometry nocenter noautosym noautoz
+  H    0.290  -1.478   2.133
+  O   -0.526  -1.642   2.602
+  H   -0.729  -0.989   3.278
+end
+
+basis noprint
+  * library 6-31G
+end
+
+
+dft
+  print medium
+  xc hfexch
+  iterations 200
+  noio
+  direct
+  GRID nodisk
+end
+
+cosmo
+  minbem 2
+  maxbem 3
+end
+
+property
+  efield
+end
+
+set dft:xcreplicated f
+set fock:replicated .false.
+
+task dft property

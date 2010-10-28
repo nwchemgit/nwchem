@@ -1,0 +1,30 @@
+title "h2o ssb-d-dft"
+
+echo
+start h2o-ssb-d
+
+memory global 40 mb stack 23 mb heap 5 mb
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+dft
+  iterations 99
+  CONVERGENCE density 1.0e-6
+  CONVERGENCE gradient 1.0e-6
+  convergence damp 90 nolevelshifting
+  convergence diison 0.01
+  TOLERANCES tight
+  grid fine
+  xc ssb-d
+end
+
+task dft energy

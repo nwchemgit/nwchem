@@ -1,90 +1,93 @@
  argument  1 = h2o-camb3lyp-pol-cdfit.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+start h2o-camb3lyp-pol-cdfit
+
+geometry units angstrom
+O      0.00000000     0.00000000     0.11726921
+H      0.75698224     0.00000000    -0.46907685
+H     -0.75698224     0.00000000    -0.46907685
+end
+
+basis spherical
+  * library aug-cc-pvdz
+end
+
+basis "cd basis"
+*  library "DGauss A2 DFT Coulomb Fitting"
+end
+
+set int:cando_txs f
+
+dft
+  xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
+  cam 0.33 cam_alpha 0.19 cam_beta 0.46
+  iterations 100
+  direct
+end
+task dft energy
+
+property
+  center com
+  dipole
+  aoresponse 1 0.0
+end
+task dft property
+================================================================================
+
+
                                          
                                          
- 
- 
+
+
               Northwest Computational Chemistry Package (NWChem) 6.0
               ------------------------------------------------------
- 
- 
+
+
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
- 
-                                         
-                                         
- 
- 
-                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999,
-                2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008,
-                                     2009, 2010
-                        Pacific Northwest National Laboratory,
-                             Battelle Memorial Institute.
- 
-                            >>> All Rights Reserved <<<
- 
- 
-                                    DISCLAIMER
-                                    ----------
 
-            This material was prepared as an account of work sponsored
-            by an agency of the United States Government.  Neither the
-            United States Government nor the United States Department
-            of Energy, nor Battelle, nor any of their employees, MAKES
-            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
-            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
-            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
-            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
-            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
 
-
-                                    LIMITED USE
-                                    -----------
-
-            This software (including any documentation) is being made
-            available to you for your internal use only, solely for use
-            in performance of work directly for the U.S. Federal
-            Government or work under contracts with the U.S. Department
-            of Energy or other U.S. Federal Government agencies.  This
-            software is a version which has not yet been evaluated and
-            cleared for commercialization.  Adherence to this notice
-            may be necessary for the author, Battelle Memorial
-            Institute, to successfully assert copyright in and
-            commercialize this software. This software is not intended
-            for duplication or distribution to third parties without
-            the permission of the Manager of Software Products at
-            Pacific Northwest National Laboratory, Richland,
-            Washington, 99352.
-
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
 
                                   ACKNOWLEDGMENT
                                   --------------
 
-            This software and its documentation were produced with
-            Government support under Contract Number DE-AC05-76RL01830
-            awarded by the United States Department of Energy.  The
-            Government retains a paid-up non-exclusive, irrevocable
-            worldwide license to reproduce, prepare derivative works,
-            perform publicly and display publicly by or for the
-            Government, including the right to distribute to other
-            Government contractors.
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
 
 
            Job information
            ---------------
 
-    hostname      = curie
-    program       = ../../../bin/LINUX64/nwchem
-    date          = Mon Mar 15 13:36:35 2010
+    hostname      = arcen
+    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
+    date          = Tue Oct 26 20:11:04 2010
 
-    compiled      = Fri_Mar_12_14:59:26_2010
-    source        = /home/niri/nwchem/nwchem-6.0
-    nwchem branch = 6.0
+    compiled      = Tue_Oct_26_14:47:56_2010
+    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
+    nwchem branch = Development
     input         = h2o-camb3lyp-pol-cdfit.nw
     prefix        = h2o-camb3lyp-pol-cdfit.
-    data base     = ./h2o-camb3lyp-pol-cdfit.db
+    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/h2o-camb3lyp-pol-cdfit.db
     status        = startup
-    nproc         =        2
+    nproc         =        4
     time left     =     -1s
 
 
@@ -92,27 +95,27 @@
            Memory information
            ------------------
 
-    heap      =   13107201 doubles =    100.0 Mbytes
-    stack     =   13107201 doubles =    100.0 Mbytes
-    global    =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
-    total     =   52428802 doubles =    400.0 Mbytes
-    verify    = yes
-    hardfail  = no 
+    heap     =   16384001 doubles =    125.0 Mbytes
+    stack    =   16384001 doubles =    125.0 Mbytes
+    global   =   32768000 doubles =    250.0 Mbytes (distinct from heap & stack)
+    total    =   65536002 doubles =    500.0 Mbytes
+    verify   = yes
+    hardfail = no 
 
 
            Directory information
            ---------------------
- 
-  0 permanent = .
-  0 scratch   = .
- 
- 
- 
- 
+
+  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+
+
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -122,25 +125,25 @@
           ------
           auto-z
           ------
- 
- 
+
+
                              Geometry "geometry" -> ""
                              -------------------------
- 
+
  Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
- 
+
   No.       Tag          Charge          X              Y              Z
  ---- ---------------- ---------- -------------- -------------- --------------
     1 O                    8.0000     0.00000000     0.00000000     0.11726921
     2 H                    1.0000     0.75698224     0.00000000    -0.46907685
     3 H                    1.0000    -0.75698224     0.00000000    -0.46907685
- 
+
       Atomic Mass 
       ----------- 
- 
+
       O                 15.994910
       H                  1.007825
- 
+
 
  Effective nuclear repulsion energy (a.u.)       9.1920946687
 
@@ -149,33 +152,33 @@
         X                 Y               Z
  ---------------- ---------------- ----------------
      0.0000000000     0.0000000000     0.0000000000
- 
+
       Symmetry information
       --------------------
- 
+
  Group name             C2v       
  Group number             16
  Group order               4
  No. of unique centers     2
- 
+
       Symmetry unique atoms
- 
+
      1    2
- 
+
 
 
                                 Z-matrix (autoz)
                                 -------- 
 
  Units are Angstrom for bonds and degrees for angles
- 
+
       Type          Name      I     J     K     L     M      Value
       ----------- --------  ----- ----- ----- ----- ----- ----------
     1 Stretch                  1     2                       0.95751
     2 Stretch                  1     3                       0.95751
     3 Bend                     2     1     3               104.47845
- 
- 
+
+
             XYZ format geometry
             -------------------
      3
@@ -183,7 +186,7 @@
  O                     0.00000000     0.00000000     0.11726921
  H                     0.75698224     0.00000000    -0.46907685
  H                    -0.75698224     0.00000000    -0.46907685
- 
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -209,8 +212,8 @@
 
 
 
-  library name resolved from: environment
-  library file name is: </home/niri/nwchem/nwchem-6.0/src/basis/libraries/>
+  library name resolved from: .nwchemrc
+  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
   
 
 
@@ -221,8 +224,8 @@
  *                        aug-cc-pvdz                 on all atoms 
 
 
-  library name resolved from: environment
-  library file name is: </home/niri/nwchem/nwchem-6.0/src/basis/libraries/>
+  library name resolved from: .nwchemrc
+  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
   
 
 
@@ -233,179 +236,11 @@
  *                DGauss A2 DFT Coulomb Fitting       on all atoms 
 
 
- 
+
                                  NWChem DFT Module
                                  -----------------
- 
- 
 
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   176:   11720.0000000              0.0007100             -0.0001600              0.0000000
-  
 
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   177:    1759.0000000              0.0054700             -0.0012630              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   178:     400.8000000              0.0278370             -0.0062670              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   179:     113.7000000              0.1048000             -0.0257160              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   180:      37.0300000              0.2830620             -0.0709240              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   181:      13.2700000              0.4487190             -0.1654110              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   182:       5.0250000              0.2709520             -0.1169550              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   183:       1.0130000              0.0154580              0.5573680              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   188:      17.7000000              0.0430180              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   189:       3.8540000              0.2289130              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   190:       1.0460000              0.5087280              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    25:      13.0100000              0.0196850              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    26:       1.9620000              0.1379770              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    27:       0.4446000              0.4781480              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   176:   11720.0000000              0.0007100             -0.0001600              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   177:    1759.0000000              0.0054700             -0.0012630              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   178:     400.8000000              0.0278370             -0.0062670              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   179:     113.7000000              0.1048000             -0.0257160              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   180:      37.0300000              0.2830620             -0.0709240              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   181:      13.2700000              0.4487190             -0.1654110              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   182:       5.0250000              0.2709520             -0.1169550              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   183:       1.0130000              0.0154580              0.5573680              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   188:      17.7000000              0.0430180              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   189:       3.8540000              0.2289130              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   190:       1.0460000              0.5087280              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    25:      13.0100000              0.0196850              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    26:       1.9620000              0.1379770              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    27:       0.4446000              0.4781480              0.0000000
-  
                       Basis "ao basis" -> "ao basis" (spherical)
                       -----
   O (Oxygen)
@@ -420,8 +255,7 @@
   1 S  1.32700000E+01  0.448719
   1 S  5.02500000E+00  0.270952
   1 S  1.01300000E+00  0.015458
-  1 S  3.02300000E-01 -0.002585
- 
+
   2 S  1.17200000E+04 -0.000160
   2 S  1.75900000E+03 -0.001263
   2 S  4.00800000E+02 -0.006267
@@ -430,25 +264,23 @@
   2 S  1.32700000E+01 -0.165411
   2 S  5.02500000E+00 -0.116955
   2 S  1.01300000E+00  0.557368
-  2 S  3.02300000E-01  0.572759
- 
+
   3 S  3.02300000E-01  1.000000
- 
+
   4 S  7.89600000E-02  1.000000
- 
+
   5 P  1.77000000E+01  0.043018
   5 P  3.85400000E+00  0.228913
   5 P  1.04600000E+00  0.508728
-  5 P  2.75300000E-01  0.460531
- 
+
   6 P  2.75300000E-01  1.000000
- 
+
   7 P  6.85600000E-02  1.000000
- 
+
   8 D  1.18500000E+00  1.000000
- 
+
   9 D  3.32000000E-01  1.000000
- 
+
   H (Hydrogen)
   ------------
             Exponent  Coefficients 
@@ -456,16 +288,15 @@
   1 S  1.30100000E+01  0.019685
   1 S  1.96200000E+00  0.137977
   1 S  4.44600000E-01  0.478148
-  1 S  1.22000000E-01  0.501240
- 
+
   2 S  1.22000000E-01  1.000000
- 
+
   3 S  2.97400000E-02  1.000000
- 
+
   4 P  7.27000000E-01  1.000000
- 
+
   5 P  1.41000000E-01  1.000000
- 
+
 
 
  Summary of "ao basis" -> "ao basis" (spherical)
@@ -483,53 +314,53 @@
             Exponent  Coefficients 
        -------------- ---------------------------------------------------------
   1 S  2.56600000E+03  1.000000
- 
+
   2 S  5.70000000E+02  1.000000
- 
+
   3 S  1.63000000E+02  1.000000
- 
+
   4 S  4.65000000E+01  1.000000
- 
+
   5 S  1.70000000E+01  1.000000
- 
+
   6 P  1.70000000E+01  1.000000
- 
+
   7 S  3.80000000E+00  1.000000
- 
+
   8 P  3.80000000E+00  1.000000
- 
+
   9 S  1.08000000E+00  1.000000
- 
+
  10 P  1.08000000E+00  1.000000
- 
+
  11 S  3.10000000E-01  1.000000
- 
+
  12 P  3.10000000E-01  1.000000
- 
+
  13 D  1.70000000E+01  1.000000
- 
+
  14 D  3.80000000E+00  1.000000
- 
+
  15 D  1.08000000E+00  1.000000
- 
+
  16 D  3.10000000E-01  1.000000
- 
+
   H (Hydrogen)
   ------------
             Exponent  Coefficients 
        -------------- ---------------------------------------------------------
   1 S  4.50000000E+01  1.000000
- 
+
   2 S  7.50000000E+00  1.000000
- 
+
   3 S  3.00000000E-01  1.000000
- 
+
   4 S  1.50000000E+00  1.000000
- 
+
   5 P  1.50000000E+00  1.000000
- 
+
   6 D  1.50000000E+00  1.000000
- 
+
 
 
  Summary of "cd basis" -> "cd basis" (cartesian)
@@ -542,7 +373,7 @@
 
   int_init: cando_txs set to always be  F
   Caching 1-el integrals 
- 
+
             General Information
             -------------------
           SCF calculation type: DFT
@@ -564,14 +395,14 @@
           Convergence on energy requested: 1.00D-06
           Convergence on density requested: 1.00D-05
           Convergence on gradient requested: 5.00D-04
- 
+
               XC Information
               --------------
                      Hartree-Fock (Exact) Exchange  1.000          
                    CAM-Becke88 Exchange Functional  1.000          
                       VWN V Correlation Functional  0.190 local    
               Lee-Yang-Parr Correlation Functional  0.810          
- 
+
              Grid Information
              ----------------
           Grid used for XC integration:  medium    
@@ -584,7 +415,7 @@
           Grid pruning is: on 
           Number of quadrature shells:    94
           Spatial weights used:  Erf1
- 
+
           Convergence Information
           -----------------------
           Convergence aids based upon iterative change in 
@@ -599,7 +430,7 @@
           dE  on:    start            ASAP                start   
           dE off:    2 iters        100 iters           100 iters 
 
- 
+
       Screening Tolerance Information
       -------------------------------
           Density screening/tol_rho: 1.00D-10
@@ -608,238 +439,236 @@
           XC Gaussian exp screening on grid/accXCfunc:  20
           Schwarz screening/accCoul: 1.00D-08
 
- 
+
       Superposition of Atomic Density Guess
       -------------------------------------
- 
- Sum of atomic energies:         -75.76548412
- 
+
+ Sum of atomic energies:         -75.76548395
+
       Non-variational initial energy
       ------------------------------
 
- Total energy =     -75.929555
+ Total energy =     -75.929554
  1-e energy   =    -121.647436
- 2-e energy   =      36.525786
+ 2-e energy   =      36.525787
  HOMO         =      -0.482989
  LUMO         =       0.012026
- 
- 
+
+
       Symmetry analysis of molecular orbitals - initial
       -------------------------------------------------
- 
+
   Numbering of irreducible representations: 
- 
+
      1 a1          2 a2          3 b1          4 b2      
- 
+
   Orbital symmetries:
- 
+
      1 a1          2 a1          3 b1          4 a1          5 b2      
      6 a1          7 b1          8 a1          9 b2         10 a1      
     11 b1         12 b1         13 a1         14 a2         15 a1      
- 
-   Time after variat. SCF:      0.2
- 
+
+   Time after variat. SCF:      0.1
+
       3 Center 2 Electron Integral Information
       ----------------------------------------
           Maximum number of 3-center 2e- integrals is:          117670.
-            This is reduced with Schwarz screening to:           63140.
-            Incore requires a per proc buffer size of:           70666.
-                  The minimum integral buffer size is:            8750
-          Minimum dble words available (all nodes) is:        26213320
-                   This is reduced (for later use) to:        25994502
-                             Suggested buffer size is:           70666
+            This is reduced with Schwarz screening to:           69790.
+            Incore requires a per proc buffer size of:           35544.
+                  The minimum integral buffer size is:            3500
+          Minimum dble words available (all nodes) is:        32766928
+                   This is reduced (for later use) to:        32553995
+                             Suggested buffer size is:           35544
 
           Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:      0.2
+   Time prior to 1st pass:      0.1
 
- Grid_pts file          = ./h2o-camb3lyp-pol-cdfit.gridpts.0
+ Grid_pts file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/h2o-camb3lyp-pol-cdfit.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =    183419
+ Max. records in memory =      5        Max. recs in file   =    111154
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       13.00            12995725
-          Stack Space remaining (MW):       13.11            13106843
+           Heap Space remaining (MW):       16.32            16321689
+          Stack Space remaining (MW):       16.38            16383643
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -76.3785817143 -8.56D+01  2.68D-02  3.56D-01     0.5
- d= 0,ls=0.0,diis     2    -76.3799014824 -1.32D-03  1.28D-02  4.12D-01     0.7
- d= 0,ls=0.0,diis     3    -76.4159113733 -3.60D-02  1.52D-03  5.59D-03     1.0
- d= 0,ls=0.0,diis     4    -76.4164275867 -5.16D-04  2.61D-04  8.63D-05     1.2
- d= 0,ls=0.0,diis     5    -76.4164369105 -9.32D-06  4.48D-05  1.01D-06     1.5
- d= 0,ls=0.0,diis     6    -76.4164371593 -2.49D-07  5.85D-06  9.19D-09     1.7
+ d= 0,ls=0.0,diis     1    -76.3785817573 -8.56D+01  1.55D-02  3.56D-01     0.2
+ d= 0,ls=0.0,diis     2    -76.3799015259 -1.32D-03  5.93D-03  4.12D-01     0.3
+ d= 0,ls=0.0,diis     3    -76.4159113711 -3.60D-02  7.61D-04  5.59D-03     0.4
+ d= 0,ls=0.0,diis     4    -76.4164275866 -5.16D-04  1.32D-04  8.63D-05     0.5
+ d= 0,ls=0.0,diis     5    -76.4164369104 -9.32D-06  3.18D-05  1.01D-06     0.6
+ d= 0,ls=0.0,diis     6    -76.4164371592 -2.49D-07  4.30D-06  9.19D-09     0.7
 
 
-         Total DFT energy =      -76.416437159305
-      One electron energy =     -122.944921633795
-           Coulomb energy =       46.631669002297
-    Exchange-Corr. energy =       -9.295279196463
+         Total DFT energy =      -76.416437159206
+      One electron energy =     -122.944921634233
+           Coulomb energy =       46.631669002905
+    Exchange-Corr. energy =       -9.295279196534
  Nuclear repulsion energy =        9.192094668657
 
- Numeric. integr. density =        9.999999201650
+ Numeric. integr. density =        9.999999201566
 
-     Total iterative time =      1.5s
+     Total iterative time =      0.6s
 
 
- 
+
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
- 
+
  Vector    1  Occ=2.000000D+00  E=-1.923171D+01  Symmetry=a1
-              MO Center= -4.9D-18,  6.8D-21,  1.2D-01, r^2= 1.5D-02
+              MO Center=  3.1D-17,  2.5D-20,  1.2D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     1      1.003942  1 O  s          
- 
+     1     -1.004443  1 O  s          
+
  Vector    2  Occ=2.000000D+00  E=-1.103200D+00  Symmetry=a1
-              MO Center=  3.4D-16,  1.7D-17, -8.0D-02, r^2= 5.0D-01
+              MO Center=  1.4D-17, -6.9D-33, -8.0D-02, r^2= 5.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     2      0.879831  1 O  s                 24      0.368983  2 H  s          
-    33      0.368983  3 H  s                 34     -0.203786  3 H  s          
-    25     -0.203786  2 H  s                  7     -0.160911  1 O  pz         
-     3     -0.159553  1 O  s          
- 
+     2      0.447689  1 O  s                  3      0.344389  1 O  s          
+    24      0.216827  2 H  s                 33      0.216827  3 H  s          
+
  Vector    3  Occ=2.000000D+00  E=-6.089556D-01  Symmetry=b1
-              MO Center=  2.9D-16, -1.1D-16, -9.4D-02, r^2= 7.7D-01
+              MO Center= -2.8D-17, -7.7D-17, -9.4D-02, r^2= 7.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.754473  1 O  px                24      0.614838  2 H  s          
-    33     -0.614838  3 H  s                  8     -0.203744  1 O  px         
-    25     -0.164427  2 H  s                 34      0.164427  3 H  s          
- 
+     5     -0.517810  1 O  px                24     -0.361300  2 H  s          
+    33      0.361300  3 H  s          
+
  Vector    4  Occ=2.000000D+00  E=-4.674400D-01  Symmetry=a1
-              MO Center=  4.1D-16, -5.3D-17,  1.8D-01, r^2= 7.4D-01
+              MO Center=  3.7D-16, -1.0D-16,  1.8D-01, r^2= 7.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7     -0.808295  1 O  pz                24      0.352315  2 H  s          
-    33      0.352315  3 H  s                  2     -0.323348  1 O  s          
- 
+     7     -0.554749  1 O  pz                 3     -0.330383  1 O  s          
+    10     -0.293387  1 O  pz                33      0.207032  3 H  s          
+    24      0.207032  2 H  s                  2     -0.164531  1 O  s          
+
  Vector    5  Occ=2.000000D+00  E=-3.914636D-01  Symmetry=b2
-              MO Center= -1.3D-17, -3.3D-16,  7.2D-02, r^2= 7.2D-01
+              MO Center= -1.0D-16, -1.0D-17,  7.2D-02, r^2= 7.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.924114  1 O  py         
- 
+     6      0.634239  1 O  py                 9      0.416324  1 O  py         
+
  Vector    6  Occ=0.000000D+00  E= 3.535451D-03  Symmetry=a1
-              MO Center= -1.2D-14,  6.3D-16, -7.7D-01, r^2= 8.9D+00
+              MO Center=  1.5D-15, -7.3D-17, -7.7D-01, r^2= 8.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4     -0.896585  1 O  s                 35      0.670299  3 H  s          
-    26      0.670299  2 H  s                 34      0.305964  3 H  s          
-    25      0.305964  2 H  s                  2     -0.196869  1 O  s          
-     7      0.162073  1 O  pz         
- 
+     4      0.896585  1 O  s                 35     -0.670299  3 H  s          
+    26     -0.670299  2 H  s                 34     -0.338220  3 H  s          
+    25     -0.338220  2 H  s                  3      0.245404  1 O  s          
+
  Vector    7  Occ=0.000000D+00  E= 4.056555D-02  Symmetry=b1
-              MO Center=  1.6D-14, -1.5D-30, -7.7D-01, r^2= 1.4D+01
+              MO Center=  8.0D-15, -1.1D-17, -7.7D-01, r^2= 1.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      2.702501  2 H  s                 35     -2.702501  3 H  s          
-    11     -0.653870  1 O  px                25      0.470243  2 H  s          
-    34     -0.470243  3 H  s                  5     -0.172068  1 O  px         
- 
+    26     -2.702501  2 H  s                 35      2.702501  3 H  s          
+    11      0.653870  1 O  px                25     -0.474823  2 H  s          
+    34      0.474823  3 H  s                  8      0.152076  1 O  px         
+
  Vector    8  Occ=0.000000D+00  E= 1.292567D-01  Symmetry=a1
-              MO Center= -5.5D-15, -4.6D-17,  2.2D-01, r^2= 9.1D+00
+              MO Center= -5.3D-15,  5.8D-18,  2.2D-01, r^2= 9.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      3.836508  1 O  s                 13     -1.595596  1 O  pz         
-    34     -1.430898  3 H  s                 25     -1.430898  2 H  s          
+    34     -1.413307  3 H  s                 25     -1.413307  2 H  s          
     35     -0.777246  3 H  s                 26     -0.777246  2 H  s          
-     3      0.385536  1 O  s                  7      0.343720  1 O  pz         
     39     -0.331507  3 H  px                30      0.331507  2 H  px         
- 
+     3      0.264135  1 O  s                  7      0.235902  1 O  pz         
+
  Vector    9  Occ=0.000000D+00  E= 1.514705D-01  Symmetry=b2
-              MO Center=  2.4D-16, -1.7D-15,  3.2D-01, r^2= 6.2D+00
+              MO Center=  7.2D-16, -1.6D-16,  3.2D-01, r^2= 6.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.359367  1 O  py                 6     -0.326455  1 O  py         
-    40     -0.215591  3 H  py                31     -0.215591  2 H  py         
- 
+    12      1.359367  1 O  py                 9     -0.258213  1 O  py         
+     6     -0.224053  1 O  py                40     -0.215591  3 H  py         
+    31     -0.215591  2 H  py         
+
  Vector   10  Occ=0.000000D+00  E= 1.650329D-01  Symmetry=a1
-              MO Center=  5.3D-16, -5.5D-17, -7.9D-02, r^2= 7.5D+00
+              MO Center= -2.8D-17, -6.1D-17, -7.9D-02, r^2= 7.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4     -1.657366  1 O  s                 13     -0.859461  1 O  pz         
-    26      0.592892  2 H  s                 35      0.592892  3 H  s          
-     2      0.367199  1 O  s                 32      0.347245  2 H  pz         
-    41      0.347245  3 H  pz                39      0.325176  3 H  px         
-    30     -0.325176  2 H  px                33     -0.151049  3 H  s          
- 
+    35      0.592892  3 H  s                 26      0.592892  2 H  s          
+    32      0.347245  2 H  pz                41      0.347245  3 H  pz         
+    39      0.325176  3 H  px                30     -0.325176  2 H  px         
+     2      0.186844  1 O  s                  3      0.180128  1 O  s          
+
  Vector   11  Occ=0.000000D+00  E= 1.856770D-01  Symmetry=b1
-              MO Center= -1.9D-14, -4.8D-17, -4.3D-01, r^2= 1.0D+01
+              MO Center= -1.3D-15,  2.2D-31, -4.3D-01, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    35     -2.810052  3 H  s                 26      2.810052  2 H  s          
-    11     -2.410504  1 O  px                25      1.757033  2 H  s          
-    34     -1.757033  3 H  s                 39     -0.592017  3 H  px         
-    30     -0.592017  2 H  px                32      0.566085  2 H  pz         
-    41     -0.566085  3 H  pz                 5      0.427498  1 O  px         
- 
+    26      2.810052  2 H  s                 35     -2.810052  3 H  s          
+    11     -2.410504  1 O  px                34     -1.751251  3 H  s          
+    25      1.751251  2 H  s                 39     -0.592017  3 H  px         
+    30     -0.592017  2 H  px                41     -0.566085  3 H  pz         
+    32      0.566085  2 H  pz                 5      0.293401  1 O  px         
+
  Vector   12  Occ=0.000000D+00  E= 2.153652D-01  Symmetry=b1
-              MO Center=  1.3D-14, -4.9D-17,  2.0D-01, r^2= 4.9D+00
+              MO Center=  1.6D-15, -8.8D-17,  2.0D-01, r^2= 4.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.911011  1 O  px                25     -1.656257  2 H  s          
-    34      1.656257  3 H  s                 26     -0.665785  2 H  s          
-    35      0.665785  3 H  s                 24     -0.336243  2 H  s          
-    33      0.336243  3 H  s                  5      0.256191  1 O  px         
-    41     -0.224686  3 H  pz                32      0.224686  2 H  pz         
- 
+    11     -1.911011  1 O  px                25      1.824795  2 H  s          
+    34     -1.824795  3 H  s                 26      0.665785  2 H  s          
+    35     -0.665785  3 H  s                  8     -0.333135  1 O  px         
+    41      0.224686  3 H  pz                32     -0.224686  2 H  pz         
+    24      0.197588  2 H  s                 33     -0.197588  3 H  s          
+
  Vector   13  Occ=0.000000D+00  E= 2.634543D-01  Symmetry=a1
-              MO Center=  1.5D-15,  1.4D-15, -1.6D-01, r^2= 4.7D+00
+              MO Center=  6.0D-15,  1.9D-17, -1.6D-01, r^2= 4.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4     -4.578425  1 O  s                 34      2.201579  3 H  s          
-    25      2.201579  2 H  s                 13      0.595951  1 O  pz         
-    41      0.491879  3 H  pz                32      0.491879  2 H  pz         
-    35      0.337238  3 H  s                 26      0.337238  2 H  s          
-    30      0.312719  2 H  px                39     -0.312719  3 H  px         
- 
+     4     -4.578425  1 O  s                 25      2.324006  2 H  s          
+    34      2.324006  3 H  s                 13      0.595951  1 O  pz         
+    32      0.491879  2 H  pz                41      0.491879  3 H  pz         
+    26      0.337238  2 H  s                 35      0.337238  3 H  s          
+    39     -0.312719  3 H  px                30      0.312719  2 H  px         
+
  Vector   14  Occ=0.000000D+00  E= 3.169157D-01  Symmetry=a2
-              MO Center= -2.2D-16, -1.8D-17, -5.1D-01, r^2= 3.9D+00
+              MO Center= -5.6D-16, -7.8D-18, -5.1D-01, r^2= 3.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     31     -1.115168  2 H  py                40      1.115168  3 H  py         
- 
+
  Vector   15  Occ=0.000000D+00  E= 3.311903D-01  Symmetry=a1
-              MO Center=  3.9D-15,  1.2D-16, -1.4D-01, r^2= 4.9D+00
+              MO Center= -2.3D-15, -2.3D-16, -1.4D-01, r^2= 4.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      4.588133  1 O  s                 34     -2.295906  3 H  s          
-    25     -2.295906  2 H  s                 13     -1.910841  1 O  pz         
-    32      0.650824  2 H  pz                41      0.650824  3 H  pz         
-    10     -0.575813  1 O  pz                39     -0.390785  3 H  px         
-    30      0.390785  2 H  px                35     -0.341296  3 H  s          
- 
+     4     -4.588133  1 O  s                 34      2.369384  3 H  s          
+    25      2.369384  2 H  s                 13      1.910841  1 O  pz         
+    10      0.721442  1 O  pz                32     -0.650824  2 H  pz         
+    41     -0.650824  3 H  pz                39      0.390785  3 H  px         
+    30     -0.390785  2 H  px                35      0.341296  3 H  s          
+
  Vector   16  Occ=0.000000D+00  E= 3.608310D-01  Symmetry=b2
-              MO Center= -1.1D-16, -2.3D-16, -3.8D-01, r^2= 4.2D+00
+              MO Center= -3.9D-16,  3.0D-16, -3.8D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12     -1.228822  1 O  py                31      1.181506  2 H  py         
-    40      1.181506  3 H  py                 9     -0.488500  1 O  py         
-     6     -0.250150  1 O  py         
- 
+    12     -1.228822  1 O  py                40      1.181506  3 H  py         
+    31      1.181506  2 H  py                 9     -0.603702  1 O  py         
+     6     -0.171683  1 O  py         
+
  Vector   17  Occ=0.000000D+00  E= 4.758345D-01  Symmetry=b1
-              MO Center= -1.2D-14, -9.4D-17, -3.9D-01, r^2= 5.3D+00
+              MO Center= -2.3D-14, -2.0D-17, -3.9D-01, r^2= 5.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      2.189657  1 O  px                30     -2.075227  2 H  px         
-    39     -2.075227  3 H  px                41      1.161522  3 H  pz         
-    32     -1.161522  2 H  pz                35      0.950601  3 H  s          
-    26     -0.950601  2 H  s                 25      0.852984  2 H  s          
-    34     -0.852984  3 H  s                  5      0.171705  1 O  px         
- 
+    11     -2.189657  1 O  px                30      2.075227  2 H  px         
+    39      2.075227  3 H  px                41     -1.161522  3 H  pz         
+    32      1.161522  2 H  pz                35     -0.950601  3 H  s          
+    26      0.950601  2 H  s                 25     -0.862531  2 H  s          
+    34      0.862531  3 H  s                  8     -0.221933  1 O  px         
+
  Vector   18  Occ=0.000000D+00  E= 5.486542D-01  Symmetry=a1
-              MO Center= -7.1D-13,  1.7D-16, -6.1D-01, r^2= 4.8D+00
+              MO Center= -1.1D-12, -5.4D-17, -6.1D-01, r^2= 4.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4     -5.389798  1 O  s                 34      2.846391  3 H  s          
-    25      2.846391  2 H  s                  3     -2.469029  1 O  s          
-    39      1.304271  3 H  px                30     -1.304271  2 H  px         
-    41      1.152267  3 H  pz                32      1.152267  2 H  pz         
-    35      0.575861  3 H  s                 26      0.575861  2 H  s          
- 
+     4      5.389798  1 O  s                 34     -3.021325  3 H  s          
+    25     -3.021325  2 H  s                  3      2.566399  1 O  s          
+    39     -1.304271  3 H  px                30      1.304271  2 H  px         
+    41     -1.152267  3 H  pz                32     -1.152267  2 H  pz         
+    35     -0.575861  3 H  s                 26     -0.575861  2 H  s          
+
 
  center of mass
  --------------
@@ -850,213 +679,45 @@
            2.197735387303           0.000000000000           0.000000000000
            0.000000000000           6.322357589609           0.000000000000
            0.000000000000           0.000000000000           4.124622202307
- 
+
      Multipole analysis of the density
      ---------------------------------
- 
+
      L   x y z        total         alpha         beta         nuclear
      -   - - -        -----         -----         ----         -------
      0   0 0 0      0.000000     -5.000000     -5.000000     10.000000
- 
+
      1   1 0 0      0.000000      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000      0.000000
      1   0 0 1     -0.744885     -0.372443     -0.372443      0.000000
- 
+
      2   2 0 0     -3.378710     -3.735654     -3.735654      4.092598
      2   1 1 0      0.000000      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000      0.000000
      2   0 2 0     -5.816386     -2.908193     -2.908193      0.000000
      2   0 1 1      0.000000      0.000000      0.000000      0.000000
      2   0 0 2     -4.842069     -3.403225     -3.403225      1.964381
- 
 
- Task  times  cpu:        1.7s     wall:        2.0s
- 
- 
+
+ Task  times  cpu:        0.7s     wall:        0.8s
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
+
+
                               NWChem Property Module
                               ----------------------
- 
- 
- 
+
+
+
                                  NWChem DFT Module
                                  -----------------
- 
- 
 
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   176:   11720.0000000              0.0007100             -0.0001600              0.0000000
-  
 
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   177:    1759.0000000              0.0054700             -0.0012630              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   178:     400.8000000              0.0278370             -0.0062670              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   179:     113.7000000              0.1048000             -0.0257160              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   180:      37.0300000              0.2830620             -0.0709240              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   181:      13.2700000              0.4487190             -0.165411
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   176:   11720.0000000              0.0007100             -0.0001600              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   177:    1759.0000000              0.0054700             -0.0012630              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   178:     400.8000000              0.0278370             -0.0062670              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   179:     113.7000000              0.1048000             -0.0257160              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   182:       5.0250000              0.2709520             -0.1169550              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   183:       1.0130000              0.0154580              0.5573680              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   188:      17.7000000              0.0430180              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   189:       3.8540000              0.2289130              0.00              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   180:      37.0300000              0.2830620             -0.0709240              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   181:      13.2700000              0.4487190             -0.1654110              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   182:       5.0250000              0.2709520             -0.1169550              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   183:       1.0130000              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   190:       1.0460000              0.5087280              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    25:      13.0100000              0.0196850              0.0000000
-  
-154580              0.5573680              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   188:      17.7000000              0.0430180              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   189:       3.8540000              0.2289130              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   190:       1.0460000              0.5087280              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    26:       1.9620000              0.1379770              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    27:       0.4446000              0.4781480              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    25:      13.0100000              0.0196850              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    26:       1.9620000              0.1379770              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    27:       0.4446000              0.4781480              0.0000000
-  
   int_init: cando_txs set to always be  F
   Caching 1-el integrals 
- 
+
             General Information
             -------------------
           SCF calculation type: DFT
@@ -1078,14 +739,14 @@
           Convergence on energy requested: 1.00D-06
           Convergence on density requested: 1.00D-05
           Convergence on gradient requested: 5.00D-04
- 
+
               XC Information
               --------------
                      Hartree-Fock (Exact) Exchange  1.000          
                    CAM-Becke88 Exchange Functional  1.000          
                       VWN V Correlation Functional  0.190 local    
               Lee-Yang-Parr Correlation Functional  0.810          
- 
+
              Grid Information
              ----------------
           Grid used for XC integration:  medium    
@@ -1098,7 +759,7 @@
           Grid pruning is: on 
           Number of quadrature shells:   139
           Spatial weights used:  Erf1
- 
+
           Convergence Information
           -----------------------
           Convergence aids based upon iterative change in 
@@ -1113,7 +774,7 @@
           dE  on:    start            ASAP                start   
           dE off:    2 iters        100 iters           100 iters 
 
- 
+
       Screening Tolerance Information
       -------------------------------
           Density screening/tol_rho: 1.00D-10
@@ -1127,205 +788,203 @@
 
 
 
-   Time after variat. SCF:      1.7
- 
+   Time after variat. SCF:      0.7
+
       3 Center 2 Electron Integral Information
       ----------------------------------------
           Maximum number of 3-center 2e- integrals is:          117670.
-            This is reduced with Schwarz screening to:           63140.
-            Incore requires a per proc buffer size of:           70666.
-                  The minimum integral buffer size is:            8750
-          Minimum dble words available (all nodes) is:        26213320
-                   This is reduced (for later use) to:        25919854
-                             Suggested buffer size is:           70666
+            This is reduced with Schwarz screening to:           69790.
+            Incore requires a per proc buffer size of:           35544.
+                  The minimum integral buffer size is:            3500
+          Minimum dble words available (all nodes) is:        32766928
+                   This is reduced (for later use) to:        32479347
+                             Suggested buffer size is:           35544
 
           Incore memory use for 3-center 2e- integrals is turned off. 
-   Time prior to 1st pass:      1.7
+   Time prior to 1st pass:      0.7
 
- Grid_pts file          = ./h2o-camb3lyp-pol-cdfit.gridpts.0
+ Grid_pts file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/h2o-camb3lyp-pol-cdfit.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      9        Max. recs in file   =    183419
+ Max. records in memory =      5        Max. recs in file   =    111154
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       13.00            12995725
-          Stack Space remaining (MW):       13.11            13106843
+           Heap Space remaining (MW):       16.32            16321689
+          Stack Space remaining (MW):       16.38            16383643
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -76.4164371632 -8.56D+01  4.93D-07  1.57D-10     2.2
- d= 0,ls=0.0,diis     2    -76.4164371633 -6.03D-11  2.25D-07  4.45D-11     2.7
+ d= 0,ls=0.0,diis     1    -76.4164371631 -8.56D+01  3.46D-07  1.57D-10     0.9
+ d= 0,ls=0.0,diis     2    -76.4164371632 -6.02D-11  1.19D-07  4.45D-11     1.1
 
 
-         Total DFT energy =      -76.416437163303
-      One electron energy =     -122.944822035092
-           Coulomb energy =       46.631552853860
-    Exchange-Corr. energy =       -9.295262650727
+         Total DFT energy =      -76.416437163204
+      One electron energy =     -122.944822036008
+           Coulomb energy =       46.631552854994
+    Exchange-Corr. energy =       -9.295262650847
  Nuclear repulsion energy =        9.192094668657
 
- Numeric. integr. density =        9.999999201591
+ Numeric. integr. density =        9.999999201507
 
-     Total iterative time =      1.0s
+     Total iterative time =      0.4s
 
 
- 
+
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
- 
+
  Vector    1  Occ=2.000000D+00  E=-1.923171D+01
-              MO Center= -3.3D-17, -1.1D-18,  1.2D-01, r^2= 1.5D-02
+              MO Center= -1.2D-16, -3.4D-20,  1.2D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     1      1.003942  1 O  s          
- 
+     1     -1.004443  1 O  s          
+
  Vector    2  Occ=2.000000D+00  E=-1.103200D+00
-              MO Center= -8.6D-14,  1.6D-15, -8.0D-02, r^2= 5.0D-01
+              MO Center=  7.4D-15,  2.4D-17, -8.0D-02, r^2= 5.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     2     -0.879830  1 O  s                 33     -0.368984  3 H  s          
-    24     -0.368984  2 H  s                 34      0.203786  3 H  s          
-    25      0.203786  2 H  s                  7      0.160912  1 O  pz         
-     3      0.159554  1 O  s          
- 
+     2      0.447689  1 O  s                  3      0.344388  1 O  s          
+    24      0.216828  2 H  s                 33      0.216828  3 H  s          
+
  Vector    3  Occ=2.000000D+00  E=-6.089562D-01
-              MO Center=  9.2D-14,  2.1D-16, -9.4D-02, r^2= 7.7D-01
+              MO Center=  1.2D-13, -4.0D-17, -9.4D-02, r^2= 7.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5     -0.754472  1 O  px                24     -0.614839  2 H  s          
-    33      0.614839  3 H  s                  8      0.203744  1 O  px         
-    25      0.164426  2 H  s                 34     -0.164426  3 H  s          
- 
+     5     -0.517810  1 O  px                24     -0.361300  2 H  s          
+    33      0.361300  3 H  s          
+
  Vector    4  Occ=2.000000D+00  E=-4.674409D-01
-              MO Center= -2.9D-14,  5.2D-15,  1.8D-01, r^2= 7.4D-01
+              MO Center=  3.9D-14, -7.8D-17,  1.8D-01, r^2= 7.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      0.808298  1 O  pz                33     -0.352313  3 H  s          
-    24     -0.352313  2 H  s                  2      0.323346  1 O  s          
- 
+     7      0.554752  1 O  pz                 3      0.330381  1 O  s          
+    10      0.293387  1 O  pz                33     -0.207031  3 H  s          
+    24     -0.207031  2 H  s                  2      0.164530  1 O  s          
+
  Vector    5  Occ=2.000000D+00  E=-3.914637D-01
-              MO Center= -2.2D-14, -2.9D-15,  7.2D-02, r^2= 7.2D-01
+              MO Center=  2.4D-14,  5.6D-17,  7.2D-02, r^2= 7.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.924113  1 O  py         
- 
+     6     -0.634238  1 O  py                 9     -0.416323  1 O  py         
+
  Vector    6  Occ=0.000000D+00  E= 3.535354D-03
-              MO Center= -2.0D-13, -4.8D-15, -7.7D-01, r^2= 8.9D+00
+              MO Center=  1.4D-12,  1.2D-16, -7.7D-01, r^2= 8.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4     -0.896575  1 O  s                 26      0.670297  2 H  s          
-    35      0.670297  3 H  s                 25      0.305959  2 H  s          
-    34      0.305959  3 H  s                  2     -0.196872  1 O  s          
-     7      0.162070  1 O  pz         
- 
+     4     -0.896574  1 O  s                 26      0.670297  2 H  s          
+    35      0.670297  3 H  s                 25      0.338217  2 H  s          
+    34      0.338217  3 H  s                  3     -0.245405  1 O  s          
+
  Vector    7  Occ=0.000000D+00  E= 4.056574D-02
-              MO Center=  9.4D-13, -8.7D-16, -7.7D-01, r^2= 1.4D+01
+              MO Center= -1.5D-12, -2.6D-16, -7.7D-01, r^2= 1.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      2.702496  2 H  s                 35     -2.702496  3 H  s          
-    11     -0.653867  1 O  px                25      0.470241  2 H  s          
-    34     -0.470241  3 H  s                  5     -0.172068  1 O  px         
- 
+    35      2.702496  3 H  s                 26     -2.702496  2 H  s          
+    11      0.653867  1 O  px                34      0.474820  3 H  s          
+    25     -0.474820  2 H  s                  8      0.152076  1 O  px         
+
  Vector    8  Occ=0.000000D+00  E= 1.292565D-01
-              MO Center= -2.4D-13, -1.6D-16,  2.2D-01, r^2= 9.1D+00
+              MO Center=  9.1D-13,  2.1D-15,  2.2D-01, r^2= 9.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4     -3.836517  1 O  s                 13      1.595586  1 O  pz         
-    25      1.430895  2 H  s                 34      1.430895  3 H  s          
+    25      1.413303  2 H  s                 34      1.413303  3 H  s          
     26      0.777253  2 H  s                 35      0.777253  3 H  s          
-     3     -0.385535  1 O  s                  7     -0.343717  1 O  pz         
     30     -0.331509  2 H  px                39      0.331509  3 H  px         
- 
+     3     -0.264133  1 O  s                  7     -0.235900  1 O  pz         
+
  Vector    9  Occ=0.000000D+00  E= 1.514707D-01
-              MO Center= -7.2D-14, -4.1D-15,  3.2D-01, r^2= 6.2D+00
+              MO Center=  9.0D-14, -4.2D-15,  3.2D-01, r^2= 6.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.359367  1 O  py                 6     -0.326457  1 O  py         
-    31     -0.215590  2 H  py                40     -0.215590  3 H  py         
- 
+    12      1.359367  1 O  py                 9     -0.258215  1 O  py         
+     6     -0.224054  1 O  py                40     -0.215590  3 H  py         
+    31     -0.215590  2 H  py         
+
  Vector   10  Occ=0.000000D+00  E= 1.650333D-01
-              MO Center= -3.3D-13,  1.4D-16, -7.9D-02, r^2= 7.5D+00
+              MO Center=  1.9D-12, -2.6D-17, -7.9D-02, r^2= 7.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4     -1.657304  1 O  s                 13     -0.859480  1 O  pz         
-    35      0.592884  3 H  s                 26      0.592884  2 H  s          
-     2      0.367198  1 O  s                 32      0.347242  2 H  pz         
-    41      0.347242  3 H  pz                30     -0.325175  2 H  px         
-    39      0.325175  3 H  px                33     -0.151051  3 H  s          
- 
+    26      0.592884  2 H  s                 35      0.592884  3 H  s          
+    32      0.347242  2 H  pz                41      0.347242  3 H  pz         
+    30     -0.325175  2 H  px                39      0.325175  3 H  px         
+     2      0.186844  1 O  s                  3      0.180132  1 O  s          
+
  Vector   11  Occ=0.000000D+00  E= 1.856771D-01
-              MO Center= -9.5D-14, -2.1D-15, -4.3D-01, r^2= 1.0D+01
+              MO Center= -2.6D-12,  5.2D-16, -4.3D-01, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26     -2.810048  2 H  s                 35      2.810048  3 H  s          
-    11      2.410481  1 O  px                25     -1.757014  2 H  s          
-    34      1.757014  3 H  s                 30      0.592019  2 H  px         
-    39      0.592019  3 H  px                32     -0.566089  2 H  pz         
-    41      0.566089  3 H  pz                 5     -0.427501  1 O  px         
- 
+    35      2.810048  3 H  s                 26     -2.810048  2 H  s          
+    11      2.410481  1 O  px                34      1.751230  3 H  s          
+    25     -1.751230  2 H  s                 39      0.592019  3 H  px         
+    30      0.592019  2 H  px                41      0.566089  3 H  pz         
+    32     -0.566089  2 H  pz                 5     -0.293403  1 O  px         
+
  Vector   12  Occ=0.000000D+00  E= 2.153651D-01
-              MO Center=  3.1D-13,  2.8D-16,  2.0D-01, r^2= 4.9D+00
+              MO Center=  3.5D-13,  8.9D-17,  2.0D-01, r^2= 4.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.911040  1 O  px                25     -1.656284  2 H  s          
-    34      1.656284  3 H  s                 35      0.665819  3 H  s          
-    26     -0.665819  2 H  s                 24     -0.336243  2 H  s          
-    33      0.336243  3 H  s                  5      0.256186  1 O  px         
-    41     -0.224680  3 H  pz                32      0.224680  2 H  pz         
- 
+    11     -1.911040  1 O  px                25      1.824822  2 H  s          
+    34     -1.824822  3 H  s                 26      0.665819  2 H  s          
+    35     -0.665819  3 H  s                  8     -0.333136  1 O  px         
+    41      0.224680  3 H  pz                32     -0.224680  2 H  pz         
+    24      0.197588  2 H  s                 33     -0.197588  3 H  s          
+
  Vector   13  Occ=0.000000D+00  E= 2.634541D-01
-              MO Center= -2.3D-13,  4.9D-15, -1.6D-01, r^2= 4.7D+00
+              MO Center= -2.0D-13,  6.1D-16, -1.6D-01, r^2= 4.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4     -4.578418  1 O  s                 34      2.201569  3 H  s          
-    25      2.201569  2 H  s                 13      0.595941  1 O  pz         
-    41      0.491881  3 H  pz                32      0.491881  2 H  pz         
-    35      0.337240  3 H  s                 26      0.337240  2 H  s          
+     4     -4.578418  1 O  s                 25      2.323996  2 H  s          
+    34      2.323996  3 H  s                 13      0.595941  1 O  pz         
+    32      0.491881  2 H  pz                41      0.491881  3 H  pz         
+    26      0.337240  2 H  s                 35      0.337240  3 H  s          
     39     -0.312719  3 H  px                30      0.312719  2 H  px         
- 
+
  Vector   14  Occ=0.000000D+00  E= 3.169152D-01
-              MO Center= -4.4D-13,  9.1D-16, -5.1D-01, r^2= 3.9D+00
+              MO Center=  7.5D-13, -1.1D-15, -5.1D-01, r^2= 3.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    40      1.115168  3 H  py                31     -1.115168  2 H  py         
- 
+    31     -1.115168  2 H  py                40      1.115168  3 H  py         
+
  Vector   15  Occ=0.000000D+00  E= 3.311899D-01
-              MO Center= -2.2D-13,  2.4D-15, -1.4D-01, r^2= 4.9D+00
+              MO Center= -3.0D-13,  2.0D-15, -1.4D-01, r^2= 4.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      4.588157  1 O  s                 25     -2.295916  2 H  s          
-    34     -2.295916  3 H  s                 13     -1.910845  1 O  pz         
-    41      0.650820  3 H  pz                32      0.650820  2 H  pz         
-    10     -0.575815  1 O  pz                30      0.390787  2 H  px         
-    39     -0.390787  3 H  px                35     -0.341299  3 H  s          
- 
+     4     -4.588157  1 O  s                 25      2.369394  2 H  s          
+    34      2.369394  3 H  s                 13      1.910845  1 O  pz         
+    10      0.721443  1 O  pz                41     -0.650820  3 H  pz         
+    32     -0.650820  2 H  pz                30     -0.390787  2 H  px         
+    39      0.390787  3 H  px                35      0.341299  3 H  s          
+
  Vector   16  Occ=0.000000D+00  E= 3.608306D-01
-              MO Center=  5.2D-13, -3.0D-16, -3.8D-01, r^2= 4.2D+00
+              MO Center= -8.5D-13, -6.1D-16, -3.8D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.228823  1 O  py                31     -1.181506  2 H  py         
-    40     -1.181506  3 H  py                 9      0.488501  1 O  py         
-     6      0.250152  1 O  py         
- 
+    12     -1.228823  1 O  py                40      1.181506  3 H  py         
+    31      1.181506  2 H  py                 9     -0.603703  1 O  py         
+     6     -0.171684  1 O  py         
+
  Vector   17  Occ=0.000000D+00  E= 4.758342D-01
-              MO Center=  1.9D-13, -1.9D-16, -3.9D-01, r^2= 5.3D+00
+              MO Center= -3.8D-13, -1.9D-17, -3.9D-01, r^2= 5.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11     -2.189652  1 O  px                39      2.075236  3 H  px         
-    30      2.075236  2 H  px                32      1.161517  2 H  pz         
-    41     -1.161517  3 H  pz                35     -0.950598  3 H  s          
-    26      0.950598  2 H  s                 25     -0.853005  2 H  s          
-    34      0.853005  3 H  s                  5     -0.171704  1 O  px         
- 
+    11     -2.189652  1 O  px                30      2.075236  2 H  px         
+    39      2.075236  3 H  px                41     -1.161517  3 H  pz         
+    32      1.161517  2 H  pz                35     -0.950598  3 H  s          
+    26      0.950598  2 H  s                 25     -0.862552  2 H  s          
+    34      0.862552  3 H  s                  8     -0.221929  1 O  px         
+
  Vector   18  Occ=0.000000D+00  E= 5.486539D-01
-              MO Center= -4.4D-13, -1.3D-16, -6.1D-01, r^2= 4.8D+00
+              MO Center=  1.4D-11,  2.0D-17, -6.1D-01, r^2= 4.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      5.389789  1 O  s                 34     -2.846385  3 H  s          
-    25     -2.846385  2 H  s                  3      2.469027  1 O  s          
-    39     -1.304270  3 H  px                30      1.304270  2 H  px         
-    41     -1.152268  3 H  pz                32     -1.152268  2 H  pz         
-    35     -0.575861  3 H  s                 26     -0.575861  2 H  s          
- 
+     4     -5.389789  1 O  s                 25      3.021319  2 H  s          
+    34      3.021319  3 H  s                  3     -2.566397  1 O  s          
+    30     -1.304270  2 H  px                39      1.304270  3 H  px         
+    32      1.152268  2 H  pz                41      1.152268  3 H  pz         
+    26      0.575861  2 H  s                 35      0.575861  3 H  s          
+
 
  center of mass
  --------------
@@ -1336,193 +995,25 @@
            2.197735387303           0.000000000000           0.000000000000
            0.000000000000           6.322357589609           0.000000000000
            0.000000000000           0.000000000000           4.124622202307
- 
+
      Multipole analysis of the density
      ---------------------------------
- 
+
      L   x y z        total         alpha         beta         nuclear
      -   - - -        -----         -----         ----         -------
      0   0 0 0      0.000000     -5.000000     -5.000000     10.000000
- 
+
      1   1 0 0      0.000000      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000      0.000000
      1   0 0 1     -0.744892     -0.372446     -0.372446      0.000000
- 
+
      2   2 0 0     -3.378707     -3.735652     -3.735652      4.092598
      2   1 1 0      0.000000      0.000000      0.000000      0.000000
      2   1 0 1      0.000000      0.000000      0.000000      0.000000
      2   0 2 0     -5.816398     -2.908199     -2.908199      0.000000
      2   0 1 1      0.000000      0.000000      0.000000      0.000000
      2   0 0 2     -4.842052     -3.403216     -3.403216      1.964381
- 
 
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   176:   11720.0000000              0.0007100             -0.0001600              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   177:    1759.0000000              0.0054700             -0.0012630              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   178:     400.8000000              0.0278370             -0.0062670              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   179:     113.7000000              0.1048000             -0.0257160              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   180:      37.0300000              0.2830620             -0.0709240              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   181:      13.2700000              0.4487190             -0.1654110              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   182:       5.0250000              0.2709520             -0.1169550              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   183:       1.0130000              0.0154580              0.5573680              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   176:   11720.0000000              0.0007100             -0.0001600              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   177:    1759.0000000              0.0054700             -0.0012630              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   178:     400.8000000              0.0278370             -0.0062670              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   179:     113.7000000              0.1048000             -0.025716
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   188:      17.7000000              0.0430180              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   189:       3.8540000              0.2289130              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   190:       1.0460000              0.5087280              0.0000000
-  
-0              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   180:      37.0300000              0.2830620             -0.0709240              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   181:      13.2700000              0.4487190             -0.1654110              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   182:       5.0250000              0.2709520             -0.1169550              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   183:       1.0130000              0.0154580              0.5573680              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   188:      17.7000000              0.0430180              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   189:       3.8540000              0.2289130              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   190:       1.0460000              0.5087280              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    25:      13.0100000              0.0196850              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    26:       1.9620000              0.1379770              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    27:       0.4446000              0.4781480              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    25:      13.0100000              0.0196850              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    26:       1.9620000              0.1379770              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    27:       0.4446000              0.4781480              0.0000000
-  
  Entering AOResponse driver routine
 
           ----------
@@ -1543,7 +1034,7 @@
  frequency in a.u.:  0.0000000E+00
  Perturbing field: electric
  Using Dipole Length Gauge
- 
+
  Performing order   1 CPKS
    with frequency omega =   0.0000000E+00 a.u.
 
@@ -1551,179 +1042,10 @@
 
                                 NWChem CPHF Module
                                 ------------------
- 
- 
 
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   176:   11720.0000000              0.0007100             -0.0001600              0.0000000
-  
 
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   177:    1759.0000000              0.0054700             -0.0012630              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   178:     400.8000000              0.0278370             -0.0062670              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   179:     113.7000000              0.1048000             -0.0257160              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   180:      37.0300000              0.2830620             -0.0709240              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   181:      13.2700000              0.4487190             -0.165
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   176:   11720.0000000              0.0007100             -0.0001600              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   177:    1759.0000000              0.0054700             -0.0012630              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   178:     400.8000000              0.0278370             -0.0062670              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   179:     113.7000000              0.1048000             -0.0257164110              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   182:       5.0250000              0.2709520             -0.1169550              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   183:       1.0130000              0.0154580              0.5573680              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   188:      17.7000000              0.0430180              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   189:       3.8540000              0.2289130              0              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   180:      37.0300000              0.2830620             -0.0709240              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   181:      13.2700000              0.4487190             -0.1654110              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   182:       5.0250000              0.2709520             -0.1169550              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   183:       1.0130000              0.00.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   190:       1.0460000              0.5087280              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    25:      13.0100000              0.0196850              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    26:       1.9620000              0.1379770              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    27:       0.4446000              0.4781480              0.0000000
-  
-154580              0.5573680              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   188:      17.7000000              0.0430180              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   189:       3.8540000              0.2289130              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               O"
- angular momentum value: 1  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-   190:       1.0460000              0.5087280              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    25:      13.0100000              0.0196850              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    26:       1.9620000              0.1379770              0.0000000
-  
-
- **** WARNING Zero Coefficient **** on atom "               H"
- angular momentum value: 0  standard basis set name: "aug-cc-pvdz"
- input line that generated warning:
-    27:       0.4446000              0.4781480              0.0000000
-  
- cphf_solve2.F: bases                   567                   567
+ cphf_solve2.F: bases                  567                  567
   int_init: cando_txs set to always be  F
- cphf_solve2.F: bases                   567                   567
   scftype          =     RHF 
   nclosed          =        5
   nopen            =        0
@@ -1734,7 +1056,10 @@
   max iterations   =       50
   max subspace     =       30
 
-  WARNING: SCF residual =   6.029391540530629E-003
+ FA-1: Before ev. Fock matrices ...
+ FA-2: ENTER ev. ROHF-Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+  WARNING: SCF residual =   6.029391616303140E-003
 
 
 Iterative solution of linear equations
@@ -1743,18 +1068,18 @@ Iterative solution of linear equations
   Maximum subspace       30
         Iterations       50
        Convergence  1.0D-04
-        Start time      3.8
+        Start time      1.5
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      3    1.37D+00       4.9
-     2      6    1.32D+00       6.0
-     3      9    1.59D-01       7.1
-     4     12    2.00D-02       8.2
-     5     15    1.41D-03       9.3
-     6     18    1.37D-04      10.5
-     7     21    1.37D-05      11.6
+     1      3    1.37D+00       2.0
+     2      6    1.32D+00       2.5
+     3      9    1.59D-01       3.1
+     4     12    2.00D-02       3.6
+     5     15    1.41D-03       4.1
+     6     18    1.37D-04       4.6
+     7     21    1.37D-05       5.2
   int_init: cando_txs set to always be  F
  NOTE: because of omega=0 the electric-magnetic response
        is printed as G`, NOT the beta tensor
@@ -1767,20 +1092,23 @@ Iterative solution of linear equations
 
  DFT Linear Response polarizability / au 
  Frequency  =       0.0000000 / au
- Wavelength =  Infinity       / nm
+ Wavelength =       +Infinity / nm
               X              Y              Z
  -----------------------------------------------
- X       9.8976491      0.0000000      0.0000000
- Y       0.0000000      8.7311762      0.0000000
+ X       9.8976486      0.0000000      0.0000000
+ Y       0.0000000      8.7311764      0.0000000
  Z       0.0000000      0.0000000      9.1335740
  -----------------------------------------------
- Eigenvalues =       9.8976491      8.7311762      9.1335740
- Isotropic   =       9.2541331
- Anisotropic =       1.0262538
+ Eigenvalues =       9.8976486      8.7311764      9.1335740
+ Isotropic   =       9.2541330
+ Anisotropic =       1.0262532
  -----------------------------------------------
- 
- average:    9.25413308031486       + I   0.000000000000000E+000
- 
+ cphf_solve2.F: bases                  567                  567
+ cphf_solve2.F: bases                  567                  567
+ cphf_solve2.F: bases                  567                  567
+
+ average:    9.25413299220620       + I    0.00000000000000     
+
  Magnetic Dipole Response Matrix (nonzero elements):
  Optical rotation tensor Beta
 
@@ -1788,8 +1116,8 @@ Iterative solution of linear equations
     1    0.0000   0.0000   0.0000
     2    0.0000   0.0000   0.0000
     3    0.0000   0.0000   0.0000
- average:  -1.451504065606662E-028  + I   0.000000000000000E+000
- 
+ average:  -1.051814540294682E-029  + I    0.00000000000000     
+
  Exiting AOResponse driver routine
 
           -------------
@@ -1800,29 +1128,23 @@ Iterative solution of linear equations
  Center of mass (in au) is the expansion point
          X =       0.0000000 Y =       0.0000000 Z =       0.0976012
 
-   Dipole moment        0.7448923630 A.U.
+   Dipole moment        0.7448923634 A.U.
              DMX        0.0000000000 DMXEFC        0.0000000000
              DMY        0.0000000000 DMYEFC        0.0000000000
-             DMZ       -0.7448923630 DMZEFC        0.0000000000
+             DMZ       -0.7448923634 DMZEFC        0.0000000000
    -EFC- dipole         0.0000000000 A.U.
-   Total dipole         0.7448923630 A.U.
+   Total dipole         0.7448923634 A.U.
 
-   Dipole moment        1.8933418435 Debye(s)
+   Dipole moment        1.8933418445 Debye(s)
              DMX        0.0000000000 DMXEFC        0.0000000000
              DMY        0.0000000000 DMYEFC        0.0000000000
-             DMZ       -1.8933418435 DMZEFC        0.0000000000
+             DMZ       -1.8933418445 DMZEFC        0.0000000000
    -EFC- dipole         0.0000000000 DEBYE(S)
-   Total dipole         1.8933418435 DEBYE(S)
+   Total dipole         1.8933418445 DEBYE(S)
 
  1 a.u. = 2.541766 Debyes 
 
- Task  times  cpu:        9.2s     wall:        9.6s
- 
- 
-                                NWChem Input Module
-                                -------------------
- 
- 
+ Task  times  cpu:        4.3s     wall:        4.4s
  Summary of allocated global arrays
 -----------------------------------
   array 0 => double precision DFT CPKS RHS(1,41,41),  handle: -980 
@@ -1833,12 +1155,11 @@ Iterative solution of linear equations
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  510      509     2.55e+05 8750     1.14e+05   90        0        0     
-number of processes/call 1.09e+00 1.43e+00 1.10e+00 1.24e+00 0.00e+00
-bytes total:             7.46e+07 6.37e+06 3.66e+07 5.92e+05 0.00e+00 0.00e+00
-bytes remote:            3.58e+07 1.35e+06 2.09e+07 -1.38e+05 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 484128 bytes
- 
+calls:  592      591     1.24e+05 5836     5.50e+04   90        0     1432     
+number of processes/call 1.21e+00 2.15e+00 1.21e+00 2.19e+00 0.00e+00
+bytes total:             3.72e+07 3.62e+06 1.73e+07 1.76e+05 0.00e+00 1.15e+04
+bytes remote:            2.85e+07 1.65e+06 1.41e+07 -1.48e+05 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 180344 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -1849,49 +1170,45 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        26	        54
 	current total bytes		         0	         0
-	maximum total bytes		    891808	  22511264
-	maximum total K-bytes		       892	     22512
+	maximum total bytes		    498496	  22511264
+	maximum total K-bytes		       499	     22512
 	maximum total M-bytes		         1	        23
 
 
+                                NWChem Input Module
+                                -------------------
 
-                                  ACKNOWLEDGEMENT
-                                  ---------------
 
-            Please use the following acknowledgement where appropriate 
-            for results obtained with NWChem:
 
-            High Performance Computational Chemistry Group, "NWChem, A
-            Computational Chemistry Package for Parallel Computers, 
-            Version 5.1.1" (2008), Pacific Northwest National Laboratory,
-            Richland, Washington 99352-0999, USA.
 
 
                                      CITATION
                                      --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
 
-          Please use the following citation when publishing results
-          obtained with NWChem:
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
 
-          E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
-          M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond, J. Autschbach,
-          P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan, R. J. Harrison,
-          M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
-          A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. Wu, T. Van Voorhis,
-          A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, 
-          G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza,
-          K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman
-          K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark,
-          D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening
-          M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi,
-          R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima,
-          S. Niu, L. Pollack, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
-          G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
-          "NWChem, A Computational Chemistry Package for Parallel Computers, 
-          Version 5.1.1" (2008),
-                      Pacific Northwest National Laboratory,
-                      Richland, Washington 99352-0999, USA.
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
+      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
-
-
- Total times  cpu:       10.9s     wall:       11.6s
+ Total times  cpu:        5.0s     wall:        5.2s

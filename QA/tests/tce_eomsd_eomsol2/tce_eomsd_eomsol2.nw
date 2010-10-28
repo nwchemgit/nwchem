@@ -1,0 +1,45 @@
+title "tce_eomccsd_eomsol2"
+echo
+start tce_eomccsd_eomsol2
+
+geometry units angstrom
+N            .034130    -.986909     .000000
+N          -1.173397     .981920     .000000
+C          -1.218805    -.408164     .000000
+C           -.007302    1.702153     .000000
+C           1.196200    1.107045     .000000
+C           1.289085    -.345905     .000000
+O           2.310232    -.996874     .000000
+O          -2.257041   -1.026495     .000000
+H            .049329   -1.997961     .000000
+H          -2.070598    1.437050     .000000
+H           -.125651    2.776484     .000000
+H           2.111671    1.674079     .000000
+end
+
+basis 
+* library 6-31G
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+freeze atomic
+creomsd(t)
+eomsol 2
+diis 5
+tilesize 15
+thresh 1.0d-5
+2eorb
+2emet 13
+nroots 1
+end
+
+task tce energy
+
+

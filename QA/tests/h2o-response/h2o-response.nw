@@ -1,0 +1,31 @@
+echo
+start h2o-response
+
+memory global 40 mb stack 23 mb heap 5 mb
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+dft
+ xc b3lyp
+end
+
+set cphf:thresh 1.0d-6
+set cphf:acc 1.0d-16
+set cphf:maxiter 60
+property
+ dipole
+ aoresponse  1 .0911267060
+ velocity
+ damping 0.007
+end
+
+task dft property

@@ -1,4 +1,5 @@
 echo
+start ch3f
 title ch3f
 
 geometry
@@ -10,7 +11,7 @@ h -0.514 -0.890 -0.350
 end
 
 basis
-* library 6-311++G** 
+* library 6-311G
 end
 
 charge 0
@@ -31,6 +32,12 @@ task scf property
 
 dft
  xc b3lyp
+end
+
+task dft property
+
+dft
+ xc becke88 perdew86
 end
 
 task dft property

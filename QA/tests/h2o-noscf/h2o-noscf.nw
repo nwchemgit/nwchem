@@ -1,0 +1,23 @@
+echo
+start h2o
+
+geometry units angstrom
+O      0.00000000     0.00000000     0.11726921
+H      0.75698224     0.00000000    -0.46907685
+H     -0.75698224     0.00000000    -0.46907685
+end
+
+basis spherical
+  * library aug-cc-pvdz
+end
+
+dft
+  xc hfexch  
+end
+task dft energy
+
+dft
+  xc b3lyp
+  noscf  
+end
+task dft energy
