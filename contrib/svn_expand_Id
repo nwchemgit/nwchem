@@ -1,0 +1,51 @@
+#!/bin/bash
+#
+# $Id$
+#
+# SVN_EXPAND_ID
+# =============
+#
+# CVS and SVN both have the capability to insert useful information on checkin
+# by expanding keywords. Of interest here is the "Id" keyword which adds 
+# information like the name of the file, the revision number, the date and time
+# of the checkin, and the user account the file was checked in from.
+#
+# The big difference between CVS and SVN is that CVS always expands certain
+# keywords, but SVN does not expand any keywords unless you specify that it
+# should. The latter is specified by setting the property svn:keywords to 
+# the specific keywords you want it to expand. This needs to be specified for
+# every file separately. This also implies that every time a file is added to
+# the code that has the Id keyword in it this property must be set explicitly
+# for that file. As this is likely to be forgotten it seemed opportune to 
+# provide this script. 
+#
+# The obvious assumption here is that setting a property to the same value as
+# before will not result in change and hence the file will not be checked in on
+# a following commit. So every time this script is run only new files or files
+# which have newly acquired the Id keyword will be modified and checked in.
+#
+# To address all files within NWChem this script has to be run in the
+# directory indicated by the NWCHEM_TOP environment variable. I.e. it finds 
+# files only in the directory from where it is run and all sub-directories.
+#
+# The find command is build up as follows:
+#
+# -- ! -name "*.svn-base"
+#
+#    Find only those files with names that do not end in "svn-base". Files with
+#    names ending in "svn-base" are copies of the source code that live in .svn
+#    directories and are therefore part of the SVN data. Hence they should not
+#    be messed with as that would likely result in errors.
+#
+# -- -exec grep "Id:" {} \;
+#
+#    Find only those files that contain the string "Id:" as the keyword of 
+#    interest has no effect on any other files.
+#
+# -- -exec svn propset svn:keywords "Id" {} \;
+#
+#    Set the keyword property to "Id" so SVN will subsequently expand that 
+#    keyword. More information on these keywords can be found at
+#    http://svnbook.red-bean.com/ .
+#
+find . ! -name "*.svn-base" -exec grep "Id:" {} \; -exec svn propset svn:keywords "Id" {} \; -print
