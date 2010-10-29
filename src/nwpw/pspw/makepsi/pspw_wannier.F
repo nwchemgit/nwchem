@@ -461,6 +461,8 @@ c     *** Silvestrelli G3 ***
 
         if (oprint) then
           write(6,1381)
+          write(15,*) ne(ms)
+          write(15,*)
           do i=1,ne(ms)
             shift=i-1
             shift=shift*ne(ms)+shift
@@ -477,12 +479,16 @@ c     *** Silvestrelli G3 ***
             dx=dx+xx
             dy=dy+yy
             dz=dz+zz
-            if (ms.eq.1)
-     >        write(6,1390) i,xx,yy,zz
+            if (ms.eq.1) then
+              write(6,1390) i,xx,yy,zz
+              write(15,*) "H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
+            end if
 
 
-            if (ms.eq.2)
-     >        write(6,1391) i+ne(1),xx,yy,zz
+            if (ms.eq.2) then
+              write(6,1391) i+ne(1),xx,yy,zz
+              write(15,*) "H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
+            end if
           end do
           if (ispin.eq.1) then
              dx=dx*2.0d0
