@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.7 2008-10-03 03:49:02 jhammond Exp $
+#$Id$
 
 #ifndef CCSDTQ
 #OBJ_OPTIMIZE = \
