@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.4 2007-09-14 18:50:52 kowalski Exp $
+#$Id$
 
 OBJ_OPTIMIZE = ccsd_lambda1_1.o ccsd_lambda1_2.o ccsd_lambda2.o ccsd_density1.o ccsd_lambda1_mod.o
 

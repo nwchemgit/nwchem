@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.3 2005-12-20 21:19:40 edo Exp $
+#$Id$
 
 OBJ_OPTIMIZE = ccsdt_e.o ccsdt_t1.o ccsdt_t2.o ccsdt_t3.o \
                ccsdt_t1a.o ccsdt_t2a.o ccsdt_t3a.o \

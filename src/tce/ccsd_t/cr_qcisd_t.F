@@ -7,7 +7,7 @@ c     6                      e_trip_c,    ! < R_0[ V_N T_1 ] + R_0[ V_N T_2 ] | 
 c     7                      e_trip_u)    ! < R_0[ V_N T_1 ] + R_0[ V_N T_2 ] | M_2 * T_1 + M_1 * C_2 >
 c                                         ! where C_2 = T_2 + (1/2) * T_1^2
 c
-c     $Id: cr_qcisd_t.F,v 1.1 2008-09-30 18:55:19 jhammond Exp $
+c     $Id$
 c
       IMPLICIT NONE
 #include "global.fh"

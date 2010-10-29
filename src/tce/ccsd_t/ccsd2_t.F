@@ -3,7 +3,7 @@
      2                   d_y1,k_y1_offset,d_y2,k_y2_offset,
      3                   d_e,k_e_offset,energy,size_t1)
 C
-C     $Id: ccsd2_t.F,v 1.3 2008-07-17 21:48:07 marat Exp $
+C     $Id$
 C
       IMPLICIT NONE
 #include "global.fh"

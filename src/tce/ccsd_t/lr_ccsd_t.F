@@ -3,7 +3,7 @@
      2                     d_e,k_e_offset,energy1,energy2,
      3  energy3,energy4,energy5,energy6,size_t1)
 C
-C     $Id: lr_ccsd_t.F,v 1.4 2008-10-16 14:16:38 jhammond Exp $
+C     $Id$
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -415,7 +415,7 @@ c
 c
       subroutine tce_nu1(k_hole,d_t1,k_t1_offset)
 c
-c $Id: lr_ccsd_t.F,v 1.4 2008-10-16 14:16:38 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -493,7 +493,7 @@ c
 c
       subroutine tce_mu2(k_2hole,hole_p_1,d_t2,k_t2_offset)
 c
-c $Id: lr_ccsd_t.F,v 1.4 2008-10-16 14:16:38 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

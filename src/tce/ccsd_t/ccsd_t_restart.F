@@ -3,7 +3,7 @@
      2                               d_v2,k_v2_offset,
      3                               t_energy)
 C
-C     $Id: ccsd_t_restart.F,v 1.7 2008-10-31 03:20:02 jhammond Exp $
+C     $Id$
 C
       IMPLICIT NONE
 #include "global.fh"

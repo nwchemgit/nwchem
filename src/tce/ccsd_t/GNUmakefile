@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.11 2008-10-16 14:30:28 jhammond Exp $
+#$Id$
 
 OBJ          = cr_ccsd_t.o lr_ccsd_t.o
 

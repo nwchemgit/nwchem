@@ -1,7 +1,7 @@
       SUBROUTINE ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1            d_v2,k_v2_offset,energy1,energy2,size_t1)
 C
-C     $Id: ccsd_t.F,v 1.13 2008-10-14 04:17:17 jhammond Exp $
+C     $Id$
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -206,7 +206,7 @@ c --------------------------------------------------------------
       SUBROUTINE ccsd_t_vector(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                         d_v2,k_v2_offset,energy,size_t1)
 C
-C     $Id: ccsd_t.F,v 1.13 2008-10-14 04:17:17 jhammond Exp $
+C     $Id$
 C
       IMPLICIT NONE
 #include "global.fh"
@@ -454,7 +454,7 @@ c --------------------------------------------------------------
       SUBROUTINE ccsd_t_vector(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                         d_v2,k_v2_offset,energy.size_t1)
 C
-C     $Id: ccsd_t.F,v 1.13 2008-10-14 04:17:17 jhammond Exp $
+C     $Id$
 C
       IMPLICIT NONE
 #include "global.fh"

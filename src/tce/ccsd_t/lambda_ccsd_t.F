@@ -3,7 +3,7 @@
      2                  d_f1,k_f1_offset,d_v2,k_v2_offset,
      3                  energy1,energy2)
 C
-C     $Id: lambda_ccsd_t.F,v 1.2 2008-06-03 21:29:59 jhammond Exp $
+C     $Id$
 C
       IMPLICIT NONE
 #include "global.fh"
