@@ -1,5 +1,5 @@
       subroutine hnd_ddtxyz(xt,yt,zt,xs,ys,zs,ni,nj,aj)
-* $Id: hnd_ddtxyz.F,v 1.3 2004-07-21 16:24:33 bert Exp $
+* $Id$
       implicit none
 c
       double precision xt, yt, zt, xs, ys, zs, aj

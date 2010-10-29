@@ -1,6 +1,6 @@
       subroutine hf3PEabc(Pabc, E, R0, IJK,
      &    Nabc, La, Lb, Lc, Lg, Lg3, nint, lim_nint)
-c $Id: hf3PEabc.F,v 1.1 2003-10-17 22:18:22 carlfahl Exp $
+c $Id$
       implicit none
 #include "errquit.fh"
 c

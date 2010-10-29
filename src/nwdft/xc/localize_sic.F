@@ -1,6 +1,6 @@
       Subroutine localize_sic(g_movecs, noc, evals)
 c
-C$Id: localize_sic.F,v 1.8 2003-10-17 22:55:53 carlfahl Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

@@ -4,7 +4,7 @@ c     == scalar and spin-orbit components (x,y,z)
       subroutine zora_getv_so(rtdb, g_dens, g_zora_sf, g_zora_scale_sf,
      &            g_zora_so, g_zora_scale_so, nexc)
 c
-C$Id: zora_getv.F,v 1.3 2009-01-15 01:00:48 niri Exp $
+C$Id$
 c
       implicit none
 c

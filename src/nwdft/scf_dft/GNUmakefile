@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.63 2007-10-12 00:05:41 niri Exp $
+# $Id$
 #
 #      OBJ = dft_scf.o dft_s2_value.o dft_main0d.o
 #      OBJ_OPTIMIZE = \

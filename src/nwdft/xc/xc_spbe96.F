@@ -8,7 +8,7 @@
      &                    nq, ipol, Ec, qwght, ldew, ffunc)     
 #endif
 c
-c$Id: xc_spbe96.F,v 1.0 2009-08-14 15:54:00 swart Exp $
+c$Id$
 c
       Implicit none
 #include "dft2drv.fh"

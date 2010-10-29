@@ -3,7 +3,7 @@ c     General implementation of VWN functionals (continued)
 c
 c     BGJ (4/00)
 *
-* $Id: xc_vwn_b.fh,v 1.2 2002-02-17 23:57:51 sohirata Exp $
+* $Id$
 *
 c     Finish off the unrestricted case:
 c     Assemble the entire functional and its derivatives given the

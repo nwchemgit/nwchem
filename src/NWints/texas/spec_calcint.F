@@ -1,4 +1,4 @@
-* $Id: spec_calcint.F,v 1.2 2004-09-13 19:50:47 edo Exp $
+* $Id$
 c===================================================================
       subroutine calcint2(bl,inx, q4,use_q4,
      *                    lab1,lab2,lab3,lab4,fockmat,

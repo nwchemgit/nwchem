@@ -2,7 +2,7 @@
      &                   Bxyz,Bprims,Bcoef,NPB,
      &                   Cxyz,Cprims,Ccoef,NPC,
      &                   alpha,NABC)
-c $Id: hf1set3.F,v 1.1 1994-08-12 00:43:29 d3e129 Exp $
+c $Id$
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

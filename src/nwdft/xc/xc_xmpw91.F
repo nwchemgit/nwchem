@@ -7,7 +7,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_xmpw91.F,v 1.8 2006-06-02 18:39:05 edo Exp $
+C$Id$
 c
       implicit none
 c
@@ -159,7 +159,7 @@ c
      &     ldew)
 #endif
 c
-C$Id: xc_xmpw91.F,v 1.8 2006-06-02 18:39:05 edo Exp $
+C$Id$
 c
       implicit none
 c

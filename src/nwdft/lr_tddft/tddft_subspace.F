@@ -2,7 +2,7 @@
      1  g_prod_p,g_prod_m,g_buffer1,g_buffer2,d_trials,d_prod_p,
      2  d_prod_m,ntrials,tda,apb,amb,algorithm)
 c
-c $Id: tddft_subspace.F,v 1.7 2007-12-04 16:31:30 hvd Exp $
+c $Id$
 c
 c Form subspace representation of (A+B) and (A-B) matrices
 c using trial and product vectors.  The elements of (A+B)

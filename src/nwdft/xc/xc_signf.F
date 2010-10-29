@@ -2,7 +2,7 @@
      &                      xyz,xyzm,ctr_quad, rad_quad,
      &                       zprim,  acc_gauss,iatype_pt_chg)
 c
-C$Id: xc_signf.F,v 1.6 2003-10-17 22:55:53 carlfahl Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

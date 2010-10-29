@@ -1,5 +1,5 @@
       Subroutine getNxyz(lambda,ic,Nxyz)
-c $Id: getNxyz.F,v 1.2 2002-07-31 16:23:11 edo Exp $
+c $Id$
       implicit none
 
       integer lambda, ic, Nxyz(3)

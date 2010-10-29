@@ -1,5 +1,5 @@
       subroutine intp_1e1cpe(i_basis,ish,Ri,lscr,scr,lpe,Pe)
-c $Id: intp_1e1cpe.F,v 1.10 2003-10-17 22:53:42 carlfahl Exp $
+c $Id$
       implicit none
 #include "apiP.fh"
 #include "errquit.fh"

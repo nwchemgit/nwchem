@@ -13,7 +13,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,     l3d, triplet, 
      &     tau, ttau, kske, Mmat, Mmat2)
-C$Id: grid_quadvc.F,v 1.27 2008-02-01 22:27:45 niri Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "cdft.fh"

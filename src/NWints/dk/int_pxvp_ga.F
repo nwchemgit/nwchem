@@ -1,6 +1,6 @@
       subroutine int_pxvp_ga(ibas, g_x, g_y, g_z, oskel)
 *
-* $Id: int_pxvp_ga.F,v 1.3 2003-10-17 22:53:48 carlfahl Exp $
+* $Id$
 *
 c
 c     Gather pxVp integrals from int_1epxvpe on a shell by shell basis

@@ -1,4 +1,4 @@
-* $Id: transfor.F,v 1.1 2003-10-17 22:25:40 carlfahl Exp $
+* $Id$
 c===================================================================
       subroutine transfor(bl,nbls,ixint,
      *                    ityps,jtyps,ktyps,ltyps,

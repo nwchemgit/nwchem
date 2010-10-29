@@ -1,7 +1,7 @@
       subroutine build_maps(basis, cntoce, cntobfr, cetobfr, natoms, 
      &                      nshells)
 *
-* $Id: dft_utilmap.F,v 1.13 2005-02-11 07:27:42 edo Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

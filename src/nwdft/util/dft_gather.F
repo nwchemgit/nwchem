@@ -1,6 +1,6 @@
       Subroutine dft_gather(n,a,b,index,idiff)
 
-C$Id: dft_gather.F,v 1.2 1995-12-20 03:44:30 og845 Exp $
+C$Id$
       implicit none
       
       integer n

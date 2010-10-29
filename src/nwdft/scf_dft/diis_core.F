@@ -1,6 +1,6 @@
       subroutine diis_core(derr,pulay,
      &     mxhist,nhist,icall,ispin,ipol, g_diis,g_err)
-C$Id: diis_core.F,v 1.13 2003-04-02 23:08:25 edo Exp $
+C$Id$
       implicit none
 c
       integer mxhist

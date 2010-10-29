@@ -1,5 +1,5 @@
       subroutine xlmcoeff(lmax, d, normalize)
-* $Id: xlmcoeff.F,v 1.7 2007-10-15 23:39:11 bert Exp $
+* $Id$
 * 
 * Note that the routine assumes that d is dimensioned in a
 * very specific fashion that actually consumes twice as

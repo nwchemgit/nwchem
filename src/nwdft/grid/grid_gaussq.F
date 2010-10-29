@@ -1,6 +1,6 @@
         subroutine grid_gausslag(nn,x,realwt,idum)
 c
-c$Id: grid_gaussq.F,v 1.6 2000-04-11 10:08:38 hvd Exp $
+c$Id$
 c
 c
 c this subroutine calculates the Gauss-Laguerre points and weights for
@@ -19,7 +19,7 @@ c               int(0,inf) exp(x)x**(2-alf)f(x) x**alf exp(-x) dx.
 c          The real weights are thus a(i)*exp(x)*x**(2-alf) where a(i)
 c          are the original Gauss-Laguerre weights.
 c
-C$Id: grid_gaussq.F,v 1.6 2000-04-11 10:08:38 hvd Exp $
+C$Id$
       implicit none
 #include "cdft.fh"      
 #include "stdio.fh"      

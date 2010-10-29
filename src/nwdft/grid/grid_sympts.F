@@ -2,7 +2,7 @@
      ,     k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,mxang)
 c
-c$Id: grid_sympts.F,v 1.23 2004-02-10 17:33:02 edo Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

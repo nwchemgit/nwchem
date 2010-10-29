@@ -3,7 +3,7 @@
      &                       g_tmp, g_svecs, svals, diis, nodiis,
      .     g_diis,keeps,g_s12m,g_s12p,reset,nconstr, mult, mult_diis)
 c
-C$Id: diis_driver.F,v 1.32 2007-07-18 20:26:50 niri Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

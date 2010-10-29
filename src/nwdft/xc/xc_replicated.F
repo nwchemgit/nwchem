@@ -5,7 +5,7 @@ C#define OLD_GAAPI 1
       subroutine xc_rep_init(rtdb, geom, basis, g_dens,g_vxc,
      ,     nbf_ao,ipol,goforit,dograd)
 c
-C$Id: xc_replicated.F,v 1.34 2008-03-28 18:47:17 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"
@@ -265,7 +265,7 @@ c Destroy the ones that are allocated
 
       logical function xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,dograd)
 c
-C$Id: xc_replicated.F,v 1.34 2008-03-28 18:47:17 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

@@ -1,4 +1,4 @@
-* $Id: assemblx.f,v 1.13 2004-09-13 19:50:47 edo Exp $
+* $Id$
 c----------------------------------------------------------------
 c All routines of the type name_2 are used when 
 c          IROUTE=2

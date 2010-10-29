@@ -1,7 +1,7 @@
       Subroutine grid_neighb_list(x, xyzm,  nctrs_scr,
      ,     ictr,indx)
 c
-C$Id: grid_neighb.F,v 1.3 2001-04-26 22:29:58 edo Exp $
+C$Id$
 c
 c     xc_neighb_list removes point charges and centers far away
 c     from the current integration center.

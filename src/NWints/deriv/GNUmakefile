@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.19 2007-10-15 23:38:04 bert Exp $
+# $Id$
 
       OBJ_OPTIMIZE = hf1d.o      hf2d.o     hfd2oi.o \
                      hfderi.o    hfdkei.o   hfdnai.o \

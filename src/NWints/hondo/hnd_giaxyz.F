@@ -1,7 +1,7 @@
       subroutine hnd_giaxyz(gijkl,hijkl,gnkl,hnkl,fnkl,gnm,
      1                  ng,nmax,mmax,nimax,njmax,nkmax,nlmax)
 c
-c $Id: hnd_giaxyz.F,v 1.3 2007-10-15 23:37:24 bert Exp $
+c $Id$
 c
       implicit none 
 #include "nwc_const.fh"

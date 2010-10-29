@@ -1,5 +1,5 @@
       subroutine hfmkr_1(R,PQ,IJK,NAB,Lr,Lr3)
-c $Id: hfmkr_1.F,v 1.2 1994-09-22 13:35:00 d3e129 Exp $
+c $Id$
       implicit none
 c
       integer NAB, Lr, Lr3

@@ -1,7 +1,7 @@
       subroutine tddft_diagon(ntrials,tda,apb,apbvec,
      1  apbval,amb,ambvec,ambval)
 c
-c $Id: tddft_diagon.F,v 1.4 2003-10-17 22:58:29 carlfahl Exp $
+c $Id$
 c
 c Diagonalize the subspace representation of (A-B) and
 c (A-B)^(1/2)(A+B)(A-B)^(1/2) matrices and return the

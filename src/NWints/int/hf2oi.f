@@ -1,5 +1,5 @@
       Subroutine hf2oi(E,Sab,Nints,NPP,La,Lb,Li,canAB)
-c $Id: hf2oi.f,v 1.7 2002-07-13 21:16:54 edo Exp $
+c $Id$
 
       Implicit none
 

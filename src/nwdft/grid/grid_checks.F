@@ -1,7 +1,7 @@
       subroutine grid_checks(acc_in,iat,alphaa,lla,xa,
      ,     ibt,alphab,llb,xb)
 c
-c$Id: grid_checks.F,v 1.19 2004-09-01 22:30:29 edo Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

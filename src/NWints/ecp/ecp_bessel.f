@@ -1,4 +1,4 @@
-C $Id: ecp_bessel.f,v 1.2 1996-10-11 16:47:47 d3e129 Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_bessel (n,m,x,bessel,temp,ind,tol)

@@ -6,7 +6,7 @@
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult,lecut,ecut,diff_max)
 c
-c $Id: tddft_init.F,v 1.13 2004-10-27 21:18:42 edo Exp $
+c $Id$
 c
 c Set various parameters for TDDFT calculations, which are
 c passed as arguments to tddft_init.  Most are read from

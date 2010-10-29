@@ -5,7 +5,7 @@
      &    b3nai,b3nai_sz,nint,
      &    DryRun,Scr,lscr)
 c
-c $Id: hf3pot.F,v 1.5 2003-10-17 22:54:02 carlfahl Exp $
+c $Id$
 c
       implicit none
 c:: includes

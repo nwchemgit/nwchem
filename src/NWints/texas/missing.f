@@ -1,4 +1,4 @@
-c $Id: missing.f,v 1.2 1997-06-06 21:12:12 pg481 Exp $
+c $Id$
 *rak:      subroutine rohf
 *rak:      end
 *rak:      subroutine twocon

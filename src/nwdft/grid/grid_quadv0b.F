@@ -16,7 +16,7 @@
      &     tau, ttau, kske, Mmat, Mmat2,
      &     StericEnergy)
 c
-c$Id: grid_quadv0b.F,v 1.64 2008-02-01 22:27:45 niri Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"
@@ -327,7 +327,7 @@ c
      &                  ibf, docset, iniz, ifin, zprim,
      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
 c
-C$Id: grid_quadv0b.F,v 1.64 2008-02-01 22:27:45 niri Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"
@@ -467,7 +467,7 @@ c
       Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
      &     bas_cset_info, mcenters)
 c
-C$Id: grid_quadv0b.F,v 1.64 2008-02-01 22:27:45 niri Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

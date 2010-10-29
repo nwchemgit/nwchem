@@ -1,4 +1,4 @@
-* $Id: derivat.f,v 1.7 2005-02-23 00:58:23 edo Exp $
+* $Id$
 c===================================================================
 c This file contains all dintegral derivatives routines :
 c for nmr/giao integral derivatives

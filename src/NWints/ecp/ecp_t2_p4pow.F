@@ -1,4 +1,4 @@
-C $Id: ecp_t2_p4pow.F,v 1.1 2008-01-18 21:57:54 bert Exp $  
+C $Id$  
 ************************************************************************
 *                                                                      *
       subroutine ecp_t2_p4pow (n,m,k,alpha,beta,gamma,term,test,temp,

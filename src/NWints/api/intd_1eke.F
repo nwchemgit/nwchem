@@ -1,6 +1,6 @@
       subroutine intd_1eke(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lTa,Ta,idatom)
-c $Id: intd_1eke.F,v 1.7 2003-10-17 22:53:42 carlfahl Exp $
+c $Id$
 c
 c This routine has NOT been extensively tested. - TLW
 c

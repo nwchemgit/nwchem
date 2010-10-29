@@ -1,4 +1,4 @@
-* $Id: abcd.F,v 1.2 2003-04-22 16:43:14 edo Exp $                        
+* $Id$                        
       subroutine abcd_1(nbls1,lci,lcj, lcij,lckl,
      *                  indxij,indxkl,index, nij_uniqe,nkl_uniqe,
      *                  abcd,apb,rcpd,cpd,rapb,

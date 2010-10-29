@@ -1,4 +1,4 @@
-C$Id: ecp_init_c2s.F,v 1.1 2003-10-17 22:12:57 carlfahl Exp $
+C$Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_init_c2s (l_max,tco,lstart,ltr,inorm,itrans,

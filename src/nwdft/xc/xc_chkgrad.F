@@ -1,6 +1,6 @@
       logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F,v 1.38 2008-09-29 20:25:06 edo Exp $
+* $Id$
 *
       implicit none
 #include "cdft.fh"

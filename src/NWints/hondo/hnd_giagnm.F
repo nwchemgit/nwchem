@@ -1,6 +1,6 @@
       subroutine hnd_giagnm(gnm,ng,nmax,mmax,b00,b01,b10,c00,d00,f00)
 c
-c $Id: hnd_giagnm.F,v 1.2 2007-10-15 23:37:24 bert Exp $
+c $Id$
 c
       implicit double precision (a-h,o-z)
 #include "nwc_const.fh"

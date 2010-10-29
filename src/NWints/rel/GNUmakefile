@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.8 2007-05-15 02:34:42 niri Exp $
+# $Id$
 
 HEADERS = rel_consts.fh \
           rel_nwc.fh \

@@ -1,4 +1,4 @@
-C $Id: rel_oneld.F,v 1.5 2003-10-17 22:54:09 carlfahl Exp $
+C $Id$
 ************************************************************************
 c:tex-\subsection{rel\_oneld}
 c:tex-This routine generates the modified one-electron gradient integrals

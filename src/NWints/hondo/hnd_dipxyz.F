@@ -1,5 +1,5 @@
 c
-c $Id: hnd_dipxyz.F,v 1.1 2006-11-16 18:22:19 jochen Exp $
+c $Id$
 c
       subroutine hnd_dipxyz
       implicit none

@@ -1,6 +1,6 @@
       logical function tddft_energy(rtdb)
 c
-c $Id: tddft_energy.F,v 1.13 2008-12-06 23:10:14 niri Exp $
+c $Id$
 c 
 c Main routine for TDDFT excitation energy calculations.
 c

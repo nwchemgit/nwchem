@@ -1,7 +1,7 @@
       Subroutine grid_beckew(xyzw, xyz,  rq, p, ictr, nq,iscr,
      , ncenters_scr,indx)
 c
-C$Id: grid_beckew.F,v 1.7 2003-10-17 22:55:37 carlfahl Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

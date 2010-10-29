@@ -4,7 +4,7 @@
      .     ictr, nctrs_pruned, nq_orig,nq, 
      ,     lscreen)
 c
-C$Id: dftg_gridssw.F,v 1.14 2007-11-06 18:23:36 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

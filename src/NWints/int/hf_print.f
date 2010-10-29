@@ -1,5 +1,5 @@
       subroutine hf_print(msg,xyz,prims,coefs,npa,nca,la)
-c $Id: hf_print.f,v 1.3 1998-10-29 23:31:49 d3e129 Exp $
+c $Id$
       implicit none
 c
       character*(*) msg    ! info to print 

@@ -1,5 +1,5 @@
 c   
-c$Id: xc_xtpss03.F,v 1.6 2006-01-27 22:31:45 edo Exp $
+c$Id$
 c
 #include "dft2drv.fh"
 c    Tao,Perdew, Staroverov, Scuseria exchange functional 

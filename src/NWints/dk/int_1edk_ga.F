@@ -1,4 +1,4 @@
-c $Id: int_1edk_ga.F,v 1.29 2005-10-24 21:04:08 edo Exp $
+c $Id$
 c:tex-\subsection{int\_1edk\_ga}
 c:tex-This routine computes the Douglas-Kroll(-Hess) integrals for  
 c:tex-a given basis set and stores them in a global array. 

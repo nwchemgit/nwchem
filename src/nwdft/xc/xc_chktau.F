@@ -1,6 +1,6 @@
       logical function xc_chktau()
 C
-C $Id: xc_chktau.F,v 1.8 2009-01-27 01:01:02 niri Exp $ 
+C $Id$ 
 C
       implicit none
  

@@ -8,7 +8,7 @@
      &                    nq, ipol, Ec, qwght, ldew, ffunc)     
 #endif
 c
-c$Id: xc_perdew91.F,v 1.34 2003-02-20 01:24:36 pollack Exp $
+c$Id$
 c
       Implicit none
 #include "dft2drv.fh"

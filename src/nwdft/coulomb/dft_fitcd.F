@@ -4,7 +4,7 @@
      &                     natoms,
      &                     derfit,  Tvec, have_Tvec)
 *
-* $Id: dft_fitcd.F,v 1.41 2004-09-07 06:11:45 windus Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

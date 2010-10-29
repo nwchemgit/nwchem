@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.92 2008-10-23 02:25:00 niri Exp $
+# $Id$
 
 
 ifeq ($(USE_TEXAS),YEP)

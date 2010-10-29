@@ -1,6 +1,6 @@
       Subroutine grid_setang(rtdb)
 c
-c$Id: grid_setang.F,v 1.8 2003-10-17 22:55:37 carlfahl Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

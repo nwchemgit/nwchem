@@ -1,7 +1,7 @@
       Subroutine hf2mkr(Axyz,Bxyz,Cxyz,Dxyz,alpha_p,alpha_q,R0,IJK,
      &    Pxyz,Qxyz,PQ,ff,R,NPP,NPQ,Lr,Lr3)
 c
-c $Id: hf2mkr.F,v 1.2 2008-10-23 17:36:58 niri Exp $
+c $Id$
 
       implicit none
 #include "case.fh"

@@ -1,6 +1,6 @@
       subroutine int_init_pso(maxbuf,maxscr,basis,npt)
 c
-c $Id: hnd_init_pso.F,v 1.2 2005-07-05 19:31:41 bert Exp $
+c $Id$
 c
       implicit none
 c

@@ -1,4 +1,4 @@
-C $Id: ecp_cart_xpd.F,v 1.2 2004-07-22 16:31:41 edo Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_cart_xpd (n,n_n,n_all,X,Y,Z,xn,yn,zn,tmp,coef,

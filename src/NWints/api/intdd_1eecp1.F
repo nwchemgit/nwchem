@@ -1,6 +1,6 @@
       subroutine intdd_1eecp1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intdd_1eecp1.F,v 1.5 2003-10-21 23:22:24 edo Exp $
+C $Id$
       implicit none
 #include "stdio.fh"
 #include "errquit.fh"

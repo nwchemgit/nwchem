@@ -23,7 +23,7 @@ c     [b] Y. Zhao and D. G. Truhlar, J. Chem. Phys. 125, 194101 (2006).
 
 
 c   
-c$Id: xc_xvs98.F,v 1.1 2007/02/14 20:21:53 bert Exp $
+c$Id$
 c
       implicit none
 c

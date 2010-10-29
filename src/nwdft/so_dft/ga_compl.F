@@ -1,5 +1,5 @@
       subroutine edo_diag_compl(g_ar, g_ac, g_vr, g_vc, eval)
-c     $Id: ga_compl.F,v 1.3 2000-10-25 22:50:14 windus Exp $
+c     $Id$
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

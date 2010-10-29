@@ -1,4 +1,4 @@
-C $Id: ecp_t1_Q1pow.F,v 1.2 2003-10-17 22:53:51 carlfahl Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_t1_Q1pow (n,m,x,xt,gamma,term,test,Q,tol)

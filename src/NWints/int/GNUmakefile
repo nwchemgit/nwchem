@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.42 2008-10-23 01:20:21 niri Exp $
+# $Id$
 
     OBJ          = 
     OBJ_OPTIMIZE = hf3PEabc.o hf3mkr.o hf3pot.o \

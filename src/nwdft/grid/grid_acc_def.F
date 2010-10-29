@@ -1,6 +1,6 @@
       Subroutine grid_acc_def(rtdb)
 c
-c$Id: grid_acc_def.F,v 1.39 2005-04-12 22:53:52 edo Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

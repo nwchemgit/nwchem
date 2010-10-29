@@ -11,7 +11,7 @@
      &            do_hess, do_cpks_r, natoms, oactive,
      &            nactive, rdens_atom, cetobfr, tau, ttau, Mmat, Mmat2)
 c      
-c     $Id: dftg_gridv0a.F,v 1.34 2008-02-01 22:28:17 niri Exp $
+c     $Id$
 c     
       implicit none
 #include "errquit.fh"

@@ -2,7 +2,7 @@
      &                  NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,
      &                  MXD,inder1,Nder1,inder2,Nder2,inder3,Nder3,
      &                  canAB,canCD,canPQ)
-c $Id: hfderi.F,v 1.4 2007-02-19 18:17:39 edo Exp $
+c $Id$
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

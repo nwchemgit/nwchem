@@ -1,4 +1,4 @@
-c $Id: intso_1e.F,v 1.4 2003-10-17 22:53:43 carlfahl Exp $
+c $Id$
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{intso\_1e}

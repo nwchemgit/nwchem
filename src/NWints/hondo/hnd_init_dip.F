@@ -1,6 +1,6 @@
       subroutine int_init_dip(maxbuf,maxscr,basis)
 c
-c $Id: hnd_init_dip.F,v 1.1 2006-11-16 18:22:19 jochen Exp $
+c $Id$
 c
       implicit none
 c

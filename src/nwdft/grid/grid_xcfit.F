@@ -7,7 +7,7 @@
       implicit none
 #include "errquit.fh"
 c
-c$Id: grid_xcfit.F,v 1.8 2003-10-17 22:55:37 carlfahl Exp $
+c$Id$
 c
 #include "mafdecls.fh"
 #include "bas.fh"
@@ -157,7 +157,7 @@ c
      &                      iniz, ifin, ibf, zprim, nzprim, 
      .     docset, acc_gauss)
 c
-C$Id: grid_xcfit.F,v 1.8 2003-10-17 22:55:37 carlfahl Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

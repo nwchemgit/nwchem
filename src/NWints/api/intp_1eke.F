@@ -1,5 +1,5 @@
       subroutine intp_1eke(i_basis,ish,j_basis,jsh,R,lscr,scr,lke,Ke)
-c $Id: intp_1eke.F,v 1.11 2003-10-17 22:53:42 carlfahl Exp $
+c $Id$
       implicit none
 #include "nwc_const.fh"
 #include "errquit.fh"

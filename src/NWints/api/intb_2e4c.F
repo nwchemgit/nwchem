@@ -1,4 +1,4 @@
-*     $Id: intb_2e4c.F,v 1.27 2008-11-11 17:49:23 jhammond Exp $
+*     $Id$
 c:tex-
 c:tex-\subsection{intb\_2e4c}
 c:tex-This logical function returns the integrals and labels based on the

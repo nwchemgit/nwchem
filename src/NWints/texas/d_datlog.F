@@ -1,4 +1,4 @@
-c $Id: d_datlog.F,v 1.1 2003-10-17 22:23:20 carlfahl Exp $
+c $Id$
 C_______________________________________________________
 c OCT.,94 KW changed the order of D-orbitals to the consistent
 C one : xx xy xz yy yz zz

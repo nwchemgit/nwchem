@@ -1,4 +1,4 @@
-C $Id: ecp_t1_Q3int.F,v 1.1 2008-01-18 21:57:54 bert Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_t1_Q3int (n,m,x,a_sqrt,Q3,temp,ind,tol)

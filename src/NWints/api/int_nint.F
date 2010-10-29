@@ -1,4 +1,4 @@
-c $Id: int_nint.F,v 1.7 2003-10-17 22:53:42 carlfahl Exp $
+c $Id$
 *
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_nint}

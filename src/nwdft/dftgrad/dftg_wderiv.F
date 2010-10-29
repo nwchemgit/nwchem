@@ -2,7 +2,7 @@
      .     iandex, ncenters, func, 
      &                       d_qwght, force, oactive)
 *
-* $Id: dftg_wderiv.F,v 1.7 2000-07-18 01:13:20 edo Exp $
+* $Id$
 *
       Implicit none
 c

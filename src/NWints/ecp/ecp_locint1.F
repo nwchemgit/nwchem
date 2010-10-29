@@ -1,4 +1,4 @@
-C $Id: ecp_locint1.F,v 1.5 2008-01-18 21:57:55 bert Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_locint1 (p_min,p_max,l_max,n_prim_a,n_prim_b,

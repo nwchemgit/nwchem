@@ -1,4 +1,4 @@
-c $Id: intb_init4c.F,v 1.11 1999-07-14 00:28:40 d3e129 Exp $  
+c $Id$  
 *
 c:tex-\subsection{intb\_init4c}
 c:tex-This logical function sets up the blocking integral API based on the

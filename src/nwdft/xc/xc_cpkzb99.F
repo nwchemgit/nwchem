@@ -6,7 +6,7 @@
      
 
 c
-c$Id: xc_cpkzb99.F,v 1.10 2008-12-02 19:27:23 niri Exp $
+c$Id$
 c
 
 c     References:

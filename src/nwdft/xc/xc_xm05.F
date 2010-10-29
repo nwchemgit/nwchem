@@ -19,7 +19,7 @@ c     [b]       Zhao, Y.; Schultz, N. E.; Truhlar, D. G. J. Chem. Theory Comput.
 
 
 c   
-c$Id: xc_xm05.F,v 1.1 2006-02-24 20:46:44 edo Exp $
+c$Id$
 c
       implicit none
 c

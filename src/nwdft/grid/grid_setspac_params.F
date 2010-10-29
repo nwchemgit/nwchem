@@ -1,6 +1,6 @@
       Subroutine grid_setspac_params
 c
-c$Id: grid_setspac_params.F,v 1.4 2000-04-11 10:08:39 hvd Exp $
+c$Id$
 c
       implicit none
 c      

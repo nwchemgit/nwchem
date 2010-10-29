@@ -1,4 +1,4 @@
-C $Id: rel_LLSS.F,v 1.8 2003-10-17 22:54:09 carlfahl Exp $
+C $Id$
 ************************************************************************
 c:tex-\subsection{rel\_LLSS}
 c:tex-This routine generates the LLSS-type two-electron integrals for

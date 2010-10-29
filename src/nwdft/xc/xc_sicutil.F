@@ -3,7 +3,7 @@
       implicit none
 #include "errquit.fh"
 c     
-c     $Id: xc_sicutil.F,v 1.6 2003-10-17 22:55:53 carlfahl Exp $
+c     $Id$
 c     
 #include "rtdb.fh"
 #include "mafdecls.fh"

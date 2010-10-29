@@ -19,7 +19,7 @@ c
      &                        qwght,ldew,func)
 #endif
 c
-c$Id: xc_camxpbe96.F,v 1.3 2008/12/09 01:42:28 niri Exp $
+c$Id$
 c
       implicit none
 c

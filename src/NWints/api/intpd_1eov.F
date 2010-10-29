@@ -1,7 +1,7 @@
       subroutine intpd_1eov(i_basis,ish,j_basis,jsh,R,lscr,scr,
      &    lOva,Ova,idatom)
 *
-* $Id: intpd_1eov.F,v 1.6 2004-12-03 22:34:32 bert Exp $
+* $Id$
 *
       implicit none
 #include "stdio.fh"

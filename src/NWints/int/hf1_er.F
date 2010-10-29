@@ -3,7 +3,7 @@
      &               Cxyz,zan,ncenters,
      &               bO2I,bKEI,bNAI,Nint,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1_er.F,v 1.3 2000-10-25 22:50:06 windus Exp $
+c $Id$
       implicit none
 
       integer NPA,NCA,NPB,NCB

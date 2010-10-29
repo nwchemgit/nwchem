@@ -1,6 +1,6 @@
       Subroutine dft_invio(name,iga_inv,nbf,ioop,lmiss)
 
-C     $Id: dft_invio.F,v 1.10 2003-10-17 22:55:50 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
       

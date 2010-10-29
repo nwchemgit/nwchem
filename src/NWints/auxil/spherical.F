@@ -1,5 +1,5 @@
       program spherical
-* $Id: spherical.F,v 1.7 2007-10-15 23:39:11 bert Exp $
+* $Id$
       implicit none
       integer memgot
       parameter (memgot=10000)
@@ -19,7 +19,7 @@ c
       call xlmcoeff_test(lmax,dd,.true.)
       end
       subroutine xlmcoeff_test(lmax, d, normalize)
-* $Id: spherical.F,v 1.7 2007-10-15 23:39:11 bert Exp $
+* $Id$
 * 
 * Note that the routine assumes that d is dimensioned in a
 * very specific fashion that actually consumes twice as

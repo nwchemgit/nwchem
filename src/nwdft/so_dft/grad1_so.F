@@ -4,7 +4,7 @@
      $     g_dens, g_wdens, basis, geom, nproc, nat, 
      $     max_at_bf, oskel, 
      &     frc_so, densx, densy, densz)
-c$Id: grad1_so.F,v 1.4 2001-11-15 18:39:00 edo Exp $
+c$Id$
 
 C     one electron contribution to RHF, ROHF and UHF gradients
 C     now also UMP2

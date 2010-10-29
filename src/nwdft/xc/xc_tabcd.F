@@ -1,5 +1,5 @@
 c
-C$Id: xc_tabcd.F,v 1.27 2008-02-01 22:27:56 niri Exp $
+C$Id$
 c
 c     Modified to handle CPKS while reusing existing code
 c

@@ -10,7 +10,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_camb88.F,v 1.4 2008/12/06 23:08:58 niri Exp $
+C$Id$
 c
 c     Coulomb attenuated Becke88 functional
 c

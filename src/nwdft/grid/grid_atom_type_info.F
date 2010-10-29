@@ -1,6 +1,6 @@
       Subroutine grid_atom_type_info
 c
-c$Id: grid_atom_type_info.F,v 1.12 2003-12-13 02:43:28 marat Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

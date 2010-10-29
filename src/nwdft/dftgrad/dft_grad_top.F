@@ -1,6 +1,6 @@
       subroutine dft_grad_top(rtdb)
 *
-* $Id: dft_grad_top.F,v 1.9 2003-10-17 22:54:42 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,5 +1,5 @@
       Subroutine hfabc(E,Sabc,NABC,La,Lb,Lc,TriDiag)
-c $Id: hfabc.f,v 1.2 1994-04-04 20:31:03 d3e129 Exp $
+c $Id$
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

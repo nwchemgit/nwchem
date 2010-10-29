@@ -1,4 +1,4 @@
-C $Id: ecp_local1.F,v 1.4 2003-10-17 22:53:51 carlfahl Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_local1 (mem_max,DryRun,

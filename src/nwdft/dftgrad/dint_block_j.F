@@ -5,7 +5,7 @@ c     Makes contribution to J force from block of derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
+c     $Id$
 c
       implicit none
 c
@@ -59,7 +59,7 @@ c     derivative integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
+c     $Id$
 c
       implicit none
 c
@@ -150,7 +150,7 @@ c     derivative 2e3c integrals
 c
 c     BGJ - 3/99
 c
-c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
+c     $Id$
 c
       implicit none
 c
@@ -224,7 +224,7 @@ c     derivative 2e2c integrals
 c
 c     BGJ - 3/99
 c
-c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
+c     $Id$
 c
       implicit none
 c
@@ -278,7 +278,7 @@ c     integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
+c     $Id$
 c
       implicit none
 c
@@ -439,7 +439,7 @@ c     3-center integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
+c     $Id$
 c
       implicit none
 c
@@ -597,7 +597,7 @@ c     2-center integrals
 c
 c     BGJ - 9/98
 c
-c     $Id: dint_block_j.F,v 1.9 1999-07-08 19:10:54 d3e129 Exp $
+c     $Id$
 c
       implicit none
 c

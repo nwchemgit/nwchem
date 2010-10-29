@@ -16,7 +16,7 @@
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,     l3d, triplet, tau, ttau, kske, Mmat, Mmat2)
 c
-c$Id: grid_quadvw1.F,v 1.21 2008-02-01 22:27:45 niri Exp $
+c$Id$
 c
       implicit none
 c

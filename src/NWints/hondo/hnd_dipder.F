@@ -1,5 +1,5 @@
 c
-c $Id: hnd_dipder.F,v 1.5 2004-12-03 22:36:10 bert Exp $
+c $Id$
 c
 c  Modified from the HONDO dipole integral code
 c

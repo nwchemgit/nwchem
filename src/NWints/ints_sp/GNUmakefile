@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.15 2001-05-18 18:19:46 windus Exp $
+# $Id$
 
 
                OBJ = sp1111.o

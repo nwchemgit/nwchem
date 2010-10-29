@@ -16,7 +16,7 @@
      &     cetobfr, tau, dttau, kske, Mmat, Mmat2,
      &     ldbw, fact, dtype, nconstr)  ! Qin
 c      
-c     $Id: dftg_gridv0b.F,v 1.39 2008-08-14 06:31:58 niri Exp $
+c     $Id$
 c     
       implicit none
 #include "errquit.fh"

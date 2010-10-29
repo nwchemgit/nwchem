@@ -1,6 +1,6 @@
       subroutine tddft_dftinit(rtdb,oskel,oadapt)
 c
-c $Id: tddft_dftinit.F,v 1.3 2003-10-17 22:58:29 carlfahl Exp $
+c $Id$
 c
 c Set various parameters for DFT calculations for the 
 c ground state in the context of TDDFT calculations.

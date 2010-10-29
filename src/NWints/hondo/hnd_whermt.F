@@ -1,5 +1,5 @@
 c
-c $Id: hnd_whermt.F,v 1.3 2004-12-03 22:36:11 bert Exp $
+c $Id$
 c
       subroutine hnd_whermt
       implicit none

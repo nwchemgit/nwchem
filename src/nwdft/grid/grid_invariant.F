@@ -1,6 +1,6 @@
       Subroutine grid_invariant
 c
-c$Id: grid_invariant.F,v 1.21 2003-10-17 22:55:37 carlfahl Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"
@@ -119,7 +119,7 @@ c
       end
       Subroutine grid_invar_mat(coord, charge)
 c
-c$Id: grid_invariant.F,v 1.21 2003-10-17 22:55:37 carlfahl Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

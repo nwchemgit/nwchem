@@ -1,5 +1,5 @@
 C
-C $Id: hnd_deriaj.F,v 1.2 2004-07-21 16:24:34 bert Exp $
+C $Id$
 c
       subroutine hnd_deriaj(dxdi,dydi,dzdi,dxdj,dydj,dzdj,
      1                      x,y,z,lit,ljt,ai,aj)

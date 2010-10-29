@@ -1,7 +1,7 @@
       subroutine hnd_pso(xyzi,expi,coefi,i_nprim,i_ngen,Li,xyzj,
      & expj,coefj,j_nprim,j_ngen,Lj,nint,e11,scr,lscr,catms,nat)
 c
-c $Id: hnd_pso.F,v 1.1 2004-12-03 22:36:11 bert Exp $
+c $Id$
 c
 c     ----- Wrapper routine that sets the sizes of scratch blocks -----
 c

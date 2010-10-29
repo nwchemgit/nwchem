@@ -1,4 +1,4 @@
-c $Id: hnd_1emem.F,v 1.5 2004-07-21 16:24:33 bert Exp $
+c $Id$
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : 1e- memory routine

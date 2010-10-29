@@ -2,7 +2,7 @@ czora...compute the matrix elements for the zora corrections
 c
       subroutine zora_getv(rtdb, g_dens, g_zora, nexc)
 c
-C$Id: zora_getv.F,v 1.3 2009-01-15 01:00:48 niri Exp $
+C$Id$
 c
       implicit none
 c

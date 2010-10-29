@@ -1,4 +1,4 @@
-c $Id: big_service.F,v 1.1 2003-10-17 22:22:15 carlfahl Exp $
+c $Id$
 c
 c     this module contains the home-made service routines
 c     like matrix manipulations etc.

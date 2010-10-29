@@ -1,4 +1,4 @@
-C $Id: rel_2e4c_sf.F,v 1.5 2003-10-17 22:54:09 carlfahl Exp $
+C $Id$
 ************************************************************************
 c:tex-\subsection{rel\_2e4c\_sf}
 c:tex-Wrapper routine for evaluation of the two-electron four-center

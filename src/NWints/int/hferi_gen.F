@@ -1,4 +1,4 @@
-c $Id: hferi_gen.F,v 1.1 2003-10-17 22:19:31 carlfahl Exp $
+c $Id$
       Subroutine hferi_gen(Ep,Eq,PairP,PairQ,R0,IJK,ERI,E3,t1,t2,t3,t4,
      &    MPP,MPQ,NPP,NPQ,La,Lb,Lc,Ld,La2,Lb2,Lc2,Ld2,Lqmax,Lqmax3,Lr,
      &    Acoefs,Bcoefs,Ccoefs,Dcoefs,NPA,NPB,NPC,NPD,NCA,NCB,NCC,NCD,

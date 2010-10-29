@@ -1,7 +1,7 @@
       subroutine xc_lebedev(l_ang, oprint)
       implicit none
 c
-C$Id: xc_lebedev.F,v 1.29 2003-10-17 22:55:53 carlfahl Exp $
+C$Id$
 c
 #include "cdft.fh"
 #include "stdio.fh"

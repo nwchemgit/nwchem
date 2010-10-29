@@ -1,5 +1,5 @@
 *
-* $Id: xc_erftab.fh,v 1.14 2004-10-13 23:25:10 edo Exp $
+* $Id$
 *
       double precision ass_erf1,ass_erf2,ass_ssf
       double precision alpha_erf1,alpha_erf2,eps

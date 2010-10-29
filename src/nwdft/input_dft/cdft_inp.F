@@ -1,7 +1,7 @@
       subroutine cdft_input(rtdb, nconstr, dtype, iatms1, iatms2, 
      $                      fatms1, fatms2, constr)
 c
-c     $Id: cdft_inp.F,v 1.5 2008-11-09 22:50:05 jhammond Exp $
+c     $Id$
 c
       implicit none
 #include "errquit.fh"

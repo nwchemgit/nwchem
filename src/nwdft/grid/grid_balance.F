@@ -1,6 +1,6 @@
       logical function grid_file_balance()
 *
-* $Id: grid_balance.F,v 1.6 2003-10-17 22:55:37 carlfahl Exp $
+* $Id$
 *  
       implicit none
 #include "errquit.fh"

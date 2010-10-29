@@ -11,7 +11,7 @@ c
 c     BGJ - 9/98
 c    
 *
-* $Id: dftg_grad2.F,v 1.12 2004-09-07 06:11:25 windus Exp $
+* $Id$
 *
       implicit none
 c      
@@ -54,7 +54,7 @@ c     exchange density matrices removed from call list for DFT
 c     coulomb-only term.
 c    
 *
-* $Id: dftg_grad2.F,v 1.12 2004-09-07 06:11:25 windus Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

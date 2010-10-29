@@ -1,5 +1,5 @@
       subroutine init70
-c $Id: init70.F,v 1.3 1994-08-15 04:47:55 d3e129 Exp $
+c $Id$
       implicit none
 c
 c     called once by genr70 to initialize internal data
@@ -34,7 +34,7 @@ c
 c
       end
       subroutine int_sp_acc(tol)
-c $Id: init70.F,v 1.3 1994-08-15 04:47:55 d3e129 Exp $
+c $Id$
       implicit none
 #include "maxc.fh"
       double precision tol

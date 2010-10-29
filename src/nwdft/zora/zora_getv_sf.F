@@ -3,7 +3,7 @@ c     == compute the matrix elements for the zora corrections ==
       subroutine zora_getv_sf(rtdb, g_dens, g_zora_sf, g_zora_scale_sf,
      &      nexc)
 c
-C$Id: zora_getv.F,v 1.3 2009-01-15 01:00:48 niri Exp $
+C$Id$
 c
       implicit none
 c

@@ -4,7 +4,7 @@
      $     ksh, lk, ck, ek, ngk, xk,
      $     lsh, ll, cl, el, ngl, xl,
      $     jtype)
-c $Id: sinfo.F,v 1.6 2003-10-17 22:54:05 carlfahl Exp $
+c $Id$
       implicit none
 c     
 c     Takes info about centers and shells, precomputes some axis

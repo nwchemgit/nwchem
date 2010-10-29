@@ -12,7 +12,7 @@
      & StericEnergyTotal)
 
 c
-c$Id: grid_quadv0a.F,v 1.46 2008-02-01 22:27:45 niri Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

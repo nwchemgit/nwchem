@@ -1,4 +1,4 @@
-* $Id: int_order.F,v 1.4 2004-07-21 16:09:39 bert Exp $
+* $Id$
       program int_order
       implicit none
 c

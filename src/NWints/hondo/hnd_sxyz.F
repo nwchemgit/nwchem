@@ -1,5 +1,5 @@
 c
-c $Id: hnd_sxyz.F,v 1.4 2004-12-03 22:36:11 bert Exp $
+c $Id$
 c
 c Taken from the property/prp.F file
 c

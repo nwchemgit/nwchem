@@ -1,7 +1,7 @@
       subroutine hnd_jkbcdf(b00,b01,b10,c00,d00,f00,
      1                  abv,cv,rwv,numg)
 c
-c $Id: hnd_jkbcdf.F,v 1.2 2007-10-15 23:37:24 bert Exp $
+c $Id$
 c
       implicit double precision (a-h,o-z)
 c

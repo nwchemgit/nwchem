@@ -1,6 +1,6 @@
       subroutine qshell_sort
 c
-c$Id: grid_utils.F,v 1.24 2004-07-27 08:01:06 edo Exp $
+c$Id$
 c
 c
 c     Sort quadrature shells, most work to least, based on radius 
@@ -122,7 +122,7 @@ c
       end
       Subroutine mbf_ao_max(rtdb,  rq0, zprim, coord)
 c
-C$Id: grid_utils.F,v 1.24 2004-07-27 08:01:06 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"
@@ -502,7 +502,7 @@ c
 
       Subroutine grid_repack(xyzw, qxyz, qwght, nq,rad,istep)
 c
-C$Id: grid_utils.F,v 1.24 2004-07-27 08:01:06 edo Exp $
+C$Id$
 c
       implicit none
 c

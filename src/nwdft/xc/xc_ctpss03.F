@@ -1,5 +1,5 @@
 c   
-c$Id: xc_ctpss03.F,v 1.15 2008-12-02 19:27:28 niri Exp $
+c$Id$
 c
 #include "dft2drv.fh"
 c

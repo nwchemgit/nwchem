@@ -1,7 +1,7 @@
       subroutine intpd_2e3ct(brain, ish, jsh, ketin, ksh, Rj, Rk, 
      &       lscr, scr, leri, eri, idatom)
 *
-* $Id: intpd_2e3ct.F,v 1.6 2004-12-03 22:34:32 bert Exp $
+* $Id$
 *
       implicit none
 c

@@ -1,6 +1,6 @@
       Subroutine xc_murakn(r,w,nr,range,lreset)
 
-C$Id: xc_murakn.F,v 1.11 2000-03-07 02:02:39 edo Exp $
+C$Id$
       implicit none
 
       double precision r(*) ! grid pts coord [output]

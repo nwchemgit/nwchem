@@ -1,5 +1,5 @@
       subroutine gacrea(geom,basis,n,m,name,ihand,how)
-C$Id: gacrea.F,v 1.9 1999-06-16 00:10:27 d3e129 Exp $
+C$Id$
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

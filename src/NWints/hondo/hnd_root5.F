@@ -1,5 +1,5 @@
 c
-c $Id: hnd_root5.F,v 1.2 2004-07-21 16:24:36 bert Exp $
+c $Id$
 c
       subroutine hnd_root5
       implicit none

@@ -1,7 +1,7 @@
       Subroutine dft_3cincor( n_batch, n_bmax, iwhat, i3c_ERI, 
      &                       n3c_dbl, iwhat_max, n_semi_bufs, fd) 
 c 
-C$Id: dft_3cincor.F,v 1.33 2004-10-20 20:30:34 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

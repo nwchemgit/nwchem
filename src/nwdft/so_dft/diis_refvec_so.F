@@ -1,5 +1,5 @@
       subroutine diis_refvec_so(nbf,g_err,rowre,colre,rowim, colim)
-C     $Id: diis_refvec_so.F,v 1.1 2000-04-17 21:45:59 zzhang Exp $
+C     $Id$
       implicit none
       
       integer nbf

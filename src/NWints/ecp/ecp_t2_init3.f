@@ -1,4 +1,4 @@
-* $Id: ecp_t2_init3.f,v 1.1 2008-01-18 21:57:54 bert Exp $
+* $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_t2_init3 (n,ldQ,m_min,m_max,j,h,tol,ai,bi,

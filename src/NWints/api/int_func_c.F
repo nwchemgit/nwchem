@@ -1,4 +1,4 @@
-c $Id: int_func_c.F,v 1.7 2003-10-17 22:53:41 carlfahl Exp $
+c $Id$
 *
 c:tex-% this is an internal API routine
 c:tex-\subsection{int\_nospherical\_check}

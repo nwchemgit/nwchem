@@ -1,5 +1,5 @@
       subroutine sym_movecs_adapt_so(basis, thresh, g_vecs, irs, nmixed)
-C$Id: sym_mo_adapt_so.F,v 1.4 2003-10-17 22:55:48 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "bas.fh"

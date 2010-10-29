@@ -1,6 +1,6 @@
       subroutine intd_1epot(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1epot.F,v 1.2 2005-04-04 23:33:51 marat Exp $
+C $Id$
       implicit none
 #include "stdio.fh"
 #include "errquit.fh"

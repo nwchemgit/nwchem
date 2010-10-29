@@ -1,4 +1,4 @@
-c $Id: int_canon.F,v 1.4 1998-12-10 23:48:09 d3e129 Exp $
+c $Id$
 *
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_canon}

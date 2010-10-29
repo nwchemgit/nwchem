@@ -1,6 +1,6 @@
       subroutine int_init_1eelec(maxbuf,maxscr,basis,nder,npt)
 c
-c $Id: hnd_init_1eelec.F,v 1.2 2005-04-27 00:23:52 marat Exp $
+c $Id$
 c
       implicit none
 c

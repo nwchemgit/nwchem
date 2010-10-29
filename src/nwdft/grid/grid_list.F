@@ -1,6 +1,6 @@
       Subroutine grid_list(rtdb, qsh, nqlen,nq_tot)
 c
-c$Id: grid_list.F,v 1.15 2003-10-17 22:55:37 carlfahl Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

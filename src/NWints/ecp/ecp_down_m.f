@@ -1,4 +1,4 @@
-C $Id: ecp_down_m.f,v 1.1 1996-09-30 19:29:22 d3e129 Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_down_m (m_min,m_max,n,a_inv,Q_hi_a,Q_mid_a,Q_lo_a)

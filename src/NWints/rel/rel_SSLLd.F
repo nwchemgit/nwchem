@@ -1,4 +1,4 @@
-C $Id: rel_SSLLd.F,v 1.3 2003-10-17 22:54:09 carlfahl Exp $
+C $Id$
 ************************************************************************
 c:tex-\subsection{rel\_SSLLd}
 c:tex-This routine generates the SSLL-type two-electron derivative integrals 

@@ -1,4 +1,4 @@
-c $Id: getmem.F,v 1.8 2005-07-01 00:44:22 edo Exp $
+c $Id$
 c
       subroutine getmem(amount,addr)
 c  this subroutine reserves amount space in the common block 

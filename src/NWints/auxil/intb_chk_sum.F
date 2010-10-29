@@ -1,5 +1,5 @@
       subroutine intb_chk_sum(rtdb,basis,print_ints)
-* $Id: intb_chk_sum.F,v 1.8 2003-10-17 22:53:46 carlfahl Exp $
+* $Id$
 * does checksum for 2 electron eri blocking integral interface only
 *
 * geom and basis data structures initiated and destroyed outside 

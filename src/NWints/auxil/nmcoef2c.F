@@ -1,5 +1,5 @@
       subroutine nmcoef2c(z,cc,l,np,scr,lscr)
-c $Id: nmcoef2c.F,v 1.1 2003-10-17 22:20:55 carlfahl Exp $
+c $Id$
 c.. routine to compute normalized contraction based on (cgtf|cgtf) 
 c..  normalization factor and do normalization
 c

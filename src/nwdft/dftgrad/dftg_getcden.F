@@ -8,7 +8,7 @@ C     get atomic blocks from density matrix and make sure no block is
 C     transferred twice
 C
 *
-* $Id: dftg_getcden.F,v 1.4 1997-11-04 10:12:13 d3e129 Exp $
+* $Id$
 *
       implicit none
       

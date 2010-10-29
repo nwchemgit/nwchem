@@ -24,7 +24,7 @@ c
      &                     Ex, qwght,ldew,func)
 #endif
 c
-C$Id: xc_kt1.F,v 1.0 2009-08-15 12:26:00 swart Exp $
+C$Id$
 c
       implicit none
 c      

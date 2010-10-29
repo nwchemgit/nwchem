@@ -1,7 +1,7 @@
       subroutine grid_setspac(xyz, xyzw, Rij, rq, p, ictr, nq,
      ,     expo, rad)
 c
-c$Id: grid_setspac.F,v 1.17 2004-09-01 22:49:13 edo Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

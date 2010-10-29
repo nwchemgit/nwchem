@@ -4,7 +4,7 @@
      &                      dxyz,dprim,dcoef,d_prim,d_gen,ld,
      &                      ieqj,keql,giao_eri,leri,scr,lscr)
 c
-c $Id: hnd_giahnd.F,v 1.2 2007-10-15 23:37:24 bert Exp $
+c $Id$
 c
       implicit none
 #include "nwc_const.fh"

@@ -1,4 +1,4 @@
-c $Id: int_chk_sum.F,v 1.24 2004-05-17 22:55:07 edo Exp $
+c $Id$
 *
 *rak:      subroutine int_chk_sum(rtdb,basisin,print_ints)
 *rak:      implicit none

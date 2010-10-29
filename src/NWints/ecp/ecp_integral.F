@@ -1,4 +1,4 @@
-C $Id: ecp_integral.F,v 1.22 2008-01-18 22:31:10 bert Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
 c:tex-% this is part of the API Standard Integral routines.

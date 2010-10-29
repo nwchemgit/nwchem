@@ -1,4 +1,4 @@
-c $Id: int_1eelec.F,v 1.3 2004-12-03 22:34:31 bert Exp $
+c $Id$
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1eelec}

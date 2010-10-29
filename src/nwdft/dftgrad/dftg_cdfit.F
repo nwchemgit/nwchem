@@ -9,7 +9,7 @@ c
 c     BGJ - 3/99
 c    
 *
-* $Id: dftg_cdfit.F,v 1.23 2008-03-28 18:52:37 edo Exp $
+* $Id$
 *
       integer  AO_bas_han, CD_bas_han
       integer nbf_cd, nat, max_sh_bf

@@ -32,7 +32,7 @@ c
       end
       logical function grad_dft(rtdb)
 *
-* $Id: grad_dft.F,v 1.38 2009-01-26 00:55:22 niri Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

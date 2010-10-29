@@ -1,5 +1,5 @@
       subroutine intp_txyz(n_cent, n_geom, R, xyz_new)
-c $Id: intp_txyz.F,v 1.5 2004-12-03 22:34:32 bert Exp $
+c $Id$
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"

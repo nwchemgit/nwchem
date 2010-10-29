@@ -1,5 +1,5 @@
 c
-C$Id: xc_optx.F,v 1.3 2001-07-03 21:45:35 edo Exp $
+C$Id$
 c
       subroutine xc_optx(tol_rho, fac, p,  rho, delrho, 
      &                      Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)

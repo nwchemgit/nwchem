@@ -1,6 +1,6 @@
       Subroutine grid_gen_pts(rtdb)
 c
-c$Id: grid_gen_pts.F,v 1.21 2004-03-25 05:26:40 edo Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

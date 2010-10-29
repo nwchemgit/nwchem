@@ -2,7 +2,7 @@
      &                      xyz,xyzm,ctr_quad, rad_quad,
      &                       zprim, iandex,iatype_pt_chg)
 c
-C$Id: dftg_signf.F,v 1.2 2006-03-16 00:58:37 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

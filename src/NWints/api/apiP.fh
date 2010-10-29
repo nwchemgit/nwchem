@@ -1,5 +1,5 @@
 c
-c $Id: apiP.fh,v 1.23 2000-05-23 21:59:09 d3g681 Exp $
+c $Id$
 c
 c common block that holds memory information
 c

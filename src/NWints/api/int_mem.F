@@ -1,4 +1,4 @@
-c $Id: int_mem.F,v 1.12 2003-10-17 22:53:42 carlfahl Exp $
+c $Id$
 *
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mem}

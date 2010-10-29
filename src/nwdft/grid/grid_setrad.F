@@ -1,6 +1,6 @@
       Subroutine grid_setrad(rtdb)
 c
-c$Id: grid_setrad.F,v 1.36 2008-03-28 18:20:18 edo Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

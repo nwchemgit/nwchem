@@ -3,7 +3,7 @@
      &               Cxyz,zan,exinv,ncenters,
      &               bO2I,bKEI,bNAI,Nints,O2I,KEI,NAI,canAB,
      &               DryRun,W0,maxW0)
-c $Id: hf1.F,v 1.21 2004-07-22 16:31:41 edo Exp $
+c $Id$
       Implicit none
       integer NPA,NCA,La,NPB,NCB,Lb,ncenters,Nints,maxW0
       logical O2I,KEI,NAI,canAB

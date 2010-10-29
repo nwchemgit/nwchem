@@ -1,6 +1,6 @@
       logical function grid_insidesp(fnxyz,l_rect,rad)
 c
-c$Id: grid_sphere.F,v 1.19 2006-05-13 00:25:09 edo Exp $
+c$Id$
 c
       implicit none
       integer fnxyz ! [in]

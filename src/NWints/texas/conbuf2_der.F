@@ -1,4 +1,4 @@
-* $Id: conbuf2_der.F,v 1.3 2003-10-17 22:54:11 carlfahl Exp $
+* $Id$
       subroutine conbuf2_der_ne(firstc,nbls,nbls1,xt1,lt1,lt2,buf2,indx,
      *     aax,bbx,ccx)
 c     

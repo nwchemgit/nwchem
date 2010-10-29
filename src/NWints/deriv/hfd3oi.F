@@ -5,7 +5,7 @@
      &    Cxyz,Cprims,Ccoef,NPC,NCC,Lc,
      &    d3OI,Nintin,
      &    DryRun,W0,maxW0)
-* $Id: hfd3oi.F,v 1.2 2000-10-25 22:50:05 windus Exp $
+* $Id$
       implicit none
 #include "stdio.fh"
 *

@@ -12,7 +12,7 @@ c                              tau (tauN)- K.S kinetic energy density
 
 
 c
-c$Id: xc_bc95.F,v 1.1 2006-02-24 20:46:44 edo Exp $
+c$Id$
 c
 c  Reference
 c    Becke, A. D. J. Chem. Phys. 1996, 104, 1040.

@@ -3,7 +3,7 @@
      &                 g_xyz, g_nq, wght_GA, rho_n, irdens_atom,
      &                 icetobfr, natoms)
 c     
-c     $Id: fukui.F,v 1.19 2006-06-07 15:57:36 edo Exp $
+c     $Id$
 c     
       implicit none
 #include "errquit.fh"
@@ -500,7 +500,7 @@ c
 
       Subroutine mull_pop_fuk( geom, basis, iga_dens,iga_s)
 
-C$Id: fukui.F,v 1.19 2006-06-07 15:57:36 edo Exp $
+C$Id$
       Implicit none
 #include "errquit.fh"
       integer geom,basis
@@ -661,7 +661,7 @@ c
      &                   wght_GA, rho_n, rdens_atom, 
      &                   cetobfr, natoms)
 c
-C$Id: fukui.F,v 1.19 2006-06-07 15:57:36 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

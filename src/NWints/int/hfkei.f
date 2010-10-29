@@ -1,5 +1,5 @@
       Subroutine hfkei(alpha,E,Tab,Ti,Nints,NPP,La,Lb,Li,canAB)
-c $Id: hfkei.f,v 1.6 2004-07-22 16:31:41 edo Exp $
+c $Id$
 
       Implicit none
 

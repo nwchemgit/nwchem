@@ -1,5 +1,5 @@
       Subroutine defNxyz(lambda)
-c $Id: defNxyz.F,v 1.3 1996-07-13 00:10:32 d3e129 Exp $
+c $Id$
       implicit none
 
       integer lambda

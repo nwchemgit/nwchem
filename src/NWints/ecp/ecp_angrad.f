@@ -1,4 +1,4 @@
-C $Id: ecp_angrad.f,v 1.1 1996-09-30 19:29:18 d3e129 Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_angrad (n_comp_a,n_cont_a,n_comp_b,n_cont_b,

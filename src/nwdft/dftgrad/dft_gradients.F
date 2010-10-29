@@ -29,7 +29,7 @@ c     and CD-fit) and call the standard grad_force() to do the rest
 c     including writing out the results.
 c
 *
-* $Id: dft_gradients.F,v 1.24 2008-09-29 20:27:49 edo Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

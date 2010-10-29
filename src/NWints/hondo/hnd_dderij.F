@@ -1,4 +1,4 @@
-c $Id: hnd_dderij.F,v 1.4 2004-07-21 16:24:33 bert Exp $
+c $Id$
 c
 c taken from hondo.
 c

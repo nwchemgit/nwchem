@@ -1,6 +1,6 @@
       subroutine dft_inpana(rtdb)
 c
-c     $Id: dft_inpana.F,v 1.71 2008-12-06 23:09:50 niri Exp $
+c     $Id$
 c
 c*********************************************************************
 c     

@@ -2,7 +2,7 @@
      ,     g_evecs, g_oevecs, g_s,g_tmp,
      ,     noc,oprint,homo,lumo)
 
-C$Id: dft_mxovl.F,v 1.13 2003-10-17 22:55:44 carlfahl Exp $
+C$Id$
       Implicit none
 #include "errquit.fh"
 #include "bas.fh"

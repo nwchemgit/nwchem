@@ -1,5 +1,5 @@
 c
-c $Id: hnd_sd_ij.F,v 1.4 2004-07-21 16:24:36 bert Exp $
+c $Id$
 c
 c Modified from HONDO
 c

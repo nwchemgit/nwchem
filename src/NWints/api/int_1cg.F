@@ -1,4 +1,4 @@
-c $Id: int_1cg.F,v 1.14 2003-10-17 22:53:41 carlfahl Exp $
+c $Id$
 *
 **********************************************************************
 c:tex-% This is part of the API Standard Integral routines

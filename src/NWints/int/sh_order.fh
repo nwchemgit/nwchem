@@ -13,7 +13,7 @@ c lrmax =  8   D type energies and P type derivatives
 c lrmax =  4   P type energies and S type derivatives
 c lrmax =  1   S type energies only
 c
-c $Id: sh_order.fh,v 1.4 2004-12-03 22:36:52 bert Exp $
+c $Id$
       integer lrmax,lrmax3,ixyz,linit
 
       Parameter(lRmax=32,lRmax3=((lRmax+1)*(lRmax+2)*(lRmax+3))/6)

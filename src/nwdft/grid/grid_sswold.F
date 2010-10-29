@@ -2,7 +2,7 @@
      &                     nctrs_pruned, nq, 
      &                     iscr, indx, whichfunc)
 c
-C$Id: grid_sswold.F,v 1.3 2004-09-01 22:30:29 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.66 2004-08-26 23:31:22 edo Exp $
+#$Id$
 
 	OBJ=	ga_chol.o ga_inverse.o ga_chol_seq.o ga_inv_seq.o dft_invio.o
 

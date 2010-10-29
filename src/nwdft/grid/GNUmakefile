@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.54 2008-12-23 20:31:40 edo Exp $
+# $Id$
 
       OBJ_OPTIMIZE= \
 	grid_pscreen.o \

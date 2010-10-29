@@ -1,4 +1,4 @@
-c $Id: int_vstat1e.F,v 1.2 2003-10-17 22:53:42 carlfahl Exp $
+c $Id$
       subroutine int_vstat1e(i_basis,ish,j_basis,jsh,lscr,scr,nqpts,
      &     vint,qxyz,zq,dens)
 c

@@ -5,7 +5,7 @@
      4  tda,oskel,singlet,triplet,tol2e,kfac,lhashf,thresh,
      5  maxiter,target,targetsym,algorithm,mult,l_irs,k_irs)
 c
-c $Id: tddft_davidson.F,v 1.12 2003-10-17 22:58:29 carlfahl Exp $
+c $Id$
 c
 c Iteratively solve TDDFT matrix eigenvalue problem using 
 c a modified Davidson trial vector subspace diagonalization

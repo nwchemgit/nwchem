@@ -17,7 +17,7 @@ c
 
 
 c
-c$Id: xc_cvs98.F,v 1.1 2007-02-14 20:21:53 bert Exp $
+c$Id$
 c
 c  Reference
 c   [a] T. V. Voorhis and G. E. Scuseria, J. Chem. Phys. 109, 400 (1998). 

@@ -1,6 +1,6 @@
       subroutine intd_1eh1(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lH1a,H1a)
-C $Id: intd_1eh1.F,v 1.19 2003-10-17 22:53:42 carlfahl Exp $
+C $Id$
       implicit none
 #include "stdio.fh"
 #include "errquit.fh"

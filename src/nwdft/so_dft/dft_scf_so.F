@@ -6,7 +6,7 @@ c
      &                  iter, g_dens, g_dens_at, g_movecs, g_vxc, 
      &                  g_fock, g_svecs, svals, g_xcinv, g_s)
 c     
-c     $Id: dft_scf_so.F,v 1.54 2008-12-31 01:37:01 niri Exp $
+c     $Id$
 c     
       implicit none
 #include "errquit.fh"

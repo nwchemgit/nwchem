@@ -2,7 +2,7 @@
      &     ctr_quad, rad_quad, xyz,
      &                  ibf,iniz, ifin, zprim,  acc_gauss)
 c
-C$Id: nbf_to_mbf.F,v 1.15 2003-10-17 22:55:50 carlfahl Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

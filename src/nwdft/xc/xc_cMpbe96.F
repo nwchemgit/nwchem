@@ -6,7 +6,7 @@ c in the original cpbe96 file, they are arrays
 
 
 c
-c$Id: xc_cMpbe96.F,v 1.4 2008-11-26 04:04:14 niri Exp $
+c$Id$
 c
       Implicit none
 #include "dft2drv.fh"

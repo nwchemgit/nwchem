@@ -1,5 +1,5 @@
       Subroutine nmcoef(z,cc,l,np,norm)
-c $Id: nmcoef.F,v 1.3 2004-09-20 23:21:55 edo Exp $
+c $Id$
 
       Implicit none
 c passed

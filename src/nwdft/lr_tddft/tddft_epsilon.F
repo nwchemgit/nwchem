@@ -1,7 +1,7 @@
       subroutine tddft_epsilon(ivector,g_trials,g_prod_s,
      1  ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
 c
-c $Id: tddft_epsilon.F,v 1.5 2003-10-17 22:58:29 carlfahl Exp $
+c $Id$
 c
 c Add (epsilon_a-epsilon_i) contribution to the product vector.
 c This subroutine is explicitly parallelized.

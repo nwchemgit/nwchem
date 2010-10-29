@@ -4,7 +4,7 @@
      .     ictr, nctrs_pruned, nq_orig,nq, 
      ,     whichfunc,lscreen)
 c
-C$Id: dftg_gridsswold.F,v 1.1 2006-03-16 00:58:36 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

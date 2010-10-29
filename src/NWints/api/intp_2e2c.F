@@ -1,6 +1,6 @@
       subroutine intp_2e2c(brain, ish, ketin, jsh, Rj,
      &       lscr, scr, leri, eri)
-c $Id: intp_2e2c.F,v 1.9 2003-10-17 22:53:42 carlfahl Exp $
+c $Id$
       implicit none
 c
 c basic api routine to generate a block of 2 center two electron integrals

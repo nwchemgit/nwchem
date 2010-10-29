@@ -1,7 +1,7 @@
       Subroutine hfset(Axyz,Aprims,Acoefs,NPA,NCA,
      &                 Bxyz,Bprims,Bcoefs,NPB,NCB,
      &                 GENCON,alpha,ipair,ES,NPP)
-c $Id: hfset.F,v 1.2 1996-01-17 22:03:53 d3e129 Exp $
+c $Id$
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

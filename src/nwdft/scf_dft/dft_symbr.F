@@ -1,7 +1,7 @@
       subroutine dft_symbr(geom,basis,
      .     g_a_dens,g_b_dens, g_tmpa)
 c     
-c     $Id: dft_symbr.F,v 1.1 2001-05-17 00:50:43 edo Exp $
+c     $Id$
 c     
       implicit none
 #include "global.fh"

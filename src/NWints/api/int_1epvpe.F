@@ -1,4 +1,4 @@
-c $Id: int_1epvpe.F,v 1.3 2003-10-17 22:53:41 carlfahl Exp $
+c $Id$
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1epvpe}

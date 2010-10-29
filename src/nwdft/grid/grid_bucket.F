@@ -1,6 +1,6 @@
       subroutine grid_buckinit(rtdb)
 c
-c$Id: grid_bucket.F,v 1.21 2006-05-13 00:26:20 edo Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

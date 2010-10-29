@@ -1,4 +1,4 @@
-C $Id: rel_pot2.F,v 1.6 2004-12-03 22:37:35 bert Exp $
+C $Id$
 ************************************************************************
 c:tex-\subsection{rel\_pot2}
 c:tex-This routine assembles the relativistic (small-small) potential 

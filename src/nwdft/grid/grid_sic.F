@@ -2,7 +2,7 @@ c     -----------------------------------------------------------------
       logical function grid_sicinit(nqpts,
      ,    l_vect1,i_vect1, ldelrho_sig,idelrho_sig)
 c
-C$Id: grid_sic.F,v 1.9 2008-02-01 22:27:45 niri Exp $
+C$Id$
 c
       implicit none
 c

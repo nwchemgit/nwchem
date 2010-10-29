@@ -2,7 +2,7 @@
       logical function sym_char_table_so(zname, nop, nir, iclass_dim,
      +     zir, zclass, chars)
 c     
-C$Id: sym_char_tab_so.F,v 1.2 2003-10-17 22:55:48 carlfahl Exp $
+C$Id$
       implicit double precision (a-h,p-w),integer (i-n),logical (o)
       implicit character *8 (z),character *1 (x)
       implicit character *4 (y)

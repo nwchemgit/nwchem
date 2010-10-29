@@ -2,7 +2,7 @@
      &     d3chi, rq, qxyz, ccoord, nq, natoms, iniz, docset,
      &     bas_cent_info, bas_cset_info)
 c
-c     $Id: xc_eval_basis.F,v 1.15 2006-06-07 22:28:37 edo Exp $
+c     $Id$
 c
 c     Evaluate basis functions and their derivatives on a grid
 c

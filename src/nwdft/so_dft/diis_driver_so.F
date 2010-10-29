@@ -2,7 +2,7 @@
      &     nbf, g_fock, g_dens, 
      &     g_svecs, svals, diis, nodiis)
 c
-C$Id: diis_driver_so.F,v 1.7 2004-01-20 19:08:43 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

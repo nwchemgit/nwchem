@@ -2,7 +2,7 @@
      1  xyzj,expj,coefj,j_nprim,j_ngen,Lj,nder,nint,elfder,scr,lscr,
      2  xyzpt, npt)
 c
-c $Id: hnd_elfder.F,v 1.3 2004-12-03 22:36:10 bert Exp $
+c $Id$
 c
       implicit double precision (a-h,o-z)
 #include "hnd_pointers.fh"

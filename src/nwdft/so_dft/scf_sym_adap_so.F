@@ -1,7 +1,7 @@
       subroutine scf_sym_adapt_so(basis, g_movecs, oprint,
      $     nprint, name, oirs, irs)
 *
-* $Id: scf_sym_adap_so.F,v 1.2 2003-10-17 22:55:48 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,6 +1,6 @@
       subroutine xc_atom_block(array, nbf,
      .     basis, iat, jat, buf)
-C$Id: xc_atomblock.F,v 1.3 2007-11-16 22:34:36 edo Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

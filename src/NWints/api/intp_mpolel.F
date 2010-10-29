@@ -2,7 +2,7 @@
      &    lval, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
 *
-* $Id: intp_mpolel.F,v 1.5 2003-10-17 22:53:42 carlfahl Exp $
+* $Id$
 *
 c
 c routine to compute multipole integrals at a given lvalue with the

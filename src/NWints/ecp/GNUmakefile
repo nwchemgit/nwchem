@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.33 2008-01-18 21:57:55 bert Exp $
+# $Id$
 # 
 
 HEADERS   = ecp_nwc.fh

@@ -1,7 +1,7 @@
       subroutine grid_tasks(rtdb, xyz, qsh, nqlen,
      &                      aqbuf, npts_per_ang,nq_tot)
 c
-c$Id: grid_tasks.F,v 1.38 2003-10-17 22:55:37 carlfahl Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

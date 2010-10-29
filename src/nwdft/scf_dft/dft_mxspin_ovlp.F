@@ -1,6 +1,6 @@
       Subroutine dft_mxspin_ovlp(nao,nmo,basis,noc,g_alpha,g_beta,g_tmp)
 
-C$Id: dft_mxspin_ovlp.F,v 1.22 2008-12-30 22:57:28 bert Exp $
+C$Id$
       Implicit none
 #include "errquit.fh"
       integer basis

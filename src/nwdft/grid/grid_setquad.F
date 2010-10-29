@@ -1,6 +1,6 @@
       Subroutine grid_setquad(rtdb)
 c
-c$Id: grid_setquad.F,v 1.10 2000-04-11 10:08:38 hvd Exp $
+c$Id$
 c
       implicit none
       logical oprint, ogrdebug

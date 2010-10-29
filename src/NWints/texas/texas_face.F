@@ -6,7 +6,7 @@ c
 c
       end
       subroutine texas_terminate()
-c $Id: texas_face.F,v 1.76 2007-01-17 01:29:25 bert Exp $
+c $Id$
       implicit real*8 (a-h,o-z)
 #include "errquit.fh"
 #include "mafdecls.fh"

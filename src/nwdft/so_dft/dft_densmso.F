@@ -7,7 +7,7 @@ c
 c***********************************************************************
 c
       subroutine dft_densm_so(g_dens,g_vecs,nbf,noc)
-C$Id: dft_densmso.F,v 1.7 2007-07-02 17:57:53 niri Exp $
+C$Id$
       implicit none
 
       integer g_dens(2)
@@ -35,7 +35,7 @@ cso      call ga_symmetrize(g_dens(2))
       end 
 
       subroutine ga_fock_sf(g_fock, g_fs, nbf)
-C$Id: dft_densmso.F,v 1.7 2007-07-02 17:57:53 niri Exp $
+C$Id$
       implicit none
 
       integer g_fock
@@ -54,7 +54,7 @@ c
       end
 
       subroutine ga_fock_so(g_so, g_fs, nbf)
-C$Id: dft_densmso.F,v 1.7 2007-07-02 17:57:53 niri Exp $
+C$Id$
       implicit none
 
       integer g_so(3)
@@ -88,7 +88,7 @@ c
       end
 
       subroutine ga_dens_so(g_tmp, g_a, nbf, op)
-C$Id: dft_densmso.F,v 1.7 2007-07-02 17:57:53 niri Exp $
+C$Id$
       implicit none
 
       integer g_tmp
@@ -137,7 +137,7 @@ c
       end
  
       subroutine ga_dens_sf(g_dens, g_a, nbf)
-C$Id: dft_densmso.F,v 1.7 2007-07-02 17:57:53 niri Exp $
+C$Id$
       implicit none
 
       integer g_dens(2)
@@ -155,7 +155,7 @@ c
       end
  
       subroutine dft_densm_sowght(g_dens,g_vecs,g_eigen_diag,nbf,noc)
-C$Id: dft_densmso.F,v 1.7 2007-07-02 17:57:53 niri Exp $
+C$Id$
       implicit none
 
       integer g_dens(2)
@@ -199,7 +199,7 @@ cso      call ga_symmetrize(g_dens(2))
       end 
 
       subroutine ga_dens_aabbi(g_dens, g_a, nbf)
-C     $Id: dft_densmso.F,v 1.7 2007-07-02 17:57:53 niri Exp $
+C     $Id$
       implicit none
       
       integer g_dens(2)
@@ -222,7 +222,7 @@ c
       end
 
       subroutine ga_dens_abbar(g_dens, g_a, nbf)
-C$Id: dft_densmso.F,v 1.7 2007-07-02 17:57:53 niri Exp $
+C$Id$
       implicit none
 
       integer g_dens(2)
@@ -245,7 +245,7 @@ c
       end
 
       subroutine ga_dens_abbai(g_dens, g_a, nbf)
-C$Id: dft_densmso.F,v 1.7 2007-07-02 17:57:53 niri Exp $
+C$Id$
       implicit none
 
       integer g_dens(2)
@@ -268,7 +268,7 @@ c
       end
 
       subroutine ga_dens_abri(g_dens, g_a, nbf)
-C$Id: dft_densmso.F,v 1.7 2007-07-02 17:57:53 niri Exp $
+C$Id$
       implicit none
 
       integer g_dens(2)

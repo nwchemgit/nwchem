@@ -1,5 +1,5 @@
       logical function dkdiv_energy(rtdb)
-c $Id: dkdiv_energy.F,v 1.6 2003-10-17 22:53:48 carlfahl Exp $
+c $Id$
       implicit none
 #include "global.fh"
 #include "rtdb.fh"

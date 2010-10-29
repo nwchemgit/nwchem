@@ -1,5 +1,5 @@
       double precision function dft_dencvg(g_dens,g_denso,nbf)
-C$Id: dft_dencvg.F,v 1.8 2006-01-03 19:21:10 edo Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 c

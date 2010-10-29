@@ -1,5 +1,5 @@
       double precision function dft_n3cdbl()
-C$Id: dft_n3c.F,v 1.15 2004-08-16 12:19:01 edo Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 c****
@@ -137,7 +137,7 @@ c
       return
       end
       integer function dft_n3cint()
-C$Id: dft_n3c.F,v 1.15 2004-08-16 12:19:01 edo Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "bas.fh"

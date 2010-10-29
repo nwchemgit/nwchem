@@ -1,6 +1,6 @@
       subroutine dk_input(rtdb)
 *
-* $Id: dk_input.F,v 1.12 2003-10-17 22:53:48 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "rtdb.fh"

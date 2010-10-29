@@ -1,6 +1,6 @@
       Block data cgridfdata
 *
-* $Id: grid_file.F,v 1.66 2008-12-23 20:31:40 edo Exp $
+* $Id$
 *
       implicit none
 #include "cgridfile.fh"

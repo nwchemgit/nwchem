@@ -1,4 +1,4 @@
-C $Id: ecp_t2_ghq.F,v 1.1 2003-10-17 22:16:35 carlfahl Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_t2_ghq (k,m,n,nt,order,alpha,beta,gamma,temp,ind,

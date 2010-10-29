@@ -1,6 +1,6 @@
       subroutine rel_input(rtdb)
 *
-* $Id: rel_input.F,v 1.16 2008-05-13 20:38:04 niri Exp $
+* $Id$
 *
       implicit none
 #include "rtdb.fh"

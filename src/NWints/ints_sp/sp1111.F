@@ -1,5 +1,5 @@
       subroutine sp1111(gout)
-c $Id: sp1111.F,v 1.5 1997-03-04 06:06:15 d3e129 Exp $
+c $Id$
       implicit none
       double precision g(256),h(256)
       double precision dzero, done

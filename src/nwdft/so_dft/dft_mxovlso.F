@@ -1,6 +1,6 @@
       Subroutine dft_mxovlso(basis, evals, g_evecs, g_oevecs,g_tmp)
 
-C$Id: dft_mxovlso.F,v 1.2 2003-10-17 22:55:48 carlfahl Exp $
+C$Id$
       Implicit none
 #include "errquit.fh"
       integer basis

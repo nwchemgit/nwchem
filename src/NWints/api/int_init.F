@@ -1,4 +1,4 @@
-c $Id: int_init.F,v 1.68 2007-08-14 22:50:11 niri Exp $
+c $Id$
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_init}

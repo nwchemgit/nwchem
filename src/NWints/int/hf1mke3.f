@@ -1,7 +1,7 @@
 C$PRAGMA SUN OPT=2
       Subroutine hf1mke3(Axyz,Bxyz,Cxyz,alpha,G,GT,ABC2I,E,
      &                   NABC,La,Lb,Lc)
-c $Id: hf1mke3.f,v 1.5 2004-07-22 16:31:41 edo Exp $
+c $Id$
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

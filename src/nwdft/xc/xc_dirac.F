@@ -13,7 +13,7 @@ c     For locations of 2nd derivatives of functionals in array
      &                       Amat2, nq, ipol, Ex, qwght, ldew, func)
 #endif
 c
-C$Id: xc_dirac.F,v 1.20 2009-02-18 02:34:15 niri Exp $
+C$Id$
 c
       Implicit none
 #include "errquit.fh"

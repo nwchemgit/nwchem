@@ -1,5 +1,5 @@
       subroutine ga_inverse(g_a, g_s)
-C$Id: ga_inverse.F,v 1.9 2003-10-17 22:55:50 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

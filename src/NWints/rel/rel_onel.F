@@ -1,4 +1,4 @@
-C $Id: rel_onel.F,v 1.12 2003-10-17 22:54:09 carlfahl Exp $
+C $Id$
 ************************************************************************
 c:tex-\subsection{rel\_onel}
 c:tex-This routine generates the modified one-electron integrals for

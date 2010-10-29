@@ -1,7 +1,7 @@
       subroutine hnd_giaotv10(xyzi,expi,coefi,i_nprim,i_ngen,Li,xyzj,
      & expj,coefj,j_nprim,j_ngen,Lj,coord,zan,nat,nint,tv10,scr,lscr)
 c
-c $Id: hnd_giaotv10.F,v 1.2 2004-12-03 22:36:10 bert Exp $
+c $Id$
 c
 c     ----- Wrapper routine that sets the sizes of scratch blocks -----
 c

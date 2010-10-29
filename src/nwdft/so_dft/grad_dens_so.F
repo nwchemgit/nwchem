@@ -3,7 +3,7 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed, scftype, 
      $     movecs)
 
-c     $Id: grad_dens_so.F,v 1.7 2003-10-17 22:55:48 carlfahl Exp $
+c     $Id$
 
 C     calculate the density and energy-weighted density matrices from the
 C     movecs (and Lagrangian in ROHF case) on disk

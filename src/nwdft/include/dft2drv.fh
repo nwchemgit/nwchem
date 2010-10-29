@@ -5,7 +5,7 @@ c     Useful macros for DFT 2nd derivatives
 c
 c     BGJ - 8/98
 c
-c     $Id: dft2drv.fh,v 1.5 2008-02-01 22:27:52 niri Exp $
+c     $Id$
 c
 c     Array columns for XC functional 1st and 2nd partial derivatives
 c     for use by 2nd derivative code

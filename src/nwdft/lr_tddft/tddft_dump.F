@@ -2,7 +2,7 @@
      1  g_prod_p,g_prod_m,g_buffer1,d_trials,d_prod_p,d_prod_m,
      2  ivector,ntrials,nproducts,tda,algorithm)
 c
-c $Id: tddft_dump.F,v 1.4 2002-06-21 17:13:40 sohirata Exp $
+c $Id$
 c
 c Print all current trial and product vectors for debug
 c Written by So Hirata, Feb 2002. (c) Battelle, PNNL, 2002.

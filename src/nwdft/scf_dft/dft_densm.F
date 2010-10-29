@@ -4,7 +4,7 @@
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,
      .     spinset)
-C$Id: dft_densm.F,v 1.45 2006-06-07 22:27:47 edo Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "bas.fh"

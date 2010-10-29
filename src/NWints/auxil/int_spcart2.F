@@ -2,7 +2,7 @@
      &    use_ma,use_ga,basis)
       implicit none
 *
-* $Id: int_spcart2.F,v 1.7 2007-10-15 23:39:11 bert Exp $
+* $Id$
 *
 *
 *::include files::

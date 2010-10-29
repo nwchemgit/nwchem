@@ -1,5 +1,5 @@
       Subroutine hfmke(Axyz,Bxyz,alpha,ES,E,pf,nd,NPP,MXD,La,Lb)
-c $Id: hfmke.F,v 1.3 1996-07-11 22:21:25 d3e129 Exp $
+c $Id$
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

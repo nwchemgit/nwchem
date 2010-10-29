@@ -1,6 +1,6 @@
       Subroutine dft_invdiag(g_A, g_cdinv, n)
 
-C$Id: dft_invdiag.F,v 1.14 2005-11-07 22:18:14 edo Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 c      

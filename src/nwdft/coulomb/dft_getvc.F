@@ -4,7 +4,7 @@
      &                     n_semi_bufs, fd, IOLGC, 
      &                     derfit, nmat)
 c
-C$Id: dft_getvc.F,v 1.21 2003-10-17 22:55:35 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 c

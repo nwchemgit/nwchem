@@ -1,4 +1,4 @@
-c $Id: intbdd_init4c.F,v 1.2 2000-06-06 20:27:25 windus Exp $
+c $Id$
 *
 c:tex-\subsection{intbdd\_init4c}
 c:tex-This logical function sets up the blocking integral second derivative 

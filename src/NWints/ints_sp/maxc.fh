@@ -1,5 +1,5 @@
 c
-c $Id: maxc.fh,v 1.2 1994-07-15 18:53:22 d3g681 Exp $
+c $Id$
 c
 c     cmaxa/b/c/d = max of s/p contraction coeffs
 c     ismlp = holds info on how to compute gamma function ?

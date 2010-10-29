@@ -16,7 +16,7 @@ c         PRL 82, 2544 (1999).
 
 
 c   
-c$Id: xc_xpkzb99.F,v 1.4 2006-02-04 00:46:20 edo Exp $
+c$Id$
 c
       implicit none
 c

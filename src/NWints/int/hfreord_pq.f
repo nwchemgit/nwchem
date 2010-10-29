@@ -1,5 +1,5 @@
       subroutine hfreord_pq(eri,scr,szp,szq)
-c $Id: hfreord_pq.f,v 1.1 1995-03-28 20:12:21 d3e129 Exp $ 
+c $Id$ 
 c
 c routine to reorder <Q,P> integrals to <P,Q> 
 c

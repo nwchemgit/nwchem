@@ -1,6 +1,6 @@
       subroutine intdd_1eov(i_basis,ish,j_basis,jsh,lscr,scr,
      &       lOva,Ova,idatom)
-c $Id: intdd_1eov.F,v 1.7 2003-10-17 22:53:42 carlfahl Exp $
+c $Id$
       implicit none
 #include "stdio.fh"
 #include "errquit.fh"

@@ -3,7 +3,7 @@
      ,      whichfunc,
      ,     rad,expo)
 c
-C$Id: dftg_gridpart.F,v 1.6 2006-03-16 00:58:36 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

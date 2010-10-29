@@ -1,4 +1,4 @@
-C$Id: ecp_c2snorm.F,v 1.1 2003-10-17 22:07:31 carlfahl Exp $
+C$Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_c2snorm (l,X,ldX,nc,inorm)

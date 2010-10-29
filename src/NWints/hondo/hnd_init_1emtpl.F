@@ -1,6 +1,6 @@
       subroutine int_init_1emtpl(maxbuf,maxscr,basis,mpole)
 c
-c $Id: hnd_init_1emtpl.F,v 1.1 2004-12-03 22:36:10 bert Exp $
+c $Id$
 c
       implicit none
 c

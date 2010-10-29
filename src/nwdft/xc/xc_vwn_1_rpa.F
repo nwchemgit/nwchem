@@ -2,7 +2,7 @@ c     Correlation energy and potential as determined via the local
 c     density functional of Vosko, Wilk and Nusair (Can. J. of Phys. 58, 
 c     1200 (1980)), functional I, the RPA parameterization.
 *
-* $Id: xc_vwn_1_rpa.F,v 1.6 2000-05-05 01:57:27 bjohnson Exp $
+* $Id$
 *
 #define FNL_VWN_1_RPA
 #include "xc_vwn_a.fh"

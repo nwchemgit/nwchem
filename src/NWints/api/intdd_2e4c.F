@@ -1,6 +1,6 @@
       subroutine intdd_2e4c(brain, ish, jsh, ketin, ksh, lsh,
      &       lscr, scr, leri, eri, idatom)
-c $Id: intdd_2e4c.F,v 1.9 2004-12-03 22:34:32 bert Exp $
+c $Id$
       implicit none
 c
 * basic api routine to generate 4 center two electron 

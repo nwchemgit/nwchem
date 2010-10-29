@@ -4,7 +4,7 @@ c     by finite difference
 c
 c     BGJ - 1/02
 c
-c     $Id: xc_fd.F,v 1.2 2003-10-17 22:55:53 carlfahl Exp $
+c     $Id$
 c
 c     Finite difference step size
 c

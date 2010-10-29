@@ -3,7 +3,7 @@
      &                  Cxyz,Cprims,Ccoef,NPC,Lc,
      &                  b3OI,Nint,TriDiag,
      &                  DryRun,W0,maxW0)
-c $Id: hf3OIs.f,v 1.5 2008-02-01 17:18:15 jhammond Exp $
+c $Id$
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

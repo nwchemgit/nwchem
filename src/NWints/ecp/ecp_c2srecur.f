@@ -1,4 +1,4 @@
-C$Id: ecp_c2srecur.f,v 1.1 1996-09-30 19:29:20 d3e129 Exp $
+C$Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_c2srecur (l,Xp,Xo,Xm,ncp,nco,ncm)

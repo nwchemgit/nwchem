@@ -389,7 +389,7 @@ c     deallocate memory
      &                            g_dens_4SO,g_moso,
      &                            noc,nocc)
 c
-c $Id: hnd_efgmap.F,v 1.6 2005-05-27 01:51:04 edo Exp $
+c $Id$
 c
 c     This routine calculates the electric field gradient and 
 c     the orientation of the EFG for a given density at the

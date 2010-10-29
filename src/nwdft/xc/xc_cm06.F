@@ -15,7 +15,7 @@ c                              ijzy - 4  M06-2X
      
 
 c
-c$Id: xc_cm06.F,v 1.1 2007-02-14 20:21:53 bert Exp $
+c$Id$
 c
 c
 c     [a]   Zhao, Y. and  Truhlar, D. G. J. Chem. Phys. 2006, 125, 194101;

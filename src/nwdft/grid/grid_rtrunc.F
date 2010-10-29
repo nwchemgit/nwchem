@@ -2,7 +2,7 @@
      .     llind,exex,shiftm,ll,
      &     tol_reset, range_max,check_s)
 c 
-c$Id: grid_rtrunc.F,v 1.44 2006-06-07 15:57:34 edo Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

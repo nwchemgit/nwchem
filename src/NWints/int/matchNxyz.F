@@ -1,5 +1,5 @@
       Subroutine matchNxyz(lambda,ic,Nxyz)
-c $Id: matchNxyz.F,v 1.3 2003-10-17 22:54:02 carlfahl Exp $
+c $Id$
       implicit none
 
       integer lambda, ic, Nxyz(3)

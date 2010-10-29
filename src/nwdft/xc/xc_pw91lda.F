@@ -4,7 +4,7 @@ c     This has the same form as VWN functional V, only with a different
 c     form for the parameterized functionals of rs.  The VWN V code is
 c     reused.
 *
-* $Id: xc_pw91lda.F,v 1.15 2009-01-20 18:27:40 niri Exp $
+* $Id$
 *
 #ifndef SECOND_DERIV
       Subroutine xc_pw91lda(tol_rho, fac, lfac, nlfac, rho, Amat, nq,

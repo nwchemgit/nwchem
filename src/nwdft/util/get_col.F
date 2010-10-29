@@ -1,5 +1,5 @@
       subroutine get_col(g_a,n,i,vec)
-C$Id: get_col.F,v 1.2 1995-02-02 23:19:58 d3g681 Exp $
+C$Id$
       implicit none
       integer g_a,n,i
       double precision vec(n)

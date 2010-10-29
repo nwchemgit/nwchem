@@ -1,7 +1,7 @@
       Subroutine grid_qpts(r,xyz, ictr, irsh, iang, aqbuf, nq, 
      *     fnxyz,nxyz)
 c
-c$Id: grid_qpts.F,v 1.20 2000-06-08 02:06:28 edo Exp $
+c$Id$
 c
       implicit none
 c      

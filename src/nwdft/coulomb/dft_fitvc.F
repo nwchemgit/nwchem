@@ -2,7 +2,7 @@
      &                     n_batch, n_bmax, iwhat, n3c_dbl,
      &                     iwhat_max, n_semi_bufs, fd, IOLGC,
      &                     dermat, nmat, do_init)
-c     $Id: dft_fitvc.F,v 1.40 2004-09-07 06:11:45 windus Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 c      

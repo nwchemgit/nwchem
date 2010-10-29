@@ -5,7 +5,7 @@
      P     PPP, F, zzz, hh, g_dens, force, 
      &                         oactive)
 *
-* $Id: dftg_quadv0b.F,v 1.13 2008-03-28 18:52:37 edo Exp $
+* $Id$
 *
       Implicit none
 #include "errquit.fh"

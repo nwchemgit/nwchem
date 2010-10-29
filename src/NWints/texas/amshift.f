@@ -1,4 +1,4 @@
-c $Id: amshift.f,v 1.9 2004-09-13 19:50:47 edo Exp $
+c $Id$
 c----------------------------------------------------
 C*
 C*  THESE ROUTINES SHIFT THE ANGULAR MOMENTUM

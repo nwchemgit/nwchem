@@ -1,6 +1,6 @@
       subroutine ga_chol(g_a, g_s,info)
 c
-C$Id: ga_chol.F,v 1.12 2003-10-17 22:55:50 carlfahl Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

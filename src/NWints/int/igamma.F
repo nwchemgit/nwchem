@@ -1,5 +1,5 @@
       Subroutine igamma(Fj,N,L)
-c $Id: igamma.F,v 1.12 2004-07-22 16:31:41 edo Exp $
+c $Id$
 
       Implicit none
       integer n

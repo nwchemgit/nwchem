@@ -4,7 +4,7 @@
       Subroutine xc_cs00(tol_rho, fac, rho, delrho, 
      &                      Amat, nq, ipol, delta, e_homo)
 c
-C$Id: xc_cs00.F,v 1.2 2003-04-14 20:50:58 sohirata Exp $
+C$Id$
 c
       implicit none
 c      

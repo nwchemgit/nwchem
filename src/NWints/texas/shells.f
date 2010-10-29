@@ -1,4 +1,4 @@
-* $Id: shells.f,v 1.4 2004-09-13 19:50:47 edo Exp $
+* $Id$
 c--------------------------------------------------------------------
       subroutine txs_shells(inx,ics1,jcs1,kcs1,lcs1)
       common /types/itype,jtype,ktype,ltype,itype1,jtype1,ktype1,ltype1 

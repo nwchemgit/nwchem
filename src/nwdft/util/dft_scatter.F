@@ -1,6 +1,6 @@
       Subroutine dft_scatter(n,a,index,b)
 
-C$Id: dft_scatter.F,v 1.2 1995-12-22 22:45:16 og845 Exp $
+C$Id$
       implicit none
       
       integer n

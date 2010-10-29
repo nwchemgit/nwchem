@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.53 2008-10-23 01:21:18 niri Exp $
+# $Id$
  
 include ../../config/makefile.h
 

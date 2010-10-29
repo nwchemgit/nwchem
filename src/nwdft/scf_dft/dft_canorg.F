@@ -3,7 +3,7 @@ c
 c     Canonical Orthogonalization
 c     Szabo & Ostlund page 144 (Dover Ed.)
 c     
-c     $Id: dft_canorg.F,v 1.15 2006-01-04 01:40:58 edo Exp $
+c     $Id$
 c     
       implicit none
 #include "errquit.fh"

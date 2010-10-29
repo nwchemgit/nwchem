@@ -1,6 +1,6 @@
       subroutine dft_mpole(rtdb, ao_bas_han, ipol, g_adens, g_bdens)
 *
-* $Id: dft_mpole.F,v 1.13 2003-10-17 22:55:50 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,4 +1,4 @@
-c $Id: int_giaol10.F,v 1.2 2004-12-03 22:34:31 bert Exp $
+c $Id$
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_giaol10}

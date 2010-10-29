@@ -1,4 +1,4 @@
-C $Id: ecp_sph_tens.f,v 1.6 1999-03-05 22:54:14 mg201 Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_sph_tens (l,n_n,n_t,R,X,Y,Z,xn,yn,zn,tmp,G_kq,

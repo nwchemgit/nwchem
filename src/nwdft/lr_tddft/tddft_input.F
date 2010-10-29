@@ -1,6 +1,6 @@
       subroutine tddft_input(rtdb)
 c
-c $Id: tddft_input.F,v 1.9 2003-10-17 22:58:29 carlfahl Exp $
+c $Id$
 c
 c Input parser for TDDFT called by input/input_parse.F.
 c Also sets default values for input parameters.

@@ -1,5 +1,5 @@
 c
-C$Id: xc_kop.F,v 1.1 2006-01-06 23:39:30 edo Exp $
+C$Id$
 c
       subroutine xc_kop(tol_rho,whichf,x,
      &     kalpha, dkadxa)

@@ -1,5 +1,5 @@
       Subroutine hfnai(E,R0,IJK,Vab,Nints,NPP,La,Lb,Li,Lp,Lp3,canAB)
-c $Id: hfnai.f,v 1.10 2004-09-07 20:06:34 edo Exp $
+c $Id$
       
       Implicit none
       

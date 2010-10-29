@@ -1,4 +1,4 @@
-C $Id: ecp_bess_pow.f,v 1.2 1996-10-11 16:47:47 d3e129 Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_bess_pow (n,m,x,bess,term,xt,test,tol)

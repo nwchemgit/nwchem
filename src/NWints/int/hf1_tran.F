@@ -1,5 +1,5 @@
       subroutine hf1_tran_shift(Gab,Gabcp,ngen,la,lb,nca,ncb)
-* $Id: hf1_tran.F,v 1.3 2000-04-27 22:46:03 mg201 Exp $
+* $Id$
       implicit none
       integer la, lb
       integer nca, ncb

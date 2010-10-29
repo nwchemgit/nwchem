@@ -1,7 +1,7 @@
       subroutine tddft_finalize(geom,ao_bas_han,ipol,g_movecs,
      1  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs)
 c
-c $Id: tddft_finalize.F,v 1.3 2003-10-17 22:58:29 carlfahl Exp $
+c $Id$
 c
 c Destroy handles for clean exit of TDDFT module.
 c Written by So Hirata, Feb 2002.

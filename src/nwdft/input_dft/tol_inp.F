@@ -1,5 +1,5 @@
       subroutine tol_input(rtdb, module)
-C$Id: tol_inp.F,v 1.15 2006-11-28 18:46:02 edo Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

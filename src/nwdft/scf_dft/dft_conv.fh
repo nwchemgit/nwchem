@@ -1,5 +1,5 @@
 c     
-c     $Id: dft_conv.fh,v 1.1 2001-12-21 23:08:19 edo Exp $
+c     $Id$
 c     
       double precision delta
       integer itol_max, iaoacc_max

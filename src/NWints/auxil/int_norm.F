@@ -1,5 +1,5 @@
       logical function int_normalize(rtdb,basisin)
-c $Id: int_norm.F,v 1.12 2003-10-17 22:53:46 carlfahl Exp $
+c $Id$
       implicit none
 #include "apiP.fh"
 #include "errquit.fh"

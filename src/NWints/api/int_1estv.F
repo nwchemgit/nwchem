@@ -1,4 +1,4 @@
-c $Id: int_1estv.F,v 1.12 2005-04-01 02:44:45 marat Exp $
+c $Id$
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_1estv}

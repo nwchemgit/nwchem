@@ -3,7 +3,7 @@
      &                      kxyz,kprim,kcoef,k_prim,k_gen,lk,
      &                      lxyz,lprim,lcoef,l_prim,l_gen,ll)
 c
-c $Id: hnd_oechrg.F,v 1.2 2007-10-15 23:37:24 bert Exp $
+c $Id$
 c
       implicit none
 c

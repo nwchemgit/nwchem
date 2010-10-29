@@ -1,6 +1,6 @@
       Subroutine qdist(rq0, rq, qxyz, xyz, nq, ncenters)
 c
-C$Id: qdist.F,v 1.5 1997-03-28 18:45:44 d3h449 Exp $
+C$Id$
 c
       implicit none
       integer nq, ncenters

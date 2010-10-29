@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.49 2003-01-30 01:07:17 bert Exp $
+# $Id$
 
     HEADERS = api/int_tim.fh api/apiP.fh api/int_nbf.fh auxil/spcartP.fh hondo/hnd_whermt.fh hondo/hnd_rys.fh hondo/hnd_tol.fh ../property/prop.fh
     LIBRARY = libnwints.a

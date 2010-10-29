@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.111 2009-02-18 02:34:15 niri Exp $
+# $Id$
 
 HEADERS = xc.fh
 

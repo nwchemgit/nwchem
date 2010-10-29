@@ -1,5 +1,5 @@
       subroutine dft_tstamp (name)
-C$Id: dft_tstamp.F,v 1.8 1998-08-20 23:52:25 d3e129 Exp $
+C$Id$
       implicit none
 
 

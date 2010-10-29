@@ -1,4 +1,4 @@
-* $Id: test_calc2.f,v 1.10 2000-10-25 22:50:07 windus Exp $
+* $Id$
 c=================================================================
 c Only for test calculations :
 c

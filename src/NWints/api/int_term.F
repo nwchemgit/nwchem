@@ -1,4 +1,4 @@
-c $Id: int_term.F,v 1.20 2003-10-17 22:53:42 carlfahl Exp $
+c $Id$
 c:tex-
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{int\_terminate}

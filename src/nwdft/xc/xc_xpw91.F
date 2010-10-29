@@ -7,7 +7,7 @@
      &                         qwght,ldew,func)
 #endif
 c
-C$Id: xc_xpw91.F,v 1.10 2007-11-13 15:37:00 edo Exp $
+C$Id$
 c
       implicit none
 c

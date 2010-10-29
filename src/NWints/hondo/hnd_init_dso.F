@@ -1,6 +1,6 @@
       subroutine int_init_dso(maxbuf,maxscr,basis,npt)
 c
-c $Id: hnd_init_dso.F,v 1.3 2005-07-05 19:31:41 bert Exp $
+c $Id$
 c
       implicit none
 c

@@ -11,7 +11,7 @@ c                              tau (tauN)- K.S kinetic energy density
      
 
 c
-c$Id: xc_cm05.F,v 1.1 2006-02-24 20:46:44 edo Exp $
+c$Id$
 c
 c
 c     [a]       Zhao, Y.; Schultz, N. E.; Truhlar, D. G. J. Chem. Phys. 2005, 123, 161103;

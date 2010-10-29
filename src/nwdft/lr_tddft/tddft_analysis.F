@@ -3,7 +3,7 @@
      2  d_trials,apbvec,apbval,ambvec,g_movecs,evl,singlet,triplet,
      4  target,targetsym,mult,algorithm,l_irs,k_irs)
 c
-c $Id: tddft_analysis.F,v 1.18 2009-03-18 01:32:06 jhammond Exp $
+c $Id$
 c
 c Calculate various properties of excitations such as
 c (1) transition moments and oscillator strengths,

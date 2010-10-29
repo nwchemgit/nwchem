@@ -1,4 +1,4 @@
-c $Id: int_pgen1e.F,v 1.10 2003-10-17 22:53:42 carlfahl Exp $
+c $Id$
 *
 c:tex-% This is part of the standard API
 c:tex-\subsection{int\_pgen1e}

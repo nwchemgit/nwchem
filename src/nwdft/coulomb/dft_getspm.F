@@ -1,6 +1,6 @@
       Subroutine dft_getspm(geom,lmax,finest,iga_dens,basis)
 
-C$Id: dft_getspm.F,v 1.11 2003-10-17 22:55:35 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
       integer lmax               ! max value of ang momentum

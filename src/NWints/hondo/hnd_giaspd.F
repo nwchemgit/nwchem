@@ -1,7 +1,7 @@
       subroutine hnd_giaspd(gint,gijkl,gnkl,gnm,b00,b01,b10,c00,d00,
      1                      f00,abv,cv,rwv)
 c
-c $Id: hnd_giaspd.F,v 1.2 2007-10-15 23:37:24 bert Exp $
+c $Id$
 c
       implicit none
 #include "nwc_const.fh"

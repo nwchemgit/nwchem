@@ -16,7 +16,7 @@ c
      &     Amat, Amat2, nq, ipol, Ex, Ks, qwght, ldew, func)
 #endif
 c
-C$Id: xc_dirac_screened.F,v 1.2 2003-10-17 22:55:53 carlfahl Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

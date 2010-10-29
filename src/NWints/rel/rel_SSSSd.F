@@ -1,4 +1,4 @@
-C $Id: rel_SSSSd.F,v 1.4 2003-10-17 22:54:09 carlfahl Exp $
+C $Id$
 ************************************************************************
 c:tex-\subsection{rel\_SSSSd}
 c:tex-This routine generates the SSSS-type two-electron derivative integrals

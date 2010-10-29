@@ -1,6 +1,6 @@
       subroutine dmd_input(rtdb)
 *
-* $Id: dmd_input.F,v 1.8 2003-10-17 22:54:09 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "rtdb.fh"

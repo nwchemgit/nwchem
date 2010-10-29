@@ -1,6 +1,6 @@
       subroutine diis_bsolve(pulay,wght,mxhist,nhist)
 
-C$Id: diis_bsolve.F,v 1.8 2002-08-16 00:39:53 edo Exp $
+C$Id$
 
 c     
 c***********************************************************************

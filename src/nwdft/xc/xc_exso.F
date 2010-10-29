@@ -1,6 +1,6 @@
       Subroutine xc_exso(rtdb,Exc,ecoul,nExc,g_densso,g_fockso)
 c
-C$Id: xc_exso.F,v 1.14 2003-10-17 22:55:53 carlfahl Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

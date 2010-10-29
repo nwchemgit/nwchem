@@ -11,7 +11,7 @@ c
      &            ipol, nq, GRAD, xform_Cmat, kske, Mmat, Mmat2)
 #endif
 c
-C$Id: setACmat.F,v 1.17 2008-02-01 22:27:55 niri Exp $
+C$Id$
 c
       implicit none
 c

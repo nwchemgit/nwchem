@@ -1,5 +1,5 @@
 c
-* $Id: int_nbf.fh,v 1.2 1999-07-14 00:28:40 d3e129 Exp $
+* $Id$
 c
       integer int_nbf_max_ang
       parameter (int_nbf_max_ang = nw_max_angular)  ! l, s, p, d, f, g, h

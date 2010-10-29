@@ -5,7 +5,7 @@ cedo#define USE_PDSYEVR 1
      ,     evals,svals,noc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
-c     $Id: dft_diagn.F,v 1.16 2005-11-07 22:18:14 edo Exp $
+c     $Id$
 c     
       implicit none
 #include "errquit.fh"

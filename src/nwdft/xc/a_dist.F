@@ -1,6 +1,6 @@
       Subroutine a_dist(xyz, Rij, nctrs,dopts)
 c
-C$Id: a_dist.F,v 1.13 2004-01-02 23:25:07 edo Exp $
+C$Id$
 c
       implicit none
 c

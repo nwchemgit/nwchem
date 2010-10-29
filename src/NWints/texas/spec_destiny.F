@@ -1,4 +1,4 @@
-* $Id: spec_destiny.F,v 1.17 2000-10-23 23:37:43 windus Exp $
+* $Id$
 c==============================================================
 c K.Wolinski : May,1997 : the use of 
 c       ics=iis(ijcs)    

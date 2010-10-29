@@ -1,4 +1,4 @@
-c $Id: exactd_mem.F,v 1.39 2005-04-05 19:32:58 marat Exp $
+c $Id$
 *
 ***********************************************************************
 c:tex-% part of the API Internal Routines

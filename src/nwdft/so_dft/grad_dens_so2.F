@@ -3,7 +3,7 @@
      $     evals, occ, ndens, nbf, nbf2, nopen, nclosed,
      $     movecs)
 
-c     $Id: grad_dens_so2.F,v 1.6 2003-10-17 22:55:48 carlfahl Exp $
+c     $Id$
 
 C     get densities for exact-exchange sodft: Im(Daa), Im(Dbb), 
 c     Re(Dab), Im(Dab)

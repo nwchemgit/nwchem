@@ -3,7 +3,7 @@ cedo#define USE_VEC 1
      &                     nctrs_pruned, nq, 
      &                     iscr, indx, whichfunc)
 c
-C$Id: grid_ssw.F,v 1.26 2004-12-30 23:52:59 edo Exp $
+C$Id$
 c
       implicit none
 #include "cdft.fh"

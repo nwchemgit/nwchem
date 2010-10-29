@@ -1,4 +1,4 @@
-c $Id: hnd_d1emem.F,v 1.2 2004-07-21 16:24:33 bert Exp $
+c $Id$
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : 1e- derivative memory routine

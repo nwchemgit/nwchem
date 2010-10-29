@@ -7,7 +7,7 @@ c
 c***********************************************************************
 c
       subroutine dft_header(message)
-C$Id: dft_header.F,v 1.2 1995-12-20 03:44:31 og845 Exp $
+C$Id$
       implicit none
 
       character*(*) message

@@ -1,4 +1,4 @@
-C $Id: ecp_t1_Q0asy.F,v 1.1 1996-10-16 22:58:36 mg201 Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_t1_Q0asy (n,m,x,xt,a_sqrt,term,test,Q,tol)

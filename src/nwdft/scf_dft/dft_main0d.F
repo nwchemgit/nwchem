@@ -2,7 +2,7 @@ c
 c     == Main DFT driver ==
       logical function dft_main0d(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.92 2009-01-17 00:44:02 niri Exp $
+c     $Id$
 c     
       implicit none
 c

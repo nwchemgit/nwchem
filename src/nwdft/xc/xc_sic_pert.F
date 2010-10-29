@@ -3,7 +3,7 @@
      &                       wght_GA, rdens_atom, cetobfr, natoms,
      &                       g_movecs, noc, totsic, i_degen, n_levels)
 c
-C$Id: xc_sic_pert.F,v 1.13 2003-10-17 22:55:53 carlfahl Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

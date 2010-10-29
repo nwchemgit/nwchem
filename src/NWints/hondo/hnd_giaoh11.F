@@ -2,7 +2,7 @@
      & expj,coefj,j_nprim,j_ngen,Lj,catms,nat,nint,e11,scr,lscr, 
      & para,dia)
 c
-c $Id: hnd_giaoh11.F,v 1.3 2007-10-15 23:37:24 bert Exp $
+c $Id$
 c
 c     ----- Wrapper routine that sets the sizes of scratch blocks -----
 c

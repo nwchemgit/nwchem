@@ -1,4 +1,4 @@
-C $Id: ecp_ind_var.f,v 1.4 2000-11-22 23:37:38 edo Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_ind_var (l_c,n_blk,n_co1,n_co2,i_co1,i_co2,

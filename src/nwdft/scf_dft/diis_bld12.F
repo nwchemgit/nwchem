@@ -8,7 +8,7 @@ c     iwhich = 2; build S**(-1/2)
 c     iwhich = 3; build S**(+1/2)
 c     iwhich = 4; build S**(-1)
 c***********************************************************************
-C$Id: diis_bld12.F,v 1.23 2004-11-03 00:42:07 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

@@ -3,7 +3,7 @@ c     Interface and computation routines for screened exchange project
 c
 c     BGJ - 2/01
 c
-c     $Id: screened_op.F,v 1.2 2003-10-17 22:54:11 carlfahl Exp $
+c     $Id$
 c
       function screened_exchange()
       implicit none

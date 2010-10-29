@@ -4,7 +4,7 @@
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
      &                         lcdft, nconstr)
 c     
-c     $Id: dft_scf.F,v 1.289 2009-02-17 21:46:41 jhammond Exp $
+c     $Id$
 c     
       implicit none
 #include "errquit.fh"

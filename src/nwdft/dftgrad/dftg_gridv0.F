@@ -8,7 +8,7 @@ c
      ,     iga_dens, force, natoms, oactive,
      &                       nactive, rdens_atom, cetobfr)
 c
-c     $Id: dftg_gridv0.F,v 1.31 2008-02-01 22:28:17 niri Exp $
+c     $Id$
 c
       implicit none      
 c
@@ -36,7 +36,7 @@ c
      &                        calc_type, natoms, oactive, nactive,
      &                        rdens_atom, cetobfr)
 c      
-c $Id: dftg_gridv0.F,v 1.31 2008-02-01 22:28:17 niri Exp $
+c $Id$
 c     
       implicit none      
 #include "errquit.fh"

@@ -1,4 +1,4 @@
-c $Id: intdd_init.F,v 1.13 2005-03-07 23:52:14 edo Exp $
+c $Id$
 *
 c:tex-%API Initialization and Termination Routines
 c:tex-\subsection{intdd\_init}

@@ -1,4 +1,4 @@
-c $Id: hnd_terminate.F,v 1.2 1999-01-22 19:01:17 windus Exp $
+c $Id$
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : termination routine

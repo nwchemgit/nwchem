@@ -1,5 +1,5 @@
       logical function int_norm_2c(rtdb,basisin)
-c $Id: int_norm_2c.F,v 1.9 2007-10-15 23:39:11 bert Exp $
+c $Id$
 c::assumptions
 *..   MA_init has been called
 c

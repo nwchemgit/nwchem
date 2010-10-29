@@ -1,4 +1,4 @@
-c $Id: intbdd_2e4c.F,v 1.4 2004-12-03 22:34:31 bert Exp $
+c $Id$
 *
       logical function intbdd_2e4c(brain, icl, jcl, ketin, kcl, lcl,
      &     num_q, q4, use_q4, zerotol, canonicalize,

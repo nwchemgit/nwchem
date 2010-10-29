@@ -1,6 +1,6 @@
       subroutine hnd_jkwrys(rwv,abv,numg)
 c
-c $Id: hnd_jkwrys.F,v 1.1 2004-07-21 16:24:36 bert Exp $
+c $Id$
 c
       implicit double precision (a-h,o-z)
 #include "hnd_rys.fh"

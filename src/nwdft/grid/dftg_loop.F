@@ -24,7 +24,7 @@
      I     iandex,max_at_bf,curatoms,g_rhs,
      I     nbf_ao_mxnbf_ce2,nactive)
 c
-c$Id: dftg_loop.F,v 1.5 2008-02-01 22:27:45 niri Exp $
+c$Id$
 c
       implicit none
 #define USE_BP

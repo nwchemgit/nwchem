@@ -1,4 +1,4 @@
-c $Id: cando_sp.F,v 1.41 2003-10-17 22:53:41 carlfahl Exp $
+c $Id$
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines

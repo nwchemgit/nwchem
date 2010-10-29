@@ -1,5 +1,5 @@
       subroutine xc_input(rtdb, module)
-C$Id: xc_inp.F,v 1.61 2009-02-18 02:34:08 niri Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

@@ -1,6 +1,6 @@
       subroutine qout70(gout, eri, isht, jsht, ksht, lsht,
      $     ib1, jb1, kb1, lb1)
-c $Id: qout70.F,v 1.1 1994-04-06 23:52:02 d3e129 Exp $
+c $Id$
       implicit none
       double precision gout(*)  ! [input]
       double precision eri(*)   ! [output]

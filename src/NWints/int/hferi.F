@@ -1,7 +1,7 @@
       Subroutine hferi(Ep,Eq,R0,IJK,ERI,E3,sum,MPP,MPQ,
      &                 NPP,NPQ,Nint,La,Lb,Lc,Ld,Lr,MXD,
      &                 canAB,canCD,canPQ)
-c $Id: hferi.F,v 1.4 2005-05-26 00:26:01 edo Exp $
+c $Id$
 
       Implicit none
 #include "sh_order.fh"

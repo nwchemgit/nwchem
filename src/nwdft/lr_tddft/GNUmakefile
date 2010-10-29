@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.7 2008-10-10 19:35:05 niri Exp $
+#$Id$
 
 OBJ = tddft_energy.o tddft_input.o tddft_init.o tddft_memory.o tddft_iguess.o \
 tddft_dump.o tddft_davidson.o tddft_transfm.o tddft_contract.o tddft_epsilon.o \

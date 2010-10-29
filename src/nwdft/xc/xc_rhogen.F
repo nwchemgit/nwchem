@@ -1,4 +1,4 @@
-* $Id: xc_rhogen.F,v 1.39 2008-03-28 18:47:17 edo Exp $
+* $Id$
 c     Modified for construction of multiple sets of perturbed densities
 c     and explicit derivative densities wrt nuclei
 c

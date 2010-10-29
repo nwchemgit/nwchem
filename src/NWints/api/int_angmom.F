@@ -1,4 +1,4 @@
-c $Id: int_angmom.F,v 1.1 2006-11-16 18:21:36 jochen Exp $
+c $Id$
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_angmom}

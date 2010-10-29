@@ -98,7 +98,7 @@ c
 c     == Main DFT driver ==
       logical function nwdft(rtdb)
 c     
-C$Id: nwdft.F,v 1.76 2008-11-11 00:40:27 niri Exp $
+C$Id$
 c
       implicit none
 c     

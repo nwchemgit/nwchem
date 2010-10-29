@@ -1,4 +1,4 @@
-C $Id: rel_pvp.F,v 1.5 2003-10-17 22:54:09 carlfahl Exp $
+C $Id$
 ************************************************************************
 c:tex-\subsection{rel\_pvp}
 c:tex-This routine generates the pV.p integrals needed for various

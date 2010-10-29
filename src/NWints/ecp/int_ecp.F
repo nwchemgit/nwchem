@@ -1,5 +1,5 @@
       logical function int_ecp_init(ecpidin,soidin,indx_grad)
-* $Id: int_ecp.F,v 1.33 2008-06-17 19:53:32 bert Exp $
+* $Id$
       implicit none
 *::cr::7
 *--------------------------------------------------*

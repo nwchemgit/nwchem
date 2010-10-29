@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.19 2008-02-08 18:44:00 d3p307 Exp $
+# $Id$
 
 include ../../config/makefile.h
      OBJ_OPTIMIZE = int_1edk_ga.o \

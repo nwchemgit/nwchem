@@ -1,5 +1,5 @@
 c
-* $Id: numb_qP.fh,v 1.7 1997-06-17 19:25:58 d3e129 Exp $
+* $Id$
 c
       logical more_ints_txs, txs_b2e4c
       integer num_q_start, num_q_last, nsp

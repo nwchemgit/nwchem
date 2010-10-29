@@ -1,5 +1,5 @@
       subroutine ga_chol_seq(g_a, g_s,info)
-C$Id: ga_chol_seq.F,v 1.10 2003-10-17 22:55:50 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

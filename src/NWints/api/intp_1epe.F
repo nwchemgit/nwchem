@@ -1,6 +1,6 @@
       subroutine intp_1epe(i_basis,ish,Ri,j_basis,jsh,Rj,
      &    lscr,scr,lpe,Pe)
-c $Id: intp_1epe.F,v 1.11 2003-10-17 22:53:42 carlfahl Exp $
+c $Id$
       implicit none
 #include "stdio.fh"
 #include "errquit.fh"

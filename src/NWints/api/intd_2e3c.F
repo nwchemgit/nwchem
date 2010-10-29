@@ -1,6 +1,6 @@
       subroutine intd_2e3c(brain, ish, ketin, jsh, ksh, 
      &       lscr, scr, leri, eri, idatom)
-c $Id: intd_2e3c.F,v 1.9 2004-12-03 22:34:31 bert Exp $
+c $Id$
       implicit none
 c
 c basic api routine to generate 4 center two electron integral derivatives 

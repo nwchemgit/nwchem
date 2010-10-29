@@ -1,7 +1,7 @@
       subroutine tddft_transfm(ivector,g_vector,g_movecs,
      1  nbf_ao,nocc,nmo,nfc,nfv,ipol,g_density,itype)
 c
-c $Id: tddft_transfm.F,v 1.7 2005-12-20 00:17:27 edo Exp $
+c $Id$
 c
 c itype=1
 c

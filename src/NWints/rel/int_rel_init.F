@@ -1,4 +1,4 @@
-c $Id: int_rel_init.F,v 1.6 2003-11-22 01:26:01 mhackler Exp $
+c $Id$
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_rel\_init}
 c:tex-This routine initializes the relativistic integrals.

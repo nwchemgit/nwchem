@@ -153,7 +153,7 @@ c convert charge to number of electrons
 
       subroutine lowd_pop( geom, basis, iga_dens,iga_s, g_tmp )
 
-C$Id: cdft_util.F,v 1.5 2008-08-03 00:34:59 jhammond Exp $
+C$Id$
       Implicit none
 #include "errquit.fh"
       integer geom,basis

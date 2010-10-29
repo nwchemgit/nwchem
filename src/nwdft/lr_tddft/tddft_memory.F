@@ -1,7 +1,7 @@
       subroutine tddft_memory(rtdb,nroots,maxvecs,maxiter,
      1  ipol,nbf_ao,nocc,nmo,nfc,nfv,nov,tda,algorithm)
 c
-c $Id: tddft_memory.F,v 1.9 2009-01-06 22:26:59 jhammond Exp $
+c $Id$
 c
 c Itemize all the outstanding memory usage and determine
 c how many trial and product vectors we can handle with the

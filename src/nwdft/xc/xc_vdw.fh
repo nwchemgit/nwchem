@@ -1,5 +1,5 @@
 c
-c     $Id: xc_vdw.fh,v 1.2 2008-09-29 20:25:06 edo Exp $
+c     $Id$
 c
       double precision c6(128),r0(128)
       double precision alpha

@@ -1,5 +1,5 @@
 c
-C$Id: xc_optc.F,v 1.2 2003-10-17 22:55:53 carlfahl Exp $
+C$Id$
 c
       subroutine xc_optc(rho, delrho, 
      &                      Amat, Cmat, nq, Ec, qwght,ldew,func)

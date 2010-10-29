@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.7 2007-05-15 02:34:42 niri Exp $	
+#	$Id$	
 #
 
 OBJ_ENERGY =   $(OBJDIR)\rel_onel.obj \

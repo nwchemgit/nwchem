@@ -1,6 +1,6 @@
       Subroutine scat_mat(TT,T,Ni,Nj,mi,mj,ifirst,jfirst,ibf,jbf)
 
-C$Id: scat_mat.F,v 1.10 2007-07-10 21:43:02 niri Exp $
+C$Id$
       implicit none
 
 #include "stdio.fh"

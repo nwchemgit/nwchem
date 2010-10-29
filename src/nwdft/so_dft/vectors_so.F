@@ -1,7 +1,7 @@
       logical function movecs_read_header_so
      $    (filename, title, basis_name, 
      $     scftype, nbf)
-C$Id: vectors_so.F,v 1.6 2003-10-17 22:55:48 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -834,7 +834,7 @@ c
 c
       end
       logical function spinor_guess(filename)
-C$Id: vectors_so.F,v 1.6 2003-10-17 22:55:48 carlfahl Exp $
+C$Id$
       implicit none
 #include "global.fh"
 #include "tcgmsg.fh"

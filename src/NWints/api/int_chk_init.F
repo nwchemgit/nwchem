@@ -1,4 +1,4 @@
-c $Id: int_chk_init.F,v 1.4 1998-12-10 23:48:10 d3e129 Exp $
+c $Id$
 *
 c:tex-% part of the internal API routines
 c:tex-\subsection{int\_chk\_init}

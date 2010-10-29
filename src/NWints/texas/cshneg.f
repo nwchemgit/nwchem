@@ -1,4 +1,4 @@
-c $Id: cshneg.f,v 1.1 1995-10-30 20:57:36 d3e129 Exp $
+c $Id$
 C New concept of neglecting integrals (kw 05/26/95)
 c==================================================================
       subroutine cshneg(bl,ibl,kbl,nbls,ipres,iapb,icpd, estij,estkl,

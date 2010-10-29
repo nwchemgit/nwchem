@@ -1,6 +1,6 @@
       subroutine grid_quadv0(rtdb, g_dens, g_vxc, nexc, rho_n, Exc,tmat)
 c
-C$Id: grid_quadv0.F,v 1.56 2008-02-01 22:27:45 niri Exp $
+C$Id$
 c
       integer rtdb
       integer g_dens(2),nexc,g_vxc(*)

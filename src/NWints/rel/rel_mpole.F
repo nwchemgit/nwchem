@@ -1,4 +1,4 @@
-C $Id: rel_mpole.F,v 1.2 2003-10-17 22:54:09 carlfahl Exp $
+C $Id$
 ************************************************************************
 c:tex-\subsection{rel\_mpole}
 c:tex-This routine generates the modified multipole integrals for

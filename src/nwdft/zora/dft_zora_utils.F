@@ -512,7 +512,7 @@ c
      &                      d_conv, g_conv, ipol, iter, iterations, 
      &                      idone, rtdb, converged, diising)
 c
-c     $Id: dft_scfcvg.F,v 1.14 2003-10-17 22:55:44 carlfahl Exp $
+c     $Id$
 c
       implicit none
 #include "errquit.fh"

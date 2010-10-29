@@ -1,5 +1,5 @@
 c
-C$Id: dftpara.fh,v 1.6 2007-11-16 22:34:36 edo Exp $
+C$Id$
 c
       logical xcreplicated,truerep,truerepdm,truerepxc
       integer k_repxc(2),l_repxc(2),k_repdm(2),l_repdm(2)

@@ -1,4 +1,4 @@
-c $Id: zeroint.f,v 1.5 2004-09-13 19:50:48 edo Exp $
+c $Id$
 c* This is used to substitute ZERO in Buffers when some
 c* of quartets do not appear First time (they are neglected)
 c*

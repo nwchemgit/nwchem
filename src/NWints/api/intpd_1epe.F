@@ -1,7 +1,7 @@
       subroutine intpd_1epe(i_basis,ish,Ri,j_basis,jsh,Rj,
      &    lscr,scr,lpea,Pea)
 *
-* $Id: intpd_1epe.F,v 1.5 2003-10-17 22:53:43 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "stdio.fh"

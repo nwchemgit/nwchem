@@ -21,7 +21,7 @@
 *   Written by K. G. Dyall                                             *
 *                                                                      *
 ************************************************************************
-* $Id: ecp_matpr.F,v 1.3 2003-10-17 22:53:51 carlfahl Exp $
+* $Id$
       implicit none
 #include "stdio.fh"
 #include "errquit.fh"

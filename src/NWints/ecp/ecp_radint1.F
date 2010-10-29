@@ -1,4 +1,4 @@
-C $Id: ecp_radint1.F,v 1.6 2008-01-18 21:57:55 bert Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_radint1 (p_min,p_max,l_lo,l_min,l_max,m_count,

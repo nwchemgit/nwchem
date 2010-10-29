@@ -4,7 +4,7 @@
      *                       eri,leri,icf,jcf,kcf,lcf,integ_n0,labels,
      *                       more_int,blscr,l_blscr,zerotol,int_type)
 *
-* $Id: texas_hf.F,v 1.38 2004-09-13 19:50:47 edo Exp $
+* $Id$
 *
       implicit none
 #include "mafdecls.fh"

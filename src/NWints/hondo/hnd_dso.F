@@ -2,7 +2,7 @@
      1  xyzj,expj,coefj,j_nprim,j_ngen,Lj,nint,dso,scr,lscr,
      2  xyzpt, npairs)
 c
-c $Id: hnd_dso.F,v 1.2 2007-08-24 17:27:15 d3p852 Exp $
+c $Id$
 c
       implicit double precision (a-h,o-z)
 #include "hnd_pointers.fh"

@@ -1,6 +1,6 @@
       subroutine intgrl_input(rtdb)
       implicit none
-* $Id: intgrl_input.F,v 1.2 2003-10-17 22:53:36 carlfahl Exp $
+* $Id$
 #include "stdio.fh"
 #include "errquit.fh"
 #include "inp.fh"

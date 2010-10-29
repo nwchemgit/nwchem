@@ -1,4 +1,4 @@
-c $Id: exact_mem.F,v 1.48 2008-02-01 17:27:40 jhammond Exp $
+c $Id$
 *
 ***********************************************************************
 c:tex-% part of API Internal Routines

@@ -1,4 +1,4 @@
-c $Id: int_2e2c.F,v 1.20 2003-10-21 23:22:24 edo Exp $
+c $Id$
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_2e2c}

@@ -1,4 +1,4 @@
-C$Id: ecp_cstrans.F,v 1.1 2003-10-17 22:11:15 carlfahl Exp $
+C$Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_cstrans (l,ncart,ntr,l_hi,l_lo,nsph,cart,ldc,

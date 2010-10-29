@@ -1,5 +1,5 @@
       subroutine sp0101(gout)
-c $Id: sp0101.F,v 1.4 1997-03-04 06:06:14 d3e129 Exp $
+c $Id$
 c        *****  special fast routine for -p- loop for 0101 *****
       implicit none
       double precision gout(*)

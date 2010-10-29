@@ -1,4 +1,4 @@
-c $Id: hnd_initdd.F,v 1.4 2004-07-21 16:24:35 bert Exp $
+c $Id$
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : initialization routine

@@ -1,5 +1,5 @@
       subroutine bas_create_uncont(usertdb,basis_in,name,basis_out)
-c $Id: bas_create_uncont.F,v 1.16 2007-03-01 22:14:14 bert Exp $
+c $Id$
       implicit none
 #include "nwc_const.fh"
 #include "mafdecls.fh"

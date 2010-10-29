@@ -1,6 +1,6 @@
       subroutine int_1er(r,npt,charg,
      &     i_basis,ish,j_basis,jsh,lscr,scr,lpe,Pe)
-c $Id: int_1er.F,v 1.2 2003-10-17 22:53:41 carlfahl Exp $
+c $Id$
 c
 c     computes - for a given set of points r - the integral
 c

@@ -1,6 +1,6 @@
       Subroutine grid_update_rtdb(rtdb)
 c
-c$Id: grid_update_rtdb.F,v 1.2 2003-10-17 22:55:37 carlfahl Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

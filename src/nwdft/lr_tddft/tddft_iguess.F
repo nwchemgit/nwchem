@@ -3,7 +3,7 @@
      2  d_trials,g_movecs,evl,ntrials,nproducts,algorithm,targetsym,
      3  symmetry,l_irs,k_irs,tda,lecut,ecut)
 c
-c $Id: tddft_iguess.F,v 1.11 2003-10-17 22:58:29 carlfahl Exp $
+c $Id$
 c
 c Generate simple initial guess vectors. First sorts 
 c the eigenvalue differences (epsilon_a - epsilon_i).

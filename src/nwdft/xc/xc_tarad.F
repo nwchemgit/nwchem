@@ -1,6 +1,6 @@
       subroutine xc_tarad(znumber,r,w,nr,origin,which,rlast)
 
-C$Id: xc_tarad.F,v 1.7 2003-10-17 22:55:53 carlfahl Exp $
+C$Id$
       implicit none
 
       double precision r(*) ! grid pts coord [output]

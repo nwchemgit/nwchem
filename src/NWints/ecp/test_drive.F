@@ -1,4 +1,4 @@
-* $Id: test_drive.F,v 1.2 1999-07-29 01:03:35 d3e129 Exp $
+* $Id$
       implicit none
       Integer LUIn, LUOut, LUErr
       Parameter (LuIn = 5, LuOut = 6, LuErr = 0)

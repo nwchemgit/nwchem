@@ -1,4 +1,4 @@
-C $Id: rel_LLSSd.F,v 1.3 2003-10-17 22:54:09 carlfahl Exp $
+C $Id$
 ************************************************************************
 c:tex-\subsection{rel\_LLSSd}
 c:tex-This routine generates the LLSS-type two-electron derivative integrals

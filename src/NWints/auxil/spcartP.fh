@@ -1,5 +1,5 @@
 *
-* $Id: spcartP.fh,v 1.4 1997-11-07 01:46:08 d3e129 Exp $
+* $Id$
 *
       integer h_sp2c               ! ma handle for array for recursion
       integer k_sp2c               ! ma index in dbl_mb for array for recursion

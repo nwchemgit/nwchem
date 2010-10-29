@@ -1,7 +1,7 @@
       Subroutine hf1mkr(Axyz,Bxyz,Cxyz,zan,exinv,ncenters,
      &                  alpha,Pxyz,RS,PC,ff,R,
      &                  R0,R0C,IJK,NPP,Lp,Lp3,CENTER)
-c $Id: hf1mkr.f,v 1.4 1999-10-26 21:51:31 mg201 Exp $
+c $Id$
 
       Implicit none
 c::passed

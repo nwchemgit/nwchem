@@ -1,5 +1,5 @@
 c
-c$Id: xc_ft97.F,v 1.7 2005-01-27 21:45:05 edo Exp $
+c$Id$
 c
       Subroutine xc_ft97(tol_rho, xfac, lxfac, nlxfac,
      .      cfac, lcfac, nlcfac,

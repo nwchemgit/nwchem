@@ -1,5 +1,5 @@
       subroutine sp0000(gout)
-c $Id: sp0000.F,v 1.5 1997-03-04 06:06:13 d3e129 Exp $
+c $Id$
 c     *****  special fast routine for -p- loop for 0000 ****
       implicit none
 c     

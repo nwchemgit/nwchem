@@ -1,7 +1,7 @@
       Character*10 subname, subsect(11), pgmname, pgmsect(11)
       integer itime,ltime
 
-C$Id: timer.fh,v 1.4 1999-08-30 22:31:01 edo Exp $
+C$Id$
       double precision t_sub,
      &     ts1,ts2,ts3,ts4,ts5,
      &     ts6,ts7,ts8,ts9,ts10,ts11

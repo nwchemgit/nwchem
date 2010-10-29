@@ -1,4 +1,4 @@
-C $Id: grid_eaf.F,v 1.2 2008-12-31 17:14:21 edo Exp $
+C $Id$
       logical function grid_grinfoinit(fdg,grinfo,enuc_in,what)
       implicit none
 #include "errquit.fh"

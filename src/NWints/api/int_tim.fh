@@ -1,4 +1,4 @@
-c $Id: int_tim.fh,v 1.4 1994-09-25 08:03:56 d3e129 Exp $
+c $Id$
 c
 c include file for integral timings using pstat
 c set only on the runtime data base

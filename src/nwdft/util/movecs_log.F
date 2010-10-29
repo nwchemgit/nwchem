@@ -2,7 +2,7 @@
      $     nbf, nsets, nmo, occ, ldocc, evals, ldevals, g_vecs)
       implicit none
 #include "errquit.fh"
-C$Id: movecs_log.F,v 1.5 2003-10-17 22:55:50 carlfahl Exp $
+C$Id$
 #include "stdio.fh"
 #include "rtdb.fh"
 #include "global.fh"

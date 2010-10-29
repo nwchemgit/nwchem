@@ -1,5 +1,5 @@
 *
-* $Id: candoP.fh,v 1.7 1998-10-20 23:44:23 windus Exp $
+* $Id$
 * 
 * user_* variables determine .true. a user set some value for the 
 *        specific integral code.  

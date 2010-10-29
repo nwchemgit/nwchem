@@ -1,4 +1,4 @@
-c $Id: intbd_init4c.F,v 1.2 1997-06-26 00:36:32 d3e129 Exp $
+c $Id$
 *
 c:tex-\subsection{intbd\_init4c}
 c:tex-This logical function sets up the blocking integral derivative 

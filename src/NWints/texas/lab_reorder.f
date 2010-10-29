@@ -1,5 +1,5 @@
       subroutine reorder(ncs,inx,iny,ncshell,ncfunct,datnuc,datbas)
-c $Id: lab_reorder.f,v 1.9 1998-07-31 21:27:52 d3g681 Exp $
+c $Id$
       implicit real*8 (a-h,o-z)
       dimension inx(12,*),iny(12,*)
       dimension ncshell(ncs), ncfunct(*)

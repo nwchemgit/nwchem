@@ -2,7 +2,7 @@
      I     natoms,npol,oprint_parm,oprint_3c2e,
      O     n3c_int,n3c_dbl,n_semi_bufs,
      O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)
-* $Id: dft_mem3c.F,v 1.8 2004-04-28 05:09:36 edo Exp $
+* $Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

@@ -1,7 +1,7 @@
       Subroutine hf3mkr(Axyz,Bxyz,Cxyz,alpha,Gxyz,
      &    RS,GC,ff,R,R0,IJK,Nabc,Lg,Lg3)
 c
-c $Id: hf3mkr.f,v 1.3 1996-10-18 22:05:08 d3e129 Exp $
+c $Id$
 c
       Implicit none 
 c::passed

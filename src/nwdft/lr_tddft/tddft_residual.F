@@ -6,7 +6,7 @@
      5  nconverged,nnewtrials,nresiduals,algorithm,lecut,ecut,
      6  diff_max)
 c
-c $Id: tddft_residual.F,v 1.9 2003-10-17 22:58:29 carlfahl Exp $
+c $Id$
 c
 c Calculate the residual vector and create a new trial
 c vector, if convergence is not achieved.

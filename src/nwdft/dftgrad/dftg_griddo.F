@@ -13,7 +13,7 @@
      &     nactive, rdens_atom, cetobfr, tau, ttau, 
      &     Mmat, Mmat2)
 c      
-c     $Id: dftg_griddo.F,v 1.8 2008-02-01 22:28:17 niri Exp $
+c     $Id$
 c     
       implicit none
 #include "errquit.fh"

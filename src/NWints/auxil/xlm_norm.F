@@ -1,5 +1,5 @@
       subroutine nwints_xlm_norm(qn,e,D,Ld)
-* $Id: xlm_norm.F,v 1.5 2007-10-15 23:39:11 bert Exp $
+* $Id$
       implicit none
 #include "mafdecls.fh"
 c

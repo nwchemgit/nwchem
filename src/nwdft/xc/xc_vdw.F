@@ -1,4 +1,4 @@
-c     $Id: xc_vdw.F,v 1.6 2008-10-02 17:27:35 edo Exp $
+c     $Id$
       subroutine xc_vdw(rtdb,geom,exc,force,what)
       implicit none
       character *(*) what

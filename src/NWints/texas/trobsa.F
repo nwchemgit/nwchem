@@ -1,4 +1,4 @@
-* $Id: trobsa.F,v 1.7 2004-09-13 19:50:48 edo Exp $
+* $Id$
 c=======================================================================
 c     For the set of NBLS1 quartets of primitive shells I,J,K,L
 c  (where NBLS1 is already reduced after some integrals have

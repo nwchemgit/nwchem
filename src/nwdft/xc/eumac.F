@@ -1,6 +1,6 @@
       Subroutine eumac(alpha,r,w,nr,rm)
 
-C$Id: eumac.F,v 1.4 1995-12-19 20:14:44 og845 Exp $
+C$Id$
       implicit none
 
       double precision r(*) ! grid pts coord [output]

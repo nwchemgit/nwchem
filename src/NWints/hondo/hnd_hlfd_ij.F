@@ -1,5 +1,5 @@
 c
-c $Id: hnd_hlfd_ij.F,v 1.7 2004-07-22 16:31:41 edo Exp $
+c $Id$
 c
 c Modified from HONDO integral code
 c

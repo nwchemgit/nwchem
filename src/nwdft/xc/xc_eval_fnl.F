@@ -10,7 +10,7 @@ c
      &                       do_2nd, tau, ttau, kske, Mmat, Mmat2,
      &                       StericEnergy)
 c
-c     $Id: xc_eval_fnl.F,v 1.65 2009-02-18 02:34:15 niri Exp $
+c     $Id$
 c
       implicit none
 c

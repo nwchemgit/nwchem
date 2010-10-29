@@ -1,7 +1,7 @@
       subroutine dft_genspm(lmax,iga_dens,basis,
      &     natoms,centerl,Pmat,max_at_bf,
      &     charge,dipole,coord)
-C$Id: dft_genspm.F,v 1.9 2003-10-17 22:55:35 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

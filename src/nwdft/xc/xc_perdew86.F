@@ -8,7 +8,7 @@
      ,     qwght, ldew, ffunc)
 #endif
 c
-c$Id: xc_perdew86.F,v 1.23 2005-07-08 00:25:21 edo Exp $
+c$Id$
 c
       implicit none
 c

@@ -1,7 +1,7 @@
       subroutine hnd_giaos100(xyzi,expi,coefi,i_nprim,i_ngen,Li,xyzj,
      & expj,coefj,j_nprim,j_ngen,Lj,nint,s10,scr,lscr)
 c
-c $Id: hnd_giaos100.F,v 1.1 2006-11-16 18:22:19 jochen Exp $
+c $Id$
 c
 c     ----- Wrapper routine that sets the sizes of scratch blocks -----
 c

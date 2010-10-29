@@ -1,7 +1,7 @@
       Subroutine sca_lab_mat(basis_hand,isha,ishb,
      &     nshbfa,nshbfb,g_a,vec,vec2,what)
 
-C$Id: sca_lab_mat.F,v 1.14 2003-10-17 22:55:50 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
       
@@ -64,7 +64,7 @@ c******************************************************************************
      &     nshbfa,nshbfb,g_a,nmat,
      .     vec,vec2,what)
 
-C$Id: sca_lab_mat.F,v 1.14 2003-10-17 22:55:50 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "bas.fh"
@@ -122,7 +122,7 @@ c
 
       Subroutine gat_mat(T,TT,Ni,Nj,mi,mj,ifirst,jfirst,ibf,jbf)
 
-C$Id: sca_lab_mat.F,v 1.14 2003-10-17 22:55:50 carlfahl Exp $
+C$Id$
       implicit none
       integer mi,mj,Ni,Nj
       integer ifirst,jfirst

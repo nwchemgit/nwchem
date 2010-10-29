@@ -1,4 +1,4 @@
-c $Id: int_hf1sp.F,v 1.19 2003-10-17 22:53:42 carlfahl Exp $
+c $Id$
 *
 c:tex-% part of the internal API routines.
 c:tex-\subsection{int\_hf1sp}

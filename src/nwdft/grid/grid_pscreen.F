@@ -2,7 +2,7 @@
      ,     rchi_atom,rdelchi_atom,rdens_atom,iniz,chi,delchi,
      ,     mbf_ao,grad,ipol,iscratch)
 c
-c$Id: grid_pscreen.F,v 1.8 2006-05-19 18:57:21 edo Exp $
+c$Id$
 c
       implicit none
 #include "mafdecls.fh"

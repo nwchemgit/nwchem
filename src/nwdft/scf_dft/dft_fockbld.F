@@ -10,7 +10,7 @@
      ,     n_levels, act_levels, oprint_time,
      ,     g_zora_sf,g_frozemb )
 c     
-c     $Id: dft_fockbld.F,v 1.36 2008-11-11 00:40:33 niri Exp $
+c     $Id$
 c     
       implicit none
 #include "errquit.fh"

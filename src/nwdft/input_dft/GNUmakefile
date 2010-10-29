@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.33 2007-02-13 22:22:01 bert Exp $
+# $Id$
 
       OBJ = \
 	dft_inpana.o \

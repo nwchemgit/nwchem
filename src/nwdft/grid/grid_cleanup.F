@@ -1,6 +1,6 @@
       Subroutine grid_cleanup(okeep)
 c
-c$Id: grid_cleanup.F,v 1.12 2004-04-17 01:45:05 edo Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

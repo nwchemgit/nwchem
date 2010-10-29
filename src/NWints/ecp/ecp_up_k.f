@@ -1,4 +1,4 @@
-C $Id: ecp_up_k.f,v 1.2 1996-10-11 16:48:00 d3e129 Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_up_k (m_min,m_max,k,j,l,n,ldQ,alpha,beta,

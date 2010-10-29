@@ -7,7 +7,7 @@ c
      &                  g_fock, g_svecs, svals, g_xcinv, g_s,
      &                  g_dipx, g_dipy, g_dipz, g_ddotE, g_vel)
 c     
-c     $Id: rt_tddft_sodft.F,v 1.54 2008-12-31 01:37:01 niri Exp $
+c     $Id$
 c     
       implicit none
 c

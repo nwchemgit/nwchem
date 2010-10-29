@@ -1,4 +1,4 @@
-c $Id: hnd_giao_1emem.F,v 1.2 2005-07-05 19:31:41 bert Exp $
+c $Id$
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : 1e- giao memory routine

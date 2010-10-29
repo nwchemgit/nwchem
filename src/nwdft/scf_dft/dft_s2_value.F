@@ -1,6 +1,6 @@
       subroutine dft_s2_value(geom,basis,symmetry,na,nb,
      &     nbf,ga_densa,ga_densb)
-C     $Id: dft_s2_value.F,v 1.5 2003-10-17 22:55:44 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

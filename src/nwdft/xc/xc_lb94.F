@@ -4,7 +4,7 @@
       Subroutine xc_lb94(tol_rho, fac, rho, delrho, 
      &                      Amat, nq, ipol)
 c
-C$Id: xc_lb94.F,v 1.5 2003-04-10 17:49:33 sohirata Exp $
+C$Id$
 c
       implicit none
 c      

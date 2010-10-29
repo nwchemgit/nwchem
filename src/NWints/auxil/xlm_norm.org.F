@@ -1,5 +1,5 @@
       subroutine xlm_norm
-* $Id: xlm_norm.org.F,v 1.2 1999-07-29 01:01:43 d3e129 Exp $
+* $Id$
       implicit double precision (a-h, o-z)
       include 'xlm.h'
 c

@@ -1,7 +1,7 @@
       subroutine int_mpolel(i_basis, ish, j_basis, jsh, lval, centerl,
      &    lscr, scr, lmpint, MP, num_mpint)
 *
-* $Id: int_mpolel.F,v 1.5 2003-10-17 22:53:42 carlfahl Exp $
+* $Id$
 *
 c
 c routine to compute multipole integrals at a given lvalue.

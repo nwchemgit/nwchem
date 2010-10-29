@@ -1,5 +1,5 @@
       program testnat
-* $Id: testnat.f,v 1.2 1999-07-29 01:01:43 d3e129 Exp $
+* $Id$
       implicit none
       integer iat, jat, kat, lat, nat
       integer ibk, jbk, kbk, lbk

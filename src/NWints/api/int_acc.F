@@ -1,4 +1,4 @@
-C $Id: int_acc.F,v 1.15 2003-02-07 22:52:24 edo Exp $
+C $Id$
 *
 c:tex-% part of API Internal Routines
 c:tex-\subsection{int\_acc\_std}

@@ -1,5 +1,5 @@
       logical function task_check_sum(rtdb)
-C$Id: do_chk_sum.F,v 1.11 2003-10-17 22:53:46 carlfahl Exp $
+C$Id$
       implicit none
       integer rtdb
 c

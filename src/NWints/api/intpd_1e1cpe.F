@@ -1,6 +1,6 @@
       subroutine intpd_1e1cpe(i_basis,ish,Ri,lscr,scr,lpea,Pea)
 *
-* $Id: intpd_1e1cpe.F,v 1.6 2003-10-17 22:53:43 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "apiP.fh"

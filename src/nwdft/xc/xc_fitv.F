@@ -1,7 +1,7 @@
       Subroutine xc_fitv(rtdb,Tmat,nTrows,nTcols,g_vxc,g_xcinv,
      $                    IOLGC)
 c
-C$Id: xc_fitv.F,v 1.21 2006-06-07 15:57:37 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

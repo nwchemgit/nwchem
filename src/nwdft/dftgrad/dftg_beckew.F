@@ -4,7 +4,7 @@
      .     nq_orig,nq,
      &                       iandex)
 c
-C     $Id: dftg_beckew.F,v 1.13 2003-10-17 22:54:42 carlfahl Exp $
+C     $Id$
 c
       implicit none
 #include "errquit.fh"

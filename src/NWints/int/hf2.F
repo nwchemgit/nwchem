@@ -1,4 +1,4 @@
-c $Id: hf2.F,v 1.24 2003-10-17 22:54:02 carlfahl Exp $
+c $Id$
       Subroutine hf2(Axyz,Aprims,Acoefs,NPA,NCA,La,
      &               Bxyz,Bprims,Bcoefs,NPB,NCB,Lb,
      &               Cxyz,Cprims,Ccoefs,NPC,NCC,Lc,

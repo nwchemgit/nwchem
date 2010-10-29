@@ -3,7 +3,7 @@
      &                       zprim, iandex,iatype_pt_chg,
      &     nq,xyzw)
 c
-C$Id: grid_signf.F,v 1.8 2004-09-07 18:56:36 edo Exp $
+C$Id$
 c
       implicit none
 #include "errquit.fh"

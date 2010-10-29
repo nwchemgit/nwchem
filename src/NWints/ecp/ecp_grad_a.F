@@ -1,4 +1,4 @@
-C $Id: ecp_grad_a.F,v 1.3 1996-10-18 22:22:21 mg201 Exp $
+C $Id$
 ************************************************************************
 *                                                                      *
       subroutine ecp_grad_a (l_a,n_p,n_o,n_m,n_ca,intp,intm,grad,n_b,

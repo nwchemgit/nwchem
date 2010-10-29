@@ -1,4 +1,4 @@
-c $Id: hnd_giao_init.F,v 1.1 2004-07-21 16:24:34 bert Exp $
+c $Id$
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c
 c     hondo : giao initialization routine

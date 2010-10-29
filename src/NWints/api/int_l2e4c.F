@@ -1,4 +1,4 @@
-c $Id: int_l2e4c.F,v 1.24 2008-11-11 17:49:22 jhammond Exp $
+c $Id$
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_l2e4c}

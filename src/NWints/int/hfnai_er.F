@@ -1,6 +1,6 @@
       Subroutine hfnai_er(ncenters,E,R0C,IJK,Vab,Nint,NPP,
      &     La,Lb,Li,Lp,Lp3,canAB)
-c $Id: hfnai_er.F,v 1.1 1999-08-20 18:41:35 d3e129 Exp $
+c $Id$
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

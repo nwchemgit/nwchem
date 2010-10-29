@@ -1,5 +1,5 @@
       Subroutine hfmkr(R,IJK,PQ,NAB,Lp,Lp3)
-c $Id: hfmkr.F,v 1.6 1996-10-11 10:13:01 d3e129 Exp $
+c $Id$
 
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)

@@ -1,6 +1,6 @@
       subroutine hnd_spdgia(ng,nr,g,xyz)
 c
-c $Id: hnd_spdgia.F,v 1.1 2004-07-21 16:24:36 bert Exp $
+c $Id$
 c
       implicit none
 #include "nwc_const.fh"
