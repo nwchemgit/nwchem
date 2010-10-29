@@ -4,6 +4,8 @@ SUBDIRS = dft
 
 OBJ_OPTIMIZE =  hess_anal.o \
                 hess_init.o \
+                hess_energyinit.o \
+                hess_check.o \
                 nucdd_cont.o \
                 nucdd_calc.o \
                 oned_calc.o \
