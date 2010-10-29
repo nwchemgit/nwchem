@@ -1,7 +1,7 @@
       SUBROUTINE ZTRSM ( SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA,
      $                   B, LDB )
 *
-* $Id: ztrsm.f,v 1.2 1997-03-17 21:22:12 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       CHARACTER*1        SIDE, UPLO, TRANSA, DIAG

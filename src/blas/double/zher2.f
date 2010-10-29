@@ -1,6 +1,6 @@
       SUBROUTINE ZHER2 ( UPLO, N, ALPHA, X, INCX, Y, INCY, A, LDA )
 *
-* $Id: zher2.f,v 1.3 2000-10-25 22:50:08 windus Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       COMPLEX*16         ALPHA

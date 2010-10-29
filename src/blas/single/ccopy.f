@@ -1,6 +1,6 @@
       subroutine  ccopy(n,cx,incx,cy,incy)
 *
-* $Id: ccopy.f,v 1.1 1997-03-17 21:40:59 d3e129 Exp $
+* $Id$
 *
 c
 c     copies a vector, x, to a vector, y.

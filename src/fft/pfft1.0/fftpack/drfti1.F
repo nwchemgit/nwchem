@@ -1,6 +1,6 @@
       subroutine drfti1 (n,wa,ifac)
 *
-* $Id: drfti1.F,v 1.5 2001-11-30 23:59:08 d3e129 Exp $
+* $Id$
 *
       double precision wa(1), arg, argh, argld, fi, tpi
       integer ifac(*), ntryh(4)

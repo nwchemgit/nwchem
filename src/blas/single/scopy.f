@@ -1,6 +1,6 @@
       subroutine scopy(n,sx,incx,sy,incy)
 *
-* $Id: scopy.f,v 1.3 1997-03-17 21:22:24 d3e129 Exp $
+* $Id$
 *
 c
 c     copies a vector, x, to a vector, y.

@@ -5,10 +5,10 @@ C****************************************************************
 C
       subroutine dradb2 (ido,l1,cc,ch,wa1)
 *      
-* $Id: dradb2.F,v 1.3 1997-12-10 01:21:02 d3g270 Exp $
+* $Id$
 *      
 *      
-* $Id: dradb2.F,v 1.3 1997-12-10 01:21:02 d3g270 Exp $
+* $Id$
 *      
       double precision cc(ido,2,l1), ch(ido,l1,2), wa1(1), ti2, tr2
 c      

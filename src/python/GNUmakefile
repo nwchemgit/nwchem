@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 2007-10-30 21:32:03 bylaska Exp $
+# $Id$
 #
 
 LIBRARY = libnwpython.a

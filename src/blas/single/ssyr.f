@@ -1,6 +1,6 @@
       SUBROUTINE SSYR  ( UPLO, N, ALPHA, X, INCX, A, LDA )
 *     .. Scalar Arguments ..
-* $Id: ssyr.f,v 1.1 2004-11-14 04:43:42 edo Exp $
+* $Id$
       REAL               ALPHA
       INTEGER            INCX, LDA, N
       CHARACTER*1        UPLO

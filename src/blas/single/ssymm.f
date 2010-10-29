@@ -1,7 +1,7 @@
       SUBROUTINE SSYMM ( SIDE, UPLO, M, N, ALPHA, A, LDA, B, LDB,
      $                   BETA, C, LDC )
 *
-* $Id: ssymm.f,v 1.2 1997-03-17 21:22:45 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       CHARACTER*1        SIDE, UPLO

@@ -1,6 +1,6 @@
       subroutine caxpy(n,ca,cx,incx,cy,incy)
 *
-* $Id: caxpy.f,v 1.1 1997-03-17 21:40:56 d3e129 Exp $
+* $Id$
 *
 c
 c     constant times a vector plus a vector.

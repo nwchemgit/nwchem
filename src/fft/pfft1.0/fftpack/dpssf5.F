@@ -1,6 +1,6 @@
       subroutine dpssf5 (ido,l1,cc,ch,wa1,wa2,wa3,wa4)
 *
-* $Id: dpssf5.F,v 1.2 1997-11-04 10:07:23 d3e129 Exp $
+* $Id$
 *
       double precision cc(ido,5,l1), ch(ido,l1,5), wa1(1), wa2(1),
      1  wa3(1), wa4(1), ci2, ci3, ci4, ci5, cr2, cr3, cr4, cr5, di2,

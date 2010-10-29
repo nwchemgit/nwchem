@@ -1,6 +1,6 @@
       subroutine  csscal(n,sa,cx,incx)
 *
-* $Id: csscal.f,v 1.1 1997-03-17 21:41:38 d3e129 Exp $
+* $Id$
 *
 c
 c     scales a complex vector by a real constant.

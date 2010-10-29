@@ -1,7 +1,7 @@
       SUBROUTINE ZHEMV ( UPLO, N, ALPHA, A, LDA, X, INCX,
      $                   BETA, Y, INCY )
 *
-* $Id: zhemv.f,v 1.2 1997-03-17 21:21:57 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       COMPLEX*16         ALPHA, BETA

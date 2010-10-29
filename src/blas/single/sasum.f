@@ -1,6 +1,6 @@
       real function sasum(n,sx,incx)
 *
-* $Id: sasum.f,v 1.3 1997-03-17 21:22:19 d3e129 Exp $
+* $Id$
 *
 c
 c     takes the sum of the absolute values.

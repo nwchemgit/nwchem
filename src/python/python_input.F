@@ -1,6 +1,6 @@
       subroutine python_input(rtdb)
 *
-* $Id: python_input.F,v 1.3 2003-10-17 22:58:02 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

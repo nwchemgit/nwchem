@@ -1,6 +1,6 @@
       real function sdot(n,sx,incx,sy,incy)
 *
-* $Id: sdot.f,v 1.3 1997-03-17 21:22:26 d3e129 Exp $
+* $Id$
 *
 c
 c     forms the dot product of two vectors.

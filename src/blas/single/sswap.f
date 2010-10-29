@@ -1,6 +1,6 @@
       subroutine sswap (n,sx,incx,sy,incy)
 *
-* $Id: sswap.f,v 1.3 1997-03-17 21:22:42 d3e129 Exp $
+* $Id$
 *
 c
 c     interchanges two vectors.

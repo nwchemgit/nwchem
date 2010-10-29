@@ -5,10 +5,10 @@ C****************************************************************
 C
       subroutine drftb1 (n,c,ch,wa,ifac)
 *      
-* $Id: drftb1.F,v 1.5 2001-11-30 23:59:08 d3e129 Exp $
+* $Id$
 *      
 *      
-* $Id: drftb1.F,v 1.5 2001-11-30 23:59:08 d3e129 Exp $
+* $Id$
 *      
       double precision c(1), ch(1), wa(1)
       integer ifac(*)

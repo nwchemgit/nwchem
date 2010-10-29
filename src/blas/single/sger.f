@@ -1,6 +1,6 @@
       SUBROUTINE SGER  ( M, N, ALPHA, X, INCX, Y, INCY, A, LDA )
 *
-* $Id: sger.f,v 1.3 1997-03-17 21:22:31 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       REAL               ALPHA

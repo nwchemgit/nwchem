@@ -1,7 +1,7 @@
       SUBROUTINE CHEMV ( UPLO, N, ALPHA, A, LDA, X, INCX,
      $                   BETA, Y, INCY )
 *
-* $Id: chemv.f,v 1.1 1997-03-17 21:41:14 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       COMPLEX            ALPHA, BETA

@@ -1,6 +1,6 @@
       subroutine  cscal(n,ca,cx,incx)
 *
-* $Id: cscal.f,v 1.1 1997-03-17 21:41:28 d3e129 Exp $
+* $Id$
 *
 c
 c     scales a vector by a constant.

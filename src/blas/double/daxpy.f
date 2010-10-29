@@ -1,6 +1,6 @@
       subroutine daxpy(n,da,dx,incx,dy,incy)
 *
-* $Id: daxpy.f,v 1.3 1997-03-17 21:20:45 d3e129 Exp $
+* $Id$
 *
 c
 c     constant times a vector plus a vector.

@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.2 2000-07-18 18:14:53 edo Exp $	
+#	$Id$	
 #
 
 OBJ_OPTIMIZE = $(OBJDIR)\nwfft3d.obj

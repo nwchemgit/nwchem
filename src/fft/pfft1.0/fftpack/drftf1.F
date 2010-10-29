@@ -1,6 +1,6 @@
       subroutine drftf1 (n,c,ch,wa,ifac)
 *
-* $Id: drftf1.F,v 1.3 2001-11-30 23:59:08 d3e129 Exp $
+* $Id$
 *
       double precision c(1), ch(1), wa(1)
       integer ifac(*)

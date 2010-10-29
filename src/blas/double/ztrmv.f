@@ -1,6 +1,6 @@
       SUBROUTINE ZTRMV ( UPLO, TRANS, DIAG, N, A, LDA, X, INCX )
 *
-* $Id: ztrmv.f,v 1.3 2000-10-25 22:50:08 windus Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       INTEGER            INCX, LDA, N

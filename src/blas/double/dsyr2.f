@@ -1,6 +1,6 @@
       SUBROUTINE DSYR2 ( UPLO, N, ALPHA, X, INCX, Y, INCY, A, LDA )
 *
-* $Id: dsyr2.f,v 1.3 2000-10-25 22:50:08 windus Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       DOUBLE PRECISION   ALPHA

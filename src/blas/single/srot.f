@@ -1,6 +1,6 @@
       subroutine srot (n,sx,incx,sy,incy,c,s)
 *
-* $Id: srot.f,v 1.3 1997-03-17 21:22:36 d3e129 Exp $
+* $Id$
 *
 c
 c     applies a plane rotation.

@@ -1,6 +1,6 @@
       SUBROUTINE DTRMV ( UPLO, TRANS, DIAG, N, A, LDA, X, INCX )
 *
-* $Id: dtrmv.f,v 1.4 2000-10-25 22:50:08 windus Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       INTEGER            INCX, LDA, N

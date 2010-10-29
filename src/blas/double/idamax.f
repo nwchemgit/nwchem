@@ -1,6 +1,6 @@
       integer function idamax(n,dx,incx)
 *
-* $Id: idamax.f,v 1.3 1997-03-17 21:21:38 d3e129 Exp $
+* $Id$
 *
 c
 c     finds the index of element having max. absolute value.

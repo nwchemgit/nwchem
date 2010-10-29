@@ -1,6 +1,6 @@
       double precision function ddot(n,dx,incx,dy,incy)
 *
-* $Id: ddot.f,v 1.3 1997-03-17 21:20:51 d3e129 Exp $
+* $Id$
 *
 c
 c     forms the dot product of two vectors.

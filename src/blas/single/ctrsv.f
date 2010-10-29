@@ -1,6 +1,6 @@
       SUBROUTINE CTRSV ( UPLO, TRANS, DIAG, N, A, LDA, X, INCX )
 *
-* $Id: ctrsv.f,v 1.1 1997-03-17 21:41:36 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       INTEGER            INCX, LDA, N

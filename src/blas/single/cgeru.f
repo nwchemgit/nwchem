@@ -4,7 +4,7 @@
       INTEGER            INCX, INCY, LDA, M, N
 *     .. Array Arguments ..
       COMPLEX            A( LDA, * ), X( * ), Y( * )
-C     $Id: cgeru.f,v 1.1 2002-01-19 04:49:57 edo Exp $                       
+C     $Id$                       
 *     ..
 *
 *  Purpose

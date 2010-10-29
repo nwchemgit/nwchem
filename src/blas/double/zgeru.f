@@ -5,7 +5,7 @@
 *     .. Array Arguments ..
       COMPLEX*16         A( LDA, * ), X( * ), Y( * )
 *     ..
-C     $Id: zgeru.f,v 1.1 2002-01-19 04:49:57 edo Exp $                       
+C     $Id$                       
 *
 *  Purpose
 *  =======

@@ -4,7 +4,7 @@ c     forms the dot product of two vectors.
 c     jack dongarra, 3/11/78.
 c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-C     $Id: zdotu.f,v 1.2 2002-01-19 04:49:57 edo Exp $                       
+C     $Id$                       
       double complex zx(*),zy(*),ztemp
       integer i,incx,incy,ix,iy,n
       ztemp = (0.0d0,0.0d0)

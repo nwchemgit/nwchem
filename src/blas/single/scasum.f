@@ -6,7 +6,7 @@ c     jack dongarra, linpack, 3/11/78.
 c     modified 3/93 to return if incx .le. 0.
 c     modified 12/3/93, array(1) declarations changed to array(*)
 c
-C     $Id: scasum.f,v 1.1 2002-01-19 04:49:57 edo Exp $                       
+C     $Id$                       
       complex cx(*)
       real stemp
       integer i,incx,n,nincx

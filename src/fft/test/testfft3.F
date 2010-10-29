@@ -1,7 +1,7 @@
 c********************************************
       program test
 *
-* $Id: testfft3.F,v 1.5 1997-11-04 10:07:56 d3e129 Exp $
+* $Id$
 *
       implicit none
 #include "mafdecls.fh"

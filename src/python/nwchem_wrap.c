@@ -1,5 +1,5 @@
 /*
- $Id: nwchem_wrap.c,v 1.52 2009-02-16 19:38:27 jhammond Exp $
+ $Id$
 */
 #if defined(DECOSF)
 #include <alpha/varargs.h>

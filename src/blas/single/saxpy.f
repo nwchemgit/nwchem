@@ -1,6 +1,6 @@
       subroutine saxpy(n,sa,sx,incx,sy,incy)
 *
-* $Id: saxpy.f,v 1.3 1997-03-17 21:22:22 d3e129 Exp $
+* $Id$
 *
 c
 c     constant times a vector plus a vector.

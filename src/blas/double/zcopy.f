@@ -1,6 +1,6 @@
       subroutine  zcopy(n,zx,incx,zy,incy)
 *
-* $Id: zcopy.f,v 1.2 1997-03-17 21:21:44 d3e129 Exp $
+* $Id$
 *
 c
 c     copies a vector, x, to a vector, y.

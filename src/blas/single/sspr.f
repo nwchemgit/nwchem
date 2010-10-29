@@ -1,6 +1,6 @@
       SUBROUTINE SSPR  ( UPLO, N, ALPHA, X, INCX, AP )
 *
-* $Id: sspr.f,v 1.3 1997-03-17 21:22:41 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       REAL               ALPHA

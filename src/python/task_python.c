@@ -1,5 +1,5 @@
 /*
- $Id: task_python.c,v 1.12 2007-07-26 21:05:03 d3p852 Exp $
+ $Id$
 */
 #include "macdecls.h"
 #include "ga.h"

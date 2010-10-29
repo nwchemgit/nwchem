@@ -1,6 +1,6 @@
       double precision function dasum(n,dx,incx)
 *
-* $Id: dasum.f,v 1.3 1997-03-17 21:20:44 d3e129 Exp $
+* $Id$
 *
 c
 c     takes the sum of the absolute values.

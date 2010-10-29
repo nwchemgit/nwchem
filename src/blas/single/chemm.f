@@ -1,7 +1,7 @@
       SUBROUTINE CHEMM ( SIDE, UPLO, M, N, ALPHA, A, LDA, B, LDB,
      $                   BETA, C, LDC )
 *
-* $Id: chemm.f,v 1.1 1997-03-17 21:41:07 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       CHARACTER*1        SIDE, UPLO

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.40 2007-05-23 16:43:50 d3p307 Exp $
+#$Id$
 ifdef USE_64TO32
 USE_I4FLAGS=y
 endif

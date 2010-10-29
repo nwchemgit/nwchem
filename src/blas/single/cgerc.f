@@ -1,6 +1,6 @@
       SUBROUTINE CGERC ( M, N, ALPHA, X, INCX, Y, INCY, A, LDA )
 *
-* $Id: cgerc.f,v 1.1 1997-03-17 21:41:06 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       COMPLEX            ALPHA

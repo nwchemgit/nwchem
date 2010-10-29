@@ -1,6 +1,6 @@
       DOUBLE PRECISION FUNCTION DZNRM2( N, X, INCX )
 *
-* $Id: dznrm2.f,v 1.2 1997-03-17 21:21:35 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       INTEGER                           INCX, N

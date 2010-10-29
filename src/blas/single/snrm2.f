@@ -1,6 +1,6 @@
       REAL             FUNCTION SNRM2 ( N, X, INCX )
 *
-* $Id: snrm2.f,v 1.3 1997-03-17 21:22:34 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       INTEGER                           INCX, N

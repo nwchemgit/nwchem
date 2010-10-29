@@ -1,7 +1,7 @@
       SUBROUTINE CHERK ( UPLO, TRANS, N, K, ALPHA, A, LDA,
      $                   BETA, C, LDC )
 *
-* $Id: cherk.f,v 1.1 1997-03-17 21:41:26 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       CHARACTER*1        UPLO, TRANS

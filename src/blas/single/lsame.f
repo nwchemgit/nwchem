@@ -1,6 +1,6 @@
       LOGICAL          FUNCTION LSAME( CA, CB )
 *
-* $Id: lsame.f,v 1.3 1997-03-17 21:22:17 d3e129 Exp $
+* $Id$
 *
 *
 *  -- LAPACK auxiliary routine (version 2.0) --

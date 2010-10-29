@@ -1,6 +1,6 @@
       subroutine  drot (n,dx,incx,dy,incy,c,s)
 *
-* $Id: drot.f,v 1.3 1997-03-17 21:21:01 d3e129 Exp $
+* $Id$
 *
 c
 c     applies a plane rotation.

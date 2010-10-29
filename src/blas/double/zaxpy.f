@@ -1,6 +1,6 @@
       subroutine zaxpy(n,za,zx,incx,zy,incy)
 *
-* $Id: zaxpy.f,v 1.2 1997-03-17 21:21:42 d3e129 Exp $
+* $Id$
 *
 c
 c     constant times a vector plus a vector.

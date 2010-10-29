@@ -1,6 +1,6 @@
       complex function cdotc(n,cx,incx,cy,incy)
 *
-* $Id: cdotc.f,v 1.1 1997-03-17 21:41:01 d3e129 Exp $
+* $Id$
 *
 c
 c     forms the dot product of two vectors, conjugating the first

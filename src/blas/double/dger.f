@@ -1,6 +1,6 @@
       SUBROUTINE DGER  ( M, N, ALPHA, X, INCX, Y, INCY, A, LDA )
 *
-* $Id: dger.f,v 1.3 1997-03-17 21:20:58 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       DOUBLE PRECISION   ALPHA

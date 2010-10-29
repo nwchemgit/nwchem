@@ -1,6 +1,6 @@
       subroutine sscal(n,sa,sx,incx)
 *
-* $Id: sscal.f,v 1.3 1997-03-17 21:22:38 d3e129 Exp $
+* $Id$
 *
 c
 c     scales a vector by a constant.

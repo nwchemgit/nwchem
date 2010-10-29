@@ -1,7 +1,7 @@
       SUBROUTINE DSYR2K( UPLO, TRANS, N, K, ALPHA, A, LDA, B, LDB,
      $                   BETA, C, LDC )
 *
-* $Id: dsyr2k.f,v 1.2 1997-03-17 21:21:23 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       CHARACTER*1        UPLO, TRANS

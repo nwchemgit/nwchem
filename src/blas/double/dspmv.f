@@ -1,6 +1,6 @@
       SUBROUTINE DSPMV ( UPLO, N, ALPHA, AP, X, INCX, BETA, Y, INCY )
 *
-* $Id: dspmv.f,v 1.3 1997-03-17 21:21:04 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       DOUBLE PRECISION   ALPHA, BETA

@@ -12,7 +12,7 @@
 *     ..
 *
 c
-* $Id: xerbla.F,v 1.1 2003-10-17 21:41:15 carlfahl Exp $
+* $Id$
 c
 *  Purpose
 *  =======

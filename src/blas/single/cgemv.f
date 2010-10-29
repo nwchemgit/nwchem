@@ -1,7 +1,7 @@
       SUBROUTINE CGEMV ( TRANS, M, N, ALPHA, A, LDA, X, INCX,
      $                   BETA, Y, INCY )
 *
-* $Id: cgemv.f,v 1.1 1997-03-17 21:41:05 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       COMPLEX            ALPHA, BETA

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 1997-11-04 10:07:16 d3e129 Exp $
+# $Id$
 #
 
 SUBDIRS = fftpack  pfft

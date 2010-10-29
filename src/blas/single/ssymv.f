@@ -1,7 +1,7 @@
       SUBROUTINE SSYMV ( UPLO, N, ALPHA, A, LDA, X, INCX,
      $                   BETA, Y, INCY )
 *
-* $Id: ssymv.f,v 1.2 1997-03-17 21:22:47 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       REAL               ALPHA, BETA

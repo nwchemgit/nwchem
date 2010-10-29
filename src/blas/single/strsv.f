@@ -1,6 +1,6 @@
       SUBROUTINE STRSV ( UPLO, TRANS, DIAG, N, A, LDA, X, INCX )
 *
-* $Id: strsv.f,v 1.2 1997-03-17 21:23:07 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       INTEGER            INCX, LDA, N

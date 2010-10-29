@@ -1,6 +1,6 @@
       SUBROUTINE DSYR  ( UPLO, N, ALPHA, X, INCX, A, LDA )
 *     .. Scalar Arguments ..
-C     $Id: dsyr.f,v 1.1 2004-11-14 04:43:34 edo Exp $
+C     $Id$
       DOUBLE PRECISION   ALPHA
       INTEGER            INCX, LDA, N
       CHARACTER*1        UPLO

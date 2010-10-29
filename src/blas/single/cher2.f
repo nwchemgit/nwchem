@@ -1,6 +1,6 @@
       SUBROUTINE CHER2 ( UPLO, N, ALPHA, X, INCX, Y, INCY, A, LDA )
 *
-* $Id: cher2.f,v 1.1 1997-03-17 21:41:15 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       COMPLEX            ALPHA

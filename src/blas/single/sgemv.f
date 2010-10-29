@@ -1,7 +1,7 @@
       SUBROUTINE SGEMV ( TRANS, M, N, ALPHA, A, LDA, X, INCX,
      $                   BETA, Y, INCY )
 *
-* $Id: sgemv.f,v 1.3 1997-03-17 21:22:29 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       REAL               ALPHA, BETA

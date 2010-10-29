@@ -1,6 +1,6 @@
       subroutine dpssb3 (ido,l1,cc,ch,wa1,wa2)
 *
-* $Id: dpssb3.F,v 1.2 1997-11-04 10:07:20 d3e129 Exp $
+* $Id$
 *
       double precision cc(ido,3,l1), ch(ido,l1,3), wa1(1), wa2(1),
      1 ci2, ci3, cr2, cr3, di2, di3, dr2, dr3, taui, taur, ti2, tr2

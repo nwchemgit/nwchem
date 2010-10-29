@@ -1,7 +1,7 @@
       SUBROUTINE STRMM ( SIDE, UPLO, TRANSA, DIAG, M, N, ALPHA, A, LDA,
      $                   B, LDB )
 *
-* $Id: strmm.f,v 1.3 1997-03-17 21:23:00 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       CHARACTER*1        SIDE, UPLO, TRANSA, DIAG

@@ -1,6 +1,6 @@
       subroutine dcfftf (n,c,wsave)
 *
-* $Id: dcfftf.F,v 1.2 1997-11-04 10:07:17 d3e129 Exp $
+* $Id$
 *
       double precision c(1), wsave(1)
 c

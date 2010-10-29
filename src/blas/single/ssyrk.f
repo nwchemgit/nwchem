@@ -1,7 +1,7 @@
       SUBROUTINE SSYRK ( UPLO, TRANS, N, K, ALPHA, A, LDA,
      $                   BETA, C, LDC )
 *
-* $Id: ssyrk.f,v 1.4 1997-03-17 21:22:53 d3e129 Exp $
+* $Id$
 *
 *     .. Scalar Arguments ..
       CHARACTER*1        UPLO, TRANS

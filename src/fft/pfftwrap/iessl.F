@@ -1,5 +1,5 @@
 *
-* $Id: iessl.F,v 1.3 2003-10-17 22:54:56 carlfahl Exp $
+* $Id$
 *
 c************************************************************************
       INTEGER FUNCTION initESSL(icontext)

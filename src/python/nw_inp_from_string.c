@@ -1,5 +1,5 @@
 /*
- $Id: nw_inp_from_string.c,v 1.14 2007-08-21 17:20:40 d3p852 Exp $
+ $Id$
 */
 #include "ga.h"
 #include <stdio.h>
