@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.1 2007-10-29 17:37:17 jhammond Exp $
+#$Id$
 
 OBJ_OPTIMIZE = \
 alpha_1_1_1.o \

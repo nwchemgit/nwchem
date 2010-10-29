@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.2 2008-03-26 19:24:56 jhammond Exp $
+#$Id$
 
 OBJ_OPTIMIZE = beta_1_all.o beta_2_all.o beta_3_all.o beta_4_all.o beta_all_offsets.o \
 
