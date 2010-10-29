@@ -1,7 +1,7 @@
       subroutine tce_create_t1(d_t1,l_t1_offset,k_t1_offset,size_t1,
      &                         irrep,title)
 c
-c $Id: tce_create_t1.F,v 1.3 2008-02-16 02:42:54 jhammond Exp $
+c $Id$
 c
 c Written by Jeff Hammond, January 2008.
 c

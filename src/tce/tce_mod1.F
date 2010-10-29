@@ -1,6 +1,6 @@
       subroutine tce_mod1(g_aod1,d_mod1)
 c
-c $Id: tce_mod1.F,v 1.5 2008-01-14 15:20:35 jhammond Exp $
+c $Id$
 c
 c     Spin-spatial-symmetry blocked dipole matrix transformations.
 c

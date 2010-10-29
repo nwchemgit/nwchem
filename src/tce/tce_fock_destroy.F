@@ -1,6 +1,6 @@
       subroutine tce_fock_driver(d_f1,l_f1_offset)
 c
-c $Id: tce_fock_destroy.F,v 1.1 2008-02-11 17:08:23 jhammond Exp $
+c $Id$
 c 
 c Written by Jeff Hammond, January 2008.
 c

@@ -1,6 +1,6 @@
       subroutine tce_mod1_new(rtdb,d_mod1,mpole)
 c
-c $Id: tce_mod1_new.F,v 1.4 2008-05-08 19:14:51 jhammond Exp $
+c $Id$
 c
 c     Spin-spatial-symmetry blocked dipole matrix transformations.
 c

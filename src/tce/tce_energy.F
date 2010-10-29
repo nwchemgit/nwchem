@@ -1,6 +1,6 @@
       logical function tce_energy(rtdb,excitedfragment)
 c
-c $Id: tce_energy.F,v 1.164 2009-03-16 03:49:57 jhammond Exp $
+c $Id$
 c 
       implicit none
 #include "mafdecls.fh"

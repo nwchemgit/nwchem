@@ -1,7 +1,7 @@
       subroutine tce_multipole_destroy(d_mo_mp1,l_mo_mp1_offset,
      &                                 multipole)
 c
-c $Id: tce_multipole_destroy.F,v 1.1 2008-02-11 17:08:24 jhammond Exp $
+c $Id$
 c 
 c Written by Jeff Hammond, January 2008.
 c

@@ -2,7 +2,7 @@
      1  size_x1,size_x2,size_x3,size_x4,
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
 c
-c $Id: tce_eom_xguess.F,v 1.7 2008-10-15 18:22:18 kowalski Exp $
+c $Id$
 c
 c     Generates initial trial vectors that are all singly excited 
 c     determinants within the same irrep_x

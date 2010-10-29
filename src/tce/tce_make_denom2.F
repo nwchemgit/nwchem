@@ -1,7 +1,7 @@
       subroutine tce_make_denom2(d_denom2,k_denom2_offset,irrep,
      1                           denom_power,omega,shift)
 c
-c $Id: tce_make_denom2.F,v 1.2 2008-09-30 18:43:17 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

@@ -1,6 +1,6 @@
       subroutine tce_aod1(rtdb,g_aod1,dipole)
 c
-c $Id: tce_aod1.F,v 1.3 2008-01-14 15:20:33 jhammond Exp $
+c $Id$
 c
 c     Returns a GA handle for AO Fock matrix.
 c

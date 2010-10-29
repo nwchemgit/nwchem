@@ -5,7 +5,7 @@
      &                         d_v2,k_v2_offset,size_2e,
      &                         ref,needt1,ioalg,model)
 c
-c $Id: tce_create_t2.F,v 1.3 2008-02-16 02:42:54 jhammond Exp $
+c $Id$
 c
 c Written by Jeff Hammond, January 2008.
 c

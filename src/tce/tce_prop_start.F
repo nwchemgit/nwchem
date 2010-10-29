@@ -1,6 +1,6 @@
       logical function tce_prop_start(rtdb)
 c
-c $Id: tce_prop_start.F,v 1.4 2008-05-08 19:14:51 jhammond Exp $
+c $Id$
 c
 c Wrapper for tce_property - the only reason to keep this around is
 c because eventually there may be code wrapped around the real property

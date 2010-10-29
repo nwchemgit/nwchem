@@ -1,6 +1,6 @@
       subroutine gatodra(d_sf)
 c
-c $Id: gatodra.F,v 1.4 2008-01-14 15:20:32 jhammond Exp $
+c $Id$
 c
 c     Unload data from GA to DRA
 c

@@ -1,6 +1,6 @@
       subroutine ma_scale(a,n,scalar)
 c
-c $Id: ma_scale.F,v 1.1 2002-10-18 23:42:06 sohirata Exp $
+c $Id$
 c
       implicit none
 #include "mafdecls.fh"

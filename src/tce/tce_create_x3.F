@@ -1,7 +1,7 @@
       subroutine tce_create_x3(d_x3,l_x3_offset,k_x3_offset,size_x3,
      &                       irrep,title)
 c
-c $Id: tce_create_x3.F,v 1.3 2008-02-16 02:42:54 jhammond Exp $
+c $Id$
 c
 c Written by Jeff Hammond, January 2008.
 c

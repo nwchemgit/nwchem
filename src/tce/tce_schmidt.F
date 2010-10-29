@@ -1,6 +1,6 @@
       subroutine tce_schmidt(n,vector)
 c
-c $Id: tce_schmidt.F,v 1.5 2003-10-17 22:58:29 carlfahl Exp $
+c $Id$
 c
 c Schmidt orthonormalize vectors
 c Written by So Hirata, Feb 2002.

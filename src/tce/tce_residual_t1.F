@@ -1,6 +1,6 @@
       subroutine tce_residual_t1(d_r1,k_r1_offset,residual)
 c
-c $Id: tce_residual_t1.F,v 1.13 2008-10-05 02:59:10 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -103,7 +103,7 @@ cc      next = nxtval(-nprocs)
 
       subroutine tce_residual_tr1(d_r1,k_r1_offset,residual)
 c
-c $Id: tce_residual_t1.F,v 1.13 2008-10-05 02:59:10 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

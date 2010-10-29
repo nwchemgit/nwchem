@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.3 2007-09-14 18:40:57 kowalski Exp $
+#$Id$
 
 OBJ_OPTIMIZE = c1_c1.o  c2_c2.o  cr_eomccsd_t.o cr_eomccsd_t_gr.o t2t12.o  \
                nr0.o c1excit2.o c2excit2.o q3rexpt2.o cr_s_m3.o \

@@ -1,6 +1,6 @@
       subroutine gatoeaf(d_sf)
 c
-c $Id: gatoeaf.F,v 1.3 2008-01-14 15:20:32 jhammond Exp $
+c $Id$
 c
 c     Unload data from GA to EAF
 c

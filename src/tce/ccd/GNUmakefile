@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.2 2005-12-20 21:19:39 edo Exp $
+#$Id$
 
 OBJ_OPTIMIZE = ccd_e.o ccd_t2.o
 

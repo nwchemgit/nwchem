@@ -4,7 +4,7 @@
      3  d_r3,d_t3,k_t3_offset,size_t3,
      4  d_r4,d_t4,k_t4_offset,size_t4,omega)
 c
-c $Id: tce_crop.F,v 1.1 2008-09-30 18:35:55 jhammond Exp $
+c $Id$
 c
 c     Copies residual and t1-t4 files in a round robin fashion
 c     and also performs DIIS if necessary

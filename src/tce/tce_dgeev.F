@@ -1,7 +1,7 @@
       SUBROUTINE TCE_DGEEV
      $    ( JOBVL, JOBVR, N, A, LDA, WR, WI, VL, LDVL, VR,
      $                  LDVR, WORK, LWORK, INFO )
-c $Id: tce_dgeev.F,v 1.2 2002-04-28 19:09:13 sohirata Exp $
+c $Id$
 c The subdoutine is identical to the original dgeev but had to be renamed,
 c since otherwise, for IBM SP2, dynamically linked dgeev having different
 c interface syntax is going to be used rather than this.

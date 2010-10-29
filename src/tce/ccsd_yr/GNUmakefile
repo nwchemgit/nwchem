@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.2 2007-09-13 17:26:27 jhammond Exp $
+#$Id$
 
 OBJ_OPTIMIZE = \
 ccsd_y_o1.o \

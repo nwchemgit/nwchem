@@ -1,7 +1,7 @@
       subroutine tce_mbpt2(d_mo2e,k_2e_offset,
      1                     d_t2,k_t2_offset,mbpt2)
 c
-c $Id: tce_mbpt2.F,v 1.7 2008-10-16 14:20:17 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

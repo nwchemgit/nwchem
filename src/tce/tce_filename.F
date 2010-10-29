@@ -1,6 +1,6 @@
       subroutine tce_filename(stub,filename)
 c
-c $Id: tce_filename.F,v 1.9 2008-07-02 03:30:10 jhammond Exp $
+c $Id$
 c
       implicit none
 c#include "global.fh"
@@ -37,7 +37,7 @@ c
 
       subroutine tce_filenameindexed(index,stub,filename)
 c
-c $Id: tce_filename.F,v 1.9 2008-07-02 03:30:10 jhammond Exp $
+c $Id$
 c
       implicit none
 c#include "global.fh"
@@ -73,7 +73,7 @@ c
 
       subroutine tce_filename_4ind(index,stub,filename)
 c
-c $Id: tce_filename.F,v 1.9 2008-07-02 03:30:10 jhammond Exp $
+c $Id$
 c
       implicit none
 c#include "global.fh"
@@ -112,7 +112,7 @@ ccx      call tce_filename(stub,temporary)
 
       subroutine tce_filename_sf(stub,filename)
 c
-c $Id: tce_filename.F,v 1.9 2008-07-02 03:30:10 jhammond Exp $
+c $Id$
 c
       implicit none
 c#include "global.fh"

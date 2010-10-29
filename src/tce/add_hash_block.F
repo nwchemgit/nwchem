@@ -1,6 +1,6 @@
       subroutine add_hash_block(d_file,array,size,hash,key)
 c
-c $Id: add_hash_block.F,v 1.3 2008-12-14 01:04:48 jhammond Exp $
+c $Id$
 c
       implicit none
       integer d_file

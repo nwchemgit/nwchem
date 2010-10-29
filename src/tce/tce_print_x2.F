@@ -1,6 +1,6 @@
       subroutine tce_print_x2(d_r2,k_r2_offset,r2_thresh,irrep)
 c
-c $Id: tce_print_x2.F,v 1.11 2009-02-25 00:46:45 d3p975 Exp $
+c $Id$
 c
 c Prints the X2 tensor
 c

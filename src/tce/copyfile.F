@@ -1,6 +1,6 @@
       subroutine copyfile(d_1,d_2,size)
 c
-c $Id: copyfile.F,v 1.9 2008-10-05 22:31:30 jhammond Exp $
+c $Id$
 c
 c     Duplicate a file
 c

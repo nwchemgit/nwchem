@@ -1,6 +1,6 @@
       subroutine tce_init_new(rtdb)
 c
-c $Id: tce_init_new.F,v 1.2 2008-09-18 14:38:47 jhammond Exp $
+c $Id$
 c
 c     Initialize for many-electron calculations.
 c

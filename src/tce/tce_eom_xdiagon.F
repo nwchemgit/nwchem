@@ -3,7 +3,7 @@
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
      3  d_r1,d_r2,d_r3,d_r4,omega,residual,k_hbar,iteration)
 c
-c $Id: tce_eom_xdiagon.F,v 1.7 2008/06/18 21:48:22 kowalski Exp $
+c $Id$
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -552,7 +552,7 @@ c
      1                           size_x1,size_x2,
      1                           imicro,xdiis)
 c
-c $Id: tce_eom_xdiagon.F,v 1.7 2008/06/18 21:48:22 kowalski Exp $
+c $Id$
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -637,7 +637,7 @@ c
      &                     size_x1,size_x2,
      &                     c_eff,imicro_x,xdiis,iroot)
 c
-c $Id: tce_eom_xdiagon.F,v 1.7 2008/06/18 21:48:22 kowalski Exp $
+c $Id$
 c
 c  xc(iroot) = sum(i=1,...,imicro) x(i)
 c
@@ -687,7 +687,7 @@ c
      &                     size_x1,size_x2,
      &                     c_eff,omega,imicro,xdiis,residual)
 c
-c $Id: tce_eom_xdiagon.F,v 1.7 2008/06/18 21:48:22 kowalski Exp $
+c $Id$
 c
 c  delta_x = (omega - H-bar) xc
 c
@@ -780,7 +780,7 @@ c
       subroutine form_heff(k_x1_offset,k_x2_offset,size_x1,size_x2,
      &                     c_eff,h_eff,omega,imicro,xdiis,iter_eomcc)
 c
-c $Id: tce_eom_xdiagon.F,v 1.7 2008/06/18 21:48:22 kowalski Exp $
+c $Id$
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -962,7 +962,7 @@ c
       subroutine norm_xc_vector(k_x1_offset,k_x2_offset,
      1                           size_x1,size_x2,iroot)
 c
-c $Id: tce_eom_xdiagon.F,v 1.7 2008/06/18 21:48:22 kowalski Exp $
+c $Id$
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -1022,7 +1022,7 @@ c
       subroutine eom_starts(size_x1,k_x1_offset,d_f1,k_f1_offset,d_v2,
      1 k_v2_offset,k_omegax)
 c
-c $Id: tce_eom_xdiagon.F,v 1.7 2008/06/18 21:48:22 kowalski Exp $
+c $Id$
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -1192,7 +1192,7 @@ c
       subroutine norm_x_vector_mr(k_x1_offset,k_x2_offset,
      1                           size_x1,size_x2,totr)
 c
-c $Id: tce_eom_xdiagon.F,v 1.7 2008/06/18 21:48:22 kowalski Exp $
+c $Id$
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -1279,7 +1279,7 @@ c
       subroutine form_heff_mr(k_x1_offset,k_x2_offset,size_x1,size_x2,
      &                      c_eff,h_eff,omega,imicro,xdiis,iter_eomcc)
 c
-c $Id: tce_eom_xdiagon.F,v 1.7 2008/06/18 21:48:22 kowalski Exp $
+c $Id$
 c
 c     Form a subspace matrix and diagonalize
 c
@@ -1466,7 +1466,7 @@ c
      &                     size_x1,size_x2,
      &                     c_eff,omega,imicro,xdiis,residual,iroot)
 c
-c $Id: tce_eom_xdiagon.F,v 1.7 2008/06/18 21:48:22 kowalski Exp $
+c $Id$
 c
 c  delta_x = (omega - H-bar) xc
 c
@@ -1555,7 +1555,7 @@ c
      &                     size_x1,size_x2,
      &                     c_eff,imicro_x,xdiis,iroot)
 c
-c $Id: tce_eom_xdiagon.F,v 1.7 2008/06/18 21:48:22 kowalski Exp $
+c $Id$
 c
 c  xc(iroot) = sum(i=1,...,imicro) x(i)
 c
@@ -1608,7 +1608,7 @@ c
      1                           size_x1,size_x2,
      1                           imicro,xdiis)
 c
-c $Id: tce_eom_xdiagon.F,v 1.7 2008/06/18 21:48:22 kowalski Exp $
+c $Id$
 c
 c     Form a subspace matrix and diagonalize
 c

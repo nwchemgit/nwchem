@@ -1,6 +1,6 @@
       subroutine tce_jacobi_tr1(d_r1,d_t1,k_t1_offset,omega,shift)
 c
-c $Id: tce_jacobi_tr1.F,v 1.6 2008-10-03 15:36:59 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

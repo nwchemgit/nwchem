@@ -1,6 +1,6 @@
       subroutine tce_loc_j2(d_r2,k_r2_offset,d_t2,k_t2_offset)
 c
-c $Id: tce_loc_j2.F,v 1.2 2008-01-14 15:20:42 jhammond Exp $
+c $Id$
 c
 c TO DO - initial 1.0-ing of the d_t2 file
 c
@@ -213,7 +213,7 @@ c
 c
       subroutine tce_loc_j2_one(d_r2,k_r2_offset)
 c
-c $Id: tce_loc_j2.F,v 1.2 2008-01-14 15:20:42 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -308,7 +308,7 @@ c
 c
       subroutine tce_loc_j2_inv(d_r2,k_r2_offset)
 c
-c $Id: tce_loc_j2.F,v 1.2 2008-01-14 15:20:42 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -404,7 +404,7 @@ c
 c
       subroutine tce_j2_x2_scaling(d_r2,k_r2_offset,d_j2,k_j2_offset)
 c
-c $Id: tce_loc_j2.F,v 1.2 2008-01-14 15:20:42 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

@@ -1,6 +1,6 @@
       subroutine add_block(d_file,array,size,offset)
 c
-c $Id: add_block.F,v 1.14 2008-12-14 01:04:48 jhammond Exp $
+c $Id$
 c
 c     This subroutine reads a section of a file and adds
 c     the content of an array to it and write it back to

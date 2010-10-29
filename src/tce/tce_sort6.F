@@ -1,7 +1,7 @@
       subroutine tce_sort_6(unsorted,sorted,a,b,c,d,e,f,
      1                      i,j,k,l,m,n,factor)
 c
-c $Id: tce_sort6.F,v 1.1 2008-09-25 14:54:18 jhammond Exp $
+c $Id$
 c
       implicit none
 c#include "global.fh"

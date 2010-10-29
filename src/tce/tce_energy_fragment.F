@@ -1,6 +1,6 @@
       logical function tce_energy_fragment(rtdb)
 c
-c $Id: tce_energy_fragment.F,v 1.7 2005-12-16 22:16:04 kowalski Exp $
+c $Id$
 c
 c Wrapper for tce_energy for fragment MO calculations.
 c

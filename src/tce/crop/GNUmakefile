@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.1 2008-09-30 18:35:55 jhammond Exp $
+#$Id$
 
 OBJ_OPTIMIZE =  tce_crop.o
 

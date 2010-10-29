@@ -1,6 +1,6 @@
       subroutine tce_tidy(rtdb)
 c
-c $Id: tce_tidy.F,v 1.11 2008-01-14 15:20:35 jhammond Exp $
+c $Id$
 c
 c     Terminate TCE modulem.
 c

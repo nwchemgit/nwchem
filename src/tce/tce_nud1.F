@@ -1,6 +1,6 @@
       subroutine tce_nud1(dipole)
 c
-c $Id: tce_nud1.F,v 1.3 2008-01-14 15:20:35 jhammond Exp $
+c $Id$
 c
 c     Computes nuclear contributions of dipole moments
 c

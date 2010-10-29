@@ -6,7 +6,7 @@
      7                        d_c2,k_c2_offset,size_c2,
      8                        energy1)
 C
-C     $Id: cr_eomccsd_t_gr.F,v 1.3 2008-07-17 21:48:12 marat Exp $
+C     $Id$
 C 
 c 
 c

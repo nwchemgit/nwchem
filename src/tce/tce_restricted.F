@@ -1,6 +1,6 @@
       subroutine tce_restricted_2(a1b,a2b,b1b,b2b)
 c
-c $Id: tce_restricted.F,v 1.2 2008-10-16 14:20:17 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -33,7 +33,7 @@ c
       subroutine tce_restricted_4(a1b,a2b,a3b,a4b,
      1                            b1b,b2b,b3b,b4b)
 c
-c $Id: tce_restricted.F,v 1.2 2008-10-16 14:20:17 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -72,7 +72,7 @@ c
       subroutine tce_restricted_6(a1b,a2b,a3b,a4b,a5b,a6b,
      1                            b1b,b2b,b3b,b4b,b5b,b6b)
 c
-c $Id: tce_restricted.F,v 1.2 2008-10-16 14:20:17 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -117,7 +117,7 @@ c
       subroutine tce_restricted_8(a1b,a2b,a3b,a4b,a5b,a6b,a7b,a8b,
      1                            b1b,b2b,b3b,b4b,b5b,b6b,b7b,b8b)
 c
-c $Id: tce_restricted.F,v 1.2 2008-10-16 14:20:17 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

@@ -3,7 +3,7 @@
 #endif
       subroutine tce_input(rtdb)
 c
-c $Id: tce_input.F,v 1.37 2009/03/05 23:48:58 d3p975 Exp $
+c $Id$
 c
 c Input parser for TCE module for various many-electron theories.
 c Also sets default values for input parameters.

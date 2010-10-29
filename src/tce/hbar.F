@@ -1,6 +1,6 @@
       logical function hbar_restore(ivec,jvec,hbar)
 c
-c $Id: hbar.F,v 1.3 2008-01-14 15:20:32 jhammond Exp $
+c $Id$
 c
 c     Read (if exist) hbar(ivec,jvec)
 c
@@ -58,7 +58,7 @@ c           write(LuOut,*) 'Restoring H bar(',ivec,jvec,') = ',hbar
       end
       subroutine hbar_store(ivec,jvec,hbar)
 c
-c $Id: hbar.F,v 1.3 2008-01-14 15:20:32 jhammond Exp $
+c $Id$
 c
 c     Write hbar(ivec,jvec)
 c
@@ -111,7 +111,7 @@ c     write(LuOut,*) 'Storing H bar(',ivec,jvec,') = ',hbar
       end
       subroutine hbar_init
 c
-c $Id: hbar.F,v 1.3 2008-01-14 15:20:32 jhammond Exp $
+c $Id$
 c
 c     Initialize hbar file
 c
@@ -142,7 +142,7 @@ c
       end
       subroutine hbar_tidy
 c
-c $Id: hbar.F,v 1.3 2008-01-14 15:20:32 jhammond Exp $
+c $Id$
 c
 c     Terminate hbar file
 c

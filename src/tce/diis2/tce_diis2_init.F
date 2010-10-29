@@ -1,6 +1,6 @@
       subroutine tce_diis2_init
 c
-c $Id: tce_diis2_init.F,v 1.2 2008-01-14 15:20:41 jhammond Exp $
+c $Id$
 c
 c     Initializes file handle holders
 c

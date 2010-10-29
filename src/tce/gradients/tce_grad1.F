@@ -2,7 +2,7 @@
      $                   frc_kin, frc_wgh, g_force,
      $                   g_dens, g_wdens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb, oskel )
-c$Id: tce_grad1.F,v 1.1 2008-09-30 19:33:22 d3p975 Exp $
+c$Id$
 
 C     one electron contribution to RHF, ROHF and UHF gradients
 C     now also UMP2
@@ -274,7 +274,7 @@ c     $                   dens, wdens, frc_nuc,
 c     $                   frc_kin, frc_wgh, g_force,
 c     $                   g_dens, g_wdens, basis, geom, nproc, nat, 
 c     $                   max_at_bf, rtdb, oskel )
-cc$Id: tce_grad1.F,v 1.1 2008-09-30 19:33:22 d3p975 Exp $
+cc$Id$
 c
 cC     one electron contribution to RHF, ROHF and UHF gradients
 cC     now also UMP2

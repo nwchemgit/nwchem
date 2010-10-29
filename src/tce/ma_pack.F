@@ -1,6 +1,6 @@
       subroutine ma_pack(unpack,pack,n)
 c
-c $Id: ma_pack.F,v 1.2 2008-10-16 14:20:16 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "mafdecls.fh"

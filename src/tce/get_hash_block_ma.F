@@ -1,6 +1,6 @@
       subroutine get_hash_block_ma(big_array,array,size,hash,key)
 c
-c $Id: get_hash_block_ma.F,v 1.1 2008-10-08 20:46:07 kowalski Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

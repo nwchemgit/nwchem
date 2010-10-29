@@ -6,7 +6,7 @@
      &  d_tr1,k_tr1_offset,d_tr2,k_tr2_offset,
      &  d_yr1,k_yr1_offset,d_yr2,k_yr2_offset)
 c
-c $Id: tce_ccsd_hyperpolar.F,v 1.5 2008-03-12 21:34:17 jhammond Exp $
+c $Id$
 c
 c Written by Jeff Hammond, January 2008.
 c
@@ -155,7 +155,7 @@ c
      &  d_tr1c,k_tr1c_offset,d_tr2c,k_tr2c_offset,
      &  d_yr1a,k_yr1a_offset,d_yr2a,k_yr2a_offset)
 c
-c $Id: tce_ccsd_hyperpolar.F,v 1.5 2008-03-12 21:34:17 jhammond Exp $
+c $Id$
 c
 c Written by Jeff Hammond, February 2008.
 c
@@ -337,7 +337,7 @@ c
      &  d_tr1,k_tr1_offset,d_tr2,k_tr2_offset,
      &  d_yr1,k_yr1_offset,d_yr2,k_yr2_offset)
 c
-c $Id: tce_ccsd_hyperpolar.F,v 1.5 2008-03-12 21:34:17 jhammond Exp $
+c $Id$
 c
 c Written by Jeff Hammond, February 2008.
 c

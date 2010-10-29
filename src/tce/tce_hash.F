@@ -1,6 +1,6 @@
       subroutine tce_hash(hash,key,offset)
 c
-c $Id: tce_hash.F,v 1.2 2006-06-06 17:10:59 kowalski Exp $
+c $Id$
 c
       implicit none
 #include "util.fh"
@@ -53,7 +53,7 @@ c
 c
       subroutine tce_hash_n(hash,key,offset)
 c
-c $Id: tce_hash.F,v 1.2 2006-06-06 17:10:59 kowalski Exp $
+c $Id$
 c
       implicit none
 #include "util.fh"

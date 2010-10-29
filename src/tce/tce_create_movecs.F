@@ -1,6 +1,6 @@
       subroutine tce_create_movecs(rtdb)
 c
-c $Id: tce_create_movecs.F,v 1.1 2008-02-11 17:08:23 jhammond Exp $
+c $Id$
 c
 c     Initialize for many-electron calculations.
 c

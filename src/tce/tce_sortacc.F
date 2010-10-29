@@ -1,6 +1,6 @@
       subroutine tce_sortacc_0(unsorted,sorted,factor)
 c
-c $Id: tce_sortacc.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -22,7 +22,7 @@ c
       subroutine tce_sortacc_2(unsorted,sorted,a,b,
      1                         i,j,factor)
 c
-c $Id: tce_sortacc.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -62,7 +62,7 @@ c
       subroutine tce_sortacc_4(unsorted,sorted,a,b,c,d,
      1                         i,j,k,l,factor)
 c
-c $Id: tce_sortacc.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -143,7 +143,7 @@ c
       subroutine tce_sortacc_6(unsorted,sorted,a,b,c,d,e,f,
      1                         i,j,k,l,m,n,factor)
 c
-c $Id: tce_sortacc.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -303,7 +303,7 @@ c     write(*,*) cpu
       subroutine tce_sortacc_8(unsorted,sorted,a,b,c,d,e,f,g,h,
      1                         i,j,k,l,m,n,o,p,factor)
 c
-c $Id: tce_sortacc.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

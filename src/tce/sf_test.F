@@ -1,6 +1,6 @@
       subroutine sf_test
 c
-c $Id: sf_test.F,v 1.14 2008-12-07 22:37:58 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.4 2008-10-21 00:37:23 jhammond Exp $
+#$Id$
 
 OBJ_OPTIMIZE =  tce_diis3.o tce_diis3c.o\
       tce_jacobi_ir1.o tce_jacobi_ir2.o tce_jacobi_ir3.o tce_jacobi_ir4.o \

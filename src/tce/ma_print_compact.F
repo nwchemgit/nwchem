@@ -1,6 +1,6 @@
       subroutine ma_print_compact(vector,ndim,mdim,title)
 c
-c $Id: ma_print_compact.F,v 1.2 2004-10-28 18:16:40 edo Exp $
+c $Id$
 c
 
       implicit none

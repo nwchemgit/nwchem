@@ -1,7 +1,7 @@
       subroutine tce_create_y2(d_y2,l_y2_offset,k_y2_offset,size_y2,
      &                       irrep,title)
 c
-c $Id: tce_create_y2.F,v 1.3 2008-02-16 02:42:54 jhammond Exp $
+c $Id$
 c
 c Written by Jeff Hammond, January 2008.
 c

@@ -1,7 +1,7 @@
       subroutine tce_guess_t2(d_mo2e,k_2e_offset,
      1                        d_t2,k_t2_offset)
 c
-c $Id: tce_guess_t2.F,v 1.11 2008-07-17 21:47:57 marat Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

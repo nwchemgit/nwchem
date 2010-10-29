@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.2 2005-12-20 21:19:40 edo Exp $
+#$Id$
 
 OBJ_OPTIMIZE = qcisd_e.o qcisd_t1.o qcisd_t2.o
 

@@ -1,6 +1,6 @@
       subroutine daxpyfile(n,coefficients,d_in,d_out,size)
 c
-c $Id: daxpyfile.F,v 1.9 2008-10-05 23:25:47 jhammond Exp $
+c $Id$
 c
 c     A linear combination of files added to the original
 c

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.2 2005/12/20 21:19:40 edo Exp $
+#$Id$
 
 OBJ_OPTIMIZE = mbpt3_e.o mbpt3_t1.o mbpt3_t2.o mbpt3_t1_sd.o mbpt3_t2_sd.o
 

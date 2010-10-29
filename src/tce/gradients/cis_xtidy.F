@@ -1,6 +1,6 @@
       subroutine cis_xtidy
 c
-c $Id: cis_xtidy.F,v 1.1 2008-10-02 23:18:44 d3p975 Exp $
+c $Id$
 c
 c     Delete files for trial and product vectors
 c

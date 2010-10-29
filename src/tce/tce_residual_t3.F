@@ -1,6 +1,6 @@
       subroutine tce_residual_t3(d_r3,k_r3_offset,residual)
 c
-c $Id: tce_residual_t3.F,v 1.12 2008-10-05 02:59:10 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -143,7 +143,7 @@ c
       end
       subroutine tce_residual_tr3(d_r3,k_r3_offset,residual)
 c
-c $Id: tce_residual_t3.F,v 1.12 2008-10-05 02:59:10 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

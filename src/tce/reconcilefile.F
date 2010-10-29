@@ -1,6 +1,6 @@
       subroutine reconcilefile(d_sf,size)
 c
-c $Id: reconcilefile.F,v 1.10 2008-12-11 20:20:38 jhammond Exp $
+c $Id$
 c
 c     Accumulate local distributed files and update all files
 c     with the one accumulated file

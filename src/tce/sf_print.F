@@ -1,6 +1,6 @@
       subroutine sf_print(sf_handle,size)
 c
-c $Id: sf_print.F,v 1.10 2008-01-14 15:20:32 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

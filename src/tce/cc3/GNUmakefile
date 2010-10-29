@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.1 2007-11-07 17:50:34 jhammond Exp $
+#$Id$
 
 OBJ_OPTIMIZE = cc3_t3.o ccsdt1b_t3.o ccsdt2_t3.o ccsdt3_t3.o eomccsdt1_x3.o eomcc3_x3.o eomccsdt3_x3.o cc3_lambda3.o
 

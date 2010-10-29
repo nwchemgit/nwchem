@@ -1,6 +1,6 @@
       subroutine dratoga(d_sf)
 c
-c $Id: dratoga.F,v 1.5 2008-01-14 15:20:32 jhammond Exp $
+c $Id$
 c
 c     Load data from DRA to GA
 c

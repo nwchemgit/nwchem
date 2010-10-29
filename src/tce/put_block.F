@@ -1,6 +1,6 @@
       subroutine put_block(d_file,array,size,offset)
 c
-c $Id: put_block.F,v 1.15 2008-06-09 19:19:54 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -147,7 +147,7 @@ c
 
       subroutine put_block_sf(d_file,array,size,offset)
 c
-c $Id: put_block.F,v 1.15 2008-06-09 19:19:54 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

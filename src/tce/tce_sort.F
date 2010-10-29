@@ -1,6 +1,6 @@
       subroutine tce_sort_0(unsorted,sorted,factor)
 c
-c $Id: tce_sort.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
+c $Id$
 c
       implicit none
 c#include "global.fh"
@@ -22,7 +22,7 @@ c
       subroutine tce_sort_2(unsorted,sorted,a,b,
      1                      i,j,factor)
 c
-c $Id: tce_sort.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
+c $Id$
 c
       implicit none
 c#include "global.fh"
@@ -62,7 +62,7 @@ c
       subroutine tce_sort_4(unsorted,sorted,a,b,c,d,
      1                      i,j,k,l,factor)
 c
-c $Id: tce_sort.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
+c $Id$
 c
       implicit none
 c#include "global.fh"
@@ -143,7 +143,7 @@ c
       subroutine tce_sort_6(unsorted,sorted,a,b,c,d,e,f,
      1                      i,j,k,l,m,n,factor)
 c
-c $Id: tce_sort.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
+c $Id$
 c
       implicit none
 c#include "global.fh"
@@ -303,7 +303,7 @@ c     write(*,*) cpu
       subroutine tce_sort_8(unsorted,sorted,a,b,c,d,e,f,g,h,
      1                      i,j,k,l,m,n,o,p,factor)
 c
-c $Id: tce_sort.F,v 1.2 2008-01-14 15:20:35 jhammond Exp $
+c $Id$
 c
       implicit none
 c#include "global.fh"
@@ -564,7 +564,7 @@ c     now lives under /nwdft as LR-TDDFT
 c
       subroutine tce_sort(n,value,vector,order)
 c
-c $Id: tce_sort.F,v 1.3 2002-04-28 19:09:14 sohirata Exp $
+c $Id$
 c
 c Sort the eigenvalues and eigenvectors 
 c in an ascending/descending order

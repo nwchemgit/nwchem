@@ -1,6 +1,6 @@
       subroutine tce_grad_tidy(rtdb)
 c
-c $Id: tce_grad_tidy.F,v 1.1 2008-09-30 19:36:10 d3p975 Exp $
+c $Id$
 c
 c     Terminate TCE modulem.
 c

@@ -1,6 +1,6 @@
       subroutine tce_ao1e_shellfockbuild(rtdb,g_ao1e)
 c
-c $Id: tce_ao1e.F,v 1.7 2008-01-14 15:20:32 jhammond Exp $
+c $Id$
 c
 c     Returns a GA handle for AO Fock matrix.
 c

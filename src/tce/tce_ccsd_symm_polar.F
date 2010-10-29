@@ -9,7 +9,7 @@
      &  d_tr1bp,d_tr1bm,k_tr1b_offset,
      &  d_tr2bp,d_tr2bm,k_tr2b_offset)
 c
-c $Id: tce_ccsd_symm_polar.F,v 1.5 2008-03-09 01:34:25 jhammond Exp $
+c $Id$
 c
 c Written by Jeff Hammond, January 2008.
 c

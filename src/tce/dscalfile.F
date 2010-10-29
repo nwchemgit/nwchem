@@ -1,6 +1,6 @@
       subroutine dscalfile(scale,d_1,size)
 c
-c $Id: dscalfile.F,v 1.7 2008-10-05 22:31:29 jhammond Exp $
+c $Id$
 c
 c     Multiply a file by a constant
 c

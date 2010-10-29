@@ -1,6 +1,6 @@
       subroutine tce_reference_check(rtdb,ref)
 c
-c $Id: tce_reference_check.F,v 1.1 2008-01-29 18:26:14 jhammond Exp $
+c $Id$
 c
 c Written by Jeff Hammond, January 2008.
 c

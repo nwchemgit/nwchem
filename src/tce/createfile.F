@@ -1,6 +1,6 @@
       subroutine createfile(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.21 2008-12-11 20:20:38 jhammond Exp $
+c $Id$
 c
 c     Creates a shared file and returns the handle
 c
@@ -210,7 +210,7 @@ c
 
       subroutine createfile_sf(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.21 2008-12-11 20:20:38 jhammond Exp $
+c $Id$
 c
 c     Creates a shared file and returns the handle
 c
@@ -291,7 +291,7 @@ c
 
       subroutine createfile_sf_suffix(filename,d_sf,size,suffix)
 c
-c $Id: createfile.F,v 1.21 2008-12-11 20:20:38 jhammond Exp $
+c $Id$
 c
 c     Creates a shared file and returns the handle
 c
@@ -369,7 +369,7 @@ c
 
       subroutine createfile_mirror(filename,d_sf,size)
 c
-c $Id: createfile.F,v 1.21 2008-12-11 20:20:38 jhammond Exp $
+c $Id$
 c
 c     Creates a shared file and returns the handle
 c

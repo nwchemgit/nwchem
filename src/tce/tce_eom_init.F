@@ -1,6 +1,6 @@
       subroutine tce_eom_init
 c
-c $Id: tce_eom_init.F,v 1.3 2008-01-14 15:20:33 jhammond Exp $
+c $Id$
 c
 c     Initializes file handle holders
 c

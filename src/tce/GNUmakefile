@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.99 2008-12-09 18:37:00 jhammond Exp $
+#$Id$
 #
 
 SUBDIRS = include diis diis2 diis3 gradients \

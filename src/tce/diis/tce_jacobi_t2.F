@@ -1,6 +1,6 @@
       subroutine tce_jacobi_t2(d_r2,d_t2,k_t2_offset,shift)
 c
-c $Id: tce_jacobi_t2.F,v 1.2 2008-10-02 18:39:06 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -130,7 +130,7 @@ c
 c
       subroutine tce_r2_divide(d_r2,k_t2_offset)
 c
-c $Id: tce_jacobi_t2.F,v 1.2 2008-10-02 18:39:06 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

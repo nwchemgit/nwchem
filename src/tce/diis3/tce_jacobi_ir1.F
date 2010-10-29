@@ -1,7 +1,7 @@
       subroutine tce_jacobi_ir1(d_r1,d_t1,k_t1_offset,omega,
      1                          shift,damping)
 c
-c $Id: tce_jacobi_ir1.F,v 1.5 2008-09-30 18:35:54 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

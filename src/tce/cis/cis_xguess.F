@@ -1,6 +1,6 @@
       subroutine cis_xguess(size_x1,k_x1_offset,iopen_f)
 c
-c $Id: tce_eom_xguess.F,v 1.4 2005/12/16 22:16:04 kowalski Exp $
+c $Id$
 c
 c     Generates initial trial vectors that are all singly excited 
 c     determinants within the same irrep_x

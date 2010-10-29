@@ -1,6 +1,6 @@
       subroutine tce_mo1e(g_ao1e,d_mo1e,k_f1_offset)
 c
-c $Id: tce_mo1e.F,v 1.11 2008-01-14 15:20:34 jhammond Exp $
+c $Id$
 c
 c     Spin-spatial-symmetry blocked Fock matrix transformations.
 c

@@ -1,6 +1,6 @@
       subroutine get_block(d_file,array,size,offset)
 c
-c $Id: get_block.F,v 1.16 2008-06-09 19:19:54 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -157,7 +157,7 @@ c
 
       subroutine get_block_sf(d_file,array,size,offset)
 c
-c $Id: get_block.F,v 1.16 2008-06-09 19:19:54 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

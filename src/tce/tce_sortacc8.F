@@ -1,7 +1,7 @@
       subroutine tce_sortacc_8(unsorted,sorted,a,b,c,d,e,f,g,h,
      1                         i,j,k,l,m,n,o,p,factor)
 c
-c $Id: tce_sortacc8.F,v 1.1 2008-09-25 14:54:19 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

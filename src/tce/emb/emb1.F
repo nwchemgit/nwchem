@@ -8,7 +8,7 @@
      7                        d_c2,k_c2_offset,size_c2,
      8                        excit,energy1,energy2,size_t1,size_x1)
 C
-C     $Id: emb1.F,v 1.2 2008-01-14 15:20:41 jhammond Exp $
+C     $Id$
 C 
 c from this point on we assume that corresponding one- and two-
 c body components of R(d_x1,d_x2) and T(d_t1,d_t2) operators,

@@ -5,7 +5,7 @@
      1        noab,nvab,k_range,k_offset,k_spin,
      1        k_movecs_sorted,restricted)
 c
-c$Id: tce_gradients_doit.F,v 1.1 2008-09-30 19:35:19 d3p975 Exp $
+c$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.4 2009-03-02 22:40:39 d3p975 Exp $
+#$Id$
 
 OBJ_OPTIMIZE = tce_gradient.o ccsd_energy.o ccsd_left.o ccsd_gradient.o \
                ccsd_1pdm_hh_mo.o ccsd_1pdm_pp_mo.o ccsd_1pdm_hp_mo.o ccsd_1pdm_ph_mo.o \

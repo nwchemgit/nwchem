@@ -1,6 +1,6 @@
       integer function sym_abelian_axis(geom,axis)
 c
-c $Id: sym_abelian_axis.F,v 1.3 2008-01-29 18:26:11 jhammond Exp $
+c $Id$
 c
 c Returns irrep of a given axis if real Abelian,
 c otherwise returns -1.

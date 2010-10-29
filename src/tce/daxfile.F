@@ -1,6 +1,6 @@
       subroutine daxfile(n,coefficients,d_in,d_out,size)
 c
-c $Id: daxfile.F,v 1.7 2008-10-05 23:25:47 jhammond Exp $
+c $Id$
 c
 c     A linear combination of files
 c

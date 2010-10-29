@@ -1,6 +1,6 @@
       subroutine tce_clone_y1(d_y1,size_y1,irrep,title)
 c
-c $Id: tce_clone_y1.F,v 1.2 2008-02-16 02:42:54 jhammond Exp $
+c $Id$
 c
 c Written by Jeff Hammond, January 2008.
 c

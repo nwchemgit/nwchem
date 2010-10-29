@@ -1,6 +1,6 @@
       subroutine cis_xdiagon(size_x1,k_x1_offset,d_r1,omega,residual)
 c
-c $Id: tce_eom_xdiagon.F,v 1.3 2005/12/16 22:16:04 kowalski Exp $
+c $Id$
 c
 c     Form a subspace matrix and diagonalize
 c

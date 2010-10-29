@@ -1,6 +1,6 @@
       subroutine tce_zero(d_sf,size)
 c
-c $Id: tce_zero.F,v 1.16 2008-07-22 16:12:24 jhammond Exp $
+c $Id$
 c
 c     Zero scratch a file
 c
@@ -102,7 +102,7 @@ cc        next = NXTVAL(-nprocs)
 
       subroutine tce_zero_sf(d_sf,size)
 c
-c $Id: tce_zero.F,v 1.16 2008-07-22 16:12:24 jhammond Exp $
+c $Id$
 c
 c     Zero scratch a file
 c

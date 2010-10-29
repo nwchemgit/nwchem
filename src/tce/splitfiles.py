@@ -1,6 +1,6 @@
 # Usage: python splitfiles.py < inputfile.F
 # (c) All rights reserved by Battelle & Pacific Northwest Nat'l Lab (2002)
-# $Id: splitfiles.py,v 1.2 2003-07-25 21:26:59 sohirata Exp $
+# $Id$
  
 import string
 import copy

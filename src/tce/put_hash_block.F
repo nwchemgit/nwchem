@@ -1,6 +1,6 @@
       subroutine put_hash_block(d_file,array,size,hash,key)
 c
-c $Id: put_hash_block.F,v 1.2 2008-06-09 19:19:53 jhammond Exp $
+c $Id$
 c
       implicit none
       integer d_file
@@ -22,7 +22,7 @@ c
 
       subroutine put_hash_block_sf(d_file,array,size,hash,key)
 c
-c $Id: put_hash_block.F,v 1.2 2008-06-09 19:19:53 jhammond Exp $
+c $Id$
 c
       implicit none
       integer d_file

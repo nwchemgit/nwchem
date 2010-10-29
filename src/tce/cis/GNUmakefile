@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.2 2005/12/20 21:19:40 edo Exp $
+#$Id$
 
 OBJ_OPTIMIZE =  cis.o cis_x1.o cis_xguess.o cis_xdiagon.o cis_xtidy.o
 

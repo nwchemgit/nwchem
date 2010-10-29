@@ -1,6 +1,6 @@
       integer function tce_diis_switch(iter)
 c
-c $Id: tce_diis_switch.F,v 1.1 2008-09-30 18:35:43 jhammond Exp $
+c $Id$
 c
 c     Returns DIIS order
 c

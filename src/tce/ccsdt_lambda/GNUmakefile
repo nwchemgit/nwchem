@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.4 2005-12-20 21:19:40 edo Exp $
+#$Id$
 
 OBJ_OPTIMIZE = ccsdt_lambda3.o ccsdt_density1.o \
 ccsdt_lambda1.o\

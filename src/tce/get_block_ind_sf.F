@@ -1,7 +1,7 @@
       subroutine get_block_ind_sf(d_file,array,size,key_ix,indexc)
 c      subroutine get_block_ind_sf(d_file,array,size,offset,indexc)
 c
-c $Id: get_block_ind_sf.F,v 1.2 2008-07-28 19:06:26 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"
@@ -685,7 +685,7 @@ c
      &                         w2b,w1b,w4b,w3b)
 c      subroutine get_block_ind_sf(d_file,array,size,offset,indexc)
 c
-c $Id: get_block_ind_sf.F,v 1.2 2008-07-28 19:06:26 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

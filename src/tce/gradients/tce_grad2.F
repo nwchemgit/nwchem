@@ -14,7 +14,7 @@
      $     nopen,nbf,pdm2,pdm2a,pdm2b,pdm2c,pdm2d,coeff,
      $     nshblocks, shmap, shglo, shghi, bfglo, bfghi, bfmap, rbfmap,
      $     bftoat, shbflo, shbfhi, jfac, kfac, exso)
-c     $Id: tce_grad2.F,v 1.1 2008-09-30 19:33:35 d3p975 Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "sym.fh"

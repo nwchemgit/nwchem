@@ -1,6 +1,6 @@
       subroutine tce_jacobi_y3(d_r3,k_r3_offset)
 c
-c $Id: tce_jacobi_y3.F,v 1.1 2008-09-30 18:35:48 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

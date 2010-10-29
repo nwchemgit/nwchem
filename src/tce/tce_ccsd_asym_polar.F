@@ -5,7 +5,7 @@
      &  d_tr1,k_tr1_offset,d_tr2,k_tr2_offset,
      &  d_yr1,k_yr1_offset,d_yr2,k_yr2_offset)
 c
-c $Id: tce_ccsd_asym_polar.F,v 1.5 2008-03-12 21:34:17 jhammond Exp $
+c $Id$
 c
 c Written by Jeff Hammond, January 2008.
 c

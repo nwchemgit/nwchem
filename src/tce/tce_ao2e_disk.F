@@ -1,6 +1,6 @@
       subroutine tce_ao2e_disk(rtdb,d_ao2e)
 c
-c $Id: tce_ao2e_disk.F,v 1.3 2008-06-09 22:17:37 jhammond Exp $
+c $Id$
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c

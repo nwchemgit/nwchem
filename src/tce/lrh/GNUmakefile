@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.1 2007-09-18 20:21:58 kowalski Exp $
+#$Id$
 
 OBJ_OPTIMIZE = tce_loc_j1.o tce_loc_j2.o
 

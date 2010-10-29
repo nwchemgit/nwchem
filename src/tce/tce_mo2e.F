@@ -1,6 +1,6 @@
       subroutine tce_mo2e(rtdb,d_ao2e,d_mo2e,k_2e_offset)
 c
-c $Id: tce_mo2e.F,v 1.16 2008-10-05 02:59:09 jhammond Exp $
+c $Id$
 c
 c     Returns a SF handle for the MO 2-e integral matrix.
 c

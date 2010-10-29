@@ -1,7 +1,7 @@
       subroutine tce_ao2e_cholesky_2d(rtdb,              ! input
      &                               d_ao2e)            ! output (first full AO matrix, then replaced by full Cholesky factor)
 c
-c $Id: tce_ao2e_cholesky_2d.F,v 1.2 2008-08-18 02:13:36 jhammond Exp $
+c $Id$
 c
 c     Returns a SF handle for the AO 2-e integral matrix.
 c

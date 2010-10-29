@@ -1,6 +1,6 @@
       subroutine cis_xtidy
 c
-c $Id: tce_eom_tidy.F,v 1.2 2003/10/19 00:52:06 sohirata Exp $
+c $Id$
 c
 c     Delete files for trial and product vectors
 c

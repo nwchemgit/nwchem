@@ -1,6 +1,6 @@
       subroutine deletefile(d_sf)
 c
-c $Id: deletefile.F,v 1.14 2008-06-09 19:19:54 jhammond Exp $
+c $Id$
 c
 c     Creates a shared file and returns the handle
 c
@@ -200,7 +200,7 @@ c
 
       subroutine deletefile_sf(d_sf)
 c
-c $Id: deletefile.F,v 1.14 2008-06-09 19:19:54 jhammond Exp $
+c $Id$
 c
 c     Creates a shared file and returns the handle
 c

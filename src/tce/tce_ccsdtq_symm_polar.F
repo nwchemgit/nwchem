@@ -10,7 +10,7 @@
      &  d_tr1bp,d_tr1bm,k_tr1b_offset,d_tr2bp,d_tr2bm,k_tr2b_offset,
      &  d_tr3bp,d_tr3bm,k_tr3b_offset,d_tr4bp,d_tr4bm,k_tr4b_offset)
 c
-c $Id: tce_ccsdtq_symm_polar.F,v 1.3 2008-03-07 04:34:12 jhammond Exp $
+c $Id$
 c 
 c Written by Jeff Hammond, January 2008.
 c

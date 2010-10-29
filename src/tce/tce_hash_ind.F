@@ -2,7 +2,7 @@
 cccx      subroutine tce_hash_ind(hash,key,indexc)
 cccx      subroutine tce_hash_ind(hash,key,offset,indexc)
 c
-c $Id: tce_hash_ind.F,v 1.2 2006-06-05 18:25:27 kowalski Exp $
+c $Id$
 c
       implicit none
 #include "util.fh"

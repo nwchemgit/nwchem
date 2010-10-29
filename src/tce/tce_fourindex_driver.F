@@ -1,6 +1,6 @@
       subroutine tce_fourindex_driver(rtdb,d_v2,l_v2_offset,k_v2_offset)
 c
-c $Id: tce_fourindex_driver.F,v 1.2 2008-02-11 17:08:24 jhammond Exp $
+c $Id$
 c 
 c Written by Jeff Hammond, January 2008.
 c

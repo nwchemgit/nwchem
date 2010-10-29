@@ -1,6 +1,6 @@
       subroutine tce_fourindex_cleanup(d_f1,l_f1_offset,k_f1_offset)
 c
-c $Id: tce_fourindex_cleanup.F,v 1.2 2008-02-12 17:19:28 jhammond Exp $
+c $Id$
 c 
 c Written by Jeff Hammond, January 2008.
 c

@@ -1,6 +1,6 @@
       subroutine tce_fock_create(rtdb,d_f1,l_f1_offset,k_f1_offset)
 c
-c $Id: tce_fock_create.F,v 1.2 2008-09-18 14:38:46 jhammond Exp $
+c $Id$
 c 
 c Written by Jeff Hammond, January 2008.
 c

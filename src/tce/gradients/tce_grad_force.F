@@ -4,7 +4,7 @@
      1       d_2pdm, k_2pdm_offset, size_2pdm,
      1       noab,nvab,k_range,k_offset,k_spin,
      1       k_movecs_sorted,restricted)
-c     $Id: tce_grad_force.F,v 1.2 2008-10-01 18:59:13 d3p975 Exp $
+c     $Id$
 C     calculate energy gradients with respect to nuclear coordinates
 C------------------------------------------------------------------------------
       implicit none

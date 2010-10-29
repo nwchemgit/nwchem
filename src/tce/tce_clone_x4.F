@@ -1,6 +1,6 @@
       subroutine tce_clone_x4(d_x4,size_x4,irrep,title)
 c
-c $Id: tce_clone_x4.F,v 1.2 2008-02-16 02:42:53 jhammond Exp $
+c $Id$
 c
 c Written by Jeff Hammond, January 2008.
 c

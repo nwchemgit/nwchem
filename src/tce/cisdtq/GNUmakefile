@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.4 2008-03-14 00:12:30 jhammond Exp $
+#$Id$
 
 OBJ_OPTIMIZE = cisdtq_e.o cisdtq_c1.o cisdtq_c2.o cisdtq_c3.o cisdtq_c4.o
 

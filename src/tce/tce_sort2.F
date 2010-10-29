@@ -1,6 +1,6 @@
       subroutine tce_sort_2(unsorted,sorted,a,b,i,j,factor)
 c
-c $Id: tce_sort2.F,v 1.1 2008-09-25 14:54:18 jhammond Exp $
+c $Id$
 c
       implicit none
 c#include "util.fh"

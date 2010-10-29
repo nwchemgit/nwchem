@@ -1,6 +1,6 @@
       subroutine tce_diis_tidy
 c
-c $Id: tce_diis_tidy.F,v 1.1 2008-09-30 18:35:44 jhammond Exp $
+c $Id$
 c
 c     Terminates the DIIS
 c

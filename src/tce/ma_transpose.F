@@ -3,7 +3,7 @@ c 6 or 7 works well here
 c
       subroutine ma_transpose(a,n)
 c
-c $Id: ma_transpose.F,v 1.2 2008-10-05 23:34:03 jhammond Exp $
+c $Id$
 c
       implicit none
 c#include "mafdecls.fh"

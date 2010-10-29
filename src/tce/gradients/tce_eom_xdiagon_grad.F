@@ -3,7 +3,7 @@
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset,
      3  d_r1,d_r2,d_r3,d_r4,omega,residual)
 c
-c $Id: tce_eom_xdiagon.F,v 1.3 2005/12/16 22:16:04 kowalski Exp $
+c $Id$
 c
 c     Form a subspace matrix and diagonalize
 c

@@ -1,6 +1,6 @@
       double precision function ddotfile(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.8 2008-12-07 22:37:59 jhammond Exp $
+c $Id$
 c
 c     Vector inner product of two files of the same size
 c
@@ -113,7 +113,7 @@ c
 c
       double precision function ddotfile_1(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.8 2008-12-07 22:37:59 jhammond Exp $
+c $Id$
 c
 c     Vector inner product of two files of the same size
 c
@@ -237,7 +237,7 @@ c
 c
       double precision function ddotfile_2(d_1,d_2,size)
 c
-c $Id: ddotfile.F,v 1.8 2008-12-07 22:37:59 jhammond Exp $
+c $Id$
 c
 c     Vector inner product of two files of the same size
 c
