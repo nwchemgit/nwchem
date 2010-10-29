@@ -12,6 +12,10 @@
 #include "util.fh"
 #include "geom.fh"
 
+      integer MASTER,taskid
+      parameter (MASTER=0)
+      logical oprint
+
       integer l,i,j
       integer r1(2),geom,nion
 
@@ -38,8 +42,11 @@
       logical  paw_noit_energy
       external paw_noit_energy
 
-      value     = .true.
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
+
 *     **** initialize and read in geometry object ****
+      value     = .true.
       value     = value.and.geom_create(geom,'geometry')
       value     = value.and.geom_rtdb_load(rtdb,geom,'geometry')
       value     = value.and.geom_ncent(geom,nion)
@@ -72,6 +79,7 @@
 *     **** update geometry object ****
       call util_date(date_string)
       date_len = inp_strlen(date_string)
+      if (oprint) then
       write(6,*)
       write(6,
      &   '(1x,a12,i2,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
@@ -79,6 +87,7 @@
      &   'wall time:',util_wallsec(),
      &   'date:',date_string(1:date_len)
       call util_flush(6)
+      end if
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita2)
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
       value = value.and.paw_noit_energy(rtdb)
@@ -115,6 +124,7 @@
 *     **** update geometry object ****
       call util_date(date_string)
       date_len = inp_strlen(date_string)
+      if (oprint) then
       write(6,*)
       write(6,
      &   '(1x,a12,i2,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
@@ -122,6 +132,7 @@
      &   'wall time:',util_wallsec(),
      &   'date:',date_string(1:date_len)
       call util_flush(6)
+      end if
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita3)
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
     
