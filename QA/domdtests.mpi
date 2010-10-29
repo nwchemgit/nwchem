@@ -1,0 +1,19 @@
+#!/bin/csh -f
+#
+# $Id: domdtests,v 1.63 2008-12-07 19:26:52 d3j191 Exp $
+#
+#---   md tests
+#
+set np = 1
+if ($1 !="") then
+  set np = $1
+endif
+./runtests.mpi.unix procs $np prep/aal
+./runtests.mpi.unix procs $np prep/bpx
+./runtests.mpi.unix procs $np prep/caa
+./runtests.mpi.unix procs $np prep/fsc
+./runtests.mpi.unix procs $np water/water_md
+./runtests.mpi.unix procs $np water/water_pme
+./runtests.mpi.unix procs $np ethanol/ethanol_md
+./runtests.mpi.unix procs $np ethanol/ethanol_ti
+./runtests.mpi.unix procs $np trypsin/trypsin_md
