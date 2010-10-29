@@ -1,5 +1,5 @@
 c
-c $Id: cm_latt.inc,v 1.1 2008-04-18 17:40:30 marat Exp $
+c $Id$
 c
 
       real*8  latt,rlatt,vol,rvol,xvector,yvector,zvector

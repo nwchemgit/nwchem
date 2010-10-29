@@ -1,6 +1,6 @@
       logical function ga_iter_diag(n, nroot, maxiter, maxsub, tol,
      $     precond, product, oprint, eval0, g_evec, eval, rnorm, iter)
-C$Id: ga_iter_diag.F,v 1.11 2003-10-17 22:58:34 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

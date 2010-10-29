@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs_common.fh,v 1.1 2001-12-21 01:49:30 bylaska Exp $
+*     $Id$
 *
 
       real*8 rho(20)

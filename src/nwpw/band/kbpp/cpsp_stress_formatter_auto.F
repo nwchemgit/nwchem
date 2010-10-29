@@ -1,5 +1,5 @@
 c
-c $Id: cpsp_stress_formatter_auto.F,v 1.5 2008-05-13 20:52:46 bylaska Exp $
+c $Id$
 c
 
 *     ***************************************

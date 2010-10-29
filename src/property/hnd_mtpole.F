@@ -1,6 +1,6 @@
       subroutine hnd_mtpole(rtdb,basis,geom,mpole)
 c
-c $Id: hnd_mtpole.F,v 1.12 2008-10-17 16:47:05 jhammond Exp $
+c $Id$
 c
 c     This routine calculates the multipole moments around
 c     choosen center of expansion
@@ -533,7 +533,7 @@ c     prints less stuff, for use in the TCE.
 c
       subroutine hnd_mtpole2(rtdb,basis,geom,mpole,mtpval)
 c
-c $Id: hnd_mtpole.F,v 1.12 2008-10-17 16:47:05 jhammond Exp $
+c $Id$
 c
 c     This routine calculates the multipole moments around
 c     choosen center of expansion

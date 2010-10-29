@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.1 2004-09-05 02:18:25 bylaska Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
 		paw_Grsm_list.o \

@@ -7,7 +7,7 @@
 #include "typesf2c.h"
 
 /*
- $Id: md5wrap.c,v 1.7 2003-08-13 18:06:11 edo Exp $
+ $Id$
  */
 
 #if defined(USE_FCD)

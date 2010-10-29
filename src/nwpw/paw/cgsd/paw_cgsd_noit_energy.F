@@ -1,4 +1,4 @@
-c     $Id: paw_cgsd_noit_energy.F,v 1.2 2007-09-24 16:58:11 bylaska Exp $                       
+c     $Id$                       
 
 
 *     ***************************

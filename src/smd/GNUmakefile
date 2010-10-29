@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.34 2008-05-21 17:41:24 marat Exp $
+# $Id$
 #
 
 #       SUBDIRS = smd-subgroups

@@ -1,5 +1,5 @@
 *
-* $Id: stress_fd.F,v 1.9 2007-03-27 02:02:48 bylaska Exp $
+* $Id$
 *
       logical function stress_fd(rtdb)
       implicit none

@@ -1,5 +1,5 @@
 *
-* $Id: paw_mult.F,v 1.28 2009-02-07 18:37:34 bylaska Exp $
+* $Id$
 *
 *
 * $Log: not supported by cvs2svn $

@@ -1,5 +1,5 @@
       subroutine ga_scale_lh(g_a,vector)
-c $Id: ga_extra.F,v 1.2 2003-10-27 23:21:00 marat Exp $
+c $Id$
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

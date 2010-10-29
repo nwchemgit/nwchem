@@ -1,5 +1,5 @@
 c
-c $Id: chkerr.F,v 1.1 2003-04-07 21:52:36 windus Exp $
+c $Id$
 c
 
       subroutine chkerr(string, icode)

@@ -1,6 +1,6 @@
 /* hamann.c -
    Author - Eric Bylaska
-   $Id: hamann.c,v 1.6 2008-12-15 21:08:40 bylaska Exp $
+   $Id$
 
 */
 

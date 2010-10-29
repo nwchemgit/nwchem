@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2006-06-05 17:34:23 edo Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
 				paw_stress_numerical.o \

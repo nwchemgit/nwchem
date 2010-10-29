@@ -1,5 +1,5 @@
 c
-c $Id: psp_generator_input.F,v 1.38 2007-09-24 16:58:10 bylaska Exp $
+c $Id$
 c
 
 *     ***************************************

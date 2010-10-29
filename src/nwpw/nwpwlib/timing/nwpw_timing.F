@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_timing.F,v 1.6 2007-05-08 17:55:17 bylaska Exp $
+* $Id$
 *
 
 * nwpw_timing.F

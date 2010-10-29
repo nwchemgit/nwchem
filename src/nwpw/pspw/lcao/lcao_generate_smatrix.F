@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_smatrix.F,v 1.1 2001-11-30 23:52:04 bylaska Exp $
+* $Id$
 *
       subroutine lcao_generate_smatrix(smatrix,phi1,phi2)
       implicit none

@@ -1,4 +1,4 @@
-C$Id: util_sgroup.fh,v 1.18 2007-08-16 19:30:31 d3p852 Exp $
+C$Id$
 
 C      Parameters
        integer maxcpus,maxdeep

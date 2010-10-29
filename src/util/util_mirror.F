@@ -1,6 +1,6 @@
       logical function util_mirrmat(nmat,g_a,g_amirr,
      D     docopy, dozero)
-c $Id: util_mirror.F,v 1.5 2006-04-04 23:26:47 d3p307 Exp $
+c $Id$
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

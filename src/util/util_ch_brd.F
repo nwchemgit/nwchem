@@ -1,6 +1,6 @@
       subroutine util_char_ga_brdcst(type, string, origin)
 *
-* $Id: util_ch_brd.F,v 1.5 2005-07-21 01:59:35 edo Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

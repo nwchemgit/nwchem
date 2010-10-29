@@ -1,4 +1,4 @@
-c $Id: util_ga_test.F,v 1.2 2007-10-30 18:15:34 d3p307 Exp $
+c $Id$
 c vector boxes lack arithmetic precision 
 #ifdef CRAY_YMP
 # define THRESH 1d-10

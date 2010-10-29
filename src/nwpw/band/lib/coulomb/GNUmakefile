@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2003-04-07 21:25:38 windus Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
             c_coulomb.o

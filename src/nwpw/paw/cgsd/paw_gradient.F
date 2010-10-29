@@ -1,5 +1,5 @@
 c
-c     $Id: paw_gradient.F,v 1.3 2004-11-29 16:05:19 bylaska Exp $
+c     $Id$
 c
       logical function paw_gradient(rtdb)
       implicit none

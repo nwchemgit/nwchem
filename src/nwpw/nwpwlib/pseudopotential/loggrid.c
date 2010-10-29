@@ -1,5 +1,5 @@
 /*
- $Id: loggrid.c,v 1.4 2008-12-15 21:08:40 bylaska Exp $
+ $Id$
 
    LogGrid.c - 6/9/95
    author - Eric Bylaska

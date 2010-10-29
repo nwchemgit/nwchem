@@ -1,5 +1,5 @@
 /*
- $Id: pred_cor.c,v 1.3 2007-04-09 22:55:52 d3p708 Exp $
+ $Id$
    Pred_Cor.c - 6/9/95
    author      - Eric Bylaska
 

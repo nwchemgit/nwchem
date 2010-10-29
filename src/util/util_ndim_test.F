@@ -1,4 +1,4 @@
-c$Id: util_ndim_test.F,v 1.2 2003-03-08 02:09:16 sohirata Exp $
+c$Id$
 #define  MAXLOOP 100
 
       subroutine util_ndim_test

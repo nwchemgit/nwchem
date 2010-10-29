@@ -1,4 +1,4 @@
-c $Id: util_test.F,v 1.1 2003-03-08 01:58:14 sohirata Exp $
+c $Id$
       subroutine util_test(rtdb)
       implicit none
 #include "mafdecls.fh"

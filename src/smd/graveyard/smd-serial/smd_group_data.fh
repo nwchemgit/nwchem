@@ -1,5 +1,5 @@
 *
-* $Id: smd_group_data.fh,v 1.2 2008-05-30 17:23:18 marat Exp $
+* $Id$
 *
       integer smd_ngroup
       integer smd_group_nproc

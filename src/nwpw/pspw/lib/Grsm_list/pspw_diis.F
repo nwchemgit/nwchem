@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_diis.F,v 1.3 2008-09-11 21:26:49 bylaska Exp $                       
+*     $Id$                       
 *
 
       subroutine pspw_diis_init(max_m0,g)

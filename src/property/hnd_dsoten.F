@@ -1,7 +1,7 @@
       subroutine hnd_dsoten(rtdb,geom,basis,g_dens,ndens,pairlist,
      &                      translate,ipairs,unique,i_pert,i_resp,
      &                      tensor,coords,nbf,ndso)
-c $Id: hnd_dsoten.F,v 1.1 2008-04-08 21:03:59 windus Exp $
+c $Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

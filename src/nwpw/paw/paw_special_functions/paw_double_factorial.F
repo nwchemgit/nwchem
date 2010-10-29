@@ -1,5 +1,5 @@
 c
-c $Id: paw_double_factorial.F,v 1.2 2003-02-20 18:19:26 edo Exp $
+c $Id$
 c
 c $Log: not supported by cvs2svn $
 c Revision 1.1  2003/02/19 23:41:16  marat

@@ -1,5 +1,5 @@
 c
-c $Id: band_dplot_input.F,v 1.2 2005-08-05 22:24:24 bylaska Exp $
+c $Id$
 c
 
 

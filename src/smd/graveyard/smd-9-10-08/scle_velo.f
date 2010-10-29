@@ -1,5 +1,5 @@
 c
-c $Id: scle_velo.f,v 1.1 2008-10-01 22:32:29 marat Exp $
+c $Id$
 c
 
       SUBROUTINE scle_velo()

@@ -1,5 +1,5 @@
 *
-* $Id: v_wvfnc_init.F,v 1.4 2007-09-24 16:58:15 bylaska Exp $
+* $Id$
 *
 
       logical function v_wvfnc_init(rtdb)

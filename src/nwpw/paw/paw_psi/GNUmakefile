@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.6 2005-12-29 00:24:17 edo Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
 		paw_psi.o \

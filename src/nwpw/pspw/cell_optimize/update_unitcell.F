@@ -1,5 +1,5 @@
 *
-* $Id: update_unitcell.F,v 1.7 2004-11-29 16:05:20 bylaska Exp $
+* $Id$
 *
       logical function update_unitcell(rtdb)
       implicit none

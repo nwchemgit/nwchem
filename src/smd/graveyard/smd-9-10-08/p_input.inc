@@ -1,5 +1,5 @@
 c
-c $Id: p_input.inc,v 1.1 2008-10-01 22:32:28 marat Exp $
+c $Id$
 c
 
       integer input,output,iinclude

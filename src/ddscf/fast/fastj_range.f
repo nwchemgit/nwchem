@@ -1,6 +1,6 @@
       double precision function fastj_gaussian_range(n, alpha, eps)
 *
-* $Id: fastj_range.f,v 1.2 1999-07-29 00:53:57 d3e129 Exp $
+* $Id$
 *
       implicit none
 c

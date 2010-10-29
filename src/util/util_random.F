@@ -1,7 +1,7 @@
       double precision function util_random(iseed)
       implicit none
 #include "errquit.fh"
-c $Id: util_random.F,v 1.21 2003-10-17 22:58:35 carlfahl Exp $
+c $Id$
 c
 c routine to give a random number [0,1]
 c

@@ -6,7 +6,7 @@
  *  This file contains routines for integrating the radial
  *  Dirac equation.
  *
-   $Id: zora.c,v 1.2 2008-12-15 21:08:40 bylaska Exp $
+   $Id$
 
  ***********************************************************************************/
 

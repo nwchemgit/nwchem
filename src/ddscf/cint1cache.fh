@@ -1,5 +1,5 @@
 *
-* $Id: cint1cache.fh,v 1.2 1997-11-07 11:35:08 d3e129 Exp $
+* $Id$
 *
       logical ocache
       integer bas1

@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_libfile.F,v 1.16 2008-11-04 21:30:57 bylaska Exp $
+* $Id$
 *
 
 *

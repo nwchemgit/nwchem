@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_kin_atom.F,v 1.5 2007-10-01 22:53:27 bylaska Exp $
+* $Id$
 *
 
 

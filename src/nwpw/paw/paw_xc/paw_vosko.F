@@ -1,5 +1,5 @@
 *
-* $Id: paw_vosko.F,v 1.5 2006-02-11 02:50:49 bylaska Exp $
+* $Id$
 *
 
       subroutine paw_vosko(n2ft3d,ng,ispin,dn,xce,xcp,x)

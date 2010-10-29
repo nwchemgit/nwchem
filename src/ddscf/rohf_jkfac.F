@@ -1,6 +1,6 @@
       subroutine rohf_jkfac(jfac,kfac)
 *
-* $Id: rohf_jkfac.F,v 1.2 2009-01-16 05:32:29 niri Exp $
+* $Id$
 *
       implicit none
       double precision jfac(3),kfac(3)

@@ -1,5 +1,5 @@
 /*
- $Id: xpansion.c,v 1.4 2007-09-26 18:40:55 d3p708 Exp $
+ $Id$
    xpansion.c
    Author - Eric Bylaska
 */

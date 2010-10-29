@@ -1,4 +1,4 @@
-c     $Id: band_stress.F,v 1.2 2004-12-18 20:16:39 bylaska Exp $
+c     $Id$
 
       logical function band_stress(rtdb)
       implicit none

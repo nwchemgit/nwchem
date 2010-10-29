@@ -1,5 +1,5 @@
 /*
-   $Id: paw_get_inverse.c,v 1.3 2007-04-10 19:04:34 d3p708 Exp $
+   $Id$
 */
 
 #include        <stdio.h>

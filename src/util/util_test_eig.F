@@ -1,4 +1,4 @@
-c $Id: util_test_eig.F,v 1.1 2003-03-08 01:58:14 sohirata Exp $
+c $Id$
       subroutine util_test_eig
       implicit none
 #include "mafdecls.fh"

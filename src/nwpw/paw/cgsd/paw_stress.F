@@ -1,4 +1,4 @@
-c     $Id: paw_stress.F,v 1.1 2004-11-29 16:05:19 bylaska Exp $
+c     $Id$
 
       logical function paw_stress(rtdb)
       implicit none

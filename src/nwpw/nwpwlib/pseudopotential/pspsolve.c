@@ -1,5 +1,5 @@
 /*
- $Id: pspsolve.c,v 1.23 2007-08-21 21:05:54 d3p708 Exp $
+ $Id$
 */
 #include <stdlib.h>
 #include <stdio.h>

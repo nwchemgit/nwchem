@@ -1,6 +1,6 @@
       subroutine movecs_project(rtdb, nmo, geom, basis, g_vecs,iset,
      A     calling_module, k_eval)
-C$Id: movecs_proj.F,v 1.21 2005-07-21 01:58:04 edo Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"

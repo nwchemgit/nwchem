@@ -1,5 +1,5 @@
       integer function ga_create_atom_blocked(geom, basis, name)
-C$Id: ga_atom_blk.F,v 1.9 2003-10-21 23:51:25 edo Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

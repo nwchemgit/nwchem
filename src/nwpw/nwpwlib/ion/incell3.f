@@ -5,7 +5,7 @@
 *	by the lattice vectors centered at zero.  
 *     ======================================================= 
 *
-* $Id: incell3.f,v 1.2 2007-04-02 15:38:38 bylaska Exp $
+* $Id$
 *
       implicit none
       integer ni

@@ -1,5 +1,5 @@
 *
-* $Id: numbers.f,v 1.2 1999-07-29 00:53:57 d3e129 Exp $
+* $Id$
 *
       implicit integer (a-z)
 c

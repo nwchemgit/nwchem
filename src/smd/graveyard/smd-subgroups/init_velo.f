@@ -1,5 +1,5 @@
 c
-c $Id: init_velo.f,v 1.1 2008-04-18 17:48:12 marat Exp $
+c $Id$
 c
       SUBROUTINE init_velo(iseed)
 

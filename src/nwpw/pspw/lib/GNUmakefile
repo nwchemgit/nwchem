@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.13 2008-06-06 17:06:49 d3p708 Exp $
+# $Id$
 #
  SUBDIRS = psi electron ke coulomb exchange-correlation sic hfx ion psp Grsm_list aorbs truncating_function
 

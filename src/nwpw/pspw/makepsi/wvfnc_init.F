@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_init.F,v 1.5 2007-09-24 16:58:15 bylaska Exp $
+* $Id$
 *
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: ewald_strfac.F,v 1.10 2008-09-23 19:39:45 bylaska Exp $
+* $Id$
 *
       subroutine ewald_strfact_init()
       implicit none

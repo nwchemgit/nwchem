@@ -1,5 +1,5 @@
 c
-c $Id: paw_gaunt.F,v 1.7 2006-02-11 02:50:47 bylaska Exp $
+c $Id$
 c
 c $Log: not supported by cvs2svn $
 c Revision 1.6  2004/07/31 21:54:30  bylaska
@@ -265,7 +265,7 @@ c     work arrays for integration
 
 
 c
-c $Id: paw_gaunt.F,v 1.7 2006-02-11 02:50:47 bylaska Exp $
+c $Id$
 c
 c $Log: not supported by cvs2svn $
 

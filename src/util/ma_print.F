@@ -1,6 +1,6 @@
       subroutine ma_print(vector,ndim,mdim,title)
 c
-c $Id: ma_print.F,v 1.1 2003-01-30 19:34:17 edo Exp $
+c $Id$
 c
 c Printout an MA or other vector
 c Written by So Hirata, Feb 2002.

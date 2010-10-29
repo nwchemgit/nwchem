@@ -1,5 +1,5 @@
 c
-c     $Id: pspw_gradient.F,v 1.5 2007-03-27 02:02:49 bylaska Exp $
+c     $Id$
 c
       logical function pspw_gradient(rtdb)
       implicit none

@@ -1,5 +1,5 @@
 c
-c $Id: model_potential.F,v 1.5 2003-10-17 22:57:48 carlfahl Exp $
+c $Id$
 c
 
 *     **********************************

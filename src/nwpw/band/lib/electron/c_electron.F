@@ -1,5 +1,5 @@
 *
-* $Id: c_electron.F,v 1.46 2009-02-09 02:19:12 bylaska Exp $
+* $Id$
 *
 
 

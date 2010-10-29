@@ -1,5 +1,5 @@
 c
-c $Id: ewald_real.f,v 1.1 2008-10-01 22:32:27 marat Exp $
+c $Id$
 c
 
       SUBROUTINE ewald_real(iii,rij,rijsq,jbeg,jend,ewald4)

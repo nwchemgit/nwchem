@@ -1,4 +1,4 @@
-c $Id: util_patch_test.F,v 1.1 2003-03-08 01:58:13 sohirata Exp $
+c $Id$
 #if defined(CRAY) || defined(KSR)
 #   define xgemm SGEMM
 #   define ygemm CGEMM

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.11 2004-03-04 15:12:24 bylaska Exp $
+# $Id$
 #
 
 

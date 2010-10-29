@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2004-05-14 17:32:02 edo Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
 				pspw_APC.o \

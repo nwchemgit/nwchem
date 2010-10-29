@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2006-11-29 02:35:04 d3p708 Exp $
+# $Id$
 #
 
  OBJ_OPTIMIZE = Pneb.o

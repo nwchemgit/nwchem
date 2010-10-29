@@ -2,7 +2,7 @@
      1                               da,db,d1nw,d2nw,
      2                               scftyp,g_movecs)
 c     
-c     $Id: dft_hnd.F,v 1.3 2003-10-17 22:57:58 carlfahl Exp $
+c     $Id$
 c     
       implicit none
 #include "errquit.fh"

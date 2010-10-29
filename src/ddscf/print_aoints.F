@@ -1,5 +1,5 @@
       subroutine print_aoints(basis)
-C$Id: print_aoints.F,v 1.3 2003-10-17 22:54:33 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

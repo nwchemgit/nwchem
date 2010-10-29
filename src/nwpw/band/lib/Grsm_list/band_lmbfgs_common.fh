@@ -1,5 +1,5 @@
 *
-*     $Id: band_lmbfgs_common.fh,v 1.2 2006-11-29 02:33:29 d3p708 Exp $
+*     $Id$
 *
       real*8 rho(40)
       integer ispin,ne(2),npack1,neall,nbrill

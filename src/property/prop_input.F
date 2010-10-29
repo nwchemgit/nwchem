@@ -1,6 +1,6 @@
       subroutine prop_input(rtdb)
 *
-* $Id: prop_input.F,v 1.16 2006-11-16 18:23:01 jochen Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

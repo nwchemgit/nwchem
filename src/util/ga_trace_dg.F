@@ -1,5 +1,5 @@
       double precision function ga_trace_diag(g_a)
-C$Id: ga_trace_dg.F,v 1.3 2003-10-17 22:58:34 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

@@ -1,5 +1,5 @@
 c
-c $Id: moeig_read.F,v 1.2 1999-08-06 21:35:36 d3g681 Exp $
+c $Id$
 c
 c This routine was essentially stolen from movecs_read, but only read
 c the eigenvalues.

@@ -1,5 +1,5 @@
 *
-* $Id: force_fd.F,v 1.2 2007-04-02 15:38:40 bylaska Exp $
+* $Id$
 *
       logical function force_fd(rtdb)
       implicit none

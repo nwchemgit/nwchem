@@ -1,5 +1,5 @@
 *
-* $Id: check_real.f,v 1.2 2001-12-12 02:42:26 bylaska Exp $
+* $Id$
 *
 
 

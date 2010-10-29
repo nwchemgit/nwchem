@@ -1,4 +1,4 @@
-C$Id: nxtask.F,v 1.2 2004-10-21 01:36:52 edo Exp $
+C$Id$
       subroutine nxtask_init(rtdb)
       implicit none
 #include "rtdb.fh"

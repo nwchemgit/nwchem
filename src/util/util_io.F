@@ -1,5 +1,5 @@
 c
-c $Id: util_io.F,v 1.3 2008-04-14 22:04:21 marat Exp $
+c $Id$
 c
 
 #ifdef USE_SUBGROUPS

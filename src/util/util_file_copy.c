@@ -1,5 +1,5 @@
 /*
- $Id: util_file_copy.c,v 1.12 2003-08-13 18:06:11 edo Exp $
+ $Id$
  */
 
 #include <stdio.h>

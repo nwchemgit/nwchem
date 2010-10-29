@@ -2,7 +2,7 @@
      $     bfsquare, npair, ri_basis, nsh_F, Nff, max_bf_ri, g_Vsqrt, 
      $     tol2e, g_indx, V_row, T_tmp, buf, lbuf, scr, lscr, odisk)
 
-C$Id: riscf_trans.F,v 1.9 2004-09-07 06:11:22 windus Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 

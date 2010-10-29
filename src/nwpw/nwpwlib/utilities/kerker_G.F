@@ -1,5 +1,5 @@
 *
-* $Id: kerker_G.F,v 1.2 2009-02-08 03:26:14 bylaska Exp $
+* $Id$
 *
 
       subroutine kerker_G_init()

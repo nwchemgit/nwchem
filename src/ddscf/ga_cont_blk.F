@@ -1,5 +1,5 @@
       integer function ga_create_cont_blocked(basis, name)
-C$Id: ga_cont_blk.F,v 1.2 2003-10-17 22:54:32 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

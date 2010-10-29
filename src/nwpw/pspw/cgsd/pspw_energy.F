@@ -1,4 +1,4 @@
-c     $Id: pspw_energy.F,v 1.1 2001-08-30 00:25:11 edo Exp $
+c     $Id$
       logical function pspw_energy(rtdb)
       implicit none
       integer rtdb

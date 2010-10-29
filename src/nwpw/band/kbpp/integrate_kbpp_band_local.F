@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_local.F,v 1.5 2007-08-29 00:56:54 bylaska Exp $
+* $Id$
 *
 
       subroutine integrate_kbpp_band_local(version,

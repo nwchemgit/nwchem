@@ -1,6 +1,6 @@
 
 *
-* $Id: coulomb.F,v 1.9 2009-02-07 03:50:47 bylaska Exp $
+* $Id$
 *
 
       subroutine coulomb_init()
@@ -166,7 +166,7 @@ c     real*8  tmp1(*)
 
       subroutine coulomb_euv(dng,euv)
 *
-* $Id: coulomb.F,v 1.9 2009-02-07 03:50:47 bylaska Exp $
+* $Id$
 *
       implicit none 
 #include "errquit.fh"

@@ -1,6 +1,6 @@
       logical function hnd_property(rtdb)
 *
-* $Id: hnd_property.F,v 1.21 2007-10-04 16:07:04 bert Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

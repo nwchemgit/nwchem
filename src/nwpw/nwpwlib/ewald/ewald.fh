@@ -1,5 +1,5 @@
 *
-* $Id: ewald.fh,v 1.7 2009-02-08 23:04:00 bylaska Exp $
+* $Id$
 *
 *     **** common block for ewald.F and ewald_strfac.F****
       integer    ncut,enx,eny,enz,nshl3d

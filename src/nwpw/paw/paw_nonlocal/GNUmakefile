@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2004-05-14 16:13:37 edo Exp $
+# $Id$
 #
 
           OBJ_OPTIMIZE =  paw_nonlocal.o 

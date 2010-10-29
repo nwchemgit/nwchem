@@ -1,4 +1,4 @@
-c     $Id: cgsd_oep_eigenvalues.F,v 1.3 2003-07-20 16:47:00 bylaska Exp $                       
+c     $Id$                       
 
 *     ********************************
 *     *		  	  	     *

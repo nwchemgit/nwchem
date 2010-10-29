@@ -1,5 +1,5 @@
 c
-c $Id: shll_qnch.f,v 1.1 2008-10-01 22:32:29 marat Exp $
+c $Id$
 c
 
       SUBROUTINE shll_qnch(ntshel)

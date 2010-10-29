@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_core_atom.F,v 1.6 2005-01-31 02:09:38 bylaska Exp $
+* $Id$
 *
 
 

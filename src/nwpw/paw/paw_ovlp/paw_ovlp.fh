@@ -1,5 +1,5 @@
 ! 
-! $Id: paw_ovlp.fh,v 1.7 2003-03-11 00:55:29 marat Exp $
+! $Id$
 ! 
       integer paw_ovlp_coeff_size
       external paw_ovlp_coeff_size

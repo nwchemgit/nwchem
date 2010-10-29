@@ -5,7 +5,7 @@ c
 c>>>  Inquire rtdb for properties to be evaluated.
 c
 *
-* $Id: prop.F,v 1.10 2003-03-27 18:55:44 bert Exp $
+* $Id$
 *
       implicit none
       integer rtdb              ! [input]

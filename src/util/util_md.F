@@ -1,6 +1,6 @@
       subroutine rotate(v,w,g,x,y)
 c
-c $Id: util_md.F,v 1.47 2007-04-26 23:24:40 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

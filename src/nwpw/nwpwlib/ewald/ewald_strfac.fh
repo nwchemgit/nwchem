@@ -1,5 +1,5 @@
 *
-*  $Id: ewald_strfac.fh,v 1.4 2008-06-16 23:41:28 bylaska Exp $
+*  $Id$
 *
 cccccccccc local common block for ewald structure factor
       integer nx,ny,nz,npack

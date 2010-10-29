@@ -1,7 +1,7 @@
       subroutine fock_eri_scale( ilo, ihi, jlo, jhi,
      $     klo, khi, llo, lhi, eri )
 c     
-c     $Id: fock_scale.F,v 1.1 1995-12-13 01:25:11 d3g681 Exp $
+c     $Id$
 c     
       implicit none
       integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi

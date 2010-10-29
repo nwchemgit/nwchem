@@ -1,5 +1,5 @@
 c
-c $Id: integrate.fh,v 1.4 2005-01-30 07:16:18 bylaska Exp $
+c $Id$
 c
 
       real*8   def_integr,def_integr1

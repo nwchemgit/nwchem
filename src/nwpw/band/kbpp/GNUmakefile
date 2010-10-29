@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.10 2007-08-29 00:56:53 bylaska Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
 		cpsp_formatter_auto.o \

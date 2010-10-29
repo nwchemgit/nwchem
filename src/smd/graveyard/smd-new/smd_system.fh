@@ -1,5 +1,5 @@
 *
-* $Id: smd_system.fh,v 1.1 2008-04-22 17:41:23 marat Exp $
+* $Id$
 *
       logical smd_system_periodic
       external smd_system_periodic

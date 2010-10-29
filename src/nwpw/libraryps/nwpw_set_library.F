@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_set_library.F,v 1.2 2004-12-20 05:18:57 bylaska Exp $
+c $Id$
 c
 
       subroutine nwpw_set_library(rtdb)

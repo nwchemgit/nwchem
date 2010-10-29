@@ -10,7 +10,7 @@
       implicit none
 #include "cscfps.fh"
 c
-c     $Id: fock_2e_cdf.F,v 1.2 1996-07-12 01:55:49 d3g681 Exp $
+c     $Id$
 c
 c     For the given ranges of i,j,k,l fetch the six blocks
 c     of the density matrices (ij,ik,il,jk,jl,kl) and accumulate

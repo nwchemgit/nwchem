@@ -1,5 +1,5 @@
 c
-c $Id: pspw_input.F,v 1.4 2003-10-17 22:57:01 carlfahl Exp $
+c $Id$
 c
       subroutine pspw_input(rtdb)
       implicit none

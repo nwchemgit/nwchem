@@ -1,4 +1,4 @@
-# $Id: botlsf.pl,v 1.1 2002-10-30 22:02:12 edo Exp $
+# $Id$
 
 $jobid = $ENV{"LSB_JOBID"};
 if ($jobid eq "") {

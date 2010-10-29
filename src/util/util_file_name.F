@@ -431,7 +431,7 @@ c-----------------------------------------------------------------------
 c
       subroutine input_file_info(input_filename, 
      $     rtdb_name, ostartup, ocontinue)
-C$Id: util_file_name.F,v 1.40 2008-05-20 17:46:34 marat Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

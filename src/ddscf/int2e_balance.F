@@ -1,6 +1,6 @@
       subroutine int2e_file_balance
 *
-* $Id: int2e_balance.F,v 1.9 2009-03-09 23:10:52 d3p307 Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

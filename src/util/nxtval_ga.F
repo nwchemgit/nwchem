@@ -1,6 +1,6 @@
       block data nxtval_ga_data
 *
-* $Id: nxtval_ga.F,v 1.4 2003-10-17 22:58:35 carlfahl Exp $
+* $Id$
 *
       implicit none
       integer g_x

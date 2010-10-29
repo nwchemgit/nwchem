@@ -1,5 +1,5 @@
 c
-c     $Id: sdminimize.F,v 1.10 2007-03-19 19:05:37 bylaska Exp $                       
+c     $Id$                       
 c
 
       subroutine sdminimize(flag)

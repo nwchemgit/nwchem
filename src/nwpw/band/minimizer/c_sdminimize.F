@@ -1,4 +1,4 @@
-c     $Id: c_sdminimize.F,v 1.6 2007-02-23 01:18:11 bylaska Exp $                       
+c     $Id$                       
 
       subroutine c_sdminimize(flag)
       implicit none

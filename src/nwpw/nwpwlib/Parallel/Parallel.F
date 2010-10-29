@@ -1,5 +1,5 @@
 *
-* $Id: Parallel.F,v 1.4 2008-04-21 22:20:45 bylaska Exp $
+* $Id$
 *
 
 * Parallel.f

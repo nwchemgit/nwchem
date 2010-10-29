@@ -1,4 +1,4 @@
-* $Id: BGrsm.F,v 1.11 2008-04-18 00:06:36 bylaska Exp $
+* $Id$
 *
 
 

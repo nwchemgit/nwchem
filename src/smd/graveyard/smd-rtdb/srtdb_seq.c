@@ -1,4 +1,4 @@
-/*$Id: srtdb_seq.c,v 1.3 2008-04-23 16:46:50 marat Exp $*/
+/*$Id$*/
 #include <stdlib.h>
 #include <sys/types.h>
 #if defined(CATAMOUNT)

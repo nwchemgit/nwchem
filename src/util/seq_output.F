@@ -4,7 +4,7 @@ C     begin_seq_output -- Mark the start of a section of sequentialized
 C     output
 C
 C REVISION
-C     $Id: seq_output.F,v 1.3 2003-10-17 22:58:35 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine Begin_Seq_Output
@@ -51,7 +51,7 @@ C     end_seq_output -- Mark the end of a section of sequentialized
 C     output
 C
 C REVISION
-C     $Id: seq_output.F,v 1.3 2003-10-17 22:58:35 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine End_Seq_Output
@@ -142,7 +142,7 @@ C NAME
 C     write_seq -- Write sequentialized output
 C
 C REVISION
-C     $Id: seq_output.F,v 1.3 2003-10-17 22:58:35 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine Write_Seq(LUN, Text)

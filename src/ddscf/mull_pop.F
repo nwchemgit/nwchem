@@ -1,6 +1,6 @@
       Subroutine mull_pop( geom, basis, iga_dens,iga_s, string)
 
-C$Id: mull_pop.F,v 1.16 2003-10-17 22:54:33 carlfahl Exp $
+C$Id$
       Implicit none
 #include "errquit.fh"
       integer geom,basis

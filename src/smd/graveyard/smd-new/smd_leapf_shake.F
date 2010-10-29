@@ -1,5 +1,5 @@
 c
-c $Id: smd_leapf_shake.F,v 1.1 2008-04-22 17:41:23 marat Exp $
+c $Id$
 c
 
       subroutine smd_leapf_shake(natms,

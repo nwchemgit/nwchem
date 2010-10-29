@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2007-03-21 03:31:28 bylaska Exp $
+# $Id$
 #
 
           OBJ_OPTIMIZE = paw_basis.o paw_small_basis.o paw_basis_data.o

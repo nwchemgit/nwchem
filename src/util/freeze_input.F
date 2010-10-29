@@ -1,4 +1,4 @@
-c $Id: freeze_input.F,v 1.5 2003-10-25 16:23:19 edo Exp $
+c $Id$
       subroutine freeze_input(rtdb, module)
       implicit none
 #include "inp.fh"

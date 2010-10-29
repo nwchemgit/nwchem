@@ -1,4 +1,4 @@
-c $Id: util_perf_test.F,v 1.3 2005-05-26 00:23:57 edo Exp $
+c $Id$
 c------------------------------------------------------------------------
 c Program perf.x is used to test performance of GA put, get, accumulate  |
 c It has to be executed on four processors.                              |

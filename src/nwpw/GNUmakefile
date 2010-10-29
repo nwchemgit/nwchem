@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.15 2007-06-19 23:31:52 bylaska Exp $
+# $Id$
 #
 
 #      SUBDIRS = pspw band nwpwlib libraryps

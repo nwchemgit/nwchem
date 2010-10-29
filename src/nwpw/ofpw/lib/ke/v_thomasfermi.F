@@ -1,5 +1,5 @@
 *
-* $Id: v_thomasfermi.F,v 1.2 2007-07-25 01:29:57 bylaska Exp $
+* $Id$
 *
 
 *  Computes the Thomas-Fermi potential and energy density

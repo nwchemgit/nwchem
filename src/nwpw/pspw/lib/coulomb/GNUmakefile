@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2003-01-27 23:50:12 bylaska Exp $
+# $Id$
 #
 
  OBJ_OPTIMIZE = \

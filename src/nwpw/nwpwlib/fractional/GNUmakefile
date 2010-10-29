@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.2 2004-03-04 15:12:21 bylaska Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
                 fractional.o \

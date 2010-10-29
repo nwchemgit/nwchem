@@ -1,7 +1,7 @@
 #ifndef	_PAW_BASIS_H_
 #define _PAW_BASIS_H_
 /*
-   $Id: paw_basis.h,v 1.5 2007-09-24 16:58:11 bylaska Exp $
+   $Id$
 */
 
 

@@ -1,6 +1,6 @@
       subroutine dec_fpe
 *
-* $Id: dec_fpe.f,v 1.2 1997-10-31 20:45:31 d3e129 Exp $
+* $Id$
 *
       implicit integer*4 (a-z)
       include '/usr/include/for_fpe_flags.f'

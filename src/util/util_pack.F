@@ -79,7 +79,7 @@ c
       end
       subroutine util_pack_16(nunpacked, packed, unpacked)
 *
-* $Id: util_pack.F,v 1.17 2003-10-17 22:58:35 carlfahl Exp $
+* $Id$
 *
       implicit none
       integer nunpacked

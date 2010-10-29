@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3.f,v 1.8 2007-10-02 20:15:10 bylaska Exp $
+* $Id$
 *
 
 

@@ -1,5 +1,5 @@
       subroutine mabyte_fill(n,char2use,k_ma_array,inc_array)
-*  $Id: mabyte_fill.F,v 1.1 1997-04-29 18:04:54 d3e129 Exp $
+*  $Id$
       implicit none
 c
 #include "mafdecls.fh"

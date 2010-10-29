@@ -1,4 +1,4 @@
-c     $Id: band_energy.F,v 1.3 2003-12-02 19:16:46 bylaska Exp $
+c     $Id$
       logical function band_energy(rtdb)
       implicit none
       integer rtdb

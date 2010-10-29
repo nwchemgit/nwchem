@@ -1,5 +1,5 @@
 /*
- $Id: debug.h,v 1.1 2001-11-29 16:51:21 bylaska Exp $
+ $Id$
 */
 #ifndef _DEBUG_H_
 #define _DEBUG_H_

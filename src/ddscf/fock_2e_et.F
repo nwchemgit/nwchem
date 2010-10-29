@@ -1,6 +1,6 @@
       subroutine fock_2e_est_task(geom, oskel, tol2e, task_size)
 *
-* $Id: fock_2e_et.F,v 1.7 2003-10-17 22:54:32 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

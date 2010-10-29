@@ -1,5 +1,5 @@
       subroutine int_2c_ga(ibas, jbas, g, integ_type, Alpha)
-C$Id: int_2c_ga.F,v 1.5 2003-10-17 22:58:35 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -1,5 +1,5 @@
       subroutine ga_mix(g_a, n, nvec, b, ld)
-C$Id: ga_mix.F,v 1.5 2003-10-17 22:58:34 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

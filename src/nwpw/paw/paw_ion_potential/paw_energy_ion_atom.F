@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_ion_atom.F,v 1.1 2003-02-11 21:11:30 marat Exp $
+* $Id$
 *
 
 

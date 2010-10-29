@@ -1,5 +1,5 @@
 *
-* $Id: c_semicore.F,v 1.8 2009-02-08 03:26:25 bylaska Exp $
+* $Id$
 *
 
 #define TCGMSG

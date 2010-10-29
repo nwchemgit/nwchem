@@ -1,6 +1,6 @@
       subroutine rhf_dens_to_mo(rtdb, geom, basis, nelec, nbf, nmo,
      $     tol2e, g_dens, g_mocf, oskel, evals )
-C     $Id: rhf_dens_mo.F,v 1.16 2005-10-27 00:12:45 edo Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 2004-03-04 15:12:23 bylaska Exp $
+# $Id$
 #
 
           OBJ_OPTIMIZE =  paw_mult.o paw_mult_interaction.o paw_mult_energy.o

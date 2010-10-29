@@ -1,5 +1,5 @@
 *
-* $Id: paw_psi2.F,v 1.14 2009-02-07 18:37:35 bylaska Exp $
+* $Id$
 *
 
 

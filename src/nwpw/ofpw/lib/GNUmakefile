@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2007-07-24 01:42:42 bylaska Exp $
+# $Id$
 #
  SUBDIRS = chi electron ke
 

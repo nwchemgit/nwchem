@@ -1,6 +1,6 @@
 #include "printlevels.fh"
 c      
-C$Id: util.fh,v 1.14 2008-02-12 17:56:24 marat Exp $
+C$Id$
       logical util_print
       double precision ddot
       double precision util_cpusec

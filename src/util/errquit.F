@@ -1,6 +1,6 @@
       subroutine errquit(string, icode, errcode)
       implicit none
-C$Id: errquit.F,v 1.21 2008-02-12 17:56:24 marat Exp $
+C$Id$
 #include "errquit.fh"
 #include "global.fh"
 #include "util.fh"
@@ -147,7 +147,7 @@ c
 
       subroutine util_warning(string, icode, errcode)
       implicit none
-C$Id: errquit.F,v 1.21 2008-02-12 17:56:24 marat Exp $
+C$Id$
 #include "errquit.fh"
 #include "global.fh"
 #include "util.fh"

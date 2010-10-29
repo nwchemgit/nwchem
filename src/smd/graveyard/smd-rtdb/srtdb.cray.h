@@ -1,5 +1,5 @@
 
-/*$Id: srtdb.cray.h,v 1.1 2008-04-21 18:19:27 marat Exp $*/
+/*$Id$*/
 #if (defined(CRAY) || defined(WIN32)) &&!defined(__crayx1)
 #define  context_pop_              CONTEXT_POP 
 #define  context_prefix_            CONTEXT_PREFIX 

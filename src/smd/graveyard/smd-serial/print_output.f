@@ -1,5 +1,5 @@
 c
-c $Id: print_output.f,v 1.1 2008-04-18 17:40:31 marat Exp $
+c $Id$
 c
 
       SUBROUTINE print_output(istep,nprnt,ekin,ecoul,eshrt,ebond,eshel)

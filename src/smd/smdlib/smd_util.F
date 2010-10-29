@@ -1,5 +1,5 @@
 c
-c $Id: smd_util.F,v 1.1 2008/10/01 22:32:32 marat Exp $
+c $Id$
 c
 
       subroutine smd_util_global_sync()

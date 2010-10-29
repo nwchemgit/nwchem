@@ -1,6 +1,6 @@
       block data Dscfps
 #include "cscfps.fh"
-C$Id: scf_pstat.F,v 1.27 2003-10-17 22:54:33 carlfahl Exp $
+C$Id$
       data oscfps /.false./     ! So that other codes do not break
 c
       end

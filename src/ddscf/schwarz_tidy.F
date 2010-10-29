@@ -1,5 +1,5 @@
       subroutine schwarz_tidy()
-C$Id: schwarz_tidy.F,v 1.4 2003-10-17 22:54:33 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "cschwarz.fh"

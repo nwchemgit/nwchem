@@ -1,4 +1,4 @@
-c     $Id: paw_energy.F,v 1.2 2004-08-01 02:02:44 bylaska Exp $
+c     $Id$
       logical function paw_energy(rtdb)
       implicit none
       integer rtdb

@@ -1,5 +1,5 @@
 /*
- $Id: qmmm_parse.c,v 1.5 2007-04-09 22:55:52 d3p708 Exp $
+ $Id$
 */
 
 #include <math.h>

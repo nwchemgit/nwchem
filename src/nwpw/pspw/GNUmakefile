@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 2002-01-16 20:51:13 bylaska Exp $
+# $Id$
 #
       SUBDIRS = lib kbpp makepsi cpsd cgsd analysis \
                 cell_optimize qmmm charge dplot lcao

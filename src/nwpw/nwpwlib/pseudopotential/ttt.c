@@ -1,5 +1,5 @@
 /*
- $Id: ttt.c,v 1.1 2001-08-30 16:58:38 bylaska Exp $
+ $Id$
 */
 
 #include	<stdio.h>

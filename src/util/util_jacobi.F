@@ -1,6 +1,6 @@
       subroutine util_jacobi(n, a, lda, e)
 *
-* $Id: util_jacobi.F,v 1.5 2003-10-17 22:58:35 carlfahl Exp $
+* $Id$
 *
       implicit none
       integer n, lda
@@ -11,7 +11,7 @@
       end
       subroutine util_jacobinosort(n, a, lda, e)
 *
-* $Id: util_jacobi.F,v 1.5 2003-10-17 22:58:35 carlfahl Exp $
+* $Id$
 *
       implicit none
       integer n, lda

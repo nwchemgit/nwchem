@@ -1,7 +1,7 @@
 #ifndef _PAW_LOG_GRID_H_
 #define _PAW_LOG_GRID_H_
 /*
-   $Id: paw_loggrid.h,v 1.3 2007-04-10 19:04:34 d3p708 Exp $
+   $Id$
 */
 
 

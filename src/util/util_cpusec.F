@@ -1,6 +1,6 @@
       double precision function util_cpusec()
       implicit none
-c $Id: util_cpusec.F,v 1.29 2008-10-23 20:19:08 d3p307 Exp $
+c $Id$
 *
 * routine to give cpu seconds since start of execution
 *  delta times are handled by all applications

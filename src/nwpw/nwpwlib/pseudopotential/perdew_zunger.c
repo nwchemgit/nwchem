@@ -1,5 +1,5 @@
 /*
- $Id: perdew_zunger.c,v 1.3 2007-04-09 22:55:52 d3p708 Exp $
+ $Id$
    perdew_zunger.c
    Author - Eric Bylaska
 */

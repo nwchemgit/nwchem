@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3_ray.f,v 1.4 2007-08-28 16:39:54 bylaska Exp $
+* $Id$
 *
 
       subroutine integrate_kbppv3_ray(version,rlocal,

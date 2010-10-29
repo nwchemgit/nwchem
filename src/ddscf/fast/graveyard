@@ -1,5 +1,5 @@
 *
-* $Id: graveyard,v 1.4 2003-10-17 22:54:37 carlfahl Exp $
+* $Id$
 *
 c$$$      double precision function f(x, y, z)
 c$$$      implicit none

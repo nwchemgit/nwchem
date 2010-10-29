@@ -1,5 +1,5 @@
 *
-* $Id: task_ofpw.F,v 1.1 2007-06-21 02:08:06 bylaska Exp $
+* $Id$
 *
 
       logical function task_ofpw(rtdb)

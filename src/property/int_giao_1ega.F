@@ -1,6 +1,6 @@
       subroutine int_giao_1ega(ibas,jbas,g,integ_type,xyzpt,nat,
      &                         oskel)
-C$Id: int_giao_1ega.F,v 1.5 2006-11-16 18:23:01 jochen Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

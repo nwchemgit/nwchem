@@ -1,5 +1,5 @@
 *
-* $Id: paw_nonlocal.F,v 1.16 2006-02-11 02:50:48 bylaska Exp $
+* $Id$
 *
 
 * $Log: not supported by cvs2svn $

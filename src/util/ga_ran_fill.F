@@ -1,5 +1,5 @@
       subroutine ga_ran_fill(g_a, ilo, ihi, jlo, jhi)
-C$Id: ga_ran_fill.F,v 1.4 2002-01-30 01:10:38 windus Exp $
+C$Id$
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

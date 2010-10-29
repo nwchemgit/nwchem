@@ -1,5 +1,5 @@
 *
-* $Id: band_update_unitcell.F,v 1.1 2004-11-29 16:05:16 bylaska Exp $
+* $Id$
 *
       logical function band_update_unitcell(rtdb)
       implicit none

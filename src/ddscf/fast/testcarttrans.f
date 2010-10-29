@@ -1,6 +1,6 @@
       implicit none
 *
-* $Id: testcarttrans.f,v 1.3 1999-07-29 00:53:58 d3e129 Exp $
+* $Id$
 *
       integer lmax, npoly, numl, lmax2
       double precision drand

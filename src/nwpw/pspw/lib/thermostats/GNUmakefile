@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2001-08-30 00:35:12 edo Exp $
+# $Id$
 #
 # intf and aux break on IBM SP xlhpf with optimization ... why? 
 

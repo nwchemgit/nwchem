@@ -1,5 +1,5 @@
 *
-* $Id: spdf_name.F,v 1.1 2004-03-01 05:14:32 bylaska Exp $
+* $Id$
 *
 
       character function spdf_name(l)

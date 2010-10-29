@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_nonlocal_new.F,v 1.3 2007-08-29 00:56:54 bylaska Exp $
+* $Id$
 *
       subroutine integrate_kbpp_band_nonlocal_new(version,kvec,
      >                            nrho,drho,lmax,locp,zv,

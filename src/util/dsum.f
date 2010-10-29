@@ -1,6 +1,6 @@
       double precision function dsum(n,sx,incx)
 *
-* $Id: dsum.f,v 1.2 2003-03-20 19:53:05 edo Exp $
+* $Id$
 *
 c
 c     takes the sum of the array elements.

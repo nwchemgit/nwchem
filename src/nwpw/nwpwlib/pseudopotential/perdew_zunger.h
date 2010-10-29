@@ -1,5 +1,5 @@
 /*
- $Id: perdew_zunger.h,v 1.1 2001-08-30 16:58:37 bylaska Exp $
+ $Id$
 */
 #ifndef _PERDEW_ZUNGER_H_
 #define _PERDEW_ZUNGER_H_

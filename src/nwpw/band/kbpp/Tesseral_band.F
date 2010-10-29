@@ -1,5 +1,5 @@
 *
-* $Id: Tesseral_band.F,v 1.9 2007-08-29 00:59:37 bylaska Exp $
+* $Id$
 *
       subroutine Tesseral_band(l,m,kvec,
      >                    nfft1,nfft2,nfft3,

@@ -1,5 +1,5 @@
       subroutine util_getenv(env_name, env_value)
-* $Id: util_getenv.F,v 1.7 2004-01-19 18:19:11 edo Exp $
+* $Id$
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"      

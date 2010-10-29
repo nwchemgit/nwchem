@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2004-03-04 15:12:22 bylaska Exp $
+# $Id$
 #
 
           OBJ_OPTIMIZE =  paw_comp_charge.o

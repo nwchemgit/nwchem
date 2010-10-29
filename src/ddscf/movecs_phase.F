@@ -1,6 +1,6 @@
       subroutine movecs_fix_phase(g_vecs)
 *
-* $Id: movecs_phase.F,v 1.3 2003-10-17 22:54:33 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

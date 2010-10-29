@@ -1,7 +1,7 @@
       subroutine ga_mat_to_vec(g_m, ilo, ihi, jlo, jhi, g_v, klo, col,
      $           scale, op)
 *
-* $Id: ga_mat_to_vec.F,v 1.6 2003-10-21 23:51:25 edo Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

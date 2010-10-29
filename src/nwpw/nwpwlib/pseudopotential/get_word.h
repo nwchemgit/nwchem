@@ -1,5 +1,5 @@
 /*
- $Id: get_word.h,v 1.2 2003-12-02 19:17:08 bylaska Exp $
+ $Id$
 */
 #ifndef _GET_WORD_H_
 #define _GET_WORD_H_

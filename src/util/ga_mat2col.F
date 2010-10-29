@@ -1,6 +1,6 @@
       Subroutine GA_Mat2Col( G_A, AILo, AIHi, AJLo, AJHi,
      $   G_B, BILo, BIHi, BJLo, BJHi)
-C$Id: ga_mat2col.F,v 1.5 2003-10-17 22:58:34 carlfahl Exp $
+C$Id$
       Implicit NONE
 #include "errquit.fh"
       Integer G_A, G_B, AILo, AIHi, AJLo, AJHi, BILo, BIHi, BJLo, BJHi

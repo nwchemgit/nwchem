@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_stress_ray.F,v 1.2 2007-09-12 17:10:17 bylaska Exp $
+* $Id$
 *
 
 *     ********************************************

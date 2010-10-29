@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2006-06-05 18:03:46 edo Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
 				band_stress_numerical.o \

@@ -2,7 +2,7 @@
      &   ncomp, g_rhs,
      &   g_vectors, g_smat1, g_sket1, g_dens, g_amat,
      &   nocc, nvir, nmo, nbf, froct, epst, omega)
-c $Id: aoresponse_giao_rhs.F,v 1.2 2007-10-15 23:30:26 bert Exp $ 
+c $Id$ 
 
 c     ==================================================================
 c     

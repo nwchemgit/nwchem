@@ -1,6 +1,6 @@
       double precision function potential(basis, g_dens, x, y, z)
 *
-* $Id: potential.F,v 1.8 2003-10-17 22:54:37 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

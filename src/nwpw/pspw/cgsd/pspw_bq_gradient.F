@@ -1,5 +1,5 @@
 *
-* $Id: pspw_bq_gradient.F,v 1.4 2008-12-04 00:45:03 bylaska Exp $
+* $Id$
 *
 
 

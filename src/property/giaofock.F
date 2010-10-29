@@ -1,7 +1,7 @@
 cedo#define NBACC 1
 cedo#define NBGET 1
       subroutine new_giao_2e(geom,basis,nbf,tol2e,g_dens,g_fock,kfac)
-c $Id: giaofock.F,v 1.12 2008-12-30 22:17:44 bert Exp $
+c $Id$
       implicit none
 #include "nwc_const.fh"
 #include "errquit.fh"

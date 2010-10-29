@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2007-04-11 23:41:14 bylaska Exp $
+# $Id$
 #
 
   OBJ_OPTIMIZE = CMatrix.o

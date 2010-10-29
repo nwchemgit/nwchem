@@ -31,7 +31,7 @@ C System:       Standard FORTRAN 77
 C
 C Copyright 1988 David E. Bernholdt
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C$Id: atoi.F,v 1.1 1997-03-24 02:00:35 gg502 Exp $
+C$Id$
        IMPLICIT NONE
        CHARACTER*(*) STRING
        CHARACTER*1 C

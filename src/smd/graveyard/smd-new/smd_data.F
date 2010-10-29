@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.2 2008-04-23 16:48:29 marat Exp $
+* $Id$
 *
       function smd_data_create(srtdb,dname,ndim,dtype)
       implicit none

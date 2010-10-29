@@ -1,5 +1,5 @@
 *
-* $Id: band_stress_fd.F,v 1.2 2006-12-19 19:12:01 d3p708 Exp $
+* $Id$
 *
       logical function band_stress_fd(rtdb)
       implicit none

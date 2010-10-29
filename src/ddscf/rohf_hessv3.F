@@ -16,7 +16,7 @@ c     have an imaginary part, too
 #include "util.fh"
 #include "global.fh"
 c     
-c     $Id: rohf_hessv3.F,v 1.6 2009-01-22 02:06:13 niri Exp $
+c     $Id$
 c
 c ... jochen: these two arrays now have two components:
       integer g_x(2)  ! [input]  A-matrix elements for density matrix
@@ -96,7 +96,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      $     g_movecs, oskel, noskew, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax, g_x_im, g_Ax_im, omega, limag,
      &   lifetime, gamwidth, ncomp)
-C     $Id: rohf_hessv3.F,v 1.6 2009-01-22 02:06:13 niri Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -246,7 +246,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
       subroutine rohf_hessv_2e3( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, noskew, g_x, acc, g_ax, limag)
-C     $Id: rohf_hessv3.F,v 1.6 2009-01-22 02:06:13 niri Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

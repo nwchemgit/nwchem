@@ -1,4 +1,4 @@
-C$Id: util_sgroup.F,v 1.48 2009/04/13 22:13:17 d3p852 Exp $
+C$Id$
       block data groups
 #include "util_sgroup.fh"
 C     Make sure that the group code works even if groups are not set up yet

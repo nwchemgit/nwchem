@@ -2,7 +2,7 @@
 *      end
       double precision function anl_fit(n, l, x)
 *
-* $Id: anlfit.F,v 1.11 2006-03-08 05:02:03 d3j191 Exp $
+* $Id$
 *
       implicit none
 #include "canlfit.fh"

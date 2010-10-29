@@ -14,7 +14,7 @@
 c
       implicit none
 c
-c     $Id: util_nwchemrc.F,v 1.6 2000-10-17 23:12:15 edo Exp $
+c     $Id$
 c
 c     Eventually these routines should use the inp modules
 c     Currently these are (key,value) but later may have to be extended

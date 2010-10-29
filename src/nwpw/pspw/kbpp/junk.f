@@ -6,7 +6,7 @@
 
       subroutine setup(nfft1,nfft2,nfft3,unita,unitg,G,IERR)
 *
-* $Id: junk.f,v 1.1 2001-08-30 00:38:59 edo Exp $
+* $Id$
 *
       implicit none
       integer nfft1,nfft2,nfft3

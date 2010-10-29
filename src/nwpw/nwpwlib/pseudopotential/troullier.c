@@ -1,6 +1,6 @@
 /* troullier.c -
    Author - Eric Bylaska
-   $Id: troullier.c,v 1.9 2008-12-15 21:08:40 bylaska Exp $
+   $Id$
 
 */
 

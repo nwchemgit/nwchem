@@ -1,5 +1,5 @@
       program test
-C$Id: test.F,v 1.1 2008-04-21 18:19:27 marat Exp $
+C$Id$
       implicit none
 c
 #include "srtdb.fh"

@@ -6,7 +6,7 @@
      $     den, ld, tol, d, dinv, lmaxd, npts, xyz, pot, fact,
      $     omask, opresent, ldp)
 *
-* $Id: pot_shell.F,v 1.14 2003-10-17 22:54:37 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

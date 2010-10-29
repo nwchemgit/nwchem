@@ -1,5 +1,5 @@
 *
-* $Id: cfockmul.fh,v 1.4 2000-07-14 23:47:57 bert Exp $
+* $Id$
 *
       integer maxim, maxim1
       parameter (maxim = nw_max_nbf)

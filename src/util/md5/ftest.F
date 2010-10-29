@@ -1,6 +1,6 @@
       program main
 *
-* $Id: ftest.F,v 1.2 1997-10-31 20:45:42 d3e129 Exp $
+* $Id$
 *
       implicit none
 c

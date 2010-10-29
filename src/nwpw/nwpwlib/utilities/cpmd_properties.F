@@ -1,5 +1,5 @@
 c
-c     $Id: cpmd_properties.F,v 1.7 2007-04-02 15:38:38 bylaska Exp $
+c     $Id$
 c
 
 *     *********************************

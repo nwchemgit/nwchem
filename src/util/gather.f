@@ -1,7 +1,7 @@
 
       subroutine gather(n,a,b,indx)
 *
-* $Id: gather.f,v 1.2 1997-10-31 20:45:32 d3e129 Exp $
+* $Id$
 *
       integer n, indx(n)
       double precision a(n),b(*)

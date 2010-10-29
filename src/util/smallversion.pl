@@ -1,7 +1,7 @@
 #!/bin/env perl
 # -*-Perl-*-
 #
-# $Id: smallversion.pl,v 1.2 1998-05-15 01:01:47 d3e129 Exp $
+# $Id$
 # 
 # smallversion.pl is a perl script that breaks up a large util_version.F file
 # into several subroutines for compilers that run out of internal memory

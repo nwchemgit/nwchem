@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.13 2008-03-17 17:53:57 bylaska Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
                 psp_formatter_input.o \

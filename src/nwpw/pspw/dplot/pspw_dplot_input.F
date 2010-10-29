@@ -1,5 +1,5 @@
 c
-c $Id: pspw_dplot_input.F,v 1.11 2009-02-10 21:17:18 bylaska Exp $
+c $Id$
 c
 
 

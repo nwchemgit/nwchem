@@ -1,7 +1,7 @@
       subroutine rohf_hessv_1e( basis, geom, nmo, nclosed, nopen,
      $     g_fcv, g_fpv, g_fcp,
      $     g_x, g_ax)
-C     $Id: rohf_h1e.F,v 1.6 2003-10-17 22:54:33 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -1,6 +1,6 @@
 
 /*
-   $Id: paw_my_constants.c,v 1.3 2007-04-10 19:04:34 d3p708 Exp $
+   $Id$
 */
 
 void paw_my_constants()

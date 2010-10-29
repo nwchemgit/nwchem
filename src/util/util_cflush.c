@@ -1,5 +1,5 @@
 /*
- $Id: util_cflush.c,v 1.1 2004-10-06 05:16:45 edo Exp $
+ $Id$
  */
 #include <stdio.h>
 /* this flushes stderr and stdout

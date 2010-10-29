@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2004-05-14 16:24:04 edo Exp $
+# $Id$
 #
 
           OBJ_OPTIMIZE = paw_matrix_hartree.o paw_pot_hartree.o \

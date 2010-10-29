@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2004-05-14 16:39:49 edo Exp $
+# $Id$
 #
 
           OBJ_OPTIMIZE =  paw_energy_vloc_atom.o paw_matrix_vloc.o paw_vloc.o

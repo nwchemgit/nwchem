@@ -11,7 +11,7 @@
       subroutine movecs_ecce(nbf, nmo, lo, hi, eval, occ, sym,
      $     g_movecs, scftype, key)
 *
-* $Id: movecs_ecce.F,v 1.2 2003-10-17 22:58:35 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

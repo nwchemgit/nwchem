@@ -1,6 +1,6 @@
 #define TCGMSG
 *
-* $Id: second.F,v 1.1 2001-08-30 01:56:20 bylaska Exp $
+* $Id$
 *
 #ifdef MPI
       SUBROUTINE current_second(T)

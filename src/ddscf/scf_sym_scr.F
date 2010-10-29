@@ -1,7 +1,7 @@
       subroutine scf_sym_screen(nclosed, nopen, nvir, irs,
      $                          g_v, ivoff, oprint, maxelt)
 *
-* $Id: scf_sym_scr.F,v 1.7 2003-10-17 22:54:33 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,5 +1,5 @@
 *
-* $Id: cpsi_get_header.F,v 1.2 2008-06-20 16:20:24 bylaska Exp $
+* $Id$
 *
 
 

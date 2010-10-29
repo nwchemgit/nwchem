@@ -1,4 +1,4 @@
-c     $Id: pspw_noit_energy.F,v 1.1 2002-04-25 00:34:39 bylaska Exp $
+c     $Id$
       logical function pspw_noit_energy(rtdb)
       implicit none
       integer rtdb

@@ -1,5 +1,5 @@
 *
-* $Id: paw_mult_energy.F,v 1.7 2005-01-31 02:09:38 bylaska Exp $
+* $Id$
 *
 *
 * $Log: not supported by cvs2svn $

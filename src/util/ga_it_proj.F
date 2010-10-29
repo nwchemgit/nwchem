@@ -1,5 +1,5 @@
       block data ga_block_project
-C$Id: ga_it_proj.F,v 1.3 2003-10-17 22:58:34 carlfahl Exp $
+C$Id$
       implicit none
 #include "cproject.fh"
 c

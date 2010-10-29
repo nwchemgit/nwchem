@@ -1,7 +1,7 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
      &   nfock, g_dens, g_xc, l3d)
 c
-c     $Id: fock_xc.F,v 1.33 2005-10-07 19:48:04 edo Exp $
+c     $Id$
 c
 c     Wrapper routine for AO-basis XC matrices without fitting
 c

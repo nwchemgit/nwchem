@@ -1,5 +1,5 @@
 *
-*     $Id: band_Grsm_list.F,v 1.1 2004-02-01 19:01:42 bylaska Exp $ 
+*     $Id$ 
 *
       subroutine band_Grsm_list_start()
       implicit none

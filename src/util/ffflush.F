@@ -1,5 +1,5 @@
       subroutine ffflush(unit)
-C$Id: ffflush.F,v 1.4 2005-05-26 00:23:57 edo Exp $
+C$Id$
       integer unit              ! [input]
 c
 c     Flush outputto this fortran unit

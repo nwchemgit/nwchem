@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_ilist.F,v 1.2 2003-10-17 22:56:40 carlfahl Exp $
+* $Id$
 *
 #define NIL	-1
 

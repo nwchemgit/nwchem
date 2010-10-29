@@ -1,5 +1,5 @@
       logical function scf(rtdb)
-C$Id: scf.F,v 1.71 2008-09-02 14:59:09 jhammond Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

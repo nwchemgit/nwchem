@@ -6,7 +6,7 @@
 # module name -> produce a write statement for the module name
 # other       -> produce nothing
 # 
-# $Id: ids.awk,v 1.4 1997-07-15 19:52:52 d3e129 Exp $
+# $Id$
 
 BEGIN {
 		underline = "---------------------------------------------------------";

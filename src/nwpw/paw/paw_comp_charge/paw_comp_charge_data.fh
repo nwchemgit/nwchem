@@ -1,5 +1,5 @@
 c
-c $Id: paw_comp_charge_data.fh,v 1.7 2006-01-12 00:54:01 bylaska Exp $
+c $Id$
 c
 
       integer    paw_q00(4)     ! compensation charge

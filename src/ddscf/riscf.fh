@@ -1,5 +1,5 @@
       integer maxbases, dim, riscf_info, nbases
-C$Id: riscf.fh,v 1.2 1996-02-07 00:41:24 vg038 Exp $
+C$Id$
       parameter (maxbases = 16)
       parameter (dim = 6*maxbases)
 C

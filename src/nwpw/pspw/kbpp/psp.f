@@ -1,7 +1,7 @@
       subroutine kbppv3(psp_filename,formatted_filename,
      >                  nfft1,nfft2,nfft3,unita)
 *
-* $Id: psp.f,v 1.1 2001-08-30 00:38:59 edo Exp $
+* $Id$
 *
       implicit none
 

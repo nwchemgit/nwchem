@@ -1,4 +1,4 @@
-/*$Id: ibm_cputime.c,v 1.3 1995-07-10 22:47:37 d3e129 Exp $*/
+/*$Id$*/
 
 #if defined(USE_CLOCK)
 #include <time.h>

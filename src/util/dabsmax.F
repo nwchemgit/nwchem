@@ -1,5 +1,5 @@
       double precision function dabsmax(n, a)
-C$Id: dabsmax.F,v 1.4 1997-06-03 21:45:37 d3e129 Exp $
+C$Id$
       implicit none
 c
       integer n

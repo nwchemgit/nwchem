@@ -2,7 +2,7 @@
      $     g_vecs, title, 
      $     oevals, evals, oirs, irs, oocc, occ)
 *
-* $Id: movecs_pr_anal.F,v 1.17 2008-11-26 17:07:09 bert Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,6 +1,6 @@
       subroutine fock_2e_report(kat, natoms)
 *
-* $Id: fock_2e_rep.F,v 1.2 1997-11-07 11:35:10 d3e129 Exp $
+* $Id$
 *
       implicit none
 #include "cfock.fh"

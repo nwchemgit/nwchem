@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.8 2005-08-05 20:39:35 bylaska Exp $
+# $Id$
 #
       SUBDIRS = minimizer structure cpsd cell_optimize kbpp makepsi lib dplot
 

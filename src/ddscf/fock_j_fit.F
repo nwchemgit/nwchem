@@ -1,6 +1,6 @@
       subroutine fock_j_fit(nmat, g_dens, g_j)
 c
-c     $Id: fock_j_fit.F,v 1.4 2003-10-17 22:54:32 carlfahl Exp $
+c     $Id$
 c
 c     Wrapper routine for AO-basis J matrices with fitting
 c
@@ -23,7 +23,7 @@ c
       subroutine fock_j_fit_gen(nmat, g_dens, g_j, Tvec, have_Tvec,
      &     do_init)
 c
-c     $Id: fock_j_fit.F,v 1.4 2003-10-17 22:54:32 carlfahl Exp $
+c     $Id$
 c
 c     Wrapper routine for AO-basis J matrices with fitting
 c

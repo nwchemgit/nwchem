@@ -1,5 +1,5 @@
       integer function util_time_remaining(rtdb)
-* $Id: util_job.F,v 1.5 1999-06-10 16:52:59 d3g681 Exp $
+* $Id$
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"

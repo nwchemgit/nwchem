@@ -1,4 +1,4 @@
-c     $Id: band_noit_energy.F,v 1.1 2004-11-13 02:25:29 bylaska Exp $
+c     $Id$
 
       logical function band_noit_energy(rtdb)
       implicit none

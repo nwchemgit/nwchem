@@ -1,5 +1,5 @@
 c
-c $Id: ewald_setp.f,v 1.1 2008-04-18 17:40:30 marat Exp $
+c $Id$
 c
 
       SUBROUTINE ewald_setp()

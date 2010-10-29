@@ -1,5 +1,5 @@
 *
-* $Id: task_band.F,v 1.6 2005-08-23 14:12:00 bylaska Exp $
+* $Id$
 *
 
       logical function task_band(rtdb)

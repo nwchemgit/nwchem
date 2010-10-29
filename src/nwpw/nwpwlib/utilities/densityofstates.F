@@ -1,5 +1,5 @@
 c
-c     $Id: densityofstates.F,v 1.3 2004-03-01 05:14:32 bylaska Exp $
+c     $Id$
 c
 
 *     *********************************

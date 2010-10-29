@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_hartree_atom.F,v 1.4 2003-03-05 23:16:31 bylaska Exp $
+* $Id$
 *
 
 

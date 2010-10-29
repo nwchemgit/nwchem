@@ -1,6 +1,6 @@
       subroutine util_rtdb_speak(rtdb)
 *
-* $Id: util_rtdb_speak.F,v 1.2 1997-10-31 20:45:38 d3e129 Exp $
+* $Id$
 *
       implicit none
 #include "rtdb.fh"

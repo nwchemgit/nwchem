@@ -1,5 +1,5 @@
 *
-* $Id: lcao_wvfnc_bak.F,v 1.4 2004-02-10 04:27:25 edo Exp $
+* $Id$
 *
       logical function lcao_wvfnc(oprint,it_max,
      >                      wavefunction_filename,

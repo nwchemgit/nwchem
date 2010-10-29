@@ -4,7 +4,7 @@ C     rhf_fock -- Compute and return a complete Fock matrix, along with
 C     one- and two-electron energies.
 C
 C REVISION
-C     $Id: rhf_fock.F,v 1.2 2003-10-17 22:54:33 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RHF_Fock( Geom, Basis, G_Dens, Tol2e, OSkel,

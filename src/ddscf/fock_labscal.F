@@ -1,6 +1,6 @@
       subroutine fock_eri_label_scale(neri, q4, i, j, k, l, eri)
 c
-c$Id: fock_labscal.F,v 1.1 1995-12-13 01:25:09 d3g681 Exp $
+c$Id$
 c
       implicit none
       integer neri, i(neri), j(neri), k(neri), l(neri)

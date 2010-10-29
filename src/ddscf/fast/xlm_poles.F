@@ -1,6 +1,6 @@
       subroutine xlm_norm(lmax, q, lq)
 *
-* $Id: xlm_poles.F,v 1.15 2003-10-17 22:54:37 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "xlm.fh"

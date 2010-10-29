@@ -1,6 +1,6 @@
 /* psp.c -
    author - Patrick Nichols
-   $Id: rpsp.c,v 1.12 2008-02-27 23:28:11 d3p708 Exp $
+   $Id$
 */
 
 #include	<stdio.h>

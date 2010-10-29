@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl5
 #
-# $Id: jobtime.pl,v 1.8 2002-10-23 21:59:38 edo Exp $
+# $Id$
 #
 
 # ON THE IBM SP DETERMINE THE TIME LEFT TO A LL BATCH JOB

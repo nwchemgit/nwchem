@@ -1,5 +1,5 @@
 /*
- $Id: ecce_print.h,v 1.4 2002-09-24 16:45:50 windus Exp $
+ $Id$
  */
 
 void ecce_print_module_entry(const char *module);

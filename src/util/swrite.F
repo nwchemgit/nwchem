@@ -1,7 +1,7 @@
       subroutine swrite(itape,a,n)
 #include "errquit.fh"
 *
-* $Id: swrite.F,v 1.1 2003-10-17 21:58:52 carlfahl Exp $
+* $Id$
 *
       double precision a(n)
       parameter (lenbuf = 524287) ! 4*1024*1024/8 - 1

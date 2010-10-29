@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3_new.f,v 1.5 2007-09-12 17:31:27 bylaska Exp $
+* $Id$
 *
       subroutine integrate_kbppv3_new(version,rlocal,
      >                            nrho,drho,lmax,locp,zv,

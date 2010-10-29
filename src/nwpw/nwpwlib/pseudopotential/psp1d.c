@@ -1,6 +1,6 @@
 /* psp.c -
    author - Eric Bylaska
-   $Id: psp1d.c,v 1.7 2004-12-30 04:42:30 bylaska Exp $
+   $Id$
 */
 
 #include	<stdio.h>

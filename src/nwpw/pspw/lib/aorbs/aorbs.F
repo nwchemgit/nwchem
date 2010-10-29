@@ -1,6 +1,6 @@
 
 *
-* $Id: aorbs.F,v 1.7 2009-02-07 03:50:44 bylaska Exp $
+* $Id$
 *
 
 #define TCGMSG

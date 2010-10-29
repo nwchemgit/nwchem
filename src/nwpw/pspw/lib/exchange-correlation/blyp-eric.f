@@ -1,5 +1,5 @@
 *
-* $Id: blyp-eric.f,v 1.2 2005-05-24 17:36:27 bylaska Exp $
+* $Id$
 *
 
 

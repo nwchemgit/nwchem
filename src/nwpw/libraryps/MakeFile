@@ -1,5 +1,5 @@
 #
-# $Id: MakeFile,v 1.2 2003-02-07 17:31:15 edo Exp $
+# $Id$
 #
 
 OBJ_OPTIMIZE = $(OBJDIR)\nwpw_library.obj \

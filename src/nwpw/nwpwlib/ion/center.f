@@ -1,5 +1,5 @@
 *
-* $Id: center.f,v 1.6 2007-03-19 19:05:35 bylaska Exp $
+* $Id$
 *
 
       subroutine center_geom(cx,cy,cz)

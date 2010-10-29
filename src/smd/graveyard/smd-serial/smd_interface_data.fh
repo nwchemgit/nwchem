@@ -1,5 +1,5 @@
 *
-* $Id: smd_interface_data.fh,v 1.2 2008-05-13 18:07:01 marat Exp $
+* $Id$
 *
       integer smd_interface_nc
       parameter(smd_interface_nc=40)

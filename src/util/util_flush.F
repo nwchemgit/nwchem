@@ -1,5 +1,5 @@
       subroutine util_flush(unit)
-C$Id: util_flush.F,v 1.22 2005-05-27 01:51:05 edo Exp $
+C$Id$
       implicit none
 #include "stdio.fh"
       integer unit

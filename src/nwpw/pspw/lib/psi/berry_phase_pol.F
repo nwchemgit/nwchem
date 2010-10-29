@@ -1,5 +1,5 @@
 *
-* $Id: berry_phase_pol.F,v 1.8 2007-12-27 16:53:41 d3p307 Exp $
+* $Id$
 *
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c  Polarization calculated through Berry's Phase Approach

@@ -1,5 +1,5 @@
 *
-* $Id: smd_energy_data.fh,v 1.1 2008-04-22 17:41:22 marat Exp $
+* $Id$
 *
       integer smd_energy_nc
       parameter(smd_energy_nc=8)

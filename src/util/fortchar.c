@@ -1,4 +1,4 @@
-/*$Id: fortchar.c,v 1.9 2003-08-13 18:06:11 edo Exp $*/
+/*$Id$*/
 /* Name munging to handle the various conventions for Fortran-C interfacing */
 #if (defined(CRAY) || defined(ARDENT) || defined(WIN32)) && !defined(__crayx1)
 #   define FCSND_  FCSND

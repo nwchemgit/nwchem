@@ -1,6 +1,6 @@
       subroutine dgefa(a,lda,n,ipvt,info)
 *
-* $Id: dgefa.f,v 1.1 2003-03-20 20:45:30 edo Exp $
+* $Id$
 *
       integer lda,n,ipvt(1),info
       double precision a(lda,1)

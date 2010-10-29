@@ -1,5 +1,5 @@
 *
-*     $Id: paw_lmbfgs.F,v 1.2 2009-02-08 03:26:28 bylaska Exp $                       
+*     $Id$                       
 *
 
       subroutine paw_lmbfgs_init(max_m0,g)

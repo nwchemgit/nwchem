@@ -1,6 +1,6 @@
       SUBROUTINE VSINT(M,N,X,XT,MDIMX,WSAVE)
 *
-* $Id: vsint.f,v 1.4 2000-10-25 22:50:09 windus Exp $
+* $Id$
 *
       implicit double precision (a-h, o-z)
 C***BEGIN PROLOGUE  VSINT

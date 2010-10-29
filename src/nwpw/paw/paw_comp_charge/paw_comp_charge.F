@@ -1,5 +1,5 @@
 *
-* $Id: paw_comp_charge.F,v 1.26 2006-02-11 02:50:47 bylaska Exp $
+* $Id$
 *
 
 

@@ -1,5 +1,5 @@
 c
-c     $Id: band_Grsm_list_common.fh,v 1.1 2004-02-01 19:01:42 bylaska Exp $
+c     $Id$
 c
       integer max_list
       parameter (max_list=40)

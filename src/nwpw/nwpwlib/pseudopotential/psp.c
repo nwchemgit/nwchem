@@ -1,6 +1,6 @@
 /* psp.c -
    author - Eric Bylaska
-   $Id: psp.c,v 1.7 2008-12-15 21:08:40 bylaska Exp $
+   $Id$
 
 */
 

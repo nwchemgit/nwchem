@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.13 2007-01-02 18:36:52 bylaska Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
                 wvfnc_init_input.o \

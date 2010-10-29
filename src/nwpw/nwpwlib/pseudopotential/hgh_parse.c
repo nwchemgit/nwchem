@@ -1,5 +1,5 @@
 /*
- $Id: hgh_parse.c,v 1.4 2008-04-03 16:57:15 d3p708 Exp $
+ $Id$
 */
 
 #include <stdlib.h>

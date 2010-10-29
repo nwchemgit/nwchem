@@ -1,5 +1,5 @@
 *
-* $Id: band_dplot_iteration.F,v 1.2 2005-09-08 01:30:23 bylaska Exp $
+* $Id$
 *
       subroutine band_dplot_iteration_init()
       implicit none

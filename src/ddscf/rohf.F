@@ -1,5 +1,5 @@
       logical function rohf(rtdb, energy)
-C$Id: rohf.F,v 1.44 2003-10-17 22:54:33 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

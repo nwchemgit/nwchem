@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.3 2008-04-22 17:45:22 marat Exp $
+# $Id$
 
 include ../../tools/armci/config/makecoms.h
 include ../../config/makefile.h

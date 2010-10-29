@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_rmmdiis.fh,v 1.1 2004-12-06 20:03:25 bylaska Exp $
+*     $Id$
 *
 
       integer nmax,lwork

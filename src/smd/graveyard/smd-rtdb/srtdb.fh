@@ -90,7 +90,7 @@ c
      $     srtdb_put, srtdb_get, 
      $     srtdb_cput, srtdb_cget, srtdb_print, srtdb_get_info, 
      $     srtdb_first, srtdb_next, srtdb_delete
-C$Id: srtdb.fh,v 1.3 2008-04-23 16:46:50 marat Exp $
+C$Id$
       external srtdb_open, srtdb_close, srtdb_put, 
      $     srtdb_get,
      $     srtdb_cput, srtdb_cget, srtdb_print, srtdb_get_info, 

@@ -1,4 +1,4 @@
-/*$Id: util_date.c,v 1.8 2003-08-13 18:06:11 edo Exp $*/
+/*$Id$*/
 #include <sys/types.h>
 #include <time.h>
 #if !defined(IPSC) && !defined(WIN32)

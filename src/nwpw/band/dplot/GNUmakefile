@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2005-08-23 14:12:00 bylaska Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
 				band_dplot_input.o \

@@ -1,6 +1,6 @@
       subroutine ga_local_mdot(n, nva, nvb, c, ldc, g_a, g_b)
 *
-* $Id: ga_local_mdot.F,v 1.12 2008-11-06 21:37:36 jhammond Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

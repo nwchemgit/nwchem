@@ -1,5 +1,5 @@
 /*
- $Id: gga_exchange.c,v 1.3 2007-04-09 22:55:51 d3p708 Exp $
+ $Id$
    gga_exchange.c - 6/9/95
    author - Eric Bylaska
 

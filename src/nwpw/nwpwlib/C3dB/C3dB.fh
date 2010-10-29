@@ -1,5 +1,5 @@
 *
-* $Id: C3dB.fh,v 1.1 2004-05-05 19:56:57 bylaska Exp $
+* $Id$
 *
 
       integer nq(NBLOCKS),nx(NBLOCKS),ny(NBLOCKS),nz(NBLOCKS)

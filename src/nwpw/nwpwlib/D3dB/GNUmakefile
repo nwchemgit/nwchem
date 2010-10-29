@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.14 2008-07-01 16:58:35 d3p708 Exp $
+# $Id$
 #
 
  OBJ_OPTIMIZE = D3dB-new.o generate_map_indexes.o hilbert.o olist.o trans.o D3dB_pfft.o

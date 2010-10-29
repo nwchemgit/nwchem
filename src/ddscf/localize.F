@@ -20,7 +20,7 @@ c
       end
       subroutine testlocalize(rtdb)
 *
-* $Id: localize.F,v 1.12 2003-10-21 23:51:25 edo Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

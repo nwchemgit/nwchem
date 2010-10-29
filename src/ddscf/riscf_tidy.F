@@ -1,5 +1,5 @@
       subroutine riscf_tidy ( geom, basis, riscf_basis )
-C$Id: riscf_tidy.F,v 1.7 2003-10-17 22:54:33 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 

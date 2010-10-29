@@ -1,5 +1,5 @@
 c
-c $Id: c_G_init.F,v 1.5 2008-05-13 02:10:22 bylaska Exp $
+c $Id$
 c
 
       integer function c_G_indx(i)

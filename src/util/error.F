@@ -1,5 +1,5 @@
       block data error_data
-C$Id: error.F,v 1.9 2000-04-10 12:05:34 hvd Exp $
+C$Id$
       implicit none
 #include "errorP.h"
 c

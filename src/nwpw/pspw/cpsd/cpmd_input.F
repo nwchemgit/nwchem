@@ -1,5 +1,5 @@
 c
-c $Id: cpmd_input.F,v 1.19 2008-05-13 02:10:25 bylaska Exp $
+c $Id$
 c
 
 

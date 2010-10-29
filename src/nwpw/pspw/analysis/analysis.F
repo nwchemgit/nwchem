@@ -1,5 +1,5 @@
 c
-c $Id: analysis.F,v 1.12 2008-11-03 06:06:11 bylaska Exp $
+c $Id$
 c
 
       subroutine pspw_analysis(flag,rtdb,ispin,ne,psi,eig)

@@ -1,5 +1,5 @@
 *
-* $Id: paw_energy_vloc_atom.F,v 1.5 2003-02-14 19:54:05 d3j191 Exp $
+* $Id$
 *
 
 

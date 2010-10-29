@@ -1,4 +1,4 @@
-/*$Id: srtdb.c,v 1.2 2008-04-23 16:46:50 marat Exp $*/
+/*$Id$*/
 #include <stdio.h>
 #include <string.h>
 #include "srtdb.h"

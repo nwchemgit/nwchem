@@ -1,5 +1,5 @@
        subroutine ga_screen(g_a, value)
-C$Id: ga_screen.F,v 1.7 2000-11-03 00:43:28 edo Exp $
+C$Id$
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"

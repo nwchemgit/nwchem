@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_common.fh,v 1.10 2008-02-05 19:53:27 d3p708 Exp $
+* $Id$
 *
 *     **** common block for psp ****
       integer    prjtmp(2)

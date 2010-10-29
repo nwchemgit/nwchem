@@ -1,7 +1,7 @@
       Subroutine DGeWr (N, M, A, LDA, N0, M0, LUN, Label, LinWid,
      $   EFmt)
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C $Id: dgewr.F,v 1.3 2003-10-17 22:58:34 carlfahl Exp $
+C $Id$
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C     dgewr -- Write a general matrix nicely formatted 

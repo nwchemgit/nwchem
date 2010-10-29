@@ -1,5 +1,5 @@
 *
-*     $Id: nwpw_list.F,v 1.6 2004-12-18 19:42:39 bylaska Exp $ 
+*     $Id$ 
 *
       subroutine nwpw_list_start(nb,size_list0,nsize0)
       implicit none

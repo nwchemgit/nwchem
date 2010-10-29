@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-mpi.F,v 1.21 2007-04-12 17:10:13 bylaska Exp $
+* $Id$
 *
 
 #ifdef MPI

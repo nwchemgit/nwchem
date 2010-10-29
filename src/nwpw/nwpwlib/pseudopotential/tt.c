@@ -1,5 +1,5 @@
 /*
- $Id: tt.c,v 1.1 2001-08-30 16:58:37 bylaska Exp $
+ $Id$
 */
       Vall_match   = Vall[match];
       dVall_match  = (1.0/(al*r[match]))*Derivative7_4(match,Vall);

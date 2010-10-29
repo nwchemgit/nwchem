@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2003-07-30 18:16:48 bylaska Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
 				c_wvfnc_new.o \

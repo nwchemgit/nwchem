@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.2 2004-05-14 17:39:07 edo Exp $
+# $Id$
 #
 # intf and aux break on IBM SP xlhpf with optimization ... why? 
  OBJ_OPTIMIZE = \

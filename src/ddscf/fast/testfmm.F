@@ -1,6 +1,6 @@
       program test
 *
-* $Id: testfmm.F,v 1.4 2003-10-21 23:51:26 edo Exp $
+* $Id$
 *
       implicit none
 c

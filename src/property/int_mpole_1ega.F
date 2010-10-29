@@ -1,5 +1,5 @@
       subroutine int_mpole_1ega(ibas,jbas,g,integ_type,xyzpt,oskel)
-C$Id: int_mpole_1ega.F,v 1.2 2008-01-18 01:58:40 jhammond Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

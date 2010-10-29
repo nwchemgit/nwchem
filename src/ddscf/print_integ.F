@@ -2,7 +2,7 @@
       integer nints
       integer i(*), j(*), k(*), l(*)
       double precision g(*)
-c     $Id: print_integ.F,v 1.2 1996-05-14 18:00:04 d3g681 Exp $
+c     $Id$
       integer m
 c
 c     Debug printing of a list of labelled integrals

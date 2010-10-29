@@ -1,6 +1,6 @@
       subroutine util_transpose(a,lda,b,ldb,m,n)
 *
-* $Id: util_transpose.F,v 1.1 2003-10-17 21:57:16 carlfahl Exp $
+* $Id$
 *
       implicit none
 c

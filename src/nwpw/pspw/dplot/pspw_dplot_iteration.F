@@ -1,5 +1,5 @@
 *
-* $Id: pspw_dplot_iteration.F,v 1.3 2003-10-17 22:57:15 carlfahl Exp $
+* $Id$
 *
       subroutine dplot_iteration_init()
       implicit none

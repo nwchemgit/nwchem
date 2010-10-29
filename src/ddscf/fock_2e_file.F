@@ -8,7 +8,7 @@
 #include "cscfps.fh"
 #include "cfock.fh"
 c
-c     $Id: fock_2e_file.F,v 1.12 2003-10-17 22:54:32 carlfahl Exp $
+c     $Id$
 c
 c     Accumulate the contribution to the fock matrices from
 c     integrals store in the integral file.  Simply read thru

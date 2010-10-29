@@ -1,5 +1,5 @@
 *
-* $Id: kbppv3d_stress.F,v 1.1 2008-03-17 17:53:58 bylaska Exp $
+* $Id$
 *
 
 

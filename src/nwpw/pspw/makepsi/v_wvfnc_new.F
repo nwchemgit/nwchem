@@ -1,5 +1,5 @@
 *
-* $Id: v_wvfnc_new.F,v 1.2 2007-09-24 16:58:15 bylaska Exp $
+* $Id$
 *
 
       subroutine v_wvfnc_new(v_wavefunction_filename,

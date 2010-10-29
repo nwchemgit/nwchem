@@ -1,5 +1,5 @@
 /*
- $Id: teter_parse.c,v 1.4 2007-04-09 22:55:52 d3p708 Exp $
+ $Id$
 */
 
 #include <math.h>

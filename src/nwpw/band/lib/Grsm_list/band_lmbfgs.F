@@ -1,5 +1,5 @@
 *
-*     $Id: band_lmbfgs.F,v 1.9 2009-02-07 03:49:59 bylaska Exp $                       
+*     $Id$                       
 *
 
       subroutine band_lmbfgs_init(max_m0,g)

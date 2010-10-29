@@ -1,5 +1,5 @@
 c
-c     $Id: band_gradient.F,v 1.3 2004-11-29 16:05:16 bylaska Exp $
+c     $Id$
 c
 
       logical function band_gradient(rtdb)

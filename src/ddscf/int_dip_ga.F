@@ -1,6 +1,6 @@
       subroutine int_dip_ga(ibas, jbas, g_x, g_y, g_z)
 *
-* $Id: int_dip_ga.F,v 1.3 2003-10-17 22:54:33 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"
@@ -122,7 +122,7 @@ c
       subroutine int_qdr_ga(ibas, jbas, g_xx, g_xy, g_xz,
      &                                  g_yy, g_yz, g_zz)
 *
-* $Id: int_qdr_ga.F,v 1.3 2003-10-17 22:54:33 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

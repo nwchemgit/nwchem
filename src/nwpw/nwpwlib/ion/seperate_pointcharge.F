@@ -1,5 +1,5 @@
 *     
-* $Id: seperate_pointcharge.F,v 1.4 2007-03-19 19:05:35 bylaska Exp $
+* $Id$
 *     
 
 *     ***************************

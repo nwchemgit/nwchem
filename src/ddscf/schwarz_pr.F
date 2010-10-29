@@ -1,5 +1,5 @@
       subroutine schwarz_print(natoms, nshell)
-C$Id: schwarz_pr.F,v 1.1 1995-12-13 01:26:16 d3g681 Exp $
+C$Id$
       implicit none
 #include "schwarz.fh"
 #include "tcgmsg.fh"

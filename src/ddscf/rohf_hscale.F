@@ -1,6 +1,6 @@
       subroutine rohf_hdiag_scale( nmo, nclosed, nopen, lshift,
      $     g_fcv, g_fpv, g_fcp, g_x )
-C     $Id: rohf_hscale.F,v 1.7 2006-11-16 18:22:55 jochen Exp $
+C     $Id$
 c
 c ... jochen: modified version. below was the check: 
 c
@@ -192,7 +192,7 @@ c     =======================================================================
       subroutine rohf_hdiag_scale_damp( nmo, nclosed, nopen, lshift,
      &   gamwidth,
      $     g_fcv, g_fpv, g_fcp, g_x, g_x_im )
-C     $Id: rohf_hscale.F,v 1.7 2006-11-16 18:22:55 jochen Exp $
+C     $Id$
 c
 c ... jochen: modified version of rohf_hdiag_scale to allow for
 c     a situation where we have damping and a coupled set of equations.

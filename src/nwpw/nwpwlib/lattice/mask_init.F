@@ -1,5 +1,5 @@
 *
-* $Id: mask_init.F,v 1.10 2006-08-13 01:03:25 bylaska Exp $
+* $Id$
 *
 
       subroutine mask_end()

@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_band_stress_local.F,v 1.3 2007-08-30 00:58:02 bylaska Exp $
+* $Id$
 *
 
 *     **************************************

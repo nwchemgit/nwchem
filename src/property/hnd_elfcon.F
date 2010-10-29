@@ -1,6 +1,6 @@
       subroutine hnd_elfcon(basis,geom,g_dens,points,npt,elfval,nder)
 c
-c $Id: hnd_elfcon.F,v 1.4 2004-12-20 22:41:07 bert Exp $
+c $Id$
 c
 c     This routine calculates the electronic contribution of the
 c     electronic integral defined by nder for a given density at 

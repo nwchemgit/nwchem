@@ -1,5 +1,5 @@
 *
-* $Id: band_dplot.F,v 1.12 2009-02-07 03:49:57 bylaska Exp $
+* $Id$
 *
       logical function band_dplot(rtdb)
       implicit none

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.17 2004-05-14 17:50:22 edo Exp $
+# $Id$
 #
 
  LIBRARY = libddscf.a

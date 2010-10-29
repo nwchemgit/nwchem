@@ -1,5 +1,5 @@
 *
-* $Id: smd_system_data.fh,v 1.1 2008-04-22 17:41:23 marat Exp $
+* $Id$
 *
       integer smd_system_nc
       parameter(smd_system_nc=16)

@@ -1,5 +1,5 @@
 *
-* $Id: matrix.f,v 1.2 2003-03-19 00:45:59 bylaska Exp $
+* $Id$
 *
       SUBROUTINE EIGEN(NEMAX,NE,HML,EIG,WORK,IERR)
 *     =======================================

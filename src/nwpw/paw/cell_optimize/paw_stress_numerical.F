@@ -1,5 +1,5 @@
 *
-* $Id: paw_stress_numerical.F,v 1.1 2004-11-29 16:05:19 bylaska Exp $
+* $Id$
 *
 
       logical function paw_stress_numerical(rtdb)

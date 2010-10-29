@@ -1,4 +1,4 @@
-c $Id: ga_it2.F,v 1.15 2008-08-18 03:08:45 jhammond Exp $
+c $Id$
       subroutine test_product(acc,g_x, g_Ax)
       implicit none
       double precision acc

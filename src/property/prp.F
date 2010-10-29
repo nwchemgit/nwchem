@@ -1,5 +1,5 @@
 *
-* $Id: prp.F,v 1.65 2006-11-16 18:23:01 jochen Exp $
+* $Id$
 *
       subroutine hnd_propty(rtdb,basis,geom)
 

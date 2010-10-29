@@ -1,7 +1,7 @@
       subroutine rohf_step_energy(rtdb, step, g_search,
      $     eone, etwo, enrep, energy, g_grad)
 *
-* $Id: rohf_step.F,v 1.6 2003-10-17 22:54:33 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_lmbfgs3.F,v 1.3 2009-01-31 01:18:18 bylaska Exp $                       
+*     $Id$                       
 *
 
       subroutine pspw_lmbfgs3_init(max_m0,y,g)

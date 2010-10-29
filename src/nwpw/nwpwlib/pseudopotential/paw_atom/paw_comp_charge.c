@@ -1,5 +1,5 @@
 /*
-   $Id: paw_comp_charge.c,v 1.3 2007-04-10 19:04:33 d3p708 Exp $
+   $Id$
 */
 
 #include <stdlib.h>

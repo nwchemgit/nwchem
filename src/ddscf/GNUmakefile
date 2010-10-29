@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.125 2009-01-16 05:32:29 niri Exp $
+# $Id$
 
 #   LIB_DEFINES = -DDDSCF_TEXAS
 

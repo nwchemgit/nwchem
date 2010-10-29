@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.16 2008-02-22 23:08:01 d3p708 Exp $
+# $Id$
 #
       SUBDIRS = paw_atom
 

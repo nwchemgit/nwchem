@@ -1,5 +1,5 @@
       double precision function dabssum(n, a)
-c $Id: dabssum.F,v 1.1 1995-04-11 19:00:10 rg240 Exp $
+c $Id$
       implicit none
 c
       integer n, i

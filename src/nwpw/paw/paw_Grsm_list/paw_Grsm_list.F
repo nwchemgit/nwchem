@@ -1,5 +1,5 @@
 *
-*     $Id: paw_Grsm_list.F,v 1.1 2004-09-05 02:18:25 bylaska Exp $ 
+*     $Id$ 
 *
       subroutine paw_Grsm_list_start()
       implicit none

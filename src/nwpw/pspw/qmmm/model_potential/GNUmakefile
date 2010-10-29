@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2002-01-14 21:06:30 bylaska Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
                 model_potential.o 

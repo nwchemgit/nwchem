@@ -1,5 +1,5 @@
 /*
- $Id: rappe.h,v 1.1 2002-01-21 01:22:04 bylaska Exp $
+ $Id$
 */
 #ifndef _RAPPE_H_
 #define _RAPPE_H_

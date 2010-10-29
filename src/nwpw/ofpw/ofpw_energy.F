@@ -1,4 +1,4 @@
-c     $Id: ofpw_energy.F,v 1.1 2007-06-19 23:31:57 bylaska Exp $
+c     $Id$
       logical function ofpw_energy(rtdb)
       implicit none
       integer rtdb

@@ -1,5 +1,5 @@
 *
-* $Id: fei_output.F,v 1.4 2006-12-27 19:47:52 bylaska Exp $
+* $Id$
 *
       subroutine fei_init(rtdb)
       implicit none

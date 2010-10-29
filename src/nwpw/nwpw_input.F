@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_input.F,v 1.54 2009-03-24 18:04:27 bylaska Exp $
+c $Id$
 c
       subroutine nwpw_input(rtdb)
       implicit none

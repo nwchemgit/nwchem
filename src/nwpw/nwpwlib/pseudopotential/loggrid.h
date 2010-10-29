@@ -1,5 +1,5 @@
 /*
- $Id: loggrid.h,v 1.3 2004-05-04 22:06:09 edo Exp $
+ $Id$
 */
 #ifndef _LOG_GRID_H_
 #define _LOG_GRID_H_

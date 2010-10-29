@@ -1,7 +1,7 @@
       subroutine fock_get_blk( narray, varray, ilo, ihi,
      $     jlo, jhi, buf, tmp)
 c     
-c     $Id: fock_get_blk.F,v 1.2 2003-10-17 22:54:32 carlfahl Exp $
+c     $Id$
 c     
       implicit none
 #include "global.fh"
@@ -60,7 +60,7 @@ c
       end
       subroutine get_atom_block(g_array, basis, iat, jat, buf,
      $     idim, jdim)
-C$Id: fock_get_blk.F,v 1.2 2003-10-17 22:54:32 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

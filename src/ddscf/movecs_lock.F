@@ -1,6 +1,6 @@
       subroutine movecs_lock(geom, basis, g_old, g_new, evals, occ)
 *
-* $Id: movecs_lock.F,v 1.8 2003-10-17 22:54:33 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

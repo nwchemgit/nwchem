@@ -1,5 +1,5 @@
 *
-* $Id: pspw_reformat_c_wvfnc.F,v 1.12 2007-09-24 16:58:09 bylaska Exp $
+* $Id$
 *
 
       logical function  pspw_reformat_c_wvfnc(nbrill)

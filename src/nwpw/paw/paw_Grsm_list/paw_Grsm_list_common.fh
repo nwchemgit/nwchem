@@ -1,5 +1,5 @@
 c
-c     $Id: paw_Grsm_list_common.fh,v 1.1 2004-09-05 02:18:25 bylaska Exp $
+c     $Id$
 c
       integer max_list
       parameter (max_list=40)

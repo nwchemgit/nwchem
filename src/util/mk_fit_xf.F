@@ -3,7 +3,7 @@ C NAME
 C     mk_fit_xf -- Form fitting basis transformation
 C
 C REVISION
-C     $Id: mk_fit_xf.F,v 1.7 2003-10-17 22:58:35 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Logical Function Mk_Fit_Xf(Approx, Split, Basis, MinEval, G_V)

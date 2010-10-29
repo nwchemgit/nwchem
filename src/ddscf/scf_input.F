@@ -1,5 +1,5 @@
       subroutine scf_input(rtdb)
-C     $Id: scf_input.F,v 1.11 2003-10-17 22:54:33 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

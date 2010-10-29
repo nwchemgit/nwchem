@@ -1,5 +1,5 @@
       subroutine ga_maxelt(g_a, value)
-C     $Id: ga_maxelt.F,v 1.9 2000-11-03 00:43:27 edo Exp $
+C     $Id$
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

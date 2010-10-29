@@ -1,6 +1,6 @@
 #!/bin/csh
 
-# $Id: addids,v 1.3 1995-02-02 23:26:43 d3g681 Exp $
+# $Id$
 
 # Given a list of files as arguments loop 
 # thru them and determine which do not already
@@ -50,10 +50,10 @@ foreach file ($*)
   if ($filetype == "Fortran" || $filetype == "Fortran-header") then
     awk -f $NWCHEM_TOP/src/util/fortranid.awk < $file > tmp.$$
   else if ($filetype == "C"  || $filetype == "C-header") then
-    echo '/*$Id: addids,v 1.3 1995-02-02 23:26:43 d3g681 Exp $*/' > tmp.$$
+    echo '/*$Id$*/' > tmp.$$
     cat $file >> tmp.$$
   else if ($filetype == "Makefile") then
-    echo '#$Id: addids,v 1.3 1995-02-02 23:26:43 d3g681 Exp $' > tmp.$$
+    echo '#$Id$' > tmp.$$
     cat $file >> tmp.$$
   else
     echo Don\'t know how to put a comment in a $filetype file

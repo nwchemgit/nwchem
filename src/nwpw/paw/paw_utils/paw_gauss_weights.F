@@ -1,4 +1,4 @@
-c $Id: paw_gauss_weights.F,v 1.4 2006-02-11 02:50:48 bylaska Exp $
+c $Id$
 c
 c $Log: not supported by cvs2svn $
 c Revision 1.3  2003/10/21 02:05:18  marat

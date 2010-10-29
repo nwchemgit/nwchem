@@ -1,5 +1,5 @@
       subroutine ga_orthog(g_vecs, g_over, ometric)
-C$Id: ga_orthog.F,v 1.14 2007-10-15 23:32:44 bert Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -1,6 +1,6 @@
       subroutine psp_formatter_input(rtdb)
 c
-c $Id: psp_formatter_input.F,v 1.4 2003-10-17 22:57:16 carlfahl Exp $
+c $Id$
 c
       implicit none
 #include "errquit.fh"

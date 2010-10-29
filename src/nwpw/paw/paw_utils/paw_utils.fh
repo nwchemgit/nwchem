@@ -1,5 +1,5 @@
 !c
-!c $Id: paw_utils.fh,v 1.2 2003-01-24 20:28:02 marat Exp $
+!c $Id$
 !c
 
       double precision find_multipole_energy

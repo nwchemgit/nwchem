@@ -1,5 +1,5 @@
 *
-* $Id: c_coulomb.F,v 1.8 2009-02-07 03:50:01 bylaska Exp $
+* $Id$
 *
       subroutine c_coulomb_init()
       implicit none 

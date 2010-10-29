@@ -3,7 +3,7 @@
      $     l2, x2, y2, z2, 
      $     a, b, c, work, dinv, ld, dens, ndens)
 *
-* $Id: cart_trans.F,v 1.1 2003-10-20 17:53:35 edo Exp $
+* $Id$
 *
       implicit none
       integer l1, l2            ! The angular momenta

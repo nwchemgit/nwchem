@@ -1,7 +1,7 @@
 #ifndef _PAW_MY_CONSTANTS_H_
 #define _PAW_MY_CONSTANTS_H_
 /*
-   $Id: paw_my_constants.h,v 1.2 2004-10-14 22:05:03 bylaska Exp $
+   $Id$
 */
 
 

@@ -13,7 +13,7 @@ C
 C     We will go from 25000 down -- that should leave plenty of room.
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       integer msg_ftn_base
-c     $Id: msgids.fh,v 1.153 2008-04-23 16:54:37 marat Exp $
+c     $Id$
       parameter (msg_ftn_base = 25000)
 c     
       integer msg_utscr2

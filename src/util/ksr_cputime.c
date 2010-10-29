@@ -1,4 +1,4 @@
-/* $Id: ksr_cputime.c,v 1.1 1995-07-10 17:02:12 d3e129 Exp $ */
+/* $Id$ */
 
 #define USE_GETR
 #if defined(USE_GETR)

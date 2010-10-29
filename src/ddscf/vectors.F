@@ -1,6 +1,6 @@
       logical function movecs_read_header(filename, title, basis_name, 
      $     scftype, nbf, nsets, nmo, ldnmo)
-C$Id: vectors.F,v 1.56 2005/12/08 01:15:42 edo Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

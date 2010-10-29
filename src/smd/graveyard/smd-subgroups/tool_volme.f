@@ -1,5 +1,5 @@
 c
-c $Id: tool_volme.f,v 1.1 2008-04-18 17:48:14 marat Exp $
+c $Id$
 c
 
       SUBROUTINE tool_volme(latt,vol)

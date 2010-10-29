@@ -1,5 +1,5 @@
 c
-c     $Id: nwpw_scf_mixing.fh,v 1.1 2003-12-13 21:07:40 bylaska Exp $
+c     $Id$
 c
       integer max_list
       parameter (max_list=40)

@@ -1,5 +1,5 @@
 *
-* $Id: Grassman.F,v 1.20 2009-04-02 00:01:33 bylaska Exp $
+* $Id$
 *
 
 * $Log: not supported by cvs2svn $

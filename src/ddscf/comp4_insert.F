@@ -1,5 +1,5 @@
       subroutine comp4_insert(m, i, s, nb_per_i)
-C$Id: comp4_insert.F,v 1.8 1997-09-17 23:53:17 d3g681 Exp $
+C$Id$
       implicit none
 c
       integer m(*)              ! Array holding info compressed to 4 bits

@@ -1,6 +1,6 @@
       logical function line_search(nstep, max_nstep, energies,
      $     gradients, steps, eacc, tol, oprint)
-C$Id: line_search.F,v 1.13 2003-10-17 22:58:35 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "util.fh"

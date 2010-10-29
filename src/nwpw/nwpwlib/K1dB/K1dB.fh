@@ -1,5 +1,5 @@
 *
-* $Id: K1dB.fh,v 1.1 2008-04-22 00:50:01 bylaska Exp $
+* $Id$
 *
 
       integer nq,nz,mapping,np_k

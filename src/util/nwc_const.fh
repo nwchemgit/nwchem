@@ -1,5 +1,5 @@
 *
-* $Id: nwc_const.fh,v 1.9 2007-01-17 01:30:43 bert Exp $
+* $Id$
 *
 * These constants are used to control some fixed dimensions within nwchem
 * Developers should strive to dynamically allocate memory for arrays and 

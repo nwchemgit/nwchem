@@ -1,5 +1,5 @@
 c
-c $Id: read_line.f,v 1.1 2008-10-01 22:32:29 marat Exp $
+c $Id$
 c
 
       SUBROUTINE read_lin(input,ifield,istart,inum_char,irecord,lend)

@@ -1,5 +1,5 @@
 c
-c $Id: cm_cuto.inc,v 1.1 2008-10-01 22:32:26 marat Exp $
+c $Id$
 c
 
       real*8  rcut,rcutsq,vcut,vcutsq

@@ -1,5 +1,5 @@
 *
-* $Id: c_coulomb_screened.F,v 1.23 2009-02-07 03:50:47 bylaska Exp $
+* $Id$
 
 
 *

@@ -1,5 +1,5 @@
 c
-c $Id: tool_invrt.f,v 1.1 2008-10-01 22:32:32 marat Exp $
+c $Id$
 c
 
       SUBROUTINE tool_invrt(latt,rlatt,det)

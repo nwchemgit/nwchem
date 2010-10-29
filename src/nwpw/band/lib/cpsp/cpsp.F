@@ -1,5 +1,5 @@
 *
-* $Id: cpsp.F,v 1.70 2009-02-07 03:50:04 bylaska Exp $
+* $Id$
 *
 
 #define TCGMSG

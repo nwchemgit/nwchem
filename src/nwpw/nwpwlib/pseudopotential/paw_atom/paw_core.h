@@ -1,7 +1,7 @@
 #ifndef _PAW_CORE_H_
 #define _PAW_CORE_H_
 /*
-   $Id: paw_core.h,v 1.2 2004-10-14 22:05:02 bylaska Exp $
+   $Id$
 */
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: paw_cpmd.F,v 1.27 2008-10-22 23:56:39 bylaska Exp $
+* $Id$
 * $Log: not supported by cvs2svn $
 * Revision 1.26  2008/09/15 20:52:31  bylaska
 * ..paw fixes...EJB

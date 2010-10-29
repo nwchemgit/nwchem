@@ -1,5 +1,5 @@
 c
-c$Id: cfock.fh,v 1.17 1996-09-19 01:09:15 d3g681 Exp $
+c$Id$
 c
       logical odensityscreen  ! If true use density screening
       double precision dentolmax ! Upper bound for dentol

@@ -1,5 +1,5 @@
       integer maxdepth, maxnames
-C$Id: printcommon.fh,v 1.6 1997-04-23 01:29:34 d3g681 Exp $
+C$Id$
       parameter (maxdepth = 6, maxnames = 32)
       integer depth, n_print, n_no_print, print_level
       logical oprint_print

@@ -1,5 +1,5 @@
       Subroutine Banner(LU, Msg, Char, Top, Bot, Sides)
-C$Id: banner.f,v 1.3 1995-02-02 18:09:16 d3g681 Exp $
+C$Id$
       Implicit NONE
       Integer LU
       Character*(*) Msg

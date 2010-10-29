@@ -1,5 +1,5 @@
 *
-* $Id: kbpp_band_stress.F,v 1.10 2007-09-12 17:27:35 bylaska Exp $
+* $Id$
 *
 
 

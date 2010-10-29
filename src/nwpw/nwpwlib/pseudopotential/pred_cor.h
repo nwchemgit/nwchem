@@ -1,5 +1,5 @@
 /*
- $Id: pred_cor.h,v 1.1 2001-08-30 16:58:37 bylaska Exp $
+ $Id$
 */
 #ifndef _PRED_CORR_H_
 #define _PRED_CORR_H_

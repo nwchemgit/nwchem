@@ -1,5 +1,5 @@
 /*
- $Id: linux_cpu.c,v 1.4 1999-11-30 21:37:04 edo Exp $
+ $Id$
  */
 
 #include <sys/time.h>

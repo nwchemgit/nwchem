@@ -1,5 +1,5 @@
 c
-c $Id: extrct_char.f,v 1.1 2008-10-01 22:32:27 marat Exp $
+c $Id$
 c
 
       SUBROUTINE ex_4char(iposition,irecord,word)

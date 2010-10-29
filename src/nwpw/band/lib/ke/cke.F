@@ -1,5 +1,5 @@
 *
-* $Id: cke.F,v 1.15 2008-04-23 01:31:55 bylaska Exp $
+* $Id$
 *
       subroutine cke_init()
       implicit none 

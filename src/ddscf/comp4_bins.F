@@ -1,5 +1,5 @@
       subroutine comp4_bins(m, n, nb_per_i)
-C$Id: comp4_bins.F,v 1.7 1996-06-27 22:42:24 d3g681 Exp $
+C$Id$
       implicit none
 c
       integer m(*)              ! Array holding info compressed to 4 bits

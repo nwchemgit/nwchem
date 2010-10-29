@@ -1,6 +1,6 @@
       subroutine fock_2e( geom1, ao_basis, mfock, jfac, kfac,
      $                    tol2e1, oskel1, vg_dens, vg_fock, asym )
-c$Id: fock_2e.F,v 1.31 2009-01-16 05:32:29 niri Exp $
+c$Id$
 c
 c     wrapper routine for ao_fock_2e and riscf_fock_2e
 c

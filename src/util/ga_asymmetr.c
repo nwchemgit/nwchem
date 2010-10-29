@@ -1,4 +1,4 @@
-/* $Id: ga_asymmetr.c,v 1.3 2004-12-08 23:49:10 bert Exp $ */
+/* $Id$ */
 /**
  * Symmetrizes matrix A:  A := .5 * (A+A`)
  * diag(A) remains unchanged

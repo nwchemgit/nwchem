@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.fh,v 1.2 2008-04-23 16:48:29 marat Exp $
+* $Id$
 *
       logical  smd_data_create
       external smd_data_create

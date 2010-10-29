@@ -1,7 +1,7 @@
       subroutine multipole_density(basis, center, lmax, 
      &     g_dens, moments, len_moments)
 *
-* $Id: multipole.F,v 1.11 2003-10-17 22:54:33 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

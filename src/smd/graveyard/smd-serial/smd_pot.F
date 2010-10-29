@@ -1,5 +1,5 @@
 *
-* $Id: smd_pot.F,v 1.3 2008-05-05 21:15:59 marat Exp $
+* $Id$
 *
       subroutine smd_pot_init_system()
       implicit none

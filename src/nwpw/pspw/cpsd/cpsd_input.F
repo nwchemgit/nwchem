@@ -1,5 +1,5 @@
 c
-c $Id: cpsd_input.F,v 1.10 2009-01-31 01:18:01 bylaska Exp $
+c $Id$
 c
       subroutine cpsd_input(rtdb)
       implicit none

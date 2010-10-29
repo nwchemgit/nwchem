@@ -1,5 +1,5 @@
 *
-* $Id: MOTION.F,v 1.9 2007-04-02 15:38:42 bylaska Exp $
+* $Id$
 
 *  Note - The format of the MOTION file was changed on 5-8-2002.
 *

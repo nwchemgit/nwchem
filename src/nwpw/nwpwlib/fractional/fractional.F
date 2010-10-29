@@ -1,4 +1,4 @@
-c     $Id: fractional.F,v 1.2 2003-10-17 22:56:36 carlfahl Exp $
+c     $Id$
 
       subroutine fractional_to_cartesian(rtdb)
       implicit none

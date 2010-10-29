@@ -1,5 +1,5 @@
       subroutine hnd_mulken(rtdb,basis,geom)
-* $Id: hnd_mulken.F,v 1.4 2004-12-03 21:50:20 bert Exp $
+* $Id$
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"

@@ -2,7 +2,7 @@ ccccccccccc  #define TCGMSG
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-new.F,v 1.51 2009-02-07 03:50:14 bylaska Exp $
+* $Id$
 *
 
 *     ***********************************************************

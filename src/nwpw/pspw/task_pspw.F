@@ -1,5 +1,5 @@
 *
-* $Id: task_pspw.F,v 1.15 2008-11-03 06:06:10 bylaska Exp $
+* $Id$
 *
 
       logical function task_pspw(rtdb)

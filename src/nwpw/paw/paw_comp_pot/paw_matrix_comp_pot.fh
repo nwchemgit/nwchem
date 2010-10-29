@@ -1,5 +1,5 @@
 *
-* $Id: paw_matrix_comp_pot.fh,v 1.1 2003-02-14 19:55:07 marat Exp $
+* $Id$
 *
       integer paw_comp_pot_matrix(4)
       integer i_paw_comp_pot_matrix(4)

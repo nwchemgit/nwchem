@@ -1,5 +1,5 @@
 *
-* $Id: lattice.f,v 1.13 2008-09-03 17:07:37 bylaska Exp $
+* $Id$
 *
 
       subroutine lattice_min_difference(x,y,z)

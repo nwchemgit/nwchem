@@ -1,6 +1,6 @@
       subroutine hnd_mtpcon(basis,geom,g_dens,mtpval,mpole,centerl)
 c
-c $Id: hnd_mtpcon.F,v 1.3 2004-12-06 20:20:02 bert Exp $
+c $Id$
 c
 c     This routine calculates the electronic contribution of a given
 c     multipole for a given density at the grid points defined in points

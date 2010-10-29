@@ -1,4 +1,4 @@
-/*$Id: srtdb.h,v 1.1 2008-04-21 18:19:27 marat Exp $*/
+/*$Id$*/
 #ifndef RTDB_H
 #define RTDB_H
 

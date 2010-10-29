@@ -1,5 +1,5 @@
       subroutine ga_orthog_vec(n, nvec, g_m, g_x, j)
-C$Id: ga_orth_vec.F,v 1.1 1995-12-13 01:37:32 d3g681 Exp $
+C$Id$
       implicit none
 #include "global.fh"
       integer n                 ! vector length

@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Lubin_water_analysis.F,v 1.6 2009-02-07 03:50:28 bylaska Exp $
+c $Id$
 c
 
 *     ************************************

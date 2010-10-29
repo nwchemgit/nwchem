@@ -1,7 +1,7 @@
       subroutine ga_pcg_minim(n, iter, e, g_grad, g_work, g_s, step,
      $     ls_tol, ls_max, eacc, conjugacy, oprint, oprint_ls,
      $     iwork, dwork, mode)
-C$Id: ga_pcg_min.F,v 1.4 2006-07-14 19:26:00 edo Exp $
+C$Id$
       implicit none
 #include "global.fh"
 #include "mafdecls.fh"

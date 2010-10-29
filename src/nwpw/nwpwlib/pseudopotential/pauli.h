@@ -1,5 +1,5 @@
 /*
- $Id: pauli.h,v 1.1 2001-08-30 16:58:36 bylaska Exp $
+ $Id$
 */
 #ifndef _PAULI_H_
 #define _PAULI_H_

@@ -1,5 +1,5 @@
       subroutine ga_iter_orthog(basis, g_c, ometric, osym)
-C$Id: ga_it_orth.F,v 1.7 2003-10-17 22:58:34 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "bas.fh"

@@ -1,5 +1,5 @@
       subroutine util_getarg(iarg_in,arg)
-* $Id: util_getarg.F,v 1.10 2005-05-26 00:23:57 edo Exp $
+* $Id$
 *
 * The statement call util_getarg( k , arg ) gets the  kth  command-
 * line argument and puts it into the string arg.

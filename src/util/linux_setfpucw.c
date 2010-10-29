@@ -1,5 +1,5 @@
 /*
- $Id: linux_setfpucw.c,v 1.12 2005-10-11 23:53:46 edo Exp $
+ $Id$
  */
 #include <stdio.h>
 #ifdef __CYGWIN__

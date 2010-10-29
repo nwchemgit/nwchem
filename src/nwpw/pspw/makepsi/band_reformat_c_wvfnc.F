@@ -1,5 +1,5 @@
 *
-* $Id: band_reformat_c_wvfnc.F,v 1.3 2007-09-24 16:58:15 bylaska Exp $
+* $Id$
 *
       logical function  band_reformat_c_wvfnc()
       implicit none

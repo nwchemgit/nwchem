@@ -1,6 +1,6 @@
       subroutine fastj(rtdb, basis, g_dens, eps, data)
 *
-* $Id: fastj.F,v 1.15 2003-10-21 23:51:25 edo Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

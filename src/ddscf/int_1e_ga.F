@@ -4,7 +4,7 @@
       data ocache /.false./
       end
       subroutine int_1e_ga(ibas, jbas, g, integ_type, oskel)
-C$Id: int_1e_ga.F,v 1.39 2005/04/08 06:29:10 marat Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "cint1cache.fh"

@@ -2,7 +2,7 @@
 #define _PAW_ATOM_H_
 
 /*
-   $Id: paw_atom.h,v 1.3 2007-09-24 16:58:10 bylaska Exp $
+   $Id$
 */
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_relativistic.F,v 1.23 2008-12-13 01:34:26 bylaska Exp $
+* $Id$
 *
 
 

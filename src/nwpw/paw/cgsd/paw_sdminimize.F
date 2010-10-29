@@ -1,5 +1,5 @@
 c
-c     $Id: paw_sdminimize.F,v 1.1 2006-02-11 02:50:46 bylaska Exp $                       
+c     $Id$                       
 c
 
       subroutine paw_sdminimize(flag)

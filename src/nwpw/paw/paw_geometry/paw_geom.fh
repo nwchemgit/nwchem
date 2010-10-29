@@ -1,5 +1,5 @@
 *
-* $Id: paw_geom.fh,v 1.3 2003-02-21 02:32:38 bylaska Exp $
+* $Id$
 *
       integer  ion_nion,ion_natm,ion_nkatm,ion_katm
       external ion_nion,ion_natm,ion_nkatm,ion_katm

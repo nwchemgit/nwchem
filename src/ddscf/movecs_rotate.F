@@ -1,6 +1,6 @@
       subroutine movecs_rotate(rtdb, geom, basis, nset, g_vecs,
      .     evals, foccs)
-C$Id: movecs_rotate.F,v 1.16 2005-12-07 05:34:57 edo Exp $
+C$Id$
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -355,7 +355,7 @@ c
 c
 c
       subroutine sym_movecs_apply_rot(basis, matrix, v, t)
-C$Id: movecs_rotate.F,v 1.16 2005-12-07 05:34:57 edo Exp $
+C$Id$
       implicit none
 #include "geom.fh"
 #include "sym.fh"
@@ -477,7 +477,7 @@ c
       end
       subroutine sym_bas_rot(geom, matrix, r, maxf, ang_max,
      &    otransform)
-C$Id: movecs_rotate.F,v 1.16 2005-12-07 05:34:57 edo Exp $
+C$Id$
       implicit none
 #include "geom.fh"
 #include "bas.fh"

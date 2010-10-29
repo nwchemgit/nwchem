@@ -1,5 +1,5 @@
 c
-c $Id: smd_util.F,v 1.7 2008-05-13 18:07:01 marat Exp $
+c $Id$
 c
 
       SUBROUTINE smd_util_rebox(n,latt,rlatt,aaa)

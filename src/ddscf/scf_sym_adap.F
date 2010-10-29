@@ -1,7 +1,7 @@
       subroutine scf_movecs_sym_adapt(basis, g_movecs, oprint,
      $     nprint, name, oirs, irs)
 *
-* $Id: scf_sym_adap.F,v 1.7 2003-10-17 22:54:33 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

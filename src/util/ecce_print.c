@@ -1,5 +1,5 @@
 /*
- $Id: ecce_print.c,v 1.18 2003-08-13 18:06:11 edo Exp $
+ $Id$
  */
 
 #include <stdio.h>

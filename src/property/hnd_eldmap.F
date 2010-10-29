@@ -1,6 +1,6 @@
       subroutine hnd_eldmap(rtdb,basis,geom)
 c
-c $Id: hnd_eldmap.F,v 1.5 2004-12-08 23:57:39 bert Exp $
+c $Id$
 c
 c     This routine calculates the electron density and spin
 c     density for a given density at the atomic positions.

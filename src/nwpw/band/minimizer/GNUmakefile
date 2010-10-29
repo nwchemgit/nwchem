@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.9 2007-08-24 02:25:05 bylaska Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
 				band_minimizer.o \

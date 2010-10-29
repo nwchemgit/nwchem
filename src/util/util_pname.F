@@ -1,6 +1,6 @@
       subroutine util_pname(name, pname)
 *
-* $Id: util_pname.F,v 1.7 2008-05-13 16:19:09 jhammond Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"
@@ -25,7 +25,7 @@ c
       end
       subroutine util_pname0(name, pname,nnumber,howmany)
 *
-* $Id: util_pname.F,v 1.7 2008-05-13 16:19:09 jhammond Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

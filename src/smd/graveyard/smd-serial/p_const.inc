@@ -1,5 +1,5 @@
 c
-c $Id: p_const.inc,v 1.1 2008-04-18 17:40:31 marat Exp $
+c $Id$
 c
 
       real*8 boltzmann,convfct1,convfct2,pii,twopi,sqrpi

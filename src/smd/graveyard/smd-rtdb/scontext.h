@@ -1,4 +1,4 @@
-/*$Id: scontext.h,v 1.1 2008-04-21 18:19:27 marat Exp $*/
+/*$Id$*/
 extern int context_set(const char *);
 extern char *context_get(void);
 extern int context_srtdb_store(int);

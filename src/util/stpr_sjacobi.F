@@ -1,5 +1,5 @@
       subroutine stpr_sjacobi(nm,n,a,w,eivr,ierr,sorting)
-c $Id: stpr_sjacobi.F,v 1.3 2007-02-24 17:33:43 edo Exp $
+c $Id$
       IMPLICIT  none
       integer n,nm
       integer ierr

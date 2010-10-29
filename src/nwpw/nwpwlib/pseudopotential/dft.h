@@ -1,5 +1,5 @@
 /*
- $Id: dft.h,v 1.3 2005-12-22 01:35:04 bylaska Exp $
+ $Id$
 */
 #ifndef _DFT_H_
 #define _DFT_H_

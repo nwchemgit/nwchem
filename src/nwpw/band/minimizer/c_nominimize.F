@@ -1,5 +1,5 @@
 c
-c     $Id: c_nominimize.F,v 1.7 2008-11-17 17:25:40 bylaska Exp $ 
+c     $Id$ 
 c
 
       subroutine c_nominimize(E)

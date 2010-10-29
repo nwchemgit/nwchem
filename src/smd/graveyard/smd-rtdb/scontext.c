@@ -1,4 +1,4 @@
-/*$Id: scontext.c,v 1.1 2008-04-21 18:19:27 marat Exp $*/
+/*$Id$*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

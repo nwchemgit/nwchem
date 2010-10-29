@@ -1,5 +1,5 @@
 c
-c $Id: analysis_input.F,v 1.5 2008-11-03 06:06:11 bylaska Exp $
+c $Id$
 c
       subroutine analysis_input(rtdb)
       implicit none

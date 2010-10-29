@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2008-04-23 17:48:46 marat Exp $
+# $Id$
 #
 
           OBJ = task_smd.o smd_input.o smd_rdinp.o\

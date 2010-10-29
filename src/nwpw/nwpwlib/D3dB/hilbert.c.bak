@@ -1,5 +1,5 @@
 /* hilbert.c -
-$Id: hilbert.c.bak,v 1.1 2005-10-07 19:34:21 bylaska Exp $
+$Id$
    Author - Eric Bylaska
 
    This file contains 2d hilbert mapping routines

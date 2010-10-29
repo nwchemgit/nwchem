@@ -1,5 +1,5 @@
 *
-*     $Id: pspw_Grsm_list.F,v 1.9 2006-10-07 00:10:06 bylaska Exp $ 
+*     $Id$ 
 *
       subroutine pspw_Grsm_list_start()
       implicit none

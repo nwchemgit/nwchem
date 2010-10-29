@@ -1,5 +1,5 @@
 /*
- $Id: udp.c,v 1.2 1997-10-31 20:45:36 d3e129 Exp $
+ $Id$
  */
 
 #include <sys/types.h>

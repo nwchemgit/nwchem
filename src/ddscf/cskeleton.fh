@@ -1,5 +1,5 @@
       logical oskel
-C$Id: cskeleton.fh,v 1.2 1995-02-02 23:11:34 d3g681 Exp $
+C$Id$
       common /cskeleton/ oskel
 c
 c     oskel ... if true SCF uses petite list symmetry

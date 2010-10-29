@@ -1,5 +1,5 @@
 c
-c $Id: smd_message.F,v 1.1 2008-04-25 16:31:16 marat Exp $
+c $Id$
 c
 
       block data initial_smd_message_data

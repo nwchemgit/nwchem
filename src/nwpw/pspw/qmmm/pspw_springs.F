@@ -1,5 +1,5 @@
 c
-c $Id: pspw_springs.F,v 1.1 2008-09-22 22:55:16 bylaska Exp $
+c $Id$
 c
 
 

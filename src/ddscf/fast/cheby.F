@@ -1,6 +1,6 @@
       subroutine tn_fitting_coeff(n,m,q,f,c,r)
 *
-* $Id: cheby.F,v 1.1 2003-10-17 22:03:15 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

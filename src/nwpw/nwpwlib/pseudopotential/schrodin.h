@@ -1,5 +1,5 @@
 /*
- $Id: schrodin.h,v 1.1 2001-08-30 16:58:37 bylaska Exp $
+ $Id$
 */
 #ifndef _SCHRODINGER_H_
 #define _SCHRODINGER_H_

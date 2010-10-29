@@ -1,6 +1,6 @@
       block data cfock_data
 c
-c$Id: fock_2e_a.F,v 1.28 2003-10-17 22:54:32 carlfahl Exp $
+c$Id$
 c
 #include "cfock.fh"
       data task_bf/-1/          ! Chunking of funstions per task
@@ -23,7 +23,7 @@ c     see scf_init for input of task_chunks etc.
       implicit none
 #include "errquit.fh"
 c     
-c     $Id: fock_2e_a.F,v 1.28 2003-10-17 22:54:32 carlfahl Exp $
+c     $Id$
 c     
 #include "tcgmsg.fh"
 #include "global.fh"

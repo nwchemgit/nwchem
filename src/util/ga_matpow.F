@@ -3,7 +3,7 @@ C NAME
 C     GA_MatPow -- Form V^{-1/2}
 C
 C REVISION
-C     $Id: ga_matpow.F,v 1.12 2005-10-27 00:15:15 edo Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine GA_MatPow(G_V, Pow, MinEval)

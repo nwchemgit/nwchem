@@ -1,5 +1,5 @@
 /*
- $Id: util_md_sockets.c,v 1.12 2006-12-01 18:59:33 edo Exp $
+ $Id$
  */
 
 #include <sys/types.h>

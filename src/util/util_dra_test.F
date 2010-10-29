@@ -1,7 +1,7 @@
 c
 c FNAME - filename for test program
 c
-c$Id: util_dra_test.F,v 1.4 2007-10-30 22:04:25 bylaska Exp $
+c$Id$
 c
 #define BASE_NAME 'dra.file'
 #ifdef  HPIODIR

@@ -1,5 +1,5 @@
       subroutine hnd_spinspin(rtdb,basis,geom)
-c $Id: hnd_spinspin.F,v 1.12 2006-09-18 15:56:18 bert Exp $
+c $Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

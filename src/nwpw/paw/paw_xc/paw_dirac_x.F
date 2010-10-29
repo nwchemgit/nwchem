@@ -1,5 +1,5 @@
 *
-* $Id: paw_dirac_x.F,v 1.1 2003-02-19 01:02:04 marat Exp $
+* $Id$
 *
 
       subroutine paw_dirac_x(n2ft3d,ng,ispin,dn,xcp,xce,x)

@@ -1,5 +1,5 @@
       double precision function schwarz_shell(ish, jsh)
-C$Id: schwarz_sh.F,v 1.1 1995-12-13 01:26:18 d3g681 Exp $
+C$Id$
       implicit none
 #include "cschwarz.fh"
 #include "mafdecls.fh"

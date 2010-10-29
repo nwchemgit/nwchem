@@ -1,5 +1,5 @@
 /*
- $Id: paw_atom_driver.c,v 1.5 2008-10-22 23:56:38 bylaska Exp $
+ $Id$
 */
 
 #include <math.h>

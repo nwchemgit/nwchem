@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.5 2008/10/03 21:52:43 marat Exp $
+* $Id$
 *
 
       block data initial_smd_data
@@ -1648,7 +1648,7 @@ c     >                         buffer)
       end
 
       subroutine smd_data_test()
-C$Id: test.F,v 1.6 2004-08-13 11:23:27 edo Exp $
+C$Id$
       implicit none
 c
 #include "mafdecls.fh"

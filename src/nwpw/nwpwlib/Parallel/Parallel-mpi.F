@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-mpi.F,v 1.14 2008-11-17 17:25:42 bylaska Exp $
+* $Id$
 *
 
 * Parallel.f

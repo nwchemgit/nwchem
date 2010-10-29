@@ -46,7 +46,7 @@ c
       end
       logical function nw_inp_from_file(rtdb, filename)
 *
-* $Id: nw_inp_from_file.F,v 1.13 2007-08-21 17:20:07 d3p852 Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

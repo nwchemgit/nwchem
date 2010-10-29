@@ -1,7 +1,7 @@
       subroutine hnd_sdfc(rtdb,geom,basis,vectors,nclosed,nopen,nvirt,
      &                    nbf,nmo,pairlist,translate,ipairs,unique,
      &                    i_pert,i_resp,tensor,coords,nfc,nsd,nsdfc)
-c $Id: hnd_sdfc.F,v 1.3 2004-12-08 23:57:39 bert Exp $
+c $Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

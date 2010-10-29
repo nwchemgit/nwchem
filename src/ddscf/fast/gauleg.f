@@ -1,6 +1,6 @@
       subroutine gauleg(x1,x2,x,w,n)
 *
-* $Id: gauleg.f,v 1.2 1999-07-29 00:53:57 d3e129 Exp $
+* $Id$
 *
       implicit double precision  (a-h,o-z)
       double precision  x1,x2,x(n),w(n)

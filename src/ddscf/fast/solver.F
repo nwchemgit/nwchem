@@ -1,7 +1,7 @@
       subroutine solver(g, nx, ny, nz, tree, depth, lmax, levelbc,
      $     xlo, xhi, ylo, yhi, zlo, zhi, offt1done, otree)
 *
-* $Id: solver.F,v 1.6 2003-10-17 22:54:37 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

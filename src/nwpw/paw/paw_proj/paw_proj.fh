@@ -1,5 +1,5 @@
 ! 
-! $Id: paw_proj.fh,v 1.5 2003-01-28 02:03:40 marat Exp $
+! $Id$
 ! 
 
       integer  paw_proj_nbasis

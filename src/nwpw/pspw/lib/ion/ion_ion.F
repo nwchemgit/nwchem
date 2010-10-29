@@ -1,5 +1,5 @@
 *
-* $Id: ion_ion.F,v 1.1 2003-04-07 22:05:51 windus Exp $
+* $Id$
 *
 
 

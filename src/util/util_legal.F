@@ -1,7 +1,7 @@
 c
       subroutine util_legal()
 c
-* $Id: util_legal.F,v 1.54 2009-03-09 22:30:58 niri Exp $
+* $Id$
 c
 c routine to print legal disclaimer to stdout
 c

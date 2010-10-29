@@ -1,5 +1,5 @@
       subroutine ga_orthog_mos(basis, g_vecs)
-C$Id: ga_orth_mos.F,v 1.4 2003-10-17 22:54:32 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "bas.fh"

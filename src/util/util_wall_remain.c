@@ -1,5 +1,5 @@
 /*
- $Id: util_wall_remain.c,v 1.16 2008-07-22 18:07:22 bert Exp $
+ $Id$
 */
 #include <stdio.h>
 #include "typesf2c.h"

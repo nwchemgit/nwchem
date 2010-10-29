@@ -1,5 +1,5 @@
 *
-* $Id: cpsp_stress.F,v 1.14 2009-02-08 03:26:25 bylaska Exp $
+* $Id$
 *
 
 

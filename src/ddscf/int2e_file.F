@@ -1,6 +1,6 @@
       block data cint2efdata
 *
-* $Id: int2e_file.F,v 1.57 2003-12-25 17:10:05 edo Exp $
+* $Id$
 *
       implicit none
 #include "cint2efile.fh"

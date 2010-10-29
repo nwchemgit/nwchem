@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.14 2009-02-08 04:32:15 bylaska Exp $
+* $Id$
 *
 
 

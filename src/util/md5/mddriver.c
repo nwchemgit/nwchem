@@ -2,7 +2,7 @@
  */
 
 /*
- $Id: mddriver.c,v 1.2 1997-10-31 20:45:43 d3e129 Exp $
+ $Id$
  */
 
 /* Copyright (C) 1990-2, RSA Data Security, Inc. Created 1990. All

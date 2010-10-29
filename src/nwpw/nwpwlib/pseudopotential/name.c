@@ -1,5 +1,5 @@
 /*
- $Id: name.c,v 1.3 2007-04-09 22:55:51 d3p708 Exp $
+ $Id$
 */
 #include	"name.h"
 

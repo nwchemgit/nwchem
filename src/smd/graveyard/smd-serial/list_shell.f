@@ -1,5 +1,5 @@
 c
-c $Id: list_shell.f,v 1.1 2008-04-18 17:40:30 marat Exp $
+c $Id$
 c
 
       SUBROUTINE list_shell(nshel,ntshel,shelatm)

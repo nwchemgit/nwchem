@@ -1,5 +1,5 @@
 *
-* $Id: silvestrelli_minimize.F,v 1.6 2004/04/25 19:12:05 edo Exp $
+* $Id$
 *
 
 

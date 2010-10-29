@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.13 2004-05-14 16:18:21 edo Exp $
+# $Id$
 #
  SUBDIRS = shake
 

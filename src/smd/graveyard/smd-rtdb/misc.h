@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.1 2008-04-21 18:19:27 marat Exp $*/
+/*$Id$*/
 #define error(format,data) \
   {(void) fflush(stdout); \
    (void) fprintf(stderr,format,data); \

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 2006-06-05 18:00:54 edo Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
                 lcao_wvfnc.o \

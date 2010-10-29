@@ -2,7 +2,7 @@
       subroutine riscf_put_dra ( da_three, scr, indx, nij, Nff, npair, 
      $             ndone, g_three, req )
 *
-* $Id: riscf_io.F,v 1.7 2003-10-17 22:54:33 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,6 +1,6 @@
       subroutine uhf_hessv(acc, g_x, g_ax)
 *
-* $Id: uhf_hessv.F,v 1.10 2003-10-17 22:54:33 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

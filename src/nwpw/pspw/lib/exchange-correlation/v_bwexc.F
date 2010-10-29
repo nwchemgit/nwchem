@@ -1,5 +1,5 @@
 *
-* $Id: v_bwexc.F,v 1.8 2009-02-07 03:50:52 bylaska Exp $
+* $Id$
 *
 
       

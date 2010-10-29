@@ -1,5 +1,5 @@
 *
-* $Id: smd_data.F,v 1.5 2008-10-03 21:52:43 marat Exp $
+* $Id$
 *
 
       block data initial_smd_data

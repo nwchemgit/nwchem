@@ -1,5 +1,5 @@
       integer max_proj
-C$Id: cproject.fh,v 1.4 1995-02-02 18:09:18 d3g681 Exp $
+C$Id$
       parameter (max_proj = 100)
       logical oproject          ! True if supposed to project
       double precision e_proj   ! Eigenvalues for projection

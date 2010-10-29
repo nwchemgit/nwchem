@@ -1,5 +1,5 @@
 *
-* $Id: util_rtdb_state.F,v 1.2 2003-10-17 22:58:35 carlfahl Exp $
+* $Id$
 *
       subroutine util_set_rtdb_state(rtdb,os,oc,or)
       implicit none

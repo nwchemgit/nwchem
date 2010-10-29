@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_kematrix.F,v 1.2 2001-12-02 19:38:12 bylaska Exp $
+* $Id$
 *
       subroutine lcao_generate_kematrix(kematrix,phi1,phi2)
       implicit none

@@ -4,7 +4,7 @@
      $     dij, dik, dli, djk, dlj, dlk, denmax)
       implicit none
 c     
-c     $Id: fock_densc.F,v 1.3 1996-08-19 15:18:06 d3g681 Exp $
+c     $Id$
 c     
       integer nfock
       integer i1, j1, k1, l1, i2, j2, k2, l2

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.24 2004-11-29 16:05:18 bylaska Exp $
+# $Id$
 #
       SUBDIRS = paw_geometry paw_ma paw_utils paw_basis paw_proj paw_matrix paw_ovlp \
                 paw_comp_charge paw_special_functions paw_gaunt paw_kinetic paw_vloc \

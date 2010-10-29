@@ -1,5 +1,5 @@
 c
-c $Id: nwpw_default.F,v 1.14 2008-06-06 17:46:43 d3p708 Exp $
+c $Id$
 c
       subroutine nwpw_default(rtdb)
       implicit none

@@ -6,7 +6,7 @@
 #include "stdio.fh"
 #include "util.fh"
 c     
-c     $Id: rohf_hessv2.F,v 1.15 2009-01-16 05:32:29 niri Exp $
+c     $Id$
 c
       integer g_x, g_ax
       double precision acc
@@ -54,7 +54,7 @@ c
      $     pflg,
      $     g_movecs, oskel, noskew, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hessv2.F,v 1.15 2009-01-16 05:32:29 niri Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -93,7 +93,7 @@ c
       end
       subroutine rohf_hessv_2e2( basis, geom, nbf, nmo, nclosed, nopen,
      $     g_movec, oskel, noskew, g_x, acc, g_ax )
-C     $Id: rohf_hessv2.F,v 1.15 2009-01-16 05:32:29 niri Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -1,6 +1,6 @@
       subroutine hnd_elpmap(rtdb,basis,geom)
 c
-c $Id: hnd_elpmap.F,v 1.11 2009-03-04 17:48:28 d3p975 Exp $
+c $Id$
 c
 c     This routine calculates the electrostatic potential
 c     for a given density at the atomic positions.

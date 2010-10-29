@@ -1,5 +1,5 @@
 *
-* $Id: ke.F,v 1.17 2008-09-11 21:26:49 bylaska Exp $
+* $Id$
 *
       subroutine ke_init()
       implicit none 
@@ -206,7 +206,7 @@ c     complex*16 tmp1(nfft3d)
 
       subroutine ke_euv(ispin,ne,psi,euv)
 *
-* $Id: ke.F,v 1.17 2008-09-11 21:26:49 bylaska Exp $
+* $Id$
 *
       implicit none 
 #include "errquit.fh"

@@ -1,5 +1,5 @@
 /*
- $Id: gaussj.c,v 1.3 2007-09-26 18:40:55 d3p708 Exp $
+ $Id$
 */
 #include        <stdlib.h>
 #include	<math.h>

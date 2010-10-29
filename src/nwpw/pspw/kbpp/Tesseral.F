@@ -1,5 +1,5 @@
 *
-* $Id: Tesseral.F,v 1.4 2007-02-23 01:24:14 bylaska Exp $
+* $Id$
 *
 
 

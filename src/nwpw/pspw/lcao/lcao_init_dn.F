@@ -1,5 +1,5 @@
 *
-* $Id: lcao_init_dn.F,v 1.5 2009-02-07 03:50:40 bylaska Exp $
+* $Id$
 *
       subroutine lcao_init_dn(ispin,ne,n2ft3d,dn,phi)
       implicit none

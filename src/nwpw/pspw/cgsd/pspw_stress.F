@@ -1,5 +1,5 @@
 *
-* $Id: pspw_stress.F,v 1.2 2004-11-29 16:05:21 bylaska Exp $
+* $Id$
 *
 
       logical function pspw_stress(rtdb)

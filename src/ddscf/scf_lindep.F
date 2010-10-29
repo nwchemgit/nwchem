@@ -1,5 +1,5 @@
       subroutine scf_lindep(rtdb, geom, basis, g_u, n_indep)
-c     $Id: scf_lindep.F,v 1.6 2005-10-27 00:12:45 edo Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -3,7 +3,7 @@
      $   tol, mmaxsub, maxiter, odiff, oprint, omega, limag,
      &   lifetime, gamwidth, ncomp)
 
-c     $Id: ga_lkain_2cpl3.F,v 1.4 2007-10-31 18:58:18 bert Exp $
+c     $Id$
 
       implicit none
 #include "errquit.fh"

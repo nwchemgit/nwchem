@@ -19,7 +19,7 @@ c
       subroutine rohf_fock2grad( nmo, nclosed, nopen,
      $     g_fcv, g_fpv, g_fcp,
      $     g_grad)
-C     $Id: rohf_fock2g.F,v 1.8 1998-08-26 16:24:56 d3g681 Exp $
+C     $Id$
       implicit none
 #include "global.fh"
       integer nmo, nclosed, nopen ! [input] Occupation and number of mos

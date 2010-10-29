@@ -1,6 +1,6 @@
       subroutine band_input(rtdb)
 c
-c $Id: band_input.F,v 1.8 2006-11-29 02:33:18 d3p708 Exp $
+c $Id$
 c
       implicit none
 #include "errquit.fh"

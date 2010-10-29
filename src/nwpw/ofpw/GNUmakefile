@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2007-06-21 02:08:06 bylaska Exp $
+# $Id$
 #
       SUBDIRS = minimizer cpsd lib
 

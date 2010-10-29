@@ -1,5 +1,5 @@
 /*
- $Id: macx_trapfpe.c,v 1.2 2006-08-28 22:36:18 edo Exp $
+ $Id$
  */
 #if (defined(__ppc__) || defined(__ppc64__)) 
 /* from http://developer.apple.com/documentation/Performance/Conceptual/Mac_OSX_Numerics/Mac_OSX_Numerics.pdf */

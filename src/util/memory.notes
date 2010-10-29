@@ -1,4 +1,4 @@
-$Id: memory.notes,v 1.1 1995-06-13 20:07:51 gg502 Exp $
+$Id$
 
 On many platforms, nodes are not being shared with other jobs, so it
 makes sense to try to use as much memory on each node as possible.

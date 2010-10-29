@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier_input.F,v 1.3 2004-03-15 15:17:43 bylaska Exp $
+* $Id$
 *
 
       subroutine pspw_wannier_input(rtdb)

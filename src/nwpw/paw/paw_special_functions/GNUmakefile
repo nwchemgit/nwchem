@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2004-03-04 15:12:24 bylaska Exp $
+# $Id$
 #
 
           OBJ_OPTIMIZE =  paw_spher_func.o paw_double_factorial.o paw_gamma_function.o \

@@ -1,5 +1,5 @@
 c
-c $Id: cm_elst.inc,v 1.1 2008-10-01 22:32:27 marat Exp $
+c $Id$
 c
 
       integer epoint,elist 

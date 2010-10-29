@@ -1,7 +1,7 @@
       subroutine movecs_fragment(rtdb, geom, basis, 
      $     module, iset, nclosed, nopen, g_vecs, evals)
 *
-* $Id: movecs_frag.F,v 1.13 2006-08-07 16:28:47 bert Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

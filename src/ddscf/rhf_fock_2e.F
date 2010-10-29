@@ -1,7 +1,7 @@
       subroutine rhf_fock_2e( geom, basis, g_dens, g_fock, tol2e,
      $     ocoul, oexch, oskel )
 *
-* $Id: rhf_fock_2e.F,v 1.18 2000-04-27 21:00:03 zzhang Exp $
+* $Id$
 *
       implicit none
 c     

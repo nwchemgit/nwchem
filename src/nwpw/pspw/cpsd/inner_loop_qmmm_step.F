@@ -1,5 +1,5 @@
 *
-* $Id: inner_loop_qmmm_step.F,v 1.4 2008-12-04 00:45:07 bylaska Exp $
+* $Id$
 *
   
       subroutine inner_loop_qmmm_step(verlet,

@@ -1,5 +1,5 @@
 *
-* $Id: wvfnc_init_input.F,v 1.5 2003-10-17 22:57:45 carlfahl Exp $
+* $Id$
 *
 
 

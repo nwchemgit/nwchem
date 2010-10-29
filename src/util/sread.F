@@ -2,7 +2,7 @@
       implicit none
 #include "errquit.fh"
 *
-* $Id: sread.F,v 1.2 2006-01-10 01:06:29 edo Exp $
+* $Id$
 *
       integer n,itape
       double precision a(n)

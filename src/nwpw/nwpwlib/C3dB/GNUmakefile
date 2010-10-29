@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.12 2008-05-14 18:14:29 d3p708 Exp $
+# $Id$
 #
 
  OBJ_OPTIMIZE = C3dB-new.o c_trans.o C3dB_pfft.o

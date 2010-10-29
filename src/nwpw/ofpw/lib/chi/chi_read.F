@@ -1,5 +1,5 @@
 *
-* $Id: chi_read.F,v 1.1 2007-06-21 02:08:13 bylaska Exp $
+* $Id$
 *
 
 #define TCGMSG

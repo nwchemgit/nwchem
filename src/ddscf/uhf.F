@@ -1,5 +1,5 @@
       logical function uhf(rtdb, energy)
-C$Id: uhf.F,v 1.69 2009-01-16 05:32:29 niri Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -218,7 +218,7 @@ c
 c
       end
       logical function uhf_nr_solve(rtdb, energy, eone, etwo, enrep)
-C     $Id: uhf.F,v 1.69 2009-01-16 05:32:29 niri Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -534,7 +534,7 @@ c
       end
       subroutine uhf_k2cf(basis, nbf, nmo, nalpha, nbeta, g_kvec,
      $     g_mocf_in, g_mocf_out)
-C$Id: uhf.F,v 1.69 2009-01-16 05:32:29 niri Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -631,7 +631,7 @@ c
 #include "bgj.fh"
 #include "case.fh"
 c     
-c     $Id: uhf.F,v 1.69 2009-01-16 05:32:29 niri Exp $
+c     $Id$
 c
       integer g_vecs(2)
       double precision energy
@@ -1208,7 +1208,7 @@ c
 c
       end
       subroutine uhf_canon(oaufbau, oprint)
-C$Id: uhf.F,v 1.69 2009-01-16 05:32:29 niri Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -1,5 +1,5 @@
 c
-c $Id: smd_rtdb_data.fh,v 1.2 2008/10/03 21:15:31 marat Exp $
+c $Id$
 c
 
       integer smd_rtdb, smd_srtdb,smd_rtdb_nmax

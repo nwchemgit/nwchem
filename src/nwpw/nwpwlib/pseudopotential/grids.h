@@ -1,5 +1,5 @@
 /*
- $Id: grids.h,v 1.1 2001-08-30 16:58:35 bylaska Exp $
+ $Id$
 */
 #ifndef _GRID_H_
 #define _GRID_H_

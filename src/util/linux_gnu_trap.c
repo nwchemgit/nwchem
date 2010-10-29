@@ -1,6 +1,6 @@
 #include <fpu_control.h>
 /*---------------------------------------------------------*\
-$Id: linux_gnu_trap.c,v 1.1 1999-07-01 09:30:39 d3e129 Exp $
+$Id$
 
   This routine turns on floating point traps for
   1) Illegal instructions

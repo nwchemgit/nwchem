@@ -1,4 +1,4 @@
-!$Id: paw_spher_grid.F,v 1.2 2006-02-11 02:50:48 bylaska Exp $
+!$Id$
 !
 !$Log:
 

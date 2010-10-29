@@ -1,5 +1,5 @@
       subroutine two_index_transf( g_a, g_lhs, g_rhs, g_tmp, g_b )
-C     $Id: two_ind_trn.F,v 1.3 2003-10-17 22:58:35 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

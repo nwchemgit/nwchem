@@ -1,4 +1,4 @@
-/*$Id: ieeetrap.c,v 1.7 2000-01-06 20:13:00 d3g681 Exp $*/
+/*$Id$*/
 #include <floatingpoint.h>
 #include <stdio.h>
 #include <signal.h>

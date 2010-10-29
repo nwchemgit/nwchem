@@ -4,7 +4,7 @@ c     Some will evolve into generally useful routines
 c
 c     BGJ - 8/98
 c
-c     $Id: bgj.F,v 1.9 2003-10-17 22:58:34 carlfahl Exp $
+c     $Id$
 c
 
 c

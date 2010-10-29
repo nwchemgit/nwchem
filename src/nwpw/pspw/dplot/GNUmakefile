@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2002-06-29 12:42:57 bylaska Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
 				pspw_dplot_input.o \

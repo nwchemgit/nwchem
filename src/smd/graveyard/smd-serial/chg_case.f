@@ -1,5 +1,5 @@
 c
-c $Id: chg_case.f,v 1.1 2008-04-18 17:40:29 marat Exp $
+c $Id$
 c
       SUBROUTINE chg_case(char)
 

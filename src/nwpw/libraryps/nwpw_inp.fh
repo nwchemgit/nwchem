@@ -1,4 +1,4 @@
-C $Id: nwpw_inp.fh,v 1.3 2007-08-28 01:05:48 bylaska Exp $
+C $Id$
       integer lmax_read
       integer locp_read
       double precision rlocal_read,cutoff_read

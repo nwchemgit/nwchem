@@ -1,5 +1,5 @@
       subroutine util_print_centered(unit, string, center, ounder)
-C$Id: print_center.F,v 1.3 1995-02-02 18:09:46 d3g681 Exp $
+C$Id$
       implicit none
 #include "inp.fh"
       integer unit              ! [input] fortran unit for output

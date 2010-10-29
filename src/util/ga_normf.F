@@ -1,5 +1,5 @@
        subroutine GA_NormF(g_a, value)
-C$Id: ga_normf.F,v 1.1 1998-02-02 15:57:40 bernhold Exp $
+C$Id$
        implicit none
 #include "mafdecls.fh"
 #include "global.fh"

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 2004-05-14 16:33:50 edo Exp $
+# $Id$
 #
 
           OBJ_OPTIMIZE = paw_ovlp.o paw_overlap_matrix.o

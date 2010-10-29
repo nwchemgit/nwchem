@@ -1,5 +1,5 @@
 *
-* $Id: lcao_new_dn.F,v 1.3 2005-07-12 21:26:33 bylaska Exp $
+* $Id$
 *
       subroutine lcao_new_dn(ispin,ne,n2ft3d,dn,
      >                           psimatrix,phi)

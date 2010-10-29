@@ -1,5 +1,5 @@
 *
-* $Id: cpmd_qmmm_start.F,v 1.9 2008-12-04 00:45:07 bylaska Exp $
+* $Id$
 *
 
       logical function cpmd_qmmm_start(rtdb)

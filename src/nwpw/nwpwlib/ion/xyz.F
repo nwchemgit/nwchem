@@ -6,7 +6,7 @@
 *     ***************************
       subroutine xyz_init()
 *
-* $Id: xyz.F,v 1.10 2007-03-27 02:02:47 bylaska Exp $
+* $Id$
 *
       implicit none 
 

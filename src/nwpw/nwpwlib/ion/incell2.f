@@ -1,5 +1,5 @@
 *
-* $Id: incell2.f,v 1.1 2004-03-08 22:51:25 bylaska Exp $
+* $Id$
 *
       subroutine incell2(ni,r2,r1)
 

@@ -1,5 +1,5 @@
 *
-* $Id: psi_lmbda.f,v 1.2 2002-01-11 18:25:59 bylaska Exp $
+* $Id$
 *
       subroutine psi_lmbda(ispin,ne,nemax,npack1,
      >                     psi1,psi2,

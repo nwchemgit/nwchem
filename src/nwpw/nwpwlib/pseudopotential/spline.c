@@ -1,5 +1,5 @@
 /*
- $Id: spline.c,v 1.6 2007-04-09 22:55:52 d3p708 Exp $
+ $Id$
    spline.c -
     Based on algorithms in hamman's code.
 */

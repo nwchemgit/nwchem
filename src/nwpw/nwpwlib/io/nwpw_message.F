@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_message.F,v 1.10 2008-11-03 06:06:10 bylaska Exp $
+* $Id$
 *
 
       SUBROUTINE nwpw_message(N)

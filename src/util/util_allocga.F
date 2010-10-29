@@ -1,5 +1,5 @@
       subroutine util_allocga()
-c $Id: util_allocga.F,v 1.1 2006-09-28 17:42:34 edo Exp $
+c $Id$
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

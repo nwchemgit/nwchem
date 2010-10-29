@@ -3,7 +3,7 @@ c  Create and save ROHF Lagrangian
 c  for gradient module
 c
       subroutine rohf_lagr
-C$Id: rohf_lagr.F,v 1.8 2003-10-17 22:54:33 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

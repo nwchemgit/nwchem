@@ -1,5 +1,5 @@
 *
-* $Id: testsolver.F,v 1.6 2003-10-17 22:54:37 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

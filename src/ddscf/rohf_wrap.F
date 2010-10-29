@@ -1,7 +1,7 @@
       block data crohf_data
 #include "crohf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
+c     $Id$
 c     
 c     Invalidate data
 c     
@@ -21,7 +21,7 @@ c
 #include "global.fh"
 #include "bas.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
+c     $Id$
 c     $Synopsis "Initialize the ROHF internal common block"
 c     
       integer rtdb
@@ -70,7 +70,7 @@ c
 c     
       logical status
 c     
-c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
+c     $Id$
 c     $Synopsis "Clean up ROHF internal parameters"
 c     
       if (crohf_init_flag.eq.1) then
@@ -104,7 +104,7 @@ c
 #include "rtdb.fh"
 #include "cosmo.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
+c     $Id$
 c
       integer rtdb
 
@@ -209,7 +209,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
+c     $Id$
 c
       integer g_x, g_ax
       double precision acc
@@ -258,7 +258,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
+c     $Id$
 c
       integer g_x
       double precision solveshift
@@ -297,7 +297,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
+c     $Id$
 c
       integer g_x               ! [in/ou] rhs vector of eq. system
       double precision omega    ! [input] frequency
@@ -351,7 +351,7 @@ c
 #include "crohf.fh"
 #include "cscf.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
+c     $Id$
 c
       integer g_x               ! [in/ou] Re rhs vector of eq. system
       integer g_x_im            ! [in/ou] Im rhs vector of eq. system

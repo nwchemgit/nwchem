@@ -1,6 +1,6 @@
       subroutine ga_create_list(nxtot,nytot,name,nx,ny,nz,handle)
 *
-* $Id: ga_list.F,v 1.5 2004-01-31 22:44:56 d3j191 Exp $
+* $Id$
 *
       implicit none
 c

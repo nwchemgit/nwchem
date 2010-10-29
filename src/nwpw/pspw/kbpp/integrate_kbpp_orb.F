@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_orb.F,v 1.3 2007-02-23 01:24:14 bylaska Exp $
+* $Id$
 *
 
       subroutine integrate_kbpp_orb(version,

@@ -14,7 +14,7 @@
 
       logical function cpsdv5(rtdb)
 *
-* $Id: cpsdv5.F,v 1.66 2008-12-18 21:15:48 bylaska Exp $
+* $Id$
 *
       implicit none
       integer rtdb

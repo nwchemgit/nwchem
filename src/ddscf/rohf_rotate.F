@@ -1,6 +1,6 @@
       subroutine rohf_rotate_movecs(step, g_search)
 *
-* $Id: rohf_rotate.F,v 1.5 2003-10-17 22:54:33 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

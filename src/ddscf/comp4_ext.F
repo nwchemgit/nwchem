@@ -1,5 +1,5 @@
       subroutine comp4_extract(m, i, s, nb_per_i)
-C$Id: comp4_ext.F,v 1.2 1996-06-27 22:42:26 d3g681 Exp $
+C$Id$
       implicit none
 c
       integer m(*)              ! Array holding info compressed to 4 bits

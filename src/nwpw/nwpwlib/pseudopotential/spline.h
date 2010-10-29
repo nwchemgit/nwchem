@@ -1,5 +1,5 @@
 /*
- $Id: spline.h,v 1.3 2005-03-07 20:50:48 bylaska Exp $
+ $Id$
 */
 #ifndef _SPLINE_H_
 #define _SPLINE_H_

@@ -1,5 +1,5 @@
 c
-c     $Id: nwpw_diis_common.fh,v 1.1 2003-01-24 02:07:38 bylaska Exp $
+c     $Id$
 c
       integer max_list
       parameter (max_list=40)

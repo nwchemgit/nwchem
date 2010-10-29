@@ -2,7 +2,7 @@
      &   (ncomp, g_pmats, g_pmata, g_amat, g_vectors, naos, nocc,
      &   nvir, nmo, lantisym, lstatic, imag, haveocc)
 
-* $Id: CalcPerturbedTDPmat1.F,v 1.2 2007-10-15 23:28:28 bert Exp $
+* $Id$
 
 c     ==================================================================
 

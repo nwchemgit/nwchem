@@ -1,4 +1,4 @@
-/*$Id: util_host.c,v 1.6 2003-08-13 18:06:11 edo Exp $*/
+/*$Id$*/
 #include <stdio.h>
 #if defined(CRAY) && !defined(__crayx1)
 #include <fortran.h>

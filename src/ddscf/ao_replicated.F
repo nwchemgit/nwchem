@@ -1,7 +1,7 @@
       subroutine ao_replicated(geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock, asym)
 c     
-c     $Id: ao_replicated.F,v 1.44 2005-12-15 21:39:16 edo Exp $
+c     $Id$
 c     
       implicit none
 #include "errquit.fh"

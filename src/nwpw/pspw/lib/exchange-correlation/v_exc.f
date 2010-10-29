@@ -1,5 +1,5 @@
 *
-* $Id: v_exc.f,v 1.5 2005-10-11 22:37:04 bylaska Exp $
+* $Id$
 *
 
       subroutine vxc(n2ft3d,ispin,dn,xcp,xce,x)

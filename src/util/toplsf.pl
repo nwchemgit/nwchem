@@ -1,6 +1,6 @@
 #!/usr/local/bin/perl5
 #
-# $Id: toplsf.pl,v 1.1 2002-10-30 22:02:12 edo Exp $
+# $Id$
 #
 
 # UNDER LSF DETERMINE THE TIME LEFT TO A BATCH JOB

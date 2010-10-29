@@ -1,6 +1,6 @@
       subroutine hnd_diag(vec,eig,ndim,order,righthand)
 c
-c $Id: hnd_diag.F,v 1.4 2004-07-23 10:58:09 edo Exp $
+c $Id$
 c
       implicit none
 c

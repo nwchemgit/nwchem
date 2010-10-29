@@ -1,5 +1,5 @@
 c
-c $Id: frce_shrt.f,v 1.1 2008-04-18 17:48:12 marat Exp $
+c $Id$
 c
 
       SUBROUTINE frce_shrt(iii,ntype,rij,rijsq,jbeg,jend,evdw)

@@ -1,5 +1,5 @@
 /*
- $Id: dirac_exchange.h,v 1.1 2001-08-30 16:58:35 bylaska Exp $
+ $Id$
 */
 #ifndef _DIRAC_EXCHANGE_H_
 #define _DIRAC_EXCHANGE_H_

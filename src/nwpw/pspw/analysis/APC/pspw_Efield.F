@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Efield.F,v 1.5 2009-02-07 03:50:30 bylaska Exp $
+c $Id$
 c
 
 

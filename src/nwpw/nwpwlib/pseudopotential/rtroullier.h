@@ -1,5 +1,5 @@
 /*
- $Id: rtroullier.h,v 1.1 2008-02-21 20:01:53 d3p708 Exp $
+ $Id$
 */
 #ifndef _TROULLIER_H_
 #define _TROULLIER_H_

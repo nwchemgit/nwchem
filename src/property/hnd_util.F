@@ -1,4 +1,4 @@
-c  $Id: hnd_util.F,v 1.5 2003-02-07 23:43:55 bert Exp $
+c  $Id$
 c
 c  These are a bunch of utility routines that were in hessian/rhf_hessian.F
 c  that were moved here since the hessian code no longer depends on them.

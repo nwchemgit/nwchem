@@ -1,5 +1,5 @@
 *
-* $Id: paw_stress_fd.F,v 1.1 2004-11-29 16:05:18 bylaska Exp $
+* $Id$
 *
       logical function paw_stress_fd(rtdb)
       implicit none

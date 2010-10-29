@@ -1,5 +1,5 @@
 
-cC     $Id: nwpw_vectors_input.F,v 1.2 2003-10-17 22:55:55 carlfahl Exp $
+cC     $Id$
 c
 
       subroutine nwpw_vectors_input(rtdb, module)

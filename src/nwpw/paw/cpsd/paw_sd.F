@@ -1,5 +1,5 @@
 *
-* $Id: paw_sd.F,v 1.83 2008-09-15 20:52:33 bylaska Exp $
+* $Id$
 *
 * $Log: not supported by cvs2svn $
 * Revision 1.82  2007/11/18 00:35:05  bylaska

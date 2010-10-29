@@ -1,5 +1,5 @@
       program test
-C$Id: testsolve.F,v 1.13 2003-10-17 22:58:35 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

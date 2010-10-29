@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_vhxcmatrix.F,v 1.9 2009-02-07 03:50:40 bylaska Exp $
+* $Id$
 *
       subroutine lcao_generate_vhxcmatrix(ispin,n2ft3d,dn,
      >                                    vhxcmatrix,phi1,phi2,

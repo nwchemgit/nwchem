@@ -1,5 +1,5 @@
 /*
- $Id: win32_cpu.c,v 1.2 2001-06-28 00:16:13 edo Exp $
+ $Id$
 */
 
 #include <time.h>

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.20 2009-03-26 00:18:59 bylaska Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
 		cgsd_input.o \

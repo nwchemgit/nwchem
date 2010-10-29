@@ -1,4 +1,4 @@
-c $Id: smd_end.F,v 1.1 2008-04-18 17:48:13 marat Exp $
+c $Id$
       subroutine smd_end(rtdb)
       implicit none
 #include "errquit.fh"

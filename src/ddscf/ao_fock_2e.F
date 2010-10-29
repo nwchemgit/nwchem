@@ -1,7 +1,7 @@
       subroutine ao_fock_2e( geom, basis, nfock, jfac, kfac,
      $     tol2e, oskel, vg_dens, vg_fock, asym)
 c
-c$Id: ao_fock_2e.F,v 1.19 2003-10-17 22:54:32 carlfahl Exp $
+c$Id$
 c
       implicit none
 #include "errquit.fh"

@@ -1,7 +1,7 @@
       subroutine rohf_hessv_1e3( basis, geom, nmo, nclosed, nopen,
      $     g_fcv, g_fpv, g_fcp,
      $     g_x, g_ax, omega)
-C     $Id: rohf_h1e3.F,v 1.1 2006-11-16 18:22:55 jochen Exp $
+C     $Id$
 c
 c ... jochen: modified version of rohf_hessv_1e that goes along with
 c     rohf_hessv_2e3 and the other routines used by cphf_solve3

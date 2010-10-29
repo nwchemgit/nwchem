@@ -1,5 +1,5 @@
 /*
-$Id: util_md_c.c,v 1.2 2007-08-17 22:36:35 d3p852 Exp $
+$Id$
 */
 #include <time.h>
 #include <sys/types.h>

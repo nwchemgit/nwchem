@@ -6,7 +6,7 @@
      &                             calling_module, title, oskel, oadapt, 
      &                             oinitialized) 
 c
-c     $Id: scf_vec_guess.F,v 1.52 2005-07-19 17:14:10 bert Exp $
+c     $Id$
 c
       implicit none
 #include "errquit.fh"

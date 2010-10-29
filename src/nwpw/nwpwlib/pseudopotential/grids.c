@@ -1,6 +1,6 @@
 /* grid.c
    author - Eric Bylaska
-   $Id: grids.c,v 1.3 2008-12-15 21:08:40 bylaska Exp $
+   $Id$
 
 */
 

@@ -1,5 +1,5 @@
 !c
-!c $Id: paw_ma.fh,v 1.1 2003-01-24 20:28:55 marat Exp $
+!c $Id$
 !c
 
       logical my_alloc

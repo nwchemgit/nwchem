@@ -1,6 +1,6 @@
       subroutine scf_movecs_read
 *
-* $Id: scf_movecs.F,v 1.11 2003-10-17 22:54:33 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

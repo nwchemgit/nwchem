@@ -1,4 +1,4 @@
-c     $Id: cgsd_noit_energy.F,v 1.11 2008-11-17 17:25:44 bylaska Exp $                       
+c     $Id$                       
 *     ***************************
 *     *				*
 *     *	   cgsd_noit_energy	*

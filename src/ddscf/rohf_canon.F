@@ -1,5 +1,5 @@
       subroutine rohf_canon(oaufbau, oprint)
-C$Id: rohf_canon.F,v 1.12 2005-10-27 00:12:45 edo Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

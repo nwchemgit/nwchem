@@ -1,5 +1,5 @@
 *
-* $Id: paw_mult_interaction.F,v 1.13 2005-01-31 02:09:38 bylaska Exp $
+* $Id$
 *
 * $Log: not supported by cvs2svn $
 * Revision 1.12  2004/07/29 15:55:37  bylaska

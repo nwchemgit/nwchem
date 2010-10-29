@@ -4,7 +4,7 @@
      $     eri, scr,
      $     neri)
 c
-c     $Id: fock_2e_slab.F,v 1.2 1996-10-10 20:32:02 d3g681 Exp $
+c     $Id$
 c
 c     Given a shell block of integrals from nwints, 
 c     compress out the zeroes, constrain for canonical

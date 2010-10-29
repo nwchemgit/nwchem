@@ -1,5 +1,5 @@
 *
-* $Id: task_paw.F,v 1.9 2004-11-29 16:05:18 bylaska Exp $
+* $Id$
 *
 
       logical function task_paw(rtdb)

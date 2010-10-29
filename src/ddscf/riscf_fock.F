@@ -1,6 +1,6 @@
       subroutine riscf_fock_2e(geom1, ao_basis, ri_basis, nfock,
      $     fcoul, fexch, tol2e1, oskeleton, g_dens, g_fock)
-C$Id: riscf_fock.F,v 1.14 2003-10-17 22:54:33 carlfahl Exp $
+C$Id$
 C     calculate the coulomb and exchange contribution to the Fock matrix 
 C     from the density matrix and the transformed three-center ERIs
 

@@ -2,7 +2,7 @@
  */
 
 /*
- $Id: mdglobal.h,v 1.2 1997-10-31 20:45:44 d3e129 Exp $
+ $Id$
  */
 
 /* PROTOTYPES should be set to one if and only if the compiler supports

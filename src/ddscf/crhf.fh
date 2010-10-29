@@ -2,7 +2,7 @@ c     This common is used to pass info to the routines that do the
 c     hessian-vector products and preconditioning of the iterative soln
 c     
       integer geom_rhf, basis_rhf
-C$Id: crhf.fh,v 1.2 1995-02-02 23:11:31 d3g681 Exp $
+C$Id$
       integer g_fock            ! MO fock matrix   ... nbf*nbf
       integer g_mocf_rhf        ! MO coefficients
       integer nbf, nocc, nvir

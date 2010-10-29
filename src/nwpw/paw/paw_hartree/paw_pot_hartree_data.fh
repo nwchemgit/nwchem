@@ -1,5 +1,5 @@
 c
-c $Id: paw_pot_hartree_data.fh,v 1.2 2003-02-16 05:51:55 bylaska Exp $
+c $Id$
 c
       integer paw_pot_hartree_size
       integer paw_pot_hartree(4)

@@ -1,7 +1,7 @@
       subroutine riscf_square (ao_basis, g_three, g_sthree, three, 
      $     sthree, g_indx, indx, t, nt, nbf, nsh, mxbf, nproc, odisk)
 
-C$Id: riscf_square.F,v 1.4 2004-09-07 06:11:22 windus Exp $
+C$Id$
 
 C     get integrals from compressed array g_three and blow up to square matrix
 C     g_sthree (both GAs)

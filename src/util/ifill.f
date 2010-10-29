@@ -1,5 +1,5 @@
       subroutine ifill(n,val,a,ia)
-C$Id: ifill.f,v 1.4 1995-02-02 18:09:39 d3g681 Exp $
+C$Id$
       implicit none
       integer n, val, a(*), ia, i
 c

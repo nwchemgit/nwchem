@@ -1,5 +1,5 @@
       block data riscf_three_eri_list
-C$Id: riscf_list.F,v 1.9 1996-10-03 23:54:45 vg038 Exp $
+C$Id$
       implicit none
 #include "riscf.fh"
       data riscf_info / dim*0 /

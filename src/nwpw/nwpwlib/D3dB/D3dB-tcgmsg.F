@@ -1,7 +1,7 @@
 #define NBLOCKS 2
 
 *
-* $Id: D3dB-tcgmsg.F,v 1.17 2007-03-29 23:19:04 bylaska Exp $
+* $Id$
 *
 
 #ifdef TCGMSG

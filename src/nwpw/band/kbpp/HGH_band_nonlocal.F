@@ -1,5 +1,5 @@
 *
-* $Id: HGH_band_nonlocal.F,v 1.6 2007-08-29 00:59:37 bylaska Exp $
+* $Id$
 *
 
 

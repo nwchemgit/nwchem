@@ -1,5 +1,5 @@
 /*
- $Id: hartree.h,v 1.1 2001-08-30 16:58:36 bylaska Exp $
+ $Id$
 */
 #ifndef _HARTREE_H_
 #define _HARTREE_H_

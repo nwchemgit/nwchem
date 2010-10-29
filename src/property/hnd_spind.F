@@ -1,6 +1,6 @@
       subroutine hnd_spind(rtdb,basis,geom)
 c
-c $Id: hnd_spind.F,v 1.5 2005-07-14 22:09:28 bert Exp $
+c $Id$
 c
 c     This routine calculates the Fermi Contact Term and
 c     Spin-Dipolar terms for a given (spin) density at the

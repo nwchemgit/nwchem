@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2004-05-14 16:43:58 edo Exp $
+# $Id$
 #
      SUBDIRS = APC
 

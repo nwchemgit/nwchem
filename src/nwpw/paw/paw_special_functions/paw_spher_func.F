@@ -1,5 +1,5 @@
 c
-c $Id: paw_spher_func.F,v 1.8 2006-02-11 02:50:48 bylaska Exp $
+c $Id$
 c
 c $Log: not supported by cvs2svn $
 c Revision 1.7  2003/10/21 02:05:17  marat

@@ -1,5 +1,5 @@
 c
-c $Id: md_frce.f,v 1.1 2008-10-01 22:32:28 marat Exp $
+c $Id$
 c
 
       SUBROUTINE md_frce(ntype,ecoul,eshrt,ebond,ntbond,eshel,ntshel,

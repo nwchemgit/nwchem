@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.1 2007-06-21 02:08:09 bylaska Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
                 ofpwsd.o \

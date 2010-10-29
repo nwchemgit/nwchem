@@ -6,7 +6,7 @@
      &   lgiao, lvelocity, lmagpert, lifetime, gamwidth,
      &   alfare, alfaim, betare, betaim)
 
-c     $Id: aoresponse.F,v 1.4 2009-02-16 19:39:46 jhammond Exp $
+c     $Id$
       
 c     =================================================================
       

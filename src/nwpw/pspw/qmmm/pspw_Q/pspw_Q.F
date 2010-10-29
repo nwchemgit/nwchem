@@ -1,5 +1,5 @@
 c
-c $Id: pspw_Q.F,v 1.18 2009-03-26 00:19:02 bylaska Exp $
+c $Id$
 c
 
 

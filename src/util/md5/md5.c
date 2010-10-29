@@ -2,7 +2,7 @@
  */
 
 /*
- $Id: md5.c,v 1.2 1997-10-31 20:45:42 d3e129 Exp $
+ $Id$
  */
 
 /* Copyright (C) 1991-2, RSA Data Security, Inc. Created 1991. All

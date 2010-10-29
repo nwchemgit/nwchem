@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2003-12-02 19:25:09 bylaska Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = \
 		band_structure.o \

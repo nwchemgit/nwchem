@@ -1,5 +1,5 @@
 *
-* $Id: cellgeometry.F,v 1.1 2004-11-29 16:05:18 bylaska Exp $
+* $Id$
 *
 
       subroutine load_cellgeometry(geom,coords,amatrix)

@@ -1,6 +1,6 @@
       integer function idamin(n,dx,incx)
 *
-* $Id: idamin.f,v 1.1 1998-04-26 18:59:35 bernhold Exp $
+* $Id$
 *
 c
 c     finds the index of element having min. absolute value.

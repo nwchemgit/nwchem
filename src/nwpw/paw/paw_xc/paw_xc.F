@@ -1,4 +1,4 @@
-!$Id: paw_xc.F,v 1.21 2006-04-08 00:25:48 bylaska Exp $
+!$Id$
 !
 !$Log: not supported by cvs2svn $
 !Revision 1.20  2006/02/11 02:50:49  bylaska

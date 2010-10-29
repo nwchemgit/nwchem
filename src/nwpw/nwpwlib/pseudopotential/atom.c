@@ -1,6 +1,6 @@
 /* atom.c -
    author - Eric Bylaska and Patrick Nichols
-   $Id: atom.c,v 1.25 2008-02-24 20:59:44 d3p708 Exp $
+   $Id$
 */
 
 #include	<stdio.h>

@@ -1,4 +1,4 @@
-* $Id: c_geodesic.F,v 1.19 2007-11-17 00:05:48 bylaska Exp $
+* $Id$
 *
 
 

@@ -1,5 +1,5 @@
 *
-* $Id: lcao_write_matrix.F,v 1.4 2003-10-17 22:57:20 carlfahl Exp $
+* $Id$
 *
       subroutine lcao_write_matrix_seq(unit,size,matrix)
       implicit none

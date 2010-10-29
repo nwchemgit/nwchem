@@ -1,5 +1,5 @@
       subroutine vectors_input(rtdb, module)
-C     $Id: vectors_inp.F,v 1.16 2006-08-10 16:11:10 bert Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

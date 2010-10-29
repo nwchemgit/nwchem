@@ -1,5 +1,5 @@
 *
-* $Id: Stiefel.F,v 1.11 2006-12-05 00:14:40 bylaska Exp $
+* $Id$
 *
 
 

@@ -1,5 +1,5 @@
       subroutine input_echo(ir,iw)
-C$Id: input_echo.F,v 1.1 1996-07-26 16:43:39 d3g681 Exp $
+C$Id$
       implicit none
 #include "inp.fh"
       character*256 line

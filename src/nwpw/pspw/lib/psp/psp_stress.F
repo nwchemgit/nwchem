@@ -1,5 +1,5 @@
 *
-* $Id: psp_stress.F,v 1.17 2009-02-07 03:50:58 bylaska Exp $
+* $Id$
 *
 
 

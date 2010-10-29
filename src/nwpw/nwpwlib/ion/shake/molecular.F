@@ -6,7 +6,7 @@
 *     ***************************
       subroutine molecular_init(rtdb)
 *
-* $Id: molecular.F,v 1.8 2009-01-05 17:46:30 bylaska Exp $
+* $Id$
 *
       implicit none 
       integer   rtdb

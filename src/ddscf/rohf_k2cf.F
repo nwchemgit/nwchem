@@ -1,6 +1,6 @@
       subroutine rohf_k2cf(basis, nbf, nmo, nclosed, nopen,
      $                     g_kvec, g_vecs, g_result)
-C     $Id: rohf_k2cf.F,v 1.13 2003-10-17 22:54:33 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -9,7 +9,7 @@ c
 c     
       end
       logical function util_print(name, level)
-C$Id: util_print.F,v 1.16 2003-10-17 22:58:35 carlfahl Exp $
+C$Id$
       implicit none
 #include "printlevels.fh"
 #include "printcommon.fh"

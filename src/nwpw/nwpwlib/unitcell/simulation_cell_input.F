@@ -1,6 +1,6 @@
       subroutine simulation_cell_input(rtdb)
 c
-c $Id: simulation_cell_input.F,v 1.10 2007-03-27 02:02:48 bylaska Exp $
+c $Id$
 c
       implicit none
 #include "errquit.fh"

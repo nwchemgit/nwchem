@@ -1,5 +1,5 @@
 c 
-c $Id: get_density.F,v 1.2 2003-10-17 22:58:35 carlfahl Exp $ 
+c $Id$ 
 c 
       subroutine get_density(g_dens,g_vecs,theory,scftype,nalpha,
      *                       nbeta,nbfs,rtdb)

@@ -1,6 +1,6 @@
 
 c
-c $Id: nwpw_library.F,v 1.10 2007-08-28 01:05:48 bylaska Exp $
+c $Id$
 c
 	subroutine nwpw_libgeninp(iopt,element,filename)
 	implicit none

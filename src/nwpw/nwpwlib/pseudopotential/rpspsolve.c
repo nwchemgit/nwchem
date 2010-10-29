@@ -1,5 +1,5 @@
 /*
- $Id: rpspsolve.c,v 1.19 2008-03-31 18:49:04 d3p708 Exp $
+ $Id$
 */
 
 #include <stdlib.h>

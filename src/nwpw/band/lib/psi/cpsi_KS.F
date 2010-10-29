@@ -1,4 +1,4 @@
-* $Id: cpsi_KS.F,v 1.17 2009-02-07 03:50:10 bylaska Exp $
+* $Id$
 *
 *
 * $Log: not supported by cvs2svn $

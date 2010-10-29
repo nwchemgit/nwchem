@@ -1,5 +1,5 @@
 *
-* $Id: pspw_force_numerical.F,v 1.1 2007-03-27 02:02:48 bylaska Exp $
+* $Id$
 *
 
       logical function pspw_force_numerical(rtdb)

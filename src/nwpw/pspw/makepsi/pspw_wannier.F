@@ -1,5 +1,5 @@
 *
-* $Id: pspw_wannier.F,v 1.22 2009-02-10 21:24:25 bylaska Exp $
+* $Id$
 *
 
       logical function pspw_wannier(rtdb)

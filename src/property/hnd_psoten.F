@@ -1,7 +1,7 @@
       subroutine hnd_psoten(rtdb,geom,basis,vectors,nclosed,nopen,nvirt,
      &                      nbf,nmo,pairlist,translate,ipairs,unique,
      &                      i_pert,i_resp,tensor,coords,npso)
-c $Id: hnd_psoten.F,v 1.1 2008-04-08 21:01:14 windus Exp $
+c $Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

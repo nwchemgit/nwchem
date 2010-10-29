@@ -1,5 +1,5 @@
       subroutine ga_get_diagonal(g_a, diags)
-C$Id: ga_get_diag.F,v 1.6 2003-10-17 22:58:34 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

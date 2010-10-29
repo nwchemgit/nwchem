@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2003-01-30 00:07:22 marat Exp $
+# $Id$
 #
 
           OBJ = 

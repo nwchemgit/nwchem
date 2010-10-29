@@ -1,5 +1,5 @@
 c
-c $Id: list_const.f,v 1.1 2008-10-01 22:32:28 marat Exp $
+c $Id$
 c
 
       SUBROUTINE list_const(ncons,ntcons,consatm)

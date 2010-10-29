@@ -1,5 +1,5 @@
 *
-* $Id: Parallel-tcgmsg.F,v 1.10 2008-09-22 22:53:47 bylaska Exp $
+* $Id$
 *
 
 * Parallel.f

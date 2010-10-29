@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2004-03-04 15:12:22 bylaska Exp $
+# $Id$
 #
 
           OBJ_OPTIMIZE = paw_matrix_comp_pot.o paw_pot_comp.o

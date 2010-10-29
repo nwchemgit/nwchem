@@ -1,6 +1,6 @@
       logical function riscf_init (rtdb, geom, ao_basis, ri_basis, 
      $        tol2e)
-C$Id: riscf_init.F,v 1.16 2003-10-17 22:54:33 carlfahl Exp $
+C$Id$
 
 C     calculate three center ERIs, transform them with V**(-1/2)
 C     (V-approximation: V(i,j)=(i|j))

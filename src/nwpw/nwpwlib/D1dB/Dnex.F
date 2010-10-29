@@ -1,4 +1,4 @@
-* $Id: Dnex.F,v 1.1 2006-08-13 01:03:24 bylaska Exp $
+* $Id$
 *
 
 

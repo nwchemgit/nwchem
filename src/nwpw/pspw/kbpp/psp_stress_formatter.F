@@ -1,5 +1,5 @@
 c
-c $Id: psp_stress_formatter.F,v 1.7 2008-03-17 17:53:58 bylaska Exp $
+c $Id$
 c
 
       logical function psp_stress_formatter(rtdb)

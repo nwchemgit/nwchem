@@ -1,5 +1,5 @@
       subroutine matrix_exp(g_k)
-C$Id: matrix_exp.F,v 1.12 2003-10-17 22:54:33 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

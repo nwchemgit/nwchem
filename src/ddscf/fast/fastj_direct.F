@@ -1,6 +1,6 @@
       subroutine fastj_direct_sum_init(basis, g_dens, eps, data)
 *
-* $Id: fastj_direct.F,v 1.8 2003-10-17 22:54:37 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

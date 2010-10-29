@@ -1,5 +1,5 @@
 *
-* $Id: v_wvfnc_init_input.F,v 1.4 2003-10-17 22:57:44 carlfahl Exp $
+* $Id$
 *
 
       subroutine v_wvfnc_init_input(rtdb)

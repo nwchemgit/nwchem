@@ -1,5 +1,5 @@
 *
-* $Id: lcao_generate_vnlmatrix.F,v 1.3 2008-11-05 00:49:47 bylaska Exp $
+* $Id$
 *
       subroutine lcao_generate_vnlmatrix(vnlmatrix,phi1,phi2)
       implicit none

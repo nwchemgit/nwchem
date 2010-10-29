@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2007-09-29 00:33:12 bylaska Exp $
+# $Id$
 #
  SUBDIRS =
 

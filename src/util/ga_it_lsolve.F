@@ -1,6 +1,6 @@
       logical function ga_iter_lsolve(n, maxiter, maxsub, tol,
      $     precond, product, ostall, oprint, g_b, g_soln, acc, iter)
-C$Id: ga_it_lsolve.F,v 1.16 2008-11-06 20:01:42 jhammond Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

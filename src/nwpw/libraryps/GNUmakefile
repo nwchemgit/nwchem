@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 2006-09-07 16:55:09 d3p307 Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = nwpw_library.o nwpw_libfile.o nwpw_set_library.o
 

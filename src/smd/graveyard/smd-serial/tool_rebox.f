@@ -1,5 +1,5 @@
 c
-c $Id: tool_rebox.f,v 1.1 2008-04-18 17:40:32 marat Exp $
+c $Id$
 c
 
       SUBROUTINE tool_rebox(n,mxarray,latt,rlatt,aaa)
