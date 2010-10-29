@@ -13,7 +13,7 @@ c                                                               c
 c===============================================================c
       logical function socrates_scf_ga(rtdb,geom,num_alfa,num_beta)
 c
-c $Id: socrates_scf_ga.F,v 1.0 2009/21/06 23:48:58 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "mafdecls.fh"

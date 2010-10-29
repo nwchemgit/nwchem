@@ -1,5 +1,5 @@
       subroutine sym_symmetrize(geom, basis, odensity, g_a)
-C$Id: sym_sym.F,v 1.9 2004-09-07 06:11:52 windus Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

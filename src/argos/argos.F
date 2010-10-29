@@ -1,6 +1,6 @@
       logical function argos(irtdb0)
 c
-c $Id: nwmd.F,v 1.10 2003-08-07 00:24:45 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

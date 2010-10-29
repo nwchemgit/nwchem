@@ -1,4 +1,4 @@
-C     $Id: ccsd_debug.fh,v 2.2 1997-04-14 06:34:53 gg502 Exp $
+C     $Id$
 C
       Integer LenDbg
       Parameter (LenDbg = 15)

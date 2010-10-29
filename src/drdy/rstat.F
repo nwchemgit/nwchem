@@ -1,5 +1,5 @@
 c
-c$Id: rstat.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
+c$Id$
       subroutine drdy_rstat(string,iend,istrt,jtype)
 c     Generic subroutine to read in the input for all the stationary points.
 c     Jtype = 1  first reactant 

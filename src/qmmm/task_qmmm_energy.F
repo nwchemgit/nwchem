@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_energy.F,v 1.35 2006-05-30 22:20:40 marat Exp $
+c $Id$
 c
 c
       function task_qmmm_energy(rtdb)
@@ -1266,7 +1266,7 @@ c
       end
 
       function task_qmmm_energy_pes0(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.35 2006-05-30 22:20:40 marat Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -1515,7 +1515,7 @@ c       end load restart
       end
 
       function task_qmmm_energy_pes(irtdb)
-c     $Id: task_qmmm_energy.F,v 1.35 2006-05-30 22:20:40 marat Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

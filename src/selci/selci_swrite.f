@@ -1,6 +1,6 @@
       subroutine selci_swrite(itape,a,n)
 *
-* $Id: selci_swrite.f,v 1.2 2003-10-27 23:21:39 marat Exp $
+* $Id$
 *
       real*8 a(n)
       parameter (lenbuf = 512)

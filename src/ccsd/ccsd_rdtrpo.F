@@ -1,6 +1,6 @@
       subroutine ccsd_rdtrpo(t1,buf1,buf2,g_objo,g_objv,
      $     nocc,nvir,iprt)
-C     $Id: ccsd_rdtrpo.F,v 2.8 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 c     

@@ -1,5 +1,5 @@
 # Makefile for movecs <--> ASCII translators
-# $Id: Makefile,v 1.8 2006-03-17 23:02:59 edo Exp $
+# $Id$
 
 # Tested on KSR, Cray-T3D
 # Requires NWCHEM_TARGET to be set.

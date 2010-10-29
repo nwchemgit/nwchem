@@ -1,4 +1,4 @@
-c $Id: cons_utils.F,v 1.18 2004-11-29 22:16:58 marat Exp $
+c $Id$
       function cons_print()
       implicit none
 #include "global.fh"

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.14 2004-05-14 15:53:46 edo Exp $
+# $Id$
   LIBRARY = libetrans.a
   
   OBJ = et_calc.o et_input.o et_det.o et_2e.o et_dgefa.o  \

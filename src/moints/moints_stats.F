@@ -1,5 +1,5 @@
        subroutine moints_stats_print( algo )
-C$Id: moints_stats.F,v 1.7 1997-10-14 17:31:53 rg240 Exp $
+C$Id$
        implicit none
 #include "msgids.fh"
 #include "global.fh"

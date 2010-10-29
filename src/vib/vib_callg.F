@@ -1,6 +1,6 @@
       SUBROUTINE vib_CALLG(G,IGDIM,SCR,fv1,fv2,
      &    ROOT,ALPH,LVAL,NROOTS)
-* $Id: vib_callg.F,v 1.5 2003-10-17 22:58:37 carlfahl Exp $
+* $Id$
 C
 C Routine to set up actual spaces for call to GIVENS
 C

@@ -1,6 +1,6 @@
       real*8 function dia_distance(x,nx,w,nw,na,i,i2,j,j2,box)
 c
-c $Id: dia_distance.F,v 1.2 2007-04-26 02:38:38 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.4 1997-05-28 07:07:48 d3e129 Exp $
+# $Id$
 
 OBJ = seetex.o
 

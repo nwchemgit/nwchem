@@ -1,6 +1,6 @@
       subroutine esp_denmat(occ,ene)
 c
-c $Id: esp_denmat.F,v 1.14 2006-01-21 02:22:52 marat Exp $
+c $Id$
 c
       implicit none
 c

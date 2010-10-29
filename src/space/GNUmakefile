@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2007-04-18 18:09:09 d3p307 Exp $
+# $Id$
 #
 #
 OBJ_OPTIMIZE=sp_init.o sp_main.o

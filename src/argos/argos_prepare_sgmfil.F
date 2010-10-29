@@ -1,6 +1,6 @@
       logical function argos_prepare_sgmfil(sgmnam,lfnsgm,filsgm)
 c
-c $Id: argos_prepare_sgmfil.F,v 1.6 2003-07-23 02:38:47 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

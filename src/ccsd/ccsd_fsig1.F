@@ -1,6 +1,6 @@
       subroutine ccsd_fsig1(av,bv,nocc,nvir,nbf,iprt,
      &                      t1,ht1,habe)
-C     $Id: ccsd_fsig1.F,v 2.3 1997-04-14 06:34:54 gg502 Exp $
+C     $Id$
       implicit none
 c
       integer av,bv,nocc,nvir,nbf,iprt

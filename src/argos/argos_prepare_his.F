@@ -1,7 +1,7 @@
       logical function argos_prepare_his(num,mat,
      + csa,isat,isgm,imol,ifra,xs,msa,nsa)
 c
-c $Id: argos_prepare_his.F,v 1.1 2003-10-17 14:56:06 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

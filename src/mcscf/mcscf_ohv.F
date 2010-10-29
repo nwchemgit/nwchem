@@ -3,7 +3,7 @@
      $                         g_movecs, g_ifock, g_afock, g_gfock,
      $                         g_coul, g_exch, g_x, g_ax )
 *
-* $Id: mcscf_ohv.F,v 1.5 2003-10-17 22:55:21 carlfahl Exp $
+* $Id$
 *
        implicit none
 #include "errquit.fh"

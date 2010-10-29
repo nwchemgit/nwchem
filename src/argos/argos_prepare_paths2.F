@@ -1,6 +1,6 @@
       logical function argos_prepare_paths2(irtdb)
 c
-c $Id: argos_prepare_paths2.F,v 1.3 2003-10-19 03:30:59 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -1,5 +1,5 @@
 *
-* $Id: stpr_gen_aux.F,v 1.14 2006-02-08 16:30:51 windus Exp $
+* $Id$
 * 
 * this file contains auxilary routines to stpr_gen functions
 *

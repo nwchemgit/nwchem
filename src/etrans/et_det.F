@@ -1,4 +1,4 @@
-c $Id: et_det.F,v 1.6 2003-10-27 23:17:44 marat Exp $
+c $Id$
       subroutine et_det(op,handle,n,detval)
 #include "rtdb.fh"
 #include "mafdecls.fh"

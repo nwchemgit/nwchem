@@ -1,4 +1,4 @@
-c $Id: et_input.F,v 1.9 2003-10-17 22:54:54 carlfahl Exp $
+c $Id$
       subroutine et_input(rtdb)
       implicit none
 #include "errquit.fh"

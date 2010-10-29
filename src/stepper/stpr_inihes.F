@@ -1,5 +1,5 @@
       SUBROUTINE stpr_inihes ( HESIAN,rtdb )
-c $Id: stpr_inihes.F,v 1.6 2003-10-17 22:58:22 carlfahl Exp $
+c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "errquit.fh"
       PARAMETER (ZERO=0.0D0, ONE=1.0D0)

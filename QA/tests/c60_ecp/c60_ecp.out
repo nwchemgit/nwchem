@@ -3,7 +3,7 @@
 
 
 ============================== echo of input deck ==============================
-# $Id: c60_ecp.nw,v 1.1 2003-04-11 01:19:11 edo Exp $
+# $Id$
 echo
 
 title "c60 with ECPs"

@@ -1,5 +1,5 @@
       logical function gradients(rtdb)
-c$Id: gradients.F,v 1.30 2003-12-12 22:50:05 marat Exp $
+c$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -6,7 +6,7 @@
      + chain,model,lfnxyz,filxyz,lfnqqq,filqqq,lfnpov,filpov,scale,cpk,
      + lfnmat,lfnmrg,nmerge,xmerge,filmrg,fcount,lfnmod,filmod,itopol)
 c
-c $Id: argos_prepare_mkrst.F,v 1.99 2006-07-20 14:18:53 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

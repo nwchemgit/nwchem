@@ -1,6 +1,6 @@
       logical function mcscf( rtdb )
 *
-* $Id: mcscf.F,v 1.64 2003-10-17 22:55:21 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.26 1997-11-04 09:59:39 d3e129 Exp $
+# $Id$
 #
       SUBDIRS =	detci 
 

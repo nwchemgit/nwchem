@@ -1,5 +1,5 @@
 *
-* $Id: sstebz3.F,v 1.10 2003-09-05 22:24:32 edo Exp $
+* $Id$
 *
 #include "blas_lapackf.h"
       SUBROUTINE SSTEBZ3( RANGE1, ORDER1, N, VL, VU, IL, IU,

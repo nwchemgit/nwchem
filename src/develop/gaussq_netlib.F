@@ -1,5 +1,5 @@
 *
-* $Id: gaussq_netlib.F,v 1.5 2003-10-17 22:54:39 carlfahl Exp $
+* $Id$
 *
 * ======================================================================
 * NIST Guide to Available Math Software.

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.3 2002-01-19 04:15:55 zzhang Exp $
+# $Id$
 #
 
 LIBRARY = libcckohn.a 

@@ -16,7 +16,7 @@
 #
 # Library references are left unmodified.
 #
-# $Id: uncontract,v 1.1 1995-06-24 22:32:42 gg502 Exp $
+# $Id$
 ###############################################################################
 $last_atom = "ZZ";
 $in_basis = 0;

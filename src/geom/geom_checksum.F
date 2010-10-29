@@ -1,6 +1,6 @@
       logical function geom_checksum(geom, sum)
 *
-* $Id: geom_checksum.F,v 1.3 1999-07-14 00:28:58 d3e129 Exp $
+* $Id$
 *
       implicit none
 #include "nwc_const.fh"

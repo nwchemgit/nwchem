@@ -1,6 +1,6 @@
       subroutine task(rtdb)
 *
-* $Id: task.F,v 1.96 2009/03/05 18:10:29 d3p975 Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

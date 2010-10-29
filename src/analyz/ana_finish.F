@@ -1,6 +1,6 @@
       subroutine ana_finish(sgmnam,ltask)
 c
-c $Id: ana_finish.F,v 1.24 2003-12-03 05:04:04 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

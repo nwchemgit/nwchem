@@ -1,7 +1,7 @@
       subroutine ana_wrtpdb(lfnpdb,filpdb,sgmnam,isel,xs,
      + iwsel,xw,logs,logw,ndxw)
 c
-c $Id: ana_wrtpdb.F,v 1.5 2001-03-23 18:37:05 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

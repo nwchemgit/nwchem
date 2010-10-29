@@ -1,5 +1,5 @@
       SUBROUTINE stpr_chkhess(HESS)
-c $Id: stpr_chkhess.F,v 1.1 2003-10-17 22:35:29 carlfahl Exp $
+c $Id$
 C
 C     This routine checks to make sure the analytic Hessian
 C     is symmetric.

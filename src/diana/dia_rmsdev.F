@@ -1,6 +1,6 @@
       subroutine dia_rmsd
 c
-c $Id: dia_rmsdev.F,v 1.6 2007-03-14 16:17:48 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "dia_params.fh"
@@ -50,7 +50,7 @@ c
       end
       subroutine dia_rmsdev(xtrj,xr,wt,wts,xrms,rms,trms,ga_rms,
      + isel,sgmnam)
-c $Id: dia_rmsdev.F,v 1.6 2007-03-14 16:17:48 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "dia_params.fh"

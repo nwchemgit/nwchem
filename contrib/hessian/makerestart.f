@@ -1,7 +1,7 @@
       program hessrst
       implicit none
 c
-c  $Id: makerestart.f,v 1.1 2001-07-19 21:05:44 windus Exp $
+c  $Id$
 c  This program helps create a fdrst file for numerical hessian restarts.  
 c  There are several lines below that need to be modified so the program
 c  picks up the correct hessian and fd_ddipole files and so that

@@ -4,7 +4,7 @@
 c
 c -- on input t1a contains t1: t1b contains error vector
       implicit none
-C     $Id: ccsd_pdiis.F,v 2.10 2004-12-16 23:02:58 edo Exp $
+C     $Id$
 c
 #include "ccsd_len.fh"
       integer lhoo,lhoov

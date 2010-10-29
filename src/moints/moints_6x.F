@@ -1,6 +1,6 @@
 c     
 c
-c  $Id: moints_6x.F,v 1.27 2003-10-17 22:55:26 carlfahl Exp $
+c  $Id$
 c
 c
 c  This routine returns the Coulomb and exchange integral

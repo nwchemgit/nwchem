@@ -1,4 +1,4 @@
-/*$Id: context_f2c.c,v 1.9 2003-08-13 17:11:35 edo Exp $*/
+/*$Id$*/
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>

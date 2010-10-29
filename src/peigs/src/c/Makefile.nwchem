@@ -1,5 +1,5 @@
 #
-# $Id: Makefile.nwchem,v 1.4 2004-10-20 17:52:25 edo Exp $
+# $Id$
 #
 
 include ../../../config/makefile.h

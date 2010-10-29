@@ -1,5 +1,5 @@
       SUBROUTINE stpr_gmass(GRAD,ATMASS)
-c $Id: stpr_gmass.f,v 1.1 1994-06-24 20:42:23 d3e129 Exp $
+c $Id$
 C
 C     This routine mass weights the gradient vector.
 C

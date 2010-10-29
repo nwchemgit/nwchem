@@ -1,4 +1,4 @@
-/*$Id: realloc.c,v 1.1 1995-03-31 01:55:36 d3g681 Exp $*/
+/*$Id$*/
 #include <sys/types.h>
 
 #include <stdlib.h>

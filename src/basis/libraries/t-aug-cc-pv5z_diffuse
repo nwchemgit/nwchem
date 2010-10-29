@@ -1,4 +1,4 @@
-# $Id: t-aug-cc-pv5z_diffuse,v 1.1 2008-03-19 22:18:09 jhammond Exp $
+# $Id$
 basis "H_t-aug-cc-pV5Z_Diffuse" SPHERICAL
    H   S
     0.16700000000E-02   1.0000000000    

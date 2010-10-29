@@ -1,6 +1,6 @@
       subroutine ga_reorder(g_a, orow, rmap, ocol, cmap)
 *
-* $Id: ga_reorder.F,v 1.5 2003-10-17 22:55:08 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

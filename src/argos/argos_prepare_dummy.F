@@ -4,7 +4,7 @@
      + ldih,nfdih,kdih,rdih,mdih,ndih,limp,kimp,rimp,mimp,nimp,
      + nparms,mparms)
 c
-c $Id: argos_prepare_dummy.F,v 1.5 2003-12-03 05:00:55 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

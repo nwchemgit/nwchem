@@ -1,4 +1,4 @@
-//	$Id: file_exists.cpp,v 1.1 2000-07-27 15:54:44 bjohnson Exp $
+//	$Id$
 
 #include <iostream>
 #include <fstream>

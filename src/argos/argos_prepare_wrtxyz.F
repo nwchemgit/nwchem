@@ -2,7 +2,7 @@
      + filqqq,
      + num,mat,isat,xs,qsa,msa,nsa,box)
 c
-c $Id: argos_prepare_wrtxyz.F,v 1.4 2000-05-02 18:50:48 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

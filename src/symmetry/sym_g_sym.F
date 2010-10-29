@@ -1,5 +1,5 @@
       subroutine sym_grad_symmetrize(geom, grad)
-C     $Id: sym_g_sym.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "sym.fh"
@@ -55,7 +55,7 @@ c
 c
       end
       subroutine sym_hess_symmetrize(geom, h)
-C     $Id: sym_g_sym.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "sym.fh"
@@ -116,7 +116,7 @@ c
 c
       end
       subroutine sym_der_dip_symmetrize(geom, d)
-C     $Id: sym_g_sym.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "sym.fh"

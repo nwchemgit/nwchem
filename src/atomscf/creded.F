@@ -1,5 +1,5 @@
       subroutine creded(g_dens, dt, iiloc, nbb, ospherical)
-C$Id: creded.F,v 1.10 1999-06-07 23:45:18 d3e129 Exp $
+C$Id$
       implicit none
 #include "global.fh"
 #include "cguess.fh"

@@ -1,5 +1,5 @@
       block data inp_data
-C$Id: inp.F,v 1.50 2008-10-23 20:19:43 d3p307 Exp $
+C$Id$
       implicit none
 #include "inpP.fh"
 c

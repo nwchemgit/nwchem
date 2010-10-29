@@ -1,5 +1,5 @@
 #
-# $Id: hasdblas.pl,v 1.3 1999-05-20 21:05:33 d3e129 Exp $
+# $Id$
 #
 # perl script searches for "double" values of the 
 # blas and lapack routines reporting only those that have a recognized

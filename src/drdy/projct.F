@@ -1,4 +1,4 @@
-C $Id: projct.F,v 1.2 2007-01-18 17:15:01 d3p307 Exp $
+C $Id$
       Subroutine drdy_projct(ierr)
 C
 C Calculates projected force constant matrix, 

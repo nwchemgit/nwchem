@@ -1,5 +1,5 @@
       program test
-C$Id: test_ilist.F,v 1.1 1995-04-17 23:39:14 gg502 Exp $
+C$Id$
       implicit none
 #include "inp.fh"
       character*30 aval

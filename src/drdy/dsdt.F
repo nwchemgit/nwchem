@@ -1,4 +1,4 @@
-C $Id: dsdt.F,v 1.3 2001-01-19 17:43:11 windus Exp $
+C $Id$
       Subroutine drdy_dsdt (n, g0, xlam, ts, f)
       Implicit none
       Integer n

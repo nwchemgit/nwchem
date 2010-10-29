@@ -1,4 +1,4 @@
-/*$Id: rtdb_seq.c,v 1.26 2008-08-19 00:12:17 d3p307 Exp $*/
+/*$Id$*/
 #include <stdlib.h>
 #include <sys/types.h>
 #if defined(CATAMOUNT)

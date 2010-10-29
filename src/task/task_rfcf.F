@@ -1,6 +1,6 @@
       logical function task_rfcf(rtdb)
 *
-* $Id: task_rfcf.F 2009/05/20  bojana Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

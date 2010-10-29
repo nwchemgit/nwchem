@@ -7,7 +7,7 @@
 CFG=NWCHEM_DIRNAME - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE $Id: lib.dsp,v 1.1 2000-08-08 23:30:55 bjohnson Exp $
+!MESSAGE $Id$
 !MESSAGE NMAKE /f "NWCHEM_DIRNAME.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE

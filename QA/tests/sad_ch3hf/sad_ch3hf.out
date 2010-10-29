@@ -6,7 +6,7 @@
 echo
 
 start ch3hf
-# $Id: sad_ch3hf.nw,v 1.1 2003-04-07 21:20:51 edo Exp $
+# $Id$
 
 title "Find the saddle point for CH3 + HF <-> CH4 + F"
 

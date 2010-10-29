@@ -1,5 +1,5 @@
       Logical Function PStat_Free( Handle )
-C$Id: pstat_free.F,v 1.7 2005-08-19 19:17:39 edo Exp $
+C$Id$
       Implicit NONE
 #include "errquit.fh"
       Integer Handle

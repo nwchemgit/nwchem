@@ -1,7 +1,7 @@
       logical function argos_prep_sgmsiz(lfnsgm,filsgm,
      + natm,nbnd,nang,ndih,nimp,nparms)
 c
-c $Id: argos_prep_sgmsiz.F,v 1.4 2003-07-17 19:38:57 d3j191 Exp $
+c $Id$
 c
 c     function to determine dimensions for segment
 c

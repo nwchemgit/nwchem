@@ -4,7 +4,7 @@
 #
 
 #
-#	$Id: DEFS.WIN32,v 1.1 1999-11-13 02:42:51 bjohnson Exp $
+#	$Id$
 #
 
 peigs_SRC		= $(TOPDIR)\src

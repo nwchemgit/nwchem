@@ -2,7 +2,7 @@ c**************************************************
 c     Main driver for all qmmm optimization tasks *
 c**************************************************
       function task_qmmm_optimize(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.59 2009-02-03 18:13:20 marat Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -100,7 +100,7 @@ c
       end
 c
       function qmmm_mixed_optimization(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.59 2009-02-03 18:13:20 marat Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -344,7 +344,7 @@ c
       end
 c
       function driver1(rtdb)
-c     $Id: task_qmmm_optimize.F,v 1.59 2009-02-03 18:13:20 marat Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -423,7 +423,7 @@ c      write(*,*) "qmmm_energy",i,k,energy
       end
 c
       subroutine qmmm_optimization_method(method,region)
-c     $Id: task_qmmm_optimize.F,v 1.59 2009-02-03 18:13:20 marat Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -473,7 +473,7 @@ c
       end
 c
       subroutine qmmm_optimization_maxiter(maxiter,region)
-c     $Id: task_qmmm_optimize.F,v 1.59 2009-02-03 18:13:20 marat Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -506,7 +506,7 @@ c
       end
 c
       function qmmm_optimizer(rtdb,region,method,xyz,maxiter)
-c     $Id: task_qmmm_optimize.F,v 1.59 2009-02-03 18:13:20 marat Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -630,7 +630,7 @@ c     ------------------------------------
 c
       function qmmm_pes(irtdb)
 c      function qmmm_pes(irtdb,optimizer)
-c     $Id: task_qmmm_optimize.F,v 1.59 2009-02-03 18:13:20 marat Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

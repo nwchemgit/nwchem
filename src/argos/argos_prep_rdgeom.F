@@ -1,7 +1,7 @@
       logical function argos_prep_rdgeom(irtdb,csa,isar,
      + isgm,isfnd,xs,vs,msa,nsa,nmis,msm,nsm)
 c
-c $Id: argos_prep_rdgeom.F,v 1.4 2003-10-19 03:30:59 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

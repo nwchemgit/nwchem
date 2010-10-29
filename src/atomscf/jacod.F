@@ -1,5 +1,5 @@
       subroutine jacod(f,v,nb,nb1,nb2,nmin,nmax,big,jbig,maxao)
-C$Id: jacod.F,v 1.5 2000-10-25 22:50:07 windus Exp $
+C$Id$
       implicit none
 c.......................................................................
 c      f is the matrix to be diagonalized. f is stored triangular

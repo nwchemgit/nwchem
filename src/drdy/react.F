@@ -1,4 +1,4 @@
-C $Id: react.F,v 1.3 2001-01-19 17:43:13 windus Exp $
+C $Id$
       Subroutine drdy_react(jop)
 C
 C Calculate potential and hessian for reactant and product geometries

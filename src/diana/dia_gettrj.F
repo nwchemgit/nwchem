@@ -1,6 +1,6 @@
       subroutine dia_gettrj
 c
-c $Id: dia_gettrj.F,v 1.8 2007-05-10 00:21:03 d3j191 Exp $
+c $Id$
 c
 c     read the trajectory
 c     -------------------

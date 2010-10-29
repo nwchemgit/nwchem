@@ -1,5 +1,5 @@
 #
-# $Id: 32_to_64.pl,v 1.2 2005-11-02 19:09:13 edo Exp $
+# $Id$
 #
 #
 # perl script to do transliteration from "single" values to "double" values

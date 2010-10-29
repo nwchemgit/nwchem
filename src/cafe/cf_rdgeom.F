@@ -1,5 +1,5 @@
       subroutine cf_rdgeom(snam)
-c $Id: cf_rdgeom.F,v 1.12 2005-01-08 20:24:31 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "cf_common.fh"

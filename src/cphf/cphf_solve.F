@@ -1,6 +1,6 @@
       subroutine cphf_solve(rtdb)
 *
-* $Id: cphf_solve.F,v 1.36 2008-08-25 21:04:35 niri Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

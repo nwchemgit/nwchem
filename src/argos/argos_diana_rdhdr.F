@@ -1,6 +1,6 @@
       subroutine argos_diana_rdhdr(sgmnam)
 c
-c $Id: argos_diana_rdhdr.F,v 1.3 2007-02-03 00:40:52 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

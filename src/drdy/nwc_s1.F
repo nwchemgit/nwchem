@@ -1,4 +1,4 @@
-C $Id: nwc_s1.F,v 1.8 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       Subroutine nwc_s1 (x,v,dx,xs,amass,natom,n3)
 C THIS ROUTINE IS NOW DEAD.  LOOK AT NWC_GEN INSTEAD.
 C

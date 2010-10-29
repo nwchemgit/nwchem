@@ -1,4 +1,4 @@
-C     $Id: ccsd_data.fh,v 2.3 2007-08-24 17:29:25 d3p852 Exp $
+C     $Id$
       logical repeat, use_disk
       integer sxy_hl 
       double precision store_avail

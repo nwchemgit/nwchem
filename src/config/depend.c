@@ -1,5 +1,5 @@
 /*
- $Id: depend.c,v 1.6 2003-10-21 00:39:03 edo Exp $
+ $Id$
  */
 
 #include <stdio.h>

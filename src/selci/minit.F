@@ -1,6 +1,6 @@
       integer function selci_minit(llword)
 *
-* $Id: minit.F,v 1.1 2003-10-17 22:32:27 carlfahl Exp $
+* $Id$
 *
 csw   1
       implicit integer (a-z)

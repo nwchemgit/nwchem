@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.31 1999-06-17 17:02:33 edo Exp $
+# $Id$
 
  OBJ = gradients.o grad_force.o grad1.o scf_gradient.o  \
        grad_dens.o grad_inp.o ga_reorder.o

@@ -9,8 +9,8 @@ diff -u -r1.13 xc_pw91lda.F
  c     form for the parameterized functionals of rs.  The VWN V code is
  c     reused.
  *
--* $Id: xc_pw91lda.patch,v 1.1 2006-01-12 18:51:44 edo Exp $
-+* $Id: xc_pw91lda.patch,v 1.1 2006-01-12 18:51:44 edo Exp $
+-* $Id$
++* $Id$
  *
  #ifndef SECOND_DERIV
        Subroutine xc_pw91lda(tol_rho, fac, lfac, nlfac, rho, Amat, nq,

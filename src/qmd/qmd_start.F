@@ -1,6 +1,6 @@
       subroutine qmd_start()
 c
-c $Id: qmd_start.F,v 1.2 2003-10-17 22:58:06 carlfahl Exp $
+c $Id$
 c
       implicit none
 c

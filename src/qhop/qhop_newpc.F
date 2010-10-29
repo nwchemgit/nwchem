@@ -1,6 +1,6 @@
       subroutine qhop_newpc(xr,xacc,xhydr,dist,alpha,xnew)
 c
-c $Id: qhop_newpc.F,v 1.1 2003-07-17 19:36:52 d3j191 Exp $
+c $Id$
 c     The new coordinates of the proton, after its eventual transfer,
 c     are determined. 
 c     

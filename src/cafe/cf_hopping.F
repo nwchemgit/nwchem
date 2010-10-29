@@ -1,7 +1,7 @@
       logical function cf_hopping(lpbc,lpbcs,stimei,
      + isl,issgm,isgan,isq3,ishop,xs,nsaloc)
 c
-c $Id: cf_hopping.F,v 1.17 2006-09-18 15:42:14 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

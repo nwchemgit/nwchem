@@ -1,6 +1,6 @@
       subroutine ccsd_get_param(rtdb, maxit,convi,iprt, theory,
      $   maxdiis, tol2e, occd)
-C     $Id: ccsd_get_param.F,v 1.12 2004-03-19 01:03:11 bert Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

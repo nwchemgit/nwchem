@@ -1,7 +1,7 @@
       Logical Function ccsd(rtdb)
        implicit none
 #include "errquit.fh"
-C     $Id: ccsd.F,v 2.14 2008-05-16 17:56:59 bert Exp $
+C     $Id$
 #include "mafdecls.fh"
 #include "global.fh"
 #include "bas.fh"

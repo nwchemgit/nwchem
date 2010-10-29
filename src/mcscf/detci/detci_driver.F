@@ -1,6 +1,6 @@
       program detci_driver
 *
-* $Id: detci_driver.F,v 1.4 1997-11-04 09:59:51 d3e129 Exp $
+* $Id$
 *
       implicit none
 #include "detciP.fh"

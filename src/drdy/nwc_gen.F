@@ -1,4 +1,4 @@
-C $Id: nwc_gen.F,v 1.12 2007-01-18 18:06:09 d3p307 Exp $
+C $Id$
       Subroutine nwc_gen (x,v,dx,fmat,hess,xs,natom,n3,n3tm,ndbar,op)
 C
 C  Run NWChem task to get potential and first and second derivatives

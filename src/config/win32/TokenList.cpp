@@ -1,4 +1,4 @@
-// $Id: TokenList.cpp,v 1.1 2000-07-27 15:54:43 bjohnson Exp $
+// $Id$
 
 /*
  * TokenList is a class for breaking a string into individual tokens

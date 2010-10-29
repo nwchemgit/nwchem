@@ -1,6 +1,6 @@
 #!/bin/csh 
 #
-# $Id: freq.gifs,v 1.1 1999-07-26 22:25:01 d3e129 Exp $
+# $Id$
 #
 #
 # script to generate all vibrational mode gifs using the rasmolmovie script

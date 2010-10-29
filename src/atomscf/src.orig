@@ -1,4 +1,4 @@
-* $Id: src.orig,v 1.3 2003-10-17 22:54:15 carlfahl Exp $
+* $Id$
       function osatod(iat,ic,iiloc,iisch,nbb)
 c
       implicit none

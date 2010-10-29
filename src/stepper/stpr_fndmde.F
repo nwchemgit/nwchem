@@ -1,5 +1,5 @@
       SUBROUTINE stpr_fndmde(STEP,SELECT,VC,NINTER,NAT3,NMODE)
-c $Id: stpr_fndmde.F,v 1.3 1996-07-17 16:36:43 d3g681 Exp $
+c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL FIND
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,

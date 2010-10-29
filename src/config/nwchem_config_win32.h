@@ -1,4 +1,4 @@
-# $Id: nwchem_config_win32.h,v 1.24 2004-11-03 00:45:55 edo Exp $
+# $Id$
 
 !IFDEF PYTHONHOME
 PYTHON_NWLIB = python.lib

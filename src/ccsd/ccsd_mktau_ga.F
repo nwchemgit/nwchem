@@ -3,7 +3,7 @@ C NAME
 C     CCSD_MkTau_GA -- Form Tau = T2 + T1T1 in a GA
 C
 C REVISION
-C     $Id: ccsd_mktau_ga.F,v 2.4 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine CCSD_MkTau_GA(NOcc, NVir, T1, LDT1, g_T2, g_Tau)

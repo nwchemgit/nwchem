@@ -1,4 +1,4 @@
-# $Id: aug-cc-pv5z_pt_sf_lc,v 1.1 2002-01-02 19:11:07 bert Exp $
+# $Id$
 basis "H_aug-cc-pv5z_pt_sf_lc" SPHERICAL
   H   s
   4.0200000E+02  2.79717006163E-04

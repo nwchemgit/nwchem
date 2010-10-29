@@ -1,5 +1,5 @@
       integer function sym_center_map(geom,cent,opnum)
-C$Id: sym_cent_map.F,v 1.3 2003-10-17 22:58:24 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 c

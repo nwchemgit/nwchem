@@ -1,6 +1,6 @@
       subroutine selci_gettim(cpud,elapsd)
 *
-* $Id: gettim.f,v 1.5 2003-04-11 00:29:05 bert Exp $
+* $Id$
 *
       implicit double precision (a-h,o-z)
       real*4 elast,timediff

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.23 2008-01-25 01:15:18 d3j191 Exp $
+# $Id$
 #
 
 OBJ_CLASS = PrintfFormat.class PrintfWriter.class PrintfStream.class\

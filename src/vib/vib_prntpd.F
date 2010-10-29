@@ -1,5 +1,5 @@
       SUBROUTINE vib_PRNTPD(A,NAD,M,IOUT2)
-* $Id: vib_prntpd.F,v 1.2 1995-10-21 09:16:18 d3e129 Exp $
+* $Id$
       IMPLICIT none ! REAL*8 (A-H,O-Z)
 C
       integer nad, m, iout2

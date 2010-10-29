@@ -1,7 +1,7 @@
       logical function argos_prep_removw(ir,xr,
      + xw,vw,mwm,mwa,nwm,nwa,xwc,vwc,mwmc,nwmc,xs,msa,nsa)
 c
-c $Id: argos_prep_removw.F,v 1.3 2004-02-14 20:09:18 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

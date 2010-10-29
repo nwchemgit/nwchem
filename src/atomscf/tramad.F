@@ -1,5 +1,5 @@
       subroutine tramad(a,b,c,mdima,mdim,scr)
-C$Id: tramad.F,v 1.2 1995-02-02 23:09:18 d3g681 Exp $
+C$Id$
       implicit none
 c.......................................................................
 c

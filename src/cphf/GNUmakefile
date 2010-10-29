@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.20 2007-02-27 00:21:30 bert Exp $
+# $Id$
 #
 
         OBJ = cphf.o \

@@ -1,5 +1,5 @@
 c
-c     $Id: perfm_flop.F,v 1.2 2004-10-18 20:32:06 edo Exp $
+c     $Id$
 c
       double precision function perfm_flop()
       implicit none

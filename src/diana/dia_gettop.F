@@ -1,6 +1,6 @@
       subroutine dia_gettop
 c
-c $Id: dia_gettop.F,v 1.2 2007-01-30 00:46:21 d3j191 Exp $
+c $Id$
 c
 c     read the topology file
 c     ----------------------

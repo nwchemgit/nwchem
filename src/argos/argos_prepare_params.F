@@ -6,7 +6,7 @@
      + latt,lats,catt,patt,ratt,matt,natt,mats,nats,
      + lseq,cseq,mseq,nseq,icomb)
 c
-c $Id: argos_prepare_params.F,v 1.20 2003-12-05 20:46:42 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -1,5 +1,5 @@
       SUBROUTINE stpr_readsq (IUNIT,A,LEN,IERR)
-c $Id: stpr_readsq.F,v 1.1 1994-10-26 23:26:10 d3e129 Exp $
+c $Id$
       INTEGER LEN, IUNIT, IERR
       REAL*8 A(LEN)
 #if defined (SGITFP)

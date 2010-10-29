@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_fep.F,v 1.9 2009-02-03 18:14:15 marat Exp $
+c $Id$
 c
 c
       function task_qmmm_fep(rtdb)

@@ -1,7 +1,7 @@
       logical function argos_prepare_rstsiz(lfnrst,filrst,nwm,nwa,nsa,
      + nwmc)
 c
-c $Id: argos_prepare_rstsiz.F,v 1.7 2000-01-21 07:45:11 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

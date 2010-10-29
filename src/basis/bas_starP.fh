@@ -1,4 +1,4 @@
-* $Id: bas_starP.fh,v 1.1 2001-12-05 21:26:29 bert Exp $
+* $Id$
 c
 c Common blocks used at input and bas_rtdb_load/store, handling 
 c basis directive input lines containing a * in their tag

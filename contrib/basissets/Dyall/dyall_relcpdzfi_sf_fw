@@ -1,4 +1,4 @@
-# $Id: dyall_relcpdzfi_sf_fw,v 1.1 2003-04-01 01:08:27 mg201 Exp $
+# $Id$
 basis "Ga_dyall_relcpdz(fi/sf/fw)" SPHERICAL
   Ga  f
   7.2939434E-01  1.00000000000E+00

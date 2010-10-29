@@ -10,7 +10,7 @@
      + l3rd,m3rd,n3rd,lexc,mexc,nexc,lnon,mnon,nnon,
      + natmt,nbndt,nangt,ndiht,nimpt,n3rdt,wcorr,slvnam,itopol)
 c
-c $Id: argos_prep_wrttop.F,v 1.54 2008-08-21 16:27:14 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

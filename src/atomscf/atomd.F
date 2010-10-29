@@ -1,7 +1,7 @@
       subroutine atomd(oprin,iwr,znps,ic,isymax,hatom,
      + pcap,qcap,fc,fo,s,u,t,h,dc,dos,dt,dold,ss,
      + c, copn, smin, qmin, transf, cc , nbb, element, tag,spec)
-C$Id: atomd.F,v 1.16 2009-01-13 20:33:41 bert Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

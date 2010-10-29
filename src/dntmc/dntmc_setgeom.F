@@ -1,4 +1,4 @@
-C $Id: dntmc_setgeom.F,v 1.6 2008-07-18 15:09:26 windus Exp $
+C $Id$
 c
 c  Sets up NWChem and the DNTMC geometry information from the input
 c  information.  When come out of here should have a geometry in the rtdb

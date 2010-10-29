@@ -1,5 +1,5 @@
 *
-* $Id: blas_lapack.data,v 1.16 2003-08-13 21:34:47 edo Exp $
+* $Id$
 *
 #if defined(DECOSF) || defined(LINUX64)
       double precision DLAMCHE, DLAMCHP, DLAMCHS, DLAMCHU, DLAMCHB

@@ -1,5 +1,5 @@
       SUBROUTINE stpr_tprntd(A,NR)
-c $Id: stpr_tprntd.f,v 1.1 1994-06-24 20:42:48 d3e129 Exp $
+c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       CHARACTER*15 LINE(5)
 C

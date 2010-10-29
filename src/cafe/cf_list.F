@@ -1,6 +1,6 @@
       subroutine cf_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: cf_list.F,v 1.33 2006-09-18 15:42:14 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "cf_common.fh"

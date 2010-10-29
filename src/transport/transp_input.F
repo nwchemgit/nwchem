@@ -1,6 +1,6 @@
       subroutine transp_input(rtdb)
 *
-* $Id: transp_input.F,v 1.3 2006-12-05 13:55:50 edo Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

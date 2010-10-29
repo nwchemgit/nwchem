@@ -10,7 +10,7 @@
      + natmt,nbndt,nangt,ndiht,nimpt,wcorr,
      + nval,ival,rval,ndx,itopol)
 c
-c $Id: argos_prep_mklist.F,v 1.32 2003-12-03 05:00:55 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

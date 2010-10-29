@@ -2,7 +2,7 @@
       implicit none
 #include "errquit.fh"
 *
-* $Id: vib_input.F,v 1.4 2005-08-16 23:34:05 windus Exp $
+* $Id$
 *
 c
 c  {freq||vib}

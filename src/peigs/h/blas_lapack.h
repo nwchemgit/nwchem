@@ -1,5 +1,5 @@
 /*
- $Id: blas_lapack.h,v 1.25 2005-07-26 06:06:52 edo Exp $
+ $Id$
   c defines */
 
 #define NO_EVEC 0

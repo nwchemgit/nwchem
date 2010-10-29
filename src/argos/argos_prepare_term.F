@@ -1,7 +1,7 @@
       logical function argos_prepare_term(lfnout,lfnsgm,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: argos_prepare_term.F,v 1.15 2003-10-19 03:30:59 d3j191 Exp $
+c $Id$
 c
 c     function to determine the terminal segments
 c

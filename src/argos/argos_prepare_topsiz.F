@@ -1,7 +1,7 @@
       logical function argos_prepare_topsiz(lfntop,filtop,lfnout,
      + nat,nsa,nwa,nsb,nqu,nseq)
 c
-c $Id: argos_prepare_topsiz.F,v 1.7 2003-07-17 19:38:57 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

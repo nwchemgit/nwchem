@@ -1,6 +1,6 @@
       subroutine argos_diana_input(irtdb)
 c
-c $Id: argos_diana_input.F,v 1.15 2007-05-11 00:05:10 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

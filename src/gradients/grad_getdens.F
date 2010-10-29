@@ -126,7 +126,7 @@ c
      $           ilo, ihi, jlo, jhi, klo, khi, llo, lhi,
      $           ogetij, ogetik, ogetjk,
      $           g_dens)
-c$Id: grad_getdens.F,v 1.6 2003-10-17 22:55:09 carlfahl Exp $
+c$Id$
 C
 C     get blocks from density matrix and make sure no block is
 C     transferred twice

@@ -13,7 +13,7 @@ c                                                               c
 c===============================================================c
       logical function socrates_driver(rtdb)
 c
-c $Id: socrates_driver.F,v 1.0 2009/21/06 23:48:58 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "mafdecls.fh"

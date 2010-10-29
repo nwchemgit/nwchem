@@ -1,5 +1,5 @@
       subroutine denmad(d,c,ns,nb,occ,nrow)
-C$Id: denmad.F,v 1.3 1996-03-29 04:53:14 d3e129 Exp $
+C$Id$
       implicit none
 c.......................................................................
 c     make actual density matrices.

@@ -1,6 +1,6 @@
       subroutine ana_report_file(opt,fil,lfn)
 c
-c $Id: ana_report.F,v 1.4 2003-10-19 03:31:01 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

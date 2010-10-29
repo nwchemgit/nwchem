@@ -4,7 +4,7 @@ c.......................................................................
 c
 c     driver routine for density matrix processing
 c.......................................................................
-C$Id: densid.F,v 1.3 1996-03-29 04:53:16 d3e129 Exp $
+C$Id$
       implicit none
 c
       real *8 dt(*), dold(*), dos(*), c(*)

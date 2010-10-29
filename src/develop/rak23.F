@@ -1,5 +1,5 @@
 *
-* $Id: rak23.F,v 1.10 2003-10-17 22:54:39 carlfahl Exp $
+* $Id$
 *
       logical function raktask_intdd(rtdb)
 * test the second derivative integrals api

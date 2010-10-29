@@ -25,7 +25,7 @@
       integer*4 io_code
 #endif
 c
-c     $Id: nwchem.F,v 1.163 2009-03-09 22:03:48 d3p307 Exp $
+c     $Id$
 c
 c      ======================================================================================================
 c      Northwest Computational Chemistry Package (NWChem) 6.0

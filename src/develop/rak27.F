@@ -1,7 +1,7 @@
       logical function task_hondo_deriv_check(rtdb)
       implicit none
 #include "errquit.fh"
-* $Id: rak27.F,v 1.5 2003-10-17 22:54:39 carlfahl Exp $
+* $Id$
 c
 c For testing hondo gradient integrals.  It is currently set up to test
 c the potential derivative integrals.  Comments are sprinkled through the

@@ -1,6 +1,6 @@
       logical function task_gradient(rtdb)
 *
-* $Id: task_gradient.F,v 1.61 2009-02-04 01:17:18 niri Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"
@@ -176,7 +176,7 @@ c
       end
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
-* $Id: task_gradient.F,v 1.61 2009-02-04 01:17:18 niri Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

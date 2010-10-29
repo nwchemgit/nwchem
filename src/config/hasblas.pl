@@ -1,5 +1,5 @@
 #
-# $Id: hasblas.pl,v 1.3 1999-05-20 21:05:33 d3e129 Exp $
+# $Id$
 #
 # perl script searches for both "double" and "single" values of the 
 # blas and lapack routines reporting only those files that have a 

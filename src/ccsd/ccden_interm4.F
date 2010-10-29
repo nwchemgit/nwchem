@@ -3,7 +3,7 @@ C NAME
 C     ccden_interm4 -- Form four-index intermediates for density
 C
 C REVISION
-C     $Id: ccden_interm4.F,v 2.5 2009-02-07 02:05:58 windus Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine CCDen_Interm4(NOcc, NVir,

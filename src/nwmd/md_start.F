@@ -1,6 +1,6 @@
       subroutine md_start
 c
-c $Id: md_start.F,v 1.173 2008-07-08 14:52:13 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

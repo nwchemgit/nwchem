@@ -1,5 +1,5 @@
       integer function stpr_walk(rtdb)
-c     $Id: stpr_walk.F,v 1.36 2003-10-17 22:58:22 carlfahl Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 c     

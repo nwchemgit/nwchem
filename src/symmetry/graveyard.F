@@ -1,5 +1,5 @@
       subroutine sym_bas_munge_op(r, maxf, ang_max)
-C$Id: graveyard.F,v 1.1 1995-10-10 06:17:36 d3g681 Exp $
+C$Id$
       implicit none
       integer maxf, ang_max
       double precision r(maxf, maxf, 0:ang_max)

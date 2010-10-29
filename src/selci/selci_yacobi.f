@@ -1,7 +1,7 @@
       subroutine selci_yacobi(a,u,n,big,jb)
       implicit real*8(a-h,o-z)
 *
-* $Id: selci_yacobi.f,v 1.1 2003-04-08 00:45:39 windus Exp $
+* $Id$
 *
       dimension a(1),u(1),big(1),jb(1)
       data zero/0.0d0/

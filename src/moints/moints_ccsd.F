@@ -5,7 +5,7 @@
      $                             g_int1t,
      $                             blen )
 *
-* $Id: moints_ccsd.F,v 1.13 2004-09-07 06:11:41 windus Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

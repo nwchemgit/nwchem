@@ -1,5 +1,5 @@
       SUBROUTINE stpr_mgeom(COORD,ATMASS,CMASS,TENIN)
-c $Id: stpr_mgeom.f,v 1.3 1998-05-05 21:48:13 d3e129 Exp $
+c $Id$
 C
 C     This routine calculates vector of the center of mass
 C     and tensor of inertia.

@@ -1,4 +1,4 @@
-c $Id: bas.fh,v 1.28 2002-02-01 00:50:49 windus Exp $
+c $Id$
 c:bas.fh
 c
       logical bas_checksum

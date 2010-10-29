@@ -1,6 +1,6 @@
       subroutine ludcmp(a,n,np,indx,d)
 #include "errquit.fh"
-C$Id: ludcmp.F,v 1.1 2003-10-17 22:38:35 carlfahl Exp $
+C$Id$
       call errquit('ludcmp: this routine needs to be replaced',0,
      &       UNKNOWN_ERR)
 c$$$      implicit none

@@ -1,6 +1,6 @@
       subroutine sym_map(itype, tags, symops, nops, nareal, map, xnew,
      &     acord, oprint, ilbl, threquiv)
-C$Id: sym_map.F,v 1.9 2003-10-17 22:58:25 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 c

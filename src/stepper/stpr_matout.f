@@ -1,5 +1,5 @@
       SUBROUTINE stpr_matout(A,NR,NC,M)
-c $Id: stpr_matout.f,v 1.1 1994-06-24 20:42:30 d3e129 Exp $
+c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 C
 C     Rectangular array output.

@@ -1,4 +1,4 @@
-c $Id: cf_common.fh,v 1.53 2006-09-18 15:42:14 d3j191 Exp $
+c $Id$
 c
       real*8 zero,tiny,small
       real*8 fourth,third,half,one,two,three,four,six,twelve

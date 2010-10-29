@@ -1,5 +1,5 @@
       subroutine distan(nat,coord)
-C     $Id: distang.F,v 1.7 1997-12-01 21:50:33 d3e129 Exp $
+C     $Id$
       implicit none
       integer nat,i,j
       double precision dist

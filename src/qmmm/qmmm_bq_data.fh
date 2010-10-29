@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_bq_data.fh,v 1.9 2005-12-16 02:18:07 marat Exp $
+c $Id$
 c
       integer bq_exclude
       integer nbqa

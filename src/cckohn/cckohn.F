@@ -1,6 +1,6 @@
       logical function cckohn(rtdb)
 *
-* $Id: cckohn.F,v 1.3 2003-10-17 22:54:20 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

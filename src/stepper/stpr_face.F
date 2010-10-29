@@ -19,7 +19,7 @@ c
      &     NATD, NMODE,
      &     TRACK, BCKSTP, RPATH , rtdb, step_number)
 c     
-c     $Id: stpr_face.F,v 1.15 2003-10-17 22:58:22 carlfahl Exp $
+c     $Id$
 c     
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "errquit.fh"

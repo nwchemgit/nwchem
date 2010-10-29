@@ -6,7 +6,7 @@
      + altloc,chain,icyren,iconst,model,nxlnk,mdold,ignore,scount,
      + fcount,mfract,nfract,ifract,scale,cpk,his,itopol,icomb)
 c
-c $Id: argos_prepare_rtdbin.F,v 1.39 2003-12-05 20:46:42 d3j191 Exp $
+c $Id$
 c
 c     function to read input for prepare module from rtdb
 c

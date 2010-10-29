@@ -1,7 +1,7 @@
 *
 * routines from basisP.F that use blas calls
 *
-* $Id: bas_blasP.F,v 1.12 2003-10-17 22:54:17 carlfahl Exp $
+* $Id$
 *
 *.....................................................................
       logical function bas_add_ucnt(basis, tag, l_value, ngen, nprim, 

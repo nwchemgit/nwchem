@@ -1,7 +1,7 @@
       subroutine argos_diana_wrtxyz(lfnxxx,filxxx,sgmnam,isel,xs,qs,
      + iwsel,xw,logs,logw,ndxw)
 c
-c $Id: argos_diana_wrtxyz.F,v 1.1 2006-12-10 01:03:24 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

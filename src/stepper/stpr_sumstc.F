@@ -1,5 +1,5 @@
       SUBROUTINE stpr_sumstc(STEP,COORD,ATMASS,CMASS,TENIN,CNVGRD)
-c     $Id: stpr_sumstc.F,v 1.5 1998-01-09 15:25:38 d3e129 Exp $
+c     $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL CNVGRD
       COMMON / CFACE / IWCTR,NATOM,ICALC

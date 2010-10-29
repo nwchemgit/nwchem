@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.3 2001-08-28 00:54:38 edo Exp $
+#$Id$
 
 include ../../config/makefile.h
 

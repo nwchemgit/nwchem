@@ -1,5 +1,5 @@
 #
-# $Id: MakeFile,v 1.3 2000-08-08 23:51:09 bjohnson Exp $
+# $Id$
 #
 
 OBJ_CLASS = nwchem.class nwchem_Main.class nwchem_Filter.class \

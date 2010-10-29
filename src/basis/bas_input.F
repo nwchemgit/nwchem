@@ -1,5 +1,5 @@
       subroutine bas_input(rtdb)
-c $Id: bas_input.F,v 1.67 2008-01-18 22:01:14 bert Exp $
+c $Id$
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"

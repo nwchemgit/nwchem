@@ -5,7 +5,7 @@ c     is incorrect.  What else in this file is dead?
 c
 c
 c$$$       subroutine moints_mp2_eval(nocc,nvir,orbe,g_k,emp2,epair)
-c$$$C$Id: moints_mp2.F,v 1.30 2005-01-05 01:28:34 edo Exp $
+c$$$C$Id$
 c$$$       implicit none
 c$$$#include "errquit.fh"
 c$$$#include "global.fh"

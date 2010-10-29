@@ -25,7 +25,7 @@ c...   (refers to matrix after possible transpose)
 c...   ld : leading dimensions
 c
 *
-* $Id: cct_UHF.F,v 1.11 2003-10-17 22:54:39 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "util.fh"

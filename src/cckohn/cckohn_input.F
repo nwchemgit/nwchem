@@ -1,6 +1,6 @@
       subroutine cckohn_input(rtdb)
 c
-c     $Id: cckohn_input.F,v 1.2 2003-10-17 22:54:20 carlfahl Exp $
+c     $Id$
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.

@@ -22,7 +22,7 @@ c     task:cputime
 c     task:walltime
 c
 *
-* $Id: task_freq.F,v 1.18 2003-10-17 22:58:26 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

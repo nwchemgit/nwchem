@@ -2,7 +2,7 @@
 #define NEW_SPARSE
 #endif
 c
-c  $Id: moints_semi.F,v 1.64 2008-08-14 16:19:05 bert Exp $
+c  $Id$
 c
 c  Generates and writes out half-transformed 
 c  exchange integrals for some multipassed

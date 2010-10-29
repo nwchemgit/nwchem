@@ -1,6 +1,6 @@
       subroutine mp2_make_piy(no_lo, no_hi, g_pij, g_liy, evals)
 *
-* $Id: mp2_make_piy.F,v 1.2 1997-11-04 09:57:05 d3e129 Exp $
+* $Id$
 *
       implicit none
 #include "global.fh"

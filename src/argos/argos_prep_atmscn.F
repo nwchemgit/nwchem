@@ -1,6 +1,6 @@
       logical function argos_prep_atmscn(lfnsgm,filsgm,atmnam,num,link)
 c
-c $Id: argos_prep_atmscn.F,v 1.4 2003-07-17 19:38:56 d3j191 Exp $
+c $Id$
 c
       implicit none
 c
@@ -52,7 +52,7 @@ c
       end
       character*2 function argos_prep_atnam(number)
 c
-c $Id: argos_prep_atnam.F,v 1.1 1998-04-28 23:10:44 d3j191 Exp $
+c $Id$
 c
       implicit none
       integer number

@@ -1,4 +1,4 @@
-C $Id: restor.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       Subroutine drdy_restor(lhead,jop,lsad,llopt)
 C
 C Read reactant, product, and saddle point information from fu30 file

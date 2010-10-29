@@ -1,5 +1,5 @@
 *
-* $Id: fci_srt1cc.F,v 1.2 1999-07-28 00:23:42 d3e129 Exp $
+* $Id$
 *
       subroutine fci_srt1cc(ionel,nonel,kbase,kdim,kpt,mkpt)
       implicit none

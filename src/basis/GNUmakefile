@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.47 2006-08-22 18:11:38 d3p307 Exp $
+#$Id$
 TARGET = $(NWCHEM_TARGET)
   export ARMCI_DIR_NAME := armci
 ifeq ($(ARMCI_NETWORK),PORTALS)

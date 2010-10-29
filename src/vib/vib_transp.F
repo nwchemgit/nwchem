@@ -1,6 +1,6 @@
       SUBROUTINE vib_TRANSP(A,NDIM,N)
 C*MODULE VIB  *DECK TRANSP
-* $Id: vib_transp.F,v 1.2 1995-10-21 09:16:28 d3e129 Exp $
+* $Id$
       IMPLICIT NONE
       integer ndim, n
       double precision A(NDIM,NDIM)

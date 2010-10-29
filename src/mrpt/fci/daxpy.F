@@ -1,5 +1,5 @@
 *
-* $Id: daxpy.F,v 1.2 1999-07-28 00:23:38 d3e129 Exp $
+* $Id$
 *
       subroutine daxpy(n,da,dx,incx,dy,incy)
 c     

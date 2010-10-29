@@ -33,7 +33,7 @@ c
       end
       
 
-c  $Id: moints_trp.F,v 2.18 2005/01/14 22:08:49 edo Exp $
+c  $Id$
 c
 c
 c     No-one knows what this stuff is doing ... are the next comments correct?

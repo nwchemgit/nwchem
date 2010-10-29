@@ -1,5 +1,5 @@
       subroutine ccsd_mktask(basis,nsh,tklst)
-C     $Id: ccsd_mktask.F,v 2.5 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
       integer basis,nsh,tklst(nsh*(nsh+1)/2,2)

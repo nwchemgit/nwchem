@@ -1,7 +1,7 @@
       logical function argos_prepare_scnseq(iunit,dirnam,lfnout,
      + kseq,cseq,mseq,ksgm,csgm,msgm)
 c
-c $Id: argos_prepare_scnseq.F,v 1.5 1998-06-08 23:29:37 d3j191 Exp $
+c $Id$
 c
 c     function to scan database for segments in sequence
 c

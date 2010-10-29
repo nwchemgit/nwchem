@@ -1,6 +1,6 @@
 #!/bin/csh 
 #
-#  $Id: getfromFeller,v 1.1 1998-08-11 18:11:04 d3e129 Exp $
+#  $Id$
 #
 # gets current NWCHEM.BSLIB from Feller at source point noted below
 #

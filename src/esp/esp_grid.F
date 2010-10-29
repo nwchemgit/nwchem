@@ -1,6 +1,6 @@
       subroutine esp_grid(x,q,g,v)
 c
-c $Id: esp_grid.F,v 1.9 2005-12-01 00:54:12 marat Exp $
+c $Id$
 c
       implicit none
 c

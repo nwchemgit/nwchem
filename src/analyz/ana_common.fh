@@ -1,5 +1,5 @@
 c
-c $Id: ana_common.fh,v 1.67 2006-09-11 21:22:33 d3j191 Exp $
+c $Id$
 c
       integer mxbnds,mxangs,mxtors,mximps
       parameter(mxbnds=100)

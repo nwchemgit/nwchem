@@ -1,6 +1,6 @@
       subroutine task_input(rtdb)
 *
-* $Id: task_input.F,v 1.57 2009/02/04 06:23:53 niri Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

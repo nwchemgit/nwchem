@@ -1,4 +1,4 @@
-// $Id: convmake.cpp,v 1.3 2000-08-08 23:27:55 bjohnson Exp $
+// $Id$
 
 /*
  * Program for converting an NWChem GNUmakefile to an NMAKE file and Visual Studio project files

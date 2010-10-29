@@ -1,6 +1,6 @@
       SUBROUTINE vib_PRDATA(rtdb,ARRAY,VECT,NR,NC,NRP,NCP,PVEC,NPRI
      &    ,first_pass)
-* $Id: vib_prdata.F,v 1.9 2003-10-17 22:58:37 carlfahl Exp $
+* $Id$
 C*MODULE VIB  *DECK PRDATA
 c
       IMPLICIT NONE

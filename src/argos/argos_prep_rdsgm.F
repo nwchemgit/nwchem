@@ -6,7 +6,7 @@
      + limp,kimp,rimp,mimp,nimp,
      + wcorr,npar,ipardef,itopol)
 c
-c $Id: argos_prep_rdsgm.F,v 1.20 2003-12-03 05:00:56 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

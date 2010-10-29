@@ -1,5 +1,5 @@
 c
-c     $Id: perfm_end.F,v 1.7 2006-05-12 00:10:58 edo Exp $
+c     $Id$
 c
       subroutine perfm_end()
       implicit none

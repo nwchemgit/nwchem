@@ -1,5 +1,5 @@
       SUBROUTINE vib_setup
-* $Id: vib_setup.F,v 1.2 1995-10-21 09:16:24 d3e129 Exp $
+* $Id$
       IMPLICIT NONE! REAL*8 (A-H,O-Z)
 c
       double precision ams, wave

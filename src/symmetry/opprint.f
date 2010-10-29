@@ -1,5 +1,5 @@
       subroutine opprint(symops,rotoop,maxops,nops,itype)
-C$Id: opprint.f,v 1.4 1995-12-15 12:13:04 d3g681 Exp $
+C$Id$
       implicit none
       integer maxops, nops, itype
       character*2 rotoop(maxops)

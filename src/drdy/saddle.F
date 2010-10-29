@@ -1,4 +1,4 @@
-C $Id: saddle.F,v 1.3 2001-01-19 17:43:14 windus Exp $
+C $Id$
       Subroutine drdy_saddle
 c
 C Calculate potential and hessian for saddle or starting point geometry

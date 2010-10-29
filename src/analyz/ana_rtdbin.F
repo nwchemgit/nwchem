@@ -1,6 +1,6 @@
       subroutine ana_rtdbin
 c
-c $Id: ana_rtdbin.F,v 1.5 2003-10-19 03:31:01 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

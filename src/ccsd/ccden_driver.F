@@ -3,7 +3,7 @@ C NAME
 C     CCDen_Driver -- Top-level routine for coupled cluster density
 C
 C REVISION
-C     $Id: ccden_driver.F,v 2.4 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine CCDen_Driver(NOcc, NVir, T1, LDT1, g_T2, Z1, LDZ1,

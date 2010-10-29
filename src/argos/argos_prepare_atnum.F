@@ -1,6 +1,6 @@
       integer function argos_prepare_atnum(element)
 c
-c $Id: argos_prepare_atnum.F,v 1.3 1998-09-23 16:17:38 d3j191 Exp $
+c $Id$
 c
       implicit none
       character*2 element

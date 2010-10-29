@@ -1,7 +1,7 @@
       logical function argos_prepare_sgmndx(iunit,
      + lfnout,lseq,cseq,mseq,nseq,lsgm,csgm,msgm,nsgm,mato)
 c
-c $Id: argos_prepare_sgmndx.F,v 1.14 2003-07-23 02:38:47 d3j191 Exp $
+c $Id$
 c
 c     function to scan database directories for segments in sequence
 c

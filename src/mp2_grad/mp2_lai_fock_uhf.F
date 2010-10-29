@@ -52,7 +52,7 @@ c
      $     no_a, no_b, nv_a, nv_b,
      $     g_lai_a, g_lai_b, rtdb, tol2e)
 *
-* $Id: mp2_lai_fock_uhf.F,v 1.17 2003-10-17 22:55:29 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

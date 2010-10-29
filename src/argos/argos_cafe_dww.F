@@ -1,7 +1,7 @@
       subroutine argos_cafe_dww(xw,xwm,pw,pwp,iwfrom,nlocw,lpbc,chg,iwq,
      + lwwndx,lwwjpt,lwwin,lwwj,rwc,xi,xj,rwx,pl,pj,fi,fj)
 c
-c $Id: argos_cafe_d.F,v 1.7 2003-10-19 03:30:56 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -1,5 +1,5 @@
       subroutine argos_cafe_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: argos_cafe_shake.F,v 1.27 2006-09-18 15:42:15 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "argos_cafe_common.fh"

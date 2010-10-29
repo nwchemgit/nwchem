@@ -1,5 +1,5 @@
 *
-* $Id: slaebz.F,v 1.3 2003-09-05 22:24:32 edo Exp $
+* $Id$
 *
       SUBROUTINE SLAEBZ( IJOB, NITMAX, N, MMAX, MINP, NBMIN, ABSTOL,
      $                   RELTOL, PIVMIN, D, E, E2, NVAL, AB, C, MOUT,

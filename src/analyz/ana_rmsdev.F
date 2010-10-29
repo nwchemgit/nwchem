@@ -1,5 +1,5 @@
       subroutine ana_rmsdev(x,ix,nx,xref,wt,wts,xrms)
-c $Id: ana_rmsdev.F,v 1.10 2007-02-06 16:32:22 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "ana_params.fh"

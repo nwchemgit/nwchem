@@ -1,5 +1,5 @@
       subroutine argos_cafe_rdtop(lfntop,filtop,snam)
-c $Id: argos_cafe_rdtop.F,v 1.37 2007-08-03 19:16:45 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "argos_cafe_common.fh"

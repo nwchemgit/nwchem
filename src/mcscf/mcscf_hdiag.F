@@ -2,7 +2,7 @@
      $                         g_coul, g_exch, g_ifock,
      $                         g_afock, g_gfock, g_hdiag )
 *
-* $Id: mcscf_hdiag.F,v 1.8 2003-10-17 22:55:21 carlfahl Exp $
+* $Id$
 *
        implicit none
 #include "errquit.fh"

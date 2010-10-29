@@ -1,7 +1,7 @@
 #!/bin/env perl
 # -*-Perl-*-
 #
-# $Id: end2end.pl,v 1.1 1998-08-11 18:11:04 d3e129 Exp $
+# $Id$
 #
 # look at NWCHEM.BSLIB and identify lines where 
 # END

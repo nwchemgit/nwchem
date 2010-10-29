@@ -1,5 +1,5 @@
       subroutine cross_product(a,b,c)
-C$Id: cross_prod.F,v 1.1 1995-12-13 01:28:02 d3g681 Exp $
+C$Id$
       implicit none
       double precision a(3), b(3) ! [input]
       double precision c(3)     ! [output]

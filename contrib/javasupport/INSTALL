@@ -1,4 +1,4 @@
-# $Id: INSTALL,v 1.2 1999-08-02 18:16:28 d3e129 Exp $
+# $Id$
 
 To run the java support tool you need to have java 1.1.X since the tool
 is based on that version of the java.awt event handling.  This tool

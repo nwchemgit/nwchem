@@ -1,4 +1,4 @@
-C $Id: drdy_sort.F,v 1.2 2003-10-27 23:09:07 marat Exp $
+C $Id$
       Subroutine drdy_sort(lhead,jop,lsad,ns,iflg)
 C
 C Sort RPH interpolation information to give points along MEP in 

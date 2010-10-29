@@ -4,7 +4,7 @@
 #
 # rak pnl/94
 #
-# $Id: update_look,v 1.5 1998-09-14 23:14:31 d3e129 Exp $
+# $Id$
 #
 #
 if (! $?CVSROOT) then

@@ -2,7 +2,7 @@
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,izmat,zmat,mzmat,nzmat,
      + fils)
 c
-c $Id: argos_prep_frgrd.F,v 1.11 2003-08-07 21:47:55 d3j191 Exp $
+c $Id$
 c
 c     function to read dimensions from a frg file
 c

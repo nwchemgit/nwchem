@@ -1,5 +1,5 @@
       subroutine shalfd(s,v,n)
-C$Id: shalfd.F,v 1.6 2006-01-03 21:02:59 edo Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -1,5 +1,5 @@
 #!/usr/local/bin/python -t
-# $Id: Gnuplot.py,v 1.1 2000-08-10 22:43:07 d3g681 Exp $
+# $Id$
 
 # Gnuplot.py -- A pipe-based interface to the gnuplot plotting program.
 

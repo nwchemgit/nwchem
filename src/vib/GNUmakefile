@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.16 2005-07-26 23:51:56 edo Exp $
+# $Id$
        HEADERS = 
   OBJ_OPTIMIZE = vib_callg.o
            OBJ = vib_bcalc.o \

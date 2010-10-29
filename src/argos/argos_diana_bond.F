@@ -1,6 +1,6 @@
       real*8 function argos_diana_bond(x,nx,w,nw,na,i,i2,j,j2,box)
 c
-c $Id: argos_diana_bond.F,v 1.1 2006-12-10 01:03:20 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

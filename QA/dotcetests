@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: dotcetests,v 1.1 2008-01-16 20:22:05 jhammond Exp $
+# $Id$
 #
 set np = 1
 if ($1 !="") then

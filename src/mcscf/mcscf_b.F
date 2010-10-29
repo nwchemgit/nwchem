@@ -12,7 +12,7 @@ c
      $                    dm1, dm2, oskel, tol2e, bshift, g_vecs0,
      $                    g_ifock, g_afock, g_coul, g_exch, g_u, g_b )
 *
-* $Id: mcscf_b.F,v 1.10 2003-10-17 22:55:21 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

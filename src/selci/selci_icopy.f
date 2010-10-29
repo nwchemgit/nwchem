@@ -1,7 +1,7 @@
       subroutine selci_icopy(n,x,ix,y,iy)
       implicit integer (a-z)
 *
-* $Id: selci_icopy.f,v 1.1 2003-04-07 21:58:55 windus Exp $
+* $Id$
 *
       dimension x(*),y(*)
 c

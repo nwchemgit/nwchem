@@ -1,5 +1,5 @@
       Subroutine PStat_Print_Handles(handles,n_handles)
-c $Id: pstat_pr_han.F,v 1.2 2004-12-01 02:15:26 edo Exp $
+c $Id$
       Implicit NONE
 C
 #include "pstatP.fh"

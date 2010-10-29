@@ -1,6 +1,6 @@
       subroutine mcscf_input(rtdb)
 c
-c $Id: mcscf_input.F,v 1.12 2004-09-08 23:56:41 edo Exp $
+c $Id$
 c
       implicit none
 #include "errquit.fh"

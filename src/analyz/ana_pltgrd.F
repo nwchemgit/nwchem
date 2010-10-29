@@ -1,6 +1,6 @@
       subroutine ana_pltgrd(lprint,isel)
 c
-c $Id: ana_pltgrd.F,v 1.23 2005-12-17 01:08:52 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

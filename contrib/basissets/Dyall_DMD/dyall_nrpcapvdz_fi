@@ -1,4 +1,4 @@
-# $Id: dyall_nrpcapvdz_fi,v 1.1 2002-01-02 19:11:53 bert Exp $
+# $Id$
 basis "Ga_dyall_nrpcapvdz_fi" SPHERICAL
   Ga  s
   8.3916211E+05  1.03495115075E-04 -3.20139719090E-05  1.22362508284E-05 -2.84907859364E-06

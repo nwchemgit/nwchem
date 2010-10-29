@@ -1,4 +1,4 @@
-C $Id: rphwrt.F,v 1.6 2003-10-27 01:29:32 edo Exp $
+C $Id$
 #if defined(LINUX) && !defined(XLFLINUX)
 #define APPEND_OK
 #endif

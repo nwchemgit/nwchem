@@ -1,7 +1,7 @@
       subroutine selci_pkcon(norbs, iocc, mocc, nintpo, nbitpi)
 #include "errquit.fh"
 *
-* $Id: pkcon.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
       dimension iocc(norbs), mocc(nintpo)
 #include "bitops.fh"

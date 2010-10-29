@@ -1,5 +1,5 @@
       program testbasis
-c $Id: testbasis.F,v 1.22 2003-10-17 22:54:18 carlfahl Exp $
+c $Id$
       implicit none
 #include "errquit.fh"
 c

@@ -1,6 +1,6 @@
       logical function rjhtest(rtdb)
 *     
-*     $Id: rjhtest.F,v 1.25 2003-10-17 22:54:39 carlfahl Exp $
+*     $Id$
 *
       implicit none
 #include "errquit.fh"

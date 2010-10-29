@@ -2,7 +2,7 @@
      $     g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b, scftype, nfrozen,
      $     title)
 *
-* $Id: mp2_make_nos.F,v 1.5 2003-10-17 22:55:29 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

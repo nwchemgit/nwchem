@@ -1,5 +1,5 @@
       subroutine ccsd_pstat_init(rtdb)
-c  $Id: ccsd_pstat.F,v 2.4 2006-02-08 21:06:00 bert Exp $
+c  $Id$
       implicit none
 #include "pstat.fh"
 #include "ccsdps.fh"

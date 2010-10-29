@@ -1,7 +1,7 @@
       subroutine selci_makhdb(hij,ind,icase,ns,indbar,iocc,
      $     w1,w2,work1,work2,g,int12,int34,numf,numf2)
 *
-* $Id: makhdb.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "errquit.fh"

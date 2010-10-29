@@ -1,6 +1,6 @@
       subroutine argos_diana_sizref()
 c
-c $Id: argos_diana_sizref.F,v 1.2 2007-01-27 02:22:35 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

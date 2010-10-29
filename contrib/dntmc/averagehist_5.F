@@ -1,4 +1,4 @@
-C$Id: averagehist_5.F,v 1.1 2008-03-02 05:06:26 windus Exp $
+C$Id$
       Program averagehist_5 
 
       Implicit none

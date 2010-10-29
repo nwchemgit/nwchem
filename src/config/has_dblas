@@ -1,6 +1,6 @@
 #!/bin/csh 
 #
-# $Id: has_dblas,v 1.3 1997-03-17 21:00:54 d3e129 Exp $
+# $Id$
 #
 #
 # confirms file(s) that have blas/lapack calls now using the perl scripts

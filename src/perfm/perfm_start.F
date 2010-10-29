@@ -1,5 +1,5 @@
 c
-c     $Id: perfm_start.F,v 1.7 2006-05-19 01:04:49 edo Exp $
+c     $Id$
 c
       subroutine perfm_start()
       implicit none

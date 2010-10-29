@@ -9,7 +9,7 @@
      + i_lseqi,ndumsi,nbgeti,npreci,madbxi)
 c
 c
-c $Id: sp_init.F,v 1.145 2005-11-11 17:48:18 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

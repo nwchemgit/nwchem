@@ -1,6 +1,6 @@
       logical function argos_prepare_torang(x,mx,ia,ja,ka,la,angle)
 c
-c $Id: argos_prepare_torang.F,v 1.2 1998-04-29 18:35:29 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

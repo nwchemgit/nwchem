@@ -1,4 +1,4 @@
-C$Id: gibbs.F,v 1.23 2008-07-18 15:09:26 windus Exp $
+C$Id$
 C23456789012345678901234567890123456789012345678901234567890123456789012
 C     modified on oct 3, 1999 for restart on mpp1
 C     modified on oct 25, 1999 for random number generator restart

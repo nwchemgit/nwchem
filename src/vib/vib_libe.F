@@ -1,6 +1,6 @@
       SUBROUTINE vib_LIBE(EQVAL,NOINT,NLIBE,I,J,K,C,B,NDIM)
 C*MODULE VIB  *DECK LIBE
-* $Id: vib_libe.F,v 1.4 2003-10-17 22:58:37 carlfahl Exp $
+* $Id$
 C
       IMPLICIT NONE ! DOUBLE PRECISION (A-H,O-Z)
 #include "errquit.fh"

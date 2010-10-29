@@ -1,6 +1,6 @@
       subroutine ana_data(t,nx,ix,x)
 c
-c $Id: ana_data.F,v 1.2 1999-01-29 18:10:38 d3j191 Exp $
+c $Id$
 c
 c     data entry of analysis module:
 c

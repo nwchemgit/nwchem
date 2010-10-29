@@ -1,4 +1,4 @@
-* $Id: atscf_ecp.F,v 1.13 2008-01-18 22:00:07 bert Exp $
+* $Id$
       subroutine atscf_ecp(geom,basis,tag,hatom,nbas,
      &    zeta,cont,ucont,nz)
 *

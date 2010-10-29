@@ -3,7 +3,7 @@
      + iatt,igan,isgm,imol,idyn,ichg,isss,xs,fs,ess,lpbc,lpbcs,dera,
      + esa,lseq)
 c
-c $Id: argos_cafe_f.fh,v 1.66 2008-04-01 16:34:50 d3j191 Exp $
+c $Id$
 c
 c     argos_cafe_fst returns forces and energies for solute third neighbors
 c

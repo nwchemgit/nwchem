@@ -7,7 +7,7 @@
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
      + ipbtpi,lfnhopi,iradgi,nbgeti,npreci)
-c $Id: cf_init.F,v 1.110 2007-08-03 19:16:45 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "cf_common.fh"

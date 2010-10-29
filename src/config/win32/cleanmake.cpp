@@ -1,4 +1,4 @@
-// $Id: cleanmake.cpp,v 1.3 2000-08-08 23:26:09 bjohnson Exp $
+// $Id$
 
 /*
  * Cleaning program for auto-generated NMAKE files and Visual Studio project files

@@ -1,7 +1,7 @@
       subroutine selci_output(z,rowlow,rowhi,collow,colhi,rowdim,coldim,
      $     nctl)
 *
-* $Id: selci_output.f,v 1.1 2003-04-07 23:48:56 windus Exp $
+* $Id$
 *
 c.......................................................................
 c output prints a real*8 matrix in formatted form with numbered rows

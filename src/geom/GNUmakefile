@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.60 2008-04-02 16:49:43 d3p307 Exp $
+#$Id$
 
  LIBRARY = libnwcutil.a
 

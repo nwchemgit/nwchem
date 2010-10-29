@@ -2,7 +2,7 @@
      ,     ncenter,isys,
      ,     name,tags,
      ,     threquiv,scale,coords,charge,velocities)
-C     $Id: geom_getsym.F,v 1.2 2006-06-06 01:30:37 edo Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"

@@ -1,5 +1,5 @@
       SUBROUTINE stpr_place(HESS,GRAD,COORD,ENERGY,IERR)
-c $Id: stpr_place.F,v 1.2 1996-07-17 16:36:48 d3g681 Exp $
+c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45

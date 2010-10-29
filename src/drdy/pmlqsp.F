@@ -1,5 +1,5 @@
 c
-c$Id: pmlqsp.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
+c$Id$
 c
       Subroutine drdy_pmlqsp
 C

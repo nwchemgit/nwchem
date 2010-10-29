@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.2 2008-03-01 01:34:03 niri Exp $
+# $Id$
 #
 	OBJ_OPTIMIZE = \
 	deloc_driver.o \

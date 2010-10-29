@@ -1,7 +1,7 @@
       subroutine argos_space_setup(node,iwl,xw,xwcr,vw,gw,numwm,
      + isl,xs,xscr,vs,gs,numsa,lpack)
 c
-c $Id: argos_space_main.F,v 1.98 2006-09-18 15:44:09 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

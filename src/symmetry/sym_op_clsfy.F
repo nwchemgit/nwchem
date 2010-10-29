@@ -1,5 +1,5 @@
       subroutine sym_op_classify(geom, op_class_index)
-C$Id: sym_op_clsfy.F,v 1.4 2003-10-17 22:58:25 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "sym.fh"

@@ -8,7 +8,7 @@ c jochen: Further extended this subroutine to deal with
 c         finite-lifetime damping. Arrays dealing with imaginary
 c         parts have been added, indicated by suffix "_im"
 *
-* $Id: cphf_solve3.F,v 1.4 2009-02-19 22:13:05 niri Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

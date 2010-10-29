@@ -1,6 +1,6 @@
       subroutine selci_tqlrat(n,d,e2,ierr)
 *
-* $Id: tqlrat.f,v 1.2 1997-10-31 23:42:31 d3e129 Exp $
+* $Id$
 *
 c
       integer i,j,l,m,n,ii,l1,mml,ierr

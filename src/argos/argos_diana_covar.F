@@ -1,6 +1,6 @@
       subroutine argos_diana_covar()
 c
-c $Id: argos_diana_covar.F,v 1.9 2007-05-10 16:52:36 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

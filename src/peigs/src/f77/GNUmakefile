@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.25 2005-11-10 02:06:04 edo Exp $
+# $Id$
 #
 
 include ../../../config/makefile.h

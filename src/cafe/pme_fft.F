@@ -1,6 +1,6 @@
       subroutine pme_fft(nd1,nd2,nd3,isgn,x1,x2,
      $     map1,map2,knode,itype)
-c $Id: pme_fft.F,v 1.21 2004-01-31 20:17:09 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "pme_common.fh"

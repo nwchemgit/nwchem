@@ -1,7 +1,7 @@
       SUBROUTINE stpr_stepcor(A,INEED,G,C,ETOT,NATD,
      &    CONVGE,CONVGG,CONVGGM,
      &    cnvgrd, rtdb, step_number)
-c $Id: stpr_stepcor.F,v 1.7 1998-09-28 18:44:26 windus Exp $
+c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
 #include "cstprfiles.fh"

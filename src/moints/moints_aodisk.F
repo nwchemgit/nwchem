@@ -1,5 +1,5 @@
 *
-* $Id: moints_aodisk.F,v 1.23 2004-09-07 06:11:41 windus Exp $
+* $Id$
 *
 c
 c  Set of routines to cache AO integrals for the 4-index

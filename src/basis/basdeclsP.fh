@@ -1,4 +1,4 @@
-c $Id: basdeclsP.fh,v 1.8 1999-12-30 21:58:17 mg201 Exp $
+c $Id$
 c
 c compressed array pointer information variables.
 c

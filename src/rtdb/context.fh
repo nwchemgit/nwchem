@@ -1,7 +1,7 @@
       logical context_rtdb_match, context_prefix, context_set,
      $     context_rtdb_store, context_rtdb_load, context_push, 
      $     context_pop
-C$Id: context.fh,v 1.2 1995-02-02 23:21:58 d3g681 Exp $
+C$Id$
       external context_rtdb_match, context_prefix, context_set,
      $     context_rtdb_store, context_rtdb_load, context_push, 
      $     context_pop

@@ -1,6 +1,6 @@
       subroutine dia_getref
 c
-c $Id: dia_getref.F,v 1.2 2007-02-06 16:32:24 d3j191 Exp $
+c $Id$
 c
 c     read the reference coordinates
 c     ------------------------------

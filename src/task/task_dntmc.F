@@ -1,6 +1,6 @@
       logical function task_dntmc(rtdb)
 *
-* $Id: task_dntmc.F,v 1.1 2006-03-10 01:24:48 windus Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

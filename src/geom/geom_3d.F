@@ -16,7 +16,7 @@ c
 c     The lattice angles are input in Degrees
 c***********************************************************************
       subroutine geom_3d(geom,c2au)
-C$Id: geom_3d.F,v 1.10 2004-11-29 15:58:51 bylaska Exp $
+C$Id$
       implicit none
 #include "global.fh"
 #include "inp.fh"

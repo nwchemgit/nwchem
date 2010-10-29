@@ -1,7 +1,7 @@
       subroutine ana_wrtxyz(lfnxxx,filxxx,sgmnam,isel,xs,qs,
      + iwsel,xw,logs,logw,ndxw)
 c
-c $Id: ana_wrtxyz.F,v 1.3 2000-08-01 17:32:18 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -1,7 +1,7 @@
       logical function argos_prepare_dimens(lfnout,lfnsgm,
      + lseq,cseq,mseq,nseq,natm,nbnd,nang,ndih,nimp,nparms)
 c
-c $Id: argos_prepare_dimens.F,v 1.10 2003-10-19 03:30:58 d3j191 Exp $
+c $Id$
 c
 c     function to determine total system array dimensions
 c

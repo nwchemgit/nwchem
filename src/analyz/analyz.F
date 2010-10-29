@@ -1,6 +1,6 @@
       logical function analyz(irtdb0)
 c
-c $Id: analyz.F,v 1.2 1999-01-29 18:10:44 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

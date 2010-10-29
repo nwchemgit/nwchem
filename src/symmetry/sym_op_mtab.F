@@ -1,5 +1,5 @@
       subroutine sym_op_mult_table(geom, table, ld)
-C$Id: sym_op_mtab.F,v 1.1 1995-12-13 01:28:33 d3g681 Exp $
+C$Id$
       implicit none
 #include "sym.fh"
 #include "inp.fh"

@@ -1,6 +1,6 @@
       subroutine pme_start(a,m,imffti,nodpmi,
      + ngxi,ngyi,ngzi,nwm,nwa,nsa,ictrl,nbgeti)
-c $Id: pme_init.F,v 1.23 2004-03-26 23:40:28 d3j191 Exp $
+c $Id$
       implicit none
 c
       integer nodpmi,ngxi,ngyi,ngzi,imffti,nwm,nwa,nsa,m

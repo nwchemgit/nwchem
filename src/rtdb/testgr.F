@@ -1,5 +1,5 @@
       program test
-C$Id: testgr.F,v 1.1 2004-10-27 22:58:50 edo Exp $
+C$Id$
       implicit none
 c
 #include "rtdb.fh"

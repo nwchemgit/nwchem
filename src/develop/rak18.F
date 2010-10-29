@@ -1,5 +1,5 @@
 *
-* $Id: rak18.F,v 1.6 2003-10-17 22:54:39 carlfahl Exp $
+* $Id$
 *
       logical function task_computeSld(rtdb)
       implicit none

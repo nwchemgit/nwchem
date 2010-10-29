@@ -1,7 +1,7 @@
       logical function task_ecp_deriv_check(rtdb)
       implicit none
 #include "errquit.fh"
-* $Id: rak25.F,v 1.7 2003-10-17 22:54:39 carlfahl Exp $
+* $Id$
 c
 #include "stdio.fh"
 #include "mafdecls.fh"

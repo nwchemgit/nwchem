@@ -2,7 +2,7 @@
       implicit none
 #include "errquit.fh"
 *     
-*     $Id: stpr_gh_at.F,v 1.26 2005-01-25 21:22:34 edo Exp $
+*     $Id$
 *     routine to generate hessian at current geometry using default basis set
 *     ra kendall 7/95 PNL
 *     

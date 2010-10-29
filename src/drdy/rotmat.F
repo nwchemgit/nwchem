@@ -1,4 +1,4 @@
-C $Id: rotmat.F,v 1.3 2001-01-19 17:43:14 windus Exp $
+C $Id$
       Subroutine drdy_rotmat (x,xs,amat,rr,rrs,rri,natom,ndim)
 C
 C  Calculate transformation matrix, amat, from rotated orientation,

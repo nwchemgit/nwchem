@@ -1,5 +1,5 @@
       block data geom_data
-C$Id: geom.F,v 1.149 2008-08-03 00:27:45 jhammond Exp $
+C$Id$
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"

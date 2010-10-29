@@ -1,5 +1,5 @@
       subroutine cmergd(c1,c2,nc,nb,no)
-C$Id: cmergd.F,v 1.2 1995-02-02 23:08:49 d3g681 Exp $
+C$Id$
       implicit none
 c.......................................................................
 c     merge open and closed shell coefficient matrices.

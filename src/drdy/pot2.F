@@ -1,4 +1,4 @@
-C $Id: pot2.F,v 1.4 2001-01-31 21:42:08 windus Exp $
+C $Id$
       Subroutine drdy_pot2 (x,v,dx,fmat,hess,xs,amass,
      * natom,ndim,maxdim,maxbar)
 C

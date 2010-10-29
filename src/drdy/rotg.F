@@ -1,4 +1,4 @@
-C $Id: rotg.F,v 1.3 2001-01-19 17:43:14 windus Exp $
+C $Id$
       Subroutine drdy_rotg (g,amat,scr,natom,ndim)
 C
 C  Transform gradient vector from Gaussian standard orientation to

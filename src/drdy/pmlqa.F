@@ -1,4 +1,4 @@
-C $Id: pmlqa.F,v 1.5 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       Subroutine drdy_pmlqa (n3tm,n3,ndbar,x,dx,fmat,hess,amass,dels,
      *    vec0,vec1,u0,xlam,alpha,ierr)
 C

@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.1 1998-09-29 16:50:25 d3e129 Exp $	
+$Id$	
 	
 files need to be changed for sphericals and symmetry:
 sym_bas_op.F

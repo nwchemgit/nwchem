@@ -1,6 +1,6 @@
       subroutine qhop_init(lfntop,filtop,lfnout,me)
 c
-c $Id: qhop_init.F,v 1.4 2003-10-27 20:37:39 marat Exp $
+c $Id$
 c
       implicit none
 c
@@ -103,7 +103,7 @@ c
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy)
 c
-c $Id: qhop_init.F,v 1.4 2003-10-27 20:37:39 marat Exp $
+c $Id$
 c
       implicit none
 c

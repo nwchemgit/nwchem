@@ -14,7 +14,7 @@
      $     g_wai_a,g_wai_b,g_lai_a,g_lai_b,
      $     grad,scftype)
 *
-* $Id: mp2_grad_doit.F,v 1.49 2009-04-01 15:54:36 jhammond Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

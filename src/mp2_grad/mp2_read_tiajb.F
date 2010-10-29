@@ -1,7 +1,7 @@
       subroutine mp2_read_tijab(nv_lo, nv_hi, irs, symia, 
      $     num_o, sym_hi_o, sym_lo_o, tunit, tunitptr, t)
 *
-* $Id: mp2_read_tiajb.F,v 1.5 2003-10-17 22:55:29 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

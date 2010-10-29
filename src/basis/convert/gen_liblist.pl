@@ -1,7 +1,7 @@
 #!/bin/env perl
 # -*-Perl-*-
 #
-# $Id: gen_liblist.pl,v 1.4 1998-08-14 23:28:02 d3e129 Exp $
+# $Id$
 #
 # get the basis family names and atom list from an nwchem formatted library
 #

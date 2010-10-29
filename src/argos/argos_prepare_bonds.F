@@ -2,7 +2,7 @@
      + mbnd,nbnd,
      + llnk,clnk,mlnk,nlnk)
 c
-c $Id: argos_prepare_bonds.F,v 1.4 2003-10-19 03:30:58 d3j191 Exp $
+c $Id$
 c
 c     function to append the list of bonds from atomic coordinates
 c              for all atoms i in [ilo,ihi]

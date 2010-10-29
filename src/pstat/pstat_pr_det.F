@@ -1,5 +1,5 @@
       Subroutine PStat_Print_Detail(handles,n_handles)
-c $Id: pstat_pr_det.F,v 1.4 2004-12-01 02:15:26 edo Exp $
+c $Id$
       Implicit NONE
 #include "errquit.fh"
 C

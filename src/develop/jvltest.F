@@ -1,6 +1,6 @@
       logical function jvltest(rtdb)
 *     
-*     $Id: jvltest.F,v 1.10 2003-10-17 22:54:39 carlfahl Exp $
+*     $Id$
 *      calling routine for CCSD(T) trials
 *
       implicit none

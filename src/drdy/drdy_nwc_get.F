@@ -1,4 +1,4 @@
-C $Id: drdy_nwc_get.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       subroutine drdy_nwc_get_energy(rtdb,energy)
       implicit none
 #include "errquit.fh"

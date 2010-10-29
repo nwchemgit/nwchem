@@ -1,6 +1,6 @@
       logical function ana_rdfram(x,ix,w)
 c
-c $Id: ana_rdfram.F,v 1.35 2006-09-11 21:22:33 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

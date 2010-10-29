@@ -65,7 +65,7 @@ c                                                   AC Hess
 c***********************************************************************
       subroutine geom_2d(geom,c2au)
 *
-* $Id: geom_2d.F,v 1.5 1999-07-14 00:28:57 d3e129 Exp $
+* $Id$
 *
       implicit none
 #include "inp.fh"

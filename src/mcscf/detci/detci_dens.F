@@ -2,7 +2,7 @@
      $                         nexa, nexb, osym, exa, exb, map,
      $                         g_civec, g_civect, onepdm )
 *
-* $Id: detci_dens.F,v 1.13 2004-09-07 06:11:38 windus Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,5 +1,5 @@
       subroutine sym_bas_irreps(basis, oprint, nbf_per_ir)
-C$Id: sym_bs_irrep.F,v 1.4 2003-10-17 22:58:24 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "bas.fh"

@@ -1,6 +1,6 @@
       logical function semi_dir_mp2(rtdb)
 *
-* $Id: mp2_grad.F,v 1.27 2009-02-04 01:18:19 niri Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

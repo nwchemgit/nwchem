@@ -1,6 +1,6 @@
       logical function argos_diana(irtdb0)
 c
-c $Id: diana.F,v 1.1 2006-12-10 01:03:24 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

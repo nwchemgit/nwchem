@@ -1,5 +1,5 @@
 *
-* $Id: detci.fh,v 1.2 1997-11-04 09:59:48 d3e129 Exp $
+* $Id$
 *
       integer detci_elv2str
       integer detci_occ2str

@@ -1,7 +1,7 @@
       subroutine qhop_asite(msa,xs,idon,idong,resd,istatd,iacc,
      + iaccg,resa,istata,xacc,doff,aoff,flada)
 c
-c $Id: qhop_asite.F,v 1.5 2006-09-20 18:45:13 d3p307 Exp $
+c $Id$
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy)
 c
-c $Id: qhop_asite.F,v 1.5 2006-09-20 18:45:13 d3p307 Exp $
+c $Id$
 c
       implicit none
 c

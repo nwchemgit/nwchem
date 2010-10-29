@@ -1,6 +1,6 @@
       subroutine selci_loadg(g,int12,int34)
 *
-* $Id: loadg.F,v 1.4 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "errquit.fh"

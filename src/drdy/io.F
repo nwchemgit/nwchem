@@ -1,4 +1,4 @@
-C $Id: io.F,v 1.2 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       Character*80 Function drdy_case (string)
 c
 c   Function which takes a string of 80 characters and converts the 

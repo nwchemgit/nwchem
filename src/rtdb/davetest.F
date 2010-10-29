@@ -1,5 +1,5 @@
       program dumpdb
-C$Id: davetest.F,v 1.5 2003-10-17 22:58:15 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"

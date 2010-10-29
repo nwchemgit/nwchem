@@ -223,7 +223,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb, osym )
-C     $Id: moints_aux2.F,v 1.38 2005-01-14 22:08:51 edo Exp $
+C     $Id$
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -568,7 +568,7 @@ c
      $                           ibflo, ibfhi, jbflo, jbfhi,
      $                           kblo, kbhi, lblo, lbhi,
      $                           ssbb )
-C     $Id: moints_aux2.F,v 1.38 2005-01-14 22:08:51 edo Exp $
+C     $Id$
       implicit none
 #include "bas.fh"
 #include "schwarz.fh"
@@ -1258,7 +1258,7 @@ c
 
 
        logical function ga_check_JKblocked(g_a,n1,n2,jlo,jhi)
-C$Id: moints_aux2.F,v 1.38 2005-01-14 22:08:51 edo Exp $
+C$Id$
        implicit none
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1302,7 +1302,7 @@ C$Id: moints_aux2.F,v 1.38 2005-01-14 22:08:51 edo Exp $
 
 
 c$$$       integer function ga_create_Jblocked(noper,nbf,label)
-c$$$C$Id: moints_aux2.F,v 1.38 2005-01-14 22:08:51 edo Exp $
+c$$$C$Id$
 c$$$       implicit none
 c$$$#include "errquit.fh"
 c$$$#include "global.fh"

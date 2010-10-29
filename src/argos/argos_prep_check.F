@@ -3,7 +3,7 @@
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp,
      + lseq,cseq,mseq,nseq)
 c
-c $Id: argos_prep_check.F,v 1.18 2003-10-17 14:56:06 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

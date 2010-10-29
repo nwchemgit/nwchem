@@ -1,5 +1,5 @@
 *
-* $Id: fci_couple2.F,v 1.2 1999-07-28 00:23:39 d3e129 Exp $
+* $Id$
 *
       subroutine fci_couple2(vec, nvec, p, r, iocc, idim, 
      $     numqs, qslist, epqrs)

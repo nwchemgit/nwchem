@@ -1,4 +1,4 @@
-/*$Id: hash_page.c,v 1.1 1995-03-31 01:55:18 d3g681 Exp $*/
+/*$Id$*/
 /*-
  * Copyright (c) 1990, 1993
  *	The Regents of the University of California.  All rights reserved.

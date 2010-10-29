@@ -1,4 +1,4 @@
-C $Id: rgeom.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       subroutine drdy_rgeom(string,istrt,jtype)
 c     jtype = 1  first reactant 
 c     jtype = 2  second reactant 

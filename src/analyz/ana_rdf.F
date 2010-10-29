@@ -1,6 +1,6 @@
       subroutine ana_rdf_init()
 c
-c $Id: ana_rdf.F,v 1.1 2004-03-06 03:41:15 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

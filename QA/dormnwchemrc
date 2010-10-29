@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: domdtests,v 1.63 2008-12-07 19:26:52 d3j191 Exp $
+# $Id$
 #
 #---   restore original nwchemrc file
 #

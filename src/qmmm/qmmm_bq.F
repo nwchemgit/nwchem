@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_bq.F,v 1.16 2008-09-05 18:35:06 marat Exp $
+c $Id$
 c
 c
       subroutine qmmm_bq_energy_gen(rtdb,n,c,q,e)

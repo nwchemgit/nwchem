@@ -1,7 +1,7 @@
       logical function bas_checksum(basisin, sum)
       implicit none
 *
-* $Id: bas_checksum.F,v 1.3 1999-07-14 00:28:50 d3e129 Exp $
+* $Id$
 *
 #include "nwc_const.fh"
 #include "basP.fh"

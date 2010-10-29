@@ -1,7 +1,7 @@
       logical function argos_prep_center(lfnout,xw,mwm,mwa,nwm,nwa,
      + xwc,mwmc,nwmc,xs,msa,nsa,iopt)
 c
-c $Id: argos_prep_center.F,v 1.14 2002-01-30 20:29:20 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

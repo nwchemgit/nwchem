@@ -1,6 +1,6 @@
       subroutine ana_groups(card,sgmnam,imol,isel,wt,x)
 c
-c $Id: ana_groups.F,v 1.16 2007-02-06 16:32:21 d3j191 Exp $
+c $Id$
 c
       implicit none
 c
@@ -48,7 +48,7 @@ c
       end
       subroutine ana_group(card,sgmnam,imol,isel,wt,x,iwrk)
 c
-c $Id: ana_groups.F,v 1.16 2007-02-06 16:32:21 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

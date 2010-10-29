@@ -1,6 +1,6 @@
       subroutine esp_grdcnt(x,q)
 c
-c $Id: esp_grdcnt.F,v 1.2 2005-12-01 00:54:12 marat Exp $
+c $Id$
 c
       implicit none
 c

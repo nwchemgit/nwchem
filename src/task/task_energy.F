@@ -137,7 +137,7 @@ c
       end
       logical function task_energy_doit(rtdb,theory,energy)
 *
-* $Id: task_energy.F,v 1.53 2009-02-04 01:17:17 niri Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

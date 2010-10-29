@@ -1,6 +1,6 @@
 #!/bin/csh 
 #
-# $Id: update_www,v 1.7 2003-07-10 00:53:17 mhackler Exp $
+# $Id$
 
 # Script to automate updating of web pages for the
 # user and programmers manuals.

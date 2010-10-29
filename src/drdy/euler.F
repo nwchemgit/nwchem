@@ -1,4 +1,4 @@
-C $Id: euler.F,v 1.3 2001-01-19 17:43:11 windus Exp $
+C $Id$
       Subroutine drdy_euler (n3tm,n3,x,dx,dels)
       Implicit None
       Integer n3tm,n3

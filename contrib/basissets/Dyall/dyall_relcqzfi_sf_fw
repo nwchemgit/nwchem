@@ -1,4 +1,4 @@
-# $Id: dyall_relcqzfi_sf_fw,v 1.1 2004-02-18 23:33:48 mg201 Exp $
+# $Id$
 basis "Hf_dyall_relcqz(fi/sf/fw)" SPHERICAL
   Hf  s
   1.7889818E+00  1.00000000000E+00

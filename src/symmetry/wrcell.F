@@ -4,7 +4,7 @@ c   reads input deck for the cell parameters
 c
 c**********************************************************************
       subroutine wrcell(geom,cdist,cang,itype)
-C$Id: wrcell.F,v 1.1 2003-10-17 22:37:08 carlfahl Exp $
+C$Id$
       implicit double precision(a-h,o-z)
 #include "errquit.fh"
       integer geom

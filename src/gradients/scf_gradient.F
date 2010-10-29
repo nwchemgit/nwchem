@@ -21,7 +21,7 @@ c
 c
       end
       logical function scf_gradient(rtdb)
-c$Id: scf_gradient.F,v 1.9 2003-10-17 22:55:09 carlfahl Exp $
+c$Id$
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"

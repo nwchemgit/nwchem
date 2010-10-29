@@ -10,7 +10,7 @@ c
      $                            g_gfock, g_tmp1, g_tmp2, g_tmp3,
      $                            g_x, g_ax )
 *
-* $Id: mcscf_ohv1e.F,v 1.5 2003-10-17 22:55:21 carlfahl Exp $
+* $Id$
 *
        implicit none
 #include "errquit.fh"

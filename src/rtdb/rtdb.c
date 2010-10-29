@@ -1,4 +1,4 @@
-/*$Id: rtdb.c,v 1.24 2008-05-19 17:16:38 marat Exp $*/
+/*$Id$*/
 #include <stdio.h>
 #include <string.h>
 #include "rtdb.h"

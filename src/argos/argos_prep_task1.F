@@ -1,6 +1,6 @@
       logical function argos_prep_task1(irtdb)
 c
-c $Id: argos_prep_task1.F,v 1.6 2003-10-19 03:30:59 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

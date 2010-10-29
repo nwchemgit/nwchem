@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.24 2000-08-08 23:49:31 bjohnson Exp $
+# $Id$
 
 # optimization breaks on the SGITFP ... there's no point
 # optimizing this stuff anyway.

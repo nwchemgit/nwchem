@@ -1,4 +1,4 @@
-C $Id: drdy_center.F,v 1.1 2003-04-07 20:51:58 windus Exp $
+C $Id$
       Subroutine drdy_center (natom,n3,amass,x,xcm)
 C
 C Move center of mass of x to origin

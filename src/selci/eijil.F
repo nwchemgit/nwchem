@@ -1,7 +1,7 @@
       subroutine selci_eijil(e,i,j,l,ns,indbar,iocc,
      $     w1,w2,work,numf,numf2)
 *
-* $Id: eijil.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "errquit.fh"

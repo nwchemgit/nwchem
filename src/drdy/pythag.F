@@ -1,4 +1,4 @@
-C $Id: pythag.F,v 1.1 2001-01-19 17:43:13 windus Exp $
+C $Id$
       Double Precision Function drdy_pythag(a,b)
 C***BEGIN PROLOGUE  PYTHAG
 C***REFER TO  EISDOC

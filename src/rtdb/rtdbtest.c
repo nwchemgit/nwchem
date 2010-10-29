@@ -1,4 +1,4 @@
-/*$Id: rtdbtest.c,v 1.6 2004-08-12 15:26:24 edo Exp $*/
+/*$Id$*/
 #include <stdio.h>
 #include "rtdb.h"
 #include "misc.h"

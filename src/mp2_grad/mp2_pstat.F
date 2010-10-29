@@ -1,6 +1,6 @@
       subroutine mp2_pstat_init()
 *
-* $Id: mp2_pstat.F,v 1.3 2003-10-17 22:55:29 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

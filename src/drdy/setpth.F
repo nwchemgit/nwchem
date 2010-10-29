@@ -1,4 +1,4 @@
-C $Id: setpth.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       Subroutine drdy_setpth
 C
 C Setup for first step off saddle point

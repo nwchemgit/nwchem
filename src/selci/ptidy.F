@@ -1,7 +1,7 @@
       subroutine selci_ptidy(ioconf, nintpo, noconf, ncold, nconmx,
      $     nroot, ept, enew, irange, ptnorm, ptnorm_mp, ept_mp)
 *
-* $Id: ptidy.F,v 1.6 2005-01-31 21:25:17 edo Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "errquit.fh"

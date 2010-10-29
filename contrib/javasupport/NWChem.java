@@ -1,4 +1,4 @@
-// $Id: NWChem.java,v 1.6 1999-08-02 19:44:45 d3e129 Exp $
+// $Id$
 
 import java.net.Socket;
 import java.io.*;

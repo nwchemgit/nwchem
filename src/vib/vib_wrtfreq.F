@@ -1,5 +1,5 @@
       SUBROUTINE vib_WRTFREQ(rtdb,EIGVAL,NAT3,ZEROPE,NPRI)
-* $Id: vib_wrtfreq.F,v 1.18 2004-05-11 23:39:06 edo Exp $
+* $Id$
 C
 C This routine scales the eigenvalues properly and then converts them
 C      to wavenumbers

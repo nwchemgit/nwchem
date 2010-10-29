@@ -1,5 +1,5 @@
       subroutine sym_geom_project(geom, tol)
-C     $Id: sym_geom_prj.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "nwc_const.fh"

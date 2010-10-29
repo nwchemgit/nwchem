@@ -25,7 +25,7 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
      &     tags_new,coords_new,nareal,nat,cdist,cang,iasym_order,
      $     charge, charge_new, mass, mass_new, 
      $     invnucexp, invnucexp_new, threquiv)
-C$Id: dosymops.F,v 1.7 2003-10-17 22:58:24 carlfahl Exp $
+C$Id$
 *rak typed everyting
       implicit none
 #include "util.fh"

@@ -1,6 +1,6 @@
       subroutine selci_check(node)
 *
-* $Id: selci_check.f,v 1.1 2003-04-07 20:55:54 windus Exp $
+* $Id$
 *
       logical opn
       character*80 filename

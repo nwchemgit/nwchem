@@ -1,5 +1,5 @@
       SUBROUTINE vib_CROSS(V1,V2,V3)
-* $Id: vib_cross.F,v 1.3 1995-10-21 09:16:06 d3e129 Exp $
+* $Id$
 C****
 C**** form cross product v1 x v2
 C****

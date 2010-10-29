@@ -1,6 +1,6 @@
       subroutine ccsd_tzinta(nocc,nvir,nbf,t1,tzvv,scra,scrb,scrc,g_nt2,
      &                       g_nz2,g_tz1,g_tz2,iprt)
-C     $Id: ccsd_tzinta.F,v 2.4 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
       integer nocc,nvir,nbf,lnov,lnvv,g_nt2,g_nz2,g_tz1,g_tz2,

@@ -2,7 +2,7 @@
      + iwmr,xw,mwm,mwa,nwm,nwa,iwmrc,xwc,mwmc,nwmc,
      + isar,isgm,csa,xs,msa,nsa)
 c
-c $Id: argos_prep_fix.F,v 1.9 2003-10-19 03:30:58 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

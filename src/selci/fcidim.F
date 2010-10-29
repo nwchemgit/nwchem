@@ -1,7 +1,7 @@
       double precision function selci_fcidim(nelec, multi, issss,
      $     norbs, isym)
 *
-* $Id: fcidim.F,v 1.4 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "errquit.fh"

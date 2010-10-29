@@ -1,4 +1,4 @@
-C $Id: Input_for_drdy.F,v 1.9 2003-10-17 22:54:45 carlfahl Exp $
+C $Id$
       Subroutine Input_for_drdy(rtdb)
 C
 C Options in lgs array

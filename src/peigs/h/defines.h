@@ -1,5 +1,5 @@
 *
-* $Id: defines.h,v 1.2 1999-07-28 00:39:17 d3e129 Exp $
+* $Id$
 *
 c #define USESTDIN
 #ifdef USESTDIN

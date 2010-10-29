@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.7 2005-10-03 21:18:07 edo Exp $
+# $Id$
 #
 
  OBJ_OPTIMIZE =  nwmd.o md_start.o md_input.o md_main.o \

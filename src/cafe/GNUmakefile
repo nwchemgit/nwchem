@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.9 2006-09-18 15:42:14 d3j191 Exp $
+# $Id$
 #
 OBJ_OPTIMIZE=cf_d.o cf_fp.o cf_f.o\
              cf_finish.o\

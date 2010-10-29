@@ -1,4 +1,4 @@
-// $Id: whichjava.java,v 1.1 1998-03-17 07:55:30 d3e129 Exp $
+// $Id$
 
 public class whichjava implements Runnable {
   public static void main(String[] args){

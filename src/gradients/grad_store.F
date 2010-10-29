@@ -1,7 +1,7 @@
       subroutine grad_store ( rtdb, geom, g_force, chktime, nat, nquad, 
      $     frc, oinit, ofinish, oactive, oskel, omp2 )
 
-c$Id: grad_store.F,v 1.6 2003-10-17 22:55:09 carlfahl Exp $
+c$Id$
 C=======================================================================
 C     Syncs and writes the partially calculated forces to rtdb if either:
 C     - checkpointing is requested and the specified time has elapsed. 

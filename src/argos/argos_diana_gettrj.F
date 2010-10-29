@@ -1,6 +1,6 @@
       subroutine argos_diana_gettrj
 c
-c $Id: argos_diana_gettrj.F,v 1.8 2007-05-10 00:21:03 d3j191 Exp $
+c $Id$
 c
 c     read the trajectory
 c     -------------------

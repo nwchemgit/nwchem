@@ -10,7 +10,7 @@ c
      $     ataba, atabb, ntij, nsblk,
      $     h, g, f, g_civec, g_sigma )
 *
-* $Id: detci_sigma.F,v 1.20 2005-06-03 21:46:11 bert Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

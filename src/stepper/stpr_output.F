@@ -1,6 +1,6 @@
       SUBROUTINE stpr_output(STEP,COORD,BCKSTP, mxgrad,
      &                       convggm, convgg, convge )
-c     $Id: stpr_output.F,v 1.11 1999-01-15 19:51:50 d3e129 Exp $
+c     $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "util.fh"
 #include "mafdecls.fh"

@@ -1,5 +1,5 @@
        logical function atwtest(rtdb)
-C$Id: atwtest.F,v 1.7 2003-10-17 22:55:26 carlfahl Exp $
+C$Id$
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

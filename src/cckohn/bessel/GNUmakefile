@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2003-04-08 00:21:34 windus Exp $
+# $Id$
 #
 
 OBJ = gg.o outward.o sjymec.o cckohn_spline.o splinec.o ubesplg.o\

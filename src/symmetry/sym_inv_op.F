@@ -20,7 +20,7 @@ c
 c
       end
       subroutine sym_find_inv_op(geom, op, opinv)
-C$Id: sym_inv_op.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "sym.fh"

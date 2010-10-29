@@ -1,6 +1,6 @@
       subroutine vscf_input(rtdb)
 *
-* $Id: vscf_input.F,v 1.4 2007-04-06 16:29:19 windus Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,7 +1,7 @@
       subroutine ccsd_tengy(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
      &                      dintc,dintx,t1v,eorb,eaijk,
      $                      emp4,emp5,ncor,nocc,nvir)
-C     $Id: ccsd_tengy.F,v 2.1 2004-12-16 23:02:58 edo Exp $
+C     $Id$
       implicit none
 #include "ccsdps.fh"
       integer ncor,nocc,nvir

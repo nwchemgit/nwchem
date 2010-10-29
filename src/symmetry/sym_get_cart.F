@@ -1,5 +1,5 @@
       subroutine sym_get_cart_op(geom, opnum, matrix)
-C$Id: sym_get_cart.F,v 1.2 1999-07-14 00:29:11 d3e129 Exp $
+C$Id$
       implicit none
 c
 #include "mafdecls.fh"

@@ -2,7 +2,7 @@
      + lang,mang,nang,ldih,mdih,ndih,limp,mimp,nimp)
 c
 c
-c $Id: argos_prep_multip.F,v 1.1 2003-07-17 19:38:57 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

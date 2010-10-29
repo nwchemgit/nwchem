@@ -1,4 +1,4 @@
-C $Id: tranf.F,v 1.3 2001-01-19 17:43:15 windus Exp $
+C $Id$
       Subroutine drdy_tranf (iop,ndim,n3,amass,f)
 C
       Implicit none

@@ -1,7 +1,7 @@
 #ifndef _H_TOKENLIST
 #define _H_TOKENLIST
 
-// $Id: TokenList.h,v 1.1 2000-07-27 15:54:43 bjohnson Exp $
+// $Id$
 
 /*
  * TokenList is a class for breaking a string into individual tokens

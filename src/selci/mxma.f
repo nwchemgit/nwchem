@@ -1,7 +1,7 @@
       subroutine selci_mxma(a,iac,iar, b,ibc,ibr, c,icc,icr,
      $     nar,nac,nbc)
 *
-* $Id: mxma.f,v 1.2 1997-10-31 23:42:15 d3e129 Exp $
+* $Id$
 *
       implicit integer (a-z)
       real*8 a(*),b(*),c(*)

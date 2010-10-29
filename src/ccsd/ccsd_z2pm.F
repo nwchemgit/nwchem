@@ -1,6 +1,6 @@
       subroutine ccsd_z2pm(basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2,cmo,
      &                     scra,scrb)
-C     $Id: ccsd_z2pm.F,v 2.8 2004-12-16 23:02:58 edo Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nbf,g_sz2,g_nz2

@@ -3,7 +3,7 @@ C NAME
 C     CCDen_2PDMoooo -- Form coupled cluster 2-particle density matrix
 C
 C REVISION
-C     $Id: ccden_2pdma.F,v 2.4 2009-02-07 02:05:58 windus Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine CCDen_2PDMoooo(NOcc, NVir, T1, LDT1, g_T2,
@@ -138,7 +138,7 @@ C NAME
 C     CCDen_tZoooo -- Form [tZ] intermediate for 2PDM
 C
 C REVISION
-C     $Id: ccden_2pdma.F,v 2.4 2009-02-07 02:05:58 windus Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine CCDen_tZoooo(NOcc, NVir, g_t, g_Z, g_tZ)
@@ -285,7 +285,7 @@ C NAME
 C     CCDen_tZvvvv -- Form [tZ] intermediate for 2PDM
 C
 C REVISION
-C     $Id: ccden_2pdma.F,v 2.4 2009-02-07 02:05:58 windus Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine CCDen_tZvvvv(NOcc, NVir, g_t, g_Z, g_tZ)

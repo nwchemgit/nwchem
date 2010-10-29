@@ -1,7 +1,7 @@
       logical function argos_prep_namiup(lfnout,
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm)
 c
-c $Id: argos_prep_namiup.F,v 1.12 2003-07-23 02:38:46 d3j191 Exp $
+c $Id$
 c
 c     function to comply with IUPAC atom naming
 c

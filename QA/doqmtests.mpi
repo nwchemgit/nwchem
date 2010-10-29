@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: doqmtests.mpi,v 1.21 2007-10-25 16:28:32 d3p307 Exp $
+# $Id$
 #
 set np = 1
 if ($1 !="") then

@@ -1,6 +1,6 @@
       subroutine geom_1d(geom,c2au)
 *
-* $Id: geom_1d.F,v 1.7 2003-10-27 23:24:04 marat Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

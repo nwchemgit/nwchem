@@ -1,7 +1,7 @@
       integer function  argos_prep_merge(iunit,xmerge,filnam,
      + lfnout,lfnpdb,namslv,inum,lrgpdb)
 c
-c $Id: argos_prep_merge.F,v 1.7 2003-10-31 21:32:47 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

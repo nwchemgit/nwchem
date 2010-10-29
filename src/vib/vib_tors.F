@@ -1,6 +1,6 @@
       SUBROUTINE vib_TORS(EQVAL,NOINT,I,J,K,L,C,B,NDIM)
 C*MODULE VIB  *DECK TORS
-* $Id: vib_tors.F,v 1.6 2003-10-17 22:58:37 carlfahl Exp $
+* $Id$
 C
       IMPLICIT NONE ! DOUBLE PRECISION (A-H,O-Z)
 #include "errquit.fh"

@@ -1,5 +1,5 @@
 
-# $Id: GNUmakefile,v 1.85 2007-02-09 16:24:41 edo Exp $
+# $Id$
 TARGET = $(NWCHEM_TARGET)
 include ./tools/armci/config/makecoms.h  
 include ./tools/armci/config/makemp.h  

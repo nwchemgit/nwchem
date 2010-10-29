@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.16 2005-10-20 01:04:24 edo Exp $
+#$Id$
 #
 # This directory is a central repository for all include
 # files.  The makefile in each subdirectory should contain

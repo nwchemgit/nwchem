@@ -1,4 +1,4 @@
-C $Id: getstr.F,v 1.2 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       Subroutine drdy_getstr(xnum,cstr,nstr,nten,ndec)
 C
 C   get string of numbers for a floating point number xnum

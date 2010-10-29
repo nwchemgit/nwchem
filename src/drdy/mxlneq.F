@@ -1,4 +1,4 @@
-C $Id: mxlneq.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       Subroutine drdy_mxlneq (a,nn,ida,dett,jrank,eps,in,mm)
 C
 C PROGRAMMED BY R. HOTCHKISS, U. COMP. CTR., U. OF MINN., REVISED OCT.73

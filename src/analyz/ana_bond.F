@@ -1,6 +1,6 @@
       real*8 function ana_bond(x,nx,w,nw,na,i,i2,j,j2,box)
 c
-c $Id: ana_bond.F,v 1.4 2002-06-25 18:33:24 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

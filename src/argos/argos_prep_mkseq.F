@@ -4,7 +4,7 @@
      + slvnam,slvmdl,maxscf,qscale,altloc,chain,icyren,model,nxlnk,
      + mcount,ncount,icount,scount,mfract,nfract,ifract,iconst,his)
 c
-c $Id: argos_prep_mkseq.F,v 1.42 2003-10-19 03:30:58 d3j191 Exp $
+c $Id$
 c
 c     in : integer lfnout    = logical file number output file
 c          integer lfnpdb    = logical file number for pdb file

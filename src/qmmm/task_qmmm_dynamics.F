@@ -1,6 +1,6 @@
        function task_qmmm_dynamics(rtdb)
 *
-* $Id: task_qmmm_dynamics.F,v 1.10 2006-02-17 20:18:43 marat Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"
@@ -69,7 +69,7 @@ c
 
        function qmmm_dynamics(rtdb)
 *
-* $Id: task_qmmm_dynamics.F,v 1.10 2006-02-17 20:18:43 marat Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"
@@ -130,7 +130,7 @@ c
       end
 
       function qmmm_pes_dynamics(irtdb)
-c     $Id: task_qmmm_dynamics.F,v 1.10 2006-02-17 20:18:43 marat Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

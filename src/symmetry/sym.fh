@@ -1,7 +1,7 @@
       logical sym_shell, sym_shell_pair, sym_atom, sym_atom_pair
       logical sym_char_table, sym_abelian_group
 C      logical sym_shell_quartet, sym_atom_quartet
-C$Id: sym.fh,v 1.6 1997-03-23 23:07:16 d3g681 Exp $
+C$Id$
       logical  sym_atom_quartet
       integer sym_center_map, sym_number_ops
       external sym_shell, sym_atom

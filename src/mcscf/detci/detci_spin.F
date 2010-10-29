@@ -9,7 +9,7 @@ c
      $                         osym, ataba, atabb, nexa, nexb,
      $                         exa, exb, g_civec, g_pvec )
 *
-* $Id: detci_spin.F,v 1.8 2002-01-30 01:11:34 windus Exp $
+* $Id$
 *
       implicit none
 #include "global.fh"

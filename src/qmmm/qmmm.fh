@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.fh,v 1.30 2006-02-22 01:12:07 marat Exp $
+c $Id$
 c
       integer qmmm_get_nlink
       integer qmmm_get_nbq

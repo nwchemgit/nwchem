@@ -22,7 +22,7 @@ c                 Interfaces to NWCHEM     A.C.H. 10/10/94 + RJH
 c  
 c***********************************************************************
       subroutine sym_nwc(geom,rtdb,nata,oprint,scale,threquiv,nops)
-C$Id: sym_nwc.F,v 1.21 2006-06-06 01:30:41 edo Exp $
+C$Id$
       implicit real*8 (a-h,o-z)
 #include "errquit.fh"
       parameter(maxops=192)

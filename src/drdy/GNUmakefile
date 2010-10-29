@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.6 2003-04-08 00:15:18 windus Exp $
+# $Id$
        HEADERS = 
   OBJ_OPTIMIZE = 
            OBJ = atsym.o drdy.o drdy_input.o Input_for_drdy.o drdy_synch.o \

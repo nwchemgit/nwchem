@@ -1,7 +1,7 @@
       subroutine selci_mkvc(q, h,g,int12,int34,w1,w2,ioconf,indxci,
      $     iexv,iconf,ncold,ci,vc,iocc,ipack,numf,work1)
 *
-* $Id: mkvc.F,v 1.4 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "errquit.fh"

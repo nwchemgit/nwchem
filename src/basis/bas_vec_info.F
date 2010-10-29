@@ -1,6 +1,6 @@
       logical function bas_vec_info(basis, info)
 *
-* $Id: bas_vec_info.F,v 1.7 2003-10-17 22:54:17 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,5 +1,5 @@
 *
-* $Id: rd1.F,v 1.1 2003-10-17 22:27:50 carlfahl Exp $
+* $Id$
 *
 c
 c     routines to read columbus integrals

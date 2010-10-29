@@ -1,5 +1,5 @@
       subroutine sym_op_type(r, op_type, order, power, direction)
-C$Id: sym_op_type.F,v 1.5 2003-10-17 22:58:25 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
       double precision r(3,3)

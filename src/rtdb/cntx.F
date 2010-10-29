@@ -1,5 +1,5 @@
       program main
-C$Id: cntx.F,v 1.3 1995-02-02 23:21:56 d3g681 Exp $
+C$Id$
       implicit none
 #include "mafdecls.fh"
 #include "context.fh"

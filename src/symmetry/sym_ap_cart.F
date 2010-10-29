@@ -1,5 +1,5 @@
       subroutine sym_apply_cart_op(geom, opnum, r, r1)
-C$Id: sym_ap_cart.F,v 1.2 1999-07-14 00:29:10 d3e129 Exp $
+C$Id$
       implicit none
 c
 #include "mafdecls.fh"

@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_gradient.F,v 1.55 2007-09-10 02:37:31 marat Exp $
+c $Id$
 c
 c
       function task_qmmm_gradient(rtdb)

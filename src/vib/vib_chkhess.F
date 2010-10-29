@@ -1,5 +1,5 @@
       SUBROUTINE vib_CHKHESS(HESS,NAT3,first_pass)
-* $Id: vib_chkhess.F,v 1.4 1999-07-08 19:11:02 d3e129 Exp $
+* $Id$
 C
 C  This routine checks to make sure the analytic Hessian is symmetric
 C

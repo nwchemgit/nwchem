@@ -1,5 +1,5 @@
       program libcheck
-* $Id: libcheck.F,v 1.5 2001-12-14 19:20:35 bert Exp $
+* $Id$
       implicit none
 #include "inp.fh"
 #include "nwc_const.fh"

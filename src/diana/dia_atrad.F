@@ -1,6 +1,6 @@
       real*8 function dia_atrad(number)
 c
-c $Id: dia_atrad.F,v 1.1 2006-12-10 01:03:20 d3j191 Exp $
+c $Id$
 c
       implicit none
       integer number

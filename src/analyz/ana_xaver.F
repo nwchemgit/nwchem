@@ -1,6 +1,6 @@
       subroutine ana_xaver(x,xa,nx,mx,nave)
 c
-c $Id: ana_xaver.F,v 1.2 2007-01-15 23:09:47 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

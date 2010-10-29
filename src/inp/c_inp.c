@@ -1,5 +1,5 @@
 /*
- $Id: c_inp.c,v 1.7 2003-08-13 16:45:43 edo Exp $
+ $Id$
  */
 
 #if defined(CRAY) &&  !defined(__crayx1)

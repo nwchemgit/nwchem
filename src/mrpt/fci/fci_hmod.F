@@ -1,5 +1,5 @@
 *
-* $Id: fci_hmod.F,v 1.2 1999-07-28 00:23:40 d3e129 Exp $
+* $Id$
 *
       subroutine fci_hmod(h, g, hmod)
       implicit none

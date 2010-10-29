@@ -1,5 +1,5 @@
       subroutine orderd(amat,nrow,ncol,ind,vec)
-C$Id: orderd.F,v 1.3 2004-03-15 22:26:49 edo Exp $
+C$Id$
       implicit none
 c.......................................................................
 c     this routine sorts a set of column vectors in amat(*,*) according

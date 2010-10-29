@@ -4,7 +4,7 @@
      &                     g_nt2,g_nz2,g_ncoul,g_nexch,g_x,g_c,
      &                     g_sht2,g_zx,g_zc,g_shz2,g_aitm,g_qitm,
      &                     g_tz1,g_tz2,g_tz3,iprt)
-* $Id: ccsd_zsig1.F,v 2.6 2003-10-17 22:54:25 carlfahl Exp $
+* $Id$
       implicit none
 #include "errquit.fh"
       integer nocc,nvir,nbf,g_nt2,g_nz2,g_ncoul,g_nexch,g_x,g_c,g_sht2,

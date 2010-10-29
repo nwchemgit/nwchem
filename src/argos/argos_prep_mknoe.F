@@ -2,7 +2,7 @@
      + filtop,lfncmd,filcmd,
      + lfnnoe,filnoe,mnoe,lfnpmf,filpmf,slvnam)
 c
-c $Id: argos_prep_mknoe.F,v 1.34 2003-10-19 03:30:58 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

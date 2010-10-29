@@ -1,7 +1,7 @@
       subroutine sym_put_in_geom(geom, nat_uniq, nat_new,
      $     tags_new, uniq_cent, coords_new, l_map, k_map, nops,
      $     charge_new, mass_new, invnucexp_new)
-C$Id: sym_put_geom.F,v 1.7 2003-10-17 22:58:25 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 

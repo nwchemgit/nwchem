@@ -1,5 +1,5 @@
 *
-* $Id: geomP.fh,v 1.31 2000/11/08 00:42:30 d3g681 Exp $
+* $Id$
 *
 c
 c     Private fortran include file for the geometry routines

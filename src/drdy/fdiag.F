@@ -1,4 +1,4 @@
-C $Id: fdiag.F,v 1.1 2001-01-19 17:43:12 windus Exp $
+C $Id$
       Subroutine drdy_fdiag (ndim,nfreq,ierr,jprnt)
 C
       Implicit none

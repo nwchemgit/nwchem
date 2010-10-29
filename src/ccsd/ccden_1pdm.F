@@ -3,7 +3,7 @@ C NAME
 C     CCDen_1PDM -- Form coupled cluster 1-particle density matrix
 C
 C REVISION
-C     $Id: ccden_1pdm.F,v 2.3 2003-10-17 22:54:24 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine CCDen_1PDM(NOcc, NVir, T1, LDT1, g_T2,

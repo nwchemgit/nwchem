@@ -90,7 +90,7 @@ c
      $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info, 
      $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel,
      $     rtdb_clone,rtdb_getfname,rtdb_cget_size
-C$Id: rtdb.fh,v 1.8 2008-05-06 19:32:42 marat Exp $
+C$Id$
       external rtdb_open, rtdb_close, rtdb_put, rtdb_get, rtdb_ma_get,
      $     rtdb_cput, rtdb_cget, rtdb_print, rtdb_get_info, 
      $     rtdb_first, rtdb_next, rtdb_delete, rtdb_parallel,

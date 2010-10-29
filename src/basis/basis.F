@@ -1,5 +1,5 @@
       logical function bas_version()
-c $Id: basis.F,v 1.125 2004-04-29 03:33:55 edo Exp $
+c $Id$
 c
 c: Routine that calclulates the size of the common block structures 
 c  used in the basis set object and the mapped representation object.

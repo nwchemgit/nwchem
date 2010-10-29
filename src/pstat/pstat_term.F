@@ -1,5 +1,5 @@
       Logical Function PStat_Terminate()
-C$Id: pstat_term.F,v 1.1 1995-12-13 01:36:36 d3g681 Exp $
+C$Id$
       Implicit NONE
 C
 #include "pstatP.fh"

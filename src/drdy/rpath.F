@@ -1,4 +1,4 @@
-C $Id: rpath.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       subroutine drdy_rpath(string,iend,istrt)
 c     Subroutine to read in the input for following the reaction path
       Implicit none

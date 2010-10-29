@@ -1,5 +1,5 @@
 *
-* $Id: mointsmoaodef.fh,v 1.4 1997-11-04 09:58:04 d3e129 Exp $
+* $Id$
 *
       integer MOINTS_IOBUFLEN
       integer MOINTS_NBLKINFO

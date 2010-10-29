@@ -1,5 +1,5 @@
 *
-* $Id: fci_2pdm.F,v 1.2 1999-07-28 00:23:39 d3e129 Exp $
+* $Id$
 *
       subroutine fci_2pdm(vec, nvec, twopdm, onepdm, ecore, h, g)
       implicit none

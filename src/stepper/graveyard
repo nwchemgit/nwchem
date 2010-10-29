@@ -1,6 +1,6 @@
       logical function stpr_gen_apphess_at(rtdb,delta,flag,do_opt)
       implicit none
-* $Id: graveyard,v 1.1 1996-07-26 16:39:24 d3g681 Exp $
+* $Id$
 #include "mafdecls.fh"
 #include "global.fh"
 #include "geom.fh"
@@ -520,7 +520,7 @@ c... free memory
       ignore_status = rtdb_parallel(.true.)
       end
       logical function stpr_gen_apphess_opt(rtdb,delta,flag)
-* $Id: graveyard,v 1.1 1996-07-26 16:39:24 d3g681 Exp $
+* $Id$
       implicit none
 c
 c function to generate approximate hessian and optimize

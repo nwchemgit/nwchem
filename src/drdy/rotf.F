@@ -1,4 +1,4 @@
-C $Id: rotf.F,v 1.3 2001-01-19 17:43:14 windus Exp $
+C $Id$
       Subroutine drdy_rotf (fmat,amat,scr,natom,ndim,maxdim)
 C
 C  Transform Hessian matrix from Gaussian standard orientation to

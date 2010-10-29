@@ -1,7 +1,7 @@
       logical function task_ecp_print_integrals(rtdb)
       implicit none
 #include "errquit.fh"
-* $Id: rak26.F,v 1.5 2003-10-17 22:54:39 carlfahl Exp $
+* $Id$
 c
 #include "stdio.fh"
 #include "mafdecls.fh"

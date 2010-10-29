@@ -1,6 +1,6 @@
       subroutine esp_fit(g,v,x,q,a,b,bkeep,akeep,qkeep,n,qf,l,tag)
 c
-c $Id: esp_fit.F,v 1.12 2006-03-08 17:21:29 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

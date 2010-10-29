@@ -4,7 +4,7 @@
      $     nvb,nbf,nmo,g_vecs_a,g_vecs_b,
      $     evals_a, evals_b, g_p_tot_a, g_p_tot_b)
 *
-* $Id: mp2_make_tot_wdens.F,v 1.8 2003-10-17 22:55:29 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

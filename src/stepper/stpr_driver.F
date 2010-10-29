@@ -6,7 +6,7 @@
      &       CMASS, TENIN, ENERGY, E2NEW, TRUST,
      &       CONVGE, CONVGG, CONVGGM,
      &       NMODE, TRACK, RPATH, BCKSTP, CNVGRD, rtdb )
-c $Id: stpr_driver.F,v 1.11 1998-04-21 06:57:26 mdupuis Exp $
+c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       LOGICAL TRACK,BCKSTP,CNVGRD,RPATH
 #include "chow.fh"

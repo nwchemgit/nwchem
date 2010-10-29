@@ -1,6 +1,6 @@
       SUBROUTINE vib_CEBDAB(C,NC,A,NA,B)
 C* MODULE ZMATRX *DECK CEBDAB
-* $Id: vib_cebdab.F,v 1.2 1995-10-21 09:16:03 d3e129 Exp $
+* $Id$
 C
 C       +
 C  C = B A B

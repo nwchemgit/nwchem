@@ -1,6 +1,6 @@
       subroutine argos_diana_data(t,nx,ix,x)
 c
-c $Id: argos_diana_data.F,v 1.1 2006-12-10 01:03:21 d3j191 Exp $
+c $Id$
 c
 c     data entry of analysis module:
 c

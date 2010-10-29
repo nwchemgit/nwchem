@@ -1,6 +1,6 @@
       subroutine selci_davids(q, lword, nroot, thresh, roots)
 *
-* $Id: davids.F,v 1.13 2009-02-10 03:27:13 jhammond Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "errquit.fh"

@@ -1,5 +1,5 @@
       subroutine qenter(namein,iprint)
-C     $Id: qstat.F,v 2.9 2009-02-07 02:06:00 windus Exp $
+C     $Id$
       Implicit NONE
 #include "errquit.fh"
       Character*(*) NameIn

@@ -1,5 +1,5 @@
       SUBROUTINE vib_BDIHA5(NOINT,NDIM,IZMAT,CARTC,DIHANG,BMAT)
-* $Id: vib_bdiha5.F,v 1.3 1995-10-21 09:15:55 d3e129 Exp $
+* $Id$
 C*MODULE VIB  *DECK BDIHA5
 C* 21 MAR 1983 - STE * 9 MAR 1983 - STE
 C********************************************************************

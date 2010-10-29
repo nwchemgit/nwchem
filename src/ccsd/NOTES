@@ -26,7 +26,7 @@ o /len/ turned into ccsd_len.fh include file
 o /debug/ turned into ccsd_debug.fh include file
 o Implicit NONE in all routines
 o Default convergence threshold 1.0e-8 --> 1.0e-6 at suggestion of RJH
-o All routines have RCS/CVS $Id: NOTES,v 2.4 1997-06-05 16:26:18 gg502 Exp $
+o All routines have RCS/CVS $Id$
 o Triple transformation now uses Texas blocking [ATW]
 o DIIS storage compressed (using permutational symmetry) [RK]
 o Frozen orbitals work for energies [RK]

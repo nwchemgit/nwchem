@@ -1,5 +1,5 @@
       subroutine ccsd_mktau(nocc,nvir,av,t1,t2,tau)
-C     $Id: ccsd_mktau.f,v 2.2 1997-04-14 06:34:58 gg502 Exp $
+C     $Id$
       implicit none
       integer nocc,nvir,av
       double precision t1(*),t2(*),tau(*)

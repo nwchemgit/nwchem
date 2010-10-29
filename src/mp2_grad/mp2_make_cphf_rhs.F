@@ -5,7 +5,7 @@
      $     sym_lo_ob,sym_hi_ob,sym_lo_vb,sym_hi_vb,
      $     g_vecs_a,g_vecs_b,g_lai_a,g_lai_b,g_rhs)
 *
-* $Id: mp2_make_cphf_rhs.F,v 1.8 2003-10-17 22:55:29 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

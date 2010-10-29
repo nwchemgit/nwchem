@@ -1,7 +1,7 @@
       subroutine opencc
 #include "errquit.fh"
 *
-* $Id: opencc.F,v 1.1 2003-10-17 22:29:07 carlfahl Exp $
+* $Id$
 *
       entry putcc
       entry getcc

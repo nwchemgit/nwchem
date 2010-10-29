@@ -1,4 +1,4 @@
-c $Id: cons_data.F,v 1.3 2004-09-21 19:12:09 marat Exp $
+c $Id$
       subroutine cons_set_namespace(namespace)
       implicit none
 #include "errquit.fh"

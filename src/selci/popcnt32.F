@@ -1,6 +1,6 @@
       integer function selci_popcnt32(i)
 *
-* $Id: popcnt32.F,v 1.12 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
 #if defined(LINUX) || defined(LINUX64)
 #define INTEGER_1 integer*1

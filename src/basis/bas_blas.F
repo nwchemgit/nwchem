@@ -1,7 +1,7 @@
 *
 * routines from basis.F that use blas calls
 *
-* $Id: bas_blas.F,v 1.4 2004-03-15 20:28:16 edo Exp $
+* $Id$
 *
       logical function bas_get_exponent(basisin,icont,expon)
 c

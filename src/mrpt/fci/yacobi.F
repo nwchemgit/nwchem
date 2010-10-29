@@ -1,5 +1,5 @@
 *
-* $Id: yacobi.F,v 1.2 1999-07-28 00:23:43 d3e129 Exp $
+* $Id$
 *
       subroutine yacobi (a,u,n,big,jb,iord)
       implicit real*8(a-h,o-z)

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.29 2005-11-02 19:04:38 edo Exp $
+# $Id$
 #
 
 LIBRARY = libpeigs.a

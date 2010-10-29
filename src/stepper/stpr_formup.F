@@ -1,5 +1,5 @@
       SUBROUTINE stpr_formup(HESS,GRADC,GRADD,COORDC,COORDD,SCR,rtdb)
-c $Id: stpr_formup.F,v 1.2 2003-10-17 22:58:22 carlfahl Exp $
+c $Id$
 C
 C     HESS = hessian to be updated
 C     GRADC = current gradient

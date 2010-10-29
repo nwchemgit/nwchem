@@ -1,6 +1,6 @@
       logical function geom_zmt_get_varinfo(geom,zvarname,zvarsign)
 *
-* $Id: geom_input2.F,v 1.8 1999-07-28 00:41:33 d3e129 Exp $
+* $Id$
 *
       implicit none
 #include "nwc_const.fh"

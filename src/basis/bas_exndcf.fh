@@ -4,7 +4,7 @@ c This cannot be used in a routine with a data statement.
 c .... you must separately include the _dec and _sfn include files
 c .... if you have data statements.
 c----------------------------------------------------------------------
-* $Id: bas_exndcf.fh,v 1.2 1996-01-23 08:34:07 d3e129 Exp $
+* $Id$
 c
 c... statement functions to get exndcf from heap
 c... sf_exndcf gives value of exndcf

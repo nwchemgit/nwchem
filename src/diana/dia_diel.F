@@ -1,6 +1,6 @@
       subroutine dia_diel(xs,qs,isel,xw,qw,iwsel)
 c
-c $Id: dia_diel.F,v 1.1 2006-12-10 01:03:21 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

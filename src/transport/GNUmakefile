@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.2 2006-12-05 13:50:33 edo Exp $
+#$Id$
 
 #   OBJ_OPTIMIZE =  transport.o 
    OBJ_OPTIMIZE =   transp_input.o

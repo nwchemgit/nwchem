@@ -2,7 +2,7 @@
      &     nroot,irange,nrange,iwpt,
      &     noconfi,ioconf,nintpo,nconmx,ncold)
 *
-* $Id: stool.F,v 1.9 2005-01-31 21:25:17 edo Exp $
+* $Id$
 *
       implicit real*8 (a-h,o-z), integer(i-n)
 #include "errquit.fh"

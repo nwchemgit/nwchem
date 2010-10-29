@@ -1,5 +1,5 @@
       SUBROUTINE stpr_pmat(VC,P,NEXTER)
-c $Id: stpr_pmat.f,v 1.1 1994-06-24 20:42:37 d3e129 Exp $
+c $Id$
 C
 C     This routine constructs P matrix.
 C

@@ -1,6 +1,6 @@
       subroutine ana_rdref(x)
 c
-c $Id: ana_rdref.F,v 1.11 2003-10-19 03:31:01 d3j191 Exp $
+c $Id$
 c
       implicit none
 c
@@ -111,7 +111,7 @@ c
       end
       subroutine ana_center_ref(x)
 c
-c $Id: ana_rdref.F,v 1.11 2003-10-19 03:31:01 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

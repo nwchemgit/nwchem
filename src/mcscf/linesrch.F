@@ -1,6 +1,6 @@
       double precision function linesrch(n,x,f,g)
 *
-* $Id: linesrch.F,v 1.5 1997-11-04 09:59:39 d3e129 Exp $
+* $Id$
 *
       implicit none
       integer n

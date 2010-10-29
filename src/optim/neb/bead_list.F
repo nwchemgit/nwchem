@@ -1,5 +1,5 @@
 c
-c     $Id: bead_list.F,v 1.6 2005-10-03 00:07:18 marat Exp $
+c     $Id$
 c
 c
 c     This file contains a list of beads, where a bead is defined

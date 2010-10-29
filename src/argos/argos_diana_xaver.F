@@ -2,7 +2,7 @@
 c
 c      x,xa,nx,mx,nave)
 c
-c $Id: argos_diana_xaver.F,v 1.6 2007-03-14 16:17:49 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

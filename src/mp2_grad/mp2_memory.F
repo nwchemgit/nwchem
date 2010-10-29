@@ -2,7 +2,7 @@
      $     nbf,noa,nva,nob,nvb,
      $     batch_size,max_ma,max_ga,max_file,task,scftype)
 *     
-*     $Id: mp2_memory.F,v 1.22 2003-10-17 22:55:29 carlfahl Exp $
+*     $Id$
 *     
       implicit none
 #include "errquit.fh"

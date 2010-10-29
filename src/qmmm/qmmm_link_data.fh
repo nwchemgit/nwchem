@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_link_data.fh,v 1.1 2005-06-02 19:59:04 marat Exp $
+c $Id$
 c
       integer link_atom
       integer nlink,nps

@@ -3,7 +3,7 @@ c Check if the calculation will fit in memory
 c
        logical function ccsd_memory_fit( basis, algo, 
      $            nbf, nocc, nvir, blen, mxvec, do_trip)
-C$Id: ccsd_mem.F,v 2.2 2004-01-06 18:54:41 bert Exp $
+C$Id$
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

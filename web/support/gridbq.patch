@@ -10,14 +10,14 @@ diff -c -r1.17 -r1.17.2.1
 *** 1,6 ****
         subroutine grid_buckinit(rtdb)
   c
-! c$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+! c$Id$
   c
         implicit none
   c     
 --- 1,6 ----
         subroutine grid_buckinit(rtdb)
   c
-! c$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+! c$Id$
   c
         implicit none
   c     
@@ -93,7 +93,7 @@ diff -c -r1.7 -r1.7.2.1
        &                  ibf, docset, iniz, ifin, zprim,
 !      .     minexp,ldiff,acc_gauss)
   c
-! C$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+! C$Id$
   c
         implicit none
   c      
@@ -103,7 +103,7 @@ diff -c -r1.7 -r1.7.2.1
        &                  ibf, docset, iniz, ifin, zprim,
 !      .     minexp,ldiff,acc_gauss,iatype_pt_chg)
   c
-! C$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+! C$Id$
   c
         implicit none
   c      
@@ -132,7 +132,7 @@ diff -c -r1.7 -r1.7.2.1
         Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
        &     bas_cset_info, mcenters)
   c
-! C$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+! C$Id$
   c
         implicit none
   c      
@@ -140,7 +140,7 @@ diff -c -r1.7 -r1.7.2.1
         Subroutine xc_make_basis_info(basis_hand, bas_cent_info,
        &     bas_cset_info, mcenters)
   c
-! C$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+! C$Id$
   c
         implicit none
   c      
@@ -157,7 +157,7 @@ diff -c -r1.17 -r1.17.2.1
        ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
        ,     donewbf)
   c
-! c$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+! c$Id$
   c
         implicit none
   #include "cgridfile.fh"
@@ -165,7 +165,7 @@ diff -c -r1.17 -r1.17.2.1
        ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
        ,     donewbf)
   c
-! c$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+! c$Id$
   c
         implicit none
   #include "cgridfile.fh"
@@ -198,14 +198,14 @@ diff -c -r1.14 -r1.14.2.1
 *** 1,6 ****
         logical function grid_insidesp(fnxyz,l_rect,rad)
   c
-! c$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+! c$Id$
   c
         implicit none
         integer fnxyz ! [in]
 --- 1,6 ----
         logical function grid_insidesp(fnxyz,l_rect,rad)
   c
-! c$Id: gridbq.patch,v 1.1 2006-01-12 18:48:40 edo Exp $
+! c$Id$
   c
         implicit none
         integer fnxyz ! [in]

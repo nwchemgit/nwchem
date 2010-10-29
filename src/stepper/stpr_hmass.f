@@ -1,5 +1,5 @@
       SUBROUTINE stpr_hmass(HESS,ATMASS)
-c $Id: stpr_hmass.f,v 1.1 1994-06-24 20:42:25 d3e129 Exp $
+c $Id$
 C
 C     This routine mass weights and scales the Hessian matrix.
 C     The scaling is done to avoid numerical problems in the

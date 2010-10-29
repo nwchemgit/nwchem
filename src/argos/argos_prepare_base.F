@@ -1,6 +1,6 @@
       integer function argos_prepare_base(isgm,isegm,csa,msa,nsa)
 c
-c $Id: argos_prepare_base.F,v 1.2 2000-12-13 19:59:23 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

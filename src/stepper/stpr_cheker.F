@@ -4,7 +4,7 @@
      &       CONVGE, CONVGG, CONVGGM,
      &       TRUSTI,TRUST,TRUSTO,SOLD,NNEG,NWALK,
      &       BCKSTP,CNVGRD)
-c $Id: stpr_cheker.F,v 1.9 2003-10-17 22:58:22 carlfahl Exp $
+c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "errquit.fh"
       LOGICAL BCKSTP,CNVGRD

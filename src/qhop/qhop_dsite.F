@@ -1,6 +1,6 @@
       subroutine qhop_dsite(ga,rsa,rind)
 c
-c $Id: qhop_dsite.F,v 1.2 2003-08-11 19:43:18 d3j191 Exp $
+c $Id$
 c
       implicit none
 c
@@ -22,7 +22,7 @@ c
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy)
 c
-c $Id: qhop_dsite.F,v 1.2 2003-08-11 19:43:18 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -1,5 +1,5 @@
 *
-* $Id: fci_ifill.F,v 1.2 1999-07-28 00:23:40 d3e129 Exp $
+* $Id$
 *
       subroutine ifill(ival,ix,iskip,n)
       implicit none

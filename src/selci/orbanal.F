@@ -2,7 +2,7 @@
      $     map)
       implicit none
 *
-* $Id: orbanal.F,v 1.3 1997-10-31 23:42:18 d3e129 Exp $
+* $Id$
 *
       integer noconf, nintpo, nbitpi, norbs
       integer ioconf(nintpo, noconf)

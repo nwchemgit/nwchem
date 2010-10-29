@@ -1,6 +1,6 @@
       subroutine dia_espplt()
 c
-c $Id: dia_pltgrd.F,v 1.2 2007-05-09 16:20:38 d3j191 Exp $
+c $Id$
 c
       implicit none
 c
@@ -29,7 +29,7 @@ c
       end
       subroutine dia_pltgrd(lprint,isel)
 c
-c $Id: dia_pltgrd.F,v 1.2 2007-05-09 16:20:38 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

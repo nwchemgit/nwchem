@@ -1,6 +1,6 @@
 #!/bin/csh
 #
-# $Id: prun,v 1.2 1999-07-28 00:39:12 d3e129 Exp $
+# $Id$
 #
 #
 # Script to run a parallel program on different systems

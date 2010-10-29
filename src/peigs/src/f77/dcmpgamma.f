@@ -1,5 +1,5 @@
 *
-* $Id: dcmpgamma.f,v 1.2 1999-07-28 00:39:44 d3e129 Exp $
+* $Id$
 *
 
       SUBROUTINE DCMPGAMMA( LAMBDA, DELTA, N, B1, BN, L, D,

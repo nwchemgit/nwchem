@@ -2,7 +2,7 @@
      $                               dm2, g_coul, g_exch,
      $                               g_x, g_ax )
 *
-* $Id: mcscf_ohvmo.F,v 1.5 2003-10-17 22:55:21 carlfahl Exp $
+* $Id$
 *
        implicit none
 #include "errquit.fh"

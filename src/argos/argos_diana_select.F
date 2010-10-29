@@ -1,6 +1,6 @@
       subroutine argos_diana_select(sgmnam,isel,wt,x,numsel)
 c
-c $Id: argos_diana_select.F,v 1.3 2007-01-30 00:46:21 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

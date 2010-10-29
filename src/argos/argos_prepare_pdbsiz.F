@@ -1,7 +1,7 @@
       logical function argos_prepare_pdbsiz(iunit,filnam,lfnout,
      + model,natm,nseq,nssb,nlnk,namslv,numslv,altloc,chain)
 c
-c $Id: argos_prepare_pdbsiz.F,v 1.17 2003-07-17 19:38:57 d3j191 Exp $
+c $Id$
 c
 c     function to read dimensions from a pdb formatted file
 c

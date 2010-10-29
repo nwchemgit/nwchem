@@ -1,4 +1,4 @@
-/*$Id: mkstemp.c,v 1.1 1995-03-31 01:55:30 d3g681 Exp $*/
+/*$Id$*/
 #include <sys/types.h>
 #include <stdio.h>
 #include <string.h>

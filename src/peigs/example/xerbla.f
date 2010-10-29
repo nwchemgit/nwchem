@@ -1,5 +1,5 @@
 *
-* $Id: xerbla.f,v 1.2 1999-07-28 00:39:16 d3e129 Exp $
+* $Id$
 *
       SUBROUTINE XERBLA( SRNAME, INFO )
 *
@@ -14,7 +14,7 @@
 *     ..
 *
 c
-* $Id: xerbla.f,v 1.2 1999-07-28 00:39:16 d3e129 Exp $
+* $Id$
 c
 *  Purpose
 *  =======

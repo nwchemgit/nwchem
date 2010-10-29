@@ -1,5 +1,5 @@
 c:geobasmapP.fh
-c $Id: geobasmapP.fh,v 1.4 1998-04-29 07:29:54 d3e129 Exp $
+c $Id$
 c
 cNOTE: this MUST follow basP.fh in the include order
 c

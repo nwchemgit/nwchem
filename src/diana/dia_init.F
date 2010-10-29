@@ -1,6 +1,6 @@
       subroutine dia_init
 c
-c $Id: dia_init.F,v 1.10 2007-05-11 00:05:10 d3j191 Exp $
+c $Id$
 c
 c
 c     initialize variables

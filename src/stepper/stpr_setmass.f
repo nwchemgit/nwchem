@@ -1,5 +1,5 @@
       SUBROUTINE stpr_setmass(AMS)
-c $Id: stpr_setmass.f,v 1.1 1994-06-24 20:42:43 d3e129 Exp $
+c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       COMMON / MASS / TOTM, NUMAS
       DIMENSION AMS(NUMAS)

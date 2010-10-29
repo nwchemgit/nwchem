@@ -1,5 +1,5 @@
       program compare
-* $Id: compare.F,v 1.3 2002-01-02 21:54:04 bert Exp $
+* $Id$
       implicit none
 #include "nwc_const.fh"
 #include "stdio.fh"

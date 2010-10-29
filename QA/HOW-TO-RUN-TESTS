@@ -1,4 +1,4 @@
- $Id: HOW-TO-RUN-TESTS,v 1.2 2001-01-29 19:51:48 windus Exp $
+ $Id$
 The Quality Assurance (QA) tests are designed to test most of
 the functionality of NWChem.  As such, it is useful to run at least
 some of the tests when first installing NWChem at a site.  It is

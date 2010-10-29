@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.4 2006-05-23 18:33:05 edo Exp $
+# $Id$
 #
 
   LIBRARY = libperfm.a

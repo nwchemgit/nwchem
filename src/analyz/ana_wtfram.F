@@ -1,7 +1,7 @@
       subroutine ana_wtfram(iunit,fmt,x,sgmnam,w,isel,tag,val,
      + iwsel,ndxw)
 c
-c $Id: ana_wtfram.F,v 1.57 2007-02-06 16:32:22 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

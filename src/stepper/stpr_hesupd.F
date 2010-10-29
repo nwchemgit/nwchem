@@ -1,5 +1,5 @@
       SUBROUTINE stpr_hesupd ( STEP, GRAD, HESIAN, SCR )
-c $Id: stpr_hesupd.F,v 1.3 2003-10-17 22:58:22 carlfahl Exp $
+c $Id$
 C
 C     This subroutine updates the hessian using the hessian from the
 C     old geometry and the difference in the coordinates and

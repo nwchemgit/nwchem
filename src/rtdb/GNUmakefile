@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.30 2008-06-20 20:25:05 d3p307 Exp $
+# $Id$
   export ARMCI_DIR_NAME := armci
 ifeq ($(ARMCI_NETWORK),PORTALS)
   export ARMCI_DIR_NAME := armci-portals

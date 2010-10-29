@@ -3,7 +3,7 @@ C NAME
 C     CCDen_Interm2 -- Form two-index intermediates for density
 C
 C REVISION
-C     $Id: ccden_interm2.F,v 2.7 2009-02-07 02:05:58 windus Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine CCDen_Interm2(NOcc, NVir, T1, LDT1, g_T2,
@@ -251,7 +251,7 @@ C
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C REVISION
-C     $Id: ccden_interm2.F,v 2.7 2009-02-07 02:05:58 windus Exp $
+C     $Id$
 C SYNOPSIS
       Subroutine CCSD_T2_MyIJ(Node, NVir, g_T2, ILo, IHi, JLo, JHi)
       Implicit NONE

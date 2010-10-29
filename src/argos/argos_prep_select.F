@@ -1,7 +1,7 @@
       logical function argos_prep_select(card,isegm,ismol,csa,msa,nsa,
      + maxgrp,maxatm,igroup,lgroup,mgroup)
 c
-c $Id: argos_prep_select.F,v 1.16 2003-10-19 03:30:59 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

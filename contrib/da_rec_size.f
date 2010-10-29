@@ -4,7 +4,7 @@ c     each.  Simply run this program and check the size resulting file
 c     'da_rec_size.test' (in bytes) using 'ls' and divide by 1024 units.
 C
       Program da_rec_size
-C$Id: da_rec_size.f,v 1.1 1997-02-17 21:23:49 gg502 Exp $
+C$Id$
       Implicit NONE
       Integer RecLen
       Parameter (RecLen = 512)

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.6 2007-05-09 16:20:38 d3j191 Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = dia_alloc.o\
                 dia_angle.o\

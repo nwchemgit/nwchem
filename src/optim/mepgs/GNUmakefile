@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.25 2005/08/08 22:25:14 edo Exp $
+# $Id$
 #
 
 LIBRARY = liboptim.a

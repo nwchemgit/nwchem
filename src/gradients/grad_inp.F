@@ -1,5 +1,5 @@
       subroutine gradients_input(rtdb)
-C$Id: grad_inp.F,v 1.2 2003-10-17 22:55:09 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

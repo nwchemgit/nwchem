@@ -1,5 +1,5 @@
 *
-* $Id: qmmm_lbfgsb.F,v 1.11 2008-12-04 17:01:00 d3p852 Exp $
+* $Id$
 *
 c        Modified lbfgs driver for use with QMMM
 c

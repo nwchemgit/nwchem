@@ -10,7 +10,7 @@
       end
       logical function drdy_nwchem(rtdb)
 *
-* $Id: drdy.F,v 1.6 2003-10-17 22:54:46 carlfahl Exp $
+* $Id$
 *
 C
 C DRDYNWChem - DiRect DYnamics with the NWChem electronic structure code

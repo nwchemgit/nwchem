@@ -1,6 +1,6 @@
       logical function argos_diana_rdfram(x,w)
 c
-c $Id: argos_diana_rdfram.F,v 1.7 2007-03-08 23:07:21 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

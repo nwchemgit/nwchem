@@ -1,4 +1,4 @@
-C $Id: path.F,v 1.5 2007-01-18 16:52:03 d3p307 Exp $
+C $Id$
       Subroutine drdy_path(ns)
 C
 C  Calculate steepest descent path from saddle point

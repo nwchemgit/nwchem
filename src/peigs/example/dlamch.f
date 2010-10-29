@@ -1,5 +1,5 @@
 *
-* $Id: dlamch.f,v 1.2 1999-07-28 00:39:11 d3e129 Exp $
+* $Id$
 *
       DOUBLE PRECISION FUNCTION DLAMCH( CMACH )
 *

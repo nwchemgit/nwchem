@@ -1,7 +1,7 @@
       logical function argos_prep_dihimp(latm,matm,natm,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp)
 c
-c $Id: argos_prep_dihimp.F,v 1.6 2003-07-31 04:09:31 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -2,7 +2,7 @@
 # aix-renamer (for NWChem)
 # Usage: make link |& aix-renamer > aix-ld-rename-switches
 #
-# $Id: aix-renamer,v 1.1 1996-05-26 20:51:14 gg502 Exp $
+# $Id$
 #
 # This script extract the undefined symbol error messages from an
 # attempt to link a mixed Fortran/C program compiled with -qextname and

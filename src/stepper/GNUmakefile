@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.34 2000-08-28 23:26:59 edo Exp $
+# $Id$
        HEADERS = 
   OBJ_OPTIMIZE = stpr_partit.o 
            OBJ = stpr_cheker.o     stpr_chkhess.o    stpr_clnstp.o  \

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2000-02-25 00:47:20 windus Exp $
+# $Id$
 #
 
   LIBRARY = libvscf.a

@@ -1,6 +1,6 @@
       subroutine argos_cafe_pbc(iopt,xd,ndd,xc,ndc,noff,n0,n1)
 c
-c $Id: argos_cafe_pbc.F,v 1.6 2000-03-17 05:30:27 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

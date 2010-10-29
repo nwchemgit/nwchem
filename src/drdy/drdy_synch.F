@@ -1,4 +1,4 @@
-C $Id: drdy_synch.F,v 1.11 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       subroutine drdy_synch(opcode,calling_routine)
       implicit none
 #include "errquit.fh"

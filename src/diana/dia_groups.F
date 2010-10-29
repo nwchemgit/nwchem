@@ -1,6 +1,6 @@
       subroutine dia_groups(sgmnam,imol,isel,wt,x)
 c
-c $Id: dia_groups.F,v 1.3 2007-02-06 21:24:16 d3j191 Exp $
+c $Id$
 c
       implicit none
 c
@@ -47,7 +47,7 @@ c
       end
       subroutine dia_group(sgmnam,imol,isel,wt,x,iwrk)
 c
-c $Id: dia_groups.F,v 1.3 2007-02-06 21:24:16 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

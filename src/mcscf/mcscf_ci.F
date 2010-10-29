@@ -6,7 +6,7 @@ c
      $                          g_coul, citol, ociread, oprint,
      $                          ociprint, dm1, dm2, eci )
 *
-* $Id: mcscf_ci.F,v 1.24 2003-10-17 22:55:21 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,5 +1,5 @@
       SUBROUTINE vib_NMASS(VECTOR,ATMASS)
-* $Id: vib_nmass.F,v 1.4 1997-06-12 22:51:49 d3e129 Exp $
+* $Id$
 C
 C  This routine unmass weights the normal mode vectors.
 C

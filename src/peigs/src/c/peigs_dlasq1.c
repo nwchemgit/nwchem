@@ -1,5 +1,5 @@
 /*
- $Id: peigs_dlasq1.c,v 1.9 2000-10-24 21:23:14 d3g270 Exp $
+ $Id$
 */
 
 #include <stdio.h>

@@ -2,7 +2,7 @@
      + cseq,lseq,mseq,nseq,lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,nlnkf,
      + slvmdl,mcount,ncount,icount,scount,mfract,nfract,ifract)
 c
-c $Id: argos_prep_wrtseq.F,v 1.12 2003-07-17 19:38:58 d3j191 Exp $
+c $Id$
 c
 c     function to write the sequence file
 c

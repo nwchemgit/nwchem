@@ -1,5 +1,5 @@
 *
-* $Id: rak28.F,v 1.3 2003-10-17 22:54:39 carlfahl Exp $
+* $Id$
 *
       logical function raktask_geomcalc(rtdb)
 *test geom calc stuff

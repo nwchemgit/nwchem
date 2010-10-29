@@ -7,7 +7,7 @@
 CFG=DIRWRAP_wrap - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
-!MESSAGE $Id: wrap.dsp,v 1.2 2000-08-08 23:29:48 bjohnson Exp $
+!MESSAGE $Id$
 !MESSAGE NMAKE /f "DIRWRAP_wrap.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE

@@ -1,6 +1,6 @@
       logical function argos_prep_parcnv(icomb,latt,patt,catt,matt,natt)
 c
-c $Id: argos_prep_parcnv.F,v 1.7 2002-02-09 05:48:17 d3j191 Exp $
+c $Id$
 c
       implicit none
 c
@@ -105,7 +105,7 @@ c
       end
       logical function argos_prep_parcnv(icomb,latt,patt,matt,natt)
 c
-c $Id: argos_prep_parcom.F,v 1.2 1998-04-29 18:35:20 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -1,4 +1,4 @@
-c $Id: cons_input.F,v 1.14 2004-09-21 19:12:09 marat Exp $
+c $Id$
       subroutine cons_input(rtdb)
       implicit none
 #include "errquit.fh"

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.34 2008-05-13 00:19:20 jhammond Exp $
+# $Id$
 #
 
   LIBRARY = libnwctask.a

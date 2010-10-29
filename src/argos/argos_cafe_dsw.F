@@ -3,7 +3,7 @@
      + xw,xwm,pw,pwp,iwq,lpbc,chg,lswndx,lswjpt,lswin,lswj,
      + rwc,xi,xj,rwx,pl,pj,fi,fj,isal)
 c
-c $Id: argos_cafe_d.F,v 1.7 2003-10-19 03:30:56 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

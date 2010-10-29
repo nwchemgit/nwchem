@@ -1,6 +1,6 @@
       subroutine sym_op_class_name(op_type, order, power, direction,
      $     group_name, class)
-C$Id: sym_op_cname.F,v 1.5 2000-11-05 19:23:14 d3g681 Exp $
+C$Id$
       implicit none
 #include "inp.fh"
 c     

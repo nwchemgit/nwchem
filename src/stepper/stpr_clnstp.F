@@ -1,5 +1,5 @@
       SUBROUTINE stpr_clnstp(STEP,THRES)
-c $Id: stpr_clnstp.F,v 1.2 1997-03-04 06:07:52 d3e129 Exp $
+c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       COMMON / CFACE / IWCTR,NATOM,ICALC
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR

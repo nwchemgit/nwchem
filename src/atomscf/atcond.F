@@ -1,5 +1,5 @@
       subroutine atcond(zn,ncsh,nosh,nccup,ajmn,nsym,znps,spec) 
-* $Id: atcond.F,v 1.10 2007-11-13 22:15:58 bert Exp $
+* $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

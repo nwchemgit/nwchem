@@ -1,5 +1,5 @@
       SUBROUTINE vib_HMASS(HESST,ATMASS,first_pass)
-* $Id: vib_hmass.F,v 1.5 2003-03-14 01:56:09 edo Exp $
+* $Id$
 C
 C  This routine mass weights and scales the Hessian matrix
 C       The scaling is done to avoid numerical problems in the

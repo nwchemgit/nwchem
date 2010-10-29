@@ -1,4 +1,4 @@
-/*$Id: rjhmisc.h,v 1.1 1995-03-31 01:55:38 d3g681 Exp $*/
+/*$Id$*/
 #define error(format,data) \
   {(void) fflush(stdout); \
    (void) fprintf(stderr,format,data); \

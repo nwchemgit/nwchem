@@ -1,6 +1,6 @@
       subroutine ana_rdhdr(sgmnam)
 c
-c $Id: ana_rdhdr.F,v 1.17 2006-03-23 01:12:26 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

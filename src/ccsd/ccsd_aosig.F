@@ -4,7 +4,7 @@
      &                      g_tz2)
       implicit none
 #include "errquit.fh"
-C     $Id: ccsd_aosig.F,v 2.8 2004-09-07 06:11:18 windus Exp $
+C     $Id$
       integer nsh,nocc,nvir,nbf,next,icnt,basis,max2e,mem2
       integer ish,jsh,ksh,lsh,ilo,ihi,jlo,jhi,klo,khi,llo,lhi
       integer g_ilo,g_ihi,g_jlo,g_jhi

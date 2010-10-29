@@ -1,7 +1,7 @@
       logical function argos_prepare_frgsiz(lfn,fil,lfnout,
      + natm,nbnd,nzmat,nparms,ipardef)
 c
-c $Id: argos_prepare_frgsiz.F,v 1.12 2003-08-29 15:32:24 d3j191 Exp $
+c $Id$
 c
 c     function to read dimensions from a frg file
 c

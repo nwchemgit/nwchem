@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_geom_data.fh,v 1.3 2005-06-15 05:39:00 marat Exp $
+c $Id$
 c
       character*256 oldgeom
       logical aux_geom

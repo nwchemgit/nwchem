@@ -1,5 +1,5 @@
       subroutine dntmc_input(rtdb)
-C     $Id: dntmc_input.F,v 1.6 2008-07-18 15:09:26 windus Exp $
+C     $Id$
 C     version 5.0  Dec. 20, 2007 full release version (lcrosby)
 C     modified to include input of number of bins (nob) June 10, 2008 (lcrosby)
 

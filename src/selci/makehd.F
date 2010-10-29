@@ -2,7 +2,7 @@
      $     ns,nd,indbar,iocc,lists,listd,w1,w2,
      $              work1,work2,f,h,g,int12,int34,numf)
 *
-* $Id: makehd.F,v 1.2 1997-10-31 23:42:11 d3e129 Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "ciinfo.fh"

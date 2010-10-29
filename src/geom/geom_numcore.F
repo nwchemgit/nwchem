@@ -6,7 +6,7 @@ C
 C SYNOPSIS
       Logical Function Geom_Num_Core(rtdb, Geom, module, NCore)
 *
-* $Id: geom_numcore.F,v 1.7 2003-02-20 17:22:00 edo Exp $
+* $Id$
 *
       Implicit NONE
 C

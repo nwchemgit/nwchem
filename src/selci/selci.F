@@ -1,6 +1,6 @@
       logical function selci(rtdb)
 *
-* $Id: selci.F,v 1.13 2004-05-17 20:27:47 edo Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

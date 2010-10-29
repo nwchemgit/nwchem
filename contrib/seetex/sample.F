@@ -9,7 +9,7 @@ c:tex-\begin{verbatim}
       logical function cando_sp(basisin,ish,jsh)
 c:tex-\end{verbatim}
       implicit none
-c $Id: sample.F,v 1.1 1996-07-02 23:02:15 d3e129 Exp $
+c $Id$
 c
 c this routine does not check the shell and int_init
 c because it is only called by routines that do this.

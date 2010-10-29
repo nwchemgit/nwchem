@@ -1,4 +1,4 @@
-# $Id: z3pol,v 1.1 2008-03-23 00:54:07 jhammond Exp $
+# $Id$
 basis "H_Z3Pol" SPHERICAL
   H    S
     33.685014     0.006080

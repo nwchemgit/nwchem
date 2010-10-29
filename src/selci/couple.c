@@ -1,5 +1,5 @@
 /*
- $Id: couple.c,v 1.11 2004-05-05 02:24:15 edo Exp $
+ $Id$
  */
 
 #include <math.h>

@@ -1,5 +1,5 @@
       subroutine teigd(pcap,qcap,u,t,dt,dos)
-C$Id: teigd.F,v 1.4 2000-10-23 23:37:44 windus Exp $
+C$Id$
       implicit none
       logical klnemn
       real *8  pcap(*),qcap(*),u(*),t(*),dos(*),dt(*)

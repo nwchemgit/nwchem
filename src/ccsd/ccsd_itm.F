@@ -7,7 +7,7 @@
      &                    scra,scrb,scrc,scrd,scre,scrf,
      &                    g_nt2,g_nht2,g_ncoul,g_nexch,g_x,g_c,g_sht2,
      &                    iprt)
-C     $Id: ccsd_itm.F,v 2.13 2004/12/16 02:40:47 edo Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
       integer nocc,nvir,nact,g_nt2,g_nht2,g_ncoul,g_nexch,

@@ -2,7 +2,7 @@
      + nwm,nwa,
      + box)
 c
-c $Id: argos_prepare_slvrd.F,v 1.4 2000-01-10 21:36:42 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

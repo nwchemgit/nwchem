@@ -1,4 +1,4 @@
-C $Id: drdy_input.F,v 1.11 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       subroutine drdy_input(rtdb)
       implicit none
 #include "errquit.fh"

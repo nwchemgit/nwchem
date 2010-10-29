@@ -1,6 +1,6 @@
       subroutine setinp(ir,iw)
 *
-* $Id: input.F,v 1.5 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
       implicit real*8    (a-h,p-w),integer   (i-n),logical    (o)
       implicit character *8 (z),character *1 (x)

@@ -3,7 +3,7 @@
      $     nmo,map_a, map_b,
      $     g_vecs_a,g_vecs_b,basis,scftype)
 *
-* $Id: mp2_make_tot_dens.F,v 1.13 2003-10-17 22:55:29 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

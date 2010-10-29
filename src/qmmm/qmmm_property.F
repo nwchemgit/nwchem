@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_property.F,v 1.1 2006-01-22 07:03:30 marat Exp $
+c $Id$
 c
 c
       function task_qmmm_property(rtdb)

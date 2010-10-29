@@ -1,5 +1,5 @@
 
-/*$Id: rtdb.cray.h,v 1.5 2004-01-19 19:08:36 edo Exp $*/
+/*$Id$*/
 #if (defined(CRAY) || defined(WIN32)) &&!defined(__crayx1)
 #define  context_pop_              CONTEXT_POP 
 #define  context_prefix_            CONTEXT_PREFIX 

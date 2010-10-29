@@ -1,7 +1,7 @@
       subroutine cf_dww(xw,xwm,pw,pwp,iwfrom,nlocw,lpbc,chg,iwq,
      + lwwndx,lwwjpt,lwwin,lwwj,rwc,xi,xj,rwx,pl,pj,fi,fj)
 c
-c $Id: cf_d.F,v 1.7 2003-10-19 03:30:56 d3j191 Exp $
+c $Id$
 c
       implicit none
 c
@@ -288,7 +288,7 @@ c
      + xw,xwm,pw,pwp,iwq,lpbc,chg,lswndx,lswjpt,lswin,lswj,
      + rwc,xi,xj,rwx,pl,pj,fi,fj,isal)
 c
-c $Id: cf_d.F,v 1.7 2003-10-19 03:30:56 d3j191 Exp $
+c $Id$
 c
       implicit none
 c
@@ -677,7 +677,7 @@ c
      + lpbc,chg,lssndx,lssjpt,lssin,lssj,xi,xj,rwc,rwi1,rwi2,rwi6,
      + rwx,rw,fi,fj,f,isal,jsal,jmal,jfal,pl,pj)
 c
-c $Id: cf_d.F,v 1.7 2003-10-19 03:30:56 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

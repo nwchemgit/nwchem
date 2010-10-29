@@ -1,6 +1,6 @@
       subroutine print_exndcf(msg)
       implicit none
-c $Id: basisP.F,v 1.24 2003-10-17 22:54:18 carlfahl Exp $
+c $Id$
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "util.fh"

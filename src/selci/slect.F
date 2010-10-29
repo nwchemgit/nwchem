@@ -2,7 +2,7 @@
      $     roots,ci,nconmx,ncold,thresh,ept,enew,irange, ptnorm,
      &     ptnorm_mp,ept_mp,roots_mp,min2c)
 *
-* $Id: slect.F,v 1.5 2005-01-31 21:25:17 edo Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "ciinfo.fh"

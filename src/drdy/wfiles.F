@@ -1,4 +1,4 @@
-C $Id: wfiles.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       Subroutine drdy_wfiles (swf,iflg)
 C
       Implicit none

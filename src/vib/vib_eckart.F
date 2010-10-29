@@ -1,6 +1,6 @@
       SUBROUTINE vib_eckart( HESS, HESSP, HESST, COORD, VC ,
      ,     w1,w2)
-* $Id: vib_eckart.F,v 1.7 2002-03-26 07:01:13 edo Exp $
+* $Id$
       IMPLICIT none ! REAL*8 (A-H,O-Z)
 c
 #include "util.fh"

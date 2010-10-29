@@ -1,7 +1,7 @@
       subroutine selci_gtijkl(ind,ioconf,joconf,nintpo,nbitpi,
      $     iocc,icase)
 *
-* $Id: gtijkl.F,v 1.3 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
       dimension ind(*),ioconf(nintpo),joconf(nintpo),iocc(*)
       dimension ijocc(4)

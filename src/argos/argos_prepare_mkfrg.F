@@ -5,7 +5,7 @@
      + lang,mang,ldih,mdih,limp,mimp,
      + maxscf,qscale,llnk,clnk,mlnk,nlnk)
 c
-c $Id: argos_prepare_mkfrg.F,v 1.43 2003-10-19 03:30:58 d3j191 Exp $
+c $Id$
 c
 c     function to prepare missing fragment definitions
 c

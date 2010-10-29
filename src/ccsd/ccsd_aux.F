@@ -1,5 +1,5 @@
         subroutine mxtrn(mxin,mxout,idim,jdim)
-C     $Id: ccsd_aux.F,v 2.4 2006-06-09 00:04:14 edo Exp $
+C     $Id$
         implicit none
         integer idim,jdim
         double precision mxin(idim,jdim),mxout(jdim,idim)

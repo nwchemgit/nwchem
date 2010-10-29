@@ -1,6 +1,6 @@
       subroutine ana_task
 c
-c $Id: ana_task.F,v 1.110 2009-01-12 16:57:48 d3p307 Exp $
+c $Id$
 c
       implicit none
 c

@@ -31,7 +31,7 @@ c     in/out int : lstptr          : list pointer
 c
 c     dimensions nwm,nwa and nsa need to have been given by a call to argos_cafe_initx
 c
-c $Id: argos_cafe_induce.F,v 1.9 2005-01-08 19:17:20 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "argos_cafe_common.fh"

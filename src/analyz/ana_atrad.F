@@ -1,6 +1,6 @@
       real*8 function ana_atrad(number)
 c
-c $Id: ana_atrad.F,v 1.3 2000-07-06 18:46:58 d3j191 Exp $
+c $Id$
 c
       implicit none
       integer number

@@ -1,5 +1,5 @@
 *
-* $Id: dgetavec3.f,v 1.3 2000-10-24 18:41:39 d3g270 Exp $
+* $Id$
 *
       SUBROUTINE DGETAVEC3( LAMBDA, DELTA, N, B1, BN, L, D, LD,
      $     LLD, LPLUS,

@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.21 2004-04-30 01:29:24 edo Exp $
+# $Id$
 
  SOURCE = ack.tex execution.tex mcscf.tex sample.tex symex.tex \
           basis.tex fourindex.tex scf.tex top-level.tex \

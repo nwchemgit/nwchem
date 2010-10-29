@@ -7,7 +7,7 @@
 #
 # 3/19/98
 #
-# $Id: write_frames.pl,v 1.7 2004-04-17 02:40:00 edo Exp $
+# $Id$
 #
 # remove nwchem banner stuff 3/23/98
 #

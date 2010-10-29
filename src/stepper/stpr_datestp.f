@@ -1,5 +1,5 @@
       subroutine stpr_datestp(iunit,msg)
-* $Id: stpr_datestp.f,v 1.1 1995-12-12 20:18:42 d3e129 Exp $
+* $Id$
 c
 c prints date stamp and message "msg" to unit "iunit"
 c

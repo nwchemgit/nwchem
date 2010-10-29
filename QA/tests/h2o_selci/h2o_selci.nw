@@ -1,4 +1,4 @@
-# $Id: h2o_selci.nw,v 1.4 2003-04-16 22:49:19 edo Exp $
+# $Id$
 echo
 
 # Selected CI with perturbation correction (1 frozen core) geometry

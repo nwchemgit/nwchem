@@ -1,5 +1,5 @@
 *
-* $Id: cons_data.fh,v 1.7 2004-09-21 19:12:09 marat Exp $
+* $Id$
 *
 
       integer max_fixed_atoms

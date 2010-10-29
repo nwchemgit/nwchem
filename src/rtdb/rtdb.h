@@ -1,4 +1,4 @@
-/*$Id: rtdb.h,v 1.7 2004-08-13 11:23:27 edo Exp $*/
+/*$Id$*/
 #ifndef RTDB_H
 #define RTDB_H
 

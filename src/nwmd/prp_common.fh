@@ -1,5 +1,5 @@
 c
-c $Id: prp_common.fh,v 1.35 2008-07-03 18:05:48 d3j191 Exp $
+c $Id$
 c
 c
       real*8 zero,tiny,half,one

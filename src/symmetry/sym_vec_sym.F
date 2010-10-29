@@ -1,5 +1,5 @@
       subroutine sym_vec_symmetrize(geom, basis, vec)
-C$Id: sym_vec_sym.F,v 1.6 2003-10-28 19:51:26 edo Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

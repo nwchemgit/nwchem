@@ -1,6 +1,6 @@
       real*8 function dia_torsion(x,nx,w,nw,na,i,i2,j,j2,k,k2,l,l2)
 c
-c $Id: dia_torsion.F,v 1.2 2007-02-03 00:40:52 d3j191 Exp $
+c $Id$
 c
       implicit none
 #include "global.fh"

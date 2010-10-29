@@ -1,5 +1,5 @@
       subroutine sym_ops_get(geom,numops,symops)
-C$Id: sym_ops_get.F,v 1.5 1999-07-14 00:29:11 d3e129 Exp $
+C$Id$
       implicit none
 c
 #include "mafdecls.fh"

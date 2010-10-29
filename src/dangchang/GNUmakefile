@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.1 2008-03-02 04:36:18 windus Exp $
+#$Id$
    OBJ_OPTIMIZE = dc_energy.o
 
    OBJ = dc_initialize.o dc_setgeom.o

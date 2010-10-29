@@ -1,5 +1,5 @@
 *
-* $Id: dgetavec.F,v 1.17 2000-10-24 18:41:39 d3g270 Exp $
+* $Id$
 *
 #include "blas_lapackf.h"
 c      

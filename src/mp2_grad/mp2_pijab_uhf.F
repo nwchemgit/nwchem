@@ -6,7 +6,7 @@
      $     tunita,tunitb,eval_a,eval_b,
      $     g_p_ij_a,g_p_ij_b,g_p_ab_a,g_p_ab_b)
 *
-* $Id: mp2_pijab_uhf.F,v 1.13 2003-10-17 22:55:29 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

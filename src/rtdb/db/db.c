@@ -1,4 +1,4 @@
-/*$Id: db.c,v 1.1 1995-03-31 01:54:52 d3g681 Exp $*/
+/*$Id$*/
 /*-
  * Copyright (c) 1991, 1993
  *	The Regents of the University of California.  All rights reserved.

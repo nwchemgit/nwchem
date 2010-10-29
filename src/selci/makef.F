@@ -1,7 +1,7 @@
       subroutine selci_makef(f,h,g,int12,int34,iocc,listd,lists,ns,nd,
      $     odonly)
 *
-* $Id: makef.F,v 1.3 1997-10-31 23:42:09 d3e129 Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "ciinfo.fh"

@@ -1,5 +1,5 @@
 /*
- $Id: raktestc.c,v 1.6 2000-07-27 16:03:08 bjohnson Exp $
+ $Id$
  */
 
 #include "typesf2c.h"

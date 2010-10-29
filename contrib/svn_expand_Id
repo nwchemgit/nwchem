@@ -24,6 +24,12 @@
 # a following commit. So every time this script is run only new files or files
 # which have newly acquired the Id keyword will be modified and checked in.
 #
+# ** Note from experience: For this kind of modification SVN (version 1.6.2
+#    (r37639)) needs about 1MB of memory per file. So checking 1000 files in at
+#    once requires 1GB of memory. So if many files have been modified you may
+#    need to check the changes in in batches, rather than attempting to check
+#    everything in at once.
+#
 # To address all files within NWChem this script has to be run in the
 # directory indicated by the NWCHEM_TOP environment variable. I.e. it finds 
 # files only in the directory from where it is run and all sub-directories.

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2005-08-08 23:50:37 marat Exp $
+# $Id$
 #
 
 OBJ_OPTIMIZE =  neb_input.o neb_drv.o neb_utils.o bead_list.o 

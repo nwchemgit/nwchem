@@ -1,6 +1,6 @@
       subroutine dia_rtdbin
 c
-c $Id: dia_rtdbin.F,v 1.1 2006-12-10 01:03:23 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

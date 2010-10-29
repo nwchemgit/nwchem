@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.7 2004-10-20 17:52:25 edo Exp $	
+#	$Id$	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -91,7 +91,7 @@ LIBRARY = peigs.lib
 !IF 0
 
 #
-# $Id: MakeFile,v 1.7 2004-10-20 17:52:25 edo Exp $
+# $Id$
 #
 
 include ../../DEFS

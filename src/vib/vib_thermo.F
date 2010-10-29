@@ -3,7 +3,7 @@
       implicit none
 #include "errquit.fh"
 *
-* $Id: vib_thermo.F,v 1.7 2003-10-17 22:58:37 carlfahl Exp $
+* $Id$
 *
 * routine to compute the thermodynamic properties under the 
 * rigid rotor harmonic approximation:

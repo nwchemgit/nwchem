@@ -1,5 +1,5 @@
 *
-* $Id: drdyP.fh,v 1.2 2001-01-19 17:43:11 windus Exp $
+* $Id$
 *
       Double Precision autocm,cau,ckcal,ckg,cang,sreact,sprod
       Parameter (autocm = 2.19474629d+05) 

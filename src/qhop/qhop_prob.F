@@ -25,7 +25,7 @@ c
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy,e120)
 c
-c $Id: qhop_prob.F,v 1.7 2006-09-18 15:45:00 d3j191 Exp $
+c $Id$
 c
 c     
 c     The hopping probability prob is calculated given the difference in 

@@ -1,7 +1,7 @@
       logical function argos_prep_hnames(latm,catm,matm,natm,
      + lbnd,mbnd,nbnd)
 c
-c $Id: argos_prep_hnames.F,v 1.2 1998-04-29 18:35:16 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

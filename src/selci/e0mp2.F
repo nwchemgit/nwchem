@@ -1,6 +1,6 @@
       subroutine selci_brdeig
 *
-* $Id: e0mp2.F,v 1.6 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "ciinfo.fh"

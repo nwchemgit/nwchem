@@ -1,4 +1,4 @@
-c $Id: et_dgefa.F,v 1.4 2003-03-20 20:45:33 edo Exp $
+c $Id$
 c called by et_det.F
       subroutine dgedi(a,lda,n,ipvt,det,work,job)
       integer lda,n,ipvt(1),job

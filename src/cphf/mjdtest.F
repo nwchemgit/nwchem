@@ -1,6 +1,6 @@
        subroutine mjdtest(rtdb)
 *
-* $Id: mjdtest.F,v 1.6 2003-12-12 22:52:23 marat Exp $
+* $Id$
 *
        implicit none
  #include "errquit.fh"

@@ -5,7 +5,7 @@
 #include "mafdecls.fh"
       integer rtdb
 *
-* $Id: task_num_grad.F,v 1.40 2008-03-03 20:09:05 niri Exp $
+* $Id$
 *
 #include "inp.fh"
       logical analytic

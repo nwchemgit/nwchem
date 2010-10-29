@@ -1,7 +1,7 @@
       subroutine selci_insert(n,item,list,nintpo,ipos)
 #include "errquit.fh"
 *
-* $Id: bserch.F,v 1.1 2003-10-17 22:33:53 carlfahl Exp $
+* $Id$
 *
       integer list(*),item(*)
 c

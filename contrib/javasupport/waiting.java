@@ -1,7 +1,7 @@
 import java.awt.*;
 import java.awt.event.*;
 
-// $Id: waiting.java,v 1.2 1998-05-29 21:29:09 d3e129 Exp $
+// $Id$
 
 public class waiting extends Frame {
 	Label label1;

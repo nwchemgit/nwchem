@@ -5,7 +5,7 @@
      &     oseg_lo,oseg_hi,
      $     kchunk, Tij, Tkj, Tia, Tka, Xia, Xka, Jia, Jka, Kia, Kka,
      $     Jij, Jkj, Kij, Kkj, Dja, Djka, Djia)
-C     $Id: ccsd_trpdrv.F,v 2.10 2004-12-16 23:02:58 edo Exp $
+C     $Id$
       implicit none
 c
 #include "global.fh"

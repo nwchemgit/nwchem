@@ -1,7 +1,7 @@
       logical function argos_prepare_hybrid(xatm,latm,matm,natm,lbnd,
      + mbnd,nbnd)
 c
-c $Id: argos_prepare_hybrid.F,v 1.11 2000-07-06 18:48:56 d3j191 Exp $
+c $Id$
 c
 c     in  : xatm(3,matm) = atomic coordinates
 c         : latm(2,matm) = atomic numbers

@@ -1,5 +1,5 @@
       logical function task_optimize(rtdb)
-c     $Id: task_optimize.F,v 1.31 2009/02/03 22:50:20 niri Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -190,7 +190,7 @@ c
       end
 c
       logical function task_saddle(rtdb)
-c     $Id: task_optimize.F,v 1.31 2009/02/03 22:50:20 niri Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -349,7 +349,7 @@ c
       end
 c
       logical function task_lst(rtdb)
-c     $Id: task_optimize.F,v 1.31 2009/02/03 22:50:20 niri Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

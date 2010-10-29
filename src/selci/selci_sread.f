@@ -1,6 +1,6 @@
       subroutine selci_sread(itape,a,n)
 *
-* $Id: selci_sread.f,v 1.2 2003-10-27 23:24:43 marat Exp $
+* $Id$
 *
       real*8 a(n)
       parameter (lenbuf = 512)

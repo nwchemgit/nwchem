@@ -8,8 +8,8 @@ diff -u -r1.44 -r1.44.2.1
 +++ nwchem-4.6/src/geom/geom_hnd.F	24 Sep 2004 17:47:08 -0000	1.44.2.1
 @@ -1,5 +1,5 @@
  *
--* $Id: geom_hnd.patch,v 1.1 2006-01-12 18:51:44 edo Exp $
-+* $Id: geom_hnd.patch,v 1.1 2006-01-12 18:51:44 edo Exp $
+-* $Id$
++* $Id$
  *
        subroutine geom_bandbi(geom)
        implicit none

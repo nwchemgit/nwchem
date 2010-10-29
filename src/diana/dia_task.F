@@ -1,6 +1,6 @@
       subroutine dia_task
 c
-c $Id: dia_task.F,v 1.15 2007-05-11 00:05:11 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

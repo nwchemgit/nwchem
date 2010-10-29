@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.1 2000-10-24 02:37:35 d3j191 Exp $
+# $Id$
 #
 
  OBJ_OPTIMIZE =  qmd_start.o qmd_main.o 

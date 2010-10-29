@@ -3,7 +3,7 @@
      + idsb,cdsb,msb,nsb,grid,mgrid,ngrid,gdist,nmis,iwater,iwfnd,xw,
      + qwa,mwm,mwa,nwm,nwa,npbtyp,box,fcount,nrgrid,iogrid,rogrid)
 c
-c $Id: argos_prep_misfit.F,v 1.40 2004-04-20 14:46:24 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

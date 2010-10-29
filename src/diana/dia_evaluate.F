@@ -1,6 +1,6 @@
       subroutine dia_evaluate()
 c
-c $Id: dia_evaluate.F,v 1.9 2007-05-09 18:05:00 d3j191 Exp $
+c $Id$
 c
 c     evaluate the defined properties
 c     -------------------------------

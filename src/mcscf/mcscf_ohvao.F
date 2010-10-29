@@ -1,5 +1,5 @@
 *
-* $Id: mcscf_ohvao.F,v 1.9 2003-10-17 22:55:21 carlfahl Exp $
+* $Id$
 *
        subroutine mcscf_hessv_2e_ao( geom, basis, nbf, nclosed, nact,
      $                               tol2e, oskel, dm1, g_movecs,

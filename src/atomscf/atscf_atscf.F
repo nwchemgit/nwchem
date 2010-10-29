@@ -3,7 +3,7 @@
      $     cc_out, energy_out, eps_out,spec)
       implicit none
 #include "errquit.fh"
-* $Id: atscf_atscf.F,v 1.8 2007-11-13 22:15:58 bert Exp $
+* $Id$
 #include "geom.fh"
 #include "bas.fh"
 #include "cguess.fh"

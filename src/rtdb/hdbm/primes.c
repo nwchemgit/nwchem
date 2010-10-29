@@ -1,5 +1,5 @@
 /*
- $Id: primes.c,v 1.2 1997-10-31 23:51:45 d3e129 Exp $
+ $Id$
  */
 
 #include <stdio.h>

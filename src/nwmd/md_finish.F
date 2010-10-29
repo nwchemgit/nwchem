@@ -1,6 +1,6 @@
       subroutine md_finish()
 c
-c $Id: md_finish.F,v 1.41 2008-08-22 21:35:13 marat Exp $
+c $Id$
 c
       implicit none
 c

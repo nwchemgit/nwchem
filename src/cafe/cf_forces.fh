@@ -1,4 +1,4 @@
-c $Id: cf_forces.fh,v 1.24 2006-09-18 15:42:14 d3j191 Exp $
+c $Id$
 #if defined(CAFE_POLARIZATION)
       subroutine forcep(lself,lpbcs,
      + xw,xwm,fw,pw,pwp,zwi,rtos,iwdt,iwz,

@@ -1,5 +1,5 @@
 *
-* $Id: fci_axb.F,v 1.2 1999-07-28 00:23:39 d3e129 Exp $
+* $Id$
 *
       subroutine fci_axb(ni, nj, nk, a, b, c)
       implicit none

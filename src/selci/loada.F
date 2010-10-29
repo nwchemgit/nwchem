@@ -1,6 +1,6 @@
       subroutine selci_loada(h, g, int12, int34)
 *
-* $Id: loada.F,v 1.5 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "errquit.fh"

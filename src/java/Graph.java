@@ -1,4 +1,4 @@
-// $Id: Graph.java,v 1.3 2000-09-26 18:52:13 d3j191 Exp $
+// $Id$
 import ptolemy.plot.*;
 import java.awt.*;
 import java.util.*;

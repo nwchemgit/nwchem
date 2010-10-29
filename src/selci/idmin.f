@@ -1,6 +1,6 @@
       integer function selci_idmin(n,a,ia)
 *
-* $Id: idmin.f,v 1.3 2009-02-10 03:27:12 jhammond Exp $
+* $Id$
 *
       real *8 a(ia,*)
 c

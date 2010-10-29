@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.22 2006-03-22 23:57:30 d3j191 Exp $
+# $Id$
 #
  OBJ_OPTIMIZE = ana_angle.o\
                 ana_atrad.o\

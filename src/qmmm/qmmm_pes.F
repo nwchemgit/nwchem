@@ -1,9 +1,9 @@
 c
-c $Id: qmmm_pes.F,v 1.15 2009-02-03 18:14:53 marat Exp $
+c $Id$
 c
 c
       function task_qmmm_pes(irtdb)
-c     $Id: qmmm_pes.F,v 1.15 2009-02-03 18:14:53 marat Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

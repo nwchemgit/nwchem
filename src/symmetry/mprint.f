@@ -1,5 +1,5 @@
       subroutine mprint(rmat,idim,jdim)
-C$Id: mprint.f,v 1.3 1995-12-15 12:13:03 d3g681 Exp $
+C$Id$
       implicit none
       integer idim, jdim
       double precision rmat(idim,jdim)

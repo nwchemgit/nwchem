@@ -1,7 +1,7 @@
       logical function raktest(rtdb)
       implicit none
 #include "errquit.fh"
-c $Id: raktest.F,v 1.96 2003-10-17 22:54:39 carlfahl Exp $
+c $Id$
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "context.fh"

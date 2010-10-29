@@ -1,7 +1,7 @@
       subroutine selci_anal(irange, roots, ept, ptnorm, enew, ncinew,
      &           ptnorm_mp, ept_mp)
 *
-* $Id: anal.F,v 1.6 2003-04-16 23:08:03 bert Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "ciinfo.fh"

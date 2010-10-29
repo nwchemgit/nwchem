@@ -1,6 +1,6 @@
       subroutine esp_getg(g,v)
 c
-c $Id: esp_getg.F,v 1.2 2000-03-14 05:44:13 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

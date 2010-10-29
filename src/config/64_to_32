@@ -1,6 +1,6 @@
 #!/bin/csh -f
 #
-# $Id: 64_to_32,v 1.1 2005-10-20 01:04:24 edo Exp $
+# $Id$
 #
 #
 # modified to use the perl version to change back to the sed scripts

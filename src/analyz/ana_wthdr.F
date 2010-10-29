@@ -1,6 +1,6 @@
       subroutine ana_wthdr(iunit,fmt,sgmnam,tag,isel,logw)
 c
-c $Id: ana_wthdr.F,v 1.20 2007-02-06 16:32:22 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

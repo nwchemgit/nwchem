@@ -1,5 +1,5 @@
       SUBROUTINE stpr_mktri (H, HTRI)
-c $Id: stpr_mktri.f,v 1.1 1994-06-24 20:42:33 d3e129 Exp $
+c $Id$
 C
 C     opposite of BLOWUP; contract square symmetric matrix
 C     to lower triangular form.

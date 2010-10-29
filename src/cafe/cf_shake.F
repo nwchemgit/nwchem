@@ -1,5 +1,5 @@
       subroutine cf_shakew(xw,yw,iwgm,iwdt,numw)
-c $Id: cf_shake.F,v 1.27 2006-09-18 15:42:15 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "cf_common.fh"

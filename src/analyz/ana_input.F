@@ -1,6 +1,6 @@
       subroutine ana_input(irtdb)
 c
-c $Id: ana_input.F,v 1.74 2007-02-06 16:32:21 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

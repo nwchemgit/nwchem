@@ -1,5 +1,5 @@
 C
-C $Id: geninterface.F,v 1.12 2006-02-08 16:43:16 windus Exp $
+C $Id$
 C
 C This is a first attempt at an interface code for Venus written in F77.
 C

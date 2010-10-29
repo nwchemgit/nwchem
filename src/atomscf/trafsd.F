@@ -1,5 +1,5 @@
       subroutine trafsd(nsym,nbas,ndim,a,nbc,cont,nstrt,ffc)
-C$Id: trafsd.F,v 1.2 1995-02-02 23:09:17 d3g681 Exp $
+C$Id$
       implicit none
 c.......................................................................
 c     transform matrix a

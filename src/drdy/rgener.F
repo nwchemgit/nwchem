@@ -1,4 +1,4 @@
-C $Id: rgener.F,v 1.5 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       Subroutine drdy_rgener(string,iend,istrt)
 c
 c     called by:

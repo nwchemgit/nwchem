@@ -2,7 +2,7 @@
      + xatm,catm,latm,matm,lseq,cseq,mseq,nseq,
      + llnk,clnk,mlnk,nlnk,nlnkf)
 c
-c $Id: argos_prepare_links.F,v 1.22 2003-10-31 03:12:01 d3j191 Exp $
+c $Id$
 c
 c     function to scan database for link segments in sequence
 c

@@ -1,6 +1,6 @@
       subroutine sym_irrepname(geom,irrep,name)
 c
-c $Id: sym_irrepname.F,v 1.2 2003-10-27 23:18:59 marat Exp $
+c $Id$
 c
 c Returns the name of irrep.  If irrep is zero, returns
 c '?' as the name.

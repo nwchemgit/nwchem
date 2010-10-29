@@ -1,5 +1,5 @@
 *
-* $Id: neb_drv.F,v 1.8 2005-10-03 00:38:47 marat Exp $
+* $Id$
 *
 
       logical function neb(rtdb)

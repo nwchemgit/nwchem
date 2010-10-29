@@ -13,7 +13,7 @@ c
        subroutine mcscf_fcore( basis, nbf, nclosed, nact,
      $                         g_movecs, g_coul, g_exch, g_fcore )
 *
-* $Id: mcscf_fcore.F,v 1.8 2003-10-17 22:55:21 carlfahl Exp $
+* $Id$
 *
        implicit none
 #include "errquit.fh"

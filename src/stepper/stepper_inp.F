@@ -1,5 +1,5 @@
       subroutine stepper_input(rtdb)
-C $Id: stepper_inp.F,v 1.6 2003-10-17 22:58:22 carlfahl Exp $
+C $Id$
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"

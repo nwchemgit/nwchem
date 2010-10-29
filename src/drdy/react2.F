@@ -1,4 +1,4 @@
-C $Id: react2.F,v 1.3 2001-01-19 17:43:13 windus Exp $
+C $Id$
       Subroutine drdy_react2 (iop)
 C
 C  put correct parts of hessian matrix into fsv, calculate frequencies,

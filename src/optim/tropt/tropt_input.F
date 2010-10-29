@@ -1,6 +1,6 @@
       subroutine tropt_input(rtdb)
 *
-* $Id: tropt_input.F,v 1.12 2005/07/27 23:05:13 marat Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,5 +1,5 @@
       subroutine outpud(copn,cc,ntest,iwr)
-C$Id: outpud.F,v 1.2 1995-02-02 23:09:06 d3g681 Exp $
+C$Id$
       implicit none
 c
       real *8 copn(*), cc(*)

@@ -1,5 +1,5 @@
       subroutine starcd(c,ss,nbci,ncshi,noshi)
-C$Id: starcd.F,v 1.4 2003-10-17 22:54:15 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
       integer nbci, ncshi, noshi

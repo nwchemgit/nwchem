@@ -1,6 +1,6 @@
       subroutine argos_diana_super()
 c
-c $Id: argos_diana_super.F,v 1.5 2007-03-14 16:17:48 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -1,5 +1,5 @@
       subroutine sym_group_name(geom, name)
-C$Id: sym_grp_name.F,v 1.3 2003-10-17 22:58:25 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "nwc_const.fh"

@@ -1,6 +1,6 @@
       subroutine hv_write(lun,ix,len,x)
 *
-* $Id: mcscf_debug.F,v 1.13 2003-10-17 22:55:21 carlfahl Exp $
+* $Id$
 *
       implicit none
       integer lun, ix, len

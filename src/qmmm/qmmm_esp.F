@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_esp.F,v 1.26 2006-04-09 07:18:57 marat Exp $
+c $Id$
 c
 c
       function task_qmmm_esp(rtdb)
@@ -971,7 +971,7 @@ c      if(.not.nw_inp_from_file(rtdb, filename))
 
       logical function nw_inp_from_unit(rtdb,un)
 *
-* $Id: qmmm_esp.F,v 1.26 2006-04-09 07:18:57 marat Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

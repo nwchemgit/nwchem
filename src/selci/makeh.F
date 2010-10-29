@@ -1,7 +1,7 @@
       subroutine selci_makeh(h,g,int12,int34,w1,w2,ioconf,indxci,hd,
      $     work1, work2, work3, f)
 *
-* $Id: makeh.F,v 1.7 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "errquit.fh"

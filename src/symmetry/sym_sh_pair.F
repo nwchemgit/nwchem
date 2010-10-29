@@ -51,7 +51,7 @@ c
 c
       end
       logical function sym_shell(basis, ishell, q1)
-C$Id: sym_sh_pair.F,v 1.6 2003-10-17 22:58:25 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "bas.fh"
@@ -84,7 +84,7 @@ c
 c
       end
       logical function sym_shell_pair(basis, ishell, jshell, q2)
-C$Id: sym_sh_pair.F,v 1.6 2003-10-17 22:58:25 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "bas.fh"

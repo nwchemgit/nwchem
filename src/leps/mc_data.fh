@@ -1,5 +1,5 @@
 c
-c $Id: mc_data.fh,v 1.3 2009-03-07 19:29:42 bojana Exp $
+c $Id$
 c
       integer mcsteps,natom,mode,gseed
       double precision temp,stepsize,ratio,seed

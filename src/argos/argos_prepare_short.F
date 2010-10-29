@@ -2,7 +2,7 @@
      + jhi,
      + ishort,jshort,rshort)
 c
-c $Id: argos_prepare_short.F,v 1.11 2003-11-01 00:35:44 d3j191 Exp $
+c $Id$
 c
 c     function to find atom ishort in [ilo:ihi] and jshort in [jlo,jhi]
 c              with the shortest distance rshort in nm

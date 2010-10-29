@@ -1,6 +1,6 @@
       subroutine ana_diel(xs,qs,isel,xw,qw,iwsel)
 c
-c $Id: ana_diel.F,v 1.1 2003-12-08 19:37:41 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

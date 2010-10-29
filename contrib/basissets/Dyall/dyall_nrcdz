@@ -1,4 +1,4 @@
-# $Id: dyall_nrcdz,v 1.1 2003-04-01 01:08:26 mg201 Exp $
+# $Id$
 basis "Ga_dyall_nrcdz" SPHERICAL
   Ga  s
   1.3032191E+00  1.00000000000E+00

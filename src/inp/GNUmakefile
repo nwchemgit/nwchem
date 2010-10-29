@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.23 2001-08-28 00:54:37 edo Exp $
+# $Id$
 
       LIBRARY = libnwcutil.a
  OBJ_OPTIMIZE = inp.o inp_irange.o

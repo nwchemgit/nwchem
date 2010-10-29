@@ -680,7 +680,7 @@ c
 
 
 c
-c  $Id: mcscf_aux.F,v 1.32 2003-10-17 22:55:21 carlfahl Exp $
+c  $Id$
 c
 c
 c Return the gradient vector from the generalized

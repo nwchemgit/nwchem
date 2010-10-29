@@ -1,5 +1,5 @@
 *
-* $Id: neb_utils.F,v 1.4 2005-10-01 05:46:27 marat Exp $
+* $Id$
 *
       subroutine neb_path_energy(bead_list,dpath,epath)
       implicit none

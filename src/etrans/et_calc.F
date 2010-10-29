@@ -4,7 +4,7 @@
 c
 c     This function calculates Vba, the electron transfer matrix element.
 *
-* $Id: et_calc.F,v 1.24 2005-10-04 01:35:49 edo Exp $
+* $Id$
 c
 *
 #include "rtdb.fh"

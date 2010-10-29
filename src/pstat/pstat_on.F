@@ -1,5 +1,5 @@
       Subroutine PStat_On( Handle )
-C$Id: pstat_on.F,v 1.11 2004-10-15 01:59:42 edo Exp $
+C$Id$
       Implicit NONE
 #include "errquit.fh"
       Integer Handle

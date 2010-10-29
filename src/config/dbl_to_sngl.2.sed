@@ -1,5 +1,5 @@
 #
-# $Id: dbl_to_sngl.2.sed,v 1.9 2004-05-14 19:03:43 edo Exp $
+# $Id$
 #
 # This script performs blas keyword substitutions using the sed editor.
 # It is divided into four separate sed commands because of buffer overflow 

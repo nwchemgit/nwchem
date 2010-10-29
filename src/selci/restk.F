@@ -1,6 +1,6 @@
       subroutine restk
 *
-* $Id: restk.F,v 1.4 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
       implicit real*8 (a-h,o-z), integer(i-n)
 #include "errquit.fh"

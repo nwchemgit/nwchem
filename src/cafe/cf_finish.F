@@ -1,5 +1,5 @@
       subroutine cf_finish()
-c $Id: cf_finish.F,v 1.23 2006-09-18 15:42:14 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "cf_common.fh"

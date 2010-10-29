@@ -1,4 +1,4 @@
-C $Id: atsym.F,v 1.1 2001-01-19 17:43:11 windus Exp $
+C $Id$
       Character*2 Function drdy_atsym(iat)
 C
       Implicit None

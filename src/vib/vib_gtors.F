@@ -1,6 +1,6 @@
       SUBROUTINE vib_GTORS(EQVAL,NOINT,I1,I2,J,K,L1,L2,C,B,NDIM)
 C*MODULE VIB  *DECK GTORS
-* $Id: vib_gtors.F,v 1.3 2003-10-17 22:58:37 carlfahl Exp $
+* $Id$
       IMPLICIT NONE ! DOUBLE PRECISION (A-H,O-Z)
 #include "errquit.fh"
 C

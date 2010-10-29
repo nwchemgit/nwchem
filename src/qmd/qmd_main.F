@@ -1,6 +1,6 @@
       subroutine qmd_forces(irtdb,isag,isat,xs,fs,msa,nsa,energy,lesp)
 c
-c $Id: qmd_main.F,v 1.3 2003-10-17 22:58:06 carlfahl Exp $
+c $Id$
 c
       implicit none
 #include "errquit.fh"

@@ -1,5 +1,5 @@
 *
-* $Id: geom_hnd.F,v 1.48 2009-01-12 19:20:08 bert Exp $
+* $Id$
 *
       subroutine geom_bandbi(geom)
       implicit none

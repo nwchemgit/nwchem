@@ -1,6 +1,6 @@
       logical function argos_prep_protein(sgmnam)
 c
-c $Id: argos_prep_protein.F,v 1.2 2003-07-23 02:38:46 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

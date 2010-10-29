@@ -8,7 +8,7 @@ echo
 start ch4
 
 # SCF geometry optimization and frequencies for CH4
-# $Id: hess_ch4.out,v 1.1 2003-04-07 21:00:32 edo Exp $
+# $Id$
 
 geometry units au
   c 0    0    0

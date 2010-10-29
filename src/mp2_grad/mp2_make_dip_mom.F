@@ -1,7 +1,7 @@
       subroutine mp2_make_dip_mom(rtdb, basis, nbf, nmo, noa, nob,
      $     g_p_tot_a, g_p_tot_b, g_vecs_a, g_vecs_b)
 *
-* $Id: mp2_make_dip_mom.F,v 1.10 2003-10-17 22:55:29 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

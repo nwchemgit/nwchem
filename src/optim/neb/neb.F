@@ -1,5 +1,5 @@
 *
-* $Id: neb.F,v 1.1 2004-02-11 02:37:09 marat Exp $
+* $Id$
 *
       logical function neb(rtdb)
       implicit none

@@ -1,6 +1,6 @@
       subroutine ccsd_driver( rtdb, geom, basis, movecs_in,
      $     oconverged)
-C     $Id: ccsd_driver.F,v 2.47 2009-02-07 02:05:59 windus Exp $
+C     $Id$
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -1,6 +1,6 @@
       subroutine esp_input(irtdb)
 c
-c $Id: esp_input.F,v 1.20 2006-03-08 05:12:59 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

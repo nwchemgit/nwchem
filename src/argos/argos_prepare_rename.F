@@ -2,7 +2,7 @@
      + lseq,cseq,mseq,nseq,latm,catm,matm,natm,
      + llnk,clnk,mlnk,nlnk,icyren,his)
 c
-c $Id: argos_prepare_rename.F,v 1.21 2003-10-19 03:30:59 d3j191 Exp $
+c $Id$
 c
 c     function to comply with ffield segment names
 c

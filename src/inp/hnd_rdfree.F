@@ -30,7 +30,7 @@ c$$$c
 c$$$      end
       subroutine hnd_rdfree(ir, string, ierr)
 *
-* $Id: hnd_rdfree.F,v 1.5 2003-10-17 22:55:17 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

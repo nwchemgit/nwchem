@@ -1,7 +1,7 @@
       logical function argos_prep_imp(latm,matm,natm,lbnd,mbnd,nbnd,
      + limp,mimp,nimp)
 c
-c $Id: argos_prep_imp.F,v 1.7 2003-07-31 04:09:31 d3j191 Exp $
+c $Id$
 c
       implicit none
 #include "argos_prep_common.fh"

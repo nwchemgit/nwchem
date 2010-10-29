@@ -1,5 +1,5 @@
       subroutine sym_movecs_apply_op(basis, op, v, t)
-C$Id: sym_mo_ap_op.F,v 1.3 2003-10-17 22:58:25 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "geom.fh"

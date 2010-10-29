@@ -1,5 +1,5 @@
 c
-c $Id: ana_params.fh,v 1.2 2001-01-18 23:54:57 d3j191 Exp $
+c $Id$
 c
       real*8 zero,half,one,two,three
       parameter(zero=0.0d0)

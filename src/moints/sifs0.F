@@ -1,5 +1,5 @@
 *
-* $Id: sifs0.F,v 1.1 2000-11-02 23:53:40 edo Exp $
+* $Id$
 *
 *colib8.f
 *colib part=8 of 9.  SIFS library routines.

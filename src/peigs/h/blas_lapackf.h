@@ -1,5 +1,5 @@
 *
-* $Id: blas_lapackf.h,v 1.9 2002-04-23 18:37:22 edo Exp $
+* $Id$
 *
 
 #ifdef IEEE

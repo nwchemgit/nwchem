@@ -1,5 +1,5 @@
 #
-# $Id: findconstfh.pl,v 1.1 1998-09-29 19:31:43 d3e129 Exp $
+# $Id$
 #
 # perl script searches for un-terminated character constants in include files
 #

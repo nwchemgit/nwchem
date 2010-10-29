@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.1 2008-02-29 19:26:01 niri Exp $
+#$Id$
 # makefile,v 1.8 1994/12/05 20:37:08 og845 Exp
 
 OBJ =

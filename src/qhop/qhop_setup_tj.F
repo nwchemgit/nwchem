@@ -1,7 +1,7 @@
       subroutine qhop_setup(mparms,nparms,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq)
 c
-c $Id: qhop_setup_tj.F,v 1.1 2003-07-17 19:36:52 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

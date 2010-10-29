@@ -1,5 +1,5 @@
       subroutine sym_apply_op(geom, opnum, r, r1)
-C$Id: sym_apply_op.F,v 1.8 1999-07-14 00:29:10 d3e129 Exp $
+C$Id$
       implicit none
 c
 #include "mafdecls.fh"

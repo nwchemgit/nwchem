@@ -1,4 +1,4 @@
-# $Id: dyall_reldz_aug,v 1.1 2002-01-02 19:11:55 bert Exp $
+# $Id$
 basis "Ga_dyall_reldz_aug" SPHERICAL
   Ga  s
   2.3477550E-02  1.00000000000E+00

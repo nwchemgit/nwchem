@@ -1,6 +1,6 @@
       subroutine bas_all_ce_info(basis, cnr, bfr)
 *
-* $Id: bas_contrib.F,v 1.3 2003-10-17 22:54:17 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

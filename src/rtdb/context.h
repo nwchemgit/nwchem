@@ -1,4 +1,4 @@
-/*$Id: context.h,v 1.4 1999-11-13 03:00:36 bjohnson Exp $*/
+/*$Id$*/
 extern int context_set(const char *);
 extern char *context_get(void);
 extern int context_rtdb_store(int);

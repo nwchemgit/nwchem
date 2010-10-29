@@ -2,7 +2,7 @@
      + mparms,nparms,matm,natm,mseq,nseq,
      + catm,latm,cseq,lseq,mbnd,nbnd,lbnd,rbnd,mang,nang,lang,rang)
 c
-c $Id: qhop_setup.F,v 1.8 2003-08-19 21:02:03 d3j191 Exp $
+c $Id$
 c
       implicit none
 c
@@ -37,7 +37,7 @@ c
      + ptseq,ptarat,arat,deq,aneq,ptpar,tunnel,defe12,zpef,
      + tdsgl,tstval,e12fxy)
 c
-c $Id: qhop_setup.F,v 1.8 2003-08-19 21:02:03 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

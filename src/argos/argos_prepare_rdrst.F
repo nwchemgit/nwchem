@@ -4,7 +4,7 @@
      + isar,xs,vs,msa,nsa,
      + inoe,dnoe,mnoe,noe,msm,nsm,mseq,nseq,lseq,ips)
 c
-c $Id: argos_prepare_rdrst.F,v 1.15 2003-07-17 19:38:57 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

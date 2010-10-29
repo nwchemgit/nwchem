@@ -1,6 +1,6 @@
       subroutine argos_diana_center_ref(x)
 c
-c $Id: argos_diana_rdref.F,v 1.3 2008-04-25 16:03:21 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

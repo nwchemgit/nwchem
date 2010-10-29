@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_link.F,v 1.5 2005-12-03 00:53:54 marat Exp $
+c $Id$
 c
       subroutine qmmm_links_init(irtdb)
       implicit none

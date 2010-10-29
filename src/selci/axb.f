@@ -1,6 +1,6 @@
       subroutine selci_axb(a,mrowa,b,mrowb,c,mrowc,ncol,nlink,nrow)
 *
-* $Id: axb.f,v 1.3 1997-10-31 23:41:52 d3e129 Exp $
+* $Id$
 *
       implicit real*8 (a-h,o-z)
       parameter (zero=0.0d0)

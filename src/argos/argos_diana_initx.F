@@ -1,6 +1,6 @@
       subroutine argos_diana_initx
 c
-c $Id: argos_diana_initx.F,v 1.1 2006-12-10 01:03:22 d3j191 Exp $
+c $Id$
 c
 c     reference coordinated entry of analysis module:
 c

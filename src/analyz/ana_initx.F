@@ -1,6 +1,6 @@
       subroutine ana_initx
 c
-c $Id: ana_initx.F,v 1.2 1999-01-29 18:10:40 d3j191 Exp $
+c $Id$
 c
 c     reference coordinated entry of analysis module:
 c

@@ -2,7 +2,7 @@
      &                  nroot,irange,nrange,iwpt,
      &                  noconf,ioconf,nintpo,nconmx,ncold)
 *
-* $Id: restin.F,v 1.5 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
       implicit real*8(a-h,o-z), integer(i-n)
 #include "errquit.fh"

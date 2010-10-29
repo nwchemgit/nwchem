@@ -2,7 +2,7 @@
      + nwmc,nwa,
      + xs,msa,nsa,box,iopt)
 c
-c $Id: argos_prepare_boxsiz.F,v 1.6 2002-01-30 21:08:25 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

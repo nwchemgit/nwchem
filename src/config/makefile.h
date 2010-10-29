@@ -1,5 +1,5 @@
 
-# $Id: makefile.h,v 1.579 2009-02-22 20:58:48 jhammond Exp $
+# $Id$
 #
 
 # Common definitions for all makefiles ... these can be overridden

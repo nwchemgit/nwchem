@@ -1,6 +1,6 @@
       logical function task_hessian(rtdb)
 *
-* $Id: task_hessian.F,v 1.26 2008-09-29 20:28:16 edo Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

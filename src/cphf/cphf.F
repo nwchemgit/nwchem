@@ -1,6 +1,6 @@
       logical function cphf(rtdb)
 *
-* $Id: cphf.F,v 1.10 2009-02-02 22:27:28 niri Exp $
+* $Id$
 *
       implicit none
 #include "global.fh"

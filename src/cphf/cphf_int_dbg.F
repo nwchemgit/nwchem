@@ -1,6 +1,6 @@
       subroutine cphf_int_debug(geom, basis, g_dens)
 *
-* $Id: cphf_int_dbg.F,v 1.3 2003-10-17 22:54:30 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

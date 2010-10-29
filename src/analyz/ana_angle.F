@@ -1,6 +1,6 @@
       real*8 function ana_angle(x,nx,w,nw,na,i,i2,j,j2,k,k2)
 c
-c $Id: ana_angle.F,v 1.2 2000-05-01 18:46:30 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

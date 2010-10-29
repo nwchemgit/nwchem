@@ -1,7 +1,7 @@
       logical function argos_prepare_third(lbnd,mbnd,nbnd,lang,
      + mang,nang,l3rd,m3rd,n3rd,ib,ia,i3,nval,ival,ndx,natm)
 c
-c $Id: argos_prepare_third.F,v 1.7 2003-10-19 03:30:59 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

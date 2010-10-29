@@ -1,6 +1,6 @@
       subroutine selci_sigma(iflham,nci,nroot,hd,ci,si)
 *
-* $Id: sigma.F,v 1.4 1997-10-31 23:42:27 d3e129 Exp $
+* $Id$
 *
       implicit real*8 (a-h,o-z)
 #include "cbuff.fh"

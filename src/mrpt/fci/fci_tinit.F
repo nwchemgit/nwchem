@@ -1,5 +1,5 @@
 *
-* $Id: fci_tinit.F,v 1.3 1999-07-28 00:23:42 d3e129 Exp $
+* $Id$
 *
       subroutine fci_tinit
       implicit none

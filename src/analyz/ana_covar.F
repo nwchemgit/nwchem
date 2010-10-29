@@ -1,6 +1,6 @@
       subroutine ana_edinit()
 c
-c $Id: ana_covar.F,v 1.14 2007-01-15 23:09:47 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

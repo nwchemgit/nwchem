@@ -5,7 +5,7 @@
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst,offt2,nvp1,
      $     refener, Tol2E, occd, oconverged)
-C     $Id: ccsd_iterdrv2.F,v 2.27 2009-02-07 02:06:00 windus Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "util.fh"

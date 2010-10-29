@@ -1,7 +1,7 @@
       logical function argos_prep_equiv(csa,isml,isgm,msa,nsa,
      + iequi,msm,nsm)
 c
-c $Id: argos_prep_equiv.F,v 1.3 2002-07-17 15:56:55 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

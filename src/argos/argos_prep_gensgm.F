@@ -1,7 +1,7 @@
       logical function argos_prep_gensgm(lfnout,lfnfrg,lfnsgm,
      + lsgm,csgm,msgm,nsgm)
 c
-c $Id: argos_prep_gensgm.F,v 1.10 2003-10-19 03:30:58 d3j191 Exp $
+c $Id$
 c
 c     function to generate segment files
 c

@@ -1,6 +1,6 @@
       logical function uccsdtest(rtdb)
 *     
-*     $Id: uccsdtest.F,v 1.22 2003-10-17 22:54:39 carlfahl Exp $
+*     $Id$
 *
       implicit none
 #include "errquit.fh"

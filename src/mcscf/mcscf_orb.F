@@ -1,4 +1,4 @@
-c  $Id: mcscf_orb.F,v 1.43 2003-10-17 22:55:21 carlfahl Exp $
+c  $Id$
 c
 c
 c  Orbital MCSCF macroiteration

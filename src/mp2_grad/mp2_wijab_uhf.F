@@ -8,7 +8,7 @@
      $     eval_a,eval_b,
      $     g_w_ij_a,g_w_ij_b,g_w_ab_a,g_w_ab_b)
 *
-* $Id: mp2_wijab_uhf.F,v 1.15 2003-10-17 22:55:29 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

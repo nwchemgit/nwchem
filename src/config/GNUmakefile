@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.15 2008-06-20 20:19:30 d3p307 Exp $
+# $Id$
 #
 
 include makefile.h

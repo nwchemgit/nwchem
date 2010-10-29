@@ -3,7 +3,7 @@ C NAME
 C     inp_ilist -- read an integer list, possibly including ranges
 C
 C REVISION
-C     $Id: inp_ilist.F,v 1.4 2004-01-14 00:25:07 marat Exp $
+C     $Id$
 C
 C SYNOPSIS
       Logical Function Inp_IList( MaxList, List, N)

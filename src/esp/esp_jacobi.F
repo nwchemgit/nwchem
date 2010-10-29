@@ -1,6 +1,6 @@
       subroutine esp_jacobi(a)
 c
-c $Id: esp_jacobi.F,v 1.4 2003-10-19 06:07:32 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

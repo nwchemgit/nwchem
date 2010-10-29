@@ -1,6 +1,6 @@
       subroutine argos_cafe_lww(lself,lpbc,xwm,idt,iwfr,iwto,jwfr,jwto,
      + nlocw,mpairs,npairs,lwwjpt,lwwin,lwwj,list,rwx,rw)
-c $Id: argos_cafe_list.F,v 1.33 2006-09-18 15:42:14 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "argos_cafe_common.fh"

@@ -1,6 +1,6 @@
       subroutine argos_diana_average()
 c
-c $Id: argos_diana_average.F,v 1.3 2007-03-14 16:17:44 d3j191 Exp $
+c $Id$
 c
 c     get atom selection
 c     ------------------

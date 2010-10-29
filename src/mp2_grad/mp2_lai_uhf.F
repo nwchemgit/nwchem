@@ -13,7 +13,7 @@
      $     g_lai_a,g_lai_b,
      $     g_wai_a,g_wai_b,g_liy_a, g_liy_b,kunit)
 *     
-*     $Id: mp2_lai_uhf.F,v 1.11 1997-10-15 19:20:24 d3g681 Exp $
+*     $Id$
 *     
       implicit none
 #include "global.fh"

@@ -19,7 +19,7 @@ c
       subroutine detci_vatable( norb, nel, nsym, osym,
      $                          vtxtab, arctab )
 *
-* $Id: detci_aux.F,v 1.16 2003-10-17 22:55:23 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "detciP.fh"

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.2 2003-09-19 14:15:32 windus Exp $
+# $Id$
 #
 
   LIBRARY = libgeninterface.a

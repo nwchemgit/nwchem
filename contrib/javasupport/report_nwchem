@@ -1,6 +1,6 @@
 #!/bin/csh 
 #
-# $Id: report_nwchem,v 1.1 1998-07-28 19:53:41 d3e129 Exp $
+# $Id$
 #
 if (!($?DISPLAY)) then
     echo " DISPLAY is not set and you need X capability to use the java report tool"

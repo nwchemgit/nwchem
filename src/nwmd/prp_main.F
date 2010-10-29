@@ -1,7 +1,7 @@
       subroutine prp_step(mdstep,stime,eww,esw,ess,fss,esk,
      + epme,uqmd,uqmmm)
 c
-c $Id: prp_main.F,v 1.106 2008-07-03 18:05:48 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

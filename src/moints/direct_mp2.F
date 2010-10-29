@@ -1,5 +1,5 @@
       logical function direct_mp2(rtdb)
-C$Id: direct_mp2.F,v 1.52 2009-02-07 20:59:19 jhammond Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

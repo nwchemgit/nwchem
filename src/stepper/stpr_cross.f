@@ -1,5 +1,5 @@
       SUBROUTINE stpr_cross(V1,V2,V3)
-c $Id: stpr_cross.f,v 1.1 1994-06-24 20:42:18 d3e129 Exp $
+c $Id$
 C
 C     form cross product v1 x v2.
 C

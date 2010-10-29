@@ -1,4 +1,4 @@
-C $Id: moiten.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       Subroutine drdy_moiten (x,amat,apack,eig,vec,scr1,scr2,lcol,
      *   natom,ndim)
 C

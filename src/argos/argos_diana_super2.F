@@ -1,7 +1,7 @@
       subroutine argos_diana_super2(x,ix,nx,mx,y,w,sdev,ny,my,mod,rms0,
      + rms1)
 c
-c $Id: argos_diana_super.F,v 1.5 2007-03-14 16:17:48 d3j191 Exp $
+c $Id$
 c
 c     superimpose x(1:n,1:3) onto y(1:n,1:3)
 c

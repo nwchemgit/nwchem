@@ -1,5 +1,5 @@
 /*
- $Id: hdbm.c,v 1.8 2004-02-11 02:27:36 edo Exp $
+ $Id$
  */
 
 #include <stdlib.h>

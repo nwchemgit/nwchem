@@ -1,6 +1,6 @@
       subroutine esp_plt(x,q,g,t)
 c
-c $Id: esp_plt.F,v 1.7 2005-12-05 15:48:40 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

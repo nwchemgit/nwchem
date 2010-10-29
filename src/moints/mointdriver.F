@@ -1,5 +1,5 @@
        subroutine moint_driver( rtdb, geom, basis, movecs_in )
-C$Id: mointdriver.F,v 1.70 2003-10-17 22:55:26 carlfahl Exp $
+C$Id$
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

@@ -10,7 +10,7 @@
 
 
 ============================== echo of input deck ==============================
-# $Id: h2o_selci.out,v 1.2 2003-04-16 20:23:20 edo Exp $
+# $Id$
 echo
 
 # Selected CI with perturbation correction (1 frozen core) geometry

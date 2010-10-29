@@ -4,7 +4,7 @@ c.......................................................................
 c
 c     driver routine for density matrix processing
 c.......................................................................
-C$Id: densid_z.F,v 1.4 2003-10-17 22:54:15 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "atomz.fh"

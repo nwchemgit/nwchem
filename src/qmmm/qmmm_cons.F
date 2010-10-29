@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons.F,v 1.21 2006-02-09 07:53:25 marat Exp $
+c $Id$
 c
 c
       subroutine qmmm_cons_init(irtdb)

@@ -1,5 +1,5 @@
       subroutine argos_cafe_alpha
-c $Id: argos_cafe_grid.F,v 1.20 2004-12-08 20:37:12 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "argos_cafe_common.fh"

@@ -2,7 +2,7 @@
      $                       g_objv,g_ncoul,g_nexch,
      $                       iprt)
       implicit none
-C     $Id: ccsd_trpmo.F,v 2.3 2000/10/23 23:37:45 windus Exp $
+C     $Id$
       integer ncor,nocc,nvir,nact,nbf,g_objv,g_nt2,
      $        g_ncoul,g_nexch,iprt
       double precision scr(*),scra(*),t1(*)

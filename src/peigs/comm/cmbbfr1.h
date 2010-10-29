@@ -1,5 +1,5 @@
 *
-* $Id: cmbbfr1.h,v 1.8 1999-07-28 00:39:02 d3e129 Exp $
+* $Id$
 *
 c
 c     Communications buffer.  bufsiz is in bytes.  As with 'data',

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.5 2008-05-08 22:20:28 bert Exp $
+# $Id$
 #
 
 

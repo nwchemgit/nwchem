@@ -1,4 +1,4 @@
-c $Id: neb_input.F,v 1.1 2004-02-11 02:37:09 marat Exp $
+c $Id$
       subroutine neb_input(rtdb)
       implicit none
 #include "errquit.fh"

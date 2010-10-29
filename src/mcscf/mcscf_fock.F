@@ -1,6 +1,6 @@
 c     
 c     %A%
-c     $Id: mcscf_fock.F,v 1.18 2003-10-17 22:55:21 carlfahl Exp $
+c     $Id$
 c     
 c     Compute the MCSCF MO-Fock matrices;
 c     inactive, active and generalized

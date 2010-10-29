@@ -1,5 +1,5 @@
       subroutine rddcom()
-C     $Id: rddcom.F,v 2.4 1997-04-14 06:35:08 gg502 Exp $
+C     $Id$
       Implicit NONE
 C
       Integer I

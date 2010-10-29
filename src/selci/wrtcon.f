@@ -1,6 +1,6 @@
       subroutine selci_wrtcon(ifllog,iocc,norbs)
 *
-* $Id: wrtcon.f,v 1.3 1997-10-31 23:42:33 d3e129 Exp $
+* $Id$
 *
       dimension iocc(norbs),list(255),locc(255)
 c

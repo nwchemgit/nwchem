@@ -1,5 +1,5 @@
       subroutine ccsd_input(rtdb)
-C     $Id: ccsd_input.F,v 2.11 2006-02-08 21:06:00 bert Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

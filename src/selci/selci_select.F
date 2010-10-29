@@ -1,7 +1,7 @@
       subroutine selci_select(q, lword, nroot_arg, iwpt_arg, 
      $     thresh_arg, oupdate, energies)
 *
-* $Id: selci_select.F,v 1.2 2005-01-31 21:25:17 edo Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "ciinfo.fh"

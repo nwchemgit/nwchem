@@ -1,7 +1,7 @@
       subroutine selci_rdhint(iflint,ntitle,dtitle,repnuc,nnorbs,
      $     inttyp, moints)
 *
-* $Id: rdhint.F,v 1.7 2003-10-17 22:58:17 carlfahl Exp $
+* $Id$
 *
 #include "implicit.fh"
 #include "errquit.fh"

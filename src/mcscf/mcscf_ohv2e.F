@@ -1,5 +1,5 @@
 c
-c  $Id: mcscf_ohv2e.F,v 1.4 1996-06-17 18:59:06 rg240 Exp $
+c  $Id$
 c
 c Return the MCSCF 2e Hessian-vector product
 c

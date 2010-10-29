@@ -1,5 +1,5 @@
 /*
- $Id: inverse_f.c,v 1.2 1999-07-28 00:39:07 d3e129 Exp $
+ $Id$
  * **************************************************
  *
  *  this is the Fortran interface to the

@@ -1,5 +1,5 @@
       SUBROUTINE vib_CLEAN(A,LEN,THR)
-* $Id: vib_clean.F,v 1.2 1995-10-21 09:16:05 d3e129 Exp $
+* $Id$
 C
 C  This routine "cleans" or rids a vecter of the elements smaller than
 C       the supplied threshold

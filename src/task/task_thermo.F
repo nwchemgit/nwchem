@@ -1,6 +1,6 @@
       logical function task_thermo(rtdb)
 *
-* $Id: task_thermo.F,v 1.5 2003-10-17 22:58:26 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

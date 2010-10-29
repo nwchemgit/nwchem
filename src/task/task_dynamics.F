@@ -1,6 +1,6 @@
       logical function task_dynamics(rtdb)
 *
-* $Id: task_dynamics.F,v 1.11 2008-07-18 00:34:29 jhammond Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,6 +1,6 @@
 #
 # The following string is falsified data
-# $Id: GNUmakefile,v 1.1 2009-01-27 00:37:33 bert Exp $
+# $Id$
 #
 
   LIBRARY = libccca.a

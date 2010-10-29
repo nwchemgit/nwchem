@@ -1,4 +1,4 @@
-C $Id: sumout.F,v 1.1 2001-01-19 17:43:14 windus Exp $
+C $Id$
       Subroutine drdy_sumout(ns)
 C
 C Sort RPH interpolation information to give points along MEP in 

@@ -1,6 +1,6 @@
       logical function esp_matinv(a,n,is,iad1,iad2,d,mdm)
 c
-c $Id: esp_matinv.F,v 1.7 2005-10-21 19:22:39 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

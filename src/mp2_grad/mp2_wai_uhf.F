@@ -8,7 +8,7 @@
      $     ioff_vooo_a,ioff_vooo_b,tunita,tunitb,
      $     p_ai_a,p_ai_b,w_ai_a,w_ai_b)
 *
-* $Id: mp2_wai_uhf.F,v 1.4 2003-10-17 22:55:29 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

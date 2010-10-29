@@ -61,7 +61,7 @@ c===========================================================================
 c
 c     This function actually calculates Vba
 *
-* $Id: task_et.F,v 1.14 2004-12-18 00:56:10 bert Exp $
+* $Id$
 c
 *
 #include "rtdb.fh"

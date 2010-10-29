@@ -1,7 +1,7 @@
       SUBROUTINE stpr_stepper(A,ILEFT,G,C,ETOT,NATD,
      &    CONVGE,CONVGG,CONVGGM,
      &    converged, rtdb, step_number)
-c $Id: stpr_stepper.f,v 1.5 1998-04-21 06:57:31 mdupuis Exp $
+c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       integer rtdb
       integer step_number

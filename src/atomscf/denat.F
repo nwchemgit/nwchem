@@ -11,7 +11,7 @@ c
 c
       end
       subroutine guess_dens_gen(rtdb, geom, basis, odens, g_dens, eatom)
-C$Id: denat.F,v 1.19 2007-11-13 22:15:59 bert Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "geom.fh"

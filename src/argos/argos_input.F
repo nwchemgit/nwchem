@@ -1,6 +1,6 @@
       subroutine argos_input(irtdb)
 c
-c $Id: argos_input.F,v 1.92 2008-07-03 18:05:48 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

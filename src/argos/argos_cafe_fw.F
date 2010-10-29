@@ -4,7 +4,7 @@
      + mwd,nwd,ndp,idih,dih,rdih,mwo,nwo,nop,iimp,dimp,rimp,
      + mwt,nwt,idwt,mwn,nwn,idwn)
 c
-c $Id: argos_cafe_f.fh,v 1.66 2008-04-01 16:34:50 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

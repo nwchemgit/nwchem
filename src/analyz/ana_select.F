@@ -1,6 +1,6 @@
       subroutine ana_select(card,sgmnam,isel,wt,x,numsel)
 c
-c $Id: ana_select.F,v 1.13 2003-12-03 05:04:05 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

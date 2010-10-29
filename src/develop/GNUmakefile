@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.47 2000-03-21 21:28:18 d3g681 Exp $
+#$Id$
 
        OBJ = rjhtest.o raktest.o raktest_semi.o debtest.o raktestc.o \
              rak18.o rak19.o rak20.o rak21.o rak22.o rak23.o rak24.o \

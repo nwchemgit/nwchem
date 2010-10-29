@@ -1,6 +1,6 @@
       subroutine argos_diana_group(sgmnam,imol,isel,wt,x,iwrk)
 c
-c $Id: argos_diana_groups.F,v 1.3 2007-02-06 21:24:16 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

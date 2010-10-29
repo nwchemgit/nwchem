@@ -1,5 +1,5 @@
       subroutine pme_chgrid(ipset,xw,nwmloc,xs,isq,isgm,nsaloc,epme)
-c $Id: pme_grid.F,v 1.35 2004-03-26 23:40:28 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "pme_common.fh"

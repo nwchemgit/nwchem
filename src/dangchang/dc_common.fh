@@ -1,4 +1,4 @@
-C$Id: dc_common.fh,v 1.1 2008-03-02 04:36:18 windus Exp $
+C$Id$
 
       INTEGER MXATOM
       INTEGER MXMOLS

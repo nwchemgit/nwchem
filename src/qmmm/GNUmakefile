@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.30 2006-05-26 18:21:49 marat Exp $
+# $Id$
 #
 
 

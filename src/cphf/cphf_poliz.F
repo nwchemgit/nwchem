@@ -5,7 +5,7 @@ c     BGJ - 8/98
 c
       logical function cphf_poliz(rtdb)
 *
-* $Id: cphf_poliz.F,v 1.14 2003-10-17 22:54:30 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

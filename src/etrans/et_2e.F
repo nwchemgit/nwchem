@@ -1,4 +1,4 @@
-c     $Id: et_2e.F,v 1.16 2003-10-17 22:54:54 carlfahl Exp $
+c     $Id$
       subroutine et_2e(rtdb,nbf,basis,geom,max2e,mem2,tol2e,
      &                 g_pa,g_pb,omega2)
       implicit none

@@ -1,5 +1,5 @@
       Subroutine PStat_Print_All
-C$Id: pstat_pr_all.F,v 1.8 2004-12-16 23:02:14 edo Exp $
+C$Id$
       Implicit NONE
 C
 #include "pstatP.fh"

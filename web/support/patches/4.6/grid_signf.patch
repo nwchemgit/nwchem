@@ -10,8 +10,8 @@ diff -u -r1.7 -r1.7.2.1
       &                       zprim, iandex,iatype_pt_chg,
       &     nq,xyzw)
  c
--C$Id: grid_signf.patch,v 1.1 2006-01-12 18:51:44 edo Exp $
-+C$Id: grid_signf.patch,v 1.1 2006-01-12 18:51:44 edo Exp $
+-C$Id$
++C$Id$
  c
        implicit none
  #include "errquit.fh"

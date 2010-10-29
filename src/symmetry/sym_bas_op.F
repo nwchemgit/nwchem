@@ -1,6 +1,6 @@
       subroutine sym_bas_op(geom, op, r, maxf, ang_max,
      &    otransform)
-C$Id: sym_bas_op.F,v 1.8 2003-10-17 22:58:24 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "geom.fh"

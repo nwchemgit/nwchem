@@ -1,5 +1,5 @@
 /*
- $Id: cputm.c,v 1.10 2004-05-10 18:40:30 edo Exp $
+ $Id$
  */
 
 #include <sys/types.h>

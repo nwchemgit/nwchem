@@ -1,5 +1,5 @@
       subroutine argos_cafe_weight(numw,nums,isat,isml,ishop,wbx)
-c $Id: argos_cafe_main.F,v 1.182 2008-08-22 21:15:58 bert Exp $
+c $Id$
       implicit none
 c
 #include "argos_cafe_common.fh"

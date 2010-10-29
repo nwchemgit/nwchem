@@ -1,7 +1,7 @@
       logical function argos_prep_nonbon(iatm,natm,lbnd,mbnd,ibnd,nbnd,
      + lang,mang,iang,nang,l3rd,m3rd,i3rd,n3rd,lnon,mnon,nnon)
 c
-c $Id: argos_prep_nonbon.F,v 1.2 2003-10-19 03:30:59 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

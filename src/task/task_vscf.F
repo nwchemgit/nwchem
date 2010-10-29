@@ -1,5 +1,5 @@
 *
-* $Id: task_vscf.F,v 1.5 2006-02-14 00:14:49 bert Exp $
+* $Id$
 *
       logical function task_vscf(rtdb)
 c     

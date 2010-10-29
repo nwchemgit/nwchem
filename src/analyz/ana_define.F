@@ -1,6 +1,6 @@
       subroutine ana_define(card,sgmnam,isel,wt,x)
 c
-c $Id: ana_define.F,v 1.6 2003-10-19 03:31:01 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -1,6 +1,6 @@
       real*8 function argos_prep_atsiz(number)
 c
-c $Id: argos_prep_atrad.F,v 1.7 2003-10-03 18:48:11 d3j191 Exp $
+c $Id$
 c
       implicit none
       integer number

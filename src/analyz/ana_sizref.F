@@ -1,6 +1,6 @@
       subroutine ana_sizref(nsai,msai,nwmi,mwmi,nwai,mwai)
 c
-c $Id: ana_sizref.F,v 1.6 2003-12-03 05:04:05 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

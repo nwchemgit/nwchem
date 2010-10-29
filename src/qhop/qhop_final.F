@@ -1,6 +1,6 @@
       subroutine qhop_alloc
 c
-c $Id: qhop_final.F,v 1.7 2003-10-27 20:37:39 marat Exp $
+c $Id$
 c
       implicit none
 c

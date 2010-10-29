@@ -4,7 +4,7 @@
      &                     g_nt2,g_nz2,g_nhz2,g_ncoul,g_nexch,g_x,g_c,
      &                     g_sht2,g_zx,g_zc,g_aitm,g_qitm,g_tz3,
      &                     iprt)
-C     $Id: ccsd_zsig2.F,v 2.9 2004-09-07 06:11:18 windus Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
       integer nocc,nvir,nbf,g_nt2,g_nz2,g_nhz2,g_ncoul,g_nexch,g_x,g_c,

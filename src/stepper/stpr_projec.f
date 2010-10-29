@@ -1,5 +1,5 @@
       SUBROUTINE stpr_projec(HESS,P,HMP)
-c $Id: stpr_projec.f,v 1.1 1994-06-24 20:42:39 d3e129 Exp $
+c $Id$
 C
 C     This routine constructs HMP = (1-P)H(1-P)
 C     where H is the mass weighted hessian.

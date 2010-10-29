@@ -1,7 +1,7 @@
       subroutine selci_mpdele(numf, nroot, deltae_mp, vc,
      $     roots_mp, nfmax, dnorm_mp,iocc)
 *
-* $Id: mpdele.F,v 1.2 1997-10-31 23:42:15 d3e129 Exp $
+* $Id$
 *
 #include "implicit.fh"
       integer iocc(*)

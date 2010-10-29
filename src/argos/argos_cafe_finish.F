@@ -1,5 +1,5 @@
       subroutine argos_cafe_finish()
-c $Id: argos_cafe_finish.F,v 1.23 2006-09-18 15:42:14 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "argos_cafe_common.fh"
@@ -154,4 +154,4 @@ c      if(lanal) call ana_finish(byte_mb(i_snam),.false.)
 c
       return
       end
-c $Id: argos_cafe_forces.fh,v 1.24 2006-09-18 15:42:14 d3j191 Exp $
+c $Id$

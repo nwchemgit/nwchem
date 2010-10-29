@@ -1,6 +1,6 @@
       logical function sym_abelian_group(geom)
 *
-* $Id: sym_abelian.F,v 1.9 2008-09-26 12:07:36 jhammond Exp $
+* $Id$
 *
       implicit none
       integer geom              ! [input]

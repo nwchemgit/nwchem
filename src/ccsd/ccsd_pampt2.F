@@ -4,7 +4,7 @@
      $                      g_t2,g_ht2,g_nt2,g_nht2,
      $                      eccsd,g_ncoul,g_nexch,
      &                      tklst, Tol2E, occd)
-C     $Id: ccsd_pampt2.F,v 2.13 2004-12-16 02:40:47 edo Exp $
+C     $Id$
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
      &        g_t2,g_ht2,g_ncoul,g_nexch,g_nt2,g_nht2,

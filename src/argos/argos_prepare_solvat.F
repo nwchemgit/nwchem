@@ -2,7 +2,7 @@
      + mwms,mwa,nwms,nwa,touch,box,iwmr,xw,vw,
      + mwm,nwm,xs,msa,nsa,xwc,vwc,mwmc,nwmc)
 c
-c $Id: argos_prepare_solvat.F,v 1.10 2003-10-19 03:30:59 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

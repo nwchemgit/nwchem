@@ -1,5 +1,5 @@
 /*
- $Id: globalp.c.h,v 1.4 2000-02-28 21:56:02 d3g270 Exp $
+ $Id$
 
  file globalp.c.h 
  */

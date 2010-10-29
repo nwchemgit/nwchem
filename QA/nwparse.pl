@@ -1,5 +1,5 @@
 #
-# $Id: nwparse.pl,v 1.18 2003-03-29 02:51:28 edo Exp $
+# $Id$
 #
 #
 # perl script to parse nwchem output files

@@ -1,6 +1,6 @@
       subroutine dia_getsel
 c
-c $Id: dia_saver.F,v 1.1 2007-01-27 02:26:03 d3j191 Exp $
+c $Id$
 c
 c     get atom selection
 c     ------------------

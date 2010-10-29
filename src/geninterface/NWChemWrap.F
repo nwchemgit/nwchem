@@ -1,4 +1,4 @@
-C $Id: NWChemWrap.F,v 1.6 2006-06-21 16:37:58 d3m782 Exp $
+C $Id$
       subroutine NWChem_nwchemStart(directory)
       implicit none
 #include "mafdecls.fh"

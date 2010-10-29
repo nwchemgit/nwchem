@@ -2,7 +2,7 @@
      + model,namslv,lseq,cseq,mseq,nseq,latm,catm,xatm,matm,natm,
      + lssb,mssb,nssb,llnk,clnk,mlnk,nlnk,altloc,chain)
 c
-c $Id: argos_prepare_pdbseq.F,v 1.25 2003-10-19 03:30:59 d3j191 Exp $
+c $Id$
 c
 c     function to read sequence from a pdb formatted file
 c

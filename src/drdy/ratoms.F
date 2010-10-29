@@ -1,4 +1,4 @@
-C $Id: ratoms.F,v 1.5 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       subroutine drdy_ratoms(string,istrt)
       implicit none ! double precision (a-h,o-z)
 #include "errquit.fh"

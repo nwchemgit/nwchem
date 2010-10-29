@@ -4,7 +4,7 @@
      + isar,isgm,xs,vs,msa,nsa,msm,nsm,irrep,nxrep,nyrep,nzrep,
      + mseq,nseq,lseq,ips,istat,lfnmod,filmod,itopol)
 c
-c $Id: argos_prep_wrtrst.F,v 1.19 2003-10-19 03:30:59 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

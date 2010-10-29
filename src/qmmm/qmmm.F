@@ -1,5 +1,5 @@
 c
-c $Id: qmmm.F,v 1.70 2007-10-15 15:32:42 bert Exp $
+c $Id$
 c
 c
       function task_qmmm_generic(rtdb,operation)

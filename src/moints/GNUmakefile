@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.72 2003-01-24 20:46:25 edo Exp $
+#$Id$
 
 include ../config/makefile.h
         OBJ = atwtest.o \

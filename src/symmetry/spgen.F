@@ -14,7 +14,7 @@ c***********************************************************************
      $     group_name,max_gen,s_vec,oprint)
 c
 c--->Note: array "gens" in gensym.f = arrray "symops" in spgen.f
-C$Id: spgen.F,v 1.5 2003-10-17 22:58:24 carlfahl Exp $
+C$Id$
       implicit real*8 (a-h,o-z)
 #include "errquit.fh"
       character*10 spgnam(230),lyrnam(80),linenam(99),molname(46)

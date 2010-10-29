@@ -1,5 +1,5 @@
       subroutine geom_input(rtdb)
-C     $Id: geom_input.F,v 1.191 2009-03-09 21:47:38 d3p307 Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "stdio.fh"

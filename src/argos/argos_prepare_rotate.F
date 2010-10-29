@@ -2,7 +2,7 @@
      + mwmc,nwmc,
      + xs,msa,nsa)
 c
-c $Id: argos_prepare_rotate.F,v 1.2 1998-04-29 18:35:23 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

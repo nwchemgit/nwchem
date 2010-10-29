@@ -7,7 +7,7 @@ c
      $                          oact, oskel, tol2e, dm1, dm2,
      $                          g_movecs, g_coul, eone, etwo, ecore )
 *
-* $Id: mcscf_etr.F,v 1.8 2003-10-17 22:55:21 carlfahl Exp $
+* $Id$
 *
        implicit none
 #include "errquit.fh"

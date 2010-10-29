@@ -1,6 +1,6 @@
       subroutine selci_loadw(iflwmt, w1, w2, nfmax, nfmax2, nsmax)
 *
-* $Id: loadw.F,v 1.2 1997-10-31 23:42:09 d3e129 Exp $
+* $Id$
 *
 #include "implicit.fh"
       dimension w1(nfmax,nfmax,nsmax), w2(nfmax2,nfmax,nsmax-1)

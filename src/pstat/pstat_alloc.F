@@ -1,6 +1,6 @@
       Logical Function PStat_Allocate( Name, Functions, NAcc,
      $   Accums, Handle )
-C$Id: pstat_alloc.F,v 1.2 1996-10-22 08:31:14 d3g681 Exp $
+C$Id$
       Implicit NONE
       Character*(*) Name
       Integer Functions, Handle, NAcc, Accums(*)

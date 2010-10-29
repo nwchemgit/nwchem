@@ -1,6 +1,6 @@
       logical function argos_prep_admin(lfncmd,filcmd,lfnout,lfnfrg)
 c
-c $Id: argos_prep_admin.F,v 1.4 2003-10-19 03:30:58 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

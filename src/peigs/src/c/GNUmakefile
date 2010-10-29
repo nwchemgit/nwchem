@@ -1,4 +1,4 @@
-## $Id: GNUmakefile,v 1.28 2005-11-02 19:04:42 edo Exp $
+## $Id$
 
 include ../../../config/makefile.h
 include ../../DEFS

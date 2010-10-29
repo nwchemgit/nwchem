@@ -1,5 +1,5 @@
 c
-C$Id: moints_stats.fh,v 1.5 1997-08-08 07:15:35 rg240 Exp $
+C$Id$
 c
 c
        double precision mi_npass

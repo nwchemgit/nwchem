@@ -1,4 +1,4 @@
-/*$Id: ipsc_lseek.c,v 1.1 1995-03-31 01:55:23 d3g681 Exp $*/
+/*$Id$*/
 #include <stdio.h>
 #include <sys/types.h>
 #include <unistd.h>

@@ -2,7 +2,7 @@
      + natoms,ndim,igan,isgm,imol,idyn,xs,fs,ess,lpbc,lpbcs,lupden,
      + lupdti,dera,lseq)
 c
-c $Id: argos_cafe_f.fh,v 1.66 2008-04-01 16:34:50 d3j191 Exp $
+c $Id$
 c
 c     argos_cafe_fso returns forces and energies for solute improper dihedral angles
 c

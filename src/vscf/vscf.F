@@ -1,4 +1,4 @@
-c $Id: vscf.F,v 1.15 2007-10-09 17:06:13 bert Exp $
+c $Id$
       subroutine vscfm(NGRID,DMDR,NCOUP,VCFCT,IEXC,
      *                 rtdb,nat,vec,eigen)
       implicit double precision(a-h,o-z)

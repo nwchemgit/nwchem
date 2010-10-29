@@ -1,6 +1,6 @@
       subroutine geom_print_rtdb_ecce(rtdb)
 *
-* $Id: geom_print_ecce.F,v 1.6 2003-10-17 22:55:06 carlfahl Exp $
+* $Id$
 *
 #include "geom.fh"
 #include "errquit.fh"

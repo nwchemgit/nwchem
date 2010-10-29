@@ -3,7 +3,7 @@ C NAME
 C     CCDen_2PDMccoo -- Form coupled cluster 2-particle density matrix
 C
 C REVISION
-C     $Id: ccden_2pdmb.F,v 2.3 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine CCDen_2PDMvvoo(NOcc, NVir, T1, LDT1, Z1, LDZ1, 

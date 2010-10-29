@@ -5,7 +5,7 @@
      + msmi,nsmi,nsai,ddi,edi,iprf,npmf,npenrg,ndistr,lpbci,nbiasi,
      + nodpme,nipmf,lguide,iradgi,idifci,nbget,ipgi,npgi)
 c
-c $Id: argos_prop_init.F,v 1.69 2008-07-03 18:05:48 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

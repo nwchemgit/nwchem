@@ -1,6 +1,6 @@
       subroutine ana_inirms(xref,xrms,wt)
 c
-c $Id: ana_inirms.F,v 1.2 2000-03-16 20:45:37 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

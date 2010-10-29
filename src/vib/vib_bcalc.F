@@ -1,7 +1,7 @@
        SUBROUTINE vib_BCALC(IZMAT,BMTRX,HINT,ZMAT,SCR,
      &                 HESSIAN,EIGVEC,EIGVAL)
 C*MODULE VIB  *DECK BCALC
-* $Id: vib_bcalc.F,v 1.6 2005-07-26 23:51:56 edo Exp $
+* $Id$
 C
       IMPLICIT none
 #include "nwc_const.fh"

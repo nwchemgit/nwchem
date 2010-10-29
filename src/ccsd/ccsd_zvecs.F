@@ -3,7 +3,7 @@
      $                      scra,scrb,z1,hiu,hia,habe,giu,gabe,
      $                      g_nt2,g_z2,g_hz2,g_nz2,g_nhz2,
      $                      g_ncoul,g_nexch,tklst, Tol2E)
-C     $Id: ccsd_zvecs.F,v 2.9 2009-02-07 02:06:00 windus Exp $
+C     $Id$
       implicit none
       integer basis,idiis,nsh,ncor,nocc,nvir,nact,nbf,iprt,
      &        g_nt2,g_z2,g_hz2,g_nz2,g_nhz2,g_ncoul,g_nexch,

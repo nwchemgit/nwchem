@@ -1,4 +1,4 @@
-# $Id: TREE,v 1.2 1997-10-31 20:50:33 d3e129 Exp $
+# $Id$
 dft_optimize------stpr_walk-----|-stpr_cneed
 				|-stpr_stepper	stpr_stepcor----->
 

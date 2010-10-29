@@ -1,7 +1,7 @@
       subroutine selci_mkdele(numf, nroot, deltae, vc, roots,
      $     diag, nfmax, dnorm)
 *
-* $Id: mkdele.F,v 1.2 1997-10-31 23:42:12 d3e129 Exp $
+* $Id$
 *
 #include "implicit.fh"
 c

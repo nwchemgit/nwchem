@@ -1,4 +1,4 @@
-c $Id: kgdtest.F,v 1.12 2003-10-17 22:54:39 carlfahl Exp $
+c $Id$
       logical function kgdtest (rtdb)
       implicit none
 #include "mafdecls.fh"

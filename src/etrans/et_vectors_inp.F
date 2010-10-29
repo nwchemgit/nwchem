@@ -1,5 +1,5 @@
       subroutine et_vecs_input(rtdb,module)
-C     $Id: et_vectors_inp.F,v 1.3 2004-04-23 20:35:45 edo Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

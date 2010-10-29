@@ -1,6 +1,6 @@
 c
       integer ns_log, ns_int, ns_dbl
-C$Id: stpr_inP.fh,v 1.4 1998-04-21 06:57:28 mdupuis Exp $
+C$Id$
       parameter (ns_log  = 14)
       parameter (ns_int  = 2)
       parameter (ns_dbl  = 8)

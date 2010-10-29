@@ -7,7 +7,7 @@
      $     ioff,nnbf,indx_v,nva_lo_local,nva_hi_local,
      $     e2,esing,etrip,task,tunita,tunitb,kunit)
 *
-* $Id: mp2_make_tuhf.F,v 1.17 2003-10-17 22:55:29 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

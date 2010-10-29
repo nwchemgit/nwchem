@@ -1,6 +1,6 @@
       subroutine ana_rama(x,iram)
 c
-c $Id: ana_rama.F,v 1.5 2002-08-01 15:14:02 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

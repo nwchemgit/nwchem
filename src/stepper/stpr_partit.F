@@ -4,7 +4,7 @@
      &       ATMASS, CMASS, TENIN, ENERGY,
      &       CONVGE, CONVGG, CONVGGM,
      &       NINTER, NMODE, RPATH, TRACK, BCKSTP)
-c $Id: stpr_partit.F,v 1.12 2003-10-17 22:58:22 carlfahl Exp $
+c $Id$
 c
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
 #include "errquit.fh"

@@ -1,4 +1,4 @@
-# $Id: makelib.h,v 1.51 2007-10-24 16:33:24 d3p852 Exp $
+# $Id$
 
 #
 # A makefile for a library should

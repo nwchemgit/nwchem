@@ -1,6 +1,6 @@
       subroutine mp2_input(rtdb)
 *
-* $Id: mp2_input.F,v 1.9 2004-04-22 06:00:22 edo Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

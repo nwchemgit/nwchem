@@ -1,5 +1,5 @@
       double precision function deter3(r)
-C$Id: deter3.F,v 1.1 1995-10-10 06:17:35 d3g681 Exp $
+C$Id$
       implicit none
       double precision r(3,3)
 c

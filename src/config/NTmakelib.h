@@ -1,5 +1,5 @@
 #
-#	$Id: NTmakelib.h,v 1.8 2000-11-25 15:34:51 bjohnson Exp $
+#	$Id$
 #
 
 LIBRARY_PATH = $(LIB_DISTRIB)\$(LIBRARY)

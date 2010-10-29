@@ -4,7 +4,7 @@
      + xw,vw,cwa,mwm,mwa,nwm,nwa,namslv,iwater,altloc,chain,model,box,
      + lpdbbx)
 c
-c $Id: argos_prepare_rdpdb.F,v 1.25 2003-11-11 20:30:50 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

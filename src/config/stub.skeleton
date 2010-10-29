@@ -1,4 +1,4 @@
-* $Id: stub.skeleton,v 1.4 2003-10-20 23:41:17 edo Exp $
+* $Id$
       Subroutine STUBROUTINE(RTDB)
 #include "errquit.fh"
       Integer RTDB

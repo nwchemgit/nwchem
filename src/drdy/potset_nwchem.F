@@ -1,4 +1,4 @@
-C $Id: potset_nwchem.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       subroutine potset_nwchem(rtdb)
 *
 * check for basis sets and theoretical method

@@ -1,6 +1,6 @@
       subroutine selci_prtri(d,n)
 *
-* $Id: prtri.F,v 1.2 1997-10-31 23:42:21 d3e129 Exp $
+* $Id$
 *
 c
 c     ----- print out a real triangular matrix -----

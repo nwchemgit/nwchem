@@ -1,5 +1,5 @@
 #
-# $Id: sngl_to_dbl.2.sed,v 1.9 2004-05-14 19:03:43 edo Exp $
+# $Id$
 #
 s/^\(     .\)[Ss][Aa][Xx][Pp][Yy]\([^A-Za-z0-9_]\)/\1daxpy\2/
 s/^\(     .\)[Ss][Dd][Oo][Tt]\([^A-Za-z0-9_]\)/\1ddot\2/

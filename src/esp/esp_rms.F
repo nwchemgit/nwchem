@@ -1,6 +1,6 @@
       subroutine esp_rms(x,qf,g,v)
 c
-c $Id: esp_rms.F,v 1.4 2006-03-08 05:13:00 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

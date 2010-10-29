@@ -1,5 +1,5 @@
       function osatod(iat,ic,iiloc,iisch,nbb)
-C$Id: osatod.F,v 1.2 1995-02-02 23:09:05 d3g681 Exp $
+C$Id$
       implicit none
 #include "geom.fh"
 #include "bas.fh"

@@ -1,4 +1,4 @@
-c $Id: cons_rtdb.F,v 1.4 2005-11-22 20:28:02 marat Exp $
+c $Id$
       subroutine cons_create(namespace,rtdb)
       implicit none
 #include "errquit.fh"

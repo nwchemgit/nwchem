@@ -1,6 +1,6 @@
 #!/bin/csh  -f
 #
-# $Id: getmem.nwchem,v 1.8 2008-12-08 14:49:06 jhammond Exp $
+# $Id$
 # this script tries to figure out no. of processors and RAM
 # to get the maximum available memory in memor_def.F
 # It can also pick up an alternate amount of memory to take 

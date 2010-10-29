@@ -2,7 +2,7 @@
      &                     t1,z1,hiu,giu,habe,gabe,hia,hz1,
      &                    idiis,cmo,eorb,iprt,
      &                    g_t2,g_z2,g_hz2,g_ncoul,g_nexch,tklst)
-C     $Id: ccsd_zitf.F,v 2.4 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,

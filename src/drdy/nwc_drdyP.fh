@@ -1,4 +1,4 @@
-* $Id: nwc_drdyP.fh,v 1.5 2001-04-25 16:42:08 windus Exp $
+* $Id$
       Integer me_drdy, my_rtdb
       Common /c_drdy_nwchem/ me_drdy, my_rtdb
       Integer DRDY_CODE_SPENERGY

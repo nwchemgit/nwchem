@@ -1,6 +1,6 @@
       SUBROUTINE ZMATIN(IZMAT,NELS)
 C*MODULE VIB  *DECK ZMATIN
-* $Id: vib_zmatin.F,v 1.3 1999-07-14 00:29:13 d3e129 Exp $
+* $Id$
 C
       IMPLICIT NONE
 #include "nwc_const.fh"

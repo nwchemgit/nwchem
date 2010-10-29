@@ -1,6 +1,6 @@
       real*8 function argos_diana_angle(x,nx,w,nw,na,i,i2,j,j2,k,k2)
 c
-c $Id: argos_diana_angle.F,v 1.1 2006-12-10 01:03:20 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

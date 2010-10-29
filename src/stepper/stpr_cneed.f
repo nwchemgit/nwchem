@@ -1,5 +1,5 @@
       SUBROUTINE stpr_cneed(INEED, NATD)
-c $Id: stpr_cneed.f,v 1.1 1994-06-24 20:42:17 d3e129 Exp $
+c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       COMMON / STAPES / ITAP05, ITAP06, ITAP41,
      &                  ITAP44, ITAP45

@@ -1,6 +1,6 @@
       subroutine selci_renorm(n,a,ia,anorm)
 *
-* $Id: selci_renorm.f,v 1.1 2003-04-08 00:04:29 windus Exp $
+* $Id$
 *
       implicit double precision (a-h,o-z)
       dimension a(*)

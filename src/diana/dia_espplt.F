@@ -1,6 +1,6 @@
       subroutine dia_espplt()
 c
-c $Id: dia_espplt.F,v 1.12 2007-05-10 21:17:40 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

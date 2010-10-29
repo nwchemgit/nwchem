@@ -1,4 +1,4 @@
-C $Id: pot1.F,v 1.4 2001-01-31 21:42:08 windus Exp $
+C $Id$
       Subroutine drdy_pot1 (x,v,dx,xs,amass,natom,ndim)
 C
       Implicit none

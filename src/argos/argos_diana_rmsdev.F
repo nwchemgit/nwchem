@@ -1,6 +1,6 @@
       subroutine argos_diana_rmsdev(xtrj,xr,wt,wts,xrms,rms,trms,ga_rms,
      + isel,sgmnam)
-c $Id: argos_diana_rmsdev.F,v 1.6 2007-03-14 16:17:48 d3j191 Exp $
+c $Id$
       implicit none
 c
 #include "argos_diana_params.fh"

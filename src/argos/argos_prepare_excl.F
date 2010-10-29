@@ -2,7 +2,7 @@
      + lang,mang,nang,lexc,mexc,nexc,nval,ival,ndx,catt,matt,
      + lats,nparms,mats,latm,matm,natm,lupdat)
 c
-c $Id: argos_prepare_excl.F,v 1.10 2003-11-21 21:16:51 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

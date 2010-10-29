@@ -1,5 +1,5 @@
       logical geom_check_handle
-C$Id: geom.fh,v 1.46 2008-03-13 17:00:54 marat Exp $
+C$Id$
       logical geom_disable_zmatrix
       logical geom_check_cent
       logical geom_rtdb_load

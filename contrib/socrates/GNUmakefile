@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.0 2009-21-06 18:37:00 jhammond Exp $
+#$Id$
 
 SUBDIRS = 
 

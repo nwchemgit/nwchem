@@ -1,6 +1,6 @@
       subroutine geom_fragment(rtdb,nfrags_return)
 c
-c $Id: geom_fragment.F,v 1.5 2005-12-20 18:59:53 edo Exp $
+c $Id$
 c
 c     Subroutines and functions in this file are to help
 c     perform almost automatically the fragment MO for 
@@ -202,7 +202,7 @@ c----------------------------------------------------------------------
 
       subroutine select_fragment(rtdb,ifrag,dipole)
 c
-c $Id: geom_fragment.F,v 1.5 2005-12-20 18:59:53 edo Exp $
+c $Id$
 c
 c     Overwrite the main geometry entry in RTDB by that of a fragment.
 c
@@ -305,7 +305,7 @@ c
  
       subroutine select_fragmentpair(rtdb,ifrag,jfrag,dipole,r)
 c
-c $Id: geom_fragment.F,v 1.5 2005-12-20 18:59:53 edo Exp $
+c $Id$
 c
 c     Overwrite the main geometry entry in RTDB by that of a fragment pair.
 c
@@ -443,7 +443,7 @@ c
  
       subroutine select_fragmenttriplet(rtdb,ifrag,jfrag,kfrag,dipole)
 c
-c $Id: geom_fragment.F,v 1.5 2005-12-20 18:59:53 edo Exp $
+c $Id$
 c
 c     Overwrite the main geometry entry in RTDB by that of a fragment triplet.
 c

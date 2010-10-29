@@ -1,5 +1,5 @@
       SUBROUTINE vib_BEND(EQVAL,NOINT,I,J,K,C,B,NDIM)
-* $Id: vib_bend.F,v 1.3 2003-10-17 22:58:37 carlfahl Exp $
+* $Id$
 C*MODULE VIB  *DECK BEND
 C
       IMPLICIT NONE

@@ -4,7 +4,7 @@
      &                        giu,gabe,bbkp,bb,g_nt2,g_z2,g_hz2,
      &                        mxvec,eccsd,max2e,mem2,
      &                        g_ncoul,g_nexch,tklst, Tol2E)
-C     $Id: ccsd_graddrv.F,v 2.9 2009-02-07 02:05:59 windus Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 c

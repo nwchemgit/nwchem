@@ -3,7 +3,7 @@ C NAME
 C     pstat_consts.fh -- constants for pstat routines
 C
 C REVISION
-C     $Id: pstat_consts.fh,v 1.1 1994-07-14 21:33:29 gg502 Exp $
+C     $Id$
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Integer PStat_Nr_Stats
       Parameter (PStat_Nr_Stats = 1 )

@@ -4,7 +4,7 @@
      &                       g_nhz2,g_ncoul,g_nexch,tklst)
       implicit none
 #include "errquit.fh"
-C     $Id: ccsd_pzamp.F,v 2.7 2003-10-17 22:54:25 carlfahl Exp $
+C     $Id$
       integer basis,nsh,ncor,nocc,nvir,nact,nbf,
      &        iprt,idiis,g_nt2,g_nz2,g_nhz2,g_aitm,
      &        g_ncoul,g_nexch,tklst(nsh*(nsh+1)/2,2)

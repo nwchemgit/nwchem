@@ -1,5 +1,5 @@
       SUBROUTINE stpr_putbck ( COORD, C )
-c $Id: stpr_putbck.f,v 1.1 1994-06-24 20:42:40 d3e129 Exp $
+c $Id$
       IMPLICIT  REAL*8(A-H,O-Z), INTEGER(I-N)
       COMMON / DIMS / NAT3, NAT3SQ, NAT3TR
       COMMON / CFACE / IWCTR,NATOM,ICALC

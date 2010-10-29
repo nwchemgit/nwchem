@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_cons_data.fh,v 1.1 2005-08-16 22:09:42 marat Exp $
+c $Id$
 c
       integer nacts,nactw
       integer i_acts,h_acts

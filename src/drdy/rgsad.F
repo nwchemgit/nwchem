@@ -1,4 +1,4 @@
-C $Id: rgsad.F,v 1.4 2003-10-17 22:54:46 carlfahl Exp $
+C $Id$
       subroutine drdy_rgsad(string,istrt,jtype)
 c
 c     Generic subroutine to read in the initial geometry for the saddle or 

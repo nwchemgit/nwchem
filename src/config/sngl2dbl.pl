@@ -1,5 +1,5 @@
 #
-# $Id: sngl2dbl.pl,v 1.3 1997-04-18 08:52:22 d3e129 Exp $
+# $Id$
 #
 #
 # perl script to do transliteration from "single" values to "double" values

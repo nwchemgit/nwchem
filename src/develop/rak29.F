@@ -1,6 +1,6 @@
       logical function raktask_fullsc(rtdb)
 *
-* $Id: rak29.F,v 1.8 2003-10-17 22:54:39 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

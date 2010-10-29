@@ -1,5 +1,5 @@
 c
-c $Id: dia_common.fh,v 1.15 2007-05-11 00:05:10 d3j191 Exp $
+c $Id$
 c
       integer mxdist,mxangl,mxtors,mximps
       parameter(mxdist=100)

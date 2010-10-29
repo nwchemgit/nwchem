@@ -1,5 +1,5 @@
       subroutine sym_print_char_table(geom)
-C$Id: sym_pr_ctab.F,v 1.2 2003-10-17 22:58:25 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "sym.fh"

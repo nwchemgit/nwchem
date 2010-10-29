@@ -1,6 +1,6 @@
       subroutine dia_rdref(x)
 c
-c $Id: dia_rdref.F,v 1.3 2008-04-25 16:03:21 d3j191 Exp $
+c $Id$
 c
       implicit none
 c
@@ -111,7 +111,7 @@ c
       end
       subroutine dia_center_ref(x)
 c
-c $Id: dia_rdref.F,v 1.3 2008-04-25 16:03:21 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

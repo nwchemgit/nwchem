@@ -3,7 +3,7 @@ C NAME
 C     GEAXPY -- Matrix Y <-- a*X + Y
 C
 C REVISION
-C     $Id: geaxpy.f,v 2.2 1997-04-17 05:57:55 d3e129 Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine GEAXPY(M, N, Alpha, X, LDX, Y, LDY)

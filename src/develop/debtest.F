@@ -1,5 +1,5 @@
       Logical Function DEBTest(RTDB)
-C$Id: debtest.F,v 1.5 1996-03-15 22:04:26 gg502 Exp $
+C$Id$
       Implicit NONE
       Integer RTDB
       Logical Status

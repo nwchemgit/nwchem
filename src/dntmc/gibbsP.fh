@@ -1,4 +1,4 @@
-C$Id: gibbsP.fh,v 1.4 2008-07-18 15:09:27 windus Exp $
+C$Id$
 c
 c First attemp to put some of this information into an include file
 c

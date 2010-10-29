@@ -2,7 +2,7 @@
      + natm,
      + ldih,mdih,ndih)
 c
-c $Id: argos_prepare_dihsel.F,v 1.4 2003-07-31 04:09:31 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

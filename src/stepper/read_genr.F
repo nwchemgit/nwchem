@@ -121,7 +121,7 @@ c columns.
 c author;  nelson h.f. beebe, quantum theory project, university of
 c          florida, gainesville
 c.......................................................................
-C$Id: read_genr.F,v 1.2 1999-07-08 19:11:01 d3e129 Exp $
+C$Id$
       implicit none
       integer rowlow,rowhi,collow,colhi,rowdim,coldim,begin,kcol
       integer nctl, i, j, last, k

@@ -1,7 +1,7 @@
       subroutine ccsd_sortmo(ncor,nocc,nvir,nact,nbf,scra,scrb,
      $                       g_coul,g_exch,g_ncoul,g_nexch,
      $                       iprt)
-C     $Id: ccsd_sortmo.F,v 2.8 1997-11-14 19:25:45 d3g681 Exp $
+C     $Id$
       implicit none
       integer ncor,nocc,nvir,nact,nbf,g_coul,g_exch,
      $        g_ncoul,g_nexch,iprt

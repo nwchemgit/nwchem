@@ -1,6 +1,6 @@
       subroutine esp_esp(ene,occ,dns,x,q,grid,val)
 c
-c $Id: esp_esp.F,v 1.22 2003-10-20 21:50:48 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

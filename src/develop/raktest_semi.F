@@ -1,6 +1,6 @@
 #if defined(SEMI)
       subroutine raktest_semi(rtdb)
-* $Id: raktest_semi.F,v 1.4 1996-03-20 23:49:36 vg422 Exp $
+* $Id$
       implicit none
 #include "inp.fh"
 #include "rtdb.fh"

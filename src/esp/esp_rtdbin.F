@@ -1,6 +1,6 @@
       subroutine esp_rtdbin
 c
-c $Id: esp_rtdbin.F,v 1.20 2006-03-08 05:13:00 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

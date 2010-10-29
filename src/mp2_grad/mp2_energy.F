@@ -1,6 +1,6 @@
       subroutine mp2_energy(rtdb,geom,basis,movecs,task)
 *
-* $Id: mp2_energy.F,v 1.59 2009-02-04 01:18:19 niri Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

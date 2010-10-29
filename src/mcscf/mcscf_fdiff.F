@@ -6,7 +6,7 @@ c
      $                              oskel, tol2e, dm1, dm2, g_movecs,
      $                              g_coul, g_grad )
 *
-* $Id: mcscf_fdiff.F,v 1.11 2003-10-17 22:55:21 carlfahl Exp $
+* $Id$
 *
        implicit none
 #include "errquit.fh"

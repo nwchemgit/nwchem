@@ -1,5 +1,5 @@
 c
-c $Id: task_qmmm_abc.F,v 1.12 2006-06-09 20:58:55 edo Exp $
+c $Id$
 c
       function task_qmmm_abc(rtdb)
       implicit none

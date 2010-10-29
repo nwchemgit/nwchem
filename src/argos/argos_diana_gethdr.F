@@ -1,6 +1,6 @@
       subroutine argos_diana_gethdr
 c
-c $Id: argos_diana_gethdr.F,v 1.1 2007-01-27 02:26:03 d3j191 Exp $
+c $Id$
 c
 c     read the trajectory file header
 c     -------------------------------

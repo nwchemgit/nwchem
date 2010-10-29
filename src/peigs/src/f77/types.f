@@ -1,5 +1,5 @@
 *
-* $Id: types.f,v 1.2 1999-07-28 00:39:51 d3e129 Exp $
+* $Id$
 *
       subroutine type1(a,b,alpha,beta,q,e,NIN,NDIM,record)
 C
