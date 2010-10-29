@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_IJ_Int -- Get integrals for IJ block
 C
 C REVISION
-C     $Id: ij_int.F,v 1.2 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_IJ_Int(IJSame, D_I, ILo, IHi, NA,

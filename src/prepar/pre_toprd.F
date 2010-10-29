@@ -3,7 +3,7 @@
      + csa,qsa,msa,nsa,nsm,
      + idsb,cdsb,msb,nsb,qu,nqu,slvnam,mseq,nseq,lseq,ihop,istat)
 c
-c $Id: pre_toprd.F,v 1.22 2003-11-04 04:06:44 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

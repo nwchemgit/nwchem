@@ -4,7 +4,7 @@ C     ga_create_one_by_shells -- Create a global array with a single
 C     block in one dimension and shell blocking in the other.
 C
 C REVISION
-C     $Id: ga_by_shells.F,v 1.1 1995-12-13 01:36:45 d3g681 Exp $
+C     $Id$
 C
 C SYNOPSIS
       Logical Function GA_Create_one_by_shells(Type, Dim1, Basis, Name,

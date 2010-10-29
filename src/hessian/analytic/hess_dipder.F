@@ -1,5 +1,5 @@
 C
-C  $Id: hess_dipder.F,v 1.7 2003-10-17 22:55:13 carlfahl Exp $
+C  $Id$
 C
       subroutine hess_dipder(geom,basis,dder,g_dens,n3xyz,ncent)
       implicit none

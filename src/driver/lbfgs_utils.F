@@ -1,5 +1,5 @@
 *
-* $Id: lbfgs_utils.F,v 1.2 2005-09-01 00:47:50 marat Exp $
+* $Id$
       subroutine lbfgs_compute_info(n,x,x0,g,xmax,xrms,gmax,grms)
       implicit none
 #include "rtdb.fh"

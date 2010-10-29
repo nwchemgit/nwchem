@@ -1,5 +1,5 @@
 C
-C $Id: nucdd_cont.F,v 1.4 2001-04-05 22:25:06 windus Exp $
+C $Id$
 C
       subroutine nucdd_cont(rtdb)
 c

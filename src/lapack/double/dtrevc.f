@@ -1,6 +1,6 @@
       SUBROUTINE DTREVC( SIDE, HOWMNY, SELECT, N, T, LDT, VL, LDVL, VR,
      $                   LDVR, MM, M, WORK, INFO )
-c $Id: dtrevc.f,v 1.1 2002-04-12 22:59:24 sohirata Exp $
+c $Id$
 *
 *  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

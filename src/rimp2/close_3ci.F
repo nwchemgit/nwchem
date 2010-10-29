@@ -1,5 +1,5 @@
       Logical function Close_3ci_file( LU, Stat,actualname)
-C$Id: close_3ci.F,v 1.7 2003-10-25 16:33:22 edo Exp $
+C$Id$
       Implicit NONE
 #include "errquit.fh"
       Integer LU

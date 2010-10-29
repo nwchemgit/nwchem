@@ -1,6 +1,6 @@
       Integer Function IAMAX( N, IX, IncX)
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C $Id: iamax.f,v 1.2 1995-12-16 21:06:33 gg502 Exp $
+C $Id$
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C     iamax -- maximum absolute value of an integer vector

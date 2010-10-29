@@ -3,7 +3,7 @@ C NAME
 C     rimp2_p2am -- Solve CPHF eqns for relaxed part of density
 C
 C REVISION
-C     $Id: p2am.F,v 1.8 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_P2am(RTDB, TopSpin, NFrzO, NAct, NVir, g_L, g_P2)

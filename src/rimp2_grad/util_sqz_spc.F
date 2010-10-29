@@ -3,7 +3,7 @@ C NAME
 C     util_sqz_spc -- Squeeze multiple spaces from strings
 C
 C REVISION
-C     $Id: util_sqz_spc.F,v 1.1 1998-06-26 21:50:10 bernhold Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine Util_Sqz_Spc(String)

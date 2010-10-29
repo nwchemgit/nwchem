@@ -1,6 +1,6 @@
       SUBROUTINE DGEBAK( JOB, SIDE, N, ILO, IHI, SCALE, M, V, LDV,
      $                   INFO )
-c $Id: dgebak.f,v 1.1 2002-04-12 22:59:22 sohirata Exp $
+c $Id$
 *
 *  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

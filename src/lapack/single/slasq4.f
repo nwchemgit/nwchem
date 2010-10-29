@@ -1,4 +1,4 @@
-* $Id: slasq4.f,v 1.1 2001-10-09 00:19:29 edo Exp $
+* $Id$
       SUBROUTINE SLASQ4( I0, N0, Z, PP, N0IN, DMIN, DMIN1, DMIN2, DN,
      $                   DN1, DN2, TAU, TTYPE )
 *

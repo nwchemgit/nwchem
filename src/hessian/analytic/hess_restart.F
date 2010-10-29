@@ -1,5 +1,5 @@
 C
-C $Id: hess_restart.F,v 1.10 2003-10-17 22:55:13 carlfahl Exp $
+C $Id$
 C
       subroutine hess_restart(rtdb, restr)
 c

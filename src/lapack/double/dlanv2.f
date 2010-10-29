@@ -1,5 +1,5 @@
       SUBROUTINE DLANV2( A, B, C, D, RT1R, RT1I, RT2R, RT2I, CS, SN )
-c $Id: dlanv2.f,v 1.1 2002-04-12 22:59:23 sohirata Exp $
+c $Id$
 *
 *  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

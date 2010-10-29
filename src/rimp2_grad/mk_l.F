@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Mk_L -- Form Lagrangian terms & their contributions elsewhere
 C
 C REVISION
-C     $Id: mk_l.F,v 1.11 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_L(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,

@@ -1,5 +1,5 @@
 C
-C $Id: twodd_cont.F,v 1.38 2003-10-17 22:55:13 carlfahl Exp $
+C $Id$
 C
       subroutine twodd_cont(rtdb)
 c

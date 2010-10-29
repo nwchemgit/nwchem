@@ -1,6 +1,6 @@
       SUBROUTINE CHSEQR( JOB, COMPZ, N, ILO, IHI, H, LDH, W, Z, LDZ,
      $                   WORK, LWORK, INFO )
-C$Id: chseqr.f,v 1.1 2002-01-19 05:31:01 edo Exp $                          
+C$Id$                          
 *
 *  -- LAPACK routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

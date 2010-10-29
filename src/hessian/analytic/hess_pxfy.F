@@ -1,4 +1,4 @@
-c $Id: hess_pxfy.F,v 1.7 2002-01-16 17:21:38 windus Exp $
+c $Id$
 c
       subroutine hess_pxfy(hess, g_sol, g_rhs, oactive, ncent,
      &     restr, vlen)

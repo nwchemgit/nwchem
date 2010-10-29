@@ -3,7 +3,7 @@ C NAME
 C     rimp2_e_mem -- Determine optimal memory usage for energy calc.
 C
 C REVISION
-C     $Id: rimp2_e_mem.F,v 1.6 2009-02-03 14:39:52 jhammond Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_E_Mem(TopSpin, NOcc, NVir, FitBas, Mode,

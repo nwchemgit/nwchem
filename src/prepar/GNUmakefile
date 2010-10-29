@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.38 2004-05-06 21:11:52 edo Exp $
+# $Id$
 #
 
 OBJ_OPTIMIZE=prepar.o\

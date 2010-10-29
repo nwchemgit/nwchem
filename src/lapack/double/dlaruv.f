@@ -14,7 +14,7 @@
 *     ..
 *
 c
-* $Id: dlaruv.f,v 1.4 2000-10-25 22:50:11 windus Exp $
+* $Id$
 c
 *  Purpose
 *  =======

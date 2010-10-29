@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_G_IJ -- Evaluate RI-MP2 gradient contributions for IJ batch
 C
 C REVISION
-C     $Id: g_ij.F,v 1.5 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_G_IJ(TopSpin, SameSpin, NFrzI, ILo, IHi, NVirI,

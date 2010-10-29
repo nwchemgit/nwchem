@@ -2,7 +2,7 @@
       implicit none
 #include "y64.fh"
 c
-* $Id: ylagts.F,v 1.1 2005-11-02 17:14:01 edo Exp $
+* $Id$
 c
       INTEGER            INFO, JOB, N
       DOUBLE PRECISION   TOL

@@ -1,6 +1,6 @@
       logical function pre_slvnum(islv,boxs,nwms,box,nwm)
 c
-c $Id: pre_slvnum.F,v 1.3 1998-11-18 01:19:57 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

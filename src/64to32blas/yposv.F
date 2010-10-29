@@ -1,5 +1,5 @@
 *
-* $Id: yposv.F,v 1.1 2005-11-02 17:14:02 edo Exp $
+* $Id$
 *
 
       SUBROUTINE YPOSV( UPLO, N, NRHS, A, LDA, B, LDB, INFO )

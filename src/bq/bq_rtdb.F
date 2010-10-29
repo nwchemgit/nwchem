@@ -1,4 +1,4 @@
-c $Id: bq_rtdb.F,v 1.3 2005-04-06 19:53:06 edo Exp $
+c $Id$
 
       subroutine bq_tag_ncent(namespace,tag)
       implicit none

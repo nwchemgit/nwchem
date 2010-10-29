@@ -1,6 +1,6 @@
       Logical Function DPlot(rtdb)
 *
-* $Id: dplot.F,v 1.34 2009-03-05 17:59:26 d3p975 Exp $
+* $Id$
 *
       Implicit None
 #include "errquit.fh"

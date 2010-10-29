@@ -1,5 +1,5 @@
       subroutine dplot_dosinit(rtdb,filename)
-C $Id: dplot_dos.F,v 1.4 2005-09-20 21:04:16 edo Exp $
+C $Id$
       implicit none
 #include "geom.fh"
 #include "bas.fh"

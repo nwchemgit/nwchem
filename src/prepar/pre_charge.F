@@ -2,7 +2,7 @@
      + source,jlo,ilo,ihi,jhi,
      + latm,catm,xatm,qatm,matm,natm,lbnd,mbnd,nbnd,maxscf,qscale)
 c
-c $Id: pre_charge.F,v 1.30 2004-04-07 19:39:03 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

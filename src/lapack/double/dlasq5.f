@@ -1,4 +1,4 @@
-* $Id: dlasq5.f,v 1.1 2001-10-09 00:19:29 edo Exp $
+* $Id$
       SUBROUTINE DLASQ5( I0, N0, Z, PP, TAU, DMIN, DMIN1, DMIN2, DN,
      $                   DNM1, DNM2, IEEE )
 *

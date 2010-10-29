@@ -1,6 +1,6 @@
       logical function pre_rstsz(lfnrst,filrst,nwm,nwa,nsa,nwmc)
 c
-c $Id: pre_rstsiz.F,v 1.7 2000-01-21 07:45:11 d3j191 Exp $
+c $Id$
 c
       implicit none
 c
@@ -45,7 +45,7 @@ c
       end
       logical function pre_rstsiz(lfnrst,filrst,nwm,nwa,nsa,nwmc)
 c
-c $Id: pre_rstsiz.F,v 1.7 2000-01-21 07:45:11 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

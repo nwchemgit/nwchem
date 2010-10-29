@@ -1,6 +1,6 @@
       SUBROUTINE YGEMM (TRANSA, TRANSB, M, N, K, ALPHA, A, LDA, B, LDB,
      $                   BETA, C, LDC )
-C     $Id: ygemm.F,v 1.1 2005-11-02 17:14:00 edo Exp $
+C     $Id$
       implicit none
 #include "y64.fh"
       CHARACTER*1        TRANSA, TRANSB

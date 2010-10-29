@@ -1,5 +1,5 @@
       Logical Function RIMP2( RTDB )
-C$Id: rimp2.F,v 1.50 2009-02-04 01:18:01 niri Exp $
+C$Id$
       Implicit NONE
 #include "errquit.fh"
       Integer RTDB

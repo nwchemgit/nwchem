@@ -4,7 +4,7 @@ C     print_correl_map -- Print mapping from correlated orbitals to
 C     the full SCF reference, along with occupations and eigenvalues.
 C
 C REVISION
-C     $Id: pr_corr_map.F,v 1.2 2003-10-17 22:58:10 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine Print_Correl_Map(LUN, M, N, Map, LDMap, MFmt,

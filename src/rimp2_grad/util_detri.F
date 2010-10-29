@@ -6,7 +6,7 @@ C
 C SYNOPSIS
       Subroutine Util_Detriangularize(IJ, I, J)
 *
-* $Id: util_detri.F,v 1.1 2003-10-17 22:41:24 carlfahl Exp $
+* $Id$
 *
       Implicit NONE
 #include "errquit.fh"

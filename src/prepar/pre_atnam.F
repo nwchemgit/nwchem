@@ -1,6 +1,6 @@
       character*2 function pre_atnam(number)
 c
-c $Id: pre_atnam.F,v 1.1 1998-04-28 23:10:44 d3j191 Exp $
+c $Id$
 c
       implicit none
       integer number

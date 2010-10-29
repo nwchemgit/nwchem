@@ -25,7 +25,7 @@ c===============================================================c
      2                              nocc,   ! number of occupied orbitals
      3                              nvir)   ! number of virtual orbitals
 c
-c $Id: ncc_singles.F,v 1.0 2009/20/10 23:48:58 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "mafdecls.fh"

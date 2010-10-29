@@ -1,4 +1,4 @@
-c $Id: bq_data.F,v 1.12 2008-03-18 18:10:11 marat Exp $
+c $Id$
       block data initial_bq_data
       implicit none
 #include "bq_data.fh"

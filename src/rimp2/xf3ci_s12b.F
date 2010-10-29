@@ -5,7 +5,7 @@ c     accumulating the result for a complete pass through the innermost
 c     index.
 C
 C REVISION
-C     $Id: xf3ci_s12b.F,v 1.3 2003-10-17 22:58:10 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine XF3cI_Step12b(UseERI, AOBas, PShLo, PShHi, PDim,

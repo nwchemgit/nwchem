@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.6 2003-10-28 23:53:46 edo Exp $	
+#	$Id$	
 #
 
 OBJ_OPTIMIZE = $(OBJDIR)\dbdsqr.obj \

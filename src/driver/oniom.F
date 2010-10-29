@@ -1,6 +1,6 @@
       logical function oniom_energy(rtdb)
 *
-* $Id: oniom.F,v 1.13 2009-03-12 20:42:05 niri Exp $
+* $Id$
 *
       implicit none
       integer rtdb

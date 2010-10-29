@@ -3,7 +3,7 @@ C NAME
 C     rimp2_create_dra -- Create DRAs to previously computed sizes
 C
 C REVISION
-C     $Id: create_dra.F,v 1.2 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_Create_DRA(MaxSpin, TopSpin, NFit, BraKetSame, 

@@ -2,7 +2,7 @@
      + xato,lato,cato,mato,nato,lbnd,mbnd,nbnd,maxscf,
      + llnk,clnk,mlnk,nlnk,iconst,mang,lang,mdih,ldih,itmp)
 c
-c $Id: pre_bnd.F,v 1.17 2003-10-19 03:30:58 d3j191 Exp $
+c $Id$
 c
 c     function to append the list of bonds from atomic coordinates 
 c              for all atoms i in [ilo,ihi]

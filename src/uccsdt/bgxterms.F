@@ -1,5 +1,5 @@
       subroutine uccsdt_bgxterms(d_t,d_b,d_g,d_x)
-c $Id: bgxterms.F,v 1.1 2002-09-18 22:02:08 sohirata Exp $
+c $Id$
 c
 c     Compute B, X, and G terms defined as follows:
 c

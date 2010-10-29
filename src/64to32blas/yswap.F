@@ -1,6 +1,6 @@
       subroutine yswap (n,dx,incx,dy,incy)
 *
-* $Id: yswap.F,v 1.1 2005-11-02 17:14:02 edo Exp $
+* $Id$
 *
       implicit none
 #include "y64.fh"

@@ -1,6 +1,6 @@
       SUBROUTINE YPOTRI( UPLO, N, A, LDA, INFO )
 c
-* $Id: ypotri.f,v 1.1 2005-12-06 16:59:50 edo Exp $
+* $Id$
 c
       CHARACTER          UPLO
       INTEGER            INFO, LDA, N

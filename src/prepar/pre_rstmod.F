@@ -1,6 +1,6 @@
       logical function pre_rstmod(lseq,mseq,nseq,lfnmod,filmod,lfnout)
 c
-c $Id: pre_rstmod.F,v 1.1 2003-07-17 19:38:57 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

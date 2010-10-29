@@ -1,6 +1,6 @@
       block data Duccsdtps
 #include "cuccsdtps.fh"
-C$Id: uccsdt_pstat.F,v 1.2 2003-10-17 22:58:32 carlfahl Exp $
+C$Id$
       data ouccsdtps /.false./     ! So that other codes do not break
 c
       end

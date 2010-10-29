@@ -1,6 +1,6 @@
       subroutine memory_input(rtdb, ostore, stack_size, heap_size, 
      $     global_size, total_size, overify, ohardfail)
-C$Id: memory_input.F,v 1.9 2003-10-17 22:55:18 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

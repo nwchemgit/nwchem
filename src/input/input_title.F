@@ -1,5 +1,5 @@
       subroutine input_title(rtdb)
-C$Id: input_title.F,v 1.9 2004-08-25 01:08:47 marat Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"

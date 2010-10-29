@@ -3,7 +3,7 @@
      + lfnmod,filmod,lfnmat,lfnhdb,lfnhop,filhop,
      + lfnbsg,filbsg,ignore,slvnam,itopol,icomb)
 c
-c $Id: pre_mktop.F,v 1.39 2008-08-21 16:27:14 d3j191 Exp $
+c $Id$
 c
 c     in : integer lfnout    = logical file number output file
 c          char*80 ffield    = force field from [amber]

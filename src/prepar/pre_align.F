@@ -2,7 +2,7 @@
      + csa,isat,isgm,xs,vs,msa,nsa,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc)
 c
-c $Id: pre_align.F,v 1.4 2001-07-06 03:45:13 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

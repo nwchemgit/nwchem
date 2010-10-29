@@ -1,7 +1,7 @@
       logical function pre_disres(card,card2,isegm,csa,msa,nsa,
      + inoe,dnoe,mnoe,nnoe)
 c
-c $Id: pre_disres.F,v 1.5 2003-10-19 03:30:58 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

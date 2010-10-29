@@ -4,7 +4,7 @@
      .     no_of_spacings,
      &                          What,Spin,Orb_No)
 *
-* $Id: create_contour.F,v 1.35 2009-03-05 17:53:50 d3p975 Exp $
+* $Id$
 *
       Implicit None
 #include "errquit.fh"

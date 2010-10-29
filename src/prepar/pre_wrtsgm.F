@@ -2,7 +2,7 @@
      + latm,catm,qatm,matm,natm,lbnd,mbnd,nbnd,lang,mang,nang,
      + ldih,mdih,ndih,limp,mimp,nimp,izmat,zmat,mzmat,nzmat,ipardef)
 c
-c $Id: pre_wrtsgm.F,v 1.18 2003-08-12 19:45:44 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

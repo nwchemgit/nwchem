@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Mk_W2 -- Complete formation of W2
 C
 C REVISION
-C     $Id: mk_w2.F,v 1.6 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_Mk_W2(RTDB, Geom, AOBas, TopSpin, NFrzO, NAct,

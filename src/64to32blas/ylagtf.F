@@ -1,6 +1,6 @@
       SUBROUTINE yLAGTF( N, A, LAMBDA, B, C, TOL, D, IN, INFO )
 c
-* $Id: ylagtf.F,v 1.1 2005-11-02 17:14:01 edo Exp $
+* $Id$
 c
       implicit none
 #include "y64.fh"

@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_P -- Master routine for RI-MP2 density evaluation
 C
 C REVISION
-C     $Id: driver_p.F,v 1.5 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_P(RTDB, Geom, AOBas, NAO,

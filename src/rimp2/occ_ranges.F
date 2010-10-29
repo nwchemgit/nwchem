@@ -4,7 +4,7 @@ C     occ_ranges -- Convert an occupation vector into ranges of occupied
 C     and virtual orbitals
 C
 C REVISION
-C     $Id: occ_ranges.F,v 1.1 1994-06-14 21:54:26 gg502 Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine Occ_Ranges( N, Occ, OLo, OHi, VLo, VHi)

@@ -1,5 +1,5 @@
       INTEGER          FUNCTION IEEECK( ISPEC, ZERO, ONE )
-* $Id: ieeeck.f,v 1.1 2004-11-16 23:03:46 edo Exp $
+* $Id$
 *
 *  -- LAPACK auxiliary routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

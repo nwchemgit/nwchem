@@ -1,6 +1,6 @@
       SUBROUTINE ZGEEV( JOBVL, JOBVR, N, A, LDA, W, VL, LDVL, VR, LDVR,
      $                  WORK, LWORK, RWORK, INFO )
-C$Id: zgeev.f,v 1.1 2002-01-19 05:30:59 edo Exp $                          
+C$Id$                          
 *
 *  -- LAPACK driver routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

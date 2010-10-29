@@ -2,7 +2,7 @@
      + jlo,ilo,ihi,jhi,lbnd,mbnd,nbnd,lang,mang,nang,ldih,mdih,ndih,
      + lring,aring,mring,nring3,nring4,nring5,nring6)
 c
-c $Id: pre_impctr.F,v 1.6 2003-10-19 03:30:58 d3j191 Exp $
+c $Id$
 c
 c     function to determine the center type
 c

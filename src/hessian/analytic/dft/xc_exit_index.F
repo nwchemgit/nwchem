@@ -1,7 +1,7 @@
       subroutine xc_exit_index(l_cntoce, l_cntobfr, l_cetobfr,
      &                         l_rdens_atom)
 c
-c     $Id: xc_exit_index.F,v 1.2 2003-10-17 22:55:14 carlfahl Exp $
+c     $Id$
 c
 c     Cleans up indexing and reduced density arrays used by several
 c     XC routines

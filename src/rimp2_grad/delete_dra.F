@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Delete_DRA -- Close and delete DRAs
 C
 C REVISION
-C     $Id: delete_dra.F,v 1.2 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_Delete_DRA(MaxSpin, TopSpin, BraKetSame,

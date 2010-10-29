@@ -1,5 +1,5 @@
       SUBROUTINE YORGHR( N, ILO, IHI, A, LDA, TAU, WORK, LWORK, INFO )
-c $Id: yorghr.F,v 1.1 2005-11-02 17:14:02 edo Exp $
+c $Id$
 *
       implicit none
 #include "y64.fh"

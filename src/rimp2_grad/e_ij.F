@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_E_IJ -- Evaluate RI-MP2 energy contributions for IJ batch
 C
 C REVISION
-C     $Id: e_ij.F,v 1.3 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_E_IJ(TopSpin, SameSpin, ILo, IHi, NVirI,

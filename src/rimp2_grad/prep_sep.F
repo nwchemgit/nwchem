@@ -3,7 +3,7 @@ C NAME
 C     rimp2_prep_sep -- Prepare for computation of separable gradient terms
 C
 C REVISION
-C     $Id: prep_sep.F,v 1.2 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_Prep_Sep(TopSpin, g_P2, g_W2, g_AOXF)

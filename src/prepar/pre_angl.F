@@ -1,6 +1,6 @@
       logical function pre_ang(lbnd,mbnd,nbmd,lang,mang,nang)
 c
-c $Id: pre_angl.F,v 1.2 1998-04-29 18:35:11 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

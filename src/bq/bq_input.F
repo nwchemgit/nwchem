@@ -1,4 +1,4 @@
-c $Id: bq_input.F,v 1.8 2006-10-06 06:56:59 marat Exp $
+c $Id$
 
       subroutine bq_input(rtdb)
       implicit none

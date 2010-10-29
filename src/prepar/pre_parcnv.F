@@ -1,6 +1,6 @@
       logical function pre_parcnv(icomb,latt,patt,catt,matt,natt)
 c
-c $Id: pre_parcnv.F,v 1.7 2002-02-09 05:48:17 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

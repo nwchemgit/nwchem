@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.3 2000-11-25 15:42:44 bjohnson Exp $	
+#	$Id$	
 #
 
 #!MESSAGE *** Unresolved issues in this nmake file ***
@@ -41,7 +41,7 @@ LIBRARY = rimp2.lib
 
 !IF 0
 
-# $Id: MakeFile,v 1.3 2000-11-25 15:42:44 bjohnson Exp $
+# $Id$
 # Note: To switch on disk arrays, uncomment the DEFINE +=... after the
 # includes.  Do NOT move the DEFINE ahead of the includes or it won't
 # have the desired effect.

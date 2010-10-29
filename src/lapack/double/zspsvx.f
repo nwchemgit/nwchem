@@ -1,7 +1,7 @@
       SUBROUTINE ZSPSVX( FACT, UPLO, N, NRHS, AP, AFP, IPIV, B, LDB, X,
      $                   LDX, RCOND, FERR, BERR, WORK, RWORK, INFO )
 c     
-c     $Id: zspsvx.f,v 1.1 2000-04-18 00:22:39 edo Exp $
+c     $Id$
 c     
 *
 *  -- LAPACK driver routine (version 3.0) --

@@ -1,6 +1,6 @@
       subroutine  yscal(n,da,dx,incx)
 *
-* $Id: yscal.F,v 1.1 2005-11-02 17:14:02 edo Exp $
+* $Id$
 *
 c
       implicit none

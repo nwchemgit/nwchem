@@ -1,6 +1,6 @@
       INTEGER          FUNCTION ILAENV( ISPEC, NAME, OPTS, N1, N2, N3,
      $                 N4 )
-* $Id: ilaenv.f,v 1.4 2004-11-16 23:03:44 edo Exp $
+* $Id$
 *
 *  -- LAPACK auxiliary routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

@@ -1,6 +1,6 @@
       integer function iyamax(n,dx,incx)
 *
-* $Id: iyamax.F,v 1.1 2005-11-02 17:13:58 edo Exp $
+* $Id$
 *
       implicit none
 #include "y64.fh"

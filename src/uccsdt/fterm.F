@@ -1,6 +1,6 @@
       subroutine uccsdt_fterm(urange,vrange,lists)
 c
-c$Id: fterm.F,v 1.5 2002-10-08 00:17:48 bert Exp $
+c$Id$
 c
       implicit none
 #include "mafdecls.fh"

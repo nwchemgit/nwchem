@@ -3,7 +3,7 @@ C NAME
 C     rimp2_denom2 -- Apply denominators to a global array of integrals
 C
 C REVISION
-C     $Id: denom2.F,v 1.1 1998-07-06 21:09:28 bernhold Exp $
+C     $Id$
 C
       Subroutine RIMp2_denom2(IJSym, IJTri, G_T, ILo, IHi, JLo, JHi,
      $   NVirI, NVirJ,

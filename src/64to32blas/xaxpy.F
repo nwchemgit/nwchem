@@ -1,6 +1,6 @@
       subroutine xaxpy(n,za,zx,incx,zy,incy)
 *
-* $Id: xaxpy.F,v 1.1 2005-11-02 17:13:58 edo Exp $
+* $Id$
 *
       implicit none
 #include "y64.fh"

@@ -6,7 +6,7 @@
      + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,filmrg,
      + irenum,invert,ihop,ips)
 c
-c $Id: pre_wrtpdb.F,v 1.45 2003-11-11 20:30:50 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

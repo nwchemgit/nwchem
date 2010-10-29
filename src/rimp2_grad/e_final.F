@@ -3,7 +3,7 @@ C NAME
 C     rimp2_e_final -- Complete evaluation of energy
 C
 C REVISION
-C     $Id: e_final.F,v 1.1 1998-07-06 21:09:51 bernhold Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_E_Final(TopSpin, G_PairE, Contrib, E2)

@@ -1,7 +1,7 @@
       logical function pre_orient(lfnout,xw,mwm,mwa,nwm,nwa,
      + xwc,mwmc,nwmc,xs,msa,nsa)
 c
-c $Id: pre_orient.F,v 1.5 2001-07-06 03:45:13 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

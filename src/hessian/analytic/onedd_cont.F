@@ -1,5 +1,5 @@
 C
-C $Id: onedd_cont.F,v 1.28 2003-10-17 22:55:13 carlfahl Exp $
+C $Id$
 C
       subroutine onedd_cont(rtdb)
 c

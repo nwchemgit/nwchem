@@ -1,5 +1,5 @@
 c
-c $Id: onedd_calc.F,v 1.13 2003-03-28 17:12:04 bert Exp $
+c $Id$
 c
       subroutine onedd_calc(Hxy,nxyz,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,doECP,

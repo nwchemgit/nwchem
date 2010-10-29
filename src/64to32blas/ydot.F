@@ -1,6 +1,6 @@
       double precision function ydot(n,dx,incx,dy,incy)
 *
-* $Id: ydot.F,v 1.1 2005-11-02 17:13:59 edo Exp $
+* $Id$
 *
       implicit none
 #include "y64.fh"

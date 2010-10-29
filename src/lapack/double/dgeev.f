@@ -1,6 +1,6 @@
       SUBROUTINE DGEEV( JOBVL, JOBVR, N, A, LDA, WR, WI, VL, LDVL, VR,
      $                  LDVR, WORK, LWORK, INFO )
-c $Id: dgeev.f,v 1.1 2002-04-12 22:59:22 sohirata Exp $
+c $Id$
 *
 *  -- LAPACK driver routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

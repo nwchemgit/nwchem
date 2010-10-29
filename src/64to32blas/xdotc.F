@@ -1,6 +1,6 @@
       double complex function xdotc(n,dx,incx,dy,incy)
 *
-* $Id: xdotc.F,v 1.1 2005-12-28 18:09:49 edo Exp $
+* $Id$
 *
       implicit none
 #include "y64.fh"

@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.19 2004-07-29 16:28:52 windus Exp $
+# $Id$
 #
 
  SUBDIRS = analytic

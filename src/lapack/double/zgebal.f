@@ -1,5 +1,5 @@
       SUBROUTINE ZGEBAL( JOB, N, A, LDA, ILO, IHI, SCALE, INFO )
-C$Id: zgebal.f,v 1.1 2002-01-19 05:30:59 edo Exp $                          
+C$Id$                          
 *
 *  -- LAPACK routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

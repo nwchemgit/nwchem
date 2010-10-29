@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_E -- Master routine for RI-MP2 energy evaluation
 C
 C REVISION
-C     $Id: driver_e.F,v 1.9 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Logical Function RIMP2_DRIVER_E(MaxSpin, BraKetSame,

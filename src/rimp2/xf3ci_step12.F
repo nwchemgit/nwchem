@@ -4,7 +4,7 @@ C     XF3cI_Step12 -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_step12.F,v 1.17 2005-01-04 19:46:54 edo Exp $
+C     $Id$
 C
 C SYNOPSIS
       Logical Function XF3cI_Step12(RTDB, Geom, IntTyp,

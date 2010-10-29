@@ -1,6 +1,6 @@
       subroutine uccsdt_acefterms(x_lists)
 c
-c$Id: acefterms.F,v 1.8 2002-10-29 01:09:24 bert Exp $
+c$Id$
 c
       implicit none
 #include "mafdecls.fh"

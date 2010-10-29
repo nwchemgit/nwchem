@@ -1,6 +1,6 @@
       logical function pre_seqsiz(lfnout,lfnseq,filseq,nseq,nlnk)
 c
-c $Id: pre_seqsiz.F,v 1.6 1998-09-16 22:16:41 d3j191 Exp $
+c $Id$
 c
 c     function to scan the sequence file for the number of segments
 c

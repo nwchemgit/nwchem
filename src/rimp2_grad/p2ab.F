@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_P2ab -- Form P^{(2)}_{ab} for batch in memory
 C
 C REVISION
-C     $Id: p2ab.F,v 1.4 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_P2AB(SameSpin, IJSym, IJTri, ILo, IHi, NVirI,

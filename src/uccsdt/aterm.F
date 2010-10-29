@@ -1,6 +1,6 @@
       subroutine uccsdt_aterm_init(x_lists)
 c
-c$Id: aterm.F,v 1.9 2002-10-30 01:33:34 bert Exp $
+c$Id$
 c
       implicit none
 #include "mafdecls.fh"

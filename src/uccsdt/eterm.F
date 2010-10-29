@@ -1,6 +1,6 @@
       subroutine uccsdt_eterm(qO,qV)
 c
-c$Id: eterm.F,v 1.8 2003-10-25 00:51:20 marat Exp $
+c$Id$
 c
       implicit none
 #include "mafdecls.fh"

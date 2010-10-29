@@ -1,5 +1,5 @@
       Subroutine Max_V_Diagonal(Basis, Big)
-C$Id: max_v_diag.F,v 1.3 2003-10-17 22:58:10 carlfahl Exp $
+C$Id$
       Implicit NONE
 #include "errquit.fh"
       Integer Basis

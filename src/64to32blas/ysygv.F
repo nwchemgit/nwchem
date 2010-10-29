@@ -1,7 +1,7 @@
       SUBROUTINE YSYGV( ITYPE, JOBZ, UPLO, N, A, LDA, B, LDB, W, WORK,
      $                  LWORK, INFO )
 c
-* $Id: ysygv.F,v 1.1 2005-12-28 18:09:49 edo Exp $
+* $Id$
 c
       implicit none
 #include "y64.fh"

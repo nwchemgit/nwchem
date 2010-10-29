@@ -1,5 +1,5 @@
 C
-C $Id: hess_sxsy.F,v 1.7 2003-10-17 22:55:13 carlfahl Exp $
+C $Id$
 C
       subroutine hess_sxsy(hess, e, g_tx, oactive, ncent, nocc, 
      &                      noffset, urestr)

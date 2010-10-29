@@ -1,6 +1,6 @@
       SUBROUTINE YLASET( UPLO, M, N, ALPHA, BETA, A, LDA )
 c
-* $Id: ylaset.F,v 1.1 2005-11-02 17:14:01 edo Exp $
+* $Id$
 c
       implicit none
 #include "y64.fh"

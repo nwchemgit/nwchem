@@ -1,6 +1,6 @@
       integer function pre_atom_index(card,isegm,csa,msa,nsa)
 c
-c $Id: pre_atom_index.F,v 1.3 2003-10-19 03:30:58 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -1,6 +1,6 @@
       subroutine speech_input(rtdb)
 *
-* $Id: speech_input.F,v 1.3 2003-10-17 22:55:18 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,7 +1,7 @@
       SUBROUTINE xHEEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, RWORK,
      $                  INFO )
 c
-* $Id: xheev.F,v 1.2 2005-11-03 06:09:53 edo Exp $
+* $Id$
 c
       implicit none
 #include "y64.fh"

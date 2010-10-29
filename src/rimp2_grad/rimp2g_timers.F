@@ -1,5 +1,5 @@
       Subroutine RIMP2G_PStat_Init
-C$Id: rimp2g_timers.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
+C$Id$
       Implicit NONE
 #include "errquit.fh"
 C

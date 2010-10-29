@@ -3,7 +3,7 @@ C NAME
 C     rimp2_denom -- Apply denominators to a global array of integrals
 C
 C REVISION
-C     $Id: rimp2_denom.F,v 1.5 2005-01-04 19:46:54 edo Exp $
+C     $Id$
 C
       Subroutine RIMP2_Denom(G_Ints, BaseI, BaseJ, NVirI, NVirJ,
      $   OccEigI, OccEigJ, VirEigI, VirEigJ)

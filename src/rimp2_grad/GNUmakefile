@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.2 1999-06-01 17:10:34 gg502 Exp $
+# $Id$
 # Note: To switch on disk arrays, uncomment the DEFINE +=... after the
 # includes.  Do NOT move the DEFINE ahead of the includes or it won't
 # have the desired effect.

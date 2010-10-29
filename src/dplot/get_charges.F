@@ -3,7 +3,7 @@
      &                       XYZ,Charge,Tags,AMt,BMt,Dst,
      &                       STD,Tot_Charge)
 *
-* $Id: get_charges.F,v 1.8 2003-10-27 02:34:17 edo Exp $
+* $Id$
 *
       Implicit None
 *

@@ -4,7 +4,7 @@ C     RIMP2_XF_Driver -- Three-center integral transformation for V
 C     approximation RIMP2 calculation
 C
 C REVISION
-C     $Id: rimp2_xf.F,v 1.8 2003-10-17 22:58:10 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Logical Function RIMP2_XF_Driver(RTDB, Geom, AOBas, FitBas, 

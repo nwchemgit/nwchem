@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_P2ij -- Form P^{(2)}_{ij} for batch in memory
 C
 C REVISION
-C     $Id: p2ij.F,v 1.3 1998-10-12 14:31:27 bernhold Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_P2ij(SameSpin, IJSym, IJTri, ILo, IHi, NVirI,

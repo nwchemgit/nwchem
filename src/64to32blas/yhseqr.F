@@ -1,6 +1,6 @@
       SUBROUTINE YHSEQR( JOB, COMPZ, N, ILO, IHI, H, LDH, WR, WI, Z,
      $                   LDZ, WORK, LWORK, INFO )
-c $Id: yhseqr.F,v 1.1 2005-11-02 17:14:00 edo Exp $
+c $Id$
 *
       implicit none
 #include "y64.fh"

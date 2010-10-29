@@ -1,6 +1,6 @@
       SUBROUTINE YSTERF( N, D, E, INFO )
 c
-* $Id: ysterf.F,v 1.1 2005-11-02 17:14:02 edo Exp $
+* $Id$
 c
       implicit none
 #include "y64.fh"

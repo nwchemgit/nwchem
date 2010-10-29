@@ -1,6 +1,6 @@
 #!/bin/sh
 #
-# $Id: get-tools,v 1.15 2008-08-15 23:24:44 d3p307 Exp $
+# $Id$
 #
 
 unalias -a

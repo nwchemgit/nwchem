@@ -1,6 +1,6 @@
 c**********************************************************************
 c     subroutines interfaced with and adapted from HONDO
-c $Id: rhf_hessian.F,v 1.35 2004-07-27 12:27:38 edo Exp $
+c $Id$
 c**********************************************************************
       subroutine hnd_der_init(rtdb,geom,basis)
       implicit double precision (a-h,o-z)

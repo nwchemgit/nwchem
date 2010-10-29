@@ -1,6 +1,6 @@
       Subroutine RIMP2_Get_Param( RTDB, Thresh, MxTBatch, Mem_Opt,
      $   MxEBatch, Approx, MinEVal)
-C$Id: rimp2_parm.F,v 1.7 2003-10-17 22:58:10 carlfahl Exp $
+C$Id$
       Implicit NONE
 #include "errquit.fh"
       Integer RTDB, MxTBatch, MxEBatch(2)

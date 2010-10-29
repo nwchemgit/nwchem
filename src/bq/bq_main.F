@@ -1,4 +1,4 @@
-c $Id: bq_main.F,v 1.6 2008-04-22 21:59:58 niri Exp $
+c $Id$
 
       function bq_init(rtdb)
       implicit none

@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.50 2003-04-17 04:16:16 edo Exp $
+#$Id$
 
 # Put into task library so that it occurs at the front of the link path
 

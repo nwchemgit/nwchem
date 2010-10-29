@@ -1,6 +1,6 @@
       SUBROUTINE YLACPY( UPLO, M, N, A, LDA, B, LDB )
 c
-* $Id: ylacpy.F,v 1.1 2005-11-02 17:14:00 edo Exp $
+* $Id$
 c
       implicit none
 #include "y64.fh"

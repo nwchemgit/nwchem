@@ -1,6 +1,6 @@
       SUBROUTINE ZSPTRF( UPLO, N, AP, IPIV, INFO )
 c     
-c     $Id: zsptrf.f,v 1.2 2000-10-25 22:50:12 windus Exp $
+c     $Id$
 c     
 *
 *  -- LAPACK routine (version 3.0) --

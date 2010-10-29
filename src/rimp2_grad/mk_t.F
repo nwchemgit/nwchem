@@ -3,7 +3,7 @@ CNAME
 C     RIMP2_Mk_T -- Form T amplitudes for IJ batch in memory
 C     
 C REVISION
-C     $Id: mk_t.F,v 1.2 1998-07-14 16:18:37 bernhold Exp $
+C     $Id$
 C
 C SYNOPSIS
       Logical Function RIMP2_Mk_T(ILo, IHi, NVirI, JLo, JHi, NVirJ,

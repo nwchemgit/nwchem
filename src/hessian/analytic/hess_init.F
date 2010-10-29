@@ -1,5 +1,5 @@
 C
-C $Id: hess_init.F,v 1.63 2009-01-25 02:27:01 niri Exp $
+C $Id$
 C
       subroutine hess_init(rtdb)
 c

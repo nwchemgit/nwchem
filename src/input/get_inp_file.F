@@ -1,5 +1,5 @@
       subroutine get_input_filename(input_filename)
-C     $Id: get_inp_file.F,v 1.17 2007-12-05 01:31:40 d3p307 Exp $
+C     $Id$
       implicit none
 #include "inp.fh"
 #include "global.fh"

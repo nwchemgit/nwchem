@@ -1,5 +1,5 @@
 C
-C $Id: hess_cphf.F,v 1.53 2003-10-17 22:55:13 carlfahl Exp $
+C $Id$
 C
       subroutine hess_cphf(rtdb)
 c

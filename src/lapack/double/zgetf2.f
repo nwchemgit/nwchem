@@ -1,5 +1,5 @@
       SUBROUTINE ZGETF2( M, N, A, LDA, IPIV, INFO )
-C$Id: zgetf2.f,v 1.1 2002-01-19 05:31:00 edo Exp $                          
+C$Id$                          
 *
 *  -- LAPACK routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

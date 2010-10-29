@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Gamma3 -- Form 3-index Gamma from 3e2c and 4-index Gamma
 C
 C REVISION
-C     $Id: gamma3.F,v 1.4 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_Gamma3(IJSym, IJTri, ILo, IHi, NVirI, JLo, JHi,

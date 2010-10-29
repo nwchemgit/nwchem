@@ -1,5 +1,5 @@
       DOUBLE PRECISION FUNCTION ZLANGE( NORM, M, N, A, LDA, WORK )
-C$Id: zlange.f,v 1.1 2002-01-19 05:31:00 edo Exp $                          
+C$Id$                          
 *
 *  -- LAPACK auxiliary routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

@@ -1,6 +1,6 @@
       subroutine yLARNV( IDIST, ISEED, N, X )
 c
-* $Id: ylarnv.F,v 1.1 2005-11-02 17:14:01 edo Exp $
+* $Id$
 c
       implicit none
 #include "y64.fh"

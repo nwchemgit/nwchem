@@ -3,7 +3,7 @@ C NAME
 C     rimp2_prep_dra -- Setup DRA sizes and names
 C
 C REVISION
-C     $Id: prep_dra.F,v 1.5 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_Prep_DRA(MaxSpin, TopSpin, NFrzO, NAct, NVir,

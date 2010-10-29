@@ -1,5 +1,5 @@
 c
-c $Id: oned_calc.F,v 1.11 2007-11-16 22:35:17 edo Exp $
+c $Id$
 c
       subroutine oned_calc(nxyz,g_rhs,Ibuf,lbuf,Iscr,lscr,
      *      skelsym,doS,doT,doV,geom,basis,nat)

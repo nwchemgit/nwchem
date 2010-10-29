@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.12 2005-09-27 20:05:05 edo Exp $
+# $Id$
 
 OBJ =  		xc_d2expl.o 
 OBJ_OPTIMIZE =  xc_cpks_coeff.o \

@@ -1,5 +1,5 @@
       SUBROUTINE CLASWP( N, A, LDA, K1, K2, IPIV, INCX )
-* $Id: claswp.f,v 1.1 2002-01-19 05:31:01 edo Exp $                           
+* $Id$                           
 *
 *  -- LAPACK auxiliary routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

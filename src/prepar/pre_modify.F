@@ -4,7 +4,7 @@
      + ldih,nfdih,kdih,rdih,mdih,ndih,ndiht,limp,kimp,rimp,mimp,nimp,
      + nimpt,lupdat)
 c
-c     $Id: pre_modify.F,v 1.19 2003-12-03 05:00:56 d3j191 Exp $
+c     $Id$
 c
       implicit none
 c

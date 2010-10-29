@@ -3,7 +3,7 @@ C NAME
 C     rimp2_clean_sep -- Clean up after separable gradient terms
 C
 C REVISION
-C     $Id: clean_sep.F,v 1.2 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_Clean_Sep(TopSpin)

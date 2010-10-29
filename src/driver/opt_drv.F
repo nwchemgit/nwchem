@@ -1,6 +1,6 @@
       logical function driver(rtdb)
 *
-* $Id: opt_drv.F,v 1.118 2009-03-12 20:42:05 niri Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

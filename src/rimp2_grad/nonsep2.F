@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_NonSep2 -- Non-separable gradient contrib from 2c integrals
 C
 C REVISION
-C     $Id: nonsep2.F,v 1.4 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_NonSep2(BraKetSame, TopSpin, NFrzO, NAct, NVir,

@@ -3,7 +3,7 @@ C NAME
 C     rimp2_t_stats -- compute statistics on t amplitudes
 C
 C REVISION
-C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_t_Stats(LowOnly, ILo, IHi, NVirI, JLo, JHi,
@@ -155,7 +155,7 @@ C NAME
 C     rimp2_t_stats_merge -- merge statistics on t amplitudes
 C
 C REVISION
-C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_t_Stats_Merge( TopN, TopN_Ind, TopN_Val)
@@ -196,7 +196,7 @@ C NAME
 C     rimp2_t_stats_print -- print statistics on t amplitudes
 C
 C REVISION
-C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_t_Stats_Print( TopN, TopN_Ind, TopN_Val,
@@ -258,7 +258,7 @@ C NAME
 C     rimp2_t_stats_init -- initialize statistics on t amplitudes 
 C
 C REVISION
-C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_t_Stats_Init( TopN, H_TopN_Ind, H_TopN_Val)
@@ -303,7 +303,7 @@ C NAME
 C     rimp2_t_stats_term -- terminate statistics on t amplitudes 
 C
 C REVISION
-C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_t_Stats_Term( TopN, H_TopN_Ind, H_TopN_Val)
@@ -335,7 +335,7 @@ C NAME
 C     rimp2_t_sort -- specialized sort for t amplitudes
 C
 C REVISION
-C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_t_Sort( ID, N, Indices, D)
@@ -559,7 +559,7 @@ C NAME
 C     rimp2_t_swap -- specialized swap function for t amplitude sort
 C
 C REVISION
-C     $Id: t_stats.F,v 1.2 2003-10-17 22:58:13 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_t_swap( D1, D2, I1, I2)

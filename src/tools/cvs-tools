@@ -1,6 +1,6 @@
 #!/bin/csh 
 #
-# $Id: cvs-tools,v 1.1 2000-09-08 15:00:01 gg502 Exp $
+# $Id$
 #
 # The subdirectories of tools come from a separate repository, and the
 # presence of the CVS directory here will make cvs look at only the

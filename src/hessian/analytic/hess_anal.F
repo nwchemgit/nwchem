@@ -1,5 +1,5 @@
 C
-C $Id: hess_anal.F,v 1.26 2007-09-14 18:29:11 niri Exp $
+C $Id$
 C
       logical function hess_anal(rtdb)
 C

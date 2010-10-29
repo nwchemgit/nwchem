@@ -4,7 +4,7 @@ C     RIMP2_NS2_I3G3 -- Contraction of 3-c integrals with Gamma3 for
 C     non-separable 2-c contribution to gradient
 C
 C REVISION
-C     $Id: ns2_i3g3.F,v 1.2 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_NS2_I3G3(NFrzO, NAct, NVir, NFit,

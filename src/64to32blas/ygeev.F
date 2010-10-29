@@ -1,7 +1,7 @@
       SUBROUTINE YGEEV( JOBVL, JOBVR, N, A, LDA, WR, WI, VL, LDVL, VR,
      $                  LDVR, WORK, LWORK, INFO )
 *
-* $Id: ygeev.F,v 1.1 2008-09-29 20:21:59 edo Exp $
+* $Id$
 *
       implicit none
 #include "y64.fh"

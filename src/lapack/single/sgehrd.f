@@ -1,5 +1,5 @@
       SUBROUTINE SGEHRD( N, ILO, IHI, A, LDA, TAU, WORK, LWORK, INFO )
-C$Id: sgehrd.f,v 1.1 2004-05-14 15:43:08 edo Exp $
+C$Id$
 *
 *  -- LAPACK routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

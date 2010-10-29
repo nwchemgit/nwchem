@@ -1,5 +1,5 @@
       SUBROUTINE YGEHRD( N, ILO, IHI, A, LDA, TAU, WORK, LWORK, INFO )
-c $Id: ygehrd.F,v 1.2 2005-11-09 02:07:17 edo Exp $
+c $Id$
 *
       implicit none
 #include "y64.fh"

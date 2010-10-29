@@ -4,7 +4,7 @@ C     XF3cI_Step3 -- Do the last step of the three-center integral
 C     transformation
 C
 C REVISION
-C     $Id: xf3ci_step3.F,v 1.4 1997-04-01 03:43:35 gg502 Exp $
+C     $Id$
 C
 C SYNOPSIS
       Logical Function XF3cI_Step3(G_In, NAIn, NIIn,

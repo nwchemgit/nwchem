@@ -4,7 +4,7 @@ C     panel_diagonal -- Locate the piece of the diagonal running through
 C     the panel.
 C
 C REVISION
-C     $Id: panel_diag.f,v 1.1 1995-12-13 01:36:53 d3g681 Exp $
+C     $Id$
 C
 C SYNOPSIS
       Logical function Panel_Diagonal( Ilo, Ihi, Jlo, Jhi, Dlo, Dhi)

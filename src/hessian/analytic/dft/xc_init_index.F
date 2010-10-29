@@ -3,7 +3,7 @@
      &                         k_cntobfr, l_cetobfr, k_cetobfr,
      &                         l_rdens_atom, k_rdens_atom)
 c
-c     $Id: xc_init_index.F,v 1.4 2005-02-11 07:27:42 edo Exp $
+c     $Id$
 c
 c     Sets up indexing and reduced density arrays used by several
 c     XC routines

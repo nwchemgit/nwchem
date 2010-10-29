@@ -4,7 +4,7 @@ C     progress_report -- Give the user a progress report for time-
 C     consuming operations
 C
 C REVISION
-C     $Id: prog_report.F,v 1.3 1998-04-19 02:24:47 gg502 Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine Progress_Report(LUN, Msg)

@@ -1,6 +1,6 @@
       SUBROUTINE DHSEQR( JOB, COMPZ, N, ILO, IHI, H, LDH, WR, WI, Z,
      $                   LDZ, WORK, LWORK, INFO )
-c $Id: dhseqr.f,v 1.1 2002-04-12 22:59:23 sohirata Exp $
+c $Id$
 *
 *  -- LAPACK routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

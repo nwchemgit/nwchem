@@ -1,6 +1,6 @@
       logical function pre_slvsiz(lfnslv,filslv,nwm,nwa)
 c
-c $Id: pre_slvsiz.F,v 1.3 2000-01-10 19:47:39 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

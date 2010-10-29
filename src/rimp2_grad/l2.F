@@ -3,7 +3,7 @@ C NAME
 C     rimp2_l2 -- Compute RI-MP2 L2 Lagrangian term
 C
 C REVISION
-C     $Id: l2.F,v 1.7 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_L2(C, A, V, NFit, D_Int_ai, d_Int_ij, D_Gam,

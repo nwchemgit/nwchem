@@ -4,7 +4,7 @@ C     xf3ci_mem12 -- Compute best local memory usage for transformation
 c     steps 1 and 2
 C
 C REVISION
-C     $Id: xf3ci_mem12.F,v 1.1 1994-10-31 17:26:06 gg502 Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine XF3cI_Mem12( MAvail, PMin, QMin, SMin, PMax, QMax,

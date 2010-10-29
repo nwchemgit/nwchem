@@ -1,7 +1,7 @@
       logical function pre_natyps(lfnout,nparms,mparms,
      + catm,matm,natm,natt,nats)
 c
-c $Id: pre_natyps.F,v 1.6 2003-07-17 19:38:57 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

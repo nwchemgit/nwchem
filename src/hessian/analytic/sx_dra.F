@@ -1,5 +1,5 @@
 c
-c $Id: sx_dra.F,v 1.5 2003-10-17 22:55:13 carlfahl Exp $
+c $Id$
 c
 c  This file holds the DRA write and read routines for the Sx matrices
 c

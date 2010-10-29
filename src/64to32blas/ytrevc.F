@@ -1,6 +1,6 @@
       SUBROUTINE YTREVC( SIDE, HOWMNY, SELECT, N, T, LDT, VL, LDVL, VR,
      $                   LDVR, MM, M, WORK, INFO )
-c $Id: ytrevc.F,v 1.1 2005-11-02 17:14:03 edo Exp $
+c $Id$
 *
       implicit none
 #include "y64.fh"

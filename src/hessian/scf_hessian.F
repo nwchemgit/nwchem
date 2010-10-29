@@ -1,5 +1,5 @@
       logical function scf_hessian(rtdb)
-* $Id: scf_hessian.F,v 1.11 2003-10-17 22:55:10 carlfahl Exp $
+* $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

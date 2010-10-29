@@ -1,6 +1,6 @@
 #!/usr/bin/expect
 #
-# $Id: get-tools-expect,v 1.4 2000-09-12 22:16:04 d3j191 Exp $
+# $Id$
 #
 set release " "
 # for release edit by hand after branch :)

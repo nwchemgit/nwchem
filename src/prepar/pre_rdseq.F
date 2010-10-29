@@ -1,7 +1,7 @@
       logical function pre_rdseq(lfnout,lfnseq,filseq,
      + lseq,cseq,mseq,nseq,llnk,clnk,mlnk,nlnk)
 c
-c $Id: pre_rdseq.F,v 1.15 2003-10-19 03:30:59 d3j191 Exp $
+c $Id$
 c
 c     function to read the sequence file
 c

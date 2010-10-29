@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_PairE -- Calculate MP2 pair energies for IJ batch in memory
 C
 C REVISION
-C     $Id: paire.F,v 1.1 1998-07-06 21:10:20 bernhold Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_PairE(ILo, IHi, NVirI, JLo, JHi, NVirJ, IJSym,

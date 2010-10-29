@@ -4,7 +4,7 @@ C     XF3cI_Step12a -- Do the first two steps of the three-center
 C     integral transformation
 C
 C REVISION
-C     $Id: xf3ci_s12a.F,v 1.2 2003-10-17 22:58:10 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine XF3cI_Step12a(UseERI, AOBas, PDim, QDim, FitBas,

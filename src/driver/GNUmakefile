@@ -1,5 +1,5 @@
 #
-# $Id: GNUmakefile,v 1.26 2008-02-29 19:27:43 niri Exp $
+# $Id$
 #
 
 LIBRARY = libdriver.a

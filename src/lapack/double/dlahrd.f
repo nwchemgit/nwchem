@@ -1,5 +1,5 @@
       SUBROUTINE DLAHRD( N, K, NB, A, LDA, TAU, T, LDT, Y, LDY )
-c $Id: dlahrd.f,v 1.1 2002-04-12 22:59:23 sohirata Exp $
+c $Id$
 *
 *  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

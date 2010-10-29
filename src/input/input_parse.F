@@ -10,7 +10,7 @@ c     Otherwise FALSE is returned by all processes.
 c
       logical function input_parse(rtdb)
 
-C     $Id: input_parse.F,v 1.88 2009/02/03 22:49:53 niri Exp $
+C     $Id$
 c
       implicit none
 c

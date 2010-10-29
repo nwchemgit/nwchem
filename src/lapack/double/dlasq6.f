@@ -1,4 +1,4 @@
-* $Id: dlasq6.f,v 1.1 2001-10-09 23:51:47 windus Exp $
+* $Id$
       SUBROUTINE DLASQ6( I0, N0, Z, PP, DMIN, DMIN1, DMIN2, DN,
      $                   DNM1, DNM2 )
 *

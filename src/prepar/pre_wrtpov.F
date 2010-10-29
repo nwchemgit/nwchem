@@ -4,7 +4,7 @@
      + xwc,vwc,mwmc,nwmc,slvnam,nxrep,nyrep,nzrep,drep,msb,nsb,idsb,
      + rdist,scale,cpk)
 c
-c $Id: pre_wrtpov.F,v 1.8 2003-08-07 21:47:55 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -1,6 +1,6 @@
       SUBROUTINE CGEEV( JOBVL, JOBVR, N, A, LDA, W, VL, LDVL, VR, LDVR,
      $                  WORK, LWORK, RWORK, INFO )
-C$Id: cgeev.f,v 1.1 2002-01-19 05:31:01 edo Exp $                          
+C$Id$                          
 *
 *  -- LAPACK driver routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

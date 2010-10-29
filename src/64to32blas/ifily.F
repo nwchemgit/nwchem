@@ -1,5 +1,5 @@
       subroutine ifily(n,val,a,ia)
-C$Id: ifily.F,v 1.1 2005-11-09 21:39:31 edo Exp $
+C$Id$
       implicit none
       integer n, val, a(*), ia, i
 c

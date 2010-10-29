@@ -1,6 +1,6 @@
       SUBROUTINE ZSPR( UPLO, N, ALPHA, X, INCX, AP )
 c     
-c     $Id: zspr.f,v 1.2 2000-10-25 22:50:12 windus Exp $
+c     $Id$
 c     
 *
 *  -- LAPACK auxiliary routine (version 3.0) --

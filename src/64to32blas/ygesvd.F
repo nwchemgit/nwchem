@@ -1,6 +1,6 @@
       SUBROUTINE YGESVD( JOBU, JOBVT, M, N, A, LDA, S, U, LDU, VT, LDVT,
      $                   WORK, LWORK, INFO )
-* $Id: ygesvd.F,v 1.2 2005-11-03 03:55:56 edo Exp $
+* $Id$
       implicit none
 #include "y64.fh"
       CHARACTER          JOBU, JOBVT

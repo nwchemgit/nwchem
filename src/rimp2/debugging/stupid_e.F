@@ -1,5 +1,5 @@
       Program Stupid_Energy
-C$Id: stupid_e.F,v 1.1 1995-12-13 01:37:14 d3g681 Exp $
+C$Id$
       Implicit NONE
 C      
       Integer NBF, NOcc, NVir, NFit

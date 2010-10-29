@@ -1,6 +1,6 @@
       SUBROUTINE CGEBAK( JOB, SIDE, N, ILO, IHI, SCALE, M, V, LDV,
      $                   INFO )
-C$Id: cgebak.f,v 1.1 2002-01-19 05:31:01 edo Exp $                          
+C$Id$                          
 *
 *  -- LAPACK routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

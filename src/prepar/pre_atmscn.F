@@ -1,6 +1,6 @@
       logical function pre_atmscn(lfnsgm,filsgm,atmnam,num,link)
 c
-c $Id: pre_atmscn.F,v 1.4 2003-07-17 19:38:56 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

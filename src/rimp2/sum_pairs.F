@@ -4,7 +4,7 @@ C     sum_pairs -- Sum up a matrix of pair energies to give an MBPT(2)
 C     energy.
 C
 C REVISION
-C     $Id: sum_pairs.F,v 1.4 2005-01-04 19:46:54 edo Exp $
+C     $Id$
 C
 C SYNOPSIS
       Double Precision Function Sum_Pairs( G_PairE, LowTri)

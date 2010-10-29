@@ -1,6 +1,6 @@
       subroutine uccsdt_cterm(urange,vrange,qO_handles,qV_handles)
 c
-c$Id: cterm.F,v 1.9 2003-10-25 00:51:20 marat Exp $
+c$Id$
 c
       implicit none
 #include "mafdecls.fh"

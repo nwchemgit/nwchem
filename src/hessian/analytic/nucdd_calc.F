@@ -1,5 +1,5 @@
 c
-c $Id: nucdd_calc.F,v 1.4 2001-10-02 21:52:34 windus Exp $
+c $Id$
 c
       subroutine nucdd_calc(c,zan,nat,dde)
 c

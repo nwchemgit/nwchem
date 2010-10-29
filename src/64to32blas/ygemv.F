@@ -1,7 +1,7 @@
       SUBROUTINE YGEMV ( TRANS, M, N, ALPHA, A, LDA, X, INCX,
      $                   BETA, Y, INCY )
 *
-* $Id: ygemv.F,v 1.1 2005-11-02 17:14:00 edo Exp $
+* $Id$
 *
       implicit none
 #include "y64.fh"

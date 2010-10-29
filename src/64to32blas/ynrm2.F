@@ -1,6 +1,6 @@
       DOUBLE PRECISION FUNCTION YNRM2 ( N, X, INCX )
 *
-* $Id: ynrm2.F,v 1.1 2005-11-02 17:14:01 edo Exp $
+* $Id$
 *
       implicit none
 #include "y64.fh"

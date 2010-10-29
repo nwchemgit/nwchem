@@ -3,7 +3,7 @@ C NAME
 C     rimp2_l1 -- Compute RI-MP2 L1 Lagrangian term
 C
 C REVISION
-C     $Id: l1.F,v 1.5 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_L1(NFrzO, NAct, NVir, NFit, D_Int, D_Gam,

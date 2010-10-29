@@ -1,5 +1,5 @@
       subroutine hess_wrt
-*     $Id: hess_wrt.F,v 1.6 2003-10-25 18:07:17 edo Exp $
+*     $Id$
       implicit none
 #include "mafdecls.fh"
 #include "hess_info.fh"

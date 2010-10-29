@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Driver_XF -- Three-center integral transformation driver for RI-MP2
 C
 C REVISION
-C     $Id: driver_xf.F,v 1.7 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Logical Function RIMP2_Driver_XF(RTDB, Geom, AOBas,

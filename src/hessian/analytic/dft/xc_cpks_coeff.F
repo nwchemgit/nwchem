@@ -4,7 +4,7 @@ c     making multiple XC matrices for CPKS
 c
 c     BGJ - 8/98
 c
-c     $Id: xc_cpks_coeff.F,v 1.12 2008-02-01 22:27:00 niri Exp $
+c     $Id$
 c
 c     2/02 So Hirata --- added a code for triplet excitation or
 c     instability calculation and the corresponding logical argu-

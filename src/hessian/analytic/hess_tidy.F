@@ -1,5 +1,5 @@
 C
-C $Id: hess_tidy.F,v 1.13 2003-10-17 22:55:13 carlfahl Exp $
+C $Id$
 C
       subroutine hess_tidy()
 c

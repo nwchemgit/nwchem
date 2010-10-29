@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.1 1998-07-09 23:30:46 bernhold Exp $
+# $Id$
 
 rimp2-grad.dvi dvi: rimp2-grad.tex changebar.sty subeqnarray.sty geometry.sty
 	latex rimp2-grad

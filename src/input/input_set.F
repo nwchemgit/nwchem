@@ -1,5 +1,5 @@
       subroutine input_set(rtdb)
-C$Id: input_set.F,v 1.16 2003-10-17 22:55:18 carlfahl Exp $
+C$Id$
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

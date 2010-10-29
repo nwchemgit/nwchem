@@ -1,5 +1,5 @@
       REAL             FUNCTION CLANGE( NORM, M, N, A, LDA, WORK )
-C$Id: clange.f,v 1.1 2002-01-19 05:31:01 edo Exp $                          
+C$Id$                          
 *
 *  -- LAPACK auxiliary routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

@@ -13,7 +13,7 @@
       DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 *     ..
 c
-* $Id: dpotrs.f,v 1.1 2003-04-04 01:42:14 edo Exp $
+* $Id$
 c
 
 *

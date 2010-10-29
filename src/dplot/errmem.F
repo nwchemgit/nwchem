@@ -1,6 +1,6 @@
       SubRoutine ErrMem(LResult,Note,iRC)
 *
-* $Id: errmem.F,v 1.4 2003-10-17 22:54:43 carlfahl Exp $
+* $Id$
 *
       Implicit None
 #include "errquit.fh"

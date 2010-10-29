@@ -1,6 +1,6 @@
       SUBROUTINE YSYEV( JOBZ, UPLO, N, A, LDA, W, WORK, LWORK, INFO )
 c
-* $Id: ysyev.F,v 1.1 2005-11-02 17:14:03 edo Exp $
+* $Id$
 c
       implicit none
 #include "y64.fh"

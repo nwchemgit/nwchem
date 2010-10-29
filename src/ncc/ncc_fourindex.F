@@ -25,7 +25,7 @@ c===============================================================c
      2                         v2oooo,v2ooov,v2oovv,v2ovvv,v2vvvv,
      3                         moveca,movecb)
 c
-c $Id: ncc_fourindex.F,v 1.0 2009/21/06 23:48:58 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "mafdecls.fh"

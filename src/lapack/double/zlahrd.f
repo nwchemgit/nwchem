@@ -1,5 +1,5 @@
       SUBROUTINE ZLAHRD( N, K, NB, A, LDA, TAU, T, LDT, Y, LDY )
-C$Id: zlahrd.f,v 1.1 2002-01-19 05:31:00 edo Exp $                          
+C$Id$                          
 *
 *  -- LAPACK auxiliary routine (version 3.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

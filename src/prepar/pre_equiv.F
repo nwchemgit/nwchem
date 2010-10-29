@@ -1,6 +1,6 @@
       logical function pre_equiv(csa,isml,isgm,msa,nsa,iequi,msm,nsm)
 c
-c $Id: pre_equiv.F,v 1.3 2002-07-17 15:56:55 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

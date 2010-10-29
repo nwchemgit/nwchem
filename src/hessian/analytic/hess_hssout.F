@@ -1,4 +1,4 @@
-c $Id: hess_hssout.F,v 1.1 2001-04-05 22:25:06 windus Exp $
+c $Id$
       SUBROUTINE hess_hssout(V,M,N,NDIM)
       IMPLICIT none
 #include "stdio.fh"

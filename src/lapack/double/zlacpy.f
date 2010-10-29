@@ -1,6 +1,6 @@
       SUBROUTINE ZLACPY( UPLO, M, N, A, LDA, B, LDB )
 c     
-c     $Id: zlacpy.f,v 1.1 2000-04-18 00:22:38 edo Exp $
+c     $Id$
 c     
 *
 *  -- LAPACK auxiliary routine (version 3.0) --

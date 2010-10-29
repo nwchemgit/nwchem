@@ -4,7 +4,7 @@ C     RIMP2_NS2_2e2c -- 2c2e derivative integrals for non-sep 2-c
 C     contribution to gradient
 C
 C REVISION./rimp2_grad/ns2_2e2c.F
-C     $Id: ns2_2e2c.F,v 1.3 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine RIMP2_NS2_2e2c(FitBas, Buf, LBuf, Scr, LScr, g_V,

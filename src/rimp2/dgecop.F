@@ -4,7 +4,7 @@
       Subroutine DGeCop (TRANSA, M, N, A, LDA, B, LDB)
 #endif
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C $Id: dgecop.F,v 1.6 2009-02-11 19:04:54 jhammond Exp $
+C $Id$
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C NAME
 C     dgecop, sgecop -- copies one matrix into another

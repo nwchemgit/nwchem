@@ -4,7 +4,7 @@ C     rimp2_timers.fh -- common block which holds timer handles for RIMP2
 C     module
 C
 C REVISION
-C     $Id: rimp2_timers.fh,v 1.3 1995-06-20 20:12:32 gg502 Exp $
+C     $Id$
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
       Integer PS_Overall, PS_XForm, PS_Energy, PS_Int_Gen, PS_Step12,
      $   PS_Step3, PS_Wr_3ci, PS_Rd_3ci, PS_Fit_xf, PS_Schwarz,

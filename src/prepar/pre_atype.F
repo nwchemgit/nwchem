@@ -4,7 +4,7 @@
      + nring3,nring4,nring5,nring6,
      + latmt,matmt,natmt,lbndt,mbndt,nbndt)
 c
-c $Id: pre_atype.F,v 1.20 2003-10-19 03:30:58 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -1,6 +1,6 @@
       SUBROUTINE YLASCL( TYPE, KL, KU, CFROM, CTO, M, N, A, LDA, INFO )
 c
-* $Id: ylascl.F,v 1.1 2005-11-02 17:14:01 edo Exp $
+* $Id$
 c
       implicit none
 #include "y64.fh"

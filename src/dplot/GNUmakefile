@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.18 2009-03-05 18:11:21 d3p975 Exp $
+#$Id$
 # makefile,v 1.8 1994/12/05 20:37:08 og845 Exp
 
    OBJ_OPTIMIZE = dplot.o get_grid.o create_contour.o dmat.o errmem.o \

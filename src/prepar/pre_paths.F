@@ -1,6 +1,6 @@
       logical function pre_paths()
 c
-c $Id: pre_paths.F,v 1.2 2003-08-01 00:02:37 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -3,7 +3,7 @@ C NAME
 C     RIMP2_Asym_I -- Antisymmetrize IJ integral batch in memory
 C     
 C REVISION
-C     $Id: asym_i.F,v 1.3 2003-10-17 22:58:12 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Logical Function RIMP2_Asym_I(TopSpin, SameSpin, ILo, IHi, NVirI,

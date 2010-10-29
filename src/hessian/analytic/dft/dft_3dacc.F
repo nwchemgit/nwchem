@@ -1,6 +1,6 @@
       subroutine dft_3dacc(g_fock,buf,imat,imat2,
      ,     ifirst,ilast,jfirst,jlast,ldin)
-C$Id: dft_3dacc.F,v 1.4 2003-10-17 22:55:14 carlfahl Exp $
+C$Id$
       implicit none
       integer g_fock
       integer imat,imat2

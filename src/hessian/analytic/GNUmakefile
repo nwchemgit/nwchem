@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.17 2009-01-16 05:29:55 niri Exp $
+# $Id$
 
 SUBDIRS = dft 
 

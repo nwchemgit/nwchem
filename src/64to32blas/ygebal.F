@@ -1,5 +1,5 @@
       SUBROUTINE YGEBAL( JOB, N, A, LDA, ILO, IHI, SCALE, INFO )
-c $Id: ygebal.F,v 1.1 2005-11-02 17:13:59 edo Exp $
+c $Id$
 *
       implicit none
 #include "y64.fh"

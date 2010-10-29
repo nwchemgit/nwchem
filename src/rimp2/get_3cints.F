@@ -1,5 +1,5 @@
       Logical Function Get_3cInts(LU, G_I, NA, ILo, IHi)
-C$Id: get_3cints.F,v 1.12 2003-10-17 22:58:10 carlfahl Exp $
+C$Id$
       Implicit NONE
 #include "errquit.fh"
       Integer LU, G_I, NA, ILo, IHi

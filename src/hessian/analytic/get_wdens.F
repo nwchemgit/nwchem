@@ -1,5 +1,5 @@
 C
-C $Id: get_wdens.F,v 1.3 2003-10-17 22:55:13 carlfahl Exp $
+C $Id$
 C
       subroutine get_wdens(g_dens,ndens,theory,scftype,rtdb,
      *                     g_wdens,nbfs)

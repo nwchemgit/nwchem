@@ -1,6 +1,6 @@
       SubRoutine DMat(Geom,Basis,g_Vec,g_Dns,nOcc,nBF)
 *
-* $Id: dmat.F,v 1.7 2003-10-17 22:54:43 carlfahl Exp $
+* $Id$
 *
       Implicit None
 #include "errquit.fh"

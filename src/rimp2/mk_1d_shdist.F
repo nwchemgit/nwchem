@@ -4,7 +4,7 @@ C     Mk_1d_shell_dist -- compute mapping array for distibution
 C     of an array blocked by shells.
 C
 C REVISION
-C     $Id: mk_1d_shdist.F,v 1.1 1995-12-13 01:36:49 d3g681 Exp $
+C     $Id$
 C
 C SYNOPSIS
       Logical Function Mk_1d_Shell_Dist(Basis, NProc, MinChunk,

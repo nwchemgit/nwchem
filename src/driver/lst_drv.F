@@ -1,6 +1,6 @@
       logical function drv_lst(rtdb)
 *
-* $Id: lst_drv.F,v 1.9 2003-10-17 22:54:49 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "mafdecls.fh"

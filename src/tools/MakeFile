@@ -1,5 +1,5 @@
 #
-#	$Id: MakeFile,v 1.1 1999-11-17 18:44:54 bjohnson Exp $
+#	$Id$
 #
 
 SUBDIRS = .\ma .\tcgmsg-mpi \

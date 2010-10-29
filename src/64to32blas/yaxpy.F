@@ -1,6 +1,6 @@
       subroutine yaxpy(n,da,dx,incx,dy,incy)
 *
-* $Id: yaxpy.F,v 1.1 2005-11-02 17:13:59 edo Exp $
+* $Id$
 *
       implicit none
 #include "y64.fh"

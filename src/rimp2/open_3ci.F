@@ -1,6 +1,6 @@
       Logical function Open_3cI_File(LU, Name, Spin, NA, NI, G_Out,
      , filnam)
-C$Id: open_3ci.F,v 1.11 2003-10-17 22:58:10 carlfahl Exp $
+C$Id$
       Implicit NONE
 #include "errquit.fh"
       Integer LU, Spin, NA, NI, G_Out

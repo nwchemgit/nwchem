@@ -1,6 +1,6 @@
       logical function pre_transl(itran,jtran,xtran,is,xs,msa,nsa)
 c
-c $Id: pre_transl.F,v 1.2 2002-04-10 03:13:34 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

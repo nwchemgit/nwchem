@@ -1,5 +1,5 @@
 *
-* $Id: lbfgs-b_driver.F,v 1.9 2007-05-23 22:13:55 d3p307 Exp $
+* $Id$
 *
 c        Modified driver for use in NWChem (MV)
 c

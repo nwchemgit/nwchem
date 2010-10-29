@@ -1,6 +1,6 @@
       logical function pre_rot(irot,jrot,arot,xrot,is,xs,msa,nsa)
 c
-c $Id: pre_rot.F,v 1.5 2003-09-02 22:53:06 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

@@ -16,7 +16,7 @@
 *     ..
 *
 c
-* $Id: dormqr.f,v 1.5 2000-10-25 22:50:12 windus Exp $
+* $Id$
 c
 *  Purpose
 *  =======

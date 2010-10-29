@@ -1,6 +1,6 @@
       subroutine  xcopy(n,dx,incx,dy,incy)
 *
-* $Id: xcopy.F,v 1.1 2005-12-28 18:09:49 edo Exp $
+* $Id$
 *
       implicit none
 #include "y64.fh"

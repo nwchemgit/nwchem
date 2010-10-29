@@ -22,7 +22,7 @@ c                                                               c
 c===============================================================c
       logical function ncc_input(rtdb)
 c
-c $Id: ncc_input.F,v 1.0 2009/21/06 23:48:58 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "inp.fh"

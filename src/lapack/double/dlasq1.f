@@ -1,4 +1,4 @@
-* $Id: dlasq1.f,v 1.1 2001-10-09 00:19:29 edo Exp $
+* $Id$
       SUBROUTINE DLASQ1( N, D, E, WORK, INFO )
 *
 *  -- LAPACK routine (instrumented to count ops, version 3.0) --

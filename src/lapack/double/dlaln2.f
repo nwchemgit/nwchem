@@ -1,6 +1,6 @@
       SUBROUTINE DLALN2( LTRANS, NA, NW, SMIN, CA, A, LDA, D1, D2, B,
      $                   LDB, WR, WI, X, LDX, SCALE, XNORM, INFO )
-c $Id: dlaln2.f,v 1.1 2002-04-12 22:59:23 sohirata Exp $
+c $Id$
 *
 *  -- LAPACK auxiliary routine (version 2.0) --
 *     Univ. of Tennessee, Univ. of California Berkeley, NAG Ltd.,

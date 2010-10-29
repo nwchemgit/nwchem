@@ -1,6 +1,6 @@
       logical function pre_wrtnam(lfnout,lfntmp,filtmp,catm,matm,natm)
 c
-c $Id: pre_wrtnam.F,v 1.5 2001-07-06 03:45:14 d3j191 Exp $
+c $Id$
 c
       implicit none
 c

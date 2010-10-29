@@ -1,6 +1,6 @@
       subroutine driver_input(rtdb)
 *
-* $Id: driver_input.F,v 1.13 2008-02-29 19:27:43 niri Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

@@ -1,6 +1,6 @@
       SUBROUTINE ZSPTRS( UPLO, N, NRHS, AP, IPIV, B, LDB, INFO )
 c     
-c     $Id: zsptrs.f,v 1.1 2000-04-18 00:22:40 edo Exp $
+c     $Id$
 c     
 *
 *  -- LAPACK routine (version 3.0) --

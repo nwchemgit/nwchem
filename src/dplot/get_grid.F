@@ -2,7 +2,7 @@
      &                    Volume,Out_Unit,iProc,Where,
      &                    nAtom,XYZ,What,lgaussian,charge)
 *
-* $Id: get_grid.F,v 1.8 2003-10-17 22:54:43 carlfahl Exp $
+* $Id$
 *
       Implicit None
 #include "errquit.fh"

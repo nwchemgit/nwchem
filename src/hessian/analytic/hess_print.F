@@ -1,5 +1,5 @@
 c
-C $Id: hess_print.F,v 1.1 2002-10-24 00:33:12 edo Exp $
+C $Id$
 c
       subroutine hess_print
       implicit none

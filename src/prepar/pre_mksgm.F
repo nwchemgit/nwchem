@@ -1,6 +1,6 @@
       logical function pre_mksgm(lfnout,lfnfrg,filfrg,lfnsgm,filsgm)
 c
-c $Id: pre_mksgm.F,v 1.18 2006-02-10 17:26:42 d3j191 Exp $
+c $Id$
 c
 c     function to make segment file
 c

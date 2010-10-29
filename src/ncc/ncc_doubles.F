@@ -75,7 +75,7 @@ c
      4                                 tszocc,   ! tilesize of occupied orbitals
      5                                 tszvir)   ! tilesize of virtual orbitals
 c
-c $Id: ncc_doubles.F,v 1.0 2009/20/10 23:48:58 jhammond Exp $
+c $Id$
 c
       implicit none
 #include "mafdecls.fh"

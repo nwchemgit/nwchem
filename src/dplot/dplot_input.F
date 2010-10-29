@@ -1,6 +1,6 @@
       SubRoutine DPlot_Input(rtdb)
 *
-* $Id: dplot_input.F,v 1.14 2009-03-05 17:57:27 d3p975 Exp $
+* $Id$
 *
       Implicit none
 #include "errquit.fh"

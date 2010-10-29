@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.8 2008-09-29 20:21:59 edo Exp $
+# $Id$
   LIBRARY = lib64to32.a
   
   OBJ_OPTIMIZE = yscal.o ycopy.o ydot.o ygemm.o ygemv.o \

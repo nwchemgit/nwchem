@@ -35,7 +35,7 @@ C System:     Standard FORTRAN 77
 C
 C Copyright 1987 David E. Bernholdt
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
-C$Id: lnblnk.f,v 1.4 1995-12-16 21:06:36 gg502 Exp $
+C$Id$
        IMPLICIT NONE
        INTEGER I
        CHARACTER*(*) STRING

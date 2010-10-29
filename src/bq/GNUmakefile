@@ -1,4 +1,4 @@
-# $Id: GNUmakefile,v 1.5 2008-04-22 21:59:58 niri Exp $
+# $Id$
   LIBRARY = libbq.a
   
   OBJ = bq_input.o bq_data.o bq_rtdb.o bq_main.o

@@ -1,6 +1,6 @@
       subroutine input_mem_size(stack_size, heap_size, global_size,
      $   overify, ohardfail)
-C$Id: input_mem.F,v 1.5 2000-04-13 17:32:05 hvd Exp $
+C$Id$
       implicit none
 #include "inp.fh"
 #include "mafdecls.fh"

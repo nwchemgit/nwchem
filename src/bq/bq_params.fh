@@ -1,5 +1,5 @@
 *
-* $Id: bq_params.fh,v 1.2 2008-04-22 21:59:58 niri Exp $
+* $Id$
 *
       character*(*) bq_default
       parameter(bq_default="default")

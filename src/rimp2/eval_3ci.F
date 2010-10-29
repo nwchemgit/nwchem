@@ -4,7 +4,7 @@ C     Eval_3ci_block -- Produce a block of three-center integrals for
 c     the shell block ranges specified.
 C
 C REVISION
-C     $Id: eval_3ci.F,v 1.2 2003-10-17 22:58:10 carlfahl Exp $
+C     $Id$
 C
 C SYNOPSIS
       Subroutine Eval_3ci_block(UseERI, AOBas, PShLo, PShHi, QShLo,

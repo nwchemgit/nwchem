@@ -1,6 +1,6 @@
       subroutine hess_input(rtdb)
 *
-* $Id: hess_input.F,v 1.3 2003-10-17 22:55:10 carlfahl Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"
