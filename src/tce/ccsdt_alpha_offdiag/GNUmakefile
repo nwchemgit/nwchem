@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.6 2007-10-29 02:32:50 jhammond Exp $
+#$Id$
 
 ifndef CCSDTLR
 OBJ_OPTIMIZE = \

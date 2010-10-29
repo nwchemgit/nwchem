@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.2 2008-09-17 04:49:27 jhammond Exp $
+#$Id$
 
 ifndef CCSDTLR
 
