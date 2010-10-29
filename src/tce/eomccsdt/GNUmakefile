@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.6 2006-02-27 19:28:43 kowalski Exp $
+#$Id$
 
 OBJ_OPTIMIZE = eomccsdt_x1.o eomccsdt_x2.o eomccsdt_y3.o \
                eomccsdt_density1.o eomccsdt_denominator.o \
