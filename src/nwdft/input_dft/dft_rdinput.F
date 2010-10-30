@@ -1,6 +1,6 @@
       Subroutine dft_rdinput(rtdb)
 c
-C$Id$ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
+c     $Id$
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
