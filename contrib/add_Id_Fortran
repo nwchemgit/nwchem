@@ -1,0 +1,5 @@
+#!/bin/bash
+#
+# Add the $Id: $ construct to a Fortran file. For simplicity it is simply appended.
+#
+echo "c \$Id: \$" >> $1
