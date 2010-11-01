@@ -1,0 +1,28 @@
+echo
+start ch4
+
+# SCF geometry optimization and frequencies for CH4
+
+geometry units au
+  c 0    0    0
+  h 1.18 1.18 1.18
+  symmetry Td
+end
+
+basis spherical
+  c library cc-pvdz
+  h library cc-pvdz
+end
+
+scf; thresh 1e-7; print low; end
+
+task scf optimize
+task scf frequencies
+
+dft
+xc becke88 lyp
+end
+
+task dft optimize
+task dft freq
+

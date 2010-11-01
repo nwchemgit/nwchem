@@ -1,5 +1,5 @@
 echo
-# This example produces a SIGFPE inside texas (abcd_1)
+# This example in NWChem 3.2 produces a SIGFPE inside texas (abcd_1)
 # during the computation of the integral file
 # due to aaa() appearing to be NaN.  If SIGFPE is turned
 # off it generates correct results.

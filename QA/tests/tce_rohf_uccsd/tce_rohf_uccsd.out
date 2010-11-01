@@ -1,5 +1,11 @@
- argument  1 = tce_rohf_uccsd
-  Unable to open tce_rohf_uccsd --- appending .nw
+ 
+Processor list
+ 
+cu04n[119,121]
+ 
+ARMCI configured for 2 cluster nodes. Network protocol is 'OpenIB Verbs API'.
+All connections between all procs tested: SUCCESS
+ argument  1 = /mscf/home/d3p852/nwchem-5.1.1/QA/tests/tce_rohf_uccsd/tce_rohf_uccsd.nw
 
 
 
@@ -46,7 +52,7 @@ task tce energy
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 4.1
+              Northwest Computational Chemistry Package (NWChem) 6.0
               ------------------------------------------------------
 
 
@@ -54,92 +60,56 @@ task tce energy
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                                         
-                                         
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
 
-
-                     COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
-                               1999, 2000, 2001, 2002
-                        Pacific Northwest National Laboratory,
-                             Battelle Memorial Institute.
-
-                            >>> All Rights Reserved <<<
-
-
-                                    DISCLAIMER
-                                    ----------
-
-            This material was prepared as an account of work sponsored
-            by an agency of the United States Government.  Neither the
-            United States Government nor the United States Department
-            of Energy, nor Battelle, nor any of their employees, MAKES
-            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
-            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
-            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
-            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
-            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
-
-
-                                    LIMITED USE
-                                    -----------
-
-            This software (including any documentation) is being made
-            available to you for your internal use only, solely for use
-            in performance of work directly for the U.S. Federal
-            Government or work under contracts with the U.S. Department
-            of Energy or other U.S. Federal Government agencies.  This
-            software is a version which has not yet been evaluated and
-            cleared for commercialization.  Adherence to this notice
-            may be necessary for the author, Battelle Memorial
-            Institute, to successfully assert copyright in and
-            commercialize this software. This software is not intended
-            for duplication or distribution to third parties without
-            the permission of the Manager of Software Products at
-            Pacific Northwest National Laboratory, Richland,
-            Washington, 99352.
-
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
 
                                   ACKNOWLEDGMENT
                                   --------------
 
-            This software and its documentation were produced with
-            Government support under Contract Number DE-AC06-76RLO-1830
-            awarded by the United States Department of Energy.  The
-            Government retains a paid-up non-exclusive, irrevocable
-            worldwide license to reproduce, prepare derivative works,
-            perform publicly and display publicly by or for the
-            Government, including the right to distribute to other
-            Government contractors.
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
 
 
            Job information
            ---------------
 
-    hostname      = kitkat
-    program       = /msrc/home/sohirata/nwchem/bin/LINUX/nwchem
-    date          = Fri Nov 15 22:18:35 2002
+    hostname      = cu4n119
+    program       = /scratch/nwchem
+    date          = Fri Oct 29 11:42:30 2010
 
-    compiled      = Fri Nov 15 21:51:46 PST 2002
-    source        = /msrc/home/sohirata/nwchem
-    nwchem branch = Development
-    input         = tce_rohf_uccsd.nw
+    compiled      = Thu_Oct_28_07:10:53_2010
+    source        = /home/scicons/user/kurt/nwchem-6.0-release-pgf90-final/
+    nwchem branch = 6.0
+    input         = /mscf/home/d3p852/nwchem-5.1.1/QA/tests/tce_rohf_uccsd/tce_rohf_uccsd.nw
     prefix        = tce_rohf_uccsd.
     data base     = ./tce_rohf_uccsd.db
     status        = startup
-    nproc         =    1
-    time left     =     -1s
+    nproc         =        8
+    time left     =   1764s
 
 
 
            Memory information
            ------------------
 
-    heap      =   19660794 doubles =    150.0 Mbytes
-    stack     =    6553587 doubles =     50.0 Mbytes
-    global    =   26214404 doubles =    200.0 Mbytes (within heap+stack)
-    total     =   26214381 doubles =    200.0 Mbytes
-    verify    = yes
-    hardfail  = no 
+    heap     =  104857601 doubles =    800.0 Mbytes
+    stack    =  104857601 doubles =    800.0 Mbytes
+    global   =  209715200 doubles =   1600.0 Mbytes (distinct from heap & stack)
+    total    =  419430402 doubles =   3200.0 Mbytes
+    verify   = yes
+    hardfail = no 
 
 
            Directory information
@@ -213,6 +183,15 @@ task tce energy
     2 Stretch                  3     2                       0.96000
     3 Bend                     3     2     1               104.00000
 
+
+            XYZ format geometry
+            -------------------
+     3
+ geometry
+ H                     0.75649032     0.00000000    -0.47282801
+ O                     0.00000000     0.00000000     0.11820700
+ H                    -0.75649032     0.00000000    -0.47282801
+
  ==============================================================================
                                 internuclear distances
  ------------------------------------------------------------------------------
@@ -238,8 +217,9 @@ task tce energy
 
 
 
-  library name resolved from: .nwchemrc
-  library file name is: </msrc/proj/nwchem/share/library>
+  library name resolved from: environment
+  library file name is: <
+ /mscf/scicons/apps/nwchem-6.0.oct19//src/basis/libraries/>
   
 
 
@@ -321,7 +301,7 @@ task tce energy
         b2          1
 
 
- Forming initial guess at       0.1s
+ Forming initial guess at       1.7s
 
 
       Superposition of Atomic Density Guess
@@ -329,7 +309,7 @@ task tce energy
 
  Sum of atomic energies:         -74.71095592
 
- Renormalizing density from    10.00 to    9
+ Renormalizing density from      10.00 to      9
 
       Non-variational initial energy
       ------------------------------
@@ -354,7 +334,7 @@ task tce energy
      6 a1          7 b1      
 
 
- Starting SCF solution at       0.1s
+ Starting SCF solution at       1.8s
 
 
 
@@ -362,39 +342,42 @@ task tce energy
          Quadratically convergent ROHF
 
  Convergence threshold     :          1.000E-10
- Maximum no. of iterations :           20
+ Maximum no. of iterations :           30
  Final Fock-matrix accuracy:          1.000E-10
  ----------------------------------------------
 
 
- #quartets = 7.900E+01 #integrals = 1.640E+02 #direct =  0.0% #cached =100.0%
+ #quartets = 7.900D+01 #integrals = 1.640D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./tce_rohf_uccsd.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117161
+ Max. records in memory =      2        Max. records in file   = 169376
  No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.6111008567  6.98E-01  5.79E-01      0.1
-                 2      -74.6537066435  1.80E-01  1.59E-01      0.1
-                 3      -74.6544061202  2.97E-02  2.41E-02      0.1
-                 4      -74.6544568273  3.58E-04  2.60E-04      0.1
-                 5      -74.6544568462  1.15E-08  9.63E-09      0.2
-                 6      -74.6544568462  1.27E-12  1.02E-12      0.2
+                 1      -74.6111008567  6.98D-01  5.79D-01      0.8
+                 2      -74.6537066435  1.80D-01  1.59D-01      0.8
+                 3      -74.6544061201  2.97D-02  2.41D-02      0.8
+                 4      -74.6544568273  3.58D-04  2.60D-04      0.8
+                 5      -74.6544568462  1.15D-08  9.63D-09      0.9
+                 6      -74.6544568462  1.26D-12  1.01D-12      1.0
 
 
        Final ROHF results 
        ------------------ 
 
-         Total SCF energy =    -74.654456846246
-      One-electron energy =   -116.395106712242
-      Two-electron energy =     32.571270941011
+         Total SCF energy =    -74.654456846227
+      One-electron energy =   -116.395106712262
+      Two-electron energy =     32.571270941050
  Nuclear repulsion energy =      9.169378924985
 
-        Time for solution =      0.1s
+        Time for solution =      0.2s
 
 
 
@@ -425,42 +408,42 @@ task tce energy
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
 
- Vector    2  Occ=2.000000E+00  E=-1.840247E+00  Symmetry=a1
-              MO Center= -1.3E-15,  2.8E-17, -6.7E-02, r^2= 4.9E-01
+ Vector    2  Occ=2.000000D+00  E=-1.840247D+00  Symmetry=a1
+              MO Center= -3.5D-18, -7.6D-38, -6.7D-02, r^2= 4.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.884444  2 O  s                  2     -0.239354  2 O  s          
      6     -0.175728  2 O  pz         
 
- Vector    3  Occ=2.000000E+00  E=-1.175971E+00  Symmetry=b1
-              MO Center=  2.3E-15,  1.8E-31, -6.5E-02, r^2= 7.2E-01
+ Vector    3  Occ=2.000000D+00  E=-1.175971D+00  Symmetry=b1
+              MO Center=  7.8D-16, -2.6D-30, -6.5D-02, r^2= 7.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.720331  2 O  px                 1      0.342727  1 H  s          
      7     -0.342727  3 H  s          
 
- Vector    4  Occ=2.000000E+00  E=-1.038297E+00  Symmetry=a1
-              MO Center= -6.5E-16, -1.9E-16,  2.1E-01, r^2= 5.2E-01
+ Vector    4  Occ=2.000000D+00  E=-1.038297D+00  Symmetry=a1
+              MO Center= -1.5D-15,  2.9D-21,  2.1D-01, r^2= 5.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6      0.847601  2 O  pz                 3      0.449197  2 O  s          
      7     -0.192718  3 H  s                  1     -0.192718  1 H  s          
 
- Vector    5  Occ=1.000000E+00  E=-6.698481E-01  Symmetry=b2
-              MO Center= -2.2E-32,  1.6E-16,  1.2E-01, r^2= 4.2E-01
+ Vector    5  Occ=1.000000D+00  E=-6.698481D-01  Symmetry=b2
+              MO Center= -2.0D-32, -1.5D-18,  1.2D-01, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      1.000000  2 O  py         
 
- Vector    6  Occ=0.000000E+00  E= 9.941979E-02  Symmetry=a1
-              MO Center=  9.3E-16,  6.5E-19, -4.5E-01, r^2= 1.2E+00
+ Vector    6  Occ=0.000000D+00  E= 9.941979D-02  Symmetry=a1
+              MO Center=  7.2D-16,  1.5D-18, -4.5D-01, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.879362  2 O  s                  1     -0.827694  1 H  s          
      7     -0.827694  3 H  s                  6     -0.649794  2 O  pz         
 
- Vector    7  Occ=0.000000E+00  E= 2.057242E-01  Symmetry=b1
-              MO Center= -1.3E-15,  9.9E-34, -3.2E-01, r^2= 1.1E+00
+ Vector    7  Occ=0.000000D+00  E= 2.057242D-01  Symmetry=b1
+              MO Center= -1.7D-16, -1.2D-32, -3.2D-01, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      0.908181  2 O  px                 7      0.883614  3 H  s          
@@ -514,16 +497,24 @@ task tce energy
      2   0 0 2     -3.131948     -0.346989      1.995924
 
 
- Parallel integral file used       1 records with       0 large values
+ Parallel integral file used       8 records with       0 large values
 
                    NWChem Extensible Many-Electron Theory Module
                    ---------------------------------------------
-                 Programs generated by a Tensor Contraction Engine
 
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
 
             General Information
             -------------------
-           Number of nodes :     1
+      Number of processors :     8
          Wavefunction type : Restricted open-shell Hartree-Fock
           No. of electrons :     9
            Alpha electrons :     5
@@ -540,98 +531,125 @@ task tce energy
        Number of AO shells :     5
         Use of symmetry is : on 
       Symmetry adaption is : on 
-         Schwarz screening : 0.10E-09
+         Schwarz screening : 0.10D-09
 
           Correlation Information
           -----------------------
           Calculation type : Coupled-cluster singles & doubles                           
+   Perturbative correction : none                                                        
             Max iterations :      100
-        Residual threshold : 0.10E-06
-                I/O scheme : Global files (Global array library)
+        Residual threshold : 0.10D-06
+     T(0) DIIS level shift : 0.00D+00
+     L(0) DIIS level shift : 0.00D+00
+     T(1) DIIS level shift : 0.00D+00
+     L(1) DIIS level shift : 0.00D+00
+     T(R) DIIS level shift : 0.00D+00
+     T(I) DIIS level shift : 0.00D+00
+   CC-T/L Amplitude update :  5-th order DIIS
+                I/O scheme : Global Array Library
 
             Memory Information
             ------------------
-          Available GA+MA space size is   26213496 doubles
+          Available GA space size is    1677721502 doubles
+          Available MA space size is     209714465 doubles
 
- Maximum block size        50 doubles
+ Maximum block size        76 doubles
 
- Suggested orbital blocking
+ tile_dim =      3
 
- Block   Spin    Irrep     Size     Offset
- -----------------------------------------
-   1    alpha     a1     3 doubles       0
-   2    alpha     b1     1 doubles       3
-   3    alpha     b2     1 doubles       4
-   4    beta      a1     3 doubles       5
-   5    beta      b1     1 doubles       8
-   6    alpha     a1     1 doubles       9
-   7    alpha     b1     1 doubles      10
-   8    beta      a1     1 doubles      11
-   9    beta      b1     1 doubles      12
-  10    beta      b2     1 doubles      13
+ Block   Spin    Irrep     Size     Offset   Alpha
+ -------------------------------------------------
+   1    alpha     a1     3 doubles       0       1
+   2    alpha     b1     1 doubles       3       2
+   3    alpha     b2     1 doubles       4       3
+   4    beta      a1     3 doubles       5       4
+   5    beta      b1     1 doubles       8       5
+   6    alpha     a1     1 doubles       9       6
+   7    alpha     b1     1 doubles      10       7
+   8    beta      a1     1 doubles      11       8
+   9    beta      b1     1 doubles      12       9
+  10    beta      b2     1 doubles      13      10
 
  Global array virtual files algorithm will be used
 
- I/O self test is being performed ... passed
+ Parallel file system coherency ......... OK
 
- #quartets = 1.200E+02 #integrals = 2.560E+02 #direct =  0.0% #cached =100.0%
+ #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./tce_rohf_uccsd.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   = 117161
+ Max. records in memory =      2        Max. records in file   = 169376
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
- 1-e file size   =         42
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Fock matrix recomputed
+ 1-e file size   =               42
  1-e file name   = ./tce_rohf_uccsd.f1 
  Cpu & wall time / sec            0.0            0.1
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
 
  2-e (intermediate) file size =            5439
  2-e (intermediate) file name = ./tce_rohf_uccsd.v2i
  Cpu & wall time / sec            0.0            0.0
 
- 2-e file size   =       1523
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+
+ 2-e file size   =             1523
  2-e file name   = ./tce_rohf_uccsd.v2 
  Cpu & wall time / sec            0.0            0.0
+ do_pt =   F
+ do_lam_pt =   F
+ do_cr_pt =   F
+ do_lcr_pt =   F
+ do_2t_pt =   F
+ T1-number-of-tasks                        4
 
- t1 file size   =          8
+ t1 file size   =                8
  t1 file name   = ./tce_rohf_uccsd.t1 
+ t1 file handle =       -998
+ T2-number-of-boxes                       24
 
- t2 file size   =         94
+ t2 file size   =               94
  t2 file name   = ./tce_rohf_uccsd.t2 
+ t2 file handle =       -995
 
  CCSD iterations
- --------------------------------------------------------
- Iter          Residuum       Correlation     Cpu    Wall
- --------------------------------------------------------
-    1   0.0760539379355  -0.0288355471874     0.4     0.4
-    2   0.0264253748540  -0.0370938791946     0.4     0.4
-    3   0.0102911962628  -0.0396868177316     0.4     0.4
-    4   0.0041696338234  -0.0406159794483     0.4     0.4
-    5   0.0017357606785  -0.0409712489987     0.4     0.4
-    6   0.0007396895321  -0.0411122278297     0.4     0.4
-    7   0.0003217084418  -0.0411696776189     0.4     0.4
-    8   0.0001423970876  -0.0411935865251     0.4     0.4
-    9   0.0000640085200  -0.0412037104723     0.4     0.4
-   10   0.0000291856256  -0.0412080598319     0.4     0.4
-   11   0.0000134959648  -0.0412099512632     0.4     0.4
-   12   0.0000063321702  -0.0412107822922     0.4     0.4
-   13   0.0000030168447  -0.0412111505886     0.4     0.4
-   14   0.0000014604175  -0.0412113149992     0.4     0.4
-   15   0.0000007183957  -0.0412113888393     0.4     0.4
-   16   0.0000003588621  -0.0412114221691     0.4     0.4
-   17   0.0000001817887  -0.0412114372755     0.4     0.4
-   18   0.0000000932083  -0.0412114441451     0.4     0.4
- --------------------------------------------------------
+ -----------------------------------------------------------------
+ Iter          Residuum       Correlation     Cpu    Wall    V2*C2
+ -----------------------------------------------------------------
+    1   0.0776942569601  -0.0297769582804     0.1     0.1     0.0
+    2   0.0253585960998  -0.0376250943559     0.1     0.1     0.0
+    3   0.0097662347532  -0.0398962335395     0.1     0.1     0.0
+    4   0.0039984530662  -0.0406969817010     0.1     0.1     0.0
+    5   0.0016965170410  -0.0410028204467     0.1     0.1     0.0
+ MICROCYCLE DIIS UPDATE:                        5                        5
+    6   0.0000562319879  -0.0412103935232     0.1     0.1     0.0
+    7   0.0000185850787  -0.0412109060956     0.1     0.1     0.0
+    8   0.0000083534666  -0.0412112384483     0.1     0.1     0.0
+    9   0.0000040087674  -0.0412113601180     0.1     0.1     0.0
+   10   0.0000019679753  -0.0412114066491     0.1     0.1     0.0
+ MICROCYCLE DIIS UPDATE:                       10                        5
+   11   0.0000000901581  -0.0412114412467     0.1     0.1     0.0
+ -----------------------------------------------------------------
  Iterations converged
- CCSD correlation energy / hartree =        -0.041211444145129
- CCSD total energy / hartree       =       -74.695668290391268
+ CCSD correlation energy / hartree =        -0.041211441246700
+ CCSD total energy / hartree       =       -74.695668287473620
 
- Parallel integral file used       1 records with       0 large values
+ Singles contributions
+
+ Doubles contributions
+
+ Parallel integral file used       8 records with       0 large values
 
 
- Task  times  cpu:        7.6s     wall:        8.0s
+ Task  times  cpu:        1.2s     wall:        1.7s
 
 
                                 NWChem Input Module
@@ -648,10 +666,11 @@ task tce energy
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  859      859     8.28e+04 2115     4.98e+04   20        0        0     
-bytes total:             2.86e+06 6.51e+05 2.33e+06 6.40e+02 0.00e+00 0.00e+00
-bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 56032 bytes
+calls:  758      758     5116      848     2056        0        0        0     
+number of processes/call 1.16e+00 1.13e+00 1.19e+00 0.00e+00 0.00e+00
+bytes total:             3.65e+05 1.46e+05 1.42e+05 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            1.02e+05 1.42e+04 3.74e+04 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 7800 bytes
 
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -661,46 +680,40 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        40	        28
+	maximum number of blocks	        18	        32
 	current total bytes		         0	         0
-	maximum total bytes		   1110500	  14487260
-	maximum total K-bytes		      1111	     14488
-	maximum total M-bytes		         2	        15
-
-
-
-                                  ACKNOWLEDGEMENT
-                                  ---------------
-
-            Please use the following acknowledgement where appropriate 
-            for results obtained with NWChem:
-
-            High Performance Computational Chemistry Group, "NWChem, A
-            Computational Chemistry Package for Parallel Computers, 
-            Version 4.1" (2002), Pacific Northwest National Laboratory,
-            Richland, Washington 99352-0999, USA.
+	maximum total bytes		   1053752	  22509016
+	maximum total K-bytes		      1054	     22510
+	maximum total M-bytes		         2	        23
 
 
                                      CITATION
                                      --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
 
-            Please use the following citation when publishing results
-            obtained with NWChem:
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
 
-            R. J. Harrison, J. A. Nichols, T. P. Straatsma, M. Dupuis,
-            E. J. Bylaska, G. I. Fann, T. L. Windus, E. Apra, W. de Jong,
-            S. Hirata, M. T. Hackler, J. Anchell, D. Bernholdt, P. Borowski,
-            T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood,
-            H. Fruchtl, E. Glendening, M. Gutowski, K. Hirao, A. Hess,
-            J. Jaffe, B. Johnson, J. Ju, R. Kendall, R. Kobayashi, R. Kutteh,
-            Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima,
-            J. Nieplocha, S. Niu, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
-            G. Thomas, J. van Lenthe, K. Wolinski, A. Wong, and Z. Zhang,
-            "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 4.1" (2002),
-                      Pacific Northwest National Laboratory,
-                      Richland, Washington 99352-0999, USA.
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
+      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
-
-
- Total times  cpu:        7.6s     wall:        8.1s
+ Total times  cpu:        1.4s     wall:        3.4s
