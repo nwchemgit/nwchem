@@ -1,3 +1,9 @@
+
+#
+# old Teter style Fe psp with semicore
+#
+
+
 [lmax] 2
 [locp] 0
 [rlocal] 1.0
