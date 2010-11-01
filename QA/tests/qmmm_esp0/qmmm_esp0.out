@@ -1,3 +1,5 @@
+HP-MPI licensed for ISV application.
+All connections between all procs tested: SUCCESS
  argument  1 = qmmm_esp0.nw
 
 
@@ -46,7 +48,7 @@ task qmmm esp
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 4.7
+              Northwest Computational Chemistry Package (NWChem) 6.0
               ------------------------------------------------------
 
 
@@ -54,79 +56,43 @@ task qmmm esp
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
 
-                                         
-                                         
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
 
-
-                     COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998,
-                         1999, 2000, 2001, 2002, 2003, 2004
-                        Pacific Northwest National Laboratory,
-                             Battelle Memorial Institute.
-
-                            >>> All Rights Reserved <<<
-
-
-                                    DISCLAIMER
-                                    ----------
-
-            This material was prepared as an account of work sponsored
-            by an agency of the United States Government.  Neither the
-            United States Government nor the United States Department
-            of Energy, nor Battelle, nor any of their employees, MAKES
-            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
-            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
-            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
-            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
-            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
-
-
-                                    LIMITED USE
-                                    -----------
-
-            This software (including any documentation) is being made
-            available to you for your internal use only, solely for use
-            in performance of work directly for the U.S. Federal
-            Government or work under contracts with the U.S. Department
-            of Energy or other U.S. Federal Government agencies.  This
-            software is a version which has not yet been evaluated and
-            cleared for commercialization.  Adherence to this notice
-            may be necessary for the author, Battelle Memorial
-            Institute, to successfully assert copyright in and
-            commercialize this software. This software is not intended
-            for duplication or distribution to third parties without
-            the permission of the Manager of Software Products at
-            Pacific Northwest National Laboratory, Richland,
-            Washington, 99352.
-
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
 
                                   ACKNOWLEDGMENT
                                   --------------
 
-            This software and its documentation were produced with
-            Government support under Contract Number DE-AC06-76RLO-1830
-            awarded by the United States Department of Energy.  The
-            Government retains a paid-up non-exclusive, irrevocable
-            worldwide license to reproduce, prepare derivative works,
-            perform publicly and display publicly by or for the
-            Government, including the right to distribute to other
-            Government contractors.
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
 
 
            Job information
            ---------------
 
-    hostname      = colibry
-    program       = /home/marat/codes/nwchem/bin/LINUX/nwchem
-    date          = Thu Apr  6 16:37:28 2006
+    hostname      = cu0login1
+    program       = /hptc_cluster/scicons/apps/nwchem-6.0.oct19/bin/LINUX64/nwchem
+    date          = Mon Nov  1 15:20:50 2010
 
-    compiled      = Sun Mar 12 23:20:18 PST 2006
-    source        = /home/marat/codes/nwchem
-    nwchem branch = Development
+    compiled      = Thu_Oct_28_07:10:53_2010
+    source        = /home/scicons/user/kurt/nwchem-6.0-release-pgf90-final/
+    nwchem branch = 6.0
     input         = qmmm_esp0.nw
     prefix        = lys.
     data base     = ./lys.db
     status        = startup
-    nproc         =    2
+    nproc         =        1
     time left     =     -1s
 
 
@@ -134,12 +100,12 @@ task qmmm esp
            Memory information
            ------------------
 
-    heap      =   26214401 doubles =    200.0 Mbytes
-    stack     =   26214401 doubles =    200.0 Mbytes
-    global    =   52428800 doubles =    400.0 Mbytes (distinct from heap & stack)
-    total     =  104857602 doubles =    800.0 Mbytes
-    verify    = yes
-    hardfail  = no 
+    heap     =   26214401 doubles =    200.0 Mbytes
+    stack    =   26214401 doubles =    200.0 Mbytes
+    global   =   52428800 doubles =    400.0 Mbytes (distinct from heap & stack)
+    total    =  104857602 doubles =    800.0 Mbytes
+    verify   = yes
+    hardfail = no 
 
 
            Directory information
@@ -157,9 +123,6 @@ task qmmm esp
 
                                QM/MM of Lys monomer
                                --------------------
-  library name resolved from: .nwchemrc
-  library file name is: </home/marat/codes/nwchem/src/basis/libraries/>
-  
                       Basis "ao basis" -> "" (cartesian)
                       -----
   O (Oxygen)
@@ -294,7 +257,7 @@ task qmmm esp
                     --------------------------
  operation             task:operation        energy                                                        
  reference energy      qmmm:uqmatm               0.000000  <--- Warning zero value is not advisable !!!    
- bqzone radius         qmmm:bqzone               1.800000                                                  
+ bqzone radius         qmmm:bqzone              18.000000                                                  
  excluded bq's         qmmm:bq_exclude       none                                                          
  link atom type        qmmm:linkatm          hydrogens                                                     
  optimization method   qmmm:optimization     bfgs                                                          
@@ -303,13 +266,14 @@ task qmmm esp
  ------------------------------------------------------
 
 
- Force field is amber
- number of quantum atoms 4
- Total number of Bq charges 20
- Number of solute Bq charges 20
- Number of solvent Bq charges 0
- Total Bq charge:   1.3618
- Total number of active Bq charges  20
+ number of quantum atoms                        4
+ Total number of Bq charges                       20
+ Number of solute Bq charges                       20
+ Number of solvent Bq charges                        0
+ Total Bq charge:     1.361800000000000     
+ Total number of active Bq charges                        20
+ frozen_density,esp  F  F
+
                                  NWChem DFT Module
                                  -----------------
 
@@ -333,9 +297,9 @@ task qmmm esp
           Maximum number of iterations: 100
           AO basis - number of functions:    23
                      number of shells:    14
-          Convergence on energy requested: 1.00E-06
-          Convergence on density requested: 1.00E-05
-          Convergence on gradient requested: 5.00E-04
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
 
               XC Information
               --------------
@@ -361,7 +325,7 @@ task qmmm esp
           Convergence aids based upon iterative change in 
           total energy or number of iterations. 
           Levelshifting, if invoked, occurs when the 
-          HOMO/LUMO gap drops below (HL_TOL): 1.00E-02
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
           DIIS, if invoked, will attempt to extrapolate 
           using up to (NFOCK): 10 stored Fock matrices.
 
@@ -373,20 +337,21 @@ task qmmm esp
 
       Screening Tolerance Information
       -------------------------------
-          Density screening/tol_rho: 1.00E-10
+          Density screening/tol_rho: 1.00D-10
           AO Gaussian exp screening on grid/accAOfunc:  14
           CD Gaussian exp screening on grid/accCDfunc:  20
           XC Gaussian exp screening on grid/accXCfunc:  20
-          Schwarz screening/accCoul: 1.00E-08
-          Spatial weight screening/radius(au): 1.58E+01
+          Schwarz screening/accCoul: 1.00D-08
 
- Bq nuclear interaction energy is  1.63637425
+ Nuclear repulsion energy =    14.93765463616649     
+ Bq nuclear interaction energy =    1.636374247227050     
 
       Superposition of Atomic Density Guess
       -------------------------------------
 
  Sum of atomic energies:         -56.28666840
- Bq nuclear interaction energy is  1.63637425
+ Nuclear repulsion energy =    14.93765463616649     
+ Bq nuclear interaction energy =    1.636374247227050     
 
  Renormalizing density from      11.00 to     10
 
@@ -399,105 +364,116 @@ task qmmm esp
  HOMO         =      -1.226353
  LUMO         =      -0.447751
 
- Bq nuclear interaction energy is  1.63637425
-   Time after variat. SCF:      0.1
-   Time prior to 1st pass:      0.1
+ Nuclear repulsion energy =    14.93765463616649     
+ Bq nuclear interaction energy =    1.636374247227050     
+   Time after variat. SCF:      0.2
+   Time prior to 1st pass:      0.2
 
- #quartets = 5.565E+03 #integrals = 3.621E+04 #direct =  0.0% #cached =100.0%
+ #quartets = 5.565D+03 #integrals = 3.621D+04 #direct =  0.0% #cached =100.0%
 
 
  Integral file          = ./lys.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  68087
+ Max. records in memory =      3        Max. records in file   = ******
  No. of bits per label  =      8        No. of bits per value  =     64
 
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
- Bq nuclear interaction energy is  1.63637425
+ Nuclear repulsion energy =    14.93765463616649     
+ Bq nuclear interaction energy =    1.636374247227050     
 
  Grid_pts file          = ./lys.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     19        Max. recs in file   =    363109
+ Max. records in memory =     37        Max. recs in file   =  44834395
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):        0.00                  21
-          Stack Space remaining (MW):       26.21            26209366
+           Heap Space remaining (MW):        0.00                   2
+          Stack Space remaining (MW):       26.21            26207392
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -56.0228140404 -7.26E+01  6.74E-02  2.65E+00     1.1
- Bq nuclear interaction energy is  1.63637425
- d= 0,ls=0.0,diis     2    -55.5808181602  4.42E-01  5.16E-02  5.37E+00     1.3
- Bq nuclear interaction energy is  1.63637425
- d= 0,ls=0.0,diis     3    -56.2294244862 -6.49E-01  5.99E-03  1.12E-01     1.6
- Bq nuclear interaction energy is  1.63637425
- d= 0,ls=0.0,diis     4    -56.2416456467 -1.22E-02  5.86E-04  5.06E-04     1.9
- Bq nuclear interaction energy is  1.63637425
- d= 0,ls=0.0,diis     5    -56.2417066105 -6.10E-05  1.89E-05  3.29E-07     2.1
- Bq nuclear interaction energy is  1.63637425
- d= 0,ls=0.0,diis     6    -56.2417066487 -3.82E-08  3.53E-06  9.37E-09     2.4
- Bq nuclear interaction energy is  1.63637425
+ d= 0,ls=0.0,diis     1    -56.0228140544 -7.26D+01  6.74D-02  2.65D+00     0.7
+ Nuclear repulsion energy =    14.93765463616649     
+ Bq nuclear interaction energy =    1.636374247227050     
+ d= 0,ls=0.0,diis     2    -55.5808184013  4.42D-01  5.16D-02  5.37D+00     0.9
+ Nuclear repulsion energy =    14.93765463616649     
+ Bq nuclear interaction energy =    1.636374247227050     
+ d= 0,ls=0.0,diis     3    -56.2294244893 -6.49D-01  5.99D-03  1.12D-01     1.1
+ Nuclear repulsion energy =    14.93765463616649     
+ Bq nuclear interaction energy =    1.636374247227050     
+ d= 0,ls=0.0,diis     4    -56.2416456468 -1.22D-02  5.86D-04  5.06D-04     1.3
+ Nuclear repulsion energy =    14.93765463616649     
+ Bq nuclear interaction energy =    1.636374247227050     
+ d= 0,ls=0.0,diis     5    -56.2417066105 -6.10D-05  1.89D-05  3.29D-07     1.5
+ Nuclear repulsion energy =    14.93765463616649     
+ Bq nuclear interaction energy =    1.636374247227050     
+ d= 0,ls=0.0,diis     6    -56.2417066487 -3.82D-08  3.53D-06  9.37D-09     1.6
+ Nuclear repulsion energy =    14.93765463616649     
+ Bq nuclear interaction energy =    1.636374247227050     
 
 
-         Total DFT energy =      -56.241706648691
-      One electron energy =     -103.936494934499
-           Coulomb energy =       38.590966073712
-    Exchange-Corr. energy =       -7.470206671297
+         Total DFT energy =      -56.241706648689
+      One electron energy =     -103.936494934256
+           Coulomb energy =       38.590966073439
+    Exchange-Corr. energy =       -7.470206671266
  Nuclear repulsion energy =       16.574028883394
 
- Numeric. integr. density =       10.000000502711
+ Numeric. integr. density =       10.000000502582
 
-     Total iterative time =      2.3s
+     Total iterative time =      1.5s
 
 
 
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
 
- Vector    2  Occ=2.000000E+00  E=-1.257543E+00
-              MO Center= -1.3E-01,  3.1E+00,  1.7E+00, r^2= 7.3E-01
+ Vector    1  Occ=2.000000D+00  E=-1.439895D+01
+              MO Center= -1.5D-01,  3.2D+00,  1.7D+00, r^2= 2.0D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6     -0.494849  1 N  s                  2     -0.429234  1 N  s          
-     1      0.208463  1 N  s          
+     1      0.989983  1 N  s          
 
- Vector    3  Occ=2.000000E+00  E=-8.965143E-01
-              MO Center= -1.0E-01,  3.1E+00,  1.6E+00, r^2= 9.7E-01
+ Vector    2  Occ=2.000000D+00  E=-1.257543D+00
+              MO Center= -1.3D-01,  3.1D+00,  1.7D+00, r^2= 7.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.494849  1 N  s                  2      0.429234  1 N  s          
+     1     -0.208463  1 N  s          
+
+ Vector    3  Occ=2.000000D+00  E=-8.965143D-01
+              MO Center= -1.0D-01,  3.1D+00,  1.6D+00, r^2= 9.7D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.386322  1 N  pz                 4      0.285469  1 N  py         
     22     -0.270072  5 H  s                  9      0.218606  1 N  pz         
      3     -0.185688  1 N  px                 8      0.157604  1 N  py         
 
- Vector    4  Occ=2.000000E+00  E=-8.700419E-01
-              MO Center= -3.2E-01,  3.1E+00,  1.9E+00, r^2= 9.9E-01
+ Vector    4  Occ=2.000000D+00  E=-8.700419D-01
+              MO Center= -3.2D-01,  3.1D+00,  1.9D+00, r^2= 9.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      0.332190  1 N  pz                 3      0.308457  1 N  px         
-     4     -0.249411  1 N  py                 9      0.216792  1 N  pz         
-    16      0.214482  2 H  s                 20     -0.209815  4 H  s          
-     7      0.201209  1 N  px                 8     -0.162595  1 N  py         
+     5     -0.332190  1 N  pz                 3     -0.308457  1 N  px         
+     4      0.249411  1 N  py                 9     -0.216792  1 N  pz         
+    16     -0.214482  2 H  s                 20      0.209815  4 H  s          
+     7     -0.201209  1 N  px                 8      0.162595  1 N  py         
 
- Vector    5  Occ=2.000000E+00  E=-8.690151E-01
-              MO Center= -6.7E-02,  3.4E+00,  1.8E+00, r^2= 9.8E-01
+ Vector    5  Occ=2.000000D+00  E=-8.690151D-01
+              MO Center= -6.7D-02,  3.4D+00,  1.8D+00, r^2= 9.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.371366  1 N  px                 4      0.352677  1 N  py         
-    18      0.246963  3 H  s                  7      0.244636  1 N  px         
-     8      0.231936  1 N  py         
+     3     -0.371366  1 N  px                 4     -0.352677  1 N  py         
+    18     -0.246963  3 H  s                  7     -0.244636  1 N  px         
+     8     -0.231936  1 N  py         
 
- Vector    6  Occ=0.000000E+00  E=-4.103102E-01
-              MO Center= -1.3E-01,  3.1E+00,  1.6E+00, r^2= 3.0E+00
+ Vector    6  Occ=0.000000D+00  E=-4.103102D-01
+              MO Center= -1.3D-01,  3.1D+00,  1.6D+00, r^2= 3.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      6     -1.448048  1 N  s                 23      0.850738  5 H  s          
     17      0.561855  2 H  s                 21      0.553575  4 H  s          
     19      0.488419  3 H  s                  2     -0.312762  1 N  s          
 
- Vector    7  Occ=0.000000E+00  E=-3.394099E-01
-              MO Center= -3.1E-01,  2.8E+00,  2.3E+00, r^2= 2.3E+00
+ Vector    7  Occ=0.000000D+00  E=-3.394099D-01
+              MO Center= -3.1D-01,  2.8D+00,  2.3D+00, r^2= 2.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.153505  2 H  s                  9     -0.701964  1 N  pz         
@@ -506,28 +482,28 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      7     -0.246538  1 N  px                 8      0.202367  1 N  py         
      3     -0.163279  1 N  px                20     -0.160901  4 H  s          
 
- Vector    8  Occ=0.000000E+00  E=-3.388993E-01
-              MO Center= -4.1E-01,  3.0E+00,  1.2E+00, r^2= 2.4E+00
+ Vector    8  Occ=0.000000D+00  E=-3.388993D-01
+              MO Center= -4.1D-01,  3.0D+00,  1.2D+00, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23     -1.294058  5 H  s                 21      0.937252  4 H  s          
-     7      0.562965  1 N  px                 8     -0.467373  1 N  py         
-     9     -0.410961  1 N  pz                 3      0.337344  1 N  px         
-     4     -0.249366  1 N  py                20      0.213910  4 H  s          
-     5     -0.210404  1 N  pz                22     -0.171469  5 H  s          
+    23      1.294058  5 H  s                 21     -0.937252  4 H  s          
+     7     -0.562965  1 N  px                 8      0.467373  1 N  py         
+     9      0.410961  1 N  pz                 3     -0.337344  1 N  px         
+     4      0.249366  1 N  py                20     -0.213910  4 H  s          
+     5      0.210404  1 N  pz                22      0.171469  5 H  s          
 
- Vector    9  Occ=0.000000E+00  E=-3.348262E-01
-              MO Center=  2.5E-01,  3.9E+00,  1.8E+00, r^2= 2.0E+00
+ Vector    9  Occ=0.000000D+00  E=-3.348262D-01
+              MO Center=  2.5D-01,  3.9D+00,  1.8D+00, r^2= 2.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      1.234002  3 H  s                  8     -0.604542  1 N  py         
-     7     -0.455818  1 N  px                21     -0.430597  4 H  s          
-     4     -0.372501  1 N  py                17     -0.368461  2 H  s          
-    23     -0.361093  5 H  s                 18      0.297874  3 H  s          
-     3     -0.295891  1 N  px         
+    19     -1.234002  3 H  s                  8      0.604542  1 N  py         
+     7      0.455818  1 N  px                21      0.430597  4 H  s          
+     4      0.372501  1 N  py                17      0.368461  2 H  s          
+    23      0.361093  5 H  s                 18     -0.297874  3 H  s          
+     3      0.295891  1 N  px         
 
- Vector   10  Occ=0.000000E+00  E= 1.777373E-01
-              MO Center= -2.0E-01,  3.3E+00,  1.8E+00, r^2= 1.7E+00
+ Vector   10  Occ=0.000000D+00  E= 1.777373D-01
+              MO Center= -2.0D-01,  3.3D+00,  1.8D+00, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      0.920389  1 N  pz                22      0.778194  5 H  s          
@@ -536,37 +512,37 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     14      0.255780  1 N  dyz               16     -0.228209  2 H  s          
     20     -0.219455  4 H  s                  6     -0.197164  1 N  s          
 
- Vector   11  Occ=0.000000E+00  E= 2.000476E-01
-              MO Center= -1.7E-01,  3.1E+00,  1.7E+00, r^2= 1.7E+00
+ Vector   11  Occ=0.000000D+00  E= 2.000476D-01
+              MO Center= -1.7D-01,  3.1D+00,  1.7D+00, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      1.039331  1 N  px                18     -0.613106  3 H  s          
-     8      0.610371  1 N  py                 3     -0.538565  1 N  px         
-    20      0.494393  4 H  s                  4     -0.316618  1 N  py         
-    11     -0.271184  1 N  dxy        
+     7     -1.039331  1 N  px                18      0.613106  3 H  s          
+     8     -0.610371  1 N  py                 3      0.538565  1 N  px         
+    20     -0.494393  4 H  s                  4      0.316618  1 N  py         
+    11      0.271184  1 N  dxy        
 
- Vector   12  Occ=0.000000E+00  E= 2.004967E-01
-              MO Center= -1.1E-01,  3.2E+00,  1.7E+00, r^2= 1.7E+00
+ Vector   12  Occ=0.000000D+00  E= 2.004967D-01
+              MO Center= -1.1D-01,  3.2D+00,  1.7D+00, r^2= 1.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8     -0.798554  1 N  py                 9      0.784416  1 N  pz         
-    16     -0.644451  2 H  s                 20      0.434655  4 H  s          
-     7      0.420984  1 N  px                 4      0.412354  1 N  py         
-     5     -0.405442  1 N  pz                 3     -0.216520  1 N  px         
-    18      0.210016  3 H  s                 14      0.170007  1 N  dyz        
+     8      0.798554  1 N  py                 9     -0.784416  1 N  pz         
+    16      0.644451  2 H  s                 20     -0.434655  4 H  s          
+     7     -0.420984  1 N  px                 4     -0.412354  1 N  py         
+     5      0.405442  1 N  pz                 3      0.216520  1 N  px         
+    18     -0.210016  3 H  s                 14     -0.170007  1 N  dyz        
 
- Vector   13  Occ=0.000000E+00  E= 3.255070E-01
-              MO Center= -4.2E-01,  3.2E+00,  2.1E+00, r^2= 2.5E+00
+ Vector   13  Occ=0.000000D+00  E= 3.255070D-01
+              MO Center= -4.2D-01,  3.2D+00,  2.1D+00, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      1.142979  1 N  s                 17     -0.985543  2 H  s          
-    21     -0.893603  4 H  s                 16      0.678260  2 H  s          
-    20      0.640657  4 H  s                  2     -0.586465  1 N  s          
-     9      0.562934  1 N  pz                19     -0.495927  3 H  s          
-    18      0.483303  3 H  s                  7     -0.379044  1 N  px         
+     6     -1.142979  1 N  s                 17      0.985543  2 H  s          
+    21      0.893603  4 H  s                 16     -0.678260  2 H  s          
+    20     -0.640657  4 H  s                  2      0.586465  1 N  s          
+     9     -0.562934  1 N  pz                19      0.495927  3 H  s          
+    18     -0.483303  3 H  s                  7      0.379044  1 N  px         
 
- Vector   14  Occ=0.000000E+00  E= 3.337376E-01
-              MO Center= -6.3E-01,  3.1E+00,  2.1E+00, r^2= 2.5E+00
+ Vector   14  Occ=0.000000D+00  E= 3.337376D-01
+              MO Center= -6.3D-01,  3.1D+00,  2.1D+00, r^2= 2.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     21     -1.334509  4 H  s                 17      1.309701  2 H  s          
@@ -575,8 +551,8 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     16     -0.536902  2 H  s                  5      0.491223  1 N  pz         
      3      0.464080  1 N  px                 4     -0.382844  1 N  py         
 
- Vector   15  Occ=0.000000E+00  E= 3.382008E-01
-              MO Center=  2.4E-01,  3.9E+00,  1.8E+00, r^2= 2.2E+00
+ Vector   15  Occ=0.000000D+00  E= 3.382008D-01
+              MO Center=  2.4D-01,  3.9D+00,  1.8D+00, r^2= 2.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     19     -1.663565  3 H  s                  8      0.897861  1 N  py         
@@ -585,27 +561,28 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      4     -0.541368  1 N  py                 3     -0.525298  1 N  px         
     20     -0.218570  4 H  s                  6      0.196220  1 N  s          
 
- Vector   16  Occ=0.000000E+00  E= 3.546925E-01
-              MO Center=  1.3E-01,  2.7E+00,  1.1E+00, r^2= 1.5E+00
+ Vector   16  Occ=0.000000D+00  E= 3.546925D-01
+              MO Center=  1.3D-01,  2.7D+00,  1.1D+00, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23     -1.720430  5 H  s                  9     -0.891160  1 N  pz         
-     6      0.850750  1 N  s                 22      0.833116  5 H  s          
-     8     -0.675094  1 N  py                 5      0.592305  1 N  pz         
-     4      0.450243  1 N  py                 7      0.425041  1 N  px         
-     2     -0.416824  1 N  s                  3     -0.281194  1 N  px         
+    23      1.720430  5 H  s                  9      0.891160  1 N  pz         
+     6     -0.850750  1 N  s                 22     -0.833116  5 H  s          
+     8      0.675094  1 N  py                 5     -0.592305  1 N  pz         
+     4     -0.450243  1 N  py                 7     -0.425041  1 N  px         
+     2      0.416824  1 N  s                  3      0.281194  1 N  px         
 
- Vector   17  Occ=0.000000E+00  E= 7.526684E-01
-              MO Center= -1.6E-01,  3.2E+00,  1.8E+00, r^2= 2.0E+00
+ Vector   17  Occ=0.000000D+00  E= 7.526684D-01
+              MO Center= -1.6D-01,  3.2D+00,  1.8D+00, r^2= 2.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6     -4.136446  1 N  s                  2      1.665866  1 N  s          
-    23      0.668349  5 H  s                 19      0.527880  3 H  s          
-    21      0.519851  4 H  s                 17      0.518787  2 H  s          
-    16      0.423402  2 H  s                 20      0.423337  4 H  s          
-    18      0.421949  3 H  s                 22      0.401443  5 H  s          
+     6      4.136446  1 N  s                  2     -1.665866  1 N  s          
+    23     -0.668349  5 H  s                 19     -0.527880  3 H  s          
+    21     -0.519851  4 H  s                 17     -0.518787  2 H  s          
+    16     -0.423402  2 H  s                 20     -0.423337  4 H  s          
+    18     -0.421949  3 H  s                 22     -0.401443  5 H  s          
 
- Bq nuclear interaction energy is  1.63637425
+ Nuclear repulsion energy =    14.93765463616649     
+ Bq nuclear interaction energy =    1.636374247227050     
 
  center of mass
  --------------
@@ -636,9 +613,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      2   0 0 2      8.800593    -58.950714    -58.950714    126.702020
 
 
- Parallel integral file used       2 records with       0 large values
+ Parallel integral file used       1 records with       0 large values
 
- Bq nuclear interaction energy is  1.63637425
+ Bq nuclear interaction energy =    1.636374247227050     
 ------------------------------------------------------------------------
  QM/MM Energy
 ------------------------------------------------------------------------
@@ -652,7 +629,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 ------------------------------------------------------------------------
 
 
- Task  times  cpu:        2.4s     wall:        4.2s
+ Task  times  cpu:        1.6s     wall:        2.5s
 
 
                                 NWChem Input Module
@@ -668,7 +645,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                     --------------------------
  operation             task:operation        energy                                                        
  reference energy      qmmm:uqmatm               0.000000  <--- Warning zero value is not advisable !!!    
- bqzone radius         qmmm:bqzone               1.800000                                                  
+ bqzone radius         qmmm:bqzone              18.000000                                                  
  excluded bq's         qmmm:bq_exclude       none                                                          
  link atom type        qmmm:linkatm          hydrogens                                                     
  optimization method   qmmm:optimization     bfgs                                                          
@@ -677,12 +654,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  ------------------------------------------------------
 
 
- Force field is amber
- number of quantum atoms 4
- Total number of Bq charges 20
- Number of solute Bq charges 20
- Number of solvent Bq charges 0
- Total Bq charge:   1.3618
+ number of quantum atoms                        4
+ Total number of Bq charges                       20
+ Number of solute Bq charges                       20
+ Number of solvent Bq charges                        0
+ Total Bq charge:     1.361800000000000     
 
 
                      NWChem Electrostatic Potential Fit Module
@@ -711,20 +687,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Recovering from shell      0
 
-04/06/06   16:37:33  er shell      1 of     14
-04/06/06   16:37:33  er shell      2 of     14
-04/06/06   16:37:33  er shell      3 of     14
-04/06/06   16:37:33  er shell      4 of     14
-04/06/06   16:37:33  er shell      5 of     14
-04/06/06   16:37:33  er shell      6 of     14
-04/06/06   16:37:33  er shell      7 of     14
-04/06/06   16:37:33  er shell      8 of     14
-04/06/06   16:37:33  er shell      9 of     14
-04/06/06   16:37:33  er shell     10 of     14
-04/06/06   16:37:33  er shell     11 of     14
-04/06/06   16:37:33  er shell     12 of     14
-04/06/06   16:37:33  er shell     13 of     14
-04/06/06   16:37:33  er shell     14 of     14
+11/01/10   15:20:53  er shell      1 of     14
+11/01/10   15:20:53  er shell      2 of     14
+11/01/10   15:20:53  er shell      3 of     14
+11/01/10   15:20:53  er shell      4 of     14
+11/01/10   15:20:53  er shell      5 of     14
+11/01/10   15:20:53  er shell      6 of     14
+11/01/10   15:20:53  er shell      7 of     14
+11/01/10   15:20:53  er shell      8 of     14
+11/01/10   15:20:53  er shell      9 of     14
+11/01/10   15:20:53  er shell     10 of     14
+11/01/10   15:20:53  er shell     11 of     14
+11/01/10   15:20:53  er shell     12 of     14
+11/01/10   15:20:53  er shell     13 of     14
+11/01/10   15:20:53  er shell     14 of     14
 
  Recovery file deleted
 
@@ -753,7 +729,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  RMS deviation %                    0.422562
 
- Task  times  cpu:        0.6s     wall:        0.6s
+ Task  times  cpu:        0.5s     wall:        0.7s
 
 
                                 NWChem Input Module
@@ -770,11 +746,11 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  124      124     5770     1535     3640        0        0        0     
+calls:  136      136     1.11e+04  822     7383        0        0        0     
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             2.05e+06 4.73e+05 1.05e+06 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            3.40e+04 2.19e+04 2.23e+04 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 168504 bytes
+bytes total:             3.18e+06 6.05e+05 1.83e+06 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 188720 bytes
 
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -784,47 +760,40 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         0	         0
-	maximum number of blocks	        57	       130
+	maximum number of blocks	        59	       132
 	current total bytes		         0	         0
-	maximum total bytes		 212641028	 403503172
-	maximum total K-bytes		    212642	    403504
-	maximum total M-bytes		       213	       404
-
-
-
-                                  ACKNOWLEDGEMENT
-                                  ---------------
-
-            Please use the following acknowledgement where appropriate 
-            for results obtained with NWChem:
-
-            High Performance Computational Chemistry Group, "NWChem, A
-            Computational Chemistry Package for Parallel Computers, 
-            Version 4.7" (2005), Pacific Northwest National Laboratory,
-            Richland, Washington 99352-0999, USA.
+	maximum total bytes		 214933088	 393752216
+	maximum total K-bytes		    214934	    393753
+	maximum total M-bytes		       215	       394
 
 
                                      CITATION
                                      --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
 
-            Please use the following citation when publishing results
-            obtained with NWChem:
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
 
-            E. Apra, T. L. Windus, T. P. Straatsma, E. J. Bylaska, W. de Jong, K. Kowalski
-            S. Hirata, M. Valiev, M. T. Hackler,  Y. Zhao,
-            R. J. Harrison, M. Dupuis, D. M. A. Smith, J. Nieplocha,
-            V. Tipparaju, M. Krishnan, A. A. Auer, E. Brown, G. Cisneros,
-            G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. Kendall,
-            J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt,
-            P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall,
-            D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe, B. Johnson,
-            J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield, X. Long,
-            B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,             M. Stave, H. Taylor, G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
-            "NWChem, A Computational Chemistry Package for Parallel Computers, 
-            Version 4.7" (2005),
-                      Pacific Northwest National Laboratory,
-                      Richland, Washington 99352-0999, USA.
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
+      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
+      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
+      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
+             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
-
-
- Total times  cpu:        3.1s     wall:        5.4s
+ Total times  cpu:        2.1s     wall:        3.7s
