@@ -22,7 +22,7 @@ pspw_SiC:
 vectors_rotate:
 
    The multipole analysis shows results that seem significantly different from
-   what they should be.
+   what they should be and are in 6.0 release.
 
 h2o-ssb-d:
 
