@@ -7,33 +7,26 @@ pyqa:
    Prints the contents of the RTDB. However, in the trunk version these arrays
    are much longer than in the release. As a result this really polutes the output.
 
-pspw_stress:
-
-   The trunk Mulliken charges are very different from the 6.0 release
-
-pspw_SiC:
-
-   The trunk Mulliken charges are very different from the 6.0 release
-
 vectors_rotate:
 
-   The trunk multipole analysis is very different from the 6.0 release
+   The trunk multipole analysis is very different from the 6.0 release, which 
+   is not surprising since it is singlet O2, and thus very touchy
 
 h2o-ssb-d:
 
-   The dispersion correction does not seem to get included.
+   The dispersion correction does not seem to get included in trunk
 
 h2o-ssb-d-opt:
 
-   The dispersion correction does not seem to get included.
+   The dispersion correction does not seem to get included in trunk
 
 tce_polar_ccsdt_small:
 
-   Not tested with 6.0, because CCSDTLR is not compiled in by default
+   Not yet tested with 6.0, because CCSDTLR is not compiled in by default
 
 tce_c20_triplet:
 
-   Not tested with 6.0, because it took 256 cores 2 hours on MPP2
+   Not yet tested with 6.0, because it took 256 cores 2 hours on MPP2
 
 bsse_dft_trimer:
 
