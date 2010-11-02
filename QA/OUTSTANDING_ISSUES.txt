@@ -1,28 +1,23 @@
 dft_bsse: 
 
-   Trunk version loses the Bq centers although they have basis functions
-   on them.
+   Trunk version loses the Bq centers although they have basis functions on them.
 
 pyqa:
 
    Prints the contents of the RTDB. However, in the trunk version these arrays
-   are much longer than in the release. As a result this really polutes the
-   output.
+   are much longer than in the release. As a result this really polutes the output.
 
 pspw_stress:
 
-   The Mulliken charges are very different from the 6.0 release data and the
-   current baseline.
+   The trunk Mulliken charges are very different from the 6.0 release
 
 pspw_SiC:
 
-   The Mulliken charges are very different from the 6.0 release data and the
-   current baseline.
+   The trunk Mulliken charges are very different from the 6.0 release
 
 vectors_rotate:
 
-   The multipole analysis shows results that seem significantly different from
-   what they should be and are in 6.0 release.
+   The trunk multipole analysis is very different from the 6.0 release
 
 h2o-ssb-d:
 
@@ -54,27 +49,9 @@ h3_dirdyvtst:
 
 k6h2o:
 
-   Generates runtime errors, just like 5.1.1 version - Marat
-   has been asked about it
+   Generates runtime errors, just like 5.1.1 version - Marat has been asked about it
 
 lysH-qmmm:
 
-   Generates runtime errors, just like 5.1.1 version - Marat 
-   has been asked about it
-
-tce_qmmm_ccsd_grad:
-
-   Fails, just like in 5.1.1 - Asked Karol about it
-
-tce_qmmm_ccsd_opt:
-
-   Fails, just like in 5.1.1 - Asked Karol about it
-
-tce_qmmm_eomccsd_grad:
-
-   Fails, just like in 5.1.1 - Asked Karol about it
-
-tce_qmmm_eomccsd_opt:
-
-   Fails, just like in 5.1.1 - Asked Karol about it
+   Generates runtime errors, just like 5.1.1 version - Marat has been asked about it
 
