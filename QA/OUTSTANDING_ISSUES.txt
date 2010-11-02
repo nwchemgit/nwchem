@@ -31,3 +31,50 @@ h2o-ssb-d:
 h2o-ssb-d-opt:
 
    The dispersion correction does not seem to get included.
+
+tce_polar_ccsdt_small:
+
+   Not tested with 6.0, because CCSDTLR is not compiled in by default
+
+tce_c20_triplet:
+
+   Not tested with 6.0, because it took 256 cores 2 hours on MPP2
+
+bsse_dft_trimer:
+
+   Fails, but worked in 5.1.1
+
+h2o_selci:
+
+   Fails, but worked in 5.1.1
+
+h3_dirdyvtst:
+
+   Genreates very different results than baseline, but same as 5.1.1
+
+k6h2o:
+
+   Generates runtime errors, just like 5.1.1 version - Marat
+   has been asked about it
+
+lysH-qmmm:
+
+   Generates runtime errors, just like 5.1.1 version - Marat 
+   has been asked about it
+
+tce_qmmm_ccsd_grad:
+
+   Fails, just like in 5.1.1 - Asked Karol about it
+
+tce_qmmm_ccsd_opt:
+
+   Fails, just like in 5.1.1 - Asked Karol about it
+
+tce_qmmm_eomccsd_grad:
+
+   Fails, just like in 5.1.1 - Asked Karol about it
+
+tce_qmmm_eomccsd_opt:
+
+   Fails, just like in 5.1.1 - Asked Karol about it
+
