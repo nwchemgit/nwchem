@@ -2,7 +2,7 @@ memory 1500 Mb
 
 start fmd
 echo
-permanent_dir /mscf/home/d3p852/nwchem-5.1.1/QA/tests/tce_qmmm_eomccsd_grad
+permanent_dir /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_qmmm_eomccsd_grad/perm
 scratch_dir /scratch
 
 set qmmm:bqgrid .true.
