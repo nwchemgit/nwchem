@@ -1,9 +1,6 @@
 #
 start h2o
 
-permanent_dir /home/d3p975/codes/nwchem-svn/nwchem/QA/tests/tce_eomccsd_gradient/perm
-scratch_dir /scratch
-
 memory  1500 mb
 
 echo

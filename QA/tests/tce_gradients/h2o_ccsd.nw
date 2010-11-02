@@ -1,8 +1,6 @@
 #
 start h2o
 
-scratch_dir /scratch
-
 memory  1500 mb
 
 echo
