@@ -1768,10 +1768,10 @@ c     &        'Calculation failed to converge', 20, .true.)
          write(LuOut,*)
          dft_time = dft_time+util_cpusec()
          if (nexc.le.1)then
-            write(LuOut,222)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
+            write(LuOut,232)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
      &           rho_n, dft_time
          else
-            write(LuOut,223)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
+            write(LuOut,233)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
      &           enuc, rho_n, dft_time
          endif
  232     format(//
