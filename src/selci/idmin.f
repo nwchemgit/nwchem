@@ -3,6 +3,7 @@
 * $Id$
 *
       real *8 a(ia,*)
+      real *8 val
 c
 c     return index of minimum value in array a
 c
