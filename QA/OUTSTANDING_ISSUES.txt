@@ -28,10 +28,6 @@ bsse_dft_trimer:
 
    Fails, but worked in 5.1.1
 
-h2o_selci:
-
-   Fails, but worked in 5.1.1
-
 k6h2o:
 
    Generates runtime errors, just like 5.1.1 version - Marat has been asked about it

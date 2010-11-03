@@ -216,6 +216,7 @@ c
       end
       subroutine selci_makges(nci, nroot, ci, hd, iflciv, roots)
       implicit real*8 (a-h,o-z)
+      integer selci_idmin
 #include "errquit.fh"
 #include "stdio.fh"
       dimension ci(nci,nroot), hd(nci), temp(50), itemp(50),
@@ -455,6 +456,7 @@ c
       subroutine selci_analci(ci,indxci,ioconf,nci,noconf,
      $     norbs,nintpo,nbitpi,iorder)
       implicit real*8 (a-h,o-z)
+      integer selci_idmin
 #include "errquit.fh"
       parameter (maxtmp = 20)
       dimension ci(nci),indxci(noconf+1),ioconf(nintpo,noconf),

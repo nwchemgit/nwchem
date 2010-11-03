@@ -19,7 +19,7 @@ c
       noline = 0
 c
       end
-      function nfield()
+      integer function nfield()
 #include "work.fh"
 c
 c     return no. of fields in the input
@@ -27,7 +27,7 @@ c
       nfield = jump
 c
       end
-      function ifield()
+      integer function ifield()
 #include "work.fh"
 c
 c     return no. of fields processed so far (0,...,nfield())
