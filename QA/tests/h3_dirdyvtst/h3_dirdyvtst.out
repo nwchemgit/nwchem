@@ -1,88 +1,140 @@
- argument  1 = ./h3_dirdyvtst.nw
+HP-MPI licensed for ISV application.
+All connections between all procs tested: SUCCESS
+ argument  1 = h3_dirdyvtst.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+start h3
+
+basis
+ h library 3-21G
+end
+
+scf
+   uhf
+   doublet
+   thresh 1.0e-6
+end
+
+dirdyvtst autosym 0.001
+  theory scf
+*GENERAL
+  TITLE
+   Test run: H+H2 reaction, Page-McIver CUBE algorithm, no restart, save files
+
+  ATOMS
+     1    H
+     2    H
+     3    H
+  END
+
+  SAVEFILE vecs hess
+
+*REACT1
+   GEOM
+     1  0.0   0.0   0.0
+     2  0.0   0.0   1.3886144
+   END
+
+   SPECIES LINRP
+
+*REACT2
+  GEOM
+    3    0.0   0.0 190.3612132
+  END
+
+  SPECIES  ATOMIC
+
+*PROD2
+  GEOM
+    1   0.0   0.0 190.3612132
+  END
+
+  SPECIES   ATOMIC
+
+*PROD1
+
+  GEOM
+    2  0.0   0.0   1.3886144
+    3   0.0   0.0   0.0
+  END
+
+  SPECIES  LINRP
+
+*START
+
+  GEOM
+    1  0.0   0.0  -1.76531973
+    2  0.0   0.0   0.0
+    3  0.0   0.0   1.76531973
+  END
+
+  SPECIES  LINTS
+
+*PATH
+  SSTEP  0.05
+  SSAVE  0.05
+  SLP    0.50
+  SLM   -0.50
+  SCALEMASS 0.6718993
+  INTEGRA   CUBE
+end
+
+task dirdyvtst
+================================================================================
+
+
                                          
                                          
- 
- 
-              Northwest Computational Chemistry Package (NWChem) 4.0
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.0
               ------------------------------------------------------
- 
- 
+
+
                     Environmental Molecular Sciences Laboratory
                        Pacific Northwest National Laboratory
                                 Richland, WA 99352
- 
-                                         
-                                         
- 
- 
-            COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999, 2000, 2001
-                        Pacific Northwest National Laboratory,
-                             Battelle Memorial Institute.
- 
-                            >>> All Rights Reserved <<<
- 
- 
-                                    DISCLAIMER
-                                    ----------
 
-            This material was prepared as an account of work sponsored
-            by an agency of the United States Government.  Neither the
-            United States Government nor the United States Department
-            of Energy, nor Battelle, nor any of their employees, MAKES
-            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
-            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
-            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
-            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
-            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
 
-
-                                    LIMITED USE
-                                    -----------
-
-            This software (including any documentation) is being made
-            available to you for your internal use only, solely for use
-            in performance of work directly for the U.S. Federal
-            Government or work under contracts with the U.S. Department
-            of Energy or other U.S. Federal Government agencies.  This
-            software is a version which has not yet been evaluated and
-            cleared for commercialization.  Adherence to this notice
-            may be necessary for the author, Battelle Memorial
-            Institute, to successfully assert copyright in and
-            commercialize this software. This software is not intended
-            for duplication or distribution to third parties without
-            the permission of the Manager of Software Products at
-            Pacific Northwest National Laboratory, Richland,
-            Washington, 99352.
-
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
 
                                   ACKNOWLEDGMENT
                                   --------------
 
-            This software and its documentation were produced with
-            Government support under Contract Number DE-AC06-76RLO-1830
-            awarded by the United States Department of Energy.  The
-            Government retains a paid-up non-exclusive, irrevocable
-            worldwide license to reproduce, prepare derivative works,
-            perform publicly and display publicly by or for the
-            Government, including the right to distribute to other
-            Government contractors.
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
 
 
            Job information
            ---------------
 
-    hostname      = cagle
-    program       = /scratch/windus/nwchem/bin/SOLARIS_ULTRA/nwchem
-    date          = Wed Apr 25 13:29:48 2001
+    hostname      = cu0login2
+    program       = /home/d3p852/nwchem-5.1.1/bin/LINUX64/nwchem
+    date          = Wed Nov  3 09:46:52 2010
 
-    compiled      = Wed Apr 25 13:29:20 PDT 2001
-    source        = /scratch/windus/nwchem
+    compiled      = Wed_Nov_03_09:10:23_2010
+    source        = /home/d3p852/nwchem-6.0
     nwchem branch = Development
-    input         = ./h3_dirdyvtst.nw
+    input         = h3_dirdyvtst.nw
     prefix        = h3.
     data base     = ./h3.db
     status        = startup
-    nproc         =    1
+    nproc         =        1
     time left     =     -1s
 
 
@@ -90,29 +142,29 @@
            Memory information
            ------------------
 
-    heap      =   19660796 doubles =    150.0 Mbytes
-    stack     =    6553589 doubles =     50.0 Mbytes
-    global    =   26214406 doubles =    200.0 Mbytes (within heap+stack)
-    total     =   26214385 doubles =    200.0 Mbytes
-    verify    = yes
-    hardfail  = no 
+    heap     =  104857601 doubles =    800.0 Mbytes
+    stack    =  104857601 doubles =    800.0 Mbytes
+    global   =  209715200 doubles =   1600.0 Mbytes (distinct from heap & stack)
+    total    =  419430402 doubles =   3200.0 Mbytes
+    verify   = yes
+    hardfail = no 
 
 
            Directory information
            ---------------------
- 
+
   0 permanent = .
   0 scratch   = .
- 
- 
- 
- 
+
+
+
+
                                 NWChem Input Module
                                 -------------------
- 
- 
-  library name resolved from: .nwchemrc
-  library file name is: </msrc/proj/nwchem/share/library>
+
+
+  library name resolved from: environment
+  library file name is: </home/svc-nwchem/nwchem-5.1.1/src/basis/libraries/>
   
                       Basis "ao basis" -> "" (cartesian)
                       -----
@@ -122,9 +174,9 @@
        -------------- ---------------------------------------------------------
   1 S  5.44717800E+00  0.156285
   1 S  8.24547000E-01  0.904691
- 
+
   2 S  1.83192000E-01  1.000000
- 
+
 
 
  Summary of "ao basis" -> "" (cartesian)
@@ -251,30 +303,32 @@
    2        0.000000E+00    0.000000E+00   -7.657993E+01
    3        0.000000E+00    0.000000E+00    1.548605E+02
  Symmetry group is C4V
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
           save file, system command=  cp ./h3.movecs ./h3.movecs.sreact                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.sreact                                                                                                                                                                                                                                  
 
  Potential energy=  -1.6191584449E+00 Hartree= -1.01604E+03 kcal/mol
 
  Derivatives in mass-scaled cartesians (au):
-   1        0.000000E+00    0.000000E+00   -4.574978E-08
-   2        0.000000E+00    0.000000E+00    4.574978E-08
-   3        0.000000E+00    0.000000E+00    5.335892E-17
+   1        0.000000E+00    0.000000E+00   -4.572066E-08
+   2        0.000000E+00    0.000000E+00    4.572066E-08
+   3        0.000000E+00    0.000000E+00    1.420839E-17
 
  Reactant species    1
 
  Eigenvalues and eigenvectors of hessian
 
                        m=       1            2            3            4            5            6
-  Eigenvalues (au)=           0.551478     0.000000     0.000000     0.000000     0.000000     0.000000
-  Frequencies (cm^-1)=     4657.164836     3.024441     3.024441     0.000054     0.000046     0.000043
+  Eigenvalues (au)=           0.551477     0.000000     0.000000     0.000000     0.000000     0.000000
+  Frequencies (cm^-1)=     4657.160549     1.454668     1.454668     0.000341     0.000340     0.000009
   Eigenvectors=
-                        1     0.000000     0.000000    -0.707107     0.000000     0.707107     0.000000
-                        2     0.000000    -0.707107     0.000000    -0.560860     0.000000     0.430622
-                        3     0.707107     0.000000     0.000000     0.430622     0.000000     0.560860
-                        4     0.000000     0.000000     0.707107     0.000000     0.707107     0.000000
-                        5     0.000000     0.707107     0.000000    -0.560860     0.000000     0.430622
-                        6    -0.707107     0.000000     0.000000     0.430622     0.000000     0.560860
+                        1     0.000000     0.707107     0.000000    -0.707107     0.000000     0.000000
+                        2     0.000000     0.000000    -0.707107     0.000000     0.707099     0.003333
+                        3     0.707107     0.000000     0.000000     0.000000     0.003333    -0.707099
+                        4     0.000000    -0.707107     0.000000    -0.707107     0.000000     0.000000
+                        5     0.000000     0.000000     0.707107     0.000000     0.707099     0.003333
+                        6    -0.707107     0.000000     0.000000     0.000000     0.003333    -0.707099
   
 
  Reactant species    2 is an atom
@@ -289,30 +343,32 @@
    2        0.000000E+00    0.000000E+00    7.657993E+01
    3        0.000000E+00    0.000000E+00    7.828061E+01
  Symmetry group is C4V
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
           save file, system command=  cp ./h3.movecs ./h3.movecs.sprodt                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.sprodt                                                                                                                                                                                                                                  
 
  Potential energy=  -1.6191584449E+00 Hartree= -1.01604E+03 kcal/mol
 
  Derivatives in mass-scaled cartesians (au):
-   1        0.000000E+00    0.000000E+00   -3.014303E-17
-   2        0.000000E+00    0.000000E+00   -4.574978E-08
-   3        0.000000E+00    0.000000E+00    4.574978E-08
+   1        0.000000E+00    0.000000E+00    9.112623E-18
+   2        0.000000E+00    0.000000E+00   -4.572067E-08
+   3        0.000000E+00    0.000000E+00    4.572067E-08
 
  Product species     1
 
  Eigenvalues and eigenvectors of hessian
 
                        m=       1            2            3            4            5            6
-  Eigenvalues (au)=           0.551478     0.000000     0.000000     0.000000     0.000000     0.000000
-  Frequencies (cm^-1)=     4657.164836     3.024441     3.024441     0.000071     0.000068    -0.000041
+  Eigenvalues (au)=           0.551477     0.000000     0.000000     0.000000     0.000000     0.000000
+  Frequencies (cm^-1)=     4657.160549     1.454668     1.454668     0.000326     0.000325     0.000034
   Eigenvectors=
-                        1     0.000000     0.707107     0.000000    -0.707107     0.000000     0.000000
-                        2     0.000000     0.000000    -0.707107     0.000000     0.704361     0.062257
-                        3     0.707107     0.000000     0.000000     0.000000     0.062257    -0.704361
-                        4     0.000000    -0.707107     0.000000    -0.707107     0.000000     0.000000
-                        5     0.000000     0.000000     0.707107     0.000000     0.704361     0.062257
-                        6    -0.707107     0.000000     0.000000     0.000000     0.062257    -0.704361
+                        1     0.000000     0.000000     0.707107     0.000000    -0.707107     0.000000
+                        2     0.000000     0.707107     0.000000    -0.707097     0.000000    -0.003676
+                        3     0.707107     0.000000     0.000000     0.003676     0.000000    -0.707097
+                        4     0.000000     0.000000    -0.707107     0.000000    -0.707107     0.000000
+                        5     0.000000    -0.707107     0.000000    -0.707097     0.000000    -0.003676
+                        6    -0.707107     0.000000     0.000000     0.003676     0.000000    -0.707097
   
 
  Product species     2 is an atom
@@ -327,46 +383,48 @@
    2        0.000000E+00    0.000000E+00    0.000000E+00
    3        0.000000E+00    0.000000E+00    2.162041E+00
  Symmetry group is D4H
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
           save file, system command=  cp ./h3.movecs ./h3.movecs.P00.00                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.P00.00                                                                                                                                                                                                                                  
 
  Potential energy=  -1.5920744789E+00 Hartree= -9.99042E+02 kcal/mol
 
  Derivatives in mass-scaled cartesians (au):
-   1        0.000000E+00    0.000000E+00   -2.372509E-08
-   2        0.000000E+00    0.000000E+00    0.000000E+00
-   3        0.000000E+00    0.000000E+00    2.372509E-08
+   1        0.000000E+00    0.000000E+00   -2.416233E-08
+   2        0.000000E+00    0.000000E+00    1.133130E-17
+   3        0.000000E+00    0.000000E+00    2.416233E-08
 
  Eigenvalues and eigenvectors of hessian
 
                        m=       1            2            3            4            5            6
-  Eigenvalues (au)=           0.107367     0.031975     0.031975    -0.133577     0.000000     0.000000
-  Frequencies (cm^-1)=     2054.905320  1121.409344  1121.409344 -2292.042610     1.008024     1.008024
+  Eigenvalues (au)=           0.107368     0.031975     0.031975    -0.133584     0.000000     0.000000
+  Frequencies (cm^-1)=     2054.917086  1121.408595  1121.408595 -2292.103153     0.663101     0.001322
   Eigenvectors=
-                        1     0.000000     0.375428    -0.160376     0.000000    -0.629221     0.322616
-                        2     0.000000     0.160376     0.375428     0.000000    -0.322616    -0.629221
-                        3    -0.707107     0.000000     0.000000    -0.408249     0.000000     0.000000
-                        4     0.000000    -0.750856     0.320753     0.000000     0.000000     0.000000
-                        5     0.000000    -0.320753    -0.750856     0.000000     0.000000     0.000000
-                        6     0.000000     0.000000     0.000000     0.816496     0.000000     0.000000
-                        7     0.000000     0.375428    -0.160376     0.000000     0.629221    -0.322616
-                        8     0.000000     0.160376     0.375428     0.000000     0.322616     0.629221
-                        9     0.707107     0.000000     0.000000    -0.408249     0.000000     0.000000
+                        1     0.000000     0.209587     0.350343     0.000000    -0.636796    -0.552536
+                        2     0.000000     0.350343    -0.209587     0.000000    -0.307394     0.167444
+                        3    -0.707107     0.000000     0.000000    -0.408248     0.000000    -0.000007
+                        4     0.000000    -0.419174    -0.700685     0.000000     0.000000    -0.552536
+                        5     0.000000    -0.700685     0.419174     0.000000     0.000000     0.167444
+                        6     0.000000     0.000000     0.000000     0.816497     0.000000    -0.000007
+                        7     0.000000     0.209587     0.350343     0.000000     0.636796    -0.552536
+                        8     0.000000     0.350343    -0.209587     0.000000     0.307394     0.167444
+                        9     0.707107     0.000000     0.000000    -0.408248     0.000000    -0.000007
   
 
                        m=       7            8            9
   Eigenvalues (au)=           0.000000     0.000000     0.000000
-  Frequencies (cm^-1)=        0.298404     0.298404     2.280222
+  Frequencies (cm^-1)=        0.001322     0.000015     0.663101
   Eigenvectors=
-                        1    -0.345859     0.462293     0.000000
-                        2     0.462293     0.345859     0.000000
-                        3     0.000000     0.000000     0.577350
-                        4    -0.345859     0.462293     0.000000
-                        5     0.462293     0.345859     0.000000
-                        6     0.000000     0.000000     0.577351
-                        7    -0.345859     0.462293     0.000000
-                        8     0.462293     0.345859     0.000000
-                        9     0.000000     0.000000     0.577350
+                        1     0.167444     0.000003    -0.307394
+                        2     0.552536     0.000036     0.636796
+                        3    -0.000035     0.577350     0.000000
+                        4     0.167444     0.000003     0.000000
+                        5     0.552536     0.000036     0.000000
+                        6    -0.000035     0.577350     0.000000
+                        7     0.167444     0.000003     0.307394
+                        8     0.552536     0.000036    -0.636796
+                        9    -0.000035     0.577350     0.000000
   
 
 
@@ -375,10 +433,14 @@
  Vector for initial step off saddle point=
                                      0.0000   0.0000  -0.4082   0.0000   0.0000   0.8165   0.0000   0.0000  -0.4082
  Symmetry group is C4V
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
  Symmetry group is C4V
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
 
  Second order correction for vector=
-                                     0.0000   0.0000  29.3101   0.0000   0.0000  20.1258   0.0000   0.0000  10.9414
+                                     0.0000   0.0000  -0.7740   0.0000   0.0000   0.0000   0.0000   0.0000   0.7740
 
 
  ********** Calculate points along reaction path
@@ -400,53 +462,73 @@
         0.00000  2.70840E-02    x=   0.0000   0.0000  -2.1620   0.0000   0.0000   0.0000   0.0000   0.0000   2.1620
                  0.00000E+00   dx=   0.0000   0.0000  -0.4082   0.0000   0.0000   0.8165   0.0000   0.0000  -0.4082
  Symmetry group is C4V
-       -0.05000  2.69417E-02    x=   0.0000   0.0000  -2.1050   0.0000   0.0000  -0.0157   0.0000   0.0000   2.1961
-                 6.59985E-03   dx=   0.0000   0.0000  -0.1358   0.0000   0.0000   0.7652   0.0000   0.0000  -0.6293
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+       -0.05000  2.69183E-02    x=   0.0000   0.0000  -2.1426   0.0000   0.0000  -0.0408   0.0000   0.0000   2.1834
+                 6.56466E-03   dx=   0.0000   0.0000  -0.3682   0.0000   0.0000   0.8152   0.0000   0.0000  -0.4470
           save file, system command=  cp ./h3.movecs ./h3.movecs.M00.05                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.M00.05                                                                                                                                                                                                                                  
  Symmetry group is C4V
-       -0.10000  2.65702E-02    x=   0.0000   0.0000  -2.1341   0.0000   0.0000  -0.0721   0.0000   0.0000   2.2062
-                 1.13866E-02   dx=   0.0000   0.0000  -0.3864   0.0000   0.0000   0.8161   0.0000   0.0000  -0.4297
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+       -0.10000  2.64389E-02    x=   0.0000   0.0000  -2.1252   0.0000   0.0000  -0.0815   0.0000   0.0000   2.2067
+                 1.24459E-02   dx=   0.0000   0.0000  -0.3233   0.0000   0.0000   0.8110   0.0000   0.0000  -0.4876
           save file, system command=  cp ./h3.movecs ./h3.movecs.M00.10                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.M00.10                                                                                                                                                                                                                                  
  Symmetry group is C4V
-       -0.15000  2.58879E-02    x=   0.0000   0.0000  -2.1194   0.0000   0.0000  -0.1116   0.0000   0.0000   2.2311
-                 1.63723E-02   dx=   0.0000   0.0000  -0.3285   0.0000   0.0000   0.8116   0.0000   0.0000  -0.4831
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+       -0.15000  2.56943E-02    x=   0.0000   0.0000  -2.1103   0.0000   0.0000  -0.1219   0.0000   0.0000   2.2322
+                 1.70979E-02   dx=   0.0000   0.0000  -0.2696   0.0000   0.0000   0.8023   0.0000   0.0000  -0.5326
           save file, system command=  cp ./h3.movecs ./h3.movecs.M00.15                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.M00.15                                                                                                                                                                                                                                  
  Symmetry group is C4V
-       -0.20000  2.49814E-02    x=   0.0000   0.0000  -2.1053   0.0000   0.0000  -0.1516   0.0000   0.0000   2.2569
-                 1.98710E-02   dx=   0.0000   0.0000  -0.2528   0.0000   0.0000   0.7988   0.0000   0.0000  -0.5460
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+       -0.20000  2.47546E-02    x=   0.0000   0.0000  -2.0984   0.0000   0.0000  -0.1616   0.0000   0.0000   2.2600
+                 2.02209E-02   dx=   0.0000   0.0000  -0.2030   0.0000   0.0000   0.7864   0.0000   0.0000  -0.5834
           save file, system command=  cp ./h3.movecs ./h3.movecs.M00.20                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.M00.20                                                                                                                                                                                                                                  
  Symmetry group is C4V
-       -0.25000  2.39371E-02    x=   0.0000   0.0000  -2.0938   0.0000   0.0000  -0.1912   0.0000   0.0000   2.2850
-                 2.17288E-02   dx=   0.0000   0.0000  -0.1573   0.0000   0.0000   0.7725   0.0000   0.0000  -0.6152
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+       -0.25000  2.36969E-02    x=   0.0000   0.0000  -2.0902   0.0000   0.0000  -0.2003   0.0000   0.0000   2.2906
+                 2.18490E-02   dx=   0.0000   0.0000  -0.1206   0.0000   0.0000   0.7597   0.0000   0.0000  -0.6390
           save file, system command=  cp ./h3.movecs ./h3.movecs.M00.25                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.M00.25                                                                                                                                                                                                                                  
  Symmetry group is C4V
-       -0.30000  2.28356E-02    x=   0.0000   0.0000  -2.0860   0.0000   0.0000  -0.2298   0.0000   0.0000   2.3158
-                 2.22408E-02   dx=   0.0000   0.0000  -0.0378   0.0000   0.0000   0.7253   0.0000   0.0000  -0.6874
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+       -0.30000  2.25883E-02    x=   0.0000   0.0000  -2.0866   0.0000   0.0000  -0.2374   0.0000   0.0000   2.3240
+                 2.23360E-02   dx=   0.0000   0.0000  -0.0251   0.0000   0.0000   0.7193   0.0000   0.0000  -0.6942
           save file, system command=  cp ./h3.movecs ./h3.movecs.M00.30                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.M00.30                                                                                                                                                                                                                                  
  Symmetry group is C4V
-       -0.35000  2.17325E-02    x=   0.0000   0.0000  -2.0835   0.0000   0.0000  -0.2663   0.0000   0.0000   2.3498
-                 2.20380E-02   dx=   0.0000   0.0000   0.0950   0.0000   0.0000   0.6548   0.0000   0.0000  -0.7498
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+       -0.35000  2.14736E-02    x=   0.0000   0.0000  -2.0879   0.0000   0.0000  -0.2721   0.0000   0.0000   2.3599
+                 2.21804E-02   dx=   0.0000   0.0000   0.0733   0.0000   0.0000   0.6676   0.0000   0.0000  -0.7409
           save file, system command=  cp ./h3.movecs ./h3.movecs.M00.35                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.M00.35                                                                                                                                                                                                                                  
  Symmetry group is C4V
-       -0.40000  2.06500E-02    x=   0.0000   0.0000  -2.0872   0.0000   0.0000  -0.2995   0.0000   0.0000   2.3867
-                 2.16774E-02   dx=   0.0000   0.0000   0.2104   0.0000   0.0000   0.5780   0.0000   0.0000  -0.7884
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+       -0.40000  2.03746E-02    x=   0.0000   0.0000  -2.0939   0.0000   0.0000  -0.3040   0.0000   0.0000   2.3979
+                 2.17675E-02   dx=   0.0000   0.0000   0.1607   0.0000   0.0000   0.6129   0.0000   0.0000  -0.7736
           save file, system command=  cp ./h3.movecs ./h3.movecs.M00.40                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.M00.40                                                                                                                                                                                                                                  
  Symmetry group is C4V
-       -0.45000  1.95910E-02    x=   0.0000   0.0000  -2.0964   0.0000   0.0000  -0.3289   0.0000   0.0000   2.4253
-                 2.12961E-02   dx=   0.0000   0.0000   0.2836   0.0000   0.0000   0.5213   0.0000   0.0000  -0.8049
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+       -0.45000  1.92988E-02    x=   0.0000   0.0000  -2.1037   0.0000   0.0000  -0.3334   0.0000   0.0000   2.4371
+                 2.12644E-02   dx=   0.0000   0.0000   0.2286   0.0000   0.0000   0.5646   0.0000   0.0000  -0.7931
           save file, system command=  cp ./h3.movecs ./h3.movecs.M00.45                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.M00.45                                                                                                                                                                                                                                  
  Symmetry group is C4V
-       -0.50000  1.85581E-02    x=   0.0000   0.0000  -2.1094   0.0000   0.0000  -0.3552   0.0000   0.0000   2.4646
-                 2.08315E-02   dx=   0.0000   0.0000   0.3205   0.0000   0.0000   0.4901   0.0000   0.0000  -0.8106
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+       -0.50000  1.82496E-02    x=   0.0000   0.0000  -2.1164   0.0000   0.0000  -0.3606   0.0000   0.0000   2.4770
+                 2.07042E-02   dx=   0.0000   0.0000   0.2765   0.0000   0.0000   0.5270   0.0000   0.0000  -0.8036
           save file, system command=  cp ./h3.movecs ./h3.movecs.M00.50                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.M00.50                                                                                                                                                                                                                                  
 
@@ -458,53 +540,73 @@
         0.00000  2.70840E-02    x=   0.0000   0.0000  -2.1620   0.0000   0.0000   0.0000   0.0000   0.0000   2.1620
                  0.00000E+00   dx=   0.0000   0.0000  -0.4082   0.0000   0.0000   0.8165   0.0000   0.0000  -0.4082
  Symmetry group is C4V
-        0.05000  2.69417E-02    x=   0.0000   0.0000  -2.1458   0.0000   0.0000   0.0660   0.0000   0.0000   2.1553
-                 6.59987E-03   dx=   0.0000   0.0000   0.6293   0.0000   0.0000  -0.7652   0.0000   0.0000   0.1358
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+        0.05000  2.69183E-02    x=   0.0000   0.0000  -2.1834   0.0000   0.0000   0.0408   0.0000   0.0000   2.1426
+                 6.56466E-03   dx=   0.0000   0.0000   0.4470   0.0000   0.0000  -0.8152   0.0000   0.0000   0.3682
           save file, system command=  cp ./h3.movecs ./h3.movecs.P00.05                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.P00.05                                                                                                                                                                                                                                  
  Symmetry group is C4V
-        0.10000  2.65092E-02    x=   0.0000   0.0000  -2.1995   0.0000   0.0000   0.0776   0.0000   0.0000   2.1219
-                 1.17649E-02   dx=   0.0000   0.0000   0.5273   0.0000   0.0000  -0.8035   0.0000   0.0000   0.2762
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+        0.10000  2.64389E-02    x=   0.0000   0.0000  -2.2067   0.0000   0.0000   0.0815   0.0000   0.0000   2.1252
+                 1.24459E-02   dx=   0.0000   0.0000   0.4876   0.0000   0.0000  -0.8110   0.0000   0.0000   0.3233
           save file, system command=  cp ./h3.movecs ./h3.movecs.P00.10                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.P00.10                                                                                                                                                                                                                                  
  Symmetry group is C4V
-        0.15000  2.58170E-02    x=   0.0000   0.0000  -2.2241   0.0000   0.0000   0.1172   0.0000   0.0000   2.1069
-                 1.63717E-02   dx=   0.0000   0.0000   0.5600   0.0000   0.0000  -0.7946   0.0000   0.0000   0.2346
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+        0.15000  2.56943E-02    x=   0.0000   0.0000  -2.2322   0.0000   0.0000   0.1219   0.0000   0.0000   2.1103
+                 1.70979E-02   dx=   0.0000   0.0000   0.5326   0.0000   0.0000  -0.8023   0.0000   0.0000   0.2696
           save file, system command=  cp ./h3.movecs ./h3.movecs.P00.15                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.P00.15                                                                                                                                                                                                                                  
  Symmetry group is C4V
-        0.20000  2.49185E-02    x=   0.0000   0.0000  -2.2526   0.0000   0.0000   0.1562   0.0000   0.0000   2.0964
-                 1.96607E-02   dx=   0.0000   0.0000   0.5955   0.0000   0.0000  -0.7815   0.0000   0.0000   0.1860
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+        0.20000  2.47546E-02    x=   0.0000   0.0000  -2.2600   0.0000   0.0000   0.1616   0.0000   0.0000   2.0984
+                 2.02209E-02   dx=   0.0000   0.0000   0.5834   0.0000   0.0000  -0.7864   0.0000   0.0000   0.2030
           save file, system command=  cp ./h3.movecs ./h3.movecs.P00.20                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.P00.20                                                                                                                                                                                                                                  
  Symmetry group is C4V
-        0.25000  2.38871E-02    x=   0.0000   0.0000  -2.2842   0.0000   0.0000   0.1942   0.0000   0.0000   2.0900
-                 2.15821E-02   dx=   0.0000   0.0000   0.6365   0.0000   0.0000  -0.7611   0.0000   0.0000   0.1246
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+        0.25000  2.36969E-02    x=   0.0000   0.0000  -2.2906   0.0000   0.0000   0.2003   0.0000   0.0000   2.0902
+                 2.18490E-02   dx=   0.0000   0.0000   0.6390   0.0000   0.0000  -0.7597   0.0000   0.0000   0.1206
           save file, system command=  cp ./h3.movecs ./h3.movecs.P00.25                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.P00.25                                                                                                                                                                                                                                  
  Symmetry group is C4V
-        0.30000  2.27886E-02    x=   0.0000   0.0000  -2.3184   0.0000   0.0000   0.2304   0.0000   0.0000   2.0881
-                 2.23894E-02   dx=   0.0000   0.0000   0.6783   0.0000   0.0000  -0.7327   0.0000   0.0000   0.0544
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+        0.30000  2.25883E-02    x=   0.0000   0.0000  -2.3240   0.0000   0.0000   0.2374   0.0000   0.0000   2.0866
+                 2.23360E-02   dx=   0.0000   0.0000   0.6942   0.0000   0.0000  -0.7193   0.0000   0.0000   0.0251
           save file, system command=  cp ./h3.movecs ./h3.movecs.P00.30                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.P00.30                                                                                                                                                                                                                                  
  Symmetry group is C4V
-        0.35000  2.16711E-02    x=   0.0000   0.0000  -2.3549   0.0000   0.0000   0.2643   0.0000   0.0000   2.0906
-                 2.24686E-02   dx=   0.0000   0.0000   0.7157   0.0000   0.0000  -0.6982   0.0000   0.0000  -0.0175
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+        0.35000  2.14736E-02    x=   0.0000   0.0000  -2.3599   0.0000   0.0000   0.2721   0.0000   0.0000   2.0879
+                 2.21804E-02   dx=   0.0000   0.0000   0.7409   0.0000   0.0000  -0.6676   0.0000   0.0000  -0.0733
           save file, system command=  cp ./h3.movecs ./h3.movecs.P00.35                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.P00.35                                                                                                                                                                                                                                  
  Symmetry group is C4V
-        0.40000  2.05630E-02    x=   0.0000   0.0000  -2.3929   0.0000   0.0000   0.2959   0.0000   0.0000   2.0970
-                 2.21524E-02   dx=   0.0000   0.0000   0.7454   0.0000   0.0000  -0.6612   0.0000   0.0000  -0.0842
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+        0.40000  2.03746E-02    x=   0.0000   0.0000  -2.3979   0.0000   0.0000   0.3040   0.0000   0.0000   2.0939
+                 2.17675E-02   dx=   0.0000   0.0000   0.7736   0.0000   0.0000  -0.6129   0.0000   0.0000  -0.1607
           save file, system command=  cp ./h3.movecs ./h3.movecs.P00.40                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.P00.40                                                                                                                                                                                                                                  
  Symmetry group is C4V
-        0.45000  1.94780E-02    x=   0.0000   0.0000  -2.4319   0.0000   0.0000   0.3253   0.0000   0.0000   2.1066
-                 2.16406E-02   dx=   0.0000   0.0000   0.7673   0.0000   0.0000  -0.6254   0.0000   0.0000  -0.1419
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+        0.45000  1.92988E-02    x=   0.0000   0.0000  -2.4371   0.0000   0.0000   0.3334   0.0000   0.0000   2.1037
+                 2.12644E-02   dx=   0.0000   0.0000   0.7931   0.0000   0.0000  -0.5646   0.0000   0.0000  -0.2286
           save file, system command=  cp ./h3.movecs ./h3.movecs.P00.45                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.P00.45                                                                                                                                                                                                                                  
  Symmetry group is C4V
-        0.50000  1.84218E-02    x=   0.0000   0.0000  -2.4715   0.0000   0.0000   0.3528   0.0000   0.0000   2.1186
-                 2.10279E-02   dx=   0.0000   0.0000   0.7827   0.0000   0.0000  -0.5927   0.0000   0.0000  -0.1900
+ FA-1: Before ev. Fock matrices ...
+ FA-3: After ev. Fock matrices ...
+        0.50000  1.82496E-02    x=   0.0000   0.0000  -2.4770   0.0000   0.0000   0.3606   0.0000   0.0000   2.1164
+                 2.07042E-02   dx=   0.0000   0.0000   0.8036   0.0000   0.0000  -0.5270   0.0000   0.0000  -0.2765
           save file, system command=  cp ./h3.movecs ./h3.movecs.P00.50                                                                                                                                                                                                                              
           save file, system command=  cp ./h3.hess ./h3.hess.P00.50                                                                                                                                                                                                                                  
 
@@ -517,30 +619,30 @@
      R = reactants, P = products, * = saddle point or starting geometry
 
          s           V               x (mass weighted)
- R   -187.14614  0.00000E+00         0.0000   0.0000 -78.2806   0.0000   0.0000 -76.5799   0.0000   0.0000 154.8605
- P    187.13776 -1.33227E-15         0.0000   0.0000-154.8605   0.0000   0.0000  76.5799   0.0000   0.0000  78.2806
+ R   -187.13093  0.00000E+00         0.0000   0.0000 -78.2806   0.0000   0.0000 -76.5799   0.0000   0.0000 154.8605
+ P    187.13093  0.00000E+00         0.0000   0.0000-154.8605   0.0000   0.0000  76.5799   0.0000   0.0000  78.2806
  *      0.00000  2.70840E-02         0.0000   0.0000  -2.1620   0.0000   0.0000   0.0000   0.0000   0.0000   2.1620
   
-       -0.50000  1.85581E-02         0.0000   0.0000  -2.1094   0.0000   0.0000  -0.3552   0.0000   0.0000   2.4646
-       -0.45000  1.95910E-02         0.0000   0.0000  -2.0964   0.0000   0.0000  -0.3289   0.0000   0.0000   2.4253
-       -0.40000  2.06500E-02         0.0000   0.0000  -2.0872   0.0000   0.0000  -0.2995   0.0000   0.0000   2.3867
-       -0.35000  2.17325E-02         0.0000   0.0000  -2.0835   0.0000   0.0000  -0.2663   0.0000   0.0000   2.3498
-       -0.30000  2.28356E-02         0.0000   0.0000  -2.0860   0.0000   0.0000  -0.2298   0.0000   0.0000   2.3158
-       -0.25000  2.39371E-02         0.0000   0.0000  -2.0938   0.0000   0.0000  -0.1912   0.0000   0.0000   2.2850
-       -0.20000  2.49814E-02         0.0000   0.0000  -2.1053   0.0000   0.0000  -0.1516   0.0000   0.0000   2.2569
-       -0.15000  2.58879E-02         0.0000   0.0000  -2.1194   0.0000   0.0000  -0.1116   0.0000   0.0000   2.2311
-       -0.10000  2.65702E-02         0.0000   0.0000  -2.1341   0.0000   0.0000  -0.0721   0.0000   0.0000   2.2062
-       -0.05000  2.69417E-02         0.0000   0.0000  -2.1050   0.0000   0.0000  -0.0157   0.0000   0.0000   2.1961
-        0.05000  2.69417E-02         0.0000   0.0000  -2.1458   0.0000   0.0000   0.0660   0.0000   0.0000   2.1553
-        0.10000  2.65092E-02         0.0000   0.0000  -2.1995   0.0000   0.0000   0.0776   0.0000   0.0000   2.1219
-        0.15000  2.58170E-02         0.0000   0.0000  -2.2241   0.0000   0.0000   0.1172   0.0000   0.0000   2.1069
-        0.20000  2.49185E-02         0.0000   0.0000  -2.2526   0.0000   0.0000   0.1562   0.0000   0.0000   2.0964
-        0.25000  2.38871E-02         0.0000   0.0000  -2.2842   0.0000   0.0000   0.1942   0.0000   0.0000   2.0900
-        0.30000  2.27886E-02         0.0000   0.0000  -2.3184   0.0000   0.0000   0.2304   0.0000   0.0000   2.0881
-        0.35000  2.16711E-02         0.0000   0.0000  -2.3549   0.0000   0.0000   0.2643   0.0000   0.0000   2.0906
-        0.40000  2.05630E-02         0.0000   0.0000  -2.3929   0.0000   0.0000   0.2959   0.0000   0.0000   2.0970
-        0.45000  1.94780E-02         0.0000   0.0000  -2.4319   0.0000   0.0000   0.3253   0.0000   0.0000   2.1066
-        0.50000  1.84218E-02         0.0000   0.0000  -2.4715   0.0000   0.0000   0.3528   0.0000   0.0000   2.1186
+       -0.50000  1.82496E-02         0.0000   0.0000  -2.1164   0.0000   0.0000  -0.3606   0.0000   0.0000   2.4770
+       -0.45000  1.92988E-02         0.0000   0.0000  -2.1037   0.0000   0.0000  -0.3334   0.0000   0.0000   2.4371
+       -0.40000  2.03746E-02         0.0000   0.0000  -2.0939   0.0000   0.0000  -0.3040   0.0000   0.0000   2.3979
+       -0.35000  2.14736E-02         0.0000   0.0000  -2.0879   0.0000   0.0000  -0.2721   0.0000   0.0000   2.3599
+       -0.30000  2.25883E-02         0.0000   0.0000  -2.0866   0.0000   0.0000  -0.2374   0.0000   0.0000   2.3240
+       -0.25000  2.36969E-02         0.0000   0.0000  -2.0902   0.0000   0.0000  -0.2003   0.0000   0.0000   2.2906
+       -0.20000  2.47546E-02         0.0000   0.0000  -2.0984   0.0000   0.0000  -0.1616   0.0000   0.0000   2.2600
+       -0.15000  2.56943E-02         0.0000   0.0000  -2.1103   0.0000   0.0000  -0.1219   0.0000   0.0000   2.2322
+       -0.10000  2.64389E-02         0.0000   0.0000  -2.1252   0.0000   0.0000  -0.0815   0.0000   0.0000   2.2067
+       -0.05000  2.69183E-02         0.0000   0.0000  -2.1426   0.0000   0.0000  -0.0408   0.0000   0.0000   2.1834
+        0.05000  2.69183E-02         0.0000   0.0000  -2.1834   0.0000   0.0000   0.0408   0.0000   0.0000   2.1426
+        0.10000  2.64389E-02         0.0000   0.0000  -2.2067   0.0000   0.0000   0.0815   0.0000   0.0000   2.1252
+        0.15000  2.56943E-02         0.0000   0.0000  -2.2322   0.0000   0.0000   0.1219   0.0000   0.0000   2.1103
+        0.20000  2.47546E-02         0.0000   0.0000  -2.2600   0.0000   0.0000   0.1616   0.0000   0.0000   2.0984
+        0.25000  2.36969E-02         0.0000   0.0000  -2.2906   0.0000   0.0000   0.2003   0.0000   0.0000   2.0902
+        0.30000  2.25883E-02         0.0000   0.0000  -2.3240   0.0000   0.0000   0.2374   0.0000   0.0000   2.0866
+        0.35000  2.14736E-02         0.0000   0.0000  -2.3599   0.0000   0.0000   0.2721   0.0000   0.0000   2.0879
+        0.40000  2.03746E-02         0.0000   0.0000  -2.3979   0.0000   0.0000   0.3040   0.0000   0.0000   2.0939
+        0.45000  1.92988E-02         0.0000   0.0000  -2.4371   0.0000   0.0000   0.3334   0.0000   0.0000   2.1037
+        0.50000  1.82496E-02         0.0000   0.0000  -2.4770   0.0000   0.0000   0.3606   0.0000   0.0000   2.1164
 
 
  Summary of MEP data
@@ -549,61 +651,58 @@
   Cartesian coordinates, x
 
         s (au)   V (kcal/mol)        x (Angstroms)
- R   -187.14614  0.00000E+00
- P    187.13776 -8.36011E-13
+ R   -187.13093  0.00000E+00
+ P    187.13093  0.00000E+00
  *      0.00000  1.69954E+01         0.0000   0.0000  -0.9342   0.0000   0.0000   0.0000   0.0000   0.0000   0.9342
-       -0.50000  1.16454E+01         0.0000   0.0000  -0.9114   0.0000   0.0000  -0.1535   0.0000   0.0000   1.0649
-       -0.45000  1.22935E+01         0.0000   0.0000  -0.9058   0.0000   0.0000  -0.1421   0.0000   0.0000   1.0479
-       -0.40000  1.29581E+01         0.0000   0.0000  -0.9018   0.0000   0.0000  -0.1294   0.0000   0.0000   1.0312
-       -0.35000  1.36373E+01         0.0000   0.0000  -0.9002   0.0000   0.0000  -0.1151   0.0000   0.0000   1.0153
-       -0.30000  1.43295E+01         0.0000   0.0000  -0.9013   0.0000   0.0000  -0.0993   0.0000   0.0000   1.0006
-       -0.25000  1.50208E+01         0.0000   0.0000  -0.9047   0.0000   0.0000  -0.0826   0.0000   0.0000   0.9873
-       -0.20000  1.56761E+01         0.0000   0.0000  -0.9097   0.0000   0.0000  -0.0655   0.0000   0.0000   0.9752
-       -0.15000  1.62449E+01         0.0000   0.0000  -0.9158   0.0000   0.0000  -0.0482   0.0000   0.0000   0.9640
-       -0.10000  1.66731E+01         0.0000   0.0000  -0.9221   0.0000   0.0000  -0.0312   0.0000   0.0000   0.9533
-       -0.05000  1.69062E+01         0.0000   0.0000  -0.9095   0.0000   0.0000  -0.0068   0.0000   0.0000   0.9489
-        0.05000  1.69062E+01         0.0000   0.0000  -0.9272   0.0000   0.0000   0.0285   0.0000   0.0000   0.9313
-        0.10000  1.66348E+01         0.0000   0.0000  -0.9503   0.0000   0.0000   0.0335   0.0000   0.0000   0.9168
-        0.15000  1.62004E+01         0.0000   0.0000  -0.9610   0.0000   0.0000   0.0506   0.0000   0.0000   0.9103
-        0.20000  1.56366E+01         0.0000   0.0000  -0.9733   0.0000   0.0000   0.0675   0.0000   0.0000   0.9058
-        0.25000  1.49894E+01         0.0000   0.0000  -0.9869   0.0000   0.0000   0.0839   0.0000   0.0000   0.9030
-        0.30000  1.43001E+01         0.0000   0.0000  -1.0017   0.0000   0.0000   0.0995   0.0000   0.0000   0.9022
-        0.35000  1.35988E+01         0.0000   0.0000  -1.0175   0.0000   0.0000   0.1142   0.0000   0.0000   0.9033
-        0.40000  1.29035E+01         0.0000   0.0000  -1.0339   0.0000   0.0000   0.1278   0.0000   0.0000   0.9061
-        0.45000  1.22226E+01         0.0000   0.0000  -1.0508   0.0000   0.0000   0.1405   0.0000   0.0000   0.9102
-        0.50000  1.15598E+01         0.0000   0.0000  -1.0679   0.0000   0.0000   0.1525   0.0000   0.0000   0.9154
+       -0.50000  1.14518E+01         0.0000   0.0000  -0.9145   0.0000   0.0000  -0.1558   0.0000   0.0000   1.0703
+       -0.45000  1.21102E+01         0.0000   0.0000  -0.9090   0.0000   0.0000  -0.1440   0.0000   0.0000   1.0530
+       -0.40000  1.27852E+01         0.0000   0.0000  -0.9047   0.0000   0.0000  -0.1314   0.0000   0.0000   1.0361
+       -0.35000  1.34749E+01         0.0000   0.0000  -0.9021   0.0000   0.0000  -0.1175   0.0000   0.0000   1.0197
+       -0.30000  1.41744E+01         0.0000   0.0000  -0.9016   0.0000   0.0000  -0.1026   0.0000   0.0000   1.0041
+       -0.25000  1.48700E+01         0.0000   0.0000  -0.9031   0.0000   0.0000  -0.0866   0.0000   0.0000   0.9897
+       -0.20000  1.55337E+01         0.0000   0.0000  -0.9067   0.0000   0.0000  -0.0698   0.0000   0.0000   0.9765
+       -0.15000  1.61234E+01         0.0000   0.0000  -0.9118   0.0000   0.0000  -0.0527   0.0000   0.0000   0.9645
+       -0.10000  1.65907E+01         0.0000   0.0000  -0.9183   0.0000   0.0000  -0.0352   0.0000   0.0000   0.9535
+       -0.05000  1.68915E+01         0.0000   0.0000  -0.9258   0.0000   0.0000  -0.0176   0.0000   0.0000   0.9434
+        0.05000  1.68915E+01         0.0000   0.0000  -0.9434   0.0000   0.0000   0.0176   0.0000   0.0000   0.9258
+        0.10000  1.65907E+01         0.0000   0.0000  -0.9535   0.0000   0.0000   0.0352   0.0000   0.0000   0.9183
+        0.15000  1.61234E+01         0.0000   0.0000  -0.9645   0.0000   0.0000   0.0527   0.0000   0.0000   0.9118
+        0.20000  1.55337E+01         0.0000   0.0000  -0.9765   0.0000   0.0000   0.0698   0.0000   0.0000   0.9067
+        0.25000  1.48700E+01         0.0000   0.0000  -0.9897   0.0000   0.0000   0.0866   0.0000   0.0000   0.9031
+        0.30000  1.41744E+01         0.0000   0.0000  -1.0041   0.0000   0.0000   0.1026   0.0000   0.0000   0.9016
+        0.35000  1.34749E+01         0.0000   0.0000  -1.0197   0.0000   0.0000   0.1175   0.0000   0.0000   0.9021
+        0.40000  1.27852E+01         0.0000   0.0000  -1.0361   0.0000   0.0000   0.1314   0.0000   0.0000   0.9047
+        0.45000  1.21102E+01         0.0000   0.0000  -1.0530   0.0000   0.0000   0.1440   0.0000   0.0000   0.9090
+        0.50000  1.14518E+01         0.0000   0.0000  -1.0703   0.0000   0.0000   0.1558   0.0000   0.0000   0.9145
 
 
   Frequencies
 
         s (au)                      frequencies (cm^-1)
- R   -187.14614                     4657.16
- P    187.13776                     4657.16
- *      0.00000                     2054.91  1121.41  1121.41 -2292.04
+ R   -187.13093                     4657.16
+ P    187.13093                     4657.16
+ *      0.00000                     2054.92  1121.41  1121.41 -2292.10
   
-       -0.50000                    12110.94  1174.42  1174.42
-       -0.45000                    11798.16  1340.61  1340.61
-       -0.40000                    11351.39  1578.28  1578.28
-       -0.35000                    10722.15  1867.64  1867.64
-       -0.30000                     9920.16  2138.28  2138.28
-       -0.25000                     9001.49  2332.95  2332.95
-       -0.20000                     8033.62  2430.39  2430.39
-       -0.15000                     7089.51  2431.13  2431.13
-       -0.10000                     6260.60  2341.66 -2401.50
-       -0.05000                     5923.87  2110.56 -2567.74
-        0.05000                     4866.34  1678.80 -3125.81
-        0.10000                     4539.38  1490.89 -3253.49
-        0.15000                     4370.71  1266.28 -3143.40
-        0.20000                     4268.29  1108.06 -2882.55
-        0.25000                     4215.77 -1237.32 -2479.43
-        0.30000                     4195.20 -1388.36 -1945.26
-        0.35000                     4193.56 -1483.92 -1483.92
-        0.40000                     4203.24 -1537.73 -1537.73
-        0.45000                     4220.10 -1562.40 -1562.40
-        0.50000                     4242.17  1813.48 -1567.30
+       -0.50000                     3916.30   578.10   578.10
+       -0.45000                     3761.97   645.15   645.15
+       -0.40000                     3560.02   721.63   721.63
+       -0.35000                     3304.03   804.68   804.68
+       -0.30000                     3009.79   887.84   887.84
+       -0.25000                     2717.57   963.02   963.02
+       -0.20000                     2467.55  1024.21  1024.21
+       -0.15000                     2278.61  1069.33  1069.33
+       -0.10000                     2151.08  1099.26  1099.26
+       -0.05000                     2078.42  1116.04  1116.04
+        0.05000                     2078.42  1116.04  1116.04
+        0.10000                     2151.08  1099.26  1099.26
+        0.15000                     2278.61  1069.33  1069.33
+        0.20000                     2467.55  1024.21  1024.21
+        0.25000                     2717.57   963.02   963.02
+        0.30000                     3009.79   887.84   887.84
+        0.35000                     3304.03   804.68   804.68
+        0.40000                     3560.02   721.63   721.63
+        0.45000                     3761.97   645.15   645.15
+        0.50000                     3916.30   578.09   578.09
  drdy_NWChem has finished correctly, bye !
 
- Task  times  cpu:      176.2s     wall:      196.5s
- Note: IEEE floating-point exception flags raised: 
-    Inexact;  Underflow; 
- See the Numerical Computation Guide, ieee_flags(3M) 
+ Task  times  cpu:        3.4s     wall:       11.1s
