@@ -20,10 +20,6 @@ h2o-ssb-d-opt:
 
    The dispersion correction does not seem to get included in trunk
 
-tce_polar_ccsdt_small:
-
-   Not yet tested with 6.0, because CCSDTLR is not compiled in by default
-
 tce_c20_triplet:
 
    Not yet tested with 6.0, because it took 256 cores 2 hours on MPP2
