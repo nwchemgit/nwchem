@@ -7,11 +7,6 @@ pyqa:
    Prints the contents of the RTDB. However, in the trunk version these arrays
    are much longer than in the release. As a result this really polutes the output.
 
-vectors_rotate:
-
-   The trunk multipole analysis is very different from the 6.0 release, which 
-   is not surprising since it is singlet O2, and thus very touchy
-
 h2o-ssb-d:
 
    The dispersion correction does not seem to get included in trunk
@@ -23,10 +18,6 @@ h2o-ssb-d-opt:
 tce_c20_triplet:
 
    Not yet tested with 6.0, because it took 256 cores 2 hours on MPP2
-
-bsse_dft_trimer:
-
-   Fails, but worked in 5.1.1
 
 k6h2o:
 

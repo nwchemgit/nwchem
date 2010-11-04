@@ -1364,8 +1364,8 @@ c
 c
 c
 
-        if (.not. rtdb_cget(rtdb,'theory', 1, theory))
-     &    call errquit('bsse_hessian: input_vectors',0,RTDB_ERR)
+        if (.not. rtdb_cget(rtdb,'task:theory', 1, theory))
+     &    call errquit('bsse_hessian: get input_vectors',0,RTDB_ERR)
 
 
       lentheo = inp_strlen(theory)
@@ -1526,7 +1526,7 @@ c: return original geom and parameters
 c: store supermolecule parameters
 c
       if (.not. rtdb_cput(rtdb, vec_dbi, 1, vec_spr))
-     &  call errquit('bsse_hessian: input_vectors',0,RTDB_ERR)
+     &  call errquit('bsse_hessian: put input_vectors',0,RTDB_ERR)
 c
 
       if (.not. rtdb_cput(rtdb, vec_dbo, 1,vec_spr))
