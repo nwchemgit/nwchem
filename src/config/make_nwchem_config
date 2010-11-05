@@ -19,7 +19,7 @@ KNOWN_MODULE_SUBDIRS = NWints atomscf ddscf develop gradients moints nwdft \
 	rimp2 stepper driver optim scfaux cphf ccsd vib mcscf prepar \
         esp hessian plane_wave selci dplot mp2_grad oimp2 qhop \
         property nwpw fft rimp2_grad python argos analyz diana nwmd cafe space \
-        drdy vscf uccsdt qmmm qmd etrans tce geninterface bq cons \
+        drdy vscf uccsdt qmmm qmd etrans tce geninterface bq cons raman\
         perfm dntmc transport smd nbo dangchang leps ccca
 
 # These are the libraries for the high-level modules.  They should be
@@ -253,6 +253,7 @@ STUBROUTINES := $(patsubst atomscf,,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ddscf,scf scf_input vectors_input rel_input task_et,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst develop,uccsdtest rjhtest jantest jvltest jvltest2 raktest kgdtest debtest,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst drdy,drdy_input task_drdy,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst raman,raman_input task_raman,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst gradients,grad_force scf_gradient mcscf_gradient gradients_input grad_active_atoms stpr_sjacobi,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst hessian, hess_anal hess_tidy hess_input xc_init_index xc_exit_index hessti xc_hessian xc_cpks_rhs xc_rhogen_nucder xc_d2expl xc_cpks_coeff xc_tabcd_cpks_lhs xc_tabcd_cpks_rhs xc_rhogen_pert dft_3dacc hess_check uhf_fock_setup shell_fock_build,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ccsd,ccsd ccsd_input,$(STUBROUTINES) )
