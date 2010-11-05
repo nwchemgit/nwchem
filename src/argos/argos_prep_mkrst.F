@@ -28,9 +28,9 @@ c
      + argos_prep_rstsiz,argos_prep_wtrst
       external argos_prep_rdrst,argos_prep_disres,argos_prep_fix,
      + argos_prep_rstsiz,argos_prep_wtrst
-      logical util_nwchemrc_get,argos_prep_rrst,argos_prep_rstsz,
+      logical argos_prep_rrst,argos_prep_rstsz,
      + argos_prep_wrtxyz
-      external util_nwchemrc_get,argos_prep_rrst,argos_prep_rstsz,
+      external argos_prep_rrst,argos_prep_rstsz,
      + argos_prep_wrtxyz
       logical argos_prep_align,argos_prep_repeat,argos_prep_transl,
      + argos_prep_removw,argos_prep_wrtpov
