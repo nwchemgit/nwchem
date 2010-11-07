@@ -521,8 +521,8 @@ c
       if (.not.MA_Free_Heap(lxyz))
      &   call errquit('grid_den: cannot free heap',0, MA_ERR)
 c
- 123  format(' WARNING: error on integrated density =',
-     , d10.2,/' greater than required accuracy of',d10.2)
+ 123  format(' Warning: integrated density =',
+     , d10.2,/' greater than required accuracy ',d10.2)
 
       return
       end
