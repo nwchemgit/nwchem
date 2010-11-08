@@ -1,11 +1,6 @@
- 
-Processor list
- 
-cu04n[119,121]
- 
-ARMCI configured for 2 cluster nodes. Network protocol is 'OpenIB Verbs API'.
+HP-MPI licensed for ISV application.
 All connections between all procs tested: SUCCESS
- argument  1 = /mscf/home/d3p852/nwchem-5.1.1/QA/tests/pyqa/pyqa.nw
+ argument  1 = pyqa.nw
 
 
 
@@ -107,19 +102,19 @@ task python
            Job information
            ---------------
 
-    hostname      = cu4n119
-    program       = /scratch/nwchem
-    date          = Fri Oct 29 11:40:17 2010
+    hostname      = cu0login2
+    program       = /hptc_cluster/scicons/apps/nwchem-6.0.oct19/bin/LINUX64/nwchem
+    date          = Mon Nov  8 11:38:16 2010
 
-    compiled      = Thu_Oct_28_07:10:53_2010
+    compiled      = Mon_Nov_01_15:59:31_2010
     source        = /home/scicons/user/kurt/nwchem-6.0-release-pgf90-final/
     nwchem branch = 6.0
-    input         = /mscf/home/d3p852/nwchem-5.1.1/QA/tests/pyqa/pyqa.nw
+    input         = pyqa.nw
     prefix        = testpy.
     data base     = ./testpy.db
     status        = startup
-    nproc         =        8
-    time left     =   1764s
+    nproc         =        1
+    time left     =     -1s
 
 
 
@@ -147,10 +142,6 @@ task python
                                 -------------------
 
 
-  library name resolved from: environment
-  library file name is: <
- /mscf/scicons/apps/nwchem-6.0.oct19//src/basis/libraries/>
-  
                       Basis "ao basis" -> "" (cartesian)
                       -----
   h (Hydrogen)
@@ -223,42 +214,10 @@ INT     =  1010
 DBL     =  1013
 CHAR    =  1000
 LOGICAL =  1011
-value check:
-INT     =  1010
-DBL     =  1013
-CHAR    =  1000
-LOGICAL =  1011
-value check:
-INT     =  1010
-DBL     =  1013
-CHAR    =  1000
-LOGICAL =  1011
- Done 1
- Done 1
-value check:
-INT     =  1010
-DBL     =  1013
-CHAR    =  1000
-LOGICAL =  1011
- Done 1
- Done 2
- Done 2
  Done 1
  Done 2
  Done 3
- Done 3
- Done 2
- Done 3
  Done 4
- Done 4
- Done 3
- Done 4
- Done 5
- Done 5
- Done 4
- Done 5
- Done 6
- Done 6
  Done 5
  Done 6
 
@@ -267,17 +226,17 @@ LOGICAL =  1011
 
  Entry                                   Type[nelem]           Date
  ---------------------------  ----------------------  ------------------------
- test_int2                                int[1]      Fri Oct 29 11:40:17 2010 
+ test_int2                                int[1]      Mon Nov  8 11:38:17 2010 
 22 
- basis:names                             char[9]      Fri Oct 29 11:40:17 2010 
+ basis:names                             char[9]      Mon Nov  8 11:38:16 2010 
 ao basis
- :print                                  char[5]      Fri Oct 29 11:40:17 2010 
+ :print                                  char[5]      Mon Nov  8 11:38:16 2010 
 none
- task:theory                             char[7]      Fri Oct 29 11:40:17 2010 
+ task:theory                             char[7]      Mon Nov  8 11:38:16 2010 
 python
- test_dbl                              double[3]      Fri Oct 29 11:40:17 2010 
+ test_dbl                              double[3]      Mon Nov  8 11:38:17 2010 
 2.29000000000000e+01 1.24000000000000e+01 2.39080000000000e+01 
- basis:ao basis:tags info                 int[280]    Fri Oct 29 11:40:17 2010 
+ basis:ao basis:tags info                 int[280]    Mon Nov  8 11:38:16 2010 
 2 3 3 1 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
@@ -286,11 +245,11 @@ python
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
- test_int                                 int[3]      Fri Oct 29 11:40:17 2010 
+ test_int                                 int[3]      Mon Nov  8 11:38:17 2010 
 22 10 3 
- basis:ao basis:star nr tags              int[1]      Fri Oct 29 11:40:17 2010 
+ basis:ao basis:star nr tags              int[1]      Mon Nov  8 11:38:16 2010 
 0 
- basis:ao basis:contraction info            int[80000]  Fri Oct 29 11:40:17 2010 
+ basis:ao basis:contraction info            int[80000]  Mon Nov  8 11:38:16 2010 
 0 2 1 1 3 0 1 0 0 1 1 5 6 0 5 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
@@ -351,7 +310,6 @@ python
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
- Done 6
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
@@ -2515,159 +2473,45 @@ python
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
 0 0 0 0 0 0 0 0 
- basis:ao basis:bs_nr_tags                int[1]      Fri Oct 29 11:40:17 2010 
+ basis:ao basis:bs_nr_tags                int[1]      Mon Nov  8 11:38:16 2010 
 1 
- test_logic                           logical[6]      Fri Oct 29 11:40:17 2010 
+ test_logic                           logical[6]      Mon Nov  8 11:38:17 2010 
 f f t f f f 
- basis:ao basis:bs_stdname               char[6]      Fri Oct 29 11:40:17 2010 
+ basis:ao basis:bs_stdname               char[6]      Mon Nov  8 11:38:16 2010 
 3-21g
- basis:ao basis:header                    int[7]      Fri Oct 29 11:40:17 2010 
+ basis:ao basis:header                    int[7]      Mon Nov  8 11:38:16 2010 
 1 2 3 3 6 0 0 
- test_logic2                          logical[1]      Fri Oct 29 11:40:17 2010 
+ test_logic2                          logical[1]      Mon Nov  8 11:38:17 2010 
 f 
- basisprint:ao basis                  logical[1]      Fri Oct 29 11:40:17 2010 
+ basisprint:ao basis                  logical[1]      Mon Nov  8 11:38:16 2010 
 f 
- basis:ao basis:number of exps and coeffs            int[1]      Fri Oct 29 11:40:17 2010 
+ basis:ao basis:number of exps and coeffs            int[1]      Mon Nov  8 11:38:16 2010 
 6 
- basis:ao basis:exps and coeffs         double[6]      Fri Oct 29 11:40:17 2010 
+ basis:ao basis:exps and coeffs         double[6]      Mon Nov  8 11:38:16 2010 
 5.44717800000000e+00 8.24547000000000e-01 1.56285000000000e-01 9.04691000000000e-01 
 1.83192000000000e-01 1.00000000000000e+00 
- test_str                                char[7]      Fri Oct 29 11:40:17 2010 
+ test_str                                char[7]      Mon Nov  8 11:38:17 2010 
 hello
 
- basis:nbasis                             int[1]      Fri Oct 29 11:40:17 2010 
+ basis:nbasis                             int[1]      Mon Nov  8 11:38:16 2010 
 1 
- file_prefix                             char[7]      Fri Oct 29 11:40:17 2010 
+ file_prefix                             char[7]      Mon Nov  8 11:38:16 2010 
 testpy
- basis:ao basis:assoc ecp name           char[4]      Fri Oct 29 11:40:17 2010 
+ basis:ao basis:assoc ecp name           char[4]      Mon Nov  8 11:38:16 2010 
  
  
- basis:ao basis:bs_tags                  char[2]      Fri Oct 29 11:40:17 2010 
+ basis:ao basis:bs_tags                  char[2]      Mon Nov  8 11:38:16 2010 
 h
- rtdb:stored:state                    logical[3]      Fri Oct 29 11:40:17 2010 
+ rtdb:stored:state                    logical[3]      Mon Nov  8 11:38:16 2010 
 f f f 
 
 test_str    =  hello
-test_str    =  hello
-test_str    =  hello
-test_str    =  hello
-test_int    =  [22, 10, 3]
-test_int    =  [22, 10, 3]
-test_int    =  [22, 10, 3]
-test_int    =  [22, 10, 3]
-test_in2    =  22
-test_in2    =  22
-test_in2    =  22
-test_in2    =  22
-test_dbl    =  [22.899999999999999, 12.4, 23.908000000000001]
-test_dbl    =  [22.899999999999999, 12.4, 23.908000000000001]
-test_dbl    =  [22.899999999999999, 12.4, 23.908000000000001]
-test_dbl    =  [22.899999999999999, 12.4, 23.908000000000001]
-test_logic  =  [0, 1, 0, 1, 0, 1]
-test_logic  =  [0, 1, 0, 1, 0, 1]
-test_logic  =  [0, 1, 0, 1, 0, 1]
-test_logic  =  [0, 1, 0, 1, 0, 1]
-test_logic2 =  0
-test_logic2 =  0
-test_logic2 =  0
-test_logic2 =  0
-value check:
-INT     =  1010
-DBL     =  1013
-CHAR    =  1000
-LOGICAL =  1011
-value check:
-INT     =  1010
-DBL     =  1013
-CHAR    =  1000
-LOGICAL =  1011
-value check:
-INT     =  1010
-DBL     =  1013
-CHAR    =  1000
-LOGICAL =  1011
-value check:
-INT     =  1010
-DBL     =  1013
-CHAR    =  1000
-LOGICAL =  1011
- Done 1
- Done 2
- Done 3
- Done 4
- Done 5
- Done 6
- Done 1
- Done 2
- Done 3
- Done 4
- Done 5
- Done 6
-test_str    =  hello
- Done 1
- Done 2
- Done 3
- Done 4
- Done 5
- Done 6
-test_str    =  hello
- Done 1
- Done 2
- Done 3
- Done 4
- Done 5
- Done 6
-test_str    =  hello
-test_str    =  hello
-test_int    =  [22, 10, 3]
-test_in2    =  22
-test_int    =  [22, 10, 3]
-test_in2    =  22
-test_int    =  [22, 10, 3]
-test_in2    =  22
 test_int    =  [22, 10, 3]
 test_in2    =  22
 test_dbl    =  [22.899999999999999, 12.4, 23.908000000000001]
-test_dbl    =  [22.899999999999999, 12.4, 23.908000000000001]
-test_dbl    =  [22.899999999999999, 12.4, 23.908000000000001]
-test_dbl    =  [22.899999999999999, 12.4, 23.908000000000001]
-test_logic  =  [0, 1, 0, 1, 0, 1]
-test_logic  =  [0, 1, 0, 1, 0, 1]
-test_logic2 =  0
-test_logic  =  [0, 1, 0, 1, 0, 1]
-test_logic2 =  0
-test_logic2 =  0
 test_logic  =  [0, 1, 0, 1, 0, 1]
 test_logic2 =  0
 0.4 -0.922872125631
-0.4 -0.922872125631
-0.4 -0.922872125631
-0.4 -0.922872125631
-0.4 -0.922872125631
-0.4 -0.922872125631
-0.4 -0.922872125631
-0.4 -0.922872125631
-0.5 -1.0508013667
-0.5 -1.0508013667
-0.5 -1.0508013667
-0.5 -1.0508013667
-0.5 -1.0508013667
-0.5 -1.0508013667
-0.5 -1.0508013667
 0.5 -1.0508013667
 0.6 -1.10472131353
-0.6 -1.10472131353
-0.6 -1.10472131353
-0.6 -1.10472131353
-0.6 -1.10472131353
-0.6 -1.10472131353
-0.6 -1.10472131353
-0.6 -1.10472131353
-(-1.1229598354450396, [0.0, 0.0, -4.5014363348472308e-06, 0.0, 0.0, 4.5014363348472308e-06])
-(-1.1229598354450396, [0.0, 0.0, -4.5014363348472308e-06, 0.0, 0.0, 4.5014363348472308e-06])
-(-1.1229598354450396, [0.0, 0.0, -4.5014363348472308e-06, 0.0, 0.0, 4.5014363348472308e-06])
-(-1.1229598354450396, [0.0, 0.0, -4.5014363348472308e-06, 0.0, 0.0, 4.5014363348472308e-06])
-(-1.1229598354450396, [0.0, 0.0, -4.5014363348472308e-06, 0.0, 0.0, 4.5014363348472308e-06])
-(-1.1229598354450396, [0.0, 0.0, -4.5014363348472308e-06, 0.0, 0.0, 4.5014363348472308e-06])
-(-1.1229598354450396, [0.0, 0.0, -4.5014363348472308e-06, 0.0, 0.0, 4.5014363348472308e-06])
-(-1.1229598354450396, [0.0, 0.0, -4.5014363348472308e-06, 0.0, 0.0, 4.5014363348472308e-06])
+(-1.1229598354450401, [0.0, 0.0, -4.5014363341255859e-06, 0.0, 0.0, 4.5014363341255859e-06])

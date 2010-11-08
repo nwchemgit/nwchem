@@ -2,16 +2,7 @@ dft_bsse:
 
    Trunk version loses the Bq centers although they have basis functions on them.
 
-pyqa:
-
-   Prints the contents of the RTDB. However, in the trunk version these arrays
-   are much longer than in the release. As a result this really polutes the output.
-
-h2o-ssb-d:
-
-   The dispersion correction does not seem to get included in trunk
-
-h2o-ssb-d-opt:
+h2o-ssb-d & h2o-ssb-d-opt:
 
    The dispersion correction does not seem to get included in trunk
 
@@ -19,11 +10,7 @@ tce_c20_triplet:
 
    Not yet tested with 6.0, because it took 256 cores 2 hours on MPP2
 
-k6h2o:
-
-   Generates runtime errors, just like 5.1.1 version - Marat has been asked about it
-
-lysH-qmmm:
+k6h2o & lysH-qmmm:
 
    Generates runtime errors, just like 5.1.1 version - Marat has been asked about it
 
