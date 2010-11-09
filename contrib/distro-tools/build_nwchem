@@ -32,7 +32,7 @@ export NWCHEM_MODULES="all"
 export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/LINUX64/nwchem
 export LDOPTIONS="-static -static-libgcc -static-libgfortran"
 option=$1
-if [ $1 == "python" ]; then
+if [ "x$1" == "xpython" ]; then
   export PYTHONVERSION=2.4
   export PYTHONHOME=/usr
   export PYTHONPATH=./:$NWCHEM_TOP/contrib/python/
@@ -40,7 +40,7 @@ if [ $1 == "python" ]; then
   echo "Building NWChem including Python $PYTHONVERSION"
   echo "===================================="
   option=""
-elif [ $1 == "python64" ]; then
+elif [ "x$1" == "xpython64" ]; then
   export USE_PYTHON64=yes
   export PYTHONVERSION=2.4
   export PYTHONHOME=/usr

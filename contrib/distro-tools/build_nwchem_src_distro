@@ -22,6 +22,7 @@ if [ -d ${target} ] ; then
 fi
 cp -a ${source} ${target}
 export NWCHEM_TOP=${target}
+export NWCHEM_TARGET=LINUX64
 #
 # Make sure we include the Global Arrays
 #
