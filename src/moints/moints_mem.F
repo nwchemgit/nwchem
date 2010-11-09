@@ -32,7 +32,8 @@ c
      $     call errquit('moints_numoper: cannot get basis info',0,
      &       BASIS_ERR)
 c
-c Get minimum local memory that any
+c      Get minimum local memory that any processor has
+c      in the units of double precision floating point numbers
 c
        mem_avail = ma_inquire_avail(MT_DBL)
        mem_min_local = mem_avail
@@ -54,24 +55,43 @@ c
        endif
        mem_req = mem_int + mem_mo + mem_blk + mem_buf1 + mem_buf2
 c
-c 10% safety margin
+c      Add 10% safety margin
 c
        mem_req = mem_req*1.1
        if (mem_req.gt.mem_min_local) call errquit
      $      ('moints_mem: not enough local memory to do transformation',
      $      mem_req, MEM_ERR)
 c
-c Reconcile local and global memory requirements
+c      Reconcile local and global memory requirements
 c
        noper = (nocc*(nocc+1))/2
        if (ga_uses_ma()) then
          noper_node = (mem_min_local-mem_req)/(nbf*nbf)
          moints_numoper = ga_nnodes()*noper_node
        else
-         gmem_max = ga_memory_avail()
+c
+c        Calculate available Global Array memory in terms of 
+c        double precision floating point numbers
+c
+         gmem_max = ga_memory_avail()/ma_sizeof(MT_DBL,1,MT_BYTE)
          if (gmem_max.gt.0) then
-           moints_numoper = gmem_max/(nbf*nbf)
-           noper_node = moints_numoper/ga_nnodes()
+c
+c          Calculate the number of operators we can hold per node, 
+c          while taking into account the constraint on the data
+c          distribution that all nbf*nbf (sixfold) or nbf*nvir
+c          (twofold) values of a given operator will reside on one node.
+c
+           if (algo.eq.'sixfold') then
+             noper_node = (gmem_max+1-nbf*nbf)/(nbf*nbf)
+           else
+             noper_node = (gmem_max+1-nbf*nvir)/(nbf*nvir)
+           endif
+c
+c          Calculate the total number of operators we can store
+c          exploiting the aggregate memory available to the job
+c          (see also ga_uses_ma().eq..true. branch).
+c
+           moints_numoper = ga_nnodes()*noper_node
          else
            call errquit('cannot determine transformation GA',0,
      &       GA_ERR)
