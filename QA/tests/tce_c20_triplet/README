@@ -6,3 +6,7 @@ tilesize = 15
 
 attilesize = 40
 (attilesize)^4 => 2.5 MB
+
+The following line is needed to get this bad boy to run on chinook
+unsetenv MA_USE_ARMCI_MEM
+
