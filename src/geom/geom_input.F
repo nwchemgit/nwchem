@@ -2997,13 +2997,13 @@ C
         ENDIF
       ENDDO
 c
-c     ----- Check for X,Bq and remove them from list -----
-c     ----- Special check for Xe -------------------------
+c     ----- Check for X and remove them from list ---------------------
+c     ----- Special check for Xe --------------------------------------
+c     ----- Bq are ghost centers and not to be touched ----------------
 c
  230  continue
       do icenter=1,ncenter
-         if ((inp_compare(.false.,tags(icenter)(1:1),'x')).or.
-     &       (inp_compare(.false.,tags(icenter)(1:2),'bq')).and.
+         if ((inp_compare(.false.,tags(icenter)(1:1),'x')).and.
      &       (.not.inp_compare(.false.,tags(icenter)(1:2),'xe'))) then
             do jcenter=icenter+1,ncenter
                coords(1,jcenter-1)=coords(1,jcenter)

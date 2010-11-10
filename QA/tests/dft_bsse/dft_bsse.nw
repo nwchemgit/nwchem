@@ -55,7 +55,6 @@ basis "ao basis" spherical print
   H library "aug-cc-pVDZ"
   O library "aug-cc-pVDZ"
   bqH library H aug-cc-pVDZ
-  XH library H aug-cc-pVDZ
   bqO library O aug-cc-pVDZ
 END
 
