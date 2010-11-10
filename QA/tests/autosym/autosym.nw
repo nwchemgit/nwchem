@@ -1202,3 +1202,68 @@ geometry units angstrom noautoz autosym
  H                     3.08650000    -1.52616667    -1.24384167
 end
 
+
+
+##### These examples show how symmetry effects the entropy.
+##### Exact same molecule has different entropy depending upon 
+##### the percieved entropy
+BASIS "ao basis" spherical
+* library "sto-3g"
+END
+
+
+geometry units au
+   c       0.00000000     0.00000000     0.00000000
+   h       1.18989170     1.18989170     1.18989170
+   h      -1.18989170    -1.18989170     1.18989170
+   h      -1.18989170     1.18989170    -1.18989170
+   h       1.18989170    -1.18989170    -1.18989170
+symmetry Td
+end
+
+task scf freq
+
+geometry units au
+   c       0.00000000     0.00000000     0.00000000
+   h       1.18989170     1.18989170     1.18989170
+   h      -1.18989170    -1.18989170     1.18989170
+   h      -1.18989170     1.18989170    -1.18989170
+   h       1.18989170    -1.18989170    -1.18989170
+symmetry D2
+end
+
+task scf freq
+
+geometry units au
+   c       0.00000000     0.00000000     0.00000000
+   h       1.18989170     1.18989170     1.18989170
+   h      -1.18989170    -1.18989170     1.18989170
+   h      -1.18989170     1.18989170    -1.18989170
+   h       1.18989170    -1.18989170    -1.18989170
+symmetry S4 
+end
+
+task scf freq
+
+geometry units au
+   c       0.00000000     0.00000000     0.00000000
+   h       1.18989170     1.18989170     1.18989170
+   h      -1.18989170    -1.18989170     1.18989170
+   h      -1.18989170     1.18989170    -1.18989170
+   h       1.18989170    -1.18989170    -1.18989170
+symmetry C2
+end
+
+task scf freq
+
+geometry units au
+   c       0.00000000     0.00000000     0.00000000
+   h       1.18989170     1.18989170     1.18989170
+   h      -1.18989170    -1.18989170     1.18989170
+   h      -1.18989170     1.18989170    -1.18989170
+   h       1.18989170    -1.18989170    -1.18989170
+symmetry C1
+end
+
+task scf freq
+
