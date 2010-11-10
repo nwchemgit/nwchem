@@ -451,8 +451,8 @@ c
        do iorb=1,nocc(ispin)
          call get_gdensZ4_ith(basis,geom,iorb,nbf,ispin,
      &                        nocc(ispin),scftyp_dbl)
-         if (do_NonRel.eq. .true. .or. 
-     &       not_zora_scale .eq. .true.) then
+         if (do_NonRel.eqv. .true. .or. 
+     &       not_zora_scale .eqv. .true.) then
              scale=1.0d0
          else 
              scale=1.0d0/dbl_mb(k_Ci+porb-1)

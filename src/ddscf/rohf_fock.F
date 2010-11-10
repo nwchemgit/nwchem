@@ -132,7 +132,7 @@ c
       call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
 c +++++ update g_hcore if using ZORA--- FA-11-08-10 ++++ START
 c ==> For closed shell systems
-       if (do_zora.eq. .true. .and. do_NonRel.eq. .false.) then
+       if (do_zora.eqv. .true. .and. do_NonRel.eqv. .false.) then
 c       write(*,*) 'Adding g_zora_Kinetic ...'
         call ga_dadd(1.d0,g_hcore,1.d0,g_zora_Kinetic(1),g_hcore)
        endif

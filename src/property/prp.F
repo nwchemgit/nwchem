@@ -160,10 +160,10 @@ c
       if(noden.eq.0) call hnd_eldmap(rtdb,basis,geom)
 c
 c     ----- giao -nmr- chemical shifts -----
-      if(nogiao.eq.0 .and. do_zora.eq..false.) 
+      if(nogiao.eq.0 .and. do_zora.eqv..false.) 
      $  call hnd_giaox(rtdb,basis,geom)
  
-      if(nogiao.eq.0 .and. do_zora.eq..true.) then
+      if(nogiao.eq.0 .and. do_zora.eqv..true.) then
         if (ga_nodeid().eq.0) then
          write(*,*) " +++++++++++++++++++++++++++++++++++++++++"
          write(*,*) " +++ NMR Shieldings with ZORA-SR +++ START"

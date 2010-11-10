@@ -158,7 +158,7 @@ c     scale the eigenvalues and energy
         eval_scal = evals(iorb)
         if (ispin.gt.1) eval_scal = evals(iorb + nbf)
         zora_eint = ga_ddot(g_dens_sf,g_zora_scale_sf(ispin)) ! FA
-        if (do_NonRel.eq. .true. .or. not_zora_scale.eq. .true.) then
+        if (do_NonRel.eqv. .true. .or. not_zora_scale.eqv. .true.) then
          zora_denom=1.0d0
          ener_scal = ener_scal-eval_scal ! for skipping scaling
         else

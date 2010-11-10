@@ -182,11 +182,11 @@ c     === define fac_arr
 c      == assemble hartree and nuclear contributions ==
        amat_tot =-amat_coul(k,1)+amat_nucl(k)
        Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
-c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       if (do_NonRel.eq. .true.) then ! remove it after TEST
-         Kzora=1.0d0                  ! remove it after TEST
-       endif                          ! remove it after TEST
-c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+       if (do_NonRel.eqv. .true.) then ! remove it after TEST
+         Kzora=1.0d0                   ! remove it after TEST
+       endif                           ! remove it after TEST
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
        fac1=Kzora*qwght(k)
        fac5(k)=fac1*amat_NMRnucl4dia(k)
        do n=1,3
@@ -384,11 +384,11 @@ c     === define fac_arr
 c      == assemble hartree and nuclear contributions ==
        amat_tot =-amat_coul(k,1)+amat_nucl(k)
        Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
-c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       if (do_NonRel.eq. .true.) then ! remove it after TEST
-         Kzora=1.0d0                  ! remove it after TEST
-       endif                          ! remove it after TEST
-c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+       if (do_NonRel.eqv. .true.) then ! remove it after TEST
+         Kzora=1.0d0                   ! remove it after TEST
+       endif                           ! remove it after TEST
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
        fac1(k)=Kzora*qwght(k)
        do n=1,3
         fac2(n,k)=fac1(k)*qxyz(n,k)
