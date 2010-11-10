@@ -75,7 +75,8 @@ c
       if(xcfit) acc_xc_gauss=dble(ixcacc)
       mbf_ao=nbf_ao
       if(natoms.gt.1) then
-         call icopy(mbf_ao, 0,0, ibf_ao, 1)
+         call icopy(mbf_ao, 0,0, ibf_ao, 1)  
+
          mbf_ao=grid_nbfm(AO_bas_han,  natoms, 
      &        ictr_buf,rad,xyz,qxyz,nqpts,
      &        ibf_ao, docset, iniz, ifin, expo, 
@@ -93,7 +94,7 @@ c
             ibf_ao(i)=i
          enddo
       endif
-c     
+
       if (.not.MA_Push_Get(mt_dbl, nqpts*mbf_ao, 'chi_ao', 
      &     lchi_ao, ichi_ao))
      &     call errquit('grid_quadv0b: cannot allocate chi_ao',0,
@@ -110,7 +111,7 @@ c
      &        call errquit(' grid_quadv0b: grid_sicinit failed',0,
      &       CALC_ERR)
       endif
-c     
+
       if (odftps) call pstat_on(ps_ebf)
       call qdist(rchi_atom, rq, qxyz, xyz, nqpts, natoms)
       call xc_eval_basis(ao_bas_han, maxdbas, dbl_mb(ichi_ao),
@@ -175,8 +176,8 @@ c
       endif
 c     
 c     Evaluate the integrated charge density.
-c     
-
+c   
+  
       nqtot = nqtot + nqpts
 c     
       rho0=rho_int
@@ -233,6 +234,7 @@ c
          if(do_scf) then
 c
          if (odftps) call pstat_on(ps_tabcd)
+
             call xc_tabcd(0,l3d,
      &        tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
      &        0d0,0d0,0d0,0d0,
@@ -244,6 +246,7 @@ c
      &        rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,
      &        kske,Mmat,0d0)
+
          if (odftps) call pstat_off(ps_tabcd)
 c
          else if (do_nmrks_r) then
@@ -258,8 +261,8 @@ c
             if (.not.MA_Push_Get(mt_dbl,nqpts,
      &           'iFmat', l_scr,k_scr))
      &           call errquit('grid_quadv0b: cannot allocate iFmat',0,
-     &          MA_ERR)
-c
+     &          MA_ERR)        
+
             call xc_tabcd(3,.true.,
      T           tol_rho, Fmat, Pmat, Amat, Bmat, Cmat, Dbl_MB(iDmat), 
      E           Dbl_MB(iEmat), Dbl_MB(iFmat),  qxyz,xyz,
@@ -270,6 +273,7 @@ c
      G           g_vxc, ibf_ao, rchi_atom, rdelchi_atom,
      &           rdens_atom, cetobfr,
      &           kske, Mmat, dbl_mb(k_scr))
+
 c
             if (.not.ma_chop_stack(lEmat))
      &         call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
@@ -302,21 +306,24 @@ c
       endif
 
  2010 continue
-c
+
       if (.not.ma_pop_stack(lDmat))
      &      call errquit('grid_quadv0b: cannot pop stack', 1, MA_ERR)
+
       if (sic_orb_index.eq.1) then
          if(.not.grid_sicend(l_vect1,ldelrho_sig))
      ,        call errquit(' grid_quadv0b: grid_sicend failed',0,
      &       CALC_ERR)
       endif
+
       if(grad)then
          if (.not.ma_pop_stack(ldelchi_ao))
      &        call errquit('grid_quadv0b: cannot pop stack', 2, MA_ERR)
       endif
+
       if (.not.ma_pop_stack(lchi_ao))
      &     call errquit('grid_quadv0b: cannot pop stack', 3, MA_ERR)
-c
+
       return
       end
 c

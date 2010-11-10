@@ -374,6 +374,7 @@ c
           endif
          end if
 c
+
          call grid_quadv0a(g_dens,ncoef_max,nctrs,rho_int,nqtot, 
      &        int_mb(iniz), int_mb(ifin), 
      &        dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ihess), 
@@ -391,6 +392,7 @@ c
      ,        l3d,triplet,
      ,        dbl_mb(itau), dbl_mb(ittau), 
      &        dbl_mb(immat), dbl_mb(k_mmat2),StericEnergyTotal)
+      
       else
 c
          if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
@@ -444,6 +446,7 @@ c Qin
 c end Qin
 
       endif ! grid_written
+
 c     
       if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,.false.)) call
      .     errquit(' gridquadv0: xcrepclose failed ',0, DISK_ERR)
@@ -463,17 +466,20 @@ c
 c
 c         call ga_print(g_vxc(1))
       endif
-c
+
       call ga_igop(Msg_nqtot,nqtot,1,'+')
       call ga_dgop(Msg_Excrho,dummy,3,'+')
+
       if(xcfit) call ga_dgop(Msg_Tmat,Tmat,nbf_xc*ipol,'+')
+   
+
       if (nExc.eq.1)then
          Exc(1) = Exc(1) + Ec + Ex
       else
          Exc(1) = Exc(1) + Ex
          Exc(2) = Exc(2) + Ec
       endif
-c
+
 c     == Print total steric energy ==
 c
       if (lsteric) then
@@ -495,7 +501,7 @@ c
       else
          nelec=noc(1)+noc(2)
       endif
-         
+        
       if(oprintw) then
          if(sic_orb_occ.eq.0) then
             rho_err=abs(rho_int-dble(nelec))/nelec
@@ -507,9 +513,9 @@ c
      &        write(LuOut,123) rho_err,job_grid_acc
          end if
       endif
-
+      
       rho_n = rho_int
-c
+
       if (me.eq.0.and.oprint)then
          write(LuOut,*)
          write(LuOut,'(a,f14.6,a,i8,a,i8)')
@@ -517,10 +523,10 @@ c
      &        rho_int,' npts: ',nqtot,' nctrs: ',nctrs
         write(LuOut,*)
       endif
-c
+
       if (.not.MA_Free_Heap(lxyz))
      &   call errquit('grid_den: cannot free heap',0, MA_ERR)
-c
+
  123  format(' Warning: integrated density =',
      , d10.2,/' greater than required accuracy ',d10.2)
 

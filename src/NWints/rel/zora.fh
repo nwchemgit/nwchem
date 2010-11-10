@@ -12,35 +12,45 @@ c
 czora...constants
         double precision clight_au
         common/zora_consts/clight_au
+czora...zora cutoff
+        double precision zoracutoff
+        common/zora_tols/zoracutoff
 c
 czora...calculation control
 czora...0 = pure kinetic calculated on a grid (for testing)
 czora...1 = zora correction to the kinetic energy
 czora...2 = zora energy scaling
+c------------- EFGZ4---FA----------- START
 czora...3 = zora EFG - Added by Fredy Aquino
-
         double precision zoracutoff_EFG
         common/zora_tols_EFG/zoracutoff_EFG
         integer zora_calc_type
         common/zora_calc/zora_calc_type
-czora .. Electric Field Gradient correction integral
-        integer zora_Qpq
-c Reference: van Lenthe, J.Chem.Phys.,V112,p8279,(2000)
-c            \int d^r' \rho^S_i(\vec{r}') Q_pq(\vec{r},\vec{r}')
-c           zora_Qpq = 1  -> Evaluates Qxx
-c                    = 2  -> Evaluates Qyy
-c                    = 3  -> Evaluates Qzz
-c                    = 4  -> Evaluates Qxy
-c                    = 5  -> Evaluates Qxz
-c                    = 6  -> Evaluates Qyz
-        double precision xyz_EFGcoords(3) ! Added by FA
-        common/zora_EFG/zora_Qpq,xyz_EFGcoords
-c
-czora...zora cutoff
-        double precision zoracutoff
-        common/zora_tols/zoracutoff
-
-        integer g_Ci,g_rhoS,g_AtNr
+        integer g_Ci,g_Cifull(2),g_rhoS,g_AtNr
         integer nlist
-        common/zora_ints/g_Ci,g_rhoS
+        common/zora_ints/g_Ci,g_Cifull,g_rhoS
         common/zora_listAt/g_AtNr,nlist
+c------------- EFGZ4---FA----------- END
+c-------------- NMR-CS-FA----------- START
+        logical do_NonRel
+        common/NonRel_flag/do_NonRel
+        logical do_prntNMRCS
+        common/prntNMRCS_flag/do_prntNMRCS
+        logical not_zora_scale
+        common/zorascale_flag/not_zora_scale
+        double precision zoracutoff_NMR
+        common/zora_tols_NMR/zoracutoff_NMR
+        integer ga_dia     ! OUTPUT
+        integer ga_para1   ! OUTPUT
+        integer ga_h01_num ! OUTPUT
+        integer ga_Fji     ! OUTPUT     
+        common/NMRCS_SRZ4/ga_dia,ga_para1,
+     &                    ga_h01_num,ga_Fji
+c-------------- NMR-CS-FA----------- END
+c-------------- EPR-g-FA----------- START
+        integer ga_dia_epr,ga_para1_epr,ga_h01_epr
+        common/EPRg_SRZ4/ga_dia_epr,ga_para1_epr,
+     &                   ga_h01_epr
+c-------------- EPR-g-FA----------- END
+        integer g_zora_Kinetic(2)
+        common/zora_fock/g_zora_Kinetic

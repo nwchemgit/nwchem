@@ -96,6 +96,27 @@ c------------- zoracutoff_EFG, used in get_rhoS() from dft_zora_utils.F -- FA-01
          if (.not. rtdb_put(rtdb,'zora:cutoff_EFG',                                 ! FA
      &                      mt_dbl,1,zoracutoff_EFG))                               ! FA
      &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)                    ! FA
+c------------- zoracutoff_NMR, used in get_NMR() from dft_zora_utils.F -- FA-11-01-10
+      elseif(inp_compare(.false.,'zora:cutoff_NMR',test)) then                      ! FA
+         if(.not. inp_f(zoracutoff_NMR)) zoracutoff_NMR = 1.0d-08 ! set dflt cutoff   FA
+         if (.not. rtdb_put(rtdb,'zora:cutoff_NMR',                                 ! FA
+     &                      mt_dbl,1,zoracutoff_NMR))                               ! FA
+     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)                    ! FA
+      elseif(inp_compare(.false.,'zora:do_NonRel',test)) then                       ! FA
+         do_NonRel = .true.                                  ! set do_NonRel          FA
+         if (.not. rtdb_put(rtdb,'zora:do_NonRel', mt_log,1,do_NonRel))             ! FA
+     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)                    ! FA
+      elseif(inp_compare(.false.,'zora:do_prntNMRCS',test)) then                    ! FA
+         do_prntNMRCS = .true.                            ! set do_prntNMRCS          FA
+         if (.not. rtdb_put(rtdb,'zora:do_prntNMRCS',                               ! FA
+     &                      mt_log,1,do_prntNMRCS))                                 ! FA
+     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)                    ! FA
+      elseif(inp_compare(.false.,'zora:not_zora_scale',test)) then                  ! FA
+         not_zora_scale = .true.                               ! set not_zora_scale   FA
+         if (.not. rtdb_put(rtdb,'zora:not_zora_scale',                             ! FA
+     &                     mt_log,1,not_zora_scale))                                ! FA
+     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)                    ! FA
+
 c
       else if (inp_compare(.false.,'end', test)) then
 c

@@ -1,13 +1,10 @@
 c=======================================================
 c================ Fredy Aquino's routines ======== START
 c=======================================================
-      subroutine get_rhoS(
-     &                    rtdb,g_dens_ini,nexc,
+      subroutine get_rhoS(rtdb,g_dens_ini,nexc,
      &                    geom, 
      &                    ao_bas_han,
      &                    nbf,nbf_ao,
-     &                    g_movecs,
-     &                    g_zora_scale_sf,
      &                    noc,
      &                    ipol)
 c -- Purpose: Calculation of small component density, \rho_S
@@ -26,11 +23,8 @@ c
 #include "zora.fh" 
 
       integer rtdb     
-      integer g_orb,g_dens_sf
-      integer g_zora_scr(2)        
+      integer g_efgz4(2)        
       integer g_dens_ini(2)   
-      integer g_zora_scale_sf(2)
-      integer g_movecs(2)
       integer noc(2)
       integer ipol
       integer geom
@@ -40,18 +34,35 @@ c
       integer iat,nat,noc1   
       integer l_xyzpt,k_xyzpt,     
      &        l_zanpt,k_zanpt    
+      integer l_ilst,k_ilst,     
+     &        l_jlst,k_jlst,    
+     &        nlst,i,j,count
+      integer g_munu_rhoS,g_munuV6
+c     g_munu_rhoS, contains xx,yy,zz,xy,xz,yz
+c                  munu half-triangle matrices
+c                  including main diagonal
       logical status               
       character*16 element, at_tag  
       double precision scf_dbl,zora_eint,toac 
 c ++++++++++++++++++++++++++++
-      character*100 fname_RSLC
       integer stat_read
       integer iat1,l_AtNr,k_AtNr    
 c ++++++++++++++++++++++++++++
       integer g_densZ4(3)
       integer read_SLCTD_EFG_Atoms
-      external get_densZ4,read_SLCTD_EFG_Atoms 
-      integer nbf,nbf_ao
+      external get_densZ4,read_SLCTD_EFG_Atoms,
+     &         zora_getv_EFGZ4_SR 
+      integer nbf,nbf_ao,pos,ndir
+      integer g_zora_scale_munu(2)
+      integer ipolmunu
+      integer zora_Qpq
+      double precision xyz_EFGcoords(3)   
+      common/munu_EFG/g_munuV6,g_munu_rhoS,
+     &                g_zora_scale_munu,ipolmunu ! munu-matrices
+c     Note.- g_munu_rhoS is created in dft_zora_rhos.F
+c            g_munuV6    is created in hnd_elfcon_symm.F
+c            g_munuV6 is not created/defined here yet
+      
 c
 c---- Input global variables (defined in zora.fh):
 c     1. zora_calc_type  ! =3 -> ZORA4-EFG
@@ -70,10 +81,6 @@ c================================================
         scf_dbl=1.0d00   
         noc1=noc(1)+noc(2)    
       endif
-c     if (ga_nodeid().eq.0)
-c    &  write(*,18) ipol,scf_dbl,noc1
-c18   format('(ipol,scf_dbl,noc1)=(',i3,',',
-c    &       f15.8,',',i4,')')
       status=geom_ncent(geom,nat)
 c----- Allocate memory - FA
       if (.not. ma_alloc_get(mt_dbl,3*nat,'xyz pnt',l_xyzpt,k_xyzpt))
@@ -81,12 +88,14 @@ c----- Allocate memory - FA
       if (.not. ma_alloc_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
      &    call errquit('get_rhoS: ma failed',911,MA_ERR)
 c----- Allocate global arrays - FA
-       if(.not.ga_duplicate(g_zora_scale_sf(1),g_zora_scr(1),'sf 1'))
-     &  call errquit('get_rhoS: ga_duplicate failed',1,GA_ERR)
-        if(ipol.gt.1) then
-         if(.not.ga_duplicate(g_zora_scale_sf(2),g_zora_scr(2),'sf 2'))
-     &   call errquit('get_rhoS: ga_duplicate failed',1,GA_ERR)
-        endif
+        do i=1,ipol
+         if (.not. ga_create(mt_dbl,nbf,nbf,
+     &                       'get_rhoS: g_efgz4',
+     $                       0,0,g_efgz4(i)))
+     $       call errquit('get_rhoS: g_efgz4', 0,
+     &                    GA_ERR)
+             call ga_zero(g_efgz4(i))
+        enddo
 c ++++++++++++++++++++++++++++++++++
 c +++++ Read Atom Nr for EFG calc ++
          if (.not. ga_create(mt_dbl,1,nat,
@@ -104,6 +113,38 @@ c  Allocate memory for l_AtNr,k_AtNr
      &    l_AtNr,k_AtNr))
      &    call errquit('get_rhoS: ma failed',0,MA_ERR)
       call ga_get(g_AtNr,1,1,1,nat,dbl_mb(k_AtNr),1)
+c  Allocat memory for (l_ilst,k_ilst) (l_jlst,k_jlst)
+      nlst=nbf*(nbf+1)/2  ! single triangle matrix
+      if (.not.ma_alloc_get(mt_int,nlst,'ijlst',
+     &                      l_ilst,k_ilst))
+     &    call errquit('get_ijlst: ma failed',0,MA_ERR)
+      if (.not.ma_alloc_get(mt_int,nlst,'ijlst',
+     &                      l_jlst,k_jlst))
+     &    call errquit('get_ijlst: ma failed',0,MA_ERR)
+c ------- create ga_munu_rhoS --- START
+c WARNING : ONLY for one atom
+         ndir=6 ! Nr. directions: xx,yy,zz,xy,xz,yz
+         if (.not. ga_create(mt_dbl,1,nlst*ndir*nlist,
+     &                       'get_munu_rhoS: g_munu_rhoS',
+     $                       0,0,g_munu_rhoS)) 
+     $       call errquit('get_rhoS: g_AtNr', 0,
+     &                    GA_ERR)
+        call ga_zero(g_munu_rhoS)
+c ------- create ga_munu_rhoS --- END
+c    Define (ilst,jlst) indices to store munu-rhoS elem.
+      count=0
+      do i=1,nbf
+       int_mb(k_ilst+count)=i
+       int_mb(k_jlst+count)=i
+       count=count+1      
+      enddo
+      do i=2,nbf
+       do j=1,i-1
+        int_mb(k_ilst+count)=i
+        int_mb(k_jlst+count)=j
+        count=count+1     
+       enddo 
+      enddo
 c ++++++++++++++++++++++++++++++++++
 c--- About content of g_rhoS:
 c--- 1st set of nat*6 elements corresponds to ZORA4-EFG
@@ -117,9 +158,12 @@ c--- 2nd set of nat*6 elements corresponds to NUM-EFG
       pos_dat=1 ! data-counter in g_rhoS
 c     do zora_calc_type =3,4 !  ZORA4-EFG,NUM-EFG
       do zora_calc_type =4,3,-1 !  NUM-EFG,ZORA4-EFG
-      call get_densZ4(rtdb,ao_bas_han,geom,g_densZ4)
-      so_term=0           ! ZORA-spin-free
-      write(*,*) "zora_calc_type=",zora_calc_type
+       do_NonRel=.false.
+       if (zora_calc_type.eq.4) do_NonRel=.true.                  
+       call get_densZ4(rtdb,ao_bas_han,geom,g_densZ4)
+       so_term=0           ! ZORA-spin-free
+       write(*,*) "zora_calc_type=",zora_calc_type
+       pos=0  ! chunk-index counter for g_munu_rhoS
        do iat1=1,nlist  ! nlist <= nat
         iat=dbl_mb(k_AtNr+iat1-1)
         status=geom_cent_get(geom,iat,at_tag,
@@ -136,23 +180,17 @@ c     do zora_calc_type =3,4 !  ZORA4-EFG,NUM-EFG
         endif
         do zora_Qpq=1,6 ! xx,yy,zz,xy,xz,yz - FA
 c------Generate munu A^{pq}_r ----- START
-        call ga_zero(g_zora_scr(1))
-        if (ipol.gt.1) call ga_zero(g_zora_scr(2))
-        call zora_getv(rtdb,g_dens_ini,g_zora_scr,nexc)
-        zora_eint=0.0d0
+          do i=1,ipol
+           call ga_zero(g_efgz4(i))
+          enddo
+          call zora_getv_EFGZ4_SR(rtdb,g_dens_ini, 
+     &                            zora_calc_type,      
+     &                            zora_Qpq,xyz_EFGcoords, 
+     &                            g_efgz4, !  out: munu matrix
+     &                            nexc)
+         zora_eint=0.0d0
          do ispin=1,ipol
-c         write(*,1) iat,zora_Qpq,ispin,pos_dat
-c1        format('--- g_densZ4(',i3,',',i3,',',
-c    &           i3,',',i3,') ----- START')
-c =======================================
-          call ga_sync() ! Syncronizing 
-c =======================================
-c         call ga_print(g_densZ4(ispin))
-c         call ga_print(g_zora_scr(ispin))
-c         write(*,2) iat,zora_Qpq,ispin,pos_dat
-c2        format('--- g_densZ4(',i3,',',i3,',',
-c    &            i3,',',i3,') ----- END')
-          toac=ga_ddot(g_densZ4(ispin),g_zora_scr(ispin)) 
+          toac=ga_ddot(g_densZ4(ispin),g_efgz4(ispin)) 
           zora_eint=zora_eint+toac
           if (ga_nodeid().eq.0) then
            write(*,15) zora_calc_type,iat,zora_Qpq,
@@ -161,13 +199,22 @@ c    &            i3,',',i3,') ----- END')
      &            f15.8,',',f15.8,')')  
           endif
          end do ! ispin-loop
-        call ga_fill_patch(g_rhoS,1,1,pos_dat,pos_dat,zora_eint) 
+c ++++++++++++++++++++
+         if (zora_calc_type.eq.3) then
+          call get_munu_rhos_symm(g_efgz4,ipol,
+     &                            l_ilst,k_ilst,
+     &                            l_jlst,k_jlst,
+     &                            nlst,
+     &                            g_munu_rhoS,pos)
+         endif
+         pos=pos+1
+c ++++++++++++++++++++
+         call ga_fill_patch(g_rhoS,1,1,pos_dat,pos_dat,zora_eint) 
 c------Generate munu A^{pq}_r ----- END
-        pos_dat=pos_dat+1
+         pos_dat=pos_dat+1   
         end do ! zora_Qpq loop
        end do ! iat loop
       end do ! zora_calc_type loop
-
 c----deallocate memory - FA
       if (.not.ma_free_heap(l_zanpt)) call errquit
      &   ('dft_zora_utils, ma_free_heap of l_zanpt failed',911,MA_ERR)
@@ -175,7 +222,15 @@ c----deallocate memory - FA
      &   ('dft_zora_utils, ma_free_heap of l_xyzpt failed',911,MA_ERR)
       if (.not.ma_free_heap(l_AtNr)) call
      &    errquit('dft_zora_utils: ma_free_heap l_AtNr',0, MA_ERR)
+      if (.not.ma_free_heap(l_ilst)) call
+     &    errquit('dft_zora_rhos: ma_free_heap l_ilst',0, MA_ERR)
+      if (.not.ma_free_heap(l_jlst)) call
+     &    errquit('dft_zora_rhos: ma_free_heap l_jlst',0, MA_ERR)
 c ---------------- added by FA ---- end
+        do i=1,ipol
+         if (.not. ga_destroy(g_efgz4(i))) call errquit(
+     &    'dft_zora_rhos: ga_destroy failed ',0, GA_ERR)
+        enddo
       return
       end
 
@@ -223,6 +278,65 @@ c --- Cmunu --> g_dens_sf
      &  'get_gdensZ4_ith: ga_destroy failed ',0, GA_ERR)
       return
       end
+c ------ calculate get_gdensZ4_jith -------------------- START
+c --> To be used in evaluation of F_{ji}^{1k} NMRZ4
+      subroutine get_gdensZ4_jith(basis,geom,
+     &                            jorb,iorb,nbf,ispin,
+     &                            nocc,scftyp_dbl)
+c     Purpose: Calculate Cmunu_jiorb matrix
+c              jorb, can be index of virtual  MO
+c              iorb, can be index of occupied MO
+c              mu,nu indices for AO or Basis Set (BS)
+c     Output : g_dens_sf
+c     Author : Fredy Aquino
+#include "nwc_const.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "bas.fh"
+#include "mafdecls.fh"
+#include "geom.fh"
+#include "stdio.fh"
+#include "rtdb.fh"
+      integer basis     ! [Input] Basis set
+      integer geom      ! [Input] Geometry
+      integer ispin,iorb,jorb,nbf
+      integer nocc
+      integer g_orbj,gorbi,g_dens_sf,prpvectors(2)      
+      integer k_prpocc,l_prpocc    
+      double precision scftyp_dbl    
+      integer  ga_create_atom_blocked   
+      external ga_create_atom_blocked   
+      common /Cmunu/g_dens_sf,prpvectors
+c --- Cmunu --> g_dens_sf                         
+      if (.not.ma_push_get(mt_dbl,nbf*2,'MO occ',l_prpocc,k_prpocc))
+     &   call errquit('get_gdensZ4_jith:ma_push_get l_prpocc',
+     &                0,MA_ERR)
+      g_orbj = ga_create_atom_blocked(geom,basis,'orbs')   
+      g_orbi = ga_create_atom_blocked(geom,basis,'orbs')         
+c ---- Getting Cj (g_orbj) MO coeffs
+      call ga_get(prpvectors(ispin),1,nbf,jorb,jorb,
+     &            dbl_mb(k_prpocc),1)
+      call ga_zero(g_orbj)
+      call ga_put(g_orbj,1,nbf,jorb,jorb,
+     &            dbl_mb(k_prpocc),1)
+c ---- Getting Ci (g_orbi) MO coeffs
+      call ga_get(prpvectors(ispin),1,nbf,iorb,iorb,
+     &            dbl_mb(k_prpocc),1)
+      call ga_zero(g_orbi)
+      call ga_put(g_orbi,1,nbf,iorb,iorb,
+     &            dbl_mb(k_prpocc),1)
+      call ga_zero(g_dens_sf)
+      call ga_dgemm('n','t',nbf,nbf,nocc,scftyp_dbl,
+     &              g_orbj,g_orbi,0.d00,g_dens_sf)
+      if (.not.ma_pop_stack(l_prpocc)) call
+     &    errquit('get_gdensZ4_jith: ma_pop_stack l_occ',0, MA_ERR)
+      if (.not. ga_destroy(g_orbi)) call errquit(
+     &  'get_gdensZ4_jith: ga_destroy failed ',0, GA_ERR)
+      if (.not. ga_destroy(g_orbj)) call errquit(
+     &  'get_gdensZ4_jith: ga_destroy failed ',0, GA_ERR)
+      return
+      end
+c ------ calculate get_gdensZ4_jith -------------------- END
 
       subroutine hnd_prp_get_vecs(rtdb,geom,basis,
      2                            prpvectors,
@@ -257,7 +371,6 @@ c
      &   call errquit('hnd_prp_get_dens:ma_push_get l_prpeval',0,MA_ERR)
       if (.not.ma_push_get(MT_DBL,nbf*2,'MO occ',l_prpocc,k_prpocc)) 
      &   call errquit('hnd_prp_get_dens:ma_push_get l_prpocc',0,MA_ERR)
-c
       call hnd_prp_vec_read(rtdb,geom,basis,nbf,nclosed,nopen,nvirt,
      &                      scftyp,prpvectors,dbl_mb(k_prpocc),
      &                      dbl_mb(k_prpeval),nmo)
@@ -332,23 +445,18 @@ c
       if (.not.ma_alloc_get(mt_dbl,ipol*noc1,'Ci',l_Ci,k_Ci)) 
      &    call errquit('hnd_efgmap_Z4: ma failed',0,MA_ERR)
       call ga_get(g_Ci,1,ipol,1,noc1,dbl_mb(k_Ci),ipol)
-c      do i=1,ipol*noc1
-c       write(*,18) i,dbl_mb(k_Ci+i-1)
-c  18   format('Ci(',i3,')=',f15.8)
-c      end do
-
       do ispin=1,ipol
       porb=ispin
        call ga_zero(g_densZ4(ispin))
        do iorb=1,nocc(ispin)
          call get_gdensZ4_ith(basis,geom,iorb,nbf,ispin,
      &                        nocc(ispin),scftyp_dbl)
-c         write(*,117) ispin,iorb,porb,dbl_mb(k_Ci+porb-1)
-c 117     format('Ci(',i3,',',i3,',',i3,')=',f15.8)
-
-         if (zora_calc_type.eq.3) scale=1.0d0/dbl_mb(k_Ci+porb-1)
-         if (zora_calc_type.eq.4) scale=1.0d0  ! NUM-EFG
-
+         if (do_NonRel.eq. .true. .or. 
+     &       not_zora_scale .eq. .true.) then
+             scale=1.0d0
+         else 
+             scale=1.0d0/dbl_mb(k_Ci+porb-1)
+         endif
          call ga_scale(g_dens_sf,scale)
          call ga_add(1.0d00,g_densZ4(ispin),
      &               1.0d00,g_dens_sf,g_densZ4(ispin))
@@ -406,33 +514,22 @@ c
      $                     1,efgz4atoms))
      $      call errquit('prop_input-EFGZ4: rtdb_get failed',
      $                   555, RTDB_ERR)
-c          write(*,*) "in read-slc: efgz4atoms=",efgz4atoms
          if (efgz4atoms.eq.0) then
           efgz4atoms=nat
-c          if (ga_nodeid().eq.0) 
-c     $     write(*,*) "efgz4atoms=",efgz4atoms
            nlist=efgz4atoms
            do ii=1,efgz4atoms
             AtNr_dbl=ii
             call ga_put(g_AtNr,1,1,ii,ii,AtNr_dbl,1)
-c            if (ga_nodeid().eq.0) 
-c     $        write(*,482) ii,atomnr(ii)
-c 482         format('atomnr(',i3,')=',i5)
            enddo     
          else
           if (.not. rtdb_get(rtdb, 'prop:atnr1',mt_int,
      $                     efgz4atoms,atomnr))
      $      call errquit('prop_input-EFGZ4: rtdb_get failed',
      $                   555, RTDB_ERR)
-c          if (ga_nodeid().eq.0) 
-c     $     write(*,*) "RHOS:efgz4atoms=",efgz4atoms
            nlist=efgz4atoms
            do ii=1,efgz4atoms
             AtNr_dbl=atomnr(ii)
             call ga_put(g_AtNr,1,1,ii,ii,AtNr_dbl,1)
-c            if (ga_nodeid().eq.0) 
-c     $        write(*,481) ii,atomnr(ii)
-c 481         format('atomnr(',i3,')=',i5)
            enddo
          endif
        read_SLCTD_EFG_Atoms = 1
@@ -442,9 +539,58 @@ c 481         format('atomnr(',i3,')=',i5)
        subroutine print_EFGZ4_version()
        implicit none
        write(*,*) "+++++++++++++++++++++++++++++++++"
-       write(*,*) "+ EFG-Z4 Version 04-21-10 12:00 +"
+       write(*,*) "+ EFG-Z4 Version 10-29-10 12:00 +"
        write(*,*) "+ Author: Fredy W. Aquino       +"
        write(*,*) "+++++++++++++++++++++++++++++++++"
+       return
+       end
+
+       subroutine get_munu_rhos_symm(g_munu,ipol,
+     &                               l_ilst,k_ilst,     
+     &                               l_jlst,k_jlst,                                        
+     &                               nlst,
+     &                               g_munu_rhoS,pos)
+c    g_munu_rhoS accumulates xx,yy,zz,xy,xz,yz
+c    matrices in the following format:
+c    11 22 ... (nbf nbf)  -> main diagonal first
+c    21 31 32 41 42 43    ->  off-diagonal later
+c    nbf, number of basis functions
+c    nlst=nbf*(nbf*+1)/2
+c    1st chunk of nlst numbers corresponds to xx
+c    2nd chunk --> yy,  3rd chunk --> zz,
+c    4th chunk --> xy,  5th chunk --> xz,  6th chunk --> yz
+c    Input: pos=0,1,..., chunk-index
+c           --> the size of one chunk is nlst
+       implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "global.fh"
+#include "msgids.fh"
+#include "rtdb.fh" 
+#include "geom.fh" 
+#include "zora.fh" 
+
+       integer g_munu_rhoS
+       integer g_munu(2)
+       integer i,ipol
+       integer nlst,count,pos
+       integer l_ilst,k_ilst,     
+     &         l_jlst,k_jlst
+       integer jlo,jhi
+       double precision v(nlst)
+
+       if (ipol.gt.1) then
+        call ga_add(1.0d00,g_munu(1),
+     &              1.0d00,g_munu(2),g_munu(1))
+       endif
+       call ga_gather(g_munu(1),v,
+     &                int_mb(k_ilst),int_mb(k_jlst),
+     &                nlst)
+c      Now accumulates ith-chunk on g_munu_rhoS
+       jlo=pos*nlst+1
+       jhi=pos*nlst+nlst
+       call ga_put(g_munu_rhoS,1,1,jlo,jhi,v,1)
        return
        end
 c=======================================================

@@ -32,6 +32,9 @@ c
 #include "hnd_rys.fh"
 #include "hnd_tol.fh"
 #include "stdio.fh"
+      integer NoKinetic             ! FA-11-08-10
+      common /skipKinetic/NoKinetic ! FA-11-08-10
+
       common/hnd_xyzder/xint,yint,zint,t,x0,y0,z0,xi,yi,zi,xj,yj,zj,
      1                  ni,nj,ccx,ccy,ccz
       dimension Nxyz(3),xyzi(3),xyzj(3),expi(i_nprim),expj(j_nprim)
@@ -113,6 +116,7 @@ c
 c
 c     ----- kinetic energy -----
 c
+      if (NoKinetic .eq. 1) goto 20 ! SKIP KINETIC ENERGY-FA-11-08-10
       t = sqrt(aa1)
       x0=ax
       y0=ay
@@ -193,6 +197,7 @@ c
             tv10(ij,3)=tv10(ij,3)+cij*(qijz*dum+tijx*dumy-tijy*dumx)
          enddo
       enddo
+ 20   continue ! SKIP KINETIC ENERGY-FA-11-08-10
 c
 c     ----- nuclear attraction -----
 c

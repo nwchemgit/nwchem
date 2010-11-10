@@ -211,22 +211,13 @@ c !!! BGJ
          cosmo_on = .true.
          cosmo_phase = 2
       endif
-      if (ga_nodeid().eq.0) then  ! Added by FA-04-05-10
-       write(*,*) "FA-1: Before ev. Fock matrices ..."
-      endif
       if(scftype .eq. 'UHF')then
          call uhf_init(rtdb)
          call uhf_energy(g_movecs,eone,etwo,enrep,energy,g_work)
       else
-       if (ga_nodeid().eq.0) then  ! Added by FA-04-05-10
-        write(*,*) "FA-2: ENTER ev. ROHF-Fock matrices ..."
-       endif
          call rohf_init(rtdb)
          call rohf_energy(g_movecs,eone,etwo,enrep,energy,g_work,
      ,        rtdb)
-      endif
-      if (ga_nodeid().eq.0) then  ! Added by FA-04-05-10
-       write(*,*) "FA-3: After ev. Fock matrices ..."
       endif
 c !!! BGJ
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
@@ -238,6 +229,12 @@ c !!! BGJ
 c !!! BGJ
 c
       residual = sqrt(ga_ddot(g_work, g_work))
+c ========= CHECK RESIDUAL ============= START
+      if (ga_nodeid().eq.0) then  ! Check residual
+       write(*,1) residual
+ 1     format('residual=',f15.8)
+      endif
+c ========= CHECK RESIDUAL ============= END
       if (residual .gt. 1d-4) then
          if (ga_nodeid() .eq. 0) then
             write(luout,*) ' WARNING: SCF residual = ', residual

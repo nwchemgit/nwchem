@@ -61,7 +61,7 @@ c
 c
       integer inntsize,ddblsize,ok
       logical grid_file_rewind
-      external grid_file_rewind
+      external grid_file_rewind,ga_antisymmetrize
 c
 c     == allocate memory ==
       if (.not.MA_Push_Get(mt_dbl, nbf_ao*nbf_ao,'ovlp', lovlp, iovlp))
@@ -230,6 +230,8 @@ c
      &              int_mb(ibas_cent_info), int_mb(ibas_cset_info))
 c
 c              == calculate scalar and spin-orbit zora contribution ==
+c               goto 101
+               if (ga_nodeid().eq.0) write(*,*) 'calc_zora_so ...'
                call calc_zora_so(ao_bas_han, geom, ipol, g_dens,
      &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao), dbl_mb(iqxyz), 
      &              dbl_mb(iqwght), nbf_ao, nqpts, ncenters, 
@@ -237,6 +239,18 @@ c              == calculate scalar and spin-orbit zora contribution ==
      &              dbl_mb(iscal0), dbl_mb(izorax), dbl_mb(iscalx),
      &              dbl_mb(izoray), dbl_mb(iscaly), dbl_mb(izoraz), 
      &              dbl_mb(iscalz))
+ 101           continue
+               goto 100
+               if (ga_nodeid().eq.0) write(*,*) 'calc_zora_so_FA ...'
+               call calc_zora_so_FA(ao_bas_han, geom, ipol, g_dens,
+     &                              dbl_mb(idelchi_ao), 
+     &                              dbl_mb(iqxyz),dbl_mb(iqwght), 
+     &                              nbf_ao, nqpts, ncenters, 
+     &                              dbl_mb(izora0),dbl_mb(iscal0), 
+     &                              dbl_mb(izorax),dbl_mb(iscalx),
+     &                              dbl_mb(izoray),dbl_mb(iscaly), 
+     &                              dbl_mb(izoraz),dbl_mb(iscalz))
+ 100          continue
 c
 c              == delete memory ==
                if(.not.MA_pop_stack(lchi_ao))
@@ -312,24 +326,30 @@ c
 c     == spin-orbit contributions ==
       call ga_zero(g_zora_so(3)) ! x
       call ga_put(g_zora_so(3),1,nbf_ao,1,nbf_ao,dbl_mb(izorax),nbf_ao)
+c      call ga_antisymmetrize(g_zora_so(3))
 c
       call ga_zero(g_zora_scale_so(3)) ! x
       call ga_put(g_zora_scale_so(3),1,nbf_ao,1,nbf_ao,dbl_mb(iscalx),
      &            nbf_ao)
+c      call ga_antisymmetrize(g_zora_scale_so(3))
 c
       call ga_zero(g_zora_so(2)) ! y
       call ga_put(g_zora_so(2),1,nbf_ao,1,nbf_ao,dbl_mb(izoray),nbf_ao)
+c      call ga_antisymmetrize(g_zora_so(2))
 c
       call ga_zero(g_zora_scale_so(2)) ! y
       call ga_put(g_zora_scale_so(2),1,nbf_ao,1,nbf_ao,dbl_mb(iscaly),
      &            nbf_ao)
+c      call ga_antisymmetrize(g_zora_scale_so(2))
 c
       call ga_zero(g_zora_so(1)) ! z
       call ga_put(g_zora_so(1),1,nbf_ao,1,nbf_ao,dbl_mb(izoraz),nbf_ao)
+c      call ga_antisymmetrize(g_zora_so(1))
 c
       call ga_zero(g_zora_scale_so(1)) ! z
       call ga_put(g_zora_scale_so(1),1,nbf_ao,1,nbf_ao,dbl_mb(iscalz),
      &            nbf_ao)
+c      call ga_antisymmetrize(g_zora_scale_so(1))
 c
 c      Eke = ga_ddot(g_dens(1), g_zora_sf(1))
 c      if (ga_nodeid().eq.0) write(luout,*) "Kinetic_Energy1:",Eke

@@ -198,7 +198,8 @@ c       write(luout,*) "ener_scal:",ener_scal
         call get_rhoS_so(rtdb,g_dens_ini,nexc,
      &                   geom,ao_bas_han,
      &                   nbf,nbf_ao,nbf_mo,
-     &                   g_dens,g_moso,g_zora_scale_sf,
+     &                   g_dens,g_moso,
+c     &                   g_zora_scale_sf,
      &                   noc,nocc,ipol)
 c -------- computing EFGs --------- START
         call hnd_efgmap_Z4_so(rtdb,ao_bas_han,geom,

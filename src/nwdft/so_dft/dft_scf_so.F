@@ -601,8 +601,16 @@ c       == generate an superposition of atomic densities ==
         end if
 c
 c       == calculate the zora atomic corrections ==
+        goto 17
+        if (ga_nodeid().eq.0)
+     &    write(*,*) 'Using zora_getv_so() ...'
         call zora_getv_so(rtdb, g_dens_at, g_zora_sf, g_zora_scale_sf,
-     &        g_zora_so, g_zora_scale_so, nexc)
+     &                    g_zora_so, g_zora_scale_so, nexc)
+ 17     continue
+        if (ga_nodeid().eq.0)
+     &    write(*,*) 'Using zora_getv_so_1() ...'
+        call zora_getv_so_1(rtdb, g_dens_at, g_zora_sf, g_zora_scale_sf,
+     &                      g_zora_so, g_zora_scale_so, nexc)
 c
 c       == write out the atomic zora corrections to file ==
         if (.not.dft_zora_write_so(rtdb, ao_bas_han, zorafilename,

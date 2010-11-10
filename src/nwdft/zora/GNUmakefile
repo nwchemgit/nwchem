@@ -5,13 +5,26 @@
 	dft_zora_utils_so.o\
 	dft_zora_rhos.o\
 	dft_zora_rhos_so.o\
-	grid_zoracorr.o\
-	grid_zoracorr_FA.o\
 	gridNuclearPotential.o\
 	gridQpqPotential.o\
-	zora_getv.o\
+	zora_getv_EFGZ4_SR.o\
+	calc_zora_EFGZ4_SR.o\
+	zora_getv_EFGZ4_SO.o\
+	calc_zora_EFGZ4_SO.o\
+	dft_zora_NMR.o\
+	zora_getv_NMRCS_SR.o\
+	calc_zora_NMRCS_SR.o\
+	dft_zora_EPR.o\
+	dft_zora_EPR-NMR_tools.o\
+	zora_getv_EPR.o\
+	calc_zora_EPR.o\
+	zora_getv_sf_1.o\
+	zora_getv_so_1.o\
 	zora_getv_sf.o\
 	zora_getv_so.o\
+	calc_EFG.o\
+	calc_zora_sf_FA.o\
+	calc_zora_so_FA.o\
 	calc_zora_sf.o\
 	calc_zora_so.o
 

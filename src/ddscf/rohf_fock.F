@@ -15,6 +15,7 @@
 #include "cscfps.fh"
 #include "cosmo.fh"
 #include "case.fh"
+#include "zora.fh" ! FA-adding-ZORA corrections
 c     
 c     Build fock matrices and energies for ROHF wavefunction
 c     
@@ -129,6 +130,13 @@ c     One-electron integrals and energies
 c     
       call ga_zero(g_hcore)
       call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
+c +++++ update g_hcore if using ZORA--- FA-11-08-10 ++++ START
+c ==> For closed shell systems
+       if (do_zora.eq. .true. .and. do_NonRel.eq. .false.) then
+c       write(*,*) 'Adding g_zora_Kinetic ...'
+        call ga_dadd(1.d0,g_hcore,1.d0,g_zora_Kinetic(1),g_hcore)
+       endif
+c +++++ update g_hcore if using ZORA--- FA-11-08-10 ++++ END
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)
       if (util_print('rohf_fock',print_debug)) call ga_print(g_hcore)
 c

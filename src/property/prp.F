@@ -13,23 +13,18 @@ c ... jochen: added some aoresponse stuff here
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "int_nbf.fh"
+#include "zora.fh" ! FA-09-24-10
       integer     rtdb
       logical     status
       logical     some
       logical     out 
-c     data nodip,noqdp,nootp,nopop,nospin,noloc,nodpl,nodhp,nod2hp,
-c    1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noden,
-c    2     nogiao,noston,nospinspin, noaoresponse
-c    3    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
-c    4       1,    1,    1,    1,    1,    1,    1,    1, 
-c    5       1,    1,    1,    1/
-c     Modified by Fredy Aquino to Add EFG-ZORA4
+c     Modified by Fredy Aquino to Add EFG-ZORA4,G-shifts-ZORA
        data nodip,noqdp,nootp,nopop,nospin,noloc,nodpl,nodhp,nod2hp,
      1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noelfgZ4,noden,
-     2     nogiao,noston,nospinspin, noaoresponse
+     2     nogiao,nogshift,noston,nospinspin, noaoresponse
      3    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
      4       1,    1,    1,    1,    1,    1,    1,    1, 
-     5       1,    1,    1,    1,    1/
+     5       1,    1,    1,    1,    1,    1/
 c
       out   =.false.
       some  =.true.        
@@ -45,10 +40,11 @@ c
       status=rtdb_get(rtdb,'prop:esp',MT_INT,1,noelp)               !done
       status=rtdb_get(rtdb,'prop:efield',MT_INT,1,noelf)            !done
       status=rtdb_get(rtdb,'prop:efieldgrad',MT_INT,1,noelfg)       !done
-      status=rtdb_get(rtdb,'prop:efieldgradZ4',MT_INT,1,noelfgZ4) !done FA
+      status=rtdb_get(rtdb,'prop:efieldgradZ4',MT_INT,1,noelfgZ4)   !done FA
       status=rtdb_get(rtdb,'prop:electrondensity',MT_INT,1,noden)   !done
       status=rtdb_get(rtdb,'prop:stoneanalysis',MT_INT,1,noston)
       status=rtdb_get(rtdb,'prop:giao',MT_INT,1,nogiao)             !done
+      status=rtdb_get(rtdb,'prop:gshift',MT_INT,1,nogshift)         !done FA-09-13-10
       status=rtdb_get(rtdb,'prop:spinspin',MT_INT,1,nospinspin)     !done
 c ... jochen:
       status=rtdb_get(rtdb,'prop:aoresponse',MT_INT,1,noaoresponse) !done
@@ -164,8 +160,35 @@ c
       if(noden.eq.0) call hnd_eldmap(rtdb,basis,geom)
 c
 c     ----- giao -nmr- chemical shifts -----
-c
-      if(nogiao.eq.0) call hnd_giaox(rtdb,basis,geom)
+      if(nogiao.eq.0 .and. do_zora.eq..false.) 
+     $  call hnd_giaox(rtdb,basis,geom)
+ 
+      if(nogiao.eq.0 .and. do_zora.eq..true.) then
+        if (ga_nodeid().eq.0) then
+         write(*,*) " +++++++++++++++++++++++++++++++++++++++++"
+         write(*,*) " +++ NMR Shieldings with ZORA-SR +++ START"
+         write(*,*) " +++++++++++++++++++++++++++++++++++++++++"
+        endif
+       call hnd_giaox_ZORA(rtdb,basis,geom)
+        if (ga_nodeid().eq.0) then
+         write(*,*) " +++++++++++++++++++++++++++++++++++++++++"
+         write(*,*) " +++ NMR Shieldings with ZORA-SR +++   END"
+         write(*,*) " +++++++++++++++++++++++++++++++++++++++++"
+        endif
+      end if
+       if(nogshift.eq.0) then
+        if (ga_nodeid().eq.0) then
+         write(*,*) " ===================================="
+         write(*,*) " ========= g shift ======== START"
+         write(*,*) " ===================================="
+        endif
+c        call hnd_giaox_gshift(rtdb,basis,geom)
+        if (ga_nodeid().eq.0) then
+         write(*,*) " ===================================="
+         write(*,*) " ========= g shift ======== END"
+         write(*,*) " ===================================="
+        endif
+      end if
 c
 c     ----- stone's distributed multipole analysis -----
 c

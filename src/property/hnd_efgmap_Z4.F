@@ -67,21 +67,17 @@ c
 c
       pi  = acos(-1.0d0)
       deg = 180.0d0/pi
-c
       call ecce_print_module_entry('efg')
 c
 c     ----- define points for calculation -----
 c           1. nuclei
-c
       status=geom_ncent(geom,nat)
-c
       if (.not. ma_push_get(mt_dbl,3*nat,'xyz pnt',l_xyzpt,k_xyzpt))
      &    call errquit('hnd_efgmap: ma failed',911,MA_ERR)
       if (.not. ma_push_get(mt_dbl,6*nat,'efg pnt',l_efgs,k_efgs))
      &    call errquit('hnd_efgmap: ma failed',911,MA_ERR)
       if (.not. ma_push_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
      &    call errquit('hnd_efgmap: ma failed',911,MA_ERR)
-c
       do 30 iat=1,nat
          status=geom_cent_get(geom,iat,at_tag,dbl_mb(k_xyzpt+3*(iat-1)),
      &                        dbl_mb(k_zanpt+iat-1))
@@ -91,6 +87,9 @@ c  Allocate memory for l_rhoS,k_rhoS
       if (.not.ma_alloc_get(mt_dbl,nat*6*2,'rhoS',
      &    l_rhoS,k_rhoS))
      &    call errquit('hnd_efgmap_Z4: ma failed',0,MA_ERR)
+
+      call ga_print(g_rhoS)
+
       call ga_get(g_rhoS,1,1,1,nat*6*2,dbl_mb(k_rhoS),1)
 c  Allocate memory for l_AtNr,k_AtNr 
       if (.not.ma_alloc_get(mt_dbl,nat,'AtNr',
@@ -100,17 +99,14 @@ c  Allocate memory for l_AtNr,k_AtNr
 c      count_efgtyp=1
       count_efgtyp=0 ! NUM-EFG, Z4-EFG
       do zora_calc_type=4,3,-1
-      call get_densZ4(rtdb,basis,geom,g_densZ4)
-c     if (ga_nodeid().eq.0) 
-c    &  write(*,*) "------- g_densZ4 ---------- START"
-c     call ga_print(g_densZ4(3))
-c     if (ga_nodeid().eq.0) 
-c    &  write(*,*) "------- g_densZ4 ---------- END"
-c     call dcopy(max(nder*3,1)*nat,0.0d0,0,dbl_mb(k_efgs),1)        
-      nder=2
-      call hnd_elfcon(basis,geom,g_densZ4(3),
-     &                dbl_mb(k_xyzpt),nat,
-     &                dbl_mb(k_efgs),nder)
+       write(*,*) 'zora_calc_type=',zora_calc_type
+       do_NonRel=.false.
+       if (zora_calc_type.eq.4) do_NonRel=.true.       
+       call get_densZ4(rtdb,basis,geom,g_densZ4)     
+       nder=2
+       call hnd_elfcon(basis,geom,g_densZ4(3),
+     &                 dbl_mb(k_xyzpt),nat,
+     &                 dbl_mb(k_efgs),nder)
        if (ga_nodeid().eq.0) then ! START-if-do-it-once
         write(*,112)
 c Note.- nlist is defined in zora.fh

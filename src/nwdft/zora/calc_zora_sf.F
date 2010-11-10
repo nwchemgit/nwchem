@@ -96,11 +96,15 @@ c          == calculate scalar zora scaling ==
      &         +qwght(k)*(delchi_ao(k,1,i)*fac2*delchi_ao(k,1,j)
      &                   +delchi_ao(k,2,i)*fac2*delchi_ao(k,2,j) 
      &                   +delchi_ao(k,3,i)*fac2*delchi_ao(k,3,j))   
+c           write(*,2) k,fac1,fac2,fac1*qwght(k),fac2*qwght(k)
+c 2         format('(fac1,fac2,fac1*qw,fac2*qw)(',i5,')=(',
+c     &            f15.8,',',f15.8,',',f15.8,',',f15.8,')')
           enddo
           zorasf(j,i) = zorasf(i,j)
           zorascal(j,i) = zorascal(i,j)
+c          write(*,1) i,j,zorasf(i,j),zorascal(i,j)
+c 1        format('(sf,scl)(',i5,',',i5,')=(',f15.8,',',f15.8,')')
         enddo
       enddo
-c
       return
       end

@@ -1,5 +1,5 @@
-      subroutine hnd_giaox(rtdb,basis,geom)
-c $Id$
+      subroutine hnd_giaox_ZORA(rtdb,basis,geom)
+c $Id: hnd_giaox.F,v 1.10 2007-10-15 23:31:27 bert Exp $
       implicit none
 #include "errquit.fh"
 #include "global.fh"
@@ -12,7 +12,10 @@ c $Id$
 #include "apiP.fh"
 #include "prop.fh"
 #include "bgj.fh"
-c
+#include "zora.fh"  ! for num NMRCS-Z4
+c      Global arrays variables defined in zora.fh
+c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
+
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
       integer geom    ! [input] geometry handle
@@ -25,8 +28,9 @@ c
       integer l_dia, k_dia, l_para, k_para
       integer l_xyz, k_xyz, l_zan, k_zan
       integer l_tmp, k_tmp
-      integer g_dens(3), g_s10, g_h01, g_h11, g_d1, g_rhs, g_fock, g_u
+      integer g_dens(3), g_s10, g_h01, g_d1, g_rhs, g_fock, g_u
       integer vectors(2), geomnew, i, j, ij, g_xc(3)
+      integer vectors_scl(2) ! to be scaled with g_CiFull 
       double precision atn, tol2e, val, isotr, aniso
       double precision jfac(3),kfac(3),a(6),axs(3,3),eig(3),xfac
       character*3 scftyp
@@ -34,17 +38,20 @@ c
       character*32 element
       character*256 cphf_rhs, cphf_sol
       character*2 symbol
-c
+      integer ld(2),cbuf ! FA-08-19-10
       logical  cphf2, file_write_ga, file_read_ga, cphf
       external cphf2, file_write_ga, file_read_ga, cphf
-c
+      external giao_aotomo,hnd_giasym,mat_transpose ! FA-09-16-10
+
+      double precision val1
+
       logical     oskel, status
       double precision ppm
       data ppm     /26.62566914d+00/ 
       data tol2e   /1.0d-10/
       integer NoKinetic
       common /skipKinetic/NoKinetic
-c
+
       if (ga_nodeid().eq.0) write(luout,9999)
 c
 c     Current CPHF does not handle symmetry 
@@ -58,7 +65,7 @@ c
       if (use_theory.eq.'dft') xfac = bgj_kfac()
 c
 c     Integral initialization
-c
+
       call int_init(rtdb,1,basis)
       call schwarz_init(geom,basis)
       call hnd_giao_init(basis,1)
@@ -68,10 +75,10 @@ c     Find out from rtdb which atoms we need to calculate shielding for
 c     Get number of atoms (all or number from rtdb)
 c     Get which atoms (all or some read from rtdb)
 c     Allocate arrays which will hold atomic information (k_zan and k_xyz)
-c
+
       status = rtdb_parallel(.true.)
       if (.not.rtdb_get(rtdb, 'giao:natoms', MT_INT, 1,sh_atom)) then  
-         if (.not.geom_ncent(geom, sh_atom)) call                   
+         if (.not.geom_ncent(geom,sh_atom)) call                   
      &       errquit('hnd_giaox: geom_ncent failed ',0, GEOM_ERR)
       endif
       if (.not. ma_push_get(mt_int,sh_atom,'nmr tmp',l_tmp,k_tmp)) 
@@ -80,15 +87,13 @@ c
      &    call errquit('hnd_giaox: ma_push_get failed k_xyz',0,MA_ERR)
       if (.not. ma_push_get(mt_dbl,sh_atom,'nmr zan',l_zan,k_zan)) 
      &    call errquit('hnd_giaox: ma_push_get failed k_zan',0,MA_ERR)
-c
 c     By default set array from 1 to sh_atom (which is all when giao:natoms is not there)
-c
+
       do ixy = 1, sh_atom
          int_mb(k_tmp+ixy-1) = ixy
       enddo
 c
 c     Try to read the atom list from rtdb. If it is not there, we still have the default list
-c
       status = rtdb_get(rtdb,'giao:atom list',mt_int,sh_atom,
      &                  int_mb(k_tmp))
       do ixy = 0, sh_atom-1
@@ -99,7 +104,7 @@ c
 c
 c     Get Unperturbed MO vectors and eigenvalues
 c     First allocate some memory for occupation numbers and eigenvalues
-c
+
       if (.not. bas_numbf(basis,nbf)) call
      &    errquit('hnd_giaox: could not get nbf',0, BASIS_ERR)
       if (.not. ma_push_get(mt_dbl,2*nbf,'occ num',l_occ,k_occ)) call
@@ -111,12 +116,10 @@ c
      &                      dbl_mb(k_eval),nmo)
 c
 c     Get Unperturbed Density Matrix
-c
       call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
      &                      nclosed,nopen,nvirt)
 c
 c     Return if scftyp equals UHF (= ROHF)
-c
       if (scftyp.eq.'UHF') then
           if (ga_nodeid().eq.0) write(luout,7000)
           goto 911
@@ -124,7 +127,6 @@ c
 c
 c     Create U matrix of dimension (nbf,nmo,3) and zero
 c     Use ahi for dimension and ahi array for chunking/blocking
-c
       alo(1) = nbf
       alo(2) = -1
       alo(3) = -1
@@ -137,7 +139,6 @@ c
 c
 c     Construction of right-hand side CPHF
 c     Create CPHF array of proper dimension : (nocc*nvirt,3)
-c
       if(.not.ga_create(MT_DBL,nclosed(1)*nvirt(1),3,'RHS',-1,-1,g_rhs))
      &   call errquit('hnd_giaox: ga_create failed g_rhs',0,GA_ERR)
       call ga_zero(g_rhs)
@@ -146,14 +147,12 @@ c     NGA dimension arrays for copying will be the same every time
 c     Also third NGA dimension for any of the three dimensional
 c     arrays will be the same everytime (running from 1 to 3)
 c     So, lets define them once and for all in blo and bhi
-c
       blo(1) = 1
       bhi(1) = nclosed(1)*nvirt(1)
       blo(2) = 1
       bhi(2) = 3
 c    
 c     Get S10 in GA and transform to MO set (virt,occ)
-c
       alo(1) = nbf
       alo(2) = -1
       alo(3) = -1
@@ -169,7 +168,6 @@ c
 c
 c     ga_rhs(a,i) = ga_rhs(a,i) - e(i) * S10(a,i)
 c     Scale (occ,virt) block g_s10 with - (minus) eigenvalues 
-c
       alo(1) = nclosed(1)+1
       ahi(1) = nmo
       alo(3) = 1
@@ -186,7 +184,6 @@ c
 c
 c     Copy to ga_rhs 
 c     alo(1) and ahi(1) the same as before
-c
       alo(2) = 1
       ahi(2) = nclosed(1)
       call nga_copy_patch('n',g_s10,alo,ahi,g_rhs,blo,bhi)
@@ -196,7 +193,6 @@ c     Occ-occ blocks for each field direction are defined as -1/2 S10
 c     Scale (occ,occ) block g_s10 with -1/2 and add to g_u
 c
 c     alo(2) and ahi(2) will stay as 1 and nclosed(1) for a while
-c
       alo(1) = 1
       ahi(1) = nclosed(1)
       call nga_scale_patch(g_s10,alo,ahi,-0.5d0)
@@ -206,7 +202,6 @@ c     We also need the occupied-occupied contribution of g_u contributing
 c     to the first order density matrix. As this block does not change 
 c     during the CPHF we can calculate it once and subtract it from the
 c     RHS. We will reuse g_s10 as scratch space.
-c
       call ga_zero(g_s10)
       clo(1) = 3
       clo(2) = nbf
@@ -235,7 +230,6 @@ c
       dhi(2) = nclosed(1)
 c
 c     Create "perturbed density matrix" for closed-closed g_u block
-c
       do ifld = 1, 3
          jfac(ifld) = 0.0d0
          kfac(ifld) = -1.0d0*xfac
@@ -256,13 +250,11 @@ c
 c
 c     Minus sign as we subtract it from the RHS as we do not include 
 c     it in the LHS
-c
          call nga_matmul_patch('n','t',-1.0d0,0.0d0,vectors(1),blo,bhi,
      &                         g_s10,alo,ahi,g_d1,clo,chi)  
       enddo
 c
 c     Build "first order fock matrix"
-c
       if (use_theory.eq.'dft') then
          if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
      $     call errquit('hess_cphf: rtdb_put of xc_active failed',0,
@@ -282,7 +274,6 @@ c
       endif
 c
 c     Transform to the occ-virt MO basis and add to RHS
-c
       call ga_zero(g_s10)
       alo(1) = 1
       ahi(1) = nbf
@@ -325,24 +316,25 @@ c
       enddo
 c
 c     Cleanup of g_d1 and g_fock, not needed for now
-c
       if (.not.ga_destroy(g_d1)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_d1',0,GA_ERR)
       if (.not.ga_destroy(g_fock)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_fock',0,GA_ERR)
 c
 c     Get H10 in GA, reusing g_s10 array
-c
       call ga_zero(g_s10)
-      call int_giao_1ega(basis,basis,g_s10,'l10',dbl_mb(k_xyz),
-     &                   sh_atom,oskel)
-      NoKinetic=0 ! =0 DO-kinetic, =1 SKIP-kinetic
+      NoKinetic=1 ! =0 DO-kinetic, =1 SKIP-kinetic
       call int_giao_1ega(basis,basis,g_s10,'tv10',dbl_mb(k_xyz),
      &                   sh_atom,oskel)
+c ++++++++++++++++++++++++++++++++++++++++
+c +++++++++++ update g_s10 +++++++++ START
+c g_s10=gs10+ga_Fji
+      call ga_add(1.0d0,g_s10,1.0d0,ga_Fji,g_s10)
+c +++++++++++ update g_s10 +++++++++ END
+c ++++++++++++++++++++++++++++++++++++++
 c
 c     ga_rhs(a,i) = ga_rhs(a,i) + H10(a,i)
 c     Transform H10 to MO and add to g_rhs
-c
       call giao_aotomo(g_s10,vectors,nclosed,nvirt,1,3,nbf)
       alo(1) = nclosed(1)+1
       ahi(1) = nmo
@@ -358,13 +350,11 @@ c
      &                   g_rhs,blo,bhi)
 c
 c     Cleanup g_s10 as we do not need it right now
-c
       if (.not.ga_destroy(g_s10)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_s10',0,GA_ERR)
 c
 c     Remaining term is Perturbed (GIAO) two-electron term times Unperturbed density
 c     Calculate Sum(r,s) D0(r,s) * G10(m,n,r,s) in AO basis
-c
       alo(1) = -1 
       alo(2) = -1
       alo(3) = 1
@@ -390,7 +380,6 @@ c
       endif
 c
 c     Transform to MO basis and add to right-hand-side
-c
       call giao_aotomo(g_fock,vectors,nclosed,nvirt,1,3,nbf)
       alo(1) = nclosed(1)+1
       ahi(1) = nmo
@@ -405,12 +394,10 @@ c
       call nga_scale_patch(g_rhs,blo,bhi,-4.0d0)
 c
 c     Write ga_rhs to disk 
-c
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
       call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
       if(.not.file_write_ga(cphf_rhs,g_rhs)) call errquit
      $  ('hnd_giaox: could not write cphf_rhs',0, DISK_ERR)
-c
       call schwarz_tidy()
       call int_terminate()
 c
@@ -430,19 +417,16 @@ c
 c
 c     Occ-virt blocks are the solution pieces of the CPHF
 c     Read solution vector from disk and put solutions in U matrices
-c
       call ga_zero(g_rhs)
       if(.not.file_read_ga(cphf_sol,g_rhs)) call errquit
      $  ('hnd_giaox: could not read cphf_rhs',0, DISK_ERR)      
       call nga_copy_patch('n',g_rhs,blo,bhi,g_u,alo,ahi)
-c
       if (.not.ga_destroy(g_rhs)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_rhs',0,GA_ERR)
 c
 c     From U matrices, generate the perturbed density matrices D1x,y,z
 c     C1 = C0 * U10
 c     D1 = 2[(C1*C0+) - (C0*C1+)]
-c
       alo(1) = nbf
       alo(2) = -1
       alo(3) = -1
@@ -451,7 +435,6 @@ c
       ahi(3) = 3
       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',alo,g_d1)) call 
      &    errquit('hnd_giaox: nga_create failed g_d1',0,GA_ERR)
-c
       alo(1) = 1
       alo(2) = 1
       blo(1) = 1
@@ -464,6 +447,14 @@ c
       dlo(2) = 1
       dhi(1) = nbf
       dhi(2) = nclosed(1)
+c --------- ZORA scaling of MO vectors(1) ----- START
+c Note.- g_CiFull is defined in dft_zora_scale() (source dft_zora_utils.F)
+         if(.not.ga_duplicate(vectors(1),
+     &                        vectors_scl(1),'vscl 1'))
+     &  call errquit('hnd_giaox_Z4: ga_duplicate failed',1,GA_ERR)
+        call ga_copy(vectors(1),vectors_scl(1))
+        call ga_scale_cols(vectors_scl(1),g_CiFull(1))
+c --------- ZORA scaling of MO vectors(1) ----- END
       do ifld = 1, 3
          alo(3) = ifld
          ahi(3) = ifld
@@ -477,9 +468,7 @@ c
          bhi(2) = nmo 
          ahi(1) = nmo
          ahi(2) = nclosed(1)
-c
 c     Make C1
-c
          call nga_matmul_patch('n','n',1.0d0,0.0d0,vectors(1),blo,bhi,  
      &                         g_u,alo,ahi,g_d1,dlo,dhi)  
          call nga_copy_patch('n',g_d1,dlo,dhi,g_u,dlo,dhi)
@@ -487,49 +476,44 @@ c
          bhi(2) = nclosed(1)
          ahi(1) = nclosed(1)
          ahi(2) = nbf
-c
 c     Make D1
-c
-         call nga_matmul_patch('n','t',2.0d0,0.0d0,vectors(1),blo,bhi,  
-     &                      g_u,alo,ahi,g_d1,clo,chi)
+         call nga_matmul_patch('n','t',2.0d0,0.0d0,
+     &                         vectors_scl(1),blo,bhi,  
+     &                         g_u,alo,ahi,g_d1,clo,chi)
          call nga_matmul_patch('n','t',-2.0d0,1.0d0,g_u,blo,bhi,  
-     &                      vectors(1),alo,ahi,g_d1,clo,chi)
+     &                         vectors_scl(1),alo,ahi,g_d1,clo,chi)
       enddo
       if (.not.ga_destroy(g_u)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_u',0,GA_ERR)
-c
 c     Now we have in g_d1(nmo,nmo,3) the derivative densities and
 c     hence we can calculate the contributions to the shielding tensor
-c
       if (.not. ma_push_get(mt_dbl,9*sh_atom,'sh para',l_para,k_para)) 
      &    call errquit('hnd_giaox: ma_push_get failed k_para',0,MA_ERR)
       if (.not. ma_push_get(mt_dbl,9*sh_atom,'sh dia',l_dia,k_dia)) call
      &    errquit('hnd_giaox: ma_push_get failed k_dia',0,MA_ERR)
-c
 c     Before we start getting the integrals we need to reinitialize the
 c     integrals. They were terminated by the cphf.
-c
       call int_init(rtdb,1,basis)
       call schwarz_init(geom,basis)
       call hnd_giao_init(basis,1)
-c
 c     s(para)xy = Sum(n,l) D1x(n,l) * H01y(n,l)
-c
       do ixy = 1, 9*sh_atom
          dbl_mb(k_para+ixy-1) = 0.0d0  ! initialize the paramagnetic part
       enddo
-c
-      alo(1) = nbf
-      alo(2) = -1
-      alo(3) = -1
-      ahi(1) = nbf
-      ahi(2) = nbf
-      ahi(3) = 3*sh_atom
-      if (.not.nga_create(MT_DBL,3,ahi,'H01 matrix',alo,g_h01)) call 
-     &    errquit('hnd_giaox: nga_create failed g_h01',0,GA_ERR)
-      call ga_zero(g_h01)
-      call int_giao_1ega(basis,basis,g_h01,'h01',dbl_mb(k_xyz),
-     &                   sh_atom,oskel)
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+c +++++ Initialize dbl_mb(k_para) with ga_para1 ++++ START
+c ---- STORE: g_para1 --> dbl_mb(k_para)
+      alo(1)=1
+      ahi(1)=3
+      alo(2)=1
+      ahi(2)=3
+      alo(3)=1
+      ahi(3)=sh_atom
+      ld(1)=3
+      ld(2)=3
+      call nga_get(ga_para1,alo,ahi,dbl_mb(k_para),ld)
+c +++++ Initialize dbl_mb(k_para) with g_para1 ++++ END
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++
       alo(1) = 1
       ahi(1) = nbf
       alo(2) = 1
@@ -542,88 +526,54 @@ c
       blo(3) = 0
       bhi(3) = 0
       do iatom = 1, sh_atom
-         do iy = 1, 3
-            blo(3) = blo(3) + 1
-            bhi(3) = bhi(3) + 1
-            do ix = 1, 3
-               alo(3) = ix
-               ahi(3) = ix
-               ixy = ixy + 1
-               dbl_mb(k_para+ixy-1) = nga_ddot_patch(g_d1 ,'n',alo,ahi,
-     &                                               g_h01,'n',blo,bhi)
-               dbl_mb(k_para+ixy-1) = dbl_mb(k_para+ixy-1) * ppm
-            enddo
-         enddo
-         call mat_transpose(dbl_mb(k_para+ixy-9)) ! transpose the paramagnetic part
+       do iy = 1, 3
+        blo(3) = blo(3) + 1
+        bhi(3) = bhi(3) + 1
+        do ix = 1, 3
+         alo(3) = ix
+         ahi(3) = ix
+         ixy = ixy + 1
+         val = nga_ddot_patch(g_d1 ,'n',alo,ahi,
+     &                        ga_h01_num,'n',blo,bhi)
+         cbuf=9*(iatom-1)+3*(ix-1)+iy-1 ! transpose
+         dbl_mb(k_para+cbuf)=dbl_mb(k_para+cbuf)+val*ppm
+        enddo
+       enddo
       enddo
 cf
       if (.not.ga_destroy(g_d1)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_d1',0,GA_ERR)
-      if (.not.ga_destroy(g_h01)) call 
-     &    errquit('hnd_giaox: ga_destroy failed g_h01',0,GA_ERR)
 c
 c     s(dia)xy = Sum(n,l) D0(n,l) * H11(dia)xy(n,l) 
 c     Ordering of H11 blocks is Bxx,Bxy,Bxz,Byx,etc 
-c
       do ixy = 1, 9*sh_atom
          dbl_mb(k_dia+ixy-1)  = 0.0d0  ! initialize the diamagnetic part
       enddo
-c
-      alo(1) = nbf
-      alo(2) = -1
-      alo(3) = -1
-      ahi(1) = nbf
-      ahi(2) = nbf
-      ahi(3) = 9*sh_atom
-      if (.not.nga_create(MT_DBL,3,ahi,'H11 matrix',alo,g_h11)) call 
-     &    errquit('hnd_giaox: nga_create failed g_h11 all',0,GA_ERR)
-c
-      call ga_zero(g_h11)
-      call int_giao_1ega(basis,basis,g_h11,'h11 para',dbl_mb(k_xyz),
-     &                   sh_atom,oskel)
-      alo(1) = 1
-      ahi(1) = nbf
-      alo(2) = 1
-      ahi(2) = nbf
-      ixy = 0
-      do iatom = 1, sh_atom
-         do ix = 1, 9
-            ixy = ixy + 1
-            alo(3) = ixy
-            ahi(3) = ixy
-            val=nga_ddot_patch(g_dens(1),'n',blo,bhi,g_h11,'n',alo,ahi)
-            dbl_mb(k_dia+ixy-1) = dbl_mb(k_dia+ixy-1) + val * ppm 
-         enddo
-      enddo
-c       
-c     s(dia)xy  = s(dia)xy + Sum(n,l) D0(n,l) * H11(dia)xy(n,l)
-c
-      call ga_zero(g_h11)
-      call int_giao_1ega(basis,basis,g_h11,'h11 dia',dbl_mb(k_xyz),
-     &                   sh_atom,oskel)
-      alo(1) = 1
-      ahi(1) = nbf
-      alo(2) = 1
-      ahi(2) = nbf
-      ixy = 0
-      do iatom = 1, sh_atom
-         do ix = 1, 9
-            ixy = ixy + 1
-            alo(3) = ixy
-            ahi(3) = ixy
-            val=nga_ddot_patch(g_dens(1),'n',blo,bhi,g_h11,'n',alo,ahi)
-            dbl_mb(k_dia+ixy-1) =  dbl_mb(k_dia+ixy-1) + val * ppm 
-         enddo
-      enddo
-c
+c ---- STORE: ga_dia --> dbl_mb(k_dia)
+       alo(1)=1
+       ahi(1)=3
+       alo(2)=1
+       ahi(2)=3
+       alo(3)=1
+       ahi(3)=sh_atom
+       ld(1)=3
+       ld(2)=3 
+       call nga_get(ga_dia,alo,ahi,dbl_mb(k_dia),ld)
+c +++++++++ print-total-dia-transferred +++ START
+c      do iatom = 1, sh_atom
+c         do ix = 1, 9
+c          if (ga_nodeid().eq.0) then
+c           write(*,17) iatom,ixy,dbl_mb(k_dia+ix-1)
+c 17        format('dia-NUM(',i3,',',i3,')=',f15.8)
+c          endif
+c         enddo
+c      enddo
+c +++++++++ print-total-dia-transferred +++ END
       if (.not.ga_destroy(g_dens(1))) call 
      &    errquit('hnd_giaox: ga_destroy failed g_dens',0,GA_ERR)
-      if (.not.ga_destroy(g_h11)) call 
-     &    errquit('hnd_giaox: ga_destroy failed g_h11',0,GA_ERR)
 c
 c     Print out tensor information, and write to Ecce file if necessary
-c
-c
+
       call ecce_print_module_entry('nmr')
       do iatom = 1, sh_atom
          ioff = (iatom-1)*9
@@ -694,13 +644,13 @@ c
       call ga_sync()
 c
 c     Clean up all remaining memory
-c
       if (.not.ma_pop_stack(l_dia)) call
      &    errquit('hnd_giaox: ma_pop_stack failed k_dia',0,MA_ERR)
       if (.not.ma_pop_stack(l_para)) call
      &    errquit('hnd_giaox: ma_pop_stack failed k_para',0,MA_ERR)
-c
  911  if (.not.ga_destroy(vectors(1))) call 
+     &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
+      if (.not.ga_destroy(vectors_scl(1))) call 
      &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
 c
       if (.not.ma_pop_stack(l_zan)) call
@@ -731,103 +681,3 @@ c
      3 10x,41(1h-),/)
       end
 c
-      subroutine giao_aotomo(gmat,gvecs,nocc,nvirt,ndens,nblk,nbf)
-c
-      implicit none
-c
-#include "errquit.fh"
-#include "global.fh"
-#include "mafdecls.fh"
-#include "stdio.fh"
-c
-c     Transform the matrix/ces in g_mat from AO to MO basis
-c
-      integer ndens, nblk, nbf
-      integer gmat, gvecs(ndens), nocc(ndens), nvirt(ndens)
-c
-      integer gtmp
-      integer ind, nmo, in, ndns
-      integer alo(3),ahi(3),blo(3),bhi(3),clo(3),chi(3),dlo(2),dhi(2)
-c
-      if (.not.ga_create(MT_DBL,nbf,nbf,'TMP',-1,-1,gtmp))
-     &    call errquit('giao_aotomo: ga_create failed gtmp',0,GA_ERR)
-      alo(1) = 1
-      alo(2) = 1
-      ahi(1) = nbf
-      dlo(1) = 1
-      dlo(2) = 1
-      dhi(2) = nbf
-      blo(1) = 1
-      blo(2) = 1
-      bhi(1) = nbf
-      bhi(2) = nbf
-      clo(1) = 1
-      clo(2) = 1
-      ind = 0
-      do ndns = 1, ndens
-        nmo = nocc(ndns) + nvirt(ndns)
-        ahi(2) = nmo  
-        dhi(1) = nmo
-        chi(1) = nmo
-        chi(2) = nmo
-        do in = 1, nblk 
-          ind = ind + 1
-          blo(3) = ind
-          bhi(3) = ind
-          clo(3) = ind
-          chi(3) = ind
-          call ga_zero(gtmp)
-          call nga_matmul_patch ('t','n', 1.D0, 0.D0,
-     $                           gvecs(ndns), dlo, dhi,
-     $                           gmat       , blo, bhi,
-     $                           gtmp       , dlo, dhi)
-          call nga_matmul_patch ('n','n', 1.D0, 0.D0,
-     $                           gtmp       , dlo, dhi,
-     $                           gvecs(ndns), alo, ahi,
-     $                           gmat       , clo, chi)
-c
-        enddo
-      enddo
-c
-      if (.not.ga_destroy(gtmp)) call 
-     &    errquit('giao_aotomo: ga_destroy failed gtmp',0,GA_ERR)
-c
-      return
-      end
-c
-c     symmetrize matrix
-      subroutine hnd_giasym(dia,para)
-      implicit none
-      double precision dia(3,3), para(3,3)
-      double precision val
-      integer i,j
-c
-      do i = 1, 2
-         do j = i+1, 3
-            val = (dia(i,j) + dia(j,i)) / 2.0d0
-            dia(i,j) = val
-            dia(j,i) = val
-            val = (para(i,j) + para(j,i)) / 2.0d0
-            para(i,j) = val
-            para(j,i) = val
-         enddo
-      enddo
-      return
-      end
-
-c     transpose matrix
-      subroutine mat_transpose(mat)
-      implicit none
-      double precision mat(3,3)
-      double precision val
-      integer i,j
-c
-      do i = 1, 2
-         do j = i+1, 3
-            val = mat(i,j)
-            mat(i,j) = mat(j,i)
-            mat(j,i) = val
-         enddo
-      enddo
-      return
-      end

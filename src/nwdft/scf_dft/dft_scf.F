@@ -509,6 +509,13 @@ c       == zora energy scaling arrays ==
      &     call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
            call ga_zero(g_zora_scale_sf(2))
         endif
+c +++++++ Create g_zora_Kinetic array +++++++ START
+       do i=1,ipol
+       if(.not.ga_duplicate(g_vxc(i),g_zora_Kinetic(i),'sf 1'))
+     &  call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
+        call ga_zero(g_zora_Kinetic(i))
+       enddo
+c +++++++ Create g_zora_Kinetic array +++++++ START
 c
 c       == try reading the zora atomic corrections from file ==
         if (.not.dft_zora_read(zorafilename, nbf_ao, ipol, nmo,
@@ -527,8 +534,22 @@ c       == generate an superposition of atomic densities ==
         end if
 c
 c       == calculate the zora spin-free atomic corrections ==
+        goto 17
+        if (ga_nodeid().eq.0)
+     &    write(*,*) 'Using zora_getv_sf() ...'
         call zora_getv_sf(rtdb, g_dens_at, g_zora_sf, g_zora_scale_sf,
-     &        nexc)
+     &                    nexc)
+ 17     continue
+        if (ga_nodeid().eq.0)
+     &    write(*,*) 'Using zora_getv_sf_1() ...'
+        call zora_getv_sf_1(rtdb, g_dens_at, g_zora_sf, g_zora_scale_sf,
+     &                      nexc)
+c NOTE.-Storing g_zora_Kinetic to be used in rohf_fock.F
+c       for cphf routine - FA-11-08-10
+c       -> g_zora_Kinetic is defined in zora.fh
+         do i=1,ipol
+          call ga_copy(g_zora_sf(i),g_zora_Kinetic(i))
+         enddo
 c
 c       == write out the atomic zora corrections to file ==
         if (.not.dft_zora_write(rtdb, ao_bas_han, zorafilename,

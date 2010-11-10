@@ -9,14 +9,14 @@ c=======================================================
      &                   nbf,nbf_ao,nbf_mo,
      &                   g_dens,
      &                   g_moso,
-     &                   g_zora_scale_sf,
+c     &                   g_zora_scale_sf,
      &                   noc,
      &                   nocc, 
      &                   ipol)
 c -- Purpose: Calculation of small component density, \rho_S
 c             for Electric Field Gradient calculation
 c             Source: van Lenthe, et.al.,JCP, V112,N19,Y2000
-c -- Author : Fredy Aquino 12-07-09
+c -- Author : Fredy Aquino 10-30-10
 
          implicit none
 
@@ -29,11 +29,14 @@ c -- Author : Fredy Aquino 12-07-09
 #include "geom.fh" 
 #include "zora.fh" 
 
+c      integer g_zora_scr(2)        
+c      integer g_zora_scale_sf(2)
+
       integer g_dens(2)
       integer g_moso(2)
-      integer g_zora_scr(2)        
+
       integer g_dens_ini(2)   
-      integer g_zora_scale_sf(2)
+
       integer noc,nocc(2)
       integer ipol
       integer geom
@@ -55,8 +58,13 @@ c ++++++++++++++++++++++++++++
       integer g_densZ4so(5)
       integer g_acc  
       integer read_SLCTD_EFG_Atoms
-      external get_densZ4_so,read_SLCTD_EFG_Atoms   
+      external get_densZ4_so,read_SLCTD_EFG_Atoms,
+     &         zora_getv_EFGZ4_SO   
       integer nbf,nbf_ao,nbf_mo
+      integer zora_Qpq
+      double precision xyz_EFGcoords(3)   
+      integer g_efgz4_sf(2)
+      integer g_efgz4_so(3)
 c
 c---- Input global variables (defined in zora.fh):
 c     1. zora_calc_type  ! =3 -> ZORA4-EFG
@@ -81,12 +89,24 @@ c----- Allocate memory - FA
       if (.not. ma_alloc_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
      &    call errquit('get_rhoS: ma failed',911,MA_ERR)
 c----- Allocate global arrays - FA
-       if(.not.ga_duplicate(g_zora_scale_sf(1),g_zora_scr(1),'sf 1'))
-     &  call errquit('get_rhoS: ga_duplicate failed',1,GA_ERR)
-        if(ipol.gt.1) then
-         if(.not.ga_duplicate(g_zora_scale_sf(2),g_zora_scr(2),'sf 2'))
-     &   call errquit('get_rhoS: ga_duplicate failed',1,GA_ERR)
-        endif
+c       if(.not.ga_duplicate(g_zora_scale_sf(1),g_zora_scr(1),'sf 1'))
+c     &  call errquit('get_rhoS: ga_duplicate failed',1,GA_ERR)
+c        if(ipol.gt.1) then
+c         if(.not.ga_duplicate(g_zora_scale_sf(2),g_zora_scr(2),'sf 2'))
+c     &   call errquit('get_rhoS: ga_duplicate failed',1,GA_ERR)
+c        endif
+        do i=1,2 ! up,down
+         if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_sf 1',0,0,
+     &                     g_efgz4_sf(i)))
+     &   call errquit('dft_scf_so: error creating g_zora_scale_sf 1',0, 
+     &                 GA_ERR)
+        enddo
+        do i=1,3 ! x,y,z
+         if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'g_zora_scale_so 1',0,0,
+     &                     g_efgz4_so(i)))
+     &   call errquit('dft_scf_so: error creating g_zora_scale_so 1',0, 
+     &                 GA_ERR)
+        enddo
 c ++++++++++++++++++++++++++++++++++
 c +++++ Read Atom Nr for EFG calc ++
          if (.not. ga_create(mt_dbl,1,nat,
@@ -141,9 +161,40 @@ c      write(*,*) "---Z4-dft_scf-g_dens(1) array ------- END"
         do zora_Qpq=1,6 ! xx,yy,zz,xy,xz,yz - FA
 c------Generate munu A^{pq}_r ----- START
          so_term=0           ! ZORA-spin-free
-         call ga_zero(g_zora_scr(1))
-         call ga_zero(g_zora_scr(2))
-         call zora_getv(rtdb,g_dens_ini,g_zora_scr,nexc)
+          do i=1,ipol
+           call ga_zero(g_efgz4_sf(i))
+          enddo
+          do i=1,3
+           call ga_zero(g_efgz4_so(i))
+          enddo
+          call zora_getv_EFGZ4_SO(rtdb,g_dens_ini, 
+     &                            zora_calc_type,      
+     &                            zora_Qpq,xyz_EFGcoords, 
+     &                            g_efgz4_sf, !  out: munu matrix
+     &                            g_efgz4_so, !  out: munu matrix
+     &                            nexc)
+          do i=1,ipol
+           toac(i)=ga_ddot(g_densZ4so(i),g_efgz4_sf(i))        
+          enddo
+          if (zora_calc_type.eq.3) then
+            ac=3
+            do i=1,3
+             toac(i)=ga_ddot(g_densZ4so(ac),g_efgz4_so(i))        
+             ac=ac+1
+            enddo
+           zora_eint=toac(1)+toac(2)+         
+     &               toac(3)+toac(4)+toac(5)
+            if (ga_nodeid().eq.0) then
+             write(*,155) zora_calc_type,iat,zora_Qpq,pos_dat,
+     &                    toac(1),toac(2),toac(1)+toac(2),
+     &                    toac(3),toac(4),toac(5),zora_eint
+ 155         format('zora-efg-so(',i3,',',i3,',',i3,',',i3,')=(',
+     &              f15.8,',',f15.8,',', f15.8,',',f15.8,',',
+     &              f15.8,',', f15.8,',',f15.8,')')  
+            endif
+c ++++++++++++ skip old code ++++++++++++ START
+c         goto 123 
+c         call zora_getv(rtdb,g_dens_ini,g_zora_scr,nexc)
 c        write(*,*) "--------- efg-1 ------- START"
 c        call ga_print(g_densZ4so(1))
 c        call ga_print(g_zora_scr(1))
@@ -152,30 +203,18 @@ c        write(*,*) "--------- efg-2 ------- START"
 c        call ga_print(g_densZ4so(2))
 c        call ga_print(g_zora_scr(2))
 c        write(*,*) "--------- efg-2 ------- END"
-         toac(1)=ga_ddot(g_densZ4so(1),g_zora_scr(1))         
-         toac(2)=ga_ddot(g_densZ4so(2),g_zora_scr(2))   
-         if (zora_calc_type.eq.3) then
-          ac=3
-          do so_term=1,3 ! z,y,x-component 
-           call ga_zero(g_zora_scr(1))
-           call zora_getv(rtdb,g_dens_ini,g_zora_scr,nexc)
-c          write(*,*) "--------- efg-",ac," ------- START"
-c          call ga_print(g_densZ4so(ac))
-c          call ga_print(g_zora_scr(1))
-c          write(*,*) "--------- efg-",ac," ------- END"
-           toac(ac)=ga_ddot(g_densZ4so(ac),g_zora_scr(1)) 
-           ac=ac+1
-          end do ! so_term-loop
-          zora_eint=toac(1)+toac(2)+         
-     &              toac(3)+toac(4)+toac(5)
-          if (ga_nodeid().eq.0) then
-           write(*,155) zora_calc_type,iat,zora_Qpq,pos_dat,
-     &                 toac(1),toac(2),toac(1)+toac(2),
-     &                 toac(3),toac(4),toac(5),zora_eint
- 155       format('zora-efg-so(',i3,',',i3,',',i3,',',i3,')=(',
-     &            f15.8,',',f15.8,',', f15.8,',',f15.8,',',
-     &            f15.8,',', f15.8,',',f15.8,')')  
-          endif
+c         toac(1)=ga_ddot(g_densZ4so(1),g_zora_scr(1))         
+c         toac(2)=ga_ddot(g_densZ4so(2),g_zora_scr(2))   
+c         if (zora_calc_type.eq.3) then
+c          ac=3
+c          do so_term=1,3 ! z,y,x-component 
+c           call ga_zero(g_zora_scr(1))
+c           call zora_getv(rtdb,g_dens_ini,g_zora_scr,nexc)
+c           toac(ac)=ga_ddot(g_densZ4so(ac),g_zora_scr(1)) 
+c           ac=ac+1
+c          end do ! so_term-loop
+c 123      continue
+c ++++++++++++ skip old code ++++++++++++ END
          else 
           zora_eint=toac(1)+toac(2)
           if (ga_nodeid().eq.0) then
@@ -199,6 +238,14 @@ c----deallocate memory - FA
      &   ('get_rhoS_so, ma_free_heap of l_xyzpt failed',911,MA_ERR)
       if (.not.ma_free_heap(l_AtNr)) call
      &    errquit('dft_zora_utils: ma_free_heap l_AtNr',0, MA_ERR)
+        do i=1,ipol
+         if (.not. ga_destroy(g_efgz4_sf(i))) call errquit(
+     &    'dft_zora_rhos_so: ga_destroy failed ',0, GA_ERR)
+        enddo
+        do i=1,3
+         if (.not. ga_destroy(g_efgz4_so(i))) call errquit(
+     &    'dft_zora_rhos_so: ga_destroy failed ',0, GA_ERR)
+        enddo
       return
       end
 
@@ -292,12 +339,6 @@ c
       
       call ga_get(g_Ci,1,2,1,noc1,dbl_mb(k_Ci),2)
     
-c     do i=1,2*noc1
-c      write(*,18) i,dbl_mb(k_Ci+i-1)
-c18    format('Ci(',i3,')=',f15.8)
-c     end do
-c     stop
-c 
       ac=1
       do i=1,2
 c     spin-orbit vector -          i=1(real),2(imaginary)  
@@ -324,43 +365,34 @@ c     scratch array                i=1(real),2(imaginary)
      &  call errquit('get_densZ4_so: ga_duplicate failed',1, GA_ERR)
         call ga_zero(g_densZ4so(i))
       end do 
-c
+
       do ispin=1,2
        iorb=ispin
        do count=1,nocc(ispin) 
         call ga_get(g_moso(1),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsre),1)
         call ga_zero(g_orb(1))
         call ga_put(g_orb(1),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsre),1)
-
         call ga_get(g_moso(2),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsim),1) 
         call ga_zero(g_orb(2))
         call ga_put(g_orb(2),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsim),1)
-
         call dft_densm_so(g_dens_so,g_orb,nbf_ao,noc)
-
         call ga_zero(g_scr(1))
         call ga_zero(g_scr(2))
         call ga_dens_sf(g_scr, g_dens_so(1), nbf_ao)
-
-c        scale=1.0d0/dbl_mb(k_Ci+iorb-1)
-         if (zora_calc_type.eq.3) scale=1.0d0/dbl_mb(k_Ci+iorb-1)
-         if (zora_calc_type.eq.4) scale=1.0d0  ! NUM-EFG
-
-c        write(*,16) ispin,count,dbl_mb(k_Ci+iorb-1)
-c 16     format('Ci(',i3,',',i3,')=',f15.8)
-
-         do i=1,2
+        if (zora_calc_type.eq.3) scale=1.0d0/dbl_mb(k_Ci+iorb-1)
+        if (zora_calc_type.eq.4 .or. zora_calc_type.eq.5) scale=1.0d0  ! NUM-EFG,NUM-NMR-K=1
+        do i=1,2
           call ga_scale(g_scr(i),scale)       
           call ga_add(1.0d0,g_densZ4so(i),1.0d0,g_scr(i),g_densZ4so(i))
-         end do
+        end do ! end-loop-i
         j=3
-         do i=1,3
-          call ga_zero(g_scr(1))
-          call ga_dens_so(g_scr(1),g_dens_so,nbf_ao,soxyz(i))
-          call ga_scale(g_scr(1),scale)   
-          call ga_add(1.0d0,g_densZ4so(j),1.0d0,g_scr(1),g_densZ4so(j))
-          j=j+1
-         end do
+        do i=1,3
+         call ga_zero(g_scr(1))
+         call ga_dens_so(g_scr(1),g_dens_so,nbf_ao,soxyz(i))
+         call ga_scale(g_scr(1),scale)   
+         call ga_add(1.0d0,g_densZ4so(j),1.0d0,g_scr(1),g_densZ4so(j))
+         j=j+1
+        end do ! end-loop-i
         iorb=iorb+2
        end do  ! count-loop
       end do   ! ispin-loop
@@ -607,6 +639,7 @@ c     -----------------------------
 c
 c     ----- collect and output results of all points -----
 c
+      status = rtdb_parallel(.false.)   ! FA-04-23-10
       if (ga_nodeid().gt.0) goto 300
 c     if (ga_nodeid().eq.0) then  ! ---- node-0-START
 c
@@ -790,6 +823,7 @@ c
 c     ----- release memory block -----
 c
   300 call ga_sync()
+      status = rtdb_parallel(.true.)   ! FA-04-23-10
 c
 c     ------- Deallocate MA memory ------
 c

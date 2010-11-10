@@ -1,5 +1,5 @@
 c*****************************************************************************
-      subroutine wnbofile(rtdb)
+      subroutine wefgfile(rtdb)
 c*****************************************************************************
 c
 c>>>  Purpose of routine:
@@ -30,7 +30,7 @@ c>>>  that gennbo already exists and has been ported to a number of
 c>>>  platforms.
 c
 *
-* $Id$
+* $Id: wnbofile.F,v 1.16 2004-12-03 21:50:20 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -40,7 +40,8 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
-      integer rtdb
+#include "zora.fh" ! FA-04-24-10
+      integer rtdb  
 c
 c>>>  handles
 c
@@ -94,26 +95,84 @@ c
      $     l, len
       logical sshell, pshell, dshell, fshell, gshell
       data cname / 'CS = ', 'CP = ', 'CD = ', 'CF = ', 'CG = ' /
+      integer efgopt
+      integer l_Ci,k_Ci ! FA-scaling-zora
+      integer ipol,noc1,nocc,nelec
+      logical lzora
+c     Assuming noc1=noc2 not true if (total spin .ne. 0)
+c              (noc_alpha = noc_beta)
+      character*11 fname_efg
+      integer nocc_a,nocc_b,idir,jlo,jhi
+      integer l_buf,k_buf,indx
+      integer l_AtNr,k_AtNr,iat1           
+      integer g_munu_rot,nlst,
+     &                    Ndir_munu,Natoms_munu,Nel
+      common/munu_EFG_rot/g_munu_rot,nlst,
+     &                    Ndir_munu,Natoms_munu,Nel
+c     --> To store ONLY munu principal components xx,yy,zz
+c    Structure of g_munu_rot:
+c    n=nbf  Nr. of basis functions
+c    val_11_1_1 val_22_1_1 ... val_nn_1_1 val_21_1_1 
+c                                         val_31_1_1 val_32_1_1
+c                                         val_41_1_1 val_42_1_1 val_43_1_1 
+c                                         ...
+c    val_11_2_1 val_22_2_1 ... val_nn_2_1 val_21_2_1 
+c                                         val_31_2_1 val_32_2_1
+c                                         val_41_2_1 val_42_2_1 val_43_2_1 
+c                                         ...
+c    ...
+c    val_11_1_2 val_22_1_2 ... val_nn_1_2 val_21_1_2 
+c                                         val_31_1_2 val_32_1_2
+c                                         val_41_1_2 val_42_1_2 val_43_1_2
+c                                         ...
+c    val_11_2_2 val_22_2_2 ... val_nn_2_2 val_21_2_2 
+c                                         val_31_2_2 val_32_2_2
+c                                         val_41_2_2 val_42_2_2 val_43_2_2
+c                                         ...
+c    Notation.- val_PQ_R_S
+c               PQ, unique munu indices
+c               R, direction index = 1,2,3 (in this order) 
+c               S, atom number  R=1,nlist
+c               Correspondence with EFG eigenvalues:
+c               V33 V22 V11
+c               -> If multiplied with corresponding 
+c                  scaling density matrix it produces
+c                  the total EFG eigenvalues in the same order
+c                  as NWChem standard output.            
+c               nlist total number of atoms selected in
+c               keyword of input script: efieldgradZ4 [nlist] ...
+c                    
 
-      integer nboopt
-      character*20 fmtout
+c ======= reading from rtdb (nocc_a,nocc_b) === START
+         if (.not. rtdb_get(rtdb, 'prop:Nocc_a',mt_int,
+     $                      1,nocc_a))
+     $      call errquit('prop_input-EFGZ4-Nocc_a: rtdb_put failed',
+     $                   555, RTDB_ERR)
+         if (.not. rtdb_get(rtdb, 'prop:Nocc_b',mt_int,
+     $                      1,nocc_b))
+     $      call errquit('prop_input-EFGZ4-Nocc_b: rtdb_put failed',
+     $                   555, RTDB_ERR)
+c ======= reading from rtdb (nocc_a,nocc_b) === END
+c  Allocate memory for l_AtNr,k_AtNr 
+      if (.not.ma_alloc_get(mt_dbl,Natoms_munu,'AtNr',
+     &    l_AtNr,k_AtNr))
+     &    call errquit('wefgfile: ma failed',0,MA_ERR)
+      call ga_get(g_AtNr,1,1,1,Natoms_munu,dbl_mb(k_AtNr),1)
 
       lfn = 25
 
       if(ga_nodeid().eq.0) then
-        call util_file_name('gen', .false., .false., nbo_fname)
+        call util_file_name('efg', .false., .false., nbo_fname)
         open(lfn,file=nbo_fname,status='unknown')
         len = inp_strlen(nbo_fname)
         write(LUout,9250) nbo_fname(1:len)
       endif 
 
-c ... jochen: read NBO option key from RTDB.
-      nboopt = 0
-      if (.not.rtdb_get(rtdb, 'prop:nboopt', mt_int, 1,nboopt)) 
-     &    call errquit('wnbofile: nboopt RTDB failed',0, RTDB_ERR)
-      fmtout = '(5f20.10)' ! 'regular' output format
-      if (nboopt.gt.0) fmtout = '(3E25.16)' ! increased num. precision
-c ... jochen end
+c ... Fredy: read EFG option key fron RTDB.
+      efgopt = 0
+      if (.not.rtdb_get(rtdb, 'prop:efgopt', mt_int, 1,efgopt)) 
+     &    call errquit('wefgfile: efgopt RTDB failed',0, RTDB_ERR)
+c ... Fredy end
 c
 c>>>  load geometry and symmetry info
 c
@@ -196,17 +255,105 @@ c
 c>>>  Begin $GENNBO and $NBO keylist data.
 c
       if( ga_nodeid().eq.0)then
+c ++++++++++++++++++++++++++++++++++++++++++
+c ++++++++++++ EFG printout ++++++++++ START
+       if (nset.eq.1) then
+        nocc=nocc_a
+       else
+        nocc = nocc_a+nocc_b
+       endif
+       lzora=.false.
+       if (do_zora .and. so_term.eq.0) lzora=.true.
+       if (lzora) then  ! spin-free-zora
+        if (nset.eq.1) then
+         noc1=nocc
+        endif
+        if (.not.ma_alloc_get(mt_dbl,nocc,'Ci',l_Ci,k_Ci)) 
+     &     call errquit('wefgfile: ma failed',0,MA_ERR)
+         call ga_get(g_Ci,1,nset,1,noc1,dbl_mb(k_Ci),nset)
+          do i=1,nset
+           do j=1,noc1
+            indx=noc1*(i-1)+j-1
+            dbl_mb(k_Ci+indx)=dbl_mb(k_Ci+indx)-1.0d0
+           enddo
+          enddo
+       endif ! end-if-lzora
+
+      write(*,*) "ENTER-HERE-wefgfile nlist=",nlist
+
+c ... now a loop over the EFG components, idir = 1,3.
+c     number of components was given in namelist
+c     ==>  nlst=nbf*(nbf+1)
+      if (.not.ma_alloc_get(mt_dbl,nlst,'buf',
+     &    l_buf,k_buf))
+     &    call errquit('wefgfile-buf: ma failed',0,MA_ERR)
+       do iat1=1,nlist
+        iat=dbl_mb(k_AtNr+iat1-1)
+c=====================================
+c ==== Generate filename per atom here
+c ====================================
+        write (fname_efg,1) iat
+ 1      format('efgdata.',i0)
+        write(*,*) 'Writing filename=',fname_efg
+        open (lfn, file=fname_efg, status='unknown')
+        write (lfn,'(a,i10,a,i10,a,i10,a,i10,/a,l3,a/a)') 
+     &   '&inputdata nbasis=',nbf, 
+     &   ', nocc=',nocc,', nmo=',nmo, 
+     &   ', nelec=',Nel, 
+     &   ', threshold = 0.0, lzora=',lzora, 
+     &   ', spinorbit= F , label=''EFG'', components=3', 
+     &   ', nbofile=''nbodata'', antisym = F, fullmat = F /'
+        if (lzora) then  ! spin-free-zora
+c     ----move down: g_Ci scaling factors
+         write (lfn,'(a)') 'ZORA MO scaling factors'
+         write (lfn, '(3e25.16)' ) (dbl_mb(k_Ci+i-1), i = 1,noc1)
+        endif
+
+c         write(*,*) "====== CHECK-mun-rot-wefg-ga === START"
+c         call ga_print(g_munu_rot)
+c         write(*,*) "====== CHECK-mun-rot-wefg-ga === END"
+
+        do idir=1,3
+         jlo=nlst*Ndir_munu*(iat1-1)+
+     &       nlst*(idir-1)+1
+         jhi=jlo+nlst-1
+         call ga_get(g_munu_rot,1,1,jlo,jhi,
+     &               dbl_mb(k_buf),1)
+         write (lfn,'(a,i1)') 'h1mat for direction ',idir
+c ======= CHECK g_munu_rot === START
+c         write(*,*) "====== CHECK-mun-rot-wefg === START"
+c         do i=1,nlst
+c          write(*,111) idir,i,dbl_mb(k_buf+i-1)
+c111       format('munu_rot(',i4,',',i10,')=',f25.12)
+c         enddo
+c         write(*,*) "====== CHECK-mun-rot-wefg === END"
+c ======= CHECK g_munu_rot === END
+
+c        write(lfn,44) iat,idir
+c 44      format('h1mat for (atom,dir)=(',i3,',',i3,')')
+
+          write (lfn,'(3e25.16)' ) 
+     &     (dbl_mb(k_buf+i), i = 0,nlst-1)
+        enddo ! end-loop-directions
+        close(lfn) ! close efgdata
+       enddo ! end-loop-atoms
+       if (.not.ma_free_heap(l_buf)) call
+     &    errquit('munu4nbo: ma_free_heap l_buf',0, MA_ERR)
+
+        open (lfn, file='nbodata.f47_extra', status='unknown')
+c ++++++++++++ EFG printout ++++++++++ END
+c ++++++++++++++++++++++++++++++++++++++++
         write(lfn,9000) nat, nbf, spintype
  9000   format('$GENNBO  UPPER  BODM  BOHR  NATOMS=',i5,
      $         '  NBAS=',i5,2x,a4,'  $END')
 c
-c ... jochen: here we write more detailed NBO input if requested. 
-        if (nboopt.eq.0) then ! default
+c ... Fredy: here we write more detailed NBO input if requested. 
+        if (efgopt.eq.0) then ! default
            write(lfn,'(a)')'$NBO     $END'
-        else if (nboopt.eq.1) then ! generate NLMOs, too, and dump info to files
+        else if (efgopt.eq.1) then ! generate NLMOs, too, and dump info to files
            write(lfn,'(a/a)')'$NBO BNDIDX NBONLMO=W AONBO=W AONLMO=W ',
      $          ' NLMOMO=W STERIC FILE=nbodata $END'
-        else if (nboopt.eq.2) then ! generate even more info, incl AO overlap etc.
+        else if (efgopt.eq.2) then ! generate even more info, incl AO overlap etc.
            write(lfn,'(a/a)')'$NBO BNDIDX NBONLMO=W AONBO=W AONLMO=W ',
      $          ' NLMOMO=W AOMO=W SAO=W STERIC FILE=nbodata $END'
         else ! other options not supported. Fall back to default
@@ -582,16 +729,14 @@ c
 
         do icol = 1,nbf
           call ga_get(g_movecs(1),1,nmo,icol,icol,Dbl_MB(iscr),1)
-c... jochen          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,nbf-1)
-          write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,nbf-1)
+          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,nbf-1)
         enddo 
 
 
         if(.not. restricted) then
           do icol = 1,nbf
             call ga_get(g_movecs(2),1,nmo,icol,icol,Dbl_MB(iscr),1)
-c ... jochen           write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,nbf-1)
-            write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,nbf-1)
+            write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,nbf-1)
           enddo
         endif
 
@@ -706,16 +851,14 @@ c
 
         do icol = 1,nbf
           call ga_get(g_bo(1),1,nmo,icol,icol,Dbl_MB(iscr),1)
-c ... jochen          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
-          write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,icol-1)
+          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
         enddo 
 
 
         if(.not. restricted) then
           do icol = 1,nbf
             call ga_get(g_bo(2),1,nmo,icol,icol,Dbl_MB(iscr),1)
-c ... jochen            write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
-            write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,icol-1)
+            write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
           enddo
         endif
 
@@ -750,8 +893,7 @@ c>>>  Write out lower triangular section of overlap matrix.
 c
         do icol = 1,nbf
           call ga_get(g_over,1,nmo,icol,icol,Dbl_MB(iscr),1)
-c ... jochen          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
-          write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,icol-1)
+          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
         enddo 
 
         write(lfn,9200)
@@ -853,15 +995,13 @@ c>>>  Write out lower triangular section of AO Fock matrix.
 c
         do icol = 1,nbf
           call ga_get(g_fock(1),1,nmo,icol,icol,Dbl_MB(iscr),1)
-c ... jochen          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
-          write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,icol-1)
+          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
         enddo 
 
         if(.not. restricted) then
           do icol = 1,nbf
             call ga_get(g_fock(2),1,nmo,icol,icol,Dbl_MB(iscr),1)
-c ... jochen            write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
-            write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,icol-1)
+            write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
           enddo
         endif
 

@@ -20,6 +20,7 @@ c
       character*255 movecs_in
       character*255 movecs_out
       character*255 test
+      integer efgfile, efgopt
       integer nbofile, nboopt
       integer dipole
       integer quadrupole
@@ -31,6 +32,7 @@ c
       integer efieldmap
       integer efieldgrad
       integer efieldgradZ4 ! Added by FA
+      integer gshift
       integer efieldgradmap
       integer electrondensity
       integer electrondensitymap
@@ -67,6 +69,8 @@ c>>>  Default property settings.
 c
       nbofile           = 0
       nboopt            = 0
+      efgfile           = 0 ! FA-04-24-10
+      efgopt            = 0 ! FA-04-24-10
 c
       dipole            = 1
       quadrupole        = 1
@@ -88,7 +92,7 @@ c
       hyperfine         = 1
       spinspin          = 1
       giao              = 1
-      
+      gshift            = 1 ! FA-09-13-10
       center            = 1   ! default of center of charge
       point(1)          = 0.0d+0
       point(2)          = 0.0d+0
@@ -177,6 +181,8 @@ c
             enddo
           endif
    11     continue                
+        elseif ( inp_compare(.false., 'gshift', test)) then
+          gshift = 0   
 c  ... jochen: parse input for response/aoresponse key
       elseif ( 
      &    inp_compare(.false.,   'response', test) .or.
@@ -210,6 +216,8 @@ c  ... jochen: parse input for response/aoresponse key
       elseif ( inp_compare(.false., 'magneticpert', test)) then
          magneticpert = 0
       elseif ( inp_compare(.false., 'giao', test)) then
+         aor_giao = 0
+      elseif ( inp_compare(.false., 'gshift', test)) then ! FA-08-18-10
          aor_giao = 0
       elseif ( inp_compare(.false., 'damping', test)) then
          aor_damp = 0
@@ -247,20 +255,13 @@ c ... jochen end
          efieldgrad      = 0
       elseif ( inp_compare(.false., 'efieldgradZ4', test)) then ! Added FA
          efieldgradZ4    = 0 ! Added by FA
-c ================== TEST ==============START
-c ==========================================
           if (inp_i(efgz4atoms)) then
             if (.not. ma_push_get(mt_int,efgz4atoms,'atoms',l_at,k_at))
      &         call errquit('prp_input ma_push_get fail k_pr',0,MA_ERR)
             icount = 0
-c            write(*,*) "PROPERTY: efgz4atoms=",efgz4atoms
             do ii = 1, efgz4atoms
-c              write(*,42) ii,int_mb(k_at+ii-1)
-c 42           format('BEF:efgz4_atms(',i3,')=',i5)
               status = inp_i(int_mb(k_at+ii-1))
               atomnr(ii)=int_mb(k_at+ii-1)
-c              write(*,43) ii,int_mb(k_at+ii-1)
-c 43           format('AFT:efgz4_atms(',i3,')=',i5)
               if (status) then
                 icount = icount+1
               else
@@ -280,7 +281,6 @@ c 43           format('AFT:efgz4_atms(',i3,')=',i5)
             efgz4atoms=0 ! check
           endif
    13     continue      
-c         write(*,*) "in prop: efgz4atoms=",efgz4atoms
 c --------- storing selected atmnr in rtdb ------- START
          if (.not. rtdb_put(rtdb, 'prop:atnr',mt_int,
      $                      1,efgz4atoms))
@@ -320,7 +320,8 @@ c     what NBO options will appear
              continue           ! just read the number
           end if
       elseif ( inp_compare(.false., 'all', test)) then
-         giao = 0
+         giao   = 0
+         gshift = 0
          boyslocalization = 0
          boyslocalization = 1
          stoneanalysis  = 0
@@ -344,6 +345,7 @@ c     what NBO options will appear
          quadrupole  = 0
          dipole  = 0
          nbofile = 1
+         efgfile = 1
       elseif ( inp_compare(.false., 'center', test)) then
          if (inp_a(test)) then
            if (inp_compare(.false., 'coc', test)) then
@@ -393,6 +395,14 @@ c
 c ... jochen: also write NBO option key to RTDB:
       if (.not. rtdb_put(rtdb, 'prop:nboopt', mt_int, 1,
      $                               nboopt           ))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c .... Fredy: write efg output for NBO program 04-24-10
+      if (.not. rtdb_put(rtdb, 'prop:efgfile', mt_int, 1,
+     $                               efgfile           ))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c ... Fredy: also write EFG option key to RTDB:
+      if (.not. rtdb_put(rtdb, 'prop:efgopt', mt_int, 1,
+     $                               efgopt           ))
      $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:dipole', mt_int, 1,
      $                               dipole            ))
@@ -472,6 +482,9 @@ c ... jochen: also write NBO option key to RTDB:
           if (.not.ma_pop_stack(l_at)) call
      &        errquit('prop_input: ma_pop_stack failed k_at',0,MA_ERR)
       endif
+      if (.not. rtdb_put(rtdb, 'prop:gshift', mt_int, 1,
+     $                               gshift             ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
 c ... jochen: add aoresponse key, frequencies, and options to RTDB
       if (.not. rtdb_put(rtdb, 'prop:aoresponse', mt_int, 1,
      $                               aoresponse        ))

@@ -17,6 +17,7 @@
          prp.o \
          hnd_mulken.o \
          wnbofile.o \
+         wefgfile.o \
          hnd_prp_get_dens.o \
          hnd_prp_vec_read.o \
          hnd_prop_dens_make.o \
@@ -24,6 +25,7 @@
          cosmo.o \
          giaofock.o \
          hnd_giaox.o \
+         hnd_giaox_ZORA.o \
          int_giao_1ega.o \
          hnd_diag.o \
          hnd_spinspin.o \
