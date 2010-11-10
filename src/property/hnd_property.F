@@ -97,7 +97,7 @@ c
       status=rtdb_get(rtdb,'prop:aoresponse',MT_INT,1,noaoresponse)
 c     usec1 = giao.eq.0 .or. spinspin.eq.0 .or. noaoresponse.eq.0
 c     FA-08-18-10
-      usec1 = gshift .or. giao.eq.0 .or. 
+      usec1 = gshift.eq.0 .or. giao.eq.0 .or. 
      &        spinspin.eq.0 .or. noaoresponse.eq.0
 c
 c     Get geometry and make C1 if necessary
