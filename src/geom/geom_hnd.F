@@ -3804,6 +3804,21 @@ C
          WRITE(IW,9995) IAT,(ZMT(I,IAT),I=1,5),(  ZLST(I,IAT),I=1,3),
      1                                         (FRZVAL(I,IAT),I=1,3)
       ENDIF
+      DO K=1,5
+        IF (ZMT(K,IAT).NE.0) THEN
+          DO J=1,K-1
+            IF (ZMT(K,IAT).EQ.ZMT(J,IAT)) THEN
+              WRITE(IW,9983)
+              WRITE(IW,9984) IAT,ATNAME(IAT)
+              WRITE(IW,9995) IAT,(ZMT(I,IAT),I=1,5),(ZVAL(I,IAT),I=1,3),
+     1                           (FRZVAL(I,IAT),I=1,3)
+              WRITE(IW,9995) IAT,(ZMT(I,IAT),I=1,5),(ZLST(I,IAT),I=1,3),
+     1                           (FRZVAL(I,IAT),I=1,3)
+              CALL HND_HNDERR(3,ERRMSG)
+            ENDIF
+          ENDDO
+        ENDIF
+      ENDDO
 C
 C     ----- CREATE -IZMAT- FOR -HONDO- INPUT -----
 C
@@ -3892,6 +3907,7 @@ C
  9985 FORMAT(' TORSION ANGLE OR BOND ANGLE = ',F10.2,' FOR ATOM = ',I4,
      1       ' IS OUT OF ALLOWED RANGE ... -360.0 TO 360.0 . STOP')
  9984 FORMAT(' IAT=',I5,' ATNAME=',1X,A8)
+ 9983 FORMAT(' SAME ATOM REFERRED TO MORE THAN ONCE ON THIS LINE')
       END
       SUBROUTINE HND_ZXYZ(NAT,NZMT,ZVAL)
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
