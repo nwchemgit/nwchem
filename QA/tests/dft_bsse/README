@@ -1,0 +1,30 @@
+========= Dummy centers vs Ghost centers ==========
+==== The Characters
+Originally dummy centers (named "x") were a mathematical trick to specify 
+zmatrices for tricky molecules.  E.g. benzene, or linear molecules.  
+Because of their role it is alright to delete dummy centers. This was 
+introduced at some point to clean up zmatrices. After deleting the dummies 
+the autoz function would be used to regenerate a zmatrix. 
+
+Ghost centers (named "bq" after the ghost Banquo from William 
+Shakespeare's Macbeth) were introduced to calculate BSSE 
+free energies. These centers have basis sets, but no charge and 
+no electrons.
+
+==== The conflict
+The way the deletion is implemented means that different things happen 
+depending on how dummy centers are named.  Due to a different choice 
+of internal coordinates this could lead to a different optimization path.  
+
+==== The resolution
+To fix this all centers starting with "x" but not "xe" are deleted and a new 
+zmatrix generated. Bq centers by their nature should not be deleted, and they 
+now won't be.
+
+==== The dénouement
+Not clear to me at present is what happens if the original input 
+zmatrix contains constraints. I don't see how these can be handled so that they 
+would always survive the elimination of the dummy centers. Of course one could 
+replace the dummy centers by ghost centers without a basis set to deal with  
+such a case. The dft_bsse test case has been updated to match the new approach.
+
