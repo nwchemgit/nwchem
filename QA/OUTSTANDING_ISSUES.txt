@@ -1,7 +1,3 @@
-dft_bsse: 
-
-   Trunk version loses the Bq centers although they have basis functions on them.
-
 h2o-ssb-d & h2o-ssb-d-opt:
 
    The dispersion correction does not seem to get included in trunk
