@@ -230,8 +230,10 @@ c
         call ecce_print_control(0, ecce_old_print) ! disable ECCE printing
         status = stpr_gen_hess_at(rtdb,delta_pass)
         call ecce_print_control(ecce_old_print,ecce_junk_print) ! re-enable ECCE printing
-      else
 
+      else  ! analytic hessian
+c
+c       == calculate analytic hessian ==      
         if (ga_nodeid().eq.0 .and.
      $      util_print('task_hessian', print_low)) then
           write(6,*)
@@ -240,8 +242,7 @@ c
      $        'NWChem Analytic Hessian ',
      $        40,.true.)
           write(6,*)
- 
-       endif
+        endif
 c
         if (theory .eq. 'scf' .or. theory .eq. 'dft') then
           status = hess_anal(rtdb)
@@ -250,12 +251,13 @@ c
      &       INPUT_ERR)
         endif
 c
-      endif  ! numerical
-c
-c     vdw contribution to hessian
-      if(theory.eq.'dft') then
-       if(disp) call xc_vdw_to_hessian(rtdb)
-      endif ! vdw
+c       vdw contribution to analytic hessian 
+c       for numerical hessians, this contribution is added via the gradients
+        if(theory.eq.'dft') then
+          if(disp) call xc_vdw_to_hessian(rtdb)
+        endif ! vdw
+
+      endif  ! numerical or analytic
 c
       if (task_bsse) then
         if (.not. rtdb_put(rtdb,'bsse',mt_log,1,task_bsse))
