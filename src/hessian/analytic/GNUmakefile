@@ -27,7 +27,9 @@ OBJ_OPTIMIZE =  hess_anal.o \
                 hess_wrt.o \
                 hess_restart.o \
                 hess_hssout.o hess_print.o \
-                hess_tidy.o
+                hess_tidy.o\
+		uhf_fock_setup.o uhf_fock_finish.o\
+		print_dens_bit.o
 
      LIBRARY = libhessian.a
 
@@ -40,4 +42,3 @@ LIB_INCLUDES = -I../../../nwdft/include
 
 include ../../config/makefile.h
 include ../../config/makelib.h
-
