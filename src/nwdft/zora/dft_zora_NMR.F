@@ -55,14 +55,14 @@ c ++++++++ get-nat_slc++++++++++ START
       ahi(3) = nat_slc
       if (.not.nga_create(MT_DBL,3,ahi,'g_dia matrix',alo,ga_dia)) call 
      &    errquit('get_NMRCS_SRZORA: nga_create failed g_dia',0,GA_ERR)
-      if (do_prntNMRCS .eqv. .true.) then  ! printNMRCS-if-requested-START
+      if (do_prntNMRCS) then  ! printNMRCS-if-requested-START
        if (ga_nodeid().eq.0) then
         write(*,*) "nat_slc=",nat_slc
        endif
       endif                               ! printNMRCS-if-requested-END
 c ++++++++ get-nat_slc ++++++++++ END   
 c ------- get_NMRCSdia1 --------- START
-      if (do_prntNMRCS .eqv. .true.) then  ! printNMRCS-if-requested-START
+      if (do_prntNMRCS) then  ! printNMRCS-if-requested-START
        if (ga_nodeid().eq.0) 
      &     write(*,*) "==== get_NMRCSdia1 ======= START" 
       endif                               ! printNMRCS-if-requested-END
@@ -75,7 +75,7 @@ c ------- get_NMRCSdia1 --------- START
      &                   noc,ipol)
       call ga_add(1.0d0,ga_dia1,1.0d0,ga_dia2,ga_dia)
 
-      if (do_prntNMRCS .eqv. .true.) then  ! printNMRCS-if-requested-START
+      if (do_prntNMRCS) then  ! printNMRCS-if-requested-START
       if (ga_nodeid().eq.0) then
        write(*,*) '----OUT:ga_dia-ppm----- START'
       endif
@@ -131,7 +131,7 @@ c ------- get_NMRCSdia1 --------- END
       call get_Fji(ga_Fji, ! OUT: munu-mat-Fji
      &             rtdb,g_dens_at,nexc,
      &             geom,ao_bas_han,nbf)
-      if (do_prntNMRCS .eqv. .true.) then  ! printNMRCS-if-requested-START
+      if (do_prntNMRCS) then  ! printNMRCS-if-requested-START
          if (ga_nodeid().eq.0) then
            write(*,*) '----OUT:ga_Fji------ START'
          endif
@@ -432,7 +432,7 @@ c ---- Creating scratch ga-arrays --------- END
          do ispin=1,ipol
           n1=ga_ddot(g_densZ4(ispin),g_dia3(k,t)) 
           ac=ac+n1
-          if (do_prntNMRCS .eqv. .true.) then  ! printNMRCS-if-requested-START
+          if (do_prntNMRCS) then  ! printNMRCS-if-requested-START
            if (ga_nodeid().eq.0) then
            write(*,15) k,t,iat,ispin,
      &                 n1*scale2munu*ppm, 
@@ -594,7 +594,7 @@ c                 (N_{munu,nm,b'}-N_{numu,nm,b'}^*)]
           ac=ac+n1
           n2=ga_ddot(g_densZ4(j),g_M)  ! for dia2
           ad=ad+n2
-          if (do_prntNMRCS .eqv. .true.) then  ! printNMRCS-if-requested-START
+          if (do_prntNMRCS) then  ! printNMRCS-if-requested-START
            if (ga_nodeid().eq.0) then
            write(*,25) k,t,iat,j,
      &                 n2*scl2munu*ppm, 

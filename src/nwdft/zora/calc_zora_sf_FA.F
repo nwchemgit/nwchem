@@ -80,7 +80,7 @@ c      == assemble hartree and nuclear contributions ==
        fac2_arr(k)=(clight_au2/denom/denom)
      &             *qwght(k)
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       if (do_NonRel.eqv. .true.) then ! remove it after TEST
+       if (do_NonRel) then ! remove it after TEST
          fac1_arr(k)=0.0d0             ! remove it after TEST
          fac2_arr(k)=0.0d0             ! remove it after TEST
        endif                           ! remove it after TEST

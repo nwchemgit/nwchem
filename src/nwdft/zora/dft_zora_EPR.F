@@ -197,7 +197,7 @@ c === allocate arrays to store diamagnetic tensor === END
       call get_Fji(ga_Fji, ! OUT: munu-mat-Fji
      &             rtdb,g_dens_at,nexc,
      &             geom,ao_bas_han,nbf)
-      if (do_prntNMRCS .eqv. .true.) then  ! printNMRCS-if-requested-START
+      if (do_prntNMRCS) then  ! printNMRCS-if-requested-START
          if (ga_nodeid().eq.0) then
            write(*,*) '----OUT:ga_Fji------ START'
          endif
