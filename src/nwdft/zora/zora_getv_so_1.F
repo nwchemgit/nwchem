@@ -172,7 +172,7 @@ c              == chi ==
      &              int_mb(iniz), log_mb(idocset),
      &              int_mb(ibas_cent_info), int_mb(ibas_cset_info))
 c              == calculate scalar and spin-orbit zora contribution ==
-               write(*,*) 'Bef calc_zora_so_FA ...'
+c              write(*,*) 'Bef calc_zora_so_FA ...'
                call calc_zora_so_FA(ao_bas_han, geom, ipol, g_dens,
      &                              dbl_mb(idelchi_ao),
      &                              dbl_mb(iqxyz),dbl_mb(iqwght),
@@ -253,5 +253,11 @@ c     == spin-orbit contributions ==
        ind=ind-1
       enddo
       call ga_sync()
+c
+      if(.not.MA_chop_stack(lscal))
+     &     call errquit("zora_getv_so: pop lscal", 100, MA_ERR)
+      if(.not.MA_chop_stack(lzora))
+     &     call errquit("zora_getv_so: pop lzora", 100, MA_ERR)
+c
       return
       end
