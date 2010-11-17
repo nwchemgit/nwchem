@@ -1,0 +1,55 @@
+echo
+start h2o_opt_dat
+
+geometry h2o_c1 units angstroms
+  symmetry c1
+  zmatrix
+    O
+    H 1 OH1
+    H 1 OH2 2 HOH
+  variables
+    HOH 108.0
+    OH1  1.2
+  constants
+    OH2  1.2
+  end
+end
+
+geometry h2o_c2v units angstroms
+  zmatrix
+    O
+    H 1 OH1
+    H 1 OH2 2 HOH
+  variables
+    HOH 108.0
+    OH1  1.2
+  constants
+    OH2  1.2
+  end
+end
+
+geometry h2o_cs units angstroms
+  zmatrix
+    O
+    H 1 OH1
+    H 1 OH2 2 HOH
+  variables
+    HOH 108.0
+    OH1  1.1
+  constants
+    OH2  1.2
+  end
+end
+
+basis
+  * library 6-31G*
+end
+
+set geometry h2o_c1
+task scf optimize
+
+set geometry h2o_c2v
+task scf optimize
+
+set geometry h2o_cs
+task scf optimize
