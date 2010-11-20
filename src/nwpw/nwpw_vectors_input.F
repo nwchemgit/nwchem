@@ -30,12 +30,13 @@ c
 c     vectors output filename
 c     
       integer num_dirs, ind
-      parameter (num_dirs = 8)
-      character*8 dirs(num_dirs)
+      parameter (num_dirs = 10)
+      character*12 dirs(num_dirs)
       integer max_swap
       parameter (max_swap = 20)
       integer swap(max_swap), nswap, itest, mlen
       character*255 test, vectors_in, vectors_out
+      character*255 vectors_ascii_in, vectors_ascii_out
       integer maxfrag
       parameter (maxfrag = 60)
       character*255 fragments(maxfrag)
@@ -44,11 +45,13 @@ c
       character*50 swapname
       logical olock
       data dirs /'input', 'output', 'atomic', 'hcore', 'swap',
-     $     'project', 'lock', 'fragment'/
+     $     'project', 'lock', 'fragment','input_ascii','output_ascii'/
 c     
       nfrag = 0  
       vectors_in = ' '
       vectors_out = ' '
+      vectors_ascii_in = ' '
+      vectors_ascii_out = ' '
       olock = .false.
       mlen = inp_strlen(module)
 c     
@@ -64,7 +67,7 @@ c
          goto 10
       endif
 c     
-      goto (100, 200, 300, 400, 500, 600, 700, 800, 999) ind
+      goto (100,200,300,400,500,600,700,800,900,1000,9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
 c     
@@ -172,7 +175,23 @@ c
       if (nfrag .gt. 0) vectors_in = 'fragment'
       goto 10
 c     
- 999  continue
+c     input_ascii filename
+c     
+ 900  if (.not. inp_a(test)) call errquit
+     $  ('nwpw_vectors_input:vectors ascii input filename',0,INPUT_ERR)
+      if (vectors_ascii_in .ne. ' ')  goto 10000
+      vectors_ascii_in = test
+      goto 10
+c     
+c     output_ascii filename
+c     
+ 1000 if (.not. inp_a(test)) call errquit
+     $ ('nwpw_vectors_output:vectors ascii output filename',0,INPUT_ERR)
+      if (vectors_ascii_out .ne. ' ')  goto 10000
+      vectors_ascii_out = test
+      goto 10
+c     
+ 9999 continue
       if (vectors_in .ne. ' ') then
          test = ' '
          write(test,'(a,'':'',a)') module(1:mlen), 'input vectors'
@@ -217,6 +236,24 @@ c
          if (.not. rtdb_put(rtdb, test, MT_LOG, 1, olock))
      $        call errquit('vectors: rtdb_put of olock failed',0,
      &       RTDB_ERR)
+      endif
+      if (vectors_ascii_in .ne. ' ') then
+         test = ' '
+         write(test,'(a,'':'',a)') module(1:mlen), 
+     >                             'input ascii vectors'
+         if (.not. rtdb_cput(rtdb, test, 1, vectors_ascii_in)) 
+     >    call errquit
+     >     ('vectors_ascii_in: failed to store vectors_ascii_in',0,
+     >     RTDB_ERR)
+      endif
+      if (vectors_ascii_out .ne. ' ') then
+         test = ' '
+         write(test,'(a,'':'',a)') module(1:mlen), 
+     >                             'output ascii vectors'
+         if (.not. rtdb_cput(rtdb, test, 1, vectors_ascii_out)) 
+     >    call errquit
+     >     ('vectors_ascii_out: failed to store vectors_ascii_out',0,
+     >     RTDB_ERR)
       endif
 c     
       return
