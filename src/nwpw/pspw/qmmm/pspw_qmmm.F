@@ -1050,8 +1050,12 @@ c     **** external functions ***
 c     **** external functions ***
       integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
       external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
-      integer  psp_zv_ptr,ion_amass_ptr
-      external psp_zv_ptr,ion_amass_ptr
+      integer  psp_zv_ptr,ion_amass_ptr,control_version
+      external psp_zv_ptr,ion_amass_ptr,control_version
+      real*8   ewald_e,ewald_e_qm,ewald_e_mm
+      external ewald_e,ewald_e_qm,ewald_e_mm
+      real*8   ion_ion_e,ion_ion_e_qm,ion_ion_e_mm
+      external ion_ion_e,ion_ion_e_qm,ion_ion_e_mm
       real*8   pspw_Q_E
       external pspw_Q_E
 
@@ -1072,6 +1076,18 @@ c     **** external functions ***
      >                 log_mb(self_interaction(1)),
      >                 nshl3d,dbl_mb(rcell(1)),
      >                 dbl_mb(ion_rion_ptr()))
+         if (dabs(qmmm_lmbda-1.0d0).gt.1.0d-6) then
+            if (control_version().eq.3) then
+               e2 = ewald_e()
+               e3 = ewald_e_qm()
+               e4 = ewald_e_mm()
+            else
+               e2 = ion_ion_e()
+               e3 = ion_ion_e_qm()
+               e4 = ion_ion_e_mm()
+            end if
+            e1 = e1 + (qmmm_lmbda-1.0d0)*(e2-e3-e4)
+         end if
          pspw_qmmm_Q_E = e1
       end if
       return
@@ -1080,7 +1096,7 @@ c     **** external functions ***
 
 *     **********************************
 *     *                                *
-*     *         pspw_qmmm_mmq_Q_E          *
+*     *         pspw_qmmm_mmq_Q_E      *
 *     *                                *
 *     **********************************
 
@@ -1394,6 +1410,8 @@ c     **** external functions ***
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
+      integer nion3,ftmp2(2),ftmp3(2),ftmp4(2)
+
 c     **** external functions ***
       integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
       external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
@@ -1417,6 +1435,28 @@ c     **** external functions ***
      >                    log_mb(self_interaction(1)),
      >                    nshl3d,dbl_mb(rcell(1)),
      >                    dbl_mb(ion_rion_ptr()),fion)
+
+         if (dabs(qmmm_lmbda-1.0d0).gt.1.0d-6) then
+           nion3 = 3*ion_nion()
+           if (.not.MA_push_get(mt_dbl,nion3,'ftmp2',ftmp2(2),ftmp2(1)))
+     >     call errquit('pspw_qmmm_Q_fion:push stack memory',2,MA_ERR)
+           if (.not.MA_push_get(mt_dbl,nion3,'ftmp3',ftmp3(2),ftmp3(1)))
+     >     call errquit('pspw_qmmm_Q_fion:push stack memory',3,MA_ERR)
+           if (.not.MA_push_get(mt_dbl,nion3,'ftmp4',ftmp4(2),ftmp4(1)))
+     >     call errquit('pspw_qmmm_Q_fion:push stack memory',4,MA_ERR)
+           
+
+           if (.not.MA_pop_stack(ftmp4(2)))
+     >     call errquit('pspw_qmmm_Q_fion:pop stack memory',4,MA_ERR)
+           if (.not.MA_pop_stack(ftmp3(2)))
+     >     call errquit('pspw_qmmm_Q_fion:pop stack memory',3,MA_ERR)
+           if (.not.MA_pop_stack(ftmp2(2)))
+     >     call errquit('pspw_qmmm_Q_fion:pop stack memory',2,MA_ERR)
+
+
+c   e1 = e1 + (qmmm_lmbda-1.0d0)*(e2-e3-e4)
+
+         end if
       end  if
       return
       end
