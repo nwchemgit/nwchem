@@ -2551,7 +2551,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 #else
 #ifdef USE_OPENMP
-      call D3dB_pfftfy_sub(nq2(1),ny(1),
+      call D3dB_pfftfy_sub2(nq2(1),ny(1),
      >                     log_mb(zero_row2(1,nbb)),
      >                     dcpl_mb(tmpy(1,1)),tmp1)
 #else
@@ -2577,15 +2577,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       return
       end
- 
-      subroutine  D3dB_pfftfy_sub(n,ny,row2,tmpy,A)
+
+      subroutine  D3dB_pfftfy_sub2(n,ny,row2,tmpy,A)
       implicit none
       integer n,ny
       logical    row2(n)
       real*8     tmpy(4*ny+15)
       complex*16 A(*)
       integer i,indx
-
 !$omp parallel default(private) shared(n,ny,row2,A) firstprivate(tmpy)
 !$omp do
       do i=1,n
@@ -2596,7 +2595,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 !$omp end do
 !$omp end parallel 
-
       return
       end
 

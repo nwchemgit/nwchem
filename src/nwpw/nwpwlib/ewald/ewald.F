@@ -214,7 +214,7 @@ cccccccccccccccccccccccccccccccccccccc
       integer  control_code,ion_nkatm
       integer  control_ncut
       real*8   control_rcut,control_ecut
-      integer  ion_nion,ion_katm
+      integer  ion_nion,ion_katm,ion_nion_qm
       real*8   lattice_omega,lattice_unita
       real*8   lattice_unitg
       real*8 psp_zv,cpsp_zv,paw_basis_ion_charge,mmq_zv
@@ -227,7 +227,7 @@ cccccccccccccccccccccccccccccccccccccc
       external control_code,ion_nkatm
       external control_ncut
       external control_rcut,control_ecut
-      external ion_nion,ion_katm
+      external ion_nion,ion_katm,ion_nion_qm
       external lattice_omega,lattice_unita                                
       external lattice_unitg
       external psp_zv,cpsp_zv,paw_basis_ion_charge,mmq_zv
@@ -530,6 +530,7 @@ ccccccccccc set ion charges
 
 cccccccccc  ewald summation
       rs = (3.0d0*lattice_omega()/pi4)**(1.0d0/3.0d0)
+
       zz = 0.0d0
       z  = 0.0d0
       do i=1,ion_nion()
@@ -545,6 +546,40 @@ cccccccccc  ewald summation
 
       cewald = -0.5d0*zz*(alpha/rs + cewald/lattice_omega())
      >         -0.5d0*(z*z-zz)*rcut*rcut*pi/lattice_omega()
+
+
+      zz = 0.0d0
+      z  = 0.0d0
+      do i=1,ion_nion_qm()
+         qi=dbl_mb(zv(1)+ion_katm(i)-1)
+         zz = zz + qi**2
+         z  = z  + qi
+      end do
+
+*     ***** t_dsum of vg *****
+      cewald_qm = 2.0d0*dsum(enpack,dbl_mb(vg(1)),1)   
+      !if (nida.eq.1) cewald_qm = cewald_qm - dbl_mb(vg(1))  !*** zero because vg(g=0) = 0
+      if (tnp.gt.1) call Parallel_SumAll(cewald_qm)
+
+      cewald_qm = -0.5d0*zz*(alpha/rs + cewald_qm/lattice_omega())
+     >         -0.5d0*(z*z-zz)*rcut*rcut*pi/lattice_omega()
+
+      zz = 0.0d0
+      z  = 0.0d0
+      do i=ion_nion_qm(1)+1,ion_nion()
+         qi=dbl_mb(zv(1)+ion_katm(i)-1)
+         zz = zz + qi**2
+         z  = z  + qi
+      end do
+
+*     ***** t_dsum of vg *****
+      cewald_mm = 2.0d0*dsum(enpack,dbl_mb(vg(1)),1)   
+      !if (nida.eq.1) cewald_mm = cewald_mm - dbl_mb(vg(1))  !*** zero because vg(g=0) = 0
+      if (tnp.gt.1) call Parallel_SumAll(cewald_mm)
+
+      cewald_mm = -0.5d0*zz*(alpha/rs + cewald_mm/lattice_omega())
+     >         -0.5d0*(z*z-zz)*rcut*rcut*pi/lattice_omega()
+
 
 cccccccccc allocate and fill rcell
       nshl3d=(2*ncut+1)**3
@@ -693,9 +728,11 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
            y = dbl_mb(rcell(1)+(l-1)+nshl3d)   + dy
            z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
            r = dsqrt(x*x+y*y+z*z)
-           w = (r/rcut)
-           yerfc = util_erfc(w)  !*** needs to be faster
-           etmp=etmp+(zz*yerfc/r)
+           if (r.gt.1.0d-6) then
+              w = (r/rcut)
+              yerfc = util_erfc(w)  !*** needs to be faster
+              etmp=etmp+(zz*yerfc/r)
+           end if
         end do
       end if
       dutask=mod(dutask+1,tnp)
@@ -826,12 +863,14 @@ c         end do
            y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
            z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
            r = dsqrt(x*x+y*y+z*z)
-           w = r/rcut
-           yerfc = util_erfc(w)
-           f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
-           sw1=sw1+(x*f)
-           sw2=sw2+(y*f)
-           sw3=sw3+(z*f)
+           if (r.gt.1.0d-6) then
+              w = r/rcut
+              yerfc = util_erfc(w)
+              f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
+              sw1=sw1+(x*f)
+              sw2=sw2+(y*f)
+              sw3=sw3+(z*f)
+           end if
         end do
 
         dbl_mb(fx(1)+i-1) = dbl_mb(fx(1)+i-1) + sw1
@@ -1129,6 +1168,1088 @@ c      call dcopy(9,0.0d0,0,Cus,1)
         dy = ion_rion(2,i) - ion_rion(2,j)
         dz = ion_rion(3,i) - ion_rion(3,j)
         zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
+        do l=1,nshl3d
+           ax = dbl_mb(rcell(1)+(l-1))          + dx
+           ay = dbl_mb(rcell(1)+(l-1)+nshl3d)   + dy
+           az = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
+           ea = dsqrt(ax*ax+ay*ay+az*az)
+           if (ea.gt.1.0d-6) then
+              w = ea*epsilon
+
+              ss = -util_erfc(w)/ea
+     >           - 2.0d0*epsilon/dsqrt(pi)*exp(-w*w)
+              ss = ss/(ea*ea)
+              Cus(1,1) = Cus(1,1) + ss * ax*ax * zz
+              Cus(1,2) = Cus(1,2) + ss * ax*ay * zz
+              Cus(1,3) = Cus(1,3) + ss * ax*az * zz
+              Cus(2,2) = Cus(2,2) + ss * ay*ay * zz
+              Cus(2,3) = Cus(2,3) + ss * ay*az * zz
+              Cus(3,3) = Cus(3,3) + ss * az*az * zz
+           end if
+        end do
+        end if
+        dutask=mod(dutask+1,tnp)
+      end do
+      end do
+
+      if (tnp.gt.1) then
+        call Parallel_Vector_SumAll(9,Cus(1,1))
+      end if
+
+      do u=1,3
+        do s=u+1,3
+           Cus(s,u) = Cus(u,s)
+        end do
+      end do
+
+      do v=1,3
+        do u=1,3
+          do s=1,3
+             stress(u,v) = stress(u,v) + Cus(u,s)*hm(s,v)
+          end do
+        end do
+      end do
+
+      call nwpw_timing_end(21)
+      return
+      end
+
+
+*     ***********************************
+*     *			  		*
+*     *		ewald_e_qm		*
+*     *				       	*
+*     ***********************************
+      real*8 function ewald_e_qm()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "ewald.fh"
+
+*     **** local variables ****
+      integer dutask
+      integer i,j,ii,l,nion
+      real*8  w,dx,dy,dz,x,y,z,r,zz
+      real*8  yerfc
+      real*8  energy,etmp,energyG,ttcr,ttci,zii
+      complex*16 ttcz
+*     **** temporary workspace variables ****
+      integer exi(2),s(2),tmp3(2)
+      logical value
+
+*     **** external functions ****
+      integer  ion_nion_qm,ion_katm
+      real*8   lattice_omega,ewald_zv,dsum,ion_rion,util_erfc
+      real*8   ddot
+      external ion_nion_qm,ion_katm
+      external lattice_omega,ewald_zv,dsum,ion_rion,util_erfc
+      external ddot
+
+      call nwpw_timing_start(21)
+
+*     **** allocate temp workspace ****
+      nion = ion_nion_qm()
+      
+      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+      value = value.and.
+     >        MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+      value = value.and.
+     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+      if (.not. value) 
+     >  call errquit('ewald_e:out of stack memory',0,MA_ERR)
+     
+*     **** get the structure factor ****
+      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+      do ii=1,nion
+         call ewald_strfac(ii,dcpl_mb(exi(1)))
+         call daxpy(2*enpack,dbl_mb(zv(1)+ion_katm(ii)-1),
+     >          dcpl_mb(exi(1)),1,
+     >          dcpl_mb(s(1)),1)
+      end do
+
+*     **** calculate the ewald energy ****
+      call ewald_ct_Sqr(enpack,dcpl_mb(s(1)),dbl_mb(tmp3(1)))
+      energy=2.0d0*ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
+      if (tnp.gt.1) call Parallel_SumAll(energy)
+      energy  = 0.5d0*energy/lattice_omega() + cewald_qm
+
+      
+*     *** made parallel  ****
+      dutask = 0
+      etmp = 0.0d0
+      do i=1,nion-1
+      do j=i+1,nion
+      if (dutask.eq.tid) then
+        dx = ion_rion(1,i) - ion_rion(1,j)
+        dy = ion_rion(2,i) - ion_rion(2,j)
+        dz = ion_rion(3,i) - ion_rion(3,j)
+        zz = dbl_mb(zv(1)+ion_katm(i)-1)*dbl_mb(zv(1)+ion_katm(j)-1)
+        do l=1,nshl3d
+           x = dbl_mb(rcell(1)+(l-1))          + dx
+           y = dbl_mb(rcell(1)+(l-1)+nshl3d)   + dy
+           z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
+           r = dsqrt(x*x+y*y+z*z)
+           w = (r/rcut)
+           yerfc = util_erfc(w)  !*** needs to be faster
+           etmp=etmp+(zz*yerfc/r)
+        end do
+      end if
+      dutask=mod(dutask+1,tnp)
+      end do
+      end do
+      if (tnp.gt.1) call Parallel_SumAll(etmp)
+      energy = energy + etmp
+      
+
+*     **** deallocate temp workspace ****
+      value =           MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(s(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     >  call errquit('ewald_e:popping stack memory',0,MA_ERR)
+
+      call nwpw_timing_end(21)
+      ewald_e_qm = energy
+      return
+      end
+
+
+*     ***********************************
+*     *	        			*
+*     *		ewald_f_qm		*
+*     *		       			*
+*     ***********************************
+
+      subroutine ewald_f_qm(fion)
+      implicit none
+      real*8  fion(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "ewald.fh"
+
+*     ****  expansion coefficient of the error function ****
+      real*8 cerfc
+      parameter (cerfc=1.128379167d0)
+
+
+*     **** local variables ****
+      integer dutask
+      integer i,j,l,ii
+      real*8  w,dx,dy,dz,x,y,z,r,zz
+      real*8  yerfc
+      real*8  sum,scal2,f
+      real*8  sw1,sw2,sw3,zii
+
+*     **** temporary workspace variables ****
+      integer nion
+      integer exi(2),s(2),tmp3(2)
+      integer fx(2),fy(2),fz(2)
+      logical value
+
+*     **** external functions ****
+      integer  ion_nion_qm,ion_katm,ewald_nshl3d
+      external ion_nion_qm,ion_katm,ewald_nshl3d
+      real*8   lattice_omega,ewald_zv,dsum,ion_rion,util_erfc,ddot
+      external lattice_omega,ewald_zv,dsum,ion_rion,util_erfc,ddot
+
+      call nwpw_timing_start(21)
+      nion = ion_nion_qm()
+
+*     **** allocate temp workspace ****
+      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+      value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+      value = value.and.
+     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+      value = value.and.MA_push_get(mt_dbl,nion,'fx',fx(2),fx(1)) 
+      value = value.and.MA_push_get(mt_dbl,nion,'fy',fy(2),fy(1)) 
+      value = value.and.MA_push_get(mt_dbl,nion,'fz',fz(2),fz(1)) 
+      if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
+
+
+      scal2 = 1.0d0/lattice_omega()
+      call dcopy(nion,0.0d0,0,dbl_mb(fx(1)),1)
+      call dcopy(nion,0.0d0,0,dbl_mb(fy(1)),1)
+      call dcopy(nion,0.0d0,0,dbl_mb(fz(1)),1)
+     
+*     **** get the structure factor ****
+      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+      do ii=1,nion
+         call ewald_strfac(ii,dcpl_mb(exi(1)))
+         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+         call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+      end do
+      do ii=1,nion
+         call ewald_strfac(ii,dcpl_mb(exi(1)))
+
+c         do i=1,enpack
+c            dbl_mb(tmp3(1)+i-1) 
+c     >              = ( dble(dcpl_mb(exi(1)+i-1))
+c     >                *dimag(dcpl_mb(s(1)+i-1))
+c     >              -  dimag(dcpl_mb(exi(1)+i-1))
+c     >                 *dble(dcpl_mb(s(1)+i-1))
+c     >                )*dbl_mb(vg(1)+i-1)
+c         end do
+         call ewald_f_tmp3(enpack,
+     >                     dcpl_mb(exi(1)),dcpl_mb(s(1)),
+     >                     dbl_mb(vg(1)),dbl_mb(tmp3(1)))
+
+         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
+         dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
+     >                      +  sum*zii*scal2
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
+         dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) 
+     >                      +  sum*zii*scal2
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
+         dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) 
+     >                      +  sum*zii*scal2
+      end do
+    
+      dutask=0
+      do i=1,nion-1
+      do j=i+1,nion
+       if (dutask.eq.tid) then
+        dx = ion_rion(1,i) - ion_rion(1,j)
+        dy = ion_rion(2,i) - ion_rion(2,j)
+        dz = ion_rion(3,i) - ion_rion(3,j)
+        zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
+        sw1=0.0d0
+        sw2=0.0d0
+        sw3=0.0d0  
+        do l=1,nshl3d
+           x = dbl_mb(rcell(1)+(l-1))          + dx
+           y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
+           z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
+           r = dsqrt(x*x+y*y+z*z)
+           w = r/rcut
+           yerfc = util_erfc(w)
+           f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
+           sw1=sw1+(x*f)
+           sw2=sw2+(y*f)
+           sw3=sw3+(z*f)
+        end do
+
+        dbl_mb(fx(1)+i-1) = dbl_mb(fx(1)+i-1) + sw1
+        dbl_mb(fy(1)+i-1) = dbl_mb(fy(1)+i-1) + sw2
+        dbl_mb(fz(1)+i-1) = dbl_mb(fz(1)+i-1) + sw3
+
+        dbl_mb(fx(1)+j-1) = dbl_mb(fx(1)+j-1) - sw1
+        dbl_mb(fy(1)+j-1) = dbl_mb(fy(1)+j-1) - sw2
+        dbl_mb(fz(1)+j-1) = dbl_mb(fz(1)+j-1) - sw3
+
+       end if
+       dutask = mod((dutask+1),tnp)
+      end do
+      end do
+      if (tnp.gt.1) then
+          call Parallel_Vector_SumAll(nion,dbl_mb(fx(1)))
+          call Parallel_Vector_SumAll(nion,dbl_mb(fy(1)))
+          call Parallel_Vector_SumAll(nion,dbl_mb(fz(1)))
+      end if
+
+      do i=1,nion
+         fion(1,i) = fion(1,i) + dbl_mb(fx(1)+i-1)
+         fion(2,i) = fion(2,i) + dbl_mb(fy(1)+i-1)
+         fion(3,i) = fion(3,i) + dbl_mb(fz(1)+i-1)
+      end do
+      
+*     **** deallocate temp workspace ****
+      value =           MA_pop_stack(fz(2))
+      value = value.and.MA_pop_stack(fy(2))
+      value = value.and.MA_pop_stack(fx(2))
+      value = value.and.MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(s(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
+
+      call nwpw_timing_end(21)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		ewald_stress_qm		*
+*     *	        			*
+*     ***********************************
+
+      subroutine ewald_stress_qm(stress)
+      implicit none
+      real*8  stress(3,3)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "ewald.fh"
+
+      integer N
+      parameter (N=40)
+
+*     ****  expansion coefficient of the error function ****
+      real*8 cerfc
+      parameter (cerfc=1.128379167d0)
+
+*     **** local variables ****
+      logical value
+      integer i,ii,j,l,nion
+      integer n1,n2,n3
+      integer u,v,s,dutask
+      real*8 pi,fourpi,scal
+      real*8 zz,z
+      real*8 Cus(3,3),hm(3,3),energy,sum,ss,rs
+      real*8 ea,ax,ay,az,epsilon
+      real*8 dx,dy,dz,w,ar,ai
+      real*8 unita(3,3),unitg(3,3)
+      complex*16 cz
+      integer H(2),F(2),tmp1(2),tmp2(2),exi(2),strf(2)
+
+*     **** external functions ****
+      integer  ion_katm,ion_nion_qm
+      real*8   ewald_zv,lattice_unitg,lattice_unita,lattice_omega
+      real*8   util_erfc,ion_rion,ddot
+      external ion_katm,ion_nion_qm
+      external ewald_zv,lattice_unitg,lattice_unita,lattice_omega
+      external util_erfc,ion_rion,ddot
+
+      call nwpw_timing_start(21)
+      pi     = 4.0d0*datan(1.0d0)
+      fourpi = 4.0d0*pi
+      scal   = 1.0d0/(2.0d0*pi)
+      nion    = ion_nion_qm()
+*     *** define hm,unita,unitg ****
+      do v=1,3
+      do u=1,3
+         hm(u,v) = scal*lattice_unitg(u,v)
+         unitg(u,v) = lattice_unitg(u,v)
+         unita(u,v) = lattice_unita(u,v)
+      end do
+      end do
+ 
+      zz = 0.0d0
+      z  = 0.0d0
+      do i=1,nion
+         zz = zz + dbl_mb(zv(1)+ion_katm(i)-1)**2
+         z  = z  + dbl_mb(zv(1)+ion_katm(i)-1)
+      end do
+
+*     **** Miscellaneous contributions - stress from cewald_qm term ****
+      do v=1,3
+      do u=1,3
+         stress(u,v) = 0.5d0*z*z*pi*rcut*rcut/lattice_omega()
+     >               *hm(u,v)
+      end do
+      end do
+
+
+*     **** G-space contributions ****
+
+*     **** get the structure factor ****
+      value=            MA_push_get(mt_dbl,enpack,'H',H(2),H(1))
+      value=value.and.MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
+      value=value.and.MA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
+      if (.not. value) 
+     >  call errquit('ewald_stress:out of stack memory',0,MA_ERR)
+
+
+      call dcopy((2*enpack),0.0d0,0,dcpl_mb(strf(1)),1)
+      do ii=1,nion
+         call ewald_strfac(ii,dcpl_mb(exi(1)))
+         call daxpy(2*enpack,ewald_zv(ion_katm(ii)),dcpl_mb(exi(1)),1,
+     >             dcpl_mb(strf(1)),1)
+      end do
+      do i=1,enpack
+          cz=dcpl_mb(strf(1)+i-1)
+          ar=dble(cz)
+          ai=dimag(cz)
+          dbl_mb(H(1)+i-1)=ar*ar+ai*ai
+      end do
+      value =           MA_pop_stack(strf(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     > call errquit('ewald_stress:error popping stack',0,MA_ERR)
+
+*     **** calculate the ewald energy ****
+c      call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
+      F(1) = vg(1)
+      energy=2.0d0*ddot(enpack,dbl_mb(F(1)),1,dbl_mb(H(1)),1)
+      if (tnp.gt.1) call Parallel_SumAll(energy)
+      energy = -0.5d0*energy/lattice_omega()
+
+
+      do v=1,3
+      do u=1,3
+         stress(u,v) = stress(u,v) + energy*hm(u,v)
+      end do
+      end do
+     
+*     **** tmp2(G) = F(G)*H(G)/G**2 + F(G)*H(G)*rcut*rcut/4 ****
+      value=          MA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
+      value=value.and.MA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
+      if (.not.value) 
+     >  call errquit('ewald_stress:out of stack memory',0,MA_ERR)
+
+      do i=1,enpack
+         dbl_mb(tmp1(1)+i-1)=dbl_mb(F(1)+i-1)*dbl_mb(H(1)+i-1)
+      end do
+      ss = 0.25d0*rcut*rcut
+      do i=1,enpack
+         dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
+      end do       
+      ss = 1.0d0/fourpi
+      do i=1,enpack
+         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
+      end do       
+      do i=1,enpack
+         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*dbl_mb(vcx(1)+i-1)
+      end do       
+      do i=1,enpack
+         dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp2(1)+i-1)+dbl_mb(tmp1(1)+i-1)
+      end do       
+
+*     **** calculate Cus ****
+
+      call dcopy(9,0.0d0,0,Cus,1)
+      ss =  1.0d0/lattice_omega()
+      do u=1,3
+      do s=u,3
+         do i=1,enpack
+            dbl_mb(tmp1(1)+i-1)=dbl_mb(eG(u)+i-1)*dbl_mb(eG(s)+i-1)
+         end do
+         sum=2.0d0*ddot(enpack,dbl_mb(tmp1(1)),1,dbl_mb(tmp2(1)),1)
+         !if (tnp.gt.1) call Parallel_SumAll(sum)
+         Cus(u,s) = ss*sum
+      end do
+      end do
+c      do u=1,3
+c      do s=u+1,3
+c         Cus(s,u) = Cus(u,s)
+c      end do
+c      end do
+c      do v=1,3
+c      do u=1,3
+c        do s=1,3
+c           stress(u,v) = stress(u,v) + Cus(u,s)*hm(s,v)
+c        end do
+c      end do
+c      end do
+
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      value = value.and.MA_Pop_stack(H(2))
+      if (.not.value) 
+     > call errquit('ewald_stress:error popping stack memory',0,MA_ERR)
+
+*     **** R-space contributions ****
+
+*     **** calculate alpha1 - stress from cewald_qm term*****
+c        call dcopy(9,0.0d0,0,Cus,1)
+        rs      = (3.0d0*lattice_omega()/(4.0d0*pi))**(1.0d0/3.0d0)
+        epsilon = 1.0d0/rcut
+        sum = 0.0d0
+        dutask = 0
+        do n1=(-N+1),(N-1) 
+        do n2=(-N+1),(N-1) 
+        do n3=(-N+1),(N-1) 
+           if (dutask.eq.tid) then
+           if (.not.((n1.eq.0).and.(n2.eq.0).and.(n3.eq.0))) then
+              ax = n1*unita(1,1)
+     >           + n2*unita(1,2)
+     >           + n3*unita(1,3)
+
+              ay = n1*unita(2,1)
+     >           + n2*unita(2,2)
+     >           + n3*unita(2,3)
+
+              az = n1*unita(3,1)
+     >           + n2*unita(3,2)
+     >           + n3*unita(3,3)
+
+              ea = dsqrt(ax*ax + ay*ay + az*az)
+              w = ea*epsilon
+
+              ss = util_erfc(w)/ea 
+     >           + 2.0d0*epsilon/dsqrt(pi)*dexp(-w*w)
+              ss = -(0.5d0*zz)*ss/(ea*ea)
+              Cus(1,1) = Cus(1,1) + ss * ax*ax 
+              Cus(1,2) = Cus(1,2) + ss * ax*ay 
+              Cus(1,3) = Cus(1,3) + ss * ax*az 
+
+              !Cus(2,1) = Cus(2,1) + ss * ay*ax 
+              Cus(2,2) = Cus(2,2) + ss * ay*ay 
+              Cus(2,3) = Cus(2,3) + ss * ay*az 
+
+              !Cus(3,1) = Cus(3,1) + ss * az*ax 
+              !Cus(3,2) = Cus(3,2) + ss * az*ay 
+              Cus(3,3) = Cus(3,3) + ss * az*az 
+
+           end if
+           end if
+           dutask=mod(dutask+1,tnp)
+        end do
+        end do
+        end do
+
+
+c        do v=1,3
+c        do u=1,3
+c          do s=1,3
+c             stress(u,v) = stress(u,v) + Cus(u,s)*hm(s,v)
+c          end do
+c        end do
+c        end do
+
+
+*     **** calculate erfc contribution *****
+c      call dcopy(9,0.0d0,0,Cus,1)
+      epsilon = 1.0d0/rcut
+      dutask=0
+      do i=1,nion-1
+      do j=i+1,nion
+        if (dutask.eq.tid) then
+        dx = ion_rion(1,i) - ion_rion(1,j)
+        dy = ion_rion(2,i) - ion_rion(2,j)
+        dz = ion_rion(3,i) - ion_rion(3,j)
+        zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
+        do l=1,nshl3d
+           ax = dbl_mb(rcell(1)+(l-1))          + dx
+           ay = dbl_mb(rcell(1)+(l-1)+nshl3d)   + dy
+           az = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
+           ea = dsqrt(ax*ax+ay*ay+az*az)
+           w = ea*epsilon
+
+           ss = -util_erfc(w)/ea
+     >        - 2.0d0*epsilon/dsqrt(pi)*exp(-w*w)
+           ss = ss/(ea*ea)
+           Cus(1,1) = Cus(1,1) + ss * ax*ax * zz
+           Cus(1,2) = Cus(1,2) + ss * ax*ay * zz
+           Cus(1,3) = Cus(1,3) + ss * ax*az * zz
+           Cus(2,2) = Cus(2,2) + ss * ay*ay * zz
+           Cus(2,3) = Cus(2,3) + ss * ay*az * zz
+           Cus(3,3) = Cus(3,3) + ss * az*az * zz
+        end do
+        end if
+        dutask=mod(dutask+1,tnp)
+      end do
+      end do
+
+      if (tnp.gt.1) then
+        call Parallel_Vector_SumAll(9,Cus(1,1))
+      end if
+
+      do u=1,3
+        do s=u+1,3
+           Cus(s,u) = Cus(u,s)
+        end do
+      end do
+
+      do v=1,3
+        do u=1,3
+          do s=1,3
+             stress(u,v) = stress(u,v) + Cus(u,s)*hm(s,v)
+          end do
+        end do
+      end do
+
+      call nwpw_timing_end(21)
+      return
+      end
+
+*     ***********************************
+*     *			  		*
+*     *		ewald_e_mm		*
+*     *				       	*
+*     ***********************************
+      real*8 function ewald_e_mm()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "ewald.fh"
+
+*     **** local variables ****
+      integer dutask
+      integer i,j,ii,l,nion,nion_qm,nion_mm
+      real*8  w,dx,dy,dz,x,y,z,r,zz
+      real*8  yerfc
+      real*8  energy,etmp,energyG,ttcr,ttci,zii
+      complex*16 ttcz
+*     **** temporary workspace variables ****
+      integer exi(2),s(2),tmp3(2)
+      logical value
+
+*     **** external functions ****
+      integer  ion_nion,ion_nion_qm,ion_nion_mm,ion_katm
+      real*8   lattice_omega,ewald_zv,dsum,ion_rion,util_erfc
+      real*8   ddot
+      external ion_nion,ion_nion_qm,ion_nion_mm,ion_katm
+      external lattice_omega,ewald_zv,dsum,ion_rion,util_erfc
+      external ddot
+
+      call nwpw_timing_start(21)
+
+*     **** allocate temp workspace ****
+      nion    = ion_nion()
+      nion_qm = ion_nion_qm()
+      nion_mm = ion_nion_mm()
+      
+      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+      value = value.and.
+     >        MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+      value = value.and.
+     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+      if (.not. value) 
+     >  call errquit('ewald_e:out of stack memory',0,MA_ERR)
+     
+*     **** get the structure factor ****
+      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+      do ii=1,nion_mm
+         call ewald_strfac(ii,dcpl_mb(exi(1)))
+         call daxpy(2*enpack,dbl_mb(zv(1)+ion_katm(ii)-1),
+     >          dcpl_mb(exi(1)),1,
+     >          dcpl_mb(s(1)),1)
+      end do
+
+*     **** calculate the ewald energy ****
+      call ewald_ct_Sqr(enpack,dcpl_mb(s(1)),dbl_mb(tmp3(1)))
+      energy=2.0d0*ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
+      if (tnp.gt.1) call Parallel_SumAll(energy)
+      energy  = 0.5d0*energy/lattice_omega() + cewald_qm
+
+      
+*     *** made parallel  ****
+      dutask = 0
+      etmp = 0.0d0
+      do i=nion_qm+1,nion-1
+      do j=i+1,nion
+      if (dutask.eq.tid) then
+        dx = ion_rion(1,i) - ion_rion(1,j)
+        dy = ion_rion(2,i) - ion_rion(2,j)
+        dz = ion_rion(3,i) - ion_rion(3,j)
+        zz = dbl_mb(zv(1)+ion_katm(i)-1)*dbl_mb(zv(1)+ion_katm(j)-1)
+        do l=1,nshl3d
+           x = dbl_mb(rcell(1)+(l-1))          + dx
+           y = dbl_mb(rcell(1)+(l-1)+nshl3d)   + dy
+           z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
+           r = dsqrt(x*x+y*y+z*z)
+           w = (r/rcut)
+           yerfc = util_erfc(w)  !*** needs to be faster
+           etmp=etmp+(zz*yerfc/r)
+        end do
+      end if
+      dutask=mod(dutask+1,tnp)
+      end do
+      end do
+      if (tnp.gt.1) call Parallel_SumAll(etmp)
+      energy = energy + etmp
+      
+
+*     **** deallocate temp workspace ****
+      value =           MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(s(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     >  call errquit('ewald_e:popping stack memory',0,MA_ERR)
+
+      call nwpw_timing_end(21)
+      ewald_e_mm = energy
+      return
+      end
+
+
+*     ***********************************
+*     *	        			*
+*     *		ewald_f_mm		*
+*     *		       			*
+*     ***********************************
+
+      subroutine ewald_f_mm(fion)
+      implicit none
+      real*8  fion(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "ewald.fh"
+
+*     ****  expansion coefficient of the error function ****
+      real*8 cerfc
+      parameter (cerfc=1.128379167d0)
+
+
+*     **** local variables ****
+      integer dutask
+      integer i,j,l,ii
+      real*8  w,dx,dy,dz,x,y,z,r,zz
+      real*8  yerfc
+      real*8  sum,scal2,f
+      real*8  sw1,sw2,sw3,zii
+
+*     **** temporary workspace variables ****
+      integer nion,nion_qm,nion_mm
+      integer exi(2),s(2),tmp3(2)
+      integer fx(2),fy(2),fz(2)
+      logical value
+
+*     **** external functions ****
+      integer  ion_nion,ion_nion_qm,ion_nion_mm,ion_katm,ewald_nshl3d
+      external ion_nion,ion_nion_qm,ion_nion_mm,ion_katm,ewald_nshl3d
+      real*8   lattice_omega,ewald_zv,dsum,ion_rion,util_erfc,ddot
+      external lattice_omega,ewald_zv,dsum,ion_rion,util_erfc,ddot
+
+      call nwpw_timing_start(21)
+      nion    = ion_nion()
+      nion_qm = ion_nion_qm()
+      nion_mm = ion_nion_mm()
+
+*     **** allocate temp workspace ****
+      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+      value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+      value = value.and.
+     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+      value = value.and.MA_push_get(mt_dbl,nion_mm,'fx',fx(2),fx(1)) 
+      value = value.and.MA_push_get(mt_dbl,nion_mm,'fy',fy(2),fy(1)) 
+      value = value.and.MA_push_get(mt_dbl,nion_mm,'fz',fz(2),fz(1)) 
+      if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
+
+
+      scal2 = 1.0d0/lattice_omega()
+      call dcopy(nion_mm,0.0d0,0,dbl_mb(fx(1)),1)
+      call dcopy(nion_mm,0.0d0,0,dbl_mb(fy(1)),1)
+      call dcopy(nion_mm,0.0d0,0,dbl_mb(fz(1)),1)
+     
+*     **** get the structure factor ****
+      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+      do ii=1,nion_mm
+         call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+         zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
+         call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+      end do
+      do ii=1,nion_mm
+         call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+
+         call ewald_f_tmp3(enpack,
+     >                     dcpl_mb(exi(1)),dcpl_mb(s(1)),
+     >                     dbl_mb(vg(1)),dbl_mb(tmp3(1)))
+
+         zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
+         dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
+     >                      +  sum*zii*scal2
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
+         dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) 
+     >                      +  sum*zii*scal2
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
+         dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) 
+     >                      +  sum*zii*scal2
+      end do
+    
+      dutask=0
+      do i=1,nion_mm-1
+      do j=i+1,nion_mm
+       if (dutask.eq.tid) then
+        dx = ion_rion(1,nion_qm+i) - ion_rion(1,nion_qm+j)
+        dy = ion_rion(2,nion_qm+i) - ion_rion(2,nion_qm+j)
+        dz = ion_rion(3,nion_qm+i) - ion_rion(3,nion_qm+j)
+        zz = ewald_zv(ion_katm(nion_qm+i))*ewald_zv(ion_katm(nion_qm+j))
+        sw1=0.0d0
+        sw2=0.0d0
+        sw3=0.0d0  
+        do l=1,nshl3d
+           x = dbl_mb(rcell(1)+(l-1))          + dx
+           y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
+           z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
+           r = dsqrt(x*x+y*y+z*z)
+           w = r/rcut
+           yerfc = util_erfc(w)
+           f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
+           sw1=sw1+(x*f)
+           sw2=sw2+(y*f)
+           sw3=sw3+(z*f)
+        end do
+
+        dbl_mb(fx(1)+i-1) = dbl_mb(fx(1)+i-1) + sw1
+        dbl_mb(fy(1)+i-1) = dbl_mb(fy(1)+i-1) + sw2
+        dbl_mb(fz(1)+i-1) = dbl_mb(fz(1)+i-1) + sw3
+
+        dbl_mb(fx(1)+j-1) = dbl_mb(fx(1)+j-1) - sw1
+        dbl_mb(fy(1)+j-1) = dbl_mb(fy(1)+j-1) - sw2
+        dbl_mb(fz(1)+j-1) = dbl_mb(fz(1)+j-1) - sw3
+
+       end if
+       dutask = mod((dutask+1),tnp)
+      end do
+      end do
+      if (tnp.gt.1) then
+          call Parallel_Vector_SumAll(nion_mm,dbl_mb(fx(1)))
+          call Parallel_Vector_SumAll(nion_mm,dbl_mb(fy(1)))
+          call Parallel_Vector_SumAll(nion_mm,dbl_mb(fz(1)))
+      end if
+
+      do i=1,nion_mm
+         fion(1,nion_qm+i) = fion(1,nion_qm+i) + dbl_mb(fx(1)+i-1)
+         fion(2,nion_qm+i) = fion(2,nion_qm+i) + dbl_mb(fy(1)+i-1)
+         fion(3,nion_qm+i) = fion(3,nion_qm+i) + dbl_mb(fz(1)+i-1)
+      end do
+      
+*     **** deallocate temp workspace ****
+      value =           MA_pop_stack(fz(2))
+      value = value.and.MA_pop_stack(fy(2))
+      value = value.and.MA_pop_stack(fx(2))
+      value = value.and.MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(s(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
+
+      call nwpw_timing_end(21)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		ewald_stress_mm		*
+*     *	        			*
+*     ***********************************
+
+      subroutine ewald_stress_mm(stress)
+      implicit none
+      real*8  stress(3,3)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "ewald.fh"
+
+      integer N
+      parameter (N=40)
+
+*     ****  expansion coefficient of the error function ****
+      real*8 cerfc
+      parameter (cerfc=1.128379167d0)
+
+*     **** local variables ****
+      logical value
+      integer i,ii,j,l,nion,nion_qm,nion_mm
+      integer n1,n2,n3
+      integer u,v,s,dutask
+      real*8 pi,fourpi,scal
+      real*8 zz,z
+      real*8 Cus(3,3),hm(3,3),energy,sum,ss,rs
+      real*8 ea,ax,ay,az,epsilon
+      real*8 dx,dy,dz,w,ar,ai
+      real*8 unita(3,3),unitg(3,3)
+      complex*16 cz
+      integer H(2),F(2),tmp1(2),tmp2(2),exi(2),strf(2)
+
+*     **** external functions ****
+      integer  ion_katm,ion_nion,ion_nion_qm,ion_nion_mm
+      real*8   ewald_zv,lattice_unitg,lattice_unita,lattice_omega
+      real*8   util_erfc,ion_rion,ddot
+      external ion_katm,ion_nion,ion_nion_qm,ion_nion_mm
+      external ewald_zv,lattice_unitg,lattice_unita,lattice_omega
+      external util_erfc,ion_rion,ddot
+
+      call nwpw_timing_start(21)
+      pi     = 4.0d0*datan(1.0d0)
+      fourpi = 4.0d0*pi
+      scal   = 1.0d0/(2.0d0*pi)
+      nion    = ion_nion()
+      nion_qm = ion_nion_qm()
+      nion_mm = ion_nion_mm()
+*     *** define hm,unita,unitg ****
+      do v=1,3
+      do u=1,3
+         hm(u,v) = scal*lattice_unitg(u,v)
+         unitg(u,v) = lattice_unitg(u,v)
+         unita(u,v) = lattice_unita(u,v)
+      end do
+      end do
+ 
+      zz = 0.0d0
+      z  = 0.0d0
+      do i=1,nion_mm
+         zz = zz + dbl_mb(zv(1)+ion_katm(nion_qm+i)-1)**2
+         z  = z  + dbl_mb(zv(1)+ion_katm(nion_qm+i)-1)
+      end do
+
+*     **** Miscellaneous contributions - stress from cewald_qm term ****
+      do v=1,3
+      do u=1,3
+         stress(u,v) = 0.5d0*z*z*pi*rcut*rcut/lattice_omega()
+     >               *hm(u,v)
+      end do
+      end do
+
+
+*     **** G-space contributions ****
+
+*     **** get the structure factor ****
+      value=            MA_push_get(mt_dbl,enpack,'H',H(2),H(1))
+      value=value.and.MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
+      value=value.and.MA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
+      if (.not. value) 
+     >  call errquit('ewald_stress:out of stack memory',0,MA_ERR)
+
+
+      call dcopy((2*enpack),0.0d0,0,dcpl_mb(strf(1)),1)
+      do ii=1,nion_mm
+         call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+         call daxpy(2*enpack,ewald_zv(ion_katm(nion_qm+ii)),
+     >             dcpl_mb(exi(1)),1,
+     >             dcpl_mb(strf(1)),1)
+      end do
+      do i=1,enpack
+          cz=dcpl_mb(strf(1)+i-1)
+          ar=dble(cz)
+          ai=dimag(cz)
+          dbl_mb(H(1)+i-1)=ar*ar+ai*ai
+      end do
+      value =           MA_pop_stack(strf(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     > call errquit('ewald_stress:error popping stack',0,MA_ERR)
+
+*     **** calculate the ewald energy ****
+c      call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
+      F(1) = vg(1)
+      energy=2.0d0*ddot(enpack,dbl_mb(F(1)),1,dbl_mb(H(1)),1)
+      if (tnp.gt.1) call Parallel_SumAll(energy)
+      energy = -0.5d0*energy/lattice_omega()
+
+
+      do v=1,3
+      do u=1,3
+         stress(u,v) = stress(u,v) + energy*hm(u,v)
+      end do
+      end do
+     
+*     **** tmp2(G) = F(G)*H(G)/G**2 + F(G)*H(G)*rcut*rcut/4 ****
+      value=          MA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
+      value=value.and.MA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
+      if (.not.value) 
+     >  call errquit('ewald_stress:out of stack memory',0,MA_ERR)
+
+      do i=1,enpack
+         dbl_mb(tmp1(1)+i-1)=dbl_mb(F(1)+i-1)*dbl_mb(H(1)+i-1)
+      end do
+      ss = 0.25d0*rcut*rcut
+      do i=1,enpack
+         dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
+      end do       
+      ss = 1.0d0/fourpi
+      do i=1,enpack
+         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
+      end do       
+      do i=1,enpack
+         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*dbl_mb(vcx(1)+i-1)
+      end do       
+      do i=1,enpack
+         dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp2(1)+i-1)+dbl_mb(tmp1(1)+i-1)
+      end do       
+
+*     **** calculate Cus ****
+
+      call dcopy(9,0.0d0,0,Cus,1)
+      ss =  1.0d0/lattice_omega()
+      do u=1,3
+      do s=u,3
+         do i=1,enpack
+            dbl_mb(tmp1(1)+i-1)=dbl_mb(eG(u)+i-1)*dbl_mb(eG(s)+i-1)
+         end do
+         sum=2.0d0*ddot(enpack,dbl_mb(tmp1(1)),1,dbl_mb(tmp2(1)),1)
+         !if (tnp.gt.1) call Parallel_SumAll(sum)
+         Cus(u,s) = ss*sum
+      end do
+      end do
+c      do u=1,3
+c      do s=u+1,3
+c         Cus(s,u) = Cus(u,s)
+c      end do
+c      end do
+c      do v=1,3
+c      do u=1,3
+c        do s=1,3
+c           stress(u,v) = stress(u,v) + Cus(u,s)*hm(s,v)
+c        end do
+c      end do
+c      end do
+
+      value =           MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      value = value.and.MA_Pop_stack(H(2))
+      if (.not.value) 
+     > call errquit('ewald_stress:error popping stack memory',0,MA_ERR)
+
+*     **** R-space contributions ****
+
+*     **** calculate alpha1 - stress from cewald_qm term*****
+c        call dcopy(9,0.0d0,0,Cus,1)
+        rs      = (3.0d0*lattice_omega()/(4.0d0*pi))**(1.0d0/3.0d0)
+        epsilon = 1.0d0/rcut
+        sum = 0.0d0
+        dutask = 0
+        do n1=(-N+1),(N-1) 
+        do n2=(-N+1),(N-1) 
+        do n3=(-N+1),(N-1) 
+           if (dutask.eq.tid) then
+           if (.not.((n1.eq.0).and.(n2.eq.0).and.(n3.eq.0))) then
+              ax = n1*unita(1,1)
+     >           + n2*unita(1,2)
+     >           + n3*unita(1,3)
+
+              ay = n1*unita(2,1)
+     >           + n2*unita(2,2)
+     >           + n3*unita(2,3)
+
+              az = n1*unita(3,1)
+     >           + n2*unita(3,2)
+     >           + n3*unita(3,3)
+
+              ea = dsqrt(ax*ax + ay*ay + az*az)
+              w = ea*epsilon
+
+              ss = util_erfc(w)/ea 
+     >           + 2.0d0*epsilon/dsqrt(pi)*dexp(-w*w)
+              ss = -(0.5d0*zz)*ss/(ea*ea)
+              Cus(1,1) = Cus(1,1) + ss * ax*ax 
+              Cus(1,2) = Cus(1,2) + ss * ax*ay 
+              Cus(1,3) = Cus(1,3) + ss * ax*az 
+
+              !Cus(2,1) = Cus(2,1) + ss * ay*ax 
+              Cus(2,2) = Cus(2,2) + ss * ay*ay 
+              Cus(2,3) = Cus(2,3) + ss * ay*az 
+
+              !Cus(3,1) = Cus(3,1) + ss * az*ax 
+              !Cus(3,2) = Cus(3,2) + ss * az*ay 
+              Cus(3,3) = Cus(3,3) + ss * az*az 
+
+           end if
+           end if
+           dutask=mod(dutask+1,tnp)
+        end do
+        end do
+        end do
+
+
+c        do v=1,3
+c        do u=1,3
+c          do s=1,3
+c             stress(u,v) = stress(u,v) + Cus(u,s)*hm(s,v)
+c          end do
+c        end do
+c        end do
+
+
+*     **** calculate erfc contribution *****
+c      call dcopy(9,0.0d0,0,Cus,1)
+      epsilon = 1.0d0/rcut
+      dutask=0
+      do i=1,nion_mm-1
+      do j=i+1,nion_mm
+        if (dutask.eq.tid) then
+        dx = ion_rion(1,nion_qm+i) - ion_rion(1,nion_qm+j)
+        dy = ion_rion(2,nion_qm+i) - ion_rion(2,nion_qm+j)
+        dz = ion_rion(3,nion_qm+i) - ion_rion(3,nion_qm+j)
+        zz = ewald_zv(ion_katm(nion_qm+i))*ewald_zv(ion_katm(nion_qm+j))
         do l=1,nshl3d
            ax = dbl_mb(rcell(1)+(l-1))          + dx
            ay = dbl_mb(rcell(1)+(l-1)+nshl3d)   + dy

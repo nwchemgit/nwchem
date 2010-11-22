@@ -208,7 +208,7 @@ c     *                                   *
 c     *************************************
       real*8 function pspw_LJ_E(nion,nion_qm,katm,
      >                          nfrag,indx_frag_start,size_frag,kfrag,
-     >                          self_interaction,
+     >                          self_interaction,lmbda,
      >                          nshl3d,rcell,
      >                          rion)
       implicit none
@@ -218,6 +218,7 @@ c     *************************************
       integer indx_frag_start(*),size_frag(*)
       integer kfrag(*)
       logical self_interaction(*)
+      real*8  lmbda
       integer nshl3d
       real*8  rcell(nshl3d,3)
       real*8  rion(3,*)
@@ -273,7 +274,7 @@ c     **** QM/MM LJ energy ****
          jj = katm(j)
          do i=1,nion_qm
             ii = katm(i)
-            e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
+            e1 = lmbda*dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
             if (e1.gt.1.0d-11) then
                s1 = dbl_mb(sigma_all(1)+(jj-1)*nkatm+ii-1)
                E = E + pspw_VLJ_E_periodic(e1,s1,rion(1,i),rion(1,j),
@@ -549,7 +550,7 @@ c     *************************************
       subroutine pspw_LJ_fion(nion,nion_qm,katm,
      >                        nfrag,indx_frag_start,size_frag,
      >                        kfrag,
-     >                        self_interaction,
+     >                        self_interaction,lmbda,
      >                        nshl3d,rcell,
      >                        rion,fion)
       implicit none
@@ -559,6 +560,7 @@ c     *************************************
       integer indx_frag_start(*),size_frag(*) 
       integer kfrag(*)
       logical self_interaction(*)
+      real*8  lmbda
       integer nshl3d
       real*8  rcell(nshl3d,3)
       real*8  rion(3,*)
@@ -611,7 +613,7 @@ c     **** QM/MM LJ energy ****
          jj = katm(j)
          do i=1,nion_qm
             ii = katm(i)
-            e1 = dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
+            e1 = lmbda*dbl_mb(epsilon_all(1)+(jj-1)*nkatm+ii-1)
             if (e1.gt.1.0d-11) then
             s1 = dbl_mb(sigma_all(1)+(jj-1)*nkatm+ii-1)
             call pspw_VLJ_fion_periodic(e1,s1,

@@ -55,7 +55,7 @@ c
       olock = .false.
       mlen = inp_strlen(module)
 c     
- 10   if (.not. inp_a(test)) goto 999
+ 10   if (.not. inp_a(test)) goto 9999
 c     
       if (.not. inp_match(num_dirs, .false., test, dirs, ind)) then
 c     

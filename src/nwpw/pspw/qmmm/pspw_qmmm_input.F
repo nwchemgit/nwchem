@@ -13,7 +13,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 11)
+      parameter (num_dirs = 12)
       character*30 dirs(num_dirs)
       data dirs / 'lj_ion_parameters:',
      >            'lj_ion_parameters',
@@ -25,6 +25,7 @@ c
      >            'nonfragment',
      >            'mm_psp',
      >            'mm_tags',
+     >            'qmmm_lambda',
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
@@ -87,7 +88,7 @@ c
      >  'pspw_qmmm_input: unknown directive', 0, INPUT_ERR)
 
 
-      goto ( 100,100, 200, 300, 400, 500, 600, 700,800,900,
+      goto ( 100,100, 200, 300, 400, 500, 600, 700,800,900,1000,
      >      9999) ind
       call errquit(
      >      'pspw_qmmm_input: unimplemented directive', ind, INPUT_ERR)
@@ -1161,6 +1162,17 @@ c     *** add ^ to tags ****
       if (.not. value) call errquit(
      > 'pspw_qmmm_input:failed deallocating mm_tags',0,MA_ERR)
 
+      goto 10
+c
+c  qmmm_lambda
+c
+ 1000 if (inp_f(alpha)) then
+         rtdb_name = 'pspw_qmmm_lmbda'
+         if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,1,alpha))
+     >     call errquit(
+     >     'pspw_qmmm_lmbda:failed reading qmmm_lmbda parameter:',0,
+     >      RTDB_ERR)
+      end if
       goto 10
 
  9999 continue

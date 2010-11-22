@@ -90,6 +90,11 @@ c
          end if
          end if
 
+*        **** reading qmmm_lmbda ****
+         rtdb_name = 'pspw_qmmm_lmbda'
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,qmmm_lmbda)) 
+     >      qmmm_lmbda=1.0d0
+
 *        **** reading number of frags ****
          rtdb_name = 'pspw_qmmm_nfrag'
          if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nfrag)) nfrag = 0
@@ -685,6 +690,8 @@ c
 *       ***** write out header info ****
         call Parallel_taskid(taskid)
         if (taskid.eq.MASTER) then
+           write(*,*) "qmmm_lambda coupling parameter  = ",qmmm_lmbda
+           write(*,*) 
            do ia=1,nkfrag
              write(*,*) "fragment ",ia
              write(*,'(1x,A,I4)') "  - fragment size = ",
@@ -1017,6 +1024,7 @@ c     **** external functions ***
      >                              int_mb(size_frag(1)),
      >                              int_mb(kfrag(1)),
      >                              log_mb(self_interaction(1)),
+     >                              qmmm_lmbda,
      >                              nshl3d,dbl_mb(rcell(1)),
      >                              dbl_mb(ion_rion_ptr()))
       end if
@@ -1037,6 +1045,8 @@ c     **** external functions ***
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
+      real*8 e1,e2,e3,e4
+
 c     **** external functions ***
       integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
       external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
@@ -1048,20 +1058,21 @@ c     **** external functions ***
       if (auxiliary_only) then
          pspw_qmmm_Q_E = 0.0d0
       else
-         pspw_qmmm_Q_E = pspw_Q_E(ion_nion(),
-     >                            ion_nion_qm(),
-     >                            int_mb(ion_katm_ptr()),
-     >                            dbl_mb(psp_zv_ptr()),
-     >                            dbl_mb(ion_amass_ptr()),
-     >                            nfrag,
-     >                            int_mb(indx_frag_start(1)),
-     >                            int_mb(size_frag(1)),
-     >                            int_mb(kfrag(1)),
-     >                            dbl_mb(switch_Rin(1)),
-     >                            dbl_mb(switch_Rout(1)),
-     >                            log_mb(self_interaction(1)),
-     >                            nshl3d,dbl_mb(rcell(1)),
-     >                            dbl_mb(ion_rion_ptr()))
+         e1 = pspw_Q_E(ion_nion(),
+     >                 ion_nion_qm(),
+     >                 int_mb(ion_katm_ptr()),
+     >                 dbl_mb(psp_zv_ptr()),
+     >                 dbl_mb(ion_amass_ptr()),
+     >                 nfrag,
+     >                 int_mb(indx_frag_start(1)),
+     >                 int_mb(size_frag(1)),
+     >                 int_mb(kfrag(1)),
+     >                 dbl_mb(switch_Rin(1)),
+     >                 dbl_mb(switch_Rout(1)),
+     >                 log_mb(self_interaction(1)),
+     >                 nshl3d,dbl_mb(rcell(1)),
+     >                 dbl_mb(ion_rion_ptr()))
+         pspw_qmmm_Q_E = e1
       end if
       return
       end
@@ -1360,6 +1371,7 @@ c     **** external functions ***
      >                      int_mb(size_frag(1)),
      >                      int_mb(kfrag(1)),
      >                      log_mb(self_interaction(1)),
+     >                      qmmm_lmbda,
      >                      nshl3d,dbl_mb(rcell(1)),
      >                      dbl_mb(ion_rion_ptr()),fion)
       end if

@@ -1,8 +1,8 @@
 
 *     **** ion common block ****
       logical     sym_inversion,periodic
-      integer     nion_mm,nion_qm
-      integer     nion,nkatm,nkatm_qm
+      integer     nion,nion_qm,nion_mm
+      integer     nkatm,nkatm_qm
       integer     r2(2),r1(2),r0(2),amass(2)
       integer     katm(2),natm(2),atom(2)
       integer     katm_qm(2),natm_qm(2),atom_qm(2)
@@ -10,14 +10,14 @@
       common / ION / r2,r1,r0,  ! ion positions and velocities
      >              amass,      ! atomic masses
      >              katm,       ! katm list, integer katm(nion)
-     >              katm_qm,   ! katm list, integer katm(nion)
+     >              katm_qm,   ! katm list, integer katm_qm(nion)
      >              natm,		! natm list, integer natm(nkatm)
-     >              natm_qm,		! natm list, integer natm(nkatm)
+     >              natm_qm,		! natm list, integer natm_qm(nkatm)
      >              atom,       ! character*2 atom(nkatm)
      >              atom_qm,       ! character*2 atom(nkatm)
      >              nion,		! number of ions and mm atoms
-     >              nion_mm,            ! number of mm atoms
-     >              nion_qm,            ! number of ions 
+     >              nion_qm,            ! number of qm ions 
+     >              nion_mm,            ! number of mm ions 
      >              nkatm,		! number of kinds of ions
      >              nkatm_qm,		! number of kinds of quantum ions
      >              dti,		! Verlet/steepest descent alpha

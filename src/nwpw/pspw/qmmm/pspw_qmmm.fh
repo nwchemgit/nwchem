@@ -3,6 +3,7 @@ c $Id$
 c
 
 *     ***** pspw_qmmm common block ************************************
+      real*8  qmmm_lmbda
       integer indx_frag_start(2)
       integer size_frag(2)
       integer kfrag(2)
@@ -11,7 +12,7 @@ c
       integer nshl3d,rcell(2)
       integer nfrag,nkfrag
       logical qmmm_found,shake_found,auxiliary_only,periodic
-      common / pspw_qmmm /  indx_frag_start,
+      common / pspw_qmmm /  qmmm_lmbda,indx_frag_start,
      >                      size_frag,
      >                      kfrag,switch_Rin,switch_Rout,
      >                      self_interaction,incell_frag,
