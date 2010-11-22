@@ -1410,13 +1410,13 @@ c     **** external functions ***
 #include "errquit.fh"
 #include "pspw_qmmm.fh"
 
-      integer nion3,ftmp2(2),ftmp3(2),ftmp4(2)
+      integer nion3,f2(2),f3(2),f4(2)
 
 c     **** external functions ***
       integer  ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
       external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
-      integer  psp_zv_ptr,ion_amass_ptr
-      external psp_zv_ptr,ion_amass_ptr
+      integer  psp_zv_ptr,ion_amass_ptr,control_version
+      external psp_zv_ptr,ion_amass_ptr,control_version
       real*8   pspw_Q_E
       external pspw_Q_E
 
@@ -1438,24 +1438,33 @@ c     **** external functions ***
 
          if (dabs(qmmm_lmbda-1.0d0).gt.1.0d-6) then
            nion3 = 3*ion_nion()
-           if (.not.MA_push_get(mt_dbl,nion3,'ftmp2',ftmp2(2),ftmp2(1)))
+           if (.not.MA_push_get(mt_dbl,nion3,'f2',f2(2),f2(1)))
      >     call errquit('pspw_qmmm_Q_fion:push stack memory',2,MA_ERR)
-           if (.not.MA_push_get(mt_dbl,nion3,'ftmp3',ftmp3(2),ftmp3(1)))
+           if (.not.MA_push_get(mt_dbl,nion3,'f3',f3(2),f3(1)))
      >     call errquit('pspw_qmmm_Q_fion:push stack memory',3,MA_ERR)
-           if (.not.MA_push_get(mt_dbl,nion3,'ftmp4',ftmp4(2),ftmp4(1)))
+           if (.not.MA_push_get(mt_dbl,nion3,'f4',f4(2),f4(1)))
      >     call errquit('pspw_qmmm_Q_fion:push stack memory',4,MA_ERR)
-           
-
-           if (.not.MA_pop_stack(ftmp4(2)))
+           call dcopy(nion3,0.0d0,0,dbl_mb(f2(1)),1)
+           call dcopy(nion3,0.0d0,0,dbl_mb(f3(1)),1)
+           call dcopy(nion3,0.0d0,0,dbl_mb(f4(1)),1)
+           if (control_version().eq.3) then
+               call ewald_f_async(dbl_mb(f2(1)))
+               call ewald_f_qm_async(dbl_mb(f3(1)))
+               call ewald_f_mm_async(dbl_mb(f4(1)))
+           else
+               call ion_ion_f_async(dbl_mb(f2(1)))
+               call ion_ion_f_qm_async(dbl_mb(f3(1)))
+               call ion_ion_f_mm_async(dbl_mb(f4(1)))
+           end if
+           call daxpy(nion3,(qmmm_lmbda-1.0d0),dbl_mb(f2(1)),1,fion,1)
+           call daxpy(nion3,(1.0d0-qmmm_lmbda),dbl_mb(f3(1)),1,fion,1)
+           call daxpy(nion3,(1.0d0-qmmm_lmbda),dbl_mb(f4(1)),1,fion,1)
+           if (.not.MA_pop_stack(f4(2)))
      >     call errquit('pspw_qmmm_Q_fion:pop stack memory',4,MA_ERR)
-           if (.not.MA_pop_stack(ftmp3(2)))
+           if (.not.MA_pop_stack(f3(2)))
      >     call errquit('pspw_qmmm_Q_fion:pop stack memory',3,MA_ERR)
-           if (.not.MA_pop_stack(ftmp2(2)))
+           if (.not.MA_pop_stack(f2(2)))
      >     call errquit('pspw_qmmm_Q_fion:pop stack memory',2,MA_ERR)
-
-
-c   e1 = e1 + (qmmm_lmbda-1.0d0)*(e2-e3-e4)
-
          end if
       end  if
       return

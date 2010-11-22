@@ -2293,3 +2293,395 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       call nwpw_timing_end(21)
       return
       end
+
+
+*     ***********************************
+*     *	        			*
+*     *		ewald_f_async		*
+*     *		       			*
+*     ***********************************
+
+      subroutine ewald_f_async(fion)
+      implicit none
+      real*8  fion(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "ewald.fh"
+
+*     ****  expansion coefficient of the error function ****
+      real*8 cerfc
+      parameter (cerfc=1.128379167d0)
+
+
+*     **** local variables ****
+      integer dutask
+      integer i,j,l,ii
+      real*8  w,dx,dy,dz,x,y,z,r,zz
+      real*8  yerfc
+      real*8  sum,scal2,f
+      real*8  sw1,sw2,sw3,zii
+
+*     **** temporary workspace variables ****
+      integer nion
+      integer exi(2),s(2),tmp3(2)
+      logical value
+
+*     **** external functions ****
+      integer  ion_nion,ion_katm,ewald_nshl3d
+      external ion_nion,ion_katm,ewald_nshl3d
+      real*8   lattice_omega,ewald_zv,dsum,ion_rion,util_erfc,ddot
+      external lattice_omega,ewald_zv,dsum,ion_rion,util_erfc,ddot
+
+      call nwpw_timing_start(21)
+      nion = ion_nion()
+
+*     **** allocate temp workspace ****
+      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+      value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+      value = value.and.
+     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+      if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
+
+
+      scal2 = 1.0d0/lattice_omega()
+
+*     **** get the structure factor ****
+      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+      do ii=1,nion
+         call ewald_strfac(ii,dcpl_mb(exi(1)))
+         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+         call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+      end do
+      do ii=1,nion
+         call ewald_strfac(ii,dcpl_mb(exi(1)))
+
+c         do i=1,enpack
+c            dbl_mb(tmp3(1)+i-1) 
+c     >              = ( dble(dcpl_mb(exi(1)+i-1))
+c     >                *dimag(dcpl_mb(s(1)+i-1))
+c     >              -  dimag(dcpl_mb(exi(1)+i-1))
+c     >                 *dble(dcpl_mb(s(1)+i-1))
+c     >                )*dbl_mb(vg(1)+i-1)
+c         end do
+         call ewald_f_tmp3(enpack,
+     >                     dcpl_mb(exi(1)),dcpl_mb(s(1)),
+     >                     dbl_mb(vg(1)),dbl_mb(tmp3(1)))
+
+         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
+         fion(1,ii) = fion(1,ii) + sum*zii*scal2
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
+         fion(2,ii) = fion(2,ii) + sum*zii*scal2
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
+         fion(3,ii) = fion(3,ii) + sum*zii*scal2
+      end do
+    
+      dutask=0
+      do i=1,nion-1
+      do j=i+1,nion
+       if (dutask.eq.tid) then
+        dx = ion_rion(1,i) - ion_rion(1,j)
+        dy = ion_rion(2,i) - ion_rion(2,j)
+        dz = ion_rion(3,i) - ion_rion(3,j)
+        zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
+        sw1=0.0d0
+        sw2=0.0d0
+        sw3=0.0d0  
+        do l=1,nshl3d
+           x = dbl_mb(rcell(1)+(l-1))          + dx
+           y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
+           z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
+           r = dsqrt(x*x+y*y+z*z)
+           if (r.gt.1.0d-6) then
+              w = r/rcut
+              yerfc = util_erfc(w)
+              f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
+              sw1=sw1+(x*f)
+              sw2=sw2+(y*f)
+              sw3=sw3+(z*f)
+           end if
+        end do
+
+        fion(1,i) = fion(1,i) + sw1
+        fion(2,i) = fion(2,i) + sw2
+        fion(3,i) = fion(3,i) + sw3
+
+        fion(1,j) = fion(1,j) - sw1
+        fion(2,j) = fion(2,j) - sw2
+        fion(3,j) = fion(3,j) - sw3
+
+       end if
+       dutask = mod((dutask+1),tnp)
+      end do
+      end do
+
+      
+*     **** deallocate temp workspace ****
+      value =           MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(s(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     >  call errquit('ewald_f_async:popping stack memory',0,MA_ERR)
+
+      call nwpw_timing_end(21)
+      return
+      end
+
+
+*     ***********************************
+*     *	        			*
+*     *		ewald_f_qm_async	*
+*     *		       			*
+*     ***********************************
+
+      subroutine ewald_f_qm_async(fion)
+      implicit none
+      real*8  fion(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "ewald.fh"
+
+*     ****  expansion coefficient of the error function ****
+      real*8 cerfc
+      parameter (cerfc=1.128379167d0)
+
+
+*     **** local variables ****
+      integer dutask
+      integer i,j,l,ii
+      real*8  w,dx,dy,dz,x,y,z,r,zz
+      real*8  yerfc
+      real*8  sum,scal2,f
+      real*8  sw1,sw2,sw3,zii
+
+*     **** temporary workspace variables ****
+      integer nion
+      integer exi(2),s(2),tmp3(2)
+      logical value
+
+*     **** external functions ****
+      integer  ion_nion_qm,ion_katm,ewald_nshl3d
+      external ion_nion_qm,ion_katm,ewald_nshl3d
+      real*8   lattice_omega,ewald_zv,dsum,ion_rion,util_erfc,ddot
+      external lattice_omega,ewald_zv,dsum,ion_rion,util_erfc,ddot
+
+      call nwpw_timing_start(21)
+      nion = ion_nion_qm()
+
+*     **** allocate temp workspace ****
+      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+      value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+      value = value.and.
+     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+      if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
+
+
+      scal2 = 1.0d0/lattice_omega()
+
+*     **** get the structure factor ****
+      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+      do ii=1,nion
+         call ewald_strfac(ii,dcpl_mb(exi(1)))
+         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+         call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+      end do
+      do ii=1,nion
+         call ewald_strfac(ii,dcpl_mb(exi(1)))
+
+c         do i=1,enpack
+c            dbl_mb(tmp3(1)+i-1) 
+c     >              = ( dble(dcpl_mb(exi(1)+i-1))
+c     >                *dimag(dcpl_mb(s(1)+i-1))
+c     >              -  dimag(dcpl_mb(exi(1)+i-1))
+c     >                 *dble(dcpl_mb(s(1)+i-1))
+c     >                )*dbl_mb(vg(1)+i-1)
+c         end do
+         call ewald_f_tmp3(enpack,
+     >                     dcpl_mb(exi(1)),dcpl_mb(s(1)),
+     >                     dbl_mb(vg(1)),dbl_mb(tmp3(1)))
+
+         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
+         fion(1,ii) = fion(1,ii) + sum*zii*scal2
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
+         fion(2,ii) = fion(2,ii) + sum*zii*scal2
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
+         fion(3,ii) = fion(3,ii) + sum*zii*scal2
+      end do
+    
+      dutask=0
+      do i=1,nion-1
+      do j=i+1,nion
+       if (dutask.eq.tid) then
+        dx = ion_rion(1,i) - ion_rion(1,j)
+        dy = ion_rion(2,i) - ion_rion(2,j)
+        dz = ion_rion(3,i) - ion_rion(3,j)
+        zz = ewald_zv(ion_katm(i)) * ewald_zv(ion_katm(j))
+        sw1=0.0d0
+        sw2=0.0d0
+        sw3=0.0d0  
+        do l=1,nshl3d
+           x = dbl_mb(rcell(1)+(l-1))          + dx
+           y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
+           z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
+           r = dsqrt(x*x+y*y+z*z)
+           w = r/rcut
+           yerfc = util_erfc(w)
+           f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
+           sw1=sw1+(x*f)
+           sw2=sw2+(y*f)
+           sw3=sw3+(z*f)
+        end do
+
+        fion(1,i) = fion(1,i) + sw1
+        fion(2,i) = fion(2,i) + sw2
+        fion(3,i) = fion(3,i) + sw3
+
+        fion(1,j) = fion(1,j) - sw1
+        fion(2,j) = fion(2,j) - sw2
+        fion(3,j) = fion(3,j) - sw3
+
+       end if
+       dutask = mod((dutask+1),tnp)
+      end do
+      end do
+
+      
+*     **** deallocate temp workspace ****
+      value =           MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(s(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
+
+      call nwpw_timing_end(21)
+      return
+      end
+
+
+*     ***********************************
+*     *	        			*
+*     *		ewald_f_mm_async	*
+*     *		       			*
+*     ***********************************
+
+      subroutine ewald_f_mm_async(fion)
+      implicit none
+      real*8  fion(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "ewald.fh"
+
+*     ****  expansion coefficient of the error function ****
+      real*8 cerfc
+      parameter (cerfc=1.128379167d0)
+
+
+*     **** local variables ****
+      integer dutask
+      integer i,j,l,ii
+      real*8  w,dx,dy,dz,x,y,z,r,zz
+      real*8  yerfc
+      real*8  sum,scal2,f
+      real*8  sw1,sw2,sw3,zii
+
+*     **** temporary workspace variables ****
+      integer nion,nion_qm,nion_mm
+      integer exi(2),s(2),tmp3(2)
+      logical value
+
+*     **** external functions ****
+      integer  ion_nion,ion_nion_qm,ion_nion_mm,ion_katm,ewald_nshl3d
+      external ion_nion,ion_nion_qm,ion_nion_mm,ion_katm,ewald_nshl3d
+      real*8   lattice_omega,ewald_zv,dsum,ion_rion,util_erfc,ddot
+      external lattice_omega,ewald_zv,dsum,ion_rion,util_erfc,ddot
+
+      call nwpw_timing_start(21)
+      nion    = ion_nion()
+      nion_qm = ion_nion_qm()
+      nion_mm = ion_nion_mm()
+
+*     **** allocate temp workspace ****
+      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+      value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+      value = value.and.
+     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+      if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
+
+
+      scal2 = 1.0d0/lattice_omega()
+     
+*     **** get the structure factor ****
+      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+      do ii=1,nion_mm
+         call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+         zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
+         call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+      end do
+      do ii=1,nion_mm
+         call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+
+         call ewald_f_tmp3(enpack,
+     >                     dcpl_mb(exi(1)),dcpl_mb(s(1)),
+     >                     dbl_mb(vg(1)),dbl_mb(tmp3(1)))
+
+         zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
+         fion(1,nion_qm+ii) = fion(1,nion_qm+ii) + sum*zii*scal2
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
+         fion(2,nion_qm+ii) = fion(2,nion_qm+ii) + sum*zii*scal2
+         sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
+         fion(3,nion_qm+ii) = fion(3,nion_qm+ii) + sum*zii*scal2
+      end do
+    
+      dutask=0
+      do i=1,nion_mm-1
+      do j=i+1,nion_mm
+       if (dutask.eq.tid) then
+        dx = ion_rion(1,nion_qm+i) - ion_rion(1,nion_qm+j)
+        dy = ion_rion(2,nion_qm+i) - ion_rion(2,nion_qm+j)
+        dz = ion_rion(3,nion_qm+i) - ion_rion(3,nion_qm+j)
+        zz = ewald_zv(ion_katm(nion_qm+i))*ewald_zv(ion_katm(nion_qm+j))
+        sw1=0.0d0
+        sw2=0.0d0
+        sw3=0.0d0  
+        do l=1,nshl3d
+           x = dbl_mb(rcell(1)+(l-1))          + dx
+           y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
+           z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
+           r = dsqrt(x*x+y*y+z*z)
+           w = r/rcut
+           yerfc = util_erfc(w)
+           f = zz*(yerfc+cerfc*w*dexp(-w*w))/r**3
+           sw1=sw1+(x*f)
+           sw2=sw2+(y*f)
+           sw3=sw3+(z*f)
+        end do
+
+        fion(1,nion_qm+i) = fion(1,nion_qm+i) + sw1
+        fion(2,nion_qm+i) = fion(2,nion_qm+i) + sw2
+        fion(3,nion_qm+i) = fion(3,nion_qm+i) + sw3
+
+        fion(1,nion_qm+j) = fion(1,nion_qm+j) - sw1
+        fion(2,nion_qm+j) = fion(2,nion_qm+j) - sw2
+        fion(3,nion_qm+j) = fion(3,nion_qm+j) - sw3
+
+       end if
+       dutask = mod((dutask+1),tnp)
+      end do
+      end do
+
+*     **** deallocate temp workspace ****
+      value =           MA_pop_stack(tmp3(2))
+      value = value.and.MA_pop_stack(s(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not. value) 
+     >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
+
+      call nwpw_timing_end(21)
+      return
+      end
+
