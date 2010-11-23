@@ -1,0 +1,29 @@
+start
+
+echo
+title ch3fr
+
+geometry noautoz units angstrom nocenter
+symmetry c1
+c +0.00000000   +0.00000000   +0.00000000
+f +1.19771313   -0.44448763   +0.52971973
+h -0.21385373   +0.98738914   +0.39826283
+h -0.78597592   -0.69448290   +0.28059107
+h +0.09050298   +0.04455726   -1.08102723
+end
+
+BASIS "ao basis" PRINT
+ * library 6-311G
+END
+
+charge 0
+
+dft
+ xc b3lyp
+end
+
+property
+  shielding
+end
+
+task dft property

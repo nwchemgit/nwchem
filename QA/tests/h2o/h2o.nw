@@ -1,7 +1,7 @@
 echo
-start h2o
+restart h2o
 
-memory global 40 mb stack 23 mb heap 5 mb
+memory 1000 mb
 
 geometry units au
  O 0       0        0
@@ -15,9 +15,14 @@ basis
   H library 6-31g*
 end
 
-scf
- rohf
- singlet
+dft
+  xc beckehandh
 end
+task dft optimize
 
-task scf gradient
+tddft
+  ecut -10
+  nroots 10
+  notriplet
+end 
+task tddft 
