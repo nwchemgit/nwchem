@@ -18,8 +18,6 @@
 	dft_zora_EPR-NMR_tools.o\
 	zora_getv_EPR.o\
 	calc_zora_EPR.o\
-	zora_getv_sf_1.o\
-	zora_getv_so_1.o\
 	zora_getv_sf.o\
 	zora_getv_so.o\
 	calc_EFG.o\
