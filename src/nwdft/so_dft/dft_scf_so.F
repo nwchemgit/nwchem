@@ -56,6 +56,7 @@ c     == zora related ==
       integer ncanorg
       logical ldmix
       character*7 vecs_or_dens
+      integer icalczora
 c
 c     == vdw contrib ==
       double precision dum
@@ -584,21 +585,27 @@ c      == zora: spin-orbit energy scaling arrays ==
      &    GA_ERR)
        call ga_zero(g_zora_scale_so(3))
 c
-c      == try reading the zora contributions from file ==
-       if (.not.dft_zora_read_so(zorafilename, nbf_ao, ipol, nmo, mult,
-     &     g_zora_sf, g_zora_scale_sf, g_zora_so, g_zora_scale_so)) then
-c
-c       == generate an superposition of atomic densities ==
-        call ga_zero(g_dens_at(1))
-        if (ipol.gt.1) call ga_zero(g_dens_at(2))
-        call guess_dens(rtdb, geom, ao_bas_han, g_dens_at)
-        if (oskel) call ga_symmetrize(g_dens_at(1))
-        if(ipol.gt.1) then
+c      == generate an superposition of atomic densities ==
+       call ga_zero(g_dens_at(1))
+       if (ipol.gt.1) call ga_zero(g_dens_at(2))
+       call guess_dens(rtdb, geom, ao_bas_han, g_dens_at)
+       if (oskel) call ga_symmetrize(g_dens_at(1))
+       if(ipol.gt.1) then
             call ga_copy(g_dens_at(1),g_dens_at(2))
             call ga_dscal(g_dens_at(1),dble(ntotel-nclosed)/(ntotel))
             call ga_dscal(g_dens_at(2),dble(nclosed)/(ntotel))
             if(oskel) call ga_symmetrize(g_dens_at(2))
-        end if
+       end if
+c
+c      == try reading the zora contributions from file ==
+       icalczora = 0
+       if (.not.dft_zora_read_so(zorafilename, nbf_ao, ipol, nmo, mult,
+     &     g_zora_sf, g_zora_scale_sf, g_zora_so, g_zora_scale_so)) 
+     &     icalczora = 1
+ 
+       if (icalczora.eq.1) then
+       if (me.eq.0) 
+     &  write(luout,*) "== Generating atomic ZORA corrections =="
 c
 c       == calculate the zora atomic corrections ==
         call zora_getv_so(rtdb, g_dens_at, g_zora_sf, g_zora_scale_sf,
@@ -611,7 +618,7 @@ c       == write out the atomic zora corrections to file ==
      &    call errquit('dft_scf_so: dft_zora_write_so failed', 0, 
      &            DISK_ERR)
 c
-       end if ! zora file read
+       end if ! icalczora
       end if  ! do_zora
 c
       call ga_sync()
