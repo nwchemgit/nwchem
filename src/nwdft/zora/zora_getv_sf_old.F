@@ -1,7 +1,7 @@
 c
 c     == compute the matrix elements for the zora corrections ==
-      subroutine zora_getv_sf(rtdb, g_dens, g_zora_sf, g_zora_scale_sf,
-     &      nexc)
+      subroutine zora_getv_sf_old(rtdb, g_dens, g_zora_sf, 
+     & g_zora_scale_sf, nexc)
 c
 C$Id: zora_getv_sf.F 19765 2010-11-10 19:37:59Z faquino $
 c

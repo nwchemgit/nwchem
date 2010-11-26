@@ -1,8 +1,8 @@
 c
 c     == compute the matrix elements for the zora corrections ==
 c     == scalar and spin-orbit components (x,y,z)
-      subroutine zora_getv_so(rtdb, g_dens, g_zora_sf, g_zora_scale_sf,
-     &            g_zora_so, g_zora_scale_so, nexc)
+      subroutine zora_getv_so_old(rtdb, g_dens, g_zora_sf, 
+     &   g_zora_scale_sf, g_zora_so, g_zora_scale_so, nexc)
 c
 C$Id: zora_getv_so.F 19765 2010-11-10 19:37:59Z faquino $
 c

@@ -1,9 +1,11 @@
 c
 c     == compute the matrix elements for the zora corrections ==
-      subroutine zora_getv_sf(rtdb, g_dens, g_zora_sf, g_zora_scale_sf,
-     &      nexc)
+      subroutine zora_getv_sf(rtdb, g_dens, 
+     &                          g_zora_sf, g_zora_scale_sf,
+     &                          nexc)
 c
 C$Id$
+c Modified from zora_getv_sf() by FA 10-31-10
 c
       implicit none
 c
@@ -30,7 +32,6 @@ c
 c     == local variables ==
       integer i,j,nij
       double precision rho_n
-      double precision Eke
       double precision tmat
       double precision dummy(2)
       integer iqsh, istep, nxyz, ncontrset
@@ -46,7 +47,6 @@ c
      &     l_rq,i_rq,lniz, iniz,
      &     lchi_ao, ichi_ao,
      &     ldelchi_ao, idelchi_ao,
-     &     lovlp, iovlp, lke, ike,
      &     lzora0, izora0,
      &     lzora0scal, izora0scal
 c
@@ -55,10 +55,6 @@ c
       external grid_file_rewind
 c
 c     == allocate memory ==
-      if (.not.MA_Push_Get(mt_dbl, nbf_ao*nbf_ao,'ovlp', lovlp, iovlp))
-     &   call errquit('zora_getv_sf: ovlp',0, MA_ERR)
-      if (.not.MA_Push_Get(mt_dbl, nbf_ao*nbf_ao,'ke', lke, ike))
-     &   call errquit('zora_getv_sf: ke',0, MA_ERR)
       if (.not.MA_Push_Get(mt_dbl,nbf_ao*nbf_ao,'zora0',lzora0,izora0)) 
      &   call errquit('zora_getv: zorasf',0, MA_ERR)
       if (.not.MA_Push_Get(mt_dbl, nbf_ao*nbf_ao,'zora0scal',
@@ -66,10 +62,7 @@ c     == allocate memory ==
      &       call errquit('zora_getv: zorasf',0, MA_ERR)
 c
 c     == preliminaries ==
-      ke = 0.d0
       do i= 1, nbf_ao*nbf_ao
-         dbl_mb(iovlp+i-1)=0.d0
-         dbl_mb(ike+i-1)=0.d0
          dbl_mb(izora0+i-1)=0.d0
          dbl_mb(izora0scal+i-1)=0.d0
       enddo
@@ -138,14 +131,6 @@ c     == rewind grid file ==
       if (.not. grid_file_rewind())
      $     call errquit('zora_getv_sf: rewinding gridpts?', 0,
      &       UNKNOWN_ERR)
-c
-c      if (ga_nodeid().eq.0) then
-c         write(6,*) "ncenters:",ncenters
-c         write(6,*) "n_rec_in_file:",n_rec_in_file
-c         write(6,*) "buffer_size:",buffer_size
-c         write(6,*) "nbf_ao:",nbf_ao
-c      end if
-c
 c     == loop over records in the grid file ==
       do iqsh = 1, n_rec_in_file
 c
@@ -184,31 +169,18 @@ c              == chi ==
                if (.not.MA_Push_Get(mt_dbl, nqpts*nbf_ao,
      &             'chi_ao', lchi_ao, ichi_ao))
      &             call errquit('zora_getv: chi_ao',0, MA_ERR)
-c
                call qdist(dbl_mb(i_rchi_atom), dbl_mb(i_rq),
      &              dbl_mb(iqxyz), dbl_mb(ixyz), nqpts, ncenters)
-c
                call xc_eval_basis(ao_bas_han, 1, dbl_mb(ichi_ao),
      &              dbl_mb(idelchi_ao), 0d0, 0d0, dbl_mb(i_rq),
      &              dbl_mb(iqxyz), dbl_mb(ixyz), nqpts, ncenters,
      &              int_mb(iniz), log_mb(idocset),
      &              int_mb(ibas_cent_info), int_mb(ibas_cset_info))
-c
 c              == calculate spin-free zora contribution ==
-               goto 100
-               call calc_zora_sf(ao_bas_han, geom, ipol, g_dens,
-     &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao), dbl_mb(iqxyz), 
-     &              dbl_mb(iqwght), nbf_ao, nqpts, ncenters, 
-     &              dbl_mb(iovlp), dbl_mb(ike), 
-     &              dbl_mb(izora0), dbl_mb(izora0scal))
- 100           continue
-c              goto 101
                call calc_zora_sf_FA(ao_bas_han, geom, ipol, g_dens,
      &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao), dbl_mb(iqxyz), 
      &              dbl_mb(iqwght), nbf_ao, nqpts, ncenters, 
      &              dbl_mb(izora0), dbl_mb(izora0scal))           
- 101           continue
-
 c              == delete memory ==
                if(.not.MA_pop_stack(lchi_ao))
      &            call errquit("zora_getv: pop chi_ao", 100, MA_ERR)
@@ -249,51 +221,23 @@ c     == tally up over all the nodes ==
       do i = 1, nbf_ao
         do j = 1, nbf_ao
          nij = nij + 1
-c         call ga_dgop(msg_excrho, dbl_mb(iovlp+nij-1), 1, '+')
-c         call ga_dgop(msg_excrho, dbl_mb(ike+nij-1), 1, '+')
          call ga_dgop(msg_excrho, dbl_mb(izora0+nij-1), 1, '+')
          call ga_dgop(msg_excrho, dbl_mb(izora0scal+nij-1), 1, '+')
-c         if (i.eq.j) then
-c          if (ga_nodeid().eq.0) write(luout,*) i,j,dbl_mb(iovlp+nij-1)
-c         end if
         enddo
       enddo
 c
 c     == pack into a ga ==
-      call ga_zero(g_zora_sf(1))
-      call ga_put(g_zora_sf(1),1,nbf_ao,1,nbf_ao,dbl_mb(izora0),nbf_ao)
-      if (ipol.gt.1) call ga_copy(g_zora_sf(1),g_zora_sf(2))
-
-      call ga_zero(g_zora_scale_sf(1))
-      call ga_put(g_zora_scale_sf(1),1,nbf_ao,1,nbf_ao,
-     &     dbl_mb(izora0scal),nbf_ao)
-      if (ipol.gt.1) call ga_copy(g_zora_scale_sf(1),g_zora_scale_sf(2))
-
-c +++++++++ printing zora matrices ++++++ START
-      call ga_print(g_zora_sf(1))
-      call ga_print(g_zora_scale_sf(1))
-c +++++++++ printing zora matrices ++++++ END
-c
-c     == symmetrize scalar contributions == (might be redundant)
-      call ga_symmetrize(g_zora_sf(1))
-      if(ipol.gt.1) call ga_symmetrize(g_zora_sf(2))
-      call ga_symmetrize(g_zora_scale_sf(1))
-      if(ipol.gt.1) call ga_symmetrize(g_zora_scale_sf(2))
-c +++++++++ printing zora matrices ++++++ START
-      call ga_print(g_zora_sf(1))
-      call ga_print(g_zora_scale_sf(1))
-c +++++++++ printing zora matrices ++++++ END
-c
-c      Eke = ga_ddot(g_dens(1), g_zora_sf(1))
-c      if (ga_nodeid().eq.0) write(luout,*) "Kinetic_Energy1:",Eke
-c      Eke = ga_ddot(g_dens(1), g_zora_scale_sf(1))
-c      if (ga_nodeid().eq.0) write(luout,*) "Kinetic_Energy2:",Eke
-c
+      do i=1,ipol
+       call ga_zero(g_zora_sf(i))
+       call ga_put(g_zora_sf(i),1,nbf_ao,1,nbf_ao,
+     &             dbl_mb(izora0),nbf_ao)
+       call ga_symmetrize(g_zora_sf(i))
+       call ga_zero(g_zora_scale_sf(i))
+       call ga_put(g_zora_scale_sf(i),1,nbf_ao,1,nbf_ao,
+     &             dbl_mb(izora0scal),nbf_ao)
+       call ga_symmetrize(g_zora_scale_sf(i))
+      enddo
       call ga_sync()
-c
 c     == clean memory ==
-      if(.not.MA_chop_stack(lovlp))
-     &     call errquit("zora_getv_sf: chop ovlp", 100, MA_ERR)
-c
       return
       end
