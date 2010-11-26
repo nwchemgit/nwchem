@@ -178,6 +178,7 @@ c     == zora related ==
       integer g_zora_sf(2)
       integer g_zora_scale_sf(2)
       double precision ener_scal
+      integer icalczora
 c
 c     timings 
       double precision time1,time2
@@ -509,17 +510,13 @@ c       == zora energy scaling arrays ==
      &     call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
            call ga_zero(g_zora_scale_sf(2))
         endif
-c +++++++ Create g_zora_Kinetic array +++++++ START
-       do i=1,ipol
-       if(.not.ga_duplicate(g_vxc(i),g_zora_Kinetic(i),'sf 1'))
-     &  call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
-        call ga_zero(g_zora_Kinetic(i))
-       enddo
-c +++++++ Create g_zora_Kinetic array +++++++ START
 c
-c       == try reading the zora atomic corrections from file ==
-        if (.not.dft_zora_read(zorafilename, nbf_ao, ipol, nmo,
-     &            mult, g_zora_sf, g_zora_scale_sf)) then
+c       == create g_zora_Kinetic array ==
+        do i=1,ipol
+        if(.not.ga_duplicate(g_vxc(i),g_zora_Kinetic(i),'sf 1'))
+     &   call errquit('dft_scf: ga_duplicate failed',1, GA_ERR)
+         call ga_zero(g_zora_Kinetic(i))
+        enddo
 c
 c       == generate an superposition of atomic densities ==
         call ga_zero(g_dens_at(1))
@@ -533,30 +530,30 @@ c       == generate an superposition of atomic densities ==
             if(oskel) call ga_symmetrize(g_dens_at(2))
         end if
 c
+c       == try reading the zora atomic corrections from file ==
+        icalczora = 0  ! initialize the flag
+        if (.not.dft_zora_read(zorafilename, nbf_ao, ipol, nmo,
+     &            mult, g_zora_sf, g_zora_scale_sf)) icalczora = 1
+c
 c       == calculate the zora spin-free atomic corrections ==
-        goto 17
-        if (ga_nodeid().eq.0)
-     &    write(*,*) 'Using zora_getv_sf() ...'
-        call zora_getv_sf(rtdb, g_dens_at, g_zora_sf, g_zora_scale_sf,
-     &                    nexc)
- 17     continue
-        if (ga_nodeid().eq.0)
-     &    write(*,*) 'Using zora_getv_sf_1() ...'
-        call zora_getv_sf_1(rtdb, g_dens_at, g_zora_sf, g_zora_scale_sf,
+        if (icalczora.eq.1) then 
+         if (me.eq.0) 
+     &     write(luout,*) "== Generating atomic ZORA corrections =="
+         call zora_getv_sf(rtdb, g_dens_at, g_zora_sf,g_zora_scale_sf,
      &                      nexc)
-c NOTE.-Storing g_zora_Kinetic to be used in rohf_fock.F
-c       for cphf routine - FA-11-08-10
-c       -> g_zora_Kinetic is defined in zora.fh
-         do i=1,ipol
-          call ga_copy(g_zora_sf(i),g_zora_Kinetic(i))
-         enddo
 c
 c       == write out the atomic zora corrections to file ==
         if (.not.dft_zora_write(rtdb, ao_bas_han, zorafilename,
-     &     nbf_ao, ipol, nmo, mult, g_zora_sf, g_zora_scale_sf))
-     &    call errquit('dft_scf: dft_zora_write failed', 0, DISK_ERR)
+     &   nbf_ao, ipol, nmo, mult, g_zora_sf, g_zora_scale_sf))
+     &   call errquit('dft_scf: dft_zora_write failed', 0, DISK_ERR)
+        end if   ! icalczora
 c
-        end if   ! zora file read
+c       == NOTE.-Storing g_zora_Kinetic to be used in rohf_fock.F ==
+c       == for cphf routine - FA-11-08-10 ==
+c       == -> g_zora_Kinetic is defined in zora.fh ==
+        do i=1,ipol
+          call ga_copy(g_zora_sf(i),g_zora_Kinetic(i))
+        enddo
       end if  ! do_zora
 c
 c     == determine guess ==
