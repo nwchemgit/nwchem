@@ -491,7 +491,7 @@ c*module vscf    *deck vgrid
      *                 NFIN,NCOUP,rtdb,geom,
      *                 ldiag,lcoup,ltrip)
 C
-      IMPLICIT DOUBLE PRECISION (A-H,O-Z)
+      implicit none
 #include "errquit.fh"
 c
 #include "nwc_const.fh"
@@ -503,7 +503,9 @@ c
 #include "util.fh"
 #include "stdio.fh"
 C
+      integer NC1,NAT1,NNM,NGRID,NDIPMO,NCOUP
       LOGICAL psi0,do1,do2,do3,status
+      integer ldiag, lcoup, ltrip ! these are unit numbers
       character*32 theory
       character*255 vectors_in
 c
@@ -512,15 +514,20 @@ c
 C
       integer rtdb, geom
 c
-      DIMENSION EIG(NC1),VEC(NC1,NC1),DX(NC1),DIAGV(NNM,NGRID)
-      DIMENSION FREQ(NNM),C0(3,NAT1),COUPV(NNM,NNM,NGRID,NGRID)
-      DIMENSION DQ(NNM),RQ(NNM,NGRID),TRIPV(NNM,NNM,NNM,
+      double precision EIG(NC1),VEC(NC1,NC1),DX(NC1),DIAGV(NNM,NGRID)
+      double precision FREQ(NNM),C0(3,NAT1),COUPV(NNM,NNM,NGRID,NGRID)
+      double precision DQ(NNM),RQ(NNM,NGRID),TRIPV(NNM,NNM,NNM,
      *                                        NGRID,NGRID,NGRID)
-      DIMENSION DM1X(NNM,NGRID),DM1Y(NNM,NGRID),DM1Z(NNM,NGRID) 
-      DIMENSION DM2X(NNM,NNM,NGRID,NGRID),DM2Y(NNM,NNM,NGRID,NGRID),
-     *          DM2Z(NNM,NNM,NGRID,NGRID)
-      dimension dmtemp(3),NFIN(7)
+      double precision DM1X(NNM,NGRID),DM1Y(NNM,NGRID),DM1Z(NNM,NGRID) 
+      double precision DM2X(NNM,NNM,NGRID,NGRID),
+     *                 DM2Y(NNM,NNM,NGRID,NGRID),
+     *                 DM2Z(NNM,NNM,NGRID,NGRID)
+      double precision dmtemp(3), dmx, dmy, dmz, dmx0, dmy0, dmz0
+      double precision qmin, qrange, wave, fact, e, e0
+      integer          NFIN(7),nstart, n, m, j, i, k
+      integer          mn, jm, km, jl, kl, im, il, jk, ii
 C
+      double precision zero, one, four, two, amu
       PARAMETER (ZERO=0.0D+00, ONE=1.0D+00, FOUR=4.0D+00)
       PARAMETER (TWO=2.0D+00, AMU=1.8229D+03)
 C
@@ -541,9 +548,9 @@ c     end if
 C      
 c     do we need to get starting orbitals at the input geometry?
 c
-      do1 = .not.(                (nread.ge.1 .and. NFIN1.eq.NC1))
-      do2 = .not.(ncoup.le.1 .or. (nread.ge.2 .and. NFIN2.eq.NC1))
-      do3 = .not.(ncoup.le.2 .or. (nread.ge.3 .and. NFIN3.eq.NC1))
+      do1 = .not.(.false.   )
+      do2 = .not.(ncoup.le.1)
+      do3 = .not.(ncoup.le.2)
       psi0 = (do1 .or. do2 .or. do3)
 c
         if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
@@ -817,9 +824,9 @@ C
       if ((ncoup.le.2) .or. (nfin(1).eq.3)) goto 300
 C
       if (ga_nodeid().eq.0) then
-         write(IP,*)
-         write(IP,*) ' 3-body coupling potential'
-         write(IP,*)
+         write(LuOut,*)
+         write(LuOut,*) ' 3-body coupling potential'
+         write(LuOut,*)
       end if
 C
       if (ga_nodeid().eq.0) write(LuOut,9080) 
@@ -884,10 +891,10 @@ c
      *                  diagV(im,il)-diagV(jm,jl)-diagV(km,kl)-
      *                  coupV(im,jm,il,jl)-coupV(im,km,il,kl)-
      *                  coupV(jm,km,jl,kl)
-                  if(ga_nodeid().eq.0) write(IP,9025) im,jm,km,
+                  if(ga_nodeid().eq.0) write(LuOut,9025) im,jm,km,
      *                            RQ(im,il),RQ(jm,jl),RQ(km,kl),
      *                            tripV(im,jm,km,il,jl,kl)
-                  if(ga_nodeid().eq.0) call util_flush(ip)
+                  if(ga_nodeid().eq.0) call util_flush(LuOut)
   299             continue
                 end do
               end do
