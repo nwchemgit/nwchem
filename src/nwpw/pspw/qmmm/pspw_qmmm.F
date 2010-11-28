@@ -92,8 +92,10 @@ c
 
 *        **** reading qmmm_lmbda ****
          rtdb_name = 'pspw_qmmm_lmbda'
-         if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,qmmm_lmbda)) 
-     >      qmmm_lmbda=1.0d0
+         lmbda_flag = .false.
+         qmmm_lmbda=1.0d0
+         if (rtdb_get(rtdb,rtdb_name,mt_dbl,1,qmmm_lmbda)) 
+     >      lmbda_flag=.true.
 
 *        **** reading number of frags ****
          rtdb_name = 'pspw_qmmm_nfrag'
@@ -690,7 +692,8 @@ c
 *       ***** write out header info ****
         call Parallel_taskid(taskid)
         if (taskid.eq.MASTER) then
-           write(*,*) "qmmm_lambda coupling parameter  = ",qmmm_lmbda
+           if (lmbda_flag) 
+     >        write(*,*) "qmmm_lambda coupling parameter  = ",qmmm_lmbda
            write(*,*) 
            do ia=1,nkfrag
              write(*,*) "fragment ",ia
@@ -1076,7 +1079,7 @@ c     **** external functions ***
      >                 log_mb(self_interaction(1)),
      >                 nshl3d,dbl_mb(rcell(1)),
      >                 dbl_mb(ion_rion_ptr()))
-         if (dabs(qmmm_lmbda-1.0d0).gt.1.0d-6) then
+         if (lmbda_flag.and.(dabs(qmmm_lmbda-1.0d0).gt.1.0d-6)) then
             if (control_version().eq.3) then
                e2 = ewald_e()
                e3 = ewald_e_qm()
@@ -1436,7 +1439,7 @@ c     **** external functions ***
      >                    nshl3d,dbl_mb(rcell(1)),
      >                    dbl_mb(ion_rion_ptr()),fion)
 
-         if (dabs(qmmm_lmbda-1.0d0).gt.1.0d-6) then
+         if (lmbda_flag.and.(dabs(qmmm_lmbda-1.0d0).gt.1.0d-6)) then
            nion3 = 3*ion_nion()
            if (.not.MA_push_get(mt_dbl,nion3,'f2',f2(2),f2(1)))
      >     call errquit('pspw_qmmm_Q_fion:push stack memory',2,MA_ERR)

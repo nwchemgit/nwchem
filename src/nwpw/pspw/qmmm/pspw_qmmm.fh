@@ -11,14 +11,14 @@ c
       integer self_interaction(2),incell_frag(2)
       integer nshl3d,rcell(2)
       integer nfrag,nkfrag
-      logical qmmm_found,shake_found,auxiliary_only,periodic
+      logical qmmm_found,shake_found,auxiliary_only,periodic,lmbda_flag
       common / pspw_qmmm /  qmmm_lmbda,indx_frag_start,
      >                      size_frag,
      >                      kfrag,switch_Rin,switch_Rout,
      >                      self_interaction,incell_frag,
      >                      rcell,nshl3d,
      >                      nfrag,nkfrag,qmmm_found,shake_found,
-     >                      auxiliary_only,
+     >                      auxiliary_only,lmbda_flag,
      >                      periodic
 
 *     **** pspw_qmmm shake common block ****

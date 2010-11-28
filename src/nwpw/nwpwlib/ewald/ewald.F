@@ -1804,8 +1804,8 @@ c      call dcopy(9,0.0d0,0,Cus,1)
 *     **** get the structure factor ****
       call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
       do ii=1,nion_mm
-         call ewald_strfac(ii,dcpl_mb(exi(1)))
-         call daxpy(2*enpack,dbl_mb(zv(1)+ion_katm(ii)-1),
+         call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+         call daxpy(2*enpack,dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1),
      >          dcpl_mb(exi(1)),1,
      >          dcpl_mb(s(1)),1)
       end do
@@ -1820,13 +1820,14 @@ c      call dcopy(9,0.0d0,0,Cus,1)
 *     *** made parallel  ****
       dutask = 0
       etmp = 0.0d0
-      do i=nion_qm+1,nion-1
-      do j=i+1,nion
+      do i=1,nion_mm-1
+      do j=i+1,nion_mm
       if (dutask.eq.tid) then
-        dx = ion_rion(1,i) - ion_rion(1,j)
-        dy = ion_rion(2,i) - ion_rion(2,j)
-        dz = ion_rion(3,i) - ion_rion(3,j)
-        zz = dbl_mb(zv(1)+ion_katm(i)-1)*dbl_mb(zv(1)+ion_katm(j)-1)
+        dx = ion_rion(1,nion_qm+i) - ion_rion(1,nion_qm+j)
+        dy = ion_rion(2,nion_qm+i) - ion_rion(2,nion_qm+j)
+        dz = ion_rion(3,nion_qm+i) - ion_rion(3,nion_qm+j)
+        zz = dbl_mb(zv(1)+ion_katm(nion_qm+i)-1)
+     >      *dbl_mb(zv(1)+ion_katm(nion_qm+j)-1)
         do l=1,nshl3d
            x = dbl_mb(rcell(1)+(l-1))          + dx
            y = dbl_mb(rcell(1)+(l-1)+nshl3d)   + dy
