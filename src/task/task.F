@@ -266,7 +266,7 @@ c
          else if (inp_compare(.false.,'cphf', theory)) then
             status = cphf(rtdb)
          else if (inp_compare(.false.,'nbo', theory)) then
-c            status = task_nbo(rtdb)
+            status = task_nbo(rtdb)
          else if (inp_compare(.false.,'drdy', theory).or.
      &            inp_compare(.false.,'dirdyvtst', theory).or.
      &            inp_compare(.false.,'drdy_nwchem', theory)) then

@@ -30,3 +30,8 @@ end
 
 task scf property 
 
+# If NBO is installed
+#nbo
+#end
+#task nbo
+
