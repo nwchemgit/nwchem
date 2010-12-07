@@ -1,8 +1,6 @@
 title "c20_cage"
 echo
 start c20_cage
-permanent_dir /dtemp/d3p852/
-scratch_dir /dtemp/d3p852/
 memory stack 2320 mb heap 180 mb global 4000 mb noverify
 
 geometry print xyz units bohr
