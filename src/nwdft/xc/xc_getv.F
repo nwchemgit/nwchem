@@ -356,20 +356,19 @@ c     Get the DFT exchange-correlation contribution
                g_truevxc(2)=g_vxc(2)
          endif
 c
-         if(xc_gotxc())            !! Qin, to skip the call when only HF EX used
-     &        call grid_quadv0(rtdb, g_dens, g_truevxc, 
-     &           nexc,rho_n,  Exc, dbl_mb(itmat))
+         call grid_quadv0(rtdb, g_dens, g_truevxc, 
+     &                    nexc,rho_n,  Exc, dbl_mb(itmat))
 c
-              if(havehfxc.or.(.not.cdfit)) then
-                call ga_dadd(1d0,g_vxc(1),1d0,g_truevxc(1),g_vxc(1))
-                if (.not. ga_destroy(g_truevxc(1))) call errquit(
-     &              ' xc_getv: ga_destroy failed ',0, GA_ERR)
-                if(ipol.eq.2) then
+         if(havehfxc.or.(.not.cdfit)) then
+             call ga_dadd(1d0,g_vxc(1),1d0,g_truevxc(1),g_vxc(1))
+             if (.not. ga_destroy(g_truevxc(1))) call errquit(
+     &           ' xc_getv: ga_destroy failed ',0, GA_ERR)
+             if(ipol.eq.2) then
                  call ga_dadd(1d0,g_vxc(2),1d0,g_truevxc(2),g_vxc(2))
                  if (.not. ga_destroy(g_truevxc(2))) call errquit(
-     &              ' xc_getv: ga_destroy failed ',0, GA_ERR)
-                endif
-              endif
+     &               ' xc_getv: ga_destroy failed ',0, GA_ERR)
+             endif
+         endif
          if(util_print('dft timings', print_high)) 
      &         time2_xc=util_cpusec()   ! end xc build time
 c
