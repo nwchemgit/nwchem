@@ -2,7 +2,3 @@ h2o-ssb-d & h2o-ssb-d-opt:
 
    The dispersion correction does not seem to get included in trunk
 
-k6h2o & lysH-qmmm:
-
-   Generates runtime errors, just like 5.1.1 version - Marat has been asked about it
-

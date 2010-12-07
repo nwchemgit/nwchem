@@ -33,6 +33,7 @@ maxiter 20
 end
 
 
+set qmmm:bq_exclude 3
 md
  system lys_qmmm
  sd 200   init 0.01   min 0.00001   max 0.05
@@ -43,10 +44,8 @@ end
 qmmm
  print debug_info
  eatoms -56
- bq_exclude all
  link_atoms hydrogen
- link_bonds free
- optimization qm
+ region qm all
 end
 
 

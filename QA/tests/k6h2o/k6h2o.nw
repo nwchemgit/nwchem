@@ -101,6 +101,10 @@ md
  update pairs 2  
 end
 
+qmmm
+region qmlink
+end
+
 # Run QM/MM dynamics.
 task qmmm scf dynamics 
 
