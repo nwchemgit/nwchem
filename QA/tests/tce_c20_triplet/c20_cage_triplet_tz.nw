@@ -1,8 +1,9 @@
 title "c20_cage"
 echo
 start c20_cage
-
-memory stack 230 mb heap 40 mb global 230 mb noverify
+permanent_dir /dtemp/d3p852/
+scratch_dir /dtemp/d3p852/
+memory stack 2320 mb heap 180 mb global 4000 mb noverify
 
 geometry print xyz units bohr
    symmetry c2
@@ -42,17 +43,13 @@ end
 tce
    scf
    ccsd(t)
-   maxiter 100
+   maxiter 50
    diis 5
    thresh 1.e-3
    io ga
    2eorb
-   2emet 3
-   attilesize 40
-   tilesize 15
+   tilesize 17
    freeze atomic
 end
 
 task tce energy
-
-

@@ -2,10 +2,6 @@ h2o-ssb-d & h2o-ssb-d-opt:
 
    The dispersion correction does not seem to get included in trunk
 
-tce_c20_triplet:
-
-   Not yet tested with 6.0, because it took 256 cores 2 hours on MPP2
-
 k6h2o & lysH-qmmm:
 
    Generates runtime errors, just like 5.1.1 version - Marat has been asked about it
