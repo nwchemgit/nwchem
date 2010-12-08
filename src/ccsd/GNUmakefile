@@ -84,10 +84,10 @@ endif
      ccden_2pdmb.F aoccsd2.F \
      moints_trp.F
 
-ifdef BGP
- OBJ_OPTIMIZE += ccsd_trpdrv_bgp2.o ccsd_tengy_bgp2.o
- USES_BLAS += ccsd_trpdrv_bgp2.F
- LIB_DEFINES += -DBGP
+ifeq ($(TARGET),BGP)
+  OBJ_OPTIMIZE += ccsd_trpdrv_bgp2.o ccsd_tengy_bgp2.o
+  USES_BLAS += ccsd_trpdrv_bgp2.F
+  LIB_DEFINES += -DBGP
 endif
 
  #LIB_DEFINES = 
