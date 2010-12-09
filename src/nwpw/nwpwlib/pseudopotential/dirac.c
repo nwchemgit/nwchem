@@ -24,7 +24,7 @@
 
 /**********************************
  *                                *
- *          R_Pauli               *
+ *          R_Dirac               *
  *                                *
  **********************************/
 
@@ -133,7 +133,7 @@ R_Dirac (int n, int l, int s2, double Z, const double *v, int *mch,
 
             if (match < 2)
             {
-                printf ("Error in R_Pauli: no turning point\n");
+                printf ("Error in R_Dirac: no turning point\n");
 
                 /* deallocate memory */
                 dealloc_LogGrid (f_upp);
