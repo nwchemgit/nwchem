@@ -310,6 +310,78 @@ foreach $filename (@FILES_TO_PARSE) {
 	    }
 	    printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	}
+	if (/isotropic =/ || /anisotropy =/) {
+		if ($debug) {print "\ndebug: $_";}
+		@line_tokens = split(' ');
+		$num_line_tokens = @line_tokens;
+		if ($debug) {
+		    print "debug:line_tokens: @line_tokens \n";
+		    print "debug:number     : $num_line_tokens \n";
+		}
+		for($itok = 0;$itok < ($num_line_tokens-1); $itok++){
+		    if (! $quiet) {
+			printf "%s ", @line_tokens[$itok];
+		    }
+		    printf FILE_OUTPUT "%s ", @line_tokens[$itok];
+		}
+#                                                    *** Assumes $itok was incremented above
+		if (! $quiet) {
+		    printf "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+		}
+		printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[$itok],3);
+	}
+	if (/DMX/ || /DMY/ || /DMZ/ ) {
+		if ($debug) {print "\ndebug: $_";}
+		@line_tokens = split(' ');
+		$num_line_tokens = @line_tokens;
+		if ($debug) {
+		    print "debug:line_tokens: @line_tokens \n";
+		    print "debug:number     : $num_line_tokens \n";
+		}
+                if ($num_line_tokens == 4) {
+                    if (! $quiet ) {
+		        printf "%s ", @line_tokens[0];
+		        printf "%.3f\n", set_to_digits(@line_tokens[1],3);
+		        printf "%s ", @line_tokens[2];
+		        printf "%.3f\n", set_to_digits(@line_tokens[3],3);
+		    }
+		    printf FILE_OUTPUT "%s ", @line_tokens[0];
+		    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[1],3);
+		    printf FILE_OUTPUT "%s ", @line_tokens[2];
+		    printf FILE_OUTPUT "%.3f\n", set_to_digits(@line_tokens[3],3);
+		}
+	}
+	if ((/XX/ || /YY/ || /ZZ/ || /XY/ || /XZ/ || /YZ/) && !/Transition/) {
+		if ($debug) {print "\ndebug: $_";}
+		@line_tokens = split(' ');
+		$num_line_tokens = @line_tokens;
+		if ($debug) {
+		    print "debug:line_tokens: @line_tokens \n";
+		    print "debug:number     : $num_line_tokens \n";
+		}
+                if ($num_line_tokens == 4) {
+                    if (! $quiet ) {
+		        printf "%s ", @line_tokens[0];
+		        for($itok = 1;$itok < $num_line_tokens; $itok++){
+                            if (abs(@line_tokens[$itok]) < 0.0005) {
+		              printf "%.3f ", abs(@line_tokens[$itok]);
+                            } else {
+		              printf "%.3f ", @line_tokens[$itok];
+                            }
+		        }
+		        printf "\n";
+		    }
+		    printf FILE_OUTPUT "%s ", @line_tokens[0];
+		    for($itok = 1;$itok < $num_line_tokens; $itok++){
+                        if (abs(@line_tokens[$itok]) < 0.0005) {
+		          printf FILE_OUTPUT "%.3f ", abs(@line_tokens[$itok]);
+                        } else {
+		          printf FILE_OUTPUT "%.3f ", @line_tokens[$itok];
+                        }
+		    }
+		    printf FILE_OUTPUT "\n";
+		}
+	}
 	if ($gradient_block == 2) {
 	    if ($debug) {print "debug:g3: $_";}	
 	    @line_tokens = split(' ');
