@@ -91,7 +91,7 @@ ga_antisymmetrize_(Integer *g_a) {
   GA_Sync(); 
 
   if(have_data) {
-    gai_subtr_new(alo, ahi, a_ptr, b_ptr, alpha, type, nelem, ndim);
+    gai_subtr(alo, ahi, a_ptr, b_ptr, alpha, type, nelem, ndim);
     NGA_Release_update((int)(*g_a), alo, ahi);
     ga_free(b_ptr);
   }
