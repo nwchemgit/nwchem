@@ -215,14 +215,20 @@ c           k_map(q_map(k)) = k
 
       !**** double grid map1 defined wrt to single grid         ****
       !**** makes expand and contract routines trivial parallel ****
-      if (nb.eq.1) then
-        call hilbert2d_map(ny(nb),nz(nb),int_mb(p_map1(1,nb)))
+
+      if (mapping2d.eq.1) then
+         if (nb.eq.1) then
+           call hilbert2d_map(ny(nb),nz(nb),int_mb(p_map1(1,nb)))
+         end if
+         call hilbert2d_map(nz(nb),(nx(nb)/2+1),int_mb(p_map2(1,nb)))
+         call hilbert2d_map((nx(nb)/2+1),ny(nb),int_mb(p_map3(1,nb)))
+      else
+         if (nb.eq.1) then
+           call hcurve_map(ny(nb),nz(nb),int_mb(p_map1(1,nb)))
+         end if
+         call hcurve_map(nz(nb),(nx(nb)/2+1),int_mb(p_map2(1,nb)))
+         call hcurve_map((nx(nb)/2+1),ny(nb),int_mb(p_map3(1,nb)))
       end if
-
-      call hilbert2d_map(nz(nb),(nx(nb)/2+1),int_mb(p_map2(1,nb)))
-      call hilbert2d_map((nx(nb)/2+1),ny(nb),int_mb(p_map3(1,nb)))
-
-
 
 
       !**** double grid map1 defined wrt to single grid         ****
@@ -775,7 +781,12 @@ c     p = p_map(k)
       ny(nb)     = ny_in
       nz(nb)     = nz_in
       mapping    = map_in
-
+      mapping2d  = 1
+      if (mapping.eq.3) then
+         mapping   = 2
+         mapping2d = 2
+      end if
+         
 
 *     **** do other initializations ****
       call Mapping_Init(nb)

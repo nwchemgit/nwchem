@@ -2,7 +2,7 @@
 # $Id$
 #
 
- OBJ_OPTIMIZE = D3dB-new.o generate_map_indexes.o hilbert.o olist.o trans.o D3dB_pfft.o
+ OBJ_OPTIMIZE = D3dB-new.o generate_map_indexes.o hilbert.o hcurve.o olist.o trans.o D3dB_pfft.o
  OBJ = 
 
 ifeq ($(USE_MPIF),y)
