@@ -6,13 +6,12 @@
       common    / C3dB / nq,nx,ny,nz
 
 
-
       integer nfft3d(NBLOCKS),n2ft3d(NBLOCKS)
       integer nfft3d_map(NBLOCKS),n2ft3d_map(NBLOCKS)
-      integer mapping
+      integer mapping,mapping2d
       common    / C3dB_kdfj / nfft3d,n2ft3d,
      >                        nfft3d_map,n2ft3d_map,
-     >                        mapping
+     >                        mapping,mapping2d
 
 
       integer q_map(2,NBLOCKS),p_map(2,NBLOCKS),k_map(2,NBLOCKS)
