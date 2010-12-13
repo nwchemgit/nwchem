@@ -162,9 +162,9 @@ Rect_Type *felds(int xm, int ym){
             r->lo = fels(xm);      r->ro = felds(0,1);
             r->lu = felds(0,ym-1); r->ru = felds(xm,ym-1);
          }}}
-         if (2*r->lo->y == ym) {r->h = r->lo->g-r->lo->h;} else {r->h = r->lo->h;};
+         if ((2*r->lo->y) == ym) {r->h = (r->lo->g)-(r->lo->h);} else {r->h = r->lo->h;};
          r->h=r->h+r->lu->g+r->ru->h;
-         if ((xm == 3) && (2*(yn/2) == yn) && (2*yn == ym)) {
+         if ((xm == 3) && ((2*(yn/2)) == yn) && ((2*yn) == ym)) {
           r->h = r->h - r->lu->h +1;
         }}
         if ((2*r->lo->x == xm) && (2*r->lo->y != ym)) {
@@ -190,13 +190,13 @@ Integer     map[];
 	nx1 = nx+1;
 	ny1 = ny+1;
 
-	bfel  = (int *) malloc(nx1*sizeof(int));
-	bfeld = (int *) malloc(nx1*ny1*sizeof(int));
-	for (i=0; i<nx1; ++i)       bfel[i]  = 0;
-        for (i=0; i<(nx1*ny1); ++i) bfeld[i] = 0;
+	bfel  = (int *) malloc(2*nx1*sizeof(int));
+	bfeld = (int *) malloc(2*nx1*ny1*sizeof(int));
+	for (i=0; i<2*nx1; ++i)       bfel[i]  = 0;
+        for (i=0; i<(2*nx1*ny1); ++i) bfeld[i] = 0;
 
-	fel  = (Rect_Type *) malloc(nx1*sizeof(Rect_Type));
-	feld = (Rect_Type *) malloc(nx1*ny1*sizeof(Rect_Type));
+	fel  = (Rect_Type *) malloc(2*nx1*sizeof(Rect_Type));
+	feld = (Rect_Type *) malloc(2*nx1*ny1*sizeof(Rect_Type));
 
 	r = felds(nx,ny);
 

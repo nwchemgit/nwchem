@@ -182,6 +182,7 @@ c           k_map(q_map(k)) = k
 *     ******************************
       else
 
+
 *     **** allocate q_map1,p_map1,q_map2,p_map2,q_map3,p_map3 ****
       value =           MA_alloc_get(mt_int,ny(nb)*nz(nb),
      >                              'q_map1',
@@ -226,6 +227,7 @@ c           k_map(q_map(k)) = k
          if (nb.eq.1) then
            call hcurve_map(ny(nb),nz(nb),int_mb(p_map1(1,nb)))
          end if
+        
          call hcurve_map(nz(nb),(nx(nb)/2+1),int_mb(p_map2(1,nb)))
          call hcurve_map((nx(nb)/2+1),ny(nb),int_mb(p_map3(1,nb)))
       end if
@@ -725,7 +727,7 @@ c     p = p_map(k)
         end if
       end if
 
-      if (map_in.eq.2) then
+      if (map_in.ge.2) then
         if (np.gt.(ny_in*nz_in)) then
           if (taskid.eq.MASTER) then
            write(6,*) 'Error: np > MIN(ngrid(2)*ngrid(3),',
