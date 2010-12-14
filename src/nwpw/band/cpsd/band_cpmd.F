@@ -477,6 +477,7 @@ c      call pspw_init_HFX(rtdb,ispin,ne)
          write(luout,1117) np_i,np_j,np_k
          if (mapping.eq.1) write(luout,1112)
          if (mapping.eq.2) write(luout,1113)
+         if (mapping.eq.3) write(luout,1118)
          if (control_balance()) then
            write(luout,1114)
          else
@@ -1289,11 +1290,12 @@ ccc
  1100 FORMAT(//)
  1110 FORMAT(10X,'================ input data ========================')
  1111 FORMAT(/' number of processors used:',I16)
- 1112 FORMAT( ' parallel mapping         :            slab')
- 1113 FORMAT( ' parallel mapping         :         hilbert')
+ 1112 FORMAT( ' parallel mapping         :         1d slab')
+ 1113 FORMAT( ' parallel mapping         :      2d hilbert')
  1114 FORMAT( ' parallel mapping         :        balanced')
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         :    not balanced')
+ 1118 FORMAT( ' parallel mapping         :       2d hcurve')
  1117 FORMAT( ' processor grid           :',I4,' x',I4,' x',I4)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
