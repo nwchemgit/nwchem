@@ -632,6 +632,7 @@ c      call init_paw_density(ispin,lmax)
          write(6,1117) np_i,np_j
          if (mapping.eq.1) write(6,1112)
          if (mapping.eq.2) write(6,1113)
+         if (mapping.eq.3) write(6,1118)
          write(6,1115)
          IF(control_move()) THEN
            write(6,1120) 'yes'
@@ -1126,6 +1127,7 @@ c      call paw_density_end()
  1113 FORMAT( ' parallel mapping         : hilbert')
  1115 FORMAT(/' options:')
  1117 FORMAT( ' processor grid           :',I4,' x',I4)
+ 1118 FORMAT( ' parallel mapping         : hcurve')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
