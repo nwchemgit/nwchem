@@ -328,6 +328,7 @@ c     write(*,*) "time10:",t2-t1
          write(6,1111) np
          if (mapping.eq.1) write(6,1112) 
          if (mapping.eq.2) write(6,1113) 
+         if (mapping.eq.3) write(6,1118) 
          write(6,1115)
 
          write(6,1121) control_boundry(),control_version()
@@ -659,6 +660,7 @@ c      call paw_density_end()
  1112 FORMAT( ' parallel mapping         : slab')
  1113 FORMAT( ' parallel mapping         : hilbert')
  1115 FORMAT(/' options:')
+ 1118 FORMAT( ' parallel mapping         : hcurve')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
