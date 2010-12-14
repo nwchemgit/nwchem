@@ -183,6 +183,7 @@
          write(6,1111) np
          if (mapping.eq.1) write(6,1112)
          if (mapping.eq.2) write(6,1113)
+         if (mapping.eq.3) write(6,1118)
          if (control_balance()) then
            write(6,1114)
          else
@@ -319,11 +320,12 @@
  1100 FORMAT(//)
  1110 FORMAT(10X,'============ PSPW DPLOT input data =================')
  1111 FORMAT(/' number of processors used:',I3)
- 1112 FORMAT( ' parallel mapping         :      slab')
- 1113 FORMAT( ' parallel mapping         :   hilbert')
+ 1112 FORMAT( ' parallel mapping         :   1d slab')
+ 1113 FORMAT( ' parallel mapping         :2d hilbert')
  1114 FORMAT( ' parallel mapping         :  balanced')
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         : not balanced')
+ 1118 FORMAT( ' parallel mapping         : 2d hcurve')
  1121 FORMAT(5X,' boundary conditions   = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
