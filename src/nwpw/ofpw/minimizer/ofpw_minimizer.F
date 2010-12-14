@@ -313,6 +313,7 @@ c       end loop
          write(luout,1117) np_i,np_j
          if (mapping.eq.1) write(luout,1112) 
          if (mapping.eq.2) write(luout,1113) 
+         if (mapping.eq.3) write(luout,1118) 
          if (control_balance()) then
            write(luout,1114)
          else
@@ -607,6 +608,7 @@ c         call ion_Print_neighborlist()
  1115 FORMAT(/' options:')
  1116 FORMAT( ' parallel mapping         : not balanced')
  1117 FORMAT( ' processor grid           :',I4,' x',I4)
+ 1118 FORMAT( ' parallel mapping         :    hcurve')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1122 FORMAT(5X,' qmmm simulation')
