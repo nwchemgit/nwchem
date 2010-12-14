@@ -462,14 +462,14 @@ c
          tolerances(1) = 1.0d-9
          tolerances(2) = 1.0d-9
          tolerances(3) = 1.0d-4
-         ecut=9000.0d0
-         wcut=9000.0d0
+         if(.not.rtdb_get(rtdb,'cgsd:ecut',mt_dbl,1,ecut)) ecut=9000.0d0
+         if(.not.rtdb_get(rtdb,'cgsd:wcut',mt_dbl,1,wcut)) wcut=ecut
          rcut = 0.0d0
          ncut = 1
          npsp = 0
 
-         control_read = value
-         return
+c         control_read = value
+c         return
 
 *     *********************
 *     **** band: stuff ****
@@ -854,8 +854,8 @@ c
          ncut = 0
          npsp = 0
 
-         control_read = value
-         return
+c         control_read = value
+c         return
 
 *     ***************************
 *     **** band_dplot: stuff ****
@@ -879,14 +879,14 @@ c
          tolerances(1) = 1.0d-9
          tolerances(2) = 1.0d-9
          tolerances(3) = 1.0d-4
-         ecut=9000.0d0
-         wcut=9000.0d0
+         if(.not.rtdb_get(rtdb,'band:ecut',mt_dbl,1,ecut)) ecut=9000.0d0
+         if(.not.rtdb_get(rtdb,'band:wcut',mt_dbl,1,wcut)) wcut=ecut
          rcut = 0.0d0
          ncut = 0
          npsp = 0
 
-         control_read = value
-         return
+c         control_read = value
+c         return
 
 *     ***************************
 *     **** unknown code type ****
@@ -1096,7 +1096,7 @@ cccc set to some reasonable default !
       gz = unitg(3,3)
       zh = dsqrt(2.0d0*ecut/(gx*gx + gy*gy + gz*gz))+0.5d0
 
-      if (mapping.eq.2) then
+      if (mapping.ge.2) then
 c        ngrid(1) = control_set_ngrid(2.0d0*xh,.true.)
 c        ngrid(2) = control_set_ngrid(2.0d0*yh,.false.)
 c        ngrid(3) = control_set_ngrid(2.0d0*zh,.false.)
