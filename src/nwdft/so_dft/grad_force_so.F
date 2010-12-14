@@ -152,9 +152,78 @@ c
       integer ipol, noc(2)
       logical oskel, omp2, odft, ocdfit, status, exso 
       double precision xfac(numfunc), jfac, kfac
-
+c
       nproc = ga_nnodes()
-
+c
+      lh_ij2 = 0
+      ld_ij2 = 0
+      lh_kl2 = 0
+      ld_kl2 = 0
+      lh_ik2 = 0
+      ld_ik2 = 0
+      lh_jl2 = 0
+      ld_jl2 = 0
+      lh_il2 = 0
+      ld_il2 = 0
+      lh_jk2 = 0
+      ld_jk2 = 0
+      lh_ij3 = 0
+      ld_ij3 = 0
+      lh_kl3 = 0
+      ld_kl3 = 0
+      lh_ik3 = 0
+      ld_ik3 = 0
+      lh_jl3 = 0
+      ld_jl3 = 0
+      lh_il3 = 0
+      ld_il3 = 0
+      lh_jk3 = 0
+      ld_jk3 = 0
+      lh_ij4 = 0
+      ld_ij4 = 0
+      lh_kl4 = 0
+      ld_kl4 = 0
+      lh_ik4 = 0
+      ld_ik4 = 0
+      lh_jl4 = 0
+      ld_jl4 = 0
+      lh_il4 = 0
+      ld_il4 = 0
+      lh_jk4 = 0
+      ld_jk4 = 0
+      lh_ik5 = 0
+      ld_ik5 = 0
+      lh_jl5 = 0
+      ld_jl5 = 0
+      lh_il5 = 0
+      ld_il5 = 0
+      lh_jk5 = 0
+      ld_jk5 = 0
+      lh_ik6 = 0
+      ld_ik6 = 0
+      lh_jl6 = 0
+      ld_jl6 = 0
+      lh_il6 = 0
+      ld_il6 = 0
+      lh_jk6 = 0
+      ld_jk6 = 0
+      lh_ik7 = 0
+      ld_ik7 = 0
+      lh_jl7 = 0
+      ld_jl7 = 0
+      lh_il7 = 0
+      ld_il7 = 0
+      lh_jk7 = 0
+      ld_jk7 = 0
+      lh_ik8 = 0
+      ld_ik8 = 0
+      lh_jl8 = 0
+      ld_jl8 = 0
+      lh_il8 = 0
+      ld_il8 = 0
+      lh_jk8 = 0
+      ld_jk8 = 0
+c
       jfac = 1.0d0              ! Only changed for DFT
       kfac = 1.0d0
       exso=.false.

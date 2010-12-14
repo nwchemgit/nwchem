@@ -125,6 +125,8 @@ c
 c
 c
       nodezero=(ga_nodeid().eq.0)
+      k_right = 0
+      k_left = 0
 c
 c Getting R0
 c

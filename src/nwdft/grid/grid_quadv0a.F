@@ -57,6 +57,10 @@ c
 
       if(n_rec_in_file.eq.0) goto 100
 c
+      ibas_cent_xinfo = 0
+      ibas_cset_xinfo = 0
+      idocsetx = 0
+c
 c     rewind grid pts file
 c
       if (.not. grid_file_rewind())

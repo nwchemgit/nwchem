@@ -1,4 +1,6 @@
 /*
+ * $Id$
+ *
  *======================================================================
  *
  * DISCLAIMER
@@ -150,6 +152,7 @@ Integer clustrinv5_(n, d, e, dplus, lplus, ld, lld,
   naproc = mxnprc_();
   msize = *n;
 
+  first_buf = NULL;
   ibad = 0;
 
   dscrat = scratch;

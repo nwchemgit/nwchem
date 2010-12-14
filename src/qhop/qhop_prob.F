@@ -66,6 +66,8 @@ c
       real*8 dist,angle
       integer i,ipar,index
       integer iseq(2),ihv(2),lhv(2)
+c
+      e12 = 0.0d0
 c      
 c     Searching the correct parameters set ipar
 c      

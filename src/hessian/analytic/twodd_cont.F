@@ -279,7 +279,13 @@ c
       k_pdm2a = 1
       k_pdm2b = 1
       k_pdm2c = 1
-      k_coeff = 1                                                            
+      k_coeff = 1
+      ld_ij2  = 1
+      ld_kl2  = 1
+      ld_ik2  = 1
+      ld_jl2  = 1
+      ld_il2  = 1
+      ld_jk2  = 1
       ld_ij3  = 1
       ld_kl3  = 1
       ld_ik3  = 1

@@ -65,6 +65,7 @@ c
          maxdbas = 1
       else
          maxdbas = 0
+         idelchi_ao = 0
       endif
 c
 c     Evaluate the AO basis set at each of the quad. points.

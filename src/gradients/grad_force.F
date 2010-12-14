@@ -167,6 +167,25 @@ c
 
       nproc = ga_nnodes()
 
+      ld_ij2 = 0
+      ld_kl2 = 0
+      ld_ik2 = 0
+      ld_jl2 = 0
+      ld_il2 = 0
+      ld_jk2 = 0
+      ld_ij3 = 0
+      ld_kl3 = 0
+      ld_ik3 = 0
+      ld_jl3 = 0
+      ld_il3 = 0
+      ld_jk3 = 0
+      ld_ij4 = 0
+      ld_kl4 = 0
+      ld_ik4 = 0
+      ld_jl4 = 0
+      ld_il4 = 0
+      ld_jk4 = 0
+
       jfac = 1.0d0              ! Only changed for DFT
       kfac = 1.0d0
 C     get information about basis set

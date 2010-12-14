@@ -185,6 +185,9 @@ c     timings
 c
       gotsmear(ss)=abs(ss).gt.1d-9
 c
+      k_3cERI  = 0
+      k_3cwhat = 0
+c
       call ecce_print_module_entry('dft')
       dft_scf = .false.
       lmaxov_sv = lmaxov
@@ -642,11 +645,11 @@ c
       call fock_2e_tidy(rtdb)
 c
       if (CDFIT)then
-      if (odftps) call pstat_on(ps_incore)
+         if (odftps) call pstat_on(ps_incore)
          if(dft_mem3c(
      I     natoms,npol,oprint_parm,oprint_3c2e,
      O     n3c_int,n3c_dbl,n_semi_bufs,
-     O     l_3ceri,k_3ceri, l_3cwhat,k_3cwhat)) then
+     O     l_3ceri,k_3cERI, l_3cwhat,k_3cwhat)) then
             call dft_3cincor(n_batch, n3c_int, int_mb(k_3cwhat), 
      &                       dbl_mb(k_3cERI), n3c_dbl, iwhat_max, 
      &                       n_semi_bufs, fd)

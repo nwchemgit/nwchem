@@ -49,6 +49,8 @@ c
       double precision factor
       external nxtask
 c
+      k_right = 0
+      k_left = 0
 c
 c forming the nu(i) and mu(i,j) arrays (i,j refer to occupied indices)
 c no offset for nu(i) and mu(i,j) is needed

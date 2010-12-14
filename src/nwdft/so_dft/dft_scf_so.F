@@ -200,6 +200,10 @@ c
       logical dft_mem3c
       external dft_mem3c
 c
+      icd_coef = 0
+      k_3cERI  = 0
+      k_3cwhat = 0
+c
       call ecce_print_module_entry('dft')
       dft_scf_so = .false.
       nbf_mo = 2*nbf_ao

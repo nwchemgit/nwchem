@@ -58,6 +58,7 @@ c
       from_nwchemrc    = .false.
       from_compile     = .false.
       noslash          = .false.
+      unitrc           = -1
 
 *     **** Try to get from NWCHEM_NWPW_LIBRARY environment variable ****
       call util_getenv('NWCHEM_NWPW_LIBRARY',libname)

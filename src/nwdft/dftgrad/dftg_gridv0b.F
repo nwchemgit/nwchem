@@ -131,6 +131,16 @@ c           within int_eval_gbsets mbf is # of orbs with nonzero
 c           points in sampling set.  iniz is a mapping array.
 c           currently set up only for cartesian (6d) sets
 c         
+      iDmat = 0
+      ichi_ao = 0
+      idelchi_ao = 0
+      iheschi_ao = 0
+      id3chi_ao = 0
+      i_ccdel = 0
+      k_Acof2 = 0
+      k_Ccof2 = 0
+      k_Mcof2 = 0
+c
       Ex=0
       Ec=0
       if (der3chi) then

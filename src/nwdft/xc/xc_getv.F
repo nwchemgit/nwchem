@@ -1,3 +1,5 @@
+c $Id$
+c
       Subroutine xc_getv(rtdb, Exc, ecoul,nExc, iVxc_opt, g_xcinv,
      &                   g_dens, g_vxc, IOLGC, g_wght, g_xyz,g_nq, 
      &                   wght_GA, rho_n, rdens_atom,
@@ -85,6 +87,7 @@ c
       oprint_oep = util_print('oep', print_high)
       Exc(1)=0.d0
       Exc(2)=0.d0
+      iTmat=0
 c
       me=ga_nodeid()
       havehfxc=abs(xfac(1)).gt.1d-8

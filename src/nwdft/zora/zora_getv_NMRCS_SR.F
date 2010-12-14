@@ -6,7 +6,7 @@
      &                                g_nmr1,g_nmr2, ! out: munu matrix
      &                                nexc)
 c
-C$Id: zora_getv_NMRCS_SR.F,v 1.3 2010-11-04 FA Exp $
+C$Id$
 c Adapted from zora_getv_sf
 
       implicit none
@@ -407,7 +407,7 @@ c ----- free memory ----------- END
      &                                g_nmr3,g_nmr4, ! out: munu matrix
      &                                nexc)
 c
-C$Id: zora_getv_NMRCS_SR.F,v 1.3 2010-11-04 FA Exp $
+C$Id$
 c Adapted from zora_getv_sf
 
       implicit none

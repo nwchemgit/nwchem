@@ -521,6 +521,7 @@ c
       logical tce_skip_scf
       nodezero=(ga_nodeid().eq.0)
       ccsdtleft=.false.
+      do_mbpt = .false.
 c
 c     =========================
 c     Ground-state HF/DFT first

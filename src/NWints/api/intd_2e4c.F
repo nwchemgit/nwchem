@@ -130,6 +130,10 @@ c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
 c
+      i_rel = .false.
+      j_rel = .false.
+      k_rel = .false.
+      l_rel = .false.
       used_nw = .false.
       nint_ck = int_nint_cart(brain,ish,brain,jsh,ketin,ksh,ketin,lsh)
       if (nint_ck*3*4.gt.leri) then

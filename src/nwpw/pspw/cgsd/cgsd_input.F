@@ -52,6 +52,7 @@ c
        
 *     ***** initializations     ****
 *     ***** should be dead code ****
+      npsp = 0
       call cgsd_input_default(rtdb)
 
  10   if (.not. inp_read()) 

@@ -247,7 +247,6 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
 
    FILE *file;
    char filename[40];
-   sprintf( filename, "pdspevx.%d", me);
 
 /*
  *  ---------------------------------------------------------------
@@ -262,6 +261,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    me    = mxmynd_();
    nproc = mxnprc_();
 
+   sprintf( filename, "pdspevx.%d", me);
    strcpy( msg,  "Error in pstebz." );
    
 #ifdef DEBUG1

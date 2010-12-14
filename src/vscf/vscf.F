@@ -504,7 +504,7 @@ c
 #include "stdio.fh"
 C
       integer NC1,NAT1,NNM,NGRID,NDIPMO,NCOUP
-      LOGICAL psi0,do1,do2,do3,status
+      LOGICAL psi0,status
       integer ldiag, lcoup, ltrip ! these are unit numbers
       character*32 theory
       character*255 vectors_in
@@ -548,10 +548,7 @@ c     end if
 C      
 c     do we need to get starting orbitals at the input geometry?
 c
-      do1 = .not.(.false.   )
-      do2 = .not.(ncoup.le.1)
-      do3 = .not.(ncoup.le.2)
-      psi0 = (do1 .or. do2 .or. do3)
+      psi0 = .true.
 c
         if(.not.rtdb_cget(rtdb,'task:theory',1,theory))
      +      call errquit('vgrid: no input for theory?',0, RTDB_ERR)

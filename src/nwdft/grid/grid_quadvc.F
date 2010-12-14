@@ -47,6 +47,10 @@ c
       logical kske
       double precision StericEnergy
 c
+      ibas_cent_xinfo = 0
+      ibas_cset_xinfo = 0
+      idocsetx = 0
+c
 c     Allocate and create info for new basis function evaluator
 c
       if (.not.bas_numcont(AO_bas_han, ncontrset))

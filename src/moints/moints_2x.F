@@ -93,6 +93,7 @@ c
        integer clo, chi, rlo, rhi,nodesloop
        integer moints_numgr, gr_len, moints_nxttask
        external moints_numgr, gr_len, moints_nxttask
+       data k_sym/0/
 c
 c     Set accuracy of integrals from required precision
 c     ... this should come via the argument list but that can wait

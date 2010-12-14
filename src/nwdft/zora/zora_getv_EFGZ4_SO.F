@@ -9,7 +9,7 @@ c     == EFGZ4 scalar and spin-orbit components (x,y,z)
      &                              g_efgz4_so,    ! out: munu matrix
      &                              nexc)
 c
-C$Id: zora_getv_EFGZ4_so.F,v 1.3 2010-10-29 FA Exp $
+C$Id$
 c Adapted from zora_getv_so     
 
       implicit none

@@ -84,9 +84,10 @@
       Etotal = 0.0d0
       oprint = oprint_in
 
+      call Parallel_taskid(taskid)
+
       if ((taskid.eq.MASTER).and.oprint) call current_second(cpu1)
 
-      call Parallel_taskid(taskid)
       call D3dB_n2ft3d(1,n2ft3d)
       call Pack_npack(1,npack1)
 

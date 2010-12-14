@@ -106,9 +106,11 @@ c          and dbl_mb(icoord) has the fractional coordinates
 c          (unless system is molecular in which case is also cartesian)
 c
       if (nops .gt. 0) then
-      if (.not. MA_Push_Get(MT_Dbl,nops*3,'xnew scratch',
-     &     lxnew,ixnew)) call errquit
-     $     ('sym_nwc: ma for xnew scratch', nops*3, MA_ERR)
+        if (.not. MA_Push_Get(MT_Dbl,nops*3,'xnew scratch',
+     &       lxnew,ixnew)) call errquit
+     $       ('sym_nwc: ma for xnew scratch', nops*3, MA_ERR)
+      else
+        ixnew = 0
       endif
       if (.not. MA_Push_Get(MT_INT,nareal,'ilbl',
      &     llbl,ilbl)) call errquit
@@ -120,7 +122,7 @@ c
 c
       LResult = MA_Pop_Stack(llbl)
       if (nops .gt. 0) then
-      LResult = MA_Pop_Stack(lxnew)
+        LResult = MA_Pop_Stack(lxnew)
       endif
 c
 c     Insert new information into the geometry data structures

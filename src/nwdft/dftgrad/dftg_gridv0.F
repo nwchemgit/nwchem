@@ -207,6 +207,12 @@ c
       len_Amat2 = n_per_rec*NCOL_AMAT2
       len_Cmat2 = n_per_rec*NCOL_CMAT2
       len_Mmat2 = n_per_rec*NCOL_MMAT2
+      k_Amat2 = 0
+      k_Cmat2 = 0
+      k_Mmat2 = 0
+      k_drhonuc = 0
+      k_ddelrhonuc = 0
+      k_d2scr = 0
 c
       if (.not.MA_Push_Get(mt_dbl,len_Amat,'Amat',lAmat,iAmat))
      &   call errquit(' exiting in dftg_gridv0: insuff stack',8, MA_ERR)

@@ -8,7 +8,7 @@ c     == compute the matrix elements for the zora corrections ==
      &                              g_efgz4,       ! out: munu matrix
      &                              nexc)
 c
-C$Id: zora_getv_EFGZ4_SR.F,v 1.3 2010-10-29 FA Exp $
+C$Id$
 c Adapted from zora_getv  
 
       implicit none

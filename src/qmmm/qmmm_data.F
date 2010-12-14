@@ -197,11 +197,11 @@ c     >       RTDB_ERR)
      >                   RTDB_ERR)
 
       if (master) then
-      tag = " "
-      write(tag,'("qmmm:region ",I1)') i
-      do i=1,nregion
-       write(6,22) tag,region(i)
-      end do
+        tag = " "
+        do i=1,nregion
+          write(tag,'("qmmm:region ",I1)') i
+          write(6,22) tag,region(i)
+        end do
       end if
 
       tag ="qmmm:link_ecp"

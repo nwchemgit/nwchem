@@ -47,6 +47,7 @@ c
       double precision Sba,omega1
       double precision detu(2),detv(2),detprod,omega2
       double precision Haa,Hbb,Hba,val, dum
+      data Haa,Hbb,Hba/3*0.0d0/
 
       me=ga_nodeid()
 

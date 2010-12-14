@@ -4,7 +4,7 @@
      &                         g_epr3,g_epr4, ! out: munu matrix
      &                         nexc)
 c
-C$Id: zora_getv_EPR.F,v 1.3 2010-11-01 FA Exp $
+C$Id$
 c Adapted from zora_getv_so     
 
       implicit none

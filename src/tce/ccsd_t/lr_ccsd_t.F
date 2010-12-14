@@ -56,6 +56,9 @@ c ---------------------------------------
       double precision den0,den1,den2,den3,num1,num2
       external nxtask
 c
+      k_right = 0
+      k_den = 0
+c
 c - T1/X1 LOCALIZATION ----------
 c    opening l_t1_local and l_x1_local
         if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',

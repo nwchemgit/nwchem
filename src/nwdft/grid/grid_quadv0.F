@@ -102,6 +102,8 @@ c
       grad=xc_chkgrad()
       kske = xc_chktau()
 c
+      irdelchi_atom = 0
+c
       npol = (ipol*(ipol+1))/2
       if (.not.rtdb_get(rtdb,'dft:largenode', mt_log, 1, largenode))
      &     largenode=.false.

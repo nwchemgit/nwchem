@@ -19,6 +19,7 @@ c
 C
       Data eps/1.d-6/
 C
+      sold = 0.0d0
       iopt = lgs(31)
       nbar = (n3*(n3+1))/2
       write (fu6,600) dels,delsv,delhss,dir,slm,slp

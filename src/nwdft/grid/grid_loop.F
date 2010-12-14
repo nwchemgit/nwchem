@@ -1,3 +1,5 @@
+c     $Id$
+c
       subroutine grid_loop(dogradient,
      ,     nops,
      ,     oprint,grad,g_dens,
@@ -92,7 +94,10 @@ c
       icount = 1
       n1 = 0
       n2 = nxtask(nproc,icount)
-
+c
+      k_gridscr = 0
+      k_iscr = 0
+c
       if(dosympts) call grid_sympts0(geom,nops,k_symops,l_symops,
      ,     k_gridscr,l_gridscr,k_iscr,l_iscr,nqmax)
 

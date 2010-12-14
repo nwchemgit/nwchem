@@ -63,7 +63,7 @@ c *** local variables
       integer  dblh,inth, idbl,iint 
       integer  initSCRATCH, mamem 
       integer nvecs1, nvecs2, n1max, n2max, nele, nelebk
-      integer lstcnt, ii, m2, n1, n3
+      integer lstcnt, ii, m2, n3
 #endif
 c       integer isize
 c       parameter (isize=128*128*128)
@@ -148,8 +148,8 @@ c determine map if necessary (required once) for EMSL routine
       endif
 c     
       
-      NELEBK = 2 * N1           ! complex to complex
-      NELEBK = 2 * ( N1 / 2 + 1 ) ! real-> complex
+      NELEBK = 2 * ND1           ! complex to complex
+      NELEBK = 2 * ( ND1 / 2 + 1 ) ! real-> complex
 c
       if ( me.eq.0) then
          do ii=1, nd3
@@ -158,7 +158,7 @@ c
          call ffflush()
       endif
 c
-      NELEBK = max(2*n1, 2*(n1/2+1))
+      NELEBK = max(2*nd1, 2*(nd1/2+1))
       NVECS1 = LSTCNT( ME, MAP1, nd3 )
       NVECS2 = LSTCNT( ME, MAP2, nd3 )
       N1MAX = 0

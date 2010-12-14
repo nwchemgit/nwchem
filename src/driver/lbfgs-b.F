@@ -1,4 +1,5 @@
- 
+c $Id$
+c
       subroutine setulb(n, m,nfmax, x, l, u, 
      +                 nbd, f, g, factr, pgtol, wa, iwa,
      +                 task, iprint,  csave, lsave, isave, dsave)
@@ -467,6 +468,23 @@ c        Generate the current machine precision.
          epsmch = dpmeps()
 
 c        Initialize counters and scalars when task='START'.
+
+         iback    = 0
+         itail    = 0
+         ifun     = 0
+         iword    = 0
+         nact     = 0
+         ileave   = 0
+         nenter   = 0
+         fold     = 0
+         dnorm    = 0
+         cpu1     = 0
+         gd       = 0
+         stpmx    = 0
+         sbgnrm   = 0
+         stp      = 0
+         gdold    = 0
+         dtd      = 0
 
 c           for the limited memory BFGS matrices:
          col    = 0

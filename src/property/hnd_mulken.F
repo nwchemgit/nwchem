@@ -96,8 +96,6 @@ c
          else
             thedens = 'Total'
          endif
-         bf_offset = k_aogr + nbf * (idens-1)
-         sh_offset = k_atsh + natoms * (lmax+2) * (idens-1)
 c
 c     Calculate overlap population
 c
@@ -106,6 +104,9 @@ c
          call ga_elem_multiply(g_s,g_dens(idens),g_s)
 c
          if (ga_nodeid().gt.0) goto 1000
+c
+         bf_offset = k_aogr + nbf * (idens-1)
+         sh_offset = k_atsh + natoms * (lmax+2) * (idens-1)
 c
 c     Print overlap population in blocks of seven at a time
 c

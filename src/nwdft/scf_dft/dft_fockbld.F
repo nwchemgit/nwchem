@@ -78,6 +78,8 @@ c
       Exc(1)= 0d0
       Exc(2) = 0d0
 
+      icd_coef = 1
+
 c Jorge Garza/Begin
       if (ldmix) then
         iter_ini = 1

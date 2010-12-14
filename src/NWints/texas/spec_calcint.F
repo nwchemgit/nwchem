@@ -115,10 +115,10 @@ c
      *                isbdo,bl(isbl_split) )
         if(isbdo.eq.0) go to 200
 c
-      if   (where.eq.'buff'                    .or.
-     *      where.eq.'shif'                    .or.
-     *      where.eq.'forc'                    .or.
-     *      where.eq.'hess'                  ) then
+        if   (where.eq.'buff'                    .or.
+     *        where.eq.'shif'                    .or.
+     *        where.eq.'forc'                    .or.
+     *        where.eq.'hess'                  ) then
 c
            maxsize=mxsize(isupb)
 c
@@ -135,6 +135,8 @@ c-----------> call getmem(isbl_size,isbl_copy) ! <-----------------c
      *                        bl(isbl_copy) )
               call check_in(isupb,isbl_size,bl(isblqrts),isbl_point,
      *                       bl(isbl_copy),maxsize)
+           else
+              isbl_copy = 0
            endif
 c
            call uniq_pairs_1('blockint',

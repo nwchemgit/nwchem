@@ -32,6 +32,27 @@ c
       call md_abort('ERROR IN MEMORY USE AT START RDTOP',0)
       endif
 c
+      natyps = 0
+      nqtyps = 0
+      nbw = 0
+      nhw = 0
+      ndw = 0
+      now = 0
+      ntw = 0
+      nnw = 0
+      naw = 0
+      nas = 0
+      nbt = 0
+      nhs = 0
+      nds = 0
+      nos = 0
+      nts = 0
+      nxs = 0
+      mset = 0
+      nparms = 0
+      nhop = 0
+      nhp = 0
+c
       if(me.eq.0) then
 c
       open(unit=lfntop,file=filtop(1:index(filtop,' ')-1),
