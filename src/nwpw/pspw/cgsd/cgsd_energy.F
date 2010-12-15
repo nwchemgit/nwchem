@@ -975,12 +975,13 @@ c     *** call dscal(9,-1.0d0,stress,1)
 *     *                                             *
 *     ***********************************************
 
-      subroutine cgsd_pressure_stress(ispin,ne,psi,rhoall,dng,
+      subroutine cgsd_pressure_stress(ispin,ne,psi,rhoall,dng,xcp,
      >                                evnl,exc,pxc,
      >                                pressure,p1,p2,stress)
       implicit none
       integer    ispin,ne(2)
       complex*16 psi(*),rhoall(*),dng(*)
+      real*8     xcp(*)
       real*8     evnl,exc,pxc
       real*8     pressure,p1,p2 
       real*8     stress(3,3)
@@ -1096,7 +1097,7 @@ c      write(*,*) "not finished, xc p=",p1
 
 *     **** Core-correction Coulomb energy component : dE_core/dhuv ****
       if (psp_semicore(0)) then
-        call semicore_euv(tstress)
+        call semicore_euv_vxc(ispin,xcp,tstress)
         call daxpy(9,1.0d0,tstress,1,xcstress,1)
       end if
 
@@ -1140,6 +1141,7 @@ ccc        call electron_HFX_stress(tstress)
        end do
        end do
        p1 = (sigma(1,1)+sigma(2,2)+sigma(3,3))/3.0d0
+
 
        scal = 1.0d0/lattice_omega()
        do ii=1,ion_nion()

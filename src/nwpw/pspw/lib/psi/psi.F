@@ -6415,6 +6415,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       common / rhoall_block / rho1_all,rho2_all
  
 *     ***** external functions *****
+      integer  electron_xcp_ptr
+      external electron_xcp_ptr
       real*8   psi_1vnl,rho_1exc,rho_1pxc
       external psi_1vnl,rho_1exc,rho_1pxc
 
@@ -6422,6 +6424,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
      >                          dcpl_mb(psi1(1)),
      >                          dbl_mb(rho1_all(1)),
      >                          dcpl_mb(dng1(1)),
+     >                          dbl_mb(electron_xcp_ptr()),
      >                          psi_1vnl(),rho_1exc(),rho_1pxc(),
      >                          pressure,p1,p2,stress)
 

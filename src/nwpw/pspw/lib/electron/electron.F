@@ -737,6 +737,19 @@ c      end
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *         electron_xcp_ptr        *
+*     *                                 *
+*     ***********************************
+      integer function electron_xcp_ptr()
+      implicit none
+
+#include "electron_common.fh"
+
+      electron_xcp_ptr = xcp(1)
+      return
+      end
 
 
 *     ***********************************

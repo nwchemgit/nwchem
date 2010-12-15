@@ -744,6 +744,7 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
         call cgsd_pressure_stress(ispin,neq,psi1,
      >                            dbl_mb(dnall(1)),
      >                            dcpl_mb(dng(1)),
+     >                            dbl_mb(xcp(1)),
      >                            enlocal,exc,pxc,
      >                            pressure,p1,p2,stress)
       end if

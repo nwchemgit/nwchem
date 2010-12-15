@@ -392,11 +392,10 @@ c           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 
       subroutine semicore_euv(stress)
       implicit none
-#include "errquit.fh"
       real*8 stress(3,3)
 
-
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** semicore3 common block ****
       integer dncore(2)
@@ -599,3 +598,115 @@ c      call D3dB_r_SMul(1,scal2*scal2,Aus,Aus)
 
       return
       end
+
+
+*     **********************************
+*     *                                *
+*     *        semicore_euv_vxc        *
+*     *                                *
+*     **********************************
+
+      subroutine semicore_euv_vxc(ispin,xcp,stress)
+      implicit none
+      integer ispin
+      real*8 xcp(*)
+      real*8 stress(3,3)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** semicore3 common block ****
+      integer dncore(2)
+      common / ccore3 / dncore
+
+*     **** local variables ****
+      logical value
+      integer u,v,s,n2ft3d
+      real*8  VV,WW(3,3),hm(3,3),tstress(3,3)
+      real*8  wus,pi,scal
+      integer Aus(2)
+
+*     **** external functions ****
+      real*8   semicore_pxc_rho,lattice_unitg
+      external semicore_pxc_rho,lattice_unitg
+
+      call D3dB_n2ft3d(1,n2ft3d)
+      if (.not. MA_push_get(mt_dbl,n2ft3d,'Aus',Aus(2),Aus(1)))
+     >  call errquit('semicore_euv:out of stack memory',0, MA_ERR)
+
+*     *** define hm ****
+      pi   = 4.0d0*datan(1.0d0)
+      scal = 1.0d0/(2.0d0*pi)
+      do v=1,3
+      do u=1,3
+         hm(u,v) = scal*lattice_unitg(u,v)
+      end do
+      end do
+
+*     **** compute V ****
+      VV = -semicore_pxc_rho(ispin,n2ft3d,dbl_mb(dncore(1)),xcp)
+
+*     **** compute W ****
+      do u=1,3
+      do s=u,3
+        call semicore_gen_Aus(s,u,dbl_mb(Aus(1)))
+
+        wus = -semicore_pxc_rho(ispin,n2ft3d,dbl_mb(Aus(1)),xcp)
+        WW(u,s) = wus
+        WW(s,u) = wus 
+      end do
+      end do
+
+*     **** stress(u,v) = V*hm(u,v) + Sum(s){W(u,s)*hm(s,v) }  ****   
+      do v=1,3
+      do u=1,3
+        stress(u,v) = VV*hm(u,v)
+        do s=1,3
+           stress(u,v) = stress(u,v) + WW(u,s)*hm(s,v)
+        end do
+      end do
+      end do
+      if (.not.MA_pop_stack(Aus(2)))
+     >  call errquit('semicore_euv_vxc:pop stack',1,MA_ERR)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *         semicore_pxc_rho        *
+*     *                                 *
+*     ***********************************
+      real*8 function semicore_pxc_rho(ispin,n2ft3d,rho,xcp)
+      implicit none
+      integer ispin,n2ft3d
+      real*8 rho(*)
+      real*8 xcp(*)
+
+*     **** local variables ****
+      integer nx,ny,nz
+      real*8  pxc,pxc2,dv
+
+*     **** external functions *****
+      real*8   lattice_omega
+      external lattice_omega
+
+      call D3dB_nx(1,nx)
+      call D3dB_ny(1,ny)
+      call D3dB_nz(1,nz)
+
+      dv = lattice_omega()/dble(nx*ny*nz)
+
+*     **** get exchange-correlation energy ****
+      call D3dB_rr_dot(1,rho,xcp,pxc)
+      if (ispin.eq.1) then
+         pxc = pxc + pxc
+      else
+         call D3dB_rr_dot(1,rho,xcp(1+n2ft3d),pxc2)
+         pxc = (pxc + pxc2)
+      end if
+      pxc = pxc*dv
+
+      semicore_pxc_rho =  pxc
+      return
+      end
+
