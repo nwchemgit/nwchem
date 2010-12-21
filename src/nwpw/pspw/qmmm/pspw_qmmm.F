@@ -996,6 +996,34 @@ c
       return
       end
 
+*     **********************************
+*     *	                               *
+*     *         pspw_qmmm_lambda       *
+*     *                                *
+*     **********************************
+      real*8 function pspw_qmmm_lambda()
+      implicit none
+
+#include "pspw_qmmm.fh"
+
+      pspw_qmmm_lambda = qmmm_lmbda
+      return
+      end
+
+*     **********************************
+*     *	                               *
+*     *      pspw_qmmm_lambda_flag     *
+*     *                                *
+*     **********************************
+      logical function pspw_qmmm_lambda_flag()
+      implicit none
+
+#include "pspw_qmmm.fh"
+
+      pspw_qmmm_lambda_flag = lmbda_flag
+      return
+      end
+
 
 *     **********************************
 *     *	                               *

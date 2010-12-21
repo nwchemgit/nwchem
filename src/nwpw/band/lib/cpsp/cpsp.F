@@ -19,13 +19,13 @@
 *     ***** local variables ****
       logical value
       integer axsize
-      integer npack0,npack1,nbrillq
+      integer npack0,npack1,nbrillq,nion
 
 *     **** external functions *****
-      logical  two_component_pseudopotential
-      integer  ion_nkatm, brillioun_nbrillq
-      external ion_nkatm, brillioun_nbrillq
-      external two_component_pseudopotential
+      logical  two_component_pseudopotential,control_pspspin
+      external two_component_pseudopotential,control_pspspin
+      integer  ion_nkatm, brillioun_nbrillq,ion_nion
+      external ion_nkatm, brillioun_nbrillq,ion_nion
  
       npsp = ion_nkatm()
       nbrillq = brillioun_nbrillq()
@@ -86,6 +86,26 @@
       value = value.and.
      >        MA_alloc_get(mt_int,(npsp),
      >                     'psp_type',psp_type(2),psp_type(1))
+
+*     **** setup pspspin structure - used for generating antiferromagnetic structures ****
+      pspspin = control_pspspin()
+      if (pspspin) then
+         nion  = ion_nion()
+         value = value.and.
+     >   MA_alloc_get(mt_log,nion,'pspspin_upions',
+     >                pspspin_upions(2),pspspin_upions(1))
+         value = value.and.
+     >   MA_alloc_get(mt_log,nion,'pspspin_downions',
+     >                pspspin_downions(2),pspspin_downions(1))
+         if (.not. value)
+     >   call errquit('psp_init:out of heap memory',0, MA_ERR)
+
+         call control_set_pspspin(pspspin_upscale,pspspin_downscale,
+     >                            pspspin_upl,pspspin_downl,
+     >                            nion,
+     >                            log_mb(pspspin_upions(1)),
+     >                            log_mb(pspspin_downions(1)))
+      end if
 
       if (.not. value) 
      >   call errquit('cpsp_init:out of heap memory',0, MA_ERR)
@@ -810,6 +830,20 @@ c             *** current function is s or d ****
      >                      dbl_mb(psi1_shift),
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dcpl_mb(zsw1(1)+(l-1)*nn))
+
+*           ***** scale psp by factor - used for generating antiferromagnetic structures ****
+*           **** nwchem input: pspspin up/down scale l ion_numbers                       ****
+            if (pspspin) then
+               if (log_mb(pspspin_upions(1)+ii-1).and.
+     >            (l_prj.eq.pspspin_upl))
+     >            call dscal(2*ne(1),pspspin_upscale,
+     >                       dcpl_mb(zsw1(1)+(l-1)*nn),1)
+               if (log_mb(pspspin_downions(1)+ii-1).and.
+     >            (l_prj.eq.pspspin_downl))
+     >            call dscal(2*ne(2),pspspin_downscale,
+     >                       dcpl_mb(zsw1(1)+(l-1)*nn+ne(1)),1)
+            end if
+
            end do !**l**
 
            call C3dB_Vector_SumAll((2*nn*nproj),dcpl_mb(zsw1(1)))
@@ -1321,6 +1355,19 @@ c     >                      +(ia-1)*npack1*vnl_stride*nbrill
      >                         dbl_mb(psi1_shift),
      >                         dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                         dcpl_mb(zsw1(1)+(l-1)*nn))
+
+*                ***** scale psp by factor - used for generating antiferromagnetic structures ****
+*                **** nwchem input: pspspin up/down scale l ion_numbers                       ****
+                 if (pspspin) then
+                    if (log_mb(pspspin_upions(1)+ii-1).and.
+     >                 (l_prj.eq.pspspin_upl))
+     >                 call dscal(2*ne(1),pspspin_upscale,
+     >                            dcpl_mb(zsw1(1)+(l-1)*nn),1)
+                    if (log_mb(pspspin_downions(1)+ii-1).and.
+     >                 (l_prj.eq.pspspin_downl))
+     >                 call dscal(2*ne(2),pspspin_downscale,
+     >                            dcpl_mb(zsw1(1)+(l-1)*nn+ne(1)),1)
+                 end if
               end do
               call C3dB_Vector_SumAll((2*nn*nproj),dcpl_mb(zsw1(1)))
 

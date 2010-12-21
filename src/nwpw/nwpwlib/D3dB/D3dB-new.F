@@ -6316,12 +6316,29 @@ c     integer i2_start(NFFT3+1)
       integer index(*)
       complex*16  a(*),b(*)
       integer i
+
+#ifdef USE_OPENMP
+!$omp parallel default(private) shared(a,b,index,n)
+!$omp do
 #ifndef CRAY
 !DIR$ ivdep
 #endif
       do i=1,n
         b(i) = a(index(i))
       end do
+!$omp end do
+!$omp end parallel
+
+#else
+
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+      do i=1,n
+        b(i) = a(index(i))
+      end do
+#endif
+
       return
       end
 

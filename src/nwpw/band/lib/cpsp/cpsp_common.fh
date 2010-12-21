@@ -48,3 +48,16 @@
 *     **** common block for psp relativistic stress ****
       integer    dvso(2)
       common / cpsp2_rel_block / dvso
+
+
+
+*     **** common block for cpspspin ****
+      logical pspspin
+      integer pspspin_upl,pspspin_downl
+      integer pspspin_upions(2),pspspin_downions(2)
+      real*8  pspspin_upscale,pspspin_downscale
+      common / cpspspin_block / pspspin_upscale,pspspin_downscale,
+     >                         pspspin_upions, pspspin_downions,
+     >                         pspspin_upl,    pspspin_downl,
+     >                         pspspin
+

@@ -20,16 +20,18 @@
       integer rlocal(2)
       common / version4 / rlocal
 
+      integer taskid,MASTER
+      parameter (MASTER=0)
 
-
-      integer npack1,npack0
+      integer npack1,npack0,nion,i
       logical value
 
 *     **** external functions *****
-      integer  ion_nkatm
-      external ion_nkatm
+      logical  control_pspspin
+      external control_pspspin
+      integer  ion_nkatm,ion_nion
+      external ion_nkatm,ion_nion
  
-
       call Pack_npack(1,npack1)
       call Pack_npack(0,npack0)
       npsp = ion_nkatm()
@@ -85,6 +87,26 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 
       value = value.and.
      >  MA_alloc_get(mt_dbl,(npsp),'core_kin',core_kin(2),core_kin(1))
+
+*     **** setup pspspin structure - used for generating antiferromagnetic structures ****
+      pspspin = control_pspspin()
+      if (pspspin) then
+         nion  = ion_nion()
+         value = value.and.
+     >   MA_alloc_get(mt_log,nion,'pspspin_upions',
+     >                pspspin_upions(2),pspspin_upions(1))
+         value = value.and.
+     >   MA_alloc_get(mt_log,nion,'pspspin_downions',
+     >                pspspin_downions(2),pspspin_downions(1))
+         if (.not. value) 
+     >   call errquit('psp_init:out of heap memory',0, MA_ERR)
+
+         call control_set_pspspin(pspspin_upscale,pspspin_downscale,
+     >                            pspspin_upl,pspspin_downl,
+     >                            nion,
+     >                            log_mb(pspspin_upions(1)),
+     >                            log_mb(pspspin_downions(1)))
+      end if
 
       if (.not. value) 
      >   call errquit('psp_init:out of heap memory',0, MA_ERR)
@@ -190,6 +212,12 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       value = value.and.MA_free_heap(psp_type(2))
       value = value.and.MA_free_heap(rlocal(2))
       value = value.and.MA_free_heap(core_kin(2))
+
+      if (pspspin) then
+         value = value.and.MA_free_heap(pspspin_upions(2))
+         value = value.and.MA_free_heap(pspspin_downions(2))
+      end if
+
       if (.not. value) 
      >  call errquit('psp_end:error freeing heap memory',0,MA_ERR)
 
@@ -1007,6 +1035,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
            l_prj = int_mb(l_projector(1)+(l-1) 
      >                                  + (ia-1)*(nmax_max*lmmax_max))
 
+
            !sd_function = .not.and(l_prj,1)
 #ifdef GCC4
            k = iand(l_prj,1)
@@ -1025,34 +1054,31 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
               call Pack_tc_Mul(1,dbl_mb(shift),
      >                           dcpl_mb(exi(1)),
      >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
-cc#ifndef CRAY
-c!DIR$ ivdep
-cc#endif
-c              do k=0,npack1-1
-c               dcpl_mb(prjtmp(1)+(l-1)*npack1 + k) 
-c     >           = dbl_mb(k+shift)*dcpl_mb(exi(1)+k)
-c              end do
 
 *          *** current function is p or f ****
            else
               call Pack_tc_iMul(1,dbl_mb(shift),
      >                           dcpl_mb(exi(1)),
      >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
-cc#ifndef CRAY
-c!DIR$ ivdep
-cc#endif
-c              do k=0,npack1-1
-c               dcpl_mb(prjtmp(1)+(l-1)*npack1 + k) 
-c     >                = dbl_mb(k+shift)
-c     >                 *dcmplx(-dimag(dcpl_mb(exi(1)+k)),
-c     >                           dble(dcpl_mb(exi(1)+k)))
-c              end do
 
            end if
            call Pack_cc_indot(1,nn,
      >                      psi1,
      >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
      >                      dbl_mb(sw1(1)+(l-1)*nn))
+
+*           ***** scale psp by factor - used for generating antiferromagnetic structures ****
+*           **** nwchem input: pspspin up/down scale l ion_numbers                       ****
+            if (pspspin) then
+               if (log_mb(pspspin_upions(1)+ii-1).and.
+     >            (l_prj.eq.pspspin_upl))
+     >            call dscal(ne(1),pspspin_upscale,
+     >                       dbl_mb(sw1(1)+(l-1)*nn),1)
+               if (log_mb(pspspin_downions(1)+ii-1).and.
+     >            (l_prj.eq.pspspin_downl))
+     >            call dscal(ne(2),pspspin_downscale,
+     >                       dbl_mb(sw1(1)+(l-1)*nn+ne(1)),1)
+            end if
         end do
         call D3dB_Vector_SumAll((nn*nproj*nprj_mult),dbl_mb(sw1(1)))
 
@@ -1087,14 +1113,6 @@ c              end do
 
         if (move) then
         do l=1,nproj
-
-c          call DGER((2*npack1),nn,
-c     >              (-1.0d0),
-c     >              dcpl_mb(prjtmp(1)+(l-1)*npack1),   1,
-c     >              dbl_mb(sw2(1)+(l-1)*nn),           1,
-c     >              psi2,                    (2*npack1))
-
-
              do n=1,nn
                 if (ispin.eq.1) 
      >            dbl_mb(sw2(1)+n-1+(l-1)*nn)
@@ -1314,6 +1332,19 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                      psi1,
      >                      dcpl_mb(vtmp(1)),
      >                      dbl_mb(sw1(1)+(l-1)*nn))
+
+*           ***** scale psp by factor - used for generating antiferromagnetic structures ****
+*           **** nwchem input: pspspin up/down scale l ion_numbers                       ****
+            if (pspspin) then
+               if (log_mb(pspspin_upions(1)+ii-1).and.
+     >            (l_prj.eq.pspspin_upl))
+     >            call dscal(ne(1),pspspin_upscale,
+     >                       dbl_mb(sw1(1)+(l-1)*nn),1)
+               if (log_mb(pspspin_downions(1)+ii-1).and.
+     >            (l_prj.eq.pspspin_downl))
+     >            call dscal(ne(2),pspspin_downscale,
+     >                       dbl_mb(sw1(1)+(l-1)*nn+ne(1)),1)
+            end if
 
         end do
         call D3dB_Vector_Sumall((nn*nproj),dbl_mb(sw1(1)))

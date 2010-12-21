@@ -4523,3 +4523,125 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *        control_pspspin          *
+*     *                                 *
+*     ***********************************
+      logical function control_pspspin()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.rtdb_get(rtdb,'nwpw:pspspin',mt_log,1,value))
+     >   value = .false.
+
+      control_pspspin = value
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *        control_set_pspspin      *
+*     *                                 *
+*     ***********************************
+      subroutine control_set_pspspin(upscale,downscale,upl,downl,
+     >                               nion,upions,downions)
+      implicit none
+      real*8 upscale,downscale
+      integer upl,downl,nion
+      logical upions(*),downions(*)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer taskid,MASTER
+      parameter (MASTER=0)
+      integer i,ma_type,nactive_atoms,h_actlist,l_actlist
+
+      call Parallel_taskid(taskid)
+
+      if (.not.rtdb_get(rtdb,'nwpw:pspspin_upscale',
+     >                  mt_dbl,1,upscale))
+     >   upscale = 1.0d0
+      if (.not.rtdb_get(rtdb,'nwpw:pspspin_downscale',
+     >                  mt_dbl,1,downscale))
+     >   downscale = 1.0d0
+
+      if (.not.rtdb_get(rtdb,'nwpw:pspspin_upl',
+     >                  mt_int,1,upl))
+     >   upl = -1
+      if (.not.rtdb_get(rtdb,'nwpw:pspspin_downl',
+     >                  mt_int,1,downl))
+     >   downl = -1
+
+      do i=1,nion
+         upions(i)   = .false.
+         downions(i) = .false.
+      end do
+
+      if (taskid.eq.MASTER) write(*,2300) 
+      if (taskid.eq.MASTER) write(*,2301) upl,upscale
+
+      if (rtdb_ma_get(rtdb, 'nwpw:pspspin_upions', ma_type,
+     >                nactive_atoms, h_actlist)) then
+         if (.not.MA_get_index(h_actlist,l_actlist))
+     >      call errquit(
+     >       'control_set_pspspin: ma_get_index failed',0,
+     >       MA_ERR)
+         
+         if (taskid.eq.MASTER) 
+     >      write(*,2302) (int_mb(l_actlist+i),i=0,nactive_atoms-1)
+         
+         do i=1,nactive_atoms
+            upions(int_mb(l_actlist+i-1)) = .true.
+         end do
+         if (.not. MA_free_heap(h_actlist))
+     >    call errquit(
+     >     'control_set_pspspin:error freeing heap memory',0,MA_ERR)
+      end if
+
+      if (taskid.eq.MASTER) write(*,2303) downl,downscale
+
+      if (rtdb_ma_get(rtdb, 'nwpw:pspspin_downions', ma_type,
+     >                nactive_atoms, h_actlist)) then
+         if (.not.MA_get_index(h_actlist,l_actlist))
+     >      call errquit(
+     >       'control_set_pspspin: ma_get_index failed',1,
+     >       MA_ERR)
+
+         if (taskid.eq.MASTER) 
+     >      write(*,2304) (int_mb(l_actlist+i),i=0,nactive_atoms-1)
+
+         do i=1,nactive_atoms
+            downions(int_mb(l_actlist+i-1)) = .true.
+         end do
+         if (.not. MA_free_heap(h_actlist))
+     >    call errquit(
+     >     'control_set_pspspin:error freeing heap memory',1,MA_ERR)
+      end if
+
+ 2300 format(/1x,"Antiferromagnetic Pentalty Function Input:")
+ 2301 format(2x," - pspspin: up    l =",I2,"  scale =",F8.3)
+ 2302 format(2x," - pspspin: up    ion indexes  =",10I5)
+ 2303 format(2x," - pspspin: down  l =",I2,"  scale =",F8.3)
+ 2304 format(2x," - pspspin: down  ion indexes  =",10I5)
+      return
+      end
+
