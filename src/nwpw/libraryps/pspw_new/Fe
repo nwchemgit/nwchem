@@ -1,9 +1,3 @@
-
-#
-# old Teter style Fe psp with semicore
-#
-
-
 [lmax] 2
 [locp] 0
 [rlocal] 1.0
@@ -11,21 +5,22 @@
 
  <atom>
  Fe
-  0.260000E+02  0.560000E+02   5   2
+  0.260000E+02  0.560000E+02   3   3
    1   0  0.200000E+01
    2   0  0.200000E+01
    2   1  0.600000E+01
    3   0  0.200000E+01
    3   1  0.600000E+01
-   3   2  0.600000E+01
-   4   0  0.200000E+01
+   3   2  0.500000E+01
  <end>
  <solver> pauli                     <end>
  <pseudopotential> troullier-martins         <end>
  <rcut>
-   0  2.292000
-   1  2.835000
-   2  2.292000
+   0  1.20
+   1  2.00
+   2  1.40
  <end>
- <semicore> 0.800 <end>
- <linear> 1501 0.02 <end>
+
+<screening_cut> 0.1 <end>
+<comment> Parameterized (11-01-10 by EJB) Troullier-Martin psp <end>
+
