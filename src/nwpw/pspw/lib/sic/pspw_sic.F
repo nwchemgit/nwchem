@@ -19,40 +19,70 @@
 
 *     **** local variables ****
       logical value,sic_on
-      integer ma_type
-      integer n1,n2,n3,mapping
+      integer ma_type,i,norbt,n,q,pj,taskid_j
+      integer n1,n2,n3,mapping,neq(2),torb_list(2)
 
 *     **** external functions ****
       integer  control_version,control_mapping
       external control_version,control_mapping
 
-      norbs = 0
+      norbs     = 0
+      norbs_all = 0
       e_sic = 0.0d0
       p_sic = 0.0d0
       sic_on = .false.
       if (.not.rtdb_get(rtdb,'pspw:SIC_all',mt_log,1,sicall)) 
      >   sicall=.false.
 
+      call Dneall_neq(neq)
+
 *     **** get the number of SIC orbitals ****
       if (sicall) then
          sic_on = .true.
-         norbs = ne(1)+ne(2)
+         norbs_all = ne(1)+ne(2)
+         norbs     = neq(1)+neq(2)
+         if(.not.MA_alloc_get(mt_int,norbs_all,
+     >      'orbital_list_all',orbital_list_all(2),orbital_list_all(1)))
+     >       call errquit('pspw_init_SIC:out of heap memory',0,MA_ERR)
          if(.not.MA_alloc_get(mt_int,norbs,
-     >       'orbital_list',orbital_list(2),orbital_list(1)))
-     >        call errquit('pspw_init_SIC:out of heap memory',0,MA_ERR)
+     >      'orbital_list',orbital_list(2),orbital_list(1)))
+     >       call errquit('pspw_init_SIC:out of heap memory',0,MA_ERR)
           
+         do n1=1,norbs_all
+            int_mb(orbital_list_all(1)+n1-1) = n1
+         end do
          do n1=1,norbs
             int_mb(orbital_list(1)+n1-1) = n1
          end do
 
       else if (rtdb_ma_get(rtdb, 'pspw:SIC_orbitals', ma_type,
-     >                norbs, orbital_list(2))) then
+     >                norbs_all, orbital_list_all(2))) then
 
-         if (.not.MA_get_index(orbital_list(2),orbital_list(1))) 
+         if (.not.MA_get_index(orbital_list_all(2),orbital_list_all(1)))
      >      call errquit(
-     >       'pspw_init_SIC: ma_get_index failed for actlist',911,
-     &       MA_ERR)
+     >      'pspw_init_SIC: ma_get_index failed for actlist',911,MA_ERR)
+
          sic_on = .true.
+         call Parallel2d_taskid_j(taskid_j)
+         norbs = 0
+         do i=1,norbs_all
+            n  = int_mb(orbital_list_all(1)+i-1)
+            call Dneall_ntoqp(n,q,pj)
+            if (pj.eq.taskid_j) norbs = norbs + 1
+         end do
+         if(.not.MA_alloc_get(mt_int,norbs,
+     >      'orbital_list',orbital_list(2),orbital_list(1)))
+     >        call errquit('pspw_init_SIC:out of heap',0,MA_ERR)
+         norbs = 0
+         do i=1,norbs_all
+            n  = int_mb(orbital_list_all(1)+i-1)
+            call Dneall_ntoqp(n,q,pj)
+            if (pj.eq.taskid_j) then
+              norbs = norbs + 1
+              int_mb(orbital_list(1)+norbs-1) = q 
+            end if
+         end do
+
       end if
 
       if (sic_on) then
@@ -149,32 +179,49 @@
 #include "pspw_sic.fh"
 
 *     **** local variables ****
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_j
       parameter(MASTER=0)
       logical value
-      integer i
+      integer i,ii,n,q,pj
+      real*8 t(3)
 
 *     **** external functions ****
       integer  control_version
       external control_version
 
-      if (norbs.gt.0) then
-
+      if (norbs_all.gt.0) then
 
 *       **** print out orbital contributions ****
         if (orb_contribution) then
            call Parallel_taskid(taskid)
+           call Parallel2d_taskid_j(taskid_j)
            if (taskid.eq.MASTER) then
               write(6,487)
               write(6,488)
-              do i=1,norbs
-                write(6,489) 
-     >            int_mb(orbital_list(1)+i-1),
-     >            (dbl_mb(eh_orb(1)+i-1)+dbl_mb(xc_orb(1)+i-1)),
-     >            dbl_mb(eh_orb(1)+i-1),
-     >            dbl_mb(xc_orb(1)+i-1)
-              end do
-           end if
+c              do i=1,norbs
+c                write(6,489) 
+c     >            int_mb(orbital_list(1)+i-1),
+c     >            (dbl_mb(eh_orb(1)+i-1)+dbl_mb(xc_orb(1)+i-1)),
+c     >            dbl_mb(eh_orb(1)+i-1),
+c     >            dbl_mb(xc_orb(1)+i-1)
+c              end do
+            end if
+            i = 0
+            do ii=1,norbs_all
+               n = int_mb(orbital_list_all(1)+ii-1)
+               call Dneall_ntoqp(n,q,pj)
+               t(1) = 0.0d0
+               t(2) = 0.0d0
+               t(3) = 0.0d0
+               if (pj.eq.taskid_j) then
+                  i = i + 1
+                  t(1) = (dbl_mb(eh_orb(1)+i-1)+dbl_mb(xc_orb(1)+i-1))
+                  t(2) = dbl_mb(eh_orb(1)+i-1)
+                  t(3) = dbl_mb(xc_orb(1)+i-1)
+               end if
+               call D1dB_Vector_SumAll(3,t)
+               if (taskid.eq.MASTER) write(6,489) n,t(1),t(2),t(3)
+            end do
   487   format(//,'== Orbital Contributions to SIC ==')
   488   format(/1x,'orbital',15x,
      >         'Total',11x, 'Hartree',10x,'exc-corr') 	
@@ -184,6 +231,7 @@
 
 
 *       **** deallocate memory ****
+        value =  MA_free_heap(orbital_list_all(2)) 
         value =  MA_free_heap(orbital_list(2)) 
         if (orb_contribution) then
           value = value.and.MA_free_heap(eh_orb(2))
@@ -232,7 +280,8 @@
         else
           write(unit,1002)
         end if
-        write(unit,1003) (int_mb(orbital_list(1)+i-1),i=1,norbs)
+        write(unit,1003) (int_mb(orbital_list_all(1)+i-1),i=1,norbs_all)
+        write(unit,1011) norbs_all, norbs
 
         if (solver_type.eq.1) then
           write(unit,1004)
@@ -264,6 +313,8 @@
      >       E10.3)
  1010 FORMAT(6x,"- SIC screening type (pspw:SIC_screening_type)   :",
      >       I2)
+ 1011 FORMAT(6x,"- SIC number of orbitals                         :",
+     >       I4," (",I4," per task)")
       end
 
 *     ****************************
@@ -271,15 +322,16 @@
 *     *     pspw_potential_SIC   *
 *     *                          *
 *     ****************************
+
       subroutine pspw_potential_SIC(ispin,psi_r,Hpsi_r)
       implicit none
-#include "errquit.fh"
       integer    ispin
       real*8     psi_r(*)
       real*8     Hpsi_r(*)
 
 #include "mafdecls.fh"
 #include "pspw_sic.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       logical value
@@ -327,7 +379,6 @@
 
 *          **** generate dn for Vxc and VH ****
            call D3dB_rr_Sqr(1,psi_r(index),dbl_mb(dn(1)))
-c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
            call D3dB_r_SMul1(1,scal2,dbl_mb(dn(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
 
@@ -346,12 +397,6 @@ c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
            end if
 
 *          **** apply the xc_parameter ****
-c           call D3dB_r_SMul(1,xc_parameter,
-c     >                      dbl_mb(xcp(1)),
-c     >                      dbl_mb(xcp(1)))
-c           call D3dB_r_SMul(1,xc_parameter,
-c     >                      dbl_mb(xce(1)),
-c     >                      dbl_mb(xce(1)))
            call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xcp(1)))
            call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xce(1)))
 
@@ -371,13 +416,6 @@ c     >                      dbl_mb(xce(1)))
            if (solver_type.eq.1) then
 
 *            **** generate dng ****
-c            if (ispin.eq.1) 
-c    >         call D3dB_rr_Sum(1,dbl_mb(dn(1)),
-c    >                            dbl_mb(dn(1)),
-c    >                            dbl_mb(dn(1)))
-
-c             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-c     >                              dbl_mb(dn(1)))
              call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)))
 
              !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
@@ -399,10 +437,6 @@ c     >                              dbl_mb(dn(1)))
 
 *          ***** free-space coulomb solver ****
            else
-c             if (ispin.eq.1) 
-c     >         call D3dB_rr_Sum(1,dbl_mb(dn(1)),
-c     >                            dbl_mb(dn(1)),
-c     >                            dbl_mb(dn(1)))
 
 *             ** perform shift here? ***
               call coulomb2_v(dbl_mb(dn(1)),dbl_mb(tmp1(1)))
@@ -417,9 +451,6 @@ c     >                            dbl_mb(dn(1)))
 *          **** apply the h_parameter ****
            eh = eh*h_parameter
            ph = ph*h_parameter
-c           call D3dB_r_SMul(1,h_parameter,
-c     >                      dbl_mb(tmp1(1)),
-c     >                      dbl_mb(tmp1(1)))
            call D3dB_r_SMul1(1,h_parameter,dbl_mb(tmp1(1)))
 
            eh_sic = eh_sic - eh
@@ -437,17 +468,9 @@ c     >                        dbl_mb(xcp(1)))
            call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
 
 *          **** add -(Vcoul+Vxc)*psi_r to Hpsi_r ***
-c           call D3dB_rr_Sub(1,Hpsi_r(index),
-c     >                        dbl_mb(tmp1(1)),
-c     >                        Hpsi_r(index))
            call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Hpsi_r(index))
 
 *          **** fourier transform (Vcoul+Vxc)*psi_r and add to Hpsi_k ***
-c          call D3dB_rc_fft3f(1,dbl_mb(tmp1(1)))
-c          call Pack_c_pack(1,dbl_mb(tmp1(1)))
-c          call Pack_cc_daxpy(1,(scal1),
-c    >                        dbl_mb(tmp1(1)),
-c    >                        Hpsi_k(index2))
 
 *          **** keep track of orbital contributions ****
            if (orb_contribution) then
@@ -464,7 +487,12 @@ c    >                        Hpsi_k(index2))
         if (.not. value) 
      >    call errquit('pspw_potential_SIC:popping stack memory',0,
      &       MA_ERR)
+
       end if
+      call D1dB_SumAll(eh_sic)
+      call D1dB_SumAll(ph_sic)
+      call D1dB_SumAll(ex_sic)
+      call D1dB_SumAll(px_sic)
       return
       end
 
@@ -502,7 +530,7 @@ c    >                        Hpsi_k(index2))
       phsic = ph_sic
       exsic = ex_sic
       pxsic = px_sic
-      if ((norbs.ne.0).and.(.not.relaxed)) then
+      if ((norbs_all.ne.0).and.(.not.relaxed)) then
         ehsic = 0.0d0
         phsic = 0.0d0
         exsic = 0.0d0
@@ -553,12 +581,6 @@ c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
            end if
 
 *          **** apply the xc_parameter ****
-c           call D3dB_r_SMul(1,xc_parameter,
-c     >                      dbl_mb(xcp(1)),
-c     >                      dbl_mb(xcp(1)))
-c           call D3dB_r_SMul(1,xc_parameter,
-c     >                      dbl_mb(xce(1)),
-c     >                      dbl_mb(xce(1)))
            call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xcp(1)))
            call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xce(1)))
 
@@ -578,8 +600,6 @@ c     >                      dbl_mb(xce(1)))
            if (solver_type.eq.1) then
 
 *            **** generate dng ****
-c             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-c     >                                dbl_mb(dn(1)))
              call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)))
              !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
              call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))
@@ -619,10 +639,13 @@ c     >                                dbl_mb(dn(1)))
         value = value.and.MA_pop_stack(dn(2))
         if (.not. value) 
      >     call errquit('pspw_energy_SIC:popping stack memory',0,
-     &       MA_ERR)
+     >       MA_ERR)
 
+         call D1dB_SumAll(ehsic)
+         call D1dB_SumAll(phsic)
+         call D1dB_SumAll(exsic)
+         call D1dB_SumAll(pxsic)
       end if
-
 
       return
       end
@@ -665,7 +688,6 @@ c     >                                dbl_mb(dn(1)))
 
       subroutine pspw_potential_SIC_OEP(ispin,ne,dntotal,psi_r,v_oep)
       implicit none
-#include "errquit.fh"
       integer    ispin,ne(2)
       real*8     dntotal(*)
       real*8     psi_r(*)
@@ -673,6 +695,7 @@ c     >                                dbl_mb(dn(1)))
 
 #include "mafdecls.fh"
 #include "pspw_sic.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
       logical value
@@ -758,12 +781,6 @@ c     >                      dbl_mb(rhoi(1)+(i-1)*n2ft3d))
            end if
 
 *          **** apply the xc_parameter ****
-c           call D3dB_r_SMul(1,xc_parameter,
-c     >                      dbl_mb(xcp(1)),
-c     >                      dbl_mb(xcp(1)))
-c           call D3dB_r_SMul(1,xc_parameter,
-c     >                      dbl_mb(xce(1)),
-c     >                      dbl_mb(xce(1)))
            call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xcp(1)))
            call D3dB_r_SMul1(1,xc_parameter,dbl_mb(xce(1)))
 
@@ -794,9 +811,6 @@ c     >                      dbl_mb(xce(1)))
            end if
 
 *          **** apply the h_parameter ****
-c           call D3dB_r_SMul(1,h_parameter,
-c     >                      dbl_mb(tmp1(1)),
-c     >                      dbl_mb(tmp1(1)))
            call D3dB_r_SMul1(1,h_parameter,dbl_mb(tmp1(1)))
 
 
@@ -805,9 +819,6 @@ c     >                      dbl_mb(tmp1(1)))
      >                        dbl_mb(xcp(1)),
      >                        dbl_mb(vsic(1)+(i-1)*n2ft3d))
 
-c           call D3dB_r_SMul(1,(-1.0d0),
-c     >                        dbl_mb(vsic(1)+(i-1)*n2ft3d),
-c     >                        dbl_mb(vsic(1)+(i-1)*n2ft3d))
            call D3dB_r_SMul1(1,(-1.0d0),dbl_mb(vsic(1)+(i-1)*n2ft3d))
 
 
@@ -822,18 +833,12 @@ c     >                        dbl_mb(vsic(1)+(i-1)*n2ft3d))
            call D3dB_rr_Mul(1,dbl_mb(rhoi(1)+(i-1)*n2ft3d),
      >                        dbl_mb(vsic(1)+(i-1)*n2ft3d),
      >                        dbl_mb(tmp1(1)))
-c           call D3dB_rr_Sum(1,v_oep((ms-1)*n2ft3d+1),
-c     >                        dbl_mb(tmp1(1)),
-c     >                        v_oep((ms-1)*n2ft3d+1))
            call D3dB_rr_Sum2(1,dbl_mb(tmp1(1)),
      >                        v_oep((ms-1)*n2ft3d+1))
         end do
         end do
 
         do ms=1,ispin
-c          call D3dB_rr_Divide(1,  v_oep((ms-1)*n2ft3d+1),
-c     >                          dntotal((ms-1)*n2ft3d+1),
-c     >                            v_oep((ms-1)*n2ft3d+1))
           call D3dB_rr_Divide2(1,dntotal((ms-1)*n2ft3d+1),
      >                             v_oep((ms-1)*n2ft3d+1))
         end do
@@ -848,9 +853,6 @@ c     >                            v_oep((ms-1)*n2ft3d+1))
      >                        dbl_mb(rhoi(1)+indexj),
      >                        dbl_mb(tmp1(1)))
 
-c           call D3dB_rr_Divide(1,dbl_mb(tmp1(1)),
-c     >                          dntotal((ms-1)*n2ft3d+1),
-c     >                           dbl_mb(tmp1(1)))
            call D3dB_rr_Divide2(1,dntotal((ms-1)*n2ft3d+1),
      >                           dbl_mb(tmp1(1)))
 
@@ -962,15 +964,9 @@ c     >                           dbl_mb(tmp1(1)))
      >                        dbl_mb(tmp1(1)))
 
           end do
-c          call D3dB_rr_Divide(1,dbl_mb(tmp1(1)),
-c     >                        dntotal((ms-1)*n2ft3d+1),
-c     >                          dbl_mb(tmp1(1)))
           call D3dB_rr_Divide2(1,dntotal((ms-1)*n2ft3d+1),
      >                          dbl_mb(tmp1(1)))
 
-c          call D3dB_rr_Sum(1,v_oep((ms-1)*n2ft3d+1),
-c     >                       dbl_mb(tmp1(1)),
-c     >                       v_oep((ms-1)*n2ft3d+1))
           call D3dB_rr_Sum2(1,dbl_mb(tmp1(1)),
      >                       v_oep((ms-1)*n2ft3d+1))
         end do
@@ -1113,8 +1109,6 @@ c           call D3dB_r_SMul(1,scal2,dbl_mb(dn(1)),dbl_mb(dn(1)))
            if (solver_type.eq.1) then
 
 *            **** generate dng ****
-c             call D3dB_r_SMul(1,scal1,dbl_mb(dn(1)),
-c     >                                dbl_mb(dn(1)))
              call D3dB_r_SMul1(1,scal1,dbl_mb(dn(1)))
              !call D3dB_rc_fft3f(1,dbl_mb(dn(1)))
              call D3dB_rc_pfft3f(1,0,dbl_mb(dn(1)))

@@ -8,13 +8,13 @@
       real*8  eh_sic,ph_sic
       real*8  ex_sic,px_sic,xc_parameter,h_parameter
       integer solver_type,flag
-      integer norbs
-      integer orbital_list(2)
+      integer norbs,norbs_all
+      integer orbital_list(2),orbital_list_all(2)
       integer eh_orb(2),xc_orb(2)
       common / PSPW_SIC_Block / e_sic,p_sic,rcut,pp,
      >                          eh_sic,ph_sic,ex_sic,px_sic,
      >                          xc_parameter,h_parameter,
-     >                          orbital_list,
+     >                          orbital_list,orbital_list_all,
      >                          eh_orb,xc_orb,
-     >                          norbs,solver_type,flag,
+     >                          norbs,norbs_all,solver_type,flag,
      >                          relaxed,orb_contribution,sicall
