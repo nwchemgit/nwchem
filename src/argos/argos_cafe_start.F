@@ -1,9 +1,9 @@
       subroutine argos_cafe_start(irtdbi,lfnout,lfntop,filtop,
      + ndistr,
      + npmf,nipmf,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai,
-     + mdalg,npbt,nbxt,rcs,rcl,rqm,bx,
+     + mdalg,npbt,nbxt,rcs,rcl,bx,
      + jpme,jorder,jgx,jgy,jgz,nodpme,spmet,step,tols,mshw,mshs,nosh,
-     + iiqmmm,iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
+     + iipolt,iitmps,iiprss,iipopt,rtmpx,rprsx,rtmpw,rtmps,rpres,
      + sclq,fpmf,iislow,tempi,tempwi,tempsi,compr,ntyp,idset,ipset1,
      + ipset2,issscl,delta,nfanal,lpbc,npgi,fldi,fvec,ffrq,npenrg,ictrl,
      + nbiasi,mropti,incl,ltwn,nseqi,i_lseqi,nfhopi,rhopi,thopi,ndumsi,
@@ -21,9 +21,9 @@ c
       integer ndistr,nwmi,mwmi,nwai,mwai,nsfi,msfi,nsmi,msmi,nsai,msai
       integer jpme,jorder,jgx,jgy,jgz,mshw,mshs,nosh,npmf,nipmf,npgi
       real*8 spmet,step,tols,bx(3),fldi,fvec(3),ffrq,sclq,rhopi,thopi
-      integer mdalg,npbt,nbxt,iiqmmm,iipolt,nfanal,ictrl,incl
+      integer mdalg,npbt,nbxt,iipolt,nfanal,ictrl,incl
       integer nfhopi,ipbtpi,iradgi,nbgeti,npreci
-      real*8 rcs,rcl,rqm,compr,delta,fpmf
+      real*8 rcs,rcl,compr,delta,fpmf
       integer iitmps,iiprss,iislow,iipopt,nseqi,i_lseqi
       integer nodpme,ntyp,idset,ipset1,ipset2,ndumsi
       integer issscl,npenrg,nbiasi,mropti
@@ -103,10 +103,8 @@ c
 c
       rshrt=rcs
       rlong=rcl
-      rqmmm=rqm
       rshrt2=rshrt*rshrt
       rlong2=rlong*rlong
-      rqmmm2=rqmmm*rqmmm
       ltwin=ltwn
       lssscl=issscl.ne.0
 c
@@ -118,7 +116,6 @@ c
       boxh(i)=half*bx(i)
     1 continue
 c
-      iqmmm=iiqmmm
       ipolt=iipolt
       islow=iislow
 c

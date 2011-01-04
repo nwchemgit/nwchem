@@ -57,32 +57,5 @@ c
       endif
     4 continue
 c
-      if(iqmmm.ne.0) then
-      do 6 isa=1,nsatot
-      itemp(isa)=0
-    6 continue
-      do 7 jsa=jsafr,jsato
-      itemp(iga(jsa))=jsa
-    7 continue
-      do 8 isa=isafr,isato
-      itemp(iga(isa))=isa
-    8 continue
-      do 9 istloc=1,nthird
-      ist=lthird(istloc)
-      itloc=-1
-      do 10 isa=1,nsatot
-      itloc=itemp(isa)
-      if(idtn(isa-1,1).lt.ist.and.idtn(isa,1).ge.ist) goto 11
-   10 continue
-   11 continue
-      if(itloc.lt.0) call md_abort('Error in argos_cafe_lst',me)
-      jtloc=itemp(idtn(ist,2))
-      iq=iand(idt(itloc),lquant)
-      jq=iand(idt(jtloc),lquant)
-      if(iq.ne.lquant.and.jq.eq.lquant) istemp(itloc)=1
-      if(iq.eq.lquant.and.jq.ne.lquant) istemp(jtloc)=1
-    9 continue
-      endif
-c
       return
       end

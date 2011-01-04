@@ -65,26 +65,5 @@ c      endif
       endif
     4 continue
 c
-      if(iqmmm.ne.0) then
-      do 5 isa=1,nsatot
-      itemp(isa)=0
-    5 continue
-      do 6 jsa=jsafr,jsato
-      itemp(iga(jsa))=jsa
-    6 continue
-      do 7 isa=isafr,isato
-      itemp(iga(isa))=isa
-    7 continue
-      do 8 isbloc=1,nbonds
-      isb=lbonds(isbloc)
-      ibloc=itemp(idb(isb,1))
-      jbloc=itemp(idb(isb,2))
-      iq=iand(idt(ibloc),lquant)
-      jq=iand(idt(jbloc),lquant)
-      if(iq.ne.lquant.and.jq.eq.lquant) istemp(ibloc)=1
-      if(iq.eq.lquant.and.jq.ne.lquant) istemp(jbloc)=1
-    8 continue
-      endif
-c
       return
       end

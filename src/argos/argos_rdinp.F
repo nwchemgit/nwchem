@@ -772,8 +772,6 @@ c
      + call md_abort('argos_rtdbin: rtdb_get failed',120)
       if(.not.rtdb_get(irtdb,'md:rshort',mt_dbl,1,rshort))
      + call md_abort('argos_rtdbin: rtdb_get failed',121)
-      if(.not.rtdb_get(irtdb,'md:rqmmm',mt_dbl,1,rqmmm))
-     + call md_abort('argos_rtdbin: rtdb_get failed',122)
       if(.not.rtdb_get(irtdb,'md:ptol',mt_dbl,1,ptol))
      + call md_abort('argos_rtdbin: rtdb_get failed',123)
       if(.not.rtdb_get(irtdb,'md:tlwsha',mt_dbl,1,tlwsha))
@@ -813,25 +811,6 @@ c
 c
       if(.not.rtdb_cget(irtdb,'task:theory',1,theory))
      + call md_abort('argos_rtdbin: rtdg_cget failed',137)
-c      if(theory.eq.'md') then
-c      iquant=0
-c      iqmmm=0
-c      else
-c      iqmmm=1
-c      if(.not.rtdb_get(irtdb,'task:QMMM',mt_log,1,lqmmm)) iqmmm=0
-c      if(iqmmm.eq.1) then
-c      if(.not.rtdb_get(irtdb,'qmmm:uqmatm',mt_dbl,1,uqmatm))
-c     + uqmatm=0.0d0
-c      if(.not.rtdb_get(irtdb,'qmmm:linkatm',mt_int,1,linkatm))
-c     + linkatm=0
-c      if(.not.rtdb_get(irtdb,'qmmm:nobq',mt_int,1,nobq))
-c     + nobq=1
-c      uqmatm=cau2kj*uqmatm
-c      iquant=0
-c      else
-c      iquant=1
-c      endif
-c      endif
 c
       if(.not.rtdb_cget(irtdb,'task:operation',1,operat))
 c     + call md_abort('argos_rtdbin: rtdg_cget failed',138)
