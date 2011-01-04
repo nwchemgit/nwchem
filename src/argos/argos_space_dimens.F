@@ -64,51 +64,51 @@ c
      + ' Initial cell size',t35,f12.6,/)
       endif
 c
-      if(nbx*nby*nbz.lt.np) then
+cx      if(nbx*nby*nbz.lt.np) then
       nbx=int(box(1)/bsize)
       nby=int(box(2)/bsize)
       nbz=int(box(3)/bsize)
-      endif
+cx      endif
 c
-      nbx=max(1,nbx,npx)
-      nby=max(1,nby,npy)
-      nbz=max(1,nbz,npz)
+cx      nbx=max(1,nbx,npx)
+cx      nby=max(1,nby,npy)
+cx      nbz=max(1,nbz,npz)
 c
       if(util_print('distribution',print_default)) then
       if(me.eq.0) then
       write(lfnout,2003) nbx,nby,nbz
- 2003 format(' Initial cell distribution',t35,3i5)
+ 2003 format(' Cell distribution',t35,3i5)
       endif
       endif
 c
-      if(nbxin.eq.0) then
-      nred(1)=0
-      nred(2)=0
-      nred(3)=0
-      if(nbx.gt.npx.and.mod(nbx,npx).gt.0) then
-      nbx=(nbx/npx)*npx
-      nred(1)=nbx
-      endif
-      endif
-      if(nbyin.eq.0) then
-      if(nby.gt.npy.and.mod(nby,npy).gt.0) then
-      nby=(nby/npy)*npy
-      nred(2)=nby
-      endif
-      endif
-      if(nbzin.eq.0) then
-      if(nbz.gt.npz.and.mod(nbz,npz).gt.0) then
-      nbz=(nbz/npz)*npz
-      nred(3)=nbz
-      endif
-      endif
+cx      if(nbxin.eq.0) then
+cx      nred(1)=0
+cx      nred(2)=0
+cx      nred(3)=0
+cx      if(nbx.gt.npx.and.mod(nbx,npx).gt.0) then
+cx      nbx=(nbx/npx)*npx
+cx      nred(1)=nbx
+cx      endif
+cx      endif
+cx      if(nbyin.eq.0) then
+cx      if(nby.gt.npy.and.mod(nby,npy).gt.0) then
+cx      nby=(nby/npy)*npy
+cx      nred(2)=nby
+cx      endif
+cx      endif
+cx      if(nbzin.eq.0) then
+cx      if(nbz.gt.npz.and.mod(nbz,npz).gt.0) then
+cx      nbz=(nbz/npz)*npz
+cx      nred(3)=nbz
+cx      endif
+cx      endif
 c
-      if(util_print('distribution',print_default)) then
-      if(me.eq.0) then
-      write(lfnout,2004) nbx,nby,nbz
- 2004 format(' Final cell distribution',t35,3i5,/)
-      endif
-      endif
+cx      if(util_print('distribution',print_default)) then
+cx      if(me.eq.0) then
+cx      write(lfnout,2004) nbx,nby,nbz
+cx 2004 format(' Final cell distribution',t35,3i5,/)
+cx      endif
+cx      endif
 c
       bxmin=bsize/dble(int((dble(nbx)*bsize)/box(1))+1)
       bymin=bsize/dble(int((dble(nby)*bsize)/box(2))+1)
