@@ -1785,14 +1785,16 @@ c
       return
 99900 continue
       write(luout,*)'hess_file => ',filehess
-      call errquit('hess_read: error opening file: "filehess"',911)
+      call errquit('error opening file: "filehess"',
+     1             DISK_ERR,911)
 99901 continue
       write(luout,*)'hess_file => ',filehess
-      call errquit('hess_read: error reading file: "filehess"',911)
+      call errquit('error reading file: "filehess"',
+     1             DISK_ERR,911)
 99902 continue
       write(luout,*)'hess_file => ',filehess
-      call errquit
-     & ('hess_read: unexpected EOF when reading file: "filehess"',911)
+      call errquit('unexpected EOF reading file: "filehess"',
+     1             DISK_ERR,911)
       end
 c
       subroutine sum_small_matrix(d,a,b,dim_a,dim_b,j)
