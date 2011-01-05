@@ -175,6 +175,10 @@ extern int rtdb_seq_first(const int, const int, char *);
 extern int rtdb_seq_next(const int, const int, char *);
 extern int rtdb_seq_print(const int, const int);
 extern int rtdb_seq_delete(const int, const char *);
+
+#if (defined(CRAY) || defined(WIN32)) &&!defined(__crayx1)
 #include "rtdb.cray.h"
+#endif
+
 #endif
 
