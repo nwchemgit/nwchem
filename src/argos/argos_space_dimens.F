@@ -170,6 +170,7 @@ c
 c
       maxbox=max(nbx,nby,nbz)
       nbtot=nbx*nby*nbz
+c
       lpbc0=nbx.eq.1.or.nby.eq.1.or.nbz.eq.1.or.
      + npx.eq.1.or.npy.eq.1.or.npz.eq.1.or.lpbc9
 c

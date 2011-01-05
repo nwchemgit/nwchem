@@ -68,6 +68,10 @@ c     npg : number of process groups
 c     me  : process id in current group
 c     np  : number of processes in current group
 c
+c     nbx : number of cells in x-dimension
+c     nby : number of cells in y-dimension
+c     nbz : number of cells ln z-dimension
+c
 c     irtdb : runtime database handle
 c
       integer mew,npw,meg,npg,me,np,irtdb
