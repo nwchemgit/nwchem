@@ -629,8 +629,7 @@ c
             is_atm = geom_tag_to_element(tag_old(l), symbol,
      $           element, atn)
             if ((.not. is_atm) .and. symbol.ne.'bq')
-     $      call errquit
-     $         ('bsse_create_geom::center is neither atom nor bq',0)
+     $      call errquit('bsse_create_geom: not atom or bq',0,GEOM_ERR)
 cc
 c compare and put which need be bqX
 c
@@ -651,6 +650,7 @@ c
         if (.not. geom_create(mon_hnd, mon_name(j)(1:lenname)//'g')) 
      $    call 
      $    errquit ('bsse_create_geom: geom_create failed !',0,GEOM_ERR)
+
 c
         if (.not. geom_cart_set(mon_hnd, natoms, tag_new, c, q_new))
      $    call 
@@ -671,7 +671,8 @@ c
 c: creating and storing monomers without  ghost  
 c
         if (.not. geom_create(mon_hnd, mon_name(j)(1:lenname)))
-     $    call errquit (' bsse_create_geom: geom_create failed !', 0)
+     $    call errquit('bsse_create_geom: geom_create failed!',0,
+     $                 GEOM_ERR)
 c
         m = 0
         do l = 1, natoms
