@@ -1,11 +1,16 @@
       Subroutine dft_rdinput(rtdb)
 c
-c     $Id$
+C$Id$ dft_rdinput.F,v 1.55 1997/12/09 23:34:54 d3h449 Exp $
 c
 c     The main purpose of this subroutine is to read all parameters
 c     from the rtdb (which were read and placed by the input parser), 
 c     set defaults for those which were not in the rtdb and load 
-c     the whole lot into the rtdb and common (cdft.fh).
+c     the whole lot into the rtdb and common (both cdft.fh)
+c     The values of some variables are also stored in cscf.fh. This is
+c     needed to control the quasi-Newton-Raphson solver which has been
+c     extended to handle DFT as well. Due to name clashes between
+c     cdft.fh and cscf.fh special purpose subroutines are used to avoid
+c     the need to include both files in the same subroutine.
 c
       implicit none
 #include "errquit.fh"
@@ -34,6 +39,7 @@ c
       integer nopen
       character*32 theory 
       character*40 blank_40c
+      character*4 scftype
       logical same_atom, same_bq, isbq
       Logical lnewtype
       Logical int_normalize
@@ -178,11 +184,18 @@ c
      &       RTDB_ERR)
       endif
 c
+c     noc is calculated and stored in dft_inpana which is called
+c     after this routine.
+c
+c     if (.not.rtdb_get(rtdb,'dft:noc',mt_int,2,noc))
+c    &   call errquit('dft_rdinput: rtdb_get of noc failed',
+c    &                0,RTDB_ERR)
+c
       if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))then
          if (theory .eq. 'sodft') then
             ipol = 2
          else
-            ipol=1
+            ipol = 1
          endif
          if (.not. rtdb_put(rtdb, 'dft:ipol',
      &      mt_int, 1, ipol))
@@ -278,7 +291,7 @@ c
          if(theory.eq.'sodft') then
             itol2e = 10
          else
-            itol2e=8
+            itol2e = 8
          endif
          if (.not. rtdb_put(rtdb, 'dft:itol2e',
      &      mt_int, 1, itol2e))
@@ -878,8 +891,8 @@ c
      &   call errquit('dft_rdinput: failed to alloc nuc charge',0,
      &       MA_ERR)
 c
-c     for each type, place the nuclear charge in znuc array and put default 
-c     radial cutoff in rad_cutoff
+c     for each type, place the nuclear charge in znuc array and put
+c     default radial cutoff in rad_cutoff
 c
       do itype = 1, ntypes
 cedo         rad_cutoff(1,itype) = irqmax
@@ -926,11 +939,25 @@ c
       if (movecs_in.eq.'atomic' .or. movecs_in.eq.'hcore' .or. 
      $        movecs_in.eq.'project' .or. movecs_in.eq.'fragment'.or.
      $        movecs_in.eq.'rotate')then
-         continue
+         movecs_guess = movecs_in
       else
          call util_file_name_resolve(movecs_in, .false.)
       endif
       call util_file_name_resolve(movecs_out, .false.)
+c
+c     Put the scftype into cscf.fh
+c
+      if (.not.rtdb_cget(rtdb, 'dft:scftype', 1, scftype)) then
+         scftype = 'RHF'
+         if (mult.gt.1) scftype = 'ROHF'
+      endif
+      call dft_cscf_scftype(scftype)
+c
+c     Store SCF hamiltonian type as DFT for use in BGJ routines
+c
+      if (.not. rtdb_put(rtdb, 'bgj:scf_type', MT_INT, 1, 2))
+     $     call errquit('dft_scf: put of bgj:scf_type failed',0,
+     &       RTDB_ERR)
 c
       if (.not. MA_Pop_Stack(lznuc))
      &   call errquit('dft_rdinput: pop stack failed.',0, MA_ERR)
@@ -945,6 +972,7 @@ c
 c
       return
       end
+c
       integer function dft_nbases(bases)
       implicit none
 #include "cdft.fh"

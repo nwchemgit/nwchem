@@ -2,7 +2,7 @@ cedo#define USE_PDSYEVR 1
       subroutine dft_diagn(levelshifting,
      ,     nmo,ncanorg,
      .     g_fock,g_s,g_movecs,g_tmp,g_svecs,
-     ,     evals,svals,noc,homo,lumo,toll_s,
+     ,     evals,svals,nocc,homo,lumo,toll_s,
      ,     oprint_intermediate_fock,oprint_time,oprint_conv_details)
 c     
 c     $Id$
@@ -23,7 +23,7 @@ c
       integer g_s   ! [in]
       integer g_movecs   ! [in]
       integer g_svecs   ! [in]
-      integer noc ! [in]
+      integer nocc ! [in]
       double precision evals(*)   ! [out]
       double precision svals(*)   ! [in]
       double precision toll_s   ! [in]
@@ -83,7 +83,7 @@ c
 c     
 c     Build upper diagonal matrix. in MO basis
 c     
-         do j = noc+1+me, nmo, nproc
+         do j = nocc+1+me, nmo, nproc
             call ga_get(g_fockt, j, j, j, j, fjj, 1)
             fjj=fjj+rlshift
             call ga_put(g_fockt, j, j, j, j, fjj, 1)
@@ -133,9 +133,9 @@ c     print diagonalization time
 c     
 c     Check HOMO/LUMO gap.
 c     
-      if(noc.gt.0) then
-         homo = evals(noc)
-         lumo = evals(noc+1)
+      if(nocc.gt.0) then
+         homo = evals(nocc)
+         lumo = evals(nocc+1)
       else
          homo=-100.0d0
          lumo=100.0d0
@@ -158,7 +158,7 @@ c
       if (lmaxov)then
          call dft_mxovl(ao_bas_han, evals,
      &        g_movecst, g_movecs, g_s, g_fock,
-     ,        noc,oprint_conv_details,
+     ,        nocc,oprint_conv_details,
      ,        homo,lumo)
       endif
 c     

@@ -30,13 +30,12 @@ c
       end if
       return
       end
-      subroutine xc_sicdeg(i_degen, evals, noc, n_levels, act_levels)
+      subroutine xc_sicdeg(i_degen, evals, n_levels, act_levels)
       implicit none
 #include "mafdecls.fh"
 #include "cdft.fh"
 c
       integer i_degen(2), evals(2), n_levels(2)
-      integer noc(*) ! [in]
 c
       integer isp, j, aux_levels, n_orbitals, act_levels
       double precision start

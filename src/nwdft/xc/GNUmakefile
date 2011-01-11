@@ -15,6 +15,7 @@ HEADERS = xc.fh
 	xc_rodaes_erf.o \
 	xc_dirac_screened.o \
 	xc_fitv.o \
+	xc_hfexch.o\
 	xc_lebedev.o \
 	xc_lyp88.o \
 	xc_perdew86.o \

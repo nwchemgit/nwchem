@@ -17,6 +17,7 @@ c
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "cdft.fh"
+#include "dft_conv.fh"
 #include "global.fh"
 #include "util.fh"
 #include "tcgmsg.fh"
@@ -52,10 +53,15 @@ c
       integer isvals, lsvals,  idum,n_dep
       double precision toll_s
 c
-      logical dft_scf,atmblk, lcdft
-      external dft_scf
-      logical dft_scf_so 
-      external dft_scf_so 
+      logical lsuccess, ltried_scf, ltried_cgmin, lcgmin
+      logical dft_scf,atmblk, lcdft, dft_cscf_equals_scftype
+      external dft_scf, dft_cscf_equals_scftype
+      logical dft_scf_so
+      external dft_scf_so
+      logical  dft_uks_nr_solve, dft_roks_nr_solve
+      external dft_uks_nr_solve, dft_roks_nr_solve
+      logical  dft_cg_solve
+      external dft_cg_solve
 c
 c     == RT_TDDFT ==
       logical lrt_tddft       ! real-time TDDFT dynamics flag
@@ -76,6 +82,11 @@ c
       logical status
       logical ldirect
       character*32 pname
+c 
+      double precision eone, etwo, enrep, energy
+      double precision dft_time
+c
+      nexc = 1
 c
 c     == Preliminaries ==
       dft_main0d = .false.
@@ -93,6 +104,11 @@ c     == Preliminaries ==
       IOLGC = .TRUE.
       if (noio.eq.1) IOLGC = .FALSE.
 c
+      lcgmin = .false.
+      lsuccess = .false.
+      ltried_scf = .false.
+      ltried_cgmin = .false.
+c
 c     == SCALAPACK related ==
 c
 #ifdef SCALAPACK
@@ -105,6 +121,10 @@ c
      &     nb=0
 #endif
 #endif
+c
+c     == Check which solver to use ==
+      if (.not.rtdb_get(rtdb, 'dft:cgmin', mt_log, 1, lcgmin))
+     &   lcgmin=.false.
 c
 c     == Check real-time TDDFT flag ==
       lrt_tddft = .false.
@@ -458,7 +478,9 @@ c
        call ga_zero(g_Vxc(2))
 c
       endif 
-
+c
+      call dft_cscf_movecs(g_evecs)
+c
       nVxc = ipol
       if (.not. ga_duplicate(g_s, g_fock, 'fock matrix'))
      &     call errquit(pname//'Error creating ga',0,GA_ERR)
@@ -545,17 +567,41 @@ c     == Block CDFT calculations with RT_TDDFT ==
 c
 c     == Call the main drivers ==
       if (theory .eq. 'dft') then
-       if (.not.lrt_tddft) then
-        ! Standard DFT
-        dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt, 
-     &        iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
-     &        g_svecs, dbl_mb(isvals), g_xcinv, g_s,
-     &        lcdft, nconstr)
+        if (.not.lrt_tddft) then
+ 100      continue
+          if ((.not.lcgmin.and..not.ltried_scf).or.
+     &        (lcgmin.and.ltried_cgmin.and..not.lsuccess)) then
+            ! Standard DFT
+            lsuccess = dft_scf(rtdb, Etold, Enuc, iVcoul_opt,
+     &                         iVxc_opt, iter, g_dens, g_dens_at,
+     &                         g_evecs, g_vxc, g_fock, g_svecs,
+     &                         dbl_mb(isvals), g_xcinv, g_s, lcdft,
+     &                         nconstr)
+            ltried_scf = .true.
+            if (.not.lsuccess) then
+              movecs_in = movecs_out
+              call dft_cscf_movecs_inout(movecs_in,movecs_out)
+            endif
+          endif
+          if ((lcgmin.and..not.ltried_cgmin).or.
+     &        (.not.lcgmin.and.ltried_scf.and..not.lsuccess)) then
+            lsuccess = dft_cg_solve(rtdb)
+            call dft_cg_answer(rtdb,energy,lsuccess)
+            call dft_cg_tidy(rtdb)
+            if (.not.lsuccess) then
+              movecs_in = movecs_out
+              call dft_cscf_movecs_inout(movecs_in,movecs_out)
+            endif
+            ltried_cgmin = .true.
+          endif
+          if (.not.lsuccess.and..not.(ltried_scf.and.ltried_cgmin))
+     &       go to 100
+          dft_main0d = lsuccess
        else
         ! Standard DFT + real-time dynamics
-        !dft_main0d = rt_tddft_dft(rtdb, Etold, Enuc, iVcoul_opt, 
+        !dft_main0d = rt_tddft_dft(rtdb, Etold, Enuc, iVcoul_opt,
      &  !      iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
-     &  !      g_svecs, dbl_mb(isvals), g_xcinv, g_s, 
+     &  !      g_svecs, dbl_mb(isvals), g_xcinv, g_s,
      &  !      g_dipx, g_dipy, g_dipz, g_ddotE, g_vel,
      &  !      lcdft, nconstr)
         dft_main0d = .false.
@@ -573,18 +619,19 @@ c      announce that spin-orbit calculations are being performed
 c
        if (.not.lrt_tddft) then
         ! Spin-Orbit DFT
-        dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt, 
-     &       iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock, 
+        dft_main0d = dft_scf_so(rtdb, Etold, Enuc, iVcoul_opt,
+     &       iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
      &       g_svecs, dbl_mb(isvals), g_xcinv, g_s)
        else
         ! Spin-Orbit DFT + real-time dynamics
-        !dft_main0d = rt_tddft_sodft(rtdb, Etold, Enuc, iVcoul_opt, 
-     &  !   iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock, 
-     &  !   g_svecs, dbl_mb(isvals), g_xcinv, g_s, 
+        !dft_main0d = rt_tddft_sodft(rtdb, Etold, Enuc, iVcoul_opt,
+     &  !   iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
+     &  !   g_svecs, dbl_mb(isvals), g_xcinv, g_s,
      &  !   g_dipx, g_dipy, g_dipz, g_ddotE, g_vel)
         dft_main0d = .false.
        end if  ! lrt_tddft
-      endif 
+      endif ! theory
+c
       if (odftps) call pstat_off(ps_scfdft)
 c     
 c     == Clean up memory usage ==

@@ -2,7 +2,7 @@
      &                  g_dens, g_vxc,  g_wght, g_xyz,g_nq, 
      &                  wght_GA, rdens_atom, 
      &                  cetobfr, natoms,
-     &                  g_movecs, noc,  totsic, i_degen, n_levels)
+     &                  g_movecs, totsic, i_degen, n_levels)
 c
 C$Id$
 c
@@ -11,7 +11,8 @@ c
 c      
       integer iVxc_opt, nExc, g_dens(*), g_vxc(4), g_wght,
      &        g_xyz,g_nq
-      integer ik, ij, noc(2), isp, n_states, naux_ipol, size_mat, 
+c     integer noc(2)
+      integer ik, ij, isp, n_states, naux_ipol, size_mat, 
 c    &        g_sic_dens(2),g_orb,g_vxc_orb(4),g_movecs(2),
      &        g_orb,g_vxc_orb(4),g_movecs(2),
      &        g_matm, g_vectu,  g_coul_orb, g_vxc_sig(2),

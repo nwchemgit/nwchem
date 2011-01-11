@@ -108,7 +108,7 @@ c
 c     
       logical oprint, status
       double precision Exc(2), rms(2), derr(2)
-      integer noc(2), nmo(2), icall(2)
+      integer nmo(2), icall(2)
 c      integer nva
       integer n3c_dbl, n3c_int, n_batch
       integer iwhat_max
@@ -285,8 +285,6 @@ c
 c     
 c     determine pattern of orbitals' occupancy
 c     
-      if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     & call errquit(pname//'rtdb_get of noc failed',0,RTDB_ERR)
       if (.not. MA_Push_Get(MT_Dbl,nbf_ao*2,'mo occ',l_occ,k_occ))
      & call errquit(pname//'failed to alloc',999, MA_ERR)
 c     

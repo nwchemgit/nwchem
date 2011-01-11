@@ -54,8 +54,10 @@ c
 #include "rtdb.fh"
 #include "dft2drv.fh"
 #include "steric.fh"
-
+c
       logical rtdb_status       
+      logical grid_reopen
+      external grid_reopen
       logical lsa ! Qin
 c
       integer me, nproc, nxyz, nctrs, 
@@ -74,7 +76,7 @@ c
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
      &        nscr, lscr, iscr,lamat,iamat,icmat,lcmat,
-     ,        noc(2),nelec
+     ,        nelec
 c
       integer libf_ao,iibf_ao,irqbuf,lrqbuf,lbp,ibp,
      .     irchi_atom,irdelchi_atom,lrchi_atom,lrdelchi_atom
@@ -110,7 +112,16 @@ c
 c
 c     Open grid pts file
 c     
-      if (.not. grid_written .or. n_per_rec .le. 0) then
+      if (grid_written .and. n_rec_in_file .le. 0 ) then
+c
+c       Somebody (fock_xc?) closed the grid file, better reopen it
+c       before continuing. Note, fock_xc tends to open the grid file
+c       at the beginning and close it at the end.
+c
+        if (.not.grid_reopen(geom)) call errquit(
+     &    'grid_quadv0: could not open grid file',0,DISK_ERR)
+      endif
+      if (.not. grid_written .or. n_per_rec .le. 0 ) then
          call grid_packing_info
       end if
 c
@@ -278,7 +289,7 @@ c
      &                        ipol, dbl_mb(irdens_atom), 'rms', 
      &                        dbl_mb(iscr), nbf_ao_mxnbf_ce,.true.)
       endif
-
+c
       if (.not.ma_pop_stack(lscr))
      &     call errquit('grid_den: cannot pop stack',0, MA_ERR)
 c
@@ -353,10 +364,10 @@ c
       if (xcfit) nscr=max(nscr, 3*n_per_rec*nbf_xc_mxcont + 
      &     max(3*n_per_rec*nbf_xc_mxprim,
      &     n_per_rec*max_elem_ang_scr) + 1)
-     
+c     
       if (.not.MA_Push_Get(mt_dbl,nscr,'func scr',lscr,iscr))
      &     call errquit('grid_quadv0: cannot allocate bp',4, MA_ERR)
-
+c
       Ex=0d0
       Ec=0d0
       call ga_sync()
@@ -367,7 +378,7 @@ c
 c     Grid quadrature
 c
       if(grid_written) then
-
+c
          if (iAOacc .le. 0) then
           if (.not. rtdb_get(rtdb, 'dft:iAOacc', mt_int, 1, iAOacc))then
              iAOacc=-nint(log(e_conv))
@@ -376,7 +387,6 @@ c
           endif
          end if
 c
-
          call grid_quadv0a(g_dens,ncoef_max,nctrs,rho_int,nqtot, 
      &        int_mb(iniz), int_mb(ifin), 
      &        dbl_mb(irho), dbl_mb(idelrho), dbl_mb(ihess), 
@@ -394,7 +404,6 @@ c
      ,        l3d,triplet,
      ,        dbl_mb(itau), dbl_mb(ittau), 
      &        dbl_mb(immat), dbl_mb(k_mmat2),StericEnergyTotal)
-      
       else
 c
          if (.not. rtdb_get(rtdb, 'dft:mxnrad', mt_int, 1, mxnrad))
@@ -447,8 +456,7 @@ c Qin
          endif
 c end Qin
 
-      endif ! grid_written
-
+      endif  ! grid_written
 c     
       if(.not.xc_rep_close(rtdb, nbf_ao,ipol,g_vxc,.false.)) call
      .     errquit(' gridquadv0: xcrepclose failed ',0, DISK_ERR)
@@ -468,20 +476,17 @@ c
 c
 c         call ga_print(g_vxc(1))
       endif
-
+c
       call ga_igop(Msg_nqtot,nqtot,1,'+')
       call ga_dgop(Msg_Excrho,dummy,3,'+')
-
       if(xcfit) call ga_dgop(Msg_Tmat,Tmat,nbf_xc*ipol,'+')
-   
-
       if (nExc.eq.1)then
          Exc(1) = Exc(1) + Ec + Ex
       else
          Exc(1) = Exc(1) + Ex
          Exc(2) = Exc(2) + Ec
       endif
-
+c
 c     == Print total steric energy ==
 c
       if (lsteric) then
@@ -489,21 +494,20 @@ c
       end if
  2221  format('         Total Steric Energy =', f22.12/)
 c
+c     get grid accuracy for job
 c
       if (.not. rtdb_get(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
      &   job_grid_acc))
      &   call errquit('grid_acc_def: rtdb_put failed', 911, RTDB_ERR)
 c
-c     get N electr
+c     get number of electrons
 c
-      if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &   call errquit('dft_scf: rtdb_get of noc failed', 0, RTDB_ERR)
       if(ipol.eq.1) then
          nelec=2*noc(1)
       else
          nelec=noc(1)+noc(2)
       endif
-        
+c         
       if(oprintw) then
          if(sic_orb_occ.eq.0) then
             rho_err=abs(rho_int-dble(nelec))/nelec
@@ -515,9 +519,9 @@ c
      &        write(LuOut,123) rho_err,job_grid_acc
          end if
       endif
-      
-      rho_n = rho_int
-
+c
+      rho_n = rho_int  ! integrated density
+c
       if (me.eq.0.and.oprint)then
          write(LuOut,*)
          write(LuOut,'(a,f14.6,a,i8,a,i8)')
@@ -525,12 +529,12 @@ c
      &        rho_int,' npts: ',nqtot,' nctrs: ',nctrs
         write(LuOut,*)
       endif
-
+c
       if (.not.MA_Free_Heap(lxyz))
      &   call errquit('grid_den: cannot free heap',0, MA_ERR)
-
+c
  123  format(' Warning: integrated density =',
      , d10.2,/' greater than required accuracy ',d10.2)
-
+c
       return
       end

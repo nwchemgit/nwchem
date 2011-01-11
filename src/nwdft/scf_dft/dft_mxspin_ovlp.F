@@ -1,4 +1,4 @@
-      Subroutine dft_mxspin_ovlp(nao,nmo,basis,noc,g_alpha,g_beta,g_tmp)
+      Subroutine dft_mxspin_ovlp(nao,nmo,basis,g_alpha,g_beta,g_tmp)
 
 C$Id$
       Implicit none
@@ -26,7 +26,7 @@ c
 c
       integer i,j,jbig,n,ichunks,nbe,nend
       integer k_tmpr1, l_tmpr1, k_tmpr2, l_tmpr2, k_tmpi1, l_tmpi1
-      integer g_ss, g_vt, g_u, g_t, k_vals, l_vals, noc(2), g_alphaT
+      integer g_ss, g_vt, g_u, g_t, k_vals, l_vals, g_alphaT
       integer nalp, g_ualpha, k_unp, l_unp, l_part, k_part
       integer nct, l_non, k_non, ind
 c     

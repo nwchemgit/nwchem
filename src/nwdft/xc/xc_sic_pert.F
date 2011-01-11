@@ -1,15 +1,16 @@
       Subroutine xc_sic_pert(rtdb, nExc, iVxc_opt, 
      &                       g_wght, g_xyz, g_nq, 
      &                       wght_GA, rdens_atom, cetobfr, natoms,
-     &                       g_movecs, noc, totsic, i_degen, n_levels)
+     &                       g_movecs, totsic, i_degen, n_levels)
 c
 C$Id$
 c
       implicit none
 #include "errquit.fh"
-c      
+c     
+c     integer noc(2)
       integer nExc, iVxc_opt, natoms, rtdb, 
-     &        g_wght, g_xyz, g_nq, ik, noc(2), isp,
+     &        g_wght, g_xyz, g_nq, ik, isp,
      &        naux_ipol, g_dens_orb(2), g_orb,
      &        g_vxc_orb(4), g_movecs(2), g_coul_orb,
      &        i_temp_vec, l_temp_vec, i_degen(2), n_levels(2),

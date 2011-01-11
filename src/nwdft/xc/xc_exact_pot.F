@@ -55,14 +55,14 @@ c
       end
 c
 cccc
-      Subroutine xc_exact_pot(ecoul_aux, g_dens, g_vxc, noc,
+      Subroutine xc_exact_pot(ecoul_aux, g_dens, g_vxc, 
      &                        g_rho_exact, dif_lamda, g_tmp_exact,
      &                        g_addit_exact)
 c
       implicit none
 #include "errquit.fh"
 c      
-      integer noc(2)
+c     integer noc(2)
       integer g_dens(2), g_vxc(4),  
      &        g_vxc_aux(4), g_rho_exact(2), g_rho_diff(2),
      &        g_addit_exact(2), g_tmp_exact(2), g_rho_zero(2)
@@ -148,7 +148,7 @@ ccccc
      &                               p_lamda, incre, g_tmp_exact,
      &                               g_addit_exact, g_movecs_aux,
      &                               g_movecs, iter, k_eval,
-     &                               Ecoul_aux, noc, split)
+     &                               Ecoul_aux, split)
 c
       implicit none
 c
@@ -158,7 +158,8 @@ c
 #include "util.fh"
 #include "stdio.fh"
       integer g_addit_exact(2), g_movecs_aux(2), g_movecs(2),
-     &        g_tmp_exact(2), k_eval(2), noc(2)
+     &        g_tmp_exact(2), k_eval(2)
+c     integer noc(2)
       integer split, i, incre, iter, me, nproc, isp
       double precision reference, lamda, p_lamda, dif_lamda,
      &                 lamda_old, Ecoul_aux(2)

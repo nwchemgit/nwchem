@@ -1,11 +1,12 @@
-      Subroutine localize_sic(g_movecs, noc, evals)
+      Subroutine localize_sic(g_movecs, evals)
 c
 C$Id$
 c
       implicit none
 #include "errquit.fh"
 c      
-      integer noc(2), isp, x, me, i_degen, l_degen, n_levels,
+c     integer noc(2)
+      integer isp, x, me, i_degen, l_degen, n_levels,
      &        evals(2), ij, ik, n_orbitals, i_level, i_orb, j,
      &        aux_levels
       double precision start

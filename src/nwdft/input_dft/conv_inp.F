@@ -27,22 +27,28 @@ c     ncysh
 c     damp/nodamping
 c     diis/nodiis/nfock
 c     lshift/nolevelshifting
+c     pcglevl initial/tolerance/final levelshift
+c     nrlevl initial/tolerance/final levelshift
 c     hl_tol
 c     rabuck
+c     nr tolerance
 c     
       integer num_dirs, ind, mlen
-      parameter (num_dirs = 22)
+      parameter (num_dirs = 25)
       character*15 dirs(num_dirs)
       character*255 test
       double precision e_conv, d_conv, g_conv, dampon, dampoff, diison,
-     &                 diisoff, levlon, levloff, rlshift, hl_tol
+     &                 diisoff, levlon, levloff, rlshift, hl_tol,
+     &                 scfshift(6),tolnr
       integer ncydp, ncyds, ncysh, ndamp, nfock,n_rabuck
       logical damp, nodamping, levelshift, nolevelshifting, diis, nodiis
       data dirs /'energy', 'density', 'gradient', 'dampon', 'dampoff',
      &           'diison', 'diisoff', 'levlon', 'levloff', 'ncydp',
      &           'ncyds', 'ncysh', 'damp', 'nodamping', 'diis',
      &           'nodiis', 'lshift', 'nolevelshifting', 'hl_tol',
-     .       'fast','stable','rabuck'/
+     .       'fast','stable','rabuck','pcglevl','nrlevl','nr'/
+c
+      call dfill(6,-1.0d0,scfshift,1)
 c     
       mlen = inp_strlen(module)
 c     
@@ -57,7 +63,7 @@ c
 c
       goto (100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100, 
      &      1200, 1300, 1400, 1500, 1600, 1700, 1800, 1900, 
-     .      2000, 2010,2020,
+     .      2000, 2010,2020,2030,2040,2050,
      &      1999) ind
       call errquit('conv_inp: unimplemented directive', ind, INPUT_ERR)
 c     
@@ -369,6 +375,47 @@ c
      &   call errquit('conv_inp: rtdb_put failed', 2022, RTDB_ERR)
 c
       goto 10
+c
+c     Pcglevl (preconditioned conjugate gradient) level shifters
+c
+ 2030 continue
+      if (inp_f(scfshift(1))) then
+        if (inp_f(scfshift(2))) then
+          if (inp_f(scfshift(3))) then
+            continue
+          endif
+        endif
+      endif
+      if (.not.rtdb_put(rtdb,'dft:level shift info',MT_DBL,6,scfshift))
+     &  call errquit('conv_inp: rtdb_put of pcg scfshift failed',0,
+     &               RTDB_ERR)
+c
+      goto 10
+c
+c     Nrlevl (Newton-Raphson) level shifters
+c
+ 2040 continue
+      if (inp_f(scfshift(4))) then
+        if (inp_f(scfshift(5))) then
+          if (inp_f(scfshift(6))) then
+            continue
+          endif
+        endif
+      endif
+      if (.not.rtdb_put(rtdb,'dft:level shift info',MT_DBL,6,scfshift))
+     &  call errquit('conv_inp: rtdb_put of nr scfshift failed',0,
+     &               RTDB_ERR)
+c
+      goto 10
+c
+c     Nr <switch>
+c
+ 2050 if (.not. inp_f(tolnr))
+     &    call errquit('dft_input: nr switch',0,INPUT_ERR)
+      if (.not. rtdb_put(rtdb,'dft:full hessian switch',MT_DBL,1,tolnr))
+     &    call errquit('dft_input: rtdb put tolnr failed',0,RTDB_ERR)
+c
+      goto 10
  1999 continue
 c     
       return
@@ -381,7 +428,9 @@ c
      &       /,' [levloff rval], [ncydp ival], [ncyds ival], ',
      &       /,' [ncysh ival], [damp ival], [nodamping], ',
      &       /,' [diis nfock ival], [nodiis], [lshift rval], ',
-     &       /,' [nolevelshifting], [hl_tol rval]] ')
+     &       /,' [nolevelshifting], [hl_tol rval]], ',
+     &       /,' [pcg [rinit [rtol [rfinal]]]], ',
+     &       /,' [nr [rinit [rtol [rfinal]]]] ')
       call util_flush(LuOut)
       call errquit('conv_input: invalid format', 0, INPUT_ERR)
 c     

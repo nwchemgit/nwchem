@@ -25,7 +25,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 38)
+      parameter (num_dirs = 42)
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -38,10 +38,13 @@ c
       logical dftmp2
       logical molden
       logical noscf
+      logical lrodft
       integer which_mp2
+      integer nriscf, ri_store
       character*20 mp2char
       double precision smear_sigma
       double precision shift
+      double precision tol2e
       integer nel_fon(2),nmo_fon(2),ispin
       logical steric
       logical efield
@@ -53,12 +56,12 @@ c
       double precision efield_z
 c
       data dirs /'convergence','decomp','dft','direct','semidirect',
-     $           'ecp','grid','vectors','incore','iterations', 
-     $           'max_ovl','mulliken','mult','noio','noprint','odft', 
-     $           'print','tolerances', 'xc','sym','adapt','sic', 
-     $           'smear','fon','lb94','cs00','cdft','cam','disp',
-     $           'dftmp2','molden','noscf','steric','efield','swapab',
-     $           'frozemb','cgmin','end'/
+     $         'ecp','grid','vectors','incore','iterations', 
+     $         'max_ovl','mulliken','mult','noio','noprint','odft', 
+     $         'print','tolerances', 'xc','sym','adapt','sic', 
+     $         'smear','fon','lb94','cs00','cdft','cam','disp',
+     $         'dftmp2','molden','noscf','steric','efield','swapab',
+     $         'frozemb','cgmin','tol2e','ri-scf','lock','rodft','end'/
 c
 c Qin / cdft
       integer nconstr
@@ -95,7 +98,7 @@ c
      $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
      $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 
-     $     3600, 9999) ind
+     $     3600, 3700, 3800, 3900, 4000, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -261,6 +264,8 @@ c
 c     odft;
 c             
  1500 ipol=2
+      if (.not. rtdb_cput(rtdb, 'dft:scftype', 1, 'UHF'))
+     &  call errquit('dft_input: rtdb_put failed', 1500, RTDB_ERR)
 c
       goto 10
 c
@@ -585,6 +590,69 @@ c
  3600 cgmin = .true.
       if (.not.rtdb_put(rtdb,'dft:cgmin', mt_log, 1, cgmin))
      &   call errquit('dft_input: rtdb_put failed', 3600, RTDB_ERR)
+c
+      goto 10
+c
+c     tol2e <real tol2e>
+c
+ 3700 if (.not. inp_f(tol2e))
+     &   call errquit('dft_input: tol2e <thresh>',3700,INPUT_ERR)
+      if (.not. rtdb_put(rtdb,'dft:tol2e',MT_DBL,1,tol2e))
+     &   call errquit('dft_input: rtdb_put of tol2e failed',
+     &                3700, RTDB_ERR)
+c
+      goto 10
+c
+c     ri-scf
+c
+ 3800 nriscf = 2
+      ri_store = 1
+      if (inp_n_field().gt.1) then
+ 3610    if (inp_a(test)) then
+            if (inp_compare(.false., test, 'hessian')) then
+               nriscf = 1
+            else if (inp_compare(.false., test, 'full')) then
+               nriscf = 2
+            else if (inp_compare(.false., test, 'preconverge')) then
+               nriscf = 3
+            else if (inp_compare(.false., test, 'coulomb')) then
+               nriscf = 10
+            else if (inp_compare(.false., test, 'auto')) then
+               ri_store = 1
+            else if (inp_compare(.false., test, 'memory')) then
+               ri_store = 2
+            else if (inp_compare(.false., test, 'disk')) then
+               ri_store = 3
+            else
+               call errquit('dft_input: unknown RI option',0,INPUT_ERR)
+            endif
+            goto 3610
+         endif
+      endif
+      if (.not. rtdb_put(rtdb,'dft:ri',MT_INT, 1, nriscf))
+     &     call errquit('dft_input: failed to store RI option',0,
+     &                  RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'dft:ri_store',MT_INT, 1, ri_store))
+     &     call errquit('dft_input: failed to store RI option',0,
+     &                  RTDB_ERR)
+c
+      goto 10
+c
+c     lock [on|off] (defaults to on)
+c
+ 3900 if (.not. inp_a(test)) test = 'on'
+      status = inp_compare(.false.,test,'on')
+      if (.not. rtdb_put(rtdb,'dft:lock', MT_LOG, 1, status))
+     &    call errquit('dft_input: failed to store lock',0,
+     &                 RTDB_ERR)
+c
+      goto 10
+c
+c     rodft: restricted open-shell dft
+c
+ 4000 lrodft = .true.
+      if (.not.rtdb_put(rtdb,'dft:rodft', mt_log, 1, lrodft))
+     &   call errquit('dft_input: rtdb_put failed', 0, RTDB_ERR)
 c
       goto 10
 c

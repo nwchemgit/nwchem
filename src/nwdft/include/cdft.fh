@@ -37,7 +37,7 @@ c
      &     oadapt, lssw, lkeeps,trunc_neigh, lb94, cs00
       integer
      &     iAOacc, iCDacc, iXCacc, itol2e, imull, iangquad, 
-     &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
+     &     iterations, iguess, mult, noc(2), ipol, nfock, ncydp, ncysh, 
      &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
      &     nrinc, nrmax, geom, ncenters, nbf, nradpts, nang_leb_pts, 
      &     nbf_ao, nbf_ao_mxprim, nbf_ao_mxang, nbf_ao_mxcont, 
@@ -77,7 +77,7 @@ c
 c     Integers
 c
      &     iAOacc, iCDacc, iXCacc,  itol2e, imull, iangquad, 
-     &     iterations, iguess, mult, ipol, nfock, ncydp, ncysh, 
+     &     iterations, iguess, mult, noc, ipol, nfock, ncydp, ncysh, 
      &     ncyds, idirect, noio, ndamp, idecomp, nagrid, nquad_task,
      &     nrinc, nrmax, geom, ncenters, nbf, nradpts, nang_leb_pts, 
      &     nbf_ao, nbf_ao_mxprim, nbf_ao_mxang, nbf_ao_mxcont, 

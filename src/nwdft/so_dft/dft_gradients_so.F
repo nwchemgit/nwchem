@@ -54,7 +54,7 @@ c
       external ga_create_atom_blocked
       logical movecs_read_header_so, movecs_read_so
       external movecs_read_header_so, movecs_read_so
-      integer nmo(2), noc(2)
+      integer nmo(2)
       integer iga_dens(2), g_vecs(2), g_force, g_densso(2)
       Integer k_dens, l_dens,
      $     k_evals(2), l_evals(2)
@@ -107,9 +107,6 @@ c
       if (.not.status)then
          call errquit('dft_gradient: no nuclear charge',0, GEOM_ERR)
       endif 
-      if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     $     call errquit('dft_gradient: rtdb_get of noc failed', 0,
-     &       RTDB_ERR)
 c     
       if (ipol .eq. 1)then
          nocc = max(noc(1),noc(2))

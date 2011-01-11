@@ -46,7 +46,6 @@ c
 c
 #include "stdio.fh"
 c
-      integer noc(2)
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
       logical oprint_fukui
@@ -64,10 +63,10 @@ c
          call ga_zero(g_dens_HOMO(isp))
          call ga_zero(g_dens_LUMO(isp))
       end do
-      if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &   call errquit('fukui: rtdb_get of noc failed', 0, RTDB_ERR)
+c
       g_dens_ss = ga_create_atom_blocked(geom, AO_bas_han,
      &            'ga_dens_orb_ss')
+c
       do isp = 1, ipol
          if (noc(isp).eq.0) then
            noc_aux_1 = 1

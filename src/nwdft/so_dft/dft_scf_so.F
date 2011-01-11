@@ -87,7 +87,7 @@ c
 c     
       logical oprint, status
       double precision Exc(2), rms(2), derr(2)
-      integer noc(2), nmo(2), icall(2)
+      integer nmo(2), icall(2)
 c      integer nva
       integer n3c_dbl, n3c_int, n_batch
       integer iwhat_max
@@ -278,9 +278,6 @@ c
 c     
 c     determine pattern of orbitals' occupancy
 c     
-      if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &     call errquit('dft_scf_so: rtdb_get of noc failed', 
-     & 0, RTDB_ERR)
       if (.not. MA_Push_Get(MT_Dbl,nbf_ao*2,'mo occ',l_occ,k_occ))
      &     call errquit('dft_scf_so: failed to alloc',999, MA_ERR)
 c     
@@ -1504,8 +1501,8 @@ c     If open shell compute overlap of alpha orbitals with beta
 c     orbitals.
 c     
       if ((ipol.gt.1).and.(oprint_interm_overlap)) then
-         call dft_mxspin_ovlp(nbf_ao,nmo,ao_bas_han, noc, g_movecs(1), 
-     &       g_movecs(2),  g_tmp)
+         call dft_mxspin_ovlp(nbf_ao,nmo,ao_bas_han, g_movecs(1), 
+     &       g_movecs(2), g_tmp)
       endif
 c     
 c     computation of <S2> for open shell

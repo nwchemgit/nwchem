@@ -25,7 +25,6 @@ c
       double precision AUTOANG, ANGTOAU
       Parameter (AUTOANG = 0.529177249d0, ANGTOAU = 1.d0/AUTOANG)
       logical even, cksetd, no_prune
-      integer noc(2)
       Integer rtdb              !  runtime database handle
       integer me,ichg,nel
       integer noc1

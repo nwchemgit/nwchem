@@ -25,7 +25,7 @@ c
       return
       end
 c
-      subroutine dft_prevals(when,me,oprint_eval,oprint_vecs,noc,
+      subroutine dft_prevals(when,me,oprint_eval,oprint_vecs,
      ,  g_movecs,evals,occ)
       implicit none
 #include "util.fh"
@@ -34,7 +34,7 @@ c
       logical oprint_eval,oprint_vecs
       character*5 when
       integer me
-      integer noc(2),g_movecs(2)
+      integer g_movecs(2)
       double precision evals(*),occ(*)
 c
       if(me.eq.0.and.oprint_eval) then
@@ -85,7 +85,7 @@ c
       return 
       end
 c
-      subroutine dft_prevals2(me,noc,g_movecs,evals,occ)
+      subroutine dft_prevals2(me,g_movecs,evals,occ)
       implicit none
 #include "util.fh"
 #include "cdft.fh"
@@ -93,7 +93,7 @@ c
       logical oprint_eval,oprint_vecs
       character*5 when
       integer me
-      integer noc(2),g_movecs(2)
+      integer g_movecs(2)
       double precision evals(*),occ(*)
 c
       if(me.eq.0) then

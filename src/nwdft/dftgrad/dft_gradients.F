@@ -59,7 +59,8 @@ c
       external ga_create_atom_blocked
       logical movecs_read_header, movecs_read,xc_rep_close
       external movecs_read_header, movecs_read,xc_rep_close
-      integer nmo(2), noc(2)
+c     integer noc(2)
+      integer nmo(2)
       integer iga_dens(2), g_vecs(2), g_force
       Integer k_evals(2), l_evals(2)
       double precision grad_norm, grad_max
@@ -121,9 +122,9 @@ c
       if (.not.status)then
          call errquit('dft_gradient: no nuclear charge',0, GEOM_ERR)
       endif 
-      if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     $     call errquit('dft_gradient: rtdb_get of noc failed', 0,
-     &       RTDB_ERR)
+c     if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
+c    $     call errquit('dft_gradient: rtdb_get of noc failed', 0,
+c    &       RTDB_ERR)
 c     
 c     check if smearing is on
 c

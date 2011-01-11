@@ -1,6 +1,6 @@
       subroutine dft_mxovl(basis, evals, 
      ,     g_evecs, g_oevecs, g_s,g_tmp,
-     ,     noc,oprint,homo,lumo)
+     ,     nocc,oprint,homo,lumo)
 
 C$Id$
       Implicit none
@@ -18,7 +18,7 @@ C$Id$
       integer g_oevecs         ! old eigenvecs [input]
       integer g_tmp            ! scratch space
       double precision evals(*)! eigenvalues  [input/output]
-      integer noc ! [in]
+      integer nocc ! [in]
       logical oprint ! [in]
       double precision homo,lumo ! [in/out]
 c
@@ -106,11 +106,11 @@ c
 c
       homo = -1.0d8
       lumo =  1.0d8
-      if(noc.gt.0) then
-         do i = 1, noc
+      if(nocc.gt.0) then
+         do i = 1, nocc
             homo = max(homo,evals(i))
          enddo
-         do i = noc+1, nbf
+         do i = nocc+1, nbf
             lumo = min(lumo,evals(i))
          enddo
       endif

@@ -63,7 +63,7 @@ c
 c
       logical oprint
       double precision rms(2), derr(2)
-      integer noc(2), nmo(2), icall(2)
+      integer nmo(2), icall(2)
       integer mclosed(2), mopen(2)  ! used for cosmo_charges: used in same way as scf does
       integer n3c_dbl, n3c_int, n_batch
       integer iwhat_max
@@ -878,7 +878,7 @@ c
      ,     k_eval, dbl_mb(irdens_atom),
      ,     dbl_mb(k_3ceri),int_mb(k_3cwhat),
      ,     int_mb(icetobfr),
-     ,     iter, ecore, ecoul,exc,noc,rho_n,ldmix,
+     ,     iter, ecore, ecoul,exc,rho_n,ldmix,
      ,     test_sic,exact_pot,ecoul_aux,dif_lamda,totsic,
      ,     i_degen,g_rho_exact,g_tmp_exact, g_addit_exact,
      ,     n_levels, act_levels, oprint_time,
@@ -1305,14 +1305,14 @@ c
 c
 c     print out the eigenvalues
 c
-      call dft_prevals('inter',me,oprint_eval,oprint_vecs,noc,
+      call dft_prevals('inter',me,oprint_eval,oprint_vecs,
      ,     g_movecs,dbl_mb(k_eval(1)),dbl_mb(k_occ))
 c     
 c     If open shell compute overlap of alpha orbitals with beta 
 c     orbitals.
 c     
       if ((ipol.gt.1).and.(oprint_interm_overlap)) then
-         call dft_mxspin_ovlp(nbf_ao,nmo,ao_bas_han, noc, g_movecs(1), 
+         call dft_mxspin_ovlp(nbf_ao,nmo,ao_bas_han, g_movecs(1), 
      &       g_movecs(2),g_tmp)
       endif
 c     
@@ -1431,7 +1431,7 @@ c
      &                               p_lamda, incre, g_tmp_exact,
      &                               g_addit_exact, g_movecs_aux,
      &                               g_movecs, iter, k_eval,
-     &                               Ecoul_aux, noc, split)
+     &                               Ecoul_aux, split)
         if (lamda.le.900.0) go to 135
         call close_xc_exact_pot(g_rho_exact, g_tmp_exact,
      &                          g_addit_exact, g_movecs_aux)
@@ -1439,13 +1439,13 @@ c
 c
 c     Jorge Garza / Begin
       if (test_sic.eq.1) then
-         call xc_sicdeg(i_degen, k_eval, noc, n_levels,act_levels)
-         call localize_sic(g_movecs, noc, k_eval)
+         call xc_sicdeg(i_degen, k_eval, n_levels,act_levels)
+         call localize_sic(g_movecs, k_eval)
          call xc_sic_pert(rtdb, nExc, iVxc_opt,
      &                    g_wght, g_xyz, g_nq,
      &                    wght_GA, dbl_mb(irdens_atom),
      &                    int_mb(icetobfr), natoms,
-     &                    g_movecs, noc, totsic, i_degen, n_levels)
+     &                    g_movecs, totsic, i_degen, n_levels)
          if (me.eq.0.and.oprint_sic)then
             write(LuOut,*) ' SIC after localization',totsic
          endif
@@ -1698,7 +1698,7 @@ c
 c     If open shell compute overlap of alpha orbitals with beta orbitals.
 c     
       if (ipol.gt.1 .and. util_print('final overlap',print_default))then
-         call dft_mxspin_ovlp(nbf_ao,nmo,ao_bas_han, noc, g_movecs(1), 
+         call dft_mxspin_ovlp(nbf_ao,nmo,ao_bas_han, g_movecs(1), 
      &        g_movecs(2),g_tmp)
       endif
 c
@@ -1746,7 +1746,7 @@ c
          call schwarz_print(natoms, nshells_ao)
       endif
 c     
-      call dft_prevals('final',me,oprint_eval,oprint_vecs,noc,
+      call dft_prevals('final',me,oprint_eval,oprint_vecs,
      ,     g_movecs,dbl_mb(k_eval(1)),dbl_mb(k_occ))
 c     
 c     ECCE printout

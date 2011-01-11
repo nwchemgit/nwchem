@@ -116,6 +116,7 @@ c
 #include "util.fh"
 #include "cgridfile.fh"
 #include "cosmo.fh"
+cinclude "crohf.fh"
 c
       integer rtdb
 c     
@@ -125,8 +126,6 @@ c     == Local declarations ==
       integer bases(3), i3
       logical LResult, oprint, converged
       logical dyall_mod_dir  ! do modified Dirac calculation
-      logical cosmo_esp
-      logical ignore
 c
       logical dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
       external dft_main0d, movecs_converged,grid_reopen,xc_gotxc  
@@ -135,6 +134,7 @@ c
       character*80 theory
       logical lrt_tddft
       character*32 pname
+      integer nclosed, nopen
 c     
       pname = "nwdft:"
       nwdft = .false.
@@ -192,14 +192,6 @@ c     == old checkpoint files, etc. ==
       call dft_rdinput(rtdb)
 c
 c     == Cosmo initialization ==
-      if (.not.rtdb_get(rtdb,'cosmo_esp',mt_log,1,cosmo_esp)) 
-     +  cosmo_esp=.false.
-
-      if(cosmo_esp) then
-       call cosmo_initialize(rtdb,geom,ao_bas_han,oprint)
-       ignore=rtdb_delete(rtdb,'slv:cosmo')
-      end if
-
       cosmo_last = .false.
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
          if(cosmo_on) then
@@ -247,13 +239,13 @@ c
 c     check if we can get the grid from a file
 c         
                if(theory.eq.'sodft') then
-               if (.not. rtdb_get(rtdb,'sodft:energy',mt_dbl,1,energy)) 
-     &           call errquit(
-     &           pname//'Failed getting converged energy',0, RTDB_ERR)
+                 if(.not.rtdb_get(rtdb,'sodft:energy',mt_dbl,1,energy)) 
+     &             call errquit(
+     &             pname//'Failed getting converged energy',0, RTDB_ERR)
                else
-               if (.not. rtdb_get(rtdb,'dft:energy', mt_dbl,1,energy)) 
-     &           call errquit(
-     .           pname//'Failed getting converged energy',0, RTDB_ERR)
+                 if(.not.rtdb_get(rtdb,'dft:energy', mt_dbl,1,energy)) 
+     &             call errquit(
+     &             pname//'Failed getting converged energy',0, RTDB_ERR)
                endif
                if (iproc.eq.0 .and. oprint)then
                   write(LuOut,1011)energy
@@ -307,6 +299,23 @@ c     == Build the grid ==
 c
 c     == Analyze set parameters for consistency ==
       call dft_inpana(rtdb)
+c
+c     == Pump the settings into cscf.fh ==
+      call dft_cscf_init(rtdb,g_conv,rcharge,oskel,oadapt,iterations,
+     &                   geom,ao_bas_han,mult-1,nbf_ao,noc,
+     &                   movecs_in,movecs_out,movecs_guess,title)
+c
+c     == Set stuff in crohf.fh ==
+c     if (mult.eq.1) then
+c       nclosed = noc(1)
+c       nopen   = 0
+c     else
+c       nclosed = min(noc(1),noc(2))
+c       nopen   = mult - 1
+c     endif
+c     crohf_vlen = (nbf_ao-nclosed-nopen)*(nclosed+nopen)
+c    &           + (nclosed*nopen)
+c     crohf_init_flag = 1
 c     
 c     == Determine system type (molecule, polymer,surface,crystal) ==
 c     == if no system type exists in db --> default = molecular case ==    
@@ -314,11 +323,11 @@ c     == if no system type exists in db --> default = molecular case ==
 c
       if(itype.eq.0) then
 #ifdef GA_TRACE
-      call trace_init(100000)                                 ! initialize trace
+        call trace_init(100000)                       ! initialize trace
 #endif
         nwdft = dft_main0d(rtdb)
 #ifdef GA_TRACE
-      call trace_end(ga_nodeid())                            ! end trace
+        call trace_end(ga_nodeid())                   ! end trace
 #endif
       else
         call errquit(pname//'Problem with system type',0, INPUT_ERR)
@@ -339,8 +348,6 @@ c     == Clean up cosmo stuff, if necessary ==
          cosmo_on = .false.
          cosmo_phase = 1
       endif
-      if(cosmo_esp)
-     +  call cosmo_tidy()
 c     
 c     == Destroy basis set handles and geom object ==
       XCFIT    = .TRUE.
