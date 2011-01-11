@@ -45,8 +45,8 @@ C     (depending on odisk)
       character*64 filename
 #endif
 C
-      logical int_normalize
-      external int_normalize
+      logical int_normalize, xc_gotxc
+      external int_normalize, xc_gotxc
 
 C     get basis set information
       status = bas_numbf (ao_basis, nbf)
@@ -128,7 +128,11 @@ C     does this work for integer arrays?
       if (oscfps) call pstat_off(ps_index)
 
 C     disk-based method requested?
-      status = rtdb_get(rtdb, 'scf:ri_store',MT_INT, 1, nstore)
+      if (xc_gotxc()) then
+        status = rtdb_get(rtdb, 'dft:ri_store',MT_INT, 1, nstore)
+      else
+        status = rtdb_get(rtdb, 'scf:ri_store',MT_INT, 1, nstore)
+      endif
       if ( .not. status ) call errquit
      $     ('no store option for RI in rtdb', 110, RTDB_ERR)
 C     nstore = 1 : automatic choice based on memory size

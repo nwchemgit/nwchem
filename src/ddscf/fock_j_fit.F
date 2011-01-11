@@ -54,7 +54,7 @@ c     Local declarations
 c
       integer imat
       integer rtdb
-      integer noc(2), ntotel, n_batch, n3c_int, n3c_dbl, iwhat_max, 
+      integer ntotel, n_batch, n3c_int, n3c_dbl, iwhat_max, 
      &     n_semi_bufs, fd
       integer l_cd_coef, k_cd_coef
       integer idum
@@ -103,9 +103,6 @@ c
 c!!! Set up for cdinv to be allocated in dft_cdfit
       IOLGC = .true.
       if (noio.eq.1)IOLGC = .FALSE.
-      if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &     call errquit('fock_j_fit: rtdb_get of noc failed', 0,
-     &       RTDB_ERR)
       if (ipol.eq.1)then
          nTotEl = 2*noc(1)
       else

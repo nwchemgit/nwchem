@@ -1,5 +1,5 @@
       subroutine fock_xc(geom, nbf_ao, ao_bas_han,
-     &   nfock, g_dens, g_xc, l3d)
+     &   nfock, g_dens, g_xc, Exc, nExc, l3d)
 c
 c     $Id$
 c
@@ -28,7 +28,7 @@ c                               !         = No. of density matx (RDFT)
 c                               !         = 4 * No. of density matx (UDFT)
       integer ndens             ! [local] = ipol
       integer g_dens(*)         ! [input] Array of handles to densities
-      integer g_xc              ! [input] Array of handles to XC matrices
+      integer g_xc(*)           ! [input] Array of handles to XC matrices
       integer calc_type         ! [input] Type of XC matrix calculation
 c                               !         = 1 XC contrib to Fock
 c                               !         = 2 XC contrib to CPKS LHS
@@ -44,15 +44,20 @@ c                               !         If not set, then .false. is
 c                               !         assumed.  For Hessian, this must
 c                               !         be false (or not set).
 c
+      integer nExc              ! [input]  no. exchange-correlation energy
+c                               !          components.
+      double precision Exc(nExc)! [output] Exchange-correlation energy 
+c                               !          components
+c
 c     Local declarations
 c
       integer rtdb
-      integer nExc_dum, g_wght_dum, g_xyz_dum, g_nq_dum,
+      integer g_wght_dum, g_xyz_dum, g_nq_dum,
      &        l_cntoce, k_cntoce, l_cntobfr, k_cntobfr,
      &        l_cetobfr, k_cetobfr, l_rdens_atom, k_rdens_atom
       integer g_dens_scf(2)
       logical wght_GA_dum,grid_reopen,xc_gotxc
-      double precision Exc_dum(2), rho_n_dum,tdum
+      double precision rho_n_dum,tdum
       integer dims(3),chunk(3)
       integer igxcd,lgxcd
       integer xc_getipol
@@ -146,8 +151,8 @@ c
          else
             dims(1) = 2*nfock_xc+2
          endif
-      if (.not.MA_alloc_Get(MT_int,dims(1),'XCDens',lgxcd,igxcd))
-     &   call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
+         if (.not.MA_alloc_Get(MT_int,dims(1),'XCDens',lgxcd,igxcd))
+     &      call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
 c
 c     alpha bit
 c
@@ -167,17 +172,17 @@ c
             ahi(1) = nfock_xc*3
             blo(1) = nfock_xc+1+1
             bhi(1) = nfock_xc*2+1
-         do i=blo(1),bhi(1)
-            int_mb(igxcd+i-1)=dft_npatch(g_dens,i+(nfock_xc-1),
-     N           nbf_ao,geom,ao_bas_han)
-         enddo
+            do i=blo(1),bhi(1)
+               int_mb(igxcd+i-1)=dft_npatch(g_dens,i-1,
+     N              nbf_ao,geom,ao_bas_han)
+            enddo
          endif
       else
 c     -----------------------
 c     calc_type = 1 or 3 or 4
 c     -----------------------
-      if (.not.MA_alloc_Get(MT_int,2,'XCDens',lgxcd,igxcd))
-     &   call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
+         if (.not.MA_alloc_Get(MT_int,2,'XCDens',lgxcd,igxcd))
+     &      call errquit('fock_xc: cannot allocate xcdens',0, MA_ERR)
          int_mb(igxcd)=g_dens(1)
          if(ndens.eq.2) int_mb(igxcd+1)=g_dens(3)
       endif
@@ -206,14 +211,13 @@ c     -----------------------
 c
 c     Prepare to call xc_quadv0
 c
-      nExc_dum = 1
       g_wght_dum = -1
       g_xyz_dum = -1
       g_nq_dum = -1
       wght_GA_dum = .false.
       rho_n_dum = 0
-      exc_dum(1) = 0
-      exc_dum(2) = 0
+      Exc(1) = 0.0d0
+      Exc(2) = 0.0d0
       tdum = 0
       if(oprint) then
          if(ga_nodeid().eq.0) then
@@ -257,11 +261,12 @@ c
 c     check if we can get the grid from a file
 c         
       grid_written=grid_reopen(geom)
-         call grid_quadv0_gen(rtdb, 
-     &      int_mb(igxcd),
-     &      g_xc, nexc_dum,
-     &      rho_n_dum, Exc_dum,
-     &      nfock_xc, calc_type, tdum, .true., triplet)
+      call grid_quadv0_gen(rtdb, 
+     &     int_mb(igxcd),
+     &     g_xc, nexc,
+     &     rho_n_dum, Exc,
+     &     nfock_xc, calc_type, tdum, l3d, triplet)
+      call dft_store_rhon(rho_n_dum)
 c
 c     Clean up
 c
@@ -274,7 +279,7 @@ c
       endif
       if (.not.ma_free_heap(lgxcd))
      &   call errquit('fockxc: cannot pop stack',0, MA_ERR)
-      if(ndens.eq.2)  then
+      if(ndens.eq.2.and.l3d)  then
 c
 c     need to go from 2nfock ga to 4nfock (and sign flip)
 c
@@ -366,4 +371,10 @@ c
       call nga_copy_patch('N',g_dens,alo,ahi,g_dens1,blo,bhi)
       dft_npatch=g_dens1
       return
+      end
+      subroutine dft_store_rhon(dft_rho_n)
+      implicit none
+#include "dft_conv.fh"
+      double precision dft_rho_n
+      rho_n = dft_rho_n
       end
