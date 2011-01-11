@@ -233,7 +233,7 @@ c !!! BGJ
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
 c !!! BGJ
-      integer rtdb, ispin, noc(2), nmo(2), g_vecs(2), nsets, nbf_vecs,
+      integer rtdb, ispin, nmo(2), g_vecs(2), nsets, nbf_vecs,
      &     l_eval, k_eval, l_occ, k_occ
       character*255 title_vecs, basis_vecs
       character*20 scftype_vecs
@@ -242,52 +242,65 @@ c !!! BGJ
 c
       rtdb = bgj_rtdb
 c
-      if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
-     &   call errquit('bgj_get_scf_dens: rtdb_get of noc failed', 0,
-     &       RTDB_ERR)
+c     get MO vectors from file
+c
+      if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
+cDEBUG
+     &then
+c       if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
+c    &    call errquit(
+c    &         'bgj_get_scf_dens: SCF/DFT MO vectors not defined',0,
+c    &         RTDB_ERR)
+         call errquit('bgj_get_scf_dens: DFT MO vectors not defined',0,
+     &                RTDB_ERR)
+      endif
+cDEBUG
+      status = movecs_read_header(movecs_in, title_vecs, basis_vecs,
+     &         scftype_vecs, nbf_vecs, nsets, nmo, 2)
+c
+c     ipol  1 closed-shell (RKS)
+c     ipol  2 open-shell (both ROKS and UKS)
+c     nsets 1 RKS and ROKS
+c     nsets 2 UKS
+c
+      if (ipol .ne. nsets)then
+        if (ipol.eq.1.and.nsets.eq.2) then
+          write (6,*) 'bgj_get_scf_dens: ERROR ipol, nsets:',ipol,nsets
+          call errquit('bgj_get_scf_dens: ERROR ipol, nsets disagree',2,
+     &         INPUT_ERR)
+        endif
+      endif
+c
+c     Should check much more info than just nbf for consistency
 c
 c     allocate and initialize global and local memory
 c
 c     mo-vectors
 c
-      if (ipol .eq. 1)then
+      if (nsets .eq. 1)then
          g_vecs(1) = ga_create_atom_blocked (geom, ao_bas_han,
      &               'bgj_get_scf_dens:mo vectors')
-      else 
+         if (ipol .eq. 2) then
+           g_vecs(2) = g_vecs(1)
+         endif
+      else
          g_vecs(1) = ga_create_atom_blocked (geom, ao_bas_han,
      &               'bgj_get_scf_dens:alpha mo vectors')
          g_vecs(2) = ga_create_atom_blocked (geom, ao_bas_han,
      &               'bgj_get_scf_dens:beta mo vectors')
-      endif 
+      endif
 c
 c     global density
 c
       if (ipol .eq. 1)then
          g_dens(1) = ga_create_atom_blocked (geom, ao_bas_han,
      &                 'bgj_get_scf_dens:density')
-      else 
+      else
          g_dens(1) = ga_create_atom_blocked (geom, ao_bas_han,
      &                 'bgj_get_scf_dens:alpha density')
          g_dens(2) = ga_create_atom_blocked (geom, ao_bas_han,
      &                 'bgj_get_scf_dens:beta density')
-      endif 
-c
-c     get MO vectors from file
-c
-      if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
-     &   call errquit('bgj_get_scf_dens: DFT MO vectors not defined',0,
-     &       RTDB_ERR)
-      status = movecs_read_header(movecs_in, title_vecs, basis_vecs,
-     &         scftype_vecs, nbf_vecs, nsets, nmo, 2)
-c
-      if (ipol .ne. nsets)then ! 1 for RHF, 2 for UHF
-         write (6,*) 'bgj_get_scf_dens:  ERROR ipol, nsets:',ipol,nsets
-         call errquit('bgj_get_scf_dens:  ERROR ipol, nsets disagree',2,
-     &       INPUT_ERR)
-      endif 
-c
-c     Should check much more info than just nbf for consistency
-c
+      endif
 c
 c     get mo eigevectors
 c
@@ -298,32 +311,32 @@ c
       else 
          status = .true.
 c
-c     occupation numbers (not used, but necessary for movecs_read)
-c****
-c**** should do k_occ for both spins, in case used at some point...
-c****
-      if(.not.MA_push_get(MT_DBL, nbf_ao, 'occ. numbers',
-     &         l_occ, k_occ))
-     &   call errquit('bgj_get_scf_dens: could not allocate l_occ',1,
-     &       MA_ERR)
-      if(.not.ma_push_get(mt_dbl,nbf_ao,'evals',
-     $     l_eval,k_eval))
-     $     call errquit('bgj_get_scf_dens: problem with ma for evals',1,
-     &       MA_ERR)
-         do ispin = 1, ipol
-c****
-c****       get orbitals (i.e. fock eigenvectors) and fock eigenvalues
-c****
+c        occupation numbers (not used, but necessary for movecs_read)
+c
+c...     should do k_occ for both spins, in case used at some point...
+c
+         if(.not.MA_push_get(MT_DBL, nbf_ao, 'occ. numbers',
+     &                       l_occ, k_occ))
+     &      call errquit('bgj_get_scf_dens: could not allocate l_occ',1,
+     &                   MA_ERR)
+         if(.not.ma_push_get(mt_dbl,nbf_ao,'evals',
+     $                       l_eval,k_eval))
+     $      call errquit('bgj_get_scf_dens: problem with ma for evals',
+     $                   1, MA_ERR)
+         do ispin = 1, nsets
+c
+c           get orbitals (i.e. fock eigenvectors) and fock eigenvalues
+c
             status = status .and.
      &               movecs_read(movecs_in, ispin, dbl_mb(k_occ),
      &               dbl_mb(k_eval), g_vecs(ispin))
-         enddo 
-      if(.not.ma_pop_stack(l_eval))
-     $     call errquit('bgj_get_scf_dens: problem popping evals',1,
-     &       MA_ERR)
-      if(.not.ma_pop_stack(l_occ))
-     $     call errquit('bgj_get_scf_dens: problem popping occ',1,
-     &       MA_ERR)
+         enddo
+         if(.not.ma_pop_stack(l_eval))
+     $        call errquit('bgj_get_scf_dens: problem popping evals',1,
+     &                      MA_ERR)
+         if(.not.ma_pop_stack(l_occ))
+     $        call errquit('bgj_get_scf_dens: problem popping occ',1,
+     &                      MA_ERR)
       endif
 c
       if (.not.status)then
@@ -347,30 +360,25 @@ c
      &        g_vecs(ispin), g_vecs(ispin), 0.0d0, g_dens(ispin))
          call ga_symmetrize(g_dens(ispin))
       enddo 
-
 c
 c     Free temporary storage
 c
-      if (ipol .eq. 1)then
+      if (nsets .eq. 1)then
          if (.not. ga_destroy(g_vecs(1)))
      &      call errquit('bgj_get_scf_dens: destroying mos',0, GA_ERR)
-      else 
+      else
          if (.not. ga_destroy(g_vecs(1)))
      &      call errquit('bgj_get_scf_dens: destroying alpha mos',0,
      &       GA_ERR)
          if (.not. ga_destroy(g_vecs(2)))
      &      call errquit('bgj_get_scf_dens: destroying beta mos',0,
      &       GA_ERR)
-      endif 
-c      write(*,*)'*** bgj_get_scf_dens: g_dens',g_dens
-c      call ga_print(g_dens(1))
-c      if (ipol.eq.2) call ga_print(g_dens(2))
+      endif
 c
       bgj_get_scf_dens = .true.
 c
       return
       end
-
 c
 c     Checks for unrestricted 2nd derivative calculation on equal
 c     number of alpha and beta electrons with functional having a
@@ -384,7 +392,6 @@ c
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "../nwdft/include/cdft.fh"
-      integer noc(2)
       double precision c
       logical dontcare
 c
@@ -392,9 +399,6 @@ c
          if(.not.rtdb_get(bgj_rtdb,'dft:dontcare',mt_log, 1,dontcare))
      .        dontcare=.false.
          if(dontcare) return
-         if (.not. rtdb_get(bgj_rtdb, 'dft:noc', mt_int, 2, noc))
-     $        call errquit('bgj_check_xc_u2d: rtdb_get of noc failed',0,
-     &       RTDB_ERR)
          if (noc(1) .eq. noc(2)) then
 c           Add up coefficents for problematic functionals
             c = abs(cfac(1)) + abs(cfac(7)) + abs(cfac(8))
