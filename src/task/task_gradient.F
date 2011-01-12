@@ -174,6 +174,7 @@ c
       task_gradient = status
 c
       end
+c
       logical function task_gradient_doit(rtdb,theory,energy,gradient)
 *
 * $Id$
@@ -244,6 +245,7 @@ c
       character*80 key, prefix
 c
       logical dftmp2
+      logical rodft
 c
       if (.not. geom_rtdb_ncent(rtdb, 'geometry', ncent))
      $     call errquit('task_gradient: failed getting #atoms',0,
@@ -278,6 +280,17 @@ c
          numerical = .true.  ! do numerical gradients for fifth-rung (w/MP2) functionals
          if (ga_nodeid().eq.0) write(LuOut,*) 
      1    'DFT+MP2 based functional - numerical derivatives only'
+        end if
+      end if
+c
+      rodft = .false.
+      if(theory.eq.'dft') then
+        if (.not. rtdb_get(rtdb,'dft:rodft',mt_log,1,rodft))
+     1   rodft = .false.
+        if (rodft) then
+         numerical = .true.  ! do numerical gradients for restricted-open shell
+         if (ga_nodeid().eq.0) write(LuOut,*) 
+     1    'RODFT - numerical derivatives only'
         end if
       end if
 c
