@@ -1,0 +1,25 @@
+echo
+start h2o_rodft
+
+memory global 40 mb stack 23 mb heap 5 mb
+
+charge 1
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+dft
+  rodft
+  mult 2
+  cgmin
+end
+
+task dft
