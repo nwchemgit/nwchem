@@ -38,7 +38,7 @@ c
       logical dftmp2
       logical molden
       logical noscf
-      logical lrodft
+      logical rodft
       integer which_mp2
       integer nriscf, ri_store
       character*20 mp2char
@@ -650,8 +650,8 @@ c
 c
 c     rodft: restricted open-shell dft
 c
- 4000 lrodft = .true.
-      if (.not.rtdb_put(rtdb,'dft:rodft', mt_log, 1, lrodft))
+ 4000 rodft = .true.
+      if (.not.rtdb_put(rtdb,'dft:rodft', mt_log, 1, rodft))
      &   call errquit('dft_input: rtdb_put failed', 0, RTDB_ERR)
 c
       goto 10

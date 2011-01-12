@@ -38,6 +38,10 @@ c
       logical oprint_general, oprint_grid, oprint_xc, 
      &     oprint_convergence, oprint_tolerances, oprint_sic,
      ,     lsigma
+c
+      logical odft,rodft
+      character*4 scftype
+c
       character*9 local_c, nonlocal_c, nineb_c
       character*10 start_10c, NA_10c, asap_10c
       character*10 strng1, strng2, strng3, strng4, strng5, strng6
@@ -81,6 +85,37 @@ c
 c     Even number of electrons required for RHF.
 c     
       even=mod(nel,2).eq.0
+c
+c     == check for restricted open-shell dft ==
+      if (.not. rtdb_get(rtdb, 'dft:rodft', mt_log, 1,
+     &         rodft))rodft = .false.
+c
+      if (mult.eq.1) then
+        scftype = 'RHF'
+        if (.not. rtdb_cput(rtdb, 'dft:scftype', 1, scftype))
+     &       call errquit('dft_input: rtdb_put failed', 1500, RTDB_ERR)
+        call dft_cscf_scftype(scftype)
+      end if
+c
+      odft = .false.
+      if ((mult.ne.1)) then
+        if (.not.rodft) then
+           odft = .true.
+           scftype = 'UHF'
+        else
+           scftype = 'ROHF'
+        end if
+        if (.not. rtdb_cput(rtdb, 'dft:scftype', 1, scftype))
+     &       call errquit('dft_input: rtdb_put failed', 1500, RTDB_ERR)
+        call dft_cscf_scftype(scftype)
+      end if
+c
+      if ((.not.even).and.(.not.odft).and.(.not.rodft)) then
+       call errquit(
+     &  'Odd number of electrons. Please specify if this 
+     &a restricted open-shell or open-shell calculation',0,
+     &       INPUT_ERR)
+      end if
 c     
 c     odd # of electrons or not a singlet state --> LSD
 c     
