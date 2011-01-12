@@ -1,6 +1,6 @@
       logical function pre_wrtpdb(lfnout,lfnpdb,lrgpdb,filpdb,iopt,box,
      + num,amass,mat,
-     + csa,isat,isgm,imol,ifra,xs,vs,msa,nsa,
+     + csa,isat,isgm,imol,ifra,xs,vs,qsa,msa,nsa,
      + cwa,iwat,xw,vw,mwm,mwa,nwm,nwa,
      + xwc,vwc,mwmc,nwmc,slvnam,iropt,irrand,nxrep,nyrep,nzrep,drep,
      + msb,nsb,idsb,rdist,nskip,iskip,lang,lfnmrg,nmerge,xmerge,filmrg,
@@ -26,7 +26,7 @@ c
       character*16 cwa(mwa),csa(msa)
       character*3 slvnam
       real*8 amass(mat),xs(3,msa),vs(3,msa),xw(3,mwa,mwm),vw(3,mwa,mwm)
-      real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),box(3)
+      real*8 xwc(3,mwa,mwmc),vwc(3,mwa,mwmc),box(3),qsa(msa)
       integer iropt,irrand,nxrep,nyrep,nzrep,nskip
       real*8 rdist,drep(3),xmerge(3,100)
       integer msb,nsb,nmols,irenum,invert,nmerge
@@ -151,6 +151,7 @@ c      write(*,'(5i5)') i,j,k,isgm(i),isgm(j)
       temp=4.009103873d1*amass(isat(i))*
      + (vs(1,i)*vs(1,i)+vs(2,i)*vs(2,i)+vs(3,i)*vs(3,i))
       if(temp.gt.999.0) temp=999.989
+      temp=qsa(i)
       sname=csa(i)(1:3)
       if(sname(1:1).eq.'_') sname(1:1)=' '
       if(sname(2:2).eq.'_') sname(2:2)=' '

@@ -741,7 +741,7 @@ c
      + int_mb(i_num),dbl_mb(i_mas),
      + mat,byte_mb(i_csa),int_mb(i_sat),int_mb(i_sgm),int_mb(i_sml),
      + int_mb(i_sfr),
-     + dbl_mb(i_xs),dbl_mb(i_vs),msa,nsa,byte_mb(i_cwa),
+     + dbl_mb(i_xs),dbl_mb(i_vs),dbl_mb(i_qsa),msa,nsa,byte_mb(i_cwa),
      + int_mb(i_wat),dbl_mb(i_xw),dbl_mb(i_vw),
      + mwm,mwa,nwm,nwa,dbl_mb(i_xwc),dbl_mb(i_vwc),mwmc,nwmc,slvnam,
      + iropt,irrand,nxrep,nyrep,nzrep,drep,msb,nsb,int_mb(i_isb),zdist,
