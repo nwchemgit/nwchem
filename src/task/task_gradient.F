@@ -272,6 +272,7 @@ c
 c
 c     Check if analytic gradients are supported within the theory
 c
+c     == double hybrid DFT ==
       dftmp2 = .false.
       if(theory.eq.'dft') then
         if (.not. rtdb_get(rtdb,'dft:dftmp2',mt_log,1,dftmp2))
@@ -283,6 +284,7 @@ c
         end if
       end if
 c
+c     == restricted open-shell DFT ==
       rodft = .false.
       if(theory.eq.'dft') then
         if (.not. rtdb_get(rtdb,'dft:rodft',mt_log,1,rodft))
