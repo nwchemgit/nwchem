@@ -15,6 +15,7 @@ c
       integer geom1, basis1
       integer ipol, mult
       logical cdfit, dmd_rel, dk_rel, zora_rel
+      logical rodft
       logical xc_chktau,xc_getxcfac,cam_exch
       external xc_chktau,xc_getxcfac
 c
@@ -62,6 +63,18 @@ c
            return
         endif
       endif
+c
+c     == restricted open-shell DFT ==
+      if(theory.eq.'dft') then
+        if (.not. rtdb_get(rtdb,'dft:rodft',mt_log,1,rodft))
+     1   rodft = .false.
+c
+        if (rodft) then
+           if (ga_nodeid().eq.0)
+     *       write(LuOut,*) 'RODFT detected'
+           return
+        end if
+      end if
 c
 c  Check for UHF in DFT
 c
