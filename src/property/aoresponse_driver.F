@@ -108,7 +108,8 @@ c     GA handles for one-electron integrals and temp arrays
       double precision ga_trace_diag
       external ga_trace_diag
 
-      logical debug, lgiao, lvelocity, lmagpert, lstatic, lifetime
+      logical debug, lgiao, lvelocity, lmagpert, lstatic, lifetime,
+     $        lbeta
       logical oprint
 
 #ifdef JEFF_OUTPUT
@@ -153,6 +154,7 @@ c     -------------------------------------------
       lmagpert = .false.
       lvelocity = .false.
       lifetime = .false.
+      lbeta = .false.
       gamwidth = 0d0
 
       ntmp = 1
@@ -167,6 +169,9 @@ c     -------------------------------------------
       if (.not.rtdb_get(rtdb, 'aoresponse:giao', mt_int, 1,ntmp)) 
      &    call errquit('aor_driver: giao failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lgiao = .true.
+      if (.not.rtdb_get(rtdb, 'aoresponse:orbeta', mt_int, 1,ntmp)) 
+     &    call errquit('aor_driver: lbeta failed ',0, RTDB_ERR)
+      if (ntmp.eq.0) lbeta = .true.
       if (.not.rtdb_get(rtdb, 'aoresponse:damping', mt_int, 1,ntmp)) 
      &    call errquit('aor_driver: damping failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lifetime = .true.
@@ -179,7 +184,8 @@ c     -------------------------------------------
 c     note: if lgiao.eq.true. we assume that the user is
 c     interested to get origin independent optical rotation which
 c     we have to calculate from the magnetically perturbed density
-c     matrix with the code available so far.
+c     matrix with the code as set up. (NOT TESTED. DON't USE).
+
 c     if lvelocity.eq.true. we assume that NO giaos are to be used.
 c     in that case the perturbing operator is imaginary no matter if
 c     we use the electric or the magnetic field because it's either
@@ -192,7 +198,17 @@ c     i nabla or i/2 (r x nabla)
         endif
         lgiao = .false.
       endif
-      if (lgiao) lmagpert = .true.
+      if (lgiao .and. .not.lbeta) lmagpert = .true.
+
+c     also check if lvelocity and lbeta are both true:
+
+      if (lvelocity .and. lbeta) then
+        if (oprint) then
+          write (LuOut,*) 
+     &       'WARNING: Velocity and ORBETA requested => BETA disabled'
+        endif
+        lbeta = .false.
+      endif
 
 c     -----------------------
 c     general initializations (adapted from hnd_giaox.F)
@@ -564,15 +580,35 @@ c     denominators:
         enddo
       enddo
       
-      if (debug) write (luout,*) 'calling aoresponse'
-      call aoresponse (rtdb, basis, geom, nfreq, response_order,
-     &   dbl_mb(k_fr),
-     &   g_smat0, g_smat1, g_sket1,
-     &   g_dipel, g_dipmag, g_vectors, dbl_mb(k_eval),
-     &   dbl_mb(k_occ), g_dens, nbf, nbfx, nmo, nclosed, nvirt,
-     &   dbl_mb(k_deps), lgiao, lvelocity, lmagpert,
-     &   lifetime, gamwidth, alfare, alfaim, betare, betaim)
-      if (debug) write (luout,*) 'exiting aoresponse'
+      if (.not.lbeta) then
+c     default call: compute dynamic polarizability and
+c     optical rotation G' tensor
+         if (debug) write (luout,*) 'calling aoresponse'
+         call aoresponse (rtdb, basis, geom, nfreq, response_order,
+     &        dbl_mb(k_fr),
+     &        g_smat0, g_smat1, g_sket1,
+     &        g_dipel, g_dipmag, g_vectors, dbl_mb(k_eval),
+     &        dbl_mb(k_occ), g_dens, nbf, nbfx, nmo, nclosed, nvirt,
+     &        dbl_mb(k_deps), lgiao, lvelocity, lmagpert,
+     &        lifetime, gamwidth, alfare, alfaim, betare, betaim)
+         if (debug) write (luout,*) 'exiting aoresponse'
+         
+      else ! lbeta?
+
+c     alternate call: compute directly optical rotation beta tensor
+c     using frequency-dependent generalization of Amos' formula
+
+         if (debug) write (luout,*) 'calling aoresponse_beta'
+         call aoresponse_beta (rtdb, basis, geom, nfreq, response_order,
+     &        dbl_mb(k_fr),
+     &        g_smat0, g_smat1, g_sket1,
+     &        g_dipel, g_dipmag, g_vectors, dbl_mb(k_eval),
+     &        dbl_mb(k_occ), g_dens, nbf, nbfx, nmo, nclosed, nvirt,
+     &        dbl_mb(k_deps), lgiao, lvelocity, lmagpert,
+     &        lifetime, gamwidth, alfare, alfaim, betare, betaim)
+         if (debug) write (luout,*) 'exiting aoresponse_beta'
+
+      end if ! lbeta
 
 c     ------------
 c     print result

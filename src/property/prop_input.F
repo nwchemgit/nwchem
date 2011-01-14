@@ -53,7 +53,8 @@ c
 
 c ... jochen:
       integer aoresponse, nfreq, l_fr, k_fr, 
-     &        velocity, magneticpert, aor_giao, aor_damp, aor_conv
+     &        velocity, magneticpert, aor_giao, aor_damp, aor_conv,
+     &        aor_orbeta
       double precision gamwidth, convergence
 
 c     
@@ -108,6 +109,7 @@ c ... jochen:
       aor_giao          = 1
       aor_damp          = 1
       aor_conv          = 1
+      aor_orbeta        = 1
       nfreq             = 0
 
 c     
@@ -217,6 +219,8 @@ c  ... jochen: parse input for response/aoresponse key
          magneticpert = 0
       elseif ( inp_compare(.false., 'giao', test)) then
          aor_giao = 0
+      elseif ( inp_compare(.false., 'orbeta', test)) then
+         aor_orbeta = 0
       elseif ( inp_compare(.false., 'gshift', test)) then ! FA-08-18-10
          aor_giao = 0
       elseif ( inp_compare(.false., 'damping', test)) then
@@ -505,6 +509,9 @@ c             "nocheck" option which is used later in hnd_property.F
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'aoresponse:giao', mt_int, 1,
      $                               aor_giao        ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'aoresponse:orbeta', mt_int, 1,
+     $                               aor_orbeta        ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'aoresponse:damping', mt_int, 1,
      $                               aor_damp        ))

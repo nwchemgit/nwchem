@@ -36,6 +36,7 @@
          aoresponse_driver.o \
          int_mpole_1ega.o \
          aoresponse.o \
+         aoresponse_beta.o \
          CalcPerturbedTDPmat1.o \
          aoresponse_giao_rhs.o \
          ao_1prdm_read.o \
