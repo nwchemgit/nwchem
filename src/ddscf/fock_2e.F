@@ -32,6 +32,8 @@ c     !!! BGJ test !!!
       integer g_xc 
       double precision kfac(maxfocks), jfac(maxfocks),ffac
       double precision lfac(maxfocks)
+      double precision Exc(2)
+      integer nExc
       integer ga_create_atom_blocked
       integer vg_fockc
       integer dims(3), chunk(3),alo(3),ahi(3),blo(3),bhi(3)
@@ -178,8 +180,11 @@ c
       if(nfock.ne.1.and.nfock.ne.4) call errquit(
      '     '    fock_2e: unexpected nfock value = ',nfock, UNKNOWN_ERR)
 c       
+      Exc(1) = 0.0d0
+      Exc(2) = 0.0d0
+      nExc = 1
       call fock_xc(geom1, nbf,ao_basis,
-     ,     nfock, vg_dens, g_xc,.false.)
+     ,     nfock, vg_dens, g_xc,Exc,nExc,.false.)
       ffac=1d0
       if (xc_active) then
          odft=nfock.eq.4

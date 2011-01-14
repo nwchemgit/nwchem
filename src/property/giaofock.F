@@ -12,7 +12,8 @@ c $Id$
 #include "global.fh"
 c
       integer geom, basis, g_dens, g_fock, nbf
-      double precision tol2e,kfac
+      double precision tol2e,kfac,Exc(2)
+      integer nExc
 c
       integer nshell, maxang, blen, lend, leri, ii
       integer l_eri,k_eri,l_scr,k_scr,alo(4),ahi(4),g_xc
@@ -89,7 +90,10 @@ c
          if (.not.nga_create(MT_DBL,3,ahi,'xc matrix',alo,g_xc)) 
      &      call errquit('hnd_giaox: nga_create failed g_xc',0,GA_ERR)
          call ga_zero(g_xc)
-         call fock_xc(geom,nbf,basis,3,g_dens,g_xc,.false.)
+         Exc(1) = 0.0d0
+         Exc(2) = 0.0d0
+         nExc = 1
+         call fock_xc(geom,nbf,basis,3,g_dens,g_xc,Exc,nExc,.false.)
          do ii = 1, 3
             alo(1) = ii
             ahi(1) = ii

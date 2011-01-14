@@ -37,6 +37,8 @@ c     !!! BGJ test !!!
       integer dims(3), chunk(3),alo(3),ahi(3),blo(3),bhi(3)
       logical doxc
       integer rtdb
+      double precision Exc(2)
+      integer nExc
 c
       external ga_create_atom_blocked
       logical xc_active, jfit,oprint,odft,cphf_uhf
@@ -187,9 +189,12 @@ c
       if(nfock.ne.1.and.nfock.ne.4) call errquit(
      '     '    fock_2e: unexpected nfock value = ',nfock, UNKNOWN_ERR)
        
+      Exc(1) = 0.0d0
+      Exc(2) = 0.0d0
+      nExc = 1
       if (doxc) then
       call fock_xc(geom1, nbf,ao_basis,
-     ,     nfock, vg_dens, g_xc,.false.)
+     ,     nfock, vg_dens, g_xc,Exc,nExc,.false.)
       ffac=1d0
       if (xc_active) then
          odft=nfock.eq.4

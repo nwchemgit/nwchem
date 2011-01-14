@@ -852,7 +852,8 @@ c
 #include "stdio.fh"
       integer geom
       integer basis
-      double precision jfac(*),kfac(*),tdum
+      double precision jfac(*),kfac(*),tdum,Exc(2)
+      integer nExc
       integer nbf
       integer nder,nfock,ndens
       integer g_fock,g_dens
@@ -881,8 +882,11 @@ c
      &       GA_ERR)
       call ga_zero(g_xc)
 
+      Exc(1) = 0.0d0
+      Exc(2) = 0.0d0
+      nExc = 1
       call fock_xc(geom, nbf,basis,
-     ,      ndens,  g_dens, g_xc,.true.)
+     ,      ndens,  g_dens, g_xc,Exc,nExc,.true.)
       call ga_add(1.0d0, g_xc, 1.0d0, g_fock,
      &     g_fock)
       if (oprint) then
