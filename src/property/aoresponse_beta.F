@@ -105,7 +105,7 @@ c     other local variables:
       integer ispin, nspin, ncomp
       integer ipm, nocc, nvir, nocv, imo, jmo, nmo1, iresp, idir
       logical debug, dbgmat, 
-     &   lzora, lantisym, lstatic, haveocc
+     &   lzora, lantisym, lstatic
       double precision omega, sum
       double precision tenm8
       parameter (tenm8=1d-8)
@@ -164,8 +164,6 @@ c     (later we will set most of this by input)
       nspin      =  1           ! assume closed shell
       lzora      = .false.      ! not yet available here 
 
-      haveocc = (lgiao .and. lmagpert) ! consider occ-occ blocks
-
 c     check if we should calculate OR beta directly or G'
 
       if (ga_nodeid().eq.0) write (luout,*)
@@ -173,7 +171,6 @@ c     check if we should calculate OR beta directly or G'
 
       if (debug) write (luout,*) 'giao, velocity, magpert',
      &    lgiao, lvelocity, lmagpert
-      if (debug) write (luout,*) 'haveocc:',haveocc
       
 c     -------------------------
 c     define Levi-Civita tensor (not needed right now)
@@ -353,7 +350,7 @@ c       ------------------------------------------------
 
 
 c       need to redo the transformation and copy to A-matrix for
-c       the B-field perturbed MOs. Same dimenssioning as above.
+c       the B-field perturbed MOs. Same dimensioning as above.
 
         alo(1) = 1
         ahi(1) = nbf
@@ -371,7 +368,7 @@ c       magnetic field: magnetic dipole or GIAO derivative of h
         call nga_copy_patch('n',g_dipmag,blo,bhi,g_work,alo,ahi)     
         call giao_aotomo(g_work,g_vectors(1),nocct(1),
      &     nvirt(1),1,3,nbf)             
-        alo(1) = nocc+1 ! might need to check "haveocc" here !!!
+        alo(1) = nocc+1 
         ahi(1) = nmo
         alo(2) = 1
         ahi(2) = nocc
