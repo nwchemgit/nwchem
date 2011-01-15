@@ -139,7 +139,9 @@ c
       lshift=0.0d0
       if (.not. rtdb_get(rtdb, 'cphf:lshift', mt_dbl, 1,
      $     lshift)) lshift=0.0
-      if (.not. rtdb_get(rtdb, 'cphf:precond_tol', mt_dbl, 1, 
+c jochen: previously it tried to read cphf:precond_tol
+c         I changed that so that we can set this by input
+      if (.not. rtdb_get(rtdb, 'cphf:thresh', mt_dbl, 1, 
      $     precond_tol)) precond_tol=1d-4
       if (.not. rtdb_get(rtdb,'cphf:maxiter', mt_int, 1,
      $     maxiter)) maxiter = 50
