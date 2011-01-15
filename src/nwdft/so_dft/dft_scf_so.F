@@ -1501,7 +1501,7 @@ c     If open shell compute overlap of alpha orbitals with beta
 c     orbitals.
 c     
       if ((ipol.gt.1).and.(oprint_interm_overlap)) then
-         call dft_mxspin_ovlp(nbf_ao,nmo,ao_bas_han, g_movecs(1), 
+         call dft_mxspin_ovlp(nbf_ao,nmo,ao_bas_han,g_movecs(1), 
      &       g_movecs(2), g_tmp)
       endif
 c     
@@ -1976,7 +1976,7 @@ c
 c     If open shell compute overlap of alpha orbitals with beta orbitals.
 c     
       if (ipol.gt.1)then
-         call dft_mxspin_ovlp(nbf_ao,nmo,ao_bas_han,noc,g_movecs(1), 
+         call dft_mxspin_ovlp(nbf_ao,nmo,ao_bas_han,g_movecs(1), 
      &        g_movecs(2), g_tmp)
       endif
 c
