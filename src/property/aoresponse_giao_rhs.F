@@ -1,7 +1,8 @@
       subroutine aoresponse_giao_rhs (rtdb, basis, geom, 
      &   ncomp, g_rhs,
      &   g_vectors, g_smat1, g_sket1, g_dens, g_amat,
-     &   nocc, nvir, nmo, nbf, froct, epst, omega)
+     &   nocc, nvir, nmo, nbf, froct, epst, omega, lstatic)
+
 c $Id$ 
 
 c     ==================================================================
@@ -48,6 +49,8 @@ c     subroutine arguments:
 
       integer nbf, nocc, nvir, nmo
       double precision froct(nbf), epst(nbf), omega
+
+      logical lstatic ! we can skip all S-ket related terms if true
 
 c     local variables:
 
@@ -96,10 +99,11 @@ c
 c     transform Smat1 and S-ket to MO basis
 
       call giao_aotomo(g_smat1,g_vectors,nocc,nvir,1,3,nbf)
-      call giao_aotomo(g_sket1,g_vectors,nocc,nvir,1,3,nbf)
+      if (.not.lstatic)
+     &   call giao_aotomo(g_sket1,g_vectors,nocc,nvir,1,3,nbf)
 
-c     debug S10 and S-ket in MO basis
-      if (dbgmat) then
+c     debug S10 and S-ket in MO basis (dynamic response)
+      if (dbgmat .and. .not.lstatic) then
         clo(1) = nmo
         clo(2) = nmo
         clo(3) = 1
@@ -161,23 +165,28 @@ c     these dimensions will be used repeatedly:
         call nga_copy_patch('n',g_smat1,alo,ahi,g_rhs(ipm),blo,bhi)
       enddo
 
-      if (debug) write (6,*) 'added Smat1 term to rhs'
+      if (debug) write (luout,*) 'added Smat1 term to rhs'
 
 c     Add S-ket matrix contribution (now in MO basis) to rhs
 c     Note that in JCP 123, 114103 S-Ket contains a factor of (+/-)w
 c     which we account for here
 c     THE PREFACTORS NEED TO BE DEBUGGED YET
 
-      call nga_add_patch(1d0*omega,g_sket1,
-     &                   alo,ahi,1d0,g_rhs(1),blo,bhi,
-     &                   g_rhs(1),blo,bhi)
-      if (ncomp.eq.2) then
-        call nga_add_patch(-1d0*omega,g_sket1,
-     &                   alo,ahi,1d0,g_rhs(2),blo,bhi,
-     &                   g_rhs(2),blo,bhi)             
-      endif
+      ! only needed for dynamic response
 
-      if (debug) write (6,*) 'added Sket1 term to rhs'
+      if (.not.lstatic) then
+        call nga_add_patch(1d0*omega,g_sket1,
+     &     alo,ahi,1d0,g_rhs(1),blo,bhi,
+     &     g_rhs(1),blo,bhi)
+        if (ncomp.eq.2) then
+          call nga_add_patch(-1d0*omega,g_sket1,
+     &       alo,ahi,1d0,g_rhs(2),blo,bhi,
+     &       g_rhs(2),blo,bhi)             
+        endif
+
+        if (debug) write (luout,*) 'added Sket1 term to rhs'
+
+      end if ! lstatic
 
 c     Construct occ-occ part of the three A matrices
 c     Occ-occ blocks for each field direction are defined as -1/2 S10
@@ -189,19 +198,20 @@ c
       ahi(1) = nocc
       call nga_scale_patch(g_smat1,alo,ahi,-0.5d0)
       call nga_copy_patch('n',g_smat1,alo,ahi,g_u,alo,ahi)
-c     note: the calling routine needs the same information in g_amat's
+c     note: the calling routine may need the same information in g_amat's
 c     occ-occ block
       do ipm = 1,ncomp
         call nga_copy_patch('n',g_smat1,alo,ahi,g_amat(ipm),alo,ahi)
       enddo
 
-      if (debug) write(6,*) 'initial setup of g_u complete'
+      if (debug) write(luout,*) 'initial setup of g_u complete'
 
 c     We also need the occupied-occupied contribution of
 c     g_u contributing
 c     to the first order density matrix. As this block does not change 
 c     during the CPHF we can calculate it once and subtract it from the
 c     RHS. We will reuse g_s10 as scratch space.
+
 c     Note: For consistency, in this case the density matrix build
 c     in the CPHF must also not include the occ-occ block
 c

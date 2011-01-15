@@ -5,6 +5,8 @@
      &   froct, g_dens, nbf, nbfx, nmo, nocct, nvirt, deps,
      &   lgiao, lvelocity, lmagpert, lifetime, gamwidth,
      &   alfare, alfaim, betare, betaim)
+
+c $Id:  $
       
 c     =================================================================
       
@@ -16,8 +18,8 @@ c     by J. Autschbach, Comp. Lett. 3 (2007), 131
 
 c     called from: aoresponse_driver
 
-c     output: alfare, alfaim - electric response matrices
-c             betare, betaim - magnetic response matrices
+c     output: alfare, alfaim - electric-electric response matrices
+c             betare, betaim - electric-magnetic response matrices
 
 c     NOTE: the GIAO functionality is not yet implemented
 
@@ -71,17 +73,15 @@ c     ----------------
 
 c     global array handles:
       
-      integer g_amat(2), g_pmats(2),
-     &   g_pmata(2), g_work, g_occ, g_rhs(2), g_rhs_zero, 
-     &   g_amat_zero, g_pmat_zero, g_rhs_beta, 
-     &   g_amat_beta, g_pmat_beta
+      integer g_amat(2), 
+     &   g_work, g_occ, g_rhs(2),
+     &   g_rhs_beta, g_amat_beta, g_vecE1, g_vecB1, g_temp
 
 c     GA arrays for treating imaginary parts of response
 c     (only used if lifetime.eq.true.):
 
-      integer g_amat_im(2), g_pmats_im(2),  g_pmata_im(2),
-     &        g_rhs_im(2), g_rhs_zero_im, g_amat_zero_im,
-     +        g_pmat_zero_im, g_rhs_beta_im, g_amat_beta_im,
+      integer g_amat_im(2), 
+     &        g_rhs_im(2), g_rhs_beta_im, g_amat_beta_im,
      +        g_pmat_beta_im
 
 c     other local variables: 
@@ -97,12 +97,7 @@ c     other local variables:
       logical oskel
       parameter (oskel = .false.)
 
-      double precision alfa0re(3,3), alfa0im(3,3), beta0re(3,3),
-     &                 beta0im(3,3)
-
-      double precision bbetare(3,3), bbetaim(3,3)
-
-      character*(255) cstemp
+      character*(256) cstemp
 
       character*(1) direction(3)
       data direction/'x','y','z'/
@@ -111,7 +106,6 @@ c     other local variables:
       integer ipm, nocc, nvir, nocv, imo, jmo, nmo1, iresp, idir
       logical debug, dbgmat, 
      &   lzora, lantisym, lstatic, haveocc
-      logical lbeta
       double precision omega, sum
       double precision tenm8
       parameter (tenm8=1d-8)
@@ -132,10 +126,9 @@ c     external functions:
 c  ====================================================================
 
       debug = .true. .and. ga_nodeid().eq.0 ! .true. during development
+      dbgmat = .false. .and. ga_nodeid().eq.0 ! debug large matrices
 
       if (debug) write (luout,*) 'hello from aoresponse_beta'
-
-      lbeta = .true.            ! calculate beta directly
 
 c     make sure lvelocity.ne.T., we do not support that in this
 c     subroutine to keep the clutter at a manageable level.
@@ -153,7 +146,7 @@ c     -------------------
 
       omega = frequencies(response_order)
       lstatic = (abs(omega).lt.tenm8) ! static response or not
-      ncomp = 2                 ! no. of Fourier componnts to treat
+      ncomp = 2                 ! no. of Fourier components to treat
       if (lstatic) ncomp = 1    ! treat only one component for static
       
 c     -------------------------
@@ -169,19 +162,17 @@ c     -------------------------
 c     set parameters that control the various computational options
 c     (later we will set most of this by input)
       nspin      =  1           ! assume closed shell
-      debug      = (.false. .and. ga_nodeid().eq.0) ! produce debug output
-      dbgmat     = .false.      ! debug large matrices
-      lzora      = .false.      ! not yet available in nwchem
+      lzora      = .false.      ! not yet available here 
 
       haveocc = (lgiao .and. lmagpert) ! consider occ-occ blocks
 
 c     check if we should calculate OR beta directly or G'
 
-      if (lbeta .and. (ga_nodeid().eq.0)) write (luout,*)
-     & 'Optical Rotation: will calculate Beta directly, not G`'
+      if (ga_nodeid().eq.0) write (luout,*)
+     & 'Optical Rotation: will calculate Beta directly, not G'''
 
-      if (debug) write (luout,*) 'giao, velocity, magpert, lbeta',
-     &    lgiao, lvelocity, lmagpert, lbeta
+      if (debug) write (luout,*) 'giao, velocity, magpert',
+     &    lgiao, lvelocity, lmagpert
       if (debug) write (luout,*) 'haveocc:',haveocc
       
 c     -------------------------
@@ -195,65 +186,6 @@ c      LCtensor(2,1,3) = -1
 c      LCtensor(1,3,2) = -1
 c      LCtensor(3,2,1) = -1        
 
-c     ---------------------------------------------------------------
-c     allocate memory for perturbed density matrices (+/- components)
-c     ---------------------------------------------------------------
-
-      chunk(1) = nbf
-      chunk(2) = -1
-      chunk(3) = -1
-      dims(1) = nbf
-      dims(2) = nbf
-      dims(3) = 3
-
-      do ipm = 1,ncomp
-        write(cstemp,'(a,i1)') 'pmats_',ipm
-        if (.not.nga_create(MT_DBL,2,dims,cstemp(1:7),chunk,
-     &     g_pmats(ipm))) call 
-     &     errquit('aoresponse: nga_create failed '//cstemp(1:7),
-     &     0,GA_ERR)
-        call ga_zero(g_pmats(ipm))
-        write(cstemp,'(a,i1)') 'pmata_',ipm
-        if (.not.nga_create(MT_DBL,2,dims,cstemp(1:7),chunk,
-     &       g_pmata(ipm))) call 
-     &       errquit('aoresponse: nga_create failed '//cstemp(1:7),
-     &       0,GA_ERR)
-        call ga_zero(g_pmata(ipm))
-
-        if (lifetime) then
-          write(cstemp,'(a,i1)') 'pmats_im_',ipm
-          if (.not.nga_create(MT_DBL,2,dims,cstemp(1:10),chunk,
-     &       g_pmats_im(ipm))) call 
-     &       errquit('aoresponse: nga_create failed '//cstemp(1:10),
-     &       0,GA_ERR)
-          call ga_zero(g_pmats_im(ipm))
-          write(cstemp,'(a,i1)') 'pmata_im_',ipm
-          if (.not.nga_create(MT_DBL,2,dims,cstemp(1:10),chunk,
-     &       g_pmata_im(ipm))) call 
-     &       errquit('aoresponse: nga_create failed '//cstemp(1:10),
-     &       0,GA_ERR)
-          call ga_zero(g_pmata_im(ipm))
-        endif                   ! lifetime
-      enddo
-
-
-
-      if (lbeta) then ! allocate arrays to hold w=0 magnetic response
-        write(cstemp,'(a)') 'pmat_beta'
-        if (.not.nga_create(MT_DBL,2,dims,cstemp(1:9),chunk,
-     &     g_pmat_beta)) call 
-     &     errquit('aoresponse: nga_create failed '//cstemp(1:9),
-     &     0,GA_ERR)
-        call ga_zero(g_pmat_beta)
-        if (lifetime) then
-          write(cstemp,'(a)') 'pmat_beta_im'
-          if (.not.nga_create(MT_DBL,2,dims,cstemp(1:12),chunk,
-     &       g_pmat_beta_im)) call 
-     &       errquit('aoresponse: nga_create failed '//cstemp(1:12),
-     &       0,GA_ERR)
-          call ga_zero(g_pmat_beta_im)
-        endif                   ! lifetime
-      endif                     ! lbeta
 
 c     -----------------------------------------
 c     determine number of occ * virt orbitals
@@ -343,25 +275,24 @@ c       calculate the OR parameter beta directly and we need
 c       the static response w.r.t. the B-field (same code as for
 c       lzero.eq.true. in aoresponse.F)
 
-        if (lbeta) then
-          write(cstemp,'(a)') 'amat_beta'
-          if (debug) write (luout,*) cstemp(1:9)
-          if (.not.nga_create(MT_DBL,3,dims,cstemp(1:9),chunk,
-     &       g_amat_beta)) call 
-     &       errquit('aoresponse: nga_create failed'//cstemp(1:9),
+       
+        write(cstemp,'(a)') 'amat_beta'
+        if (debug) write (luout,*) cstemp(1:9)
+        if (.not.nga_create(MT_DBL,3,dims,cstemp(1:9),chunk,
+     &     g_amat_beta)) call 
+     &     errquit('aoresponse: nga_create failed'//cstemp(1:9),
+     &     0,GA_ERR)
+        call ga_zero(g_amat_beta)
+        
+        if (lifetime) then
+          write(cstemp,'(a)') 'amat_zero_im'
+          if (debug) write (luout,*) cstemp(1:12)
+          if (.not.nga_create(MT_DBL,3,dims,cstemp(1:12),chunk,
+     &       g_amat_beta_im)) call 
+     &       errquit('aoresponse: nga_create failed'//cstemp(1:12),
      &       0,GA_ERR)
-          call ga_zero(g_amat_beta)
-
-          if (lifetime) then
-            write(cstemp,'(a)') 'amat_zero_im'
-            if (debug) write (luout,*) cstemp(1:12)
-            if (.not.nga_create(MT_DBL,3,dims,cstemp(1:12),chunk,
-     &         g_amat_beta_im)) call 
-     &         errquit('aoresponse: nga_create failed'//cstemp(1:12),
-     &         0,GA_ERR)
-            call ga_zero(g_amat_beta_im)
-          endif                 ! lifetime
-        endif                   ! lbeta
+          call ga_zero(g_amat_beta_im)
+        endif                   ! lifetime
 
         
 c       -------------------------------------------------------
@@ -422,43 +353,41 @@ c       ------------------------------------------------
 
 
 c       need to redo the transformation and copy to A-matrix for
-c       the case that lbeta.eq.true. Same dimenssioning as above.
+c       the B-field perturbed MOs. Same dimenssioning as above.
 
-        if (lbeta) then
-          alo(1) = 1
-          ahi(1) = nbf
-          alo(2) = 1
-          ahi(2) = nbf
-          alo(3) = 1
-          ahi(3) = 3
-          blo(1) = 1
-          bhi(1) = nbf
-          blo(2) = 1
-          bhi(2) = nbf
-          blo(3) = 1
-          bhi(3) = 3
-c         magnetic field: magnetic dipole integrals
-          call nga_copy_patch('n',g_dipmag,blo,bhi,g_work,alo,ahi)     
-          call giao_aotomo(g_work,g_vectors(1),nocct(1),
-     &       nvirt(1),1,3,nbf)             
-          alo(1) = nocc+1
-          ahi(1) = nmo
-          alo(2) = 1
-          ahi(2) = nocc
-          alo(3) = 1
-          ahi(3) = 3
-          blo(1) = nocc + 1
-          bhi(1) = nmo
-          blo(2) = 1
-          bhi(2) = nocc
-          blo(3) = 1
-          bhi(3) = 3          
-          call nga_copy_patch('n',g_work,alo, ahi,
-     &       g_amat_beta,blo,bhi)  
-
-c          call ga_print(g_amat_beta)
-        endif                   ! lbeta
-
+        alo(1) = 1
+        ahi(1) = nbf
+        alo(2) = 1
+        ahi(2) = nbf
+        alo(3) = 1
+        ahi(3) = 3
+        blo(1) = 1
+        bhi(1) = nbf
+        blo(2) = 1
+        bhi(2) = nbf
+        blo(3) = 1
+        bhi(3) = 3
+c       magnetic field: magnetic dipole or GIAO derivative of h
+        call nga_copy_patch('n',g_dipmag,blo,bhi,g_work,alo,ahi)     
+        call giao_aotomo(g_work,g_vectors(1),nocct(1),
+     &     nvirt(1),1,3,nbf)             
+        alo(1) = nocc+1 ! might need to check "haveocc" here !!!
+        ahi(1) = nmo
+        alo(2) = 1
+        ahi(2) = nocc
+        alo(3) = 1
+        ahi(3) = 3
+        blo(1) = nocc + 1
+        bhi(1) = nmo
+        blo(2) = 1
+        bhi(2) = nocc
+        blo(3) = 1
+        bhi(3) = 3          
+        call nga_copy_patch('n',g_work,alo, ahi,
+     &     g_amat_beta,blo,bhi)  
+        
+c       call ga_print(g_amat_beta)
+        
         
         if (debug) write (luout,*) 'amat ao2mo complete'
        
@@ -487,22 +416,21 @@ c       g_rhs = handle name (integer)
           endif                 ! lifetime
         end do
 
-c       for lbeta we also need the corresponding rhs matrices:
+c       we also need the corresponding rhs matrices for the B-field
+c       perturbed MOs
 
-        if (lbeta) then
-          if(.not.ga_create(MT_DBL,nvir*nocc,3,'rhs_beta',
-     &       -1,-1,g_rhs_beta))
+        if(.not.ga_create(MT_DBL,nvir*nocc,3,'rhs_beta',
+     &     -1,-1,g_rhs_beta))
+     &     call errquit
+     &     ('aoresponse: ga_create failed rhs_beta',0,GA_ERR)
+        call ga_zero(g_rhs_beta)
+        if (lifetime) then
+          if(.not.ga_create(MT_DBL,nvir*nocc,3,'rhs_beta_im',
+     &       -1,-1,g_rhs_beta_im))
      &       call errquit
-     &       ('aoresponse: ga_create failed rhs_beta',0,GA_ERR)
-          call ga_zero(g_rhs_beta)
-          if (lifetime) then
-            if(.not.ga_create(MT_DBL,nvir*nocc,3,'rhs_beta_im',
-     &         -1,-1,g_rhs_beta_im))
-     &         call errquit
-     &         ('aoresponse: ga_create failed rhs_beta_im',0,GA_ERR)
-            call ga_zero(g_rhs_beta_im)
-          endif
-        end if                  ! lbeta
+     &       ('aoresponse: ga_create failed rhs_beta_im',0,GA_ERR)
+          call ga_zero(g_rhs_beta_im)
+        endif
 
 c       
 c       In a GIAO computation with the magnetic-field perturbing,
@@ -515,15 +443,27 @@ c
 c       NOTE: THIS IS NOT YET DEBUGGED AT ALL
 c
 c       Update 01/11: we probably need a call like the one below 
-c       for the static magnetic field perturbation (lbeta) if 
+c       for the static magnetic (B) field perturbation if 
 c       lgiao is set
 c       
 c$$$        if (lmagpert .and. lgiao) then
 c$$$          call aoresponse_giao_rhs (rtdb, basis, geom, ncomp, g_rhs,
 c$$$     &       g_vectors(ispin), g_smat1, g_sket1, g_dens(1), g_amat,
 c$$$     &       nocct(ispin), nvirt(ispin), nmot(ispin), nbf,
-c$$$     &       froct(1,ispin), epst(1,ispin), omega)
+c$$$     &       froct(1,ispin), epst(1,ispin), omega, lstatic)
 c$$$        endif
+
+c       01/11: the code above is disabled because we assume an electric field
+c       perturbation for amat. However, there might be GIAO terms in
+c       the magnetic field perturbation. We call it with lstatic = .true.
+c       and a single component and zero frequency for the "beta" terms
+
+        if (lgiao) then
+          call aoresponse_giao_rhs (rtdb, basis, geom, 1, g_rhs_beta,
+     &       g_vectors(ispin), g_smat1, g_sket1, g_dens(1), g_amat_beta,
+     &       nocct(ispin), nvirt(ispin), nmot(ispin), nbf,
+     &       froct(1,ispin), epst(1,ispin), 0d0, .true.)
+        end if! lgiao
         
 c       add amat vir-occ block to CPKF rhs, regular A-matrices first
         alo(1) = nocc + 1
@@ -543,10 +483,10 @@ c       add amat vir-occ block to CPKF rhs, regular A-matrices first
 
 c       set up rhs matrices for opposite perturbation, zero freq
 c       (for OR beta)
-        if (lbeta) then
-          call nga_add_patch(1d0,g_amat_beta,alo,ahi,
-     &       1d0, g_rhs_beta,blo,bhi, g_rhs_beta, blo, bhi)
-        endif
+    
+        call nga_add_patch(1d0,g_amat_beta,alo,ahi,
+     &     1d0, g_rhs_beta,blo,bhi, g_rhs_beta, blo, bhi)
+        
 
 c       we don't need this work array for a while
         
@@ -563,7 +503,7 @@ c       get the correct magnitude of the result back
           call ga_scale (g_rhs(ipm), -4.0d0)
         enddo
 
-        if (lbeta) call ga_scale (g_rhs_beta, -4.0d0)
+        call ga_scale (g_rhs_beta, -4.0d0)
  
 c       
 c       Write ga_rhs to disk (+/- and Re/Im if applicable)
@@ -634,10 +574,10 @@ c
 c       ----------------------------------------------------
 c       Call the CPKS solver. It will solve the sets of
 c       equations for each component of the perturbing field
-c       simultaneously.
+c       simultaneously. Dynamic CPKS for electric field
 c       ----------------------------------------------------
 c       
-        if (debug) write (6,*) 'aoresponse: calling CPKS' 
+        if (debug) write (luout,*) 'aoresponse: calling CPKS' 
 
         if (lstatic .and. .not.lifetime) then
 c         ... static CPKS solver:         
@@ -645,11 +585,16 @@ c         ... static CPKS solver:
      &       ('aoresponse: failure in cphf2 ',0, RTDB_ERR)
         else       
 c         ... dynamic CPKS solver:
-          if (debug) write (6,*) 'calling cphf3',omega,lifetime,gamwidth
+          if (debug) write (luout,*)
+     &       'calling cphf3',omega,lifetime,gamwidth
           if (.not.cphf3(rtdb, omega, lifetime, gamwidth))
      +       call errquit
      $       ('aoresponse: failure in cphf3 ',0, RTDB_ERR)
         endif
+
+c       ---------------------------
+c       CPKS done. Retrieve results
+c       ---------------------------
         
         if (.not. rtdb_delete(rtdb, 'cphf:skew')) call
      $     errquit('aoresponse: failed to delete skew', 0, RTDB_ERR)
@@ -724,99 +669,109 @@ c       scratch files
           endif
         endif
 
-
-c       ----------------------------------------------------
-c       redo the CPKS if lbeta, i.e. we need the CPKS solved
+c       --------------------------------------------------------------
+c       redo the CPKS for the B-field, i.e. we need the CPKS solved
 c       for the second perturbation at omega = 0. The procedure
 c       is essentially the same as for the lzero case in
-c       aoresponse.F
-c       ----------------------------------------------------
+c       aoresponse.F.
+c
+c       *** jochen 01/11: we might have to double check if the results
+c       are affected by the GIAO occ-occ block !!! ***
+c       --------------------------------------------------------------
 
-        if (lbeta) then
-          call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs(1))
-          call util_file_name('cphf_sol',.true.,.true.,cphf_sol(1))
-          if(.not.file_write_ga(cphf_rhs(1),g_rhs_beta)) call errquit
-     $       ('aoresponse: could not write cphf_rhs beta',0, DISK_ERR)
-
-          if (lifetime) then
-            call util_file_name('cphf_rhs_im',.true.,.true.,
-     &         cphf_rhs_im(1))
-            call util_file_name('cphf_sol_im',.true.,.true.,
-     &         cphf_sol_im(1))
-            if(.not.file_write_ga(cphf_rhs_im(1),g_rhs_beta_im))
-     &         call errquit
-     $         ('aoresponse: could not write cphf_rhs beta Im',0,
-     &         DISK_ERR)
-          endif                 ! lifetime
-
-c         The B-field perturbation is imaginary  and antisymmetric) 
-
-          if (.not.rtdb_put(rtdb, 'cphf:skew', mt_log, 1,.false.))
-     +         call 
-     &         errquit('aoresponse: failed to write skew', 0, RTDB_ERR)
-          if (.not. rtdb_put(rtdb, 'cphf:imag', mt_log, 1, .true.))
-     +         call
-     &         errquit('aoresponse: failed to write limag', 0, RTDB_ERR)
-         
-
-c         also, we need to let the dynamic solver know that this is
-c         a one-component situation (needed if lifetime.eq.true.)
-          if (.not.rtdb_put(rtdb, 'cphf:ncomp', mt_int, 1,1)) call 
-     &       errquit('aoresponse: failed to write ncomp ', 0, RTDB_ERR)
-          
-c         call static CPKS solver if no lifetime key is present,
-c         otherwise use dynamic solver but set omega to zero:
-          if (.not.lifetime) then
-            if (.not.cphf2(rtdb)) call errquit
-     &         ('aoresponse: failure in cphf2 beta',0, RTDB_ERR)
-          else
-            if (.not.cphf3(rtdb, 0d0, lifetime, gamwidth)) call errquit
-     &         ('aoresponse: failure in cphf3 beta',0, RTDB_ERR)
-          endif
-          
-          if (.not. rtdb_delete(rtdb, 'cphf:skew')) call
-     $       errquit('aoresponse: failed to delete skew', 0, RTDB_ERR)
-
-          call ga_zero(g_rhs_beta)
-          if(.not.file_read_ga(cphf_sol(1),g_rhs_beta))
+        call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs(1))
+        call util_file_name('cphf_sol',.true.,.true.,cphf_sol(1))
+        if(.not.file_write_ga(cphf_rhs(1),g_rhs_beta)) call errquit
+     $     ('aoresponse: could not write cphf_rhs beta',0, DISK_ERR)
+        
+        if (lifetime) then
+          call util_file_name('cphf_rhs_im',.true.,.true.,
+     &       cphf_rhs_im(1))
+          call util_file_name('cphf_sol_im',.true.,.true.,
+     &       cphf_sol_im(1))
+          if(.not.file_write_ga(cphf_rhs_im(1),g_rhs_beta_im))
      &       call errquit
-     $       ('aoresponse: could not read cphf -beta- solution',
+     $       ('aoresponse: could not write cphf_rhs beta Im',0,
+     &       DISK_ERR)
+        endif                   ! lifetime
+        
+c       The B-field perturbation is imaginary  and antisymmetric) 
+        
+        if (.not.rtdb_put(rtdb, 'cphf:skew', mt_log, 1,.false.))
+     +     call 
+     &     errquit('aoresponse: failed to write skew', 0, RTDB_ERR)
+        if (.not. rtdb_put(rtdb, 'cphf:imag', mt_log, 1, .true.))
+     +     call
+     &     errquit('aoresponse: failed to write limag', 0, RTDB_ERR)
+        
+        
+c       also, we need to let the dynamic solver know that this is
+c       a one-component situation (needed if lifetime.eq.true.):
+        
+        if (.not.rtdb_put(rtdb, 'cphf:ncomp', mt_int, 1,1)) call 
+     &     errquit('aoresponse: failed to write ncomp ', 0, RTDB_ERR)
+        
+c       ---------------------------
+c       run static CPKS for B-field
+c       ---------------------------
+        
+c       call static CPKS solver if no lifetime key is present,
+c       otherwise use dynamic solver but set omega to zero:
+        
+        if (.not.lifetime) then
+          if (.not.cphf2(rtdb)) call errquit
+     &       ('aoresponse: failure in cphf2 beta',0, RTDB_ERR)
+        else
+          if (.not.cphf3(rtdb, 0d0, lifetime, gamwidth)) call errquit
+     &       ('aoresponse: failure in cphf3 beta',0, RTDB_ERR)
+        endif
+        
+c       ---------------------------
+c       CPKS done. Retrieve results
+c       ---------------------------
+        
+        if (.not. rtdb_delete(rtdb, 'cphf:skew')) call
+     $     errquit('aoresponse: failed to delete skew', 0, RTDB_ERR)
+        
+        call ga_zero(g_rhs_beta)
+        if(.not.file_read_ga(cphf_sol(1),g_rhs_beta))
+     &     call errquit
+     $     ('aoresponse: could not read cphf -beta- solution',
+     &     0, DISK_ERR)          
+        call nga_copy_patch('n',g_rhs_beta,blo,bhi,
+     &     g_amat_beta,alo,ahi)
+        
+c       
+c       call ga_print(g_amat_beta)
+        
+        if (lifetime) then
+          call ga_zero(g_rhs_beta_im)
+          if(.not.file_read_ga(cphf_sol_im(1),g_rhs_beta_im))
+     &       call errquit
+     $       ('aoresponse: could not read cphf -beta- solution Im',
      &       0, DISK_ERR)          
-          call nga_copy_patch('n',g_rhs_beta,blo,bhi,
-     &       g_amat_beta,alo,ahi)
-
-c          call ga_print(g_amat_beta)
-
-          if (lifetime) then
-            call ga_zero(g_rhs_beta_im)
-            if(.not.file_read_ga(cphf_sol_im(1),g_rhs_beta_im))
-     &         call errquit
-     $         ('aoresponse: could not read cphf -beta- solution Im',
-     &         0, DISK_ERR)          
-            call nga_copy_patch('n',g_rhs_beta_im,blo,bhi,
-     &         g_amat_beta_im,alo,ahi)
-          endif                 ! lifetime
-          
-          write(cstemp,'(a)') 'cphf_rhs_beta'
-          if (.not.ga_destroy(g_rhs_beta)) call 
-     &       errquit('aoresponse: ga_destroy failed '//cstemp(1:13),
+          call nga_copy_patch('n',g_rhs_beta_im,blo,bhi,
+     &       g_amat_beta_im,alo,ahi)
+        endif                   ! lifetime
+        
+        write(cstemp,'(a)') 'cphf_rhs_beta'
+        if (.not.ga_destroy(g_rhs_beta)) call 
+     &     errquit('aoresponse: ga_destroy failed '//cstemp(1:13),
+     &     0,GA_ERR)
+        
+        if (lifetime) then
+          write(cstemp,'(a)') 'cphf_rhs_beta_im'
+          if (.not.ga_destroy(g_rhs_beta_im)) call 
+     &       errquit('aoresponse: ga_destroy failed '//cstemp(1:15),
      &       0,GA_ERR)
-
-          if (lifetime) then
-            write(cstemp,'(a)') 'cphf_rhs_beta_im'
-            if (.not.ga_destroy(g_rhs_beta_im)) call 
-     &         errquit('aoresponse: ga_destroy failed '//cstemp(1:15),
-     &         0,GA_ERR)
-          endif
-
-          call util_file_unlink(cphf_rhs(1))
-          call util_file_unlink(cphf_sol(1))
-          if (lifetime) then
-            call util_file_unlink(cphf_rhs_im(1))
-            call util_file_unlink(cphf_sol_im(1))
-          endif
-          
-        endif                   ! lbeta
+        endif
+        
+        call util_file_unlink(cphf_rhs(1))
+        call util_file_unlink(cphf_sol(1))
+        if (lifetime) then
+          call util_file_unlink(cphf_rhs_im(1))
+          call util_file_unlink(cphf_sol_im(1))
+        endif
 
         
         call int_init(rtdb,1,basis)
@@ -824,7 +779,7 @@ c          call ga_print(g_amat_beta)
         call hnd_giao_init(basis,1)
         
         call ga_sync()          ! when do we actually need that ???
-        if (debug) write (6,*) 'CPKS complete, results in g_amat'
+        if (debug) write (luout,*) 'CPKS complete, results in g_amat'
 
 c       ---------------------------------------------------------
 c       solution of CPKS is now in g_amat, including the division
@@ -846,8 +801,11 @@ c       ---------------------------------------------------------
      &     0,GA_ERR)     
         call ga_zero (g_work)
 
+
+        ! storage for electric field A-matrices:
+        ! nvir * nocc
+
         dims(1) = nvir
-        if (haveocc) dims(1) = nmo ! need full range of amat
         dims(2) = nocc
         chunk(1) = dims(1)
         chunk(2) = -1
@@ -870,27 +828,33 @@ c       ---------------------------------------------------------
           endif                 ! lifetime
         enddo
 
+        ! storage for magnetic-field A-matrices:
+        ! nmo * nocc for giao, otherwise nvir * nocc
 
-        if (lbeta) then
-          write(cstemp,'(a)') 'g_rhs_beta'
-          if (debug) write (luout,*) cstemp(1:10)
-          if (.not.nga_create(MT_DBL,2,dims,cstemp(1:10),chunk,
-     &       g_rhs_beta)) call 
-     &       errquit('aoresponse: nga_create failed'//cstemp(1:10),
+        dims(1) = nvir
+        if (lgiao) dims(1) = nmo
+        dims(2) = nocc
+        chunk(1) = dims(1)
+        chunk(2) = -1
+
+        write(cstemp,'(a)') 'g_rhs_beta'
+        if (debug) write (luout,*) cstemp(1:10)
+        if (.not.nga_create(MT_DBL,2,dims,cstemp(1:10),chunk,
+     &     g_rhs_beta)) call 
+     &     errquit('aoresponse: nga_create failed'//cstemp(1:10),
+     &     0,GA_ERR)
+        call ga_zero (g_rhs_beta)          
+        if (lifetime) then
+          write(cstemp,'(a)') 'g_rhs_beta_im'
+          if (debug) write (luout,*) cstemp(1:13)
+          if (.not.nga_create(MT_DBL,2,dims,cstemp(1:13),chunk,
+     &       g_rhs_beta_im)) call 
+     &       errquit('aoresponse: nga_create failed'//cstemp(1:13),
      &       0,GA_ERR)
-          call ga_zero (g_rhs_beta)          
-          if (lifetime) then
-            write(cstemp,'(a)') 'g_rhs_beta_im'
-            if (debug) write (luout,*) cstemp(1:13)
-            if (.not.nga_create(MT_DBL,2,dims,cstemp(1:13),chunk,
-     &         g_rhs_beta_im)) call 
-     &         errquit('aoresponse: nga_create failed'//cstemp(1:13),
-     &         0,GA_ERR)
-            call ga_zero (g_rhs_beta_im)
-          endif                 ! lifetime
-        endif                   ! lbeta
-
-
+          call ga_zero (g_rhs_beta_im)
+        endif                   ! lifetime
+        
+        
 c       ------------------------------------------------------
 c       memory allocation complete, now proceed to calculating
 c       the perturbed density matrices
@@ -898,8 +862,10 @@ c       ------------------------------------------------------
         
         do idir = 1,3           ! direction of the perturbing field
           
+
+          ! electric-field perturbed MOs:
+
           alo(1) = nocc + 1
-          if (haveocc) alo(1) = 1 ! need full range of amat
           ahi(1) = nmo
           alo(2) = 1
           ahi(2) = nocc
@@ -909,9 +875,9 @@ c       ------------------------------------------------------
           bhi(1) = nmo - (alo(1) -1)
           blo(2) = 1
           bhi(2) = nocc
-
+          
 c         copy this component of A-matrix to g_rhs* :
-
+          
           do ipm = 1,ncomp
             call nga_copy_patch ('n',g_amat(ipm), alo, ahi,
      &         g_rhs(ipm), blo, bhi)
@@ -920,263 +886,364 @@ c         copy this component of A-matrix to g_rhs* :
      &           g_rhs_im(ipm), blo, bhi)
             endif
           enddo
- 
 
+c         -------------------------------------------------
+c         calculate electric-field perturbed MOs -> g_vecE1
+c         -------------------------------------------------
+
+c         create g_vecE1:
+
+          write (cstemp,'(a)'), 'aor:MO-pert efield'
+          if(.not.ga_create(MT_DBL,nbf, nocc, trim(cstemp),
+     &       -1,-1,g_vecE1))
+     &       call errquit (trim(cstemp),0,GA_ERR)
+          call ga_zero(g_vecE1)
+
+c         we need to add the Fourier components for the E-field pert.:
+
+          if (ncomp.gt.1) then
+            call ga_add(1d0, g_rhs(1), 1d0,  g_rhs(2),
+     &         g_rhs(1))
+          endif
+
+          alo(1) = 1
+          ahi(1) = nbf
+          alo(2) = nocc+1
+          ahi(2) = nmo
+          blo(1) = 1
+          bhi(1) = nmo - (alo(2) -1)
+          blo(2) = 1
+          bhi(2) = nocc
+          clo(1) = 1
+          chi(1) = nbf
+          clo(2) = 1
+          chi(2) = nocc
+            
+c         perturbed MOs: MOs * A-matrix
+
+          call ga_zero(g_work)
+          call nga_matmul_patch('n','n',1d0,0d0,
+     &       g_vectors(ispin),alo,ahi,
+     &       g_rhs(1),blo,bhi,
+     &       g_vecE1,clo,chi)
+
+          if (debug) write (luout,*) 'g_vecE1 created'
+
+          
+c         restore +/- components of A-matrix
+          if (ncomp.gt.1)
+     &       call ga_add(1d0, g_rhs(1), -1d0,  g_rhs(2), g_rhs(1))
+          
 c         ----------------------------------------------------------
-c...DEBUG: calculate beta tensor directly at this stage from results
+c... DEBUG: calculate beta tensor from results
 c         in the MO basis AT PRESENT ONLY FOR ELECTRIC FIELD PERT.
 c         ----------------------------------------------------------
 
-          if (lbeta) then
-
-c           step 1: calculate rpa (X+Y) quantity if dynamic response
-            if (ncomp.gt.1) then
-              call ga_add(1d0, g_rhs(1), 1d0,  g_rhs(2),
-     &                    g_rhs(1))
-            endif
-
-c           start loop over responding field direction
-
-            do iresp = 1,3
-
-c             step 2: copy amat for responding field into rhs_beta
-
-              alo(1) = nocc + 1
-              if (haveocc) alo(1) = 1 ! need full range of amat
-              ahi(1) = nmo
-              alo(2) = 1
-              ahi(2) = nocc
-              alo(3) = iresp
-              ahi(3) = iresp
-              blo(1) = 1
-              bhi(1) = nmo - (alo(1) -1)
-              blo(2) = 1
-              bhi(2) = nocc
-
-              call nga_copy_patch ('n',g_amat_beta, alo, ahi,
-     &           g_rhs_beta, blo, bhi)
-
-              if (lifetime)
-     &           call nga_copy_patch ('n',g_amat_beta_im, alo, ahi,
-     &           g_rhs_beta_im, blo, bhi)
-
-              alo(1) = 1
-              ahi(1) = nocc
-              alo(2) = 1
-              ahi(2) = bhi(1)
-              clo(1) = 1
-              chi(1) = nocc
-              clo(2) = 1
-              chi(2) = nocc
-              
-c             step 3: take matrix product and calculate trace
-              call ga_zero(g_work)
-              call nga_matmul_patch('t','n',1d0,0d0,
-     &           g_rhs_beta,alo,ahi,
-     &           g_rhs(1),blo,bhi,
-     &           g_work,clo,chi)
-
-c             the factor of two is for the orbital occupations:
-              sum = 2d0 * ga_trace_diag(g_work)
-
-              bbetare(idir,iresp) = sum
-              bbetaim(idir,iresp) = 0d0
-
-            enddo               ! iresp = 1,3
-
-c           step 4: restore g_rhs(1)
-
-            call ga_add(1d0, g_rhs(1), -1d0,  g_rhs(2),
-     &         g_rhs(1))
-
-          endif                 ! lbeta
-                    
-          if (dbgmat) then
-            do ipm = 1,ncomp
-              call ga_print(g_rhs(ipm))
-            enddo
-          endif
-
-c         calculate density matrices for perturbing field component:
-
-          if (debug) write (6,*) 'calculating density matrices'
-          lantisym = .false.    ! do not symmetrize density matrices
-          if (lstatic) then 
-            call CalcPerturbedTDPmat1(ncomp, g_pmats(1), g_pmata(1),
-     &         g_rhs(1),
-     &         g_vectors(ispin),
-     &         nbf, nocct(ispin),
-     &         nvirt(ispin), nmot(ispin), lantisym, lstatic, .false.,
-     &         haveocc)
+c         update 01/11: changed this to calculate this in the
+c         AO basis set instead from C(E+/-) S C(B). 
+c         We can also calculate the polarizability from
+c         C(E+/-) S(0) C(0) for debug purposes
+          
+c         start loop over responding field direction
+          
+          do iresp = 1,3
+            
+c           step 2: copy amat for B-field perturbation into rhs_beta
+c           dimensioning: nmo * nocc with GIAOs, otherwise nvir * nocc
+            
+            alo(1) = nocc + 1
+            if (lgiao) alo(1) = 1 
+            ahi(1) = nmo
+            alo(2) = 1
+            ahi(2) = nocc
+            alo(3) = iresp
+            ahi(3) = iresp
+            blo(1) = 1
+            bhi(1) = nmo - (alo(1) -1)
+            blo(2) = 1
+            bhi(2) = nocc
+            
+            call nga_copy_patch ('n',g_amat_beta, alo, ahi,
+     &         g_rhs_beta, blo, bhi)
+            
             if (lifetime)
-     &         call CalcPerturbedTDPmat1(ncomp,
-     &         g_pmats_im(1), g_pmata_im(1),
-     &         g_rhs_im(1),
-     &         g_vectors(ispin),
-     &         nbf, nocct(ispin),
-     &         nvirt(ispin), nmot(ispin), lantisym, lstatic, .false.,
-     &         haveocc)
-          else
-c           calculate both components
-c           TEST LATER IF ONE IS SUFFICIENT. WE NEED ONLY ONE LATER
-            call CalcPerturbedTDPmat1(ncomp, g_pmats, g_pmata, g_rhs,
-     &         g_vectors (ispin),
-     &         nbf, nocct(ispin),
-     &         nvirt(ispin), nmot(ispin),  lantisym, lstatic,
-     &         .false., haveocc)
-            if (lifetime)
-     &         call CalcPerturbedTDPmat1(ncomp, g_pmats_im,
-     &         g_pmata_im, g_rhs_im,
-     &         g_vectors (ispin),
-     &         nbf, nocct(ispin),
-     &         nvirt(ispin), nmot(ispin),  lantisym, lstatic,
-     &         .false., haveocc)
-c
+     &         call nga_copy_patch ('n',g_amat_beta_im, alo, ahi,
+     &         g_rhs_beta_im, blo, bhi)
 
-          end if                ! lstatic
-          
-          if (debug) write (6,*) 'density matrices calculated'
+c         -------------------------------------------------
+c         calculate magnetic-field perturbed MOs -> g_vecB1
+c         -------------------------------------------------
+
+c         create g_vecB1:
+
+          write (cstemp,'(a)'), 'aor_beta :MO-pert bfield'
+          if(.not.ga_create(MT_DBL,nbf, nocc, trim(cstemp),
+     &       -1,-1,g_vecB1))
+     &       call errquit (trim(cstemp),0,GA_ERR)
+          call ga_zero(g_vecB1)
+
+          alo(1) = 1
+          ahi(1) = nbf
+          alo(2) = nocc+1
+          if (lgiao) alo(2) = 1 ! full set of vectors if we have GIAOs
+          ahi(2) = nmo
+          blo(1) = 1
+          bhi(1) = nmo - (alo(2) -1)
+          blo(2) = 1
+          bhi(2) = nocc
+          clo(1) = 1
+          chi(1) = nbf
+          clo(2) = 1
+          chi(2) = nocc
+            
+c         perturbed MOs: MOs * A-matrix
+
+          call ga_zero(g_work)
+          call nga_matmul_patch('n','n',1d0,0d0,
+     &       g_vectors(ispin),alo,ahi,
+     &       g_rhs_beta,blo,bhi,
+     &       g_vecB1,clo,chi)
+
+          if (debug) write (luout,*) 'g_vecB1 created'
+
+c         ------------------------------------------------------
+c         allocate intermediate vector for matrix multiplication
+c         that create the final results
+c         ------------------------------------------------------
 c         
-c         P(+) is now in pmats(1), P(-) in pmats(2)
-c         
-          if (dbgmat) then
-            call ga_print (g_pmats(1))
-            if (.not.lstatic) call ga_print (g_pmats(2))
-          end if
+          write (cstemp,'(a)'), 'aor_beta: temp1'
+          if(.not.ga_create(MT_DBL, nbf, nocc, trim(cstemp),
+     &       -1,-1,g_temp))
+     &       call errquit (trim(cstemp),0,GA_ERR)
+          if (debug) write (luout,*) 'g_temp allocated'
           
-c         if (debug) then
-c         c         calculate tr(P*S) with the perturbed density matrix
-c         do ipm = 1,2
-c         call ga_add(1d0, g_pmats(ipm), 1d0, g_pmata(ipm),
-c         &         g_pmunu)
-c         c           pmunu now holds the full P(+) or (P-)
-c         call ga_matmul_patch('n','n', 2d0,0d0,
-c         &         g_pmunu,1,nbf,1,nbf,
-c         &         g_smat0,1,nbf,1,nbf,
-c         &         g_work,1,nbf,1,nbf)
-c         sum = ga_trace_diag(g_work)
-c         if (ga_nodeid().eq.0)
-c         &         write (luout,'(1x,a,i3,e15.7)') 'tr(P*S): ',ipm,sum
-c         enddo                 ! ipm = 1,2
-c         endif                   ! debug         
-          
-c         we use ipm = 1 _or_ ipm = 2 here; yields the same result
-          
-          ipm = 1
-          
-c         --------------------------------------------------
-c         start loop over components of responding vector
-c         and calculate tr(H*P), where H are the integrals
-c         for the response property (e.g. dipole integrals)
-c         and P is the perturbed density matrix in g_pmats/a
-c         --------------------------------------------------
+c         ----------------------------------
+c         calculate beta from C(E) S(0) C(B)
+c         ----------------------------------
           
           alo(1) = 1
           ahi(1) = nbf
           alo(2) = 1
           ahi(2) = nbf
+          alo(3) = 1 ! smat0 was created with 3 components. fix that
+          ahi(3) = 1
           blo(1) = 1
           bhi(1) = nbf
           blo(2) = 1
-          bhi(2) = nbf
+          bhi(2) = nocc
+          clo(1) = 1
+          chi(1) = nbf
+          clo(2) = 1
+          chi(2) = nocc
+            
+
+          call ga_zero(g_temp)
+          call nga_matmul_patch('n','n',1d0,0d0,
+     &       g_smat0,alo,ahi,
+     &       g_vecB1,blo,bhi,
+     &       g_temp,clo,chi)
+
+          if (debug) write (luout,*)
+     &       'beta: S(0) C(B) intermediate complete'
+
+
+          alo(1) = 1
+          ahi(1) = nocc
+          alo(2) = 1
+          ahi(2) = nbf
+          blo(1) = 1
+          bhi(1) = nbf
+          blo(2) = 1
+          bhi(2) = nocc
+          clo(1) = 1
+          chi(1) = nocc
+          clo(2) = 1
+          chi(2) = nocc
+
+          call ga_zero(g_work)
+          call nga_matmul_patch('t','n',1d0,0d0,
+     &       g_vecE1,alo,ahi,
+     &       g_temp,blo,bhi,
+     &       g_work,clo,chi)
+
+          if (debug) write (luout,*) 'beta: C(E) S(0) C(B) complete'
+
           
-          do iresp = 1,3        ! component of the response vector
-            
-            blo(3) = iresp      ! direction of response
-            bhi(3) = iresp      ! for arrays g_dipel, g_magel
-            
-c           -----------------------------------------
-c           calculate perturbation of electric dipole
-c           -----------------------------------------
+c         the factor of two is for the orbital occupations,
+c         assuming that ispin is never equal to two
 
-c           assign component of "Re(alfa)" matrix (output)
+          sum = 2d0 * ga_trace_diag(g_work)
 
-            call ga_zero(g_work)
+          betare(idir,iresp) = sum
+          betaim(idir,iresp) = 0d0
+
+
+          if (lgiao) then
+
+c           --------------------------------------
+c           if we use GIAOs there is a second term
+c           in beta which is C(E) S(1ket) C(0)
+c           --------------------------------------
+            
+            alo(1) = 1
+            ahi(1) = nbf
+            alo(2) = 1
+            ahi(2) = nbf
+            alo(3) = iresp      ! pick the correct sket1 direction
+            ahi(3) = iresp
+            blo(1) = 1
+            bhi(1) = nbf
+            blo(2) = 1
+            bhi(2) = nocc
+            clo(1) = 1
+            chi(1) = nbf
+            clo(2) = 1
+            chi(2) = nocc
+            
+            
+            call ga_zero(g_temp)
             call nga_matmul_patch('n','n',1d0,0d0,
-     &         g_pmats(ipm),alo,ahi,
-     &         g_dipel,blo,bhi,
-     &         g_work,alo,ahi)
+     &         g_sket1,alo,ahi,
+     &         g_vectors(ispin),blo,bhi,
+     &         g_temp,clo,chi)
             
-            sum = -1d0 * ga_trace_diag(g_work)
-            if (debug .and. ga_nodeid().eq.0)
-     &         write (luout,'(1x,a,i3,e15.7)') 'tr(D*P1): ',iresp,sum 
-            
-            alfare(idir, iresp) = sum
-
-            if (lifetime) then
-
-c             assign component of "Im(alfa)" matrix (output)
-c             (note: sign reversed)
-
-              call ga_zero(g_work)
-              call nga_matmul_patch('n','n',1d0,0d0,
-     &           g_pmats_im(ipm),alo,ahi,
-     &           g_dipel,blo,bhi,
-     &           g_work,alo,ahi)
-              
-              sum = 1d0 * ga_trace_diag(g_work)              
-              
-              alfaim(idir, iresp) = sum
-            else
-              alfaim(idir, iresp) = 0d0
-            endif               ! lifetime
+            if (debug) write (luout,*)
+     &         'beta: S(ket1) C(0) intermediate complete'
             
             
-c           -----------------------------------------
-c           calculate perturbation of magnetic dipole
-c           -----------------------------------------
-
-c           assign component of "Re(beta)" matrix (output)
+            alo(1) = 1
+            ahi(1) = nocc
+            alo(2) = 1
+            ahi(2) = nbf
+            blo(1) = 1
+            bhi(1) = nbf
+            blo(2) = 1
+            bhi(2) = nocc
+            clo(1) = 1
+            chi(1) = nocc
+            clo(2) = 1
+            chi(2) = nocc
             
             call ga_zero(g_work)
-            call nga_matmul_patch('n','n',1d0,0d0,
-     &         g_pmats(ipm),alo,ahi,
-     &         g_dipmag,blo,bhi,
-     &         g_work,alo,ahi)
+            call nga_matmul_patch('t','n',1d0,0d0,
+     &         g_vecE1,alo,ahi,
+     &         g_temp,blo,bhi,
+     &         g_work,clo,chi)
             
-            if (dbgmat) call nga_print_patch(g_dipmag,blo,bhi,1)
+            if (debug) write (luout,*)
+     &         'beta: C(E) S(ket1) C(0) complete'
             
-            sum = -1d0 * ga_trace_diag(g_work)
-            if (debug .and. ga_nodeid().eq.0)
-     &         write (luout,'(1x,a,i3,e15.7)') 'tr(M*P1): ',iresp,sum 
             
-            betare(idir, iresp) = sum
+c           the factor of two is for the orbital occupations,
+c           assuming that ispin is never equal to two
+            
+c           originally the factor below was 2.0
+            sum = 2d0 * ga_trace_diag(g_work)
+            
+            betare(idir,iresp) = betare(idir,iresp) + sum
+c           betaim(idir,iresp) = 0d0
 
-            if (lifetime) then
+          end if                ! lgiao
             
-c             assign component of "Im(beta)" matrix (output):
-c             (note: sign reversed)
+c         ----------------------------------
+c         calculate alfa from C(E) h(E) C(0)
+c         ----------------------------------
+          
+          alo(1) = 1
+          ahi(1) = nbf
+          alo(2) = 1
+          ahi(2) = nbf
+          alo(3) = iresp ! pick direction iresp for g_dipel
+          ahi(3) = iresp
+          blo(1) = 1
+          bhi(1) = nbf
+          blo(2) = 1
+          bhi(2) = nocc
+          clo(1) = 1
+          chi(1) = nbf
+          clo(2) = 1
+          chi(2) = nocc
+            
 
-              call ga_zero(g_work)
-              call nga_matmul_patch('n','n',1d0,0d0,
-     &           g_pmats_im(ipm),alo,ahi,
-     &           g_dipmag,blo,bhi,
-     &           g_work,alo,ahi)
-              
-              if (dbgmat) call nga_print_patch(g_dipmag,blo,bhi,1)
-              
-              sum =  1d0 * ga_trace_diag(g_work)              
-              betaim(idir, iresp) = sum
-            else
-              betaim(idir, iresp) = 0d0
-            endif               ! lifetime
+          call ga_zero(g_temp)
+          call nga_matmul_patch('n','n',1d0,0d0,
+     &       g_dipel,alo,ahi,
+     &       g_vectors(ispin),blo,bhi,
+     &       g_temp,clo,chi)
+
+          if (debug) write (luout,*)
+     &       'alfa: h(E) C(0) intermediate complete'
+
+
+          alo(1) = 1
+          ahi(1) = nocc
+          alo(2) = 1
+          ahi(2) = nbf
+          blo(1) = 1
+          bhi(1) = nbf
+          blo(2) = 1
+          bhi(2) = nocc
+          clo(1) = 1
+          chi(1) = nocc
+          clo(2) = 1
+          chi(2) = nocc
+
+          call ga_zero(g_work)
+
+          call nga_matmul_patch('t','n',1d0,0d0,
+     &       g_vecE1,alo,ahi,
+     &       g_temp,blo,bhi,
+     &       g_work,clo,chi)
+
+          if (debug) write (luout,*) 'alfa C(E) h(E) C(0) complete'
+
+          
+c         the factor of two is for the orbital occupations,
+c         assuming that ispin is never equal to two
+
+          sum = 2d0 * ga_trace_diag(g_work)
+
+          alfare(idir,iresp) = -sum
+          betaim(idir,iresp) = 0d0
+
+c         ----------------------------------
+c         destroy temporary workspace arrays
+c         ----------------------------------
+          
+          if (.not.ga_destroy(g_vecB1))
+     &       call errquit
+     &       ('aor_beta: ga_destroy failed g_vecB1',
+     &       0,GA_ERR)
+          
+          if (.not.ga_destroy(g_temp))
+     &       call errquit
+     &       ('aor_beta: ga_destroy failed g_temp',
+     &       0,GA_ERR)
             
-          end do                ! iresp = 1,3
+          enddo                 ! iresp = 1,3
+
+
+c         --------------------------------------------------------
+c         g_vecE1 should be deleted at this point because we might
+c         enter the idir loop again
+c         --------------------------------------------------------
+
+          if (.not.ga_destroy(g_vecE1))
+     &       call errquit
+     &       ('aor_beta: ga_destroy failed g_vecE1',
+     &       0,GA_ERR)
+          
+          
 
         end do                  ! idir = 1,3
 
-       if (debug) then
-          write (6,*) 'alfare: ',alfare
-          write (6,*) 'betare: ',betare
-          write (6,*) 'alfaim: ',alfaim
-          write (6,*) 'betaim: ',betaim
-          write (6,*) 'alfa0re: ',alfa0re
-          write (6,*) 'beta0re: ',beta0re
-          write (6,*) 'alfa0im: ',alfa0im
-          write (6,*) 'beta0im: ',beta0im
-          write (6,*) 'bbetare: ',bbetare
-          write (6,*) 'bbetaim: ',bbetaim
-       endif
+c       -------------------------------------------
+c       end loop over perturbing E-field components
+c       -------------------------------------------
+
+c       ----------------------
+c       deallocate some memory
+c       ----------------------
         
         do ipm = 1,ncomp
           write(cstemp,'(a,i1)') 'cphf_rhs_',ipm
@@ -1191,9 +1258,6 @@ c             (note: sign reversed)
           endif                 ! lifetime
         enddo
         
-c       ---------------
-c       deallocate amat
-c       ---------------
         
         do ipm = 1,ncomp
           if (.not.ga_destroy(g_amat(ipm)))
@@ -1208,31 +1272,7 @@ c       ---------------
           endif                 ! lifetime
         enddo                   ! ipm = 1,ncomp
 
-        
-c       for magnetic perturbation calculate beta tensor
-c       (only for nonzero frequency, otherwise calculate G').
-c       also consider the case of velocity formalism
-        
-c     update 01/11: this will have to be adapted to 
-c     what is actually calculated in this routine
-
-        do idir = 1,3
-          do iresp = 1,3
-             if (.not.lstatic) then
-c             alpha = polarizability, beta = G'
-              betare(idir,iresp) = betare(idir,iresp) / omega
-            endif
-          enddo
-        enddo
-        
-
-        if (lstatic) then
-          if (ga_nodeid().eq.0) write (luout,*)
-     +       'NOTE: because of omega=0 the electric-magnetic response'
-          if (ga_nodeid().eq.0) write (luout,*)
-     +       '      is printed as G`, NOT the beta tensor'
-        endif
-        
+            
       enddo                     ! ispin = 1,2 from way above
               
 c     ---------------------------------------------------------------
@@ -1244,80 +1284,36 @@ c     ------------------------------------------------
 c     deallocate remaining allocated memory and return
 c     ------------------------------------------------
             
-      do ipm = 1,ncomp
-        if (.not.ga_destroy(g_pmats(ipm)))
-     &     call 
-     &     errquit('aoresponse: ga_destroy failed g_pmats',
-     &     0,GA_ERR)
-
-        if (.not.ga_destroy(g_pmata(ipm)))
-     &     call 
-     &     errquit('aoresponse: ga_destroy failed g_pmata',
-     &     0,GA_ERR)
-
-        if (lifetime) then
-          if (.not.ga_destroy(g_pmats_im(ipm)))
-     &       call 
-     &       errquit('aoresponse: ga_destroy failed g_pmats_im',
-     &       0,GA_ERR)    
-      
-          if (.not.ga_destroy(g_pmata_im(ipm)))
-     &       call 
-     &       errquit('aoresponse: ga_destroy failed g_pmata_im',
-     &       0,GA_ERR)
-        endif                   ! lifetime
-      enddo                     ! ipm = 1,ncomp
 
       if (.not.ga_destroy(g_work))
      &   call 
      &   errquit('aoresponse: ga_destroy failed g_work',
      &   0,GA_ERR)
-
-      if (lbeta) then
-        if (.not.ga_destroy(g_pmat_beta))
-     &     call 
-     &     errquit('aoresponse: ga_destroy failed g_pmat_beta',
-     &     0,GA_ERR)
-
-        if (.not.ga_destroy(g_rhs_beta))
-     &     call 
-     &     errquit('aoresponse: ga_destroy failed g_rhs_beta',
-     &     0,GA_ERR)
-
-        if (.not.ga_destroy(g_amat_beta))
-     &     call 
-     &     errquit('aoresponse: ga_destroy failed g_amat_beta',
-     &     0,GA_ERR)
-
-        if (lifetime) then
-        if (.not.ga_destroy(g_pmat_beta_im))
-     &     call 
-     &     errquit('aoresponse: ga_destroy failed g_pmat_beta_im',
-     &     0,GA_ERR)
-
+      
+      if (.not.ga_destroy(g_rhs_beta))
+     &   call 
+     &   errquit('aoresponse: ga_destroy failed g_rhs_beta',
+     &   0,GA_ERR)
+      
+      if (.not.ga_destroy(g_amat_beta))
+     &   call 
+     &   errquit('aoresponse: ga_destroy failed g_amat_beta',
+     &   0,GA_ERR)
+      
+      if (lifetime) then
+        
         if (.not.ga_destroy(g_rhs_beta_im))
      &     call 
      &     errquit('aoresponse: ga_destroy failed g_rhs_beta_im',
      &     0,GA_ERR)
-
+        
         if (.not.ga_destroy(g_amat_beta_im))
      &     call 
      &     errquit('aoresponse: ga_destroy failed g_amat_beta_im',
      &     0,GA_ERR)
-        endif                   ! lifetime
-
-      endif                     ! lbeta
-
-c...DEBUG: print bbetare/im
-
-      sum = 0d0
-      do idir = 1,3
-        sum = sum + bbetare(idir,idir)
-      enddo
-      write (6,*) 'bbetare tensor, isotropic = ',sum/3d0
-      call output(bbetare,1,3,1,3,3,3,1)
-
-       
+      endif                     ! lifetime
+     
+      
       
 c     ==================================================================
       

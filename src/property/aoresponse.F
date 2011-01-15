@@ -462,7 +462,7 @@ c
           call aoresponse_giao_rhs (rtdb, basis, geom, ncomp, g_rhs,
      &       g_vectors(ispin), g_smat1, g_sket1, g_dens(1), g_amat,
      &       nocct(ispin), nvirt(ispin), nmot(ispin), nbf,
-     &       froct(1,ispin), epst(1,ispin), omega)
+     &       froct(1,ispin), epst(1,ispin), omega, lstatic)
         endif
         
 c       add amat vir-occ block to CPKF rhs

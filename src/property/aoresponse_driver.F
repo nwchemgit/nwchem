@@ -301,7 +301,11 @@ c     force nfreq = 1 if response order equals 1 (no freq. input)
         else
           write (luout,'(1x,a)') 'Perturbing field: electric'
         end if
-        if (lgiao) write (luout,'(1x,a)') 'Using GIAO formalism'
+        if (lgiao) then
+          write (luout,'(1x,a)') 'Using GIAO formalism'
+          write (luout,'(1x,a)')
+     &       '*** WARNING, GIAO FUNCTIONALITY IS NOT YET WORKING ! ***'
+        end if
         if (lvelocity) then
           write (luout,'(1x,a)') 'Using Dipole Velocity Gauge'
         else
@@ -784,6 +788,7 @@ c     ==================================================================
      &       ' J. Chem. Phys. 123 (2005), 114103'/
      &       ' J. Chem. Phys. 122 (2005), 224115'/
      &       ' J. Chem. Phys. 122 (2005), 074105'/
+     &       ' Comp. Lett. 3 (2007), 131-150 (contact JA for a copy)'/
      &       ' Please cite this work in publications based on results'/
      &       ' obtained with this code. Thank you!'/)
  9020 format(/,10x,'Open shell calculations not yet implemented',
