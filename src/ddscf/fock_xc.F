@@ -65,6 +65,7 @@ c
       integer alo(3), ahi(3), blo(3), bhi(3)
       integer nfock_xc,i
       integer ityp, ndim
+      logical lcgmin
       external grid_reopen,xc_gotxc,xc_getipol
       integer ga_create_atom_blocked,dft_npatch
       external ga_create_atom_blocked
@@ -101,6 +102,10 @@ c
      &      write(luout,*)' fockxc: calc_type not set: setting to 1'
          calc_type = 1
       endif
+c
+c     == need a better solution for this == NXG
+      if (.not.rtdb_get(rtdb, 'dft:cgmin', mt_log, 1, lcgmin))
+     &   lcgmin=.false.
 c
 c     Whether this is a triplet excitation energy calculation
 c
@@ -261,11 +266,21 @@ c
 c     check if we can get the grid from a file
 c         
       grid_written=grid_reopen(geom)
-      call grid_quadv0_gen(rtdb, 
+c
+      if (.not.lcgmin) then
+       call grid_quadv0_gen(rtdb, 
+     &     int_mb(igxcd),
+     &     g_xc, nexc,
+     &     rho_n_dum, Exc,
+     &     nfock_xc, calc_type, tdum, .true., triplet)
+      else
+       call grid_quadv0_gen(rtdb, 
      &     int_mb(igxcd),
      &     g_xc, nexc,
      &     rho_n_dum, Exc,
      &     nfock_xc, calc_type, tdum, l3d, triplet)
+      end if
+c
       call dft_store_rhon(rho_n_dum)
 c
 c     Clean up
