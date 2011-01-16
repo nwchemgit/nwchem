@@ -75,12 +75,13 @@ c     ==================================================================
 c     THERE WAS A BUG HERE BECAUSE ONLY IF DEBUG WAS SET TO TRUE DID I
 C     GET THE CORRECT RESULTS FOR ORBETA. the code got stuck where the
 C     fock matrix is printed if I ran on more than one processor;
-C     another sign of a problem.  After some clean-ups and sync with the
-C     code in hnd_giaox things seem to work now, which is also kind of
-C     bizarre.  The problem seems to have been with the Fock matrix from
+C     another sign of a problem.
+C     The problem seems to have been with the Fock matrix from
 C     the occ-occ block, not the other pieces.
 
-      if (debug) write (luout,*) 'hello from aoresponse_giao_rhs'
+c     For the time being (01/2011) compile with FOPTIMIZE=-O1
+
+c      if (debug) write (luout,*) 'hello from aoresponse_giao_rhs'
       
 c     Current CPHF does not handle symmetry 
       
@@ -94,6 +95,9 @@ c     If DFT get part of the exact exchange defined
       if (debug) write (luout,*) 'use_theory, xfac =', use_theory, xfac
       
       call scf_get_fock_param(rtdb,tol2e)
+
+      if (debug) write (luout,*) 'nocc, nvir, nmo, nbf',
+     &   nocc, nvir, nmo, nbf
       
 c     Create workspace matrix of dimension (nbf,nmo,3) and zero
 c     Use ahi for dimension and ahi array for chunking/blocking
@@ -237,7 +241,7 @@ c
       chi(1) = 1  
       chi(2) = -1 
       chi(3) = -1
-      if (.not.nga_create(MT_DBL,3,clo,'Fock matrix',chi,g_fock)) call 
+      if (.not.nga_create(MT_DBL,3,clo,'aor_giao F1',chi,g_fock)) call 
      &    errquit('aorgiao: nga_create failed g_fock',0,GA_ERR)
       if (.not.nga_create(MT_DBL,3,clo,'D10 matrix',chi,g_d1)) call 
      &    errquit('aorgiao: nga_create failed g_d1',0,GA_ERR)
@@ -352,7 +356,12 @@ c from new (2011) hnd_giaox:
      $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
       endif
 
-      if (debug) write(6,*) 'call to shell_fock_build complete'
+      if (debug) then
+        write(6,*) 'call to shell_fock_build complete'
+        write (luout,*) 'g_fock =',g_fock
+        call ga_check_handle(g_fock, 'check g_fock')
+        call ga_print(g_fock)
+      end if
 c     
       
 c     
@@ -407,7 +416,10 @@ c
         enddo
 
         if (debug) write(6,*) 'added F(1) occocc to rhs'
-        if (debug) call nga_print_patch(g_fock,clo,chi,1)
+        if (debug) then
+          write (luout,*) 'printing Fock matrix ifld=,',ifld
+          call nga_print_patch(g_fock,clo,chi,1)
+        end if
 
       enddo                     ! ifld
 c     
@@ -468,7 +480,7 @@ c new code from 2011 giaox:
       ahi(1) = nbf
       ahi(2) = nbf
       ahi(3) = 3
-      if (.not.nga_create(MT_DBL,3,ahi,'Fock matrix',alo,g_fock)) call 
+      if (.not.nga_create(MT_DBL,3,ahi,'aor_giao F2',alo,g_fock)) call 
      &    errquit('aor_giao: nga_create failed g_fock',0,GA_ERR)
       call ga_zero(g_fock)
       if(use_theory.eq.'dft') then
@@ -514,6 +526,17 @@ c
       if (.not.ga_destroy(g_u)) call 
      &   errquit('aorgiao: ga_destroy failed g_u',0,GA_ERR)
       if (debug) write(6,*) 'rhs build complete'
+
+      if (debug) then
+        do ipm = 1,ncomp
+          call ga_print(g_rhs(ipm)) 
+          call ga_print(g_amat(ipm))
+        end do
+        call ga_print( g_vectors)
+        call ga_print( g_dens) 
+        call ga_print( g_smat1)
+        call ga_print(g_sket1)
+      end if
 
 
 c     ==================================================================
