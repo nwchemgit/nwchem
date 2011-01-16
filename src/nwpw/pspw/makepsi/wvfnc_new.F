@@ -208,6 +208,7 @@ c    >           + (0.5d0-util_random(0))
         call dwrite(6,dcpl_mb(cfull_indx),n2ft3d)
 
         dcpl_mb(cfull_indx+l1)=dcmplx(0.0d0,0.0d0)
+c        call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
  
         DO 130 N=2,NE(ms)
 c         L1=INC3C*K3(N)+INC2C*K2(N)+K1(N)+1
@@ -252,6 +253,7 @@ c    >                   + (0.5d0-util_random(0))
 
           dcpl_mb(cfull_indx+l1)=dcmplx(0.0d0,0.0d0)
           dcpl_mb(cfull_indx+l2)=dcmplx(0.0d0,0.0d0)
+c          call dcopy(n2ft3d,0.0d0,0,dcpl_mb(cfull_indx),1)
   130   CONTINUE
  
 

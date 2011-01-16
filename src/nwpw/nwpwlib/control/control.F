@@ -3196,10 +3196,39 @@ c      end
       if (.not.rtdb_get(rtdb,'nwpw:Eprecondition',
      >                  mt_dbl,1,Ep)) 
      >  then
-         Ep = 0.5d0
+         Ep = 20.0d0
       end if
 
       control_Ep = Ep
+      return
+      end
+
+
+      
+*     ***************************
+*     *                         *
+*     *        control_Sp       *
+*     *                         *
+*     ***************************
+      real*8 function control_Sp()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      real*8 Sp
+      
+      if (.not.rtdb_get(rtdb,'nwpw:Sprecondition',
+     >                  mt_dbl,1,Sp))
+     >  then
+         Sp = 200.0d0
+      end if
+
+      control_Sp = Sp
       return
       end
 

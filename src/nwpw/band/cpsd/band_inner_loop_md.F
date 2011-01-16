@@ -104,7 +104,6 @@
       gga     = control_gga()
       nshiftA = 2*npack1
       nshiftB = 2*nfft3d
-      call D3dB_n2ft3d(1,n2ft3d)
       fei = control_Fei()
 
       n1(1) = 1
@@ -139,6 +138,7 @@
       value = value.and.
      >        MA_push_get(mt_dbl,(nemaxq),'sumi',sumi(2),sumi(1))
       if (gga.gt.0) then
+         call D3dB_n2ft3d(1,n2ft3d)
          value = MA_push_get(mt_dbl,(2*n2ft3d),'trho',trho(2),trho(1))
          value = value.and.
      >           MA_push_get(mt_dbl,(2*n2ft3d),'txcp',txcp(2),txcp(1))

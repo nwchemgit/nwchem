@@ -2520,6 +2520,7 @@ c      call ga_sync()
                  msglen  = 1
                  status  = msglen
                  source  = p_from
+                 idum = -999
 
                  call SND(9+MSGINT,idum,mitob(msglen),source,1)
                  call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
@@ -2564,6 +2565,7 @@ c      call ga_sync()
       !*************************
       else
 
+
 *     **** master node reads from file and distributes ****
       if (taskid.eq.MASTER) then
          do i=1,nx(nb)
@@ -2577,11 +2579,11 @@ c      call ga_sync()
                  msglen  = 1
                  status  = msglen
                  source  = p_from
+                 idum = -999
 
                  call SND(9+MSGINT,idum,mitob(msglen),source,1)
                  call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
      >                         source,rcv_proc,1)
-
               end if
             end do
             write(iunit,'(6E13.5)') (tmp(k), k=1,nz(nb))
@@ -2595,7 +2597,7 @@ c      call ga_sync()
          do j=1,ny(nb)
 
             do k=1,nz(nb)
-              call C3dB_ijktoindex2p(nb,i,j,k,index,p_from)
+              call C3dB_ijktoindex2p(nb,i,j,k,index,p_here)
 
               if (p_here.eq.taskid) then
 
@@ -2603,11 +2605,11 @@ c      call ga_sync()
 
                  msglen  = 1
                  dest    = MASTER
-
+                 rcv_proc = MASTER
+                 rcv_len  = mitob(1)
                  call RCV(9+MSGINT,idum,mitob(msglen),rcv_len,
      >                         dest,rcv_proc,1)
                  call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
-
               end if
             end do
 

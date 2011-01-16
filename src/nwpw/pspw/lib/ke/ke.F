@@ -357,8 +357,8 @@ c     real*8 tg(nfft3d)
       real*8  x,cm,dm,Ep,cm2(1)
       integer tmp1(2)
 
-c      real*8   lattice_wggcut,control_Ep
-c      external lattice_wggcut,control_Ep
+      real*8   lattice_wggcut,control_Ep
+      external lattice_wggcut,control_Ep
 
       integer ispin,ne(2)
 c      integer  psi_ispin,psi_ne
@@ -408,39 +408,40 @@ c         end if
 c      end do
 
  
-c*     **** My preconditioner ****
-c      ispin = 2
-c      ne(1) = 1
-c      ne(2) = 0
-c      do n=1,neall
-c        call ke_ave(ispin,ne,gradk(1,n),Ep)
-cc        write(*,*) "n,E(R)=",n,Ep,control_Ep()-50*Ep
-c        Ep =  control_Ep() - 15*Ep
-c        cm = 1.0d0/Ep
-c        do k=1,npack
-c          x = -dbl_mb(tg_indx+k-1)
-c          dm = x*cm
-c          if (x.gt.Ep) then
-c          gradk(k,n) = gradk(k,n)/dm
-c          end if
-c        end do
-c      end do
-
-*     **** preconditioner #5 ****
+*     **** My preconditioner ****
       ispin = 2
       ne(1) = 1
       ne(2) = 0
       do n=1,neall
-        call ke_ave(ispin,ne,gradk(1,n),Ep,.false.,cm2)
-        Ep = 1.5d0*Ep
+c        call ke_ave(ispin,ne,gradk(1,n),Ep)
+c        write(*,*) "n,E(R)=",n,Ep,control_Ep()-50*Ep
+c        Ep =  control_Ep() - 15*Ep
+        Ep =  control_Ep()
+        cm = 1.0d0/Ep
         do k=1,npack
-           x = -2.0d0*dbl_mb(tg_indx+k-1)/Ep
-           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
-           dm = (cm + 16.0d0* x**4)
-           cm = (cm/dm)*(2.0d0/Ep)
-           gradk(k,n) = gradk(k,n)*cm
+          x = -dbl_mb(tg_indx+k-1)
+          dm = x*cm
+          if (x.gt.Ep) then
+          gradk(k,n) = gradk(k,n)/dm
+          end if
         end do
       end do
+
+*     **** preconditioner #5 ****
+c      ispin = 2
+c      ne(1) = 1
+c      ne(2) = 0
+c      do n=1,neall
+c        call ke_ave(ispin,ne,gradk(1,n),Ep,.false.,cm2)
+c        Ep = 1.5d0*Ep
+c        do k=1,npack
+c           x = -2.0d0*dbl_mb(tg_indx+k-1)/Ep
+c           cm = 27.0d0+(18.0d0+(12.0d0+8.0d0*x)*x)*x
+c           dm = (cm + 16.0d0* x**4)
+c           cm = (cm/dm)*(2.0d0/Ep)
+c           gradk(k,n) = gradk(k,n)*cm
+c        end do
+c      end do
 
 c      value = MA_pop_stack(tmp1(2))
 c      if (.not. value) call errquit('error popping stack memory',0)

@@ -773,9 +773,6 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
      >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
      >            sum)
          sum = 1.0d0/dsqrt(sum)
-c         call Pack_c_SMul(1,sum,
-c     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1),
-c     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
          call Pack_c_SMul1(1,sum,
      >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
 
@@ -866,21 +863,30 @@ c     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
 #include "mafdecls.fh"
 #include "psi.fh"
 #include "errquit.fh"
+#include "util.fh"
+#include "stdio.fh"
 
 *     **** local variables ****
       integer MASTER,taskid
       parameter (MASTER=0)
 
-      logical value,done,oneloop
-      integer it
+      logical value,done,oneloop,precondition,oprint
+      integer it,pit
       real*8 eold,percent_error,error0,de0,lmbda_r0,lmbda_r1
-      real*8 theta
+      real*8 theta,ep,sp
       integer r1(2),t0(2),t(2),g(2)
       integer psi_ptr
+
+      logical control_print
+      externalcontrol_print
+      real*8   control_Ep,control_Sp
+      external control_Ep,control_Sp
 
       psi_ptr=psi1_excited(1)
 
       call Parallel_taskid(taskid)
+      oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
+
 
       value = MA_push_get(mt_dcpl,npack1,'t0',t0(2),t0(1))
       value = value.and. 
@@ -892,12 +898,16 @@ c     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
       if (.not. value) call errquit(
      >     'psi_KS_update_virtual: out of stack memory',0, MA_ERR)
 
+      ep = control_Ep()
+      sp = control_Sp()
+      precondition = .true.
       done = .false.
       error0 = 0.0d0 
       e0 = 0.0d0
       theta = -3.14159d0/600.0d0
       lmbda_r0 = 1.0d0
       it = 0
+      pit = 0
  2    continue
 
          it = it + 1
@@ -922,6 +932,8 @@ c     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
      A      percent_error = dabs(e0-eold)/error0
          !end if
 
+         precondition = (dabs(e0-eold).gt.(sp*maxerror))
+
          done = ((it.gt.maxiteration) 
      >           .or.
      >           (dabs(e0-eold).lt.maxerror))
@@ -934,6 +946,11 @@ c     >            dcpl_mb(psi1_excited(1) +(ii-1)*npack1))
      >                 dcpl_mb(psi_ptr+(ii-1)*npack1),
      >                 dcpl_mb(r1(1)))
 
+*        **** preconditioning ****
+         if (precondition) then
+            pit = pit + 1
+            call ke_Precondition(npack1,1,dcpl_mb(r1(1)),dcpl_mb(r1(1)))
+         end if 
 
          !*** determine conjuagate direction ***
          call Pack_cc_dot(1,dcpl_mb(r1(1)),
@@ -984,6 +1001,14 @@ c         call Pack_c_SMul(1,de0,dcpl_mb(t(1)),dcpl_mb(t(1)))
       value = value.and.MA_pop_stack(t0(2))
       if (.not. value) call errquit(
      >     'psi_KS_update_virtual: popping stack memory',1, MA_ERR)
+
+      if (oprint) then
+         write(luout,921) ii,-e0,dabs(e0-eold),it,pit,ep,sp
+  921 format(5x,"orbital",I4," current e=",E10.3,
+     "       " (error=",E9.3,")",
+     >       " iterations",I4,"(",I4,
+     >       " preconditioned, Ep,Sp=",F5.1,F7.1,")")
+      end if
 
       error_out = dabs(e0-eold)
       e0        = -e0
@@ -5860,7 +5885,7 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
       integer nemax,ispin0
 
       integer hversion,hnfft(3),hispin,hne(2)
-      real*8 hunita(3,3)
+      real*8 hunita(3,3),sum1,sum2
       integer rtdb,ind
       integer  control_rtdb,control_ngrid
       external control_rtdb,control_ngrid
@@ -5968,34 +5993,32 @@ c         call Dneall_f_ortho(0,dcpl_mb(psi1(1)),npack1)
       end if
 
 
-
-*     **** Ortho Check ****
-c     call Grsm_gg_trace(npack1,(ne_excited(1)+ne_excited(2)),
-c    >                        dcpl_mb(psi1_excited(1)),
-c    >                        dcpl_mb(psi1_excited(1)),
-c    >                        sum2)
-c     
-c     sum1 = dble(ne_excited(1) + ne_excited(2))
-c     if (dabs(sum2-sum1).gt.1.0d-10) then
-c
-c        call Parallel_taskid(taskid)
-c        call Grsm_g_MakeOrtho(npack1,ne_excited(1),
-c    >                         dcpl_mb(psi1_excited(1)))
-c        if (ispin.gt.1) then
-c          call Grsm_g_MakeOrtho(npack1,ne_excited(2),
-c    >                           dcpl_mb(psi1_excited(1)
-c    >                                  +ne_excited(1)*npack1))
-c        end if
-c        call Grsm_gg_trace(npack1,(ne_excited(1)+ne_excited(2)),
-c    >                        dcpl_mb(psi1_excited(1)),
-c    >                        dcpl_mb(psi1_excited(1)),
-c    >                        sum2)
-c        if (taskid.eq.MASTER)
-c    >    write(*,*) "Warning - Gram-Schmidt being performed on epsi:",
-c    >               dabs(sum2-sum1)
-c
-c     end if
-
+c*     **** Ortho Check ****
+c      call Grsm_gg_trace(npack1,(ne_excited(1)+ne_excited(2)),
+c     >                        dcpl_mb(psi1_excited(1)),
+c     >                        dcpl_mb(psi1_excited(1)),
+c     >                        sum2)
+c      
+c      sum1 = dble(ne_excited(1) + ne_excited(2))
+c      if (dabs(sum2-sum1).gt.1.0d-10) then
+c 
+c         call Parallel_taskid(taskid)
+c         call Grsm_g_MakeOrtho(npack1,ne_excited(1),
+c     >                         dcpl_mb(psi1_excited(1)))
+c         if (ispin.gt.1) then
+c           call Grsm_g_MakeOrtho(npack1,ne_excited(2),
+c     >                           dcpl_mb(psi1_excited(1)
+c     >                                  +ne_excited(1)*npack1))
+c         end if
+c         call Grsm_gg_trace(npack1,(ne_excited(1)+ne_excited(2)),
+c     >                        dcpl_mb(psi1_excited(1)),
+c     >                        dcpl_mb(psi1_excited(1)),
+c     >                        sum2)
+c         if (taskid.eq.MASTER)
+c     >    write(*,*) "Warning - Gram-Schmidt being performed on epsi:",
+c     >               dabs(sum2-sum1)
+c 
+c      end if
 
 
       epsi_initialize = value

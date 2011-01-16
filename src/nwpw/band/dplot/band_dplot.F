@@ -11,34 +11,43 @@
 #include "rtdb.fh"
 
 
-      logical value,spin_orbit
-      integer taskid,np
+      logical value,spin_orbit,fractional
+      integer taskid,taskid_k,np,np_i,np_j,np_k
       integer MASTER
       parameter (MASTER=0)
 
 *     **** local variables ***
 
-      integer count,i,ia,nbrillioun
-      integer ngrid(3)
-      integer nfft3d,n2ft3d,npack1,mapping
-      integer ispin,ne(2),nemax
+      integer count,i,ia,nbrillioun,nbrillq,if1,if2
+      integer ngrid(3),neall,nemaxq
+      integer nfft3d,n2ft3d,npack1,mapping,mapping1d
+      integer ispin,ispinq,ne(2),neq(2),nemax,smearoccupation
       integer psi2(2),dn(2),psir(2)
+      integer psi2_tag,psir_tag
       real*8  cpu1,cpu2
       real*8  position_tolerance,origin(3)
       character*8 tag
 
 *     **** external functions ****
       logical      control_read,ion_init,control_spin_orbit
-      integer      Cram_nwave_all,control_mapping,brillioun_nbrillioun
-      integer      control_ngrid,Cram_nwave,control_version
+      integer      Cram_nwave_all_brdcst,control_mapping
+      integer      brillioun_nbrillioun
+      integer      control_ngrid,Cram_nwave_brdcst,control_version
+      integer      Pneb_ispinq
+      integer      control_np_dimensions,control_mapping1d,Pneb_nbrillq
+      integer      cpsi_data_alloc,cpsi_data_get_allptr
       real*8       lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       real*8       lattice_unitg
       character*12 control_boundry
 
       external     control_spin_orbit
       external     control_read,ion_init
-      external     Cram_nwave_all,control_mapping,brillioun_nbrillioun
-      external     control_ngrid,Cram_nwave,control_version
+      external     Cram_nwave_all_brdcst,control_mapping
+      external     brillioun_nbrillioun
+      external     control_ngrid,Cram_nwave_brdcst,control_version
+      external     Pneb_ispinq
+      external     control_np_dimensions,control_mapping1d,Pneb_nbrillq
+      external     cpsi_data_alloc,cpsi_data_get_allptr
       external     lattice_omega,lattice_unita,lattice_ecut,lattice_wcut
       external     lattice_unitg
       external     control_boundry
@@ -54,6 +63,11 @@
       call Parallel_np(np)
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) call current_second(cpu1)
+
+*     **** read control file ****
+      value = control_read(10,rtdb)
+      if (.not. value)
+     > call errquit('error reading control',0, DISK_ERR)
 
 *     ***** print out header ****
       if (taskid.eq.MASTER) then
@@ -90,12 +104,18 @@
         origin(3) = 0.0d0 
       end if
 
-*     **** read control file ****
-      value = control_read(10,rtdb)
+
+      call Parallel3d_Init(control_np_dimensions(2),
+     >                     control_np_dimensions(3))
+      call Parallel3d_np_i(np_i)
+      call Parallel3d_np_j(np_j)
+      call Parallel3d_np_k(np_k)
+      call Parallel3d_taskid_k(taskid_k)
+
       ngrid(1) = control_ngrid(1)
       ngrid(2) = control_ngrid(2)
       ngrid(3) = control_ngrid(3)
-      mapping   = control_mapping()
+      mapping  = control_mapping()
 
 
 *     **** initialize D3dB data structure ****
@@ -103,6 +123,7 @@
       call C3dB_nfft3d(1,nfft3d)
       call C3dB_n2ft3d(1,n2ft3d)
 
+      call cpsi_data_init(20)
 
 *     **** initialize lattice and packing data structure ****
       call lattice_init()
@@ -115,37 +136,58 @@
 *     **** initialize ion data structure ****
       value = ion_init(rtdb)
 
-
-*     ***** allocate psi2 wavefunctions ****
-      call psi_get_ne(ispin,ne)
-      nemax = ne(1)+ne(2)
-      nbrillioun = brillioun_nbrillioun()
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,npack1*nemax*nbrillioun,
-     >                     'psi2',psi2(2),psi2(1))
-      if (.not. value) call errquit('out of heap memory',1, MA_ERR)
-
-
-*     *****  read psi2 wavefunctions ****
-      spin_orbit=control_spin_orbit()
-      call cpsi_read(spin_orbit,ispin,ne,nbrillioun,dcpl_mb(psi2(1)))
-
-*     **** allocate other variables *****
-      value = value.and.
-     >        MA_alloc_get(mt_dbl,(2*nfft3d),
-     >                     'dn',dn(2),dn(1))
-      value = value.and.
-     >        MA_alloc_get(mt_dcpl,nfft3d*nemax*nbrillioun,
-     >                     'psir',psir(2),psir(1))
-
-      if (.not. value) call errquit('band_dplot:out of heap memory',2,
-     &       MA_ERR)
-
+*     **** intialize G,mack,ke, and coulomb data structures ****
       call cstrfac_init()
       call cke_init()
       call c_coulomb_init()
       call cphafac()
       call cphafac_k()
+
+*     **** initialize Pneb ****
+      call psi_get_ne(ispin,ne)
+      if (ispin.eq.3) then
+         spin_orbit = .true.
+         ispin=2
+      else
+         spin_orbit = .false.
+      end if
+      nbrillioun = brillioun_nbrillioun()
+      call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
+      call Pneb_neq(neq)
+
+*     ***** allocate psi2 wavefunctions ****
+      call psi_get_ne_occupation(ispin,ne,smearoccupation)
+      if (smearoccupation.gt.0) then
+         fractional = .true.
+      else
+         fractional = .false.
+      end if
+      mapping1d = control_mapping1d()
+      ispinq  = Pneb_ispinq()
+      nbrillq = Pneb_nbrillq()
+
+      call Cram_max_npack(npack1)
+      nemaxq = neq(1)+neq(2)
+      neall  = ne(1)+ne(2)
+      psi2_tag = cpsi_data_alloc(nbrillq,nemaxq,2*npack1)
+      psir_tag = cpsi_data_alloc(nbrillq,nemaxq,2*nfft3d)
+
+*     *** fractional orbitals ***
+      if (smearoccupation.gt.0) then
+        call cpsi_data_set_next(psi2_tag,
+     >                 cpsi_data_alloc(nbrillq,nemaxq,1))
+        !smeartype = control_fractional_smeartype()
+        !smearkT   = control_fractional_kT()
+      end if
+
+
+*     *****  read psi2 wavefunctions ****
+      call cpsi_read(spin_orbit,ispin,ne,nbrillioun,psi2_tag)
+
+*     **** allocate other variables *****
+      if (.not.MA_alloc_get(mt_dbl,(2*nfft3d),'dn',dn(2),dn(1)))
+     >   call errquit('band_dplot:out of heap memory',1,MA_ERR)
+
 
 
 *                |**************************|
@@ -154,6 +196,7 @@
 
       if (taskid.eq.MASTER) then
          write(6,1111) np
+         write(6,1117) np_i,np_j,np_k
          write(6,1115)
          write(6,1121) control_boundry(),control_version()
          write(6,1220) ne(1),ne(ispin),' ( fourier space)'
@@ -183,19 +226,26 @@
          ia = brillioun_nbrillioun()
          write(6,1255)
          write(6,1256) ia
+      end if
+      if1 = Cram_nwave_all_brdcst(0)
+      if2 = Cram_nwave_brdcst(0)
+      if (taskid.eq.MASTER) then
+         write(6,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),if1,if2
+      end if
 
-         write(6,1250) lattice_ecut(),ngrid(1),ngrid(2),ngrid(3),
-     >                 Cram_nwave_all(0),Cram_nwave(0)
-         do i=1,ia
-          write(6,1251) i,lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
-     >                 Cram_nwave_all(i),Cram_nwave(i)
-         end do
-
+      do i=1,brillioun_nbrillioun()
+         if1 = Cram_nwave_all_brdcst(i)
+         if2 = Cram_nwave_brdcst(i)
+          if (taskid.eq.MASTER) then
+             write(6,1251) i,lattice_wcut(),ngrid(1),ngrid(2),ngrid(3),
+     >                     if1,if2
+          end if
+      end do
+      if (taskid.eq.MASTER) then
         write(6,*)
         write(6,*)
         call util_flush(6)
       end if
-
 
 
       !**** translate system if origin is not zero ****
@@ -214,37 +264,36 @@
         origin(3) = -origin(3)
 
         call ion_translate(origin)
-        call psi_translate(origin,
-     >                     npack1,(ne(1)+ne(2)),
-     >                     dcpl_mb(psi2(1)))
-
+        call cpsi_translate(origin,nemaxq,nbrillq,psi2_tag)
         call cphafac()  !** recompute phase factors **
 
       end if
 
+      call dplot_gen_cpsi_dn(ispin,ispinq,ne,neq,nbrillioun,nbrillq,
+     >                       nfft3d,
+     >                       psi2_tag,
+     >                       dbl_mb(dn(1)),
+     >                       psir_tag)
 
-
-      call dplot_gen_cpsi_dn(ispin,ne,
-     >                npack1,nfft3d,nemax,nbrillioun,
-     >                dcpl_mb(psi2(1)),
-     >                dbl_mb(dn(1)),
-     >                dcpl_mb(psir(1)))
-
-
-
+c      call band_dplot_loop(rtdb,
+c     >                ispin,ne,
+c     >                npack1,nfft3d,nemax,nbrillioun,
+c     >                dcpl_mb(psi2(1)),
+c     >                dbl_mb(dn(1)),
+c     >                dcpl_mb(psir(1)),
+c     >                .false.,tag)
       call band_dplot_loop(rtdb,
-     >                ispin,ne,
-     >                npack1,nfft3d,nemax,nbrillioun,
-     >                dcpl_mb(psi2(1)),
+     >                ispin,ispinq,ne,neq,
+     >                nfft3d,nemax,nemaxq,nbrillioun,nbrillq,
      >                dbl_mb(dn(1)),
-     >                dcpl_mb(psir(1)),
+     >                psir_tag,
      >                .false.,tag)
+
 
       value = value.and.rtdb_get(rtdb,'band_dplot:count',
      >                            mt_int,1,count)
 
 
-     
 *     **** deallocate heap memory ****
       call cstrfac_end()
       call c_coulomb_end()
@@ -254,13 +303,17 @@
       call brillioun_end()
       call Cram_end()
       call c_G_end()
+      call Parallel3d_Finalize()
       call Parallel_Finalize()
 
 
-
-      value = MA_free_heap(psir(2))
-      value = value.and.MA_free_heap(dn(2))
-      value = value.and.MA_free_heap(psi2(2))
+      call cpsi_data_dealloc(psir_tag)
+      call cpsi_data_dealloc(psi2_tag)
+      value = MA_free_heap(dn(2))
+c      value = MA_free_heap(psir(2))
+c      value = value.and.MA_free_heap(dn(2))
+c      value = value.and.MA_free_heap(psi2(2))
+      call cpsi_data_end()
       call C3dB_pfft_end()
       call C3dB_end(1)
 
@@ -292,8 +345,9 @@
  1040 FORMAT(10X,'*            version #1.00   08/01/05              *')
  1100 FORMAT(//)
  1110 FORMAT(10X,'============ BAND DPLOT input data =================')
- 1111 FORMAT(/' number of processors used:',I3)
+ 1111 FORMAT(/' number of processors used:',I16)
  1115 FORMAT(/' options:')
+ 1117 FORMAT( ' processor grid           :',I4,' x',I4,' x',I4)
  1121 FORMAT(5X,' boundary conditions   = ',A,'(version', I1,')')
  1130 FORMAT(5X,' electron spin        = ',A)
  1220 FORMAT(/' number of electrons: spin up=',I3,'  spin down=',I3,A)
@@ -326,34 +380,32 @@
 
 
       subroutine band_dplot_loop(rtdb,
-     >                      ispin,ne,
-     >                      npack1,nfft3d,nemax,nbrill,
-     >                      psi,
+     >                      ispin,ispinq,ne,neq,
+     >                      nfft3d,nemax,nemaxq,nbrill,nbrillq,
      >                      dn,
-     >                      psi_r,
+     >                      psi_r_tag,
      >                      add_tag,tag)
       implicit none
       integer    rtdb
-      integer    ispin,ne(2)
-      integer    npack1,nfft3d,nemax,nbrill
-      complex*16 psi(npack1,nemax,nbrill)
+      integer    ispin,ispinq,ne(2),neq(2)
+      integer    nfft3d,nemax,nemaxq,nbrill,nbrillq
       real*8     dn(nfft3d,2)
-      complex*16 psi_r(nfft3d,nemax,nbrill)
+      integer    psi_r_tag
       logical add_tag
       character*8 tag
 
 #include "mafdecls.fh"
-#include "rtdb.fh"
 #include "errquit.fh"
+#include "rtdb.fh"
 
 *     **** local variables ****
       logical value,grid3d
-      integer taskid
+      integer taskid,taskid_k
       integer MASTER
       parameter (MASTER=0)
 
       integer n2ft3d
-      integer i,count,number,ia,nb,onumber
+      integer i,count,number,ia,nb,onumber,nbq,p
       integer n1(2),n2(2),nn(2)
       integer nx,ny,nz
       integer rho(2),orb(2)
@@ -367,10 +419,10 @@
 
 
 *     **** external functions ****
-      integer  control_version
-      real*8   lattice_omega, brillioun_k
-      external control_version
-      external lattice_omega, brillioun_k
+      integer  control_version,cpsi_data_get_ptr
+      real*8   lattice_omega, brillioun_k_brdcst
+      external control_version,cpsi_data_get_ptr
+      external lattice_omega, brillioun_k_brdcst
 
       
       grid3d = .false.
@@ -378,6 +430,7 @@
      >  grid3d = .true.
 
       call Parallel_taskid(taskid)
+      call Parallel3d_taskid_k(taskid_k)
       value =           MA_push_get(mt_dbl,nfft3d,'rho',rho(2),rho(1))
       value = value.and.MA_push_get(mt_dcpl,nfft3d,'orb',orb(2),orb(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -554,17 +607,19 @@
               end if
               number = 1
            end if
-           kv(1) = brillioun_k(1,nb)
-           kv(2) = brillioun_k(2,nb)
-           kv(3) = brillioun_k(3,nb)
+           call K1dB_ktoqp(nb,nbq,p)
+           kv(1) = brillioun_k_brdcst(1,nb)
+           kv(2) = brillioun_k_brdcst(2,nb)
+           kv(3) = brillioun_k_brdcst(3,nb)
            cube_comment = 'SCF Molecular Orbitals'
        
            if (onumber.eq.1) then
              call C3dB_r_Zero(1,dbl_mb(rho(1)))
-             call C3dB_cr_aSqrpy(1, 1.0d0,
-     >                         psi_r(1,number,nb),
-     >                         dbl_mb(rho(1)))
-c             call C3dB_r_SMul(1,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
+             if (p.eq.taskid_k) 
+     >          call C3dB_cr_aSqrpy(1,1.0d0,
+     >                  dbl_mb(cpsi_data_get_ptr(psi_r_tag,nbq,number)),
+     >                  dbl_mb(rho(1)))
+             call K1dB_Vector_SumAll(nfft3d,dbl_mb(rho(1)))
              call C3dB_r_SMul1(1,scal2,dbl_mb(rho(1)))
 
              if (.not.add_tag) then
@@ -594,16 +649,30 @@ c             call C3dB_r_SMul(1,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
              end if
              end if
              if (grid3d) then
-               call band_dplot_gcube_write3d_orb(rtdb,filename,
-     >                         number,cube_comment,
-     >                         kv,psi_r(1,number,nb),.true.)
+                call C3dB_c_Zero(1,dcpl_mb(orb(1)))
+                if (p.eq.taskid_k)
+     >             call C3dB_c_Copy(1,
+     >                  dbl_mb(cpsi_data_get_ptr(psi_r_tag,nbq,number)),
+     >                  dcpl_mb(orb(1)))
+                call K1dB_Vector_SumAll(2*nfft3d,dcpl_mb(orb(1)))
+                call band_dplot_gcube_write3d_orb(rtdb,filename,
+     >                  number,cube_comment,
+     >                  kv,
+     >                  dcpl_mb(orb(1)),
+     >                  .true.)
              else
-               call C3dB_c_Copy(1,psi_r(1,number,nb),dcpl_mb(orb(1)))
-               call band_kvtimesorb(kv,dcpl_mb(orb(1)))
-               call C3dB_cr_real(1,
+                call C3dB_c_Zero(1,dcpl_mb(orb(1)))
+                if (p.eq.taskid_k) then
+                   call C3dB_c_Copy(1,
+     >                  dbl_mb(cpsi_data_get_ptr(psi_r_tag,nbq,number)),
+     >                  dcpl_mb(orb(1)))
+                end if
+                call K1dB_Vector_SumAll(2*nfft3d,dcpl_mb(orb(1)))
+                call band_kvtimesorb(kv,dcpl_mb(orb(1)))
+                call C3dB_cr_real(1,
      >                           dcpl_mb(orb(1)),
      >                           dbl_mb(rho(1)))
-               call band_dplot_gcube_write(rtdb,filename,
+                call band_dplot_gcube_write(rtdb,filename,
      >                         number,cube_comment,dbl_mb(rho(1)))
              endif
 
@@ -618,16 +687,28 @@ c             call C3dB_r_SMul(1,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
              end if
              end if
              if (grid3d) then
-               call band_dplot_gcube_write3d_orb(rtdb,filename,
+                call C3dB_c_Zero(1,dcpl_mb(orb(1)))
+                if (p.eq.taskid_k)
+     >             call C3dB_c_Copy(1,
+     >                  dbl_mb(cpsi_data_get_ptr(psi_r_tag,nbq,number)),
+     >                  dcpl_mb(orb(1)))
+                call K1dB_Vector_SumAll(2*nfft3d,dcpl_mb(orb(1)))
+                call band_dplot_gcube_write3d_orb(rtdb,filename,
      >                         number,cube_comment,
-     >                         kv,psi_r(1,number,nb),.false.)
+     >                         dcpl_mb(orb(1)),.false.)
              else
-               call C3dB_c_Copy(1,psi_r(1,number,nb),dcpl_mb(orb(1)))
-               call band_kvtimesorb(kv,dcpl_mb(orb(1)))
-               call C3dB_cr_imag(1,
+                call C3dB_c_Zero(1,dcpl_mb(orb(1)))
+                if (p.eq.taskid_k) then
+                   call C3dB_c_Copy(1,
+     >                  dbl_mb(cpsi_data_get_ptr(psi_r_tag,nbq,number)),
+     >                  dcpl_mb(orb(1)))
+                end if
+                call K1dB_Vector_SumAll(2*nfft3d,dcpl_mb(orb(1)))
+                call band_kvtimesorb(kv,dcpl_mb(orb(1)))
+                call C3dB_cr_imag(1,
      >                           dcpl_mb(orb(1)),
      >                           dbl_mb(rho(1)))
-               call band_dplot_gcube_write(rtdb,filename,
+                call band_dplot_gcube_write(rtdb,filename,
      >                         number,cube_comment,dbl_mb(rho(1)))
              endif
 
@@ -635,17 +716,13 @@ c             call C3dB_r_SMul(1,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
 
         end if
 
-
       end do
-
 
 *     **** dealocate MA local variables ****
       value =           MA_pop_stack(orb(2))
       value = value.and.MA_pop_stack(rho(2))
       if (.not. value) call errquit('popping of stack memory',0, MA_ERR)
 
-
-    
       return
       end
 
@@ -660,26 +737,26 @@ c             call C3dB_r_SMul(1,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
 *     *                              *
 *     ********************************
 
-      subroutine cpsi_translate(trans,npack1,nemax,nbrillioun,psi)
+      subroutine cpsi_translate(trans,nemaxq,nbrillq,psi_tag)
       implicit none
       real*8 trans(3)
-      integer npack1,nemax,nbrillioun
-      complex*16 psi(npack1,nemax,nbrillioun)
+      integer nemaxq,nbrillq,psi_tag
 
 #include "mafdecls.fh"
 #include "errquit.fh"
 
 *     **** local variables ****
       logical value
-      integer n,nion,nb
+      integer n,nion,nbq,npack1
       integer exi(2),rion(2)
 
 *     **** external functions ****
-      integer  ion_nion
+      integer  ion_nion,cpsi_data_get_ptr
       real*8   lattice_unita
-      external ion_nion
+      external ion_nion,cpsi_data_get_ptr
       external lattice_unita
 
+      call Cram_max_npack(npack1)
       nion  = ion_nion()
       value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       value = value.and.
@@ -701,14 +778,14 @@ c             call C3dB_r_SMul(1,scal2,dbl_mb(rho(1)),dbl_mb(rho(1)))
      >                      + lattice_unita(3,3) )/2.0d0
       call cphafac_rion(dbl_mb(rion(1)))
  
-      do nb=1,nbrillioun
-        call cstrfac_pack(nb,1,dcpl_mb(exi(1)))
-        do n=1,nemax
-c          call Cram_cc_Mul(nb,dcpl_mb(exi(1)),psi(1,n,nb),psi(1,n,nb))
-          call Cram_cc_Mul2(nb,dcpl_mb(exi(1)),psi(1,n,nb))
+      do nbq=1,nbrillq
+        call cstrfac_pack(nbq,1,dcpl_mb(exi(1)))
+        do n=1,nemaxq
+          call Cram_cc_Mul2(nbq,
+     >                      dcpl_mb(exi(1)),
+     >                      dbl_mb(cpsi_data_get_ptr(psi_tag,nbq,n)))
         end do
       end do
-
 
       value =           MA_pop_stack(rion(2))
       value = value.and.MA_pop_stack(exi(2))
@@ -717,53 +794,134 @@ c          call Cram_cc_Mul(nb,dcpl_mb(exi(1)),psi(1,n,nb),psi(1,n,nb))
       end
 
 
-
-      subroutine dplot_gen_cpsi_dn(ispin,ne,
-     >                      npack1,nfft3d,nemax,nbrill,
-     >                      psi,
+      subroutine dplot_gen_cpsi_dn(ispin,ispinq,ne,neq,nbrill,nbrillq,
+     >                      nfft3d,
+     >                      psi1_tag,
      >                      dn,
-     >                      psi_r)
+     >                      psir_tag)
       implicit none
-      integer    ispin,ne(2)
-      integer    npack1,nfft3d,nemax,nbrill
-      complex*16 psi(npack1,nemax,nbrill)
-      real*8     dn(nfft3d,2)
-      complex*16 psi_r(nfft3d,nemax,nbrill)
+      integer ispin,ispinq,ne(2),neq(2),nbrill,nbrillq,nfft3d
+      integer psi1_tag
+      real*8  dn(nfft3d,*)
+      integer psir_tag
 
+#include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** local variables ****
+      logical done
       integer taskid
       integer MASTER
       parameter (MASTER=0)
 
-      integer i,ms,n,nbrillioun,neall
-      real*8  scal2
+      integer nbi,ki,shiftA,nshiftA
+      integer nbj,kj,shiftB,nshiftB
+      integer ms,n,n1(2),n2(2),nemaxq,npack1,shifto,nbq,occ_tag
+      real*8  scal2,weight
 
 
 *     **** external functions ****
-      real*8   lattice_omega
-      external lattice_omega
+      logical  C3dB_cr_pfft3_queue_filled
+      external C3dB_cr_pfft3_queue_filled
+      integer  cpsi_data_get_chnk,cpsi_data_get_next
+      external cpsi_data_get_chnk,cpsi_data_get_next
+      real*8   lattice_omega,brillioun_weight
+      external lattice_omega,brillioun_weight
 
-      
-      call Parallel_taskid(taskid)
+      call Cram_max_npack(npack1) 
+      nshiftA = 2*npack1
+      nshiftB = 2*nfft3d
 
-      neall = ne(1)+ne(2)
+      n1(1) = 1
+      n2(1) = neq(1)
+      n1(2) = neq(1)+1
+      n2(2) = neq(1)+neq(2)
+      nemaxq  = neq(1)+neq(2)
+
       scal2 = 1.0d0/lattice_omega()
 
 *     *******************
 *     **** get psi_r ****
 *     *******************
-      call BGrsm_fh_fftb(psi,psi_r)
+      nbi = 1
+      ki  = 1
+      shiftA =  cpsi_data_get_chnk(psi1_tag,nbi)
 
+      nbj = 1
+      kj  = 1
+      shiftB =  cpsi_data_get_chnk(psir_tag,nbj)
+
+      done = .false.
+      do while (.not.done)
+
+         if (nbi.le.nbrillq) then
+            call C3dB_cr_pfft3b_queuein(nbi,dbl_mb(shiftA))
+            shiftA = shiftA + nshiftA
+            ki = ki+1
+            if (ki.gt.nemaxq) then
+               nbi = nbi + 1
+               ki  = 1
+               if (nbi.le.nbrillq) then
+                  shiftA =  cpsi_data_get_chnk(psi1_tag,nbi)
+               endif
+            end if
+         end if
+
+         if ((C3dB_cr_pfft3_queue_filled()).or.(nbi.gt.nbrillq)) then
+            call C3dB_cr_pfft3b_queueout(nbj,dbl_mb(shiftB))
+            shiftB = shiftB + nshiftB
+            kj = kj+1
+            if (kj.gt.nemaxq) then
+               nbj = nbj + 1
+               kj  = 1
+               if (nbj.le.nbrillq) then
+                  shiftB =  cpsi_data_get_chnk(psir_tag,nbj)
+               endif
+            end if
+         endif
+         done = ((nbi.gt.nbrillq).and.(nbj.gt.nbrillq))
+      end do
+
+*     **** set the occupations ****
+      call cpsi_data_set_next(psir_tag,cpsi_data_get_next(psi1_tag))
 
 *     *********************
 *     **** generate dn ****
 *     *********************
-      call BGrsm_hr_SumSqr(psi_r,dn)
-c      call C3dB_r_SMul(1,scal2,dn,dn)
-c      if (ispin.gt.1) call C3dB_r_SMul(1,scal2,dn(1,2),dn(1,2))
-      call C3dB_r_SMul1(1,scal2,dn)
-      if (ispin.gt.1) call C3dB_r_SMul1(1,scal2,dn(1,2))
+      call dcopy(ispin*nfft3d,0.0d0,0,dn,1)
+
+      occ_tag = cpsi_data_get_next(psir_tag)
+      if (occ_tag.gt.0) then
+       do nbq=1,nbrillq
+        weight = brillioun_weight(nbq)
+        shiftB = cpsi_data_get_chnk(psir_tag,nbq)
+        shifto = cpsi_data_get_chnk(occ_tag,nbq)
+        do ms=1,ispin
+        do n=n1(ms),n2(ms)
+           call C3dB_cr_aSqrpy(1,dbl_mb(shifto)*weight,
+     >                           dbl_mb(shiftB),
+     >                           dn(1,ms))
+           shiftB = shiftB + nshiftB
+           shifto = shifto + 1
+        end do
+        end do
+       end do
+      else
+       do nbq=1,nbrillq
+        weight = brillioun_weight(nbq)
+        shiftB = cpsi_data_get_chnk(psir_tag,nbq)
+        do ms=1,ispin
+        do n=n1(ms),n2(ms)
+           call C3dB_cr_aSqrpy(1,weight,dbl_mb(shiftB),dn(1,ms))
+           shiftB = shiftB + nshiftB
+        end do
+        end do
+       end do
+      end if
+
+*     *** reduce over brillioun zone ***
+      call K1dB_Vector_SumAll(ispin*nfft3d,dn)
+      call dscal(ispin*nfft3d,scal2,dn,1)
 
       return
       end
@@ -773,7 +931,6 @@ c      if (ispin.gt.1) call C3dB_r_SMul(1,scal2,dn(1,2),dn(1,2))
       subroutine band_dplot_gcube_write(rtdb,filename,
      >                             number,cube_comment,rho)
       implicit none
-#include "errquit.fh"
       integer rtdb
       character*50 filename
       integer      number
@@ -782,6 +939,7 @@ c      if (ispin.gt.1) call C3dB_r_SMul(1,scal2,dn(1,2),dn(1,2))
      
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 
@@ -811,13 +969,12 @@ c     character*16 t
       integer nfft3d,tmp1(2),tmp2(2)
 
 *     **** external functions ****
-      integer  ion_nion      
+      integer  ion_nion,control_mapping
       real*8   lattice_unita,ion_rion,ion_q
-      external ion_nion
+      external ion_nion,control_mapping
       external lattice_unita,ion_rion,ion_q
 
-      call parallel_taskid(taskid)
-
+      call Parallel_taskid(taskid)
       
 *     **** OPEN cube FILE ****
       if (taskid.eq.MASTER) then
@@ -910,7 +1067,8 @@ c        if (.not. value) call errquit('reading geometry',0)
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 *     **** transpose grid ****
-      call C3dB_r_transpose_jk(1,rho,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
+      if (control_mapping().eq.1) 
+     > call C3dB_r_transpose_jk(1,rho,dcpl_mb(tmp2(1)),dcpl_mb(tmp1(1)))
 
 *     **** write grid ****
       call C3dB_r_FormatWrite_reverse(1,unit_id,rho,dcpl_mb(tmp1(1)))
@@ -1691,7 +1849,7 @@ c     if (.not. value) call errquit('closing geometry',0)
       real*8   lattice_unita
       external lattice_unita
 
-      call Parallel_taskid(taskid)
+      call Parallel3d_taskid_i(taskid)
       call C3dB_nx(1,nx)
       call C3dB_ny(1,ny)
       call C3dB_nz(1,nz)

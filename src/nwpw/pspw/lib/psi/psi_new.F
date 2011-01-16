@@ -175,7 +175,7 @@
 #include "rtdb.fh"
 
 *    *** local variables ***
-      logical success
+      logical success,adjust_skip
       integer ispin,ne(2)
       integer version,rtdb
       integer ngrid(3)
@@ -191,6 +191,8 @@
       external control_ngrid,control_ispin,control_excited_ne
       integer  control_rtdb,control_version
       external control_rtdb,control_version
+      logical  epsi_filefind
+      external epsi_filefind
 
       filename = control_input_epsi()
       version = control_version()
@@ -214,12 +216,19 @@
       if (ispin.eq.2) ne(2) = control_excited_ne(2)
 
       rtdb = control_rtdb()
-      call wvfnc_new(filename,
-     >               version,
-     >               ngrid,
-     >               unita,
-     >               ispin,
-     >               ne)
+      if (.not.rtdb_get(rtdb,
+     >         'nwpw:adjust_skip',mt_log,1,adjust_skip))
+     >   adjust_skip = .false.
+      if (epsi_filefind().and.(.not.adjust_skip)) then
+         call wvfnc_adjust(filename,ispin,ne)
+      else
+         call wvfnc_new(filename,
+     >                  version,
+     >                  ngrid,
+     >                  unita,
+     >                  ispin,
+     >                  ne)
+      end if
       return
       end
 
