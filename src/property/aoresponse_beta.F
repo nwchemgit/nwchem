@@ -437,12 +437,12 @@ c       Update 01/11: we probably need a call like the one below
 c       for the static magnetic (B) field perturbation if 
 c       lgiao is set
 c       
-        if (lmagpert .and. lgiao) then
-          call aoresponse_giao_rhs (rtdb, basis, geom, ncomp, g_rhs,
-     &       g_vectors(ispin), g_smat1, g_sket1, g_dens(1), g_amat,
-     &       nocct(ispin), nvirt(ispin), nmot(ispin), nbf,
-     &       froct(1,ispin), epst(1,ispin), omega, lstatic)
-        endif
+c$$$        if (lmagpert .and. lgiao) then
+c$$$          call aoresponse_giao_rhs (rtdb, basis, geom, ncomp, g_rhs,
+c$$$     &       g_vectors(ispin), g_smat1, g_sket1, g_dens(1), g_amat,
+c$$$     &       nocct(ispin), nvirt(ispin), nmot(ispin), nbf,
+c$$$     &       froct(1,ispin), epst(1,ispin), omega, lstatic)
+c$$$        endif
 
 c       01/11: the code above is disabled because we assume an electric field
 c       perturbation for amat. However, there might be GIAO terms in
