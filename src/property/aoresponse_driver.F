@@ -194,7 +194,7 @@ c     i nabla or i/2 (r x nabla)
       if (lvelocity .and. lgiao) then
         if (oprint) then
           write (LuOut,*) 
-     &       'WARNING: Velocity and GIAO requested => GIAO disabled'
+     &       '*** WARNING: Velocity and GIAO requested => GIAO disabled'
         endif
         lgiao = .false.
       endif
@@ -205,10 +205,33 @@ c     also check if lvelocity and lbeta are both true:
       if (lvelocity .and. lbeta) then
         if (oprint) then
           write (LuOut,*) 
-     &       'WARNING: Velocity and ORBETA requested => BETA disabled'
+     &     '*** WARNING: Velocity and ORBETA requested => BETA disabled'
         endif
         lbeta = .false.
       endif
+
+c     for the time being, if we have GIAOs set, the code
+c     must go through the "beta" static B-field routine
+
+      if (lgiao) then
+        lbeta = .true.
+        lmagpert = .false.
+        if (oprint) then
+          write (LuOut,*) 
+     &       '*** NOTE: enabled ORBETA because of GIAO keyword ***'
+        end if
+      end if
+
+c     finite lifetime not yet available with the "beta" code
+
+      if (lbeta .and. lifetime) then
+        if (oprint) then
+          write (LuOut,*) 
+     &       '*** WARNING: LIFETIME: ORBETA or GIAO disabled ***'
+          lbeta = .false.
+          lgiao = .false.
+        endif
+      end if
 
 c     -----------------------
 c     general initializations (adapted from hnd_giaox.F)
@@ -304,7 +327,7 @@ c     force nfreq = 1 if response order equals 1 (no freq. input)
         if (lgiao) then
           write (luout,'(1x,a)') 'Using GIAO formalism'
           write (luout,'(1x,a)')
-     &       '*** WARNING, GIAO FUNCTIONALITY IS NOT YET WORKING ! ***'
+     &       '*** WARNING, GIAO FUNCTIONALITY NOT WELL TESTED ***'
         end if
         if (lvelocity) then
           write (luout,'(1x,a)') 'Using Dipole Velocity Gauge'

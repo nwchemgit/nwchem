@@ -38,7 +38,7 @@ c
       logical  cphf2, file_write_ga, file_read_ga, cphf
       external cphf2, file_write_ga, file_read_ga, cphf
 c
-      logical     oskel, status
+      logical     oskel, status, debug
       double precision ppm
       data ppm     /26.62566914d+00/ 
       data tol2e   /1.0d-10/
@@ -46,6 +46,8 @@ c
       common /skipKinetic/NoKinetic
 c
       if (ga_nodeid().eq.0) write(luout,9999)
+
+      debug = .true. .and. (ga_nodeid().eq.0) ! special debugging
 c
 c     Current CPHF does not handle symmetry 
 c     Making C1 geometry and store it on rtdb
@@ -322,6 +324,9 @@ c
          bhi(2) = ifld
          call nga_add_patch(1.0d0,g_rhs,blo,bhi,1.0d0,g_fock,clo,chi,
      &                      g_rhs,blo,bhi)
+
+!      call nga_print_patch(g_fock,clo,chi,1)
+
       enddo
 c
 c     Cleanup of g_d1 and g_fock, not needed for now
@@ -483,6 +488,14 @@ c
          call nga_matmul_patch('n','n',1.0d0,0.0d0,vectors(1),blo,bhi,  
      &                         g_u,alo,ahi,g_d1,dlo,dhi)  
          call nga_copy_patch('n',g_d1,dlo,dhi,g_u,dlo,dhi)
+
+c ... jochen: this patch of g_u now has the perturbed MO
+c        coefficients. let's print that for debug purposes:
+         if (debug) then
+           write (luout,*) 'giaox: perturbed C, direction ',ifld
+           call nga_print_patch(g_u,dlo,dhi,1)
+         end if
+
          bhi(1) = nbf
          bhi(2) = nclosed(1)
          ahi(1) = nclosed(1)

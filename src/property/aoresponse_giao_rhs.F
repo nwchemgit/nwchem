@@ -10,7 +10,7 @@ c
 c     purpose: compute giao terms for the right-hand-side of
 c              the Ax = b linear response equation system
 c
-c     called from: aoresponse
+c     called from: aoresponse, aoresponse_beta
 c     
 c     note: it is assumed that the integral code is initialized
 c           prior to calling this routine.
@@ -39,12 +39,12 @@ c     subroutine arguments:
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
       integer geom    ! [input] geometry handle
-      integer ncomp  ! [input] number of Fourier components to treat
+      integer ncomp  ! [input] number of Fourier components
       integer g_rhs(ncomp)   ! [output] part of CPKS rhs vectors
       integer g_vectors ! [input] MO vectors for given spin
       integer g_dens ! [input] density matrix
       integer g_amat(ncomp) ! [in/out] A-matrices
-      integer g_smat1 ! [input] perturbed S-matrix, destroyed on output
+      integer g_smat1 ! [input] perturbed S-matrix
       integer g_sket1  ! [input] "half perturbed" S-matrix
 
       integer nbf, nocc, nvir, nmo
@@ -69,8 +69,18 @@ c     local variables:
 
 c     ==================================================================
 
-      debug = .false.            ! used during code development
-      dbgmat = .false.           ! debug matrices
+      debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
+      dbgmat = .false. .and. ga_nodeid().eq.0 ! debug large matrices
+
+c     THERE WAS A BUG HERE BECAUSE ONLY IF DEBUG WAS SET TO TRUE DID I
+C     GET THE CORRECT RESULTS FOR ORBETA. the code got stuck where the
+C     fock matrix is printed if I ran on more than one processor;
+C     another sign of a problem.  After some clean-ups and sync with the
+C     code in hnd_giaox things seem to work now, which is also kind of
+C     bizarre.  The problem seems to have been with the Fock matrix from
+C     the occ-occ block, not the other pieces.
+
+      if (debug) write (luout,*) 'hello from aoresponse_giao_rhs'
       
 c     Current CPHF does not handle symmetry 
       
@@ -80,6 +90,8 @@ c     If DFT get part of the exact exchange defined
       
       xfac = 1.0d0
       if (use_theory.eq.'dft') xfac = bgj_kfac()
+
+      if (debug) write (luout,*) 'use_theory, xfac =', use_theory, xfac
       
       call scf_get_fock_param(rtdb,tol2e)
       
@@ -92,7 +104,7 @@ c
       ahi(1) = nbf
       ahi(2) = nocc
       ahi(3) = 3
-      if (.not.nga_create(MT_DBL,3,ahi,'U matrix',alo,g_u)) call 
+      if (.not.nga_create(MT_DBL,3,ahi,'aor U(1)',alo,g_u)) call 
      &    errquit('aorgiao: nga_create failed g_u',0,GA_ERR)
       call ga_zero(g_u)
 
@@ -102,39 +114,39 @@ c     transform Smat1 and S-ket to MO basis
       if (.not.lstatic)
      &   call giao_aotomo(g_sket1,g_vectors,nocc,nvir,1,3,nbf)
 
-c     debug S10 and S-ket in MO basis (dynamic response)
-      if (dbgmat .and. .not.lstatic) then
-        clo(1) = nmo
-        clo(2) = nmo
-        clo(3) = 1
-        chi(1) = nmo
-        chi(2) = -1
-        chi(3) = -1
-        if (.not.nga_create(MT_DBL,2,clo,'temp',chi,g_temp)) call 
-     &     errquit('aorgiao: nga_create failed g_temp',0,GA_ERR)
-        do ifld = 1,3
-          chi(1) = nmo
-          chi(2) = nmo
-          chi(3) = ifld
-          clo(1) = 1  
-          clo(2) = 1
-          clo(3) = ifld
-          call nga_copy_patch('t',g_sket1,clo,chi,g_temp,clo,chi)
-          call nga_add_patch(1d0,g_sket1,clo,chi,-1d0,g_temp,clo,chi,
-     &       g_temp,clo,chi)
-          if( ga_nodeid().eq.0) then            
-            write (6,*) 
-     &       '(S-ket - transpose(S-ket)) - S10 in MO bas ifld=',ifld
-c            call nga_print_patch(g_temp, clo, chi,1)
-c            call nga_print_patch(g_smat1, clo, chi,1)
-            call nga_add_patch(1d0,g_smat1,clo,chi,-1d0,g_temp,clo,chi,
-     &         g_temp,clo,chi)
-            call nga_print_patch(g_temp, clo, chi,1)
-          endif
-        enddo
-        if (.not.ga_destroy(g_temp)) call 
-     &     errquit('aorgiao: ga_destroy failed g_temp',0,GA_ERR)
-      endif
+c$$$c     debug S10 and S-ket in MO basis (dynamic response)
+c$$$      if (dbgmat .and. .not.lstatic) then
+c$$$        clo(1) = nmo
+c$$$        clo(2) = nmo
+c$$$        clo(3) = 1
+c$$$        chi(1) = nmo
+c$$$        chi(2) = -1
+c$$$        chi(3) = -1
+c$$$        if (.not.nga_create(MT_DBL,2,clo,'temp',chi,g_temp)) call 
+c$$$     &     errquit('aorgiao: nga_create failed g_temp',0,GA_ERR)
+c$$$        do ifld = 1,3
+c$$$          chi(1) = nmo
+c$$$          chi(2) = nmo
+c$$$          chi(3) = ifld
+c$$$          clo(1) = 1  
+c$$$          clo(2) = 1
+c$$$          clo(3) = ifld
+c$$$          call nga_copy_patch('t',g_sket1,clo,chi,g_temp,clo,chi)
+c$$$          call nga_add_patch(1d0,g_sket1,clo,chi,-1d0,g_temp,clo,chi,
+c$$$     &       g_temp,clo,chi)
+c$$$          if( ga_nodeid().eq.0) then            
+c$$$            write (6,*) 
+c$$$     &       '(S-ket - transpose(S-ket)) - S10 in MO bas ifld=',ifld
+c$$$c            call nga_print_patch(g_temp, clo, chi,1)
+c$$$c            call nga_print_patch(g_smat1, clo, chi,1)
+c$$$            call nga_add_patch(1d0,g_smat1,clo,chi,-1d0,g_temp,clo,chi,
+c$$$     &         g_temp,clo,chi)
+c$$$            call nga_print_patch(g_temp, clo, chi,1)
+c$$$          endif
+c$$$        enddo
+c$$$        if (.not.ga_destroy(g_temp)) call 
+c$$$     &     errquit('aorgiao: ga_destroy failed g_temp',0,GA_ERR)
+c$$$      endif
 
 c     ga_rhs(a,i) = ga_rhs(a,i) - e(i) * S10(a,i)
 c     Scale (occ,virt) block of g_smat1 with - (minus) MO energies 
@@ -174,19 +186,19 @@ c     THE PREFACTORS NEED TO BE DEBUGGED YET
 
       ! only needed for dynamic response
 
-      if (.not.lstatic) then
-        call nga_add_patch(1d0*omega,g_sket1,
-     &     alo,ahi,1d0,g_rhs(1),blo,bhi,
-     &     g_rhs(1),blo,bhi)
-        if (ncomp.eq.2) then
-          call nga_add_patch(-1d0*omega,g_sket1,
-     &       alo,ahi,1d0,g_rhs(2),blo,bhi,
-     &       g_rhs(2),blo,bhi)             
-        endif
-
-        if (debug) write (luout,*) 'added Sket1 term to rhs'
-
-      end if ! lstatic
+c$$$      if (.not.lstatic) then
+c$$$        call nga_add_patch(1d0*omega,g_sket1,
+c$$$     &     alo,ahi,1d0,g_rhs(1),blo,bhi,
+c$$$     &     g_rhs(1),blo,bhi)
+c$$$        if (ncomp.eq.2) then
+c$$$          call nga_add_patch(-1d0*omega,g_sket1,
+c$$$     &       alo,ahi,1d0,g_rhs(2),blo,bhi,
+c$$$     &       g_rhs(2),blo,bhi)             
+c$$$        endif
+c$$$
+c$$$        if (debug) write (luout,*) 'added Sket1 term to rhs'
+c$$$
+c$$$      end if ! lstatic
 
 c     Construct occ-occ part of the three A matrices
 c     Occ-occ blocks for each field direction are defined as -1/2 S10
@@ -198,13 +210,15 @@ c
       ahi(1) = nocc
       call nga_scale_patch(g_smat1,alo,ahi,-0.5d0)
       call nga_copy_patch('n',g_smat1,alo,ahi,g_u,alo,ahi)
-c     note: the calling routine may need the same information in g_amat's
-c     occ-occ block
+
+c     note: the calling routine needs the same information in g_amat
+c     occ-occ blocks
+
       do ipm = 1,ncomp
         call nga_copy_patch('n',g_smat1,alo,ahi,g_amat(ipm),alo,ahi)
       enddo
 
-      if (debug) write(luout,*) 'initial setup of g_u complete'
+      if (debug) write(luout,*) 'initial setup of g_u, g_amat  complete'
 
 c     We also need the occupied-occupied contribution of
 c     g_u contributing
@@ -216,6 +230,7 @@ c     Note: For consistency, in this case the density matrix build
 c     in the CPHF must also not include the occ-occ block
 c
       call ga_zero(g_smat1)
+
       clo(1) = 3
       clo(2) = nbf
       clo(3) = nbf
@@ -226,6 +241,7 @@ c
      &    errquit('aorgiao: nga_create failed g_fock',0,GA_ERR)
       if (.not.nga_create(MT_DBL,3,clo,'D10 matrix',chi,g_d1)) call 
      &    errquit('aorgiao: nga_create failed g_d1',0,GA_ERR)
+
       call ga_zero(g_fock)
       call ga_zero(g_d1)
 
@@ -290,26 +306,50 @@ c        endif
 c     
 c     Build first-order fock matrix in AO basis due to occ-occ terms
 c     
+
+
+
+c from old (2006) hnd_giaox:
+
+c$$$      if (use_theory.eq.'dft') then
+c$$$        if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
+c$$$     $     call errquit('aorgiao: rtdb_put of xc_active failed',0,
+c$$$     &     RTDB_ERR)
+c$$$        if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
+c$$$     $     call errquit('aorgiao: rtdb_put of calc_type failed',0,
+c$$$     &     RTDB_ERR)
+c$$$        if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
+c$$$     $     call errquit('aorgiao: rtdb_put of j_derfit failed',0,
+c$$$     &     RTDB_ERR)
+c$$$      endif
+c$$$      call shell_fock_build(geom, basis, 0, 3,
+c$$$     $   jfac, kfac,tol2e, g_d1, g_fock,.false.)
+c$$$      if(use_theory.eq.'dft') then
+c$$$        ifld = 0
+c$$$        if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
+c$$$     $     call errquit('aorgiao: rtdb_put failed',0,RTDB_ERR)
+c$$$        if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
+c$$$     $     call errquit('aorgiao: rtdb_put of xc_active failed',0,
+c$$$     &     RTDB_ERR)
+c$$$      endif
+
+c from new (2011) hnd_giaox:
       if (use_theory.eq.'dft') then
-        if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
-     $     call errquit('aorgiao: rtdb_put of xc_active failed',0,
-     &     RTDB_ERR)
-        if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
-     $     call errquit('aorgiao: rtdb_put of calc_type failed',0,
-     &     RTDB_ERR)
-        if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
-     $     call errquit('aorgiao: rtdb_put of j_derfit failed',0,
-     &     RTDB_ERR)
+         if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
+     $     call errquit('aor_giao: rtdb_put of xc_active failed',0,
+     &       RTDB_ERR)
+         if(.not. rtdb_put(rtdb,'fock_xc:calc_type', MT_INT, 1, 2))
+     $     call errquit('aor_giao: rtdb_put of calc_type failed',0,
+     &       RTDB_ERR)
+         if(.not. rtdb_put(rtdb,'fock_j:derfit', MT_LOG, 1, .false.))
+     $     call errquit('aor_giao: rtdb_put of j_derfit failed',0,
+     &       RTDB_ERR)
       endif
       call shell_fock_build(geom, basis, 0, 3,
-     $   jfac, kfac,tol2e, g_d1, g_fock,.false.)
+     $     jfac, kfac,tol2e, g_d1, g_fock,.false.)
       if(use_theory.eq.'dft') then
-        ifld = 0
-        if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
-     $     call errquit('aorgiao: rtdb_put failed',0,RTDB_ERR)
-        if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
-     $     call errquit('aorgiao: rtdb_put of xc_active failed',0,
-     &     RTDB_ERR)
+         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, 0))
+     $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
       endif
 
       if (debug) write(6,*) 'call to shell_fock_build complete'
@@ -359,14 +399,17 @@ c
         bhi(1) = nocc*nvir
         blo(2) = ifld
         bhi(2) = ifld
+
         do ipm = 1,ncomp
         call nga_add_patch(1.0d0,g_rhs(ipm),blo,bhi,
      &       1.0d0,g_fock,clo,chi,
      &     g_rhs,blo,bhi)
         enddo
-      if (debug) write(6,*) 'added F(1) occocc to rhs'
-      if (debug) call nga_print_patch(g_fock,clo,chi,1)
-      enddo
+
+        if (debug) write(6,*) 'added F(1) occocc to rhs'
+        if (debug) call nga_print_patch(g_fock,clo,chi,1)
+
+      enddo                     ! ifld
 c     
 c     Cleanup of g_d1 and g_fock, not needed for now
 c     
@@ -378,37 +421,69 @@ c
 c     The Remaining term is the Perturbed (GIAO) two-electron term
 c     times Unperturbed density matrix
 c     Calculate Sum(r,s) D0(r,s) * G10(m,n,r,s) in AO basis
-c     
-      alo(1) = nbf
+
+
+c old code from 2006 giaox: 
+     
+c$$$      alo(1) = nbf
+c$$$      alo(2) = -1
+c$$$      alo(3) = -1
+c$$$      ahi(1) = nbf
+c$$$      ahi(2) = nbf
+c$$$      ahi(3) = 3
+c$$$      blo(1) = 1
+c$$$      bhi(1) = nocc*nvir
+c$$$      blo(2) = 1
+c$$$      bhi(2) = 3
+c$$$
+c$$$
+c$$$
+c$$$      if (.not.nga_create(MT_DBL,3,ahi,'Fock matrix',alo,g_fock)) call 
+c$$$     &   errquit('aorgiao: nga_create failed g_fock',0,GA_ERR)
+c$$$      call ga_zero(g_fock)
+c$$$      if(use_theory.eq.'dft') then
+c$$$        if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
+c$$$     $     call errquit('aorgiao: rtdb_put of xc_active failed',0,
+c$$$     &     RTDB_ERR)
+c$$$        ifld = 4
+c$$$        if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
+c$$$     $     call errquit('aorgiao: rtdb_put failed',0,RTDB_ERR)
+c$$$      endif
+c$$$      call new_giao_2e(geom, basis, nbf, tol2e, g_dens, g_fock, xfac)
+c$$$      if(use_theory.eq.'dft') then
+c$$$        ifld = 0
+c$$$        if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
+c$$$     $     call errquit('aorgiao: rtdb_put failed',0,RTDB_ERR)
+c$$$        if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
+c$$$     $     call errquit('aorgiao: rtdb_put of xc_active failed',0,
+c$$$     &     RTDB_ERR)
+c$$$      endif
+
+
+c new code from 2011 giaox:
+
+      alo(1) = -1 
       alo(2) = -1
-      alo(3) = -1
+      alo(3) = 1
       ahi(1) = nbf
       ahi(2) = nbf
       ahi(3) = 3
-      blo(1) = 1
-      bhi(1) = nocc*nvir
-      blo(2) = 1
-      bhi(2) = 3
-
       if (.not.nga_create(MT_DBL,3,ahi,'Fock matrix',alo,g_fock)) call 
-     &   errquit('aorgiao: nga_create failed g_fock',0,GA_ERR)
+     &    errquit('aor_giao: nga_create failed g_fock',0,GA_ERR)
       call ga_zero(g_fock)
       if(use_theory.eq.'dft') then
-        if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
-     $     call errquit('aorgiao: rtdb_put of xc_active failed',0,
-     &     RTDB_ERR)
-        ifld = 4
-        if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
-     $     call errquit('aorgiao: rtdb_put failed',0,RTDB_ERR)
+         ifld = 4
+         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
+     $      call errquit('aor_giao: rtdb_put failed',0,RTDB_ERR)
       endif
       call new_giao_2e(geom, basis, nbf, tol2e, g_dens, g_fock, xfac)
       if(use_theory.eq.'dft') then
-        ifld = 0
-        if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
-     $     call errquit('aorgiao: rtdb_put failed',0,RTDB_ERR)
-        if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
-     $     call errquit('aorgiao: rtdb_put of xc_active failed',0,
-     &     RTDB_ERR)
+         ifld = 0
+         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
+     $      call errquit('aor_giao: rtdb_put failed',0,RTDB_ERR)
+         if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
+     $       call errquit('aor_giao: rtdb_put of xc_active failed',0,
+     &       RTDB_ERR)
       endif
 
       if (debug) write(6,*) 'Fmat derivatives calculated'
@@ -424,6 +499,12 @@ c
       ahi(2) = nocc
       alo(3) = 1
       ahi(3) = 3
+
+      blo(1) = 1
+      bhi(1) = nocc * nvir
+      blo(2) = 1
+      bhi(2) = 3
+
       do ipm = 1,ncomp
       call nga_add_patch(1.0d0,g_rhs(ipm),blo,bhi,1.0d0,g_fock,alo,ahi,
      &   g_rhs(ipm),blo,bhi)

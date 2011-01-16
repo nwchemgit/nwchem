@@ -6,7 +6,7 @@
      &   lgiao, lvelocity, lmagpert, lifetime, gamwidth,
      &   alfare, alfaim, betare, betaim)
 
-c $Id:  $
+c $Id: aoresponse_beta.F $
       
 c     =================================================================
       
@@ -15,13 +15,18 @@ c     purpose: perform response calculation of order "response_order"
 c     ALTERNATE VERSION of aoresponse.F: CALCULATE BETA DIRECTLY using 
 c     frequency dependent version of Amos equation as published
 c     by J. Autschbach, Comp. Lett. 3 (2007), 131
+c     This allows to compute the static limit directly instead of
+c     using -G'/omega for small omega which is numerically unstable.
+c     Moreover, we can use a static magnetic field which makes it
+c     a little bit easier to implement GIAO optical rotation. 
 
 c     called from: aoresponse_driver
 
 c     output: alfare, alfaim - electric-electric response matrices
 c             betare, betaim - electric-magnetic response matrices
 
-c     NOTE: the GIAO functionality is not yet implemented
+c     NOTE: the GIAO functionality is not yet functioning for 
+c           HF and hybrid DFT, only for pure DFT (Jan 15, 2011)
 
 c     NOTE: With A-matrix it is meant the matrix that is used to
 c           parameterize the response of the MO coefficients, i.e.
@@ -107,8 +112,8 @@ c     other local variables:
       logical debug, dbgmat, 
      &   lzora, lantisym, lstatic
       double precision omega, sum
-      double precision tenm8
-      parameter (tenm8=1d-8)
+      double precision tenm8, one, two, zero
+      parameter (tenm8=1d-8, one=1d0, two=2d0, zero=0d0)
 
 c     nwchem file access character strings:
 
@@ -125,7 +130,7 @@ c     external functions:
 
 c  ====================================================================
 
-      debug = .true. .and. ga_nodeid().eq.0 ! .true. during development
+      debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
       dbgmat = .false. .and. ga_nodeid().eq.0 ! debug large matrices
 
       if (debug) write (luout,*) 'hello from aoresponse_beta'
@@ -170,18 +175,7 @@ c     check if we should calculate OR beta directly or G'
      & 'Optical Rotation: will calculate Beta directly, not G'''
 
       if (debug) write (luout,*) 'giao, velocity, magpert',
-     &    lgiao, lvelocity, lmagpert
-      
-c     -------------------------
-c     define Levi-Civita tensor (not needed right now)
-c     -------------------------
-c      LCtensor = 0      
-c      LCtensor(1,2,3) = 1
-c      LCtensor(2,3,1) = 1
-c      LCtensor(3,1,2) = 1      
-c      LCtensor(2,1,3) = -1
-c      LCtensor(1,3,2) = -1
-c      LCtensor(3,2,1) = -1        
+     &    lgiao, lvelocity, lmagpert   
 
 
 c     -----------------------------------------
@@ -443,12 +437,12 @@ c       Update 01/11: we probably need a call like the one below
 c       for the static magnetic (B) field perturbation if 
 c       lgiao is set
 c       
-c$$$        if (lmagpert .and. lgiao) then
-c$$$          call aoresponse_giao_rhs (rtdb, basis, geom, ncomp, g_rhs,
-c$$$     &       g_vectors(ispin), g_smat1, g_sket1, g_dens(1), g_amat,
-c$$$     &       nocct(ispin), nvirt(ispin), nmot(ispin), nbf,
-c$$$     &       froct(1,ispin), epst(1,ispin), omega, lstatic)
-c$$$        endif
+        if (lmagpert .and. lgiao) then
+          call aoresponse_giao_rhs (rtdb, basis, geom, ncomp, g_rhs,
+     &       g_vectors(ispin), g_smat1, g_sket1, g_dens(1), g_amat,
+     &       nocct(ispin), nvirt(ispin), nmot(ispin), nbf,
+     &       froct(1,ispin), epst(1,ispin), omega, lstatic)
+        endif
 
 c       01/11: the code above is disabled because we assume an electric field
 c       perturbation for amat. However, there might be GIAO terms in
@@ -462,7 +456,7 @@ c       and a single component and zero frequency for the "beta" terms
      &       froct(1,ispin), epst(1,ispin), 0d0, .true.)
         end if! lgiao
         
-c       add amat vir-occ block to CPKF rhs, regular A-matrices first
+c       add amat vir-occ block to CPKS rhs, regular A-matrices first
         alo(1) = nocc + 1
         ahi(1) = nmo
         alo(2) = 1
@@ -995,13 +989,20 @@ c         create g_vecB1:
             
 c         perturbed MOs: MOs * A-matrix
 
-          call ga_zero(g_work)
+          call ga_zero(g_vecB1)
           call nga_matmul_patch('n','n',1d0,0d0,
      &       g_vectors(ispin),alo,ahi,
      &       g_rhs_beta,blo,bhi,
      &       g_vecB1,clo,chi)
 
-          if (debug) write (luout,*) 'g_vecB1 created'
+
+c         it was confirmed for H2O2 RHF/STO-3G
+c         that this MO vector is identical with that
+c         produced by hnd_giaox for NMR shielding
+
+          if (debug) write (luout,*) 'g_vecB1 created, direction ',iresp
+c          if (debug) call ga_print(g_vecB1)
+
 
 c         ------------------------------------------------------
 c         allocate intermediate vector for matrix multiplication
@@ -1309,6 +1310,38 @@ c     ------------------------------------------------
      &     errquit('aoresponse: ga_destroy failed g_amat_beta_im',
      &     0,GA_ERR)
       endif                     ! lifetime
+
+c     it seems that if we use GIAOs everything is off by a factor
+c     of two
+
+      if (lgiao) betare = 0.5d0 * betare
+
+c     If we have static response then there is a factor of two missing
+c     from the result because we don't add C(+) and C(-) for the electric field:
+
+      if (lstatic) then
+        do idir = 1,3
+          do iresp = 1,3
+            alfare(idir, iresp) = alfare(idir, iresp) * two
+            alfaim(idir, iresp) = alfaim(idir, iresp) * two
+            betare(idir, iresp) = betare(idir, iresp) * two
+            betaim(idir, iresp) = betaim(idir, iresp) * two
+          end do
+        end do
+      end if                    ! lstatic
+
+
+c     for comparison, let's print the
+c     transpose of the negative OR tensor
+
+      if (debug) then
+      write (luout,*) 'DEBUG: OR BETA as in some other code'
+      do idir = 1,3
+        write (luout,'(5x,i1,1x,E13.6,1x,E13.6,1x,E13.6)')
+     &    idir, -betare(1:3,idir)
+      end do
+      write (luout,*) 'iso: ', (betare(1,1)+betare(2,2)+betare(3,3))/3d0
+      end if
      
       
       
