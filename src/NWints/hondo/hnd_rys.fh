@@ -1,5 +1,5 @@
 c
- c $Id$
+c  $Id$
 c
       double precision yy, u9, w9, large_z, rts_large, wts_large
       double precision rts_leg, wts_leg
