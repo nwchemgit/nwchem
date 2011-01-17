@@ -22,6 +22,7 @@ c
 c     set up the HONDO hermit and wermit arrays
 c
       call hnd_whermt
+      call hnd_droot_new_set
 c
 c     set up memory requirements: get max L first
 c

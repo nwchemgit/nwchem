@@ -1,7 +1,19 @@
 c
-c $Id$
+ c $Id$
 c
-      double precision yy, u9, w9
-      integer nroots, maxrys
-      parameter(maxrys=15)
+      double precision yy, u9, w9, large_z, rts_large, wts_large
+      double precision rts_leg, wts_leg
+      double precision hnd_acc
+c
+      integer nroots, maxrys, maxleg, maxuniqleg, leg_aux, rys_leg
+c
+      parameter(maxrys=20, maxleg=75, maxuniqleg=12)
+      parameter(hnd_acc=1.0d-14)
+c
       common/hnd_hfk/yy,u9(maxrys),w9(maxrys),nroots
+      common/hnd_rysr/large_z(maxrys),rts_large(maxrys,maxrys),
+     &                wts_large(maxrys,maxrys),
+     &                rts_leg(maxleg,maxuniqleg),
+     &                wts_leg(maxleg,maxuniqleg)
+      common/hnd_rysi/leg_aux(maxuniqleg),rys_leg(maxrys)
+c

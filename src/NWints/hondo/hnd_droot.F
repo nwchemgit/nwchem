@@ -1,12 +1,13 @@
       subroutine hnd_droot
-* $id: hess_quad.f,v 1.5 1998/10/01 20:47:26 windus exp $
+c $Id: hnd_giao_init.F 19696 2010-10-29 16:53:42Z d3y133 $
       implicit none
 #include "hnd_rys.fh"
 c
 c Wrapper routine. 
 c
       goto (1,1,1,2,3) nroots
-      call hnd_droot1
+      call hnd_droot_new
+c     call hnd_droot1
       return
     1 call hnd_rt123
       return
@@ -26,7 +27,7 @@ c
       real*16 x, wsum, dum, root, poly
 #endif
 #include "hnd_rys.fh"
-      integer n, n1, nn, i, j, k, k1, jmax, j1, m
+      integer n, n1, nn, i, j, k, k1, jmax, j1, m, info
       common/hnd_rysff/ff(2*maxrys+1)
       common/hnd_rysrw/r(maxrys,maxrys),ww(maxrys,maxrys)
       dimension c(maxrys+1,maxrys+1),s(maxrys+1,maxrys+1)
@@ -98,31 +99,29 @@ c
 #include "hnd_rys.fh"
 #if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
       double precision ff, pt5, one, two, x
-      double precision tol, e, xx, facmin, term 
+      double precision e, xx, facmin, term 
       double precision a, sum, fac, t, s, tmax
 #else
       real*16 ff, pt5, one, two, x
-      real*16 tol, e, xx, facmin, term 
+      real*16 e, xx, facmin, term 
       real*16 a, sum, fac, t, s, tmax
 #endif
       integer n, m
       common/hnd_rysff/ff(2*maxrys+1)
 #if defined(LINUX)  || defined(CRAY) || defined(WIN32) || defined(MACX)
       data pt5,one,two /0.5d+00,1.0d+00,2.0d+00/
-      tol=1.0d-12
       e=0.5409855304296342219319112d-78
       xx=x+x
       facmin=xx
       if(facmin.lt.2*180.2160d+00) e= exp(-x)
-      if(facmin.gt.   80.0000d+00) go to 100
+      if(facmin.gt.   90.0000d+00) go to 100
 #else
       data pt5,one,two /0.5q+00,1.0q+00,2.0q+00/
-      tol=1.0q-14
       e=0.5409855304296342219319112q-78
       xx=x+x
       facmin=xx
       if(facmin.lt.2*180.2160q+00) e= exp(-x)
-      if(facmin.gt.   80.0000q+00) go to 100
+      if(facmin.gt.   90.0000q+00) go to 100
 #endif
       term=one
       sum =one
@@ -134,7 +133,7 @@ c
       if(fac.le.facmin) go to 10
       t=term
       s=sum
-      if(t.gt.s*tol) go to 10
+      if(t.gt.s*hnd_acc) go to 10
       fac=n+n+1
       ff(n+1)=sum*e/fac
       m=n-1
@@ -152,7 +151,7 @@ c
 #else
   100 a= sqrt(.7853981633974483096156608q+00/x)
 #endif
-      tmax=a*tol/e
+      tmax=a*hnd_acc/e
       term=one/xx
       sum=term
       fac=one
@@ -181,7 +180,7 @@ c
       real*16 c, s, v, y, zero, one
       real*16 fac, dot
 #endif
-      integer n, i, j, k, kmax
+      integer n, i, j, k, kmax,ii,jj
       dimension c(maxrys+1,maxrys+1),s(maxrys+1,maxrys+1)
       dimension v(maxrys+1),y(maxrys+1)
 #if defined(LINUX) || defined(CRAY) || defined(WIN32) || defined(MACX)
@@ -317,5 +316,346 @@ c
       go to 45
    90 rt(m)=r
   100 continue
+      return
+      end
+c
+      subroutine hnd_droot_new_set
+      implicit none
+#include "hnd_rys.fh"
+      double precision tmp_rts(maxleg),tmp_wts(maxleg)
+      double precision a(maxleg),b(maxleg),buff(maxleg)
+      double precision tmp
+      integer i,j,n2,ierr
+c
+c     Z values for which we switch to cheapest algorithm
+c
+c     Empirical switch from large to small based on Ishida
+c
+      data large_z / 37.0d0, 44.0d0, 51.0d0, 58.0d0, 64.0d0, 69.0d0,
+     &               75.0d0, 80.0d0, 86.0d0, 91.0d0, 96.0d0,101.0d0,
+     &              105.0d0,106.0d0,111.0d0,116.0d0,121.0d0,126.0d0,
+     &              131.0d0,136.0d0 /
+c
+c     Unique auxiliary Legendre (Shifted) quadrature grid dimensions to 
+c     approximate roots and weights for Gauss-Rys quadrature
+c
+      data leg_aux / 20,25,30,35,40,45,50,55,60,65,70,75 /
+c
+c     Different Gauss-Rys roots can have the same grid dimension
+c     I.e. make appropriate mapping from 20 to 12 unique grids
+c
+      data rys_leg / 1,2,3,3,4,5,5,5,6,7,7,8,8,9,10,10,11,11,12,12 /
+c
+c     Roots and weights of 2n-point Gauss-Hermite quadrature independent of Z
+c     Always an even function, so only store half of the data
+c
+      do i=1,maxrys
+         n2=2*i
+         do j=1,n2
+            a(j)=0.0d0
+            b(j)=0.5d0*dble(j-1)
+         enddo
+         b(1)=dsqrt(4.0d0*datan(1.0d0))
+         call gauss(n2,a,b,hnd_acc,tmp_rts,tmp_wts,ierr,buff)
+         do j=1,i  
+            rts_large(j,i)=tmp_rts(j)*tmp_rts(j)
+            wts_large(j,i)=tmp_wts(j)
+         enddo
+      enddo
+c
+c     Generate roots and weights for shifted Legendre quadrature
+c 
+c     First set up a and b. As these don't change, do just the largest grid
+c
+      n2=leg_aux(maxleg)
+      do i=1,n2
+         a(j)=0.5d0
+         tmp=dble(i-1)
+         b(j)=0.25d0/(4.0d0-(1.0d0/(tmp*tmp)))
+      enddo
+      b(1)=1.0d0
+c
+c     Generate roots and weights for Legendre quadrature
+c
+      do i=1,maxuniqleg
+         call gauss(leg_aux(i),a,b,hnd_acc,tmp_rts,tmp_wts,ierr,buff)
+         do j=1,leg_aux(i)
+            rts_leg(j,i)=tmp_rts(j)*tmp_rts(j)
+            wts_leg(j,i)=tmp_wts(j)
+         enddo
+      enddo
+c
+      return
+      end
+c
+      subroutine hnd_droot_new
+      implicit none
+#include "hnd_rys.fh"
+      double precision tmp,p0,p1,p2,tmp_rts,tmp_wts,a,b,buff
+      dimension tmp(maxleg),p0(maxleg),p1(maxleg),p2(maxleg)
+      dimension tmp_rts(maxrys),tmp_wts(maxrys),buff(maxrys)
+      dimension a(maxrys),b(maxrys)
+      double precision temp,rfac,wfac
+      integer ierr,i,naux,map,offset
+c
+      if (yy.ge.large_z(nroots)) then
+c 
+c     Large Z values, use roots and weights from 2n-point Gauss-Hermite quadrature
+c
+         rfac=1.0d0/yy
+         wfac=sqrt(rfac)
+         do i=1,nroots
+            temp=rfac*rts_large(i,nroots)
+            u9(i)=temp/(1.0d0-temp)
+            w9(i)=wfac*wts_large(i,nroots)
+         enddo
+      else  
+c 
+c     Use Golub-Welsh method
+c
+         offset=rys_leg(nroots)
+         do i=1,leg_aux(i)
+            tmp(i)=wts_leg(i,offset)*exp(-yy*rts_leg(i,offset))
+         enddo
+         call sti(nroots,leg_aux(i),rts_leg(1,nroots),tmp,a,b,ierr,
+     &            p0,p1,p2)
+         call gauss(nroots,a,b,hnd_acc,tmp_rts,tmp_wts,ierr,buff)
+         do i=1,nroots
+            temp=tmp_rts(i)
+            u9(i)=temp/(1.0d0-temp)
+            w9(i)=tmp_wts(i)
+         enddo
+      endif
+c
+      return
+      end
+c
+      subroutine gauss(n,alpha,beta,eps,zero,weigh,ierr,e)
+c
+c Given  n  and a measure  dlambda, this routine generates the n-point
+c Gaussian quadrature formula
+c
+c     integral over supp(dlambda) of f(x)dlambda(x)
+c
+c        = sum from k=1 to k=n of w(k)f(x(k)) + R(n;f).
+c
+c The nodes are returned as  zero(k)=x(k) and the weights as
+c weight(k)=w(k), k=1,2,...,n. The user has to supply the recursion
+c coefficients  alpha(k), beta(k), k=0,1,2,...,n-1, for the measure
+c dlambda. The routine computes the nodes as eigenvalues, and the
+c weights in term of the first component of the respective normalized
+c eigenvectors of the n-th order Jacobi matrix associated with  dlambda.
+c It uses a translation and adaptation of the algol procedure  imtql2,
+c Numer. Math. 12, 1968, 377-383, by Martin and Wilkinson, as modified
+c by Dubrulle, Numer. Math. 15, 1970, 450. See also Handbook for
+c Autom. Comput., vol. 2 - Linear Algebra, pp.241-248, and the eispack
+c routine  imtql2.
+c
+c        Input:  n - - the number of points in the Gaussian quadrature
+c                      formula; type integer
+c                alpha,beta - - arrays of dimension  n  to be filled
+c                      with the values of  alpha(k-1), beta(k-1), k=1,2,
+c                      ...,n
+c                eps - the relative accuracy desired in the nodes
+c                      and weights
+c
+c        Output: zero- array of dimension  n  containing the Gaussian
+c                      nodes (in increasing order)  zero(k)=x(k), k=1,2,
+c                      ...,n
+c                weight - array of dimension  n  containing the
+c                      Gaussian weights  weight(k)=w(k), k=1,2,...,n
+c                ierr- an error flag equal to  0  on normal return,
+c                      equal to  i  if the QR algorithm does not
+c                      converge within 30 iterations on evaluating the
+c                      i-th eigenvalue, equal to  -1  if  n  is not in
+c                      range, and equal to  -2  if one of the beta's is
+c                      negative.
+c
+c The array  e  is needed for working space.
+c
+      implicit none
+      double precision alpha,beta,eps,zero,weigh,e,dp,dg,dr,
+     *ds,dc,df,db
+      dimension alpha(n),beta(n),zero(n),weigh(n),e(n)
+      integer n,ierr,k,l,m,i,j,ii,mml
+c
+      if(n.lt.1) then
+        ierr=-1
+        return
+      end if
+      ierr=0
+      zero(1)=alpha(1)
+      if(beta(1).lt.0.0d0) then
+        ierr=-2
+        return
+      end if
+      weigh(1)=beta(1)
+      if (n.eq.1) return
+      weigh(1)=1.0d0
+      e(n)=0.0d0
+      do 100 k=2,n
+        zero(k)=alpha(k)
+        if(beta(k).lt.0.0d0) then
+          ierr=-2
+          return
+        end if
+        e(k-1)=sqrt(beta(k))
+        weigh(k)=0.0d0
+  100 continue
+      do 240 l=1,n
+        j=0
+  105   do 110 m=l,n
+          if(m.eq.n) goto 120
+          if(abs(e(m)).le.eps*(abs(zero(m))+abs(zero(m+1))))
+     *      goto 120
+  110   continue
+  120   dp=zero(l)
+        if(m.eq.l) goto 240
+        if(j.eq.30) goto 400
+        j=j+1
+        dg=(zero(l+1)-dp)/(2.0d0*e(l))
+        dr=sqrt(dg*dg+1.0d0) 
+        dg=zero(m)-dp+e(l)/(dg+sign(dr,dg))
+        ds=1.0d0
+        dc=1.0d0
+        dp=0.0d0 
+        mml=m-l
+        do 200 ii=1,mml
+          i=m-ii
+          df=ds*e(i)
+          db=dc*e(i)
+          if(abs(df).lt.abs(dg)) goto 150
+          dc=dg/df
+          dr=sqrt(dc*dc+1.0d0)
+          e(i+1)=df*dr
+          ds=1.0d0/dr
+          dc=dc*ds
+          goto 160
+  150     ds=df/dg
+          dr=sqrt(ds*ds+1.0d0)
+          e(i+1)=dg*dr
+          dc=1.0d0/dr
+          ds=ds*dc
+  160     dg=zero(i+1)-dp
+          dr=(zero(i)-dg)*ds+2.0d0*dc*db
+          dp=ds*dr
+          zero(i+1)=dg+dp
+          dg=dc*dr-db
+          df=weigh(i+1)
+          weigh(i+1)=ds*weigh(i)+dc*df
+          weigh(i)=dc*weigh(i)-ds*df
+  200   continue
+        zero(l)=zero(l)-dp
+        e(l)=dg
+        e(m)=0.0d0
+        goto 105
+  240 continue
+      do 300 ii=2,n
+        i=ii-1
+        k=i
+        dp=zero(i)
+        do 260 j=ii,n
+          if(zero(j).ge.dp) goto 260
+          k=j
+          dp=zero(j)
+  260   continue
+        if(k.eq.i) goto 300
+        zero(k)=zero(i)
+        zero(i)=dp
+        dp=weigh(i)
+        weigh(i)=weigh(k)
+        weigh(k)=dp
+  300 continue
+      do 310 k=1,n
+        weigh(k)=beta(1)*weigh(k)*weigh(k)
+  310 continue
+      return
+  400 ierr=l
+      return
+      end
+c
+      subroutine sti(n,ncap,x,w,alpha,beta,ierr,p0,p1,p2)
+c
+c This routine applies ``Stieltjes's procedure'' (cf. Section 2.1 of
+c W. Gautschi,``On generating orthogonal polynomials'', SIAM J. Sci.
+c Statist. Comput. 3, 1982, 289-317) to generate the recursion
+c coefficients  alpha(k), beta(k) , k=0,1,...,n-1, for the discrete
+c (monic) orthogonal polynomials associated with the inner product
+c
+c     (f,g)=sum over k from 1 to ncap of w(k)*f(x(k))*g(x(k)).
+c
+c The integer  n  must be between  1  and  ncap, inclusive; otherwise,
+c there is an error exit with  ierr=1. The results are stored in the
+c arrays  alpha, beta; the arrays  p0, p1, p2  are working arrays.
+c
+c If there is a threat of underflow or overflow in the calculation
+c of the coefficients  alpha(k)  and  beta(k), the routine exits with
+c the error flag  ierr  set equal to  -k  (in the case of underflow)
+c or  +k  (in the case of overflow), where  k  is the recursion index
+c for which the problem occurs. The former [latter] can often be avoided
+c by multiplying all weights  w(k)  by a sufficiently large [small]
+c scaling factor prior to entering the routine, and, upon exit, divide
+c the coefficient  beta(0)  by the same factor.
+c
+c This routine should be used with caution if  n  is relatively close
+c to  ncap, since there is a distinct possibility of numerical
+c instability developing. (See W. Gautschi,``Is the recurrence relation
+c for orthogonal polynomials always stable?'', BIT, 1993, to appear.)
+c In that case, the routine  lancz  should be used.
+c
+c The routine uses the function subroutine  r1mach.
+c
+      implicit none
+      double precision x,w,alpha,beta,p0,p1,p2,dtiny,dhuge,dsum0,dsum1,
+     *                 dsum2,dt
+      dimension x(ncap),w(ncap),alpha(n),beta(n),p0(ncap),p1(ncap),
+     *          p2(ncap)
+      integer ierr,n,ncap,nm1,m,k
+c
+      dtiny=1.0d-40
+      dhuge=1.0d40
+      ierr=0
+      if(n.le.0 .or. n.gt.ncap) then
+        ierr=1
+        return
+      end if
+      nm1=n-1
+      dsum0=0.0d0
+      dsum1=0.0d0
+      do 10 m=1,ncap
+        dsum0=dsum0+w(m)
+        dsum1=dsum1+w(m)*x(m)
+   10 continue
+      alpha(1)=dsum1/dsum0
+      beta(1)=dsum0
+      if(n.eq.1) return
+      do 20 m=1,ncap
+        p1(m)=0.0d0
+        p2(m)=1.0d0
+   20 continue
+      do 40 k=1,nm1
+        dsum1=0.0d0
+        dsum2=0.0d0
+        do 30 m=1,ncap
+          if(w(m).eq.0.0d0) goto 30
+          p0(m)=p1(m)
+          p1(m)=p2(m)
+          p2(m)=(x(m)-alpha(k))*p1(m)-beta(k)*p0(m)
+          if(abs(p2(m)).gt.dhuge .or. abs(dsum2).gt.dhuge) then
+            ierr=k
+            return
+          end if
+          dt=w(m)*p2(m)*p2(m)
+          dsum1=dsum1+dt
+          dsum2=dsum2+dt*x(m)
+   30   continue
+        if(abs(dsum1).lt.dtiny) then
+          ierr=-k
+          return
+        end if
+        alpha(k+1)=dsum2/dsum1
+        beta(k+1)=dsum1/dsum0
+        dsum0=dsum1
+   40 continue
       return
       end
