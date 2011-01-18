@@ -124,11 +124,14 @@ c
 c Maximum memory needed for <ij|kl> block is max2e * 2
 c Use intblk variable to define multiple blocks
 c
-      intblk=ma_inquire_avail(MT_DBL)/(2*max2e)
+      intblk=(ma_inquire_avail(MT_DBL)-2*ma_sizeof_overhead(MT_DBL))/
+     &       (2*max2e)
       intblk=max(1,intblk)
       nrints=max2e*intblk
       stat=stat.and.ma_push_get(MT_DBL,nrints,'eri1',l_eri1,k_eri1)
       stat=stat.and.ma_push_get(MT_DBL,nrints,'eri2',l_eri2,k_eri2)
+      if (.not.stat)
+     &   call errquit('ccsd_pampt3: ma_push_get ccsd_sxy ',0, MA_ERR)
       call ccsd_sxy(basis,nsh,ncor,nocc,nvir,nact,nbf,g_st2,g_sht2,
      &              g_c,g_x,int_mb(k_offsh),dbl_mb(k_snsi),
      &              dbl_mb(k_sisn),lssni,dbl_mb(k_scre),
