@@ -54,7 +54,7 @@ c
 c ... jochen:
       integer aoresponse, nfreq, l_fr, k_fr, 
      &        velocity, magneticpert, aor_giao, aor_damp, aor_conv,
-     &        aor_orbeta
+     &        aor_orbeta, aor_quad
       double precision gamwidth, convergence
 
 c     
@@ -110,6 +110,7 @@ c ... jochen:
       aor_damp          = 1
       aor_conv          = 1
       aor_orbeta        = 1
+      aor_quad          = 1
       nfreq             = 0
 
 c     
@@ -221,6 +222,8 @@ c  ... jochen: parse input for response/aoresponse key
          aor_giao = 0
       elseif ( inp_compare(.false., 'orbeta', test)) then
          aor_orbeta = 0
+      elseif ( inp_compare(.false., 'buckingham', test)) then
+         aor_quad = 0
       elseif ( inp_compare(.false., 'gshift', test)) then ! FA-08-18-10
          aor_giao = 0
       elseif ( inp_compare(.false., 'damping', test)) then
@@ -502,20 +505,23 @@ c             "nocheck" option which is used later in hnd_property.F
      $      RTDB_ERR)
       endif
       if (.not. rtdb_put(rtdb, 'aoresponse:velocity', mt_int, 1,
-     $                               velocity        ))
-     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+     $   velocity))
+     $   call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'aoresponse:magneticpert', mt_int, 1,
-     $                               magneticpert        ))
-     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+     $   magneticpert))
+     $   call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'aoresponse:giao', mt_int, 1,
-     $                               aor_giao        ))
-     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+     $   aor_giao ))
+     $   call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'aoresponse:orbeta', mt_int, 1,
-     $                               aor_orbeta        ))
-     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+     $   aor_orbeta))
+     $   call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'aoresponse:quad', mt_int, 1,
+     $   aor_quad))
+     $   call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'aoresponse:damping', mt_int, 1,
-     $                               aor_damp        ))
-     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+     $   aor_damp))
+     $   call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
 c ... jochen: write cphf iteration threshold if set by input
       if (aor_conv.eq.0) then
       if (.not. rtdb_put(rtdb, 'cphf:thresh',    mt_dbl, 1,

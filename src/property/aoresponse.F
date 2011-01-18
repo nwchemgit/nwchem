@@ -104,9 +104,9 @@ c     other local variables:
       logical debug, dbgmat, 
      &   lzora, lantisym, lstatic, haveocc, limag, lzero
       logical oprint
-      double precision omega, sum
-      double precision tenm8
-      parameter (tenm8=1d-8)
+      double precision omega, sum, scaling
+      double precision tenm8, half
+      parameter (tenm8=1d-8, half=0.5d0)
 
 c     nwchem file access character strings:
 
@@ -1264,6 +1264,20 @@ c     ------------------------------------------------
         endif                   ! lifetime
 
       endif                     ! lzero
+
+c     it seems that if we use GIAOs everything is off by a factor of
+c     two, so we need to scale alfare, alfaim. 
+
+      if (lgiao .and. lmagpert) then
+        scaling = half
+        do idir = 1,3
+          do iresp = 1,3
+            alfare(idir, iresp) = alfare(idir, iresp) * scaling
+            alfaim(idir, iresp) = alfaim(idir, iresp) * scaling
+          end do
+        end do
+      end if                    ! lstatic
+
       
 c     ==================================================================
       

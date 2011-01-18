@@ -96,7 +96,8 @@ c
       double precision alfare(3,3), alfaim(3,3)
 
 c     GA handles for one-electron integrals and temp arrays
-      integer g_dipel, g_smat0, g_temp, g_dipmag, g_smat1, g_sket1
+      integer g_dipel, g_smat0, g_temp, g_dipmag, g_smat1,
+     &   g_sket1, g_quadel
 
       integer idir, ipert ! field directions
       integer nbfx ! later set to nbf*(nbf+1)/2
@@ -109,7 +110,7 @@ c     GA handles for one-electron integrals and temp arrays
       external ga_trace_diag
 
       logical debug, lgiao, lvelocity, lmagpert, lstatic, lifetime,
-     $        lbeta
+     $        lbeta, lquad
       logical oprint
 
 #ifdef JEFF_OUTPUT
@@ -155,26 +156,39 @@ c     -------------------------------------------
       lvelocity = .false.
       lifetime = .false.
       lbeta = .false.
+      lquad = .false.
       gamwidth = 0d0
 
       ntmp = 1
       if (.not.rtdb_get(rtdb, 'aoresponse:velocity', mt_int, 1,ntmp)) 
      &    call errquit('aor_driver: velocity failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lvelocity = .true.
+
       ntmp = 1
       if (.not.rtdb_get(rtdb,'aoresponse:magneticpert', mt_int, 1,ntmp))
      &    call errquit('aor_driver: magneticpert failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lmagpert = .true.
+
       ntmp = 1
       if (.not.rtdb_get(rtdb, 'aoresponse:giao', mt_int, 1,ntmp)) 
      &    call errquit('aor_driver: giao failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lgiao = .true.
+
+      ntmp = 1
       if (.not.rtdb_get(rtdb, 'aoresponse:orbeta', mt_int, 1,ntmp)) 
      &    call errquit('aor_driver: lbeta failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lbeta = .true.
+
+      ntmp = 1
+      if (.not.rtdb_get(rtdb, 'aoresponse:quad', mt_int, 1,ntmp)) 
+     &    call errquit('aor_driver: lquad failed ',0, RTDB_ERR)
+      if (ntmp.eq.0) lquad = .true.
+
+      ntmp = 1
       if (.not.rtdb_get(rtdb, 'aoresponse:damping', mt_int, 1,ntmp)) 
      &    call errquit('aor_driver: damping failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lifetime = .true.
+
       if (lifetime) then
         if (.not.rtdb_get(rtdb, 'aoresponse:gamwidth',
      &     mt_dbl, 1,gamwidth)) 
@@ -184,7 +198,8 @@ c     -------------------------------------------
 c     note: if lgiao.eq.true. we assume that the user is
 c     interested to get origin independent optical rotation which
 c     we have to calculate from the magnetically perturbed density
-c     matrix with the code as set up. (NOT TESTED. DON't USE).
+c     matrix with the code as set up. 
+c     (NOT TESTED. DON't USE. Use LBETA functionality instead).
 
 c     if lvelocity.eq.true. we assume that NO giaos are to be used.
 c     in that case the perturbing operator is imaginary no matter if
@@ -213,7 +228,7 @@ c     also check if lvelocity and lbeta are both true:
 c     for the time being, if we have GIAOs set, the code
 c     must go through the "beta" static B-field routine
 
-      if (lgiao) then
+      if (lgiao) then 
         lbeta = .true.
         lmagpert = .false.
         if (oprint) then
@@ -328,6 +343,9 @@ c     force nfreq = 1 if response order equals 1 (no freq. input)
           write (luout,'(1x,a)') 'Using GIAO formalism'
           write (luout,'(1x,a)')
      &       '*** WARNING, GIAO FUNCTIONALITY NOT WELL TESTED ***'
+        end if
+        if (lquad) then
+          write (luout,'(1x,a)') 'Adding quadrupole terms to OptRot'
         end if
         if (lvelocity) then
           write (luout,'(1x,a)') 'Using Dipole Velocity Gauge'
@@ -459,10 +477,24 @@ c
         call int_giao_1ega(basis,basis,g_dipmag,'l10',dummy,
      &     sh_atom,oskel)
         call int_giao_1ega(basis,basis,g_dipmag,'tv10',dummy,
-     &     sh_atom,oskel)
+     &     sh_atom,oskel)        
+      endif                     ! lgiao     
 
-        
-      endif                     ! lgiao      
+c     electron quadrupole moment integrals
+      if (lquad) then
+        alo(1) = nbf
+        alo(2) = -1
+        alo(3) = -1
+        ahi(1) = nbf
+        ahi(2) = nbf
+        ahi(3) = 6 
+        if (.not.nga_create(MT_DBL,3,ahi,'e-quad',alo,g_quadel)) call 
+     &     errquit('aor_driver: nga_create failed g_quadel',0,GA_ERR)
+        call ga_zero(g_quadel)
+        call int_mpole_1ega(basis,basis,g_quadel,'quadrupole',origin,
+     &     oskel)
+      end if
+
 
 c     --------------
 c     some debugging
@@ -629,9 +661,9 @@ c     using frequency-dependent generalization of Amos' formula
          call aoresponse_beta (rtdb, basis, geom, nfreq, response_order,
      &        dbl_mb(k_fr),
      &        g_smat0, g_smat1, g_sket1,
-     &        g_dipel, g_dipmag, g_vectors, dbl_mb(k_eval),
+     &        g_dipel, g_quadel, g_dipmag, g_vectors, dbl_mb(k_eval),
      &        dbl_mb(k_occ), g_dens, nbf, nbfx, nmo, nclosed, nvirt,
-     &        dbl_mb(k_deps), lgiao, lvelocity, lmagpert,
+     &        dbl_mb(k_deps), lgiao, lquad, lvelocity, lmagpert,
      &        lifetime, gamwidth, alfare, alfaim, betare, betaim)
          if (debug) write (luout,*) 'exiting aoresponse_beta'
 
@@ -781,6 +813,11 @@ c     deallocate global arrays
         if (.not.ga_destroy(g_sket1)) call 
      &     errquit('aor_driver: ga_destroy failed g_sket1',0,GA_ERR)
       endif
+
+      if (lquad) then
+        if (.not.ga_destroy(g_quadel)) call 
+     &     errquit('aor_driver: ga_destroy failed g_quadel',0,GA_ERR)
+      end if
 
       call ga_sync()
 

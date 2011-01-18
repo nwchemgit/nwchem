@@ -73,13 +73,16 @@ c     ==================================================================
       dbgmat = .false. .and. ga_nodeid().eq.0 ! debug large matrices
 
 c     THERE WAS A BUG HERE BECAUSE ONLY IF DEBUG WAS SET TO TRUE DID I
-C     GET THE CORRECT RESULTS FOR ORBETA. the code got stuck where the
-C     fock matrix is printed if I ran on more than one processor;
-C     another sign of a problem.
-C     The problem seems to have been with the Fock matrix from
-C     the occ-occ block, not the other pieces.
+c     GET THE CORRECT RESULTS FOR ORBETA. the code got stuck where the
+c     fock matrix is printed if I ran on more than one processor;
+c     another sign of a problem.
+c     The problem seems to have been with the Fock matrix from
+c     the occ-occ block, not the other pieces. This Fock matrix ended
+c     up being zero
 
-c     For the time being (01/2011) compile with FOPTIMIZE=-O1
+c     For the time being (01/2011) compile with FOPTIMIZE=-O1 or -O0
+c     GNUmakefile has bee changed so that by default this routine
+c     is not optimized
 
 c      if (debug) write (luout,*) 'hello from aoresponse_giao_rhs'
       
@@ -190,19 +193,23 @@ c     THE PREFACTORS NEED TO BE DEBUGGED YET
 
       ! only needed for dynamic response
 
-c$$$      if (.not.lstatic) then
-c$$$        call nga_add_patch(1d0*omega,g_sket1,
-c$$$     &     alo,ahi,1d0,g_rhs(1),blo,bhi,
-c$$$     &     g_rhs(1),blo,bhi)
-c$$$        if (ncomp.eq.2) then
-c$$$          call nga_add_patch(-1d0*omega,g_sket1,
-c$$$     &       alo,ahi,1d0,g_rhs(2),blo,bhi,
-c$$$     &       g_rhs(2),blo,bhi)             
-c$$$        endif
-c$$$
-c$$$        if (debug) write (luout,*) 'added Sket1 term to rhs'
-c$$$
-c$$$      end if ! lstatic
+      if (.not.lstatic) then
+        if (ncomp.ne.2) then
+          call errquit('aor_giao_rhs: adding S1ket but ncomp.ne.2',
+     &       0, INPUT_ERR)
+        end if
+        call nga_add_patch(-1.0d0*omega,g_sket1,
+     &     alo,ahi,1d0,g_rhs(1),blo,bhi,
+     &     g_rhs(1),blo,bhi)
+        if (ncomp.eq.2) then
+          call nga_add_patch(1.0d0*omega,g_sket1,
+     &       alo,ahi,1d0,g_rhs(2),blo,bhi,
+     &       g_rhs(2),blo,bhi)             
+        endif
+
+        if (debug) write (luout,*) 'added Sket1 term to rhs'
+
+      end if ! lstatic
 
 c     Construct occ-occ part of the three A matrices
 c     Occ-occ blocks for each field direction are defined as -1/2 S10

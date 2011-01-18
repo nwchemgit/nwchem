@@ -1,10 +1,9 @@
 
       subroutine aoresponse_beta (rtdb, basis, geom, nfreq,
-     &   response_order, frequencies,
-     &   g_smat0, g_smat1, g_sket1, g_dipel, g_dipmag, g_vectors, epst,
-     &   froct, g_dens, nbf, nbfx, nmo, nocct, nvirt, deps,
-     &   lgiao, lvelocity, lmagpert, lifetime, gamwidth,
-     &   alfare, alfaim, betare, betaim)
+     &   response_order, frequencies, g_smat0, g_smat1, g_sket1, g_dipel
+     &   , g_quadel, g_dipmag, g_vectors, epst, froct, g_dens, nbf, nbfx
+     &   , nmo, nocct, nvirt, deps, lgiao, lquad, lvelocity, lmagpert,
+     &   lifetime, gamwidth, alfare, alfaim, betare, betaim)
 
 c $Id: aoresponse_beta.F $
       
@@ -60,7 +59,7 @@ c     ---------------------
       integer geom    ! [input] geometry handle
 
       integer g_smat0, g_dens(3), g_vectors(2), g_dipel, g_epsdif,
-     &   g_dipmag, g_smat1, g_sket1
+     &   g_dipmag, g_smat1, g_sket1, g_quadel
       integer nfreq, response_order, nbf, nbfx, nmo
       integer nocct(2), nvirt(2)
       double precision froct(nbf,2), epst(nbf,2)
@@ -69,7 +68,7 @@ c     ---------------------
       double precision alfare(3,3), alfaim(3,3)
       double precision betare(3,3), betaim(3,3)
       double precision gamwidth
-      logical lgiao, lvelocity, lmagpert, lifetime
+      logical lgiao, lquad, lvelocity, lmagpert, lifetime
 
 
 c     ----------------
@@ -111,9 +110,9 @@ c     other local variables:
       integer ipm, nocc, nvir, nocv, imo, jmo, nmo1, iresp, idir
       logical debug, dbgmat, 
      &   lzora, lantisym, lstatic
-      double precision omega, sum
-      double precision tenm8, one, two, zero
-      parameter (tenm8=1d-8, one=1d0, two=2d0, zero=0d0)
+      double precision omega, sum, scaling
+      double precision tenm8, one, two, zero, half
+      parameter (tenm8=1d-8, one=1d0, two=2d0, zero=0d0, half=one/two)
 
 c     nwchem file access character strings:
 
@@ -144,6 +143,17 @@ c     same for lmagpert
 
       if (lmagpert) 
      &   call errquit ('aor_beta: lmagpert set',1,INPUT_ERR)
+
+c     -------------------------
+c     define Levi-Civita tensor for quadrupole additions
+c     -------------------------
+      LCtensor(:,:,:) = 0      
+      LCtensor(1,2,3) = 1
+      LCtensor(2,3,1) = 1
+      LCtensor(3,1,2) = 1      
+      LCtensor(2,1,3) = -1
+      LCtensor(1,3,2) = -1
+      LCtensor(3,2,1) = -1        
 
 c     -------------------
 c     determine frequency
@@ -1311,21 +1321,29 @@ c     ------------------------------------------------
      &     0,GA_ERR)
       endif                     ! lifetime
 
-c     it seems that if we use GIAOs everything is off by a factor
-c     of two
+c     it seems that if we use GIAOs everything is off by a factor of
+c     two, so we need to scale betare, betaim. If we have static
+c     response then there is a factor of two missing everywhere
+c     because we don't add C(+) and C(-) for the electric field.
 
-      if (lgiao) betare = 0.5d0 * betare
-
-c     If we have static response then there is a factor of two missing
-c     from the result because we don't add C(+) and C(-) for the electric field:
-
-      if (lstatic) then
+      if (lgiao) then
+        scaling = half
         do idir = 1,3
           do iresp = 1,3
-            alfare(idir, iresp) = alfare(idir, iresp) * two
-            alfaim(idir, iresp) = alfaim(idir, iresp) * two
-            betare(idir, iresp) = betare(idir, iresp) * two
-            betaim(idir, iresp) = betaim(idir, iresp) * two
+            betare(idir, iresp) = betare(idir, iresp) * scaling
+            betaim(idir, iresp) = betaim(idir, iresp) * scaling
+          end do
+        end do
+      end if                    ! lstatic
+
+      if (lstatic) then
+        scaling = two
+        do idir = 1,3
+          do iresp = 1,3
+            alfare(idir, iresp) = alfare(idir, iresp) * scaling
+            alfaim(idir, iresp) = alfaim(idir, iresp) * scaling
+            betare(idir, iresp) = betare(idir, iresp) * scaling
+            betaim(idir, iresp) = betaim(idir, iresp) * scaling
           end do
         end do
       end if                    ! lstatic
