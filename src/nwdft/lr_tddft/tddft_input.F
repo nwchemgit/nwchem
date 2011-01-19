@@ -25,7 +25,8 @@ c        [VECTOR <character vector default jobname'.tddft']
 c        [PRINT (none||low||medium||high||debug)
 c          <string list_of_names ...>]
 c        [CDSPECTRUM <not default: compute rotatory strengths>]
-c        [VELOCITY]  <not default: compute velocity rep. of trans. dipoles>]
+c        [GIAO <not default: calc. magnetic trans. dipoles with GIAOs>]
+c        [VELOCITY]  <not default: compute velocity gaude dipoles>]
 c     END
 c     
       implicit none
@@ -42,7 +43,7 @@ C     character*80 vector
       integer ihuge
       parameter (ihuge=1000000000)
       logical singlet,triplet
-      logical tda,symmetry, cdspectrum, velocity, gmhcoupling
+      logical tda,symmetry, cdspectrum, velocity, lgiao, gmhcoupling
       double precision thresh
       double precision ecut
       logical lecut
@@ -152,6 +153,10 @@ c
       velocity  = .false.
       if (.not.rtdb_put(rtdb,'tddft:velocity',mt_log,1,velocity))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
+      lgiao = .false.
+      if (.not.rtdb_put(rtdb,'tddft:giao',mt_log,1,lgiao))
+     1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
+
 c
 c     GENERALIZED MULLIKEN-HUSH H_IJ
 c
@@ -359,6 +364,16 @@ c
         if (.not.rtdb_put(rtdb,'tddft:velocity',mt_log,1,velocity))
      1    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
+
+c
+c     GIAO
+c
+      else if (inp_compare(.false.,test,'giao')) then
+        lgiao=.true.
+        if (.not.rtdb_put(rtdb,'tddft:giao',mt_log,1,lgiao))
+     1    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+
 c
 c     GENERALIZED MULLIKEN-HUSH H_IJ COUPLING
 c

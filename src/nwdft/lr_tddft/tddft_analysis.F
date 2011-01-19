@@ -17,6 +17,11 @@ c Circular dichroism and velocity-representation dipole moments:
 c J. Autschbach, SUNY Buffalo (2009).
 c reference: J.Chem.Phys. 116 (2002), pages 891 and 6930
 c
+c GIAO rotatory strengths (2011): J. Autschbach, to be published.
+c
+c Note: Velocity gauge and GIAO has NOT yet been tested with the TDA, 
+c       only with full TDDFT / RPA (status: 01/2011)
+c
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -116,16 +121,22 @@ c
       integer dummy,request
       double precision osc_str
 c
-c     jochen 11/2009: add calculation of rotatory strengths (CD spectra)    
+c     jochen 11/2009 and 01/2011:
+c     rotatory strengths, CD spectra, velocity gauge:
+c
       logical cdspectrum ! true if CDSPECTRUM in TDDFT input
       logical velocity   ! true if VELOCITY in TDDFT input
+      logical lgiao      ! true if GIAO set in TDDFT block
       logical lvelok     ! check for division by zero
 c     We will declare the variables needed for the g_dip{x,y,z}
 c     This was modified from dft_main0d.F
       integer g_dipole(3)  ! ga for dipole integrals
       integer g_dipmag ! ga for magnetic dipole matrices (all 3)
+      integer g_vecB1  ! ga for B-field perturbed MOs, 3 components
+      integer g_vecT   ! ga for 'transition perturbed MOs'
+      integer g_sket1  ! ga for < AO | d AO / d B>, 3 components
       integer g_dipvel ! ga for dipole-velocity integrals
-      integer alo(3), ahi(3), blo(3), bhi(3)
+      integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
       integer icomp ! field components
 c     caution: speed of light and rotatory strength conversion factor
 c     are hardwired here:
@@ -133,17 +144,23 @@ c     are hardwired here:
       parameter (cl = 137.0359895d0, rau2cgs = 235.726327d0)
       integer g_temp, g_tmpdip
       double precision el_transdip(3)  ! length-gauge electric dipoles
-      double precision mag_transdip(3) ! magnetic transition dipoles (rxp)
+      double precision mag_transdip(3) ! magnetic tr. dipoles (rxp)
+      double precision magtd_giao(3)  ! mag. tr. dipoles using GIAOs
       double precision vel_transdip(3) ! velocity electric dipoles
       double precision ga_trace_diag
       external ga_trace_diag
       character*32 pname
       double precision origin(3)
       data origin/0d0,0d0,0d0/
+      logical debug, fakegiao
 c     /jochen
 
 C     character*80 vector
 C     logical vector_exists,fileerror
+c     ==================================================================
+
+      debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
+      fakegiao = .false. ! used for some testing
 c
 c     Preliminaries
       nodezero=(ga_nodeid().eq.0)
@@ -157,6 +174,17 @@ c     Velocity
       if (.not.rtdb_get(rtdb,'tddft:velocity',mt_log,1,velocity))
      $  velocity=.false.
 c
+c     GIAO
+      if (.not.rtdb_get(rtdb,'tddft:giao',mt_log,1,lgiao))
+     $  lgiao=.false.
+c     velocity trumps giao, these options are mutually exclusive
+      if (velocity) lgiao = .false.
+c     sanity check: right now we can't do unrestricted calcs with GIAOs
+      if (lgiao .and. ipol.ne.1) then
+        call errquit('TDDFT: GIAO and Unrestricted not yet supported',
+     &     0, INPUT_ERR)
+      end if
+c
 c     Generalized Mulliken-Hush 
       if (.not.rtdb_get(rtdb,'tddft:gmhcoupling',mt_log,1,gmhcoupling))
      $  gmhcoupling=.false.
@@ -166,11 +194,15 @@ c     Temp array
      $       nbf_ao, 0, g_temp)) call errquit(pname//'g_temp',0, GA_ERR)
       call ga_zero(g_temp)
 c
-      if (gmhcoupling) then
-        do icomp = 1,3
-          gsmom(icomp)=0.d0
-          exmom(icomp)=0.d0
-        enddo
+      if (gmhcoupling .or. (cdspectrum.and.lgiao)) then
+        
+        if (gmhcoupling) then
+          do icomp = 1,3
+            gsmom(icomp)=0.d0
+            exmom(icomp)=0.d0
+          enddo
+        end if                  ! gmhcoupling
+
 c       Calculate the overlap: S matrix
         if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'AO ovl',
      &     -1, -1, g_smat))
@@ -178,7 +210,7 @@ c       Calculate the overlap: S matrix
         call ga_zero(g_smat)
         call int_1e_ga(ao_bas_han, ao_bas_han, g_smat, 'overlap', oskel)
         if (oskel)call sym_symmetrize(geom, ao_bas_han, .false., g_smat)
-      endif  ! gmhcoupling
+      endif  ! gmhcoupling or lgiao
 c
       if (cdspectrum .or. gmhcoupling) then         
         
@@ -196,7 +228,8 @@ c     == Compute the dipole integrals for the 3 components ==
          call int_dip_ga(ao_bas_han, ao_bas_han,
      $        g_dipole(1), g_dipole(2), g_dipole(3))
 
-c     magnetic dipole moment integrals (r x nabla), times 0.5:
+c        if we don't have GIAOs then we need
+c        magnetic dipole moment integrals (r x nabla), times 0.5:
          alo(1) = nbf_ao
          alo(2) = -1
          alo(3) = -1
@@ -210,8 +243,48 @@ c     magnetic dipole moment integrals (r x nabla), times 0.5:
          call int_giao_1ega(ao_bas_han,ao_bas_han,g_dipmag,'angmom',
      $        origin,1, .false.)
          call ga_scale (g_dipmag, 0.5d0)
-      endif ! cdspectrum
-c
+
+      endif ! cdspectrum or ghmcoupling
+
+
+c     if we do have GIAOs then the procedure is a bit more
+c     involved
+      
+      if (cdspectrum .and. lgiao) then
+        
+        if (.not.nga_create(MT_DBL,3,ahi,'vecB1',alo,g_vecB1))
+     &     call 
+     &     errquit('tddft_ana: nga_create failed vecB1',0,GA_ERR)
+        call ga_zero(g_vecB1)
+        
+        if (.not.nga_create(MT_DBL,2,ahi,'vecB1',alo,g_vecT))
+     &     call 
+     &     errquit('tddft_ana: nga_create failed vecT',0,GA_ERR)
+        call ga_zero(g_vecT)
+        
+        if (.not.nga_create(MT_DBL,3,ahi,'sket1',alo,g_sket1))
+     &     call 
+     &     errquit('tddft_ana: nga_create failed g_sket1',0,GA_ERR)
+        call ga_zero(g_sket1)
+        
+c       jochen: tested this first with FIAOs which worked
+
+        if (fakegiao) then
+          call fiao_b1_movecs(rtdb,ao_bas_han, geom, g_vecB1)
+          ! scaling by 0.5 was already done in that subroutine
+        else
+          call giao_b1_movecs(rtdb,ao_bas_han, geom, g_vecB1, g_sket1)
+          call ga_scale (g_vecB1, 0.5d0)
+          call ga_scale (g_sket1, 0.5d0)
+        end if
+
+c       the *_b1_movecs routines terminate the integrals, so we
+c       need to re-initialize
+
+        call int_init(rtdb,1,ao_bas_han)
+        call schwarz_init(geom,ao_bas_han)                
+      end if                    ! cdspectrum .and. lgiao
+
       if (cdspectrum .or. velocity) then
            if (.not. ga_create(MT_DBL, nbf_ao, nbf_ao, 'g_tmpdip',
      $       nbf_ao, 0, g_tmpdip))
@@ -540,6 +613,14 @@ c --------------
 c Excited states
 c --------------
 c
+
+      if (cdspectrum .and. lgiao) then
+        n = max(nmo(1),nmo(2))
+        if (.not.ga_create(mt_dbl,n,n,'work',-1,-1,g_work)) call
+     &     errquit('tddft_analysis: failed to create g_work 2',
+     &     0, GA_ERR)
+      end if
+
       if (nodezero.and.util_print('excited state',print_default))
      1  write(LuOut,*)
 c m is a counter of excited states in a certain irrep 
@@ -736,6 +817,7 @@ c     initialize transition dipoles for this transition (mainly debug)
            do icomp = 1,3
               el_transdip (icomp) = 0d0
               mag_transdip(icomp) = 0d0 ! 3 components
+              magtd_giao(icomp) = 0d0
            end do
         end if ! cdspectrum
         if (velocity) then
@@ -744,6 +826,192 @@ c     initialize transition dipoles for this transition (mainly debug)
            end do
            lvelok = (apbval(n) .gt. 1d-6) ! make sure excit. E is >0
         end if ! velocity
+
+c       --------------------------------
+c       GIAO magnetic transition dipoles
+c       --------------------------------
+
+c       jochen: before we proceed with the 'traditional' processing of
+c       the transition density in this routine, let's use the MO
+c       representation if the transition density matrix to compute GIAO
+c       magnetic transition dipoles if that was requested by input:
+
+        if (cdspectrum .and. lgiao) then
+          
+          do i = 1, ipol
+
+c           step 1: calculate 'transition perturbed MOs' from the
+c           solution vectors
+            
+            alo(1) = 1
+            ahi(1) = nbf_ao
+            alo(2) = nocc(i) + 1 ! select the vir-occ block
+            ahi(2) = nmo(i) - nfv(i)
+            alo(3) = 1
+            ahi(3) = 1
+            blo(1) = 1
+            bhi(1) = nmo(i)-nocc(i)-nfv(i)
+            blo(2) = 1
+            bhi(2) = nocc(i)-nfc(i)
+
+            clo(1) = 1
+            chi(1) = nbf_ao
+            clo(2) = nfc(i) +1 ! there may be frozen occupied orbitals
+            chi(2) = nocc(i)
+
+            if (debug) write (luout,*) 'giao: starting moments'
+            if (debug) write (luout,'(1X,a/6(3i3/))')
+     &         'alo, ahi, blo, bhi, clo, chi',
+     &         alo(1:3), ahi(1:3), blo(1:3), bhi(1:3),
+     &         clo(1:3), chi(1:3)
+            if (debug) write (luout,*) 'nocc, nmo, nfc, nfv, nbas',
+     &         nocc(i), nmo(i), nfc(i), nfv(i), nbf_ao
+
+            call ga_zero(g_work)
+            call ga_copy_patch('n',g_x(i),1,nov(i),n,n,
+     &         g_work,1,nmo(i)-nocc(i)-nfv(i),1,nocc(i)-nfc(i))
+            
+            call ga_zero(g_vecT)
+            call nga_matmul_patch('n','n',1d0,0d0,
+     &         g_movecs(i),alo,ahi,
+     &         g_work,blo,bhi,
+     &         g_vecT,clo,chi)
+
+            if (debug) write (luout,*) 'giao: C*X done'
+            
+            if (.not.tda) then ! add contribution from Y
+              call ga_zero(g_work)
+              call ga_copy_patch('n',g_y(i),1,nov(i),n,n,
+     &           g_work,1,nmo(i)-nocc(i)-nfv(i),1,nocc(i)-nfc(i))
+            call nga_matmul_patch('n','n',1d0,1d0,
+     &           g_movecs(i),alo,ahi,
+     &           g_work,blo,bhi,
+     &         g_vecT,clo,chi)
+            if (debug) write (luout,*) 'giao: C*Y done'
+            end if              ! .not.tda
+
+c           now we can calculate the overlap with
+c           the magnetically perturbed MOs to obtain the 
+c           transition dipole moments
+
+            do icomp = 1,3
+
+c             ----------------------
+c             (A) C(Trans) S(0) C(B)
+c             ----------------------
+              
+              alo(1) = 1
+              ahi(1) = nbf_ao
+              alo(2) = 1
+              ahi(2) = nbf_ao
+              alo(3) = 1 
+              ahi(3) = 1
+              blo(1) = 1
+              bhi(1) = nbf_ao
+              blo(2) = 1
+              bhi(2) = nocc(i)
+              blo(3) = icomp    ! pick magnetic field direction
+              bhi(3) = icomp 
+              clo(1) = 1
+              chi(1) = nbf_ao
+              clo(2) = 1
+              chi(2) = nocc(i)
+              
+              call ga_zero(g_temp)
+              call nga_matmul_patch('n','n',1d0,0d0,
+     &           g_smat,alo,ahi,
+     &           g_vecB1,blo,bhi,
+     &           g_temp,clo,chi)
+
+              if (debug) write (luout,*) 'giao: intermediate S*Z done'
+              
+              alo(1) = 1
+              ahi(1) = nocc(i)
+              alo(2) = 1
+              ahi(2) = nbf_ao
+              blo(1) = 1
+              bhi(1) = nbf_ao
+              blo(2) = 1
+              bhi(2) = nocc(i)
+              clo(1) = 1
+              chi(1) = nocc(i)
+              clo(2) = 1
+              chi(2) = nocc(i)
+              
+              call ga_zero(g_work)
+              call nga_matmul_patch('t','n',1d0,0d0,
+     &           g_vecT,alo,ahi,
+     &           g_temp,blo,bhi,
+     &           g_work,clo,chi)
+
+              if (debug) write (luout,*) 'giao: C X S Z complete'
+              
+              magtd_giao(icomp) = magtd_giao(icomp)
+     &           +ga_trace_diag(g_work) * apbval(n)
+
+c             (B) C(Trans) S(1ket) C(0)
+
+              alo(1) = 1
+              ahi(1) = nbf_ao
+              alo(2) = 1
+              ahi(2) = nbf_ao
+              alo(3) = icomp 
+              ahi(3) = icomp
+              blo(1) = 1
+              bhi(1) = nbf_ao
+              blo(2) = 1
+              bhi(2) = nocc(i)
+              blo(3) = 1
+              bhi(3) = 1
+              clo(1) = 1
+              chi(1) = nbf_ao
+              clo(2) = 1
+              chi(2) = nocc(i)
+              
+              call ga_zero(g_temp)
+              call nga_matmul_patch('n','n',1d0,0d0,
+     &           g_sket1,alo,ahi,
+     &           g_movecs(i),blo,bhi,
+     &           g_temp,clo,chi)
+
+              if (debug) write (luout,*) 'giao: intermediate S1*C done'
+              
+              alo(1) = 1
+              ahi(1) = nocc(i)
+              alo(2) = 1
+              ahi(2) = nbf_ao
+              blo(1) = 1
+              bhi(1) = nbf_ao
+              blo(2) = 1
+              bhi(2) = nocc(i)
+              clo(1) = 1
+              chi(1) = nocc(i)
+              clo(2) = 1
+              chi(2) = nocc(i)
+              
+              call ga_zero(g_work)
+              call nga_matmul_patch('t','n',1d0,0d0,
+     &           g_vecT,alo,ahi,
+     &           g_temp,blo,bhi,
+     &           g_work,clo,chi)
+
+              if (debug) write (luout,*) 'giao: C X S1 C complete'
+
+              if (.not.fakegiao)
+     &           magtd_giao(icomp) = magtd_giao(icomp)
+     &           +ga_trace_diag(g_work) * apbval(n)
+              
+          end do ! icomp
+
+          end do ! i = 1,ipol
+
+        end if ! cdspectrum and lgiao
+
+c       ------------------------------------------------
+c       Done with GIAO magnetic transition dipoles
+c       Continue with non-GIAO magnetic dipoles
+c       and electric multipoles in length representation
+c       ------------------------------------------------
 
         if (cdspectrum .or. velocity) then
            alo(1) = 1
@@ -804,6 +1072,13 @@ c     debug the code) and also compute the magnetic transition dip.
      $               ga_trace_diag(g_temp) / apbval(n)
              end do             ! icomp
           end if                ! velocity
+c
+c         ----------------------------------------------
+c         Electric dipoles and other multipoles:
+c         the call below to multipole_density comes from
+c         the original tddft code. We have it here 
+c         because of the higher multipoles. 
+c         -------------------------------------4---------
 c
           call multipole_density(ao_bas_han,cntr,3,
      1      g_tmomd(i),tmom,20)  ! transition moments
@@ -874,6 +1149,7 @@ c     jochen:
             do icomp = 1,3
               el_transdip(icomp) = el_transdip(icomp) *dsqrt(2.0d0)
               mag_transdip(icomp) = mag_transdip(icomp) *dsqrt(2.0d0)
+              magtd_giao(icomp) = magtd_giao(icomp) *dsqrt(2.0d0)
             end do
           end if
           if (velocity) then
@@ -908,20 +1184,32 @@ c
             write(222,*)apbval(n)*au2ev,osc_str
 c
             if (cdspectrum) then
-               write (LuOut,*)
-            write (LuOut,9250) 'Electric Transition Dipole:',
+              write (LuOut,*)
+              write (LuOut,9250) 'Electric Transition Dipole:',
      $           el_transdip(1), el_transdip(2), el_transdip(3)
-            write (LuOut,9250) 'Magnetic Transition Dipole:',
+              write (LuOut,9250) 'Magnetic Transition Dipole (Length):',
      $           mag_transdip(1)/cl,
      $           mag_transdip(2)/cl,
      $           mag_transdip(3)/cl
-            write (LuOut,9251)
-     $          'Rotatory Strength (1E-40 esu**2cm**2):',
-     $          (el_transdip(1)*mag_transdip(1) +
-     $           el_transdip(2)*mag_transdip(2) +
-     $           el_transdip(3)*mag_transdip(3))
+              write (LuOut,9251)
+     $           'Rotatory Strength (1E-40 esu**2cm**2):',
+     $           (el_transdip(1)*mag_transdip(1) +
+     $            el_transdip(2)*mag_transdip(2) +
+     $            el_transdip(3)*mag_transdip(3))
      $           * 2d0 * rau2cgs 
-            end if ! cdspectrum
+              if (lgiao) then
+                write (LuOut,9250) 'GIAO Magnetic Trans. Dipole:',
+     $             magtd_giao(1)/cl,
+     $             magtd_giao(2)/cl,
+     $             magtd_giao(3)/cl
+                write (LuOut,9251)
+     $             'GIAO Rotatory Str.(1E-40 esu**2cm**2):',
+     $             (el_transdip(1)*magtd_giao(1) +
+     $              el_transdip(2)*magtd_giao(2) +
+     $              el_transdip(3)*magtd_giao(3))
+     $             * 2d0 * rau2cgs 
+              endif             ! lgiao
+            end if              ! cdspectrum
             if (velocity .and. lvelok) then
                write (LuOut,*)
             write (LuOut,9250)
@@ -1165,31 +1453,46 @@ c
      1  util_print('excited state',print_default)) write(LuOut,*)
 
 c       jochen:
-        if (cdspectrum .or. gmhcoupling) then
-c     Clean up arrays used for CD spectra
-           do icomp = 1,3
-              if (.not. ga_destroy(g_dipole(icomp))) call errquit
-     &             (pname//'ga_destroy failed g_dipole', 0, GA_ERR)
-           end do
-           if (.not.ga_destroy(g_dipmag)) call
-     &          errquit(pname//'ga_destroy failed g_dipmag',0,GA_ERR)
+      if (cdspectrum .or. gmhcoupling) then
+c       Clean up arrays used for CD spectra
+        do icomp = 1,3
+          if (.not. ga_destroy(g_dipole(icomp))) call errquit
+     &       (pname//'ga_destroy failed g_dipole', 0, GA_ERR)
+        end do
+        if (.not.ga_destroy(g_dipmag)) call
+     &     errquit(pname//'ga_destroy failed g_dipmag',0,GA_ERR)
+      end if
+      
+      if (cdspectrum .and. lgiao) then
+        if (.not.ga_destroy(g_vecB1)) call
+     &     errquit(pname//'ga_destroy failed g_vecB1',0,GA_ERR)
+        if (.not.ga_destroy(g_vecT)) call
+     &     errquit(pname//'ga_destroy failed g_vecT',0,GA_ERR)
+        if (.not.ga_destroy(g_sket1)) call
+     &     errquit(pname//'ga_destroy failed g_sket1',0,GA_ERR)
+        if (.not.ga_destroy(g_work)) call
+     &     errquit(pname//'ga_destroy failed g_work 2',0,GA_ERR)
 
-        end if
+c       also terminate integrals again if GIAOs were used:
+c        call schwarz_tidy()
+c        call int_terminate()
+      end if ! cdspectrum .and. lgiao
+
 c
-        if (.not. ga_destroy(g_temp)) call errquit
-     &          (pname//'Could not destroy g_temp', 0, GA_ERR)
-c
-        if (cdspectrum .or. velocity) then
-           if (.not. ga_destroy(g_tmpdip)) call errquit
-     &          (pname//'Could not destroy g_tmpdip', 0, GA_ERR)
-        endif ! cdspectrum .or. velocity
-        
-        if (velocity) then
-c     clean up arrays used for dipole-velocity integrals
-           if (.not.ga_destroy(g_dipvel)) call
-     &       errquit(pname//'ga_destroy failed g_dipvel',0,GA_ERR)
-        endif                   ! velocity
-c      /jochen
+      if (.not. ga_destroy(g_temp)) call errquit
+     &   (pname//'Could not destroy g_temp', 0, GA_ERR)
+c     
+      if (cdspectrum .or. velocity) then
+        if (.not. ga_destroy(g_tmpdip)) call errquit
+     &     (pname//'Could not destroy g_tmpdip', 0, GA_ERR)
+      endif                     ! cdspectrum .or. velocity
+      
+      if (velocity) then
+c       clean up arrays used for dipole-velocity integrals
+        if (.not.ga_destroy(g_dipvel)) call
+     &     errquit(pname//'ga_destroy failed g_dipvel',0,GA_ERR)
+      endif                     ! velocity
+c     /jochen
 c
  9100 format(2x,'Ground state ',a4,f16.9,' a.u.')
  9110 format(2x,
@@ -1296,9 +1599,12 @@ c
         if (.not.ga_destroy(g_gsdao(i))) call errquit
      &    ('tddft_analysis: failed to create g_gsdao',0, GA_ERR)
       enddo
-      if (.not.ga_destroy(g_smat)) call errquit
-     2    ('tddft_analysis: failed to destroy g_smat',0, GA_ERR)
       endif
+c
+      if (cdspectrum.and.lgiao) then
+        if (.not.ga_destroy(g_smat)) call errquit
+     2     ('tddft_analysis: failed to destroy g_smat',0, GA_ERR)
+      end if
 c
       do i=1,ipol
         if (.not.ga_destroy(g_tmomd(i))) call errquit

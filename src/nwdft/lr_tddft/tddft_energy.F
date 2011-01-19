@@ -336,8 +336,9 @@ c
 c And we close the 2-e integral evaluators
 c
       call fock_2e_tidy(rtdb)
-      call int_terminate()
+c      call int_terminate()
       call schwarz_tidy()
+      call int_terminate()
 c
 c -----------------
 c Print utility end
