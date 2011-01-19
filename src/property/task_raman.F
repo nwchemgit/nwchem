@@ -57,7 +57,7 @@ c
 c
       pname = 'task_raman: ' 
 c
-      debug =  ( .true. .and. ga_nodeid().eq.0 )
+      debug =  ( .false. .and. ga_nodeid().eq.0 )
 c
 c --------------------------------------------------------------------
 c
