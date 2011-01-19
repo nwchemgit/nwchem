@@ -1,8 +1,8 @@
 
       subroutine aoresponse_beta2 (rtdb, basis, geom, nfreq,
-     &   response_order, frequencies, g_smat0, g_smat1, g_sket1, g_vecB1
-     &   ,  g_dipel, g_quadel, g_dipmag, g_vectors, epst, froct,
-     &   nbf, nbfx , nmo, nocct, nvirt, deps, lgiao, lquad, lvelocity,
+     &   response_order, frequencies, g_smat0, g_sket1, g_vecB1
+     &   ,  g_dipel, g_quadel, g_vectors, froct,
+     &   nbf, nmo, nocct, nvirt, deps, lgiao, lquad, lvelocity,
      &   lmagpert, lifetime, gamwidth, alfare, alfaim, betare, betaim)
 
 c $Id:  $
@@ -62,10 +62,10 @@ c     ---------------------
       integer geom    ! [input] geometry handle
 
       integer g_smat0, g_vectors(2), g_dipel, g_epsdif,
-     &   g_dipmag, g_smat1, g_sket1, g_quadel, g_vecB1
-      integer nfreq, response_order, nbf, nbfx, nmo
+     &   g_sket1, g_quadel, g_vecB1
+      integer nfreq, response_order, nbf, nmo
       integer nocct(2), nvirt(2)
-      double precision froct(nbf,2), epst(nbf,2)
+      double precision froct(nbf,2)
       double precision frequencies(nfreq)
       double precision deps(nvirt(1),nocct(1))
       double precision alfare(3,3), alfaim(3,3)
@@ -662,17 +662,13 @@ c         start loop over responding field direction
 c         ------------------------------------------
           
           do iresp = 1,3
-            
-c           (A) Compute optical rotation parameter.
-c           The B-field perturbed MOs have been computed externally
-            
-            
+                        
             if (debug) write (luout,*) 'using g_vecB1, direction ',iresp
 c           if (debug) call ga_print(g_vecB1)
             
-c           ----------------------------------
-c           calculate beta from C(E) S(0) C(B)
-c           ----------------------------------
+c           -------------------------------------------------------
+c           (A) calculate optical rotation beta from C(E) S(0) C(B)
+c           ------------------------------------------------------
             
             alo(1) = 1
             ahi(1) = nbf
@@ -952,13 +948,10 @@ c     transpose of the negative OR tensor
       write (luout,*) 'iso: ', (betare(1,1)+betare(2,2)+betare(3,3))/3d0
       end if
      
-c     ------------------------------------------------
-c     deallocate remaining allocated memory and return
-c     ------------------------------------------------
-            
-
-
-      
+c     ----------------
+c     all done. return
+c     ----------------
+                  
       
 c     ==================================================================
       

@@ -72,10 +72,10 @@ c
       xfac = 1.0d0
       if (use_theory.eq.'dft') xfac = bgj_kfac()
 c
-c     Integral initialization
+c     Integral initialization 
 c
-      call int_init(rtdb,1,basis)
-      call schwarz_init(geom,basis)
+c      call int_init(rtdb,1,basis)
+c      call schwarz_init(geom,basis)
       call hnd_giao_init(basis,1)
       call scf_get_fock_param(rtdb,tol2e)
 c

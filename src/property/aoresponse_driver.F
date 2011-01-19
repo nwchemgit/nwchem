@@ -251,38 +251,6 @@ c     finite lifetime not yet available with the "beta" code
         endif
       end if
 
-c     ------------------------------------------------------
-c     if we have lbeta and lgiao set, calculate the magnetic
-c     field perturbed MO vectors => g_vecB1
-c     ------------------------------------------------------
-
-      if (lbeta) then
-
-        if (oprint) write (luout,*) 'Computing some B-field data ...'
-c       retrieve nbf = number of basis functions:
-        if (.not. bas_numbf(basis,nbf)) call
-     &     errquit('aor_driver: could not get nbf',0, BASIS_ERR)
-
-        alo(1) = nbf
-        alo(2) = -1
-        alo(3) = -1
-        ahi(1) = nbf
-        ahi(2) = nbf
-        ahi(3) = 3
-        if (.not.nga_create(MT_DBL,3,ahi,'aor vecB1',alo,g_vecB1))
-     &     call 
-     &     errquit('aor_driver: nga_create failed vecB1',0,GA_ERR)
-        call ga_zero(g_vecB1)
-
-        if (lgiao) then
-          call giao_b1_movecs(rtdb,basis,geom, g_vecB1)
-        else
-          call fiao_b1_movecs(rtdb,basis,geom, g_vecB1)
-        end if
-        if (oprint) write (luout,*) '... done'
-
-      end if ! lbeta 
-
 c     -----------------------
 c     general initializations (adapted from hnd_giaox.F)
 c     -----------------------
@@ -354,6 +322,53 @@ c     exit if response order is larger than one (TEMPORARY)
 
 c     force nfreq = 1 if response order equals 1 (no freq. input)
       if (response_order.eq.1 .and. nfreq.ne.1) nfreq = 1
+
+c     ------------------------------------------------------
+c     if we have lbeta and lgiao set, calculate the magnetic
+c     field perturbed MO vectors => g_vecB1
+c     We also compute requited GIAO AO matrices used later
+c     ------------------------------------------------------
+
+      if (lbeta) then
+
+        if (oprint) write (luout,*) 'Computing some B-field data ...'
+c       retrieve nbf = number of basis functions:
+        if (.not. bas_numbf(basis,nbf)) call
+     &     errquit('aor_driver: could not get nbf',0, BASIS_ERR)
+
+        alo(1) = nbf
+        alo(2) = -1
+        alo(3) = -1
+        ahi(1) = nbf
+        ahi(2) = nbf
+        ahi(3) = 3
+        if (.not.nga_create(MT_DBL,3,ahi,'aor vecB1',alo,g_vecB1))
+     &     call 
+     &     errquit('aor_driver: nga_create failed vecB1',0,GA_ERR)
+        call ga_zero(g_vecB1)
+
+        if (lgiao) then
+c         first-order S-ket matrix (right-hand side S-derivative)
+          if (.not.nga_create(MT_DBL,3,ahi,'s-ket1 matrix',alo,g_sket1))
+     &       call 
+     &       errquit('aor_driver: nga_create failed g_sket1',0,GA_ERR)
+          call ga_zero(g_sket1)
+
+          call giao_b1_movecs(rtdb,basis,geom, g_vecB1, g_sket1)
+        else
+          call fiao_b1_movecs(rtdb,basis,geom, g_vecB1)
+        end if
+        if (oprint) write (luout,*) '... done. Reinitializing integrals'
+
+c       the [gf]iao_b1_movecs routines terminate the integrals.
+c       need to re-initialize:
+
+        call int_init(rtdb,1,basis)
+        call schwarz_init(geom,basis)
+        call hnd_giao_init(basis,1)
+        call scf_get_fock_param(rtdb,tol2e)
+
+      end if ! lbeta 
 
 c     ---------------------------------------------------------
 c     write to output a summary of what we are going to do next
@@ -504,11 +519,12 @@ c     zeroth-order basis-overlap integrals:
       call ga_zero(g_smat0)
       call int_1e_ga(basis,basis,g_smat0,'overlap',oskel)
 
-      if (lgiao) then
+      if (lgiao .and. .not.lbeta) then
 
-c       -------------------------------------------
-c       compute additional GIAO integrals if needed
-c       -------------------------------------------
+c       -----------------------------------------------------
+c       compute additional GIAO integrals if needed.
+c       if lbeta is set we have already computed what we need
+c       -----------------------------------------------------
         
 c       magnetic-field perturbed overlap integrals, first order
         if (.not.nga_create(MT_DBL,3,ahi,'smat1 matrix',alo,g_smat1))
@@ -530,13 +546,13 @@ c       magnetic-field derivatives of <mu | h | nu> in GIAO basis,
 c       use g_dipmag array for that. h is the one-electron part of
 c       the Fock-operator
 c       
-        if (.not.lbeta) then
+
           call ga_zero(g_dipmag)
           call int_giao_1ega(basis,basis,g_dipmag,'l10',dummy,
      &       sh_atom,oskel)
           call int_giao_1ega(basis,basis,g_dipmag,'tv10',dummy,
      &       sh_atom,oskel)    
-        end if                  ! lbeta
+ 
 
       endif                     ! lgiao     
 
@@ -557,7 +573,7 @@ c     electron quadrupole moment integrals
 
 
 c     --------------
-c     some debugging
+c     some debugging (may not work after 01/11 code updates)
 c     --------------
 
       if (debug) then
@@ -734,9 +750,9 @@ c        calculated earlier:
          call aoresponse_beta2 (rtdb, basis, geom, nfreq,
      &      response_order,
      &      dbl_mb(k_fr),
-     &      g_smat0, g_smat1, g_sket1, g_vecB1,
-     &      g_dipel, g_quadel, g_dipmag, g_vectors, dbl_mb(k_eval),
-     &      dbl_mb(k_occ), nbf, nbfx, nmo, nclosed, nvirt,
+     &      g_smat0, g_sket1, g_vecB1,
+     &      g_dipel, g_quadel, g_vectors, 
+     &      dbl_mb(k_occ), nbf, nmo, nclosed, nvirt,
      &      dbl_mb(k_deps), lgiao, lquad, lvelocity, lmagpert,
      &      lifetime, gamwidth, alfare, alfaim, betare, betaim)
          if (debug) write (luout,*) 'exiting aoresponse_beta'
@@ -887,9 +903,12 @@ c     deallocate global arrays
       if (.not.ga_destroy(g_smat0)) call 
      &    errquit('aor_driver: ga_destroy failed g_smat0',0,GA_ERR)
 
-      if (lgiao) then
+      if (lgiao  .and. .not.lbeta) then
         if (.not.ga_destroy(g_smat1)) call 
      &     errquit('aor_driver: ga_destroy failed g_smat1',0,GA_ERR)
+      end if
+
+      if (lgiao) then
         if (.not.ga_destroy(g_sket1)) call 
      &     errquit('aor_driver: ga_destroy failed g_sket1',0,GA_ERR)
       endif

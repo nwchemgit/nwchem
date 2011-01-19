@@ -1,4 +1,4 @@
-      subroutine giao_b1_movecs(rtdb,basis,geom, g_vecB1)
+      subroutine giao_b1_movecs(rtdb,basis,geom, g_vecB1, g_sket1)
 
 c $Id: $
 
@@ -8,6 +8,7 @@ c     perturbed by a STATIC external magnetic field. I left most of the
 c     comments from hnd_giaox and the variable names unmodified.
 
 c     g_vecB1 should have at least dimensions (nbf, nocc, 3)
+c     g_sket1 should have dimensions (nbf, nbf, 3)
 
       implicit none
 
@@ -27,6 +28,7 @@ c
       integer basis   ! [in] basis handle
       integer geom    ! [in] geometry handle
       integer g_vecB1 ! [out] B-field perturbed MO coefficients GIAO
+      integer g_sket1 ! [out] GIAO right hand side overlap derivative
 
       integer nclosed(2), nopen(2), nvirt(2), ndens, nbf, nmo
       integer sh_atom, ixy, ix, iy, iatom, iocc, ifld, ioff
@@ -74,8 +76,8 @@ c
 c
 c     Integral initialization
 c
-      call int_init(rtdb,1,basis)
-      call schwarz_init(geom,basis)
+c      call int_init(rtdb,1,basis)
+c      call schwarz_init(geom,basis)
       call hnd_giao_init(basis,1)
       call scf_get_fock_param(rtdb,tol2e)
 c
@@ -151,6 +153,20 @@ c
       call int_giao_1ega(basis,basis,g_s10,'s10',origin,
      &                   sh_atom,oskel)
       call giao_aotomo(g_s10,vectors,nclosed,nvirt,1,3,nbf)
+
+c     while we are calculating integrals, let's also determine
+c     the 'half' overlap derivative, used later in the calling
+c     routine
+
+      call ga_zero(g_sket1)
+      call int_giao_1ega(basis,basis,g_sket1,'srxRb',origin,
+     &   1,oskel)
+
+c     g_sket1 will not be used further here. It is one of the 
+c     output results of this routine.
+c     Broceed with the computation of the B-field perturbed
+c     MO coefficients.
+
 c
 c     ga_rhs(a,i) = ga_rhs(a,i) - e(i) * S10(a,i)
 c     Scale (occ,virt) block g_s10 with - (minus) eigenvalues 
