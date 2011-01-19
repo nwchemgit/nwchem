@@ -742,9 +742,9 @@ c         otherwise use dynamic solver but set omega to zero:
           
         endif                   ! lzero
         
-        call int_init(rtdb,1,basis)
-        call schwarz_init(geom,basis)
-        call hnd_giao_init(basis,1)
+c$$$        call int_init(rtdb,1,basis)
+c$$$        call schwarz_init(geom,basis)
+c$$$        call hnd_giao_init(basis,1)
         
         call ga_sync()          ! when do we actually need that ???
         if (debug) write (6,*) 'CPKS complete, results in g_amat'

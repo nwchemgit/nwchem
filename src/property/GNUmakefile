@@ -37,6 +37,9 @@
          int_mpole_1ega.o \
          aoresponse.o \
          aoresponse_beta.o \
+         aoresponse_beta2.o \
+         giao_b1_movecs.o \
+         fiao_b1_movecs.o \
          CalcPerturbedTDPmat1.o \
          ao_1prdm_read.o \
 	 task_raman.o \
