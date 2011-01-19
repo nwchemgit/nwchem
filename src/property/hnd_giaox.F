@@ -47,7 +47,7 @@ c
 c
       if (ga_nodeid().eq.0) write(luout,9999)
 
-      debug = .true. .and. (ga_nodeid().eq.0) ! special debugging
+      debug = .false. .and. (ga_nodeid().eq.0) ! special debugging
 c
 c     Current CPHF does not handle symmetry 
 c     Making C1 geometry and store it on rtdb
