@@ -127,7 +127,7 @@ c
      &     'xm06-L','cm06-L','m06-hf','xm06-hf','cm06-hf','m06',
      &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x','xbnl07',
      &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
-     &     'xcamlsd','ssb-d','xwpbe','kt1','kt2'/
+     &     'xcamlsd','xwpbe','ssb-d','kt1','kt2'/
 c     becke97-d, ssb-d
       logical disp
 c
