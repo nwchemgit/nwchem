@@ -69,8 +69,8 @@ c     local variables:
 
 c     ==================================================================
 
-      debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
-      dbgmat = .false. .and. ga_nodeid().eq.0 ! debug large matrices
+cng      debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
+cng      dbgmat = .false. .and. ga_nodeid().eq.0 ! debug large matrices
 
 c     THERE WAS A BUG HERE BECAUSE ONLY IF DEBUG WAS SET TO TRUE DID I
 c     GET THE CORRECT RESULTS FOR ORBETA. the code got stuck where the
@@ -95,12 +95,12 @@ c     If DFT get part of the exact exchange defined
       xfac = 1.0d0
       if (use_theory.eq.'dft') xfac = bgj_kfac()
 
-      if (debug) write (luout,*) 'use_theory, xfac =', use_theory, xfac
+cng      if (debug) write (luout,*) 'use_theory, xfac =', use_theory, xfac
       
       call scf_get_fock_param(rtdb,tol2e)
 
-      if (debug) write (luout,*) 'nocc, nvir, nmo, nbf',
-     &   nocc, nvir, nmo, nbf
+cng      if (debug) write (luout,*) 'nocc, nvir, nmo, nbf',
+cng     &   nocc, nvir, nmo, nbf
       
 c     Create workspace matrix of dimension (nbf,nmo,3) and zero
 c     Use ahi for dimension and ahi array for chunking/blocking
@@ -184,7 +184,7 @@ c     these dimensions will be used repeatedly:
         call nga_copy_patch('n',g_smat1,alo,ahi,g_rhs(ipm),blo,bhi)
       enddo
 
-      if (debug) write (luout,*) 'added Smat1 term to rhs'
+cng      if (debug) write (luout,*) 'added Smat1 term to rhs'
 
 c     Add S-ket matrix contribution (now in MO basis) to rhs
 c     Note that in JCP 123, 114103 S-Ket contains a factor of (+/-)w
@@ -229,7 +229,7 @@ c     occ-occ blocks
         call nga_copy_patch('n',g_smat1,alo,ahi,g_amat(ipm),alo,ahi)
       enddo
 
-      if (debug) write(luout,*) 'initial setup of g_u, g_amat  complete'
+cng      if (debug) write(luout,*) 'initial setup of g_u, g_amat  complete'
 
 c     We also need the occupied-occupied contribution of
 c     g_u contributing
@@ -290,7 +290,7 @@ c
         bhi(2) = nmo 
         call nga_matmul_patch('n','n',1.0d0,0.0d0,g_vectors,blo,bhi,  
      &     g_u,alo,ahi,g_smat1,dlo,dhi)  
-        if (debug) write (6,*) 'occ-occ perturbed density matrix step1'
+cng        if (debug) write (6,*) 'occ-occ perturbed density matrix step1'
         ahi(2) = nbf
         ahi(1) = nocc
         bhi(2) = nocc
@@ -312,7 +312,7 @@ c        endif
 
       enddo                     ! ifld = 1,3
 
-      if (debug) write(6,*) 'occ-occ perturbed density matrix built'
+cng      if (debug) write(6,*) 'occ-occ perturbed density matrix built'
       
 c     
 c     Build first-order fock matrix in AO basis due to occ-occ terms
@@ -363,12 +363,12 @@ c from new (2011) hnd_giaox:
      $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
       endif
 
-      if (debug) then
-        write(6,*) 'call to shell_fock_build complete'
-        write (luout,*) 'g_fock =',g_fock
-        call ga_check_handle(g_fock, 'check g_fock')
-        call ga_print(g_fock)
-      end if
+cng      if (debug) then
+cng        write(6,*) 'call to shell_fock_build complete'
+cng        write (luout,*) 'g_fock =',g_fock
+cng        call ga_check_handle(g_fock, 'check g_fock')
+cng        call ga_print(g_fock)
+cng      end if
 c     
       
 c     
@@ -409,7 +409,7 @@ c
      $     g_smat1, alo,ahi,
      $     g_fock, clo,chi )
 
-      if (debug) write(6,*) 'occ-vir F(1) build complete'
+cng      if (debug) write(6,*) 'occ-vir F(1) build complete'
 
         blo(1) = 1
         bhi(1) = nocc*nvir
@@ -422,11 +422,11 @@ c
      &     g_rhs,blo,bhi)
         enddo
 
-        if (debug) write(6,*) 'added F(1) occocc to rhs'
-        if (debug) then
-          write (luout,*) 'printing Fock matrix ifld=,',ifld
-          call nga_print_patch(g_fock,clo,chi,1)
-        end if
+cng        if (debug) write(6,*) 'added F(1) occocc to rhs'
+cng        if (debug) then
+cng          write (luout,*) 'printing Fock matrix ifld=,',ifld
+cng          call nga_print_patch(g_fock,clo,chi,1)
+cng        end if
 
       enddo                     ! ifld
 c     
@@ -505,13 +505,13 @@ c new code from 2011 giaox:
      &       RTDB_ERR)
       endif
 
-      if (debug) write(6,*) 'Fmat derivatives calculated'
+cng      if (debug) write(6,*) 'Fmat derivatives calculated'
       
 c     
 c     Transform to MO basis and add to right-hand-side
 c     
       call giao_aotomo(g_fock,g_vectors,nocc,nvir,1,3,nbf)
-      if (debug) write(6,*) 'Fmat derivatives transformed to MO basis'
+cng      if (debug) write(6,*) 'Fmat derivatives transformed to MO basis'
       alo(1) = nocc+1
       ahi(1) = nmo
       alo(2) = 1
@@ -532,18 +532,18 @@ c
      &   errquit('aorgiao: ga_destroy failed g_fock',0,GA_ERR)
       if (.not.ga_destroy(g_u)) call 
      &   errquit('aorgiao: ga_destroy failed g_u',0,GA_ERR)
-      if (debug) write(6,*) 'rhs build complete'
+cng      if (debug) write(6,*) 'rhs build complete'
 
-      if (debug) then
-        do ipm = 1,ncomp
-          call ga_print(g_rhs(ipm)) 
-          call ga_print(g_amat(ipm))
-        end do
-        call ga_print( g_vectors)
-        call ga_print( g_dens) 
-        call ga_print( g_smat1)
-        call ga_print(g_sket1)
-      end if
+cng      if (debug) then
+cng        do ipm = 1,ncomp
+cng          call ga_print(g_rhs(ipm)) 
+cng          call ga_print(g_amat(ipm))
+cng        end do
+cng        call ga_print( g_vectors)
+cng        call ga_print( g_dens) 
+cng        call ga_print( g_smat1)
+cng        call ga_print(g_sket1)
+cng      end if
 
 
 c     ==================================================================

@@ -182,7 +182,7 @@ c     replicated DM and Fock
 c
 c     turned off for now: needs to be debugged
 c
-      dorepon=.false.
+      dorepon=.true.
       dorepl=.false.
       if(ga_cluster_nnodes().gt.1.and.dorepon) then
          dorepd=util_mirrmat(1,g_dens,g_densrep,.true.,.false.)
