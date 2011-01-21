@@ -340,7 +340,7 @@ c     replicated DM and Fock Matrix
 c
 c     turned off for now: needs to be debugged
 c
-      dorepon=.false.
+      dorepon=.true.
       dorepl=.false.
       if(ga_cluster_nnodes().gt.1.and.dorepon) then
          docopy=.true.
