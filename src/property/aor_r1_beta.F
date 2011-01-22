@@ -64,7 +64,6 @@ c     output:
       double precision alfare(3,3), alfaim(3,3)
       double precision betare(3,3), betaim(3,3)
 
-
 c     ----------------
 c     local variables:
 c     ----------------
@@ -82,7 +81,14 @@ c     other local variables:
       integer dims(3), chunk(3)
       integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
       
+c     dipole-quadrupole polarizability, cartesian rep.:
+      double precision dipquadre(3,6), dipquadim(3,6)
+c     traceless dipole-quadrupole tensor, full storage
+      double precision dqpol(3,3,3)
+
       integer LCTensor(3,3,3)
+      integer qindex(3,3)
+      double precision tmpmat(3,3)
 
       character*(256) cstemp
 
@@ -90,12 +96,15 @@ c     other local variables:
       data direction/'x','y','z'/
       
       integer ispin, nspin
-      integer ipm, nocc, nvir, nocv, imo, jmo, nmo1, iresp, idir
+      integer ipm, nocc, nvir, nocv, imo, jmo, nmo1, iresp, idir,
+     &   i,j,k,l
       logical debug, dbgmat, 
      &   lzora, lantisym
       double precision sum, scaling
-      double precision tenm8, one, two, zero, half
-      parameter (tenm8=1d-8, one=1d0, two=2d0, zero=0d0, half=one/two)
+      double precision tenm8, one, two, three, zero, half, third
+      parameter (tenm8=1d-8, one=1d0, two=2d0, three=3d0,
+     &   zero=0d0, half=one/two,
+     &   third=one/three)
 
 c     external functions:
 
@@ -110,12 +119,15 @@ c  ====================================================================
       if (debug) write (luout,*) 'hello from aor_r1_beta'
 
 c     the main results are collected in alfare/in, betare/im.
-c     initialize with zeros:
+c     initialize these and other tensors with zeros:
 
       alfare(:,:) = 0
       alfaim(:,:) = 0
       betare(:,:) = 0
       betaim(:,:) = 0
+
+      dipquadre(:,:) = 0
+      dipquadim(:,:) = 0
 
 c     make sure lvelocity.ne.T., we do not support that in this
 c     subroutine to keep the clutter at a manageable level.
@@ -138,7 +150,19 @@ c     -------------------------
       LCtensor(2,1,3) = -1
       LCtensor(1,3,2) = -1
       LCtensor(3,2,1) = -1        
-      
+
+c     define translation table for quadrupole incices in
+c     packed storage
+c     XX=1,XY=YX=2, XZ=ZX=3,YY=4,YZ=ZY=5,ZZ=6
+      qindex(1,1) = 1
+      qindex(1,2) = 2
+      qindex(2,1) = 2
+      qindex(1,3) = 3
+      qindex(3,1) = 3
+      qindex(2,2) = 4
+      qindex(2,3) = 5
+      qindex(3,2) = 5
+      qindex(3,3) = 6      
 
 c     set parameters that control the various computational options
 c     (later we will set most of this by input)
@@ -462,7 +486,94 @@ c           repeat for imaginary part, if necessary:
 
             if (debug) write (luout,*) 'alfa C(E) h(E) C(0) complete'
             
-          enddo                 ! iresp = 1,3       
+          enddo                 ! iresp = 1,3
+
+c         ------------------------------------------------
+c         if requested by input, compute dipole-quadrupole
+c         polarizability, and add to OR beta to obtain the 
+c         Buckingham-Dunn OR tensor
+c         ------------------------------------------------       
+
+          if (lquad) then
+
+            do iresp = 1,6 
+              
+              alo(1) = 1
+              ahi(1) = nbf
+              alo(2) = 1
+              ahi(2) = nbf
+              alo(3) = iresp    ! pick direction iresp for g_quadel
+              ahi(3) = iresp
+              blo(1) = 1
+              bhi(1) = nbf
+              blo(2) = 1
+              bhi(2) = nocc
+              clo(1) = 1
+              chi(1) = nbf
+              clo(2) = 1
+              chi(2) = nocc
+              
+              
+              call ga_zero(g_temp)
+              call nga_matmul_patch('n','n',1d0,0d0,
+     &           g_quadel,alo,ahi,
+     &           g_vectors(ispin),blo,bhi,
+     &           g_temp,clo,chi)
+              
+              if (debug) write (luout,*)
+     &           'quad: h(Q) C(0) intermediate complete'
+              
+              
+              alo(1) = 1
+              ahi(1) = nocc
+              alo(2) = 1
+              ahi(2) = nbf
+              alo(3) = idir
+              ahi(3) = idir
+              blo(1) = 1
+              bhi(1) = nbf
+              blo(2) = 1
+              bhi(2) = nocc
+              clo(1) = 1
+              chi(1) = nocc
+              clo(2) = 1
+              chi(2) = nocc
+              
+              call ga_zero(g_work)
+              
+              call nga_matmul_patch('t','n',1d0,0d0,
+     &           g_vecE1,alo,ahi,
+     &           g_temp,blo,bhi,
+     &           g_work,clo,chi)
+              
+c             the factor of two is for the orbital occupations,
+c             assuming that ispin is never equal to two
+              
+              sum = 2d0 * ga_trace_diag(g_work)
+              
+              dipquadre(idir,iresp) = dipquadre(idir,iresp) - sum
+              
+c             repeat for imaginary part, if necessary:
+              
+              if (lifetime) then
+              
+                call ga_zero(g_work)
+                call nga_matmul_patch('t','n',1d0,0d0,
+     &             g_vecE1_im,alo,ahi,
+     &             g_temp,blo,bhi,
+     &             g_work,clo,chi)              
+                
+                sum = 2d0 * ga_trace_diag(g_work)              
+                
+                dipquadim(idir,iresp) = dipquadim(idir,iresp) + sum
+                
+              end if            ! lifetime     
+              
+              if (debug) write (luout,*) 'quad C(Q) h(E) C(0) complete'
+              
+            end do              ! iresp
+
+          end if                ! lquad
 
 c         -----------------------------------------
 c         end loop over responding field components
@@ -524,11 +635,15 @@ c     because we don't add C(+) and C(-) for the electric field.
             betaim(idir, iresp) = betaim(idir, iresp) * scaling
           end do
         end do
+c        ... getting tired of that ol' f77 syntax ... 
+        if (lquad) then
+          dipquadre(:,:) = dipquadre(:,:) * scaling
+          dipquadim(:,:) = dipquadim(:,:) * scaling
+        end if
       end if                    ! lstatic
 
-
 c     for comparison, let's print the
-c     transpose of the negative OR tensor
+c     transpose of the negative OR beta tensor
 
       if (debug) then
       write (luout,*) 'DEBUG: OR BETA as in some other code'
@@ -538,6 +653,81 @@ c     transpose of the negative OR tensor
       end do
       write (luout,*) 'iso: ', (betare(1,1)+betare(2,2)+betare(3,3))/3d0
       end if
+
+c     ------------------------------------------------------------
+c     if requested by input, construct traceless dipole-quadrupole
+c     polarizability tensor and contruct Buckingham-Dunn OR tensor
+c     At present we do only the real part !
+c     ------------------------------------------------------------
+
+      if (lquad) then
+
+        if (debug) then
+          write (luout,*) 'dip-quad polarizability:'
+          call output (dipquadre,1,3,1,6,3,6,1)
+        end if
+
+        dqpol(:,:,:) = zero
+
+        do i = 1,3
+          do j = 1,3
+            do k = 1,j
+              dqpol(i,j,k) = three * dipquadre(i,qindex(j,k))
+              if (k.ne.j)
+     &           dqpol(i,k,j) = three * dipquadre(i,qindex(k,j))
+            end do
+          end do
+        end do
+        
+        do i = 1,3
+c         calculate the trace of the quadrupole part
+          sum = zero
+          do j = 1,3
+            sum = sum + dipquadre(i,qindex(j,j))
+          end do
+c         subtract trace from diagonal
+          do j = 1,3
+            dqpol(i,j,j) =  dqpol(i,j,j) - sum
+          end do
+        end do
+        
+        dqpol(:,:,:) = dqpol(:,:,:) * half
+
+        if (debug) then
+          write (luout,*) 'traceless dip-quad polarizability:'
+          do i = 1,3
+            call output (dqpol(i,1:3,1:3),1,3,1,3,3,3,1)
+          end do
+        end if
+
+c       assemble BD tensor in tmpmat.
+
+c       step 1: symmetrize beta tensor
+        tmpmat(:,:) = half * betare(:,:)
+
+        do i = 1,3
+          do j = 1,3
+            tmpmat(i,j) = tmpmat(i,j) + half*betare(j,i)
+          end do
+        end do
+
+c       step 2: add quadrupole contributions
+
+        do i = 1,3
+          do j = 1,3
+            do k = 1,3
+              do l = 1,3
+                tmpmat(i,j) = tmpmat(i,j) 
+     &             + half * third * LCtensor(i,k,l) * dqpol(k,l,j) 
+     &             + half * third * LCTensor(j,k,l) * dqpol(k,l,i)
+              end do
+            end do
+          end do
+        end do
+
+        betare(:,:) = tmpmat(:,:)
+        
+      end if                    ! lquad
      
 c     ----------------
 c     all done. return
