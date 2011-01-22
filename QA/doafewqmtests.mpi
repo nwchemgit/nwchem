@@ -1,0 +1,49 @@
+#!/bin/csh -f
+#
+# $Id: $
+#
+# jochen: modification of doqmtests.mpi, I really want only a few
+# small tests for HF, DFT, response, TDDFT
+#
+set np = 1
+if ($1 !="") then
+  set np = $1
+endif
+  echo
+  echo " ======================================================="
+  echo " QM: Running a very small subset of the available tests "
+  echo " ======================================================="
+  echo
+endif
+#
+#---   small tests
+./runtests.mpi.unix procs $np h2o_opt
+./runtests.mpi.unix procs $np dft_he2+ 
+./runtests.mpi.unix procs $np small_intchk 
+./runtests.mpi.unix procs $np h2o_dk 
+./runtests.mpi.unix procs $np cosmo_h2o_dft
+#
+./runtests.mpi.unix procs $np tddft_h2o
+./runtests.mpi.unix procs $np tddft_n2+
+./runtests.mpi.unix procs $np tddft_ac_co
+./runtests.mpi.unix procs $np hi_zora_sf
+#
+# newproperty tests
+./runtests.mpi.unix procs $np prop_ch3f 
+#
+#--- range-separated functionals tests
+./runtests.mpi.unix procs $np h2_bnl
+./runtests.mpi.unix procs $np h2o_bnl
+./runtests.mpi.unix procs $np h2o-camb3lyp-pol
+./runtests.mpi.unix procs $np h2o-cambeckehh
+./runtests.mpi.unix procs $np h2o-campbe0
+./runtests.mpi.unix procs $np h2o-lcpbe
+./runtests.mpi.unix procs $np o2_bnl
+./runtests.mpi.unix procs $np o2_hfattn
+#
+#--- cdspectrum tests
+./runtests.mpi.unix procs $np dmo_tddft_cd
+#
+#--- response tests
+./runtests.mpi.unix procs $np h2o-response
+#
