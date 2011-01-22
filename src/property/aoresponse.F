@@ -464,6 +464,9 @@ c
      &       nocct(ispin), nvirt(ispin), nmot(ispin), nbf,
      &       froct(1,ispin), epst(1,ispin), omega, lstatic)
         endif
+
+c       debug:
+        haveocc = .false.
         
 c       add amat vir-occ block to CPKF rhs
         alo(1) = nocc + 1

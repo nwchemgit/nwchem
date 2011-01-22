@@ -69,7 +69,7 @@ c     local variables:
 
 c     ==================================================================
 
-      debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
+      debug = .true. .and. ga_nodeid().eq.0 ! .true. during development
       dbgmat = .false. .and. ga_nodeid().eq.0 ! debug large matrices
 
 c     THERE WAS A BUG HERE BECAUSE ONLY IF DEBUG WAS SET TO TRUE DID I
@@ -121,40 +121,6 @@ c     transform Smat1 and S-ket to MO basis
       if (.not.lstatic)
      &   call giao_aotomo(g_sket1,g_vectors,nocc,nvir,1,3,nbf)
 
-c$$$c     debug S10 and S-ket in MO basis (dynamic response)
-c$$$      if (dbgmat .and. .not.lstatic) then
-c$$$        clo(1) = nmo
-c$$$        clo(2) = nmo
-c$$$        clo(3) = 1
-c$$$        chi(1) = nmo
-c$$$        chi(2) = -1
-c$$$        chi(3) = -1
-c$$$        if (.not.nga_create(MT_DBL,2,clo,'temp',chi,g_temp)) call 
-c$$$     &     errquit('aorgiao: nga_create failed g_temp',0,GA_ERR)
-c$$$        do ifld = 1,3
-c$$$          chi(1) = nmo
-c$$$          chi(2) = nmo
-c$$$          chi(3) = ifld
-c$$$          clo(1) = 1  
-c$$$          clo(2) = 1
-c$$$          clo(3) = ifld
-c$$$          call nga_copy_patch('t',g_sket1,clo,chi,g_temp,clo,chi)
-c$$$          call nga_add_patch(1d0,g_sket1,clo,chi,-1d0,g_temp,clo,chi,
-c$$$     &       g_temp,clo,chi)
-c$$$          if( ga_nodeid().eq.0) then            
-c$$$            write (6,*) 
-c$$$     &       '(S-ket - transpose(S-ket)) - S10 in MO bas ifld=',ifld
-c$$$c            call nga_print_patch(g_temp, clo, chi,1)
-c$$$c            call nga_print_patch(g_smat1, clo, chi,1)
-c$$$            call nga_add_patch(1d0,g_smat1,clo,chi,-1d0,g_temp,clo,chi,
-c$$$     &         g_temp,clo,chi)
-c$$$            call nga_print_patch(g_temp, clo, chi,1)
-c$$$          endif
-c$$$        enddo
-c$$$        if (.not.ga_destroy(g_temp)) call 
-c$$$     &     errquit('aorgiao: ga_destroy failed g_temp',0,GA_ERR)
-c$$$      endif
-
 c     ga_rhs(a,i) = ga_rhs(a,i) - e(i) * S10(a,i)
 c     Scale (occ,virt) block of g_smat1 with - (minus) MO energies 
 
@@ -186,30 +152,6 @@ c     these dimensions will be used repeatedly:
 
       if (debug) write (luout,*) 'added Smat1 term to rhs'
 
-c     Add S-ket matrix contribution (now in MO basis) to rhs
-c     Note that in JCP 123, 114103 S-Ket contains a factor of (+/-)w
-c     which we account for here
-c     THE PREFACTORS NEED TO BE DEBUGGED YET
-
-      ! only needed for dynamic response
-
-      if (.not.lstatic) then
-        if (ncomp.ne.2) then
-          call errquit('aor_giao_rhs: adding S1ket but ncomp.ne.2',
-     &       0, INPUT_ERR)
-        end if
-        call nga_add_patch(-1.0d0*omega,g_sket1,
-     &     alo,ahi,1d0,g_rhs(1),blo,bhi,
-     &     g_rhs(1),blo,bhi)
-        if (ncomp.eq.2) then
-          call nga_add_patch(1.0d0*omega,g_sket1,
-     &       alo,ahi,1d0,g_rhs(2),blo,bhi,
-     &       g_rhs(2),blo,bhi)             
-        endif
-
-        if (debug) write (luout,*) 'added Sket1 term to rhs'
-
-      end if ! lstatic
 
 c     Construct occ-occ part of the three A matrices
 c     Occ-occ blocks for each field direction are defined as -1/2 S10
@@ -528,10 +470,72 @@ c
       call nga_add_patch(1.0d0,g_rhs(ipm),blo,bhi,1.0d0,g_fock,alo,ahi,
      &   g_rhs(ipm),blo,bhi)
       enddo
+
       if (.not.ga_destroy(g_fock)) call 
      &   errquit('aorgiao: ga_destroy failed g_fock',0,GA_ERR)
       if (.not.ga_destroy(g_u)) call 
      &   errquit('aorgiao: ga_destroy failed g_u',0,GA_ERR)
+
+c     Add S-ket matrix contribution (now in MO basis) to rhs
+c     Note that in JCP 123, 114103 S-Ket contains a factor of (+/-)w
+c     which we account for here
+c     THE PREFACTORS NEED TO BE DEBUGGED YET, THIS IS NOT WORKING
+
+c     we will use g_smat1 as scratch space since it is not needed
+c     anymore
+
+
+      if (.not.lstatic) then
+        call ga_zero(g_smat1)
+        
+        do ifld = 1,3
+          
+          alo(1) = 1
+          ahi(1) = nmo
+          alo(2) = 1
+          ahi(2) = nmo
+          alo(3) = ifld
+          ahi(3) = ifld
+          
+          call nga_copy_patch('t',g_sket1,alo,ahi,g_smat1,alo,ahi)
+        end do                  ! ifld
+        
+        
+        alo(1) = nocc+1
+        ahi(1) = nmo
+        alo(2) = 1
+        ahi(2) = nocc
+        alo(3) = 1
+        ahi(3) = 3
+        
+        blo(1) = 1
+        bhi(1) = nocc * nvir
+        blo(2) = 1
+        bhi(2) = 3
+        
+        if (ncomp.ne.2) then
+          call errquit('aor_giao_rhs: adding S1ket but ncomp.ne.2',
+     &       0, INPUT_ERR)
+        end if
+        
+c       component 1: use sket1 vir-occ block unmodified
+        
+        call nga_add_patch(-1.0d0*omega,g_sket1,
+     &     alo,ahi,1d0,g_rhs(1),blo,bhi,
+     &     g_rhs(1),blo,bhi)
+        
+c       component 2: use the transpose of sket 
+        
+        if (ncomp.eq.2) then
+          call nga_add_patch(-1.0d0*omega,g_smat1,
+     &       alo,ahi,1d0,g_rhs(2),blo,bhi,
+     &       g_rhs(2),blo,bhi)             
+        endif
+        
+        if (debug) write (luout,*) 'added Sket1 term to rhs'
+        
+      end if ! lstatic
+
       if (debug) write(6,*) 'rhs build complete'
 
       if (debug) then

@@ -1,12 +1,12 @@
-      subroutine aoresponse_driver (rtdb, basis, geom)
+      subroutine aoresponse_driver_new (rtdb, basis, geom)
 
-c     $Id$
+c     $Id: $
 
 c     ==================================================================
 
-c     main driver routine for "aoresponse", nwchem implementation
+c     new driver routine for "aoresponse", nwchem implementation
 c
-c     purpose: perform frequency dependent SCF response calculation
+c     purpose: perform frequency dependent SCF response calculations
 c
 c     This subroutine was
 c     initially adapted from the property module hnd_giaox.F and
@@ -17,7 +17,7 @@ c     input:   rtdb  - nwchem run time database
 c              basis - basis set handle
 c              geom  - geometry handle
 
-c     The "aoresponse" software is a code package being developed
+c     The "aoresponse" module is a code package being developed
 c     by the research group of Jochen Autschbach, State University
 c     of New York at Buffalo (SUNY Buffalo). For questions please
 c     contact us by email at jochena@buffalo.edu. 
@@ -27,13 +27,15 @@ c     JPC-A 110 (2006), 2461
 c     JCP 123 (2005), 114103
 c     JCP 122 (2005), 224115
 c     JCP 122 (2005), 074105
+c     Comp. Lett. 3 (2007), 131
 c     and a number of submitted papers as well as the
 c     work by D. P. Santry and coworkers from the 1970s. Check out
 c    http://www.nsm.buffalo.edu/~jochena/publications/publications.html
 c     for follow- papers by our group.
 
-c     note: most of the ADF aoresponse functionality is not yet
+c     note: quite a bit of the ADF aoresponse functionality is not yet
 c     available in NWChem (July 2006, update Jan 2011)
+c     but we now have GIAOs here for optical rotation
 
 c     ==================================================================
 
@@ -79,14 +81,15 @@ c
       external cphf2, file_write_ga, file_read_ga, cphf
 c
       logical     oskel, status
-      double precision ppm
-      data ppm     /26.62566914d+00/ 
       data tol2e   /1.0d-10/
 
-      integer nfreq, l_fr, k_fr, l_deps, k_deps, nocv
+      integer nfreq, l_fr, k_fr, l_deps, k_deps
       data nfreq/0/  ! number of frequencies, static if zero
-      integer response_order
+      integer response_order, this_resporder, this_freq
       data response_order/1/ ! 1 for linear, 2 for quadratic, etc
+
+      integer ipm, ncomp
+      double precision omega
 
       double precision dummy(3)
       double precision origin(3)
@@ -99,15 +102,15 @@ c     GA handles for one-electron integrals and temp arrays
       integer g_dipel, g_smat0, g_temp, g_dipmag, g_smat1,
      &   g_sket1, g_quadel
 
-c     GA handle for magnetic field perturbed MO vectors:
-      integer g_vecB1
+c     GA handles for perturbed MO vectors:
+      integer g_vecB1(2), g_vecF1(2), g_vecF1_im(2),
+     &   g_vecF1_zero, g_dummy(2)
 
       integer idir, ipert ! field directions
-      integer nbfx ! later set to nbf*(nbf+1)/2
       integer ntmp
 
-      double precision sum, sumim, zero, one, two
-      parameter (zero = 0d0, one = 1d0, two = 2d0)
+      double precision sum, sumim, zero, one, two, tenm8
+      parameter (zero = 0d0, one = 1d0, two = 2d0, tenm8 = 1d-8)
       double precision gamwidth
       double precision ga_trace_diag
       external ga_trace_diag
@@ -132,7 +135,9 @@ c     GA handle for magnetic field perturbed MO vectors:
 
 c     ==================================================================
 
-      debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
+      debug = .true. .and. ga_nodeid().eq.0 ! .true. during development
+
+      if (debug) write(luout,*) 'hello from aoresponse_driver_new'
 
       oprint = util_print('information', print_low)
       oprint = oprint .and. (ga_nodeid().eq.0)
@@ -161,48 +166,46 @@ c     -------------------------------------------
       lbeta = .false.
       lquad = .false.
       gamwidth = 0d0
-
+      
       ntmp = 1
       if (.not.rtdb_get(rtdb, 'aoresponse:velocity', mt_int, 1,ntmp)) 
-     &    call errquit('aor_driver: velocity failed ',0, RTDB_ERR)
+     &   call errquit('aor_driver: velocity failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lvelocity = .true.
-
+      
       ntmp = 1
       if (.not.rtdb_get(rtdb,'aoresponse:magneticpert', mt_int, 1,ntmp))
-     &    call errquit('aor_driver: magneticpert failed ',0, RTDB_ERR)
+     &   call errquit('aor_driver: magneticpert failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lmagpert = .true.
-
+      
       ntmp = 1
       if (.not.rtdb_get(rtdb, 'aoresponse:giao', mt_int, 1,ntmp)) 
-     &    call errquit('aor_driver: giao failed ',0, RTDB_ERR)
+     &   call errquit('aor_driver: giao failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lgiao = .true.
-
+      
       ntmp = 1
       if (.not.rtdb_get(rtdb, 'aoresponse:orbeta', mt_int, 1,ntmp)) 
-     &    call errquit('aor_driver: lbeta failed ',0, RTDB_ERR)
+     &   call errquit('aor_driver: lbeta failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lbeta = .true.
-
+      
       ntmp = 1
       if (.not.rtdb_get(rtdb, 'aoresponse:quad', mt_int, 1,ntmp)) 
-     &    call errquit('aor_driver: lquad failed ',0, RTDB_ERR)
+     &   call errquit('aor_driver: lquad failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lquad = .true.
-
+      
       ntmp = 1
       if (.not.rtdb_get(rtdb, 'aoresponse:damping', mt_int, 1,ntmp)) 
-     &    call errquit('aor_driver: damping failed ',0, RTDB_ERR)
+     &   call errquit('aor_driver: damping failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lifetime = .true.
-
+      
       if (lifetime) then
         if (.not.rtdb_get(rtdb, 'aoresponse:gamwidth',
      &     mt_dbl, 1,gamwidth)) 
      &     call errquit('aor_driver: gamwidth failed ',0, RTDB_ERR)
       endif        
-
+      
 c     note: if lgiao.eq.true. we assume that the user is
 c     interested to get origin independent optical rotation which
-c     we have to calculate from the magnetically perturbed density
-c     matrix with the code as set up. 
-c     (NOT TESTED. DON't USE. Use LBETA functionality instead).
+c     we have to calculate with the LBETA functionality.
 
 c     if lvelocity.eq.true. we assume that NO giaos are to be used.
 c     in that case the perturbing operator is imaginary no matter if
@@ -217,9 +220,9 @@ c     i nabla or i/2 (r x nabla)
         lgiao = .false.
       endif
       if (lgiao .and. .not.lbeta) lmagpert = .true.
-
-c     also check if lvelocity and lbeta are both true:
-
+      
+c     also check if lvelocity and lbeta are both true. velocity trumps
+      
       if (lvelocity .and. lbeta) then
         if (oprint) then
           write (LuOut,*) 
@@ -227,7 +230,7 @@ c     also check if lvelocity and lbeta are both true:
         endif
         lbeta = .false.
       endif
-
+      
 c     for the time being, if we have GIAOs set, the code
 c     must go through the "beta" static B-field routine
 
@@ -239,20 +242,35 @@ c     must go through the "beta" static B-field routine
      &       '*** NOTE: enabled ORBETA because of GIAO keyword ***'
         end if
       end if
-
-c     finite lifetime not yet available with the "beta" code
-
-      if (lbeta .and. lifetime) then
-        if (oprint) then
-          write (LuOut,*) 
-     &       '*** WARNING: LIFETIME: ORBETA or GIAO disabled ***'
-          lbeta = .false.
-          lgiao = .false.
-        endif
-      end if
+    
+c     finite lifetime: With damping, the tensors for beta are not
+c     identical to those calculated without the ORBETA functionality. In
+c     the absence of damping they happen to be identical. I was
+c     expecting the identity to hold also in the presence of damping.
+c     Yet, on the one hand the OR beta is origin dependent in the
+c     absence of GIAO functionality and this might cause non-equivalence
+c     in the presence of damping (unlikely). On the other hand, the FIAO
+c     rotatory strengths calculated with and without the ORBETA approach
+c     are the same and therefore one should expect the damped beta to be
+c     independent of the formalism used for the calculation. However, I
+c     checked for H2O2 HF/STO-3G that the damped GIAO beta is nearly
+c     origin independent which is definitely a good sign. There is
+c     perhaps some noise in the solution of the damped vectors that we
+c     need to eliminate; this is an unsolved issue anyway (CPHF is not
+c     cleanly implemented for complex vectors).
+c$$$
+c$$$
+c$$$ if (lbeta .and. lifetime) then
+c$$$ if (oprint) then
+c$$$ write (LuOut,*)
+c$$$ & '*** WARNING: LIFETIME: ORBETA or GIAO disabled ***'
+c$$$ lbeta = .false.
+c$$$ lgiao = .false.
+c$$$ endif
+c$$$ end if
 
 c     -----------------------
-c     general initializations (adapted from hnd_giaox.F)
+c     general initializations (some of it adapted from hnd_giaox.F)
 c     -----------------------
 
 c     Current CPHF does not handle symmetry 
@@ -281,7 +299,7 @@ c     read number of frequencies from run-time database
       endif
       if (debug) write (luout,*) 'nfreq',nfreq
 
-c     at present we will tie the response order to the number
+c     at present we tie the response order to the number
 c     of frequencies that the user inputs, and calculate the 
 c     response only for one set of frequencies. i.e. we calculate
 c     alpha(-sum_i \omega_i; omega_1, omega_2, omega_3, ...).
@@ -342,10 +360,10 @@ c       retrieve nbf = number of basis functions:
         ahi(1) = nbf
         ahi(2) = nbf
         ahi(3) = 3
-        if (.not.nga_create(MT_DBL,3,ahi,'aor vecB1',alo,g_vecB1))
+        if (.not.nga_create(MT_DBL,3,ahi,'aor vecB1',alo,g_vecB1(1) ))
      &     call 
      &     errquit('aor_driver: nga_create failed vecB1',0,GA_ERR)
-        call ga_zero(g_vecB1)
+        call ga_zero(g_vecB1(1) )
 
         if (lgiao) then
 c         also compute
@@ -354,9 +372,9 @@ c         first-order S-ket matrix (right-hand side S-derivative)
      &       call 
      &       errquit('aor_driver: nga_create failed g_sket1',0,GA_ERR)
           call ga_zero(g_sket1)
-          call giao_b1_movecs(rtdb,basis,geom, g_vecB1, g_sket1)
+          call giao_b1_movecs(rtdb,basis,geom, g_vecB1(1), g_sket1)
         else
-          call fiao_b1_movecs(rtdb,basis,geom, g_vecB1)
+          call fiao_b1_movecs(rtdb,basis,geom, g_vecB1(1))
         end if
         if (oprint) write (luout,*) '... done. Reinitializing integrals'
 
@@ -371,7 +389,9 @@ c       need to re-initialize:
       end if ! lbeta 
 
 c     ---------------------------------------------------------
-c     write to output a summary of what we are going to do next
+c     write to output a summary of what we are going to do next.
+c     this summary is probably going to be most useful for
+c     linear response, not for higher orders to be implemented
 c     ---------------------------------------------------------
 
       if (oprint) write (luout,8888)
@@ -443,13 +463,13 @@ c     call to fcprep:
 
 c     Get Unperturbed Density Matrix pointer. The following call also 
 c     contains a call to hnd_prp_vec_read inside hnd_prp_get_dens:
-      if (.not.lbeta .or. debug) then
-        call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
-     &     nclosed,nopen,nvirt)
-      end if
+c$$$      if (.not.lbeta .or. debug) then
+c$$$        call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
+c$$$     &     nclosed,nopen,nvirt)
+c$$$      end if
 
       if (oprint .and. debug)
-     &   write (luout,*) 'nclosed,nopen,nvirt',nclosed(1),
+     &   write (luout,*) 'aor driver: nclosed,nopen,nvirt',nclosed(1),
      &   nopen(1), nvirt(1)
       
 c     Exit gracefully if we have an open-shell system:
@@ -469,9 +489,74 @@ c     for RHF system there should be no open shell orbitals
 c     in this case, nclosed and nvirt should add up to nmo
       if ((nclosed(1)+nvirt(1)).ne.nmo) call
      &   errquit('aor_driver: wrong no. of orbitals',0, CALC_ERR)
+
+
+c     ---------------------------------------------
+c     Calculate external field perturbed MO vectors
+c     (default: electric, unless lmagpert is set):
+c     ---------------------------------------------
+
+      this_resporder = 1
+      this_freq = 1
+
+c     IMPORTANT: the arrays for g_vecF1* are allocated in 
+c     fiao_f1_movecs but deallocated here.
+c     lmagpert is not yet considered !
+
+c     determine frequency and number of components
+
+      omega = dbl_mb(k_fr + this_resporder -1 )
+      lstatic = (abs(omega).lt.tenm8) ! static response or not
+      ncomp = 2                 ! no. of Fourier components to treat
+      if (lstatic) ncomp = 1 
+
+      call fiao_f1_movecs(rtdb,basis,geom, omega, lstatic, ncomp,
+     &   lvelocity, lifetime, gamwidth,
+     &   g_vecF1, g_vecF1_im)
+
+c       the fiao_e1_movecs routine terminates the integrals.
+c       need to re-initialize:
+
+      call int_init(rtdb,1,basis)
+      call schwarz_init(geom,basis)
+      call hnd_giao_init(basis,1)
+      call scf_get_fock_param(rtdb,tol2e)
+
+c     repeat this for zero frequency if we use the modified
+c     velocity gauge:
+
+      if (lvelocity) then
+        call fiao_f1_movecs(rtdb,basis,geom, 0d0, .true., 1,
+     &     lvelocity, .false., 0d0,
+     &     g_vecF1_zero, g_dummy)
+
+        call int_init(rtdb,1,basis)
+        call schwarz_init(geom,basis)
+        call hnd_giao_init(basis,1)
+        call scf_get_fock_param(rtdb,tol2e)
+
+c       we can subtract the static response right in the perturbed
+c       MO vectors and deallocate g_vecF1_zero to free up some
+c       memory
+
+        do ipm = 1,ncomp
+          call ga_add(1d0, g_vecF1(ipm), -1d0,  g_vecF1_zero,
+     &       g_vecF1(ipm))
+        end do        
+
+        if (.not.ga_destroy(g_vecF1_zero )) call 
+     &     errquit('aor_driver: ga_destroy failed g_vecF1zero',0,GA_ERR)
+        
+      end if                    ! lvelocity
+
       
 c     --------------------------------------------
-c     calculate one-electron integrals in AO basis
+c     Respolse equations solved. Now proceed to the
+c     computations of the response tensors. To begin,
+c     calculate required one-electron integrals in AO basis.
+c     There is some redundancy the the AO matrix calculations
+c     that we might get rid of later (e.g. dipole integrals 
+c     are also used in fiao_e1_movecs). 
 c     --------------------------------------------
 
       alo(1) = nbf
@@ -500,7 +585,7 @@ c       w/ dipole-length optical rotation
 
 c     magnetic dipole moment integrals (r x nabla), times 0.5:
       
-      if (.not.lbeta .or. debug) then
+      if (.not.lbeta) then
         if (.not.nga_create(MT_DBL,3,ahi,'mag-dipole',alo,g_dipmag))
      &     call errquit
      &     ('aor_driver: nga_create failed g_dipmag',0,GA_ERR)
@@ -572,104 +657,6 @@ c     electron quadrupole moment integrals
       end if
 
 
-c     --------------
-c     some debugging (may not work after 01/11 code updates)
-c     --------------
-
-      if (debug) then
-
-c       debug: multiply density matrix with overlap matrix
-c       and extract diagonal elements => N(electrons)
-
-        if (.not.nga_create(MT_DBL,2,ahi,'temp',alo,g_temp)) call 
-     &     errquit('aor_driver: nga_create failed g_temp',0,GA_ERR)
-
-        alo(1) = 1              ! range of A, first dimension 
-        ahi(1) = nbf
-        alo(2) = 1              ! range of A, second dimension
-        ahi(2) = nbf
-        blo(1) = 1              ! range of B, first dimension, etc.
-        bhi(1) = nbf
-        blo(2) = 1
-        bhi(2) = nbf 
-        clo(1) = 1
-        chi(1) = nbf
-        clo(2) = 1
-        chi(2) = nbf
-        call nga_matmul_patch('n','n',1d0,0d0,
-     &     g_dens(1),alo,ahi,
-     &     g_smat0,blo,bhi,
-     &     g_temp,clo,chi)
-        sum = ga_trace_diag(g_temp)
-        if (oprint)
-     &     write (luout,'(1x,a,3x,e15.7)') 'tr(P*S): ',sum
-
-c       debug: calculate electronic dipole moments
-
-c       calculate C = A*B with nga_matmul_patch
-        alo(1) = 1              ! range of A, first dimension 
-        ahi(1) = nbf
-        alo(2) = 1              ! range of A, second dimension
-        ahi(2) = nbf
-        blo(1) = 1              ! range of B, first dimension, etc.
-        bhi(1) = nbf
-        blo(2) = 1
-        bhi(2) = nbf 
-        clo(1) = 1
-        chi(1) = nbf
-        clo(2) = 1
-        chi(2) = nbf
-
-        do idir = 1,3
-
-          blo(3) = idir         ! B is here the dipole matrix with
-          bhi(3) = idir         ! dimension (nbf, nbf, 3)
-
-          call ga_zero(g_temp)
-          call nga_matmul_patch('n','n',1d0,0d0,
-     &       g_dens(1),alo,ahi,
-     &       g_dipel,blo,bhi,
-     &       g_temp,clo,chi)
-          sum = ga_trace_diag(g_temp)
-          if (oprint)
-     &       write (luout,'(1x,a,i3,e15.7)') 'tr(P0*D): ',idir,sum
-
-          call ga_zero(g_temp)
-          call nga_matmul_patch('n','n',1d0,0d0,
-     &       g_dens(1),alo,ahi,
-     &       g_dipmag,blo,bhi,
-     &       g_temp,clo,chi)
-          sum = ga_trace_diag(g_temp)
-          if (oprint)
-     &       write (luout,'(1x,a,i3,e15.7)') 'tr(P0*M): ',idir,sum
-c
-c         debug Smat1 and S-ket matrices
-c
-          if (lgiao) then
-            call nga_copy_patch('t',g_sket1,blo,bhi,g_temp,clo,chi)
-            call nga_add_patch(1d0,g_sket1,blo,bhi,-1d0,g_temp,clo,chi,
-     &         g_temp,clo,chi)
-c            if (oprint) then
-c              call nga_print_patch(g_smat1,blo,bhi,1)
-c              call nga_print_patch(g_temp,clo,chi,1)
-c            endif
-            call nga_add_patch(1d0,g_smat1,blo,bhi,-1d0,g_temp,clo,chi,
-     &         g_temp,clo,chi)
-            if (oprint) then
-              write (6,*)
-     &         '(S-ket - transpose(S-ket)) - S10 in AO bas idir =',idir
-              call ga_print(g_temp)
-            endif
-            
-          endif                 ! lgiao
-          
-        enddo                   ! idir = 1,3
-        
-        if (.not.ga_destroy(g_temp)) call 
-     &     errquit('aor_driver: ga_destroy failed g_temp',0,GA_ERR)
-        
-      end if                    ! debug
-
 c     ------------------------------------------------
 c     All necessary input data has now been assembled.
 c     Allocate memory for temporary arrays and
@@ -690,21 +677,13 @@ c     magnetic dipole integrals   :   g_dipmag (GA)
 c     unperturbed MO coeffs       :   g_vectors(2) (GA)
 c     MO energies                 :   dbl_mb(k_eval) (MA)
 c     MO occupations              :   dbl_mb(k_occ) (MA)
-c     unperturbed density matrix  :   g_dens(3) (GA) 
+c     unperturbed density matrix  :   g_dens(3) (GA), not needed
 c     number of basis functions   :   nbf    
 c     number of MOs               :   nmo
 c     number of closed shell MOs  :   nclosed(2) = occ MOs
 c     number of open shell MOs    :   nopen(2) should be zero
 c     number of empty MOs         :   nvir(2) = virt MOs
 
-      nbfx = nbf*(nbf+1)/2 ! not needed at present
-
-c     allocate temporary array to hold orbital energy difference
-c     denominators:
-      nocv = nclosed(1)*nvirt(1)
-      if (.not. ma_push_get(mt_dbl,nocv,'deps_tmp',l_deps,k_deps)) 
-     &   call errquit('aor_driver: ma_push_get failed k_deps',
-     &   l_deps,MA_ERR)
 
       do idir = 1,3
         do ipert = 1,3
@@ -718,44 +697,27 @@ c     denominators:
       if (.not.lbeta) then
 c     default call: compute dynamic polarizability and
 c     optical rotation G' tensor
-         if (debug) write (luout,*) 'calling aoresponse'
-         call aoresponse (rtdb, basis, geom, nfreq, response_order,
-     &        dbl_mb(k_fr),
-     &        g_smat0, g_smat1, g_sket1,
-     &        g_dipel, g_dipmag, g_vectors, dbl_mb(k_eval),
-     &        dbl_mb(k_occ), g_dens, nbf, nbfx, nmo, nclosed, nvirt,
-     &        dbl_mb(k_deps), lgiao, lvelocity, lmagpert,
-     &        lifetime, gamwidth, alfare, alfaim, betare, betaim)
-         if (debug) write (luout,*) 'exiting aoresponse'
+         if (debug) write (luout,*) 'calling aor_r1_tensor'
+         call aor_r1_tensor(rtdb, basis, geom, omega, lstatic, ncomp,
+     &      g_smat0, g_dipmag, g_dipel, g_quadel, g_vectors ,
+     &      dbl_mb(k_occ), nbf, nmo, nclosed, nvirt, lgiao, lquad,
+     &      lvelocity, lifetime, lmagpert, g_vecF1, g_vecF1_im,  alfare
+     &      ,alfaim, betare, betaim)         
+         if (debug) write (luout,*) 'exiting aor_r1_tensor'
          
       else ! lbeta?
 
-c     alternate call: compute directly optical rotation beta tensor
-c     using frequency-dependent generalization of Amos' formula
-
-         if (debug) write (luout,*) 'calling aoresponse_beta'
-
-c        original aor_beta where the magnetically perturbed 
-c        vectors are are generated within the routine:
-c         call aoresponse_beta (rtdb,basis,geom, nfreq, response_order,
-c     &        dbl_mb(k_fr),
-c     &        g_smat0, g_smat1, g_sket1,
-c     &        g_dipel, g_quadel, g_dipmag, g_vectors, dbl_mb(k_eval),
-c     &        dbl_mb(k_occ), g_dens, nbf, nbfx, nmo, nclosed, nvirt,
-c     &        dbl_mb(k_deps), lgiao, lquad, lvelocity, lmagpert,
-c     &        lifetime, gamwidth, alfare, alfaim, betare, betaim)
-
-c        new aor_beta where we use the g_vecB1 data
-c        calculated earlier:
-         call aoresponse_beta2 (rtdb, basis, geom, nfreq,
-     &      response_order,
-     &      dbl_mb(k_fr),
-     &      g_smat0, g_sket1, g_vecB1,
-     &      g_dipel, g_quadel, g_vectors, 
-     &      dbl_mb(k_occ), nbf, nmo, nclosed, nvirt,
-     &      dbl_mb(k_deps), lgiao, lquad, lvelocity, lmagpert,
-     &      lifetime, gamwidth, alfare, alfaim, betare, betaim)
-         if (debug) write (luout,*) 'exiting aoresponse_beta'
+c       alternate call: compute directly optical rotation beta tensor
+c       using frequency-dependent generalization of Amos' formula, along
+c       with the polarizability
+        
+         if (debug) write (luout,*) 'calling aor1_beta'
+         call aor_r1_beta(rtdb, basis, geom, omega, lstatic, ncomp,
+     &      g_smat0, g_sket1, g_vecB1, g_dipel, g_quadel , g_vectors ,
+     &      dbl_mb(k_occ), nbf, nmo, nclosed, nvirt, lgiao , lquad,
+     &      lvelocity, lifetime, lmagpert, g_vecF1, g_vecF1_im,  alfare,
+     &      alfaim, betare, betaim)         
+         if (debug) write (luout,*) 'exiting aor_r1_beta'
 
       end if ! lbeta
 
@@ -768,7 +730,7 @@ c     ------------
      &     'Electric Dipole Response Matrix (nonzero elements):'
         if (lmagpert) then
           if (lstatic) then
-            write (LuOut,*) 'Optical rotation tensor G`'
+            write (LuOut,*) 'Optical rotation tensor G'' '
           else
             write (LuOut,*) 'Optical rotation tensor Beta'
           endif
@@ -848,7 +810,7 @@ c
      &     'Magnetic Dipole Response Matrix (nonzero elements):'
         if (.not.lmagpert) then
           if (lstatic) then
-            write (LuOut,*) 'Optical rotation tensor G`'
+            write (LuOut,*) 'Optical rotation tensor G'' '
           else
             write (LuOut,*) 'Optical rotation tensor Beta'
           endif
@@ -886,16 +848,25 @@ c     deallocate global arrays
 
       if (.not.ga_destroy(g_vectors)) call 
      &    errquit('aor_driver: ga_destroy failed g_vectors',0,GA_ERR)
-      if (.not.lbeta .or. debug) then
-        do i=1,ndens
-          if (.not.ga_destroy(g_dens(i))) call 
-     &       errquit('aor_driver: ga_destroy failed g_dens',0,GA_ERR)
-        enddo
-      end if
+c$$$      if (.not.lbeta .or. debug) then
+c$$$        do i=1,ndens
+c$$$          if (.not.ga_destroy(g_dens(i))) call 
+c$$$     &       errquit('aor_driver: ga_destroy failed g_dens',0,GA_ERR)
+c$$$        enddo
+c$$$      end if
       if (.not.ga_destroy(g_dipel)) call 
      &    errquit('aor_driver: ga_destroy failed g_dipel',0,GA_ERR)
 
-      if (.not.lbeta .or. debug) then
+      do ipm = 1,ncomp
+        if (.not.ga_destroy(g_vecF1(ipm) )) call 
+     &     errquit('aor_driver: ga_destroy failed g_vecF1',0,GA_ERR)
+        if (lifetime) then
+          if (.not.ga_destroy(g_vecF1_im(ipm) )) call 
+     &       errquit('aor_driver: ga_destroy failed g_vecF1',0,GA_ERR)
+        end if
+      end do
+
+      if (.not.lbeta) then
         if (.not.ga_destroy(g_dipmag)) call 
      &     errquit('aor_driver: ga_destroy failed g_dipmag',0,GA_ERR)
       end if
@@ -934,8 +905,8 @@ c     ------------------------------------------------------------
       if (.not.ma_chop_stack(l_fr)) call
      &   errquit('aor_driver: ma_chop_stack failed k_fr',l_fr,MA_ERR)
 
-c      call schwarz_tidy()
-c      call int_terminate()
+      call schwarz_tidy()
+      call int_terminate()
       
       if (oprint) then
         write (LuOut,*) 'Exiting AOResponse driver routine'

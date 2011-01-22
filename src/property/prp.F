@@ -3,7 +3,7 @@
 *
       subroutine hnd_propty(rtdb,basis,geom)
 
-c ... jochen: added some aoresponse stuff here
+c ... jochen: added some response stuff here
 
       implicit double precision (a-h,o-z)
 #include "nwc_const.fh"
@@ -18,6 +18,7 @@ c ... jochen: added some aoresponse stuff here
       logical     status
       logical     some
       logical     out 
+      integer     iopt
 c     Modified by Fredy Aquino to Add EFG-ZORA4,G-shifts-ZORA
        data nodip,noqdp,nootp,nopop,nospin,noloc,nodpl,nodhp,nod2hp,
      1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noelfgZ4,noden,
@@ -55,8 +56,15 @@ c
 
 c     ----- aoresponse: frequency dependent response -----
 c
-      if (noaoresponse.eq.0)
-     +   call aoresponse_driver(rtdb, basis, geom)
+      if (noaoresponse.eq.0) then
+        iopt = 0
+        status=rtdb_get(rtdb,'prop:newaoresp',MT_INT,1,iopt)
+        if (iopt.eq.1) then
+          call aoresponse_driver_new(rtdb, basis, geom)
+        else
+          call aoresponse_driver(rtdb, basis, geom)
+        end if
+      end if
 c
 c     ----- dipole moment -----
 c

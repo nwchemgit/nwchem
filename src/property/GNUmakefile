@@ -34,19 +34,24 @@
          hnd_dsoten.o \
          prop_atom.o  \
          aoresponse_driver.o \
+         aoresponse_driver_new.o \
          int_mpole_1ega.o \
          aoresponse.o \
          aoresponse_beta.o \
          aoresponse_beta2.o \
+         fiao_e1_movecs.o \
+         aor_r1_tensor.o \
+         aor_r1_beta.o \
          giao_b1_movecs.o \
          fiao_b1_movecs.o \
+         aoresponse_giao_rhs.o \
          CalcPerturbedTDPmat1.o \
          ao_1prdm_read.o \
 	 task_raman.o \
 	 raman_input.o \
 	 raman.o
 
-   OBJ = aoresponse_giao_rhs.o
+#   OBJ = aoresponse_giao_rhs.o
 
    LIBRARY = libproperty.a
    LIB_DEFINES = -DJEFF_OUTPUT

@@ -10,6 +10,8 @@ c     comments from hnd_giaox and the variable names unmodified.
 c     g_vecB1 should have at least dimensions (nbf, nocc, 3)
 c     g_sket1 should have dimensions (nbf, nbf, 3)
 
+c     Note: the CPHF call terminates the integrals
+
       implicit none
 
 #include "errquit.fh"

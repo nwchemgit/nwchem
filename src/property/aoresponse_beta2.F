@@ -19,11 +19,8 @@ c     using -G'/omega for small omega which is numerically unstable.
 c     Moreover, we can use a static magnetic field which makes it
 c     a little bit easier to implement GIAO optical rotation. 
 
-c     This is a NEW version of aoresponse_beta where we assume that the
-c     B-field perturbed MO coefficients have already been computed
-c     elsewhere. The original version was 'standalone' in this respect
-c     but consumed a lot of memory and had a strange bug in
-c     aoresponse_giao_rhs.
+c     We assume that perturbed MO coefficients have already
+c     been computed elsewhere. 
 
 c     called from: aoresponse_driver
 

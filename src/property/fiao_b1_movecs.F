@@ -4,10 +4,12 @@ c $Id: $
 
 c     This routine is a modification of fiao_b1_movecs.F. We calculate
 c     the MO vectors perturbed by a STATIC external magnetic field but
-c     not with GIAOs. This is a veavily stripped-down version of
+c     not with GIAOs. This is a heavily stripped-down version of
 c     hnd_giaox.
 
 c     g_vecB1 should have at least dimensions (nbf, nocc, 3)
+
+c     Note: the CPHF call terminates the integrals
 
       implicit none
 
