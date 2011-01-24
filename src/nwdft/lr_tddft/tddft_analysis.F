@@ -18,6 +18,7 @@ c J. Autschbach, SUNY Buffalo (2009).
 c reference: J.Chem.Phys. 116 (2002), pages 891 and 6930
 c
 c GIAO rotatory strengths (2011): J. Autschbach, to be published.
+c GIAO Buckingham-Dunn Rotatory Strength tensors 
 c
 c Note: Velocity gauge and GIAO has NOT yet been tested with the TDA, 
 c       only with full TDDFT / RPA (status: 01/2011)
@@ -152,7 +153,25 @@ c     are hardwired here:
       character*32 pname
       double precision origin(3)
       data origin/0d0,0d0,0d0/
-      logical debug, fakegiao
+      logical debug, fakegiao, lquad
+c
+      double precision zero, one, two, three, half, third
+      parameter (zero = 0d0, one=1d0, two=2d0, three=3d0,
+     &   half=one/two,
+     &   third=one/three)
+c     traceless quadrupole tensor:
+      double precision qmat(3,3), trace
+c     Levi Civita tensor:
+      integer LCTensor(3,3,3)
+      data LCTensor/27 * 0/ ! nonzero elements are initialized below
+c     Define translation table for quadrupole incices in
+c     packed storage in tmom(i) below
+c     XX=5,XY=YX=6, XZ=ZX=7,YY=8,YZ=ZY=9,ZZ=10
+      integer qindex(3,3)
+      data qindex(1,1),qindex(1,2),qindex(1,3)/5,6,7/
+      data qindex(2,1),qindex(2,2),qindex(2,3)/6,8,9/
+      data qindex(3,1),qindex(3,2),qindex(3,3)/7,9,10/
+      double precision rmat(3,3) ! rotatory strength matrix
 c     /jochen
 
 C     character*80 vector
@@ -184,6 +203,9 @@ c     sanity check: right now we can't do unrestricted calcs with GIAOs
         call errquit('TDDFT: GIAO and Unrestricted not yet supported',
      &     0, INPUT_ERR)
       end if
+c     calculate Buckingham-Dunn rotatory strength tensor?
+      if (.not.rtdb_get(rtdb,'tddft:bdtensor',mt_log,1,lquad))
+     $  lquad=.false.
 c
 c     Generalized Mulliken-Hush 
       if (.not.rtdb_get(rtdb,'tddft:gmhcoupling',mt_log,1,gmhcoupling))
@@ -201,8 +223,18 @@ c
             gsmom(icomp)=0.d0
             exmom(icomp)=0.d0
           enddo
-        end if                  ! gmhcoupling
+        end if                  ! gmhcoupling 
 
+c       initialize nonzero LC Tensor elements here. Doing so in a data
+c       statement caused gfortran to choke
+
+        LCtensor(1,2,3) = 1
+        LCtensor(2,3,1) = 1
+        LCtensor(3,1,2) = 1      
+        LCtensor(2,1,3) = -1
+        LCtensor(1,3,2) = -1
+        LCtensor(3,2,1) = -1        
+        
 c       Calculate the overlap: S matrix
         if (.not. ga_create(mt_dbl, nbf_ao, nbf_ao, 'AO ovl',
      &     -1, -1, g_smat))
@@ -1209,6 +1241,114 @@ c
      $              el_transdip(3)*magtd_giao(3))
      $             * 2d0 * rau2cgs 
               endif             ! lgiao
+
+              if (lgiao .and. lquad) then
+
+c               ----------------------------------------------
+c               also calculate the BD rotatory strength tensor
+c               ----------------------------------------------
+                
+c               step 1: traceless transition quadrupole 
+                
+                do i = 1,3
+                  do j = 1,3
+                    qmat(i,j) = three * tmom(qindex(i,j))
+                    if (j.ne.i)
+     &                 qmat(j,i) = three * tmom(qindex(j,i))
+                  end do
+                end do
+                
+                trace = zero
+                do i = 1,3
+                  trace = trace +  tmom(qindex(i,i))
+                end do
+                
+                do i = 1,3
+                  qmat(i,i) = qmat(i,i) - trace
+                end do
+                
+
+                qmat(:,:) = half * qmat(:,:)
+
+                trace = zero
+                do i = 1,3
+                  trace = trace + qmat(i,i)
+                end do
+
+c                if (nodezero) then
+c                  write (luout,*) 'traceless quadrupole moment tensor'
+c                  call output(qmat,1,3,1,3,3,3,1)
+c                  write (luout,'(1X,a,f15.5)'), 'Trace = ', trace
+c                end if
+
+c               the SOS equation for the D-Q polarizability
+c               has a factor of the excitation energy,
+c               just like other real polarizabilities. 
+c               Therefore, we need to multiply here by a factor
+c               of apbval(n) because we're working with transition
+c               moments
+
+                qmat(:,:) = qmat(:,:) * apbval(n)
+
+c               step 2: the symmetrized rotatory strength tensor
+
+                rmat(:,:) = zero
+
+                do i = 1,3
+                  do j = 1,i
+                    rmat(i,j) =
+     &                 half * el_transdip(i)*magtd_giao(j) +
+     &                 half * el_transdip(j)*magtd_giao(i) 
+                    if (j.ne.i) rmat(j,i) = rmat(i,j)
+                  end do
+                end do
+
+                trace = zero
+                do i = 1,3
+                  trace = trace + rmat(i,i)
+                end do
+
+c                if (nodezero) then
+c                  write (luout,*) 'Symm. Rotatory strength tensor'
+c                  call output(rmat,1,3,1,3,3,3,1)
+c                  write (luout,'(1X,a,f15.5)'), 'Trace = ', trace
+c                end if
+
+c               step 3: combine rotatory strength and quadrupole terms
+
+                do i = 1,3
+                  do j = 1,3
+                    do k = 1,3
+                      do l = 1,3
+                        rmat(i,j) = rmat(i,j) 
+     &                     + half * third * LCtensor(i,k,l)
+     &                     * el_transdip(k) * qmat(l,j) 
+     &                     + half * third * LCtensor(j,k,l)
+     &                     * el_transdip(k) * qmat(l,i) 
+ 
+                      end do
+                    end do
+                  end do
+                end do
+
+                rmat(:,:) = rmat(:,:) * two * rau2cgs
+
+                trace = zero
+                do i = 1,3
+                  trace = trace + rmat(i,i)
+                end do
+
+                if (nodezero) then
+                  write (luout,'(/5x,a/5x,a)')
+     &               'Origin invariant Rotatory strength tensor',
+     &               '(see JCP 125 (2006), 034102 and
+     &               references therein)'
+                  call output(rmat,1,3,1,3,3,3,1)
+                  write (luout,'(5X,a,f15.5)'), 'Trace = ', trace
+                end if
+
+              end if            ! lgiao .and. lquad, BD tensor
+
             end if              ! cdspectrum
             if (velocity .and. lvelok) then
                write (LuOut,*)
