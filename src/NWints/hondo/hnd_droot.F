@@ -367,11 +367,11 @@ c     Generate roots and weights for shifted Legendre quadrature
 c 
 c     First set up a and b. As these don't change, do just the largest grid
 c
-      n2=leg_aux(maxleg)
+      n2=leg_aux(maxuniqleg)
       do i=1,n2
-         a(j)=0.5d0
+         a(i)=0.5d0
          tmp=dble(i-1)
-         b(j)=0.25d0/(4.0d0-(1.0d0/(tmp*tmp)))
+         b(i)=0.25d0/(4.0d0-(1.0d0/(tmp*tmp)))
       enddo
       b(1)=1.0d0
 c
