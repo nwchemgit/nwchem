@@ -178,7 +178,7 @@ c
             blo(1) = nfock_xc+1+1
             bhi(1) = nfock_xc*2+1
             do i=blo(1),bhi(1)
-               int_mb(igxcd+i-1)=dft_npatch(g_dens,i-1,
+               int_mb(igxcd+i-1)=dft_npatch(g_dens,i+nfock_xc-1,
      N              nbf_ao,geom,ao_bas_han)
             enddo
          endif
