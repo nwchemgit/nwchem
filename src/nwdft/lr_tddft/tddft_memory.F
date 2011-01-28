@@ -78,7 +78,7 @@ c
      1       10x,'Available MA space size is    ',i14,' doubles')
 c
 c -------------------------------------
-c Detemine the length of a trial vector
+c Determine the length of a trial vector
 c Occ*Virt
 c -------------------------------------
 c
@@ -275,8 +275,13 @@ c
      &       RTDB_ERR)
         endif
       endif
-      if (maxvecs.lt.nroots) call errquit
-     1  ('Too small a subspace',maxvecs, MEM_ERR)
+      if (tda) then
+        if (maxvecs.lt.nroots+1) call errquit
+     1    ('Too small a subspace',maxvecs, MEM_ERR)
+      else
+        if (maxvecs.lt.2*nroots+2) call errquit
+     1    ('Too small a subspace',maxvecs, MEM_ERR)
+      endif
  9110 format(10x,'Max subspace size reduced from  ',i8,' to ',i8)
 c
 c ----------------------------

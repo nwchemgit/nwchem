@@ -1,0 +1,66 @@
+# $Id$
+#
+# This tests CIS, TDHF, TDDFT functionality at once
+# by using a hybrid GGA functional for
+# spin restricted reference with symmetry on.
+# In particular we test the TDDFT Davidson restart capability.
+# The reference results were obtained by selecting maxvecs large enough
+# so that the restart capability is not invoked.
+
+start tddft_h2o_dat
+
+echo
+
+title "TDDFT H2O B3LYP/6-31G** QA TEST"
+
+geometry
+O     0.00000000     0.00000000     0.12982363
+H     0.75933475     0.00000000    -0.46621158
+H    -0.75933475     0.00000000    -0.46621158
+end
+
+basis
+O library 6-31G**
+H library 6-31G**
+end
+
+dft
+xc b3lyp
+odft
+end
+
+tddft
+cis
+nroots 10
+#print convergence
+maxvecs 20
+end
+
+task tddft energy
+
+tddft
+cis
+algorithm 3
+nroots 10
+#print convergence
+maxvecs 20
+end
+
+task tddft energy
+
+tddft
+nroots 9
+#print convergence
+maxvecs 36
+end
+
+task tddft energy
+
+tddft
+algorithm 3
+nroots 9
+#print convergence
+maxvecs 36
+end
+
+task tddft energy

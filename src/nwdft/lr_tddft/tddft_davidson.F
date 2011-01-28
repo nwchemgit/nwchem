@@ -737,13 +737,14 @@ c Form residual vectors, new trial vectors, and check convergence
 c ---------------------------------------------------------------
 c 
         call tddft_residual(nroots,nbf_ao,ipol,nocc,nmo,nfc,nfv,
-     1    ntrials,tda,g_trials,g_prod_p,g_prod_m,g_buffer1,
+     1    ntrials,tda,g_trials,g_prod_p,g_prod_m,g_buffer1,g_buffer2,
      2    d_trials,d_prod_p,d_prod_m,dbl_mb(k_apbvec),
      3    dbl_mb(k_apbval),dbl_mb(k_ambvec),dbl_mb(k_residual_1),
      4    dbl_mb(k_residual_2),g_residuals_1,g_residuals_2,thresh,
      5    dbl_mb(k_valsav),maxresidual,maxomega,converged,maxvecs,
      6    evl,nconverged,nnewtrials,nresiduals,algorithm,lecut,ecut,
      7    diff_max)
+        nproducts = ntrials ! ntrials may have changed do due restart
         ccpu=ccpu+util_cpusec()
         cwall=cwall+util_wallsec()
         if (nodezero.and.util_print('timings',print_high))
