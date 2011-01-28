@@ -222,7 +222,7 @@ c  ... jochen: parse input for response/aoresponse key
          aor_giao = 0
       elseif ( inp_compare(.false., 'orbeta', test)) then
          aor_orbeta = 0
-      elseif ( inp_compare(.false., 'buckingham', test)) then
+      elseif ( inp_compare(.false., 'bdtensor', test)) then
          aor_quad = 0
       elseif ( inp_compare(.false., 'gshift', test)) then ! FA-08-18-10
          aor_giao = 0

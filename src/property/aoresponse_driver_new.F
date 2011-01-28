@@ -426,6 +426,7 @@ c     ---------------------------------------------------------
         end if
         if (lquad) then
           write (luout,'(1x,a)') 'Adding quadrupole terms to OptRot'
+          write (luout,'(1x,a)') '(Buckingham-Dunn OR tensor)'
         end if
         if (lvelocity) then
           write (luout,'(1x,a)') 'Using Dipole Velocity Gauge'
