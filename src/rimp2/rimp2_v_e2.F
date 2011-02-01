@@ -168,6 +168,12 @@ C
       Status = .TRUE.
       Status = Status .AND. MA_Push_Get(MT_Int, 2*TopSpin-1,
      $   'Pair energy handles', HH_PairE, IH_PairE)
+      If ( .NOT. Status ) then
+         Write (LuErr, *) ' Unable to allocate Pair energy handles'
+         RIMP2_V_E2 = .FALSE.
+         Return
+      EndIf
+
 C
       Do ISpin = 1, TopSpin
          Do JSpin = ISpin, TopSpin
@@ -175,6 +181,11 @@ C
      $         GA_Create( MT_Dbl, NOcc(ISpin), NOcc(JSpin),
      $         'Pair Energies', MinChunk, MinChunk,
      $         Int_MB(IH_PairE + ISpin + JSpin - 2) )
+            If ( .NOT. Status ) then
+              Write (LuErr, *) ' Unable to allocate Pair energy handles'
+              RIMP2_V_E2 = .FALSE.
+              Return
+            EndIf
             Call GA_Zero( Int_MB(IH_PairE + ISpin + JSpin - 2 ) )
          EndDo
       EndDo
