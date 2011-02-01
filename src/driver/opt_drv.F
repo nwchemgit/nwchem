@@ -395,6 +395,10 @@ c
      $        call errquit('driver_init_hess: zmatrix?',0, GEOM_ERR)
          if (.not. geom_zmt_get_izmat(geom,int_mb(k_izmat),nzmat))
      $        call errquit('driver_init_hess: izmat?',0, GEOM_ERR)
+C  The code assume Cartesians in many places:
+         if (ostress .or. ostress2) call errquit(
+     $     'driver: lattice optimization does not work with a zmatrix',
+     $     0,GEOM_ERR)
 c
          if (.not. ma_verify_allocator_stuff()) call errquit('h',0,
      &       MA_ERR)
@@ -408,7 +412,7 @@ c
      $        c, zan)) call errquit('driver_init_hess: geom?',geom,
      &       GEOM_ERR)
          do i = 1, nat
-            nuc(i) = nint(zan(i)) ! Won't work if an ECP is loaded
+            nuc(i) = nint(zan(i))
          enddo
          nvar = nzvar
 c
@@ -584,6 +588,8 @@ C
 C     
       DATA GUESS,GUESS1,GUESS2 /'GUESS   ','GUESS1  ','GUESS2  '/
 C     
+C    These are fortran statement functions
+C
       DIST(IAT,JAT)=SQRT((C(1,IAT)-C(1,JAT))**2+
      1     (C(2,IAT)-C(2,JAT))**2+
      1     (C(3,IAT)-C(3,JAT))**2) * TOANGS
@@ -1330,6 +1336,7 @@ c
       double precision dsds, dshds, dsdg
       integer l_hess, k_hess, i, j
       integer ind
+! This is a statement function
       ind(i,j) = k_hess + i + (j-1)*nvar - 1
 c
       if (alpha .eq. 0d0) call errquit
