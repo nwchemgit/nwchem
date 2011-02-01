@@ -396,8 +396,8 @@ c
       integer neklb                                    ! [input] Max non-zero beta strings for E_kl   
       integer map(norb)                                ! [input] External remapping of indices        
       integer osym(norb)                               ! [input] Orbital irreps                       
-      integer ataba(norb,nela,nsym)                    ! [input] Alpha arc weights                    
-      integer atabb(norb,nelb,nsym)                    ! [input] Beta arc weights                     
+      integer ataba(0:norb,0:nela,nsym)                    ! [input] Alpha arc weights                    
+      integer atabb(0:norb,0:nelb,nsym)                    ! [input] Beta arc weights                     
       integer exa(6,nexa,nstra)                        ! [input] Alpha excitation lookup table        
       integer exb(6,nexb,nstrb)                        ! [input] Beta excitation lookup table         
       integer vrhs(nekla)                              ! [scratch] Array of RHS Strings for E_kl      

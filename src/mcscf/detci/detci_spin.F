@@ -20,8 +20,8 @@ c
       integer nela, nelb
       integer nstra, nstrb
       integer osym(norb)
-      integer ataba(norb,nela,nsym)
-      integer atabb(norb,nelb,nsym)
+      integer ataba(0:norb,0:nela,nsym)
+      integer atabb(0:norb,0:nelb,nsym)
       integer nexa
       integer nexb
       integer exa(6,nexa,nstra)
@@ -79,8 +79,8 @@ c$$$          CALL DETCI_PRINT( G_CIVEC, 1.D-3)
       integer nela, nelb
       integer nstra, nstrb
       integer osym(norb)
-      integer ataba(norb,nela,nsym)
-      integer atabb(norb,nelb,nsym)
+      integer ataba(0:norb,0:nela,nsym)
+      integer atabb(0:norb,0:nelb,nsym)
       integer nexa
       integer nexb
       integer exa(6,nexa,nstra)
@@ -220,8 +220,8 @@ c
       integer nela, nelb
       integer nstra, nstrb
       integer osym(norb)
-      integer ataba(norb,nela,nsym)
-      integer atabb(norb,nelb,nsym)
+      integer ataba(0:norb,0:nela,nsym)
+      integer atabb(0:norb,0:nelb,nsym)
       integer nexa
       integer nexb
       integer exa(6,nexa,nstra)

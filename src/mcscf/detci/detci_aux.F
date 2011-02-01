@@ -12,8 +12,11 @@ c   Arc weight table is non-negative for any allowed
 c   arc between vertices. The arc weight is just the
 c   diametrically-opposite vertex value. The strings
 c   computed will be relative within each symmetry.
+c
 c   The absolute string index is obtained by adding
 c   on the offset stored in arctab(1,1,isym)
+c
+c   RJH !! changed to arctab(0,0,isym)
 c   
 c
       subroutine detci_vatable( norb, nel, nsym, osym,
@@ -28,7 +31,7 @@ c
       integer nsym
       integer osym(norb)
       integer vtxtab(0:norb,0:nel,nsym)
-      integer arctab(norb,nel,nsym)
+      integer arctab(0:norb,0:nel,nsym)
 c
 #include "symmdef.fh"
       integer iorb, ello, el, weight, offset, iel
@@ -54,17 +57,17 @@ C            jsym = ieor((osym(iorb)-1),(isym-1)) + 1
         enddo
       enddo
 
-C$$$      WRITE(6,941)
-C$$$ 941  FORMAT(//,'VERTEX TABLES',/)
-C$$$      DO ISYM=1,NSYM
-C$$$        WRITE(6,911) ISYM
-C$$$        DO IORB=0,NORB
-C$$$          WRITE(6,901) (VTXTAB(IORB,EL,ISYM),EL=0,NEL)
-C$$$        ENDDO
-C$$$      ENDDO
+c$$$      WRITE(6,941)
+c$$$ 941  FORMAT(//,'VERTEX TABLES',/)
+c$$$      DO ISYM=1,NSYM
+c$$$        WRITE(6,911) ISYM
+c$$$        DO IORB=0,NORB
+c$$$          WRITE(6,901) (VTXTAB(IORB,EL,ISYM),EL=0,NEL)
+c$$$        ENDDO
+c$$$      ENDDO
 
       offset = 0
-      call ifill((norb*nel*isym),-1,arctab,1)
+      call ifill(((norb+1)*(nel+1)*nsym),-1,arctab,1) 
       do jsym=1,nsym
         do iorb=1,norb
           isym=osym(iorb)
@@ -78,7 +81,8 @@ C              ksym = ieor((jsym-1),(isym-1)) + 1
             endif
           enddo
         enddo
-        arctab(1,1,jsym) = offset
+c       arctab(1,1,jsym) = offset
+        arctab(0,0,jsym) = offset
         offset = offset + vtxtab(norb,nel,jsym)
       enddo
 
@@ -86,7 +90,7 @@ c$$$      WRITE(6,944)
 c$$$ 944  FORMAT(//,'ARC WEIGHT TABLE',/)
 c$$$      DO ISYM=1,NSYM
 c$$$        WRITE(6,911) ISYM
-c$$$        DO IORB=1,NORB
+c$$$        DO IORB=0,NORB
 c$$$          WRITE(6,901) (ARCTAB(IORB,EL,ISYM),EL=1,NEL)
 c$$$        ENDDO
 c$$$      ENDDO
@@ -110,6 +114,8 @@ c  Each index in elv() gives the traverse, update symmetry and
 c  look up weight from arctab()
 c
 c  Note: symmtery offset is stored in arctab(1,1,isym)
+c  
+c     RJH now arctab(0,0,isym)
 c
 c
 c
@@ -120,7 +126,7 @@ c
       integer nel
       integer nsym
       integer osym(norb)
-      integer arctab(norb,nel,nsym)
+      integer arctab(0:norb,0:nel,nsym)
       integer elv(nel)
       integer isym, iel, iorb, wght
 #include "symmdef.fh"
@@ -133,11 +139,15 @@ c
         do iel=1,nel
           iorb = elv(iel)
           isym = MULX(isym,osym(iorb))
+c          write(6,*) iorb, iel, isym, arctab(iorb,iel,isym)
           wght = arctab(iorb,iel,isym)
-C        if (wght.eq.-1) stop 116
+
+          if (wght.eq.-1) stop 116
+
           detci_elv2str = detci_elv2str + wght
         enddo
-        detci_elv2str = detci_elv2str + arctab(1,1,isym)
+c       detci_elv2str = detci_elv2str + arctab(1,1,isym)
+        detci_elv2str = detci_elv2str + arctab(0,0,isym)
       endif
       
       return
@@ -157,7 +167,7 @@ c
       integer nel
       integer nsym
       integer osym(norb)
-      integer arctab(norb,nel,nsym)
+      integer arctab(0:norb,0:nel,nsym)
       integer occ(norb)
       integer isym, iel, iorb, wght
 #include "symmdef.fh"
@@ -173,11 +183,12 @@ c
 C          if (iel.gt.nel) stop 118
           isym = MULX(isym,osym(iorb))
           wght = arctab(iorb,iel,isym)
-C          if (wght.eq.-1) stop 117
+          if (wght.eq.-1) stop 117
           detci_occ2str = detci_occ2str + wght
         endif
       enddo
-      detci_occ2str = detci_occ2str + arctab(1,1,isym)
+c     detci_occ2str = detci_occ2str + arctab(1,1,isym)
+      detci_occ2str = detci_occ2str + arctab(0,0,isym)
 
       return
       end
@@ -468,7 +479,7 @@ c
       integer nex
       integer osym(norb)
       integer ijmap(norb,norb)
-      integer atab(norb,nel,nsym)
+      integer atab(0:norb,0:nel,nsym)
       integer ex(6,nex,nstr)
 c
       integer nhole
@@ -494,6 +505,15 @@ c  Loop through all strings
 c
  100  continue
       istr = detci_elv2str( norb, nel, nsym, osym, atab, elv )
+      if (istr.gt.nstr) then 
+         write(6,*) ' bad string number? ', istr, '  ', nstr
+         write(6,*) ' norb ', norb
+         write(6,*) ' nel  ', nel
+         write(6,*) ' nsym ', nsym
+         write(6,*) ' osym ', (osym(i), i=1, norb)
+         write(6,*) ' elv  ', (elv(i), i=1, nel)
+         stop 3344
+      end if
       isym = detci_elvsymm( norb, nel, nsym, osym, elv )
       call detci_elv2occ( norb, nel, elv, occv )
       call detci_elv2holv( norb, nel, elv, holv )
@@ -847,7 +867,7 @@ c
       integer nstra, nstrb
       integer osym(norb)
       integer map(norb)
-      integer ataba(norb,nela,nsym), atabb(norb,nelb,nsym)
+      integer ataba(0:norb,0:nela,nsym), atabb(0:norb,0:nelb,nsym)
       integer g_x
       double precision thresh
 c
@@ -916,6 +936,7 @@ c
       call ifill(norb,0,ii,1)
       do i=1,nela
         xx = 100.d0
+        jj=-3333
         do j=1,norb
           if ((ii(j).eq.0).and.(eps(j).lt.xx)) then
             xx = eps(j)
@@ -923,11 +944,13 @@ c
           endif
         enddo
         detci_refenergy = detci_refenergy + xx
+        if (jj .eq. -3333) stop 543
         ii(jj) = 1
       enddo
       call ifill(norb,0,ii,1)
       do i=1,nelb
         xx = 100.d0
+        jj=-3333
         do j=1,norb
           if ((ii(j).eq.0).and.(eps(j).lt.xx)) then
             xx = eps(j)
@@ -935,6 +958,7 @@ c
           endif
         enddo
         detci_refenergy = detci_refenergy + xx
+        if (jj .eq. -3333) stop 542
         ii(jj) = 1
       enddo
       return
@@ -959,7 +983,7 @@ c
       integer nel
       integer nstr
       integer osym(norb)
-      integer atab(norb,nel,nsym)
+      integer atab(0:norb,0:nel,nsym)
 c
       integer elv(detci_maxelec)
       integer i, isym, istr
@@ -1000,7 +1024,7 @@ c
       integer nsym
       integer nel
       integer nstr
-      integer atab(norb,nel,nsym)
+      integer atab(0:norb,0:nel,nsym)
       integer ksym
       integer slo, shi
       logical domxcnt,oscreen
@@ -1013,12 +1037,14 @@ c
       slo = 0
       shi = 0
       if (nel.gt.0) then
-        slo = atab(1,1,ksym) + 1
-        if (ksym.eq.nsym) then
-          shi = nstr
-        else
-          shi = atab(1,1,ksym+1)
-        endif
+c     slo = atab(1,1,ksym) + 1
+         slo = atab(0,0,ksym) + 1
+         if (ksym.eq.nsym) then
+            shi = nstr
+         else
+c     shi = atab(1,1,ksym+1)
+            shi = atab(0,0,ksym+1)
+         endif
       endif
       
       if(domxcnt) then
@@ -1157,8 +1183,8 @@ c
       integer nstra                           ! [input] Alpha strings
       integer nstrb                           ! [input] Beta strings
       integer osym(norb)                      ! [input] Orbital irreps     
-      integer ataba(norb,nela,nsym)           ! [input] Alpha arc weights
-      integer atabb(norb,nelb,nsym)           ! [input] Beta arc weights
+      integer ataba(0:norb,0:nela,nsym)           ! [input] Alpha arc weights
+      integer atabb(0:norb,0:nelb,nsym)           ! [input] Beta arc weights
       integer ngs                             ! [input] Number of configurations
       integer cfggs((nela+nelb),ngs)          ! [input] Configurations
       double precision cgs(ngs)               ! [input] Coefficients
@@ -1262,8 +1288,8 @@ c
       integer nstra                           ! [input] Alpha strings
       integer nstrb                           ! [input] Beta strings
       integer osym(norb)                      ! [input] Orbital irreps     
-      integer ataba(norb,nela,nsym)           ! [input] Alpha arc weights
-      integer atabb(norb,nelb,nsym)           ! [input] Beta arc weights
+      integer ataba(0:norb,0:nela,nsym)           ! [input] Alpha arc weights
+      integer atabb(0:norb,0:nelb,nsym)           ! [input] Beta arc weights
       double precision eref                   ! [input] Reference ground-state
       double precision eps(norb)              ! [input] Orbital energies
       integer g_civec                         ! [input] CI-vector
@@ -1363,8 +1389,8 @@ c
       integer nstra                           ! [input] Alpha strings
       integer nstrb                           ! [input] Beta strings
       integer osym(norb)                      ! [input] Orbital irreps     
-      integer ataba(norb,nela,nsym)           ! [input] Alpha arc weights
-      integer atabb(norb,nelb,nsym)           ! [input] Beta arc weights
+      integer ataba(0:norb,0:nela,nsym)           ! [input] Alpha arc weights
+      integer atabb(0:norb,0:nelb,nsym)           ! [input] Beta arc weights
       integer ksym                            ! [input] Requested irrep
       logical oscreen                         ! [input] Toggle projecting
       double precision mxcnt                  ! [output] Maximum symmetry contamination
