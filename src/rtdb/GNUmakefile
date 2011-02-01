@@ -1,22 +1,21 @@
 # $Id$
-  export ARMCI_DIR_NAME := armci
-ifeq ($(ARMCI_NETWORK),PORTALS)
-  export ARMCI_DIR_NAME := armci-portals
-endif
-include ../tools/$(ARMCI_DIR_NAME)/config/makecoms.h
+
 include ../config/makefile.h
 
          LIBRARY = libnwcutil.a
 
+    OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o rtdb_seq.o context.o context_f2c.o
 
-    OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o rtdb_seq.o \
-                   context.o context_f2c.o
 # BEGIN_WIN32_IGNORE
-ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP LINUX))
+
+# replace TARGET with NWCHEM_TARGET so ARMCI build system headers are not required
+ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),BGL BGP LINUX))
     OBJ = rtdb_seq.o
     OBJ_OPTIMIZE = rtdb_f2c.o rtdb.o context.o context_f2c.o
 endif
+
 # END_WIN32_IGNORE
+
          HEADERS = context.h rtdb.h rtdb.fh context.fh rtdb.cray.h
 
      LIB_TARGETS = test test.o rtdbtest rtdbtest.o interact context davetest \
