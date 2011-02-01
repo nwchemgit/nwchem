@@ -204,7 +204,6 @@ c
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            rlocal)
       else if (psp_type.eq.4) then
-         write(*,*) "format PAW"
          value = pawppv1(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,rlocal)

@@ -158,9 +158,10 @@ c      P3=dsqrt(105.0d0*forpi)
          na = n_ps(i) - la
          power_f = 2*la + 2
          do k=1,nrho
-           xerf = rho(k)/rlocal
-           yerf = -zv*(1.0d0-util_erf(xerf))/rho(k) - zc/rho(k)
-           f(k) = phi_ps(k,i)*phi_ps(k,i)*(yerf - v_ps(k))
+           !xerf = rho(k)/rlocal
+           !yerf = -zv*(1.0d0-util_erf(xerf))/rho(k) - zc/rho(k)
+           !f(k) = phi_ps(k,i)*phi_ps(k,i)*(yerf - v_ps(k))
+           f(k) = phi_ps(k,i)*phi_ps(k,i)*(-v_ps(k))
          end do
          d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
          Gijl(na,na,la,4) = Gijl(na,na,la,4) + d
@@ -170,9 +171,10 @@ c      P3=dsqrt(105.0d0*forpi)
             nb = n_ps(j) - lb
             if (la.eq.lb) then
               do k=1,nrho
-                xerf = rho(k)/rlocal
-                yerf = -zv*(1.0d0-util_erf(xerf))/rho(k) - zc/rho(k)
-                f(k) = phi_ps(k,i)*phi_ps(k,j)*(yerf - v_ps(k))
+                !xerf = rho(k)/rlocal
+                !yerf = -zv*(1.0d0-util_erf(xerf))/rho(k) - zc/rho(k)
+                !f(k) = phi_ps(k,i)*phi_ps(k,j)*(yerf - v_ps(k))
+                f(k) = phi_ps(k,i)*phi_ps(k,j)*(-v_ps(k))
               end do
               d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
               Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d
@@ -251,7 +253,7 @@ c      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)
 *         ::::::::::::::::::::::::::::::  g-wave  ::::::::::::::::::::::::::::::
 *         ::::::::::::::::::::::::::::::  f-wave  ::::::::::::::::::::::::::::::
           if (la.eq.3) then
-          D = nwpw_splint(G_ray,vnl_ray(1,i,1),vnl_ray(1,i,2),nray,nx,Q)
+           D=nwpw_splint(G_ray,vnl_ray(1,i,1),vnl_ray(1,i,2),nray,nx,Q)
            lcount = lcount+1
            vnl(k1,k2,k3,lcount)=D*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
      >                          /dsqrt(24.0d0)
@@ -275,7 +277,7 @@ c      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)
           end if
 *         ::::::::::::::::::::::::::::::  d-wave  ::::::::::::::::::::::::::::::
           if (la.eq.2) then
-          D = nwpw_splint(G_ray,vnl_ray(1,i,1),vnl_ray(1,i,2),nray,nx,Q)
+            D=nwpw_splint(G_ray,vnl_ray(1,i,1),vnl_ray(1,i,2),nray,nx,Q)
             lcount = lcount+1
             vnl(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
      >                            /(2.0d0*dsqrt(3.0d0))
@@ -290,17 +292,17 @@ c      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)
           end if
 *         ::::::::::::::::::::::::::::::  p-wave  ::::::::::::::::::::::::::::::
           if (la.eq.1) then
-          P = nwpw_splint(G_ray,vnl_ray(1,i,1),vnl_ray(1,i,2),nray,nx,Q)
-           lcount = lcount+1
-           vnl(k1,k2,k3,lcount)=P*GX
+           P=nwpw_splint(G_ray,vnl_ray(1,i,1),vnl_ray(1,i,2),nray,nx,Q)
            lcount = lcount+1
            vnl(k1,k2,k3,lcount)=P*GY
            lcount = lcount+1
            vnl(k1,k2,k3,lcount)=P*GZ
+           lcount = lcount+1
+           vnl(k1,k2,k3,lcount)=P*GX
           end if
 *         ::::::::::::::::::::::::::::::  s-wave  :::::::::::::::::::::::::::::::
           if (la.eq.0) then
-          P = nwpw_splint(G_ray,vnl_ray(1,i,1),vnl_ray(1,i,2),nray,nx,Q)
+            P=nwpw_splint(G_ray,vnl_ray(1,i,1),vnl_ray(1,i,2),nray,nx,Q)
             lcount = lcount+1
             vnl(k1,k2,k3,lcount)=P
           end if

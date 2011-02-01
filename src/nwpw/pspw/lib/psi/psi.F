@@ -2729,6 +2729,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 
+
 *     ***********************************
 *     *                                 *
 *     *         psi_1ke_atom            *
@@ -2753,6 +2754,36 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       psi_1ke_atom = ave
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *         psi_1vloc_atom          *
+*     *                                 *
+*     ***********************************
+      real*8 function psi_1vloc_atom()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ***
+      real*8 ave
+
+*     **** external functions ****
+      real*8   psp_vloc_atom
+      external psp_vloc_atom
+
+      ave =  psp_vloc_atom(ispin,neq,dcpl_mb(psi1(1)))
+      call D1dB_SumAll(ave)
+
+      psi_1vloc_atom = ave
+      return
+      end
+
+
+
+
 
 
 *     ***********************************

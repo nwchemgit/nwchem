@@ -81,12 +81,50 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       value = value.and.
      >        MA_alloc_get(mt_int,(npsp),
      >                     'psp_type',psp_type(2),psp_type(1))
-
       value = value.and.
      >        MA_alloc_get(mt_dbl,(npsp),'rlocal',rlocal(2),rlocal(1))
 
+
+*     ***** PAW variables *****
+      value = value.and.
+     > MA_alloc_get(mt_dbl,(npsp),'log_amesh',log_amesh(2),log_amesh(1))
+      value = value.and.
+     >  MA_alloc_get(mt_dbl,(npsp),'r1',r1(2),r1(1))
+      value = value.and.
+     >  MA_alloc_get(mt_dbl,(npsp),'rmax',rmax(2),rmax(1))
+      value = value.and.
+     >  MA_alloc_get(mt_dbl,(npsp),'sigma',sigma(2),sigma(1))
+      value = value.and.
+     >  MA_alloc_get(mt_dbl,(npsp),'zion',zion(2),zion(1))
       value = value.and.
      >  MA_alloc_get(mt_dbl,(npsp),'core_kin',core_kin(2),core_kin(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'n1dgrid',n1dgrid(2),n1dgrid(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,
+     >                     'n1dbasis',n1dbasis(2),n1dbasis(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >                     'nae',nae(2),nae(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'icut',icut(2),icut(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'eig',eig(2),eig(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'phi_ae',phi_ae(2),phi_ae(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'dphi_ae',dphi_ae(2),dphi_ae(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'phi_ps',phi_ps(2),phi_ps(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'dphi_ps',dphi_ps(2),dphi_ps(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'core_ae',core_ae(2),core_ae(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'core_ps',core_ps(2),core_ps(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'rgrid',rgrid(2),rgrid(1))
+
 
 *     **** setup pspspin structure - used for generating antiferromagnetic structures ****
       pspspin = control_pspspin()
@@ -211,7 +249,26 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       value = value.and.MA_free_heap(nmax(2))
       value = value.and.MA_free_heap(psp_type(2))
       value = value.and.MA_free_heap(rlocal(2))
+
+*     **** PAW variables ****
+      value = value.and.MA_free_heap(log_amesh(2))
+      value = value.and.MA_free_heap(r1(2))
+      value = value.and.MA_free_heap(rmax(2))
+      value = value.and.MA_free_heap(sigma(2))
+      value = value.and.MA_free_heap(zion(2))
       value = value.and.MA_free_heap(core_kin(2))
+      value = value.and.MA_free_heap(n1dgrid(2))
+      value = value.and.MA_free_heap(n1dbasis(2))
+      value = value.and.MA_free_heap(nae(2))
+      value = value.and.MA_free_heap(icut(2))
+      value = value.and.MA_free_heap(eig(2))
+      value = value.and.MA_free_heap(phi_ae(2))
+      value = value.and.MA_free_heap(dphi_ae(2))
+      value = value.and.MA_free_heap(phi_ps(2))
+      value = value.and.MA_free_heap(dphi_ps(2))
+      value = value.and.MA_free_heap(core_ae(2))
+      value = value.and.MA_free_heap(core_ps(2))
+      value = value.and.MA_free_heap(rgrid(2))
 
       if (pspspin) then
          value = value.and.MA_free_heap(pspspin_upions(2))
@@ -1497,6 +1554,11 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                       nfft3d,npack1,npack0,
      >                       vl,vnl_tag,
      >                       semicore,rcore,ncore,
+     >                       log_amesh,r1,rmax,sigma,zion,
+     >                       n1dgrid,n1dbasis,nae,icut,eig_tag,
+     >                       phi_ae_tag,dphi_ae_tag,
+     >                       phi_ps_tag,dphi_ps_tag,
+     >                       core_ae_tag,core_ps_tag,rgrid_tag,
      >                       core_kin_energy,
      >                       tmp,tmp2,
      >                       ierr)
@@ -1525,7 +1587,11 @@ c     **** define Gx,Gy and Gz in packed space ****
       logical semicore
       real*8  rcore
       real*8  ncore(*)
-
+      
+      real*8  log_amesh,r1,rmax,sigma,zion
+      integer n1dgrid,n1dbasis,nae(*),icut,eig_tag
+      integer phi_ae_tag,dphi_ae_tag,phi_ps_tag,dphi_ps_tag
+      integer core_ae_tag,core_ps_tag,rgrid_tag
       real*8  core_kin_energy
 
       complex*16 tmp(*)
@@ -1540,7 +1606,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       parameter(MASTER=0)
       integer n,l
       integer msglen
-      integer iatom(2),Gijl_indx
+      integer iatom(2),Gijl_indx,indx
       character*255 full_filename
       real*8 sum1
 
@@ -1610,6 +1676,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       call Parallel_Brdcst_ivalues(MASTER,msglen,nmax)
       call Parallel_Brdcst_ivalues(MASTER,msglen,nprj)
       lmmax=(lmax+1)**2 - (2*locp+1)
+      n1dbasis = locp
 
       msglen=lmax+1
       call Parallel_Brdcst_values(MASTER,msglen,rc)
@@ -1693,11 +1760,78 @@ c     **** define Gx,Gy and Gz in packed space ****
          call Pack_t_Copy(0,tmp2,ncore(1+4*npack0))
       end if
 
-*     ***** Miscellaneous paw energies ****
+*     ***** Miscellaneous paw energies and 1d wavefunctions****
       if (psp_type.eq.4) then
         if (taskid.eq.MASTER) call dread(5,core_kin_energy,1)
         msglen=1
         call Parallel_Brdcst_values(MASTER,msglen,core_kin_energy)
+
+        if (taskid.eq.MASTER) then
+           call iread(5,n1dgrid,1)
+           call iread(5,icut,1)
+           call dread(5,log_amesh,1)
+           call dread(5,r1,1)
+           call dread(5,rmax,1)
+           call dread(5,sigma,1)
+           call dread(5,zion,1)
+        end if
+        msglen=1
+        call Parallel_Brdcst_ivalues(MASTER,msglen,n1dgrid)
+        call Parallel_Brdcst_ivalues(MASTER,msglen,icut)
+        call Parallel_Brdcst_values(MASTER,msglen,log_amesh)
+        call Parallel_Brdcst_values(MASTER,msglen,r1)
+        call Parallel_Brdcst_values(MASTER,msglen,rmax)
+        call Parallel_Brdcst_values(MASTER,msglen,sigma)
+        call Parallel_Brdcst_values(MASTER,msglen,zion)
+
+        eig_tag     = psi_data_alloc(n1dbasis,1)
+        phi_ae_tag  = psi_data_alloc(n1dbasis,n1dgrid)
+        dphi_ae_tag = psi_data_alloc(n1dbasis,n1dgrid)
+        phi_ps_tag  = psi_data_alloc(n1dbasis,n1dgrid)
+        dphi_ps_tag = psi_data_alloc(n1dbasis,n1dgrid)
+        core_ae_tag = psi_data_alloc(1,n1dgrid)
+        core_ps_tag = psi_data_alloc(1,n1dgrid)
+        rgrid_tag   = psi_data_alloc(1,n1dgrid)
+        
+        indx = psi_data_get_chnk(eig_tag)
+        if (taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dbasis)
+        call Parallel_Brdcst_values(MASTER,n1dbasis,dbl_mb(indx))
+
+        if (taskid.eq.MASTER) call iread(5,nae,n1dbasis)
+        call Parallel_Brdcst_ivalues(MASTER,n1dbasis,nae)
+
+        indx = psi_data_get_chnk(rgrid_tag)
+        if (taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
+        call Parallel_Brdcst_values(MASTER,n1dgrid,dbl_mb(indx))
+
+        indx = psi_data_get_chnk(phi_ae_tag)
+        if(taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid*n1dbasis)
+        call Parallel_Brdcst_values(MASTER,n1dgrid*n1dbasis,
+     >                              dbl_mb(indx))
+
+        indx = psi_data_get_chnk(dphi_ae_tag)
+        if(taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid*n1dbasis)
+        call Parallel_Brdcst_values(MASTER,n1dgrid*n1dbasis,
+     >                              dbl_mb(indx))
+
+        indx = psi_data_get_chnk(phi_ps_tag)
+        if(taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid*n1dbasis)
+        call Parallel_Brdcst_values(MASTER,n1dgrid*n1dbasis,
+     >                              dbl_mb(indx))
+
+        indx = psi_data_get_chnk(dphi_ps_tag)
+        if(taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid*n1dbasis)
+        call Parallel_Brdcst_values(MASTER,n1dgrid*n1dbasis,
+     >                              dbl_mb(indx))
+
+        indx = psi_data_get_chnk(core_ae_tag)
+        if (taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
+        call Parallel_Brdcst_values(MASTER,n1dgrid,dbl_mb(indx))
+
+        indx = psi_data_get_chnk(core_ps_tag)
+        if (taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
+        call Parallel_Brdcst_values(MASTER,n1dgrid,dbl_mb(indx))
+
       end if
 
 *     *** close fname binary file ***
@@ -1820,6 +1954,24 @@ c     logocal semicore(0:nkatmx)
      >                  log_mb(semicore(1)+ia),
      >                  dbl_mb(rcore(1)+ia-1),
      >                  dbl_mb(ncore(1)+ (ia-1)*npack0*5),
+     >                  dbl_mb(log_amesh(1)+ia-1),
+     >                  dbl_mb(r1(1)+ia-1),
+     >                  dbl_mb(rmax(1)+ia-1),
+     >                  dbl_mb(sigma(1)+ia-1),
+     >                  dbl_mb(zion(1)+ia-1),
+     >                  int_mb(n1dgrid(1)+ia-1),
+     >                  int_mb(n1dbasis(1)+ia-1),
+     >                  int_mb(nae(1) 
+     >                         + (ia-1)*(nmax_max*lmmax_max)),
+     >                  int_mb(icut(1)+ia-1),
+     >                  int_mb(eig(1)+ia-1),
+     >                  int_mb(phi_ae(1)+ia-1),
+     >                  int_mb(dphi_ae(1)+ia-1),
+     >                  int_mb(phi_ps(1)+ia-1),
+     >                  int_mb(dphi_ps(1)+ia-1),
+     >                  int_mb(core_ae(1)+ia-1),
+     >                  int_mb(core_ps(1)+ia-1),
+     >                  int_mb(rgrid(1)+ia-1),
      >                  dbl_mb(core_kin(1)+ia-1),
      >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
      >                  ierr)

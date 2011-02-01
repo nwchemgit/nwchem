@@ -13,8 +13,6 @@
       integer    nprj(2),n_projector(2),l_projector(2),m_projector(2)
       integer    npsp,nprj_max,nprj_mult
       integer    psp_type(2)
-      integer    core_kin(2)
-      logical    pawexist
 
       integer nkatmx,lmmax_max,lmax_max,nmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16,nmax_max=3)
@@ -23,14 +21,58 @@
       common / psp_block / prjtmp,vl,vnl,Gijl,zv,amass,rc,
      >                     lmmax,lmax,locp,nmax,
      >                     nprj,n_projector,l_projector,m_projector,
-     >                     psp_type,core_kin,npsp,nprj_max,nprj_mult,
-     >                     pawexist,
+     >                     psp_type,npsp,nprj_max,nprj_mult,
      >                     atom,comment
 
 *     **** common block for psp stress ****
       integer    dvl(2)
       integer    dvnl(2)
       common / psp2_block / dvl,dvnl
+
+
+*     ***** PAW variables *****
+      integer log_amesh(2),r1(2),rmax(2),sigma(2),zion(2)
+      integer n1dgrid(2),n1dbasis(2),nae(2),icut(2),eig(2)
+      integer phi_ae(2),dphi_ae(2),phi_ps(2),dphi_ps(2)
+      integer core_ae(2),core_ps(2),rgrid(2),core_kin(2)
+      logical pawexist
+      common /psp_paw_block/ log_amesh,r1,rmax,sigma,zion,
+     >                       n1dgrid,n1dbasis,nae,icut,eig,
+     >                       phi_ae,dphi_ae,phi_ps,dphi_ps,
+     >                       core_ae,core_ps,rgrid,core_kin,
+     >                       pawexist
+
+*     **** common block for psp_xc_data ****
+      integer paw_xc_nphi
+      integer paw_xc_ntheta
+      integer paw_xc_ylm(2)
+      integer paw_xc_dylm_theta(2)
+      integer paw_xc_dylm_phi(2)
+      integer paw_xc_angle_phi(2)
+      integer paw_xc_cos_theta(2)
+      integer paw_xc_w_phi(2)
+      integer paw_xc_w_theta(2)
+      integer paw_xc_e(2)
+      integer i_paw_xc_pot(2)
+      integer paw_vxc_ae(2)
+      integer paw_vxc_ps(2)
+      integer paw_dvxc_ae(2)
+      integer paw_dvxc_ps(2)
+      integer paw_xc_pot_size
+      integer paw_xc_pot(2)
+      integer paw_xc_matr(2)
+      integer paw_xc_dmatr(2)
+      common /psp_xc_data/ paw_xc_nphi,paw_xc_ntheta,paw_xc_e,
+     >                     i_paw_xc_pot,paw_xc_angle_phi,
+     >                     paw_xc_cos_theta, paw_xc_ylm,
+     >                     paw_xc_dylm_theta,paw_xc_dylm_phi,
+     >                     paw_xc_w_phi,paw_xc_w_theta,paw_vxc_ae,
+     >                     paw_vxc_ps,paw_dvxc_ae,paw_dvxc_ps,
+     >                     paw_xc_pot,paw_xc_pot_size,paw_xc_matr,
+     >                     paw_xc_dmatr
+
+
+
 
 *     **** common block for pspspin ****
       logical pspspin

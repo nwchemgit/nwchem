@@ -151,6 +151,7 @@ c        **** paw energies ****
          if (psp_pawexist()) then
          write(luout,1680) E(14),E(14)/ion_nion()
          write(luout,1681) E(15),E(15)/ion_nion()
+         write(luout,1690) E(16),E(16)/ion_nion()
          end if
 
         if (pspw_qmmm_found()) then

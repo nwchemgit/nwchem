@@ -382,10 +382,27 @@ c      if (filter) write(*,*) "- filtering pseudopotential -"
 *        **** miscelaneous PAW energies ****
          call dwrite(2,core_kin_energy,1)
 
+*        **** write 1d-wavefunctions ****
+         call iwrite(2,n1dgrid,1)
+         call iwrite(2,icut,1)
+         call dwrite(2,log_amesh,1)
+         call dwrite(2,r1,1)
+         call dwrite(2,rmax,1)
+         call dwrite(2,sigma,1)
+         call dwrite(2,zion,1)
+         call dwrite(2,dbl_mb(eig(1)),nbasis)
+         call iwrite(2,int_mb(nae(1)),nbasis)
+
+         call dwrite(2,dbl_mb(rgrid(1)),n1dgrid)
+         call dwrite(2,dbl_mb(phi_ae(1)),n1dgrid*nbasis)
+         call dwrite(2,dbl_mb(dphi_ae(1)),n1dgrid*nbasis)
+         call dwrite(2,dbl_mb(phi_ps(1)),n1dgrid*nbasis)
+         call dwrite(2,dbl_mb(dphi_ps(1)),n1dgrid*nbasis)
+         call dwrite(2,dbl_mb(core_ae(1)),n1dgrid)
+         call dwrite(2,dbl_mb(core_ps(1)),n1dgrid)
+
       call closefile(2)
       end if
-
-
 
 
       value = value.and.MA_free_heap(G_hndl)
