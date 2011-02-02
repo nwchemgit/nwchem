@@ -326,8 +326,9 @@ c
       common/hnd_zmtpar/nnzmat,nnzvar,nnvar
       double precision hscale, ascale, bscale, tscale, amat(3,3)
 c
-      integer l_hess, k_hess, l_zmat, k_zmat, l_izmat, k_izmat, i, j
-      integer l_c, k_c, l_t, k_t, iat
+      double precision volume, bulk, lattice(3,2)
+      integer l_hess, k_hess, l_zmat, k_zmat, l_izmat, k_izmat, i, j, k
+      integer l_c, k_c, l_t, k_t, iat, jat, kat, lat, l
       logical old_hessian
       character*16 atom_tags(mxatom)
 c
@@ -364,16 +365,110 @@ c
 c     Cartesians are easy
 c
          call dfill(nvar**2, 0.0d0, dbl_mb(k_hess), 1)
-         call dfill(nvar, 0.5d0, dbl_mb(k_hess), nvar+1)
          if (isystype .ne. 0) then
             if (.not. geom_amatrix_get(geom, amat))
      $           call errquit('geom_frac_to_cart: a', 0, GEOM_ERR)
+!           This is diagonal 0.5 in cartesians converted to fractional
             do iat = 1, nat_real
                do i = 1, 3
                   dbl_mb(k_hess + (iat-1)*3 + (i-1) +
      $                 ((iat-1)*3 + (i-1))*nat*3) = 0.5*amat(i,i)**2
                end do
             end do
+         else
+!          This is diagonal 0.5 in cartesians
+           call dfill(nvar, 0.5d0, dbl_mb(k_hess), nvar+1)
+         endif
+!    Now the lattice hessian, if any
+         if (isystype .ne. 0 .and. (ostress .or. ostress2)) then
+            if (ostress) then
+               bulk=1
+               if (.not. geom_volume_get(geom,volume))
+     $            call errquit('geom_volume_get failed',0, GEOM_ERR)
+               do iat = nat_real+1,nat
+                do jat = nat_real+1,nat
+                 do i = 1, 3
+                  do j = 1, 3
+!  set diagonal to 0.5
+                    if((iat .eq. jat) .and. (i .eq. j))then
+!  The next lines are correct if Energy is porportional to PV, and we
+!  set second-derivative of Pressure term to 0.5, and pick a value for
+!  the bulk modulus
+                     if (i.eq.1) Then
+                        k = 2
+                        l = 3
+                     else if (i.eq.2) Then
+                        k = 1
+                        l = 3
+                     else
+                        k = 1
+                        l = 2
+                     endif
+                     if (iat.eq.1+nat_real) Then
+                        kat = 2+nat_real
+                        lat = 3+nat_real
+                     else if (iat.eq.2+nat_real) Then
+                        kat = 1+nat_real
+                        lat = 3+nat_real
+                     else
+                        kat = 1+nat_real
+                        lat = 2+nat_real
+                     endif
+                     dbl_mb(k_hess + (iat-1)*3 + (i-1) +
+     $                   ((jat-1)*3 + (j-1))*nat*3) = 0.5 +
+     $                   (2*bulk/volume)*abs(amat(k,kat)*amat(l,lat)-
+     $                                       amat(k,lat)*amat(l,kat))
+!  The next lines are correct if Energy is porportional to Volume
+                    else if ((iat .eq. jat) .or. (i .eq. j)) then
+                     dbl_mb(k_hess + (iat-1)*3 + (i-1) +
+     $                   ((jat-1)*3 + (j-1))*nat*3) = 0.0
+                    else
+!  The next lines are correct if Energy is porportional to Volume
+                     k = (2*3)-(i+j) + 0 ! the other x,y,z coordinate
+                     kat = (2*nat) - (iat+jat) ! the other 'atom'
+                     dbl_mb(k_hess + (iat-1)*3 + (i-1) +
+     $               ((jat-1)*3 + (j-1))*nat*3) = abs(amat(k,kat))*0.001
+                    end if
+                  end do
+                 end do
+                end do
+              end do
+            else if (ostress2) then
+              if (.not. geom_lattice_get(geom, lattice))
+     $          call errquit('driver: failed to get lattice',0,0)
+              bulk=0.1
+              if (.not. geom_volume_get(geom,volume))
+     $            call errquit('geom_volume_get failed',0, GEOM_ERR)
+              iat = 1  ! Set length cross-terms to non-zero
+              jat = 1
+              ! this is right for E=PV at P=0
+              do i = 1, 3
+               do j = 1, 3
+                 dbl_mb(k_hess + (iat-1)*3 + (i-1) +
+     $                   ((jat-1)*3 + (j-1))*nat*3) = 
+     $                  volume*bulk/abs(lattice(i,1)*lattice(j,1))
+                 if (i.eq.j) then ! Add extra to diagonal, just because
+                   dbl_mb(k_hess + (iat-1)*3 + (i-1) +
+     $                 ((jat-1)*3 + (j-1))*nat*3) =
+     $                 dbl_mb(k_hess + (iat-1)*3 + (i-1) +
+     $                   ((jat-1)*3 + (j-1))*nat*3) + 0.2
+                 endif
+               end do
+              end do
+              iat = 2  ! Set angle cross-terms to non-zero, that way they are linked
+              jat = 2
+              do i = 1, 3
+               do j = 1, 3
+                if (i.ne.j) then
+                 dbl_mb(k_hess + (iat-1)*3 + (i-1) +
+     $                   ((jat-1)*3 + (j-1))*nat*3) = 0.1
+                else
+                 dbl_mb(k_hess + (iat-1)*3 + (i-1) +
+     $                   ((jat-1)*3 + (j-1))*nat*3) = 1.0 ! Angles are stiff
+                endif
+               end do
+              end do
+            endif
             if (oprint) then 
                write(6,*) ' The initial hessian '
                call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
