@@ -2,7 +2,6 @@
 * $Id$
 *
 
-
 *     ***********************************
 *     *					*
 *     *	 	  psp_init  		*
@@ -106,6 +105,12 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       value = value.and.
      >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
      >                     'nae',nae(2),nae(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >                     'nps',nps(2),nps(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >                     'lps',lps(2),lps(1))
       value = value.and.
      >        MA_alloc_get(mt_int,npsp,'icut',icut(2),icut(1))
       value = value.and.
@@ -226,8 +231,18 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 *     **** deallocate nonlocal pspw data ****
       do ia=1,npsp
         if (int_mb(nprj(1)+ia-1).gt.0) then
-        call psi_data_dealloc(int_mb(vnl(1)+ia-1))
-        call psi_data_dealloc(int_mb(Gijl(1)+ia-1))
+           call psi_data_dealloc(int_mb(vnl(1)+ia-1))
+           call psi_data_dealloc(int_mb(Gijl(1)+ia-1))
+        end if
+        if (int_mb(psp_type(1)+ia-1).eq.4) then
+           call psi_data_dealloc(int_mb(eig(1)+ia-1))
+           call psi_data_dealloc(int_mb(phi_ae(1)+ia-1))
+           call psi_data_dealloc(int_mb(dphi_ae(1)+ia-1))
+           call psi_data_dealloc(int_mb(phi_ps(1)+ia-1))
+           call psi_data_dealloc(int_mb(dphi_ps(1)+ia-1))
+           call psi_data_dealloc(int_mb(core_ae(1)+ia-1))
+           call psi_data_dealloc(int_mb(core_ps(1)+ia-1))
+           call psi_data_dealloc(int_mb(rgrid(1)+ia-1))
         end if
       end do
 
@@ -260,6 +275,8 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       value = value.and.MA_free_heap(n1dgrid(2))
       value = value.and.MA_free_heap(n1dbasis(2))
       value = value.and.MA_free_heap(nae(2))
+      value = value.and.MA_free_heap(nps(2))
+      value = value.and.MA_free_heap(lps(2))
       value = value.and.MA_free_heap(icut(2))
       value = value.and.MA_free_heap(eig(2))
       value = value.and.MA_free_heap(phi_ae(2))
@@ -287,7 +304,6 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
 *     *	 	   psp_rlocal		*
 *     *					*
 *     ***********************************
-
       real*8 function psp_rlocal(ia)
       implicit none
       integer ia
@@ -298,18 +314,84 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       integer rlocal(2)
       common / version4 / rlocal
 
-
       psp_rlocal = dbl_mb(rlocal(1)+ia-1)
       return
       end
 
+*     ***********************************
+*     *					*
+*     *	 	   psp_r1               *
+*     *					*
+*     ***********************************
+      real*8 function psp_r1(ia)
+      implicit none
+      integer ia
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      psp_r1 = dbl_mb(r1(1)+ia-1)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	 	   psp_rmax             *
+*     *					*
+*     ***********************************
+      real*8 function psp_rmax(ia)
+      implicit none
+      integer ia
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      psp_rmax = dbl_mb(rmax(1)+ia-1)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	 	   psp_sigma            *
+*     *					*
+*     ***********************************
+      real*8 function psp_sigma(ia)
+      implicit none
+      integer ia
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      psp_sigma = dbl_mb(sigma(1)+ia-1)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	       psp_sphere_radius        *
+*     *					*
+*     ***********************************
+      real*8 function psp_sphere_radius(ia)
+      implicit none
+      integer ia
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      integer  indx
+      integer  psi_data_get_chnk
+      external psi_data_get_chnk
+
+      indx = psi_data_get_chnk(int_mb(rgrid(1)+ia-1))
+      psp_sphere_radius = dbl_mb(indx + int_mb(icut(1)+ia-1)-1)
+      return
+      end
 
 *     ***********************************
 *     *					*
 *     *	 	   psp_zv		*
 *     *					*
 *     ***********************************
-
       real*8 function psp_zv(ia)
       implicit none
       integer ia
@@ -317,11 +399,25 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
 #include "mafdecls.fh"
 #include "psp.fh"
 
-
       psp_zv = dbl_mb(zv(1)+ia-1)
       return
       end
 
+*     ***********************************
+*     *					*
+*     *	 	   psp_zion		*
+*     *					*
+*     ***********************************
+      real*8 function psp_zion(ia)
+      implicit none
+      integer ia
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      psp_zion = dbl_mb(zion(1)+ia-1)
+      return
+      end
 
 *     ***********************************
 *     *                                 *
@@ -337,13 +433,11 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       return
       end
 
-
 *     ***********************************
 *     *					*
 *     *	 	   psp_amass		*
 *     *					*
 *     ***********************************
-
       real*8 function psp_amass(ia)
       implicit none
       integer ia
@@ -351,25 +445,21 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
 #include "mafdecls.fh"
 #include "psp.fh"
 
-
       psp_amass = dbl_mb(amass(1)+ia-1)
       return
       end
-
 
 *     ***********************************
 *     *					*
 *     *	 	   psp_rc		*
 *     *					*
 *     ***********************************
-
       real*8 function psp_rc(i,ia)
       implicit none
       integer i,ia
 
 #include "mafdecls.fh"
 #include "psp.fh"
-
 
 c     psp_rc = rc(i,ia)
       psp_rc = dbl_mb(rc(1) + i + (lmax_max+1)*(ia-1))
@@ -381,13 +471,11 @@ c     psp_rc = rc(i,ia)
 *     *	 	   psp_atom		*
 *     *					*
 *     ***********************************
-
       character*2 function psp_atom(ia)
       implicit none
       integer  ia
 
 #include "psp.fh"
-
 
       psp_atom = atom(ia)
       return
@@ -399,26 +487,21 @@ c     psp_rc = rc(i,ia)
 *     *            psp_comment          *
 *     *                                 *
 *     ***********************************
-
       character*(*) function psp_comment(ia)
       implicit none
       integer  ia
 
 #include "psp.fh"
 
-
       psp_comment = comment(ia)
       return
       end
-
-
 
 *     ***********************************
 *     *					*
 *     *	 	   psp_lmmax		*
 *     *					*
 *     ***********************************
-
       integer function psp_lmmax(ia)
       implicit none
       integer  ia
@@ -426,18 +509,15 @@ c     psp_rc = rc(i,ia)
 #include "mafdecls.fh"
 #include "psp.fh"
 
-
       psp_lmmax = int_mb(lmmax(1)+ia-1)
       return
       end
-
 
 *     ***********************************
 *     *                                 *
 *     *            psp_nprj             *
 *     *                                 *
 *     ***********************************
-
       integer function psp_nprj(ia)
       implicit none
       integer  ia
@@ -448,7 +528,6 @@ c     psp_rc = rc(i,ia)
       psp_nprj  = int_mb(nprj(1)+ia-1)
       return
       end
-
 
 *     ***********************************
 *     *                                 *
@@ -494,23 +573,17 @@ c     psp_rc = rc(i,ia)
       end
 
 
-
-
-
-
 *     ***********************************
 *     *					*
 *     *	 	   psp_lmax		*
 *     *					*
 *     ***********************************
-
       integer function psp_lmax(ia)
       implicit none
       integer  ia
 
 #include "mafdecls.fh"
 #include "psp.fh"
-
 
       psp_lmax = int_mb(lmax(1)+ia-1)
       return
@@ -521,7 +594,6 @@ c     psp_rc = rc(i,ia)
 *     *	 	   psp_locp		*
 *     *					*
 *     ***********************************
-
       integer function psp_locp(ia)
       implicit none
       integer  ia
@@ -529,8 +601,124 @@ c     psp_rc = rc(i,ia)
 #include "mafdecls.fh"
 #include "psp.fh"
 
-
       psp_locp = int_mb(locp(1)+ia-1)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	 	   psp_n1dgrid          *
+*     *					*
+*     ***********************************
+      integer function psp_n1dgrid(ia)
+      implicit none
+      integer  ia
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      psp_n1dgrid = int_mb(n1dgrid(1)+ia-1)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	 	   psp_n1dbasis         *
+*     *					*
+*     ***********************************
+      integer function psp_n1dbasis(ia)
+      implicit none
+      integer  ia
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      psp_n1dbasis = int_mb(n1dbasis(1)+ia-1)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	 	   psp_icut             *
+*     *					*
+*     ***********************************
+      integer function psp_icut(ia)
+      implicit none
+      integer  ia
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      psp_icut = int_mb(icut(1)+ia-1)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	 	   psp_nae              *
+*     *					*
+*     ***********************************
+      integer function psp_nae(i,ia)
+      implicit none
+      integer  i,ia
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      psp_nae =int_mb(nae(1)+(ia-1)*(nmax_max*lmmax_max)+i-1)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	 	   psp_nps              *
+*     *					*
+*     ***********************************
+      integer function psp_nps(i,ia)
+      implicit none
+      integer  i,ia
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      psp_nps =int_mb(nps(1)+(ia-1)*(nmax_max*lmmax_max)+i-1)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	 	   psp_lps              *
+*     *					*
+*     ***********************************
+      integer function psp_lps(i,ia)
+      implicit none
+      integer  i,ia
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      psp_lps =int_mb(lps(1)+(ia-1)*(nmax_max*lmmax_max)+i-1)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *	 	   psp_eig              *
+*     *					*
+*     ***********************************
+      real*8 function psp_eig(i,ia)
+      implicit none
+      integer  i,ia
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      integer  indx
+      integer  psi_data_get_chnk
+      external psi_data_get_chnk
+
+      indx = psi_data_get_chnk(int_mb(eig(1)+ia-1))
+      psp_eig = dbl_mb(indx+i-1)
       return
       end
 
@@ -539,7 +727,6 @@ c     psp_rc = rc(i,ia)
 *     *	 	   psp_npsp		*
 *     *					*
 *     ***********************************
-
       integer function psp_npsp()
       implicit none
 
@@ -549,13 +736,11 @@ c     psp_rc = rc(i,ia)
       return
       end
 
-
 *     ***********************************
 *     *                                 *
 *     *            psp_pawexist         *
 *     *                                 *
 *     ***********************************
-
       logical function psp_pawexist()
       implicit none
 
@@ -1555,7 +1740,7 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                       vl,vnl_tag,
      >                       semicore,rcore,ncore,
      >                       log_amesh,r1,rmax,sigma,zion,
-     >                       n1dgrid,n1dbasis,nae,icut,eig_tag,
+     >                       n1dgrid,n1dbasis,nae,nps,lps,icut,eig_tag,
      >                       phi_ae_tag,dphi_ae_tag,
      >                       phi_ps_tag,dphi_ps_tag,
      >                       core_ae_tag,core_ps_tag,rgrid_tag,
@@ -1589,7 +1774,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       real*8  ncore(*)
       
       real*8  log_amesh,r1,rmax,sigma,zion
-      integer n1dgrid,n1dbasis,nae(*),icut,eig_tag
+      integer n1dgrid,n1dbasis,nae(*),nps(*),lps(*),icut,eig_tag
       integer phi_ae_tag,dphi_ae_tag,phi_ps_tag,dphi_ps_tag
       integer core_ae_tag,core_ps_tag,rgrid_tag
       real*8  core_kin_energy
@@ -1800,6 +1985,12 @@ c     **** define Gx,Gy and Gz in packed space ****
         if (taskid.eq.MASTER) call iread(5,nae,n1dbasis)
         call Parallel_Brdcst_ivalues(MASTER,n1dbasis,nae)
 
+        if (taskid.eq.MASTER) call iread(5,nps,n1dbasis)
+        call Parallel_Brdcst_ivalues(MASTER,n1dbasis,nps)
+
+        if (taskid.eq.MASTER) call iread(5,lps,n1dbasis)
+        call Parallel_Brdcst_ivalues(MASTER,n1dbasis,lps)
+
         indx = psi_data_get_chnk(rgrid_tag)
         if (taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
         call Parallel_Brdcst_values(MASTER,n1dgrid,dbl_mb(indx))
@@ -1963,6 +2154,10 @@ c     logocal semicore(0:nkatmx)
      >                  int_mb(n1dbasis(1)+ia-1),
      >                  int_mb(nae(1) 
      >                         + (ia-1)*(nmax_max*lmmax_max)),
+     >                  int_mb(nps(1) 
+     >                         + (ia-1)*(nmax_max*lmmax_max)),
+     >                  int_mb(lps(1) 
+     >                         + (ia-1)*(nmax_max*lmmax_max)),
      >                  int_mb(icut(1)+ia-1),
      >                  int_mb(eig(1)+ia-1),
      >                  int_mb(phi_ae(1)+ia-1),
@@ -2037,6 +2232,112 @@ c     logocal semicore(0:nkatmx)
 
 *     **** done reading set nprj_max and prjtmp for nonlocal psp operator ****
       call psp_proj_init()
+
+      return
+      end
+
+
+*     ***********************************
+*     *					*
+*     *	 	  psp_print 		*
+*     *					*
+*     ***********************************
+      subroutine psp_print(ia)      
+      implicit none
+      integer ia
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "stdio.fh"
+#include "psp.fh"
+
+      integer taskid,MASTER
+      parameter (MASTER=0)
+      logical oprint
+      integer i
+      character*255 cmment
+
+      logical       control_print,psp_semicore
+      external      control_print,psp_semicore
+      character     spdf_name
+      external      spdf_name
+      character*4   ion_atom
+      external      ion_atom
+      real*8        psp_rc,psp_rlocal,psp_rcore,psp_ncore,psp_zv
+      external      psp_rc,psp_rlocal,psp_rcore,psp_ncore,psp_zv
+      real*8        psp_zion,psp_sigma,psp_sphere_radius
+      external      psp_zion,psp_sigma,psp_sphere_radius
+      real*8        psp_r1,psp_rmax,psp_eig
+      external      psp_r1,psp_rmax,psp_eig
+      integer       psp_lmax,psp_locp,psp_psp_type,psp_nprj,psp_icut
+      external      psp_lmax,psp_locp,psp_psp_type,psp_nprj,psp_icut
+      integer       psp_nae,psp_nps,psp_lps,psp_n1dbasis,psp_n1dgrid
+      external      psp_nae,psp_nps,psp_lps,psp_n1dbasis,psp_n1dgrid
+      integer       control_version,inp_strlen
+      external      control_version,inp_strlen
+      
+      call Parallel_taskid(taskid)
+      oprint= ((taskid.eq.MASTER).and.control_print(print_medium))
+
+      if (oprint) then
+         if (psp_psp_type(ia).ne.4) then
+           write(luout,1150) ia,ion_atom(ia),psp_zv(ia),psp_lmax(ia)
+           cmment = comment(ia)
+           i = inp_strlen(cmment)
+           write(luout,1157) cmment(1:i)
+           write(luout,1158) psp_psp_type(ia)
+           write(luout,1152) psp_lmax(ia)
+           write(luout,1153) psp_locp(ia)
+           write(luout,1154) psp_nprj(ia)
+           if (control_version().eq.4) write(luout,1156) psp_rlocal(ia)
+           if (psp_semicore(ia)) 
+     >        write(luout,1155) psp_rcore(ia),psp_ncore(ia)
+           write(luout,1151) (psp_rc(i,ia),i=0,psp_lmax(ia))
+           write(luout,*)
+         else 
+            write(luout,2141) ia,ion_atom(ia),psp_zv(ia),
+     >                        psp_zion(ia)-psp_zv(ia)
+            write(luout,2142) psp_r1(ia)
+            write(luout,2143) psp_rmax(ia)
+            write(luout,2144) psp_n1dgrid(ia)
+            write(luout,2145) psp_sphere_radius(ia),
+     >                        psp_icut(ia),
+     >                        psp_icut(ia)
+            write(luout,2146) psp_sigma(ia)
+            write(luout,2150) psp_nprj(ia)
+            write(luout,2151)
+            do i=1,psp_n1dbasis(ia)
+              write(luout,2152) psp_nps(i,ia),
+     >                          psp_nae(i,ia),
+     >                          spdf_name(psp_lps(i,ia)),
+     >                          psp_eig(i,ia),
+     >                          2*psp_lps(i,ia)+1
+            end do
+         end if
+      end if
+
+ 1150 FORMAT(5X,I2,': ',A4,' valence charge:',F8.4,'  lmax=',I3)
+ 1151 FORMAT(5X,'        cutoff =',4F8.3)
+ 1152 FORMAT(12X,' highest angular component      : ',i3)
+ 1153 FORMAT(12X,' local potential used           : ',i3)
+ 1154 FORMAT(12X,' number of non-local projections: ',i3)
+ 1155 FORMAT(12X,' semicore corrections included  : ',
+     >       F6.3,' (radius) ',F6.3,' (charge)')
+ 1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
+ 1157 FORMAT(12X,' comment    : ',A)
+ 1158 FORMAT(12X,' pseudpotential type            : ',i3)
+
+ 2141 FORMAT(5X,I2,': ',A4,'valence charge:',F4.1,'  core charge:',F4.1)
+ 2142 FORMAT(12x,' loggrid parameter r0        :',E10.3)
+ 2143 FORMAT(12x,' loggrid parameter rmax      :',E10.3)
+ 2144 FORMAT(12x,' loggrid parameter npoints   :',I10)
+ 2145 FORMAT(12x,' augmentation sphere radius  :',F10.3,
+     >           ' (',I5,' npoints',I5,' per task)')
+ 2146 FORMAT(12x,' compensation sigma          :',F10.3)
+ 2150 FORMAT(12x,' total number of projectors  :',I10)
+ 2151 FORMAT(12x,' n_ps (n) l          eig      #projector')
+ 2152 FORMAT(14X,I3,' (',I1,') ',A,F13.6,I16)
 
       return
       end

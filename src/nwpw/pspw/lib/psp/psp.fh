@@ -32,12 +32,12 @@
 
 *     ***** PAW variables *****
       integer log_amesh(2),r1(2),rmax(2),sigma(2),zion(2)
-      integer n1dgrid(2),n1dbasis(2),nae(2),icut(2),eig(2)
+      integer n1dgrid(2),n1dbasis(2),nae(2),nps(2),lps(2),icut(2),eig(2)
       integer phi_ae(2),dphi_ae(2),phi_ps(2),dphi_ps(2)
       integer core_ae(2),core_ps(2),rgrid(2),core_kin(2)
       logical pawexist
       common /psp_paw_block/ log_amesh,r1,rmax,sigma,zion,
-     >                       n1dgrid,n1dbasis,nae,icut,eig,
+     >                       n1dgrid,n1dbasis,nae,nps,lps,icut,eig,
      >                       phi_ae,dphi_ae,phi_ps,dphi_ps,
      >                       core_ae,core_ps,rgrid,core_kin,
      >                       pawexist

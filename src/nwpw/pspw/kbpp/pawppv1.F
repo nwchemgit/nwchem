@@ -392,6 +392,8 @@ c      if (filter) write(*,*) "- filtering pseudopotential -"
          call dwrite(2,zion,1)
          call dwrite(2,dbl_mb(eig(1)),nbasis)
          call iwrite(2,int_mb(nae(1)),nbasis)
+         call iwrite(2,int_mb(nps(1)),nbasis)
+         call iwrite(2,int_mb(lps(1)),nbasis)
 
          call dwrite(2,dbl_mb(rgrid(1)),n1dgrid)
          call dwrite(2,dbl_mb(phi_ae(1)),n1dgrid*nbasis)
