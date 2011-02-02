@@ -1,0 +1,51 @@
+echo
+start detci_bug
+
+
+# SCF 6-311+g* basis singlet optimized
+geometry units au # noautosym
+    C     0.00000000     2.70988558     0.00000000
+    C     0.00000000    -2.70988558     0.00000000
+    C     2.41085575     1.26154952     0.00000000
+    C    -2.41085575     1.26154952     0.00000000
+    C     2.41085575    -1.26154952     0.00000000
+    C    -2.41085575    -1.26154952     0.00000000
+    N     0.00000000     5.02025763     0.00000000
+    N     0.00000000    -5.02025763     0.00000000
+    H     4.14271262     2.33001546     0.00000000
+    H    -4.14271262     2.33001546     0.00000000
+    H     4.14271262    -2.33001546     0.00000000
+    H    -4.14271262    -2.33001546     0.00000000
+end
+
+basis spherical 
+ * library 6-31g*
+end
+
+scf
+  triplet
+end
+
+task scf
+
+mcscf
+  actelec 10
+  active 10
+  state 1ag
+# multiplicity 1
+  vectors swap 20 23  32 36
+end
+
+task mcscf
+eof
+
+title "no symmetry"
+
+scf
+vectors input atomic
+sym off
+adapt off
+end
+
+
+task mcscf
