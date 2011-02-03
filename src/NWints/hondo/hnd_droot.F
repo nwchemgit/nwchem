@@ -414,10 +414,10 @@ c
 c     Use Golub-Welsh method
 c
          offset=rys_leg(nroots)
-         do i=1,leg_aux(i)
+         do i=1,leg_aux(offset)
             tmp(i)=wts_leg(i,offset)*exp(-yy*rts_leg(i,offset))
          enddo
-         call sti(nroots,leg_aux(i),rts_leg(1,nroots),tmp,a,b,ierr,
+         call sti(nroots,leg_aux(offset),rts_leg(1,nroots),tmp,a,b,ierr,
      &            p0,p1,p2)
          call gauss(nroots,a,b,hnd_acc,tmp_rts,tmp_wts,ierr,buff)
          do i=1,nroots
