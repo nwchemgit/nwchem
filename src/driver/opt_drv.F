@@ -522,7 +522,7 @@ c
       PARAMETER (MXATOM=nw_max_atom)
       LOGICAL odebug
       LOGICAL SOME
-      LOGICAL BADZ
+      LOGICAL BADZ1,BADZ2
       CHARACTER*8 HGUESS
       CHARACTER*8 GUESS
       CHARACTER*8 GUESS1
@@ -533,7 +533,7 @@ c
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
       DIMENSION HSSQ(NINT,*)
       DIMENSION ZMAT(*),IZMAT(*)
-      DIMENSION IROW(86),DPARM(6,6),APARM(6,6),RCOV(86)
+      DIMENSION IROW(86),DPARM(6,6),APARM(6,6),RCOV(118)
 C     
 C     --- DATA TABLES FOR BADGER'S RULES (SEE J.C.P. 2, 128(1934)) ---
 C     A GENERALIZED BADGER'S RULE, AND THESE PARAMETERS ARE FROM
@@ -545,7 +545,7 @@ C
      2     1.84D+00,2.28D+00,2.41D+00,2.52D+00,2.61D+00,2.60D+00,
      3     1.98D+00,2.35D+00,2.52D+00,2.58D+00,2.66D+00,2.75D+00,
      4     2.03D+00,2.33D+00,2.61D+00,2.66D+00,2.85D+00,2.76D+00,
-     5     2.03D+00,2.50D+00,2.60D+00,2.75D+00,2.75D+00,3.00D+00/
+     5     2.03D+00,2.50D+00,2.60D+00,2.75D+00,2.76D+00,3.00D+00/
       DATA DPARM /2.50D-02,0.30D+00,0.38D+00,0.49D+00,0.51D+00,0.81D+00,
      1     0.30D+00,0.68D+00,0.74D+00,0.85D+00,0.68D+00,0.97D+00,
      2     0.38D+00,0.74D+00,1.18D+00,1.02D+00,1.28D+00,0.84D+00,
@@ -554,33 +554,53 @@ C
      5     0.81D+00,0.97D+00,0.84D+00,1.14D+00,1.25D+00,1.83D+00/
 C     
 C     COVALENT RADII FROM J.EMSLEY, "THE ELEMENTS", 2ND EDITION, 1991
-C     EXCEPT VAN DER WAALS RADII FOR HE,NE,AR,KR (SAME SOURCE),
-C     AND GUESSES FOR NA,V,CR,RB,TC,PM,EU,YB,AT,RN
+C     AND GUESSES FOR NA,V,CR,RB,TC,PM,EU,YB,AT
+C     HE,NE,AR,KR,RN are from:
+C     Beatriz Cordero, Verónica Gómez, Ana E. Platero-Prats, Marc Revés,
+C     Jorge Echeverría, Eduard Cremades, Flavia Barragán and Santiago Alvarez
+C     (2008). "Covalent radii revisited". Dalton Trans.: 2832–2838.
+C     doi:10.1039/b801115j.
 C     
-      DATA (RCOV(NUCZ),NUCZ=1,2)/0.30D+00,1.22D+00/
+      DATA (RCOV(NUCZ),NUCZ=1,2)/0.30D+00,0.46D+00/
       DATA (RCOV(NUCZ),NUCZ=3,10)
      1     /1.23D+00,0.89D+00,0.88D+00,0.77D+00,
-     2     0.70D+00,0.66D+00,0.58D+00,1.60D+00/
+     2     0.70D+00,0.66D+00,0.58D+00,0.67D+00/
       DATA (RCOV(NUCZ),NUCZ=11,18)
      1     /1.66D+00,1.36D+00,1.25D+00,1.17D+00,
-     2     1.10D+00,1.04D+00,0.99D+00,1.91D+00/
+     2     1.10D+00,1.04D+00,0.99D+00,0.96D+00/
       DATA (RCOV(NUCZ),NUCZ=19,36)
      1     /2.03D+00,1.74D+00,
      2     1.44D+00,1.32D+00,1.22D+00,1.19D+00,1.17D+00,
      3     1.165D+00,1.16D+00,1.15D+00,1.17D+00,1.25D+00,
-     4     1.25D+00,1.22D+00,1.21D+00,1.17D+00,1.14D+00,1.98D+00/
+     4     1.25D+00,1.22D+00,1.21D+00,1.17D+00,1.14D+00,1.17D+00/
       DATA (RCOV(NUCZ),NUCZ=37,54)
      1     /2.22D+00,1.92D+00,
      2     1.62D+00,1.45D+00,1.34D+00,1.29D+00,1.27D+00,
      3     1.24D+00,1.25D+00,1.28D+00,1.34D+00,1.41D+00,
-     4     1.50D+00,1.40D+00,1.41D+00,1.37D+00,1.33D+00,2.09D+00/
+     4     1.50D+00,1.40D+00,1.41D+00,1.37D+00,1.33D+00,1.31D+00/
       DATA (RCOV(NUCZ),NUCZ=55,86)
      1     /2.35D+00,1.98D+00,
      2     1.69D+00,1.65D+00,1.65D+00,1.64D+00,1.65D+00,1.66D+00,1.65D0,
      3     1.61D+00,1.59D+00,1.59D+00,1.58D+00,1.57D+00,1.56D+00,1.56D0,
      4     1.56D+00,1.44D+00,1.34D+00,1.30D+00,1.28D+00,
      5     1.26D+00,1.26D+00,1.29D+00,1.34D+00,1.44D+00,
-     6     1.55D+00,1.54D+00,1.52D+00,1.53D+00,1.50D+00,2.20D+00/
+     6     1.55D+00,1.54D+00,1.52D+00,1.53D+00,1.50D+00,1.42D+00/
+!     These are from: P. Pyykkö, M. Atsumi (2009). "Molecular Single-Bond
+!     Covalent Radii for Elements 1-118". Chemistry: A European Journal 15:
+!     186–197. doi:10.1002/chem.200800987.
+      DATA (RCOV(NUCZ),NUCZ=87,99)
+     1    / 2.18D+00, 1.73D+00, 1.53D+00, 1.43D+00, 1.38D+00, 1.34D+00,
+     2      1.36D+00, 1.35D+00, 1.35D+00, 1.36D+00, 1.39D+00, 1.40D+00,
+     3      1.40D+00/
+!     These are from: Beatriz Cordero, Verónica Gómez, Ana E.
+!     Platero-Prats, Marc Revés, Jorge Echeverría, Eduard Cremades,
+!     Flavia Barragán and Santiago Alvarez (2008). "Covalent radii
+!     revisited". Dalton Trans.: 2832–2838. doi:10.1039/b801115j.
+      DATA (RCOV(NUCZ),NUCZ=100,118)
+     1    /1.67D+00, 1.73D+00, 1.76D+00, 1.61D+00, 1.57D+00,
+     2     1.49D+00, 1.43D+00, 1.41D+00, 1.34D+00, 1.29D+00, 1.28D+00,
+     3     1.21D+00, 1.22D+00, 1.36D+00, 1.43D+00, 1.62D+00, 1.75D+00,
+     4     1.65D+00, 1.57D+00 /
 C     
       DATA GUESS,GUESS1,GUESS2 /'GUESS   ','GUESS1  ','GUESS2  '/
 C     
@@ -589,7 +609,8 @@ C
       DIST(IAT,JAT)=SQRT((C(1,IAT)-C(1,JAT))**2+
      1     (C(2,IAT)-C(2,JAT))**2+
      1     (C(3,IAT)-C(3,JAT))**2) * TOANGS
-      BADZ(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.86
+      BADZ1(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.86
+      BADZ2(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.118
 C     
       IF(odebug) THEN
          WRITE(IW,9168)
@@ -644,22 +665,26 @@ C
             IZ2 = IZMAT(IZ+2)
             IZA = NUC(IZ1)
             IZB = NUC(IZ2)
-            IF(BADZ(IZA)  .OR.  BADZ(IZB)) THEN
-               HSSQ(I,I) = THIRD
-               GO TO 180
+            IF(BADZ1(IZA)  .OR.  BADZ1(IZB)) THEN
+               hess1 = THIRD
+            ELSE
+C     
+              IROWA = IROW(IZA)
+              IROWB = IROW(IZB)
+              AIJ = APARM(IROWA,IROWB)
+              DIJ = DPARM(IROWA,IROWB)
+              RRR = TOANGS*ZMAT(I)
+              HII = (AIJ-DIJ)/(RRR-DIJ)
+              HESS1 = TOHB2 * HII * HII * HII
             ENDIF
 C     
-            IROWA = IROW(IZA)
-            IROWB = IROW(IZB)
-            AIJ = APARM(IROWA,IROWB)
-            DIJ = DPARM(IROWA,IROWB)
-            RRR = TOANGS*ZMAT(I)
-            HII = (AIJ-DIJ)/(RRR-DIJ)
-            HESS1 = TOHB2 * HII * HII * HII
-C     
-            RAB = DIST(IZ1,IZ2)
-            CAB = RCOV(IZA) + RCOV(IZB)
-            HESS2 = 0.3601 * EXP(-1.944*(RAB - CAB))
+            IF(BADZ2(IZA)  .OR.  BADZ2(IZB)) THEN
+              hess2 = THIRD
+            ELSE
+              RAB = DIST(IZ1,IZ2)
+              CAB = RCOV(IZA) + RCOV(IZB)
+              HESS2 = 0.3601 * EXP(-1.944*(RAB - CAB))
+            ENDIF
 *
 *     rjh
 *
@@ -680,20 +705,20 @@ C
             IZB = NUC(IZ1)
             IZA = NUC(IZ2)
             IZC = NUC(IZ3)
-            IF(BADZ(IZA)  .OR.  BADZ(IZB)  .OR.  BADZ(IZC)) THEN
-               HSSQ(I,I) = QUARTR
-               GO TO 180
-            ENDIF
 C     
             HESS1 = QUARTR
             IF(IZB.EQ.1  .OR.  IZC.EQ.1) HESS1 = 0.16D+00
 C     
-            RAB = DIST(IZ2,IZ1)
-            RAC = DIST(IZ2,IZ3)
-            CAB = RCOV(IZA) + RCOV(IZB)
-            CAC = RCOV(IZA) + RCOV(IZC)
-            HESS2 = 0.089 + 0.11 * (CAB*CAC)**0.42
+            IF(BADZ2(IZA)  .OR.  BADZ2(IZB)  .OR.  BADZ2(IZC)) THEN
+               HESS2 = QUARTR
+            ELSE
+               RAB = DIST(IZ2,IZ1)
+               RAC = DIST(IZ2,IZ3)
+               CAB = RCOV(IZA) + RCOV(IZB)
+               CAC = RCOV(IZA) + RCOV(IZC)
+               HESS2 = 0.089 + 0.11 * (CAB*CAC)**0.42
      1           * EXP(-0.44*(RAB + RAC - CAB - CAC))
+            ENDIF
 c
 *
 *     rjh ... trial scaling based on observation that the
@@ -721,18 +746,17 @@ C
             IZA = NUC(IZ2)
             IZB = NUC(IZ3)
             IZC = NUC(IZ4)
-            IF(BADZ(IZA).OR.BADZ(IZB).OR.BADZ(IZC).OR.BADZ(IZD))THEN
-               HSSQ(I,I) = QUARTR
-               GO TO 180
-            ENDIF
 C     
             HESS1 = QUARTR
 C     
 C     COUNT BONDS TO ATOMS A AND B, EXCEPT FOR A-B ITSELF
 C     
-            NBA = 0
-            NBB = 0
-            DO 135 J=1,NAT
+            IF(BADZ2(IZA).OR.BADZ2(IZB).OR.BADZ2(IZC).OR.BADZ2(IZD))THEN
+               HESS2= QUARTR
+            ELSE
+              NBA = 0
+              NBB = 0
+              DO 135 J=1,NAT
                IZJ = NUC(J)
                IF(IZJ.LE.0) GO TO 135
                IF(IZJ.LE.86) THEN
@@ -746,16 +770,17 @@ C
      1              J.NE.IZ2  .AND.  J.NE.IZ3) NBA = NBA+1
                IF(DIST(IZ3,J)  .LT.  1.2D+00*CBJ  .AND.
      1              J.NE.IZ3  .AND.  J.NE.IZ2) NBB = NBB+1
- 135        CONTINUE
+ 135          CONTINUE
 C     
 C     THE FACTOR 14.0 IN PREEXP SEEMS LARGE, SO BRACKET THE RESULT
 C     
-            RAB = DIST(IZ2,IZ3)
-            CAB = RCOV(IZA) + RCOV(IZB)
-            PREEXP = 14.0 * (NBA+NBB)**0.57 / (RAB*CAB)**4
-            HESS2 = 0.0015 + PREEXP * EXP(-2.85*(RAB-CAB))
-            IF(HESS2.GT.0.30D+00) HESS2 = 0.30D+00
-            IF(HESS2.LT.0.05D+00) HESS2 = 0.05D+00
+              RAB = DIST(IZ2,IZ3)
+              CAB = RCOV(IZA) + RCOV(IZB)
+              PREEXP = 14.0 * (NBA+NBB)**0.57 / (RAB*CAB)**4
+              HESS2 = 0.0015 + PREEXP * EXP(-2.85*(RAB-CAB))
+              IF(HESS2.GT.0.30D+00) HESS2 = 0.30D+00
+              IF(HESS2.LT.0.05D+00) HESS2 = 0.05D+00
+            END IF
 *
 *     rjh ... trial scaling based on observation that the
 *     diagonal seems too large for both angles and torsions
@@ -781,20 +806,20 @@ C
             IZA = NUC(IZ2)
             IZB = NUC(IZ3)
             IZC = NUC(IZ4)
-            IF(BADZ(IZA) .OR. BADZ(IZB) .OR. BADZ(IZC) .OR. 
-     $           BADZ(IZX)) THEN
-               HSSQ(I,I) = QUARTR
-               GO TO 180
-            ENDIF
 C     
             HESS1 = QUARTR
 C     
-            CAX = RCOV(IZA) + RCOV(IZX)
-            CAB = RCOV(IZA) + RCOV(IZB)
-            CAC = RCOV(IZA) + RCOV(IZC)
-            RAX = DIST(IZ1,IZ2)
-            PREEXP = 0.0061 * (CAB*CAC)**0.80 * (COS(ZMAT(I)))**4.00
-            HESS2 = 0.0025 + PREEXP * EXP(-3.00*(RAX-CAX))
+            IF(BADZ2(IZA) .OR. BADZ2(IZB) .OR. BADZ2(IZC) .OR.
+     $           BADZ2(IZX)) THEN
+              HESS2 = QUARTR
+            ELSE
+              CAX = RCOV(IZA) + RCOV(IZX)
+              CAB = RCOV(IZA) + RCOV(IZB)
+              CAC = RCOV(IZA) + RCOV(IZC)
+              RAX = DIST(IZ1,IZ2)
+              PREEXP = 0.0061 * (CAB*CAC)**0.80 * (COS(ZMAT(I)))**4.00
+              HESS2 = 0.0025 + PREEXP * EXP(-3.00*(RAX-CAX))
+            ENDIF
 C     
             IF(HGUESS.EQ.GUESS ) HSSQ(I,I) = HESS1
             IF(HGUESS.EQ.GUESS1) HSSQ(I,I) = HESS1
