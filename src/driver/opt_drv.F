@@ -364,20 +364,8 @@ c
 c     Cartesians are easy
 c
          call dfill(nvar**2, 0.0d0, dbl_mb(k_hess), 1)
-         if (isystype .ne. 0) then
-            if (.not. geom_amatrix_get(geom, amat))
-     $           call errquit('geom_frac_to_cart: a', 0, GEOM_ERR)
-!           This is diagonal 0.5 in cartesians converted to fractional
-            do iat = 1, nat_real
-               do i = 1, 3
-                  dbl_mb(k_hess + (iat-1)*3 + (i-1) +
-     $                 ((iat-1)*3 + (i-1))*nat*3) = 0.5*amat(i,i)**2
-               end do
-            end do
-         else
-!          This is diagonal 0.5 in cartesians
-           call dfill(nvar, 0.5d0, dbl_mb(k_hess), nvar+1)
-         endif
+         call hnd_opt_hss_init_cart(dbl_mb(k_hess),
+     &                     odebug,isystype,geom,nvar)
 !    Now the lattice hessian, if any
          if (isystype .ne. 0 .and. (ostress .or. ostress2)) then
             call HND_OPT_HSS_INIT_LATTICE(dbl_mb(k_hess),nvar,isystype,
@@ -3411,4 +3399,60 @@ c
        endif
        return
        end
+
+
+
+      subroutine hnd_opt_hss_init_cart(HSSQ,odebug,isystype,geom,nvar)
+C
+C This routine assumes that the Hessian is zero on entry
+C
+      implicit none
+C     Commons and paramters
+#include "nwc_const.fh"
+#include "errquit.fh"
+      integer MXATOM
+      PARAMETER (MXATOM=nw_max_atom)
+      double precision c,zan
+      integer nat
+      COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
+C     Passed in variables
+      integer isystype,geom,nvar
+      double precision HSSQ
+      DIMENSION HSSQ(nvar,nvar)
+      LOGICAL odebug
+C     Variables
+      double precision amat(3,3),tmp(3,3),amatangs(3,3)
+      integer IPOST, JPOST, II, JJ, KK, I, J, ix, iy, iz
+      character*16 atom_tags(mxatom)
+C     External function calls
+      logical geom_cart_get,geom_amatrix_get
+      external geom_cart_get,geom_amatrix_get
+
+      IF(odebug) THEN
+         WRITE(6,*) "Generating Cartesian Hessian Guess"
+      ENDIF
+      if (.not. geom_cart_get(geom, nat, atom_tags, c, zan))
+     &      call errquit('Call to geom_cart_get failed',geom,GEOM_ERR)
+!
+      if (isystype .ne. 0) then
+       if (.not. geom_amatrix_get(geom, amat))
+     $           call errquit('geom_frac_to_cart: a', 0, GEOM_ERR)
+       do i = 1, nat
+          ipost = (i - 1)*3
+          do j = 1, 3
+             HSSQ(ipost+j,ipost+j) = max(HSSQ(ipost+j,ipost+j),
+     &               0.5d0*(amat(1,j)**2+amat(2,j)**2+amat(3,j)**2))
+          end do
+        end do
+      ELSE
+        DO I=1,3*NAT
+          HSSQ(I,I)=0.5d0
+        END DO
+      ENDIF
+
+      IF(odebug) THEN
+         WRITE(6,*) "Cartesian Hessian Guess",NVAR
+         CALL HND_PRSQ(HSSQ,NVAR,NVAR,NVAR)
+      ENDIF
+      END
 
