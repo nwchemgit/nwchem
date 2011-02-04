@@ -1411,6 +1411,26 @@ c
          endif
       endif    
 c
+c     ---- No Lattice-Atom cross-terms allowed ----
+c
+      if (isystype .ne. 0 .and. (ostress .or. ostress2)) then
+         if(ostress) then
+           do i=1,nvar-3
+             do j=nvar-2,nvar
+               dbl_mb(ind(i,j))=0.0d0
+               dbl_mb(ind(j,i))=0.0d0
+             end do
+           end do
+         else if (ostress2) then
+           do i=1,nvar-2
+             do j=nvar-1,nvar
+               dbl_mb(ind(i,j))=0.0d0
+               dbl_mb(ind(j,i))=0.0d0
+             end do
+           end do
+         endif
+      endif
+c
       call geom_hnd_put_data('drv.hess',dbl_mb(k_hess), nvar**2)
       if (.not. ma_pop_stack(l_hess)) call errquit
      $     ('driver_hessian_update: ma?',0, MA_ERR)
