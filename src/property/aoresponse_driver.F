@@ -58,7 +58,7 @@ c     ==================================================================
       integer geom    ! [input] geometry handle
 c
       integer nclosed(2), nopen(2), nvirt(2), ndens, nbf, nmo
-      integer sh_atom, ixy, ix, iy, iatom, iocc, ifld, ioff
+      integer ixy, ix, iy, iatom, iocc, ifld, ioff
       integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
       integer dlo(3), dhi(3)
       integer l_occ, k_occ, l_eval, k_eval
@@ -91,6 +91,9 @@ c
       double precision dummy(3)
       double precision origin(3)
       data origin/0d0,0d0,0d0/
+
+      integer nat
+      parameter (nat=1)
 
       double precision betare(3,3), betaim(3,3)
       double precision alfare(3,3), alfaim(3,3)
@@ -488,8 +491,8 @@ c     electron dipole moment integrals:
 
 c     note: origin has been set to (0,0,0) for multipole integs.
       if (lvelocity) then
-        call int_giao_1ega(basis,basis,g_dipel,'velocity',origin,1,
-     &     oskel)
+        call int_giao_1ega(basis,basis,g_dipel,'velocity',origin,
+     &     nat,oskel)
 c       invert sign of velocity integrals for compatibility 
 c       w/ dipole-length optical rotation
         call ga_scale (g_dipel, -1d0) 
@@ -507,8 +510,8 @@ c     magnetic dipole moment integrals (r x nabla), times 0.5:
         call ga_zero(g_dipmag)
         
         if (.not.lgiao) then
-          call int_giao_1ega(basis,basis,g_dipmag,'angmom',origin,1,
-     &       oskel)
+          call int_giao_1ega(basis,basis,g_dipmag,'angmom',origin,
+     &       nat,oskel)
           call ga_scale (g_dipmag, 0.5d0)
         end if
       end if
@@ -532,7 +535,7 @@ c       magnetic-field perturbed overlap integrals, first order
      &     errquit('aor_driver: nga_create failed g_smat1',0,GA_ERR)
         call ga_zero(g_smat1)
         call int_giao_1ega(basis,basis,g_smat1,'s10',origin,
-     &     1,oskel)
+     &     nat,oskel)
         
 c       first-order S-ket matrix (right-hand side S-derivative)
         if (.not.nga_create(MT_DBL,3,ahi,'s-ket1 matrix',alo,g_sket1))
@@ -540,7 +543,7 @@ c       first-order S-ket matrix (right-hand side S-derivative)
      &     errquit('aor_driver: nga_create failed g_sket1',0,GA_ERR)
         call ga_zero(g_sket1)
         call int_giao_1ega(basis,basis,g_sket1,'srxRb',origin,
-     &     1,oskel)
+     &     nat,oskel)
         
 c       magnetic-field derivatives of <mu | h | nu> in GIAO basis,
 c       use g_dipmag array for that. h is the one-electron part of
@@ -549,9 +552,9 @@ c
 
           call ga_zero(g_dipmag)
           call int_giao_1ega(basis,basis,g_dipmag,'l10',dummy,
-     &       sh_atom,oskel)
+     &       nat,oskel)
           call int_giao_1ega(basis,basis,g_dipmag,'tv10',dummy,
-     &       sh_atom,oskel)    
+     &       nat,oskel)    
  
 
       endif                     ! lgiao     

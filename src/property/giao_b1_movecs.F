@@ -10,7 +10,8 @@ c     comments from hnd_giaox and the variable names unmodified.
 c     g_vecB1 should have at least dimensions (nbf, nocc, 3)
 c     g_sket1 should have dimensions (nbf, nbf, 3)
 
-c     Note: the CPHF call terminates the integrals
+c     Note: integrals have to be initialized by the calling routine.
+c     Note: the CPHF call below terminates the integrals
 
       implicit none
 
@@ -33,7 +34,7 @@ c
       integer g_sket1 ! [out] GIAO right hand side overlap derivative
 
       integer nclosed(2), nopen(2), nvirt(2), ndens, nbf, nmo
-      integer sh_atom, ixy, ix, iy, iatom, iocc, ifld, ioff
+      integer ixy, ix, iy, iatom, iocc, ifld, ioff
       integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
       integer dlo(3), dhi(3)
       integer l_occ, k_occ, l_eval, k_eval
@@ -50,6 +51,9 @@ c
 
       double precision origin(3)
       data origin/0d0,0d0,0d0/
+
+      integer nat
+      parameter (nat=1)
 
       logical  cphf2, file_write_ga, file_read_ga, cphf
       external cphf2, file_write_ga, file_read_ga, cphf
@@ -102,6 +106,8 @@ c     Get Unperturbed Density Matrix
 c
       call hnd_prp_get_dens(rtdb,geom,basis,g_dens,ndens,scftyp,
      &                      nclosed,nopen,nvirt)
+
+      if (debug) write (luout,*) 'unpertubed MOs and Pmat assembled'
 c
 c     Error exit if scftyp equals UHF (= ROHF)
 c
@@ -153,8 +159,10 @@ c
      &    errquit('giao_b1: nga_create failed g_s01',0,GA_ERR)
       call ga_zero(g_s10)
       call int_giao_1ega(basis,basis,g_s10,'s10',origin,
-     &                   sh_atom,oskel)
-      call giao_aotomo(g_s10,vectors,nclosed,nvirt,1,3,nbf)
+     &                   nat,oskel)
+      call giao_aotomo(g_s10,vectors(1),nclosed,nvirt,1,3,nbf)
+
+      if (debug) write (luout,*) 'S10 done'
 
 c     while we are calculating integrals, let's also determine
 c     the 'half' overlap derivative, used later in the calling
@@ -162,7 +170,9 @@ c     routine
 
       call ga_zero(g_sket1)
       call int_giao_1ega(basis,basis,g_sket1,'srxRb',origin,
-     &   1,oskel)
+     &   nat,oskel)
+
+      if (debug) write (luout,*) 'S1-ket done'
 
 c     g_sket1 will not be used further here. It is one of the 
 c     output results of this routine.
@@ -193,6 +203,8 @@ c
       alo(2) = 1
       ahi(2) = nclosed(1)
       call nga_copy_patch('n',g_s10,alo,ahi,g_rhs,blo,bhi)
+
+      if (debug) write (luout,*) 'S10 to Umat done'
 c
 c     Construct occ-occ part of the three U matrices
 c     Occ-occ blocks for each field direction are defined as -1/2 S10
@@ -204,6 +216,8 @@ c
       ahi(1) = nclosed(1)
       call nga_scale_patch(g_s10,alo,ahi,-0.5d0)
       call nga_copy_patch('n',g_s10,alo,ahi,g_u,alo,ahi)
+
+      if (debug) write (luout,*) 'S10 in occ-occ done'
 c
 c     We also need the occupied-occupied contribution of g_u
 c     contributing to the first order density matrix. As this block does
@@ -336,19 +350,21 @@ c
      &    errquit('giao_b1: ga_destroy failed g_d1',0,GA_ERR)
       if (.not.ga_destroy(g_fock)) call 
      &    errquit('giao_b1: ga_destroy failed g_fock',0,GA_ERR)
+
+      if (debug) write (luout,*) 'S10 Fockop done'
 c
 c     Get H10 in GA, reusing g_s10 array
 c
       call ga_zero(g_s10)
       call int_giao_1ega(basis,basis,g_s10,'l10',origin,
-     &                   sh_atom,oskel)
+     &                   nat,oskel)
       call int_giao_1ega(basis,basis,g_s10,'tv10',origin,
-     &                   sh_atom,oskel)
+     &                   nat,oskel)
 c
 c     ga_rhs(a,i) = ga_rhs(a,i) + H10(a,i)
 c     Transform H10 to MO and add to g_rhs
 c
-      call giao_aotomo(g_s10,vectors,nclosed,nvirt,1,3,nbf)
+      call giao_aotomo(g_s10,vectors(1),nclosed,nvirt,1,3,nbf)
       alo(1) = nclosed(1)+1
       ahi(1) = nmo
       alo(2) = 1
@@ -366,6 +382,8 @@ c     Cleanup g_s10 as we do not need it right now
 c
       if (.not.ga_destroy(g_s10)) call 
      &    errquit('giao_b1: ga_destroy failed g_s10',0,GA_ERR)
+
+      if (debug) write (luout,*) 'H10 to Umat done'
 c
 c     Remaining term is Perturbed (GIAO) two-electron term times
 c     Unperturbed density Calculate Sum(r,s) D0(r,s) * G10(m,n,r,s) in
@@ -397,7 +415,7 @@ c
 c
 c     Transform to MO basis and add to right-hand-side
 c
-      call giao_aotomo(g_fock,vectors,nclosed,nvirt,1,3,nbf)
+      call giao_aotomo(g_fock,vectors(1),nclosed,nvirt,1,3,nbf)
       alo(1) = nclosed(1)+1
       ahi(1) = nmo
       alo(2) = 1
@@ -409,6 +427,8 @@ c
       if (.not.ga_destroy(g_fock)) call 
      &    errquit('giao_b1: ga_destroy failed g_fock',0,GA_ERR)
       call nga_scale_patch(g_rhs,blo,bhi,-4.0d0)
+
+      if (debug) write (luout,*) 'D00 GIAO Fock terms done'
 c
 c     Write ga_rhs to disk 
 c
@@ -427,12 +447,16 @@ c     Done via rtdb, put cphf:skew .false. on rtdb and later remove it.
 c
       if (.not. rtdb_put(rtdb, 'cphf:skew', mt_log, 1,.false.)) call
      $   errquit('giao_b1: failed to write skew ', 0, RTDB_ERR)
+
+      if (debug) write (luout,*) 'calling cphf'
 c
       if (.not.cphf2(rtdb)) call errquit
      $  ('giao_b1: failure in cphf ',0, RTDB_ERR)
 c
       if (.not. rtdb_delete(rtdb, 'cphf:skew')) call
      $   errquit('giao_b1: rtdb_delete failed ', 0, RTDB_ERR)
+
+      if (debug) write (luout,*) 'cphf done'
 c
 c     Occ-virt blocks are the solution pieces of the CPHF
 c     Read solution vector from disk and put solutions in U matrices
@@ -493,7 +517,7 @@ c
 c        This patch of g_vecB1 now has the perturbed MO
 c        coefficients. let's print them for debug purposes:
 
-         if (debug) then
+         if (.false.) then ! change .false. to debug to print them
            write (luout,*) 'giao_b1: perturbed C, direction ',ifld
            call nga_print_patch(g_vecB1,dlo,dhi,1)
          end if
@@ -508,6 +532,8 @@ c        coefficients. let's print them for debug purposes:
      &   errquit('giao_b1: ga_destroy failed vectors',0,GA_ERR)
       if (.not.ga_destroy(g_dens(1))) call 
      &    errquit('giao_b1: ga_destroy failed g_dens',0,GA_ERR)
+
+      if (debug) write (luout,*) 'Perturbed C and Pmat done'
 
 c     Alll done.
 c     At this point, we don't need to terminate the integrals.

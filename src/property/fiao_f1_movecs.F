@@ -67,6 +67,9 @@ c     local variables:
       double precision origin(3)
       data origin/0d0,0d0,0d0/
 
+      integer nat
+      parameter (nat=1)
+
       logical     oskel, status, debug, dbgmat, limag
       data tol2e   /1.0d-10/
 
@@ -84,7 +87,7 @@ c     external functions:
 
 c  ====================================================================
 
-      debug = .true. .and. ga_nodeid().eq.0 ! .true. during development
+      debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
       dbgmat = .false. .and. ga_nodeid().eq.0 ! debug large matrices
 
       if (debug) write (luout,*) 'hello from fiao_f1_movecs'
@@ -243,8 +246,8 @@ c     note: origin has been set to (0,0,0) for multipole integs.
 
       call ga_zero(g_dipole)
       if (lvelocity) then 
-        call int_giao_1ega(basis,basis,g_dipole,'velocity',origin,1,
-     &     oskel)
+        call int_giao_1ega(basis,basis,g_dipole,'velocity',origin,
+     &     nat, oskel)
         call ga_scale (g_dipole, -1d0)
       else
         call int_mpole_1ega(basis,basis,g_dipole,'dipole',origin,

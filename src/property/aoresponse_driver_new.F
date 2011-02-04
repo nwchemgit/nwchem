@@ -135,7 +135,7 @@ c     GA handles for perturbed MO vectors:
 
 c     ==================================================================
 
-      debug = .true. .and. ga_nodeid().eq.0 ! .true. during development
+      debug = .false. .and. ga_nodeid().eq.0 ! .true. during development
 
       if (debug) write(luout,*) 'hello from aoresponse_driver_new'
 
@@ -714,8 +714,8 @@ c       with the polarizability
         
          if (debug) write (luout,*) 'calling aor1_beta'
          call aor_r1_beta(rtdb, basis, geom, omega, lstatic, ncomp,
-     &      g_smat0, g_sket1, g_vecB1, g_dipel, g_quadel , g_vectors ,
-     &      dbl_mb(k_occ), nbf, nmo, nclosed, nvirt, lgiao , lquad,
+     &      g_smat0, g_sket1, g_vecB1(1), g_dipel, g_quadel , g_vectors
+     &      , dbl_mb(k_occ), nbf, nmo, nclosed, nvirt, lgiao , lquad,
      &      lvelocity, lifetime, lmagpert, g_vecF1, g_vecF1_im,  alfare,
      &      alfaim, betare, betaim)         
          if (debug) write (luout,*) 'exiting aor_r1_beta'
@@ -886,7 +886,7 @@ c$$$      end if
       endif
 
       if (lbeta) then
-        if (.not.ga_destroy(g_vecB1)) call 
+        if (.not.ga_destroy(g_vecB1(1))) call 
      &     errquit('aor_driver: ga_destroy failed g_vecB1',0,GA_ERR)
       end if
 

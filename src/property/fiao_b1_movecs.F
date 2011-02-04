@@ -9,7 +9,8 @@ c     hnd_giaox.
 
 c     g_vecB1 should have at least dimensions (nbf, nocc, 3)
 
-c     Note: the CPHF call terminates the integrals
+c     Note: integrals have to be initialized by the calling routine.
+c     Note: the CPHF call below terminates the integrals
 
       implicit none
 
@@ -48,6 +49,9 @@ c
 
       double precision origin(3)
       data origin/0d0,0d0,0d0/
+
+      integer nat
+      parameter (nat=1)
 
       logical  cphf2, file_write_ga, file_read_ga, cphf
       external cphf2, file_write_ga, file_read_ga, cphf
@@ -159,7 +163,7 @@ c     Get H10 in GA, using g_s10 array
 
       call ga_zero(g_s10)
 
-      call int_giao_1ega(basis,basis,g_s10,'angmom',origin,1,
+      call int_giao_1ega(basis,basis,g_s10,'angmom',origin,nat,
      &   oskel)
       call ga_scale (g_s10, 0.5d0)
 

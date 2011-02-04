@@ -39,7 +39,7 @@
          aoresponse.o \
          aoresponse_beta.o \
          aoresponse_beta2.o \
-         fiao_e1_movecs.o \
+         fiao_f1_movecs.o \
          aor_r1_tensor.o \
          aor_r1_beta.o \
          giao_b1_movecs.o \

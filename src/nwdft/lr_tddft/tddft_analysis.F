@@ -284,12 +284,19 @@ c     involved
       
       if (cdspectrum .and. lgiao) then
         
+        alo(1) = nbf_ao
+        alo(2) = -1
+        alo(3) = -1
+        ahi(1) = nbf_ao
+        ahi(2) = nbf_ao
+        ahi(3) = 3         
+
         if (.not.nga_create(MT_DBL,3,ahi,'vecB1',alo,g_vecB1))
      &     call 
      &     errquit('tddft_ana: nga_create failed vecB1',0,GA_ERR)
         call ga_zero(g_vecB1)
         
-        if (.not.nga_create(MT_DBL,2,ahi,'vecB1',alo,g_vecT))
+        if (.not.nga_create(MT_DBL,2,ahi,'vecT',alo,g_vecT))
      &     call 
      &     errquit('tddft_ana: nga_create failed vecT',0,GA_ERR)
         call ga_zero(g_vecT)
@@ -299,7 +306,7 @@ c     involved
      &     errquit('tddft_ana: nga_create failed g_sket1',0,GA_ERR)
         call ga_zero(g_sket1)
         
-c       jochen: tested this first with FIAOs which worked
+c       jochen: tested this first with FIAOs which also worked fine
 
         if (fakegiao) then
           call fiao_b1_movecs(rtdb,ao_bas_han, geom, g_vecB1)
