@@ -89,9 +89,6 @@ C
 #ifdef BAD_GACCESS
       External rimp2_ddotp
       Double precision rimp2_ddotp
-#else
-      External GA_DDot_Patch_DP
-      Double precision GA_DDot_Patch_DP
 #endif
 c$$$C
 c$$$      External GA_DASum_Patch, GA_DAMax_Patch
@@ -340,7 +337,7 @@ C
 #ifdef BAD_GACCESS
                      Call rimp2_copypp('N',
 #else
-                     Call GA_Copy_Patch_DP('N',
+                     Call GA_Copy_Patch('N',
 #endif
      $                  G_BigI, (JLo-ILo)*NVir(JSpin)+1,
      $                          (JHi-ILo+1)*NVir(JSpin), 1, NFit,
@@ -459,7 +456,7 @@ C
 #ifdef BAD_GACCESS
                      Call rimp2_copypp('T',
 #else
-                           Call GA_Copy_Patch_DP('T',
+                           Call GA_Copy_Patch('T',
 #endif
      $                        G_bigA, (I-ILo)*NVir(ISpin)+1,
      $                                (I-ILo+1)*NVir(ISpin),
@@ -555,7 +552,7 @@ C
 #ifdef BAD_GACCESS
                      paire=rimp2_ddotp(
 #else
-                        PairE = GA_DDot_Patch_DP(
+                        PairE = GA_DDot_Patch(
 #endif
      $                     G_bigA, 'N', (I-ILo)*NVir(ISpin)+1,
      $                                  (I-ILo+1)*NVir(ISpin),
