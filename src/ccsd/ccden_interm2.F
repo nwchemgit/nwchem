@@ -40,9 +40,6 @@ C INCLUDE FILES
 #include "global.fh"
 #include "util.fh"
 C
-C EXTERNAL ROUTINES
-      Double precision GA_DDot_Patch_DP
-      External  GA_DDot_Patch_DP
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer T2_ILo, T2_IHi, T2_JLo, T2_JHi
@@ -221,14 +218,14 @@ C     * APR & TJL Eq. 55                               *
 C     **************************************************
 C     This amounts to dot products between entire bands of t and z.
 C
-C     Using GA_DDot_Patch_DP, each node computes its contribution
+C     Using GA_DDot_Patch, each node computes its contribution
 C     to the dot product and returns immediately, so the Omega4
 C     we construct this way is must be summed over all nodes.
 C
       Call GA_Sync
       Do I = 1, NOcc
          Do J = 1, NOcc
-            Omega4(i,j) = GA_DDot_Patch_DP(
+            Omega4(i,j) = GA_DDot_Patch(
      $         g_T2, 'N', (I-1)*NVir+1, I*NVir, 1, NOcc*NVir,
      $         g_Z2, 'N', (J-1)*NVir+1, J*NVir, 1, NOcc*NVir)
 c$$$C

@@ -94,8 +94,6 @@ C EXTERNAL ROUTINES
 C
       external Sum_Pairs
       Double Precision Sum_Pairs
-      External GA_DDot_Patch_DP
-      Double precision GA_DDot_Patch_DP
 C
       Logical  RIMP2_Mk_T, RIMP2_Asym_I
       External RIMP2_Mk_T, RIMP2_Asym_I

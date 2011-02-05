@@ -136,7 +136,7 @@ C
 C        Now copy blockwise into proper locations in g_Int
 C
          Do I = 1, IHi - ILo + 1
-            Call GA_Copy_Patch_DP('N', g_Gam, (I-1)*V+1, I*V, 1, NFit,
+            Call GA_Copy_Patch('N', g_Gam, (I-1)*V+1, I*V, 1, NFit,
      $           g_Int, (I-1)*CAV+C+A+1, I*CAV, 1, NFit)
 c$$$            Write ( 6, *) 'L2: Copying ',  (I-1)*V+1, I*V, ' --> ',
 c$$$     $           (I-1)*CAV+C+A+1, I*CAV
@@ -170,7 +170,7 @@ C
 C           Now copy blockwise into proper locations in g_Int.
 C
             Do J = 1, NJ
-               Call GA_Copy_Patch_DP('N',
+               Call GA_Copy_Patch('N',
      $              g_Gam, (J-1)*(C+A)+1, J*(C+A),         1, NFit,
      $              g_Int, (J+JLo-ILo-1)*CAV+1, (J+JLo-ILo-1)*CAV+(C+A),
      $              1, NFit)

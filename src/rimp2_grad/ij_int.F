@@ -94,7 +94,7 @@ c$$$     $        'RIMP2_IJ_Int: Error from DRA_Wait', ILo)
 c$$$         Call PStat_Off( PS_Rd_3ci)
          Call GA_Sync
 C
-         Call GA_Copy_Patch_DP('N',
+         Call GA_Copy_Patch('N',
      $        G_I, (JLo-ILo)*NB+1, (JHi-ILo+1)*NB, 1, NFit,
      $        G_J, 1,              NJ*NB,          1, NFit )
       Else

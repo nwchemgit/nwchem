@@ -101,7 +101,7 @@ C              the patch to be copies will just fall through
 C              and immediately go on to the next loop
 C              iteration.
 C              
-               Call GA_Copy_Patch_DP('T',
+               Call GA_Copy_Patch('T',
      $            G_Int,   (I-1)*NVirI+1, I*NVirI,
      $                     (J-1)*NVirJ+1, J*NVirJ,
      $            G_AsymI, (I-1)*NVirI+1, I*NVirI,

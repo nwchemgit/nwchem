@@ -50,10 +50,6 @@ C
 C PRINT CONTROLS
 C     'partial p2' will print the G_P2 array at the end of the routine.
 C
-C ROUTINES
-      Double Precision GA_DDot_Patch_DP
-      External GA_DDot_Patch_DP
-C
 C INCLUDED FILES
 #include "util.fh"
 #include "stdio.fh"
@@ -88,7 +84,7 @@ C
                Pij = 0.0d0
 C
                Do K = 1, NI
-                  Pij = Pij + GA_DDot_Patch_DP(
+                  Pij = Pij + GA_DDot_Patch(
      $               G_T, 'N', (K-1)*NVirI+1, K*NVirI,
      $                         (I-1)*NVirJ+1, I*NVirJ,
      $               G_T, 'N', (K-1)*NVirI+1, K*NVirI,
@@ -106,7 +102,7 @@ C
                Pij = 0.0d0
 C
                Do K = 1, NJ
-                  Pij = Pij + GA_DDot_Patch_DP(
+                  Pij = Pij + GA_DDot_Patch(
      $               G_T, 'N', (I-1)*NVirI+1, I*NVirI,
      $                         (K-1)*NVirJ+1, K*NVirJ,
      $               G_T, 'N', (J-1)*NVirI+1, J*NVirI,

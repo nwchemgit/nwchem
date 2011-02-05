@@ -43,10 +43,6 @@ C PRINT CONTROLS
 C     'partial pair energies' will print the G_PairE array at the end
 C     of the routine.
 C
-C ROUTINES
-      Double Precision GA_DDot_Patch_DP
-      External GA_DDot_Patch_DP
-C
 C INCLUDED FILES
 #include "util.fh"
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
@@ -79,7 +75,7 @@ C
          EndIf
          Do J = 1, JTop
 C           
-            PairE = GA_DDot_Patch_DP(
+            PairE = GA_DDot_Patch(
      $         G_Int, 'N', (I-1)*NVirI+1, I*NVirI,
      $                     (J-1)*NVirJ+1, J*NVirJ,
      $         G_T,   'N', (I-1)*NVirI+1, I*NVirI,

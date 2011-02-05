@@ -23,10 +23,6 @@ C     Compute L^{1}_{pi} = <pj||ab>_{RI} t_{ij}^{ab} as
 C     L^{1}_{pi} = 2 (pa|D) V^{-1}_{DT} (T|jb) t_{ij}^{ab}
 C                = 2 Int(ap|D) Gam(ai,D)
 C
-C EXTERNAL ROUTINES
-      Double Precision GA_DDot_Patch_DP
-      External         GA_DDot_Patch_DP
-C
 C INCLUDE FILES
 #include "mafdecls.fh"
 #include "global.fh"
@@ -142,7 +138,7 @@ C
             Do P = 1, PHi - PLo + 1
                Do I = 1, IHi - ILo + 1
 C
-                  L1 = GA_DDot_Patch_DP(
+                  L1 = GA_DDot_Patch(
      $                 G_Int, 'N', (P-1)*NVir+1, P*NVir, 1, NFit,
      $                 G_Gam, 'N', (I-1)*NVir+1, I*NVir, 1, NFit)
 C
