@@ -336,6 +336,7 @@ c
       else if (inp_compare(.false.,'cam', test)) then
 c
 c       == preserve cam_exch ==
+        cam_exch = .true.
         if (.not.rtdb_put(rtdb,'scf:cam_exch', mt_log, 1, cam_exch))
      &   call errquit('scf_input: rtdb_put failed', 0, RTDB_ERR)
         if (.not.inp_f(cam_omega)) cam_omega = 0.5d0

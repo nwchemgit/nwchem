@@ -774,10 +774,10 @@ c       calculate the CAM exchange
 c
         do ifock = 1,nfock
            g_tmp(ifock) = ga_create_atom_blocked(geom, basis, 'tmp')
+           call ga_zero(g_tmp(ifock))
         end do
-        call ga_zero(g_tmp)
 c
-        call case_setflags(.true.)
+        call case_setflags(.true.)  ! set LC flag
         jfac(1)=0d0
         jfac(2)=0d0
         jfac(3)=0d0
@@ -788,11 +788,15 @@ c
         kfac(4)=1d0
         call fock_2e_cam(geom, basis, nfock, jfac, kfac, tol2e, 
      &     oskel, d, g_tmp, .false., .false.)
-        call ga_dadd(1d0,f,1d0,g_tmp,f)
+        call ga_dadd(1d0,f(2),1d0,g_tmp(2),f(2))  ! LC exchange part
+        call ga_dadd(1d0,f(4),1d0,g_tmp(4),f(4))  ! LC exchange part
 c
 c       calculate the full Coulomb
 c
-        call case_setflags(.false.)
+        do ifock = 1,nfock
+           call ga_zero(g_tmp(ifock))
+        end do
+        call case_setflags(.false.) ! turn off LC flag for full Coulomb
         jfac(1)=1d0
         jfac(2)=0d0
         jfac(3)=1d0
@@ -802,13 +806,16 @@ c
         kfac(3)=0d0
         kfac(4)=0d0
         call fock_2e_cam(geom, basis, nfock, jfac, kfac, tol2e, 
-     &     oskel, d, g_tmp, .false., .true.)
-        call ga_dadd(1d0,f,1d0,g_tmp,f)
+     &     oskel, d, g_tmp, .false., .true.)   ! last argument toggles xc
+        call ga_dadd(1d0,f(1),1d0,g_tmp(1),f(1))   ! full Coulomb part
+        call ga_dadd(1d0,f(3),1d0,g_tmp(3),f(3))   ! full Coulomb part
+        call ga_dadd(1d0,f(2),1d0,g_tmp(2),f(2))   ! DFT xc part
+        call ga_dadd(1d0,f(4),1d0,g_tmp(4),f(4))   ! DFT xc part
 c
 c       destroy work space
         if (.not. ga_destroy(g_tmp)) 
      &   call errquit('uhf: ga corrupt?',0, GA_ERR)
-      end if
+      end if  ! cam_exch
       call do_riscf (.true.)
 c
       e_a_coul = 0.5d0*

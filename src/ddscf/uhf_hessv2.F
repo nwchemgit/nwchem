@@ -244,11 +244,10 @@ c
      $     dbl_mb(k_jfac), dbl_mb(k_kfac),
      $     tol2e, g_dens2, g_fock2, noskew_uhf)
       else
-        call shell_fock_build_cam_multiple(geom, basis, 0, nfock,
-     &     nbf, 1.d0, 1.d0, ! dbl_mb(k_jfac), dbl_mb(k_kfac)
-     &     tol2e, g_dens2, g_fock2, g_work2, 2, ! set ipol = 2: unrestricted
-     &    .true.,.true.,.true.,noskew_uhf,.false.)  ! doexch, docoul, doxc, osym, oprint
-      end if
+        call shell_fock_build_cam(geom, basis, 0, nfock,
+     $     dbl_mb(k_jfac), dbl_mb(k_kfac),
+     $     tol2e, g_dens2, g_fock2, noskew_uhf)
+      end if ! cam_exch
 c
       if (.not.ma_pop_stack(l_kfac))
      $  call errquit('uhf_hessv_2e2: pop problem with l_jfac',555,
@@ -256,21 +255,6 @@ c
       if (.not.ma_pop_stack(l_jfac))
      $  call errquit('uhf_hessv_2e2: pop problem with l_kfac',555,
      &       MA_ERR)
-c
-c
-c     Again, note that this is NOT what you want except for
-c     a totally symmetric input vector
-c
-c     if (oskel_local) then
-c        if (oscfps) call pstat_on(ps_sym_sym)
-c        do ivec = 1, nvec
-c           do iset = 1, 4
-c              call sym_symmetrize(geom, basis, .false.,
-c    $              g_fock(iset,ivec))
-c           enddo
-c        enddo
-c        if (oscfps) call pstat_off(ps_sym_sym)
-c     endif
 c
       if (.not. ga_destroy(g_dens2))
      $     call errquit('uhf_hessv_2e2: GA corrupt?',0, GA_ERR)
