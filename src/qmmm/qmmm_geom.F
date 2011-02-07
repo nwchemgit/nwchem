@@ -145,7 +145,7 @@ c     local variables
 
       call qmmm_cons_get_i_acts(int_mb(i_ig))
 
-      if (rtdb_cget(irtdb,"qmmm:geom",1,geom)) then
+      if (rtdb_cget(irtdb,"qmmm:geomrtdb",1,geom)) then
         call qmmm_geom_push(irtdb,
      >                        ngs,
      >                        int_mb(i_ig),
@@ -153,8 +153,8 @@ c     local variables
      >                        int_mb(i_ig+ngs),
      >                        geom)
 
-        if(.not.rtdb_delete(irtdb,"qmmm:geom"))
-     >     call errquit(pname//' qmmm:geom',0,
+        if(.not.rtdb_delete(irtdb,"qmmm:geomrtdb"))
+     >     call errquit(pname//' qmmm:geomrtdb',0,
      &       RTDB_ERR)
       end if
 

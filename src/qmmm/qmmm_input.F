@@ -199,10 +199,12 @@ c
         goto 2
       end if  
 c
-      if(inp_compare(.false.,'geom',token)) then
+c     option to load coordinates from rtdb geometry
+c     ---------------------------------------------
+      if(inp_compare(.false.,'geomrtdb',token)) then
         np = inp_n_field()
         if(np.ne.2) 
-     >    call errquit(pname//'geom needs one argument',0,
+     >    call errquit(pname//'geomrtdb needs one argument',0,
      >       RTDB_ERR)
         do ip = 1,np-1
           if(.not.inp_a(mtoken(ip))) then
@@ -210,20 +212,58 @@ c
      &           INPUT_ERR)
           end if
         end do
-        tag="qmmm:geom"
-        if (.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
+        tag="qmmm:geomrtdb"
+        if (.not.rtdb_cput(rtdb,tag,1,mtoken(1))) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
+          goto 2
+      endif
+c
+c     option to load coordinates from xyzi file
+c     -----------------------------------------
+      if(inp_compare(.false.,'geomfile',token)) then
+        np = inp_n_field()
+        if(np.ne.2) 
+     >    call errquit(pname//'geomfile needs one argument',0,
+     >       RTDB_ERR)
+        do ip = 1,np-1
+          if(.not.inp_a(mtoken(ip))) then
+             call errquit(pname//" geom" ,0,
+     &           INPUT_ERR)
+          end if
+        end do
         tag="qmmm:geom_file"
         if (.not.rtdb_cput(rtdb,tag,1,mtoken(1))) 
      >      call errquit(pname//'failed to store'//tag,0,
      >       RTDB_ERR)
-c        tag="qmmm:geom_region"
-c        if (.not.rtdb_cput(rtdb,tag,1,mtoken(2))) 
-c     >      call errquit(pname//'failed to store'//tag,0,
-c     >       RTDB_ERR)
           goto 2
       endif
+
+c      if(inp_compare(.false.,'geom',token)) then
+c        np = inp_n_field()
+c        if(np.ne.2) 
+c     >    call errquit(pname//'geom needs one argument',0,
+c     >       RTDB_ERR)
+c        do ip = 1,np-1
+c          if(.not.inp_a(mtoken(ip))) then
+c             call errquit(pname//" geom" ,0,
+c     &           INPUT_ERR)
+c          end if
+c        end do
+c        tag="qmmm:geom"
+c        if (.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
+c     >      call errquit(pname//'failed to store'//tag,0,
+c     >       RTDB_ERR)
+c        tag="qmmm:geom_file"
+c        if (.not.rtdb_cput(rtdb,tag,1,mtoken(1))) 
+c     >      call errquit(pname//'failed to store'//tag,0,
+c     >       RTDB_ERR)
+cc        tag="qmmm:geom_region"
+cc        if (.not.rtdb_cput(rtdb,tag,1,mtoken(2))) 
+cc     >      call errquit(pname//'failed to store'//tag,0,
+cc     >       RTDB_ERR)
+c          goto 2
+c      endif
 c
       if(inp_compare(.false.,'maxiter',token)) then
         np = inp_n_field()
