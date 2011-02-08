@@ -294,9 +294,9 @@ c
       endif
       if (.not.ma_free_heap(lgxcd))
      &   call errquit('fockxc: cannot pop stack',0, MA_ERR)
-
-cng      if(ndens.eq.2.and.l3d)  then ! need to check this further
-      if(ndens.eq.2)  then
+c
+      ndim = ga_ndim(g_xc)
+      if(ndens.eq.2.and.ndim.eq.3)  then
 c
 c     need to go from 2nfock ga to 4nfock (and sign flip)
 c
