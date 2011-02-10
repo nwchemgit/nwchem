@@ -3449,14 +3449,33 @@ c
 
       subroutine hnd_opt_hss_init_cart(HSSQ,odebug,isystype,geom,nvar)
 C
+C     This code is a copy of Kurt Glaesemann's Cartesian Hessian
+C     code that was added to GAMESS file statpt.src in:
+C 29 MAR 06 - KRG - HESGES: REPLACE CARTESIAN GUESS
+C     Code copied in February 2011 by Kurt into NWChem.
+C
+C     This guess just connects all the atoms in the systems
+C     with bonds, like a gigantic over-determined Z-matrix.
+C     This has proven to work very well in GAMESS.
+C
+C     This code differs from GAMESS code in that we add the
+C     xscale term to reduce inter-atom terms, and it supports
+C     periodic systems, and it add distance cutoff.
+C
 C This routine assumes that the Hessian is zero on entry
 C
       implicit none
 C     Commons and paramters
 #include "nwc_const.fh"
 #include "errquit.fh"
+      double precision TOANGS
       integer MXATOM
+      PARAMETER (TOANGS=0.52917724924D+00)
       PARAMETER (MXATOM=nw_max_atom)
+      integer ir, iw
+      COMMON/HND_IOFILE/IR,IW
+      integer nuc
+      COMMON/HND_MOLNUC/NUC(MXATOM)
       double precision c,zan
       integer nat
       COMMON/HND_MOLXYZ/C(3,MXATOM),ZAN(MXATOM),NAT
@@ -3465,33 +3484,228 @@ C     Passed in variables
       double precision HSSQ
       DIMENSION HSSQ(nvar,nvar)
       LOGICAL odebug
+C     Data structures
+      integer nucz
+      double precision rcov(118)
+      DATA (RCOV(NUCZ),NUCZ=1,2)/0.30D+00,0.46D+00/
+      DATA (RCOV(NUCZ),NUCZ=3,10)
+     1     /1.23D+00,0.89D+00,0.88D+00,0.77D+00,
+     2     0.70D+00,0.66D+00,0.58D+00,0.67D+00/
+      DATA (RCOV(NUCZ),NUCZ=11,18)
+     1     /1.66D+00,1.36D+00,1.25D+00,1.17D+00,
+     2     1.10D+00,1.04D+00,0.99D+00,0.96D+00/
+      DATA (RCOV(NUCZ),NUCZ=19,36)
+     1     /2.03D+00,1.74D+00,
+     2     1.44D+00,1.32D+00,1.22D+00,1.19D+00,1.17D+00,
+     3     1.165D+00,1.16D+00,1.15D+00,1.17D+00,1.25D+00,
+     4     1.25D+00,1.22D+00,1.21D+00,1.17D+00,1.14D+00,1.17D+00/
+      DATA (RCOV(NUCZ),NUCZ=37,54)
+     1     /2.22D+00,1.92D+00,
+     2     1.62D+00,1.45D+00,1.34D+00,1.29D+00,1.27D+00,
+     3     1.24D+00,1.25D+00,1.28D+00,1.34D+00,1.41D+00,
+     4     1.50D+00,1.40D+00,1.41D+00,1.37D+00,1.33D+00,1.31D+00/
+      DATA (RCOV(NUCZ),NUCZ=55,86)
+     1     /2.35D+00,1.98D+00,
+     2     1.69D+00,1.65D+00,1.65D+00,1.64D+00,1.65D+00,1.66D+00,1.65D0,
+     3     1.61D+00,1.59D+00,1.59D+00,1.58D+00,1.57D+00,1.56D+00,1.56D0,
+     4     1.56D+00,1.44D+00,1.34D+00,1.30D+00,1.28D+00,
+     5     1.26D+00,1.26D+00,1.29D+00,1.34D+00,1.44D+00,
+     6     1.55D+00,1.54D+00,1.52D+00,1.53D+00,1.50D+00,1.42D+00/
+      DATA (RCOV(NUCZ),NUCZ=87,99)
+     1    / 2.18D+00, 1.73D+00, 1.53D+00, 1.43D+00, 1.38D+00, 1.34D+00,
+     2      1.36D+00, 1.35D+00, 1.35D+00, 1.36D+00, 1.39D+00, 1.40D+00,
+     3      1.40D+00/
+      DATA (RCOV(NUCZ),NUCZ=100,118)
+     1    /1.67D+00, 1.73D+00, 1.76D+00, 1.61D+00, 1.57D+00,
+     2     1.49D+00, 1.43D+00, 1.41D+00, 1.34D+00, 1.29D+00, 1.28D+00,
+     3     1.21D+00, 1.22D+00, 1.36D+00, 1.43D+00, 1.62D+00, 1.75D+00,
+     4     1.65D+00, 1.57D+00 /
 C     Variables
+      double precision LONG, TOOLONG, TOOLONG2
+      double precision rx,ry,rz,rr,rab,rxi,ryi,rzi,cab
+      double precision BONDH(3,3),HESS2
       double precision amat(3,3),tmp(3,3),amatangs(3,3)
+      integer lowx,highx,lowy,highy,lowz,highz
       integer IPOST, JPOST, II, JJ, KK, I, J, ix, iy, iz
+      integer iza,izb
+      logical badz
       character*16 atom_tags(mxatom)
+      double precision xscale
 C     External function calls
-      logical geom_cart_get,geom_amatrix_get
-      external geom_cart_get,geom_amatrix_get
-
+      logical geom_amatrix_get,geom_cart_get,geom_amatinv_get
+      external geom_amatrix_get,geom_cart_get,geom_amatinv_get
+C     
+C    This is a fortran statement functions
+C
+      BADZ(NUCZ) = NUCZ.LE.0.OR.NUCZ.GT.118
+C     
       IF(odebug) THEN
          WRITE(6,*) "Generating Cartesian Hessian Guess"
       ENDIF
       if (.not. geom_cart_get(geom, nat, atom_tags, c, zan))
      &      call errquit('Call to geom_cart_get failed',geom,GEOM_ERR)
-!
+      do i = 1, nat
+         nuc(i) = nint(zan(i))
+      enddo
+C
+C     Inter-atom terms can mess up periodic systems.
+C     Scale non-periodic just because
+C
+      IF (isystype .ne. 0) then
+        xscale = 0.1d0
+      else
+        xscale = 0.5d0
+      endif
+!     Any periodic images to look for?
+!     We only go +/- one unit cell
+      IF (isystype .eq. 0) then      ! Not periodic
+        lowx = 0
+        highx= 0
+        lowy = 0
+        highy= 0
+        lowz = 0
+        highz= 0
+      else if (isystype .eq. 1) then ! Periodic in X
+        lowx =-1
+        highx= 1
+        lowy = 0
+        highy= 0
+        lowz = 0
+        highz= 0
+      else if(isystype .eq. 2) then ! Periodic in XY
+        lowx =-1
+        highx= 1
+        lowy =-1
+        highy= 1
+        lowz = 0
+        highz= 0
+      else if(isystype .eq. 3) then ! Periodic in XYZ
+        lowx =-1
+        highx= 1
+        lowy =-1
+        highy= 1
+        lowz =-1
+        highz= 1
+      end if
       if (isystype .ne. 0) then
        if (.not. geom_amatrix_get(geom, amat))
      $           call errquit('geom_frac_to_cart: a', 0, GEOM_ERR)
+        do i=1,3
+         do j=1,3
+          amatangs(i,j) = amat(i,j)*toangs
+         end do
+        end do
+      else
+        do i=1,3
+         do j=1,3
+          amat(i,j) = 0
+          amatangs(i,j) = 0
+         end do
+        end do
+      endif
+      LONG = 2.5 ! 0.0028 = 0.3601D+00 * EXP(-1.944D+00*( LONG ))
+      TOOLONG = LONG + 2*2.2d0 ! The 2.2 is from BADZ below
+      TOOLONG2=TOOLONG**2
+      DO I=1,NAT
+       DO J=1,I-1
+         IZA = NUC(I)
+         IZB = NUC(J)
+         IF(BADZ(IZA)) THEN
+           CAB = 2.2D0
+         ELSE
+           CAB = RCOV(IZA)
+         END IF
+         IF(BADZ(IZB)) THEN
+           CAB = CAB + 2.2D0
+         ELSE
+           CAB = CAB + RCOV(IZB)
+         END IF
+!        Vector from I to J inside the box - in Angstroms
+         RXI = (C(1,I)-C(1,J))*TOANGS
+         RYI = (C(2,I)-C(2,J))*TOANGS
+         RZI = (C(3,I)-C(3,J))*TOANGS
+         DO ix = lowx,highx
+          do iy = lowy,highy
+           do iz = lowz,highz
+         IF(ix.eq.0 .and. iy.eq.0 .and. iz.eq.0 .and. i.eq.j) goto 999
+         RX = (RXI + ix*amatangs(1,1)+iy*amatangs(1,2)+iz*amatangs(1,3))
+         RY = (RYI + ix*amatangs(2,1)+iy*amatangs(2,2)+iz*amatangs(2,3))
+         RZ = (RZI + ix*amatangs(3,1)+iy*amatangs(3,2)+iz*amatangs(3,3))
+         RR = RX*RX + RY*RY + RZ*RZ
+         IF(RR .GT. TOOLONG2) GOTO 999
+         RAB = SQRT(RR)
+         RAB = RAB - CAB
+         IF (RAB .GT. LONG) GOTO 999
+C        HESS2 IS HESSIAN WITH RESPECT TO RAB (SEE FISCHER/ALMLOF)
+         HESS2 = 0.3601D+00 * EXP(-1.944D+00*RAB)
+C        NOW CONVERT TO CARTESIANS BY CHAIN RULE
+         BONDH(1,1) = (RX*RX*HESS2)/RR
+         BONDH(1,2) = (RX*RY*HESS2)/RR
+         BONDH(1,3) = (RX*RZ*HESS2)/RR
+         BONDH(2,2) = (RY*RY*HESS2)/RR
+         BONDH(2,3) = (RY*RZ*HESS2)/RR
+         BONDH(3,3) = (RZ*RZ*HESS2)/RR
+         BONDH(2,1) = BONDH(1,2)
+         BONDH(3,1) = BONDH(1,3)
+         BONDH(3,2) = BONDH(2,3)
+C
+C        Convert to fractional coordinates
+C
+         IF (isystype .ne. 0) then
+          do kk = 1, 3
+           do ii = 1, 3
+            tmp(ii,kk) = 0.0d0
+           end do
+          end do
+          do kk = 1, 3
+           do ii = 1, 3
+            do jj = 1, 3
+             tmp(ii,kk) = tmp(ii,kk) + amat(jj,ii)*bondh(jj,kk)
+            end do
+           end do
+          end do
+          do kk = 1, 3
+           do ii = 1, 3
+            bondh(ii,kk) = 0.0d0
+           end do
+          end do
+          do kk = 1, 3
+           do ii = 1, 3
+            do jj = 1, 3
+             bondh(ii,kk) = bondh(ii,kk) + amat(jj,ii)*tmp(kk,jj)
+            end do
+           end do
+          end do
+         end if
+         IPOST = (I - 1)*3
+         JPOST = (J - 1)*3
+         DO II = 1,3
+          DO JJ = 1,3
+           HSSQ(IPOST+II,IPOST+JJ)=HSSQ(IPOST+II,IPOST+JJ)+BONDH(II,JJ)
+           HSSQ(JPOST+II,JPOST+JJ)=HSSQ(JPOST+II,JPOST+JJ)+BONDH(II,JJ)
+           HSSQ(IPOST+II,JPOST+JJ)=HSSQ(IPOST+II,JPOST+JJ)-BONDH(II,JJ)
+     &          *xscale
+           HSSQ(JPOST+II,IPOST+JJ)=HSSQ(JPOST+II,IPOST+JJ)-BONDH(II,JJ)
+     &          *xscale
+          END DO
+         END DO
+  999      end do
+          end do
+         end do
+       END DO
+      END DO
+C     Add some to diagonal for stability, just in case of lone floating atom
+      IF (isystype .ne. 0) then
        do i = 1, nat
           ipost = (i - 1)*3
           do j = 1, 3
              HSSQ(ipost+j,ipost+j) = max(HSSQ(ipost+j,ipost+j),
-     &               0.5d0*(amat(1,j)**2+amat(2,j)**2+amat(3,j)**2))
+     &               0.4d0*(amat(1,j)**2+amat(2,j)**2+amat(3,j)**2))
           end do
         end do
       ELSE
         DO I=1,3*NAT
-          HSSQ(I,I)=0.5d0
+          HSSQ(I,I)=MAX(HSSQ(I,I),0.2D0)
         END DO
       ENDIF
 
