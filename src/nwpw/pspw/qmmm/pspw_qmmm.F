@@ -1117,7 +1117,10 @@ c     **** external functions ***
                e3 = ion_ion_e_qm()
                e4 = ion_ion_e_mm()
             end if
+c            write(*,*) "e1,e2,e3,e4=",e1,e2,e3,e4,
+c     >                 (e1-e2+e3+e4),(e3+e4+e1)
             e1 = e1 + (qmmm_lmbda-1.0d0)*(e2-e3-e4)
+            !e1 = (qmmm_lmbda-1.0d0)*(e2)
          end if
          pspw_qmmm_Q_E = e1
       end if

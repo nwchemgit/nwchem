@@ -31,12 +31,13 @@ c#include "rtdb.fh"
       real*8  tole,tolc,deltae,deltac,deltae_old
       real*8  cx,cy,cz
       real*8  gx,gy,gz
-      real*8  en(2)
+      real*8  en(2),en1(2),en2(2)
       real*8  E(30)
       integer rtdb
 
 *     **** external functions ****
       logical     psp_semicore,pspw_charge_found,pspw_qmmm_found
+      logical     psp_pawexist
       logical     control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
       logical     control_print,control_psi_tmp,control_fractional
       character*4 ion_aname
@@ -47,6 +48,7 @@ c#include "rtdb.fh"
       real*8      ion_rion,psi_eigenvalue,psi_hml,ion_amass
       real*8      psi_smearfermi
       external psp_semicore,pspw_charge_found,pspw_qmmm_found
+      external psp_pawexist
       external control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
       external ion_aname
       external control_it_in, control_it_out,control_minimizer
@@ -240,7 +242,16 @@ c          **** reset minimizer if failed ****
 
 *     **** diagonalize hamiltonian and rotate psi  ****
 *     **** but skip if doing an SIC calculations   ****
-      call psi_spin_density(en)
+      call psi_spin_density(en1)
+      if (psp_pawexist()) then
+         en2(1) = 0.0d0
+         en2(2) = 0.0d0
+      else
+         en2(1) = 0.0d0
+         en2(2) = 0.0d0
+      end if
+      en(1) = en1(1) + en2(1)
+      en(2) = en1(2) + en2(2)
       call psi_1gen_hml()
 
       call psi_diagonalize_hml()
@@ -272,6 +283,10 @@ c      else if (.not.control_fractional()) then
 
          write(luout,*)
          write(luout,1320) en(1),en(psi_ispin()),' (real space)'
+         if (psp_pawexist()) then
+            write(luout,1322) en1(1),en1(psi_ispin()),' (real space)'
+            write(luout,1323) en2(1),en2(psi_ispin()),' (real space)'
+         end if
          write(luout,1430) E(1),E(1)/ion_nion()
 
          if (pspw_qmmm_found()) then
@@ -494,6 +509,9 @@ c     >   'cgsd_noit_energy: numerical stress - error writing rtdb',0)
  1313 FORMAT(10X,'======== Kohn-Sham scf iteration (density) =========')
  1314 FORMAT(10X,'======== Kohn-Sham scf iteration failed    =========')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
+ 1321 FORMAT(' total charge of system:',F11.5,A)
+ 1322 FORMAT('     plane-wave part:         ',F11.5,'       ',F11.5,A)
+ 1323 FORMAT('      augmented part:         ',F11.5,'       ',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Elements of Hamiltonian matrix (up/restricted)')
  1332 FORMAT(/' Elements of Hamiltonian matrix (down)')

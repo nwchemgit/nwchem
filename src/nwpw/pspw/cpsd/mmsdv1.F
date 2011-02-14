@@ -5,12 +5,7 @@
 ***********************************************************************
 *                      mmsdv1-mpi  (MPI code)                         *
 *                                                                     *
-*     This is a developing cpsdv5 parallel code for the SP2           *
-*       + mpi message passing library used                            *
-*       + ngp is used instead of nfft in this proceudure              *
-*       + error checking is based on aimd.h parameters                *
-*         then control file                                           *
-*       + my own slap-decomposed parallel 3d-FFT(real->complex) used  *
+*     This is a developing parallel code                              *
 *                                                                     *
 *                                                                     *
 ***********************************************************************

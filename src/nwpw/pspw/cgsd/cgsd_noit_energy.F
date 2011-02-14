@@ -26,7 +26,7 @@ c     $Id$
       real*8  tole,tolc,deltae,deltac,deltae_old
       real*8  cx,cy,cz
       real*8  gx,gy,gz
-      real*8  en(2)
+      real*8  en(2),en1(2),en2(2)
       real*8  E(30)
       integer rtdb
 
@@ -76,7 +76,16 @@ c     $Id$
       call nominimize(E)
 
 *     **** diagonalize hamiltonian ****
-      call psi_spin_density(en)
+      call psi_spin_density(en1)
+      if (psp_pawexist()) then
+         en2(1) = 0.0
+         en2(2) = 0.0
+      else
+         en2(1) = 0.0
+         en2(2) = 0.0
+      end if
+      en(1) = en1(1) + en2(1)
+      en(2) = en1(2) + en2(2)
       call psi_1gen_hml()
       call psi_diagonalize_hml()
       if (control_fractional()) then
@@ -102,6 +111,10 @@ c     $Id$
 
          write(luout,*)
          write(luout,1320) en(1),en(psi_ispin()),' (real space)'
+         if (psp_pawexist()) then
+            write(luout,1322) en1(1),en1(psi_ispin()),' (real space)'
+            write(luout,1323) en2(1),en2(psi_ispin()),' (real space)'
+         end if
          write(luout,1430) E(1),E(1)/ion_nion()
 
          if (pspw_qmmm_found()) then
@@ -327,6 +340,9 @@ c            end do
  1311 FORMAT(10X,'======= Projected Grassmann lmbfgs iteration =======')
  1312 FORMAT(10X,'============= Stiefel lmbfgs iteration =============')
  1320 FORMAT(' number of electrons: spin up=',F11.5,'  down=',F11.5,A)
+ 1321 FORMAT(' total charge of system:',F11.5,A)
+ 1322 FORMAT('     plane-wave part:         ',F11.5,'       ',F11.5,A)
+ 1323 FORMAT('      augmented part:         ',F11.5,'       ',F11.5,A)
  1330 FORMAT(/' comparison between hamiltonian and lambda matrix')
  1331 FORMAT(/' Elements of Hamiltonian matrix (up/restricted)')
  1332 FORMAT(/' Elements of Hamiltonian matrix (down)')

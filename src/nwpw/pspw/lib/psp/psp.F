@@ -2317,7 +2317,7 @@ c     logocal semicore(0:nkatmx)
          end if
       end if
 
- 1150 FORMAT(5X,I2,': ',A4,' valence charge:',F8.4,'  lmax=',I3)
+ 1150 FORMAT(5X,I2,': ',A4,'valence charge:',F8.4,'  lmax=',I3)
  1151 FORMAT(5X,'        cutoff =',4F8.3)
  1152 FORMAT(12X,' highest angular component      : ',i3)
  1153 FORMAT(12X,' local potential used           : ',i3)

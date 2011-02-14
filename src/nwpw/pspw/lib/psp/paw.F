@@ -762,3 +762,98 @@
       return 
       end
 
+
+
+
+
+
+*     *******************************************************
+*     *                                                     *
+*     *                 psp_rholm_solve                     *
+*     *                                                     *
+*     *******************************************************
+
+      subroutine psp_rholm_solve(ispin,ne,nproj,sw1,
+     >                            l_prj,m_prj,projtobasis,
+     >                            n1dgrid,n1dbasis,
+     >                            rgrid,phi_ae,phi_ps,
+     >                            lmax,lmax2,
+     >                            rholm_ae,rholm_ps)
+      implicit none
+      integer ispin,ne(2),nproj
+      real*8  sw1(ne(1)+ne(2),nproj)
+      integer l_prj(*), m_prj(*),projtobasis(*)
+
+      integer n1dgrid,n1dbasis
+      real*8  rgrid(n1dgrid)
+      real*8  phi_ae(n1dgrid,n1dbasis)
+      real*8  phi_ps(n1dgrid,n1dbasis)
+      integer lmax,lmax2
+      real*8 rholm_ae(n1dgrid,ispin,lmax2)
+      real*8 rholm_ps(n1dgrid,ispin,lmax2)
+
+*     ***** local variables *****
+      integer i,j,l,m,lm,ms,n,ig,n1(2),n2(2)
+      real*8  wij,taunt
+
+*     ***** external functions *****
+      real*8   taunt_coeff
+      external taunt_coeff
+
+      n1(1) = 1
+      n1(2) = ne(1)+1
+      n2(1) = ne(1)
+      n2(2) = ne(1)+ne(2)
+
+      do i=1,nproj
+         do j=1,nproj
+
+*           **** generate overlap matrix wij(ms) = Sum(n=1,ne(ms)) <psi(n)|prj(i)> * <prj(j)*psi(n)> ****
+            do ms=1,ispin
+               wij = 0.0
+               do n=n1(ms),n2(ms)
+                  wij = wij + sw1(n,i)*sw1(n,j)
+               end do
+
+               do ig=1,n1dgrid
+                  rholm_ae(ig,ms,1) = wij
+     >                               *phi_ae(ig,projtobasis(i))
+     >                               *phi_ae(ig,projtobasis(j))
+     >                               /rgrid(ig)**2
+                  rholm_ps(ig,ms,1) = wij
+     >                               *phi_ps(ig,projtobasis(i))
+     >                               *phi_ps(ig,projtobasis(j))
+     >                               /rgrid(ig)**2
+               end do
+            end do
+
+            lm = 2
+            do l=1,lmax
+               do m=-l,l
+c                  taunt = taunt_coeff(l,m,
+c     >                                l_prj(j),m_prj(j),
+c     >                                l_prj(i),m_prj(i))
+                  do ms=1,ispin
+                     do ig=1,n1dgrid
+                        rholm_ae(ig,ms,lm) = taunt*rholm_ae(ig,ms,1)
+                        rholm_ps(ig,ms,lm) = taunt*rholm_ps(ig,ms,1)
+                     end do
+                  end do
+                 lm = lm + 1
+               end do
+            end do
+c            taunt = taunt_coeff(0,0,
+c     >                          l_prj(j),m_prj(j),
+c     >                          l_prj(i),m_prj(i))
+            do ms=1,ispin
+               do ig=1,n1dgrid
+                  rholm_ae(ig,ms,1) = taunt*rholm_ae(ig,ms,1)
+                  rholm_ps(ig,ms,1) = taunt*rholm_ps(ig,ms,1)
+               end do
+            end do
+
+         end do
+      end do
+      return
+      end
+
