@@ -12,6 +12,7 @@ c $Id$
 #include "apiP.fh"
 #include "prop.fh"
 #include "bgj.fh"
+#include "case.fh"
 c
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
@@ -276,8 +277,17 @@ c
      $     call errquit('hess_cphf: rtdb_put of j_derfit failed',0,
      &       RTDB_ERR)
       endif
-      call shell_fock_build(geom, basis, 0, 3,
-     $     jfac, kfac,tol2e, g_d1, g_fock,.false.)
+c
+c     Note: Just the exchange: jfac = 0.d0 (see above)
+c
+      if (.not.cam_exch)
+         call shell_fock_build(geom, basis, 0, 3,
+     $     jfac, kfac, tol2e, g_d1, g_fock, .false.)
+      else
+         call shell_fock_build_cam(geom, basis, 0, 3,
+     $     jfac, kfac, tol2e, g_d1, g_fock, .false.)
+      end if
+c
       if(use_theory.eq.'dft') then
          if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, 0))
      $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
@@ -379,12 +389,15 @@ c
       if (.not.nga_create(MT_DBL,3,ahi,'Fock matrix',alo,g_fock)) call 
      &    errquit('hnd_giaox: nga_create failed g_fock',0,GA_ERR)
       call ga_zero(g_fock)
+c
       if(use_theory.eq.'dft') then
          ifld = 4
          if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
      $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
       endif
-      call new_giao_2e(geom, basis, nbf, tol2e, g_dens, g_fock, xfac)
+c
+      call new_giao_2e(geom,basis,nbf,tol2e,g_dens,g_fock,xfac)
+c
       if(use_theory.eq.'dft') then
          ifld = 0
          if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))

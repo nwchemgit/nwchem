@@ -10,6 +10,7 @@ c $Id$
 #include "hnd_giao.fh"
 #include "hnd_pointers.fh"
 #include "global.fh"
+#include "case.fh"
 c
       integer geom, basis, g_dens, g_fock, nbf
       double precision tol2e,kfac,Exc(2)
@@ -23,10 +24,20 @@ c
      $              l_d_kl,  l_d_ik,  l_d_jl,  l_d_il,  l_d_jk, 
      $     l_f_ij,  l_f_ji,  l_f_ik,  l_f_jl,  l_f_il,  l_f_jk
 c
+      integer g_loc
+c
+      logical xc_gotxc
+      external xc_gotxc
+c
       if(.not.bas_high_angular(basis,maxang))
      &         call errquit('new_giao: angm error',maxang, BASIS_ERR)
       if (.not. bas_numcont(basis,nshell))
      $     call errquit('new_giao: could not get nsh',0, BASIS_ERR)
+c
+c     == local array ==
+      if (.not. ga_duplicate (g_fock, g_loc,'g_loc'))
+     &  call errquit('shell_fock_build_cam: g_loc',555, GA_ERR)
+      call ga_zero(g_loc)
 c
       blen = (maxang+1)*(maxang+2)/2
 c
@@ -65,12 +76,31 @@ c
      $     call errquit('new_giao: scratch alloc failed', iscrln,
      &       MA_ERR)
 c
-      call giaofock(basis,geom,g_dens,g_fock,
+c     == take care of attenuated or non-attenuated 2e ==
+c
+      call ga_zero(g_loc)
+      call giaofock(basis,geom,g_dens,g_loc,
      $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
      $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
      $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, kfac)
+c
+      if (.not.cam_exch) then
+        call ga_add(1.d0, g_loc, 1.0d0, g_fock, g_fock)      ! for normal calculations
+      else
+        call ga_add(cam_alpha, g_loc, 1.0d0, g_fock, g_fock) ! here: cam_alpha*unatt
+        call case_setflags(.true.)  ! apply attenuation to 1/r12
+        call ga_zero(g_loc)
+        call giaofock(basis,geom,g_dens,g_loc,
+     $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
+     $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
+     $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
+     $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, kfac)
+        call case_setflags(.false.) ! remove attenuation from 1/r12
+        call ga_add(cam_beta, g_loc, 1.0d0, g_fock, g_fock) ! here: cam_alpha*unatt + cam_beta*att
+      end if
 c
 c  Clean up memory allocated in this routine
 c
@@ -80,7 +110,7 @@ c
 c
 c     Add DFT XC if running DFT calculation
 c
-      if (kfac.lt.1.0d0) then
+      if (xc_gotxc()) then
          alo(1) = 1
          ahi(1) = 3
          alo(2) = 1
@@ -104,9 +134,14 @@ c
          enddo
          if (.not.ga_destroy(g_xc)) call
      &      errquit('giao_aotomo: ga_destroy failed g_xc',0,GA_ERR)
-      endif
+      endif  ! xc_gotxc()
+c
+c     == clean up local array ==
+      if (.not.ga_destroy(g_loc))
+     $  call errquit('shell_fock_build_cam g_loc',555, GA_ERR)
 c
       end
+c
       subroutine giaofock(basis, geom, g_dens, g_fock,
      $                    d_kl,  d_ik,  d_jl,  d_il,  d_jk, 
      $                    f_ij,  f_ji,  f_ik,  f_jl,  f_il,  f_jk, 
