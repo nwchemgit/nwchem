@@ -8,6 +8,8 @@ C     $Id$
 #include "geom.fh"
       integer geom
       double precision grad(3,*)
+      logical geom_isystype_set
+      external geom_isystype_set
 c     
 c     Apply a projection operator to the gradient
 c     so that it posesses the symmetry of the group
@@ -16,8 +18,10 @@ c
       integer iat, jat, k, op
       integer nops, nat, l_tmp, k_tmp
       double precision rnew(3)
+      integer save_sys
 c     
       nops = sym_number_ops(geom)
+      if (nops .eq. 0) return
 c     
       if (.not. geom_ncent(geom, nat)) call errquit('s_g_s: geom?',0,
      &       GEOM_ERR)
@@ -31,8 +35,12 @@ c
 c
       call dcopy(3*nat, grad, 1, dbl_mb(k_tmp), 1)
 c
-! TODO: this is wrong in fractional coordinates, because sym_apply_cart_op()
-! TODO: wraps back to box, which is wrong for gradients!!!! FIXME
+! sym_apply_cart_op() wraps back into the box, which is wrong for gradients
+      if (.not. geom_systype_get(geom, save_sys))
+     $     call errquit('sym_grad_symmetrize:systype?',0, GEOM_ERR)
+      if (.not.geom_isystype_set(geom,0))
+     >     call errquit('sym_grad_symmetrize:failed to set isystype',
+     >                  0,GEOM_ERR)
       do iat = 1, nat
          do op = 1, nops
             jat = sym_center_map(geom, iat, op)
@@ -43,6 +51,9 @@ c
             enddo
          end do
       end do
+      if (.not.geom_isystype_set(geom,save_sys))
+     >     call errquit('sym_grad_symmetrize:failed to set isystype',
+     >                  0,GEOM_ERR)
 c     
       call dscal(3*nat, 1.0d0/dble(nops+1), dbl_mb(k_tmp), 1)
 c
@@ -77,6 +88,7 @@ c
       integer nat3
 c
       nops = sym_number_ops(geom)
+      if (nops .eq. 0) return
 c     
       if (.not. geom_ncent(geom, nat)) call errquit('s_g_s: geom?',0,
      &       GEOM_ERR)
