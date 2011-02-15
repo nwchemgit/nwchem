@@ -280,7 +280,7 @@ c
 c
 c     Note: Just the exchange: jfac = 0.d0 (see above)
 c
-      if (.not.cam_exch)
+      if (.not.cam_exch) then
          call shell_fock_build(geom, basis, 0, 3,
      $     jfac, kfac, tol2e, g_d1, g_fock, .false.)
       else
