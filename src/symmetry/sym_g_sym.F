@@ -31,6 +31,8 @@ c
 c
       call dcopy(3*nat, grad, 1, dbl_mb(k_tmp), 1)
 c
+! TODO: this is wrong in fractional coordinates, because sym_apply_cart_op()
+! TODO: wraps back to box, which is wrong for gradients!!!! FIXME
       do iat = 1, nat
          do op = 1, nops
             jat = sym_center_map(geom, iat, op)
