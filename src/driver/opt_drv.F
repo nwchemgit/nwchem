@@ -2064,6 +2064,8 @@ c
       logical opt_geom_cart_coords_get
       logical opt_geom_cart_coords_set
       external opt_geom_cart_coords_get,opt_geom_cart_coords_set
+      integer sym_number_ops
+      external sym_number_ops
 c
 c     Get original coordinates
 c
@@ -2107,15 +2109,17 @@ c
          do i = 1, ncart
             xnew(i) = alpha*ds(i)
          enddo
-         if (isystype.ne.0 .and. (.not. zcoord)) then
+         if( sym_number_ops(geom) .ne. 0) then
+          if (isystype.ne.0 .and. (.not. zcoord)) then
             if (.not. geom_frac_to_cart(geom, xnew))
      $           call errquit('driver: frac_to_cart?',0,0)
-         endif
-         ! This assumes cartesian - internally converts to fractional!
-         call sym_grad_symmetrize(geom, xnew)
-         if (isystype.ne.0 .and. (.not. zcoord)) then
-             if (.not. geom_cart_to_frac(geom, xnew))
-     $        call errquit('driver: cart_to_frac?',0,0)
+          endif
+          ! This assumes cartesian - internally converts to fractional!
+          call sym_grad_symmetrize(geom, xnew)
+          if (isystype.ne.0 .and. (.not. zcoord)) then
+              if (.not. geom_cart_to_frac(geom, xnew))
+     $         call errquit('driver: cart_to_frac?',0,0)
+          endif
          endif
          do i = 1, ncart
             xnew(i) = xold(i) + xnew(i)
@@ -2177,6 +2181,11 @@ c
       if (grms .lt. grms_tol) cvg2 = '     ok  '
       if (xrms .lt. xrms_tol) cvg3 = '     ok  '
       if (xmax .lt. xmax_tol) cvg4 = '     ok  '
+C     Don't print OK on first step, if value is not real
+      if (istep.eq.1 .and.(xrms.gt.xrms_tol .or. gmax.gt.gmax_tol)) then
+        if (xrms .eq. 0) cvg3 = ' '
+        if (xmax .eq. 0) cvg4 = ' '
+      endif
 c
       if (oprint) then 
          mark = '@'
@@ -3011,7 +3020,8 @@ c
 #include "mafdecls.fh"
       integer geom
       logical geom_frac_to_cart,geom_cart_to_frac
-      external geom_frac_to_cart,geom_cart_to_frac
+      integer sym_number_ops
+      external geom_frac_to_cart,geom_cart_to_frac,sym_number_ops
 c
 c     Force symmetry upon the current search direction by projecting
 c     ds() onto symmetric component in cartesians
@@ -3025,6 +3035,7 @@ c     1) dx = dq*B-1
 c     2) symmetrize dx
 c     3) dq = dx*B
 c
+      if (sym_number_ops(geom) .eq. 0) return
       if (ostress) return       ! Yikes! TODO: copy to local NxN hessian and sym
       if (ostress2) return       ! Yikes! TODO: also apply lattice symmetry
 c
