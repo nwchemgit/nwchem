@@ -6500,7 +6500,7 @@ c
       geom_cart_to_frac = geom_check_handle(geom, 'geom_cart_to_frac')
       if (.not. geom_cart_to_frac) return
       if (.not. geom_ncent(geom,nat)) 
-     $     call errquit('geom_frac_to_cart: nat', 0, GEOM_ERR)
+     $     call errquit('geom_cart_to_frac: nat', 0, GEOM_ERR)
       if (.not. geom_amatinv_get(geom, ainv))
      $     call errquit('geom_cart_to_frac: ainv', 0, GEOM_ERR)
 *      write(6,*) ' The amatrix inverse'
