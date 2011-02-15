@@ -2064,7 +2064,6 @@ c
       logical opt_geom_cart_coords_get
       logical opt_geom_cart_coords_set
       external opt_geom_cart_coords_get,opt_geom_cart_coords_set
-      external geom_frac_to_cart,geom_cart_to_frac
 c
 c     Get original coordinates
 c
