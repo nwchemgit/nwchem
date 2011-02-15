@@ -12,6 +12,8 @@ c
 #include "hnd_rys.fh"
 #include "util.fh"
 #include "global.fh"
+#include "case.fh"
+c
       common/testdata/timing(20),irepeat
       double precision timing
       integer irepeat
@@ -32,6 +34,7 @@ c
       double precision dtol2,q4,dtol
       double precision db,bb,xb,yb,zb,q4db
       double precision da,aa,xa,ya,za,aandb1,q4dbda,dum,rho,xx
+      double precision cam_omega2
 c
       numi = lit*(lit+1)/2
       numj = ljt*(ljt+1)/2
@@ -79,6 +82,11 @@ c
             xa=acharg( 3,ijg)
             ya=acharg( 4,ijg)
             za=acharg( 5,ijg)
+c
+            if (doscreen) then
+             cam_omega2 = cam_omega*cam_omega
+             rho = rho*cam_omega2/(cam_omega2 + rho)
+            end if
             xx=rho*((xa-xb)**2+(ya-yb)**2+(za-zb)**2)
 c
             ng=ng+1
