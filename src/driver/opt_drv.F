@@ -379,7 +379,7 @@ c
          if (nvar .eq. 3*natom) then
            call sym_hess_symmetrize(geom,dbl_mb(k_hess))
          else
-           ! To do - Do both space group on atoms and lattice!
+           ! TODO - Do both space group on atoms and lattice!
          endif
       else
 c
@@ -1659,7 +1659,7 @@ c
         enddo
         if (ostress .or. ostress2) then
            do i = top+1,nvar
-              dsmax = max(dsmax, abs(ds(i))*2) ! To do: do something better
+              dsmax = max(dsmax, abs(ds(i))*2) ! TODO: do something better
            enddo
         endif
       else
@@ -2063,6 +2063,8 @@ c
       integer i, l_bi, k_bi
       logical opt_geom_cart_coords_get
       logical opt_geom_cart_coords_set
+      external opt_geom_cart_coords_get,opt_geom_cart_coords_set
+      external geom_frac_to_cart,geom_cart_to_frac
 c
 c     Get original coordinates
 c
@@ -2106,8 +2108,16 @@ c
          do i = 1, ncart
             xnew(i) = alpha*ds(i)
          enddo
-         ! This assumes cartesian
+         if (isystype.ne.0 .and. (.not. zcoord)) then
+            if (.not. geom_frac_to_cart(geom, xnew))
+     $           call errquit('driver: frac_to_cart?',0,0)
+         endif
+         ! This assumes cartesian - internally converts to fractional!
          call sym_grad_symmetrize(geom, xnew)
+         if (isystype.ne.0 .and. (.not. zcoord)) then
+             if (.not. geom_cart_to_frac(geom, xnew))
+     $        call errquit('driver: cart_to_frac?',0,0)
+         endif
          do i = 1, ncart
             xnew(i) = xold(i) + xnew(i)
          enddo
@@ -3001,6 +3011,8 @@ c
 #include "coptopt.fh"
 #include "mafdecls.fh"
       integer geom
+      logical geom_frac_to_cart,geom_cart_to_frac
+      external geom_frac_to_cart,geom_cart_to_frac
 c
 c     Force symmetry upon the current search direction by projecting
 c     ds() onto symmetric component in cartesians
@@ -3014,12 +3026,20 @@ c     1) dx = dq*B-1
 c     2) symmetrize dx
 c     3) dq = dx*B
 c
-      if (ostress) return       ! Yikes!
-      if (ostress2) return       ! Yikes!
+      if (ostress) return       ! Yikes! TODO: copy to local NxN hessian and sym
+      if (ostress2) return       ! Yikes! TODO: also apply lattice symmetry
 c
       if (.not. zcoord) then
-        ! This assumes cartesian
+        if (isystype.ne.0 .and. (.not. zcoord)) then
+           if (.not. geom_frac_to_cart(geom, ds))
+     $          call errquit('driver: frac_to_cart?',0,0)
+        endif
+        ! This assumes cartesian - internally converts to fractional!
         call sym_grad_symmetrize(geom, ds)
+        if (isystype.ne.0 .and. (.not. zcoord)) then
+            if (.not. geom_cart_to_frac(geom, ds))
+     $       call errquit('driver: cart_to_drac?',0,0)
+        endif
         return
       endif
 
@@ -3116,7 +3136,7 @@ c
 c
       if (isystype.ne.0 .and. (.not. zcoord)) then
          if (.not. geom_cart_to_frac(geom, coords))
-     $           call errquit('driver: frac_to_cart?',0, GEOM_ERR)
+     $           call errquit('driver: cart_to_frac?',0, GEOM_ERR)
       endif
 c
       if (ostress) then
@@ -3163,7 +3183,7 @@ c
      $     call errquit('driver: geom cart?',0,0)
       if (isystype.ne.0 .and. (.not. zcoord)) then
          if (.not. geom_cart_to_frac(geom, coords))
-     $        call errquit('driver: frac_to_cart?',0,0)
+     $        call errquit('driver: cart_to_frac?',0,0)
       endif
 c
       opt_geom_cart_coords_set = .true.
@@ -3194,7 +3214,7 @@ c
      $     gx)) call errquit('driver: could not get gradient',0,0)
       if (isystype .ne. 0) then
          if (.not. geom_grad_cart_to_frac(geom, gx))
-     $        call errquit('driver: frac_to_cart?',0,0)
+     $        call errquit('driver: cart_to_frac?',0,0)
       end if
       if (ostress) then
          if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
@@ -3281,7 +3301,7 @@ c
          write(6,*) ' These are the cartesian coords'
          call output(sp,1,nat_real*3,1,1,nat_real*3,1,1)
          if (.not. geom_cart_to_frac(geom, sp))
-     $           call errquit('driver: frac_to_cart?',0,0)
+     $           call errquit('driver: cart_to_frac?',0,0)
          write(6,*) ' These are the fractional coords regenerated'
          call output(sp,1,nat_real*3,1,1,nat_real*3,1,1)
 c
@@ -3632,7 +3652,7 @@ C
       end if
       if (isystype .ne. 0) then
        if (.not. geom_amatrix_get(geom, amat))
-     $           call errquit('geom_frac_to_cart: a', 0, GEOM_ERR)
+     $           call errquit('geom_amatrix_get: a', 0, GEOM_ERR)
         do i=1,3
          do j=1,3
           amatangs(i,j) = amat(i,j)*toangs
