@@ -5,6 +5,7 @@
 
 unalias -a
 
+export NWCHEM_TOP=${NWCHEM_TOP:-"`pwd`/../"}
 if test "x$NWCHEM_TOP" = x
 then
     echo You must set NWCHEM_TOP to use this script.
