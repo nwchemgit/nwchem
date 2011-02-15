@@ -375,6 +375,12 @@ c
                call output(dbl_mb(k_hess),1,nvar,1,nvar,nvar,nvar,1)
             end if
          end if
+!        Symmetry
+         if (nvar .eq. 3*natom) then
+           call sym_hess_symmetrize(geom,dbl_mb(k_hess))
+         else
+           ! To do - Do both space group on atoms and lattice!
+         endif
       else
 c
 c     Internals.
@@ -1460,7 +1466,7 @@ c     value for the line search parameter alpha.
 c
 c     Only alpha and ds() are modified.
 c
-      integer i, iat
+      integer i, iat,j, top
 *     integer info
       integer l_hess, k_hess, l_work, k_work, lenwork
       double precision  e(max_nvar) ! Hessian eigenvalues
@@ -1473,8 +1479,12 @@ c
      $     denominator
       double precision bohr, deg ! For printing purposes
       double precision trustds  ! Restriction of step in opt. variable
+      double precision lattice(6), scaler(3) ! periodic scaling
       logical geom_print_zmatrix
+      external geom_print_zmatrix
       logical ophigh
+      logical geom_lattice_get
+      external geom_lattice_get
 c
 c     Get the Hessian and gradient with appropriate projectors
 c     applied following Peng, Ayala, Schlegel and Frisch so that
@@ -1628,9 +1638,35 @@ c     1.  Did we go uphill on the last step?
 c     2.  Is a component of the step large in the optimization space.
 c
       dsmax = 0d0
-      do i = 1, nvar
-         dsmax = max(dsmax, abs(ds(i)))
-      enddo
+      if(isystype.gt.0 .and. (.not. zcoord)) then ! Fractional coordinates
+        if (.not. geom_lattice_get(geom, lattice))
+     $     call errquit('driver: failed to get lattice',0,0)
+
+        do i = 1, isystype
+           scaler(i) = lattice(i)
+        enddo
+        do i = isystype+1,3
+           scaler(i) = 1.0d0
+        enddo
+        j=0
+        top = nvar
+        if(ostress) top = nvar - 9
+        if(ostress2)top = nvar - 6
+        do i = 1, top
+           j=j+1
+           if (j.gt.3) j=1
+           dsmax = max(dsmax, abs(ds(i))*scaler(j))
+        enddo
+        if (ostress .or. ostress2) then
+           do i = top+1,nvar
+              dsmax = max(dsmax, abs(ds(i))*2) ! To do: do something better
+           enddo
+        endif
+      else
+        do i = 1, nvar
+          dsmax = max(dsmax, abs(ds(i)))
+        enddo
+      endif
 c
       trustds =trust
 c
