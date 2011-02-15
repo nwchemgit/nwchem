@@ -19,7 +19,7 @@ c     tol distant from each other.
 c     
       integer iat, jat, k, op
       integer nops, nat, l_tmp, k_tmp
-      double precision rnew(3), r
+      double precision rnew(3), r, dx, dy, dz
       logical geom_check_handle, geom_print
       external geom_check_handle, geom_print
 c     
@@ -39,16 +39,29 @@ c
      $        ('sym_geom_project: geom print failed',0, GEOM_ERR)
       endif
 c
+c     Map periodic system back to main unit cell with identity symmetry
+c
+      if(isystype(geom).gt.0) then
+         do iat = 1, nat
+            op = -99 ! Secret identity flag - maps back to unit cell only
+            call sym_apply_cart_op(geom, op, coords(1,iat,geom), rnew)
+            coords(1,iat,geom)=rnew(1)
+            coords(2,iat,geom)=rnew(2)
+            coords(3,iat,geom)=rnew(3)
+         end do
+      end if
+c
       call dcopy(3*nat, coords(1,1,geom), 1, dbl_mb(k_tmp), 1)
 c
       do iat = 1, nat
          do op = 1, nops
             jat = sym_center_map(geom, iat, op)
+C           This call maps back to unit cell in periodic cells
             call sym_apply_cart_op(geom, op, coords(1,iat,geom), rnew)
-            r = sqrt(
-     $           (rnew(1)-coords(1,jat,geom))**2 + 
-     $           (rnew(2)-coords(2,jat,geom))**2 + 
-     $           (rnew(3)-coords(3,jat,geom))**2)
+            dx = rnew(1)-coords(1,jat,geom)
+            dy = rnew(2)-coords(2,jat,geom)
+            dz = rnew(3)-coords(3,jat,geom)
+            r = sqrt(dx**2 + dy**2 + dz**2)
             if (r.le.tol) then
                do k = 1, 3
                   dbl_mb(k_tmp-1 + k + (jat-1)*3) = 
@@ -56,9 +69,9 @@ c
                enddo
             else
                if (.not. geom_print(geom)) call errquit
-     $              ('sym_geom_project: geom print failed',0, GEOM_ERR)
+     $            ('sym_geom_project: geom print failed',0, GEOM_ERR)
                call errquit('sym_geom_project: sym_center_map'//
-     $              ' is inconsistent with requested accuracy',
+     $             ' is inconsistent with requested accuracy',
      $              op, INPUT_ERR)
             end if
          end do
@@ -86,3 +99,4 @@ c
         call geom_compute_values(geom)
 
       end
+

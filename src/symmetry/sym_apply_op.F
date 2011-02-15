@@ -12,19 +12,24 @@ c
 c
 c     Apply operator to vector of FRACTIONAL coordinates
 c
-      do i = 1, 3
+      if (opnum .ne. -99) then! -99 means identity(back to box)
+       do i = 1, 3
         r1(i) = sym_ops((opnum-1)*3+i,4,geom)
         do j = 1, 3
           r1(i) = r1(i) + sym_ops((opnum-1)*3+i,j,geom)*r(j)
         enddo
-      enddo
+       enddo
+      else
+       do i = 1, 3
+        r1(i)=r(i)
+       enddo
+      endif
 c     
 c--> shift it into the home cell. This operation depends on sysytem type
-c--> in place for 3-d, 2-d and molecules now.
 c     
-      if(isystype(geom).eq.3) then
+      if(isystype(geom).gt.0) then
  3000    continue
-         do 380 i=1,3
+         do 380 i=1,isystype(geom)
             if(dabs(r1(i)).lt.1.0d-10 .or. 
      $           dabs((dabs(r1(i))-1.0d0)).lt.1.0d-10) then
                r1(i)=0.0d0
@@ -37,20 +42,6 @@ c
                goto 3000
             endif
  380     continue
-      elseif(isystype(geom).eq.2) then ! surfaces
- 3020    do 382 i=1,2
-            if(dabs(r1(i)).lt.1.0d-10.or.
-     $           dabs((dabs(r1(i))-1.0d0)).lt.1.0d-10) then
-               r1(i)=0.0d0
-            endif
-            if(r1(i).lt.0.0d0) then
-               r1(i)=r1(i)+1.0d0
-               goto 3020
-            elseif (r1(i).ge.1.0d0) then
-               r1(i)=r1(i)-1.0d0
-               goto 3020
-            endif
- 382     continue
       endif
 c
 *      write(6,*) ' sym_apply_op r ', r
