@@ -2106,6 +2106,7 @@ c
          do i = 1, ncart
             xnew(i) = alpha*ds(i)
          enddo
+         ! This assumes cartesian
          call sym_grad_symmetrize(geom, xnew)
          do i = 1, ncart
             xnew(i) = xold(i) + xnew(i)
@@ -3016,6 +3017,12 @@ c
       if (ostress) return       ! Yikes!
       if (ostress2) return       ! Yikes!
 c
+      if (.not. zcoord) then
+        ! This assumes cartesian
+        call sym_grad_symmetrize(geom, ds)
+        return
+      endif
+
       if (.not. ma_push_get(mt_dbl, ncart*nvar,'binv',l_bi, k_bi))
      $     call errquit('driver_sym: memory for binv', ncart*nvar,
      &       MA_ERR)
