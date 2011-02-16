@@ -335,7 +335,10 @@ c
          call nga_add_patch(1.0d0,g_rhs,blo,bhi,1.0d0,g_fock,clo,chi,
      &                      g_rhs,blo,bhi)
 
-!      call nga_print_patch(g_fock,clo,chi,1)
+      if (debug) then
+        write (luout,*) 'Fock matrix from S(1) in U-vector'
+        call nga_print_patch(g_fock,clo,chi,1)
+      end if
 
       enddo
 c
@@ -418,6 +421,13 @@ c
       ahi(3) = 3
       call nga_add_patch(1.0d0,g_rhs,blo,bhi,1.0d0,g_fock,alo,ahi,
      &                   g_rhs,blo,bhi)
+
+
+      if (debug) then
+        write (luout,*) 'Fock matrix from giao G(1)'
+        call nga_print_patch(g_fock,alo,ahi,1)
+      end if
+
       if (.not.ga_destroy(g_fock)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_fock',0,GA_ERR)
       call nga_scale_patch(g_rhs,blo,bhi,-4.0d0)
@@ -504,10 +514,10 @@ c
 
 c ... jochen: this patch of g_u now has the perturbed MO
 c        coefficients. let's print that for debug purposes:
-         if (debug) then
-           write (luout,*) 'giaox: perturbed C, direction ',ifld
-           call nga_print_patch(g_u,dlo,dhi,1)
-         end if
+c         if (debug) then
+c           write (luout,*) 'giaox: perturbed C, direction ',ifld
+c           call nga_print_patch(g_u,dlo,dhi,1)
+c         end if
 
          bhi(1) = nbf
          bhi(2) = nclosed(1)

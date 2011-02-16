@@ -109,14 +109,15 @@ c     GA handles for perturbed MO vectors:
       integer idir, ipert ! field directions
       integer ntmp
 
-      double precision sum, sumim, zero, one, two, tenm8
-      parameter (zero = 0d0, one = 1d0, two = 2d0, tenm8 = 1d-8)
+      double precision sum, sumim, zero, one, two, half, tenm8
+      parameter (zero = 0d0, one = 1d0, two = 2d0, half=one/two, tenm8
+     &   =1d-8)
       double precision gamwidth
       double precision ga_trace_diag
       external ga_trace_diag
 
       logical debug, lgiao, lvelocity, lmagpert, lstatic, lifetime,
-     $        lbeta, lquad
+     $        lbeta, lquad, lanalyze
       logical oprint
 
 #ifdef JEFF_OUTPUT
@@ -165,6 +166,7 @@ c     -------------------------------------------
       lifetime = .false.
       lbeta = .false.
       lquad = .false.
+      lanalyze = .false.
       gamwidth = 0d0
       
       ntmp = 1
@@ -191,6 +193,11 @@ c     -------------------------------------------
       if (.not.rtdb_get(rtdb, 'aoresponse:quad', mt_int, 1,ntmp)) 
      &   call errquit('aor_driver: lquad failed ',0, RTDB_ERR)
       if (ntmp.eq.0) lquad = .true.
+
+      ntmp = 1
+      if (.not.rtdb_get(rtdb, 'aoresponse:analyze', mt_int, 1,ntmp)) 
+     &   call errquit('aor_driver: lquad failed ',0, RTDB_ERR)
+      if (ntmp.eq.0) lanalyze = .true.
       
       ntmp = 1
       if (.not.rtdb_get(rtdb, 'aoresponse:damping', mt_int, 1,ntmp)) 
@@ -426,7 +433,10 @@ c     ---------------------------------------------------------
         end if
         if (lquad) then
           write (luout,'(1x,a)') 'Adding quadrupole terms to OptRot'
-          write (luout,'(1x,a)') '(Buckingham-Dunn OR tensor)'
+          write (luout,'(1x,a)') '(Buckingham-Dunn OR tensor).'
+        end if
+        if (lanalyze) then
+          write (luout,'(1x,a)') 'MO analysis will be printed.'
         end if
         if (lvelocity) then
           write (luout,'(1x,a)') 'Using Dipole Velocity Gauge'
@@ -702,8 +712,8 @@ c     optical rotation G' tensor
          call aor_r1_tensor(rtdb, basis, geom, omega, lstatic, ncomp,
      &      g_smat0, g_dipmag, g_dipel, g_quadel, g_vectors ,
      &      dbl_mb(k_occ), nbf, nmo, nclosed, nvirt, lgiao, lquad,
-     &      lvelocity, lifetime, lmagpert, g_vecF1, g_vecF1_im,  alfare
-     &      ,alfaim, betare, betaim)         
+     &      lvelocity, lifetime, lmagpert, g_vecF1, g_vecF1_im
+     &      ,  alfare ,alfaim, betare, betaim)         
          if (debug) write (luout,*) 'exiting aor_r1_tensor'
          
       else ! lbeta?
@@ -716,8 +726,8 @@ c       with the polarizability
          call aor_r1_beta(rtdb, basis, geom, omega, lstatic, ncomp,
      &      g_smat0, g_sket1, g_vecB1(1), g_dipel, g_quadel , g_vectors
      &      , dbl_mb(k_occ), nbf, nmo, nclosed, nvirt, lgiao , lquad,
-     &      lvelocity, lifetime, lmagpert, g_vecF1, g_vecF1_im,  alfare,
-     &      alfaim, betare, betaim)         
+     &      lanalyze, lvelocity, lifetime, lmagpert, g_vecF1, g_vecF1_im
+     &      ,  alfare, alfaim, betare, betaim)         
          if (debug) write (luout,*) 'exiting aor_r1_beta'
 
       end if ! lbeta
@@ -830,7 +840,47 @@ c
         enddo
         write(luout,*) 'average: ',sum/3d0, ' + I ',sumim/3d0
         write (LuOut,*)
-      endif
+
+c       diagonalize real part of beta tensor
+
+        write (luout,*) 'Principal components and PAS (Real part)'
+        do idir = 1,3
+          eig(idir) = zero
+          do ipert = 1,3
+            axs(idir,ipert) = betare(idir,ipert)
+          end do
+        end do
+        call hnd_diag(axs,eig,3,.true.,.true.)
+        write(luout,'(10x,f12.4)') (eig(idir),idir=1,3)
+        sum =(eig(1) + eig(2) + eig(3))/3.0d0
+        write(luout,'(1x,21(''-'')/1x,a,1x,f12.4)') 'average:', sum
+        call output(axs,1,3,1,3,3,3,1)
+
+c       if we have calculated the B.-D. tensor, also print the 
+c       chiral response tensor. use array axs and eig for temp space
+
+        if (lquad) then
+          axs(:,:) = -half * betare(:,:)
+          eig(1) = axs(2,2) + axs(3,3)
+          eig(2) = axs(3,3) + axs(1,1)
+          eig(3) = axs(1,1) + axs(2,2)
+          do idir = 1,3
+            axs(idir,idir) = -eig(idir)
+          end do
+          write (LuOut,'(/1x,a)') 'Chiral response tensor (Real part):'
+          call output(axs,1,3,1,3,3,3,1)
+          write(luout,*)
+          write (luout,*) 'Principal components and PAS (Real part)'
+          eig(:) = zero
+          call hnd_diag(axs,eig,3,.true.,.true.)
+          write(luout,'(10x,f12.4)') (eig(idir),idir=1,3)
+          sum =(eig(1) + eig(2) + eig(3))/3.0d0
+          write(luout,'(1x,21(''-'')/1x,a,1x,f12.4)') 'average:', sum
+          call output(axs,1,3,1,3,3,3,1)
+        end if                  ! lquad
+        
+
+      endif ! oprint
 c
 c     == Raman bits ==
 c

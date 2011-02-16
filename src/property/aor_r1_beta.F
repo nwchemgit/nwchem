@@ -1,8 +1,9 @@
 
       subroutine aor_r1_beta (rtdb, basis, geom, omega, lstatic, ncomp,
      &   g_smat0, g_sket1, g_vecB1,  g_dipel, g_quadel, g_vectors, froct
-     &   ,nbf, nmo, nocct, nvirt, lgiao, lquad, lvelocity,lifetime,
-     &   lmagpert, g_vecE1, g_vecE1_im, alfare, alfaim, betare, betaim)
+     &   ,nbf, nmo, nocct, nvirt, lgiao, lquad, lanalyze, lvelocity
+     &   ,lifetime, lmagpert, g_vecE1, g_vecE1_im, alfare, alfaim,
+     &   betare, betaim)
 
 c $Id:  $
       
@@ -58,7 +59,8 @@ c     These are all input, too
       integer nocct(2), nvirt(2)
       double precision froct(nbf,2)
       double precision gamwidth, omega
-      logical lgiao, lquad, lvelocity, lifetime, lmagpert, lstatic
+      logical lgiao, lquad, lanalyze, lvelocity, lifetime, lmagpert,
+     &   lstatic
 
 c     output:
       double precision alfare(3,3), alfaim(3,3)
@@ -153,7 +155,7 @@ c     -------------------------
 
 c     define translation table for quadrupole incices in
 c     packed storage
-c     XX=1,XY=YX=2, XZ=ZX=3,YY=4,YZ=ZY=5,ZZ=6
+c     XX=1, XY=YX=2, XZ=ZX=3, YY=4, YZ=ZY=5, ZZ=6
       qindex(1,1) = 1
       qindex(1,2) = 2
       qindex(2,1) = 2
