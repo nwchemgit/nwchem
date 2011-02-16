@@ -235,5 +235,66 @@ c
 
       end
 c
+      subroutine cons_hdihed_id_tag(cons_name,tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character*255 cons_name
+c
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":hdihed_id"
+
+      end
+
+      subroutine cons_hdihed_n_tag(cons_name,tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character*255 cons_name
+c
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":hdihed_n"
+
+      end
+
+      subroutine cons_hdihed_r_tag(cons_name,tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character*255 cons_name
+c
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":hdihed_r"
+
+      end
+
+      subroutine cons_hdihed_k_tag(cons_name,tag)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
+
+      character*(*) tag
+c
+      integer n
+      character*255 cons_name
+c
+      n=inp_strlen(cons_name)
+      tag="cons:"//cons_name(1:n)//":hdihed_k"
+
+      end
+c
+
 
 

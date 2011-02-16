@@ -17,11 +17,15 @@ c
       integer i_tmp_id,h_tmp_id
       integer nfp
       logical status
-      integer id(2)
+      integer id(4)
       double precision k,r
 c
       logical cons_harm_bond_input
       external cons_harm_bond_input
+      logical cons_harm_dihed_input
+      external cons_harm_dihed_input
+      logical cons_active
+      external cons_active
 
       max_fp = min( max_fixed_atoms*4, ma_inquire_avail(MT_INT))
       if ( .not. ma_push_get( MT_INT, max_fp, 
@@ -43,6 +47,7 @@ c     ------------------------------------
        end if
       end if 
       
+      write(*,*) " in cons_inputi cons_active is ",cons_active(rtdb)
  100  if (.not. inp_read()) 
      >      call errquit('cons_input: inp_read failed',0,0)
 c
@@ -129,6 +134,14 @@ c     ----------------------------
              call errquit('cons_input: failed harm bond input', 0,
      >        0)
            end if
+         else if (inp_compare(.false.,'dihedral', test)) then
+           write(*,*) "found dihedral"
+           if(cons_harm_dihed_input(id,k,r)) then 
+             call cons_add_dihed(namespace,id,k,r,rtdb)
+           else
+             call errquit('cons_input: failed harm dihedral input', 0,
+     >        0)
+           end if
          end if
 c 
       goto 100
@@ -146,11 +159,67 @@ c
      &    'cons_input_springs: unable to free h_tmp_id',
      &    0, MA_ERR)
         
+      write(*,*) " in cons_inputi cons_active is ",cons_active(rtdb)
       call cons_info_fixed_atoms(namespace,rtdb)
       call cons_info_springs(namespace,rtdb)
+      write(*,*) " in cons_inputi cons_active is ",cons_active(rtdb)
       return
       end
 c
+      function cons_harm_dihed_input(id,sk,sr)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+c     
+      logical cons_harm_dihed_input
+      integer id(4)
+      double precision sk
+      double precision sr
+
+      integer itest
+      double precision ftest
+      character*30 pname
+      character*72 message
+      integer k,m
+
+      pname = "cons_harm_dihed_input"
+
+      do k=1,4
+        if(.not.inp_i(id(k)))
+     &   call errquit(pname//': not an integer field',0,0)
+      end do
+      if(.not.inp_f(ftest))
+     & call errquit(pname//': not a real field',0,0)
+      sk=ftest
+      if(.not.inp_f(ftest))
+     & call errquit(pname//': not a real field',0,0)
+      sr=ftest
+      
+c     do some checks
+      do k=1,4
+       do m=k+1,4
+         if(id(m).eq.id(k)) then
+           message = " index input error "
+           goto 10
+         end if
+       end do
+      end do
+      if(sk .le. 0 ) then
+        cons_harm_dihed_input=.false.
+        message = " use positive K "
+        goto 10 
+      end if
+      cons_harm_dihed_input = .true.
+      return
+c     
+c     error processing
+c     ---------------
+10    continue
+      call errquit(pname//message,0,0)
+      end
       function cons_harm_bond_input(i,j,sk,sr)
       implicit none
 #include "errquit.fh"

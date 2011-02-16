@@ -111,6 +111,10 @@ c
       call cons_hbond_n_tag(namespace,tag)
       cons_inquire=rtdb_get(rtdb,tag,mt_int,1,n)
       if(cons_inquire) return
+
+      call cons_hdihed_n_tag(namespace,tag)
+      cons_inquire=rtdb_get(rtdb,tag,mt_int,1,n)
+      if(cons_inquire) return
       
       return
       end
@@ -299,6 +303,133 @@ c
         if(.not.status) call errquit(
      >     'cons_add_spring: unable to get prior harm bonds',
      >      nhb, MA_ERR)
+
+      if (.not. ma_pop_stack(h_tmp_r) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_r',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_k) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_k',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
+     &    'cons_add_spring: unable to free h_tmp_id',
+     &    0, MA_ERR)
+
+      end
+
+      subroutine cons_add_dihed(namespace,id,kd,r,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+c     
+      character*(*) namespace
+      integer id(4)
+      double precision kd
+      double precision r
+      integer rtdb
+c
+      logical status
+      integer i
+      integer nc0
+      integer nc
+      integer h_tmp_id,i_tmp_id 
+      integer h_tmp_k,i_tmp_k 
+      integer h_tmp_r,i_tmp_r 
+      integer id01,id02
+      double precision k0
+      double precision r0
+      character*255 tag_id
+      character*255 tag_n
+      character*255 tag_r
+      character*255 tag_k
+      integer idm
+      logical oduplicate
+      integer k
+c
+c     4 indices for dihedral
+      idm = 4
+c
+c     rtdb tags
+c
+      call cons_hdihed_id_tag(namespace,tag_id)
+      call cons_hdihed_n_tag(namespace,tag_n)
+      call cons_hdihed_k_tag(namespace,tag_k)
+      call cons_hdihed_r_tag(namespace,tag_r)
+      
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nc0)) then
+         nc0 = 0
+      end if
+      nc = nc0 + 1
+
+      if ( .not. ma_push_get( MT_INT, idm*nc, 'h_tmp_id',
+     &      h_tmp_id, i_tmp_id) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      2*nc, MA_ERR)
+      if ( .not. ma_push_get( MT_DBL, nc, 'h_tmp_k',
+     &      h_tmp_k, i_tmp_k) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nc, MA_ERR)
+      if ( .not. ma_push_get( MT_DBL, nc, 'h_tmp_r',
+     &      h_tmp_r, i_tmp_r) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nc, MA_ERR)
+
+       if(nc0 .ge. 1) then
+        status = rtdb_get(rtdb,tag_id,
+     >     mt_int,idm*nc0,int_mb(i_tmp_id)) 
+        status = status . and. rtdb_get(rtdb,tag_k,
+     >     mt_dbl,nc0,dbl_mb(i_tmp_k)) 
+        status = status . and. rtdb_get(rtdb,tag_r,
+     >     mt_dbl,nc0,dbl_mb(i_tmp_r)) 
+        if(.not.status) call errquit(
+     >     'cons_add_spring: unable to get prior harm bonds',
+     >      nc, MA_ERR)
+       status =              rtdb_delete(rtdb,tag_n)
+       status = status .and. rtdb_delete(rtdb,tag_id)
+       status = status .and. rtdb_delete(rtdb,tag_k)
+       status = status .and. rtdb_delete(rtdb,tag_r)
+       if(.not.status) call errquit(
+     >     'cons_add_spring: unable to delete prior harm bonds',
+     >      0, MA_ERR)
+       end if
+       
+c     check for duplicate
+      oduplicate = .false.
+      do i=1,nc0
+       do k=1,idm
+         if(id(k).ne.int_mb(i_tmp_id+idm*(i-1)+k-1)) goto 10
+       end do
+       write(*,*) "cons_add_dihedral: replacing existing spring"
+       dbl_mb(i_tmp_k+i-1)=kd
+       dbl_mb(i_tmp_r+i-1)=r
+       oduplicate = .true.
+       goto 12
+10     continue    
+      end do
+12    continue
+c      
+      if(oduplicate) then
+       nc=nc0
+      else
+       do k=1,idm
+         int_mb(i_tmp_id+idm*(i-1)+k-1)=id(k)
+       end do
+       dbl_mb(i_tmp_k + nc0)=kd
+       dbl_mb(i_tmp_r + nc0)=r
+      end if
+
+       status = rtdb_put(rtdb,tag_n,mt_int,1,nc)
+       status = status . and. rtdb_put(rtdb,tag_id,
+     >     mt_int,idm*nc,int_mb(i_tmp_id)) 
+        status = status . and. rtdb_put(rtdb,tag_k,
+     >     mt_dbl,nc,dbl_mb(i_tmp_k)) 
+        status = status . and. rtdb_put(rtdb,tag_r,
+     >     mt_dbl,nc,dbl_mb(i_tmp_r)) 
+        if(.not.status) call errquit(
+     >     'cons_add_spring: unable to get prior harm bonds',
+     >      nc, MA_ERR)
 
       if (.not. ma_pop_stack(h_tmp_r) ) call errquit(
      &    'cons_add_spring: unable to free h_tmp_r',
@@ -532,6 +663,96 @@ c
      &    0, MA_ERR)
       end
 
+      subroutine cons_info_dihed(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c
+      character*(*) namespace
+      integer rtdb
+c     
+      logical status
+      integer i
+      integer nc
+      integer h_tmp_id,i_tmp_id 
+      integer h_tmp_k,i_tmp_k 
+      integer h_tmp_r,i_tmp_r 
+      character*255 tag_id
+      character*255 tag_n
+      character*255 tag_k
+      character*255 tag_r
+      integer idm
+
+      idm = 4
+
+      call cons_hdihed_id_tag(namespace,tag_id)
+      call cons_hdihed_n_tag(namespace,tag_n)
+      call cons_hdihed_k_tag(namespace,tag_k)
+      call cons_hdihed_r_tag(namespace,tag_r)
+
+      
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nc)) then
+         nc = 0
+      end if
+       
+      if (nc .eq. 0 ) then
+         if(ga_nodeid().eq.0)    
+     >     write(*,*) "no springs found"
+         return
+      end if
+
+      if ( .not. ma_push_get( MT_INT, idm*nc, 'h_tmp_id',
+     &      h_tmp_id, i_tmp_id) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      2*nc, MA_ERR)
+      if ( .not. ma_push_get( MT_DBL, nc, 'h_tmp_k',
+     &      h_tmp_k, i_tmp_k) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nc, MA_ERR)
+      if ( .not. ma_push_get( MT_DBL, nc, 'h_tmp_r',
+     &      h_tmp_r, i_tmp_r) ) call errquit(
+     &      'cons_add_spring: unable to allocate scratch space',
+     &      nc, MA_ERR)
+
+       if(nc .ge. 1) then
+        status = rtdb_get(rtdb,tag_id,
+     >     mt_int,idm*nc,int_mb(i_tmp_id)) 
+        status = status . and. rtdb_get(rtdb,tag_k,
+     >     mt_dbl,nc,dbl_mb(i_tmp_k)) 
+        status = status . and. rtdb_get(rtdb,tag_r,
+     >     mt_dbl,nc,dbl_mb(i_tmp_r)) 
+        if(.not.status) call errquit(
+     >     'cons_add_spring: unable to get prior harm bonds',
+     >      nc, MA_ERR)
+       end if
+
+     
+      if(ga_nodeid().eq.0) then   
+      do i=1,nc
+      write(*,FMT=200) int_mb(i_tmp_id+2*(i-1)),
+     >           int_mb(i_tmp_id+2*(i-1)+1),
+     >           int_mb(i_tmp_id+2*(i-1)+2),
+     >           int_mb(i_tmp_id+2*(i-1)+3),
+     >           dbl_mb(i_tmp_k+i-1),
+     >           dbl_mb(i_tmp_r+i-1)
+      end do
+      end if
+200   FORMAT(" spring dihedral (i,j,k,r0)",T29,4(I6,2X),F6.3,2X,F6.3)
+      if (.not. ma_pop_stack(h_tmp_r) ) call errquit(
+     &    'cons_info_springs: unable to free h_tmp_r',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_k) ) call errquit(
+     &    'cons_info_springs: unable to free h_tmp_k',
+     &    0, MA_ERR)
+      if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
+     &    'cons_info_springs: unable to free h_tmp_id',
+     &    0, MA_ERR)
+      end
+
       subroutine cons_print_gen_info(namespace,rtdb)
       implicit none
 #include "util.fh"
@@ -548,6 +769,7 @@ c
 
       call cons_info_fixed_atoms(namespace,rtdb)
       call cons_info_springs(namespace,rtdb)
+      call cons_info_dihed(namespace,rtdb)
 
       end
 

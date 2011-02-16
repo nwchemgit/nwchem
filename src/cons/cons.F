@@ -372,6 +372,8 @@ c
       oprint = util_print('information', print_debug)
       oprint = oprint .and. cons_print()
 
+c      if(oprint) 
+c     >    write(*,*) "entered cons_init"
       if(oprint) 
      >    write(*,*) "entered cons_init"
 c
