@@ -165,6 +165,25 @@ else
 endif
 endif # DCMF
 
+ifeq ($(ARMCI_NETWORK),GEMINI)
+    GEMINI_COMBINED =
+ifneq ($(GEMINI_INCLUDE),)
+        GEMINI_COMBINED += $(GEMINI_INCLUDE)
+endif
+ifneq ($(GEMINI_LIB),)
+        GEMINI_COMBINED += $(GEMINI_LIB)
+endif
+ifneq ($(GEMINI_LIB_NAME),)
+        GEMINI_COMBINED += $(GEMINI_LIB_NAME)
+endif
+GEMINI_COMBINED := $(strip $(GEMINI_COMBINED))
+ifeq ($(GEMINI_COMBINED),)
+    MAYBE_ARMCI = --with-gemini
+else
+    MAYBE_ARMCI = --with-gemini="$(GEMINI_COMBINED)"
+endif
+endif # GEMINI
+
 ifeq ($(ARMCI_NETWORK),PORTALS)
     PORTALS_COMBINED =
 ifneq ($(PORTALS_INCLUDE),)
