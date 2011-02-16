@@ -295,6 +295,36 @@ c
 
       end
 c
+      subroutine cons_dihed_deriv(r1,r2,r3,r4,d1,d2,d3,d4)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
 
+      double precision r1(3),r2(3),r3(3),r4(3)
+      double precision d1(3),d2(3),d3(3),d4(3)
+c
+      double precision r12(3),r32(3),r34(3)
+      double precision r52(3),r63(3)
+      integer k
+c    
+      do k=1,3
+       r12(k)=r1(k)-r2(k)
+       r32(k)=r3(k)-r2(k)
+       r34(k)=r3(k)-r4(k)
+      end do
+      
+      call cons_vdot(r12,r32,r52)
+      call cons_vdot(r32,r34,r63)
+      end
 
+      subroutine cons_vdot(r1,r2,r12)
+      implicit none
+#include "util.fh"
+#include "inp.fh"
 
+      double precision r1(3),r2(3),r12(3)
+c
+      r12(1) = r1(2)*r2(3)-r1(3)*r2(2)
+      r12(2) = r1(3)*r2(1)-r1(1)*r2(3)
+      r12(3) = r1(1)*r2(2)-r1(1)*r2(2)
+      end
