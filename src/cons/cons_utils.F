@@ -333,10 +333,9 @@ c
       write(*,*) "phi0=",s5263/sqrt(s52*s63)
       phi0 = acos(s5263/sqrt(s52*s63))
 
-c      call cons_ddot(r12,r63,s1263)
+      call cons_ddot(r12,r63,s1263)
 
-c      phi = sign(phi0,s1263)
-       phi = phi0
+      phi = sign(phi0,s1263)
 
       end
 c      

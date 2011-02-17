@@ -635,14 +635,21 @@ c
       double precision energy
       double precision gx(*)
       character*255 namespace
+      logical obonds,odihedrals,ocons
 c
       call cons_get_namespace(namespace,rtdb)
       if(.not.cons_status(namespace,rtdb)) return
-      if(.not.cons_hbonds(namespace,rtdb)) return
+      obonds = cons_hbonds(namespace,rtdb)
+      odihedrals = cons_hdihed(namespace,rtdb)
+      ocons = obonds.or.odihedrals
+      if(.not.ocons) return
 c
       call cons_load_geom(rtdb)
 c
-      call cons_add_hbond_egrad(rtdb,energy,gx)
+      if(obonds)  
+     >    call cons_add_hbond_egrad(rtdb,energy,gx)
+      if(odihedrals)     
+     >   call cons_add_hdihed_egrad(rtdb,energy,gx)
 c
       call cons_unload_geom()
 c
