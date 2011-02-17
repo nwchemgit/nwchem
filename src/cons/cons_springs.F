@@ -323,3 +323,105 @@ c
       return
       end
 
+      subroutine cons_load_hdihed(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "geom.fh"
+c     
+      character*(*) namespace
+      integer rtdb
+c
+      logical status
+      integer nhd
+      integer i_rhd,i_khd,i_ijhd
+      integer h_rhd,h_khd,h_ijhd
+      character*255 tag_id
+      character*255 tag_n
+      character*255 tag_r
+      character*255 tag_k
+      integer ma_type,ma_n
+c
+      call cons_unload_hdihed()
+c
+      call cons_hdihed_id_tag(namespace,tag_id)
+      call cons_hdihed_n_tag(namespace,tag_n)
+      call cons_hdihed_k_tag(namespace,tag_k)
+      call cons_hdihed_r_tag(namespace,tag_r)
+c
+c     load harmonic constraints
+c
+      status=rtdb_get(rtdb,tag_n,mt_int,1,nhd)
+c     
+c     exit if no harm dihedrals
+      if(.not.status .or. nhd.eq.0) then
+c            call errquit(
+c     >     'cons_load_hdiheds: unable to get number of harm bonds:',
+c     >      nhd, MA_ERR)
+      return
+      end if
+
+      if ( .not. rtdb_ma_get( rtdb, tag_id,ma_type, ma_n, 
+     &      h_ijhd) ) call errquit(
+     &      'cons_load_hdiheds: unable to allocate cons scratch space',
+     &      2*nhd, MA_ERR)
+      if ( .not. ma_get_index(h_ijhd, 
+     &      i_ijhd) ) call errquit(
+     &      'cons_load_hdiheds: unable to allocate cons scratch space',
+     &      2*nhd, MA_ERR)
+
+      if ( .not. rtdb_ma_get( rtdb, tag_k,ma_type, ma_n, 
+     &      h_khd) ) call errquit(
+     &      'cons_load_hdiheds: unable to allocate cons scratch space',
+     &      2*nhd, MA_ERR)
+      if ( .not. ma_get_index(h_khd, 
+     &      i_khd) ) call errquit(
+     &      'cons_load_hdiheds: unable to allocate cons scratch space',
+     &      2*nhd, MA_ERR)
+
+      if ( .not. rtdb_ma_get( rtdb, tag_r,ma_type, ma_n, 
+     &      h_rhd) ) call errquit(
+     &      'cons_load_hdiheds: unable to allocate cons scratch space',
+     &      2*nhd, MA_ERR)
+      if ( .not. ma_get_index(h_rhd, 
+     &      i_rhd) ) call errquit(
+     &      'cons_load_hdiheds: unable to allocate cons scratch space',
+     &      2*nhd, MA_ERR)
+     
+      
+       call cons_set_hdihed_nhd(nhd)
+       call cons_set_h_hdihed_id(h_ijhd)
+       call cons_set_h_hdihed_k(h_khd)
+       call cons_set_h_hdihed_r(h_rhd)
+
+      end
+c
+      subroutine cons_unload_hdihed()
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "cons.fh"
+      integer nhd,h_rhd,h_khd,h_idhd
+
+      h_idhd = cons_get_h_hdihed_id()
+      h_khd  = cons_get_h_hdihed_k()
+      h_rhd  = cons_get_h_hdihed_r()
+c
+c     unload harmonic constraints if any
+c
+      call cons_get_hdihed_nhd(nhd)
+      if(nhd.gt.0) then
+      if (.not. ma_free_heap(h_rhd) ) call errquit(
+     &    'cons_bond_input: unable to free h_rhd',
+     &    0, MA_ERR)
+      if (.not. ma_free_heap(h_khd) ) call errquit(
+     &    'cons_bond_input: unable to free h_khd',
+     &    0, MA_ERR)
+      if (.not. ma_free_heap(h_idhd) ) call errquit(
+     &    'cons_bond_input: unable to free h_ijhd',
+     &    0, MA_ERR)
+      call cons_set_hdihed_nhd(0)
+      end if
+      end

@@ -172,3 +172,110 @@ c      cons_get_i_c = i_c
 
       end
 
+
+
+      function cons_get_h_hdihed_id()
+      implicit none
+#include "cons_data.fh"
+      integer cons_get_h_hdihed_id
+      cons_get_h_hdihed_id=h_idhd
+      return
+      end
+
+      function cons_get_h_hdihed_k()
+      implicit none
+#include "cons_data.fh"
+      integer cons_get_h_hdihed_k
+      cons_get_h_hdihed_k=h_khd
+      return
+      end
+
+      function cons_get_h_hdihed_r()
+      implicit none
+#include "cons_data.fh"
+      integer cons_get_h_hdihed_r
+      cons_get_h_hdihed_r=h_rhd
+      return
+      end
+
+      function cons_get_i_hdihed_id()
+      implicit none
+#include "mafdecls.fh"
+#include "cons_data.fh"
+#include "errquit.fh"
+      integer cons_get_i_hdihed_id
+      if(.not. ma_get_index(h_idhd,cons_get_i_hdihed_id)) 
+     >    call errquit('cons_data: unable to get i_hdihed_id',
+     >      h_idhd, RTDB_ERR)
+      return
+      end
+
+      function cons_get_i_hdihed_k()
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cons_data.fh"
+      integer cons_get_i_hdihed_k
+      if(.not. ma_get_index(h_khd,cons_get_i_hdihed_k))
+     >     call errquit
+     >     ('cons_data: unable to get i_hdihed_k',
+     >      h_khd, RTDB_ERR)
+
+      return
+      end
+
+      function cons_get_i_hdihed_r()
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cons_data.fh"
+      integer cons_get_i_hdihed_r
+      if(.not. ma_get_index(h_rhd,cons_get_i_hdihed_r)) 
+     >     call errquit
+     >     ('cons_data: unable to get i_hdihed_r',
+     >      h_rhd, RTDB_ERR)
+
+      return
+      end
+
+      subroutine cons_set_h_hdihed_r(h)
+      implicit none
+#include "cons_data.fh"
+      integer h
+      h_rhd = h
+      return
+      end
+
+      subroutine cons_set_h_hdihed_k(h)
+      implicit none
+#include "cons_data.fh"
+      integer h
+      h_khd = h
+      return
+      end
+
+      subroutine cons_set_h_hdihed_id(h)
+      implicit none
+#include "cons_data.fh"
+      integer h
+      h_idhd = h
+      return
+      end
+
+      subroutine cons_set_hdihed_nhd(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      nhd=n
+      return
+      end
+
+      subroutine cons_get_hdihed_nhd(n)
+      implicit none
+#include "cons_data.fh"
+      integer n
+      n=nhd
+      return
+      end
+
+

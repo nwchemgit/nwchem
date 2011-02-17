@@ -8,6 +8,8 @@
       parameter (max_harm_bonds=100)
       integer max_harm_angles
       parameter (max_harm_angles=100)
+      integer max_harm_dihedrals
+      parameter (max_harm_dihedrals=100)
     
       character*255 cons_name
       character*12 cons_default
@@ -19,10 +21,14 @@
       integer h_fpos,i_fpos
       integer cons_irtdb
 
+      integer nhd
+      integer h_idhd,h_khd,h_rhd
       common /cons_data/ 
      &                   cons_oprint_default,
      &                   nhb,
      &                   h_ijhb,h_khb,h_rhb,
+     &                   nhd,
+     &                   h_idhd,h_khd,h_rhd,
      &                   h_fpos,i_fpos,
      &                   h_c,
      &                   cons_irtdb,

@@ -40,3 +40,22 @@
        logical cons_status
        external cons_status
 
+       integer cons_get_h_hdihed_id
+       external cons_get_h_hdihed_id
+
+       integer  cons_get_h_hdihed_k
+       external cons_get_h_hdihed_k
+
+       integer cons_get_h_hdihed_r
+       external cons_get_h_hdihed_r
+
+       integer cons_get_i_hdihed_id
+       external cons_get_i_hdihed_id
+
+       integer  cons_get_i_hdihed_k
+       external cons_get_i_hdihed_k
+
+       integer cons_get_i_hdihed_r
+       external cons_get_i_hdihed_r
+
+
