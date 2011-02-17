@@ -7070,3 +7070,15 @@ c
  135  call errquit(pname//'error end of file at'//message,0, 0)
 
       end
+
+C**********************************************************************
+
+      integer function geom_get_group_number(geom)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+      integer geom
+      geom_get_group_number = group_number(geom)
+      return
+      end
+

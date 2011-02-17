@@ -397,7 +397,6 @@ c
      $         dbl_mb(k_shrhess+j-1 + (i-1)*(3*natom))
              end do
            end do
-           ! TODO - Do both space group on lattice Hessian
          endif
       else
 c
@@ -3458,12 +3457,17 @@ c     local variables
       double precision amat(3,3)
       integer i,j,k,l,kat,lat,iat,jat
       integer nat_real
+      integer grp_num
+      double precision dum
 C     functions that get called
       logical geom_volume_get,geom_lattice_get,geom_amatrix_get
       external geom_volume_get,geom_lattice_get,geom_amatrix_get
+      integer geom_get_group_number
+      external geom_get_group_number
 c
       if (.not. geom_amatrix_get(geom, amat))
      $           call errquit('geom_amatrix_get failed:', 0, GEOM_ERR)
+      grp_num=geom_get_group_number(geom)
       if (ostress) then
             bulk=1
             nat_real = (nvar/3)-3
@@ -3510,6 +3514,7 @@ c
                   kat = (1+2+3) - (iat+jat) ! the other 'atom'
                   HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 
      $                   abs(amat(k,kat))*0.001
+!  I think the above term should be symmetry correct to start with. KRG
                  end if
                end do
               end do
@@ -3535,22 +3540,62 @@ c
               endif
             end do
            end do
-           iat = 2  ! Set angle cross-terms to non-zero, that way they are linked
+           iat = 2
            jat = 2
            do i = 1, 3
-            do j = 1, 3
-             if (i.ne.j) then
-                HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 0.1
-             else
-                HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 1.0 ! Angles are stiff
-             endif
-            end do
+             j = i ! No cross terms-Angles are only the same when fixed
+             HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 1.0 ! Angles are stiff
            end do
-       endif
-       return
-       end
-
-
+!          Symmetry of lengths
+           iat = 1
+           jat = 1
+           if (grp_num.lt.75) then
+!            Triclinic Monoclinic Orthorhombic
+!            no lengths are the same
+           else if (grp_num.ge.75 .and. grp_num .lt. 195) then
+!            Tetragonal Trigonal Hexagonal
+!            First two lengths are same
+             dum =(HSSQ((iat+nat_real-1)*3 + 1, (jat+nat_real-1)*3+1) +
+     $             HSSQ((iat+nat_real-1)*3 + 2, (jat+nat_real-1)*3+2))/2
+             HSSQ((iat+nat_real-1)*3 + 1, (jat+nat_real-1)*3+1) = dum
+             HSSQ((iat+nat_real-1)*3 + 2, (jat+nat_real-1)*3+2) = dum 
+             dum =(HSSQ((iat+nat_real-1)*3 + 1, (jat+nat_real-1)*3+2) +
+     $             HSSQ((iat+nat_real-1)*3 + 2, (jat+nat_real-1)*3+1))/2
+             dum = max(dum,0.05d0) ! at least some coupling
+             HSSQ((iat+nat_real-1)*3 + 1, (jat+nat_real-1)*3+2) = dum
+             HSSQ((iat+nat_real-1)*3 + 2, (jat+nat_real-1)*3+1) = dum
+           else if ((grp_num.ge.195).and.(grp_num.lt.231)) then
+!            Cubic
+!            All three lengths are the same
+             dum = 0
+             do i = 1, 3
+              dum=dum+HSSQ((iat+nat_real-1)*3+i,(jat+nat_real-1)*3+i)
+             enddo
+             dum = dum/3
+             do i = 1, 3
+              HSSQ((iat+nat_real-1)*3+i,(jat+nat_real-1)*3+i) = dum
+             enddo
+             dum = 0
+             do i = 1, 3
+              do j = 1, 3
+               if(i.ne.j)then
+                dum=dum+HSSQ((iat+nat_real-1)*3+i,(jat+nat_real-1)*3+j)
+               endif
+              enddo
+             enddo
+             dum = dum/6
+             dum = max(dum,0.05d0) ! at least some coupling
+             do i = 1, 3
+              do j = 1, 3
+               if(i.ne.j)then
+                HSSQ((iat+nat_real-1)*3+i,(jat+nat_real-1)*3+j) = dum
+               endif
+              enddo
+             enddo
+           endif
+      endif
+      return
+      end
 
       subroutine hnd_opt_hss_init_cart(HSSQ,odebug,isystype,geom,nvar)
 C
