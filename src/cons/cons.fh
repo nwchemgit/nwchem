@@ -31,6 +31,9 @@
        logical cons_print
        external cons_print
 
+       logical cons_hdihed
+       external cons_hdihed
+
        logical cons_hbonds
        external cons_hbonds
 

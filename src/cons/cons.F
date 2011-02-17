@@ -387,6 +387,14 @@ c     initialize harmonic bobds
       end if
 c
 c
+c     initialize dihedrals
+      if(cons_hdihed(namespace,rtdb)) then
+      ocons = .true.
+      call cons_set_hdihed_n(0)
+      call cons_load_hdihed(namespace,rtdb)
+      end if
+c
+
 c      call cons_process_old_style(namespace,rtdb)
       call cons_load_fixed_atoms(namespace,rtdb)
 
@@ -414,6 +422,7 @@ c
 c
       call cons_print_summary(rtdb)
       call cons_unload_hbonds()
+      call cons_unload_hdihed()
       call cons_unload_fixed_atoms(rtdb)
       return
       end
@@ -659,6 +668,7 @@ c
       call cons_load_geom(rtdb)
 c
       call cons_add_hbond_energy(rtdb,energy)
+      call cons_add_hdihed_energy(rtdb,energy)
 c
       call cons_unload_geom()
       return

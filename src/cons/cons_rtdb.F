@@ -825,6 +825,32 @@ c
       return
       end
 
+      function cons_hdihed(namespace,rtdb)
+      implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+c     
+      logical cons_hdihed
+      character*(*) namespace
+      integer rtdb
+c
+      integer nhb
+      character*255 tag_n
+
+      call cons_hdihed_n_tag(namespace,tag_n)
+
+      if(.not.rtdb_get(rtdb,tag_n,mt_int,1,nhb)) nhb=0
+     
+      if(nhb.eq.0) then
+        cons_hdihed=.false.
+      else
+        cons_hdihed=.true.
+      end if
+
+      return
+      end
+
       function cons_status(namespace,rtdb)
       implicit none
 #include "errquit.fh"

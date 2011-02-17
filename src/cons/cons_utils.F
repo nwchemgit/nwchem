@@ -319,13 +319,24 @@ c
       call cons_vdot(r32,r34,r63)
       call cons_ddot(r52,r52,s52)
       call cons_ddot(r63,r63,s63)
-      call cons_ddot(r52,r32,s5263)
+      call cons_ddot(r52,r63,s5263)
 
+      write(*,*) "r12=",(r12(k),k=1,3)
+      write(*,*) "r32=",(r32(k),k=1,3)
+      write(*,*) "r34=",(r34(k),k=1,3)
+      write(*,*) "r52=",(r52(k),k=1,3)
+      write(*,*) "r63=",(r63(k),k=1,3)
+
+      write(*,*) "s52=",s52
+      write(*,*) "s63=",s63
+      write(*,*) "s5263=",s5263
+      write(*,*) "phi0=",s5263/sqrt(s52*s63)
       phi0 = acos(s5263/sqrt(s52*s63))
 
-      call cons_ddot(r12,r63,s1263)
+c      call cons_ddot(r12,r63,s1263)
 
-      phi = sign(phi0,s1263)
+c      phi = sign(phi0,s1263)
+       phi = phi0
 
       end
 c      
@@ -386,7 +397,7 @@ c
 c
       r12(1) = r1(2)*r2(3)-r1(3)*r2(2)
       r12(2) = r1(3)*r2(1)-r1(1)*r2(3)
-      r12(3) = r1(1)*r2(2)-r1(1)*r2(2)
+      r12(3) = r1(1)*r2(2)-r1(2)*r2(1)
       end
 c
       subroutine cons_ddot(r1,r2,s)
@@ -397,9 +408,8 @@ c
       double precision r1(3),r2(3),s
 c
       integer k
-      s = 0.d0
+      s = 0.0d0
       do k=1,3
         s = s+r1(k)*r2(k)
       end do
-      s = sqrt(s)
       end

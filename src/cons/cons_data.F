@@ -172,8 +172,6 @@ c      cons_get_i_c = i_c
 
       end
 
-
-
       function cons_get_h_hdihed_id()
       implicit none
 #include "cons_data.fh"
@@ -262,7 +260,7 @@ c      cons_get_i_c = i_c
       return
       end
 
-      subroutine cons_set_hdihed_nhd(n)
+      subroutine cons_set_hdihed_n(n)
       implicit none
 #include "cons_data.fh"
       integer n
@@ -270,7 +268,7 @@ c      cons_get_i_c = i_c
       return
       end
 
-      subroutine cons_get_hdihed_nhd(n)
+      subroutine cons_get_hdihed_n(n)
       implicit none
 #include "cons_data.fh"
       integer n
