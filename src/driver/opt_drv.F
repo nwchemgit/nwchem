@@ -328,6 +328,7 @@ c
 c
       integer l_hess, k_hess, l_zmat, k_zmat, l_izmat, k_izmat, i, j, k
       integer l_c, k_c, l_t, k_t, iat, jat, kat, lat, l
+      integer l_shrhess, k_shrhess
       logical old_hessian
       character*16 atom_tags(mxatom)
 c
@@ -379,7 +380,24 @@ c
          if (nvar .eq. 3*natom) then
            call sym_hess_symmetrize(geom,dbl_mb(k_hess))
          else
-           ! TODO - Do both space group on atoms and lattice!
+           if (.not. ma_push_get(mt_dbl, (natom*3)**2, 'shrhess',
+     $        l_shrhess, k_shrhess)) call errquit
+     $        ('driver_init_hess: failed allocating shrunk hessian ',
+     $        (natom*3)**2, MA_ERR)
+           do i = 1, 3*natom
+             do j = 1, 3*natom
+               dbl_mb(k_shrhess+j-1 + (i-1)*(3*natom)) = 
+     $         dbl_mb(k_hess   +j-1 + (i-1)*(nvar    ))
+             end do
+           end do
+           call sym_hess_symmetrize(geom,dbl_mb(k_shrhess))
+           do i = 1, 3*natom
+             do j = 1, 3*natom
+               dbl_mb(k_hess   +j-1 + (i-1)*(nvar    )) =
+     $         dbl_mb(k_shrhess+j-1 + (i-1)*(3*natom))
+             end do
+           end do
+           ! TODO - Do both space group on lattice Hessian
          endif
       else
 c
@@ -3046,9 +3064,13 @@ c     2) symmetrize dx
 c     3) dq = dx*B
 c
       if (sym_number_ops(geom) .eq. 0) return
-      if (ostress) return       ! Yikes! TODO: copy to local NxN hessian and sym
-      if (ostress2) return       ! Yikes! TODO: also apply lattice symmetry
-c
+      if (ostress) then
+! TODO:apply lattice symmetry to geometry step
+      endif
+      if (ostress2) then
+! TODO:apply lattice symmetry to geometry step
+      endif
+! Thankfully, the code below can just ignore stress terms at end of ds
       if (.not. zcoord) then
         if (isystype.ne.0 .and. (.not. zcoord)) then
            if (.not. geom_frac_to_cart(geom, ds))
@@ -3518,7 +3540,7 @@ c
            do i = 1, 3
             do j = 1, 3
              if (i.ne.j) then
-               HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 0.1
+                HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 0.1
              else
                 HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 1.0 ! Angles are stiff
              endif
