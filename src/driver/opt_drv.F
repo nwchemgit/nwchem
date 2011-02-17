@@ -1657,9 +1657,19 @@ c
            if (j.gt.3) j=1
            dsmax = max(dsmax, abs(ds(i))*scaler(j))
         enddo
-        if (ostress .or. ostress2) then
+        if (ostress) then
            do i = top+1,nvar
-              dsmax = max(dsmax, abs(ds(i))*2) ! TODO: do something better
+              j = ((i-top)+2)/(3) ! 1,1,1,2,2,2,3,3,3
+              dsmax = max(dsmax, abs(ds(i)/scaler(j))*6)!5% max, if trust=.3
+           enddo
+        endif
+        if (ostress2) then
+           do i = top+1,top+3! Lengths
+              j=i-top
+              dsmax = max(dsmax, abs(ds(i)/scaler(j))*6)!5% max, if trust=.3
+           enddo
+           do i = top+4,nvar ! Angles
+              dsmax = max(dsmax, abs(ds(i))*3.43774d0)!5 degrees max if trust=.3
            enddo
         endif
       else
@@ -3623,6 +3633,13 @@ C
 C
 C     Inter-atom terms can mess up periodic systems.
 C     Scale non-periodic just because
+C     Should note that this type of matrix guess without scaling
+C       will have at least one zero eigenvalue, and in general should
+C       probably have 3 for translations and 3 for rotations (the rotations
+C       are not zero with periodic boundaries).  The use of xscale shifts
+C       the off-diagonal down, which removes the zeros.  Since we use
+C       an inverse Hessian update scheme, that might explain why this
+C       scaling is needed - the inverse of zero is not easy to calculate.
 C
       IF (isystype .ne. 0) then
         xscale = 0.1d0
