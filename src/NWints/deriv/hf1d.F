@@ -9,6 +9,8 @@ c $Id$
       Implicit real*8 (a-h,o-z)
       Implicit integer (i-n)
 
+#include "errquit.fh"
+
       Logical dryrun
       Logical O2I,KEI,NAI,canAB,GenCon
 
@@ -72,8 +74,9 @@ c Determine whether general or segmented contraction is used.
       GenCon = NCP.ne.1
 
       if( GenCon )then
-       write(*,*) 'HF1D: Not yet ready for general contraction.'
-       stop
+        write(*,*) 'HF1D: Not yet ready for general contraction.'
+        call errquit('HF1D: Not yet ready for general contraction.',
+     &               0,UERR)
       end if
 
 c To determine all the Hermite expansion coefficients required to evaluate
@@ -120,7 +123,8 @@ c Assign pointers to scratch space.
        write(*,*) 'From the right '
        write(*,*) 'ESp   :  ',i_ESp
  
-       stop
+       call errquit('HF1D:  Insufficient scratch space.',i_right-i_left,
+     &              UERR)
  
       end if
  
@@ -158,7 +162,8 @@ c Assign pointers to scratch space.
        write(*,*) 'From the left '
        write(*,*) 'ESp   :  ',i_ESp
 
-       stop
+       call errquit('HF1D:  Insufficient scratch space.',i_right-i_left,
+     &              UERR)
 
       end if
 
@@ -214,7 +219,8 @@ c Assign pointers to scratch space.
         write(*,*) 'Ep    :  ',i_Ep
         write(*,*) 'Ti    :  ',i_Ti
 
-        stop
+        call errquit('HF1D:  Insufficient scratch space.',maxW0-i_top,
+     &               UERR)
 
        end if
 
@@ -271,7 +277,8 @@ c Assign scratch space.
         write(*,*) 'ff    :  ',i_ff
         write(*,*) 'Rj    :  ',i_Rj
 
-        stop
+        call errquit('HF1D:  Insufficient scratch space.',maxW0-i_top,
+     &               UERR)
 
        end if
 
@@ -319,7 +326,8 @@ c Assign scratch space.
         write(*,*) 'VB    :  ',i_VB
         write(*,*) 'ff    :  ',i_ff
 
-        stop
+        call errquit('HF1D:  Insufficient scratch space.',maxW0-i_top,
+     &               UERR)
 
        end if
 
