@@ -317,13 +317,13 @@ c
       
       call cons_vdot(r12,r32,r52)
       call cons_vdot(r32,r34,r63)
-      call cons_norm(r52,r52,s52)
-      call cons_norm(r63,r63,s63)
-      call cons_norm(r52,r32,s5263)
+c      call cons_norm(r52,r52,s52)
+c      call cons_norm(r63,r63,s63)
+c      call cons_norm(r52,r32,s5263)
 
       phi0 = acos(s5263/sqrt(s52*s63))
 
-      call cons_norm(r12,r63,s1263)
+c      call cons_norm(r12,r63,s1263)
 
       phi = sign(phi0,s1263)
 
@@ -353,11 +353,11 @@ c
       call cons_vdot(r12,r32,r52)
       call cons_vdot(r32,r34,r63)
 
-      call cons_norm(r32,r32,s32)
-      call cons_norm(r52,r52,s52)
-      call cons_norm(r63,r63,s63)
-      call cons_norm(r12,r32,s1232)
-      call cons_norm(r34,r32,s3432)
+c      call cons_norm(r32,r32,s32)
+c      call cons_norm(r52,r52,s52)
+c      call cons_norm(r63,r63,s63)
+c      call cons_norm(r12,r32,s1232)
+c      call cons_norm(r34,r32,s3432)
      
       a1=sqrt(s32)/s52
       a2=sqrt(s32)/s63
