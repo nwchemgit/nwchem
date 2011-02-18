@@ -295,20 +295,25 @@ c
 
       end
 c
-      subroutine cons_dihed(r1,r2,r3,r4,phi)
+      subroutine cons_dihed(r1,r2,r3,r4,phi,mode)
       implicit none
 #include "util.fh"
 #include "inp.fh"
+#include "cons_params.fh"
 
       double precision r1(3),r2(3),r3(3),r4(3)
       double precision phi
+      character*(*) mode
 c
       double precision r12(3),r32(3),r34(3)
       double precision r52(3),r63(3)
       double precision s52,s63,s1263,s5263
       integer k
       double precision phi0
+      character*30 pname
 c    
+      pname = "cons_dihed"
+c
       do k=1,3
        r12(k)=r1(k)-r2(k)
        r32(k)=r3(k)-r2(k)
@@ -321,39 +326,43 @@ c
       call cons_ddot(r63,r63,s63)
       call cons_ddot(r52,r63,s5263)
 
-      write(*,*) "r12=",(r12(k),k=1,3)
-      write(*,*) "r32=",(r32(k),k=1,3)
-      write(*,*) "r34=",(r34(k),k=1,3)
-      write(*,*) "r52=",(r52(k),k=1,3)
-      write(*,*) "r63=",(r63(k),k=1,3)
-
-      write(*,*) "s52=",s52
-      write(*,*) "s63=",s63
-      write(*,*) "s5263=",s5263
-      write(*,*) "phi0=",s5263/sqrt(s52*s63)
       phi0 = acos(s5263/sqrt(s52*s63))
 
       call cons_ddot(r12,r63,s1263)
 
       phi = sign(phi0,s1263)
 
+      if(mode.eq."rads") then
+        return
+      else if(mode.eq."degrees") then
+        phi = phi*rad_to_deg
+      else
+        call errquit(pname//": unknown units",0,0)
+      end if
       end
 c      
-      subroutine cons_dihed_deriv(r1,r2,r3,r4,d1,d2,d3,d4)
+      subroutine cons_dihed_deriv(r1,r2,r3,r4,d1,d2,d3,d4,mode)
       implicit none
 #include "util.fh"
 #include "inp.fh"
+#include "cons_params.fh"
+#include "errquit.fh"
 
       double precision r1(3),r2(3),r3(3),r4(3)
       double precision d1(3),d2(3),d3(3),d4(3)
+      character*(*) mode
 c
       double precision r12(3),r32(3),r34(3)
       double precision r52(3),r63(3)
       double precision s32,s52,s63,s1232,s3432
+      double precision s1263
       integer k
       double precision a1,a2,a3,a4
       double precision a31,a42,a31_1,a42_2
+      character*30 pname
+      double precision scale
 c    
+      pname = "cons_dihed_deriv"
       do k=1,3
        r12(k)=r1(k)-r2(k)
        r32(k)=r3(k)-r2(k)
@@ -377,6 +386,10 @@ c
       a31_1 = a31-a1
       a42 = a4*a2
       a42_2 = a42-a2
+       
+      call cons_ddot(r12,r63,s1263)
+      scale = 1.0d0
+      scale = sign(scale,s1263)
 
       do k=1,3
         d1(k)= a1*r52(k)
@@ -385,6 +398,25 @@ c
         d4(k)=-a2*r63(k)
       end do
 
+c      do k=1,3
+c        d1(k)=scale*d1(k)
+c        d2(k)=scale*d2(k)
+c        d3(k)=scale*d3(k)
+c        d4(k)=scale*d4(k)
+c      end do
+ 
+      if(mode.eq."rads") return
+
+      if(mode.eq."degrees") then
+      do k=1,3
+        d1(k)=rad_to_deg*d1(k)
+        d2(k)=rad_to_deg*d2(k)
+        d3(k)=rad_to_deg*d3(k)
+        d4(k)=rad_to_deg*d4(k)
+      end do
+      else
+        call errquit(pname//" :unknown units",0,0)
+      end if
       end
 c      
       subroutine cons_vdot(r1,r2,r12)

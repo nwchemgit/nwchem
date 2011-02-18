@@ -47,7 +47,6 @@ c     ------------------------------------
        end if
       end if 
       
-      write(*,*) " in cons_inputi cons_active is ",cons_active(rtdb)
  100  if (.not. inp_read()) 
      >      call errquit('cons_input: inp_read failed',0,0)
 c
@@ -159,10 +158,8 @@ c
      &    'cons_input_springs: unable to free h_tmp_id',
      &    0, MA_ERR)
         
-      write(*,*) " in cons_inputi cons_active is ",cons_active(rtdb)
       call cons_info_fixed_atoms(namespace,rtdb)
       call cons_info_springs(namespace,rtdb)
-      write(*,*) " in cons_inputi cons_active is ",cons_active(rtdb)
       return
       end
 c
@@ -173,6 +170,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include"cons_params.fh"
 c     
       logical cons_harm_dihed_input
       integer id(4)
@@ -196,7 +194,7 @@ c
       sk=ftest
       if(.not.inp_f(ftest))
      & call errquit(pname//': not a real field',0,0)
-      sr=ftest
+      sr=ftest*deg_to_rad
       
 c     do some checks
       do k=1,4

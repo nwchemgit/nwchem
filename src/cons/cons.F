@@ -693,7 +693,6 @@ c
         osim = .false.
       end if
       if(osim) energy = 0.0d0
-      write(*,*) "energy before cons",energy
 c
       if(obonds)  
      >   call cons_add_hbond_energy(rtdb,energy)
@@ -701,7 +700,6 @@ c
      >   call cons_add_hdihed_energy(rtdb,energy)
 c
       call cons_unload_geom()
-      write(*,*) "energy after cons",energy
       return
       end
 c

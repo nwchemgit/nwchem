@@ -14,3 +14,8 @@
       character*(*) cons_default
       parameter(cons_default="default")
 
+      double precision rad_to_deg
+      parameter(rad_to_deg=57.2957795d0)
+
+      double precision deg_to_rad
+      parameter(deg_to_rad=0.0174532925d0)

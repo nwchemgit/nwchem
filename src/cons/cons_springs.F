@@ -199,6 +199,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "cons.fh"
+#include "cons_params.fh"
 c     
       integer rtdb
       double precision energy
@@ -230,7 +231,10 @@ c
       i_k  = cons_get_i_hdihed_k()
       i_r  = cons_get_i_hdihed_r()
 
-      e=0.0d0
+      if(oprint) then  
+        write(6,*)"Processing dihedral constraints"
+        write(6,1004)
+      end if
       do inb=1,nc
        iat=int_mb(i_id+idm*(inb-1))
        jat=int_mb(i_id+idm*(inb-1)+1)
@@ -251,17 +255,18 @@ c
      >         f3,
      >         f4)
 
-c       if(oprint) then
-        write(6,*)"adding dihedral# ",inb
-        write(6,*)" dihedral parameters (i,j,k,l,K,r0):",
-     >         iat,jat,kat,lat,k,r0
-        write(6,*)"  dihedral angle and energy    :",r,enb
-        write(6,*)"dihedral forces:"
-        write(6,*) "f1:",(f1(i),i=1,3)
-        write(6,*) "f2:",(f2(i),i=1,3)
-        write(6,*) "f3:",(f3(i),i=1,3)
-        write(6,*) "f4:",(f4(i),i=1,3)
-c       end if
+       if(oprint) then
+        write(6,1005) iat,jat,kat,lat,k,
+     >                 r0*rad_to_deg,r*rad_to_deg,
+     >                 enb,f1(1),f2(1),f3(1),f4(1)
+        write(6,1006) f1(2),f2(2),f3(2),f4(2)
+        write(6,1006) f1(3),f2(3),f3(3),f4(3)
+c        write(6,1002) "dihedral forces (i,j,k,l):"
+c        write(6,1001) "f_i", iat,(f1(i),i=1,3)
+c        write(6,1001) "f_j", jat,(f2(i),i=1,3)
+c        write(6,1001) "f_k", kat,(f3(i),i=1,3)
+c        write(6,1001) "f_l", lat,(f4(i),i=1,3)
+       end if
         do i=1,3
           gx((iat-1)*3+i)=gx((iat-1)*3+i)+f1(i)
           gx((jat-1)*3+i)=gx((jat-1)*3+i)+f2(i)
@@ -271,10 +276,14 @@ c       end if
         energy = energy + enb
       end do
 c
-      do i=1,15
-       write(*,*) "gx=",gx(i)
-      end do
       call util_print_pop()
+1002    FORMAT(1X,A,/,T6,"atom",T13,"fx",T24,"fy",T35,"fz")
+1001    FORMAT(1X,A,1X,I4,3(1X,F10.6))
+1004   FORMAT(T5,"i",4X,"j",4X,"k",4X,"l",T23,"Kphi",T31,"phi0",
+     > T39,"phi",T47,"Energy",T55,"f1",T62,"f2",T69"f3",T76,"f4",/,
+     > T5,76("_"))
+1005   FORMAT( 4(1X,I4),3(1X,F7.3),1X,5(F7.3))
+1006   FORMAT( T53,4F7.3)
       return
       end
 c      
@@ -286,6 +295,7 @@ c
 #include "rtdb.fh"
 #include "util.fh"
 #include "cons.fh"
+#include "cons_params.fh"
 c     
       integer rtdb
       double precision energy
@@ -313,7 +323,10 @@ c
       i_k  = cons_get_i_hdihed_k()
       i_r  = cons_get_i_hdihed_r()
 
-      e=0.0d0
+      if(oprint) then  
+        write(6,*)"Processing dihedral constraints"
+        write(6,1004)
+      end if
       do inb=1,nc
        iat=int_mb(i_id+idm*(inb-1))
        jat=int_mb(i_id+idm*(inb-1)+1)
@@ -331,22 +344,20 @@ c
      >         enb)
 
        if(oprint) then
-        write(6,*)"adding dihedral# ",inb
-        write(6,*)" dihedral parameters (i,j,k,l,K,r0):",
-     >         iat,jat,kat,lat,k,r0
-        write(6,*)"  dihedral anlge and energy    :",r,enb
+         write(6,1005) iat,jat,kat,lat,k,
+     >                 r0*rad_to_deg,r*rad_to_deg,
+     >                 enb
        end if
-       e=e+enb
+
+       energy=energy+enb
       end do
-      if(rtdb_get(rtdb, 'cons:simulate', mt_log, 1, status)) then
-        write(*,*) "cons energy simulation"
-        energy=e
-      else 
-        energy = energy + e
-      end if
 c
       call util_print_pop()
       return
+1004  FORMAT(T5,"i",4X,"j",4X,"k",4X,"l",T23,"Kphi",T31,"phi0",
+     >        T39,"phi",T47,"Energy",/,
+     >        T5,49("_"))
+1005  FORMAT( 4(1X,I4),3(1X,F7.3),1X,G12.6)
       end
 c
       subroutine cons_add_hbond_egrad(rtdb,energy,gx)
@@ -501,10 +512,8 @@ c
 c
 c     calculate dihedral angle
 c     ------------------------
-      call cons_dihed(r1,r2,r3,r4,phi)
-      write(*,*) "dihedral angle is : ",57.2957795*phi
+      call cons_dihed(r1,r2,r3,r4,phi,"rads")
       energy = 0.5d0*k*(phi-phi0)**2
-      write(*,*) "dihedral energy is : ",energy
       return
       end
 
@@ -534,11 +543,9 @@ c
 c
 c     calculate dihedral angle
 c     ------------------------
-      call cons_dihed(r1,r2,r3,r4,phi)
-      write(*,*) "dihedral angle is : ",57.2957795*phi
+      call cons_dihed(r1,r2,r3,r4,phi,"rads")
       energy = 0.5d0*k*(phi-phi0)**2
-      write(*,*) "dihedral energy is : ",energy
-      call cons_dihed_deriv(r1,r2,r3,r4,f1,f2,f3,f4)
+      call cons_dihed_deriv(r1,r2,r3,r4,f1,f2,f3,f4,"rads")
       a = k*(phi-phi0)
       do i=1,3
         f1(i) = f1(i)*a
