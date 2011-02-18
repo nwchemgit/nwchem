@@ -1438,15 +1438,15 @@ c     ---- No Lattice-Atom cross-terms allowed ----
 c
       if (isystype .ne. 0 .and. (ostress .or. ostress2)) then
          if(ostress) then
-           do i=1,nvar-3
-             do j=nvar-2,nvar
+           do i=1,nvar-9
+             do j=nvar-8,nvar
                dbl_mb(ind(i,j))=0.0d0
                dbl_mb(ind(j,i))=0.0d0
              end do
            end do
          else if (ostress2) then
-           do i=1,nvar-2
-             do j=nvar-1,nvar
+           do i=1,nvar-6
+             do j=nvar-5,nvar
                dbl_mb(ind(i,j))=0.0d0
                dbl_mb(ind(j,i))=0.0d0
              end do
@@ -1678,6 +1678,7 @@ c
            do i = top+1,nvar
               j = ((i-top)+2)/(3) ! 1,1,1,2,2,2,3,3,3
               dsmax = max(dsmax, abs(ds(i)/scaler(j))*6)!5% max, if trust=.3
+              dsmax = max(dsmax, abs(ds(i)))
            enddo
         endif
         if (ostress2) then
@@ -3064,10 +3065,10 @@ c     3) dq = dx*B
 c
       if (sym_number_ops(geom) .eq. 0) return
       if (ostress) then
-! TODO:apply lattice symmetry to geometry step
+        call sym_lattice_stress(geom,ds(nvar-8))
       endif
       if (ostress2) then
-! TODO:apply lattice symmetry to geometry step
+        call sym_lattice_stress2(geom,ds(nvar-5))
       endif
 ! Thankfully, the code below can just ignore stress terms at end of ds
       if (.not. zcoord) then
@@ -3871,4 +3872,181 @@ C     Add some to diagonal for stability, just in case of lone floating atom
          CALL HND_PRSQ(HSSQ,NVAR,NVAR,NVAR)
       ENDIF
       END
+
+!************************************************************************
+
+      subroutine sym_lattice_stress2(geom,lstress)
+      implicit none
+!     include files
+!     calling args
+      integer geom
+      double precision lstress(0:5)
+!     local variables
+      integer i
+      integer grp_num
+      integer crystal
+      double precision lstress_sym(0:5)
+      integer Triclinic,Monoclinic,Orthorhombic
+      integer Tetragonal,Trigonal,Hexagonal,Cubic
+      parameter (Triclinic=1,Monoclinic=2,Orthorhombic=3)
+      parameter (Tetragonal=4,Trigonal=5,Hexagonal=6,Cubic=7)
+!     Called functions
+      integer geom_get_group_number
+      external geom_get_group_number
+!
+      grp_num=geom_get_group_number(geom)
+
+      if (grp_num.lt.3)                         crystal = Triclinic
+      if ((grp_num.ge.3  ).and.(grp_num.lt.16 ))crystal = Monoclinic
+      if ((grp_num.ge.16 ).and.(grp_num.lt.75 ))crystal = Orthorhombic
+      if ((grp_num.ge.75 ).and.(grp_num.lt.143))crystal = Tetragonal
+      if ((grp_num.ge.143).and.(grp_num.lt.168))crystal = Trigonal
+      if ((grp_num.ge.168).and.(grp_num.lt.195))crystal = Hexagonal
+      if ((grp_num.ge.195).and.(grp_num.lt.231))crystal = Cubic
+      if (crystal.eq.Triclinic) then
+        lstress_sym(0) = lstress(0)
+        lstress_sym(1) = lstress(1) 
+        lstress_sym(2) = lstress(2)
+        lstress_sym(3) = lstress(3)
+        lstress_sym(4) = lstress(4)
+        lstress_sym(5) = lstress(5)
+      else if (crystal.eq.Monoclinic) then
+        lstress_sym(0) = lstress(0)
+        lstress_sym(1) = lstress(1)
+        lstress_sym(2) = lstress(2)
+        lstress_sym(3) = 0.0D0
+        lstress_sym(4) = lstress(4)
+        lstress_sym(5) = 0.0D0
+      else if (crystal.eq.Orthorhombic) then
+        lstress_sym(0) = lstress(0)
+        lstress_sym(1) = lstress(1)
+        lstress_sym(2) = lstress(2)
+        lstress_sym(3) = 0.0D0
+        lstress_sym(4) = 0.0D0
+        lstress_sym(5) = 0.0D0
+      else if (crystal.eq.Tetragonal) then
+        lstress_sym(0) = (lstress(0)+lstress(1))/2.0D0
+        lstress_sym(1) = (lstress(0)+lstress(1))/2.0D0
+        lstress_sym(2) = lstress(2)
+        lstress_sym(3) = 0.0D0
+        lstress_sym(4) = 0.0D0
+        lstress_sym(5) = 0.0D0
+      else if (crystal.eq.Trigonal) then
+        lstress_sym(0) = (lstress(0)+lstress(1))/2.0D0
+        lstress_sym(1) = (lstress(0)+lstress(1))/2.0D0
+        lstress_sym(2) = lstress(2)
+        lstress_sym(3) = 0.0D0
+        lstress_sym(4) = 0.0D0
+        lstress_sym(5) = 0.0D0
+      else if (crystal.eq.Hexagonal) then
+        lstress_sym(0) = (lstress(0)+lstress(1))/2.0D0
+        lstress_sym(1) = (lstress(0)+lstress(1))/2.0D0
+        lstress_sym(2) = lstress(2)
+        lstress_sym(3) = 0.0D0
+        lstress_sym(4) = 0.0D0
+        lstress_sym(5) = 0.0D0
+      else if (crystal.eq.Cubic) then
+        lstress_sym(0) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
+        lstress_sym(1) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
+        lstress_sym(2) = (lstress(0)+lstress(1)+lstress(2))/3.0D0
+        lstress_sym(3) = 0.0D0
+        lstress_sym(4) = 0.0D0
+        lstress_sym(5) = 0.0D0
+      endif
+      do i = 0, 5
+        lstress(i) = lstress_sym(i)
+      end do
+      return
+      end
+
+!************************************************************************
+
+      subroutine sym_lattice_stress(geom,astress)
+      implicit none
+!     include files
+!     calling args
+      integer geom
+      double precision astress(3,3)
+!     local variables
+      integer i, j
+      double precision lstress(6),lattnew(6),lattold(6)
+      double precision amat_old(3,3),amat_new(3,3)
+      integer Triclinic,Monoclinic,Orthorhombic
+      integer Tetragonal,Trigonal,Hexagonal,Cubic
+      parameter (Triclinic=1,Monoclinic=2,Orthorhombic=3)
+      parameter (Tetragonal=4,Trigonal=5,Hexagonal=6,Cubic=7)
+      integer grp_num, crystal
+      double precision dum
+!     Called functions 
+      integer geom_get_group_number
+      external geom_get_group_number
+      logical geom_amatrix_get, geom_lattice_get
+      external geom_amatrix_get, geom_lattice_get
+!       
+      grp_num=geom_get_group_number(geom)
+!        
+      if (grp_num.lt.3)                         crystal = Triclinic
+      if ((grp_num.ge.3  ).and.(grp_num.lt.16 ))crystal = Monoclinic
+      if ((grp_num.ge.16 ).and.(grp_num.lt.75 ))crystal = Orthorhombic
+      if ((grp_num.ge.75 ).and.(grp_num.lt.143))crystal = Tetragonal
+      if ((grp_num.ge.143).and.(grp_num.lt.168))crystal = Trigonal
+      if ((grp_num.ge.168).and.(grp_num.lt.195))crystal = Hexagonal
+      if ((grp_num.ge.195).and.(grp_num.lt.231))crystal = Cubic
+
+      if (crystal .eq. Triclinic) return
+! Get old amatrix
+      if (.not. geom_amatrix_get(geom, amat_old))
+     $        call errquit('driver: failed to get amatrix',0,0)
+! Get old lattice
+      if (.not. geom_lattice_get(geom, lattold))
+     $     call errquit('driver: failed to get lattice',0,0)
+! Generate proposed amatrix
+      do i = 1, 3
+       do j = 1, 3
+         amat_new(j,i) = amat_old(j,i) + astress(j,i)
+       enddo
+      enddo
+! Generate proposed lattice vectors
+      call xlattice_abc_abg(lattnew(1),lattnew(2),lattnew(3),lattnew(4),
+     &              lattnew(5),lattnew(6),amat_new)
+! Generate proposed lattice stress
+      do i = 1, 6
+        lstress(i) = lattnew(i) - lattold(i)
+      enddo
+! Symmetrize lattice stress
+      call sym_lattice_stress2(geom,lstress)
+! Generate new lattice vectors
+      do i = 1, 6
+        lattnew(i) = lattold(i) + lstress(i)
+      enddo
+! Generate symmetrized proposed amatrix
+!   Apply lengths
+      do i = 1, 3
+        dum = lattnew(i)/lattold(i)
+        do j = 1, 3
+          amat_new(j,i) = amat_old(j,i) * dum
+          if (abs(amat_new(j,i)-amat_old(j,i)).lt. 1.0d-10)
+     &                             amat_new(j,i)=amat_old(j,i)
+        end do
+      end do
+
+!   Apply Angles - Only Monoclinic has both variable angles and Symmetry
+!     It also only has one angle with non-zero stress (others fixed at 90 deg)
+!     Note that groups with no lattice symmetry bailed earlier
+      if (crystal.eq.Monoclinic) then
+        amat_new(1,3) = lattnew(3)*dcos(lattnew(5))
+        amat_new(2,3) = 0.0d0
+        amat_new(3,3) = lattnew(3)*dsin(lattnew(5))
+      endif
+
+! Generate symmetrized amatrix stress
+      do i = 1, 3
+       do j = 1, 3
+         astress(j,i) = amat_new(j,i) - amat_old(j,i)
+         if (abs(astress(j,i)) .lt. 1.0d-10) astress(j,i)=0.0d0
+       enddo
+      enddo
+!
+      return
+      end
 
