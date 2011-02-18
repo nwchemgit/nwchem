@@ -46,6 +46,8 @@
          fiao_b1_movecs.o \
          aoresponse_giao_rhs.o \
          CalcPerturbedTDPmat1.o \
+         localization_driver.o \
+         hnd_vec_write.o \
          ao_1prdm_read.o \
 	 task_raman.o \
 	 raman_input.o \

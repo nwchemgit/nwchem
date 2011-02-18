@@ -40,6 +40,7 @@ c
       integer spindensitymap
       integer stoneanalysis
       integer boyslocalization
+      integer pmlocalization
       integer hyperfine
       integer spinspin, spnspnpairs
       integer giao, giaoatoms
@@ -90,6 +91,7 @@ c
       spindensitymap    = 1
       stoneanalysis     = 1
       boyslocalization  = 1
+      pmlocalization    = 1 
       hyperfine         = 1
       spinspin          = 1
       giao              = 1
@@ -244,7 +246,9 @@ c  ... jochen: parse input for response/aoresponse key
 c ... jochen end
       elseif ( inp_compare(.false., 'boyslocalization', test)) then
          boyslocalization = 0
-         boyslocalization = 1
+c         boyslocalization = 1
+      elseif ( inp_compare(.false., 'pmlocalization', test)) then
+         pmlocalization = 0
       elseif ( inp_compare(.false., 'stoneanalysis', test)) then
          stoneanalysis  = 0
          stoneanalysis  = 1
@@ -333,7 +337,8 @@ c     what NBO options will appear
          giao   = 0
          gshift = 0
          boyslocalization = 0
-         boyslocalization = 1
+c         boyslocalization = 1
+         pmlocalization = 0
          stoneanalysis  = 0
          stoneanalysis  = 1
          spindensitymap = 0
@@ -462,9 +467,15 @@ c ... Fredy: also write EFG option key to RTDB:
       if (.not. rtdb_put(rtdb, 'prop:stoneanalysis', mt_int, 1,
      $                               stoneanalysis     ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c
       if (.not. rtdb_put(rtdb, 'prop:boyslocalization', mt_int, 1,
      $                               boyslocalization  ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c
+      if (.not. rtdb_put(rtdb, 'prop:pmlocalization', mt_int, 1,
+     $                               pmlocalization  ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+c
       if (.not. rtdb_put(rtdb, 'prop:hyperfine', mt_int, 1,
      $                               hyperfine         ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)

@@ -20,12 +20,13 @@ c ... jochen: added some response stuff here
       logical     out 
       integer     iopt
 c     Modified by Fredy Aquino to Add EFG-ZORA4,G-shifts-ZORA
-       data nodip,noqdp,nootp,nopop,nospin,noloc,nodpl,nodhp,nod2hp,
+       data nodip,noqdp,nootp,nopop,nospin,nodpl,nodhp,nod2hp,
      1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noelfgZ4,noden,
-     2     nogiao,nogshift,noston,nospinspin, noaoresponse
-     3    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
-     4       1,    1,    1,    1,    1,    1,    1,    1, 
-     5       1,    1,    1,    1,    1,    1/
+     2     nogiao,nogshift,noston,nospinspin,noaoresponse,noboysloc,
+     3     nopmloc
+     4    /  1,    1,    1,    1,    1,    1,    1,    1,    1,
+     5       1,    1,    1,    1,    1,    1,    1,    1, 
+     6       1,    1,    1,    1,    1,    1,    1 /
 c
       out   =.false.
       some  =.true.        
@@ -37,7 +38,8 @@ c
       status=rtdb_get(rtdb,'prop:octupole',MT_INT,1,nootp)          !done
       status=rtdb_get(rtdb,'prop:mulliken',MT_INT,1,nopop)          !done
       status=rtdb_get(rtdb,'prop:hyperfine',MT_INT,1,nospin)        !done
-      status=rtdb_get(rtdb,'prop:boyslocalization',MT_INT,1,noloc)
+      status=rtdb_get(rtdb,'prop:boyslocalization',MT_INT,1,nobloc)
+      status=rtdb_get(rtdb,'prop:pmlocalization',MT_INT,1,nopmloc)
       status=rtdb_get(rtdb,'prop:esp',MT_INT,1,noelp)               !done
       status=rtdb_get(rtdb,'prop:efield',MT_INT,1,noelf)            !done
       status=rtdb_get(rtdb,'prop:efieldgrad',MT_INT,1,noelfg)       !done
@@ -53,6 +55,18 @@ c
       if(nodhp.eq.0.or.nod2hp.eq.0) nodpl=0
       if(nofhp.eq.0.or.nof2hp.eq.0) nofpl=0
       if(nospinspin.eq.0) call hnd_spinspin(rtdb,basis,geom)
+
+c     ----- orbital localization ----
+
+      if (nopmloc.eq.0) then
+c       Pipek-Mezey localization
+        call localization_driver(rtdb, basis, geom, 1)
+      end if
+      if (noboysloc.eq.0) then
+c       Boys localization
+        call localization_driver(rtdb, basis, geom, 2)
+      end if
+      
 
 c     ----- aoresponse: frequency dependent response -----
 c

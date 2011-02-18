@@ -68,7 +68,7 @@ c
 
       call ga_zero(g_vecB1) ! initialize array for main result
 
-      debug = .false. .and. (ga_nodeid().eq.0) ! special debugging
+      debug = .true. .and. (ga_nodeid().eq.0) ! special debugging
 c
 c     Current CPHF does not handle symmetry 
 c     Making C1 geometry and store it on rtdb
@@ -403,7 +403,9 @@ c
          if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
      $      call errquit('giao_b1: rtdb_put failed',0,RTDB_ERR)
       endif
+      if (debug) write (luout,*) 'calling new_giao_2e'
       call new_giao_2e(geom, basis, nbf, tol2e, g_dens, g_fock, xfac)
+      if (debug) write (luout,*) 'done new_giao_2e'
       if(use_theory.eq.'dft') then
          ifld = 0
          if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, ifld))
