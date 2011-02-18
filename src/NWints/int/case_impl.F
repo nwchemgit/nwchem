@@ -1,6 +1,11 @@
 c===============================================================================================
 ccase...Coulomb attenuation utilities
 c===============================================================================================
+c     need to initialize doscreen since case_setflags might not be called
+      block data case_data
+#include "case.fh"
+      data doscreen /.false./
+      end
 c
       subroutine case_setflags(screenflag)
 
