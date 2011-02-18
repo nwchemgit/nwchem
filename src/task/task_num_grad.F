@@ -13,6 +13,9 @@
       external task_energy, num_grad
       character*128 ename, gname
       character*32 theory
+      logical ocons
+      logical cons_active
+      external cons_active
 c
 c check for analytic user input 
 c
@@ -23,6 +26,8 @@ c
      &       RTDB_ERR)
          endif
       endif
+      
+      ocons = cons_active(rtdb)
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('num_grad: theory missing?',0, RTDB_ERR)
@@ -58,6 +63,9 @@ c     Construct the names for the energy and gradietn RTDB entries
 c
       write(ename,'(a,'':energy'')') theory(1:inp_strlen(theory))
       write(gname,'(a,'':gradient'')') theory(1:inp_strlen(theory))
+      if(ocons) then
+        ename ="task:energy"
+      end if
 C
       task_num_grad = num_grad(rtdb, task_energy,
      $   ename(1:inp_strlen(ename)), gname(1:inp_strlen(gname)),

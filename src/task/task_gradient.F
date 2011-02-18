@@ -122,7 +122,7 @@ c
 c      if(.not.rtdb_get(rtdb, 'cons:active',mt_log, 1, ocons)) then
 c        ocons = .false.
 c      end if
-      if(ocons)  call cons_add_egrad(rtdb,energy,gradient)
+      if(ocons)  call cons_add_egrad(rtdb,energy,nelem,gradient)
 c
       if (status) then
          call geom_print_rtdb_ecce(rtdb)

@@ -192,6 +192,7 @@ c        end if
 c      endif
 c
       ocons = cons_active(rtdb)
+      write(*,*) "ocons=",ocons
       if(ocons) call cons_init(rtdb)
 c
       if(task_bq) then
