@@ -216,7 +216,7 @@ c
       integer nc
       integer idm
       integer i
-c
+c      
       idm = 4
 c
       call util_print_push()
@@ -255,34 +255,25 @@ c       if(oprint) then
         write(6,*)"adding dihedral# ",inb
         write(6,*)" dihedral parameters (i,j,k,l,K,r0):",
      >         iat,jat,kat,lat,k,r0
-        write(6,*)"  dihedral anlge and energy    :",r,enb
+        write(6,*)"  dihedral angle and energy    :",r,enb
         write(6,*)"dihedral forces:"
         write(6,*) "f1:",(f1(i),i=1,3)
         write(6,*) "f2:",(f2(i),i=1,3)
         write(6,*) "f3:",(f3(i),i=1,3)
         write(6,*) "f4:",(f4(i),i=1,3)
 c       end if
-       e=e+enb
-      end do
-      if(rtdb_get(rtdb, 'cons:simulate', mt_log, 1, status)) then
-        write(*,*) "cons energy simulation"
-        do i=1,3
-          gx((iat-1)*3+i)=f1(i)
-          gx((jat-1)*3+i)=f2(i)
-          gx((kat-1)*3+i)=f3(i)
-          gx((lat-1)*3+i)=f4(i)
-        end do
-        energy=e
-      else 
         do i=1,3
           gx((iat-1)*3+i)=gx((iat-1)*3+i)+f1(i)
           gx((jat-1)*3+i)=gx((jat-1)*3+i)+f2(i)
           gx((kat-1)*3+i)=gx((kat-1)*3+i)+f3(i)
           gx((lat-1)*3+i)=gx((lat-1)*3+i)+f4(i)
         end do
-         energy = energy + e
-      end if
+        energy = energy + enb
+      end do
 c
+      do i=1,15
+       write(*,*) "gx=",gx(i)
+      end do
       call util_print_pop()
       return
       end

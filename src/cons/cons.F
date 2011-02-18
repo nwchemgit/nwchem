@@ -622,7 +622,7 @@ c
 
       end
 c
-      subroutine cons_add_egrad(rtdb,energy,gx)
+      subroutine cons_add_egrad(rtdb,energy,n,gx)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -633,9 +633,11 @@ c
 c     
       integer rtdb
       double precision energy
-      double precision gx(*)
+      integer n
+      double precision gx(n)
       character*255 namespace
       logical obonds,odihedrals,ocons
+      logical osim
 c
       call cons_get_namespace(namespace,rtdb)
       if(.not.cons_status(namespace,rtdb)) return
@@ -645,6 +647,15 @@ c
       if(.not.ocons) return
 c
       call cons_load_geom(rtdb)
+c      
+      if(.not.rtdb_get(rtdb, 'cons:simulate', mt_log, 1, osim)) then
+        osim = .false.
+      end if
+c
+      if(osim) then
+        call dfill(0.0d0,gx,1,n)
+        energy = 0.0d0
+      end if
 c
       if(obonds)  
      >    call cons_add_hbond_egrad(rtdb,energy,gx)
@@ -667,17 +678,30 @@ c
       integer rtdb
       double precision energy
       character*255 namespace
+      logical obonds,odihedrals,ocons
+      logical osim
 c
       call cons_get_namespace(namespace,rtdb)
       if(.not.cons_status(namespace,rtdb)) return
-      if(.not.cons_hbonds(namespace,rtdb)) return
+      obonds = cons_hbonds(namespace,rtdb)
+      odihedrals = cons_hdihed(namespace,rtdb)
+      ocons = obonds.or.odihedrals
+      if(.not.ocons) return
 c
       call cons_load_geom(rtdb)
+      if(.not.rtdb_get(rtdb, 'cons:simulate', mt_log, 1, osim)) then
+        osim = .false.
+      end if
+      if(osim) energy = 0.0d0
+      write(*,*) "energy before cons",energy
 c
-      call cons_add_hbond_energy(rtdb,energy)
-      call cons_add_hdihed_energy(rtdb,energy)
+      if(obonds)  
+     >   call cons_add_hbond_energy(rtdb,energy)
+      if(odihedrals)     
+     >   call cons_add_hdihed_energy(rtdb,energy)
 c
       call cons_unload_geom()
+      write(*,*) "energy after cons",energy
       return
       end
 c
