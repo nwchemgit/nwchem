@@ -1,0 +1,23 @@
+echo
+start cn
+
+geometry 
+c 0 0 0
+n 0 0 1.13734
+end
+
+basis 
+* library sto-3g
+end
+
+scf
+direct
+ doublet
+thresh 1d-9
+tol2e 1d-12
+rohf
+end
+
+task scf  gradient
+
+task scf gradient numerical
