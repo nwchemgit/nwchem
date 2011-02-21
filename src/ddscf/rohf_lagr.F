@@ -47,3 +47,43 @@ c
      $     call errquit('rohf_lagr: destroy', 0, GA_ERR)
       return
       end
+      subroutine rohf_dumpfock(nopen,g_oexch,g_cfock)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+      integer nopen,g_oexch,g_cfock
+      character*255 cfock_out,oexch_out
+      logical file_write_ga
+      external file_write_ga
+c
+      call util_file_name('cfock',.true.,.false.,cfock_out)
+      call util_file_name('oexch',.true.,.false.,oexch_out)
+      if (.not. file_write_ga( cfock_out, g_cfock ))
+     $     call errquit('rohf: failed writing cfock',0, GA_ERR)
+      if(nopen.ne.0) then
+      if (.not. file_write_ga( oexch_out, g_oexch ))
+     $     call errquit('rohf: failed writing oexch',0, GA_ERR)
+      endif
+      return
+      end
+      subroutine rohf_readfock(nopen,g_oexch,g_cfock)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+      integer nopen,g_oexch,g_cfock
+      character*255 cfock_out,oexch_out
+      logical file_read_ga
+      external file_read_ga
+c
+      call util_file_name('cfock',.true.,.false.,cfock_out)
+      call util_file_name('oexch',.true.,.false.,oexch_out)
+      if (.not. file_read_ga( cfock_out, g_cfock ))
+     $     call errquit('rohf: failed reading cfock',0, GA_ERR)
+      if(nopen.ne.0) then
+      if (.not. file_read_ga( oexch_out, g_oexch ))
+     $     call errquit('rohf: failed reading oexch',0, GA_ERR)
+      endif
+      return
+      end

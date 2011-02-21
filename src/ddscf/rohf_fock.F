@@ -16,6 +16,7 @@
 #include "cosmo.fh"
 #include "case.fh"
 #include "zora.fh" ! FA-adding-ZORA corrections
+#include "crohf.fh"
 c     
 c     Build fock matrices and energies for ROHF wavefunction
 c     
@@ -311,6 +312,7 @@ c
      $     ('rohf_fock: ga_destroy failed',0, GA_ERR)
       if (.not. ga_destroy(g_cdens)) call errquit
      $     ('rohf_fock: ga_destroy failed',0, GA_ERR)
+      call rohf_dumpfock(nopen,g_oexch,g_cfock)
       if (.not. ga_destroy(g_cfock)) call errquit
      $     ('rohf_fock: ga_destroy failed',0, GA_ERR)
       if (nopen .gt. 0) then
@@ -318,7 +320,7 @@ c
      $        ('rohf_fock: ga_destroy failed',0, GA_ERR)
          if (.not. ga_destroy(g_oexch)) call errquit
      $        ('rohf_fock: ga_destroy failed',0, GA_ERR)
-         if (.not. ga_destroy(g_odens)) call errquit
+ 1       if (.not. ga_destroy(g_odens)) call errquit
      $        ('rohf_fock: ga_destroy failed',0, GA_ERR)
       endif
 c     

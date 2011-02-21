@@ -51,10 +51,11 @@ c
       double precision eprec_tol
       double precision tlastwrite,ttest  ! time last wrote the MO vectors
       double precision time_iter_start
-      integer time_prev_iter
+      integer time_prev_iter, g_tmp
 c     
 c     Functions
 c     
+      integer g_cfock,g_oexch
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
       external rohf_hessv, rohf_hessv_precond
@@ -385,7 +386,31 @@ c
       call movecs_fix_phase(g_movecs)
       if (olock) call scf_movecs_lock
       call scf_movecs_write(rtdb)
-      if (converged .and. nopen.gt.0 .and. olagr) call rohf_lagr()
+      if (converged .and. nopen.gt.0 .and. olagr) then
+c
+c     redo 2-ind trans since the movecs might have changed
+c
+         g_cfock = ga_create_atom_blocked(geom, basis, 'rohf: cfock')
+         g_oexch = ga_create_atom_blocked(geom, basis, 'rohf: ocoul')
+         call rohf_readfock(nopen,g_oexch,g_cfock)
+         if (.not. ga_duplicate(g_movecs, g_tmp, 'scfmsa'))
+     $        call errquit('rohf_lagr: gaduplicate?',0, GA_ERR)
+         call two_index_transf(g_cfock, g_movecs, g_movecs, g_tmp, 
+     C        crohf_g_fcv)
+         
+         if (nopen .gt. 0) then
+            call two_index_transf(g_oexch, g_movecs, g_movecs, g_tmp, 
+     C           crohf_g_fpv)
+         endif
+         if (.not. ga_destroy(g_tmp)) call errquit
+     $        ('rohf_nr_solve: ga_destroy tmp', 0, GA_ERR)
+         if (.not. ga_destroy(g_oexch)) call errquit
+     $        ('rohf_nr_solve: ga_destroy oexch', 0, GA_ERR)
+         if (.not. ga_destroy(g_cfock)) call errquit
+     $        ('rohf_nr_solve: ga_destroy cfock', 0, GA_ERR)
+
+         call rohf_lagr()
+      endif
 c     
 c     Free globals
 c     

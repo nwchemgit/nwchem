@@ -47,7 +47,7 @@ c
 c     
 c     Functions
 c     
-      integer ga_create_atom_blocked
+      integer ga_create_atom_blocked,g_oexch,g_cfock
       external ga_create_atom_blocked, ga_iter_lsolve
 c
 c     cosmo code
@@ -217,10 +217,34 @@ c
 c     
 c     *ALWAYS* return canonical MOs ... don't do aufbau
 c     
+      if (.not. ga_destroy(g_tmp)) call errquit
+     $     ('rohf_diis_solve: ga_destroy tmp', 0, GA_ERR)
+      if (.not. ga_destroy(g_tmp2)) call errquit
+     $     ('rohf_diis_solve: ga_destroy tmp2', 0, GA_ERR)
       call rohf_canon(.false., .false.)
       call movecs_fix_phase(g_movecs)
       call scf_movecs_write(rtdb)
-      if (olagr) call rohf_lagr()
+      if (olagr) then
+         g_cfock = ga_create_atom_blocked(geom, basis, 'rohf: cfock')
+         g_oexch = ga_create_atom_blocked(geom, basis, 'rohf: ocoul')
+         call rohf_readfock(nopen,g_oexch,g_cfock)
+         if (.not. ga_duplicate(g_movecs, g_tmp, 'scfmsa'))
+     $        call errquit('rohf_lagr: gaduplicate?',0, GA_ERR)
+         call two_index_transf(g_cfock, g_movecs, g_movecs, g_tmp, 
+     C        crohf_g_fcv)
+         
+         if (nopen .gt. 0) then
+            call two_index_transf(g_oexch, g_movecs, g_movecs, g_tmp, 
+     C           crohf_g_fpv)
+         endif
+         if (.not. ga_destroy(g_oexch)) call errquit
+     $        ('rohf_nr_solve: ga_destroy oexch', 0, GA_ERR)
+         if (.not. ga_destroy(g_cfock)) call errquit
+     $        ('rohf_nr_solve: ga_destroy cfock', 0, GA_ERR)
+         if (.not. ga_destroy(g_tmp)) call errquit
+     $        ('rohf_nr_solve: ga_destroy tmp', 0, GA_ERR)
+         call rohf_lagr()
+      endif
 c
 c     ----- if sol_phase=.T. go back and do solution phase -----
 c
@@ -265,10 +289,6 @@ c
      $     ('rohf_diis_solve: ga_destroy over', 0, GA_ERR)
       if (.not. ga_destroy(g_xorth)) call errquit
      $     ('rohf_diis_solve: ga_destroy xorth', 0, GA_ERR)
-      if (.not. ga_destroy(g_tmp)) call errquit
-     $     ('rohf_diis_solve: ga_destroy tmp', 0, GA_ERR)
-      if (.not. ga_destroy(g_tmp2)) call errquit
-     $     ('rohf_diis_solve: ga_destroy tmp2', 0, GA_ERR)
 c     
       if (ga_nodeid().eq.0) call util_flush(6)
       call ga_sync()
