@@ -367,14 +367,10 @@ c
         call shell_fock_build(geom, basis, 0, nfock, 
      $   dbl_mb(k_jfac), dbl_mb(k_kfac),
      $   tol2e, g_dens, g_fock, noskew)
-
       else   ! for attenuated calculations
-        docoul = .false.
-        if (noskew) docoul = .true.
-        call shell_fock_build_cam_multiple(geom, basis, 0, nfock,
-     &     nbf, 1.d0, 1.d0, ! dbl_mb(k_jfac), dbl_mb(k_kfac)
-     &     tol2e, g_dens, g_fock, g_work, 1, ! set ipol = 1: restricted
-     &    .true.,docoul,.true.,noskew,.false.)  ! doexch, docoul, doxc, osym, oprint
+        call shell_fock_build_cam(geom, basis, 0, nfock, 
+     $   dbl_mb(k_jfac), dbl_mb(k_kfac),
+     $   tol2e, g_dens, g_fock, noskew)
       end if
 c     
       if (oskel) 
