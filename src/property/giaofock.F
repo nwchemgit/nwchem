@@ -29,6 +29,8 @@ c
       logical xc_gotxc
       external xc_gotxc
 c
+      double precision jloc,kloc
+c
       if(.not.bas_high_angular(basis,maxang))
      &         call errquit('new_giao: angm error',maxang, BASIS_ERR)
       if (.not. bas_numcont(basis,nshell))
@@ -36,7 +38,7 @@ c
 c
 c     == local array ==
       if (.not. ga_duplicate (g_fock, g_loc,'g_loc'))
-     &  call errquit('shell_fock_build_cam: g_loc',555, GA_ERR)
+     &  call errquit('new_giao_2e: duplicate failed g_loc',555, GA_ERR)
       call ga_zero(g_loc)
 c
       blen = (maxang+1)*(maxang+2)/2
@@ -78,31 +80,50 @@ c
 c
 c     == take care of attenuated or non-attenuated 2e ==
 c
-      call ga_zero(g_loc)
-      call giaofock(basis,geom,g_dens,g_loc,
-     $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
-     $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
-     $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
-     $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
-     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, kfac)
-c
-      if (.not.cam_exch) then
-        call ga_add(1.d0, g_loc, 1.0d0, g_fock, g_fock)      ! for normal calculations
-      else
-        call ga_add(cam_alpha, g_loc, 1.0d0, g_fock, g_fock) ! here: cam_alpha*unatt
-        call case_setflags(.true.)  ! apply attenuation to 1/r12
+      call ga_zero(g_fock)
+      if (.not.cam_exch) then ! normal calculations
         call ga_zero(g_loc)
         call giaofock(basis,geom,g_dens,g_loc,
      $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
      $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
-     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, kfac)
-        call case_setflags(.false.) ! remove attenuation from 1/r12
-        call ga_add(cam_beta, g_loc, 1.0d0, g_fock, g_fock) ! here: cam_alpha*unatt + cam_beta*att
-      end if
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 1.d0, kfac)
+        call ga_add(1.d0, g_loc, 1.0d0, g_fock, g_fock)
+      else
+        call ga_zero(g_loc)
+        call case_setflags(.false.) ! turn off attenuation
+        call giaofock(basis,geom,g_dens,g_loc,
+     $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
+     $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
+     $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
+     $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 1.d0, 0.d0)  ! get full coulomb
+        call ga_add(1.d0, g_loc, 1.0d0, g_fock, g_fock)  ! full Coulomb
 c
-c  Clean up memory allocated in this routine
+        call ga_zero(g_loc)
+        call case_setflags(.false.) ! turn off attenuation
+        call giaofock(basis,geom,g_dens,g_loc,
+     $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
+     $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
+     $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
+     $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac)  ! get full exchange
+        call ga_add(cam_alpha, g_loc, 1.0d0, g_fock, g_fock) ! cam_alpha*Exchange
+c
+        call ga_zero(g_loc)
+        call case_setflags(.true.) ! set attenuation
+        call giaofock(basis,geom,g_dens,g_loc,
+     $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
+     $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
+     $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
+     $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac)  ! get attenuated exchange
+        call ga_add(cam_beta, g_loc, 1.0d0, g_fock, g_fock) ! cam_beta*att_Exchange
+        call case_setflags(.false.) ! turn off attenuation
+      end if  ! cam_exch
+c
+c     == Clean up memory allocated in this routine ==
 c
       if (.not. ma_chop_stack(l_d_kl))
      $  call errquit('new_giao_2e:failed chopping MA stack',555,
@@ -133,19 +154,20 @@ c
      &                         alo(2),ahi(2),g_fock,alo(2),ahi(2))
          enddo
          if (.not.ga_destroy(g_xc)) call
-     &      errquit('giao_aotomo: ga_destroy failed g_xc',0,GA_ERR)
+     &      errquit('new_giao_2e: ga_destroy failed g_xc',0,GA_ERR)
       endif  ! xc_gotxc()
 c
 c     == clean up local array ==
       if (.not.ga_destroy(g_loc))
-     $  call errquit('shell_fock_build_cam g_loc',555, GA_ERR)
+     $  call errquit('new_giao_2e: destroy failed g_loc',555, GA_ERR)
 c
       end
 c
       subroutine giaofock(basis, geom, g_dens, g_fock,
      $                    d_kl,  d_ik,  d_jl,  d_il,  d_jk, 
      $                    f_ij,  f_ji,  f_ik,  f_jl,  f_il,  f_jk, 
-     $                    lscr, scr, leri, eri, tol2e, nshell,blen,kfac)
+     $                    lscr, scr, leri, eri, tol2e, nshell, blen,
+     &                    jfac, kfac)
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
@@ -178,6 +200,7 @@ c
       integer leri                ! [input] Size of eri buffer
       double precision eri(leri,6)! [scratch] Derivative integral buffer
       double precision tol2e      ! [input] Integral screening threshold
+      double precision jfac
       double precision kfac       ! [input] kfactor depends on DFT or SCF
       integer nshell              ! [input] Number of shells
 c
@@ -236,7 +259,6 @@ c
             if(dorepd) call util_mirrstop(1,g_dens)
          endif
       endif
-
 c     
 c     Parallel loop over shells
 c     
@@ -302,7 +324,7 @@ c
      $                          d_kl, d_ik, d_jl, d_il, d_jk, 
      $                    f_ij, f_ji, f_ik, f_jl, f_il, f_jk, 
      $                    blen, idim, jdim, kdim, ldim, ish,
-     $                    jsh, ksh, lsh, kfac)
+     $                    jsh, ksh, lsh, jfac, kfac)
 c
                      call new_acc_giaofock_block(g_fock, blen, 
      $                    jbflo, jbfhi, lbflo, lbfhi, f_jl,
@@ -401,14 +423,14 @@ c
       subroutine new_giao_doit(leri,eri,tol2e, d_kl, d_ik, d_jl, d_il, 
      $                         d_jk, f_ij, f_ji, f_ik, f_jl, f_il, f_jk,
      $                         blen,idim,jdim,kdim,ldim,ish,jsh,ksh,lsh,
-     $                         kfac)
+     $                         jfac,kfac)
       implicit none
 c
       integer blen
       integer leri
       integer idim, jdim, kdim, ldim, ish, jsh, ksh, lsh
       double precision eri(leri,6)
-      double precision tol2e, kfac
+      double precision tol2e,kfac,jfac
       double precision
      $                      d_kl(kdim,ldim), 
      $     d_ik(idim,kdim), d_jl(jdim,ldim),   
@@ -439,13 +461,13 @@ c
 c  Needs the following if statements, otherwise integrals are included double
 c
                      doit = .true.
-                     if (ieqj.and.j.gt.i)               doit = .false.
-                     if (keql.and.l.gt.k)               doit = .false.
+                     if (ieqj.and.j.gt.i) doit = .false.
+                     if (keql.and.l.gt.k) doit = .false.
                      if (doit) then
                         fac = facij
                         if (keql.and.k.eq.l) fac = fac*0.5d0
                         erif=eri(integ,v)*fac
-                        er2fac=erif*d_kl(k,l)*2.0d0
+                        er2fac=erif*d_kl(k,l)*2.0d0*jfac
                         f_ij(i,j,v) = f_ij(i,j,v) + er2fac
                         f_ji(j,i,v) = f_ji(j,i,v) - er2fac
                         erif3=eri(integ,v+3)*fac
