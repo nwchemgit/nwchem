@@ -1,5 +1,6 @@
       subroutine hnd_vec_write(rtdb,geom,basis,nbf,nclosed,nopen,
-     &                            nvirt,scftyp,vectors,occ,evals,nmo)
+     &                            nvirt,scftyp,vectors,occ,evals,nmo,
+     &   filename)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -21,7 +22,8 @@ c
       double precision  evals(nbf,2) ! [input] array with eigen values
       integer     nmo                ! [input] number of orbitals
 c       
-      character*255 title, movecs, title_molec, basis_name_molec
+      character*255 title, movecs, title_molec, basis_name_molec,
+     &   filename
       character*20  scftype_molec
       integer i, j, ndens
       integer nbf_molec, nsets_molec, nmo_molec(2)
@@ -45,7 +47,7 @@ c
       endif
       call util_file_name_resolve(movecs , .false.)
 c
-c     read vector file header
+c     read MO vector file header
 c
       if (.not. movecs_read_header(movecs, title_molec,
      &    basis_name_molec, scftype_molec, nbf_molec,
@@ -53,11 +55,18 @@ c
      &    errquit('hnd_vec_write: failed to read header', 911, DISK_ERR)
 c
 
-c     write MO vectors to movecs file
+c     write MO vectors to movecs file or a file with a user-specified
+c     name
+
+      if (filename.eq.' ' .or. filename.eq.'') then
+        filename = movecs
+      else
+        continue ! let's hope the file name is OK ...
+      end if
 
 c      write (luout,*) 'writing localized MOs to file ',trim(movecs)
 
-      if (.not. movecs_write(rtdb, basis, movecs,
+      if (.not. movecs_write(rtdb, basis, filename,
      $     scftype_molec, title_molec,
      $     nbf_molec, nsets_molec, nmo_molec,
      $     occ(1,1), nbf, evals(1,1),

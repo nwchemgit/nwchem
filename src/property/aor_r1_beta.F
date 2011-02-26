@@ -603,6 +603,20 @@ c       -----------------
      &     errquit('aoresponse: ga_destroy failed g_work',
      &     0,GA_ERR)
 
+c       -------------------------------------------------
+c       un-add the frequency components in vec_E1 in case
+c       we reuse these arrays:
+c       -------------------------------------------------
+
+        if (ncomp.gt.1) then
+          call ga_add(1d0, g_vecE1(1), -1d0,  g_vecE1(2),
+     &       g_vecE1(1))
+          if (lifetime) then
+            call ga_add(1d0, g_vecE1_im(1), -1d0,  g_vecE1_im(2),
+     &         g_vecE1_im(1))
+          end if
+        endif       
+
         
       enddo                     ! ispin = 1,2 from way above
               
@@ -617,15 +631,15 @@ c     two, so we need to scale betare, betaim. If we have static
 c     response then there is a factor of two missing everywhere
 c     because we don't add C(+) and C(-) for the electric field.
 
-      if (lgiao) then
-        scaling = half
-        do idir = 1,3
-          do iresp = 1,3
-            betare(idir, iresp) = betare(idir, iresp) * scaling
-            betaim(idir, iresp) = betaim(idir, iresp) * scaling
-          end do
-        end do
-      end if                    ! lstatic
+c$$$      if (lgiao) then
+c$$$        scaling = half
+c$$$        do idir = 1,3
+c$$$          do iresp = 1,3
+c$$$            betare(idir, iresp) = betare(idir, iresp) * scaling
+c$$$            betaim(idir, iresp) = betaim(idir, iresp) * scaling
+c$$$          end do
+c$$$        end do
+c$$$      end if                    ! lgiao
 
       if (lstatic) then
         scaling = two

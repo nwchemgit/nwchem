@@ -29,6 +29,7 @@ c
 #include "global.fh"
 #include "geom.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 c
       integer rtdb
       integer maxnloc
@@ -39,9 +40,12 @@ c
       external ga_create_atom_blocked
       character*8 loctype
       double precision y, w, ef, scale
+      logical debug
 c
       integer g_uc(4), x
 *      integer  g_mosc
+
+      debug = .false. .and. ga_nodeid().eq.0
 c
       if (.not. rtdb_cget(rtdb, 'scf:loctype', 1, loctype)) 
      $     loctype = 'PM'
@@ -49,6 +53,11 @@ c
      $     y = 0.0d0
       if (.not. rtdb_get(rtdb, 'scf:w', mt_dbl, 1, w))
      $     w = 1.0d0
+
+      if (debug) then
+        write(luout,*) 'hello from testlocalize'
+        write(luout,*) 'y, w, =',y,w
+      end if
 c
       if (y.ne.0.0d0) then
 c

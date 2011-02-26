@@ -42,6 +42,7 @@
          fiao_f1_movecs.o \
          aor_r1_tensor.o \
          aor_r1_beta.o \
+         aor_r1_beta_anl.o \
          giao_b1_movecs.o \
          fiao_b1_movecs.o \
          aoresponse_giao_rhs.o \

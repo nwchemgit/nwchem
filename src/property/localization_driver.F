@@ -40,8 +40,8 @@ c     subroutine arguments:
       integer loctype
 
 c     local GA handles:
-      integer g_dipel, g_smat, g_sc
-      integer g_movecs(2)
+      integer g_dipel, g_smat, g_sc, g_tran
+      integer g_movecs(2), g_cmo(2), g_temp
 
 c     MA variables:
       integer l_c, k_c, l_sc, k_sc, l_eval, k_eval, l_occ, k_occ
@@ -66,6 +66,10 @@ c     other local variables:
       double precision dummy(3)
       double precision origin(3)
       data origin/0d0,0d0,0d0/
+
+      character*(256) lmotrans
+      logical file_write_ga
+      external file_write_ga
 
       logical debug
       logical oprint
@@ -203,15 +207,53 @@ c        localize core and occupied orbitals
      $        nloc, iloc, nbf, nmo, g_movecs, g_sc)
 
 
-c        clean up temp arrays
-         if (.not. ga_destroy(g_smat)) call errquit(
-     &      'loc_driver: error destroying g_smat',0, GA_ERR)
+c        clean up some temp arrays
          if (.not. ga_destroy(g_sc)) call errquit(
      &      'loc_driver: error destroying g_sc',0, GA_ERR)
          if (.not. ma_pop_stack(l_c)) call errquit(
      &      'loc_driver: error MA pop c',0, MA_ERR)
          if (.not. ma_pop_stack(l_sc)) call errquit(
      &      'loc_driver: error MA pop sc',0, MA_ERR)
+
+c        calculate the LMO transformation matrix 
+c        from C(dagger,canonical) S C(locorb)
+
+c        first, read the CMOs again -> g_cmo
+
+         call hnd_prp_vec_read(rtdb,geom,basis,nbf,nclosed,nopen,
+     &      nvirt,scftyp,g_cmo,dbl_mb(k_occ),
+     &      dbl_mb(k_eval),nmo)
+
+         if (.not. ga_create(MT_DBL, nclosed(1), nbf, 'loc:temp',
+     &      nbf, 0, g_temp))
+     &      call errquit('loc_driver: temp',0, GA_ERR)
+         call ga_zero(g_temp)
+         call ga_dgemm('t', 'n', nclosed(1), nbf, nbf, 
+     $      1.0d0, g_cmo(1), g_smat, 0.0d0, g_temp)
+
+         if (.not. ga_destroy(g_smat)) call errquit(
+     &      'loc_driver: error destroying g_smat',0, GA_ERR)
+         if (.not. ga_create(MT_DBL, nclosed(1), nclosed(1),
+     &      'loc:smat',nbf, 0, g_smat))
+     &      call errquit('loc_driver: smat',0, GA_ERR)
+         call ga_zero(g_smat)
+         call ga_dgemm('n', 'n', nclosed(1), nclosed(1), nbf, 
+     $      1.0d0, g_temp, g_movecs(1), 0.0d0, g_smat)
+
+         if (.not. ga_destroy(g_temp)) call errquit(
+     &      'loc_driver: error destroying g_temp',0, GA_ERR)
+         if (.not. ga_destroy(g_cmo(1))) call errquit(
+     &      'loc_driver: error destroying g_cmo(1)',0, GA_ERR)
+
+c        loc transform is in g_smat. Write to file
+
+         call util_file_name('lmotrans',.true.,.true.,lmotrans)
+         if(.not.file_write_ga(lmotrans,g_smat)) call errquit
+     $      ('loc_driver: could not write lmotrans',0, DISK_ERR)
+
+c        smat, temp not needed anymore
+         if (.not. ga_destroy(g_smat)) call errquit(
+     &      'loc_driver: error destroying g_smat',0, GA_ERR)
 
       else if (loctype.eq.2) then
 
@@ -231,7 +273,7 @@ c     -----------------------------------
       if (debug) write (luout,*) 'calling hnd_vec_write'
       call hnd_vec_write(rtdb,geom,basis,nbf,nclosed,nopen,
      &   nvirt,scftyp,g_movecs,dbl_mb(k_occ),
-     &   dbl_mb(k_eval),nmo)
+     &   dbl_mb(k_eval),nmo, 'locorb.movecs')
 
 
 c     --------

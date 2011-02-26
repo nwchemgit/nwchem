@@ -380,6 +380,8 @@ c         first-order S-ket matrix (right-hand side S-derivative)
      &       errquit('aor_driver: nga_create failed g_sket1',0,GA_ERR)
           call ga_zero(g_sket1)
           call giao_b1_movecs(rtdb,basis,geom, g_vecB1(1), g_sket1)
+          call ga_scale(g_vecB1,0.5d0)
+          call ga_scale(g_sket1,0.5d0)
         else
           call fiao_b1_movecs(rtdb,basis,geom, g_vecB1(1))
         end if
@@ -729,6 +731,19 @@ c       with the polarizability
      &      lanalyze, lvelocity, lifetime, lmagpert, g_vecF1, g_vecF1_im
      &      ,  alfare, alfaim, betare, betaim)         
          if (debug) write (luout,*) 'exiting aor_r1_beta'
+
+c        if an analysis is requested we need to repeat
+c        the computation for the XX, YY, ZZ elements and break down
+c        into contributions per MO
+
+         if (lanalyze) then            
+           if (debug) write (luout,*) 'calling aor1_beta_anl'
+           call aor_r1_beta_anl(rtdb, basis, geom, omega, lstatic, ncomp
+     &        ,g_smat0, g_sket1, g_vecB1(1), g_dipel, g_quadel
+     &        ,g_vectors , dbl_mb(k_occ), nbf, nmo, nclosed, nvirt,
+     &        lgiao, lquad, lanalyze, lvelocity, lifetime, lmagpert,
+     &        g_vecF1,g_vecF1_im)    
+         end if! lanalyze
 
       end if ! lbeta
 
