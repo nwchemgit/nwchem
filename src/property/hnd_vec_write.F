@@ -22,8 +22,8 @@ c
       double precision  evals(nbf,2) ! [input] array with eigen values
       integer     nmo                ! [input] number of orbitals
 c       
-      character*255 title, movecs, title_molec, basis_name_molec,
-     &   filename
+      character*255 title, movecs, title_molec, basis_name_molec
+      character*(*) filename
       character*20  scftype_molec
       integer i, j, ndens
       integer nbf_molec, nsets_molec, nmo_molec(2)

@@ -740,9 +740,9 @@ c        into contributions per MO
            if (debug) write (luout,*) 'calling aor1_beta_anl'
            call aor_r1_beta_anl(rtdb, basis, geom, omega, lstatic, ncomp
      &        ,g_smat0, g_sket1, g_vecB1(1), g_dipel, g_quadel
-     &        ,g_vectors , dbl_mb(k_occ), nbf, nmo, nclosed, nvirt,
-     &        lgiao, lquad, lanalyze, lvelocity, lifetime, lmagpert,
-     &        g_vecF1,g_vecF1_im)    
+     &        ,g_vectors , dbl_mb(k_occ), dbl_mb(k_eval), nbf, nmo,
+     &        nclosed, nvirt, lgiao, lquad, lanalyze, lvelocity,
+     &        lifetime, lmagpert, g_vecF1,g_vecF1_im)    
          end if! lanalyze
 
       end if ! lbeta
@@ -858,42 +858,46 @@ c
 
 c       diagonalize real part of beta tensor
 
-        write (luout,*) 'Principal components and PAS (Real part)'
-        do idir = 1,3
-          eig(idir) = zero
-          do ipert = 1,3
-            axs(idir,ipert) = betare(idir,ipert)
-          end do
-        end do
-        call hnd_diag(axs,eig,3,.true.,.true.)
-        write(luout,'(10x,f12.4)') (eig(idir),idir=1,3)
-        sum =(eig(1) + eig(2) + eig(3))/3.0d0
-        write(luout,'(1x,21(''-'')/1x,a,1x,f12.4)') 'average:', sum
-        call output(axs,1,3,1,3,3,3,1)
+        if (abs(sum).gt.1d-5) then ! make sure tensor is nonzero
 
-c       if we have calculated the B.-D. tensor, also print the 
-c       chiral response tensor. use array axs and eig for temp space
-
-        if (lquad) then
-          axs(:,:) = -half * betare(:,:)
-          eig(1) = axs(2,2) + axs(3,3)
-          eig(2) = axs(3,3) + axs(1,1)
-          eig(3) = axs(1,1) + axs(2,2)
-          do idir = 1,3
-            axs(idir,idir) = -eig(idir)
-          end do
-          write (LuOut,'(/1x,a)') 'Chiral response tensor (Real part):'
-          call output(axs,1,3,1,3,3,3,1)
-          write(luout,*)
           write (luout,*) 'Principal components and PAS (Real part)'
-          eig(:) = zero
+          do idir = 1,3
+            eig(idir) = zero
+            do ipert = 1,3
+              axs(idir,ipert) = betare(idir,ipert)
+            end do
+          end do
           call hnd_diag(axs,eig,3,.true.,.true.)
           write(luout,'(10x,f12.4)') (eig(idir),idir=1,3)
           sum =(eig(1) + eig(2) + eig(3))/3.0d0
           write(luout,'(1x,21(''-'')/1x,a,1x,f12.4)') 'average:', sum
           call output(axs,1,3,1,3,3,3,1)
-        end if                  ! lquad
+          
+c         if we have calculated the B.-D. tensor, also print the 
+c         chiral response tensor. use array axs and eig for temp space
+          
+          if (lquad) then
+            axs(:,:) = -half * betare(:,:)
+            eig(1) = axs(2,2) + axs(3,3)
+            eig(2) = axs(3,3) + axs(1,1)
+            eig(3) = axs(1,1) + axs(2,2)
+            do idir = 1,3
+              axs(idir,idir) = -eig(idir)
+            end do
+            write (LuOut,'(/1x,a)')
+     &         'Chiral response tensor (Real part):'
+            call output(axs,1,3,1,3,3,3,1)
+            write(luout,*)
+            write (luout,*) 'Principal components and PAS (Real part)'
+            eig(:) = zero
+            call hnd_diag(axs,eig,3,.true.,.true.)
+            write(luout,'(10x,f12.4)') (eig(idir),idir=1,3)
+            sum =(eig(1) + eig(2) + eig(3))/3.0d0
+            write(luout,'(1x,21(''-'')/1x,a,1x,f12.4)') 'average:', sum
+            call output(axs,1,3,1,3,3,3,1)
+          end if                ! lquad
         
+        end if                  ! sum > 1d-5
 
       endif ! oprint
 c

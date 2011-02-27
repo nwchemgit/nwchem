@@ -1,8 +1,8 @@
 
       subroutine aor_r1_beta_anl (rtdb, basis, geom, omega, lstatic,
      &   ncomp,g_smat0, g_sket1, g_vecB1,  g_dipel, g_quadel, g_vectors,
-     &   froct,nbf, nmo, nocct, nvirt, lgiao, lquad, lanalyze, lvelocity
-     &   ,lifetime, lmagpert, g_vecE1, g_vecE1_im)
+     &   froct, epst, nbf, nmo, nocct, nvirt, lgiao, lquad, lanalyze,
+     &   lvelocity ,lifetime, lmagpert, g_vecE1, g_vecE1_im)
 
 c $Id:  $
       
@@ -44,7 +44,7 @@ c     These are all input, too
      &   g_sket1, g_quadel, g_vecB1, g_vecE1(2), g_vecE1_im(2)
       integer nfreq, response_order, nbf, nmo, ncomp
       integer nocct(2), nvirt(2)
-      double precision froct(nbf,2)
+      double precision froct(nbf,2), epst(nbf,2)
       double precision gamwidth, omega
       logical lgiao, lquad, lanalyze, lvelocity, lifetime, lmagpert,
      &   lstatic
@@ -57,13 +57,14 @@ c     global array handles:
       
       integer
      &   g_anl, g_work,
-     &   g_temp, g_tmpanl, g_tran
+     &   g_temp, g_tmpanl, g_tran, g_vectmp(2)
 
       integer l_diag, k_diag
 
 c     other local variables: 
 
-      integer nmot(2), nocvir(2)
+      integer nmot(2), nocvir(2), nopen(2)
+      data nopen(1),nopen(2)/0,0/
 
       integer dims(3), chunk(3)
       integer alo(3), ahi(3), blo(3), bhi(3), clo(3), chi(3)
@@ -634,6 +635,8 @@ c       -------------------------------------------
 c       end loop over perturbing E-field components
 c       -------------------------------------------
 
+
+
 c       -----------------
 c       deallocate memory
 c       -----------------
@@ -656,6 +659,96 @@ c       -----------------
 
          if (.not. ma_pop_stack(l_diag))
      &       call errquit('error deloc MA diag',0, MA_ERR)
+
+c        ---------------------------------------------------
+c        part of the analysis is storing the perturbed
+c        MOs. As elsewhere, we assume a closed shell system.
+c        We write a lot of data here, e-field and b-field
+c        perturbed canonical MOs and, if applicable, LMOs
+c       ----------------------------------------------------
+
+         chunk(1) = nbf
+         chunk(2) = -1
+         dims(1) = nbf
+         dims(2) = nbf        
+         write(cstemp,'(a)') 'vectmp(1)'
+         if (.not.nga_create(MT_DBL,2,dims,cstemp(1:4),chunk,
+     &      g_vectmp(1))) call 
+     &     errquit('aoresponse: nga_create failed: '//cstemp(1:9),
+     &     0,GA_ERR)     
+        call ga_zero (g_vectmp(1))
+
+        do idir = 1,3
+
+          alo(1) = 1
+          ahi(1) = nbf
+          alo(2) = 1
+          ahi(2) = nbf
+          alo(3) = idir         
+          ahi(3) = idir
+          blo(1) = 1
+          bhi(1) = nbf
+          blo(2) = 1
+          bhi(2) = nbf
+
+
+          call ga_zero(g_vectmp(1))
+          call nga_copy_patch('n',g_vecE1,alo,ahi,g_vectmp(1),blo,bhi)
+
+          write(cstemp,'(a,i1,a)') 'cmo-efield',idir,'.movecs'
+          call hnd_vec_write(rtdb,geom,basis,nbf,nocct,nopen, nvirt
+     &       ,'scf',g_vectmp,froct, epst,nmot, cstemp)
+
+          call ga_zero(g_vectmp(1))
+          call nga_copy_patch('n',g_vecB1,alo,ahi,g_vectmp(1),blo,bhi)
+
+          write(cstemp,'(a,i1,a)') 'cmo-bfield',idir,'.movecs'
+          call hnd_vec_write(rtdb,geom,basis,nbf,nocct,nopen, nvirt
+     &       ,'scf',g_vectmp,froct, epst,nmot, cstemp)
+
+          if (lmo) then
+
+            alo(1) = 1
+            ahi(1) = nbf
+            alo(2) = 1
+            ahi(2) = nocct(1)
+            alo(3) = idir         
+            ahi(3) = idir
+            blo(1) = 1
+            bhi(1) = nocct(1)
+            blo(2) = 1
+            bhi(2) = nocct(1)
+            clo(1) = 1
+            chi(1) = nbf
+            clo(2) = 1
+            chi(2) = nocct(1)
+
+            call ga_zero(g_vectmp(1))
+            call nga_matmul_patch('n','n',1d0,0d0,
+     &         g_vecE1,alo,ahi,
+     &         g_tran,blo,bhi,
+     &         g_vectmp(1),clo,chi)
+
+            write(cstemp,'(a,i1,a)') 'lmo-efield',idir,'.movecs'
+            call hnd_vec_write(rtdb,geom,basis,nbf,nocct,nopen, nvirt
+     &         ,'scf',g_vectmp,froct, epst,nmot, cstemp)
+
+            call ga_zero(g_vectmp(1))
+            call nga_matmul_patch('n','n',1d0,0d0,
+     &         g_vecB1,alo,ahi,
+     &         g_tran,blo,bhi,
+     &         g_vectmp(1),clo,chi)
+
+            write(cstemp,'(a,i1,a)') 'lmo-bfield',idir,'.movecs'
+            call hnd_vec_write(rtdb,geom,basis,nbf,nocct,nopen, nvirt
+     &         ,'scf',g_vectmp,froct, epst,nmot, cstemp)
+
+          end if ! lmo
+
+        end do ! idir
+
+        if (.not.ga_destroy(g_vectmp(1))) call errquit ('aor_beta:
+     &     ga_destroy failed g_vectmp(1)', 0,GA_ERR)
 
 c       -------------------------------------------------
 c       un-add the frequency components in vec_E1 in case
