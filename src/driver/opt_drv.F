@@ -1497,6 +1497,7 @@ c
       double precision bohr, deg ! For printing purposes
       double precision trustds  ! Restriction of step in opt. variable
       double precision lattice(6), scaler(3) ! periodic scaling
+      double precision dum1,dum2
       logical geom_print_zmatrix
       external geom_print_zmatrix
       logical ophigh
@@ -1557,7 +1558,13 @@ c
          if (e(i) .gt. 1d-8) then
             dv(i) = -gv(i) / abs(e(i)) ! +ve curvature
          else if (e(i) .lt. -1d-8) then
-            dv(i) = sign(0.3d0*trust,-gv(i))
+            dum1 = -0.1d0*gv(i) / abs(e(i)) ! only 1/10 because negative
+            dum2 = sign(0.3d0*trust,-gv(i)) ! upper limit
+            if (abs(dum1) .gt. abs(dum2)) then
+              dv(i) = dum2
+            else
+              dv(i) = dum1
+            endif
             if (oprint) write(6,666) i, e(i), gv(i), dv(i)
  666        format(' Forcing step in negative mode',i5,
      $           '  eval=', 1p,d8.1,' grad=',d8.1,' step=',d8.1)
