@@ -3480,7 +3480,7 @@ c
                do j = 1, 3
                  if((iat .eq. jat) .and. (i .eq. j))then
 !  The next lines are correct if Energy is porportional to PV, and we
-!  set second-derivative of Pressure term to 0.5, and pick a value for
+!  set second-derivative of Pressure term to 1.0, and pick a value for
 !  the bulk modulus
                   if (i.eq.1) Then
                      k = 2
@@ -3503,7 +3503,7 @@ c
                      lat = 2
                   endif
                   HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) =
-     $                0.5 +
+     $                1.0 +
      $                (2*bulk/volume)*abs(amat(k,kat)*amat(l,lat)-
      $                                    amat(k,lat)*amat(l,kat))
 !  The next lines are correct if Energy is porportional to Volume
@@ -3525,7 +3525,7 @@ c
            nat_real = (nvar/3)-2
            if (.not. geom_lattice_get(geom, lattice))
      $       call errquit('driver: failed to get lattice',0,0)
-           bulk=0.1
+           bulk=0.2
            if (.not. geom_volume_get(geom,volume))
      $         call errquit('geom_volume_get failed',0, GEOM_ERR)
            iat = 1  ! Set length cross-terms to non-zero
@@ -3535,9 +3535,9 @@ c
             do j = 1, 3
               HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 
      $               volume*bulk/abs(lattice(i,1)*lattice(j,1))
-              if (i.eq.j) then ! Add extra to diagonal, just because
+              if (i.eq.j) then ! Add extra to diagonal, avoid zero eigenvalue
                  HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 
-     $           HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) + 0.2
+     $           HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j)+0.2
               endif
             end do
            end do
@@ -3545,7 +3545,7 @@ c
            jat = 2
            do i = 1, 3
              j = i ! No cross terms-Angles are only the same when fixed
-             HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 1.0 ! Angles are stiff
+             HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 30.0 ! Angles are stiff
            end do
 !          Symmetry of lengths
            iat = 1
