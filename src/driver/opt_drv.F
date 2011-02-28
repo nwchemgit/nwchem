@@ -1378,14 +1378,44 @@ c     Only the Hessian is modified.
 c     
       double precision hds(max_nvar)
       double precision dsds, dshds, dsdg
-      integer l_hess, k_hess, i, j
-      integer ind
+      integer l_hess, k_hess, i, j, l_dstmp, k_dstmp
+      integer ind, iend
 ! This is a statement function
       ind(i,j) = k_hess + i + (j-1)*nvar - 1
+c save ds
+      if (.not. ma_push_get(mt_dbl, nvar, 'dstmp',
+     $     l_dstmp, k_dstmp)) call errquit
+     $     ('driver_hessian_update: memory for ds',nvar,
+     &       GEOM_ERR)
+      call dcopy(nvar, ds, 1, dbl_mb(k_dstmp), 1)
 c
       if (alpha .eq. 0d0) call errquit
      $     ('driver_hessian_update: zero step?',0, GEOM_ERR)
       call dscal(nvar, alpha, ds, 1)
+C
+C    For fractional coordinates, this code assumes that
+C    atoms do not wrap around. So we unwrap step
+C    This is why we save ds, and then restore it
+C
+      if (isystype .ne. 0 .and. .not. zcoord) then
+        iend = nvar/3
+        if (ostress) iend = (nvar-9)/3
+        if (ostress2)iend = (nvar-6)/3
+        do i = 1, iend
+          if(isystype .ge. 1) then
+            if ((ds((3*i)-2)) .gt. 0.5d0) ds((3*i)-2)=ds((3*i)-2)-1.0d0 
+            if ((ds((3*i)-2)) .lt.-0.5d0) ds((3*i)-2)=ds((3*i)-2)+1.0d0
+          endif
+          if(isystype .ge. 2) then
+            if ((ds((3*i)-1)) .gt. 0.5d0) ds((3*i)-1)=ds((3*i)-1)-1.0d0
+            if ((ds((3*i)-1)) .lt.-0.5d0) ds((3*i)-1)=ds((3*i)-1)+1.0d0
+          endif
+          if(isystype .ge. 3) then
+            if ((ds((3*i)-0)) .gt. 0.5d0) ds((3*i)-0)=ds((3*i)-0)-1.0d0
+            if ((ds((3*i)-0)) .lt.-0.5d0) ds((3*i)-0)=ds((3*i)-0)+1.0d0
+          endif
+        enddo
+      endif
 c     
       if (.not. ma_push_get(mt_dbl, nvar**2, 'hess',
      $     l_hess, k_hess)) call errquit
@@ -1436,29 +1466,31 @@ c
 c
 c     ---- No Lattice-Atom cross-terms allowed ----
 c
-      if (isystype .ne. 0 .and. (ostress .or. ostress2)) then
-         if(ostress) then
-           do i=1,nvar-9
-             do j=nvar-8,nvar
-               dbl_mb(ind(i,j))=0.0d0
-               dbl_mb(ind(j,i))=0.0d0
-             end do
-           end do
-         else if (ostress2) then
-           do i=1,nvar-6
-             do j=nvar-5,nvar
-               dbl_mb(ind(i,j))=0.0d0
-               dbl_mb(ind(j,i))=0.0d0
-             end do
-           end do
-         endif
-      endif
+C     if (isystype .ne. 0 .and. (ostress .or. ostress2)) then
+C        if(ostress) then
+C          do i=1,nvar-9
+C            do j=nvar-8,nvar
+C              dbl_mb(ind(i,j))=0.0d0
+C              dbl_mb(ind(j,i))=0.0d0
+C            end do
+C          end do
+C        else if (ostress2) then
+C          do i=1,nvar-6
+C            do j=nvar-5,nvar
+C              dbl_mb(ind(i,j))=0.0d0
+C              dbl_mb(ind(j,i))=0.0d0
+C            end do
+C          end do
+C        endif
+C     endif
 c
       call geom_hnd_put_data('drv.hess',dbl_mb(k_hess), nvar**2)
       if (.not. ma_pop_stack(l_hess)) call errquit
      $     ('driver_hessian_update: ma?',0, MA_ERR)
-c
-      call dscal(nvar, 1d0/alpha, ds, 1)
+c     restore ds
+      call dcopy(nvar,dbl_mb(k_dstmp), 1, ds, 1)
+      if (.not. ma_pop_stack(l_dstmp)) call errquit
+     $     ('driver_hessian_update: ma?',0, MA_ERR)
 c     
       end
       subroutine driver_opt_search_dir(geom)
