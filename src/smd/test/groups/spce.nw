@@ -13,7 +13,7 @@ smd
  veloc input spce.vel0 output spce.vel
 # veloc input random output spce.vel
 # charge input charge.dat0 output charge.dat
- coord spce.pdb
+ coord input spce.pdb
  param smd.par
  ndata 2 nequil 1 nprint 10
  temp 300
