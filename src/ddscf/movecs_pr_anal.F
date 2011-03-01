@@ -445,14 +445,14 @@ c
       lmax = 2
 c
       call ga_inquire(g_vecs, type, nbf, nmo)
-      if (.not. ga_create(mt_dbl, nbf, nbf, 'aomotmp',
-     $     32,32,g_tmp1)) call errquit('xlm_ao_mo: tmp1',nbf*nbf,
+      if (.not. ga_create(mt_dbl, nbf, nbf, 'aomotmp',32,32,g_tmp1)) 
+     &   call errquit('xlm_ao_mo: ga_create failed: g_tmp1',nbf*nbf,
      &       GA_ERR)
-      if (.not. ga_create(mt_dbl, nbf, nmo, 'aomotmp2',
-     $     32,32,g_tmp2)) call errquit('xlm_ao_mo: tmp2',nmo*nbf,
+      if (.not. ga_create(mt_dbl, nbf, nmo, 'aomotmp2',32,32,g_tmp2)) 
+     &   call errquit('xlm_ao_mo: ga_create failed: g_tmp2',nmo*nbf,
      &       GA_ERR)
       if (.not. ma_push_get(mt_dbl,nbf,'xlmtpm',l_tmp, k_tmp))
-     $     call errquit('xlm_ao_mo: tmp', nbf, MA_ERR)
+     $   call errquit('xlm_ao_mo: ma_push_get failed: tmp',nbf,MA_ERR)
 c
 c     Must transform the LHS index one mpole at a time so 
 c     might as well do both at the same time since this will
