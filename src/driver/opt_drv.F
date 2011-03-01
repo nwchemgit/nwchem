@@ -1529,7 +1529,7 @@ c
       double precision bohr, deg ! For printing purposes
       double precision trustds  ! Restriction of step in opt. variable
       double precision lattice(6), scaler(3) ! periodic scaling
-      double precision dum1,dum2
+      double precision dum1,dum2,dum3
       logical geom_print_zmatrix
       external geom_print_zmatrix
       logical ophigh
@@ -1590,16 +1590,25 @@ c
          if (e(i) .gt. 1d-8) then
             dv(i) = -gv(i) / abs(e(i)) ! +ve curvature
          else if (e(i) .lt. -1d-8) then
-            dum1 = -0.1d0*gv(i) / abs(e(i)) ! only 1/10 because negative
+            dum1 = -gv(i) / abs(e(i)) 
             dum2 = sign(0.3d0*trust,-gv(i)) ! upper limit
+            dum3 = sign(0.03d0*trust,-gv(i)) ! lower limit
             if (abs(dum1) .gt. abs(dum2)) then
               dv(i) = dum2
+              if (oprint) write(6,664) i, e(i), gv(i), dv(i)
+ 664             format(' Limiting step in negative mode',i5,
+     $           '  eval=', 1p,d8.1,' grad=',d8.1,' step=',d8.1)
+            else if (abs(dum1) .lt. abs(dum3)) then
+              dv(i) = dum3
+              if (oprint) write(6,665) i, e(i), gv(i), dv(i)
+ 665             format(' Forcing step in negative mode',i5,
+     $           '  eval=', 1p,d8.1,' grad=',d8.1,' step=',d8.1)
             else
               dv(i) = dum1
-            endif
-            if (oprint) write(6,666) i, e(i), gv(i), dv(i)
- 666        format(' Forcing step in negative mode',i5,
+              if (oprint) write(6,666) i, e(i), gv(i), dv(i)
+ 666             format(' Taking step in negative mode',i5,
      $           '  eval=', 1p,d8.1,' grad=',d8.1,' step=',d8.1)
+            endif
          else
 c
 c     Linearly dependent modes, and rotations and translations
