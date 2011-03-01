@@ -1,3 +1,5 @@
+C>      smd global data structure stores global arrays
+C>      and handles data exchange with their local counterparts
       subroutine smd_global_init_system()
       implicit none
 #include "errquit.fh"
@@ -39,35 +41,25 @@ c
 c     
       character*(*) sp_global
 c
-      character*32 pname,tag,sp_coords
+      character*32 pname,tag
       integer na,np
       integer nres
       integer i_c
       logical result
 c
       integer ndims
-      integer ga_coords,ga_grads,ga_dip
+      integer ga_coords,ga_grads,ga_dip,ga_charges
 c
       pname = "smd_global_init"
 c
 c
-c     get total number of atoms 
-c     -------------------------
+c     get total number of atoms and residues
+c     --------------------------------------
       call smd_atom_ntot(na)
       if(na.le.0)
      >  call errquit(
      >       pname//'no atoms ',0, RTDB_ERR)
-c
-c     get total number of residues
-c     ----------------------------
       call smd_system_nres(nres)
-c
-      tag = "coordinates"
-      call smd_system_get_component(sp_coords,tag,result)
-      if(.not.result)
-     >  call errquit(
-     >       pname//'no component '//tag,0,0)
-
 c
 c     create data structures
 c     ---------------------------
@@ -91,7 +83,13 @@ c     dipoles
      >       pname//'nga_create error ',0, RTDB_ERR)
       call smd_data_put_int(sp_global,"res-dipoles",1,ga_dip)
 c      call ga_print(ga_dip)
-cc
+c     charges
+      if(.not.nga_create(mt_dbl, 1, na, 
+     >    'charges',1, ga_charges)) 
+     >  call errquit(
+     >       pname//'nga_create error ',0, RTDB_ERR)
+      call smd_data_put_int(sp_global,"charges",1,ga_charges)
+ccc
       call ga_sync()
 c
 c     get coordinate information
@@ -129,7 +127,7 @@ c
       integer ndims
       integer ga_handle
 c
-      pname = "smd_global_pull_res"
+      pname = "smd_global_update_res"
 c
       tag = "global"
       call smd_system_get_component(sp_global,tag,result)
@@ -154,22 +152,32 @@ c
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
-c
-      
-c      call smd_geom_monomer_index_size(ires,nt,int_mb(i_ir),nm,i0)
-
-c
+c     ----------------------------------------------------------------
+c     ndims is the size of 2nd dimension
+c     which is 3 for gradients, and 1 for scalar charges
+c     i0 is the beginning index of the residue ires in the atomic array
+c     nm is the size (number of atoms) in the residue ires
+c     ----------------------------------------------------------------
       if(atag.eq."coords") then
+        ndims = 3
         i0=int_mb(i_pr+ires-1)
         nm=int_mb(i_mr+ires-1)
         gtag = "coordinates"
         ltag = "coords"
       else if(atag.eq."dipoles") then
+        ndims = 3
         i0=ires
         nm=1
         gtag = "res-dipoles"
         ltag = "res_dipoles"
+      else if(atag.eq."charges") then
+        ndims = 1
+        i0=int_mb(i_pr+ires-1)
+        nm=int_mb(i_mr+ires-1)
+        gtag = "charges"
+        ltag = "charge"
       else if(atag.eq."gradients") then
+        ndims = 3
         i0=int_mb(i_pr+ires-1)
         nm=int_mb(i_mr+ires-1)
         gtag = "gradients"
@@ -195,8 +203,8 @@ c     ---------------
 c
 c     put/get data on/from global array
 c     ---------------------------
-        ilo = 3*(i0-1)+1
-        ihi = 3*(i0-1)+3*nm
+        ilo = ndims*(i0-1)+1
+        ihi = ndims*(i0-1)+ndims*nm
         if(oper.eq."put") then
           if(ga_nodeid().eq.0) then
             call nga_put(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
@@ -206,7 +214,7 @@ c     ---------------------------
             call nga_get(ga_handle,ilo,ihi, dbl_mb(i_c+ilo-1), 1)
           end if
           call ga_brdcst(msg_smd,dbl_mb(i_c+ilo-1),
-     >     3*nm*ma_sizeof(mt_dbl,1,mt_byte),0)
+     >     ndims*nm*ma_sizeof(mt_dbl,1,mt_byte),0)
         else
           call errquit(
      >       pname//'unknown operation',0, 0)
@@ -253,6 +261,9 @@ c
       else if(atag.eq."gradients") then
         gtag = "gradients"
         ltag = "force"
+      else if(atag.eq."charges") then
+        gtag = "charges"
+        ltag = "charge"
       else if(atag.eq."dipoles") then
         gtag = "res-dipoles"
         ltag = "res_dipoles"
@@ -333,6 +344,9 @@ c
       if(atag.eq."coords") then
         gtag = "coordinates"
         ltag = "coords"
+      else if(atag.eq."charges") then
+        gtag = "charges"
+        ltag = "charge"
       else if(atag.eq."dipoles") then
         gtag = "res-dipoles"
         ltag = "res_dipoles"
@@ -391,6 +405,8 @@ c
 c
       if(atag.eq."coords") then
         gtag = "coordinates"
+      else if(atag.eq."charges") then
+        gtag = "charges"
       else if(atag.eq."dipoles") then
         gtag = "res-dipoles"
       else if(atag.eq."gradients") then
@@ -453,6 +469,9 @@ c
       if(atag.eq."coords") then
         gtag = "coordinates"
         ltag = "coords"
+      else if(atag.eq."charges") then
+        gtag = "charges"
+        ltag = "charge"
       else if(atag.eq."gradients") then
         gtag = "gradients"
         ltag = "force"
@@ -517,7 +536,21 @@ c     ---------------
        if(.not.ga_destroy(ga_handle)) call errquit(
      >       pname//'cannot destroy '//gtag,0,0)
       end if
-    
+
+      gtag="charges"
+      call smd_data_get_int(sp_global,gtag,1,ga_handle,result)
+      if(result) then
+       if(.not.ga_destroy(ga_handle)) call errquit(
+     >       pname//'cannot destroy '//gtag,0,0)
+      end if
+
+      gtag="residue dipoles"
+      call smd_data_get_int(sp_global,gtag,1,ga_handle,result)
+      if(result) then
+       if(.not.ga_destroy(ga_handle)) call errquit(
+     >       pname//'cannot destroy '//gtag,0,0)
+      end if
+      
       call smd_namespace_destroy(sp_global)
  
       return
