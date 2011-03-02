@@ -9,7 +9,7 @@ c
       data smd_n /0/
       data smd_nd /smd_max_n*0/
 
-      end
+      end block data
 
       subroutine smd_data_get_sindex(sname,ns,result)
       implicit none
