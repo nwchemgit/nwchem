@@ -72,8 +72,10 @@ c        call smd_global_print("coords")
      &    call errquit(pname//'failed esp call', 100,
      &                 RTDB_ERR)
           call smd_geom_get_charges()
-          if(ga_nodeid().eq.0)
-     &         call smd_fragment_charge_set(im)
+          call smd_global_update_res("charges","put",im)
+          call smd_global_print("charges")
+c          if(ga_nodeid().eq.0)
+c     &         call smd_fragment_charge_set(im)
       else
         call errquit(pname//"unknown operation "//operation,0,0)
       end if
@@ -177,9 +179,10 @@ c     --------------
      *     call errquit('rtdb_cget task:theory failed',0,0)
 c
 c     pull the global charges/coords onto local set
-      call smd_fragment_charge_get_all()
+c      call smd_fragment_charge_get_all()
 c      write(msg,'(A20," 1 ",I3)') pname,im
 c      call smd_coords_check(msg)
+      call smd_global_update("charges","get")
       call smd_global_update("coords","get")
       call smd_global_update("dipoles","get")
 c      write(msg,'(A20," 2 ",I3)') pname,im
@@ -259,7 +262,7 @@ cc
      + call errquit(pname//'Failed to allocate memory for h_itmp',0,0)
 c
       nb = nr
-      call smd_geom_find_neighbors(im,nb,int_mb(i_itmp))
+      call smd_geom_find_neighbors(.true.,im,nb,int_mb(i_itmp))
       do j=1,nb
        write(*,*) "locks in",j,int_mb(i_itmp+j-1)
       end do

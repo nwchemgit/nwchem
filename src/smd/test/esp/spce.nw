@@ -14,7 +14,7 @@ smd
 # veloc input random output spce.vel
 # charge input charge.dat0 output charge.dat
  charge output charge.dat
- coord spce.pdb
+ coord input spce.pdb
  param smd.par
  ndata 2 nequil 1 nprint 10
  temp 300
@@ -47,7 +47,7 @@ print medium
 end
 
 set smd:fragment:istart 1
-set smd:fragment:iend 256
+set smd:fragment:iend 2
 set smd:fragment:chargetol 1.0D-5
 
 set smd:subgroups 8

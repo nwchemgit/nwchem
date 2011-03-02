@@ -83,6 +83,59 @@ c
       double precision eps,eps1
       integer nc
       integer i
+      integer gh
+c
+      pname = "task_smd_fragment_esp_charge"
+c      
+      tag1="smd:fragment:chargetol"
+      call smd_rtdb_get_dbl(tag1,1,eps,result)
+      if(.not.result) eps = 1.0D-4
+c      
+      tag1="smd:fragment:ncycles"
+      call smd_rtdb_get_int(tag1,1,nc,result)
+      if(.not.result) nc=10
+c
+      
+      call task_fragment_espcharge_populate("espcharge","t_espcharge")
+      call smd_system_set_component("task","t_espcharge")
+      call smd_global_create_copy("charges",gh)
+      do i=1,nc
+      call smd_task_iterate()
+      call smd_global_diff("charges",gh,eps1)      
+c      call smd_fragment_charge_diff(eps1)
+      if(ga_nodeid().eq.0) then
+       write(luout,*) "current charge difference is",eps1
+       call smd_charge_write_default()
+      end if
+      if(eps1.le.eps) then
+        if(ga_nodeid().eq.0) 
+     +        write(luout,*) "achieved charge convergence"
+         goto 10
+      end if
+      end do
+10    continue
+      return
+      END
+
+      function task_smd_fragment_espcharge1()
+      implicit none
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+      integer rtdb
+      logical task_smd_fragment_espcharge1
+      logical result
+c
+      character*30 pname
+      character*30 operation,tag1
+c
+      double precision energy
+      double precision eps,eps1
+      integer nc
+      integer i
 c
       pname = "task_smd_fragment_esp_charge"
 c      

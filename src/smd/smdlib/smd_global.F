@@ -96,7 +96,9 @@ c     get coordinate information
 c     --------------------------
       call smd_global_update("coords","put")
       call smd_global_update("gradients","put")
+      call smd_global_update("charges","put")
 c
+      call smd_global_print("charges")
       return
       end
 
@@ -394,6 +396,8 @@ c
       logical result
 c
       integer gh0
+      integer type,ndim,dims
+      integer type0,ndim0,dims0
 c
       pname = "smd_global_get_copy"
 c
@@ -423,15 +427,28 @@ c     ---------------
       if(.not.result) call errquit(
      >       pname//'no coordindates ',0,0)
 c
-c      call ga_print(gh)
-c      call ga_print(gh0)
+      write(*,*) "check gh"
+      call ga_print(gh)
+      write(*,*) "check gh0"
+      call ga_print(gh0)
 c
       call ga_add(1.0d0,gh,-1.0d0,gh0,gh)
       call ga_norm_infinity(gh,eps)
       call ga_copy(gh0,gh)
 
+      call nga_inquire(gh,type,ndim,dims)
+      call nga_inquire(gh0,type0,ndim0,dims0)
      
- 
+      if(type.ne.type0) then
+        call errquit(pname//'incomp types ',0,0) 
+      end if
+      if(ndim.ne.ndim0) then
+        call errquit(pname//'incomp ndim ',0,0) 
+      end if
+      if(dims.ne.dims0) then
+        call errquit(pname//'incomp dims',0,0) 
+      end if
+
       return
       end
 

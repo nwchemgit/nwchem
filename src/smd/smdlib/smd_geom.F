@@ -53,43 +53,29 @@ c      write(*,*) "out of "//pname
 #include "stdio.fh"
       integer im
 c     
-      character*(smd_string_size) sp_geom,sp_atom
+      character*(smd_string_size) sp_geom
       character*(smd_string_size) tag,pname
       logical result
       integer h_itmp,i_itmp
       integer nb,nr
-      integer h_c,i_c,h_ct,i_ct
       integer i_nb
       integer nt
       integer ng
       integer i,j
       integer i_pr,i_mr
       integer i_im,i_nm
-      integer i_c1,i_ms1,i_t1,i_qf1
-      integer i_sht
-      integer i_qf,i_m,i_ta
-      integer rtdb
-      integer igroup
       character*64 msg
 
       pname = "smd_geom_init_system"
-c
-c      write(msg,'(A20," 1 ",I3)') pname,im
-c      call smd_coords_check(msg)
-c
-      call smd_group_id_get(igroup)
-c
-
-      call util_message("in "//pname)
 c
       tag = "geom"
       call smd_system_get_component(sp_geom,tag,result)
       if(.not.result)
      >  call errquit(
      >       pname//'no component '//tag,0,0)
-c      call smd_namespace_create(sp_geom)
-c      call util_message(pname//":1")
 c
+c     get locations of residues in the atomic arrays
+c     ----------------------------------------------
       tag = "atom:res_pointer"
       call smd_get_ind_dim(tag,i_pr,nr,result)
       if(.not. result) 
@@ -102,14 +88,13 @@ c
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 c
-c
 c     determine neighbors around im
 c     -----------------------------
       if(.not.ma_push_get(mt_int,nr,'tmp i',h_itmp,i_itmp))
      + call errquit(pname//'Failed to allocate memory for h_itmp',0,0)
 c
       nb = nr
-      call smd_geom_find_neighbors(im,nb,int_mb(i_itmp))
+      call smd_geom_find_neighbors(.true.,im,nb,int_mb(i_itmp))
       if(ga_nodeid().eq.0) then
         write(luout,*) "cluster information",
      +    (int_mb(i_itmp+i-1),i=1,nb)
@@ -147,34 +132,9 @@ c
       if(.not.ma_pop_stack(h_itmp))
      & call errquit(pname//'Failed to deallocate stack h_itmp',0,
      &       MA_ERR)
-c     
-c     get copy of coordinates
-c     ----------------------
-      tag = "coords"
-      call smd_get_ind_dim(tag,i_c,nt,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-c
-      tag = "mass"
-      call smd_get_ind(tag,i_m,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-c
-      tag = "atom:name"
-      call smd_get_ind(tag,i_ta,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for '//tag,0, RTDB_ERR)
-c
-      tag = "atom:formal_charge"
-      call smd_get_ind(tag,i_qf,result)
-      if(.not. result) 
-     >  call errquit(
-     >       pname//'error getting index for'//tag,0, RTDB_ERR)
-c
 c    
+c     create geometry
+c     --------------
       call smd_geom_create()
 
       call util_message("out "//pname)
@@ -1021,13 +981,15 @@ c
   
       end
 
-      subroutine smd_geom_find_neighbors(icr,nb,inb)
+      subroutine smd_geom_find_neighbors(oinclude,icr,nb,inb)
 
       implicit none
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "smd_const_data.fh"
 #include "stdio.fh"
+c     if oinclude central residue is included
+      logical oinclude
       integer icr
       integer nb
       integer inb(nb)
@@ -1102,8 +1064,12 @@ c
      >                                  int_mb(i_l),
      >                                  int_mb(i_inb))
 
-      j = 1
-      inb(j) = icr
+      if(oinclude) then
+        j = 1
+        inb(j) = icr
+      else
+        j = 0
+      end if
       do i=1,nr
        if(int_mb(i_inb+i-1).ne.0) then
          j = j+1
@@ -1111,24 +1077,6 @@ c
        end if
       end do
       nb = j
-c        write(luout,*) "cluster information",
-c     +    (inb(i),i=1,nb)
-c      j = 0
-c      do i=1,nr
-c       if(int_mb(i_inb+i-1).ne.0) then
-c         j = j+1
-c         int_mb(i_inb+j-1) = i
-c       end if
-c      end do
-c      nb=j+1
-c      int_mb(i_inb+nb-1) = int_mb(i_inb)
-c      int_mb(i_inb) = icr 
-c
-c      write(*,*) "test :"//pname
-c      do i=1,nb
-c         write(*,*) int_mb(i_inb+i-1),inb(i)
-c      end do
-
 
 
       if(.not.ma_pop_stack(h_nb))
@@ -1218,12 +1166,6 @@ c
       end do
       end do
 
-c      write(79,*) "neighbors of residue",icr
-c      do i=1,nr
-c      if(inb(i).eq.1) then
-c        write(79,*) i
-c      end if
-c      end do
       return
 
       end
