@@ -48,7 +48,7 @@ print medium
 end
 
 set smd:fragment:istart 1
-set smd:fragment:iend 2
+set smd:fragment:iend 1
 set smd:fragment:theory "dft"
 set smd:fragment:parallel .false.
 
