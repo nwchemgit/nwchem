@@ -110,6 +110,7 @@ c
      $     g(max_nvar),         ! Current gradient in optimization variables
      $     ds(max_nzvar),       ! Current search direction in opt. var.
      $     energyp,             ! Previous energy
+     $     energypp,            ! Previous previous energy
      $     alphap,              ! Previous alpha
      $     sp(max_nvar),        ! Previous values of optimization variables
      $     dsp(max_nvar),       ! Previous search direction
@@ -118,6 +119,7 @@ c
       character*8 lsmode        ! Action taken by previous line search
 c
       common /coptimize/ gmax, grms, smax, srms, xmax, xrms,
-     $     energy, energyp, alpha, alphap, gx, gq, g, gp, ds, dsp, sp
+     $     energy, energyp, alpha, alphap, gx, gq, g, gp, ds, dsp, sp,
+     $     energypp
 c
       common /ccoptimize/ lsmode

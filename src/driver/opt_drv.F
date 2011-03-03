@@ -1335,6 +1335,7 @@ c
       lsmode = ' '
       energy = 0d0
       energyp= 0d0
+      energypp=0d0
       alphap = 1d0
       alpha  = 1d0
       gmax   = 0d0
@@ -1725,7 +1726,7 @@ c
         if (ostress) then
            do i = top+1,nvar
               j = ((i-top)+2)/(3) ! 1,1,1,2,2,2,3,3,3
-              dsmax = max(dsmax, abs(ds(i)/scaler(j))*6)!5% max, if trust=.3
+              dsmax = max(dsmax, abs(ds(i)/scaler(j))*12)!2.5% max, if trust=.3
               dsmax = max(dsmax, abs(ds(i)))
            enddo
         endif
@@ -1776,8 +1777,17 @@ c
       endif
       if ((energy-energyp) .gt. eprec) then
          alpha = min(0.5d0,0.5d0*alpha)
+         if ((energyp-energypp) .gt. eprec) then
+c          two bad steps in a row, scale alpha
+           alpha = min(0.3d0,0.5d0*alpha)
+         endif
          if (oprint) write(6,8) alpha
  8       format(' Restricting overall step due to uphill motion.  ',
+     $        ' alpha=', f6.2)
+      else if ((energyp-energypp) .gt. eprec) then
+         alpha = min(0.9d0,0.9d0*alpha) ! Did ok this step, but not last step
+         if (oprint) write(6,9) alpha
+ 9       format(' Restricting overall step due to uphill motion.  ',
      $        ' alpha=', f6.2)
       endif
 c
@@ -2209,6 +2219,7 @@ c
 c     Must ensure the geometry has the required symmetry even after
 c     enforcing it on the step.  Should use
 c     an error criterion consistent with the step size.
+c     For periodic systems this maps back to central cell
 c
       call sym_geom_project(geom, trust)
 c
@@ -3518,7 +3529,7 @@ c
      $           call errquit('geom_amatrix_get failed:', 0, GEOM_ERR)
       grp_num=geom_get_group_number(geom)
       if (ostress) then
-            bulk=1
+            bulk=5
             nat_real = (nvar/3)-3
             if (.not. geom_volume_get(geom,volume))
      $         call errquit('geom_volume_get failed',0, GEOM_ERR)
@@ -3529,7 +3540,9 @@ c
                  if((iat .eq. jat) .and. (i .eq. j))then
 !  The next lines are correct if Energy is porportional to PV, and we
 !  set second-derivative of Pressure term to 1.0, and pick a value for
-!  the bulk modulus
+!  the bulk modulus (note that diamond has a bulk modulus of 442 GPa,
+!  which is converts to Hartrees/bohr^3 with 0.000034, thus giving
+!  0.015.  We use a much larger value, because we are not near equilibrium.
                   if (i.eq.1) Then
                      k = 2
                      l = 3
