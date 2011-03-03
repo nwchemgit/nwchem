@@ -41,6 +41,118 @@ c      write(*,*) "out of "//pname
       return
       end
 
+      subroutine smd_geom_prepare()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "stdio.fh"
+      integer im
+      logical oinclude
+      character*(smd_string_size) sp_geom
+      character*(smd_string_size) tag,pname
+      logical result
+      integer h_itmp,i_itmp
+      integer nb,nr
+      integer i_nb
+      integer nt
+      integer ng
+      integer i,j
+      integer i_pr,i_mr
+      integer i_im,i_nm
+      character*64 msg
+
+      pname = "smd_geom_init_system"
+c
+      tag = "geom"
+      call smd_system_get_component(sp_geom,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c     get locations of residues in the atomic arrays
+c     ----------------------------------------------
+      tag = "atom:res_pointer"
+      call smd_get_ind_dim(tag,i_pr,nr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+      tag = "atom:res_size"
+      call smd_get_ind_dim(tag,i_mr,nr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+c     determine cluster residues
+c     --------------------------
+      tag = "icenter"
+      call smd_data_get_int(sp_geom,tag,1,im,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting central residue'//tag,0, RTDB_ERR)
+c
+      tag = "oinclude"
+      call smd_data_get_log(sp_geom,tag,1,oinclude,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting include flag'//tag,0, RTDB_ERR)
+
+      if(.not.ma_push_get(mt_int,nr,'tmp i',h_itmp,i_itmp))
+     + call errquit(pname//'Failed to allocate memory for h_itmp',0,0)
+c
+      nb = nr
+      call smd_geom_find_neighbors(oinclude,im,nb,int_mb(i_itmp))
+      if(ga_nodeid().eq.0) then
+        write(luout,*) "cluster information",
+     +    (int_mb(i_itmp+i-1),i=1,nb)
+        call util_flush(luout)
+      end if
+      tag = "neighbor_index"
+      call smd_data_put_int(sp_geom,tag,nb,int_mb(i_itmp))
+      call smd_data_get_index(sp_geom,tag,i_nb,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+c
+c     determine position and size (atom based) of the cluster residues
+c
+      tag = "position"
+      call smd_data_create_get(sp_geom,tag,nb,MT_INT,i_im)
+      tag = "size"
+      call smd_data_create_get(sp_geom,tag,nb,MT_INT,i_nm)
+      do i=1,nb
+        j=int_mb(i_nb+i-1)
+        int_mb(i_im+i-1)=int_mb(i_pr+j-1)
+        int_mb(i_nm+i-1)=int_mb(i_mr+j-1)
+      end do
+c
+c     total number of atoms in the geometry
+c     ------------------------------------
+      ng = 0
+      do i=1,nb
+        j=int_mb(i_nb+i-1)
+        ng=ng+int_mb(i_mr+j-1)
+      end do
+      tag = "ntot"
+      call smd_data_put_int(sp_geom,tag,1,ng)
+c      
+      if(.not.ma_pop_stack(h_itmp))
+     & call errquit(pname//'Failed to deallocate stack h_itmp',0,
+     &       MA_ERR)
+c    
+c     create geometry
+c     --------------
+      call smd_geom_create()
+
+      call util_message("out "//pname)
+
+      return
+      end
+
       subroutine smd_geom_init_system(im)
       implicit none
 #include "errquit.fh"

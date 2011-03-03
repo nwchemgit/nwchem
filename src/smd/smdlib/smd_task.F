@@ -341,7 +341,13 @@ c     -------------------
       tag = "task:itsk"
       call smd_data_put_int(sname,tag,1,itsk)
       if(ifunc.eq.i_smd_monomer) then
+       call util_message("1 "//pname)
+       call smd_task_init1()
+       call util_message("2 "//pname)
        call smd_monomer()
+       call util_message("3 "//pname)
+       call smd_task_end1()
+       call util_message("4 "//pname)
       else
        call errquit(
      >       pname//'unknown function ',ifunc,0)
@@ -414,8 +420,9 @@ c
       logical osb
       integer iskip
 c      
+      call util_io_enable()
       pname = "smd_task_iterate"
-c      call util_message("in "//pname)
+      call util_message("in "//pname)
       tag = "task"
       call smd_system_get_component(sname,tag,result)
       if(.not.result)
@@ -477,13 +484,14 @@ c
       goto 10
 c
 20    continue
+      call util_message("1 "//pname)
       if(osb) then
       call ga_pgroup_sync(ga_pgroup_get_world())
       call smd_group_end()
       end if
       if(.not.ga_destroy(ga_it)) call errquit(
      >       pname//'cannot destroy ga_it ',0,0)
-c      call util_message("out "//pname)
+      call util_message("out "//pname)
       return
 
       end subroutine
@@ -793,5 +801,203 @@ c     $        call errquit('memory deallocation',0,tmp_h_q)
 c         populate_done=.true.
 c      end if
 
-      end !populate_tasks
+      end subroutine
+c
+      subroutine smd_task_init1()
+      implicit none
+      integer itsk
+
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_fids.fh"
+#include "smd_const_data.fh"
+c
+      character*32 pname
+      logical oscratch
+      character*(smd_string_size)  tag
+      character*(smd_string_size)  sp_geom
+      character*(smd_string_size)  sp_task
+      character*(smd_string_size)  operation
+      character*(smd_string_size)  theory
+      logical result 
+      character*64 msg
+      integer im
+      logical oinclude
+      integer rtdb
+
+      pname = "smd_task_init1"
+c
+      tag = "geom"
+      call smd_system_get_component(sp_geom,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+      tag = "task"
+      call smd_system_get_component(sp_task,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c      
+c     current task index
+c     ------------------
+      tag = "task:itsk"
+      call smd_data_get_int(sp_task,tag,1,itsk,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no task:itsk '//tag,0,0)
+      write(*,*) "1"
+c
+c     grab global charges and coords
+c     ------------------------------
+      call smd_global_update("charges","get")
+      call smd_global_update("coords","get")
+c     set central residue
+      tag = "task:frag_id"
+      call smd_data_get_int1(sp_task,tag,itsk,itsk,im)
+      tag = "icenter"
+      call smd_data_put_int(sp_geom,tag,1,im)
+      write(*,*) "2"
+
+      tag = "oinclude"
+      call smd_data_get_log2(sp_task,tag,itsk,itsk,oinclude,result)
+      if(.not.result) oinclude=.true.
+      call smd_data_put_log(sp_geom,tag,1,oinclude)
+      write(*,*) "3"
+c
+c     create a copy of rtdb
+c     ---------------------
+      oscratch = .true.
+      call smd_rtdb_push_open_clone(itsk,oscratch,rtdb)
+      write(*,*) "4"
+c
+c     set operation theory
+c     --------------------
+      tag="task:operation"
+      call smd_data_get_string2(sp_task,tag,itsk,itsk,
+     >                          operation,result)
+      if(result) then
+        if (.not.(rtdb_cput(rtdb,'task:operation',1,operation)))
+     *       call errquit('rtdb_cput task:operation failed',0,0)
+      end if
+
+      tag="task:theory"
+      call smd_data_get_string2(sp_task,tag,itsk,itsk,
+     >                          theory,result)
+      if(result) then
+        if (.not.(rtdb_cput(rtdb,'task:theory',1,theory)))
+     *       call errquit('rtdb_cput task:theory failed',0,0)
+      end if
+      write(*,*) "5"
+
+c     create geometry object
+c     ---------------------
+      call smd_geom_prepare()
+      call smd_bq_init()
+      call ga_sync()
+      call smd_group_set_io_custom(im,"frag")
+      return
+      end subroutine
+c
+      subroutine smd_task_end1()
+      implicit none
+      integer itsk
+
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_fids.fh"
+#include "smd_const_data.fh"
+#include "bq.fh"
+c
+      character*32 pname
+      logical oscratch
+      character*(smd_string_size)  tag
+      character*(smd_string_size)  sp_geom
+      character*(smd_string_size)  sp_task
+      character*(smd_string_size)  operation
+      character*(smd_string_size)  theory
+      logical result 
+      character*64 msg
+      integer im
+      logical oinclude
+      integer rtdb
+      integer bq_handle
+
+      pname = "smd_task_end1"
+c
+c      write(*,*) pname//"10"
+      tag = "geom"
+      call smd_system_get_component(sp_geom,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+      tag = "task"
+      call smd_system_get_component(sp_task,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c      
+c     current task index
+c     ------------------
+      tag = "task:itsk"
+      call smd_data_get_int(sp_task,tag,1,itsk,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no task:itsk '//tag,0,0)
+c     central residue
+      tag = "task:frag_id"
+      call smd_data_get_int1(sp_task,tag,itsk,itsk,im)
+c
+c     what was the operation
+c     ----------------------
+      call smd_rtdb_get_handle(rtdb)
+      if (.not.(rtdb_cget(rtdb,'task:operation',1,operation)))
+     *       call errquit('rtdb_cget task:operation failed',0,0)
+c      
+      if(inp_compare(.false., 'dipole', operation)) then
+        call smd_geom_get_dipole()
+        call smd_global_update_res("dipoles","put",im)
+        call ga_sync()
+      else if(inp_compare(.false., 'gradient', operation)) then
+        call smd_geom_get_gradients()
+        call smd_global_update_res("gradients","put",im)
+        call ga_sync()
+      else if(inp_compare(.false., 'optimize', operation)) then
+        call smd_geom_get_coords()
+        call smd_global_update_res("coords","put",im)
+        call ga_sync()
+      else if(inp_compare(.false., 'espcharge', operation)) then
+        call util_message("1 "//pname)
+        call smd_geom_get_charges()
+        call util_message("2 "//pname)
+        call smd_global_update_res("charges","put",im)
+        call util_message("3 "//pname)
+        call smd_global_print("charges")
+        call util_message("4 "//pname)
+      end if
+
+      call ga_sync()
+      if(bq_get_active(bq_handle)) then
+        if(.not.bq_destroy(bq_handle))
+     +   call errquit(pname//'Failed bq_destroy',0,CALC_ERR)
+      end if
+
+      call smd_rtdb_pop()
+
+c      write(*,*) pname//"100"
+ 
+      return
+      end subroutine
+c
 
