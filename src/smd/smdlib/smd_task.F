@@ -1,22 +1,10 @@
-c     Wrapper method to invoke calculation on an SMD monomer calculation.
-c     @author Sriram Krishnamoorthy
-c
-c     This method is invoked from the dynamic process group client
-C     -server implementation.  
-
-
-c     Wrapper method invoked from the C client-server scheduler
-c     @param tskid IN Id of task to execute (here monomer id)
-c     @param p_grp IN Handle to GA group on which to execute
-c
-
       block data process_data
       implicit none
 #include "smd_task_data.fh"
       data populate_first_time /.true./
       data populate_done /.false./
       data itask /0/
-      end
+      end block data
 c
       subroutine smd_task_init_system()
       implicit none
