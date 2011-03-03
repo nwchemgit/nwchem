@@ -892,6 +892,9 @@ c     ---------------------
       return
       end subroutine
 c
+C>    Postprocessing and cleanup after
+C>    task has been performed
+C>    @see smd_task_init1() for preprocessing
       subroutine smd_task_end1()
       implicit none
       integer itsk
