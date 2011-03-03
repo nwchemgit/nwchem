@@ -54,6 +54,8 @@ c     Save old energy, gradient, searchdir and alpha, and compute
 c     new energy and gradient.
 c
          alphap  = alpha        ! Used in conjugacy and starting LS
+         energyp3= energyp2
+         energyp2= energyp
          energyp = energy       ! Used for convergence and step restriction
          call dcopy(nvar, g, 1, gp, 1) ! Used for Hessian update
          call dcopy(nvar, ds, 1, dsp, 1) ! Used for conjugacy
@@ -1335,7 +1337,8 @@ c
       lsmode = ' '
       energy = 0d0
       energyp= 0d0
-      energypp=0d0
+      energyp2=0d0
+      energyp3=0d0
       alphap = 1d0
       alpha  = 1d0
       gmax   = 0d0
@@ -1777,14 +1780,18 @@ c
       endif
       if ((energy-energyp) .gt. eprec) then
          alpha = min(0.5d0,0.5d0*alpha)
-         if ((energyp-energypp) .gt. eprec) then
+         if ((energyp-energyp2) .gt. eprec) then
 c          two bad steps in a row, scale alpha
            alpha = min(0.3d0,0.5d0*alpha)
+           if ((energyp2-energyp3) .gt. eprec) then
+c            3 bad steps in a row, scale alpha
+             alpha = min(0.2d0,0.6d0*alpha)
+           endif
          endif
          if (oprint) write(6,8) alpha
  8       format(' Restricting overall step due to uphill motion.  ',
      $        ' alpha=', f6.2)
-      else if ((energyp-energypp) .gt. eprec) then
+      else if ((energyp-energyp2) .gt. eprec) then
          alpha = min(0.9d0,0.9d0*alpha) ! Did ok this step, but not last step
          if (oprint) write(6,9) alpha
  9       format(' Restricting overall step due to uphill motion.  ',
@@ -3539,7 +3546,7 @@ c
                do j = 1, 3
                  if((iat .eq. jat) .and. (i .eq. j))then
 !  The next lines are correct if Energy is porportional to PV, and we
-!  set second-derivative of Pressure term to 1.0, and pick a value for
+!  set second-derivative of Pressure term to 10.0, and pick a value for
 !  the bulk modulus (note that diamond has a bulk modulus of 442 GPa,
 !  which is converts to Hartrees/bohr^3 with 0.000034, thus giving
 !  0.015.  We use a much larger value, because we are not near equilibrium.
@@ -3564,7 +3571,7 @@ c
                      lat = 2
                   endif
                   HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) =
-     $                1.0 +
+     $                10.0 +
      $                (2*bulk/volume)*abs(amat(k,kat)*amat(l,lat)-
      $                                    amat(k,lat)*amat(l,kat))
 !  The next lines are correct if Energy is porportional to Volume
