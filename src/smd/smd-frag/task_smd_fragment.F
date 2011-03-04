@@ -1,4 +1,5 @@
 C> Main entry point for fragment calculations
+C> @param[in] rtdb handle
       function task_smd_fragment(rtdb)
       implicit none
       integer rtdb
@@ -22,6 +23,10 @@ c
       external task_smd_fragment_optimize
       logical task_smd_fragment_espcharge
       external task_smd_fragment_espcharge
+      logical  task_smd_fragment_energy
+      external task_smd_fragment_energy
+      logical  task_smd_fragment_gradient
+      external task_smd_fragment_gradient
       pname = "task_smd_fragment"
 c
       if (.not. rtdb_cget(rtdb,'task:operation', 1,operation))
@@ -43,20 +48,27 @@ c
       else if(inp_compare(.false., 'optimize', operation)) then
          result=task_smd_fragment_optimize()
          goto 10
+      else if(inp_compare(.false., 'gradient', operation)) then
+         result=task_smd_fragment_gradient()
+         goto 10
+      else if(inp_compare(.false., 'energy', operation)) then
+         result=task_smd_fragment_energy()
+         goto 10
+      else
+        call errquit(pname//'unknown operation'//operation,0,0) 
       end if
-      energy = 0.0d0
-      if(ga_nodeid().eq.0) 
-     +    call util_io_enable()
-      result = .true.
-      call smd_task_iterate()
 10    continue
+c     reopen main rtdb
+c     ----------------
       call smd_rtdb_open(rtdb)
+c     fake energy for top level
+c     ------------------------
       energy =0.0d0
       if (.not. rtdb_put(rtdb,'fragment:energy',mt_dbl,1,energy))
      $     call errquit(pname//'failed put energy', 0, RTDB_ERR)
       task_smd_fragment = .true.
 
-      call util_message("done with task_smd_fragment_energy")
+      call util_message("done with task_smd_fragment")
       if(ga_nodeid().eq.0) then
        call smd_charge_write_default()
       end if
@@ -196,6 +208,56 @@ c
       end if
       end do
 10    continue
+      return
+      END
+
+C> Calculates individual energies for specified fragments in the
+C> system 
+      function task_smd_fragment_energy()
+      implicit none
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+      integer rtdb
+      logical task_smd_fragment_energy
+      logical result
+c
+      character*30 pname
+      character*30 operation,tag1
+c
+      pname = "task_smd_fragment_energy"
+c      
+      call task_fragment_populate("energy","t_energy")
+      call smd_system_set_component("task","t_energy")
+      call smd_task_iterate()
+      return
+      END
+
+C> Calculates individual gradients for specified fragments in the
+C> system 
+      function task_smd_fragment_gradient()
+      implicit none
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "stdio.fh"
+#include "errquit.fh"
+      integer rtdb
+      logical task_smd_fragment_gradient
+      logical result
+c
+      character*30 pname
+      character*30 operation,tag1
+c
+      pname = "task_smd_fragment_gradient"
+c      
+      call task_fragment_populate("gradient","t_gradient")
+      call smd_system_set_component("task","t_gradient")
+      call smd_task_iterate()
       return
       END
 
