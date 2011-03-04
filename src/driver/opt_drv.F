@@ -1793,6 +1793,10 @@ c            3 bad steps in a row, scale alpha
      $        ' alpha=', f6.2)
       else if ((energyp-energyp2) .gt. eprec) then
          alpha = min(0.9d0,0.9d0*alpha) ! Did ok this step, but not last step
+         if ((energyp2-energyp3) .gt. eprec) then
+c          Did OK this step, but not last two steps
+           alpha = min(0.7d0,0.8d0*alpha)
+         endif
          if (oprint) write(6,9) alpha
  9       format(' Restricting overall step due to uphill motion.  ',
      $        ' alpha=', f6.2)
@@ -3582,7 +3586,7 @@ c
                   k = (1+2+3)-(i+j) ! the other x,y,z coordinate
                   kat = (1+2+3) - (iat+jat) ! the other 'atom'
                   HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 
-     $                   abs(amat(k,kat))*0.001
+     $                   (amat(k,kat))*0.001
 !  I think the above term should be symmetry correct to start with. KRG
                  end if
                end do
@@ -4114,7 +4118,7 @@ C     Add some to diagonal for stability, just in case of lone floating atom
          if (abs(astress(j,i)) .lt. 1.0d-10) astress(j,i)=0.0d0
        enddo
       enddo
-!
+! TODO This ignores the net rotation of matrices from "standard orientation"
       return
       end
 
