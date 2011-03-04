@@ -67,6 +67,16 @@ c
       call ga_zero(g_vecB1) ! initialize array for main result
 
       debug = .false. .and. (ga_nodeid().eq.0) ! special debugging
+
+c     there is a possibility that this routine is called from tddft
+c     in which case use_theory is not set. We set it to 'dft' in that case,
+c     assuming that we are indeed calling from some DFT response code
+
+      if ((use_theory.ne.'scf').and.(use_theory.ne.'dft')) then
+        if (ga_nodeid().eq.0) write (luout,*)
+     &     'fiao_b1_movecs: assuming DFT/TDDFT'
+        use_theory = 'dft'
+      end if
 c
 c     Current CPHF does not handle symmetry 
 c     Making C1 geometry and store it on rtdb

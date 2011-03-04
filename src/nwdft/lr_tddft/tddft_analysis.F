@@ -151,9 +151,13 @@ c     are hardwired here:
       double precision ga_trace_diag
       external ga_trace_diag
       character*32 pname
+      character*3 theory
       double precision origin(3)
       data origin/0d0,0d0,0d0/
-      logical debug, fakegiao, lquad
+      logical debug, fakegiao, lquad, status
+      logical grid_clinit, xc_gotxc
+      external grid_clinit, xc_gotxc
+
 c
       double precision zero, one, two, three, half, third
       parameter (zero = 0d0, one=1d0, two=2d0, three=3d0,
@@ -305,9 +309,9 @@ c     involved
      &     call 
      &     errquit('tddft_ana: nga_create failed g_sket1',0,GA_ERR)
         call ga_zero(g_sket1)
-        
-c       jochen: tested this first with FIAOs which also worked fine
 
+c       jochen: tested this first with FIAOs which also worked fine
+       
         if (fakegiao) then
           call fiao_b1_movecs(rtdb,ao_bas_han, geom, g_vecB1)
           ! scaling by 0.5 was already done in that subroutine

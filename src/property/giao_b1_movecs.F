@@ -59,6 +59,8 @@ c
       external cphf2, file_write_ga, file_read_ga, cphf
 
       logical     oskel, status, debug
+      logical  xc_gotxc
+      external xc_gotxc
       double precision ppm
       data tol2e   /1.0d-10/
 
@@ -68,7 +70,23 @@ c
 
       call ga_zero(g_vecB1) ! initialize array for main result
 
-      debug = .true. .and. (ga_nodeid().eq.0) ! special debugging
+      debug = .false. .and. (ga_nodeid().eq.0) ! special debugging
+
+      if (debug) then
+        write (luout,*) 'giao_b1_movecs: xc_gotxc =',xc_gotxc()
+        write (luout,*) 'giao_b1_movecs: use_theory =',use_theory
+      end if
+
+c     there is a possibility that this routine is called from tddft
+c     in which case use_theory is not set. We set it to 'dft' in that case,
+c     assuming that we are indeed calling from some DFT response code
+
+      if ((use_theory.ne.'scf').and.(use_theory.ne.'dft')) then
+        if (ga_nodeid().eq.0) write (luout,*)
+     &     'giao_b1_movecs: assuming DFT/TDDFT'
+        use_theory = 'dft'
+      end if
+
 c
 c     Current CPHF does not handle symmetry 
 c     Making C1 geometry and store it on rtdb

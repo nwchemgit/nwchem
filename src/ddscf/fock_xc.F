@@ -61,7 +61,7 @@ c
       integer dims(3),chunk(3)
       integer igxcd,lgxcd
       integer xc_getipol
-      logical oprint
+      logical oprint, debug
       integer alo(3), ahi(3), blo(3), bhi(3)
       integer nfock_xc,i
       integer ityp, ndim
@@ -72,6 +72,9 @@ c
 c
       if(.not.xc_gotxc()) return
       oprint= util_print('fock_xc',print_debug)
+
+c ... jochen: 
+      debug = .false.
 c
 c Note that ndens=ipol and is not necessarily
 c equal to No. of density matrices.  "nfock" or "nmat"
@@ -93,12 +96,12 @@ c     Get fock_xc variables
 c
       if (.not. rtdb_get(rtdb, 'fock_xc:calc_type', mt_int, 1,
      &   calc_type)) then
-         if (oprint.and.ga_nodeid().eq.0)
+         if ((oprint.or.debug).and.ga_nodeid().eq.0)
      &      write(luout,*)' fockxc: calc_type not set: setting to 1'
          calc_type = 1
       endif
       if (calc_type .eq. 0) then
-         if (oprint.and.ga_nodeid().eq.0)
+         if ((oprint.or.debug).and.ga_nodeid().eq.0)
      &      write(luout,*)' fockxc: calc_type not set: setting to 1'
          calc_type = 1
       endif
@@ -119,7 +122,7 @@ c
       if(ndens.eq.2)  then
          nfock_xc=nfock/4
       endif
-      if (oprint.and.ga_nodeid().eq.0) then
+      if ((debug.or.oprint).and.ga_nodeid().eq.0) then
          write(luout,*) '--------Entered fock_xc-------------'
          write(luout,*) ' calc_type =',calc_type
          write(luout,*) ' nfock ',nfock,' ndens ',ndens
@@ -132,8 +135,10 @@ c
 c     assumed l3d true AND calc_type=2
 c
       if(l3d.and.calc_type.ne.2.or.
-     &   (.not.l3d).and.calc_type.eq.2) call errquit
-     &   ('fxc: calc_type-l3d logic wrong ',0, UNKNOWN_ERR)
+     &   (.not.l3d).and.calc_type.eq.2) then
+        write (luout,*) 'l3d, calc_type =',l3d,calc_type
+        call errquit ('fxc: calc_type-l3d logic wrong ',0, UNKNOWN_ERR)
+      end if
 c
 c     Set up local copies of density matrix handles. The number of 
 c     density matrices needed is ndens*nvec+2. The last two are scf
