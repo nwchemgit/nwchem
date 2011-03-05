@@ -756,7 +756,7 @@ c
      &      dbl_mb(mb_exndcf(j_icfp,jbas)),
      &      dbl_mb(mb_exndcf(j_icfpS,jsbas)),j_prim,j_gen,Lj,
      &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
-     &      geom_invnucexp(1,i_geom),ncenter(cosmo_geom_efc),
+     &      geom_invnucexp(1,cosmo_geom_efc),ncenter(cosmo_geom_efc),
      &      S,T,V,lstv,doS,doT,doV,canAB,onw_ok,ohnd_ok,oNR,.false.,
      &      scr,lscr,rel_dbg,rel_typ)
       else if (ohnd_ok) then
@@ -780,7 +780,7 @@ c
      &        dbl_mb(mb_exndcf(j_icfp,jbas)),
      &        j_prim, j_gen, Lj, j_cent,
      &        coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
-     &        geom_invnucexp(1,i_geom),ncenter(cosmo_geom_efc),
+     &        geom_invnucexp(1,cosmo_geom_efc),ncenter(cosmo_geom_efc),
      &        S,T,V,lstv,doS,doT,doV,canAB,.false.,
      &        scr,lscr,'int_1eefc')
       elseif (onw_ok) then
@@ -790,7 +790,7 @@ c
      &      coords(1,j_cent,j_geom),dbl_mb(mb_exndcf(j_iexp,jbas)),
      &      dbl_mb(mb_exndcf(j_icfp,jbas)), j_prim, j_gen, Lj,
      &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
-     &      geom_invnucexp(1,i_geom),ncenter(cosmo_geom_efc),
+     &      geom_invnucexp(1,cosmo_geom_efc),ncenter(cosmo_geom_efc),
      &      S,T,V,lstv,doS,doT,doV,canAB,.false.,
      &      scr,lscr)
       else
@@ -962,7 +962,7 @@ c
       data WarnP /0/
 c 
       integer bq_ncent
-      integer i_qbq,i_cbq
+      integer i_qbq,i_cbq,h_xbq0,i_xbq0
 c
 #include "bas_exndcf_sfn.fh"
 #include "bas_ibs_sfn.fh"
@@ -1092,6 +1092,9 @@ c     ------------------------------
       bq_ncent = geom_extbq_ncenter()
       i_cbq = geom_extbq_coord()
       i_qbq = geom_extbq_charge()
+      if(.not.ma_push_get(mt_dbl,bq_ncent,'xbq',h_xbq0,i_xbq0))
+     +     call errquit( 'int_1eefc',0,0)
+      call dfill(bq_ncent,0.d0,dbl_mb(i_xbq0),1)
 c
       if (orel) then
         call rel_onel (
@@ -1106,7 +1109,7 @@ c
 c     &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
 c     &      geom_invnucexp(1,i_geom),ncenter(cosmo_geom_efc),
      &      dbl_mb(i_cbq),dbl_mb(i_qbq),
-     &      geom_invnucexp(1,i_geom),bq_ncent,
+     &      dbl_mb(i_xbq0),bq_ncent,
      &      S,T,V,lstv,doS,doT,doV,canAB,onw_ok,ohnd_ok,oNR,.false.,
      &      scr,lscr,rel_dbg,rel_typ)
       else if (ohnd_ok) then
@@ -1134,7 +1137,7 @@ c
 c     &        coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
 c     &        geom_invnucexp(1,i_geom),ncenter(cosmo_geom_efc),
      &        dbl_mb(i_cbq),dbl_mb(i_qbq),
-     &        geom_invnucexp(1,i_geom),bq_ncent,
+     &        dbl_mb(i_xbq0),bq_ncent,
      &        S,T,V,lstv,doS,doT,doV,canAB,.false.,
      &        scr,lscr,'int_1eefc')
       elseif (onw_ok) then
@@ -1146,13 +1149,16 @@ c     &        geom_invnucexp(1,i_geom),ncenter(cosmo_geom_efc),
 c     &      coords(1,1,cosmo_geom_efc),charge(1,cosmo_geom_efc),
 c     &      geom_invnucexp(1,i_geom),ncenter(cosmo_geom_efc),
      &      dbl_mb(i_cbq),dbl_mb(i_qbq),
-     &      geom_invnucexp(1,i_geom),bq_ncent,
+     &      dbl_mb(i_xbq0),bq_ncent,
      &      S,T,V,lstv,doS,doT,doV,canAB,.false.,
      &      scr,lscr)
       else
         call errquit('int_1eov: could not do hnd, sp or nw integrals',
      &                0, INT_ERR)
       endif
+c
+      if(.not.ma_pop_stack(h_xbq0))
+     +     call errquit( 'int_1eefc',0,0)
 c
 *     We now have the cartesian integral block(s)  (jlo:jhi,ilo:ihi)
 *      
