@@ -98,7 +98,6 @@ c     --------------------------
       call smd_global_update("gradients","put")
       call smd_global_update("charges","put")
 c
-      call smd_global_print("charges")
       return
       end
 
@@ -427,10 +426,10 @@ c     ---------------
       if(.not.result) call errquit(
      >       pname//'no coordindates ',0,0)
 c
-      write(*,*) "check gh"
-      call ga_print(gh)
-      write(*,*) "check gh0"
-      call ga_print(gh0)
+c      write(*,*) "check gh"
+c      call ga_print(gh)
+c      write(*,*) "check gh0"
+c      call ga_print(gh0)
 c
       call ga_add(1.0d0,gh,-1.0d0,gh0,gh)
       call ga_norm_infinity(gh,eps)

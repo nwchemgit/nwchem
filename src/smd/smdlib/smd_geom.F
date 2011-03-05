@@ -502,14 +502,14 @@ c     ---------------------------
          cshift(j)=c(j,i0)
       end do
 
-c      write(*,*) "cordinates"
-c      do i=1,nm
-c      do j=1,3
-c         write(*,*) c(j,i0+i-1)
-c         dbl_mb(i_ftmp+(i-1)*3+j-1)=
-c     +         c(j,i0+i-1)-cshift(j)
-c      end do
-c      end do
+      write(*,*) "cordinates"
+      do i=1,nm
+      do j=1,3
+         write(*,*) c(j,i0+i-1)
+         dbl_mb(i_ftmp+(i-1)*3+j-1)=
+     +         c(j,i0+i-1)-cshift(j)
+      end do
+      end do
  
 c     fold in other coordinates potentially
 c     cutoff by the box boundary
