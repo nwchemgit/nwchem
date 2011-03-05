@@ -101,7 +101,7 @@ c
       if (dobq) then
          call int_1e_ooldga(ibas, jbas, g, integ_type1, oskel)
          if(inp_compare(.false., integ_type1, 'potential'))
-     &      call int_1e_oldga(ibas, jbas, g, 'bq_pot', oskel)
+     &      call int_1e_ooldga(ibas, jbas, g, 'bq_pot', oskel)
       else
          call int_1e_oldga(ibas, jbas, g, integ_type1, oskel)
       end if
