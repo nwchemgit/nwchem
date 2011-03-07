@@ -229,7 +229,7 @@ c        skipping printout due to potentially large number of points
 c        -----------------------------------------------------------
            write(luout,9995) iat,"point",xp,yp,zp,elf(1),elf(2),elf(3),
      &                       elfld
-         else
+         else if (.not.do_points) then
            if (.not. geom_cent_tag(geom,iat,at_tag)) call
      &        errquit('hnd_elfmap: geom_cent_tag failed',0,GEOM_ERR)
            if (.not.geom_tag_to_element(at_tag,symbol,element,atn)) then
