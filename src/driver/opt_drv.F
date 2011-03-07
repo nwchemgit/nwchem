@@ -1732,6 +1732,12 @@ c
               dsmax = max(dsmax, abs(ds(i)/scaler(j))*12)!2.5% max, if trust=.3
               dsmax = max(dsmax, abs(ds(i)))
            enddo
+           do i = top+1,nvar,3
+              j = ((i-top)+2)/(3) ! 1,1,1,2,2,2,3,3,3
+              dum1 = abs(ds(i))+abs(ds(i+1))+abs(ds(i+2)) ! Total change in a vector
+              dsmax = max(dsmax, abs(dum1/scaler(j))*9)!3.5% max, if trust=.3
+              dsmax = max(dsmax, abs(dum1))
+           enddo
         endif
         if (ostress2) then
            do i = top+1,top+3! Lengths
@@ -1789,18 +1795,19 @@ c            3 bad steps in a row, scale alpha
            endif
          endif
          if (oprint) write(6,8) alpha
- 8       format(' Restricting overall step due to uphill motion.  ',
-     $        ' alpha=', f6.2)
       else if ((energyp-energyp2) .gt. eprec) then
          alpha = min(0.9d0,0.9d0*alpha) ! Did ok this step, but not last step
          if ((energyp2-energyp3) .gt. eprec) then
 c          Did OK this step, but not last two steps
            alpha = min(0.7d0,0.8d0*alpha)
          endif
-         if (oprint) write(6,9) alpha
- 9       format(' Restricting overall step due to uphill motion.  ',
-     $        ' alpha=', f6.2)
+         if (oprint) write(6,8) alpha
+      else if ((energy-energyp3) .gt. eprec) then
+         alpha = min(0.9d0,0.9d0*alpha) ! Higher than 3 steps ago, but this and last step are OK
+         if (oprint) write(6,8) alpha
       endif
+ 8       format(' Restricting overall step due to uphill motion.  ',
+     $        ' alpha=', f6.2)
 c
       if (.not. ma_chop_stack(l_hess)) call errquit
      $     ('driver_search_dir: ma?',0, MA_ERR)
