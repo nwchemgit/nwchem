@@ -1984,7 +1984,8 @@ c     Return with alpha, geom as the accepted point.
 c
 c     Only alpha and geom are modified.
 c
-      double precision e0, e1, e2, alphanew, a, dsgrad
+      double precision e0, e1, e2p, dsgrad
+      double precision hess, a0, a1, a2
       double precision driver_energy_step
 c
       call errquit('line search2 not implemented',0, CAPMIS_ERR)
@@ -1997,14 +1998,16 @@ c
       endif
 c
       e0 = energy
+      a0 = 0d0
 c
 c     Compute energy at alpha*ds
 c
       e1 = driver_energy_step(rtdb, geom)
+      a1 = alpha
 c
 c     Fit to a parabola using e0, g0, e1
 c
-      a = (e1-e0-alpha*dsgrad)/alpha**2
+      hess = (e1-e0-alpha*dsgrad)/alpha**2
 c
       if (abs(e1-e0) .lt. eprec) then
 c
@@ -2012,27 +2015,27 @@ c     Insufficient precision in the energy to do anything else
 c
 c     If this condition persists we should switch off the LS.
 c
-         alphanew = alpha 
+         a2 = alpha 
          lsmode = 'fixed'
-      else if (a .gt. 0d0) then
+      else if (hess .gt. 0d0) then
 c
 c     Positive curvature.  Compute NR step, and ...
 c     1) If we went downhill take the step with some restriction
 c     2) If we went uphill then take the step if it is in [0,alpha]
 c     .  otherwise take alpha/2.
 c
-         alphanew = -dsgrad/(2d0*a)
+         a2 = -dsgrad/(2d0*hess)
          if ((e1 - e0) .lt. eprec ) then ! Downhill
             lsmode = 'downhill'
-            if (abs(alphanew) .gt. 4d0*abs(alpha)) then 
+            if (abs(a2) .gt. 4d0*abs(alpha)) then 
                lsmode = 'restrict'
-               alphanew = sign(4d0*abs(alpha),alphanew)
+               a2 = sign(4d0*abs(alpha),a2)
             endif
          else                   ! Uphill
             lsmode = 'bracket'
-            if (abs(alphanew) .gt. abs(alpha)) then
+            if (abs(a2) .gt. abs(alpha)) then
                lsmode = 'confused'
-               alphanew = alpha/2d0
+               a2 = alpha/2d0
             endif
          endif
       else
@@ -2044,14 +2047,14 @@ c     .   Just accept the current point.
 c
          if ((e1 - e0) .lt. eprec ) then ! Downhill
             lsmode = 'negative'
-            alphanew = 2d0*alpha
+            a2 = 2d0*alpha
          else
             lsmode = 'punt'
-            alphanew = alpha
+            a2 = alpha
          endif
       endif
 c
-c     Now have alphanew.  If it is close to alpha or does
+c     Now have a2.  If it is close to alpha or does
 c     not give us much energy lowering then just
 c     return alpha so that any SCF/MCSCF/DFT does not have to
 c     be repeated before computing the next gradient.
@@ -2063,20 +2066,20 @@ c     Added accept of alpha if predicted energy lowering is
 c     less than energy precision.  Should diminish thrashing
 c     around on flat surfaces.
 c
-      e2 = e0 + dsgrad*alphanew + a*alphanew**2
-      if ( (abs(alphanew-alpha) .lt. abs(0.1d0*alpha)) .or.
-     $     ((e2-e1) .gt. 0.01*(e1-e0)) .or.
-     $     (abs(e2-e1) .lt. eprec) )then
+      e2p = e0 + dsgrad*a2 + hess*a2**2
+      if ( (abs(a2-alpha) .lt. abs(0.1d0*alpha)) .or.
+     $     ((e2p-e1) .gt. 0.01*(e1-e0)) .or.
+     $     (abs(e2p-e1) .lt. eprec) )then
          lsmode = 'accept'
-         alphanew = alpha
+         a2 = alpha
       endif
-      e2 = e0 + dsgrad*alphanew + a*alphanew**2
+      e2p = e0 + dsgrad*a2 + hess*a2**2
 c
-      if (oprint) write(6,1) alpha, dsgrad, a, e1, lsmode, alphanew, e2
+      if (oprint) write(6,1) alpha, dsgrad, hess, e1, lsmode, a2, e2p
  1    format(' Line search: ',/, '     step=',f5.2, ' grad=',1p,d8.1,0p,
      $     ' hess=',1p,d8.1,0p,' energy=',f14.6,' mode=',a,/,
      $     ' new step=',f5.2, 19x,'predicted energy=',f14.6)
-      alpha = alphanew
+      alpha = a2
 c
 c     Mode will be used by search_dir on the next iteration to
 c     figure out if the LS was complete or not.  To make this decision
@@ -2084,12 +2087,16 @@ c     easier reassign mode to be either ok or notok
 c
       if (lsmode.eq.'bracket' .or. lsmode.eq.'downhill' .or. 
      $     lsmode.eq.'accept') then
-         lsmode = 'ok'
+         lsmode = 'ok'          ! Seemingly good situation
       else
          lsmode = 'notok'
       endif
 c
       call driver_take_step(rtdb, geom)
+c
+c     There's code in the graveyard to do a more thorough search
+c     for steps that have been restricted, but it actually seems
+c     slightly counterproductive for most tests.  Dunno why.
 c
       end
       double precision function driver_energy_step(rtdb, geom)
