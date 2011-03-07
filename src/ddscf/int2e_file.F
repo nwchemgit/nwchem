@@ -242,7 +242,6 @@ c
 #include "global.fh"
       logical okeep  ! [input] If true keep, otherwise delete
 c
-      print*,file_opened,l_cache
       if (file_opened) then
          if (oinfo .or. (util_print('iostats',print_high)
      $           .and.ga_nodeid().eq.0)) 
@@ -262,8 +261,11 @@ c
 c
 c     if (file_opened .or. l_cache.ne.-1) then
 c
-         call ga_igop(msg_int2e_stat1, n_rec_in_file, 1, '+')
-         call ga_igop(msg_int2e_stat2, nlarge, 1, '+')
+      call ga_igop(msg_int2e_stat1, n_rec_in_file, 1, '+')
+      call ga_igop(msg_int2e_stat2, nlarge, 1, '+')
+c
+c     Now checking for # of records instead of l_cache
+c
       if (n_rec_in_file.gt.0) then
          if (oinfo) then
             write(6,1) n_rec_in_file, nlarge
@@ -285,7 +287,6 @@ c
       n_rec_in_file = 0
       call int2e_buf_clear
       max_cache_rec = 0
-      print*,'done int2e_file_close'
 c     
       int2e_file_close = .true.
 c
