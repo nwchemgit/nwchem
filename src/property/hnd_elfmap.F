@@ -38,6 +38,7 @@ c     property grid points variables (MV)
       logical do_points
       integer l_tefld,k_tefld
       logical rtdb_par
+      logical bqprint
 c->d3p975
       character*30 theory
       integer nbf
@@ -46,6 +47,9 @@ c->d3p975
       logical ao_1prdm_read
       external ao_1prdm_read
 c<-d3p975
+c
+      if(.not.rtdb_get(rtdb,'bqforceprint',mt_log,1,bqprint))
+     + bqprint = .false.
 c
 c
 c     Initialize integrals
@@ -219,12 +223,12 @@ c
          dbl_mb(k_tefld+2+3*(iat-1)) = elf(3)
 
          elfld   = sqrt(elf(1)*elf(1) + elf(2)*elf(2) + elf(3)*elf(3))
-         if(do_points) then
+         if(do_points.and.bqprint) then
 c
 c        skipping printout due to potentially large number of points
 c        -----------------------------------------------------------
-c           write(luout,9995) iat,"point",xp,yp,zp,elf(1),elf(2),elf(3),
-c     &                       elfld
+           write(luout,9995) iat,"point",xp,yp,zp,elf(1),elf(2),elf(3),
+     &                       elfld
          else
            if (.not. geom_cent_tag(geom,iat,at_tag)) call
      &        errquit('hnd_elfmap: geom_cent_tag failed',0,GEOM_ERR)
