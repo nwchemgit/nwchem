@@ -106,7 +106,7 @@ c
       sp_temperature = "temperature"
       sp_rtdb = "rtdb"
       sp_ewald = "ewald"
-      sp_task = "mytask"
+c      sp_task = "mytask"
       sp_geom = "mygeom"
       sp_bq  = "mybq"
 
@@ -178,8 +178,8 @@ c     ------------
       tag = "ewald"
       call smd_system_set_component(tag,sp_ewald)
 c      
-      tag = "task"
-      call smd_system_set_component(tag,sp_task)
+c      tag = "task"
+c      call smd_system_set_component(tag,sp_task)
 c
       tag = "geom"
       call smd_system_set_component(tag,sp_geom)
@@ -205,7 +205,7 @@ c
       call smd_exlist_init_system()
       call smd_vlist_init_system()
       call smd_mass_init_system()
-      call smd_task_init_system()
+c      call smd_task_init_system()
       call smd_geom_init_system0()
 c
 c     finish system setup
