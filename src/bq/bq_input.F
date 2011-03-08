@@ -35,13 +35,8 @@ c
 
       call util_print_get_level(print_level)
       hprint = (ga_nodeid().eq.0).and.(print_high.le.print_level)
-
 c
-c      write(*,*) "in "//pname
-c
-c
-      max_nbq = min( 4*7000, ma_inquire_avail(MT_DBL))
-      max_nbq = max_nbq/4
+      max_nbq = 25000  ! temporary limit for now
 c
       if ( .not. ma_push_get( MT_DBL, 3*max_nbq, 
      &      'cbq scratch',
