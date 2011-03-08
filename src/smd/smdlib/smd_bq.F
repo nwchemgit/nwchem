@@ -151,7 +151,7 @@ c      call bq_print_xyz(bq_handle,101)
      + call errquit(pname//'Failed bq_activate',0,CALC_ERR)
 c
 
-c        call bq_print_info(bq_handle)
+        call bq_print_info(bq_handle)
 
 
 
