@@ -157,6 +157,89 @@ c     -----------------
       return
       end
 
+      subroutine task_fragment_populate_ip(operation,sname)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "smd_fids.fh"
+      character*(*) operation
+      character*(*) sname
+c     
+      character*32 pname
+      character*80 tag
+      character*80 tag1
+      integer nt,i1,i2,i,j
+      integer i_ifr,i_sop,i_ifu,i_oinc
+      logical result
+c
+      pname = "task_fragment_espcharge_populate"
+c
+      call util_message("in "//pname)
+c
+c     find which monomers to do as given in the input file
+c     ----------------------------------------------------
+      tag1="smd:fragment:istart"
+      call smd_rtdb_get_int(tag1,1,i1,result)
+      if(.not.result) then
+        write(*,*) "need to set value for  "//tag1
+        call errquit("cannot find "//tag1,0,0)
+      end if
+      tag1="smd:fragment:iend"
+      call smd_rtdb_get_int(tag1,1,i2,result)
+      if(.not.result) then
+        write(*,*) "need to set value for  "//tag1
+        call errquit("cannot find "//tag1,0,0)
+      end if
+      nt = i2-i1+1
+c
+c     for ip double number of tasks
+      nt = 2*nt
+c
+c     create task namespace
+c     ---------------------
+      call smd_namespace_create(sname)
+c
+c     create task data structures
+c     ---------------------------
+      tag = "task:ntasks"
+      call smd_data_put_int(sname,tag,1,nt)
+      tag = "task:func_id"
+      call smd_data_create_get(sname,tag,nt,MT_INT,i_ifu)
+      tag = "task:frag_id"
+      call smd_data_create_get(sname,tag,nt,MT_INT,i_ifr)
+      tag = "task:operation"
+      call smd_data_create_get(sname,tag,nt,MT_STR,i_sop)
+      tag = "oinclude"
+      call smd_data_create_get(sname,tag,nt,MT_LOG,i_oinc)
+c
+c    fill up fragment id
+c    -------------------
+      j=0
+      do i=i1,i2
+        int_mb(i_ifr+j) = i
+        int_mb(i_ifu+j) = i_smd_monomer
+        log_mb(i_oinc+j) = .false.
+        j=j+1
+        int_mb(i_ifr+j) = i
+        int_mb(i_ifu+j) = i_smd_monomer
+        log_mb(i_oinc+j) = .true.
+        j=j+1
+      enddo
+c
+c     fill in operation
+c     -----------------
+      call smd_set_char_to_ma2(operation,nt,byte_mb(i_sop))
+
+      call util_message("out "//pname)
+
+      return
+      end
+
 C> Calculates self-consistent ESP charges for specified fragments in the
 C> system 
       function task_smd_fragment_espcharge()
@@ -230,7 +313,7 @@ c
 c
       pname = "task_smd_fragment_energy"
 c      
-      call task_fragment_populate("energy","t_energy")
+      call task_fragment_populate_ip("energy","t_energy")
       call smd_system_set_component("task","t_energy")
       call smd_task_iterate()
       return
