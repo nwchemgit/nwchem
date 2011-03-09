@@ -2,3 +2,8 @@
       integer i_smd_monomer
       parameter(i_smd_monomer= 1000)
 
+      integer i_tqm
+      parameter(i_tqm= 0)
+
+      integer i_tmm
+      parameter(i_tmm= 1)
