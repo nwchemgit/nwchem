@@ -33,6 +33,7 @@ c
 #include "util.fh"
 #include "global.fh"
 #include "smd_const_data.fh"
+#include "smd_fids.fh"
 #include "geom.fh"
 c     
       character*(*) namespace
@@ -47,6 +48,7 @@ c
       integer nr,nrmax
       integer i_sr
       integer i_mr,i_pr
+      integer i_xr
 c
       logical geom_tag_to_charge_gen
       external geom_tag_to_charge_gen
@@ -123,6 +125,11 @@ c     ---------------------------------
 c
       tag = "res_dipoles"
       call smd_data_create(namespace,tag,3*nr,MT_DBL)
+c
+c     define residue type (QM, Bq, ...)
+      tag = "atom:res_type"
+      call smd_data_create_get(namespace,tag,nr,MT_INT,i_xr)
+      call ifill(nr,i_tmm,int_mb(i_xr),1)
 c
       call util_message("out "//pname)
 
