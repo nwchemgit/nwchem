@@ -41,7 +41,7 @@ c      write(*,*) "out of "//pname
       return
       end
 
-      subroutine smd_geom_prepare()
+      subroutine smd_geom_repair()
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -61,8 +61,67 @@ c      write(*,*) "out of "//pname
       integer i_nb
       integer nt
       integer ng
-      integer i,j
+      integer i,j,ir
       integer i_pr,i_mr
+      integer i_im,i_nm
+      integer i_c
+      character*64 msg
+
+      pname = "smd_geom_init_system"
+c
+c     get locations of residues in the atomic arrays
+c     ----------------------------------------------
+      tag = "atom:res_pointer"
+      call smd_get_ind_dim(tag,i_pr,nr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+      tag = "atom:res_size"
+      call smd_get_ind_dim(tag,i_mr,nr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c     
+c     get copy of coordinates
+c     ----------------------
+      tag = "coords"
+      call smd_get_ind_dim(tag,i_c,nt,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c
+      do ir=1,nr
+        call smd_geom_rebuild(nt,int_mb(i_mr+ir-1),
+     >                   int_mb(i_pr+ir-1),dbl_mb(i_c)) 
+      end do
+      call smd_coords_print_pdb("repaired.pdb")
+      return
+      end
+
+      subroutine smd_geom_prepare()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "smd_fids.fh"
+#include "stdio.fh"
+      integer im
+      logical oinclude
+      character*(smd_string_size) sp_geom
+      character*(smd_string_size) tag,pname
+      logical result
+      integer h_itmp,i_itmp
+      integer nb,nr
+      integer i_nb
+      integer nt
+      integer ng
+      integer i,j
+      integer i_pr,i_mr,i_xr
       integer i_im,i_nm
       character*64 msg
 
@@ -83,6 +142,12 @@ c     ----------------------------------------------
 c
       tag = "atom:res_size"
       call smd_get_ind_dim(tag,i_mr,nr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+      tag = "atom:res_type"
+      call smd_get_ind_dim(tag,i_xr,nr,result)
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
@@ -117,6 +182,13 @@ c
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0,0 )
+c
+c     set residue type to QM for cluter segments
+c     ------------------------------------------
+      do i=1,nb
+        j=int_mb(i_nb+i-1)
+        int_mb(i_xr+j-1) = i_tqm
+      end do
 c
 c     determine position and size (atom based) of the cluster residues
 c
@@ -253,7 +325,10 @@ c     --------------
 
       return
       end
-c
+C>    Creates geometry object and
+C>    stores it in rtdb
+C>    Input parameters are passed silently
+C>    through the smd objects (geom,coords,atom)
       subroutine smd_geom_create()
       implicit none
 #include "errquit.fh"
@@ -296,6 +371,9 @@ c
       integer im
 c
       pname = "smd_geom_create"
+c      call smd_geom_repair()
+c      stop
+
 c
       call smd_task_get_counter(im)
       write(msg,'(A20," 1 ",I3)') pname,im
@@ -463,6 +541,142 @@ c
   
       end
 c
+      subroutine smd_geom_rebuild(nt,nm,i0,c)
+c     rebuilds potentially cut segment
+c     nt      [in]  total number of atoms
+c     nm      [in]  number of atoms in the segment
+c     i0      [in]  starting index for the segment
+c     c[3,nt] [in]  coordinates of the overall system
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c
+      integer nt
+      integer nm
+      integer i0
+      double precision c(3,nt)
+c
+      integer i,j
+      double precision cshift(3)
+      integer i_ftmp,h_ftmp
+      character*30 pname
+c
+      pname = "smd_geom_cog"
+c      
+      if(.not.ma_push_get(mt_dbl,3*nm,'tmp i',h_ftmp,i_ftmp))
+     + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
+c
+c     put 1st atom in the middle
+c     ---------------------------
+      do j=1,3
+         cshift(j)=c(j,i0)
+      end do
+
+      do i=1,nm
+      do j=1,3
+         dbl_mb(i_ftmp+(i-1)*3+j-1)=
+     +         c(j,i0+i-1)-cshift(j)
+      end do
+      end do
+ 
+c     fold in other coordinates potentially
+c     cutoff by the box boundary
+      call smd_lat_rebox(nm,dbl_mb(i_ftmp)) 
+c     calculate cog for shifted segment
+c     --------------------------------- 
+      do i=1,nm
+      do j=1,3
+         c(j,i0+i-1)=dbl_mb(i_ftmp+(i-1)*3+j-1)+cshift(j)
+      end do
+      end do
+c
+      if(.not.ma_pop_stack(h_ftmp))
+     & call errquit(pname//'Failed to deallocate stack h_ftmp',0,
+     &       MA_ERR)
+c
+      return
+c
+  
+      end
+c      
+      subroutine smd_geom_cog1(nt,c,cog)
+c     finds center of geometry for a give segment
+c     nt      [in]  number of atoms
+c     c[3,nt] [in]  coordinates 
+c     cog[3]  [out] center of mass coordinates
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c
+      integer nt
+      double precision c(3,nt)
+      double precision cog(3)
+c
+      integer i,j
+      double precision cshift(3)
+      integer i_ftmp,h_ftmp
+      character*30 pname
+c
+      pname = "smd_geom_cog"
+c      
+      if(.not.ma_push_get(mt_dbl,3*nt,'tmp i',h_ftmp,i_ftmp))
+     + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
+c
+c     put 1st atom in the middle
+c     ---------------------------
+      do j=1,3
+         cshift(j)=c(j,1)
+      end do
+
+      do i=1,nt
+      do j=1,3
+         dbl_mb(i_ftmp+(i-1)*3+j-1)=
+     +         c(j,i)-cshift(j)
+      end do
+      end do
+ 
+c     fold in other coordinates potentially
+c     cutoff by the box boundary
+      call smd_lat_rebox(nt,dbl_mb(i_ftmp)) 
+c     calculate cog for shifted segment
+c     --------------------------------- 
+      cog(1) = 0.0d0
+      cog(2) = 0.0d0
+      cog(3) = 0.0d0
+      
+      do i=1,nt
+      do j=1,3
+         cog(j)=cog(j)+dbl_mb(i_ftmp+(i-1)*3+j-1)
+      end do
+      end do
+
+      cog(1) = cog(1)/nt
+      cog(2) = cog(2)/nt
+      cog(3) = cog(3)/nt
+c
+c     correct for the shift
+c     ---------------------
+      do j=1,3
+        cog(j) = cog(j)+cshift(j)
+      end do
+c
+      if(.not.ma_pop_stack(h_ftmp))
+     & call errquit(pname//'Failed to deallocate stack h_ftmp',0,
+     &       MA_ERR)
+c
+      return
+c
+  
+      end
+
       subroutine smd_geom_cog(nt,nm,i0,c,cog)
 c     finds center of geometry for a give segment
 c     nt      [in]  total number of atoms
