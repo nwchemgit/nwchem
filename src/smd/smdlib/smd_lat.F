@@ -349,3 +349,55 @@ c     -------------------------
 10    continue
       return
       end
+
+      subroutine smd_lat_rebox1(n,c)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      integer n
+      double precision c(3,n)
+c
+      character*32 sp_lattice
+c
+      character*72 tag
+      character*30 pname
+      integer na
+      integer i_c,i_lrc,i_lc
+      logical result
+
+      pname = "smd_lat_rebox1"
+c
+c     get lattice params if any
+c     -------------------------
+      call smd_system_get_component(sp_lattice,"lattice",result)
+      if(.not.result) then
+        call util_warning(
+     >       pname//'skipping reboxing as there is no lattice ',0,0)
+        return
+      end if
+
+      tag = "lat:cell"
+      call smd_data_get_index(sp_lattice,tag,i_lc,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+
+      tag = "lat:rcell"
+      call smd_data_get_index(sp_lattice,tag,i_lrc,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+
+      call smd_util_rebox1(n,
+     >                    dbl_mb(i_lc),
+     >                    dbl_mb(i_lrc),
+     >                    c)
+
+10    continue
+      return
+      end

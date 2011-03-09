@@ -188,6 +188,58 @@ c
 
       END
 
+      SUBROUTINE smd_util_rebox1(n,latt,rlatt,aaa)
+
+      implicit none
+
+      integer n
+      double precision rlatt(3,3),latt(3,3)
+      double precision  aaa(3,n)
+c
+      integer i,j
+      integer issx,issy,issz
+      double precision  ssx,ssy,ssz,xss,yss,zss
+      double precision cog(3),shift(3)
+      logical oprint
+
+
+      cog(1) = 0.0d0
+      cog(2) = 0.0d0
+      cog(3) = 0.0d0
+      do i=1,n
+      do j=1,3
+         cog(j)=cog(j)+aaa(j,n)
+      end do
+      end do
+c      
+      cog(1) = cog(1)/n
+      cog(2) = cog(2)/n
+      cog(3) = cog(3)/n
+c       
+      ssx=(rlatt(1,1)*cog(1)+rlatt(1,2)*cog(2)+rlatt(1,3)*cog(3))
+      ssy=(rlatt(2,1)*cog(1)+rlatt(2,2)*cog(2)+rlatt(2,3)*cog(3))
+      ssz=(rlatt(3,1)*cog(1)+rlatt(3,2)*cog(2)+rlatt(3,3)*cog(3))
+c       
+      issx=nint(ssx)
+      issy=nint(ssy)
+      issz=nint(ssz)
+
+      shift(1)=(latt(1,1)*issx+latt(1,2)*issy+latt(1,3)*issz)
+      shift(2)=(latt(2,1)*issx+latt(2,2)*issy+latt(2,3)*issz)
+      shift(3)=(latt(3,1)*issx+latt(3,2)*issy+latt(3,3)*issz)
+c
+      do i=1,n
+
+       aaa(1,i)= aaa(1,i)-shift(1)
+       aaa(2,i)= aaa(2,i)-shift(2)
+       aaa(3,i)= aaa(3,i)-shift(3)
+
+      enddo
+
+      return
+
+      END
+
       subroutine smd_util_print_force_array1(un,na,
      >                           fff)
 
