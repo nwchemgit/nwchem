@@ -2,7 +2,7 @@
 * $Id$
 *
       integer smd_interface_nc
-      parameter(smd_interface_nc=44)
+      parameter(smd_interface_nc=45)
 
       character*72 smd_interface_rname(smd_interface_nc)
       character*72 smd_interface_cname(smd_interface_nc)
