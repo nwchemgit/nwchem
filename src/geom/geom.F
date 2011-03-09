@@ -2238,13 +2238,13 @@ c
       write(LuOut,*)
         twopi = 8.0d0*datan(1.0d0)
         write(LuOut,1244) amatrix_inv(1,1,geom)*twopi,
-     >                    amatrix_inv(2,1,geom)*twopi,
-     >                    amatrix_inv(3,1,geom)*twopi
-        write(LuOut,1245) amatrix_inv(1,2,geom)*twopi,
+     >                    amatrix_inv(1,2,geom)*twopi,
+     >                    amatrix_inv(1,3,geom)*twopi
+        write(LuOut,1245) amatrix_inv(2,1,geom)*twopi,
      >                    amatrix_inv(2,2,geom)*twopi,
-     >                    amatrix_inv(3,2,geom)*twopi
-        write(LuOut,1246) amatrix_inv(1,3,geom)*twopi,
-     >                    amatrix_inv(2,3,geom)*twopi,
+     >                    amatrix_inv(2,3,geom)*twopi
+        write(LuOut,1246) amatrix_inv(3,1,geom)*twopi,
+     >                    amatrix_inv(3,2,geom)*twopi,
      >                    amatrix_inv(3,3,geom)*twopi
 
 
