@@ -556,7 +556,7 @@ c
          endif
       enddo
  
-      write(*,*) "processor ",myproc, "blongs to ",smd_group_id 
+c      write(*,*) "processor ",myproc, "blongs to ",smd_group_id 
       call util_flush(6)
       call ga_sync()
 
