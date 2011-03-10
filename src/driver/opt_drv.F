@@ -1969,7 +1969,6 @@ c
       end
       subroutine driver_line_search2(rtdb,geom)
       implicit none
-#include "errquit.fh"
 #include "nwc_const.fh"
 #include "coptopt.fh"
 #include "geom.fh"
@@ -1984,11 +1983,30 @@ c     Return with alpha, geom as the accepted point.
 c
 c     Only alpha and geom are modified.
 c
-      double precision e0, e1, e2p, dsgrad
+c     This code does the same as driver_line_search1, but then
+c     verifies that the new step is better (CPU used).  If it is, then
+c     then return.  If the new step is not better, but the
+c     original alpha value was good, then return that.
+c
+c     If both attempts are worse than the previous step, then the 'fun'
+c     begins. Try in order, and return if step is good:
+c     1.  reduce alpha to 1/4 its smallest value
+c     2.  try minus that alpha value. If that works then:
+c         a.  try 3 times that, and if that works then:
+c         b.  try 3 times that.
+c     3.  if ds*g is positive, then cut that ds in half, if that works exit
+c     4.  lastly just return 1/2 the last alpha value (and reset ds) and give up
+c
+c     #2 & #3 can actually work because of limiting motion in some 
+c     values of ds because of the hessian, trust, etc. can actually
+c     result in a step that is going in the wrong direction.
+c     Note that the #3 attempt will be symmetry corrected, etc.
+c
+      double precision e0, e1, e2, e2p, dsgrad
       double precision hess, a0, a1, a2
       double precision driver_energy_step
-c
-      call errquit('line search2 not implemented',0, CAPMIS_ERR)
+      double precision dssave(max_cart)
+      integer i, j
 c
       dsgrad = ddot(nvar, ds, 1, g, 1)
       if (dsgrad*alpha .ge. 0d0) then
@@ -2090,6 +2108,90 @@ c
          lsmode = 'ok'          ! Seemingly good situation
       else
          lsmode = 'notok'
+      endif
+c
+      if (alpha .eq. a1) then
+         e2 = e1
+      else
+         e2 = driver_energy_step(rtdb, geom)
+      endif
+c
+c     There are six possible energy orders
+c     012,021,102,120,210,201
+c
+      if (e2 .le. e1 .and. e2 .le. e0) then ! 210&201
+        ! Seconds step was best
+      else if (e1 .le. e0) then ! 120&102
+        alpha = a1 ! First step was best
+        if (oprint) write(6,2) e2p, e2,alpha
+ 2         format( 'warning: line search expected E=',f14.6,' found E=',
+     &             f14.6,' Backtracking to alpha=',f5.2)
+      else ! 012&0121
+        ! This is not good, the previous geometry is lower than both
+        lsmode = 'notok'
+        if (abs(a2) .gt. abs(a1)) then
+           alpha = 0.25d0*a1 ! Energy going up as you get smaller alpha!?
+        else
+           alpha = 0.25d0*a2
+        endif
+        e1 = driver_energy_step(rtdb, geom)
+        if (e1 .le. e0) then
+           ! Got something good
+           if (oprint) write(6,3) e2p, e2,alpha
+ 3           format( 'warning: line search wanted E=',f14.6,' found E=',
+     &             f14.6,' Backtracked to alpha=',f5.2)
+        else
+           alpha = -alpha ! Desperate - is possible because of gradient limiting, etc.
+           e1 = driver_energy_step(rtdb, geom)
+           if (e1 .le. e0) then 
+             e0 = e1
+             alpha = alpha*3.0d0 ! Try a bigger step
+             e1 = driver_energy_step(rtdb, geom)
+             if (e1 .ge. e0) then
+                alpha = alpha/3.0d0 ! Didn't work
+             else
+                e0 = e1
+                alpha = alpha*3.0d0 ! Try a bigger step AGAIN!
+                e1 = driver_energy_step(rtdb, geom)
+                if (e1 .ge. e0) then
+                   alpha = alpha/3.0d0 ! Didn't work
+                endif
+             endif
+             if (oprint) write(6,4) e2p, e2,alpha
+ 4           format( 'warning: line search wanted E=',f14.6,' found E=',
+     &             f14.6,' Flipped sign to alpha=',f5.2)
+           else
+              alpha=-alpha ! negative failed
+              j = 0
+              do i = 1, nvar
+                dssave(i) = ds(i)
+                dsgrad = ds(i)*g(i)
+                if (dsgrad*alpha .gt. 0d0) then
+                   j = j + 1
+                   ds(i)=ds(i)*0.5d0
+                endif
+              enddo
+              if ( j .ne. 0) then ! Try with new ds
+                e1 = driver_energy_step(rtdb, geom)
+                if (e1 .ge. e0) then
+                  alpha = alpha*0.5d0 ! Giving up.
+                  if (oprint) write(6,5) e2p, e2,alpha
+                  do i = 1, nvar
+                     ds(i) = dssave(i)
+                  enddo
+                else
+                  if (oprint) write(6,6) e2p, e2
+ 6          format( 'warning: line search wanted E=',f14.6,' found E=',
+     &             f14.6,' changed step and alpha')
+                endif
+              else ! step had nothing going wrong way
+                alpha = alpha*0.5d0 ! Giving up.
+                if (oprint) write(6,5) e2p, e2,alpha
+ 5           format( 'warning: line search wanted E=',f14.6,' found E=',
+     &             f14.6,' Giving up search, set alpha=',f5.2)
+              endif
+           endif
+        endif
       endif
 c
       call driver_take_step(rtdb, geom)
@@ -3769,8 +3871,8 @@ C     Variables
       character*16 atom_tags(mxatom)
       double precision xscale
 C     External function calls
-      logical geom_amatrix_get,geom_cart_get,geom_amatinv_get
-      external geom_amatrix_get,geom_cart_get,geom_amatinv_get
+      logical geom_amatrix_get,geom_cart_get
+      external geom_amatrix_get,geom_cart_get
 C     
 C    This is a fortran statement functions
 C
