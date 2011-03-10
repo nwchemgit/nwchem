@@ -63,6 +63,8 @@ end
 set includestress .true.          # tell driver to optimize unit cell
 #set includelattice .true.
 
+set driver:linopt 2
+
 task pspw optimize
 
 #set nwpw:stress_numerical .true.
