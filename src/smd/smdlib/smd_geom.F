@@ -852,6 +852,8 @@ c
   
       end
 c
+C>    Updates local charge arrays with computed
+C>    ESP charges
       subroutine smd_geom_get_charges()
       implicit none
 #include "errquit.fh"
@@ -908,11 +910,6 @@ c
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 c      
-c      tag = "charge"
-c      call smd_data_get_ind_dim(sp_geom,tag,i_q1,ng,result)
-c      if(.not. result)  call errquit(
-c     >       pname//'error getting index for'//tag,0,0 )
-c
       tag="ntot"
       call smd_data_get_int(sp_geom,tag,1,ng,result)
       if(.not. result)  call errquit(
@@ -967,9 +964,13 @@ c     ---------------------------------------
 
        if(.not.geom_destroy(igeom))
      + call errquit(pname//'Failed to destroy geometry',0, GEOM_ERR)
-c
-c     get global array
-c     ---------------
+c      This code updates global charge array.
+c      Orginally
+c      it was meant to serve as replacement for local charge update
+c      as done below, keeping local charge array pristine
+cc
+cc     get global array
+cc     ---------------
       call smd_data_get_int(sp_global,"charges",1,ga_handle,result)
       if(.not.result) call errquit(
      >       pname//'no coordindates ',0,0)
@@ -983,18 +984,18 @@ c
         call nga_put(ga_handle,ilo,ihi, dbl_mb(i_q1), 1)
       end if
       end do
-      call smd_global_print_file("charges","charge.tmp")
+cc      call smd_global_print_file("charges","charge.tmp")
       
-cc
-c      j=0
-c      do i=1,nb
-c       i0=int_mb(i_im+i-1)-1
-c       n0=int_mb(i_nm+i-1)
-c       do i1=1,n0
-c         j = j+1
-c         dbl_mb(i_q+i0+i1-1) = dbl_mb(i_q1+j-1)
-c       end do
-c      end do
+c
+      j=0
+      do i=1,nb
+       i0=int_mb(i_im+i-1)-1
+       n0=int_mb(i_nm+i-1)
+       do i1=1,n0
+         j = j+1
+         dbl_mb(i_q+i0+i1-1) = dbl_mb(i_q1+j-1)
+       end do
+      end do
 
       if(.not.ma_pop_stack(h_q1))
      & call errquit(pname//'Failed to deallocate stack ',0,
