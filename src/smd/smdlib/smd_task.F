@@ -193,13 +193,9 @@ c     -------------------
       tag = "task:itsk"
       call smd_data_put_int(sname,tag,1,itsk)
       if(ifunc.eq.i_smd_monomer) then
-       call util_message("1 "//pname)
        call smd_task_init1()
-       call util_message("2 "//pname)
        call smd_monomer()
-       call util_message("3 "//pname)
        call smd_task_end1()
-       call util_message("4 "//pname)
       else
        call errquit(
      >       pname//'unknown function ',ifunc,0)
@@ -315,8 +311,8 @@ c     ---------------------------
       if(osb) then
       call smd_group_create_simple(nsb)
       call smd_group_id_get(group_id)
-      if(ga_nodeid().eq.0) 
-     +    write(luout,*) "Hello from group",group_id,i
+c      if(ga_nodeid().eq.0) 
+c     +    write(luout,*) "Hello from group",group_id,i
       end if
 c
 10    continue    
@@ -331,7 +327,7 @@ c
      >   j=NGA_Read_inc(ga_it, 1, 1)
       call ga_brdcst(msg_qmmm_misc,j,ma_sizeof(mt_int,1,mt_byte),0)
       if(j.gt.nt) goto 20
-      if(ga_nodeid().eq.0) write(luout,*) "executing task",j,group_id
+c      if(ga_nodeid().eq.0) write(luout,*) "executing task",j,group_id
       call smd_task_execute(j)
       goto 10
 c
@@ -396,30 +392,29 @@ c     ------------------
       if(.not.result)
      >  call errquit(
      >       pname//'no task:itsk '//tag,0,0)
-      write(*,*) "1"
 c
 c     grab global charges and coords
 c     ------------------------------
-      call smd_global_update("charges","get")
-      call smd_global_update("coords","get")
+c      call smd_global_update("charges","get")
+c      call smd_global_update("coords","get")
 c     set central residue
       tag = "task:frag_id"
       call smd_data_get_int1(sp_task,tag,itsk,itsk,im)
+      if(ga_nodeid().eq.0) then
+        write(*,*) "preparing for fragment",im
+      end if
       tag = "icenter"
       call smd_data_put_int(sp_geom,tag,1,im)
-      write(*,*) "2"
 
       tag = "oinclude"
       call smd_data_get_log2(sp_task,tag,itsk,itsk,oinclude,result)
       if(.not.result) oinclude=.true.
       call smd_data_put_log(sp_geom,tag,1,oinclude)
-      write(*,*) "3"
 c
 c     create a copy of rtdb
 c     ---------------------
       oscratch = .true.
       call smd_rtdb_push_open_clone(itsk,oscratch,rtdb)
-      write(*,*) "4"
 c
 c     set operation theory
 c     --------------------
@@ -438,7 +433,6 @@ c     --------------------
         if (.not.(rtdb_cput(rtdb,'task:theory',1,theory)))
      *       call errquit('rtdb_cput task:theory failed',0,0)
       end if
-      write(*,*) "5"
 
 c     create geometry object
 c     ---------------------
@@ -515,23 +509,18 @@ c
       if(inp_compare(.false., 'dipole', operation)) then
         call smd_geom_get_dipole()
         call smd_global_update_res("dipoles","put",im)
-        call ga_sync()
       else if(inp_compare(.false., 'gradient', operation)) then
         call smd_geom_get_gradients()
         call smd_global_update_res("gradients","put",im)
-        call ga_sync()
       else if(inp_compare(.false., 'optimize', operation)) then
         call smd_geom_get_coords()
         call smd_global_update_res("coords","put",im)
-        call ga_sync()
       else if(inp_compare(.false., 'espcharge', operation)) then
-        call util_message("1 "//pname)
         call smd_geom_get_charges()
-        call util_message("2 "//pname)
+        if(ga_nodeid().eq.0) then
+          write(luout,*) "updating charges for fragment",im
+        end if
         call smd_global_update_res("charges","put",im)
-        call util_message("3 "//pname)
-        call smd_global_print("charges")
-        call util_message("4 "//pname)
       end if
 
       call ga_sync()
