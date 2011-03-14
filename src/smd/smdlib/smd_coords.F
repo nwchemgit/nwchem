@@ -164,7 +164,7 @@ c
       integer i
       character*64 buffer
 
-      pname = "smd_coords_rebox"
+      pname = "smd_coords_check"
 
 c
 c     get atomic coordinates
@@ -176,7 +176,7 @@ c     ----------------------
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
       na = na/3
 
-      if(.not.ma_push_get(mt_dbl,3*na,'tmp c',h_c1,i_c1))
+      if(.not.ma_push_get(mt_dbl,3*na,pname//'tmp c',h_c1,i_c1))
      + call errquit(pname//'Failed to allocate memory for h_c1',0,0)
 
       if(ga_nodeid().eq.0) then

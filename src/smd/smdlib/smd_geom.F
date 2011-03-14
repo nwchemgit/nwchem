@@ -160,6 +160,12 @@ c     --------------------------
      >  call errquit(
      >       pname//'error getting central residue'//tag,0, RTDB_ERR)
 c
+c     check if attempting to compute nonexisting residue
+      if(im.gt.nr)   
+     >  call errquit(
+     >       pname//'residue index out of bounds',0, RTDB_ERR)
+c
+c
       tag = "oinclude"
       call smd_data_get_log(sp_geom,tag,1,oinclude,result)
       if(.not. result) 
@@ -271,6 +277,11 @@ c
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+c     check if attempting to compute nonexisting residue
+      if(im.gt.nr)   
+     >  call errquit(
+     >       pname//'residue index out of bounds',0, RTDB_ERR)
 c
 c     determine neighbors around im
 c     -----------------------------
@@ -434,7 +445,8 @@ c     ----
         n1 = n1 + int_mb(i_nm+i-1)
       end do
 c      
-      if(.not.ma_push_get(mt_dbl,3*n1,'tmp c',h_c1,i_c1))
+      if(ga_nodeid().eq.0) write(*,*) "n1=",n1
+      if(.not.ma_push_get(mt_dbl,3*n1,pname//'tmp c',h_c1,i_c1))
      + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
       if(.not.ma_push_get(mt_dbl,n1,'tmp q',h_q1,i_q1))
      + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
