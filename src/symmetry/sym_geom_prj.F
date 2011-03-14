@@ -43,7 +43,7 @@ c     Map periodic system back to main unit cell with identity symmetry
 c
       if(isystype(geom).gt.0) then
          do iat = 1, nat
-            op = -99 ! Secret identity flag - maps back to unit cell only
+            op = -9999 ! Secret identity flag - maps back to unit cell only
             call sym_apply_cart_op(geom, op, coords(1,iat,geom), rnew)
             coords(1,iat,geom)=rnew(1)
             coords(2,iat,geom)=rnew(2)

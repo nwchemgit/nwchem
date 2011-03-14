@@ -12,16 +12,23 @@ c
 c
 c     Apply operator to vector of FRACTIONAL coordinates
 c
-      if (opnum .ne. -99) then! -99 means identity(back to box)
+      if (opnum .eq. -9999) then! -9999 means identity(back to box only - abusing this code)
+       do i = 1, 3
+        r1(i)=r(i)
+       enddo
+      else if (opnum .lt. 0) then ! Minus means no translations: needed for gradients
+       do i = 1, 3
+        r1(i)=0
+        do j = 1, 3
+          r1(i) = r1(i) + sym_ops((-opnum-1)*3+i,j,geom)*r(j)
+        enddo
+       enddo
+      else ! normal stuff
        do i = 1, 3
         r1(i) = sym_ops((opnum-1)*3+i,4,geom)
         do j = 1, 3
           r1(i) = r1(i) + sym_ops((opnum-1)*3+i,j,geom)*r(j)
         enddo
-       enddo
-      else
-       do i = 1, 3
-        r1(i)=r(i)
        enddo
       endif
 c     

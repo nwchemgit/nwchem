@@ -41,10 +41,12 @@ c
       if (.not.geom_isystype_set(geom,0))
      >     call errquit('sym_grad_symmetrize:failed to set isystype',
      >                  0,GEOM_ERR)
+! Call with minu op to tell sym_apply_op() to not apply translatsion
+! which is also wrong for gradients
       do iat = 1, nat
          do op = 1, nops
             jat = sym_center_map(geom, iat, op)
-            call sym_apply_cart_op(geom, op, grad(1,iat), rnew)
+            call sym_apply_cart_op(geom,-op, grad(1,iat), rnew)
             do k = 1, 3
                dbl_mb(k_tmp-1 + k + (jat-1)*3) = 
      $              dbl_mb(k_tmp-1 + k + (jat-1)*3) + rnew(k)
