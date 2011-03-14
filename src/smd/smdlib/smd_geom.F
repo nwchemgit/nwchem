@@ -177,11 +177,11 @@ c
 c
       nb = nr
       call smd_geom_find_neighbors(oinclude,im,nb,int_mb(i_itmp))
-      if(ga_nodeid().eq.0) then
-        write(luout,*) "cluster information",
-     +    (int_mb(i_itmp+i-1),i=1,nb)
-        call util_flush(luout)
-      end if
+c      if(ga_nodeid().eq.0) then
+c        write(luout,*) "cluster information",
+c     +    (int_mb(i_itmp+i-1),i=1,nb)
+c        call util_flush(luout)
+c      end if
       tag = "neighbor_index"
       call smd_data_put_int(sp_geom,tag,nb,int_mb(i_itmp))
       call smd_data_get_index(sp_geom,tag,i_nb,result)
@@ -290,11 +290,11 @@ c     -----------------------------
 c
       nb = nr
       call smd_geom_find_neighbors(.true.,im,nb,int_mb(i_itmp))
-      if(ga_nodeid().eq.0) then
-        write(luout,*) "cluster information",
-     +    (int_mb(i_itmp+i-1),i=1,nb)
-        call util_flush(luout)
-      end if
+c      if(ga_nodeid().eq.0) then
+c        write(luout,*) "cluster information",
+c     +    (int_mb(i_itmp+i-1),i=1,nb)
+c        call util_flush(luout)
+c      end if
       tag = "neighbor_index"
       call smd_data_put_int(sp_geom,tag,nb,int_mb(i_itmp))
       call smd_data_get_index(sp_geom,tag,i_nb,result)
@@ -717,8 +717,8 @@ c
 c
       pname = "smd_geom_cog"
 c      
-      if(ga_nodeid().eq.0)  
-     +  write(*,*) "number of atoms in the segment",nm
+c      if(ga_nodeid().eq.0)  
+c     +  write(*,*) "number of atoms in the segment",nm
       if(.not.ma_push_get(mt_dbl,3*nm,'tmp i',h_ftmp,i_ftmp))
      + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
 c
@@ -728,10 +728,8 @@ c     ---------------------------
          cshift(j)=c(j,i0)
       end do
 
-      write(*,*) "cordinates"
       do i=1,nm
       do j=1,3
-         write(*,*) c(j,i0+i-1)
          dbl_mb(i_ftmp+(i-1)*3+j-1)=
      +         c(j,i0+i-1)-cshift(j)
       end do
@@ -868,6 +866,7 @@ c
 c     
       character*32 sp_coords,sp_atom,sp_charge,sp_mass
       character*32 sp_geom
+      character*32 sp_global
       character*32 tag,pname
       logical result
       integer i_ir,i_ta,i_q,i_c,i_m,i_qf
@@ -880,6 +879,7 @@ c
       integer ng
       integer nb
       integer i_nm,i_im
+      integer ga_handle, ilo,ihi
 c
       logical geom_cart_set1
       external geom_cart_set1
@@ -887,6 +887,12 @@ c
       external geom_rtdb_ncent
 c
       pname = "smd_geom_get_charges"
+c
+      tag = "global"
+      call smd_system_get_component(sp_global,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
 c
       tag = "geom"
       call smd_system_get_component(sp_geom,tag,result)
@@ -962,15 +968,33 @@ c     ---------------------------------------
        if(.not.geom_destroy(igeom))
      + call errquit(pname//'Failed to destroy geometry',0, GEOM_ERR)
 c
-      j=0
+c     get global array
+c     ---------------
+      call smd_data_get_int(sp_global,"charges",1,ga_handle,result)
+      if(.not.result) call errquit(
+     >       pname//'no coordindates ',0,0)
+c
       do i=1,nb
-       i0=int_mb(i_im+i-1)-1
+       i0=int_mb(i_im+i-1)
        n0=int_mb(i_nm+i-1)
-       do i1=1,n0
-         j = j+1
-         dbl_mb(i_q+i0+i1-1) = dbl_mb(i_q1+j-1)
-       end do
+       ilo = i0
+       ihi = (i0-1)+n0
+      if(ga_nodeid().eq.0) then
+        call nga_put(ga_handle,ilo,ihi, dbl_mb(i_q1), 1)
+      end if
       end do
+      call smd_global_print_file("charges","charge.tmp")
+      
+cc
+c      j=0
+c      do i=1,nb
+c       i0=int_mb(i_im+i-1)-1
+c       n0=int_mb(i_nm+i-1)
+c       do i1=1,n0
+c         j = j+1
+c         dbl_mb(i_q+i0+i1-1) = dbl_mb(i_q1+j-1)
+c       end do
+c      end do
 
       if(.not.ma_pop_stack(h_q1))
      & call errquit(pname//'Failed to deallocate stack ',0,
