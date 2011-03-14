@@ -311,8 +311,8 @@ c     ---------------------------
       if(osb) then
       call smd_group_create_simple(nsb)
       call smd_group_id_get(group_id)
-c      if(ga_nodeid().eq.0) 
-c     +    write(luout,*) "Hello from group",group_id,i
+      if(ga_nodeid().eq.0) 
+     +    write(luout,*) "Hello from group",group_id,i
       end if
 c
 10    continue    
@@ -327,7 +327,7 @@ c
      >   j=NGA_Read_inc(ga_it, 1, 1)
       call ga_brdcst(msg_qmmm_misc,j,ma_sizeof(mt_int,1,mt_byte),0)
       if(j.gt.nt) goto 20
-c      if(ga_nodeid().eq.0) write(luout,*) "executing task",j,group_id
+      if(ga_nodeid().eq.0) write(luout,*) "executing task",j,group_id
       call smd_task_execute(j)
       goto 10
 c
@@ -516,11 +516,10 @@ c
         call smd_geom_get_coords()
         call smd_global_update_res("coords","put",im)
       else if(inp_compare(.false., 'espcharge', operation)) then
-        call smd_geom_get_charges()
         if(ga_nodeid().eq.0) then
           write(luout,*) "updating charges for fragment",im
         end if
-        call smd_global_update_res("charges","put",im)
+        call smd_geom_get_charges()
       end if
 
       call ga_sync()
