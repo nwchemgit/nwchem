@@ -511,7 +511,7 @@ c     Since there is no redundancy or coupling we just need
 c     to make sure that the initial Hessian does not couple
 c     frozen with unfrozen variables and we are OK.
 c
-         do iat = 1, nat
+         do iat = 1, nat_real
             if (.not. oactive(iat)) then
                do i = 1+(iat-1)*3, iat*3
                   do j = 1, nvar
@@ -1383,7 +1383,7 @@ c
       double precision hds(max_nvar)
       double precision dsds, dshds, dsdg
       integer l_hess, k_hess, i, j, l_dstmp, k_dstmp
-      integer ind, iend
+      integer ind, iend, iat
 ! This is a statement function
       ind(i,j) = k_hess + i + (j-1)*nvar - 1
 c save ds
@@ -1488,6 +1488,26 @@ C          end do
 C        endif
 C     endif
 c
+      if ((.not. zcoord) .and. (nactive .ne. nat_real)) then
+c     
+c     We are in cartesian coordinates and some have been frozen.
+c     Since there is no redundancy or coupling we just need
+c     to make sure that the Hessian does not couple
+c     frozen with unfrozen variables and we are OK.
+c
+         do iat = 1, nat_real
+            if (.not. oactive(iat)) then
+               do i = 1+(iat-1)*3, iat*3
+                  do j = 1, nvar
+                     dbl_mb(k_hess+j-1+(i-1)*nvar) = 0d0
+                     dbl_mb(k_hess+i-1+(j-1)*nvar) = 0d0
+                  enddo
+                  dbl_mb(k_hess+i-1+(i-1)*nvar) = 1d0
+               enddo
+            endif
+         enddo
+      endif
+c
       call geom_hnd_put_data('drv.hess',dbl_mb(k_hess), nvar**2)
       if (.not. ma_pop_stack(l_hess)) call errquit
      $     ('driver_hessian_update: ma?',0, MA_ERR)
@@ -1540,11 +1560,29 @@ c
       logical geom_lattice_get
       external geom_lattice_get
 c
+      ophigh = util_print('high', print_high)
+c     
+c     Enforce frozen atoms in cartesians
+c        
+      if (ga_nodeid().eq.0.and.ophigh)
+     $     write(luout,*) 'Zeroing constrained gradient'
+
+      if ((.not. zcoord) .and. (nactive .ne. nat_real)) then
+         do iat = 1, nat_real
+            if (.not. oactive(iat)) then
+               do i = 1, 3
+c                  write(6,*) ' Zeroing constrained cartesian', 
+c     $                 iat, i, dv((iat-1)*3+i)
+                  dv((iat-1)*3+i) = 0.0
+               end do
+            end if
+         end do
+      end if
+c
 c     Get the Hessian and gradient with appropriate projectors
 c     applied following Peng, Ayala, Schlegel and Frisch so that
 c     redundant internal modes are shifted to high eigenvalues.
 c
-      ophigh = util_print('high', print_high)
       if (.not. ma_push_get(mt_dbl, nvar**2, 'hess',
      $     l_hess, k_hess)) call errquit
      $     ('driver_search_dir: memory for hessian',nvar**2, MA_ERR)
@@ -1690,7 +1728,7 @@ c
      $     write(luout,*) 'Zeroing constrained gradient'
 
       if ((.not. zcoord) .and. (nactive .ne. nat_real)) then
-         do iat = 1, nat
+         do iat = 1, nat_real
             if (.not. oactive(iat)) then
                do i = 1, 3
 c                  write(6,*) ' Zeroing constrained cartesian', 
@@ -3716,59 +3754,53 @@ c
            bulk=0.2
            if (.not. geom_volume_get(geom,volume))
      $         call errquit('geom_volume_get failed',0, GEOM_ERR)
-           iat = 1  ! Set length cross-terms to non-zero
-           jat = 1
            ! this is right for E=PV at P=0
            do i = 1, 3
             do j = 1, 3
-              HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 
+              HSSQ((nat_real)*3 + i, (nat_real)*3+j) = 
      $               volume*bulk/abs(lattice(i,1)*lattice(j,1))
               if (i.eq.j) then ! Add extra to diagonal, avoid zero eigenvalue
-                 HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 
-     $           HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j)+0.2
+                 HSSQ((nat_real)*3 + i, (nat_real)*3+j) = 
+     $           HSSQ((nat_real)*3 + i, (nat_real)*3+j)+0.2
               endif
             end do
            end do
-           iat = 2
-           jat = 2
            do i = 1, 3
              j = i ! No cross terms-Angles are only the same when fixed
-             HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) = 30.0 ! Angles are stiff
+             HSSQ((nat_real+1)*3 + i, (nat_real+1)*3+j) = 30.0 ! Angles are stiff
            end do
 !          Symmetry of lengths
-           iat = 1
-           jat = 1
            if (grp_num.lt.75) then
 !            Triclinic Monoclinic Orthorhombic
 !            no lengths are the same
            else if (grp_num.ge.75 .and. grp_num .lt. 195) then
 !            Tetragonal Trigonal Hexagonal
 !            First two lengths are same
-             dum =(HSSQ((iat+nat_real-1)*3 + 1, (jat+nat_real-1)*3+1) +
-     $             HSSQ((iat+nat_real-1)*3 + 2, (jat+nat_real-1)*3+2))/2
-             HSSQ((iat+nat_real-1)*3 + 1, (jat+nat_real-1)*3+1) = dum
-             HSSQ((iat+nat_real-1)*3 + 2, (jat+nat_real-1)*3+2) = dum 
-             dum =(HSSQ((iat+nat_real-1)*3 + 1, (jat+nat_real-1)*3+2) +
-     $             HSSQ((iat+nat_real-1)*3 + 2, (jat+nat_real-1)*3+1))/2
+             dum =(HSSQ((nat_real)*3 + 1, (nat_real)*3+1) +
+     $             HSSQ((nat_real)*3 + 2, (nat_real)*3+2))/2
+             HSSQ((nat_real)*3 + 1, (nat_real)*3+1) = dum
+             HSSQ((nat_real)*3 + 2, (nat_real)*3+2) = dum 
+             dum =(HSSQ((nat_real)*3 + 1, (nat_real)*3+2) +
+     $             HSSQ((nat_real)*3 + 2, (nat_real)*3+1))/2
              dum = max(dum,0.05d0) ! at least some coupling
-             HSSQ((iat+nat_real-1)*3 + 1, (jat+nat_real-1)*3+2) = dum
-             HSSQ((iat+nat_real-1)*3 + 2, (jat+nat_real-1)*3+1) = dum
+             HSSQ((nat_real)*3 + 1, (nat_real)*3+2) = dum
+             HSSQ((nat_real)*3 + 2, (nat_real)*3+1) = dum
            else if ((grp_num.ge.195).and.(grp_num.lt.231)) then
 !            Cubic
 !            All three lengths are the same
              dum = 0
              do i = 1, 3
-              dum=dum+HSSQ((iat+nat_real-1)*3+i,(jat+nat_real-1)*3+i)
+              dum=dum+HSSQ((nat_real)*3+i,(nat_real)*3+i)
              enddo
              dum = dum/3
              do i = 1, 3
-              HSSQ((iat+nat_real-1)*3+i,(jat+nat_real-1)*3+i) = dum
+              HSSQ((nat_real)*3+i,(nat_real)*3+i) = dum
              enddo
              dum = 0
              do i = 1, 3
               do j = 1, 3
                if(i.ne.j)then
-                dum=dum+HSSQ((iat+nat_real-1)*3+i,(jat+nat_real-1)*3+j)
+                dum=dum+HSSQ((nat_real)*3+i,(nat_real)*3+j)
                endif
               enddo
              enddo
@@ -3777,7 +3809,7 @@ c
              do i = 1, 3
               do j = 1, 3
                if(i.ne.j)then
-                HSSQ((iat+nat_real-1)*3+i,(jat+nat_real-1)*3+j) = dum
+                HSSQ((nat_real)*3+i,(nat_real)*3+j) = dum
                endif
               enddo
              enddo
