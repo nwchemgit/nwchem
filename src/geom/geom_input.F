@@ -475,18 +475,18 @@ c
       end if
 
 
-*     *** WARNING: swapping X & Y to match NWChem space groups ***
-*     **** do symmetry/system conversion ****
-      if (sysset.and.symset) then
-         write(*,*) "a-b axis conversion"
-         do ii=1,ncenter
-            t(1) = coords(1,ii)
-            t(2) = coords(2,ii)
-            coords(1,ii) = t(2)
-            coords(2,ii) = t(1)
-         end do
-      end if
-*     ***  WARNING: swappping X & Y to match NWChem space groups ***
+c*     *** WARNING: swapping X & Y to match NWChem space groups ***
+c*     **** do symmetry/system conversion ****
+c      if (sysset.and.symset) then
+c         write(*,*) "a-b axis conversion"
+c         do ii=1,ncenter
+c            t(1) = coords(1,ii)
+c            t(2) = coords(2,ii)
+c            coords(1,ii) = t(2)
+c            coords(2,ii) = t(1)
+c         end do
+c      end if
+c*     ***  WARNING: swappping X & Y to match NWChem space groups ***
 
 c
       if(ofile.or.osource) return
