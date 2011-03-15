@@ -1208,10 +1208,11 @@ c
          if (util_print('active atoms', print_low) .and. 
      $       ga_nodeid().eq.0)   then
            write(6,1) (int_mb(k_actlist+i-1),i=1,nactive)
- 1         format('  gradient active atoms ',15i4)
+ 1         format('  gradient inactive atoms ',15i4)
 *           write(6,2) (oactive(i),i=1,natoms)
 * 2         format('  oactive ',30l2)
-	 end if
+         end if
+         nactive = natoms-nactive
 c
          if (.not. ma_free_heap(l_actlist)) call errquit
      $        ('grad_act_at: free of actlist?',0, MA_ERR)
