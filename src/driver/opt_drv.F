@@ -3751,17 +3751,25 @@ c
            nat_real = (nvar/3)-2
            if (.not. geom_lattice_get(geom, lattice))
      $       call errquit('driver: failed to get lattice',0,0)
-           bulk=0.2
            if (.not. geom_volume_get(geom,volume))
      $         call errquit('geom_volume_get failed',0, GEOM_ERR)
-           ! this is right for E=PV at P=0
            do i = 1, 3
             do j = 1, 3
+              ! this is right for E=PV at P=0, basically to give cross-terms
+              bulk=0.0001
               HSSQ((nat_real)*3 + i, (nat_real)*3+j) = 
-     $               volume*bulk/abs(lattice(i,1)*lattice(j,1))
-              if (i.eq.j) then ! Add extra to diagonal, avoid zero eigenvalue
-                 HSSQ((nat_real)*3 + i, (nat_real)*3+j) = 
-     $           HSSQ((nat_real)*3 + i, (nat_real)*3+j)+0.2
+     $               -volume*bulk/abs(lattice(i,1)*lattice(j,1))
+              if (i .ne. j) then
+                   HSSQ((nat_real)*3 + i, (nat_real)*3+j) = 
+     $               2*HSSQ((nat_real)*3 + i, (nat_real)*3+j)
+              endif
+              ! The above is all negative, and the off-diagonal is largest
+              ! So, mostly use term that assumes the systems is harmonic
+              ! bonds basically, so it scales inversly with system size.  Add 1 
+              ! to avoid terrible things with small values
+              if (i.eq.j) then
+                 HSSQ((nat_real)*3 + i, (nat_real)*3+j) =
+     $                  1 + 0.3*volume/abs(lattice(i,1)**2)
               endif
             end do
            end do
@@ -4189,7 +4197,7 @@ C     Add some to diagonal for stability, just in case of lone floating atom
       double precision astress(3,3)
 !     local variables
       integer i, j
-      double precision lstress(6),lattnew(6),lattold(6)
+      double precision lstress(6),lattnew(6)
       double precision amat_old(3,3),amat_new(3,3)
       integer Triclinic,Monoclinic,Orthorhombic
       integer Tetragonal,Trigonal,Hexagonal,Cubic
@@ -4197,11 +4205,12 @@ C     Add some to diagonal for stability, just in case of lone floating atom
       parameter (Tetragonal=4,Trigonal=5,Hexagonal=6,Cubic=7)
       integer grp_num, crystal
       double precision dum
+      double precision deg90,deg120
 !     Called functions 
       integer geom_get_group_number
       external geom_get_group_number
-      logical geom_amatrix_get, geom_lattice_get
-      external geom_amatrix_get, geom_lattice_get
+      logical geom_amatrix_get
+      external geom_amatrix_get
 !       
       grp_num=geom_get_group_number(geom)
 !        
@@ -4217,9 +4226,6 @@ C     Add some to diagonal for stability, just in case of lone floating atom
 ! Get old amatrix
       if (.not. geom_amatrix_get(geom, amat_old))
      $        call errquit('driver: failed to get amatrix',0,0)
-! Get old lattice
-      if (.not. geom_lattice_get(geom, lattold))
-     $     call errquit('driver: failed to get lattice',0,0)
 ! Generate proposed amatrix
       do i = 1, 3
        do j = 1, 3
@@ -4229,36 +4235,67 @@ C     Add some to diagonal for stability, just in case of lone floating atom
 ! Generate proposed lattice vectors
       call xlattice_abc_abg(lattnew(1),lattnew(2),lattnew(3),lattnew(4),
      &              lattnew(5),lattnew(6),amat_new)
-! Generate proposed lattice stress
-      do i = 1, 6
-        lstress(i) = lattnew(i) - lattold(i)
-      enddo
-! Symmetrize lattice stress
-      call sym_lattice_stress2(geom,lstress)
-! Generate new lattice vectors
-      do i = 1, 6
-        lattnew(i) = lattold(i) + lstress(i)
-      enddo
+! Symmetrize proposed lattice
+      deg90 = 2d0*atan(1d0)
+      deg120= (8d0/3d0)*atan(1d0)
+      if (crystal.eq.Triclinic) then
+      else if (crystal.eq.Monoclinic) then
+        lattnew(4) = deg90
+        lattnew(6) = deg90
+      else if (crystal.eq.Orthorhombic) then
+        lattnew(4) = deg90
+        lattnew(5) = deg90
+        lattnew(6) = deg90
+      else if (crystal.eq.Tetragonal) then
+        dum = (lattnew(1)+lattnew(2))/2.0D0
+        lattnew(1) = dum
+        lattnew(2) = dum
+        lattnew(4) = deg90
+        lattnew(5) = deg90
+        lattnew(6) = deg90
+      else if (crystal.eq.Trigonal) then
+        dum = (lattnew(1)+lattnew(2))/2.0D0
+        lattnew(1) = dum
+        lattnew(2) = dum
+        lattnew(4) = deg90
+        lattnew(5) = deg90
+        lattnew(6) = deg120
+      else if (crystal.eq.Hexagonal) then
+        dum = (lattnew(1)+lattnew(2))/2.0D0
+        lattnew(1) = dum
+        lattnew(2) = dum
+        lattnew(4) = deg90
+        lattnew(5) = deg90
+        lattnew(6) = deg120
+      else if (crystal.eq.Cubic) then
+        dum = (lattnew(1)+lattnew(2)+lattnew(3))/3.0D0
+        lattnew(1) = dum
+        lattnew(2) = dum
+        lattnew(3) = dum
+        lattnew(4) = deg90
+        lattnew(5) = deg90
+        lattnew(6) = deg90
+      endif
 ! Generate symmetrized proposed amatrix
 !   Apply lengths
       do i = 1, 3
-        dum = lattnew(i)/lattold(i)
-        do j = 1, 3
-          amat_new(j,i) = amat_old(j,i) * dum
-          if (abs(amat_new(j,i)-amat_old(j,i)).lt. 1.0d-10)
-     &                             amat_new(j,i)=amat_old(j,i)
-        end do
+        dum = sqrt(amat_new(1,i)**2 +amat_new(2,i)**2 +amat_new(3,i)**2)
+        dum = lattnew(i)/dum
+        if (abs(dum - 1.0d0) .gt. 1.0d-20) then
+         do j = 1, 3
+          amat_new(j,i) = amat_new(j,i) * dum
+         end do
+        endif
       end do
-
 !   Apply Angles - Only Monoclinic has both variable angles and Symmetry
 !     It also only has one angle with non-zero stress (others fixed at 90 deg)
 !     Note that groups with no lattice symmetry bailed earlier
-      if (crystal.eq.Monoclinic) then
-        amat_new(1,3) = lattnew(3)*dcos(lattnew(5))
-        amat_new(2,3) = 0.0d0
-        amat_new(3,3) = lattnew(3)*dsin(lattnew(5))
-      endif
-
+!  Enforce alpha
+! TODO
+!  Enforce beta
+! TODO
+!  Enforce gamma
+! TODO
 ! Generate symmetrized amatrix stress
       do i = 1, 3
        do j = 1, 3
@@ -4266,7 +4303,6 @@ C     Add some to diagonal for stability, just in case of lone floating atom
          if (abs(astress(j,i)) .lt. 1.0d-10) astress(j,i)=0.0d0
        enddo
       enddo
-! TODO This ignores the net rotation of matrices from "standard orientation"
       return
       end
 
