@@ -173,7 +173,7 @@ c
 c     fold back (rebox) resdiues outside the box
 c     ------------------------------------------
       if(operiodic)
-     + call smd_lat_rebox2(nbq,nrbq,int_mb(i_bim),int_mb(i_bnm),
+     + call smd_lat_rebox_segments(nbq,nrbq,int_mb(i_bim),int_mb(i_bnm),
      +                     dbl_mb(i_cbq)) 
 c
 c     put the residues back to their original position

@@ -187,8 +187,14 @@ c
       return
 
       END
-
-      SUBROUTINE smd_util_rebox1(n,latt,rlatt,aaa)
+C>    Folds coordinates back into the box
+C>    based on center of coordinates
+C>    so that "molecule" remains intact
+C>    @param[in] n number of atoms
+C>    @param[in] latt(3,3) lattice vectors
+C>    @param[in] rlatt(3,3) inverse lattice vectors
+C>    @param[in,out] aaa[3,n] coordinates
+      SUBROUTINE smd_util_rebox_by_cog(n,latt,rlatt,aaa)
 
       implicit none
 
@@ -240,7 +246,17 @@ c
 
       END
 
-      SUBROUTINE smd_util_rebox2(nt,n,in,nn,latt,rlatt,aaa)
+C>    Folds coordinates back into the box
+C>    while preserving molecules/segments
+C>    @param[in] nt number of atoms
+C>    @param[in] n number of segments
+C>    @param[in] in[n] starting index of given segment in coordinate array
+C>    @param[in] nn[n] number of atoms in given segment
+C>    @param[in] latt(3,3) lattice vectors
+C>    @param[in] rlatt(3,3) inverse lattice vectors
+C>    @param[in,out] aaa[3,nt] coordinates
+
+      SUBROUTINE smd_util_rebox_segments(nt,n,in,nn,latt,rlatt,aaa)
 
       implicit none
       integer nt

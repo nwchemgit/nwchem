@@ -28,7 +28,7 @@ c
       call smd_coords_init(sp_coords)
       
       call smd_coords_read(sp_coords)
-c
+
       call smd_coords_print_pdb("old.pdb")
 
       return
@@ -105,6 +105,59 @@ cc
       return
       end
 
+C>    Folds coordinates back into the box
+C>    while preserving molecules/segments
+      subroutine smd_coords_rebox_segments()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+c     
+      character*32 sp_coords
+c
+      character*72 tag
+      character*30 pname
+      integer na
+      integer i_c,i_lrc,i_lc
+      integer i_pr,i_mr,nr,ir
+      integer i0,n0
+      logical result
+
+      pname = "smd_coords_rebox"
+c
+c     get locations of residues in the atomic arrays
+c     ----------------------------------------------
+      tag = "atom:res_pointer"
+      call smd_get_ind_dim(tag,i_pr,nr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+      tag = "atom:res_size"
+      call smd_get_ind_dim(tag,i_mr,nr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c 
+c     get atomic coordinates
+c     ----------------------
+      tag = "coords"
+      call smd_get_ind_dim(tag,i_c,na,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+      na = na/3
+
+      call smd_lat_rebox_segments(na,nr,int_mb(i_pr),int_mb(i_mr),
+     >                    dbl_mb(i_c))
+
+
+      return
+      end
+
       subroutine smd_coords_rebox()
       implicit none
 #include "errquit.fh"
@@ -124,6 +177,8 @@ c
 
       pname = "smd_coords_rebox"
 
+      if(ga_nodeid().eq.0) write(*,*) "NO REBOXING"
+      return
 c
 c     get atomic coordinates
 c     ----------------------
@@ -504,14 +559,129 @@ c
      >           (byte_mb(i_tr+i0+j-1),j=1,3),
      >            int_mb(i_ir+i-1),
      >            (dbl_mb(i_c+3*(i-1)+j-1),j=1,3)
-C     >            dbl_mb(i_c+(i-1)),
-C     >            dbl_mb(i_c+(i-1)+na),
-C     >            dbl_mb(i_c+(i-1)+2*na)
 
       end do
       close(un)
 9000  FORMAT("ATOM",T7,I5,T13,4A,T18,3A,T23,
      >       I4,T31,F8.3,T39,F8.3,T47,F8.3)
+
+      return
+      end
+
+C>    Generates lattice replicated pdb (-1,0,1)
+C     in all three directions.
+C>    for current coordinates
+C>    Used to check reboxing routines
+      subroutine smd_coords_print_pdb_repl(fname)
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+      character*(*) fname
+c     
+      integer un
+      character*32 sp_coords
+c
+      character*72 tag,sp_lat
+      character*30 pname
+      integer na
+      integer nta
+      integer i,i0,j
+      integer i_c,i_ta,i_tr,i_ir
+      logical result
+      double precision a(3,3),dx(3)
+      integer k1,k2,k3,ir
+      integer ia
+      integer nr
+c
+      pname = "smd_coords_print"
+c
+      tag = "lattice"
+      call smd_system_get_component(sp_lat,tag,result)
+      write(*,*) "lattice name is",sp_lat
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+      tag = "lat:cell"
+      call smd_data_get_dbl(sp_lat,tag,9,a,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+      if(.not.util_get_io_unit(un)) 
+     >   call errquit("cannot get file number",0,0)
+      open(unit=un,status="unknown",form="formatted",file=fname)
+c
+c     get atomic coordinates
+c     ----------------------
+      tag = "coords"
+      call smd_get_ind_dim(tag,i_c,na,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+      na = na/3
+c
+      call smd_system_nres(nr)
+c
+      tag = "atom:name"
+      call smd_get_ind(tag,i_ta,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c
+      tag = "atom:resid"
+      call smd_get_ind(tag,i_ir,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c
+      tag = "atom:resname"
+      call smd_get_ind(tag,i_tr,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+ 
+      tag = "atom:name"
+      call smd_get_size(tag,nta,result)
+      if(.not. result)
+     >  call errquit(
+     >       pname//'error getting size for '//tag,0, RTDB_ERR)
+c
+      nta=nta/na
+      ia = 0
+      do k1=-1,1
+      do k2=-1,1
+      do k3=-1,1
+       dx(1) = k1*a(1,1)+k2*a(1,2)+k3*a(1,3)
+       dx(2) = k1*a(2,1)+k2*a(2,2)+k3*a(2,3)
+       dx(3) = k1*a(3,1)+k2*a(3,2)+k3*a(3,3)
+      do i=1,na
+       i0=nta*(i-1)
+       ia = ia + 1
+       write(un,FMT=9000)
+     >           ia,
+     >           (byte_mb(i_ta+i0+j-1),j=1,4),
+     >           (byte_mb(i_tr+i0+j-1),j=1,3),
+     >            int_mb(i_ir+i-1)+(k1+k2+k3+3)*nr,
+     >            dbl_mb(i_c+3*(i-1))+dx(1),
+     >            dbl_mb(i_c+3*(i-1)+1)+dx(2),
+     >            dbl_mb(i_c+3*(i-1)+2)+dx(3),dx(1),dx(2),dx(3)
+
+      end do
+      end do
+      end do
+      end do
+      close(un)
+9000  FORMAT("ATOM",T7,I5,T13,4A,T18,3A,T23,
+     >       I4,T31,F8.3,T39,F8.3,T47,F8.3,3X,3(F8.3))
+
+c
+      call smd_coords_rebox_segments()
+      call smd_coords_print_pdb("reboxed-new.pdb")
+c
 
       return
       end
@@ -568,7 +738,12 @@ c
       return
       end
 
-      subroutine smd_coords_print_pdb1(fname,c)
+C>    Prints PDB file with coordinates different
+C>    from those in coord object. 
+C>    No check on array bounds is performed which
+C>    may be unsafe.
+C>    @param[in] c(*) coordinates to be printed 
+      subroutine smd_coords_print_pdb_c(fname,c)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"

@@ -349,8 +349,12 @@ c     -------------------------
 10    continue
       return
       end
-
-      subroutine smd_lat_rebox1(n,c)
+C>    Folds coordinates back into the box
+C>    based on center of coordinates
+C>    so that "molecule" remains intact
+C>    @param[in] n number of atoms
+C>    @param[in,out] c[3,n] coordinates
+      subroutine smd_lat_rebox_by_cog(n,c)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -393,7 +397,7 @@ c     -------------------------
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
-      call smd_util_rebox1(n,
+      call smd_util_rebox_by_cog(n,
      >                    dbl_mb(i_lc),
      >                    dbl_mb(i_lrc),
      >                    c)
@@ -402,7 +406,14 @@ c     -------------------------
       return
       end
 
-      subroutine smd_lat_rebox2(nt,n,in,nn,c)
+C>    Folds coordinates back into the box
+C>    while preserving molecules/segments
+C>    @param[in] nt number of atoms
+C>    @param[in] n number of segments
+C>    @param[in] in[n] starting index of given segment in coordinate array
+C>    @param[in] nn[n] number of atoms in given segment
+C>    @param[in,out] c[3,nt] coordinates
+      subroutine smd_lat_rebox_segments(nt,n,in,nn,c)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -448,7 +459,7 @@ c     -------------------------
      >  call errquit(
      >       pname//'error getting index for '//tag,0, RTDB_ERR)
 
-      call smd_util_rebox2(nt,n,in,nn,
+      call smd_util_rebox_segments(nt,n,in,nn,
      >                    dbl_mb(i_lc),
      >                    dbl_mb(i_lrc),
      >                    c)
