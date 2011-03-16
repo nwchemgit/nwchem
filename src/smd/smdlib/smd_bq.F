@@ -1,3 +1,6 @@
+C>    Initializes Bq structure
+C>    based on atom:res_type that was set
+C>    during geometry creation
       subroutine smd_bq_init()
       implicit none
 #include "errquit.fh"
@@ -10,6 +13,7 @@
 #include "bq.fh"
 #include "smd_const_data.fh"
 #include "smd_fids.fh"
+#include "smd_system.fh"
 #include "stdio.fh"
 c
       integer im
@@ -32,8 +36,12 @@ c
       integer i_pr,i_mr
       integer ir,n0,ioff
       integer j0
+      integer i_bim,i_bnm,irbq,nrbq,i_bir
+      logical operiodic
 c
       pname = "smd_geom_bq_init"
+c
+      operiodic = smd_system_periodic()
 c
       call smd_rtdb_get_handle(rtdb)
 c
@@ -54,6 +62,9 @@ c
       if(.not.result)
      >  call errquit(
      >       pname//'no component '//tag,0,0)
+c
+c     destroy any previous Bq objects and create new one
+c     -------------------------------------------------
       call smd_namespace_create(sp_bq)
 c
 c     
@@ -90,8 +101,8 @@ c
      >  call errquit(
      >       pname//'error getting index for'//tag,0, RTDB_ERR)
 c
-c     geometry data
-c     -------------
+c     get shift vector that was used in geometry generation
+c     -----------------------------------------------------
       tag = "shift vector"
       call smd_data_get_index(sp_geom,tag,i_sht,result)
       if(.not. result)  call errquit(
@@ -100,8 +111,10 @@ c
 c     count number of bq's
 c     --------------------
       nbq = 0
+      nrbq=0
       do i=1,nr
        if(int_mb(i_xr+i-1).eq.i_tmm) then
+         nrbq = nrbq+1
          nbq = nbq+int_mb(i_mr+i-1)
        end if
       end do
@@ -122,13 +135,29 @@ c     -------------------
 
       if(.not.bq_index_charge(bq_handle,i_qbq))
      + call errquit(pname//'Failed bq_index',0,CALC_ERR)
+c
+c     add residue mapping to bq structure
+c     -----------------------------------
+      tag = "res-pos"
+      call smd_data_create_get(sp_bq,tag,nrbq,MT_INT,i_bim)
+      tag = "res-size"
+      call smd_data_create_get(sp_bq,tag,nrbq,MT_INT,i_bnm)
+      tag = "res-index"
+      call smd_data_create_get(sp_bq,tag,nrbq,MT_INT,i_bir)
 
-
+c
+c     fill up the arrays
+c     -----------------
       j = 0
+      irbq = 0
       do ir=1,nr
        if(int_mb(i_xr+ir-1).eq.i_tmm) then
          i0=int_mb(i_pr+ir-1)-1
          n0=int_mb(i_mr+ir-1)
+         irbq = irbq+1
+         int_mb(i_bir+irbq-1)=ir
+         int_mb(i_bim+irbq-1)=j+1
+         int_mb(i_bnm+irbq-1)=n0
          j0=j
          do i=1,n0
           j = j+1
@@ -139,8 +168,16 @@ c     -------------------
           end do
           dbl_mb(i_qbq+j-1) = dbl_mb(i_q+ioff)
          end do
-         call smd_lat_rebox1(n0,dbl_mb(i_cbq+3*j0))
        end if
+      end do
+      if(operiodic)
+     + call smd_lat_rebox2(nbq,nrbq,int_mb(i_bim),int_mb(i_bnm),
+     +                     dbl_mb(i_cbq)) 
+      do j=1,nbq
+          do k=1,3
+            dbl_mb(i_cbq+3*(j-1)+k-1)=dbl_mb(i_cbq+3*(j-1)+k-1)
+     >                                +dbl_mb(i_sht+k-1)
+          end do
       end do
 
 
@@ -149,11 +186,188 @@ c     -------------------
         dbl_mb(i_cbq+i-1) = dbl_mb(i_cbq+i-1)*scale
       end do
 
+      tag = "icenter"
+      call smd_data_get_int(sp_geom,tag,1,im,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting central residue'//tag,0, RTDB_ERR)
+c
+      call bq_print_xyz(bq_handle,90)
+
+      if(.not.bq_activate(bq_handle))
+     + call errquit(pname//'Failed bq_activate',0,CALC_ERR)
+c
+c      if(.not.bq_destroy(bq_handle))
+c     +   call errquit(pname//'Failed bq_destroy',0,CALC_ERR)
+c
+cc      call bq_print_info(bq_handle)
+c
+c      call smd_bq_init1()
+
+      return
+      end
+
+      subroutine smd_bq_init1()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "geom.fh"
+#include "bq.fh"
+#include "smd_const_data.fh"
+#include "stdio.fh"
+c
+      integer im
+c     
+      character*(smd_string_size) tag,pname
+      character*(smd_string_size) sp_geom,sp_bq
+      logical result
+      integer i_q,i_c
+      integer i,j,ip,k
+      integer nt,nm,i0,nr
+      integer rtdb
+      integer bq_handle
+      integer nbq,i_qbq,i_cbq
+      double precision scale
+      double precision cm(3)
+      integer nb
+      integer i_lbq,h_lbq,i_rbq,h_rbq
+      logical nobq
+      integer ng
+      integer i_im,h_im
+      integer i_nm,h_nm
+      integer i_sht
+c
+      pname = "smd_geom_bq_init"
+c
+      call smd_rtdb_get_handle(rtdb)
+c
+      if(.not.rtdb_get(rtdb,'smd:nobq',mt_log,1,nobq))
+     +     nobq = .false.
+      if(nobq) return
+c
+      tag = "geom"
+      call smd_system_get_component(sp_geom,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'need geom component '//tag,0,0)
+c
+      tag = "bq"
+      call smd_system_get_component(sp_bq,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+      call smd_namespace_create(sp_bq)
+c
+c     
+      tag = "coords"
+      call smd_get_ind_dim(tag,i_c,nt,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+      nt=nt/3
+c
+      tag = "charge"
+      call smd_get_ind(tag,i_q,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c
+c     geometry data
+c     -------------
+      tag = "position"
+      call smd_data_get_ind_dim(sp_geom,tag,i_im,nb,result)
+      if(.not. result)  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+c      
+      tag = "size"
+      call smd_data_get_ind_dim(sp_geom,tag,i_nm,nb,result)
+      if(.not. result)  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+c      
+      tag = "shift vector"
+      call smd_data_get_index(sp_geom,tag,i_sht,result)
+      if(.not. result)  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+c
+      tag = "right index"
+      call smd_data_create_get(sp_bq,tag,nb+1,MT_INT,i_rbq)
+      tag = "left index"
+      call smd_data_create_get(sp_bq,tag,nb+1,MT_INT,i_lbq)
+c
+c     set the boundary regions for bq 
+c     -------------------------------
+      int_mb(i_lbq) = 1
+      int_mb(i_rbq+nb) = nt
+      do i=1,nb
+        int_mb(i_rbq+i-1) = int_mb(i_im+i-1)-1
+        int_mb(i_lbq+i) = int_mb(i_im+i-1)+
+     >                    int_mb(i_nm+i-1)   
+      end do
+      call smd_util_sort(nb+1,int_mb(i_rbq))
+      call smd_util_sort(nb+1,int_mb(i_lbq))
+c      write(44,*) "boundaries for bqs"
+c      do i=1,nb+1
+c        write(44,*) i,int_mb(i_lbq+i-1),
+c     +              int_mb(i_rbq+i-1)
+c      end do
+c
+c     now do the charges
+c
+      nbq=0
+      do i=1,nb+1
+        nbq=nbq+int_mb(i_rbq+i-1)-
+     +              int_mb(i_lbq+i-1)+1
+      end do
+      if(nbq.eq.0) return
+      if(ga_nodeid().eq.0) 
+     +  write(luout,*) "Total number of Bq's",nbq
+      if(.not.bq_create("monomer charges test",bq_handle))
+     + call errquit(pname//'Failed bq_create',0,CALC_ERR)
+
+      if(.not.bq_alloc(bq_handle,nbq))
+     + call errquit(pname//'Failed bq_create',0,CALC_ERR)
+
+      if(.not.bq_index_coord(bq_handle,i_cbq))
+     + call errquit(pname//'Failed bq_index',0,CALC_ERR)
+
+      if(.not.bq_index_charge(bq_handle,i_qbq))
+     + call errquit(pname//'Failed bq_index',0,CALC_ERR)
+
+      scale = 1.88972598858d0
+      j=0
+      do ip=1,nb+1
+      do i=int_mb(i_lbq+ip-1),int_mb(i_rbq+ip-1)
+         j = j+1
+         do k=1,3
+            dbl_mb(i_cbq+3*(j-1)+k-1)=dbl_mb(i_c+3*(i-1)+k-1)
+     >                                -dbl_mb(i_sht+k-1)       
+         end do
+         dbl_mb(i_qbq+j-1)=dbl_mb(i_q+i-1)
+      end do
+      end do
+      call smd_lat_rebox(nbq,dbl_mb(i_cbq))
+
+      do i=1,3*nbq
+        dbl_mb(i_cbq+i-1) = dbl_mb(i_cbq+i-1)*scale
+      end do
+      tag = "icenter"
+      call smd_data_get_int(sp_geom,tag,1,im,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting central residue'//tag,0, RTDB_ERR)
+c
+      call bq_print_xyz(bq_handle,100+im)
+
       if(.not.bq_activate(bq_handle))
      + call errquit(pname//'Failed bq_activate',0,CALC_ERR)
 c
 
-c      call bq_print_info(bq_handle)
+        call bq_print_info(bq_handle)
+
 
 
 
