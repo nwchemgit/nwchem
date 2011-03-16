@@ -459,7 +459,7 @@ c     -------------
       end if
 
       call smd_energy_set_component("kinetic",ekin/convfct2)
-      call smd_coords_rebox()
+      call smd_coords_rebox_segments()
 
       
       if(oshake) then

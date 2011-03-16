@@ -210,7 +210,7 @@ c      call smd_task_init_system()
 c
 c     finish system setup
 c     -------------------
-      call smd_coords_rebox()
+      call smd_coords_rebox_segments()
       call smd_system_print(6)
 
       end if
@@ -382,7 +382,7 @@ c
 c
 c     finish system setup
 c     -------------------
-      call smd_coords_rebox()
+      call smd_coords_rebox_segments()
       call smd_ewald_init()
       call smd_system_print(6)
 
