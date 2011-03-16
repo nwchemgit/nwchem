@@ -109,6 +109,7 @@ c
 #include "global.fh"
 #include "smd_const_data.fh"
 #include "smd_fids.fh"
+#include "smd_system.fh"
 #include "stdio.fh"
       integer im
       logical oinclude
@@ -123,9 +124,15 @@ c
       integer i,j
       integer i_pr,i_mr,i_xr
       integer i_im,i_nm
+      double precision shift(3)
+      integer i0,n0
       character*64 msg
+      logical operiodic
+      integer i_c
 
       pname = "smd_geom_init_system"
+c
+      operiodic = smd_system_periodic()
 c
       tag = "geom"
       call smd_system_get_component(sp_geom,tag,result)
@@ -217,6 +224,31 @@ c     ------------------------------------
       end do
       tag = "ntot"
       call smd_data_put_int(sp_geom,tag,1,ng)
+c
+c     determine translation vector to put 1st residue in the center
+c     -------------------------------------------------------------
+c     
+c     get copy of coordinates
+c     ----------------------
+      tag = "coords"
+      call smd_get_ind(tag,i_c,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for '//tag,0, RTDB_ERR)
+c
+      if(operiodic) then
+        i0=int_mb(i_pr+im-1)
+        n0=int_mb(i_mr+im-1)
+        call smd_geom_shift(n0,
+     +                  dbl_mb(i_c+3*(i0-1)),shift)
+      else
+        do i=1,3
+          shift(i) = 0.0d0
+        end do
+      end if
+      tag = "shift vector"
+      call smd_data_put_dbl(sp_geom,tag,3,shift)
+c
 c      
       if(.not.ma_pop_stack(h_itmp))
      & call errquit(pname//'Failed to deallocate stack h_itmp',0,
@@ -226,6 +258,56 @@ c     create geometry
 c     --------------
       call smd_geom_create()
 
+      call util_message("out "//pname)
+
+      return
+      end
+
+      subroutine smd_geom_end()
+      implicit none
+#include "errquit.fh"
+#include "inp.fh"
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "smd_const_data.fh"
+#include "smd_fids.fh"
+#include "stdio.fh"
+      integer im
+      logical oinclude
+      character*(smd_string_size) sp_geom
+      character*(smd_string_size) tag,pname
+      logical result
+      integer h_itmp,i_itmp
+      integer nb,nr
+      integer i_nb
+      integer nt
+      integer ng
+      integer i,j
+      integer i_pr,i_mr,i_xr
+      integer i_im,i_nm
+      character*64 msg
+
+      pname = "smd_geom_init_system"
+c
+      tag = "geom"
+      call smd_system_get_component(sp_geom,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+c
+      tag = "atom:res_type"
+      call smd_get_ind_dim(tag,i_xr,nr,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0, RTDB_ERR)
+c
+c     reset residue type to MM
+c     ------------------------
+      do i=1,nr
+        int_mb(i_xr+i-1) = i_tmm
+      end do
       call util_message("out "//pname)
 
       return
@@ -380,6 +462,7 @@ c
       integer un
       logical operiodic
       integer im
+      integer i_gim,i_gnm
 c
       pname = "smd_geom_create"
 c      call smd_geom_repair()
@@ -457,16 +540,27 @@ c
 c
 c     determine translation vector to put 1st residue in the center
 c     -------------------------------------------------------------
-      if(operiodic) then
-        call smd_geom_cog(n,int_mb(i_nm),int_mb(i_im),
-     +                  dbl_mb(i_c),shift)
-      else
-        do i=1,3
-          shift(i) = 0.0d0
-        end do
-      end if
+c      if(operiodic) then
+c        i0=int_mb(i_im+i-1)-1
+c        call smd_geom_shift(int_mb(i_nm),
+c     +                  dbl_mb(i_c+3*()),shift)
+c      else
+c        do i=1,3
+c          shift(i) = 0.0d0
+c        end do
+c      end if
+c      tag = "shift vector"
+c      call smd_data_put_dbl(sp_geom,tag,3,shift)
       tag = "shift vector"
-      call smd_data_put_dbl(sp_geom,tag,3,shift)
+      call smd_data_get_dbl(sp_geom,tag,3,shift,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting shift vector '//tag,0, RTDB_ERR)
+
+      tag = "res-index"
+      call smd_data_create_get(sp_geom,tag,m,MT_INT,i_gim)
+      tag = "res-size"
+      call smd_data_create_get(sp_geom,tag,m,MT_INT,i_gnm)
 c
 c     copy geometry of the region into temp buffers
 c     ---------------------------------------------
@@ -474,6 +568,8 @@ c     ---------------------------------------------
       do i=1,m
        i0=int_mb(i_im+i-1)-1
        n0=int_mb(i_nm+i-1)
+       int_mb(i_gim+i-1)=j+1
+       int_mb(i_gnm+i-1)=n0
        do i1=1,n0
          j = j+1
          ioff = i0+i1-1
@@ -488,9 +584,28 @@ c     ---------------------------------------------
          end do
        end do
       end do
+c      if(operiodic)
+c     + call smd_lat_rebox(n1,dbl_mb(i_c1)) 
       if(operiodic)
-     + call smd_lat_rebox(n1,dbl_mb(i_c1)) 
+     + call smd_lat_rebox_segments(n1,m,int_mb(i_gim),int_mb(i_gnm),
+     +                     dbl_mb(i_c1)) 
 
+C      write(*,*) "before shift"
+C      do i=1,n1
+C        write(*,*) (dbl_mb(i_c1+(i-1)*3+k-1),k=1,3)
+C      end do
+      do i=1,n1
+         do k=1,3
+           dbl_mb(i_c1+(i-1)*3+k-1)=
+     +         dbl_mb(i_c1+(i-1)*3+k-1)+shift(k)
+         end do
+       end do
+C
+C      write(*,*) "after shift"
+C      do i=1,n1
+C        write(*,*) (dbl_mb(i_c1+(i-1)*3+k-1),k=1,3)
+C      end do
+c
 c
 c     create geometry
 c     ---------------
@@ -689,13 +804,11 @@ c
   
       end
 
-      subroutine smd_geom_cog(nt,nm,i0,c,cog)
+      subroutine smd_geom_shift(nt,c,shift)
 c     finds center of geometry for a give segment
 c     nt      [in]  total number of atoms
-c     nm      [in]  number of atoms in the segment
-c     i0      [in]  starting index for the segment
 c     c[3,nt] [in]  coordinates of the overall system
-c     cog[3]  [out] center of mass coordinates
+c     shift[3]  [out] center of mass coordinates
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -708,67 +821,53 @@ c
       integer nm
       integer i0
       double precision c(3,nt)
-      double precision cog(3)
+      double precision shift(3)
+      character*72 tag,sp_lat
 c
       integer i,j
       double precision cshift(3)
       integer i_ftmp,h_ftmp
       character*30 pname
+      double precision a(3,3),dx(3)
+      logical result
 c
-      pname = "smd_geom_cog"
-c      
-c      if(ga_nodeid().eq.0)  
-c     +  write(*,*) "number of atoms in the segment",nm
-      if(.not.ma_push_get(mt_dbl,3*nm,'tmp i',h_ftmp,i_ftmp))
-     + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
+      pname = "smd_geom_shift"
 c
-c     put 1st atom in the middle
-c     ---------------------------
-      do j=1,3
-         cshift(j)=c(j,i0)
-      end do
+      tag = "lattice"
+      call smd_system_get_component(sp_lat,tag,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no component '//tag,0,0)
+      tag = "lat:cell"
+      call smd_data_get_dbl(sp_lat,tag,9,a,result)
+      if(.not.result)
+     >  call errquit(
+     >       pname//'no lat:cell'//tag,0,0)
 
-      do i=1,nm
-      do j=1,3
-         dbl_mb(i_ftmp+(i-1)*3+j-1)=
-     +         c(j,i0+i-1)-cshift(j)
-      end do
-      end do
- 
-c     fold in other coordinates potentially
-c     cutoff by the box boundary
-      call smd_lat_rebox(nm,dbl_mb(i_ftmp)) 
-c     calculate cog for shifted segment
-c     --------------------------------- 
-      cog(1) = 0.0d0
-      cog(2) = 0.0d0
-      cog(3) = 0.0d0
+      shift(1) = 0.0d0
+      shift(2) = 0.0d0
+      shift(3) = 0.0d0
       
-      do i=1,nm
+      do i=1,nt
+      write(*,*) "center coordinates ",(c(j,i),j=1,3)
       do j=1,3
-         cog(j)=cog(j)+dbl_mb(i_ftmp+(i-1)*3+j-1)
+         shift(j)=shift(j)+c(j,i)
       end do
       end do
 
-      cog(1) = cog(1)/nm
-      cog(2) = cog(2)/nm
-      cog(3) = cog(3)/nm
-c
-c     correct for the shift
-c     ---------------------
-      do j=1,3
-        cog(j) = cog(j)+cshift(j)
-      end do
-c
-      if(.not.ma_pop_stack(h_ftmp))
-     & call errquit(pname//'Failed to deallocate stack h_ftmp',0,
-     &       MA_ERR)
+
+
+      shift(1) = shift(1)/nt
+      shift(2) = shift(2)/nt
+      shift(3) = shift(3)/nt
+
+      write(*,*) "shift vector ",(shift(j),j=1,3)
 c
       return
 c
   
       end
-c      
+
       subroutine smd_geom_coc(nt,nm,i0,q,c,cog)
 c     finds center of charge   for a give segment
 c     nt      [in]  total number of atoms
