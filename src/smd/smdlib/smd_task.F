@@ -528,6 +528,7 @@ c
      +   call errquit(pname//'Failed bq_destroy',0,CALC_ERR)
       end if
 
+      call smd_geom_end()
       call smd_rtdb_pop()
 
 c      write(*,*) pname//"100"
