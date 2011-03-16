@@ -1583,7 +1583,7 @@ c     Enforce symmetry on lattices - this is only done here just to make sure
 c     that the fixed angles have zero gradients, because otherwise the
 c     geometry optimization will never converge.
 c
-      if (ostress2) call sym_lattice_stress2(geom,dv(nat_real+1))
+      if (ostress2) call sym_lattice_stress2(geom,dv(3*nat_real+1))
 c
 c     Get the Hessian and gradient with appropriate projectors
 c     applied following Peng, Ayala, Schlegel and Frisch so that
