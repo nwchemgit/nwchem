@@ -80,6 +80,9 @@ c
       integer iloop             
       logical oskel            
       integer C_ga(3)           ! Collected final spin-orbit integrals
+      integer info
+      integer ga_cholesky,ga_llt_i
+      external ga_cholesky,ga_llt_i
 c
 c     cau = 137.0360000d0         ! Speed of light by Bernd Hess
 c
@@ -132,7 +135,27 @@ c
      &       MA_ERR)
 #ifdef PARALLEL_DIAG
 #ifdef SCALAPACK
-         call ga_pdsygv(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
+c     pdsygv is unstable since it uses the inaccurate pdsyevx
+cold         call ga_pdsygv(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
+c     S=chol*chol_t
+      info= ga_cholesky('L',tempg_a)
+      if(info.ne.0) call errquit('int1edk: cholesky ',0,0)
+c     inv(a)
+      info = ga_llt_i('L',tempg_a,-1)
+      if(info.ne.0) call errquit('int1edk: cholesky ',0,0)
+c     U=chol(inv(a))_t
+      info = ga_cholesky('L',tempg_a,-1)
+      if(info.ne.0) call errquit('int1edk: cholesky ',0,0)
+
+c     f_prime=U_t*f*inv(chol)*U
+      call ga_dgemm('t','n',nbf,nbf,nbf,1.0d0,tempg_a,Tg_a,0.0d0,tmpg_a)
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tmpg_a,tempg_a,
+     C     0.0d0,tg_a)
+c     diag f_prime c_prime
+      call ga_pdsyev(tg_a, tmpg_a, dbl_mb(p2im_a), 0)
+c     c=inv(chol)_t*c_prime
+      call ga_dgemm('n','n',nbf,nbf,nbf,1.0d0,tempg_a,tmpg_a,
+     Z     0.0d0,ug_a)
 #else
       call ga_diag(Tg_a,tempg_a,Ug_a,dbl_mb(p2Im_a))
 #endif
