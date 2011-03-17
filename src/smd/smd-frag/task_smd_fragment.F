@@ -34,6 +34,7 @@ c
 c
       call smd_init("fragment",rtdb)
       call ga_sync()
+      call smd_coords_print_pdb_repl("big.pdb")
 c
 c     close main rtdb as we may be going into groups
 c     ----------------------------------------------
@@ -280,6 +281,8 @@ c
       do i=1,nc
       call smd_task_iterate()
       call smd_global_diff("charges",gh,eps1)      
+      call smd_global_update("charges","get")
+      call smd_global_update("coords","get")
       if(ga_nodeid().eq.0) then
        write(luout,*) "current charge difference is",eps1
        call smd_charge_write_default()
@@ -313,7 +316,8 @@ c
 c
       pname = "task_smd_fragment_energy"
 c      
-      call task_fragment_populate_ip("energy","t_energy")
+c      call task_fragment_populate("energy","t_energy")
+      call task_fragment_populate("energy","t_energy")
       call smd_system_set_component("task","t_energy")
       call smd_task_iterate()
       return
