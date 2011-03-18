@@ -172,8 +172,8 @@ c      end
      >              + c*cos(alpha)*(cos(gamma)/sin(gamma))**2
 
       else if ((i.eq.2).and.(j.eq.3)) then
-         lvector(3) = dcos(gamma)
-         lvector(6) = -c*dsin(gamma)
+         lvector(3) = dcos(alpha)
+         lvector(4) = -c*dsin(alpha)
 
       else if ((i.eq.3).and.(j.eq.3)) then
          g11 = a*a
