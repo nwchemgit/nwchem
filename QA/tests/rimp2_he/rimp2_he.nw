@@ -1,0 +1,140 @@
+# This test case highlights a bug in that causes the RIMP2 to produce
+# wrong answers if the fitting basis and the AO basis contain shells of
+# the same angular momentum but having different numbers of basis functions.
+# For example, both basis sets could contain an F-shell but the AO basis 
+# has spherical harmonic F-functions whereas the fitting basis has Cartesian
+# F-functions.
+# The error lies somewhere in the way the TEXAS integrals are driven. If
+# nosegment is specified for the basis set the code goes through the TEXAS
+# integrals (and the problems show up). By default the NWCHEM integrals are
+# used.
+echo
+title "He RI-MP2 integrals"
+start h2co_rimp2_dat
+geometry noautoz
+symmetry c1
+He   0.0  0.0  0.00
+bq   0.0  0.0 -1.50 charge -15.0
+bq   0.0  0.0  1.50 charge  15.0
+bq  -1.5  0.0  0.00 charge   1.0
+bq   1.5  0.0  0.00 charge   1.0
+bq   0.0 -1.5  0.00 charge  -1.0
+bq   0.0  1.5  0.00 charge  -1.0
+end
+
+basis "ri-mp2 basis" cartesian
+He   S
+      3.73939300E+01         0.10996705       
+      6.98669000E+00         0.37520477       
+      1.92344500E+00         0.41847746     
+He   F
+      0.7610000              1.0000000
+end
+
+basis "ao basis" cartesian
+He   SP
+     13.62310172             0.17525420       0.001
+      1.99894370             0.89346310       0.45
+      0.38294258             0.1000000        0.55
+He   F
+      0.7610000              1.0000000 
+end
+
+mp2
+  print "basis_order"
+end
+
+task rimp2
+
+
+basis "ao basis" cartesian nosegment
+He   SP
+     13.62310172             0.17525420       0.001
+      1.99894370             0.89346310       0.45
+      0.38294258             0.1000000        0.55
+He   F
+      0.7610000              1.0000000 
+end
+
+task rimp2
+
+
+basis "ao basis" spherical
+He   SP
+     13.62310172             0.17525420       0.001
+      1.99894370             0.89346310       0.45
+      0.38294258             0.1000000        0.55
+He   F
+      0.7610000              1.0000000 
+end
+
+task rimp2
+
+
+basis "ao basis" spherical nosegment
+He   SP
+     13.62310172             0.17525420       0.001
+      1.99894370             0.89346310       0.45
+      0.38294258             0.1000000        0.55
+He   F
+      0.7610000              1.0000000 
+end
+
+task rimp2
+
+
+basis "ri-mp2 basis" spherical
+He   S
+      3.73939300E+01         0.10996705       
+      6.98669000E+00         0.37520477       
+      1.92344500E+00         0.41847746     
+He   F
+      0.7610000              1.0000000
+end
+
+basis "ao basis" cartesian
+He   SP
+     13.62310172             0.17525420       0.001
+      1.99894370             0.89346310       0.45
+      0.38294258             0.1000000        0.55
+He   F
+      0.7610000              1.0000000 
+end
+
+task rimp2
+
+
+basis "ao basis" cartesian nosegment
+He   SP
+     13.62310172             0.17525420       0.001
+      1.99894370             0.89346310       0.45
+      0.38294258             0.1000000        0.55
+He   F
+      0.7610000              1.0000000 
+end
+
+task rimp2
+
+
+basis "ao basis" spherical
+He   SP
+     13.62310172             0.17525420       0.001
+      1.99894370             0.89346310       0.45
+      0.38294258             0.1000000        0.55
+He   F
+      0.7610000              1.0000000 
+end
+
+task rimp2
+
+
+basis "ao basis" spherical nosegment
+He   SP
+     13.62310172             0.17525420       0.001
+      1.99894370             0.89346310       0.45
+      0.38294258             0.1000000        0.55
+He   F
+      0.7610000              1.0000000 
+end
+
+task rimp2

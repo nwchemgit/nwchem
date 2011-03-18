@@ -24,7 +24,7 @@ endif
 #---   small tests
 ./runtests.mpi.unix procs $np h2o_opt
 ./runtests.mpi.unix procs $np auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
-./runtests.mpi.unix procs $np geom_zmatrix rimp2_ne  scf_feco5 small_intchk tagcheck testtab
+./runtests.mpi.unix procs $np geom_zmatrix rimp2_ne rimp2_he scf_feco5 small_intchk tagcheck testtab
 ./runtests.mpi.unix procs $np h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
 ./runtests.mpi.unix procs $np cosmo_h2o_dft
 ./runtests.mpi.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse
