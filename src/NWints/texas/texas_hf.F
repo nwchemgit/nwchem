@@ -1290,9 +1290,9 @@ c
 c        all possible cases 
 c        -----------------
          if(ics.eq.0) then
-               do ii=1,nquart
-                  icspnl(ii)=ncs
-               enddo
+            do ii=1,nquart
+               icspnl(ii)=ncs
+            enddo
             if(num_bas_ij.eq.num_bas_2) then
                call ncshl_update(jcspnl,nquart,ncs_bas_1)
             endif
@@ -1303,16 +1303,16 @@ c        -----------------
                call ncshl_update(kcspnl,nquart,ncs_bas_1)
                call ncshl_update(lcspnl,nquart,ncs_bas_1)
             endif
-            if(num_bas_ij.eq.num_bas_3) then
+            if(num_bas_kl.eq.num_bas_3) then
                call ncshl_update(kcspnl,nquart,ncs_bas_2)
                call ncshl_update(lcspnl,nquart,ncs_bas_2)
             endif
          endif
 c        -----------------
          if(jcs.eq.0) then
-               do ii=1,nquart
-                  jcspnl(ii)=ncs
-               enddo
+            do ii=1,nquart
+               jcspnl(ii)=ncs
+            enddo
             if(num_bas_ij.eq.num_bas_2) then
                call ncshl_update(icspnl,nquart,ncs_bas_1)
             endif
@@ -1323,16 +1323,16 @@ c        -----------------
                call ncshl_update(kcspnl,nquart,ncs_bas_1)
                call ncshl_update(lcspnl,nquart,ncs_bas_1)
             endif
-            if(num_bas_ij.eq.num_bas_3) then
+            if(num_bas_kl.eq.num_bas_3) then
                call ncshl_update(kcspnl,nquart,ncs_bas_2)
                call ncshl_update(lcspnl,nquart,ncs_bas_2)
             endif
          endif
 c        -----------------
          if(kcs.eq.0) then
-               do ii=1,nquart
-                  kcspnl(ii)=ncs
-               enddo
+            do ii=1,nquart
+               kcspnl(ii)=ncs
+            enddo
             if(num_bas_ij.eq.num_bas_2) then
                call ncshl_update(icspnl,nquart,ncs_bas_1)
                call ncshl_update(jcspnl,nquart,ncs_bas_1)
@@ -1344,15 +1344,15 @@ c        -----------------
             if(num_bas_kl.eq.num_bas_2) then
                call ncshl_update(lcspnl,nquart,ncs_bas_1)
             endif
-            if(num_bas_ij.eq.num_bas_3) then
+            if(num_bas_kl.eq.num_bas_3) then
                call ncshl_update(lcspnl,nquart,ncs_bas_2)
             endif
          endif
 c        -----------------
          if(lcs.eq.0) then
-               do ii=1,nquart
-                  lcspnl(ii)=ncs
-               enddo
+            do ii=1,nquart
+               lcspnl(ii)=ncs
+            enddo
             if(num_bas_ij.eq.num_bas_2) then
                call ncshl_update(icspnl,nquart,ncs_bas_1)
                call ncshl_update(jcspnl,nquart,ncs_bas_1)
@@ -1364,7 +1364,7 @@ c        -----------------
             if(num_bas_kl.eq.num_bas_2) then
                call ncshl_update(kcspnl,nquart,ncs_bas_1)
             endif
-            if(num_bas_ij.eq.num_bas_3) then
+            if(num_bas_kl.eq.num_bas_3) then
                call ncshl_update(kcspnl,nquart,ncs_bas_2)
             endif
          endif
