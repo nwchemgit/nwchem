@@ -34,7 +34,7 @@ c
       double precision dtol2,q4,dtol
       double precision db,bb,xb,yb,zb,q4db
       double precision da,aa,xa,ya,za,aandb1,q4dbda,dum,rho,xx
-      double precision cam_omega2, rho0
+      double precision cam2,rho0
 c
       numi = lit*(lit+1)/2
       numj = ljt*(ljt+1)/2
@@ -83,10 +83,12 @@ c
             ya=acharg( 4,ijg)
             za=acharg( 5,ijg)
 c
+            rho0 = rho
             if (doscreen) then
-             cam_omega2 = cam_omega*cam_omega
-             rho = rho*cam_omega2/(cam_omega2 + rho)
+             cam2 = cam_omega*cam_omega
+             rho = rho0*cam2/(cam2 + rho0)
             end if
+c
             xx=rho*((xa-xb)**2+(ya-yb)**2+(za-zb)**2)
 c
             ng=ng+1
@@ -95,7 +97,7 @@ c
             abv(3,ng)=rho
             abv(4,ng)=q4dbda
             abv(5,ng)=xx
-            if (doscreen) abv(6,ng)=rho0
+            abv(6,ng)=rho0
 c
             if(mmaxs) go to 21
             cv( 1,ng)=aa*(xa-xd)

@@ -4,7 +4,7 @@ c $Id$
 c
       implicit double precision (a-h,o-z)
 #include "hnd_rys.fh"
-      dimension rwv(2,numg,nroots),abv(5,numg)
+      dimension rwv(2,numg,nroots),abv(6,numg)
 c
       do 120 ng=1,numg
       yy=abv(5,ng)

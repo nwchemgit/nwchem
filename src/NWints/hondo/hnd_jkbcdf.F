@@ -18,6 +18,7 @@ c
       dimension abv(6,numg),cv(12,numg)
       dimension rwv(2,numg,nroots)
       data pt5,one /0.5d+00,1.0d+00/
+      double precision rho0
 c
       do 40 nr=1,nroots
       do 30 ng=1,numg
@@ -25,50 +26,46 @@ c
       bb =abv(2,ng)
       rho=abv(3,ng)
       qab=abv(4,ng)
+      rho0=abv(6,ng)
       uu =rho*rwv(1,ng,nr)
       ww =    rwv(2,ng,nr)
+      aauu=aa+uu
+      bbuu=bb+uu
       f00(ng,nr)=ww*qab
-      if (doscreen) then
-         co2 = cam_omega * cam_omega
-         rho0 = abv(6,ng)
-         f00(ng,nr) = f00(ng,nr)*sqrt(co2/(rho0+co2))
-         t2=uu/(uu+rho)
-         t2a=t2*rho/aa
-         t2b=t2*rho/bb
-         b00(ng,nr)=pt5/(aa+bb)*t2*rho/rho0
-         b01(ng,nr)=pt5/bb*(one-t2b)
-         b10(ng,nr)=pt5/aa*(one-t2a)
-         ainv=one/aa
-         binv=one/bb
+      dum2=pt5/(aa*bb+uu*(aa+bb))
+      udum=  uu*dum2
+      audum=aauu*dum2
+      budum=bbuu*dum2
+      if (.not.doscreen) then
+         b00(ng,nr)= udum
+         b01(ng,nr)= audum
+         b10(ng,nr)= budum
          if(mmaxs) go to 10
-         d00(ng,nr,1)=cv( 2,ng)*binv+t2b*(cv( 1,ng)*ainv-cv( 2,ng)*binv)
-         d00(ng,nr,2)=cv( 4,ng)*binv+t2b*(cv( 3,ng)*ainv-cv( 4,ng)*binv)
-         d00(ng,nr,3)=cv( 6,ng)*binv+t2b*(cv( 5,ng)*ainv-cv( 6,ng)*binv)
+         d00(ng,nr,1)= 2.d0*udum*cv( 1,ng) + 2.d0*audum*cv( 2,ng)
+         d00(ng,nr,2)= 2.d0*udum*cv( 3,ng) + 2.d0*audum*cv( 4,ng)
+         d00(ng,nr,3)= 2.d0*udum*cv( 5,ng) + 2.d0*audum*cv( 6,ng)
    10    if(nmaxs) go to 20
-         c00(ng,nr,1)=cv( 8,ng)*binv-t2a*(cv( 7,ng)*ainv-cv( 8,ng)*binv)
-         c00(ng,nr,2)=cv(10,ng)*binv-t2a*(cv( 9,ng)*ainv-cv(10,ng)*binv)
-         c00(ng,nr,3)=cv(12,ng)*binv-t2a*(cv(11,ng)*ainv-cv(12,ng)*binv)
+         c00(ng,nr,1)= 2.d0*udum*cv( 8,ng) + 2.d0*budum*cv( 7,ng)
+         c00(ng,nr,2)= 2.d0*udum*cv(10,ng) + 2.d0*budum*cv( 9,ng)
+         c00(ng,nr,3)= 2.d0*udum*cv(12,ng) + 2.d0*budum*cv(11,ng)
    20    continue
       else
-         aauu=aa+uu
-         bbuu=bb+uu
-         dum2=one/(aa*bb+uu*(aa+bb))
-         audum=aauu*dum2
-         budum=bbuu*dum2
-         b00(ng,nr)= udum
-         b01(ng,nr)=audum
-         b10(ng,nr)=budum
+         cam2 = cam_omega*cam_omega
+         f00(ng,nr) = f00(ng,nr)*sqrt(cam2/(rho0+cam2))
+         b00(ng,nr)= udum*rho/rho0
+         b01(ng,nr)= audum
+         b10(ng,nr)= budum
          if(mmaxs) go to 11
-         d00(ng,nr,1)= udum*cv( 1,ng) + audum*cv( 2,ng)
-         d00(ng,nr,2)= udum*cv( 3,ng) + audum*cv( 4,ng)
-         d00(ng,nr,3)= udum*cv( 5,ng) + audum*cv( 6,ng)
+         d00(ng,nr,1)=2.d0*audum*cv( 2,ng) + 2.d0*udum*cv( 1,ng)
+         d00(ng,nr,2)=2.d0*audum*cv( 4,ng) + 2.d0*udum*cv( 3,ng)
+         d00(ng,nr,3)=2.d0*audum*cv( 6,ng) + 2.d0*udum*cv( 5,ng)
    11    if(nmaxs) go to 21
-         c00(ng,nr,1)= udum*cv( 8,ng) + budum*cv( 7,ng)
-         c00(ng,nr,2)= udum*cv(10,ng) + budum*cv( 9,ng)
-         c00(ng,nr,3)= udum*cv(12,ng) + budum*cv(11,ng)
+         c00(ng,nr,1)=2.d0*udum*cv( 8,ng) + 2.d0*budum*cv( 7,ng)
+         c00(ng,nr,2)=2.d0*udum*cv(10,ng) + 2.d0*budum*cv( 9,ng)
+         c00(ng,nr,3)=2.d0*udum*cv(12,ng) + 2.d0*budum*cv(11,ng)
    21    continue
-      endif
-
+      end if
+c
    30 continue
    40 continue
 c
