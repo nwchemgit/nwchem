@@ -187,7 +187,7 @@ c     ----------------------------------------------
         if(.not.ga_create(MT_DBL, nocct(1), nocct(1), trim(cstemp),
      &     -1,-1,g_tran))
      &     call errquit (trim(cstemp),0,GA_ERR)
-        if (debug) write (luout,*) 'g_anl allocated'
+        if (debug) write (luout,*) 'g_tran allocated'
         call util_file_name('lmotrans',.true.,.true.,lmotrans)
         if(.not.file_read_ga(lmotrans,g_tran)) call errquit
      $     ('aor_r1_beta_anl: could not read lmotrans',0, DISK_ERR)
@@ -584,6 +584,11 @@ c         Localized MO analysis
 c         ---------------------
 
           if (lmo) then
+
+c           test: symmetrize the g_anl matrix before the LMO trafo:
+            if (oprint)
+     &         write (luout,*) 'Message from beta_anl: Symmetrizing X'
+            call ga_symmetrize(g_anl)
 
             write (cstemp,'(a)'), 'aor_beta: tmpanl'
             if(.not.ga_create(MT_DBL, nocc, nocc, trim(cstemp),

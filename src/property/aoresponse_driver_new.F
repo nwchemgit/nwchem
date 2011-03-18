@@ -835,7 +835,7 @@ c
         write (LuOut,*)
      &     'Magnetic Dipole Response Matrix (nonzero elements):'
         if (.not.lmagpert) then
-          if (lstatic) then
+          if (lstatic .and. .not.lbeta) then
             write (LuOut,*) 'Optical rotation tensor G'' '
           else
             write (LuOut,*) 'Optical rotation tensor Beta'

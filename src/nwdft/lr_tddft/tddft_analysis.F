@@ -17,8 +17,8 @@ c Circular dichroism and velocity-representation dipole moments:
 c J. Autschbach, SUNY Buffalo (2009).
 c reference: J.Chem.Phys. 116 (2002), pages 891 and 6930
 c
-c GIAO rotatory strengths (2011): J. Autschbach, to be published.
-c GIAO Buckingham-Dunn Rotatory Strength tensors 
+c GIAO rotatory strengths and GIAO Buckingham-Dunn Rotatory Strength tensors
+c (2011): J. Autschbach, to be published.
 c
 c Note: Velocity gauge and GIAO has NOT yet been tested with the TDA, 
 c       only with full TDDFT / RPA (status: 01/2011)
