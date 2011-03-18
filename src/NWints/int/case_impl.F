@@ -20,7 +20,7 @@ c     Turn on/off the attenuation based on the screenflag
       logical screenflag
 
       doscreen = .false.
-      if (cam_exch) doscreen = screenflag
+      doscreen = screenflag
       call ga_sync()   ! synchronise over all processors
 
       return
