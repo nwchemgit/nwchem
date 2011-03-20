@@ -3,6 +3,16 @@
 
 
 ============================== echo of input deck ==============================
+# This test case highlights a bug in that causes the RIMP2 to produce
+# wrong answers if the fitting basis and the AO basis contain shells of
+# the same angular momentum but having different numbers of basis functions.
+# For example, both basis sets could contain an F-shell but the AO basis
+# has spherical harmonic F-functions whereas the fitting basis has Cartesian
+# F-functions.
+# The error lies somewhere in the way the TEXAS integrals are driven. If
+# nosegment is specified for the basis set the code goes through the TEXAS
+# integrals (and the problems show up). By default the NWCHEM integrals are
+# used.
 echo
 title "He RI-MP2 integrals"
 start h2co_rimp2_dat
@@ -175,9 +185,9 @@ task rimp2
 
     hostname      = arcen
     program       = /home/d3y133/nwchem-dev/nwchem-2e3c/QA/../bin/LINUX64/nwchem
-    date          = Thu Mar 17 16:47:37 2011
+    date          = Fri Mar 18 22:07:29 2011
 
-    compiled      = Thu_Mar_17_16:38:05_2011
+    compiled      = Fri_Mar_18_22:07:20_2011
     source        = /home/d3y133/nwchem-dev/nwchem-2e3c
     nwchem branch = Development
     input         = rimp2_he.nw
@@ -531,7 +541,7 @@ task rimp2
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-2e3c/QA/scratchdir/h2co_rimp2_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  35770
+ Max. records in memory =      2        Max. records in file   =  35664
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -540,7 +550,7 @@ task rimp2
                  1       -3.0762556011  8.73D-01  7.26D-01      0.1
                  2       -3.1135128654  1.01D-01  9.61D-02      0.1
                  3       -3.1137555397  1.91D-03  1.36D-03      0.1
-                 4       -3.1137556896  8.27D-07  5.98D-07      0.1
+                 4       -3.1137556896  8.27D-07  5.98D-07      0.2
 
 
        Final RHF  results 
@@ -551,7 +561,7 @@ task rimp2
       Two-electron energy =      1.339997894097
  Nuclear repulsion energy =      0.000000000000
 
-        Time for solution =      0.0s
+        Time for solution =      0.1s
 
 
              Final eigenvalues
@@ -734,12 +744,12 @@ task rimp2
                     5                    6
                     6                    3
  Transformation block size    1, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    1 pass.             @Thu Mar 17 16:47:37 2011
+ XForm_3cInts: Completed     1:    1 pass.             @Fri Mar 18 22:07:30 2011
  Energy evaluation using block sizes     1    1
- RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Thu Mar 17 16:47:37 2011
- RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Thu Mar 17 16:47:37 2011
- RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Thu Mar 17 16:47:37 2011
- RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Thu Mar 17 16:47:37 2011
+ RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
 
 
           -------------------------------------------
@@ -752,28 +762,28 @@ task rimp2
  Performance information
  -----------------------
 
- Timer overhead =  6.00D-07 seconds/call
+ Timer overhead =  3.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.17    0.17    0.17     0.20    0.20    0.20    0.20      0.0     0.0     0.0   
-3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.97E-3 1.97E-3 1.97E-3 1.97E-3   0.0     0.0     0.0   
-Energy        1     1     1    0.0     0.0     0.0     4.06E-4 4.06E-4 4.06E-4 4.06E-4   0.0     0.0     0.0   
-3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.70E-3 1.70E-3 1.70E-3 1.70E-3   0.0     0.0     0.0   
-First 2/3     3     3     3    0.0     0.0     0.0     4.82E-5 4.82E-5 4.82E-5 1.61E-5   0.0     0.0     0.0   
+Overall       1     1     1   0.19    0.19    0.19     0.22    0.22    0.22    0.22      0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.12E-3 2.12E-3 2.12E-3 2.12E-3   0.0     0.0     0.0   
+Energy        1     1     1    0.0     0.0     0.0     4.05E-4 4.05E-4 4.05E-4 4.05E-4   0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.90E-3 1.90E-3 1.90E-3 1.90E-3   0.0     0.0     0.0   
+First 2/3     3     3     3    0.0     0.0     0.0     3.60E-5 3.60E-5 3.60E-5 1.20E-5   0.0     0.0     0.0   
 Final 1/3     1     1     1    0.0     0.0     0.0     2.69E-5 2.69E-5 2.69E-5 2.69E-5   0.0     0.0     0.0   
-Write 3c      1     1     1    0.0     0.0     0.0     6.29E-5 6.29E-5 6.29E-5 6.29E-5   0.0     0.0     0.0   
+Write 3c      1     1     1    0.0     0.0     0.0     2.31E-5 2.31E-5 2.31E-5 2.31E-5   0.0     0.0     0.0   
 Read 3c i     1     1     1    0.0     0.0     0.0     9.06E-6 9.06E-6 9.06E-6 9.06E-6   0.0     0.0     0.0   
-Fitting b     1     1     1    0.0     0.0     0.0     2.42E-4 2.42E-4 2.42E-4 2.42E-4   0.0     0.0     0.0   
-Schwarz i     1     1     1   6.00E-3 6.00E-3 6.00E-3  5.91E-3 5.91E-3 5.91E-3 5.91E-3   0.0     0.0     0.0   
+Fitting b     1     1     1    0.0     0.0     0.0     2.27E-4 2.27E-4 2.27E-4 2.27E-4   0.0     0.0     0.0   
+Schwarz i     1     1     1   7.00E-3 7.00E-3 7.00E-3  6.42E-3 6.42E-3 6.42E-3 6.42E-3   0.0     0.0     0.0   
 Form 4ci      1     1     1    0.0     0.0     0.0     2.38E-5 2.38E-5 2.38E-5 2.38E-5   0.0     0.0     0.0   
-Form A &      1     1     1    0.0     0.0     0.0     7.01E-5 7.01E-5 7.01E-5 7.01E-5   0.0     0.0     0.0   
-Denominat     1     1     1    0.0     0.0     0.0     5.96E-6 5.96E-6 5.96E-6 5.96E-6   0.0     0.0     0.0   
+Form A &      1     1     1    0.0     0.0     0.0     6.99E-5 6.99E-5 6.99E-5 6.99E-5   0.0     0.0     0.0   
+Denominat     1     1     1    0.0     0.0     0.0     5.01E-6 5.01E-6 5.01E-6 5.01E-6   0.0     0.0     0.0   
 Pair Ener     1     1     1    0.0     0.0     0.0     9.06E-6 9.06E-6 9.06E-6 9.06E-6   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 9.60D-06s
+ with a timing overhead of 4.80D-06s
 
 
  Task  times  cpu:        0.2s     wall:        0.2s
@@ -862,7 +872,7 @@ He RI-MP2 integrals
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-2e3c/QA/scratchdir/h2co_rimp2_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  35770
+ Max. records in memory =      2        Max. records in file   =  35664
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -1029,12 +1039,12 @@ He RI-MP2 integrals
                     4                    5
                     5                    2
  Transformation block size    1, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    1 pass.             @Thu Mar 17 16:47:37 2011
+ XForm_3cInts: Completed     1:    1 pass.             @Fri Mar 18 22:07:30 2011
  Energy evaluation using block sizes     1    1
- RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Thu Mar 17 16:47:37 2011
- RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Thu Mar 17 16:47:37 2011
- RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Thu Mar 17 16:47:37 2011
- RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Thu Mar 17 16:47:37 2011
+ RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
 
 
           -------------------------------------------
@@ -1052,26 +1062,26 @@ He RI-MP2 integrals
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.13    0.13    0.13     0.16    0.16    0.16    0.16      0.0     0.0     0.0   
-3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.01E-3 2.01E-3 2.01E-3 2.01E-3   0.0     0.0     0.0   
-Energy        1     1     1    0.0     0.0     0.0     3.45E-4 3.45E-4 3.45E-4 3.45E-4   0.0     0.0     0.0   
-3c integr     1     1     1   1.00E-3 1.00E-3 1.00E-3  1.74E-3 1.74E-3 1.74E-3 1.74E-3   0.0     0.0     0.0   
-First 2/3     3     3     3    0.0     0.0     0.0     3.62E-5 3.62E-5 3.62E-5 1.21E-5   0.0     0.0     0.0   
+Overall       1     1     1   0.15    0.15    0.15     0.18    0.18    0.18    0.18      0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.12E-3 2.12E-3 2.12E-3 2.12E-3   0.0     0.0     0.0   
+Energy        1     1     1   1.00E-3 1.00E-3 1.00E-3  4.70E-4 4.70E-4 4.70E-4 4.70E-4   0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.91E-3 1.91E-3 1.91E-3 1.91E-3   0.0     0.0     0.0   
+First 2/3     3     3     3    0.0     0.0     0.0     3.72E-5 3.72E-5 3.72E-5 1.24E-5   0.0     0.0     0.0   
 Final 1/3     1     1     1    0.0     0.0     0.0     2.69E-5 2.69E-5 2.69E-5 2.69E-5   0.0     0.0     0.0   
-Write 3c      1     1     1    0.0     0.0     0.0     7.01E-5 7.01E-5 7.01E-5 7.01E-5   0.0     0.0     0.0   
-Read 3c i     1     1     1    0.0     0.0     0.0     1.29E-5 1.29E-5 1.29E-5 1.29E-5   0.0     0.0     0.0   
-Fitting b     1     1     1    0.0     0.0     0.0     2.18E-4 2.18E-4 2.18E-4 2.18E-4   0.0     0.0     0.0   
-Schwarz i     1     1     1   7.00E-3 7.00E-3 7.00E-3  6.89E-3 6.89E-3 6.89E-3 6.89E-3   0.0     0.0     0.0   
-Form 4ci      1     1     1    0.0     0.0     0.0     2.41E-5 2.41E-5 2.41E-5 2.41E-5   0.0     0.0     0.0   
-Form A &      1     1     1    0.0     0.0     0.0     5.79E-5 5.79E-5 5.79E-5 5.79E-5   0.0     0.0     0.0   
-Denominat     1     1     1    0.0     0.0     0.0     3.81E-6 3.81E-6 3.81E-6 3.81E-6   0.0     0.0     0.0   
-Pair Ener     1     1     1    0.0     0.0     0.0     8.11E-6 8.11E-6 8.11E-6 8.11E-6   0.0     0.0     0.0   
+Write 3c      1     1     1    0.0     0.0     0.0     2.19E-5 2.19E-5 2.19E-5 2.19E-5   0.0     0.0     0.0   
+Read 3c i     1     1     1    0.0     0.0     0.0     1.00E-5 1.00E-5 1.00E-5 1.00E-5   0.0     0.0     0.0   
+Fitting b     1     1     1    0.0     0.0     0.0     2.23E-4 2.23E-4 2.23E-4 2.23E-4   0.0     0.0     0.0   
+Schwarz i     1     1     1   7.00E-3 7.00E-3 7.00E-3  7.41E-3 7.41E-3 7.41E-3 7.41E-3   0.0     0.0     0.0   
+Form 4ci      1     1     1    0.0     0.0     0.0     2.38E-5 2.38E-5 2.38E-5 2.38E-5   0.0     0.0     0.0   
+Form A &      1     1     1    0.0     0.0     0.0     5.70E-5 5.70E-5 5.70E-5 5.70E-5   0.0     0.0     0.0   
+Denominat     1     1     1    0.0     0.0     0.0     4.05E-6 4.05E-6 4.05E-6 4.05E-6   0.0     0.0     0.0   
+Pair Ener     1     1     1    0.0     0.0     0.0     9.06E-6 9.06E-6 9.06E-6 9.06E-6   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
  with a timing overhead of 3.20D-06s
 
 
- Task  times  cpu:        0.1s     wall:        0.2s
+ Task  times  cpu:        0.2s     wall:        0.2s
 
 
                                 NWChem Input Module
@@ -1187,16 +1197,16 @@ He RI-MP2 integrals
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-2e3c/QA/scratchdir/h2co_rimp2_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  35770
+ Max. records in memory =      2        Max. records in file   =  35664
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1       -2.9957097286  8.91D-01  8.84D-01      0.4
-                 2       -3.0316840525  1.84D-02  1.58D-02      0.4
-                 3       -3.0316960615  1.44D-04  1.16D-04      0.4
-                 4       -3.0316960624  1.61D-08  1.52D-08      0.4
+                 1       -2.9957097286  8.91D-01  8.84D-01      0.5
+                 2       -3.0316840525  1.84D-02  1.58D-02      0.5
+                 3       -3.0316960615  1.44D-04  1.16D-04      0.5
+                 4       -3.0316960624  1.61D-08  1.52D-08      0.5
 
 
        Final RHF  results 
@@ -1207,7 +1217,7 @@ He RI-MP2 integrals
       Two-electron energy =      1.487440549540
  Nuclear repulsion energy =      0.000000000000
 
-        Time for solution =      0.0s
+        Time for solution =      0.1s
 
 
              Final eigenvalues
@@ -1381,12 +1391,12 @@ He RI-MP2 integrals
                     5                    6
                     6                    3
  Transformation block size    1, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    1 pass.             @Thu Mar 17 16:47:38 2011
+ XForm_3cInts: Completed     1:    1 pass.             @Fri Mar 18 22:07:30 2011
  Energy evaluation using block sizes     1    1
- RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
+ RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
 
 
           -------------------------------------------
@@ -1399,28 +1409,28 @@ He RI-MP2 integrals
  Performance information
  -----------------------
 
- Timer overhead =  4.00D-07 seconds/call
+ Timer overhead =  3.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.17    0.17    0.17     0.19    0.19    0.19    0.19      0.0     0.0     0.0   
-3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.02E-3 2.02E-3 2.02E-3 2.02E-3   0.0     0.0     0.0   
-Energy        1     1     1    0.0     0.0     0.0     3.41E-4 3.41E-4 3.41E-4 3.41E-4   0.0     0.0     0.0   
-3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.77E-3 1.77E-3 1.77E-3 1.77E-3   0.0     0.0     0.0   
-First 2/3     3     3     3    0.0     0.0     0.0     2.60E-5 2.60E-5 2.60E-5 8.66E-6   0.0     0.0     0.0   
-Final 1/3     1     1     1    0.0     0.0     0.0     2.41E-5 2.41E-5 2.41E-5 2.41E-5   0.0     0.0     0.0   
-Write 3c      1     1     1    0.0     0.0     0.0     7.20E-5 7.20E-5 7.20E-5 7.20E-5   0.0     0.0     0.0   
-Read 3c i     1     1     1    0.0     0.0     0.0     9.06E-6 9.06E-6 9.06E-6 9.06E-6   0.0     0.0     0.0   
+Overall       1     1     1   0.18    0.18    0.18     0.21    0.21    0.21    0.21      0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.19E-3 2.19E-3 2.19E-3 2.19E-3   0.0     0.0     0.0   
+Energy        1     1     1   1.00E-3 1.00E-3 1.00E-3  3.65E-4 3.65E-4 3.65E-4 3.65E-4   0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.99E-3 1.99E-3 1.99E-3 1.99E-3   0.0     0.0     0.0   
+First 2/3     3     3     3    0.0     0.0     0.0     2.50E-5 2.50E-5 2.50E-5 8.34E-6   0.0     0.0     0.0   
+Final 1/3     1     1     1    0.0     0.0     0.0     2.38E-5 2.38E-5 2.38E-5 2.38E-5   0.0     0.0     0.0   
+Write 3c      1     1     1    0.0     0.0     0.0     2.12E-5 2.12E-5 2.12E-5 2.12E-5   0.0     0.0     0.0   
+Read 3c i     1     1     1    0.0     0.0     0.0     1.31E-5 1.31E-5 1.31E-5 1.31E-5   0.0     0.0     0.0   
 Fitting b     1     1     1    0.0     0.0     0.0     2.20E-4 2.20E-4 2.20E-4 2.20E-4   0.0     0.0     0.0   
-Schwarz i     1     1     1   6.00E-3 6.00E-3 6.00E-3  6.08E-3 6.08E-3 6.08E-3 6.08E-3   0.0     0.0     0.0   
-Form 4ci      1     1     1    0.0     0.0     0.0     2.10E-5 2.10E-5 2.10E-5 2.10E-5   0.0     0.0     0.0   
-Form A &      1     1     1    0.0     0.0     0.0     4.29E-5 4.29E-5 4.29E-5 4.29E-5   0.0     0.0     0.0   
-Denominat     1     1     1    0.0     0.0     0.0     2.86E-6 2.86E-6 2.86E-6 2.86E-6   0.0     0.0     0.0   
-Pair Ener     1     1     1    0.0     0.0     0.0     7.87E-6 7.87E-6 7.87E-6 7.87E-6   0.0     0.0     0.0   
+Schwarz i     1     1     1   7.00E-3 7.00E-3 7.00E-3  6.59E-3 6.59E-3 6.59E-3 6.59E-3   0.0     0.0     0.0   
+Form 4ci      1     1     1    0.0     0.0     0.0     2.19E-5 2.19E-5 2.19E-5 2.19E-5   0.0     0.0     0.0   
+Form A &      1     1     1   1.00E-3 1.00E-3 1.00E-3  1.04E-4 1.04E-4 1.04E-4 1.04E-4   0.0     0.0     0.0   
+Denominat     1     1     1    0.0     0.0     0.0     3.10E-6 3.10E-6 3.10E-6 3.10E-6   0.0     0.0     0.0   
+Pair Ener     1     1     1    0.0     0.0     0.0     7.15E-6 7.15E-6 7.15E-6 7.15E-6   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 6.40D-06s
+ with a timing overhead of 4.80D-06s
 
 
  Task  times  cpu:        0.2s     wall:        0.2s
@@ -1509,13 +1519,13 @@ He RI-MP2 integrals
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-2e3c/QA/scratchdir/h2co_rimp2_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  35770
+ Max. records in memory =      2        Max. records in file   =  35664
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1       -3.0316960623  1.61D-08  1.52D-08      0.6
+                 1       -3.0316960623  1.61D-08  1.52D-08      0.7
 
 
        Final RHF  results 
@@ -1667,49 +1677,49 @@ He RI-MP2 integrals
                     4                    5
                     5                    2
  Transformation block size    1, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    1 pass.             @Thu Mar 17 16:47:38 2011
+ XForm_3cInts: Completed     1:    1 pass.             @Fri Mar 18 22:07:30 2011
  Energy evaluation using block sizes     1    1
- RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
+ RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
 
 
           -------------------------------------------
           SCF energy                  -3.031696062266
           Correlation energy          -0.000624595116
-          Total MP2 energy            -3.032320657469
+          Total MP2 energy            -3.032320657382
           -------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  6.00D-07 seconds/call
+ Timer overhead =  5.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.14    0.14    0.14     0.16    0.16    0.16    0.16      0.0     0.0     0.0   
-3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.00E-3 2.00E-3 2.00E-3 2.00E-3   0.0     0.0     0.0   
-Energy        1     1     1    0.0     0.0     0.0     3.32E-4 3.32E-4 3.32E-4 3.32E-4   0.0     0.0     0.0   
-3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.76E-3 1.76E-3 1.76E-3 1.76E-3   0.0     0.0     0.0   
-First 2/3     3     3     3    0.0     0.0     0.0     2.69E-5 2.69E-5 2.69E-5 8.98E-6   0.0     0.0     0.0   
-Final 1/3     1     1     1    0.0     0.0     0.0     2.50E-5 2.50E-5 2.50E-5 2.50E-5   0.0     0.0     0.0   
-Write 3c      1     1     1    0.0     0.0     0.0     7.01E-5 7.01E-5 7.01E-5 7.01E-5   0.0     0.0     0.0   
+Overall       1     1     1   0.15    0.15    0.15     0.18    0.18    0.18    0.18      0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.06E-3 2.06E-3 2.06E-3 2.06E-3   0.0     0.0     0.0   
+Energy        1     1     1   1.00E-3 1.00E-3 1.00E-3  4.41E-4 4.41E-4 4.41E-4 4.41E-4   0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.87E-3 1.87E-3 1.87E-3 1.87E-3   0.0     0.0     0.0   
+First 2/3     3     3     3    0.0     0.0     0.0     2.38E-5 2.38E-5 2.38E-5 7.95E-6   0.0     0.0     0.0   
+Final 1/3     1     1     1    0.0     0.0     0.0     2.31E-5 2.31E-5 2.31E-5 2.31E-5   0.0     0.0     0.0   
+Write 3c      1     1     1    0.0     0.0     0.0     2.10E-5 2.10E-5 2.10E-5 2.10E-5   0.0     0.0     0.0   
 Read 3c i     1     1     1    0.0     0.0     0.0     9.06E-6 9.06E-6 9.06E-6 9.06E-6   0.0     0.0     0.0   
-Fitting b     1     1     1    0.0     0.0     0.0     2.48E-4 2.48E-4 2.48E-4 2.48E-4   0.0     0.0     0.0   
-Schwarz i     1     1     1   7.00E-3 7.00E-3 7.00E-3  7.10E-3 7.10E-3 7.10E-3 7.10E-3   0.0     0.0     0.0   
-Form 4ci      1     1     1    0.0     0.0     0.0     2.22E-5 2.22E-5 2.22E-5 2.22E-5   0.0     0.0     0.0   
-Form A &      1     1     1    0.0     0.0     0.0     4.20E-5 4.20E-5 4.20E-5 4.20E-5   0.0     0.0     0.0   
+Fitting b     1     1     1   1.00E-3 1.00E-3 1.00E-3  3.07E-4 3.07E-4 3.07E-4 3.07E-4   0.0     0.0     0.0   
+Schwarz i     1     1     1   7.00E-3 7.00E-3 7.00E-3  7.50E-3 7.50E-3 7.50E-3 7.50E-3   0.0     0.0     0.0   
+Form 4ci      1     1     1   1.00E-3 1.00E-3 1.00E-3  1.04E-4 1.04E-4 1.04E-4 1.04E-4   0.0     0.0     0.0   
+Form A &      1     1     1    0.0     0.0     0.0     5.70E-5 5.70E-5 5.70E-5 5.70E-5   0.0     0.0     0.0   
 Denominat     1     1     1    0.0     0.0     0.0     3.10E-6 3.10E-6 3.10E-6 3.10E-6   0.0     0.0     0.0   
-Pair Ener     1     1     1    0.0     0.0     0.0     9.06E-6 9.06E-6 9.06E-6 9.06E-6   0.0     0.0     0.0   
+Pair Ener     1     1     1    0.0     0.0     0.0     8.11E-6 8.11E-6 8.11E-6 8.11E-6   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 9.60D-06s
+ with a timing overhead of 8.00D-06s
 
 
- Task  times  cpu:        0.1s     wall:        0.2s
+ Task  times  cpu:        0.2s     wall:        0.2s
 
 
                                 NWChem Input Module
@@ -1797,7 +1807,7 @@ Pair Ener     1     1     1    0.0     0.0     0.0     9.06E-6 9.06E-6 9.06E-6 9
 
 
 
- Forming initial guess at       0.8s
+ Forming initial guess at       0.9s
 
 
  !! nbf/nmo/basis-name mismatch 
@@ -1831,7 +1841,7 @@ He RI-MP2 integrals
  LUMO         =       0.950402
 
 
- Starting SCF solution at       0.8s
+ Starting SCF solution at       0.9s
 
 
 
@@ -1849,13 +1859,13 @@ He RI-MP2 integrals
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-2e3c/QA/scratchdir/h2co_rimp2_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  35770
+ Max. records in memory =      2        Max. records in file   =  35664
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1       -3.0762556011  8.73D-01  7.26D-01      0.7
+                 1       -3.0762556011  8.73D-01  7.26D-01      0.8
                  2       -3.1135128654  1.01D-01  9.61D-02      0.8
                  3       -3.1137555397  1.91D-03  1.36D-03      0.8
                  4       -3.1137556896  8.27D-07  5.98D-07      0.8
@@ -1869,7 +1879,7 @@ He RI-MP2 integrals
       Two-electron energy =      1.339997894097
  Nuclear repulsion energy =      0.000000000000
 
-        Time for solution =      0.0s
+        Time for solution =      0.1s
 
 
              Final eigenvalues
@@ -2052,46 +2062,46 @@ He RI-MP2 integrals
                     5                    5
                     6                    3
  Transformation block size    1, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    1 pass.             @Thu Mar 17 16:47:38 2011
+ XForm_3cInts: Completed     1:    1 pass.             @Fri Mar 18 22:07:30 2011
  Energy evaluation using block sizes     1    1
- RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
+ RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
+ RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Fri Mar 18 22:07:30 2011
 
 
           -------------------------------------------
           SCF energy                  -3.113755689599
-          Correlation energy          -0.119824595066
-          Total MP2 energy            -3.233580284665
+          Correlation energy          -0.001554443923
+          Total MP2 energy            -3.115310133522
           -------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  4.00D-07 seconds/call
+ Timer overhead =  2.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.17    0.17    0.17     0.19    0.19    0.19    0.19      0.0     0.0     0.0   
-3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.00E-3 2.00E-3 2.00E-3 2.00E-3   0.0     0.0     0.0   
-Energy        1     1     1   1.00E-3 1.00E-3 1.00E-3  3.46E-4 3.46E-4 3.46E-4 3.46E-4   0.0     0.0     0.0   
-3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.76E-3 1.76E-3 1.76E-3 1.76E-3   0.0     0.0     0.0   
-First 2/3     3     3     3    0.0     0.0     0.0     2.67E-5 2.67E-5 2.67E-5 8.90E-6   0.0     0.0     0.0   
-Final 1/3     1     1     1    0.0     0.0     0.0     2.22E-5 2.22E-5 2.22E-5 2.22E-5   0.0     0.0     0.0   
-Write 3c      1     1     1    0.0     0.0     0.0     7.30E-5 7.30E-5 7.30E-5 7.30E-5   0.0     0.0     0.0   
-Read 3c i     1     1     1    0.0     0.0     0.0     8.82E-6 8.82E-6 8.82E-6 8.82E-6   0.0     0.0     0.0   
-Fitting b     1     1     1    0.0     0.0     0.0     2.05E-4 2.05E-4 2.05E-4 2.05E-4   0.0     0.0     0.0   
-Schwarz i     1     1     1   6.00E-3 6.00E-3 6.00E-3  5.90E-3 5.90E-3 5.90E-3 5.90E-3   0.0     0.0     0.0   
+Overall       1     1     1   0.19    0.19    0.19     0.21    0.21    0.21    0.21      0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.11E-3 2.11E-3 2.11E-3 2.11E-3   0.0     0.0     0.0   
+Energy        1     1     1   1.00E-3 1.00E-3 1.00E-3  4.04E-4 4.04E-4 4.04E-4 4.04E-4   0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.92E-3 1.92E-3 1.92E-3 1.92E-3   0.0     0.0     0.0   
+First 2/3     3     3     3    0.0     0.0     0.0     2.62E-5 2.62E-5 2.62E-5 8.74E-6   0.0     0.0     0.0   
+Final 1/3     1     1     1    0.0     0.0     0.0     2.10E-5 2.10E-5 2.10E-5 2.10E-5   0.0     0.0     0.0   
+Write 3c      1     1     1    0.0     0.0     0.0     2.19E-5 2.19E-5 2.19E-5 2.19E-5   0.0     0.0     0.0   
+Read 3c i     1     1     1    0.0     0.0     0.0     9.06E-6 9.06E-6 9.06E-6 9.06E-6   0.0     0.0     0.0   
+Fitting b     1     1     1    0.0     0.0     0.0     2.06E-4 2.06E-4 2.06E-4 2.06E-4   0.0     0.0     0.0   
+Schwarz i     1     1     1   6.00E-3 6.00E-3 6.00E-3  6.30E-3 6.30E-3 6.30E-3 6.30E-3   0.0     0.0     0.0   
 Form 4ci      1     1     1    0.0     0.0     0.0     2.10E-5 2.10E-5 2.10E-5 2.10E-5   0.0     0.0     0.0   
-Form A &      1     1     1   1.00E-3 1.00E-3 1.00E-3  6.70E-5 6.70E-5 6.70E-5 6.70E-5   0.0     0.0     0.0   
-Denominat     1     1     1    0.0     0.0     0.0     5.96E-6 5.96E-6 5.96E-6 5.96E-6   0.0     0.0     0.0   
+Form A &      1     1     1    0.0     0.0     0.0     6.29E-5 6.29E-5 6.29E-5 6.29E-5   0.0     0.0     0.0   
+Denominat     1     1     1    0.0     0.0     0.0     5.01E-6 5.01E-6 5.01E-6 5.01E-6   0.0     0.0     0.0   
 Pair Ener     1     1     1    0.0     0.0     0.0     7.87E-6 7.87E-6 7.87E-6 7.87E-6   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 6.40D-06s
+ with a timing overhead of 3.20D-06s
 
 
  Task  times  cpu:        0.2s     wall:        0.2s
@@ -2154,7 +2164,7 @@ Pair Ener     1     1     1    0.0     0.0     0.0     7.87E-6 7.87E-6 7.87E-6 7
 
 
 
- Forming initial guess at       1.0s
+ Forming initial guess at       1.1s
 
 
  Loading old vectors from job with title :
@@ -2162,7 +2172,7 @@ Pair Ener     1     1     1    0.0     0.0     0.0     7.87E-6 7.87E-6 7.87E-6 7
 He RI-MP2 integrals
 
 
- Starting SCF solution at       1.0s
+ Starting SCF solution at       1.1s
 
 
 
@@ -2180,13 +2190,13 @@ He RI-MP2 integrals
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-2e3c/QA/scratchdir/h2co_rimp2_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  35770
+ Max. records in memory =      2        Max. records in file   =  35664
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1       -3.1137556895  8.27D-07  5.98D-07      0.9
+                 1       -3.1137556895  8.27D-07  5.98D-07      1.0
 
 
        Final RHF  results 
@@ -2347,49 +2357,49 @@ He RI-MP2 integrals
                     4                    4
                     5                    2
  Transformation block size    1, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    1 pass.             @Thu Mar 17 16:47:38 2011
+ XForm_3cInts: Completed     1:    1 pass.             @Fri Mar 18 22:07:31 2011
  Energy evaluation using block sizes     1    1
- RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
+ RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Fri Mar 18 22:07:31 2011
+ RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Fri Mar 18 22:07:31 2011
+ RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Fri Mar 18 22:07:31 2011
+ RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Fri Mar 18 22:07:31 2011
 
 
           -------------------------------------------
           SCF energy                  -3.113755689523
-          Correlation energy          -0.119824595066
-          Total MP2 energy            -3.233580284665
+          Correlation energy          -0.001554443923
+          Total MP2 energy            -3.115310133446
           -------------------------------------------
 
  -----------------------
  Performance information
  -----------------------
 
- Timer overhead =  4.00D-07 seconds/call
+ Timer overhead =  6.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.13    0.13    0.13     0.16    0.16    0.16    0.16      0.0     0.0     0.0   
-3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.08E-3 2.08E-3 2.08E-3 2.08E-3   0.0     0.0     0.0   
-Energy        1     1     1   1.00E-3 1.00E-3 1.00E-3  3.90E-4 3.90E-4 3.90E-4 3.90E-4   0.0     0.0     0.0   
-3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.84E-3 1.84E-3 1.84E-3 1.84E-3   0.0     0.0     0.0   
+Overall       1     1     1   0.15    0.15    0.15     0.17    0.17    0.17    0.17      0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.16E-3 2.16E-3 2.16E-3 2.16E-3   0.0     0.0     0.0   
+Energy        1     1     1    0.0     0.0     0.0     3.07E-4 3.07E-4 3.07E-4 3.07E-4   0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.97E-3 1.97E-3 1.97E-3 1.97E-3   0.0     0.0     0.0   
 First 2/3     3     3     3    0.0     0.0     0.0     2.57E-5 2.57E-5 2.57E-5 8.58E-6   0.0     0.0     0.0   
 Final 1/3     1     1     1    0.0     0.0     0.0     2.10E-5 2.10E-5 2.10E-5 2.10E-5   0.0     0.0     0.0   
-Write 3c      1     1     1    0.0     0.0     0.0     6.99E-5 6.99E-5 6.99E-5 6.99E-5   0.0     0.0     0.0   
+Write 3c      1     1     1    0.0     0.0     0.0     2.10E-5 2.10E-5 2.10E-5 2.10E-5   0.0     0.0     0.0   
 Read 3c i     1     1     1    0.0     0.0     0.0     9.06E-6 9.06E-6 9.06E-6 9.06E-6   0.0     0.0     0.0   
-Fitting b     1     1     1    0.0     0.0     0.0     2.02E-4 2.02E-4 2.02E-4 2.02E-4   0.0     0.0     0.0   
-Schwarz i     1     1     1   7.00E-3 7.00E-3 7.00E-3  6.90E-3 6.90E-3 6.90E-3 6.90E-3   0.0     0.0     0.0   
-Form 4ci      1     1     1    0.0     0.0     0.0     2.22E-5 2.22E-5 2.22E-5 2.22E-5   0.0     0.0     0.0   
-Form A &      1     1     1    0.0     0.0     0.0     5.70E-5 5.70E-5 5.70E-5 5.70E-5   0.0     0.0     0.0   
-Denominat     1     1     1    0.0     0.0     0.0     3.81E-6 3.81E-6 3.81E-6 3.81E-6   0.0     0.0     0.0   
-Pair Ener     1     1     1    0.0     0.0     0.0     1.00E-5 1.00E-5 1.00E-5 1.00E-5   0.0     0.0     0.0   
+Fitting b     1     1     1    0.0     0.0     0.0     2.00E-4 2.00E-4 2.00E-4 2.00E-4   0.0     0.0     0.0   
+Schwarz i     1     1     1   8.00E-3 8.00E-3 8.00E-3  7.46E-3 7.46E-3 7.46E-3 7.46E-3   0.0     0.0     0.0   
+Form 4ci      1     1     1    0.0     0.0     0.0     2.12E-5 2.12E-5 2.12E-5 2.12E-5   0.0     0.0     0.0   
+Form A &      1     1     1    0.0     0.0     0.0     5.60E-5 5.60E-5 5.60E-5 5.60E-5   0.0     0.0     0.0   
+Denominat     1     1     1    0.0     0.0     0.0     4.05E-6 4.05E-6 4.05E-6 4.05E-6   0.0     0.0     0.0   
+Pair Ener     1     1     1    0.0     0.0     0.0     9.06E-6 9.06E-6 9.06E-6 9.06E-6   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 6.40D-06s
+ with a timing overhead of 9.60D-06s
 
 
- Task  times  cpu:        0.1s     wall:        0.2s
+ Task  times  cpu:        0.2s     wall:        0.2s
 
 
                                 NWChem Input Module
@@ -2453,7 +2463,7 @@ Pair Ener     1     1     1    0.0     0.0     0.0     1.00E-5 1.00E-5 1.00E-5 1
 
 
 
- Forming initial guess at       1.2s
+ Forming initial guess at       1.3s
 
 
  !! nbf/nmo/basis-name mismatch 
@@ -2487,7 +2497,7 @@ He RI-MP2 integrals
  LUMO         =       1.902540
 
 
- Starting SCF solution at       1.2s
+ Starting SCF solution at       1.3s
 
 
 
@@ -2505,16 +2515,16 @@ He RI-MP2 integrals
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-2e3c/QA/scratchdir/h2co_rimp2_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  35770
+ Max. records in memory =      2        Max. records in file   =  35664
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1       -2.9957097286  8.91D-01  8.84D-01      1.1
-                 2       -3.0316840525  1.84D-02  1.58D-02      1.1
-                 3       -3.0316960615  1.44D-04  1.16D-04      1.1
-                 4       -3.0316960624  1.61D-08  1.52D-08      1.1
+                 1       -2.9957097286  8.91D-01  8.84D-01      1.2
+                 2       -3.0316840525  1.84D-02  1.58D-02      1.2
+                 3       -3.0316960615  1.44D-04  1.16D-04      1.2
+                 4       -3.0316960624  1.61D-08  1.52D-08      1.2
 
 
        Final RHF  results 
@@ -2699,12 +2709,12 @@ He RI-MP2 integrals
                     5                    6
                     6                    3
  Transformation block size    1, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    1 pass.             @Thu Mar 17 16:47:38 2011
+ XForm_3cInts: Completed     1:    1 pass.             @Fri Mar 18 22:07:31 2011
  Energy evaluation using block sizes     1    1
- RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
+ RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Fri Mar 18 22:07:31 2011
+ RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Fri Mar 18 22:07:31 2011
+ RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Fri Mar 18 22:07:31 2011
+ RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Fri Mar 18 22:07:31 2011
 
 
           -------------------------------------------
@@ -2717,28 +2727,28 @@ He RI-MP2 integrals
  Performance information
  -----------------------
 
- Timer overhead =  4.00D-07 seconds/call
+ Timer overhead =  2.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.17    0.17    0.17     0.19    0.19    0.19    0.19      0.0     0.0     0.0   
-3c integr     1     1     1   1.00E-3 1.00E-3 1.00E-3  1.92E-3 1.92E-3 1.92E-3 1.92E-3   0.0     0.0     0.0   
-Energy        1     1     1    0.0     0.0     0.0     3.30E-4 3.30E-4 3.30E-4 3.30E-4   0.0     0.0     0.0   
-3c integr     1     1     1   1.00E-3 1.00E-3 1.00E-3  1.70E-3 1.70E-3 1.70E-3 1.70E-3   0.0     0.0     0.0   
-First 2/3     3     3     3    0.0     0.0     0.0     1.91E-5 1.91E-5 1.91E-5 6.36E-6   0.0     0.0     0.0   
-Final 1/3     1     1     1    0.0     0.0     0.0     2.00E-5 2.00E-5 2.00E-5 2.00E-5   0.0     0.0     0.0   
-Write 3c      1     1     1    0.0     0.0     0.0     8.08E-5 8.08E-5 8.08E-5 8.08E-5   0.0     0.0     0.0   
-Read 3c i     1     1     1    0.0     0.0     0.0     9.06E-6 9.06E-6 9.06E-6 9.06E-6   0.0     0.0     0.0   
-Fitting b     1     1     1    0.0     0.0     0.0     2.01E-4 2.01E-4 2.01E-4 2.01E-4   0.0     0.0     0.0   
-Schwarz i     1     1     1   7.00E-3 7.00E-3 7.00E-3  6.07E-3 6.07E-3 6.07E-3 6.07E-3   0.0     0.0     0.0   
-Form 4ci      1     1     1    0.0     0.0     0.0     1.69E-5 1.69E-5 1.69E-5 1.69E-5   0.0     0.0     0.0   
-Form A &      1     1     1    0.0     0.0     0.0     4.20E-5 4.20E-5 4.20E-5 4.20E-5   0.0     0.0     0.0   
-Denominat     1     1     1    0.0     0.0     0.0     2.86E-6 2.86E-6 2.86E-6 2.86E-6   0.0     0.0     0.0   
+Overall       1     1     1   0.18    0.18    0.18     0.21    0.21    0.21    0.21      0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.10E-3 2.10E-3 2.10E-3 2.10E-3   0.0     0.0     0.0   
+Energy        1     1     1   1.00E-3 1.00E-3 1.00E-3  4.06E-4 4.06E-4 4.06E-4 4.06E-4   0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.91E-3 1.91E-3 1.91E-3 1.91E-3   0.0     0.0     0.0   
+First 2/3     3     3     3    0.0     0.0     0.0     2.00E-5 2.00E-5 2.00E-5 6.68E-6   0.0     0.0     0.0   
+Final 1/3     1     1     1    0.0     0.0     0.0     1.88E-5 1.88E-5 1.88E-5 1.88E-5   0.0     0.0     0.0   
+Write 3c      1     1     1    0.0     0.0     0.0     2.10E-5 2.10E-5 2.10E-5 2.10E-5   0.0     0.0     0.0   
+Read 3c i     1     1     1    0.0     0.0     0.0     7.87E-6 7.87E-6 7.87E-6 7.87E-6   0.0     0.0     0.0   
+Fitting b     1     1     1   1.00E-3 1.00E-3 1.00E-3  2.93E-4 2.93E-4 2.93E-4 2.93E-4   0.0     0.0     0.0   
+Schwarz i     1     1     1   6.00E-3 6.00E-3 6.00E-3  6.48E-3 6.48E-3 6.48E-3 6.48E-3   0.0     0.0     0.0   
+Form 4ci      1     1     1   1.00E-3 1.00E-3 1.00E-3  1.06E-4 1.06E-4 1.06E-4 1.06E-4   0.0     0.0     0.0   
+Form A &      1     1     1    0.0     0.0     0.0     4.70E-5 4.70E-5 4.70E-5 4.70E-5   0.0     0.0     0.0   
+Denominat     1     1     1    0.0     0.0     0.0     3.10E-6 3.10E-6 3.10E-6 3.10E-6   0.0     0.0     0.0   
 Pair Ener     1     1     1    0.0     0.0     0.0     8.11E-6 8.11E-6 8.11E-6 8.11E-6   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 6.40D-06s
+ with a timing overhead of 3.20D-06s
 
 
  Task  times  cpu:        0.2s     wall:        0.2s
@@ -2801,7 +2811,7 @@ Pair Ener     1     1     1    0.0     0.0     0.0     8.11E-6 8.11E-6 8.11E-6 8
 
 
 
- Forming initial guess at       1.4s
+ Forming initial guess at       1.5s
 
 
  Loading old vectors from job with title :
@@ -2809,7 +2819,7 @@ Pair Ener     1     1     1    0.0     0.0     0.0     8.11E-6 8.11E-6 8.11E-6 8
 He RI-MP2 integrals
 
 
- Starting SCF solution at       1.4s
+ Starting SCF solution at       1.5s
 
 
 
@@ -2827,13 +2837,13 @@ He RI-MP2 integrals
 
  Integral file          = /home/d3y133/nwchem-dev/nwchem-2e3c/QA/scratchdir/h2co_rimp2_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  35770
+ Max. records in memory =      2        Max. records in file   =  35664
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1       -3.0316960623  1.61D-08  1.52D-08      1.2
+                 1       -3.0316960623  1.61D-08  1.52D-08      1.3
 
 
        Final RHF  results 
@@ -2985,12 +2995,12 @@ He RI-MP2 integrals
                     4                    5
                     5                    2
  Transformation block size    1, requiring     1 integral passes.
- XForm_3cInts: Completed     1:    1 pass.             @Thu Mar 17 16:47:38 2011
+ XForm_3cInts: Completed     1:    1 pass.             @Fri Mar 18 22:07:31 2011
  Energy evaluation using block sizes     1    1
- RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
- RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Thu Mar 17 16:47:38 2011
+ RIMP2_V_E2: Approx. ints. done (    1:    1,    1:    1) @Fri Mar 18 22:07:31 2011
+ RIMP2_V_E2: Copy to B done (    1:    1,    1:    1)  @Fri Mar 18 22:07:31 2011
+ RIMP2_V_E2: Denominators done (    1:    1,    1:    1) @Fri Mar 18 22:07:31 2011
+ RIMP2_V_E2: Completed block (    1:    1,    1:    1) @Fri Mar 18 22:07:31 2011
 
 
           -------------------------------------------
@@ -3003,31 +3013,31 @@ He RI-MP2 integrals
  Performance information
  -----------------------
 
- Timer overhead =  5.00D-07 seconds/call
+ Timer overhead =  3.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
-Overall       1     1     1   0.14    0.14    0.14     0.16    0.16    0.16    0.16      0.0     0.0     0.0   
-3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.02E-3 2.02E-3 2.02E-3 2.02E-3   0.0     0.0     0.0   
-Energy        1     1     1    0.0     0.0     0.0     3.26E-4 3.26E-4 3.26E-4 3.26E-4   0.0     0.0     0.0   
-3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.79E-3 1.79E-3 1.79E-3 1.79E-3   0.0     0.0     0.0   
+Overall       1     1     1   0.15    0.15    0.15     0.17    0.17    0.17    0.17      0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  2.11E-3 2.11E-3 2.11E-3 2.11E-3   0.0     0.0     0.0   
+Energy        1     1     1   1.00E-3 1.00E-3 1.00E-3  3.84E-4 3.84E-4 3.84E-4 3.84E-4   0.0     0.0     0.0   
+3c integr     1     1     1   2.00E-3 2.00E-3 2.00E-3  1.93E-3 1.93E-3 1.93E-3 1.93E-3   0.0     0.0     0.0   
 First 2/3     3     3     3    0.0     0.0     0.0     1.91E-5 1.91E-5 1.91E-5 6.36E-6   0.0     0.0     0.0   
-Final 1/3     1     1     1    0.0     0.0     0.0     1.88E-5 1.88E-5 1.88E-5 1.88E-5   0.0     0.0     0.0   
-Write 3c      1     1     1    0.0     0.0     0.0     7.20E-5 7.20E-5 7.20E-5 7.20E-5   0.0     0.0     0.0   
+Final 1/3     1     1     1    0.0     0.0     0.0     1.91E-5 1.91E-5 1.91E-5 1.91E-5   0.0     0.0     0.0   
+Write 3c      1     1     1    0.0     0.0     0.0     2.10E-5 2.10E-5 2.10E-5 2.10E-5   0.0     0.0     0.0   
 Read 3c i     1     1     1    0.0     0.0     0.0     9.06E-6 9.06E-6 9.06E-6 9.06E-6   0.0     0.0     0.0   
-Fitting b     1     1     1    0.0     0.0     0.0     2.02E-4 2.02E-4 2.02E-4 2.02E-4   0.0     0.0     0.0   
-Schwarz i     1     1     1   7.00E-3 7.00E-3 7.00E-3  7.06E-3 7.06E-3 7.06E-3 7.06E-3   0.0     0.0     0.0   
-Form 4ci      1     1     1    0.0     0.0     0.0     2.00E-5 2.00E-5 2.00E-5 2.00E-5   0.0     0.0     0.0   
-Form A &      1     1     1    0.0     0.0     0.0     6.10E-5 6.10E-5 6.10E-5 6.10E-5   0.0     0.0     0.0   
-Denominat     1     1     1    0.0     0.0     0.0     5.96E-6 5.96E-6 5.96E-6 5.96E-6   0.0     0.0     0.0   
-Pair Ener     1     1     1    0.0     0.0     0.0     7.87E-6 7.87E-6 7.87E-6 7.87E-6   0.0     0.0     0.0   
+Fitting b     1     1     1   1.00E-3 1.00E-3 1.00E-3  2.81E-4 2.81E-4 2.81E-4 2.81E-4   0.0     0.0     0.0   
+Schwarz i     1     1     1   7.00E-3 7.00E-3 7.00E-3  7.55E-3 7.55E-3 7.55E-3 7.55E-3   0.0     0.0     0.0   
+Form 4ci      1     1     1    0.0     0.0     0.0     1.72E-5 1.72E-5 1.72E-5 1.72E-5   0.0     0.0     0.0   
+Form A &      1     1     1    0.0     0.0     0.0     4.70E-5 4.70E-5 4.70E-5 4.70E-5   0.0     0.0     0.0   
+Denominat     1     1     1    0.0     0.0     0.0     3.10E-6 3.10E-6 3.10E-6 3.10E-6   0.0     0.0     0.0   
+Pair Ener     1     1     1    0.0     0.0     0.0     8.11E-6 8.11E-6 8.11E-6 8.11E-6   0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 1.60D+01
- with a timing overhead of 8.00D-06s
+ with a timing overhead of 4.80D-06s
 
 
- Task  times  cpu:        0.1s     wall:        0.2s
+ Task  times  cpu:        0.2s     wall:        0.2s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -3094,4 +3104,4 @@ MA usage statistics:
     X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
        M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:        1.3s     wall:        1.5s
+ Total times  cpu:        1.4s     wall:        1.6s

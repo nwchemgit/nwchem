@@ -68,7 +68,7 @@ C
 #endif
       EndIf
 C
-C     Collect up everyone's partial sums so we all return the right 
+C     Collect up everyone-s partial sums so we all return the right 
 C     answer.
 C
       Call GA_DGOp(Msg_PrSum, Sum_Pairs, 1, '+')

@@ -659,8 +659,8 @@ c        --- gradient derivatives ----
          endif
          if(where.eq.'hess') then
 c        --- hessian  derivatives ----
-           mnbls=45*nbls   ! for secend derivatives only
-cccc       mnbls=54*nbls   ! for secend and first derivatives together
+           mnbls=45*nbls   ! for second derivatives only
+cccc       mnbls=54*nbls   ! for second and first derivatives together
            nbuf=ibuf
          endif
 c

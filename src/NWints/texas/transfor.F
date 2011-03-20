@@ -8,6 +8,17 @@ c--------------------------------------------------------------------
 c This routine is called only if PNL basis set was specified as 
 c                       SPHERICAL
 c
+c Note: Despite the comment above it is still necessary to check 
+c       whether lens.ne.lenx. The reason is that in resolution-of-the-
+c       density calculations (e.g. RI-SCF, RI-MP2 and other similar
+c       methods) we have 2 basis sets, the AO basis and the fitting
+c       basis. These may have different specifications for the 
+c       angular momenta, e.g. spherical harmonic AO basis combined
+c       with a cartesian fitting basis. In these cases we must transform
+c       only the bra or the ket of the integrals but not both. Failing
+c       to appreciate this causes rogue data to be pulled in leading to
+c       invalid results.
+c
 c ityps-ltyps PNL type of spherical harmonic shells
 c ilenx-llenx are cartesian sizes (see below)
 c ilens-llens are spher.harmon. sizes (see below)
@@ -67,7 +78,7 @@ c--------------------------------------------------------------------
 c do transformation for BRA <ij| :
 c
       max_bra=max(ityps,jtyps)
-      if( max_bra.gt.1 ) then
+      if( max_bra.gt.1.and.(jlenx+ilenx).ne.(jlens+ilens) ) then
          iaddress=iyint
          do 100 nn=1,nbls
             call spcart_bra2etran(bl(iaddress),bl(iscrt),
@@ -86,7 +97,7 @@ c--------------------------------------------------------------------
 c do transformation for KET |kl> :
 c
       max_ket=max(ktyps,ltyps)
-      if( max_ket.gt.1 ) then
+      if( max_ket.gt.1.and.(llenx+klenx).ne.(llens+klens) ) then
          iaddress=iyint
          do 200 nn=1,nbls
             call spcart_ket2etran(bl(iaddress),bl(iscrt),

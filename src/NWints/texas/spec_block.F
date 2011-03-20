@@ -1978,7 +1978,7 @@ c======================================================================
       subroutine blk_shells(ncs,inx,iroute,datnuc,datbas,
      *                      nblock1,nbl1,nbl2,nbl4)
       implicit real*8 (a-h,o-z)
-      logical txs93,txs95, cond1,cond2,cond3,cond4,cond5
+      logical txs93,txs95, cond1,cond2,cond3,cond4,cond5,cond6
       common /intlim/ limxmem,limblks,limpair
       dimension nblock1(0:ncs)
       dimension inx(12,*)
@@ -1997,18 +1997,20 @@ c
          isp0=inx(1,ics0)+1                ! first primitive
          exi0=datbas(1,isp0)               ! exponent of first primitive
          ngci0=inx(4,ics0)                 ! general contraction deep
+         i56d0=inx(3,ics0)                 ! 5d or 6d, 7f or 10f, 9g or 15g
 c
 c next shell :
 c
          ics1=ics0+1
-         ist1=inx(12,ics1)     
-         iat1=inx(2,ics1)       
-         nzi1=0                
+         ist1=inx(12,ics1)
+         iat1=inx(2,ics1)
+         nzi1=0
          if(iat1.gt.0) nzi1=datnuc(1,iat1)
-         isc1=inx(5,ics1)-inx(1,ics1)  
-         isp1=inx(1,ics1)+1           
-         exi1=datbas(1,isp1)         
-         ngci1=inx(4,ics1)          
+         isc1=inx(5,ics1)-inx(1,ics1)
+         isp1=inx(1,ics1)+1
+         exi1=datbas(1,isp1)
+         ngci1=inx(4,ics1)
+         i56d1=inx(3,ics1)
 c
 c---------------------------------------------
 c check against criterion (3 or 5 conditions) :
@@ -2018,15 +2020,17 @@ c
            cond3=.false.
            cond4=.false.
            cond5=.false.
+           cond6=.false.
            if(ist0 .eq. ist1 ) cond1=.true.
            if(isc0 .eq. isc1 ) cond2=.true.
            if(ngci0.eq.ngci1 ) cond3=.true.
            if(nzi0 .eq. nzi1 ) cond4=.true.
            if(exi0 .eq. exi1 ) cond5=.true.
+           if(i56d0.eq. i56d1) cond6=.true.
 c
            txs93=.false.
            txs95=.false.
-           if(cond1.and.cond2.and.cond3) txs93=.true.
+           if(cond1.and.cond2.and.cond3.and.cond6) txs93=.true.
            if(cond4.and.cond5.and.txs93) txs95=.true.
 c
            if(iroute.eq.1) then
