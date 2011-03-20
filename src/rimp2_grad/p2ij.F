@@ -90,7 +90,7 @@ C
      $               G_T, 'N', (K-1)*NVirI+1, K*NVirI,
      $                         (J-1)*NVirJ+1, J*NVirJ )
                EndDo
-               If ( Pij .ne. 0.0d0 ) then
+               If ( Pij .ne. 0.0d0 .and. ga_nodeid().eq.0 ) then
                   Call GA_Acc( G_P2, Occ1+I-1, Occ1+I-1,
      $               Occ1+J-1, Occ1+J-1, Pij, 1, Fact)
                EndIf
@@ -108,7 +108,7 @@ C
      $               G_T, 'N', (J-1)*NVirI+1, J*NVirI,
      $                         (K-1)*NVirJ+1, K*NVirJ )
                EndDo
-               If ( Pij .ne. 0.0d0 ) then
+               If ( Pij .ne. 0.0d0 .and. ga_nodeid().eq.0 ) then
                   Call GA_Acc( G_P2, Occ1+I-1, Occ1+I-1,
      $               Occ1+J-1, Occ1+J-1, Pij, 1, Fact)
                EndIf

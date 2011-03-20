@@ -562,6 +562,9 @@ C
      $                                  (I-ILo+1)*NVir(ISpin),
      $                                  (J-JLo)*NVir(JSpin)+1,
      $                                  (J-JLo+1)*NVir(JSpin) )
+#ifndef BAD_GACCESS
+                        PairE = PairE/ga_nnodes()
+#endif
 C
 C                       If this turns out to be too much traffic, we
 C                       might want to create a local array to contain

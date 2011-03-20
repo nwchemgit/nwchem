@@ -144,7 +144,7 @@ C
 C
 C                 Caution:  This may be too much traffic at once.  Check!
 C
-                  If ( L1 .ne. 0.0d0 ) then
+                  If ( L1 .ne. 0.0d0 .and. ga_nodeid().eq.0 ) then
                      Call GA_Acc( g_L1, P+PLo-1, P+PLo-1, I+ILo-1,
      $                    I+ILo-1, L1, 1, 2.0d0)
                   EndIf

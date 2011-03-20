@@ -222,7 +222,7 @@ C     Using GA_DDot_Patch, each node computes its contribution
 C     to the dot product and returns immediately, so the Omega4
 C     we construct this way is must be summed over all nodes.
 C
-      Call GA_Sync
+c     Call GA_Sync
       Do I = 1, NOcc
          Do J = 1, NOcc
             Omega4(i,j) = GA_DDot_Patch(
@@ -234,11 +234,11 @@ c$$$     $         Omega4(i,j)
 c$$$C
          EndDo
       EndDo
-      Call GA_Sync
+c     Call GA_Sync
 C
 C     Sum the partial results to complete Omega4
 C
-      Call GA_DGop(Msg_CCDen_4, Omega4, LDO4*NOcc, '+')
+c     Call GA_DGop(Msg_CCDen_4, Omega4, LDO4*NOcc, '+')
 c$$$C
 c$$$      Call DGeWr(NOcc, NOcc, Omega4, LDO4, 0, 0, LUOut,
 c$$$     $   'Final Omega4', 80, 'F20.15')

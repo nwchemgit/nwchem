@@ -88,7 +88,7 @@ C           wait until perfomance says we need to.  For
 C           now, we'll just avoid sending zeros across
 C           the machine.
 C
-            If ( PairE .ne. 0.0d0 ) then
+            If ( PairE .ne. 0.0d0 .and. ga_nodeid().eq.0 ) then
                Call GA_Acc( G_PairE, TrueI, TrueI, TrueJ, TrueJ,
      $            PairE, 1, 1.0d0)
             EndIf
