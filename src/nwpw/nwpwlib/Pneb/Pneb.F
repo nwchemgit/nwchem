@@ -2703,13 +2703,15 @@ c    returns C = beta*C + alpha*A*B
       indx=1
       do nb=nb1,nb2
       do ms=ms1,ms2
-         call ZGEMM('N','N',ne(ms),ne(ms),ne(ms),
-     >              alpha,
-     >              A(indx),ne(ms),
-     >              B(indx),ne(ms),
-     >              beta,
-     >              C(indx),ne(ms))
-        indx = indx + ne(ms)*ne(ms)
+         if (ne(ms).gt.0) then
+            call ZGEMM('N','N',ne(ms),ne(ms),ne(ms),
+     >                 alpha,
+     >                 A(indx),ne(ms),
+     >                 B(indx),ne(ms),
+     >                 beta,
+     >                 C(indx),ne(ms))
+            indx = indx + ne(ms)*ne(ms)
+         end if
       end do
       end do
       return
@@ -2740,13 +2742,15 @@ c
       indx=1
       do nb=nb1,nb2
       do ms=ms1,ms2
-         call ZGEMM('C','N',ne(ms),ne(ms),ne(ms),
-     >              alpha,
-     >              A(indx),ne(ms),
-     >              B(indx),ne(ms),
-     >              beta,
-     >              C(indx),ne(ms))
-        indx = indx + ne(ms)*ne(ms)
+         if (ne(ms).gt.0) then
+            call ZGEMM('C','N',ne(ms),ne(ms),ne(ms),
+     >                 alpha,
+     >                 A(indx),ne(ms),
+     >                 B(indx),ne(ms),
+     >                 beta,
+     >                 C(indx),ne(ms))
+            indx = indx + ne(ms)*ne(ms)
+         end if
       end do
       end do
       return
@@ -2777,13 +2781,15 @@ c    returns C = beta*C + alpha*A*conj(B')
       indx=1
       do nb=nb1,nb2
       do ms=ms1,ms2
-         call ZGEMM('N','C',ne(ms),ne(ms),ne(ms),
-     >              alpha,
-     >              A(indx),ne(ms),
-     >              B(indx),ne(ms),
-     >              beta,
-     >              C(indx),ne(ms))
-        indx = indx + ne(ms)*ne(ms)
+         if (ne(ms).gt.0) then
+            call ZGEMM('N','C',ne(ms),ne(ms),ne(ms),
+     >                 alpha,
+     >                 A(indx),ne(ms),
+     >                 B(indx),ne(ms),
+     >                 beta,
+     >                 C(indx),ne(ms))
+            indx = indx + ne(ms)*ne(ms)
+         end if
       end do
       end do
       return
