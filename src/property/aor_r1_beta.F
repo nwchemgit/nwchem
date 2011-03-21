@@ -226,7 +226,7 @@ c       ------------------------------
 c       allocate intermediate vector for matrix multiplications
 c       used to create the final results
         
-        write (cstemp,'(a)'), 'aor_beta: temp1'
+        write (cstemp,'(a)') 'aor_beta: temp1'
         if(.not.ga_create(MT_DBL, nbf, nocc, trim(cstemp),
      &     -1,-1,g_temp))
      &     call errquit (trim(cstemp),0,GA_ERR)

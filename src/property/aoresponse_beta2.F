@@ -584,7 +584,7 @@ c       allocate some work space again
 
 c       create g_vecE1:
         
-        write (cstemp,'(a)'), 'aor:MO-pert efield'
+        write (cstemp,'(a)') 'aor:MO-pert efield'
         if(.not.ga_create(MT_DBL,nbf, nocc, trim(cstemp),
      &     -1,-1,g_vecE1))
      &     call errquit (trim(cstemp),0,GA_ERR)
@@ -593,7 +593,7 @@ c       create g_vecE1:
 c       allocate intermediate vector for matrix multiplications
 c       that create the final results
          
-        write (cstemp,'(a)'), 'aor_beta: temp1'
+        write (cstemp,'(a)') 'aor_beta: temp1'
         if(.not.ga_create(MT_DBL, nbf, nocc, trim(cstemp),
      &     -1,-1,g_temp))
      &     call errquit (trim(cstemp),0,GA_ERR)

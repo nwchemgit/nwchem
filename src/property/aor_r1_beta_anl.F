@@ -183,7 +183,7 @@ c     ----------------------------------------------
       lmo = (i.eq.0)
       if (lmo) then
         if (oprint) write (luout,*) 'analysis: LMO switch found'
-        write (cstemp,'(a)'), 'aor_beta: g_tran'
+        write (cstemp,'(a)') 'aor_beta: g_tran'
         if(.not.ga_create(MT_DBL, nocct(1), nocct(1), trim(cstemp),
      &     -1,-1,g_tran))
      &     call errquit (trim(cstemp),0,GA_ERR)
@@ -222,7 +222,7 @@ c       ------------------------------
 c       allocate intermediate vector for matrix multiplications
 c       used to create the final results
         
-        write (cstemp,'(a)'), 'aor_beta: temp1'
+        write (cstemp,'(a)') 'aor_beta: temp1'
         if(.not.ga_create(MT_DBL, nbf, nocc, trim(cstemp),
      &     -1,-1,g_temp))
      &     call errquit (trim(cstemp),0,GA_ERR)
@@ -230,7 +230,7 @@ c       used to create the final results
 
 c       allocate matrix that accumulates the analysis data
 
-        write (cstemp,'(a)'), 'aor_beta: g_anl'
+        write (cstemp,'(a)') 'aor_beta: g_anl'
         if(.not.ga_create(MT_DBL, nocc, nocc, trim(cstemp),
      &     -1,-1,g_anl))
      &     call errquit (trim(cstemp),0,GA_ERR)
@@ -590,7 +590,7 @@ c           test: symmetrize the g_anl matrix before the LMO trafo:
      &         write (luout,*) 'Message from beta_anl: Symmetrizing X'
             call ga_symmetrize(g_anl)
 
-            write (cstemp,'(a)'), 'aor_beta: tmpanl'
+            write (cstemp,'(a)') 'aor_beta: tmpanl'
             if(.not.ga_create(MT_DBL, nocc, nocc, trim(cstemp),
      &         -1,-1,g_tmpanl))
      &         call errquit (trim(cstemp),0,GA_ERR)
