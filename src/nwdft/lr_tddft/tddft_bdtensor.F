@@ -96,7 +96,7 @@ c     we assume that this transition dipole matrix is symmetric
       if (nodezero) then
         write (luout,*) 'traceless quadrupole moment tensor'
         call output(qmat,1,3,1,3,3,3,1)
-        write (luout,'(1X,a,f15.5)'), 'Trace = ', trace
+        write (luout,'(1X,a,f15.5)') 'Trace = ', trace
       end if
       
 c     the SOS equation for the D-Q polarizability
@@ -127,7 +127,7 @@ c     step 2: the symmetrized rotatory strength tensor
       if (nodezero) then
         write (luout,*) 'Symmetrized Rotatory strength tensor'
         call output(rmat,1,3,1,3,3,3,1)
-        write (luout,'(1X,a,f15.5)'), 'Trace = ', trace
+        write (luout,'(1X,a,f15.5)') 'Trace = ', trace
       end if
       
 c     step 3: combine rotatory strength and quadrupole terms
@@ -161,7 +161,7 @@ c      rmat(:,:) = rmat(:,:) * two * rau2cgs
      &     'Symmetrized Buckingham-Dunn Rotatory strength tensor',
      &     '(see JCP 125 (2006), 034102 and references therein)'
         call output(rmat,1,3,1,3,3,3,1)
-        write (luout,'(5X,a,f15.5)'), 'Trace = ', trace
+        write (luout,'(5X,a,f15.5)') 'Trace = ', trace
       end if
 
 c     also output the orientation-dependent rotatory strength
@@ -185,7 +185,7 @@ c     also output the orientation-dependent rotatory strength
         write (luout,'(/5x,a)')
      &     'Rotatory strength tensor'
         call output(rmat,1,3,1,3,3,3,1)
-        write (luout,'(5X,a,f15.5)'), 'Trace = ', trace
+        write (luout,'(5X,a,f15.5)') 'Trace = ', trace
       end if
 
 c     step 4: redo steps 2 and 3 for the antisymmetric part
@@ -210,7 +210,7 @@ c$$$
 c$$$      if (nodezero) then
 c$$$        write (luout,*) 'Antisymmetrized Rotatory strength tensor'
 c$$$        call output(rmat,1,3,1,3,3,3,1)
-c$$$        write (luout,'(1X,a,f15.5)'), 'Trace = ', trace
+c$$$        write (luout,'(1X,a,f15.5)') 'Trace = ', trace
 c$$$      end if
 c$$$
 c$$$
@@ -239,7 +239,7 @@ c$$$
 c$$$      if (nodezero) then
 c$$$        write (luout,*) 'Antisymmetrized e-q tensor'
 c$$$        call output(tmat,1,3,1,3,3,3,1)
-c$$$        write (luout,'(1X,a,f15.5)'), 'Trace = ', trace
+c$$$        write (luout,'(1X,a,f15.5)') 'Trace = ', trace
 c$$$      end if
 c$$$
 c$$$      rmat = rmat + tmat
@@ -252,7 +252,7 @@ c$$$
 c$$$      if (nodezero) then
 c$$$        write (luout,*) 'Antisymmetrized BD tensor in au'
 c$$$        call output(rmat,1,3,1,3,3,3,1)
-c$$$        write (luout,'(1X,a,f15.5)'), 'Trace = ', trace
+c$$$        write (luout,'(1X,a,f15.5)') 'Trace = ', trace
 c$$$      end if
 c$$$      
 c$$$      rmat(:,:) = rmat(:,:) * two * rau2cgs
@@ -266,7 +266,7 @@ c$$$      if (nodezero) then
 c$$$        write (luout,'(/5x,a)')
 c$$$     &     'Antisymmetrized Buckingham-Dunn Rotatory strength tensor'
 c$$$        call output(rmat,1,3,1,3,3,3,1)
-c$$$        write (luout,'(5X,a,f15.5)'), 'Trace = ', trace
+c$$$        write (luout,'(5X,a,f15.5)') 'Trace = ', trace
 c$$$      end if
 
 
@@ -324,7 +324,7 @@ c     step 5: calculate the Graham-Raab formula
           write (luout,'(/5x,a)')
      &       'Symmetric Graham-Raab tensor'
           call output(rmat,1,3,1,3,3,3,1)
-          write (luout,'(5X,a,f15.5)'), 'Trace = ', trace
+          write (luout,'(5X,a,f15.5)') 'Trace = ', trace
         end if
 
       rmat(:,:) = zero
@@ -371,7 +371,7 @@ c     step 5: calculate the Graham-Raab formula
           write (luout,'(/5x,a)')
      &       'Antisymmetric Graham-Raab tensor'
           call output(rmat,1,3,1,3,3,3,1)
-          write (luout,'(5X,a,f15.5)'), 'Trace = ', trace
+          write (luout,'(5X,a,f15.5)') 'Trace = ', trace
         end if
 
       return
