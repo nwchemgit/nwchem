@@ -23,6 +23,7 @@
                 smd_task.o  smd_group.o smd_global.o
 LIB_INCLUDES = -I../include
 
+#  LIB_DEFINES = -DSMD_DEBUG
 
       LIBRARY = libsmd.a
 

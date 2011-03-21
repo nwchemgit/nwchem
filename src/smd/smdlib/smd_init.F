@@ -187,7 +187,9 @@ c
       tag = "bq"
       call smd_system_set_component(tag,sp_bq)
 
+#ifdef SMD_DEBUG
       call smd_system_print(6)
+#endif
 c
 c      write(*,*) "in "//pname
 c     DEFINE ALL THE COMPONENTS
@@ -211,7 +213,9 @@ c
 c     finish system setup
 c     -------------------
       call smd_coords_rebox_segments()
+#ifdef SMD_DEBUG
       call smd_system_print(6)
+#endif
 
       end if
 
@@ -384,7 +388,9 @@ c     finish system setup
 c     -------------------
       call smd_coords_rebox_segments()
       call smd_ewald_init()
+#ifdef SMD_DEBUG
       call smd_system_print(6)
+#endif
 
       end if
       call ga_sync()
