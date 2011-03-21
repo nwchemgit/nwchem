@@ -1272,6 +1272,7 @@ c
 #include "geom.fh"
 #include "smd_const_data.fh"
 #include "stdio.fh"
+#include "smd_system.fh"
 c
       integer im
 c     
@@ -1289,8 +1290,12 @@ c
       double precision sht(3)
       integer ncent
       character*64 msg
+      integer i_gim,i_gnm
+      logical operiodic
 c
       pname = "smd_geom_get_coords"
+c
+      operiodic = smd_system_periodic()
 c
       call smd_task_get_counter(im)
 c
@@ -1323,7 +1328,18 @@ c
       if(.not. result) 
      >  call errquit(
      >       pname//'error getting index for'//tag,0,0 )
-c    
+c
+      tag = "res-index"
+      call smd_data_get_index(sp_geom,tag,i_gim,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
+c
+      tag = "res-size"
+      call smd_data_get_index(sp_geom,tag,i_gnm,result)
+      if(.not. result) 
+     >  call errquit(
+     >       pname//'error getting index for'//tag,0,0 )
 c
       call smd_rtdb_get_handle(rtdb)
 c
@@ -1365,13 +1381,16 @@ c
       if(.not. result)  call errquit(
      >       pname//'error getting index for'//tag,0,0 )
        
-      do i=1,nt
-        do k=1,3
-          dbl_mb(i_c1+3*(i-1)+k-1)=dbl_mb(i_c1+3*(i-1)+k-1)+
-     >                             sht(k)
-        end do
-      end do
-      call smd_lat_rebox(nt,dbl_mb(i_c1)) 
+c      do i=1,nt
+c        do k=1,3
+c          dbl_mb(i_c1+3*(i-1)+k-1)=dbl_mb(i_c1+3*(i-1)+k-1)+
+c     >                             sht(k)
+c        end do
+c      end do
+      if(operiodic)
+     + call smd_lat_rebox_segments(nt,nb,int_mb(i_gim),int_mb(i_gnm),
+     +                     dbl_mb(i_c1)) 
+c      call smd_lat_rebox(nt,dbl_mb(i_c1)) 
       
 c
       j=0
