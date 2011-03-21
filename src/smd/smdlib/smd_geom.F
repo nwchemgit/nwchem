@@ -528,7 +528,6 @@ c     ----
         n1 = n1 + int_mb(i_nm+i-1)
       end do
 c      
-      if(ga_nodeid().eq.0) write(*,*) "n1=",n1
       if(.not.ma_push_get(mt_dbl,3*n1,pname//'tmp c',h_c1,i_c1))
      + call errquit(pname//'Failed to allocate memory for h_ftmp',0,0)
       if(.not.ma_push_get(mt_dbl,n1,'tmp q',h_q1,i_q1))
@@ -849,19 +848,14 @@ c
       shift(3) = 0.0d0
       
       do i=1,nt
-      write(*,*) "center coordinates ",(c(j,i),j=1,3)
       do j=1,3
          shift(j)=shift(j)+c(j,i)
       end do
       end do
 
-
-
       shift(1) = shift(1)/nt
       shift(2) = shift(2)/nt
       shift(3) = shift(3)/nt
-
-      write(*,*) "shift vector ",(shift(j),j=1,3)
 c
       return
 c

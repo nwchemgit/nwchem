@@ -601,7 +601,6 @@ c
 c
       tag = "lattice"
       call smd_system_get_component(sp_lat,tag,result)
-      write(*,*) "lattice name is",sp_lat
       if(.not.result)
      >  call errquit(
      >       pname//'no component '//tag,0,0)
