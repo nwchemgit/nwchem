@@ -122,6 +122,8 @@ c      end
 *   This routine calculates the jacobian,
 *      dA_ij/da, dA_ij/db, dA_ij/dc, dA_ij/dalpha, dA_ij/dbeta, dA_ij/dgamma
 *
+c     WARNING:  this routine only works in "standard orientation"
+c     which is why there is a 2,1 term, but no 1,2 term, since 1,2 is zero
       subroutine cell_lattice_lvector(i,j,lvector)
       implicit none
       integer i,j
@@ -170,6 +172,7 @@ c      end
          lvector(5) = -c*dsin(beta)/dsin(gamma)
          lvector(6) = c*cos(alpha) 
      >              + c*cos(alpha)*(cos(gamma)/sin(gamma))**2
+     >              - c*cos(gamma)*cos(beta)/(sin(gamma))**2
 
       else if ((i.eq.2).and.(j.eq.3)) then
          lvector(3) = dcos(alpha)
