@@ -1,37 +1,12 @@
 #$Id$
 
-#######################################################
-# This is only necessary to detect Cray T3D and T3E
-# for which the only difference is to optimize basis.o,
-# which is pointless since these machines are dead.
-#
-#TARGET = $(NWCHEM_TARGET)
-#  export ARMCI_DIR_NAME := armci
-#ifeq ($(ARMCI_NETWORK),PORTALS)
-#  export ARMCI_DIR_NAME := armci-portals
-#endif
-#include ../tools/$(ARMCI_DIR_NAME)/config/makecoms.h
-#include ../tools/$(ARMCI_DIR_NAME)/config/makemp.h
-########################################################
-
 include ../config/makefile.h
 
        LIBRARY = libnwcutil.a
        HEADERS = bas.fh basP.fh bas_staticP.fh basdeclsP.fh geobasmapP.fh  \
                  bas_exndcf.fh bas_exndcf_dec.fh bas_exndcf_sfn.fh \
                  bas_ibs.fh bas_ibs_dec.fh bas_ibs_sfn.fh ../NWints/rel/rel_nwc.fh
-           OBJ  = basis.o bas_input.o bas_contrib.o bas_checksum.o basisP.o bas_blas.o bas_blasP.o bas_vec_info.o
-
-########################################################
-#ifeq ($(TARGET),CRAY-T3D)
-#   OBJ_OPTIMIZE = basis.o 
-#           OBJ  = bas_input.o bas_contrib.o bas_checksum.o basisP.o bas_blas.o bas_blasP.o bas_vec_info.o
-#endif
-#ifeq ($(TARGET),CRAY-T3E)
-#   OBJ_OPTIMIZE = basis.o 
-#           OBJ  = bas_input.o bas_contrib.o bas_checksum.o basisP.o bas_blas.o bas_blasP.o bas_vec_info.o
-#endif
-########################################################
+           OBJ = basis.o bas_input.o bas_contrib.o bas_checksum.o basisP.o bas_blas.o bas_blasP.o bas_vec_info.o
 
    LIB_TARGETS = testbasis testbasis.o libcheck
    LONGNWTOP = $(shell if [ `echo $(SRCDIR) |wc -m` -gt 64 ]; then echo "Y"; fi  )
