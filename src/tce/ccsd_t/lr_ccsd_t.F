@@ -1,7 +1,9 @@
       SUBROUTINE lr_ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                     d_f1,k_f1_offset,d_v2,k_v2_offset,
-     2                     d_e,k_e_offset,energy1,energy2,
-     3  energy3,energy4,energy5,energy6,size_t1)
+     2                     d_e,k_e_offset,
+     3                     energy1,energy2,energy3,
+     4                     energy4,energy5,energy6,
+     5                     size_t1)
 C
 C     $Id$
 C

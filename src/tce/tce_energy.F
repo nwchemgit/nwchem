@@ -2969,8 +2969,9 @@ c
           call createfile(filename,d_e,size_e)
           call lr_ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                   d_f1,k_f1_offset,d_v2,k_v2_offset,
-     2                   d_e,k_e_offset,pt3_1,pt3_2,
-     3                   pt3_3,pt3_4,pt3_5,pt3_6,size_t1)
+     2                   d_e,k_e_offset,
+     3                   pt3_1,pt3_2,pt3_3,pt3_4,pt3_5,pt3_6,
+     4                   size_t1)
           call deletefile(d_e)
 c
           cpu = cpu + util_cpusec()
@@ -3067,8 +3068,9 @@ c
           call createfile(filename,d_e,size_e)
           call lr_ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                   d_f1,k_f1_offset,d_v2,k_v2_offset,
-     2                   d_e,k_e_offset,pt3_1,pt3_2,
-     3                   pt3_3,pt3_4,pt3_5,pt3_6)
+     2                   d_e,k_e_offset,
+     3                   pt3_1,pt3_2,pt3_3,pt3_4,pt3_5,pt3_6,
+     4                   size_t1)
           call deletefile(d_e)
 c
           cpu = cpu + util_cpusec()
