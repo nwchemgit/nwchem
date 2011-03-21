@@ -104,8 +104,9 @@ c
 cedo#ifndef USE_TEXAS_BROKE
       call int_nogencont_check(brain,'int_2e2c:bra')
       call int_nogencont_check(ketin,'int_2e2c:ket')
-      call int_nospshell_check(brain,'int_2e2c:bra')
-      call int_nospshell_check(ketin,'int_2e2c:ket')
+chvd  I currently find no evidence that the code cannot handle SP-shells
+c     call int_nospshell_check(brain,'int_2e2c:bra')
+c     call int_nospshell_check(ketin,'int_2e2c:ket')
 cedo#endif
 c
 c     define center information required 

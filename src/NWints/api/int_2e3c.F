@@ -123,8 +123,9 @@ c
 cedo#ifndef USE_TEXAS_BROKE
       call int_nogencont_check(brain,'int_2e3c:bra')
       call int_nogencont_check(ketin,'int_2e3c:ket')
-      call int_nospshell_check(brain,'int_2e3c:bra')
-      call int_nospshell_check(ketin,'int_2e3c:ket')
+chvd  I currently find no evidence that the code cannot handle SP-shells
+c     call int_nospshell_check(brain,'int_2e3c:bra')
+c     call int_nospshell_check(ketin,'int_2e3c:ket')
 cedo#endif
 c
 c     define center information required 
@@ -175,7 +176,7 @@ cedo#if defined(USE_TEXAS_BROKE)
 
 *                                (p|ff) or greater do texas
       if (.not.status_gen)
-     &    status_txs = status_txs .and. ((Lp+Lc+Ld).gt.7)
+     &    status_txs = status_txs .and. ((abs(Lp)+abs(Lc)+abs(Ld)).ge.7)
 cedo#endif
 *
       status_rel = dyall_mod_dir .and. .not.nesc_1e_approx
