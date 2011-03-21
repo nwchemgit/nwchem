@@ -227,7 +227,7 @@ c     which is why there is a 2,1 term, but no 1,2 term, since 1,2 is zero
          g32e = 0.0d0
          g32f = 0.0d0
 
-         g13 = a*b*dcos(beta)
+         g13 = a*c*dcos(beta)
          g13a = c*dcos(beta)
          g13b = 0.0d0
          g13c = a*dcos(beta)
