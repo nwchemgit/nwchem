@@ -474,10 +474,10 @@ c
 c The array  e  is needed for working space.
 c
       implicit none
+      integer n,ierr,k,l,m,i,j,ii,mml
       double precision alpha,beta,eps,zero,weigh,e,dp,dg,dr,
      *ds,dc,df,db
       dimension alpha(n),beta(n),zero(n),weigh(n),e(n)
-      integer n,ierr,k,l,m,i,j,ii,mml
 c
       if(n.lt.1) then
         ierr=-1
@@ -606,11 +606,11 @@ c
 c The routine uses the function subroutine  r1mach.
 c
       implicit none
+      integer ierr,n,ncap,nm1,m,k
       double precision x,w,alpha,beta,p0,p1,p2,dtiny,dhuge,dsum0,dsum1,
      *                 dsum2,dt
       dimension x(ncap),w(ncap),alpha(n),beta(n),p0(ncap),p1(ncap),
      *          p2(ncap)
-      integer ierr,n,ncap,nm1,m,k
 c
       dtiny=1.0d-40
       dhuge=1.0d40
