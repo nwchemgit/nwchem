@@ -143,6 +143,12 @@ c      end
       real*8  ac2,ab2,top,bc2,bot
       real*8  amat(3,3),vol,c1,c2,c3,s3
 
+      integer ii, jj
+
+*     **** external functions ****
+      real*8   lattice_unita
+      external lattice_unita
+
       call lattice_abc_abg(a,b,c,alpha,beta,gamma)
       pi = 4.0d0*datan(1.0d0)
       alpha = alpha*pi/180.0d0
@@ -154,25 +160,12 @@ c      end
       c3=dcos(gamma)
       s3=dsin(gamma)
       vol = (a*b*c)*sqrt(1-(c1**2+c2**2+c3**2)+(2*c1*c2*c3))
-!     This amatrix stuff clearly assumes standard orientation
-      amat(1,1) = a*s3
-      amat(2,1) = a*c3
-      amat(3,1) = 0.0d+00
 
-      amat(1,2) = 0.0d+00
-      amat(2,2) = b
-      amat(3,2) = 0.0d+00
-
-      amat(1,3) = (c*(c2-c1*c3)/s3)
-      amat(2,3) = c*c1
-      amat(3,3) = (vol/(a*b*s3))
-
-      lvector(1) = 0.0d0
-      lvector(2) = 0.0d0
-      lvector(3) = 0.0d0
-      lvector(4) = 0.0d0
-      lvector(5) = 0.0d0
-      lvector(6) = 0.0d0
+      do jj = 1, 3
+       do ii = 1, 3
+         amat(ii,jj) = lattice_unita(ii,jj)
+       end do
+      enddo
 
          ! cos(angle) = f, where f is complicated
          ! angle = arcos(f)
