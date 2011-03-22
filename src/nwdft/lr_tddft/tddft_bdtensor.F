@@ -86,7 +86,11 @@ c     we assume that this transition dipole matrix is symmetric
         qmat(i,i) = qmat(i,i) - trace
       end do                
       
-      qmat(:,:) = half * qmat(:,:)
+      do i = 1,3
+        do j = 1,3
+         qmat(i,j) = half * qmat(i,j)
+        end do
+      end do
       
       trace = zero
       do i = 1,3
@@ -103,8 +107,12 @@ c     the SOS equation for the D-Q polarizability
 c     has a factor of the excitation energy,
 c     just like other real polarizabilities. So we need to add that
 c     here
-      
-      qmat(:,:) = qmat(:,:) * eexcit
+
+      do i = 1,3
+        do j = 1,3
+         qmat(i,j) = qmat(i,j) * eexcit
+        end do
+      end do
 
 c     step 2: the symmetrized rotatory strength tensor
       
