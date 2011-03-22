@@ -123,7 +123,7 @@ c      end
 *      dA_ij/da, dA_ij/db, dA_ij/dc, dA_ij/dalpha, dA_ij/dbeta, dA_ij/dgamma
 *
 c     WARNING:  this routine only works in "standard orientation"
-c     which is why there is a 2,1 term, but no 1,2 term, since 1,2 is zero
+c     This is why some term are very simple. ie. amat(3,1) = zero is assumed
       subroutine cell_lattice_lvector(i,j,lvector)
       implicit none
       integer i,j
@@ -155,7 +155,7 @@ c     which is why there is a 2,1 term, but no 1,2 term, since 1,2 is zero
       lvector(5) = 0.0d0
       lvector(6) = 0.0d0
 
-      if ((i.eq.1).and.(j.eq.1)) then
+      if (     (i.eq.1).and.(j.eq.1)) then
          lvector(1) = dsin(gamma)
          lvector(6) = a*dcos(gamma)
 
@@ -163,8 +163,20 @@ c     which is why there is a 2,1 term, but no 1,2 term, since 1,2 is zero
          lvector(1) = dcos(gamma)
          lvector(6) = -a*dsin(gamma)
 
+      else if ((i.eq.3).and.(j.eq.1)) then
+
+! TODO
+
+      else if ((i.eq.1).and.(j.eq.2)) then
+
+! TODO
+
       else if ((i.eq.2).and.(j.eq.2)) then
          lvector(2) = 1.0d0
+
+      else if ((i.eq.3).and.(j.eq.2)) then
+
+! TODO
 
       else if ((i.eq.1).and.(j.eq.3)) then
          lvector(3) = (dcos(beta)-dcos(alpha)*dcos(gamma))/dsin(gamma)
