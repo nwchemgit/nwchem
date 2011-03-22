@@ -142,11 +142,33 @@ c     This is why some term are very simple. ie. amat(3,1) = zero is assumed
       real*8  g11e,g21e,g31e,g12e,g22e,g32e,g13e,g23e,g33e
       real*8  g11f,g21f,g31f,g12f,g22f,g32f,g13f,g23f,g33f
 
+      real*8  dad31,dab2d31,dac2d31,dbotd31,dtopd31,dbetad31,dgammad31
+      real*8  dbd12,dbc2d12,dab2d12,dbotd12,dtopd12,dalphad12,dgammad12
+      real*8  dbd32,dbc2d32,dab2d32,dbotd32,dtopd32,dalphad32,dgammad32
+      real*8  ac2,ab2,top,bc2
+      real*8  amat(3,3),vol,c1,c2,c3,s3
+
       call lattice_abc_abg(a,b,c,alpha,beta,gamma)
       pi = 4.0d0*datan(1.0d0)
       alpha = alpha*pi/180.0d0
       beta  = beta *pi/180.0d0
       gamma = gamma*pi/180.0d0
+
+      c1=dcos(alpha)
+      c2=dcos(beta)
+      c3=dcos(gamma)
+      s3=dsin(gamma)
+      vol = (a*b*c)*sqrt(1-(c1**2+c2**2+c3**2)+(2*c1*c2*c3))
+!     This amatrix stuff clearly assumes standard orientation
+      amat(1,1) = a*s3
+      amat(1,2) = 0.0d+00
+      amat(1,3) = (c*(c2-c1*c3)/s3)
+      amat(2,1) = a*c3
+      amat(2,2) = b
+      amat(2,3) = c*c1
+      amat(3,1) = 0.0d+00
+      amat(3,2) = 0.0d+00
+      amat(3,3) = (vol/(a*b*s3))
 
       lvector(1) = 0.0d0
       lvector(2) = 0.0d0
@@ -155,30 +177,135 @@ c     This is why some term are very simple. ie. amat(3,1) = zero is assumed
       lvector(5) = 0.0d0
       lvector(6) = 0.0d0
 
-      if (     (i.eq.1).and.(j.eq.1)) then
+      if (     (i.eq.1).and.(j.eq.1)) then ! Assumes standard
          lvector(1) = dsin(gamma)
          lvector(6) = a*dcos(gamma)
 
-      else if ((i.eq.2).and.(j.eq.1)) then
+      else if ((i.eq.2).and.(j.eq.1)) then ! Assumes standard
          lvector(1) = dcos(gamma)
          lvector(6) = -a*dsin(gamma)
 
-      else if ((i.eq.3).and.(j.eq.1)) then
+      else if ((i.eq.3).and.(j.eq.1)) then ! Does not assume standard
+         ! cos(angle) = f, where f is complicated
+         ! angle = arcos(f)
+         ! d/dx angle = d/dx arccos(f), this what we want
+         ! But, we also know that:
+         ! d/dx arccos(f) = -1/sqrt(1-f**2) * df/dx
+         ! Therefore:
+         ! d/dx angle = -1/sqrt(1-f**2) * df/dx
+         !            = -1/sqrt(1-cos(angle)**2) * df/dx
+         !            = -1/sqrt(sin(angle)**2) * df/dx
+         !            = (df/dx) * (-1/sin(angle))
+         ! d(angle)/dx = -Cosecant(angle) * (df/dx)
+         ! 
+         ! f is always in the form f=(top/bot), thus
+         ! d(angle)/dx =-1/sin(angle)*(1/bot**2)*(bot*(dtop/dx) - top*(dbot/dx))
 
-! TODO
+!        Changing 3,1 (part of "a") changes gamma, beta, and a. Not b,c,alpha
+         lvector(2) = 0.0d0
+         lvector(3) = 0.0d0
+         lvector(4) = 0.0d0
+         ! a = sqrt(amat(1,1)**2 + amat(2,1)**2 + amat(3,1)**2)
+         dad31 = (1.0d0/2.0d0)*(1.0d0/a)*(2.0d0)*amat(3,1)
+         lvector(1) = dad31 ! Always zero in standard orientation
+         ac2 = (amat(1,3)-amat(1,1))**2 + (amat(2,3)-amat(2,1))**2 +
+     >         (amat(3,3)-amat(3,1))**2 ! square of length of a to c vector
+         dac2d31 = (amat(3,3)-amat(3,1))*(2.0d0)*(-1.0d0)
+         ab2 = (amat(1,1)-amat(1,2))**2 + (amat(2,1)-amat(2,2))**2 +
+     >         (amat(3,1)-amat(3,2))**2
+         dab2d31 = (amat(3,1)-amat(3,2))*(2.0d0)*(1.0d0)
 
-      else if ((i.eq.1).and.(j.eq.2)) then
+         ! beta = acos((c*c + a*a - ac2)/(2.0d0*c*a))
+         bot=(2.0d0*c*a)
+         dbotd31 = 2.0d0*c*dad31
+         top = (c*c + a*a - ac2)
+         dtopd31 = (0+2*a*dad31 - dac2d31)
+         dbetad31 = (-1.0d0/sin(beta))*(1.0d0/bot**2)*
+     >              (bot*dtopd31 - top*dbotd31)
+         lvector(5) = dbetad31*(180.0d0/pi)
 
-! TODO
+         ! gamma = acos((a*a + b*b - ab2)/(2.0d0*a*b))
+         bot = (2.0d0*a*b)
+         dbotd31 = 2.0d0*b*dad31
+         top = (a*a + b*b - ab2)
+         dtopd31 = 2*a*dad31 + 0 - dab2d31
+         dgammad31 = (-1.0d0/sin(gamma))*(1.0d0/bot**2)*
+     >              (bot*dtopd31 - top*dbotd31)
+         lvector(6) = dgammad31*(180.0d0/pi)
 
-      else if ((i.eq.2).and.(j.eq.2)) then
+      else if ((i.eq.1).and.(j.eq.2)) then ! Does not assume standard
+!        Changing 1,2 (part of "b") changes gamma, alpha, and b. Not a,c,beta
+         lvector(1) = 0.0d0
+         lvector(3) = 0.0d0
+         lvector(5) = 0.0d0
+         !b = sqrt(amat(1,2)**2 + amat(2,2)**2 + amat(3,2)**2)
+         dbd12 = (1.0d0/2.0d0)*(1.0d0/b)*(2.0d0)*amat(1,2)
+         lvector(2) = dbd12 ! Always zero in standard orientation
+
+         bc2 = (amat(1,2)-amat(1,3))**2 + (amat(2,2)-amat(2,3))**2 +
+     >         (amat(3,2)-amat(3,3))**2
+         dbc2d12 = (amat(1,2)-amat(1,3))*(2.0d0)*(1.0d0)
+         ab2 = (amat(1,1)-amat(1,2))**2 + (amat(2,1)-amat(2,2))**2 +
+     >         (amat(3,1)-amat(3,2))**2
+         dab2d12 = (amat(1,1)-amat(1,2))*(2.0d0)*(-1.0d0)
+
+         ! alpha = acos((b*b + c*c - bc2)/(2.0d0*b*c))
+         bot = (2.0d0*b*c)
+         dbotd12 = 2.0d0*dbd12*c
+         top = (b*b + c*c - bc2)
+         dtopd12 = 2*b*dbd12 + 0 - dbc2d12
+         dalphad12 = (-1.0d0/sin(alpha))*(1.0d0/bot**2)*
+     >               (bot*dtopd12 - top*dbotd12)
+         lvector(4) = dalphad12*(180.0d0/pi)
+
+         ! gamma = acos((a*a + b*b - ab2)/(2.0d0*a*b))
+         bot = (2.0d0*a*b)
+         dbotd12 = 2.0d0*a*dbd12
+         top = (a*a + b*b - ab2)
+         dtopd12 = 0 + 2*b*dbd12 - dab2d12
+         dgammad12 = (-1.0d0/sin(gamma))*(1.0d0/bot**2)*
+     >               (bot*dtopd12 - top*dbotd12)
+         lvector(6) = dgammad12*(180.0d0/pi)
+
+      else if ((i.eq.2).and.(j.eq.2)) then ! Assumes standard
          lvector(2) = 1.0d0
 
-      else if ((i.eq.3).and.(j.eq.2)) then
+      else if ((i.eq.3).and.(j.eq.2)) then ! Does not assume standard
+!        Changing 3,2 (part of "b") changes gamma, alpha, and b. Not a,c,beta
+         lvector(1) = 0.0d0
+         lvector(3) = 0.0d0
+         lvector(5) = 0.0d0
 
-! TODO
+         ! b = sqrt(amat(1,2)**2 + amat(2,2)**2 + amat(3,2)**2)
+         dbd32 = (1.0d0/2.0d0)*(1.0d0/b)*(2.0d0)*amat(3,2)
+         lvector(2) = dbd32 ! Always zero in standard orientation
 
-      else if ((i.eq.1).and.(j.eq.3)) then
+         bc2 = (amat(1,2)-amat(1,3))**2 + (amat(2,2)-amat(2,3))**2 +
+     >         (amat(3,2)-amat(3,3))**2
+         dbc2d32 = (amat(3,2)-amat(3,3))*(2.0d0)*(1.0d0)
+         ab2 = (amat(1,1)-amat(1,2))**2 + (amat(2,1)-amat(2,2))**2 +
+     >         (amat(3,1)-amat(3,2))**2
+         dab2d32 = (amat(3,1)-amat(3,2))*(2.0d0)*(-1.0d0)
+
+         ! alpha = acos((b*b + c*c - bc2)/(2.0d0*b*c))
+         bot = (2.0d0*b*c)
+         dbotd32 = 2.0d0*dbd32*c
+         top = (b*b + c*c - bc2)
+         dtopd32 = 2*b*dbd32 + 0 - dbc2d32
+         dalphad32 = (-1.0d0/sin(alpha))*(1.0d0/bot**2)*
+     >               (bot*dtopd32 - top*dbotd32)
+         lvector(4) = dalphad32*(180.0d0/pi)
+
+         ! gamma = acos((a*a + b*b - ab2)/(2.0d0*a*b))
+         bot = (2.0d0*a*b)
+         dbotd32 = 2.0d0*a*dbd32
+         top = (a*a + b*b - ab2)
+         dtopd32 = 0 + 2*b*dbd32 - dab2d32
+         dgammad32 = (-1.0d0/sin(gamma))*(1.0d0/bot**2)*
+     >               (bot*dtopd32 - top*dbotd32)
+         lvector(6) = dgammad32*(180.0d0/pi)
+
+      else if ((i.eq.1).and.(j.eq.3)) then ! Assumes standard
          lvector(3) = (dcos(beta)-dcos(alpha)*dcos(gamma))/dsin(gamma)
          lvector(4) = c*dsin(alpha)*dcos(gamma)/dsin(gamma)
          lvector(5) = -c*dsin(beta)/dsin(gamma)
@@ -186,11 +313,11 @@ c     This is why some term are very simple. ie. amat(3,1) = zero is assumed
      >              + c*cos(alpha)*(cos(gamma)/sin(gamma))**2
      >              - c*cos(gamma)*cos(beta)/(sin(gamma))**2
 
-      else if ((i.eq.2).and.(j.eq.3)) then
+      else if ((i.eq.2).and.(j.eq.3)) then ! Assumes standard
          lvector(3) = dcos(alpha)
          lvector(4) = -c*dsin(alpha)
 
-      else if ((i.eq.3).and.(j.eq.3)) then
+      else if ((i.eq.3).and.(j.eq.3)) then ! Assumes standard - is it even right?
          g11 = a*a
          g11a = 2.0d0*a
          g11b = 0.0d0
