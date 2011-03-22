@@ -317,7 +317,7 @@ c
       pname = "task_smd_fragment_energy"
 c      
 c      call task_fragment_populate("energy","t_energy")
-      call task_fragment_populate("energy","t_energy")
+      call task_fragment_populate_ip("energy","t_energy")
       call smd_system_set_component("task","t_energy")
       call smd_task_iterate()
       return
@@ -435,23 +435,41 @@ c
       call smd_rtdb_get_int(tag1,1,nc,result)
       if(.not.result) nc=10
 c
+c     create another copy of coordinates in global space
+c     --------------------------------------------------
       call smd_global_create_copy("coords",gh)      
+c
+c     populate task queue
+c     -------------------
       call task_fragment_populate("optimize","t_opt")
       call smd_system_set_component("task","t_opt")
 
+c
+c     BEGIN MAIN ITERATION LOOP
+c     -------------------------
       do i=1,nc
-      call smd_vlist_update(.true.,.true.)
-      call smd_task_iterate()
-      call smd_global_diff("coords",gh,eps1)      
-      if(ga_nodeid().eq.0) 
-     + write(luout,*) "current coord difference is",eps1
-      call smd_coords_save_numbered(i,.false.)
-      if(eps1.le.eps) then
+c       update verlet list needed for geometry setup
+        call smd_vlist_update(.true.,.true.)
+c       execute optimizations using subgroups
+        call smd_task_iterate()
+c
+        call smd_global_update("charges","get")
+        call smd_global_update("coords","get")
+c       compare to old coordinates
+        call smd_global_diff("coords",gh,eps1)      
         if(ga_nodeid().eq.0) 
-     +        write(luout,*) "achieved coord convergence"
-         goto 10
-      end if
+     +   write(luout,*) "current coord difference is",eps1
+        call smd_coords_save_numbered(i,.false.)
+c       terminate loop if tolerance ok
+        if(eps1.le.eps) then
+          if(ga_nodeid().eq.0) 
+     +          write(luout,*) "achieved coord convergence"
+           goto 10
+        end if
       end do
+c
+c     END MAIN ITERATION LOOP
+c     -----------------------
 10    continue
       if(ga_nodeid().eq.0) 
      + call smd_coord_write_default()
