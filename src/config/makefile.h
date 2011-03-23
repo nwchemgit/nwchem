@@ -2129,11 +2129,12 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP))
    DEFINES = -DLINUX -DXLFLINUX
    FDEBUG  = -g -O2
    COPTIMIZE = -g -O3 -qstrict
-   FOPTIMIZE = -g -O5 -qfloat=rsqrt:fltint
+   FOPTIMIZE = -g -O3 -qnoipa -qfloat=rsqrt:fltint
    FOPTIONS = -qEXTNAME -qxlf77=leadzero -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
 
 #for BGL
-   ifeq ($(FC),blrts_xlf)
+#   ifeq ($(FC),blrts_xlf)
+   ifeq ($(TARGET),BGL)
     CC     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-gcc
     AR     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ar
     AS     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-as
@@ -2143,7 +2144,8 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP))
    endif
 
 #for BGP
-   ifeq ($(FC),$(findstring $(FC),bgxlf bgxlf_r))
+#   ifeq ($(FC),$(findstring $(FC),bgxlf bgxlf_r))
+   ifeq ($(TARGET),BGP)
     CC     = $(BGCOMPILERS)/powerpc-bgp-linux-gcc
     AR     = $(BGCOMPILERS)/powerpc-bgp-linux-ar
     AS     = $(BGCOMPILERS)/powerpc-bgp-linux-as
