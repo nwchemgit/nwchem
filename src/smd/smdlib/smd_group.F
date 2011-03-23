@@ -122,7 +122,12 @@ c
       if(.not.util_get_io_unit(fn))
      + call errquit('no units available',0, 0)
 
-      close(luout)
+c
+c     leave unit 6 alone
+c     ------------------
+c      if(luout.ne.6) then
+c        close(luout)
+c      end if
       luout = fn
       open(unit=luout,status="unknown",position="append",
      >       form="formatted",file=buffer1)
