@@ -124,7 +124,8 @@ c
 
       close(luout)
       luout = fn
-      open(unit=luout,status="unknown",form="formatted",file=buffer1)
+      open(unit=luout,status="unknown",position="append",
+     >       form="formatted",file=buffer1)
       write(luout,*) "Calculation from group",smd_group_id
 
       return

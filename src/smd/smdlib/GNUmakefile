@@ -18,9 +18,11 @@
                 smd_temper_data.o smd_mass.o smd_leapf.o \
                 smd_leapf_shake.o smd_geom.o smd_message.o \
                 smd_interface.o \
-                smd_tasklist.o smd_fragment.o \
+               smd_tasklist.o \
+                smd_fragment.o \
                 smd_bq.o \
                 smd_task.o  smd_group.o smd_global.o
+#               smd_tasklist.o 
 LIB_INCLUDES = -I../include
 
 #  LIB_DEFINES = -DSMD_DEBUG
