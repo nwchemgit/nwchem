@@ -121,7 +121,6 @@ c
       
       if(.not.util_get_io_unit(fn))
      + call errquit('no units available',0, 0)
-      write(*,*) "buffer1 ",buffer1
 
       close(luout)
       luout = fn
@@ -567,7 +566,10 @@ c      write(*,*) "processor ",myproc, "blongs to ",smd_group_id
 c set the group
       smd_group_luout = 170+smd_group_id
       call ga_pgroup_set_default(smd_group_handle)
-      call smd_group_set_io()
+c
+c     this call has been now moved to task initialization part
+c     --------------------------------------------------------
+c      call smd_group_set_io()
       return
       end
 
