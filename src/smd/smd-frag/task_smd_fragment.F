@@ -34,7 +34,7 @@ c
 c
       call smd_init("fragment",rtdb)
       call ga_sync()
-      call smd_coords_print_pdb_repl("big.pdb")
+c      call smd_coords_print_pdb_repl("big.pdb")
 c
 c     close main rtdb as we may be going into groups
 c     ----------------------------------------------
