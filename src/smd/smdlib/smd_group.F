@@ -214,7 +214,6 @@ c
 
       character*36 buffer
 
-      call smd_group_unset_io()
       call ga_pgroup_set_default(ga_pgroup_get_world())
       if(.not. ga_pgroup_destroy(smd_group_handle))
      + call errquit('Failed to destroy group',0, 0)

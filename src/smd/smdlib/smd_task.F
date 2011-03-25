@@ -533,6 +533,7 @@ c
 
 c      write(*,*) pname//"100"
  
+      call smd_group_unset_io()
       return
       end subroutine
 c
