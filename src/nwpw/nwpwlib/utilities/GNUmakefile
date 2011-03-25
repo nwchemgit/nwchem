@@ -30,7 +30,8 @@
 		psi_data.o \
 		butter.o \
 		print_elapsed_time.o \
-		log_integrate.o
+		log_integrate.o \
+		nwpw_gaunt.o
 
 	  OBJ = 
 

@@ -1,3 +1,168 @@
+
+*     ***********************************
+*     *                                 *
+*     *          nwpw_gaunt             *
+*     *                                 *
+*     ***********************************
+*
+* If iscmplx=.true. this routine computes the Gaunt coefficient
+*
+*  Gaunt(l,m,l1,m1,l2,m2) =
+*
+*      /2pi  / pi 
+*     |     |
+*   = |     | dconjg(Y_lm(theta,phi)) * Y_l1m1(theta,phi) * dconjg(Y_l2m2(theta,phi))  sin(theta) dtheta dphi
+*     |     |
+*    /0    / 0
+*
+*      /2pi  / pi
+*     |     |
+*   = |     | Y_lm(theta,phi) * dconjg(Y_l1m1(theta,phi)) * Y_l2m2(theta,phi)  sin(theta) dtheta dphi
+*     |     |
+*    /0    / 0
+*
+*
+*   = sqrt( (2*l+1)*(2*l2+1)/(4*pi*(2*l1+1)) ) * Clebsch(l l2 l1; m m2 m1) * Clebsch(l l2 l1; 0 0 0)
+*
+*
+* or if iscmplx=.false. this routine computes the Taunt coefficient
+*
+*  Taunt(l,m,l1,m1,l2,m2) =
+*
+*      /2pi  / pi
+*     |     |
+*   = |     | T_lm(theta,phi)) * T_l1m1(theta,phi) * T_l2m2(theta,phi))  sin(theta) dtheta dphi
+*     |     |
+*    /0    / 0
+*
+      real*8 function nwpw_gaunt(iscmplx,
+     >                           l1,m1,l2,m2,l3,m3)
+      implicit none
+      logical iscmplx
+      integer l1,l2,l3
+      integer m1,m2,m3
+      integer i
+      integer order
+      real*8  x1,x2
+     
+*     *** local variables ****
+      double precision pi
+      double precision piover2,twopi,fourpi
+      parameter(pi = 3.14159265358979323846264338327950288419D0)
+      parameter(piover2= pi*0.5d0)
+      parameter(twopi  = pi*2.0d0)
+      parameter(fourpi = pi*4.0d0)
+
+c     work arrays for integration
+      double precision x(100),w(100),coeff
+
+      logical tp,tm
+      integer mm(3),newn,n,itmp
+      real*8   rtheta_lm,ytheta_lm
+      external rtheta_lm,ytheta_lm
+
+      !**** Error Checking ****
+      if (l1.lt.0 .or. l2.lt.0 .or. l3.lt.0) 
+     > write(*,*)'Invalid parameter in gen_gaunt_coeff, negative l'
+      If (l1.lt.abs(m1) .or. l3.lt.abs(m3) .or. l2.lt.abs(m2))
+     1 write(*,*) 'Invalid parameter in gen_gaunt_coeff, m > l'
+
+      !**** Do integration over angle phi ****
+      if (iscmplx) then
+         if ((-m1) + m2 - m3 .ne. 0) then
+            nwpw_gaunt = 0.0d0
+            return 
+         else
+           coeff = twopi
+         endif
+      else
+         mm(1) = m1
+         mm(2) = m2
+         mm(3) = m3
+         n = 3
+         do while (n>1) 
+            newn = 0
+            do i=1,n-1
+               if (mm(i).lt.mm(i+1)) then
+                  itmp    = mm(i) 
+                  mm(i)   = mm(i+1)
+                  mm(i+1) = itmp
+                  newn    = i
+               end if
+            end do
+            n = newn
+         end do
+         tp = (abs(mm(1)).eq.(abs(mm(2))+abs(mm(3))) )
+         tm = (abs(mm(1)).eq.(abs(mm(2))-abs(mm(3))) )
+
+         if ((mm(1).gt.0).and.(mm(2).gt.0).and.(mm(3).gt.0).and.tp) then
+            coeff = piover2
+         else if ((mm(1).gt.0).and.(mm(2).gt.0)
+     >                        .and.(mm(3).eq.0).and.tp) then
+            coeff = pi
+         else if ((mm(1).gt.0).and.(mm(2).lt.0) 
+     >                        .and.(mm(3).lt.0).and.tp) then
+            coeff = -piover2
+         else if ((mm(1).gt.0).and.(mm(2).lt.0)
+     >                        .and.(mm(3).lt.0).and.tm) then
+            coeff = piover2
+         else if ((mm(1).eq.0).and.(mm(2).eq.0)
+     >                        .and.(mm(3).eq.0)) then
+            coeff = twopi
+         else if ((mm(1).eq.0).and.(mm(2).lt.0)
+     >                        .and.(mm(3).lt.0).and.(tp.or.tm)) then
+            coeff = pi
+         else
+            nwpw_gaunt = 0.0d0
+            return 
+         end if
+      endif
+
+      !**** Check the triangle rule ****
+      if (l3.gt.l1+l2 .or. l3.lt.abs(l1-l2)) then
+         nwpw_gaunt = 0.0d0
+         return 
+      endif
+
+      !**** Check if the integrand is odd function==>integral is zero ****
+      if (mod(l1 + l2 + l3,2) .eq. 1) then
+         nwpw_gaunt = 0.0d0
+         return 
+      endif
+
+      !**** hANDLE THE EXEPTIONAL CASE ****
+      if (l1.eq.0 .and. l2.eq.0 .and. l3.eq.0) then
+         nwpw_gaunt = 1.0d0/dsqrt(fourpi)
+         return 
+      endif
+      x1 = -1.0
+      x2 =  1.0
+      order = l1 + l2 + l3
+
+      !**** Generate weights and coordinates for Gauss-Legendre integration ****
+      CALL gauss_weights(x1,x2,x,w,order)
+      nwpw_gaunt = 0.0d0
+      if (iscmplx) then
+         do i = 1, order
+            nwpw_gaunt = nwpw_gaunt
+     >                 + w(i)*ytheta_lm(l1,m1,x(i)) 
+     >                       *ytheta_lm(l2,m2,x(i))
+     >                       *ytheta_lm(l3,m3,x(i))
+         end do
+      else
+         do i = 1, order
+            nwpw_gaunt = nwpw_gaunt
+     >                 + w(i)*rtheta_lm(l1,m1,x(i)) 
+     >                       *rtheta_lm(l2,m2,x(i))
+     >                       *rtheta_lm(l3,m3,x(i))
+         end do
+      end if
+
+      nwpw_gaunt = nwpw_gaunt*coeff
+
+      return
+      end 
+
 *     ***************************
 *     *				*
 *     *   nwpw_factorial_init   *
@@ -48,10 +213,18 @@
       parameter (FMAX=30)
       real*8 factorial(0:FMAX)
       common / FACTORIAL_Block / factorial
+      logical genfac
+      save genfac
+      data genfac /.true./
 
 *     **** local variables ****
       integer z,zmin,zmax
       real*8 tmp1,tmp2,sign
+
+      if (genfac) then
+         call nwpw_factorial_init()
+         genfac = .false.
+      end if
 
 *     **************************************
 *     **** check the triangle condition ****
@@ -110,7 +283,7 @@
 
 *     ***************************
 *     *				*
-*     *      nwpw_Gaunt		*
+*     *      nwpw_Gaunt_Clebsh	*
 *     *				*
 *     ***************************
 *
@@ -133,9 +306,7 @@
 *
 *   = sqrt( (2*l+1)*(2*l2+1)/(4*pi*(2*l1+1)) ) * Clebsch(l l2 l1; m m2 m1) * Clebsch(l l2 l1; 0 0 0)
 *
-*
-
-      real*8 function nwpw_Gaunt(l,m,l1,m1,l2,m2)
+      real*8 function nwpw_Gaunt_Clebsh(l,m,l1,m1,l2,m2)
       implicit none
       integer l,m
       integer l1,m1
@@ -143,11 +314,11 @@
 
 *     **** local variables ****
       real*8 coeff,fourpi
-      real*8 tmp
+      real*8 tmp,xsign
    
 *     **** external functions ***
-      real*8   Clebsch
-      external Clebsch
+      real*8   nwpw_clebsch
+      external nwpw_clebsch
 
 
 *     *** a zero Gaunt coefficient ***
@@ -162,74 +333,313 @@
 
 *     *** a non-zero Gaunt Coefficient ***
       else
+c         if (mod((m*m+m2*m2-3*m-3*m2)/2,2).eq.1) then
+c            xsign = -1.0d0
+c         else
+c            xsign = 1.0d0
+c         end if
+          xsign = 1.0d0
 
          fourpi = 16.0d0*datan(1.0d0)
          coeff  = dsqrt( dble((2*l+1)*(2*l2+1))/(fourpi*dble(2*l1+1)))
-         tmp    = coeff*Clebsch(l,l2,l1, m,m2,m1)
-     >                 *Clebsch(l,l2,l1, 0,0, 0)
+         tmp    = xsign*coeff*nwpw_clebsch(l,l2,l1, m,m2,m1)
+     >                       *nwpw_clebsch(l,l2,l1, 0,0,0)
       end if
 
-      nwpw_Gaunt = tmp
+      nwpw_Gaunt_Clebsh = tmp
       return
       end
 
 
-*     ***************************
-*     *				*
-*     *      nwpw_Taunt		*
-*     *				*
-*     ***************************
-*
-* Computes the Taunt coefficient
-*
-*  Taunt(l,m,l1,m1,l2,m2) =
-
-*      /2pi  / pi
-*     |     |
-*   = |     | T_lm(theta,phi)) * T_l1m1(theta,phi) * T_l2m2(theta,phi))  sin(theta) dtheta dphi
-*     |     |
-*    /0    / 0
-*
-*
-*   = sqrt( (2*l+1)*(2*l2+1)/(2*pi*(2*l1+1)) ) * Clebsch(l l2 l1; m m2 m1) * Clebsch(l l2 l1; 0 0 0)
-*
-*
-
-      real*8 function nwpw_Taunt(l,m,l1,m1,l2,m2)
+c!  *************************************************
+c!  
+c!     Name    : rtheta_lm
+c!  
+c!  
+c!     Purpose : calculates rtheta_lm for a scalar cos_theta
+c!               such that
+c!                                                  {cos(|m|*phi)   m>0
+c!         T_lm(cos_theta,phi)=rtheta_lm(cos_theta)*{1              m==0
+c!                                                  {sin(|m|*phi)   m<0
+c!  
+c!  
+c!  *************************************************
+      double precision function rtheta_lm(l,m,cos_theta)
       implicit none
       integer l,m
-      integer l1,m1
-      integer l2,m2
+      double precision cos_theta
+c      double precision theta_lm !*RESULT*
 
-*     **** local variables ****
-      real*8 coeff,twopi
-      real*8 tmp
-   
-*     **** external functions ***
-      real*8   Clebsch
-      external Clebsch
+      !*** local variables ***
+      integer i,mod_m
+      double precision coeff,twopi,fourpi,f
 
+      !*** external functions *** 
+      double precision rlegendre_lm
+      external         rlegendre_lm
 
-*     *** a zero Taunt coefficient ***
-      if ( ((m+m2).ne.m1)      .OR.
-     >     (abs(m1).gt.abs(l1)).OR.
-     >     (abs(m2).gt.abs(l2)).OR.
-     >     (abs(m) .gt.abs(l) ).OR.
-     >     (l1.gt.(l+l2))      .OR.
-     >     (l1.lt.abs(l-l2))   .OR.
-     >     (mod((l1+l2+l),2).ne. 0 )) then
-         tmp = 0.0d0
+      twopi = 8.0d0*datan(1.0d0)
 
-*     *** a non-zero Taunt Coefficient ***
-      else
+      mod_m = abs(m)
+      if (mod_m .gt. l) 
+     >write(*,*) 'parameter out of order in function rtheta_lm'
 
-         twopi  = 8.0d0*datan(1.0d0)
-         coeff  = dsqrt( dble((2*l+1)*(2*l2+1))/(twopi*dble(2*l1+1)))
-         tmp    = coeff*Clebsch(l,l2,l1, m,m2,m1)
-     >                 *Clebsch(l,l2,l1, 0,0, 0)
-      end if
+!     *** find coefficient ***
+      if (mod_m.eq.0) then 
+         coeff= 0.5d0
+      else if (mod_m.gt.0) then
+         coeff= 1.0d0 
+         do i=1,2*mod_m
+            coeff = coeff/dble(l-mod_m+i)
+         end do
+      endif
+      coeff = coeff*(2*l+1)/twopi
+      coeff = sqrt(coeff)
+      f     = coeff*rlegendre_lm(l,mod_m,cos_theta)
 
-      nwpw_Taunt = tmp
+      rtheta_lm = f
+      return
+      end 
+
+c!  *************************************************
+c!  
+c!     Name    : ytheta_lm
+c!  
+c!  
+c!     Purpose : calculates ytheta_lm for a scalar cos_theta
+c!               such that
+c!                                                 
+c!         Y_lm(cos_theta,phi)=ytheta_lm(cos_theta)*exp(i*m*phi)
+c!                                                
+c!  
+c!  *************************************************
+      double precision function ytheta_lm(l,m,cos_theta)
+      implicit none
+      integer l,m
+      double precision cos_theta
+c      double precision theta_lm !*RESULT*
+
+      !*** local variables ***
+      integer i,mod_m
+      double precision coeff,twopi,fourpi,f
+
+      !*** external functions *** 
+      double precision legendre_lm
+      external         legendre_lm
+
+      fourpi = 16.0d0*datan(1.0d0)
+
+      mod_m = abs(m) 
+      if (mod_m .gt. l)
+     >write(*,*) 'parameter out of order in function ytheta_lm'
+
+!     *** find coefficient ***
+      if (mod_m.eq.0) then
+         coeff= 1.0d0
+      else if (mod_m.gt.0) then
+         coeff= 1.0d0
+         do i=1,2*mod_m
+            coeff = coeff/dble(l-mod_m+i)
+         end do
+      endif 
+      coeff = coeff*(2*l+1)/fourpi
+      coeff = sqrt(coeff)
+      f     = coeff*legendre_lm(l,mod_m,cos_theta)
+      if ((m.lt.0).and.(mod(mod_m,2).eq.1)) f=-f
+
+      ytheta_lm = f
       return
       end
+
+*     ***********************************
+*     *                                 *
+*     *           rlegendre_lm          *
+*     *                                 *
+*     ***********************************
+*
+* Compute the associated legendre polynomial w/o 
+* a Condon-Shortley phase.
+*
+      double precision function rlegendre_lm(l,m,x)
+      implicit none
+      integer l
+      integer m
+      double precision x
+ 
+!     *** local variables ***
+      integer i,mod_m
+      double precision p_mm,p_mp1m,tmp,fact,coeff
+ 
+      mod_m = abs(m)
+      if (abs(x).gt.1) write(*,*)'parameter ot of range in legendre_lm'
+ 
+      if (mod_m.gt.l) then
+         rlegendre_lm = 0.0d0
+         return 
+      end if
+ 
+!    *** find P(mod_m,mod_m) for mod_m=0 ***
+      p_mm = 1.0d0
+ 
+!    *** find P(mod_m,mod_m) for mod_m > 0 ***
+      if (mod_m.gt.0) then
+         tmp  = dsqrt((1.0d0-x)*(1.0d0+x))
+         fact = 1.0d0
+         do i = 1, mod_m
+            p_mm = p_mm*fact*tmp
+            fact = fact + 2.0d0
+         end do
+      end if
+ 
+!    *** find P(l,mod_m) ***
+      if (mod_m.eq.l) then
+         rlegendre_lm = p_mm
+      else
+      !*** find P(mod_m+1,mod_m) ***
+         p_mp1m = x*(2*mod_m + 1)*p_mm
+         if (l.eq.mod_m+1) then
+            rlegendre_lm = p_mp1m
+         else
+            do i = mod_m + 2, l
+               tmp=(X*(2*i-1)*p_mp1m-(i+mod_m-1)*p_mm)/(i-mod_m)
+               p_mm = p_mp1m
+               p_mp1m = tmp
+            end do
+            rlegendre_lm = tmp
+         end if
+      end if
+c      LEGENDRE_LM = LEGENDRE_LM*(-1)**MOD_M
+ 
+c should not be needed 
+cc!    *** negative m - this routine is only call with negative m from dtheta_lm and ddtheta_lm ***
+c      if (m .LT. 0) then
+c         coeff = 1.0d0
+c         do i=1,2*mod_m
+c            coeff = coeff/(l-mod_m+i)
+c         END DO
+c         rlegendre_lm = rlegendre_lm*coeff
+c      end if
+      return 
+      end 
+
+      DOUBLE PRECISION FUNCTION LEGENDRE_LM (L, M, X)
+      INTEGER L
+      INTEGER M
+      DOUBLE PRECISION X
+ 
+!    *** local variables ***
+      INTEGER I
+      INTEGER MOD_M
+      DOUBLE PRECISION P_MM
+      DOUBLE PRECISION P_MP1M
+      DOUBLE PRECISION TMP
+      DOUBLE PRECISION FACT
+      DOUBLE PRECISION COEFF
+ 
+      MOD_M = ABS(M)
+      IF (ABS(X) .GT. 1) CALL errquit(
+     1   'parameter ot of range in legendre_lm',0,0)
+ 
+      IF (MOD_M .GT. L) THEN
+         LEGENDRE_LM = 0d0
+         RETURN 
+      ENDIF
+ 
+!    *** find P(mod_m,mod_m) for mod_m=0 ***
+      P_MM = 1.0D0
+!    *** find P(mod_m,mod_m) for mod_m > 0 ***
+      IF (MOD_M .GT. 0) THEN
+         TMP = SQRT((1.0D0 - X)*(1.0D0 + X))
+         FACT = 1.0D0
+         DO I = 1, MOD_M
+            P_MM = -P_MM*FACT*TMP
+            FACT = FACT + 2.0D0
+         END DO
+      ENDIF
+ 
+!    *** find P(l,mod_m) ***
+      IF (MOD_M .EQ. L) THEN
+         LEGENDRE_LM = P_MM
+      ELSE
+ 
+      !*** find P(mod_m+1,mod_m) ***
+         P_MP1M = X*(2*MOD_M + 1)*P_MM
+         IF (L .EQ. MOD_M+1) THEN
+            LEGENDRE_LM = P_MP1M
+         ELSE
+            DO I = MOD_M + 2, L
+               TMP=(X*(2*I-1)*P_MP1M-(I+MOD_M-1)*P_MM)/(I-MOD_M)
+               P_MM = P_MP1M
+               P_MP1M = TMP
+            END DO
+            LEGENDRE_LM = TMP
+         ENDIF
+      ENDIF
+ 
+c!    *** negative m - this routine is only call with negative m from dtheta_lm and ddtheta_lm ***
+      IF (M .LT. 0) THEN
+         COEFF = 1.0D0
+         DO I = 1, 2*MOD_M
+            COEFF = COEFF/(L - MOD_M + I)
+         END DO
+         COEFF = COEFF*(-1)**MOD_M
+         LEGENDRE_LM = LEGENDRE_LM*COEFF
+      ENDIF
+      RETURN 
+      END 
+ 
+c!  *************************************************
+c!  
+c!     Name    : theta_lm
+c!  
+c!  
+c!     Purpose : calculates theta_lm for a scalar cos_theta
+c!               such that
+c!  
+c!         Y_lm(cos_theta,phi)=theta_lm(cos_theta)*exp(i*m*phi)
+c!  
+c!  
+c!     Created : 1/99
+c!  
+c!  *************************************************
+      double precision function theta_lm(l,m,cos_theta)
+      implicit none
+      integer l,m
+      double precision cos_theta
+
+      !*** local variables ***
+      integer i,mod_m
+      double precision coeff,fourpi,f
+
+      !*** external functions *** 
+      double precision legendre_lm
+      external         legendre_lm
+
+      fourpi = 16.0d0*datan(1.0d0)
+
+      if (m .gt. l) 
+     > call errquit(
+     >      'parameter out of order in function theta_lm',0,0)
+
+      mod_m = abs(m)
+
+!     *** find coefficient ***
+      if (mod_m.eq.0) then
+         coeff= 1.0d0
+      else if (mod_m.gt.0) then
+         coeff= 1.0d0
+         do i=1,2*mod_m
+            coeff = coeff/dble(l-mod_m+i)
+         end do
+      endif
+      coeff = coeff*(2*l+1)/fourpi
+      coeff = sqrt(coeff)
+      f     = coeff*legendre_lm(l,mod_m,cos_theta)
+      if (m.lt.0) then
+         if (mod(mod_m,2).eq.1) f=-f
+      endif
+
+      theta_lm = f
+      return
+      end 
 
