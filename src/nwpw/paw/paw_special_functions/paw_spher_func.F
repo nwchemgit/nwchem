@@ -151,102 +151,102 @@ c!**************************************************
       end
 
 
-      DOUBLE PRECISION FUNCTION LEGENDRE_LM (L, M, X)
- 
-      INTEGER L
-      INTEGER M
-      DOUBLE PRECISION X
- 
- 
-!    *** local variables ***
-      INTEGER I
-      INTEGER MOD_M
-      DOUBLE PRECISION P_MM
-      DOUBLE PRECISION P_MP1M
-      DOUBLE PRECISION TMP
-      DOUBLE PRECISION FACT
-      DOUBLE PRECISION COEFF
- 
- 
-      MOD_M = ABS(M)
-      IF (ABS(X) .GT. 1) CALL errquit(
-     1   'parameter ot of range in legendre_lm',0,0)
- 
-      IF (MOD_M .GT. L) THEN
-         LEGENDRE_LM = 0d0
-         RETURN 
-      ENDIF
- 
-!    *** find P(mod_m,mod_m) for mod_m=0 ***
-      P_MM = 1.0D0
- 
-!    *** find P(mod_m,mod_m) for mod_m > 0 ***
-      IF (MOD_M .GT. 0) THEN
- 
-         TMP = SQRT((1.0D0 - X)*(1.0D0 + X))
- 
-         FACT = 1.0D0
- 
-         DO I = 1, MOD_M
- 
-            P_MM = -P_MM*FACT*TMP
- 
-            FACT = FACT + 2.0D0
- 
-         END DO
- 
-      ENDIF
- 
-!    *** find P(l,mod_m) ***
-      IF (MOD_M .EQ. L) THEN
- 
-         LEGENDRE_LM = P_MM
- 
-      ELSE
- 
-      !*** find P(mod_m+1,mod_m) ***
-         P_MP1M = X*(2*MOD_M + 1)*P_MM
- 
-         IF (L .EQ. MOD_M+1) THEN
- 
-            LEGENDRE_LM = P_MP1M
- 
-         ELSE
- 
-            DO I = MOD_M + 2, L
- 
-               TMP=(X*(2*I-1)*P_MP1M-(I+MOD_M-1)*P_MM)/(I-MOD_M)
- 
-               P_MM = P_MP1M
-               P_MP1M = TMP
- 
-            END DO
- 
-            LEGENDRE_LM = TMP
- 
-         ENDIF
- 
-      ENDIF
- 
-c!    *** negative m - this routine is only call with negative m from dtheta_lm and ddtheta_lm ***
-      IF (M .LT. 0) THEN
- 
-         COEFF = 1.0D0
- 
-         DO I = 1, 2*MOD_M
- 
-            COEFF = COEFF/(L - MOD_M + I)
- 
-         END DO
- 
-         COEFF = COEFF*(-1)**MOD_M
- 
-         LEGENDRE_LM = LEGENDRE_LM*COEFF
- 
-      ENDIF
- 
- 
-      END 
+C      DOUBLE PRECISION FUNCTION LEGENDRE_LM (L, M, X)
+C 
+C      INTEGER L
+C      INTEGER M
+C      DOUBLE PRECISION X
+C 
+C 
+C!    *** local variables ***
+C      INTEGER I
+C      INTEGER MOD_M
+C      DOUBLE PRECISION P_MM
+C      DOUBLE PRECISION P_MP1M
+C      DOUBLE PRECISION TMP
+C      DOUBLE PRECISION FACT
+C      DOUBLE PRECISION COEFF
+C 
+C 
+C      MOD_M = ABS(M)
+C      IF (ABS(X) .GT. 1) CALL errquit(
+C     1   'parameter ot of range in legendre_lm',0,0)
+C 
+C      IF (MOD_M .GT. L) THEN
+C         LEGENDRE_LM = 0d0
+C         RETURN 
+C      ENDIF
+C 
+C!    *** find P(mod_m,mod_m) for mod_m=0 ***
+C      P_MM = 1.0D0
+C 
+C!    *** find P(mod_m,mod_m) for mod_m > 0 ***
+C      IF (MOD_M .GT. 0) THEN
+C 
+C         TMP = SQRT((1.0D0 - X)*(1.0D0 + X))
+C 
+C         FACT = 1.0D0
+C 
+C         DO I = 1, MOD_M
+C 
+C            P_MM = -P_MM*FACT*TMP
+C 
+C            FACT = FACT + 2.0D0
+C 
+C         END DO
+C 
+C      ENDIF
+C 
+C!    *** find P(l,mod_m) ***
+C      IF (MOD_M .EQ. L) THEN
+C 
+C         LEGENDRE_LM = P_MM
+C 
+C      ELSE
+C 
+C      !*** find P(mod_m+1,mod_m) ***
+C         P_MP1M = X*(2*MOD_M + 1)*P_MM
+C 
+C         IF (L .EQ. MOD_M+1) THEN
+C 
+C            LEGENDRE_LM = P_MP1M
+C 
+C         ELSE
+C 
+C            DO I = MOD_M + 2, L
+C 
+C               TMP=(X*(2*I-1)*P_MP1M-(I+MOD_M-1)*P_MM)/(I-MOD_M)
+C 
+C               P_MM = P_MP1M
+C               P_MP1M = TMP
+C 
+C            END DO
+C 
+C            LEGENDRE_LM = TMP
+C 
+C         ENDIF
+C 
+C      ENDIF
+C 
+Cc!    *** negative m - this routine is only call with negative m from dtheta_lm and ddtheta_lm ***
+C      IF (M .LT. 0) THEN
+C 
+C         COEFF = 1.0D0
+C 
+C         DO I = 1, 2*MOD_M
+C 
+C            COEFF = COEFF/(L - MOD_M + I)
+C 
+C         END DO
+C 
+C         COEFF = COEFF*(-1)**MOD_M
+C 
+C         LEGENDRE_LM = LEGENDRE_LM*COEFF
+C 
+C      ENDIF
+C 
+C 
+C      END 
  
 cc!**************************************************
 cc!
@@ -301,61 +301,61 @@ c      return
 c      end
 
 
-c!  *************************************************
-c!  
-c!     Name    : theta_lm
-c!  
-c!  
-c!     Purpose : calculates theta_lm for a scalar cos_theta
-c!               such that
-c!  
-c!         Y_lm(cos_theta,phi)=theta_lm(cos_theta)*exp(i*m*phi)
-c!  
-c!  
-c!     Created : 1/99
-c!  
-c!  *************************************************
-      double precision function theta_lm(l,m,cos_theta)
-      implicit none
-      integer l,m
-      double precision cos_theta
-c      double precision theta_lm !*RESULT*
-
-      !*** local variables ***
-      integer i,mod_m
-      double precision coeff,fourpi,f
-
-      !*** external functions *** 
-      double precision legendre_lm
-      external         legendre_lm
-
-      fourpi = 16.0d0*datan(1.0d0)
-
-      if (m .gt. l) 
-     > call errquit(
-     >      'parameter out of order in function theta_lm',0,0)
-
-      mod_m = abs(m)
-
-!     *** find coefficient ***
-      if (mod_m.eq.0) then
-         coeff= 1.0d0
-      else if (mod_m.gt.0) then
-         coeff= 1.0d0
-         do i=1,2*mod_m
-            coeff = coeff/dble(l-mod_m+i)
-         end do
-      endif
-      coeff = coeff*(2*l+1)/fourpi
-      coeff = sqrt(coeff)
-      f     = coeff*legendre_lm(l,mod_m,cos_theta)
-      if (m.lt.0) then
-         if (mod(mod_m,2).eq.1) f=-f
-      endif
-
-      theta_lm = f
-      return
-      end 
+Cc!  *************************************************
+Cc!  
+Cc!     Name    : theta_lm
+Cc!  
+Cc!  
+Cc!     Purpose : calculates theta_lm for a scalar cos_theta
+Cc!               such that
+Cc!  
+Cc!         Y_lm(cos_theta,phi)=theta_lm(cos_theta)*exp(i*m*phi)
+Cc!  
+Cc!  
+Cc!     Created : 1/99
+Cc!  
+Cc!  *************************************************
+C      double precision function theta_lm(l,m,cos_theta)
+C      implicit none
+C      integer l,m
+C      double precision cos_theta
+Cc      double precision theta_lm !*RESULT*
+C
+C      !*** local variables ***
+C      integer i,mod_m
+C      double precision coeff,fourpi,f
+C
+C      !*** external functions *** 
+C      double precision legendre_lm
+C      external         legendre_lm
+C
+C      fourpi = 16.0d0*datan(1.0d0)
+C
+C      if (m .gt. l) 
+C     > call errquit(
+C     >      'parameter out of order in function theta_lm',0,0)
+C
+C      mod_m = abs(m)
+C
+C!     *** find coefficient ***
+C      if (mod_m.eq.0) then
+C         coeff= 1.0d0
+C      else if (mod_m.gt.0) then
+C         coeff= 1.0d0
+C         do i=1,2*mod_m
+C            coeff = coeff/dble(l-mod_m+i)
+C         end do
+C      endif
+C      coeff = coeff*(2*l+1)/fourpi
+C      coeff = sqrt(coeff)
+C      f     = coeff*legendre_lm(l,mod_m,cos_theta)
+C      if (m.lt.0) then
+C         if (mod(mod_m,2).eq.1) f=-f
+C      endif
+C
+C      theta_lm = f
+C      return
+C      end 
  
 !**************************************************
 !
