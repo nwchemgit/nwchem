@@ -712,7 +712,7 @@ c      call cpmd_properties(rtdb)
 
  1159 FORMAT(/' total charge:',F8.3)
  1160 FORMAT(/' atomic composition:')
- 1170 FORMAT(7(5X,A4,':',I3))
+ 1170 FORMAT(7(5X,A4,':',I5))
  1180 FORMAT(/' initial position of ions (au):')
  1181 FORMAT(/' initial velocity of ions after scaling (au):')
 

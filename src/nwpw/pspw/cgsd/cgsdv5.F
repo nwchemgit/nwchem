@@ -721,7 +721,7 @@ c      call frac_occ_end()
 
  1159 FORMAT(/' total charge:',F8.3)
  1160 FORMAT(/' atomic composition:')
- 1170 FORMAT(7(5X,A4,':',I3))
+ 1170 FORMAT(7(5X,A4,':',I5))
  1180 FORMAT(/' position of ions (au):')
  1190 FORMAT(5X, I4, A5  ,' (',3F11.5,' ) - atomic mass= ',F7.3,' ')
  1191 FORMAT(5X, I4, A5, ' (',3F11.5,
