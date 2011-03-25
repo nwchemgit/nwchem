@@ -985,7 +985,7 @@ c      call frac_occ_end()
  1156 FORMAT(12X,' aperiodic cutoff radius        : ',F6.3)
  1159 FORMAT(/' total charge=',F8.3)
  1160 FORMAT(/' atomic composition:')
- 1170 FORMAT(7(5X,A2,':',I3))
+ 1170 FORMAT(7(5X,A2,':',I5))
  1180 FORMAT(/' initial position of ions:')
  1190 FORMAT(5X, I4, A5, ' (',3F11.5,' ) - atomic mass= ',F7.3,' ',A)
  1191 FORMAT(5X, I4, A5, ' (',3F11.5,

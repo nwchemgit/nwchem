@@ -425,6 +425,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
 *       *****************************************        
 *       **** lagrange multiplier corrections ****
 *       *****************************************        
+
         if (fractional) then
         call psi_lmbda2(ispin,ne,nemax,npack1,psi1,psi2,
      >                  dte,occ1,
@@ -436,6 +437,7 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
         call psi_lmbda(ispin,ne,nemax,npack1,psi1,psi2,dte,
      >                 lmd,dbl_mb(tmp_L(1)),ierr)
         end if
+
 
       end do
 
