@@ -1468,25 +1468,41 @@ c
          endif
       endif    
 c
-c     ---- No Lattice-Atom cross-terms allowed ----
+c     ---- Limit Lattice-Atom cross-terms ----
 c
-C     if (isystype .ne. 0 .and. (ostress .or. ostress2)) then
-C        if(ostress) then
-C          do i=1,nvar-9
-C            do j=nvar-8,nvar
-C              dbl_mb(ind(i,j))=0.0d0
-C              dbl_mb(ind(j,i))=0.0d0
-C            end do
-C          end do
-C        else if (ostress2) then
-C          do i=1,nvar-6
-C            do j=nvar-5,nvar
-C              dbl_mb(ind(i,j))=0.0d0
-C              dbl_mb(ind(j,i))=0.0d0
-C            end do
-C          end do
-C        endif
-C     endif
+      if (isystype .ne. 0 .and. (ostress .or. ostress2)) then
+         if(ostress) then
+           do i=1,nvar-9
+             do j=nvar-8,nvar
+               dbl_mb(ind(i,j))=dbl_mb(ind(i,j))*0.1d0
+               dbl_mb(ind(j,i))=dbl_mb(ind(j,i))*0.1d0
+             end do
+           end do
+           do i=nvar-8,nvar
+             do j=nvar-8,nvar
+              if(i.ne.j)then
+               dbl_mb(ind(i,j))=dbl_mb(ind(i,j))*0.25d0
+               dbl_mb(ind(j,i))=dbl_mb(ind(j,i))*0.25d0
+              endif
+             end do
+           end do
+         else if (ostress2) then
+           do i=1,nvar-6
+             do j=nvar-5,nvar
+               dbl_mb(ind(i,j))=dbl_mb(ind(i,j))*0.1d0
+               dbl_mb(ind(j,i))=dbl_mb(ind(j,i))*0.1d0
+             end do
+           end do
+           do i=nvar-5,nvar
+             do j=nvar-5,nvar
+              if (i.ne.j) then
+               dbl_mb(ind(i,j))=dbl_mb(ind(i,j))*0.25d0
+               dbl_mb(ind(j,i))=dbl_mb(ind(j,i))*0.25d0
+              endif
+             end do
+           end do
+         endif
+      endif
 c
       if ((.not. zcoord) .and. (nactive .ne. nat_real)) then
 c     
@@ -2217,12 +2233,23 @@ c
               enddo
               if ( j .ne. 0) then ! Try with new ds
                 e1 = driver_energy_step(rtdb, geom)
-                if (e1 .ge. e0) then
-                  alpha = alpha*0.5d0 ! Giving up.
-                  if (oprint) write(6,5) e2p, e2,alpha
+                if (e1 .ge. e0) then ! Change ds again
                   do i = 1, nvar
-                     ds(i) = dssave(i)
+                    dsgrad = ds(i)*g(i)
+                    if (dsgrad*alpha .gt. 0d0) then
+                       ds(i)=-ds(i)
+                    endif
                   enddo
+                  e1 = driver_energy_step(rtdb, geom)
+                  if (e1 .ge. e0) then
+                    alpha = alpha*0.5d0 ! Giving up.
+                    if (oprint) write(6,5) e2p, e2,alpha
+                    do i = 1, nvar
+                       ds(i) = dssave(i)
+                    enddo
+                  else
+                     if (oprint) write(6,6) e2p, e2
+                  endif
                 else
                   if (oprint) write(6,6) e2p, e2
  6          format( 'warning: line search wanted E=',f14.6,' found E=',
@@ -3775,13 +3802,13 @@ c
               ! to avoid terrible things with small values
               if (i.eq.j) then
                  HSSQ((nat_real)*3 + i, (nat_real)*3+j) =
-     $                  1 + 0.3*volume/abs(lattice(i,1)**2)
+     $                  10 + 30*volume/abs(lattice(i,1)**2)
               endif
             end do
            end do
            do i = 1, 3
              j = i ! No cross terms-Angles are only the same when fixed
-             HSSQ((nat_real+1)*3 + i, (nat_real+1)*3+j) = 30.0 ! Angles are stiff
+             HSSQ((nat_real+1)*3 + i, (nat_real+1)*3+j) = 300.0 ! Angles are stiff
            end do
 !          Symmetry of lengths
            if (grp_num.lt.75) then
