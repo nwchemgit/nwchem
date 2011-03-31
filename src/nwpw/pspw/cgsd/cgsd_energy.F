@@ -986,6 +986,57 @@ c     *** call dscal(9,-1.0d0,stress,1)
 
 
 
+      subroutine write_lstress(lstress,name)
+      implicit none
+      real*8 lstress(6)
+      character*(*) name
+
+#include "stdio.fh"
+
+      integer MASTER,taskid
+      parameter (MASTER=0)
+      real*8 pressure,autoMbar,autoGPa,autoatm
+      parameter (autoMbar=294.214239071d0)
+      parameter (autoGPa=autoMbar*100.0d0)
+      parameter (autoatm =290.360032539d6)
+
+      call Parallel_taskid(taskid)
+      if (taskid.eq.MASTER) then
+         write(luout,1900)
+         write(luout,1901)
+         write(luout,1902)
+         write(luout,1904)
+         write(luout,1910) name
+         write(luout,1811) "dE/da     = ",lstress(1)
+         write(luout,1811) "dE/db     = ",lstress(2)
+         write(luout,1811) "dE/dc     = ",lstress(3)
+         write(luout,1811) "dE/dalpha = ",lstress(4)
+         write(luout,1811) "dE/dbeta  = ",lstress(5)
+         write(luout,1811) "dE/dgamma = ",lstress(6)
+         write(luout,1915)
+         write(luout,*)
+
+ 1811 FORMAT(5X,A14,F11.5)
+ 1900 FORMAT(//'=======================')
+ 1901 FORMAT(  '= LStress calculation =')
+ 1902 FORMAT(  '=======================')
+ 1904 FORMAT(/)
+ 1910 FORMAT(10X,'============= ',A,' ==============')
+ 1911 FORMAT(5X,' S = ',' (',3F11.5,' )')
+ 1912 FORMAT(5X,'     ',' (',3F11.5,' )')
+ 1915 FORMAT(10X,'===================================================')
+ 1916 FORMAT(10X,'|S|      = ',E11.5)
+ 1917 FORMAT(10X,'pressure = ',E9.3,' au',
+     >      /10X,'         = ',E9.3,' Mbar'
+     >      /10X,'         = ',E9.3,' GPa',
+     >      /10X,'         = ',E9.3,' atm'/)
+      end if
+
+      return
+      end
+
+
+
 
 *     ***********************************************
 *     *                                             *

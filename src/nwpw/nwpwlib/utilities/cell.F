@@ -200,3 +200,74 @@
       return
       end
 
+*     *******************************
+*     *                             *
+*     *     cell_unita_abc_abg      *
+*     *                             *
+*     *******************************
+*
+*  This routine calculates a,b,c,alpha,beta,gamma from unita
+*
+      subroutine cell_unita_abc_abg(unita,lattice)
+      implicit none
+      real*8 unita(3,3),lattice(6)
+
+      real*8 a,b,c
+      real*8 alpha,beta,gamma
+
+*     *** local variables ****
+      real*8 d2,pi
+
+*     **** determine a,b,c,alpha,beta,gmma ***
+      pi = 4.0d0*datan(1.0d0)
+      a = dsqrt(unita(1,1)**2
+     >        + unita(2,1)**2
+     >        + unita(3,1)**2)
+      b = dsqrt(unita(1,2)**2
+     >        + unita(2,2)**2
+     >        + unita(3,2)**2)
+      c = dsqrt(unita(1,3)**2
+     >        + unita(2,3)**2
+     >        + unita(3,3)**2)
+
+      d2 = (unita(1,2)-unita(1,3))**2
+     >   + (unita(2,2)-unita(2,3))**2
+     >   + (unita(3,2)-unita(3,3))**2
+      alpha = (b*b + c*c - d2)/(2.0d0*b*c)
+      alpha = dacos(alpha)*180.0d0/pi
+
+      d2 = (unita(1,3)-unita(1,1))**2
+     >   + (unita(2,3)-unita(2,1))**2
+     >   + (unita(3,3)-unita(3,1))**2
+      beta = (c*c + a*a - d2)/(2.0d0*c*a)
+      beta = dacos(beta)*180.0d0/pi
+
+      d2 = (unita(1,1)-unita(1,2))**2
+     >   + (unita(2,1)-unita(2,2))**2
+     >   + (unita(3,1)-unita(3,2))**2
+      gamma = (a*a + b*b - d2)/(2.0d0*a*b)
+      gamma = dacos(gamma)*180.0d0/pi
+
+      lattice(1) = a
+      lattice(2) = b
+      lattice(3) = c
+      lattice(4) = alpha
+      lattice(5) = beta
+      lattice(6) = gamma
+      return
+      end
+
+*     *******************************
+*     *                             *
+*     *     cell_abc_abg_unita      *
+*     *                             *
+*     *******************************
+*
+*  This routine calculates unita from a,b,c,alpha,beta,gamma 
+*
+      subroutine cell_abc_abg_unita(lattice,unita)
+      implicit none
+      real*8 lattice(6),unita(3,3)
+
+      return
+      end

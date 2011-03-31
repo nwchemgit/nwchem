@@ -12,7 +12,7 @@
 #include "util.fh"
 #include "geom.fh"
 
-      logical oprint
+      logical oprint,lstress_numerical
       integer taskid,MASTER
       parameter (MASTER=0)
 
@@ -39,6 +39,24 @@
       double precision excsic_stress(3,3)
       double precision hfx_stress(3,3)
 
+      double precision lattice(6)
+      double precision lattice2(6)
+      double precision lattice3(6)
+
+      double precision lstress(6)
+      double precision ke_lstress(6)
+      double precision xc_lstress(6)
+      double precision ewald_lstress(6)
+      double precision hartree_lstress(6)
+      double precision local_lstress(6)
+      double precision nonlocal_lstress(6)
+      double precision alpha_lstress(6)
+      double precision RIJ_lstress(6)
+      double precision ewaldG_lstress(6)
+      double precision ehsic_lstress(6)
+      double precision excsic_lstress(6)
+      double precision hfx_lstress(6)
+
       integer date_len
       character*40 date_string
 
@@ -60,11 +78,17 @@
      E   (' stressfd: geom malloc failure ',0,0)
       call load_cellgeometry(geom,dbl_mb(r1(1)),unita)
 
+      if (.not.
+     >    rtdb_get(rtdb,'pspw:lstress_numerical',mt_log,1,lstress))
+     >  lstress_numerical = .false.
+
 
 *     **** get finite difference step and initialize ****
       if (.not.
      >    rtdb_get(rtdb,'pspw:stress_alpha',mt_dbl,1,alpha))
      >  alpha = 0.00100d0
+
+      if (.not.lstress_numerical) then
       call dcopy(9,0.0d0,0,ke_stress,      1)
       call dcopy(9,0.0d0,0,xc_stress,      1)
       call dcopy(9,0.0d0,0,hartree_stress, 1)
@@ -74,7 +98,6 @@
       call dcopy(9,0.0d0,0,ehsic_stress,1)
       call dcopy(9,0.0d0,0,excsic_stress,1)
       call dcopy(9,0.0d0,0,hfx_stress,1)
-
 
       do j=1,3
       do i=1,3
@@ -218,6 +241,91 @@
       call daxpy(9,1.0d0,excsic_stress,1,stress,1)
       call daxpy(9,1.0d0,hfx_stress,1,stress,1)
       call write_stress(stress,"TOTAL FD")
+      
+      else
+         call cell_unita_abc_abg(unita,lattice)
+
+         do i=1,6
+
+*        *****************************
+*        **** + finite difference ****
+*        *****************************
+         call dcopy(6,lattice,1,lattice2,1)
+         lattice2(i) = lattice2(i) + alpha
+
+         call cell_abc_abg_unita(lattice2,unita2)
+
+*        **** update geometry object ****
+         call util_date(date_string)
+         date_len = inp_strlen(date_string)
+         if (oprint) write(6,*)
+         if (oprint) write(6,
+     &   '(1x,a12,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
+     &   'lattice i:',i,lattice2(i),'(+)',
+     &   'wall time:',util_wallsec(),
+     &   'date:',date_string(1:date_len)
+         if (oprint) call util_flush(6)
+         call store_cellgeometry(geom,dbl_mb(r1(1)),unita2)
+         value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
+
+         end do
+
+         call dscal(6,(0.5d0/alpha),ke_lstress,1)
+         call dscal(6,(0.5d0/alpha),xc_lstress,1)
+         call dscal(6,(0.5d0/alpha),hartree_lstress,1)
+         call dscal(6,(0.5d0/alpha),ewald_lstress,1)
+         call dscal(6,(0.5d0/alpha),local_lstress,1)
+         call dscal(6,(0.5d0/alpha),nonlocal_lstress,1)
+         call dscal(6,(0.5d0/alpha),ehsic_lstress,1)
+         call dscal(6,(0.5d0/alpha),excsic_lstress,1)
+         call dscal(6,(0.5d0/alpha),hfx_lstress,1)
+
+         call write_lstress(ke_lstress,"ke FD")
+         call write_lstress(hartree_lstress,"coulomb FD")
+         call write_lstress(local_lstress,"local FD")
+         call write_lstress(nonlocal_lstress,"nonlocal FD")
+         call write_lstress(xc_lstress,"xc FD")
+         call write_lstress(ewald_lstress,"ewald FD")
+         call write_lstress(ehsic_lstress,"Eh SIC FD")
+         call write_lstress(excsic_lstress,"Exc SIC FD")
+         call write_lstress(hfx_lstress,"HFX FD")
+
+         call lstress_to_stress(ke_lstress,ke_stress)
+         call lstress_to_stress(hartree_lstress,hartree_stress)
+         call lstress_to_stress(local_lstress,local_stress)
+         call lstress_to_stress(nonlocal_stress,nonlocal_stress)
+         call lstress_to_stress(xc_lstress,xc_stress)
+         call lstress_to_stress(ewald_lstress,ewald_stress)
+         call lstress_to_stress(ehsic_lstress,ehsic_stress)
+         call lstress_to_stress(excsic_lstress,excsic_stress)
+         call lstress_to_stress(hfx_lstress,hfx_stress)
+       
+         call write_stress(ke_stress,"ke FD")
+         call write_stress(hartree_stress,"coulomb FD")
+         call write_stress(local_stress,"local FD")
+         call write_stress(nonlocal_stress,"nonlocal FD")
+         call write_stress(xc_stress,"xc FD")
+         call write_stress(ewald_stress,"ewald FD")
+         call write_stress(ehsic_stress,"Eh SIC FD")
+         call write_stress(excsic_stress,"Exc SIC FD")
+         call write_stress(hfx_stress,"HFX FD")
+
+         call dcopy(6,ke_lstress,1,lstress,1)
+         call daxpy(6,1.0d0,xc_lstress,1,lstress,1)
+         call daxpy(6,1.0d0,hartree_lstress,1,lstress,1)
+         call daxpy(6,1.0d0,ewald_lstress,1,lstress,1)
+         call daxpy(6,1.0d0,local_lstress,1,lstress,1)
+         call daxpy(6,1.0d0,nonlocal_lstress,1,lstress,1)
+         call daxpy(6,1.0d0,ehsic_lstress,1,lstress,1)
+         call daxpy(6,1.0d0,excsic_lstress,1,lstress,1)
+         call daxpy(6,1.0d0,hfx_lstress,1,lstress,1)
+
+         call write_lstress(lstress,"TOTAL FD")
+
+         call lstress_to_stress(lstress,stress)
+         call write_stress(stress,"TOTAL FD")
+
+      end if
 
 
 *     **************************************
