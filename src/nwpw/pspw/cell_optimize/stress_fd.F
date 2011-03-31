@@ -79,7 +79,8 @@
       call load_cellgeometry(geom,dbl_mb(r1(1)),unita)
 
       if (.not.
-     >    rtdb_get(rtdb,'pspw:lstress_numerical',mt_log,1,lstress))
+     >    rtdb_get(rtdb,'nwpw:lstress_numerical',
+     >             mt_log,1,lstress_numerical))
      >  lstress_numerical = .false.
 
 
@@ -178,8 +179,7 @@
       if (oprint) call util_flush(6)
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita3)
       value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
-    
-      value = pspw_noit_energy(rtdb)
+      value = value.and.pspw_noit_energy(rtdb)
 
 
       value = value.and.rtdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
@@ -241,33 +241,113 @@
       call daxpy(9,1.0d0,excsic_stress,1,stress,1)
       call daxpy(9,1.0d0,hfx_stress,1,stress,1)
       call write_stress(stress,"TOTAL FD")
+
+*     **************************************
+*     **** output stress for use driver ****
+*     **************************************
+      value = value.and.rtdb_put(rtdb,'pspw:stress',mt_dbl,9,stress)
       
       else
          call cell_unita_abc_abg(unita,lattice)
 
          do i=1,6
+*           *****************************
+*           **** + finite difference ****
+*           *****************************
+            call dcopy(6,lattice,1,lattice2,1)
+            lattice2(i) = lattice2(i) + alpha
+            call cell_abc_abg_unita(lattice2,unita2)
 
-*        *****************************
-*        **** + finite difference ****
-*        *****************************
-         call dcopy(6,lattice,1,lattice2,1)
-         lattice2(i) = lattice2(i) + alpha
+*           **** update geometry object ****
+            call util_date(date_string)
+            date_len = inp_strlen(date_string)
+            if (oprint) write(6,*)
+            if (oprint) write(6,
+     &      '(1x,a12,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
+     &      'lattice i:',i,lattice2(i),'(+)',
+     &      'wall time:',util_wallsec(),
+     &      'date:',date_string(1:date_len)
+            if (oprint) call util_flush(6)
+            call store_cellgeometry(geom,dbl_mb(r1(1)),unita2)
+            value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
+            value = value.and.pspw_noit_energy(rtdb)
 
-         call cell_abc_abg_unita(lattice2,unita2)
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
+            ke_lstress(i) = E
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
+            xc_lstress(i) = E
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
+            hartree_lstress(i) = E
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
+            ewald_lstress(i) = E
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
+            local_lstress(i) = E
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
+            nonlocal_lstress(i) = E
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_hsic',mt_dbl,1,E)
+            ehsic_lstress(i) = E
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_xcsic',mt_dbl,1,E)
+            excsic_lstress(i) = E
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
+            hfx_lstress(i) = E
 
-*        **** update geometry object ****
-         call util_date(date_string)
-         date_len = inp_strlen(date_string)
-         if (oprint) write(6,*)
-         if (oprint) write(6,
-     &   '(1x,a12,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
-     &   'lattice i:',i,lattice2(i),'(+)',
-     &   'wall time:',util_wallsec(),
-     &   'date:',date_string(1:date_len)
-         if (oprint) call util_flush(6)
-         call store_cellgeometry(geom,dbl_mb(r1(1)),unita2)
-         value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
+*           *****************************
+*           **** - finite difference ****
+*           *****************************
+            call dcopy(6,lattice,1,lattice3,1)
+            lattice3(i) = lattice3(i) - alpha
+            call cell_abc_abg_unita(lattice3,unita3)
 
+*           **** update geometry object ****
+            call util_date(date_string)
+            date_len = inp_strlen(date_string)
+            if (oprint) write(6,*)
+            if (oprint) write(6,
+     &         '(1x,a12,i2,1x,f8.3,1x,a4,1x,a10,f10.1,6x,a5,a27)')
+     &         'lattice i:',i,lattice3(i),'(-)',
+     &         'wall time:',util_wallsec(),
+     &         'date:',date_string(1:date_len)
+            if (oprint) call util_flush(6)
+            call store_cellgeometry(geom,dbl_mb(r1(1)),unita3)
+            value = value.and.geom_rtdb_store(rtdb,geom,'geometry')
+            value = value.and.pspw_noit_energy(rtdb)
+
+            value = value.and.rtdb_get(rtdb,'pspw:E_ke',mt_dbl,1,E)
+            ke_lstress(i) = ke_lstress(i) - E
+
+            value = value.and.rtdb_get(rtdb,'pspw:E_xc',mt_dbl,1,E)
+            xc_lstress(i) = xc_lstress(i) - E
+
+            value = value.and.rtdb_get(rtdb,'pspw:E_hartree',mt_dbl,1,E)
+            hartree_lstress(i) = hartree_lstress(i) - E
+
+            value = value.and.rtdb_get(rtdb,'pspw:E_ewald',mt_dbl,1,E)
+            ewald_lstress(i) = ewald_lstress(i) - E
+
+            value = value.and.rtdb_get(rtdb,'pspw:E_local',mt_dbl,1,E)
+            local_lstress(i) = local_lstress(i) - E
+
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_nonlocal',mt_dbl,1,E)
+            nonlocal_lstress(i) = nonlocal_lstress(i) - E
+
+            value = value.and.rtdb_get(rtdb,'pspw:E_hsic',mt_dbl,1,E)
+            ehsic_lstress(i) = ehsic_lstress(i) - E
+
+            value = value.and.rtdb_get(rtdb,'pspw:E_xcsic',mt_dbl,1,E)
+            excsic_lstress(i) = excsic_lstress(i) - E
+
+            value = value.and.rtdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
+            hfx_lstress(i) = hfx_lstress(i) - E
          end do
 
          call dscal(6,(0.5d0/alpha),ke_lstress,1)
@@ -290,26 +370,6 @@
          call write_lstress(excsic_lstress,"Exc SIC FD")
          call write_lstress(hfx_lstress,"HFX FD")
 
-         call lstress_to_stress(ke_lstress,ke_stress)
-         call lstress_to_stress(hartree_lstress,hartree_stress)
-         call lstress_to_stress(local_lstress,local_stress)
-         call lstress_to_stress(nonlocal_stress,nonlocal_stress)
-         call lstress_to_stress(xc_lstress,xc_stress)
-         call lstress_to_stress(ewald_lstress,ewald_stress)
-         call lstress_to_stress(ehsic_lstress,ehsic_stress)
-         call lstress_to_stress(excsic_lstress,excsic_stress)
-         call lstress_to_stress(hfx_lstress,hfx_stress)
-       
-         call write_stress(ke_stress,"ke FD")
-         call write_stress(hartree_stress,"coulomb FD")
-         call write_stress(local_stress,"local FD")
-         call write_stress(nonlocal_stress,"nonlocal FD")
-         call write_stress(xc_stress,"xc FD")
-         call write_stress(ewald_stress,"ewald FD")
-         call write_stress(ehsic_stress,"Eh SIC FD")
-         call write_stress(excsic_stress,"Exc SIC FD")
-         call write_stress(hfx_stress,"HFX FD")
-
          call dcopy(6,ke_lstress,1,lstress,1)
          call daxpy(6,1.0d0,xc_lstress,1,lstress,1)
          call daxpy(6,1.0d0,hartree_lstress,1,lstress,1)
@@ -319,20 +379,14 @@
          call daxpy(6,1.0d0,ehsic_lstress,1,lstress,1)
          call daxpy(6,1.0d0,excsic_lstress,1,lstress,1)
          call daxpy(6,1.0d0,hfx_lstress,1,lstress,1)
-
          call write_lstress(lstress,"TOTAL FD")
 
-         call lstress_to_stress(lstress,stress)
-         call write_stress(stress,"TOTAL FD")
-
+*        **************************************
+*        **** output lstress for use driver ****
+*        **************************************
+         value = value.and.
+     >           rtdb_put(rtdb,'pspw:lstress',mt_dbl,6,lstress)
       end if
-
-
-*     **************************************
-*     **** output stress for use driver ****
-*     **************************************
-      value = value.and.rtdb_put(rtdb,'pspw:stress',mt_dbl,9,stress)
-
 
       call store_cellgeometry(geom,dbl_mb(r1(1)),unita)
       !value = value.and.geom_rtdb_delete(rtdb,'geometry')
