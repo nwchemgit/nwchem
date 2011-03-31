@@ -216,10 +216,10 @@
       real*8 alpha,beta,gamma
 
 *     *** local variables ****
-      real*8 d2,pi
+      real*8 d2
 
 *     **** determine a,b,c,alpha,beta,gmma ***
-      pi = 4.0d0*datan(1.0d0)
+      !pi = 4.0d0*datan(1.0d0)
       a = dsqrt(unita(1,1)**2
      >        + unita(2,1)**2
      >        + unita(3,1)**2)
@@ -234,19 +234,19 @@
      >   + (unita(2,2)-unita(2,3))**2
      >   + (unita(3,2)-unita(3,3))**2
       alpha = (b*b + c*c - d2)/(2.0d0*b*c)
-      alpha = dacos(alpha)*180.0d0/pi
+      alpha = dacos(alpha)
 
       d2 = (unita(1,3)-unita(1,1))**2
      >   + (unita(2,3)-unita(2,1))**2
      >   + (unita(3,3)-unita(3,1))**2
       beta = (c*c + a*a - d2)/(2.0d0*c*a)
-      beta = dacos(beta)*180.0d0/pi
+      beta = dacos(beta)
 
       d2 = (unita(1,1)-unita(1,2))**2
      >   + (unita(2,1)-unita(2,2))**2
      >   + (unita(3,1)-unita(3,2))**2
       gamma = (a*a + b*b - d2)/(2.0d0*a*b)
-      gamma = dacos(gamma)*180.0d0/pi
+      gamma = dacos(gamma)
 
       lattice(1) = a
       lattice(2) = b
@@ -257,6 +257,7 @@
       return
       end
 
+
 *     *******************************
 *     *                             *
 *     *     cell_abc_abg_unita      *
@@ -265,9 +266,76 @@
 *
 *  This routine calculates unita from a,b,c,alpha,beta,gamma 
 *
-      subroutine cell_abc_abg_unita(lattice,unita)
-      implicit none
-      real*8 lattice(6),unita(3,3)
+*  Adapted from geom_3d code.
+c
+c-----------> build a-matrix
+c
+c Chosen convention of two axis systems.
+c    Orient oblique crystal system to external rectilinear laboratory
+c    coordinate system such that
+c    b-axis is along j (unit rectilinear vector), ab-plane contains i (rect),
+c    i.e., j along b, i in  ab-plane
+c
+c  Note this matrix is implicitly built to convert the input coordinates
+c  from angstroms to bohr; i.e., amat is in atomic units.
+c
+c  the Jth column of this matrix contains the jth lattice vector
+c aij is the ith Cartesian component of the jth lattice vector.
+c
+c     Entry - lattice, lattice constants in au and lattice angles in radians
+c
+c     Exit  - lattice_a, lattice vectors
+c
+      subroutine cell_abc_abg_unita(lattice,lattice_a)
+      double precision lattice(6),lattice_a(3,3)
 
+*     **** local variables ****
+      integer i,j,iang
+      double precision c1,c2,c3,s3
+      double precision cdist(3),cang(3)
+      double precision gmat(3,3)
+
+*     **** external functions ****
+      double precision deter3
+      external deter3
+
+      cdist(1) = lattice(1)
+      cdist(2) = lattice(2)
+      cdist(3) = lattice(3)
+      cang(1)  = lattice(4)
+      cang(2)  = lattice(5)
+      cang(3)  = lattice(6)
+
+c    **** build the metrical matrix (atomic units) ****
+      do i=1,3
+        gmat(i,i)=cdist(i)**2
+      end do
+      iang=3
+      do i=1,3
+        do j=i+1,3
+          gmat(i,j)=cdist(i)*cdist(j)*dcos(cang(iang))
+          gmat(j,i)=gmat(i,j)
+          iang=iang-1
+        end do  
+      end do
+
+*     **** get volume ***
+      vol=dsqrt(deter3(gmat))
+
+*     **** generate lattice_a ***
+      c1=dcos(cang(1))
+      c2=dcos(cang(2))
+      c3=dcos(cang(3))
+      s3=dsin(cang(3))
+      lattice_a(1,1) = cdist(1)*s3
+      lattice_a(1,2) = 0.0d0
+      lattice_a(1,3) = (cdist(3)*(c2-c1*c3)/s3)
+      lattice_a(2,1) = cdist(1)*c3
+      lattice_a(2,2) = cdist(2)
+      lattice_a(2,3) = cdist(3)*c1
+      lattice_a(3,1) = 0.0d0
+      lattice_a(3,2) = 0.0d0
+      lattice_a(3,3) = (vol/(cdist(1)*cdist(2)*s3))
       return
       end
+
