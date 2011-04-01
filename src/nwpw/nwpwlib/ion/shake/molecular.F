@@ -1,16 +1,17 @@
-
-*     ***************************
-*     *			        *
-*     *		molecular_init  *
-*     *				*
-*     ***************************
-      subroutine molecular_init(rtdb)
 *
 * $Id$
 *
+
+*     ***************************
+*     *			        *
+*     *	    molecular_init      *
+*     *				*
+*     ***************************
+      subroutine molecular_init(rtdb)
       implicit none 
       integer   rtdb
 
+#include "mafdecls.fh"
 #include "rtdb.fh"
 
 *     ***** local variables ****
@@ -29,6 +30,11 @@
 
       logical value
       common /pspw_molecular/ value
+
+      logical gabprint
+      integer gabmod,gabiter
+      real*8  gabs(5)
+      common /pspw_gab/ gabs,gabmod,gabiter,gabprint
 
       call Parallel_taskid(taskid)
 
@@ -53,9 +59,6 @@
         if (value) then
           full_filename = 'SHAKE'
           call util_file_name_resolve(full_filename, .false.)
-c          call util_file_name_noprefix('SHAKE',.false.,
-c     >                                .false.,
-c     >                                full_filename)
           l = index(full_filename,' ') - 1
 
           !*** create SHAKE data file ****
@@ -77,6 +80,36 @@ c     >                                full_filename)
           call pspw_molecule_read(full_filename,l)
         end if
       end if
+
+      if (value) then
+         gabprint = rtdb_cget(rtdb,'pspw:gab_filename',1,filename)
+         if (gabprint) then
+            if (.not.rtdb_get(rtdb,'pspw:gab_mod',mt_int,1,gabmod)) 
+     >         gabmod = 10
+            gabiter  = 0
+            call util_file_name_noprefix(filename,
+     >                                   .false.,.false.,full_filename)
+            if (taskid.eq.MASTER) then
+               inquire(file=full_filename,exist=found)
+               if (found) then
+                  open(unit=51,file=full_filename,form='formatted',
+     >                 status='old')
+                  do while (found)
+                     read(51,*,end=100) gabs(1)
+                  end do
+  100             continue
+#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
+                  backspace 31
+#endif
+               else
+                  open(unit=51,file=full_filename,form='formatted',
+     >                 status='new')
+               end if
+            end if
+         end if
+         gabprint = gabprint.and.(taskid.eq.MASTER)
+      end if
+
 
       if (value) then
          call pspw_molecule_msize(msize)
@@ -102,13 +135,12 @@ c     >                                full_filename)
 
       end if
 
-
       return
       end
 
 *     ***************************
 *     *				*
-*     *		molecular_end	*
+*     *	    molecular_end	*
 *     *				*
 *     ***************************
       subroutine molecular_end()
@@ -117,8 +149,14 @@ c     >                                full_filename)
       logical value
       common /pspw_molecular/ value
 
+      logical gabprint
+      integer gabmod,gabiter
+      real*8  gabs(5)
+      common /pspw_gab/ gabs,gabmod,gabiter,gabprint
+
       if (value) then
          call pspw_molecule_end()
+         if (gabprint) close(51)
       end if
 
       return
@@ -136,6 +174,11 @@ c     >                                full_filename)
 
       logical value
       common /pspw_molecular/ value
+
+      logical gabprint
+      integer gabmod,gabiter
+      real*8  gabs(5)
+      common /pspw_gab/ gabs,gabmod,gabiter,gabprint
 
 *     **** local variables ****
       integer maxit
@@ -175,10 +218,13 @@ c     >                                full_filename)
             call shake_chain(na,indxa,nb,
      >                       tol,maxit,
      >                       blist,mass,
-     >                       r2,r1)
+     >                       r2,r1,gabs(m))
          end do
-
-
+         if (gabprint) then
+            if (mod(gabiter,gabmod).eq.0) 
+     >         write(51,'(100e19.10)') (gabs(m),m=1,msize)
+            gabiter=gabiter+1
+         end if
       end if
 
       return

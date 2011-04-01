@@ -1,16 +1,15 @@
       subroutine shake_chain(n,indx,nb,
      >                       tol,maxit,
      >                       dsq,mass,
-     >                       r2,r1)
+     >                       r2,r1,gablambda)
       implicit none
       integer n,indx(*),nb
       real*8  tol
       integer maxit
       real*8  dsq(*),mass(*)
       real*8  r2(3,*), r1(3,*)
+      real*8 gablambda
       
-
-
 
         REAL*8       RXI(n), RYI(n), RZI(n)
         REAL*8       PXI(n), PYI(n), PZI(n)
@@ -57,9 +56,10 @@ c      call dscal(9,volume,ub,1)
 
         
         TOL2   = 2.0 * tol
+        !TOL2   = 1.0d-15
 
 
-
+        gablambda = 0.0d0
         do A = 1, n
               RXI(A) = r1(1,indx(A))
               RYI(A) = r1(2,indx(A))
@@ -138,6 +138,7 @@ c                       RZAB = ua(3,1)*c1 + ua(3,2)*c2 + ua(3,3)*c3
                        DX  = RXAB * GAB
                        DY  = RYAB * GAB
                        DZ  = RZAB * GAB
+                       gablambda = gablambda + GAB
 
                        PXI(A) = PXI(A) + RMA * DX
                        PYI(A) = PYI(A) + RMA * DY
@@ -183,10 +184,6 @@ C       ** END ITERATIVE LOOP **
               r1(2,indx(a)) = RYI(a)
               r1(3,indx(a)) = RZI(a)
            end do
-
-
-
-
 
         RETURN
         END
