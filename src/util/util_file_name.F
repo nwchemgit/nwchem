@@ -721,10 +721,14 @@ c
          if (.not. util_file_parse_dir(scratch_dir, dir, node)) then
             dir = '. ' ! Final default is blank
          endif
-      endif
+         endif
       else
+         call util_getenv('PERMANENT_DIR',envscr) 
+         if(.not.util_file_parse_dir(envscr, dir, ga_nodeid()))
+     I    then
          if (.not. util_file_parse_dir(permanent_dir, dir, node)) then
             dir = '. ' ! Final default is blank
+         endif
          endif
       endif
 c
