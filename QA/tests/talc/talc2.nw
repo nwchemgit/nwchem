@@ -1,13 +1,14 @@
 echo
-
+PERMANENT_DIR /scratch/talc2
+SCRATCH_DIR /scratch/talc2
 
 #Perdikatsis B, Burzlaff H
 #Zeitschrift fur Kristallographie 156 (1981) 177-186
 #Strukturverfeinerung am talk Mg3[(OH)2Si4O10]
 #http://rruff.geo.arizona.edu/AMS/result.php?mineral=Talc
-# Change units to make optimizer work harder!
+# Change units to make life hard
 
-geometry units bohr nocenter noautosym noautoz print 
+geometry units bohr      nocenter noautosym noautoz print 
   system crystal 
     lat_a 5.290
     lat_b  9.173
@@ -34,37 +35,26 @@ nwpw
    energy_cutoff:       21.0d0
    wavefunction_cutoff: 21.0d0
    ewald_ncut: 8
-   mulliken
    lcao #old default
 end
 set nwpw:lcao_iterations 20
 set nwpw:minimizer 2
-#set nwpw:lmbfgs_size 1
-#set nwpw:precondition .false.
-#set nwpw:lcao_skip .true.
-
-task pspw energy
 
 nwpw
   tolerances 1.0d-9 1.0d-9 
 end
 
-## stupid input ##
-set nwpw:mulliken .false.
-set cgsd:mulliken .false.
-set band:mulliken .false.
-set nwpw:mulliken_kawai .false.
-
-
 driver
    clear
    maxiter 200
 end
-#set includestress .true.          # tell driver to optimize unit cell
+set includestress .true.          # tell driver to optimize unit cell
 set includelattice .true.
+set nwpw:mulliken .false.
+set cgsd:mulliken .false.
+set band:mulliken .false.
+set nwpw:mulliken_kawai .false.
+set driver:linopt 2
 
 task pspw optimize
 
-#set nwpw:stress_numerical .true.
-#set includestress .true.          # tell driver to optimize unit cell using numerical stress
-#task pspw optimize
