@@ -368,11 +368,12 @@ c
 c     First set up a and b. As these don't change, do just the largest grid
 c
       n2=leg_aux(maxuniqleg)
-      do i=1,n2
+      do i=2,n2
          a(i)=0.5d0
          tmp=dble(i-1)
          b(i)=0.25d0/(4.0d0-(1.0d0/(tmp*tmp)))
       enddo
+      a(1)=0.5d0
       b(1)=1.0d0
 c
 c     Generate roots and weights for Legendre quadrature
