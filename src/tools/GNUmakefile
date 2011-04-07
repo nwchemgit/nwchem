@@ -352,16 +352,21 @@ ifeq ($(TARGET),BGP)
 endif
 # End conversion of env vars to configure options
 
+ifdef DEV_GA
 GA_DIR = ga-dev
-CONFIGURE_PATH = ../$(GA_DIR)/configure
+else
+GA_DIR = ga-5-0
+endif
 BUILDDIR = build
 INSTALLDIR = install
+CONFIGURE_PATH = ../$(GA_DIR)/configure
 TOOLDIR = $(shell pwd)
 CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) $(MAYBE_MPI_INCLUDE) $(MAYBE_MPI_LIB) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77)
 SPACE :=
 SPACE +=
 STAMP_FC = $(subst $(SPACE),-,$(strip $(FC))).FC.stamp
 STAMP_CC = $(subst $(SPACE),-,$(strip $(CC))).CC.stamp
+STAMP_DIR = $(subst $(SPACE),-,$(strip $(GA_DIR))).DIR.stamp
 
 $(INSTALLDIR)/lib/libga.a: $(BUILDDIR)/.libs/libga.a
 	@echo ''
@@ -382,7 +387,7 @@ $(BUILDDIR)/armci/Makefile: $(GA_DIR)/armci/Makefile.in $(BUILDDIR)/armci/config
 	cd $(BUILDDIR)/armci && $(SHELL) ./config.status
 
 $(BUILDDIR)/armci/config.status: $(BUILDDIR)/config.status
-$(BUILDDIR)/config.status: $(GA_DIR)/configure $(STAMP_FC) $(STAMP_CC)
+$(BUILDDIR)/config.status: $(GA_DIR)/configure $(STAMP_FC) $(STAMP_CC) $(STAMP_DIR)
 	@echo ''
 	@echo '*** Configuring Parallel Tools ****'
 	@echo ''
@@ -403,6 +408,10 @@ $(STAMP_FC):
 $(STAMP_CC): 
 	rm -f *.CC.stamp
 	echo "" > $(STAMP_CC)
+$(STAMP_DIR): 
+	rm -rf $(BUILDDIR) $(INSTALLDIR)
+	rm -f *.DIR.stamp
+	echo "" > $(STAMP_DIR)
 
 clean:
 	@test -e $(BUILDDIR)/Makefile && { cd $(BUILDDIR) && $(MAKE) clean; } || echo "Not configured"

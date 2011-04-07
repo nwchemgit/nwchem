@@ -14,10 +14,12 @@ fi
 
 TOOLDIR=`pwd`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
-GA_NEW_SVN=https://svn.pnl.gov/svn/hpctools/trunk/ga
-GA_NEW=ga-dev
-GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-4-3
-GA_OLD=ga-4-3
+   GA_DEV_SVN=https://svn.pnl.gov/svn/hpctools/trunk/ga
+       GA_DEV=ga-dev
+GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-0
+    GA_STABLE=ga-5-0
+   GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-4-3
+       GA_OLD=ga-4-3
 
 # If OLD_GA is set at all in the user's environment then it means 'yes'
 if test "x$OLD_GA" != x
@@ -30,6 +32,16 @@ then
     OLD_GA=yes
 fi
 echo "OLD_GA=$OLD_GA"
+
+# If DEV_GA is set at all in the user's environment then it means 'yes'
+if test "x$DEV_GA" != x
+then
+    GA_SVN=$GA_DEV_SVN
+    GA_DIRNAME=$GA_DEV
+else
+    GA_SVN=$GA_STABLE_SVN
+    GA_DIRNAME=$GA_STABLE
+fi
 
 # Update the "OLD_GA" source.
 if test -e $TOOLDIR/armci
@@ -74,28 +86,28 @@ fi
 #    rm -rf $TOOLDIR/build
 #    rm -rf $TOOLDIR/install
 #fi
-if test -d $GA_NEW
+if test -d $GA_DIRNAME
 then
-    echo "Updating existing $GA_NEW"
-    cd $GA_NEW
+    echo "Updating existing $GA_DIRNAME"
+    cd $GA_DIRNAME
     if svn update
     then
-        echo "Finished updating existing $GA_NEW"
+        echo "Finished updating existing $GA_DIRNAME"
     else
-        echo "Failed updating existing $GA_NEW"
-        echo "Attempting to remove $GA_NEW"
+        echo "Failed updating existing $GA_DIRNAME"
+        echo "Attempting to remove $GA_DIRNAME"
         cd $TOOLDIR
-        if rm -rf $GA_NEW
+        if rm -rf $GA_DIRNAME
         then
-            echo "Checking out $GA_NEW_SVN"
-            svn checkout $GA_NEW_SVN $GA_NEW
+            echo "Checking out $GA_SVN"
+            svn checkout $GA_SVN $GA_DIRNAME
         else
-            echo "Failed to remove $GA_NEW"
+            echo "Failed to remove $GA_DIRNAME"
             echo "get-tools has failed"
         fi
     fi
     cd $TOOLDIR
 else
-    echo "Checking out $GA_NEW_SVN"
-    svn checkout $GA_NEW_SVN $GA_NEW
+    echo "Checking out $GA_SVN"
+    svn checkout $GA_SVN $GA_DIRNAME
 fi
