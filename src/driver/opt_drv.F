@@ -130,8 +130,16 @@ c
             call driver_take_step(rtdb, geom) ! Updates geom using alpha*ds
          else if (linopt .eq. 1) then
             call driver_line_search1(rtdb, geom) ! Updates geom,alpha
-         else 
+         else if (linopt .eq. 2) then
             call driver_line_search2(rtdb, geom) ! Updates geom,alpha
+         else
+            if (istep.gt.1 .and. (
+     >             (energy-energyp) .gt. eprec .or.
+     >             (energyp-energyp2) .gt. eprec)) then
+               call driver_line_search2(rtdb, geom) ! More aggressive, if uphill
+            else
+               call driver_line_search1(rtdb, geom)
+            endif
          endif
 c
 c     We have now taken a step.  Replace the approximate step taken
@@ -1786,26 +1794,27 @@ c
            if (j.gt.3) j=1
            dsmax = max(dsmax, abs(ds(i))*scaler(j))
         enddo
+!       Note that the linear optimizer can increase the step size by 4X
         if (ostress) then
            do i = top+1,nvar
               j = ((i-top)+2)/(3) ! 1,1,1,2,2,2,3,3,3
-              dsmax = max(dsmax, abs(ds(i)/scaler(j))*12)!2.5% max, if trust=.3
+              dsmax = max(dsmax, abs(ds(i)/scaler(j))*24)!1.25% max, if trust=.3
               dsmax = max(dsmax, abs(ds(i)))
            enddo
            do i = top+1,nvar,3
               j = ((i-top)+2)/(3) ! 1,1,1,2,2,2,3,3,3
               dum1 = abs(ds(i))+abs(ds(i+1))+abs(ds(i+2)) ! Total change in a vector
-              dsmax = max(dsmax, abs(dum1/scaler(j))*9)!3.5% max, if trust=.3
+              dsmax = max(dsmax, abs(dum1/scaler(j))*18)!1.75% max, if trust=.3
               dsmax = max(dsmax, abs(dum1))
            enddo
         endif
         if (ostress2) then
            do i = top+1,top+3! Lengths
               j=i-top
-              dsmax = max(dsmax, abs(ds(i)/scaler(j))*6)!5% max, if trust=.3
+              dsmax = max(dsmax, abs(ds(i)/scaler(j))*12)!2.5% max, if trust=.3
            enddo
            do i = top+4,nvar ! Angles
-              dsmax = max(dsmax, abs(ds(i))*3.43774d0)!5 degrees max if trust=.3
+              dsmax = max(dsmax, abs(ds(i))*6.87548d0)!2.5 degrees max if trust=.3
            enddo
         endif
       else

@@ -1,0 +1,63 @@
+echo
+PERMANENT_DIR /scratch/talc5
+SCRATCH_DIR /scratch/talc5
+
+#Perdikatsis B, Burzlaff H
+#Zeitschrift fur Kristallographie 156 (1981) 177-186
+#Strukturverfeinerung am talk Mg3[(OH)2Si4O10]
+#http://rruff.geo.arizona.edu/AMS/result.php?mineral=Talc
+# Change units to make life hard
+
+geometry units bohr      nocenter noautosym noautoz print 
+  system crystal 
+    lat_a 5.290
+    lat_b  9.173
+    lat_c 9.460
+    alpha 90.46
+    beta  98.68
+    gamma 90.09
+  end
+symmetry P-1
+Si   0.24527   0.50259   0.29093 
+Si   0.24590   0.83587   0.29108 
+Mg   0.00000   0.00000   0.00000 
+Mg   0.50012   0.83332   0.99994 
+O   0.19910   0.83440   0.11760 
+O   0.69700   0.66740   0.11260 
+O   0.19800   0.50120   0.11760 
+O   0.01990   0.92870   0.34810 
+O   0.52020   0.91090   0.34940 
+O   0.24290   0.66990   0.34840 
+H   0.71900   0.66900   0.20300
+end 
+#***** setup the nwpw gamma point code ****
+nwpw
+   energy_cutoff:       21.0d0
+   wavefunction_cutoff: 21.0d0
+   ewald_ncut: 8
+   lcao #old default
+end
+set nwpw:lcao_iterations 20
+set nwpw:minimizer 2
+
+nwpw
+  tolerances 1.0d-9 1.0d-9 
+end
+
+driver
+   clear
+   maxiter 200
+end
+set includestress .true.          # tell driver to optimize unit cell
+set nwpw:mulliken .false.
+set cgsd:mulliken .false.
+set band:mulliken .false.
+set nwpw:mulliken_kawai .false.
+set driver:linopt 2
+
+# These do the same things, but in different ways
+set geometry:inactlist 1:21
+set nwpw:zero_forces .true.
+
+task pspw optimize
+
