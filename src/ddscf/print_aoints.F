@@ -21,9 +21,9 @@ c     scratch space needed for 2-electron routines
 c     
       status = .true.
       status = status .and. 
-     $     ma_push_get(MT_DBL, max2e, 'fock_2e: buf', l_g, k_g)
+     $     ma_push_get(MT_DBL, max2e, 'print_aoints: buf', l_g, k_g)
       status = status .and.
-     $     ma_push_get(MT_DBL, mem2, 'fock_2e: scr', l_scr, k_scr)
+     $     ma_push_get(MT_DBL, mem2, 'print_aoints: scr', l_scr, k_scr)
       if (.not. status)
      $     call errquit('print_aoints: insufficient memory', mem2,
      &       MA_ERR)
