@@ -22,7 +22,7 @@ c     Input parameters
 c
       double precision gint(*),gijkl(*),gnkl(*),gnm(*)
       double precision b00(*),b01(*),b10(*),c00(*),d00(*),f00(*)
-      double precision abv(6,*),cv(12,*),rwv(2,*)
+      double precision abv(5,*),cv(12,*),rwv(2,*)
 c
 c     Local variabels
 c
@@ -34,7 +34,7 @@ c
       double precision dtol2,q4,dtol
       double precision db,bb,xb,yb,zb,q4db
       double precision da,aa,xa,ya,za,aandb1,q4dbda,dum,rho,xx
-      double precision cam2,rho0
+      double precision cam2
 c
       numi = lit*(lit+1)/2
       numj = ljt*(ljt+1)/2
@@ -83,13 +83,11 @@ c
             ya=acharg( 4,ijg)
             za=acharg( 5,ijg)
 c
-            rho0 = rho
+            xx=rho*((xa-xb)**2+(ya-yb)**2+(za-zb)**2)
             if (doscreen) then
              cam2 = cam_omega*cam_omega
-             rho = rho0*cam2/(cam2 + rho0)
+             xx=xx*cam2/(cam2 + rho)
             end if
-c
-            xx=rho*((xa-xb)**2+(ya-yb)**2+(za-zb)**2)
 c
             ng=ng+1
             abv(1,ng)=aa
@@ -97,7 +95,6 @@ c
             abv(3,ng)=rho
             abv(4,ng)=q4dbda
             abv(5,ng)=xx
-            abv(6,ng)=rho0
 c
             if(mmaxs) go to 21
             cv( 1,ng)=aa*(xa-xd)

@@ -50,7 +50,7 @@ c
       id00  =ic00  +(  1                                )*maxxyz*3
       if00  =id00  +(  1                                )*maxxyz*3
       iabv  =if00  +(  1                                )*maxxyz
-      icv   =iabv  +(  6                                )*maxxyz
+      icv   =iabv  +(  5                                )*maxxyz
       irw   =icv   +( 12                                )*maxxyz
       iscrln=irw   +(  2                                )*maxxyz
 c
