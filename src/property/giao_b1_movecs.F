@@ -26,6 +26,7 @@ c     Note: the CPHF call below terminates the integrals
 #include "apiP.fh"
 #include "prop.fh"
 #include "bgj.fh"
+#include "case.fh"
 c
       integer rtdb    ! [in] rtdb handle
       integer basis   ! [in] basis handle
@@ -309,12 +310,31 @@ c
      $     call errquit('hess_cphf: rtdb_put of j_derfit failed',0,
      &       RTDB_ERR)
       endif
-      call shell_fock_build(geom, basis, 0, 3,
-     $     jfac, kfac,tol2e, g_d1, g_fock,.false.)
+c      call shell_fock_build(geom, basis, 0, 3,
+c     $     jfac, kfac,tol2e, g_d1, g_fock,.false.)
+c      if(use_theory.eq.'dft') then
+c         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, 0))
+c     $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
+c      endif
+
+c from hnd_giaox.F]
+c
+c     Note: Just the exchange: jfac = 0.d0 (see above)
+c
+      if (.not.cam_exch) then
+         call shell_fock_build(geom, basis, 0, 3,
+     $     jfac, kfac, tol2e, g_d1, g_fock, .false.)
+      else
+         call shell_fock_build_cam(geom, basis, 0, 3,
+     $     jfac, kfac, tol2e, g_d1, g_fock, .false.)
+      end if
+c
       if(use_theory.eq.'dft') then
          if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1, 0))
      $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
       endif
+
+
 c
 c     Transform to the occ-virt MO basis and add to RHS
 c
