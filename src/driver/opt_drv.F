@@ -2073,8 +2073,9 @@ c     1.  reduce alpha to 1/4 its smallest value
 c     2.  try minus that alpha value. If that works then:
 c         a.  try 3 times that, and if that works then:
 c         b.  try 3 times that.
-c     3.  if ds*g is positive, then cut that ds in half, if that works exit
-c     4.  lastly just return 1/2 the last alpha value (and reset ds) and give up
+c     3.  if ds*g is positive, then cut that ds in half, then try -half, then 0
+c         this step is for situtations were delta E != dE for deltaX > 0
+c     4.  lastly do a brute force line search
 c
 c     #2 & #3 can actually work because of limiting motion in some 
 c     values of ds because of the hessian, trust, etc. can actually
@@ -2086,6 +2087,8 @@ c
       double precision driver_energy_step
       double precision dssave(max_cart)
       integer i, j
+      double precision walka(5), walke(5),dum
+      logical success
 c
       dsgrad = ddot(nvar, ds, 1, g, 1)
       if (dsgrad*alpha .ge. 0d0) then
@@ -2096,11 +2099,15 @@ c
 c
       e0 = energy
       a0 = 0d0
+      walke(1) = e0
+      walka(1) = a0
 c
 c     Compute energy at alpha*ds
 c
       e1 = driver_energy_step(rtdb, geom)
       a1 = alpha
+      walke(2) = e1
+      walka(2) = a1
 c
 c     Fit to a parabola using e0, g0, e1
 c
@@ -2191,8 +2198,12 @@ c
 c
       if (alpha .eq. a1) then
          e2 = e1
+         walke(3) = e2 + 1d10 ! push duplicate to end
+         walka(3) = alpha + 1d10
       else
          e2 = driver_energy_step(rtdb, geom)
+         walke(3) = e2
+         walka(3) = alpha
       endif
 c
 c     There are six possible energy orders
@@ -2214,6 +2225,8 @@ c
            alpha = 0.25d0*a2
         endif
         e1 = driver_energy_step(rtdb, geom)
+        walke(4) = e1
+        walka(4) = alpha
         if (e1 .le. e0) then
            ! Got something good
            if (oprint) write(6,3) e2p, e2,alpha
@@ -2222,6 +2235,8 @@ c
         else
            alpha = -alpha/2.0d0 ! Desperate - is possible because of gradient limiting, etc.
            e1 = driver_energy_step(rtdb, geom)
+           walke(5) = e1
+           walka(5) = alpha
            if (e1 .le. e0) then 
              e0 = e1
              alpha = alpha*3.0d0 ! Try a bigger step
@@ -2260,26 +2275,103 @@ c
                     endif
                   enddo
                   e1 = driver_energy_step(rtdb, geom)
-                  if (e1 .ge. e0) then
-                    alpha = alpha*0.5d0 ! Giving up.
-                    if (oprint) write(6,5) e2p, e2,alpha
-                    do i = 1, nvar
-                       ds(i) = dssave(i)
-                    enddo
-                  else
-                     if (oprint) write(6,6) e2p, e2
-                  endif
-                else
+                endif
+                if (e1 .ge. e0) then ! Change ds again
+                  do i = 1, nvar
+                    dsgrad = dssave(i)*g(i)
+                    if (dsgrad*alpha .gt. 0d0) then
+                       ds(i)=0
+                    endif
+                  enddo
+                  e1 = driver_energy_step(rtdb, geom)
+                endif
+              else
+                e1 = e0 + 100 ! Fake it
+              endif
+              if (e1 .lt. e0) then
                   if (oprint) write(6,6) e2p, e2
  6          format( 'warning: line search wanted E=',f14.6,' found E=',
      &             f14.6,' changed step and alpha')
+              else
+!               Now we just linear search
+                do i = 1, nvar
+                   ds(i) = dssave(i)
+                enddo
+                do i = 1, 5
+                  do j = i+1, 5 ! Evil bubble-ish sort
+                    if (walka(j) .lt. walka(i)) then
+                      dum = walka(j)
+                      walka(j) = walka(i)
+                      walka(i) = dum
+                      dum = walke(j)
+                      walke(j) = walke(i)
+                      walke(i) = dum
+                    endif
+                  enddo
+                enddo
+!               We know that the alpha=0 point is lowest energy, and we
+!               know that is ia walka(2), since we only try one negative point
+!               So, walka(4&5) are not relevent
+!               On steps 1,4,7,10,... do right side
+!               On steps 2,5,8,11,... do left side
+!               On steps 3,6,9,12,... do side which is lower in energy
+!               We set step to 10% of distance, until we get a lower point,
+!               then we use 40%
+!               We keep looking even after we find a good point, because this
+!               is clearly a bad step, so we work it out so that the next step
+!               is not bad.
+                success = .false.
+ 777            continue
+                do i = 1, 12
+                 if((mod(i,3) .eq. 1) .or.
+     >            (mod(i,3) .eq. 0 .and. walke(3) .lt. walke(1))) then ! Right
+                  if (.not. success) then
+                    alpha = (walka(3)-walka(2))*0.1d0 + walka(2)
+                  else
+                    alpha = (walka(3)-walka(2))*0.4d0 + walka(2)
+                  endif
+                  e1 = driver_energy_step(rtdb, geom)
+                  if (e1 .gt. walke(2)) then ! failed
+                    walke(3) = e1
+                    walka(3) = alpha
+                  else
+                    walke(1) = walke(2)
+                    walka(1) = walka(2)
+                    walke(2) = e1
+                    walka(2) = alpha
+                    success = .true.
+                  endif
+                 else ! Left
+                  if (.not. success) then
+                    alpha = (walka(2)-walka(1))*0.9d0 + walka(1)
+                  else
+                    alpha = (walka(2)-walka(1))*0.6d0 + walka(1)
+                  endif
+                  e1 = driver_energy_step(rtdb, geom)
+                  if (e1 .gt. walke(2)) then ! failed
+                    walke(1) = e1
+                    walka(1) = alpha
+                  else
+                    walke(3) = walke(2)
+                    walka(3) = walka(2)
+                    walke(2) = e1
+                    walka(2) = alpha
+                    success = .true.
+                  endif
+                 endif
+                enddo
+                if (success) then
+                  alpha = walka(2)
+                  if (oprint) write(6,9) e2p, e2,alpha
+ 9           format( 'warning: line search wanted E=',f14.6,' found E=',
+     &             f14.6,' Changed alpha to alpha=',f5.2)
+                else
+                   alpha = walka(3)*0.5d0
+                   if (oprint) write(6,10) e2p, e2,alpha
+ 10          format( 'warning: line search wanted E=',f14.6,' found E=',
+     &             f14.6,' Giving up, set alpha=',f5.2)
                 endif
-              else ! step had nothing going wrong way
-                alpha = alpha*0.5d0 ! Giving up.
-                if (oprint) write(6,5) e2p, e2,alpha
- 5           format( 'warning: line search wanted E=',f14.6,' found E=',
-     &             f14.6,' Giving up search, set alpha=',f5.2)
-              endif
+             endif
            endif
         endif
       endif
