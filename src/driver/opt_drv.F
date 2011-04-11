@@ -1392,6 +1392,8 @@ c
       double precision dsds, dshds, dsdg
       integer l_hess, k_hess, i, j, l_dstmp, k_dstmp
       integer ind, iend, iat
+      integer istrss
+      double precision strss1,strss2,dum1,dum2,dum3,dum4
 ! This is a statement function
       ind(i,j) = k_hess + i + (j-1)*nvar - 1
 c save ds
@@ -1448,15 +1450,45 @@ c
       enddo
 c     
       if(modupd.le.1) then       
+c
+c     ---- Limit Lattice-Atom cross-terms ----
+c
+        if (isystype .ne. 0 .and. ostress) then
+          istrss = nvar-9
+          strss1 = 0.25d0 ! Lattice: cross-terms
+          strss2 = 0.95d0 ! Forgetfulness
+        elseif(isystype .ne. 0 .and. ostress2) then
+          istrss = nvar-6
+          strss1 = 0.25d0
+          strss2 = 0.95d0
+        else
+          istrss = nvar+1 ! ie. never
+          strss1 = 1.0d0
+          strss2 = 1.0d0
+        endif
 c     
 c     ----- -bfgs- update -----
 c     
          if(abs(dsdg).gt.1d-8) then
             do i=1,nvar
+               if (i.gt.istrss) then
+                 dum1 = strss1
+                 dum2 = strss2
+               else
+                 dum1 = 1.0d0
+                 dum2 = 1.0d0
+               endif
                do j=1,nvar
-                  dbl_mb(ind(i,j))=dbl_mb(ind(i,j))
-     $                 + (g(i)-gp(i))*(g(j)-gp(j))/dsdg
-     1                 - hds(i)* hds(j)/dshds
+                  if (j.gt.istrss) then
+                    dum3 = strss1*dum1
+                    dum4 = strss2*dum2
+                  else 
+                    dum3 = dum1
+                    dum4 = dum2
+                  endif
+                  dbl_mb(ind(i,j))=dbl_mb(ind(i,j))*dum4
+     $                 + ((g(i)-gp(i))*(g(j)-gp(j))/dsdg
+     1                 - hds(i)* hds(j)/dshds)*dum3
                enddo   
             enddo   
          endif
@@ -1466,51 +1498,29 @@ c     ----- -psb- update -----
 c     
          if (abs(dsdg).gt.1d-8) then
             do i=1,nvar
+               if (i.gt.istrss) then
+                 dum1 = strss1
+                 dum2 = strss2
+               else
+                 dum1 = 1.0d0
+                 dum2 = 1.0d0
+               endif
                do j=1,nvar
-                  dbl_mb(ind(i,j))=dbl_mb(ind(i,j))
-     $                 + ((g(i)-gp(i))-hds(i))*ds(j)/dsds
+                  if (j.gt.istrss) then
+                    dum3 = strss1*dum1
+                    dum4 = strss2*dum2
+                  else
+                    dum3 = dum1
+                    dum4 = dum2
+                  endif
+                  dbl_mb(ind(i,j))=(dbl_mb(ind(i,j)))*dum4
+     $                 + (((g(i)-gp(i))-hds(i))*ds(j)/dsds
      1                 + ((g(j)-gp(j))-hds(j))*ds(i)/dsds
-     2                 - ds(i)*ds(j)*(dsdg-dshds)/(dsds*dsds)
+     2                 - ds(i)*ds(j)*(dsdg-dshds)/(dsds*dsds))*dum3
                enddo    
             enddo    
          endif
       endif    
-c
-c     ---- Limit Lattice-Atom cross-terms ----
-c
-      if (isystype .ne. 0 .and. (ostress .or. ostress2)) then
-         if(ostress) then
-           do i=1,nvar-9
-             do j=nvar-8,nvar
-               dbl_mb(ind(i,j))=dbl_mb(ind(i,j))*0.1d0
-               dbl_mb(ind(j,i))=dbl_mb(ind(j,i))*0.1d0
-             end do
-           end do
-           do i=nvar-8,nvar
-             do j=nvar-8,nvar
-              if(i.ne.j)then
-               dbl_mb(ind(i,j))=dbl_mb(ind(i,j))*0.25d0
-               dbl_mb(ind(j,i))=dbl_mb(ind(j,i))*0.25d0
-              endif
-             end do
-           end do
-         else if (ostress2) then
-           do i=1,nvar-6
-             do j=nvar-5,nvar
-               dbl_mb(ind(i,j))=dbl_mb(ind(i,j))*0.1d0
-               dbl_mb(ind(j,i))=dbl_mb(ind(j,i))*0.1d0
-             end do
-           end do
-           do i=nvar-5,nvar
-             do j=nvar-5,nvar
-              if (i.ne.j) then
-               dbl_mb(ind(i,j))=dbl_mb(ind(i,j))*0.25d0
-               dbl_mb(ind(j,i))=dbl_mb(ind(j,i))*0.25d0
-              endif
-             end do
-           end do
-         endif
-      endif
 c
       if ((.not. zcoord) .and. (nactive .ne. nat_real)) then
 c     
@@ -2210,7 +2220,7 @@ c
  3           format( 'warning: line search wanted E=',f14.6,' found E=',
      &             f14.6,' Backtracked to alpha=',f5.2)
         else
-           alpha = -alpha ! Desperate - is possible because of gradient limiting, etc.
+           alpha = -alpha/2.0d0 ! Desperate - is possible because of gradient limiting, etc.
            e1 = driver_energy_step(rtdb, geom)
            if (e1 .le. e0) then 
              e0 = e1
