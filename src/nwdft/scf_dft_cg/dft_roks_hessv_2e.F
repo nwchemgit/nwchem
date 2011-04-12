@@ -90,8 +90,8 @@ c
         dims(1) = nvec
         chnk(1) = nvec
         if (nopen.gt.0) then
-          dims(1) = 2*nvec
-          chnk(1) = 2*nvec
+          dims(1) = 4*nvec
+          chnk(1) = 4*nvec
         endif
         dims(2) = nbf
         dims(3) = nbf
@@ -272,7 +272,7 @@ c
         if (nopen.eq.0) then
           jfock = nfock
         else
-          jfock = 4*nfock/3
+          jfock = 8*nfock/3
         endif
         call fock_xc(geom, nbf, basis, jfock, g_dd, g_ff,
      +               Exc, nExc, .true.)

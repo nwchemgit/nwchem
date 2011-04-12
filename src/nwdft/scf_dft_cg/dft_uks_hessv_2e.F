@@ -63,10 +63,10 @@ c
 c     If needed create the DFT density and fock matrices.
 c
       if (xc_gotxc()) then
-        dims(1) = 2*nvec
+        dims(1) = 4*nvec
         dims(2) = nbf
         dims(3) = nbf
-        chnk(1) = 2*nvec
+        chnk(1) = 4*nvec
         chnk(2) = -1
         chnk(3) = -1
         if (.not.nga_create(MT_DBL,3,dims,"densities",chnk,g_dd))
