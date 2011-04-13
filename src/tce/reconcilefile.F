@@ -36,7 +36,7 @@ c
         if (parallel) call ga_sync()
       else if (ioalg.eq.2) then
         if (parallel) call ga_sync()
-        if (ga_is_mirrored(d_sf)) then
+        if (1.eq.ga_is_mirrored(d_sf)) then
           if (util_print('reconcilefile',print_debug)) write(LuOut,*) 
      1        'accumulating mirrored array across all nodes'
           call ga_merge_mirrored(d_sf)
