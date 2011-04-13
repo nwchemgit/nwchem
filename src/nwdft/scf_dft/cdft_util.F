@@ -941,11 +941,11 @@ c build f_ij*x_ij
           call ga_get(g_t3,i,i,j,j,fij,1)
           fij = fij
      $          /(sqrt(dbl_mb(isvals+i-1))+sqrt(dbl_mb(isvals+j-1)))
-          call ga_put(g_t3,i,i,j,j,fij,1)
+          call ga_put(g_s,i,i,j,j,fij,1)
         enddo
       enddo
-      call ga_dscal(g_t3,multipliers(ic))
-
+      call ga_dadd(multipliers(ic), g_s, 0.d0, g_t3, g_t3)
+c
 c build s_mj (g_mj)
       call ga_dgemm('n', 'n', nbf_ao, nbf_ao, nbf_ao, 1.d0,
      $                      g_t2, g_t3, 0d0, g_s)
