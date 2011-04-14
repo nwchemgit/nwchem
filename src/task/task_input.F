@@ -75,8 +75,8 @@ c
             operation = 'mepgs'
          else if (inp_compare(.false.,test,'et')) then
             operation = 'et'
-         else if (inp_compare(.false.,test,'rt_tddft')) then
-            operation = 'rt_tddft'
+c         else if (inp_compare(.false.,test,'rt_tddft')) then
+c            operation = 'rt_tddft'
 c         else if (inp_compare(.false.,test,'prepare')) then
 c            operation = 'prepare'
          else if (inp_compare(.false.,test,'freq') .or.

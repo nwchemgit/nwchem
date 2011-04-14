@@ -117,8 +117,8 @@ c
       logical task_dntmc
       external task_dntmc
 c
-      logical task_rt_tddft
-      external task_rt_tddft
+c      logical task_rt_tddft
+c      external task_rt_tddft
 c
 c      logical embed_optimize
 c      external embed_optimize
@@ -346,8 +346,8 @@ c          status = embed_optimize(rtdb)
          status = task_lst(rtdb)
       else if (inp_compare(.false., 'et', operation)) then
          status = task_et(rtdb)
-      else if (inp_compare(.false., 'rt_tddft', operation)) then
-         status = task_rt_tddft(rtdb)
+c      else if (inp_compare(.false., 'rt_tddft', operation)) then
+c         status = task_rt_tddft(rtdb)
       else if (inp_compare(.false., 'freq', operation)) then
 c        if (oembed) then
 c          status = embed_frequency(rtdb)
