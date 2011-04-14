@@ -826,9 +826,18 @@ c
          if (oinfo) then
             nbitv = 64
             if (ocompress) nbitv = 32
-            write(6,20) actualname(1:inp_strlen(actualname)),
+            if (rec_len_in_dbl .gt. 999999 .or.
+     $          n_per_rec .gt. 999999 .or.
+     $          max_cache_rec .gt. 999999 .or.
+     $          max_file_rec .gt. 999999) then
+              write(6,21) actualname(1:inp_strlen(actualname)),
      $           rec_len_in_dbl,n_per_rec,max_cache_rec,max_file_rec,
      $           lab_pack_len, nbitv
+            else
+              write(6,20) actualname(1:inp_strlen(actualname)),
+     $           rec_len_in_dbl,n_per_rec,max_cache_rec,max_file_rec,
+     $           lab_pack_len, nbitv
+            endif
  20         format(/
      $           ' Integral file          = ', a/
      $           ' Record size in doubles = ', i6,7x,
@@ -836,6 +845,14 @@ c
      $           ' Max. records in memory = ', i6,7x,
      $           ' Max. records in file   = ', i6/
      $           ' No. of bits per label  = ', i6,7x,
+     $           ' No. of bits per value  = ', i6/)
+ 21         format(/
+     $           ' Integral file          = ', a/
+     $           ' Record size in doubles = ', i8,3x,
+     $           ' No. of integs per rec  = ', i8/
+     $           ' Max. records in memory = ', i8,3x,
+     $           ' Max. records in file   = ', i8/
+     $           ' No. of bits per label  = ', i8,3x,
      $           ' No. of bits per value  = ', i6/)
             call util_flush(6)
          end if
