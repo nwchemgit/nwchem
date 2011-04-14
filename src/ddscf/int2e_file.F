@@ -853,7 +853,7 @@ c
      $           ' Max. records in memory = ', i8,3x,
      $           ' Max. records in file   = ', i8/
      $           ' No. of bits per label  = ', i8,3x,
-     $           ' No. of bits per value  = ', i6/)
+     $           ' No. of bits per value  = ', i8/)
             call util_flush(6)
          end if
       end if
