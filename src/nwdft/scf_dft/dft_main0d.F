@@ -65,10 +65,6 @@ c
 c
 c     == RT_TDDFT ==
       logical lrt_tddft       ! real-time TDDFT dynamics flag
-      !logical rt_tddft_dft    ! standard DFT
-      !external rt_tddft_dft
-      logical rt_tddft_sodft  ! spin-orbit DFT
-      external rt_tddft_sodft
       integer g_dipx  ! ga for dipole x
       integer g_dipy  ! ga for dipole y
       integer g_dipz  ! ga for dipole z
@@ -567,7 +563,7 @@ c     == Block CDFT calculations with RT_TDDFT ==
 c
 c     == Call the main drivers ==
       if (theory .eq. 'dft') then
-        if (.not.lrt_tddft) then
+       if (.not.lrt_tddft) then
  100      continue
           if ((.not.lcgmin.and..not.ltried_scf).or.
      &        (lcgmin.and.ltried_cgmin.and..not.lsuccess)) then
@@ -598,13 +594,7 @@ c     == Call the main drivers ==
      &       go to 100
           dft_main0d = lsuccess
        else
-        ! Standard DFT + real-time dynamics
-        !dft_main0d = rt_tddft_dft(rtdb, Etold, Enuc, iVcoul_opt,
-     &  !      iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
-     &  !      g_svecs, dbl_mb(isvals), g_xcinv, g_s,
-     &  !      g_dipx, g_dipy, g_dipz, g_ddotE, g_vel,
-     &  !      lcdft, nconstr)
-        dft_main0d = .false.
+          dft_main0d = .false.
        end if   ! lrt_tddft
       else if (theory .eq. 'sodft') then
 c
@@ -623,11 +613,6 @@ c
      &       iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
      &       g_svecs, dbl_mb(isvals), g_xcinv, g_s)
        else
-        ! Spin-Orbit DFT + real-time dynamics
-        !dft_main0d = rt_tddft_sodft(rtdb, Etold, Enuc, iVcoul_opt,
-     &  !   iVxc_opt, iter, g_dens, g_dens_at, g_evecs, g_vxc, g_fock,
-     &  !   g_svecs, dbl_mb(isvals), g_xcinv, g_s,
-     &  !   g_dipx, g_dipy, g_dipz, g_ddotE, g_vel)
         dft_main0d = .false.
        end if  ! lrt_tddft
       endif ! theory
