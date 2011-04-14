@@ -41,60 +41,6 @@ c
 c
       end
 c
-c     == DFT RT_TDDFT ==
-      logical function dft_rt_tddft(rtdb)
-c
-      implicit none
-c
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-c
-      integer rtdb
-c
-      logical nwdft
-      external nwdft
-      logical status
-c
-c     == Add theory flag ==
-      status = rtdb_cput(rtdb,'dft:theory', 1, 'dft')
-c
-c     == Add real-time TDDFT dynamics flag ==
-      if (.not. rtdb_put(rtdb,'dft:lrt_tddft',mt_log,1,.true.))
-     &    call errquit('dft_rt_tddft: rtdb_put failed',0,RTDB_ERR)
-c
-      dft_rt_tddft = nwdft(rtdb)
-      call grid_cleanup(.true.)
-c
-      end
-c
-c     == Spin-Orbit RT_TDDFT ==
-      logical function sodft_rt_tddft(rtdb)
-c
-      implicit none
-c
-#include "errquit.fh"
-#include "mafdecls.fh"
-#include "rtdb.fh"
-c
-      integer rtdb
-c
-      logical nwdft
-      external nwdft
-      logical status
-c
-c     == Add theory flag ==
-      status = rtdb_cput(rtdb,'dft:theory', 1, 'sodft')
-c
-c     == Add real-time TDDFT dynamics flag ==
-      if (.not. rtdb_put(rtdb,'dft:lrt_tddft',mt_log,1,.true.))
-     &    call errquit('sodft_rt_tddft: rtdb_put failed',0,RTDB_ERR)
-c
-      sodft_rt_tddft = nwdft(rtdb)
-      call grid_cleanup(.true.)
-c
-      end
-c
 c     == Main DFT driver ==
       logical function nwdft(rtdb)
 c     
