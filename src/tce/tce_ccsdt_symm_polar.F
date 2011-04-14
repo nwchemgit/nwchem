@@ -62,6 +62,7 @@ c#include "tce_diis.fh"
       character*255 filename
       character*20 title
       character*4 irrepname
+      alpha0=0.0d0
       alpha1=0.0d0
       alpha2=0.0d0
 #if defined(CCSDTLR)

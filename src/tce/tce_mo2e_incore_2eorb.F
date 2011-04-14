@@ -66,7 +66,7 @@ c
 c compression
       integer max_size_temp,size_temp,sumx
 c      double precision wall,cpu,wall1,cpu1,wall2,cpu2,wall3,cpu3
-      double precision cpu_clock(9),wall_clock(9)
+      double precision cpu_clock(0:9),wall_clock(0:9)
 c
       double precision tot_zone(1000)
 c
