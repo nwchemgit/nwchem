@@ -348,7 +348,7 @@ ifneq ($(BLASOPT),)
 endif
 
 ifeq ($(TARGET),BGP)
-    MAYBE_HOST = --host=powerpc-bgp-linux
+    MAYBE_HOST = --host=powerpc-bgp-linux CFLAGS="-g" FFLAGS="-g" CXXFLAGS="-g"
 endif
 # End conversion of env vars to configure options
 
