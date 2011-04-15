@@ -1449,23 +1449,24 @@ c
          dsdg = dsdg + ds(i)*(g(i) - gp(i))
       enddo
 c     
-      if(modupd.le.1) then       
-c
+c        
 c     ---- Limit Lattice-Atom cross-terms ----
-c
-        if (isystype .ne. 0 .and. ostress) then
-          istrss = nvar-9
-          strss1 = 0.25d0 ! Lattice: cross-terms
-          strss2 = 0.95d0 ! Forgetfulness
-        elseif(isystype .ne. 0 .and. ostress2) then
-          istrss = nvar-6
-          strss1 = 0.25d0
-          strss2 = 0.95d0
-        else
-          istrss = nvar+1 ! ie. never
-          strss1 = 1.0d0
-          strss2 = 1.0d0
-        endif
+c              
+      if (isystype .ne. 0 .and. ostress) then
+        istrss = nvar-9
+        strss1 = 0.25d0 ! Lattice: cross-terms
+        strss2 = 0.95d0 ! Forgetfulness
+      elseif(isystype .ne. 0 .and. ostress2) then
+        istrss = nvar-6
+        strss1 = 0.25d0
+        strss2 = 0.95d0
+      else
+        istrss = nvar+1 ! ie. never
+        strss1 = 1.0d0
+        strss2 = 1.0d0
+      endif  
+
+      if(modupd.le.1) then       
 c     
 c     ----- -bfgs- update -----
 c     
