@@ -89,10 +89,13 @@ c
       call DMatrix_eye(n,n,1.0d0,Q,lda,ma,na,taskid_i,taskid_j)
       do k = 1,n-2
 
+         call nwpw_timing_start(26)
          call DMatrix_houseq(k,n,A,V1,Q1,lda,ma,na,
      >            taskid_i,taskid_j,np_i,np_j,comm_i,comm_j,
      >            work1,work2)
+         call nwpw_timing_end(26)
 
+         call nwpw_timing_start(27)
 *        **** A = Q1*A*Q1 ****
          call DMatrix_dgemm1(n,n,n,64,
      >             1.0d0,
@@ -127,6 +130,7 @@ c
      >             np_i,np_j,
      >             comm_i, comm_j,
      >             work1,work2)
+         call nwpw_timing_end(27)
 
       end do
 
