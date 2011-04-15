@@ -1318,6 +1318,7 @@ c        **** add to current rows of C ****
 #endif
 
       call DMatrix_eye(n,n,1.0d0,Q,lda,ma,na,taskid_i,taskid_j)
+      call nwpw_timing_start(28)
       call DMatrix_dgemm3(n,n,n,64,
      >             (-v2),
      >             V,ma(taskid_i+1), ma,na,
@@ -1328,6 +1329,7 @@ c        **** add to current rows of C ****
      >             np_i,np_j,
      >             comm_i, comm_j,
      >             work1,work2)
+      call nwpw_timing_end(28)
 
 
       return
