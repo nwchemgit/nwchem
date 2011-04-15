@@ -1,4 +1,4 @@
-#  6-311++G**  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
+#  6-311++G**  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
 # Elements                             References
 # --------                             ----------
 # H, Li - Ne: R. Krishnan, J.S. Binkley, R. Seeger and J.A. Pople,
@@ -38,6 +38,18 @@ H    S
       0.0360000              1.0000000        
 H    P
       0.7500000              1.0000000        
+end
+basis "He_6-311++G**" SPHERICAL
+  He   S
+        98.124300000      0.02874520
+        14.768900000      0.20806100
+         3.318830000      0.83763500
+  He   S
+         0.874047000      1.00000000
+  He   S
+         0.244564000      1.00000000
+  He   P
+        0.75000000      1.00000000
 end
 basis "Li_6-311++G**" SPHERICAL
 Li    S
@@ -621,3 +633,4 @@ Ca    D
 Ca    D
       0.2600000              1.0000000        
 end
+
