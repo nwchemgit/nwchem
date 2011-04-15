@@ -120,6 +120,13 @@ c     **** external functions ****
          write(luout,1808) '    - m_tredq                : ',
      >                 nwpw_timing(22),
      >                 nwpw_timing(22)/dble(counter)
+         write(luout,1808) '       - m_tredq_houseq      : ',
+     >                 nwpw_timing(26),
+     >                 nwpw_timing(26)/dble(counter)
+         write(luout,1808) '       - m_tredq_dgemm1      : ',
+     >                 nwpw_timing(27),
+     >                 nwpw_timing(27)/dble(counter)
+
          write(luout,1808) '    - m_getdiags             : ',
      >                 nwpw_timing(23),
      >                 nwpw_timing(23)/dble(counter)
