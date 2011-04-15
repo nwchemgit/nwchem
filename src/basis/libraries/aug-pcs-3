@@ -1,4 +1,4 @@
-#  aug-pcS-3  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
+#  aug-pcS-3  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # Elements                             References
 # --------                             ----------
 # H He Li Be B C N O F Ne Na Mg Al Si P S Cl Ar: Frank Jensen, The Basis Set Convergence of Nuclear Magnetic Shielding Constants Calculated by Density Functional Methods., J. Chem. Theo. Comp. 4, 719 (2008).
@@ -184,8 +184,8 @@ basis "B_aug-pcS-3" SPHERICAL
 B    S
       0.574148E+05           0.516733E-04           0.000000E+00     
       0.860153E+04           0.404139E-03           0.000000E+00     
-      0.195779E+04           0.210023E-02          -0.314920E-05     
       0.554611E+03           0.891041E-02           0.000000E+00     
+      0.195779E+04           0.210023E-02          -0.314920E-05     
       0.181051E+03           0.310413E-01          -0.304635E-03     
       0.654909E+02           0.956422E-01          -0.172814E-02     
       0.255994E+02           0.225336E+00          -0.139521E-01     

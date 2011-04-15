@@ -1,4 +1,4 @@
-#  6-31G** Polarization  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  6-31G** Polarization  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # Elements                             References
 # --------                             ----------
 # H,Li - Ne: P.C. Hariharan and J.A. Pople, Theoret. Chimica Acta 28, 213 (1973).
@@ -84,50 +84,49 @@ Ar    D
 end
 basis "K_6-31G** Polarization" CARTESIAN
 K    D
-      0.2000000              1.000000E+00     
+      0.2000000              1.0000000        
 end
 basis "Ca_6-31G** Polarization" CARTESIAN
 Ca    D
-      0.2000000              1.000000E+00     
+      0.2000000              1.0000000        
 end
 basis "Sc_6-31G** Polarization" CARTESIAN
 Sc    F
-      0.8000000              1.000000E+00     
+      0.8000000              1.0000000        
 end
 basis "Ti_6-31G** Polarization" CARTESIAN
 Ti    F
-      0.8000000              1.000000E+00     
+      0.8000000              1.0000000        
 end
 basis "V_6-31G** Polarization" CARTESIAN
 V    F
-      0.8000000              1.000000E+00     
+      0.8000000              1.0000000        
 end
 basis "Cr_6-31G** Polarization" CARTESIAN
 Cr    F
-      0.8000000              1.000000E+00     
+      0.8000000              1.0000000        
 end
 basis "Mn_6-31G** Polarization" CARTESIAN
 Mn    F
-      0.8000000              1.000000E+00     
+      0.8000000              1.0000000        
 end
 basis "Fe_6-31G** Polarization" CARTESIAN
 Fe    F
-      0.8000000              1.000000E+00     
+      0.8000000              1.0000000        
 end
 basis "Co_6-31G** Polarization" CARTESIAN
 Co    F
-      0.8000000              1.000000E+00     
+      0.8000000              1.0000000        
 end
 basis "Ni_6-31G** Polarization" CARTESIAN
 Ni    F
-      0.8000000              1.000000E+00     
+      0.8000000              1.0000000        
 end
 basis "Cu_6-31G** Polarization" CARTESIAN
 Cu    F
-      0.8000000              1.000000E+00     
+      0.8000000              1.0000000        
 end
 basis "Zn_6-31G** Polarization" CARTESIAN
 Zn    F
-      0.8000000              1.000000E+00     
+      0.8000000              1.0000000        
 end
-

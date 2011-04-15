@@ -1,4 +1,4 @@
-#  6-311G(2df,2pd)  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  6-311G(2df,2pd)  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
 # Elements                             References
 # --------                             ----------
 # H, Li - Ne: R. Krishnan, J.S. Binkley, R. Seeger and J.A. Pople,
@@ -338,4 +338,3 @@ Ca    D
 Ca    F
       1.3300000              1.0000000        
 end
-

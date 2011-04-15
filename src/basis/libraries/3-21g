@@ -1,4 +1,4 @@
-#  3-21G  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  3-21G  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # Elements                             References
 # --------                             ----------
 #  H - Ne: J.S. Binkley, J.A. Pople, W.J. Hehre, J. Am. Chem. Soc 102 939 (1980)
@@ -1264,4 +1264,3 @@ Cs    D
       2.7248240              0.5788860        
       1.0266780              0.3325980        
 end
-

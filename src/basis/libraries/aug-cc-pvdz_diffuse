@@ -1,12 +1,15 @@
-#  aug-cc-pVDZ Diffuse  EMSL  Basis Set Exchange Library  3/19/10 12:41 PM
+#  aug-cc-pVDZ Diffuse  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
 # Elements                             References
 # --------                             ---------
-#  H    :  T.H. Dunning, Jr. J. Chem. Phys. 90, 1007 (1989).
-#  He   :  D.E. Woon and T.H. Dunning, Jr., J. Chem. Phys. 100, 2975 (1994).
-#  B - F:  R.A. Kendall, T.H. Dunning, Jr. and R.J. Harrison, J. Chem. Phys. 96,
-#          6796 (1992).
+# H    :  T.H. Dunning, Jr. J. Chem. Phys. 90, 1007 (1989).
+# He   :  D.E. Woon and T.H. Dunning, Jr., J. Chem. Phys. 100, 2975 (1994).
+# B - F:  R.A. Kendall, T.H. Dunning, Jr. and R.J. Harrison, J. Chem. Phys. 96,
+# 6796 (1992).
 # Al - Cl: D.E. Woon and T.H. Dunning, Jr. J. Chem. Phys. 98, 1358 (1993).
-#   
+# Sc - Zn: N.B. Balabanov and K.A. Peterson, J. Chem. Phys. 123, 064107 (2005),
+# N.B. Balabanov and K.A. Peterson, J. Chem. Phys. 125, 074110 (2006).
+# 
+
 
 
 basis "H_aug-cc-pVDZ Diffuse" SPHERICAL
@@ -148,6 +151,106 @@ Ar    P
       0.0533000              1.0000000        
 Ar    D
       0.2400000              1.0000000        
+end
+basis "Sc_aug-cc-pVDZ Diffuse" SPHERICAL
+Sc    S
+      1.110000E-02           1.0000000        
+Sc    P
+      1.066000E-02           1.0000000        
+Sc    D
+      1.244000E-02           1.0000000        
+Sc    F
+      4.063000E-02           1.0000000        
+end
+basis "Ti_aug-cc-pVDZ Diffuse" SPHERICAL
+Ti    S
+      1.173000E-02           1.0000000        
+Ti    P
+      1.176000E-02           1.0000000        
+Ti    D
+      1.726000E-02           1.0000000        
+Ti    F
+      8.266000E-02           1.0000000        
+end
+basis "V_aug-cc-pVDZ Diffuse" SPHERICAL
+V    S
+      1.232000E-02           1.0000000        
+V    P
+      1.244000E-02           1.0000000        
+V    D
+      2.256000E-02           1.0000000        
+V    F
+      1.311200E-01           1.0000000        
+end
+basis "Cr_aug-cc-pVDZ Diffuse" SPHERICAL
+Cr    S
+      1.247000E-02           1.0000000        
+Cr    P
+      1.307000E-02           1.0000000        
+Cr    D
+      2.517000E-02           1.0000000        
+Cr    F
+      1.763600E-01           1.0000000        
+end
+basis "Mn_aug-cc-pVDZ Diffuse" SPHERICAL
+Mn    S
+      1.335000E-02           1.0000000        
+Mn    P
+      1.380000E-02           1.0000000        
+Mn    D
+      2.875000E-02           1.0000000        
+Mn    F
+      2.226000E-01           1.0000000        
+end
+basis "Fe_aug-cc-pVDZ Diffuse" SPHERICAL
+Fe    S
+      1.401000E-02           1.0000000        
+Fe    P
+      1.407000E-02           1.0000000        
+Fe    D
+      3.243000E-02           1.0000000        
+Fe    F
+      2.749000E-01           1.0000000        
+end
+basis "Co_aug-cc-pVDZ Diffuse" SPHERICAL
+Co    S
+      1.459000E-02           1.0000000        
+Co    P
+      1.525000E-02           1.0000000        
+Co    D
+      3.625000E-02           1.0000000        
+Co    F
+      3.271500E-01           1.0000000        
+end
+basis "Ni_aug-cc-pVDZ Diffuse" SPHERICAL
+Ni    S
+      1.516000E-02           1.0000000        
+Ni    P
+      1.502000E-02           1.0000000        
+Ni    D
+      4.067000E-02           1.0000000        
+Ni    F
+      4.083000E-01           1.0000000        
+end
+basis "Cu_aug-cc-pVDZ Diffuse" SPHERICAL
+Cu    S
+      1.572000E-02           1.0000000        
+Cu    P
+      1.545000E-02           1.0000000        
+Cu    D
+      6.591000E-02           1.0000000        
+Cu    F
+      4.617200E-01           1.0000000        
+end
+basis "Zn_aug-cc-pVDZ Diffuse" SPHERICAL
+Zn    S
+      1.623000E-02           1.0000000        
+Zn    P
+      1.592000E-02           1.0000000        
+Zn    D
+      9.049000E-02           1.0000000        
+Zn    F
+      5.486100E-01           1.0000000        
 end
 basis "Ga_aug-cc-pVDZ Diffuse" SPHERICAL
 Ga    S

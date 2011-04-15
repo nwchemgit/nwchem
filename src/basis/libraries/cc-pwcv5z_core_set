@@ -1,9 +1,10 @@
-#  cc-pwCV5Z Core Set  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
+#  cc-pwCV5Z Core Set  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
 # Elements                             References
 # --------                             ----------
 # B  - Ne: K.A. Peterson and T.H. Dunning, Jr. J. Chem. Phys. 117, 10548 (2002).
-# Al - Ar: 
-#   
+# Al - Ar:
+# 
+
 
 
 basis "B_cc-pwCV5Z Core Set" SPHERICAL

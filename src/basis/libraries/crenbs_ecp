@@ -1,4 +1,4 @@
-#  CRENBS ECP  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
+#  CRENBS ECP  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
 # Elements                       References
 #  ---------                       ----------
 # Sc - Co:    M.M. Hurley et al., J. Chem. Phys., 84, 6840 (1986).   
@@ -1168,11 +1168,12 @@ Uus    F
       2.8239680              0.3362860        
       1.2453231              0.0862475        
 end
+ASSOCIATED_ECP "CRENBS ECP"
 # ELEMENTS                      REFERENCES
 # ---------                       ----------
 #   
 
-#  CRENBS ECP  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
+#  CRENBS ECP  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # ELEMENTS                      REFERENCES
 # ---------                       ----------
 #   

@@ -1,4 +1,4 @@
-#  STO-3G  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  STO-3G  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # Elements                             References
 # --------                             ----------
 #  H - Ne: W.J. Hehre, R.F. Stewart and J.A. Pople, J. Chem. Phys. 2657 (1969).
@@ -1105,4 +1105,3 @@ I    D
       2.841021154            0.6686785577     
       1.250624506            0.3052468245     
 end
-

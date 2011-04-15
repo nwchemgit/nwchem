@@ -1,4 +1,4 @@
-#  4-31G  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  4-31G  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # Elements                             References
 # --------                             ----------
 # H, C - F: R. Ditchfield, W.J. Hehre and J.A. Pople, J. Chem. Phys. 54, 724 
@@ -184,4 +184,3 @@ Cl    SP
 Cl    SP
       0.195659411            1.0000000              1.0000000        
 end
-

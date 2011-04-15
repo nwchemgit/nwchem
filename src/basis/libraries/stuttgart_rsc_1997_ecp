@@ -1,4 +1,4 @@
-#  Stuttgart RSC 1997 ECP  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
+#  Stuttgart RSC 1997 ECP  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
 # Elements                             References
 # --------                             ----------
 # K      : A. Bergner, M. Dolg, W. Kuechle, H. Stoll, H. Preuss, Mol. Phys. 80,
@@ -2987,14 +2987,17 @@ Db    F
 Db    G
       1.2840000              1.0000000        
 end
+ASSOCIATED_ECP "STUTTGART RSC 1997 ECP"
 # ELEMENTS                      REFERENCES
-#  ---------                       ----------
-#   
+# ---------                       ----------
+# 
 
-#  Stuttgart RSC 1997 ECP  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
+
+#  Stuttgart RSC 1997 ECP  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # ELEMENTS                      REFERENCES
-#  ---------                       ----------
-#   
+# ---------                       ----------
+# 
+
 
 
 ecp "K_Stuttgart RSC 1997 ECP"
@@ -3400,6 +3403,21 @@ Ba D
 Ba F
 2      3.589465000          -33.473174000      
 end
+ecp "La_Stuttgart RSC 1997 ECP"
+La nelec 28
+La ul
+2      1.000000000            0.000000000      
+La S
+2     19.441418000          585.201953000      
+La P
+2     16.016353000          330.109510000      
+La D
+2     15.128259000          186.058232000      
+La F
+2     23.103875000          -49.433352000      
+La G
+2     15.639020000          -20.123020000      
+end
 ecp "Ce_Stuttgart RSC 1997 ECP"
 Ce nelec 28
 Ce ul
@@ -3594,6 +3612,21 @@ Yb F
 2     20.774183000          -39.592173000      
 Yb G
 2     28.431028000          -34.638638000      
+end
+ecp "Lu_Stuttgart RSC 1997 ECP"
+Lu nelec 28
+Lu ul
+2      1.000000000            0.000000000      
+Lu S
+2     35.162097000          989.995584000      
+Lu P
+2     19.464402000          278.865652000      
+Lu D
+2     10.006865000           71.009178000      
+Lu F
+2     23.517932000          -47.405890000      
+Lu G
+2     29.412238000          -35.557146000      
 end
 ecp "Hf_Stuttgart RSC 1997 ECP"
 Hf nelec 60

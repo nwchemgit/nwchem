@@ -1,4 +1,4 @@
-#  LANL2DZ ECP  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
+#  LANL2DZ ECP  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # Elements                             References
 # --------                             ----------
 # H  - Ne: T. H. Dunning Jr. and P. J. Hay, in Methods of Electronic Structure
@@ -1321,6 +1321,7 @@ Pu    F
       0.8150000              0.4212150        
       0.3020000              0.1725220        
 end
+ASSOCIATED_ECP "LANL2DZ ECP"
 # Elements                             References
 # --------                             ----------
 # Na - Hg: P. J. Hay and W. R. Wadt, J. Chem. Phys. 82, 270 (1985).
@@ -1328,7 +1329,7 @@ end
 #          P. J. Hay and W. R. Wadt, J. Chem. Phys. 82, 299 (1985).
 #   
 
-#  LANL2DZ ECP  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
+#  LANL2DZ ECP  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # Elements                             References
 # --------                             ----------
 # Na - Hg: P. J. Hay and W. R. Wadt, J. Chem. Phys. 82, 270 (1985).

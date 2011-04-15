@@ -1,4 +1,4 @@
-#  SDB-aug-cc-pVQZ  EMSL  Basis Set Exchange Library  3/19/10 12:41 PM
+#  SDB-aug-cc-pVQZ  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
 # Elements                             References
 # --------                             ----------
 # Ga - Kr: J.M.L. Martin and A. Sundermann, J. Chem. Phys. 114, 3408 (2001). 
@@ -574,6 +574,7 @@ I    G
 I    G
       0.2442490              1.0000000        
 end
+ASSOCIATED_ECP "STUTTGART RLC ECP"
 # ELEMENTS                      REFERENCES
 # ---------                       ----------
 # 

@@ -1,4 +1,4 @@
-#  6-31++G**  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  6-31++G**  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # Elements                             References
 # --------                             ----------
 # H - He: W.J. Hehre, R. Ditchfield and J.A. Pople, J. Chem. Phys. 56,
@@ -36,19 +36,11 @@ H    S
       2.8253937              0.23472695       
       0.6401217              0.81375733       
 H    S
-      0.1612778              1.00000000       
+      0.1612778              1.0000000        
 H    S
       0.0360000              1.0000000        
 H    P
       1.1000000              1.0000000        
-end
-basis "He_6-31++G**" CARTESIAN
-  He   S
-        38.421634000      0.02376600
-         5.778030000      0.15467900
-         1.241774000      0.46963000
-  He   S
-         0.297964000      1.00000000
 end
 basis "Li_6-31++G**" CARTESIAN
 Li    S
@@ -441,7 +433,7 @@ K    SP
 K    SP
       0.0047000              1.0000000              1.0000000        
 K    D
-      0.2000000              1.000000E+00     
+      0.2000000              1.0000000        
 end
 basis "Ca_6-31++G**" CARTESIAN
 Ca    S
@@ -474,6 +466,5 @@ Ca    SP
 Ca    SP
       0.0071000              1.0000000              1.0000000        
 Ca    D
-      0.2000000              1.000000E+00     
+      0.2000000              1.0000000        
 end
-

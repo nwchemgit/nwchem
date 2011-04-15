@@ -1,4 +1,4 @@
-#  CRENBL ECP  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
+#  CRENBL ECP  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # Elements                       References
 # ---------                       ----------
 # H:       T.H. Dunning, Jr. and P.J. Hay; Gaussian Basis Sets for Molecular
@@ -3506,11 +3506,12 @@ Uus    F
 Uus    F
       1.2453231              1.0000000        
 end
+ASSOCIATED_ECP "CRENBL ECP"
 # ELEMENTS                      REFERENCES
 #  ---------                       ----------
 #   
 
-#  CRENBL ECP  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
+#  CRENBL ECP  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # ELEMENTS                      REFERENCES
 #  ---------                       ----------
 #   

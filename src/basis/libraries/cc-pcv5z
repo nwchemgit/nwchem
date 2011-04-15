@@ -1,12 +1,12 @@
-#  cc-pCV5Z  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
+#  cc-pCV5Z  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # (cc-pCV5Z)
 # --------------------------------------
 # Elements                            Reference
-# Li - Ne: (4s,4p,3d,2f,1g)    T.H. Dunning, Jr. J.C.P. 90, 1007 (1989).
-# Mg       (4s,4p,4d,3f,2g,1h) D.E. Woon and T.H. Dunning, Jr. (to be published)
-# Al-Ar  : (4d,3d,2g,1h)       K.A. Peterson and T.H. Dunning, Jr. J. Chem. Phys. 117, 10548 (2002)
-# Ca     : (4d,3f,2g,1h)       J. Koput and K.A. Peterson, J. Phys. Chem. A,
-# 106, 9595 (2002)
+# B - Ne: (18s,12p,7d,5f,3g,1h) -> [10s,9p,7d,5f,3g,1h] D. Woon, K. Peterson
+# Al- Ar: (20s,12p,8d,6f,4g,2h) -> [7s,6p,4d,3f,2g,1h] K.A. Peterson and T.H.
+# Dunning, Jr., J. Chem. Phys. 117,10548 (2002).
+# Ca     : (26s,18p,12d,6f,4g,2h)-> [12s,10p,9d,6f,4g,2h]  J. Koput and K.A.
+# Peterson, J.  Phys. Chem. A, 106, 9595(2002)
 # 
 
 

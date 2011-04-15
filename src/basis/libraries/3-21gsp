@@ -1,4 +1,4 @@
-#  3-21GSP  EMSL  Basis Set Exchange Library  2/17/10 4:57 PM
+#  3-21GSP  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
 # Elements                             References
 # --------                             ----------
 #  H - Ne: A.V. Mitin, G. Hirsch, R. J. Buenker, Chem. Phys. Lett. 259, 151 (1996)
@@ -228,4 +228,3 @@ Ar    SP
 Ar    SP
       4.30954676             1.0000000              1.0000000        
 end
-

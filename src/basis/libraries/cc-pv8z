@@ -1,10 +1,11 @@
-#  cc-pV8Z  EMSL  Basis Set Exchange Library  3/19/10 12:42 PM
+#  cc-pV8Z  EMSL  Basis Set Exchange Library  4/15/11 10:03 AM
 # Elements                             References
 # --------                             ----------
 # H    : S. L. Mielke and K. A. Peterson, to be published.
-# Ne   : D. Feller, K. A. Peterson, W. A. de Jong and D. A. Dixon, 
-#        J. Chem. Phys. 118, 3510 (2003)
-#   
+# Ne   : D. Feller, K. A. Peterson, W. A. de Jong and D. A. Dixon,
+# J. Chem. Phys. 118, 3510 (2003)
+# 
+
 
 
 basis "H_cc-pV8Z" SPHERICAL
@@ -81,6 +82,10 @@ H    H
       2.9543500              1.0000000        
 H    H
       1.4574300              1.0000000        
+H    I
+      5.9887600              1.0000000        
+H    I
+      1.6950300              1.0000000        
 H    K
       4.1600000              1.0000000        
 end

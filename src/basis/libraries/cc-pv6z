@@ -1,10 +1,12 @@
-#  cc-pV6Z  EMSL  Basis Set Exchange Library  3/19/10 12:43 PM
+#  cc-pV6Z  EMSL  Basis Set Exchange Library  4/15/11 10:04 AM
 # Elements                             References
 # --------                             ----------
-# H:         K.A. Peterson, D.E. Woon and T. H. Dunning, Jr., (to be published). 
+# H:         K.A. Peterson, D.E. Woon and T. H. Dunning, Jr., (to be published).
 # B - Ne:    A. K. Wilson, T. v. Mourik and T. H. Dunning, Jr., J. Mol. Struct.
-#            (THEOCHEM) 388, 339 (1997).
-#   
+# (THEOCHEM) 388, 339 (1997).
+# S:         J.G. Hill, S. Mazumder, and K.A. Peterson, Correlation consistent basis sets for molecular core-valence effects with explicitly correlated wave functions: the atoms B-Ne and Al-Ar, Journal of Chemical Physics 132, 054108 (2010).
+# 
+
 
 
 basis "H_cc-pV6Z" SPHERICAL
@@ -819,13 +821,13 @@ S    D
 S    D
       0.1738000              1.0000000        
 S    F
-      1.3222000              1.0000000        
+      2.2120000              1.0000000        
 S    F
-      0.7319000              1.0000000        
+      1.0630000              1.0000000        
 S    F
-      0.4051000              1.0000000        
+      0.5100000              1.0000000        
 S    F
-      0.2243000              1.0000000        
+      0.2450000              1.0000000        
 S    G
       1.3473000              1.0000000        
 S    G
