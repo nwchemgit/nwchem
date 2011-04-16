@@ -117,7 +117,7 @@ c
          write(LuOut,111)
  1       format(//,
      $        1x,'----------------------------------------------',/
-     $        1x,'        Quadratically convergent ROHF',//,
+     $        1x,'        Quadratically convergent ROKS',//,
      $        1x,'Convergence threshold     :',9x,1p,e10.3,0p,/,
      $        1x,'Maximum no. of iterations :',9x,i4,/,
      $        1x,'Final Fock-matrix accuracy:',9x,1p,e10.3,0p)

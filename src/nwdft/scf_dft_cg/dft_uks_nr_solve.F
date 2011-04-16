@@ -84,7 +84,7 @@ c
          write(6,111)
  1       format(//,
      $        1x,'----------------------------------------------',/
-     $        1x,'        Quadratically convergent UHF',//,
+     $        1x,'        Quadratically convergent UKS',//,
      $        1x,'Convergence threshold     :',9x,1p,e10.3,0p,/,
      $        1x,'Maximum no. of iterations :',9x,i4,/,
      $        1x,'Integral*density screening:',9x,1p,e10.3,0p)
