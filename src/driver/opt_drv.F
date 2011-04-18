@@ -1466,62 +1466,55 @@ c
         strss2 = 1.0d0
       endif  
 
-      if(modupd.le.1) then       
-c     
-c     ----- -bfgs- update -----
-c     
-         if(abs(dsdg).gt.1d-8) then
-            do i=1,nvar
-               if (i.gt.istrss) then
-                 dum1 = strss1
-                 dum2 = strss2
-               else
-                 dum1 = 1.0d0
-                 dum2 = 1.0d0
+      if(abs(dsdg).gt.1d-8) then
+         do i=1,nvar
+            if (i.gt.istrss) then
+              dum1 = strss1
+              dum2 = strss2
+            else
+              dum1 = 1.0d0
+              dum2 = 1.0d0
+            endif
+            do j=1,nvar
+               if (j.gt.istrss) then
+                 dum3 = strss1*dum1
+                 dum4 = strss2*dum2
+               else 
+                 dum3 = dum1
+                 dum4 = dum2
                endif
-               do j=1,nvar
-                  if (j.gt.istrss) then
-                    dum3 = strss1*dum1
-                    dum4 = strss2*dum2
-                  else 
-                    dum3 = dum1
-                    dum4 = dum2
-                  endif
+               if(modupd.le.1) then
+c     ----- -bfgs- update -----
                   dbl_mb(ind(i,j))=dbl_mb(ind(i,j))*dum4
      $                 + ((g(i)-gp(i))*(g(j)-gp(j))/dsdg
      1                 - hds(i)* hds(j)/dshds)*dum3
-               enddo   
-            enddo   
-         endif
-      else      
-c     
-c     ----- -psb- update -----
-c     
-         if (abs(dsdg).gt.1d-8) then
-            do i=1,nvar
-               if (i.gt.istrss) then
-                 dum1 = strss1
-                 dum2 = strss2
                else
-                 dum1 = 1.0d0
-                 dum2 = 1.0d0
-               endif
-               do j=1,nvar
-                  if (j.gt.istrss) then
-                    dum3 = strss1*dum1
-                    dum4 = strss2*dum2
-                  else
-                    dum3 = dum1
-                    dum4 = dum2
-                  endif
+c     ----- -psb- update -----
                   dbl_mb(ind(i,j))=(dbl_mb(ind(i,j)))*dum4
      $                 + (((g(i)-gp(i))-hds(i))*ds(j)/dsds
      1                 + ((g(j)-gp(j))-hds(j))*ds(i)/dsds
      2                 - ds(i)*ds(j)*(dsdg-dshds)/(dsds*dsds))*dum3
-               enddo    
-            enddo    
-         endif
-      endif    
+               endif
+            enddo   
+         enddo   
+      else
+c     Last step very very tiny - clean up lattice terms, since we are probably stuck
+         do i=1,istrss
+           do j=istrss+1,nvar
+              dbl_mb(ind(i,j))=0
+              dbl_mb(ind(j,i))=0
+           enddo
+         enddo
+         do i=istrss+1,nvar
+           do j=i+1,nvar
+              dbl_mb(ind(i,j))=0
+              dbl_mb(ind(j,i))=0
+           enddo
+         enddo
+         do i=istrss+1,nvar
+           dbl_mb(ind(i,i))=max(dbl_mb(ind(i,i)),5.0d0)
+         enddo
+      endif
 c
       if ((.not. zcoord) .and. (nactive .ne. nat_real)) then
 c     
