@@ -25,7 +25,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 42)
+      parameter (num_dirs = 43)
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -41,6 +41,7 @@ c
       logical rodft
       integer which_mp2
       integer nriscf, ri_store
+      integer dofukui
       character*20 mp2char
       double precision smear_sigma
       double precision shift
@@ -61,7 +62,8 @@ c
      $         'print','tolerances', 'xc','sym','adapt','sic', 
      $         'smear','fon','lb94','cs00','cdft','cam','disp',
      $         'dftmp2','molden','noscf','steric','efield','swapab',
-     $         'frozemb','cgmin','tol2e','ri-scf','lock','rodft','end'/
+     $         'frozemb','cgmin','tol2e','ri-scf','lock','rodft',
+     $         'fukui','end'/
 c
 c Qin / cdft
       integer nconstr
@@ -98,7 +100,7 @@ c
      $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
      $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 
-     $     3600, 3700, 3800, 3900, 4000, 9999) ind
+     $     3600, 3700, 3800, 3900, 4000, 4100, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -630,10 +632,10 @@ c
          endif
       endif
       if (.not. rtdb_put(rtdb,'dft:ri',MT_INT, 1, nriscf))
-     &     call errquit('dft_input: failed to store RI option',0,
+     &     call errquit('dft_input: failed to store RI option',3800,
      &                  RTDB_ERR)
       if (.not. rtdb_put(rtdb,'dft:ri_store',MT_INT, 1, ri_store))
-     &     call errquit('dft_input: failed to store RI option',0,
+     &     call errquit('dft_input: failed to store RI option',3800,
      &                  RTDB_ERR)
 c
       goto 10
@@ -643,7 +645,7 @@ c
  3900 if (.not. inp_a(test)) test = 'on'
       status = inp_compare(.false.,test,'on')
       if (.not. rtdb_put(rtdb,'dft:lock', MT_LOG, 1, status))
-     &    call errquit('dft_input: failed to store lock',0,
+     &    call errquit('dft_input: failed to store lock',3900,
      &                 RTDB_ERR)
 c
       goto 10
@@ -652,7 +654,13 @@ c     rodft: restricted open-shell dft
 c
  4000 rodft = .true.
       if (.not.rtdb_put(rtdb,'dft:rodft', mt_log, 1, rodft))
-     &   call errquit('dft_input: rtdb_put failed', 0, RTDB_ERR)
+     &   call errquit('dft_input: rtdb_put failed', 4000, RTDB_ERR)
+c
+c     fukui indices
+c
+ 4100 dofukui = 1
+      if (.not.rtdb_put(rtdb,'dft:condfukui', mt_int, 1, dofukui))
+     &   call errquit('dft_input: rtdb_put failed', 4100, RTDB_ERR)
 c
       goto 10
 c
