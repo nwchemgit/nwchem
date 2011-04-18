@@ -29,6 +29,8 @@ task scf property
 
 dft
  xc b3lyp
+ fukui
+ print "Fukui information"
 end
 
 task dft property
