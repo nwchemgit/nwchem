@@ -1,0 +1,42 @@
+NWChem Version 6.0 Release Notes
+
+NOTE: These release notes are not a substitute for reading the User Manual!
+
+They are meant to give a thumbnail sketch of the new capabilities and bug
+fixes that are available in NWChem Version 6.0. When there is a conflict
+between the release notes and the User Manual, the User Manual takes
+precedence. 
+
+NWChem 6.0 is released as open-source under the ECL 2.0 license.
+
+TCE
+  * Greatly improved memory management for TCE four-index transformation, 
+    CCSD(T), CR-EOMCCSD(T), and solver for EOMCCSD
+  * Performance and scalability improvments for TCE CCSD(T), CR-EOMCCSD(T), 
+    and EOMCCSD
+  * TCE based static CCSD hyperpolarizabilities
+
+DFT
+  * New exchange-correlation functionals available in the Gaussian DFT module
+    o Range-separated functionals: CAM-B3LYP, LC-BLYP, LC-PBE, LC-PBE0, BNL. 
+      These functionals can also be used to perform TDDFT excited-state calculations
+    o SSB-D functional
+    o Double hybrid functionals (Semi-empirical hybrid DFT combined with perturbative MP2)
+  * Spin-orbit now works with direct and distributed data approaches
+  * Bug fix for DISP: Empirical long-range vdW contribution
+
+NWPW:
+  * Plane-wave BAND module now has parallelization over k-points, AIMD, and 
+    Spin-Orbit pseudopotentials
+  * Plane-wave modules have improved minimizers for metallic systems and 
+    metadynamics capabilities 
+  * Greatly improved documentation for plane-wave simulations with extensive
+    set of examples and tutorials
+
+QMMM:
+  * Greatly improved documentation for QM/MM simulations
+
+PROPERTIES:
+  * DFT response calculations are now available for order 1 (linear response), single 
+    frequency, electric field and mixed electric-magnetic field perturbations. 
+  * Bug fix for Hartree-Fock Exchange contributions in NMR
