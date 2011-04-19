@@ -1,6 +1,7 @@
       subroutine get_input_filename(input_filename)
 C     $Id$
       implicit none
+#include "util.fh"
 #include "inp.fh"
 #include "global.fh"
 #include "stdio.fh"
@@ -12,7 +13,7 @@ c     argument begins with a hypen (-).
 c
 c     If the file cannot be accessed append .nw
 c     
-      character*255 test
+      character*(nw_max_path_len) test
       integer arg,nargs
 #if defined(CRAY)
       integer ilen,ierror
