@@ -350,14 +350,13 @@ int rtdb_ma_get(const int handle, const char *name, int *ma_type,
 	     error condition to all the other processes ... exit via
 	     the TCGMSG error routine */
 
-	  GA_Error("rtdb_get_ma: rtdb_get_ma: MA_alloc failed, nelem=", nelem);
+	  GA_Error("rtdb_get_ma: rtdb_get_ma: MA_alloc failed, nelem=", (Integer)nelem);
 	}
         *ma_handle = (int) ma_handle_buf;
       }
       
       if (!MA_get_pointer((Integer) *ma_handle, &ma_data)) {
-	GA_Error("rtdb_get_ma: rtdb_get_ma: MA_get_ptr failed, nelem=",
-	      (Integer) nelem);
+	GA_Error("rtdb_get_ma: rtdb_get_ma: MA_get_ptr failed, nelem=", (Integer) nelem);
       }
 
       rtdb_broadcast(TYPE_RTDB_ARRAY, *ma_type, *nelem, (void *) ma_data);
