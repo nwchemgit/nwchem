@@ -1201,7 +1201,7 @@ c
      2                        tmom(14),tmom(15),tmom(16),
      2                        tmom(17),tmom(18),tmom(19),
      2                        tmom(20),osc_str
-            write(222,*)apbval(n)*au2ev,osc_str
+c            write(222,*)apbval(n)*au2ev,osc_str
 c
             if (cdspectrum) then
               write (LuOut,*)

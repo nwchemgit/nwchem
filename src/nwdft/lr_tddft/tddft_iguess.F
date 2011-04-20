@@ -326,27 +326,27 @@ c ---------------------------------------------------
 c Print the smallest eigenvalue differences for debug
 c ---------------------------------------------------
 c
-      if (nodezero) then
-        write(LuOut,*)
-        write(LuOut,9000) n
-        write(LuOut,9020)
-        write(LuOut,9010)
-        write(LuOut,9020)
-        do m=1,n
-          call sym_irrepname(geom,int_mb(k_irrep+m-1),oname)
-          write(LuOut,9030) m,int_mb(k_sortp+m-1),
-     1      int_mb(k_sorto+m-1),int_mb(k_sortv+m-1),oname,
-     2      evl(int_mb(k_sortv+m-1),int_mb(k_sortp+m-1)),
-     3      evl(int_mb(k_sorto+m-1),int_mb(k_sortp+m-1)),
-     4      (evl(int_mb(k_sortv+m-1),int_mb(k_sortp+m-1))-
-     5      evl(int_mb(k_sorto+m-1),int_mb(k_sortp+m-1)))*au2ev
-        enddo
-        write(LuOut,9020)
-      endif
- 9000 format(i5,' smallest eigenvalue differences')
- 9010 format('  No. Spin  Occ  Vir  Irrep   E(Vir)    E(Occ)   E(Diff)')
- 9020 format('--------------------------------------------------------')
- 9030 format(4i5,1x,a4,1x,2f10.5,f18.2)
+c      if (nodezero) then
+c        write(LuOut,*)
+c        write(LuOut,9000) n
+c        write(LuOut,9020)
+c        write(LuOut,9010)
+c        write(LuOut,9020)
+c        do m=1,n
+c          call sym_irrepname(geom,int_mb(k_irrep+m-1),oname)
+c          write(LuOut,9030) m,int_mb(k_sortp+m-1),
+c     1      int_mb(k_sorto+m-1),int_mb(k_sortv+m-1),oname,
+c     2      evl(int_mb(k_sortv+m-1),int_mb(k_sortp+m-1)),
+c     3      evl(int_mb(k_sorto+m-1),int_mb(k_sortp+m-1)),
+c     4      (evl(int_mb(k_sortv+m-1),int_mb(k_sortp+m-1))-
+c     5      evl(int_mb(k_sorto+m-1),int_mb(k_sortp+m-1)))*au2ev
+c        enddo
+c        write(LuOut,9020)
+c      endif
+c 9000 format(i5,' smallest eigenvalue differences')
+c 9010 format('  No. Spin  Occ  Vir  Irrep   E(Vir)    E(Occ)   E(Diff)')
+c 9020 format('--------------------------------------------------------')
+c 9030 format(4i5,1x,a4,1x,2f10.5,f18.2)
 c
 c --------------------------------------------------------
 c Check if nroots is too large, if so, reduce it
