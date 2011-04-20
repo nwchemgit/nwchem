@@ -12,8 +12,4 @@ USES_BLAS=
 
 include ../config/makefile.h
 
-ifeq ($(TARGET),LINUX)
-DEFINES += -DNEED_LOC
-endif
-
 include ../config/makelib.h
