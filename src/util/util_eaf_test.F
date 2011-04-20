@@ -2,7 +2,7 @@
 #define IO_NUM_FILES 4
 #define MAX_ITER 4
 #define DMAP(x) dble(IO_TEST_SZ*((x-1)*eaf_util_szint()))
-#define MAX_FILE_SZ 48.0d9
+#define MAX_FILE_SZ 2.0d9
 #define BASE_NAME 'EAFfile'
 #ifdef  HPIODIR
 #  define FNAME   HPIODIR//BASE_NAME
@@ -319,7 +319,8 @@ c
       character*200 fname
       character*255 fstype
       integer avail, fd, i, nwrite, ierr, iolen4, iolen, loop
-      double precision length, offset, ofw
+      integer offset, length
+      double precision ofw
       double precision buf(IO_TEST_SZ)
 c
       write(6,*)
