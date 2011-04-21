@@ -4,7 +4,6 @@
 * $Id$
 *
 
-#ifdef MPI
 *     ***********************************
 *     *					*
 *     *	   D3dB_c_transpose_jk		*
@@ -364,13 +363,10 @@ c     integer i2_start(NFFT3+1)
 
 
 
-#endif
 
 
 
 
-
-#ifdef MPI
 *     ***********************************
 *     *					*
 *     *	   D3dB_c_transpose_ijk		*
@@ -549,12 +545,10 @@ c     integer i2_start(NFFT3+1)
       
       return
       end
-#endif
 
 
 
 
-#ifdef MPI
 *     ***********************************
 *     *					*
 *     *	   D3dB_t_transpose_ijk		*
@@ -851,8 +845,6 @@ c     implicit none
 #include "mpif.h"
 #endif
 
-
-
       logical value
       integer msglen,mpierr
 
@@ -870,7 +862,8 @@ c     implicit none
 
 *     ***** allocate temporary space ****
       value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('D3dB_Vector_SumAll:out of stack',0, MA_ERR)
 
 #ifdef MPI4
       stupid_msglen = n
@@ -933,11 +926,12 @@ c     implicit none
 
 *     ***** allocate temporary space ****
       value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('D3dB_Vector_ISumall:out of stack',0,MA_ERR)
 
 #ifdef MPI4
       if (.not.MA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1)))
-     > call errquit('out of stack memory',0, MA_ERR)
+     > call errquit('D3dB_Vector_ISumAll:out of stack',1, MA_ERR)
       stupid_msglen = n
       call stupid_icopy8to4(n,sum,int_mb(sumall1(1)))
       call MPI_Allreduce(int_mb(sumall1(1)),
@@ -946,7 +940,7 @@ c     implicit none
      >                stupid_sum,stupid_comm_i,stupid_ierr)
       call stupid_icopy4to8(n,int_mb(sumall(1)),sum)
       if (.not.MA_pop_stack(sumall1(2)))
-     >  call errquit('error popping stack',0, MA_ERR)
+     >  call errquit('D3dB_Vector_ISumAll:popping stack',0, MA_ERR)
 #else
       msglen = n
       call MPI_Allreduce(sum,int_mb(sumall(1)),msglen,
@@ -956,7 +950,8 @@ c     implicit none
 #endif
 
       value = MA_pop_stack(sumall(2))
-      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('D3dB_Vector_ISumAll:popping stack',0, MA_ERR)
 
       end if
 
@@ -964,10 +959,8 @@ c     implicit none
       return
       end
 
-#endif
 
 
-#ifdef MPI
 
       
 *     ***********************************
@@ -1302,11 +1295,9 @@ c     **** external functions ****
       end
 
 
-#endif
 
 
 
-#ifdef MPI
 *     ***********************************
 *     *					*
 *     *	   D3dB_c_ptranspose_ijk	*
@@ -1481,12 +1472,10 @@ c     **** external functions ****
       
       return
       end
-#endif
 
 
 
 
-#ifdef MPI
 *     ************************************
 *     *                                  *
 *     *         Balance_c_balance_start  *
@@ -1586,12 +1575,10 @@ c            recieve data....
 
       return
       end
-#endif
 
 
 
 
-#ifdef MPI
 *     ************************************
 *     *                                  *
 *     *         Balance_c_balance_end    *
@@ -1612,9 +1599,7 @@ c            recieve data....
       if (np.gt.1) call Parallel_mpiWaitAll(reqcnt,request)
       return
       end
-#endif
 
-#ifdef MPI
 *     ************************************
 *     *                                  *
 *     *    Balance_c_unbalance_start     *
@@ -1713,10 +1698,8 @@ c            send data....
 
       return
       end
-#endif
 
 
-#ifdef MPI
 *     ************************************
 *     *                                  *
 *     *       Balance_c_unbalance_end    *
@@ -1737,11 +1720,9 @@ c            send data....
       return
       end
 
-#endif
 
 
 
-#ifdef MPI
       
 *     ***********************************
 *     *					*
@@ -1890,9 +1871,7 @@ c         msgtype   = 1
       return
       end
 
-#endif
 
-#ifdef MPI
 *     ***********************************
 *     *					*
 *     *	   D3dB_c_ptranspose1_jk_end	*
@@ -1943,11 +1922,9 @@ c         msgtype   = 1
       return
       end
 
-#endif
 
 
 
-#ifdef MPI
 
       
 *     ***********************************
@@ -2097,9 +2074,7 @@ c         msgtype   = 1
       return
       end
 
-#endif
 
-#ifdef MPI
 *     ***********************************
 *     *					*
 *     *	   D3dB_c_ptranspose2_jk_end	*
@@ -2153,10 +2128,8 @@ c         msgtype   = 1
       return
       end
 
-#endif
 
 
-#ifdef MPI
 *     ***********************************
 *     *					*
 *     *	   D3dB_c_ptranspose_ijk_start	*
@@ -2312,10 +2285,8 @@ c         msgtype   = 1
       return
       end
 
-#endif
 
 
-#ifdef MPI
 *     ***********************************
 *     *					*
 *     *	   D3dB_c_ptranspose_ijk_end	*
@@ -2374,7 +2345,6 @@ c         msgtype   = 1
       return
       end
 
-#endif
 
 
 
@@ -2810,7 +2780,8 @@ c     >                  source,rcv_proc,1)
      >                    tmp1(2),tmp1(1))
       value = value.and.
      >      MA_push_get(mt_dcpl,(nfft3d(nb)),'tmp2',tmp2(2),tmp2(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('D3dB_c_read:out of stack',0,MA_ERR)
 *
       call D3dB_c_transpose_ijk(nb,5,A,
      >                          dcpl_mb(tmp1(1)),
@@ -2819,7 +2790,8 @@ c     >                  source,rcv_proc,1)
 *     **** deallocate temporary space  ****
       value = MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp1(2))
-      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+      if (.not. value) 
+     > call errquit('D3dB_c_read:popping stack',0,MA_ERR)
 
       end if
 
@@ -3065,8 +3037,6 @@ c     >                  source,rcv_proc,1)
 c      call ga_sync()
       return
       end
-
-
 
 
       subroutine D3dB_t_read(nb,iunit,A,tmp,jcol)
