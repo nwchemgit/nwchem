@@ -2379,7 +2379,6 @@ c         msgtype   = 1
 
 
 
-#ifdef MPI
 *     ***********************************
 *     *                                 *
 *     *    D3dB_c_timereverse_start     *
@@ -2536,12 +2535,9 @@ c         msgtype   = 1
       return
       end
 
-#endif
 
 
 
-
-#ifdef MPI
 *     ***********************************
 *     *                                 *
 *     *    D3dB_c_timereverse_end       *
@@ -2827,7 +2823,7 @@ c     >                  source,rcv_proc,1)
 
       end if
 
-      !*** deallocate status memory ***
+*     *** deallocate status memory ***
       if (.not.MA_pop_stack(status(2)))
      > call errquit('D3dB_c_read:popping stack',0,MA_ERR)
 
@@ -2886,11 +2882,10 @@ c      call ga_sync()
          fillcolumn = (taskid_j.eq.jcol)
       end if
 
-     **** allocate status memory ****
+c     **** allocate status memory ****
       if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
      >                     'status',status(2),status(1)))
      > call errquit('D3dB_r_read:out of stack',0,MA_ERR)
-
 
 
       !**********************
@@ -2945,23 +2940,23 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
             p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
 
-               msglen = (nx(nb))*ny(nb)
+               msglen  = (nx(nb))*ny(nb)
+               msgtype = 1
                source  = MASTER
-
-               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
-     >                       source,rcv_proc,1)
+c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+c     >                       source,rcv_proc,1)
 #ifdef MPI4
                stupid_msglen = msglen
                stupid_type   = msgtype
                stupid_taskid = source
                call MPI_RECV(tmp,
-     >                    stupid_msglen,stupid_complex,
+     >                    stupid_msglen,stupid_double,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    int_mb(status(1)),stupid_ierr)
 #else
                call MPI_RECV(tmp,
-     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
      >                    msgtype,MPI_COMM_WORLD,
      >                    int_mb(status(1)),mpierr)
@@ -3031,24 +3026,23 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
-
-               msglen = (nx(nb)+2)
+               msglen  = (nx(nb)+2)
+               msgtype = 1
                source  = MASTER
-
-               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
-     >                  source,rcv_proc,1)
+c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+c     >                  source,rcv_proc,1)
 #ifdef MPI4
                stupid_msglen = msglen
                stupid_type   = msgtype
                stupid_taskid = source
                call MPI_RECV(tmp,
-     >                    stupid_msglen,stupid_complex,
+     >                    stupid_msglen,stupid_double,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    int_mb(status(1)),stupid_ierr)
 #else
                call MPI_RECV(tmp,
-     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
      >                    msgtype,MPI_COMM_WORLD,
      >                    int_mb(status(1)),mpierr)
@@ -3061,10 +3055,9 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
          end do
        end if
 
-
       end if
 
-      !*** deallocate status memory ***
+*     *** deallocate status memory ***
       if (.not.MA_pop_stack(status(2)))
      > call errquit('D3dB_r_read:popping stack',0,MA_ERR)
 
@@ -3092,7 +3085,6 @@ c      call ga_sync()
 #ifdef MPI4
 #include "stupid_mpi4.fh"
 #endif
-
 
 *     *** local variables ***
       integer MASTER,taskid
@@ -3174,31 +3166,27 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
             call D3dB_ktoqp(nb,k,q,ii)
             p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
-
-               msglen = (nx(nb)/2+1)*ny(nb)
+               msglen  = (nx(nb)/2+1)*ny(nb)
+               msgtype = 1
                source  = MASTER
-
-               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
-     >                       source,rcv_proc,1)
+c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+c     >                       source,rcv_proc,1)
 #ifdef MPI4
                stupid_msglen = msglen
                stupid_type   = msgtype
                stupid_taskid = source
                call MPI_RECV(tmp,
-     >                    stupid_msglen,stupid_complex,
+     >                    stupid_msglen,stupid_double,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    int_mb(status(1)),stupid_ierr)
 #else
                call MPI_RECV(tmp,
-     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
      >                    msgtype,MPI_COMM_WORLD,
      >                    int_mb(status(1)),mpierr)
 #endif
-
-
-
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
                call dcopy((nx(nb)/2+1)*ny(nb),tmp,1,A(index),1)
                
@@ -3258,24 +3246,23 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
-
-               msglen = (nx(nb)/2+1)
+               msglen  = (nx(nb)/2+1)
+               msgtype = 1
                source  = MASTER
-
-               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
-     >                  source,rcv_proc,1)
+c               call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
+c     >                  source,rcv_proc,1)
 #ifdef MPI4
                stupid_msglen = msglen
                stupid_type   = msgtype
                stupid_taskid = source
                call MPI_RECV(tmp,
-     >                    stupid_msglen,stupid_complex,
+     >                    stupid_msglen,stupid_double,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
      >                    int_mb(status(1)),stupid_ierr)
 #else
                call MPI_RECV(tmp,
-     >                    msglen,MPI_DOUBLE_COMPLEX,
+     >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
      >                    msgtype,MPI_COMM_WORLD,
      >                    int_mb(status(1)),mpierr)
@@ -3304,10 +3291,10 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
       value = value.and.MA_pop_stack(tmp1(2))
       if (.not. value) call errquit('error popping stack',0, MA_ERR)
 
-
       end if
 
-     !*** deallocate status memory ***
+
+*     *** deallocate status memory ***
       if (.not.MA_pop_stack(status(2)))
      > call errquit('D3dB_t_read:popping stack',0,MA_ERR)
 
@@ -3553,7 +3540,6 @@ c     >                       source,rcv_proc,1)
      >                    int_mb(status(1)),mpierr)
 #endif
             end if
-
             call dwrite(iunit,tmp,(nx(nb)+2))
          end do
          end do
@@ -3605,16 +3591,14 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
      >                     dest,
      >                     msgtype,MPI_COMM_WORLD,mpierr)
 #endif
-
             end if
-
          end do
          end do
       end if
 
       end if
 
-     !*** deallocate status memory ***
+*     *** deallocate status memory ***
       if (.not.MA_pop_stack(status(2)))
      > call errquit('D3dB_c_write:popping stack',0,MA_ERR)
 
@@ -3623,7 +3607,6 @@ c      call ga_sync()
 
       return
       end
-
 
 
       subroutine D3dB_r_write(nb,iunit,A,tmp,jcol)
@@ -3836,7 +3819,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 
       end if
 
-     !*** deallocate status memory ***
+*     *** deallocate status memory ***
       if (.not.MA_pop_stack(status(2)))
      > call errquit('D3dB_r_write:popping stack',0,MA_ERR)
 
@@ -3956,9 +3939,8 @@ c     >                       source,rcv_proc,1)
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
                call dcopy((nx(nb)/2+1)*ny(nb),A(index),1,tmp,1)
 
-
                msglen     = (nx(nb)/2+1)*ny(nb)
-               mgstype    = 1
+               msgtype    = 1
                dest       = MASTER
                dum_msglen = 1
                dum_msgtype= 2
@@ -4106,7 +4088,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
                   stupid_msglen = dum_msglen
                   stupid_type   = dum_msgtype
                   stupid_taskid = dest
-                  call MPI_RECV(idum,
+                  call MPI_RECV(dum,
      >                    stupid_msglen,stupid_integer,
      >                    stupid_taskid,
      >                    stupid_type,stupid_world,
@@ -4118,7 +4100,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
      >                     stupid_taskid,
      >                     stupid_type,stupid_world,stupid_ierr)
 #else
-               call MPI_RECV(idum,
+               call MPI_RECV(dum,
      >                    dum_msglen,MPI_INTEGER,
      >                    dest,
      >                    dum_msgtype,MPI_COMM_WORLD,
@@ -4136,7 +4118,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 
       end if
 
-     !*** deallocate status memory ***
+*     *** deallocate status memory ***
       if (.not.MA_pop_stack(status(2)))
      > call errquit('D3dB_t_write:popping stack',0,MA_ERR)
 
@@ -4362,7 +4344,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 
       end if
 
-     !*** deallocate status memory ***
+*     *** deallocate status memory ***
       if (.not.MA_pop_stack(status(2)))
      > call errquit('D3dB_r_FormatWrite:popstack',0,MA_ERR)
 
@@ -4618,11 +4600,9 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 
       end if
 
-
-     !*** deallocate status memory ***
+*     *** deallocate status memory ***
       if (.not.MA_pop_stack(status(2)))
      > call errquit('D3dB_r_FormatWrite_reverse:popstack',0,MA_ERR)
-
 
 *     **** wait ****
       return
@@ -4753,14 +4733,11 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 
 
 
-     !*** deallocate status memory ***
+*     *** deallocate status memory ***
       if (.not.MA_pop_stack(status(2)))
      > call errquit('D3dB_r_FormatWrite_paw:popstack',0,MA_ERR)
 
 *     **** wait ****
       return
       end
-
-
-#endif
 
