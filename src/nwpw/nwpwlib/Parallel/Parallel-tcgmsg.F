@@ -452,3 +452,279 @@ c     implicit none
       end
 
 
+
+
+*     ***********************************
+*     *                                 *
+*     *         Parallela_MaxAll        *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_MaxAll(ic,sum)
+c     implicit none
+      integer ic
+      real*8  sum
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+      if (np.gt.1) then
+         if (ic.eq.1) then
+            call GA_PGROUP_DGOP(comm_i,9+MSGDBL,sum,1,'max')
+         else if (ic.eq.2) then
+            call GA_PGROUP_DGOP(comm_j,9+MSGDBL,sum,1,'max')
+         else if (ic.eq.3) then
+            call GA_PGROUP_DGOP(comm_k,9+MSGDBL,sum,1,'max')
+         else
+            call GA_DGOP(9+MSGDBL,sum,1,'max')
+      end if
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         Parallela_SumAll        *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_SumAll(ic,sum)
+c     implicit none
+      integer ic
+      real*8  sum
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+      if (np.gt.1) then
+         if (ic.eq.1) then
+            call GA_PGROUP_DGOP(comm_i,9+MSGDBL,sum,1,'+')
+         else if (ic.eq.1) then
+            call GA_PGROUP_DGOP(comm_j,9+MSGDBL,sum,1,'+')
+         else if (ic.eq.3) then
+            call GA_PGROUP_DGOP(comm_k,9+MSGDBL,sum,1,'+')
+         else 
+            call GA_DGOP(9+MSGDBL,sum,1,'+')
+         end if
+      end if
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         Parallela_ISumAll       *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_ISumAll(ic,sum)
+c     implicit none
+      integer ic
+      integer  sum
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+      if (np.gt.1) then
+         if (ic.eq.1) then
+            call GA_PGROUP_IGOP(comm_i,9+MSGINT,sum,1,'+')
+         else if (ic.eq.2) then
+            call GA_PGROUP_IGOP(comm_j,9+MSGINT,sum,1,'+')
+         else if (ic.eq.3) then
+            call GA_PGROUP_IGOP(comm_k,9+MSGINT,sum,1,'+')
+         else 
+            call GA_IGOP(9+MSGINT,sum,1,'+')
+         end if
+      end if
+      
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_Vector_SumAll    *
+*     *                                 *
+*     ***********************************
+      subroutine Parallela_Vector_SumAll(ic,n,sum)
+c     implicit none
+      integer ic
+      integer n
+      real*8  sum(*)
+
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "errquit.fh"
+#include "Parallel.fh"
+
+
+      call nwpw_timing_start(2)
+      if (np.gt.1) then
+         if (ic.eq.1) then
+            call GA_PGROUP_DGOP(comm_i,9+MSGDBL,sum,n,'+')
+         else if (ic.eq.2) then
+            call GA_PGROUP_DGOP(comm_j,9+MSGDBL,sum,n,'+')
+         else if (ic.eq.3) then
+            call GA_PGROUP_DGOP(comm_k,9+MSGDBL,sum,n,'+')
+         else
+            call GA_DGOP(9+MSGDBL,sum,n,'+')
+         end if
+      end if
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *     Parallela_Vector_ISumAll    *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_Vector_ISumAll(ic,n,sum)
+c     implicit none
+      integer ic
+      integer n
+      integer  sum(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+
+      call nwpw_timing_start(2)
+      if (np.gt.1) then
+         if (ic.eq.1) then
+            call GA_PGROUP_IGOP(comm_i,9+MSGINT,sum,n,'+')
+         else if (ic.eq.2) then
+            call GA_PGROUP_IGOP(comm_j,9+MSGINT,sum,n,'+')
+         else if (ic.eq.3) then
+            call GA_PGROUP_IGOP(comm_k,9+MSGINT,sum,n,'+')
+         else 
+            call GA_IGOP(9+MSGINT,sum,n,'+')
+         end if
+      end if
+      call nwpw_timing_end(2)
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_Brdcst_value      *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_Brdcst_value(ic,psend,sum)
+      implicit none
+      integer ic
+      integer psend
+      real*8  sum
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+*     **** local variables ****
+      integer msglen
+
+      if (np.gt.1) then
+         msglen = 1
+         if (ic.eq.1) then
+          call GA_PGROUP_BRDCST(comm_i,9+MSGDBL,sum,mdtob(msglen),psend)
+         else if (ic.eq.2) then
+          call GA_PGROUP_BRDCST(comm_j,9+MSGDBL,sum,mdtob(msglen),psend)
+         else if (ic.eq.3) then
+          call GA_PGROUP_BRDCST(comm_k,9+MSGDBL,sum,mdtob(msglen),psend)
+         else
+            call GA_BRDCST(9+MSGDBL,sum,mdtob(msglen),psend)
+         end if
+      end if
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_Brdcst_values    *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_Brdcst_values(ic,psend,nsize,sum)
+      implicit none
+      integer ic
+      integer psend,nsize
+      real*8  sum(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+
+      if (np.gt.1) then
+         if (ic.eq.1) then
+           call GA_PGROUP_BRDCST(comm_i,9+MSGDBL,sum,mdtob(nsize),psend)
+         else if (ic.eq.2) then
+           call GA_PGROUP_BRDCST(comm_j,9+MSGDBL,sum,mdtob(nsize),psend)
+         else if (ic.eq.3) then
+           call GA_PGROUP_BRDCST(comm_k,9+MSGDBL,sum,mdtob(nsize),psend)
+         else
+            call GA_BRDCST(9+MSGDBL,sum,mdtob(nsize),psend)
+         end if
+      end if
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_Brdcst_ivalues   *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_Brdcst_ivalues(ic,psend,nsize,isum)
+      implicit none
+      integer ic
+      integer psend,nsize
+      integer  isum(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+      if (np.gt.1) then
+         if (ic.eq.1) then
+          call GA_PGROUP_BRDCST(comm_i,9+MSGINT,isum,mitob(nsize),psend)
+         else if (ic.eq.2) then
+          call GA_PGROUP_BRDCST(comm_j,9+MSGINT,isum,mitob(nsize),psend)
+         else if (ic.eq.3) then
+          call GA_PGROUP_BRDCST(comm_k,9+MSGINT,isum,mitob(nsize),psend)
+         else 
+            call GA_BRDCST(9+MSGINT,isum,mitob(nsize),psend)
+         end if
+      end if
+      return
+      end
+

@@ -922,3 +922,487 @@ c      call MPI_WAITALL(nreq,req,MPI_STATUSES_IGNORE,mpierr)
       return
       end
 
+
+
+
+#ifdef MPI4
+      integer*4 function getcomm(ic)
+      implicit none
+      integer   ic
+
+#include "stupid_mpi4.fh"
+
+      integer*4 icc
+      if (ic.eq.1) then
+        icc = stupid_comm_i
+      else if (ic.eq.2) then
+        icc = stupid_comm_j
+      else if (ic.eq.3) then
+        icc = stupid_comm_k
+      else 
+        icc = stupid_world
+      end if
+
+      getcomm = icc
+      return
+      end
+#else
+      integer function getcomm(ic)
+      implicit none
+      integer ic
+
+#include "Parallel.fh"
+#include "mpif.h"
+
+      integer icc
+      if (ic.eq.1) then
+        icc = comm_i
+      else if (ic.eq.2) then
+        icc = comm_j
+      else if (ic.eq.3) then
+        icc = comm_k
+      else 
+        icc = MPI_COMM_WORLD
+      end if
+
+      getcomm = icc
+      return
+#endif
+
+*     ***********************************
+*     *                                 *
+*     *         Parallela_MaxAll        *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_MaxAll(ic,sum)
+c     implicit none
+      real*8  sum
+
+#include "Parallel.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+      integer ic
+      real*8 sumall
+#ifdef MPI4
+      integer*4 getcomm
+      external  getcomm
+
+      if (np.gt.1) then
+         stupid_msglen = 1
+         call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
+     >                      stupid_max,getcomm(ic),stupid_ierr)
+         sum = sumall
+      end if
+#else
+      integer msglen,mpierr
+      integer  getcomm
+      external getcomm
+
+      if (np.gt.1) then
+         msglen = 1
+         call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
+     >                       MPI_MAX,getcomm(ic),mpierr)
+         sum = sumall
+      end if
+#endif
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         Parallela_SumAll        *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_SumAll(ic,sum)
+c     implicit none
+      integer ic
+      real*8  sum
+
+#include "Parallel.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+      real*8 sumall
+
+#ifdef MPI4
+      integer*4 getcomm
+      external  getcomm
+
+      if (np.gt.1) then
+         stupid_msglen = 1
+         call MPI_Allreduce(sum,sumall,stupid_msglen,stupid_double,
+     >                      stupid_sum,getcomm(ic),stupid_ierr)
+         sum = sumall
+      end if
+#else
+      integer msglen,mpierr
+      integer  getcomm
+      external getcomm
+
+      if (np.gt.1) then
+         msglen = 1
+         call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
+     >                       MPI_SUM,getcomm(ic),mpierr)
+         sum = sumall
+      end if
+#endif
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *         Parallela_ISumAll       *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_ISumAll(ic,sum)
+c     implicit none
+      integer ic,sum
+
+
+#include "Parallel.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+#ifdef MPI4
+      integer*4 tsum,sumall
+      integer*4 getcomm
+      external  getcomm
+
+      if (np.gt.1) then
+         stupid_msglen = 1
+         tsum = sum
+         call MPI_Allreduce(tsum,sumall,stupid_msglen,stupid_integer,
+     >                       stupid_sum,getcomm(ic),stupid_ierr)
+         sum = sumall
+      end if
+#else
+      integer msglen,mpierr
+      integer sumall
+      integer  getcomm
+      external getcomm
+
+      if (np.gt.1) then
+         msglen = 1
+
+         call MPI_Allreduce(sum,sumall,msglen,MPI_INTEGER,
+     >                       MPI_SUM,getcomm(ic),mpierr)
+         sum = sumall
+      end if
+#endif
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_Vector_SumAll    *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_Vector_SumAll(ic,n,sum)
+c     implicit none
+      integer ic,n
+      real*8  sum(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Parallel.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+*     **** local variable ****
+      logical value
+      integer msglen,mpierr
+
+*     **** temporary workspace ****
+      integer sumall(2)
+
+#ifdef MPI4
+      integer*4 getcomm
+      external  getcomm
+#else
+      integer  getcomm
+      external getcomm
+#endif
+
+
+      call nwpw_timing_start(2)
+      if (np.gt.1) then
+
+*     ***** allocate temporary space ****
+      value = MA_push_get(mt_dbl,n,'sumall',sumall(2),sumall(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+#ifdef MPI4
+      stupid_msglen = n
+      call MPI_Allreduce(sum,dbl_mb(sumall(1)),stupid_msglen,
+     >                stupid_double,
+     >                stupid_sum,getcomm(ic),stupid_ierr)
+#else
+      msglen = n
+      call MPI_Allreduce(sum,dbl_mb(sumall(1)),msglen,
+     >                MPI_DOUBLE_PRECISION,
+     >                MPI_SUM,getcomm(ic),mpierr)
+#endif
+
+      call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
+      value = MA_pop_stack(sumall(2))
+
+      end if
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_Vector_ISumAll   *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_Vector_ISumAll(ic,n,sum)
+c     implicit none
+      integer ic,n
+      integer  sum(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Parallel.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+      logical value
+      integer msglen,mpierr
+
+*     **** temporary workspace ****
+      integer sumall(2),sumall1(2)
+
+#ifdef MPI4
+      integer*4 getcomm
+      external  getcomm
+#else
+      integer  getcomm
+      external getcomm
+#endif
+
+      call nwpw_timing_start(2)
+
+      if (np.gt.1) then
+
+*     ***** allocate temporary space ****
+      value = MA_push_get(mt_int,n,'sumall',sumall(2),sumall(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+#ifdef MPI4
+      if (.not.MA_push_get(mt_int,n,'sumall1',sumall1(2),sumall1(1)))
+     > call errquit('out of stack memory',0, MA_ERR)
+
+      stupid_msglen = n
+      call stupid_icopy8to4(n,sum,int_mb(sumall1(1)))
+      call MPI_Allreduce(int_mb(sumall1(1)),
+     >                   int_mb(sumall(1)),stupid_msglen,
+     >                stupid_integer,
+     >                stupid_sum,getcomm(ic),stupid_ierr)
+      call stupid_icopy4to8(n,int_mb(sumall(1)),sum)
+      if (.not.MA_pop_stack(sumall1(2)))
+     >   call errquit('error popping stack',0,MA_ERR)
+#else
+      msglen = n
+      call MPI_Allreduce(sum,int_mb(sumall(1)),msglen,
+     >                MPI_INTEGER,
+     >                MPI_SUM,getcomm(ic),mpierr)
+      call icopy(n,int_mb(sumall(1)),1,sum,1)
+#endif
+      value = MA_pop_stack(sumall(2))
+      if (.not. value) call errquit('error popping stack',0, MA_ERR)
+
+      end if
+
+      call nwpw_timing_end(2)
+      return
+      end
+
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_Brdcst_value     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_Brdcst_value(ic,psend,sum)
+      implicit none
+      integer ic,psend
+      real*8  sum
+
+#include "Parallel.fh"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+
+#ifdef MPI4
+      integer*4 tpsend
+      integer*4 getcomm
+      external  getcomm
+
+      if (np.gt.1) then
+         stupid_msglen = 1
+         tpsend        = psend
+         call MPI_Bcast(sum,stupid_msglen,stupid_double,
+     >                  tpsend,getcomm(ic),stupid_ierr)
+      end if
+#else
+      integer ierr
+      integer  getcomm
+      external getcomm
+
+      if (np.gt.1) then
+         call MPI_Bcast(sum,1,MPI_DOUBLE_PRECISION,
+     >                  psend,getcomm(ic),ierr)
+      end if
+#endif
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_Brdcst_values     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_Brdcst_values(ic,psend,nsize,sum)
+      implicit none
+      integer ic,psend,nsize
+      real*8  sum(*)
+
+#include "Parallel.fh"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+
+#ifdef MPI4
+      integer*4 tpsend
+      integer*4 getcomm
+      external  getcomm
+
+      if (np.gt.1) then
+         stupid_msglen = nsize
+         tpsend        = psend
+         call MPI_Bcast(sum,stupid_msglen,stupid_double,
+     >                  tpsend,getcomm(ic),stupid_ierr)
+      end if
+#else
+      integer ierr
+      integer  getcomm
+      external getcomm
+
+      if (np.gt.1) then
+         call MPI_Bcast(sum,nsize,MPI_DOUBLE_PRECISION,
+     >                  psend,getcomm(ic),ierr)
+      end if
+#endif
+
+      return
+      end
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_Brdcst_ivalues    *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_Brdcst_ivalues(ic,psend,nsize,isum)
+      implicit none
+      integer ic,psend,nsize
+      integer isum(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Parallel.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+
+#ifdef MPI4
+      logical   value
+      integer*4 tpsend
+      integer   sumall(2)
+      integer*4 getcomm
+      external  getcomm
+
+      if (np.gt.1) then
+         stupid_msglen = nsize
+         tpsend        = psend
+         value = MA_push_get(mt_int,nsize,'sumall',sumall(2),sumall(1))
+         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+         call stupid_icopy8to4(nsize,isum,int_mb(sumall(1)))
+         call MPI_Bcast(int_mb(sumall(1)),stupid_msglen,stupid_integer,
+     >                  tpsend,getcomm(ic),stupid_ierr)
+         call stupid_icopy4to8(nsize,int_mb(sumall(1)),isum)
+
+         value = MA_pop_stack(sumall(2))
+         if (.not. value) call errquit('error popping stack',0, MA_ERR)
+      end if
+#else
+      integer ierr
+      integer  getcomm
+      external getcomm
+
+      if (np.gt.1) then
+         call MPI_Bcast(isum,nsize,MPI_INTEGER,
+     >                  psend,getcomm(ic),ierr)
+      end if
+#endif
+
+      return
+      end
+
