@@ -1787,7 +1787,7 @@ c     **** define Gx,Gy and Gz in packed space ****
 #include "util.fh"
 
 *    *** local variables ***
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_i
       parameter(MASTER=0)
       integer n,l
       integer msglen
@@ -1802,10 +1802,12 @@ c     **** define Gx,Gy and Gz in packed space ****
       external lattice_omega
 
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid_i)
       rlocal = 0.0d0
 
+
 *     **** open fname binary file ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          call util_file_name_noprefix(fname,.false.,
      >                             .false.,
      >                       full_filename)
@@ -1834,43 +1836,43 @@ c     **** define Gx,Gy and Gz in packed space ****
          call iread(5,m_projector,nprj)
          end if
       end if
- 
+
 *     **** send header data to all processors ****
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
-      call Parallel_Brdcst_ivalues(MASTER,msglen,psp_type)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,version)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,psp_type)
       msglen = 3
-      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,nfft)
       msglen = 9
-      call Parallel_Brdcst_values(MASTER,msglen,unita)
+      call Parallela_Brdcst_values(1,MASTER,msglen,unita)
 
       iatom(1) = ichar(atom(1:1))
       iatom(2) = ichar(atom(2:2))
       msglen = 2
-      call Parallel_Brdcst_ivalues(MASTER,msglen,iatom)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,iatom)
       atom(1:1) = char(iatom(1))
       atom(2:2) = char(iatom(2))
 
       msglen = 1
-      call Parallel_Brdcst_values(MASTER,msglen,amass)
+      call Parallela_Brdcst_values(1,MASTER,msglen,amass)
       msglen = 1
-      call Parallel_Brdcst_values(MASTER,msglen,zv)
+      call Parallela_Brdcst_values(1,MASTER,msglen,zv)
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,lmax)
-      call Parallel_Brdcst_ivalues(MASTER,msglen,locp)
-      call Parallel_Brdcst_ivalues(MASTER,msglen,nmax)
-      call Parallel_Brdcst_ivalues(MASTER,msglen,nprj)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,lmax)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,locp)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,nmax)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,nprj)
       lmmax=(lmax+1)**2 - (2*locp+1)
       n1dbasis = locp
 
       msglen=lmax+1
-      call Parallel_Brdcst_values(MASTER,msglen,rc)
+      call Parallela_Brdcst_values(1,MASTER,msglen,rc)
       msglen = 1
 
       msglen=nprj
-      call Parallel_Brdcst_ivalues(MASTER,msglen,n_projector)
-      call Parallel_Brdcst_ivalues(MASTER,msglen,l_projector)
-      call Parallel_Brdcst_ivalues(MASTER,msglen,m_projector)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,n_projector)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,l_projector)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,m_projector)
 
 
 *     ***** read in Gijl's ****
@@ -1883,21 +1885,22 @@ c     **** define Gx,Gy and Gz in packed space ****
          msglen    = nmax*nmax*(lmax+1)
          Gijl_tag  = psi_data_alloc(n,msglen)
          Gijl_indx = psi_data_get_chnk(Gijl_tag)
-         if (taskid.eq.MASTER) then
+         if (taskid_i.eq.MASTER) then
          call dread(5,dbl_mb(Gijl_indx),n*msglen)      !** number of matrix elements = n*nmax*nmax*(lmax+1) **
          end if
-         call Parallel_Brdcst_values(MASTER,n*msglen,dbl_mb(Gijl_indx))
+         call Parallela_Brdcst_values(1,MASTER,n*msglen,
+     >                                dbl_mb(Gijl_indx))
       end if
 
 *     ***** read in rlocal and rcore  ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          if (version.eq.4) call dread(5,rlocal,1)
          call dread(5,rcore,1)
       end if
       msglen=1
-      call Parallel_Brdcst_values(MASTER,msglen,rlocal)
+      call Parallela_Brdcst_values(1,MASTER,msglen,rlocal)
       msglen=1
-      call Parallel_Brdcst_values(MASTER,msglen,rcore)
+      call Parallela_Brdcst_values(1,MASTER,msglen,rcore)
 
 
 *     **** determine semicore value ****
@@ -1947,11 +1950,11 @@ c     **** define Gx,Gy and Gz in packed space ****
 
 *     ***** Miscellaneous paw energies and 1d wavefunctions****
       if (psp_type.eq.4) then
-        if (taskid.eq.MASTER) call dread(5,core_kin_energy,1)
+        if (taskid_i.eq.MASTER) call dread(5,core_kin_energy,1)
         msglen=1
-        call Parallel_Brdcst_values(MASTER,msglen,core_kin_energy)
+        call Parallela_Brdcst_values(1,MASTER,msglen,core_kin_energy)
 
-        if (taskid.eq.MASTER) then
+        if (taskid_i.eq.MASTER) then
            call iread(5,n1dgrid,1)
            call iread(5,icut,1)
            call dread(5,log_amesh,1)
@@ -1961,13 +1964,13 @@ c     **** define Gx,Gy and Gz in packed space ****
            call dread(5,zion,1)
         end if
         msglen=1
-        call Parallel_Brdcst_ivalues(MASTER,msglen,n1dgrid)
-        call Parallel_Brdcst_ivalues(MASTER,msglen,icut)
-        call Parallel_Brdcst_values(MASTER,msglen,log_amesh)
-        call Parallel_Brdcst_values(MASTER,msglen,r1)
-        call Parallel_Brdcst_values(MASTER,msglen,rmax)
-        call Parallel_Brdcst_values(MASTER,msglen,sigma)
-        call Parallel_Brdcst_values(MASTER,msglen,zion)
+        call Parallela_Brdcst_ivalues(1,MASTER,msglen,n1dgrid)
+        call Parallela_Brdcst_ivalues(1,MASTER,msglen,icut)
+        call Parallela_Brdcst_values(1,MASTER,msglen,log_amesh)
+        call Parallela_Brdcst_values(1,MASTER,msglen,r1)
+        call Parallela_Brdcst_values(1,MASTER,msglen,rmax)
+        call Parallela_Brdcst_values(1,MASTER,msglen,sigma)
+        call Parallela_Brdcst_values(1,MASTER,msglen,zion)
 
         eig_tag     = psi_data_alloc(n1dbasis,1)
         phi_ae_tag  = psi_data_alloc(n1dbasis,n1dgrid)
@@ -1979,54 +1982,58 @@ c     **** define Gx,Gy and Gz in packed space ****
         rgrid_tag   = psi_data_alloc(1,n1dgrid)
         
         indx = psi_data_get_chnk(eig_tag)
-        if (taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dbasis)
-        call Parallel_Brdcst_values(MASTER,n1dbasis,dbl_mb(indx))
+        if (taskid_i.eq.MASTER) call dread(5,dbl_mb(indx),n1dbasis)
+        call Parallela_Brdcst_values(1,MASTER,n1dbasis,dbl_mb(indx))
 
-        if (taskid.eq.MASTER) call iread(5,nae,n1dbasis)
-        call Parallel_Brdcst_ivalues(MASTER,n1dbasis,nae)
+        if (taskid_i.eq.MASTER) call iread(5,nae,n1dbasis)
+        call Parallela_Brdcst_ivalues(1,MASTER,n1dbasis,nae)
 
-        if (taskid.eq.MASTER) call iread(5,nps,n1dbasis)
-        call Parallel_Brdcst_ivalues(MASTER,n1dbasis,nps)
+        if (taskid_i.eq.MASTER) call iread(5,nps,n1dbasis)
+        call Parallela_Brdcst_ivalues(1,MASTER,n1dbasis,nps)
 
-        if (taskid.eq.MASTER) call iread(5,lps,n1dbasis)
-        call Parallel_Brdcst_ivalues(MASTER,n1dbasis,lps)
+        if (taskid_i.eq.MASTER) call iread(5,lps,n1dbasis)
+        call Parallela_Brdcst_ivalues(1,MASTER,n1dbasis,lps)
 
         indx = psi_data_get_chnk(rgrid_tag)
-        if (taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
-        call Parallel_Brdcst_values(MASTER,n1dgrid,dbl_mb(indx))
+        if (taskid_i.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
+        call Parallela_Brdcst_values(1,MASTER,n1dgrid,dbl_mb(indx))
 
         indx = psi_data_get_chnk(phi_ae_tag)
-        if(taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid*n1dbasis)
-        call Parallel_Brdcst_values(MASTER,n1dgrid*n1dbasis,
+        if(taskid_i.eq.MASTER) 
+     >     call dread(5,dbl_mb(indx),n1dgrid*n1dbasis)
+        call Parallela_Brdcst_values(1,MASTER,n1dgrid*n1dbasis,
      >                              dbl_mb(indx))
 
         indx = psi_data_get_chnk(dphi_ae_tag)
-        if(taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid*n1dbasis)
-        call Parallel_Brdcst_values(MASTER,n1dgrid*n1dbasis,
+        if(taskid_i.eq.MASTER) 
+     >     call dread(5,dbl_mb(indx),n1dgrid*n1dbasis)
+        call Parallela_Brdcst_values(1,MASTER,n1dgrid*n1dbasis,
      >                              dbl_mb(indx))
 
         indx = psi_data_get_chnk(phi_ps_tag)
-        if(taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid*n1dbasis)
-        call Parallel_Brdcst_values(MASTER,n1dgrid*n1dbasis,
+        if(taskid_i.eq.MASTER) 
+     >     call dread(5,dbl_mb(indx),n1dgrid*n1dbasis)
+        call Parallela_Brdcst_values(1,MASTER,n1dgrid*n1dbasis,
      >                              dbl_mb(indx))
 
         indx = psi_data_get_chnk(dphi_ps_tag)
-        if(taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid*n1dbasis)
-        call Parallel_Brdcst_values(MASTER,n1dgrid*n1dbasis,
+        if(taskid_i.eq.MASTER) 
+     >     call dread(5,dbl_mb(indx),n1dgrid*n1dbasis)
+        call Parallela_Brdcst_values(1,MASTER,n1dgrid*n1dbasis,
      >                              dbl_mb(indx))
 
         indx = psi_data_get_chnk(core_ae_tag)
-        if (taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
-        call Parallel_Brdcst_values(MASTER,n1dgrid,dbl_mb(indx))
+        if (taskid_i.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
+        call Parallela_Brdcst_values(1,MASTER,n1dgrid,dbl_mb(indx))
 
         indx = psi_data_get_chnk(core_ps_tag)
-        if (taskid.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
-        call Parallel_Brdcst_values(MASTER,n1dgrid,dbl_mb(indx))
+        if (taskid_i.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
+        call Parallela_Brdcst_values(1,MASTER,n1dgrid,dbl_mb(indx))
 
       end if
 
 *     *** close fname binary file ***
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
 c       close(11)
          call closefile(5)
       end if

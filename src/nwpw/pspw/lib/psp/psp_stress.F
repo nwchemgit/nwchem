@@ -525,17 +525,18 @@ c     >                     dbl_mb(tmp2(1)))
 #endif
 
 *    *** local variables ***
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_i
       parameter(MASTER=0)
       integer i,n,l
       integer msglen
       character*255 full_filename
 
 
-      call Parallel_taskid(taskid)
+      !call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid_i)
   
 *     **** open fname binary file ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          call util_file_name_noprefix(fname,.false.,
      >                             .false.,
      >                       full_filename)
@@ -548,25 +549,12 @@ c     >                     dbl_mb(tmp2(1)))
 
 
 *     **** send header data to all processors ****
-#ifdef MPI
       msglen = 1
-      call MPI_BCAST(version,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,version)
       msglen = 3
-      call MPI_BCAST(nfft,msglen,MPI_INTEGER,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,nfft)
       msglen = 9
-      call MPI_BCAST(unita,msglen,MPI_DOUBLE_PRECISION,
-     >               MASTER,MPI_COMM_WORLD,mpierr)
-#endif
-#ifdef TCGMSG
-      msglen = 1
-      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
-      msglen = 3
-      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
-      msglen = 9
-      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
-#endif
+      call Parallela_Brdcst_values(1,MASTER,msglen,unita)
 
  
 *     *** read in vl 3d block ***
@@ -592,7 +580,7 @@ c     >                     dbl_mb(tmp2(1)))
       end if
 
 *     *** close fname binary file ***
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
 c       close(11)
          call closefile(5)
       end if
