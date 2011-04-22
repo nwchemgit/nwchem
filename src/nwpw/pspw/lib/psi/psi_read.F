@@ -28,7 +28,7 @@
       character*50 filename
       character*255 full_filename
 
-      integer MASTER,taskid,taskid_j
+      integer MASTER,taskid,taskid_i,taskid_j
       parameter(MASTER=0)
       integer n,q,pj
       integer msglen
@@ -49,6 +49,7 @@ c     complex*16 tmp(*)
       
 
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
@@ -63,7 +64,7 @@ c     complex*16 tmp(*)
        if (.not. value) call errquit('psi_read:pushing stack',0, MA_ERR)
 
 *     **** open ELCIN binary file ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          filename = control_input_psi()
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
@@ -86,17 +87,17 @@ c    >                        full_filename)
 
 c     **** send header to all nodes ****
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,version)
       msglen = 3
-      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,nfft)
       msglen = 9
-      call Parallel_Brdcst_values(MASTER,msglen,unita)
+      call Parallela_Brdcst_values(1,MASTER,msglen,unita)
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,ispin)
       msglen = 2
-      call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,ne)
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,occupation)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,occupation)
 
 
 *     ***** Error checking ****
@@ -152,15 +153,15 @@ c     **** send header to all nodes ****
       end do
 
       if (occupation.gt.0) then
-         if (taskid.eq.MASTER) then
+         if (taskid_i.eq.MASTER) then
             call dread(5,occ,(ne(1)+ne(2)))
          end if
-         call Parallel_Brdcst_values(MASTER,(ne(1)+ne(2)),occ)
+         call Parallela_Brdcst_values(1,MASTER,(ne(1)+ne(2)),occ)
       end if
       
 
 *     *** close ELCIN binary file ***
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
         call closefile(5)
       end if
  
@@ -199,7 +200,7 @@ c     **** send header to all nodes ****
       character*50 filename
       character*255 full_filename
 
-      integer MASTER,taskid,taskid_j
+      integer MASTER,taskid,taskid_i,taskid_j
       parameter(MASTER=0)
       integer n,q,pj
       integer msglen
@@ -218,6 +219,7 @@ c     complex*16 tmp(*)
       
 
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
@@ -230,7 +232,7 @@ c     complex*16 tmp(*)
        if (.not. value) call errquit('psi_read:pushing stack',0, MA_ERR)
 
 *     **** open ELCIN binary file ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          filename = control_input_epsi()
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
@@ -250,15 +252,15 @@ c     complex*16 tmp(*)
 
 c     **** send header to all nodes ****
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,version)
       msglen = 3
-      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,nfft)
       msglen = 9
-      call Parallel_Brdcst_values(MASTER,msglen,unita)
+      call Parallela_Brdcst_values(1,MASTER,msglen,unita)
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,ispin)
       msglen = 2
-      call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,ne)
 
 
 *     ***** Error checking ****
@@ -317,7 +319,7 @@ c         end if
       end do
 
 *     *** close ELCIN binary file ***
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
         call closefile(5)
       end if
  
@@ -356,7 +358,7 @@ c         end if
       character*50 filename
       character*255 full_filename
 
-      integer MASTER,taskid,taskid_j
+      integer MASTER,taskid,taskid_i,taskid_j
       parameter(MASTER=0)
       integer n,q,pj
       integer msglen
@@ -377,6 +379,7 @@ c     complex*16 tmp(*)
       
 
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
@@ -391,7 +394,7 @@ c     complex*16 tmp(*)
        if (.not. value) call errquit('psi_read:pushing stack',0, MA_ERR)
 
 *     **** open ELCIN binary file ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          filename = control_input_psi()
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
@@ -414,15 +417,15 @@ c    >                        full_filename)
 
 c     **** send header to all nodes ****
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,version)
       msglen = 3
-      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,nfft)
       msglen = 9
-      call Parallel_Brdcst_values(MASTER,msglen,unita)
+      call Parallela_Brdcst_values(1,MASTER,msglen,unita)
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,ispin)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,ispin)
       msglen = 2
-      call Parallel_Brdcst_ivalues(MASTER,msglen,ne)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,ne)
 
 
 *     ***** Error checking ****
@@ -486,7 +489,7 @@ c      end if
       
 
 *     *** close ELCIN binary file ***
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
         call closefile(5)
       end if
  
