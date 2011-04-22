@@ -44,6 +44,8 @@
 #define iread_  IREAD
 #define dwrite_ DWRITE
 #define dread_  DREAD
+#define dshift_fileptr_  DSHIFT_FILEPTR
+#define ishift_fileptr_  ISHIFT_FILEPTR
 #define openfile_  OPENFILE
 #define ascii_openfile_  ASCII_OPENFILE
 #define closefile_ CLOSEFILE
@@ -120,6 +122,15 @@ void FATR dwrite_(const Integer *unit, const DoublePrecision *d, const Integer *
 void FATR dread_(const Integer *unit, DoublePrecision *d, const Integer *n)
 {
    (void) fread(d, sizeof(DoublePrecision), *n, fd[*unit]);
+}
+
+void FATR dshift_fileptr_(const Integer *unit, const Integer *n)
+{
+   (void) fseek(fd[*unit], ((long) (*n)*sizeof(DoublePrecision)),SEEK_CUR);
+}
+void FATR ishift_fileptr_(const Integer *unit, const Integer *n)
+{
+   (void) fseek(fd[*unit], ((long) (*n)*sizeof(Integer)),SEEK_CUR);
 }
 
 /*
