@@ -2585,35 +2585,41 @@ c         msgtype   = 1
 #endif
 
 *     *** local variables ***
-      logical value,fillcolumn
-      integer MASTER,taskid
+      logical value,fillcolumn,readcolumn
+      integer MASTER,taskid,taskid_i,taskid_j
       parameter(MASTER=0)
       integer p_to, p_here,q
       integer index,k,j
       integer source,msglen,msgtype
       integer tmp1(2),tmp2(2)
 
-      integer taskid_j,np_j
-      integer ii,jj,jstart,jend
+c      integer taskid_j,np_j
+c      integer ii,jj,jstart,jend
+      integer ii
       integer status(2),mpierr
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij
-      external Parallel2d_convert_taskid_ij
+      integer  Parallel2d_convert_taskid_ij,Parallel2d_comm_i
+      external Parallel2d_convert_taskid_ij,Parallel2d_comm_i
 
       call Parallel_taskid(taskid)
-
-      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
+
+c      call Parallel2d_np_j(np_j)
       if (jcol.lt.0) then
-         jstart = 0
-         jend   = np_j-1
+c         jstart = 0
+c         jend   = np_j-1
          fillcolumn = .true.
+         readcolumn = .true.
       else
-         jstart = jcol
-         jend   = jcol
+c         jstart = jcol
+c         jend   = jcol
          fillcolumn = (taskid_j.eq.jcol)
+         readcolumn = (taskid_j.eq.jcol)
       end if
+
+      if (readcolumn) then
 
 *     **** allocate status memory ****
       if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
@@ -2626,14 +2632,15 @@ c         msgtype   = 1
       !**********************
       if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
 
             call dread(iunit,tmp,(nx(nb)+2)*ny(nb))
 
             call D3dB_ktoqp(nb,k,q,ii)
-            do jj=jstart,jend
-               p_to = Parallel2d_convert_taskid_ij(ii,jj)
+            !do jj=jstart,jend
+               p_to = ii
+               !p_to = Parallel2d_convert_taskid_ij(ii,jj)
                if (p_to.eq.MASTER) then
                   index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
                   call dcopy((nx(nb)+2)*ny(nb),tmp,1,A(index),1)
@@ -2648,23 +2655,24 @@ c                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
                   call MPI_SEND(tmp,
      >                     stupid_msglen,stupid_complex,
      >                     stupid_taskid,
-     >                     stupid_type,stupid_world,stupid_ierr)
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
 #else
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     p_to,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel2d_comm_i(),mpierr)
 #endif
                end if
-            end do
+            !end do
          end do
 
 *     **** not master node ****
       else if (fillcolumn) then
          do k=1,nz(nb)
             call D3dB_ktoqp(nb,k,q,ii)
-            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
-            if (p_here.eq.taskid) then
+            p_here = ii
+            !p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (p_here.eq.taskid_i) then
 
                msglen  = (nx(nb)/2+1)*ny(nb)
                msgtype = 1
@@ -2678,13 +2686,13 @@ c     >                  source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    stupid_msglen,stupid_complex,
      >                    stupid_taskid,
-     >                    stupid_type,stupid_world,
+     >                    stupid_type,stupid_comm_i,
      >                    int_mb(status(1)),stupid_ierr)
 #else
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel2d_comm_i(),
      >                    int_mb(status(1)),mpierr)
 #endif
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
@@ -2700,7 +2708,7 @@ c     >                  source,rcv_proc,1)
       else
       
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
          do j=1,ny(nb)
 
@@ -2708,8 +2716,9 @@ c     >                  source,rcv_proc,1)
 
             q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii   = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            do jj=jstart,jend
-               p_to = Parallel2d_convert_taskid_ij(ii,jj)
+            !do jj=jstart,jend
+               p_to = ii
+               !p_to = Parallel2d_convert_taskid_ij(ii,jj)
 
                if (p_to.eq.MASTER) then
                   index = (q-1)*(nx(nb)/2+1) + 1
@@ -2725,15 +2734,15 @@ cc                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
                   call MPI_SEND(tmp,
      >                     stupid_msglen,stupid_complex,
      >                     stupid_taskid,
-     >                     stupid_type,stupid_world,stupid_ierr)
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
 #else
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     p_to,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel2d_comm_i(),mpierr)
 #endif
                end if
-            end do
+            !end do
          end do
          end do
 
@@ -2744,8 +2753,9 @@ cc                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
             
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
-            if (p_here.eq.taskid) then
+            p_here = ii
+            !p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (p_here.eq.taskid_i) then
                msglen = (nx(nb)/2+1)
                msgtype = 1
                source  = MASTER
@@ -2758,13 +2768,13 @@ c     >                  source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    stupid_msglen,stupid_complex,
      >                    stupid_taskid,
-     >                    stupid_type,stupid_world,
+     >                    stupid_type,stupid_comm_i,
      >                    int_mb(status(1)),stupid_ierr)
 #else
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel2d_comm_i(),
      >                    int_mb(status(1)),mpierr)
 #endif
                index = (q-1)*(nx(nb)/2+1) + 1
@@ -2799,8 +2809,14 @@ c     >                  source,rcv_proc,1)
       if (.not.MA_pop_stack(status(2)))
      > call errquit('D3dB_c_read:popping stack',0,MA_ERR)
 
-*     **** wait ****
-c      call ga_sync()
+
+
+      !*** shift filepointer by (nx(nb)+2)*ny(nb)*nz(nb) doubles ****
+      else
+         if (taskid_i.eq.MASTER) 
+     >      call dshift_fileptr(iunit,(nx(nb)+2)*ny(nb)*nz(nb))
+      end if !*** readcolumn ***
+
 
       return
       end
@@ -2826,33 +2842,39 @@ c      call ga_sync()
 
 
 *     *** local variables ***
-      logical fillcolumn
-      integer MASTER,taskid
+      logical fillcolumn,readcolumn
+      integer MASTER,taskid,taskid_i,taskid_j
       parameter(MASTER=0)
       integer p_to, p_here,q
       integer j,k,index,index2
       integer source,msglen,msgtype,status(2)
 
-      integer taskid_j,np_j
-      integer ii,jj,jstart,jend
+c      integer taskid_j,np_j
+c      integer ii,jj,jstart,jend
+      integer ii
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij
-      external Parallel2d_convert_taskid_ij
+      integer  Parallel2d_convert_taskid_ij,Parallel2d_comm_i
+      external Parallel2d_convert_taskid_ij,Parallel2d_comm_i
 
       call Parallel_taskid(taskid)
-
-      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
+
+c      call Parallel2d_np_j(np_j)
       if (jcol.lt.0) then
-         jstart = 0
-         jend   = np_j-1
+c         jstart = 0
+c         jend   = np_j-1
          fillcolumn = .true.
+         readcolumn = .true.
       else
-         jstart = jcol
-         jend   = jcol
+c         jstart = jcol
+c         jend   = jcol
          fillcolumn = (taskid_j.eq.jcol)
+         readcolumn = (taskid_j.eq.jcol)
       end if
+
+      if (readcolumn) then
 
 c     **** allocate status memory ****
       if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
@@ -2865,14 +2887,15 @@ c     **** allocate status memory ****
       !**********************
       if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
 
             call dread(iunit,tmp,(nx(nb))*ny(nb))
 
             call D3dB_ktoqp(nb,k,q,ii)
-            do jj=jstart,jend
-               p_to = Parallel2d_convert_taskid_ij(ii,jj)
+            !do jj=jstart,jend
+               p_to = ii
+               !p_to = Parallel2d_convert_taskid_ij(ii,jj)
                if (p_to.eq.MASTER) then
                   do j=1,ny(nb)
                      index = (q-1)*(nx(nb)+2)*ny(nb) 
@@ -2893,15 +2916,15 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                   call MPI_SEND(tmp,
      >                     stupid_msglen,stupid_double,
      >                     stupid_taskid,
-     >                     stupid_type,stupid_world,stupid_ierr)
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
 #else
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     p_to,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel2d_comm_i,mpierr)
 #endif
                end if
-            end do
+            !end do
          end do
 
 *     **** not master node ****
@@ -2909,8 +2932,9 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
          do k=1,nz(nb)
 
             call D3dB_ktoqp(nb,k,q,ii)
-            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
-            if (p_here.eq.taskid) then
+            p_here = ii
+            !p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (p_here.eq.taskid_i) then
 
                msglen  = (nx(nb))*ny(nb)
                msgtype = 1
@@ -2924,13 +2948,13 @@ c     >                       source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    stupid_msglen,stupid_double,
      >                    stupid_taskid,
-     >                    stupid_type,stupid_world,
+     >                    stupid_type,stupid_comm_i,
      >                    int_mb(status(1)),stupid_ierr)
 #else
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel2d_comm_i(),
      >                    int_mb(status(1)),mpierr)
 #endif
                do j=1,ny(nb)
@@ -2952,16 +2976,19 @@ c     >                       source,rcv_proc,1)
       !*************************
       else
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
          do j=1,ny(nb)
 
             call dread(iunit,tmp,(nx(nb)))
+            tmp(nx(nb)+1) = 0.0d0
+            tmp(nx(nb)+2) = 0.0d0
 
             q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii   = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            do jj=jstart,jend
-               p_to = Parallel2d_convert_taskid_ij(ii,jj)
+            !do jj=jstart,jend
+               p_to = ii
+               !p_to = Parallel2d_convert_taskid_ij(ii,jj)
                if (p_to.eq.MASTER) then
                   index = (q-1)*(nx(nb)+2) + 1
                   call dcopy((nx(nb)+2),tmp,1,A(index),1)
@@ -2976,16 +3003,16 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                   call MPI_SEND(tmp,
      >                     stupid_msglen,stupid_double,
      >                     stupid_taskid,
-     >                     stupid_type,stupid_world,stupid_ierr)
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
 #else
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     p_to,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel2d_comm_i(),mpierr)
 #endif
 
                end if
-            end do
+            !end do
          end do
          end do
 
@@ -2996,8 +3023,9 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
-            if (p_here.eq.taskid) then
+            p_here = ii
+            !p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (p_here.eq.taskid_i) then
                msglen  = (nx(nb)+2)
                msgtype = 1
                source  = MASTER
@@ -3010,13 +3038,13 @@ c     >                  source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    stupid_msglen,stupid_double,
      >                    stupid_taskid,
-     >                    stupid_type,stupid_world,
+     >                    stupid_type,stupid_comm_i,
      >                    int_mb(status(1)),stupid_ierr)
 #else
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel2d_comm_i(),
      >                    int_mb(status(1)),mpierr)
 #endif
                index = (q-1)*(nx(nb)+2) + 1
@@ -3033,8 +3061,13 @@ c     >                  source,rcv_proc,1)
       if (.not.MA_pop_stack(status(2)))
      > call errquit('D3dB_r_read:popping stack',0,MA_ERR)
 
-*     **** wait ****
-c      call ga_sync()
+
+      !*** shift filepointer by nx(nb)*ny(nb)*nz(nb) doubles ****
+      else
+         if (taskid_i.eq.MASTER) 
+     >      call dshift_fileptr(iunit,nx(nb)*ny(nb)*nz(nb))
+      end if !*** readcolumn ***
+
       return
       end
 
@@ -3057,35 +3090,42 @@ c      call ga_sync()
 #endif
 
 *     *** local variables ***
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_i,taskid_j
       parameter(MASTER=0)
 
-      logical value,fillcolumn
+      logical value,fillcolumn,readcolumn
       integer p_to, p_here,q
       integer j,k,index
       integer source,msglen,msgtype,status(2)
       integer tmp1(2),tmp2(2)
 
-      integer taskid_j,np_j
-      integer ii,jj,jstart,jend
+c      integer taskid_j,np_j
+c      integer ii,jj,jstart,jend
+      integer ii
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij
-      external Parallel2d_convert_taskid_ij
+      integer  Parallel2d_convert_taskid_ij,Parallel2d_comm_i
+      external Parallel2d_convert_taskid_ij,Parallel2d_comm_i
 
       call Parallel_taskid(taskid)
-
-      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
+
+c      call Parallel2d_np_j(np_j)
       if (jcol.lt.0) then
-         jstart = 0
-         jend   = np_j-1
+c         jstart = 0
+c         jend   = np_j-1
          fillcolumn = .true.
+         readcolumn = .true.
       else
-         jstart = jcol
-         jend   = jcol
+c         jstart = jcol
+c         jend   = jcol
          fillcolumn = (taskid_j.eq.jcol)
+         readcolumn = (taskid_j.eq.jcol)
       end if
+
+
+      if (readcolumn) then
 
 *     **** allocate status memory ****
       if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
@@ -3095,15 +3135,17 @@ c      call ga_sync()
 
       if (mapping.eq.1) then
 *        **** master node reads from file and distributes ****
-         if (taskid.eq.MASTER) then
+         if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
 
             call dread(iunit,tmp,(nx(nb)/2+1)*ny(nb))
 
             call D3dB_ktoqp(nb,k,q,ii)
-            do jj=jstart,jend
+            
+            !do jj=jstart,jend
 
-              p_to = Parallel2d_convert_taskid_ij(ii,jj)
+              p_to = ii
+              !p_to = Parallel2d_convert_taskid_ij(ii,jj)
               if (p_to.eq.MASTER) then
                  index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
                  call dcopy((nx(nb)/2+1)*ny(nb),tmp,1,A(index),1)
@@ -3118,15 +3160,15 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                  call MPI_SEND(tmp,
      >                     stupid_msglen,stupid_double,
      >                     stupid_taskid,
-     >                     stupid_type,stupid_world,stupid_ierr)
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
 #else
                  call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     p_to,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel2d_comm_i(),mpierr)
 #endif
               end if
-            end do
+            !end do
          end do
 
 *        **** not master node ****
@@ -3134,8 +3176,9 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
 
          do k=1,nz(nb)
             call D3dB_ktoqp(nb,k,q,ii)
-            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
-            if (p_here.eq.taskid) then
+            p_here = ii
+            !p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (p_here.eq.taskid_i) then
                msglen  = (nx(nb)/2+1)*ny(nb)
                msgtype = 1
                source  = MASTER
@@ -3148,13 +3191,13 @@ c     >                       source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    stupid_msglen,stupid_double,
      >                    stupid_taskid,
-     >                    stupid_type,stupid_world,
+     >                    stupid_type,stupid_comm_i,
      >                    int_mb(status(1)),stupid_ierr)
 #else
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel2d_comm_i(),
      >                    int_mb(status(1)),mpierr)
 #endif
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
@@ -3170,7 +3213,7 @@ c     >                       source,rcv_proc,1)
       !*************************
       else
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
          do j=1,ny(nb)
 
@@ -3178,9 +3221,10 @@ c     >                       source,rcv_proc,1)
 
             q   = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii  = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            do jj=jstart,jend
+            !do jj=jstart,jend
 
-               p_to = Parallel2d_convert_taskid_ij(ii,jj)
+               p_to = ii
+               !p_to = Parallel2d_convert_taskid_ij(ii,jj)
                if (p_to.eq.MASTER) then
                   index = (q-1)*(nx(nb)/2+1) + 1
                   call dcopy((nx(nb)/2+1),tmp,1,A(index),1)
@@ -3195,15 +3239,15 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                   call MPI_SEND(tmp,
      >                     stupid_msglen,stupid_double,
      >                     stupid_taskid,
-     >                     stupid_type,stupid_world,stupid_ierr)
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
 #else
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     p_to,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel2d_comm_i(),mpierr)
 #endif
                end if
-            end do
+            !end do
          end do
          end do
 
@@ -3214,8 +3258,9 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
-            if (p_here.eq.taskid) then
+            p_here = ii
+            !p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (p_here.eq.taskid_i) then
                msglen  = (nx(nb)/2+1)
                msgtype = 1
                source  = MASTER
@@ -3228,13 +3273,13 @@ c     >                  source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    stupid_msglen,stupid_double,
      >                    stupid_taskid,
-     >                    stupid_type,stupid_world,
+     >                    stupid_type,stupid_comm_i,
      >                    int_mb(status(1)),stupid_ierr)
 #else
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel2d_comm_i(),
      >                    int_mb(status(1)),mpierr)
 #endif
                index = (q-1)*(nx(nb)/2+1) + 1
@@ -3263,13 +3308,17 @@ c     >                  source,rcv_proc,1)
 
       end if
 
-
 *     *** deallocate status memory ***
       if (.not.MA_pop_stack(status(2)))
      > call errquit('D3dB_t_read:popping stack',0,MA_ERR)
 
-*     **** wait ****
-c      call ga_sync()
+
+      !*** shift filepointer by (nx(nb)/2+1)*ny(nb)*nz(nb) doubles ****
+      else
+         if (taskid_i.eq.MASTER) 
+     >      call dshift_fileptr(iunit,(nx(nb)/2+1)*ny(nb)*nz(nb))
+      end if !*** readcolumn ***
+
       return
       end
 
@@ -3301,7 +3350,8 @@ c      call ga_sync()
 
 
 *     *** local variables ***
-      integer MASTER,taskid
+      logical writecolumn
+      integer MASTER,taskid,taskid_i,taskid_j
       parameter(MASTER=0)
       logical value
       integer p_from, p_here,q
@@ -3310,14 +3360,18 @@ c      call ga_sync()
       integer dum,dum_msglen,dum_msgtype
       integer tmp1(2),tmp2(2)
 
-      integer ii,taskid_j
+      integer ii
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij
-      external Parallel2d_convert_taskid_ij
+      integer  Parallel2d_convert_taskid_ij,Parallel2d_comm_i
+      external Parallel2d_convert_taskid_ij,Parallel2d_comm_i
 
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
+      writecolumn = (taskid_j.eq.jcol)
+
+      if (writecolumn) then
 
 *     **** allocate status memory ****
       if (.not.MA_push_get(mt_int,MPI_STATUS_SIZE*4,
@@ -3329,13 +3383,14 @@ c      call ga_sync()
       !**** slab mapping ****
       !**********************
       if (mapping.eq.1) then
-*     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+*     **** master node gathers and writes to file ****
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
 
             call D3dB_ktoqp(nb,k,q,ii)
 
-            p_from = Parallel2d_convert_taskid_ij(ii,jcol)
+            p_from = ii
+            !p_from = Parallel2d_convert_taskid_ij(ii,jcol)
             if (p_from.eq.MASTER) then
 
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
@@ -3358,23 +3413,23 @@ c     >                       source,rcv_proc,1)
                call MPI_SEND(dum,
      >                     stupid_msglen,stupid_integer,
      >                     stupid_taskid,
-     >                     stupid_type,stupid_world,stupid_ierr)
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
                stupid_msglen = msglen
                stupid_type   = msgtype
                call MPI_RECV(tmp,
      >                    stupid_msglen,stupid_complex,
      >                    stupid_taskid,
-     >                    stupid_type,stupid_world,
+     >                    stupid_type,stupid_comm_i,
      >                    int_mb(status(1)),stupid_ierr)
 #else
                call MPI_SEND(dum,
      >                     dum_msglen,MPI_INTEGER,
      >                     source,
-     >                     dum_msgtype,MPI_COMM_WORLD,mpierr)
+     >                     dum_msgtype,Parallel2d_comm_i(),mpierr)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel2d_comm_i(),
      >                    int_mb(status(1)),mpierr)
 #endif
             end if
@@ -3387,8 +3442,9 @@ c     >                       source,rcv_proc,1)
          do k=1,nz(nb)
          
             call D3dB_ktoqp(nb,k,q,ii)
-            p_here = Parallel2d_convert_taskid_ij(ii,jcol)
-            if (p_here.eq.taskid) then
+            p_here = ii
+            !p_here = Parallel2d_convert_taskid_ij(ii,jcol)
+            if (p_here.eq.taskid_i) then
 
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
                call dcopy((nx(nb)+2)*ny(nb),A(index),1,tmp,1)
@@ -3408,24 +3464,24 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
                   call MPI_RECV(dum,
      >                    stupid_msglen,stupid_integer,
      >                    stupid_taskid,
-     >                    stupid_type,stupid_world,
+     >                    stupid_type,stupid_comm_i,
      >                    int_mb(status(1)),stupid_ierr)
                   stupid_msglen = msglen
                   stupid_type   = msgtype
                   call MPI_SEND(tmp,
      >                     stupid_msglen,stupid_complex,
      >                     stupid_taskid,
-     >                     stupid_type,stupid_world,stupid_ierr)
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
 #else
                   call MPI_RECV(dum,
      >                    dum_msglen,MPI_INTEGER,
      >                    dest,
-     >                    dum_msgtype,MPI_COMM_WORLD,
+     >                    dum_msgtype,Parallel2d_comm_i(),
      >                    int_mb(status(1)),mpierr)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     dest,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel2d_comm_i(),mpierr)
 #endif
             end if
 
@@ -3461,13 +3517,14 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
 c      call ga_sync()
 
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_from = Parallel2d_convert_taskid_ij(ii,jcol)
+            p_from = ii
+            !p_from = Parallel2d_convert_taskid_ij(ii,jcol)
             if (p_from.eq.MASTER) then
 
                index = (q-1)*(nx(nb)/2+1) + 1
@@ -3490,23 +3547,23 @@ c     >                       source,rcv_proc,1)
                call MPI_SEND(tmp,
      >                     stupid_msglen,stupid_integer,
      >                     stupid_taskid,
-     >                     stupid_type,stupid_world,stupid_ierr)
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
                stupid_msglen = msglen
                stupid_type   = msgtype
                call MPI_RECV(tmp,
      >                    stupid_msglen,stupid_complex,
      >                    stupid_taskid,
-     >                    stupid_type,stupid_world,
+     >                    stupid_type,stupid_comm_i,
      >                    int_mb(status(1)),stupid_ierr)
 #else
                call MPI_SEND(dum,
      >                     dum_msglen,MPI_INTEGER,
      >                     source,
-     >                     dum_msgtype,MPI_COMM_WORLD,mpierr)
+     >                     dum_msgtype,Parallel2d_comm_i(),mpierr)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel2d_comm_i(),
      >                    int_mb(status(1)),mpierr)
 #endif
             end if
@@ -3521,8 +3578,9 @@ c     >                       source,rcv_proc,1)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = Parallel2d_convert_taskid_ij(ii,jcol) 
-            if (p_here.eq.taskid) then
+            p_here = ii
+            !p_here = Parallel2d_convert_taskid_ij(ii,jcol) 
+            if (p_here.eq.taskid_i) then
 
                index = (q-1)*(nx(nb)/2+1) + 1
                call dcopy((nx(nb)+2),A(index),1,tmp,1)
@@ -3542,24 +3600,24 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
                   call MPI_RECV(dum,
      >                    stupid_msglen,stupid_integer,
      >                    stupid_taskid,
-     >                    stupid_type,stupid_world,
+     >                    stupid_type,stupid_comm_i,
      >                    int_mb(status(1)),stupid_ierr)
                   stupid_msglen = msglen
                   stupid_type   = msgtype
                   call MPI_SEND(tmp,
      >                     stupid_msglen,stupid_complex,
      >                     stupid_taskid,
-     >                     stupid_type,stupid_world,stupid_ierr)
+     >                     stupid_type,stupid_comm_i,stupid_ierr)
 #else
                   call MPI_RECV(dum,
      >                    dum_msglen,MPI_INTEGER,
      >                    dest,
-     >                    dum_msgtype,MPI_COMM_WORLD,
+     >                    dum_msgtype,Parallel2d_comm_i(),
      >                    int_mb(status(1)),mpierr)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     dest,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel2d_comm_i(),mpierr)
 #endif
             end if
          end do
@@ -3572,8 +3630,13 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
       if (.not.MA_pop_stack(status(2)))
      > call errquit('D3dB_c_write:popping stack',0,MA_ERR)
 
-c*     **** wait ****
-c      call ga_sync()
+
+      !*** shift filepointer by (nx(nb)+2)*ny(nb)*nz(nb) doubles ****
+      else
+         if (taskid_i.eq.MASTER) 
+     >      call dshift_fileptr(iunit,(nx(nb)+2)*ny(nb)*nz(nb))
+      end if !*** writecolumn ***
+
 
       return
       end
