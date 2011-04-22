@@ -4,7 +4,6 @@
 * $Id$
 *
 
-#ifdef TCGMSG
 *     ***********************************
 *     *					*
 *     *	   D3dB_c_transpose_jk		*
@@ -2266,7 +2265,7 @@ c         jend   = jcol
          do k=1,nz(nb)
             call D3dB_ktoqp(nb,k,q,ii)
             p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
-            if (ii.eq.taskid_i) then
+            if (p_here.eq.taskid) then
 
                msglen = (nx(nb)/2+1)*ny(nb)
                !source = MASTER
@@ -2320,7 +2319,7 @@ c         jend   = jcol
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
-            if (ii.eq.taskid_i) then
+            if (p_here.eq.taskid) then
                msglen = (nx(nb)/2+1)
                !source = MASTER
                source = Parallel2d_convert_taskid_ij(MASTER,taskid_j)
@@ -2367,8 +2366,6 @@ c         jend   = jcol
 
 
 
-
-
       subroutine D3dB_r_read(nb,iunit,A,tmp,jcol)
       implicit none 
       integer nb
@@ -2386,8 +2383,8 @@ c         jend   = jcol
 
       
 *     *** local variables ***
-      logical fillcolumn
-      integer MASTER,taskid
+      logical fillcolumn,readcolumn
+      integer MASTER,taskid,taskid_i
       parameter(MASTER=0)
       integer p_to, p_here,q
       integer j,k,index,index2
@@ -2401,33 +2398,37 @@ c         jend   = jcol
       external Parallel2d_convert_taskid_ij
 
       call Parallel_taskid(taskid)
-
-      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
+
+c      call Parallel2d_np_j(np_j)
       if (jcol.lt.0) then
-         jstart = 0
-         jend   = np_j-1
+c         jstart = 0
+c         jend   = np_j-1
          fillcolumn = .true.
+         readcolumn = .true.
       else
-         jstart = jcol
-         jend   = jcol
+c         jstart = jcol
+c         jend   = jcol
          fillcolumn = (taskid_j.eq.jcol)
+         readcolumn = (taskid_j.eq.jcol)
       end if
 
+      if (readcolumn) then
 
       !**********************
       !**** slab mapping ****
       !**********************
       if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
 
             call dread(iunit,tmp,(nx(nb))*ny(nb))
 
             call D3dB_ktoqp(nb,k,q,ii)
-            do jj=jstart,jend
-               p_to = Parallel2d_convert_taskid_ij(ii,jj)
+            !do jj=jstart,jend
+               p_to = Parallel2d_convert_taskid_ij(ii,taskid_j)
                if (p_to.eq.MASTER) then
                   do j=1,ny(nb)
                      index = (q-1)*(nx(nb)+2)*ny(nb) 
@@ -2441,7 +2442,7 @@ c         jend   = jcol
                   msglen = (nx(nb))*ny(nb)
                   call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                end if
-            end do
+            !end do
          end do
 
 *     **** not master node ****
@@ -2453,7 +2454,8 @@ c         jend   = jcol
             if (p_here.eq.taskid) then
 
                msglen = (nx(nb))*ny(nb)
-               source  = MASTER
+               !source  = MASTER
+               source  = Parallel2d_convert_taskid_ij(MASTER,taskid_j)
 
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
@@ -2484,8 +2486,9 @@ c         jend   = jcol
 
             q    = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii   = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            do jj=jstart,jend
-               p_to = Parallel2d_convert_taskid_ij(ii,jj)
+            !do jj=jstart,jend
+               p_to = Parallel2d_convert_taskid_ij(ii,taskid_j)
+               !p_to = Parallel2d_convert_taskid_ij(ii,jj)
                if (p_to.eq.MASTER) then
                   index = (q-1)*(nx(nb)+2) + 1
                   call dcopy((nx(nb)+2),tmp,1,A(index),1)
@@ -2493,7 +2496,7 @@ c         jend   = jcol
                   msglen = (nx(nb)+2)
                   call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                end if
-            end do
+            !end do
          end do
          end do
 
@@ -2508,7 +2511,8 @@ c         jend   = jcol
             if (p_here.eq.taskid) then
 
                msglen = (nx(nb)+2)
-               source  = MASTER
+               !source  = MASTER
+               source  = Parallel2d_convert_taskid_ij(MASTER,taskid_j)
 
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                  source,rcv_proc,1)
@@ -2521,11 +2525,14 @@ c         jend   = jcol
          end do
        end if
 
-
       end if
 
-*     **** wait ****
-c      call ga_sync()
+      !*** shift filepointer by nx(nb)*ny(nb)*nz(nb) doubles ****
+      else
+         if (taskid_i.eq.MASTER)
+     >      call dshift_fileptr(iunit,nx(nb)*ny(nb)*nz(nb))
+      end if !*** readcolumn ***
+
       return
       end
 
@@ -2552,10 +2559,10 @@ c      call ga_sync()
 
       
 *     *** local variables ***
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_i
       parameter(MASTER=0)
 
-      logical value,fillcolumn
+      logical value,fillcolumn,readcolumn
       integer p_to, p_here,q
       integer j,k,index
       integer source,msglen
@@ -2569,31 +2576,37 @@ c      call ga_sync()
       external Parallel2d_convert_taskid_ij
 
       call Parallel_taskid(taskid)
-
-      call Parallel2d_np_j(np_j)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
+
+c      call Parallel2d_np_j(np_j)
       if (jcol.lt.0) then
-         jstart = 0
-         jend   = np_j-1
+c         jstart = 0
+c         jend   = np_j-1
          fillcolumn = .true.
+         readcolumn = .true.
       else
-         jstart = jcol
-         jend   = jcol
+c         jstart = jcol
+c         jend   = jcol
          fillcolumn = (taskid_j.eq.jcol)
+         readcolumn = (taskid_j.eq.jcol)
       end if
+
+      if (readcolumn) then
 
 
       if (mapping.eq.1) then
 *        **** master node reads from file and distributes ****
-         if (taskid.eq.MASTER) then
+         if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
 
             call dread(iunit,tmp,(nx(nb)/2+1)*ny(nb))
 
             call D3dB_ktoqp(nb,k,q,ii)
-            do jj=jstart,jend
+            !do jj=jstart,jend
 
-              p_to = Parallel2d_convert_taskid_ij(ii,jj)
+              p_to = Parallel2d_convert_taskid_ij(ii,taskid_j)
+              !p_to = Parallel2d_convert_taskid_ij(ii,jj)
               if (p_to.eq.MASTER) then
                  index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
                  call dcopy((nx(nb)/2+1)*ny(nb),tmp,1,A(index),1)
@@ -2601,7 +2614,7 @@ c      call ga_sync()
                  msglen = (nx(nb)/2+1)*ny(nb)
                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
               end if
-            end do
+            !end do
          end do
 
 *        **** not master node ****
@@ -2613,7 +2626,8 @@ c      call ga_sync()
             if (p_here.eq.taskid) then
 
                msglen = (nx(nb)/2+1)*ny(nb)
-               source  = MASTER
+               !source  = MASTER
+               source = Parallel2d_convert_taskid_ij(MASTER,taskid_j)
 
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                       source,rcv_proc,1)
@@ -2632,7 +2646,7 @@ c      call ga_sync()
       !*************************
       else
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
          do j=1,ny(nb)
 
@@ -2640,17 +2654,18 @@ c      call ga_sync()
 
             q   = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii  = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            do jj=jstart,jend
+            !do jj=jstart,jend
 
-               p_to = Parallel2d_convert_taskid_ij(ii,jj)
-               if (p_to.eq.MASTER) then
+               p_to = Parallel2d_convert_taskid_ij(ii,taskid_j)
+               !p_to = Parallel2d_convert_taskid_ij(ii,jj)
+               if (ii.eq.MASTER) then
                   index = (q-1)*(nx(nb)/2+1) + 1
                   call dcopy((nx(nb)/2+1),tmp,1,A(index),1)
                else
                   msglen = (nx(nb)/2+1)
                   call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                end if
-            end do
+            !end do
          end do
          end do
 
@@ -2665,7 +2680,8 @@ c      call ga_sync()
             if (p_here.eq.taskid) then
 
                msglen = (nx(nb)/2+1)
-               source  = MASTER
+               !source  = MASTER
+               source = Parallel2d_convert_taskid_ij(MASTER,taskid_j)
 
                call RCV(9+MSGDBL,tmp,mdtob(msglen),rcv_len,
      >                  source,rcv_proc,1)
@@ -2699,8 +2715,13 @@ c      call ga_sync()
 
       end if
 
-*     **** wait ****
-c      call ga_sync()
+
+      !*** shift filepointer by (nx(nb)/2+1)*ny(nb)*nz(nb) doubles ****
+      else
+         if (taskid_i.eq.MASTER)
+     >      call dshift_fileptr(iunit,(nx(nb)/2+1)*ny(nb)*nz(nb))
+      end if !*** readcolumn ***
+
       return
       end
 
@@ -2733,7 +2754,8 @@ c      call ga_sync()
 
       
 *     *** local variables ***
-      integer MASTER,taskid
+      logical writecolumn
+      integer MASTER,taskid,taskid_i
       parameter(MASTER=0)
       logical value
       integer p_from, p_here,q
@@ -2749,20 +2771,25 @@ c      call ga_sync()
       external Parallel2d_convert_taskid_ij
 
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
+      writecolumn = (taskid_j.eq.jcol)
+
+      if (writecolumn) then
 
       !**********************
       !**** slab mapping ****
       !**********************
       if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
 
             call D3dB_ktoqp(nb,k,q,ii)
 
-            p_from = Parallel2d_convert_taskid_ij(ii,jcol)
-            if (p_from.eq.MASTER) then
+            p_from = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            !p_from = Parallel2d_convert_taskid_ij(ii,jcol)
+            if (ii.eq.MASTER) then
 
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
                call dcopy((nx(nb)+2)*ny(nb),A(index),1,tmp,1)
@@ -2789,15 +2816,16 @@ c      call ga_sync()
          do k=1,nz(nb)
          
             call D3dB_ktoqp(nb,k,q,ii)
-            p_here = Parallel2d_convert_taskid_ij(ii,jcol)
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
 
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
                call dcopy((nx(nb)+2)*ny(nb),A(index),1,tmp,1)
 
 
-               msglen  = (nx(nb)/2+1)*ny(nb)
-               dest    = MASTER
+               msglen = (nx(nb)/2+1)*ny(nb)
+               !dest   = MASTER
+               dest   = Parallel2d_convert_taskid_ij(MASTER,taskid_j)
 
                dum_msglen = 1
                call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
@@ -2835,17 +2863,17 @@ c      call ga_sync()
 
       end if
 
-c      call ga_sync()
 
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_from = Parallel2d_convert_taskid_ij(ii,jcol)
-            if (p_from.eq.MASTER) then
+            p_from = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            !p_from = Parallel2d_convert_taskid_ij(ii,jcol)
+            if (ii.eq.MASTER) then
 
                index = (q-1)*(nx(nb)/2+1) + 1
                call dcopy((nx(nb)+2),A(index),1,tmp,1)
@@ -2875,15 +2903,16 @@ c      call ga_sync()
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = Parallel2d_convert_taskid_ij(ii,jcol) 
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j) 
             if (p_here.eq.taskid) then
 
                index = (q-1)*(nx(nb)/2+1) + 1
                call dcopy((nx(nb)+2),A(index),1,tmp,1)
 
 
-               msglen  = (nx(nb)/2+1)
-               dest    = MASTER
+               msglen = (nx(nb)/2+1)
+               !dest   = MASTER
+               dest   = Parallel2d_convert_taskid_ij(MASTER,taskid_j) 
 
                dum_msglen = 1
                call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
@@ -2896,11 +2925,15 @@ c      call ga_sync()
          end do
       end if
 
-
       end if
 
-c*     **** wait ****
-c      call ga_sync()
+
+      !*** shift filepointer by (nx(nb)+2)*ny(nb)*nz(nb) doubles ****
+      else
+         if (taskid_i.eq.MASTER)
+     >      call dshift_fileptr(iunit,(nx(nb)+2)*ny(nb)*nz(nb))
+      end if !*** writecolumn ***
+
 
       return
       end
@@ -2924,7 +2957,8 @@ c      call ga_sync()
 
       
 *     *** local variables ***
-      integer MASTER,taskid
+      logical writecolumn
+      integer MASTER,taskid,taskid_i
       parameter(MASTER=0)
       integer p_from, p_here,q
       integer j,k,index,index2
@@ -2937,19 +2971,23 @@ c      call ga_sync()
       external Parallel2d_convert_taskid_ij
 
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
+      writecolumn = (taskid_j.eq.jcol)
+
+      if (writecolumn) then
 
       !**********************
       !**** slab mapping ****
       !**********************
       if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
 
             call D3dB_ktoqp(nb,k,q,ii)
-            p_from = Parallel2d_convert_taskid_ij(ii,jcol)
-            if (p_from.eq.MASTER) then
+            p_from = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (ii.eq.MASTER) then
 
                do j=1,ny(nb)
                  index = (q-1)*(nx(nb)+2)*ny(nb) 
@@ -2977,7 +3015,8 @@ c      call ga_sync()
          do k=1,nz(nb)
          
             call D3dB_ktoqp(nb,k,q,ii)
-            p_here = Parallel2d_convert_taskid_ij(ii,jcol)
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            !p_here = Parallel2d_convert_taskid_ij(ii,jcol)
             if (p_here.eq.taskid) then
 
                do j=1,ny(nb)
@@ -2988,8 +3027,9 @@ c      call ga_sync()
                end do
 
 
-               msglen  = (nx(nb))*ny(nb)
-               dest    = MASTER
+               msglen = (nx(nb))*ny(nb)
+               !dest    = MASTER
+               dest   = Parallel2d_convert_taskid_ij(MASTER,taskid_j)
 
                call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
 
@@ -3003,15 +3043,15 @@ c      call ga_sync()
       !*************************
       else
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_from = Parallel2d_convert_taskid_ij(ii,jcol)      
+            p_from = Parallel2d_convert_taskid_ij(ii,taskid_j)      
 
-            if (p_from.eq.MASTER) then
+            if (ii.eq.MASTER) then
               index = (q-1)*(nx(nb)+2) + 1
               call dcopy(nx(nb),A(index),1,tmp,1)
 
@@ -3037,7 +3077,7 @@ c      call ga_sync()
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = Parallel2d_convert_taskid_ij(ii,jcol)
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
 
                index = (q-1)*(nx(nb)+2) + 1
@@ -3054,8 +3094,13 @@ c      call ga_sync()
          end do
       end if
 
-
       end if
+
+      !*** shift filepointer by nx(nb)*ny(nb)*nz(nb) doubles ****
+      else
+         if (taskid_i.eq.MASTER)
+     >      call dshift_fileptr(iunit,nx(nb)*ny(nb)*nz(nb))
+      end if !*** writecolumn ***
 
       return
       end
@@ -3078,7 +3123,8 @@ c      call ga_sync()
 
       
 *     *** local variables ***
-      integer MASTER,taskid
+      logical writecolumn
+      integer MASTER,taskid,taskid_i
       parameter(MASTER=0)
       logical value
       integer p_from, p_here,q
@@ -3094,20 +3140,24 @@ c      call ga_sync()
       external Parallel2d_convert_taskid_ij
 
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
+      writecolumn = (taskid_j.eq.jcol)
+
+      if (writecolumn) then
 
       !**********************
       !**** slab mapping ****
       !**********************
       if (mapping.eq.1) then
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
 
             call D3dB_ktoqp(nb,k,q,ii)
 
-            p_from = Parallel2d_convert_taskid_ij(ii,jcol)
-            if (p_from.eq.MASTER) then
+            p_from = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (ii.eq.MASTER) then
 
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
                call dcopy((nx(nb)/2+1)*ny(nb),A(index),1,tmp,1)
@@ -3134,15 +3184,16 @@ c      call ga_sync()
          do k=1,nz(nb)
          
             call D3dB_ktoqp(nb,k,q,ii)
-            p_here = Parallel2d_convert_taskid_ij(ii,jcol)
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
 
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
                call dcopy((nx(nb)/2+1)*ny(nb),A(index),1,tmp,1)
 
 
-               msglen  = (nx(nb)/2+1)*ny(nb)
-               dest    = MASTER
+               msglen = (nx(nb)/2+1)*ny(nb)
+               !dest   = MASTER
+               dest   = Parallel2d_convert_taskid_ij(MASTER,taskid_j)
 
                dum_msglen = 1
                call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
@@ -3182,14 +3233,14 @@ c      call ga_sync()
 
 
 *     **** master node reads from file and distributes ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          do k=1,nz(nb)
          do j=1,ny(nb)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_from = Parallel2d_convert_taskid_ij(ii,jcol)
-            if (p_from.eq.MASTER) then
+            p_from = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            if (ii.eq.MASTER) then
 
                index = (q-1)*(nx(nb)/2+1) + 1
                call dcopy((nx(nb)/2+1),A(index),1,tmp,1)
@@ -3219,15 +3270,16 @@ c      call ga_sync()
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = Parallel2d_convert_taskid_ij(ii,jcol) 
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j) 
             if (p_here.eq.taskid) then
 
                index = (q-1)*(nx(nb)/2+1) + 1
                call dcopy((nx(nb)/2+1),A(index),1,tmp,1)
 
 
-               msglen  = (nx(nb)/2+1)
-               dest    = MASTER
+               msglen = (nx(nb)/2+1)
+               !dest   = MASTER
+               dest   = Parallel2d_convert_taskid_ij(MASTER,taskid_j) 
 
                dum_msglen = 1
                call RCV(9+MSGINT,dum,mitob(dum_msglen),rcv_len,
@@ -3240,6 +3292,13 @@ c      call ga_sync()
          end do
       end if
       end if
+
+      !*** shift filepointer by (nx(nb)/2+1)*ny(nb)*nz(nb) doubles ****
+      else
+         if (taskid_i.eq.MASTER)
+     >      call dshift_fileptr(iunit,(nx(nb)/2+1)*ny(nb)*nz(nb))
+      end if !*** writecolumn ***
+
 
       return
       end
@@ -3644,9 +3703,5 @@ c           **** call dwrite(iunit,tmp,(nx(nb))) ****
       return
       end
 
-
-
-
-#endif
 
 
