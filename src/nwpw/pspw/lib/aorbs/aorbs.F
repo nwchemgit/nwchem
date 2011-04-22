@@ -396,7 +396,7 @@ c     >                          + (ia-1)*npack1*norbs_max))
 #endif
 
 *    *** local variables ***
-      integer MASTER,taskid
+      integer MASTER,taskid,taskid_i
       parameter(MASTER=0)
       integer n,l
       integer msglen
@@ -405,8 +405,9 @@ c     >                          + (ia-1)*npack1*norbs_max))
 
 
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid_i)
 *     **** open fname binary file ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          call util_file_name_noprefix(fname,.false.,
      >                             .false.,
      >                       full_filename)
@@ -421,29 +422,26 @@ c     >                          + (ia-1)*npack1*norbs_max))
          lmmax=(lmax+1)**2 - (2*locp+1)
       end if
 
-
 *     **** send header data to all processors ****
-#ifdef TCGMSG
       msglen = 1
-      call BRDCST(9+MSGINT,version,mitob(msglen),MASTER)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,version)
       msglen = 3
-      call BRDCST(9+MSGINT,nfft,mitob(msglen),MASTER)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,nfft)
       msglen = 9
-      call BRDCST(9+MSGDBL,unita,mdtob(msglen),MASTER)
+      call Parallela_Brdcst_values(1,MASTER,msglen,unita)
 
       iatom(1) = ichar(atom(1:1))
       iatom(2) = ichar(atom(2:2))
       msglen = 2
-      call BRDCST(9+MSGCHR,iatom,mitob(msglen),MASTER)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,iatom)
       atom(1:1) = char(iatom(1))
       atom(2:2) = char(iatom(2))
 
       msglen = 1
-      call BRDCST(9+MSGINT,lmax,mitob(msglen),MASTER)
-      call BRDCST(9+MSGINT,locp,mitob(msglen),MASTER)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,lmax)
+      call Parallela_Brdcst_ivalues(1,MASTER,msglen,locp)
       lmmax=(lmax+1)**2 - (2*locp+1)
 
-#endif
 
 *     **** read in aorb 3d blocks ****
       do n=1,lmmax
@@ -454,7 +452,7 @@ c     >                          + (ia-1)*npack1*norbs_max))
 
 
 *     *** close fname binary file ***
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
 c       close(11)
          call closefile(5)
       end if
