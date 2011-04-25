@@ -446,6 +446,7 @@ c      local variables
        integer h_q,i_q
        character*(32) pname
        logical status,oprint
+       double precision bq_charge_total
 
        pname = "bq_print_info"
 
@@ -482,6 +483,14 @@ c      local variables
       
          write(*,*) "Name: ", bq_name(handle)
          write(*,*) "Number of centers: ",bq_ncent(handle)
+
+c        == tally up bq charges ==
+         bq_charge_total = 0.d0
+         do i=1,bq_ncent(handle)
+           bq_charge_total = bq_charge_total + dbl_mb(i_q+i-1)
+         end do
+c
+         write(*,*) "Total Bq charge: ",bq_charge_total
          do i=1,bq_ncent(handle)
            write(6,FMT=9000)
      >           i,(dbl_mb(i_c+3*(i-1)+k-1)*0.529177249d00,k=1,3),
