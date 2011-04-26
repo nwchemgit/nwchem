@@ -487,19 +487,15 @@ c      local variables
 c        == tally up bq charges ==
          bq_charge_total = 0.d0
          do i=1,bq_ncent(handle)
-           bq_charge_total = bq_charge_total + dbl_mb(i_q+i-1)
-         end do
-c
-         write(*,*) "Total Bq charge: ",bq_charge_total
-         do i=1,bq_ncent(handle)
            write(6,FMT=9000)
      >           i,(dbl_mb(i_c+3*(i-1)+k-1)*0.529177249d00,k=1,3),
      >           dbl_mb(i_q+i-1)
-
+           bq_charge_total = bq_charge_total + dbl_mb(i_q+i-1)
          end do
+         write(*,*) "Total Bq charge: ",bq_charge_total
          write(*,*)
          write(*,*)
-
+c
        end if
 9000   format(i5,2x,"Bq",4x,3f15.8,3x,"charge",3x,f15.8)
 
