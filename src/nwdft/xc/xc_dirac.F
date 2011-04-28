@@ -71,8 +71,8 @@ c
 c         write(LuOut,*)'xc_dirac called: restricted'
 #endif
          do 10 n = 1, nq
-            if (abs(rho(n,1)).gt.tol_rho)then
-               rho13=abs(rho(n,1))**one_third*sign(1d0,rho(n,1))
+            if (rho(n,1).gt.tol_rho)then
+               rho13=rho(n,1)**one_third
                Amat(n,1) = Amat(n,1) + rho13
 #ifdef SECOND_DERIV
                Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA) + rho13/rho(n,1)
@@ -96,21 +96,18 @@ c
 c         write(LuOut,*)'xc_dirac called: unrestricted'
 #endif
          do 20 n = 1,nq
-            if (abs(rho(n,1)).gt.tol_rho)then
-! we can have beta negative density eg he2+
-!               if (rho(n,2).lt.0.d0.or.rho(n,3).lt.0.d0)then
-!                  write(LuOut,*)
-!     &                      ' n, nq, rho(n,1), rho(n,2), rho(n,3): ',
-!     &                        n, nq, rho(n,1), rho(n,2), rho(n,3)
-!                  call errquit(' negative density ',911)
-!               endif
-               rho32=abs(rho(n,2))**one_third*sign(1d0,rho(n,2))
-               rho33=abs(rho(n,3))**one_third*sign(1d0,rho(n,3))
+            if (rho(n,1).gt.tol_rho)then
+               rho32=0.0d0
+               rho33=0.0d0
+               if (rho(n,2).gt.tol_rho) rho32=rho(n,2)**one_third
+               if (rho(n,3).gt.tol_rho) rho33=rho(n,3)**one_third
                Amat(n,1) = Amat(n,1) + P3*rho32*fac
                Amat(n,2) = Amat(n,2) + P3*rho33*fac
 #ifdef SECOND_DERIV
-               Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
-     &                           + one_third*P3*rho32/rho(n,2)*fac
+               if (rho(n,2).gt.tol_rho) then
+                  Amat2(n,D2_RA_RA) = Amat2(n,D2_RA_RA)
+     &                              + one_third*P3*rho32/rho(n,2)*fac
+               endif
 c              Guard against case of no beta electrons, e.g. H atom
                if (rho(n,3).gt.tol_rho) then
                   Amat2(n,D2_RB_RB) = Amat2(n,D2_RB_RB)

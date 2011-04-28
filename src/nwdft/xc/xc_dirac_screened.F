@@ -112,8 +112,8 @@ c
 c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1, nq
-            if (dabs(rho(n,1)).lt.tol_rho) goto 20
-            if (dabs(rho(n,2)).lt.tol_rho) goto 25
+            if (rho(n,1).lt.tol_rho) goto 20
+            if (rho(n,2).lt.tol_rho) goto 25
 c
 c           Spin alpha:
 c
@@ -155,7 +155,7 @@ c
 c
 c           Spin beta:
 c
-            if (dabs(rho(n,3)).lt.tol_rho) goto 20
+            if (rho(n,3).lt.tol_rho) goto 20
 c
             rhoval = rho(n,3)
             rho13 = rhoval**ONE3

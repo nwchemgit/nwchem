@@ -226,7 +226,7 @@ c
             rho_t(2) = rho(n,2)
             rho_t(3) = rho(n,3)
          endif
-         if (dabs(rhoval).le.tol_rho) goto 20
+         if (rhoval.le.tol_rho) goto 20
          if (ipol.eq.1) then
             gammaval = delrho(n,1,1)*delrho(n,1,1) +
      &                 delrho(n,2,1)*delrho(n,2,1) +
@@ -448,10 +448,10 @@ c        phi = (1/2)[(1+zeta)**(2/3)+(1-zeta)**(2/3)] and its derivs
 c
          phi = 0.5d0*((1.0d0+zeta)**(2.0d0/3.0d0)
      &               +(1.0d0-zeta)**(2.0d0/3.0d0))
-         if (dabs(1.0d0-zeta).lt.tol_rho) then
+         if ((1.0d0-zeta).lt.tol_rho) then
             dphidzeta = 0.5d0*(2.0d0/3.0d0)*(
      &             (1.0d0+zeta)**(2.0d0/3.0d0)/(1.0d0+zeta))
-         else if (dabs(1.0d0+zeta).lt.tol_rho) then
+         else if ((1.0d0+zeta).lt.tol_rho) then
             dphidzeta = 0.5d0*(2.0d0/3.0d0)*(
      &            -(1.0d0-zeta)**(2.0d0/3.0d0)/(1.0d0-zeta))
          else
@@ -462,10 +462,10 @@ c
          dphidna = dphidzeta*dzetadna
          dphidnb = dphidzeta*dzetadnb
 #ifdef SECOND_DERIV
-         if (dabs(1.0d0-zeta).lt.tol_rho) then
+         if ((1.0d0-zeta).lt.tol_rho) then
             d2phidzeta2 = -(1.0d0/9.0d0)*(
      &         (1.0d0+zeta)**(2.0d0/3.0d0)/((1.0d0+zeta)**2))
-         else if (dabs(1.0d0+zeta).lt.tol_rho) then
+         else if ((1.0d0+zeta).lt.tol_rho) then
             d2phidzeta2 = -(1.0d0/9.0d0)*(
      &         (1.0d0-zeta)**(2.0d0/3.0d0)/((1.0d0-zeta)**2))
          else

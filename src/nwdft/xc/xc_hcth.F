@@ -1046,7 +1046,7 @@ Cfah -------------------------------
             F_xc(n*3+1) = F_xs (n, sol((n*3) + 1), rhoa, za)
           endif
         ENDIF
-          if(abs(u_caa).gt.tol_rho)then
+          if(u_caa.gt.tol_rho)then
              if(n.eq.0) then
              F_xc(2) = e_caa*c_naa
              else
@@ -1061,7 +1061,7 @@ Cfah -------------------------------
           F_xc(n*3+1) = F_xc(n*3+1)+F_xs(n, sol((n*3) + 1), rhob, zb)
           endif
         ENDIF
-          if(abs(u_cbb).gt.tol_rho) then
+          if(u_cbb.gt.tol_rho) then
              if(n.eq.0) then
                 F_xc(2) = F_xc(2)+e_cbb*c_nbb
              else
@@ -1069,7 +1069,7 @@ Cfah -------------------------------
              endif
           endif
 
-          if(abs(u_cab).gt.tol_rho) then
+          if(u_cab.gt.tol_rho) then
              if(n.eq.0) then
                 F_xc(3) = e_cab*c_nab
              else
@@ -1108,7 +1108,7 @@ Cfah ---------------------
           endif
            endif
 
-        if(abs(u_caa).gt.tol_rho) then
+        if(u_caa.gt.tol_rho) then
            if(n.eq.0) then
           dF_caa(1) = c_naa*de_caa_by_drhoa
           dF_caa(3) = 0d0
@@ -1124,7 +1124,7 @@ Cfah ---------------------
           endif
         endif
 
-        if(abs(u_cbb).gt.tol_rho) then
+        if(u_cbb.gt.tol_rho) then
            if(n.eq.0) then
           dF_cbb(2) = c_nbb*de_cbb_by_drhob 
           dF_cbb(4) = 0d0
@@ -1140,7 +1140,7 @@ Cfah ---------------------
         endif
 
 
-        if(abs(u_cab).gt.tol_rho) then
+        if(u_cab.gt.tol_rho) then
            if(n.eq.0) then
           dF_cab(1) = c_nab*de_cab_by_drhoa
           dF_cab(2) = c_nab*de_cab_by_drhob

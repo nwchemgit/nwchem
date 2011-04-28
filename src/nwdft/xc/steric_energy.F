@@ -68,8 +68,8 @@ c        ======> SPIN-UNRESTRICTED <======
 c
          energy = 0.d0 
          do 20 n = 1, nq
-            if (dabs(rho(n,1)).lt.tol_rho) goto 20
-            if (dabs(rho(n,2)).lt.tol_rho) goto 25
+            if (rho(n,1).lt.tol_rho) goto 20
+            if (rho(n,2).lt.tol_rho) goto 25
 c
 c           Spin alpha:
 c
@@ -88,7 +88,7 @@ c           rho43 = rho13**4
 c
 c           Spin beta:
 c
-            if (dabs(rho(n,3)).lt.tol_rho) goto 20
+            if (rho(n,3).lt.tol_rho) goto 20
 c
 c           rho13 = abs(rho(n,3))**(1.d0/3.d0)*sign(1d0,rho(n,3))
 c           rho43 = rho13**4 

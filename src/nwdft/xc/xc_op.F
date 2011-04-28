@@ -90,7 +90,7 @@ c
      &              delrho(n,3,1)*delrho(n,3,1)
             gamma = 0.25d0 * gamma
             if (dsqrt(gamma).gt.tol_rho)then
-               x = sqrt(gamma) / rho43
+               x = dsqrt(gamma) / rho43
                call xc_kop(tol_rho,whichf,x,
      &              kalpha, dkadxa)
                dkadra = -(4d0/3d0)*x*dkadxa/rhoa
@@ -140,24 +140,24 @@ c
 c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1, nq
-            if (abs(rho(n,1)).lt.tol_rho) goto 20
-            if (dabs(rho(n,2)).ge.tol_rho*0.5d0)  then
+            if (rho(n,1).lt.tol_rho) goto 20
+            if (rho(n,2).ge.tol_rho*0.5d0)  then
 c
 c           Spin alpha:
 c
                rhoa=rho(n,2)
-               rho13a = abs(rhoa)**(1.d0/3.d0)*sign(1d0,rhoa)
-               rho43 = rho13a**4 
+               rho13a = rhoa**(1.d0/3.d0)
+               rho43 = rho13a*rhoa
                gamma = delrho(n,1,1)*delrho(n,1,1) +
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
-               if (sqrt(gamma).gt.tol_rho)then
-                  x = sqrt(gamma) / rho43
+               if (dsqrt(gamma).gt.tol_rho)then
+                  x = dsqrt(gamma) / rho43
                   call xc_kop(tol_rho,whichf,x,
      &                 kalpha, dkadxa)
                   
                   dkadra = -(4d0/3d0)*x*dkadxa/rhoa
-                  dkadga = dkadxa*0.5d0/(rho43*sqrt(gamma))
+                  dkadga = dkadxa*0.5d0/(rho43*dsqrt(gamma))
                else
                   x = 0d0
                endif
@@ -175,21 +175,21 @@ c
 c     
 c           Spin beta:
 c
-            if (dabs(rho(n,3)).ge.tol_rho*0.5d0) then
+            if (rho(n,3).ge.tol_rho*0.5d0) then
 c
                rhob=rho(n,3)
-               rho13b = abs(rhob)**(1.d0/3.d0)*sign(1d0,rhob)
-               rho43 = rho13b**4 
+               rho13b = rhob**(1.d0/3.d0)
+               rho43 = rho13b*rhob
                gamma = delrho(n,1,2)*delrho(n,1,2) +
      &              delrho(n,2,2)*delrho(n,2,2) +
      &              delrho(n,3,2)*delrho(n,3,2)
-               if (sqrt(gamma).gt.tol_rho)then
-                  x = sqrt(gamma) / rho43
+               if (dsqrt(gamma).gt.tol_rho)then
+                  x = dsqrt(gamma) / rho43
                   call xc_kop(tol_rho,whichf,x,
      &                 kbeta, dkbdxb)
             
                   dkbdrb = -(4d0/3d0)*x*dkbdxb/rhob
-                  dkbdgb = dkbdxb*0.5d0/(rho43*sqrt(gamma))
+                  dkbdgb = dkbdxb*0.5d0/(rho43*dsqrt(gamma))
                else
                   x = 0d0
                endif

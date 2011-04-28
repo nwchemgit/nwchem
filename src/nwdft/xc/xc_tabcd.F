@@ -128,8 +128,8 @@ c
      &            3, 5, 6 /
 c
 c         0: l3d=.f.    & n3d=1
-ccc	rhs: l3d=.true. & n3d=3
-ccc	lhs: l3d=.true. & n3d=1
+ccc     rhs: l3d=.true. & n3d=3
+ccc     lhs: l3d=.true. & n3d=1
 c
       call starttimer(monitor_tabcd)
       call starttimer(monitor_screen0)
@@ -398,7 +398,7 @@ c     Monitoring
             call starttimer(monitor_screen5)
                if(what.eq.0) then
                   doitt=dabsmax(sizeblk,ttmat).ge.tolrho15
-                  jrsh=ii	
+                  jrsh=ii
                elseif(what.eq.1) then
                   doitt=.true.
                   jrsh=imat+(ii-1)*nmat
@@ -424,11 +424,11 @@ c     Monitoring
      %                 ifirst, ilast, jfirst, jlast, nbfia)
                   else
                      if(dftnbacc) then
-                        if(.not.nbfirst1) then	
+                        if(.not.nbfirst1) then
                            call starttimer( monitor_wait1)
                            call ga_nbwait(nbhandl1)
                            call endtimer( monitor_wait1)
-                        endif			
+                        endif
                         nbfirst1=.false.
                         call upd_atombl_nb(g_update(ii),
      .                       basis,iat,jat,ttmat,nbhandl1)
@@ -488,9 +488,9 @@ c     Monitoring
      %                       jfirst, jlast, ifirst, ilast, nbfja)
                      else
                         if(dftnbacc) then
-                           if(.not.nbfirst2) then	
+                           if(.not.nbfirst2) then
                               call ga_nbwait(nbhandl2)
-                           endif			
+                           endif
                            nbfirst2=.false.
                            call upd_atombl_nb(g_update(ii),
      .                          basis,jat,iat,tmat,nbhandl2)

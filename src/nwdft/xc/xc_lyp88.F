@@ -94,7 +94,7 @@ c
 c        ======> SPIN-RESTRICTED <======
 c
          do 10 n = 1, nq
-            if (abs(rho(n,1)).lt.tol_rho)goto 10
+            if (rho(n,1).lt.tol_rho)goto 10
             rrho = 1d0/rho(n,1)
             rhoa = 0.5d0*rho(n,1)
             rrho2 = rrho*rrho
@@ -242,17 +242,17 @@ c
 c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1,nq
-            if (abs(rho(n,1)).lt.tol_rho)goto 20
+            if (rho(n,1).lt.tol_rho)goto 20
             rrho = 1d0/rho(n,1)
-            rhoa = rho(n,2)
-            rhob = rho(n,3)
+            rhoa = max(0.0d0,rho(n,2))
+            rhob = max(0.0d0,rho(n,3))
             rrho2 = rrho*rrho
             rho2 = 1d0/rrho2
             rhoa2 = rhoa*rhoa
             rhob2 = rhob*rhob
             rhoab = rhoa*rhob
-            rhoa53 = abs(rhoa)**F53*sign(1d0,rhoa)
-            rhob53 = abs(rhob)**F53*sign(1d0,rhob)
+            rhoa53 = rhoa**F53
+            rhob53 = rhob**F53
 csedo            rhoa53 = abs(rhoa)**F53
 csedo            rhob53 = abs(rhob)**F53
             rhoa83 = rhoa*rhoa53
@@ -264,8 +264,8 @@ csedo            rhob53 = abs(rhob)**F53
 #endif
 c
 cedo            h2 = d*abs(rrho)**F13*sign(1d0,rrho)
-            h2 = d*abs(rrho)**F13
-            d1h2 = -F13*h2*rrho*sign(1d0,rrho)
+            h2 = d*rrho**F13
+            d1h2 = -F13*h2*rrho
 #ifdef SECOND_DERIV
             d2h2 = -F43*d1h2*rrho
 #endif
@@ -282,7 +282,7 @@ c
             d2h1 = -(2d0*h1*d1h1*d1h2 + h1*h1*d2h2)
 #endif
 c
-            om = exp(-h3)*h1*abs(rrho)**F113
+            om = exp(-h3)*h1*rrho**F113
 cedo            om = exp(-h3)*h1*abs(rrho)**F113*sign(1d0,rrho)
             t = d1h3+h1*d1h2+F113*rrho
             d1om = -om*t

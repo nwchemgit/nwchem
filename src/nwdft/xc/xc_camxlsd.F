@@ -67,8 +67,8 @@ c
 c        ======> SPIN-RESTRICTED <======
 c
          do 10 n = 1, nq
-            if (dabs(rho(n,1)).gt.tol_rho)then
-             rho13=dabs(rho(n,1))**one_third*sign(1d0,rho(n,1))
+            if (rho(n,1).gt.tol_rho)then
+             rho13=rho(n,1)**one_third
              Etmp = rho(n,1)*rho13*P2*fac
              if(ldew)func(n) = func(n) + rho(n,1)*rho13*fac*P2
              Atmp = rho13*P1*fac
@@ -92,9 +92,11 @@ c
 c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1,nq
-            if (dabs(rho(n,1)).gt.tol_rho)then
-             rho32=dabs(rho(n,2))**one_third*sign(1d0,rho(n,2))
-             rho33=dabs(rho(n,3))**one_third*sign(1d0,rho(n,3))
+           if (rho(n,1).gt.tol_rho)then
+             rho32=0.0d0
+             rho33=0.0d0
+             if (rho(n,2).gt.tol_rho) rho32=rho(n,2)**one_third
+             if (rho(n,3).gt.tol_rho) rho33=rho(n,3)**one_third
 c
              Etmp = rho32*rho(n,2)*P4*fac
              Atmp = P3*rho32*fac
@@ -106,7 +108,7 @@ c
              A2tmp = 0.d0
              C2tmp = 0.d0
              C3tmp = 0.d0
-             if (dabs(rho(n,2)).gt.tol_rho) then
+             if (rho(n,2).gt.tol_rho) then
                A2tmp = one_third*P3*rho32/rho(n,2)*fac
                call xc_att_xc_d2(rho(n,2),ipol,Etmp,Atmp,Ctmp,A2tmp,
      &           C2tmp,C3tmp)
@@ -124,7 +126,7 @@ c
              A2tmp = 0.d0
              C2tmp = 0.d0
              C3tmp = 0.d0
-             if (dabs(rho(n,3)).gt.tol_rho) then
+             if (rho(n,3).gt.tol_rho) then
                A2tmp = one_third*P3*rho33/rho(n,3)*fac
                call xc_att_xc_d2(rho(n,3),ipol,Etmp,Atmp,Ctmp,A2tmp,
      &           C2tmp,C3tmp)

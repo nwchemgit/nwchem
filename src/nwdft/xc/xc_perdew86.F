@@ -80,7 +80,7 @@ c        ======> SPIN-RESTRICTED <======
 c
          do 10 n = 1, nq
             rhoval = rho(n,1)
-            if (abs(rhoval).lt.tol_rho) goto 10
+            if (rhoval.lt.tol_rho) goto 10
             arho=1.d0/rhoval
             rho13 = abs(rhoval)**ONE3
             rho43 = rhoval*rho13
@@ -186,7 +186,7 @@ c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1, nq
             rhoval = rho(n,1)
-            if (abs(rhoval).lt.tol_rho) goto 20
+            if (rhoval.lt.tol_rho) goto 20
             arho=1.d0/rhoval
             rho13  = abs(rhoval)**ONE3
             rho43  = rhoval*rho13
@@ -401,7 +401,7 @@ c
 c     ======> BOTH SPIN-RESTRICTED AND UNRESTRICTED <======
 c
       do n = 1, nq
-         if (abs(rho(n,1)).gt.tol_rho)then
+         if (rho(n,1).gt.tol_rho)then
             rhoval = rho(n,1)
             if (ipol.eq.1) then
                zeta = 0.0d0

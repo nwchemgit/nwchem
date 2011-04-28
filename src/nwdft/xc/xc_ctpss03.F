@@ -353,8 +353,8 @@ c
 c
 c        Check for small densities (H atom case as well)
 c
-         if ((abs(rhoa).lt.tol_rho).or.
-     &          (abs(rhob).lt.tol_rho)) goto 20
+         if ((rhoa.lt.tol_rho).or.
+     &          (rhob.lt.tol_rho)) goto 20
 c
          dcccdna=0.d0
          dcccdnb=0.d0
@@ -362,7 +362,7 @@ c
          dcccdgbb=0.d0
          dcccdgab=0.d0
 c
-         if(abs(rhoval).gt.tol_rho) then
+         if(rhoval.gt.tol_rho) then
 c
             zeta=(rhoa-rhob)/rhoval
 c

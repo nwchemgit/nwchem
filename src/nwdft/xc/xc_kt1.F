@@ -70,6 +70,7 @@ c
 c***************************************************************************
 c
       integer n
+      double precision hrho
       double precision rho13, rho43, gamma, g, gdenom, gdenom2
 #ifdef SECOND_DERIV
       double precision rho23, rhom23, gdenom3
@@ -87,8 +88,9 @@ c
 c
 c           Spin alpha:
 c
-            rho13 = (0.5d0*rho(n,1))**(1.d0/3.d0)
-            rho43 = rho13**4 
+            hrho  = 0.5d0*rho(n,1)
+            rho13 = hrho**(1.d0/3.d0)
+            rho43 = rho13*hrho
             gamma = delrho(n,1,1)*delrho(n,1,1) +
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
@@ -131,13 +133,13 @@ c
 c        ======> SPIN-UNRESTRICTED <======
 c
          do 20 n = 1, nq
-            if (dabs(rho(n,1)).lt.tol_rho) goto 20
-            if (dabs(rho(n,2)).lt.tol_rho) goto 25
+            if (rho(n,1).lt.tol_rho) goto 20
+            if (rho(n,2).lt.tol_rho) goto 25
 c
 c           Spin alpha:
 c
-            rho13 = abs(rho(n,2))**(1.d0/3.d0)*sign(1d0,rho(n,2))
-            rho43 = rho13**4 
+            rho13 = rho(n,2)**(1.d0/3.d0)
+            rho43 = rho13*rho(n,2)
             gamma = delrho(n,1,1)*delrho(n,1,1) +
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
@@ -174,10 +176,10 @@ c
 c
 c           Spin beta:
 c
-            if (dabs(rho(n,3)).lt.tol_rho) goto 20
+            if (rho(n,3).lt.tol_rho) goto 20
 c
-            rho13 = abs(rho(n,3))**(1.d0/3.d0)*sign(1d0,rho(n,3))
-            rho43 = rho13**4 
+            rho13 = rho(n,3)**(1.d0/3.d0)
+            rho43 = rho13*rho(n,3)
             gamma = delrho(n,1,2)*delrho(n,1,2) +
      &              delrho(n,2,2)*delrho(n,2,2) +
      &              delrho(n,3,2)*delrho(n,3,2)
