@@ -478,6 +478,7 @@ c     implicit none
             call GA_PGROUP_DGOP(comm_k,9+MSGDBL,sum,1,'max')
          else
             call GA_DGOP(9+MSGDBL,sum,1,'max')
+         end if
       end if
 
       return
