@@ -67,7 +67,7 @@ c
       integer l_tmp, k_tmp
       integer g_dens(3), g_s10, g_h01, g_h11, g_d1, g_rhs, g_fock, g_u
       integer g_vectors(2), geomnew, i, j, ij, g_xc(3)
-      double precision atn, tol2e, val, isotr, aniso
+      double precision atn, tol2e, val, isotr, aniso, tolfr
       double precision jfac(3),kfac(3),a(6),axs(3,3),eig(3),xfac
       character*3 scftyp
       character*16 tag
@@ -82,6 +82,7 @@ c
       double precision ppm
       data ppm     /26.62566914d+00/ 
       data tol2e   /1.0d-10/
+      data tolfr   /1.0d-50/
 
       integer nfreq, l_fr, k_fr, l_deps, k_deps, nocv
       data nfreq/0/  ! number of frequencies, static if zero
@@ -797,13 +798,25 @@ c
      2             + (alphaevr(2)-alphaevr(3))*(alphaevr(2)-alphaevr(3))
           alphaani = dsqrt(0.5d0*alphaani)
 c
-          if (oprint) write(LuOut,9434) "DFT Linear Response",
-     1        dbl_mb(k_fr),auXnm/dbl_mb(k_fr),
-     2        alfare(1,1),alfare(1,2),alfare(1,3),
-     3        alfare(2,1),alfare(2,2),alfare(2,3),
-     4        alfare(3,1),alfare(3,2),alfare(3,3),
-     5        alphaevr(1),alphaevr(2),alphaevr(3),
-     6        alphaiso,alphaani
+          if (oprint) then
+            if (dabs(dbl_mb(k_fr)).gt.tolfr) then
+              write(LuOut,9434) "DFT Linear Response",
+     1              dbl_mb(k_fr),auXnm/dbl_mb(k_fr),
+     2              alfare(1,1),alfare(1,2),alfare(1,3),
+     3              alfare(2,1),alfare(2,2),alfare(2,3),
+     4              alfare(3,1),alfare(3,2),alfare(3,3),
+     5              alphaevr(1),alphaevr(2),alphaevr(3),
+     6              alphaiso,alphaani
+            else
+              write(LuOut,9435) "DFT Linear Response",
+     1              dbl_mb(k_fr),
+     2              alfare(1,1),alfare(1,2),alfare(1,3),
+     3              alfare(2,1),alfare(2,2),alfare(2,3),
+     4              alfare(3,1),alfare(3,2),alfare(3,3),
+     5              alphaevr(1),alphaevr(2),alphaevr(3),
+     6              alphaiso,alphaani
+            endif
+          endif
           call util_flush(LuOut)
 c
 c        alpha_rtdb = [omega, XX, XY, XZ, YY, YZ, ZZ, LL, MM, NN, Iso, Ani]
@@ -964,6 +977,19 @@ c     ==================================================================
  9434 format(/,1x,A,' polarizability / au ',/
      1  1x,'Frequency  = ',f15.7,' / au',/
      1  1x,'Wavelength = ',f15.7,' / nm',/
+     2  1x,'             X              Y              Z',/
+     3  1x,'-----------------------------------------------',/
+     4  1x,'X ',3f15.7,/
+     5  1x,'Y ',3f15.7,/
+     6  1x,'Z ',3f15.7,/
+     3  1x,'-----------------------------------------------',/
+     6  1x,'Eigenvalues = ',3f15.7,/
+     6  1x,'Isotropic   = ',1f15.7,/
+     6  1x,'Anisotropic = ',1f15.7,/
+     7  1x,'-----------------------------------------------')
+ 9435 format(/,1x,A,' polarizability / au ',/
+     1  1x,'Frequency  = ',f15.7,' / au',/
+     1  1x,'Wavelength =        Infinity / nm',/
      2  1x,'             X              Y              Z',/
      3  1x,'-----------------------------------------------',/
      4  1x,'X ',3f15.7,/
