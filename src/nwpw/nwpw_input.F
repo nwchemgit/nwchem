@@ -162,7 +162,7 @@ c
      >       2900,3000,3700,3800,3900,3900,4000,1805,1806,1807,1808,
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
-     >       2750,6090,6100,1809,6200,6300,6400,6500,1500,6600,1807,
+     >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
      >       6700,6800,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
@@ -264,6 +264,16 @@ c
 c qmmm
 c
  1500 call pspw_qmmm_input(rtdb) 
+      goto 10
+
+c
+c auxiliary_potentials
+c
+ 1510 if (.not.rtdb_put(rtdb,'pspw_qmmm_auxon',mt_log,1,.true.))
+     >   call errquit(
+     >   'auxiliary_potentials:failed writing auxon:',0,
+     >    RTDB_ERR)
+      call pspw_qmmm_input(rtdb) 
       goto 10
 
 c
