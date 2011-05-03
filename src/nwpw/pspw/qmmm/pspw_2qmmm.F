@@ -30,6 +30,8 @@ c
       integer naindxsize,nQr0size
       integer ncbindxsize,ncKr0size
       integer nmbindxsize,nmKr0size
+      integer ndindxsize,ndKr0size
+      integer nddindxsize,nddKr0size
 
 *     **** external functions ****
       integer     ion_nion,ion_nion_qm,ion_nion_mm,control_version
@@ -142,6 +144,33 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
      >           MA_alloc_get(mt_int,nkfrag,'nonnKr0_mbond_start',
      >                        nKr0_mbond_start(2),nKr0_mbond_start(1))
 
+
+*        **** dihedral spring variables ****
+         value = value.and.
+     >           MA_alloc_get(mt_int,nkfrag,'nonndihedral_spring',
+     >                        ndihedral_spring(2),ndihedral_spring(1))
+         value = value.and.
+     >     MA_alloc_get(mt_int,nkfrag,'nonnindx_dihedral_spring_start',
+     >                        nindx_dihedral_spring_start(2),
+     >                        nindx_dihedral_spring_start(1))
+         value = value.and.
+     >      MA_alloc_get(mt_int,nkfrag,'nonnKr0_dihedral_spring_start',
+     >                      nKr0_dihedral_spring_start(2),
+     >                      nKr0_dihedral_spring_start(1))
+
+*        **** dihedral variables ****
+         value = value.and.
+     >           MA_alloc_get(mt_int,nkfrag,'nonndihedral',
+     >                        ndihedral(2),ndihedral(1))
+         value = value.and.
+     >         MA_alloc_get(mt_int,nkfrag,'nonnindx_dihedral_start',
+     >                        nindx_dihedral_start(2),
+     >                        nindx_dihedral_start(1))
+         value = value.and.
+     >         MA_alloc_get(mt_int,nkfrag,'nonnKr0_dihedral_start',
+     >                      nKr0_dihedral_start(2),
+     >                      nKr0_dihedral_start(1))
+
          if (.not.value) 
      >    call errquit('cannot allocate heap memory for 2qmmm',0,
      >       MA_ERR)
@@ -161,6 +190,10 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
          ncKr0size   = 0
          nmbindxsize = 0
          nmKr0size   = 0
+         ndindxsize = 0
+         ndKr0size   = 0
+         nddindxsize = 0
+         nddKr0size   = 0
 
          do ia=1,nkfrag
 
@@ -283,6 +316,32 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
             int_mb(nKr0_mbond_start(1) +ia-1) = nmKr0size  + 1
             nmbindxsize = nmbindxsize + 2*int_mb(nmbond(1)+ia-1)
             nmKr0size   = nmKr0size   + 3*int_mb(nmbond(1)+ia-1)
+
+*           **** dihedral_spring stuff  - get ndihedral_spring  ****
+            rtdb_name =
+     >        'pspw_2qmmm_frag_ndihedral_spring:'//c_index_name(ia)
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
+     >                        int_mb(ndihedral_spring(1)+ia-1)))
+     >         int_mb(ndihedral_spring(1)+ia-1) = 0
+
+*           **** dihedral_spring stuff  - determine nindxsize and ndsqsize  ****
+            int_mb(nindx_dihedral_spring_start(1)+ia-1) = ndindxsize + 1
+            int_mb(nKr0_dihedral_spring_start(1) +ia-1) = ndKr0size  + 1
+            ndindxsize = ndindxsize + 4*int_mb(ndihedral_spring(1)+ia-1)
+            ndKr0size  = ndKr0size  + 2*int_mb(ndihedral_spring(1)+ia-1)
+
+*           **** dihedral stuff  - get ndihedral  ****
+            rtdb_name =
+     >        'pspw_2qmmm_frag_ndihedral:'//c_index_name(ia)
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
+     >                        int_mb(ndihedral(1)+ia-1)))
+     >         int_mb(ndihedral(1)+ia-1) = 0
+
+*           **** dihedral stuff  - determine nindxsize and ndsqsize  ****
+            int_mb(nindx_dihedral_start(1)+ia-1) = nddindxsize + 1
+            int_mb(nKr0_dihedral_start(1) +ia-1) = nddKr0size  + 1
+            nddindxsize = nddindxsize + 4*int_mb(ndihedral(1)+ia-1)
+            nddKr0size  = nddKr0size  + 3*int_mb(ndihedral(1)+ia-1)
 
          end do
 
@@ -480,6 +539,85 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
 
          end if
 
+*        *** more dihedral_spring ****
+         dihedral_spring_found = (ndindxsize.gt.0)
+         if (dihedral_spring_found) then
+            value = MA_alloc_get(mt_int,ndindxsize,
+     >              'nonindx_dihedral_spring',
+     >               indx_dihedral_spring(2),
+     >               indx_dihedral_spring(1))
+            value = value.and.
+     >              MA_alloc_get(mt_dbl,ndKr0size,
+     >                           'nonKr0_dihedral_spring',
+     >                            Kr0_dihedral_spring(2),
+     >                            Kr0_dihedral_spring(1))
+            if (.not.value) call errquit(
+     >       'cannot allocate heap memory for 2qmmm dihedral_spring',
+     >       0,MA_ERR)
+
+            ndindxsize = 0
+            ndKr0size  = 0
+            do ia=1,nkfrag
+               do ja=1,int_mb(ndihedral_spring(1)+ia-1)
+
+                  rtdb_name = 'pspw_2qmmm_frag_indx_dihedral_spring:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,2,
+     >               int_mb(indx_dihedral_spring(1)+ndindxsize)))
+     >               int_mb(indx_dihedral_spring(1)+ndindxsize) = 0
+                  ndindxsize = ndindxsize + 4
+
+                  rtdb_name = 'pspw_2qmmm_frag_Kr0_dihedral_spring:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,3,
+     >               dbl_mb(Kr0_dihedral_spring(1)+ndKr0size)))
+     >               dbl_mb(Kr0_dihedral_spring(1)+ndKr0size) = 0.0d0
+                  ndKr0size = ndKr0size + 2
+
+               end do
+            end do
+         end if
+
+*        *** more dihedral ****
+         dihedral_found = (nddindxsize.gt.0)
+         if (dihedral_found) then
+            value = MA_alloc_get(mt_int,nddindxsize,
+     >              'nonindx_dihedral',
+     >               indx_dihedral(2),
+     >               indx_dihedral(1))
+            value = value.and.
+     >              MA_alloc_get(mt_dbl,nddKr0size,
+     >                           'nonKr0_dihedral',
+     >                            Kr0_dihedral(2),
+     >                            Kr0_dihedral(1))
+            if (.not.value) call errquit(
+     >       'cannot allocate heap memory for 2qmmm dihedral',
+     >       0,MA_ERR)
+
+            nddindxsize = 0
+            nddKr0size  = 0
+            do ia=1,nkfrag
+               do ja=1,int_mb(ndihedral(1)+ia-1)
+
+                  rtdb_name = 'pspw_2qmmm_frag_indx_dihedral:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,2,
+     >               int_mb(indx_dihedral(1)+nddindxsize)))
+     >               int_mb(indx_dihedral(1)+nddindxsize) = 0
+                  nddindxsize = nddindxsize + 4
+
+                  rtdb_name = 'pspw_2qmmm_frag_Kr0_dihedral:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,3,
+     >               dbl_mb(Kr0_dihedral(1)+nddKr0size)))
+     >               dbl_mb(Kr0_dihedral(1)+nddKr0size) = 0.0d0
+                  nddKr0size = nddKr0size + 3
+
+               end do
+            end do
+         end if
+
+
 
 *       ***** write out header info ****
         call Parallel_taskid(taskid)
@@ -602,8 +740,42 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
      >                  "rho=",dbl_mb(shake_ptr+1),
      >                  "re=", dbl_mb(shake_ptr+2)
                ii = ii + 2
+               jj = jj + 3
+             end do
+
+             ii = int_mb(nindx_dihedral_spring_start(1)+ia-1)
+             jj = int_mb(nKr0_dihedral_spring_start(1) +ia-1)
+             do ja=1,int_mb(ndihedral_spring(1)+ia-1)
+                indx_ptr  = indx_dihedral_spring(1)+ii-1
+                shake_ptr = Kr0_dihedral_spring(1) +jj-1
+
+             write(*,'(A,A,4I4,2(4x,A,F11.6))')
+     >       "   - Dihedral Spring Parameters: ",
+     >                  "indexes=",
+     >                  (int_mb(indx_ptr+j-1),j=1,4),
+     >                  "Kphi=", dbl_mb(shake_ptr),
+     >                  "phie=",dbl_mb(shake_ptr+1)
+               ii = ii + 4
                jj = jj + 2
              end do
+
+             ii = int_mb(nindx_dihedral_start(1)+ia-1)
+             jj = int_mb(nKr0_dihedral_start(1) +ia-1)
+             do ja=1,int_mb(ndihedral(1)+ia-1)
+                indx_ptr  = indx_dihedral(1)+ii-1
+                shake_ptr = Kr0_dihedral(1) +jj-1
+
+             write(*,'(A,A,4I4,3(4x,A,F11.6))')
+     >       "   - Dihedral Parameters: ",
+     >                  "indexes=",
+     >                  (int_mb(indx_ptr+j-1),j=1,4),
+     >                  "Vphi=", dbl_mb(shake_ptr),
+     >                  "nphi=",dbl_mb(shake_ptr+1),
+     >                  "phie=", dbl_mb(shake_ptr+2)
+               ii = ii + 4
+               jj = jj + 3
+             end do
+
 
              
            end do
@@ -684,6 +856,22 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
           value = value.and.MA_free_heap(Kr0_mbond(2))
         end if
 
+        value = value.and.MA_free_heap(ndihedral_spring(2))
+        value = value.and.MA_free_heap(nindx_dihedral_spring_start(2))
+        value = value.and.MA_free_heap(nKr0_dihedral_spring_start(2))
+        if (dihedral_spring_found) then
+          value = value.and.MA_free_heap(indx_dihedral_spring(2))
+          value = value.and.MA_free_heap(Kr0_dihedral_spring(2))
+        end if
+
+        value = value.and.MA_free_heap(ndihedral(2))
+        value = value.and.MA_free_heap(nindx_dihedral_start(2))
+        value = value.and.MA_free_heap(nKr0_dihedral_start(2))
+        if (dihedral_found) then
+          value = value.and.MA_free_heap(indx_dihedral(2))
+          value = value.and.MA_free_heap(Kr0_dihedral(2))
+        end if
+
         if (.not.value) call errquit('cannot free heap memory',0,
      &       MA_ERR)
 
@@ -738,7 +926,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
 
 c     **** local variables ****
       integer dutask,taskid,np
-      integer w1,wk1,ks1,nbs,nas,ncbs,nbm,jj,kk
+      integer w1,wk1,ks1,nbs,nas,ncbs,nbm,jj,kk,nds,ndds
       real*8  E
 
 c     **** external functions ***
@@ -752,6 +940,11 @@ c     **** external functions ***
       external pspw_qmmm_spring_cbond_frag
       real*8   pspw_qmmm_morse_bond_frag
       external pspw_qmmm_morse_bond_frag
+      real*8   pspw_qmmm_dihedral_spring_frag
+      external pspw_qmmm_dihedral_spring_frag
+      real*8   pspw_qmmm_dihedral_frag
+      external pspw_qmmm_dihedral_frag
+
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
@@ -766,6 +959,8 @@ c     **** external functions ***
          nas  = int_mb(nangle(1)+wk1-1)
          ncbs = int_mb(ncbond(1)+wk1-1)
          nbm  = int_mb(nmbond(1)+wk1-1)
+         nds   = int_mb(ndihedral_spring(1)+wk1-1)
+         ndds  = int_mb(ndihedral(1)+wk1-1)
          if (nbs.gt.0) then
             jj  = int_mb(nindx_bond_start(1)+wk1-1)
             kk  = int_mb(nKr0_bond_start(1) +wk1-1)
@@ -798,6 +993,22 @@ c     **** external functions ***
      >                                dbl_mb(Kr0_mbond(1) +kk-1),
      >                                dbl_mb(ion_rion_ptr()+3*(ks1-1)))
          end if
+         if (nds.gt.0) then
+            jj  = int_mb(nindx_dihedral_spring_start(1)+wk1-1)
+            kk  = int_mb(nKr0_dihedral_spring_start(1) +wk1-1)
+            E = E + pspw_qmmm_dihedral_spring_frag(nbm,
+     >                        int_mb(indx_dihedral_spring(1)+jj-1),
+     >                        dbl_mb(Kr0_dihedral_spring(1) +kk-1),
+     >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)))
+         end if
+         if (ndds.gt.0) then
+            jj  = int_mb(nindx_dihedral_start(1)+wk1-1)
+            kk  = int_mb(nKr0_dihedral_start(1) +wk1-1)
+            E = E + pspw_qmmm_dihedral_frag(nbm,
+     >                        int_mb(indx_dihedral(1)+jj-1),
+     >                        dbl_mb(Kr0_dihedral(1) +kk-1),
+     >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)))
+         end if
          end if
          dutask = mod(dutask+1,np)
         
@@ -825,7 +1036,7 @@ c     **** external functions ***
 
 c     **** local variables ****
       integer dutask,taskid,np
-      integer w1,wk1,ks1,nbs,nas,ncbs,nbm,jj,kk
+      integer w1,wk1,ks1,nbs,nas,ncbs,nbm,jj,kk,nds,ndds
 
 c     **** external functions ***
       integer  ion_rion_ptr
@@ -843,6 +1054,8 @@ c     **** external functions ***
          nas  = int_mb(nangle(1)+wk1-1)
          ncbs = int_mb(ncbond(1)+wk1-1)
          nbm  = int_mb(nmbond(1)+wk1-1)
+         nds  = int_mb(ndihedral_spring(1)+wk1-1)
+         ndds  = int_mb(ndihedral(1)+wk1-1)
          if (nbs.gt.0) then
             jj  = int_mb(nindx_bond_start(1)+wk1-1)
             kk  = int_mb(nKr0_bond_start(1) +wk1-1)
@@ -879,6 +1092,25 @@ c     **** external functions ***
      >                                dbl_mb(ion_rion_ptr()+3*(ks1-1)),
      >                                fion(1,ks1))
          end if
+         if (nds.gt.0) then
+            jj  = int_mb(nindx_dihedral_spring_start(1)+wk1-1)
+            kk  = int_mb(nKr0_dihedral_spring_start(1) +wk1-1)
+            call pspw_qmmm_dihedral_spring_frag_fion(nds,
+     >                        int_mb(indx_dihedral_spring(1)+jj-1),
+     >                        dbl_mb(Kr0_dihedral_spring(1) +kk-1),
+     >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)),
+     >                        fion(1,ks1))
+         end if
+         if (ndds.gt.0) then
+            jj  = int_mb(nindx_dihedral_start(1)+wk1-1)
+            kk  = int_mb(nKr0_dihedral_start(1) +wk1-1)
+            call pspw_qmmm_dihedral_frag_fion(ndds,
+     >                        int_mb(indx_dihedral(1)+jj-1),
+     >                        dbl_mb(Kr0_dihedral(1) +kk-1),
+     >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)),
+     >                        fion(1,ks1))
+         end if
+
          end if
          dutask = mod(dutask+1,np)
       end do
