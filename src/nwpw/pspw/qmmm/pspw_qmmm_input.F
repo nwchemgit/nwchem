@@ -26,8 +26,8 @@ c
      >            'mm_psp',
      >            'mm_tags',
      >            'qmmm_lambda',
-     >            'auxon',
-     >            'auxoff',
+     >            'enable',
+     >            'disable',
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
@@ -1263,7 +1263,7 @@ c
       goto 10
 
 c
-c  auxon
+c  enable 
 c
  1100 rtdb_name = 'pspw_qmmm_auxon'
       if (.not.rtdb_put(rtdb,rtdb_name,mt_log,1,.true.))
@@ -1272,7 +1272,7 @@ c
      >    RTDB_ERR)
       goto 10
 c
-c  auxoff
+c  disable
 c
  1200 rtdb_name = 'pspw_qmmm_auxon'
       if (.not.rtdb_put(rtdb,rtdb_name,mt_log,1,.false.))
