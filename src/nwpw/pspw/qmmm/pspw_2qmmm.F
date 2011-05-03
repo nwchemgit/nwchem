@@ -32,16 +32,26 @@ c
       integer nmbindxsize,nmKr0size
       integer ndindxsize,ndKr0size
       integer nddindxsize,nddKr0size
+      integer ncons_hb
+      character*255 namespace,tag
 
 *     **** external functions ****
       integer     ion_nion,ion_nion_qm,ion_nion_mm,control_version
-      integer     ion_rion_ptr
+      integer     ion_rion_ptr,inp_strlen
       character*7 c_index_name
       real*8      lattice_unita
       external    ion_nion,ion_nion_qm,ion_nion_mm,control_version
-      external    ion_rion_ptr
+      external    ion_rion_ptr,inp_strlen
       external    c_index_name
       external    lattice_unita
+
+*     **** read the cons datastructure ****
+      if(.not. rtdb_cget(rtdb,"constraints" , 1, namespace)) then
+         namespace="default"
+      end if
+      i=inp_strlen(namespace)
+      tag="cons:"//namespace(1:i)//":hbond_n"
+      if(.not.rtdb_get(rtdb,tag,mt_int,1,ncons_hb)) ncons_hb=0
 
 
 *     **** reading number of frags ****
