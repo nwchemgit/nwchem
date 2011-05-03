@@ -46,6 +46,7 @@ c
       rtdb_name = 'pspw_2qmmm_nfrag'
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nfrag)) nfrag = 0
 
+
 cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
       qmmm_found  =  (nfrag.gt.0)
       shake_found = .false.
@@ -165,15 +166,11 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
 
             rtdb_name = 'pspw_2qmmm_frag_size:'//c_index_name(ia)
             value = rtdb_get(rtdb,rtdb_name,mt_int,1,frag_size)
-            if (.not. value)
-     >        call errquit(
-     >       'pspw_2qmmm_init:failed reading frag_size',0,RTDB_ERR)
+            if (.not. value) frag_size = 1
 
             rtdb_name='pspw_2qmmm_frag_nindex_start:'//c_index_name(ia)
             value = rtdb_get(rtdb,rtdb_name,mt_int,1,ni)
-            if (.not. value)
-     >        call errquit(
-     >       'pspw_2qmmm_init:failed reading nindx_start',0,RTDB_ERR)
+            if (.not. value) ni = 1
             
             do i=1,ni
                int_mb(size_frag(1)+ii+i-1) = frag_size
@@ -183,9 +180,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
             rtdb_name = 'pspw_2qmmm_frag_index_start:'//c_index_name(ia)
             value = rtdb_get(rtdb,rtdb_name,mt_int,
      >                       ni,int_mb(indx_frag_start(1)+ii))
-            if (.not. value)
-     >        call errquit(
-     >       'pspw_2qmmm_init:failed reading indx_start',0,RTDB_ERR)
+            if (.not. value) int_mb(indx_frag_start(1)+ii) = 1
             ii = ii + ni
 
             rtdb_name = 'pspw_2qmmm_frag_self_interaction:'

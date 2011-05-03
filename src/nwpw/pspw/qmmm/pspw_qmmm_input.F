@@ -13,7 +13,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 12)
+      parameter (num_dirs = 14)
       character*30 dirs(num_dirs)
       data dirs / 'lj_ion_parameters:',
      >            'lj_ion_parameters',
@@ -26,6 +26,8 @@ c
      >            'mm_psp',
      >            'mm_tags',
      >            'qmmm_lambda',
+     >            'auxon',
+     >            'auxoff',
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
@@ -88,7 +90,7 @@ c
      >  'pspw_qmmm_input: unknown directive', 0, INPUT_ERR)
 
 
-      goto ( 100,100, 200, 300, 400, 500, 600, 700,800,900,1000,
+      goto ( 100,100,200,300,400,500,600,700,800,900,1000,1100,1200,
      >      9999) ind
       call errquit(
      >      'pspw_qmmm_input: unimplemented directive', ind, INPUT_ERR)
@@ -687,6 +689,8 @@ c
       nbs  = 0
       ncbs  = 0
       nbm   = 0
+      nds  = 0
+      ndds  = 0
       rtdb_name = 'pspw_2qmmm_nkfrag'
       value = rtdb_put(rtdb,rtdb_name,mt_int,1,nknf)
       if (.not. value)
@@ -701,7 +705,7 @@ c
      >  call errquit('pspw_2qmmm_input: unknown directive',0,INPUT_ERR)
 
 
-      goto ( 710, 720,730,740,750,760,770,780,790,751,
+      goto ( 710, 720,730,740,750,760,770,780,790,751,761,762,
      >       799) ind
       call errquit('pspw_2qmmm_input:directive not found',ind,INPUT_ERR)
 
@@ -963,6 +967,89 @@ c
       end if
 
       goto 701
+
+c
+c dihedral spring
+c
+ 761  if (inp_i(sindx(1))) then
+      if (inp_i(sindx(2))) then
+      if (inp_i(sindx(3))) then
+      if (inp_i(sindx(4))) then
+      if (inp_f(sdist(1))) then
+      if (inp_f(sdist(2))) then
+        nds = nds+1
+        rtdb_name='pspw_2qmmm_frag_ndihedral_spring:'//c_index_name(nkf)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,nds)
+        if (.not. value)
+     >  call errquit(
+     >   'pspw_2qmmm_input:failed writing nds',0,RTDB_ERR)
+
+         rtdb_name = 'pspw_2qmmm_frag_indx_dihedral_spring:'
+     >               //c_index_name(nkf)
+     >               //c_index_name(nds)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,4,sindx)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_2qmmm_input:failed dihedral spring ijkl',0,RTDB_ERR)
+
+         rtdb_name = 'pspw_2qmmm_frag_Kr0_dihedral_spring:'
+     >               //c_index_name(nkf)
+     >               //c_index_name(nds)
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,2,sdist)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_2qmmm_input:failed dihedral spring K,q0',0,RTDB_ERR)
+
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+      goto 701
+
+c
+c dihedral
+c
+ 762  if (inp_i(sindx(1))) then
+      if (inp_i(sindx(2))) then
+      if (inp_i(sindx(3))) then
+      if (inp_i(sindx(4))) then
+      if (inp_f(sdist(1))) then
+      if (inp_f(sdist(2))) then
+      if (inp_f(sdist(3))) then
+         ndds = ndds+1
+         rtdb_name='pspw_2qmmm_frag_ndihedral:'//c_index_name(nkf)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,ndds) 
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_2qmmm_input:failed writing ndds',0,RTDB_ERR)
+
+         rtdb_name = 'pspw_2qmmm_frag_indx_dihedral:'
+     >               //c_index_name(nkf)
+     >               //c_index_name(ndds)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,4,sindx)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_2qmmm_input:failed dihedral ijkl',0,RTDB_ERR)
+
+         rtdb_name = 'pspw_2qmmm_frag_Kr0_dihedral:'
+     >               //c_index_name(nkf)
+     >               //c_index_name(ndds)
+         value = rtdb_put(rtdb,rtdb_name,mt_dbl,3,sdist)
+         if (.not. value)
+     >   call errquit(
+     >   'pspw_2qmmm_input:failed dihedral K,n0,q0',0,RTDB_ERR)
+
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+      end if
+      goto 701
+
 c
 c  self_interaction
 c
@@ -1174,6 +1261,26 @@ c
      >      RTDB_ERR)
       end if
       goto 10
+
+c
+c  auxon
+c
+ 1100 rtdb_name = 'pspw_qmmm_auxon'
+      if (.not.rtdb_put(rtdb,rtdb_name,mt_log,1,.true.))
+     >   call errquit(
+     >   'pspw_qmmm_auxon:failed writing auxon:',0,
+     >    RTDB_ERR)
+      goto 10
+c
+c  auxoff
+c
+ 1200 rtdb_name = 'pspw_qmmm_auxon'
+      if (.not.rtdb_put(rtdb,rtdb_name,mt_log,1,.false.))
+     >   call errquit(
+     >   'pspw_qmmm_auxon:failed writing auxoff:',0,
+     >    RTDB_ERR)
+      goto 10
+
 
  9999 continue
 
