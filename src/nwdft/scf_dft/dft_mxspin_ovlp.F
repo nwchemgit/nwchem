@@ -304,10 +304,9 @@ c      write(luout,*) 'paired/unpaired alpha orbitals'
 c      write(luout,*) (int_mb(k_unp+i-1),i=1,noc(1))
 c
       call ga_sync()
-      if (nalp.gt.0) then
-        if(.not.ga_create(mt_dbl,nao,nalp,'unp alphaT',0,0,g_ualpha))
-     $          call errquit('ga_create failed', g_ualpha, GA_ERR)
-      endif
+      if(.not.ga_create(mt_dbl,nao,max(nalp,1),'unp alphaT',
+     $                  0,0,g_ualpha))
+     $        call errquit('ga_create failed', g_ualpha, GA_ERR)
 c
       nalp=0
       do i = 1,noc(1)
@@ -377,10 +376,8 @@ c
      &         1x,'  ------------------------------------------- ',/)
 c
 c
-      if (nalp.gt.0) then
-        if (.not. ga_destroy(g_ualpha)) call errquit
-     &     ('dft_mxspin_ovlp: could not destroy g_ualpha', 0, GA_ERR)
-      endif
+      if (.not. ga_destroy(g_ualpha)) call errquit
+     &   ('dft_mxspin_ovlp: could not destroy g_ualpha', 0, GA_ERR)
 c
       if (.not. ga_destroy(g_alphaT)) call errquit
      &   ('dft_mxspin_ovlp: could not destroy g_alphaT', 0, GA_ERR)

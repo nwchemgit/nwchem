@@ -92,7 +92,7 @@ c if there is no title sent, don't print it.
          call util_print_centered(LuOut,title, 40, .true.)
          write(LuOut,*)
 c
- 110  continue
+ 110     continue
          do i = ilo, ihi
 c
             call ga_get(g_vecs, 1, nbf, i, i, dbl_mb(k_vecs), 1)
