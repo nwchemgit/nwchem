@@ -473,21 +473,6 @@ c
             end do
          end if
       end if
-
-
-c*     *** WARNING: swapping X & Y to match NWChem space groups ***
-c*     **** do symmetry/system conversion ****
-c      if (sysset.and.symset) then
-c         write(*,*) "a-b axis conversion"
-c         do ii=1,ncenter
-c            t(1) = coords(1,ii)
-c            t(2) = coords(2,ii)
-c            coords(1,ii) = t(2)
-c            coords(2,ii) = t(1)
-c         end do
-c      end if
-c*     ***  WARNING: swappping X & Y to match NWChem space groups ***
-
 c
       if(ofile.or.osource) return
 c
@@ -968,17 +953,7 @@ c           we have to go through all this work, because some files have / in th
             amat(1,3) = 0.0d0
             amat(3,2) = c*(ca-cb*cg)/sg
             amat(3,3) = c*sgstar/sg
-!   WARNING: we swap X & Y to match NWChem space groups
-            do i=1,3
-              ca = amat(i,1)
-              amat(i,1) = amat(i,2)
-              amat(i,2) = ca
-            enddo
-            do i=1,3
-              ca = amat(1,i)
-              amat(1,i) = amat(2,i)
-              amat(2,i) = ca
-            enddo 
+! We transpose to match NWChem
             do i = 1,3
              do j= 1,i
                 ca = amat(i,j)
@@ -986,7 +961,6 @@ c           we have to go through all this work, because some files have / in th
                 amat(j,i) = ca
              enddo
             enddo
-
 
             call dscal(9,scale,amat,1)
 
@@ -1027,9 +1001,8 @@ c           we have to go through all this work, because some files have / in th
      >          call errquit(' geom_carfile_input: default mass failed',
      >          911, INPUT_ERR)
 
-!   WARNING: we swap X & Y to match NWChem space groups
-               coords(1,ncenter+1) = y
-               coords(2,ncenter+1) = x
+               coords(1,ncenter+1) = x
+               coords(2,ncenter+1) = y
                coords(3,ncenter+1) = z
                charge(ncenter+1) = atn
 
