@@ -20,7 +20,7 @@
       logical value,np_default
       integer ispin0,ne(2),nbrill,np1,np2
       integer nmult(5)
-      real*8  perror
+      real*8  error,thresh
 
 *     **** control_nose common block ****
       logical nose
@@ -938,14 +938,16 @@ c         return
             value = value.and.
      >              rtdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
          else
-            perror = 0.0d0
+            if (.not.rtdb_get(rtdb,'nwpw:frozen_lattice:thresh',
+     >                        mt_dbl,1,thresh)) thresh = 0.01d0
+            error = 0.0d0
             do l=1,3
             do i=1,3
-               perror =  perror 
-     >                + abs((unita_frozen(i,l)-unita(i,l))/unita(i,l))
+               error =  error  + ((unita_frozen(i,l)-unita(i,l)))**2
             end do
             end do
-            if (perror.gt.0.01d0) then
+            error = dsqrt(error)
+            if (error.gt.thresh) then
                call dcopy(9,unita,1,unita_frozen,1)
                value = value.and.
      >                 rtdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
