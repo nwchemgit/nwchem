@@ -558,7 +558,200 @@
       return
       end
 
+*     ********************************************
+*     *                                          *
+*     *          lattice_unitg_frozen            *
+*     *                                          *
+*     ********************************************
 
+*     frozen lattice structure - used to determine masking arrays
+
+      real*8 function lattice_unitg_frozen(i,j)
+      implicit none
+      integer i,j
+
+*     **** common blocks ****
+      logical frozen
+      real*8 ecut_frozen,wcut_frozen,omega_frozen
+      real*8 unita_frozen(3,3),unitg_frozen(3,3)
+      common / lattice_froze / unita_frozen,unitg_frozen,
+     >                         ecut_frozen,wcut_frozen,
+     >                         omega_frozen,frozen
+
+      lattice_unitg_frozen = unitg_frozen(i,j)
+      return
+      end
+
+*     ********************************************
+*     *                                          *
+*     *          lattice_unita_frozen            *
+*     *                                          *
+*     ********************************************
+
+*     frozen lattice structure - used to determine masking arrays
+
+      real*8 function lattice_unita_frozen(i,j)
+      implicit none
+      integer i,j
+
+*     **** common blocks ****
+      logical frozen
+      real*8 ecut_frozen,wcut_frozen,omega_frozen
+      real*8 unita_frozen(3,3),unitg_frozen(3,3)
+      common / lattice_froze / unita_frozen,unitg_frozen,
+     >                         ecut_frozen,wcut_frozen,
+     >                         omega_frozen,frozen
+
+      lattice_unita_frozen = unita_frozen(i,j)
+      return
+      end
+
+*     ********************************************
+*     *                                          *
+*     *          lattice_omega_frozen            *
+*     *                                          *
+*     ********************************************
+
+*     frozen lattice structure - used to determine masking arrays
+
+      real*8 function lattice_omega_frozen()
+      implicit none
+
+*     **** common blocks ****
+      logical frozen
+      real*8 ecut_frozen,wcut_frozen,omega_frozen
+      real*8 unita_frozen(3,3),unitg_frozen(3,3)
+      common / lattice_froze / unita_frozen,unitg_frozen,
+     >                         ecut_frozen,wcut_frozen,
+     >                         omega_frozen,frozen
+
+      lattice_omega_frozen = omega_frozen
+      return
+      end
+
+*     ********************************************
+*     *                                          *
+*     *          lattice_wcut_frozen             *
+*     *                                          *
+*     ********************************************
+
+*     frozen lattice structure - used to determine masking arrays
+
+      real*8 function lattice_wcut_frozen()
+      implicit none
+
+*     **** common blocks ****
+      logical frozen
+      real*8 ecut_frozen,wcut_frozen,omega_frozen
+      real*8 unita_frozen(3,3),unitg_frozen(3,3)
+      common / lattice_froze / unita_frozen,unitg_frozen,
+     >                         ecut_frozen,wcut_frozen,
+     >                         omega_frozen,frozen
+
+      lattice_wcut_frozen = wcut_frozen
+      return
+      end
+
+*     ********************************************
+*     *                                          *
+*     *          lattice_ecut_frozen             *
+*     *                                          *
+*     ********************************************
+
+*     frozen lattice structure - used to determine masking arrays
+
+      real*8 function lattice_ecut_frozen()
+      implicit none
+
+*     **** common blocks ****
+      logical frozen
+      real*8 ecut_frozen,wcut_frozen,omega_frozen
+      real*8 unita_frozen(3,3),unitg_frozen(3,3)
+      common / lattice_froze / unita_frozen,unitg_frozen,
+     >                         ecut_frozen,wcut_frozen,
+     >                         omega_frozen,frozen
+
+      lattice_ecut_frozen = ecut_frozen
+      return
+      end
+
+*     ********************************************
+*     *                                          *
+*     *          lattice_ggcut_frozen            *
+*     *                                          *
+*     ********************************************
+
+*     frozen lattice structure - used to determine masking arrays
+
+      real*8 function lattice_ggcut_frozen()
+      implicit none
+
+*     **** common blocks ****
+      logical frozen
+      real*8 ecut_frozen,wcut_frozen,omega_frozen
+      real*8 unita_frozen(3,3),unitg_frozen(3,3)
+      common / lattice_froze / unita_frozen,unitg_frozen,
+     >                         ecut_frozen,wcut_frozen,
+     >                         omega_frozen,frozen
+
+      lattice_ggcut_frozen = 2.0d0*ecut_frozen
+      return
+      end
+
+*     ********************************************
+*     *                                          *
+*     *         lattice_wggcut_frozen            *
+*     *                                          *
+*     ********************************************
+
+*     frozen lattice structure - used to determine masking arrays
+
+      real*8 function lattice_wggcut_frozen()
+      implicit none
+
+*     **** common blocks ****
+      logical frozen
+      real*8 ecut_frozen,wcut_frozen,omega_frozen
+      real*8 unita_frozen(3,3),unitg_frozen(3,3)
+      common / lattice_froze / unita_frozen,unitg_frozen,
+     >                         ecut_frozen,wcut_frozen,
+     >                         omega_frozen,frozen
+
+      lattice_wggcut_frozen = 2.0d0*wcut_frozen
+      return
+      end
+
+*     ********************************************
+*     *                                          *
+*     *         lattice_frozen                   *
+*     *                                          *
+*     ********************************************
+
+*     frozen lattice structure - used to determine masking arrays
+
+      logical function lattice_frozen()
+      implicit none
+
+*     **** common blocks ****
+      logical frozen
+      real*8 ecut_frozen,wcut_frozen,omega_frozen
+      real*8 unita_frozen(3,3),unitg_frozen(3,3)
+      common / lattice_froze / unita_frozen,unitg_frozen,
+     >                         ecut_frozen,wcut_frozen,
+     >                         omega_frozen,frozen
+
+      lattice_frozen = frozen
+      return
+      end
+
+
+
+
+*     *********************************************
+*     *                                           *
+*     *               lattice_init                *
+*     *                                           *
+*     *********************************************
 
       subroutine lattice_init()
       implicit none
@@ -571,6 +764,13 @@
       real*8 ub(3,3)
       common / lattice_block2 / ub
 
+      logical frozen
+      real*8 ecut_frozen,wcut_frozen,omega_frozen
+      real*8 unita_frozen(3,3),unitg_frozen(3,3)
+      common / lattice_froze / unita_frozen,unitg_frozen,
+     >                         ecut_frozen,wcut_frozen,
+     >                         omega_frozen,frozen
+
 
 *     **** local variables ****
       integer nx,ny,nz
@@ -580,13 +780,19 @@
       real*8  ecut0,wcut0
 
 *     **** external functions ****
+      logical  control_frozen
       integer  control_ngrid
       real*8   control_unita,control_ecut,control_wcut
+      real*8   control_unita_frozen
+      external control_frozen
       external control_ngrid
       external control_unita,control_ecut,control_wcut
+      external control_unita_frozen
         
       ecut0 = control_ecut()
       wcut0 = control_wcut()
+
+*     **** define lattice ****
       unita(1,1) = control_unita(1,1)
       unita(2,1) = control_unita(2,1)
       unita(3,1) = control_unita(3,1)
@@ -598,13 +804,26 @@
       unita(3,3) = control_unita(3,3)
       call get_cube(unita,unitg,omega)
 
+*     **** define frozen lattice - note this is only different from unita if nwpw:frozen_lattice is set ****
+      frozen = control_frozen()
+      unita_frozen(1,1) = control_unita_frozen(1,1)
+      unita_frozen(2,1) = control_unita_frozen(2,1)
+      unita_frozen(3,1) = control_unita_frozen(3,1)
+      unita_frozen(1,2) = control_unita_frozen(1,2)
+      unita_frozen(2,2) = control_unita_frozen(2,2)
+      unita_frozen(3,2) = control_unita_frozen(3,2)
+      unita_frozen(1,3) = control_unita_frozen(1,3)
+      unita_frozen(2,3) = control_unita_frozen(2,3)
+      unita_frozen(3,3) = control_unita_frozen(3,3)
+      call get_cube(unita_frozen,unitg_frozen,omega_frozen)
+
 *     **** define ub ****
       call dcopy(9,unitg,1,ub,1)
       call dscal(9,(1.0d0/(8.0d0*datan(1.0d0))),ub,1)
        
 
 
-*     *** set the ecut variable ***
+*     *** set the ecut variable using the frozen lattice***
 c     call D3dB_nx(1,nx)
 c     call D3dB_ny(1,ny)
 c     call D3dB_nz(1,nz)
@@ -615,19 +834,19 @@ c     call D3dB_nz(1,nz)
       nyh = ny/2
       nzh = nz/2
 
-      gx = unitg(1,1)*dble(nxh)
-      gy = unitg(2,1)*dble(nxh)
-      gz = unitg(3,1)*dble(nxh)
+      gx = unitg_frozen(1,1)*dble(nxh)
+      gy = unitg_frozen(2,1)*dble(nxh)
+      gz = unitg_frozen(3,1)*dble(nxh)
       gg1 = gx*gx + gy*gy + gz*gz
 
-      gx = unitg(1,2)*dble(nyh)
-      gy = unitg(2,2)*dble(nyh)
-      gz = unitg(3,2)*dble(nyh)
+      gx = unitg_frozen(1,2)*dble(nyh)
+      gy = unitg_frozen(2,2)*dble(nyh)
+      gz = unitg_frozen(3,2)*dble(nyh)
       gg2 = gx*gx + gy*gy + gz*gz
 
-      gx = unitg(1,3)*dble(nzh)
-      gy = unitg(2,3)*dble(nzh)
-      gz = unitg(3,3)*dble(nzh)
+      gx = unitg_frozen(1,3)*dble(nzh)
+      gy = unitg_frozen(2,3)*dble(nzh)
+      gz = unitg_frozen(3,3)*dble(nzh)
       gg3 = gx*gx + gy*gy + gz*gz
 
       gg = gg1
@@ -643,6 +862,10 @@ c     call D3dB_nz(1,nz)
       if (wcut0.lt.wcut) then
          wcut = wcut0
       end if
+
+*     **** set ecut,wcut for frozen lattice ****
+      wcut_frozen = wcut
+      ecut_frozen = ecut
 
       return
       end

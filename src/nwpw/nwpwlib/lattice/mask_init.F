@@ -43,8 +43,8 @@
       logical value
 
 *     **** external functions ***
-      real*8   lattice_ggcut,lattice_wggcut,lattice_unitg
-      external lattice_ggcut,lattice_wggcut,lattice_unitg
+      real*8   lattice_ggcut,lattice_wggcut,lattice_unitg_frozen
+      external lattice_ggcut,lattice_wggcut,lattice_unitg_frozen
 
 *     **** allocate masker memory ****
       call D3dB_nfft3d(1,nfft3d)
@@ -87,15 +87,15 @@
          do k3 = -nzh+1, nzh-1
             do k2 = -nyh+1, nyh-1
                do k1 = 0,nxh-1
-                  g1 = k1*lattice_unitg(1,1) 
-     >               + k2*lattice_unitg(1,2) 
-     >               + k3*lattice_unitg(1,3)
-                  g2 = k1*lattice_unitg(2,1) 
-     >               + k2*lattice_unitg(2,2) 
-     >               + k3*lattice_unitg(2,3)
-                  g3 = k1*lattice_unitg(3,1) 
-     >               + k2*lattice_unitg(3,2) 
-     >               + k3*lattice_unitg(3,3)
+                  g1 = k1*lattice_unitg_frozen(1,1) 
+     >               + k2*lattice_unitg_frozen(1,2) 
+     >               + k3*lattice_unitg_frozen(1,3)
+                  g2 = k1*lattice_unitg_frozen(2,1) 
+     >               + k2*lattice_unitg_frozen(2,2) 
+     >               + k3*lattice_unitg_frozen(2,3)
+                  g3 = k1*lattice_unitg_frozen(3,1) 
+     >               + k2*lattice_unitg_frozen(3,2) 
+     >               + k3*lattice_unitg_frozen(3,3)
                   i=k1
                   j=k2
                   k=k3
