@@ -27,8 +27,8 @@ $Id$
 #define up      2
 #define down    3
 
-
-
+int     hilbert2d(int i, int j, int level);
+int     hilbert_dir(int i, int j, int level, int high, int* start);
 
 #if defined(CRAY) || defined(CRAY_T3D) || defined(WIN32)
 #define pspsolve_ PSPSOLVE
