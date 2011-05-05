@@ -205,7 +205,9 @@ cccccccccccccccccccccccccccccccccccccc
       real*8  zz,z,term
       logical value
       real*8 g1,g2,g3,gg1,gg2,gg3
+      real*8 gf1,gf2,gf3,ggf1,ggf2,ggf3
       real*8 unitg(3,3),unita(3,3)
+      real*8 unitf(3,3)
 
 *     **** external functions ****
       integer  ewald_strfact_i_indx
@@ -216,7 +218,7 @@ cccccccccccccccccccccccccccccccccccccc
       real*8   control_rcut,control_ecut
       integer  ion_nion,ion_katm,ion_nion_qm
       real*8   lattice_omega,lattice_unita
-      real*8   lattice_unitg
+      real*8   lattice_unitg,lattice_unitg_frozen
       real*8 psp_zv,cpsp_zv,paw_basis_ion_charge,mmq_zv
       real*8 paw_basis_core_charge,dsum
       integer control_ewald_ngrid
@@ -229,15 +231,16 @@ cccccccccccccccccccccccccccccccccccccc
       external control_rcut,control_ecut
       external ion_nion,ion_katm,ion_nion_qm
       external lattice_omega,lattice_unita                                
-      external lattice_unitg
+      external lattice_unitg,lattice_unitg_frozen
       external psp_zv,cpsp_zv,paw_basis_ion_charge,mmq_zv
       external paw_basis_core_charge,dsum
       external control_ewald_ngrid
 
       do j=1,3
       do i=1,3
-          unitg(i,j) = lattice_unitg(i,j)
           unita(i,j) = lattice_unita(i,j)
+          unitg(i,j) = lattice_unitg(i,j)
+          unitf(i,j) = lattice_unitg_frozen(i,j)
       end do
       end do
       call Parallel_np(tnp)
@@ -250,19 +253,19 @@ cccccccccccccccccccccccccccccccccccccc
       enzh=enz/2
 
 *     **** determine ggcut ****
-      g1 = unitg(1,1)*(enxh)
-      g2 = unitg(2,1)*(enxh)
-      g3 = unitg(3,1)*(enxh)
+      g1 = unitf(1,1)*(enxh)
+      g2 = unitf(2,1)*(enxh)
+      g3 = unitf(3,1)*(enxh)
       gg1 = g1*g1 + g2*g2 + g3*g3
 
-      g1 = unitg(1,2)*(enyh)
-      g2 = unitg(2,2)*(enyh)
-      g3 = unitg(3,2)*(enyh)
+      g1 = unitf(1,2)*(enyh)
+      g2 = unitf(2,2)*(enyh)
+      g3 = unitf(3,2)*(enyh)
       gg2 = g1*g1 + g2*g2 + g3*g3
 
-      g1 = unitg(1,3)*(enzh)
-      g2 = unitg(2,3)*(enzh)
-      g3 = unitg(3,3)*(enzh)
+      g1 = unitf(1,3)*(enzh)
+      g2 = unitf(2,3)*(enzh)
+      g3 = unitf(3,3)*(enzh)
       gg3 = g1*g1 + g2*g2 + g3*g3
 
       ggcut = gg1
@@ -277,9 +280,9 @@ c     **** determine enpack ****
       k1 = 0
       k2 = 0
       k3 = 0
-      g1=k1*unitg(1,1)+k2*unitg(1,2)+k3*unitg(1,3)
-      g2=k1*unitg(2,1)+k2*unitg(2,2)+k3*unitg(2,3)
-      g3=k1*unitg(3,1)+k2*unitg(3,2)+k3*unitg(3,3)
+      g1=k1*unitf(1,1)+k2*unitf(1,2)+k3*unitf(1,3)
+      g2=k1*unitf(2,1)+k2*unitf(2,2)+k3*unitf(2,3)
+      g3=k1*unitf(3,1)+k2*unitf(3,2)+k3*unitf(3,3)
       gg=g1*g1+g2*g2+g3*g3
       if ((gg-ggcut).lt.-eps) then
          if (dutask.eq.tid) then
@@ -292,9 +295,9 @@ c     **** determine enpack ****
          k1 = 0
          k2 = 0
          k3 = k
-         g1=k1*unitg(1,1)+k2*unitg(1,2)+k3*unitg(1,3)
-         g2=k1*unitg(2,1)+k2*unitg(2,2)+k3*unitg(2,3)
-         g3=k1*unitg(3,1)+k2*unitg(3,2)+k3*unitg(3,3)
+         g1=k1*unitf(1,1)+k2*unitf(1,2)+k3*unitf(1,3)
+         g2=k1*unitf(2,1)+k2*unitf(2,2)+k3*unitf(2,3)
+         g3=k1*unitf(3,1)+k2*unitf(3,2)+k3*unitf(3,3)
          gg=g1*g1+g2*g2+g3*g3
          if ((gg-ggcut).lt.-eps) then
             if (dutask.eq.tid) enpack = enpack + 1
@@ -306,9 +309,9 @@ c     **** determine enpack ****
          k1 = 0
          k2 = j
          k3 = k
-         g1=k1*unitg(1,1)+k2*unitg(1,2)+k3*unitg(1,3)
-         g2=k1*unitg(2,1)+k2*unitg(2,2)+k3*unitg(2,3)
-         g3=k1*unitg(3,1)+k2*unitg(3,2)+k3*unitg(3,3)
+         g1=k1*unitf(1,1)+k2*unitf(1,2)+k3*unitf(1,3)
+         g2=k1*unitf(2,1)+k2*unitf(2,2)+k3*unitf(2,3)
+         g3=k1*unitf(3,1)+k2*unitf(3,2)+k3*unitf(3,3)
          gg=g1*g1+g2*g2+g3*g3
          if ((gg-ggcut).lt.-eps) then
             if (dutask.eq.tid) enpack = enpack + 1
@@ -322,9 +325,9 @@ c     **** determine enpack ****
          k1=i
          k2=j
          k3=k
-         g1=k1*unitg(1,1)+k2*unitg(1,2)+k3*unitg(1,3)
-         g2=k1*unitg(2,1)+k2*unitg(2,2)+k3*unitg(2,3)
-         g3=k1*unitg(3,1)+k2*unitg(3,2)+k3*unitg(3,3)
+         g1=k1*unitf(1,1)+k2*unitf(1,2)+k3*unitf(1,3)
+         g2=k1*unitf(2,1)+k2*unitf(2,2)+k3*unitf(2,3)
+         g3=k1*unitf(3,1)+k2*unitf(3,2)+k3*unitf(3,3)
          gg=g1*g1+g2*g2+g3*g3
          if ((gg-ggcut).lt.-eps) then
             if (dutask.eq.tid) enpack = enpack + 1
@@ -361,7 +364,11 @@ c     **** allocate memory for common block ****
       g1=k1*unitg(1,1)+k2*unitg(1,2)+k3*unitg(1,3)
       g2=k1*unitg(2,1)+k2*unitg(2,2)+k3*unitg(2,3)
       g3=k1*unitg(3,1)+k2*unitg(3,2)+k3*unitg(3,3)
-      gg=g1*g1+g2*g2+g3*g3
+
+      gf1=k1*unitf(1,1)+k2*unitf(1,2)+k3*unitf(1,3)
+      gf2=k1*unitf(2,1)+k2*unitf(2,2)+k3*unitf(2,3)
+      gf3=k1*unitf(3,1)+k2*unitf(3,2)+k3*unitf(3,3)
+      gg=gf1*gf1+gf2*gf2+gf3*gf3
       if ((gg-ggcut).lt.-eps) then
          if (dutask.eq.tid) then
             dbl_mb(eG(1)+enpack0) = g1
@@ -387,7 +394,11 @@ c     **** allocate memory for common block ****
          g1=k1*unitg(1,1)+k2*unitg(1,2)+k3*unitg(1,3)
          g2=k1*unitg(2,1)+k2*unitg(2,2)+k3*unitg(2,3)
          g3=k1*unitg(3,1)+k2*unitg(3,2)+k3*unitg(3,3)
-         gg=g1*g1+g2*g2+g3*g3
+
+         gf1=k1*unitf(1,1)+k2*unitf(1,2)+k3*unitf(1,3)
+         gf2=k1*unitf(2,1)+k2*unitf(2,2)+k3*unitf(2,3)
+         gf3=k1*unitf(3,1)+k2*unitf(3,2)+k3*unitf(3,3)
+         gg=gf1*gf1+gf2*gf2+gf3*gf3
          if ((gg-ggcut).lt.-eps) then
             if (dutask.eq.tid) then
                dbl_mb(eG(1)+enpack0) = g1
@@ -413,7 +424,11 @@ c     **** allocate memory for common block ****
          g1=k1*unitg(1,1)+k2*unitg(1,2)+k3*unitg(1,3)
          g2=k1*unitg(2,1)+k2*unitg(2,2)+k3*unitg(2,3)
          g3=k1*unitg(3,1)+k2*unitg(3,2)+k3*unitg(3,3)
-         gg=g1*g1+g2*g2+g3*g3
+
+         gf1=k1*unitf(1,1)+k2*unitf(1,2)+k3*unitf(1,3)
+         gf2=k1*unitf(2,1)+k2*unitf(2,2)+k3*unitf(2,3)
+         gf3=k1*unitf(3,1)+k2*unitf(3,2)+k3*unitf(3,3)
+         gg=gf1*gf1+gf2*gf2+gf3*gf3
          if ((gg-ggcut).lt.-eps) then
             if (dutask.eq.tid) then
                dbl_mb(eG(1)+enpack0) = g1
@@ -440,7 +455,11 @@ c     **** allocate memory for common block ****
          g1=k1*unitg(1,1)+k2*unitg(1,2)+k3*unitg(1,3)
          g2=k1*unitg(2,1)+k2*unitg(2,2)+k3*unitg(2,3)
          g3=k1*unitg(3,1)+k2*unitg(3,2)+k3*unitg(3,3)
-         gg=g1*g1+g2*g2+g3*g3
+
+         gf1=k1*unitf(1,1)+k2*unitf(1,2)+k3*unitf(1,3)
+         gf2=k1*unitf(2,1)+k2*unitf(2,2)+k3*unitf(2,3)
+         gf3=k1*unitf(3,1)+k2*unitf(3,2)+k3*unitf(3,3)
+         gg=gf1*gf1+gf2*gf2+gf3*gf3
          if ((gg-ggcut).lt.-eps) then
             if (dutask.eq.tid) then
                dbl_mb(eG(1)+enpack0) = g1
