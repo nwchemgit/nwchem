@@ -20,6 +20,7 @@
       logical value,np_default
       integer ispin0,ne(2),nbrill,np1,np2
       integer nmult(5)
+      real*8  perror
 
 *     **** control_nose common block ****
       logical nose
@@ -35,7 +36,7 @@
       common / control_print1 / print_level
 
       !character*30 cell_name
-      character*50 rtdb_unita,rtdb_ngrid,rtdb_boundry
+      character*50 rtdb_unita,rtdb_unitaf,rtdb_ngrid,rtdb_boundry
       character*50 exchange_correlation
       integer i,l,ind,np
 
@@ -912,6 +913,7 @@ c         return
 *     **********************
       l = index(cell_name,' ') - 1
       rtdb_unita = cell_name(1:l)//':unita'
+      rtdb_unitaf = cell_name(1:l)//':unita_frozen'
       rtdb_ngrid = cell_name(1:l)//':ngrid'
       rtdb_boundry = cell_name(1:l)//':boundry'
 
@@ -926,14 +928,31 @@ c         return
       end if
       call check_unita_for_default(rtdb,unita,rtdb_unita,cell_name)
 
+
 *     **** define unita_frozen ****
-      if (.not.rtdb_get(rtdb,'nwpw:unita_frozen',
-     >                  mt_dbl,9,unita_frozen)) then
-         call dcopy(9,unita,1,unita_frozen,1)
-         frozen = .false.
-      else
-         frozen = .true.
+      if (.not.rtdb_get(rtdb,'nwpw:frozen_lattice',mt_log,1,frozen)) 
+     >   frozen = .true.
+      if (frozen) then
+         if (.not.rtdb_get(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)) then
+            call dcopy(9,unita,1,unita_frozen,1)
+            value = value.and.
+     >              rtdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
+         else
+            perror = 0.0d0
+            do l=1,3
+            do i=1,3
+               perror =  perror 
+     >                + abs((unita_frozen(i,l)-unita(i,l))/unita(i,l))
+            end do
+            end do
+            if (perror.gt.0.01d0) then
+               call dcopy(9,unita,1,unita_frozen,1)
+               value = value.and.
+     >                 rtdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
+            end if
+         end if
       end if
+
 
 *     **** define ngrid based on unita and ecut ****
       if (.not.rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
