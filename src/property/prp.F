@@ -32,6 +32,7 @@ c
       some  =.true.        
       some  =some.or.out
       some  =some.and.ga_nodeid().eq.0
+      noloc = 0
 c
       status=rtdb_get(rtdb,'prop:dipole',MT_INT,1,nodip)            !done
       status=rtdb_get(rtdb,'prop:quadrupole',MT_INT,1,noqdp)        !done
