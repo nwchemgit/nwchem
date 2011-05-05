@@ -1193,7 +1193,7 @@ void updist_( const unsigned int* handle, const unsigned int* value )
 unsigned int getdist_( const char* dist_name, 
 		       const unsigned int dist_name_length )
 {
-    return;
+    return (unsigned int) 0;
 }
 void initialize_dist_()
 {
