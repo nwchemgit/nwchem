@@ -2008,6 +2008,20 @@ c         mtensor(3,3) = z
       return
       end
 
+*     ***********************************
+*     *					*
+*     *		control_frozen		*
+*     *					*
+*     ***********************************
+      logical function control_frozen()
+      implicit none 
+
+#include "control.fh"
+
+      control_frozen = frozen
+      return
+      end
+
 
 *     ***********************************
 *     *					*
