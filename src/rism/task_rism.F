@@ -1,3 +1,4 @@
+c       test      
        function task_rism(rtdb)
        IMPLICIT NONE
 #include "errquit.fh"
