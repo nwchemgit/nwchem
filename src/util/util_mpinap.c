@@ -2,6 +2,8 @@
  $Id$
  */
 #include <stdio.h>
+#include <unistd.h>
+
 #ifdef MPI
 #include <mpi.h>
 #endif

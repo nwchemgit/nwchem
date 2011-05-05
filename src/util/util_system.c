@@ -22,6 +22,8 @@ extern int system(const char *);
 #undef __USE_BSD
 #endif
 
+void GA_Error(char *str, int code);
+
 typedef long Integer;		/*  FORTRAN integer */
 
 #if defined(USE_FCD)

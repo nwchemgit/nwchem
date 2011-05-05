@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "mdglobal.h"
 #include "md5.h"
 #if defined(CRAY)&& !defined(__crayx1)

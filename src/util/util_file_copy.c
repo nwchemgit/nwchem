@@ -3,6 +3,7 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 #if defined(CRAY) && !defined(__crayx1)
 #include <fortran.h>
 #define FATR

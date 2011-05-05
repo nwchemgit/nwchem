@@ -21,6 +21,7 @@
 #define FATR
 #endif
 #include "eaf.h"
+#include "ga.h"
 
 #if defined(USE_FCD)
 int fortchar_to_string(_fcd, int, char *, const int);
