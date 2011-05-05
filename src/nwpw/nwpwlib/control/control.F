@@ -448,6 +448,7 @@ c
      >                  1,input_wavefunction_filename))
      >     call util_file_prefix('movecs',input_wavefunction_filename)
          call psi_get_header(i,ngrid,unita,ispin0,ne)
+         call dcopy(9,unita,1,unita_frozen,1)
          if (i.eq.3) boundry = 'periodic'
          if (i.eq.4) boundry = 'aperiodic'
 
@@ -834,6 +835,7 @@ c
       end if
 
          call psi_get_header(i,ngrid,unita,ispin0,ne)
+         call dcopy(9,unita,1,unita_frozen,1)
          if (i.eq.3) boundry = 'periodic'
          if (i.eq.4) boundry = 'aperiodic'
 
@@ -866,6 +868,7 @@ c         return
      >                  1,input_wavefunction_filename))
      >     call util_file_prefix('movecs',input_wavefunction_filename)
          call psi_get_header(i,ngrid,unita,ispin0,ne,nbrill)
+         call dcopy(9,unita,1,unita_frozen,1)
          if (i.eq.5) boundry = 'periodic'
 
 *        **** dummy variables ****
@@ -923,6 +926,14 @@ c         return
       end if
       call check_unita_for_default(rtdb,unita,rtdb_unita,cell_name)
 
+*     **** define unita_frozen ****
+      if (.not.rtdb_get(rtdb,'nwpw:unita_frozen',
+     >                  mt_dbl,9,unita_frozen)) then
+         call dcopy(9,unita,1,unita_frozen,1)
+         frozen = .false.
+      else
+         frozen = .true.
+      end if
 
 *     **** define ngrid based on unita and ecut ****
       if (.not.rtdb_get(rtdb,rtdb_ngrid,mt_int,3,ngrid)) then
@@ -932,7 +943,9 @@ c         return
             ecut = 2.0d0*wcut
          end if
             
-         call control_ngrid_default(rtdb,unita,ecut,mapping,ngrid)
+         !call control_ngrid_default(rtdb,unita,ecut,mapping,ngrid)
+         call control_ngrid_default(rtdb,unita_frozen,ecut,
+     >                              mapping,ngrid)
          !ngrid(1) = 32
          !ngrid(2) = 32
          !ngrid(3) = 32
@@ -1977,6 +1990,21 @@ c         mtensor(3,3) = z
 #include "control.fh"
 
       control_unita = unita(i,j)
+      return
+      end
+
+*     ***********************************
+*     *					*
+*     *		control_unita_frozen	*
+*     *					*
+*     ***********************************
+      real*8 function control_unita_frozen(i,j)
+      implicit none 
+      integer i,j
+
+#include "control.fh"
+
+      control_unita_frozen = unita_frozen(i,j)
       return
       end
 
