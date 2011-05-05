@@ -33,6 +33,7 @@
  */
 #include <stdio.h>
 #include <math.h>
+#include <string.h>
 
 #include "globalp.c.h"
 #include "blas_lapack.h"
