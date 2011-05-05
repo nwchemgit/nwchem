@@ -1771,3 +1771,141 @@ c
       call db_data_put_int(sname,tag,4,itest1)
       call db_data_namespace_print(sname,6) 
       end
+
+
+      subroutine db_ma_char_print(nt,ns,t,un)
+      implicit none
+#include "db_const_data.fh"
+c
+      integer nt,un,ns
+      character(1) t(nt*ns)
+
+      integer i,j
+
+      do i=1,nt
+          write(un,'(72A1)')
+     >      (t(ns*(i-1)+j),j=1,ns)
+
+      end do
+
+      end
+      subroutine db_set_ma_to_char1(myname,ilo,ihi,nt,t)
+      implicit none
+c
+      integer nt,ilo,ihi
+      character*(32) t(nt)
+      character*(*) myname(ihi-ilo+1)
+
+      integer i,j
+
+      do i=1,ihi-ilo+1
+        j=ilo+i-1
+        myname(i)=t(j)
+      end do
+
+      end
+      subroutine db_set_char_to_ma1(myname,ilo,ihi,nt,t)
+      implicit none
+c
+      integer nt,ilo,ihi
+      character*(32) t(nt)
+      character*(*) myname(ihi-ilo+1)
+
+      integer i,j
+
+      do i=1,ihi-ilo+1
+        j=ilo+i-1
+        t(j) = myname(i)
+      end do
+
+      end
+      subroutine db_set_char_to_ma2(myname,nt,t)
+      implicit none
+c
+      integer nt
+      character*(32) t(nt)
+      character*(*) myname
+
+      integer i,j
+
+      do i=1,nt
+        t(i) = myname
+      end do
+
+      end
+      subroutine db_set_char_to_ma(nt,myname,t)
+      implicit none
+c
+      integer nt
+      character*(32) t(nt)
+      character*(*) myname(nt)
+
+      integer i
+
+      do i=1,nt
+        t(i) = myname(i)
+      end do
+
+      end
+      subroutine db_set_ma_to_char(nt,myname,t)
+      implicit none
+c
+      integer nt
+      character*(*) t(nt)
+      character*(32) myname(nt)
+
+      integer i
+
+      do i=1,nt
+        t(i) = " "
+        t(i) = myname(i)
+      end do
+
+      end
+      subroutine db_set_ma_char(nt,myname,t)
+      implicit none
+c
+      integer nt
+      character(1) t(nt)
+      character(1) myname(nt)
+
+      integer i
+
+      do i=1,nt
+        t(i) = myname(i)
+      end do
+
+      end
+      subroutine db_wipe_ma_char(nt,t)
+      implicit none
+c
+      integer nt
+      character*(32) t(nt)
+
+      integer i
+
+      do i=1,nt
+        t(i) = " "
+      end do
+
+      end
+
+      subroutine db_ma_char_count(s,t,nt)
+      implicit none
+c
+#include "inp.fh"
+      integer nt
+      character*(*) s
+      character*(*) t
+
+      integer istart,iend
+
+      istart = 0
+      nt = 0
+  10  if (inp_strtok(t,s, istart, iend)) then
+      nt = nt +1
+      goto 10
+      endif
+
+      end
+

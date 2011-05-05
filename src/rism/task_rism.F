@@ -1,4 +1,3 @@
-c       test      
        function task_rism(rtdb)
        IMPLICIT NONE
 #include "errquit.fh"
@@ -56,6 +55,7 @@ CCCC
        subroutine RISMINPUT(NV,NU,NGR,DR,R1,tau,
      * solperm,ICR,T,tol,lambd,ICL,DD) 
        IMPLICIT NONE
+#include "mafdecls.fh"
        INTEGER  NU, ISU(1:NU), MU(1:NU)
        REAL*8 WU(1:NU,1:NU,1:NGR),SGVV(1:NV)
        REAL*8 XU(1:NU),YU(1:NU),ZU(1:NU),SIGU(1:NU)
@@ -71,6 +71,70 @@ CCCC
        INTEGER J1,J
        REAL*8 c3(1:NU,1:NV,1:NGR),hu(1:NU,1:NV,1:NGR) 
        REAL*8 GAM(1:NU,1:NV,1:NGR)
+       character*32 sname
+c       index handles for rism data structures
+       integer nuvg
+       integer nuug
+       integer i_c3,i_hu,i_gam,i_rgrid,i_kgrid
+       integer  i_ims
+       integer  i_sigvv
+       integer  i_epsvv
+       integer  i_qvv
+       integer  i_epsiv
+       integer  i_qqv
+       integer  i_den
+       integer  i_xv
+       integer  i_yv
+       integer  i_zv
+       integer  i_sigv
+       integer  i_isv
+       integer  i_mv
+       integer  i_epsiu
+       integer  i_qqu
+       integer  i_xu
+       integer  i_yu
+       integer  i_zu
+       integer  i_sigu
+       integer  i_wu
+       integer  i_sgvv
+       integer  i_mu
+       integer  i_isu
+C
+
+c       create rism data structures stored in namespace "rism"
+       sname = "rism"
+       nuvg = NU*NV*NGR
+       nuug = NU*NU*NGR
+       call db_namespace_create(sname)
+       call db_data_create_get(sname,"c3",nuvg,MT_DBL,i_c3)
+       call db_data_create_get(sname,"hu",nuvg,MT_DBL,i_hu)
+       call db_data_create_get(sname,"gam",nuvg,MT_DBL,i_gam)
+       call db_data_create_get(sname,"rgrid",ngr,MT_DBL,i_rgrid)
+       call db_data_create_get(sname,"kgrid",ngr,MT_DBL,i_kgrid)
+       call db_data_create_get(sname,"ims",nv,MT_DBL,i_ims)
+       call db_data_create_get(sname,"sigvv",nv,MT_DBL,i_sigvv)
+       call db_data_create_get(sname,"epsvv",nv,MT_DBL,i_epsvv)
+       call db_data_create_get(sname,"qvv",nv,MT_DBL,i_qvv)
+       call db_data_create_get(sname,"epsiv",nv,MT_DBL,i_epsiv)
+       call db_data_create_get(sname,"qqv",nv,MT_DBL,i_qqv)
+       call db_data_create_get(sname,"den",nv,MT_DBL,i_den)
+       call db_data_create_get(sname,"xv",nv,MT_DBL,i_xv)
+       call db_data_create_get(sname,"yv",nv,MT_DBL,i_yv)
+       call db_data_create_get(sname,"zv",nv,MT_DBL,i_zv)
+       call db_data_create_get(sname,"sigv",nv,MT_DBL,i_sigv)
+       call db_data_create_get(sname,"isv",nv,MT_DBL,i_isv)
+       call db_data_create_get(sname,"mv",nv,MT_DBL,i_mv)
+c       
+       call db_data_create_get(sname,"epsiu",nu,MT_DBL,i_epsiu)
+       call db_data_create_get(sname,"qqu",nu,MT_DBL,i_qqu)
+       call db_data_create_get(sname,"xu",nu,MT_DBL,i_xu)
+       call db_data_create_get(sname,"yu",nu,MT_DBL,i_yu)
+       call db_data_create_get(sname,"zu",nu,MT_DBL,i_zu)
+       call db_data_create_get(sname,"sigu",nu,MT_DBL,i_sigu)
+       call db_data_create_get(sname,"wu",nuug,MT_DBL,i_wu)
+       call db_data_create_get(sname,"sgvv",nv,MT_DBL,i_sgvv)
+       call db_data_create_get(sname,"mu",nu,MT_DBL,i_mu)
+       call db_data_create_get(sname,"isu",nu,MT_DBL,i_isu)
 C
 C      solvent input
 C TV type of cite ISV type of species MV multiplicity  DEN density (1/A3) XVYVZV[xyz](A) 
