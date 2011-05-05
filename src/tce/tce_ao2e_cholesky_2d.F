@@ -86,6 +86,8 @@ c     ===========
 c     Allocate GA
 c     ===========
 c
+      nodezero=(ga_nodeid().eq.0)
+
 #ifdef DEBUG_PRINT
       print*,'starting GA allocation'
 #endif
