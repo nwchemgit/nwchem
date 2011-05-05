@@ -939,7 +939,7 @@ c         return
      >              rtdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
          else
             if (.not.rtdb_get(rtdb,'nwpw:frozen_lattice:thresh',
-     >                        mt_dbl,1,thresh)) thresh = 0.01d0
+     >                        mt_dbl,1,thresh)) thresh = 0.05d0
             error = 0.0d0
             do l=1,3
             do i=1,3
