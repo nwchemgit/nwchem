@@ -34,42 +34,44 @@ c
       do p1b = noab+1,noab+nvab
         do h2b = 1,noab
           if (int_mb(k_spin+p1b-1) .eq. int_mb(k_spin+h2b-1)) then 
-          if ((.not.restricted).or.(int_mb(k_spin+p1b-1)
-     1      +int_mb(k_spin+h2b-1).ne.4)) then
-          if (ieor(int_mb(k_sym+p1b-1),int_mb(k_sym+h2b-1))
-     1      .eq.irrep) then
-            size = int_mb(k_range+p1b-1) * int_mb(k_range+h2b-1)
-            if (.not.ma_push_get(mt_dbl,size,'r1',l_r1,k_r1))
-     1        call errquit('tce_print_x1: MA problem',0,MA_ERR)
-            call get_hash_block(d_r1,dbl_mb(k_r1),size,
-     1        int_mb(k_r1_offset),((p1b-noab-1)*noab+h2b-1))
-            i = 0
-            do p1 = 1,int_mb(k_range+p1b-1)
-              do h2 = 1,int_mb(k_range+h2b-1)
-                i = i + 1
-                if (dabs(dbl_mb(k_r1+i-1)).gt.r1_thresh) then
-                  call sym_irrepname(geom,int_mb(k_sym+p1b-1)+1,irrep_p)
-                  call sym_irrepname(geom,int_mb(k_sym+h2b-1)+1,irrep_h)
-                  spin_p = spinnames(int_mb(k_spin+p1b-1))
-                  spin_h = spinnames(int_mb(k_spin+h2b-1))
-                  if (nodezero) write(LuOut,9010) 
-c     1              int_mb(k_offset+p1b-1)+p1,irrep_p,spin_p,
-c     2              int_mb(k_offset+h2b-1)+h2,irrep_h,spin_h,
-c     3              dbl_mb(k_r1+i-1)
-     1              (int_mb(k_mo_index+int_mb(k_offset+p1b-1)+p1-1)+
-     1               2-int_mb(k_spin+p1b-1))/2,
-     1              irrep_p,spin_p,
-     2              (int_mb(k_mo_index+int_mb(k_offset+h2b-1)+h2-1)+
-     1               2-int_mb(k_spin+h2b-1))/2,
-     2              irrep_h,spin_h,
-     2              dbl_mb(k_r1+i-1)
-                endif
-              enddo
-            enddo
-            if (.not.ma_pop_stack(l_r1))
-     1        call errquit('tce_print_x1: MA problem',1,MA_ERR)
-          endif
-          endif
+            if ((.not.restricted).or.(int_mb(k_spin+p1b-1)
+     1        +int_mb(k_spin+h2b-1).ne.4)) then
+              if (ieor(int_mb(k_sym+p1b-1),int_mb(k_sym+h2b-1))
+     1          .eq.irrep) then
+                size = int_mb(k_range+p1b-1) * int_mb(k_range+h2b-1)
+                if (.not.ma_push_get(mt_dbl,size,'r1',l_r1,k_r1))
+     1            call errquit('tce_print_x1: MA problem',0,MA_ERR)
+                call get_hash_block(d_r1,dbl_mb(k_r1),size,
+     1            int_mb(k_r1_offset),((p1b-noab-1)*noab+h2b-1))
+                i = 0
+                do p1 = 1,int_mb(k_range+p1b-1)
+                  do h2 = 1,int_mb(k_range+h2b-1)
+                    i = i + 1
+                    if (dabs(dbl_mb(k_r1+i-1)).gt.r1_thresh) then
+                      call sym_irrepname(geom,int_mb(k_sym+p1b-1)+1,
+     1                                   irrep_p)
+                      call sym_irrepname(geom,int_mb(k_sym+h2b-1)+1,
+     1                                   irrep_h)
+                      spin_p = spinnames(int_mb(k_spin+p1b-1))
+                      spin_h = spinnames(int_mb(k_spin+h2b-1))
+                      if (nodezero) write(LuOut,9010) 
+c     1                int_mb(k_offset+p1b-1)+p1,irrep_p,spin_p,
+c     2                int_mb(k_offset+h2b-1)+h2,irrep_h,spin_h,
+c     3                dbl_mb(k_r1+i-1)
+     1                (int_mb(k_mo_index+int_mb(k_offset+p1b-1)+p1-1)+
+     1                 2-int_mb(k_spin+p1b-1))/2,
+     1                irrep_p,spin_p,
+     2                (int_mb(k_mo_index+int_mb(k_offset+h2b-1)+h2-1)+
+     1                 2-int_mb(k_spin+h2b-1))/2,
+     2                irrep_h,spin_h,
+     2                dbl_mb(k_r1+i-1)
+                    endif
+                  enddo
+                enddo
+                if (.not.ma_pop_stack(l_r1))
+     1            call errquit('tce_print_x1: MA problem',1,MA_ERR)
+              endif
+            endif
           endif
         enddo
       enddo
