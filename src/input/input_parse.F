@@ -164,6 +164,8 @@ c
                call smd_input(rtdb)
             else if (inp_compare(.false.,test,'pause')) then
                call util_sleep(60)
+            else if (inp_compare(.false.,test,'rism')) then
+               call rism_input(rtdb)
             else if (inp_compare(.false.,test,'qmmm')) then
                call qmmm_input(rtdb)
 c            else if (inp_compare(.false.,test,'embed')) then
