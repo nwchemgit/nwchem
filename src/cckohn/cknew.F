@@ -707,7 +707,7 @@ c
 c     build the p space hamiltonian and compute hpp-e
 c
          if(.not.selci(rtdb))
-     &        call errquit("selci fialed", 0), RTDB_ERR 
+     &        call errquit("selci fialed", 0, RTDB_ERR)
 c
          npvec = 9              ! number of bound p space vectors
          write(6,877)npvec,nsmall
