@@ -11,7 +11,6 @@
        integer  nu, nv, ngr ,icr,icl,i,dd 
        real*8 r1, r2, tau, solperm,t, tol,lambd,dr  
        call rism_prepare(rtdb)
-       stop
 c parameters(nv number of solute sites  nu number of solute sites ngr number of grid points)
 c solperm solvent relative permittivity
 c tau(aa-1) separation between short and long range functions in 1/angstroms
@@ -110,8 +109,6 @@ c       create rism data structures stored in namespace "rism"
        call db_data_create_get(sname,"c3",nuvg,mt_dbl,i_c3)
        call db_data_create_get(sname,"hu",nuvg,mt_dbl,i_hu)
        call db_data_create_get(sname,"gam",nuvg,mt_dbl,i_gam)
-       call db_data_create_get(sname,"rgrid",ngr,mt_dbl,i_rgrid)
-       call db_data_create_get(sname,"kgrid",ngr,mt_dbl,i_kgrid)
        call db_data_create_get(sname,"sigvv",nv,mt_dbl,i_sigvv)
        
       call db_data_create_get(sname,"wu",nuug,mt_dbl,i_wu)
@@ -138,7 +135,6 @@ c      calculations interaction parameters for reduced matrix
       do i=1,nvv 
        write(32,*) sgvv(i),epsvv(i),qvv(i),i,ims(i)
       enddo
-       stop
 c
 c      solute input
 c tu type of cite isu type of species mu multiplicity  xuyuzu[xyz](a) 
@@ -165,9 +161,10 @@ c      the zero point is excluded
 c
 c      wu(i,j,k) intramolecular solute function
        call wucreat(nu,ngr,kgrid,tu,isu,xu,yu,zu,wu) 
-!      do k=1,ngr,40
-!       print*, (wu(1,i,k), i=1,9)
-!      enddo
+      do k=1,ngr
+       write(44,*) (wu(1,i,k), i=1,9)
+      enddo
+       stop
 c       
        call rism(nu,nv,nvv,ngr,icl,kgrid,rgrid,tv,isv,den,mv,xv,yv,zv,
      * icr,ims,tau,solperm,sgvv,epsvv,qvv,sigu,epsiu,qqu,t,lambd,

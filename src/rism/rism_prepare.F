@@ -12,10 +12,13 @@
       logical master
 
       master = ga_nodeid().eq.0
+c
+c     order may be important here
+c     ---------------------------
       if(master) then
+       call rism_prepare_grid(rtdb)
        call rism_prepare_solvent(rtdb)
        call rism_prepare_solute(rtdb)
-       call rism_prepare_grid(rtdb)
        call db_data_print(6)
       end if
 c
@@ -53,7 +56,6 @@ c
 c 
       sname = "grid"
       call db_namespace_create(sname)
-c
 c      
       tag="rism:ngrid"
       if (.not.rtdb_get(rtdb,tag,mt_int,1,ngrid)) 
@@ -200,6 +202,7 @@ c
       integer master
       integer nu
       character*32 sname
+      logical result
 c 
       integer  i_epsiu
       integer  i_qqu
@@ -210,6 +213,8 @@ c
       integer  i_isu
       integer  i_mu
       integer  i_tu
+      integer  i_wu
+      integer  i_kgrid,ngrid
 c
       sname = "solute"
       call db_namespace_create(sname)
@@ -244,8 +249,23 @@ c
      +                            dbl_mb(i_xu),dbl_mb(i_yu),
      +                            dbl_mb(i_zu),dbl_mb(i_sigu),
      +                            dbl_mb(i_epsiu),dbl_mb(i_qqu))
+c
+c     compute solute structure factor
+c     -------------------------------
+      call db_data_get_ind_dim("grid","kgrid",
+     +                           i_kgrid,ngrid,result)
+      if(.not.result)
+     >  call errquit("cannot get kgrid",0,0)
+
+      call db_data_create_get(sname,"wu",nu*nu*ngrid,mt_dbl,i_wu)
+      call rism_compute_solute_sfac(nu,ngrid,
+     +                            dbl_mb(i_kgrid),
+     +                            dbl_mb(i_xu),dbl_mb(i_yu),
+     +                            dbl_mb(i_zu),
+     +                            dbl_mb(i_wu))
 
 
+      return
       end
 
       subroutine rism_vpot(nv,ims,nvv,sigv,epsiv,qqv,sgvv,epsvv,qvv) 
@@ -262,6 +282,42 @@ c
       enddo 
       return
       end subroutine
+c
+      subroutine rism_compute_solute_sfac(nu,ngr,
+     +                            kgrid,
+     +                            xu,yu,
+     +                            zu,
+     +                            wu)
+
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "db_const_data.fh"
+      integer nu,ngr
+      double precision kgrid(ngr)
+      double precision xu(nu),yu(nu),zu(nu),sigu(nu)
+      double precision wu(nu,nu,ngr)
+c
+      integer i,j1,j2
+      double precision dist
+c      
+      double precision sinr
+      external sinr
+c
+      do i=1,ngr
+       do j1=1,nu
+        do j2=1,nu
+         dist=((xu(j1)-xu(j2))**2+(yu(j1)-yu(j2))**2+
+     *   (zu(j1)-zu(j2))**2)
+         dist =SQRT(dist)
+         wu(j1,j2,i)=sinr(kgrid(i)*dist)
+        enddo
+       enddo
+      enddo 
+      return
+      end
 c
       subroutine rism_sort(nv,tv,isv,mv,ims,nvv)
       implicit none
@@ -409,6 +465,18 @@ c
       call errquit("error reading solute file",0,0)
       end
 
+      function sinr(x)
+      implicit none
+      double precision sinr
+      double precision x
+      if(x.lt.1d-22)then
+       sinr=1
+      else
+      sinr=sin(x)/x
+      endif
+      return
+      end
+
       subroutine rism_nsolvent(nv,filename)
 c find number of atoms in the solvent molecule
       implicit none
@@ -489,7 +557,7 @@ c
       open(unit=fn,status="old",form="formatted",file=filename)
       read(fn,*,ERR=30,END=30) r1
       read(fn,*,ERR=30,END=30) r2
-      dr = r1-r2
+      dr = r2-r1
       close(fn)
       return
 30    call errquit(pname//"errors",0,0)
