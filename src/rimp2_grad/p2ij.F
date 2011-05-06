@@ -57,6 +57,10 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C LOCAL VARIABLES
       Integer I, J, JTop, LT1, LT2, NI, NJ, Type, TrueI, TrueJ, K
       Double Precision Pij, Fact
+      Double Precision GA_DDot_Patch
+      external GA_DDot_Patch
+      Integer ga_nodeid
+      external ga_nodeid
 C
 C     Determine the size of the matrix.  Dimensions must be multiples
 C     of NVirI and NVirJ respectively.

@@ -172,7 +172,7 @@ C
 C     Synchronize and combine gradient contributions on each node
 C
       Call GA_Sync
-      Call GA_DGOp(Msg_RIMP2g_Grad, Grad, 3*NCent, '+')
+      Call GA_DGOp(9234, Grad, 3*NCent, '+')
 C
       Return
       End
