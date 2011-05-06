@@ -65,13 +65,25 @@ c
       call db_data_create_get(sname,"epsiv",nv,mt_dbl,i_epsiv)
       call db_data_create_get(sname,"qqv",nv,mt_dbl,i_qqv)
 c
-
+      if(ga_nodeid().eq.master) then
       call rism_read_solvent_file(filename,nv,
      +                            byte_mb(i_tv),int_mb(i_isv),
      +                            int_mb(i_mv),dbl_mb(i_den),
      +                            dbl_mb(i_xv),dbl_mb(i_yv),
      +                            dbl_mb(i_zv),dbl_mb(i_sigv),
      +                            dbl_mb(i_epsiv),dbl_mb(i_qqv))
+
+      end if
+      call ga_brdcst(msg_smd,byte_mb(i_tv),
+     >     nv*ma_sizeof(mt_byte,1,mt_byte),master)
+
+      call ga_brdcst(msg_smd,int_mb(i_isv),
+     >     nv*ma_sizeof(mt_int,1,mt_byte),master)
+
+      call ga_brdcst(msg_smd,byte_mb(i_isv),
+     >     nv*ma_sizeof(mt_int,1,mt_byte),master)
+
+
 
 c     array that maps to reduced solvent parameters
       call db_data_create_get(sname,"ims",nv,mt_int,i_ims)
@@ -89,6 +101,84 @@ c     fill in reduced solvent parameters
      +          dbl_mb(i_qqv),dbl_mb(i_sgvv),
      +          dbl_mb(i_epsvv),dbl_mb(i_qvv))
 c      call vpot(nv,ims,nvv,sigv,epsiv,qqv,sgvv,epsvv,qvv)
+       do i=1,nvv
+         write(33,*) dbl_mb(i_sgvv+i-1),dbl_mb(i_epsvv+i-1),
+     +               dbl_mb(i_qvv+i-1),i,int_mb(i_ims+i-1)
+       end do
+      end
+
+      subroutine rism_prepare_solute(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "db_const_data.fh"
+      integer rtdb
+c
+      character*(72) filename
+      integer i
+      integer fn
+      character*72 tag
+      character*72 buffer
+      character*1 b1
+      integer master
+      integer nu
+      character*32 sname
+c 
+      integer  i_epsiu
+      integer  i_qqu
+      integer  i_xu
+      integer  i_yu
+      integer  i_zu
+      integer  i_sigu
+      integer  i_isu
+      integer  i_mu
+      integer  i_tu
+c
+      sname = "rism"
+      master = 0
+c      
+c     get solute filename
+c     --------------------
+      tag = "rism:solute"
+      if(.not.rtdb_cget(rtdb,tag,1,filename)) 
+     >  call errquit("cannot get "//tag,0,0)
+c      
+c     get number of solute atoms
+c     ---------------------------
+      if(ga_nodeid().eq.master) then
+        call rism_natoms(nu,filename)
+      end if
+      call ga_brdcst(msg_smd,nu,
+     >     ma_sizeof(mt_int,1,mt_byte),master)
+
+      tag = "nsolute"
+      call db_data_put_int(sname,tag,1,nu)
+
+      call db_data_create_get(sname,"tu",nu,MT_STR,i_tu)
+      call db_data_create_get(sname,"isu",nu,mt_int,i_isu)
+      call db_data_create_get(sname,"mu",nu,mt_int,i_mu)
+      call db_data_create_get(sname,"xu",nu,mt_dbl,i_xu)
+      call db_data_create_get(sname,"yu",nu,mt_dbl,i_yu)
+      call db_data_create_get(sname,"zu",nu,mt_dbl,i_zu)
+      call db_data_create_get(sname,"sigu",nu,mt_dbl,i_sigu)
+      call db_data_create_get(sname,"epsiu",nu,mt_dbl,i_epsiu)
+      call db_data_create_get(sname,"qqu",nu,mt_dbl,i_qqu)
+ 
+c
+
+      call rism_read_solute_file(filename,nu,
+     +                            byte_mb(i_tu),int_mb(i_isu),
+     +                            int_mb(i_mu),
+     +                            dbl_mb(i_xu),dbl_mb(i_yu),
+     +                            dbl_mb(i_zu),dbl_mb(i_sigu),
+     +                            dbl_mb(i_epsiu),dbl_mb(i_qqu))
+
+
       end
 
       subroutine rism_vpot(nv,ims,nvv,sigv,epsiv,qqv,sgvv,epsvv,qvv) 
@@ -211,6 +301,47 @@ c
       call errquit("error reading solvent file",0,0)
       end
 
+      subroutine rism_read_solute_file(filename,nu,
+     +                            tu,isu,
+     +                            mu,
+     +                            xu,yu,
+     +                            zu,sigu,
+     +                            epsiu,qqu)
+
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "db_const_data.fh"
+      character*(*) filename
+      character(db_string_size) tu(nu)
+      integer  nu, isu(nu), mu(nu)
+      real*8 xu(nu),yu(nu),zu(nu),sigu(nu)
+      real*8 epsiu(nu),qqu(nu) 
+c
+      integer i
+      integer fn
+      character*180 buffer
+      character*1 b1
+c      
+      if(.not.util_get_io_unit(fn))
+     >  call errquit("cannot get file number",0,0)
+      open(unit=fn,status="old",form="formatted",file=filename)
+      i=0
+10    continue
+      read(fn,'(A180)',ERR=40,END=40) buffer
+      if(buffer(1:1).eq."#") goto 10
+      i = i+1
+      read(buffer,*,ERR=40,END=40) tu(i),isu(i),mu(i),
+     +   xu(i),yu(i),zu(i),sigu(i), epsiu(i),qqu(i) 
+      if(i.lt.nu) goto 10 
+30    close(fn)
+      return
+40    continue
+      call errquit("error reading solute file",0,0)
+      end
+
       subroutine rism_nsolvent(nv,filename)
 c find number of atoms in the solvent molecule
       implicit none
@@ -235,6 +366,35 @@ c
       if(b1.eq.' ') goto 10
       if(b1.eq."#") goto 10
       nv = nv+1
+      goto 10
+30    close(fn)
+      return
+      end
+
+      subroutine rism_natoms(nt,filename)
+c find number of atoms from the file
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+      integer nt
+      character*(*) filename
+c
+      integer i
+      integer fn
+      character*72 buffer
+      character*1 b1
+c      
+      if(.not.util_get_io_unit(fn))
+     >  call errquit("cannot get file number",0,0)
+      open(unit=fn,status="old",form="formatted",file=filename)
+      nt=0
+10    continue        
+      read(fn,*,ERR=30,END=30) b1
+      if(b1.eq.' ') goto 10
+      if(b1.eq."#") goto 10
+      nt = nt+1
       goto 10
 30    close(fn)
       return

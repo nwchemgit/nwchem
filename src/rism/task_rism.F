@@ -114,19 +114,9 @@ c       create rism data structures stored in namespace "rism"
        call db_data_create_get(sname,"kgrid",ngr,mt_dbl,i_kgrid)
        call db_data_create_get(sname,"sigvv",nv,mt_dbl,i_sigvv)
        
-       call db_data_create_get(sname,"epsiu",nu,mt_dbl,i_epsiu)
-       call db_data_create_get(sname,"qqu",nu,mt_dbl,i_qqu)
-       call db_data_create_get(sname,"xu",nu,mt_dbl,i_xu)
-       call db_data_create_get(sname,"yu",nu,mt_dbl,i_yu)
-       call db_data_create_get(sname,"zu",nu,mt_dbl,i_zu)
-       call db_data_create_get(sname,"sigu",nu,mt_dbl,i_sigu)
-       call db_data_create_get(sname,"wu",nuug,mt_dbl,i_wu)
-       call db_data_create_get(sname,"mu",nu,mt_int,i_mu)
-       call db_data_create_get(sname,"isu",nu,mt_int,i_isu)
+      call db_data_create_get(sname,"wu",nuug,mt_dbl,i_wu)
 c
-       call db_data_create_get(sname,"tu",nu,MT_STR,i_tu)
        call rism_prepare_solvent(rtdb)
-       stop
 c      solvent input
 c tv type of cite isv type of species mv multiplicity  den density (1/a3) xvyvzv[xyz](a) 
 c sigv  sigma(a) epsiv epsilon(kj/mol) qqv charge(e)
@@ -146,9 +136,10 @@ c      sorting
       print*, (ims(i), i=1,nv)
 c      calculations interaction parameters for reduced matrix
        call vpot(nv,ims,nvv,sigv,epsiv,qqv,sgvv,epsvv,qvv)
-!      do i=1,nvv 
-!       print*, sgvv(i),epsvv(i),qvv(i),i,ims(i)
-!      enddo
+      do i=1,nvv 
+       write(32,*) sgvv(i),epsvv(i),qvv(i),i,ims(i)
+      enddo
+       stop
 c
 c      solute input
 c tu type of cite isu type of species mu multiplicity  xuyuzu[xyz](a) 
