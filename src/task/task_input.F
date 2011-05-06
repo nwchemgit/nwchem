@@ -21,6 +21,7 @@ c     task [qmmm] <string theory> [<string operation = energy>] [numerical || an
 c          [ignore]
 c
       logical numerical, ignore, oqmmm, analytic
+      logical orism
       logical opes
 c      logical oembed
       logical ofragment
@@ -35,6 +36,7 @@ c
       numerical = .false.
       ignore    = .false.
       oqmmm     = .false.
+      orism     = .false.
       opes      = .false.
       ofragment = .false.
       osmd      = .false.
@@ -75,8 +77,8 @@ c
             operation = 'mepgs'
          else if (inp_compare(.false.,test,'et')) then
             operation = 'et'
-c         else if (inp_compare(.false.,test,'rt_tddft')) then
-c            operation = 'rt_tddft'
+         else if (inp_compare(.false.,test,'rt_tddft')) then
+            operation = 'rt_tddft'
 c         else if (inp_compare(.false.,test,'prepare')) then
 c            operation = 'prepare'
          else if (inp_compare(.false.,test,'freq') .or.
@@ -103,6 +105,8 @@ c            operation = 'prepare'
      &       RTDB_ERR)
          else if (inp_compare(.false.,test,'ignore')) then
             ignore = .true.
+         else if (inp_compare(.false.,test,'rism')) then
+            orism = .true.
          else if (inp_compare(.false.,test,'qmmm')) then
             oqmmm = .true.
 c         else if (inp_compare(.false.,test,'embed')) then
@@ -223,6 +227,17 @@ c
      &       call errquit('task_input:task:pes rtdb is corrupt',911,
      &       RTDB_ERR)
       end if
+      if (orism) then
+        if (.not.rtdb_put(rtdb, 'task:rism', mt_log, 1, .true.))
+     &       call errquit('task_input:task:QMMM rtdb is corrupt',911,
+     &       RTDB_ERR)
+        if (theory.eq.'md') call errquit
+     &      ('task_input:theory must be a QM method for rism',911,
+     &       RTDB_ERR)
+        if (operation.ne.'energy') call errquit
+     &      ("task_input:"//operation//"not supported with QMMM",911,
+     &       RTDB_ERR)
+      endif
       if (oqmmm) then
         if (.not.rtdb_put(rtdb, 'task:QMMM', mt_log, 1, .true.))
      &       call errquit('task_input:task:QMMM rtdb is corrupt',911,
