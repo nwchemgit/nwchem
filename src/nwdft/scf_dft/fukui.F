@@ -252,11 +252,23 @@ c
         int_vxc_H(isp) = ga_ddot(g_dens_HOMO(isp), g_vxc(isp))
         int_vxc_L(isp) = ga_ddot(g_dens_LUMO(isp), g_vxc(isp))
       end do
+      if(ipol .eq.1) then
+        int_vxc_H(2) = int_vxc_H(1)
+        int_vxc_L(2) = int_vxc_L(1)
+      endif
 c
 cc    Approximating the ionization potential
 c
       noc_aux_1 = noc(1)
       noc_aux_2 = noc(2)
+C    Think about it.  How can you excite only one electron and still be RKS?
+C    Code produces rubbish with RKS - compare to UKS/ROKS and see
+C    This code assumes once closed shell, then always closed shell
+      if(ipol .eq.1) then
+        noc_aux_2 = noc_aux_1
+        call errquit('fukui: UKS or ROKS required. No RKS', 0, 0)
+      end if
+
       noc_test = noc_aux_1 - noc_aux_2
       
       if (noc_test.eq.0) then
