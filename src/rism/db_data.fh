@@ -1,22 +1,38 @@
-c
-c $Id: db_const_data.fh 19707 2010-10-29 17:59:36Z d3y133 $
-c
+*
+* $Id: db_data.fh 19707 2010-10-29 17:59:36Z d3y133 $
+*
+      integer db_max_nd
+      parameter(db_max_nd=100)
 
-      integer db_tag_size,db_string_size,db_path_size
-      double precision  boltzmann,convfct1,convfct2,pii,twopi,sqrpi,cau2ang
-      double precision  cau2ang
+      integer db_max_n
+      parameter(db_max_n=100)
 
-      integer MT_STR
-      parameter (MT_STR = 3009)
+      integer db_max_ns
+      parameter(db_max_ns=100)
 
-      parameter(cau2ang = 0.529177249d00)
-      parameter(boltzmann=  8.31451115d-1)
-      parameter(convfct1 = 14.39965173d0)
-      parameter(convfct2 = 9648.530821d0)
-      parameter(pii      =  3.141592653589793d0)
-      parameter(twopi    =  6.283185307179586d0)
-      parameter(sqrpi    =  1.772453850905516d0)
-      parameter(db_tag_size = 32)
-      parameter(db_string_size = 32)
-      parameter(db_path_size = 255)
+      integer db_n
+      integer db_nd(db_max_n)
+      integer db_ns(db_max_ns)
+
+      integer db_nchar_namespace
+      parameter(db_nchar_namespace=72)
+
+      character*72 db_name(db_max_n)
+      character*72 db_dname(db_max_n,db_max_nd)
+      integer db_rhandle(db_max_n)
+      integer db_handle(db_max_n,db_max_nd)
+      integer db_index(db_max_n,db_max_nd)
+      integer db_type(db_max_n,db_max_nd)
+      integer db_dim(db_max_n,db_max_nd)
+
+      common /db_data/ 
+     &                   db_name,
+     &                   db_nd,
+     &                   db_n,
+     &                   db_ns,
+     &                   db_dname,
+     &                   db_handle,
+     &                   db_index,
+     &                   db_dim,
+     &                   db_type
 
