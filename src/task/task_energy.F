@@ -18,7 +18,10 @@ c
       double precision cpu, wall, energy, dipole(3)
       logical task_energy_doit, oniom_energy
       external task_energy_doit, oniom_energy
+      logical orism
       logical task_qmmm
+      logical task_rism
+      external task_rism
       logical task_fragment
       external task_qmmm_energy
       logical  task_qmmm_energy
@@ -51,6 +54,8 @@ c
 c      if( .not. rtdb_get(rtdb,'task:fragment',mt_log,1,task_fragment))
 c     &    task_fragment = .false.
 c
+      if( .not. rtdb_get(rtdb,'task:rism',mt_log,1,orism))
+     &    orism = .false.
       if( .not. rtdb_get(rtdb,'task:QMMM',mt_log,1,task_qmmm))
      &    task_qmmm = .false.
 c
@@ -65,6 +70,9 @@ cc
           if (.not. rtdb_get(rtdb, 'qmmm:energy', mt_dbl, 1, energy))
      $           call errquit('task_energy: no energy in rtdb?',0,
      &       RTDB_ERR)
+       else if(orism) then
+          status = task_rism(rtdb)
+          energy=0.0d0
 c      else if(task_fragment) then
 c          write(*,*) "found task fragment"
 c          status = task_fragment_energy(rtdb)
@@ -104,7 +112,7 @@ c        ocons=.false.
 c      end if
       if(ocons) call cons_add_energy(rtdb,energy)
 
-c      write(*,*) "putting energy into rtdb",energy
+      write(*,*) "putting energy into rtdb",energy
       if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
      $     call errquit('task_energy: failed storing energy',0,
      &       RTDB_ERR)
