@@ -10,6 +10,8 @@
        logical  task_rism
        integer  nu, nv, ngr ,icr,icl,i,dd 
        real*8 r1, r2, tau, solperm,t, tol,lambd,dr  
+       call rism_prepare(rtdb)
+       stop
 c parameters(nv number of solute sites  nu number of solute sites ngr number of grid points)
 c solperm solvent relative permittivity
 c tau(aa-1) separation between short and long range functions in 1/angstroms
@@ -31,8 +33,6 @@ c      t=298
 c      tol=1e-5
 c      lambd=0.5 
 c      icl=2 
-       write(*,*) "starting up rism"
-       call util_flush(6)
        open(3, file='uvpar.data', status='old')
        read(3,102) nu,nv,icr,icl,ngr,tau,solperm,t,tol,lambd,dd 
        print*, nu,nv,icr,icl,ngr,tau,solperm,t,tol,lambd,dd 
@@ -116,7 +116,6 @@ c       create rism data structures stored in namespace "rism"
        
       call db_data_create_get(sname,"wu",nuug,mt_dbl,i_wu)
 c
-       call rism_prepare_solvent(rtdb)
 c      solvent input
 c tv type of cite isv type of species mv multiplicity  den density (1/a3) xvyvzv[xyz](a) 
 c sigv  sigma(a) epsiv epsilon(kj/mol) qqv charge(e)

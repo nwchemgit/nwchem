@@ -23,7 +23,9 @@ scf
 end
 
 rism
-solvent solvent3.data
+solute solute2.data
+solvent model solvent3.data rdf full.data
+ngrid 4096
 end
 task dft  energy rism
 

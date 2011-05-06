@@ -135,9 +135,9 @@ c     -----------
       endif
 c     
 c
-c     solvent
+c     solute
 c     -----------
-      keyword="solvent"
+      keyword="solute"
       if (inp_compare(.false.,keyword, token)) then
         if (.not.inp_a(token))
      >    call errquit(pname//'failed to read '//keyword,0, INPUT_ERR)
@@ -145,6 +145,30 @@ c     -----------
         if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),
      +      1,token)) 
      >      goto 999
+        goto 2
+      endif
+c
+c     solvent
+c     -----------
+      keyword="solvent"
+      if (inp_compare(.false.,keyword, token)) then
+31       continue
+         if (.not.inp_a(token)) goto 2
+         if(inp_compare(.false.,"model", token)) then
+           if (.not.inp_a(token))
+     >       call errquit(pname//'solvent model',0,INPUT_ERR)
+           tag="rism:solvent:model"
+           if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),1,token)) 
+     >         goto 999
+           goto 31
+         else if(inp_compare(.false.,"rdf", token)) then
+           if (.not.inp_a(token))
+     >       call errquit(pname//'solvent rdf',0,INPUT_ERR)
+           tag="rism:solvent:rdf"
+           if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),1,token)) 
+     >         goto 999
+           goto 31
+         end if
         goto 2
       endif
 cc     

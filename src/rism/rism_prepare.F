@@ -1,4 +1,33 @@
-      subroutine rism_prepare_solvent(rtdb)
+      subroutine rism_prepare(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "db_const_data.fh"
+      integer rtdb
+      logical master
+
+      master = ga_nodeid().eq.0
+      if(master) then
+       call rism_prepare_solvent(rtdb)
+       call rism_prepare_solute(rtdb)
+       call rism_prepare_grid(rtdb)
+       call db_data_print(6)
+      end if
+c
+c     send data to other processors
+c     -----------------------------
+      call ga_sync()
+      call smd_data_brdcst_create(master)
+      return
+ 
+      end
+
+      subroutine rism_prepare_grid(rtdb)
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -17,6 +46,66 @@ c
       character*72 buffer
       character*1 b1
       integer master
+      integer nu
+      character*32 sname
+      double precision dr,r1,pi,dk
+      integer i_kgrid,i_rgrid,ngrid
+c 
+      sname = "grid"
+      call db_namespace_create(sname)
+c
+c      
+      tag="rism:ngrid"
+      if (.not.rtdb_get(rtdb,tag,mt_int,1,ngrid)) 
+     >  call errquit("cannot get "//tag,0,0)
+      tag = "ngrid"
+      call db_data_put_int(sname,tag,1,ngrid)
+c      
+c     get filename for solvent g(r)
+c     -----------------------------
+      tag = "rism:solvent:rdf"
+      if(.not.rtdb_cget(rtdb,tag,1,filename)) 
+     >  call errquit("cannot get "//tag,0,0)
+      call rism_gr_grid(filename,dr)
+      tag = "dr"
+      call db_data_put_dbl(sname,tag,1,dr)
+c      
+      pi=2*asin(1.0)
+      dk=pi/(ngrid+1)/dr
+      tag = "dk"
+      call db_data_put_dbl(sname,tag,1,dk)
+c      
+      call db_data_create_get(sname,"rgrid",ngrid,mt_dbl,i_rgrid)
+      call db_data_create_get(sname,"kgrid",ngrid,mt_dbl,i_kgrid)
+c     the zero point is excluded
+      r1=dr   
+      do i=1,ngrid
+       dbl_mb(i_rgrid+i-1)=r1+dr*(i-1)
+       dbl_mb(i_kgrid+i-1)=i*dk
+c       rgrid(i)=r1+dr*(i-1) 
+c       kgrid(i)=i*dk 
+      enddo 
+      return
+      end
+
+      subroutine rism_prepare_solvent(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "db_const_data.fh"
+      integer rtdb
+c
+      character*(72) filename
+      integer i
+      integer fn
+      character*72 tag
+      character*72 buffer
+      character*1 b1
       integer nv,nvv
       character*32 sname
       integer  i_epsiv
@@ -34,23 +123,20 @@ c
       integer  i_epsvv
       integer  i_qvv
 c 
-      sname = "rism"
-      master = 0
+c     create container for solvent data
+c     --------------------------------- 
+      sname = "solvent"
+      call db_namespace_create(sname)
 c      
 c     get solvent filename
 c     --------------------
-      tag = "rism:solvent"
-      if(.not.rtdb_cget(rtdb,"rism:solvent",1,filename)) 
+      tag = "rism:solvent:model"
+      if(.not.rtdb_cget(rtdb,tag,1,filename)) 
      >  call errquit("cannot get "//tag,0,0)
 c      
 c     get number of solvent atoms
 c     ---------------------------
-      if(ga_nodeid().eq.master) then
-        call rism_nsolvent(nv,filename)
-      end if
-      call ga_brdcst(msg_smd,nv,
-     >     ma_sizeof(mt_int,1,mt_byte),master)
-
+      call rism_nsolvent(nv,filename)
       tag = "nsolvent"
       call db_data_put_int(sname,tag,1,nv)
 c      
@@ -65,25 +151,12 @@ c
       call db_data_create_get(sname,"epsiv",nv,mt_dbl,i_epsiv)
       call db_data_create_get(sname,"qqv",nv,mt_dbl,i_qqv)
 c
-      if(ga_nodeid().eq.master) then
       call rism_read_solvent_file(filename,nv,
      +                            byte_mb(i_tv),int_mb(i_isv),
      +                            int_mb(i_mv),dbl_mb(i_den),
      +                            dbl_mb(i_xv),dbl_mb(i_yv),
      +                            dbl_mb(i_zv),dbl_mb(i_sigv),
      +                            dbl_mb(i_epsiv),dbl_mb(i_qqv))
-
-      end if
-      call ga_brdcst(msg_smd,byte_mb(i_tv),
-     >     nv*ma_sizeof(mt_byte,1,mt_byte),master)
-
-      call ga_brdcst(msg_smd,int_mb(i_isv),
-     >     nv*ma_sizeof(mt_int,1,mt_byte),master)
-
-      call ga_brdcst(msg_smd,byte_mb(i_isv),
-     >     nv*ma_sizeof(mt_int,1,mt_byte),master)
-
-
 
 c     array that maps to reduced solvent parameters
       call db_data_create_get(sname,"ims",nv,mt_int,i_ims)
@@ -100,7 +173,6 @@ c     fill in reduced solvent parameters
      +          dbl_mb(i_sigv),dbl_mb(i_epsiv),
      +          dbl_mb(i_qqv),dbl_mb(i_sgvv),
      +          dbl_mb(i_epsvv),dbl_mb(i_qvv))
-c      call vpot(nv,ims,nvv,sigv,epsiv,qqv,sgvv,epsvv,qvv)
        do i=1,nvv
          write(33,*) dbl_mb(i_sgvv+i-1),dbl_mb(i_epsvv+i-1),
      +               dbl_mb(i_qvv+i-1),i,int_mb(i_ims+i-1)
@@ -139,8 +211,8 @@ c
       integer  i_mu
       integer  i_tu
 c
-      sname = "rism"
-      master = 0
+      sname = "solute"
+      call db_namespace_create(sname)
 c      
 c     get solute filename
 c     --------------------
@@ -150,11 +222,7 @@ c     --------------------
 c      
 c     get number of solute atoms
 c     ---------------------------
-      if(ga_nodeid().eq.master) then
-        call rism_natoms(nu,filename)
-      end if
-      call ga_brdcst(msg_smd,nu,
-     >     ma_sizeof(mt_int,1,mt_byte),master)
+      call rism_natoms(nu,filename)
 
       tag = "nsolute"
       call db_data_put_int(sname,tag,1,nu)
@@ -170,7 +238,6 @@ c     ---------------------------
       call db_data_create_get(sname,"qqu",nu,mt_dbl,i_qqu)
  
 c
-
       call rism_read_solute_file(filename,nu,
      +                            byte_mb(i_tu),int_mb(i_isu),
      +                            int_mb(i_mu),
@@ -398,4 +465,32 @@ c
       goto 10
 30    close(fn)
       return
+      end
+
+      subroutine rism_gr_grid(filename,dr)
+c find number of atoms from the file
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+      character*(*) filename
+      double precision dr
+c
+      double precision r1,r2
+      integer fn
+      character*72 buffer
+      character*1 b1
+      character*30 pname
+c      
+      pname = "rism_gr_grid"
+      if(.not.util_get_io_unit(fn))
+     >  call errquit("cannot get file number",0,0)
+      open(unit=fn,status="old",form="formatted",file=filename)
+      read(fn,*,ERR=30,END=30) r1
+      read(fn,*,ERR=30,END=30) r2
+      dr = r1-r2
+      close(fn)
+      return
+30    call errquit(pname//"errors",0,0)
       end
