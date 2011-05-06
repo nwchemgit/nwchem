@@ -44,6 +44,7 @@ c
       logical task_mepgs
       logical task_hessian, task_saddle, task_lst, task_neb
       logical task_dynamics, task_rfcf
+      logical orism
       logical oqmmm,opes, task_python, task_thermo,task_bq,task_nbo
       logical osmd, ofragment
 c     logical oembed
