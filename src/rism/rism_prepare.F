@@ -17,7 +17,7 @@ c
       character*72 buffer
       character*1 b1
       integer master
-      integer nv
+      integer nv,nvv
       character*32 sname
       integer  i_epsiv
       integer  i_qqv
@@ -29,6 +29,10 @@ c
       integer  i_isv
       integer  i_mv
       integer  i_tv
+      integer  i_ims
+      integer  i_sgvv
+      integer  i_epsvv
+      integer  i_qvv
 c 
       sname = "rism"
       master = 0
@@ -69,8 +73,103 @@ c
      +                            dbl_mb(i_zv),dbl_mb(i_sigv),
      +                            dbl_mb(i_epsiv),dbl_mb(i_qqv))
 
+c     array that maps to reduced solvent parameters
+      call db_data_create_get(sname,"ims",nv,mt_int,i_ims)
+c     calculate size and mapping for reduced solvent parameters
+      call rism_sort(nv,byte_mb(i_tv),int_mb(i_isv),int_mb(i_mv),
+     +               int_mb(i_ims),nvv)
+      tag = "nsolvent_red"
+      call db_data_put_int(sname,tag,1,nvv)
+c     fill in reduced solvent parameters
+      call db_data_create_get(sname,"sgvv",nvv,mt_dbl,i_sgvv)
+      call db_data_create_get(sname,"epsvv",nvv,mt_dbl,i_epsvv)
+      call db_data_create_get(sname,"qvv",nvv,mt_dbl,i_qvv)
+      call rism_vpot(nv,int_mb(i_ims),nvv,
+     +          dbl_mb(i_sigv),dbl_mb(i_epsiv),
+     +          dbl_mb(i_qqv),dbl_mb(i_sgvv),
+     +          dbl_mb(i_epsvv),dbl_mb(i_qvv))
+c      call vpot(nv,ims,nvv,sigv,epsiv,qqv,sgvv,epsvv,qvv)
       end
 
+      subroutine rism_vpot(nv,ims,nvv,sigv,epsiv,qqv,sgvv,epsvv,qvv) 
+      implicit none
+      integer  nv,nvv 
+      real*8 sgvv(nvv),epsvv(nvv),qvv(nvv)        
+      real*8 sigv(nv),epsiv(nv),qqv(nv)    
+      integer  i,ims(nv),j1,j2,icr       
+      do i=1,nv  
+        sgvv(ims(i))=sigv(i)
+        epsvv(ims(i))=epsiv(i)
+        qvv(ims(i))=qqv(i)
+!       print*, sgvv(ims(i)),sigv(i),i,ims(i)
+      enddo 
+      return
+      end subroutine
+c
+      subroutine rism_sort(nv,tv,isv,mv,ims,nvv)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "db_const_data.fh"
+      character(db_string_size) tv(nv)
+      integer  nv, isv(nv), mv(nv),ims(nv)
+      integer  i,i1,j1,j2,icc,maxn,nvv      
+c     automatic array change it ASAP
+      integer mvt(nv),imm(1:nv)
+c
+c      initialization of connectivity vector      
+       do i=1,nv
+        ims(i)=i 
+        imm(i)=1
+        mvt(i)=mv(i)  
+       enddo
+c      sorting 
+       do j1=1,nv-1
+        do j2=j1+1,nv
+         if((tv(j1).eq.tv(j2)).and.(isv(j1).eq.isv(j2))
+     *    .and.(mv(j2).ne.1)) then 
+c         replace current value of ims by the first found
+          ims(j2)=ims(j1)
+c         change indicator of replacement
+          imm(j2)=2
+c         change multiplicity
+          mv(j2)=1 
+c         shift all others except replaced by 1
+          if(j2.ne.nv) then
+           do i1=j2+1,nv
+            if(imm(i1).eq.1) then  
+             ims(i1)=ims(i1)-1
+             else 
+             ims(i1)=ims(i1)
+            endif 
+           enddo
+          endif  
+          else 
+          ims(j2)=ims(j2)
+         endif
+!       print*, j2,ims(j2),mv(j2),imm(j2)
+        enddo
+       enddo
+c      evaluation of maximal value of different sites
+       maxn=ims(1) 
+       do i=2,nv
+        if(ims(i).ge.maxn) then
+         maxn=ims(i)
+        endif
+       enddo
+       nvv=maxn
+c      replace changed mv by the initial one 
+       do i=1,nv
+        mv(i)=mvt(i)
+       enddo
+       return
+       end subroutine 
+c
       subroutine rism_read_solvent_file(filename,nv,
      +                            tv,isv,
      +                            mv,den,

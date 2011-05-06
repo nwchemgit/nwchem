@@ -80,8 +80,6 @@ c       index handles for rism data structures
        integer i_c3,i_hu,i_gam,i_rgrid,i_kgrid
        integer  i_ims
        integer  i_sigvv
-       integer  i_epsvv
-       integer  i_qvv
        integer  i_epsiv
        integer  i_qqv
        integer  i_den
@@ -98,7 +96,6 @@ c       index handles for rism data structures
        integer  i_zu
        integer  i_sigu
        integer  i_wu
-       integer  i_sgvv
        integer  i_mu
        integer  i_isu
        integer  i_tv
@@ -115,10 +112,7 @@ c       create rism data structures stored in namespace "rism"
        call db_data_create_get(sname,"gam",nuvg,mt_dbl,i_gam)
        call db_data_create_get(sname,"rgrid",ngr,mt_dbl,i_rgrid)
        call db_data_create_get(sname,"kgrid",ngr,mt_dbl,i_kgrid)
-       call db_data_create_get(sname,"ims",nv,mt_int,i_ims)
        call db_data_create_get(sname,"sigvv",nv,mt_dbl,i_sigvv)
-       call db_data_create_get(sname,"epsvv",nv,mt_dbl,i_epsvv)
-       call db_data_create_get(sname,"qvv",nv,mt_dbl,i_qvv)
        
        call db_data_create_get(sname,"epsiu",nu,mt_dbl,i_epsiu)
        call db_data_create_get(sname,"qqu",nu,mt_dbl,i_qqu)
@@ -127,7 +121,6 @@ c       create rism data structures stored in namespace "rism"
        call db_data_create_get(sname,"zu",nu,mt_dbl,i_zu)
        call db_data_create_get(sname,"sigu",nu,mt_dbl,i_sigu)
        call db_data_create_get(sname,"wu",nuug,mt_dbl,i_wu)
-       call db_data_create_get(sname,"sgvv",nv,mt_dbl,i_sgvv)
        call db_data_create_get(sname,"mu",nu,mt_int,i_mu)
        call db_data_create_get(sname,"isu",nu,mt_int,i_isu)
 c
