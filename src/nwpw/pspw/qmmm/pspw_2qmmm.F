@@ -45,14 +45,6 @@ c
       external    c_index_name
       external    lattice_unita
 
-c*     **** read the cons datastructure ****
-c      if(.not. rtdb_cget(rtdb,"constraints" , 1, namespace)) then
-c         namespace="default"
-c      end if
-c      i=inp_strlen(namespace)
-c      tag="cons:"//namespace(1:i)//":hbond_n"
-c      if(.not.rtdb_get(rtdb,tag,mt_int,1,ncons_hb)) ncons_hb=0
-
 
 *     **** reading number of frags ****
       rtdb_name = 'pspw_2qmmm_nfrag'
