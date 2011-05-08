@@ -95,6 +95,7 @@ c     dte = dt/dsqrt(control_fake_mass())
 c     dte = dsqrt(control_fake_mass())/dt
 c     dte = 1.0d0
 
+
       if (current_iteration.eq.1) then
          precondition = control_precondition()
       end if
@@ -166,7 +167,6 @@ c         deltat = 1.0d0  !** debug **
 *        **** get the new gradient - also updates densities****
          call cpsi_2get_Tgradient(2,G0_tag,E0)
          call band_lmbfgs(tmin,dbl_mb(G0_shift),dbl_mb(S0_shift))
-
 
 *        **** make psi1 <--- psi2(tmin) ****
          call cpsi_2to1()

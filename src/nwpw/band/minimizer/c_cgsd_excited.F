@@ -11,7 +11,7 @@ c     $Id$
 
 c#include "global.fh"
 c#include "mafdecls.fh"
-c#include "rtdb.fh"
+#include "rtdb.fh"
 #include "stdio.fh"
 
       logical newpsi
@@ -23,7 +23,7 @@ c#include "rtdb.fh"
       integer minimizer
       integer i,j,ms,neall,NN,nbrillioun,nb
       integer nexcited(2),ispin
-      integer it_in,it_out,icount,bfgscount
+      integer it_in,it_out,icount,bfgscount,vers
       real*8  EV,virial
       real*8  tole,tolc,deltae,deltac,deltae_old
       real*8  cx,cy,cz,f1,f2,f3,f4,f5,f6
@@ -36,15 +36,19 @@ c#include "rtdb.fh"
       logical  control_DOS,control_Mulliken
       logical  ecpsi_initialize,ecpsi_finalize,epsi_filefind
       integer  cpsi_ne_excited,control_excited_ne,control_rtdb
+      integer  epsi_get_version
       real*8   cpsi_virtual_brdcst,brillioun_ks_brdcst
       real*8   brillioun_k_brdcst
       external control_DOS,control_Mulliken
       external ecpsi_initialize,ecpsi_finalize,epsi_filefind
       external cpsi_ne_excited,control_excited_ne,control_rtdb
+      external epsi_get_version
       external cpsi_virtual_brdcst,brillioun_ks_brdcst
       external brillioun_k_brdcst
       integer  brillioun_nbrillioun
       external brillioun_nbrillioun
+      logical  pspw_reformat_c_ewvfnc
+      external pspw_reformat_c_ewvfnc
       
 
       call Parallel_taskid(taskid)
@@ -60,8 +64,20 @@ c#include "rtdb.fh"
         call ecpsi_new()
         newpsi = .true.
       else
-        newpsi = .false.
+         newpsi = .false.
+
+*        **** convert from pspw format to band format ****
+         vers = epsi_get_version()
+         if ((vers.eq.3).or.(vers.eq.4)) then
+           newpsi = .true.
+           value = rtdb_parallel(.false.)
+           if (taskid.eq.MASTER) then
+             value= pspw_reformat_c_ewvfnc(1)
+           end if 
+           value = rtdb_parallel(.true.)
+         end if
       end if
+
       call psi_get_ne_excited(ispin,nexcited)
 c      call Cnex_init(ispin,nexcited,control_mapping1d())
 
