@@ -47,3 +47,53 @@ c     **** send header to all nodes ****
       psi_get_version = version
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         epsi_get_version        *
+*     *                                 *
+*     ***********************************
+
+      integer function epsi_get_version()
+      implicit none
+
+*    *** local variables ***
+      integer version,l
+      character*50 filename
+      character*255 full_filename
+         
+      integer MASTER,taskid
+      parameter(MASTER=0)
+      integer msglen
+         
+           
+*     ***** local functions ****
+      character*50 control_input_epsi
+      external     control_input_epsi
+           
+      call Parallel_taskid(taskid)
+         
+*     **** open ELCIN binary file ****
+      if (taskid.eq.MASTER) then
+         filename = control_input_epsi()
+         call util_file_name_noprefix(filename,.false.,
+     >                                .false.,
+     >                       full_filename)
+         l = index(full_filename,' ') -1
+         call openfile(4,full_filename,l,'r',l)
+         call iread(4,version,1)
+         call closefile(4)
+      end if
+
+c     **** send header to all nodes ****
+      msglen = 1
+      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
+        
+        
+      epsi_get_version = version
+      return 
+      end
+
+
