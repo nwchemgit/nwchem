@@ -13,7 +13,7 @@ c     $Id$
 
 c#include "global.fh"
 c#include "mafdecls.fh"
-c#include "rtdb.fh"
+#include "rtdb.fh"
 
       logical newpsi
       integer MASTER
@@ -48,6 +48,10 @@ c#include "rtdb.fh"
       external    control_symmetry,control_mapping1d,psi_ispin
       character*4 psi_ab_irrep_name
       external    psi_ab_irrep_name
+      logical     band_reformat_c_ewvfnc
+      external    band_reformat_c_ewvfnc
+      integer     epsi_get_version
+      external    epsi_get_version
 
 
       call Parallel_taskid(taskid)
@@ -64,6 +68,17 @@ c#include "rtdb.fh"
         newpsi = .true.
       else
         newpsi = .false.
+
+*        **** convert from band format to pspw format ****
+         if (epsi_get_version().eq.5) then
+           newpsi = .true.
+           value = rtdb_parallel(.false.)
+           if (taskid.eq.MASTER) then
+             value= band_reformat_c_ewvfnc(1)
+           end if
+           value = rtdb_parallel(.true.)
+         end if
+
       end if
       call psi_get_ne_excited(ispin,nexcited)
 cccccccc  call Dnex_init(ispin,nexcited,control_mapping1d()) ccccccc
