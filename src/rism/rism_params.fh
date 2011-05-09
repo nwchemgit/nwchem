@@ -1,0 +1,16 @@
+c
+c $Id: db_const_data.fh 19707 2010-10-29 17:59:36Z d3y133 $
+c
+
+      integer t_hnc
+      parameter (t_hnc=1)
+
+      integer t_kh
+      parameter (t_kh=2)
+
+      integer t_geometric
+      parameter (t_geometric=1)
+
+      integer t_arithmetic
+      parameter (t_arithmetic=1)
+

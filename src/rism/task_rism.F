@@ -8,6 +8,153 @@
 #include "global.fh"
        integer rtdb
        logical  task_rism
+       call rism_prepare(rtdb)
+c       
+       call rism_wrapper()
+
+       return
+      end 
+c       
+       subroutine rism_wrapper()
+       implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "global.fh"
+      integer nu,nv,nvv,ngr
+      integer icl,icr
+      integer i_rgrid,i_kgrid
+      integer i_tv,i_den,i_isv,i_mv
+      integer i_xv,i_yv,i_zv
+      logical result
+      character*32 sname,dname,pname
+c       
+      pname = "rism_wrapper"
+c      
+c
+c     solute data
+c     -------------- 
+      sname = "solute"
+      dname = "natoms"
+      call db_data_get_int(sname,dname,1,nu,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get"//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+c
+c     solvent data
+c     -------------- 
+      sname = "solvent"
+      dname = "natoms"
+      call db_data_get_int(sname,dname,1,nv,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get"//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "natoms_unique"
+      call db_data_get_int(sname,dname,1,nvv,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get"//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "atom_name"
+      call db_data_get_index(sname,dname,i_tv,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "residue_index"
+      call db_data_get_index(sname,dname,i_isv,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "density"
+      call db_data_get_index(sname,dname,i_den,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "multiplicity"
+      call db_data_get_index(sname,dname,i_mv,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "xcoord"
+      call db_data_get_index(sname,dname,i_xv,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "ycoord"
+      call db_data_get_index(sname,dname,i_yv,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "zcoord"
+      call db_data_get_index(sname,dname,i_zv,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+c
+c     grid data
+c     -------------- 
+      sname = "grid"
+      dname = "npoints"
+      call db_data_get_int(sname,dname,1,ngr,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "rgrid"
+      call db_data_get_index(sname,dname,i_rgrid,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "kgrid"
+      call db_data_get_index(sname,dname,i_kgrid,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+c
+c     parameters
+c     -------------- 
+      sname = "parameters"
+      dname = "closure"
+      call db_data_get_int(sname,dname,1,icl,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "vdw_rule"
+      call db_data_get_int(sname,dname,1,icr,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+
+c       call rism(nu,nv,nvv,ngr,icl,kgrid,rgrid,tv,isv,den,mv,xv,yv,zv,
+c     * icr,ims,tau,solperm,sgvv,epsvv,qvv,sigu,epsiu,qqu,t,lambd,
+c     * tol,wu,dd)          
+
+       return
+      end 
+c      
+       function task_rism0(rtdb)
+       implicit none
+#include "errquit.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "global.fh"
+       integer rtdb
+       logical  task_rism0
        integer  nu, nv, ngr ,icr,icl,i,dd 
        real*8 r1, r2, tau, solperm,t, tol,lambd,dr  
        call rism_prepare(rtdb)

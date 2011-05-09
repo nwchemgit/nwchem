@@ -23,6 +23,8 @@ scf
 end
 
 rism
+closure hnc
+vdw rule geometric parameters vdw.dat
 solute solute2.data
 solvent model solvent3.data rdf full.data
 ngrid 4096

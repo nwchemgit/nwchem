@@ -120,21 +120,6 @@ c     -----------
         goto 2
       endif
 c     
-c
-c     vdw mixing rule
-c     -----------
-      keyword="vdw"
-      if (inp_compare(.false.,keyword, token)) then
-        if (.not.inp_a(token))
-     >    call errquit(pname//'failed to read '//keyword,0, INPUT_ERR)
-        tag = "rism:"//keyword(1:inp_strlen(keyword))
-        if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),
-     +      1,token)) 
-     >      goto 999
-        goto 2
-      endif
-c     
-c
 c     solute
 c     -----------
       keyword="solute"
@@ -148,6 +133,33 @@ c     -----------
         goto 2
       endif
 c
+c     vdw
+c     -----------
+      keyword="vdw"
+      if (inp_compare(.false.,keyword, token)) then
+32       continue
+         if (.not.inp_a(token)) goto 2
+         if(inp_compare(.false.,"rule", token)) then
+           if (.not.inp_a(token))
+     >       call errquit(pname//'vdw rule',0,INPUT_ERR)
+           tag="rism:vdw:rule"
+           if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),1,token)) 
+     >         goto 999
+           goto 32
+         else if(inp_compare(.false.,"parameters", token)) then
+           if (.not.inp_a(token))
+     >       call errquit(pname//'vdw parameters',0,INPUT_ERR)
+           tag="rism:vdw:parameters"
+           if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),1,token)) 
+     >         goto 999
+           goto 32
+         else
+            call errquit(pname//'unknown tag '//token,0,INPUT_ERR)
+         end if
+        goto 2
+      endif
+c     
+cc
 c     solvent
 c     -----------
       keyword="solvent"
@@ -171,7 +183,7 @@ c     -----------
          end if
         goto 2
       endif
-cc     
+c     
 c
 c     closure
 c     -----------

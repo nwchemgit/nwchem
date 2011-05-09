@@ -16,10 +16,11 @@ c
 c     order may be important here
 c     ---------------------------
       if(master) then
+       call rism_prepare_params(rtdb)
        call rism_prepare_grid(rtdb)
        call rism_prepare_solvent(rtdb)
        call rism_prepare_solute(rtdb)
-       call db_data_print(6)
+c       call db_data_print(6)
       end if
 c
 c     send data to other processors
@@ -28,6 +29,123 @@ c     -----------------------------
       call smd_data_brdcst_create(master)
       return
  
+      end
+
+      subroutine rism_prepare_params(rtdb)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "db_const_data.fh"
+#include "rism_params.fh"
+      integer rtdb
+c
+      character*(72) filename
+      integer i
+      integer fn
+      character*72 tag
+      character*72 buffer
+      character*1 b1
+      integer master
+      integer nu
+      character*32 sname
+      double precision dr,r1,pi,dk
+      integer i_kgrid,i_rgrid,ngrid
+      integer icl
+      integer icr
+      double precision f
+      integer ipar
+c 
+      sname = "parameters"
+      call db_namespace_create(sname)
+c      
+c     closure type
+c     -----------------------------
+      tag = "rism:closure"
+      if(.not.rtdb_cget(rtdb,tag,1,buffer)) 
+     >  tag = "hnc"
+      if (inp_compare(.false.,"hnc", buffer)) then
+        icl=t_hnc
+      else if (inp_compare(.false.,"kh", buffer)) then
+        icl=t_kh
+      else
+        call errquit("unknown closure "//buffer,0,0)
+      end if
+
+      tag = "closure"
+      call db_data_put_int(sname,tag,1,icl)
+c      
+c     vdw combination rule
+c     -----------------------------
+      tag = "rism:vdw:rule"
+      if(.not.rtdb_cget(rtdb,tag,1,buffer)) 
+     >  tag="geometric"
+      if (inp_compare(.false.,"arithmetic", buffer)) then
+        icr=t_arithmetic
+      else if (inp_compare(.false.,"geometric", buffer)) then
+        icr=t_geometric
+      else
+        call errquit("unknown rule "//buffer,0,0)
+      end if
+
+      tag = "vdw_rule"
+      call db_data_put_int(sname,tag,1,icr)
+c      
+c     solute permittivity
+c     -----------------------------
+      tag = "rism:permittivity"
+      if(.not.rtdb_get(rtdb,tag,mt_dbl,1,f)) 
+     >  f = 1.0d0
+      tag = "solute_permittivity"
+      call db_data_put_dbl(sname,tag,1,f)
+c      
+c     coulomb tail separation
+c     -----------------------------
+      tag = "rism:tau"
+      if(.not.rtdb_get(rtdb,tag,mt_dbl,1,f)) 
+     >  f=1.0d0
+      tag = "tau"
+      call db_data_put_dbl(sname,tag,1,f)
+c      
+c     tolerance
+c     -----------------------------
+      tag = "rism:tol"
+      if(.not.rtdb_get(rtdb,tag,mt_dbl,1,f)) 
+     >  f=1.0d-5
+      tag = "tolerance"
+      call db_data_put_dbl(sname,tag,1,f)
+c      
+c     mixing
+c     -----------------------------
+      tag = "rism:lambda"
+      if(.not.rtdb_get(rtdb,tag,mt_dbl,1,f)) 
+     >  f=0.0d0
+      tag = "mixing"
+      call db_data_put_dbl(sname,tag,1,f)
+c      
+c     temperature
+c     -----------------------------
+      tag = "rism:temp"
+      if(.not.rtdb_get(rtdb,tag,mt_dbl,1,f)) 
+     >  f=298.15d0
+      tag = "temperature"
+      call db_data_put_dbl(sname,tag,1,f)
+c      
+c     diis
+c     -----------------------------
+      tag = "rism:diis"
+      if(.not.rtdb_get(rtdb,tag,mt_int,1,ipar)) 
+     >  ipar = 9
+      tag = "diis"
+      write(*,*) "ipar=",ipar
+      call db_data_put_int(sname,tag,1,ipar)
+c
+      call db_data_namespace_print(sname,55)
+      return
       end
 
       subroutine rism_prepare_grid(rtdb)
@@ -60,7 +178,7 @@ c
       tag="rism:ngrid"
       if (.not.rtdb_get(rtdb,tag,mt_int,1,ngrid)) 
      >  call errquit("cannot get "//tag,0,0)
-      tag = "ngrid"
+      tag = "npoints"
       call db_data_put_int(sname,tag,1,ngrid)
 c      
 c     get filename for solvent g(r)
@@ -139,16 +257,16 @@ c
 c     get number of solvent atoms
 c     ---------------------------
       call rism_nsolvent(nv,filename)
-      tag = "nsolvent"
+      tag = "natoms"
       call db_data_put_int(sname,tag,1,nv)
 c      
-      call db_data_create_get(sname,"tv",nv,MT_STR,i_tv)
-      call db_data_create_get(sname,"isv",nv,mt_int,i_isv)
-      call db_data_create_get(sname,"mv",nv,mt_int,i_mv)
-      call db_data_create_get(sname,"den",nv,mt_dbl,i_den)
-      call db_data_create_get(sname,"xv",nv,mt_dbl,i_xv)
-      call db_data_create_get(sname,"yv",nv,mt_dbl,i_yv)
-      call db_data_create_get(sname,"zv",nv,mt_dbl,i_zv)
+      call db_data_create_get(sname,"atom_name",nv,MT_STR,i_tv)
+      call db_data_create_get(sname,"residue_index",nv,mt_int,i_isv)
+      call db_data_create_get(sname,"multiplicity",nv,mt_int,i_mv)
+      call db_data_create_get(sname,"density",nv,mt_dbl,i_den)
+      call db_data_create_get(sname,"xcoord",nv,mt_dbl,i_xv)
+      call db_data_create_get(sname,"ycoord",nv,mt_dbl,i_yv)
+      call db_data_create_get(sname,"zcoord",nv,mt_dbl,i_zv)
       call db_data_create_get(sname,"sigv",nv,mt_dbl,i_sigv)
       call db_data_create_get(sname,"epsiv",nv,mt_dbl,i_epsiv)
       call db_data_create_get(sname,"qqv",nv,mt_dbl,i_qqv)
@@ -165,7 +283,7 @@ c     array that maps to reduced solvent parameters
 c     calculate size and mapping for reduced solvent parameters
       call rism_sort(nv,byte_mb(i_tv),int_mb(i_isv),int_mb(i_mv),
      +               int_mb(i_ims),nvv)
-      tag = "nsolvent_red"
+      tag = "natoms_unique"
       call db_data_put_int(sname,tag,1,nvv)
 c     fill in reduced solvent parameters
       call db_data_create_get(sname,"sgvv",nvv,mt_dbl,i_sgvv)
@@ -229,7 +347,7 @@ c     get number of solute atoms
 c     ---------------------------
       call rism_natoms(nu,filename)
 
-      tag = "nsolute"
+      tag = "natoms"
       call db_data_put_int(sname,tag,1,nu)
 
       call db_data_create_get(sname,"tu",nu,MT_STR,i_tu)
