@@ -9,7 +9,7 @@ c
       parameter (t_kh=2)
 
       integer t_geometric
-      parameter (t_geometric=1)
+      parameter (t_geometric=2)
 
       integer t_arithmetic
       parameter (t_arithmetic=1)

@@ -279,16 +279,17 @@ c
      +                            dbl_mb(i_epsiv),dbl_mb(i_qqv))
 
 c     array that maps to reduced solvent parameters
-      call db_data_create_get(sname,"ims",nv,mt_int,i_ims)
+      call db_data_create_get(sname,"map_reduced",nv,mt_int,i_ims)
 c     calculate size and mapping for reduced solvent parameters
       call rism_sort(nv,byte_mb(i_tv),int_mb(i_isv),int_mb(i_mv),
      +               int_mb(i_ims),nvv)
-      tag = "natoms_unique"
+      tag = "natoms_reduced"
       call db_data_put_int(sname,tag,1,nvv)
 c     fill in reduced solvent parameters
-      call db_data_create_get(sname,"sgvv",nvv,mt_dbl,i_sgvv)
-      call db_data_create_get(sname,"epsvv",nvv,mt_dbl,i_epsvv)
-      call db_data_create_get(sname,"qvv",nvv,mt_dbl,i_qvv)
+      call db_data_create_get(sname,"sigma_reduced",nvv,mt_dbl,i_sgvv)
+      call db_data_create_get(sname,"epsilon_reduced",
+     +                        nvv,mt_dbl,i_epsvv)
+      call db_data_create_get(sname,"charge_reduced",nvv,mt_dbl,i_qvv)
       call rism_vpot(nv,int_mb(i_ims),nvv,
      +          dbl_mb(i_sigv),dbl_mb(i_epsiv),
      +          dbl_mb(i_qqv),dbl_mb(i_sgvv),
@@ -356,9 +357,9 @@ c     ---------------------------
       call db_data_create_get(sname,"xu",nu,mt_dbl,i_xu)
       call db_data_create_get(sname,"yu",nu,mt_dbl,i_yu)
       call db_data_create_get(sname,"zu",nu,mt_dbl,i_zu)
-      call db_data_create_get(sname,"sigu",nu,mt_dbl,i_sigu)
-      call db_data_create_get(sname,"epsiu",nu,mt_dbl,i_epsiu)
-      call db_data_create_get(sname,"qqu",nu,mt_dbl,i_qqu)
+      call db_data_create_get(sname,"sigma",nu,mt_dbl,i_sigu)
+      call db_data_create_get(sname,"epsilon",nu,mt_dbl,i_epsiu)
+      call db_data_create_get(sname,"charge",nu,mt_dbl,i_qqu)
  
 c
       call rism_read_solute_file(filename,nu,
@@ -375,7 +376,8 @@ c     -------------------------------
       if(.not.result)
      >  call errquit("cannot get kgrid",0,0)
 
-      call db_data_create_get(sname,"wu",nu*nu*ngrid,mt_dbl,i_wu)
+      call db_data_create_get(sname,"struct_factor",
+     +                        nu*nu*ngrid,mt_dbl,i_wu)
       call rism_compute_solute_sfac(nu,ngrid,
      +                            dbl_mb(i_kgrid),
      +                            dbl_mb(i_xu),dbl_mb(i_yu),

@@ -12,6 +12,7 @@
 c       
        call rism_wrapper()
 
+       task_rism = .true.
        return
       end 
 c       
@@ -28,8 +29,13 @@ c
       integer i_rgrid,i_kgrid
       integer i_tv,i_den,i_isv,i_mv
       integer i_xv,i_yv,i_zv
+      integer i_ims
       logical result
       character*32 sname,dname,pname
+      double precision t,tau,lambd,tol,solperm
+      integer dd
+      integer i_sgvv,i_epsvv,i_qvv
+      integer i_sigu,i_epsiu,i_qqu,i_wu
 c       
       pname = "rism_wrapper"
 c      
@@ -42,6 +48,32 @@ c     --------------
       if(.not.result)
      >  call errquit(pname//"cannot get"//sname(1:inp_strlen(sname))
      >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "sigma"
+      call db_data_get_index(sname,dname,i_sigu,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "epsilon"
+      call db_data_get_index(sname,dname,i_epsiu,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "charge"
+      call db_data_get_index(sname,dname,i_qqu,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "struct_factor"
+      call db_data_get_index(sname,dname,i_wu,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+
 c
 c     solvent data
 c     -------------- 
@@ -52,7 +84,7 @@ c     --------------
      >  call errquit(pname//"cannot get"//sname(1:inp_strlen(sname))
      >               //dname(1:inp_strlen(dname)),0,0)
 
-      dname = "natoms_unique"
+      dname = "natoms_reduced"
       call db_data_get_int(sname,dname,1,nvv,result)
       if(.not.result)
      >  call errquit(pname//"cannot get"//sname(1:inp_strlen(sname))
@@ -100,6 +132,30 @@ c     --------------
      >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
      >               //dname(1:inp_strlen(dname)),0,0)
 
+      dname = "map_reduced"
+      call db_data_get_index(sname,dname,i_ims,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+
+      dname = "sigma_reduced"
+      call db_data_get_index(sname,dname,i_sgvv,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "epsilon_reduced"
+      call db_data_get_index(sname,dname,i_epsvv,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "charge_reduced"
+      call db_data_get_index(sname,dname,i_qvv,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
 c
 c     grid data
 c     -------------- 
@@ -137,6 +193,55 @@ c     --------------
      >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
      >               //dname(1:inp_strlen(dname)),0,0)
 
+      dname = "solute_permittivity"
+      call db_data_get_dbl(sname,dname,1,solperm,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "tau"
+      call db_data_get_dbl(sname,dname,1,tau,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+
+      dname = "tolerance"
+      call db_data_get_dbl(sname,dname,1,tol,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "mixing"
+      call db_data_get_dbl(sname,dname,1,lambd,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "temperature"
+      call db_data_get_dbl(sname,dname,1,t,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+      dname = "diis"
+      call db_data_get_int(sname,dname,1,dd,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
+
+
+       call rism(nu,nv,nvv,ngr,icl,
+     +           dbl_mb(i_kgrid),dbl_mb(i_rgrid),
+     +           byte_mb(i_tv),int_mb(i_isv),dbl_mb(i_den),
+     +           int_mb(i_mv),
+     +           dbl_mb(i_xv),dbl_mb(i_yv),dbl_mb(i_zv),
+     +           icr,int_mb(i_ims),tau,solperm,
+     +           dbl_mb(i_sgvv),dbl_mb(i_epsvv),
+     +           dbl_mb(i_qvv),dbl_mb(i_sigu),
+     +           dbl_mb(i_epsiu),dbl_mb(i_qqu),
+     +           t,lambd,
+     +           tol,dbl_mb(i_wu),dd)          
 
 c       call rism(nu,nv,nvv,ngr,icl,kgrid,rgrid,tv,isv,den,mv,xv,yv,zv,
 c     * icr,ims,tau,solperm,sgvv,epsvv,qvv,sigu,epsiu,qqu,t,lambd,
@@ -751,6 +856,9 @@ c      functions
 c      diis functions and counts
        real*8 ggo(1:dd,1:nu,1:nvv,1:ngr),dgg(1:dd,1:nu,1:nvv,1:ngr)
        integer kd,dd 
+       write(76,*) nu,nv,nvv,ngr,icl,icr,tau,solperm
+       write(76,*) T,lambd,tol
+
 c
        pi=2*asin(1.0)       
 c      nd total number of different rdfs
