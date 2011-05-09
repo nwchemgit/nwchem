@@ -249,291 +249,7 @@ c     * tol,wu,dd)
 
        return
       end 
-c      
-       function task_rism0(rtdb)
-       implicit none
-#include "errquit.fh"
-#include "rtdb.fh"
-#include "mafdecls.fh"
-#include "inp.fh"
-#include "util.fh"
-#include "global.fh"
-       integer rtdb
-       logical  task_rism0
-       integer  nu, nv, ngr ,icr,icl,i,dd 
-       real*8 r1, r2, tau, solperm,t, tol,lambd,dr  
-       call rism_prepare(rtdb)
-c parameters(nv number of solute sites  nu number of solute sites ngr number of grid points)
-c solperm solvent relative permittivity
-c tau(aa-1) separation between short and long range functions in 1/angstroms
-c icr type of combination rule: 1-arithmetic; 2-geometric 
-c t(k)  temperature in kelvins
-c tol residue tolerance
-c lamd mixing parameter
-c icl closure type: 1-hnc; 2-kh
-c tau debye parameter for spliting potnetial into short and long part
-c solperm dielectric permitivity of the solvent
-c dd number of diis basis vectors
-c      ngr=4096
-c      nu=12 
-c      nv=4 
-c      tau=1
-c      solperm=1
-c      icr=1
-c      t=298
-c      tol=1e-5
-c      lambd=0.5 
-c      icl=2 
-       open(3, file='uvpar.data', status='old')
-       read(3,102) nu,nv,icr,icl,ngr,tau,solperm,t,tol,lambd,dd 
-       print*, nu,nv,icr,icl,ngr,tau,solperm,t,tol,lambd,dd 
-       close(3)
-       write(*,*) "read uvpar.data"
-       call util_flush(6)
-c parameters(r1 first grid point r2 second grid point)
-c      reading of r1 and r2  
-       open(3, file='full.data', status='old')      
-        read(3,104) r1,r2          
-       close(3)
-104    format(1x,f12.7) 
-       dr=r2-r1
-!      print*, r1,r2,dr
-       call risminput(rtdb,nv,nu,ngr,dr,r1,tau,
-     * solperm,icr,t,tol,lambd,icl,dd) 
- 102   format(4(1x,i4),1x,i8,5(2x,e9.4),1x,i4) 
-       end 
-cccc
-       subroutine risminput(rtdb,nv,nu,ngr,dr,r1,tau,
-     * solperm,icr,t,tol,lambd,icl,dd) 
-       implicit none
-#include "mafdecls.fh"
-#include "db_const_data.fh"
-       integer rtdb
-       integer  nu, isu(1:nu), mu(1:nu)
-       real*8 wu(1:nu,1:nu,1:ngr),sgvv(1:nv)
-       real*8 xu(1:nu),yu(1:nu),zu(1:nu),sigu(1:nu)
-       real*8 epsiu(1:nu),qqu(1:nu) 
-       integer  nv, ngr, isv(1:nv), mv(1:nv)
-       real*8 den(1:nv),xv(1:nv),yv(1:nv),zv(1:nv),sigv(1:nv)
-       real*8 epsiv(1:nv),qqv(1:nv)    
-       real*8 sigvv(1:nv), epsvv(1:nv),qvv(1:nv)
-       integer  i, icr, icl,nvv,ims(1:nv),nd,k,dd       
-       real*8 r1,dr, dk, rgrid(1:ngr),kgrid(1:ngr),pi 
-       character (4) tv(1:nv), tu(1:nu)
-       real*8 tau,solperm,t, tol,lambd,kb
-       integer j1,j
-       real*8 c3(1:nu,1:nv,1:ngr),hu(1:nu,1:nv,1:ngr) 
-       real*8 gam(1:nu,1:nv,1:ngr)
-       character*32 sname
-c       index handles for rism data structures
-       integer nuvg
-       integer nuug
-       integer i_c3,i_hu,i_gam,i_rgrid,i_kgrid
-       integer  i_ims
-       integer  i_sigvv
-       integer  i_epsiv
-       integer  i_qqv
-       integer  i_den
-       integer  i_xv
-       integer  i_yv
-       integer  i_zv
-       integer  i_sigv
-       integer  i_isv
-       integer  i_mv
-       integer  i_epsiu
-       integer  i_qqu
-       integer  i_xu
-       integer  i_yu
-       integer  i_zu
-       integer  i_sigu
-       integer  i_wu
-       integer  i_mu
-       integer  i_isu
-       integer  i_tv
-       integer  i_tu
-c
 
-c       create rism data structures stored in namespace "rism"
-       sname = "rism"
-       nuvg = nu*nv*ngr
-       nuug = nu*nu*ngr
-       call db_namespace_create(sname)
-       call db_data_create_get(sname,"c3",nuvg,mt_dbl,i_c3)
-       call db_data_create_get(sname,"hu",nuvg,mt_dbl,i_hu)
-       call db_data_create_get(sname,"gam",nuvg,mt_dbl,i_gam)
-       call db_data_create_get(sname,"sigvv",nv,mt_dbl,i_sigvv)
-       
-      call db_data_create_get(sname,"wu",nuug,mt_dbl,i_wu)
-c
-c      solvent input
-c tv type of cite isv type of species mv multiplicity  den density (1/a3) xvyvzv[xyz](a) 
-c sigv  sigma(a) epsiv epsilon(kj/mol) qqv charge(e)
-c      number of lines in solvt..data should be equal nv
-       open(3, file='solvent3.data', status='old')      
-        do i=1,nv
-         read(3,103)tv(i),isv(i),mv(i),den(i),  
-     *   xv(i),yv(i),zv(i),sigv(i), epsiv(i),qqv(i) 
-!        print *, tv(i),isv(i),mv(i),den(i),  
-!    *   xv(i),yv(i),zv(i),sigv(i), epsiv(i),qqv(i)  
-        enddo
-       close(3)
- 103   format(a4,2x,i4,2x,i4,7(2x,e10.4))
-c
-c      sorting
-       call sort(nv,tv,isv,mv,ims,nvv) 
-      print*, (ims(i), i=1,nv)
-c      calculations interaction parameters for reduced matrix
-       call vpot(nv,ims,nvv,sigv,epsiv,qqv,sgvv,epsvv,qvv)
-      do i=1,nvv 
-       write(32,*) sgvv(i),epsvv(i),qvv(i),i,ims(i)
-      enddo
-c
-c      solute input
-c tu type of cite isu type of species mu multiplicity  xuyuzu[xyz](a) 
-c      sigu sigma(a) epsiu epsilon(kj/mol) qqu charge(e)
-       open(3, file='solute2.data', status='old')      
-        do i=1,nu
-         read(3,102)tu(i),isu(i),mu(i),  
-     *   xu(i),yu(i),zu(i),sigu(i),epsiu(i),qqu(i) 
-         print *,tu(i),isu(i),mu(i),  
-     *   xu(i),yu(i),zu(i),sigu(i),epsiu(i),qqu(i)
-        enddo
-       close(3)
- 102   format(a4,2x,i4,2x,i4,6(2x,e10.4))                
-c
-c      creat rgrid rgrd(i) creat kgrid kgrid(i)
-       pi=2*asin(1.0)
-c      the zero point is excluded
-       r1=dr   
-       dk=pi/(ngr+1)/dr
-       do i=1,ngr
-        rgrid(i)=r1+dr*(i-1) 
-        kgrid(i)=i*dk 
-       enddo 
-c
-c      wu(i,j,k) intramolecular solute function
-       call wucreat(nu,ngr,kgrid,tu,isu,xu,yu,zu,wu) 
-      do k=1,ngr
-       write(44,*) (wu(1,i,k), i=1,9)
-      enddo
-       stop
-c       
-       call rism(nu,nv,nvv,ngr,icl,kgrid,rgrid,tv,isv,den,mv,xv,yv,zv,
-     * icr,ims,tau,solperm,sgvv,epsvv,qvv,sigu,epsiu,qqu,t,lambd,
-     * tol,wu,dd)          
-       return
-       end subroutine 
-cccc
-c
-c subroutine for rearrangement of the solvent data which excludes the same sites
-c defined by paramters tv and mv
-c
-       subroutine sort(nv,tv,isv,mv,ims,nvv)
-       implicit none
-       integer  nv, isv(1:nv), mv(1:nv),ims(1:nv),mvt(1:nv)
-       integer  i,i1,j1,j2,icc,imm(1:nv),max,nvv      
-       character (4) tv(1:nv)
-c
-c      initialization of connectivity vector      
-       do i=1,nv
-        ims(i)=i 
-        imm(i)=1
-        mvt(i)=mv(i)  
-       enddo
-c      sorting 
-       do j1=1,nv-1
-        do j2=j1+1,nv
-         if((tv(j1).eq.tv(j2)).and.(isv(j1).eq.isv(j2))
-     *    .and.(mv(j2).ne.1)) then 
-c         replace current value of ims by the first found
-          ims(j2)=ims(j1)
-c         change indicator of replacement
-          imm(j2)=2
-c         change multiplicity
-          mv(j2)=1 
-c         shift all others except replaced by 1
-          if(j2.ne.nv) then
-           do i1=j2+1,nv
-            if(imm(i1).eq.1) then  
-             ims(i1)=ims(i1)-1
-             else 
-             ims(i1)=ims(i1)
-            endif 
-           enddo
-          endif  
-          else 
-          ims(j2)=ims(j2)
-         endif
-!       print*, j2,ims(j2),mv(j2),imm(j2)
-        enddo
-       enddo
-c      evaluation of maximal value of different sites
-       max=ims(1) 
-       do i=2,nv
-        if(ims(i).ge.max) then
-         max=ims(i)
-         else
-         max=max 
-        endif
-       enddo
-       nvv=max
-c      replace changed mv by the initial one 
-       do i=1,nv
-        mv(i)=mvt(i)
-       enddo
-       return
-       end subroutine 
-c
-c      subroutine for calculation potential parameters for reduced matrix
-c
-       subroutine vpot(nv,ims,nvv,sigv,epsiv,qqv,sgvv,epsvv,qvv) 
-       implicit none
-       integer  nv,nvv 
-       real*8 sgvv(1:nvv),epsvv(1:nvv),qvv(1:nvv)        
-       real*8 sigv(1:nv),epsiv(1:nv),qqv(1:nv)    
-       integer  i,ims(1:nv),j1,j2,icr       
-       do i=1,nv  
-        sgvv(ims(i))=sigv(i)
-        epsvv(ims(i))=epsiv(i)
-        qvv(ims(i))=qqv(i)
-!       print*, sgvv(ims(i)),sigv(i),i,ims(i)
-       enddo 
-       return
-       end subroutine
-c
-c      prepration of wu(i,j,k) intramoplecular solute matrix
-c
-       subroutine wucreat(nu,ngr,kgrid,tu,isu,xu,yu,zu,wu)
-       implicit none
-       integer  nu, ngr, isu(1:nu), mu(1:nu)
-       real*8 wu(1:nu,1:nu,1:ngr), dist(1:nu,1:nu)
-       real*8 xu(1:nu),yu(1:nu),zu(1:nu)   
-       integer  i, j1,j2,icr       
-       real*8 kgrid(1:ngr),sik  
-       character (4) tu(1:nu) 
-c      dis(i,j) intramolecular distances      
-       do i=1,ngr
-        do j1=1,nu
-         do j2=1,nu
-          dist(j1,j2)=(((xu(j1)-xu(j2))**2+(yu(j1)-yu(j2))**2+
-     *    (zu(j1)-zu(j2))**2))**(1.0/2)
-          wu(j1,j2,i)=sik(kgrid(i)*dist(j1,j2))
-         enddo
-        enddo
-       enddo 
-       return
-       end subroutine 
-c
-       real*8 function sik(x)
-       real*8 x
-       if(x.lt.1d-22)then
-        sik=1
-       else
-       sik=sin(x)/x
-       endif
-       return
-       end
-c
 c creat susceptibility of solvent
 c
        subroutine chicreat(nd,nv,ngr,ims,nvv,kgrid,tv,
@@ -622,8 +338,12 @@ c
        integer  nv, ngr, isv(1:nv),mv(1:nv)
        real*8 den(1:nv),xv(1:nv),yv(1:nv),zv(1:nv),sigv(1:nv)    
        integer  i, j1,j2,nvv,ims(1:nv),t       
-       real*8 kgrid(1:ngr),pi,sik,co(1:nv,1:nv,1:ngr) 
+       real*8 kgrid(1:ngr),pi,co(1:nv,1:nv,1:ngr) 
        character (4) tv(1:nv)
+c 
+       double precision sinr
+       external sinr
+c
        pi=2*asin(1.0)  
 c
 c      initialization of wv(i,j,k) & calculating of the 11 element
@@ -637,7 +357,7 @@ c
         enddo
        enddo            
 c      dist(i,j) distance between i and j sites
-c      co(i,j,k) sik between i and j sites
+c      co(i,j,k) sinr between i and j sites
 c      reducing number of coloumns
        do i=1,ngr
         do j1=1,nv       
@@ -647,7 +367,7 @@ c         if they belong to the same molecule
           if(isv(j1).eq.isv(j2)) then        
            dist(j1,j2)=(((xv(j1)-xv(j2))**2+
      *     (yv(j1)-yv(j2))**2+(zv(j1)-zv(j2))**2))**(1.0/2)           
-           co(j1,j2,i)=sik(kgrid(i)*dist(j1,j2))
+           co(j1,j2,i)=sinr(kgrid(i)*dist(j1,j2))
            ws(j1,ims(j2),i)= ws(j1,ims(j2),i)+co(j1,j2,i)
           endif
          enddo  

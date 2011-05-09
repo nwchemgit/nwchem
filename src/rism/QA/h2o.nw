@@ -23,13 +23,13 @@ scf
 end
 
 rism
-closure kh
-tol 0.1e-6
-temp 298
-vdw rule arithmetic parameters vdw.par
-solute solute2.data
-solvent model solvent3.data rdf full.data
-ngrid 4096
+ closure kh
+ tol 0.1e-6
+ temp 298
+ vdw rule arithmetic parameters vdw.par
+ solute solute2.data
+ solvent model solvent3.data rdf full.data
+ ngrid 4096
 end
 task dft  energy rism
 
