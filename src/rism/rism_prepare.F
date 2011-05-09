@@ -352,8 +352,11 @@ c     ---------------------------
       call db_data_put_int(sname,tag,1,nu)
 
       call db_data_create_get(sname,"tu",nu,MT_STR,i_tu)
+c      isu and mu arrays are not needed
+c      keeping them only for compatibility with original version
       call db_data_create_get(sname,"isu",nu,mt_int,i_isu)
       call db_data_create_get(sname,"mu",nu,mt_int,i_mu)
+c      
       call db_data_create_get(sname,"xu",nu,mt_dbl,i_xu)
       call db_data_create_get(sname,"yu",nu,mt_dbl,i_yu)
       call db_data_create_get(sname,"zu",nu,mt_dbl,i_zu)
@@ -384,6 +387,12 @@ c     -------------------------------
      +                            dbl_mb(i_zu),
      +                            dbl_mb(i_wu))
 
+      call db_data_destroy(sname,"isu",result)
+      if(.not.result)
+     >  call errquit("cannot destroy isu",0,0)
+      call db_data_destroy(sname,"mu",result)
+      if(.not.result)
+     >  call errquit("cannot destroy mu",0,0)
 
       return
       end
