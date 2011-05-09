@@ -1000,6 +1000,8 @@ c      old functions as new functions for new cycle
        if(k1.ge.700) goto 2         
         if(del0.ge.tol) goto 1
  2     continue  
+
+       call thermo(Nu,NV,NVV,NGR,ICL,IMS,DEN,T,RGRID,HNEW,CNEW,UL)
        open(3, file='g1.data', status='unknown')  
         do k=1,ngr        
          write(3,107)(gnew(1,i,k)+cnew(1,i,k), i=1,4)  

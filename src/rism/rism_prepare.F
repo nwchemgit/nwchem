@@ -364,13 +364,18 @@ c
       call db_data_create_get(sname,"epsilon",nu,mt_dbl,i_epsiu)
       call db_data_create_get(sname,"charge",nu,mt_dbl,i_qqu)
  
-c
+c     legacy format
+c      call rism_read_solute_file(filename,nu,
+c     +                            byte_mb(i_tu),int_mb(i_isu),
+c     +                            int_mb(i_mu),
+c     +                            dbl_mb(i_xu),dbl_mb(i_yu),
+c     +                            dbl_mb(i_zu),dbl_mb(i_sigu),
+c     +                            dbl_mb(i_epsiu),dbl_mb(i_qqu))
       call rism_read_solute_file(filename,nu,
-     +                            byte_mb(i_tu),int_mb(i_isu),
-     +                            int_mb(i_mu),
+     +                            byte_mb(i_tu),
      +                            dbl_mb(i_xu),dbl_mb(i_yu),
-     +                            dbl_mb(i_zu),dbl_mb(i_sigu),
-     +                            dbl_mb(i_epsiu),dbl_mb(i_qqu))
+     +                            dbl_mb(i_zu),
+     +                            dbl_mb(i_qqu))
 c
 c     compute solute structure factor
 c     -------------------------------
@@ -387,6 +392,18 @@ c     -------------------------------
      +                            dbl_mb(i_zu),
      +                            dbl_mb(i_wu))
 
+c
+c     fill in vdw parameters
+c     ---------------------
+      tag = "rism:vdw:parameters"
+      if(.not.rtdb_cget(rtdb,tag,1,filename)) 
+     >  call errquit("cannot get "//tag,0,0)
+
+      call rism_read_vdw_params(filename,nu,
+     +                            byte_mb(i_tu),
+     +                            dbl_mb(i_sigu),
+     +                            dbl_mb(i_epsiu))
+c
       call db_data_destroy(sname,"isu",result)
       if(.not.result)
      >  call errquit("cannot destroy isu",0,0)
@@ -554,6 +571,46 @@ c
       end
 
       subroutine rism_read_solute_file(filename,nu,
+     +                            tu,
+     +                            xu,yu,
+     +                            zu,
+     +                            qqu)
+
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "db_const_data.fh"
+      character*(*) filename
+      character(db_string_size) tu(nu)
+      integer  nu
+      real*8 xu(nu),yu(nu),zu(nu)
+      real*8 qqu(nu) 
+c
+      integer i
+      integer fn
+      character*180 buffer
+      character*1 b1
+c      
+      if(.not.util_get_io_unit(fn))
+     >  call errquit("cannot get file number",0,0)
+      open(unit=fn,status="old",form="formatted",file=filename)
+      i=0
+10    continue
+      read(fn,'(A180)',ERR=40,END=40) buffer
+      if(buffer(1:1).eq."#") goto 10
+      i = i+1
+      read(buffer,*,ERR=40,END=40) tu(i),
+     +   xu(i),yu(i),zu(i),qqu(i) 
+      if(i.lt.nu) goto 10 
+30    close(fn)
+      return
+40    continue
+      call errquit("error reading solute file",0,0)
+      end
+
+      subroutine rism_read_solute_file_legacy(filename,nu,
      +                            tu,isu,
      +                            mu,
      +                            xu,yu,
@@ -592,6 +649,51 @@ c
       return
 40    continue
       call errquit("error reading solute file",0,0)
+      end
+
+      subroutine rism_read_vdw_params(filename,nu,
+     +                            tu,
+     +                            sigu,
+     +                            epsiu)
+
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "db_const_data.fh"
+      character*(*) filename
+      character(db_string_size) tu(nu)
+      integer  nu 
+      real*8 epsiu(nu),sigu(nu) 
+c
+      integer i,ia
+      integer fn
+      character*180 buffer
+      character*5 tag
+      double precision sigma, eps
+c      
+      if(.not.util_get_io_unit(fn))
+     >  call errquit("cannot get file number",0,0)
+      open(unit=fn,status="old",form="formatted",file=filename)
+c     loop over atom names
+      do ia=1,nu
+10      continue
+        read(fn,'(A180)',ERR=40,END=40) buffer
+        if(buffer(1:1).eq."#") goto 10
+        read(buffer,*,ERR=40,END=40) tag,sigma,eps
+        if (inp_compare(.false.,tag, tu(ia))) then
+           sigu(ia) = sigma
+           epsiu(ia) =eps
+        else
+           goto 10
+        end if
+        rewind(fn)
+      end do
+30    close(fn)
+      return
+40    continue
+      call errquit("error reading vdw parameters",0,0)
       end
 
       function sinr(x)

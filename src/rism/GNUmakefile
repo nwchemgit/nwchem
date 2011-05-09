@@ -3,7 +3,7 @@
 #
 
 
-OBJ =  task_rism.o rism_input.o rism_prepare.o db_data.o
+OBJ =  task_rism.o rism_input.o rism_prepare.o db_data.o rism_thermo.o
 
 LIBRARY=librism.a
 
