@@ -25,6 +25,7 @@ c
 c      character*80 movecs_tag
 c      character*30 theory
       integer lespfile
+      logical lrism
 c
       integer i,k
       logical ignore
@@ -196,6 +197,27 @@ c      end if
         close(unit=lespfile)
       end if
 
+c
+c     temporary rism hookup
+c     to produce charge file
+c     ---------------------
+      if (.not.rtdb_get(rtdb,'qmmm:rism',mt_log,1,lrism)) lrism=.false.
+      if(lrism) then
+        call mm_restart_filename(prefix)
+        i = index(prefix,".rst")-1
+        espfile = prefix(1:i)//".xyzq"
+      end if
+      call util_file_name_resolve(espfile,.false.)
+      if(ga_nodeid().eq.0) then
+        open(unit=lespfile,file=espfile,
+     >       form='formatted',status='unknown')
+        do  i=1,nqm
+         write(luout,*) (dbl_mb(i_c_qm+(i-1)*3+k-1),k=1,3),
+     >                          dbl_mb(i_q_qm+i-1)
+        end do
+        close(unit=lespfile)
+      end if
+c     end of rism hookup
 
        if(.not.geom_destroy(igeom))
      + call errquit('qmmm: Failed to destroy geometry',0, GEOM_ERR)
