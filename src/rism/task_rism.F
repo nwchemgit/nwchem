@@ -603,7 +603,7 @@ c
         do j1=1,nv
          do j2=1,nv
           chi(ims(j1),ims(j2),i)=wv(ims(j1),ims(j2),i)
-     *    +4*pi*dr*mv(j1)*mv(j2)*den(j2)*h3(ims(j1),ims(j2),i)
+     *    +4*pi*dr*mv(j1)*mv(j2)*den(j1)*h3(ims(j1),ims(j2),i)
          enddo
         enddo      
        enddo

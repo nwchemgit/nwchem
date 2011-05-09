@@ -298,7 +298,7 @@ C
         DO J1=1,NV
          DO J2=1,NV
           CHI(IMS(J1),IMS(J2),I)=WV(IMS(J1),IMS(J2),I)
-     *    +4*pi*DR*MV(J1)*MV(J2)*den(J2)*H3(IMS(J1),IMS(J2),i)
+     *    +4*pi*DR*MV(J1)*MV(J2)*den(J1)*H3(IMS(J1),IMS(J2),i)
          ENDDO
         ENDDO      
        ENDDO
