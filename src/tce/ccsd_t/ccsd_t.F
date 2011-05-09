@@ -61,6 +61,8 @@ C
       next = nxtask(nprocs,1)
       energy(1)=0.0d0
       energy(2)=0.0d0
+      energy1 = 0.0d0
+      energy2 = 0.0d0
       do t_p4b = noab+1,noab+nvab
        range_p4 = int_mb(k_range+t_p4b-1)
        offset_p4 = k_evl_sorted+int_mb(k_offset+t_p4b-1)-1
