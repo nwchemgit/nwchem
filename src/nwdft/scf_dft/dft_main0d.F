@@ -564,35 +564,17 @@ c
 c     == Call the main drivers ==
       if (theory .eq. 'dft') then
        if (.not.lrt_tddft) then
- 100      continue
-          if ((.not.lcgmin.and..not.ltried_scf).or.
-     &        (lcgmin.and.ltried_cgmin.and..not.lsuccess)) then
-            ! Standard DFT
-            lsuccess = dft_scf(rtdb, Etold, Enuc, iVcoul_opt,
+          if ((.not.lcgmin)) then
+            dft_main0d = dft_scf(rtdb, Etold, Enuc, iVcoul_opt,
      &                         iVxc_opt, iter, g_dens, g_dens_at,
      &                         g_evecs, g_vxc, g_fock, g_svecs,
      &                         dbl_mb(isvals), g_xcinv, g_s, lcdft,
      &                         nconstr)
-            ltried_scf = .true.
-            if (.not.lsuccess) then
-              movecs_in = movecs_out
-              call dft_cscf_movecs_inout(movecs_in,movecs_out)
-            endif
-          endif
-          if ((lcgmin.and..not.ltried_cgmin).or.
-     &        (.not.lcgmin.and.ltried_scf.and..not.lsuccess)) then
-            lsuccess = dft_cg_solve(rtdb)
+          else if (lcgmin) then
+            dft_main0d = dft_cg_solve(rtdb)
             call dft_cg_answer(rtdb,energy,lsuccess)
             call dft_cg_tidy(rtdb)
-            if (.not.lsuccess) then
-              movecs_in = movecs_out
-              call dft_cscf_movecs_inout(movecs_in,movecs_out)
-            endif
-            ltried_cgmin = .true.
           endif
-          if (.not.lsuccess.and..not.(ltried_scf.and.ltried_cgmin))
-     &       go to 100
-          dft_main0d = lsuccess
        else
           dft_main0d = .false.
        end if   ! lrt_tddft
