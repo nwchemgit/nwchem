@@ -13,6 +13,7 @@ c $Id$
 #include "prop.fh"
 #include "bgj.fh"
 #include "case.fh"
+#include "cosmo.fh"
 c
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
@@ -45,6 +46,12 @@ c
       data tol2e   /1.0d-10/
       integer NoKinetic
       common /skipKinetic/NoKinetic
+c
+c     bq charges
+      integer nbq,nextbq,ncosbq
+      nbq = 0
+      nextbq = 0
+      ncosbq = 0
 c
       if (ga_nodeid().eq.0) write(luout,9999)
 
@@ -357,6 +364,23 @@ c
       NoKinetic=0 ! =0 DO-kinetic, =1 SKIP-kinetic
       call int_giao_1ega(basis,basis,g_s10,'tv10',dbl_mb(k_xyz),
      &                   sh_atom,oskel)
+c
+c     Get external and cosmo bq contribution
+c
+      nbq = 0
+      nextbq = 0
+      ncosbq = 0
+      if(geom_extbq_on()) nextbq = geom_extbq_ncenter()
+      nbq = nextbq ! external bq's
+c
+      if (rtdb_get(rtdb,'cosmo:nefc',mt_int,1,ncosbq)) 
+     &    nbq = nbq + ncosbq ! add in cosmo bq's
+c
+c     if (ga_nodeid().eq.0) write(6,*) "nbq: ", nbq
+      if (nbq.gt.0) then
+        call int_giao_1ega(basis,basis,g_s10,'bq10',dbl_mb(k_xyz),
+     &                   sh_atom,oskel)
+      end if
 c
 c     ga_rhs(a,i) = ga_rhs(a,i) + H10(a,i)
 c     Transform H10 to MO and add to g_rhs

@@ -10,6 +10,7 @@ C$Id$
 #include "apiP.fh"
 #include "bas.fh"
 #include "sym.fh"
+#include "geom.fh"
 c     
 c     Compute the desired type of 1e GIAO integrals 
 c     and ADD them into the given global array.
@@ -45,6 +46,15 @@ c
 c
       logical odbug
       logical osome
+c
+      integer irtdb
+      integer int_get_rtdb
+      external int_get_rtdb
+      integer iextbq
+      integer nbq,nextbq,ncosbq,ntmp
+      integer l_qbq,l_cbq
+      integer k_qbq,k_cbq
+      integer k_qextbq,k_cextbq
 c
       odbug=.false.
       osome=.false.
@@ -107,6 +117,9 @@ c
       else if (inp_compare(.false., integ_type, 'angmom'))then 
          type = 14
          nblocks = 3      
+      else if (inp_compare(.false., integ_type, 'bq10')) then
+         type = 15
+         nblocks = 3
       else
          write(6,*) ' integ_type = ', integ_type,ga_nodeid()
          call errquit('int_giao_1ega: unknown integ_type', 0, INT_ERR)
@@ -149,6 +162,49 @@ c
      $     call errquit('int_giao_1ega: ma failed', max1e, MA_ERR)
       if(.not.MA_push_get(MT_DBL, mem1,'int_giao_1ega:scr',l_scr,k_scr))
      $     call errquit('int_giao_1ega: ma failed', mem1, MA_ERR)
+c
+c     Get bq charges (external bq and cosmo)
+c
+      if (type.eq.15) then
+        nbq=0
+        nextbq = 0
+        ncosbq = 0
+        if(geom_extbq_on()) then
+           nextbq = geom_extbq_ncenter()
+           k_cextbq = geom_extbq_coord()
+           k_qextbq = geom_extbq_charge()
+           nbq = nextbq
+        end if
+c
+c       Get rtdb handle
+c
+        irtdb = int_get_rtdb()   ! get rtdb handle
+        if (rtdb_get(irtdb,'cosmo:nefc',mt_int,1,ncosbq))
+     &       nbq = nbq + ncosbq  ! add in cosmo bq centers
+c
+c       Allocate memory for all the bq charges
+c
+        if(.not.MA_push_get(MT_DBL,nbq,'qbq',l_qbq,k_qbq))
+     &    call errquit('int_giao_1ega: ma failed', l_qbq, MA_ERR)
+        call dfill(nbq,0.d0,dbl_mb(k_qbq),1)
+        if(.not.MA_push_get(MT_DBL,3*nbq,'cbq',l_cbq,k_cbq))
+     $    call errquit('int_giao_1ega: ma failed', l_cbq, MA_ERR)
+        call dfill(3*nbq,0.d0,dbl_mb(k_cbq),1)
+c
+c       Assign external bq charges and coordinates
+c
+        if (nextbq.gt.0) then
+          k_qbq = k_qextbq
+          k_cbq = k_cextbq
+        end if ! nextbq 
+c         
+c       Get cosmo charges and coordinates
+c
+        if (ncosbq.gt.0) then
+         call bq_fromrtdb(irtdb,'cosmo:efcz','cosmo:efcc',
+     &       ntmp,dbl_mb(k_qbq+nextbq),dbl_mb(k_cbq+3*nextbq))
+        end if ! ncosbq gt 0
+      end if ! type .eq. 15
 c     
 c     Loop thru shells with static parallel work decomposition
 c     
@@ -227,6 +283,10 @@ c
                   else if (type .eq. 14) then ! 3
                      call int_angmom(jbas, jshell, ibas, ishell,
      $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf))
+                  else if (type .eq. 15) then ! 3
+                     call int_giaobq10(jbas, jshell, ibas, ishell, 
+     $                    mem1, dbl_mb(k_scr), max1e, dbl_mb(k_buf),
+     &                    dbl_mb(k_qbq),dbl_mb(k_cbq),nbq)
                   else
                      call errquit('int_giao_1ega: invalid type?', type,
      &       GA_ERR)
@@ -251,11 +311,17 @@ c
 c     
 c     chop stack at first item allocated
 c     
+      if (type.eq.15) then  ! for bq's
+        if (.not. MA_pop_stack(l_cbq)) call errquit
+     $     ('int_giao_1ega: pop failed', l_cbq, MA_ERR)
+        if (.not. MA_pop_stack(l_qbq)) call errquit
+     $     ('int_giao_1ega: pop failed', l_qbq, MA_ERR)
+      end if ! type 15
       if (.not. MA_pop_stack(l_scr)) call errquit
-     $     ('int_giao_1ega: pop failed', 0, GA_ERR)
+     $     ('int_giao_1ega: pop failed', l_scr, MA_ERR)
       if (.not. MA_pop_stack(l_buf)) call errquit
-     $     ('int_giao_1ega: pop failed', 0, GA_ERR)
-c     
+     $     ('int_giao_1ega: pop failed', l_buf, MA_ERR)
+     
       call ga_sync()            ! So that no nasty races can result
 c     
       end
