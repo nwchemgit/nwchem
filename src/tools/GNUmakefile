@@ -286,6 +286,25 @@ else
 endif
 endif # LAPI
 
+ifeq ($(ARMCI_NETWORK),MPI-SPAWN)
+    MPI_SPAWN_COMBINED =
+ifneq ($(MPI_SPAWN_INCLUDE),)
+        MPI_SPAWN_COMBINED += $(MPI_SPAWN_INCLUDE)
+endif
+ifneq ($(MPI_SPAWN_LIB),)
+        MPI_SPAWN_COMBINED += $(MPI_SPAWN_LIB)
+endif
+ifneq ($(MPI_SPAWN_LIB_NAME),)
+        MPI_SPAWN_COMBINED += $(MPI_SPAWN_LIB_NAME)
+endif
+MPI_SPAWN_COMBINED := $(strip $(MPI_SPAWN_COMBINED))
+ifeq ($(MPI_SPAWN_COMBINED),)
+    MAYBE_ARMCI = --with-mpi-spawn
+else
+    MAYBE_ARMCI = --with-mpi-spawn="$(MPI_SPAWN_COMBINED)"
+endif
+endif # MPI-SPAWN
+
 ifdef USE_MPI
     MPI_COMBINED =
     ifneq ($(MPI_INCLUDE),)
