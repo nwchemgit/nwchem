@@ -112,7 +112,7 @@ c        ocons=.false.
 c      end if
       if(ocons) call cons_add_energy(rtdb,energy)
 
-      write(*,*) "putting energy into rtdb",energy
+c     write(*,*) "putting energy into rtdb",energy
       if (.not. rtdb_put(rtdb, 'task:energy', mt_dbl, 1, energy))
      $     call errquit('task_energy: failed storing energy',0,
      &       RTDB_ERR)
