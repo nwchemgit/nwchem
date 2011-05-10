@@ -194,8 +194,8 @@ c
 c       Assign external bq charges and coordinates
 c
         if (nextbq.gt.0) then
-          k_qbq = k_qextbq
-          k_cbq = k_cextbq
+         call icopy(nextbq,dbl_mb(k_qextbq),1,dbl_mb(k_qbq),1)
+         call icopy(3*nextbq,dbl_mb(k_cextbq),1,dbl_mb(k_cbq),1)
         end if ! nextbq 
 c         
 c       Get cosmo charges and coordinates
