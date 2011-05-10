@@ -46,6 +46,13 @@ c::local
       character*255 dk_bas_name, dk_trans_name ! strings used for Douglas-Kroll
       logical ouseracc
 c
+      integer irtdb
+      common /int_rtdb/irtdb   ! rtdb member variable handle
+c
+c     Set member irtdb
+c
+      irtdb = rtdb  
+c
 c     Put integral accuracy under user control
 c
       ouseracc = .false.
@@ -475,4 +482,17 @@ c
           enddo
         endif
       enddo
+      end
+c
+c     == access function for rtdb member variable handle ==
+      integer function int_get_rtdb()
+c
+      implicit none
+c
+      integer irtdb
+      common /int_rtdb/irtdb
+
+      int_get_rtdb = irtdb
+c   
+      return
       end
