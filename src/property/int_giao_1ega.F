@@ -152,6 +152,9 @@ c
          call int_init_pso(max1e,mem1,ibas,nat)
       elseif (type.eq.11) then
          call int_init_1eelec(max1e,mem1,ibas,2,nat)
+      elseif (type.eq.15) then
+         call int_mem_1e(max1e, mem1)  
+         max1e = max1e*nblocks
       else
          call int_init_dip(max1e,mem1,ibas)
          max1e = max1e*nblocks
@@ -173,14 +176,17 @@ c
            nextbq = geom_extbq_ncenter()
            k_cextbq = geom_extbq_coord()
            k_qextbq = geom_extbq_charge()
-           nbq = nextbq
+           nbq = nextbq  ! external bq centers
         end if
 c
 c       Get rtdb handle
 c
         irtdb = int_get_rtdb()   ! get rtdb handle
         if (rtdb_get(irtdb,'cosmo:nefc',mt_int,1,ncosbq))
-     &       nbq = nbq + ncosbq  ! add in cosmo bq centers
+     &       nbq = ncosbq  ! cosmo bq centers
+c
+        if (nextbq.gt.0.and.ncosbq.gt.0) 
+     &       nbq = nextbq + ncosbq  ! all bq centers
 c
 c       Allocate memory for all the bq charges
 c
