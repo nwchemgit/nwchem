@@ -400,7 +400,6 @@ c
      &                   nat,oskel)
       call int_giao_1ega(basis,basis,g_s10,'tv10',origin,
      &                   nat,oskel)
-
 c
 c     Get external and cosmo bq contribution
 c
@@ -411,14 +410,16 @@ c
       nbq = nextbq ! external bq's
 c
       if (rtdb_get(rtdb,'cosmo:nefc',mt_int,1,ncosbq))
-     &    nbq = nbq + ncosbq ! add in cosmo bq's
+     &    nbq = ncosbq ! cosmo bq's
+c
+      if (nextbq.gt.0.and.ncosbq.gt.0)
+     &    nbq = nextbq + ncosbq  ! tally up cosmo and external bqs
 c
 c     if (ga_nodeid().eq.0) write(6,*) "nbq: ", nbq
       if (nbq.gt.0) then
         call int_giao_1ega(basis,basis,g_s10,'bq10',origin,
      &                   nat,oskel)
       end if
-
 c
 c     ga_rhs(a,i) = ga_rhs(a,i) + H10(a,i)
 c     Transform H10 to MO and add to g_rhs

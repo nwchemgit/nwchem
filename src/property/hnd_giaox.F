@@ -373,8 +373,11 @@ c
       if(geom_extbq_on()) nextbq = geom_extbq_ncenter()
       nbq = nextbq ! external bq's
 c
-      if (rtdb_get(rtdb,'cosmo:nefc',mt_int,1,ncosbq)) 
-     &    nbq = nbq + ncosbq ! add in cosmo bq's
+      if (rtdb_get(rtdb,'cosmo:nefc',mt_int,1,ncosbq))
+     &    nbq = ncosbq ! cosmo bq's
+c
+      if (nextbq.gt.0.and.ncosbq.gt.0)
+     &    nbq = nextbq + ncosbq  ! tally up cosmo and external bqs
 c
 c     if (ga_nodeid().eq.0) write(6,*) "nbq: ", nbq
       if (nbq.gt.0) then

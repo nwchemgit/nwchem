@@ -306,12 +306,12 @@ c     Clean up all remaining memory
 c
       do i = 1, ndens
           if (.not.ga_destroy(g_dens(i))) call 
-     &       errquit('giao_aotomo: ga_destroy failed gdens',i,GA_ERR)
+     &       errquit('hnd_spinspin: ga_destroy failed gdens',i,GA_ERR)
       enddo
       if (.not.ga_destroy(vectors(2))) call 
-     &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
+     &    errquit('hnd_spinspin: ga_destroy failed vectors',0,GA_ERR)
  911  if (.not.ga_destroy(vectors(1))) call 
-     &    errquit('giao_aotomo: ga_destroy failed vectors',0,GA_ERR)
+     &    errquit('hnd_spinspin: ga_destroy failed vectors',0,GA_ERR)
 c
       if (.not.ma_chop_stack(l_pr)) call
      &    errquit('hnd_spinspin: ma_pop_stack failed l_tmp',0,MA_ERR)
