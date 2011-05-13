@@ -8,15 +8,20 @@
 #include "global.fh"
        integer rtdb
        logical  task_rism
+c       
+c      load data and allocate memory
+c      -----------------------------
        call rism_prepare(rtdb)
 c       
-       call rism_wrapper()
+c      main rism routine call
+c      ----------------------
+       call rism_wrapper(rtdb)
 
        task_rism = .true.
        return
       end 
 c       
-       subroutine rism_wrapper()
+       subroutine rism_wrapper(rtdb)
        implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -24,6 +29,7 @@ c
 #include "inp.fh"
 #include "util.fh"
 #include "global.fh"
+      integer rtdb
       integer nu,nv,nvv,ngr
       integer icl,icr
       integer i_rgrid,i_kgrid
@@ -36,6 +42,7 @@ c
       integer dd
       integer i_sgvv,i_epsvv,i_qvv
       integer i_sigu,i_epsiu,i_qqu,i_wu
+      character*72 rdffile,tag
 c       
       pname = "rism_wrapper"
 c      
@@ -229,9 +236,14 @@ c     --------------
       if(.not.result)
      >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
      >               //dname(1:inp_strlen(dname)),0,0)
+c      
+c     get filename for solvent g(r)
+c     -----------------------------
+      tag = "rism:solvent:rdf"
+      if(.not.rtdb_cget(rtdb,tag,1,rdffile)) 
+     >  call errquit("cannot get "//tag,0,0)
 
-
-       call rism(nu,nv,nvv,ngr,icl,
+       call rism(rdffile,nu,nv,nvv,ngr,icl,
      +           dbl_mb(i_kgrid),dbl_mb(i_rgrid),
      +           byte_mb(i_tv),int_mb(i_isv),dbl_mb(i_den),
      +           int_mb(i_mv),
@@ -251,141 +263,6 @@ c     * tol,wu,dd)
       end 
 
 c creat susceptibility of solvent
-c
-       subroutine chicreat(nd,nv,ngr,ims,nvv,kgrid,tv,
-     * isv,den,mv,xv,yv,zv,chi) 
-       implicit none
-       real*8 wv(1:nvv,1:nvv,1:ngr), chi(1:nvv,1:nvv,1:ngr),hd(1:ngr)
-       integer  nv, ngr, isv(1:nv), mv(1:nv)
-       real*8 den(1:nv),xv(1:nv),yv(1:nv),zv(1:nv),sigv(1:nv)    
-       integer  i,j,j1,j2,icr,nvv,ims(1:nv),nd       
-       real*8 r1, r2, dr, dk, rgrid(1:ngr),kgrid(1:ngr),pi
-       real*8 hsol(1:nd,1:ngr), rr(1:ngr)
-       real*8 h1(1:nvv,1:nvv,1:ngr),h2(1:ngr),h3(1:nvv,1:nvv,1:ngr)
-       character (4) tv(1:nv)
-       pi=2*asin(1.0)
-       
-c 
-c reading of solvent rdfs 
-        open(3, file='full.data', status='old')      
-        do i=1,ngr
-         read(3,104) rr(i), (hsol(j,i), j=1,nd)
-        enddo
-       close(3)
-104    format(11(1x,f12.7)) 
-       dr=rr(2)-rr(1) 
-!      do i=1,ngr,40
-!       print*, (hsol(j,i), j=1,9)
-!      enddo
-c 
-c      sin fft transform of rdfs with proper arrangement in array
-       do j=1,nvv
-        do j1=j,nvv
-         do i=2,ngr 
-          h1(j,j1,i)=(hsol(nvv*(j-1)-j*(j-1)/2+j1,i)-1)*rr(i) 
-          h2(i)=h1(j,j1,i)
-         enddo
-         call sinft(h2,ngr)
-c        normalization of sin-fft with excluding the zeropoint (x=0)
-         do i=1,ngr-1
-          h3(j,j1,i)=h2(i+1)/kgrid(i)
-         enddo
-         h3(j,j1,ngr)=h3(j,j1,ngr-1)
-        enddo
-       enddo
-c      symmetric indeces
-       do j=1,nvv
-        do j1=j,nvv
-         do i=1,ngr 
-          h3(j1,j,i)=h3(j,j1,i)
-         enddo           
-        enddo
-       enddo
-!      do i=1,ngr,40       
-!       print*, (h3(j,3,i), j=1,4) 
-!      enddo 
-c
-c wv(i,j,k) intramolecular solvent function
-c
-       call wcreat(nv,ngr,nvv,ims,kgrid,tv,isv,xv,yv,zv,wv) 
-!      do i=1,ngr,40
-!       print*, (wv(1,j1,i), j1=1,nvv)
-!      enddo
-c
-c chi(i,j,k) solvent susceptibility
-c      
-       dr=rr(2)-rr(1)   
-       do i=1,ngr
-        do j1=1,nv
-         do j2=1,nv
-          chi(ims(j1),ims(j2),i)=wv(ims(j1),ims(j2),i)
-     *    +4*pi*dr*mv(j1)*mv(j2)*den(j1)*h3(ims(j1),ims(j2),i)
-         enddo
-        enddo      
-       enddo
-!      do i=1,ngr,40
-!       print*, (chi(2,j,i), j=1,4) 
-!      enddo
-       return
-       end subroutine 
-c
-c caculation of reduced solvent matrix
-c
-       subroutine wcreat(nv,ngr,nvv,ims,kgrid,tv,isv,xv,yv,zv,wv) 
-       implicit none
-       real*8 wv(1:nvv,1:nvv,1:ngr),dist(1:nv,1:nv)
-       real*8 ws(1:nv,1:nvv,1:ngr)
-       integer  nv, ngr, isv(1:nv),mv(1:nv)
-       real*8 den(1:nv),xv(1:nv),yv(1:nv),zv(1:nv),sigv(1:nv)    
-       integer  i, j1,j2,nvv,ims(1:nv),t       
-       real*8 kgrid(1:ngr),pi,co(1:nv,1:nv,1:ngr) 
-       character (4) tv(1:nv)
-c 
-       double precision sinr
-       external sinr
-c
-       pi=2*asin(1.0)  
-c
-c      initialization of wv(i,j,k) & calculating of the 11 element
-c
-       do i=1, ngr         
-        do j1=1,nv
-         do j2=1,nv          
-           wv(ims(j1),ims(j2),i)=0
-           ws(j1,ims(j2),i)=0  
-         enddo
-        enddo
-       enddo            
-c      dist(i,j) distance between i and j sites
-c      co(i,j,k) sinr between i and j sites
-c      reducing number of coloumns
-       do i=1,ngr
-        do j1=1,nv       
-         do j2=1,nv
-c         calculations all other columns
-c         if they belong to the same molecule
-          if(isv(j1).eq.isv(j2)) then        
-           dist(j1,j2)=(((xv(j1)-xv(j2))**2+
-     *     (yv(j1)-yv(j2))**2+(zv(j1)-zv(j2))**2))**(1.0/2)           
-           co(j1,j2,i)=sinr(kgrid(i)*dist(j1,j2))
-           ws(j1,ims(j2),i)= ws(j1,ims(j2),i)+co(j1,j2,i)
-          endif
-         enddo  
-        enddo 
-       enddo
-c      reducing the number of rows 
-       do i=1,ngr        
-        do j2=1,nvv       
-         do j1=1,nv   
-          wv(ims(j1),j2,i)=wv(ims(j1),j2,i)+ws(j1,j2,i)        
-         enddo  
-        enddo
-       enddo 
-!      do i=1,ngr,40
-!       print*, (wv(1,j1,i), j1=1,nvv)
-!      enddo
-       return
-       end subroutine 
 c
 c  creat solute-solvent potentials
 c
@@ -545,12 +422,13 @@ c
 c
 ccc
 c    
-       subroutine rism(nu,nv,nvv,ngr,icl,kgrid,rgrid,tv,isv,
+       subroutine rism(rdffile,nu,nv,nvv,ngr,icl,kgrid,rgrid,tv,isv,
      * den,mv,xv,yv,zv,
      * icr,ims,tau,solperm,sgvv,epsvv,qvv,sigu,epsiu,qqu,t,
      * lambd,tol,wu,dd)       
        implicit none
 c      parameters
+       character*(*) rdffile
        integer  nu, nv,nd,nvv, ngr, i,j1,j,k1,icl,k        
        real*8 rgrid(1:ngr),kgrid(1:ngr)  
        real*8 pi,dk,t,tau,solperm,tol,lambd,del0,kb,dr
@@ -585,7 +463,8 @@ c      nd total number of different rdfs
        nd=(nvv+1)*nvv/2     
 c      chi(i,j,k) solvent susceptibility
 c
-       call chicreat(nd,nv,ngr,ims,nvv,kgrid,tv,isv,den,mv,xv,yv,zv,chi) 
+       call chicreat(rdffile,nd,nv,ngr,ims,nvv,
+     +               kgrid,tv,isv,den,mv,xv,yv,zv,chi) 
 !      do i=1,ngr,40 
 !       print*, (chi(2,j,i), j=1,4) 
 !      enddo
@@ -614,6 +493,7 @@ c      starting counts for diis (kd) and for iterations k1
   1    continue  
 c      calculating c_new(r) and h_new(r) from closure
        call clos(nvv,nu,ngr,t,plj,cnew,gold,icl)
+c      h is not needed
        do j=1,nu
         do j1=1,nvv
          do i=1,ngr
@@ -624,7 +504,7 @@ c      calculating c_new(r) and h_new(r) from closure
 !      do i=1,ngr,40       
 !       print*, rgrid(i),(cnew(1,j,i), j=1,4)  
 !      enddo          
-c      fast fourier transform
+c      fast fourier transform of c
        dr=rgrid(2)-rgrid(1)      
        do j=1,nu
         do j1=1,nvv
@@ -721,7 +601,8 @@ c      old functions as new functions for new cycle
         if(del0.ge.tol) goto 1
  2     continue  
 
-       call thermo(Nu,NV,NVV,NGR,ICL,IMS,DEN,T,RGRID,HNEW,CNEW,UL)
+       call thermo(nu,nv,nvv,ngr,icl,ims,den,t,rgrid,qqu,qvv,
+     * hnew,cnew,solperm,tau) 
        open(3, file='g1.data', status='unknown')  
         do k=1,ngr        
          write(3,107)(gnew(1,i,k)+cnew(1,i,k), i=1,4)  
