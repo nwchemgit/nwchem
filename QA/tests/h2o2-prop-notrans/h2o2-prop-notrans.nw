@@ -1,0 +1,58 @@
+echo
+start h2o2-prop-notrans
+
+title h2o2-prop-notrans
+
+memory 128 mb
+
+geometry units angstrom nocenter
+symmetry c1
+  O     -1.917190     -0.120353     -0.010972
+  O     -0.426534     -0.047349      0.013490
+  H     -0.255812     -0.659080      0.763619
+  H     -2.118984      0.784440      0.315334
+end
+
+basis
+  * library 6-31G**
+# * library sto-3g
+# * library 3-21g*
+end
+
+scf
+ direct
+end
+
+charge 0
+
+dft
+#grid lebedev 100 8
+direct
+grid fine
+#convergence energy 1d-9
+ xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
+ cam 0.33 cam_alpha 0.19 cam_beta 0.46
+#XC slater vwn_5
+# XC pbe0
+# XC hfexch
+iterations 100
+tolerances tight
+end
+
+cosmo
+ dielec 78
+end
+
+property
+ aoresponse  1  0.077318
+ convergence 1e-7
+ orbeta
+ giao
+end
+
+set prop:newaoresp 1
+
+set cphf:thresh 1e-6
+set cphf:acc 1.0d-10
+
+task dft property
