@@ -84,15 +84,15 @@ c     ATOM
 c
       if(card(1:4).eq.'ATOM') then
       if(card(18:20).eq.namslv) lslvnt=.true.
-      if(card(17:17).ne.' '.and.
-     + card(17:17).ne.altloc.and.altloc.ne.'*') goto 1
+      if((card(17:17).ne.' ').and.
+     +   (card(17:17).ne.altloc).and.(altloc.ne.'*')) goto 1
       if(.not.lslvnt) natm=natm+1
       if(lrgmrg) then
       read(card(22:26),1003) i
  1003 format(i5)
       else
-      if(card(22:22).ne.' '.and.
-     + card(22:22).ne.chain.and.chain.ne.'*') goto 1
+      if((card(22:22).ne.' ').and.
+     +   (card(22:22).ne.chain).and.(chain.ne.'*')) goto 1
       read(card(23:26),1013) i
  1013 format(i4)
       endif
