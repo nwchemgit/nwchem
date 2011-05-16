@@ -404,6 +404,7 @@ c      DTol =1.0d-7
         F83 = F8 / F3
         F113 = F11 / F3
         rhoo = PX 
+        rrho = 1.0d0/rhoo
         rho43 = rhoo**F4o3
         rho13 = rho43*rrho
         rho53 = rhoo**F53
