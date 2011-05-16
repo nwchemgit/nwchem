@@ -2523,11 +2523,13 @@ c     -------------------------------------
         if(.not.util_io_unit(80,90,fn))
      +     call errquit('cannot get free unit', 0,
      +       0)
-
+c
         open(unit=fn,form="formatted",file=cosmo_file)
-        write(*,*) "printing cosmo charges for bq module",
+        if (dbug) then
+          write(*,*) "printing cosmo charges for bq module",
      +     cosmo_file
-
+        end if
+c
         write(fn,*) nefc
         write(fn,*) "cosmo charges"
         do ief=1,nefc
