@@ -1232,8 +1232,8 @@ c
          write(luout,*) "! since you did not use the ending slash.   !"
          write(luout,*) "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
       endif
-      if (nwrcopen)
-     .     close(unit=unitrc,status='keep') ! close file after library name found
+c     if (nwrcopen)
+c    .     close(unit=unitrc,status='keep') ! close file after library name found
       end
       subroutine bas_set_library_name()
       implicit none
