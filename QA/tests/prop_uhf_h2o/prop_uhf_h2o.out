@@ -76,15 +76,15 @@ task dft property
            ---------------
 
     hostname      = arcen
-    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
-    date          = Mon Oct 25 15:28:31 2010
+    program       = /home/d3y133/nwchem-dev/nwchem-development-2011-May-13/QA/../bin/LINUX64/nwchem
+    date          = Sun May 15 00:29:11 2011
 
-    compiled      = Mon_Oct_25_14:31:37_2010
-    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
+    compiled      = Sun_May_15_00:19:36_2011
+    source        = /home/d3y133/nwchem-dev/nwchem-development-2011-May-13
     nwchem branch = Development
     input         = prop_uhf_h2o.nw
     prefix        = prop_hf_h2o.
-    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.db
+    data base     = /home/d3y133/nwchem-dev/nwchem-development-2011-May-13/QA/scratchdir/prop_hf_h2o.db
     status        = startup
     nproc         =        4
     time left     =     -1s
@@ -105,8 +105,8 @@ task dft property
            Directory information
            ---------------------
 
-  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
-  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 permanent = /home/d3y133/nwchem-dev/nwchem-development-2011-May-13/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-dev/nwchem-development-2011-May-13/QA/scratchdir
 
 
 
@@ -185,7 +185,7 @@ task dft property
  h                     0.97431500     0.00000000    -0.49494670
 
   library name resolved from: .nwchemrc
-  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
+  library file name is: </home/d3y133/nwchem-dev/nwchem-development-2011-May-13/QA/../src/basis/libraries/>
   
                               NWChem Property Module
                               ----------------------
@@ -209,7 +209,7 @@ task dft property
   charge          =   0.00
   wavefunction    = UHF 
   input vectors   = atomic
-  output vectors  = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-development-2011-May-13/QA/scratchdir/prop_hf_h2o.movecs
   use symmetry    = F
   symmetry adapt  = F
 
@@ -257,9 +257,9 @@ task dft property
  #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-development-2011-May-13/QA/scratchdir/prop_hf_h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20851
+ Max. records in memory =      2        Max. records in file   =   9664
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -268,7 +268,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1      -74.8588540099  5.14D-01  3.02D-01      0.1
+                 1      -74.8588540099  5.14D-01  3.02D-01      0.0
                  2      -74.9121605601  1.06D-01  5.73D-02      0.1
                  3      -74.9140697123  1.31D-03  7.30D-04      0.1
                  4      -74.9140706449  7.03D-06  3.64D-06      0.1
@@ -317,88 +317,88 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                     ------------------------------------------
 
  Vector    2  Occ=1.000000D+00  E=-1.186011D+00
-              MO Center= -1.4D-15,  1.3D-17, -5.7D-02, r^2= 5.6D-01
+              MO Center= -5.4D-16,  5.5D-18, -5.7D-02, r^2= 5.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.892953  1 O  s                  1     -0.240442  1 O  s          
 
  Vector    3  Occ=1.000000D+00  E=-5.539740D-01
-              MO Center=  8.7D-15,  2.7D-31, -2.1D-01, r^2= 1.0D+00
+              MO Center=  5.1D-15, -9.0D-31, -2.1D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.584127  1 O  px                 7      0.451450  3 H  s          
      6     -0.451450  2 H  s          
 
  Vector    4  Occ=1.000000D+00  E=-3.948627D-01
-              MO Center= -7.4D-15,  3.2D-17,  4.3D-02, r^2= 7.4D-01
+              MO Center= -4.9D-15, -8.7D-16,  4.3D-02, r^2= 7.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.791067  1 O  pz                 2      0.436428  1 O  s          
      6     -0.320234  2 H  s                  7     -0.320234  3 H  s          
 
  Vector    5  Occ=1.000000D+00  E=-3.725552D-01
-              MO Center=  5.4D-32, -5.2D-17,  6.2D-02, r^2= 4.2D-01
+              MO Center=  2.2D-30,  8.2D-16,  6.2D-02, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
 
  Vector    6  Occ=0.000000D+00  E= 4.209272D-01
-              MO Center= -6.1D-15,  8.2D-18, -4.0D-01, r^2= 1.3D+00
+              MO Center=  2.1D-15,  2.5D-17, -4.0D-01, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.713198  2 H  s                  7      0.713198  3 H  s          
+     7      0.713198  3 H  s                  6      0.713198  2 H  s          
      2     -0.669384  1 O  s                  5      0.661755  1 O  pz         
 
  Vector    7  Occ=0.000000D+00  E= 6.126008D-01
-              MO Center=  6.1D-15, -6.6D-32, -2.4D-01, r^2= 1.2D+00
+              MO Center= -2.2D-15,  3.1D-33, -2.4D-01, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.945893  1 O  px                 7     -0.711468  3 H  s          
-     6      0.711468  2 H  s          
+     3      0.945893  1 O  px                 6      0.711468  2 H  s          
+     7     -0.711468  3 H  s          
 
 
                      UHF Final Beta Molecular Orbital Analysis
                      -----------------------------------------
 
  Vector    2  Occ=1.000000D+00  E=-1.186011D+00
-              MO Center= -1.4D-15,  1.3D-17, -5.7D-02, r^2= 5.6D-01
+              MO Center= -5.4D-16,  5.5D-18, -5.7D-02, r^2= 5.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.892953  1 O  s                  1     -0.240442  1 O  s          
 
  Vector    3  Occ=1.000000D+00  E=-5.539740D-01
-              MO Center=  8.7D-15,  2.7D-31, -2.1D-01, r^2= 1.0D+00
+              MO Center=  5.1D-15, -9.0D-31, -2.1D-01, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.584127  1 O  px                 7      0.451450  3 H  s          
      6     -0.451450  2 H  s          
 
  Vector    4  Occ=1.000000D+00  E=-3.948627D-01
-              MO Center= -7.4D-15,  3.2D-17,  4.3D-02, r^2= 7.4D-01
+              MO Center= -4.9D-15, -8.7D-16,  4.3D-02, r^2= 7.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.791067  1 O  pz                 2      0.436428  1 O  s          
      6     -0.320234  2 H  s                  7     -0.320234  3 H  s          
 
  Vector    5  Occ=1.000000D+00  E=-3.725552D-01
-              MO Center=  5.4D-32, -5.2D-17,  6.2D-02, r^2= 4.2D-01
+              MO Center=  2.2D-30,  8.2D-16,  6.2D-02, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
 
  Vector    6  Occ=0.000000D+00  E= 4.209272D-01
-              MO Center= -6.1D-15,  8.2D-18, -4.0D-01, r^2= 1.3D+00
+              MO Center=  2.1D-15,  2.5D-17, -4.0D-01, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.713198  2 H  s                  7      0.713198  3 H  s          
+     7      0.713198  3 H  s                  6      0.713198  2 H  s          
      2     -0.669384  1 O  s                  5      0.661755  1 O  pz         
 
  Vector    7  Occ=0.000000D+00  E= 6.126008D-01
-              MO Center=  6.1D-15, -6.6D-32, -2.4D-01, r^2= 1.2D+00
+              MO Center= -2.2D-15,  1.5D-33, -2.4D-01, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     3      0.945893  1 O  px                 7     -0.711468  3 H  s          
-     6      0.711468  2 H  s          
+     3      0.945893  1 O  px                 6      0.711468  2 H  s          
+     7     -0.711468  3 H  s          
 
 
  center of mass
@@ -492,20 +492,19 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   max iterations   =       50
   max subspace     =      390
 
- FA-1: Before ev. Fock matrices ...
 
  #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-development-2011-May-13/QA/scratchdir/prop_hf_h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20851
+ Max. records in memory =      2        Max. records in file   =   9664
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- FA-3: After ev. Fock matrices ...
+residual=     0.00000703
 
 
 Iterative solution of linear equations
@@ -520,7 +519,7 @@ Iterative solution of linear equations
    iter   nsub   residual    time
    ----  ------  --------  ---------
      1     39    2.42D+00       0.3
-     2     78    3.75D-12       0.3
+     2     78    2.57D-12       0.3
 
  Parallel integral file used       4 records with       0 large values
 
@@ -543,20 +542,19 @@ Iterative solution of linear equations
   max iterations   =       50
   max subspace     =       90
 
- FA-1: Before ev. Fock matrices ...
 
  #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-development-2011-May-13/QA/scratchdir/prop_hf_h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20851
+ Max. records in memory =      2        Max. records in file   =   9664
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- FA-3: After ev. Fock matrices ...
+residual=     0.00000703
 
 
 Iterative solution of linear equations
@@ -571,9 +569,9 @@ Iterative solution of linear equations
    iter   nsub   residual    time
    ----  ------  --------  ---------
      1      9    7.35D+00       0.4
-     2     18    1.82D-01       0.5
-     3     27    2.46D-03       0.5
-     4     36    7.08D-05       0.5
+     2     18    1.82D-01       0.4
+     3     27    2.46D-03       0.4
+     4     36    7.08D-05       0.4
 
  Parallel integral file used       4 records with       0 large values
 
@@ -859,7 +857,30 @@ Iterative solution of linear equations
 
 
 
- Task  times  cpu:        0.3s     wall:        0.5s
+          -------------
+          Dipole Moment
+          -------------
+
+ Center of charge (in au) is the expansion point
+         X =       0.0000000 Y =       0.0000000 Z =      -0.0927695
+
+   Dipole moment        0.5601936725 A.U.
+             DMX        0.0000000000 DMXEFC        0.0000000000
+             DMY        0.0000000000 DMYEFC        0.0000000000
+             DMZ       -0.5601936725 DMZEFC        0.0000000000
+   -EFC- dipole         0.0000000000 A.U.
+   Total dipole         0.5601936725 A.U.
+
+   Dipole moment        1.4238810510 Debye(s)
+             DMX        0.0000000000 DMXEFC        0.0000000000
+             DMY        0.0000000000 DMYEFC        0.0000000000
+             DMZ       -1.4238810510 DMZEFC        0.0000000000
+   -EFC- dipole         0.0000000000 DEBYE(S)
+   Total dipole         1.4238810510 DEBYE(S)
+
+ 1 a.u. = 2.541766 Debyes 
+
+ Task  times  cpu:        0.3s     wall:        0.4s
 
 
                                 NWChem Input Module
@@ -964,24 +985,24 @@ Iterative solution of linear equations
  HOMO         =      -0.227821
  LUMO         =       0.298134
 
-   Time after variat. SCF:      0.4
-   Time prior to 1st pass:      0.4
+   Time after variat. SCF:      0.3
+   Time prior to 1st pass:      0.3
 
  #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-development-2011-May-13/QA/scratchdir/prop_hf_h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20851
+ Max. records in memory =      2        Max. records in file   =   9664
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
 
- Grid_pts file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.gridpts.0
+ Grid_pts file          = /home/d3y133/nwchem-dev/nwchem-development-2011-May-13/QA/scratchdir/prop_hf_h2o.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    111204
+ Max. records in memory =     12        Max. recs in file   =     51544
 
 
            Memory utilization after 1st SCF pass: 
@@ -990,22 +1011,22 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -75.2240286175 -8.30D+01  9.26D-02  7.99D-02     0.5
+ d= 0,ls=0.0,diis     1    -75.2240286098 -8.30D+01  9.26D-02  7.99D-02     0.4
                                                      9.26D-02  7.99D-02
- d= 0,ls=0.0,diis     2    -75.2118934017  1.21D-02  4.91D-02  9.87D-02     0.6
+ d= 0,ls=0.0,diis     2    -75.2118934149  1.21D-02  4.91D-02  9.87D-02     0.5
                                                      4.91D-02  9.87D-02
- d= 0,ls=0.0,diis     3    -75.2870526749 -7.52D-02  1.13D-03  6.68D-05     0.6
+ d= 0,ls=0.0,diis     3    -75.2870526749 -7.52D-02  1.13D-03  6.68D-05     0.5
                                                      1.13D-03  6.68D-05
- d= 0,ls=0.0,diis     4    -75.2871025251 -4.99D-05  3.98D-05  9.03D-08     0.7
+ d= 0,ls=0.0,diis     4    -75.2871025251 -4.99D-05  3.98D-05  9.03D-08     0.6
                                                      3.98D-05  9.03D-08
- d= 0,ls=0.0,diis     5    -75.2871025925 -6.74D-08  3.85D-06  7.11D-10     0.8
+ d= 0,ls=0.0,diis     5    -75.2871025925 -6.74D-08  3.85D-06  7.11D-10     0.7
                                                      3.85D-06  7.11D-10
 
 
          Total DFT energy =      -75.287102592513
-      One electron energy =     -119.927030566094
-           Coulomb energy =       46.169323965151
-    Exchange-Corr. energy =       -9.344133456141
+      One electron energy =     -119.927030565554
+           Coulomb energy =       46.169323964559
+    Exchange-Corr. energy =       -9.344133456089
  Nuclear repulsion energy =        7.814737464571
 
  Numeric. integr. density =       10.000000133063
@@ -1018,7 +1039,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                     ------------------------------------------
 
  Vector    1  Occ=1.000000D+00  E=-1.883699D+01
-              MO Center= -4.2D-16,  1.6D-15,  6.2D-02, r^2= 1.5D-02
+              MO Center= -4.6D-16,  1.7D-15,  6.2D-02, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.993732  1 O  s          
@@ -1045,13 +1066,13 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      6     -0.328420  2 H  s                  7     -0.328420  3 H  s          
 
  Vector    5  Occ=1.000000D+00  E=-1.304627D-01
-              MO Center= -6.1D-26, -4.3D-13,  6.2D-02, r^2= 4.2D-01
+              MO Center= -6.2D-26, -4.3D-13,  6.2D-02, r^2= 4.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      4      1.000000  1 O  py         
 
  Vector    6  Occ=0.000000D+00  E= 1.944120D-01
-              MO Center=  1.6D-11,  3.0D-14, -3.8D-01, r^2= 1.3D+00
+              MO Center=  1.6D-11,  2.9D-14, -3.8D-01, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      7     -0.706667  3 H  s                  6     -0.706667  2 H  s          
@@ -1069,7 +1090,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                      -----------------------------------------
 
  Vector    1  Occ=1.000000D+00  E=-1.883699D+01
-              MO Center= -3.8D-16,  1.8D-15,  6.2D-02, r^2= 1.5D-02
+              MO Center= -3.8D-16,  1.7D-15,  6.2D-02, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1     -0.993732  1 O  s          
@@ -1185,20 +1206,19 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   max iterations   =       50
   max subspace     =      390
 
- FA-1: Before ev. Fock matrices ...
 
  #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-development-2011-May-13/QA/scratchdir/prop_hf_h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20850
+ Max. records in memory =      2        Max. records in file   =   9662
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- FA-3: After ev. Fock matrices ...
+residual=     0.00000104
 
 
 Iterative solution of linear equations
@@ -1207,13 +1227,13 @@ Iterative solution of linear equations
   Maximum subspace      390
         Iterations       50
        Convergence  1.0D-04
-        Start time      1.2
+        Start time      1.1
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1     39    1.35D+00       2.4
-     2     78    1.81D-09       3.7
+     1     39    1.35D+00       2.0
+     2     78    1.81D-09       2.9
 
  Parallel integral file used       4 records with       0 large values
 
@@ -1236,20 +1256,19 @@ Iterative solution of linear equations
   max iterations   =       50
   max subspace     =       90
 
- FA-1: Before ev. Fock matrices ...
 
  #quartets = 1.200D+02 #integrals = 2.560D+02 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/prop_hf_h2o.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-development-2011-May-13/QA/scratchdir/prop_hf_h2o.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20850
+ Max. records in memory =      2        Max. records in file   =   9662
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
- FA-3: After ev. Fock matrices ...
+residual=     0.00000104
 
 
 Iterative solution of linear equations
@@ -1258,14 +1277,14 @@ Iterative solution of linear equations
   Maximum subspace       90
         Iterations       50
        Convergence  1.0D-04
-        Start time      3.8
+        Start time      3.1
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      9    3.00D+00       4.1
-     2     18    1.69D-02       4.5
-     3     27    5.81D-05       4.8
+     1      9    3.00D+00       3.3
+     2     18    1.69D-02       3.6
+     3     27    5.81D-05       3.8
 
  Parallel integral file used       4 records with       0 large values
 
@@ -1551,7 +1570,30 @@ Iterative solution of linear equations
 
 
 
- Task  times  cpu:        4.1s     wall:        4.3s
+          -------------
+          Dipole Moment
+          -------------
+
+ Center of charge (in au) is the expansion point
+         X =       0.0000000 Y =       0.0000000 Z =      -0.0927695
+
+   Dipole moment        0.5205893270 A.U.
+             DMX        0.0000000000 DMXEFC        0.0000000000
+             DMY        0.0000000000 DMYEFC        0.0000000000
+             DMZ       -0.5205893270 DMZEFC        0.0000000000
+   -EFC- dipole         0.0000000000 A.U.
+   Total dipole         0.5205893270 A.U.
+
+   Dipole moment        1.3232160847 Debye(s)
+             DMX        0.0000000000 DMXEFC        0.0000000000
+             DMY        0.0000000000 DMYEFC        0.0000000000
+             DMZ       -1.3232160847 DMZEFC        0.0000000000
+   -EFC- dipole         0.0000000000 DEBYE(S)
+   Total dipole         1.3232160847 DEBYE(S)
+
+ 1 a.u. = 2.541766 Debyes 
+
+ Task  times  cpu:        3.2s     wall:        3.4s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -1562,10 +1604,10 @@ Iterative solution of linear equations
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 4169     4169     5.52e+04 1.11e+04 3.30e+04 3407        0      292     
-number of processes/call 1.30e+00 1.70e+00 1.87e+00 1.53e+00 0.00e+00
-bytes total:             6.86e+06 1.58e+06 3.57e+06 2.47e+05 0.00e+00 2.34e+03
-bytes remote:            2.23e+06 4.45e+05 2.23e+06 -1.46e+05 0.00e+00 0.00e+00
+calls: 4181     4181     4.75e+04 1.13e+04 3.36e+04 3407        0      278     
+number of processes/call 1.35e+00 1.69e+00 1.88e+00 1.53e+00 0.00e+00
+bytes total:             6.15e+06 1.66e+06 3.35e+06 2.47e+05 0.00e+00 2.22e+03
+bytes remote:            2.11e+06 4.45e+05 2.13e+06 -1.46e+05 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 155144 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -1618,4 +1660,4 @@ MA usage statistics:
     X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
        M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:        4.4s     wall:        4.8s
+ Total times  cpu:        3.5s     wall:        3.9s
