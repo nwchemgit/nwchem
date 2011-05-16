@@ -20,9 +20,9 @@ dft
  xc b3lyp
 end
 
-#relativistic
-#  zora on
-#  zora:cutoff 1d-30 
-#end
+relativistic
+  zora on
+  zora:cutoff 1d-30 
+end
 
 task sodft
