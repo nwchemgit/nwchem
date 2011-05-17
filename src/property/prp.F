@@ -5,7 +5,7 @@
 
 c ... jochen: added some response stuff here
 
-      implicit double precision (a-h,o-z)
+      implicit none
 #include "nwc_const.fh"
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -14,13 +14,20 @@ c ... jochen: added some response stuff here
 #include "stdio.fh"
 #include "int_nbf.fh"
 #include "zora.fh" ! FA-09-24-10
-      integer     rtdb
+      integer     rtdb   ! runtime database handle
+      integer     basis  ! basis set "object" handle
+      integer     geom   ! geometry "object" handle
       logical     status
       logical     some
       logical     out 
       integer     iopt
 c     Modified by Fredy Aquino to Add EFG-ZORA4,G-shifts-ZORA
-       data nodip,noqdp,nootp,nopop,nospin,nodpl,nodhp,nod2hp,
+      integer
+     &     nodip,noqdp,nootp,nopop,nospin,nodpl,nodhp,nod2hp,
+     1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noelfgZ4,noden,
+     2     nogiao,nogshift,noston,nospinspin,noaoresponse,noboysloc,
+     3     nopmloc
+      data nodip,noqdp,nootp,nopop,nospin,nodpl,nodhp,nod2hp,
      1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noelfgZ4,noden,
      2     nogiao,nogshift,noston,nospinspin,noaoresponse,noboysloc,
      3     nopmloc
@@ -32,14 +39,13 @@ c
       some  =.true.        
       some  =some.or.out
       some  =some.and.ga_nodeid().eq.0
-      noloc = 0
 c
       status=rtdb_get(rtdb,'prop:dipole',MT_INT,1,nodip)            !done
       status=rtdb_get(rtdb,'prop:quadrupole',MT_INT,1,noqdp)        !done
       status=rtdb_get(rtdb,'prop:octupole',MT_INT,1,nootp)          !done
       status=rtdb_get(rtdb,'prop:mulliken',MT_INT,1,nopop)          !done
       status=rtdb_get(rtdb,'prop:hyperfine',MT_INT,1,nospin)        !done
-      status=rtdb_get(rtdb,'prop:boyslocalization',MT_INT,1,nobloc)
+      status=rtdb_get(rtdb,'prop:boyslocalization',MT_INT,1,noboysloc)
       status=rtdb_get(rtdb,'prop:pmlocalization',MT_INT,1,nopmloc)
       status=rtdb_get(rtdb,'prop:esp',MT_INT,1,noelp)               !done
       status=rtdb_get(rtdb,'prop:efield',MT_INT,1,noelf)            !done
@@ -83,7 +89,7 @@ c
 c
 c     ----- dipole moment -----
 c
-      if(nodip.eq.0.or.noloc.eq.0.or.nodpl.eq.0) 
+      if(nodip.eq.0.or.nopmloc.eq.0.or.noboysloc.eq.0.or.nodpl.eq.0) 
      &  call hnd_mtpole(rtdb,basis,geom,1)
 c
 c     ----- quadrupole moment -----
@@ -220,9 +226,9 @@ c
 c
 c     ----- boys orbital localization -----
 c
-      noloc=1
-!     if(noloc.eq.0) call hnd_boyloc
-!     if(noloc.eq.0) call hnd_mulken(rtdb,basis,geom)
+      noboysloc=1
+!     if(noboysloc.eq.0) call hnd_boyloc
+!     if(noboysloc.eq.0) call hnd_mulken(rtdb,basis,geom)
 c
       return
       end
