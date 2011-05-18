@@ -961,7 +961,7 @@ c
         end if
 
         if (pspw_2qmmm_found())  call pspw_2qmmm_end()
-        if (.not.auxiliary_only) call pspw_LJ_end()
+        if ((.not.auxiliary_only).and.(nfrag.gt.0)) call pspw_LJ_end()
       end if
 
       return
