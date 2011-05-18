@@ -6,8 +6,9 @@
       real*8     rcut,cewald,cewald_qm,cewald_mm,alpha
       integer    vg(2),rcell(2),eG(3),eg_hndl,vcx(2),tid,tnp
       integer    zv(2),enpack,nida
+      logical    notzero_enpack
       common / ewald_block/ rcut,cewald,cewald_qm,cewald_mm,alpha,
      >                     ncut,vg,vcx,enx,eny,enz,
      >                     rcell,eG,eg_hndl,tid,tnp,
-     >                     zv,enpack,nida,nshl3d
+     >                     zv,enpack,nida,nshl3d,notzero_enpack
 

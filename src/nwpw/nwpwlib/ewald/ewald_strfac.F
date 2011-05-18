@@ -22,6 +22,7 @@ cccccccc exec
       nx    = ewald_grid_nx()
       ny    = ewald_grid_ny()
       nz    = ewald_grid_nz()
+      notzero_npack = (npack.gt.0)
 
       value=MA_alloc_get(mt_dcpl,(nx*nion),'ewx1',ewx1(2),ewx1(1))
       value=value.and.
@@ -29,11 +30,13 @@ cccccccc exec
       value=value.and.
      >      MA_alloc_get(mt_dcpl,(nz*nion),'ewx3',ewx3(2),ewx3(1))
 
-      value = MA_alloc_get(mt_int,npack,'i_indxe',i_indx(2),i_indx(1))
-      value = value.and.
-     >        MA_alloc_get(mt_int,npack,'j_indxe',j_indx(2),j_indx(1))
-      value = value.and.
-     >        MA_alloc_get(mt_int,npack,'k_indxe',k_indx(2),k_indx(1))
+      if (notzero_npack) then
+         value=MA_alloc_get(mt_int,npack,'i_indxe',i_indx(2),i_indx(1))
+         value=value.and.
+     >         MA_alloc_get(mt_int,npack,'j_indxe',j_indx(2),j_indx(1))
+         value=value.and.
+     >          MA_alloc_get(mt_int,npack,'k_indxe',k_indx(2),k_indx(1))
+      end if
       if (.not.value) 
      >  call errquit("EWALD_STRUCTFACTOR_INIT: OUT OF HEAP MEMORY",0,
      >               MA_ERR)
@@ -51,9 +54,11 @@ cccccccc exec
       value=value.and.MA_free_heap(ewx2(2))
       value=value.and.MA_free_heap(ewx3(2))
 
-      value=value.and.MA_free_heap(i_indx(2))
-      value=value.and.MA_free_heap(j_indx(2))
-      value=value.and.MA_free_heap(k_indx(2))
+      if (notzero_npack) then
+         value=value.and.MA_free_heap(i_indx(2))
+         value=value.and.MA_free_heap(j_indx(2))
+         value=value.and.MA_free_heap(k_indx(2))
+      end if
       if (.not.value) then
         call errquit("ewald_strfact_end: error free heap",0,MA_ERR)
       end if
@@ -162,7 +167,8 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 ccccccc locals
 
       call nwpw_timing_start(8)
-      call ewald_strfac_sub(npack,
+      if (notzero_npack) then
+         call ewald_strfac_sub(npack,
      >                     int_mb(i_indx(1)),
      >                     int_mb(j_indx(1)),
      >                     int_mb(k_indx(1)),
@@ -170,6 +176,7 @@ ccccccc locals
      >                     dcpl_mb(ewx2(1)+(ii-1)*ny),
      >                     dcpl_mb(ewx3(1)+(ii-1)*nz),
      >                     exi)
+      end if
       call nwpw_timing_end(8)
       return
       end

@@ -273,7 +273,7 @@ cccccccccccccccccccccccccccccccccccccc
       if (gg3.lt.ggcut) ggcut = gg3
       if ((2.0d0*control_ecut()).lt.ggcut) ggcut=2.0d0*control_ecut()
 
-c     **** determine enpack ****
+c     **** determine enpack and nida ****
       dutask=0
       enpack = 0
       nida   = 0
@@ -338,23 +338,26 @@ c     **** determine enpack ****
       end do
 
 c     **** allocate memory for common block ****
+      notzero_enpack = (enpack.gt.0)  !** needed for very large numbers cpu
+      if (notzero_enpack) then 
+         value=MA_alloc_get(mt_dbl,3*enpack,'eG',eg_hndl,eG(1))
+         eG(2)=eG(1)+enpack
+         eG(3)=eG(2)+enpack
+         value=value.and.MA_alloc_get(mt_dbl,enpack,'vg',vg(2),vg(1))
+         value=value.and.MA_alloc_get(mt_dbl,enpack,'vcx',vcx(2),vcx(1))
+      end if
       ntyp=ion_nkatm()      
-      value=MA_alloc_get(mt_dbl,3*enpack,'eG',eg_hndl,eG(1))
-      eG(2)=eG(1)+enpack
-      eG(3)=eG(2)+enpack
-      value=value.and.MA_alloc_get(mt_dbl,enpack,'vg',vg(2),vg(1))
-      value=value.and.MA_alloc_get(mt_dbl,enpack,'vcx',vcx(2),vcx(1))
       value=value.and.MA_alloc_get(mt_dbl,ntyp,'zv',zv(2),zv(1))
       if (.not.value) call errquit('ewald_init:out of heap memory',0,0)
 
       call ewald_strfact_init()
 
+
+*     **** determine eG ****
+      if (notzero_enpack) then
       i_indx = ewald_strfact_i_indx()
       j_indx = ewald_strfact_j_indx()
       k_indx = ewald_strfact_k_indx()
-
-
-*     **** determine eG ****
       call dcopy(3*enpack,0.0d0,0,dbl_mb(eG(1)),1)
       dutask=0
       enpack0 = 0
@@ -484,6 +487,7 @@ c     **** allocate memory for common block ****
 
       call dcopy(enpack,0.0d0,0,dbl_mb(vg(1)),1)
       call dcopy(enpack,0.0d0,0,dbl_mb(vcx(1)),1)
+      end if
 
 *     ***** find w *****
       pi  = 4.0d0*datan(1.0d0)
@@ -508,17 +512,19 @@ c     **** allocate memory for common block ****
       end if
       w = 0.25d0*rcut*rcut
 
-      dbl_mb(vcx(1)) = 0.0d0
-      dbl_mb(vg(1))  = 0.0d0
-      do k=1+nida,enpack
-        g1 = dbl_mb(eG(1)+k-1)
-        g2 = dbl_mb(eG(2)+k-1)
-        g3 = dbl_mb(eG(3)+k-1)
-        gg=g1*g1+g2*g2+g3*g3
-        term=pi4/gg
-        dbl_mb(vcx(1)+k-1)=term
-        dbl_mb(vg(1)+k-1) =term*dexp(-w*gg)
-      end do
+      if (notzero_enpack) then
+         dbl_mb(vcx(1)) = 0.0d0
+         dbl_mb(vg(1))  = 0.0d0
+         do k=1+nida,enpack
+           g1 = dbl_mb(eG(1)+k-1)
+           g2 = dbl_mb(eG(2)+k-1)
+           g3 = dbl_mb(eG(3)+k-1)
+           gg=g1*g1+g2*g2+g3*g3
+           term=pi4/gg
+           dbl_mb(vcx(1)+k-1)=term
+           dbl_mb(vg(1)+k-1) =term*dexp(-w*gg)
+         end do
+      end if
 
 ccccccccccc set Mandelung constant       
 
@@ -559,7 +565,11 @@ cccccccccc  ewald summation
       end do
 
 *     ***** t_dsum of vg *****
-      cewald = 2.0d0*dsum(enpack,dbl_mb(vg(1)),1)   
+      if (notzero_enpack) then
+         cewald = 2.0d0*dsum(enpack,dbl_mb(vg(1)),1)   
+      else
+         cewald=0.0d0
+      end if
       !if (nida.eq.1) cewald = cewald - dbl_mb(vg(1))  !*** zero because vg(g=0) = 0
       if (tnp.gt.1) call Parallel_SumAll(cewald)
 
@@ -576,7 +586,11 @@ cccccccccc  ewald summation
       end do
 
 *     ***** t_dsum of vg *****
-      cewald_qm = 2.0d0*dsum(enpack,dbl_mb(vg(1)),1)   
+      if (notzero_enpack) then
+         cewald_qm = 2.0d0*dsum(enpack,dbl_mb(vg(1)),1)   
+      else
+         cewald_qm = 0.0d0
+      end if
       !if (nida.eq.1) cewald_qm = cewald_qm - dbl_mb(vg(1))  !*** zero because vg(g=0) = 0
       if (tnp.gt.1) call Parallel_SumAll(cewald_qm)
 
@@ -592,7 +606,11 @@ cccccccccc  ewald summation
       end do
 
 *     ***** t_dsum of vg *****
-      cewald_mm = 2.0d0*dsum(enpack,dbl_mb(vg(1)),1)   
+      if (notzero_enpack) then
+         cewald_mm = 2.0d0*dsum(enpack,dbl_mb(vg(1)),1)   
+      else
+         cewald_mm = 0.0d0
+      end if
       !if (nida.eq.1) cewald_mm = cewald_mm - dbl_mb(vg(1))  !*** zero because vg(g=0) = 0
       if (tnp.gt.1) call Parallel_SumAll(cewald_mm)
 
@@ -639,9 +657,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 #include "ewald.fh"
       logical value
       call ewald_strfact_end()
-      value=          MA_free_heap(eg_hndl)
-      value=value.and.MA_free_heap(vcx(2))
-      value=value.and.MA_free_heap(vg(2))
+      value = .true.
+      if (notzero_enpack) then
+         value=value.and.MA_free_heap(eg_hndl)
+         value=value.and.MA_free_heap(vcx(2))
+         value=value.and.MA_free_heap(vg(2))
+      end if
       value=value.and.MA_free_heap(rcell(2))
       value=value.and.MA_free_heap(zv(2))
       if (.not.value) then
@@ -708,26 +729,30 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     **** allocate temp workspace ****
       nion = ion_nion()
       
-      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
-      if (.not. value) 
-     >  call errquit('ewald_e:out of stack memory',0,MA_ERR)
+      if (notzero_enpack) then
+         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+         if (.not. value) 
+     >     call errquit('ewald_e:out of stack memory',0,MA_ERR)
      
-*     **** get the structure factor ****
-      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
-      do ii=1,nion
-         call ewald_strfac(ii,dcpl_mb(exi(1)))
-         call daxpy(2*enpack,dbl_mb(zv(1)+ion_katm(ii)-1),
-     >          dcpl_mb(exi(1)),1,
-     >          dcpl_mb(s(1)),1)
-      end do
+*        **** get the structure factor ****
+         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         do ii=1,nion
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
+            call daxpy(2*enpack,dbl_mb(zv(1)+ion_katm(ii)-1),
+     >             dcpl_mb(exi(1)),1,
+     >             dcpl_mb(s(1)),1)
+         end do
 
-*     **** calculate the ewald energy ****
-      call ewald_ct_Sqr(enpack,dcpl_mb(s(1)),dbl_mb(tmp3(1)))
-      energy=2.0d0*ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
+*        **** calculate the ewald energy ****
+         call ewald_ct_Sqr(enpack,dcpl_mb(s(1)),dbl_mb(tmp3(1)))
+         energy=2.0d0*ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
+      else
+         energy=0.0d0
+      end if
       if (tnp.gt.1) call Parallel_SumAll(energy)
       energy  = 0.5d0*energy/lattice_omega() + cewald
 
@@ -762,11 +787,13 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       
 
 *     **** deallocate temp workspace ****
-      value =           MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(s(2))
-      value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) 
-     >  call errquit('ewald_e:popping stack memory',0,MA_ERR)
+      if (notzero_enpack) then
+         value =           MA_pop_stack(tmp3(2))
+         value = value.and.MA_pop_stack(s(2))
+         value = value.and.MA_pop_stack(exi(2))
+         if (.not. value) 
+     >     call errquit('ewald_e:popping stack memory',0,MA_ERR)
+      end if
 
       call nwpw_timing_end(21)
       ewald_e = energy
@@ -817,10 +844,14 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       nion = ion_nion()
 
 *     **** allocate temp workspace ****
-      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-      value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+      value = .true.
+      if (notzero_enpack) then
+         value = value.and.
+     >           MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+      end if
       value = value.and.MA_push_get(mt_dbl,nion,'fx',fx(2),fx(1)) 
       value = value.and.MA_push_get(mt_dbl,nion,'fy',fy(2),fy(1)) 
       value = value.and.MA_push_get(mt_dbl,nion,'fz',fz(2),fz(1)) 
@@ -833,14 +864,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       call dcopy(nion,0.0d0,0,dbl_mb(fz(1)),1)
      
 *     **** get the structure factor ****
-      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
-      do ii=1,nion
-         call ewald_strfac(ii,dcpl_mb(exi(1)))
-         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
-         call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
-      end do
-      do ii=1,nion
-         call ewald_strfac(ii,dcpl_mb(exi(1)))
+      if (notzero_enpack) then
+         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         do ii=1,nion
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
+            zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+            call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+         end do
+         do ii=1,nion
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
 
 c         do i=1,enpack
 c            dbl_mb(tmp3(1)+i-1) 
@@ -850,21 +882,22 @@ c     >              -  dimag(dcpl_mb(exi(1)+i-1))
 c     >                 *dble(dcpl_mb(s(1)+i-1))
 c     >                )*dbl_mb(vg(1)+i-1)
 c         end do
-         call ewald_f_tmp3(enpack,
-     >                     dcpl_mb(exi(1)),dcpl_mb(s(1)),
-     >                     dbl_mb(vg(1)),dbl_mb(tmp3(1)))
+            call ewald_f_tmp3(enpack,
+     >                        dcpl_mb(exi(1)),dcpl_mb(s(1)),
+     >                        dbl_mb(vg(1)),dbl_mb(tmp3(1)))
 
-         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
-         dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
-     >                      +  sum*zii*scal2
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
-         dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) 
-     >                      +  sum*zii*scal2
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
-         dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) 
-     >                      +  sum*zii*scal2
-      end do
+            zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
+            dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
+     >                         +  sum*zii*scal2
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
+            dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) 
+     >                         +  sum*zii*scal2
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
+            dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) 
+     >                         +  sum*zii*scal2
+         end do
+      end if
     
       dutask=0
       do i=1,nion-1
@@ -920,9 +953,11 @@ c         end do
       value =           MA_pop_stack(fz(2))
       value = value.and.MA_pop_stack(fy(2))
       value = value.and.MA_pop_stack(fx(2))
-      value = value.and.MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(s(2))
-      value = value.and.MA_pop_stack(exi(2))
+      if (notzero_enpack) then
+         value = value.and.MA_pop_stack(tmp3(2))
+         value = value.and.MA_pop_stack(s(2))
+         value = value.and.MA_pop_stack(exi(2))
+      end if
       if (.not. value) 
      >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
 
@@ -1021,34 +1056,39 @@ c         end do
 *     **** G-space contributions ****
 
 *     **** get the structure factor ****
-      value=            MA_push_get(mt_dbl,enpack,'H',H(2),H(1))
-      value=value.and.MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
-      value=value.and.MA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
-      if (.not. value) 
-     >  call errquit('ewald_stress:out of stack memory',0,MA_ERR)
+      if (notzero_enpack) then
+         value=            MA_push_get(mt_dbl,enpack,'H',H(2),H(1))
+         value=value.and.MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
+         value=value.and.
+     >         MA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
+         if (.not. value) 
+     >     call errquit('ewald_stress:out of stack memory',0,MA_ERR)
 
 
-      call dcopy((2*enpack),0.0d0,0,dcpl_mb(strf(1)),1)
-      do ii=1,ion_nion()
-         call ewald_strfac(ii,dcpl_mb(exi(1)))
-         call daxpy(2*enpack,ewald_zv(ion_katm(ii)),dcpl_mb(exi(1)),1,
-     >             dcpl_mb(strf(1)),1)
-      end do
-      do i=1,enpack
-          cz=dcpl_mb(strf(1)+i-1)
-          ar=dble(cz)
-          ai=dimag(cz)
-          dbl_mb(H(1)+i-1)=ar*ar+ai*ai
-      end do
-      value =           MA_pop_stack(strf(2))
-      value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) 
-     > call errquit('ewald_stress:error popping stack',0,MA_ERR)
+         call dcopy((2*enpack),0.0d0,0,dcpl_mb(strf(1)),1)
+         do ii=1,ion_nion()
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
+            call daxpy(2*enpack,ewald_zv(ion_katm(ii)),
+     >                 dcpl_mb(exi(1)),1,dcpl_mb(strf(1)),1)
+         end do
+         do i=1,enpack
+             cz=dcpl_mb(strf(1)+i-1)
+             ar=dble(cz)
+             ai=dimag(cz)
+             dbl_mb(H(1)+i-1)=ar*ar+ai*ai
+         end do
+         value =           MA_pop_stack(strf(2))
+         value = value.and.MA_pop_stack(exi(2))
+         if (.not. value) 
+     >    call errquit('ewald_stress:error popping stack',0,MA_ERR)
 
-*     **** calculate the ewald energy ****
-c      call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
-      F(1) = vg(1)
-      energy=2.0d0*ddot(enpack,dbl_mb(F(1)),1,dbl_mb(H(1)),1)
+*        **** calculate the ewald energy ****
+c         call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
+         F(1) = vg(1)
+         energy=2.0d0*ddot(enpack,dbl_mb(F(1)),1,dbl_mb(H(1)),1)
+      else
+         energy=0.0d0
+      end if
       if (tnp.gt.1) call Parallel_SumAll(energy)
       energy = -0.5d0*energy/lattice_omega()
 
@@ -1060,43 +1100,47 @@ c      call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
       end do
      
 *     **** tmp2(G) = F(G)*H(G)/G**2 + F(G)*H(G)*rcut*rcut/4 ****
-      value=          MA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
-      value=value.and.MA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
-      if (.not.value) 
-     >  call errquit('ewald_stress:out of stack memory',0,MA_ERR)
+      if (notzero_enpack) then
+         value=MA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
+         value=value.and.
+     >         MA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
+         if (.not.value) 
+     >     call errquit('ewald_stress:out of stack memory',0,MA_ERR)
 
-      do i=1,enpack
-         dbl_mb(tmp1(1)+i-1)=dbl_mb(F(1)+i-1)*dbl_mb(H(1)+i-1)
-      end do
-      ss = 0.25d0*rcut*rcut
-      do i=1,enpack
-         dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
-      end do       
-      ss = 1.0d0/fourpi
-      do i=1,enpack
-         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
-      end do       
-      do i=1,enpack
-         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*dbl_mb(vcx(1)+i-1)
-      end do       
-      do i=1,enpack
-         dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp2(1)+i-1)+dbl_mb(tmp1(1)+i-1)
-      end do       
+         do i=1,enpack
+            dbl_mb(tmp1(1)+i-1)=dbl_mb(F(1)+i-1)*dbl_mb(H(1)+i-1)
+         end do
+         ss = 0.25d0*rcut*rcut
+         do i=1,enpack
+            dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
+         end do       
+         ss = 1.0d0/fourpi
+         do i=1,enpack
+            dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
+         end do       
+         do i=1,enpack
+            dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*dbl_mb(vcx(1)+i-1)
+         end do       
+         do i=1,enpack
+            dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp2(1)+i-1)+dbl_mb(tmp1(1)+i-1)
+         end do       
+      end if
 
 *     **** calculate Cus ****
 
       call dcopy(9,0.0d0,0,Cus,1)
       ss =  1.0d0/lattice_omega()
-      do u=1,3
-      do s=u,3
-         do i=1,enpack
-            dbl_mb(tmp1(1)+i-1)=dbl_mb(eG(u)+i-1)*dbl_mb(eG(s)+i-1)
+      if (notzero_enpack) then
+         do u=1,3
+         do s=u,3
+            do i=1,enpack
+               dbl_mb(tmp1(1)+i-1)=dbl_mb(eG(u)+i-1)*dbl_mb(eG(s)+i-1)
+            end do
+            sum=2.0d0*ddot(enpack,dbl_mb(tmp1(1)),1,dbl_mb(tmp2(1)),1)
+            !if (tnp.gt.1) call Parallel_SumAll(sum)
+            Cus(u,s) = ss*sum
          end do
-         sum=2.0d0*ddot(enpack,dbl_mb(tmp1(1)),1,dbl_mb(tmp2(1)),1)
-         !if (tnp.gt.1) call Parallel_SumAll(sum)
-         Cus(u,s) = ss*sum
-      end do
-      end do
+         end do
 c      do u=1,3
 c      do s=u+1,3
 c         Cus(s,u) = Cus(u,s)
@@ -1110,11 +1154,13 @@ c        end do
 c      end do
 c      end do
 
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      value = value.and.MA_Pop_stack(H(2))
-      if (.not.value) 
-     > call errquit('ewald_stress:error popping stack memory',0,MA_ERR)
+         value =           MA_pop_stack(tmp2(2))
+         value = value.and.MA_pop_stack(tmp1(2))
+         value = value.and.MA_Pop_stack(H(2))
+         if (.not.value) 
+     >    call errquit(
+     >         'ewald_stress:error popping stack memory',0,MA_ERR)
+      end if
 
 *     **** R-space contributions ****
 
@@ -1269,27 +1315,31 @@ c      call dcopy(9,0.0d0,0,Cus,1)
 
 *     **** allocate temp workspace ****
       nion = ion_nion_qm()
-      
-      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
-      if (.not. value) 
-     >  call errquit('ewald_e:out of stack memory',0,MA_ERR)
-     
-*     **** get the structure factor ****
-      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
-      do ii=1,nion
-         call ewald_strfac(ii,dcpl_mb(exi(1)))
-         call daxpy(2*enpack,dbl_mb(zv(1)+ion_katm(ii)-1),
-     >          dcpl_mb(exi(1)),1,
-     >          dcpl_mb(s(1)),1)
-      end do
 
-*     **** calculate the ewald energy ****
-      call ewald_ct_Sqr(enpack,dcpl_mb(s(1)),dbl_mb(tmp3(1)))
-      energy=2.0d0*ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
+      if (notzero_enpack) then      
+         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+         if (.not. value) 
+     >     call errquit('ewald_e:out of stack memory',0,MA_ERR)
+     
+*        **** get the structure factor ****
+         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         do ii=1,nion
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
+            call daxpy(2*enpack,dbl_mb(zv(1)+ion_katm(ii)-1),
+     >             dcpl_mb(exi(1)),1,
+     >             dcpl_mb(s(1)),1)
+         end do
+
+*        **** calculate the ewald energy ****
+         call ewald_ct_Sqr(enpack,dcpl_mb(s(1)),dbl_mb(tmp3(1)))
+         energy=2.0d0*ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
+      else
+         energy=0.0d0
+      end if
       if (tnp.gt.1) call Parallel_SumAll(energy)
       energy  = 0.5d0*energy/lattice_omega() + cewald_qm
 
@@ -1322,11 +1372,13 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       
 
 *     **** deallocate temp workspace ****
-      value =           MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(s(2))
-      value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) 
-     >  call errquit('ewald_e:popping stack memory',0,MA_ERR)
+      if (notzero_enpack) then
+         value =           MA_pop_stack(tmp3(2))
+         value = value.and.MA_pop_stack(s(2))
+         value = value.and.MA_pop_stack(exi(2))
+         if (.not. value) 
+     >     call errquit('ewald_e:popping stack memory',0,MA_ERR)
+      end if
 
       call nwpw_timing_end(21)
       ewald_e_qm = energy
@@ -1377,10 +1429,13 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       nion = ion_nion_qm()
 
 *     **** allocate temp workspace ****
-      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-      value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+      value = .true.
+      if (notzero_enpack) then
+         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+      end if
       value = value.and.MA_push_get(mt_dbl,nion,'fx',fx(2),fx(1)) 
       value = value.and.MA_push_get(mt_dbl,nion,'fy',fy(2),fy(1)) 
       value = value.and.MA_push_get(mt_dbl,nion,'fz',fz(2),fz(1)) 
@@ -1393,14 +1448,15 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       call dcopy(nion,0.0d0,0,dbl_mb(fz(1)),1)
      
 *     **** get the structure factor ****
-      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
-      do ii=1,nion
-         call ewald_strfac(ii,dcpl_mb(exi(1)))
-         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
-         call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
-      end do
-      do ii=1,nion
-         call ewald_strfac(ii,dcpl_mb(exi(1)))
+      if (notzero_enpack) then
+         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         do ii=1,nion
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
+            zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+            call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+         end do
+         do ii=1,nion
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
 
 c         do i=1,enpack
 c            dbl_mb(tmp3(1)+i-1) 
@@ -1410,21 +1466,22 @@ c     >              -  dimag(dcpl_mb(exi(1)+i-1))
 c     >                 *dble(dcpl_mb(s(1)+i-1))
 c     >                )*dbl_mb(vg(1)+i-1)
 c         end do
-         call ewald_f_tmp3(enpack,
-     >                     dcpl_mb(exi(1)),dcpl_mb(s(1)),
-     >                     dbl_mb(vg(1)),dbl_mb(tmp3(1)))
+            call ewald_f_tmp3(enpack,
+     >                        dcpl_mb(exi(1)),dcpl_mb(s(1)),
+     >                        dbl_mb(vg(1)),dbl_mb(tmp3(1)))
 
-         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
-         dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
-     >                      +  sum*zii*scal2
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
-         dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) 
-     >                      +  sum*zii*scal2
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
-         dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) 
-     >                      +  sum*zii*scal2
-      end do
+            zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
+            dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
+     >                         +  sum*zii*scal2
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
+            dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) 
+     >                         +  sum*zii*scal2
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
+            dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) 
+     >                         +  sum*zii*scal2
+         end do
+      end if
     
       dutask=0
       do i=1,nion-1
@@ -1478,9 +1535,11 @@ c         end do
       value =           MA_pop_stack(fz(2))
       value = value.and.MA_pop_stack(fy(2))
       value = value.and.MA_pop_stack(fx(2))
-      value = value.and.MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(s(2))
-      value = value.and.MA_pop_stack(exi(2))
+      if (notzero_enpack) then
+         value = value.and.MA_pop_stack(tmp3(2))
+         value = value.and.MA_pop_stack(s(2))
+         value = value.and.MA_pop_stack(exi(2))
+      end if
       if (.not. value) 
      >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
 
@@ -1562,36 +1621,41 @@ c         end do
 
 
 *     **** G-space contributions ****
+      if (notzero_enpack) then
 
-*     **** get the structure factor ****
-      value=            MA_push_get(mt_dbl,enpack,'H',H(2),H(1))
-      value=value.and.MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
-      value=value.and.MA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
-      if (.not. value) 
-     >  call errquit('ewald_stress:out of stack memory',0,MA_ERR)
+*        **** get the structure factor ****
+         value=          MA_push_get(mt_dbl,enpack,'H',H(2),H(1))
+         value=value.and.MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
+         value=value.and.
+     >         MA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
+         if (.not. value) 
+     >     call errquit('ewald_stress:out of stack memory',0,MA_ERR)
 
 
-      call dcopy((2*enpack),0.0d0,0,dcpl_mb(strf(1)),1)
-      do ii=1,nion
-         call ewald_strfac(ii,dcpl_mb(exi(1)))
-         call daxpy(2*enpack,ewald_zv(ion_katm(ii)),dcpl_mb(exi(1)),1,
-     >             dcpl_mb(strf(1)),1)
-      end do
-      do i=1,enpack
-          cz=dcpl_mb(strf(1)+i-1)
-          ar=dble(cz)
-          ai=dimag(cz)
-          dbl_mb(H(1)+i-1)=ar*ar+ai*ai
-      end do
-      value =           MA_pop_stack(strf(2))
-      value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) 
-     > call errquit('ewald_stress:error popping stack',0,MA_ERR)
+         call dcopy((2*enpack),0.0d0,0,dcpl_mb(strf(1)),1)
+         do ii=1,nion
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
+            call daxpy(2*enpack,ewald_zv(ion_katm(ii)),
+     >                dcpl_mb(exi(1)),1,dcpl_mb(strf(1)),1)
+         end do
+         do i=1,enpack
+             cz=dcpl_mb(strf(1)+i-1)
+             ar=dble(cz)
+             ai=dimag(cz)
+             dbl_mb(H(1)+i-1)=ar*ar+ai*ai
+         end do
+         value =           MA_pop_stack(strf(2))
+         value = value.and.MA_pop_stack(exi(2))
+         if (.not. value) 
+     >    call errquit('ewald_stress:error popping stack',0,MA_ERR)
 
-*     **** calculate the ewald energy ****
-c      call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
-      F(1) = vg(1)
-      energy=2.0d0*ddot(enpack,dbl_mb(F(1)),1,dbl_mb(H(1)),1)
+*        **** calculate the ewald energy ****
+c         call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
+         F(1) = vg(1)
+         energy=2.0d0*ddot(enpack,dbl_mb(F(1)),1,dbl_mb(H(1)),1)
+      else
+         energy=0.0d0
+      end if
       if (tnp.gt.1) call Parallel_SumAll(energy)
       energy = -0.5d0*energy/lattice_omega()
 
@@ -1603,43 +1667,47 @@ c      call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
       end do
      
 *     **** tmp2(G) = F(G)*H(G)/G**2 + F(G)*H(G)*rcut*rcut/4 ****
-      value=          MA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
-      value=value.and.MA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
-      if (.not.value) 
-     >  call errquit('ewald_stress:out of stack memory',0,MA_ERR)
+      if (notzero_enpack) then
+         value=MA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
+         value=value.and.
+     >         MA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
+         if (.not.value) 
+     >     call errquit('ewald_stress:out of stack memory',0,MA_ERR)
 
-      do i=1,enpack
-         dbl_mb(tmp1(1)+i-1)=dbl_mb(F(1)+i-1)*dbl_mb(H(1)+i-1)
-      end do
-      ss = 0.25d0*rcut*rcut
-      do i=1,enpack
-         dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
-      end do       
-      ss = 1.0d0/fourpi
-      do i=1,enpack
-         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
-      end do       
-      do i=1,enpack
-         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*dbl_mb(vcx(1)+i-1)
-      end do       
-      do i=1,enpack
-         dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp2(1)+i-1)+dbl_mb(tmp1(1)+i-1)
-      end do       
+         do i=1,enpack
+            dbl_mb(tmp1(1)+i-1)=dbl_mb(F(1)+i-1)*dbl_mb(H(1)+i-1)
+         end do
+         ss = 0.25d0*rcut*rcut
+         do i=1,enpack
+            dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
+         end do       
+         ss = 1.0d0/fourpi
+         do i=1,enpack
+            dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
+         end do       
+         do i=1,enpack
+            dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*dbl_mb(vcx(1)+i-1)
+         end do       
+         do i=1,enpack
+            dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp2(1)+i-1)+dbl_mb(tmp1(1)+i-1)
+         end do       
+      end if
 
 *     **** calculate Cus ****
 
       call dcopy(9,0.0d0,0,Cus,1)
       ss =  1.0d0/lattice_omega()
-      do u=1,3
-      do s=u,3
-         do i=1,enpack
-            dbl_mb(tmp1(1)+i-1)=dbl_mb(eG(u)+i-1)*dbl_mb(eG(s)+i-1)
+      if (notzero_enpack) then
+         do u=1,3
+         do s=u,3
+            do i=1,enpack
+               dbl_mb(tmp1(1)+i-1)=dbl_mb(eG(u)+i-1)*dbl_mb(eG(s)+i-1)
+            end do
+            sum=2.0d0*ddot(enpack,dbl_mb(tmp1(1)),1,dbl_mb(tmp2(1)),1)
+            !if (tnp.gt.1) call Parallel_SumAll(sum)
+            Cus(u,s) = ss*sum
          end do
-         sum=2.0d0*ddot(enpack,dbl_mb(tmp1(1)),1,dbl_mb(tmp2(1)),1)
-         !if (tnp.gt.1) call Parallel_SumAll(sum)
-         Cus(u,s) = ss*sum
-      end do
-      end do
+         end do
 c      do u=1,3
 c      do s=u+1,3
 c         Cus(s,u) = Cus(u,s)
@@ -1653,11 +1721,13 @@ c        end do
 c      end do
 c      end do
 
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      value = value.and.MA_Pop_stack(H(2))
-      if (.not.value) 
-     > call errquit('ewald_stress:error popping stack memory',0,MA_ERR)
+         value =           MA_pop_stack(tmp2(2))
+         value = value.and.MA_pop_stack(tmp1(2))
+         value = value.and.MA_Pop_stack(H(2))
+         if (.not.value) 
+     >    call errquit(
+     >         'ewald_stress:error popping stack memory',0,MA_ERR)
+      end if
 
 *     **** R-space contributions ****
 
@@ -1812,26 +1882,30 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       nion_qm = ion_nion_qm()
       nion_mm = ion_nion_mm()
       
-      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
-      if (.not. value) 
-     >  call errquit('ewald_e:out of stack memory',0,MA_ERR)
+      if (notzero_enpack) then
+         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+         if (.not. value) 
+     >     call errquit('ewald_e:out of stack memory',0,MA_ERR)
      
-*     **** get the structure factor ****
-      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
-      do ii=1,nion_mm
-         call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
-         call daxpy(2*enpack,dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1),
-     >          dcpl_mb(exi(1)),1,
-     >          dcpl_mb(s(1)),1)
-      end do
+*        **** get the structure factor ****
+         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         do ii=1,nion_mm
+            call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+            call daxpy(2*enpack,dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1),
+     >             dcpl_mb(exi(1)),1,
+     >             dcpl_mb(s(1)),1)
+         end do
 
-*     **** calculate the ewald energy ****
-      call ewald_ct_Sqr(enpack,dcpl_mb(s(1)),dbl_mb(tmp3(1)))
-      energy=2.0d0*ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
+*        **** calculate the ewald energy ****
+         call ewald_ct_Sqr(enpack,dcpl_mb(s(1)),dbl_mb(tmp3(1)))
+         energy=2.0d0*ddot(enpack,dbl_mb(tmp3(1)),1,dbl_mb(vg(1)),1)
+      else
+         energy=0.0d0
+      end if
       if (tnp.gt.1) call Parallel_SumAll(energy)
       energy  = 0.5d0*energy/lattice_omega() + cewald_qm
 
@@ -1865,11 +1939,13 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       
 
 *     **** deallocate temp workspace ****
-      value =           MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(s(2))
-      value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) 
-     >  call errquit('ewald_e:popping stack memory',0,MA_ERR)
+      if (notzero_enpack) then
+         value =           MA_pop_stack(tmp3(2))
+         value = value.and.MA_pop_stack(s(2))
+         value = value.and.MA_pop_stack(exi(2))
+         if (.not. value) 
+     >     call errquit('ewald_e:popping stack memory',0,MA_ERR)
+      end if
 
       call nwpw_timing_end(21)
       ewald_e_mm = energy
@@ -1922,10 +1998,13 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       nion_mm = ion_nion_mm()
 
 *     **** allocate temp workspace ****
-      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-      value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+      value = .true.
+      if (notzero_enpack) then
+         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+      end if
       value = value.and.MA_push_get(mt_dbl,nion_mm,'fx',fx(2),fx(1)) 
       value = value.and.MA_push_get(mt_dbl,nion_mm,'fy',fy(2),fy(1)) 
       value = value.and.MA_push_get(mt_dbl,nion_mm,'fz',fz(2),fz(1)) 
@@ -1938,30 +2017,32 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       call dcopy(nion_mm,0.0d0,0,dbl_mb(fz(1)),1)
      
 *     **** get the structure factor ****
-      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
-      do ii=1,nion_mm
-         call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
-         zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
-         call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
-      end do
-      do ii=1,nion_mm
-         call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+      if (notzero_enpack) then
+         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         do ii=1,nion_mm
+            call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+            zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
+            call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+         end do
+         do ii=1,nion_mm
+            call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+   
+            call ewald_f_tmp3(enpack,
+     >                        dcpl_mb(exi(1)),dcpl_mb(s(1)),
+     >                        dbl_mb(vg(1)),dbl_mb(tmp3(1)))
 
-         call ewald_f_tmp3(enpack,
-     >                     dcpl_mb(exi(1)),dcpl_mb(s(1)),
-     >                     dbl_mb(vg(1)),dbl_mb(tmp3(1)))
-
-         zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
-         dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
-     >                      +  sum*zii*scal2
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
-         dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) 
-     >                      +  sum*zii*scal2
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
-         dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) 
-     >                      +  sum*zii*scal2
-      end do
+            zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
+            dbl_mb(fx(1)+ii-1) = dbl_mb(fx(1)+ii-1) 
+     >                         +  sum*zii*scal2
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
+            dbl_mb(fy(1)+ii-1) = dbl_mb(fy(1)+ii-1) 
+     >                         +  sum*zii*scal2
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
+            dbl_mb(fz(1)+ii-1) = dbl_mb(fz(1)+ii-1) 
+     >                         +  sum*zii*scal2
+         end do
+      end if
     
       dutask=0
       do i=1,nion_mm-1
@@ -2015,9 +2096,11 @@ c      call dcopy(9,0.0d0,0,Cus,1)
       value =           MA_pop_stack(fz(2))
       value = value.and.MA_pop_stack(fy(2))
       value = value.and.MA_pop_stack(fx(2))
-      value = value.and.MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(s(2))
-      value = value.and.MA_pop_stack(exi(2))
+      if (notzero_enpack) then
+         value = value.and.MA_pop_stack(tmp3(2))
+         value = value.and.MA_pop_stack(s(2))
+         value = value.and.MA_pop_stack(exi(2))
+      end if
       if (.not. value) 
      >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
 
@@ -2103,35 +2186,40 @@ c      call dcopy(9,0.0d0,0,Cus,1)
 *     **** G-space contributions ****
 
 *     **** get the structure factor ****
-      value=            MA_push_get(mt_dbl,enpack,'H',H(2),H(1))
-      value=value.and.MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
-      value=value.and.MA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
-      if (.not. value) 
-     >  call errquit('ewald_stress:out of stack memory',0,MA_ERR)
+      if (notzero_enpack) then
+         value=MA_push_get(mt_dbl,enpack,'H',H(2),H(1))
+         value=value.and.MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1))
+         value=value.and.
+     >         MA_push_get(mt_dcpl,enpack,'strf',strf(2),strf(1))
+         if (.not. value) 
+     >     call errquit('ewald_stress:out of stack memory',0,MA_ERR)
 
 
-      call dcopy((2*enpack),0.0d0,0,dcpl_mb(strf(1)),1)
-      do ii=1,nion_mm
-         call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
-         call daxpy(2*enpack,ewald_zv(ion_katm(nion_qm+ii)),
-     >             dcpl_mb(exi(1)),1,
-     >             dcpl_mb(strf(1)),1)
-      end do
-      do i=1,enpack
-          cz=dcpl_mb(strf(1)+i-1)
-          ar=dble(cz)
-          ai=dimag(cz)
-          dbl_mb(H(1)+i-1)=ar*ar+ai*ai
-      end do
-      value =           MA_pop_stack(strf(2))
-      value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) 
-     > call errquit('ewald_stress:error popping stack',0,MA_ERR)
+         call dcopy((2*enpack),0.0d0,0,dcpl_mb(strf(1)),1)
+         do ii=1,nion_mm
+            call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+            call daxpy(2*enpack,ewald_zv(ion_katm(nion_qm+ii)),
+     >                dcpl_mb(exi(1)),1,
+     >                dcpl_mb(strf(1)),1)
+         end do
+         do i=1,enpack
+             cz=dcpl_mb(strf(1)+i-1)
+             ar=dble(cz)
+             ai=dimag(cz)
+             dbl_mb(H(1)+i-1)=ar*ar+ai*ai
+         end do
+         value =           MA_pop_stack(strf(2))
+         value = value.and.MA_pop_stack(exi(2))
+         if (.not. value) 
+     >    call errquit('ewald_stress:error popping stack',0,MA_ERR)
 
-*     **** calculate the ewald energy ****
-c      call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
-      F(1) = vg(1)
-      energy=2.0d0*ddot(enpack,dbl_mb(F(1)),1,dbl_mb(H(1)),1)
+*        **** calculate the ewald energy ****
+c         call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
+         F(1) = vg(1)
+         energy=2.0d0*ddot(enpack,dbl_mb(F(1)),1,dbl_mb(H(1)),1)
+      else
+         energy=0.0d0
+      end if
       if (tnp.gt.1) call Parallel_SumAll(energy)
       energy = -0.5d0*energy/lattice_omega()
 
@@ -2143,43 +2231,47 @@ c      call dcopy(enpack,dbl_mb(vg(1)),1,dbl_mb(F(1)),1)
       end do
      
 *     **** tmp2(G) = F(G)*H(G)/G**2 + F(G)*H(G)*rcut*rcut/4 ****
-      value=          MA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
-      value=value.and.MA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
-      if (.not.value) 
-     >  call errquit('ewald_stress:out of stack memory',0,MA_ERR)
+      if (notzero_enpack) then
+         value=MA_push_get(mt_dbl,enpack,'tmp1',tmp1(2),tmp1(1))
+         value=value.and.
+     >         MA_push_get(mt_dbl,enpack,'tmp2',tmp2(2),tmp2(1))
+         if (.not.value) 
+     >     call errquit('ewald_stress:out of stack memory',0,MA_ERR)
 
-      do i=1,enpack
-         dbl_mb(tmp1(1)+i-1)=dbl_mb(F(1)+i-1)*dbl_mb(H(1)+i-1)
-      end do
-      ss = 0.25d0*rcut*rcut
-      do i=1,enpack
-         dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
-      end do       
-      ss = 1.0d0/fourpi
-      do i=1,enpack
-         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
-      end do       
-      do i=1,enpack
-         dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*dbl_mb(vcx(1)+i-1)
-      end do       
-      do i=1,enpack
-         dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp2(1)+i-1)+dbl_mb(tmp1(1)+i-1)
-      end do       
+         do i=1,enpack
+            dbl_mb(tmp1(1)+i-1)=dbl_mb(F(1)+i-1)*dbl_mb(H(1)+i-1)
+         end do
+         ss = 0.25d0*rcut*rcut
+         do i=1,enpack
+            dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
+         end do       
+         ss = 1.0d0/fourpi
+         do i=1,enpack
+            dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*ss
+         end do       
+         do i=1,enpack
+            dbl_mb(tmp1(1)+i-1)=dbl_mb(tmp1(1)+i-1)*dbl_mb(vcx(1)+i-1)
+         end do       
+         do i=1,enpack
+            dbl_mb(tmp2(1)+i-1)=dbl_mb(tmp2(1)+i-1)+dbl_mb(tmp1(1)+i-1)
+         end do       
+      end if
 
 *     **** calculate Cus ****
 
       call dcopy(9,0.0d0,0,Cus,1)
       ss =  1.0d0/lattice_omega()
-      do u=1,3
-      do s=u,3
-         do i=1,enpack
-            dbl_mb(tmp1(1)+i-1)=dbl_mb(eG(u)+i-1)*dbl_mb(eG(s)+i-1)
+      if (notzero_enpack) then
+         do u=1,3
+         do s=u,3
+            do i=1,enpack
+               dbl_mb(tmp1(1)+i-1)=dbl_mb(eG(u)+i-1)*dbl_mb(eG(s)+i-1)
+            end do
+            sum=2.0d0*ddot(enpack,dbl_mb(tmp1(1)),1,dbl_mb(tmp2(1)),1)
+            !if (tnp.gt.1) call Parallel_SumAll(sum)
+            Cus(u,s) = ss*sum
          end do
-         sum=2.0d0*ddot(enpack,dbl_mb(tmp1(1)),1,dbl_mb(tmp2(1)),1)
-         !if (tnp.gt.1) call Parallel_SumAll(sum)
-         Cus(u,s) = ss*sum
-      end do
-      end do
+         end do
 c      do u=1,3
 c      do s=u+1,3
 c         Cus(s,u) = Cus(u,s)
@@ -2193,11 +2285,13 @@ c        end do
 c      end do
 c      end do
 
-      value =           MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      value = value.and.MA_Pop_stack(H(2))
-      if (.not.value) 
-     > call errquit('ewald_stress:error popping stack memory',0,MA_ERR)
+         value =           MA_pop_stack(tmp2(2))
+         value = value.and.MA_pop_stack(tmp1(2))
+         value = value.and.MA_Pop_stack(H(2))
+         if (.not.value) 
+     >    call errquit(
+     >         'ewald_stress:error popping stack memory',0,MA_ERR)
+      end if
 
 *     **** R-space contributions ****
 
@@ -2355,26 +2449,25 @@ c      call dcopy(9,0.0d0,0,Cus,1)
 
       call nwpw_timing_start(21)
       nion = ion_nion()
-
-*     **** allocate temp workspace ****
-      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-      value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
-      if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
-
-
       scal2 = 1.0d0/lattice_omega()
 
-*     **** get the structure factor ****
-      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
-      do ii=1,nion
-         call ewald_strfac(ii,dcpl_mb(exi(1)))
-         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
-         call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
-      end do
-      do ii=1,nion
-         call ewald_strfac(ii,dcpl_mb(exi(1)))
+*     **** allocate temp workspace ****
+      if (notzero_enpack) then
+         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+         if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
+
+*        **** get the structure factor ****
+         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         do ii=1,nion
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
+            zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+            call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+         end do
+         do ii=1,nion
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
 
 c         do i=1,enpack
 c            dbl_mb(tmp3(1)+i-1) 
@@ -2384,18 +2477,19 @@ c     >              -  dimag(dcpl_mb(exi(1)+i-1))
 c     >                 *dble(dcpl_mb(s(1)+i-1))
 c     >                )*dbl_mb(vg(1)+i-1)
 c         end do
-         call ewald_f_tmp3(enpack,
-     >                     dcpl_mb(exi(1)),dcpl_mb(s(1)),
-     >                     dbl_mb(vg(1)),dbl_mb(tmp3(1)))
+            call ewald_f_tmp3(enpack,
+     >                        dcpl_mb(exi(1)),dcpl_mb(s(1)),
+     >                        dbl_mb(vg(1)),dbl_mb(tmp3(1)))
 
-         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
-         fion(1,ii) = fion(1,ii) + sum*zii*scal2
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
-         fion(2,ii) = fion(2,ii) + sum*zii*scal2
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
-         fion(3,ii) = fion(3,ii) + sum*zii*scal2
-      end do
+            zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
+            fion(1,ii) = fion(1,ii) + sum*zii*scal2
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
+            fion(2,ii) = fion(2,ii) + sum*zii*scal2
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
+            fion(3,ii) = fion(3,ii) + sum*zii*scal2
+         end do
+      end if
     
       dutask=0
       do i=1,nion-1
@@ -2438,11 +2532,13 @@ c         end do
 
       
 *     **** deallocate temp workspace ****
-      value =           MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(s(2))
-      value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) 
-     >  call errquit('ewald_f_async:popping stack memory',0,MA_ERR)
+      if (notzero_enpack) then
+         value =           MA_pop_stack(tmp3(2))
+         value = value.and.MA_pop_stack(s(2))
+         value = value.and.MA_pop_stack(exi(2))
+         if (.not. value) 
+     >     call errquit('ewald_f_async:popping stack memory',0,MA_ERR)
+      end if
 
       call nwpw_timing_end(21)
       return
@@ -2489,26 +2585,25 @@ c         end do
 
       call nwpw_timing_start(21)
       nion = ion_nion_qm()
-
-*     **** allocate temp workspace ****
-      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-      value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
-      if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
-
-
       scal2 = 1.0d0/lattice_omega()
 
-*     **** get the structure factor ****
-      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
-      do ii=1,nion
-         call ewald_strfac(ii,dcpl_mb(exi(1)))
-         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
-         call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
-      end do
-      do ii=1,nion
-         call ewald_strfac(ii,dcpl_mb(exi(1)))
+*     **** allocate temp workspace ****
+      if (notzero_enpack) then
+         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+         if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
+
+*        **** get the structure factor ****
+         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         do ii=1,nion
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
+            zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+            call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+         end do
+         do ii=1,nion
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
 
 c         do i=1,enpack
 c            dbl_mb(tmp3(1)+i-1) 
@@ -2518,18 +2613,19 @@ c     >              -  dimag(dcpl_mb(exi(1)+i-1))
 c     >                 *dble(dcpl_mb(s(1)+i-1))
 c     >                )*dbl_mb(vg(1)+i-1)
 c         end do
-         call ewald_f_tmp3(enpack,
-     >                     dcpl_mb(exi(1)),dcpl_mb(s(1)),
-     >                     dbl_mb(vg(1)),dbl_mb(tmp3(1)))
+            call ewald_f_tmp3(enpack,
+     >                        dcpl_mb(exi(1)),dcpl_mb(s(1)),
+     >                        dbl_mb(vg(1)),dbl_mb(tmp3(1)))
 
-         zii=dbl_mb(zv(1)+ion_katm(ii)-1)
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
-         fion(1,ii) = fion(1,ii) + sum*zii*scal2
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
-         fion(2,ii) = fion(2,ii) + sum*zii*scal2
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
-         fion(3,ii) = fion(3,ii) + sum*zii*scal2
-      end do
+            zii=dbl_mb(zv(1)+ion_katm(ii)-1)
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
+            fion(1,ii) = fion(1,ii) + sum*zii*scal2
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
+            fion(2,ii) = fion(2,ii) + sum*zii*scal2
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
+            fion(3,ii) = fion(3,ii) + sum*zii*scal2
+         end do
+      end if
     
       dutask=0
       do i=1,nion-1
@@ -2570,11 +2666,13 @@ c         end do
 
       
 *     **** deallocate temp workspace ****
-      value =           MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(s(2))
-      value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) 
-     >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
+      if (notzero_enpack) then
+         value =           MA_pop_stack(tmp3(2))
+         value = value.and.MA_pop_stack(s(2))
+         value = value.and.MA_pop_stack(exi(2))
+         if (.not. value) 
+     >     call errquit('ewald_f:popping stack memory',0,MA_ERR)
+      end if
 
       call nwpw_timing_end(21)
       return
@@ -2623,39 +2721,39 @@ c         end do
       nion    = ion_nion()
       nion_qm = ion_nion_qm()
       nion_mm = ion_nion_mm()
+      scal2 = 1.0d0/lattice_omega()
 
 *     **** allocate temp workspace ****
-      value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-      value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
-      value = value.and.
-     >        MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
-      if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
-
-
-      scal2 = 1.0d0/lattice_omega()
+      if (notzero_enpack) then
+         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dbl, enpack,'tmp3',tmp3(2),tmp3(1)) 
+         if(.not.value) call errquit('ewald_f:out of stack',0,MA_ERR)
      
-*     **** get the structure factor ****
-      call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
-      do ii=1,nion_mm
-         call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
-         zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
-         call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
-      end do
-      do ii=1,nion_mm
-         call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+*        **** get the structure factor ****
+         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         do ii=1,nion_mm
+            call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+            zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
+            call daxpy(2*enpack,zii,dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+         end do
+         do ii=1,nion_mm
+            call ewald_strfac(nion_qm+ii,dcpl_mb(exi(1)))
+   
+            call ewald_f_tmp3(enpack,
+     >                        dcpl_mb(exi(1)),dcpl_mb(s(1)),
+     >                        dbl_mb(vg(1)),dbl_mb(tmp3(1)))
 
-         call ewald_f_tmp3(enpack,
-     >                     dcpl_mb(exi(1)),dcpl_mb(s(1)),
-     >                     dbl_mb(vg(1)),dbl_mb(tmp3(1)))
-
-         zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
-         fion(1,nion_qm+ii) = fion(1,nion_qm+ii) + sum*zii*scal2
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
-         fion(2,nion_qm+ii) = fion(2,nion_qm+ii) + sum*zii*scal2
-         sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
-         fion(3,nion_qm+ii) = fion(3,nion_qm+ii) + sum*zii*scal2
-      end do
+            zii=dbl_mb(zv(1)+ion_katm(nion_qm+ii)-1)
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(1)),1,dbl_mb(tmp3(1)),1)
+            fion(1,nion_qm+ii) = fion(1,nion_qm+ii) + sum*zii*scal2
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(2)),1,dbl_mb(tmp3(1)),1)
+            fion(2,nion_qm+ii) = fion(2,nion_qm+ii) + sum*zii*scal2
+            sum=2.0d0*ddot(enpack,dbl_mb(eG(3)),1,dbl_mb(tmp3(1)),1)
+            fion(3,nion_qm+ii) = fion(3,nion_qm+ii) + sum*zii*scal2
+         end do
+      end if
     
       dutask=0
       do i=1,nion_mm-1
@@ -2695,11 +2793,13 @@ c         end do
       end do
 
 *     **** deallocate temp workspace ****
-      value =           MA_pop_stack(tmp3(2))
-      value = value.and.MA_pop_stack(s(2))
-      value = value.and.MA_pop_stack(exi(2))
-      if (.not. value) 
-     >  call errquit('ewald_f:popping stack memory',0,MA_ERR)
+      if (notzero_enpack) then
+         value =           MA_pop_stack(tmp3(2))
+         value = value.and.MA_pop_stack(s(2))
+         value = value.and.MA_pop_stack(exi(2))
+         if (.not. value) 
+     >     call errquit('ewald_f:popping stack memory',0,MA_ERR)
+      end if
 
       call nwpw_timing_end(21)
       return
