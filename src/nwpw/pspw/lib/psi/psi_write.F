@@ -45,6 +45,7 @@ c     complex*16 tmp(*)
       logical  control_print
       external control_print
 
+      call ga_sync()
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
@@ -79,9 +80,6 @@ c     complex*16 tmp(*)
          
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
-c        call util_file_name_noprefix(filename,.false.,
-c    >                                .false.,
-c    >                       full_filename)
          l = index(full_filename,' ') -1
          if (lprint) write(*,1210) full_filename(1:l)
  1210    FORMAT(/' output psi filename:',A)
@@ -122,9 +120,11 @@ c    >                       full_filename)
 
 
 *     *** close ELCIN binary file ***
+      call ga_sync()
       if (taskid_i.eq.MASTER) then
         call closefile(6)
       end if
+      call ga_sync()
 
       value =           MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp(2))

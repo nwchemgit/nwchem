@@ -15,6 +15,7 @@
       integer occupation
 
 #include "mafdecls.fh"
+#include "util.fh"
 #include "errquit.fh"
 
 *    *** local variables ***
@@ -25,13 +26,13 @@
       character*50 filename
       character*255 full_filename
 
-      integer MASTER,taskid,taskid_j
+      integer MASTER,taskid,taskid_i,taskid_j
       parameter(MASTER=0)
       integer n,q,pj
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value
+      logical value,lprint
 
 *     ***** local functions ****
       character*50 control_output_v_psi
@@ -40,11 +41,17 @@ c     complex*16 tmp(*)
       external         control_unita
       integer  control_ngrid,control_version
       external control_ngrid,control_version
+      logical  control_print
+      external control_print
 
+      call ga_sync()
       call Parallel_taskid(taskid)
+      call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
+      lprint= ((taskid.eq.MASTER).and.control_print(print_low))
+
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       value = value.and.
@@ -68,27 +75,30 @@ c     complex*16 tmp(*)
       unita(3,3) = control_unita(3,3)
 
 *     **** open ELCIN binary file ****
-      if (taskid.eq.MASTER) then
+      if (taskid_i.eq.MASTER) then
          filename = control_output_v_psi()
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
-c         call util_file_name_noprefix(filename,.false.,
-c     >                                .false.,
-c     >                       full_filename)
-
          l = index(full_filename,' ') -1
-         write(*,1210) full_filename(1:l)
+         if (lprint) write(*,1210) full_filename(1:l)
  1210    FORMAT(/' output vpsi filename:',A)
 
          l = index(full_filename,' ') -1
          call openfile(6,full_filename,l,'w',l)
-         call iwrite(6,version,1)
-         call iwrite(6,nfft,3)
-         call dwrite(6,unita,9)
-         call iwrite(6,ispin,1)
-         call iwrite(6,ne,2)
-         occupation = -1
-         call iwrite(6,occupation,1)
+
+         if (taskid.eq.MASTER) then
+            call iwrite(6,version,1)
+            call iwrite(6,nfft,3)
+            call dwrite(6,unita,9)
+            call iwrite(6,ispin,1)
+            call iwrite(6,ne,2)
+            occupation = -1
+            call iwrite(6,occupation,1)
+         else
+            call ishift_fileptr(6,4)
+            call dshift_fileptr(6,9)
+            call ishift_fileptr(6,4)
+         end if
       end if
 
 *     *** read in 3d blocks ***
@@ -104,9 +114,11 @@ c     >                       full_filename)
       end do
 
 *     *** close ELCIN binary file ***
-      if (taskid.eq.MASTER) then
+      call ga_sync()
+      if (taskid_i.eq.MASTER) then
         call closefile(6)
       end if
+      call ga_sync()
 
       value =           MA_pop_stack(tmp2(2))
       value = value.and.MA_pop_stack(tmp(2))

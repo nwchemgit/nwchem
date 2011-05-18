@@ -15,6 +15,7 @@
       integer occupation
 
 #include "mafdecls.fh"
+#include "util.fh"
 #include "errquit.fh"
 
 *    *** local variables ***
@@ -33,7 +34,7 @@
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value,readblock
+      logical value,readblock,lprint
 
 *     ***** local functions ****
       character*50 control_input_v_psi
@@ -42,12 +43,16 @@ c     complex*16 tmp(*)
       external         control_unita
       integer  control_ngrid
       external control_ngrid
+      logical  control_print
+      external control_print
 
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_i(taskid_i)
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
+
+      lprint= ((taskid.eq.MASTER).and.control_print(print_low))
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       value = value.and.
@@ -64,7 +69,7 @@ c        call util_file_name_noprefix(filename,.false.,
 c    >                                .false.,
 c    >                        full_filename)
          l = index(full_filename,' ') -1
-         write(*,1210) full_filename(1:l)
+         if (lprint) write(*,1210) full_filename(1:l)
  1210    FORMAT(/' input vpsi filename:',A)
 
 
@@ -98,7 +103,7 @@ c     **** send header to all nodes ****
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
          readblock = .false.
-         if (taskid.eq.MASTER) then
+         if (taskid_i.eq.MASTER) then
             write(*,*) "Error reading v_psi, v_psi set to zero"
             write(*,*) " - bad ngrid "
             write(*,*) " - vpsi_ngrid(1)=",nfft(1),

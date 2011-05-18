@@ -109,7 +109,8 @@ c     **** send header to all nodes ****
       if ( (nfft(1).ne.control_ngrid(1)) .or.
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
-        if (taskid.eq.MASTER) then
+        if (taskid_i.eq.MASTER) then
+        write(*,*) "taskid_i,taskid_j=",taskid_i,taskid_j
         write(*,*) "nfft :",nfft
         write(*,*) "ngrid:",control_ngrid(1),
      >                      control_ngrid(2),
