@@ -913,14 +913,14 @@ c     *** call dscal(9,-1.0d0,stress,1)
       if (oprint) call write_stress(stress,"total gradient")
 
       if (oprint) then
-        write(*,*)
-        write(*,1811) "dE/da     = ",lstress(1)
-        write(*,1811) "dE/db     = ",lstress(2)
-        write(*,1811) "dE/dc     = ",lstress(3)
-        write(*,1811) "dE/dalpha = ",lstress(4)
-        write(*,1811) "dE/dbeta  = ",lstress(5)
-        write(*,1811) "dE/dgamma = ",lstress(6)
-        write(*,*)
+        write(luout,*)
+        write(luout,1811) "dE/da     = ",lstress(1)
+        write(luout,1811) "dE/db     = ",lstress(2)
+        write(luout,1811) "dE/dc     = ",lstress(3)
+        write(luout,1811) "dE/dalpha = ",lstress(4)
+        write(luout,1811) "dE/dbeta  = ",lstress(5)
+        write(luout,1811) "dE/dgamma = ",lstress(6)
+        write(luout,*)
       end if
 
       if (hprint) call write_stress(sigma,"Internal Stress Tensor")
