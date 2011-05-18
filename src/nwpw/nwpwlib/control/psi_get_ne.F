@@ -76,6 +76,11 @@ c     **** send header to all nodes ****
      >     (nfft(3).ne.control_ngrid(3)) ) then
          if (oprint) then
             write(luout,*) "Error reading psi - bad grid"
+            write(luout,*) "nfft :",nfft
+            write(luout,*) "ngrid:",control_ngrid(1),
+     >                              control_ngrid(2),
+     >                              control_ngrid(3)
+
          end if
       end if
 
