@@ -12,22 +12,25 @@ c     $Id$         c
       real*8 G1(3,*)
 
 #include "stdio.fh"
+#include "util.fh"
 
-      logical allow_translation
-      integer MASTER
+*     **** local variables ****
+      integer MASTER,taskid
       parameter (MASTER=0)
-      integer i,k,taskid,nion
+
+      logical allow_translation,oprint,hprint
+      integer i,k,nion
       real*8  GG,fmax,fatom
       real*8  fmx,fmy,fmz
       real*8  fmx2,fmy2,fmz2
 
 *     **** external functions ****
-      logical     cpsp_semicore
+      logical     cpsp_semicore,control_print
       logical     control_allow_translation,ion_q_FixIon
       character*4 ion_aname
       integer     ion_katm,ion_nion,control_version
       real*8      ion_rion
-      external cpsp_semicore
+      external cpsp_semicore,control_print
       external control_allow_translation,ion_q_FixIon
       external ion_aname
       external ion_katm,ion_nion,control_version
@@ -67,7 +70,11 @@ c     $Id$         c
       end do
 
       call Parallel_taskid(taskid)
-      if (taskid.eq.MASTER) then
+      hprint = ((taskid.eq.MASTER).and.control_print(print_high))
+      oprint = ((taskid.eq.MASTER).and.control_print(print_medium))
+
+
+      if (oprint) then
         write(luout,1300)
         write(luout,1301)
         write(luout,1302)
@@ -75,14 +82,16 @@ c     $Id$         c
         if (.not.allow_translation) write(luout,1400) fmx,fmy,fmz
         write(luout,1304)
         write(luout,1410)
-        write(luout,1420)
-        do I=1,ion_nion()
-          if (ion_q_FixIon(I)) then
-           write(6,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3)
-          else
-           write(6,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3)
-          end if
-        end do
+        if (hprint) then
+           write(luout,1420)
+           do I=1,ion_nion()
+             if (ion_q_FixIon(I)) then
+              write(6,1191) I,ion_aname(I),(ion_rion(K,I),K=1,3)
+             else
+              write(6,1190) I,ion_aname(I),(ion_rion(K,I),K=1,3)
+             end if
+           end do
+        end if
         write(luout,1421)
         write(luout,1190)(i,ion_aname(I),
      >                  (G1(K,I),K=1,3),I=1,ion_nion())
@@ -106,11 +115,11 @@ c     call dscal(3*nion,(-1.0d0),G1,1)
  1304 FORMAT(/)
  1400 FORMAT('Translation force removed: (',3F11.5,')')
  1410 FORMAT(10X,'=============  Ion Gradients =================')
+ 1420 FORMAT( ' Ion Positions:')
+ 1421 FORMAT( ' Ion Forces:')
  1425 FORMAT(10X,'===============================================')
  1426 FORMAT(10X,'|F|       =',E15.6,
      >      /10x,'|F|/nion  =',E15.6,
      >      /10x,'max|Fatom|=',E15.6,1x,'(',F8.3,'eV/Angstrom)'//)
- 1420 FORMAT( ' Ion Positions:')
- 1421 FORMAT( ' Ion Forces:')
       end
 
