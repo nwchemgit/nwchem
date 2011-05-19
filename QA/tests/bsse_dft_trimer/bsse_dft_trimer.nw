@@ -8,18 +8,22 @@ echo
 geometry noautoz noautosym
 F    -0.61683381    -1.18961304    -0.00027800
 H     0.47944458    -0.87924415    -0.00001413
-F    -0.72173048     1.12898147    -0.00028304
+Cl   -0.72173048     1.12898147    -0.00028304
 H    -1.00100544     0.02437024    -0.00003844
-F     1.33877789     0.06048852    -0.00021261
+Br    1.33877789     0.06048852    -0.00021261
 H     0.52159348     0.85464976     0.00000567
 end
 
 
 basis "ao basis" 
   H library 3-21g
-  F library 3-21g
   bqH library H 3-21g
+  F library 3-21g
   bqF library F 3-21g
+  Cl library 3-21g
+  bqCl library Cl 3-21g
+  Br library 3-21g
+  bqBr library Br 3-21g
 END
 
 dft
