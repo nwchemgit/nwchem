@@ -607,68 +607,91 @@ c
       lenname= inp_strlen(spr_name) 
 c
       if (.not. geom_create(geom,spr_name(1:lenname))) 
-     $call errquit('bsse_input: geom_create failed !', 0,GEOM_ERR)
+     $   call errquit('bsse_create_geom: geom_create failed !',
+     $                0,GEOM_ERR)
 c
       if (.not. geom_rtdb_load(rtdb, geom, spr_name))
-     $   call 
-     $     errquit('bsse_input: no geometry load form rtdb',0,GEOM_ERR)
+     $   call errquit('bsse_create_geom: no geometry load form rtdb',
+     $                0,GEOM_ERR)
 c      
-      if(.not. geom_cart_get(geom, natoms, tag_old, c, q_old))
-     $ call 
-     $ errquit(' bsse_create_geom: get geom info fail !', 0,GEOM_ERR)
+      if (.not. geom_cart_get(geom, natoms, tag_old, c, q_old))
+     $   call errquit('bsse_create_geom: get geom info fail !',
+     $                0,GEOM_ERR)
 c
-c -------------------------------------------
-c:rename atoms tag to ghost and create geoms
-c -------------------------------------------
+c     -------------------------------------------
+c     rename atoms tag to ghost and create geoms
+c     -------------------------------------------
+c
       do j = 1, nmon
         do l = 1, natoms
+c
+c         initialize all centers as bqX
+c
+          tag_new(l) = 'bq' // tag_old(l)
+          q_new(l) = 0.0d0
+c
           do k = 1, mon_atm(j)
 c
-c. only do bsse with atoms
+c           only do bsse with atoms
 c
-            is_atm = geom_tag_to_element(tag_old(l), symbol,
-     $           element, atn)
+            is_atm = geom_tag_to_element(tag_old(l),symbol,element,atn)
             if ((.not. is_atm) .and. symbol.ne.'bq')
-     $      call errquit('bsse_create_geom: not atom or bq',0,GEOM_ERR)
-cc
-c compare and put which need be bqX
+     $        call errquit('bsse_create_geom: not atom or bq',
+     $                     0,GEOM_ERR)
+c
+c           compare and if this is center is an atom then
+c           set its tag and charge to the proper values
 c
             if (l.eq.(mon(j,k))) then
               tag_new(l) = tag_old(l)
-              q_new  (l) = q_old  (l)
+              q_new(l)   = q_old(l)
               go to 100
-            else
-              tag_new (l) = 'bq' // tag_old(l)
-              q_new(l) = 0.0d0
             endif
           enddo
  100      continue 
         enddo
 c
+c       Sort out the masses of the various centers
+c
+        do l = 1, natoms
+          is_atm = geom_tag_to_element(tag_new(l),symbol,element,atn)
+          if ((.not. is_atm) .and. symbol.ne.'bq')
+     $       call errquit('bsse_create_geom: not atom or bq',
+     $                    0,GEOM_ERR)
+          if (.not.geom_atn_to_default_mass(atn,mass(l)))
+     $       call errquit('bsse_create_geom: default mass failed',
+     $                    911,GEOM_ERR)
+        enddo
+c
         lenname= inp_strlen(mon_name(j)) 
 c
         if (.not. geom_create(mon_hnd, mon_name(j)(1:lenname)//'g')) 
-     $    call 
-     $    errquit ('bsse_create_geom: geom_create failed !',0,GEOM_ERR)
-
+     $    call errquit('bsse_create_geom: geom_create failed !',
+     $                 0,GEOM_ERR)
 c
         if (.not. geom_cart_set(mon_hnd, natoms, tag_new, c, q_new))
-     $    call 
-     $     errquit('bsse_create_geom: geom_cart_set failed', 0,GEOM_ERR)
+     $    call errquit('bsse_create_geom: geom_cart_set failed',
+     $                 0,GEOM_ERR)
+c
+        if (.not. geom_masses_set(mon_hnd, natoms, mass))
+     $    call errquit('bsse_create_geom: geom_masses_set failed',
+     $                 0,GEOM_ERR)
 c:debug proposes
 c     if (nodeid().eq. 0) then
 c       if (.not. geom_print(mon_hnd))
 c    $        call errquit('geom_input: print failed ', 0)
 c     endif
 c 
-        if (.not.geom_rtdb_store
-     $    (rtdb, mon_hnd, mon_name(j)(1:lenname)//'g'))
-     $    call errquit('geom_input: geom_rtdb_store failed',60,GEOM_ERR)
+        if (.not.geom_rtdb_store(rtdb, mon_hnd,
+     $                           mon_name(j)(1:lenname)//'g'))
+     $    call errquit('bsse_create_geom: geom_rtdb_store failed',
+     $                 60,GEOM_ERR)
 c
         if (.not. geom_destroy(mon_hnd))
-     $    call errquit('geom_input: geom_destroy failed', 060,GEOM_ERR)
+     $    call errquit('bsse_create_geom: geom_destroy failed',
+     $                 60,GEOM_ERR)
 c
-c: creating and storing monomers without  ghost  
+c       creating and storing monomers without  ghost  
 c
         if (.not. geom_create(mon_hnd, mon_name(j)(1:lenname)))
      $    call errquit('bsse_create_geom: geom_create failed!',0,
@@ -688,37 +711,39 @@ c
           enddo
         enddo
 c      
-        if (.not. geom_cart_set
-     $    (mon_hnd, mon_atm(j), tag_new, ctmp, q_new))
-     $    call errquit('geom_input: geom_cart_set failed', 0,GEOM_ERR)
-ccccccc
+        if (.not. geom_cart_set(mon_hnd,mon_atm(j),tag_new,ctmp,q_new))
+     $    call errquit('bsse_create_geom: geom_cart_set failed',
+     $                 0,GEOM_ERR)
+c
+c       Work out the masses of the atoms
+c
         do l=1, mon_atm(j) 
-        is_atm = geom_tag_to_element(tag_new(l), symbol,
-     $                                         element, atn)
+          is_atm = geom_tag_to_element(tag_new(l),symbol,element,atn)
           if ((.not. is_atm) .and. symbol.ne.'bq')
-     $      call errquit
-     &           ('geom_input:center is neither atom nor bq',0,GEOM_ERR)
-c..   set default mass
-          if(.not.
-     &             geom_atn_to_default_mass(atn,mass(l)))
-     &      call errquit(' geom_input: default mass failed',
-     &           911,GEOM_ERR)
+     $      call errquit('bsse_create_geom: center is neither atom '//
+     $                   'nor bq',0,GEOM_ERR)
+c..       set default mass
+          if(.not.geom_atn_to_default_mass(atn,mass(l)))
+     &      call errquit('bsse_create_geom: default mass failed',
+     &                   911,GEOM_ERR)
         enddo
 c
         if (.not. geom_masses_set(mon_hnd, mon_atm(j), mass))
-     $  call errquit('geom_input: geom_masses_set failed', 0,GEOM_ERR)
-ccccc
-c:debug proposes
+     $    call errquit('bsse_create_geom: geom_masses_set failed',
+     $                 0,GEOM_ERR)
+c
         if (nodeid() .eq. 0) then
           if(.not. geom_print(mon_hnd))
-     $      call errquit('geom_input: print failed ', 0, GEOM_ERR)
+     $      call errquit('bsse_create_geom: print failed ', 0, GEOM_ERR)
         endif
 c
         if (.not.geom_rtdb_store(rtdb, mon_hnd, mon_name(j)(1:lenname)))
-     $    call errquit('geom_input: geom_rtdb_store failed',0,GEOM_ERR)
+     $    call errquit('bsse_create_geom: geom_rtdb_store failed',
+     $                 0,GEOM_ERR)
 c
         if (.not. geom_destroy(mon_hnd))
-     $    call errquit('geom_input: geom_destroy failed', 0,GEOM_ERR)
+     $    call errquit('bsse_create_geom: geom_destroy failed',
+     $                 0,GEOM_ERR)
 c
 c:debug proposes
 c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
@@ -735,8 +760,8 @@ c
 c 
       bsse_create_geom = .true.
 c
-       return
-       end
+      return
+      end
       logical function bsse_energy(rtdb,theory,final_spr_energy)
       implicit none
 #include "stdio.fh"
