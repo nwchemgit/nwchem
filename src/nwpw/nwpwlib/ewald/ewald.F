@@ -339,6 +339,7 @@ c     **** determine enpack and nida ****
 
 c     **** allocate memory for common block ****
       notzero_enpack = (enpack.gt.0)  !** needed for very large numbers cpu
+      value = .true.
       if (notzero_enpack) then 
          value=MA_alloc_get(mt_dbl,3*enpack,'eG',eg_hndl,eG(1))
          eG(2)=eG(1)+enpack
