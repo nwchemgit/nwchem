@@ -1,28 +1,28 @@
-Title "3FH-bsses"
+Title "FH-ClH-BrH-bsses"
 
-Start 3FH-bsses
+Start FH-ClH-BrH-bsses
 
 echo
 
 
 geometry noautoz noautosym
-F    -0.61683381    -1.18961304    -0.00027800
-H     0.47944458    -0.87924415    -0.00001413
-Cl   -0.72173048     1.12898147    -0.00028304
-H    -1.00100544     0.02437024    -0.00003844
-Br    1.33877789     0.06048852    -0.00021261
-H     0.52159348     0.85464976     0.00000567
+F    -1.17122635    -1.50097392     0.00007449
+H    -0.13324667    -1.35207024     0.00008831
+Cl   -1.63851812     1.26560296     0.00006385
+H    -1.62896618    -0.22316562     0.00001913
+Br    1.53507290    -0.09220677     0.00019504
+H     0.31497411     0.90841123     0.00012631
 end
 
 
 basis "ao basis" 
-  H library 3-21g
-  bqH library H 3-21g
-  F library 3-21g
-  bqF library F 3-21g
-  Cl library 3-21g
+  H    library    3-21g
+  F    library    3-21g
+  Cl   library    3-21g
+  Br   library    3-21g
+  bqH  library H  3-21g
+  bqF  library F  3-21g
   bqCl library Cl 3-21g
-  Br library 3-21g
   bqBr library Br 3-21g
 END
 
