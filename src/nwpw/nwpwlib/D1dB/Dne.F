@@ -34,6 +34,8 @@
       external control_mparallelized
       integer  Parallel2d_comm_i,Parallel2d_comm_j
       external Parallel2d_comm_i,Parallel2d_comm_j
+      integer  control_mreplicate_size
+      external control_mreplicate_size
 
       ispin   = ispin_in
       ne(1)   = ne_in(1)
@@ -57,6 +59,7 @@
       comm_j = Parallel2d_comm_j()
       parallelized = (np_j.gt.1)
       mparallelized = (parallelized.and.control_mparallelized())
+      mreplicate = ((np_i*np_j).gt.control_mreplicate_size())
 
       if (parallelized) then
          value = .true.
@@ -2518,6 +2521,105 @@ c     ****************************************
       return
       end
 
+c     ****************************************
+c     *                                      *
+c     *        Dneall_mmm_replicated         *
+c     *                                      *
+c     ****************************************
+      subroutine  Dneall_mmm_replicated1(n,alpha,a,b,beta,c,ctmp)
+      implicit none
+      integer n
+      real*8 alpha,beta
+      real*8 a(n,n),b(n,n),c(n,n),ctmp(n,n)
+
+      integer taskid,np
+      integer i,j,k,icount
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      call dcopy(n*n,0.0d0,0,ctmp,1)
+      icount = 0
+      do j=1,n
+         do i=1,n
+            if (mod(icount,np).eq.taskid) then
+               do k=1,n
+                  c(i,j) = c(i,j) + a(i,k)*b(k,j)
+               end do
+            end if
+            icount = icount + 1
+         end do
+      end do
+      call Parallel_Vector_SumAll(n*n,ctmp)
+      do j=1,n
+         do i=1,n
+            c(i,j) = beta*c(i,j) + alpha*ctmp(i,j)
+         end do
+      end do
+      return 
+      end
+
+      subroutine  Dneall_mmm_replicated2(n,alpha,a,b,beta,c,ctmp)
+      implicit none
+      integer n
+      real*8 alpha,beta
+      real*8 a(n,n),b(n,n),c(n,n),ctmp(n,n)
+
+      integer taskid,np
+      integer i,j,k,icount
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      call dcopy(n*n,0.0d0,0,ctmp,1)
+      icount = 0
+      do j=1,n
+         do i=1,n
+            if (mod(icount,np).eq.taskid) then
+               do k=1,n
+                  c(i,j) = c(i,j) + a(k,i)*b(k,j)
+               end do
+            end if
+            icount = icount + 1
+         end do
+      end do
+      call Parallel_Vector_SumAll(n*n,ctmp)
+      do j=1,n
+         do i=1,n
+            c(i,j) = beta*c(i,j) + alpha*ctmp(i,j)
+         end do
+      end do
+      return
+      end
+
+      subroutine  Dneall_mmm_replicated3(n,alpha,a,b,beta,c,ctmp)
+      implicit none
+      integer n
+      real*8 alpha,beta
+      real*8 a(n,n),b(n,n),c(n,n),ctmp(n,n)
+
+      integer taskid,np
+      integer i,j,k,icount
+      call Parallel_np(np)
+      call Parallel_taskid(taskid)
+      call dcopy(n*n,0.0d0,0,ctmp,1)
+      icount = 0
+      do j=1,n
+         do i=1,n
+            if (mod(icount,np).eq.taskid) then
+               do k=1,n
+                  c(i,j) = c(i,j) + a(i,k)*b(j,k)
+               end do
+            end if
+            icount = icount + 1
+         end do
+      end do
+      call Parallel_Vector_SumAll(n*n,ctmp)
+      do j=1,n
+         do i=1,n
+            c(i,j) = beta*c(i,j) + alpha*ctmp(i,j)
+         end do
+      end do
+      return
+      end
+
+
 
 
 
@@ -2525,7 +2627,7 @@ c     ****************************************
 
 c     ****************************************
 c     *                                      *
-c     *           Dneall_m_trace            *
+c     *           Dneall_m_trace             *
 c     *                                      *
 c     ****************************************
 

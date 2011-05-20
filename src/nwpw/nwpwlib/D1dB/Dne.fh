@@ -5,7 +5,7 @@
       integer ne(2),neq(2),ispin
       common    / Dne / ne,neq,ispin
 
-      logical parallelized,mparallelized
+      logical parallelized,mparallelized,mreplicate
       integer taskid_i,taskid_j
       integer np_i,np_j
       integer comm_i,comm_j
@@ -41,7 +41,7 @@
      >                      np_i,np_j,
      >                      comm_i,comm_j,
      >                      npack1_all,nida1_all,n2ft3d_all,
-     >                      parallelized,mparallelized
+     >                      parallelized,mparallelized,mreplicate
 
       integer mpack(0:2),mall(0:2),mindx(2,0:2)
       integer smpack,small,smindx(2)
