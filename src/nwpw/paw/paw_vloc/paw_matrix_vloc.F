@@ -4,12 +4,12 @@
 
 !**************************************************
 !
-!	name: init_paw_vloc_matrix
+!       name: init_paw_vloc_matrix
 !
-!	purpose: initializes local pseudopotential 
+!       purpose: initializes local pseudopotential 
 !                matrix
 !
-!	created:	7/9/2002
+!       created:        7/9/2002
 !**************************************************
       subroutine  init_paw_vloc_matrix()
       implicit none
@@ -93,11 +93,11 @@
 
 !**************************************************
 !
-!	name:  find_paw_vloc_matrix
+!       name:  find_paw_vloc_matrix
 !
-!	purpose: 
+!       purpose: 
 !
-!	created:	7/9/2002
+!       created:        7/9/2002
 !**************************************************
       subroutine find_paw_vloc_matrix(ic,istart,
      >                        ngrid,

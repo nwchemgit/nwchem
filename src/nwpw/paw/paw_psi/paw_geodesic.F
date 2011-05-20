@@ -3,9 +3,9 @@
 *
 
 *     ***********************************
-*     *					*
-*     *		paw_geodesic_init	*
-*     *					*
+*     *                                 *
+*     *         paw_geodesic_init       *
+*     *                                 *
 *     ***********************************
 *
 *     Uses - geodesic common block
@@ -51,9 +51,9 @@
       end
 
 *     ***********************************
-*     *					*
-*     *		paw_geodesic_finalize	*
-*     *					*
+*     *                                 *
+*     *         paw_geodesic_finalize   *
+*     *                                 *
 *     ***********************************
 *
 *     Uses - geodesic common block
@@ -88,9 +88,9 @@
 
 
 *     ***********************************
-*     *					*
-*     *		paw_geodesic_start	*
-*     *					*
+*     *                                 *
+*     *         paw_geodesic_start      *
+*     *                                 *
 *     ***********************************
 *
 *     This routine initializes the geodesic module
@@ -231,9 +231,9 @@ c      integer ierr
 
 
 *     ***********************************
-*     *					*
-*     *		paw_geodesic_get	*
-*     *					*
+*     *                                 *
+*     *         paw_geodesic_get        *
+*     *                                 *
 *     ***********************************
 *
 *     Uses - geodesic common block
@@ -369,9 +369,9 @@ c         end if
 
 
 *     ***********************************
-*     *					*
-*     *		paw_geodesic_transport	*
-*     *					*
+*     *                                 *
+*     *         paw_geodesic_transport  *
+*     *                                 *
 *     ***********************************
 *
 *     Uses - geodesic common block
@@ -493,9 +493,9 @@ c         end if
 
 
 *     ***********************************
-*     *					*
-*     *		paw_geodesic_Gtransport	*
-*     *					*
+*     *                                 *
+*     *         paw_geodesic_Gtransport *
+*     *                                 *
 *     ***********************************
 *
 *     Uses - geodesic common block

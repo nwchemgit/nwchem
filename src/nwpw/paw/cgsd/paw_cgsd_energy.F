@@ -2,9 +2,9 @@ c     $Id$
 
 
 *     ***************************
-*     *				*
-*     *	   paw_cgsd_energy	*
-*     *				*
+*     *                         *
+*     *    paw_cgsd_energy      *
+*     *                         *
 *     ***************************
 
       real*8 function paw_cgsd_energy(newpsi)
@@ -319,9 +319,9 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
       end
 
 *     ***********************************
-*     *				  	*
-*     *	    paw_cgsd_energy_gradient    *
-*     *				    	*
+*     *                                 *
+*     *     paw_cgsd_energy_gradient    *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_cgsd_energy_gradient(G1)

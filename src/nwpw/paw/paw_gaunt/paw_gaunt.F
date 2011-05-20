@@ -38,7 +38,7 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *  	 paw_gaunt_init 	*
+*     *          paw_gaunt_init         *
 *     *                                 *
 *     ***********************************
       subroutine paw_gaunt_init()
@@ -107,7 +107,7 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *  	 paw_gaunt_end  	*
+*     *          paw_gaunt_end          *
 *     *                                 *
 *     ***********************************
       subroutine paw_gaunt_end()
@@ -132,7 +132,7 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *  	 gen_gaunt_coeff	*
+*     *          gen_gaunt_coeff        *
 *     *                                 *
 *     ***********************************
       double precision function gen_gaunt_coeff(l1,m1,l2,m2,l3,m3) 
@@ -195,7 +195,7 @@ c
 
 *     ***********************************
 *     *                                 *
-*     *      gen_gaunt_coeff_sub	*
+*     *      gen_gaunt_coeff_sub        *
 *     *                                 *
 *     ***********************************
 
@@ -271,7 +271,7 @@ c $Log: not supported by cvs2svn $
 
 C*     ***********************************
 C*     *                                 *
-C*     *  	 paw_gaunt2_init 	*
+C*     *         paw_gaunt2_init        *
 C*     *                                 *
 C*     ***********************************
 C*
@@ -344,7 +344,7 @@ C      end
 C
 C*     ***********************************
 C*     *                                 *
-C*     *  	 paw_gaunt2_end  	*
+C*     *         paw_gaunt2_end         *
 C*     *                                 *
 C*     ***********************************
 C      subroutine paw_gaunt2_end()
@@ -369,7 +369,7 @@ C      end
 C
 C*     ***********************************
 C*     *                                 *
-C*     *  	 gen_gaunt2_coeff	*
+C*     *         gen_gaunt2_coeff       *
 C*     *                                 *
 C*     ***********************************
 C      double precision function gen_gaunt2_coeff(l1,m1,l2,m2,l3,m3) 
@@ -432,7 +432,7 @@ C      end
 
 *     ***********************************
 *     *                                 *
-*     *      gen_gaunt2_coeff_sub	*
+*     *      gen_gaunt2_coeff_sub       *
 *     *                                 *
 *     ***********************************
 
@@ -501,7 +501,7 @@ c     work arrays for integration
 
 C*     ***********************************
 C*     *                                 *
-C*     *  	 paw_gaunt3_init 	*
+C*     *         paw_gaunt3_init        *
 C*     *                                 *
 C*     ***********************************
 C*
@@ -574,7 +574,7 @@ C      end
 C
 C*     ***********************************
 C*     *                                 *
-C*     *  	 paw_gaunt3_end  	*
+C*     *         paw_gaunt3_end         *
 C*     *                                 *
 C*     ***********************************
 C      subroutine paw_gaunt3_end()
@@ -599,7 +599,7 @@ C      end
 C
 C*     ***********************************
 C*     *                                 *
-C*     *  	 gen_gaunt3_coeff	*
+C*     *         gen_gaunt3_coeff       *
 C*     *                                 *
 C*     ***********************************
 C      double precision function gen_gaunt3_coeff(l1,m1,l2,m2,l3,m3) 
@@ -662,7 +662,7 @@ C      end
 
 *     ***********************************
 *     *                                 *
-*     *      gen_gaunt3_coeff_sub	*
+*     *      gen_gaunt3_coeff_sub       *
 *     *                                 *
 *     ***********************************
 

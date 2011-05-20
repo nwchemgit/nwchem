@@ -4,11 +4,11 @@
 
 !**************************************************
 !
-!	Name: paw_ovlp_init
+!       Name: paw_ovlp_init
 !
-!	Purpose: initializes the paw overlap coefficients
+!       Purpose: initializes the paw overlap coefficients
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_ovlp_init(ispin0,ne)
       implicit none
@@ -123,11 +123,11 @@ c           !-- set sign coeff as (-1)**m --
 
 !**************************************************
 !
-!	Name: paw_ovlp_end
+!       Name: paw_ovlp_end
 !
-!	Purpose: removes space used by the paw overlap coefficients
+!       Purpose: removes space used by the paw overlap coefficients
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_ovlp_end()
       implicit none      
@@ -156,11 +156,11 @@ c           !-- set sign coeff as (-1)**m --
 
 **************************************************
 !
-!	Name: paw_ovlp_coeff_set
+!       Name: paw_ovlp_coeff_set
 !
-!	Purpose: sets the paw overlap coefficients
+!       Purpose: sets the paw overlap coefficients
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_ovlp_coeff_set(psi)
       implicit none
@@ -245,11 +245,11 @@ c      !*** compute overlap coefficients c(n=1:neall,nlm=1:nbasis(ii),ii=1:nion)
  
 **************************************************
 !
-!	Name: paw_ovlp_weigths_set
+!       Name: paw_ovlp_weigths_set
 !
-!	Purpose: sets the overlap weight coefficients
+!       Purpose: sets the overlap weight coefficients
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_ovlp_weights_set()
       
@@ -349,11 +349,11 @@ c      occup = 1.0d0
 
 **************************************************
 !
-!	Name: paw_ovlp_calc_coef
+!       Name: paw_ovlp_calc_coef
 !
-!	Purpose: Calculate the projectors coefficients
+!       Purpose: Calculate the projectors coefficients
 !
-!	Created:	2/10/2002
+!       Created:        2/10/2002
 !**************************************************
       subroutine paw_ovlp_calc_coef(ne,psi,c1)
       implicit none
@@ -389,11 +389,11 @@ c      occup = 1.0d0
 
 **************************************************
 !
-!	Name: paw_ovlp_calc_scramble_coef
+!       Name: paw_ovlp_calc_scramble_coef
 !
-!	Purpose: Calculate the scrambled coefficients
+!       Purpose: Calculate the scrambled coefficients
 !
-!	Created:	2/10/2002
+!       Created:        2/10/2002
 !**************************************************
       subroutine paw_ovlp_calc_scramble_coef(ne,psi,ct)
       implicit none
@@ -465,11 +465,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
 **************************************************
 !
-!	Name: paw_ovlp_unscramble_coef
+!       Name: paw_ovlp_unscramble_coef
 !
-!	Purpose: unscrambe the coefficients
+!       Purpose: unscrambe the coefficients
 !
-!	Created:	2/10/2002
+!       Created:        2/10/2002
 !**************************************************
       subroutine paw_ovlp_unscramble_coef(ne,ct,c1)
       implicit none
@@ -518,11 +518,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
 **************************************************
 !
-!	Name: paw_ovlp_S
+!       Name: paw_ovlp_S
 !
-!	Purpose: Apply the overlap operator
+!       Purpose: Apply the overlap operator
 !
-!	Created:	2/10/2002
+!       Created:        2/10/2002
 !**************************************************
       subroutine paw_ovlp_S(ne,psi,Spsi)
       implicit none
@@ -603,11 +603,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
 **************************************************
 !
-!	Name: paw_ovlp_coeff_ptr
+!       Name: paw_ovlp_coeff_ptr
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	2/10/2002
+!       Created:        2/10/2002
 !**************************************************
       subroutine paw_ovlp_coeff_ptr(ptr)
       implicit none
@@ -620,11 +620,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       end 
 **************************************************
 !
-!	Name: 
+!       Name: 
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	2/10/2002
+!       Created:        2/10/2002
 !**************************************************
       subroutine paw_ovlp_indx2_ptr(ptr)
       implicit none
@@ -641,11 +641,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
 **************************************************
 !
-!	Name: 
+!       Name: 
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	2/10/2002
+!       Created:        2/10/2002
 !**************************************************
       subroutine paw_ovlp_sgn_ptr(ptr)
       implicit none
@@ -663,11 +663,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
 **************************************************
 !
-!	Name: 
+!       Name: 
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	2/10/2002
+!       Created:        2/10/2002
 !**************************************************
       subroutine paw_ovlp_c_ptr(ptr)
       implicit none
@@ -685,11 +685,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
 **************************************************
 !
-!	Name: 
+!       Name: 
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	2/10/2002
+!       Created:        2/10/2002
 !**************************************************
       subroutine paw_ovlp_i_w_ptr(ptr)
       implicit none
@@ -709,11 +709,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
 **************************************************
 !
-!	Name: paw_ovlp_coeff_size
+!       Name: paw_ovlp_coeff_size
 !
-!	Purpose:  returns the size of the overlap array
+!       Purpose:  returns the size of the overlap array
 !
-!	Created:	2/10/2002
+!       Created:        2/10/2002
 !**************************************************
       function paw_ovlp_coeff_size()
       implicit none
@@ -727,11 +727,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       end 
 **************************************************
 !
-!	Name: paw_ovlp_coeff_ptr
+!       Name: paw_ovlp_coeff_ptr
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	2/10/2002
+!       Created:        2/10/2002
 !**************************************************
       function paw_ovlp_weight_size()
       implicit none
@@ -745,11 +745,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       end 
 **************************************************
 !
-!	Name: 
+!       Name: 
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:
+!       Created:
 !**************************************************
       function paw_ne_total()
       implicit none
@@ -763,11 +763,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       end 
 **************************************************
 !
-!	Name: 
+!       Name: 
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:
+!       Created:
 !**************************************************
       function paw_ne_up()
       implicit none
@@ -781,11 +781,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       end 
 **************************************************
 !
-!	Name: 
+!       Name: 
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:
+!       Created:
 !**************************************************
       function paw_ne_down()
       implicit none
@@ -799,11 +799,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
       end 
 **************************************************
 !
-!	Name: 
+!       Name: 
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:
+!       Created:
 !**************************************************
       function paw_ispin()
       implicit none
@@ -818,11 +818,11 @@ c     !*** compute overlap coefficients c(n=1:ne,nlm=1:nbasis(ii),ii=1:nion) ***
 
 **************************************************
 !
-!	Name: paw_ovlp_weigths_write
+!       Name: paw_ovlp_weigths_write
 !
-!	Purpose: dumps the overlap weight coefficients
+!       Purpose: dumps the overlap weight coefficients
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_ovlp_weights_write(nu)
       

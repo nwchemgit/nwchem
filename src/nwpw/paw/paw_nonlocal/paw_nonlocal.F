@@ -58,11 +58,11 @@
 
 !**************************************************
 !
-!	Name: paw_nonlocal_init
+!       Name: paw_nonlocal_init
 !
-!	Purpose: initializes the paw nonlocal operator
+!       Purpose: initializes the paw nonlocal operator
 !
-!	Created:	2/25/2003
+!       Created:        2/25/2003
 !**************************************************
       subroutine paw_nonlocal_init(ispin0,ne)
       implicit none
@@ -173,11 +173,11 @@
 
 !**************************************************
 !
-!	Name: paw_nonlocal_end
+!       Name: paw_nonlocal_end
 !
-!	Purpose: removes space used by the paw nonlocal
+!       Purpose: removes space used by the paw nonlocal
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_nonlocal_end()
       implicit none      
@@ -203,11 +203,11 @@
 
 !**************************************************
 !
-!	Name: paw_nonlocal_gen_nl_coeff
+!       Name: paw_nonlocal_gen_nl_coeff
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_nonlocal_gen_nl_coeff()
       implicit none      
@@ -489,11 +489,11 @@
 
 **************************************************
 !
-!	Name: 
+!       Name: 
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	2/10/2002
+!       Created:        2/10/2002
 !**************************************************
       subroutine paw_nonloc_Gop_u_ptr(ptr)
       implicit none
@@ -511,11 +511,11 @@
 
 **************************************************
 !
-!	Name: 
+!       Name: 
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	2/10/2002
+!       Created:        2/10/2002
 !**************************************************
       subroutine paw_nonloc_Gop_d_ptr(ptr)
       implicit none

@@ -4,11 +4,11 @@
 
 !**************************************************
 !
-!	Name: paw_force_init
+!       Name: paw_force_init
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_force_init
 cedo      subroutine paw_force_init(ispin0,ne)
@@ -78,11 +78,11 @@ cedo      integer ne(2)
 
 **************************************************
 !
-!	Name: paw_force_solve
+!       Name: paw_force_solve
 !
-!	Purpose: sets the paw overlap coefficients
+!       Purpose: sets the paw overlap coefficients
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_force_solve(psi,fion)
       implicit none
@@ -379,11 +379,11 @@ c           !*** this loop is not computed when ispin=1 ***
 
 **************************************************
 !
-!	Name: paw_ovlp_weigths_set
+!       Name: paw_ovlp_weigths_set
 !
-!	Purpose: sets the overlap weight coefficients
+!       Purpose: sets the overlap weight coefficients
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_force_weights_write(nu)
       
@@ -443,11 +443,11 @@ c           !*** this loop is not computed when ispin=1 ***
 
 !**************************************************
 !
-!	Name: paw_force_atom
+!       Name: paw_force_atom
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_force_atom(fion)
       implicit none
@@ -545,11 +545,11 @@ c        fion(3,in) = fion(3,in) - dble(tmp_fz)
 
 !**************************************************
 !
-!	Name: paw_force_constraint
+!       Name: paw_force_constraint
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_force_constraint(lmbda,fion)
       implicit none
@@ -716,11 +716,11 @@ c            fion(3,ii) = fion(3,ii) + occup*wz_tmp*dbl_mb(overlap_ptr)
 
 !**************************************************
 !
-!	Name: paw_force_mult
+!       Name: paw_force_mult
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_force_mult(f_mult)
 
@@ -913,11 +913,11 @@ c     >                          dble(comp_charge_coeff*f_tmp(k))
 
 !**************************************************
 !
-!	Name: paw_ovlp_end
+!       Name: paw_ovlp_end
 !
-!	Purpose: removes space used by the paw overlap coefficients
+!       Purpose: removes space used by the paw overlap coefficients
 !
-!	Created:	8/07/2002
+!       Created:        8/07/2002
 !**************************************************
       subroutine paw_force_end()
       implicit none      

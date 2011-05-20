@@ -2,9 +2,9 @@ c     $Id$
 
 
 *     ***************************
-*     *				*
-*     *	   paw_cgsd_noit_energy	*
-*     *				*
+*     *                         *
+*     *    paw_cgsd_noit_energy *
+*     *                         *
 *     ***************************
 
       real*8 function paw_cgsd_noit_energy()

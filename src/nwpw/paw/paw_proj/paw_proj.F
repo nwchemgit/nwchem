@@ -71,11 +71,11 @@
 
 !**************************************************
 !
-!	Name: paw_proj_init
+!       Name: paw_proj_init
 !
-!	Purpose: initializes the paw projectors
+!       Purpose: initializes the paw projectors
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
       subroutine paw_proj_init()
       implicit none
@@ -185,12 +185,12 @@ c      end do
 
 !**************************************************
 !
-!	Name: paw_proj_i_prj
+!       Name: paw_proj_i_prj
 !
-!	Purpose: returns the dcpl_mb ma index of
+!       Purpose: returns the dcpl_mb ma index of
 !                the paw projectors.
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
       integer function paw_proj_i_prj()
       implicit none
@@ -203,12 +203,12 @@ c      end do
 
 !**************************************************
 !
-!	Name: paw_proj_i_prj_atom
+!       Name: paw_proj_i_prj_atom
 !
-!	Purpose: returns the dcpl_mb ma index of
+!       Purpose: returns the dcpl_mb ma index of
 !                the paw projectors.
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
       integer function paw_proj_i_prj_atom(ia)
       implicit none
@@ -224,12 +224,12 @@ c      end do
 
 !**************************************************
 !
-!	Name: paw_proj_nbasis
+!       Name: paw_proj_nbasis
 !
-!	Purpose: returns the number of the paw projectors
+!       Purpose: returns the number of the paw projectors
 !                for this kind of atom.
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
       integer function paw_proj_nbasis(ia)
       implicit none
@@ -245,12 +245,12 @@ c      end do
 
 !**************************************************
 !
-!	Name: paw_proj_total_nbasis
+!       Name: paw_proj_total_nbasis
 !
-!	Purpose: returns the number of the paw projectors
+!       Purpose: returns the number of the paw projectors
 !                for this kind of atom.
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
 c      integer function paw_proj_total_nbasis()
 c      implicit none
@@ -268,13 +268,13 @@ c      end
 
 !**************************************************
 !
-!	Name: paw_proj_l
+!       Name: paw_proj_l
 !
-!	Purpose: returns the orbital quantum number
+!       Purpose: returns the orbital quantum number
 !                for the nth projector of the iath 
 !                kind of atom.
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
       integer function paw_proj_l(n,ia)
       implicit none
@@ -289,13 +289,13 @@ c      end
 
 !**************************************************
 !
-!	Name: paw_proj_m
+!       Name: paw_proj_m
 !
-!	Purpose: returns the magnetic quantum number
+!       Purpose: returns the magnetic quantum number
 !                for the nth projector of the iath 
 !                kind of atom.
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
       integer function paw_proj_m(n,ia)
       implicit none
@@ -313,11 +313,11 @@ c      end
 
 !**************************************************
 !
-!	Name: paw_proj_check_format
+!       Name: paw_proj_check_format
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
       subroutine paw_proj_check_format()
       implicit none
@@ -358,13 +358,13 @@ c      end
       end 
 
 !**************************************************
-!	Name: paw_proj_nbasis_read
+!       Name: paw_proj_nbasis_read
 !
-!	Purpose: returns the number of basis functions
+!       Purpose: returns the number of basis functions
 !                for each of the formatted projector 
 !                files.
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
       subroutine paw_proj_nbasis_read(nbasis)
       implicit none
@@ -389,13 +389,13 @@ c      end
 
 
 !**************************************************
-!	Name: paw_proj_paw_basis_tot_nbasis
+!       Name: paw_proj_paw_basis_tot_nbasis
 !
-!	Purpose: returns the number of basis functions
+!       Purpose: returns the number of basis functions
 !                for each of the formatted projector 
 !                files.
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
       integer function paw_proj_tot_nbasis()
       implicit none
@@ -428,12 +428,12 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
 
 !**************************************************
 !
-!	Name: paw_proj_format_ok
+!       Name: paw_proj_format_ok
 !
-!	Purpose: returns true if header of the formatted 
+!       Purpose: returns true if header of the formatted 
 !                projector file agrees with control.
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
       logical function paw_proj_format_ok(fname)
       implicit none
@@ -474,12 +474,12 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
 
 !**************************************************
 !
-!	Name: paw_proj_read
+!       Name: paw_proj_read
 !
-!	Purpose: read in the formatted 
+!       Purpose: read in the formatted 
 !                projector file.
 !
-!	Created:	8/06/2002
+!       Created:        8/06/2002
 !**************************************************
       subroutine paw_proj_read(ia,proj_l,proj_m,npack1,prj,npack0,vloc)
       implicit none
@@ -569,12 +569,12 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
 
 !**************************************************
 !
-!	Name: paw_proj_read_header
+!       Name: paw_proj_read_header
 !
-!	Purpose: read in the header of the formatted 
+!       Purpose: read in the header of the formatted 
 !                projector file.
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
       subroutine paw_proj_read_header(fname,ngrid,nbasis,unita)
       implicit none
@@ -621,12 +621,12 @@ c        !-- ion_natm(ia) is number of atoms of kind ia --
 
 !**************************************************
 !
-!	Name: paw_proj_formatter_auto
+!       Name: paw_proj_formatter_auto
 !
-!	Purpose: read in the header of the formatted 
+!       Purpose: read in the header of the formatted 
 !                projector file.
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
       subroutine paw_proj_formatter_auto(ia)
       implicit none
@@ -896,13 +896,13 @@ c      end do
 
 !**************************************************
 !
-!	Name: rayleigh_itol_scaling
+!       Name: rayleigh_itol_scaling
 !
-!	Purpose: This routine should be rewritten
+!       Purpose: This routine should be rewritten
 !                to improve performance.
 !  This routine scales Y <-- (-i)**l * Y
 !
-!	Created:	8/06/2002
+!       Created:        8/06/2002
 !**************************************************
       subroutine rayleigh_itol_scaling(l,nfft3d,Y)
       implicit none
@@ -940,11 +940,11 @@ c      end do
       end 
 !**************************************************
 !
-!	Name: paw_proj_end
+!       Name: paw_proj_end
 !
-!	Purpose: removes space used by the paw projectors
+!       Purpose: removes space used by the paw projectors
 !
-!	Created:	7/30/2002
+!       Created:        7/30/2002
 !**************************************************
       subroutine paw_proj_end()
       implicit none

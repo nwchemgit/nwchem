@@ -4,11 +4,11 @@ c
 
 !**************************************************
 !
-!	name:
+!       name:
 !
-!	purpose 
+!       purpose 
 !
-!	created:	7/9/2002
+!       created:        7/9/2002
 !**************************************************
       subroutine  init_paw_kin_matrix()
       implicit none
@@ -188,11 +188,11 @@ c     >                       log_amesh,ic)
 
 !**************************************************
 !
-!	Name:
+!       Name:
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_kin_matrix_i(it)
       implicit none

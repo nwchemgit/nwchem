@@ -3,11 +3,11 @@
 *
 !**************************************************
 !
-!	name:
+!       name:
 !
-!	purpose 
+!       purpose 
 !
-!	created:	7/9/2002
+!       created:        7/9/2002
 !**************************************************
       subroutine  init_paw_comp_charge_matrix()
       implicit none

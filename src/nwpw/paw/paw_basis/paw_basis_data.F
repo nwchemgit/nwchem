@@ -2,11 +2,11 @@
 
 !**************************************************
 !
-!	Name: alloc_paw_basis_data
+!       Name: alloc_paw_basis_data
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       SUBROUTINE  alloc_paw_basis_data(nt,nb,ng)
       implicit none
@@ -205,11 +205,11 @@ c     *** local variables ***
 
 !**************************************************
 !
-!	Name: paw_basis_tot_ntype
+!       Name: paw_basis_tot_ntype
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_tot_ntype()
       implicit none
@@ -222,11 +222,11 @@ c     *** local variables ***
 
 !**************************************************
 !
-!	Name: paw_basis_tot_nbasis
+!       Name: paw_basis_tot_nbasis
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_tot_nbasis()
       implicit none
@@ -239,11 +239,11 @@ c     *** local variables ***
 
 !**************************************************
 !
-!	Name: paw_basis_tot_ngrid
+!       Name: paw_basis_tot_ngrid
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_tot_ngrid()
       implicit none
@@ -256,11 +256,11 @@ c     *** local variables ***
  
 !**************************************************
 !
-!	Name: paw_basis_tot_ngridbasis
+!       Name: paw_basis_tot_ngridbasis
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_tot_ngridbasis()
       implicit none
@@ -273,11 +273,11 @@ c     *** local variables ***
  
 !**************************************************
 !
-!	Name: paw_basis_i_nbasis
+!       Name: paw_basis_i_nbasis
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_nbasis(it)
       implicit none
@@ -292,11 +292,11 @@ c     *** local variables ***
 
 !**************************************************
 !
-!	Name: paw_basis_i_nbasis
+!       Name: paw_basis_i_nbasis
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
         INTEGER FUNCTION  paw_basis_nbasis(it)
         implicit none
@@ -311,11 +311,11 @@ c     *** local variables ***
   
 !**************************************************
 !
-!	Name: paw_basis_i_ngrid
+!       Name: paw_basis_i_ngrid
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_ngrid(it)
       implicit none
@@ -329,11 +329,11 @@ c     *** local variables ***
  
 !**************************************************
 !
-!	Name: paw_basis_ngrid
+!       Name: paw_basis_ngrid
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       integer function paw_basis_ngrid(it)
       implicit none
@@ -348,11 +348,11 @@ c     *** local variables ***
  
 !**************************************************
 !
-!	Name:
+!       Name:
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_mult_l(it)
       implicit none
@@ -367,11 +367,11 @@ c     *** local variables ***
 
 !**************************************************
 !
-!	Name:
+!       Name:
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_mult_l(it)
       implicit none
@@ -387,11 +387,11 @@ c     *** local variables ***
 
 !**************************************************
 !
-!	Name: paw_basis_i_r1
+!       Name: paw_basis_i_r1
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_r1(it)
       implicit none
@@ -405,11 +405,11 @@ c     *** local variables ***
 
 !**************************************************
 !
-!	Name: paw_basis_i_rmax
+!       Name: paw_basis_i_rmax
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_rmax(it)
       implicit none
@@ -423,11 +423,11 @@ c     *** local variables ***
       END 
 !**************************************************
 !
-!	Name: paw_basis_i_cut
+!       Name: paw_basis_i_cut
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_cut(it)
       implicit none
@@ -443,11 +443,11 @@ c     *** local variables ***
 
 !**************************************************
 !
-!	Name: paw_basis_i_i_cut
+!       Name: paw_basis_i_i_cut
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_i_cut(it)
       implicit none
@@ -579,11 +579,11 @@ c     *** local variables ***
 
 !**************************************************
 !
-!	Name: paw_basis_i_sigma
+!       Name: paw_basis_i_sigma
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_sigma(it)
       implicit none
@@ -597,11 +597,11 @@ c     *** local variables ***
 
 !**************************************************
 !
-!	Name: paw_basis_log_amesh
+!       Name: paw_basis_log_amesh
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       double precision FUNCTION  paw_basis_log_amesh(it)
       implicit none
@@ -616,11 +616,11 @@ c     *** local variables ***
 
 !**************************************************
 !
-!	Name: paw_basis_i_log_amesh
+!       Name: paw_basis_i_log_amesh
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_log_amesh(it)
       implicit none
@@ -711,11 +711,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_ion_charge
+!       Name: paw_basis_i_ion_charge
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_ion_charge(it)
       implicit none
@@ -730,11 +730,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       
 !**************************************************
 !
-!	Name: paw_basis_ion_charge
+!       Name: paw_basis_ion_charge
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       DOUBLE PRECISION FUNCTION  paw_basis_ion_charge(it)
       implicit none
@@ -750,11 +750,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
       
 **************************************************
 !
-!	Name: paw_basis_sphere_radius
+!       Name: paw_basis_sphere_radius
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	8/06/2002
+!       Created:        8/06/2002
 !**************************************************
       real*8 function  paw_basis_sphere_radius(ia)
       implicit none
@@ -776,11 +776,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 **************************************************
 !
-!	Name: paw_basis_sigma
+!       Name: paw_basis_sigma
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	8/06/2002
+!       Created:        8/06/2002
 !**************************************************
       real*8 function  paw_basis_sigma(ia)
       implicit none
@@ -799,11 +799,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 **************************************************
 !
-!	Name: paw_tot_nlm_nbasis
+!       Name: paw_tot_nlm_nbasis
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	8/06/2002
+!       Created:        8/06/2002
 !**************************************************
       integer function  paw_tot_nlm_nbasis()
 
@@ -830,11 +830,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 **************************************************
 !
-!	Name: paw_nlm_nbasis
+!       Name: paw_nlm_nbasis
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	8/06/2002
+!       Created:        8/06/2002
 !**************************************************
       integer function  paw_nlm_nbasis(ia)
 
@@ -863,11 +863,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 **************************************************
 !
-!	Name: paw_basis_n
+!       Name: paw_basis_n
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	8/06/2002
+!       Created:        8/06/2002
 !**************************************************
       integer function  paw_basis_n(ii,ia)
       implicit none
@@ -886,11 +886,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
      
 **************************************************
 !
-!	Name: paw_basis_n_ps
+!       Name: paw_basis_n_ps
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	8/06/2002
+!       Created:        8/06/2002
 !**************************************************
       integer function  paw_basis_n_ps(ii,ia)
       implicit none
@@ -909,11 +909,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
      
 **************************************************
 !
-!	Name: paw_basis_orb_l
+!       Name: paw_basis_orb_l
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	8/06/2002
+!       Created:        8/06/2002
 !**************************************************
       integer function  paw_basis_orb_l(ii,ia)
       implicit none
@@ -933,11 +933,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
    
 **************************************************
 !
-!	Name: paw_basis_eig
+!       Name: paw_basis_eig
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	8/06/2002
+!       Created:        8/06/2002
 !**************************************************
       real*8 function  paw_basis_eig(ii,ia)
       implicit none
@@ -958,11 +958,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
  
 !**************************************************
 !
-!	Name: paw_basis_i_core_kin_energy
+!       Name: paw_basis_i_core_kin_energy
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_core_kin_energy(it)
       implicit none
@@ -977,11 +977,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_core_kin_energy
+!       Name: paw_basis_core_kin_energy
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       double precision  FUNCTION  paw_basis_core_kin_energy(it)
       implicit none
@@ -996,11 +996,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_pr_n
+!       Name: paw_basis_i_pr_n
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_pr_n(it)
       implicit none
@@ -1015,11 +1015,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_pr_n_ps
+!       Name: paw_basis_i_pr_n_ps
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/200
+!       Created:        7/9/200
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_pr_n_ps(it)
       implicit none
@@ -1034,11 +1034,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_orb_l
+!       Name: paw_basis_i_orb_l
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_orb_l(it)
       implicit none
@@ -1053,11 +1053,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_eig
+!       Name: paw_basis_i_eig
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_eig(it)
       implicit none
@@ -1072,11 +1072,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
   
 !**************************************************
 !
-!	Name: paw_basis_i_core_density
+!       Name: paw_basis_i_core_density
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_core_density(it)
       implicit none
@@ -1092,11 +1092,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_ps_core_density
+!       Name: paw_basis_i_ps_core_density
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_ps_core_density(it)
       implicit none
@@ -1155,11 +1155,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_v_ps
+!       Name: paw_basis_i_v_ps
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_v_ps(it)
       implicit none
@@ -1174,11 +1174,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_rgrid
+!       Name: paw_basis_i_rgrid
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_rgrid(it)
       implicit none
@@ -1193,11 +1193,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_phi_ae
+!       Name: paw_basis_i_phi_ae
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_phi_ae(it)
       implicit none
@@ -1213,11 +1213,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_phi_ps
+!       Name: paw_basis_i_phi_ps
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_phi_ps(it)
       implicit none
@@ -1233,11 +1233,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_phi_ae_prime
+!       Name: paw_basis_i_phi_ae_prime
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_phi_ae_prime(it)
       implicit none
@@ -1253,11 +1253,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_phi_ps_prime
+!       Name: paw_basis_i_phi_ps_prime
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_phi_ps_prime(it)
       implicit none
@@ -1273,11 +1273,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_prj_ps
+!       Name: paw_basis_i_prj_ps
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_prj_ps(it)
       implicit none
@@ -1292,11 +1292,11 @@ c      external paw_basis_i_log_amesh,paw_basis_i_ngrid
 
 !**************************************************
 !
-!	Name: paw_basis_i_prj_ps0
+!       Name: paw_basis_i_prj_ps0
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/9/2002
+!       Created:        7/9/2002
 !**************************************************
       INTEGER FUNCTION  paw_basis_i_prj_ps0(it)
       implicit none

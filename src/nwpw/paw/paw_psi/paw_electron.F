@@ -4,9 +4,9 @@
 
 
 *     ***********************************
-*     *					*
-*     *		paw_electron_init	*
-*     *					*
+*     *                                 *
+*     *         paw_electron_init       *
+*     *                                 *
 *     ***********************************
       subroutine paw_electron_init()
       implicit none
@@ -85,9 +85,9 @@
 
 
 *     ***********************************
-*     *					*
-*     *		paw_electron_finalize   *
-*     *					*
+*     *                                 *
+*     *         paw_electron_finalize   *
+*     *                                 *
 *     ***********************************
       subroutine paw_electron_finalize()
       implicit none
@@ -128,9 +128,9 @@
       end
 
 *     ***********************************
-*     *					*
-*     *		paw_electron_count		*
-*     *					*
+*     *                                 *
+*     *         paw_electron_count              *
+*     *                                 *
 *     ***********************************
       integer function paw_electron_count()
       implicit none
@@ -145,9 +145,9 @@
 
 
 *     ***********************************
-*     *					*
-*     *		paw_electron_run		*
-*     *					*
+*     *                                 *
+*     *         paw_electron_run                *
+*     *                                 *
 *     ***********************************
       subroutine paw_electron_run(psi_k,dn,dng)
       implicit none
@@ -192,9 +192,9 @@
       end
 
 *     ***********************************
-*     *					*
-*     *		paw_electron_run_orb	*
-*     *					*
+*     *                                 *
+*     *         paw_electron_run_orb    *
+*     *                                 *
 *     ***********************************
       subroutine paw_electron_run_orb(i,psi_k)
       implicit none
@@ -208,9 +208,9 @@ c      call paw_electron_gen_Hpsi_k_orb(i,psi_k)
       end
 
 *     ***********************************
-*     *					*
-*     *	    paw_electron_sd_update  	*
-*     *					*
+*     *                                 *
+*     *     paw_electron_sd_update      *
+*     *                                 *
 *     ***********************************
       subroutine paw_electron_sd_update(psi1,psi2,dte)
       implicit none
@@ -234,9 +234,9 @@ c      call paw_electron_gen_Hpsi_k_orb(i,psi_k)
 
  
 *     ***********************************
-*     *					*
-*     *		paw_electron_energy	*
-*     *					*
+*     *                                 *
+*     *         paw_electron_energy     *
+*     *                                 *
 *     ***********************************
       real*8 function paw_electron_energy(psi_k,dn,dng)
       implicit none
@@ -344,9 +344,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     ***********************************
-*     *					*
-*     *		paw_electron_eorbit	*
-*     *					*
+*     *                                 *
+*     *         paw_electron_eorbit     *
+*     *                                 *
 *     ***********************************
       real*8 function paw_electron_eorbit(psi_k)
       implicit none
@@ -389,9 +389,9 @@ c      write(*,*) "total_energy:",total_energy
  
 
 *     ***********************************
-*     *					*
-*     *	     paw_electron_ehartree	*
-*     *					*
+*     *                                 *
+*     *      paw_electron_ehartree      *
+*     *                                 *
 *     ***********************************
       real*8 function paw_electron_ehartree(dng)
       implicit none
@@ -452,9 +452,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     ***********************************
-*     *					*
-*     *		paw_electron_exc	*
-*     *					*
+*     *                                 *
+*     *         paw_electron_exc        *
+*     *                                 *
 *     ***********************************
       real*8 function paw_electron_exc(dn)
       implicit none
@@ -502,9 +502,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     ***********************************
-*     *					*
-*     *		paw_electron_pxc	*
-*     *					*
+*     *                                 *
+*     *         paw_electron_pxc        *
+*     *                                 *
 *     ***********************************
       real*8 function paw_electron_pxc(dn)
       implicit none
@@ -550,9 +550,9 @@ c      write(*,*) "total_energy:",total_energy
       end
 
 *     ***********************************
-*     *					*
-*     *		paw_electron_pxc_rho	*
-*     *					*
+*     *                                 *
+*     *         paw_electron_pxc_rho    *
+*     *                                 *
 *     ***********************************
       real*8 function paw_electron_pxc_rho(rho)
       implicit none
@@ -599,9 +599,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     ***********************************
-*     *					*
-*     *		paw_electron_get_Hpsi_k	*
-*     *					*
+*     *                                 *
+*     *         paw_electron_get_Hpsi_k *
+*     *                                 *
 *     ***********************************
       subroutine paw_electron_get_Hpsi_k(Hpsi_k_new)
       implicit none
@@ -620,9 +620,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     ***************************
-*     *				*
-*     *	   paw_electron_ispin	*
-*     *				*
+*     *                         *
+*     *    paw_electron_ispin   *
+*     *                         *
 *     ***************************
       integer function paw_electron_ispin()
       implicit none
@@ -635,9 +635,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     ***************************
-*     *				*
-*     *	     paw_electron_ne	*
-*     *				*
+*     *                         *
+*     *      paw_electron_ne    *
+*     *                         *
 *     ***************************
       integer function paw_electron_ne(ms)
       implicit none
@@ -651,9 +651,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     ***********************************
-*     *					*
-*     *	    paw_electron_get_Tgradient 	*
-*     *					*
+*     *                                 *
+*     *     paw_electron_get_Tgradient  *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_get_Tgradient(psi_k,hml,THpsi_k)
@@ -696,9 +696,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     ***********************************
-*     *					*
-*     *	    paw_electron_gen_Tangent 	*
-*     *					*
+*     *                                 *
+*     *     paw_electron_gen_Tangent    *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_gen_Tangent(psi_k,hml,THpsi_k)
@@ -731,9 +731,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     ***********************************
-*     *					*
-*     *	    paw_electron_get_Gradient 	*
-*     *					*
+*     *                                 *
+*     *     paw_electron_get_Gradient   *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_get_Gradient(THpsi_k)
@@ -752,9 +752,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     *******************************************
-*     *						*
-*     *	    paw_electron_get_gradient_orb 	*
-*     *						*
+*     *                                         *
+*     *     paw_electron_get_gradient_orb       *
+*     *                                         *
 *     *******************************************
 
       subroutine paw_electron_get_gradient_orb(i,Horb)
@@ -773,9 +773,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     *******************************************
-*     *						*
-*     *	    paw_electron_get_TMgradient 	*
-*     *						*
+*     *                                         *
+*     *     paw_electron_get_TMgradient         *
+*     *                                         *
 *     *******************************************
 
       subroutine paw_electron_get_TMgradient(psi_k,THpsi_k)
@@ -850,9 +850,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     ***********************************
-*     *					*
-*     *	    paw_electron_gen_hml 	*
-*     *					*
+*     *                                 *
+*     *     paw_electron_gen_hml        *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_gen_hml(psi_k,hml)
@@ -880,9 +880,9 @@ c      write(*,*) "total_energy:",total_energy
       end
 
 *     ***********************************
-*     *					*
-*     *	    paw_electron_gen_hml_S 	*
-*     *					*
+*     *                                 *
+*     *     paw_electron_gen_hml_S      *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_gen_hml_S(psi_k,hml)
@@ -913,9 +913,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     ***********************************
-*     *					*
-*     *     paw_electron_gen_hml_g	*
-*     *					*
+*     *                                 *
+*     *     paw_electron_gen_hml_g      *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_gen_hml_g(psi_k,hml)
@@ -950,9 +950,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     ***********************************
-*     *				        *
-*     *	    paw_electron_gen_hmlt     	*
-*     *				        *
+*     *                                 *
+*     *     paw_electron_gen_hmlt       *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_gen_hmlt(psi_k,hmlt)
@@ -990,9 +990,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 *     **********************************************
-*     *					           *
-*     *	    paw_electron_gen_psiTangenthml_S 	   *
-*     *					           *
+*     *                                            *
+*     *     paw_electron_gen_psiTangenthml_S       *
+*     *                                            *
 *     **********************************************
 
       subroutine paw_elecpsitang(psi_k,THpsi_k,hml)
@@ -1034,9 +1034,9 @@ c      write(*,*) "total_energy:",total_energy
 **************************************************************************
 
 *     *******************************************
-*     *						*
-*     *		paw_electron_gen_Hpsi_k		*
-*     *						*
+*     *                                         *
+*     *         paw_electron_gen_Hpsi_k         *
+*     *                                         *
 *     *******************************************
 
       subroutine paw_electron_gen_Hpsi_k(psi_k)
@@ -1081,9 +1081,9 @@ c      write(*,*) "total_energy:",total_energy
 
 
 c*     ***********************************
-c*     *					*
-c*     *     paw_electron_gen_Hpsi_k_orb	*
-c*     *					*
+c*     *                                        *
+c*     *     paw_electron_gen_Hpsi_k_orb        *
+c*     *                                        *
 c*     ***********************************
 c
 c      subroutine paw_electron_gen_Hpsi_k_orb(n,psi_k)
@@ -1129,9 +1129,9 @@ c      return
 c      end
 
 c*     ***********************************
-c*     *					*
+c*     *                                        *
 c*     *   paw_electron_get_gradient_virtual *
-c*     *					*
+c*     *                                        *
 c*     ***********************************
 c
 c      subroutine paw_electron_get_gradient_virtual(ms,orb,Horb)
@@ -1201,9 +1201,9 @@ c      end
 
 
 *     ***********************************
-*     *					*
-*     *	    paw_electron_gen_psi_r	*
-*     *					*
+*     *                                 *
+*     *     paw_electron_gen_psi_r      *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_gen_psi_r(psi_k)
@@ -1233,9 +1233,9 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
       end
 
 *     ***********************************
-*     *				        *
-*     *	    paw_electron_gen_psi_r_orb	*
-*     *				        *
+*     *                                 *
+*     *     paw_electron_gen_psi_r_orb  *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_gen_psi_r_orb(n,psi_k)
@@ -1263,9 +1263,9 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
 
 *     ***********************************
-*     *					*
-*     *	   paw_electron_gen_densities	*
-*     *					*
+*     *                                 *
+*     *    paw_electron_gen_densities   *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_gen_densities(psi_k,dn,dng)
@@ -1325,9 +1325,9 @@ c     call Grsm_gg_Copy(npack1,nemax,psi_k,dbl_mb(psi_r(1)))
 
 
 *     ***********************************
-*     *					*
-*     *	     paw_electron_gen_dng      	*
-*     *					*
+*     *                                 *
+*     *      paw_electron_gen_dng       *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_gen_dng(dn,dng)
@@ -1383,9 +1383,9 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)))
 
 
 *     ***********************************
-*     *			 		*
+*     *                                 *
 *     *        paw_electron_gen_vall    *
-*     *					*
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_gen_vall()
@@ -1485,9 +1485,9 @@ c      end do
 
 
 *     ***********************************
-*     *			 		*
-*     *        paw_electron_get_vall	*
-*     *					*
+*     *                                 *
+*     *        paw_electron_get_vall    *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_get_vall(vall_out)
@@ -1503,9 +1503,9 @@ c      end do
 
 
 *     ***********************************
-*     *			 		*
-*     *        paw_electron_set_vall	*
-*     *					*
+*     *                                 *
+*     *        paw_electron_set_vall    *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_set_vall(vall_in)
@@ -1521,9 +1521,9 @@ c      end do
 
 
 *     *******************************************
-*     *				 		*
-*     *   paw_electron_gen_scf_potentials	*
-*     *						*
+*     *                                         *
+*     *   paw_electron_gen_scf_potentials       *
+*     *                                         *
 *     *******************************************
 
       subroutine paw_electron_gen_scf_potentials(dn,dng)
@@ -1682,9 +1682,9 @@ c      call paw_density_solve()
 
 
 *     ***********************************
-*     *			 		*
+*     *                                 *
 *     *   paw_electron_gen_vl_potential *
-*     *					*
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_gen_vl_potential()
@@ -1731,9 +1731,9 @@ c      call paw_density_solve()
 
 
 *     ***********************************
-*     *			 		*
-*     *   paw_electron_psi_vl_ave	*
-*     *					*
+*     *                                 *
+*     *   paw_electron_psi_vl_ave       *
+*     *                                 *
 *     ***********************************
 
       real*8 function paw_electron_psi_vl_ave(psi1,dn)
@@ -1818,9 +1818,9 @@ c      call paw_density_solve()
       end
 
 *     ***********************************
-*     *			 		*
-*     *       paw_electron_force	*
-*     *					*
+*     *                                 *
+*     *       paw_electron_force        *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_electron_force(psi1,dng1,fion)

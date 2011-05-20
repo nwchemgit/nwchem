@@ -3,9 +3,9 @@
 *
 
 *     ***********************************
-*     *             			*
-*     *         psi_marat_write		*
-*     *             			*
+*     *                                 *
+*     *         psi_marat_write         *
+*     *                                 *
 *     ***********************************
 
       subroutine psi_marat_write(filename,ispin,ne,psi2)

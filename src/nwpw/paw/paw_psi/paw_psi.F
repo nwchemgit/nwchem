@@ -127,7 +127,7 @@ c         call Pack_c_SMul(1,w,psi(1,k),psi(1,k))
       real*8     dte
       real*8     lmbda(*)
       real*8     tmp(*)
-      integer	 ierr
+      integer    ierr
 
       integer MASTER
       parameter (MASTER=0)

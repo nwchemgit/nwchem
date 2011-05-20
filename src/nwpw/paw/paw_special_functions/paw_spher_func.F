@@ -52,11 +52,11 @@ c
 
 c!**************************************************
 c!
-c!	Name: spher_harmonics_generate
+c!      Name: spher_harmonics_generate
 c!
-c!	Purpose: 
+c!      Purpose: 
 c!
-c!	Created:	8/05/2002
+c!      Created:        8/05/2002
 c!**************************************************
       subroutine spher_harmonics_generate(l,m,nfft3d,
      >                                    Gx,Gy,Gz,
@@ -250,11 +250,11 @@ C      END
  
 cc!**************************************************
 cc!
-cc!	Name: legendre_lm
+cc!     Name: legendre_lm
 cc!
-cc!	Purpose: 
+cc!     Purpose: 
 cc!
-cc!	Created:	8/05/2002
+cc!     Created:        8/05/2002
 cc!**************************************************
 c    
 c      function legendre_lm1(l,m,x)
@@ -359,11 +359,11 @@ C      end
  
 !**************************************************
 !
-!	Name: find_Y_lm
+!       Name: find_Y_lm
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	8/05/2002
+!       Created:        8/05/2002
 !**************************************************
       double complex function find_Y_lm(l,m,cos_theta,phi)
       implicit none
@@ -443,11 +443,11 @@ c !*************************************************
 
 !**************************************************
 !
-!	Name: dtheta_lm
+!       Name: dtheta_lm
 !
-!	Purpose: 
+!       Purpose: 
 !
-!	Created:	8/05/2002
+!       Created:        8/05/2002
 !**************************************************
       double precision function dtheta_lm(l,m,cos_theta)
       implicit none

@@ -4,11 +4,11 @@
 
 !**************************************************
 !
-!	Name: init_paw_small_basis
+!       Name: init_paw_small_basis
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/11/2002
+!       Created:        7/11/2002
 !**************************************************
       subroutine init_paw_small_basis()
       implicit none

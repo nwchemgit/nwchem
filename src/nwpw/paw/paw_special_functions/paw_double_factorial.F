@@ -11,12 +11,12 @@ c
 
 !**************************************************
 !
-!	Name: paw_double_factorial
+!   Name: paw_double_factorial
 !
-!	Purpose: calculates double factorial n!!
+!   Purpose: calculates double factorial n!!
 !                for n from -1 to 16      
 !
-!	Created: Marat	8/05/2002
+!  Created: Marat 8/05/2002
 !**************************************************
       function paw_double_factorial(n)
       

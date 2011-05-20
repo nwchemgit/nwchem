@@ -3,9 +3,9 @@
 *
 
 *     ***********************************
-*     *             			*
-*     *         psi_energy_write	*
-*     *             			*
+*     *                                 *
+*     *         psi_energy_write        *
+*     *                                 *
 *     ***********************************
 
       subroutine paw_energy_output(un,nion,nel,E)

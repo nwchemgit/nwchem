@@ -4,11 +4,11 @@
 
 !**************************************************
 !
-!	Name: init_paw_basis
+!       Name: init_paw_basis
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/11/2002
+!       Created:        7/11/2002
 !**************************************************
       subroutine init_paw_basis()
       implicit none
@@ -177,11 +177,11 @@ c     >             paw_basis_npoints(it)
 
 !**************************************************
 !
-!	Name: read_paw_basis_dims
+!       Name: read_paw_basis_dims
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/11/2002
+!       Created:        7/11/2002
 !**************************************************
       subroutine read_paw_basis_dims(nb,ng,filename)
       implicit none
@@ -234,11 +234,11 @@ c     >             paw_basis_npoints(it)
 
 !**************************************************
 !
-!	Name: read_paw_basis
+!       Name: read_paw_basis
 !
-!	Purpose 
+!       Purpose 
 !
-!	Created:	7/11/2002
+!       Created:        7/11/2002
 !************************************************** 
       subroutine read_paw_basis(r1,
      >                          rmax,

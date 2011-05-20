@@ -4,11 +4,11 @@ c
 
 !**************************************************
 !
-!	name: init_paw_overlap_matrix
+!       name: init_paw_overlap_matrix
 !
-!	purpose 
+!       purpose 
 !
-!	created:	7/9/2002
+!       created:        7/9/2002
 !**************************************************
       subroutine  init_paw_overlap_matrix()
       implicit none
@@ -81,11 +81,11 @@ c
 
 !**************************************************
 !
-!	name: end_paw_overlap_matrix
+!       name: end_paw_overlap_matrix
 !
-!	purpose 
+!       purpose 
 !
-!	created:	2/10/2003
+!       created:        2/10/2003
 !**************************************************
       subroutine  end_paw_overlap_matrix()
       implicit none

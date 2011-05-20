@@ -4,11 +4,11 @@
 
 !**************************************************
 !
-!	name:
+!       name:
 !
-!	purpose 
+!       purpose 
 !
-!	created:	7/9/2002
+!       created:        7/9/2002
 !**************************************************
       subroutine  init_paw_core_matrix()
       implicit none
@@ -91,11 +91,11 @@
 
 !**************************************************
 !
-!	name:
+!       name:
 !
-!	purpose 
+!       purpose 
 !
-!	created:	7/9/2002
+!       created:        7/9/2002
 !**************************************************
       subroutine find_core_matrix( ic,
      >                        ngrid,

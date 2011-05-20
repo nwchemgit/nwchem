@@ -11,9 +11,9 @@
 ************************ KS orbital Part ************************
 
 *     ***********************************
-*     *				        *
-*     *	     paw_psi_KS_update	        *
-*     *				        *
+*     *                                 *
+*     *      paw_psi_KS_update          *
+*     *                                 *
 *     ***********************************
 
 *    This routine (approximately) diagonalizes the KS matrix.
@@ -83,9 +83,9 @@ c      write(*,*) "TIME ALL=",tim
 
 
 *     ***********************************
-*     *				        *
-*     *	     paw_psi_KS_update_orb	*
-*     *				        *
+*     *                                 *
+*     *      paw_psi_KS_update_orb      *
+*     *                                 *
 *     ***********************************
 
 *    This routine performs a KS update on orbital i
@@ -254,9 +254,9 @@ c     >           theta
 
 
 *     ***********************************
-*     *				        *
-*     *	     paw_psi_linesearch_update	*
-*     *				        *
+*     *                                 *
+*     *      paw_psi_linesearch_update  *
+*     *                                 *
 *     ***********************************
 
 *    This routine performs a linesearch on orbital i, in the direction t.  
@@ -370,9 +370,9 @@ c     write(*,*)
       end
 
 *     ***********************************
-*     *				        *
-*     *	  paw_psi_linesearch_update2	*
-*     *				        *
+*     *                                 *
+*     *   paw_psi_linesearch_update2    *
+*     *                                 *
 *     ***********************************
 
 *    This routine performs a linesearch on orbital i, in the direction t.  
@@ -482,9 +482,9 @@ c     >                  tau_t)
 
 
 *     ***************************
-*     *				*
-*     *	     paw_psi_set_orb	*
-*     *				*
+*     *                         *
+*     *      paw_psi_set_orb    *
+*     *                         *
 *     ***************************
 
 *    This routine copies an orbital, orb, into the ith psi of psi1.  
@@ -518,9 +518,9 @@ c     >                  tau_t)
 
 
 *     ***************************
-*     *				*
-*     *	     paw_psi_get_orb	*
-*     *				*
+*     *                         *
+*     *      paw_psi_get_orb    *
+*     *                         *
 *     ***************************
 
 *    This routine copies the ith psi of psi1 into an orbital, orb.  
@@ -554,9 +554,9 @@ c     >                  tau_t)
       end
 
 *     ***********************************
-*     *				        *
-*     *	     paw_psi_get_gradient_orb	*
-*     *				        *
+*     *                                 *
+*     *      paw_psi_get_gradient_orb   *
+*     *                                 *
 *     ***********************************
 
 *    This routine returns the Hpsi(i).  
@@ -588,9 +588,9 @@ c     >                  tau_t)
 
 
 *     *******************************************
-*     *				                *
-*     *	         paw_psi_project_out_orb           *
-*     *				                *
+*     *                                         *
+*     *          paw_psi_project_out_orb           *
+*     *                                         *
 *     *******************************************
 *
 *    This routine projects out non-orthogonal components of Horb.  
@@ -688,9 +688,9 @@ c     >                  tau_t)
 
 
 *     ***************************
-*     *				*
-*     *	   paw_psi_set_density	*
-*     *				*
+*     *                         *
+*     *    paw_psi_set_density  *
+*     *                         *
 *     ***************************
 
 *    This routine sets the densities and potentials in psi and electron.  
@@ -732,9 +732,9 @@ c     >                  tau_t)
 
 
 *     ***************************
-*     *				*
-*     *	   paw_psi_get_density	*
-*     *				*
+*     *                         *
+*     *    paw_psi_get_density  *
+*     *                         *
 *     ***************************
 
 *    This routine gets the densities in psi.  
@@ -766,9 +766,9 @@ c     >                  tau_t)
 
 
 *     **************************************
-*     *			   	           *
-*     *	  paw_psi_gen_density_potentials   *
-*     *				           *
+*     *                                    *
+*     *   paw_psi_gen_density_potentials   *
+*     *                                    *
 *     **************************************
 
 *    This routine sets the densities and potentials in psi and electron.  
@@ -809,9 +809,9 @@ c     >                  tau_t)
 ************************ Grasmman orbitals Part ************************
 
 *     ***************************
-*     *				*
-*     *		paw_psi_1to2	*
-*     *				*
+*     *                         *
+*     *         paw_psi_1to2    *
+*     *                         *
 *     ***************************
       subroutine paw_psi_1to2()
       implicit none
@@ -828,9 +828,9 @@ c     >                  tau_t)
 
 
 *     ***************************
-*     *				*
-*     *		paw_psi_2to1	*
-*     *				*
+*     *                         *
+*     *         paw_psi_2to1    *
+*     *                         *
 *     ***************************
       subroutine paw_psi_2to1()
       implicit none
@@ -849,9 +849,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***************************
-*     *				*
-*     *	    paw_psi_1get_psi	*
-*     *				*
+*     *                         *
+*     *     paw_psi_1get_psi    *
+*     *                         *
 *     ***************************
       subroutine paw_psi_1get_psi(rpsi)
       implicit none
@@ -869,9 +869,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***************************
-*     *				*
-*     *     paw_psi_2get_psi	*
-*     *				*
+*     *                         *
+*     *     paw_psi_2get_psi    *
+*     *                         *
 *     ***************************
       subroutine paw_psi_2get_psi(rpsi)
       implicit none
@@ -888,9 +888,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 *     ***************************
-*     *				*
-*     *		paw_psi_check	*
-*     *				*
+*     *                         *
+*     *         paw_psi_check   *
+*     *                         *
 *     ***************************
       subroutine paw_psi_check()
       implicit none
@@ -906,9 +906,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***************************
-*     *				*
-*     *		paw_rho_2to1	*
-*     *				*
+*     *                         *
+*     *         paw_rho_2to1    *
+*     *                         *
 *     ***************************
       subroutine paw_rho_2to1()
       implicit none
@@ -924,9 +924,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 *     ***************************
-*     *				*
-*     *		paw_rho_1to2	*
-*     *				*
+*     *                         *
+*     *         paw_rho_1to2    *
+*     *                         *
 *     ***************************
       subroutine paw_rho_1to2()
       implicit none
@@ -943,9 +943,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 *     ***************************
-*     *				*
-*     *		paw_dng_2to1	*
-*     *				*
+*     *                         *
+*     *         paw_dng_2to1    *
+*     *                         *
 *     ***************************
       subroutine paw_dng_2to1()
       implicit none
@@ -964,9 +964,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1toelectron		*
-*     *					*
+*     *                                 *
+*     *         paw_psi_1toelectron             *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_1toelectron()
       implicit none
@@ -983,9 +983,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1energy		*
-*     *					*
+*     *                                 *
+*     *         paw_psi_1energy         *
+*     *                                 *
 *     ***********************************
       real*8 function paw_psi_1energy()
       implicit none
@@ -1007,9 +1007,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 *     ***********************************
-*     *					*
-*     *	    paw_psi_1_noupdate_energy	*
-*     *					*
+*     *                                 *
+*     *     paw_psi_1_noupdate_energy   *
+*     *                                 *
 *     ***********************************
       real*8 function paw_psi_1_noupdate_energy()
       implicit none
@@ -1031,9 +1031,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_2energy		*
-*     *					*
+*     *                                 *
+*     *         paw_psi_2energy         *
+*     *                                 *
 *     ***********************************
       real*8 function paw_psi_2energy()
       implicit none
@@ -1059,9 +1059,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1eorbit		*
-*     *					*
+*     *                                 *
+*     *         paw_psi_1eorbit         *
+*     *                                 *
 *     ***********************************
       real*8 function paw_psi_1eorbit()
       implicit none
@@ -1080,9 +1080,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1ke 		*
-*     *					*
+*     *                                 *
+*     *         paw_psi_1ke             *
+*     *                                 *
 *     ***********************************
       real*8 function paw_psi_1ke()
       implicit none
@@ -1105,9 +1105,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1vl 		*
-*     *					*
+*     *                                 *
+*     *         paw_psi_1vl             *
+*     *                                 *
 *     ***********************************
       real*8 function paw_psi_1vl()
       implicit none
@@ -1131,9 +1131,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_rho_1exc		*
-*     *					*
+*     *                                 *
+*     *         paw_rho_1exc            *
+*     *                                 *
 *     ***********************************
       real*8 function paw_rho_1exc()
       implicit none
@@ -1151,9 +1151,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 *     ***********************************
-*     *					*
-*     *		paw_rho_1pxc		*
-*     *					*
+*     *                                 *
+*     *         paw_rho_1pxc            *
+*     *                                 *
 *     ***********************************
       real*8 function paw_rho_1pxc()
       implicit none
@@ -1171,9 +1171,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_dng_1ehartree           *
-*     *					*
+*     *                                 *
+*     *         paw_dng_1ehartree           *
+*     *                                 *
 *     ***********************************
       real*8 function paw_dng_1ehartree()
       implicit none
@@ -1192,9 +1192,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_2toelectron	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_2toelectron     *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_2toelectron()
       implicit none
@@ -1211,9 +1211,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *	    paw_psi_1check_Tangent      *
-*     *					*
+*     *                                 *
+*     *     paw_psi_1check_Tangent      *
+*     *                                 *
 *     ***********************************
 *
 *   This routine checks the accuracy of the tangent vector.
@@ -1343,9 +1343,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1get_Tgradient	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_1get_Tgradient  *
+*     *                                 *
 *     ***********************************
 
 *     THpsi = Hpsi - Y*Y^t*S*Hpsi ! used by Grassman minimizers
@@ -1519,9 +1519,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1get_Gradient	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_1get_Gradient   *
+*     *                                 *
 *     ***********************************
 
 *     THpsi = Hpsi ! used by Projected Grassman minimizers
@@ -1557,9 +1557,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1gen_Tangent	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_1gen_Tangent    *
+*     *                                 *
 *     ***********************************
 
 *     T = T - Y*Y^t*S*T ! used by Grassman minimizers
@@ -1601,9 +1601,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_2get_Tgradient	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_2get_Tgradient  *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_2get_Tgradient(option,THpsi,Eout)
       implicit none
@@ -1655,9 +1655,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_2get_Gradient	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_2get_Gradient   *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_2get_Gradient(option,THpsi,Eout)
       implicit none
@@ -1736,9 +1736,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1get_TSgradient	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_1get_TSgradient *
+*     *                                 *
 *     ***********************************
 
 *     THpsi = Hpsi - Y*Hpsi^t*Y ! used by Stiefel minimizers
@@ -1791,9 +1791,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_2get_TSgradient	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_2get_TSgradient *
+*     *                                 *
 *     ***********************************
 
 *     THpsi = Hpsi - Y*Hpsi^t*Y ! used by Stiefel minimizers
@@ -1848,9 +1848,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1get_TMgradient	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_1get_TMgradient *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_1get_TMgradient(THpsi,Eout)
       implicit none
@@ -1883,9 +1883,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_2get_TMgradient	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_2get_TMgradient *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_2get_TMgradient(option,THpsi,Eout)
       implicit none
@@ -1918,9 +1918,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 *     ***********************************
-*     *					*
-*     *	   paw_psi_1ke_Precondition	*
-*     *					*
+*     *                                 *
+*     *    paw_psi_1ke_Precondition     *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_1ke_Precondition(Hpsi)
       implicit none
@@ -1942,9 +1942,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *	    paw_psi_1geodesic_transport	*
-*     *					*
+*     *                                 *
+*     *     paw_psi_1geodesic_transport *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_1geodesic_transport(t,H0)
       implicit none
@@ -1962,9 +1962,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *	    paw_psi_1geodesic_Gtransport	*
-*     *					*
+*     *                                 *
+*     *     paw_psi_1geodesic_Gtransport        *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_1geodesic_Gtransport(t,G0)
       implicit none
@@ -1982,9 +1982,9 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***********************************
-*     *					*
-*     *     paw_psi_geodesic_energy 	*
-*     *					*
+*     *                                 *
+*     *     paw_psi_geodesic_energy     *
+*     *                                 *
 *     ***********************************
       real*8 function paw_psi_geodesic_energy(t)
       implicit none
@@ -2017,9 +2017,9 @@ c      write(*,*) "paw_psi_geodesic_energy:",t,e_new
       end
 
 *     ***********************************
-*     *					*
-*     *	   paw_psi_geodesic_denergy 	*
-*     *					*
+*     *                                 *
+*     *    paw_psi_geodesic_denergy     *
+*     *                                 *
 *     ***********************************
       real*8 function paw_psi_geodesic_denergy(t)
       implicit none
@@ -2042,9 +2042,9 @@ c      write(*,*) "paw_psi_geodesic_energy:",t,e_new
       end
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_geodesic_final 	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_geodesic_final  *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_geodesic_final(t)
       implicit none
@@ -2069,9 +2069,9 @@ c     real*8 sum1,sum2
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psito2_sd_update	*
-*     *					*
+*     *                                 *
+*     *         paw_psito2_sd_update    *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi1to2_sd_update(dte)
       implicit none
@@ -2096,7 +2096,7 @@ c     real*8 sum1,sum2
 *     **** do a steepest descent step ****
       call paw_electron_sd_update(dcpl_mb(psi1(1)),
      >                        dcpl_mb(psi2(1)),
-     >			      dte)
+     >                        dte)
 
 *     **** lagrange multiplier corrections ****
       nemax = ne(1)+ne(2)
@@ -2125,9 +2125,9 @@ c     real*8 sum1,sum2
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1force          *
-*     *					*
+*     *                                 *
+*     *         paw_psi_1force          *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_1force(fion)
       implicit none
@@ -2147,9 +2147,9 @@ c     real*8 sum1,sum2
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1Shml 	      	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_1Shml           *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_1Shml(S0,S0hml)
       implicit none
@@ -2181,9 +2181,9 @@ c     real*8 sum1,sum2
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1gen_hml      	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_1gen_hml        *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_1gen_hml()
       implicit none
@@ -2219,9 +2219,9 @@ c     real*8 sum1,sum2
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_2gen_hml      	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_2gen_hml        *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_2gen_hml()
       implicit none
@@ -2236,9 +2236,9 @@ c     real*8 sum1,sum2
       end
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_eigenvalue    	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_eigenvalue      *
+*     *                                 *
 *     ***********************************
       real*8  function paw_psi_eigenvalue(ms,i)
       implicit none
@@ -2276,9 +2276,9 @@ c     real*8 sum1,sum2
       end
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_hml	   	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_hml             *
+*     *                                 *
 *     ***********************************
       real*8  function paw_psi_hml(ms,i,j)
       implicit none
@@ -2297,9 +2297,9 @@ c     real*8 sum1,sum2
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_spin_density  	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_spin_density    *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_spin_density(en1,en2)
       implicit none
@@ -2356,9 +2356,9 @@ c     real*8 sum1,sum2
       end
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_spin2  	        *
-*     *					*
+*     *                                 *
+*     *         paw_psi_spin2           *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_spin2(Sab)
       implicit none
@@ -2377,9 +2377,9 @@ c     real*8 sum1,sum2
 
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_1rotate2       	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_1rotate2        *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_1rotate2()
       implicit none
@@ -2410,9 +2410,9 @@ c     real*8 sum1,sum2
       end
 
 *     ***********************************
-*     *					*
-*     *		paw_psi_2rotate1       	*
-*     *					*
+*     *                                 *
+*     *         paw_psi_2rotate1        *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_2rotate1()
       implicit none
@@ -2443,9 +2443,9 @@ c     real*8 sum1,sum2
 
 
 *     ***********************************
-*     *					*
-*     *	  paw_psi_diagonalize_hml	*
-*     *					*
+*     *                                 *
+*     *   paw_psi_diagonalize_hml       *
+*     *                                 *
 *     ***********************************
       subroutine paw_psi_diagonalize_hml()
       implicit none
@@ -2497,9 +2497,9 @@ c     real*8 sum1,sum2
       end
 
 *     *******************************************
-*     *						*
-*     *	  paw_psi_diagonalize_hml_assending     *
-*     *						*
+*     *                                         *
+*     *   paw_psi_diagonalize_hml_assending     *
+*     *                                         *
 *     *******************************************
       subroutine paw_psidiaghmlasse()
       implicit none
@@ -2551,9 +2551,9 @@ c     real*8 sum1,sum2
 
 
 *     ***************************
-*     *				*
-*     *		paw_psi_error	*
-*     *				*
+*     *                         *
+*     *         paw_psi_error   *
+*     *                         *
 *     ***************************
       real*8 function paw_psi_error()
       implicit none
@@ -2598,9 +2598,9 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
       end
 
 *     ***************************
-*     *				*
-*     *		paw_rho_error	*
-*     *				*
+*     *                         *
+*     *         paw_rho_error   *
+*     *                         *
 *     ***************************
       real*8 function paw_rho_error()
       implicit none
@@ -2655,9 +2655,9 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 
 *     ***************************
-*     *				*
-*     *		paw_rho_dipole	*
-*     *				*
+*     *                         *
+*     *         paw_rho_dipole  *
+*     *                         *
 *     ***************************
 *
 *     Uses - Calculate_dipole (pspw/lib/psi/dipole.f)
@@ -2675,9 +2675,9 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 
 *     ***************************
-*     *				*
-*     *		paw_psi_ispin	*
-*     *				*
+*     *                         *
+*     *         paw_psi_ispin   *
+*     *                         *
 *     ***************************
       integer function paw_psi_ispin()
       implicit none
@@ -2691,9 +2691,9 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 
 *     ***************************
-*     *				*
-*     *		paw_psi_ne		*
-*     *				*
+*     *                         *
+*     *         paw_psi_ne              *
+*     *                         *
 *     ***************************
       integer function paw_psi_ne(ms)
       implicit none
@@ -2709,9 +2709,9 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
 
 
 *     ***************************
-*     *				*
-*     *	   paw_psi_initialize 	*
-*     *				*
+*     *                         *
+*     *    paw_psi_initialize   *
+*     *                         *
 *     ***************************
 
       logical function paw_psi_initialize()
@@ -2881,9 +2881,9 @@ c     >                      dcpl_mb(psi2(1)))
       end
 
 *     ***************************
-*     *				*
-*     *	  paw_psi_tmp_write  	*
-*     *				*
+*     *                         *
+*     *   paw_psi_tmp_write     *
+*     *                         *
 *     ***************************
       subroutine paw_psi_tmp_write()
       implicit none
@@ -2902,9 +2902,9 @@ c     >                      dcpl_mb(psi2(1)))
 
 
 *     ***************************
-*     *				*
-*     *	   paw_psi_finalize	*
-*     *				*
+*     *                         *
+*     *    paw_psi_finalize     *
+*     *                         *
 *     ***************************
 
       logical function paw_psi_finalize(wpsi)
@@ -2959,9 +2959,9 @@ c      call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 *     ***************************
-*     *				*
-*     *    paw_epsi_initialize 	*
-*     *				*
+*     *                         *
+*     *    paw_epsi_initialize  *
+*     *                         *
 *     ***************************
 
       logical function paw_epsi_initialize()
@@ -3082,9 +3082,9 @@ c      call psi_history_write(ispin,ne,dcpl_mb(psi1(1)))
 
 
 *     ***************************
-*     *				*
-*     *	   paw_epsi_finalize	*
-*     *				*
+*     *                         *
+*     *    paw_epsi_finalize    *
+*     *                         *
 *     ***************************
 
       logical function paw_epsi_finalize(writepsi)

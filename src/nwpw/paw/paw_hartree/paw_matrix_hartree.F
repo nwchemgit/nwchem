@@ -131,11 +131,11 @@
 
 !**************************************************
 !
-!	name:
+!       name:
 !
-!	purpose 
+!       purpose 
 !
-!	created:	7/9/2002
+!       created:        7/9/2002
 !**************************************************
       subroutine  init_paw_hartree_matrix()
       implicit none

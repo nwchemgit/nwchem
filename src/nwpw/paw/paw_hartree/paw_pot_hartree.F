@@ -4,11 +4,11 @@ c
 
 !**************************************************
 !
-!	name:
+!       name:
 !
-!	purpose 
+!       purpose 
 !
-!	created:	7/9/2002
+!       created:        7/9/2002
 !**************************************************
       subroutine  init_paw_pot_hartree()
       implicit none
@@ -51,11 +51,11 @@ c     !*** calculate the size and indexing ***
 
 !**************************************************
 !
-!	name:
+!       name:
 !
-!	purpose 
+!       purpose 
 !
-!	created:	7/9/2002
+!       created:        7/9/2002
 !**************************************************
       subroutine  end_paw_pot_hartree()
       implicit none
@@ -78,11 +78,11 @@ c     !*** calculate the size and indexing ***
 
 !**************************************************
 !
-!	name:
+!       name:
 !
-!	purpose 
+!       purpose 
 !
-!	created:	7/9/2002
+!       created:        7/9/2002
 !************************************************
       subroutine paw_pot_hartree_solve()
       
