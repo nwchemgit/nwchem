@@ -2638,7 +2638,7 @@ c         call D3dB_cc_dot(1,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)),sum)
      >                         -dbl_mb(rho1(1)+k-1)) 
          dbl_mb(tmp1(1)+k-1) = dbl_mb(tmp1(1)+k-1) 
      >                      + (dbl_mb(rho2(1)+k-1+(ispin-1)*(2*nfft3d))
-     >                        -dbl_mb(rho1(1)+k-1+(ispin-1)*(2*nfft3d))) 
+     >                        -dbl_mb(rho1(1)+k-1+(ispin-1)*(2*nfft3d)))
       end do
       call D3dB_rr_dot(1,dbl_mb(tmp1(1)),dbl_mb(tmp1(1)),error)
       error = error*scale

@@ -344,11 +344,11 @@ c           !*** this loop is not computed when ispin=1 ***
            dcpl_mb(paw_force_wz_d(1)+ii) = wz_tmp*occup
 
            dcpl_mb(paw_force_wx(1)+ii) = dcpl_mb(paw_force_wx_u(1)+ii)
-     >                                 + dcpl_mb(paw_force_wx_d(1)+ii)    
+     >                                 + dcpl_mb(paw_force_wx_d(1)+ii)
            dcpl_mb(paw_force_wy(1)+ii) = dcpl_mb(paw_force_wy_u(1)+ii)
-     >                                 + dcpl_mb(paw_force_wy_d(1)+ii)    
+     >                                 + dcpl_mb(paw_force_wy_d(1)+ii)
            dcpl_mb(paw_force_wz(1)+ii) = dcpl_mb(paw_force_wz_u(1)+ii)
-     >                                 + dcpl_mb(paw_force_wz_d(1)+ii)    
+     >                                 + dcpl_mb(paw_force_wz_d(1)+ii)
            
         end if
         tcount=mod(tcount+1,np)

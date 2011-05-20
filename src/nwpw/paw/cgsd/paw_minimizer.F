@@ -600,37 +600,37 @@ c      call paw_density_end()
      >              'total','step'
          write(6,1808) '  FFTs                       : ', 
      >                 nwpw_timing(1),
-     >                 nwpw_timing(1)/dble(paw_electron_count())           
+     >                 nwpw_timing(1)/dble(paw_electron_count())
          write(6,1808) '  dot products               : ', 
      >                 nwpw_timing(2),
-     >                 nwpw_timing(2)/dble(paw_electron_count())           
+     >                 nwpw_timing(2)/dble(paw_electron_count())
          write(6,1808) '  geodesic                   : ', 
      >                 nwpw_timing(10),
-     >                 nwpw_timing(10)/dble(paw_electron_count())           
+     >                 nwpw_timing(10)/dble(paw_electron_count())
          write(6,1808) '  exchange correlation       : ', 
      >                 nwpw_timing(4),
-     >                 nwpw_timing(4)/dble(paw_electron_count())           
+     >                 nwpw_timing(4)/dble(paw_electron_count())
          write(6,1808) '  local pseudopotentials     : ', 
      >                 nwpw_timing(5),
-     >                 nwpw_timing(5)/dble(paw_electron_count())           
+     >                 nwpw_timing(5)/dble(paw_electron_count())
          write(6,1808) '  non-local pseudopotentials : ', 
      >                 nwpw_timing(6),
-     >                 nwpw_timing(6)/dble(paw_electron_count())           
+     >                 nwpw_timing(6)/dble(paw_electron_count())
          write(6,1808) '  hartree potentials         : ', 
      >                 nwpw_timing(7),
-     >                 nwpw_timing(7)/dble(paw_electron_count())           
+     >                 nwpw_timing(7)/dble(paw_electron_count())
          write(6,1808) '  structure factors          : ', 
      >                 nwpw_timing(8),
-     >                 nwpw_timing(8)/dble(paw_electron_count())           
+     >                 nwpw_timing(8)/dble(paw_electron_count())
          write(6,1808) '  masking and packing        : ',
      >                 nwpw_timing(9),
-     >                 nwpw_timing(9)/dble(paw_electron_count())           
+     >                 nwpw_timing(9)/dble(paw_electron_count())
          write(6,1808) '  atomic density generation  : ',
      >                 nwpw_timing(21),
-     >                 nwpw_timing(21)/dble(paw_electron_count())           
+     >                 nwpw_timing(21)/dble(paw_electron_count())
          write(6,1808) '  atomic xc matrix elements  : ',
      >                 nwpw_timing(22),
-     >                 nwpw_timing(22)/dble(paw_electron_count())           
+     >                 nwpw_timing(22)/dble(paw_electron_count())
          end if
          write(6,*)
          CALL nwpw_message(4)

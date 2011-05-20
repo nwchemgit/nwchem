@@ -40,8 +40,8 @@ c
       matr_size = 0
       do it=1,tot_ntype
         nbasis = paw_basis_nbasis(it)
-        int_mb(s_overlap_matrix(1) + it - 1) = nbasis**2                   
-        matr_size = matr_size + int_mb(s_overlap_matrix(1) + it - 1)                
+        int_mb(s_overlap_matrix(1) + it - 1) = nbasis**2
+        matr_size = matr_size + int_mb(s_overlap_matrix(1) + it - 1)
       
       end do
   

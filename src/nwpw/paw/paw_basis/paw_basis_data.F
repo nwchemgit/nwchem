@@ -48,7 +48,7 @@ c      ok = MA_set_auto_verify(.TRUE.)
       ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"log_amesh",log_amesh)
       ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"sigma",sigma)
       ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"ion_charge",ion_charge) 
-      ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"core_charge",core_charge) 
+      ok = ok .AND. my_alloc(MT_DBL,tot_ntype,"core_charge",core_charge)
       ok = ok .AND. 
      >     my_alloc(MT_DBL,tot_ntype,"core_kin_energy",core_kin_energy)
 

@@ -40,7 +40,8 @@ c#include "rtdb.fh"
       logical     control_print,control_psi_tmp
       character*4 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
-      integer     ion_nion,ion_katm,paw_psi_ne,paw_psi_ispin,control_rtdb
+      integer     ion_nion,ion_katm,paw_psi_ne,paw_psi_ispin
+      integer     control_rtdb
       real*8      control_tole,control_tolc
       real*8      ion_rion,paw_psi_eigenvalue,ion_amass
       external control_out_of_time
