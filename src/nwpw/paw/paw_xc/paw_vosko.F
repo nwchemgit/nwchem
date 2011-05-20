@@ -3,8 +3,7 @@
 *
 
       subroutine paw_vosko(n2ft3d,ng,ispin,dn,xce,xcp,x)
-      implicit double precision(a-h, o-z)
-      implicit integer (i-n)
+      implicit none
 
       integer n2ft3d
       integer ng
@@ -14,11 +13,13 @@
       real*8 xcp(n2ft3d,2)
       real*8 x(n2ft3d)
 
+      double precision one3rd,one6th,dncut,for3rd
       parameter (one3rd=1.0d0/3.0d0,for3rd=4.0d0/3.0d0)
       parameter (one6th=1.0d0/6.0d0)
       parameter (dncut=1.0d-30)
 
 *---- parameters given by vosko et al -----------------*
+      double precision ap,x0p,bp,cp,af,x0f,bf,cf 
       parameter (ap = 3.109070d-02, af = 1.554530d-02)
       parameter (x0p=-1.049800d-01, x0f=-3.250000d-01)
       parameter (bp = 3.727440d+00, bf = 7.060420d+00)
@@ -26,6 +27,10 @@
 *------------------------------------------------------*
 
 *     constants calculated from vosko's parameters
+      double precision xp,qp,xx0p,cp1,cp2,cp3,cp4,cp5,cp6
+      double precision dp1,dp2,dp3,dp4,dp5,dp6,dp7,fc,crs
+      double precision xf,qf,xx0f,cf1,cf2,cf3,cf4,cf5,cf6
+      double precision df1,df2,df3,df4,df5,df6,df7,fd
       parameter (xp  = -4.581653d-01,  xf  = -5.772521d-01)
       parameter (qp  =  6.151991d+00,  qf  =  4.730927d+00)
       parameter (xx0p=  1.255491d+01,  xx0f=  1.586879d+01)
@@ -45,6 +50,9 @@
       parameter (fc  =  1.923661d+00,  fd  =  2.564881d+00)
       parameter (crs =  7.876233d-01)
 
+      double precision df,pi,rho,zdw,zup,f,xx
+
+      integer k
 
       pi=4.0d0*datan(1.0d0)
 
