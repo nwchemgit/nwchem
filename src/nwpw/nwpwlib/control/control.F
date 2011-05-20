@@ -4367,6 +4367,33 @@ c      end
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *    control_mreplicate_size      *
+*     *                                 *
+*     ***********************************
+      integer function control_mreplicate_size()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer value
+
+      value = 16
+      if (.not.rtdb_get(rtdb,'nwpw:mreplicate_size',mt_int,1,value))
+     >   value = 16
+
+      control_mreplicate_size = value
+      return
+      end
+
+
 *     ***********************************
 *     *                                 *
 *     *        control_bo_cpmd          *
