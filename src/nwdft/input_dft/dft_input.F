@@ -8,6 +8,7 @@ c
       implicit none
 c
 #include "errquit.fh"
+#include "global.fh"
 #include "rtdb.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
@@ -318,6 +319,23 @@ c
       endif
       if (.not.rtdb_put(rtdb, 'dft:smear_sigma',mt_dbl,1,smear_sigma))
      &   call errquit('dft_inp: rtdb_put failed', 2200, RTDB_ERR)
+c
+      if (.not. inp_a(test)) test = 'nofixsz'
+      if (inp_compare(.false.,test,'nofixsz')) then
+c       this is a valid subdirective
+      else if (inp_compare(.false.,test,'fixsz')) then
+c       this is a valid subdirective
+      else
+c       this is an invalid subdirective
+        if (ga_nodeid().eq.0) then 
+          write(*,*)'dft_inp: smear: subdirective "',
+     &              test(1:inp_strlen(test)),'"'
+        endif
+        call errquit('dft_inp: smear: unknown subdirective',0,INPUT_ERR)
+      endif
+      status = inp_compare(.false.,test,'fixsz')
+      if (.not.rtdb_put(rtdb, 'dft:spinset', mt_log, 1, status))
+     &   call errquit('dft_inp: rtdb_put failed', 2201, RTDB_ERR)
       goto 10
 c
 c     fon
