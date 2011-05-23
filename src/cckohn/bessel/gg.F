@@ -12,12 +12,14 @@ c
       integer l
       common/spl/rd,r(nsmall),w(nsmall,0:lbig),cs(nsmall),rd26,l
       double precision klo,a,b
+      integer iklo
 c
       klo=(x-xstart)/rd
       klo=klo+1
-      a=(r(klo+1)-x)/rd
-      b=(x-r(klo))/rd
-      gg=a*w(klo,l)+b*w(klo+1,l)+(a*(a*a-1.)*cs(klo)+b*
-     1 (b*b-1.)*cs(klo+1))*rd26
+      iklo=klo
+      a=(r(iklo+1)-x)/rd
+      b=(x-r(iklo))/rd
+      gg=a*w(iklo,l)+b*w(iklo+1,l)+(a*(a*a-1)*cs(iklo)+b*
+     1 (b*b-1)*cs(iklo+1))*rd26
       return
       end
