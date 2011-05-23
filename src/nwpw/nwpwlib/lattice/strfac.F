@@ -3,9 +3,9 @@
 *
 
 *     ***********************************
-*     *					*
-*     *		strfac_init		*
-*     *					*
+*     *                                 *
+*     *         strfac_init             *
+*     *                                 *
 *     ***********************************
 
       subroutine strfac_init()
@@ -81,9 +81,9 @@ c    >              + i+1
 
 
 C     ***********************************
-C     *					*
-C     *		strfac_end 		*
-C     *					*
+C     *                                 *
+C     *         strfac_end              *
+C     *                                 *
 C     ***********************************
 
       subroutine strfac_end()
@@ -115,18 +115,18 @@ C     ***********************************
 
 
 C     ***********************************
-C     *					*
-C     *		PHAFAC			*
-C     *					*
+C     *                                 *
+C     *         PHAFAC                  *
+C     *                                 *
 C     ***********************************
 C
 C    This file Sets up the phaze factors, that are used
 C for creating structure factors.
 C
-C	Entry - 
-C	Exit -
+C       Entry - 
+C       Exit -
 C
-C  	Uses - ion data structure
+C       Uses - ion data structure
 C
       subroutine phafac()
       implicit none
@@ -238,9 +238,9 @@ C .. End PhaFac ....
 
 
 C     ***********************************
-C     *					*
-C     *		phafac2			*
-C     *					*
+C     *                                 *
+C     *         phafac2                 *
+C     *                                 *
 C     ***********************************
       subroutine phafac2()
       implicit none
@@ -323,24 +323,24 @@ c      !***DEBUG ***
       end
 
 C     ***********************************
-C     *					*
-C     *		phafac_rion			*
-C     *					*
+C     *                                 *
+C     *         phafac_rion                     *
+C     *                                 *
 C     ***********************************
 C
 C    This file Sets up the phaze factors, that are used
 C for creating structure factors.
 C
-C	Entry - 
-C	Exit -
+C       Entry - 
+C       Exit -
 C
-C  	Uses - ion data structure
+C       Uses - ion data structure
 C
       subroutine phafac_rion(ion_rion)
       implicit none
       real*8 ion_rion(3,*)
 
-#include	"mafdecls.fh"
+#include        "mafdecls.fh"
 #include "strfac_common.fh"
 
 *     *** local variables
@@ -433,16 +433,16 @@ C .. End PhaFac_rion ....
 
 
 C      **********************************
-C      *				*
-C      *	STRFAC 			*
-C      *				*
+C      *                                *
+C      *        STRFAC                  *
+C      *                                *
 C      **********************************
 C
-C 	This routine returns the structure factor, EXI, for
+C       This routine returns the structure factor, EXI, for
 C  a specified ion I.
 C
-C	Entry - II: the Ion index 
-C	Exit  - EXI: the structure factor
+C       Entry - II: the Ion index 
+C       Exit  - EXI: the structure factor
 C
 C
       subroutine strfac(II,exi)
@@ -496,17 +496,17 @@ c    >                + i+1
 
 
 C      **********************************
-C      *				*
-C      *	  strfac_pack 		*
-C      *				*
+C      *                                *
+C      *          strfac_pack           *
+C      *                                *
 C      **********************************
 C
-C 	This routine returns the structure factor, EXI, for
+C       This routine returns the structure factor, EXI, for
 C  a specified ion I.
 C
-C	Entry - nb:
+C       Entry - nb:
 c               II: the Ion index 
-C	Exit  - EXI: the structure factor
+C       Exit  - EXI: the structure factor
 C
 C
       subroutine strfac_pack(nb,II,exi)
@@ -573,9 +573,9 @@ C ... End STRFAC ....
 
 
 *     ***********************************
-*     *					*
-*     *		qstrfac_init		*
-*     *					*
+*     *                                 *
+*     *         qstrfac_init            *
+*     *                                 *
 *     ***********************************
 
       subroutine qstrfac_init(nion)
@@ -609,9 +609,9 @@ C ... End STRFAC ....
 
 
 C     ***********************************
-C     *					*
-C     *		qstrfac_end 		*
-C     *					*
+C     *                                 *
+C     *         qstrfac_end             *
+C     *                                 *
 C     ***********************************
 
       subroutine qstrfac_end()
@@ -634,24 +634,24 @@ C     ***********************************
 
 
 C     ***********************************
-C     *					*
-C     *		qphafac_rion			*
-C     *					*
+C     *                                 *
+C     *         qphafac_rion                    *
+C     *                                 *
 C     ***********************************
 C
 C    This file Sets up the phaze factors, that are used
 C for creating structure factors.
 C
-C	Entry - 
-C	Exit -
+C       Entry - 
+C       Exit -
 C
-C  	Uses - ion data structure
+C       Uses - ion data structure
 C
       subroutine qphafac_rion(ion_rion)
       implicit none
       real*8 ion_rion(3,*)
 
-#include	"mafdecls.fh"
+#include        "mafdecls.fh"
 #include "strfac_common.fh"
 
 *     *** local variables
@@ -732,16 +732,16 @@ C .. End PhaFac_rion ....
 
 
 C      **********************************
-C      *				*
-C      *	qstrfac			*
-C      *				*
+C      *                                *
+C      *        qstrfac                 *
+C      *                                *
 C      **********************************
 C
-C 	This routine returns the structure factor, EXI, for
+C       This routine returns the structure factor, EXI, for
 C  a specified ion I.
 C
-C	Entry - II: the Ion index 
-C	Exit  - EXI: the structure factor
+C       Entry - II: the Ion index 
+C       Exit  - EXI: the structure factor
 C
 C
       subroutine qstrfac(II,exi)
@@ -790,17 +790,17 @@ C
 
 
 C      **********************************
-C      *				*
-C      *	  qstrfac_pack 		*
-C      *				*
+C      *                                *
+C      *          qstrfac_pack          *
+C      *                                *
 C      **********************************
 C
-C 	This routine returns the structure factor, EXI, for
+C       This routine returns the structure factor, EXI, for
 C  a specified ion I.
 C
-C	Entry - nb:
+C       Entry - nb:
 c               II: the Ion index 
-C	Exit  - EXI: the structure factor
+C       Exit  - EXI: the structure factor
 C
 C
       subroutine qstrfac_pack(nb,II,exi)
