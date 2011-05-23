@@ -4835,6 +4835,7 @@ c  set nwpw:fractional_smeartype 1 #0-none, 1-Fermi-Dirac, 2-Gaussian, 3-Hermite
       scale = lattice_omega()/dble(nx*ny*nz)
 
 *     **** check total number of electrons ****
+      en(2) = 0.0d0
       do ms =1,ispin
          call D3dB_r_dsum(1,dbl_mb(rho1(1)+(ms-1)*n2ft3d),sumall)
          en(ms) = sumall*scale

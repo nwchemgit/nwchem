@@ -407,6 +407,7 @@ c      if (filter) write(*,*) "- filtering pseudopotential -"
       end if
 
 
+      value = .true.
       value = value.and.MA_free_heap(G_hndl)
       value = value.and.MA_free_heap(vnl(2))
       value = value.and.MA_free_heap(vl(2))

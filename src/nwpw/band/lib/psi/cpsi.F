@@ -2731,6 +2731,7 @@ c    ** external **
       external cpsi_data_get_ptr
       real*8   w
 
+      value =.true.
 
 *     ***** get ispin, and ne, and nfft3d ****
       call psi_get_ne_excited(ispin0,ne_excited)
