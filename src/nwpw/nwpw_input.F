@@ -446,8 +446,7 @@ c
      >          'nwpw_input: failed to read output_wavefunction', 0,
      &       INPUT_ERR)
       ind = index(output_wavefunction_filename,' ') - 1
-      value = value.and.
-     >        rtdb_cput(rtdb,'cgsd:output_wavefunction_filename',
+      value = rtdb_cput(rtdb,'cgsd:output_wavefunction_filename',
      >                    1,output_wavefunction_filename(1:ind))
      >   .and.rtdb_cput(rtdb,'band:output_wavefunction_filename',
      >                    1,output_wavefunction_filename(1:ind))
