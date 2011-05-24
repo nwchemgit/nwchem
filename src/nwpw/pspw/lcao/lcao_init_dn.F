@@ -64,8 +64,9 @@
 
 *     **** randomize dn(*,2) if ispin=2 and ne(1)==ne(2) ****
       if ((ispin.eq.2).and.(ne(1).eq.ne(2))) then
+           scal = util_random(9)
            do k=1,n2ft3d
-              scal = (0.5d0-util_random(9))/dsqrt(dble(n2ft3d))
+              scal = (0.5d0-util_random(0))/dsqrt(dble(n2ft3d))
               dn(i,2) = dn(i,2) + scal
            end do
       end if
