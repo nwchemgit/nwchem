@@ -2,7 +2,9 @@
  $Id$
 \*-----------------------------------------------------*/
 #include <stdlib.h>
-void linux_sran_(int *input_seed)
+#include "typesf2c.h"
+
+void linux_sran_(Integer* input_seed)
 {
   unsigned int seed;
 
