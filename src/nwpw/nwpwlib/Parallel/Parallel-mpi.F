@@ -967,6 +967,7 @@ c      call MPI_WAITALL(nreq,req,MPI_STATUSES_IGNORE,mpierr)
 
       getcomm = icc
       return
+      end
 #endif
 
 *     ***********************************
