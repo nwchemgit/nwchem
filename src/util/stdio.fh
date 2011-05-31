@@ -16,6 +16,10 @@ C
 C     This way we do not have to worry about the initialization/termination
 C
 #ifdef USE_SUBGROUPS
+c     moving luout out of parameter list. 
+c     It MUST BE assigned prior to execution.
+c     Potentially 
+c     per group basis at will
       Common /StdIO_Units/  LuOut
       Parameter (LuIn = 5, LuErr = 0)
 #else
