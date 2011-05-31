@@ -71,6 +71,7 @@ c
 c
       character*255 buffer,buffer1
 
+#ifdef USE_SUBGROUPS      
       call smd_rtdb_get_log("smd:groupio",1,ogroupio,result)
       if(.not.result) return
       if(.not.ogroupio) return
@@ -86,6 +87,7 @@ c
       luout = fn
       open(unit=luout,status="unknown",form="formatted",file=buffer1)
 
+#endif
       return
       end
       subroutine smd_group_set_io_custom(im,stub)
@@ -108,6 +110,7 @@ c
       character*10 fs
       logical ogroupio,result
 
+#ifdef USE_SUBGROUPS      
       call smd_rtdb_get_log("smd:groupio",1,ogroupio,result)
       if(.not.result) return
       if(.not.ogroupio) return
@@ -133,6 +136,8 @@ c      end if
      >       form="formatted",file=buffer1)
       write(luout,*) "Calculation from group",smd_group_id
 
+
+#endif
       return
       end
 
