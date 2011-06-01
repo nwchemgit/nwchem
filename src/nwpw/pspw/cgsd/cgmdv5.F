@@ -60,7 +60,7 @@
 
 *     **** local variables ****
       logical verlet,mulliken,SA,calc_pressure,nose,bo_cpmd
-      logical oprint,lprint,hprint,qmmm,found,notfirststep
+      logical oprint,lprint,hprint,qmmm,found,notfirststep,found_bak
       real*8  gx,gy,gz,cx,cy,cz
       real*8  vgx,vgy,vgz,vcx,vcy,vcz,ekg,eki0,eki1,dt,fmass,dte
       real*8  sum,w,emotion_time_shift,wa,wr
@@ -73,7 +73,7 @@
       integer nbq,mapping1d,it_in,it_out
 
       character*50 filename
-      character*255 full_filename
+      character*255 full_filename,full_bak
 
 
 *     **** external functions ****
@@ -639,6 +639,22 @@ c         end if
      >                    full_filename)
       if (taskid.eq.MASTER) then
 
+*        **** check for backup file ****
+         call util_file_name_noprefix('EMOTION99-bak',.false.,
+     >                                .false.,
+     >                                full_bak)
+         inquire(file=full_bak,exist=found_bak)
+         if (found_bak) then
+            write(*,*)
+            write(*,*) "EMOTION99-bak exists:"
+            i=index(full_bak,' ')
+            k=index(full_filename,' ')
+            write(*,*) "   Copying ",full_bak(1:i),
+     >                 " to ",full_filename(1:k)
+            write(*,*)
+            call util_file_copy(full_bak,full_filename)
+         end if
+
          emotion_time_shift = 0.0d0
          icount_shift       = 0
          inquire(file=full_filename,exist=found)
@@ -729,6 +745,7 @@ c       **** inner loop ****
            EV = cgsd_energy(.false.)
            call cgsd_energy_gradient_md(dbl_mb(fion(1)))
 
+
            eki1 = ion_ke()
            if (nose) then
               ssr = Nose_ssr()
@@ -741,6 +758,7 @@ c       **** inner loop ****
         eki1 = ion_ke()
         E25 = E25 + EV
         E26 = E26 + EV*EV
+
 
         if (calc_pressure) then
            call psi_1pressure_stress(pressure,p1,p2,stress)
@@ -782,6 +800,7 @@ c       **** inner loop ****
            call util_flush(31)
         end if
 
+        call fei_output(EV,dbl_mb(fion(1)))
         call xyz_write()
         call MOTION_write(icount*it_in*dt)
 
@@ -813,8 +832,20 @@ c       **** inner loop ****
       call xyz_end()
       call MOTION_end()
       if (taskid.eq.MASTER) then
-        close(unit=31)
+         close(unit=31)
+         if (mulliken) close(unit=32)
+
+*        **** remove EMOTION backup file ***
+         call util_file_name_noprefix('EMOTION99-bak',.false.,
+     >                                .false.,
+     >                                full_bak)
+         call util_file_unlink(full_bak)
+
       end if
+
+*     *** close fei io ****
+      call fei_end()
+
 
 
 c*     ***** do a simple mc loop ***
