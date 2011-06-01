@@ -280,17 +280,20 @@ c
       end if  ! do_zora
 c
 c     == if frozen embedding ==
+c     == frozen density is restricted at the moment ==
       frozemb = .false.
       Efrozemb = 0.d0
       if (.not.rtdb_get(rtdb, 'dft:frozemb', mt_log, 1, frozemb))
      &    frozemb=.false.
-        if (frozemb) then
-          Efrozemb = ga_ddot(g_dens(1),g_frozemb(1))
-          call ga_dadd(1.d0,g_vxc(1),1.d0,g_frozemb(1),g_vxc(1))
-c          if (ipol.gt.1)
-c     &      call ga_dadd(1.d0,g_vxc(2),1.d0,g_frozemb(2),g_vxc(2))
-           Ecore = Ecore + Efrozemb   ! add in linearized frozen embedding energy to core
+      if (frozemb) then
+        Efrozemb = ga_ddot(g_dens(1),g_frozemb(1))
+        call ga_dadd(1.d0,g_vxc(1),1.d0,g_frozemb(1),g_vxc(1))
+        if (ipol.gt.1) then
+         call ga_dadd(1.d0,g_vxc(2),1.d0,g_frozemb(1),g_vxc(2))
+         Efrozemb = Efrozemb + ga_ddot(g_dens(2),g_frozemb(1))
         end if
+        Ecore = Ecore + Efrozemb   ! add in linearized frozen embedding energy to core
+      end if
 c
 c     == Add exact pot contributions ==
       if (exact_pot.eq.1) then
