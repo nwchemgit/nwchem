@@ -119,8 +119,8 @@
 
       p = util_random(5291999) !*** initialize the random sequence ****
 
-      call getfilling(ne(1),filling)
-      if (ispin.eq.2) call getfilling(ne(2),filling(1,1,2))
+      call getfilling(.true.,ne(1),filling)
+      if (ispin.eq.2) call getfilling(.true.,ne(2),filling(1,1,2))
 
 *     ***** constants *****
       nfft1=ngrid(1)

@@ -184,7 +184,7 @@ c
  700  if (.not. inp_i(nup))
      >     call errquit(
      >          'wvfnc_init_input: failed to read nup', 0, INPUT_ERR)
-      call getfilling(nup,up_filling)
+      call getfilling(.true.,nup,up_filling)
       goto 10
  
  
@@ -194,7 +194,7 @@ c
  800  if (.not. inp_i(ndown))
      >     call errquit(
      >          'wvfnc_init_input: failed to read ndown', 0, INPUT_ERR)
-      call getfilling(ndown,down_filling)
+      call getfilling(.true.,ndown,down_filling)
       goto 10
  
 c
@@ -204,7 +204,7 @@ c
      >     call errquit(
      >          'wvfnc_init_input: failed to read nup', 0, INPUT_ERR)
       nup=nup/2
-      call getfilling(nup,up_filling)
+      call getfilling(.true.,nup,up_filling)
       goto 10
 
 
