@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 95)
+      parameter (num_dirs = 96)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -109,6 +109,7 @@ c
      >            'band_structure',
      >            'metadynamics',
      >            'pspspin',
+     >            'Fei',
      >            'end'/
 
        double precision kb
@@ -163,7 +164,7 @@ c
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
-     >       6700,6800,
+     >       6700,6800,6900,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1314,6 +1315,26 @@ c
       end if
 
       goto 10
+c
+c Fei
+c
+ 6900 if (inp_a(input_wavefunction_filename)) then
+         ind = index(input_wavefunction_filename,' ') - 1
+         value = rtdb_cput(rtdb,'cpmd:fei_filename',
+     >                    1,input_wavefunction_filename(1:ind))
+     >      .and.rtdb_cput(rtdb,'nwpw:fei_filename',
+     >                    1,input_wavefunction_filename(1:ind))
+          if (.not.value)
+     >    call errquit('nwpw_input: writing ', 6900, RTDB_ERR)
+      end if
+      value = .true.
+      if (.not.rtdb_put(rtdb,'cpmd:fei',mt_log,1,value))
+     > call errquit('nwpw_input: writing fei ', 6900, RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'nwpw:fei',mt_log,1,value))
+     > call errquit('nwpw_input: writing fei ', 6900, RTDB_ERR)
+
+      goto 10
+
 
 
 ************************************************************************
