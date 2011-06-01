@@ -412,6 +412,8 @@ c
       status = rtdb_get(rtdb,'cosmo:lineq',mt_int,1,lineq) 
       nrad = 0
       if (.not. rtdb_get(rtdb,'cosmo:nrrad',mt_int,1,nrad)) nrad = 0
+      if (nrad.gt.nat) call 
+     &   errquit('cosmo_init:nr radii gt nr atoms?',911,MA_ERR)
       if (nrad.gt.0) then
          status=rtdb_get(rtdb,'cosmo:radius',mt_dbl,nrad,dbl_mb(k_rad))
       endif
