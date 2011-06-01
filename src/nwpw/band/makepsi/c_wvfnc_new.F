@@ -56,7 +56,7 @@
       NMAX = ne(1)+ne(2)
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
-        value = MA_push_get(mt_int,8*(NMAX+1),
+        value = MA_push_get(mt_int,18*(NMAX+1),
      >                    'filling',filling(2),filling(1))
         if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
@@ -136,8 +136,8 @@
  
 
       p = util_random(5291999) !*** initialize the random sequence ***
-      call getfilling(ne(1),filling)
-      if (ispin.eq.2) call getfilling(ne(2),filling(1,1,2))
+      call getfilling(.false.,ne(1),filling)
+      if (ispin.eq.2) call getfilling(.false.,ne(2),filling(1,1,2))
 
       neh = (ne(1)+mod(ne(1),2))/2
 
@@ -229,6 +229,8 @@
           end do
           zc = dcpl_mb(cfull_indx)
           dcpl_mb(cfull_indx) = dcmplx(dble(zc),0.0d0)
+          if (dble(zc).gt.1.0d0) 
+     >       dcpl_mb(cfull_indx) = dcmplx(1.0d0,0.0d0)
           p=gcdot(nfft1,nfft2,nfft3,
      >            dcpl_mb(cfull_indx),
      >            dcpl_mb(cfull_indx))
@@ -267,6 +269,8 @@ c           IF((ABS(filling(4,n,ms)).gt.1)) THEN
   125         continue
               zc = dcpl_mb(cfull_indx)
               dcpl_mb(cfull_indx) = dcmplx(dble(zc),0.0d0)
+              if (dble(zc).gt.1.0d0) 
+     >           dcpl_mb(cfull_indx) = dcmplx(1.0d0,0.0d0)
               p=gcdot(nfft1,nfft2,nfft3,
      >                 dcpl_mb(cfull_indx),
      >                 dcpl_mb(cfull_indx))
