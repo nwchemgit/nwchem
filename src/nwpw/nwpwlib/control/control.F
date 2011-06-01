@@ -932,6 +932,7 @@ c         return
 *     **** define unita_frozen ****
       if (.not.rtdb_get(rtdb,'nwpw:frozen_lattice',mt_log,1,frozen)) 
      >   frozen = .true.
+
       if (frozen) then
          if (.not.rtdb_get(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)) then
             call dcopy(9,unita,1,unita_frozen,1)
@@ -953,6 +954,8 @@ c         return
      >                 rtdb_put(rtdb,rtdb_unitaf,mt_dbl,9,unita_frozen)
             end if
          end if
+      else
+         call dcopy(9,unita,1,unita_frozen,1)
       end if
 
 
