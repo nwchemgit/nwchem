@@ -150,7 +150,7 @@ c
          call int_init_dso(max1e,mem1,ibas,nat)
       elseif (type.eq.10) then
          call int_init_pso(max1e,mem1,ibas,nat)
-      elseif (type.eq.11) then
+      elseif (type.eq.11.or.type.eq.12) then
          call int_init_1eelec(max1e,mem1,ibas,2,nat)
       elseif (type.eq.15) then
          call int_mem_1e(max1e, mem1)  

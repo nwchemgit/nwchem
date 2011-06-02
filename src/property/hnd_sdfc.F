@@ -328,10 +328,14 @@ c
       blo(2) = 1
       bhi(2) = nbf
       do i = 1, ipairs
-         alo(3) = unique(translate(i))
-         ahi(3) = unique(translate(i))
-         blo(3) = unique(translate(i+ipairs))
-         bhi(3) = unique(translate(i+ipairs))
+c        alo(3) = unique(translate(i))
+c        ahi(3) = unique(translate(i))
+c        blo(3) = unique(translate(i+ipairs))
+c        bhi(3) = unique(translate(i+ipairs))
+         alo(3) = translate(i)
+         ahi(3) = translate(i)
+         blo(3) = translate(i+ipairs)
+         bhi(3) = translate(i+ipairs)
          valuea=nga_ddot_patch(g_d1(1),'n',alo,ahi,g_fca,'n',blo,bhi)
          valueb=nga_ddot_patch(g_d1(2),'n',alo,ahi,g_fca,'n',blo,bhi)
 c              if (ga_nodeid().eq.0) 
@@ -376,8 +380,10 @@ c
 c     Calculate the tensor contributions to the SD-SD term
 c
       do ixy = 1, ipairs
-         i = unique(translate(ixy))
-         j = unique(translate(ixy+ipairs))
+c        i = unique(translate(ixy))
+c        j = unique(translate(ixy+ipairs))
+         i = translate(ixy)
+         j = translate(ixy+ipairs)
 c        RAW contributions for reference
 c        do ix = 1, 3
 c           do iy = 1, 3 
@@ -422,8 +428,10 @@ c     We have all the contributions for the first term in the matrices,
 c     hence lets do the ddots
 c
       do ixy = 1, ipairs
-         i = unique(translate(ixy))
-         j = unique(translate(ixy+ipairs))
+c        i = unique(translate(ixy))
+c        j = unique(translate(ixy+ipairs))
+         i = translate(ixy)
+         j = translate(ixy+ipairs)
          do ix = 1, 3
             do iy = 1, 3 
                alo(3) = i_pert + (i-1)*6 + ilist(ix,iy)
@@ -452,8 +460,10 @@ c
       call int_giao_1ega(basis,basis,g_fca,'fc',coords,
      &                   i_pert,oskel)
       do ixy = 1, ipairs
-         i = unique(translate(ixy))
-         j = unique(translate(ixy+ipairs))
+c        i = unique(translate(ixy))
+c        j = unique(translate(ixy+ipairs))
+         i = translate(ixy)
+         j = translate(ixy+ipairs)
          do ix = 1, 3
             do iy = 1, 3 
                valuea = 0.0d0

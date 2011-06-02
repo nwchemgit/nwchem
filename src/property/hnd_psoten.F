@@ -270,8 +270,10 @@ c
       blo(2) = 1
       bhi(2) = nbf
       do i = 1, ipairs
-         iat = unique(translate(i))
-         jat = unique(translate(i+ipairs))
+c        iat = unique(translate(i))
+c        jat = unique(translate(i+ipairs))
+         iat = translate(i)
+         jat = translate(i+ipairs)
          do ix = 1, 3
             alo(3) = (iat-1)*3+ix
             ahi(3) = (iat-1)*3+ix
