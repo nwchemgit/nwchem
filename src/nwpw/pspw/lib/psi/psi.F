@@ -6498,9 +6498,74 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccc
       implicit none
       integer rtdb
 
+#include "stdio.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "psi.fh"
+
+*     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical oprint,value
+      integer ms,a,b,r,s,n2ft3d,icount
+      real*8 ea,eb,er,es
+      real*8 e2,d2,tmp2
+      integer vpsi_r(2),v1h(2),v2h(2)
+
+*     **** allocate memory from heap ****
+      call D3dB_n2ft3d(1,n2ft3d)
+      value = MA_alloc_get(mt_dcpl,nfft3d,'v1h',v1h(2),v1h(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dcpl,nfft3d,'v2h',v2h(2),v2h(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,n2ft3d*(ne_excited(1)+ne_excited(2)),
+     >                     'vpsi_r',vpsi_r(2),vpsi_r(1))
+      if (.not. value)
+     >  call errquit('psi_MP2_energy: error allocating heap memory',0,
+     &       MA_ERR)
+
+
+      call Parallel_taskid(taskid)
+      oprint = (taskid.eq.MASTER)
+
+      icount = 0
+      do ms=1,ispin
+         do a=1,ne(ms)-1
+            ea = dbl_mb(eig(1)+a-1+(ms-1)*ne(1))
+            do r=1,ne_excited(ms)-1
+               er = dbl_mb(eig_excited(1)+r-1+(ms-1)*ne(1))
+
+               do b=a+1,ne(ms)
+                  eb = dbl_mb(eig(1)+b-1+(ms-1)*ne(1))
+                  do s=r+1,ne_excited(ms)
+                     es = dbl_mb(eig_excited(1)+s-1+(ms-1)*ne(1))
+                     d2 = ea+eb-er-es
+                     tmp2 = 1.0d0
+                     e2 = e2 + tmp2*tmp2/d2
+                     icount = icount + 1
+                  if (oprint) 
+     >            write(luout,*) "a,b,r,s, Esub=",a,b,r,s,(tmp2*tmp2/d2)
+                  end do
+               end do
+            end do
+         end do
+      end do
+      if (ispin.eq.1) e2=e2+e2
+
+*     **** deallocate memory from heap ****
+      value =     MA_free_heap(v1h(2))
+     >       .and.MA_free_heap(v2h(2))
+     >       .and.MA_free_heap(vpsi_r(2))
+      if (.not. value)
+     >  call errquit('psi_MP2_energy: error freeing heap memory',1,
+     &       MA_ERR)
+
+
+
+      if (oprint) then
+         write(luout,*) "EMP2 = ", e2, " icount=",icount
+      end if
 
       return
       end
