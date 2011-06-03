@@ -1601,7 +1601,7 @@ c
                do i = 1, 3
 c                  write(6,*) ' Zeroing constrained cartesian', 
 c     $                 iat, i, dv((iat-1)*3+i)
-                  dv((iat-1)*3+i) = 0.0
+                  g((iat-1)*3+i) = 0.0
                end do
             end if
          end do
@@ -1611,7 +1611,7 @@ c     Enforce symmetry on lattices - this is only done here just to make sure
 c     that the fixed angles have zero gradients, because otherwise the
 c     geometry optimization will never converge.
 c
-      if (ostress2) call sym_lattice_stress2(geom,dv(3*nat_real+1))
+      if (ostress2) call sym_lattice_stress2(geom,g(3*nat_real+1))
 c
 c     Get the Hessian and gradient with appropriate projectors
 c     applied following Peng, Ayala, Schlegel and Frisch so that
