@@ -1778,7 +1778,7 @@ c
 c     1.  Did we go uphill on the last step?
 c     2.  Is a component of the step large in the optimization space.
 c
-      dsmax = 0d0
+      dsmax = 0.0d0
       if(isystype.gt.0 .and. (.not. zcoord)) then ! Fractional coordinates
         if (.not. geom_lattice_get(geom, lattice))
      $     call errquit('driver: failed to get lattice',0,0)
@@ -3867,7 +3867,7 @@ c
                      lat = 2
                   endif
                   HSSQ((iat+nat_real-1)*3 + i, (jat+nat_real-1)*3+j) =
-     $                10.0 +
+     $                1.0 +
      $                (2*bulk/volume)*abs(amat(k,kat)*amat(l,lat)-
      $                                    amat(k,lat)*amat(l,kat))
 !  The next lines are correct if Energy is porportional to Volume
@@ -3907,7 +3907,7 @@ c
               ! to avoid terrible things with small values
               if (i.eq.j) then
                  HSSQ((nat_real)*3 + i, (nat_real)*3+j) =
-     $                  10 + 30*volume/abs(lattice(i,1)**2)
+     $                  1 + 0.1d0*volume/abs(lattice(i,1)**2)
               endif
             end do
            end do
