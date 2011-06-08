@@ -43,19 +43,20 @@ c
      +'M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. H
      +ammond,'/
       data chr03/
-     +'J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-
-     +D. Fan,'/
+     +'J. Autschbach, F. Aquino, P. Nichols, S. Hirata, M. T. Hackler, Y
+     +. Zhao,'/
       data chr04/
-     +'R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Niep
-     +locha,'/
+     +'P.-D. Fan, R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesema
+     +nn,'/
       data chr05/
-     +'V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. S
-     +wart,'/
+     +'J. Nieplocha, V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L
+     +. Jensen,'/
       data chr06/
-     +'Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. B
-     +rown,'/
+     +'M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Cr
+     +osby,'/
       data chr07/
-     +'G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,'/
+     +'E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao
+     +,'/
       data chr08/
      +'R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell
      +,'/
