@@ -109,7 +109,7 @@ C
 c
 c     Initialize local memory allocator & global array tools
 C
-      call ga_initialize()
+      call ga_initialize_ltd(ma_sizeof(mt_dbl,global,mt_byte))
       if ( ga_uses_ma() ) then
         if (.not.ma_init(mt_dbl, stack, heap+global))
      &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=T)',911,
@@ -118,7 +118,6 @@ C
         if (.not.ma_init(mt_dbl,stack,heap))
      &      call errquit('nwchem.F: ma_init failed (ga_uses_ma=F)',911,
      &      MA_ERR)
-        call ga_set_memory_limit(ma_sizeof(mt_dbl,global,mt_byte))
       endif
       call rtdb_init()
 c
