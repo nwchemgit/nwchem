@@ -4076,9 +4076,9 @@ C       an inverse Hessian update scheme, that might explain why this
 C       scaling is needed - the inverse of zero is not easy to calculate.
 C
       IF (isystype .ne. 0) then
-        xscale = 0.1d0
+        xscale = 0.8d0
       else
-        xscale = 0.5d0
+        xscale = 0.9d0
       endif
 !     Any periodic images to look for?
 !     We only go +/- one unit cell
