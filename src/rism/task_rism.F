@@ -845,6 +845,7 @@ c must be an integer power of 2 (this is not checked for!).
       endif
       return
       end subroutine
+#ifdef NO_LAPACK
 ccc lapack subroutines
 ccc
       subroutine dgesv( n, nrhs, a, lda, ipiv, b, ldb, info )
@@ -3844,3 +3845,4 @@ ccc
       end
 *
 ************************************************************************
+#endif 
