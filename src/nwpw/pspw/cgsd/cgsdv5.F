@@ -142,6 +142,10 @@
       real*8   control_fractional_kT,control_fractional_temperature
       external control_fractional_kT,control_fractional_temperature
 
+#ifdef USE_OPENMP
+      integer  omp_get_max_threads
+      external omp_get_max_threads
+#endif
 
 
       logical pspw_bqext
@@ -320,8 +324,11 @@ c     value = psi_initialize()
          else
            write(luout,1116)
          end if
-         write(luout,1115)
+#ifdef USE_OPENMP
+         write(luout,1119)  omp_get_max_threads()
+#endif
 
+         write(luout,1115)
          write(luout,1121) control_boundry(),control_version()
          if (psi_ispin().eq.1) write(luout,1130) "restricted"
          if (psi_ispin().eq.2) write(luout,1130) "unrestricted"
@@ -701,6 +708,7 @@ c      call frac_occ_end()
  1116 FORMAT( ' parallel mapping         : not balanced')
  1117 FORMAT( ' processor grid           :',I4,' x',I4)
  1118 FORMAT( ' parallel mapping         : 2d hcurve')
+ 1119 FORMAT( ' number of threads        :',I10)
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1122 FORMAT(5X,' qmmm simulation')
