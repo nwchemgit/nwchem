@@ -702,17 +702,29 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nz(nb)
       end do
 #else
+#ifdef FFTW3
       indx = 1
       do q=1,nq3(nb)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-#ifdef FFTW3
-         call dfftw_execute_dft(plans(17,nb),A(indx),A(indx))
-#else
-         call dcfftb(nz(nb),A(indx),dcpl_mb(tmpz(1,nb)))
-#endif
+            call dfftw_execute_dft(plans(17,nb),A(indx),A(indx))
          end if
          indx = indx + nz(nb)
       end do
+#else
+#ifdef USE_OPENMP
+      call D3dB_pfftbz_sub2(nq3(nb),nz(nb),
+     >                     log_mb(zero_row3(1,nbb)),
+     >                     dcpl_mb(tmpz(1,nb)),A)
+#else
+      indx = 1
+      do q=1,nq3(nb)
+         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+            call dcfftb(nz(nb),A(indx),dcpl_mb(tmpz(1,nb)))
+         end if
+         indx = indx + nz(nb)
+      end do
+#endif
+#endif
 #endif
 
       call D3dB_c_ptranspose_ijk(nbb,3,A,
@@ -732,17 +744,29 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + ny(nb)
       end do
 #else
+#ifdef FFTW3
       indx = 1
       do q=1,nq2(nb)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-#ifdef FFTW3
-         call dfftw_execute_dft(plans(18,nb),A(indx),A(indx))
-#else
-         call dcfftb(ny(nb),A(indx),dcpl_mb(tmpy(1,nb)))
-#endif
+            call dfftw_execute_dft(plans(18,nb),A(indx),A(indx))
          end if
          indx = indx + ny(nb)
       end do
+#else
+#ifdef USE_OPENMP
+      call D3dB_pfftby_sub2(nq2(nb),ny(nb),
+     >                     log_mb(zero_row2(1,nbb)),
+     >                     dcpl_mb(tmpy(1,nb)),A)
+#else
+      indx = 1
+      do q=1,nq2(nb)
+         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+            call dcfftb(ny(nb),A(indx),dcpl_mb(tmpy(1,nb)))
+         end if
+         indx = indx + ny(nb)
+      end do
+#endif
+#endif
 #endif
 
       call D3dB_c_ptranspose_ijk(nbb,4,A,
@@ -764,21 +788,23 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 #ifdef FFTW3
          call dfftw_execute_dft_c2r(plans(13,nb),A,A)
-
 #else
+#ifdef USE_OPENMP
+      call cshift1_fftb(nx(nb),nq1(nb),1,1,A)
+      call D3dB_pfftbx_sub(nq1(nb),nx(nb),nxh,dcpl_mb(tmpx(1,nb)),A)
+      call zeroend_fftb(nx(nb),nq1(nb),1,1,A)
+#else
+
       call cshift1_fftb(nx(nb),nq1(nb),1,1,A)
       indx = 1
       do q=1,nq1(nb)
-         !indx = 1 + (q-1)*(nx(nb)/2+1)
          call drfftb(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
          indx = indx + nxh
       end do
       call zeroend_fftb(nx(nb),nq1(nb),1,1,A)
 #endif
-
 #endif
-
-
+#endif
 
       end if
     
@@ -1031,9 +1057,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
 
-
-
-
       !*************************
       !**** hilbert mapping ****
       !*************************
@@ -1052,15 +1075,18 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
           call dfftw_execute_dft_r2c(plans(14,nb),A,A)
 
 #else
+#ifdef USE_OPENMP
+      call D3dB_pfftfx_sub(nq1(nb),nx(nb),nxh,dcpl_mb(tmpx(1,nb)),A)
+      call cshift_fftf(nx(1),nq1(1),1,1,A)
+#else
       indx = 1
       do q=1,nq1(nb)
-         !indx = 1 + (q-1)*(nx(nb)/2+1)
          call drfftf(nx(nb),A(indx),dcpl_mb(tmpx(1,nb)))
          indx = indx + nxh
       end do
       call cshift_fftf(nx(nb),nq1(nb),1,1,A)
 #endif
-
+#endif
 #endif
 
       call D3dB_c_ptranspose_ijk(nbb,1,A,
@@ -1080,19 +1106,29 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + ny(nb)
       end do
 #else
+#ifdef FFTW3
       indx = 1
       do q=1,nq2(nb)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-
-#ifdef FFTW3
-         call dfftw_execute_dft(plans(19,nb),A(indx),A(indx))
-#else
-         call dcfftf(ny(nb),A(indx),dcpl_mb(tmpy(1,nb)))
-#endif
-
+            call dfftw_execute_dft(plans(19,nb),A(indx),A(indx))
          end if
          indx = indx + ny(nb)
       end do
+#else
+#ifdef USE_OPENMP
+      call D3dB_pfftfy_sub2(nq2(nb),ny(nb),
+     >                     log_mb(zero_row2(1,nbb)),
+     >                     dcpl_mb(tmpy(1,nb)),A)
+#else
+      indx = 1
+      do q=1,nq2(nb)
+         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+            call dcfftf(ny(nb),A(indx),dcpl_mb(tmpy(1,nb)))
+         end if
+         indx = indx + ny(nb)
+      end do
+#endif
+#endif
 #endif
 
       call D3dB_c_ptranspose_ijk(nbb,2,A,
@@ -1112,28 +1148,37 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nz(nb)
       end do
 #else
+#ifdef FFTW3
       indx = 1
       do q=1,nq3(nb)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-
-#ifdef FFTW3
-         call dfftw_execute_dft(plans(20,nb),A(indx),A(indx))
+            call dfftw_execute_dft(plans(20,nb),A(indx),A(indx))
+         end if
+         indx = indx + nz(nb)
+      end do
 #else
-         call dcfftf(nz(nb),A(indx),dcpl_mb(tmpz(1,nb)))
-#endif
+#ifdef USE_OPENMP
+      call D3dB_pfftfz_sub2(nq3(nb),nz(nb),
+     >                     log_mb(zero_row3(1,nbb)),
+     >                     dcpl_mb(tmpz(1,nb)),A)
+#else
+      indx = 1
+      do q=1,nq3(nb)
+         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+            call dcfftf(nz(nb),A(indx),dcpl_mb(tmpz(1,nb)))
          end if
          indx = indx + nz(nb)
       end do
 #endif
+#endif
+#endif
 
       end if
-
 
 *     **** deallocate temporary space  ****
       value = MA_pop_stack(tmp3(2))
       value = MA_pop_stack(tmp2(2))
       !value = MA_pop_stack(tmp1(2))
-
       call nwpw_timing_end(1)
       return
       end
@@ -2253,10 +2298,6 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
 
 
-
-
-
-
 *     ***********************************
 *     *                                 *
 *     *         D3dB_pfftfx             *
@@ -2376,7 +2417,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       complex*16 A(*)
       integer i,indx
 
-!$omp parallel default(private) shared(n,nx,nxh,A) firstprivate(tmpx)
+!$omp parallel default(private) shared(A) firstprivate(n,nx,nxh,tmpx)
+!$omp& private(i)
 !$omp do
       do i=1,n
          indx = (i-1)*nxh+1
@@ -2384,14 +2426,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       end do
 !$omp end do
 !$omp end parallel 
-
       return
       end
-
-
-
-
-
 
 
 *     ***********************************
@@ -2558,7 +2594,7 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       indx = 1
       do q=1,nq2(1)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-         call dcfftf(ny(1),tmp1(indx),dcpl_mb(tmpy(1,1)))
+            call dcfftf(ny(1),tmp1(indx),dcpl_mb(tmpy(1,1)))
          end if
          indx = indx + ny(1)
       end do
@@ -2585,7 +2621,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8     tmpy(4*ny+15)
       complex*16 A(*)
       integer i,indx
-!$omp parallel default(private) shared(n,ny,row2,A) firstprivate(tmpy)
+!$omp parallel default(private) shared(A) firstprivate(n,ny,row2,tmpy)
+!$omp& private(i)
 !$omp do
       do i=1,n
          if (.not.row2(i)) then
@@ -2737,25 +2774,33 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nz(1)
       end do
 #else
+#ifdef FFTW3
       indx = 1
       do q=1,nq3(1)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-
-#ifdef FFTW3
-          call dfftw_execute_dft(plans(20,1),tmp2(indx),tmp2(indx))
+            call dfftw_execute_dft(plans(20,1),tmp2(indx),tmp2(indx))
+         end if
+         indx = indx + nz(1)
+      end do
 #else
-         call dcfftf(nz(1),tmp2(indx),dcpl_mb(tmpz(1,1)))
-#endif
-
+#ifdef USE_OPENMP
+      call D3dB_pfftfz_sub2(nq3(1),nz(1),
+     >                     log_mb(zero_row3(1,nbb)),
+     >                     dcpl_mb(tmpz(1,1)),tmp2)
+#else
+      indx = 1
+      do q=1,nq3(1)
+         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+            call dcfftf(nz(1),tmp2(indx),dcpl_mb(tmpz(1,1)))
          end if
          indx = indx + nz(1)
       end do
 #endif
+#endif
+#endif
       call nwpw_timing_end(31)
 
       end if
-
-
 
       call nwpw_timing_start(32)
       call Pack_c_pack_start(nbb,tmp2,tmp1,request,reqcnt,43)
@@ -2763,6 +2808,28 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       return
       end
+
+      subroutine  D3dB_pfftfz_sub2(n,nz,row3,tmpz,A)
+      implicit none
+      integer n,nz
+      logical    row3(n)
+      real*8     tmpz(4*nz+15)
+      complex*16 A(*)
+      integer i,indx
+!$omp parallel default(private) shared(A) firstprivate(n,nz,row3,tmpz)
+!$omp& private(i)
+!$omp do
+      do i=1,n
+         if (.not.row3(i)) then
+            indx = (i-1)*nz+1
+            call dcfftf(nz,A(indx),tmpz)
+         end if
+      end do
+!$omp end do
+!$omp end parallel
+      return
+      end
+
 
 
 
@@ -2980,18 +3047,29 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + nz(1)
       end do
 #else
+#ifdef FFTW3
       indx = 1
       do q=1,nq3(1)
          if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
-
-#ifdef FFTW3
-         call dfftw_execute_dft(plans(17,1),tmp1(indx),tmp1(indx))
-#else
-         call dcfftb(nz(1),tmp1(indx),dcpl_mb(tmpz(1,1)))
-#endif
+            call dfftw_execute_dft(plans(17,1),tmp1(indx),tmp1(indx))
          end if
          indx = indx + nz(1)
       end do
+#else
+#ifdef USE_OPENMP
+      call D3dB_pfftbz_sub2(nq3(1),nz(1),
+     >                     log_mb(zero_row3(1,nbb)),
+     >                     dcpl_mb(tmpz(1,1)),tmp1)
+#else
+      indx = 1
+      do q=1,nq3(1)
+         if (.not.log_mb(zero_row3(1,nbb)+q-1)) then
+            call dcfftb(nz(1),tmp1(indx),dcpl_mb(tmpz(1,1)))
+         end if
+         indx = indx + nz(1)
+      end do
+#endif
+#endif
 #endif
 
       call nwpw_timing_end(31)
@@ -3000,9 +3078,28 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
      >                                 request,reqcnt,45)
       call nwpw_timing_end(32)
 
-
       end if
-    
+      return
+      end
+
+      subroutine  D3dB_pfftbz_sub2(n,nz,row3,tmpz,A)
+      implicit none
+      integer n,nz
+      logical    row3(n)
+      real*8     tmpz(4*nz+15)
+      complex*16 A(*)
+      integer i,indx
+!$omp parallel default(private) shared(A) firstprivate(n,nz,row3,tmpz)
+!$omp& private(i)
+!$omp do
+      do i=1,n
+         if (.not.row3(i)) then
+            indx = (i-1)*nz+1
+            call dcfftb(nz,A(indx),tmpz)
+         end if
+      end do
+!$omp end do
+!$omp end parallel
       return
       end
 
@@ -3146,19 +3243,29 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
          indx = indx + ny(1)
       end do
 #else
+#ifdef FFTW3
       indx = 1
       do q=1,nq2(1)
          if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
-
-#ifdef FFTW3
-         call dfftw_execute_dft(plans(18,1),tmp2(indx),tmp2(indx))
-#else
-         call dcfftb(ny(1),tmp2(indx),dcpl_mb(tmpy(1,1)))
-#endif
-
+            call dfftw_execute_dft(plans(18,1),tmp2(indx),tmp2(indx))
          end if
          indx = indx + ny(1)
       end do
+#else
+#ifdef USE_OPENMP
+      call D3dB_pfftby_sub2(nq2(1),ny(1),
+     >                     log_mb(zero_row2(1,nbb)),
+     >                     dcpl_mb(tmpy(1,1)),tmp2)
+#else
+      indx = 1
+      do q=1,nq2(1)
+         if (.not.log_mb(zero_row2(1,nbb)+q-1)) then
+            call dcfftb(ny(1),tmp2(indx),dcpl_mb(tmpy(1,1)))
+         end if
+         indx = indx + ny(1)
+      end do
+#endif
+#endif
 #endif
 
       call nwpw_timing_end(31)
@@ -3172,6 +3279,28 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
 
       return
       end
+
+      subroutine  D3dB_pfftby_sub2(n,ny,row2,tmpy,A)
+      implicit none
+      integer n,ny
+      logical    row2(n)
+      real*8     tmpy(4*ny+15)
+      complex*16 A(*)
+      integer i,indx
+!$omp parallel default(private) shared(A) firstprivate(n,ny,row2,tmpy)
+!$omp& private(i)
+!$omp do
+      do i=1,n
+         if (.not.row2(i)) then
+            indx = (i-1)*ny+1
+            call dcfftb(ny,A(indx),tmpy)
+         end if
+      end do
+!$omp end do
+!$omp end parallel
+      return
+      end
+
 
 
 
@@ -3313,7 +3442,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       complex*16 A(*)
       integer i,indx
 
-!$omp parallel default(private) shared(n,nx,nxh,A) firstprivate(tmpx)
+!$omp parallel default(private) shared(A) firstprivate(n,nx,nxh,tmpx)
+!$omp& private(i)
 !$omp do
       do i=1,n
          indx = (i-1)*nxh+1
