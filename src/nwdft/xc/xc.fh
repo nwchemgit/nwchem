@@ -2,4 +2,4 @@ c
 c     Common for xc parameters 
 c
       integer numfunc
-      parameter(numfunc=47) 
+      parameter(numfunc=48) 
