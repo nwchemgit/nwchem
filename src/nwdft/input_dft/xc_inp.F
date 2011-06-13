@@ -91,7 +91,7 @@ c     xcamlsd   => 8520
 c     xwpbe     => 8530
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=100)
+      parameter (num_dirs=101)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -127,7 +127,7 @@ c
      &     'xm06-L','cm06-L','m06-hf','xm06-hf','cm06-hf','m06',
      &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x','xbnl07',
      &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
-     &     'xcamlsd','xwpbe','ssb-d','kt1','kt2'/
+     &     'xcamlsd','xwpbe','ssb-d','kt1','kt2','bhlyp'/
 c     becke97-d, ssb-d
       logical disp
 c
@@ -164,7 +164,8 @@ c
      &  5000,5100,5200,5300,5400,5500,5600,5700,5800,
      &  5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
      &  7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,
-     &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,1999) ind
+     &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
+     &  1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -232,6 +233,24 @@ c
         cfac(6) = 0.5d0
        lcfac(6) = .true.
       nlcfac(6) = .false.
+c
+      goto 10
+c     
+c     bhlyp; 0.5*Ex(HF)+0.5*Ex(LSDA)+0.5*Ex(B88(nl)+Ec(LYP(total)) 
+c             
+ 8531 xccomb(48) = .true.
+        xfac(1)  = 0.5d0
+       lxfac(1)  = .true.
+      nlxfac(1)  = .true.
+        xfac(2)  = 0.5d0
+       lxfac(2)  = .true.
+      nlxfac(2)  = .false.
+        xfac(3)  = 0.5d0
+       lxfac(3)  = .false.
+      nlxfac(3)  = .true.
+        cfac(2)  = 1.0d0
+       lcfac(2)  = .true.
+      nlcfac(2)  = .true.
 c
       goto 10
 c     
