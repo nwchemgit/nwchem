@@ -3530,12 +3530,23 @@ c      call Parallel2d_np_i(np)
 
 #include "D3dB.fh"
 
+#ifdef USE_OPENMP
+       integer i,n
+       n=n2ft3d_map(nb)
+!$omp parallel default(private) shared(A,B,C) firstprivate(n)
+!$omp& private(i)
+!$omp do
+      do i=1,n
+            C(i) = A(i) * B(i)
+      end do
+!$omp end do
+!$omp end parallel
+#else
       integer i
-
       do i=1,n2ft3d_map(nb)
             C(i) = A(i) * B(i)
-         end do
-
+      end do
+#endif
       return
       end
 
@@ -3700,11 +3711,24 @@ c      call Parallel2d_np_i(np)
 
 #include "D3dB.fh"
 
-      integer i
+#ifdef USE_OPENMP
+      integer i,n
+      n = n2ft3d_map(nb)
+!$omp parallel default(private) shared(A,B,C) firstprivate(n)
+!$omp& private(i)
+!$omp do
+      do i=1,n
+         C(i) = A(i) - B(i)
+      end do
+!$omp end do
+!$omp end parallel
 
+#else
+      integer i
       do i=1,n2ft3d_map(nb)
          C(i) = A(i) - B(i)
       end do
+#endif
 
       return
       end
@@ -3725,11 +3749,23 @@ c      call Parallel2d_np_i(np)
 
 #include "D3dB.fh"
 
+#ifdef USE_OPENMP
+      integer i,n
+      n = n2ft3d_map(nb)
+!$omp parallel default(private) shared(A,B) firstprivate(n)
+!$omp& private(i)
+!$omp do
+      do i=1,n
+         B(i) = B(i) - A(i)
+      end do
+!$omp end do
+!$omp end parallel
+#else
       integer i
-
       do i=1,n2ft3d_map(nb)
          B(i) = B(i) - A(i)
       end do
+#endif
 
       return
       end
@@ -4976,7 +5012,7 @@ c     integer i2_start(NFFT3+1)
       complex*16  a(*),b(*)
       integer i
 
-#ifdef USE_OPENMP
+#ifdef USE_OPENMP100
 !$omp parallel default(private) shared(a,b,index,n)
 !$omp do
 #ifndef CRAY
