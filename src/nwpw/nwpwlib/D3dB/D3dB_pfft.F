@@ -2414,17 +2414,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       implicit none
       integer n,nx,nxh
       real*8     tmpx(2*nx+15)
-      complex*16 A(*)
+      complex*16 A(nxh,n)
       integer i,indx
-
-!$omp parallel default(private) shared(A) firstprivate(n,nx,nxh,tmpx)
-!$omp& private(i)
-!$omp do
+!$omp parallel shared(A,tmpx) private(i)
+!$omp do schedule(dynamic,4)
       do i=1,n
-         indx = (i-1)*nxh+1
-         call drfftf(nx,A(indx),tmpx)
+         call drfftf(nx,A(1,i),tmpx)
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel 
       return
       end
@@ -2619,18 +2616,16 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer n,ny
       logical    row2(n)
       real*8     tmpy(4*ny+15)
-      complex*16 A(*)
-      integer i,indx
-!$omp parallel default(private) shared(A) firstprivate(n,ny,row2,tmpy)
-!$omp& private(i)
-!$omp do
+      complex*16 A(ny,n)
+      integer i
+!$omp parallel shared(A,tmpy,row2) private(i)
+!$omp do schedule(dynamic,4)
       do i=1,n
          if (.not.row2(i)) then
-            indx = (i-1)*ny+1
-            call dcfftf(ny,A(indx),tmpy)
+            call dcfftf(ny,A(1,i),tmpy)
          end if
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel 
       return
       end
@@ -2814,18 +2809,16 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer n,nz
       logical    row3(n)
       real*8     tmpz(4*nz+15)
-      complex*16 A(*)
-      integer i,indx
-!$omp parallel default(private) shared(A) firstprivate(n,nz,row3,tmpz)
-!$omp& private(i)
-!$omp do
+      complex*16 A(nz,n)
+      integer i
+!$omp parallel shared(A,row3,tmpz) private(i)
+!$omp do schedule(dynamic,4)
       do i=1,n
          if (.not.row3(i)) then
-            indx = (i-1)*nz+1
-            call dcfftf(nz,A(indx),tmpz)
+            call dcfftf(nz,A(1,i),tmpz)
          end if
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel
       return
       end
@@ -3087,18 +3080,16 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer n,nz
       logical    row3(n)
       real*8     tmpz(4*nz+15)
-      complex*16 A(*)
-      integer i,indx
-!$omp parallel default(private) shared(A) firstprivate(n,nz,row3,tmpz)
-!$omp& private(i)
-!$omp do
+      complex*16 A(nz,n)
+      integer i
+!$omp parallel shared(A,row3,tmpz) private(i)
+!$omp do schedule(dynamic,4)
       do i=1,n
          if (.not.row3(i)) then
-            indx = (i-1)*nz+1
-            call dcfftb(nz,A(indx),tmpz)
+            call dcfftb(nz,A(1,i),tmpz)
          end if
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel
       return
       end
@@ -3285,18 +3276,16 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer n,ny
       logical    row2(n)
       real*8     tmpy(4*ny+15)
-      complex*16 A(*)
-      integer i,indx
-!$omp parallel default(private) shared(A) firstprivate(n,ny,row2,tmpy)
-!$omp& private(i)
-!$omp do
+      complex*16 A(ny,n)
+      integer i
+!$omp parallel shared(A,tmpy,row2) private(i)
+!$omp do schedule(dynamic,4)
       do i=1,n
          if (.not.row2(i)) then
-            indx = (i-1)*ny+1
-            call dcfftb(ny,A(indx),tmpy)
+            call dcfftb(ny,A(1,i),tmpy)
          end if
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel
       return
       end
@@ -3439,17 +3428,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       implicit none
       integer n,nx,nxh
       real*8     tmpx(2*nx+15)
-      complex*16 A(*)
-      integer i,indx
-
-!$omp parallel default(private) shared(A) firstprivate(n,nx,nxh,tmpx)
-!$omp& private(i)
-!$omp do
+      complex*16 A(nxh,n)
+      integer i
+!$omp parallel shared(A,tmpx) private(i)
+!$omp do schedule(dynamic,4)
       do i=1,n
-         indx = (i-1)*nxh+1
-         call drfftb(nx,A(indx),tmpx)
+         call drfftb(nx,A(1,i),tmpx)
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel 
 
       return

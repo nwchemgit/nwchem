@@ -1616,17 +1616,14 @@ c      end do
       implicit none
       integer n,nx,nxh
       real*8     tmpx(2*nx+15)
-      complex*16 A(*)
-      integer i,indx
-
-!$omp parallel default(private) shared(A) firstprivate(n,nx,nxh,tmpx)
-!$omp& private(i)
-!$omp do
+      complex*16 A(nxh,n)
+      integer i
+!$omp parallel shared(A,tmpx) private(i)
+!$omp do schedule(dynamic,4)
       do i=1,n
-         indx = (i-1)*nxh+1
-         call drfftb(nx,A(indx),tmpx)
+         call drfftb(nx,A(1,i),tmpx)
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel
       return
       end
@@ -1635,16 +1632,14 @@ c      end do
       implicit none
       integer n,ny
       real*8     tmpy(4*ny+15)
-      complex*16 A(*)
-      integer i,indx
-!$omp parallel default(private) shared(A) firstprivate(n,ny,tmpy)
-!$omp& private(i)
-!$omp do
+      complex*16 A(ny,n)
+      integer i
+!$omp parallel shared(A,tmpy) private(i)
+!$omp do schedule(dynamic,4)
       do i=1,n
-         indx = (i-1)*ny+1
-         call dcfftb(ny,A(indx),tmpy)
+         call dcfftb(ny,A(1,i),tmpy)
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel
       return
       end
@@ -1653,16 +1648,14 @@ c      end do
       implicit none
       integer n,nz
       real*8     tmpz(4*nz+15)
-      complex*16 A(*)
-      integer i,indx
-!$omp parallel default(private) shared(A) firstprivate(n,nz,tmpz)
-!$omp& private(i)
-!$omp do
+      complex*16 A(nz,n)
+      integer i
+!$omp parallel shared(A,tmpz) private(i)
+!$omp do schedule(dynamic,4)
       do i=1,n
-         indx = (i-1)*nz+1
-         call dcfftb(nz,A(indx),tmpz)
+         call dcfftb(nz,A(1,i),tmpz)
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel
       return
       end
@@ -2264,17 +2257,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       implicit none
       integer n,nx,nxh
       real*8     tmpx(2*nx+15)
-      complex*16 A(*)
-      integer i,indx
-
-!$omp parallel default(private) shared(A) firstprivate(n,nx,nxh,tmpx)
-!$omp& private(i)
-!$omp do
+      complex*16 A(nxh,n)
+      integer i
+!$omp parallel shared(A,tmpx) private(i)
+!$omp do schedule(dynamic,4)
       do i=1,n
-         indx = (i-1)*nxh+1
-         call drfftf(nx,A(indx),tmpx)
+         call drfftf(nx,A(1,i),tmpx)
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel
       return
       end
@@ -2283,16 +2273,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       implicit none
       integer n,ny
       real*8     tmpy(4*ny+15)
-      complex*16 A(*)
+      complex*16 A(ny,n)
       integer i,indx
-!$omp parallel default(private) shared(A) firstprivate(n,ny,tmpy)
-!$omp& private(i)
-!$omp do
+!$omp parallel shared(A,tmpy) private(i)
+!$omp do schedule(dynamic,4)
       do i=1,n
-         indx = (i-1)*ny+1
-         call dcfftf(ny,A(indx),tmpy)
+         call dcfftf(ny,A(1,i),tmpy)
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel
       return
       end
@@ -2301,16 +2289,14 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       implicit none
       integer n,nz
       real*8     tmpz(4*nz+15)
-      complex*16 A(*)
-      integer i,indx
-!$omp parallel default(private) shared(A) firstprivate(n,nz,tmpz)
-!$omp& private(i)
-!$omp do
+      complex*16 A(nz,n)
+      integer i
+!$omp parallel shared(A,tmpz) private(i)
+!$omp do schedule(dynamic,4)
       do i=1,n
-         indx = (i-1)*nz+1
-         call dcfftf(nz,A(indx),tmpz)
+         call dcfftf(nz,A(1,i),tmpz)
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel
       return
       end
@@ -3523,26 +3509,24 @@ c      call Parallel2d_np_i(np)
 
       subroutine D3dB_rr_Mul(nb,A,B,C)     
       implicit none 
-      integer nb
-      real*8 A(*)
-      real*8 B(*)
-      real*8 C(*)
 
 #include "D3dB.fh"
 
+      integer nb
+      real*8 A(n2ft3d_map(nb))
+      real*8 B(n2ft3d_map(nb))
+      real*8 C(n2ft3d_map(nb))
+      integer i
+
 #ifdef USE_OPENMP
-       integer i,n
-       n=n2ft3d_map(nb)
-!$omp parallel default(private) shared(A,B,C) firstprivate(n)
-!$omp& private(i)
+!$omp parallel shared(A,B,C) private(i)
 !$omp do
-      do i=1,n
+      do i=1,n2ft3d_map(nb)
             C(i) = A(i) * B(i)
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel
 #else
-      integer i
       do i=1,n2ft3d_map(nb)
             C(i) = A(i) * B(i)
       end do
@@ -3743,25 +3727,24 @@ c      call Parallel2d_np_i(np)
 
       subroutine D3dB_rr_Sub2(nb,A,B)
       implicit none
-      integer nb
-      real*8  A(*)
-      real*8  B(*)
 
 #include "D3dB.fh"
 
+      integer nb
+      real*8  A(n2ft3d_map(nb))
+      real*8  B(n2ft3d_map(nb))
+
+      integer i
+
 #ifdef USE_OPENMP
-      integer i,n
-      n = n2ft3d_map(nb)
-!$omp parallel default(private) shared(A,B) firstprivate(n)
-!$omp& private(i)
+!$omp parallel shared(A,B) private(i) 
 !$omp do
-      do i=1,n
+      do i=1,n2ft3d_map(nb)
          B(i) = B(i) - A(i)
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel
 #else
-      integer i
       do i=1,n2ft3d_map(nb)
          B(i) = B(i) - A(i)
       end do
@@ -5021,7 +5004,7 @@ c     integer i2_start(NFFT3+1)
       do i=1,n
         b(i) = a(index(i))
       end do
-!$omp end do
+!$omp end do nowait
 !$omp end parallel
 
 #else
