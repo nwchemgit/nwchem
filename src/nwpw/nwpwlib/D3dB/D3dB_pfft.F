@@ -2416,8 +2416,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8     tmpx(2*nx+15)
       complex*16 A(nxh,n)
       integer i,indx
-!$omp parallel shared(A) private(i)
-!$omp& firstprivate(n,nx,tmpx)
+!$omp parallel default(private) shared(A,n) private(i)
+!$omp& firstprivate(nx,tmpx)
 !$omp do schedule(dynamic)
       do i=1,n
          call drfftf(nx,A(1,i),tmpx)
@@ -2619,8 +2619,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8     tmpy(4*ny+15)
       complex*16 A(ny,n)
       integer i
-!$omp parallel shared(A) private(i)
-!$omp& firstprivate(n,ny,tmpy,row2)
+!$omp parallel default(private) shared(A,n) private(i)
+!$omp& firstprivate(ny,tmpy,row2)
 !$omp do schedule(dynamic)
       do i=1,n
          if (.not.row2(i)) then
@@ -2813,8 +2813,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8     tmpz(4*nz+15)
       complex*16 A(nz,n)
       integer i
-!$omp parallel shared(A) private(i)
-!$omp& firstprivate(n,nz,tmpz,row3)
+!$omp parallel default(private) shared(A,n) private(i)
+!$omp& firstprivate(nz,tmpz,row3)
 !$omp do schedule(dynamic)
       do i=1,n
          if (.not.row3(i)) then
@@ -3085,8 +3085,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8     tmpz(4*nz+15)
       complex*16 A(nz,n)
       integer i
-!$omp parallel shared(A) private(i)
-!$omp& firstprivate(n,nz,tmpz,row3)
+!$omp parallel default(private) shared(A,n) private(i)
+!$omp& firstprivate(nz,tmpz,row3)
 !$omp do schedule(dynamic)
       do i=1,n
          if (.not.row3(i)) then
@@ -3282,8 +3282,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8     tmpy(4*ny+15)
       complex*16 A(ny,n)
       integer i
-!$omp parallel shared(A) private(i)
-!$omp& firstprivate(n,ny,tmpy,row2)
+!$omp parallel default(private) shared(A,n) private(i)
+!$omp& firstprivate(ny,tmpy,row2)
 !$omp do schedule(dynamic)
       do i=1,n
          if (.not.row2(i)) then
@@ -3435,8 +3435,8 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       real*8     tmpx(2*nx+15)
       complex*16 A(nxh,n)
       integer i
-!$omp parallel shared(A) private(i)
-!$omp& firstprivate(n,nx,tmpx)
+!$omp parallel default(private) shared(A,n) private(i)
+!$omp& firstprivate(nx,tmpx)
 !$omp do schedule(dynamic)
       do i=1,n
          call drfftb(nx,A(1,i),tmpx)
