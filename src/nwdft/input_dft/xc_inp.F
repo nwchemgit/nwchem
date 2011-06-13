@@ -91,7 +91,7 @@ c     xcamlsd   => 8520
 c     xwpbe     => 8530
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=101)
+      parameter (num_dirs=104)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -127,7 +127,8 @@ c
      &     'xm06-L','cm06-L','m06-hf','xm06-hf','cm06-hf','m06',
      &     'xm06','cm06','m06-2x','xm06-2x','cm06-2x','xbnl07',
      &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
-     &     'xcamlsd','xwpbe','ssb-d','kt1','kt2','bhlyp'/
+     &     'xcamlsd','xwpbe','ssb-d','kt1','kt2','bhlyp','b3p86',
+     &     'b3pw91','pbe96'/
 c     becke97-d, ssb-d
       logical disp
 c
@@ -165,7 +166,7 @@ c
      &  5900,6000,6100,6200,6300,6400,6500,6600,6700,6800,6900,
      &  7000,7100,7200,7300,7400,7500,7600,7700,7800,7900,8000,8100,
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
-     &  1999) ind
+     &  8532,8533,8534,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -251,6 +252,68 @@ c
         cfac(2)  = 1.0d0
        lcfac(2)  = .true.
       nlcfac(2)  = .true.
+c
+      goto 10
+c
+c     b3p86; A*Ex(HF) + (1-A)*Ex(S) + B*Ex(B88(nl)) + 
+c            C*Ec(Perdew86(total)) + (1-C)*Ec(VWN_1_RPA)
+c            
+c            A=0.20, B=0.72, C=0.81               
+c             
+ 8532 xccomb(49) = .true.
+        cfac(4)  = 0.81d0
+       lcfac(4)  = .true.
+      nlcfac(4)  = .true.
+        cfac(7)  = 0.19d0
+       lcfac(7)  = .true.
+      nlcfac(7)  = .false.
+        xfac(1)  = 0.20d0
+       lxfac(1)  = .true.
+      nlxfac(1)  = .true.
+        xfac(2)  = 0.80d0
+       lxfac(2)  = .true.
+      nlxfac(2)  = .false.
+        xfac(3)  = 0.72d0
+       lxfac(3)  = .false.
+      nlxfac(3)  = .true.
+c
+      goto 10
+c
+c     b3pw91; A*Ex(HF) + (1-A)*Ex(S) + B*Ex(B88(nl)) + 
+c            C*Ec(PW91(total)) + (1-C)*Ec(VWN_1_RPA)
+c            
+c            A=0.20, B=0.72, C=0.81               
+c             
+ 8533 xccomb(50) = .true.
+        cfac(5)  = 0.81d0
+       lcfac(5)  = .true.
+      nlcfac(5)  = .true.
+        cfac(7)  = 0.19d0
+       lcfac(7)  = .true.
+      nlcfac(7)  = .false.
+        xfac(1)  = 0.20d0
+       lxfac(1)  = .true.
+      nlxfac(1)  = .true.
+        xfac(2)  = 0.80d0
+       lxfac(2)  = .true.
+      nlxfac(2)  = .false.
+        xfac(3)  = 0.72d0
+       lxfac(3)  = .false.
+      nlxfac(3)  = .true.
+c
+      goto 10
+c
+c     PBE96; xpbe96 + cpbe96
+c             
+ 8534 xccomb(51) = .true.
+        xfac(7)  =  1.0d0
+       lxfac(7)  = .true.
+      nlxfac(7)  = .true.
+        cfac(12) =  1.0d0
+       lcfac(12) = .false.
+      nlcfac(12) = .true.
+       lcfac(6) = .true.
+       cfac(6) = 1.0d0
 c
       goto 10
 c     
