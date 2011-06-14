@@ -129,7 +129,9 @@ c
         
       if (inp_a(test)) then
 c       
-        if ( inp_compare(.false., 'hyperfine', test)) then
+        if ( inp_compare(.false., 'print', test)) then
+          call util_print_input(rtdb, 'prop')
+        elseif ( inp_compare(.false., 'hyperfine', test)) then
           hyperfine = 0
         elseif ( inp_compare(.false., 'spinspin', test)) then
           spinspin = 0

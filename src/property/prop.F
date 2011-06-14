@@ -29,6 +29,8 @@ c
 c
 c     start ecce property output module
 c
+      call util_print_push
+      call util_print_rtdb_load(rtdb,'prop')
       call ecce_print_module_entry('task property')
 c
 c     hondo property calculation routines 
@@ -44,6 +46,7 @@ c
 c     finish ecce property output module
 c
       call ecce_print_module_exit('task property','ok')
+      call util_print_pop
       property = .true.
       return
       end

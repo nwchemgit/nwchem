@@ -52,7 +52,6 @@ c
 c     Initialization
 c
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
-      call util_print_push
 c
 c     Extract high level info from the data-base setting defaults
 c     
@@ -288,8 +287,6 @@ c
          if (.not.geom_destroy(geomold)) call
      &    errquit('hnd_property: geom_destroy failed',555,RTDB_ERR)
       endif
-c
-      call util_print_pop
 c
       hnd_property = .true.
 c

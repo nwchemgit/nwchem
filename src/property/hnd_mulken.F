@@ -9,6 +9,7 @@
 #include "mafdecls.fh"
 #include "nwc_const.fh"
 #include "stdio.fh"
+#include "util.fh"
       integer   rtdb, basis, geom
       integer   ga_create_atom_blocked
       external  ga_create_atom_blocked
@@ -27,9 +28,24 @@
       character*3 scftyp
       character symbol*2, symbolj*2, tag*16, element*20, thedens*10
       character*1 types(8)
+      logical prt_ovlp_pop     ! if .true. print the overlap populations
+      logical prt_ao_pop       ! if .true. print the AO gross overlap
+                               ! populations
+      logical prt_atm_ovlp_pop ! if .true. print the overlap populations
+                               ! condensed to atoms
       data types/'S', 'P', 'D', 'F', 'G', 'H', 'I', 'K'/
 c
       if (ga_nodeid().eq.0) write(luout,2100) 
+c
+c     Decide what we need to print
+c
+      prt_ovlp_pop     = ((ga_nodeid().eq.0).and.
+     &                   util_print("overlap population",print_debug))
+      prt_ao_pop       = ((ga_nodeid().eq.0).and.
+     &                   util_print("ao gross population",print_debug))
+      prt_atm_ovlp_pop = ((ga_nodeid().eq.0).and.
+     &                   util_print("atomic overlap population",
+     &                   print_debug))
 c
 c     Initialize integrals
 c
@@ -110,22 +126,24 @@ c
 c
 c     Print overlap population in blocks of seven at a time
 c
-         write(luout,2120) thedens
-         do iseg = 1, nbf, 7
-            write (luout,2128) (i,i=iseg,min(iseg+6,nbf))
-            do irow = 1, nbf
-               call ga_get(g_s,irow,irow,iseg,min(iseg+6,nbf),
-     &                     dbl_mb(k_scr),1)
-               write (luout,2148) irow,
-     &                           (byte_mb(k_tags+(irow-1)*16+m),m=0,15),
-     &                           (dbl_mb(k_scr+i),i=0,min(nbf-iseg,6))
-            enddo
-         enddo
+         if (prt_ovlp_pop) then
+           write(luout,2120) thedens
+           do iseg = 1, nbf, 7
+              write (luout,2128) (i,i=iseg,min(iseg+6,nbf))
+              do irow = 1, nbf
+                 call ga_get(g_s,irow,irow,iseg,min(iseg+6,nbf),
+     &                       dbl_mb(k_scr),1)
+                 write (luout,2148) irow,
+     &                       (byte_mb(k_tags+(irow-1)*16+m),m=0,15),
+     &                       (dbl_mb(k_scr+i),i=0,min(nbf-iseg,6))
+              enddo
+           enddo
+         endif
 c
 c     Calculate gross population for ao's and atoms
 c     For each row also print the gross population
 c
-         write(luout,2298) thedens
+         if (prt_ao_pop) write(luout,2298) thedens
          call dcopy(natoms*natoms, 0.0d0, 0, dbl_mb(k_atov), 1)
          do irow = 1, nbf
 c
@@ -144,9 +162,10 @@ c
 c
 c     Print total gross population in ao's 
 c
-             write(luout,2297) irow,
-     &                         (byte_mb(k_tags+(irow-1)*16+m),m=0,15),
-     &                         dbl_mb(bf_offset+irow-1)
+            if (prt_ao_pop)
+     &        write(luout,2297) irow,
+     &                          (byte_mb(k_tags+(irow-1)*16+m),m=0,15),
+     &                          dbl_mb(bf_offset+irow-1)
 c
 c     Use row to calculate the total overlap population in atoms
 c
@@ -161,18 +180,20 @@ c
 c
 c     Print overlap population condensed to atoms
 c
-         write(luout,2396) thedens
-         do iatom = 1, natoms, 7
-            write (luout,2128) (i,i=iatom,min(iatom+6,natoms))
-            do jatom = 1, natoms
-               ij_offset = k_atov+(jatom-1)*natoms+iatom-1
-               if (.not. geom_cent_tag(geom, jatom, tag))
-     $             call errquit('bas_vec_info: tag', jatom, BASIS_ERR)
-               status = geom_tag_to_element(tag, symbol, element, atn)
-               write (luout,2397) jatom,symbol,(dbl_mb(ij_offset+i),
-     &                                      i=0,min(natoms-iatom,6))
-            enddo
-         enddo
+         if (prt_atm_ovlp_pop) then
+           write(luout,2396) thedens
+           do iatom = 1, natoms, 7
+              write (luout,2128) (i,i=iatom,min(iatom+6,natoms))
+              do jatom = 1, natoms
+                 ij_offset = k_atov+(jatom-1)*natoms+iatom-1
+                 if (.not. geom_cent_tag(geom, jatom, tag))
+     $               call errquit('bas_vec_info: tag', jatom, BASIS_ERR)
+                 status = geom_tag_to_element(tag, symbol, element, atn)
+                 write (luout,2397) jatom,symbol,(dbl_mb(ij_offset+i),
+     &                                        i=0,min(natoms-iatom,6))
+              enddo
+           enddo
+         endif
 c
 c     Compress from ao's to shells
 c     Use total gross population in ao's array dbl_mb(bf_offset)
@@ -221,13 +242,15 @@ c
 c     Calculate orbital and atomic spin densities
 c
          if (idens.eq.3) then
-            write(luout,2694)
-            do irow = 1, nbf
-               bf_offset = k_aogr + nbf 
-               write(luout,2297) irow,
-     &               (byte_mb(k_tags+(irow-1)*16+m),m=0,15),
-     &               (dbl_mb(k_aogr+irow-1)-dbl_mb(bf_offset+irow-1))
-            enddo
+            if (prt_ao_pop) then
+              write(luout,2694)
+              do irow = 1, nbf
+                 bf_offset = k_aogr + nbf 
+                 write(luout,2297) irow,
+     &                 (byte_mb(k_tags+(irow-1)*16+m),m=0,15),
+     &                 (dbl_mb(k_aogr+irow-1)-dbl_mb(bf_offset+irow-1))
+              enddo
+            endif
             write(luout,2693)
             do irow = 1, natoms
                sh_offset = k_atsh+(irow-1)*(lmax+2)
