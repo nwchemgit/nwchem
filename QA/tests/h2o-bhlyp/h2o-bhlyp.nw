@@ -1,0 +1,20 @@
+echo
+start h2o-bhlyp
+
+geometry units angstrom
+symmetry c1
+O      0.00000000     0.00000000     0.11726921
+H      0.75698224     0.00000000    -0.46907685
+H     -0.75698224     0.00000000    -0.46907685
+end
+
+basis spherical
+  * library aug-cc-pvtz
+end
+
+dft
+  xc bhlyp
+  iterations 100
+  direct
+end
+task dft energy
