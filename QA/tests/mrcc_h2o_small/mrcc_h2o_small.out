@@ -1,0 +1,1809 @@
+HP-MPI licensed for ISV application.
+All connections between all procs tested: SUCCESS
+ argument  1 = mrcc_h2o_small.nw
+
+
+
+============================== echo of input deck ==============================
+#
+# $Id: nwchem.nw,v 1.11 2000/08/01 17:11:34 d3g681 Exp $
+#
+echo
+
+title "MRCC h2o small"
+
+#permanent_dir /dtemp/kowalski
+
+start mrcc_h2o_small_dat
+
+memory stack 1200 mb heap 100 mb global 2200 mb noverify
+
+geometry autosym units bohr
+h 0.00000000    -1.43278629     1.06718990
+o 0.00000000     0.00000000    -0.13448537
+h 0.00000000     1.43278629     1.06718990
+end
+
+basis
+ H library cc-pVDZ
+ O library cc-pVDZ
+end
+
+#print debug
+
+tce
+bwccsd
+diis 0
+thresh 1e-6
+tilesize 30
+#ccsd
+#io sf
+io ga
+#2emet 3
+#2emet 2
+end
+
+#tce
+#ccsd
+#end
+
+mrccdata
+nref 4
+222220
+222202
+2222ab
+2222ba
+end
+
+charge 0
+#set fock:intacc 1e-30
+#set fock:dentol 1e-30
+
+scf
+singlet
+uhf
+#vectors input x
+#maxiter 0
+thresh 1e-12
+tol2e 1e-30
+#semidirect memsize 0 filesize 100000000
+end
+
+task tce energy
+#task ccsd
+
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 5.1
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                                         
+                                         
+
+
+                  COPYRIGHT (C) 1994, 1995, 1996, 1997, 1998, 1999
+                2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008
+                        Pacific Northwest National Laboratory,
+                             Battelle Memorial Institute.
+
+                            >>> All Rights Reserved <<<
+
+
+                                    DISCLAIMER
+                                    ----------
+
+            This material was prepared as an account of work sponsored
+            by an agency of the United States Government.  Neither the
+            United States Government nor the United States Department
+            of Energy, nor Battelle, nor any of their employees, MAKES
+            ANY WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LEGAL
+            LIABILITY OR RESPONSIBILITY FOR THE ACCURACY, COMPLETENESS,
+            OR USEFULNESS OF ANY INFORMATION, APPARATUS, PRODUCT,
+            SOFTWARE, OR PROCESS DISCLOSED, OR REPRESENTS THAT ITS USE
+            WOULD NOT INFRINGE PRIVATELY OWNED RIGHTS.
+
+
+                                    LIMITED USE
+                                    -----------
+
+            This software (including any documentation) is being made
+            available to you for your internal use only, solely for use
+            in performance of work directly for the U.S. Federal
+            Government or work under contracts with the U.S. Department
+            of Energy or other U.S. Federal Government agencies.  This
+            software is a version which has not yet been evaluated and
+            cleared for commercialization.  Adherence to this notice
+            may be necessary for the author, Battelle Memorial
+            Institute, to successfully assert copyright in and
+            commercialize this software. This software is not intended
+            for duplication or distribution to third parties without
+            the permission of the Manager of Software Products at
+            Pacific Northwest National Laboratory, Richland,
+            Washington, 99352.
+
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were produced with
+            Government support under Contract Number DE-AC05-76RL01830
+            awarded by the United States Department of Energy.  The
+            Government retains a paid-up non-exclusive, irrevocable
+            worldwide license to reproduce, prepare derivative works,
+            perform publicly and display publicly by or for the
+            Government, including the right to distribute to other
+            Government contractors.
+
+
+           Job information
+           ---------------
+
+    hostname      = cu0login1
+    program       = /home/d3p852/nwchem-mrcc/bin/LINUX64/nwchem
+    date          = Tue Jun 14 16:35:33 2011
+
+    compiled      = Tue_Jun_14_16:31:35_2011
+    source        = /home/d3p852/nwchem-mrcc/
+    nwchem branch = Development
+    input         = mrcc_h2o_small.nw
+    prefix        = mrcc_h2o_small_dat.
+    data base     = ./mrcc_h2o_small_dat.db
+    status        = startup
+    nproc         =        1
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap      =   13107201 doubles =    100.0 Mbytes
+    stack     =  157286401 doubles =   1200.0 Mbytes
+    global    =  288358400 doubles =   2200.0 Mbytes (distinct from heap & stack)
+    total     =  458752002 doubles =   3500.0 Mbytes
+    verify    = no 
+    hardfail  = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                                  MRCC h2o small
+                                  --------------
+ C2V symmetry detected
+
+          ------
+          auto-z
+          ------
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 h                    1.0000     1.43278629     0.00000000     0.96134022
+    2 o                    8.0000     0.00000000     0.00000000    -0.24033505
+    3 h                    1.0000    -1.43278629     0.00000000     0.96134022
+
+      Atomic Mass 
+      ----------- 
+
+      h                  1.007825
+      o                 15.994910
+
+
+ Effective nuclear repulsion energy (a.u.)       8.9051201203
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             C2v       
+ Group number             16
+ Group order               4
+ No. of unique centers     2
+
+      Symmetry unique atoms
+
+     1    2
+
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       0.98956
+    2 Stretch                  2     3                       0.98956
+    3 Bend                     1     2     3               100.02700
+
+
+            XYZ format geometry
+            -------------------
+     3
+ geometry
+ h                     0.75819791     0.00000000     0.50871937
+ o                     0.00000000     0.00000000    -0.12717984
+ h                    -0.75819791     0.00000000     0.50871937
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |       a.u.
+ ------------------------------------------------------------------------------
+    2 o                |   1 h                |     1.87000  |     1.87000
+    3 h                |   2 o                |     1.87000  |     1.87000
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          2
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    1 h                |   2 o                |   3 h                |   100.03
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          1
+ ==============================================================================
+
+
+
+                      Basis "ao basis" -> "" (cartesian)
+                      -----
+  H (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.30100000E+01  0.019685
+  1 S  1.96200000E+00  0.137977
+  1 S  4.44600000E-01  0.478148
+
+  2 S  1.22000000E-01  1.000000
+
+  3 P  7.27000000E-01  1.000000
+
+  O (Oxygen)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.17200000E+04  0.000710
+  1 S  1.75900000E+03  0.005470
+  1 S  4.00800000E+02  0.027837
+  1 S  1.13700000E+02  0.104800
+  1 S  3.70300000E+01  0.283062
+  1 S  1.32700000E+01  0.448719
+  1 S  5.02500000E+00  0.270952
+  1 S  1.01300000E+00  0.015458
+
+  2 S  1.17200000E+04 -0.000160
+  2 S  1.75900000E+03 -0.001263
+  2 S  4.00800000E+02 -0.006267
+  2 S  1.13700000E+02 -0.025716
+  2 S  3.70300000E+01 -0.070924
+  2 S  1.32700000E+01 -0.165411
+  2 S  5.02500000E+00 -0.116955
+  2 S  1.01300000E+00  0.557368
+
+  3 S  3.02300000E-01  1.000000
+
+  4 P  1.77000000E+01  0.043018
+  4 P  3.85400000E+00  0.228913
+  4 P  1.04600000E+00  0.508728
+
+  5 P  2.75300000E-01  1.000000
+
+  6 D  1.18500000E+00  1.000000
+
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                          cc-pVDZ                  3        5   2s1p
+ O                          cc-pVDZ                  6       15   3s2p1d
+
+
+Entering MRCC input module
+
+  Reference   1 :222220                                            
+  Reference   2 :222202                                            
+  Reference   3 :2222ab                                            
+  Reference   4 :2222ba                                            
+ standard version of CCSD is used
+ All integrlas stored in memory
+ BYTES BYTES                        8
+                                 NWChem SCF Module
+                                 -----------------
+
+
+                                  MRCC h2o small
+
+
+
+  ao basis        = "ao basis"
+  functions       =    25
+  atoms           =     3
+  alpha electrons =     5
+  beta  electrons =     5
+  charge          =   0.00
+  wavefunction    = UHF 
+  input vectors   = atomic
+  output vectors  = ./mrcc_h2o_small_dat.movecs
+  use symmetry    = T
+  symmetry adapt  = T
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ H                          cc-pVDZ                  3        5   2s1p
+ O                          cc-pVDZ                  6       15   3s2p1d
+
+
+      Symmetry analysis of basis
+      --------------------------
+
+        a1         12
+        a2          2
+        b1          7
+        b2          4
+
+
+ Forming initial guess at       0.1s
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:         -75.76222910
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =     -75.867841
+ 1-e energy   =    -121.308559
+ 2-e energy   =      36.535598
+ HOMO         =      -0.459643
+ LUMO         =       0.081833
+
+
+   Symmetry analysis of molecular orbitals - initial alpha
+   -------------------------------------------------------
+
+  Numbering of irreducible representations: 
+
+     1 a1          2 a2          3 b1          4 b2      
+
+  Orbital symmetries:
+
+     1 a1          2 a1          3 b1          4 a1          5 b2      
+     6 a1          7 b1          8 b1          9 a1         10 a1      
+    11 b2         12 b1         13 a1         14 a2         15 b2      
+
+
+   Symmetry analysis of molecular orbitals - initial beta
+   ------------------------------------------------------
+
+  Numbering of irreducible representations: 
+
+     1 a1          2 a2          3 b1          4 b2      
+
+  Orbital symmetries:
+
+     1 a1          2 a1          3 b1          4 a1          5 b2      
+     6 a1          7 b1          8 b1          9 a1         10 a1      
+    11 b2         12 b1         13 a1         14 a2         15 b2      
+
+
+ Starting SCF solution at       0.3s
+
+
+
+ ----------------------------------------------
+         Quadratically convergent UHF
+
+ Convergence threshold     :          1.000E-12
+ Maximum no. of iterations :           20
+ Integral*density screening:          1.000E-30
+ ----------------------------------------------
+
+
+ #quartets = 1.953D+03 #integrals = 1.963D+04 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./mrcc_h2o_small_dat.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+              iter       energy          gnorm     gmax       time
+             ----- ------------------- --------- --------- --------
+                 1      -75.9870598416  5.93D-01  1.78D-01      0.3
+                 2      -76.0209795805  1.32D-01  4.37D-02      0.3
+                 3      -76.0234590227  1.18D-02  3.92D-03      0.3
+                 4      -76.0234811833  3.68D-05  1.43D-05      0.3
+                 5      -76.0234811837  4.67D-10  1.61D-10      0.4
+                 6      -76.0234811837  7.20D-14  2.85D-14      0.4
+
+
+       Final UHF  results 
+       ------------------ 
+
+         Total SCF energy =    -76.023481183742
+      One electron energy =   -122.612754519350
+      Two electron energy =     37.684153215275
+ Nuclear repulsion energy =      8.905120120333
+
+                       Sz =      0.0000
+                 Sz(Sz+1) =      0.0000
+                      S^2 =      0.0000
+
+        Time for solution =      0.3s
+
+
+
+       Symmetry analysis of molecular orbitals - alpha
+       -----------------------------------------------
+
+  Numbering of irreducible representations: 
+
+     1 a1          2 a2          3 b1          4 b2      
+
+  Orbital symmetries:
+
+     1 a1          2 a1          3 b1          4 a1          5 b2      
+     6 a1          7 b1          8 b1          9 a1         10 a1      
+    11 b2         12 b1         13 a1         14 a2         15 b2      
+
+
+       Symmetry analysis of molecular orbitals - beta
+       ----------------------------------------------
+
+  Numbering of irreducible representations: 
+
+     1 a1          2 a2          3 b1          4 b2      
+
+  Orbital symmetries:
+
+     1 a1          2 a1          3 b1          4 a1          5 b2      
+     6 a1          7 b1          8 b1          9 a1         10 a1      
+    11 b2         12 b1         13 a1         14 a2         15 b2      
+
+          Final alpha eigenvalues
+          -----------------------
+
+              1      
+    1  -20.5599
+    2   -1.3247
+    3   -0.6745
+    4   -0.5701
+    5   -0.4931
+    6    0.1769
+    7    0.2513
+    8    0.7530
+    9    0.8436
+   10    1.1645
+   11    1.1976
+   12    1.2603
+   13    1.3912
+   14    1.4830
+   15    1.6448
+
+          Final beta eigenvalues
+          ----------------------
+
+              1      
+    1  -20.5599
+    2   -1.3247
+    3   -0.6745
+    4   -0.5701
+    5   -0.4931
+    6    0.1769
+    7    0.2513
+    8    0.7530
+    9    0.8436
+   10    1.1645
+   11    1.1976
+   12    1.2603
+   13    1.3912
+   14    1.4830
+   15    1.6448
+
+                    UHF Final Alpha Molecular Orbital Analysis
+                    ------------------------------------------
+
+ Vector    2  Occ=1.000000D+00  E=-1.324694D+00  Symmetry=a1
+              MO Center= -1.9D-16,  1.5D-17,  4.5D-02, r^2= 5.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      0.444485  2 O  s                  8      0.388363  2 O  s          
+    21      0.182670  3 H  s                  1      0.182670  1 H  s          
+
+ Vector    3  Occ=1.000000D+00  E=-6.744861D-01  Symmetry=b1
+              MO Center=  2.1D-16, -1.2D-19,  1.1D-01, r^2= 8.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.488815  2 O  px                 1      0.318518  1 H  s          
+    21     -0.318518  3 H  s                 12      0.238949  2 O  px         
+
+ Vector    4  Occ=1.000000D+00  E=-5.700629D-01  Symmetry=a1
+              MO Center=  1.4D-17, -2.0D-34, -1.5D-01, r^2= 7.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.536914  2 O  pz                 8     -0.367531  2 O  s          
+    14      0.354815  2 O  pz                 1      0.214800  1 H  s          
+    21      0.214800  3 H  s                  7     -0.156276  2 O  s          
+
+ Vector    5  Occ=1.000000D+00  E=-4.930913D-01  Symmetry=b2
+              MO Center= -4.0D-17, -1.0D-17, -1.0D-01, r^2= 6.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.633087  2 O  py                13      0.495942  2 O  py         
+
+ Vector    6  Occ=0.000000D+00  E= 1.769358D-01  Symmetry=a1
+              MO Center= -1.4D-16,  5.8D-19,  6.6D-01, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      1.026460  2 O  s                  2     -0.819851  1 H  s          
+    22     -0.819851  3 H  s                 14      0.366103  2 O  pz         
+    11      0.206318  2 O  pz         
+
+ Vector    7  Occ=0.000000D+00  E= 2.513411D-01  Symmetry=b1
+              MO Center= -2.5D-17,  5.0D-34,  6.4D-01, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2     -1.403717  1 H  s                 22      1.403717  3 H  s          
+    12      0.663845  2 O  px                 9      0.295193  2 O  px         
+
+ Vector    8  Occ=0.000000D+00  E= 7.530227D-01  Symmetry=b1
+              MO Center=  5.9D-17, -9.9D-20,  2.9D-01, r^2= 1.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.941430  1 H  s                 21     -0.941430  3 H  s          
+     2     -0.756617  1 H  s                 22      0.756617  3 H  s          
+    12     -0.403044  2 O  px                 9     -0.262189  2 O  px         
+    17      0.186994  2 O  dxz        
+
+ Vector    9  Occ=0.000000D+00  E= 8.435705D-01  Symmetry=a1
+              MO Center= -1.7D-16,  1.5D-18,  5.1D-01, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.790210  3 H  s                  1      0.790210  1 H  s          
+     2     -0.575999  1 H  s                 22     -0.575999  3 H  s          
+     8      0.392219  2 O  s                 11     -0.363403  2 O  pz         
+     7     -0.275200  2 O  s                  3      0.273679  1 H  px         
+    23     -0.273679  3 H  px         
+
+ Vector   10  Occ=0.000000D+00  E= 1.164464D+00  Symmetry=a1
+              MO Center=  5.6D-17,  6.8D-19, -2.0D-01, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      1.226331  2 O  pz                11     -0.732654  2 O  pz         
+    21     -0.518843  3 H  s                  1     -0.518843  1 H  s          
+     8      0.426313  2 O  s                  5      0.270121  1 H  pz         
+    25      0.270121  3 H  pz                 7      0.188444  2 O  s          
+
+ Vector   11  Occ=0.000000D+00  E= 1.197590D+00  Symmetry=b2
+              MO Center=  3.8D-16, -5.8D-16, -1.0D-01, r^2= 1.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      0.997480  2 O  py                10     -0.965858  2 O  py         
+
+ Vector   12  Occ=0.000000D+00  E= 1.260288D+00  Symmetry=b1
+              MO Center= -1.8D-16, -3.6D-20, -1.4D-01, r^2= 1.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      1.709547  2 O  px                22      0.789026  3 H  s          
+     2     -0.789026  1 H  s                  9     -0.763273  2 O  px         
+     1     -0.339962  1 H  s                 21      0.339962  3 H  s          
+    23      0.284665  3 H  px                 3      0.284665  1 H  px         
+     5      0.194733  1 H  pz                25     -0.194733  3 H  pz         
+
+ Vector   13  Occ=0.000000D+00  E= 1.391198D+00  Symmetry=a1
+              MO Center= -4.7D-16,  1.7D-16,  8.1D-02, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      0.741826  2 O  s                 14     -0.654736  2 O  pz         
+     7     -0.528245  2 O  s                 25      0.475350  3 H  pz         
+     5      0.475350  1 H  pz                 3     -0.383287  1 H  px         
+    23      0.383287  3 H  px                 1      0.291129  1 H  s          
+    21      0.291129  3 H  s                  6     -0.231452  2 O  s          
+
+ Vector   14  Occ=0.000000D+00  E= 1.483018D+00  Symmetry=a2
+              MO Center= -2.2D-16,  1.7D-19,  4.6D-01, r^2= 1.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.686762  1 H  py                24     -0.686762  3 H  py         
+    16      0.237006  2 O  dxy        
+
+ Vector   15  Occ=0.000000D+00  E= 1.644804D+00  Symmetry=b2
+              MO Center= -4.4D-32,  9.1D-17,  3.1D-01, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.753955  1 H  py                24      0.753955  3 H  py         
+    13     -0.652081  2 O  py                19      0.281798  2 O  dyz        
+
+
+                     UHF Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+
+ Vector    2  Occ=1.000000D+00  E=-1.324694D+00  Symmetry=a1
+              MO Center= -9.5D-18,  8.7D-35,  4.5D-02, r^2= 5.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      0.444485  2 O  s                  8      0.388363  2 O  s          
+    21      0.182670  3 H  s                  1      0.182670  1 H  s          
+
+ Vector    3  Occ=1.000000D+00  E=-6.744861D-01  Symmetry=b1
+              MO Center=  4.3D-18,  1.2D-33,  1.1D-01, r^2= 8.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.488815  2 O  px                 1      0.318518  1 H  s          
+    21     -0.318518  3 H  s                 12      0.238949  2 O  px         
+
+ Vector    4  Occ=1.000000D+00  E=-5.700629D-01  Symmetry=a1
+              MO Center= -2.6D-16, -1.1D-16, -1.5D-01, r^2= 7.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.536914  2 O  pz                 8     -0.367531  2 O  s          
+    14      0.354815  2 O  pz                21      0.214800  3 H  s          
+     1      0.214800  1 H  s                  7     -0.156276  2 O  s          
+
+ Vector    5  Occ=1.000000D+00  E=-4.930913D-01  Symmetry=b2
+              MO Center= -4.1D-17,  1.2D-16, -1.0D-01, r^2= 6.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.633087  2 O  py                13      0.495942  2 O  py         
+
+ Vector    6  Occ=0.000000D+00  E= 1.769358D-01  Symmetry=a1
+              MO Center= -6.9D-17,  5.8D-19,  6.6D-01, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      1.026460  2 O  s                  2     -0.819851  1 H  s          
+    22     -0.819851  3 H  s                 14      0.366103  2 O  pz         
+    11      0.206318  2 O  pz         
+
+ Vector    7  Occ=0.000000D+00  E= 2.513411D-01  Symmetry=b1
+              MO Center=  4.3D-16, -1.3D-17,  6.4D-01, r^2= 3.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2     -1.403717  1 H  s                 22      1.403717  3 H  s          
+    12      0.663845  2 O  px                 9      0.295193  2 O  px         
+
+ Vector    8  Occ=0.000000D+00  E= 7.530227D-01  Symmetry=b1
+              MO Center=  2.4D-16, -9.9D-20,  2.9D-01, r^2= 1.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.941430  1 H  s                 21     -0.941430  3 H  s          
+     2     -0.756617  1 H  s                 22      0.756617  3 H  s          
+    12     -0.403044  2 O  px                 9     -0.262189  2 O  px         
+    17      0.186994  2 O  dxz        
+
+ Vector    9  Occ=0.000000D+00  E= 8.435705D-01  Symmetry=a1
+              MO Center= -5.3D-16,  1.5D-18,  5.1D-01, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.790210  1 H  s                 21      0.790210  3 H  s          
+    22     -0.575999  3 H  s                  2     -0.575999  1 H  s          
+     8      0.392219  2 O  s                 11     -0.363403  2 O  pz         
+     7     -0.275200  2 O  s                  3      0.273679  1 H  px         
+    23     -0.273679  3 H  px         
+
+ Vector   10  Occ=0.000000D+00  E= 1.164464D+00  Symmetry=a1
+              MO Center=  1.4D-17,  1.8D-18, -2.0D-01, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    14      1.226331  2 O  pz                11     -0.732654  2 O  pz         
+     1     -0.518843  1 H  s                 21     -0.518843  3 H  s          
+     8      0.426313  2 O  s                  5      0.270121  1 H  pz         
+    25      0.270121  3 H  pz                 7      0.188444  2 O  s          
+
+ Vector   11  Occ=0.000000D+00  E= 1.197590D+00  Symmetry=b2
+              MO Center=  3.8D-16, -5.9D-16, -1.0D-01, r^2= 1.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      0.997480  2 O  py                10     -0.965858  2 O  py         
+
+ Vector   12  Occ=0.000000D+00  E= 1.260288D+00  Symmetry=b1
+              MO Center=  5.2D-17, -1.2D-30, -1.4D-01, r^2= 1.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      1.709547  2 O  px                 2     -0.789026  1 H  s          
+    22      0.789026  3 H  s                  9     -0.763273  2 O  px         
+    21      0.339962  3 H  s                  1     -0.339962  1 H  s          
+     3      0.284665  1 H  px                23      0.284665  3 H  px         
+     5      0.194733  1 H  pz                25     -0.194733  3 H  pz         
+
+ Vector   13  Occ=0.000000D+00  E= 1.391198D+00  Symmetry=a1
+              MO Center= -2.5D-16,  2.6D-16,  8.1D-02, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      0.741826  2 O  s                 14     -0.654736  2 O  pz         
+     7     -0.528245  2 O  s                  5      0.475350  1 H  pz         
+    25      0.475350  3 H  pz                23      0.383287  3 H  px         
+     3     -0.383287  1 H  px                 1      0.291129  1 H  s          
+    21      0.291129  3 H  s                  6     -0.231452  2 O  s          
+
+ Vector   14  Occ=0.000000D+00  E= 1.483018D+00  Symmetry=a2
+              MO Center= -1.1D-16,  7.6D-18,  4.6D-01, r^2= 1.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.686762  1 H  py                24     -0.686762  3 H  py         
+    16      0.237006  2 O  dxy        
+
+ Vector   15  Occ=0.000000D+00  E= 1.644804D+00  Symmetry=b2
+              MO Center= -3.7D-34,  7.2D-18,  3.1D-01, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.753955  1 H  py                24      0.753955  3 H  py         
+    13     -0.652081  2 O  py                19      0.281798  2 O  dyz        
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =  -0.10584969
+
+ moments of inertia (a.u.)
+ ------------------
+           2.584901237410           0.000000000000           0.000000000000
+           0.000000000000           6.722781861086           0.000000000000
+           0.000000000000           0.000000000000           4.137880623675
+
+  Mulliken analysis of the total density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 H    1     0.84   0.67  0.08  0.08
+    2 O    8     8.33   2.00  0.84  0.85  2.79  1.83  0.02
+    3 H    1     0.84   0.67  0.08  0.08
+
+  Mulliken analysis of the alpha density
+  --------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 H    1     0.42   0.34  0.04  0.04
+    2 O    8     4.16   1.00  0.42  0.43  1.39  0.92  0.01
+    3 H    1     0.42   0.34  0.04  0.04
+
+   Mulliken analysis of the beta density
+   -------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 H    1     0.42   0.34  0.04  0.04
+    2 O    8     4.16   1.00  0.42  0.43  1.39  0.92  0.01
+    3 H    1     0.42   0.34  0.04  0.04
+
+   Mulliken analysis of the spin density
+   -------------------------------------
+
+    Atom       Charge   Shell Charges
+ -----------   ------   -------------------------------------------------------
+    1 H    1     0.00   0.00  0.00  0.00
+    2 O    8     0.00   0.00  0.00  0.00  0.00  0.00  0.00
+    3 H    1     0.00   0.00  0.00  0.00
+
+       Multipole analysis of the density wrt the origin
+       ------------------------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0      0.000000     -5.000000     -5.000000     10.000000
+
+     1   1 0 0      0.000000      0.000000      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000      0.000000      0.000000
+     1   0 0 1      0.847146      0.423573      0.423573      0.000000
+
+     2   2 0 0     -3.175456     -3.640605     -3.640605      4.105753
+     2   1 1 0      0.000000      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000      0.000000
+     2   0 2 0     -5.281193     -2.640597     -2.640597      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000      0.000000
+     2   0 0 2     -4.298070     -3.304254     -3.304254      2.310438
+
+
+ Parallel integral file used       1 records with       0 large values
+
+                   NWChem Extensible Many-Electron Theory Module
+                   ---------------------------------------------
+
+              ======================================================
+                   This portion of the program was automatically
+                  generated by a Tensor Contraction Engine (TCE).
+                  The development of this portion of the program
+                 and TCE was supported by US Department of Energy,
+                Office of Science, Office of Basic Energy Science.
+                      TCE is a product of Battelle and PNNL.
+              Please cite: S.Hirata, J.Phys.Chem.A 107, 9887 (2003).
+              ======================================================
+
+                                  MRCC h2o small
+
+
+            General Information
+            -------------------
+      Number of processors :     1
+         Wavefunction type : Unrestricted Hartree-Fock
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+           No. of orbitals :    50
+            Alpha orbitals :    25
+             Beta orbitals :    25
+        Alpha frozen cores :     0
+         Beta frozen cores :     0
+     Alpha frozen virtuals :     0
+      Beta frozen virtuals :     0
+         Spin multiplicity : singlet 
+    Number of AO functions :    25
+       Number of AO shells :    12
+        Use of symmetry is : on 
+      Symmetry adaption is : on 
+         Schwarz screening : 0.10D-29
+
+          Correlation Information
+          -----------------------
+          Calculation type : State specific multireference Brillouin-Wigner CCSD theory  
+   Perturbative correction : none                                                        
+            Max iterations :      100
+        Residual threshold : 0.10D-05
+   T(0) DIIS level shift : 0.00D+00
+   L(0) DIIS level shift : 0.00D+00
+   T(1) DIIS level shift : 0.00D+00
+   L(1) DIIS level shift : 0.00D+00
+   T(R) DIIS level shift : 0.00D+00
+   T(I) DIIS level shift : 0.00D+00
+          Amplitude update : Jacobi
+                I/O scheme : Global Array Library
+
+MRCC module - references analysis
+
+
+Debug output for mutualoper array
+
+Heff (  1,  1): erank:   0
+
+Heff (  1,  2): erank:   2
+   5  -5  -6   6
+Heff (  1,  3): erank:   1
+  -5  -6
+Heff (  1,  4): erank:   1
+   5   6
+Heff (  2,  1): erank:   2
+   6  -6  -5   5
+Heff (  2,  2): erank:   0
+
+Heff (  2,  3): erank:   1
+   6   5
+Heff (  2,  4): erank:   1
+  -6  -5
+Heff (  3,  1): erank:   1
+  -6  -5
+Heff (  3,  2): erank:   1
+   5   6
+Heff (  3,  3): erank:   0
+
+Heff (  3,  4): erank:   2
+   5  -6  -5   6
+Heff (  4,  1): erank:   1
+   6   5
+Heff (  4,  2): erank:   1
+  -5  -6
+Heff (  4,  3): erank:   2
+   6  -5  -6   5
+Heff (  4,  4): erank:   0
+
+
+MRCC module finished
+
+
+ Global array virtual files algorithm will be used
+
+ Parallel file system coherency ......... OK
+
+ Maximum block size supplied by input
+ tce_mrcc_tile step1
+ ipol =                         2
+ nbf nmo(1) nmo(2)                        25                       25 
+                       25
+ g_movecs_1 type dim1 dim2                      1013                       25 
+                       25
+ g_movecs_tmp_1 type dim1 dim2                      1013 
+                       25                       25
+ tce_mrcc_tile step1a
+ tce_mrcc_tile step2
+ tce_mrcc_tile step6
+ tce_mrcc_tile step7
+ tce_mrcc_tile step8
+ tce_mrcc_tile step1
+ ipol =                         2
+ nbf nmo(1) nmo(2)                        25                       25 
+                       25
+ g_movecs_1 type dim1 dim2                      1013                       25 
+                       25
+ g_movecs_tmp_1 type dim1 dim2                      1013 
+                       25                       25
+ tce_mrcc_tile step1a
+ tce_mrcc_tile step2
+ tce_mrcc_tile step3
+ tce_mrcc_tile step4
+ tce_mrcc_tile step5
+ tce_mrcc_tile step3
+ tce_mrcc_tile step4
+ tce_mrcc_tile step5
+ tce_mrcc_tile step6
+ tce_mrcc_tile step7
+ tce_mrcc_tile step8
+ tce_mrcc_tile step1
+ ipol =                         2
+ nbf nmo(1) nmo(2)                        25                       25 
+                       25
+ g_movecs_1 type dim1 dim2                      1013                       25 
+                       25
+ g_movecs_tmp_1 type dim1 dim2                      1013 
+                       25                       25
+ tce_mrcc_tile step1a
+ tce_mrcc_tile step2
+ tce_mrcc_tile step3
+ tce_mrcc_tile step4
+ tce_mrcc_tile step5
+ tce_mrcc_tile step6
+ tce_mrcc_tile step7
+ tce_mrcc_tile step8
+ tce_mrcc_tile step1
+ ipol =                         2
+ nbf nmo(1) nmo(2)                        25                       25 
+                       25
+ g_movecs_1 type dim1 dim2                      1013                       25 
+                       25
+ g_movecs_tmp_1 type dim1 dim2                      1013 
+                       25                       25
+ tce_mrcc_tile step1a
+ tce_mrcc_tile step2
+ tce_mrcc_tile step3
+ tce_mrcc_tile step4
+ tce_mrcc_tile step5
+ tce_mrcc_tile step6
+ tce_mrcc_tile step7
+ tce_mrcc_tile step8
+
+Blocks for reference    1
+
+ Block   Spin    Irrep     Size     Offset   Alpha    Active
+ -----------------------------------------------------------
+   1    alpha     a1     3 doubles       0       1       F
+   2    alpha     b1     1 doubles       3       2       F
+   3    alpha     b2     1 doubles       4       3       T
+   4    beta      a1     3 doubles       5       4       F
+   5    beta      b1     1 doubles       8       5       F
+   6    beta      b2     1 doubles       9       6       T
+   7    alpha     a1     1 doubles      10       7       T
+   8    alpha     a1     8 doubles      11       8       F
+   9    alpha     a2     2 doubles      19       9       F
+  10    alpha     b1     6 doubles      21      10       F
+  11    alpha     b2     3 doubles      27      11       F
+  12    beta      a1     1 doubles      30      12       T
+  13    beta      a1     8 doubles      31      13       F
+  14    beta      a2     2 doubles      39      14       F
+  15    beta      b1     6 doubles      41      15       F
+  16    beta      b2     3 doubles      47      16       F
+
+Blocks for reference    2
+
+ Block   Spin    Irrep     Size     Offset   Alpha    Active
+ -----------------------------------------------------------
+   1    alpha     a1     3 doubles       0       1       F
+   2    alpha     b1     1 doubles       3       2       F
+   3    alpha     a1     1 doubles       4       3       T
+   4    beta      a1     3 doubles       5       4       F
+   5    beta      b1     1 doubles       8       5       F
+   6    beta      a1     1 doubles       9       6       T
+   7    alpha     b2     1 doubles      10       7       T
+   8    alpha     a1     8 doubles      11       8       F
+   9    alpha     a2     2 doubles      19       9       F
+  10    alpha     b1     6 doubles      21      10       F
+  11    alpha     b2     3 doubles      27      11       F
+  12    beta      b2     1 doubles      30      12       T
+  13    beta      a1     8 doubles      31      13       F
+  14    beta      a2     2 doubles      39      14       F
+  15    beta      b1     6 doubles      41      15       F
+  16    beta      b2     3 doubles      47      16       F
+
+Blocks for reference    3
+
+ Block   Spin    Irrep     Size     Offset   Alpha    Active
+ -----------------------------------------------------------
+   1    alpha     a1     3 doubles       0       1       F
+   2    alpha     b1     1 doubles       3       2       F
+   3    alpha     b2     1 doubles       4       3       T
+   4    beta      a1     3 doubles       5       4       F
+   5    beta      b1     1 doubles       8       5       F
+   6    beta      a1     1 doubles       9       6       T
+   7    alpha     a1     1 doubles      10       7       T
+   8    alpha     a1     8 doubles      11       8       F
+   9    alpha     a2     2 doubles      19       9       F
+  10    alpha     b1     6 doubles      21      10       F
+  11    alpha     b2     3 doubles      27      11       F
+  12    beta      b2     1 doubles      30      12       T
+  13    beta      a1     8 doubles      31      13       F
+  14    beta      a2     2 doubles      39      14       F
+  15    beta      b1     6 doubles      41      15       F
+  16    beta      b2     3 doubles      47      16       F
+
+Blocks for reference    4
+
+ Block   Spin    Irrep     Size     Offset   Alpha    Active
+ -----------------------------------------------------------
+   1    alpha     a1     3 doubles       0       1       F
+   2    alpha     b1     1 doubles       3       2       F
+   3    alpha     a1     1 doubles       4       3       T
+   4    beta      a1     3 doubles       5       4       F
+   5    beta      b1     1 doubles       8       5       F
+   6    beta      b2     1 doubles       9       6       T
+   7    alpha     b2     1 doubles      10       7       T
+   8    alpha     a1     8 doubles      11       8       F
+   9    alpha     a2     2 doubles      19       9       F
+  10    alpha     b1     6 doubles      21      10       F
+  11    alpha     b2     3 doubles      27      11       F
+  12    beta      a1     1 doubles      30      12       T
+  13    beta      a1     8 doubles      31      13       F
+  14    beta      a2     2 doubles      39      14       F
+  15    beta      b1     6 doubles      41      15       F
+  16    beta      b2     3 doubles      47      16       F
+
+ #quartets = 3.081D+03 #integrals = 3.110D+04 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./mrcc_h2o_small_dat.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+ tce_mrcc_uhf_step1
+ tce_mrcc_uhf_step2
+ tce_mrcc_uhf_step3
+ tce_mrcc_uhf_step4
+ tce_mrcc_uhf_step5
+  eone, etwo, enrep, energy    -122.6127545193502      
+    37.68415321527508         8.905120120333432        -76.02348118374169     
+
+ Parallel integral file used       1 records with       0 large values
+
+
+ #quartets = 3.081D+03 #integrals = 3.110D+04 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./mrcc_h2o_small_dat.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+ tce_mrcc_uhf_step1
+ tce_mrcc_uhf_step2
+ tce_mrcc_uhf_step3
+ tce_mrcc_uhf_step4
+ tce_mrcc_uhf_step5
+  eone, etwo, enrep, energy    -115.2436982203959      
+    31.34991519140358         8.905120120333432        -74.98866290865884     
+
+ Parallel integral file used       1 records with       0 large values
+
+
+ #quartets = 3.081D+03 #integrals = 3.110D+04 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./mrcc_h2o_small_dat.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+ tce_mrcc_uhf_step1
+ tce_mrcc_uhf_step2
+ tce_mrcc_uhf_step3
+ tce_mrcc_uhf_step4
+ tce_mrcc_uhf_step5
+  eone, etwo, enrep, energy    -118.9282263698731      
+    34.33234064098727         8.905120120333432        -75.69076560855235     
+
+ Parallel integral file used       1 records with       0 large values
+
+
+ #quartets = 3.081D+03 #integrals = 3.110D+04 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./mrcc_h2o_small_dat.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   = ******
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+ tce_mrcc_uhf_step1
+ tce_mrcc_uhf_step2
+ tce_mrcc_uhf_step3
+ tce_mrcc_uhf_step4
+ tce_mrcc_uhf_step5
+  eone, etwo, enrep, energy    -118.9282263698730      
+    34.33234064098728         8.905120120333432        -75.69076560855231     
+
+ Parallel integral file used       1 records with       0 large values
+
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
+ 2-e (intermediate) file size =          859375
+ 2-e (intermediate) file name = ./mrcc_h2o_small_dat
+Half 2-e ints             0.7            0.7
+
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+ v2-size iref:                    192563                        1
+MO 2-e ints             0.5            0.6
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
+ 2-e (intermediate) file size =          859375
+ 2-e (intermediate) file name = ./mrcc_h2o_small_dat
+Half 2-e ints             0.7            0.7
+
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+ v2-size iref:                    192563                        2
+MO 2-e ints             0.5            0.6
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
+ 2-e (intermediate) file size =          859375
+ 2-e (intermediate) file name = ./mrcc_h2o_small_dat
+Half 2-e ints             0.7            0.7
+
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+ v2-size iref:                    192563                        3
+MO 2-e ints             0.5            0.6
+
+ tce_ao2e: fast2e=1
+ half-transformed integrals in memory
+
+ 2-e (intermediate) file size =          859375
+ 2-e (intermediate) file name = ./mrcc_h2o_small_dat
+Half 2-e ints             0.7            0.7
+
+ tce_mo2e: fast2e=1
+ 2-e integrals stored in memory
+ v2-size iref:                    192563                        4
+MO 2-e ints             0.5            0.6
+
+Integral replication completed
+Starting MRCC
+
+
+MR BWCCSD with tq in Heff, version 0.80 nodebug  [Intel 11.1]
+
+
+ Heff
+-------------------------
+
+                   1              2              3              4
+    1  -84.928601304075    0.011320424294    0.000000000000    0.000000000000
+    2    0.011320424294  -83.893783028992    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000  -84.595885728886    0.011320424294
+    4    0.000000000000    0.000000000000    0.011320424294  -84.595885728886
+-------------------------
+
+
+Eigenvalues (real and imaginary)
+=============================================
+  -84.928725129366    0.000000000000
+  -83.893659203702    0.000000000000
+  -84.607206153180    0.000000000000
+  -84.584565304592    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999940183040   -0.010937565625    0.000000000000    0.000000000000
+    2    0.010937565625   -0.999940183040    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999940183040   -0.010937565625    0.000000000000    0.000000000000
+    2    0.010937565625   -0.999940183040    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.   1       -84.9287251293656       -76.0236050090322       -84.9287251293656
+ Residues and T update / sec            1.5            1.7
+
+ Heff
+-------------------------
+
+                   1              2              3              4
+    1  -85.138758481075    0.013339326002    0.000000000000    0.000000000000
+    2    0.012256585635  -84.209313414504    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000  -84.829960524459    0.011820113153
+    4    0.000000000000    0.000000000000    0.011820113153  -84.829960524459
+-------------------------
+
+
+Eigenvalues (real and imaginary)
+=============================================
+  -85.138934353395    0.000000000000
+  -84.209137542184    0.000000000000
+  -84.841780637612    0.000000000000
+  -84.818140411305    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999897065983   -0.013183352455    0.000000000000    0.000000000000
+    2    0.014347732903   -0.999913095833    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999913095833   -0.014347732903    0.000000000000    0.000000000000
+    2    0.013183352455   -0.999897065983    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.   2       -85.1389343533948       -76.2338142330614        -0.2102092240292
+ Residues and T update / sec            1.6            1.8
+
+ Heff
+-------------------------
+
+                   1              2              3              4
+    1  -85.142779028112    0.013365103928    0.000000000000    0.000000000000
+    2    0.013016729216  -84.219919664482    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000  -84.838039441498    0.011945879569
+    4    0.000000000000    0.000000000000    0.011945879569  -84.838039441498
+-------------------------
+
+
+Eigenvalues (real and imaginary)
+=============================================
+  -85.142967501484    0.000000000000
+  -84.219731191110    0.000000000000
+  -84.849985321067    0.000000000000
+  -84.826093561930    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999895191143   -0.014100499032    0.000000000000    0.000000000000
+    2    0.014477801270   -0.999900583022    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999900583022   -0.014477801270    0.000000000000    0.000000000000
+    2    0.014100499032   -0.999895191143    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.   3       -85.1429675014843       -76.2378473811509        -0.0040331480895
+ Residues and T update / sec            1.6            1.8
+
+ Heff
+-------------------------
+
+                   1              2              3              4
+    1  -85.146364263528    0.013597015573    0.000000000000    0.000000000000
+    2    0.013089600431  -84.227165428222    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000  -84.840976454681    0.012027977374
+    4    0.000000000000    0.000000000000    0.012027977374  -84.840976454681
+-------------------------
+
+
+Eigenvalues (real and imaginary)
+=============================================
+  -85.146557847353    0.000000000000
+  -84.226971844398    0.000000000000
+  -84.853004432055    0.000000000000
+  -84.828948477306    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999890658728   -0.014235786307    0.000000000000    0.000000000000
+    2    0.014787514640   -0.999898666060    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999898666060   -0.014787514640    0.000000000000    0.000000000000
+    2    0.014235786307   -0.999890658728    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.   4       -85.1465578473525       -76.2414377270191        -0.0035903458682
+ Residues and T update / sec            1.6            1.8
+
+ Heff
+-------------------------
+
+                   1              2              3              4
+    1  -85.147116816315    0.013603097181    0.000000000000    0.000000000000
+    2    0.013124614735  -84.229323021432    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000  -84.842106650679    0.012036332790
+    4    0.000000000000    0.000000000000    0.012036332790  -84.842106650679
+-------------------------
+
+
+Eigenvalues (real and imaginary)
+=============================================
+  -85.147311301815    0.000000000000
+  -84.229128535932    0.000000000000
+  -84.854142983468    0.000000000000
+  -84.830070317889    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999890225917   -0.014295687461    0.000000000000    0.000000000000
+    2    0.014816751154   -0.999897811439    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999897811439   -0.014816751154    0.000000000000    0.000000000000
+    2    0.014295687461   -0.999890225917    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.   5       -85.1473113018151       -76.2421911814816        -0.0007534544625
+ Residues and T update / sec            1.6            1.8
+
+ Heff
+-------------------------
+
+                   1              2              3              4
+    1  -85.147437429138    0.013603091052    0.000000000000    0.000000000000
+    2    0.013122057525  -84.229970462671    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000  -84.842485403173    0.012032741754
+    4    0.000000000000    0.000000000000    0.012032741754  -84.842485403173
+-------------------------
+
+
+Eigenvalues (real and imaginary)
+=============================================
+  -85.147631945903    0.000000000000
+  -84.229775945905    0.000000000000
+  -84.854518144927    0.000000000000
+  -84.830452661419    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999890147830   -0.014297991589    0.000000000000    0.000000000000
+    2    0.014822019853   -0.999897778494    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999897778494   -0.014822019853    0.000000000000    0.000000000000
+    2    0.014297991589   -0.999890147830    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.   6       -85.1476319459030       -76.2425118255695        -0.0003206440879
+ Residues and T update / sec            1.4            1.6
+
+ Heff
+-------------------------
+
+                   1              2              3              4
+    1  -85.147554302769    0.013598578496    0.000000000000    0.000000000000
+    2    0.013119949973  -84.230177539767    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000  -84.842621077846    0.012026104719
+    4    0.000000000000    0.000000000000    0.012026104719  -84.842621077846
+-------------------------
+
+
+Eigenvalues (real and imaginary)
+=============================================
+  -85.147748742906    0.000000000000
+  -84.229983099631    0.000000000000
+  -84.854647182565    0.000000000000
+  -84.830594973127    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999890199089   -0.014297101908    0.000000000000    0.000000000000
+    2    0.014818561560   -0.999897791215    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999897791215   -0.014818561560    0.000000000000    0.000000000000
+    2    0.014297101908   -0.999890199089    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.   7       -85.1477487429055       -76.2426286225721        -0.0001167970025
+ Residues and T update / sec            1.4            1.6
+
+ Heff
+-------------------------
+
+                   1              2              3              4
+    1  -85.147603404180    0.013594425090    0.000000000000    0.000000000000
+    2    0.013117507416  -84.230254663523    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000  -84.842676075600    0.012020124574
+    4    0.000000000000    0.000000000000    0.012020124574  -84.842676075600
+-------------------------
+
+
+Eigenvalues (real and imaginary)
+=============================================
+  -85.147797754694    0.000000000000
+  -84.230060313009    0.000000000000
+  -84.854696200174    0.000000000000
+  -84.830655951026    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999890259417   -0.014294878611    0.000000000000    0.000000000000
+    2    0.014814490306   -0.999897823003    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999897823003   -0.014814490306    0.000000000000    0.000000000000
+    2    0.014294878611   -0.999890259417    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.   8       -85.1477977546944       -76.2426776343610        -0.0000490117889
+ Residues and T update / sec            1.4            1.6
+
+ Heff
+-------------------------
+
+                   1              2              3              4
+    1  -85.147623804604    0.013591196404    0.000000000000    0.000000000000
+    2    0.013116118648  -84.230285280102    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000  -84.842699688643    0.012015605188
+    4    0.000000000000    0.000000000000    0.012015605188  -84.842699688643
+-------------------------
+
+
+Eigenvalues (real and imaginary)
+=============================================
+  -85.147818090565    0.000000000000
+  -84.230090994140    0.000000000000
+  -84.854715293831    0.000000000000
+  -84.830684083455    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999890309071   -0.014293525622    0.000000000000    0.000000000000
+    2    0.014811138542   -0.999897842345    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999897842345   -0.014811138542    0.000000000000    0.000000000000
+    2    0.014293525622   -0.999890309071    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.   9       -85.1478180905654       -76.2426979702320        -0.0000203358710
+ Residues and T update / sec            1.4            1.6
+
+ Heff
+-------------------------
+
+                   1              2              3              4
+    1  -85.147632681084    0.013588922207    0.000000000000    0.000000000000
+    2    0.013115285928  -84.230298034872    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000  -84.842710393020    0.012012461706
+    4    0.000000000000    0.000000000000    0.012012461706  -84.842710393020
+-------------------------
+
+
+Eigenvalues (real and imaginary)
+=============================================
+  -85.147826923034    0.000000000000
+  -84.230103792922    0.000000000000
+  -84.854722854727    0.000000000000
+  -84.830697931314    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999890344834   -0.014292679423    0.000000000000    0.000000000000
+    2    0.014808724049   -0.999897854441    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999897854441   -0.014808724049    0.000000000000    0.000000000000
+    2    0.014292679423   -0.999890344834    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.  10       -85.1478269230337       -76.2427068027002        -0.0000088324683
+ Residues and T update / sec            1.4            1.6
+
+ Heff
+-------------------------
+
+                   1              2              3              4
+    1  -85.147636581365    0.013587396618    0.000000000000    0.000000000000
+    2    0.013114825199  -84.230303512798    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000  -84.842715456316    0.012010372505
+    4    0.000000000000    0.000000000000    0.012010372505  -84.842715456316
+-------------------------
+
+
+Eigenvalues (real and imaginary)
+=============================================
+  -85.147830795025    0.000000000000
+  -84.230109299138    0.000000000000
+  -84.854725828821    0.000000000000
+  -84.830705083811    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999890369066   -0.014292202446    0.000000000000    0.000000000000
+    2    0.014807087792   -0.999897861258    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999897861258   -0.014807087792    0.000000000000    0.000000000000
+    2    0.014292202446   -0.999890369066    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.  11       -85.1478307950254       -76.2427106746920        -0.0000038719917
+ Residues and T update / sec            1.4            1.6
+
+ Heff
+-------------------------
+
+                   1              2              3              4
+    1  -85.147638336936    0.013586405300    0.000000000000    0.000000000000
+    2    0.013114566497  -84.230305949785    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000  -84.842717948289    0.012009022873
+    4    0.000000000000    0.000000000000    0.012009022873  -84.842717948289
+-------------------------
+
+
+Eigenvalues (real and imaginary)
+=============================================
+  -85.147832532743    0.000000000000
+  -84.230111753977    0.000000000000
+  -84.854726971162    0.000000000000
+  -84.830708925416    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999890384893   -0.014291931467    0.000000000000    0.000000000000
+    2    0.014806019005   -0.999897865132    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999897865132   -0.014806019005    0.000000000000    0.000000000000
+    2    0.014291931467   -0.999890384893    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.  12       -85.1478325327434       -76.2427124124100        -0.0000017377180
+ Residues and T update / sec            1.4            1.6
+
+ Heff
+-------------------------
+
+                   1              2              3              4
+    1  -85.147639139142    0.013585774319    0.000000000000    0.000000000000
+    2    0.013114422279  -84.230307069772    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000  -84.842719216512    0.012008167433
+    4    0.000000000000    0.000000000000    0.012008167433  -84.842719216511
+-------------------------
+
+
+Eigenvalues (real and imaginary)
+=============================================
+  -85.147833323865    0.000000000000
+  -84.230112885049    0.000000000000
+  -84.854727383944    0.000000000000
+  -84.830711049079    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999890394994   -0.014291779455    0.000000000000    0.000000000000
+    2    0.014805336839   -0.999897867304    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999897867304   -0.014805336839    0.000000000000    0.000000000000
+    2    0.014291779455   -0.999890394994    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.  13       -85.1478333238653       -76.2427132035319        -0.0000007911219
+
+The MR-BWCCSD iteration has converged.
+
+ Residues and T update / sec            1.4            1.6
+
+Eigenvalues (real and imaginary)
+=============================================
+  -85.147927170053    0.000000000000
+  -84.371786901275    0.000000000000
+  -84.880415362274    0.000000000000
+  -84.856121992277    0.000000000000
+
+Left eigenvectors
+=============================================
+    1   -0.999776887299   -0.016900658246    0.000000000000    0.000000000000
+    2    0.021122869680   -0.999857173676    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Right eigenvectors
+=============================================
+    1   -0.999857173676   -0.021122869680    0.000000000000    0.000000000000
+    2    0.016900658246   -0.999776887299    0.000000000000    0.000000000000
+    3    0.000000000000    0.000000000000   -0.707106781187   -0.707106781186
+    4    0.000000000000    0.000000000000    0.707106781186   -0.707106781187
+
+Iter.  14       -85.1479271700535       -76.2428070497200        -0.0000938461882
+
+Final MR-BWCCSD energy and ecorr:   -76.242807049720   -0.219325865978
+A posteriori correction:    -0.000093846188
+
+
+              ======================================================
+                          Summary output from iterations
+              ======================================================
+
+                 Iteration     Energy (a.u.)         Corr. energy
+              ------------------------------------------------------
+                     1      -76.023605009032        0.000000000000
+                     2      -76.233814233061       -0.210333049320
+                     3      -76.237847381151       -0.214366197409
+                     4      -76.241437727019       -0.217956543277
+                     5      -76.242191181482       -0.218709997740
+                     6      -76.242511825570       -0.219030641828
+                     7      -76.242628622572       -0.219147438830
+                     8      -76.242677634361       -0.219196450619
+                     9      -76.242697970232       -0.219216786490
+                    10      -76.242706802700       -0.219225618959
+                    11      -76.242710674692       -0.219229490950
+                    12      -76.242712412410       -0.219231228668
+                    13      -76.242713203532       -0.219232019790
+                    14      -76.242807049720       -0.219325865978
+              ======================================================
+ MRCC cpu & wall time / sec           20.9           23.6
+
+ Task  times  cpu:       26.7s     wall:       31.5s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls: 2479     2479     1.88e+06 4.11e+04 3.49e+05  212        0        0     
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 1.00e+00 0.00e+00
+bytes total:             7.61e+08 4.94e+07 1.16e+08 1.70e+05 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 13090648 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        18	       106
+	current total bytes		         0	         0
+	maximum total bytes		   1061272	  22510080
+	maximum total K-bytes		      1062	     22511
+	maximum total M-bytes		         2	        23
+
+
+
+                                  ACKNOWLEDGEMENT
+                                  ---------------
+
+            Please use the following acknowledgement where appropriate 
+            for results obtained with NWChem:
+
+            High Performance Computational Chemistry Group, "NWChem, A
+            Computational Chemistry Package for Parallel Computers, 
+            Version 5.1.1" (2008), Pacific Northwest National Laboratory,
+            Richland, Washington 99352-0999, USA.
+
+
+                                     CITATION
+                                     --------
+
+          Please use the following citation when publishing results
+          obtained with NWChem:
+
+          E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+          M. Valiev, D. Wang, E. Apra, T. L. Windus, J. Hammond, J. Autschbach,
+          P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan, R. J. Harrison,
+          M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishnan,
+          A. Vazquez-Mayagoitia, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen,
+          L. D. Crosby, E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl,
+          J. Garza, K. Hirao, R. Kendall, J. A. Nichols, K. Tsemekhman
+          K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski, T. Clark,
+          D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E. Glendening
+          M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi,
+          R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima,
+          S. Niu, L. Pollack, M. Rosing, G. Sandrone, M. Stave, H. Taylor,
+          G. Thomas, J. van Lenthe, A. Wong, and Z. Zhang,
+          "NWChem, A Computational Chemistry Package for Parallel Computers, 
+          Version 5.1.1" (2008),
+                      Pacific Northwest National Laboratory,
+                      Richland, Washington 99352-0999, USA.
+
+
+
+ Total times  cpu:       26.7s     wall:       31.8s
