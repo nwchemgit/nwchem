@@ -277,6 +277,8 @@ c
        real*8 sigvv(1:nu,1:nvv), epsivv(1:nu,1:nvv)     
        real*8 ul(1:nu,1:nvv,1:ngr),plj(1:nu,1:nvv,1:ngr)
        real*8 nav,tau, echar,solperm,uthre,ck 
+       real*8 erf
+       external erf
 c      constants for potential
        pi=2*asin(1.0)
        nav=6.02214179e+23
