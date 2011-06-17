@@ -60,6 +60,8 @@ c     == zora related ==
 c
 c     == vdw contrib ==
       double precision dum
+      logical xc_chkdispauto
+      external xc_chkdispauto
       logical disp
 c
 #include "bas.fh"
@@ -1621,10 +1623,13 @@ c
 c     
 c     vdw bit
 c
-c activate disp if is present in rtdb
+c     activate disp if is present in rtdb
+c     or if dispersion is automatically included in the xc functional
       if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
      &   disp=.false.
-      if(disp)  call xc_vdw(rtdb,geom,Etnew,dum,'energy')
+c
+      if(disp.or.xc_chkdispauto())
+     &     call xc_vdw(rtdb,geom,Etnew,dum,'energy')
 c
       Etold = Etnew
 c     
