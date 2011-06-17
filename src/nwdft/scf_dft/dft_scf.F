@@ -159,7 +159,7 @@ c
       integer n_rabuck
       logical rabuck_act,spinset
       external dft_rabuck
-
+c
       integer g_focks(2)
       integer nel_fon(2),nmo_fon(2),g_movad,
      ,     ncanorg,g_gmovecs(2)
@@ -167,8 +167,11 @@ c
       logical llldb,llldb_out,util_statldb,staticguess
       external util_statldb
       integer ndisrst
+c
 c     for vdw contrib
       double precision dum
+      logical xc_chkdispauto
+      external xc_chkdispauto
       logical disp
 c
 c     == zora related ==
@@ -1457,10 +1460,13 @@ c     Jorge Garza / End
 c     
 c     vdw  bit
 c
-c activate disp if is present in rtdb
+c     activate disp if is present in rtdb
+c     or include dispersion if this a functional that includes dispersion
       if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
      &   disp=.false.
-      if(disp)  call xc_vdw(rtdb,geom,Etnew,dum,'energy')
+c
+      if(disp.or.xc_chkdispauto())
+     &      call xc_vdw(rtdb,geom,Etnew,dum,'energy')
 c
 c     ----- if cosmo ... after gas_phase, do sol_phase ... -----
 c
