@@ -11,8 +11,7 @@ c
  
 #include "cdft.fh"
 C  note in cdft.fh,they define cfac(numfunc) and xfac(numfunc)
- 
- 
+c 
       double precision tot,eps
       parameter(eps=1.d-10)
       tot = xfac(18) + cfac(25) + xfac(21) + cfac(27) 
@@ -28,6 +27,7 @@ C  note in cdft.fh,they define cfac(numfunc) and xfac(numfunc)
       endif
       return
       end
+c
       logical function xc_getxcfac(rtdb)
       implicit none
       integer rtdb
@@ -42,6 +42,3 @@ c     load cfac and xfac into cdft.fh
      &     cfac)
       return
       end
-
-
-
