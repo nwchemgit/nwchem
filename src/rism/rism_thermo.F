@@ -12,7 +12,9 @@
        real*8 ul(1:nu,1:nvv,1:ngr),hq(1:nu,1:nvv,1:ngr)
        real*8 ulr(1:nu,1:nvv,1:ngr),qvv(1:nvv),qqu(1:nu)
        real*8 erf
+#ifndef GFORTRAN
        external erf
+#endif
 c
        pi=2*asin(1.0)
        kb=8.13441e-3
