@@ -150,6 +150,8 @@ c
 c
 c     vdw contrib
       logical disp
+      logical xc_chkdispauto
+      external xc_chkdispauto
 c
       call ecce_print_module_entry('task hessian')
 c
@@ -163,6 +165,7 @@ c
       endif
 c
 c     Check for vdw (disp) calculations
+      disp=.false.
       if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
      &      disp=.false.
 c
@@ -254,9 +257,8 @@ c
 c       vdw contribution to analytic hessian 
 c       for numerical hessians, this contribution is added via the gradients
         if(theory.eq.'dft') then
-          if(disp) call xc_vdw_to_hessian(rtdb)
+          if(disp.or.xc_chkdispauto()) call xc_vdw_to_hessian(rtdb)
         endif ! vdw
-
       endif  ! numerical or analytic
 c
       if (task_bsse) then
