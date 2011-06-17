@@ -2,7 +2,7 @@
 
 HEADERS = xc.fh
 
-	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o
+	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o xc_chkdispauto.o
 
 	OBJ_OPTIMIZE = xc_eval_basis.o  \
 	a_dist.o \
