@@ -1158,13 +1158,6 @@ c     nlxfac(1) = .false.
         cfac(41) = 1.d0
        lcfac(41) = .true.
       nlcfac(41) = .true.
-c this functional must be used with vdw contrib, anyway is possible to change s6
-      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
-     &   disp=.false.
-      if(.not.disp) then
-        if (.not.rtdb_put(rtdb, 'dft:disp', mt_log, 1, .true.))
-     &   call errquit('xc_inp: rtdb_put disp failed', 5, RTDB_ERR)
-      endif
 c
       goto 10
 c     
@@ -2516,15 +2509,8 @@ c
        lcfac(6)  = .true.
         cfac(6)  = 1.0d0
 c
-c       this functional must be used with vdw contrib
-c       (Grimme) with factor 0.847455
-c
-      if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
-     &   disp=.false.
-      if(.not.disp) then
-        if (.not.rtdb_put(rtdb, 'dft:disp', mt_log, 1, .true.))
-     &   call errquit('xc_inp: rtdb_put disp failed', 5, RTDB_ERR)
-      endif
+c     this functional must be used with vdw contrib
+c     (Grimme) with factor 0.847455
 c
       goto 10
 c
