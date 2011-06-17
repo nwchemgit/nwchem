@@ -85,8 +85,11 @@ c     integer noc(2)
       double precision charge, charge_nuc, rhffact, tol2e, onem,
      , toll
 c
+c     vdw
       double precision dum
       logical disp
+      logical xc_chkdispauto
+      external xc_chkdispauto
 c
       double precision fant_a,fant_d
       parameter(toll=1.d-9)
@@ -477,8 +480,9 @@ c     vdW bit
 c
       if (.not.rtdb_get(rtdb, 'dft:disp', mt_log, 1, disp))
      &   disp=.false.
-      if(disp) call xc_vdw(rtdb,geom,dum,
-     &     dbl_mb(k_frc_xc), 'forces')
+c
+      if(disp.or.xc_chkdispauto())
+     &   call xc_vdw(rtdb,geom,dum,dbl_mb(k_frc_xc), 'forces')
 c
 c     add Bonacic-Fantucci repulsive term
 c
