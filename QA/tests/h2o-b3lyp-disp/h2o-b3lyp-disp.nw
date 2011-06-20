@@ -1,0 +1,29 @@
+title "h2o b3lyp + disp and b3lyp without"
+
+echo
+start h2o-b3lyp-disp
+
+memory 500 mb
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+dft
+  xc b3lyp
+  disp vdw 2
+end
+task dft freq
+
+dft
+  xc b3lyp
+  disp off
+end
+task dft energy
