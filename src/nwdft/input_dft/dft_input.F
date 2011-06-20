@@ -488,7 +488,7 @@ c s6 contribution
      &   call errquit('dft_input: rtdb_put failed', 2810, RTDB_ERR)
 c turn off vdw contrib
       elseif (inp_compare(.false.,'off', test)) then
-        if (.not.rtdb_put(rtdb,'dft:disp',mt_dbl,1,.false.))
+        if (.not.rtdb_put(rtdb,'dft:disp',mt_log,1,.false.))
      &   call errquit('dft_input: rtdb_put failed', 2810, RTDB_ERR)
       else
 c
