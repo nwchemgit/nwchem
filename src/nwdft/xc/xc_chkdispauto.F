@@ -7,13 +7,13 @@ c
 #include "cdft.fh"
 c     note in cdft.fh, they define cfac(numfunc) and xfac(numfunc)
 c 
-      double precision tot,eps
-      parameter(eps=1.d-10)
+      logical hasautodisp
+      hasautodisp = .false.
 c
 c     beck97-d, ssb-d
-      tot = xccomb(37) + xccomb(46)   
+      hasautodisp = xccomb(37).or.xccomb(46)   
 c
-      if (abs(tot).gt.eps) then
+      if (hasautodisp) then
          xc_chkdispauto = .true.
       else
          xc_chkdispauto = .false.
