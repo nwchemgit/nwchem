@@ -588,6 +588,8 @@ c
       xname(39)='        Becke 1997-D Exchange Functional'
       xname(40)='         CAM-Becke88 Exchange Functional'
       xname(41)='           CAM-PBE96 Exchange Functional'
+      xname(42)='           CAM-LSD   Exchange Functional'
+      xname(43)='           LC-wPBE(h)Exchange Functional'
       xname(46)='               SSB-1 Exchange Functional'
       xname(47)='                 KT1 gradient correction'
 c
