@@ -389,8 +389,7 @@ c
       logical from_compile
       logical debug
 c
-c      debug = .false.
-      debug = .true.
+      debug = .false.
 c
 c     1: check for NWCHEM_PERMANENT_DIR environment variable
 c
