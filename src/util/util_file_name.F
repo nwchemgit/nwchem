@@ -389,7 +389,8 @@ c
       logical from_compile
       logical debug
 c
-      debug = .false.
+c      debug = .false.
+      debug = .true.
 c
 c     1: check for NWCHEM_PERMANENT_DIR environment variable
 c
@@ -478,11 +479,8 @@ c
       call util_set_default_scratch_dir(scratch_dir)
       call util_set_default_permanent_dir(permanent_dir)
       iocheckk=.true.
-#ifdef CRAYXT
-c     only catamount all fs are parallel, therefore we need only node0
-      iocheckk=ga_nodeid().eq.0
-#endif     
-#ifdef BGP
+#if defined(CRAYXT) || defined(BGP)
+c     on catamount all fs are parallel, therefore we need only node0
 c     on BGP all fs are parallel, therefore we need only node0
       iocheckk=ga_nodeid().eq.0
 #endif     
