@@ -90,7 +90,6 @@ c     !&                 dbl_mb(iqwgt + iqpts-1),
 c     !&                 dbl_mb(ivemb + iqpts-1)
         wght_tot = wght_tot + w
        end do
-       read(unitno,*)
        close(unitno)
 
 c       write(luout,*) "weight total:",wght_tot
