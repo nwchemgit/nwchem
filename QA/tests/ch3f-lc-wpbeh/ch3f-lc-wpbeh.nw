@@ -1,0 +1,31 @@
+echo
+start ch3f-lc-wpbeh
+title ch3f-lc-wpbeh
+
+geometry notrans noautoz units angstrom nocenter
+symmetry c1
+c  0.0    0.0    0.0
+f  0.0    0.0    1.383
+h  1.028  0.0   -0.350
+h -0.514  0.890 -0.350
+h -0.514 -0.890 -0.350
+end
+
+BASIS "ao basis" PRINT
+* library 6-311G
+END
+
+charge 0
+
+set geometry notrans
+dft
+ direct
+ xc xwpbe 0.80 cpbe96 1.0 hfexch 1.00
+ cam 0.2 cam_alpha 0.20 cam_beta 0.80
+end
+
+property
+  shielding
+end
+
+task dft property
