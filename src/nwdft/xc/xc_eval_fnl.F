@@ -728,10 +728,10 @@ c
       if (abs(xfac(42)).gt.eps)then
          if (.not. do_2nd) then
            call xc_camxlsd(tol_rho, xfac(42), lxfac(42), nlxfac(42), 
-     &           rho, Amat, nq, ipol, Ex, qwght, ldew, func)
+     &         rho, Amat, nq, ipol, Ex, qwght, ldew, func)
          else
            call xc_camxlsd_d2(tol_rho, xfac(42), lxfac(42), nlxfac(42), 
-     &          rho, Amat, Amat2, nq, ipol, Ex, qwght, .false., func)
+     &         rho, Amat, Amat2, nq, ipol, Ex, qwght, .false., func)
          endif
       endif
 c
@@ -740,10 +740,11 @@ c
       if (abs(xfac(43)).gt.eps)then
          if (.not. do_2nd) then
            call xc_xwpbe(tol_rho, xfac(43), lxfac(43), nlxfac(43), 
-     &           rho, Amat, nq, ipol, Ex, qwght, ldew, func)
+     &         rho, delrho, Amat, Cmat, nq, ipol, Ex, qwght,ldew,func)
          else
            call xc_xwpbe_d2(tol_rho, xfac(43), lxfac(43), nlxfac(43), 
-     &          rho, Amat, Amat2, nq, ipol, Ex, qwght, .false., func)
+     &         rho, delrho, Amat, Amat2, Cmat, Cmat2, nq, ipol, Ex,
+     &                        qwght,ldew,func)
          endif
       endif
 c
