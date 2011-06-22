@@ -7,13 +7,13 @@ c
 #include "cdft.fh"
 c     note in cdft.fh, they define cfac(numfunc) and xfac(numfunc)
 c 
-      logical hasautodisp
-      hasautodisp = .false.
+      logical lhasautodisp
+      lhasautodisp = .false.
 c
 c     beck97-d, ssb-d
-      hasautodisp = xccomb(37).or.xccomb(46)   
+      lhasautodisp = xccomb(37).or.xccomb(46)   
 c
-      if (hasautodisp) then
+      if (lhasautodisp) then
          xc_chkdispauto = .true.
       else
          xc_chkdispauto = .false.
