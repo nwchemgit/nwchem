@@ -26,7 +26,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 43)
+      parameter (num_dirs = 44)
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -56,6 +56,7 @@ c
       double precision efield_x
       double precision efield_y
       double precision efield_z
+      integer maxiter
 c
       data dirs /'convergence','decomp','dft','direct','semidirect',
      $         'ecp','grid','vectors','incore','iterations', 
@@ -64,7 +65,7 @@ c
      $         'smear','fon','lb94','cs00','cdft','cam','disp',
      $         'dftmp2','molden','noscf','steric','efield','swapab',
      $         'frozemb','cgmin','tol2e','ri-scf','lock','rodft',
-     $         'fukui','end'/
+     $         'fukui','maxiter','end'/
 c
 c Qin / cdft
       integer nconstr
@@ -101,7 +102,7 @@ c
      $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
      $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 
-     $     3600, 3700, 3800, 3900, 4000, 4100, 9999) ind
+     $     3600, 3700, 3800, 3900, 4000, 4100, 4200, 9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -679,6 +680,19 @@ c
  4100 dofukui = 1
       if (.not.rtdb_put(rtdb,'dft:condfukui', mt_int, 1, dofukui))
      &   call errquit('dft_input: rtdb_put failed', 4100, RTDB_ERR)
+c
+      goto 10
+c
+c     maxiter; alternate to iterations
+c             
+ 4200 if (.not. inp_i(maxiter)) then
+         write(LuOut,*)' dft_input: maxiter value not found;',
+     &             ' defaulting to 30'
+         maxiter = 30
+      endif 
+      iterations = maxiter
+      if (.not. rtdb_put(rtdb, 'dft:iterations', mt_int, 1, iterations))
+     &   call errquit('dft_input: rtdb_put failed', 4200, RTDB_ERR)
 c
       goto 10
 c
