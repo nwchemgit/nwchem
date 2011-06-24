@@ -1,7 +1,10 @@
-c
        subroutine chicreat(rdffile,nd,nv,ngr,ims,nvv,kgrid,tv,
      * isv,den,mv,xv,yv,zv,chi) 
        implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
        character*(*) rdffile
        real*8 wv(1:nvv,1:nvv,1:ngr), chi(1:nvv,1:nvv,1:ngr),hd(1:ngr)
        integer  nv, ngr, isv(1:nv), mv(1:nv)
@@ -11,17 +14,23 @@ c
        real*8 hsol(1:nd,1:ngr), rr(1:ngr)
        real*8 h1(1:nvv,1:nvv,1:ngr),h2(1:ngr),h3(1:nvv,1:nvv,1:ngr)
        character (4) tv(1:nv)
+c
+       character*50 pname,message
+       integer fn
+       pname = "rism_solvent_chi"
        pi=2*asin(1.0)
-       
-c 
-c reading of solvent rdfs 
-        open(3, file=rdffile, status='old')      
-        do i=1,ngr
-         read(3,104) rr(i), (hsol(j,i), j=1,nd)
-        enddo
-       close(3)
-104    format(11(1x,f12.7)) 
-       dr=rr(2)-rr(1) 
+c       
+c     reading of solvent rdfs 
+c     ------------------------
+      message = "reading solvent rdf"
+      if(.not.util_get_io_unit(fn))
+     >  call errquit("cannot get file number",0,0)
+      open(unit=fn,status="old",form="formatted",file=rdffile)
+      do i=1,ngr
+        read(fn,*,ERR=30,END=30) rr(i), (hsol(j,i), j=1,nd)
+      enddo
+      close(fn)
+      dr=rr(2)-rr(1) 
 !      do i=1,ngr,40
 !       print*, (hsol(j,i), j=1,9)
 !      enddo
@@ -75,8 +84,8 @@ c
 !       print*, (chi(2,j,i), j=1,4) 
 !      enddo
        return
+30    call errquit(pname//message,0,0)
        end subroutine 
-c
 c
 c caculation of reduced solvent matrix
 c
