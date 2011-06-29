@@ -465,69 +465,61 @@ c
       return
       end
 c
+C>    Calculates number of unique atoms (nvv) 
+C>    and enumerates them (ism)
+C>    @param[in] nv number of solvent atoms      
+C>    @param[in] tv names of solvent atoms      
+C>    @param[in] residue/segemnt index of solvent atoms      
+C>    @param[in] multiplicites/populations of solvent atoms
+C>    @param[out] enumerated array of unique solvent atoms
+C>    in the order of occurence
+C>    @param[out] total number of unique solvent atoms
       subroutine rism_sort(nv,tv,isv,mv,ims,nvv)
       implicit none
 #include "errquit.fh"
-#include "mafdecls.fh"
-#include "msgids.fh"
-#include "inp.fh"
-#include "util.fh"
-#include "rtdb.fh"
-#include "global.fh"
 #include "db_const_data.fh"
       character(db_string_size) tv(nv)
-      integer  nv, isv(nv), mv(nv),ims(nv)
-      integer  i,i1,j1,j2,icc,maxn,nvv      
-c     automatic array change it ASAP
-      integer mvt(nv),imm(1:nv)
+      integer  nv, isv(nv), mv(nv)
+      integer  ims(nv),nvv      
+c     local variables
+      integer  j1,j2
+      integer ims_cur,mvtemp
+      character*82 message
+c      
+      do j1=1,nv
+        ims(j1)=0 
+      enddo
 c
-c      initialization of connectivity vector      
-       do i=1,nv
-        ims(i)=i 
-        imm(i)=1
-        mvt(i)=mv(i)  
-       enddo
-c      sorting 
-       do j1=1,nv-1
-        do j2=j1+1,nv
-         if((tv(j1).eq.tv(j2)).and.(isv(j1).eq.isv(j2))
-     *    .and.(mv(j2).ne.1)) then 
-c         replace current value of ims by the first found
-          ims(j2)=ims(j1)
-c         change indicator of replacement
-          imm(j2)=2
-c         change multiplicity
-          mv(j2)=1 
-c         shift all others except replaced by 1
-          if(j2.ne.nv) then
-           do i1=j2+1,nv
-            if(imm(i1).eq.1) then  
-             ims(i1)=ims(i1)-1
-             else 
-             ims(i1)=ims(i1)
-            endif 
-           enddo
-          endif  
-          else 
-          ims(j2)=ims(j2)
-         endif
-!       print*, j2,ims(j2),mv(j2),imm(j2)
-        enddo
-       enddo
-c      evaluation of maximal value of different sites
-       maxn=ims(1) 
-       do i=2,nv
-        if(ims(i).ge.maxn) then
-         maxn=ims(i)
-        endif
-       enddo
-       nvv=maxn
-c      replace changed mv by the initial one 
-       do i=1,nv
-        mv(i)=mvt(i)
-       enddo
-       return
-       end subroutine 
+      nvv = 0
+      ims_cur=0
+      do j1=1,nv
+        if(ims(j1).eq.0) then
+          mvtemp = 1
+          ims_cur = ims_cur + 1
+          ims(j1) = ims_cur
+          nvv = nvv + 1
+          do j2=j1+1,nv
+            if((tv(j1).eq.tv(j2)).and.(isv(j1).eq.isv(j2))
+     *         .and.(mv(j2).eq.mv(j1))) then 
+              ims(j2)=ims_cur
+              mvtemp = mvtemp + 1
+            end if
+          end do
+          if(mvtemp.ne.mv(j1)) then
+            write(message,'("inconsistent multiplicity ",A4,2(I4,2X))') 
+     >           tv(j1),isv(j1), mv(j1)
+            call errquit(message,0,0)
+          end if
+        end if
+      end do
+
+c      write(*,*) "my ims",nvv
+c      do j1=1,nv
+c        write(*,*) j1,ims(j1)
+c      enddo
+c
+      return
+      end subroutine 
 c
       subroutine rism_read_solvent_file(filename,nv,
      +                            tv,isv,
