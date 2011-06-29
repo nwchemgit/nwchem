@@ -469,7 +469,7 @@ C>    Calculates number of unique atoms (nvv)
 C>    and enumerates them (ism)
 C>    @param[in] nv number of solvent atoms      
 C>    @param[in] tv names of solvent atoms      
-C>    @param[in] residue/segemnt index of solvent atoms      
+C>    @param[in] isv residue/segment index of solvent atoms      
 C>    @param[in] multiplicites/populations of solvent atoms
 C>    @param[out] enumerated array of unique solvent atoms
 C>    in the order of occurence

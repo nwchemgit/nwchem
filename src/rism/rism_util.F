@@ -1,3 +1,14 @@
+C>
+C>      computes solvent susceptibility
+C>      -------------------------------
+C>    @param[in] rdffile name of the file containing rdf
+C>    @param[in] nd total number of different rdfs (e.g. 2 for water),
+C>     or another words number of unique solvent site-site pairs
+C>    @param[in] nv total number of atom in solvent molecule (e.g. 3 for
+C>     water)
+C>    @param[in] ngr total number of grid points in rdf
+C>    @param[in] ims total number of grid points in rdf
+      
        subroutine chicreat(rdffile,nd,nv,ngr,ims,nvv,kgrid,tv,
      * isv,den,mv,xv,yv,zv,chi) 
        implicit none
@@ -87,8 +98,18 @@ c
 30    call errquit(pname//message,0,0)
        end subroutine 
 c
-c caculation of reduced solvent matrix
-c
+C>     Caculation of reduced intra-molecular correlation matrix in k-space
+C>     @param[in]  nv    number of solvent atoms      
+C>     @param[in]  nvv   number of unique solvent atoms      
+C>     @param[in]  ngr   number of grid points
+C>     @param[in]  ims   atom type array
+C>     @param[in]  kgrid kspace array
+C>     @param[in]  isv residue/segment index of solvent atoms      
+C>     @param[in]  xv  x-coord
+C>     @param[in]  yv  y-coord
+C>     @param[in]  zv  z-coord
+C>     @param[out] wv  intra-molecular correlation matrix in k-space
+C>    
        subroutine wcreat(nv,ngr,nvv,ims,kgrid,isv,xv,yv,zv,wv) 
        implicit none
        integer  nv,nvv, ngr
@@ -126,9 +147,9 @@ c      co(i,j,k) sinr between i and j sites
 c
 c     testing
 c     -------
-      do i=1,ngr,40
-       write(43,*) ((wv(j1,j2,i), j1=1,nvv),j2=1,nvv)
-      enddo
+c      do i=1,ngr,40
+c       write(43,*) ((wv(j1,j2,i), j1=1,nvv),j2=1,nvv)
+c      enddo
       return
       end subroutine 
 
