@@ -12,10 +12,22 @@
       integer awsigmameta(2)
       integer aindxmeta(2),anxmeta,anmeta
 
+
+      integer cxmeta(2),cymeta(2),cy2meta(2)
+      integer cwsigmameta(2)
+      integer cindxmeta1(2),cindxmeta2(2) 
+      integer cindxsize1(2),cindxsize2(2) 
+      integer cnxmeta,cnmeta
+
+
       common / metacommon / bxmeta,bymeta,by2meta,bwsigmameta,
      >                      bindxmeta,bnxmeta,bnmeta,
      >                      axmeta,aymeta,ay2meta,awsigmameta,
      >                      aindxmeta,anxmeta,anmeta,
+     >                      cxmeta,cymeta,cy2meta,cwsigmameta,
+     >                      cindxmeta1,cindxmeta2,
+     >                      cindxsize1,cindxsize2,
+     >                      cnxmeta,cnmeta,
      >                      tmeta,metacount,maxmetacount,
      >                      metaprintcount,maxmetaprintcount,
      >                      metafound

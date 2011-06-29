@@ -17,9 +17,10 @@ c     **********************************************
       integer taskid,MASTER
       parameter (MASTER=0)
       logical value
-      integer i,j
+      integer i,j,n1,n2,is1,is2
       real*8 x,y,z,r,rmax,dr,pi,da
       character*80 rtdb_name
+      character*4 celement1,celement2
 
 *     **** external functions ****
       real*8      lattice_unita
@@ -39,8 +40,10 @@ c     **********************************************
       rtdb_name = 'metadynamics_nangle'
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,anmeta)) anmeta = 0
 
+      rtdb_name = 'metadynamics_ncoordnum'
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,cnmeta)) cnmeta = 0
 
-      metafound = (bnmeta.gt.0).or.(anmeta.gt.0)
+      metafound = (bnmeta.gt.0).or.(anmeta.gt.0).or.(cnmeta.gt.0)
       if (metafound) then
          rtdb_name = 'metadynamics_update'
          if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,maxmetacount)) 
@@ -182,6 +185,110 @@ c     **********************************************
                dbl_mb(axmeta(1)+i-1) = r
             end do
          end if
+
+
+
+
+         if (cnmeta.gt.0) then
+            cnxmeta = 501
+            value = value.and.
+     >              MA_alloc_get(mt_dbl,cnxmeta,'cxmeta',
+     >                           cxmeta(2),cxmeta(1))
+            value = value.and.
+     >              MA_alloc_get(mt_dbl,cnmeta*cnxmeta,'cymeta',
+     >                           cymeta(2),cymeta(1))
+            value = value.and.
+     >              MA_alloc_get(mt_dbl,cnmeta*cnxmeta,'cy2meta',
+     >                           cy2meta(2),cy2meta(1))
+
+*           **** load old spline fits ****
+            call dcopy(cnmeta*cnxmeta,0.0d0,0,dbl_mb(cymeta(1)),1)
+            call dcopy(cnmeta*cnxmeta,0.0d0,0,dbl_mb(cy2meta(1)),1)
+            rtdb_name = 'metadynamics_cymeta'
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,cnmeta*cnxmeta,
+     >                       dbl_mb(cymeta(1)))) then
+               call dcopy(cnmeta*cnxmeta,0.0d0,0,dbl_mb(cymeta(1)),1)
+            else
+               if (taskid.eq.MASTER)
+     >           write(*,*) 
+     >           "  ... reading coordination number metadynamics data"
+            end if
+            rtdb_name = 'metadynamics_cy2meta'
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,cnmeta*cnxmeta,
+     >                       dbl_mb(cy2meta(1)))) then
+               call dcopy(cnmeta*cnxmeta,0.0d0,0,dbl_mb(cy2meta(1)),1)
+            else
+               if (taskid.eq.MASTER)
+     >           write(*,*) 
+     >        "  ... reading more coordination number metadynamics data"
+            end if
+
+            value = value.and.
+     >              MA_alloc_get(mt_dbl,5*cnmeta,'cwsigmameta',
+     >                           cwsigmameta(2),cwsigmameta(1))
+            value = value.and.
+     >              MA_alloc_get(mt_int,cnmeta,'cindxsize1',
+     >                           cindxsize1(2),cindxsize1(1))
+            value = value.and.
+     >              MA_alloc_get(mt_int,cnmeta,'cindxsize2',
+     >                           cindxsize2(2),cindxsize2(1))
+
+            is1 = 0
+            is2 = 0
+            do j=1,cnmeta
+              rtdb_name =
+     >        'metadynamics_coordnum_indxsize1:'//c_index_name(j)
+              value=value.and.rtdb_get(rtdb,rtdb_name,mt_int,1,
+     >                                 int_mb(cindxsize1(1)+j-1))
+              rtdb_name =
+     >        'metadynamics_coordnum_indxsize2:'//c_index_name(j)
+              value=value.and.rtdb_get(rtdb,rtdb_name,mt_int,1,
+     >                                 int_mb(cindxsize2(1)+j-1))
+              is1 = is1 + int_mb(cindxsize1(1)+j-1)
+              is2 = is2 + int_mb(cindxsize2(1)+j-1)
+
+              rtdb_name='metadynamics_coordnum_ksigma:'//c_index_name(j)
+              if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,5,
+     >                      dbl_mb(cwsigmameta(1)+(j-1)*5))) then
+                 dbl_mb(cwsigmameta(1)+(j-1)*5)   = 6.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*5+1) = 18.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*5+2) = 3.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*5+3) = 0.00005d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*5+4) = 0.10d0
+              end if
+
+            end do
+
+            value = value.and.
+     >              MA_alloc_get(mt_int,is1*cnmeta,'cindxmeta1',
+     >                           cindxmeta1(2),cindxmeta1(1))
+            value = value.and.
+     >              MA_alloc_get(mt_int,is2*cnmeta,'cindxmeta2',
+     >                           cindxmeta2(2),cindxmeta2(1))
+            is1 = 0
+            is2 = 0
+            do j=1,cnmeta
+              n1 = int_mb(cindxsize1(1)+j-1)
+              n2 = int_mb(cindxsize2(1)+j-1)
+              rtdb_name ='metadynamics_coordnum_indx1:'//c_index_name(j)
+              value=value.and.rtdb_get(rtdb,rtdb_name,mt_int,n1,
+     >                                 int_mb(cindxmeta1(1)+is1))
+              rtdb_name ='metadynamics_coordnum_indx2:'//c_index_name(j)
+              value=value.and.rtdb_get(rtdb,rtdb_name,mt_int,n2,
+     >                                 int_mb(cindxmeta2(1)+is2))
+              is1 = is1 + n1
+              is2 = is2 + n2
+
+            end do
+
+            da = 25.0d0/dble(cnxmeta-1)
+            do i=1,anxmeta
+               r = (i-1)*da
+               dbl_mb(cxmeta(1)+i-1) = r
+            end do
+
+         end if
+
          value = value.and.
      >           MA_alloc_get(mt_dbl,501,'tmeta',
      >                        tmeta(2),tmeta(1))
@@ -214,6 +321,33 @@ c     **********************************************
      >                  dbl_mb(awsigmameta(1)+2*(i-1)+1)
 
          end do
+         is1=0
+         is2=0
+         do i=1,cnmeta
+            n1 = int_mb(cindxsize1(1)+i-1)
+            n2 = int_mb(cindxsize2(1)+i-1)
+            write(*,1001) (int_mb(cindxmeta1(1)+is1+j-1),j=1,n1)
+            write(*,1002) (int_mb(cindxmeta2(1)+is2+j-1),j=1,n2)
+
+            write(*,'(A,4x,A,F11.6,4x,A,F11.6,
+     >                  4x,A,F11.6,4x,A,F11.6,
+     >                  4x,A,F11.6)')
+     >       "   - Coordination Number Parameters =  ",
+     >                  'n=',
+     >                  dbl_mb(cwsigmameta(1)+5*(i-1)+0),
+     >                  'm=',
+     >                  dbl_mb(cwsigmameta(1)+5*(i-1)+1),
+     >                  'r0=',
+     >                  dbl_mb(cwsigmameta(1)+5*(i-1)+2),
+     >                  'w=',
+     >                  dbl_mb(cwsigmameta(1)+5*(i-1)+3),
+     >                  'sigma=',
+     >                  dbl_mb(cwsigmameta(1)+5*(i-1)+4)
+            is1 = is1 + n1
+            is2 = is2 + n2
+         end do
+ 1001 FORMAT(2x,"- Coorination Number Index1 :",10I5)
+ 1002 FORMAT(2x,"- Coorination Number Index2 :",10I5)
 
       end if
       
@@ -289,6 +423,26 @@ c     **********************************************
             value = value.and.MA_free_heap(awsigmameta(2))
             value = value.and.MA_free_heap(aindxmeta(2))
          end if
+         if (cnmeta.gt.0) then
+
+*           **** write out current spline fits ****
+            rtdb_name = 'metadynamics_cymeta'
+            value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                        cnmeta*cnxmeta,dbl_mb(cymeta(1)))
+            rtdb_name = 'metadynamics_cy2meta'
+            value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                        cnmeta*cnxmeta,dbl_mb(cy2meta(1)))
+
+            value = value.and.MA_free_heap(cxmeta(2))
+            value = value.and.MA_free_heap(cymeta(2))
+            value = value.and.MA_free_heap(cy2meta(2))
+            value = value.and.MA_free_heap(cwsigmameta(2))
+            value = value.and.MA_free_heap(cindxmeta1(2))
+            value = value.and.MA_free_heap(cindxmeta2(2))
+            value = value.and.MA_free_heap(cindxsize1(2))
+            value = value.and.MA_free_heap(cindxsize2(2))
+         end if
+
          value = value.and.MA_free_heap(tmeta(2))
       end if
 
@@ -305,14 +459,15 @@ c     **********************************************
       integer ntype,indx(*)
 
 *     **** local variables ****
+      integer i,j
       real*8 x1,y1,z1,x2,y2,z2,x3,y3,z3,dx,dy,dz,r,r1,r3
-      real*8 dx1,dy1,dz1,dx3,dy3,dz3,theta
+      real*8 dx1,dy1,dz1,dx3,dy3,dz3,theta,n,m,r0,f
 
 *     **** external functions ****
       real*8   ion_rion
       external ion_rion
 
-      r = 0.0d0
+      f = 0.0d0
 c     **** bond distance ***
       if (ntype.eq.1) then
          x1 = ion_rion(1,indx(1))
@@ -326,6 +481,7 @@ c     **** bond distance ***
          dz = z1-z2
          call lattice_min_difference(dx,dy,dz)
          r  = dsqrt(dx**2 + dy**2 + dz**2)
+         f  = r
 
 c     **** bond angle ***
       else if (ntype.eq.2) then
@@ -352,6 +508,7 @@ c     **** bond angle ***
          if (theta.gt.1.0d0)  theta = 1.0d0
          if (theta.lt.-1.0d0) theta = -1.0d0
          theta = dacos(theta)
+         f = theta
 
 c     **** bond dihedral ****
 
@@ -359,7 +516,7 @@ c     **** bond dihedral ****
 
 c     **** coordination number ****
 
-      meta_collective = r
+      meta_collective = f
       return
       end
 
@@ -375,8 +532,9 @@ c     **********************************************
       real*8 dv,fmeta(3,*)
 
 *     **** local variables ****
+      integer i,j
       real*8 x1,y1,z1,r1,vx1,vx2,vy1,vy2,vz1,vz2
-      real*8 x2,y2,z2,aa,a11,a12,a22,r
+      real*8 x2,y2,z2,aa,a11,a12,a22,r,df,n,m,r0,rn,rm
       real*8 x3,y3,z3,r3,ctheta,stheta,denom
       real*8 dx,dy,dz,dx1,dy1,dz1,dx3,dy3,dz3
 
@@ -463,17 +621,127 @@ c     **** bond angle ***
             fmeta(3,indx(3)) = fmeta(3,indx(3)) - vz2
          end if
 
-
-
-
 c     **** bond dihedral ****
 
       end if
 
+      return
+      end
 
+
+c     **********************************************
+c     *                                            *
+c     *            meta_collective2                *
+c     *                                            *
+c     **********************************************
+      real*8 function meta_collective2(ntype,n1,indx1,n2,indx2,param)
+      implicit none
+      integer ntype,n1,indx1(*),n2,indx2(*)
+      real*8  param(*)
+
+*     **** local variables ****
+      integer i,j
+      real*8 x1,y1,z1,x2,y2,z2,x3,y3,z3,dx,dy,dz,r,r1,r3
+      real*8 dx1,dy1,dz1,dx3,dy3,dz3,theta,n,m,r0,f
+
+*     **** external functions ****
+      real*8   ion_rion
+      external ion_rion
+
+      f = 0.0d0
+c     **** coordination number ****
+      if (ntype.eq.4) then
+         f = 0.0d0
+         n  = param(1)
+         m  = param(2)
+         r0 = param(3)
+         do i=1,n1
+            do j=1,n2
+               x1 = ion_rion(1,indx1(i))
+               y1 = ion_rion(2,indx1(i))
+               z1 = ion_rion(3,indx1(i))
+               x2 = ion_rion(1,indx2(j))
+               y2 = ion_rion(2,indx2(j))
+               z2 = ion_rion(3,indx2(j))
+               dx1 = x1-x2
+               dy1 = y1-y2
+               dz1 = z1-z2
+               call lattice_min_difference(dx1,dy1,dz1)
+               r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+               f = f + (1.0d0-(r1/r0)**n)/(1.0d0-(r1/r0)**m)
+            end do
+         end do
+
+      end if
+
+c     **** coordination number ****
+
+      meta_collective2 = f
+      return
+      end
+
+c     **********************************************
+c     *                                            *
+c     *           meta_collective2_force           *
+c     *                                            *
+c     **********************************************
+
+      subroutine meta_collective2_force(ntype,
+     >                                  n1,indx1,
+     >                                  n2,indx2,param,
+     >                                  dv,fmeta)
+      implicit none
+      integer ntype,n1,indx1(*),n2,indx2(*)
+      real*8 param(*),dv,fmeta(3,*)
+
+*     **** local variables ****
+      integer i,j
+      real*8 x1,y1,z1,r1,vx1,vx2,vy1,vy2,vz1,vz2
+      real*8 x2,y2,z2,aa,a11,a12,a22,r,df,n,m,r0,rn,rm
+      real*8 x3,y3,z3,r3,ctheta,stheta,denom
+      real*8 dx,dy,dz,dx1,dy1,dz1,dx3,dy3,dz3
+
+*     **** external functions ****
+      real*8   ion_rion
+      external ion_rion
+
+c     **** coordination number ***
+      if (ntype.eq.4) then
+         n  = param(1)
+         m  = param(2)
+         r0 = param(3)
+         do i=1,n1
+            do j=1,n2
+               x1 = ion_rion(1,indx1(i))
+               y1 = ion_rion(2,indx1(i))
+               z1 = ion_rion(3,indx1(i))
+               x2 = ion_rion(1,indx2(j))
+               y2 = ion_rion(2,indx2(j))
+               z2 = ion_rion(3,indx2(j))
+               dx = x1-x2
+               dy = y1-y2
+               dz = z1-z2
+               call lattice_min_difference(dx,dy,dz)
+               r  = dsqrt(dx**2 + dy**2 + dz**2)
+               rn  = (1.0d0-(r/r0)**n)
+               rm  = (1.0d0-(r/r0)**m)
+               df = (-n*rm/r0*(r/r0)**(n-1) + m*rn/r0*(r/r0)**(m-1))
+     >              / (rm**2)
+               fmeta(1,indx1(i)) = fmeta(1,indx1(i)) - (dx/r)*df*dv
+               fmeta(2,indx1(i)) = fmeta(2,indx1(i)) - (dy/r)*df*dv
+               fmeta(3,indx1(i)) = fmeta(3,indx1(i)) - (dz/r)*df*dv
+               fmeta(1,indx2(j)) = fmeta(1,indx2(j)) + (dx/r)*df*dv
+               fmeta(2,indx2(j)) = fmeta(2,indx2(j)) + (dy/r)*df*dv
+               fmeta(3,indx2(j)) = fmeta(3,indx2(j)) + (dz/r)*df*dv
+            end do
+         end do
+
+      end if
 
       return
       end
+
+
 
 *     ***********************************************
 *     *                                             *
@@ -488,12 +756,12 @@ c     **** bond dihedral ****
 #include "metadynamics.fh"
 
 *     **** local variables ****
-      integer i,j,yshift,y2shift
+      integer i,j,yshift,y2shift,is1,is2,n1,n2
       real*8  r0,r,dr,w,sigma,yp1,ypn
 
 *     **** external functions ****
-      real*8   meta_collective
-      external meta_collective
+      real*8   meta_collective,meta_collective2
+      external meta_collective,meta_collective2
 
       if (metafound) then
 
@@ -564,6 +832,46 @@ c     **** bond dihedral ****
             end do
          end if
 
+         if (cnmeta.gt.0) then
+            dr = dbl_mb(cxmeta(1)+1) - dbl_mb(cxmeta(1))
+            is1 = 0
+            is2 = 0
+            do j=1,cnmeta
+               n1 = int_mb(cindxsize1(1)+j-1)
+               n2 = int_mb(cindxsize2(1)+j-1)
+               r0    = meta_collective2(4,
+     >                 n1,int_mb(cindxmeta1(1)+is1),
+     >                 n2,int_mb(cindxmeta2(1)+is2),
+     >                 dbl_mb(cwsigmameta(1)+(j-1)*5))
+               w     = dbl_mb(cwsigmameta(1)+(j-1)*5+3)
+               sigma = dbl_mb(cwsigmameta(1)+(j-1)*5+4)
+               yshift  = cymeta(1) +(j-1)*cnxmeta
+               y2shift = cy2meta(1)+(j-1)*cnxmeta
+               do i=1,cnxmeta
+                  r = dbl_mb(cxmeta(1)+i-1)-r0
+                  dbl_mb(yshift+i-1) = dbl_mb(yshift+i-1)
+     >                               + w*dexp(-(r/sigma)**2)
+               end do
+
+               !**** five point formula ***
+               yp1 = ( -50.0d0*dbl_mb(yshift)
+     >                + 96.0d0*dbl_mb(yshift+1)
+     >                - 72.0d0*dbl_mb(yshift+2)
+     >                + 32.0d0*dbl_mb(yshift+3)
+     >                -  6.0d0*dbl_mb(yshift+4))/(24.0d0*dr)
+               ypn = ( +50.0d0*dbl_mb(yshift+cnxmeta-5)
+     >                - 96.0d0*dbl_mb(yshift+cnxmeta-4)
+     >                + 72.0d0*dbl_mb(yshift+cnxmeta-3)
+     >                - 32.0d0*dbl_mb(yshift+cnxmeta-2)
+     >                +  6.0d0*dbl_mb(yshift+cnxmeta-1))/(24.0d0*dr)
+               call nwpw_spline(dbl_mb(cxmeta(1)),
+     >                 dbl_mb(yshift),cnxmeta,yp1,ypn,
+     >                 dbl_mb(y2shift),dbl_mb(tmeta(1)))
+               is1 = is1 + n1
+               is2 = is2 + n2
+            end do
+         end if
+
          end if
 
          metaprintcount = metaprintcount + 1
@@ -591,12 +899,12 @@ c     **** bond dihedral ****
 #include "metadynamics.fh"
 
 *     **** local variables ****
-      integer j,nr,yshift,y2shift
+      integer j,nr,yshift,y2shift,is1,is2,n1,n2
       real*8 r,dr,sigma,w,dv
 
 *     **** external functions ****
-      real*8   nwpw_dsplint,meta_collective
-      external nwpw_dsplint,meta_collective
+      real*8   nwpw_dsplint,meta_collective,meta_collective2
+      external nwpw_dsplint,meta_collective,meta_collective2
       
       if (metafound) then
 
@@ -619,7 +927,7 @@ c     **** bond dihedral ****
          if (anmeta.gt.0) then
             dr = dbl_mb(axmeta(1)+1) - dbl_mb(axmeta(1))
             do j=1,anmeta
-               r     = meta_collective(1,int_mb(aindxmeta(1)+(j-1)*3))
+               r     = meta_collective(2,int_mb(aindxmeta(1)+(j-1)*3))
                w     = dbl_mb(awsigmameta(1)+(j-1)*2)
                sigma = dbl_mb(awsigmameta(1)+(j-1)*2+1)
                yshift  = aymeta(1) +(j-1)*anxmeta
@@ -627,11 +935,39 @@ c     **** bond dihedral ****
                nr = r/dr + 1
                dv = nwpw_dsplint(dbl_mb(axmeta(1)),
      >                  dbl_mb(yshift),dbl_mb(y2shift),anmeta,nr,r)
-               call meta_collective_force(1,
+               call meta_collective_force(2,
      >                  int_mb(aindxmeta(1)+(j-1)*3),dv,fmeta)
             end do
-
          end if
+
+         if (cnmeta.gt.0) then
+            dr = dbl_mb(cxmeta(1)+1) - dbl_mb(cxmeta(1))
+            is1 = 0
+            is2 = 0
+            do j=1,cnmeta
+               n1 = int_mb(cindxsize1(1)+j-1)
+               n2 = int_mb(cindxsize2(1)+j-1)
+               r     = meta_collective2(4,
+     >                 n1,int_mb(cindxmeta1(1)+is1),
+     >                 n2,int_mb(cindxmeta2(1)+is2),
+     >                 dbl_mb(cwsigmameta(1)+(j-1)*5))
+               w     = dbl_mb(cwsigmameta(1)+(j-1)*5+3)
+               sigma = dbl_mb(cwsigmameta(1)+(j-1)*5+4)
+               yshift  = cymeta(1) +(j-1)*cnxmeta
+               y2shift = cy2meta(1)+(j-1)*cnxmeta
+               nr = r/dr + 1
+               dv = nwpw_dsplint(dbl_mb(cxmeta(1)),
+     >                  dbl_mb(yshift),dbl_mb(y2shift),cnmeta,nr,r)
+               call meta_collective2_force(4,
+     >                   n1,int_mb(cindxmeta1(1)+is1),
+     >                   n2,int_mb(cindxmeta2(1)+is2),
+     >                   dbl_mb(cwsigmameta(1)+(j-1)*5),
+     >                   dv,fmeta)
+               is1 = is1 + n1
+               is2 = is2 + n2
+            end do
+         end if
+
       end if
 
 
@@ -652,12 +988,12 @@ c     **** bond dihedral ****
 #include "metadynamics.fh"
 
 *     **** local variables ****
-      integer j,nr,yshift,y2shift
+      integer j,nr,yshift,y2shift,n1,n2,is1,is2
       real*8 r,dr,sigma,w,v
 
 *     **** external functions ****
-      real*8   nwpw_splint,meta_collective
-      external nwpw_splint,meta_collective
+      real*8   nwpw_splint,meta_collective,meta_collective2
+      external nwpw_splint,meta_collective,meta_collective2
 
       v = 0.0d0
       if (metafound) then
@@ -678,7 +1014,7 @@ c     **** bond dihedral ****
          if (anmeta.gt.0) then
             dr = dbl_mb(axmeta(1)+1) - dbl_mb(axmeta(1))
             do j=1,anmeta
-               r     = meta_collective(1,int_mb(aindxmeta(1)+(j-1)*2))
+               r     = meta_collective(2,int_mb(aindxmeta(1)+(j-1)*3))
                w     = dbl_mb(awsigmameta(1)+(j-1)*2)
                sigma = dbl_mb(awsigmameta(1)+(j-1)*2+1)
                yshift  = aymeta(1) +(j-1)*anxmeta
@@ -686,6 +1022,28 @@ c     **** bond dihedral ****
                nr = r/dr + 1
                v = v + nwpw_splint(dbl_mb(axmeta(1)),
      >                  dbl_mb(yshift),dbl_mb(y2shift),anmeta,nr,r)
+            end do
+         end if
+         if (cnmeta.gt.0) then
+            dr = dbl_mb(cxmeta(1)+1) - dbl_mb(cxmeta(1))
+            is1=0
+            is2=0
+            do j=1,cnmeta
+               n1 = int_mb(cindxsize1(1)+j-1)
+               n2 = int_mb(cindxsize2(1)+j-1)
+               r     = meta_collective2(4,
+     >                 n1,int_mb(cindxmeta1(1)+is1),
+     >                 n2,int_mb(cindxmeta2(1)+is2),
+     >                 dbl_mb(cwsigmameta(1)+(j-1)*5))
+               w     = dbl_mb(cwsigmameta(1)+(j-1)*5+3)
+               sigma = dbl_mb(cwsigmameta(1)+(j-1)*5+4)
+               yshift  = cymeta(1) +(j-1)*cnxmeta
+               y2shift = cy2meta(1)+(j-1)*cnxmeta
+               nr = r/dr + 1
+               v = v + nwpw_splint(dbl_mb(cxmeta(1)),
+     >                  dbl_mb(yshift),dbl_mb(y2shift),cnmeta,nr,r)
+               is1 = is1 + n1
+               is2 = is2 + n2
             end do
          end if
 
@@ -768,7 +1126,7 @@ c     **********************************************
      >                                      full_filename)
                open(unit=53,file=full_filename,form='formatted')
                yshift  = aymeta(1) +(j-1)*anxmeta
-               do i=1,bnxmeta
+               do i=1,anxmeta
                    write(53,'(2F15.6)')
      >                  dbl_mb(axmeta(1)+i-1),dbl_mb(yshift+i-1)
                end do
@@ -776,6 +1134,27 @@ c     **********************************************
             end do
             end if
          end if
+
+         if (cnmeta.gt.0) then
+           if (taskid.eq.MASTER) then
+            do j=1,cnmeta
+
+               filename = "cmeta"//c_index_name(j)//".dat"
+               call util_file_name_noprefix(filename,.false.,
+     >                                      .false.,
+     >                                      full_filename)
+               open(unit=53,file=full_filename,form='formatted')
+               yshift  = cymeta(1) +(j-1)*cnxmeta
+               do i=1,cnxmeta
+                   write(53,'(2F15.6)')
+     >                  dbl_mb(cxmeta(1)+i-1),dbl_mb(yshift+i-1)
+               end do
+               close(53)
+            end do
+            end if
+         end if
+
+
       end if
 
       return
