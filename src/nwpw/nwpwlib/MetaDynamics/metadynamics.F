@@ -18,7 +18,7 @@ c     **********************************************
       parameter (MASTER=0)
       logical value
       integer i,j,n1,n2,is1,is2
-      real*8 x,y,z,r,rmax,dr,pi,da
+      real*8 x,y,z,r,rmax,dr,pi,da,maxcoord
       character*80 rtdb_name
       character*4 celement1,celement2
 
@@ -224,7 +224,7 @@ c     **********************************************
             end if
 
             value = value.and.
-     >              MA_alloc_get(mt_dbl,5*cnmeta,'cwsigmameta',
+     >              MA_alloc_get(mt_dbl,6*cnmeta,'cwsigmameta',
      >                           cwsigmameta(2),cwsigmameta(1))
             value = value.and.
      >              MA_alloc_get(mt_int,cnmeta,'cindxsize1',
@@ -233,6 +233,7 @@ c     **********************************************
      >              MA_alloc_get(mt_int,cnmeta,'cindxsize2',
      >                           cindxsize2(2),cindxsize2(1))
 
+            maxcoord = 0.0d0
             is1 = 0
             is2 = 0
             do j=1,cnmeta
@@ -248,15 +249,30 @@ c     **********************************************
               is2 = is2 + int_mb(cindxsize2(1)+j-1)
 
               rtdb_name='metadynamics_coordnum_ksigma:'//c_index_name(j)
-              if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,5,
-     >                      dbl_mb(cwsigmameta(1)+(j-1)*5))) then
-                 dbl_mb(cwsigmameta(1)+(j-1)*5)   = 6.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*5+1) = 18.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*5+2) = 3.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*5+3) = 0.00005d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*5+4) = 0.10d0
+              if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,6,
+     >                      dbl_mb(cwsigmameta(1)+(j-1)*6))) then
+                 dbl_mb(cwsigmameta(1)+(j-1)*6)   = 6.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*6+1) = 18.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*6+2) = 3.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*6+3) = 0.00005d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*6+4) = 0.10d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*6+5) = 25.0d0
               end if
+              if (dbl_mb(cwsigmameta(1)+(j-1)*6).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*6)   = 6.0d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*6+1).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*6+1)   = 18.0d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*6+2).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*6+2)   = 3.0d0 
+              if (dbl_mb(cwsigmameta(1)+(j-1)*6+3).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*6+3)   = 0.00005d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*6+4).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*6+4)   = 0.10d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*6+5).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*6+5)   = 25.0d0
 
+              if (dbl_mb(cwsigmameta(1)+(j-1)*6+5).gt.maxcoord) 
+     >           maxcoord=dbl_mb(cwsigmameta(1)+(j-1)*6+5)
             end do
 
             value = value.and.
@@ -281,8 +297,8 @@ c     **********************************************
 
             end do
 
-            da = 25.0d0/dble(cnxmeta-1)
-            do i=1,anxmeta
+            da = maxcoord/dble(cnxmeta-1)
+            do i=1,cnxmeta
                r = (i-1)*da
                dbl_mb(cxmeta(1)+i-1) = r
             end do
@@ -329,25 +345,27 @@ c     **********************************************
             write(*,1001) (int_mb(cindxmeta1(1)+is1+j-1),j=1,n1)
             write(*,1002) (int_mb(cindxmeta2(1)+is2+j-1),j=1,n2)
 
-            write(*,'(A,4x,A,F11.6,4x,A,F11.6,
-     >                  4x,A,F11.6,4x,A,F11.6,
-     >                  4x,A,F11.6)')
-     >       "   - Coordination Number Parameters =  ",
-     >                  'n=',
-     >                  dbl_mb(cwsigmameta(1)+5*(i-1)+0),
-     >                  'm=',
-     >                  dbl_mb(cwsigmameta(1)+5*(i-1)+1),
+            write(*,'(A,/6x,A,F11.6,4x,A,F11.6,
+     >                  /6x,A,F11.6,4x,A,F11.6,
+     >                  /6x,A,F11.6,4x,A,F11.6)')
+     >       "  - Coordination Number Parameters: ",
+     >                  'n= ',
+     >                  dbl_mb(cwsigmameta(1)+6*(i-1)+0),
+     >                  'm=       ',
+     >                  dbl_mb(cwsigmameta(1)+6*(i-1)+1),
+     >                  'w= ',
+     >                  dbl_mb(cwsigmameta(1)+6*(i-1)+3),
+     >                  'sigma=   ',
+     >                  dbl_mb(cwsigmameta(1)+6*(i-1)+4),
      >                  'r0=',
-     >                  dbl_mb(cwsigmameta(1)+5*(i-1)+2),
-     >                  'w=',
-     >                  dbl_mb(cwsigmameta(1)+5*(i-1)+3),
-     >                  'sigma=',
-     >                  dbl_mb(cwsigmameta(1)+5*(i-1)+4)
+     >                  dbl_mb(cwsigmameta(1)+6*(i-1)+2),
+     >                  'maxcoord=',
+     >                  dbl_mb(cwsigmameta(1)+6*(i-1)+5)
             is1 = is1 + n1
             is2 = is2 + n2
          end do
- 1001 FORMAT(2x,"- Coorination Number Index1 :",10I5)
- 1002 FORMAT(2x,"- Coorination Number Index2 :",10I5)
+ 1001 FORMAT(2x,"- Coorination Number (Index1) :",10I5)
+ 1002 FORMAT(2x,"- Coorination Number (Index2) :",10I5)
 
       end if
       
@@ -842,9 +860,9 @@ c     **** coordination number ***
                r0    = meta_collective2(4,
      >                 n1,int_mb(cindxmeta1(1)+is1),
      >                 n2,int_mb(cindxmeta2(1)+is2),
-     >                 dbl_mb(cwsigmameta(1)+(j-1)*5))
-               w     = dbl_mb(cwsigmameta(1)+(j-1)*5+3)
-               sigma = dbl_mb(cwsigmameta(1)+(j-1)*5+4)
+     >                 dbl_mb(cwsigmameta(1)+(j-1)*6))
+               w     = dbl_mb(cwsigmameta(1)+(j-1)*6+3)
+               sigma = dbl_mb(cwsigmameta(1)+(j-1)*6+4)
                yshift  = cymeta(1) +(j-1)*cnxmeta
                y2shift = cy2meta(1)+(j-1)*cnxmeta
                do i=1,cnxmeta
@@ -950,9 +968,9 @@ c     **** coordination number ***
                r     = meta_collective2(4,
      >                 n1,int_mb(cindxmeta1(1)+is1),
      >                 n2,int_mb(cindxmeta2(1)+is2),
-     >                 dbl_mb(cwsigmameta(1)+(j-1)*5))
-               w     = dbl_mb(cwsigmameta(1)+(j-1)*5+3)
-               sigma = dbl_mb(cwsigmameta(1)+(j-1)*5+4)
+     >                 dbl_mb(cwsigmameta(1)+(j-1)*6))
+               w     = dbl_mb(cwsigmameta(1)+(j-1)*6+3)
+               sigma = dbl_mb(cwsigmameta(1)+(j-1)*6+4)
                yshift  = cymeta(1) +(j-1)*cnxmeta
                y2shift = cy2meta(1)+(j-1)*cnxmeta
                nr = r/dr + 1
@@ -961,7 +979,7 @@ c     **** coordination number ***
                call meta_collective2_force(4,
      >                   n1,int_mb(cindxmeta1(1)+is1),
      >                   n2,int_mb(cindxmeta2(1)+is2),
-     >                   dbl_mb(cwsigmameta(1)+(j-1)*5),
+     >                   dbl_mb(cwsigmameta(1)+(j-1)*6),
      >                   dv,fmeta)
                is1 = is1 + n1
                is2 = is2 + n2
@@ -1034,9 +1052,9 @@ c     **** coordination number ***
                r     = meta_collective2(4,
      >                 n1,int_mb(cindxmeta1(1)+is1),
      >                 n2,int_mb(cindxmeta2(1)+is2),
-     >                 dbl_mb(cwsigmameta(1)+(j-1)*5))
-               w     = dbl_mb(cwsigmameta(1)+(j-1)*5+3)
-               sigma = dbl_mb(cwsigmameta(1)+(j-1)*5+4)
+     >                 dbl_mb(cwsigmameta(1)+(j-1)*6))
+               w     = dbl_mb(cwsigmameta(1)+(j-1)*6+3)
+               sigma = dbl_mb(cwsigmameta(1)+(j-1)*6+4)
                yshift  = cymeta(1) +(j-1)*cnxmeta
                y2shift = cy2meta(1)+(j-1)*cnxmeta
                nr = r/dr + 1

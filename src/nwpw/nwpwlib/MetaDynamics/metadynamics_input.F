@@ -19,7 +19,7 @@ c
 
       integer num_dirs          ! No. of known directives
       parameter (num_dirs = 6)
-      character*30 dirs(num_dirs)
+      character*15 dirs(num_dirs)
       data dirs / 'update',
      >            'bond',
      >            'angle',
@@ -27,12 +27,23 @@ c
      >            'coord_number',
      >            'end'/
 
+      integer num_dirs2          ! No. of known directives
+      parameter (num_dirs2 = 8)
+      character*10 dirs2(num_dirs2)
+      data dirs2 / 'index1',
+     >            'index2',
+     >            'n',
+     >            'm',
+     >            'r0',
+     >            'w',
+     >            'sigma',
+     >            'maxcoord'/
 c
       logical       value
       character*80  rtdb_name
       character*255 test,dir_name,sdir_name
       character*4   elem1,elem2
-      integer ind               ! Index of matched directive
+      integer ind,ind2               ! Index of matched directive
       integer nka,nkb,nkc,nkd
       integer j,jstart,jlast,jstride,n1,n2
       integer sindx(50),index_start1(2),index_start2(2)
@@ -52,7 +63,7 @@ c
      >  'metadyanmics_input: inp_read failed',0,INPUT_ERR)
       if (.not. inp_a(test))
      >  call errquit(
-     >  'pspw_qmmm_input: failed to read keyword',0,INPUT_ERR)
+     >  'metadynamics_input: failed to read keyword',0,INPUT_ERR)
       if (.not. inp_match(num_dirs,.false.,test,dirs,ind))
      >  call errquit(
      >  'metadynamics_input: unknown directive',0,INPUT_ERR)
@@ -159,14 +170,32 @@ c
 c
 c  coord_number
 c
- 500   value = MA_push_get(mt_int,nw_max_atom,'indx_start1',
-     >                    index_start1(2),index_start1(1))
-       value = value.and.
-     >         MA_push_get(mt_int,nw_max_atom,'indx_start2',
-     >                    index_start2(2),index_start2(1))
-      if (.not. value) call errquit(
-     > 'metadynamics_input:failed allocating index_start2',0,MA_ERR)
+ 500  nkc = nkc + 1
+      rtdb_name = 'metadynamics_ncoordnum'
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkc)
+      sdist(1) = -1.0d0
+      sdist(2) = -1.0d0
+      sdist(3) = -1.0d0
+      sdist(4) = -1.0d0
+      sdist(5) = -1.0d0
+      sdist(6) = -1.0d0
+      n1 = 0
+      n2 = 0
+ 501  if (.not. inp_a(test)) goto 599
+      if (.not. inp_match(num_dirs2,.false.,test,dirs2,ind2))
+     >  call errquit(
+     >  'metadynamics_input: unknown directive',0,INPUT_ERR)
 
+      goto ( 510,520,530,540,550,560,570,580 ) ind2
+      call errquit(
+     >     'metadynamics_input: unimplemented directive',ind2,INPUT_ERR)
+c
+c index1
+c
+ 510   if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start1',
+     >                    index_start1(2),index_start1(1)))
+     >    call errquit(
+     > 'metadynamics_input:failed allocating index_start1',0,MA_ERR)
       n1 = 0
       do while (inp_irange(jstart,jlast,jstride))
          do j=jstart,jlast,jstride
@@ -174,10 +203,23 @@ c
           n1 = n1+1
          end do
       end do
+      rtdb_name='metadynamics_coordnum_indxsize1:'//c_index_name(nkc)
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,n1)
+      rtdb_name ='metadynamics_coordnum_indx1:'//c_index_name(nkc)
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n1,
+     >                              int_mb(index_start1(1)))
+      value = value.and.MA_pop_stack(index_start1(2))
+      if (.not. value) call errquit(
+     > 'metadynamics_input:failed deallocating index_start1',0,MA_ERR)
 
-      if (.not.inp_a(elem1)) write(*,*) "spacer"
-    
-
+      goto 501
+c
+c index2 
+c
+ 520   if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start2',
+     >                    index_start2(2),index_start2(1)))
+     >    call errquit(
+     > 'metadynamics_input:failed allocating index_start2',0,MA_ERR)
       n2 = 0
       do while (inp_irange(jstart,jlast,jstride))
          do j=jstart,jlast,jstride
@@ -185,52 +227,60 @@ c
           n2 = n2+1
          end do
       end do
+      rtdb_name='metadynamics_coordnum_indxsize2:'//c_index_name(nkc)
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,n2)
+      rtdb_name ='metadynamics_coordnum_indx2:'//c_index_name(nkc)
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n2,
+     >                              int_mb(index_start2(1)))
+      value = value.and.MA_pop_stack(index_start2(2))
+      if (.not. value) call errquit(
+     > 'metadynamics_input:failed deallocating index_start2',0,MA_ERR)
 
-      write(*,*) "n1=",n1,"  n2=",n2
-      if ((n1.gt.0).and.(n2.gt.0)) then
-         nkc = nkc + 1
+      goto 501
+c
+c n
+c
+ 530  if (.not.inp_f(sdist(1))) sdist=-1.0d0
+      goto 501
+c
+c m
+c
+ 540  if (.not.inp_f(sdist(2))) sdist=-1.0d0
+      goto 501
+c
+c r0
+c
+ 550  if (.not.inp_f(sdist(3))) sdist=-1.0d0
+      goto 501
+c
+c w
+c
+ 560  if (.not.inp_f(sdist(4))) sdist=-1.0d0
+      goto 501
+c
+c sigma
+c
+ 570  if (.not.inp_f(sdist(5))) sdist=-1.0d0
+      goto 501
+c
+c maxcoord
+c
+ 580  if (.not.inp_f(sdist(6))) sdist=-1.0d0
+      goto 501
+
+ 599  if ((n1.le.0).or.(n2.le.0)) then
+         nkc = nkc - 1
          rtdb_name = 'metadynamics_ncoordnum'
          value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkc)
-
-         rtdb_name='metadynamics_coordnum_indxsize1:'//c_index_name(nkc)
-         value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,n1)
-         rtdb_name ='metadynamics_coordnum_indx1:'//c_index_name(nkc)
-         value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n1,
-     >                              int_mb(index_start1(1)))
-
-         rtdb_name='metadynamics_coordnum_indxsize2:'//c_index_name(nkc)
-         value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,n2)
-         rtdb_name ='metadynamics_coordnum_indx2:'//c_index_name(nkc)
-         value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n2,
-     >                              int_mb(index_start2(1)))
-
-         if (inp_f(sdist(1))) then
-         if (inp_f(sdist(2))) then
-         if (inp_f(sdist(3))) then
-         if (inp_f(sdist(4))) then
-         if (inp_f(sdist(5))) then
-            rtdb_name = 
-     >       'metadynamics_coordnum_ksigma:'//c_index_name(nkc)
-            value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,5,sdist)
-            if (.not. value) call errquit(
-     > 'metadynamics_input:failed writing coord_number',0, RTDB_ERR)
-         end if
-         end if
-         end if
-         end if
-         end if
-
+      else
+         rtdb_name ='metadynamics_coordnum_ksigma:'//c_index_name(nkc)
+         if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,6,sdist))
+     >    call errquit('metadynamics_input:failed writing coord_number',
+     >                 0,RTDB_ERR)
       end if
-
-      value =           MA_pop_stack(index_start2(2))
-      value = value.and.MA_pop_stack(index_start1(2))
-      if (.not. value) call errquit(
-     > 'metadynamics_input:failed deallocating index_start',0,MA_ERR)
 
 
       goto 10
-
-
 
 
  9999 continue
