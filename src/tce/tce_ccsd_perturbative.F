@@ -44,7 +44,9 @@ c
       integer d_v2             ! SF handle for MO 2e integrals
       integer k_v2_offset      ! Offset for 2e integral file
       integer d_t1             ! SF handle for t1 amplitudes
+      integer l_t1_offset
       integer k_t1_offset      ! Offset for t1 file
+      integer size_t1          ! File size in doubles
       integer d_t2             ! SF handle for t2 amplitudes
       integer k_t2_offset      ! Offset for t2 file
       double precision ref     ! Ground state energy
@@ -68,8 +70,9 @@ c -------------------
         if ((perturbative.eq.'(t)').or.(perturbative.eq.'[t]')) then
           cpu = - util_cpusec()
           wall = - util_wallsec()
+          call tce_t1_offset(l_t1_offset,k_t1_offset,size_t1)
           call ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                d_v2,k_v2_offset,pt3_1,pt3_2)
+     1                d_v2,k_v2_offset,pt3_1,pt3_2,size_t1)
           if (nodezero) then
             write(LuOut,*)
             write(LuOut,9070) "CCSD[T]",corr+pt3_1
