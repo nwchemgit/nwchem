@@ -213,7 +213,7 @@ c      parameter (EPSILON=1.0d0)
 *     ***********************************************
 *     ***** use periodic definitions of kernel ******
 *     ***********************************************
-      else 
+      else if (flag.eq.3) then
         i=0
         j=0
         k=0
@@ -234,6 +234,33 @@ c      parameter (EPSILON=1.0d0)
            end if
            dbl_mb(gk2(1)+i-1) = temp
         end do
+
+*     **************************************************************
+*     ***** flag==4 use erfc definitions of cutoff-kernel     ******
+*     **************************************************************
+      else
+*     ***** find the G==0 point in the lattice *****
+      i=0
+      j=0
+      k=0
+      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
+      call dcopy(nfft3d,0.0d0,0,dbl_mb(gk2(1)),1)
+
+*     **** short-range part of Greens function set only for short-range ****
+      do i=1,nfft3d
+         gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
+
+         if ((pzero.eq.taskid) .and. (i.eq.zero)) then
+            temp = pi/EPSILON**2
+         else
+            temp = (fourpi/gg)
+     >           * (1.0d0 - dexp(-gg/(4.0d0*EPSILON**2)))
+         end if
+           
+         dbl_mb(gk2(1)+i-1) = temp
+      end do 
 
       end if
 
@@ -292,7 +319,7 @@ c      call coulomb_screened_init_print(rcut,pp)
 
       call nwpw_timing_start(7)
       
-      call Pack_tc_Mul(0,dbl_mb(vc_indx),dng,vc_out)
+      call Cram_rc_Mul(0,dbl_mb(vc_indx),dng,vc_out)
      
       call nwpw_timing_end(7)
 
@@ -324,12 +351,12 @@ c      call coulomb_screened_init_print(rcut,pp)
 
       call nwpw_timing_start(7)
 
-      call Pack_npack(0,npack0)
+      call Cram_npack(0,npack0)
       value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
       
-      call Pack_ct_Sqr(0,dng,dbl_mb(tmp1(1)))
-      call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
+      call Cram_cr_Sqr(0,dng,dbl_mb(tmp1(1)))
+      call Cram_rr_dot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
        
       ec = 0.5d0*ec*lattice_omega()
 
@@ -362,12 +389,12 @@ c      call coulomb_screened_init_print(rcut,pp)
       external lattice_omega
 
       call nwpw_timing_start(7)
-      call Pack_npack(0,npack0)
+      call Cram_npack(0,npack0)
       if (.not.MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1)))
      > call errquit('out of stack',0, MA_ERR)
 
-      call Pack_ct_Sqr(0,dng,dbl_mb(tmp1(1)))
-      call Pack_tt_idot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
+      call Cram_cr_Sqr(0,dng,dbl_mb(tmp1(1)))
+      call Cram_rr_idot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
 
       ec = 0.5d0*ec*lattice_omega()
 
@@ -530,7 +557,7 @@ c          r = (i-1)*drho
 
 
       call D3dB_nfft3d(1,nfft3d)
-      call Pack_npack(0,npack0)
+      call Cram_npack(0,npack0)
 
 *     **** allocate memory ****
       value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
@@ -545,9 +572,9 @@ c          r = (i-1)*drho
       end do
 
 
-      call Pack_c_unpack(0,dcpl_mb(tmp1(1)))
+      call Cram_c_unpack(0,dcpl_mb(tmp1(1)))
 
-      call D3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
+      call C3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
 
       call sub_coulomb_screened_init_print(dcpl_mb(tmp1(1)),rcut,pp)
 
@@ -702,7 +729,7 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
 
       call D3dB_nfft3d(1,nfft3d)
       call D3dB_n2ft3d(1,n2ft3d)
-      call Pack_npack(0,npack0)
+      call Cram_npack(0,npack0)
       G(1) = G_indx(1)
       G(2) = G_indx(2)
       G(3) = G_indx(3)
@@ -833,9 +860,9 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
          dbl_mb(gk2(1)+k-1) =  dbl_mb(gr(1)+2*(k-1))
       end do
 
-*     *** Pack the kernel ****
-      call Pack_t_pack(0,dbl_mb(gk2(1)))
-      call Pack_t_Copy(0,dbl_mb(gk2(1)),dbl_mb(vloc(1)))
+*     *** Cram the kernel ****
+      call Cram_r_pack(0,dbl_mb(gk2(1)))
+      call Cram_r_Copy(0,dbl_mb(gk2(1)),dbl_mb(vloc(1)))
 
 
 
@@ -935,9 +962,9 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
          dbl_mb(gk2(1)+k-1) =  dbl_mb(gr(1)+2*(k-1)) 
       end do
 
-*     *** Pack the kernel ****
-      call Pack_t_pack(0,dbl_mb(gk2(1)))
-      call Pack_t_Copy(0,dbl_mb(gk2(1)),dbl_mb(dvscr(u,s)))
+*     *** Cram the kernel ****
+      call Cram_r_pack(0,dbl_mb(gk2(1)))
+      call Cram_r_Copy(0,dbl_mb(gk2(1)),dbl_mb(dvscr(u,s)))
 
 
 *     **** long-range part of Greens function ****
@@ -1048,15 +1075,52 @@ c      call D3dB_r_SMul(1,dV,dbl_mb(gr(1)),dbl_mb(gr(1)))  !** note extra omega 
       end do
 
 *     *** Pack the kernel ****
-      call Pack_t_pack(0,dbl_mb(gk2(1)))
+      call Cram_r_pack(0,dbl_mb(gk2(1)))
 c      call Pack_tt_Sum(0,dbl_mb(gk2(1)),
 c     >                 dbl_mb(dvscr(u,s)),
 c     >                 dbl_mb(dvscr(u,s)))
-      call Pack_tt_Sum2(0,dbl_mb(gk2(1)),dbl_mb(dvscr(u,s)))
+      call Cram_rr_Sum2(0,dbl_mb(gk2(1)),dbl_mb(dvscr(u,s)))
 
 
       end do 
       end do 
+
+*     *******************************************
+*     ***** use erfc definitions of kernel ******
+*     ******************************************* 
+      else if (flag.eq.4) then
+*     ***********************************************
+*     *** Set up the short range Green's function ***
+*     ***********************************************
+*     ***** find the G==0 point in the lattice *****
+      i=0
+      j=0
+      k=0
+      call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
+
+*     **** short-range part of Greens function ****
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(gk(1)),1)
+      do i=1,nfft3d
+
+         gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
+
+         if ((pzero.eq.taskid) .and. (i.eq.zero)) then
+            temp = pi/EPSILON**2
+         else
+            temp = (fourpi/gg)
+     >           * (1.0d0 - dexp(-gg/(4.0d0*EPSILON**2)))
+         end if
+
+         dbl_mb(gk2(1)+i-1)  = temp
+      end do
+
+*     *** Cram the kernel ****
+      call Cram_r_pack(0,dbl_mb(gk2(1)))
+      call Cram_r_Copy(0,dbl_mb(gk2(1)),dbl_mb(vloc(1)))
+
+
 
 
 
