@@ -2,14 +2,13 @@
 # $Id$
 #
  OBJ_OPTIMIZE = \
-            c_coulomb.o \
-            c_coulomb_screened.o
+            c_coulomb.o
 
 	  OBJ = 
 
       LIBRARY = libband.a
 
-    USES_BLAS = c_coulomb.F c_coulomb_screened.F
+    USES_BLAS = c_coulomb.F
 
   LIB_DEFINES = 
 
