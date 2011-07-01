@@ -179,9 +179,6 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
 
 *     **** add long-range part to short-range part  ****
-c      call D3dB_rr_Sum(1,dcpl_mb(gk(1)),
-c     >                 dbl_mb(glr(1)),
-c     >                 dbl_mb(glr(1)))
       call D3dB_rr_Sum2(1,dcpl_mb(gk(1)),dbl_mb(glr(1)))
 
 
@@ -268,10 +265,10 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
            dbl_mb(gk2(1)+i-1) = temp
         end do
 
-*     ******************************************************
+*     **************************************************************
 *     ***** flag==3 use periodic definitions of cutoff-kernel ******
-*     ******************************************************
-      else 
+*     **************************************************************
+      else if (flag.eq.3) then
         i=0
         j=0
         k=0
@@ -293,6 +290,38 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
            dbl_mb(gk2(1)+i-1) = temp
         end do
 
+
+*     **************************************************************
+*     ***** flag==4 use erfc definitions of cutoff-kernel     ******
+*     **************************************************************
+      else
+*     ***********************************
+*     *** Set up the Green's function ***
+*     ***********************************
+
+*     ***** find the G==0 point in the lattice *****
+      i=0
+      j=0
+      k=0
+      call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
+      call dcopy(nfft3d,0.0d0,0,dbl_mb(gk2(1)),1)
+
+*     **** short-range part of Greens function , fourier transform of erfc(e*r)/r ****
+      do i=1,nfft3d
+         gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
+
+         if ((pzero.eq.taskid) .and. (i.eq.zero)) then
+            temp = pi/EPSILON**2
+         else
+            temp = (fourpi/gg)
+     >           * (1.0d0 - dexp(-gg/(4.0d0*EPSILON**2)))
+         end if
+
+         dbl_mb(gk2(1)+i-1) = temp
+      end do
+      
       end if
 
 
@@ -1118,6 +1147,71 @@ c     >                 dbl_mb(dvscr(u,s)))
 
 
 
+*     *******************************************
+*     ***** use erfc definitions of kernel ******
+*     *******************************************
+      else if (flag.eq.4) then
+
+*     ***********************************************
+*     *** Set up the short range Green's function ***
+*     ***********************************************
+*     ***** find the G==0 point in the lattice *****
+      i=0
+      j=0
+      k=0
+      call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
+
+*     **** short-range part of Greens function ****
+      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(gk(1)),1)
+      do i=1,nfft3d
+
+         gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
+
+         if ((pzero.eq.taskid) .and. (i.eq.zero)) then
+            temp = pi/EPSILON**2
+         else
+            temp = (fourpi/gg)
+     >           * (1.0d0 - dexp(-gg/(4.0d0*EPSILON**2)))
+         end if
+
+         dbl_mb(gk2(1)+i-1)  = temp
+      end do
+
+*     *** Pack the kernel ****
+      call Pack_t_pack(0,dbl_mb(gk2(1)))
+      call Pack_t_Copy(0,dbl_mb(gk2(1)),dbl_mb(vloc(1)))
+
+*     *********************************************
+*     *** Set up the Green's function gradients ***
+*     *********************************************
+      do s=1,3
+      do u=1,3
+
+*     **** short-range part of Greens function ****
+      call dcopy(nfft3d,0.0d0,0,dbl_mb(gk2(1)),1)
+      do i=1,nfft3d
+         gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
+     >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
+     >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
+         if ((pzero.eq.taskid) .and. (i.eq.zero)) then
+            temp2 = 0.0d0
+         else
+            temp2 = (-2.0d0*dbl_mb(G(u)+i-1)*dbl_mb(G(s)+i-1))
+     >            * ( (-fourpi/(gg*gg))
+     >               *(1.0d0 - dexp(-gg/(4.0d0*EPSILON**2)))
+     >               + (pi/(gg*EPSILON**2))
+     >                *dexp(-gg/(4.0d0*EPSILON**2)))
+         end if
+
+         dbl_mb(gk2(1)+i-1)  = temp2
+      end do
+      call Pack_t_pack(0,dbl_mb(gk2(1)))
+      call Pack_t_Copy(0,dbl_mb(gk2(1)),dbl_mb(dvscr(u,s)))
+        
+      end do 
+      end do 
 
 *     ***********************************************
 *     ***** use periodic definitions of kernel ******
