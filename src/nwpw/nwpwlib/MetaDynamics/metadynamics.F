@@ -50,6 +50,11 @@ c     **********************************************
      >      maxmetacount = 1
          metacount = 0
 
+         rtdb_name = 'metadynamics_print_shift'
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,metarayshift)) 
+     >      metarayshift = 0
+         metaraycount = 0
+
          value = .true.
          if (bnmeta.gt.0) then
             bnxmeta = 501
@@ -406,7 +411,8 @@ c     **********************************************
       if (metafound) then
 
 *        **** print out potentials ******
-         call meta_print_potentials()
+         metaraycount = metaraycount + metarayshift
+         call meta_print_potentials(metaraycount)
 
          value = .true.
          if (bnmeta.gt.0) then
@@ -895,7 +901,8 @@ c     **** coordination number ***
          metaprintcount = metaprintcount + 1
          if (metaprintcount.ge.maxmetaprintcount) then
             metaprintcount = 0
-            call meta_print_potentials()
+            metaraycount   = metaraycount + metarayshift
+            call meta_print_potentials(metaraycount)
          end if
 
       end if
@@ -1091,8 +1098,9 @@ c     *                                            *
 c     *            meta_print_potentials           *
 c     *                                            *
 c     **********************************************
-      subroutine meta_print_potentials()
+      subroutine meta_print_potentials(icount)
       implicit none
+      integer icount
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -1119,8 +1127,13 @@ c     **********************************************
          if (bnmeta.gt.0) then
             if (taskid.eq.MASTER) then
             do j=1,bnmeta
+               if (icount.gt.0) then
+                  filename = 
+     >            "bmeta"//c_index_name(j)//c_index_name(icount)//".dat"
+               else
+                  filename = "bmeta"//c_index_name(j)//".dat"
+               end if
 
-               filename = "bmeta"//c_index_name(j)//".dat"
                call util_file_name_noprefix(filename,.false.,
      >                                      .false.,
      >                                      full_filename)
@@ -1137,8 +1150,13 @@ c     **********************************************
          if (anmeta.gt.0) then
            if (taskid.eq.MASTER) then
             do j=1,anmeta
+               if (icount.gt.0) then
+                  filename = 
+     >            "ameta"//c_index_name(j)//c_index_name(icount)//".dat"
+               else
+                  filename = "ameta"//c_index_name(j)//".dat"
+               end if
 
-               filename = "ameta"//c_index_name(j)//".dat"
                call util_file_name_noprefix(filename,.false.,
      >                                      .false.,
      >                                      full_filename)
@@ -1156,8 +1174,12 @@ c     **********************************************
          if (cnmeta.gt.0) then
            if (taskid.eq.MASTER) then
             do j=1,cnmeta
-
-               filename = "cmeta"//c_index_name(j)//".dat"
+               if (icount.gt.0) then
+                  filename = 
+     >            "cmeta"//c_index_name(j)//c_index_name(icount)//".dat"
+               else
+                  filename = "cmeta"//c_index_name(j)//".dat"
+               end if
                call util_file_name_noprefix(filename,.false.,
      >                                      .false.,
      >                                      full_filename)

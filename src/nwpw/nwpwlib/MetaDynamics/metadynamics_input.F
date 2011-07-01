@@ -18,9 +18,10 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 6)
+      parameter (num_dirs = 7)
       character*15 dirs(num_dirs)
       data dirs / 'update',
+     >            'print_shift',
      >            'bond',
      >            'angle',
      >            'dihedral',
@@ -31,13 +32,13 @@ c
       parameter (num_dirs2 = 8)
       character*10 dirs2(num_dirs2)
       data dirs2 / 'index1',
-     >            'index2',
-     >            'n',
-     >            'm',
-     >            'r0',
-     >            'w',
-     >            'sigma',
-     >            'maxcoord'/
+     >             'index2',
+     >             'n',
+     >             'm',
+     >             'r0',
+     >             'w',
+     >             'sigma',
+     >             'maxcoord'/
 c
       logical       value
       character*80  rtdb_name
@@ -68,7 +69,7 @@ c
      >  call errquit(
      >  'metadynamics_input: unknown directive',0,INPUT_ERR)
 
-      goto ( 100, 200, 300, 400, 500,
+      goto ( 100, 150, 200, 300, 400, 500,
      >      9999) ind
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind,INPUT_ERR)
@@ -81,6 +82,18 @@ c
          value = rtdb_put(rtdb,rtdb_name,mt_int,1,sindx)
          if (.not. value) call errquit(
      >   'metadynamics_input:failed writing update',0, RTDB_ERR)
+      end if
+
+      goto 10
+
+c
+c  print_shift
+c
+ 150  if (inp_i(sindx(1))) then
+         rtdb_name = 'metadynamics_print_shift'
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,sindx)
+         if (.not. value) call errquit(
+     >   'metadynamics_input:failed writing update',150, RTDB_ERR)
       end if
 
       goto 10
