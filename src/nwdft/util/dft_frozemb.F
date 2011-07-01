@@ -45,6 +45,7 @@ c
       do i = 1, nbf_ao
         do j = 1, nbf_ao
             ovlp(i,j) = 0.d0  ! overlap helps test the grid
+            fock_froz(i,j) = 0.d0 
         enddo
       enddo
 c
@@ -159,18 +160,10 @@ c
 c         calculate fock and overlap
           call acc_fock(dbl_mb(ichi_ao), dbl_mb(iqwgt), 
      &         nbf_ao, nqpts, dbl_mb(ivemb), dbl_mb(ifock_froz), ovlp)
-
-c          do i = 1, nbf_ao
-c            do j = 1, nbf_ao
-c               if (i.eq.j) write(luout,*) ovlp(i,j) 
-c            enddo
-c          enddo
-c          stop
 c
 c         pack into a ga and return
           call ga_put(g_frozemb,1,nbf_ao,1,nbf_ao,dbl_mb(ifock_froz),
      &             nbf_ao)
-
 c
 c     clear memory
       if(.not.MA_chop_stack(lqxyz))
@@ -190,6 +183,8 @@ c     calculate integral dg < mu(g) | V(g) | nu(g) >
 
       implicit none
 
+#include "stdio.fh"
+
       integer nbf, npts
       double precision chi_ao(npts,nbf),wght(npts),pot(npts)
       double precision fock(nbf,nbf),ovlp(nbf,nbf)
@@ -203,6 +198,14 @@ c     calculate integral dg < mu(g) | V(g) | nu(g) >
           enddo
         enddo
       enddo
-
+c
+c      do i = 1, nbf
+c        do j = 1, nbf
+c          if (i.eq.j) write(luout,*) ovlp(i,j),fock(i,j)
+c             write(luout,*) i,j,ovlp(i,j)
+c        enddo
+c      enddo
+c      stop
+c
       return
       end
