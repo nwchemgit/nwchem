@@ -29,7 +29,7 @@ c
      >            'end'/
 
       integer num_dirs2          ! No. of known directives
-      parameter (num_dirs2 = 8)
+      parameter (num_dirs2 = 9)
       character*10 dirs2(num_dirs2)
       data dirs2 / 'index1',
      >             'index2',
@@ -38,7 +38,8 @@ c
      >             'r0',
      >             'w',
      >             'sigma',
-     >             'maxcoord'/
+     >             'maxcoord',
+     >             'range'/
 c
       logical       value
       character*80  rtdb_name
@@ -192,6 +193,8 @@ c
       sdist(4) = -1.0d0
       sdist(5) = -1.0d0
       sdist(6) = -1.0d0
+      sdist(7) = -1.0d0
+      sdist(8) = -1.0d0
       n1 = 0
       n2 = 0
  501  if (.not. inp_a(test)) goto 599
@@ -199,7 +202,7 @@ c
      >  call errquit(
      >  'metadynamics_input: unknown directive',0,INPUT_ERR)
 
-      goto ( 510,520,530,540,550,560,570,580 ) ind2
+      goto ( 510,520,530,540,550,560,570,580,590 ) ind2
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind2,INPUT_ERR)
 c
@@ -253,32 +256,38 @@ c
 c
 c n
 c
- 530  if (.not.inp_f(sdist(1))) sdist=-1.0d0
+ 530  if (.not.inp_f(sdist(1))) sdist(1)=-1.0d0
       goto 501
 c
 c m
 c
- 540  if (.not.inp_f(sdist(2))) sdist=-1.0d0
+ 540  if (.not.inp_f(sdist(2))) sdist(2)=-1.0d0
       goto 501
 c
 c r0
 c
- 550  if (.not.inp_f(sdist(3))) sdist=-1.0d0
+ 550  if (.not.inp_f(sdist(3))) sdist(3)=-1.0d0
       goto 501
 c
 c w
 c
- 560  if (.not.inp_f(sdist(4))) sdist=-1.0d0
+ 560  if (.not.inp_f(sdist(4))) sdist(4)=-1.0d0
       goto 501
 c
 c sigma
 c
- 570  if (.not.inp_f(sdist(5))) sdist=-1.0d0
+ 570  if (.not.inp_f(sdist(5))) sdist(5)=-1.0d0
       goto 501
 c
 c maxcoord
 c
- 580  if (.not.inp_f(sdist(6))) sdist=-1.0d0
+ 580  if (.not.inp_f(sdist(6))) sdist(6)=-1.0d0
+      goto 501
+c
+c range
+c
+ 590  if (.not.inp_f(sdist(7))) sdist(7)=-1.0d0
+      if (.not.inp_f(sdist(8))) sdist(8)=-1.0d0
       goto 501
 
  599  if ((n1.le.0).or.(n2.le.0)) then
@@ -287,7 +296,7 @@ c
          value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkc)
       else
          rtdb_name ='metadynamics_coordnum_ksigma:'//c_index_name(nkc)
-         if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,6,sdist))
+         if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,8,sdist))
      >    call errquit('metadynamics_input:failed writing coord_number',
      >                 0,RTDB_ERR)
       end if
