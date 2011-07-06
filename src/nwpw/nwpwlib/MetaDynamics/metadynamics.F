@@ -45,15 +45,22 @@ c     **********************************************
 
       metafound = (bnmeta.gt.0).or.(anmeta.gt.0).or.(cnmeta.gt.0)
       if (metafound) then
+
          rtdb_name = 'metadynamics_update'
          if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,maxmetacount)) 
      >      maxmetacount = 1
-         metacount = 0
+
+         rtdb_name = 'metadynamics_metacount'
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,metacount)) 
+     >      metacount = 0
 
          rtdb_name = 'metadynamics_print_shift'
          if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,metarayshift)) 
      >      metarayshift = 0
-         metaraycount = 0
+
+         rtdb_name = 'metadynamics_metaraycount'
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,metaraycount)) 
+     >      metaraycount = 0
 
          value = .true.
          if (bnmeta.gt.0) then
@@ -414,7 +421,12 @@ c     **********************************************
          metaraycount = metaraycount + metarayshift
          call meta_print_potentials(metaraycount)
 
-         value = .true.
+         value=.true.
+         rtdb_name='metadynamics_metacount'
+         value= value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metacount)
+         rtdb_name='metadynamics_metaraycount'
+         value= value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metaraycount)
+
          if (bnmeta.gt.0) then
 
 *           **** write out current spline fits ****
