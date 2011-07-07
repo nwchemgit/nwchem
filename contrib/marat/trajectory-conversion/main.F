@@ -54,8 +54,8 @@ c          message=" number of command line args should be 0 or 2 "
 c          goto 911
 c       end if
 c      default values for input/output files       
-       file_in  = "nwchem.trj "
-       file_out = "nwchem.xyz"
+       file_in  = " "
+       file_out = " "
 c      parse command line if any
        i = 0
 16     continue
@@ -70,25 +70,27 @@ c       write(*,*) "arguemnt ",i,buffer
           read(buffer,*) nfr
           write(*,*) "number of frames ",nfr
           go to 16
-       else if(file_in .eq. ' ') then
-          file_in=buffer
-          go to 16
-        else if(file_out.eq." ") then
-          file_out=buffer
-          go to 16
+       else 
+          if(file_in .eq. ' ') then
+            file_in=buffer
+            go to 16
+          else if(file_out.eq." ") then
+            file_out=buffer
+            go to 16
+          end if
         end if 
 
 c       if(istatus.eq.0) file_in = buffer
 c       call get_command_argument(2,buffer,l,istatus)
 c       if(istatus.eq.0) file_out = buffer
 c       
+18     continue
        if(file_in.eq." ") then
          file_in="nwchem.trj"
        end if
        if(file_out.eq." ") then
          file_out="nwchem.xyz"
        end if
-18     continue
        inquire(file=file_in,exist=ofile)
        fn_in = 10
        if(ofile) then
