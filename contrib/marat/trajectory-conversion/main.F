@@ -1,37 +1,16 @@
 ***********************************************************************
-*    This program converts amber style parameters contained in amber.in
-*    into NWChem format into amber.par
-*    Comments: To run type
-*    ./amber-helper file_in file_out
-*    where file_in is AMBER parameter file and
-*    file_out NWChem parameter file to be created.
-*    In the absence of command line arguments
-*    file_in = "amber.in" and file_out="amber.par"
-*    The program expects AMBER parameters to be in amber.in file
-*    No fixed formatting in AMBER parameter file is assumed and
-*    lines prefixed by # will be ignored 
+*    This program converts NWChem trajectory file
+*    into xyz format.
 *        
-*    Date:   10/07/2010
+*    Date:   07/11/2011
 *    Author: Marat Valiev (PNNL)
 ***********************************************************************
        program main
        implicit none
        logical ofile
-       integer nmax
-       parameter(nmax=20)
-       double precision lmax(nmax),sigma(nmax),sum(nmax)
-       double precision f(nmax),e(nmax)
        character*(180) buffer
        integer itype
        integer i,n
-       double precision l1,l2,tmp
-       integer u_angle
-       integer u_bond
-       integer u_dihedral
-       integer u_improper
-       integer u_mass
-       integer u_nonbonded
-       integer u_param
        character*180 file_in
        character*180 file_out
        integer l
@@ -46,30 +25,38 @@
        integer, dimension(:), allocatable :: iur
        integer ifr,nfr
        logical ok
+       logical overb
+       logical ohelp
 c
-       n = command_argument_count()
-       write(*,*) "number of command line args",n
-c       if(n.ne.0 .and. n.ne.2) then
-c          message=" number of command line args should be 0 or 2 "
-c          goto 911
-c       end if
-c      default values for input/output files       
+c       n = command_argument_count()
+c       write(*,*) "number of command line args",n
+c      intial values for command line args
        file_in  = " "
        file_out = " "
-c      parse command line if any
+       overb = .false.
+       ohelp = .false.
+c      --------------------------------------------      
+c      beging parsing command line arguments if any
+c      --------------------------------------------      
        i = 0
 16     continue
        i = i+1
        call get_command_argument(i,buffer,l,istatus)
-c       write(*,*) "arguemnt ",i,buffer
+c       write(*,*) "argument ",i,buffer
        if(istatus.ne.0) goto 18
        if(buffer.eq."-frames") then
           i = i+1
           call get_command_argument(i,buffer,l,istatus)
           if(istatus.ne.0) goto 18
           read(buffer,*) nfr
-          write(*,*) "number of frames ",nfr
           go to 16
+       else if(buffer.eq."-v") then
+          overb=.true.
+          go to 16
+       else if(buffer.eq."-help") then
+          ohelp=.true.
+          write(*,1000)
+          go to 14
        else 
           if(file_in .eq. ' ') then
             file_in=buffer
@@ -78,13 +65,14 @@ c       write(*,*) "arguemnt ",i,buffer
             file_out=buffer
             go to 16
           end if
-        end if 
-
-c       if(istatus.eq.0) file_in = buffer
-c       call get_command_argument(2,buffer,l,istatus)
-c       if(istatus.eq.0) file_out = buffer
-c       
+       end if 
+c      ---------------------------      
+c      end of command line parsing
+c      ---------------------------      
 18     continue
+c      -----------------------
+c      finialize io
+c      ----------------------
        if(file_in.eq." ") then
          file_in="nwchem.trj"
        end if
@@ -105,20 +93,35 @@ c
        if(ofile) then
                message = "opening output file "//file_out
           open(fn_out,file=file_out,
-     $            form='formatted',status='new',err=911)
+     $            form='formatted',status='unknown',err=911)
        else
            message = "no file found: "//file_in
            goto 911
        end if 
-
-
+c      testing
+1000   format(
+     > "NAME:",/
+     > " traj2xyz converts of NWChem trajectory file",//,
+     >  "SYNOPSIS",/,
+     > " traj2xyz [-help] [-v ] [-frames number of frames]",
+     > " input output ",//,
+     >  "DESCRIPTION",/,
+     > " The traj2xyz utility converts NWChem trajectory file",
+     > " into xyz format ",/,
+     > " The option are as follows:",/,
+     > " -help  prints out this message",
+     > " -v  generate more verbose output",
+     > " -frames  number of frames to process"
+     > )
        call trj_read_header(fn_in,nvm,nva,nu,nprec)
        nv = nva*nvm
-       write(*,*) "number of solvent molecules",nvm
-       write(*,*) "number of solvent atoms per molecule",nva
-       write(*,*) "number of solvent atoms ",nv
-       write(*,*) "number of solute molecules",nu
-       write(*,*) "trajectory precision",nprec
+       if(overb) then
+          write(*,*) "number of solvent molecules",nvm
+          write(*,*) "number of solvent atoms per molecule",nva
+          write(*,*) "number of solvent atoms ",nv
+          write(*,*) "number of solute molecules",nu
+          write(*,*) "trajectory precision",nprec
+       end if
        allocate(tva(nva))
        allocate(tua(nu))
        allocate(tur(nu))
@@ -181,9 +184,9 @@ c
         call get_next_token(i0,card,sep,token,ostatus)
         read(token,*) tva(i)
       end do
-      do i=1,nva
-        write(*,*) tvr,tva(i)
-      end do
+c      do i=1,nva
+c        write(*,*) tvr,tva(i)
+c      end do
       return
 911    continue       
 c      if you reach this you are in trouble
@@ -245,9 +248,9 @@ c     skip solvent block
         call get_next_token(i0,card,sep,token,ostatus)
         read(token,*) iur(i)
       end do
-      do i=1,nu
-        write(*,*) tur(i),tua(i),iur(i)
-      end do
+c      do i=1,nu
+c        write(*,*) tur(i),tua(i),iur(i)
+c      end do
       return
 911    continue       
 c      if you reach this you are in trouble
@@ -280,7 +283,7 @@ c     look for the "header"
 c     ---------------------
   100 continue
       read(fn,1000,end=911) card
-      write(*,*) card
+c      write(*,*) card
  1000 format(a)
       if(card(1:6).ne.'header') goto 100
 c     parse the line      
@@ -376,7 +379,7 @@ c     look for the start of the fame record
 c     -------------------------------------
   100 continue
       read(fn,1000,end=11,err=911) card
-      write(*,*) card
+c      write(*,*) card
  1000 format(a)
       if(card(1:5).ne.'frame') goto 100
 c
@@ -401,12 +404,6 @@ c     --------------------
           read(token,*,ERR=911,END=911) cu(k,i)
         end do
       end do
-      do i=1,nv
-        write(35,'(3f8.3)') (cv(k,i),k=1,3)
-      enddo
-      do i=1,nu
-        write(35,'(3f8.3)') (cu(k,i),k=1,3)
-      enddo
       ok = .true.
 11    continue
       return
@@ -440,7 +437,7 @@ c     look for the start of the fame record
 c     -------------------------------------
   100 continue
       read(fn,1000,end=911) card
-      write(*,*) card
+c      write(*,*) card
  1000 format(a)
       if(card(1:5).ne.'frame') goto 100
 c
@@ -448,13 +445,13 @@ c     skip four lines here
 c     --------------------
       do i=1,4
         read(fn,1000,err=911,end=911) card
-        write(*,*) card
+c        write(*,*) card
       end do
       read(fn,1000,err=911,end=911) card
       i0 = 1
       sep = " "
       call get_next_token(i0,card,sep,token,ostatus)
-      write(*,*) "token=",token
+c      write(*,*) "token=",token
       read(token,1003) (lv(i),i=1,4),(lu(i),i=1,4)
 1003  format(8l1,3i10)
       if(lv(4).or.lu(4)) then
@@ -462,13 +459,13 @@ c     --------------------
          goto 911
       end if
       call get_next_token(i0,card,sep,token,ostatus)
-      write(*,*) "token=",token
+c      write(*,*) "token=",token
       read(token,*) nvm
       call get_next_token(i0,card,sep,token,ostatus)
-      write(*,*) "token=",token
+c      write(*,*) "token=",token
       read(token,*) nva
       call get_next_token(i0,card,sep,token,ostatus)
-      write(*,*) "token=",token
+c      write(*,*) "token=",token
       read(token,*) nu
       return
 cc
