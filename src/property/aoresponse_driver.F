@@ -789,6 +789,8 @@ c
               alfaim2(idir,ipert) = alfaim(idir,ipert)
             enddo
           enddo
+c THIS CALL IS A PROBLEM WITH MANY BLAS LIBRARIES.
+c I DO NOT UNDERSTAND WHAT THE PROBLEM IS.          
           call dgeev('N','N',3,alfare2,3,alphaevr,alphaevi,
      1               aeigvec,3,aeigvec,3,awork,9,aeiginfo)
           if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
