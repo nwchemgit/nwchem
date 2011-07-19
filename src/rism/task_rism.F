@@ -8,16 +8,23 @@
 #include "global.fh"
        integer rtdb
        logical  task_rism
+       character*80 pname
+c
+       pname = "task_rism"
+       call util_io_enable()
+       call util_message("in "//pname)
 c       
 c      load data and allocate memory
 c      -----------------------------
        call rism_prepare(rtdb)
+       call util_message("preparation finished")
 c       
 c      main rism routine call
 c      ----------------------
        call rism_wrapper(rtdb)
 
        task_rism = .true.
+       call util_message("out "//pname)
        return
       end 
 c       

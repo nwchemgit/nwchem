@@ -2,6 +2,7 @@
 * $Id: db_data.F 20039 2011-03-03 22:11:00Z marat $
 *
 
+#define DB_DEBUG
       block data initial_db_data
       implicit none
 #include "db_data.fh"
@@ -10,6 +11,19 @@ c
       data db_nd /db_max_n*0/
 
       end block data
+
+      subroutine db_message(buffer)
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "inp.fh"
+      character*(*) buffer
+c
+      write(luout,*) buffer(1:inp_strlen(buffer))," :",
+     >                 ga_nodeid()
+      call util_flush(luout) 
+      return
+      end
 
       subroutine db_data_get_sindex(sname,ns,result)
       implicit none
@@ -531,7 +545,6 @@ c     see if the data already exists and is of the same nature
      +                        byte_mb(db_index(ns,nd)))
       end if
 cc     should probably fill logical and char arrays
-      call util_io_disable()
 
       end
 
@@ -966,22 +979,37 @@ c
       integer ns,nsmax
       character*(30) pname
       character*(72) buffer
-      pname = "db_namespace_destroy"
+      pname = "db_data_brdcst_create"
 
       
       if(ga_nodeid().eq.root) then
         nsmax = db_n
       end if
+#ifdef DB_DEBUG      
+      call db_message("TESTING "//pname)
+#endif      
       call ga_brdcst(msg_smd,nsmax,
      >     ma_sizeof(mt_int,1,mt_byte),root)
+#ifdef DB_DEBUG      
+      call db_message(" RESTING "//pname)
+#endif      
       do ns=1,nsmax
       if(ga_nodeid().eq.root) then
         buffer = db_name(ns)
       end if
       call ga_sync()
+#ifdef DB_DEBUG      
+      call db_message(" 3 "//pname)
+#endif      
       call ga_brdcst(msg_smd,buffer,
      >     72*ma_sizeof(mt_byte,1,mt_byte),root)
+#ifdef DB_DEBUG       
+       call db_message(" 4 "//pname)
+#endif       
        call db_data_namespace_brdcst_create(buffer,root)   
+#ifdef DB_DEBUG       
+       call db_message(" 5 "//pname)
+#endif      
       end do
      
       return

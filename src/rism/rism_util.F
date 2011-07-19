@@ -99,6 +99,7 @@ c
        end subroutine 
 c
 C>     Caculation of reduced intra-molecular correlation matrix in k-space
+C>     \f$\int \psi dx\f$       
 C>     @param[in]  nv    number of solvent atoms      
 C>     @param[in]  nvv   number of unique solvent atoms      
 C>     @param[in]  ngr   number of grid points
@@ -109,12 +110,15 @@ C>     @param[in]  xv  x-coord
 C>     @param[in]  yv  y-coord
 C>     @param[in]  zv  z-coord
 C>     @param[out] wv  intra-molecular correlation matrix in k-space
+C>     \psi
 C>    
        subroutine wcreat(nv,ngr,nvv,ims,kgrid,isv,xv,yv,zv,wv) 
        implicit none
+C>     @param[in] input panrameter       
        integer  nv,nvv, ngr
+C>     input parameter       
        integer  isv(nv),ims(nv)
-       double precision kgrid(1:ngr)
+       double precision kgrid(1:ngr)  !< our fine level matrix
        double precision xv(1:nv),yv(1:nv),zv(1:nv)
        double precision wv(nvv,nvv,ngr)
 c 
@@ -153,3 +157,15 @@ c      enddo
       return
       end subroutine 
 
+      subroutine rism_message(buffer)
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "inp.fh"
+      character*(*) buffer
+c
+      write(luout,*) buffer(1:inp_strlen(buffer))," :",
+     >                 ga_nodeid()
+      call util_flush(luout) 
+      return
+      end

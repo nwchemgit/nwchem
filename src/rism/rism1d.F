@@ -1,227 +1,227 @@
-C PROGRAM QQQ 
-c with DIIS Implementation
-       IMPLICIT NONE
-       INTEGER  NU, NV, NGR ,ICR,ICL,I,DD 
-       REAL*8 R1, R2, tau, solperm,T, tol,lambd,DR  
-C PARAMETERS(NV number of solute sites  NU number of solute sites NGR number of grid points)
-C solperm solvent relative permittivity
-C tau(AA-1) separation between short and long range functions in 1/Angstroms
-C ICR type of combination rule: 1-arithmetic; 2-geometric 
-C T(K)  temperature in Kelvins
-C tol residue tolerance
-C lamd mixing parameter
-C ICL closure type: 1-HNC; 2-KH
-c tau Debye parameter for spliting potnetial into short and long part
+c program qqq 
+c with diis implementation
+       implicit none
+       integer  nu, nv, ngr ,icr,icl,i,dd 
+       real*8 r1, r2, tau, solperm,t, tol,lambd,dr  
+c parameters(nv number of solute sites  nu number of solute sites ngr number of grid points)
+c solperm solvent relative permittivity
+c tau(aa-1) separation between short and long range functions in 1/angstroms
+c icr type of combination rule: 1-arithmetic; 2-geometric 
+c t(k)  temperature in kelvins
+c tol residue tolerance
+c lamd mixing parameter
+c icl closure type: 1-hnc; 2-kh
+c tau debye parameter for spliting potnetial into short and long part
 c solperm dielectric permitivity of the solvent
-c DD number of DIIS basis vectors
-c      NGR=4096
-c      NU=12 
-c      NV=4 
+c dd number of diis basis vectors
+c      ngr=4096
+c      nu=12 
+c      nv=4 
 c      tau=1
 c      solperm=1
-c      ICR=1
-c      T=298
+c      icr=1
+c      t=298
 c      tol=1e-5
 c      lambd=0.5 
-c      ICL=2 
+c      icl=2 
        open(3, file='uvpar.data', status='old')
-       read(3,102) NU,NV,ICR,ICL,NGR,tau,solperm,T,tol,lambd,DD 
-       PRINT*, NU,NV,ICR,ICL,NGR,tau,solperm,T,tol,lambd,DD 
+       read(3,102) nu,nv,icr,icl,ngr,tau,solperm,t,tol,lambd,dd 
+       print*, nu,nv,icr,icl,ngr,tau,solperm,t,tol,lambd,dd 
        close(3)
-C PARAMETERS(R1 first grid point R2 second grid point)
-C      reading of R1 and R2  
+c parameters(r1 first grid point r2 second grid point)
+c      reading of r1 and r2  
        open(3, file='full.data', status='old')      
-        read(3,104) R1,R2          
+        read(3,104) r1,r2          
        close(3)
-104    FORMAT(1x,F12.7) 
-       DR=R2-R1
-!      PRINT*, R1,R2,DR
-       CALL RISMINPUT(NV,NU,NGR,DR,R1,tau,
-     * solperm,ICR,T,tol,lambd,ICL,DD) 
- 102   FORMAT(4(1x,I4),1x,I8,5(2x,E9.4),1x,I4) 
-       STOP
-       END 
-CCCC
-       subroutine RISMINPUT(NV,NU,NGR,DR,R1,tau,
-     * solperm,ICR,T,tol,lambd,ICL,DD) 
-       IMPLICIT NONE
-       INTEGER  NU, ISU(1:NU), MU(1:NU)
-       REAL*8 WU(1:NU,1:NU,1:NGR),SGVV(1:NV)
-       REAL*8 XU(1:NU),YU(1:NU),ZU(1:NU),SIGU(1:NU)
-       REAL*8 EPSIU(1:NU),QQU(1:NU) 
-       INTEGER  NV, NGR, ISV(1:NV), MV(1:NV)
-       REAL*8 DEN(1:NV),XV(1:NV),YV(1:NV),ZV(1:NV),SIGV(1:NV)
-       REAL*8 EPSIV(1:NV),QQV(1:NV)    
-       REAL*8 SIGVv(1:NV), EPSvV(1:NV),QvV(1:NV)
-       INTEGER  I, ICR, ICL,NVV,IMS(1:NV),ND,k,DD       
-       REAL*8 R1,DR, DK, RGRID(1:NGR),KGRID(1:NGR),pi 
-       CHARACTER (4) TV(1:NV), TU(1:NU)
-       REAL*8 tau,solperm,T, tol,lambd,kb
-       INTEGER J1,J
-       REAL*8 c3(1:NU,1:NV,1:NGR),hu(1:NU,1:NV,1:NGR) 
-       REAL*8 GAM(1:NU,1:NV,1:NGR)
-C
-C      solvent input
-C TV type of cite ISV type of species MV multiplicity  DEN density (1/A3) XVYVZV[xyz](A) 
-C SIGV  sigma(A) EPSIV epsilon(kJ/mol) QQV charge(e)
-c      number of lines in solvt..data should be equal NV
-       open(3, file='solvent3.data', status='old')      
-        DO I=1,NV
-         read(3,103)TV(I),ISV(I),MV(I),DEN(I),  
-     *   XV(I),YV(I),ZV(I),SIGV(I), EPSIV(I),QQV(I) 
-!        PRINT *, TV(I),ISV(I),MV(I),DEN(I),  
-!    *   XV(I),YV(I),ZV(I),SIGV(I), EPSIV(I),QQV(I)  
-        ENDDO
-       close(3)
- 103   FORMAT(A4,2x,I4,2x,I4,7(2x,E10.4))
+104    format(1x,f12.7) 
+       dr=r2-r1
+!      print*, r1,r2,dr
+       call risminput(nv,nu,ngr,dr,r1,tau,
+     * solperm,icr,t,tol,lambd,icl,dd) 
+ 102   format(4(1x,i4),1x,i8,5(2x,e9.4),1x,i4) 
+       stop
+       end 
+cccc
+       subroutine risminput(nv,nu,ngr,dr,r1,tau,
+     * solperm,icr,t,tol,lambd,icl,dd) 
+       implicit none
+       integer  nu, isu(1:nu), mu(1:nu)
+       real*8 wu(1:nu,1:nu,1:ngr),sgvv(1:nv)
+       real*8 xu(1:nu),yu(1:nu),zu(1:nu),sigu(1:nu)
+       real*8 epsiu(1:nu),qqu(1:nu) 
+       integer  nv, ngr, isv(1:nv), mv(1:nv)
+       real*8 den(1:nv),xv(1:nv),yv(1:nv),zv(1:nv),sigv(1:nv)
+       real*8 epsiv(1:nv),qqv(1:nv)    
+       real*8 sigvv(1:nv), epsvv(1:nv),qvv(1:nv)
+       integer  i, icr, icl,nvv,ims(1:nv),nd,k,dd       
+       real*8 r1,dr, dk, rgrid(1:ngr),kgrid(1:ngr),pi 
+       character (4) tv(1:nv), tu(1:nu)
+       real*8 tau,solperm,t, tol,lambd,kb
+       integer j1,j
+       real*8 c3(1:nu,1:nv,1:ngr),hu(1:nu,1:nv,1:ngr) 
+       real*8 gam(1:nu,1:nv,1:ngr)
 c
-C      sorting
-       CALL SORT(NV,TV,ISV,MV,IMS,NVV) 
-!      PRINT*, (IMS(I), I=1,NV)
-c      calculations interaction parameters for reduced matrix
-       CALL VPot(NV,IMS,NVV,SIGV,EPSIV,QQV,SGVV,EPSVV,QVV)
-!      Do I=1,nVV 
-!       PRINT*, SGVV(I),EPSVV(I),QVV(I),I,IMS(I)
-!      ENDDO
-C
-C      solute input
-C TU type of cite ISU type of species MU multiplicity  XUYUZU[xyz](A) 
-C      SIGU sigma(A) EPSIU epsilon(kJ/mol) QQU charge(e)
-       open(3, file='solute2.data', status='old')      
-        DO I=1,NU
-         read(3,102)TU(I),ISU(I),MU(I),  
-     *   XU(I),YU(I),ZU(I),SIGU(I),EPSIU(I),QQU(I) 
-         PRINT *,TU(I),ISU(I),MU(I),  
-     *   XU(I),YU(I),ZU(I),SIGU(I),EPSIU(I),QQU(I)
-        ENDDO
+c      solvent input
+c tv type of cite isv type of species mv multiplicity  den density (1/a3) xvyvzv[xyz](a) 
+c sigv  sigma(a) epsiv epsilon(kj/mol) qqv charge(e)
+c      number of lines in solvt..data should be equal nv
+       open(3, file='solvent3.data', status='old')      
+        do i=1,nv
+         read(3,103)tv(i),isv(i),mv(i),den(i),  
+     *   xv(i),yv(i),zv(i),sigv(i), epsiv(i),qqv(i) 
+!        print *, tv(i),isv(i),mv(i),den(i),  
+!    *   xv(i),yv(i),zv(i),sigv(i), epsiv(i),qqv(i)  
+        enddo
        close(3)
- 102   FORMAT(A4,2x,I4,2x,I4,6(2x,E10.4))                
-C
-C      CREAT RGRID RGRD(i) CREAT KGRID KGRID(I)
+ 103   format(a4,2x,i4,2x,i4,7(2x,e10.4))
+c
+c      sorting
+       call sort(nv,tv,isv,mv,ims,nvv) 
+!      print*, (ims(i), i=1,nv)
+c      calculations interaction parameters for reduced matrix
+       call vpot(nv,ims,nvv,sigv,epsiv,qqv,sgvv,epsvv,qvv)
+!      do i=1,nvv 
+!       print*, sgvv(i),epsvv(i),qvv(i),i,ims(i)
+!      enddo
+c
+c      solute input
+c tu type of cite isu type of species mu multiplicity  xuyuzu[xyz](a) 
+c      sigu sigma(a) epsiu epsilon(kj/mol) qqu charge(e)
+       open(3, file='solute2.data', status='old')      
+        do i=1,nu
+         read(3,102)tu(i),isu(i),mu(i),  
+     *   xu(i),yu(i),zu(i),sigu(i),epsiu(i),qqu(i) 
+         print *,tu(i),isu(i),mu(i),  
+     *   xu(i),yu(i),zu(i),sigu(i),epsiu(i),qqu(i)
+        enddo
+       close(3)
+ 102   format(a4,2x,i4,2x,i4,6(2x,e10.4))                
+c
+c      creat rgrid rgrd(i) creat kgrid kgrid(i)
        pi=2*asin(1.0)
 c      the zero point is excluded
-       R1=DR   
-       DK=PI/(NGR+1)/DR
-       DO I=1,NGR
-        RGRID(I)=R1+DR*(I-1) 
-        KGRID(I)=I*DK 
-       ENDDO 
-C
-C      WU(I,J,k) intramolecular solute function
-       call WUcreat(NU,NGR,KGRID,TU,ISU,XU,YU,ZU,WU) 
-!      do K=1,NGR,40
-!       PRINT*, (WU(1,I,K), I=1,9)
-!      ENDDO
-C       
-       call RISM(NU,NV,NVV,NGR,ICL,KGRID,RGRID,TV,ISV,DEN,MV,XV,YV,ZV,
-     * ICR,IMS,tau,solperm,SGVV,EPSVV,QVV,SIGU,EPSIU,QQU,T,lambd,
-     * tol,WU,DD)          
+       r1=dr   
+       dk=pi/(ngr+1)/dr
+       do i=1,ngr
+        rgrid(i)=r1+dr*(i-1) 
+        kgrid(i)=i*dk 
+       enddo 
+c
+c      wu(i,j,k) intramolecular solute function
+       call wucreat(nu,ngr,kgrid,tu,isu,xu,yu,zu,wu) 
+!      do k=1,ngr,40
+!       print*, (wu(1,i,k), i=1,9)
+!      enddo
+c       
+       call rism(nu,nv,nvv,ngr,icl,kgrid,rgrid,tv,isv,den,mv,xv,yv,zv,
+     * icr,ims,tau,solperm,sgvv,epsvv,qvv,sigu,epsiu,qqu,t,lambd,
+     * tol,wu,dd)          
        return
        end subroutine 
-CCCC
+cccc
 c
-C subroutine for rearrangement of the solvent data which excludes the same sites
-c defined by paramters TV and MV
+c subroutine for rearrangement of the solvent data which excludes the same sites
+c defined by paramters tv and mv
 c
-       subroutine SORT(NV,TV,ISV,MV,IMS,NVV)
-       IMPLICIT NONE
-       INTEGER  NV, ISV(1:NV), MV(1:NV),IMS(1:NV),MVT(1:NV)
-       INTEGER  I,I1,J1,J2,ICC,IMM(1:NV),MAX,NVV      
-       CHARACTER (4) TV(1:NV)
-C
-C      INITIALIZATION of connectivity vector      
-       DO I=1,NV
-        IMS(I)=I 
-        IMM(I)=1
-        MVT(i)=MV(i)  
-       ENDDO
-C      sorting 
-       DO J1=1,NV-1
-        DO J2=J1+1,NV
-         IF((TV(J1).EQ.TV(J2)).AND.(ISV(J1).EQ.ISV(J2))
-     *    .AND.(MV(J2).NE.1)) THEN 
-C         replace current value of IMS by the first found
-          IMS(J2)=IMS(J1)
-C         change indicator of replacement
-          IMM(J2)=2
-C         change multiplicity
-          MV(J2)=1 
-C         shift all others except replaced by 1
-          IF(J2.NE.NV) then
-           DO I1=J2+1,NV
-            IF(IMM(I1).EQ.1) Then  
-             IMS(I1)=IMS(I1)-1
-             ELSE 
-             IMS(I1)=IMS(I1)
-            ENDIF 
-           ENDDO
-          ENDIF  
-          ELSE 
-          IMS(J2)=IMS(J2)
-         ENDIF
-!       PRINT*, J2,IMS(J2),MV(J2),IMM(J2)
-        ENDDO
-       ENDDO
-C      evaluation of maximal value of different sites
-       Max=IMS(1) 
-       DO I=2,NV
-        IF(IMS(I).GE.MAX) then
-         MAX=IMS(I)
-         ELSE
-         MAX=MAX 
-        ENDIF
-       ENDDO
-       NVV=Max
-c      replace changed MV by the initial one 
-       DO I=1,NV
-        MV(I)=MVT(I)
-       ENDDO
+       subroutine sort(nv,tv,isv,mv,ims,nvv)
+       implicit none
+       integer  nv, isv(1:nv), mv(1:nv),ims(1:nv),mvt(1:nv)
+       integer  i,i1,j1,j2,icc,imm(1:nv),max,nvv      
+       character (4) tv(1:nv)
+c
+c      initialization of connectivity vector      
+       do i=1,nv
+        ims(i)=i 
+        imm(i)=1
+        mvt(i)=mv(i)  
+       enddo
+c      sorting 
+       do j1=1,nv-1
+        do j2=j1+1,nv
+         if((tv(j1).eq.tv(j2)).and.(isv(j1).eq.isv(j2))
+     *    .and.(mv(j2).ne.1)) then 
+c         replace current value of ims by the first found
+          ims(j2)=ims(j1)
+c         change indicator of replacement
+          imm(j2)=2
+c         change multiplicity
+          mv(j2)=1 
+c         shift all others except replaced by 1
+          if(j2.ne.nv) then
+           do i1=j2+1,nv
+            if(imm(i1).eq.1) then  
+             ims(i1)=ims(i1)-1
+             else 
+             ims(i1)=ims(i1)
+            endif 
+           enddo
+          endif  
+          else 
+          ims(j2)=ims(j2)
+         endif
+!       print*, j2,ims(j2),mv(j2),imm(j2)
+        enddo
+       enddo
+c      evaluation of maximal value of different sites
+       max=ims(1) 
+       do i=2,nv
+        if(ims(i).ge.max) then
+         max=ims(i)
+         else
+         max=max 
+        endif
+       enddo
+       nvv=max
+c      replace changed mv by the initial one 
+       do i=1,nv
+        mv(i)=mvt(i)
+       enddo
        return
        end subroutine 
-C
-c      subroutine for calculation Potential parameters for reduced matrix
 c
-       subroutine VPot(NV,IMS,NVV,SIGV,EPSIV,QQV,SGVV,EPSVV,QVV) 
-       IMPLICIT NONE
-       INTEGER  NV,NVV 
-       REAL*8 SGVV(1:NVV),EPSVV(1:NVV),QVV(1:NVV)        
-       REAL*8 SIGV(1:NV),EPSIV(1:NV),QQV(1:NV)    
-       INTEGER  I,IMS(1:NV),J1,J2,ICR       
-       DO I=1,NV  
-        SGVV(IMS(I))=SIGV(I)
-        EPSVV(IMS(I))=EPSIV(I)
-        QVV(IMS(I))=QQV(I)
-!       PRINT*, SGVV(IMS(I)),SIGV(I),I,IMS(I)
-       ENDDO 
+c      subroutine for calculation potential parameters for reduced matrix
+c
+       subroutine vpot(nv,ims,nvv,sigv,epsiv,qqv,sgvv,epsvv,qvv) 
+       implicit none
+       integer  nv,nvv 
+       real*8 sgvv(1:nvv),epsvv(1:nvv),qvv(1:nvv)        
+       real*8 sigv(1:nv),epsiv(1:nv),qqv(1:nv)    
+       integer  i,ims(1:nv),j1,j2,icr       
+       do i=1,nv  
+        sgvv(ims(i))=sigv(i)
+        epsvv(ims(i))=epsiv(i)
+        qvv(ims(i))=qqv(i)
+!       print*, sgvv(ims(i)),sigv(i),i,ims(i)
+       enddo 
        return
        end subroutine
 c
-C      prepration of WU(i,j,K) intramoplecular solute matrix
+c      prepration of wu(i,j,k) intramoplecular solute matrix
 c
-       subroutine WUcreat(NU,NGR,KGRID,TU,ISU,XU,YU,ZU,WU)
-       IMPLICIT NONE
-       INTEGER  NU, NGR, ISU(1:NU), MU(1:NU)
-       REAL*8 WU(1:NU,1:NU,1:NGR), DIST(1:NU,1:NU)
-       REAL*8 XU(1:NU),YU(1:NU),ZU(1:NU)   
-       INTEGER  I, J1,J2,ICR       
-       REAL*8 KGRID(1:NGR),sik  
-       CHARACTER (4) TU(1:NU) 
-C      DIS(I,J) intramolecular distances      
-       DO I=1,NGR
-        DO J1=1,NU
-         DO J2=1,NU
-          DIST(J1,J2)=(((XU(J1)-XU(J2))**2+(YU(J1)-YU(J2))**2+
-     *    (ZU(J1)-ZU(J2))**2))**(1.0/2)
-          WU(J1,J2,I)=sik(KGRID(I)*DIST(J1,J2))
-         ENDDO
-        ENDDO
-       ENDDO 
+       subroutine wucreat(nu,ngr,kgrid,tu,isu,xu,yu,zu,wu)
+       implicit none
+       integer  nu, ngr, isu(1:nu), mu(1:nu)
+       real*8 wu(1:nu,1:nu,1:ngr), dist(1:nu,1:nu)
+       real*8 xu(1:nu),yu(1:nu),zu(1:nu)   
+       integer  i, j1,j2,icr       
+       real*8 kgrid(1:ngr),sik  
+       character (4) tu(1:nu) 
+c      dis(i,j) intramolecular distances      
+       do i=1,ngr
+        do j1=1,nu
+         do j2=1,nu
+          dist(j1,j2)=(((xu(j1)-xu(j2))**2+(yu(j1)-yu(j2))**2+
+     *    (zu(j1)-zu(j2))**2))**(1.0/2)
+          wu(j1,j2,i)=sik(kgrid(i)*dist(j1,j2))
+         enddo
+        enddo
+       enddo 
        return
        end subroutine 
-C
+c
        real*8 function sik(x)
        real*8 x
-       if(x.lt.1D-22)then
+       if(x.lt.1d-22)then
         sik=1
        else
        sik=sin(x)/x
@@ -229,285 +229,285 @@ C
        return
        end
 c
-C creat susceptibility of solvent
-C
-       subroutine CHIcreat(ND,NV,NGR,IMS,NVV,KGRID,TV,
-     * ISV,DEN,MV,XV,YV,ZV,CHI) 
-       IMPLICIT NONE
-       REAL*8 WV(1:NVV,1:NVV,1:NGR), CHI(1:NVV,1:NVV,1:NGR),HD(1:NGR)
-       INTEGER  NV, NGR, ISV(1:NV), MV(1:NV)
-       REAL*8 DEN(1:NV),XV(1:NV),YV(1:NV),ZV(1:NV),SIGV(1:NV)    
-       INTEGER  I,J,J1,J2,ICR,NVV,IMS(1:NV),ND       
-       REAL*8 R1, R2, DR, DK, RGRID(1:NGR),KGRID(1:NGR),pi
-       REAL*8 HSOL(1:ND,1:NGR), RR(1:NGR)
-       REAL*8 H1(1:NVV,1:NVV,1:NGR),H2(1:NGR),H3(1:NVV,1:NVV,1:NGR)
-       CHARACTER (4) TV(1:NV)
+c creat susceptibility of solvent
+c
+       subroutine chicreat(nd,nv,ngr,ims,nvv,kgrid,tv,
+     * isv,den,mv,xv,yv,zv,chi) 
+       implicit none
+       real*8 wv(1:nvv,1:nvv,1:ngr), chi(1:nvv,1:nvv,1:ngr),hd(1:ngr)
+       integer  nv, ngr, isv(1:nv), mv(1:nv)
+       real*8 den(1:nv),xv(1:nv),yv(1:nv),zv(1:nv),sigv(1:nv)    
+       integer  i,j,j1,j2,icr,nvv,ims(1:nv),nd       
+       real*8 r1, r2, dr, dk, rgrid(1:ngr),kgrid(1:ngr),pi
+       real*8 hsol(1:nd,1:ngr), rr(1:ngr)
+       real*8 h1(1:nvv,1:nvv,1:ngr),h2(1:ngr),h3(1:nvv,1:nvv,1:ngr)
+       character (4) tv(1:nv)
        pi=2*asin(1.0)
        
-C 
-C reading of solvent RDFs 
+c 
+c reading of solvent rdfs 
         open(3, file='full.data', status='old')      
-        DO I=1,NGR
-         read(3,104) RR(I), (HSOL(J,I), J=1,ND)
-        ENDDO
+        do i=1,ngr
+         read(3,104) rr(i), (hsol(j,i), j=1,nd)
+        enddo
        close(3)
-104    FORMAT(11(1x,F12.7)) 
-       DR=RR(2)-RR(1) 
-!      DO I=1,NGR,40
-!       Print*, (HSOL(J,I), J=1,9)
-!      ENDDO
-C 
-C      sin FFT transform of RDFs with proper arrangement in array
-       DO J=1,NVV
-        DO J1=J,NVV
-         DO I=2,NGR 
-          H1(J,J1,I)=(HSOL(NVV*(J-1)-J*(J-1)/2+J1,I)-1)*RR(I) 
-          H2(i)=H1(J,J1,I)
-         ENDDO
-         CALL SINFT(H2,NGR)
-C        normalization of sin-FFT with excluding the zeropoint (x=0)
-         DO I=1,NGR-1
-          H3(J,J1,i)=H2(I+1)/KGRID(I)
-         ENDDO
-         H3(J,J1,NGR)=H3(J,J1,NGR-1)
-        ENDDO
-       ENDDO
+104    format(11(1x,f12.7)) 
+       dr=rr(2)-rr(1) 
+!      do i=1,ngr,40
+!       print*, (hsol(j,i), j=1,9)
+!      enddo
+c 
+c      sin fft transform of rdfs with proper arrangement in array
+       do j=1,nvv
+        do j1=j,nvv
+         do i=2,ngr 
+          h1(j,j1,i)=(hsol(nvv*(j-1)-j*(j-1)/2+j1,i)-1)*rr(i) 
+          h2(i)=h1(j,j1,i)
+         enddo
+         call sinft(h2,ngr)
+c        normalization of sin-fft with excluding the zeropoint (x=0)
+         do i=1,ngr-1
+          h3(j,j1,i)=h2(i+1)/kgrid(i)
+         enddo
+         h3(j,j1,ngr)=h3(j,j1,ngr-1)
+        enddo
+       enddo
 c      symmetric indeces
-       DO J=1,NVV
-        DO J1=J,NVV
-         DO I=1,NGR 
-          H3(J1,J,I)=H3(J,J1,I)
-         ENDDO           
-        ENDDO
-       ENDDO
-!      DO I=1,NGR,40       
-!       PRINT*, (H3(J,3,I), J=1,4) 
-!      ENDDO 
-C
-C WV(I,J,k) intramolecular solvent function
-C
-       call Wcreat(NV,NGR,NVV,IMS,KGRID,TV,ISV,XV,YV,ZV,WV) 
-!      do I=1,NGR,40
-!       Print*, (WV(1,J1,I), J1=1,NVV)
-!      ENDDO
-C
-C CHI(I,J,k) solvent susceptibility
-C      
-       DR=RR(2)-RR(1)   
-       DO I=1,NGR
-        DO J1=1,NV
-         DO J2=1,NV
-          CHI(IMS(J1),IMS(J2),I)=WV(IMS(J1),IMS(J2),I)
-     *    +4*pi*DR*MV(J1)*MV(J2)*den(J1)*H3(IMS(J1),IMS(J2),i)
-         ENDDO
-        ENDDO      
-       ENDDO
-!      do I=1,NGR,40
-!       Print*, (CHI(2,J,I), J=1,4) 
-!      ENDDO
+       do j=1,nvv
+        do j1=j,nvv
+         do i=1,ngr 
+          h3(j1,j,i)=h3(j,j1,i)
+         enddo           
+        enddo
+       enddo
+!      do i=1,ngr,40       
+!       print*, (h3(j,3,i), j=1,4) 
+!      enddo 
+c
+c wv(i,j,k) intramolecular solvent function
+c
+       call wcreat(nv,ngr,nvv,ims,kgrid,tv,isv,xv,yv,zv,wv) 
+!      do i=1,ngr,40
+!       print*, (wv(1,j1,i), j1=1,nvv)
+!      enddo
+c
+c chi(i,j,k) solvent susceptibility
+c      
+       dr=rr(2)-rr(1)   
+       do i=1,ngr
+        do j1=1,nv
+         do j2=1,nv
+          chi(ims(j1),ims(j2),i)=wv(ims(j1),ims(j2),i)
+     *    +4*pi*dr*mv(j1)*mv(j2)*den(j1)*h3(ims(j1),ims(j2),i)
+         enddo
+        enddo      
+       enddo
+!      do i=1,ngr,40
+!       print*, (chi(2,j,i), j=1,4) 
+!      enddo
        return
        end subroutine 
 c
 c caculation of reduced solvent matrix
 c
-       subroutine Wcreat(NV,NGR,NVV,IMS,KGRID,TV,ISV,XV,YV,ZV,WV) 
-       IMPLICIT NONE
-       REAL*8 WV(1:NVV,1:NVV,1:NGR),DIST(1:NV,1:NV)
-       REAL*8 WS(1:NV,1:NVV,1:NGR)
-       INTEGER  NV, NGR, ISV(1:NV),MV(1:NV)
-       REAL*8 DEN(1:NV),XV(1:NV),YV(1:NV),ZV(1:NV),SIGV(1:NV)    
-       INTEGER  I, J1,J2,NVV,IMS(1:NV),T       
-       REAL*8 KGRID(1:NGR),pi,SIK,CO(1:NV,1:NV,1:NGR) 
-       CHARACTER (4) TV(1:NV)
+       subroutine wcreat(nv,ngr,nvv,ims,kgrid,tv,isv,xv,yv,zv,wv) 
+       implicit none
+       real*8 wv(1:nvv,1:nvv,1:ngr),dist(1:nv,1:nv)
+       real*8 ws(1:nv,1:nvv,1:ngr)
+       integer  nv, ngr, isv(1:nv),mv(1:nv)
+       real*8 den(1:nv),xv(1:nv),yv(1:nv),zv(1:nv),sigv(1:nv)    
+       integer  i, j1,j2,nvv,ims(1:nv),t       
+       real*8 kgrid(1:ngr),pi,sik,co(1:nv,1:nv,1:ngr) 
+       character (4) tv(1:nv)
        pi=2*asin(1.0)  
 c
-C      Initialization of Wv(I,j,K) & Calculating of the 11 element
+c      initialization of wv(i,j,k) & calculating of the 11 element
 c
-       DO I=1, NGR         
-        DO J1=1,NV
-         DO J2=1,NV          
-           WV(IMS(J1),IMS(J2),I)=0
-           WS(J1,IMS(J2),I)=0  
-         ENDDO
-        ENDDO
-       ENDDO            
-C      DIST(I,J) distance between i and j sites
-C      CO(I,J,K) sik between i and j sites
-C      reducing number of coloumns
-       DO I=1,NGR
-        DO J1=1,NV       
-         DO J2=1,NV
-C         Calculations all other columns
-C         if they belong to the same molecule
-          IF(ISV(J1).EQ.ISV(J2)) Then        
-           DIST(J1,J2)=(((XV(J1)-XV(J2))**2+
-     *     (YV(J1)-YV(J2))**2+(ZV(J1)-ZV(J2))**2))**(1.0/2)           
-           CO(J1,J2,I)=sik(KGRID(I)*DIST(J1,J2))
-           WS(J1,IMS(J2),I)= WS(J1,IMS(J2),I)+CO(J1,J2,I)
-          ENDIF
-         ENDDO  
-        ENDDO 
-       ENDDO
-C      reducing the number of rows 
-       DO I=1,NGR        
-        DO J2=1,NVV       
-         DO J1=1,NV   
-          WV(IMS(J1),j2,I)=WV(IMS(J1),J2,I)+WS(J1,J2,I)        
-         ENDDO  
-        ENDDO
-       ENDDO 
-!      do I=1,NGR,40
-!       Print*, (WV(1,J1,I), J1=1,NVV)
-!      ENDDO
+       do i=1, ngr         
+        do j1=1,nv
+         do j2=1,nv          
+           wv(ims(j1),ims(j2),i)=0
+           ws(j1,ims(j2),i)=0  
+         enddo
+        enddo
+       enddo            
+c      dist(i,j) distance between i and j sites
+c      co(i,j,k) sik between i and j sites
+c      reducing number of coloumns
+       do i=1,ngr
+        do j1=1,nv       
+         do j2=1,nv
+c         calculations all other columns
+c         if they belong to the same molecule
+          if(isv(j1).eq.isv(j2)) then        
+           dist(j1,j2)=(((xv(j1)-xv(j2))**2+
+     *     (yv(j1)-yv(j2))**2+(zv(j1)-zv(j2))**2))**(1.0/2)           
+           co(j1,j2,i)=sik(kgrid(i)*dist(j1,j2))
+           ws(j1,ims(j2),i)= ws(j1,ims(j2),i)+co(j1,j2,i)
+          endif
+         enddo  
+        enddo 
+       enddo
+c      reducing the number of rows 
+       do i=1,ngr        
+        do j2=1,nvv       
+         do j1=1,nv   
+          wv(ims(j1),j2,i)=wv(ims(j1),j2,i)+ws(j1,j2,i)        
+         enddo  
+        enddo
+       enddo 
+!      do i=1,ngr,40
+!       print*, (wv(1,j1,i), j1=1,nvv)
+!      enddo
        return
        end subroutine 
 c
 c  creat solute-solvent potentials
 c
-       subroutine POTcreat(NVV,NU,NGR,ICR,KGRID,RGRID,tau,solperm,
-     * SGVV,EPSVV,QVV,SIGU,EPSIU,QQU,PLJ,UL) 
-       IMPLICIT NONE
-       INTEGER  NU,NV, NGR,NVV 
-       REAL*8 SIGU(1:NU),EPSIU(1:NU),QQU(1:NU)        
-       REAL*8 SGVV(1:NVV),EPSVV(1:NVV),QVV(1:NVV)    
-       INTEGER  I, J1,J2,ICR       
-       REAL*8 R1, R2, DR, DK, RGRID(1:NGR),KGRID(1:NGR),pi 
-       REAL*8 SIGVV(1:NU,1:NVV), EPSIVV(1:NU,1:NVV)     
-       REAL*8 UL(1:NU,1:NVV,1:NGR),PLJ(1:NU,1:NVV,1:NGR)
-       REAL*8 NAV,tau, echar,solperm,Uthre,CK 
-c      Constants for potential
+       subroutine potcreat(nvv,nu,ngr,icr,kgrid,rgrid,tau,solperm,
+     * sgvv,epsvv,qvv,sigu,epsiu,qqu,plj,ul) 
+       implicit none
+       integer  nu,nv, ngr,nvv 
+       real*8 sigu(1:nu),epsiu(1:nu),qqu(1:nu)        
+       real*8 sgvv(1:nvv),epsvv(1:nvv),qvv(1:nvv)    
+       integer  i, j1,j2,icr       
+       real*8 r1, r2, dr, dk, rgrid(1:ngr),kgrid(1:ngr),pi 
+       real*8 sigvv(1:nu,1:nvv), epsivv(1:nu,1:nvv)     
+       real*8 ul(1:nu,1:nvv,1:ngr),plj(1:nu,1:nvv,1:ngr)
+       real*8 nav,tau, echar,solperm,uthre,ck 
+c      constants for potential
        pi=2*asin(1.0)
-       Nav=6.02214179e+23
+       nav=6.02214179e+23
        echar=4.803e-10
-       CK=Nav*echar**2/solperm*0.01
-       UThre=1000   
+       ck=nav*echar**2/solperm*0.01
+       uthre=1000   
 c
-C Calculation LJ parameters
-       Call COMBRULE(NU,NVV,ICR,SGVV,SIGU,EPSIU,EPSVV,SIGVV,EPSIVV)
-C
-C PLJ(J1,J2,R) LJ potential+short part from Coulomb
-C UL(J1,J2,K) is the fourier trasnform of long range interactions
-       DO I=1,NGR 
-        DO J1=1,NU
-         DO J2=1,NVV
-          UL(J1,J2,I)=4*pi*CK*QQu(J1)*QVv(J2)*exp(-KGRID(I)**2/4/tau**2)
-          UL(J1,J2,I)=UL(J1,J2,I)/KGRID(I)**2
-          PLJ(J1,J2,I)=4*EPSIVV(J1,J2)*
-     *    ((SIGVV(J1,J2)/RGRID(I))**(12)-(SIGVV(J1,J2)/RGRID(I))**(6))
-          PLJ(J1,J2,I)=PLJ(J1,J2,I)+CK
-     *    *QQu(J1)*Qvv(J2)/RGRID(I)*(1-erf(tau*RGRID(I)))
-          IF (PLJ(J1,J2,I).GE. Uthre) Then 
-           PLJ(J1,J2,I)=Uthre
-          ENDIF 
-         ENDDO
-        ENDDO
-       ENDDO
-!      DO I=1,40
-!       PRINT*, (PLJ(1,J1,I), J1=1,4)
-!      ENDDO 
+c calculation lj parameters
+       call combrule(nu,nvv,icr,sgvv,sigu,epsiu,epsvv,sigvv,epsivv)
+c
+c plj(j1,j2,r) lj potential+short part from coulomb
+c ul(j1,j2,k) is the fourier trasnform of long range interactions
+       do i=1,ngr 
+        do j1=1,nu
+         do j2=1,nvv
+          ul(j1,j2,i)=4*pi*ck*qqu(j1)*qvv(j2)*exp(-kgrid(i)**2/4/tau**2)
+          ul(j1,j2,i)=ul(j1,j2,i)/kgrid(i)**2
+          plj(j1,j2,i)=4*epsivv(j1,j2)*
+     *    ((sigvv(j1,j2)/rgrid(i))**(12)-(sigvv(j1,j2)/rgrid(i))**(6))
+          plj(j1,j2,i)=plj(j1,j2,i)+ck
+     *    *qqu(j1)*qvv(j2)/rgrid(i)*(1-erf(tau*rgrid(i)))
+          if (plj(j1,j2,i).ge. uthre) then 
+           plj(j1,j2,i)=uthre
+          endif 
+         enddo
+        enddo
+       enddo
+!      do i=1,40
+!       print*, (plj(1,j1,i), j1=1,4)
+!      enddo 
        return
        end subroutine 
 c
 c   calculations of parameters for solute-solvent interactions
 c
-       subroutine COMBRULE(NU,NVV,ICR,SGVV,SIGU,
-     * EPSIU,EPSVV,SIGVV,EPSIVV) 
-       IMPLICIT NONE
-       INTEGER  NU, NV, ICR,NVV
-       REAL*8 SIGU(1:NU), EPSIU(1:NU), SGVV(1:NVV), EPSVV(1:NVV)          
-       REAL*8 SIGVV(1:NU,1:NVV), EPSIVV(1:NU,1:NVV)
-       INTEGER  I, J1,J2   
-       DO J1=1,NU
-        DO J2=1,NVV
-         EPSIVV(J1,J2)=(EPSIU(J1)*EPSVV(J2))**(1.0/2)
-         IF (ICR.EQ.1) THEN
-          SIGVV(J1,J2)=(SIGU(J1)+SGVV(J2))/2
-          ELSE
-          SIGVV(J1,J2)=(SIGU(J1)*SGVV(J2))**(1.0/2)
-         ENDIF
-!        PRINT *, SIGVV(J1,J2), EPSIVV(J1,J2), J1,J2
-        ENDDO
-       ENDDO
+       subroutine combrule(nu,nvv,icr,sgvv,sigu,
+     * epsiu,epsvv,sigvv,epsivv) 
+       implicit none
+       integer  nu, nv, icr,nvv
+       real*8 sigu(1:nu), epsiu(1:nu), sgvv(1:nvv), epsvv(1:nvv)          
+       real*8 sigvv(1:nu,1:nvv), epsivv(1:nu,1:nvv)
+       integer  i, j1,j2   
+       do j1=1,nu
+        do j2=1,nvv
+         epsivv(j1,j2)=(epsiu(j1)*epsvv(j2))**(1.0/2)
+         if (icr.eq.1) then
+          sigvv(j1,j2)=(sigu(j1)+sgvv(j2))/2
+          else
+          sigvv(j1,j2)=(sigu(j1)*sgvv(j2))**(1.0/2)
+         endif
+!        print *, sigvv(j1,j2), epsivv(j1,j2), j1,j2
+        enddo
+       enddo
        return
        end subroutine  
 c 
-c site-site ornstein-zernike in K-space
+c site-site ornstein-zernike in k-space
 c
-       subroutine SSOZ(NVV,NU,NGR,NV,IMS,MV,WU,C3,CHI,HU)
-       IMPLICIT NONE
-       INTEGER  NU, NVV, NV, NGR, I,J1,J,K1,IMS(1:NV),MV(1:NV)        
-       REAL*8 RGRID(1:NGR),KGRID(1:NGR)  
-       REAL*8 pi,CT
-       REAL*8 c3(1:NU,1:NVV,1:NGR),HU(1:NU,1:NVV,1:NGR)
-       REAL*8 CTT(1:NU,1:NVV,1:NGR),H1(1:NU,1:NVV,1:NGR)
-       REAL*8 WU(1:NU,1:NU,1:NGR), CHI(1:NVV,1:NVV,1:NGR)  
+       subroutine ssoz(nvv,nu,ngr,nv,ims,mv,wu,c3,chi,hu)
+       implicit none
+       integer  nu, nvv, nv, ngr, i,j1,j,k1,ims(1:nv),mv(1:nv)        
+       real*8 rgrid(1:ngr),kgrid(1:ngr)  
+       real*8 pi,ct
+       real*8 c3(1:nu,1:nvv,1:ngr),hu(1:nu,1:nvv,1:ngr)
+       real*8 ctt(1:nu,1:nvv,1:ngr),h1(1:nu,1:nvv,1:ngr)
+       real*8 wu(1:nu,1:nu,1:ngr), chi(1:nvv,1:nvv,1:ngr)  
 c      calculations of right product of matrix via summation over solvent sites         
-       DO I=1,NGR
-        DO J1=1,NU 
-         Do J=1,NVV
-          CT=0
-          Do K1=1,NVV
-           CT=C3(J1,K1,i)*CHI(K1,J,I)+CT
-          ENDDO 
-          CTT(J1,J,I)=CT
-         ENDDO
-        ENDDO
-       ENDDO
-!      DO I=1,NGR,40       
-!       PRINT*, (CTT(1,J,I), J=1,4) 
-!      ENDDO 
+       do i=1,ngr
+        do j1=1,nu 
+         do j=1,nvv
+          ct=0
+          do k1=1,nvv
+           ct=c3(j1,k1,i)*chi(k1,j,i)+ct
+          enddo 
+          ctt(j1,j,i)=ct
+         enddo
+        enddo
+       enddo
+!      do i=1,ngr,40       
+!       print*, (ctt(1,j,i), j=1,4) 
+!      enddo 
 c      calculations of left product of matrix via summation over solute sites        
-       DO I=1,NGR
-        DO J1=1,NU 
-         Do J=1,NVV
-          CT=0
-          Do K1=1,NU
-           CT=WU(J1,K1,I)*CTT(K1,J,I)+CT
-          ENDDO 
-          HU(J1,J,I)=CT
-          H1(J1,J,I)=HU(J1,J,I)
-         ENDDO
-        ENDDO
-       ENDDO
-       DO I=1,NGR
-        DO J1=1,NU 
-         Do J=1,NV
-          HU(J1,IMS(J),I)=H1(J1,IMS(J),I)/MV(J)
-         ENDDO
-        ENDDO
-       ENDDO
-!      DO I=1,NGR,40       
-!       PRINT*, (HU(1,J,I),H1(1,J,I), J=1,4)  
-!      ENDDO 
+       do i=1,ngr
+        do j1=1,nu 
+         do j=1,nvv
+          ct=0
+          do k1=1,nu
+           ct=wu(j1,k1,i)*ctt(k1,j,i)+ct
+          enddo 
+          hu(j1,j,i)=ct
+          h1(j1,j,i)=hu(j1,j,i)
+         enddo
+        enddo
+       enddo
+       do i=1,ngr
+        do j1=1,nu 
+         do j=1,nv
+          hu(j1,ims(j),i)=h1(j1,ims(j),i)/mv(j)
+         enddo
+        enddo
+       enddo
+!      do i=1,ngr,40       
+!       print*, (hu(1,j,i),h1(1,j,i), j=1,4)  
+!      enddo 
        return
        end subroutine
 c
 c  subroutine for closure
 c                       
-       subroutine clos(NVV,NU,NGR,T,PLJ,Cr,GAM,ICL)
-       IMPLICIT NONE
-       INTEGER  NU, NVV, NGR, I,J1,J,ICL
-       REAL*8 PLJ(1:NU,1:NVV,1:NGR)          
-       REAL*8 T, kb,pi,lexp
-       REAL*8 cr(1:NU,1:NVV,1:NGR),Gam(1:NU,1:NVV,1:NGR)           
+       subroutine clos(nvv,nu,ngr,t,plj,cr,gam,icl)
+       implicit none
+       integer  nu, nvv, ngr, i,j1,j,icl
+       real*8 plj(1:nu,1:nvv,1:ngr)          
+       real*8 t, kb,pi,lexp
+       real*8 cr(1:nu,1:nvv,1:ngr),gam(1:nu,1:nvv,1:ngr)           
        kb=8.13441e-3 
-       DO I=1,NGR
-        Do J=1,NU
-         DO J1=1,NVV
-          IF(ICL.EQ.1) then
-           Cr(J,J1,I)=exp(-1.0/kb/T*PLJ(J,J1,I)+Gam(J,J1,i))
-     *     -Gam(J,J1,I)-1
-          ENDIF  
-          IF(ICL.EQ.2) then
-           Cr(J,J1,I)=lexp(-1.0/kb/T*PLJ(J,J1,I)+Gam(J,J1,i))
-     *     -Gam(J,J1,I)-1
-          ENDIF
-         ENDDO
-        ENDDO
-       ENDDO
-       Return
+       do i=1,ngr
+        do j=1,nu
+         do j1=1,nvv
+          if(icl.eq.1) then
+           cr(j,j1,i)=exp(-1.0/kb/t*plj(j,j1,i)+gam(j,j1,i))
+     *     -gam(j,j1,i)-1
+          endif  
+          if(icl.eq.2) then
+           cr(j,j1,i)=lexp(-1.0/kb/t*plj(j,j1,i)+gam(j,j1,i))
+     *     -gam(j,j1,i)-1
+          endif
+         enddo
+        enddo
+       enddo
+       return
        end subroutine 
-C
+c
        real*8 function lexp(x)
        real*8 x
        if(x.le.0.0)then
@@ -520,278 +520,278 @@ C
 c
 ccc
 c    
-       subroutine RISM(NU,NV,NVV,NGR,ICL,KGRID,RGRID,TV,ISV,
-     * DEN,MV,XV,YV,ZV,
-     * ICR,IMS,tau,solperm,SGVV,EPSVV,QVV,SIGU,EPSIU,QQU,T,
-     * lambd,tol,WU,DD)       
-       IMPLICIT NONE
+       subroutine rism(nu,nv,nvv,ngr,icl,kgrid,rgrid,tv,isv,
+     * den,mv,xv,yv,zv,
+     * icr,ims,tau,solperm,sgvv,epsvv,qvv,sigu,epsiu,qqu,t,
+     * lambd,tol,wu,dd)       
+       implicit none
 c      parameters
-       INTEGER  NU, NV,ND,NVV, NGR, I,J1,J,K1,ICL,K        
-       REAL*8 RGRID(1:NGR),KGRID(1:NGR)  
-       REAL*8 pi,dk,T,tau,solperm,tol,lambd,del0,kb,dr
+       integer  nu, nv,nd,nvv, ngr, i,j1,j,k1,icl,k        
+       real*8 rgrid(1:ngr),kgrid(1:ngr)  
+       real*8 pi,dk,t,tau,solperm,tol,lambd,del0,kb,dr
 c      solute
-       REAL*8 WU(1:NU,1:NU,1:NGR), CHI(1:NVV,1:NVV,1:NGR)   
-       REAL*8 SIGU(1:NU),EPSIU(1:NU),QQU(1:NU)
+       real*8 wu(1:nu,1:nu,1:ngr), chi(1:nvv,1:nvv,1:ngr)   
+       real*8 sigu(1:nu),epsiu(1:nu),qqu(1:nu)
 c      solvent 
-       INTEGER  ICR,ISV(1:NV),MV(1:NV),IMS(1:NV)
-       REAL*8 DEN(1:NV),XV(1:NV),YV(1:NV),ZV(1:NV)  
-       REAL*8 WV(1:NVV,1:NVV,1:NGR)
-       REAL*8 SGVV(1:NVV),EPSVV(1:NVV),QVV(1:NVV)
-       CHARACTER (4) TV(1:NV)
+       integer  icr,isv(1:nv),mv(1:nv),ims(1:nv)
+       real*8 den(1:nv),xv(1:nv),yv(1:nv),zv(1:nv)  
+       real*8 wv(1:nvv,1:nvv,1:ngr)
+       real*8 sgvv(1:nvv),epsvv(1:nvv),qvv(1:nvv)
+       character (4) tv(1:nv)
 c      potential
-       REAL*8 PLJ(1:NU,1:NVV,1:NGR), UL(1:NU,1:NVV,1:NGR)
+       real*8 plj(1:nu,1:nvv,1:ngr), ul(1:nu,1:nvv,1:ngr)
 c      functions
-       REAL*8 cr(1:NU,1:NVV,1:NGR),c2(1:NGR),tt(1:NU,1:NVV)  
-       REAL*8 HT(1:NGR),C3(1:NU,1:NVV,1:NGR),CF3(1:NU,1:NVV,1:NGR)
-       REAL*8 COld(1:NU,1:NVV,1:NGR),Cnew(1:NU,1:NVV,1:NGR)
-       REAL*8 GFOld(1:NU,1:NVV,1:NGR),HU(1:NU,1:NVV,1:NGR) 
-       REAL*8 GOld(1:NU,1:NVV,1:NGR), Gnew(1:NU,1:NVV,1:NGR)   
-       REAL*8 HOld(1:NU,1:NVV,1:NGR), Hnew(1:NU,1:NVV,1:NGR)             
-       Real*8 del(1:NU,1:NVV),Mmaxi,MMax(1:NU),mmmax 
+       real*8 cr(1:nu,1:nvv,1:ngr),c2(1:ngr),tt(1:nu,1:nvv)  
+       real*8 ht(1:ngr),c3(1:nu,1:nvv,1:ngr),cf3(1:nu,1:nvv,1:ngr)
+       real*8 cold(1:nu,1:nvv,1:ngr),cnew(1:nu,1:nvv,1:ngr)
+       real*8 gfold(1:nu,1:nvv,1:ngr),hu(1:nu,1:nvv,1:ngr) 
+       real*8 gold(1:nu,1:nvv,1:ngr), gnew(1:nu,1:nvv,1:ngr)   
+       real*8 hold(1:nu,1:nvv,1:ngr), hnew(1:nu,1:nvv,1:ngr)             
+       real*8 del(1:nu,1:nvv),mmaxi,mmax(1:nu),mmmax 
 c      diis functions and counts
-       REAL*8 GGO(1:DD,1:NU,1:NVV,1:NGR),DGG(1:DD,1:NU,1:NVV,1:NGR)
-       Integer KD,DD 
+       real*8 ggo(1:dd,1:nu,1:nvv,1:ngr),dgg(1:dd,1:nu,1:nvv,1:ngr)
+       integer kd,dd 
 c
        pi=2*asin(1.0)       
-C      ND total number of different RDFs
-       ND=(NVV+1)*NVV/2     
-C      CHI(I,J,k) solvent susceptibility
-C
-       call CHIcreat(ND,NV,NGR,IMS,NVV,KGRID,TV,ISV,DEN,MV,XV,YV,ZV,CHI) 
-!      DO I=1,NGR,40 
-!       Print*, (CHI(2,J,I), J=1,4) 
-!      ENDDO
-C
-C      PLJ(J1,J2,R) LJ potential+short part from Coulomb
-C      UL(J1,J2,K) is the fourier trasnform of long range interactions
-C
-       Call POTcreat(NVV,NU,NGR,ICR,KGRID,RGRID,tau,solperm,
-     * SGVV,EPSVV,QVV,SIGU,EPSIU,QQU,PLJ,UL) 
-!      DO K=1,40
-!       PRINT*, (PLJ(i,1,k), i=1,9)
-!      ENDDO            
-cc     initial value of C_short(r)       
+c      nd total number of different rdfs
+       nd=(nvv+1)*nvv/2     
+c      chi(i,j,k) solvent susceptibility
+c
+       call chicreat(nd,nv,ngr,ims,nvv,kgrid,tv,isv,den,mv,xv,yv,zv,chi) 
+!      do i=1,ngr,40 
+!       print*, (chi(2,j,i), j=1,4) 
+!      enddo
+c
+c      plj(j1,j2,r) lj potential+short part from coulomb
+c      ul(j1,j2,k) is the fourier trasnform of long range interactions
+c
+       call potcreat(nvv,nu,ngr,icr,kgrid,rgrid,tau,solperm,
+     * sgvv,epsvv,qvv,sigu,epsiu,qqu,plj,ul) 
+!      do k=1,40
+!       print*, (plj(i,1,k), i=1,9)
+!      enddo            
+cc     initial value of c_short(r)       
        kb=8.13441e-3
-       DO I=1,NGR
-        DO J=1,NU
-         DO J1=1,NVV
-          GOLD(J,J1,I)=0
-          COLD(J,J1,I)=0
-         ENDDO
-        ENDDO
-       ENDDO  
+       do i=1,ngr
+        do j=1,nu
+         do j1=1,nvv
+          gold(j,j1,i)=0
+          cold(j,j1,i)=0
+         enddo
+        enddo
+       enddo  
 c      starting counts for diis (kd) and for iterations k1
        k1=1
-       KD=1
+       kd=1
   1    continue  
 c      calculating c_new(r) and h_new(r) from closure
-       Call clos(NVV,NU,NGR,T,PLJ,Cnew,Gold,ICL)
-       DO J=1,NU
-        DO J1=1,NVV
-         DO I=1,NGR
-          HOLD(J,J1,I)=GOLD(J,J1,I)+Cnew(J,J1,I) 
-         ENDDO
-        ENDDO
-       ENDDO 
-!      DO I=1,NGR,40       
-!       PRINT*, RGRID(I),(CNew(1,J,I), J=1,4)  
-!      ENDDO          
+       call clos(nvv,nu,ngr,t,plj,cnew,gold,icl)
+       do j=1,nu
+        do j1=1,nvv
+         do i=1,ngr
+          hold(j,j1,i)=gold(j,j1,i)+cnew(j,j1,i) 
+         enddo
+        enddo
+       enddo 
+!      do i=1,ngr,40       
+!       print*, rgrid(i),(cnew(1,j,i), j=1,4)  
+!      enddo          
 c      fast fourier transform
-       DR=RGRID(2)-RGRID(1)      
-       DO J=1,NU
-        DO J1=1,NVV
+       dr=rgrid(2)-rgrid(1)      
+       do j=1,nu
+        do j1=1,nvv
          c2(1)=0
-         DO I=1,NGR-1 
-          C2(I+1)=Cnew(J,J1,I)*RGRID(I) 
-         ENDDO
-         CALL SINFT(c2,NGR)
-C        normalization of sin-FFT with excluding the zeropoint (x=0)
-         DO I=1,NGR-1
-          cF3(J,J1,i)=4*pi*c2(I+1)/KGRID(I)*dR 
-         ENDDO
-         cF3(J,J1,NGR)=CF3(J,J1,NGR-1) 
-        ENDDO
-       ENDDO       
-!      DO I=1,40       
-!       PRINT*, KGRID(i), (CF3(1,J1,I), J1=1,4) 
-!      ENDDO        
-       DK=KGRID(2)-Kgrid(1)
+         do i=1,ngr-1 
+          c2(i+1)=cnew(j,j1,i)*rgrid(i) 
+         enddo
+         call sinft(c2,ngr)
+c        normalization of sin-fft with excluding the zeropoint (x=0)
+         do i=1,ngr-1
+          cf3(j,j1,i)=4*pi*c2(i+1)/kgrid(i)*dr 
+         enddo
+         cf3(j,j1,ngr)=cf3(j,j1,ngr-1) 
+        enddo
+       enddo       
+!      do i=1,40       
+!       print*, kgrid(i), (cf3(1,j1,i), j1=1,4) 
+!      enddo        
+       dk=kgrid(2)-kgrid(1)
        pi=2*asin(1.0)       
 c       adding the long-range potential to c_short 
 c
-       DO I=1,NGR
-        DO J=1,NU
-         DO J1=1,NVV
-          CF3(J,J1,I)=CF3(J,J1,I)-1.0/kb/T*UL(J,J1,I)
-         ENDDO
-        ENDDO
-       ENDDO 
-c      calculations of fourier transform of H(i,j,k) by
+       do i=1,ngr
+        do j=1,nu
+         do j1=1,nvv
+          cf3(j,j1,i)=cf3(j,j1,i)-1.0/kb/t*ul(j,j1,i)
+         enddo
+        enddo
+       enddo 
+c      calculations of fourier transform of h(i,j,k) by
 c      site-site ornstein-zerinike equations
 c       
-       Call SSOZ(NVV,NU,NGR,NV,IMS,MV,WU,CF3,CHI,HU)
-!      DO I=1,NGR,40       
-!       PRINT*, (HU(1,J,I), J=1,4)  
-!      ENDDO 
-c      inverse fourier transform of H(i,j,k) & calculations of gamma(i,i,r) 
-       DO J=1,NU
-        DO J1=1,NVV
-         HT(1)=0
-         DO I=1,NGR-1 
-          HT(I+1)=HU(J,J1,I)*KGRID(I)         
-         ENDDO
-         call SINFT(HT,NGR)
-         Do I=1,NGR-1
-          HNEW(J,J1,I)=HT(I+1)*dk/2/RGRID(I)/pi**2
-          Gnew(J,J1,I)=HNEW(J,J1,I)-Cnew(J,J1,I) 
-         ENDDO   
-         Gnew(J,J1,NGR)=Gnew(J,J1,NGR-1)
-         HNEW(J,J1,NGR)=Hnew(J,J1,NGR-1) 
-        ENDDO
-       ENDDO 
-!      DO I=1,40       
-!       PRINT*, (Gnew(1,J,I), J=1,4)  
-!      ENDDO                      
+       call ssoz(nvv,nu,ngr,nv,ims,mv,wu,cf3,chi,hu)
+!      do i=1,ngr,40       
+!       print*, (hu(1,j,i), j=1,4)  
+!      enddo 
+c      inverse fourier transform of h(i,j,k) & calculations of gamma(i,i,r) 
+       do j=1,nu
+        do j1=1,nvv
+         ht(1)=0
+         do i=1,ngr-1 
+          ht(i+1)=hu(j,j1,i)*kgrid(i)         
+         enddo
+         call sinft(ht,ngr)
+         do i=1,ngr-1
+          hnew(j,j1,i)=ht(i+1)*dk/2/rgrid(i)/pi**2
+          gnew(j,j1,i)=hnew(j,j1,i)-cnew(j,j1,i) 
+         enddo   
+         gnew(j,j1,ngr)=gnew(j,j1,ngr-1)
+         hnew(j,j1,ngr)=hnew(j,j1,ngr-1) 
+        enddo
+       enddo 
+!      do i=1,40       
+!       print*, (gnew(1,j,i), j=1,4)  
+!      enddo                      
 c      intialization del
-       DO J=1,NU
-        DO J1=1,NVV
-         del(J,J1)=0
-        ENDDO
-       MMax(j)=0 
-       ENDDO
-       Mmaxi=0 
+       do j=1,nu
+        do j1=1,nvv
+         del(j,j1)=0
+        enddo
+       mmax(j)=0 
+       enddo
+       mmaxi=0 
 c      evaluation of accuracy
-       DO J=1,NU
-        DO J1=1,NVV
-         DO I=1,NGR
-          del(J,j1)=del(j,j1)+(Gnew(J,J1,I)-GOLD(J,J1,I))**2                                
-         ENDDO
-         MMax(J)=del(J,J1)+MMax(j)                 
-        ENDDO
-        MMaxi=Mmaxi+MMax(J)  
-       ENDDO  
-!      DO J=1,NU
-!      Print*, (del(J,j1), J1=1,4),mmmax  
-!      enDDO
+       do j=1,nu
+        do j1=1,nvv
+         do i=1,ngr
+          del(j,j1)=del(j,j1)+(gnew(j,j1,i)-gold(j,j1,i))**2                                
+         enddo
+         mmax(j)=del(j,j1)+mmax(j)                 
+        enddo
+        mmaxi=mmaxi+mmax(j)  
+       enddo  
+!      do j=1,nu
+!      print*, (del(j,j1), j1=1,4),mmmax  
+!      enddo
 c      normalization
-       del0=(mmaxi/NGR/NU/NVV)**(1.0/2)
+       del0=(mmaxi/ngr/nu/nvv)**(1.0/2)
 c      diis procedure
-       call  DIIS(Nu,NVV,NGR,lambd,KD,DD,GOLD,GNEW,GGO,DGG)
+       call  diis(nu,nvv,ngr,lambd,kd,dd,gold,gnew,ggo,dgg)
 c      old functions as new functions for new cycle
-       DO J=1,NU
-        DO J1=1,NVV
-         DO I=1,NGR
-          GOLD(J,J1,I)=Gnew(J,J1,I)
-          COLD(J,J1,I)=Cnew(J,J1,I) 
-         ENDDO    
-        ENDDO
-       ENDDO 
-  107  Format(9(1x,E10.4))
+       do j=1,nu
+        do j1=1,nvv
+         do i=1,ngr
+          gold(j,j1,i)=gnew(j,j1,i)
+          cold(j,j1,i)=cnew(j,j1,i) 
+         enddo    
+        enddo
+       enddo 
+  107  format(9(1x,e10.4))
        k1=k1+1 
-       PRINT*, k1,kd,del0       
-       If(k1.Ge.700) goto 2         
-        If(del0.ge.tol) goto 1
+       print*, k1,kd,del0       
+       if(k1.ge.700) goto 2         
+        if(del0.ge.tol) goto 1
  2     continue  
        open(3, file='g1.data', status='old')  
-        Do K=1,NGR        
-         write(3,107)(Gnew(1,I,K)+Cnew(1,I,K), I=1,4)  
-        ENDDO
+        do k=1,ngr        
+         write(3,107)(gnew(1,i,k)+cnew(1,i,k), i=1,4)  
+        enddo
        close(3)
        return 
        end subroutine
 c 
-c      subroutine for evaluation DIIS residues DGG and matrix coefficients SS
+c      subroutine for evaluation diis residues dgg and matrix coefficients ss
 c
-       subroutine DIIS(Nu,NVV,NGR,lam,K1,DD,HOLD,HNEW,GGO,DGG)
-       IMPLICIT NONE
-       REAL*8 GGO(1:DD,1:NU,1:NVV,1:NGR),DGG(1:DD,1:NU,1:NVV,1:NGR)
-       REAL*8 SS(1:DD+1,1:DD+1),HOLD(1:NU,1:NVV,1:NGR)
-       REAL*8 S0(1:DD+1),S1,lam,HNew(1:NU,1:NVV,1:NGR)
-       INTEGER K1,DD,JD,JD1
-       INTEGER J,J1,I,NU,NVV,NGR
-       INTEGER IPIV(1:DD+1),INFO
-c      initialization of overlap matrix for DIIS
-       DO JD=1,DD
-        Do JD1=1,DD
-         SS(JD,JD1)=0
+       subroutine diis(nu,nvv,ngr,lam,k1,dd,hold,hnew,ggo,dgg)
+       implicit none
+       real*8 ggo(1:dd,1:nu,1:nvv,1:ngr),dgg(1:dd,1:nu,1:nvv,1:ngr)
+       real*8 ss(1:dd+1,1:dd+1),hold(1:nu,1:nvv,1:ngr)
+       real*8 s0(1:dd+1),s1,lam,hnew(1:nu,1:nvv,1:ngr)
+       integer k1,dd,jd,jd1
+       integer j,j1,i,nu,nvv,ngr
+       integer ipiv(1:dd+1),info
+c      initialization of overlap matrix for diis
+       do jd=1,dd
+        do jd1=1,dd
+         ss(jd,jd1)=0
         enddo
-        S0(JD)=0
-        SS(JD,DD+1)=-1
-        SS(DD+1,JD)=-1
-       ENDDO
-       SS(DD+1,DD+1)=0 
-       S0(DD+1)=-1
+        s0(jd)=0
+        ss(jd,dd+1)=-1
+        ss(dd+1,jd)=-1
+       enddo
+       ss(dd+1,dd+1)=0 
+       s0(dd+1)=-1
 c      calculation of basis
-       DO J=1,NU
-        DO J1=1,NVV
-         DO I=1,NGR     
-          GGO(K1,J,J1,I)=HNEW(J,J1,I) 
-          DGG(K1,J,J1,I)=HNEW(J,J1,I)-HOLD(J,J1,I)
+       do j=1,nu
+        do j1=1,nvv
+         do i=1,ngr     
+          ggo(k1,j,j1,i)=hnew(j,j1,i) 
+          dgg(k1,j,j1,i)=hnew(j,j1,i)-hold(j,j1,i)
 c         calculation of elements of overlaping  matrix
-          if(K1.Eq.dd) then
-           do JD=1,DD
-            do JD1=JD,DD        
-             SS(JD,JD1)=(DGG(JD,J,J1,I)*DGG(JD1,J,J1,I))/NGR+SS(JD,JD1)
+          if(k1.eq.dd) then
+           do jd=1,dd
+            do jd1=jd,dd        
+             ss(jd,jd1)=(dgg(jd,j,j1,i)*dgg(jd1,j,j1,i))/ngr+ss(jd,jd1)
 c            symmerization
-             SS(JD1,JD)=SS(JD,JD1)
+             ss(jd1,jd)=ss(jd,jd1)
             enddo
            enddo
           endif
          enddo
         enddo 
        enddo
-c      solution of DIIS equation and change of baisis
-       If(K1.EQ.DD) then
-        do Jd=1,DD 
-c        PRINT*, (SS(jD,JD1), JD1=1,DD)
+c      solution of diis equation and change of baisis
+       if(k1.eq.dd) then
+        do jd=1,dd 
+c        print*, (ss(jd,jd1), jd1=1,dd)
         enddo     
-        call DGESV(DD+1,1,SS,DD+1,IPIV,S0,DD+1,INFO)            
-        DO I=1,NGR
-         DO J=1,NU
-          DO J1=1,NVV
-           S1=0
+        call dgesv(dd+1,1,ss,dd+1,ipiv,s0,dd+1,info)            
+        do i=1,ngr
+         do j=1,nu
+          do j1=1,nvv
+           s1=0
 c          calculation sum for new solution
-           do JD=1,DD          
-            s1=S1+S0(Jd)*GGO(Jd,J,J1,I)+lam*S0(Jd)*DGG(Jd,J,J1,I)  
-           ENDDO
-c          change of  DIIS basis
-           do JD=1,DD-1           
-            GGO(JD,J,J1,I)=GGO(JD+1,J,J1,I)
-            DGG(JD,J,J1,I)=DGG(JD+1,J,J1,I)  
-           ENDDO
-           HNEW(J,J1,I)=S1
+           do jd=1,dd          
+            s1=s1+s0(jd)*ggo(jd,j,j1,i)+lam*s0(jd)*dgg(jd,j,j1,i)  
+           enddo
+c          change of  diis basis
+           do jd=1,dd-1           
+            ggo(jd,j,j1,i)=ggo(jd+1,j,j1,i)
+            dgg(jd,j,j1,i)=dgg(jd+1,j,j1,i)  
+           enddo
+           hnew(j,j1,i)=s1
           enddo
          enddo
         enddo 
        endif
-c      matrix singular or has illegal value see DGEESV
-       If((K1.EQ.DD).AND.(INFO.NE.0)) then 
+c      matrix singular or has illegal value see dgeesv
+       if((k1.eq.dd).and.(info.ne.0)) then 
         k1=1
-        PRINT*, INFO
+        print*, info
         go to 1
        endif        
-c      change count for DIIS                  
-       if(K1.LT.DD) then
+c      change count for diis                  
+       if(k1.lt.dd) then
         k1=k1+1
         else 
-        k1=DD
+        k1=dd
        endif  
  1     continue    
        return
        end subroutine
 c
-C USES realft
-C Calculates the sine transform of a set of n real-valued data points stored in array y(1:n).
-C The number n must be a power of 2. On exit y is replaced by its transform. This program,
-C without changes, also calculates the inverse sine transform, but in this case the output array
-C should be multiplied by 2/n.
+c uses realft
+c calculates the sine transform of a set of n real-valued data points stored in array y(1:n).
+c the number n must be a power of 2. on exit y is replaced by its transform. this program,
+c without changes, also calculates the inverse sine transform, but in this case the output array
+c should be multiplied by 2/n.
 c
-      SUBROUTINE sinft(y,n)
-      INTEGER n
-      REAL*8 y(n)
-      INTEGER j
-      REAL*8 sum,y1,y2
-      DOUBLE PRECISION theta,wi,wpi,wpr,wr,wtemp
+      subroutine sinft(y,n)
+      integer n
+      real*8 y(n)
+      integer j
+      real*8 sum,y1,y2
+      double precision theta,wi,wpi,wpr,wr,wtemp
       theta=3.141592653589793d0/dble(n)
       wr=1.0d0
       wi=0.0d0
@@ -819,20 +819,20 @@ c
       return
       end subroutine
 c
-CC USES four1
-C Calculates the Fourier transform of a set of n real-valued data points. Replaces this data
-C (which is stored in array data(1:n)) by the positive frequency half of its complex Fourier
-C transform. The real-valued rst and last components of the complex transform are returned
-C as elements data(1) and data(2), respectively. n must be a power of 2. This routine
-C also calculates the inverse transform of a complex data array if it is the transform of real
-C data. (Result in this case must be multiplied by 2/n.)
+cc uses four1
+c calculates the fourier transform of a set of n real-valued data points. replaces this data
+c (which is stored in array data(1:n)) by the positive frequency half of its complex fourier
+c transform. the real-valued rst and last components of the complex transform are returned
+c as elements data(1) and data(2), respectively. n must be a power of 2. this routine
+c also calculates the inverse transform of a complex data array if it is the transform of real
+c data. (result in this case must be multiplied by 2/n.)
 c
-      SUBROUTINE realft(data,n,isign)
-      INTEGER isign,n
-      REAL*8 data(n)
-      INTEGER i,i1,i2,i3,i4,n2p3
-      REAL*8 c1,c2,h1i,h1r,h2i,h2r,wis,wrs
-      DOUBLE PRECISION theta,wi,wpi,wpr,wr,wtemp
+      subroutine realft(data,n,isign)
+      integer isign,n
+      real*8 data(n)
+      integer i,i1,i2,i3,i4,n2p3
+      real*8 c1,c2,h1i,h1r,h2i,h2r,wis,wrs
+      double precision theta,wi,wpi,wpr,wr,wtemp
       theta=3.141592653589793d0/dble(n/2)
       c1=0.5
       if (isign.eq.1) then
@@ -878,16 +878,16 @@ c
       endif
       return
       end subroutine
-CC Replaces data(1:2*nn) by its discrete Fourier transform, if isign is input as 1; or replaces
-C data(1:2*nn) by nn times its inverse discrete Fourier transform, if isign is input as -1.
-C data is a complex array of length nn or, equivalently, a real array of length 2*nn. nn
-C MUST be an integer power of 2 (this is not checked for!).
-      SUBROUTINE four1(data,nn,isign)
-      INTEGER isign,nn
-      REAL*8 data(2*nn)
-      INTEGER i,istep,j,m,mmax,n
-      REAL*8 tempi,tempr
-      DOUBLE PRECISION theta,wi,wpi,wpr,wr,wtemp
+cc replaces data(1:2*nn) by its discrete fourier transform, if isign is input as 1; or replaces
+c data(1:2*nn) by nn times its inverse discrete fourier transform, if isign is input as -1.
+c data is a complex array of length nn or, equivalently, a real array of length 2*nn. nn
+c must be an integer power of 2 (this is not checked for!).
+      subroutine four1(data,nn,isign)
+      integer isign,nn
+      real*8 data(2*nn)
+      integer i,istep,j,m,mmax,n
+      real*8 tempi,tempr
+      double precision theta,wi,wpi,wpr,wr,wtemp
       n=2*nn
       j=1
       do 11 i=1,n,2
@@ -936,604 +936,604 @@ C MUST be an integer power of 2 (this is not checked for!).
       end subroutine
 ccc lapack subroutines
 ccc
-      SUBROUTINE DGESV( N, NRHS, A, LDA, IPIV, B, LDB, INFO )
+      subroutine dgesv( n, nrhs, a, lda, ipiv, b, ldb, info )
 *
-*  -- LAPACK driver routine (version 3.2) --
-*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
-*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2006
+*  -- lapack driver routine (version 3.2) --
+*  -- lapack is a software package provided by univ. of tennessee,    --
+*  -- univ. of california berkeley, univ. of colorado denver and nag ltd..--
+*     november 2006
 *
-*     .. Scalar Arguments ..
-      INTEGER            INFO, LDA, LDB, N, NRHS
+*     .. scalar arguments ..
+      integer            info, lda, ldb, n, nrhs
 *     ..
-*     .. Array Arguments ..
-      INTEGER            IPIV( * )
-      DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
+*     .. array arguments ..
+      integer            ipiv( * )
+      double precision   a( lda, * ), b( ldb, * )
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  DGESV computes the solution to a real system of linear equations
-*     A * X = B,
-*  where A is an N-by-N matrix and X and B are N-by-NRHS matrices.
+*  dgesv computes the solution to a real system of linear equations
+*     a * x = b,
+*  where a is an n-by-n matrix and x and b are n-by-nrhs matrices.
 *
-*  The LU decomposition with partial pivoting and row interchanges is
-*  used to factor A as
-*     A = P * L * U,
-*  where P is a permutation matrix, L is unit lower triangular, and U is
-*  upper triangular.  The factored form of A is then used to solve the
-*  system of equations A * X = B.
+*  the lu decomposition with partial pivoting and row interchanges is
+*  used to factor a as
+*     a = p * l * u,
+*  where p is a permutation matrix, l is unit lower triangular, and u is
+*  upper triangular.  the factored form of a is then used to solve the
+*  system of equations a * x = b.
 *
-*  Arguments
+*  arguments
 *  =========
 *
-*  N       (input) INTEGER
-*          The number of linear equations, i.e., the order of the
-*          matrix A.  N >= 0.
+*  n       (input) integer
+*          the number of linear equations, i.e., the order of the
+*          matrix a.  n >= 0.
 *
-*  NRHS    (input) INTEGER
-*          The number of right hand sides, i.e., the number of columns
-*          of the matrix B.  NRHS >= 0.
+*  nrhs    (input) integer
+*          the number of right hand sides, i.e., the number of columns
+*          of the matrix b.  nrhs >= 0.
 *
-*  A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)
-*          On entry, the N-by-N coefficient matrix A.
-*          On exit, the factors L and U from the factorization
-*          A = P*L*U; the unit diagonal elements of L are not stored.
+*  a       (input/output) double precision array, dimension (lda,n)
+*          on entry, the n-by-n coefficient matrix a.
+*          on exit, the factors l and u from the factorization
+*          a = p*l*u; the unit diagonal elements of l are not stored.
 *
-*  LDA     (input) INTEGER
-*          The leading dimension of the array A.  LDA >= max(1,N).
+*  lda     (input) integer
+*          the leading dimension of the array a.  lda >= max(1,n).
 *
-*  IPIV    (output) INTEGER array, dimension (N)
-*          The pivot indices that define the permutation matrix P;
-*          row i of the matrix was interchanged with row IPIV(i).
+*  ipiv    (output) integer array, dimension (n)
+*          the pivot indices that define the permutation matrix p;
+*          row i of the matrix was interchanged with row ipiv(i).
 *
-*  B       (input/output) DOUBLE PRECISION array, dimension (LDB,NRHS)
-*          On entry, the N-by-NRHS matrix of right hand side matrix B.
-*          On exit, if INFO = 0, the N-by-NRHS solution matrix X.
+*  b       (input/output) double precision array, dimension (ldb,nrhs)
+*          on entry, the n-by-nrhs matrix of right hand side matrix b.
+*          on exit, if info = 0, the n-by-nrhs solution matrix x.
 *
-*  LDB     (input) INTEGER
-*          The leading dimension of the array B.  LDB >= max(1,N).
+*  ldb     (input) integer
+*          the leading dimension of the array b.  ldb >= max(1,n).
 *
-*  INFO    (output) INTEGER
+*  info    (output) integer
 *          = 0:  successful exit
-*          < 0:  if INFO = -i, the i-th argument had an illegal value
-*          > 0:  if INFO = i, U(i,i) is exactly zero.  The factorization
-*                has been completed, but the factor U is exactly
+*          < 0:  if info = -i, the i-th argument had an illegal value
+*          > 0:  if info = i, u(i,i) is exactly zero.  the factorization
+*                has been completed, but the factor u is exactly
 *                singular, so the solution could not be computed.
 *
 *  =====================================================================
 *
-*     .. External Subroutines ..
-      EXTERNAL           DGETRF, DGETRS, XERBLA
+*     .. external subroutines ..
+      external           dgetrf, dgetrs, xerbla
 *     ..
-*     .. Intrinsic Functions ..
-      INTRINSIC          MAX
+*     .. intrinsic functions ..
+      intrinsic          max
 *     ..
-*     .. Executable Statements ..
+*     .. executable statements ..
 *
-*     Test the input parameters.
+*     test the input parameters.
 *
-      INFO = 0
-      IF( N.LT.0 ) THEN
-         INFO = -1
-      ELSE IF( NRHS.LT.0 ) THEN
-         INFO = -2
-      ELSE IF( LDA.LT.MAX( 1, N ) ) THEN
-         INFO = -4
-      ELSE IF( LDB.LT.MAX( 1, N ) ) THEN
-         INFO = -7
-      END IF
-      IF( INFO.NE.0 ) THEN
-         CALL XERBLA( 'DGESV ', -INFO )
-         RETURN
-      END IF
+      info = 0
+      if( n.lt.0 ) then
+         info = -1
+      else if( nrhs.lt.0 ) then
+         info = -2
+      else if( lda.lt.max( 1, n ) ) then
+         info = -4
+      else if( ldb.lt.max( 1, n ) ) then
+         info = -7
+      end if
+      if( info.ne.0 ) then
+         call xerbla( 'dgesv ', -info )
+         return
+      end if
 *
-*     Compute the LU factorization of A.
+*     compute the lu factorization of a.
 *
-      CALL DGETRF( N, N, A, LDA, IPIV, INFO )
-      IF( INFO.EQ.0 ) THEN
+      call dgetrf( n, n, a, lda, ipiv, info )
+      if( info.eq.0 ) then
 *
-*        Solve the system A*X = B, overwriting B with X.
+*        solve the system a*x = b, overwriting b with x.
 *
-         CALL DGETRS( 'No transpose', N, NRHS, A, LDA, IPIV, B, LDB,
-     $                INFO )
-      END IF
-      RETURN
+         call dgetrs( 'no transpose', n, nrhs, a, lda, ipiv, b, ldb,
+     $                info )
+      end if
+      return
 *
-*     End of DGESV
+*     end of dgesv
 *
-      END
+      end
 ccc
-      SUBROUTINE DGETRF( M, N, A, LDA, IPIV, INFO )
+      subroutine dgetrf( m, n, a, lda, ipiv, info )
 *
-*  -- LAPACK routine (version 3.2) --
-*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
-*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2006
+*  -- lapack routine (version 3.2) --
+*  -- lapack is a software package provided by univ. of tennessee,    --
+*  -- univ. of california berkeley, univ. of colorado denver and nag ltd..--
+*     november 2006
 *
-*     .. Scalar Arguments ..
-      INTEGER            INFO, LDA, M, N
+*     .. scalar arguments ..
+      integer            info, lda, m, n
 *     ..
-*     .. Array Arguments ..
-      INTEGER            IPIV( * )
-      DOUBLE PRECISION   A( LDA, * )
+*     .. array arguments ..
+      integer            ipiv( * )
+      double precision   a( lda, * )
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  DGETRF computes an LU factorization of a general M-by-N matrix A
+*  dgetrf computes an lu factorization of a general m-by-n matrix a
 *  using partial pivoting with row interchanges.
 *
-*  The factorization has the form
-*     A = P * L * U
-*  where P is a permutation matrix, L is lower triangular with unit
-*  diagonal elements (lower trapezoidal if m > n), and U is upper
+*  the factorization has the form
+*     a = p * l * u
+*  where p is a permutation matrix, l is lower triangular with unit
+*  diagonal elements (lower trapezoidal if m > n), and u is upper
 *  triangular (upper trapezoidal if m < n).
 *
-*  This is the right-looking Level 3 BLAS version of the algorithm.
+*  this is the right-looking level 3 blas version of the algorithm.
 *
-*  Arguments
+*  arguments
 *  =========
 *
-*  M       (input) INTEGER
-*          The number of rows of the matrix A.  M >= 0.
+*  m       (input) integer
+*          the number of rows of the matrix a.  m >= 0.
 *
-*  N       (input) INTEGER
-*          The number of columns of the matrix A.  N >= 0.
+*  n       (input) integer
+*          the number of columns of the matrix a.  n >= 0.
 *
-*  A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)
-*          On entry, the M-by-N matrix to be factored.
-*          On exit, the factors L and U from the factorization
-*          A = P*L*U; the unit diagonal elements of L are not stored.
+*  a       (input/output) double precision array, dimension (lda,n)
+*          on entry, the m-by-n matrix to be factored.
+*          on exit, the factors l and u from the factorization
+*          a = p*l*u; the unit diagonal elements of l are not stored.
 *
-*  LDA     (input) INTEGER
-*          The leading dimension of the array A.  LDA >= max(1,M).
+*  lda     (input) integer
+*          the leading dimension of the array a.  lda >= max(1,m).
 *
-*  IPIV    (output) INTEGER array, dimension (min(M,N))
-*          The pivot indices; for 1 <= i <= min(M,N), row i of the
-*          matrix was interchanged with row IPIV(i).
+*  ipiv    (output) integer array, dimension (min(m,n))
+*          the pivot indices; for 1 <= i <= min(m,n), row i of the
+*          matrix was interchanged with row ipiv(i).
 *
-*  INFO    (output) INTEGER
+*  info    (output) integer
 *          = 0:  successful exit
-*          < 0:  if INFO = -i, the i-th argument had an illegal value
-*          > 0:  if INFO = i, U(i,i) is exactly zero. The factorization
-*                has been completed, but the factor U is exactly
+*          < 0:  if info = -i, the i-th argument had an illegal value
+*          > 0:  if info = i, u(i,i) is exactly zero. the factorization
+*                has been completed, but the factor u is exactly
 *                singular, and division by zero will occur if it is used
 *                to solve a system of equations.
 *
 *  =====================================================================
 *
-*     .. Parameters ..
-      DOUBLE PRECISION   ONE
-      PARAMETER          ( ONE = 1.0D+0 )
+*     .. parameters ..
+      double precision   one
+      parameter          ( one = 1.0d+0 )
 *     ..
-*     .. Local Scalars ..
-      INTEGER            I, IINFO, J, JB, NB
+*     .. local scalars ..
+      integer            i, iinfo, j, jb, nb
 *     ..
-*     .. External Subroutines ..
-      EXTERNAL           DGEMM, DGETF2, DLASWP, DTRSM, XERBLA
+*     .. external subroutines ..
+      external           dgemm, dgetf2, dlaswp, dtrsm, xerbla
 *     ..
-*     .. External Functions ..
-      INTEGER            ILAENV
-      EXTERNAL           ILAENV
+*     .. external functions ..
+      integer            ilaenv
+      external           ilaenv
 *     ..
-*     .. Intrinsic Functions ..
-      INTRINSIC          MAX, MIN
+*     .. intrinsic functions ..
+      intrinsic          max, min
 *     ..
-*     .. Executable Statements ..
+*     .. executable statements ..
 *
-*     Test the input parameters.
+*     test the input parameters.
 *
-      INFO = 0
-      IF( M.LT.0 ) THEN
-         INFO = -1
-      ELSE IF( N.LT.0 ) THEN
-         INFO = -2
-      ELSE IF( LDA.LT.MAX( 1, M ) ) THEN
-         INFO = -4
-      END IF
-      IF( INFO.NE.0 ) THEN
-         CALL XERBLA( 'DGETRF', -INFO )
-         RETURN
-      END IF
+      info = 0
+      if( m.lt.0 ) then
+         info = -1
+      else if( n.lt.0 ) then
+         info = -2
+      else if( lda.lt.max( 1, m ) ) then
+         info = -4
+      end if
+      if( info.ne.0 ) then
+         call xerbla( 'dgetrf', -info )
+         return
+      end if
 *
-*     Quick return if possible
+*     quick return if possible
 *
-      IF( M.EQ.0 .OR. N.EQ.0 )
-     $   RETURN
+      if( m.eq.0 .or. n.eq.0 )
+     $   return
 *
-*     Determine the block size for this environment.
+*     determine the block size for this environment.
 *
-      NB = ILAENV( 1, 'DGETRF', ' ', M, N, -1, -1 )
-      IF( NB.LE.1 .OR. NB.GE.MIN( M, N ) ) THEN
+      nb = ilaenv( 1, 'dgetrf', ' ', m, n, -1, -1 )
+      if( nb.le.1 .or. nb.ge.min( m, n ) ) then
 *
-*        Use unblocked code.
+*        use unblocked code.
 *
-         CALL DGETF2( M, N, A, LDA, IPIV, INFO )
-      ELSE
+         call dgetf2( m, n, a, lda, ipiv, info )
+      else
 *
-*        Use blocked code.
+*        use blocked code.
 *
-         DO 20 J = 1, MIN( M, N ), NB
-            JB = MIN( MIN( M, N )-J+1, NB )
+         do 20 j = 1, min( m, n ), nb
+            jb = min( min( m, n )-j+1, nb )
 *
-*           Factor diagonal and subdiagonal blocks and test for exact
+*           factor diagonal and subdiagonal blocks and test for exact
 *           singularity.
 *
-            CALL DGETF2( M-J+1, JB, A( J, J ), LDA, IPIV( J ), IINFO )
+            call dgetf2( m-j+1, jb, a( j, j ), lda, ipiv( j ), iinfo )
 *
-*           Adjust INFO and the pivot indices.
+*           adjust info and the pivot indices.
 *
-            IF( INFO.EQ.0 .AND. IINFO.GT.0 )
-     $         INFO = IINFO + J - 1
-            DO 10 I = J, MIN( M, J+JB-1 )
-               IPIV( I ) = J - 1 + IPIV( I )
-   10       CONTINUE
+            if( info.eq.0 .and. iinfo.gt.0 )
+     $         info = iinfo + j - 1
+            do 10 i = j, min( m, j+jb-1 )
+               ipiv( i ) = j - 1 + ipiv( i )
+   10       continue
 *
-*           Apply interchanges to columns 1:J-1.
+*           apply interchanges to columns 1:j-1.
 *
-            CALL DLASWP( J-1, A, LDA, J, J+JB-1, IPIV, 1 )
+            call dlaswp( j-1, a, lda, j, j+jb-1, ipiv, 1 )
 *
-            IF( J+JB.LE.N ) THEN
+            if( j+jb.le.n ) then
 *
-*              Apply interchanges to columns J+JB:N.
+*              apply interchanges to columns j+jb:n.
 *
-               CALL DLASWP( N-J-JB+1, A( 1, J+JB ), LDA, J, J+JB-1,
-     $                      IPIV, 1 )
+               call dlaswp( n-j-jb+1, a( 1, j+jb ), lda, j, j+jb-1,
+     $                      ipiv, 1 )
 *
-*              Compute block row of U.
+*              compute block row of u.
 *
-               CALL DTRSM( 'Left', 'Lower', 'No transpose', 'Unit', JB,
-     $                     N-J-JB+1, ONE, A( J, J ), LDA, A( J, J+JB ),
-     $                     LDA )
-               IF( J+JB.LE.M ) THEN
+               call dtrsm( 'left', 'lower', 'no transpose', 'unit', jb,
+     $                     n-j-jb+1, one, a( j, j ), lda, a( j, j+jb ),
+     $                     lda )
+               if( j+jb.le.m ) then
 *
-*                 Update trailing submatrix.
+*                 update trailing submatrix.
 *
-                  CALL DGEMM( 'No transpose', 'No transpose', M-J-JB+1,
-     $                        N-J-JB+1, JB, -ONE, A( J+JB, J ), LDA,
-     $                        A( J, J+JB ), LDA, ONE, A( J+JB, J+JB ),
-     $                        LDA )
-               END IF
-            END IF
-   20    CONTINUE
-      END IF
-      RETURN
+                  call dgemm( 'no transpose', 'no transpose', m-j-jb+1,
+     $                        n-j-jb+1, jb, -one, a( j+jb, j ), lda,
+     $                        a( j, j+jb ), lda, one, a( j+jb, j+jb ),
+     $                        lda )
+               end if
+            end if
+   20    continue
+      end if
+      return
 *
-*     End of DGETRF
+*     end of dgetrf
 *
-      END
+      end
 ccc
-      SUBROUTINE DGETF2( M, N, A, LDA, IPIV, INFO )
+      subroutine dgetf2( m, n, a, lda, ipiv, info )
 *
-*  -- LAPACK routine (version 3.2) --
-*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
-*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2006
+*  -- lapack routine (version 3.2) --
+*  -- lapack is a software package provided by univ. of tennessee,    --
+*  -- univ. of california berkeley, univ. of colorado denver and nag ltd..--
+*     november 2006
 *
-*     .. Scalar Arguments ..
-      INTEGER            INFO, LDA, M, N
+*     .. scalar arguments ..
+      integer            info, lda, m, n
 *     ..
-*     .. Array Arguments ..
-      INTEGER            IPIV( * )
-      DOUBLE PRECISION   A( LDA, * )
+*     .. array arguments ..
+      integer            ipiv( * )
+      double precision   a( lda, * )
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  DGETF2 computes an LU factorization of a general m-by-n matrix A
+*  dgetf2 computes an lu factorization of a general m-by-n matrix a
 *  using partial pivoting with row interchanges.
 *
-*  The factorization has the form
-*     A = P * L * U
-*  where P is a permutation matrix, L is lower triangular with unit
-*  diagonal elements (lower trapezoidal if m > n), and U is upper
+*  the factorization has the form
+*     a = p * l * u
+*  where p is a permutation matrix, l is lower triangular with unit
+*  diagonal elements (lower trapezoidal if m > n), and u is upper
 *  triangular (upper trapezoidal if m < n).
 *
-*  This is the right-looking Level 2 BLAS version of the algorithm.
+*  this is the right-looking level 2 blas version of the algorithm.
 *
-*  Arguments
+*  arguments
 *  =========
 *
-*  M       (input) INTEGER
-*          The number of rows of the matrix A.  M >= 0.
+*  m       (input) integer
+*          the number of rows of the matrix a.  m >= 0.
 *
-*  N       (input) INTEGER
-*          The number of columns of the matrix A.  N >= 0.
+*  n       (input) integer
+*          the number of columns of the matrix a.  n >= 0.
 *
-*  A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)
-*          On entry, the m by n matrix to be factored.
-*          On exit, the factors L and U from the factorization
-*          A = P*L*U; the unit diagonal elements of L are not stored.
+*  a       (input/output) double precision array, dimension (lda,n)
+*          on entry, the m by n matrix to be factored.
+*          on exit, the factors l and u from the factorization
+*          a = p*l*u; the unit diagonal elements of l are not stored.
 *
-*  LDA     (input) INTEGER
-*          The leading dimension of the array A.  LDA >= max(1,M).
+*  lda     (input) integer
+*          the leading dimension of the array a.  lda >= max(1,m).
 *
-*  IPIV    (output) INTEGER array, dimension (min(M,N))
-*          The pivot indices; for 1 <= i <= min(M,N), row i of the
-*          matrix was interchanged with row IPIV(i).
+*  ipiv    (output) integer array, dimension (min(m,n))
+*          the pivot indices; for 1 <= i <= min(m,n), row i of the
+*          matrix was interchanged with row ipiv(i).
 *
-*  INFO    (output) INTEGER
+*  info    (output) integer
 *          = 0: successful exit
-*          < 0: if INFO = -k, the k-th argument had an illegal value
-*          > 0: if INFO = k, U(k,k) is exactly zero. The factorization
-*               has been completed, but the factor U is exactly
+*          < 0: if info = -k, the k-th argument had an illegal value
+*          > 0: if info = k, u(k,k) is exactly zero. the factorization
+*               has been completed, but the factor u is exactly
 *               singular, and division by zero will occur if it is used
 *               to solve a system of equations.
 *
 *  =====================================================================
 *
-*     .. Parameters ..
-      DOUBLE PRECISION   ONE, ZERO
-      PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
+*     .. parameters ..
+      double precision   one, zero
+      parameter          ( one = 1.0d+0, zero = 0.0d+0 )
 *     ..
-*     .. Local Scalars ..
-      DOUBLE PRECISION   SFMIN 
-      INTEGER            I, J, JP
+*     .. local scalars ..
+      double precision   sfmin 
+      integer            i, j, jp
 *     ..
-*     .. External Functions ..
-      DOUBLE PRECISION   DLAMCH      
-      INTEGER            IDAMAX
-      EXTERNAL           DLAMCH, IDAMAX
+*     .. external functions ..
+      double precision   dlamch      
+      integer            idamax
+      external           dlamch, idamax
 *     ..
-*     .. External Subroutines ..
-      EXTERNAL           DGER, DSCAL, DSWAP, XERBLA
+*     .. external subroutines ..
+      external           dger, dscal, dswap, xerbla
 *     ..
-*     .. Intrinsic Functions ..
-      INTRINSIC          MAX, MIN
+*     .. intrinsic functions ..
+      intrinsic          max, min
 *     ..
-*     .. Executable Statements ..
+*     .. executable statements ..
 *
-*     Test the input parameters.
+*     test the input parameters.
 *
-      INFO = 0
-      IF( M.LT.0 ) THEN
-         INFO = -1
-      ELSE IF( N.LT.0 ) THEN
-         INFO = -2
-      ELSE IF( LDA.LT.MAX( 1, M ) ) THEN
-         INFO = -4
-      END IF
-      IF( INFO.NE.0 ) THEN
-         CALL XERBLA( 'DGETF2', -INFO )
-         RETURN
-      END IF
+      info = 0
+      if( m.lt.0 ) then
+         info = -1
+      else if( n.lt.0 ) then
+         info = -2
+      else if( lda.lt.max( 1, m ) ) then
+         info = -4
+      end if
+      if( info.ne.0 ) then
+         call xerbla( 'dgetf2', -info )
+         return
+      end if
 *
-*     Quick return if possible
+*     quick return if possible
 *
-      IF( M.EQ.0 .OR. N.EQ.0 )
-     $   RETURN
+      if( m.eq.0 .or. n.eq.0 )
+     $   return
 *
-*     Compute machine safe minimum 
+*     compute machine safe minimum 
 * 
-      SFMIN = DLAMCH('S')  
+      sfmin = dlamch('s')  
 *
-      DO 10 J = 1, MIN( M, N )
+      do 10 j = 1, min( m, n )
 *
-*        Find pivot and test for singularity.
+*        find pivot and test for singularity.
 *
-         JP = J - 1 + IDAMAX( M-J+1, A( J, J ), 1 )
-         IPIV( J ) = JP
-         IF( A( JP, J ).NE.ZERO ) THEN
+         jp = j - 1 + idamax( m-j+1, a( j, j ), 1 )
+         ipiv( j ) = jp
+         if( a( jp, j ).ne.zero ) then
 *
-*           Apply the interchange to columns 1:N.
+*           apply the interchange to columns 1:n.
 *
-            IF( JP.NE.J )
-     $         CALL DSWAP( N, A( J, 1 ), LDA, A( JP, 1 ), LDA )
+            if( jp.ne.j )
+     $         call dswap( n, a( j, 1 ), lda, a( jp, 1 ), lda )
 *
-*           Compute elements J+1:M of J-th column.
+*           compute elements j+1:m of j-th column.
 *
-            IF( J.LT.M ) THEN 
-               IF( ABS(A( J, J )) .GE. SFMIN ) THEN 
-                  CALL DSCAL( M-J, ONE / A( J, J ), A( J+1, J ), 1 ) 
-               ELSE 
-                 DO 20 I = 1, M-J 
-                    A( J+I, J ) = A( J+I, J ) / A( J, J ) 
-   20            CONTINUE 
-               END IF 
-            END IF 
+            if( j.lt.m ) then 
+               if( abs(a( j, j )) .ge. sfmin ) then 
+                  call dscal( m-j, one / a( j, j ), a( j+1, j ), 1 ) 
+               else 
+                 do 20 i = 1, m-j 
+                    a( j+i, j ) = a( j+i, j ) / a( j, j ) 
+   20            continue 
+               end if 
+            end if 
 *
-         ELSE IF( INFO.EQ.0 ) THEN
+         else if( info.eq.0 ) then
 *
-            INFO = J
-         END IF
+            info = j
+         end if
 *
-         IF( J.LT.MIN( M, N ) ) THEN
+         if( j.lt.min( m, n ) ) then
 *
-*           Update trailing submatrix.
+*           update trailing submatrix.
 *
-            CALL DGER( M-J, N-J, -ONE, A( J+1, J ), 1, A( J, J+1 ), LDA,
-     $                 A( J+1, J+1 ), LDA )
-         END IF
-   10 CONTINUE
-      RETURN
+            call dger( m-j, n-j, -one, a( j+1, j ), 1, a( j, j+1 ), lda,
+     $                 a( j+1, j+1 ), lda )
+         end if
+   10 continue
+      return
 *
-*     End of DGETF2
+*     end of dgetf2
 *
-      END
+      end
 ccc
-      SUBROUTINE DGER(M,N,ALPHA,X,INCX,Y,INCY,A,LDA)
-*     .. Scalar Arguments ..
-      DOUBLE PRECISION ALPHA
-      INTEGER INCX,INCY,LDA,M,N
+      subroutine dger(m,n,alpha,x,incx,y,incy,a,lda)
+*     .. scalar arguments ..
+      double precision alpha
+      integer incx,incy,lda,m,n
 *     ..
-*     .. Array Arguments ..
-      DOUBLE PRECISION A(LDA,*),X(*),Y(*)
+*     .. array arguments ..
+      double precision a(lda,*),x(*),y(*)
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  DGER   performs the rank 1 operation
+*  dger   performs the rank 1 operation
 *
-*     A := alpha*x*y' + A,
+*     a := alpha*x*y' + a,
 *
 *  where alpha is a scalar, x is an m element vector, y is an n element
-*  vector and A is an m by n matrix.
+*  vector and a is an m by n matrix.
 *
-*  Arguments
+*  arguments
 *  ==========
 *
-*  M      - INTEGER.
-*           On entry, M specifies the number of rows of the matrix A.
-*           M must be at least zero.
-*           Unchanged on exit.
+*  m      - integer.
+*           on entry, m specifies the number of rows of the matrix a.
+*           m must be at least zero.
+*           unchanged on exit.
 *
-*  N      - INTEGER.
-*           On entry, N specifies the number of columns of the matrix A.
-*           N must be at least zero.
-*           Unchanged on exit.
+*  n      - integer.
+*           on entry, n specifies the number of columns of the matrix a.
+*           n must be at least zero.
+*           unchanged on exit.
 *
-*  ALPHA  - DOUBLE PRECISION.
-*           On entry, ALPHA specifies the scalar alpha.
-*           Unchanged on exit.
+*  alpha  - double precision.
+*           on entry, alpha specifies the scalar alpha.
+*           unchanged on exit.
 *
-*  X      - DOUBLE PRECISION array of dimension at least
-*           ( 1 + ( m - 1 )*abs( INCX ) ).
-*           Before entry, the incremented array X must contain the m
+*  x      - double precision array of dimension at least
+*           ( 1 + ( m - 1 )*abs( incx ) ).
+*           before entry, the incremented array x must contain the m
 *           element vector x.
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  INCX   - INTEGER.
-*           On entry, INCX specifies the increment for the elements of
-*           X. INCX must not be zero.
-*           Unchanged on exit.
+*  incx   - integer.
+*           on entry, incx specifies the increment for the elements of
+*           x. incx must not be zero.
+*           unchanged on exit.
 *
-*  Y      - DOUBLE PRECISION array of dimension at least
-*           ( 1 + ( n - 1 )*abs( INCY ) ).
-*           Before entry, the incremented array Y must contain the n
+*  y      - double precision array of dimension at least
+*           ( 1 + ( n - 1 )*abs( incy ) ).
+*           before entry, the incremented array y must contain the n
 *           element vector y.
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  INCY   - INTEGER.
-*           On entry, INCY specifies the increment for the elements of
-*           Y. INCY must not be zero.
-*           Unchanged on exit.
+*  incy   - integer.
+*           on entry, incy specifies the increment for the elements of
+*           y. incy must not be zero.
+*           unchanged on exit.
 *
-*  A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).
-*           Before entry, the leading m by n part of the array A must
-*           contain the matrix of coefficients. On exit, A is
+*  a      - double precision array of dimension ( lda, n ).
+*           before entry, the leading m by n part of the array a must
+*           contain the matrix of coefficients. on exit, a is
 *           overwritten by the updated matrix.
 *
-*  LDA    - INTEGER.
-*           On entry, LDA specifies the first dimension of A as declared
-*           in the calling (sub) program. LDA must be at least
+*  lda    - integer.
+*           on entry, lda specifies the first dimension of a as declared
+*           in the calling (sub) program. lda must be at least
 *           max( 1, m ).
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  Further Details
+*  further details
 *  ===============
 *
-*  Level 2 Blas routine.
+*  level 2 blas routine.
 *
-*  -- Written on 22-October-1986.
-*     Jack Dongarra, Argonne National Lab.
-*     Jeremy Du Croz, Nag Central Office.
-*     Sven Hammarling, Nag Central Office.
-*     Richard Hanson, Sandia National Labs.
+*  -- written on 22-october-1986.
+*     jack dongarra, argonne national lab.
+*     jeremy du croz, nag central office.
+*     sven hammarling, nag central office.
+*     richard hanson, sandia national labs.
 *
 *  =====================================================================
 *
-*     .. Parameters ..
-      DOUBLE PRECISION ZERO
-      PARAMETER (ZERO=0.0D+0)
+*     .. parameters ..
+      double precision zero
+      parameter (zero=0.0d+0)
 *     ..
-*     .. Local Scalars ..
-      DOUBLE PRECISION TEMP
-      INTEGER I,INFO,IX,J,JY,KX
+*     .. local scalars ..
+      double precision temp
+      integer i,info,ix,j,jy,kx
 *     ..
-*     .. External Subroutines ..
-      EXTERNAL XERBLA
+*     .. external subroutines ..
+      external xerbla
 *     ..
-*     .. Intrinsic Functions ..
-      INTRINSIC MAX
+*     .. intrinsic functions ..
+      intrinsic max
 *     ..
 *
-*     Test the input parameters.
+*     test the input parameters.
 *
-      INFO = 0
-      IF (M.LT.0) THEN
-          INFO = 1
-      ELSE IF (N.LT.0) THEN
-          INFO = 2
-      ELSE IF (INCX.EQ.0) THEN
-          INFO = 5
-      ELSE IF (INCY.EQ.0) THEN
-          INFO = 7
-      ELSE IF (LDA.LT.MAX(1,M)) THEN
-          INFO = 9
-      END IF
-      IF (INFO.NE.0) THEN
-          CALL XERBLA('DGER  ',INFO)
-          RETURN
-      END IF
+      info = 0
+      if (m.lt.0) then
+          info = 1
+      else if (n.lt.0) then
+          info = 2
+      else if (incx.eq.0) then
+          info = 5
+      else if (incy.eq.0) then
+          info = 7
+      else if (lda.lt.max(1,m)) then
+          info = 9
+      end if
+      if (info.ne.0) then
+          call xerbla('dger  ',info)
+          return
+      end if
 *
-*     Quick return if possible.
+*     quick return if possible.
 *
-      IF ((M.EQ.0) .OR. (N.EQ.0) .OR. (ALPHA.EQ.ZERO)) RETURN
+      if ((m.eq.0) .or. (n.eq.0) .or. (alpha.eq.zero)) return
 *
-*     Start the operations. In this version the elements of A are
-*     accessed sequentially with one pass through A.
+*     start the operations. in this version the elements of a are
+*     accessed sequentially with one pass through a.
 *
-      IF (INCY.GT.0) THEN
-          JY = 1
-      ELSE
-          JY = 1 - (N-1)*INCY
-      END IF
-      IF (INCX.EQ.1) THEN
-          DO 20 J = 1,N
-              IF (Y(JY).NE.ZERO) THEN
-                  TEMP = ALPHA*Y(JY)
-                  DO 10 I = 1,M
-                      A(I,J) = A(I,J) + X(I)*TEMP
-   10             CONTINUE
-              END IF
-              JY = JY + INCY
-   20     CONTINUE
-      ELSE
-          IF (INCX.GT.0) THEN
-              KX = 1
-          ELSE
-              KX = 1 - (M-1)*INCX
-          END IF
-          DO 40 J = 1,N
-              IF (Y(JY).NE.ZERO) THEN
-                  TEMP = ALPHA*Y(JY)
-                  IX = KX
-                  DO 30 I = 1,M
-                      A(I,J) = A(I,J) + X(IX)*TEMP
-                      IX = IX + INCX
-   30             CONTINUE
-              END IF
-              JY = JY + INCY
-   40     CONTINUE
-      END IF
+      if (incy.gt.0) then
+          jy = 1
+      else
+          jy = 1 - (n-1)*incy
+      end if
+      if (incx.eq.1) then
+          do 20 j = 1,n
+              if (y(jy).ne.zero) then
+                  temp = alpha*y(jy)
+                  do 10 i = 1,m
+                      a(i,j) = a(i,j) + x(i)*temp
+   10             continue
+              end if
+              jy = jy + incy
+   20     continue
+      else
+          if (incx.gt.0) then
+              kx = 1
+          else
+              kx = 1 - (m-1)*incx
+          end if
+          do 40 j = 1,n
+              if (y(jy).ne.zero) then
+                  temp = alpha*y(jy)
+                  ix = kx
+                  do 30 i = 1,m
+                      a(i,j) = a(i,j) + x(ix)*temp
+                      ix = ix + incx
+   30             continue
+              end if
+              jy = jy + incy
+   40     continue
+      end if
 *
-      RETURN
+      return
 *
-*     End of DGER  .
+*     end of dger  .
 *
-      END
+      end
 ccc
-      SUBROUTINE DSCAL(N,DA,DX,INCX)
-*     .. Scalar Arguments ..
-      DOUBLE PRECISION DA
-      INTEGER INCX,N
+      subroutine dscal(n,da,dx,incx)
+*     .. scalar arguments ..
+      double precision da
+      integer incx,n
 *     ..
-*     .. Array Arguments ..
-      DOUBLE PRECISION DX(*)
+*     .. array arguments ..
+      double precision dx(*)
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*     DSCAL scales a vector by a constant.
+*     dscal scales a vector by a constant.
 *     uses unrolled loops for increment equal to one.
 *
-*  Further Details
+*  further details
 *  ===============
 *
 *     jack dongarra, linpack, 3/11/78.
@@ -1542,60 +1542,60 @@ ccc
 *
 *  =====================================================================
 *
-*     .. Local Scalars ..
-      INTEGER I,M,MP1,NINCX
+*     .. local scalars ..
+      integer i,m,mp1,nincx
 *     ..
-*     .. Intrinsic Functions ..
-      INTRINSIC MOD
+*     .. intrinsic functions ..
+      intrinsic mod
 *     ..
-      IF (N.LE.0 .OR. INCX.LE.0) RETURN
-      IF (INCX.EQ.1) GO TO 20
+      if (n.le.0 .or. incx.le.0) return
+      if (incx.eq.1) go to 20
 *
 *        code for increment not equal to 1
 *
-      NINCX = N*INCX
-      DO 10 I = 1,NINCX,INCX
-          DX(I) = DA*DX(I)
-   10 CONTINUE
-      RETURN
+      nincx = n*incx
+      do 10 i = 1,nincx,incx
+          dx(i) = da*dx(i)
+   10 continue
+      return
 *
 *        code for increment equal to 1
 *
 *
 *        clean-up loop
 *
-   20 M = MOD(N,5)
-      IF (M.EQ.0) GO TO 40
-      DO 30 I = 1,M
-          DX(I) = DA*DX(I)
-   30 CONTINUE
-      IF (N.LT.5) RETURN
-   40 MP1 = M + 1
-      DO 50 I = MP1,N,5
-          DX(I) = DA*DX(I)
-          DX(I+1) = DA*DX(I+1)
-          DX(I+2) = DA*DX(I+2)
-          DX(I+3) = DA*DX(I+3)
-          DX(I+4) = DA*DX(I+4)
-   50 CONTINUE
-      RETURN
-      END
+   20 m = mod(n,5)
+      if (m.eq.0) go to 40
+      do 30 i = 1,m
+          dx(i) = da*dx(i)
+   30 continue
+      if (n.lt.5) return
+   40 mp1 = m + 1
+      do 50 i = mp1,n,5
+          dx(i) = da*dx(i)
+          dx(i+1) = da*dx(i+1)
+          dx(i+2) = da*dx(i+2)
+          dx(i+3) = da*dx(i+3)
+          dx(i+4) = da*dx(i+4)
+   50 continue
+      return
+      end
 ccc
-      SUBROUTINE DSWAP(N,DX,INCX,DY,INCY)
-*     .. Scalar Arguments ..
-      INTEGER INCX,INCY,N
+      subroutine dswap(n,dx,incx,dy,incy)
+*     .. scalar arguments ..
+      integer incx,incy,n
 *     ..
-*     .. Array Arguments ..
-      DOUBLE PRECISION DX(*),DY(*)
+*     .. array arguments ..
+      double precision dx(*),dy(*)
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
 *     interchanges two vectors.
 *     uses unrolled loops for increments equal one.
 *
-*  Further Details
+*  further details
 *  ===============
 *
 *     jack dongarra, linpack, 3/11/78.
@@ -1603,1794 +1603,1794 @@ ccc
 *
 *  =====================================================================
 *
-*     .. Local Scalars ..
-      DOUBLE PRECISION DTEMP
-      INTEGER I,IX,IY,M,MP1
+*     .. local scalars ..
+      double precision dtemp
+      integer i,ix,iy,m,mp1
 *     ..
-*     .. Intrinsic Functions ..
-      INTRINSIC MOD
+*     .. intrinsic functions ..
+      intrinsic mod
 *     ..
-      IF (N.LE.0) RETURN
-      IF (INCX.EQ.1 .AND. INCY.EQ.1) GO TO 20
+      if (n.le.0) return
+      if (incx.eq.1 .and. incy.eq.1) go to 20
 *
 *       code for unequal increments or equal increments not equal
 *         to 1
 *
-      IX = 1
-      IY = 1
-      IF (INCX.LT.0) IX = (-N+1)*INCX + 1
-      IF (INCY.LT.0) IY = (-N+1)*INCY + 1
-      DO 10 I = 1,N
-          DTEMP = DX(IX)
-          DX(IX) = DY(IY)
-          DY(IY) = DTEMP
-          IX = IX + INCX
-          IY = IY + INCY
-   10 CONTINUE
-      RETURN
+      ix = 1
+      iy = 1
+      if (incx.lt.0) ix = (-n+1)*incx + 1
+      if (incy.lt.0) iy = (-n+1)*incy + 1
+      do 10 i = 1,n
+          dtemp = dx(ix)
+          dx(ix) = dy(iy)
+          dy(iy) = dtemp
+          ix = ix + incx
+          iy = iy + incy
+   10 continue
+      return
 *
 *       code for both increments equal to 1
 *
 *
 *       clean-up loop
 *
-   20 M = MOD(N,3)
-      IF (M.EQ.0) GO TO 40
-      DO 30 I = 1,M
-          DTEMP = DX(I)
-          DX(I) = DY(I)
-          DY(I) = DTEMP
-   30 CONTINUE
-      IF (N.LT.3) RETURN
-   40 MP1 = M + 1
-      DO 50 I = MP1,N,3
-          DTEMP = DX(I)
-          DX(I) = DY(I)
-          DY(I) = DTEMP
-          DTEMP = DX(I+1)
-          DX(I+1) = DY(I+1)
-          DY(I+1) = DTEMP
-          DTEMP = DX(I+2)
-          DX(I+2) = DY(I+2)
-          DY(I+2) = DTEMP
-   50 CONTINUE
-      RETURN
-      END
+   20 m = mod(n,3)
+      if (m.eq.0) go to 40
+      do 30 i = 1,m
+          dtemp = dx(i)
+          dx(i) = dy(i)
+          dy(i) = dtemp
+   30 continue
+      if (n.lt.3) return
+   40 mp1 = m + 1
+      do 50 i = mp1,n,3
+          dtemp = dx(i)
+          dx(i) = dy(i)
+          dy(i) = dtemp
+          dtemp = dx(i+1)
+          dx(i+1) = dy(i+1)
+          dy(i+1) = dtemp
+          dtemp = dx(i+2)
+          dx(i+2) = dy(i+2)
+          dy(i+2) = dtemp
+   50 continue
+      return
+      end
 ccc
-      SUBROUTINE XERBLA( SRNAME, INFO )
+      subroutine xerbla( srname, info )
 *
-*  -- LAPACK auxiliary routine (preliminary version) --
-*     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
-*     November 2006
+*  -- lapack auxiliary routine (preliminary version) --
+*     univ. of tennessee, univ. of california berkeley and nag ltd..
+*     november 2006
 *
-*     .. Scalar Arguments ..
-      CHARACTER*(*)      SRNAME
-      INTEGER            INFO
+*     .. scalar arguments ..
+      character*(*)      srname
+      integer            info
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  XERBLA  is an error handler for the LAPACK routines.
-*  It is called by an LAPACK routine if an input parameter has an
-*  invalid value.  A message is printed and execution stops.
+*  xerbla  is an error handler for the lapack routines.
+*  it is called by an lapack routine if an input parameter has an
+*  invalid value.  a message is printed and execution stops.
 *
-*  Installers may consider modifying the STOP statement in order to
+*  installers may consider modifying the stop statement in order to
 *  call system-specific exception-handling facilities.
 *
-*  Arguments
+*  arguments
 *  =========
 *
-*  SRNAME  (input) CHARACTER*(*)
-*          The name of the routine which called XERBLA.
+*  srname  (input) character*(*)
+*          the name of the routine which called xerbla.
 *
-*  INFO    (input) INTEGER
-*          The position of the invalid parameter in the parameter list
+*  info    (input) integer
+*          the position of the invalid parameter in the parameter list
 *          of the calling routine.
 *
 * =====================================================================
 *
-*     .. Intrinsic Functions ..
-      INTRINSIC          LEN_TRIM
+*     .. intrinsic functions ..
+      intrinsic          len_trim
 *     ..
-*     .. Executable Statements ..
+*     .. executable statements ..
 *
-      WRITE( *, FMT = 9999 )SRNAME( 1:LEN_TRIM( SRNAME ) ), INFO
+      write( *, fmt = 9999 )srname( 1:len_trim( srname ) ), info
 *
-      STOP
+      stop
 *
- 9999 FORMAT( ' ** On entry to ', A, ' parameter number ', I2, ' had ',
+ 9999 format( ' ** on entry to ', a, ' parameter number ', i2, ' had ',
      $      'an illegal value' )
 *
-*     End of XERBLA
+*     end of xerbla
 *
-      END
+      end
 ccc
-      SUBROUTINE DGETRS( TRANS, N, NRHS, A, LDA, IPIV, B, LDB, INFO )
+      subroutine dgetrs( trans, n, nrhs, a, lda, ipiv, b, ldb, info )
 *
-*  -- LAPACK routine (version 3.2) --
-*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
-*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2006
+*  -- lapack routine (version 3.2) --
+*  -- lapack is a software package provided by univ. of tennessee,    --
+*  -- univ. of california berkeley, univ. of colorado denver and nag ltd..--
+*     november 2006
 *
-*     .. Scalar Arguments ..
-      CHARACTER          TRANS
-      INTEGER            INFO, LDA, LDB, N, NRHS
+*     .. scalar arguments ..
+      character          trans
+      integer            info, lda, ldb, n, nrhs
 *     ..
-*     .. Array Arguments ..
-      INTEGER            IPIV( * )
-      DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
+*     .. array arguments ..
+      integer            ipiv( * )
+      double precision   a( lda, * ), b( ldb, * )
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  DGETRS solves a system of linear equations
-*     A * X = B  or  A' * X = B
-*  with a general N-by-N matrix A using the LU factorization computed
-*  by DGETRF.
+*  dgetrs solves a system of linear equations
+*     a * x = b  or  a' * x = b
+*  with a general n-by-n matrix a using the lu factorization computed
+*  by dgetrf.
 *
-*  Arguments
+*  arguments
 *  =========
 *
-*  TRANS   (input) CHARACTER*1
-*          Specifies the form of the system of equations:
-*          = 'N':  A * X = B  (No transpose)
-*          = 'T':  A'* X = B  (Transpose)
-*          = 'C':  A'* X = B  (Conjugate transpose = Transpose)
+*  trans   (input) character*1
+*          specifies the form of the system of equations:
+*          = 'n':  a * x = b  (no transpose)
+*          = 't':  a'* x = b  (transpose)
+*          = 'c':  a'* x = b  (conjugate transpose = transpose)
 *
-*  N       (input) INTEGER
-*          The order of the matrix A.  N >= 0.
+*  n       (input) integer
+*          the order of the matrix a.  n >= 0.
 *
-*  NRHS    (input) INTEGER
-*          The number of right hand sides, i.e., the number of columns
-*          of the matrix B.  NRHS >= 0.
+*  nrhs    (input) integer
+*          the number of right hand sides, i.e., the number of columns
+*          of the matrix b.  nrhs >= 0.
 *
-*  A       (input) DOUBLE PRECISION array, dimension (LDA,N)
-*          The factors L and U from the factorization A = P*L*U
-*          as computed by DGETRF.
+*  a       (input) double precision array, dimension (lda,n)
+*          the factors l and u from the factorization a = p*l*u
+*          as computed by dgetrf.
 *
-*  LDA     (input) INTEGER
-*          The leading dimension of the array A.  LDA >= max(1,N).
+*  lda     (input) integer
+*          the leading dimension of the array a.  lda >= max(1,n).
 *
-*  IPIV    (input) INTEGER array, dimension (N)
-*          The pivot indices from DGETRF; for 1<=i<=N, row i of the
-*          matrix was interchanged with row IPIV(i).
+*  ipiv    (input) integer array, dimension (n)
+*          the pivot indices from dgetrf; for 1<=i<=n, row i of the
+*          matrix was interchanged with row ipiv(i).
 *
-*  B       (input/output) DOUBLE PRECISION array, dimension (LDB,NRHS)
-*          On entry, the right hand side matrix B.
-*          On exit, the solution matrix X.
+*  b       (input/output) double precision array, dimension (ldb,nrhs)
+*          on entry, the right hand side matrix b.
+*          on exit, the solution matrix x.
 *
-*  LDB     (input) INTEGER
-*          The leading dimension of the array B.  LDB >= max(1,N).
+*  ldb     (input) integer
+*          the leading dimension of the array b.  ldb >= max(1,n).
 *
-*  INFO    (output) INTEGER
+*  info    (output) integer
 *          = 0:  successful exit
-*          < 0:  if INFO = -i, the i-th argument had an illegal value
+*          < 0:  if info = -i, the i-th argument had an illegal value
 *
 *  =====================================================================
 *
-*     .. Parameters ..
-      DOUBLE PRECISION   ONE
-      PARAMETER          ( ONE = 1.0D+0 )
+*     .. parameters ..
+      double precision   one
+      parameter          ( one = 1.0d+0 )
 *     ..
-*     .. Local Scalars ..
-      LOGICAL            NOTRAN
+*     .. local scalars ..
+      logical            notran
 *     ..
-*     .. External Functions ..
-      LOGICAL            LSAME
-      EXTERNAL           LSAME
+*     .. external functions ..
+      logical            lsame
+      external           lsame
 *     ..
-*     .. External Subroutines ..
-      EXTERNAL           DLASWP, DTRSM, XERBLA
+*     .. external subroutines ..
+      external           dlaswp, dtrsm, xerbla
 *     ..
-*     .. Intrinsic Functions ..
-      INTRINSIC          MAX
+*     .. intrinsic functions ..
+      intrinsic          max
 *     ..
-*     .. Executable Statements ..
+*     .. executable statements ..
 *
-*     Test the input parameters.
+*     test the input parameters.
 *
-      INFO = 0
-      NOTRAN = LSAME( TRANS, 'N' )
-      IF( .NOT.NOTRAN .AND. .NOT.LSAME( TRANS, 'T' ) .AND. .NOT.
-     $    LSAME( TRANS, 'C' ) ) THEN
-         INFO = -1
-      ELSE IF( N.LT.0 ) THEN
-         INFO = -2
-      ELSE IF( NRHS.LT.0 ) THEN
-         INFO = -3
-      ELSE IF( LDA.LT.MAX( 1, N ) ) THEN
-         INFO = -5
-      ELSE IF( LDB.LT.MAX( 1, N ) ) THEN
-         INFO = -8
-      END IF
-      IF( INFO.NE.0 ) THEN
-         CALL XERBLA( 'DGETRS', -INFO )
-         RETURN
-      END IF
+      info = 0
+      notran = lsame( trans, 'n' )
+      if( .not.notran .and. .not.lsame( trans, 't' ) .and. .not.
+     $    lsame( trans, 'c' ) ) then
+         info = -1
+      else if( n.lt.0 ) then
+         info = -2
+      else if( nrhs.lt.0 ) then
+         info = -3
+      else if( lda.lt.max( 1, n ) ) then
+         info = -5
+      else if( ldb.lt.max( 1, n ) ) then
+         info = -8
+      end if
+      if( info.ne.0 ) then
+         call xerbla( 'dgetrs', -info )
+         return
+      end if
 *
-*     Quick return if possible
+*     quick return if possible
 *
-      IF( N.EQ.0 .OR. NRHS.EQ.0 )
-     $   RETURN
+      if( n.eq.0 .or. nrhs.eq.0 )
+     $   return
 *
-      IF( NOTRAN ) THEN
+      if( notran ) then
 *
-*        Solve A * X = B.
+*        solve a * x = b.
 *
-*        Apply row interchanges to the right hand sides.
+*        apply row interchanges to the right hand sides.
 *
-         CALL DLASWP( NRHS, B, LDB, 1, N, IPIV, 1 )
+         call dlaswp( nrhs, b, ldb, 1, n, ipiv, 1 )
 *
-*        Solve L*X = B, overwriting B with X.
+*        solve l*x = b, overwriting b with x.
 *
-         CALL DTRSM( 'Left', 'Lower', 'No transpose', 'Unit', N, NRHS,
-     $               ONE, A, LDA, B, LDB )
+         call dtrsm( 'left', 'lower', 'no transpose', 'unit', n, nrhs,
+     $               one, a, lda, b, ldb )
 *
-*        Solve U*X = B, overwriting B with X.
+*        solve u*x = b, overwriting b with x.
 *
-         CALL DTRSM( 'Left', 'Upper', 'No transpose', 'Non-unit', N,
-     $               NRHS, ONE, A, LDA, B, LDB )
-      ELSE
+         call dtrsm( 'left', 'upper', 'no transpose', 'non-unit', n,
+     $               nrhs, one, a, lda, b, ldb )
+      else
 *
-*        Solve A' * X = B.
+*        solve a' * x = b.
 *
-*        Solve U'*X = B, overwriting B with X.
+*        solve u'*x = b, overwriting b with x.
 *
-         CALL DTRSM( 'Left', 'Upper', 'Transpose', 'Non-unit', N, NRHS,
-     $               ONE, A, LDA, B, LDB )
+         call dtrsm( 'left', 'upper', 'transpose', 'non-unit', n, nrhs,
+     $               one, a, lda, b, ldb )
 *
-*        Solve L'*X = B, overwriting B with X.
+*        solve l'*x = b, overwriting b with x.
 *
-         CALL DTRSM( 'Left', 'Lower', 'Transpose', 'Unit', N, NRHS, ONE,
-     $               A, LDA, B, LDB )
+         call dtrsm( 'left', 'lower', 'transpose', 'unit', n, nrhs, one,
+     $               a, lda, b, ldb )
 *
-*        Apply row interchanges to the solution vectors.
+*        apply row interchanges to the solution vectors.
 *
-         CALL DLASWP( NRHS, B, LDB, 1, N, IPIV, -1 )
-      END IF
+         call dlaswp( nrhs, b, ldb, 1, n, ipiv, -1 )
+      end if
 *
-      RETURN
+      return
 *
-*     End of DGETRS
+*     end of dgetrs
 *
-      END
+      end
 ccc
-      SUBROUTINE DGEMM(TRANSA,TRANSB,M,N,K,ALPHA,A,LDA,B,LDB,BETA,C,LDC)
-*     .. Scalar Arguments ..
-      DOUBLE PRECISION ALPHA,BETA
-      INTEGER K,LDA,LDB,LDC,M,N
-      CHARACTER TRANSA,TRANSB
+      subroutine dgemm(transa,transb,m,n,k,alpha,a,lda,b,ldb,beta,c,ldc)
+*     .. scalar arguments ..
+      double precision alpha,beta
+      integer k,lda,ldb,ldc,m,n
+      character transa,transb
 *     ..
-*     .. Array Arguments ..
-      DOUBLE PRECISION A(LDA,*),B(LDB,*),C(LDC,*)
+*     .. array arguments ..
+      double precision a(lda,*),b(ldb,*),c(ldc,*)
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  DGEMM  performs one of the matrix-matrix operations
+*  dgemm  performs one of the matrix-matrix operations
 *
-*     C := alpha*op( A )*op( B ) + beta*C,
+*     c := alpha*op( a )*op( b ) + beta*c,
 *
-*  where  op( X ) is one of
+*  where  op( x ) is one of
 *
-*     op( X ) = X   or   op( X ) = X',
+*     op( x ) = x   or   op( x ) = x',
 *
-*  alpha and beta are scalars, and A, B and C are matrices, with op( A )
-*  an m by k matrix,  op( B )  a  k by n matrix and  C an m by n matrix.
+*  alpha and beta are scalars, and a, b and c are matrices, with op( a )
+*  an m by k matrix,  op( b )  a  k by n matrix and  c an m by n matrix.
 *
-*  Arguments
+*  arguments
 *  ==========
 *
-*  TRANSA - CHARACTER*1.
-*           On entry, TRANSA specifies the form of op( A ) to be used in
+*  transa - character*1.
+*           on entry, transa specifies the form of op( a ) to be used in
 *           the matrix multiplication as follows:
 *
-*              TRANSA = 'N' or 'n',  op( A ) = A.
+*              transa = 'n' or 'n',  op( a ) = a.
 *
-*              TRANSA = 'T' or 't',  op( A ) = A'.
+*              transa = 't' or 't',  op( a ) = a'.
 *
-*              TRANSA = 'C' or 'c',  op( A ) = A'.
+*              transa = 'c' or 'c',  op( a ) = a'.
 *
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  TRANSB - CHARACTER*1.
-*           On entry, TRANSB specifies the form of op( B ) to be used in
+*  transb - character*1.
+*           on entry, transb specifies the form of op( b ) to be used in
 *           the matrix multiplication as follows:
 *
-*              TRANSB = 'N' or 'n',  op( B ) = B.
+*              transb = 'n' or 'n',  op( b ) = b.
 *
-*              TRANSB = 'T' or 't',  op( B ) = B'.
+*              transb = 't' or 't',  op( b ) = b'.
 *
-*              TRANSB = 'C' or 'c',  op( B ) = B'.
+*              transb = 'c' or 'c',  op( b ) = b'.
 *
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  M      - INTEGER.
-*           On entry,  M  specifies  the number  of rows  of the  matrix
-*           op( A )  and of the  matrix  C.  M  must  be at least  zero.
-*           Unchanged on exit.
+*  m      - integer.
+*           on entry,  m  specifies  the number  of rows  of the  matrix
+*           op( a )  and of the  matrix  c.  m  must  be at least  zero.
+*           unchanged on exit.
 *
-*  N      - INTEGER.
-*           On entry,  N  specifies the number  of columns of the matrix
-*           op( B ) and the number of columns of the matrix C. N must be
+*  n      - integer.
+*           on entry,  n  specifies the number  of columns of the matrix
+*           op( b ) and the number of columns of the matrix c. n must be
 *           at least zero.
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  K      - INTEGER.
-*           On entry,  K  specifies  the number of columns of the matrix
-*           op( A ) and the number of rows of the matrix op( B ). K must
+*  k      - integer.
+*           on entry,  k  specifies  the number of columns of the matrix
+*           op( a ) and the number of rows of the matrix op( b ). k must
 *           be at least  zero.
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  ALPHA  - DOUBLE PRECISION.
-*           On entry, ALPHA specifies the scalar alpha.
-*           Unchanged on exit.
+*  alpha  - double precision.
+*           on entry, alpha specifies the scalar alpha.
+*           unchanged on exit.
 *
-*  A      - DOUBLE PRECISION array of DIMENSION ( LDA, ka ), where ka is
-*           k  when  TRANSA = 'N' or 'n',  and is  m  otherwise.
-*           Before entry with  TRANSA = 'N' or 'n',  the leading  m by k
-*           part of the array  A  must contain the matrix  A,  otherwise
-*           the leading  k by m  part of the array  A  must contain  the
-*           matrix A.
-*           Unchanged on exit.
+*  a      - double precision array of dimension ( lda, ka ), where ka is
+*           k  when  transa = 'n' or 'n',  and is  m  otherwise.
+*           before entry with  transa = 'n' or 'n',  the leading  m by k
+*           part of the array  a  must contain the matrix  a,  otherwise
+*           the leading  k by m  part of the array  a  must contain  the
+*           matrix a.
+*           unchanged on exit.
 *
-*  LDA    - INTEGER.
-*           On entry, LDA specifies the first dimension of A as declared
-*           in the calling (sub) program. When  TRANSA = 'N' or 'n' then
-*           LDA must be at least  max( 1, m ), otherwise  LDA must be at
+*  lda    - integer.
+*           on entry, lda specifies the first dimension of a as declared
+*           in the calling (sub) program. when  transa = 'n' or 'n' then
+*           lda must be at least  max( 1, m ), otherwise  lda must be at
 *           least  max( 1, k ).
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  B      - DOUBLE PRECISION array of DIMENSION ( LDB, kb ), where kb is
-*           n  when  TRANSB = 'N' or 'n',  and is  k  otherwise.
-*           Before entry with  TRANSB = 'N' or 'n',  the leading  k by n
-*           part of the array  B  must contain the matrix  B,  otherwise
-*           the leading  n by k  part of the array  B  must contain  the
-*           matrix B.
-*           Unchanged on exit.
+*  b      - double precision array of dimension ( ldb, kb ), where kb is
+*           n  when  transb = 'n' or 'n',  and is  k  otherwise.
+*           before entry with  transb = 'n' or 'n',  the leading  k by n
+*           part of the array  b  must contain the matrix  b,  otherwise
+*           the leading  n by k  part of the array  b  must contain  the
+*           matrix b.
+*           unchanged on exit.
 *
-*  LDB    - INTEGER.
-*           On entry, LDB specifies the first dimension of B as declared
-*           in the calling (sub) program. When  TRANSB = 'N' or 'n' then
-*           LDB must be at least  max( 1, k ), otherwise  LDB must be at
+*  ldb    - integer.
+*           on entry, ldb specifies the first dimension of b as declared
+*           in the calling (sub) program. when  transb = 'n' or 'n' then
+*           ldb must be at least  max( 1, k ), otherwise  ldb must be at
 *           least  max( 1, n ).
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  BETA   - DOUBLE PRECISION.
-*           On entry,  BETA  specifies the scalar  beta.  When  BETA  is
-*           supplied as zero then C need not be set on input.
-*           Unchanged on exit.
+*  beta   - double precision.
+*           on entry,  beta  specifies the scalar  beta.  when  beta  is
+*           supplied as zero then c need not be set on input.
+*           unchanged on exit.
 *
-*  C      - DOUBLE PRECISION array of DIMENSION ( LDC, n ).
-*           Before entry, the leading  m by n  part of the array  C must
-*           contain the matrix  C,  except when  beta  is zero, in which
-*           case C need not be set on entry.
-*           On exit, the array  C  is overwritten by the  m by n  matrix
-*           ( alpha*op( A )*op( B ) + beta*C ).
+*  c      - double precision array of dimension ( ldc, n ).
+*           before entry, the leading  m by n  part of the array  c must
+*           contain the matrix  c,  except when  beta  is zero, in which
+*           case c need not be set on entry.
+*           on exit, the array  c  is overwritten by the  m by n  matrix
+*           ( alpha*op( a )*op( b ) + beta*c ).
 *
-*  LDC    - INTEGER.
-*           On entry, LDC specifies the first dimension of C as declared
-*           in  the  calling  (sub)  program.   LDC  must  be  at  least
+*  ldc    - integer.
+*           on entry, ldc specifies the first dimension of c as declared
+*           in  the  calling  (sub)  program.   ldc  must  be  at  least
 *           max( 1, m ).
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  Further Details
+*  further details
 *  ===============
 *
-*  Level 3 Blas routine.
+*  level 3 blas routine.
 *
-*  -- Written on 8-February-1989.
-*     Jack Dongarra, Argonne National Laboratory.
-*     Iain Duff, AERE Harwell.
-*     Jeremy Du Croz, Numerical Algorithms Group Ltd.
-*     Sven Hammarling, Numerical Algorithms Group Ltd.
+*  -- written on 8-february-1989.
+*     jack dongarra, argonne national laboratory.
+*     iain duff, aere harwell.
+*     jeremy du croz, numerical algorithms group ltd.
+*     sven hammarling, numerical algorithms group ltd.
 *
 *  =====================================================================
 *
-*     .. External Functions ..
-      LOGICAL LSAME
-      EXTERNAL LSAME
+*     .. external functions ..
+      logical lsame
+      external lsame
 *     ..
-*     .. External Subroutines ..
-      EXTERNAL XERBLA
+*     .. external subroutines ..
+      external xerbla
 *     ..
-*     .. Intrinsic Functions ..
-      INTRINSIC MAX
+*     .. intrinsic functions ..
+      intrinsic max
 *     ..
-*     .. Local Scalars ..
-      DOUBLE PRECISION TEMP
-      INTEGER I,INFO,J,L,NCOLA,NROWA,NROWB
-      LOGICAL NOTA,NOTB
+*     .. local scalars ..
+      double precision temp
+      integer i,info,j,l,ncola,nrowa,nrowb
+      logical nota,notb
 *     ..
-*     .. Parameters ..
-      DOUBLE PRECISION ONE,ZERO
-      PARAMETER (ONE=1.0D+0,ZERO=0.0D+0)
+*     .. parameters ..
+      double precision one,zero
+      parameter (one=1.0d+0,zero=0.0d+0)
 *     ..
 *
-*     Set  NOTA  and  NOTB  as  true if  A  and  B  respectively are not
-*     transposed and set  NROWA, NCOLA and  NROWB  as the number of rows
-*     and  columns of  A  and the  number of  rows  of  B  respectively.
+*     set  nota  and  notb  as  true if  a  and  b  respectively are not
+*     transposed and set  nrowa, ncola and  nrowb  as the number of rows
+*     and  columns of  a  and the  number of  rows  of  b  respectively.
 *
-      NOTA = LSAME(TRANSA,'N')
-      NOTB = LSAME(TRANSB,'N')
-      IF (NOTA) THEN
-          NROWA = M
-          NCOLA = K
-      ELSE
-          NROWA = K
-          NCOLA = M
-      END IF
-      IF (NOTB) THEN
-          NROWB = K
-      ELSE
-          NROWB = N
-      END IF
+      nota = lsame(transa,'n')
+      notb = lsame(transb,'n')
+      if (nota) then
+          nrowa = m
+          ncola = k
+      else
+          nrowa = k
+          ncola = m
+      end if
+      if (notb) then
+          nrowb = k
+      else
+          nrowb = n
+      end if
 *
-*     Test the input parameters.
+*     test the input parameters.
 *
-      INFO = 0
-      IF ((.NOT.NOTA) .AND. (.NOT.LSAME(TRANSA,'C')) .AND.
-     +    (.NOT.LSAME(TRANSA,'T'))) THEN
-          INFO = 1
-      ELSE IF ((.NOT.NOTB) .AND. (.NOT.LSAME(TRANSB,'C')) .AND.
-     +         (.NOT.LSAME(TRANSB,'T'))) THEN
-          INFO = 2
-      ELSE IF (M.LT.0) THEN
-          INFO = 3
-      ELSE IF (N.LT.0) THEN
-          INFO = 4
-      ELSE IF (K.LT.0) THEN
-          INFO = 5
-      ELSE IF (LDA.LT.MAX(1,NROWA)) THEN
-          INFO = 8
-      ELSE IF (LDB.LT.MAX(1,NROWB)) THEN
-          INFO = 10
-      ELSE IF (LDC.LT.MAX(1,M)) THEN
-          INFO = 13
-      END IF
-      IF (INFO.NE.0) THEN
-          CALL XERBLA('DGEMM ',INFO)
-          RETURN
-      END IF
+      info = 0
+      if ((.not.nota) .and. (.not.lsame(transa,'c')) .and.
+     +    (.not.lsame(transa,'t'))) then
+          info = 1
+      else if ((.not.notb) .and. (.not.lsame(transb,'c')) .and.
+     +         (.not.lsame(transb,'t'))) then
+          info = 2
+      else if (m.lt.0) then
+          info = 3
+      else if (n.lt.0) then
+          info = 4
+      else if (k.lt.0) then
+          info = 5
+      else if (lda.lt.max(1,nrowa)) then
+          info = 8
+      else if (ldb.lt.max(1,nrowb)) then
+          info = 10
+      else if (ldc.lt.max(1,m)) then
+          info = 13
+      end if
+      if (info.ne.0) then
+          call xerbla('dgemm ',info)
+          return
+      end if
 *
-*     Quick return if possible.
+*     quick return if possible.
 *
-      IF ((M.EQ.0) .OR. (N.EQ.0) .OR.
-     +    (((ALPHA.EQ.ZERO).OR. (K.EQ.0)).AND. (BETA.EQ.ONE))) RETURN
+      if ((m.eq.0) .or. (n.eq.0) .or.
+     +    (((alpha.eq.zero).or. (k.eq.0)).and. (beta.eq.one))) return
 *
-*     And if  alpha.eq.zero.
+*     and if  alpha.eq.zero.
 *
-      IF (ALPHA.EQ.ZERO) THEN
-          IF (BETA.EQ.ZERO) THEN
-              DO 20 J = 1,N
-                  DO 10 I = 1,M
-                      C(I,J) = ZERO
-   10             CONTINUE
-   20         CONTINUE
-          ELSE
-              DO 40 J = 1,N
-                  DO 30 I = 1,M
-                      C(I,J) = BETA*C(I,J)
-   30             CONTINUE
-   40         CONTINUE
-          END IF
-          RETURN
-      END IF
+      if (alpha.eq.zero) then
+          if (beta.eq.zero) then
+              do 20 j = 1,n
+                  do 10 i = 1,m
+                      c(i,j) = zero
+   10             continue
+   20         continue
+          else
+              do 40 j = 1,n
+                  do 30 i = 1,m
+                      c(i,j) = beta*c(i,j)
+   30             continue
+   40         continue
+          end if
+          return
+      end if
 *
-*     Start the operations.
+*     start the operations.
 *
-      IF (NOTB) THEN
-          IF (NOTA) THEN
+      if (notb) then
+          if (nota) then
 *
-*           Form  C := alpha*A*B + beta*C.
+*           form  c := alpha*a*b + beta*c.
 *
-              DO 90 J = 1,N
-                  IF (BETA.EQ.ZERO) THEN
-                      DO 50 I = 1,M
-                          C(I,J) = ZERO
-   50                 CONTINUE
-                  ELSE IF (BETA.NE.ONE) THEN
-                      DO 60 I = 1,M
-                          C(I,J) = BETA*C(I,J)
-   60                 CONTINUE
-                  END IF
-                  DO 80 L = 1,K
-                      IF (B(L,J).NE.ZERO) THEN
-                          TEMP = ALPHA*B(L,J)
-                          DO 70 I = 1,M
-                              C(I,J) = C(I,J) + TEMP*A(I,L)
-   70                     CONTINUE
-                      END IF
-   80             CONTINUE
-   90         CONTINUE
-          ELSE
+              do 90 j = 1,n
+                  if (beta.eq.zero) then
+                      do 50 i = 1,m
+                          c(i,j) = zero
+   50                 continue
+                  else if (beta.ne.one) then
+                      do 60 i = 1,m
+                          c(i,j) = beta*c(i,j)
+   60                 continue
+                  end if
+                  do 80 l = 1,k
+                      if (b(l,j).ne.zero) then
+                          temp = alpha*b(l,j)
+                          do 70 i = 1,m
+                              c(i,j) = c(i,j) + temp*a(i,l)
+   70                     continue
+                      end if
+   80             continue
+   90         continue
+          else
 *
-*           Form  C := alpha*A'*B + beta*C
+*           form  c := alpha*a'*b + beta*c
 *
-              DO 120 J = 1,N
-                  DO 110 I = 1,M
-                      TEMP = ZERO
-                      DO 100 L = 1,K
-                          TEMP = TEMP + A(L,I)*B(L,J)
-  100                 CONTINUE
-                      IF (BETA.EQ.ZERO) THEN
-                          C(I,J) = ALPHA*TEMP
-                      ELSE
-                          C(I,J) = ALPHA*TEMP + BETA*C(I,J)
-                      END IF
-  110             CONTINUE
-  120         CONTINUE
-          END IF
-      ELSE
-          IF (NOTA) THEN
+              do 120 j = 1,n
+                  do 110 i = 1,m
+                      temp = zero
+                      do 100 l = 1,k
+                          temp = temp + a(l,i)*b(l,j)
+  100                 continue
+                      if (beta.eq.zero) then
+                          c(i,j) = alpha*temp
+                      else
+                          c(i,j) = alpha*temp + beta*c(i,j)
+                      end if
+  110             continue
+  120         continue
+          end if
+      else
+          if (nota) then
 *
-*           Form  C := alpha*A*B' + beta*C
+*           form  c := alpha*a*b' + beta*c
 *
-              DO 170 J = 1,N
-                  IF (BETA.EQ.ZERO) THEN
-                      DO 130 I = 1,M
-                          C(I,J) = ZERO
-  130                 CONTINUE
-                  ELSE IF (BETA.NE.ONE) THEN
-                      DO 140 I = 1,M
-                          C(I,J) = BETA*C(I,J)
-  140                 CONTINUE
-                  END IF
-                  DO 160 L = 1,K
-                      IF (B(J,L).NE.ZERO) THEN
-                          TEMP = ALPHA*B(J,L)
-                          DO 150 I = 1,M
-                              C(I,J) = C(I,J) + TEMP*A(I,L)
-  150                     CONTINUE
-                      END IF
-  160             CONTINUE
-  170         CONTINUE
-          ELSE
+              do 170 j = 1,n
+                  if (beta.eq.zero) then
+                      do 130 i = 1,m
+                          c(i,j) = zero
+  130                 continue
+                  else if (beta.ne.one) then
+                      do 140 i = 1,m
+                          c(i,j) = beta*c(i,j)
+  140                 continue
+                  end if
+                  do 160 l = 1,k
+                      if (b(j,l).ne.zero) then
+                          temp = alpha*b(j,l)
+                          do 150 i = 1,m
+                              c(i,j) = c(i,j) + temp*a(i,l)
+  150                     continue
+                      end if
+  160             continue
+  170         continue
+          else
 *
-*           Form  C := alpha*A'*B' + beta*C
+*           form  c := alpha*a'*b' + beta*c
 *
-              DO 200 J = 1,N
-                  DO 190 I = 1,M
-                      TEMP = ZERO
-                      DO 180 L = 1,K
-                          TEMP = TEMP + A(L,I)*B(J,L)
-  180                 CONTINUE
-                      IF (BETA.EQ.ZERO) THEN
-                          C(I,J) = ALPHA*TEMP
-                      ELSE
-                          C(I,J) = ALPHA*TEMP + BETA*C(I,J)
-                      END IF
-  190             CONTINUE
-  200         CONTINUE
-          END IF
-      END IF
+              do 200 j = 1,n
+                  do 190 i = 1,m
+                      temp = zero
+                      do 180 l = 1,k
+                          temp = temp + a(l,i)*b(j,l)
+  180                 continue
+                      if (beta.eq.zero) then
+                          c(i,j) = alpha*temp
+                      else
+                          c(i,j) = alpha*temp + beta*c(i,j)
+                      end if
+  190             continue
+  200         continue
+          end if
+      end if
 *
-      RETURN
+      return
 *
-*     End of DGEMM .
+*     end of dgemm .
 *
-      END
+      end
 ccc
-      SUBROUTINE DTRSM(SIDE,UPLO,TRANSA,DIAG,M,N,ALPHA,A,LDA,B,LDB)
-*     .. Scalar Arguments ..
-      DOUBLE PRECISION ALPHA
-      INTEGER LDA,LDB,M,N
-      CHARACTER DIAG,SIDE,TRANSA,UPLO
+      subroutine dtrsm(side,uplo,transa,diag,m,n,alpha,a,lda,b,ldb)
+*     .. scalar arguments ..
+      double precision alpha
+      integer lda,ldb,m,n
+      character diag,side,transa,uplo
 *     ..
-*     .. Array Arguments ..
-      DOUBLE PRECISION A(LDA,*),B(LDB,*)
+*     .. array arguments ..
+      double precision a(lda,*),b(ldb,*)
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  DTRSM  solves one of the matrix equations
+*  dtrsm  solves one of the matrix equations
 *
-*     op( A )*X = alpha*B,   or   X*op( A ) = alpha*B,
+*     op( a )*x = alpha*b,   or   x*op( a ) = alpha*b,
 *
-*  where alpha is a scalar, X and B are m by n matrices, A is a unit, or
-*  non-unit,  upper or lower triangular matrix  and  op( A )  is one  of
+*  where alpha is a scalar, x and b are m by n matrices, a is a unit, or
+*  non-unit,  upper or lower triangular matrix  and  op( a )  is one  of
 *
-*     op( A ) = A   or   op( A ) = A'.
+*     op( a ) = a   or   op( a ) = a'.
 *
-*  The matrix X is overwritten on B.
+*  the matrix x is overwritten on b.
 *
-*  Arguments
+*  arguments
 *  ==========
 *
-*  SIDE   - CHARACTER*1.
-*           On entry, SIDE specifies whether op( A ) appears on the left
-*           or right of X as follows:
+*  side   - character*1.
+*           on entry, side specifies whether op( a ) appears on the left
+*           or right of x as follows:
 *
-*              SIDE = 'L' or 'l'   op( A )*X = alpha*B.
+*              side = 'l' or 'l'   op( a )*x = alpha*b.
 *
-*              SIDE = 'R' or 'r'   X*op( A ) = alpha*B.
+*              side = 'r' or 'r'   x*op( a ) = alpha*b.
 *
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  UPLO   - CHARACTER*1.
-*           On entry, UPLO specifies whether the matrix A is an upper or
+*  uplo   - character*1.
+*           on entry, uplo specifies whether the matrix a is an upper or
 *           lower triangular matrix as follows:
 *
-*              UPLO = 'U' or 'u'   A is an upper triangular matrix.
+*              uplo = 'u' or 'u'   a is an upper triangular matrix.
 *
-*              UPLO = 'L' or 'l'   A is a lower triangular matrix.
+*              uplo = 'l' or 'l'   a is a lower triangular matrix.
 *
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  TRANSA - CHARACTER*1.
-*           On entry, TRANSA specifies the form of op( A ) to be used in
+*  transa - character*1.
+*           on entry, transa specifies the form of op( a ) to be used in
 *           the matrix multiplication as follows:
 *
-*              TRANSA = 'N' or 'n'   op( A ) = A.
+*              transa = 'n' or 'n'   op( a ) = a.
 *
-*              TRANSA = 'T' or 't'   op( A ) = A'.
+*              transa = 't' or 't'   op( a ) = a'.
 *
-*              TRANSA = 'C' or 'c'   op( A ) = A'.
+*              transa = 'c' or 'c'   op( a ) = a'.
 *
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  DIAG   - CHARACTER*1.
-*           On entry, DIAG specifies whether or not A is unit triangular
+*  diag   - character*1.
+*           on entry, diag specifies whether or not a is unit triangular
 *           as follows:
 *
-*              DIAG = 'U' or 'u'   A is assumed to be unit triangular.
+*              diag = 'u' or 'u'   a is assumed to be unit triangular.
 *
-*              DIAG = 'N' or 'n'   A is not assumed to be unit
+*              diag = 'n' or 'n'   a is not assumed to be unit
 *                                  triangular.
 *
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  M      - INTEGER.
-*           On entry, M specifies the number of rows of B. M must be at
+*  m      - integer.
+*           on entry, m specifies the number of rows of b. m must be at
 *           least zero.
-*           Unchanged on exit.GChuev-874 
+*           unchanged on exit.gchuev-874 
 *
-*  N      - INTEGER.
-*           On entry, N specifies the number of columns of B.  N must be
+*  n      - integer.
+*           on entry, n specifies the number of columns of b.  n must be
 *           at least zero.
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  ALPHA  - DOUBLE PRECISION.
-*           On entry,  ALPHA specifies the scalar  alpha. When  alpha is
-*           zero then  A is not referenced and  B need not be set before
+*  alpha  - double precision.
+*           on entry,  alpha specifies the scalar  alpha. when  alpha is
+*           zero then  a is not referenced and  b need not be set before
 *           entry.
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  A      - DOUBLE PRECISION array of DIMENSION ( LDA, k ), where k is m
-*           when  SIDE = 'L' or 'l'  and is  n  when  SIDE = 'R' or 'r'.
-*           Before entry  with  UPLO = 'U' or 'u',  the  leading  k by k
-*           upper triangular part of the array  A must contain the upper
+*  a      - double precision array of dimension ( lda, k ), where k is m
+*           when  side = 'l' or 'l'  and is  n  when  side = 'r' or 'r'.
+*           before entry  with  uplo = 'u' or 'u',  the  leading  k by k
+*           upper triangular part of the array  a must contain the upper
 *           triangular matrix  and the strictly lower triangular part of
-*           A is not referenced.
-*           Before entry  with  UPLO = 'L' or 'l',  the  leading  k by k
-*           lower triangular part of the array  A must contain the lower
+*           a is not referenced.
+*           before entry  with  uplo = 'l' or 'l',  the  leading  k by k
+*           lower triangular part of the array  a must contain the lower
 *           triangular matrix  and the strictly upper triangular part of
-*           A is not referenced.
-*           Note that when  DIAG = 'U' or 'u',  the diagonal elements of
-*           A  are not referenced either,  but are assumed to be  unity.
-*           Unchanged on exit.
+*           a is not referenced.
+*           note that when  diag = 'u' or 'u',  the diagonal elements of
+*           a  are not referenced either,  but are assumed to be  unity.
+*           unchanged on exit.
 *
-*  LDA    - INTEGER.
-*           On entry, LDA specifies the first dimension of A as declared
-*           in the calling (sub) program.  When  SIDE = 'L' or 'l'  then
-*           LDA  must be at least  max( 1, m ),  when  SIDE = 'R' or 'r'
-*           then LDA must be at least max( 1, n ).
-*           Unchanged on exit.
+*  lda    - integer.
+*           on entry, lda specifies the first dimension of a as declared
+*           in the calling (sub) program.  when  side = 'l' or 'l'  then
+*           lda  must be at least  max( 1, m ),  when  side = 'r' or 'r'
+*           then lda must be at least max( 1, n ).
+*           unchanged on exit.
 *
-*  B      - DOUBLE PRECISION array of DIMENSION ( LDB, n ).
-*           Before entry,  the leading  m by n part of the array  B must
-*           contain  the  right-hand  side  matrix  B,  and  on exit  is
-*           overwritten by the solution matrix  X.
+*  b      - double precision array of dimension ( ldb, n ).
+*           before entry,  the leading  m by n part of the array  b must
+*           contain  the  right-hand  side  matrix  b,  and  on exit  is
+*           overwritten by the solution matrix  x.
 *
-*  LDB    - INTEGER.
-*           On entry, LDB specifies the first dimension of B as declared
-*           in  the  calling  (sub)  program.   LDB  must  be  at  least
+*  ldb    - integer.
+*           on entry, ldb specifies the first dimension of b as declared
+*           in  the  calling  (sub)  program.   ldb  must  be  at  least
 *           max( 1, m ).
-*           Unchanged on exit.
+*           unchanged on exit.
 *
-*  Further Details
+*  further details
 *  ===============
 *
-*  Level 3 Blas routine.
+*  level 3 blas routine.
 *
 *
-*  -- Written on 8-February-1989.
-*     Jack Dongarra, Argonne National Laboratory.
-*     Iain Duff, AERE Harwell.
-*     Jeremy Du Croz, Numerical Algorithms Group Ltd.
-*     Sven Hammarling, Numerical Algorithms Group Ltd.
+*  -- written on 8-february-1989.
+*     jack dongarra, argonne national laboratory.
+*     iain duff, aere harwell.
+*     jeremy du croz, numerical algorithms group ltd.
+*     sven hammarling, numerical algorithms group ltd.
 *
 *  =====================================================================
 *
-*     .. External Functions ..
-      LOGICAL LSAME
-      EXTERNAL LSAME
+*     .. external functions ..
+      logical lsame
+      external lsame
 *     ..
-*     .. External Subroutines ..
-      EXTERNAL XERBLA
+*     .. external subroutines ..
+      external xerbla
 *     ..
-*     .. Intrinsic Functions ..
-      INTRINSIC MAX
+*     .. intrinsic functions ..
+      intrinsic max
 *     ..
-*     .. Local Scalars ..
-      DOUBLE PRECISION TEMP
-      INTEGER I,INFO,J,K,NROWA
-      LOGICAL LSIDE,NOUNIT,UPPER
+*     .. local scalars ..
+      double precision temp
+      integer i,info,j,k,nrowa
+      logical lside,nounit,upper
 *     ..
-*     .. Parameters ..
-      DOUBLE PRECISION ONE,ZERO
-      PARAMETER (ONE=1.0D+0,ZERO=0.0D+0)
+*     .. parameters ..
+      double precision one,zero
+      parameter (one=1.0d+0,zero=0.0d+0)
 *     ..
 *
-*     Test the input parameters.
+*     test the input parameters.
 *
-      LSIDE = LSAME(SIDE,'L')
-      IF (LSIDE) THEN
-          NROWA = M
-      ELSE
-          NROWA = N
-      END IF
-      NOUNIT = LSAME(DIAG,'N')
-      UPPER = LSAME(UPLO,'U')
+      lside = lsame(side,'l')
+      if (lside) then
+          nrowa = m
+      else
+          nrowa = n
+      end if
+      nounit = lsame(diag,'n')
+      upper = lsame(uplo,'u')
 *
-      INFO = 0
-      IF ((.NOT.LSIDE) .AND. (.NOT.LSAME(SIDE,'R'))) THEN
-          INFO = 1
-      ELSE IF ((.NOT.UPPER) .AND. (.NOT.LSAME(UPLO,'L'))) THEN
-          INFO = 2
-      ELSE IF ((.NOT.LSAME(TRANSA,'N')) .AND.
-     +         (.NOT.LSAME(TRANSA,'T')) .AND.
-     +         (.NOT.LSAME(TRANSA,'C'))) THEN
-          INFO = 3
-      ELSE IF ((.NOT.LSAME(DIAG,'U')) .AND. (.NOT.LSAME(DIAG,'N'))) THEN
-          INFO = 4
-      ELSE IF (M.LT.0) THEN
-          INFO = 5
-      ELSE IF (N.LT.0) THEN
-          INFO = 6
-      ELSE IF (LDA.LT.MAX(1,NROWA)) THEN
-          INFO = 9
-      ELSE IF (LDB.LT.MAX(1,M)) THEN
-          INFO = 11
-      END IF
-      IF (INFO.NE.0) THEN
-          CALL XERBLA('DTRSM ',INFO)
-          RETURN
-      END IF
+      info = 0
+      if ((.not.lside) .and. (.not.lsame(side,'r'))) then
+          info = 1
+      else if ((.not.upper) .and. (.not.lsame(uplo,'l'))) then
+          info = 2
+      else if ((.not.lsame(transa,'n')) .and.
+     +         (.not.lsame(transa,'t')) .and.
+     +         (.not.lsame(transa,'c'))) then
+          info = 3
+      else if ((.not.lsame(diag,'u')) .and. (.not.lsame(diag,'n'))) then
+          info = 4
+      else if (m.lt.0) then
+          info = 5
+      else if (n.lt.0) then
+          info = 6
+      else if (lda.lt.max(1,nrowa)) then
+          info = 9
+      else if (ldb.lt.max(1,m)) then
+          info = 11
+      end if
+      if (info.ne.0) then
+          call xerbla('dtrsm ',info)
+          return
+      end if
 *
-*     Quick return if possible.
+*     quick return if possible.
 *
-      IF (M.EQ.0 .OR. N.EQ.0) RETURN
+      if (m.eq.0 .or. n.eq.0) return
 *
-*     And when  alpha.eq.zero.
+*     and when  alpha.eq.zero.
 *
-      IF (ALPHA.EQ.ZERO) THEN
-          DO 20 J = 1,N
-              DO 10 I = 1,M
-                  B(I,J) = ZERO
-   10         CONTINUE
-   20     CONTINUE
-          RETURN
-      END IF
+      if (alpha.eq.zero) then
+          do 20 j = 1,n
+              do 10 i = 1,m
+                  b(i,j) = zero
+   10         continue
+   20     continue
+          return
+      end if
 *
-*     Start the operations.
+*     start the operations.
 *
-      IF (LSIDE) THEN
-          IF (LSAME(TRANSA,'N')) THEN
+      if (lside) then
+          if (lsame(transa,'n')) then
 *
-*           Form  B := alpha*inv( A )*B.
+*           form  b := alpha*inv( a )*b.
 *
-              IF (UPPER) THEN
-                  DO 60 J = 1,N
-                      IF (ALPHA.NE.ONE) THEN
-                          DO 30 I = 1,M
-                              B(I,J) = ALPHA*B(I,J)
-   30                     CONTINUE
-                      END IF
-                      DO 50 K = M,1,-1
-                          IF (B(K,J).NE.ZERO) THEN
-                              IF (NOUNIT) B(K,J) = B(K,J)/A(K,K)
-                              DO 40 I = 1,K - 1
-                                  B(I,J) = B(I,J) - B(K,J)*A(I,K)
-   40                         CONTINUE
-                          END IF
-   50                 CONTINUE
-   60             CONTINUE
-              ELSE
-                  DO 100 J = 1,N
-                      IF (ALPHA.NE.ONE) THEN
-                          DO 70 I = 1,M
-                              B(I,J) = ALPHA*B(I,J)
-   70                     CONTINUE
-                      END IF
-                      DO 90 K = 1,M
-                          IF (B(K,J).NE.ZERO) THEN
-                              IF (NOUNIT) B(K,J) = B(K,J)/A(K,K)
-                              DO 80 I = K + 1,M
-                                  B(I,J) = B(I,J) - B(K,J)*A(I,K)
-   80                         CONTINUE
-                          END IF
-   90                 CONTINUE
-  100             CONTINUE
-              END IF
-          ELSE
+              if (upper) then
+                  do 60 j = 1,n
+                      if (alpha.ne.one) then
+                          do 30 i = 1,m
+                              b(i,j) = alpha*b(i,j)
+   30                     continue
+                      end if
+                      do 50 k = m,1,-1
+                          if (b(k,j).ne.zero) then
+                              if (nounit) b(k,j) = b(k,j)/a(k,k)
+                              do 40 i = 1,k - 1
+                                  b(i,j) = b(i,j) - b(k,j)*a(i,k)
+   40                         continue
+                          end if
+   50                 continue
+   60             continue
+              else
+                  do 100 j = 1,n
+                      if (alpha.ne.one) then
+                          do 70 i = 1,m
+                              b(i,j) = alpha*b(i,j)
+   70                     continue
+                      end if
+                      do 90 k = 1,m
+                          if (b(k,j).ne.zero) then
+                              if (nounit) b(k,j) = b(k,j)/a(k,k)
+                              do 80 i = k + 1,m
+                                  b(i,j) = b(i,j) - b(k,j)*a(i,k)
+   80                         continue
+                          end if
+   90                 continue
+  100             continue
+              end if
+          else
 *
-*           Form  B := alpha*inv( A' )*B.
+*           form  b := alpha*inv( a' )*b.
 *
-              IF (UPPER) THEN
-                  DO 130 J = 1,N
-                      DO 120 I = 1,M
-                          TEMP = ALPHA*B(I,J)
-                          DO 110 K = 1,I - 1
-                              TEMP = TEMP - A(K,I)*B(K,J)
-  110                     CONTINUE
-                          IF (NOUNIT) TEMP = TEMP/A(I,I)
-                          B(I,J) = TEMP
-  120                 CONTINUE
-  130             CONTINUE
-              ELSE
-                  DO 160 J = 1,N
-                      DO 150 I = M,1,-1
-                          TEMP = ALPHA*B(I,J)
-                          DO 140 K = I + 1,M
-                              TEMP = TEMP - A(K,I)*B(K,J)
-  140                     CONTINUE
-                          IF (NOUNIT) TEMP = TEMP/A(I,I)
-                          B(I,J) = TEMP
-  150                 CONTINUE
-  160             CONTINUE
-              END IF
-          END IF
-      ELSE
-          IF (LSAME(TRANSA,'N')) THEN
+              if (upper) then
+                  do 130 j = 1,n
+                      do 120 i = 1,m
+                          temp = alpha*b(i,j)
+                          do 110 k = 1,i - 1
+                              temp = temp - a(k,i)*b(k,j)
+  110                     continue
+                          if (nounit) temp = temp/a(i,i)
+                          b(i,j) = temp
+  120                 continue
+  130             continue
+              else
+                  do 160 j = 1,n
+                      do 150 i = m,1,-1
+                          temp = alpha*b(i,j)
+                          do 140 k = i + 1,m
+                              temp = temp - a(k,i)*b(k,j)
+  140                     continue
+                          if (nounit) temp = temp/a(i,i)
+                          b(i,j) = temp
+  150                 continue
+  160             continue
+              end if
+          end if
+      else
+          if (lsame(transa,'n')) then
 *
-*           Form  B := alpha*B*inv( A ).
+*           form  b := alpha*b*inv( a ).
 *
-              IF (UPPER) THEN
-                  DO 210 J = 1,N
-                      IF (ALPHA.NE.ONE) THEN
-                          DO 170 I = 1,M
-                              B(I,J) = ALPHA*B(I,J)
-  170                     CONTINUE
-                      END IF
-                      DO 190 K = 1,J - 1
-                          IF (A(K,J).NE.ZERO) THEN
-                              DO 180 I = 1,M
-                                  B(I,J) = B(I,J) - A(K,J)*B(I,K)
-  180                         CONTINUE
-                          END IF
-  190                 CONTINUE
-                      IF (NOUNIT) THEN
-                          TEMP = ONE/A(J,J)
-                          DO 200 I = 1,M
-                              B(I,J) = TEMP*B(I,J)
-  200                     CONTINUE
-                      END IF
-  210             CONTINUE
-              ELSE
-                  DO 260 J = N,1,-1
-                      IF (ALPHA.NE.ONE) THEN
-                          DO 220 I = 1,M
-                              B(I,J) = ALPHA*B(I,J)
-  220                     CONTINUE
-                      END IF
-                      DO 240 K = J + 1,N
-                          IF (A(K,J).NE.ZERO) THEN
-                              DO 230 I = 1,M
-                                  B(I,J) = B(I,J) - A(K,J)*B(I,K)
-  230                         CONTINUE
-                          END IF
-  240                 CONTINUE
-                      IF (NOUNIT) THEN
-                          TEMP = ONE/A(J,J)
-                          DO 250 I = 1,M
-                              B(I,J) = TEMP*B(I,J)
-  250                     CONTINUE
-                      END IF
-  260             CONTINUE
-              END IF
-          ELSE
+              if (upper) then
+                  do 210 j = 1,n
+                      if (alpha.ne.one) then
+                          do 170 i = 1,m
+                              b(i,j) = alpha*b(i,j)
+  170                     continue
+                      end if
+                      do 190 k = 1,j - 1
+                          if (a(k,j).ne.zero) then
+                              do 180 i = 1,m
+                                  b(i,j) = b(i,j) - a(k,j)*b(i,k)
+  180                         continue
+                          end if
+  190                 continue
+                      if (nounit) then
+                          temp = one/a(j,j)
+                          do 200 i = 1,m
+                              b(i,j) = temp*b(i,j)
+  200                     continue
+                      end if
+  210             continue
+              else
+                  do 260 j = n,1,-1
+                      if (alpha.ne.one) then
+                          do 220 i = 1,m
+                              b(i,j) = alpha*b(i,j)
+  220                     continue
+                      end if
+                      do 240 k = j + 1,n
+                          if (a(k,j).ne.zero) then
+                              do 230 i = 1,m
+                                  b(i,j) = b(i,j) - a(k,j)*b(i,k)
+  230                         continue
+                          end if
+  240                 continue
+                      if (nounit) then
+                          temp = one/a(j,j)
+                          do 250 i = 1,m
+                              b(i,j) = temp*b(i,j)
+  250                     continue
+                      end if
+  260             continue
+              end if
+          else
 *
-*           Form  B := alpha*B*inv( A' ).
+*           form  b := alpha*b*inv( a' ).
 *
-              IF (UPPER) THEN
-                  DO 310 K = N,1,-1
-                      IF (NOUNIT) THEN
-                          TEMP = ONE/A(K,K)
-                          DO 270 I = 1,M
-                              B(I,K) = TEMP*B(I,K)
-  270                     CONTINUE
-                      END IF
-                      DO 290 J = 1,K - 1
-                          IF (A(J,K).NE.ZERO) THEN
-                              TEMP = A(J,K)
-                              DO 280 I = 1,M
-                                  B(I,J) = B(I,J) - TEMP*B(I,K)
-  280                         CONTINUE
-                          END IF
-  290                 CONTINUE
-                      IF (ALPHA.NE.ONE) THEN
-                          DO 300 I = 1,M
-                              B(I,K) = ALPHA*B(I,K)
-  300                     CONTINUE
-                      END IF
-  310             CONTINUE
-              ELSE
-                  DO 360 K = 1,N
-                      IF (NOUNIT) THEN
-                          TEMP = ONE/A(K,K)
-                          DO 320 I = 1,M
-                              B(I,K) = TEMP*B(I,K)
-  320                     CONTINUE
-                      END IF
-                      DO 340 J = K + 1,N
-                          IF (A(J,K).NE.ZERO) THEN
-                              TEMP = A(J,K)
-                              DO 330 I = 1,M
-                                  B(I,J) = B(I,J) - TEMP*B(I,K)
-  330                         CONTINUE
-                          END IF
-  340                 CONTINUE
-                      IF (ALPHA.NE.ONE) THEN
-                          DO 350 I = 1,M
-                              B(I,K) = ALPHA*B(I,K)
-  350                     CONTINUE
-                      END IF
-  360             CONTINUE
-              END IF
-          END IF
-      END IF
+              if (upper) then
+                  do 310 k = n,1,-1
+                      if (nounit) then
+                          temp = one/a(k,k)
+                          do 270 i = 1,m
+                              b(i,k) = temp*b(i,k)
+  270                     continue
+                      end if
+                      do 290 j = 1,k - 1
+                          if (a(j,k).ne.zero) then
+                              temp = a(j,k)
+                              do 280 i = 1,m
+                                  b(i,j) = b(i,j) - temp*b(i,k)
+  280                         continue
+                          end if
+  290                 continue
+                      if (alpha.ne.one) then
+                          do 300 i = 1,m
+                              b(i,k) = alpha*b(i,k)
+  300                     continue
+                      end if
+  310             continue
+              else
+                  do 360 k = 1,n
+                      if (nounit) then
+                          temp = one/a(k,k)
+                          do 320 i = 1,m
+                              b(i,k) = temp*b(i,k)
+  320                     continue
+                      end if
+                      do 340 j = k + 1,n
+                          if (a(j,k).ne.zero) then
+                              temp = a(j,k)
+                              do 330 i = 1,m
+                                  b(i,j) = b(i,j) - temp*b(i,k)
+  330                         continue
+                          end if
+  340                 continue
+                      if (alpha.ne.one) then
+                          do 350 i = 1,m
+                              b(i,k) = alpha*b(i,k)
+  350                     continue
+                      end if
+  360             continue
+              end if
+          end if
+      end if
 *
-      RETURN
+      return
 *
-*     End of DTRSM .
+*     end of dtrsm .
 *
-      END
+      end
 ccc
-      SUBROUTINE DLASWP( N, A, LDA, K1, K2, IPIV, INCX )
+      subroutine dlaswp( n, a, lda, k1, k2, ipiv, incx )
 *
-*  -- LAPACK auxiliary routine (version 3.2) --
-*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
-*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2006
+*  -- lapack auxiliary routine (version 3.2) --
+*  -- lapack is a software package provided by univ. of tennessee,    --
+*  -- univ. of california berkeley, univ. of colorado denver and nag ltd..--
+*     november 2006
 *
-*     .. Scalar Arguments ..
-      INTEGER            INCX, K1, K2, LDA, N
+*     .. scalar arguments ..
+      integer            incx, k1, k2, lda, n
 *     ..
-*     .. Array Arguments ..
-      INTEGER            IPIV( * )
-      DOUBLE PRECISION   A( LDA, * )
+*     .. array arguments ..
+      integer            ipiv( * )
+      double precision   a( lda, * )
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  DLASWP performs a series of row interchanges on the matrix A.
-*  One row interchange is initiated for each of rows K1 through K2 of A.
+*  dlaswp performs a series of row interchanges on the matrix a.
+*  one row interchange is initiated for each of rows k1 through k2 of a.
 *
-*  Arguments
+*  arguments
 *  =========
 *
-*  N       (input) INTEGER
-*          The number of columns of the matrix A.
+*  n       (input) integer
+*          the number of columns of the matrix a.
 *
-*  A       (input/output) DOUBLE PRECISION array, dimension (LDA,N)
-*          On entry, the matrix of column dimension N to which the row
+*  a       (input/output) double precision array, dimension (lda,n)
+*          on entry, the matrix of column dimension n to which the row
 *          interchanges will be applied.
-*          On exit, the permuted matrix.
+*          on exit, the permuted matrix.
 *
-*  LDA     (input) INTEGER
-*          The leading dimension of the array A.
+*  lda     (input) integer
+*          the leading dimension of the array a.
 *
-*  K1      (input) INTEGER
-*          The first element of IPIV for which a row interchange will
+*  k1      (input) integer
+*          the first element of ipiv for which a row interchange will
 *          be done.
 *
-*  K2      (input) INTEGER
-*          The last element of IPIV for which a row interchange will
+*  k2      (input) integer
+*          the last element of ipiv for which a row interchange will
 *          be done.
 *
-*  IPIV    (input) INTEGER array, dimension (K2*abs(INCX))
-*          The vector of pivot indices.  Only the elements in positions
-*          K1 through K2 of IPIV are accessed.
-*          IPIV(K) = L implies rows K and L are to be interchanged.
+*  ipiv    (input) integer array, dimension (k2*abs(incx))
+*          the vector of pivot indices.  only the elements in positions
+*          k1 through k2 of ipiv are accessed.
+*          ipiv(k) = l implies rows k and l are to be interchanged.
 *
-*  INCX    (input) INTEGER
-*          The increment between successive values of IPIV.  If IPIV
+*  incx    (input) integer
+*          the increment between successive values of ipiv.  if ipiv
 *          is negative, the pivots are applied in reverse order.
 *
-*  Further Details
+*  further details
 *  ===============
 *
-*  Modified by
-*   R. C. Whaley, Computer Science Dept., Univ. of Tenn., Knoxville, USA
+*  modified by
+*   r. c. whaley, computer science dept., univ. of tenn., knoxville, usa
 *
 * =====================================================================
 *
-*     .. Local Scalars ..
-      INTEGER            I, I1, I2, INC, IP, IX, IX0, J, K, N32
-      DOUBLE PRECISION   TEMP
+*     .. local scalars ..
+      integer            i, i1, i2, inc, ip, ix, ix0, j, k, n32
+      double precision   temp
 *     ..
-*     .. Executable Statements ..
+*     .. executable statements ..
 *
-*     Interchange row I with row IPIV(I) for each of rows K1 through K2.
+*     interchange row i with row ipiv(i) for each of rows k1 through k2.
 *
-      IF( INCX.GT.0 ) THEN
-         IX0 = K1
-         I1 = K1
-         I2 = K2
-         INC = 1
-      ELSE IF( INCX.LT.0 ) THEN
-         IX0 = 1 + ( 1-K2 )*INCX
-         I1 = K2
-         I2 = K1
-         INC = -1
-      ELSE
-         RETURN
-      END IF
+      if( incx.gt.0 ) then
+         ix0 = k1
+         i1 = k1
+         i2 = k2
+         inc = 1
+      else if( incx.lt.0 ) then
+         ix0 = 1 + ( 1-k2 )*incx
+         i1 = k2
+         i2 = k1
+         inc = -1
+      else
+         return
+      end if
 *
-      N32 = ( N / 32 )*32
-      IF( N32.NE.0 ) THEN
-         DO 30 J = 1, N32, 32
-            IX = IX0
-            DO 20 I = I1, I2, INC
-               IP = IPIV( IX )
-               IF( IP.NE.I ) THEN
-                  DO 10 K = J, J + 31
-                     TEMP = A( I, K )
-                     A( I, K ) = A( IP, K )
-                     A( IP, K ) = TEMP
-   10             CONTINUE
-               END IF
-               IX = IX + INCX
-   20       CONTINUE
-   30    CONTINUE
-      END IF
-      IF( N32.NE.N ) THEN
-         N32 = N32 + 1
-         IX = IX0
-         DO 50 I = I1, I2, INC
-            IP = IPIV( IX )
-            IF( IP.NE.I ) THEN
-               DO 40 K = N32, N
-                  TEMP = A( I, K )
-                  A( I, K ) = A( IP, K )
-                  A( IP, K ) = TEMP
-   40          CONTINUE
-            END IF
-            IX = IX + INCX
-   50    CONTINUE
-      END IF
+      n32 = ( n / 32 )*32
+      if( n32.ne.0 ) then
+         do 30 j = 1, n32, 32
+            ix = ix0
+            do 20 i = i1, i2, inc
+               ip = ipiv( ix )
+               if( ip.ne.i ) then
+                  do 10 k = j, j + 31
+                     temp = a( i, k )
+                     a( i, k ) = a( ip, k )
+                     a( ip, k ) = temp
+   10             continue
+               end if
+               ix = ix + incx
+   20       continue
+   30    continue
+      end if
+      if( n32.ne.n ) then
+         n32 = n32 + 1
+         ix = ix0
+         do 50 i = i1, i2, inc
+            ip = ipiv( ix )
+            if( ip.ne.i ) then
+               do 40 k = n32, n
+                  temp = a( i, k )
+                  a( i, k ) = a( ip, k )
+                  a( ip, k ) = temp
+   40          continue
+            end if
+            ix = ix + incx
+   50    continue
+      end if
 *
-      RETURN
+      return
 *
-*     End of DLASWP
+*     end of dlaswp
 *
-      END
+      end
 ccc
-      INTEGER FUNCTION ILAENV( ISPEC, NAME, OPTS, N1, N2, N3, N4 )
+      integer function ilaenv( ispec, name, opts, n1, n2, n3, n4 )
 *
-*  -- LAPACK auxiliary routine (version 3.2.1)                        --
+*  -- lapack auxiliary routine (version 3.2.1)                        --
 *
-*  -- April 2009                                                      --
+*  -- april 2009                                                      --
 *
-*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
-*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
+*  -- lapack is a software package provided by univ. of tennessee,    --
+*  -- univ. of california berkeley, univ. of colorado denver and nag ltd..--
 *
-*     .. Scalar Arguments ..
-      CHARACTER*( * )    NAME, OPTS
-      INTEGER            ISPEC, N1, N2, N3, N4
+*     .. scalar arguments ..
+      character*( * )    name, opts
+      integer            ispec, n1, n2, n3, n4
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  ILAENV is called from the LAPACK routines to choose problem-dependent
-*  parameters for the local environment.  See ISPEC for a description of
+*  ilaenv is called from the lapack routines to choose problem-dependent
+*  parameters for the local environment.  see ispec for a description of
 *  the parameters.
 *
-*  ILAENV returns an INTEGER
-*  if ILAENV >= 0: ILAENV returns the value of the parameter specified by ISPEC
-*  if ILAENV < 0:  if ILAENV = -k, the k-th argument had an illegal value.
+*  ilaenv returns an integer
+*  if ilaenv >= 0: ilaenv returns the value of the parameter specified by ispec
+*  if ilaenv < 0:  if ilaenv = -k, the k-th argument had an illegal value.
 *
-*  This version provides a set of parameters which should give good,
+*  this version provides a set of parameters which should give good,
 *  but not optimal, performance on many of the currently available
-*  computers.  Users are encouraged to modify this subroutine to set
+*  computers.  users are encouraged to modify this subroutine to set
 *  the tuning parameters for their particular machine using the option
 *  and problem size information in the arguments.
 *
-*  This routine will not function correctly if it is converted to all
-*  lower case.  Converting it to all upper case is allowed.
+*  this routine will not function correctly if it is converted to all
+*  lower case.  converting it to all upper case is allowed.
 *
-*  Arguments
+*  arguments
 *  =========
 *
-*  ISPEC   (input) INTEGER
-*          Specifies the parameter to be returned as the value of
-*          ILAENV.
+*  ispec   (input) integer
+*          specifies the parameter to be returned as the value of
+*          ilaenv.
 *          = 1: the optimal blocksize; if this value is 1, an unblocked
 *               algorithm will give the best performance.
 *          = 2: the minimum block size for which the block routine
 *               should be used; if the usable block size is less than
 *               this value, an unblocked routine should be used.
-*          = 3: the crossover point (in a block routine, for N less
+*          = 3: the crossover point (in a block routine, for n less
 *               than this value, an unblocked routine should be used)
 *          = 4: the number of shifts, used in the nonsymmetric
-*               eigenvalue routines (DEPRECATED)
+*               eigenvalue routines (deprecated)
 *          = 5: the minimum column dimension for blocking to be used;
 *               rectangular blocks must have dimension at least k by m,
-*               where k is given by ILAENV(2,...) and m by ILAENV(5,...)
-*          = 6: the crossover point for the SVD (when reducing an m by n
+*               where k is given by ilaenv(2,...) and m by ilaenv(5,...)
+*          = 6: the crossover point for the svd (when reducing an m by n
 *               matrix to bidiagonal form, if max(m,n)/min(m,n) exceeds
-*               this value, a QR factorization is used first to reduce
+*               this value, a qr factorization is used first to reduce
 *               the matrix to a triangular form.)
 *          = 7: the number of processors
-*          = 8: the crossover point for the multishift QR method
-*               for nonsymmetric eigenvalue problems (DEPRECATED)
+*          = 8: the crossover point for the multishift qr method
+*               for nonsymmetric eigenvalue problems (deprecated)
 *          = 9: maximum size of the subproblems at the bottom of the
 *               computation tree in the divide-and-conquer algorithm
-*               (used by xGELSD and xGESDD)
-*          =10: ieee NaN arithmetic can be trusted not to trap
+*               (used by xgelsd and xgesdd)
+*          =10: ieee nan arithmetic can be trusted not to trap
 *          =11: infinity arithmetic can be trusted not to trap
-*          12 <= ISPEC <= 16:
-*               xHSEQR or one of its subroutines,
-*               see IPARMQ for detailed explanation
+*          12 <= ispec <= 16:
+*               xhseqr or one of its subroutines,
+*               see iparmq for detailed explanation
 *
-*  NAME    (input) CHARACTER*(*)
-*          The name of the calling subroutine, in either upper case or
+*  name    (input) character*(*)
+*          the name of the calling subroutine, in either upper case or
 *          lower case.
 *
-*  OPTS    (input) CHARACTER*(*)
-*          The character options to the subroutine NAME, concatenated
-*          into a single character string.  For example, UPLO = 'U',
-*          TRANS = 'T', and DIAG = 'N' for a triangular routine would
-*          be specified as OPTS = 'UTN'.
+*  opts    (input) character*(*)
+*          the character options to the subroutine name, concatenated
+*          into a single character string.  for example, uplo = 'u',
+*          trans = 't', and diag = 'n' for a triangular routine would
+*          be specified as opts = 'utn'.
 *
-*  N1      (input) INTEGER
-*  N2      (input) INTEGER
-*  N3      (input) INTEGER
-*  N4      (input) INTEGER
-*          Problem dimensions for the subroutine NAME; these may not all
+*  n1      (input) integer
+*  n2      (input) integer
+*  n3      (input) integer
+*  n4      (input) integer
+*          problem dimensions for the subroutine name; these may not all
 *          be required.
 *
-*  Further Details
+*  further details
 *  ===============
 *
-*  The following conventions have been used when calling ILAENV from the
-*  LAPACK routines:
-*  1)  OPTS is a concatenation of all of the character options to
-*      subroutine NAME, in the same order that they appear in the
-*      argument list for NAME, even if they are not used in determining
-*      the value of the parameter specified by ISPEC.
-*  2)  The problem dimensions N1, N2, N3, N4 are specified in the order
-*      that they appear in the argument list for NAME.  N1 is used
-*      first, N2 second, and so on, and unused problem dimensions are
+*  the following conventions have been used when calling ilaenv from the
+*  lapack routines:
+*  1)  opts is a concatenation of all of the character options to
+*      subroutine name, in the same order that they appear in the
+*      argument list for name, even if they are not used in determining
+*      the value of the parameter specified by ispec.
+*  2)  the problem dimensions n1, n2, n3, n4 are specified in the order
+*      that they appear in the argument list for name.  n1 is used
+*      first, n2 second, and so on, and unused problem dimensions are
 *      passed a value of -1.
-*  3)  The parameter value returned by ILAENV is checked for validity in
-*      the calling subroutine.  For example, ILAENV is used to retrieve
-*      the optimal blocksize for STRTRI as follows:
+*  3)  the parameter value returned by ilaenv is checked for validity in
+*      the calling subroutine.  for example, ilaenv is used to retrieve
+*      the optimal blocksize for strtri as follows:
 *
-*      NB = ILAENV( 1, 'STRTRI', UPLO // DIAG, N, -1, -1, -1 )
-*      IF( NB.LE.1 ) NB = MAX( 1, N )
+*      nb = ilaenv( 1, 'strtri', uplo // diag, n, -1, -1, -1 )
+*      if( nb.le.1 ) nb = max( 1, n )
 *
 *  =====================================================================
 *
-*     .. Local Scalars ..
-      INTEGER            I, IC, IZ, NB, NBMIN, NX
-      LOGICAL            CNAME, SNAME
-      CHARACTER          C1*1, C2*2, C4*2, C3*3, SUBNAM*6
+*     .. local scalars ..
+      integer            i, ic, iz, nb, nbmin, nx
+      logical            cname, sname
+      character          c1*1, c2*2, c4*2, c3*3, subnam*6
 *     ..
-*     .. Intrinsic Functions ..
-      INTRINSIC          CHAR, ICHAR, INT, MIN, REAL
+*     .. intrinsic functions ..
+      intrinsic          char, ichar, int, min, real
 *     ..
-*     .. External Functions ..
-      INTEGER            IEEECK, IPARMQ
-      EXTERNAL           IEEECK, IPARMQ
+*     .. external functions ..
+      integer            ieeeck, iparmq
+      external           ieeeck, iparmq
 *     ..
-*     .. Executable Statements ..
+*     .. executable statements ..
 *
-      GO TO ( 10, 10, 10, 80, 90, 100, 110, 120,
-     $        130, 140, 150, 160, 160, 160, 160, 160 )ISPEC
+      go to ( 10, 10, 10, 80, 90, 100, 110, 120,
+     $        130, 140, 150, 160, 160, 160, 160, 160 )ispec
 *
-*     Invalid value for ISPEC
+*     invalid value for ispec
 *
-      ILAENV = -1
-      RETURN
+      ilaenv = -1
+      return
 *
-   10 CONTINUE
+   10 continue
 *
-*     Convert NAME to upper case if the first character is lower case.
+*     convert name to upper case if the first character is lower case.
 *
-      ILAENV = 1
-      SUBNAM = NAME
-      IC = ICHAR( SUBNAM( 1: 1 ) )
-      IZ = ICHAR( 'Z' )
-      IF( IZ.EQ.90 .OR. IZ.EQ.122 ) THEN
+      ilaenv = 1
+      subnam = name
+      ic = ichar( subnam( 1: 1 ) )
+      iz = ichar( 'z' )
+      if( iz.eq.90 .or. iz.eq.122 ) then
 *
-*        ASCII character set
+*        ascii character set
 *
-         IF( IC.GE.97 .AND. IC.LE.122 ) THEN
-            SUBNAM( 1: 1 ) = CHAR( IC-32 )
-            DO 20 I = 2, 6
-               IC = ICHAR( SUBNAM( I: I ) )
-               IF( IC.GE.97 .AND. IC.LE.122 )
-     $            SUBNAM( I: I ) = CHAR( IC-32 )
-   20       CONTINUE
-         END IF
+         if( ic.ge.97 .and. ic.le.122 ) then
+            subnam( 1: 1 ) = char( ic-32 )
+            do 20 i = 2, 6
+               ic = ichar( subnam( i: i ) )
+               if( ic.ge.97 .and. ic.le.122 )
+     $            subnam( i: i ) = char( ic-32 )
+   20       continue
+         end if
 *
-      ELSE IF( IZ.EQ.233 .OR. IZ.EQ.169 ) THEN
+      else if( iz.eq.233 .or. iz.eq.169 ) then
 *
-*        EBCDIC character set
+*        ebcdic character set
 *
-         IF( ( IC.GE.129 .AND. IC.LE.137 ) .OR.
-     $       ( IC.GE.145 .AND. IC.LE.153 ) .OR.
-     $       ( IC.GE.162 .AND. IC.LE.169 ) ) THEN
-            SUBNAM( 1: 1 ) = CHAR( IC+64 )
-            DO 30 I = 2, 6
-               IC = ICHAR( SUBNAM( I: I ) )
-               IF( ( IC.GE.129 .AND. IC.LE.137 ) .OR.
-     $             ( IC.GE.145 .AND. IC.LE.153 ) .OR.
-     $             ( IC.GE.162 .AND. IC.LE.169 ) )SUBNAM( I:
-     $             I ) = CHAR( IC+64 )
-   30       CONTINUE
-         END IF
+         if( ( ic.ge.129 .and. ic.le.137 ) .or.
+     $       ( ic.ge.145 .and. ic.le.153 ) .or.
+     $       ( ic.ge.162 .and. ic.le.169 ) ) then
+            subnam( 1: 1 ) = char( ic+64 )
+            do 30 i = 2, 6
+               ic = ichar( subnam( i: i ) )
+               if( ( ic.ge.129 .and. ic.le.137 ) .or.
+     $             ( ic.ge.145 .and. ic.le.153 ) .or.
+     $             ( ic.ge.162 .and. ic.le.169 ) )subnam( i:
+     $             i ) = char( ic+64 )
+   30       continue
+         end if
 *
-      ELSE IF( IZ.EQ.218 .OR. IZ.EQ.250 ) THEN
+      else if( iz.eq.218 .or. iz.eq.250 ) then
 *
-*        Prime machines:  ASCII+128
+*        prime machines:  ascii+128
 *
-         IF( IC.GE.225 .AND. IC.LE.250 ) THEN
-            SUBNAM( 1: 1 ) = CHAR( IC-32 )
-            DO 40 I = 2, 6
-               IC = ICHAR( SUBNAM( I: I ) )
-               IF( IC.GE.225 .AND. IC.LE.250 )
-     $            SUBNAM( I: I ) = CHAR( IC-32 )
-   40       CONTINUE
-         END IF
-      END IF
+         if( ic.ge.225 .and. ic.le.250 ) then
+            subnam( 1: 1 ) = char( ic-32 )
+            do 40 i = 2, 6
+               ic = ichar( subnam( i: i ) )
+               if( ic.ge.225 .and. ic.le.250 )
+     $            subnam( i: i ) = char( ic-32 )
+   40       continue
+         end if
+      end if
 *
-      C1 = SUBNAM( 1: 1 )
-      SNAME = C1.EQ.'S' .OR. C1.EQ.'D'
-      CNAME = C1.EQ.'C' .OR. C1.EQ.'Z'
-      IF( .NOT.( CNAME .OR. SNAME ) )
-     $   RETURN
-      C2 = SUBNAM( 2: 3 )
-      C3 = SUBNAM( 4: 6 )
-      C4 = C3( 2: 3 )
+      c1 = subnam( 1: 1 )
+      sname = c1.eq.'s' .or. c1.eq.'d'
+      cname = c1.eq.'c' .or. c1.eq.'z'
+      if( .not.( cname .or. sname ) )
+     $   return
+      c2 = subnam( 2: 3 )
+      c3 = subnam( 4: 6 )
+      c4 = c3( 2: 3 )
 *
-      GO TO ( 50, 60, 70 )ISPEC
+      go to ( 50, 60, 70 )ispec
 *
-   50 CONTINUE
+   50 continue
 *
-*     ISPEC = 1:  block size
+*     ispec = 1:  block size
 *
-*     In these examples, separate code is provided for setting NB for
-*     real and complex.  We assume that NB will take the same value in
+*     in these examples, separate code is provided for setting nb for
+*     real and complex.  we assume that nb will take the same value in
 *     single or double precision.
 *
-      NB = 1
+      nb = 1
 *
-      IF( C2.EQ.'GE' ) THEN
-         IF( C3.EQ.'TRF' ) THEN
-            IF( SNAME ) THEN
-               NB = 64
-            ELSE
-               NB = 64
-            END IF
-         ELSE IF( C3.EQ.'QRF' .OR. C3.EQ.'RQF' .OR. C3.EQ.'LQF' .OR.
-     $            C3.EQ.'QLF' ) THEN
-            IF( SNAME ) THEN
-               NB = 32
-            ELSE
-               NB = 32
-            END IF
-         ELSE IF( C3.EQ.'HRD' ) THEN
-            IF( SNAME ) THEN
-               NB = 32
-            ELSE
-               NB = 32
-            END IF
-         ELSE IF( C3.EQ.'BRD' ) THEN
-            IF( SNAME ) THEN
-               NB = 32
-            ELSE
-               NB = 32
-            END IF
-         ELSE IF( C3.EQ.'TRI' ) THEN
-            IF( SNAME ) THEN
-               NB = 64
-            ELSE
-               NB = 64
-            END IF
-         END IF
-      ELSE IF( C2.EQ.'PO' ) THEN
-         IF( C3.EQ.'TRF' ) THEN
-            IF( SNAME ) THEN
-               NB = 64
-            ELSE
-               NB = 64
-            END IF
-         END IF
-      ELSE IF( C2.EQ.'SY' ) THEN
-         IF( C3.EQ.'TRF' ) THEN
-            IF( SNAME ) THEN
-               NB = 64
-            ELSE
-               NB = 64
-            END IF
-         ELSE IF( SNAME .AND. C3.EQ.'TRD' ) THEN
-            NB = 32
-         ELSE IF( SNAME .AND. C3.EQ.'GST' ) THEN
-            NB = 64
-         END IF
-      ELSE IF( CNAME .AND. C2.EQ.'HE' ) THEN
-         IF( C3.EQ.'TRF' ) THEN
-            NB = 64
-         ELSE IF( C3.EQ.'TRD' ) THEN
-            NB = 32
-         ELSE IF( C3.EQ.'GST' ) THEN
-            NB = 64
-         END IF
-      ELSE IF( SNAME .AND. C2.EQ.'OR' ) THEN
-         IF( C3( 1: 1 ).EQ.'G' ) THEN
-            IF( C4.EQ.'QR' .OR. C4.EQ.'RQ' .OR. C4.EQ.'LQ' .OR. C4.EQ.
-     $          'QL' .OR. C4.EQ.'HR' .OR. C4.EQ.'TR' .OR. C4.EQ.'BR' )
-     $           THEN
-               NB = 32
-            END IF
-         ELSE IF( C3( 1: 1 ).EQ.'M' ) THEN
-            IF( C4.EQ.'QR' .OR. C4.EQ.'RQ' .OR. C4.EQ.'LQ' .OR. C4.EQ.
-     $          'QL' .OR. C4.EQ.'HR' .OR. C4.EQ.'TR' .OR. C4.EQ.'BR' )
-     $           THEN
-               NB = 32
-            END IF
-         END IF
-      ELSE IF( CNAME .AND. C2.EQ.'UN' ) THEN
-         IF( C3( 1: 1 ).EQ.'G' ) THEN
-            IF( C4.EQ.'QR' .OR. C4.EQ.'RQ' .OR. C4.EQ.'LQ' .OR. C4.EQ.
-     $          'QL' .OR. C4.EQ.'HR' .OR. C4.EQ.'TR' .OR. C4.EQ.'BR' )
-     $           THEN
-               NB = 32
-            END IF
-         ELSE IF( C3( 1: 1 ).EQ.'M' ) THEN
-            IF( C4.EQ.'QR' .OR. C4.EQ.'RQ' .OR. C4.EQ.'LQ' .OR. C4.EQ.
-     $          'QL' .OR. C4.EQ.'HR' .OR. C4.EQ.'TR' .OR. C4.EQ.'BR' )
-     $           THEN
-               NB = 32
-            END IF
-         END IF
-      ELSE IF( C2.EQ.'GB' ) THEN
-         IF( C3.EQ.'TRF' ) THEN
-            IF( SNAME ) THEN
-               IF( N4.LE.64 ) THEN
-                  NB = 1
-               ELSE
-                  NB = 32
-               END IF
-            ELSE
-               IF( N4.LE.64 ) THEN
-                  NB = 1
-               ELSE
-                  NB = 32
-               END IF
-            END IF
-         END IF
-      ELSE IF( C2.EQ.'PB' ) THEN
-         IF( C3.EQ.'TRF' ) THEN
-            IF( SNAME ) THEN
-               IF( N2.LE.64 ) THEN
-                  NB = 1
-               ELSE
-                  NB = 32
-               END IF
-            ELSE
-               IF( N2.LE.64 ) THEN
-                  NB = 1
-               ELSE
-                  NB = 32
-               END IF
-            END IF
-         END IF
-      ELSE IF( C2.EQ.'TR' ) THEN
-         IF( C3.EQ.'TRI' ) THEN
-            IF( SNAME ) THEN
-               NB = 64
-            ELSE
-               NB = 64
-            END IF
-         END IF
-      ELSE IF( C2.EQ.'LA' ) THEN
-         IF( C3.EQ.'UUM' ) THEN
-            IF( SNAME ) THEN
-               NB = 64
-            ELSE
-               NB = 64
-            END IF
-         END IF
-      ELSE IF( SNAME .AND. C2.EQ.'ST' ) THEN
-         IF( C3.EQ.'EBZ' ) THEN
-            NB = 1
-         END IF
-      END IF
-      ILAENV = NB
-      RETURN
+      if( c2.eq.'ge' ) then
+         if( c3.eq.'trf' ) then
+            if( sname ) then
+               nb = 64
+            else
+               nb = 64
+            end if
+         else if( c3.eq.'qrf' .or. c3.eq.'rqf' .or. c3.eq.'lqf' .or.
+     $            c3.eq.'qlf' ) then
+            if( sname ) then
+               nb = 32
+            else
+               nb = 32
+            end if
+         else if( c3.eq.'hrd' ) then
+            if( sname ) then
+               nb = 32
+            else
+               nb = 32
+            end if
+         else if( c3.eq.'brd' ) then
+            if( sname ) then
+               nb = 32
+            else
+               nb = 32
+            end if
+         else if( c3.eq.'tri' ) then
+            if( sname ) then
+               nb = 64
+            else
+               nb = 64
+            end if
+         end if
+      else if( c2.eq.'po' ) then
+         if( c3.eq.'trf' ) then
+            if( sname ) then
+               nb = 64
+            else
+               nb = 64
+            end if
+         end if
+      else if( c2.eq.'sy' ) then
+         if( c3.eq.'trf' ) then
+            if( sname ) then
+               nb = 64
+            else
+               nb = 64
+            end if
+         else if( sname .and. c3.eq.'trd' ) then
+            nb = 32
+         else if( sname .and. c3.eq.'gst' ) then
+            nb = 64
+         end if
+      else if( cname .and. c2.eq.'he' ) then
+         if( c3.eq.'trf' ) then
+            nb = 64
+         else if( c3.eq.'trd' ) then
+            nb = 32
+         else if( c3.eq.'gst' ) then
+            nb = 64
+         end if
+      else if( sname .and. c2.eq.'or' ) then
+         if( c3( 1: 1 ).eq.'g' ) then
+            if( c4.eq.'qr' .or. c4.eq.'rq' .or. c4.eq.'lq' .or. c4.eq.
+     $          'ql' .or. c4.eq.'hr' .or. c4.eq.'tr' .or. c4.eq.'br' )
+     $           then
+               nb = 32
+            end if
+         else if( c3( 1: 1 ).eq.'m' ) then
+            if( c4.eq.'qr' .or. c4.eq.'rq' .or. c4.eq.'lq' .or. c4.eq.
+     $          'ql' .or. c4.eq.'hr' .or. c4.eq.'tr' .or. c4.eq.'br' )
+     $           then
+               nb = 32
+            end if
+         end if
+      else if( cname .and. c2.eq.'un' ) then
+         if( c3( 1: 1 ).eq.'g' ) then
+            if( c4.eq.'qr' .or. c4.eq.'rq' .or. c4.eq.'lq' .or. c4.eq.
+     $          'ql' .or. c4.eq.'hr' .or. c4.eq.'tr' .or. c4.eq.'br' )
+     $           then
+               nb = 32
+            end if
+         else if( c3( 1: 1 ).eq.'m' ) then
+            if( c4.eq.'qr' .or. c4.eq.'rq' .or. c4.eq.'lq' .or. c4.eq.
+     $          'ql' .or. c4.eq.'hr' .or. c4.eq.'tr' .or. c4.eq.'br' )
+     $           then
+               nb = 32
+            end if
+         end if
+      else if( c2.eq.'gb' ) then
+         if( c3.eq.'trf' ) then
+            if( sname ) then
+               if( n4.le.64 ) then
+                  nb = 1
+               else
+                  nb = 32
+               end if
+            else
+               if( n4.le.64 ) then
+                  nb = 1
+               else
+                  nb = 32
+               end if
+            end if
+         end if
+      else if( c2.eq.'pb' ) then
+         if( c3.eq.'trf' ) then
+            if( sname ) then
+               if( n2.le.64 ) then
+                  nb = 1
+               else
+                  nb = 32
+               end if
+            else
+               if( n2.le.64 ) then
+                  nb = 1
+               else
+                  nb = 32
+               end if
+            end if
+         end if
+      else if( c2.eq.'tr' ) then
+         if( c3.eq.'tri' ) then
+            if( sname ) then
+               nb = 64
+            else
+               nb = 64
+            end if
+         end if
+      else if( c2.eq.'la' ) then
+         if( c3.eq.'uum' ) then
+            if( sname ) then
+               nb = 64
+            else
+               nb = 64
+            end if
+         end if
+      else if( sname .and. c2.eq.'st' ) then
+         if( c3.eq.'ebz' ) then
+            nb = 1
+         end if
+      end if
+      ilaenv = nb
+      return
 *
-   60 CONTINUE
+   60 continue
 *
-*     ISPEC = 2:  minimum block size
+*     ispec = 2:  minimum block size
 *
-      NBMIN = 2
-      IF( C2.EQ.'GE' ) THEN
-         IF( C3.EQ.'QRF' .OR. C3.EQ.'RQF' .OR. C3.EQ.'LQF' .OR. C3.EQ.
-     $       'QLF' ) THEN
-            IF( SNAME ) THEN
-               NBMIN = 2
-            ELSE
-               NBMIN = 2
-            END IF
-         ELSE IF( C3.EQ.'HRD' ) THEN
-            IF( SNAME ) THEN
-               NBMIN = 2
-            ELSE
-               NBMIN = 2
-            END IF
-         ELSE IF( C3.EQ.'BRD' ) THEN
-            IF( SNAME ) THEN
-               NBMIN = 2
-            ELSE
-               NBMIN = 2
-            END IF
-         ELSE IF( C3.EQ.'TRI' ) THEN
-            IF( SNAME ) THEN
-               NBMIN = 2
-            ELSE
-               NBMIN = 2
-            END IF
-         END IF
-      ELSE IF( C2.EQ.'SY' ) THEN
-         IF( C3.EQ.'TRF' ) THEN
-            IF( SNAME ) THEN
-               NBMIN = 8
-            ELSE
-               NBMIN = 8
-            END IF
-         ELSE IF( SNAME .AND. C3.EQ.'TRD' ) THEN
-            NBMIN = 2
-         END IF
-      ELSE IF( CNAME .AND. C2.EQ.'HE' ) THEN
-         IF( C3.EQ.'TRD' ) THEN
-            NBMIN = 2
-         END IF
-      ELSE IF( SNAME .AND. C2.EQ.'OR' ) THEN
-         IF( C3( 1: 1 ).EQ.'G' ) THEN
-            IF( C4.EQ.'QR' .OR. C4.EQ.'RQ' .OR. C4.EQ.'LQ' .OR. C4.EQ.
-     $          'QL' .OR. C4.EQ.'HR' .OR. C4.EQ.'TR' .OR. C4.EQ.'BR' )
-     $           THEN
-               NBMIN = 2
-            END IF
-         ELSE IF( C3( 1: 1 ).EQ.'M' ) THEN
-            IF( C4.EQ.'QR' .OR. C4.EQ.'RQ' .OR. C4.EQ.'LQ' .OR. C4.EQ.
-     $          'QL' .OR. C4.EQ.'HR' .OR. C4.EQ.'TR' .OR. C4.EQ.'BR' )
-     $           THEN
-               NBMIN = 2
-            END IF
-         END IF
-      ELSE IF( CNAME .AND. C2.EQ.'UN' ) THEN
-         IF( C3( 1: 1 ).EQ.'G' ) THEN
-            IF( C4.EQ.'QR' .OR. C4.EQ.'RQ' .OR. C4.EQ.'LQ' .OR. C4.EQ.
-     $          'QL' .OR. C4.EQ.'HR' .OR. C4.EQ.'TR' .OR. C4.EQ.'BR' )
-     $           THEN
-               NBMIN = 2
-            END IF
-         ELSE IF( C3( 1: 1 ).EQ.'M' ) THEN
-            IF( C4.EQ.'QR' .OR. C4.EQ.'RQ' .OR. C4.EQ.'LQ' .OR. C4.EQ.
-     $          'QL' .OR. C4.EQ.'HR' .OR. C4.EQ.'TR' .OR. C4.EQ.'BR' )
-     $           THEN
-               NBMIN = 2
-            END IF
-         END IF
-      END IF
-      ILAENV = NBMIN
-      RETURN
+      nbmin = 2
+      if( c2.eq.'ge' ) then
+         if( c3.eq.'qrf' .or. c3.eq.'rqf' .or. c3.eq.'lqf' .or. c3.eq.
+     $       'qlf' ) then
+            if( sname ) then
+               nbmin = 2
+            else
+               nbmin = 2
+            end if
+         else if( c3.eq.'hrd' ) then
+            if( sname ) then
+               nbmin = 2
+            else
+               nbmin = 2
+            end if
+         else if( c3.eq.'brd' ) then
+            if( sname ) then
+               nbmin = 2
+            else
+               nbmin = 2
+            end if
+         else if( c3.eq.'tri' ) then
+            if( sname ) then
+               nbmin = 2
+            else
+               nbmin = 2
+            end if
+         end if
+      else if( c2.eq.'sy' ) then
+         if( c3.eq.'trf' ) then
+            if( sname ) then
+               nbmin = 8
+            else
+               nbmin = 8
+            end if
+         else if( sname .and. c3.eq.'trd' ) then
+            nbmin = 2
+         end if
+      else if( cname .and. c2.eq.'he' ) then
+         if( c3.eq.'trd' ) then
+            nbmin = 2
+         end if
+      else if( sname .and. c2.eq.'or' ) then
+         if( c3( 1: 1 ).eq.'g' ) then
+            if( c4.eq.'qr' .or. c4.eq.'rq' .or. c4.eq.'lq' .or. c4.eq.
+     $          'ql' .or. c4.eq.'hr' .or. c4.eq.'tr' .or. c4.eq.'br' )
+     $           then
+               nbmin = 2
+            end if
+         else if( c3( 1: 1 ).eq.'m' ) then
+            if( c4.eq.'qr' .or. c4.eq.'rq' .or. c4.eq.'lq' .or. c4.eq.
+     $          'ql' .or. c4.eq.'hr' .or. c4.eq.'tr' .or. c4.eq.'br' )
+     $           then
+               nbmin = 2
+            end if
+         end if
+      else if( cname .and. c2.eq.'un' ) then
+         if( c3( 1: 1 ).eq.'g' ) then
+            if( c4.eq.'qr' .or. c4.eq.'rq' .or. c4.eq.'lq' .or. c4.eq.
+     $          'ql' .or. c4.eq.'hr' .or. c4.eq.'tr' .or. c4.eq.'br' )
+     $           then
+               nbmin = 2
+            end if
+         else if( c3( 1: 1 ).eq.'m' ) then
+            if( c4.eq.'qr' .or. c4.eq.'rq' .or. c4.eq.'lq' .or. c4.eq.
+     $          'ql' .or. c4.eq.'hr' .or. c4.eq.'tr' .or. c4.eq.'br' )
+     $           then
+               nbmin = 2
+            end if
+         end if
+      end if
+      ilaenv = nbmin
+      return
 *
-   70 CONTINUE
+   70 continue
 *
-*     ISPEC = 3:  crossover point
+*     ispec = 3:  crossover point
 *
-      NX = 0
-      IF( C2.EQ.'GE' ) THEN
-         IF( C3.EQ.'QRF' .OR. C3.EQ.'RQF' .OR. C3.EQ.'LQF' .OR. C3.EQ.
-     $       'QLF' ) THEN
-            IF( SNAME ) THEN
-               NX = 128
-            ELSE
-               NX = 128
-            END IF
-         ELSE IF( C3.EQ.'HRD' ) THEN
-            IF( SNAME ) THEN
-               NX = 128
-            ELSE
-               NX = 128
-            END IF
-         ELSE IF( C3.EQ.'BRD' ) THEN
-            IF( SNAME ) THEN
-               NX = 128
-            ELSE
-               NX = 128
-            END IF
-         END IF
-      ELSE IF( C2.EQ.'SY' ) THEN
-         IF( SNAME .AND. C3.EQ.'TRD' ) THEN
-            NX = 32
-         END IF
-      ELSE IF( CNAME .AND. C2.EQ.'HE' ) THEN
-         IF( C3.EQ.'TRD' ) THEN
-            NX = 32
-         END IF
-      ELSE IF( SNAME .AND. C2.EQ.'OR' ) THEN
-         IF( C3( 1: 1 ).EQ.'G' ) THEN
-            IF( C4.EQ.'QR' .OR. C4.EQ.'RQ' .OR. C4.EQ.'LQ' .OR. C4.EQ.
-     $          'QL' .OR. C4.EQ.'HR' .OR. C4.EQ.'TR' .OR. C4.EQ.'BR' )
-     $           THEN
-               NX = 128
-            END IF
-         END IF
-      ELSE IF( CNAME .AND. C2.EQ.'UN' ) THEN
-         IF( C3( 1: 1 ).EQ.'G' ) THEN
-            IF( C4.EQ.'QR' .OR. C4.EQ.'RQ' .OR. C4.EQ.'LQ' .OR. C4.EQ.
-     $          'QL' .OR. C4.EQ.'HR' .OR. C4.EQ.'TR' .OR. C4.EQ.'BR' )
-     $           THEN
-               NX = 128
-            END IF
-         END IF
-      END IF
-      ILAENV = NX
-      RETURN
+      nx = 0
+      if( c2.eq.'ge' ) then
+         if( c3.eq.'qrf' .or. c3.eq.'rqf' .or. c3.eq.'lqf' .or. c3.eq.
+     $       'qlf' ) then
+            if( sname ) then
+               nx = 128
+            else
+               nx = 128
+            end if
+         else if( c3.eq.'hrd' ) then
+            if( sname ) then
+               nx = 128
+            else
+               nx = 128
+            end if
+         else if( c3.eq.'brd' ) then
+            if( sname ) then
+               nx = 128
+            else
+               nx = 128
+            end if
+         end if
+      else if( c2.eq.'sy' ) then
+         if( sname .and. c3.eq.'trd' ) then
+            nx = 32
+         end if
+      else if( cname .and. c2.eq.'he' ) then
+         if( c3.eq.'trd' ) then
+            nx = 32
+         end if
+      else if( sname .and. c2.eq.'or' ) then
+         if( c3( 1: 1 ).eq.'g' ) then
+            if( c4.eq.'qr' .or. c4.eq.'rq' .or. c4.eq.'lq' .or. c4.eq.
+     $          'ql' .or. c4.eq.'hr' .or. c4.eq.'tr' .or. c4.eq.'br' )
+     $           then
+               nx = 128
+            end if
+         end if
+      else if( cname .and. c2.eq.'un' ) then
+         if( c3( 1: 1 ).eq.'g' ) then
+            if( c4.eq.'qr' .or. c4.eq.'rq' .or. c4.eq.'lq' .or. c4.eq.
+     $          'ql' .or. c4.eq.'hr' .or. c4.eq.'tr' .or. c4.eq.'br' )
+     $           then
+               nx = 128
+            end if
+         end if
+      end if
+      ilaenv = nx
+      return
 *
-   80 CONTINUE
+   80 continue
 *
-*     ISPEC = 4:  number of shifts (used by xHSEQR)
+*     ispec = 4:  number of shifts (used by xhseqr)
 *
-      ILAENV = 6
-      RETURN
+      ilaenv = 6
+      return
 *
-   90 CONTINUE
+   90 continue
 *
-*     ISPEC = 5:  minimum column dimension (not used)
+*     ispec = 5:  minimum column dimension (not used)
 *
-      ILAENV = 2
-      RETURN
+      ilaenv = 2
+      return
 *
-  100 CONTINUE
+  100 continue
 *
-*     ISPEC = 6:  crossover point for SVD (used by xGELSS and xGESVD)
+*     ispec = 6:  crossover point for svd (used by xgelss and xgesvd)
 *
-      ILAENV = INT( REAL( MIN( N1, N2 ) )*1.6E0 )
-      RETURN
+      ilaenv = int( real( min( n1, n2 ) )*1.6e0 )
+      return
 *
-  110 CONTINUE
+  110 continue
 *
-*     ISPEC = 7:  number of processors (not used)
+*     ispec = 7:  number of processors (not used)
 *
-      ILAENV = 1
-      RETURN
+      ilaenv = 1
+      return
 *
-  120 CONTINUE
+  120 continue
 *
-*     ISPEC = 8:  crossover point for multishift (used by xHSEQR)
+*     ispec = 8:  crossover point for multishift (used by xhseqr)
 *
-      ILAENV = 50
-      RETURN
+      ilaenv = 50
+      return
 *
-  130 CONTINUE
+  130 continue
 *
-*     ISPEC = 9:  maximum size of the subproblems at the bottom of the
+*     ispec = 9:  maximum size of the subproblems at the bottom of the
 *                 computation tree in the divide-and-conquer algorithm
-*                 (used by xGELSD and xGESDD)
+*                 (used by xgelsd and xgesdd)
 *
-      ILAENV = 25
-      RETURN
+      ilaenv = 25
+      return
 *
-  140 CONTINUE
+  140 continue
 *
-*     ISPEC = 10: ieee NaN arithmetic can be trusted not to trap
+*     ispec = 10: ieee nan arithmetic can be trusted not to trap
 *
-*     ILAENV = 0
-      ILAENV = 1
-      IF( ILAENV.EQ.1 ) THEN
-         ILAENV = IEEECK( 1, 0.0, 1.0 )
-      END IF
-      RETURN
+*     ilaenv = 0
+      ilaenv = 1
+      if( ilaenv.eq.1 ) then
+         ilaenv = ieeeck( 1, 0.0, 1.0 )
+      end if
+      return
 *
-  150 CONTINUE
+  150 continue
 *
-*     ISPEC = 11: infinity arithmetic can be trusted not to trap
+*     ispec = 11: infinity arithmetic can be trusted not to trap
 *
-*     ILAENV = 0
-      ILAENV = 1
-      IF( ILAENV.EQ.1 ) THEN
-         ILAENV = IEEECK( 0, 0.0, 1.0 )
-      END IF
-      RETURN
+*     ilaenv = 0
+      ilaenv = 1
+      if( ilaenv.eq.1 ) then
+         ilaenv = ieeeck( 0, 0.0, 1.0 )
+      end if
+      return
 *
-  160 CONTINUE
+  160 continue
 *
-*     12 <= ISPEC <= 16: xHSEQR or one of its subroutines. 
+*     12 <= ispec <= 16: xhseqr or one of its subroutines. 
 *
-      ILAENV = IPARMQ( ISPEC, NAME, OPTS, N1, N2, N3, N4 )
-      RETURN
+      ilaenv = iparmq( ispec, name, opts, n1, n2, n3, n4 )
+      return
 *
-*     End of ILAENV
+*     end of ilaenv
 *
-      END
+      end
 ccc
-      INTEGER          FUNCTION IEEECK( ISPEC, ZERO, ONE )
+      integer          function ieeeck( ispec, zero, one )
 *
-*  -- LAPACK auxiliary routine (version 3.2.2) --
-*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
-*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     June 2010
+*  -- lapack auxiliary routine (version 3.2.2) --
+*  -- lapack is a software package provided by univ. of tennessee,    --
+*  -- univ. of california berkeley, univ. of colorado denver and nag ltd..--
+*     june 2010
 *
-*     .. Scalar Arguments ..
-      INTEGER            ISPEC
-      REAL               ONE, ZERO
+*     .. scalar arguments ..
+      integer            ispec
+      real               one, zero
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  IEEECK is called from the ILAENV to verify that Infinity and
-*  possibly NaN arithmetic is safe (i.e. will not trap).
+*  ieeeck is called from the ilaenv to verify that infinity and
+*  possibly nan arithmetic is safe (i.e. will not trap).
 *
-*  Arguments
+*  arguments
 *  =========
 *
-*  ISPEC   (input) INTEGER
-*          Specifies whether to test just for inifinity arithmetic
-*          or whether to test for infinity and NaN arithmetic.
-*          = 0: Verify infinity arithmetic only.
-*          = 1: Verify infinity and NaN arithmetic.
+*  ispec   (input) integer
+*          specifies whether to test just for inifinity arithmetic
+*          or whether to test for infinity and nan arithmetic.
+*          = 0: verify infinity arithmetic only.
+*          = 1: verify infinity and nan arithmetic.
 *
-*  ZERO    (input) REAL
-*          Must contain the value 0.0
-*          This is passed to prevent the compiler from optimizing
+*  zero    (input) real
+*          must contain the value 0.0
+*          this is passed to prevent the compiler from optimizing
 *          away this code.
 *
-*  ONE     (input) REAL
-*          Must contain the value 1.0
-*          This is passed to prevent the compiler from optimizing
+*  one     (input) real
+*          must contain the value 1.0
+*          this is passed to prevent the compiler from optimizing
 *          away this code.
 *
-*  RETURN VALUE:  INTEGER
-*          = 0:  Arithmetic failed to produce the correct answers
-*          = 1:  Arithmetic produced the correct answers
+*  return value:  integer
+*          = 0:  arithmetic failed to produce the correct answers
+*          = 1:  arithmetic produced the correct answers
 *
-*     .. Local Scalars ..
-      REAL               NAN1, NAN2, NAN3, NAN4, NAN5, NAN6, NEGINF,
-     $                   NEGZRO, NEWZRO, POSINF
+*     .. local scalars ..
+      real               nan1, nan2, nan3, nan4, nan5, nan6, neginf,
+     $                   negzro, newzro, posinf
 *     ..
-*     .. Executable Statements ..
-      IEEECK = 1
+*     .. executable statements ..
+      ieeeck = 1
 *
-      POSINF = ONE / ZERO
-      IF( POSINF.LE.ONE ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
+      posinf = one / zero
+      if( posinf.le.one ) then
+         ieeeck = 0
+         return
+      end if
 *
-      NEGINF = -ONE / ZERO
-      IF( NEGINF.GE.ZERO ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
+      neginf = -one / zero
+      if( neginf.ge.zero ) then
+         ieeeck = 0
+         return
+      end if
 *
-      NEGZRO = ONE / ( NEGINF+ONE )
-      IF( NEGZRO.NE.ZERO ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
+      negzro = one / ( neginf+one )
+      if( negzro.ne.zero ) then
+         ieeeck = 0
+         return
+      end if
 *
-      NEGINF = ONE / NEGZRO
-      IF( NEGINF.GE.ZERO ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
+      neginf = one / negzro
+      if( neginf.ge.zero ) then
+         ieeeck = 0
+         return
+      end if
 *
-      NEWZRO = NEGZRO + ZERO
-      IF( NEWZRO.NE.ZERO ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
+      newzro = negzro + zero
+      if( newzro.ne.zero ) then
+         ieeeck = 0
+         return
+      end if
 *
-      POSINF = ONE / NEWZRO
-      IF( POSINF.LE.ONE ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
+      posinf = one / newzro
+      if( posinf.le.one ) then
+         ieeeck = 0
+         return
+      end if
 *
-      NEGINF = NEGINF*POSINF
-      IF( NEGINF.GE.ZERO ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
+      neginf = neginf*posinf
+      if( neginf.ge.zero ) then
+         ieeeck = 0
+         return
+      end if
 *
-      POSINF = POSINF*POSINF
-      IF( POSINF.LE.ONE ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
-*
-*
+      posinf = posinf*posinf
+      if( posinf.le.one ) then
+         ieeeck = 0
+         return
+      end if
 *
 *
-*     Return if we were only asked to check infinity arithmetic
 *
-      IF( ISPEC.EQ.0 )
-     $   RETURN
 *
-      NAN1 = POSINF + NEGINF
+*     return if we were only asked to check infinity arithmetic
 *
-      NAN2 = POSINF / NEGINF
+      if( ispec.eq.0 )
+     $   return
 *
-      NAN3 = POSINF / POSINF
+      nan1 = posinf + neginf
 *
-      NAN4 = POSINF*ZERO
+      nan2 = posinf / neginf
 *
-      NAN5 = NEGINF*NEGZRO
+      nan3 = posinf / posinf
 *
-      NAN6 = NAN5*ZERO
+      nan4 = posinf*zero
 *
-      IF( NAN1.EQ.NAN1 ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
+      nan5 = neginf*negzro
 *
-      IF( NAN2.EQ.NAN2 ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
+      nan6 = nan5*zero
 *
-      IF( NAN3.EQ.NAN3 ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
+      if( nan1.eq.nan1 ) then
+         ieeeck = 0
+         return
+      end if
 *
-      IF( NAN4.EQ.NAN4 ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
+      if( nan2.eq.nan2 ) then
+         ieeeck = 0
+         return
+      end if
 *
-      IF( NAN5.EQ.NAN5 ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
+      if( nan3.eq.nan3 ) then
+         ieeeck = 0
+         return
+      end if
 *
-      IF( NAN6.EQ.NAN6 ) THEN
-         IEEECK = 0
-         RETURN
-      END IF
+      if( nan4.eq.nan4 ) then
+         ieeeck = 0
+         return
+      end if
 *
-      RETURN
-      END
+      if( nan5.eq.nan5 ) then
+         ieeeck = 0
+         return
+      end if
+*
+      if( nan6.eq.nan6 ) then
+         ieeeck = 0
+         return
+      end if
+*
+      return
+      end
 ccc
-      INTEGER FUNCTION IDAMAX(N,DX,INCX)
-*     .. Scalar Arguments ..
-      INTEGER INCX,N
+      integer function idamax(n,dx,incx)
+*     .. scalar arguments ..
+      integer incx,n
 *     ..
-*     .. Array Arguments ..
-      DOUBLE PRECISION DX(*)
+*     .. array arguments ..
+      double precision dx(*)
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*     IDAMAX finds the index of element having max. absolute value.
+*     idamax finds the index of element having max. absolute value.
 *
-*  Further Details
+*  further details
 *  ===============
 *
 *     jack dongarra, linpack, 3/11/78.
@@ -3399,418 +3399,418 @@ ccc
 *
 *  =====================================================================
 *
-*     .. Local Scalars ..
-      DOUBLE PRECISION DMAX
-      INTEGER I,IX
+*     .. local scalars ..
+      double precision dmax
+      integer i,ix
 *     ..
-*     .. Intrinsic Functions ..
-      INTRINSIC DABS
+*     .. intrinsic functions ..
+      intrinsic dabs
 *     ..
-      IDAMAX = 0
-      IF (N.LT.1 .OR. INCX.LE.0) RETURN
-      IDAMAX = 1
-      IF (N.EQ.1) RETURN
-      IF (INCX.EQ.1) GO TO 20
+      idamax = 0
+      if (n.lt.1 .or. incx.le.0) return
+      idamax = 1
+      if (n.eq.1) return
+      if (incx.eq.1) go to 20
 *
 *        code for increment not equal to 1
 *
-      IX = 1
-      DMAX = DABS(DX(1))
-      IX = IX + INCX
-      DO 10 I = 2,N
-          IF (DABS(DX(IX)).LE.DMAX) GO TO 5
-          IDAMAX = I
-          DMAX = DABS(DX(IX))
-    5     IX = IX + INCX
-   10 CONTINUE
-      RETURN
+      ix = 1
+      dmax = dabs(dx(1))
+      ix = ix + incx
+      do 10 i = 2,n
+          if (dabs(dx(ix)).le.dmax) go to 5
+          idamax = i
+          dmax = dabs(dx(ix))
+    5     ix = ix + incx
+   10 continue
+      return
 *
 *        code for increment equal to 1
 *
-   20 DMAX = DABS(DX(1))
-      DO 30 I = 2,N
-          IF (DABS(DX(I)).LE.DMAX) GO TO 30
-          IDAMAX = I
-          DMAX = DABS(DX(I))
-   30 CONTINUE
-      RETURN
-      END
+   20 dmax = dabs(dx(1))
+      do 30 i = 2,n
+          if (dabs(dx(i)).le.dmax) go to 30
+          idamax = i
+          dmax = dabs(dx(i))
+   30 continue
+      return
+      end
 ccc
-      LOGICAL FUNCTION LSAME(CA,CB)
+      logical function lsame(ca,cb)
 *
-*  -- LAPACK auxiliary routine (version 3.1) --
-*     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
-*     November 2006
+*  -- lapack auxiliary routine (version 3.1) --
+*     univ. of tennessee, univ. of california berkeley and nag ltd..
+*     november 2006
 *
-*     .. Scalar Arguments ..
-      CHARACTER CA,CB
+*     .. scalar arguments ..
+      character ca,cb
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  LSAME returns .TRUE. if CA is the same letter as CB regardless of
+*  lsame returns .true. if ca is the same letter as cb regardless of
 *  case.
 *
-*  Arguments
+*  arguments
 *  =========
 *
-*  CA      (input) CHARACTER*1
+*  ca      (input) character*1
 *
-*  CB      (input) CHARACTER*1
-*          CA and CB specify the single characters to be compared.
+*  cb      (input) character*1
+*          ca and cb specify the single characters to be compared.
 *
 * =====================================================================
 *
-*     .. Intrinsic Functions ..
-      INTRINSIC ICHAR
+*     .. intrinsic functions ..
+      intrinsic ichar
 *     ..
-*     .. Local Scalars ..
-      INTEGER INTA,INTB,ZCODE
+*     .. local scalars ..
+      integer inta,intb,zcode
 *     ..
 *
-*     Test if the characters are equal
+*     test if the characters are equal
 *
-      LSAME = CA .EQ. CB
-      IF (LSAME) RETURN
+      lsame = ca .eq. cb
+      if (lsame) return
 *
-*     Now test for equivalence if both characters are alphabetic.
+*     now test for equivalence if both characters are alphabetic.
 *
-      ZCODE = ICHAR('Z')
+      zcode = ichar('z')
 *
-*     Use 'Z' rather than 'A' so that ASCII can be detected on Prime
-*     machines, on which ICHAR returns a value with bit 8 set.
-*     ICHAR('A') on Prime machines returns 193 which is the same as
-*     ICHAR('A') on an EBCDIC machine.
+*     use 'z' rather than 'a' so that ascii can be detected on prime
+*     machines, on which ichar returns a value with bit 8 set.
+*     ichar('a') on prime machines returns 193 which is the same as
+*     ichar('a') on an ebcdic machine.
 *
-      INTA = ICHAR(CA)
-      INTB = ICHAR(CB)
+      inta = ichar(ca)
+      intb = ichar(cb)
 *
-      IF (ZCODE.EQ.90 .OR. ZCODE.EQ.122) THEN
+      if (zcode.eq.90 .or. zcode.eq.122) then
 *
-*        ASCII is assumed - ZCODE is the ASCII code of either lower or
-*        upper case 'Z'.
+*        ascii is assumed - zcode is the ascii code of either lower or
+*        upper case 'z'.
 *
-          IF (INTA.GE.97 .AND. INTA.LE.122) INTA = INTA - 32
-          IF (INTB.GE.97 .AND. INTB.LE.122) INTB = INTB - 32
+          if (inta.ge.97 .and. inta.le.122) inta = inta - 32
+          if (intb.ge.97 .and. intb.le.122) intb = intb - 32
 *
-      ELSE IF (ZCODE.EQ.233 .OR. ZCODE.EQ.169) THEN
+      else if (zcode.eq.233 .or. zcode.eq.169) then
 *
-*        EBCDIC is assumed - ZCODE is the EBCDIC code of either lower or
-*        upper case 'Z'.
+*        ebcdic is assumed - zcode is the ebcdic code of either lower or
+*        upper case 'z'.
 *
-          IF (INTA.GE.129 .AND. INTA.LE.137 .OR.
-     +        INTA.GE.145 .AND. INTA.LE.153 .OR.
-     +        INTA.GE.162 .AND. INTA.LE.169) INTA = INTA + 64
-          IF (INTB.GE.129 .AND. INTB.LE.137 .OR.
-     +        INTB.GE.145 .AND. INTB.LE.153 .OR.
-     +        INTB.GE.162 .AND. INTB.LE.169) INTB = INTB + 64
+          if (inta.ge.129 .and. inta.le.137 .or.
+     +        inta.ge.145 .and. inta.le.153 .or.
+     +        inta.ge.162 .and. inta.le.169) inta = inta + 64
+          if (intb.ge.129 .and. intb.le.137 .or.
+     +        intb.ge.145 .and. intb.le.153 .or.
+     +        intb.ge.162 .and. intb.le.169) intb = intb + 64
 *
-      ELSE IF (ZCODE.EQ.218 .OR. ZCODE.EQ.250) THEN
+      else if (zcode.eq.218 .or. zcode.eq.250) then
 *
-*        ASCII is assumed, on Prime machines - ZCODE is the ASCII code
-*        plus 128 of either lower or upper case 'Z'.
+*        ascii is assumed, on prime machines - zcode is the ascii code
+*        plus 128 of either lower or upper case 'z'.
 *
-          IF (INTA.GE.225 .AND. INTA.LE.250) INTA = INTA - 32
-          IF (INTB.GE.225 .AND. INTB.LE.250) INTB = INTB - 32
-      END IF
-      LSAME = INTA .EQ. INTB
+          if (inta.ge.225 .and. inta.le.250) inta = inta - 32
+          if (intb.ge.225 .and. intb.le.250) intb = intb - 32
+      end if
+      lsame = inta .eq. intb
 *
-*     RETURN
+*     return
 *
-*     End of LSAME
+*     end of lsame
 *
-      END
+      end
 ccc
-      INTEGER FUNCTION IPARMQ( ISPEC, NAME, OPTS, N, ILO, IHI, LWORK )
+      integer function iparmq( ispec, name, opts, n, ilo, ihi, lwork )
 *
-*  -- LAPACK auxiliary routine (version 3.2) --
-*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
-*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     November 2006
+*  -- lapack auxiliary routine (version 3.2) --
+*  -- lapack is a software package provided by univ. of tennessee,    --
+*  -- univ. of california berkeley, univ. of colorado denver and nag ltd..--
+*     november 2006
 *     
-*     .. Scalar Arguments ..
-      INTEGER            IHI, ILO, ISPEC, LWORK, N
-      CHARACTER          NAME*( * ), OPTS*( * )
+*     .. scalar arguments ..
+      integer            ihi, ilo, ispec, lwork, n
+      character          name*( * ), opts*( * )
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*       This program sets problem and machine dependent parameters
-*       useful for xHSEQR and its subroutines. It is called whenever 
-*       ILAENV is called with 12 <= ISPEC <= 16
+*       this program sets problem and machine dependent parameters
+*       useful for xhseqr and its subroutines. it is called whenever 
+*       ilaenv is called with 12 <= ispec <= 16
 *
-*  Arguments
+*  arguments
 *  =========
 *
-*       ISPEC  (input) integer scalar
-*              ISPEC specifies which tunable parameter IPARMQ should
+*       ispec  (input) integer scalar
+*              ispec specifies which tunable parameter iparmq should
 *              return.
 *
-*              ISPEC=12: (INMIN)  Matrices of order nmin or less
-*                        are sent directly to xLAHQR, the implicit
-*                        double shift QR algorithm.  NMIN must be
+*              ispec=12: (inmin)  matrices of order nmin or less
+*                        are sent directly to xlahqr, the implicit
+*                        double shift qr algorithm.  nmin must be
 *                        at least 11.
 *
-*              ISPEC=13: (INWIN)  Size of the deflation window.
-*                        This is best set greater than or equal to
-*                        the number of simultaneous shifts NS.
-*                        Larger matrices benefit from larger deflation
+*              ispec=13: (inwin)  size of the deflation window.
+*                        this is best set greater than or equal to
+*                        the number of simultaneous shifts ns.
+*                        larger matrices benefit from larger deflation
 *                        windows.
 *
-*              ISPEC=14: (INIBL) Determines when to stop nibbling and
-*                        invest in an (expensive) multi-shift QR sweep.
-*                        If the aggressive early deflation subroutine
-*                        finds LD converged eigenvalues from an order
-*                        NW deflation window and LD.GT.(NW*NIBBLE)/100,
-*                        then the next QR sweep is skipped and early
+*              ispec=14: (inibl) determines when to stop nibbling and
+*                        invest in an (expensive) multi-shift qr sweep.
+*                        if the aggressive early deflation subroutine
+*                        finds ld converged eigenvalues from an order
+*                        nw deflation window and ld.gt.(nw*nibble)/100,
+*                        then the next qr sweep is skipped and early
 *                        deflation is applied immediately to the
-*                        remaining active diagonal block.  Setting
-*                        IPARMQ(ISPEC=14) = 0 causes TTQRE to skip a
-*                        multi-shift QR sweep whenever early deflation
-*                        finds a converged eigenvalue.  Setting
-*                        IPARMQ(ISPEC=14) greater than or equal to 100
-*                        prevents TTQRE from skipping a multi-shift
-*                        QR sweep.
+*                        remaining active diagonal block.  setting
+*                        iparmq(ispec=14) = 0 causes ttqre to skip a
+*                        multi-shift qr sweep whenever early deflation
+*                        finds a converged eigenvalue.  setting
+*                        iparmq(ispec=14) greater than or equal to 100
+*                        prevents ttqre from skipping a multi-shift
+*                        qr sweep.
 *
-*              ISPEC=15: (NSHFTS) The number of simultaneous shifts in
-*                        a multi-shift QR iteration.
+*              ispec=15: (nshfts) the number of simultaneous shifts in
+*                        a multi-shift qr iteration.
 *
-*              ISPEC=16: (IACC22) IPARMQ is set to 0, 1 or 2 with the
+*              ispec=16: (iacc22) iparmq is set to 0, 1 or 2 with the
 *                        following meanings.
-*                        0:  During the multi-shift QR sweep,
-*                            xLAQR5 does not accumulate reflections and
+*                        0:  during the multi-shift qr sweep,
+*                            xlaqr5 does not accumulate reflections and
 *                            does not use matrix-matrix multiply to
 *                            update the far-from-diagonal matrix
 *                            entries.
-*                        1:  During the multi-shift QR sweep,
-*                            xLAQR5 and/or xLAQRaccumulates reflections and uses
+*                        1:  during the multi-shift qr sweep,
+*                            xlaqr5 and/or xlaqraccumulates reflections and uses
 *                            matrix-matrix multiply to update the
 *                            far-from-diagonal matrix entries.
-*                        2:  During the multi-shift QR sweep.
-*                            xLAQR5 accumulates reflections and takes
+*                        2:  during the multi-shift qr sweep.
+*                            xlaqr5 accumulates reflections and takes
 *                            advantage of 2-by-2 block structure during
 *                            matrix-matrix multiplies.
-*                        (If xTRMM is slower than xGEMM, then
-*                        IPARMQ(ISPEC=16)=1 may be more efficient than
-*                        IPARMQ(ISPEC=16)=2 despite the greater level of
+*                        (if xtrmm is slower than xgemm, then
+*                        iparmq(ispec=16)=1 may be more efficient than
+*                        iparmq(ispec=16)=2 despite the greater level of
 *                        arithmetic work implied by the latter choice.)
 *
-*       NAME    (input) character string
-*               Name of the calling subroutine
+*       name    (input) character string
+*               name of the calling subroutine
 *
-*       OPTS    (input) character string
-*               This is a concatenation of the string arguments to
-*               TTQRE.
+*       opts    (input) character string
+*               this is a concatenation of the string arguments to
+*               ttqre.
 *
-*       N       (input) integer scalar
-*               N is the order of the Hessenberg matrix H.
+*       n       (input) integer scalar
+*               n is the order of the hessenberg matrix h.
 *
-*       ILO     (input) INTEGER
-*       IHI     (input) INTEGER
-*               It is assumed that H is already upper triangular
-*               in rows and columns 1:ILO-1 and IHI+1:N.
+*       ilo     (input) integer
+*       ihi     (input) integer
+*               it is assumed that h is already upper triangular
+*               in rows and columns 1:ilo-1 and ihi+1:n.
 *
-*       LWORK   (input) integer scalar
-*               The amount of workspace available.
+*       lwork   (input) integer scalar
+*               the amount of workspace available.
 *
-*  Further Details
+*  further details
 *  ===============
 *
-*       Little is known about how best to choose these parameters.
-*       It is possible to use different values of the parameters
-*       for each of CHSEQR, DHSEQR, SHSEQR and ZHSEQR.
+*       little is known about how best to choose these parameters.
+*       it is possible to use different values of the parameters
+*       for each of chseqr, dhseqr, shseqr and zhseqr.
 *
-*       It is probably best to choose different parameters for
+*       it is probably best to choose different parameters for
 *       different matrices and different parameters at different
 *       times during the iteration, but this has not been
 *       implemented --- yet.
 *
 *
-*       The best choices of most of the parameters depend
+*       the best choices of most of the parameters depend
 *       in an ill-understood way on the relative execution
-*       rate of xLAQR3 and xLAQR5 and on the nature of each
-*       particular eigenvalue problem.  Experiment may be the
+*       rate of xlaqr3 and xlaqr5 and on the nature of each
+*       particular eigenvalue problem.  experiment may be the
 *       only practical way to determine which choices are most
 *       effective.
 *
-*       Following is a list of default values supplied by IPARMQ.
-*       These defaults may be adjusted in order to attain better
+*       following is a list of default values supplied by iparmq.
+*       these defaults may be adjusted in order to attain better
 *       performance in any particular computational environment.
 *
-*       IPARMQ(ISPEC=12) The xLAHQR vs xLAQR0 crossover point.
-*                        Default: 75. (Must be at least 11.)
+*       iparmq(ispec=12) the xlahqr vs xlaqr0 crossover point.
+*                        default: 75. (must be at least 11.)
 *
-*       IPARMQ(ISPEC=13) Recommended deflation window size.
-*                        This depends on ILO, IHI and NS, the
+*       iparmq(ispec=13) recommended deflation window size.
+*                        this depends on ilo, ihi and ns, the
 *                        number of simultaneous shifts returned
-*                        by IPARMQ(ISPEC=15).  The default for
-*                        (IHI-ILO+1).LE.500 is NS.  The default
-*                        for (IHI-ILO+1).GT.500 is 3*NS/2.
+*                        by iparmq(ispec=15).  the default for
+*                        (ihi-ilo+1).le.500 is ns.  the default
+*                        for (ihi-ilo+1).gt.500 is 3*ns/2.
 *
-*       IPARMQ(ISPEC=14) Nibble crossover point.  Default: 14.
+*       iparmq(ispec=14) nibble crossover point.  default: 14.
 *
-*       IPARMQ(ISPEC=15) Number of simultaneous shifts, NS.
-*                        a multi-shift QR iteration.
+*       iparmq(ispec=15) number of simultaneous shifts, ns.
+*                        a multi-shift qr iteration.
 *
-*                        If IHI-ILO+1 is ...
+*                        if ihi-ilo+1 is ...
 *
 *                        greater than      ...but less    ... the
 *                        or equal to ...      than        default is
 *
-*                                0               30       NS =   2+
-*                               30               60       NS =   4+
-*                               60              150       NS =  10
-*                              150              590       NS =  **
-*                              590             3000       NS =  64
-*                             3000             6000       NS = 128
-*                             6000             infinity   NS = 256
+*                                0               30       ns =   2+
+*                               30               60       ns =   4+
+*                               60              150       ns =  10
+*                              150              590       ns =  **
+*                              590             3000       ns =  64
+*                             3000             6000       ns = 128
+*                             6000             infinity   ns = 256
 *
-*                    (+)  By default matrices of this order are
+*                    (+)  by default matrices of this order are
 *                         passed to the implicit double shift routine
-*                         xLAHQR.  See IPARMQ(ISPEC=12) above.   These
-*                         values of NS are used only in case of a rare
-*                         xLAHQR failure.
+*                         xlahqr.  see iparmq(ispec=12) above.   these
+*                         values of ns are used only in case of a rare
+*                         xlahqr failure.
 *
-*                    (**) The asterisks (**) indicate an ad-hoc
+*                    (**) the asterisks (**) indicate an ad-hoc
 *                         function increasing from 10 to 64.
 *
-*       IPARMQ(ISPEC=16) Select structured matrix multiply.
-*                        (See ISPEC=16 above for details.)
-*                        Default: 3.
+*       iparmq(ispec=16) select structured matrix multiply.
+*                        (see ispec=16 above for details.)
+*                        default: 3.
 *
 *     ================================================================
-*     .. Parameters ..
-      INTEGER            INMIN, INWIN, INIBL, ISHFTS, IACC22
-      PARAMETER          ( INMIN = 12, INWIN = 13, INIBL = 14,
-     $                   ISHFTS = 15, IACC22 = 16 )
-      INTEGER            NMIN, K22MIN, KACMIN, NIBBLE, KNWSWP
-      PARAMETER          ( NMIN = 75, K22MIN = 14, KACMIN = 14,
-     $                   NIBBLE = 14, KNWSWP = 500 )
-      REAL               TWO
-      PARAMETER          ( TWO = 2.0 )
+*     .. parameters ..
+      integer            inmin, inwin, inibl, ishfts, iacc22
+      parameter          ( inmin = 12, inwin = 13, inibl = 14,
+     $                   ishfts = 15, iacc22 = 16 )
+      integer            nmin, k22min, kacmin, nibble, knwswp
+      parameter          ( nmin = 75, k22min = 14, kacmin = 14,
+     $                   nibble = 14, knwswp = 500 )
+      real               two
+      parameter          ( two = 2.0 )
 *     ..
-*     .. Local Scalars ..
-      INTEGER            NH, NS
+*     .. local scalars ..
+      integer            nh, ns
 *     ..
-*     .. Intrinsic Functions ..
-      INTRINSIC          LOG, MAX, MOD, NINT, REAL
+*     .. intrinsic functions ..
+      intrinsic          log, max, mod, nint, real
 *     ..
-*     .. Executable Statements ..
-      IF( ( ISPEC.EQ.ISHFTS ) .OR. ( ISPEC.EQ.INWIN ) .OR.
-     $    ( ISPEC.EQ.IACC22 ) ) THEN
+*     .. executable statements ..
+      if( ( ispec.eq.ishfts ) .or. ( ispec.eq.inwin ) .or.
+     $    ( ispec.eq.iacc22 ) ) then
 *
-*        ==== Set the number simultaneous shifts ====
+*        ==== set the number simultaneous shifts ====
 *
-         NH = IHI - ILO + 1
-         NS = 2
-         IF( NH.GE.30 )
-     $      NS = 4
-         IF( NH.GE.60 )
-     $      NS = 10
-         IF( NH.GE.150 )
-     $      NS = MAX( 10, NH / NINT( LOG( REAL( NH ) ) / LOG( TWO ) ) )
-         IF( NH.GE.590 )
-     $      NS = 64
-         IF( NH.GE.3000 )
-     $      NS = 128
-         IF( NH.GE.6000 )
-     $      NS = 256
-         NS = MAX( 2, NS-MOD( NS, 2 ) )
-      END IF
+         nh = ihi - ilo + 1
+         ns = 2
+         if( nh.ge.30 )
+     $      ns = 4
+         if( nh.ge.60 )
+     $      ns = 10
+         if( nh.ge.150 )
+     $      ns = max( 10, nh / nint( log( real( nh ) ) / log( two ) ) )
+         if( nh.ge.590 )
+     $      ns = 64
+         if( nh.ge.3000 )
+     $      ns = 128
+         if( nh.ge.6000 )
+     $      ns = 256
+         ns = max( 2, ns-mod( ns, 2 ) )
+      end if
 *
-      IF( ISPEC.EQ.INMIN ) THEN
+      if( ispec.eq.inmin ) then
 *
 *
-*        ===== Matrices of order smaller than NMIN get sent
-*        .     to xLAHQR, the classic double shift algorithm.
-*        .     This must be at least 11. ====
+*        ===== matrices of order smaller than nmin get sent
+*        .     to xlahqr, the classic double shift algorithm.
+*        .     this must be at least 11. ====
 *
-         IPARMQ = NMIN
+         iparmq = nmin
 *
-      ELSE IF( ISPEC.EQ.INIBL ) THEN
+      else if( ispec.eq.inibl ) then
 *
-*        ==== INIBL: skip a multi-shift qr iteration and
+*        ==== inibl: skip a multi-shift qr iteration and
 *        .    whenever aggressive early deflation finds
-*        .    at least (NIBBLE*(window size)/100) deflations. ====
+*        .    at least (nibble*(window size)/100) deflations. ====
 *
-         IPARMQ = NIBBLE
+         iparmq = nibble
 *
-      ELSE IF( ISPEC.EQ.ISHFTS ) THEN
+      else if( ispec.eq.ishfts ) then
 *
-*        ==== NSHFTS: The number of simultaneous shifts =====
+*        ==== nshfts: the number of simultaneous shifts =====
 *
-         IPARMQ = NS
+         iparmq = ns
 *
-      ELSE IF( ISPEC.EQ.INWIN ) THEN
+      else if( ispec.eq.inwin ) then
 *
-*        ==== NW: deflation window size.  ====
+*        ==== nw: deflation window size.  ====
 *
-         IF( NH.LE.KNWSWP ) THEN
-            IPARMQ = NS
-         ELSE
-            IPARMQ = 3*NS / 2
-         END IF
+         if( nh.le.knwswp ) then
+            iparmq = ns
+         else
+            iparmq = 3*ns / 2
+         end if
 *
-      ELSE IF( ISPEC.EQ.IACC22 ) THEN
+      else if( ispec.eq.iacc22 ) then
 *
-*        ==== IACC22: Whether to accumulate reflections
+*        ==== iacc22: whether to accumulate reflections
 *        .     before updating the far-from-diagonal elements
 *        .     and whether to use 2-by-2 block structure while
-*        .     doing it.  A small amount of work could be saved
+*        .     doing it.  a small amount of work could be saved
 *        .     by making this choice dependent also upon the
-*        .     NH=IHI-ILO+1.
+*        .     nh=ihi-ilo+1.
 *
-         IPARMQ = 0
-         IF( NS.GE.KACMIN )
-     $      IPARMQ = 1
-         IF( NS.GE.K22MIN )
-     $      IPARMQ = 2
+         iparmq = 0
+         if( ns.ge.kacmin )
+     $      iparmq = 1
+         if( ns.ge.k22min )
+     $      iparmq = 2
 *
-      ELSE
+      else
 *        ===== invalid value of ispec =====
-         IPARMQ = -1
+         iparmq = -1
 *
-      END IF
+      end if
 *
-*     ==== End of IPARMQ ====
+*     ==== end of iparmq ====
 *
-      END
+      end
 ccc
-      DOUBLE PRECISION FUNCTION DLAMCH( CMACH )
+      double precision function dlamch( cmach )
 *
-*  -- LAPACK auxiliary routine (version 3.3.0) --
-*  -- LAPACK is a software package provided by Univ. of Tennessee,    --
-*  -- Univ. of California Berkeley, Univ. of Colorado Denver and NAG Ltd..--
-*     Based on LAPACK DLAMCH but with Fortran 95 query functions
-*     See: http://www.cs.utk.edu/~luszczek/lapack/lamch.html
+*  -- lapack auxiliary routine (version 3.3.0) --
+*  -- lapack is a software package provided by univ. of tennessee,    --
+*  -- univ. of california berkeley, univ. of colorado denver and nag ltd..--
+*     based on lapack dlamch but with fortran 95 query functions
+*     see: http://www.cs.utk.edu/~luszczek/lapack/lamch.html
 *     and  http://www.netlib.org/lapack-dev/lapack-coding/program-style.html#id2537289
-*     July 2010
+*     july 2010
 *
-*     .. Scalar Arguments ..
-      CHARACTER          CMACH
+*     .. scalar arguments ..
+      character          cmach
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  DLAMCH determines double precision machine parameters.
+*  dlamch determines double precision machine parameters.
 *
-*  Arguments
+*  arguments
 *  =========
 *
-*  CMACH   (input) CHARACTER*1
-*          Specifies the value to be returned by DLAMCH:
-*          = 'E' or 'e',   DLAMCH := eps
-*          = 'S' or 's ,   DLAMCH := sfmin
-*          = 'B' or 'b',   DLAMCH := base
-*          = 'P' or 'p',   DLAMCH := eps*base
-*          = 'N' or 'n',   DLAMCH := t
-*          = 'R' or 'r',   DLAMCH := rnd
-*          = 'M' or 'm',   DLAMCH := emin
-*          = 'U' or 'u',   DLAMCH := rmin
-*          = 'L' or 'l',   DLAMCH := emax
-*          = 'O' or 'o',   DLAMCH := rmax
+*  cmach   (input) character*1
+*          specifies the value to be returned by dlamch:
+*          = 'e' or 'e',   dlamch := eps
+*          = 's' or 's ,   dlamch := sfmin
+*          = 'b' or 'b',   dlamch := base
+*          = 'p' or 'p',   dlamch := eps*base
+*          = 'n' or 'n',   dlamch := t
+*          = 'r' or 'r',   dlamch := rnd
+*          = 'm' or 'm',   dlamch := emin
+*          = 'u' or 'u',   dlamch := rmin
+*          = 'l' or 'l',   dlamch := emax
+*          = 'o' or 'o',   dlamch := rmax
 *
 *          where
 *
@@ -3827,109 +3827,109 @@ ccc
 *
 * =====================================================================
 *
-*     .. Parameters ..
-      DOUBLE PRECISION   ONE, ZERO
-      PARAMETER          ( ONE = 1.0D+0, ZERO = 0.0D+0 )
+*     .. parameters ..
+      double precision   one, zero
+      parameter          ( one = 1.0d+0, zero = 0.0d+0 )
 *     ..
-*     .. Local Scalars ..
-      DOUBLE PRECISION   RND, EPS, SFMIN, SMALL, RMACH
+*     .. local scalars ..
+      double precision   rnd, eps, sfmin, small, rmach
 *     ..
-*     .. External Functions ..
-      LOGICAL            LSAME
-      EXTERNAL           LSAME
+*     .. external functions ..
+      logical            lsame
+      external           lsame
 *     ..
-*     .. Intrinsic Functions ..
-      INTRINSIC          DIGITS, EPSILON, HUGE, MAXEXPONENT,
-     $                   MINEXPONENT, RADIX, TINY
+*     .. intrinsic functions ..
+      intrinsic          digits, epsilon, huge, maxexponent,
+     $                   minexponent, radix, tiny
 *     ..
-*     .. Executable Statements ..
+*     .. executable statements ..
 *
 *
-*     Assume rounding, not chopping. Always.
+*     assume rounding, not chopping. always.
 *
-      RND = ONE
+      rnd = one
 *
-      IF( ONE.EQ.RND ) THEN
-         EPS = EPSILON(ZERO) * 0.5
-      ELSE
-         EPS = EPSILON(ZERO)
-      END IF
+      if( one.eq.rnd ) then
+         eps = epsilon(zero) * 0.5
+      else
+         eps = epsilon(zero)
+      end if
 *
-      IF( LSAME( CMACH, 'E' ) ) THEN
-         RMACH = EPS
-      ELSE IF( LSAME( CMACH, 'S' ) ) THEN
-         SFMIN = TINY(ZERO)
-         SMALL = ONE / HUGE(ZERO)
-         IF( SMALL.GE.SFMIN ) THEN
+      if( lsame( cmach, 'e' ) ) then
+         rmach = eps
+      else if( lsame( cmach, 's' ) ) then
+         sfmin = tiny(zero)
+         small = one / huge(zero)
+         if( small.ge.sfmin ) then
 *
-*           Use SMALL plus a bit, to avoid the possibility of rounding
+*           use small plus a bit, to avoid the possibility of rounding
 *           causing overflow when computing  1/sfmin.
 *
-            SFMIN = SMALL*( ONE+EPS )
-         END IF
-         RMACH = SFMIN
-      ELSE IF( LSAME( CMACH, 'B' ) ) THEN
-         RMACH = RADIX(ZERO)
-      ELSE IF( LSAME( CMACH, 'P' ) ) THEN
-         RMACH = EPS * RADIX(ZERO)
-      ELSE IF( LSAME( CMACH, 'N' ) ) THEN
-         RMACH = DIGITS(ZERO)
-      ELSE IF( LSAME( CMACH, 'R' ) ) THEN
-         RMACH = RND
-      ELSE IF( LSAME( CMACH, 'M' ) ) THEN
-         RMACH = MINEXPONENT(ZERO)
-      ELSE IF( LSAME( CMACH, 'U' ) ) THEN
-         RMACH = tiny(zero)
-      ELSE IF( LSAME( CMACH, 'L' ) ) THEN
-         RMACH = MAXEXPONENT(ZERO)
-      ELSE IF( LSAME( CMACH, 'O' ) ) THEN
-         RMACH = HUGE(ZERO)
-      ELSE
-         RMACH = ZERO
-      END IF
+            sfmin = small*( one+eps )
+         end if
+         rmach = sfmin
+      else if( lsame( cmach, 'b' ) ) then
+         rmach = radix(zero)
+      else if( lsame( cmach, 'p' ) ) then
+         rmach = eps * radix(zero)
+      else if( lsame( cmach, 'n' ) ) then
+         rmach = digits(zero)
+      else if( lsame( cmach, 'r' ) ) then
+         rmach = rnd
+      else if( lsame( cmach, 'm' ) ) then
+         rmach = minexponent(zero)
+      else if( lsame( cmach, 'u' ) ) then
+         rmach = tiny(zero)
+      else if( lsame( cmach, 'l' ) ) then
+         rmach = maxexponent(zero)
+      else if( lsame( cmach, 'o' ) ) then
+         rmach = huge(zero)
+      else
+         rmach = zero
+      end if
 *
-      DLAMCH = RMACH
-      RETURN
+      dlamch = rmach
+      return
 *
-*     End of DLAMCH
+*     end of dlamch
 *
-      END
+      end
 ************************************************************************
 *
-      DOUBLE PRECISION FUNCTION DLAMC3( A, B )
+      double precision function dlamc3( a, b )
 *
-*  -- LAPACK auxiliary routine (version 3.3.0) --
-*     Univ. of Tennessee, Univ. of California Berkeley and NAG Ltd..
-*     November 2010
+*  -- lapack auxiliary routine (version 3.3.0) --
+*     univ. of tennessee, univ. of california berkeley and nag ltd..
+*     november 2010
 *
-*     .. Scalar Arguments ..
-      DOUBLE PRECISION   A, B
+*     .. scalar arguments ..
+      double precision   a, b
 *     ..
 *
-*  Purpose
+*  purpose
 *  =======
 *
-*  DLAMC3  is intended to force  A  and  B  to be stored prior to doing
-*  the addition of  A  and  B ,  for use in situations where optimizers
+*  dlamc3  is intended to force  a  and  b  to be stored prior to doing
+*  the addition of  a  and  b ,  for use in situations where optimizers
 *  might hold one of these in a register.
 *
-*  Arguments
+*  arguments
 *  =========
 *
-*  A       (input) DOUBLE PRECISION
-*  B       (input) DOUBLE PRECISION
-*          The values A and B.
+*  a       (input) double precision
+*  b       (input) double precision
+*          the values a and b.
 *
 * =====================================================================
 *
-*     .. Executable Statements ..
+*     .. executable statements ..
 *
-      DLAMC3 = A + B
+      dlamc3 = a + b
 *
-      RETURN
+      return
 *
-*     End of DLAMC3
+*     end of dlamc3
 *
-      END
+      end
 *
 ************************************************************************

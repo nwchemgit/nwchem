@@ -1,3 +1,4 @@
+#define RISM_PREP_DEBUG
       subroutine rism_prepare(rtdb)
       implicit none
 #include "errquit.fh"
@@ -9,24 +10,47 @@
 #include "global.fh"
 #include "db_const_data.fh"
       integer rtdb
-      logical master
+      logical omaster
+      integer master
+      character*80 pname
 
-      master = ga_nodeid().eq.0
+      master = 0
+      pname = "rism_prepare"
+
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("in "//pname)
+#endif      
+      omaster = ga_nodeid().eq.master
 c
 c     order may be important here
 c     ---------------------------
-      if(master) then
+      if(omaster) then
        call rism_prepare_params(rtdb)
        call rism_prepare_grid(rtdb)
        call rism_prepare_solvent(rtdb)
        call rism_prepare_solute(rtdb)
 c       call db_data_print(6)
       end if
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("1 "//pname)
+#endif
 c
 c     send data to other processors
 c     -----------------------------
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("2 "//pname)
+#endif      
       call ga_sync()
-      call smd_data_brdcst_create(master)
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("3 "//pname)
+#endif      
+      call db_data_brdcst_create(master)
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("4 "//pname)
+#endif      
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("out "//pname)
+#endif      
       return
  
       end
@@ -59,6 +83,12 @@ c
       integer icr
       double precision f
       integer ipar
+      character*80 pname
+c
+      pname = "rism_prepare_params"
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("in "//pname)
+#endif
 c 
       sname = "parameters"
       call db_namespace_create(sname)
@@ -145,6 +175,9 @@ c     -----------------------------
       call db_data_put_int(sname,tag,1,ipar)
 c
       call db_data_namespace_print(sname,55)
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("out "//pname)
+#endif      
       return
       end
 
@@ -171,7 +204,13 @@ c
       character*32 sname
       double precision dr,r1,pi,dk
       integer i_kgrid,i_rgrid,ngrid
+      character*80 pname
+c
+      pname = "rism_prepare_grid"
 c 
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("in "//pname)
+#endif      
       sname = "grid"
       call db_namespace_create(sname)
 c      
@@ -205,6 +244,9 @@ c     the zero point is excluded
 c       rgrid(i)=r1+dr*(i-1) 
 c       kgrid(i)=i*dk 
       enddo 
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("out "//pname)
+#endif      
       return
       end
 
@@ -242,6 +284,12 @@ c
       integer  i_sgvv
       integer  i_epsvv
       integer  i_qvv
+      character*80 pname 
+c
+      pname = "rism_prepare_solvent"
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("in "//pname)
+#endif
 c 
 c     create container for solvent data
 c     --------------------------------- 
@@ -298,6 +346,9 @@ c     fill in reduced solvent parameters
          write(33,*) dbl_mb(i_sgvv+i-1),dbl_mb(i_epsvv+i-1),
      +               dbl_mb(i_qvv+i-1),i,int_mb(i_ims+i-1)
        end do
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("out "//pname)
+#endif      
       end
 
       subroutine rism_prepare_solute(rtdb)
@@ -334,6 +385,12 @@ c
       integer  i_tu
       integer  i_wu
       integer  i_kgrid,ngrid
+      character*80 pname 
+c
+      pname = "rism_prepare_solute"
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("in "//pname)
+#endif
 c
       sname = "solute"
       call db_namespace_create(sname)
@@ -410,6 +467,10 @@ c
       call db_data_destroy(sname,"mu",result)
       if(.not.result)
      >  call errquit("cannot destroy mu",0,0)
+c      
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("out "//pname)
+#endif
 
       return
       end
