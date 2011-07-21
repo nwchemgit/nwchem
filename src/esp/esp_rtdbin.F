@@ -39,9 +39,6 @@ c
       if(.not.bas_numbf(ibasis,nbf))
      + call md_abort('esp: bas_numbf failed',me)
 c     
-      if(bas_is_spherical(ibasis)) 
-     + call md_abort('esp does not work with spherical basis ',me)
-c
       if(.not.geom_nuc_charge(igeom,chgnuc))
      + call md_abort('esp: geom_nuc_charge failed',me)
 c

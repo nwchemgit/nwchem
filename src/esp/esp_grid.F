@@ -73,16 +73,5 @@ c
       call ga_brdcst(mre_002,g,3*ngrid*ma_sizeof(mt_dbl,1,mt_byte),0)
       endif
 c
-c     determine gridpoints handled by current node
-c
-      if(np.gt.1) then
-      ngfr=me*(ngrid/np)+1
-      ngto=(me+1)*(ngrid/np)
-      if(me.eq.np-1) ngto=ngrid
-      else
-      ngfr=1
-      ngto=ngrid
-      endif
-c
       return
       end

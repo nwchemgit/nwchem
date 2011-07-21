@@ -8,7 +8,6 @@
                  esp_elemom.o\
                  esp_esp.o\
                  esp_fit.o\
-		 esp_getden.o\
 		 esp_getg.o\
                  esp_getx.o\
                  esp_grdcnt.o\
