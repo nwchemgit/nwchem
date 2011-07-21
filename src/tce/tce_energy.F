@@ -166,7 +166,10 @@ c - intermediates reuse --
       integer ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5
       integer rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,rec_d_6
       integer rec_d_7,rec_d_8,rec_d_9
-c ---------------------------------------
+c - new restarts and eom iter.control ---------
+      double precision thresh_l,aux_x
+      double precision thresh_eom
+c ---------------------------------------------
       logical needt1
       logical needt2
       logical needt3
@@ -609,6 +612,32 @@ c
       irrep_y = 0
       irrep_c = 0
       irrep_g = 0
+c
+       thresh_l=thresh
+       if (.not.rtdb_get(rtdb,'tce:threshl',mt_dbl,1,aux_x)) then
+         if(nodezero) then
+          write(LuOut,*)'thresh_l=thresh=',thresh_l
+         end if
+       else
+          thresh_l=aux_x
+          if(nodezero) then
+           write(LuOut,*)'thresh=',thresh
+           write(LuOut,*)'thresh_l=',thresh_l
+          end if
+       end if
+c
+       thresh_eom=thresh
+       if (.not.rtdb_get(rtdb,'tce:thresheom',mt_dbl,1,aux_x)) then
+         if(nodezero) then
+          write(LuOut,*)'thresh_eom=thresh=',thresh_eom
+         end if
+       else
+          thresh_eom=aux_x
+          if(nodezero) then
+           write(LuOut,*)'thresh=',thresh
+           write(LuOut,*)'thresh_eom=',thresh_eom
+          end if
+       end if
 c
 c     ==============
 c     Create a mutex
@@ -7456,10 +7485,16 @@ c
       wall=-util_wallsec()
 c
            converged=.true.
-           do iroot=1,nroots_reduced
-             if(dabs(dbl_mb(k_residual+iroot-1)).gt.thresh) 
-     &             converged=.false. 
-           enddo 
+ccx           do iroot=1,nroots_reduced
+ccx             if(dabs(dbl_mb(k_residual+iroot-1)).gt.thresh) 
+ccx     &             converged=.false. 
+ccx           enddo 
+           do iroot=1,nroots_reduced-1
+             if(dabs(dbl_mb(k_residual+iroot-1)).gt.thresh_eom)
+     &             converged=.false.
+           enddo
+           if(dabs(dbl_mb(k_residual+nroots_reduced-1)).gt.thresh_l)
+     7             converged=.false.
 c
             if(converged) then
              do iroot=1,nroots_reduced
