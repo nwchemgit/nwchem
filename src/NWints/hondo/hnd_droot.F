@@ -356,7 +356,7 @@ c
             b(j)=0.5d0*dble(j-1)
          enddo
          b(1)=dsqrt(4.0d0*datan(1.0d0))
-         call gauss(n2,a,b,hnd_acc,tmp_rts,tmp_wts,ierr,buff)
+         call gaussh(n2,a,b,hnd_acc,tmp_rts,tmp_wts,ierr,buff)
          do j=1,i  
             rts_large(j,i)=tmp_rts(j)*tmp_rts(j)
             wts_large(j,i)=tmp_wts(j)
@@ -379,7 +379,7 @@ c
 c     Generate roots and weights for Legendre quadrature
 c
       do i=1,maxuniqleg
-         call gauss(leg_aux(i),a,b,hnd_acc,tmp_rts,tmp_wts,ierr,buff)
+         call gaussh(leg_aux(i),a,b,hnd_acc,tmp_rts,tmp_wts,ierr,buff)
          do j=1,leg_aux(i)
             rts_leg(j,i)=tmp_rts(j)*tmp_rts(j)
             wts_leg(j,i)=tmp_wts(j)
@@ -418,9 +418,10 @@ c
          do i=1,leg_aux(offset)
             tmp(i)=wts_leg(i,offset)*exp(-yy*rts_leg(i,offset))
          enddo
-         call sti(nroots,leg_aux(offset),rts_leg(1,nroots),tmp,a,b,ierr,
+c        call sti(nroots,leg_aux(offset),rts_leg(1,nroots),tmp,a,b,ierr,
+         call sti(nroots,leg_aux(offset),rts_leg(1,offset),tmp,a,b,ierr,
      &            p0,p1,p2)
-         call gauss(nroots,a,b,hnd_acc,tmp_rts,tmp_wts,ierr,buff)
+         call gaussh(nroots,a,b,hnd_acc,tmp_rts,tmp_wts,ierr,buff)
          do i=1,nroots
             temp=tmp_rts(i)
             u9(i)=temp/(1.0d0-temp)
@@ -431,7 +432,7 @@ c
       return
       end
 c
-      subroutine gauss(n,alpha,beta,eps,zero,weigh,ierr,e)
+      subroutine gaussh(n,alpha,beta,eps,zero,weigh,ierr,e)
 c
 c Given  n  and a measure  dlambda, this routine generates the n-point
 c Gaussian quadrature formula
