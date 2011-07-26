@@ -135,6 +135,9 @@ c                                                d_x1 refers to k_x1_local
       INTEGER size_i1_2
       INTEGER size_i1_3
       INTEGER size_i1_4
+c === jaguar ===
+      INTEGER unitn
+c ==============
       DOUBLE PRECISION a_i0(*)
       CHARACTER*255 filename
       IF (toggle .eq. 3) THEN
@@ -162,6 +165,15 @@ c                                                d_x1 refers to k_x1_local
       IF (toggle .eq. 1) CALL TCE_FILENAME('creomsd_t_n2_mem_1_1_i1',fil
      &ename)
       IF (toggle .eq. 1) CALL CREATEFILE(filename,d_i1_1,size_i1_1)
+c === jaguar ===
+      if(read_in3.and.(toggle.eq.1))  then
+       call util_file_name('di1_1',.false.,.false.,filename)
+       unitn=83
+       call read_tensor(filename,d_i1_1,size_i1_1,unitn)
+       call ga_sync()
+       go to 101
+      end if
+c ==============
       IF (toggle .eq. 1) CALL OFFSET_creomsd_t_n2_mem_1_1_1(l_i2_offset,
      &k_i2_offset,size_i2)
       IF (toggle .eq. 1) CALL TCE_FILENAME('creomsd_t_n2_mem_1_1_1_i2',f
@@ -311,7 +323,17 @@ c                                                d_x1 refers to k_x1_local
       END IF
       IF (toggle .eq. 1) CALL creomsd_t_n2_mem_1_9(d_x2,k_x2_offset,d_v2
      &,k_v2_offset,d_i1_1,k_i1_offset_1)
+ 101  continue
       IF (toggle .eq. 1) CALL RECONCILEFILE(d_i1_1,size_i1_1)
+c === jaguar ===
+      if(write_in3.and.(toggle.eq.1))  then
+       call util_file_name('di1_1',.false.,.false.,filename)
+       unitn=83
+       call write_tensor(filename,d_i1_1,size_i1_1,unitn)
+       call ga_sync()
+      end if
+c ==============
+ccx 101  continue
       IF (toggle .eq. 2) CALL creomsd_t_n2_mem_1(d_t2,k_t2_offset,d_i1_1
      &,k_i1_offset_1,a_i0,t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b)
       IF (toggle .eq. 1) CALL OFFSET_creomsd_t_n2_mem_2_1(l_i1_offset_2,
@@ -319,6 +341,15 @@ c                                                d_x1 refers to k_x1_local
       IF (toggle .eq. 1) CALL TCE_FILENAME('creomsd_t_n2_mem_2_1_i1',fil
      &ename)
       IF (toggle .eq. 1) CALL CREATEFILE(filename,d_i1_2,size_i1_2)
+c === jaguar ===
+      if(read_in3.and.(toggle.eq.1))  then
+       call util_file_name('di1_2',.false.,.false.,filename)
+       unitn=84
+       call read_tensor(filename,d_i1_2,size_i1_2,unitn)
+       call ga_sync()
+       go to 102
+      end if
+c ==============
       IF (toggle .eq. 1) CALL OFFSET_creomsd_t_n2_mem_2_1_1(l_i2_offset,
      &k_i2_offset,size_i2)
       IF (toggle .eq. 1) CALL TCE_FILENAME('creomsd_t_n2_mem_2_1_1_i2',f
@@ -423,7 +454,17 @@ c                                                d_x1 refers to k_x1_local
       END IF
       IF (toggle .eq. 1) CALL creomsd_t_n2_mem_2_6(d_x2,k_x2_offset,d_v2
      &,k_v2_offset,d_i1_2,k_i1_offset_2)
+ 102  continue
       IF (toggle .eq. 1) CALL RECONCILEFILE(d_i1_2,size_i1_2)
+c === jaguar ===
+      if(write_in3.and.(toggle.eq.1))  then
+       call util_file_name('di1_2',.false.,.false.,filename)
+       unitn=84
+       call write_tensor(filename,d_i1_2,size_i1_2,unitn)
+       call ga_sync()
+      end if
+c ==============
+ccx 102  continue
       IF (toggle .eq. 2) CALL creomsd_t_n2_mem_2(d_t2,k_t2_offset,d_i1_2
      &,k_i1_offset_2,a_i0,t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b)
       IF (toggle .eq. 1) CALL OFFSET_creomsd_t_n2_mem_3_1(l_i1_offset_3,
@@ -431,6 +472,15 @@ c                                                d_x1 refers to k_x1_local
       IF (toggle .eq. 1) CALL TCE_FILENAME('creomsd_t_n2_mem_3_1_i1',fil
      &ename)
       IF (toggle .eq. 1) CALL CREATEFILE(filename,d_i1_3,size_i1_3)
+c === jaguar ===
+      if(read_in3.and.(toggle.eq.1))  then
+       call util_file_name('di1_3',.false.,.false.,filename)
+       unitn=85
+       call read_tensor(filename,d_i1_3,size_i1_3,unitn)
+       call ga_sync()
+       go to 103
+      end if
+c ==============
       IF (toggle .eq. 1) CALL creomsd_t_n2_mem_3_1(d_v2,k_v2_offset,d_i1
      &_3,k_i1_offset_3)
       IF (toggle .eq. 1) CALL OFFSET_creomsd_t_n2_mem_3_2_1(l_i2_offset,
@@ -520,7 +570,17 @@ c                                                d_x1 refers to k_x1_local
       END IF
       IF (toggle .eq. 1) CALL creomsd_t_n2_mem_3_6(d_t2,k_t2_offset,d_v2
      &,k_v2_offset,d_i1_3,k_i1_offset_3)
+ 103  continue
       IF (toggle .eq. 1) CALL RECONCILEFILE(d_i1_3,size_i1_3)
+c === jaguar ===
+      if(write_in3.and.(toggle.eq.1))  then
+       call util_file_name('di1_3',.false.,.false.,filename)
+       unitn=85
+       call write_tensor(filename,d_i1_3,size_i1_3,unitn)
+       call ga_sync()
+      end if
+c ==============
+ccx 103  continue
       IF (toggle .eq. 2) CALL creomsd_t_n2_mem_3(d_x2,k_x2_offset,d_i1_3
      &,k_i1_offset_3,a_i0,t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b)
       IF (toggle .eq. 1) CALL OFFSET_creomsd_t_n2_mem_4_1(l_i1_offset_4,
@@ -528,6 +588,15 @@ c                                                d_x1 refers to k_x1_local
       IF (toggle .eq. 1) CALL TCE_FILENAME('creomsd_t_n2_mem_4_1_i1',fil
      &ename)
       IF (toggle .eq. 1) CALL CREATEFILE(filename,d_i1_4,size_i1_4)
+c === jaguar ===
+      if(read_in3.and.(toggle.eq.1))  then
+       call util_file_name('di1_4',.false.,.false.,filename)
+       unitn=86
+       call read_tensor(filename,d_i1_4,size_i1_4,unitn)
+       call ga_sync()
+       go to 104
+      end if
+c ==============
       IF (toggle .eq. 1) CALL creomsd_t_n2_mem_4_1(d_v2,k_v2_offset,d_i1
      &_4,k_i1_offset_4)
       IF (toggle .eq. 1) CALL OFFSET_creomsd_t_n2_mem_4_2_1(l_i2_offset,
@@ -587,7 +656,17 @@ c                                                d_x1 refers to k_x1_local
       END IF
       IF (toggle .eq. 1) CALL creomsd_t_n2_mem_4_5(d_t2,k_t2_offset,d_v2
      &,k_v2_offset,d_i1_4,k_i1_offset_4)
+ 104  continue
       IF (toggle .eq. 1) CALL RECONCILEFILE(d_i1_4,size_i1_4)
+c === jaguar ===
+      if(write_in3.and.(toggle.eq.1))  then
+       call util_file_name('di1_4',.false.,.false.,filename)
+       unitn=86
+       call write_tensor(filename,d_i1_4,size_i1_4,unitn)
+       call ga_sync()
+      end if
+c ==============
+ccx 104  continue
       IF (toggle .eq. 2) CALL creomsd_t_n2_mem_4(d_x2,k_x2_offset,d_i1_4
      &,k_i1_offset_4,a_i0,t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b)
       RETURN
