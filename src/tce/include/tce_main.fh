@@ -66,6 +66,7 @@ c
       integer l_evl_sorted,k_evl_sorted       ! MA handles for eigenvalues
       integer l_spin_sorted,k_spin_sorted     ! MA handles for eigenvalues
       integer l_movecs_sorted,k_movecs_sorted ! MA handles for MO coeffs
+      integer rec_mem          !restart record size in MB
 c tce.fh < integer l_spin, k_spin             ! Spins of blocks
 c tce.fh < integer l_sym, k_sym               ! Symmetry of blocks
 c tce.fh < integer l_range, k_range           ! Length of blocks
@@ -145,7 +146,7 @@ c
      1  l_v2_alpha_offset,k_v2_alpha_offset,l_v2spin_offset,
      2  k_v2spin_offset,atpart,nalength,a2length,tile_dim,
      3  idisk,fast2e,ichop,imaxsize,l_mo_index, k_mo_index,
-     4  l_alpha,k_alpha,l_offset,k_offset
+     4  l_alpha,k_alpha,l_offset,k_offset,rec_mem
 c
 c     Doubles
 c
