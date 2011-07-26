@@ -6,7 +6,8 @@
      5                        d_ex2,k_ex2_offset,size_ex2,
      6                        d_c1,k_c1_offset,size_c1,
      7                        d_c2,k_c2_offset,size_c2,
-     8                        excit,energy1,energy2,size_t1,size_x1)
+     8                        excit,energy1,energy2,size_t1,size_x1,
+     9                        r0xx)
 C
 C     $Id$
 C 
@@ -125,11 +126,12 @@ c
 c
 c
       nodezero=(ga_nodeid().eq.0)
-      k_right = 0
-      k_left = 0
 c
 c Getting R0
 c
+c === jaguar ===
+      if(.not.read_in3) then ! --- read_in3 ---
+      r0xx=0.0d0
       call  nr0(d_f1,d_e,d_t1,d_v2,d_x1,d_x2,k_f1_offset,
      &k_e_offset,k_t1_offset,k_v2_offset,k_x1_offset,k_x2_offset) 
       call reconcilefile(d_e,1)
@@ -139,9 +141,14 @@ c
       else
          write(6,1000)
       end if
+      end if ! --- read_in3
       dr0xx = r0xx*r0xx
       lr0 = .true.
       if(dabs(r0xx).lt.1.0d-7) lr0 = .false.
+c === jaguar ===
+      if(nodezero) write(6,*)'R0: ',r0xx
+      call util_flush(6)
+c ==============
 c 
 c Now on ga with handle d_e we store corresponding R0 value 
 c
@@ -234,10 +241,8 @@ c    opening l_t1_local and l_x1_local
         call ma_zero(dbl_mb(k_x1_local),size_x1)
 c    copy d_t1 ==> l_t1_local
 c    copy x1(ivec) ==> l_x1_local
-cc        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
-cc        call ga_get(d_x1,1,size_x1,1,1,dbl_mb(k_x1_local),1)
-       call get_block(d_t1,dbl_mb(k_t1_local),size_t1,0)
-       call get_block(d_x1,dbl_mb(k_x1_local),size_x1,0)
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+        call ga_get(d_x1,1,size_x1,1,1,dbl_mb(k_x1_local),1)
 c -------------------------------
 c
 c     Caution! k_right & k_den are not even allocated yet
