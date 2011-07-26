@@ -167,6 +167,12 @@ c - intermediates reuse --
       integer rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,rec_d_6
       integer rec_d_7,rec_d_8,rec_d_9
 c - new restarts and eom iter.control ---------
+      integer unitn,recforio
+      logical res_log
+      logical active_log
+      logical eom_start
+      double precision r0xx
+      double precision eom_excit(4),eom_r0(4)
       double precision thresh_l,aux_x
       double precision thresh_eom
 c ---------------------------------------------
@@ -616,28 +622,114 @@ c
        thresh_l=thresh
        if (.not.rtdb_get(rtdb,'tce:threshl',mt_dbl,1,aux_x)) then
          if(nodezero) then
-          write(LuOut,*)'thresh_l=thresh=',thresh_l
+          write(LuOut,9520)thresh_l
          end if
        else
           thresh_l=aux_x
           if(nodezero) then
-           write(LuOut,*)'thresh=',thresh
-           write(LuOut,*)'thresh_l=',thresh_l
+           write(LuOut,9520)thresh_l
           end if
        end if
 c
        thresh_eom=thresh
        if (.not.rtdb_get(rtdb,'tce:thresheom',mt_dbl,1,aux_x)) then
          if(nodezero) then
-          write(LuOut,*)'thresh_eom=thresh=',thresh_eom
+          write(LuOut,9521)thresh_eom
          end if
        else
           thresh_eom=aux_x
           if(nodezero) then
-           write(LuOut,*)'thresh=',thresh
-           write(LuOut,*)'thresh_eom=',thresh_eom
+           write(LuOut,9521)thresh_eom
           end if
        end if
+c
+       eom_start=.false.
+       if (.not.rtdb_get(rtdb,'tce:eomstart',mt_log,1,eom_start)) then
+         if(nodezero) then
+          write(LuOut,*)'no EOMCCSD initial starts read in'
+         end if
+       else
+         if(nodezero) then
+          write(LuOut,*)'EOMCCSD initial starts read in)'
+         end if
+       end if
+c
+       if (.not.rtdb_get(rtdb,'tce:tceiop',mt_int,1,recforio)) then
+        rec_mem=1
+       else
+        rec_mem=recforio
+       end if
+c
+       res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:readint',mt_log,1,res_log)) then
+        read_int=.false.
+       else
+        read_int=res_log
+       end if
+c
+       res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:writeint',mt_log,1,res_log)) then
+        write_int=.false.
+       else
+        write_int=res_log
+       end if
+c
+       res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:readt',mt_log,1,res_log)) then
+        read_ta=.false.
+       else
+        read_ta=res_log
+       end if
+c
+       res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:writet',mt_log,1,res_log)) then
+        write_ta=.false.
+       else
+        write_ta=res_log
+       end if
+c
+       res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:readx',mt_log,1,res_log)) then
+        read_xa=.false.
+       else
+        read_xa=res_log
+       end if
+c
+       res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:writex',mt_log,1,res_log)) then
+        write_xa=.false.
+       else
+        write_xa=res_log
+       end if
+c
+       res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:readi3',mt_log,1,res_log)) then
+        read_in3=.false.
+       else
+        read_in3=res_log
+       end if
+c
+       res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:writei3',mt_log,1,res_log)) then
+        write_in3=.false.
+       else
+        write_in3=res_log
+       end if
+c
+       if(nodezero) then
+        write(LuOut,*)'TCE RESTART OPTIONS'
+        write(LuOut,*)'READ_INT:  ',read_int
+        write(LuOut,*)'WRITE_INT: ',write_int
+        write(LuOut,*)'READ_TA:   ',read_ta
+        write(LuOut,*)'WRITE_TA:  ',write_ta
+        write(LuOut,*)'READ_XA:   ',read_xa
+        write(LuOut,*)'WRITE_XA:  ',write_xa
+        write(LuOut,*)'READ_IN3:  ',read_in3
+        write(LuOut,*)'WRITE_IN3: ',write_in3
+        call util_flush(6)
+       end if
+
+
 c
 c     ==============
 c     Create a mutex
@@ -867,6 +959,9 @@ c
 c
 c     1-e integrals
 c
+c === jaguar ===
+      if(.not.read_in3) then ! --- read_in3 ---
+c ===============
       cpu = - util_cpusec()
       wall = - util_wallsec()
       if (.not.rtdb_get(rtdb,'tce:recompf',mt_log,1,recompf))
@@ -888,10 +983,30 @@ c
       call createfile(filename,d_f1,size_1e)
       if (.not.read_integrals(1)) then
         if (recompf) then
+c === jaguar ===
+      if(read_int)  then
+      call util_file_name('f1int',.false.,.false.,filename)
+      unitn=77
+      if(nodezero) write(6,*)'size_1e',size_1e
+       call read_tensor(filename,d_f1,size_1e,unitn)
+       call ga_sync()
+       go to 2002
+      end if
+c ==============
           call tce_mo1e(g_ao1e,d_f1,k_f1_offset)
+c === jaguar ===
+      if(write_int)  then
+      call util_file_name('f1int',.false.,.false.,filename)
+      unitn=77
+      if(nodezero) write(6,*)'size_1e',size_1e
+      call write_tensor(filename,d_f1,size_1e,unitn)
+      call ga_sync()
+      end if
+c ==============
+ 2002     continue
         else
           call tce_mo1e_epsilon(d_f1)
-        endif
+        endif 
         if (save_integrals(1))then
           if(nodezero) then
             write(LuOut,*) 'Saving 1-electron integrals now...'
@@ -957,6 +1072,9 @@ c     reassign the handle so that it points to the mirrored GA
 c
       d_f1 = d_f1temp
 #endif
+c === jaguar ===
+      end if ! --- read_in3 ---
+c ==============
 c
       io_v2=IOGA
 c
@@ -1068,6 +1186,9 @@ c          write(LuOut,9090) '2-e',d_v2
           call util_flush(LuOut)
         endif
       elseif(intorb) THEN !----------------------
+c === jaguar ===
+        if(.not.read_in3) then ! -- read_in3 ---
+c ==============
         if(nodezero) then
           write(6,*)'4-electron integrals stored in orbital form'
         end if
@@ -1239,11 +1360,47 @@ c     1                             size_2e)
           call tce_mo2e_hybrid_2eorb_split(d_v2ga,d_v2sf,
      1         kax_v2_alpha_offset)
         elseif(fast2e.eq.13) then
+c === jaguar ===
+         if(read_int)  then
+          call util_file_name('v2int',.false.,.false.,filename)
+          unitn=78
+          call read_tensor(filename,d_v2,size_2e,unitn)
+          call ga_sync()
+          go to 3003
+         end if
+c ==============
           call tce_mo2e_zones_4a_disk_ga_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
+c === jaguar ===
+         if(write_int)  then
+          call util_file_name('v2int',.false.,.false.,filename)
+          unitn=78
+          call write_tensor(filename,d_v2,size_2e,unitn)
+          call ga_sync()
+         end if
+c ==============
+ 3003    continue
         elseif(fast2e.eq.14) then
+c === jaguar ===
+         if(read_int)  then
+          call util_file_name('v2int',.false.,.false.,filename)
+          unitn=78
+          call read_tensor(filename,d_v2,size_2e,unitn)
+          call ga_sync()
+          go to 3004
+         end if
+c ==============
           call  tce_mo2e_zones_4a_disk_ga_chop_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
+c === jaguar ===
+         if(write_int)  then
+          call util_file_name('v2int',.false.,.false.,filename)
+          unitn=78
+          call write_tensor(filename,d_v2,size_2e,unitn)
+          call ga_sync()
+         end if
+c ==============
+ 3004    continue
         else
           write(LuOut,9123)fast2e
           call errquit('tce_energy: invalid 2emet: ',fast2e,CALC_ERR)
@@ -1290,6 +1447,9 @@ c
         l_v2spin_offset = lx_v2spin_offset
         k_v2spin_offset = kx_v2spin_offset
         k_v2_offset = k_v2spin_offset
+c === jaguar ===
+        end if  ! read_in3
+c ==============
       end if ! intorb -----------------------
 c
 c     ====================
@@ -1407,8 +1567,14 @@ c -------------
 #else
         call createfile(filename,d_t1,size_t1)
 #endif
+c === jaguar ===
+        if(.not.read_in3) then !---
+c ==============
         if (.not.read_t(1)) then
           call tce_guess_t1(d_t1,k_t1_offset)
+c === jaguar ===
+        end if !---
+c ==============
 #ifdef MIRROR_SING
           call reconcilefile(d_t1)
 #endif
@@ -1537,6 +1703,9 @@ c ------------
 c -------------
         call createfile(filename,d_t2,size_t2)
         if (.not.read_t(2)) then
+c === jaguar ===
+        if(.not.read_in3) then ! --- read_in3
+c ==============
           call tce_guess_t2(d_v2,k_v2_offset,d_t2,k_t2_offset)
           call reconcilefile(d_t2,size_t2)
 c starts for t1 amplitudes t1(in the second order of MBPT)
@@ -1549,6 +1718,9 @@ c starts for t1 amplitudes t1(in the second order of MBPT)
               call reconcilefile(d_t1,size_t1)
             end if
           end if
+c === jaguar ===
+        end if ! --- read_in3
+c ==============
         elseif (read_t(2)) then
           call x2_restart_read(d_t2,k_t2_offset,size_t2,0,
      1                         handle_t2,irrep_t)
@@ -2168,6 +2340,20 @@ c -------------
 c -------------
 c CCSD    right
 c -------------
+c === jaguar ===
+          if(read_ta)  then
+           call tce_zero(d_t1,size_t1)
+           call tce_zero(d_t2,size_t2)
+           call util_file_name('t1amp',.false.,.false.,filename)
+           unitn=79
+           call read_tensor(filename,d_t1,size_t1,unitn)
+           call util_file_name('t2amp',.false.,.false.,filename)
+           unitn=80
+           call read_tensor(filename,d_t2,size_t2,unitn)
+           call ga_sync()
+           go to 320
+          end if
+c ==============
 #ifdef MIRROR_SING
         call ccsd_energy_noloc(d_e,d_f1,d_v2,d_t1,d_t2,
      1       k_e_offset,k_f1_offset,k_v2_offset,
@@ -2179,6 +2365,18 @@ c -------------
      2       k_t1_offset,k_t2_offset,
      3       size_t1,size_t2,ref,corr)
 #endif
+c === jaguar ===
+         if(write_ta)  then
+          call util_file_name('t1amp',.false.,.false.,filename)
+          unitn=79
+          call write_tensor(filename,d_t1,size_t1,unitn)
+          call util_file_name('t2amp',.false.,.false.,filename)
+          unitn=80
+          call write_tensor(filename,d_t2,size_t2,unitn)
+          call ga_sync()
+         end if
+c ==============
+  320    continue
 c -------------
 c CCSD    left
 c -------------
@@ -6818,7 +7016,7 @@ c
 c
 c
       if(nodezero) then
-       write(LuOut,*)'EOMCCSD SOLVER TYPE 1'
+       write(LuOut,9510) eom_solver
        call util_flush(LuOut)
       end if
 c
@@ -7143,18 +7341,139 @@ c
 c
 c
       if(nodezero) then
-       write(LuOut,*)'EOMCCSD SOLVER TYPE 2'
+       write(LuOut,9510) eom_solver
        call util_flush(LuOut)
       end if
+c === jaguar ===
+      if(read_xa)  then
+        nroots_reduced=nroots
+        if(nodezero) then
+         write(LuOut,9511) nroots_reduced
+         call util_flush(6)
+        end if
+        if (.not.rtdb_get(rtdb,'tce:omg',mt_dbl,nroots,eom_excit)) then
+          call errquit('tce_energy: reading omg',nroots,CALC_ERR) 
+        end if 
+        if (.not.rtdb_get(rtdb,'tce:r0',mt_dbl,nroots,eom_r0)) then
+          if(read_in3) then
+           call errquit('tce: read_in3 active - r0 reading failed',
+     &      nroots,CALC_ERR)
+          else
+           if(nodezero) then
+           write(LuOut,9512)
+           call util_flush(LuOut)
+           end if 
+          end if
+        end if
+        do ivec=1,nroots
+        dbl_mb(k_omegax+ivec-1)=eom_excit(ivec)
+        if(nodezero) then
+         write(6,*)'read excitation energy: ',dbl_mb(k_omegax+ivec-1)
+         call util_flush(6)
+        end if
+        enddo
+c
+       if(nroots_reduced.ge.1) then
+        unitn=81
+        ivec=1
+        call tce_filenameindexed(ivec,'xc1',filename)
+        call createfile(filename,xc1(ivec),size_x1)
+        xc1_exist(ivec) = .true.
+        call util_file_name('x1am1',.false.,.false.,filename)
+        call read_tensor(filename,xc1(ivec),size_x1,unitn)
+        unitn=82
+        call tce_filenameindexed(ivec,'xc2',filename)
+        call createfile(filename,xc2(ivec),size_x2)
+        xc2_exist(ivec) = .true.
+        call util_file_name('x2am1',.false.,.false.,filename)
+        call read_tensor(filename,xc2(ivec),size_x2,unitn)
+                if(nodezero)
+     &                  write(LuOut,*)'EOMCCSD root nr. ',ivec
+                call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
+                call tce_print_x2(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
+c
+        if(nroots_reduced.ge.2) then
+         unitn=83
+         ivec=2
+         call tce_filenameindexed(ivec,'xc1',filename)
+         call createfile(filename,xc1(ivec),size_x1)
+         xc1_exist(ivec) = .true.
+         call util_file_name('x1am2',.false.,.false.,filename)
+         call read_tensor(filename,xc1(ivec),size_x1,unitn)
+         unitn=84
+         call tce_filenameindexed(ivec,'xc2',filename)
+         call createfile(filename,xc2(ivec),size_x2)
+         xc2_exist(ivec) = .true.
+         call util_file_name('x2am2',.false.,.false.,filename)
+         call read_tensor(filename,xc2(ivec),size_x2,unitn)
+                if(nodezero)
+     &                  write(LuOut,*)'EOMCCSD root nr. ',ivec
+                call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
+                call tce_print_x2(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
+c
+         if(nroots_reduced.ge.3) then
+          unitn=85
+          ivec=3
+          call tce_filenameindexed(ivec,'xc1',filename)
+          call createfile(filename,xc1(ivec),size_x1)
+          xc1_exist(ivec) = .true.
+          call util_file_name('x1am3',.false.,.false.,filename)
+          call read_tensor(filename,xc1(ivec),size_x1,unitn)
+          unitn=86
+          call tce_filenameindexed(ivec,'xc2',filename)
+          call createfile(filename,xc2(ivec),size_x2)
+          xc2_exist(ivec) = .true.
+          call util_file_name('x2am3',.false.,.false.,filename)
+          call read_tensor(filename,xc2(ivec),size_x2,unitn)
+                if(nodezero)
+     &                  write(LuOut,*)'EOMCCSD root nr. ',ivec
+                call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
+                call tce_print_x2(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
+c
+          if(nroots_reduced.ge.4) then
+           unitn=87
+           ivec=4
+           call tce_filenameindexed(ivec,'xc1',filename)
+           call createfile(filename,xc1(ivec),size_x1)
+           xc1_exist(ivec) = .true.
+           call util_file_name('x1am4',.false.,.false.,filename)
+           call read_tensor(filename,xc1(ivec),size_x1,unitn)
+           unitn=88
+           call tce_filenameindexed(ivec,'xc2',filename)
+           call createfile(filename,xc2(ivec),size_x2)
+           xc2_exist(ivec) = .true.
+           call util_file_name('x2am4',.false.,.false.,filename)
+           call read_tensor(filename,xc2(ivec),size_x2,unitn)
+                if(nodezero)
+     &                  write(LuOut,*)'EOMCCSD root nr. ',ivec
+                call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
+                call tce_print_x2(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
+          end if
+         end if
+        end if
+       end if
+c
+        go to 200
+      end if
+c ==============
 c
        modelname = "CIS-like initial guess for EOM-CCSD"
         if (nodezero) write(LuOut,9220)
      1  modelname(1:inp_strlen(modelname))
-c
+c == jaguar ===
+      if(.not.eom_start) then
+c =============
         call cis(LuOut,size_x1,k_x1_offset,d_f1,k_f1_offset,d_v2,
      1           k_v2_offset,k_omegax,l_omegax,d_rx1)
+      else 
+        nroots_reduced=nroots
+        nxtrials=nroots
+      end if
 c
 c
+c == jaguar ===
+        if(.not.eom_start) then
+c =============
             if(nodezero) then
              write(LuOut,*)'INITIAL STARTS -----'
              call util_flush(6)
@@ -7167,6 +7486,7 @@ c
              write(LuOut,*)'INITIAL STARTS -----'
              call util_flush(6)
             end if
+        end if
 c
 c
             if (nxtrials.eq.0) goto 200
@@ -7304,6 +7624,67 @@ c
             call gatodra(xc2(ivec))
             xc2_exist(ivec) = .true.
           enddo
+c === jaguar ===
+        if(eom_start) then
+        if(nodezero) then
+         write(LuOut)'INI.EOMCCSD READ IN nroot_reduced=',nroots_reduced
+         call util_flush(LuOut)
+        end if
+        nroots_reduced=nroots
+        if(nroots_reduced.ge.1) then
+        unitn=81
+        ivec=1
+        call util_file_name('x1am1',.false.,.false.,filename)
+        call read_tensor(filename,xc1(ivec),size_x1,unitn)
+        unitn=82
+        call util_file_name('x2am1',.false.,.false.,filename)
+        call read_tensor(filename,xc2(ivec),size_x2,unitn)
+                if(nodezero)
+     &                  write(LuOut,*)'INI EOMCCSD root nr. ',ivec
+                call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
+                call tce_print_x2(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
+        if(nroots_reduced.ge.2) then
+         unitn=83
+         ivec=2
+         call util_file_name('x1am2',.false.,.false.,filename)
+         call read_tensor(filename,xc1(ivec),size_x1,unitn)
+         unitn=84
+         call util_file_name('x2am2',.false.,.false.,filename)
+         call read_tensor(filename,xc2(ivec),size_x2,unitn)
+                if(nodezero)
+     &                  write(LuOut,*)'INI EOMCCSD root nr. ',ivec
+                call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
+                call tce_print_x2(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
+         if(nroots_reduced.ge.3) then
+          unitn=85
+          ivec=3
+          call util_file_name('x1am3',.false.,.false.,filename)
+          call read_tensor(filename,xc1(ivec),size_x1,unitn)
+          unitn=86
+          call util_file_name('x2am3',.false.,.false.,filename)
+          call read_tensor(filename,xc2(ivec),size_x2,unitn)
+                if(nodezero)
+     &                  write(LuOut,*)'INI EOMCCSD root nr. ',ivec
+                call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
+                call tce_print_x2(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
+          if(nroots_reduced.ge.4) then
+           unitn=87
+           ivec=4
+           call util_file_name('x1am4',.false.,.false.,filename)
+           call read_tensor(filename,xc1(ivec),size_x1,unitn)
+           unitn=88
+           call util_file_name('x2am4',.false.,.false.,filename)
+           call read_tensor(filename,xc2(ivec),size_x2,unitn)
+                if(nodezero)
+     &                  write(LuOut,*)'INI EOMCCSD root nr. ',ivec
+                call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
+                call tce_print_x2(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
+          end if
+         end if
+        end if
+       end if
+       end if ! if eom_start
+c ====================
 c
           if(ccsd_var.eq.'lr-ccsd') then
             modelname = "LR-EOMCCSD right-hand side"
@@ -7489,12 +7870,18 @@ ccx           do iroot=1,nroots_reduced
 ccx             if(dabs(dbl_mb(k_residual+iroot-1)).gt.thresh) 
 ccx     &             converged=.false. 
 ccx           enddo 
+
+         if(nroots_reduced.gt.1) then 
            do iroot=1,nroots_reduced-1
              if(dabs(dbl_mb(k_residual+iroot-1)).gt.thresh_eom)
      &             converged=.false.
            enddo
            if(dabs(dbl_mb(k_residual+nroots_reduced-1)).gt.thresh_l)
      7             converged=.false.
+         else
+           if(dabs(dbl_mb(k_residual+nroots_reduced-1)).gt.thresh_eom)
+     7             converged=.false.
+         end if
 c
             if(converged) then
              do iroot=1,nroots_reduced
@@ -7621,8 +8008,42 @@ c
                go to 111
 c
  112          continue !from converged
+c === jaguar ===
+      if(write_xa)  then
+       if(nroots_reduced.ge.1) then
+        unitn=81
+        call util_file_name('x1am1',.false.,.false.,filename)
+        call write_tensor(filename,xc1(1),size_x1,unitn)
+        unitn=82
+        call util_file_name('x2am1',.false.,.false.,filename)
+        call write_tensor(filename,xc2(1),size_x2,unitn)
+        if(nroots_reduced.ge.2) then
+         unitn=83
+         call util_file_name('x1am2',.false.,.false.,filename)
+         call write_tensor(filename,xc1(2),size_x1,unitn)
+         unitn=84
+         call util_file_name('x2am2',.false.,.false.,filename)
+         call write_tensor(filename,xc2(2),size_x2,unitn)
+         if(nroots_reduced.ge.3) then
+          unitn=85
+          call util_file_name('x1am3',.false.,.false.,filename)
+          call write_tensor(filename,xc1(3),size_x1,unitn)
+          unitn=86
+          call util_file_name('x2am3',.false.,.false.,filename)
+          call write_tensor(filename,xc2(3),size_x2,unitn)
+          if(nroots_reduced.ge.4) then
+           unitn=87
+           call util_file_name('x1am4',.false.,.false.,filename)
+           call write_tensor(filename,xc1(4),size_x1,unitn)
+           unitn=88
+           call util_file_name('x2am4',.false.,.false.,filename)
+           call write_tensor(filename,xc2(4),size_x2,unitn)
+          end if
+         end if
+        end if
+       end if
+      end if
 c
-
          if(.not.MA_POP_STACK(l_residual))
      &      call errquit('l_residual',4,MA_ERR)
          if(.not.MA_POP_STACK(l_c_eff))
@@ -8063,7 +8484,8 @@ c
      5                        d_ex2,k_ex2_offset,size_ex2,
      6                        d_c1,k_c1_offset,size_c1,
      7                        d_c2,k_c2_offset,size_c2,
-     8                        excit,pt3_6,pt3_5,size_t1,size_x1)
+     8                        excit,pt3_6,pt3_5,size_t1,size_x1,
+     9                        r0xx)
                     call gatodra(xc2(ivec))
                     call gatodra(xc1(ivec))
       elseif(perturbative.eq.'emb1') then
@@ -9223,12 +9645,16 @@ c     done with 2nd ccsdtleft
               write(LuOut,9300) target
               write(LuOut,9340) targetsym
               write(LuOut,*)
-              write(LuOut,9310) modelname(1:inp_strlen(modelname)),
-     1          ref+corr
-              write(LuOut,9320) modelname(1:inp_strlen(modelname)),
-     1          dbl_mb(k_omegax+target-1)
-              write(LuOut,9330) modelname(1:inp_strlen(modelname)),
-     1          ref+corr+dbl_mb(k_omegax+target-1)
+c === jaguar ===
+              if(.not.(read_ta.or.read_xa.or.read_in3)) then 
+c ==============
+               write(LuOut,9310) modelname(1:inp_strlen(modelname)),
+     1           ref+corr
+               write(LuOut,9320) modelname(1:inp_strlen(modelname)),
+     1           dbl_mb(k_omegax+target-1)
+               write(LuOut,9330) modelname(1:inp_strlen(modelname)),
+     1           ref+corr+dbl_mb(k_omegax+target-1)
+              end if !jaguar
             endiF
             if (.not.rtdb_put(rtdb,'tce:energy',mt_dbl,1,
      1        ref+corr+dbl_mb(k_omegax+target-1)))
@@ -9352,7 +9778,11 @@ c
       if (io_v2.eq.IOSF) then
         call deletefile_sf(d_v2)
       else
-        call deletefile(d_v2)
+c === jaguar ===
+        if(.not.read_in3) then
+         call deletefile(d_v2)
+        end if
+c ==============
       endif
       if (left) then
         if (multipole.ge.3) then
@@ -9369,7 +9799,11 @@ c
           call deletefile(d_d1(axis))
         enddo
       endif
+c === jaguar ===
+      if(.not.read_in3) then
       call deletefile(d_f1)
+      end if
+c ==============
       if (needt4) then
         if (leftresp) then
           do axis = 3, 1, -1
@@ -9505,6 +9939,9 @@ cccx        endif
      1    call errquit("tce_energy: MA problem",1,MA_ERR)
       endif
       if(intorb) then
+c === jaguar ===
+       if(.not.read_in3) then ! --- read_in3
+c ==============
        if (.not.ma_pop_stack(l_v2spin_offset))
      1  call errquit("tce_energy: MA problem",59,MA_ERR)
 c--       if (.not.ma_pop_stack(l_o2ot_offset))
@@ -9513,13 +9950,18 @@ c--       if (.not.ma_pop_stack(l_o2o_offset))
 c--     1  call errquit("tce_energy: MA problem",57,MA_ERR)
        if (.not.ma_pop_stack(l_v2_alpha_offset))
      1  call errquit("tce_energy: MA problem",56,MA_ERR)
+       end if ! read_in3
       end if
       if(.not.intorb) then
       if (.not.ma_pop_stack(l_v2_offset))
      1  call errquit("tce_energy: MA problem",2,MA_ERR)
       end if
+c === jaguar ===
+      if(.not.read_in3) then ! --- read_in3 ---
       if (.not.ma_pop_stack(l_f1_offset))
      1  call errquit("tce_energy: MA problem",3,MA_ERR)
+      end if
+c ==============
       if (left) then
         if (multipole.ge.3) then
           do axis=10,1,-1
@@ -9539,6 +9981,9 @@ c--     1  call errquit("tce_energy: MA problem",57,MA_ERR)
         enddo
       endif
       if(intorb) then
+c === jaguar ===
+       if(.not.read_in3) then ! ---
+c ==============
        if (.not.ma_pop_stack(l_offset_alpha))
      1  call errquit("tce_energy: MA problem",55,MA_ERR)
        if (.not.ma_pop_stack(l_range_alpha))
@@ -9549,12 +9994,18 @@ c--     1  call errquit("tce_energy: MA problem",57,MA_ERR)
      1  call errquit("tce_energy: MA problem",52,MA_ERR)
        if (.not.ma_pop_stack(l_b2am))
      1  call errquit("tce_energy: MA problem",51,MA_ERR)
+       end if ! --- read_in3
       end if
+c ---
+c check if read_in3 is needed here
 c ---
       if(activecalc.or.(.not.intorb)) THEN
       if (.not.ma_pop_stack(l_active))
      1  call errquit("tce_energy: MA problem",34,MA_ERR)
       end if
+c === jaguar ===
+      if(.not.read_in3) then !---
+c ==============
       if (.not.ma_pop_stack(l_alpha))
      1  call errquit("tce_energy: MA problem",4,MA_ERR)
       if (.not.ma_pop_stack(l_offset))
@@ -9575,6 +10026,9 @@ c ---
      1  call errquit("tce_energy: MA problem",11,MA_ERR)
       if (.not.ma_pop_stack(l_movecs_sorted))
      1  call errquit("tce_energy: MA problem",12,MA_ERR)
+c ====
+      end if
+c ====
 c
 c     ===============
 c     Destroy a mutex
@@ -9587,8 +10041,10 @@ c     =========
 c     Terminate
 c     =========
 c
-      call tce_tidy(rtdb)
-      call util_print_pop
+      if(.not.read_in3) then
+       call tce_tidy(rtdb)
+       call util_print_pop
+      end if
       return
 c
 c     ======
@@ -9748,4 +10204,10 @@ c Use 9431 for frequency
  9506 format(1x,'Optical Rectification (OR)')
  9507 format(1x,'Electro-Optic Pockels Effect (EOPE)')
  9508 format(1x,'beta(',f1.5,',',f1.5,',',f1.5,')')
+ 9510 format(/,1x,'EOMCCSD SOLVER TYPE ',i2)
+ 9511 format(1x,'NUMBER OF ROOTS ',i2)
+ 9512 format(1x,'NO R0 RESTARTED')
+ 9515 format(3x,'TCE RESTART OPTIONS')
+ 9520 format(3x,'     L-threshold : ',d8.2)
+ 9521 format(3x,'     EOM-threshold : ',d8.2)
       end
