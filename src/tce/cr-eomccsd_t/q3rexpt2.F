@@ -33,6 +33,9 @@ C         i1 ( p4 p5 h1 h2 )_x + = -1/2 * x ( p4 p5 h1 h2 )_x
       INTEGER size_i1_2
       INTEGER d_x2
       INTEGER k_x2_offset
+c === jaguar ===
+      INTEGER unitn
+c ==============
       DOUBLE PRECISION a_i0(*)
       CHARACTER*255 filename
       IF (toggle .eq. 3) THEN
@@ -46,11 +49,30 @@ C         i1 ( p4 p5 h1 h2 )_x + = -1/2 * x ( p4 p5 h1 h2 )_x
      &set_2,size_i1_2)
       IF (toggle .eq. 1) CALL TCE_FILENAME('q3rexpt2_2_1_i1',filename)
       IF (toggle .eq. 1) CALL CREATEFILE(filename,d_i1_2,size_i1_2)
+c === jaguar ===
+      if(read_in3.and.(toggle.eq.1))  then
+       call util_file_name('qi1_2',.false.,.false.,filename)
+       unitn=87
+       call read_tensor(filename,d_i1_2,size_i1_2,unitn)
+       call ga_sync()
+       go to 101
+      end if
+c ==============
       IF (toggle .eq. 1) CALL q3rexpt2_2_1(d_t1,k_t1_offset,d_x1,k_x1_of
      &fset,d_i1_2,k_i1_offset_2)
       IF (toggle .eq. 1) CALL q3rexpt2_2_2(d_x2,k_x2_offset,d_i1_2,k_i1_
      &offset_2)
+ 101  continue
       IF (toggle .eq. 1) CALL RECONCILEFILE(d_i1_2,size_i1_2)
+c === jaguar ===
+      if(write_in3.and.(toggle.eq.1))  then
+       call util_file_name('qi1_2',.false.,.false.,filename)
+       unitn=87
+       call write_tensor(filename,d_i1_2,size_i1_2,unitn)
+       call ga_sync()
+      end if
+c ==============
+ccx 101  continue
       IF (toggle .eq. 2) CALL q3rexpt2_2(d_t1,k_t1_offset,d_i1_2,k_i1_of
      &fset_2,a_i0,t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b)
       RETURN
