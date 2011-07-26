@@ -71,7 +71,7 @@ OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_mo2e_2emet3.o tce_mo2e_2emet3_n5.o tce_mo2e_2emet4.o tce_mo2e_2emet4_n5.o \
       tce_make_denom1.o tce_make_denom2.o get_hash_block_ma.o \
       ccsd_energy_loc.o cc2_energy.o ccsd_lambda.o ccsd_imaginary.o ccsd_lr_alpha.o \
-      ccsd_qr_beta.o tce_dgeev.o tce_schmidt.o
+      ccsd_qr_beta.o tce_dgeev.o tce_schmidt.o tensor_read_write.o
 
 OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
 
@@ -116,7 +116,7 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_mo2e_disk_2eorb.F tce_mo2e_incore_2eorb.F tce_mo2e_incore_2eorb_split.F \
             tce_mo2e_hybrid_2eorb_split.F \
             tce_diagnose_t1.F ddotfile.F tce_ao2e_cholesky.F tce_energy.F \
-            ccsd_imaginary.F ccsd_lr_alpha.F ccsd_lr_beta.F
+            ccsd_imaginary.F ccsd_lr_alpha.F ccsd_lr_beta.F tensor_read_write.F
 
 
 #LIB_DEFINES += -DNEWDIPOLE
