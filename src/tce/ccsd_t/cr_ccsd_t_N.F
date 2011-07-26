@@ -74,6 +74,9 @@ C         i1 ( p4 p5 h1 p12 )_vt + = 1 * P( 2 ) * Sum ( h9 p8 ) * t ( p4 p8 h1 h
       INTEGER d_f1
       INTEGER k_f1_offset
       INTEGER size_i1_2
+c === jaguar ===
+      INTEGER unitn
+c ==============
       DOUBLE PRECISION a_i0(*)
       CHARACTER*255 filename
       IF (toggle .eq. 3) THEN
@@ -91,6 +94,15 @@ C         i1 ( p4 p5 h1 p12 )_vt + = 1 * P( 2 ) * Sum ( h9 p8 ) * t ( p4 p8 h1 h
       IF (toggle .eq. 1) CALL TCE_FILENAME('cr_ccsd_t_N_1_1_i1',filename
      &)
       IF (toggle .eq. 1) CALL CREATEFILE(filename,d_i1_1,size_i1_1)
+c === jaguar ===
+      if(read_in3.and.(toggle.eq.1))  then
+       call util_file_name('gr1_1',.false.,.false.,filename)
+       unitn=89
+       call read_tensor(filename,d_i1_1,size_i1_1,unitn)
+       call ga_sync()
+       go to 101
+      end if
+c ==============
       IF (toggle .eq. 1) CALL cr_ccsd_t_N_1_1(d_v2,k_v2_offset,d_i1_1,k_
      &i1_offset_1)
       IF (toggle .eq. 1) CALL OFFSET_cr_ccsd_t_N_1_2_1(l_i2_offset,k_i2_
@@ -180,7 +192,17 @@ C         i1 ( p4 p5 h1 p12 )_vt + = 1 * P( 2 ) * Sum ( h9 p8 ) * t ( p4 p8 h1 h
       END IF
       IF (toggle .eq. 1) CALL cr_ccsd_t_N_1_6(d_t2,k_t2_offset,d_v2,k_v2
      &_offset,d_i1_1,k_i1_offset_1)
+ 101  continue
       IF (toggle .eq. 1) CALL RECONCILEFILE(d_i1_1,size_i1_1)
+c === jaguar ===
+      if(write_in3.and.(toggle.eq.1))  then
+       call util_file_name('gr1_1',.false.,.false.,filename)
+       unitn=89
+       call write_tensor(filename,d_i1_1,size_i1_1,unitn)
+       call ga_sync()
+      end if
+c ==============
+ccx 101  continue
       IF (toggle .eq. 2) CALL cr_ccsd_t_N_1(d_t2,k_t2_offset,d_i1_1,k_i1
      &_offset_1,a_i0,t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b)
       IF (toggle .eq. 1) CALL OFFSET_cr_ccsd_t_N_2_1(l_i1_offset_2,k_i1_
@@ -188,6 +210,15 @@ C         i1 ( p4 p5 h1 p12 )_vt + = 1 * P( 2 ) * Sum ( h9 p8 ) * t ( p4 p8 h1 h
       IF (toggle .eq. 1) CALL TCE_FILENAME('cr_ccsd_t_N_2_1_i1',filename
      &)
       IF (toggle .eq. 1) CALL CREATEFILE(filename,d_i1_2,size_i1_2)
+c === jaguar ===
+      if(read_in3.and.(toggle.eq.1))  then
+       call util_file_name('gr1_2',.false.,.false.,filename)
+       unitn=90
+       call read_tensor(filename,d_i1_2,size_i1_2,unitn)
+       call ga_sync()
+       go to 102
+      end if
+c ==============
       IF (toggle .eq. 1) CALL cr_ccsd_t_N_2_1(d_v2,k_v2_offset,d_i1_2,k_
      &i1_offset_2)
       IF (toggle .eq. 1) CALL OFFSET_cr_ccsd_t_N_2_2_1(l_i2_offset,k_i2_
@@ -247,7 +278,17 @@ C         i1 ( p4 p5 h1 p12 )_vt + = 1 * P( 2 ) * Sum ( h9 p8 ) * t ( p4 p8 h1 h
       END IF
       IF (toggle .eq. 1) CALL cr_ccsd_t_N_2_5(d_t2,k_t2_offset,d_v2,k_v2
      &_offset,d_i1_2,k_i1_offset_2)
+ 102  continue
       IF (toggle .eq. 1) CALL RECONCILEFILE(d_i1_2,size_i1_2)
+c === jaguar ===
+      if(write_in3.and.(toggle.eq.1))  then
+       call util_file_name('gr1_2',.false.,.false.,filename)
+       unitn=90
+       call write_tensor(filename,d_i1_2,size_i1_2,unitn)
+       call ga_sync()
+      end if
+c ==============
+ccx 102  continue
       IF (toggle .eq. 2) CALL cr_ccsd_t_N_2(d_t2,k_t2_offset,d_i1_2,k_i1
      &_offset_2,a_i0,t_p4b,t_p5b,t_p6b,t_h1b,t_h2b,t_h3b)
       RETURN
