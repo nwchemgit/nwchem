@@ -218,7 +218,7 @@ c
       zj=z(j)
       if(c6(zi).eq.-1d0.or.c6(zj).eq.-1d0) then
          write(6,*) ' i j',i,j,' c6 ',c6(zi),c6(zj)
-         stop 'cra'
+         stop 'negative c6 in dispersion calculation'
       endif
       ci=c6(zi)
       cj=c6(zj)
@@ -380,7 +380,7 @@ c     else if(ivdw.eq.1.or.ivdw.eq.0)then
       endif
 c
 c to avoid divide by zero for dummy atoms (CP correction)
-      call dfill(c6,1.0d-14,128,1)
+      call dfill(128,1.0d-14,c6,1)
 c
       if(ivdw.eq.1)then
 c scaled radii
@@ -470,6 +470,7 @@ c true ivdw eq 1
       else
         scalerad=0.0d0
       end if
+c
 c     convert to au
 c     do i=1,128
 c     j nm6/mol to  kcal nm6/mol  to au nm6 to au
@@ -480,7 +481,6 @@ c picom to angs to au
 c        r0(i)=r0(i)*angs2au
 c     enddo
 c
-
 c use scaled radii and units change
       call dscal(128,angs2au*scalerad,r0,1)
 c use  units change j nm6/mol to au
@@ -643,7 +643,7 @@ c
 c
       write(LuOut,* ) 'Read old hessian file : ', filehess 
 c
-      call dfill(dbl_mb(k_exybt),0.0d0,nhesst,1)
+      call dfill(nhesst,0.d0,dbl_mb(k_exybt),1)
       !write(6,* ) 'leee '
       open(unit=69,file=filehess,form='formatted',status='old',
      &    err=99900,access='sequential')
