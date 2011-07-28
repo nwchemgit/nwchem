@@ -26,6 +26,9 @@ c
       double precision get_scale6
       external get_scale6
 c
+      logical geom_cart_get2 
+      external geom_cart_get2 
+c
       double precision delta,delta_default
 c
       oprint = util_print('vdw', print_medium)
@@ -41,16 +44,16 @@ c
      &   call errquit('xcvdw: cannot allocate charge',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Byte,n*16,'tags',ltags,itags))
      &   call errquit('xcvdw: cannot allocate tags',0, MA_ERR)
-      if (.not. geom_cart_get(geom, n, Byte_MB(itags),
-     &                        Dbl_MB(i_xyz), Dbl_MB(icharge)))
+      if (.not. geom_cart_get2(geom, n, Byte_MB(itags),
+     &        Dbl_MB(i_xyz), Dbl_MB(icharge), int_mb(iz)))
      &   call errquit('xcvdw: geom_cart_get failed',74, GEOM_ERR)
       if (.not.ma_pop_stack(ltags))
      &   call errquit('xcvdw: cannot pop stack',2, MA_ERR)
 c
-c
-      do i=1,n
-          int_mb(iz+i-1)=int(dbl_mb(icharge+i-1))
-      enddo
+c      do i=1,n
+c          int_mb(iz+i-1)=int(dbl_mb(icharge+i-1))
+c          write(6,*) i,int_mb(iz+i-1)
+c      enddo
 c
       if (.not.ma_pop_stack(lcharge))
      &   call errquit('xcvdw: cannot pop stack',3, MA_ERR)
@@ -203,9 +206,11 @@ c
 #endif
       return
       end
+c
       double precision function c6ij_sk(i,j,z)
       implicit none
 #include "xc_vdw.fh"
+#include "global.fh"
       integer i,j
       integer z(*)
 c     
@@ -214,16 +219,21 @@ c
       external xc_neff
       double precision xc_neff,ci,cj
 c
+      c6ij_sk=0.0d0
       zi=z(i)
       zj=z(j)
-      if(c6(zi).eq.-1d0.or.c6(zj).eq.-1d0) then
-         write(6,*) ' i j',i,j,' c6 ',c6(zi),c6(zj)
-         stop 'negative c6 in dispersion calculation'
-      endif
       ci=c6(zi)
       cj=c6(zj)
 c
-      c6ij_sk=0.0d0
+      if (ga_nodeid.eq.0) then
+         write(6,*) zi,zj,ci,cj
+      end if
+c
+      if(ci.le.0.d0.or.cj.le.0.d0) then
+        c6ij_sk=0.0d0
+        return
+      endif
+c
       if(ivdw.eq.1)then
 c version 1 
 c     S. Grimme J Comp Chem 25, 1463 (2004)
@@ -240,6 +250,7 @@ c     S. Grimme J Comp Chem 27, 1787 (2006)
       endif
       return
       end
+c
       double precision function xc_neff(z)
       implicit none
       integer z
@@ -256,6 +267,7 @@ c
       xc_neff=1.17d0+0.33d0*nv
       return
       end
+c
       double precision function xc_vdw_e(s6,n,x,z)
 c
 c     S. Grimme J Comp Chem 25, 1463 (2004)
@@ -294,6 +306,7 @@ c
 !      xc_vdw_e=xc_vdw_e/au2kcalmol
       return
       end
+c
       logical function xc_vdw_init(angs2au)
       implicit none
 #include "xc_vdw.fh"
@@ -357,30 +370,25 @@ c Y-Cd
 c In, Sn, Sb, Te, I, Xe
      .      0.00d0,0.00d0,0.00d0,0.00d0,0.00d0,0.00d0/
 c    .      46*1.d+99/
-
 c
       integer i
       double precision jnm6mol2au
 c
+c     initialize all c6 and r0
       do i=1,128
-         c6(i)=-1
-         r0(i)=-1
+         c6(i)=0.d0
+         r0(i)=0.d0
       enddo
 c
       if(ivdw.eq.1.or.ivdw.eq.2)then
-c     if(ivdw.eq.2)then
         do i=1, 54
            r0(i)=r0_grimme2(i)
         enddo
-c     else if(ivdw.eq.1.or.ivdw.eq.0)then
       else if(ivdw.eq.0)then
         do i=1, 54
           r0(i)=r0_grimme1(i)
         enddo
       endif
-c
-c to avoid divide by zero for dummy atoms (CP correction)
-      call dfill(128,1.0d-14,c6,1)
 c
       if(ivdw.eq.1)then
 c scaled radii
@@ -413,53 +421,52 @@ c estimate for bromine
 c scaled radii
 c      c metals as average of preceeding rare gas and group 3 element
 c      def2-QZVP PBE0 IP and alpha
-        c6( 1)=    0.14
-        c6( 2)=    0.08
-        c6( 3)=1.61
-        c6( 4)=1.61
-        c6( 5)=    3.13
-        c6( 6)=    1.75
-        c6( 7)=    1.23
-        c6( 8)=    0.70
-        c6( 9)=    0.75
-        c6(10)=    0.63
-        c6(11)=5.71
-        c6(12)=5.71
-        c6(13)=   10.79
-        c6(14)=    9.23
-        c6(15)=    7.84
-        c6(16)=    5.57
-        c6(17)=    5.07
-        c6(18)=    4.61
+        c6( 1) = 0.14
+        c6( 2) = 0.08
+        c6( 3) = 1.61
+        c6( 4) = 1.61
+        c6( 5) = 3.13
+        c6( 6) = 1.75
+        c6( 7) = 1.23
+        c6( 8) = 0.70
+        c6( 9) = 0.75
+        c6(10) = 0.63
+        c6(11) = 5.71
+        c6(12) = 5.71
+        c6(13) = 10.79
+        c6(14) = 9.23
+        c6(15) = 7.84
+        c6(16) = 5.57
+        c6(17) = 5.07
+        c6(18) = 4.61
         do ii=19,30
-           c6(ii)=10.8
+           c6(ii) = 10.8
         enddo
-        c6(31)=   16.99
-        c6(32)=   17.10
-        c6(33)=   16.37
-        c6(34)=   12.64
-        c6(35)=   12.47
-        c6(36)=   12.01
+        c6(31) = 16.99
+        c6(32) = 17.10
+        c6(33) = 16.37
+        c6(34) = 12.64
+        c6(35) = 12.47
+        c6(36) = 12.01
         do ii=37,48
-           c6(ii)=24.67
+           c6(ii) = 24.67
         enddo
-        c6(49)=   37.32
-        c6(50)=   38.71
-        c6(51)=   38.44
-        c6(52)=   31.74
-        c6(53)=   31.50
-        c6(54)=   29.99
+        c6(49) = 37.32
+        c6(50) = 38.71
+        c6(51) = 38.44
+        c6(52) = 31.74
+        c6(53) = 31.50
+        c6(54) = 29.99
       else if(ivdw.eq.0)then
 c scaled radii
-        c6(1)=0.163d0
-        c6(6)=1.881d0
-        c6(7)=1.11d0
-        c6(8)=0.684d0
-        c6(9)=0.57d0
-        c6(10)=0.45d0
+        c6(1) = 0.163d0
+        c6(6) = 1.881d0
+        c6(7) = 1.11d0
+        c6(8) = 0.684d0
+        c6(9) = 0.57d0
+        c6(10)= 0.45d0
       endif
 c
-c     if(ivdw.eq.1.or.ivdw.eq.0)then
       if (ivdw.eq.0) then
         scalerad=1.00d0
       else if (ivdw.eq.1) then
@@ -471,24 +478,20 @@ c true ivdw eq 1
         scalerad=0.0d0
       end if
 c
-c     convert to au
-c     do i=1,128
-c     j nm6/mol to  kcal nm6/mol  to au nm6 to au
-c        c6(i)=c6(i)*joule2kcal/au2kcalmol/((angs2nm/angs2au)**6)
-c        c6(i)=c6(i)*(((10*angs2au)**6)/4186)/627.51
-c        c6(i) = 0.001d0 * c6(i) / 2625.4999d0 * 0.052917726d0
-c picom to angs to au
-c        r0(i)=r0(i)*angs2au
-c     enddo
-c
-c use scaled radii and units change
-      call dscal(128,angs2au*scalerad,r0,1)
 c use  units change j nm6/mol to au
       jnm6mol2au=(((10*angs2au)**6)/4186)/627.51
-      call dscal(128,jnm6mol2au,c6,1)
+c
+c use scaled radii and units change
+      do i=1,128
+         r0(i) = r0(i)*angs2au*scalerad
+         c6(i) = c6(i)*jnm6mol2au
+      end do
+c
       xc_vdw_init=.true.
+c
       return
       end
+c
       double precision function get_scale6()
       implicit none
 #include "cdft.fh"
@@ -660,7 +663,7 @@ c
 c
       write(LuOut,* ) 'vdW contribution to hessian '
 c
-c     call output(dbl_mb(k_exybs), 1, n3xyz, 1, n3xyz, n3xyz, n3xyz, 1)
+      call output(dbl_mb(k_exybs), 1, n3xyz, 1, n3xyz, n3xyz, n3xyz, 1)
 c
        do A = 1, n
          do i = 1, 3
@@ -688,8 +691,8 @@ c
          enddo
       enddo
 c
-c         call output(hessvdw,1,n3xyz,1,n3xyz,
-c    &        n3xyz,n3xyz,1)
+         call output(hessvdw,1,n3xyz,1,n3xyz,
+     &        n3xyz,n3xyz,1)
 c
       call daxpy(nat2,1d0,hessvdw,1,dbl_mb(k_exybs),1)
 c
