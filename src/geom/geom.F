@@ -1652,6 +1652,45 @@ c
       end do
 c
       end
+c
+      function geom_cart_get2(geom, ncent, t, c, q, atnum)
+      implicit none
+#include "nwc_const.fh"
+#include "geomP.fh"
+c
+      logical geom_cart_get2
+      logical status_tagi
+      integer geom              ! [input]
+      integer ncent             ! [output]
+      character*16 t(ncent)     ! [output]
+      double precision c(3, ncent) ! [output]
+      double precision q(ncent) ! [output]
+      integer atnum(ncent)      ! [output]
+      logical geom_check_handle, geom_check_cent
+      external geom_check_handle, geom_check_cent
+      integer i
+      integer iatn
+      character*2 symi
+      character*16 elei
+      logical geom_tag_to_element
+      external geom_tag_to_element
+c
+      geom_cart_get2 = geom_check_handle(geom, 'geom_cart_get')
+      if (.not. geom_cart_get2) return
+c
+      ncent = ncenter(geom)
+      do i = 1, ncent
+         t(i) = tags(i,geom)
+         q(i) = charge(i,geom)
+         c(1,i) = coords(1,i,geom)
+         c(2,i) = coords(2,i,geom)
+         c(3,i) = coords(3,i,geom)
+         status_tagi = geom_tag_to_element(t(i),symi,elei,iatn)
+         atnum(i) = iatn
+      end do
+c
+      end
+c
       logical function geom_cart_coords_get(geom, c)
       implicit none
 #include "nwc_const.fh"
