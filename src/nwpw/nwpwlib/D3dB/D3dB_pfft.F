@@ -2414,16 +2414,15 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       implicit none
       integer n,nx,nxh
       real*8     tmpx(2*nx+15)
-      complex*16 A(nxh,n)
+      !complex*16 A(nxh,n)
+      real*8 A(2*nxh,n)
       integer i,indx
-!$omp parallel default(private) shared(A,n) private(i)
+!$omp parallel do default(private) shared(A,n) private(i)
 !$omp& firstprivate(nx,tmpx)
-!$omp do schedule(dynamic)
       do i=1,n
          call drfftf(nx,A(1,i),tmpx)
       end do
-!$omp end do nowait
-!$omp end parallel 
+!$omp end parallel do
       return
       end
 
@@ -2617,18 +2616,17 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer n,ny
       logical    row2(n)
       real*8     tmpy(4*ny+15)
-      complex*16 A(ny,n)
+      !complex*16 A(ny,n)
+      real*8     A(2*ny,n)
       integer i
-!$omp parallel default(private) shared(A,n) private(i)
-!$omp& firstprivate(ny,tmpy,row2)
-!$omp do schedule(dynamic)
+!$omp parallel do default(private) shared(A,n) private(i)
+!$omp& firstprivate(ny,tmpy,row2) schedule(dynamic)
       do i=1,n
          if (.not.row2(i)) then
             call dcfftf(ny,A(1,i),tmpy)
          end if
       end do
-!$omp end do nowait
-!$omp end parallel 
+!$omp end parallel do
       return
       end
 
@@ -2811,18 +2809,17 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer n,nz
       logical    row3(n)
       real*8     tmpz(4*nz+15)
-      complex*16 A(nz,n)
+      !complex*16 A(nz,n)
+      real*8     A(2*nz,n)
       integer i
-!$omp parallel default(private) shared(A,n) private(i)
-!$omp& firstprivate(nz,tmpz,row3)
-!$omp do schedule(dynamic)
+!$omp parallel do default(private) shared(A,n) private(i)
+!$omp& firstprivate(nz,tmpz,row3) schedule(dynamic)
       do i=1,n
          if (.not.row3(i)) then
             call dcfftf(nz,A(1,i),tmpz)
          end if
       end do
-!$omp end do nowait
-!$omp end parallel
+!$omp end parallel do
       return
       end
 
@@ -3083,18 +3080,17 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer n,nz
       logical    row3(n)
       real*8     tmpz(4*nz+15)
-      complex*16 A(nz,n)
+      !complex*16 A(nz,n)
+      real*8     A(2*nz,n)
       integer i
-!$omp parallel default(private) shared(A,n) private(i)
-!$omp& firstprivate(nz,tmpz,row3)
-!$omp do schedule(dynamic)
+!$omp parallel do default(private) shared(A,n) private(i)
+!$omp& firstprivate(nz,tmpz,row3) schedule(dynamic)
       do i=1,n
          if (.not.row3(i)) then
             call dcfftb(nz,A(1,i),tmpz)
          end if
       end do
-!$omp end do nowait
-!$omp end parallel
+!$omp end parallel do
       return
       end
 
@@ -3280,18 +3276,17 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       integer n,ny
       logical    row2(n)
       real*8     tmpy(4*ny+15)
-      complex*16 A(ny,n)
+      !complex*16 A(ny,n)
+      real*8     A(2*ny,n)
       integer i
-!$omp parallel default(private) shared(A,n) private(i)
-!$omp& firstprivate(ny,tmpy,row2)
-!$omp do schedule(dynamic)
+!$omp parallel do default(private) shared(A,n) private(i)
+!$omp& firstprivate(ny,tmpy,row2) schedule(dynamic)
       do i=1,n
          if (.not.row2(i)) then
             call dcfftb(ny,A(1,i),tmpy)
          end if
       end do
-!$omp end do nowait
-!$omp end parallel
+!$omp end parallel do
       return
       end
 
@@ -3433,16 +3428,15 @@ c     call D3dB_c_transpose_jk(nb,A,dcpl_mb(tmp2(1)),dbl_mb(tmp3(1)))
       implicit none
       integer n,nx,nxh
       real*8     tmpx(2*nx+15)
-      complex*16 A(nxh,n)
+      !complex*16 A(nxh,n)
+      real*8     A(2*nxh,n)
       integer i
-!$omp parallel default(private) shared(A,n) private(i)
-!$omp& firstprivate(nx,tmpx)
-!$omp do schedule(dynamic)
+!$omp parallel do default(private) shared(A,n) private(i)
+!$omp& firstprivate(nx,tmpx) schedule(static)
       do i=1,n
          call drfftb(nx,A(1,i),tmpx)
       end do
-!$omp end do nowait
-!$omp end parallel 
+!$omp end parallel do
 
       return
       end

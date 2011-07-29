@@ -4547,7 +4547,6 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
               else
                  msglen  = 1
                  msgtype = 1
-                 status  = msglen
                  source  = p_from
 c                 call SND(9+MSGINT,idum,mitob(msglen),source,1)
 c                 call RCV(9+MSGDBL,tmp(k),mdtob(msglen),rcv_len,
