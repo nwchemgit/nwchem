@@ -1686,7 +1686,7 @@ c
          c(2,i) = coords(2,i,geom)
          c(3,i) = coords(3,i,geom)
          status_tagi = geom_tag_to_element(t(i),symi,elei,iatn)
-         atnum(i) = iatn
+         atnum(i) = iatn  ! iatn is 0 if status_tagi is false
       end do
 c
       end
