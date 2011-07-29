@@ -222,16 +222,19 @@ c
       c6ij_sk=0.0d0
       zi=z(i)
       zj=z(j)
+      if (zi.le.0.or.zj.le.0) then 
+         c6ij_sk=0.0d0
+         return
+      end if
+c
       ci=c6(zi)
       cj=c6(zj)
 c
-      if (ga_nodeid.eq.0) then
-         write(6,*) zi,zj,ci,cj
-      end if
+c     write(6,*) zi,zj,ci,cj
 c
       if(ci.le.0.d0.or.cj.le.0.d0) then
-        c6ij_sk=0.0d0
-        return
+         c6ij_sk=0.0d0
+         return
       endif
 c
       if(ivdw.eq.1)then
