@@ -853,7 +853,7 @@ c     character*16 t
       external ion_nion,control_mapping
       external lattice_unita,ion_rion,ion_q
 
-      call parallel_taskid(taskid)
+      call Parallel_taskid(taskid)
 
       
 *     **** OPEN cube FILE ****
@@ -1500,7 +1500,7 @@ c     character*16 t
       external G_indx
 
 
-      call parallel_taskid(taskid)
+      call Parallel_taskid(taskid)
 
       
 *     **** OPEN cube FILE ****
@@ -1877,7 +1877,7 @@ c     character*16 t
       external G_indx
 
 
-      call parallel_taskid(taskid)
+      call Parallel_taskid(taskid)
 
       
 *     **** OPEN cube FILE ****
