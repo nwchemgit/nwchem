@@ -1,5 +1,5 @@
 echo
-start h2o_cg_to_diag
+start h2o_diag_opt_ub3lyp_dat
 
 memory global 40 mb stack 23 mb heap 5 mb
 
@@ -8,6 +8,7 @@ geometry units au
  H 0       1.430   -1.107
  H 0      -1.430   -1.107
 end
+charge 1
 
 
 basis
@@ -16,17 +17,11 @@ basis
 end
 
 dft
-  cgmin
-  iterations 5
+  odft
+  mult 2
+  xc b3lyp
+  print "forces" "force components"
   convergence nr 0.0
 end
 
-task dft ignore
-
-dft
-  nocgmin
-  iterations 5
-  convergence nr 0.0
-end
-
-task dft
+task dft optimize

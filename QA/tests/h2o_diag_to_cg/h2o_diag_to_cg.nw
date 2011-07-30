@@ -16,7 +16,16 @@ basis
 end
 
 dft
-  iterations 5
+  iterations 2
   convergence nr 0.0
 end
+
+task dft ignore
+
+dft
+  cgmin
+  iterations 15
+  convergence nr 0.0
+end
+
 task dft

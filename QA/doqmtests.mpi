@@ -30,6 +30,9 @@ endif
 ./runtests.mpi.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse
 ./runtests.mpi.unix procs $np dplot dft_meta dft_mpwb1khf dft_m05nh2ch3 prop_uhf_h2o
 ./runtests.mpi.unix procs $np et_zn_dimer vectors_rotate sad_ch3hf
+./runtests.mpi.unix procs $np h2o_diag_to_cg h2o_cg_to_diag 
+./runtests.mpi.unix procs $np h2o_diag_opt h2o_cg_opt h2o_diag_opt_ub3lyp h2o_cg_opt_ub3lyp
+./runtests.mpi.unix procs $np h2o_diag_to_cg_ub3lyp h2o_cg_to_diag_ub3lyp
 #
 #---   small tests that should fail!
 echo ' '

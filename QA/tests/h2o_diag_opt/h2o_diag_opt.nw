@@ -1,5 +1,5 @@
 echo
-start h2o_cg_to_diag
+start h2o_diag_opt_dat
 
 memory global 40 mb stack 23 mb heap 5 mb
 
@@ -16,17 +16,8 @@ basis
 end
 
 dft
-  cgmin
-  iterations 5
+  print "force components"
   convergence nr 0.0
 end
 
-task dft ignore
-
-dft
-  nocgmin
-  iterations 5
-  convergence nr 0.0
-end
-
-task dft
+task dft optimize
