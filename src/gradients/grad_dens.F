@@ -78,7 +78,7 @@ c     smearing, therefore check new nocs
 c
       if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
      &   call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
-	
+c
           g_tmp = ga_create_atom_blocked(geom, basis,
      &         'frac vecs')
           call ga_zero(g_tmp)
@@ -218,7 +218,7 @@ c     smearing, therefore check new nocs
 c
       if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
      &   call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
-	
+c
           g_tmp = ga_create_atom_blocked(geom, basis,
      &         'frac vecs')
           call ga_zero(g_tmp)
@@ -281,7 +281,7 @@ c     smearing, therefore check new nocs
 c
       if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
      &   call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
-	
+c
           g_tmp2 = ga_create_atom_blocked(geom, basis,
      &         'frac vecs')
           call ga_zero(g_tmp2)

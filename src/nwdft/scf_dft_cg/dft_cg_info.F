@@ -326,6 +326,7 @@ c
 #include "cfock.fh"
 #include "rtdb.fh"
 #include "cosmo.fh"
+#include "cgridfile.fh"
       integer rtdb
 c
       logical status
@@ -351,6 +352,15 @@ c        endif
       endif
 c
       call fock_2e_tidy(rtdb)
+c
+c     The quasi Newton-Raphson solver uses FOCK_XC to calculate the DFT
+c     contributions to the Kohn-Sham matrix. FOCK_XC will open the grid
+c     file at the beginning of every Fock build and close it again when
+c     done. Therefore at this point the grid file is always closed and
+c     we need to set GRID_WRITTEN to .FALSE. so that the code will
+c     always reopen the grid file before trying anything else.
+c
+      grid_written = .false.
 c
 c     ----- cosmo cleanup and reset -----
 c

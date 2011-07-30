@@ -1,7 +1,5 @@
       subroutine dft_gradients(rtdb)
 c
-C $$
-c
 c calculate energy gradients with respect to nuclear coordinates
 c modified from scf version for use in DFT gradients
 c
@@ -268,7 +266,7 @@ c
       if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
      &   call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
          rhffact = one
-	
+c
         do ispin=1,ipol
           g_tmp(ispin) = ga_create_atom_blocked(geom, ao_bas_han,
      &         'frac vecs')

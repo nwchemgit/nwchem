@@ -572,8 +572,6 @@ c     == Call the main drivers ==
      &                         nconstr)
           else if (lcgmin) then
             dft_main0d = dft_cg_solve(rtdb)
-            call dft_cg_answer(rtdb,energy,lsuccess)
-            call dft_cg_tidy(rtdb)
           endif
        else
           dft_main0d = .false.
