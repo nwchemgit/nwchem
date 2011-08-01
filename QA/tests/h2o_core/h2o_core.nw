@@ -1,0 +1,29 @@
+
+echo
+start h2o_core
+
+memory 1000 mb
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+dft
+  xc beckehandh
+end
+task dft optimize
+
+tddft
+  ecut -10
+  nroots 10
+  notriplet
+end 
+task tddft 
