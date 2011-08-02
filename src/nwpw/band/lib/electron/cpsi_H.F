@@ -64,6 +64,7 @@
 
       if (dohfx) then
          Hpsi_r_tag = 0
+         !Hpsi_tag = cpsi_data_alloc(nbrillq,ne(1)+ne(2),2*nfft3d)
       end if
 
       

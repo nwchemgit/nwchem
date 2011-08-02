@@ -15,7 +15,9 @@
 *   gga = 10 pbe96
 *   gga = 11 blyp
 *   gga = 12 revpbe
-*   gga = 13-99 (reserved for other gga's)
+*   gga = 13 pbesol
+*   gga = 14 hser remainder   (-0.25*Ex(w,pbe,sr) + Ex(pbe) + Ec(pbe))
+*   gga = 14-99 (reserved for other gga's)
 *
 *   **** hybrids ****
 *   gga = 100-109 (reserved for lda hybrids)
@@ -23,7 +25,8 @@
 *   gga = 111  b3lyp
 *   gga = 112  revpbe0
 *   gga = 113  bnl
-*   gga = 114-199 (reserved for hybrids)
+*   gga = 114  hse
+*   gga = 115-199 (reserved for hybrids)
 *   gga = 200 hartree-fock
 *
 *
@@ -55,6 +58,10 @@
         gga = 11
       else if (inp_compare(.false.,exchange_correlation,'revpbe')) then
         gga = 12
+      else if (inp_compare(.false.,exchange_correlation,'pbesol')) then
+        gga = 13
+      else if (inp_compare(.false.,exchange_correlation,'hser')) then
+        gga = 13
 
 
 
@@ -62,10 +69,12 @@
       else if (inp_compare(.false.,exchange_correlation,'hf')) then
         gga = 200
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
       else if (inp_compare(.false.,exchange_correlation,
      >                     'hartree-fock')) then
         gga = 200
         value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
 
 
 *     **** hybrid functionals ****
@@ -88,6 +97,25 @@
      >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,1.00d0)
         value = value.and.
      >          rtdb_put(rtdb,'pspw:HFX_screening_type',mt_int,1,2)
+
+      else if (inp_compare(.false.,exchange_correlation,'hse')) then
+        gga = 114
+        value = value.and.rtdb_put(rtdb,'pspw:HFX',mt_log,1,.true.)
+        value = value.and.rtdb_put(rtdb,'band:HFX',mt_log,1,.true.)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'band:HFX_parameter',mt_dbl,1,0.25d0)
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_screening_radius',
+     >                   mt_dbl,1,(1.0d0/0.207d0))
+        value = value.and.
+     >          rtdb_put(rtdb,'band:HFX_screening_radius',
+     >                   mt_dbl,1,(1.0d0/0.207d0))
+        value = value.and.
+     >          rtdb_put(rtdb,'pspw:HFX_screening_type',mt_int,1,4)
+        value = value.and.
+     >          rtdb_put(rtdb,'band:HFX_screening_type',mt_int,1,4)
 
 
 *     **** SIC hybrids ****

@@ -7,9 +7,11 @@
             	v_bwexc.o \
             	v_bwexc_euv.o \
             	pbe96.o \
+            	pbesol.o \
             	revpbe.o \
             	blyp.o \
-		bnl2007_x.o
+		bnl2007_x.o\
+		hsepbe.o
 
 #            vdirac.o \
 

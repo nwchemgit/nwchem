@@ -1,7 +1,5 @@
 *
 * $Id$
-
-
 *
       subroutine c_coulomb_screened_init(flag,rcut,pp)
       implicit none 
@@ -228,9 +226,9 @@ c      parameter (EPSILON=1.0d0)
      >           + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
 
            if ((pzero.eq.taskid) .and. (i.eq.zero)) then
-              temp = kiril_coulomb_transform0(flag,rcut,pp)
+              temp = kiril_c_coulomb_transform0(flag,rcut,pp)
            else
-              temp = kiril_coulomb_transform(flag,gg,rcut,pp)
+              temp = kiril_c_coulomb_transform(flag,gg,rcut,pp)
            end if
            dbl_mb(gk2(1)+i-1) = temp
         end do
@@ -266,7 +264,7 @@ c      parameter (EPSILON=1.0d0)
 
 
 
-*     *** Pack the kernel ****
+*     *** Cram the kernel ****
       call Cram_r_pack(0,dbl_mb(gk2(1)))
       call Cram_r_Copy(0,dbl_mb(gk2(1)),dbl_mb(vc_indx))
 
@@ -274,7 +272,7 @@ c      parameter (EPSILON=1.0d0)
       value = value.and.MA_pop_stack(gk2(2))
       value = value.and.MA_pop_stack(gk(2))
       if (.not. value) 
-     >  call errquit('coulomb_screened_init: poppingstack memory',0,
+     >  call errquit('c_coulomb_screened_init: poppingstack memory',0,
      &       MA_ERR)
 
 
@@ -291,7 +289,7 @@ c      call coulomb_screened_init_print(rcut,pp)
 
 
 
-      subroutine coulomb_screened_end()
+      subroutine c_coulomb_screened_end()
       implicit none
 #include "mafdecls.fh"
 
@@ -327,7 +325,7 @@ c      call coulomb_screened_init_print(rcut,pp)
       end
 
 
-      real*8 function coulomb_screened_e(dng)
+      real*8 function c_coulomb_screened_e(dng)
       implicit none
       complex*16 dng(*)
 
@@ -363,12 +361,12 @@ c      call coulomb_screened_init_print(rcut,pp)
       value = MA_pop_stack(tmp1(2))
       
       call nwpw_timing_end(7)
-      coulomb_screened_e = ec
+      c_coulomb_screened_e = ec
       return 
       end
 
 
-      real*8 function icoulomb_screened_e(dng)
+      real*8 function c_icoulomb_screened_e(dng)
       implicit none
       complex*16 dng(*)
 
@@ -402,7 +400,7 @@ c      call coulomb_screened_init_print(rcut,pp)
      >  call errquit('popping stack memory',0, MA_ERR)
       call nwpw_timing_end(7)
 
-      icoulomb_screened_e = ec
+      c_icoulomb_screened_e = ec
       return
       end
 
@@ -411,7 +409,7 @@ c      call coulomb_screened_init_print(rcut,pp)
 
 *     *******************************
 *     *                             *
-*     *   kiril_coulomb_transform   *
+*     *  kiril_c_coulomb_transform  *
 *     *                             *
 *     *******************************
 
@@ -431,7 +429,7 @@ c      call coulomb_screened_init_print(rcut,pp)
 *                             |
 *                            / 0
 
-      real*8 function kiril_coulomb_transform(flag,gg,rcut,pp)
+      real*8 function kiril_c_coulomb_transform(flag,gg,rcut,pp)
       implicit none
       integer flag
       real*8 gg,rcut,pp
@@ -469,13 +467,13 @@ c        r = (i-1)*drho
      >     *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
       end if
 
-      kiril_coulomb_transform = (fourpi/q)*sum*drho
+      kiril_c_coulomb_transform = (fourpi/q)*sum*drho
       return
       end
 
 *     *******************************
 *     *                             *
-*     *   kiril_coulomb_transform0  *
+*     * kiril_c_coulomb_transform0  *
 *     *                             *
 *     *******************************
 
@@ -495,7 +493,7 @@ c        r = (i-1)*drho
 *                             |
 *                            / 0
 
-      real*8 function kiril_coulomb_transform0(flag,rcut,pp)
+      real*8 function kiril_c_coulomb_transform0(flag,rcut,pp)
       implicit none
       integer flag
       real*8 rcut,pp
@@ -532,7 +530,7 @@ c          r = (i-1)*drho
      >       *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
       end if
 
-      kiril_coulomb_transform0 = (fourpi)*sum*drho
+      kiril_c_coulomb_transform0 = (fourpi)*sum*drho
       return
       end
 
@@ -540,7 +538,7 @@ c          r = (i-1)*drho
 
 
 *
-      subroutine coulomb_screened_init_print(rcut,pp)
+      subroutine c_coulomb_screened_init_print(rcut,pp)
       implicit none 
 #include "errquit.fh"
       real*8 rcut,pp
@@ -556,7 +554,7 @@ c          r = (i-1)*drho
       integer i,npack0,tmp1(2),nfft3d
 
 
-      call D3dB_nfft3d(1,nfft3d)
+      call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
 
 *     **** allocate memory ****
@@ -588,7 +586,7 @@ c          r = (i-1)*drho
 
 
 
-      subroutine sub_coulomb_screened_init_print(vc,rcut,pp)
+      subroutine sub_c_coulomb_screened_init_print(vc,rcut,pp)
       implicit none
       real*8 vc(*)
       real*8 rcut,pp
@@ -614,11 +612,11 @@ c          r = (i-1)*drho
 
 *     **** constants ****
       call Parallel_taskid(taskid)
-      call D3dB_nfft3d(1,nfft3d)
+      call C3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
-      call D3dB_nx(1,np1)
-      call D3dB_ny(1,np2)
-      call D3dB_nz(1,np3)
+      call C3dB_nx(1,np1)
+      call C3dB_ny(1,np2)
+      call C3dB_nz(1,np3)
       pp2    = pp + 2.0d0
 
       nph1 = np1/2
@@ -635,7 +633,6 @@ c          r = (i-1)*drho
       dV    = lattice_omega()/dble(np1*np2*np3)
 
 
-      !call D3dB_r_SMul(1,scal1,vc,vc)
 
 *     **** grid points in coordination space ****
       k3=0
@@ -648,8 +645,7 @@ c          r = (i-1)*drho
          if (j.lt.0) j=j+np2
          if (k.lt.0) k=k+np3
 
-         !call D3dB_ktoqp(1,k+1,q,p)
-         call D3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
+         call C3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
          if (p .eq. taskid) then
 c           index = (q-1)*(np1+2)*np2
 c    >            + j    *(np1+2)
@@ -686,11 +682,11 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
 
 *     **********************************
 *     *                                *
-*     *    coulomb_screened_euv_init   *
+*     *   c_coulomb_screened_euv_init  *
 *     *                                *
 *     **********************************
 
-      subroutine coulomb_screened_euv_init(flag,rcut,pp)
+      subroutine c_coulomb_screened_euv_init(flag,rcut,pp)
       implicit none 
       integer flag
       real*8 rcut,pp
@@ -727,8 +723,8 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       call Parallel2d_taskid_i(taskid)
 
 
-      call D3dB_nfft3d(1,nfft3d)
-      call D3dB_n2ft3d(1,n2ft3d)
+      call C3dB_nfft3d(1,nfft3d)
+      call C3dB_n2ft3d(1,n2ft3d)
       call Cram_npack(0,npack0)
       G(1) = G_indx(1)
       G(2) = G_indx(2)
@@ -762,9 +758,9 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
 
 
-      call D3dB_nz(1,nz)
-      call D3dB_ny(1,ny)
-      call D3dB_nx(1,nx)
+      call C3dB_nz(1,nz)
+      call C3dB_ny(1,ny)
+      call C3dB_nx(1,nx)
       nxh = nx/2
       nyh = ny/2
       nzh = nz/2
@@ -797,7 +793,7 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       i=0
       j=0
       k=0
-      call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
+      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
 
 
 *     **** short-range part of Greens function ****
@@ -817,7 +813,7 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
 
          dcpl_mb(gk(1)+i-1)  = dcmplx(temp,0.0d0)
       end do
-      call D3dB_cr_fft3b(1,dcpl_mb(gk(1)))
+      call C3dB_cr_fft3b(1,dcpl_mb(gk(1)))
       call dcopy(n2ft3d,dcpl_mb(gk(1)), 1,dbl_mb(gr(1)), 1)
 
 
@@ -832,7 +828,7 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
          if (j.lt.0) j=j+ny
          if (k.lt.0) k=k+nz
 
-         call D3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
+         call C3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
          if (p .eq. taskid) then
             x = a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3
             y = a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3
@@ -846,13 +842,11 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       end do
       end do
       end do
-c      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
-      call D3dB_r_SMul1(1,scal1,dbl_mb(gr(1)))
+      call C3dB_r_SMul1(1,scal1,dbl_mb(gr(1)))
 
 
 *     **** Put gk in k-space ****
-      call D3dB_r_Zero_Ends(1,dbl_mb(gr(1)))
-      call D3dB_rc_fft3f(1,dbl_mb(gr(1)))
+      call C3dB_rc_fft3f(1,dbl_mb(gr(1)))
 
 
 *     *** note that only real parts of tranformed gls are used ****
@@ -899,8 +893,8 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
          dcpl_mb(gk(1)+i-1)  = dcmplx(temp,0.0d0)
          dcpl_mb(dgk(1)+i-1) = dcmplx(temp2,0.0d0)
       end do
-      call D3dB_cr_fft3b(1,dcpl_mb(gk(1)))
-      call D3dB_cr_fft3b(1,dcpl_mb(dgk(1)))
+      call C3dB_cr_fft3b(1,dcpl_mb(gk(1)))
+      call C3dB_cr_fft3b(1,dcpl_mb(dgk(1)))
 
       call dcopy(n2ft3d,dcpl_mb(gk(1)), 1,dbl_mb(gr(1)), 1)
       call dcopy(n2ft3d,dcpl_mb(dgk(1)),1,dbl_mb(dgr(1)),1)
@@ -917,7 +911,7 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
          if (j.lt.0) j=j+ny 
          if (k.lt.0) k=k+nz 
 
-         call D3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
+         call C3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
          if (p .eq. taskid) then
             x = a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3
             y = a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3
@@ -948,13 +942,11 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
       end do
       end do
       end do
-c      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
-      call D3dB_r_SMul1(1,scal1,dbl_mb(gr(1)))
+      call C3dB_r_SMul1(1,scal1,dbl_mb(gr(1)))
 
 
 *     **** Put gr in k-space ****
-      call D3dB_r_Zero_Ends(1,dbl_mb(gr(1)))
-      call D3dB_rc_fft3f(1,dbl_mb(gr(1)))
+      call C3dB_rc_fft3f(1,dbl_mb(gr(1)))
         
 
 *     *** note that only real parts of tranformed gls are used ****
@@ -980,7 +972,7 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
          if (j.lt.0) j=j+ny
          if (k.lt.0) k=k+nz
 
-         call D3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
+         call C3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
          if (p .eq. taskid) then
             x = a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3
             y = a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3
@@ -1021,7 +1013,7 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
          if (j.lt.0) j=j+ny
          if (k.lt.0) k=k+nz
 
-         call D3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
+         call C3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
          if (p .eq. taskid) then
             x = a(1,1)*k1 + a(1,2)*k2 + a(1,3)*k3
             y = a(2,1)*k1 + a(2,2)*k2 + a(2,3)*k3
@@ -1059,14 +1051,11 @@ c      call D3dB_r_SMul(1,scal1,dbl_mb(gr(1)),dbl_mb(gr(1)))
       end do
       end do
       end do
-c      call D3dB_r_SMul(1,dV,dbl_mb(gr(1)),dbl_mb(gr(1)))  !** note extra omega ***
-      call D3dB_r_SMul1(1,dV,dbl_mb(gr(1)))
+      call C3dB_r_SMul1(1,dV,dbl_mb(gr(1)))
 
 
 *     **** Put gk in k-space ****
-      call D3dB_r_Zero_Ends(1,dbl_mb(gr(1)))
-      call D3dB_rc_fft3f(1,dbl_mb(gr(1)))
-
+      call C3dB_rc_fft3f(1,dbl_mb(gr(1)))
 
 
 *     *** note that only real parts of tranformed gls are used ****
@@ -1074,13 +1063,9 @@ c      call D3dB_r_SMul(1,dV,dbl_mb(gr(1)),dbl_mb(gr(1)))  !** note extra omega 
          dbl_mb(gk2(1)+k-1) =  dbl_mb(gr(1)+2*(k-1))
       end do
 
-*     *** Pack the kernel ****
+*     *** Cram the kernel ****
       call Cram_r_pack(0,dbl_mb(gk2(1)))
-c      call Pack_tt_Sum(0,dbl_mb(gk2(1)),
-c     >                 dbl_mb(dvscr(u,s)),
-c     >                 dbl_mb(dvscr(u,s)))
       call Cram_rr_Sum2(0,dbl_mb(gk2(1)),dbl_mb(dvscr(u,s)))
-
 
       end do 
       end do 
@@ -1096,7 +1081,7 @@ c     >                 dbl_mb(dvscr(u,s)))
       i=0
       j=0
       k=0
-      call D3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
+      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
 
 *     **** short-range part of Greens function ****
       call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(gk(1)),1)
@@ -1152,11 +1137,11 @@ c     >                 dbl_mb(dvscr(u,s)))
 
 *     **********************************
 *     *                                *
-*     *    coulomb_screened_euv_end    *
+*     *   c_coulomb_screened_euv_end   *
 *     *                                *
 *     **********************************
 
-      subroutine coulomb_screened_euv_end()
+      subroutine c_coulomb_screened_euv_end()
       implicit none
 #include "mafdecls.fh"
 
@@ -1177,11 +1162,11 @@ c     >                 dbl_mb(dvscr(u,s)))
 
 *     **********************************
 *     *                                *
-*     *    coulomb_screened_euv        *
+*     *    c_coulomb_screened_euv      *
 *     *                                *
 *     **********************************
 
-      subroutine coulomb_screened_euv(dng,euv)
+      subroutine c_coulomb_screened_euv(dng,euv)
       implicit none 
       complex*16 dng(*)
       real*8 euv(3,3)
@@ -1210,7 +1195,7 @@ c     >                 dbl_mb(dvscr(u,s)))
 
 
 
-      call Pack_npack(0,npack0)
+      call Cram_npack(0,npack0)
       value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
       if (.not. value) 
      > call errquit('coulomb_screened_euv:out of stack memory',0,MA_ERR)
@@ -1223,8 +1208,8 @@ c     >                 dbl_mb(dvscr(u,s)))
       end do
 
 *     *** compute local screened coulomb energy ***
-      call Pack_ct_Sqr(0,dng,dbl_mb(tmp1(1)))
-      call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(vloc(1)),ec)
+      call Cram_cr_Sqr(0,dng,dbl_mb(tmp1(1)))
+      call Cram_rr_dot(0,dbl_mb(tmp1(1)),dbl_mb(vloc(1)),ec)
       ec = 0.5d0*ec*lattice_omega()
 
 *     **** Bus = Sum(G) (omega/2)*dvscr_loc(G,u,v) ****
@@ -1232,7 +1217,7 @@ c     >                 dbl_mb(dvscr(u,s)))
       ss     = 0.5d0*lattice_omega()
       do u=1,3
       do s=u,3
-        call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(dvscr(u,s)),sum)
+        call Cram_rr_dot(0,dbl_mb(tmp1(1)),dbl_mb(dvscr(u,s)),sum)
         Bus(u,s) = ss*sum
       end do
       end do

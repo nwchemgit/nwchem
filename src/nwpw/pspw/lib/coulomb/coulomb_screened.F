@@ -1,7 +1,11 @@
 *
 * $Id$
 
-
+*     ****************************************************
+*     *                                                  *
+*     *             coulomb_screened_init                *
+*     *                                                  *
+*     ****************************************************
 *
       subroutine coulomb_screened_init(flag,rcut,pp)
       implicit none 
@@ -292,12 +296,13 @@ c            z = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
 
 
 *     **************************************************************
-*     ***** flag==4 use erfc definitions of cutoff-kernel     ******
+*     ***** flag==4 use erfc definitions of kernel            ******
 *     **************************************************************
       else
 *     ***********************************
 *     *** Set up the Green's function ***
 *     ***********************************
+      EPSILON=1.0d0/rcut
 
 *     ***** find the G==0 point in the lattice *****
       i=0

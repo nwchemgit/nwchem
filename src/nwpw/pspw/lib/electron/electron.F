@@ -2052,6 +2052,11 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
      >                    dbl_mb(xce(1)))
         call bnl2007_x(n2ft3d,ispin,dnall,0.9d0,gmma,
      >                 dbl_mb(xcp(1)),dbl_mb(xce(1)))
+      else if (gga.eq.114) then
+        call v_bwexc(14,n2ft3d,ispin,dnall,
+     >                    1.00d0,1.0d0,
+     >                    dbl_mb(xcp(1)),
+     >                    dbl_mb(xce(1)))
       end if
 
       return

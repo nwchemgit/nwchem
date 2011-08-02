@@ -315,6 +315,9 @@
          ELSE IF (control_gga().eq.12) THEN
             write(luout,1131)
      >      'revPBE (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.13) THEN
+            write(luout,1131)
+     >      'PBEsol (White and Bird) parameterization'
          ELSE
             write(luout,1131) 'unknown parameterization'
             call errquit('bad exchange_correlation',0, INPUT_ERR)

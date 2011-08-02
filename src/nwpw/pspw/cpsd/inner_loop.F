@@ -344,6 +344,11 @@ c        call mask_C(0,dcpl_mb(dng(1)))
      >                      0.75d0,1.0d0,
      >                      dbl_mb(xcp(1)),
      >                      dbl_mb(xce(1)))
+        else if (gga.eq.114) then
+          call v_bwexc(14,n2ft3d,ispin,dbl_mb(dnall(1)),
+     >                      1.00d0,1.0d0,
+     >                      dbl_mb(xcp(1)),
+     >                      dbl_mb(xce(1)))
 
         end if
      

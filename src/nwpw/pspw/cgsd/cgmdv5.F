@@ -404,6 +404,9 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
          ELSE IF (control_gga().eq.12) THEN
             write(luout,1131) 
      >      'revPBE (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.13) THEN
+            write(luout,1131) 
+     >      'PBEsol (White and Bird) parameterization'
 
          ELSE IF (control_gga().eq.110) THEN
             write(luout,1131) 
@@ -414,6 +417,9 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
          ELSE IF (control_gga().eq.113) THEN
             write(luout,1131) 
      >      'BNL (White and Bird) parameterization'
+         ELSE IF (control_gga().eq.114) THEN
+            write(luout,1131) 
+     >      'HSE (White and Bird) parameterization'
 
          ELSE IF (control_gga().eq.200) THEN
             write(luout,1131) 'Hartree-Fock'

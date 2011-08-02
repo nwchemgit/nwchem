@@ -248,7 +248,7 @@ c         call coulomb_screened_end()
       phfx = 0.0d0
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
 
-c      call band_potential_HFX_sub(ispin0,psi_r_tag,Hpsi_r_tag)
+      call band_potential_HFX_sub(ispin0,psi_r_tag,Hpsi_r_tag)
 
       end if
       call nwpw_timing_end(33)
@@ -278,7 +278,7 @@ c      call band_potential_HFX_sub(ispin0,psi_r_tag,Hpsi_r_tag)
       call nwpw_timing_start(33)
 c     **** calculate HFX energy  ****
       if (((norbs(1)+norbs(2)).ne.0).and.(.not.relaxed)) then
-c        call band_energy_HFX_sub(ispin0,psi_r_tag,ehfx_out,phfx_out)
+         call band_energy_HFX_sub(ispin0,psi_r_tag,ehfx_out,phfx_out)
 
 c     **** nothing to do ****
       else
@@ -324,8 +324,6 @@ c     **** nothing to do ****
 
 
 
-
-
 c***************** sub/replicated routines *****************************
 
 *     ********************************
@@ -354,31 +352,33 @@ c***************** sub/replicated routines *****************************
 
 *     **** external functions ****
       real*8   lattice_omega,icoulomb_screened_e
-      logical   D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
+      logical   C3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
       external lattice_omega,icoulomb_screened_e
-      external  D3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
+      external  C3dB_rc_pfft3_queue_Cilled,D3dB_cr_pfft3_queue_filled
 
 
       ehfx = 0.0d0
       phfx = 0.0d0
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
-c        call D3dB_nx(1,n1)
-c        call D3dB_ny(1,n2)
-c        call D3dB_nz(1,n3)
-c        !call D3dB_n2ft3d(1,n2ft3d)
-c        value = MA_push_get(mt_dbl,(n2ft3d),'dn_hfx',dn(2),dn(1))
-c        value = value.and.
-c     >          MA_push_get(mt_dbl,(n2ft3d),'vij_hfx',vij(2),vij(1))
-c        value = value.and.
-c     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
-c        value = value.and.
-c     >          MA_push_get(mt_dbl,(n2ft3d),'tmp2_hfx',tmp2(2),tmp2(1))
-c        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-c
-c        scal1 = 1.0d0/dble(n1*n2*n3)
-c        scal2 = 1.0d0/lattice_omega()
-c        dv = scal1/scal2
-c
+         call C3dB_nx(1,n1)
+         call C3dB_ny(1,n2)
+         call C3dB_nz(1,n3)
+         value = MA_push_get(mt_dbl,n2ft3d,'dn_hfx',dn(2),dn(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,n2ft3d,'vij_hfx',vij(2),vij(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,n2ft3d,'tmp1_hfx',tmp1(2),tmp1(1))
+         value = value.and.
+     >           MA_push_get(mt_dbl,n2ft3d,'tmp2_hfx',tmp2(2),tmp2(1))
+         if (.not. value) 
+     >      call errquit('band_potential_HFX:out of stack memory',0,
+     >      MA_ERR)
+
+ 
+         scal1 = 1.0d0/dble(n1*n2*n3)
+         scal2 = 1.0d0/lattice_omega()
+         dv = scal1/scal2
+ 
 c*       ***** screened coulomb solver ****
 c        do ms=1,ispin0
 c           call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
@@ -398,8 +398,8 @@ c
 c              if (k1.le.NN) then
 c
 c                 if (mod(k1,npj).eq.taskid_j) then
-c                    index1 =(int_mb(orbital_list(1,ms)+i1-1)-1)*n2ft3d+1
-c                    index2 =(int_mb(orbital_list(1,ms)+j1-1)-1)*n2ft3d+1
+c                    index1 =(i1-1)*n2ft3d+1
+c                    index2 =(j1-1)*n2ft3d+1
 c
 c*                   **** generate dnij for Vij  ****
 c                    call D3dB_rr_Mul(1,psi_r(index2),
@@ -462,8 +462,8 @@ c
 c              if ((D3dB_cr_pfft3_queue_filled()).or.(k2.gt.NN)) then
 c
 c                 if (mod(k3,npj).eq.taskid_j) then
-c                    index1 =(int_mb(orbital_list(1,ms)+i3-1)-1)*n2ft3d+1
-c                    index2 =(int_mb(orbital_list(1,ms)+j3-1)-1)*n2ft3d+1
+c                    index1 =(i3-1)*n2ft3d+1
+c                    index2 =(j3-1)*n2ft3d+1
 c
 c                    call D3dB_cr_pfft3b_queueout(0,dbl_mb(vij(1)))
 c
@@ -511,18 +511,18 @@ c                 end if
 c              end if
 c              done = (k1.gt.NN).and.(k2.gt.NN).and.(k3.gt.NN)
 c           end do !**** while ****
-c           !call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
+
 c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
 c       end do !**** ms *****
 c
-c
-c        value =           MA_pop_stack(tmp2(2))
-c        value = value.and.MA_pop_stack(tmp1(2))
-c        value = value.and.MA_pop_stack(vij(2))
-c        value = value.and.MA_pop_stack(dn(2))
-c        if (.not. value) 
-c     >    call errquit('band_potential_HFX:popping stack memory',0,
-c     &       MA_ERR)
+ 
+         value =           MA_pop_stack(tmp2(2))
+         value = value.and.MA_pop_stack(tmp1(2))
+         value = value.and.MA_pop_stack(vij(2))
+         value = value.and.MA_pop_stack(dn(2))
+         if (.not. value) 
+     >      call errquit('band_potential_HFX:popping stack memory',0,
+     >      MA_ERR)
 
          call Parallel_SumAll(ehfx)
          call Parallel_SumAll(phfx)
@@ -563,28 +563,29 @@ c     &       MA_ERR)
         ehfx = 0.0d0
         phfx = 0.0d0
 
-c        call D3dB_nx(1,n1)
-c        call D3dB_ny(1,n2)
-c        call D3dB_nz(1,n3)
-c        !call D3dB_n2ft3d(1,n2ft3d)
-c        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
-c        value = value.and.
-c     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
-c        if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-c
-c        scal1 = 1.0d0/dble(n1*n2*n3)
-c        scal2 = 1.0d0/lattice_omega()
-c        dv = scal1/scal2
-c
-c        k1 = 1
+        call C3dB_nx(1,n1)
+        call C3dB_ny(1,n2)
+        call C3dB_nz(1,n3)
+        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
+        value = value.and.
+     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+        if (.not. value) 
+     >     call errquit('band_energy_HFX_sub:out of stack memory',0,
+     >       MA_ERR)
+
+        scal1 = 1.0d0/dble(n1*n2*n3)
+        scal2 = 1.0d0/lattice_omega()
+        dv = scal1/scal2
+
+        k1 = 1
 c        do ms=1,ispin
 c        do i=1,norbs(ms)
 c         dbl_mb(ehfx_orb(1,ms)+i-1) = 0.0d0
 c         do j=1,i
 c
 c            if (mod(k1,npj).eq.taskid_j) then
-c              index1 = (int_mb(orbital_list(1,ms)+i-1)-1)*n2ft3d + 1
-c              index2 = (int_mb(orbital_list(1,ms)+j-1)-1)*n2ft3d + 1
+c              index1 = (i-1)*n2ft3d+1
+c              index2 = (j-1)*n2ft3d+1 
 c
 c*             **** generate dnij ****
 c              call D3dB_rr_Mul(1,psi_r(index1),psi_r(index2),
@@ -637,15 +638,15 @@ c         end do
 c        end do
 c        call D1dB_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
 c        end do
-c
-c        value =           MA_pop_stack(tmp1(2))
-c        value = value.and.MA_pop_stack(dn(2))
-c        if (.not. value) 
-c     >     call errquit('band_energy_HFX_sub:popping stack memory',0,
-c     &       MA_ERR)
-c
-c        call D1dB_SumAll(ehfx)
-c        call D1dB_SumAll(phfx)
+
+        value =           MA_pop_stack(tmp1(2))
+        value = value.and.MA_pop_stack(dn(2))
+        if (.not. value) 
+     >     call errquit('band_energy_HFX_sub:popping stack memory',0,
+     >       MA_ERR)
+
+        call D1dB_SumAll(ehfx)
+        call D1dB_SumAll(phfx)
       end if
 
       ehfx_out = ehfx

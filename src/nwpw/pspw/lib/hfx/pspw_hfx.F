@@ -434,6 +434,7 @@ c     >  call errquit('pspw_end_HFX:error freeing heap memory',0, MA_ERR)
      >                       Hpsi_r(1+(ms-1)*neq(1)*n2ft3d),1)
                end do
 
+
 *              *** apply hfx_parameter ****
                ehfx = ehfx*hfx_parameter
 
