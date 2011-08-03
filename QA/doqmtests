@@ -38,6 +38,7 @@ echo 'The intermediate values for this test may cause some differences.'
 echo 'Please check the final values for the last optimized structure.'
 ./runtests.unix procs $np sadsmall
 #./runtests.unix procs $np sadbig
+./runtests.unix procs $np h2o_ccca
 ./runtests.unix procs $np br2_dk
 ./runtests.unix procs $np uo2_sodft
 ./runtests.unix procs $np uo2_sodft_grad
