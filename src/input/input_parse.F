@@ -168,6 +168,8 @@ c
                call rism_input(rtdb)
             else if (inp_compare(.false.,test,'qmmm')) then
                call qmmm_input(rtdb)
+            else if (inp_compare(.false.,test,'ccca')) then
+               call ccca_input(rtdb)
 c            else if (inp_compare(.false.,test,'embed')) then
 c               call embed_input(rtdb)
             else if (inp_compare(.false.,test,'relativistic')) then
