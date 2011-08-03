@@ -13,52 +13,66 @@ c     This is the ccCA main block
 c
 c     Variables follow
 c
-      integer ngcore, ingcore, natoms, errcode
-      character*256 avdz_file, avtz_file, avqz_file,
-     +              vtz_file, vtzdk_file, acvtz_file
-      double precision e_comp
-      character*80 proj_vecs(2), calctype
-      character*3 mp2type/'tce'/
-      character*10 cctype,opttype
-      double precision grad(1536)
-      integer stage, geom
-      logical nodezero,status
-c
-c     Externals needed
-c
-      integer ccca_get_ngcore,ccca_get_ingcore
-      external ccca_get_ngcore,ccca_get_ingcore
-      logical ccca_sane
-      external ccca_sane
+      character*256 movecsfile(2,6) 
+      character*80 calctype
+      character*10 opttype, geom_abel
+      integer stage, geom, errcode
+      logical tm, nodezero, status
 c
 c     Var init
       errcode=0
       stage=0
+c     geom_abel='abel'
       nodezero=(ga_nodeid().eq.0)
 c
-c     Check if energy or optimization is done
+c     set the file names (var init)
 c
-      if (.not.rtdb_cget(rtdb,'ccca:type',1,calctype))
-     +   call errquit('task_ccca: cannot get calc type',0,RTDB_ERR)
+      call util_file_prefix('aVDZ.movecs',movecsfile(1,1))
+      call util_file_prefix('aVTZ.movecs',movecsfile(1,2))
+      call util_file_prefix('aVQZ.movecs',movecsfile(1,3))
+      call util_file_prefix('VTZ.movecs',movecsfile(1,4))
+      call util_file_prefix('VTZdk.movecs',movecsfile(1,5))
+      call util_file_prefix('aCVTZ.movecs',movecsfile(1,6))
+      call util_file_prefix('aVDZdk.movecs',movecsfile(2,1))
+      call util_file_prefix('aVTZdk.movecs',movecsfile(2,2))
+      call util_file_prefix('aVQZdk.movecs',movecsfile(2,3))
+      call util_file_prefix('VTZ.movecs',movecsfile(2,4))
+      call util_file_prefix('VTZdk.movecs',movecsfile(2,5))
+      call util_file_prefix('aCVDZdk.movecs',movecsfile(2,6))
+      if (.not.rtdb_cput(rtdb,'ccca:movecsfile',12,movecsfile))
+     +   call errquit('task_ccca: rtdb_cput failed',0,RTDB_ERR)
+c
+c     Check if energy or optimization is to be done
+c
+      if (.not.rtdb_cget(rtdb,'ccca:type',1,calctype)) 
+     +   call ccca_input_default(rtdb) 
 c
       if (calctype.eq.'optimize') then
 c
 c     The ccCA module has two opt methods
-c     1) DFT opt per ccCA protocol
+c     1) DFT opt per ccCA protocol (B3LYP/cc-pVTZ)
 c     2) direct opt on the ccCA PES
 c
-       
         if (nodezero) then
         write(luout,*) 'ccCA Geometry Optimization Procedure'
         write(luout,*) '------------------------------------'
         write(luout,*) ' ' 
         endif
         if (rtdb_cget(rtdb,'ccca:opttype',1,opttype)) then
-          if (opttype.eq.'direct'.and.nodezero) then
-            write(luout,*) 'Optimization on direct ccCA PES requested'
-          else if (opttype.eq.'dft'.and.nodezero) then
-            write(luout,*) 'DFT optimization conforming to ccCA ',
+          if (opttype.eq.'direct') then
+            if (nodezero) then 
+              write(luout,*) 'Optimization on direct ccCA PES requested'
+              write(luout,*) ' ' 
+              call errquit('task_ccca: direct optimization not ',
+     +                     'available.',0,RTDB_ERR)
+            endif
+          else if (opttype.eq.'dft') then
+            if (nodezero)
+     +      write(luout,*) 'DFT optimization conforming to ccCA ',
      +                     'requested'
+          else 
+            call errquit('task_ccca: optimization method not ',
+     +                     'recognized.',0,RTDB_ERR)
           endif
         else
           if (nodezero)
@@ -66,7 +80,7 @@ c
      +                   'performed'
           opttype='dft'
         endif
-      else
+      else 
         if (nodezero) then
         write(luout,*) 'ccCA Energy Calculation Procedure'
         write(luout,*) '---------------------------------'
@@ -75,164 +89,47 @@ c
       endif
       call util_flush(luout)
 c
-c     check for restart status
+c     check for restart status 
+c     restart is only available for energy calculations 
 c
       if (rtdb_get(rtdb,'ccca:stage',MT_INT,1,stage)) then
-        if ((stage.gt.0).and.nodezero) then
-          write(6,*)'ccCA restart detected: proceding from stage ',stage
+        if (stage.gt.0) then
+          call ccca_err(rtdb_put(rtdb,'ccca:restart',MT_LOG,1,.true.),
+     &                  errcode)
+          if (nodezero)
+     +    write(luout,*)'ccCA restart detected: proceding from stage ',
+     +                  stage
         endif
       endif
 c
-c     set the file names (var init)
-c
-      call util_file_prefix('aVDZ.movecs',avdz_file)
-      call util_file_prefix('aVTZ.movecs',avtz_file)
-      call util_file_prefix('aVQZ.movecs',avqz_file)
-      call util_file_prefix('VTZ.movecs',vtz_file)
-      call util_file_prefix('VTZdk.movecs',vtzdk_file)
-      call util_file_prefix('aCVTZ.movecs',acvtz_file)
-c
 c     Obtain the noble gas frozen core settings
+c     Check if there is any transition metal
 c
-      ngcore=ccca_get_ngcore(rtdb)
-      ingcore=ccca_get_ingcore(rtdb)
+      call ccca_get_ngcore(rtdb,tm)
+      call ccca_get_ingcore(rtdb)
 c
 c     Setup the basis sets
 c
-      call ccca_setup_basis(rtdb,calctype)
+      call ccca_setup_basis(rtdb,tm)
 c
-c     For ccCA optimizations, call the DFT setup
+c     Default single point energy calcuation
 c
-      if (calctype.eq.'optimize') then 
+      call ccca_err(rtdb_cput(rtdb,'ccca:intype',1,'energy'), errcode)
+c
+c     For ccCA optimizations, call the DFT setup for default optimization
+c     No DKH Hamiltonian for DFT optimization
+c
+      if ((calctype.eq.'optimize').and.(opttype.eq.'dft')) then 
         if (stage.eq.0) then
-           if (ga_nodeid().eq.0) then
-              write(luout,*) 
-     $        'CCCA: DFT optimization with 6-31G(2df,p) basis'
-           endif
+          if (nodezero) then
+            write(luout,*) 
+     $      'ccCA: DFT optimization with cc-pVTZ basis'
+          endif
           call ccca_dft_opt(rtdb)
         endif
-        calctype='energy'
-        call ccca_err(rtdb_cput(rtdb,'ccca:type',1,'energy'),errcode)
       endif
 c
-c     Setup the abelian geometry after optimization
-c
-      call ccca_force_abelian(rtdb)
-c
-c     The first calc has no orb proj guess, so it's special
-c     stage 1: MP2(fc)/aVDZ
-      if (.not.(stage.gt.1)) then
-        if (ga_nodeid().eq.0) then
-           write(luout,*) 
-     $     'CCCA: MP2 calculation with aug-cc-pVDZ basis'
-        endif
-        call ccca_run_calc(rtdb,'','','aug-cc-pvdz',avdz_file,
-     +                     'mp',ngcore,'ccca:mp2(fc)/avdz')
-        stage=1
-        call ccca_err(rtdb_put(rtdb,'ccca:stage',MT_INT,1,stage)
-     +                ,errcode)
-      endif
-c
-c     stage 2: MP2(fc)/aVTZ
-      if (stage.lt.2) then
-        if (ga_nodeid().eq.0) then
-           write(luout,*) 
-     $     'CCCA: MP2 calculation with aug-cc-pVTZ basis'
-        endif
-        call ccca_run_calc(rtdb,'aug-cc-pvdz',avdz_file,
-     +     'aug-cc-pvtz',avtz_file,'mp',ngcore,'ccca:mp2(fc)/avtz')
-        stage=2
-        call ccca_err(rtdb_put(rtdb,'ccca:stage',MT_INT,1,stage),
-     +                errcode)
-      endif
-c
-c     stage 3: MP2(fc)/aVQZ
-      if (stage.lt.3) then
-        if (ga_nodeid().eq.0) then
-           write(luout,*) 
-     $     'CCCA: MP2 calculation with aug-cc-pVQZ basis'
-        endif
-        call ccca_run_calc(rtdb,'aug-cc-pvtz',avtz_file,
-     +     'aug-cc-pvqz',avqz_file,'mp',ngcore,'ccca:mp2(fc)/avqz')
-        stage=3
-        call ccca_err(rtdb_put(rtdb,'ccca:stage',MT_INT,1,stage),
-     +                errcode)
-      endif
-c
-c     Currently, I cannot find a reliable way of the getting
-c     the mp2 component of the CCSD(T)/VTZ calc
-c     So it is run separately below
-c
-c     stage 4: MP2(fc)/VTZ
-      if (stage.lt.4) then
-        if (ga_nodeid().eq.0) then
-           write(luout,*) 
-     $     'CCCA: MP2 calculation with cc-pVTZ basis'
-        endif
-        call ccca_run_calc(rtdb,'aug-cc-pvdz',avdz_file,
-     +     'cc-pvtz',vtz_file,'mp',ngcore,'ccca:mp2(fc)/vtz')
-        stage=4
-        call ccca_err(rtdb_put(rtdb,'ccca:stage',MT_INT,1,stage),
-     +                errcode)
-      endif
-c
-c     Need to enable DK integrals for this one, then switch off after
-c     stage 5: DK-MP2(fc)/VTZdk
-      call ccca_err(rtdb_put(rtdb,'doug_kroll',MT_LOG,1,.true.),errcode)
-      call ccca_err(rtdb_put(rtdb,'doug_kroll:type',MT_INT,1,2),errcode)
-      if (stage.lt.5) then
-        if (ga_nodeid().eq.0) then
-           write(luout,*) 
-     $     'CCCA: Relativity through Douglas-Kroll MP2 calculation'
-           write(luout,*) '      with cc-pVTZ basis'
-        endif
-        call ccca_run_calc(rtdb,'cc-pvtz',vtz_file,
-     +       'cc-pvtz_dk',vtzdk_file,'mp',ngcore,'ccca:mp2(fc)/vtzdk')
-        stage=5
-        call ccca_err(rtdb_put(rtdb,'ccca:stage',MT_INT,1,stage),
-     +                errcode)
-      endif
-      call ccca_err(rtdb_put(rtdb,'doug_kroll',MT_LOG,1,.false.),
-     +              errcode)
-c
-c     Change to the ING core and perform the CV calc
-c     stage 6: MP2(fc1)/aCVTZ
-      if (stage.lt.6) then
-        if (ga_nodeid().eq.0) then
-           write(luout,*) 
-     $     'CCCA: Calculation of core-valence correction at MP2 level'
-           write(luout,*) '      with aug-cc-pcvtz basis'
-         endif
-        call ccca_run_calc(rtdb,'aug-cc-pvtz',avtz_file,
-     +    'aug-cc-pcvtz',acvtz_file,'mp',ingcore,'ccca:mp2(fc1)/acvtz')
-        stage=6
-        call ccca_err(rtdb_put(rtdb,'ccca:stage',MT_INT,1,stage),
-     +                errcode)
-      endif
-c
-c     Perform CCSD(T)
-c     stage 7: CCSD(T)/VTZ
-      if (stage.lt.7) then
-        if (ga_nodeid().eq.0) then
-           write(luout,*)
-     $     'CCCA: CCSD(T) calculation with cc-pVTZ basis'
-        endif
-        call ccca_run_calc(rtdb,'cc-pvtz',vtz_file,
-     +           'cc-pvtz',vtz_file,'cc',ngcore,'ccca:ccsd(t)/vtz')
-        stage=7
-        call ccca_err(rtdb_put(rtdb,'ccca:stage',MT_INT,1,stage),
-     +                errcode)
-      endif
-c
-c     We have completed all computational stages
-      stage=8
-      call ccca_err(rtdb_put(rtdb,'ccca:stage',MT_INT,1,stage),errcode)
-c
-c     Restore the level of theory
-      call ccca_err(rtdb_cput(rtdb,'task:theory',1,'ccca'),errcode)
-c
-c     Print the results
-      call ccca_print(rtdb)
+      call ccca_energy(rtdb)
 c
 c     If we made it this far, we can return successful
       task_ccca=.true.
