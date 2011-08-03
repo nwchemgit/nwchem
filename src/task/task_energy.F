@@ -29,6 +29,8 @@ c
       logical  task_fragment_energy
       logical cons_active
       external cons_active
+      logical  task_ccca_energy
+      external task_ccca_energy
 c
 c      logical task_embed
 c      logical  embed_energy
@@ -87,6 +89,8 @@ cc
             status = bsse_energy(rtdb,theory,energy)
             if(.not.status)
      $        call errquit('task_energy: bsse_energy fail',0,CALC_ERR)
+         else if (theory.eq.'ccca') then
+            status = task_ccca_energy(rtdb,theory,energy)
          else
             status = task_energy_doit(rtdb,theory,energy)
         endif

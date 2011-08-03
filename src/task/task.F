@@ -222,10 +222,6 @@ c         goto 99999
 c      endif
 c
       if (inp_compare(.false.,'ccca',theory)) then
-         if (operation.eq.' ') operation='energy'
-         if (.not. rtdb_cput(rtdb, 'ccca:type',1,operation))
-     +       call errquit('task: failed to store ccCA operation',0,
-     +                     RTDB_ERR)
          status = task_ccca(rtdb)
          call ga_sync()
          goto 99999
