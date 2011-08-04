@@ -76,7 +76,7 @@ c     == RT_TDDFT ==
 c
       character*80 theory
       logical status
-      logical ldirect
+      logical ldirect, xc_active
       character*32 pname
 c 
       double precision eone, etwo, enrep, energy
@@ -95,7 +95,7 @@ c     == Preliminaries ==
       if(ga_nodeid().eq.0.and.
      .     util_print('geometry', print_high)) then
         if(.not.geom_print(geom)) call errquit(
-     .       ' dftmain0d: geom print failed',0, GEOM_ERR)
+     .       pname//'geom print failed',0, GEOM_ERR)
       endif
       IOLGC = .TRUE.
       if (noio.eq.1) IOLGC = .FALSE.
@@ -117,6 +117,21 @@ c
      &     nb=0
 #endif
 #endif
+c
+c     == Trash junk that may have remained in restart calcs ==
+      if(rtdb_get(rtdb,'bgj:xc_active', MT_LOG, 1,xc_active)) then
+        if (xc_active) then
+c         Junk left from previous run, clobber it!!!
+c         Leaving it causes trouble in fock_2e because it then also
+c         calls fock_xc. The routine dft_fockbld does not expect to be
+c         using fock_xc anywhere but computes the XC-contributions by
+c         a different route. This conflict will cause the calculation
+c         to fail.
+          if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .false.))
+     &      call errquit(pname//"could not store xc_active",
+     &                   0,RTDB_ERR)
+        endif
+      endif
 c
 c     == Check which solver to use ==
       if (.not.rtdb_get(rtdb, 'dft:cgmin', mt_log, 1, lcgmin))
