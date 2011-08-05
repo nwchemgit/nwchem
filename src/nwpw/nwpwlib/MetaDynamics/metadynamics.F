@@ -236,7 +236,7 @@ c     **********************************************
             end if
 
             value = value.and.
-     >              MA_alloc_get(mt_dbl,8*cnmeta,'cwsigmameta',
+     >              MA_alloc_get(mt_dbl,9*cnmeta,'cwsigmameta',
      >                           cwsigmameta(2),cwsigmameta(1))
             value = value.and.
      >              MA_alloc_get(mt_int,cnmeta,'cindxsize1',
@@ -261,32 +261,33 @@ c     **********************************************
               is2 = is2 + int_mb(cindxsize2(1)+j-1)
 
               rtdb_name='metadynamics_coordnum_ksigma:'//c_index_name(j)
-              if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,8,
-     >                      dbl_mb(cwsigmameta(1)+(j-1)*8))) then
-                 dbl_mb(cwsigmameta(1)+(j-1)*8)   = 6.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*8+1) = 18.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*8+2) = 3.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*8+3) = 0.00005d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*8+4) = 0.10d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*8+5) = 25.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*8+6) = -1.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*8+7) = -1.0d0
+              if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,9,
+     >                      dbl_mb(cwsigmameta(1)+(j-1)*9))) then
+                 dbl_mb(cwsigmameta(1)+(j-1)*9)   = 6.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*9+1) = 18.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*9+2) = 3.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*9+3) = 0.00005d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*9+4) = 0.10d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*9+5) = 25.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*9+6) = -1.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*9+7) = -1.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*9+8) = -1.0d0
               end if
-              if (dbl_mb(cwsigmameta(1)+(j-1)*8).le.0.0d0)
-     >            dbl_mb(cwsigmameta(1)+(j-1)*8)   = 6.0d0
-              if (dbl_mb(cwsigmameta(1)+(j-1)*8+1).le.0.0d0)
-     >            dbl_mb(cwsigmameta(1)+(j-1)*8+1)   = 18.0d0
-              if (dbl_mb(cwsigmameta(1)+(j-1)*8+2).le.0.0d0)
-     >            dbl_mb(cwsigmameta(1)+(j-1)*8+2)   = 3.0d0 
-              if (dbl_mb(cwsigmameta(1)+(j-1)*8+3).le.0.0d0)
-     >            dbl_mb(cwsigmameta(1)+(j-1)*8+3)   = 0.00005d0
-              if (dbl_mb(cwsigmameta(1)+(j-1)*8+4).le.0.0d0)
-     >            dbl_mb(cwsigmameta(1)+(j-1)*8+4)   = 0.10d0
-              if (dbl_mb(cwsigmameta(1)+(j-1)*8+5).le.0.0d0)
-     >            dbl_mb(cwsigmameta(1)+(j-1)*8+5)   = 25.0d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*9).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*9)   = 6.0d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*9+1).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*9+1)   = 18.0d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*9+2).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*9+2)   = 3.0d0 
+              if (dbl_mb(cwsigmameta(1)+(j-1)*9+3).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*9+3)   = 0.00005d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*9+4).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*9+4)   = 0.10d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*9+5).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*9+5)   = 25.0d0
 
-              if (dbl_mb(cwsigmameta(1)+(j-1)*8+5).gt.maxcoord) 
-     >           maxcoord=dbl_mb(cwsigmameta(1)+(j-1)*8+5)
+              if (dbl_mb(cwsigmameta(1)+(j-1)*9+5).gt.maxcoord) 
+     >           maxcoord=dbl_mb(cwsigmameta(1)+(j-1)*9+5)
             end do
 
             value = value.and.
@@ -365,20 +366,25 @@ c     **********************************************
      >                  /6x,A,F11.6,F11.6)')
      >       "  - Coordination Number Parameters: ",
      >                  'n= ',
-     >                  dbl_mb(cwsigmameta(1)+8*(i-1)+0),
+     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+0),
      >                  'm=       ',
-     >                  dbl_mb(cwsigmameta(1)+8*(i-1)+1),
+     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+1),
      >                  'w= ',
-     >                  dbl_mb(cwsigmameta(1)+8*(i-1)+3),
+     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+3),
      >                  'sigma=   ',
-     >                  dbl_mb(cwsigmameta(1)+8*(i-1)+4),
+     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+4),
      >                  'r0=',
-     >                  dbl_mb(cwsigmameta(1)+8*(i-1)+2),
+     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+2),
      >                  'maxcoord=',
-     >                  dbl_mb(cwsigmameta(1)+8*(i-1)+5),
+     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+5),
      >                  'range=   ',
-     >                  dbl_mb(cwsigmameta(1)+8*(i-1)+6),
-     >                  dbl_mb(cwsigmameta(1)+8*(i-1)+7)
+     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+6),
+     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+7)
+              if (dbl_mb(cwsigmameta(1)+9*(i-1)+8).lt.0) then
+                 write(*,'(6x,A)') '- LJ function form'
+              else
+                 write(*,'(6x,A)') '- Sprik function form'
+              end if
             is1 = is1 + n1
             is2 = is2 + n2
          end do
@@ -693,26 +699,50 @@ c     **********************************************
       f = 0.0d0
 c     **** coordination number ****
       if (ntype.eq.4) then
-         f = 0.0d0
-         n  = param(1)
-         m  = param(2)
-         r0 = param(3)
-         do i=1,n1
-            do j=1,n2
-               x1 = ion_rion(1,indx1(i))
-               y1 = ion_rion(2,indx1(i))
-               z1 = ion_rion(3,indx1(i))
-               x2 = ion_rion(1,indx2(j))
-               y2 = ion_rion(2,indx2(j))
-               z2 = ion_rion(3,indx2(j))
-               dx1 = x1-x2
-               dy1 = y1-y2
-               dz1 = z1-z2
-               call lattice_min_difference(dx1,dy1,dz1)
-               r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
-               f = f + (1.0d0-(r1/r0)**n)/(1.0d0-(r1/r0)**m)
+         if (param(9).lt.0.0d0) then
+            f = 0.0d0
+            n  = param(1)
+            m  = param(2)
+            r0 = param(3)
+            do i=1,n1
+               do j=1,n2
+                  x1 = ion_rion(1,indx1(i))
+                  y1 = ion_rion(2,indx1(i))
+                  z1 = ion_rion(3,indx1(i))
+                  x2 = ion_rion(1,indx2(j))
+                  y2 = ion_rion(2,indx2(j))
+                  z2 = ion_rion(3,indx2(j))
+                  dx1 = x1-x2
+                  dy1 = y1-y2
+                  dz1 = z1-z2
+                  call lattice_min_difference(dx1,dy1,dz1)
+                  r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+                  f = f + (1.0d0-(r1/r0)**n)/(1.0d0-(r1/r0)**m)
+               end do
             end do
-         end do
+         else
+            f = 0.0d0
+            n  = param(1)
+            m  = param(2)
+            r0 = param(3)
+            do i=1,n1
+               do j=1,n2
+                  x1 = ion_rion(1,indx1(i))
+                  y1 = ion_rion(2,indx1(i))
+                  z1 = ion_rion(3,indx1(i))
+                  x2 = ion_rion(1,indx2(j))
+                  y2 = ion_rion(2,indx2(j))
+                  z2 = ion_rion(3,indx2(j))
+                  dx1 = x1-x2
+                  dy1 = y1-y2
+                  dz1 = z1-z2
+                  call lattice_min_difference(dx1,dy1,dz1)
+                  r1  = dsqrt(dx1**2 + dy1**2 + dz1**2)
+c                 f = f + (1.0d0-(r1/r0)**n)/(1.0d0-(r1/r0)**m)
+                  f = f + 1.d0/(1.d0+dexp(n*(r1-r0)))
+               end do
+            end do
+         end if
 
       end if
 
@@ -749,34 +779,67 @@ c     **********************************************
 
 c     **** coordination number ***
       if (ntype.eq.4) then
-         n  = param(1)
-         m  = param(2)
-         r0 = param(3)
-         do i=1,n1
-            do j=1,n2
-               x1 = ion_rion(1,indx1(i))
-               y1 = ion_rion(2,indx1(i))
-               z1 = ion_rion(3,indx1(i))
-               x2 = ion_rion(1,indx2(j))
-               y2 = ion_rion(2,indx2(j))
-               z2 = ion_rion(3,indx2(j))
-               dx = x1-x2
-               dy = y1-y2
-               dz = z1-z2
-               call lattice_min_difference(dx,dy,dz)
-               r  = dsqrt(dx**2 + dy**2 + dz**2)
-               rn  = (1.0d0-(r/r0)**n)
-               rm  = (1.0d0-(r/r0)**m)
-               df = (-n*rm/r0*(r/r0)**(n-1) + m*rn/r0*(r/r0)**(m-1))
-     >              / (rm**2)
-               fmeta(1,indx1(i)) = fmeta(1,indx1(i)) - (dx/r)*df*dv
-               fmeta(2,indx1(i)) = fmeta(2,indx1(i)) - (dy/r)*df*dv
-               fmeta(3,indx1(i)) = fmeta(3,indx1(i)) - (dz/r)*df*dv
-               fmeta(1,indx2(j)) = fmeta(1,indx2(j)) + (dx/r)*df*dv
-               fmeta(2,indx2(j)) = fmeta(2,indx2(j)) + (dy/r)*df*dv
-               fmeta(3,indx2(j)) = fmeta(3,indx2(j)) + (dz/r)*df*dv
+         if (param(9).lt.0.0d0) then
+            n  = param(1)
+            m  = param(2)
+            r0 = param(3)
+            do i=1,n1
+               do j=1,n2
+                  x1 = ion_rion(1,indx1(i))
+                  y1 = ion_rion(2,indx1(i))
+                  z1 = ion_rion(3,indx1(i))
+                  x2 = ion_rion(1,indx2(j))
+                  y2 = ion_rion(2,indx2(j))
+                  z2 = ion_rion(3,indx2(j))
+                  dx = x1-x2
+                  dy = y1-y2
+                  dz = z1-z2
+                  call lattice_min_difference(dx,dy,dz)
+                  r  = dsqrt(dx**2 + dy**2 + dz**2)
+                  rn  = (1.0d0-(r/r0)**n)
+                  rm  = (1.0d0-(r/r0)**m)
+                  df = (-n*rm/r0*(r/r0)**(n-1) + m*rn/r0*(r/r0)**(m-1))
+     >                 / (rm**2)
+                  fmeta(1,indx1(i)) = fmeta(1,indx1(i)) - (dx/r)*df*dv
+                  fmeta(2,indx1(i)) = fmeta(2,indx1(i)) - (dy/r)*df*dv
+                  fmeta(3,indx1(i)) = fmeta(3,indx1(i)) - (dz/r)*df*dv
+                  fmeta(1,indx2(j)) = fmeta(1,indx2(j)) + (dx/r)*df*dv
+                  fmeta(2,indx2(j)) = fmeta(2,indx2(j)) + (dy/r)*df*dv
+                  fmeta(3,indx2(j)) = fmeta(3,indx2(j)) + (dz/r)*df*dv
+               end do
             end do
-         end do
+         else
+            n  = param(1)
+            m  = param(2)
+            r0 = param(3)
+            do i=1,n1
+               do j=1,n2
+                  x1 = ion_rion(1,indx1(i))
+                  y1 = ion_rion(2,indx1(i))
+                  z1 = ion_rion(3,indx1(i))
+                  x2 = ion_rion(1,indx2(j))
+                  y2 = ion_rion(2,indx2(j))
+                  z2 = ion_rion(3,indx2(j))
+                  dx = x1-x2
+                  dy = y1-y2
+                  dz = z1-z2
+                  call lattice_min_difference(dx,dy,dz)
+                  r  = dsqrt(dx**2 + dy**2 + dz**2)
+c                 rn  = (1.0d0-(r/r0)**n)
+c                 rm  = (1.0d0-(r/r0)**m)
+c                 df = (-n*rm/r0*(r/r0)**(n-1) + m*rn/r0*(r/r0)**(m-1))
+c    >                 / (rm**2)
+                  rn  = 1.d0+dexp(n*(r-r0))
+                  df = -n*(rn-1.d0)/(rn*rn)
+                  fmeta(1,indx1(i)) = fmeta(1,indx1(i)) - (dx/r)*df*dv
+                  fmeta(2,indx1(i)) = fmeta(2,indx1(i)) - (dy/r)*df*dv
+                  fmeta(3,indx1(i)) = fmeta(3,indx1(i)) - (dz/r)*df*dv
+                  fmeta(1,indx2(j)) = fmeta(1,indx2(j)) + (dx/r)*df*dv
+                  fmeta(2,indx2(j)) = fmeta(2,indx2(j)) + (dy/r)*df*dv
+                  fmeta(3,indx2(j)) = fmeta(3,indx2(j)) + (dz/r)*df*dv
+               end do
+            end do
+         endif
 
       end if
 
@@ -884,11 +947,11 @@ c     **** coordination number ***
                r0    = meta_collective2(4,
      >                 n1,int_mb(cindxmeta1(1)+is1),
      >                 n2,int_mb(cindxmeta2(1)+is2),
-     >                 dbl_mb(cwsigmameta(1)+(j-1)*8))
-               w     = dbl_mb(cwsigmameta(1)+(j-1)*8+3)
-               sigma = dbl_mb(cwsigmameta(1)+(j-1)*8+4)
-               a     = dbl_mb(cwsigmameta(1)+(j-1)*8+6)
-               b     = dbl_mb(cwsigmameta(1)+(j-1)*8+7)
+     >                 dbl_mb(cwsigmameta(1)+(j-1)*9))
+               w     = dbl_mb(cwsigmameta(1)+(j-1)*9+3)
+               sigma = dbl_mb(cwsigmameta(1)+(j-1)*9+4)
+               a     = dbl_mb(cwsigmameta(1)+(j-1)*9+6)
+               b     = dbl_mb(cwsigmameta(1)+(j-1)*9+7)
                yshift  = cymeta(1) +(j-1)*cnxmeta
                y2shift = cy2meta(1)+(j-1)*cnxmeta
                do i=1,cnxmeta
@@ -1004,9 +1067,9 @@ c     **** coordination number ***
                r     = meta_collective2(4,
      >                 n1,int_mb(cindxmeta1(1)+is1),
      >                 n2,int_mb(cindxmeta2(1)+is2),
-     >                 dbl_mb(cwsigmameta(1)+(j-1)*8))
-               w     = dbl_mb(cwsigmameta(1)+(j-1)*8+3)
-               sigma = dbl_mb(cwsigmameta(1)+(j-1)*8+4)
+     >                 dbl_mb(cwsigmameta(1)+(j-1)*9))
+               w     = dbl_mb(cwsigmameta(1)+(j-1)*9+3)
+               sigma = dbl_mb(cwsigmameta(1)+(j-1)*9+4)
                yshift  = cymeta(1) +(j-1)*cnxmeta
                y2shift = cy2meta(1)+(j-1)*cnxmeta
                nr = r/dr + 1
@@ -1015,7 +1078,7 @@ c     **** coordination number ***
                call meta_collective2_force(4,
      >                   n1,int_mb(cindxmeta1(1)+is1),
      >                   n2,int_mb(cindxmeta2(1)+is2),
-     >                   dbl_mb(cwsigmameta(1)+(j-1)*8),
+     >                   dbl_mb(cwsigmameta(1)+(j-1)*9),
      >                   dv,fmeta)
                is1 = is1 + n1
                is2 = is2 + n2
@@ -1088,9 +1151,9 @@ c     **** coordination number ***
                r     = meta_collective2(4,
      >                 n1,int_mb(cindxmeta1(1)+is1),
      >                 n2,int_mb(cindxmeta2(1)+is2),
-     >                 dbl_mb(cwsigmameta(1)+(j-1)*8))
-               w     = dbl_mb(cwsigmameta(1)+(j-1)*8+3)
-               sigma = dbl_mb(cwsigmameta(1)+(j-1)*8+4)
+     >                 dbl_mb(cwsigmameta(1)+(j-1)*9))
+               w     = dbl_mb(cwsigmameta(1)+(j-1)*9+3)
+               sigma = dbl_mb(cwsigmameta(1)+(j-1)*9+4)
                yshift  = cymeta(1) +(j-1)*cnxmeta
                y2shift = cy2meta(1)+(j-1)*cnxmeta
                nr = r/dr + 1

@@ -29,7 +29,7 @@ c
      >            'end'/
 
       integer num_dirs2          ! No. of known directives
-      parameter (num_dirs2 = 9)
+      parameter (num_dirs2 = 10)
       character*10 dirs2(num_dirs2)
       data dirs2 / 'index1',
      >             'index2',
@@ -39,7 +39,8 @@ c
      >             'w',
      >             'sigma',
      >             'maxcoord',
-     >             'range'/
+     >             'range',
+     >             'sprik'/
 c
       logical       value
       character*80  rtdb_name
@@ -195,6 +196,7 @@ c
       sdist(6) = -1.0d0
       sdist(7) = -1.0d0
       sdist(8) = -1.0d0
+      sdist(9) = -1.0d0
       n1 = 0
       n2 = 0
  501  if (.not. inp_a(test)) goto 599
@@ -202,7 +204,7 @@ c
      >  call errquit(
      >  'metadynamics_input: unknown directive',0,INPUT_ERR)
 
-      goto ( 510,520,530,540,550,560,570,580,590 ) ind2
+      goto ( 510,520,530,540,550,560,570,580,590,595 ) ind2
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind2,INPUT_ERR)
 c
@@ -289,6 +291,11 @@ c
  590  if (.not.inp_f(sdist(7))) sdist(7)=-1.0d0
       if (.not.inp_f(sdist(8))) sdist(8)=-1.0d0
       goto 501
+c
+c sprik
+c
+ 595  sdist(9)=1.0d0
+      goto 501
 
  599  if ((n1.le.0).or.(n2.le.0)) then
          nkc = nkc - 1
@@ -296,7 +303,7 @@ c
          value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkc)
       else
          rtdb_name ='metadynamics_coordnum_ksigma:'//c_index_name(nkc)
-         if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,8,sdist))
+         if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,9,sdist))
      >    call errquit('metadynamics_input:failed writing coord_number',
      >                 0,RTDB_ERR)
       end if
