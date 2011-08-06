@@ -90,4 +90,16 @@ c
      >               Kr0_dihedral,nKr0_dihedral_start,
      >               dihedral_found
 
+*     **** pspw_qmmm bond spring common block ****
+      integer ncoord(2)
+      integer indx1_coord(2),nindx1_coord_start(2),nsize1_coord(2)
+      integer indx2_coord(2),nindx2_coord_start(2),nsize2_coord(2)
+      integer Kr0_coord(2), nKr0_coord_start(2)
+      logical coord_found
+      common / pspw_qmmm9 / ncoord,
+     >                      indx1_coord,nindx1_coord_start,nsize1_coord,
+     >                      indx2_coord,nindx2_coord_start,nsize2_coord,
+     >                      Kr0_coord,nKr0_coord_start,
+     >                      coord_found
+
 *     ******************************************************************

@@ -31,7 +31,7 @@ c
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
-      parameter (num_fdirs = 13)
+      parameter (num_fdirs = 14)
       character*30 fdirs(num_fdirs)
       data fdirs / 'size',
      >             'index_start',
@@ -45,7 +45,20 @@ c
      >             'bond_morse',
      >             'dihedral_spring',
      >             'dihedral',
+     >             'coord_number',
      >             'end'/
+
+      integer num_dirs2          ! No. of known directives
+      parameter (num_dirs2 = 8)
+      character*10 dirs2(num_dirs2)
+      data dirs2 / 'index1',
+     >             'index2',
+     >             'n',
+     >             'm',
+     >             'r0',
+     >             'K',
+     >             'cn0',
+     >             'sprik'/
 c
       logical       value
       character*4   element
@@ -68,6 +81,8 @@ c
       integer sindx(50),na,nb,nshk
       real*8  sdist(50)
       integer nbs,nas,ncbs,nbm,nds,ndds
+      integer n1,n2,nkc,ind2
+      integer index_start1(2),index_start2(2)
 
 *     **** external functions ****
       character*7 c_index_name
@@ -221,10 +236,11 @@ c
       nshk = 0
       nas  = 0
       nbs  = 0
-      ncbs  = 0
-      nbm   = 0
+      ncbs = 0
+      nbm  = 0
       nds  = 0
-      ndds  = 0
+      ndds = 0
+      nkc  = 0
       rtdb_name = 'pspw_qmmm_nkfrag'
       value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkf)
       if (.not. value)
@@ -239,14 +255,14 @@ c
      >  call errquit('pspw_qmmm_input: unknown directive', 0, INPUT_ERR)
 
 
-      goto ( 610, 620,630,640,650,660,670,680,690,651,661,662,
+      goto ( 602,603,604,605,606,608,611,612,613,607,609,610,620,
      >       699) ind
       call errquit('pspw_qmmm_input:directive not found',ind,INPUT_ERR)
 
 c
 c  size
 c
- 610  if (.not.inp_i(frag_size)) frag_size = 1
+ 602  if (.not.inp_i(frag_size)) frag_size = 1
       rtdb_name = 'pspw_qmmm_frag_size:'//c_index_name(nkf)
       value = rtdb_put(rtdb,rtdb_name,mt_int,1,frag_size)
       if (.not. value)
@@ -257,7 +273,7 @@ c
 c
 c index_start
 c
- 620  value = MA_push_get(mt_int,nw_max_atom,'indx_start',
+ 603  value = MA_push_get(mt_int,nw_max_atom,'indx_start',
      >                    index_start(2),index_start(1))
       if (.not. value) call errquit(
      > 'pspw_qmmm_input:failed allocating index_start',0,MA_ERR)
@@ -297,7 +313,7 @@ c      end do
 c
 c shake
 c
- 630  na = 0
+ 604  na = 0
       if (inp_i(k)) then
          scal = 1.0d0
          sindx(na+1) = k
@@ -370,7 +386,7 @@ c
 c
 c switching
 c
- 640  if (.not.inp_f(Rin))  Rin = 0.0d0
+ 605  if (.not.inp_f(Rin))  Rin = 0.0d0
       if (.not.inp_f(Rout)) Rout = 0.0d0
 
       rtdb_name = 'pspw_qmmm_frag_switch_Rin:'//c_index_name(nkf)
@@ -390,7 +406,7 @@ c
 c
 c bond spring
 c
- 650  if (inp_i(sindx(1))) then
+ 606  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_f(sdist(1))) then
       if (inp_f(sdist(2))) then
@@ -427,7 +443,7 @@ c
 c
 c bond morse
 c
- 651  if (inp_i(sindx(1))) then
+ 607  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_f(sdist(1))) then
       if (inp_f(sdist(2))) then
@@ -468,7 +484,7 @@ c
 c
 c angle spring
 c
- 660  if (inp_i(sindx(1))) then
+ 608  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_i(sindx(3))) then
       if (inp_f(sdist(1))) then
@@ -507,7 +523,7 @@ c
 c
 c dihedral spring
 c
- 661  if (inp_i(sindx(1))) then
+ 609  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_i(sindx(3))) then
       if (inp_i(sindx(4))) then
@@ -547,7 +563,7 @@ c
 c
 c dihedral
 c
- 662  if (inp_i(sindx(1))) then
+ 610  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_i(sindx(3))) then
       if (inp_i(sindx(4))) then
@@ -590,7 +606,7 @@ c
 c
 c  self_interaction
 c
- 670  self = .true.
+ 611  self = .true.
       if (inp_a(test)) then
         if (inp_compare(.false.,test,'on'))      self = .true.
         if (inp_compare(.false.,test,'yes'))     self = .true.
@@ -613,7 +629,7 @@ c
 c
 c  incell
 c
- 680  self = .true.
+ 612  self = .true.
       if (inp_a(test)) then
         if (inp_compare(.false.,test,'on'))      self = .true.
         if (inp_compare(.false.,test,'yes'))     self = .true.
@@ -631,10 +647,12 @@ c
      > 'pspw_qmmm_input:failed writing frag_incell',0, RTDB_ERR)
 
       goto 601
+
+
 c
 c cross bond spring i1 i2 d12  i3 i4 d34 K
 c
- 690  if (inp_i(sindx(1))) then
+ 613  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_f(sdist(1))) then
 
@@ -677,6 +695,129 @@ c
 
       goto 601
 
+
+c
+c  coord_number
+c
+ 620  nkc = nkc + 1
+      rtdb_name = 'pspw_qmmm_frag_ncoord:'//c_index_name(nkf)
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkc)
+      sdist(1) = -1.0d0
+      sdist(2) = -1.0d0
+      sdist(3) = -1.0d0
+      sdist(4) = -1.0d0
+      sdist(5) = -1.0d0
+      sdist(6) = -1.0d0
+      n1 = 0 
+      n2 = 0
+ 621  if (.not. inp_a(test)) goto 630
+      if (.not. inp_match(num_dirs2,.false.,test,dirs2,ind2))
+     >  call errquit(
+     >  'pspw_qmmm_input: unknown directive',0,INPUT_ERR)
+
+      goto ( 622,623,624,625,626,627,628,629 ) ind2
+      call errquit(
+     >     'pspw_qmmm_input: unimplemented directive',ind2,INPUT_ERR)
+
+c
+c index1
+c
+ 622   if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start1',
+     >                    index_start1(2),index_start1(1)))
+     >    call errquit(
+     > 'pspw_qmmm_input:failed allocating index_start1',0,MA_ERR)
+      n1 = 0
+      do while (inp_irange(jstart,jlast,jstride))
+         do j=jstart,jlast,jstride
+          int_mb(index_start1(1)+n1) = j
+          n1 = n1+1
+         end do
+      end do
+      rtdb_name='pspw_qmmm_frag_coord_indxsize1:'//c_index_name(nkf)
+     >                                         //c_index_name(nkc)
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,n1)
+      rtdb_name ='pspw_qmmm_frag_coord_indx1:'//c_index_name(nkf)
+     >                                      //c_index_name(nkc)
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n1,
+     >                              int_mb(index_start1(1)))
+      value = value.and.MA_pop_stack(index_start1(2))
+      if (.not. value) call errquit(
+     > 'pspw_qmmm_input:failed deallocating index_start1',0,MA_ERR)
+
+      goto 621
+c
+c index2 
+c
+ 623   if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start2',
+     >                    index_start2(2),index_start2(1)))
+     >    call errquit(
+     > 'pspw_qmmm_input:failed allocating index_start2',0,MA_ERR)
+      n2 = 0
+      do while (inp_irange(jstart,jlast,jstride))
+         do j=jstart,jlast,jstride
+          int_mb(index_start2(1)+n2) = j
+          n2 = n2+1
+         end do
+      end do
+      rtdb_name='pspw_qmmm_frag_coord_indxsize2:'//c_index_name(nkf)
+     >                                         //c_index_name(nkc)
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,n2)
+      rtdb_name ='pspw_qmmm_frag_coord_indx2:'//c_index_name(nkf)
+     >                                      //c_index_name(nkc)
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n2,
+     >                              int_mb(index_start2(1)))
+      value = value.and.MA_pop_stack(index_start2(2))
+      if (.not. value) call errquit(
+     > 'pspw_qmmm_input:failed deallocating index_start2',0,MA_ERR)
+
+      goto 621
+c
+c n
+c
+ 624  if (.not.inp_f(sdist(1))) sdist(1)=-1.0d0
+      goto 621
+c
+c m
+c
+ 625  if (.not.inp_f(sdist(2))) sdist(2)=-1.0d0
+      goto 621
+c
+c r0
+c
+ 626  if (.not.inp_f(sdist(3))) sdist(3)=-1.0d0
+      goto 621
+c
+c K
+c
+ 627  if (.not.inp_f(sdist(4))) sdist(4)=-1.0d0
+      goto 621
+c
+c cn0
+c
+ 628  if (.not.inp_f(sdist(5))) sdist(5)=-1.0d0
+      goto 621
+c
+c sprik
+c
+ 629  sdist(6)=1.0d0
+      goto 621
+
+
+ 630  if ((n1.le.0).or.(n2.le.0)) then
+         nkc = nkc - 1
+         rtdb_name = 'pspw_qmmm_frag_ncoord:'//c_index_name(nkf)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkc)
+      else
+         rtdb_name ='pspw_qmmm_frag_coord_Kr0:'//c_index_name(nkf)
+     >                                          //c_index_name(nkc)
+         if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,6,sdist))
+     >    call errquit('pspw_qmmm_input:failed writing coord_number',
+     >                 0,RTDB_ERR)
+      end if
+
+      goto 601
+
+
  699  continue
       goto 10
 
@@ -691,6 +832,7 @@ c
       nbm   = 0
       nds  = 0
       ndds  = 0
+      nkc   = 0
       rtdb_name = 'pspw_2qmmm_nkfrag'
       value = rtdb_put(rtdb,rtdb_name,mt_int,1,nknf)
       if (.not. value)
@@ -705,14 +847,14 @@ c
      >  call errquit('pspw_2qmmm_input: unknown directive',0,INPUT_ERR)
 
 
-      goto ( 710, 720,730,740,750,760,770,780,790,751,761,762,
+      goto ( 702,703,704,705,706,708,711,712,713,707,709,710,720,
      >       799) ind
       call errquit('pspw_2qmmm_input:directive not found',ind,INPUT_ERR)
 
 c
 c  size
 c
- 710  if (.not.inp_i(frag_size)) frag_size = 1
+ 702  if (.not.inp_i(frag_size)) frag_size = 1
       rtdb_name = 'pspw_2qmmm_frag_size:'//c_index_name(nknf)
       value = rtdb_put(rtdb,rtdb_name,mt_int,1,frag_size)
       if (.not. value)
@@ -723,7 +865,7 @@ c
 c
 c index_start
 c
- 720  value = MA_push_get(mt_int,nw_max_atom,'indx_start',
+ 703  value = MA_push_get(mt_int,nw_max_atom,'indx_start',
      >                    index_start(2),index_start(1))
       if (.not. value) call errquit(
      > 'pspw_2qmmm_input:failed allocating index_start',0,MA_ERR)
@@ -758,11 +900,10 @@ c
 
       goto 701
 
-
 c
 c shake
 c
- 730  na = 0
+ 704  na = 0
       if (inp_i(k)) then
          scal = 1.0d0
          sindx(na+1) = k
@@ -835,7 +976,7 @@ c
 c
 c switching
 c 
- 740  if (.not.inp_f(Rin))  Rin = 0.0d0
+ 705  if (.not.inp_f(Rin))  Rin = 0.0d0
       if (.not.inp_f(Rout)) Rout = 0.0d0
 
       rtdb_name = 'pspw_2qmmm_frag_switch_Rin:'//c_index_name(nknf)
@@ -855,7 +996,7 @@ c
 c
 c bond spring
 c
- 750  if (inp_i(sindx(1))) then
+ 706  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_f(sdist(1))) then
       if (inp_f(sdist(2))) then
@@ -892,7 +1033,7 @@ c
 c
 c bond morse
 c 
- 751  if (inp_i(sindx(1))) then
+ 707  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_f(sdist(1))) then
       if (inp_f(sdist(2))) then
@@ -932,7 +1073,7 @@ c
 c
 c angle spring
 c
- 760  if (inp_i(sindx(1))) then
+ 708  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_i(sindx(3))) then
       if (inp_f(sdist(1))) then
@@ -971,7 +1112,7 @@ c
 c
 c dihedral spring
 c
- 761  if (inp_i(sindx(1))) then
+ 709  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_i(sindx(3))) then
       if (inp_i(sindx(4))) then
@@ -1011,7 +1152,7 @@ c
 c
 c dihedral
 c
- 762  if (inp_i(sindx(1))) then
+ 710  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_i(sindx(3))) then
       if (inp_i(sindx(4))) then
@@ -1053,7 +1194,7 @@ c
 c
 c  self_interaction
 c
- 770  self = .true.
+ 711  self = .true.
       if (inp_a(test)) then
         if (inp_compare(.false.,test,'on'))      self = .true.
         if (inp_compare(.false.,test,'yes'))     self = .true.
@@ -1075,7 +1216,7 @@ c
 c
 c  incell
 c
- 780  self = .true.
+ 712  self = .true.
       if (inp_a(test)) then
         if (inp_compare(.false.,test,'on'))      self = .true.
         if (inp_compare(.false.,test,'yes'))     self = .true.
@@ -1097,7 +1238,7 @@ c
 c
 c cross bond spring i1 i2 d12  i3 i4 d34 K
 c
- 790  if (inp_i(sindx(1))) then
+ 713  if (inp_i(sindx(1))) then
       if (inp_i(sindx(2))) then
       if (inp_f(sdist(1))) then
  
@@ -1138,6 +1279,127 @@ c
       end if
 
       goto 701
+ 
+c
+c  coord_number
+c
+ 720  nkc = nkc + 1
+      rtdb_name = 'pspw_2qmmm_frag_ncoord:'//c_index_name(nknf)
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkc)
+      sdist(1) = -1.0d0
+      sdist(2) = -1.0d0
+      sdist(3) = -1.0d0
+      sdist(4) = -1.0d0
+      sdist(5) = -1.0d0
+      sdist(6) = -1.0d0
+      n1 = 0  
+      n2 = 0
+ 721  if (.not. inp_a(test)) goto 730
+      if (.not. inp_match(num_dirs2,.false.,test,dirs2,ind2))
+     >  call errquit(
+     >  'pspw_2qmmm_input: unknown directive',0,INPUT_ERR)
+
+      goto ( 722,723,724,725,726,727,728,729 ) ind2
+      call errquit(
+     >     'pspw_2qmmm_input: unimplemented directive',ind2,INPUT_ERR)
+
+c
+c index1
+c
+ 722   if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start1',
+     >                    index_start1(2),index_start1(1)))
+     >    call errquit(
+     > 'pspw_2qmmm_input:failed allocating index_start1',0,MA_ERR)
+      n1 = 0
+      do while (inp_irange(jstart,jlast,jstride))
+         do j=jstart,jlast,jstride
+          int_mb(index_start1(1)+n1) = j
+          n1 = n1+1
+         end do
+      end do
+      rtdb_name='pspw_2qmmm_frag_coord_indxsize1:'//c_index_name(nknf)
+     >                                            //c_index_name(nkc)
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,n1)
+      rtdb_name ='pspw_2qmmm_frag_coord_indx1:'//c_index_name(nkf)
+     >                                         //c_index_name(nkc)
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n1,
+     >                              int_mb(index_start1(1)))
+      value = value.and.MA_pop_stack(index_start1(2))
+      if (.not. value) call errquit(
+     > 'pspw_2qmmm_input:failed deallocating index_start1',0,MA_ERR)
+
+      goto 721
+c
+c index2 
+c
+ 723   if (.not.MA_push_get(mt_int,nw_max_atom,'indx_start2',
+     >                    index_start2(2),index_start2(1)))
+     >    call errquit(
+     > 'pspw_2qmmm_input:failed allocating index_start2',0,MA_ERR)
+      n2 = 0
+      do while (inp_irange(jstart,jlast,jstride))
+         do j=jstart,jlast,jstride
+          int_mb(index_start2(1)+n2) = j
+          n2 = n2+1
+         end do
+      end do
+      rtdb_name='pspw_2qmmm_frag_coord_indxsize2:'//c_index_name(nknf)
+     >                                         //c_index_name(nkc)
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,n2)
+      rtdb_name ='pspw_2qmmm_frag_coord_indx2:'//c_index_name(nkf)
+     >                                      //c_index_name(nkc)
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n2,
+     >                              int_mb(index_start2(1)))
+      value = value.and.MA_pop_stack(index_start2(2))
+      if (.not. value) call errquit(
+     > 'pspw_qmmm_input:failed deallocating index_start2',0,MA_ERR)
+
+      goto 721
+c
+c n
+c
+ 724  if (.not.inp_f(sdist(1))) sdist(1)=-1.0d0
+      goto 721
+c
+c m
+c
+ 725  if (.not.inp_f(sdist(2))) sdist(2)=-1.0d0
+      goto 721
+c
+c r0
+c
+ 726  if (.not.inp_f(sdist(3))) sdist(3)=-1.0d0
+      goto 721
+c
+c K
+c
+ 727  if (.not.inp_f(sdist(4))) sdist(4)=-1.0d0
+      goto 721
+c
+c cn0
+c
+ 728  if (.not.inp_f(sdist(5))) sdist(5)=-1.0d0
+      goto 721
+c
+c sprik
+c
+ 729  sdist(6)=1.0d0
+      goto 721
+
+ 730  if ((n1.le.0).or.(n2.le.0)) then
+         nkc = nkc - 1
+         rtdb_name = 'pspw_2qmmm_frag_ncoord:'//c_index_name(nknf)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,nkc)
+      else
+         rtdb_name ='pspw_2qmmm_frag_coord_Kr0:'//c_index_name(nknf)
+     >                                          //c_index_name(nkc)
+         if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,7,sdist))
+     >    call errquit('pspw_2qmmm_input:failed writing coord_number',
+     >                 0,RTDB_ERR)
+      end if
+
+      goto 701
+
 
  799  continue
       goto 10
@@ -1280,6 +1542,7 @@ c
      >   'pspw_qmmm_auxon:failed writing auxoff:',0,
      >    RTDB_ERR)
       goto 10
+
 
 
  9999 continue

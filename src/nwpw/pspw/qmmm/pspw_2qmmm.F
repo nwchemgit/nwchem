@@ -173,6 +173,25 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
      >                      nKr0_dihedral_start(2),
      >                      nKr0_dihedral_start(1))
 
+
+*        **** coord variables ****
+         value = value.and.
+     >           MA_alloc_get(mt_int,nkfrag,'nonncoord',
+     >                        ncoord(2),ncoord(1))
+         value = value.and.
+     >         MA_alloc_get(mt_int,nkfrag,'nonnindx1_coord_start',
+     >                        nindx1_coord_start(2),
+     >                        nindx1_coord_start(1))
+         value = value.and.
+     >         MA_alloc_get(mt_int,nkfrag,'nonnindx2_coord_start',
+     >                        nindx2_coord_start(2),
+     >                        nindx2_coord_start(1))
+         value = value.and.
+     >         MA_alloc_get(mt_int,nkfrag,'nonnKr0_coord_start',
+     >                      nKr0_coord_start(2),
+     >                      nKr0_coord_start(1))
+
+
          if (.not.value) 
      >    call errquit('cannot allocate heap memory for 2qmmm',0,
      >       MA_ERR)
@@ -872,6 +891,16 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
         if (dihedral_found) then
           value = value.and.MA_free_heap(indx_dihedral(2))
           value = value.and.MA_free_heap(Kr0_dihedral(2))
+        end if
+
+        value = value.and.MA_free_heap(ncoord(2))
+        value = value.and.MA_free_heap(nindx1_coord_start(2))
+        value = value.and.MA_free_heap(nindx2_coord_start(2))
+        value = value.and.MA_free_heap(nKr0_coord_start(2))
+        if (coord_found) then
+          value = value.and.MA_free_heap(indx1_coord(2))
+          value = value.and.MA_free_heap(indx2_coord(2))
+          value = value.and.MA_free_heap(Kr0_coord(2))
         end if
 
         if (.not.value) call errquit('cannot free heap memory',0,
