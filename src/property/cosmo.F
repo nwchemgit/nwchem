@@ -785,6 +785,7 @@ c
       data zero    /0.0d+00/
       integer l_efcc, k_efcc, l_efcs, k_efcs, l_efcz, k_efcz
       integer l_efclb, k_efclb, k_efciat, l_efciat
+      double precision ratm_real
 c
       dist(xi,yi,zi,xj,yj,zj)=sqrt((xj-xi)**2+(yj-yi)**2+(zj-zi)**2)
 c
@@ -958,17 +959,18 @@ c
       ief   =0
       do iat=1,nat
          if(ratm(iat).ne.zero) then
+            ratm_real=ratm(iat)-rsolv/bohr
             do iseg=1,nseg
                if(.not.insseg(iseg,iat)) then
                   ief=ief+1
                   do i=1,3
                      dbl_mb(k_efcc+3*(ief-1)+i-1)=xyzatm(i,iat)
-     1                          +xyzseg(i,iseg)*ratm(iat)
+     1                          +xyzseg(i,iseg)*ratm_real
                   enddo
                   ipp=numpps(iseg,iat)
-                  dbl_mb(k_efcs+ief-1) = dble(ipp)*dsurf*ratm(iat)**2
-                  srfmol   = srfmol + dble(ipp)*dsurf*ratm(iat)**2
-                  volmol   = volmol + dble(ipp)*dvol *ratm(iat)**3
+                  dbl_mb(k_efcs+ief-1) = dble(ipp)*dsurf*ratm_real**2
+                  srfmol   = srfmol + dble(ipp)*dsurf*ratm_real**2
+                  volmol   = volmol + dble(ipp)*dvol *ratm_real**3
                   int_mb(k_efciat+ief-1)=iat
                endif
             enddo
