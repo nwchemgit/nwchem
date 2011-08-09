@@ -90,7 +90,7 @@ c
      >               Kr0_dihedral,nKr0_dihedral_start,
      >               dihedral_found
 
-*     **** pspw_qmmm bond spring common block ****
+*     **** pspw_qmmm coordination number spring common block ****
       integer ncoord(2)
       integer indx1_coord(2),nindx1_coord_start(2),nsize1_coord(2)
       integer indx2_coord(2),nindx2_coord_start(2),nsize2_coord(2)

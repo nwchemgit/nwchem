@@ -22,7 +22,8 @@ c
       integer taskid,MASTER
       parameter (MASTER=0)
       logical value
-      integer i,j,ii,jj,ia,ja,ni,nj,frag_size,shake_ptr,indx_ptr
+      integer i,j,ii,jj,kk,ll,mm,ia,ja,ni,nj
+      integer frag_size,shake_ptr,indx_ptr
       real*8  volume
       character*80 rtdb_name
       integer natmp,nbtmp,nabsize,nindxsize,ndsqsize
@@ -32,6 +33,9 @@ c
       integer nmbindxsize,nmKr0size
       integer ndindxsize,ndKr0size
       integer nddindxsize,nddKr0size
+      integer ncnindxsize0,ncnindxsize1,ncnindxsize2,ncnKr0size,n1,n2
+
+
       integer ncons_hb
       character*255 namespace,tag
 
@@ -49,6 +53,7 @@ c
 *     **** reading number of frags ****
       rtdb_name = 'pspw_2qmmm_nfrag'
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,nfrag)) nfrag = 0
+
 
 
 cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
@@ -179,6 +184,10 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
      >           MA_alloc_get(mt_int,nkfrag,'nonncoord',
      >                        ncoord(2),ncoord(1))
          value = value.and.
+     >         MA_alloc_get(mt_int,nkfrag,'nonnindx0_coord_start',
+     >                        nindx0_coord_start(2),
+     >                        nindx0_coord_start(1))
+         value = value.and.
      >         MA_alloc_get(mt_int,nkfrag,'nonnindx1_coord_start',
      >                        nindx1_coord_start(2),
      >                        nindx1_coord_start(1))
@@ -215,6 +224,10 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
          ndKr0size   = 0
          nddindxsize = 0
          nddKr0size   = 0
+         ncnindxsize0 = 0
+         ncnindxsize1 = 0
+         ncnindxsize2 = 0
+         ncnKr0size   = 0
 
          do ia=1,nkfrag
 
@@ -363,6 +376,33 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
             int_mb(nKr0_dihedral_start(1) +ia-1) = nddKr0size  + 1
             nddindxsize = nddindxsize + 4*int_mb(ndihedral(1)+ia-1)
             nddKr0size  = nddKr0size  + 3*int_mb(ndihedral(1)+ia-1)
+
+
+*           **** coordination number stuff  - get ncoord  ****
+            rtdb_name =
+     >        'pspw_2qmmm_frag_ncoord:'//c_index_name(ia)
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
+     >                        int_mb(ncoord(1)+ia-1)))
+     >         int_mb(ncoord(1)+ia-1) = 0
+
+*           **** coordination number stuff  - determine nindxsize and ndsqsize  ****
+            int_mb(nindx0_coord_start(1)+ia-1) = ncnindxsize0 + 1
+            int_mb(nindx1_coord_start(1)+ia-1) = ncnindxsize1 + 1
+            int_mb(nindx2_coord_start(1)+ia-1) = ncnindxsize2 + 1
+            int_mb(nKr0_coord_start(1) +ia-1)  = ncnKr0size  + 1
+            do i=1,int_mb(ncoord(1)+ia-1)
+               rtdb_name = 'pspw_2qmmm_frag_coord_indxsize1:'
+     >                     //c_index_name(ia)//c_index_name(i)
+               if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n1)) n1 =0
+               rtdb_name = 'pspw_2qmmm_frag_coord_indxsize2:'
+     >                     //c_index_name(ia)//c_index_name(i)
+               if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n2)) n2 =0
+               ncnindxsize0 = ncnindxsize0 + 1
+               ncnindxsize1 = ncnindxsize1 + n1
+               ncnindxsize2 = ncnindxsize2 + n2
+            end do
+            ncnKr0size  = ncnKr0size  + 6*int_mb(ncoord(1)+ia-1)
+
 
          end do
 
@@ -638,6 +678,82 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
             end do
          end if
 
+*        *** more coordination number ****
+         coord_found = (ncnindxsize1.gt.0)
+         if (coord_found) then
+            value = MA_alloc_get(mt_int,ncnindxsize0,
+     >              'nsize1_coord',
+     >               nsize1_coord(2),
+     >               nsize1_coord(1))
+            value = value.and.MA_alloc_get(mt_int,ncnindxsize0,
+     >              'nsize2_coord',
+     >               nsize2_coord(2),
+     >               nsize2_coord(1))
+            value = value.and.MA_alloc_get(mt_int,ncnindxsize1,
+     >              'indx1_coord',
+     >               indx1_coord(2),
+     >               indx1_coord(1))
+            value = value.and.MA_alloc_get(mt_int,ncnindxsize2,
+     >              'indx2_coord',
+     >               indx2_coord(2),
+     >               indx2_coord(1))
+            value = value.and.
+     >              MA_alloc_get(mt_dbl,ncnKr0size,
+     >                           'Kr0_coord',
+     >                            Kr0_coord(2),
+     >                            Kr0_coord(1))
+
+            write(*,*) "sizes=",ncnindxsize0,ncnindxsize1,ncnindxsize2,
+     >                ncnKr0size
+            if (.not.value) call errquit(
+     >       'cannot allocate heap memory for qmmm coord',
+     >       0,MA_ERR)
+
+
+            ncnindxsize0 = 0
+            ncnindxsize1 = 0
+            ncnindxsize2 = 0
+            ncnKr0size  = 0 
+            do ia=1,nkfrag
+               do ja=1,int_mb(ncoord(1)+ia-1)
+                  rtdb_name = 'pspw_2qmmm_frag_coord_indxsize1:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n1)) n1=0
+                  rtdb_name = 'pspw_2qmmm_frag_coord_indxsize2:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n2)) n2=0
+                 write(*,*) "n1,n2=",n1,n2
+                  int_mb(nsize1_coord(1)+ncnindxsize0) = n1
+                  int_mb(nsize2_coord(1)+ncnindxsize0) = n2
+                  ncnindxsize0 = ncnindxsize0 + 1
+
+                  rtdb_name = 'pspw_2qmmm_frag_coord_indx1:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,n1,
+     >               int_mb(indx1_coord(1)+ncnindxsize1)))
+     >               int_mb(indx1_coord(1)+ncnindxsize1) = 0
+
+                  rtdb_name = 'pspw_2qmmm_frag_coord_indx2:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_int,n2,
+     >               int_mb(indx2_coord(1)+ncnindxsize2)))
+     >               int_mb(indx2_coord(1)+ncnindxsize2) = 0
+                  ncnindxsize1 = ncnindxsize1 + n1
+                  ncnindxsize2 = ncnindxsize2 + n2
+
+                  rtdb_name = 'pspw_2qmmm_frag_coord_Kr0:'
+     >                       //c_index_name(ia)//c_index_name(ja)
+                  if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,6,
+     >               dbl_mb(Kr0_coord(1)+ncnKr0size)))
+     >               dbl_mb(Kr0_coord(1)+ncnKr0size) = 0.0d0
+                  ncnKr0size = ncnKr0size + 6
+               end do
+            end do
+         end if
+
+
+
+
 
 
 *       ***** write out header info ****
@@ -797,6 +913,47 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
                jj = jj + 3
              end do
 
+             ll = int_mb(nindx0_coord_start(1)+ia-1)
+             ii = int_mb(nindx1_coord_start(1)+ia-1)
+             jj = int_mb(nindx2_coord_start(1)+ia-1)
+             kk = int_mb(nKr0_coord_start(1)  +ia-1)
+             do ja=1,int_mb(ncoord(1)+ia-1)
+                i  = indx1_coord(1)+ii-1
+                j  = indx2_coord(1)+jj-1
+                ni = int_mb(nsize1_coord(1)+ll-1)
+                nj = int_mb(nsize2_coord(1)+ll-1)
+                shake_ptr = Kr0_coord(1)+kk-1
+                write(*,*) "indx1=",int_mb(indx1_coord(1))
+                write(*,'(2x,"- Coordination Number (Index1) :",10I5)')
+     >          (int_mb(i+mm-1),mm=1,ni)
+                write(*,'(2x,"- Coordination Number (Index2) :",10I5)')
+     >          (int_mb(j+mm-1),mm=1,nj)
+
+                if (dbl_mb(shake_ptr+5).gt.0) then
+                write(*,'(A,/6x,A,F11.6,4x,A,F11.6,4x,A,F11.6,
+     >                      /6x,A,F11.6,4x,A,F11.6)')
+     >       "  - Coordination Number Parameters (Sprik): ",
+     >                  "n=    ",dbl_mb(shake_ptr),
+     >                  "m=    ",dbl_mb(shake_ptr+1),
+     >                  "r0=   ",dbl_mb(shake_ptr+2),
+     >                  "K=    ",dbl_mb(shake_ptr+3),
+     >                  "cn0=  ",dbl_mb(shake_ptr+4)
+               else
+                write(*,'(A,/6x,A,F11.6,4x,A,F11.6,4x,A,F11.6,
+     >                      /6x,A,F11.6,4x,A,F11.6)')
+     >       "  - Coordination Number Parameters (LJ): ",
+     >                  "n=    ",dbl_mb(shake_ptr),
+     >                  "m=    ",dbl_mb(shake_ptr+1),
+     >                  "r0=   ",dbl_mb(shake_ptr+2),
+     >                  "K=    ",dbl_mb(shake_ptr+3),
+     >                  "cn0=  ",dbl_mb(shake_ptr+4)
+               end if
+               ll = ll + 1
+               ii = ii + ni
+               jj = jj + nj
+               kk = kk + 6
+             end do
+
 
              
            end do
@@ -894,6 +1051,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
         end if
 
         value = value.and.MA_free_heap(ncoord(2))
+        value = value.and.MA_free_heap(nindx0_coord_start(2))
         value = value.and.MA_free_heap(nindx1_coord_start(2))
         value = value.and.MA_free_heap(nindx2_coord_start(2))
         value = value.and.MA_free_heap(nKr0_coord_start(2))

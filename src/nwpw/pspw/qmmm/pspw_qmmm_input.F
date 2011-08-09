@@ -77,7 +77,7 @@ c
       integer h,i,j,k,ka,jstart,jlast,jstride
       character*16 psp_in,psp_out
 
-      logical self
+      logical self,indx_notset
       integer sindx(50),na,nb,nshk
       real*8  sdist(50)
       integer nbs,nas,ncbs,nbm,nds,ndds
@@ -833,6 +833,7 @@ c
       nds  = 0
       ndds  = 0
       nkc   = 0
+      indx_notset = .true.
       rtdb_name = 'pspw_2qmmm_nkfrag'
       value = rtdb_put(rtdb,rtdb_name,mt_int,1,nknf)
       if (.not. value)
@@ -898,6 +899,7 @@ c
       if (.not. value) call errquit(
      > 'pspw_2qmmm_input:failed writing nnonfrag',0, RTDB_ERR)
 
+      indx_notset = .false.
       goto 701
 
 c
@@ -1317,10 +1319,13 @@ c
           n1 = n1+1
          end do
       end do
+
+      write(*,*) "input indx1=",int_mb(index_start1(1)),n1
+
       rtdb_name='pspw_2qmmm_frag_coord_indxsize1:'//c_index_name(nknf)
      >                                            //c_index_name(nkc)
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,n1)
-      rtdb_name ='pspw_2qmmm_frag_coord_indx1:'//c_index_name(nkf)
+      rtdb_name ='pspw_2qmmm_frag_coord_indx1:'//c_index_name(nknf)
      >                                         //c_index_name(nkc)
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n1,
      >                              int_mb(index_start1(1)))
@@ -1346,7 +1351,7 @@ c
       rtdb_name='pspw_2qmmm_frag_coord_indxsize2:'//c_index_name(nknf)
      >                                         //c_index_name(nkc)
       value = rtdb_put(rtdb,rtdb_name,mt_int,1,n2)
-      rtdb_name ='pspw_2qmmm_frag_coord_indx2:'//c_index_name(nkf)
+      rtdb_name ='pspw_2qmmm_frag_coord_indx2:'//c_index_name(nknf)
      >                                      //c_index_name(nkc)
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,n2,
      >                              int_mb(index_start2(1)))
@@ -1393,7 +1398,7 @@ c
       else
          rtdb_name ='pspw_2qmmm_frag_coord_Kr0:'//c_index_name(nknf)
      >                                          //c_index_name(nkc)
-         if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,7,sdist))
+         if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,6,sdist))
      >    call errquit('pspw_2qmmm_input:failed writing coord_number',
      >                 0,RTDB_ERR)
       end if
@@ -1402,6 +1407,25 @@ c
 
 
  799  continue
+
+      if (indx_notset) then
+         rtdb_name = 'pspw_2qmmm_frag_index_start:'//c_index_name(nknf)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,1)
+         if (.not. value) call errquit(
+     >    'pspw_2qmmm_input:failed writing index_start',0,RTDB_ERR)
+
+         rtdb_name = 'pspw_2qmmm_frag_nindex_start:'//c_index_name(nknf)
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,1)
+         if (.not. value) call errquit(
+     >    'pspw_2qmmm_input:failed writing nindex_start',0, RTDB_ERR)
+
+         nnonfrag = nnonfrag + 1
+         rtdb_name = 'pspw_2qmmm_nfrag'
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,nnonfrag)
+         if (.not. value) call errquit(
+     >    'pspw_2qmmm_input:failed writing nnonfrag',0, RTDB_ERR)
+      end if
+
       goto 10
 
 
