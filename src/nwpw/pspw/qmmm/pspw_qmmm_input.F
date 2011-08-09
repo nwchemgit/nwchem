@@ -1320,8 +1320,6 @@ c
          end do
       end do
 
-      write(*,*) "input indx1=",int_mb(index_start1(1)),n1
-
       rtdb_name='pspw_2qmmm_frag_coord_indxsize1:'//c_index_name(nknf)
      >                                            //c_index_name(nkc)
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,n1)

@@ -178,7 +178,6 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
      >                      nKr0_dihedral_start(2),
      >                      nKr0_dihedral_start(1))
 
-
 *        **** coord variables ****
          value = value.and.
      >           MA_alloc_get(mt_int,nkfrag,'nonncoord',
@@ -199,7 +198,6 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
      >         MA_alloc_get(mt_int,nkfrag,'nonnKr0_coord_start',
      >                      nKr0_coord_start(2),
      >                      nKr0_coord_start(1))
-
 
          if (.not.value) 
      >    call errquit('cannot allocate heap memory for 2qmmm',0,
@@ -682,31 +680,28 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
          coord_found = (ncnindxsize1.gt.0)
          if (coord_found) then
             value = MA_alloc_get(mt_int,ncnindxsize0,
-     >              'nsize1_coord',
+     >              'nonnsize1_coord',
      >               nsize1_coord(2),
      >               nsize1_coord(1))
             value = value.and.MA_alloc_get(mt_int,ncnindxsize0,
-     >              'nsize2_coord',
+     >              'nonnsize2_coord',
      >               nsize2_coord(2),
      >               nsize2_coord(1))
             value = value.and.MA_alloc_get(mt_int,ncnindxsize1,
-     >              'indx1_coord',
+     >              'nonindx1_coord',
      >               indx1_coord(2),
      >               indx1_coord(1))
             value = value.and.MA_alloc_get(mt_int,ncnindxsize2,
-     >              'indx2_coord',
+     >              'nonindx2_coord',
      >               indx2_coord(2),
      >               indx2_coord(1))
             value = value.and.
      >              MA_alloc_get(mt_dbl,ncnKr0size,
-     >                           'Kr0_coord',
+     >                           'nonKr0_coord',
      >                            Kr0_coord(2),
      >                            Kr0_coord(1))
-
-            write(*,*) "sizes=",ncnindxsize0,ncnindxsize1,ncnindxsize2,
-     >                ncnKr0size
             if (.not.value) call errquit(
-     >       'cannot allocate heap memory for qmmm coord',
+     >       'cannot allocate heap memory for 2qmmm coord',
      >       0,MA_ERR)
 
 
@@ -722,7 +717,6 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
                   rtdb_name = 'pspw_2qmmm_frag_coord_indxsize2:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n2)) n2=0
-                 write(*,*) "n1,n2=",n1,n2
                   int_mb(nsize1_coord(1)+ncnindxsize0) = n1
                   int_mb(nsize2_coord(1)+ncnindxsize0) = n2
                   ncnindxsize0 = ncnindxsize0 + 1
@@ -759,9 +753,15 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
 *       ***** write out header info ****
         call Parallel_taskid(taskid)
         if (taskid.eq.MASTER) then
+           write(*,*)
+           write(*,'(1x,A)') "Auxiliary Potential Parameters:"
+           write(*,'(2x,"fragments start (index_start) =",10I5)')
+     >         (int_mb(indx_frag_start(1)+mm-1),mm=1,nfrag)
+           write(*,'(2x,"fragments kind                =",10I5)')
+     >         (int_mb(kfrag(1)+mm-1),mm=1,nfrag)
            do ia=1,nkfrag
-             write(*,*) "non-fragment ",ia
-             write(*,'(1x,A,I4)') "  - non-fragment size = ",
+             write(*,'(/2x,A,I5)') "non-fragment: ",ia
+             write(*,'(2x,A,I5)') " - non-fragment size = ",
      >                         int_mb(size_frag(1)+ia-1)
              if (log_mb(self_interaction(1)+ia-1)) then
                 write(*,*) "  - ionic non-fragment"
@@ -923,31 +923,30 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
                 ni = int_mb(nsize1_coord(1)+ll-1)
                 nj = int_mb(nsize2_coord(1)+ll-1)
                 shake_ptr = Kr0_coord(1)+kk-1
-                write(*,*) "indx1=",int_mb(indx1_coord(1))
-                write(*,'(2x,"- Coordination Number (Index1) :",10I5)')
-     >          (int_mb(i+mm-1),mm=1,ni)
-                write(*,'(2x,"- Coordination Number (Index2) :",10I5)')
-     >          (int_mb(j+mm-1),mm=1,nj)
 
                 if (dbl_mb(shake_ptr+5).gt.0) then
-                write(*,'(A,/6x,A,F11.6,4x,A,F11.6,4x,A,F11.6,
+                write(*,'(A,/6x,A,F11.6,4x,A,F11.6,
      >                      /6x,A,F11.6,4x,A,F11.6)')
-     >       "  - Coordination Number Parameters (Sprik): ",
+     >       "   - Coordination Number Parameters (Sprik): ",
      >                  "n=    ",dbl_mb(shake_ptr),
-     >                  "m=    ",dbl_mb(shake_ptr+1),
      >                  "r0=   ",dbl_mb(shake_ptr+2),
      >                  "K=    ",dbl_mb(shake_ptr+3),
      >                  "cn0=  ",dbl_mb(shake_ptr+4)
                else
                 write(*,'(A,/6x,A,F11.6,4x,A,F11.6,4x,A,F11.6,
      >                      /6x,A,F11.6,4x,A,F11.6)')
-     >       "  - Coordination Number Parameters (LJ): ",
+     >       "   - Coordination Number Parameters (LJ): ",
      >                  "n=    ",dbl_mb(shake_ptr),
      >                  "m=    ",dbl_mb(shake_ptr+1),
      >                  "r0=   ",dbl_mb(shake_ptr+2),
      >                  "K=    ",dbl_mb(shake_ptr+3),
      >                  "cn0=  ",dbl_mb(shake_ptr+4)
                end if
+               write(*,'(6x,"Index1 =",10I5)')
+     >         (int_mb(i+mm-1),mm=1,ni)
+               write(*,'(6x,"Index2 =",10I5)')
+     >         (int_mb(j+mm-1),mm=1,nj)
+
                ll = ll + 1
                ii = ii + ni
                jj = jj + nj
@@ -957,6 +956,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
 
              
            end do
+ 
         end if
 
 

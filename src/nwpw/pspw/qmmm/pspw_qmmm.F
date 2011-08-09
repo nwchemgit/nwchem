@@ -38,7 +38,8 @@ c
       integer taskid,MASTER
       parameter (MASTER=0)
       logical value
-      integer i,j,ii,jj,ia,ja,ni,nj,frag_size,shake_ptr,indx_ptr
+      integer i,j,ii,jj,kk,ll,ia,ja,ni,nj,frag_size,shake_ptr,indx_ptr
+      integer mm
       real*8  volume
       character*80 rtdb_name
       integer natmp,nbtmp,nabsize,nindxsize,ndsqsize
@@ -218,6 +219,10 @@ c
      >           MA_alloc_get(mt_int,nkfrag,'ncoord',
      >                        ncoord(2),ncoord(1))
          value = value.and.
+     >         MA_alloc_get(mt_int,nkfrag,'nindx0_coord_start',
+     >                        nindx0_coord_start(2),
+     >                        nindx0_coord_start(1))
+         value = value.and.
      >         MA_alloc_get(mt_int,nkfrag,'nindx1_coord_start',
      >                        nindx1_coord_start(2),
      >                        nindx1_coord_start(1))
@@ -226,7 +231,7 @@ c
      >                        nindx2_coord_start(2),
      >                        nindx2_coord_start(1))
          value = value.and.
-     >         MA_alloc_get(mt_int,nkfrag,'nKr0_coord_start',
+     >         MA_alloc_get(mt_int,nkfrag,'Kr0_coord_start',
      >                      nKr0_coord_start(2),
      >                      nKr0_coord_start(1))
 
@@ -414,14 +419,16 @@ c
             nddindxsize = nddindxsize + 4*int_mb(ndihedral(1)+ia-1)
             nddKr0size  = nddKr0size  + 3*int_mb(ndihedral(1)+ia-1)
 
+
 *           **** coordination number stuff  - get ncoord  ****
-            rtdb_name =  
+            rtdb_name =
      >        'pspw_qmmm_frag_ncoord:'//c_index_name(ia)
             if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,
      >                        int_mb(ncoord(1)+ia-1)))
      >         int_mb(ncoord(1)+ia-1) = 0
 
 *           **** coordination number stuff  - determine nindxsize and ndsqsize  ****
+            int_mb(nindx0_coord_start(1)+ia-1) = ncnindxsize0 + 1
             int_mb(nindx1_coord_start(1)+ia-1) = ncnindxsize1 + 1
             int_mb(nindx2_coord_start(1)+ia-1) = ncnindxsize2 + 1
             int_mb(nKr0_coord_start(1) +ia-1)  = ncnKr0size  + 1
@@ -431,7 +438,7 @@ c
                if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n1)) n1 =0
                rtdb_name = 'pspw_qmmm_frag_coord_indxsize2:'
      >                     //c_index_name(ia)//c_index_name(i)
-               if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n1)) n1 =0
+               if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n2)) n2 =0
                ncnindxsize0 = ncnindxsize0 + 1
                ncnindxsize1 = ncnindxsize1 + n1
                ncnindxsize2 = ncnindxsize2 + n2
@@ -712,6 +719,7 @@ c
          end if
 
 
+
 *        *** more coordination number ****
          coord_found = (ncnindxsize1.gt.0)
          if (coord_found) then
@@ -736,6 +744,7 @@ c
      >                           'Kr0_coord',
      >                            Kr0_coord(2),
      >                            Kr0_coord(1))
+
             if (.not.value) call errquit(
      >       'cannot allocate heap memory for qmmm coord',
      >       0,MA_ERR)
@@ -746,10 +755,10 @@ c
             ncnKr0size  = 0
             do ia=1,nkfrag
                do ja=1,int_mb(ncoord(1)+ia-1)
-                  rtdb_name = 'pspw_qmmm_frag_coord_indexsize1:'
+                  rtdb_name = 'pspw_qmmm_frag_coord_indxsize1:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n1)) n1=0
-                  rtdb_name = 'pspw_qmmm_frag_coord_indexsize2:'
+                  rtdb_name = 'pspw_qmmm_frag_coord_indxsize2:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,n2)) n2=0
                   int_mb(nsize1_coord(1)+ncnindxsize0) = n1
@@ -761,6 +770,7 @@ c
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_int,n1,
      >               int_mb(indx1_coord(1)+ncnindxsize1)))
      >               int_mb(indx1_coord(1)+ncnindxsize1) = 0
+
                   rtdb_name = 'pspw_qmmm_frag_coord_indx2:'
      >                       //c_index_name(ia)//c_index_name(ja)
                   if (.not.rtdb_get(rtdb,rtdb_name,mt_int,n2,
@@ -778,6 +788,10 @@ c
                end do
             end do
          end if
+
+
+
+
 
 
 *       ***** initialize Model, LJ, Pol, VIB, and CAV ****
@@ -804,12 +818,20 @@ c
 *       ***** write out header info ****
         call Parallel_taskid(taskid)
         if (taskid.eq.MASTER) then
+           write(*,*)
+           write(*,'(1x,A)') "QM/MM Potential Parameters:"
+           write(*,'(2x,"fragments start (index_start) =",10I5)')
+     >         (int_mb(indx_frag_start(1)+mm-1),mm=1,nfrag)
+           write(*,'(2x,"fragments kind                =",10I5)')
+     >         (int_mb(kfrag(1)+mm-1),mm=1,nfrag)
+
            if (lmbda_flag) 
-     >        write(*,*) "qmmm_lambda coupling parameter  = ",qmmm_lmbda
+     >        write(*,'(2x,A,I2)') 
+     >        "qmmm_lambda coupling parameter  = ",qmmm_lmbda
            write(*,*) 
            do ia=1,nkfrag
-             write(*,*) "fragment ",ia
-             write(*,'(1x,A,I4)') "  - fragment size = ",
+             write(*,'(2x,A,I5)') "fragment: ",ia
+             write(*,'(2x,A,I4)') "  - fragment size = ",
      >                         int_mb(size_frag(1)+ia-1)
              if (log_mb(self_interaction(1)+ia-1)) then
                 write(*,*) "  - ionic fragment"
@@ -959,6 +981,46 @@ c
      >                  "phie=", dbl_mb(shake_ptr+2)
                ii = ii + 4
                jj = jj + 3
+             end do
+
+             ll = int_mb(nindx0_coord_start(1)+ia-1)
+             ii = int_mb(nindx1_coord_start(1)+ia-1)
+             jj = int_mb(nindx2_coord_start(1)+ia-1)
+             kk = int_mb(nKr0_coord_start(1)  +ia-1)
+             do ja=1,int_mb(ncoord(1)+ia-1)
+                i  = indx1_coord(1)+ii-1
+                j  = indx2_coord(1)+jj-1
+                ni = int_mb(nsize1_coord(1)+ll-1)
+                nj = int_mb(nsize2_coord(1)+ll-1)
+                shake_ptr = Kr0_coord(1)+kk-1
+
+                if (dbl_mb(shake_ptr+5).gt.0) then
+                write(*,'(A,/6x,A,F11.6,4x,A,F11.6,
+     >                      /6x,A,F11.6,4x,A,F11.6)')
+     >       "   - Coordination Number Parameters (Sprik): ",
+     >                  "n=    ",dbl_mb(shake_ptr),
+     >                  "r0=   ",dbl_mb(shake_ptr+2),
+     >                  "K=    ",dbl_mb(shake_ptr+3),
+     >                  "cn0=  ",dbl_mb(shake_ptr+4)
+               else
+                write(*,'(A,/6x,A,F11.6,4x,A,F11.6,4x,A,F11.6,
+     >                      /6x,A,F11.6,4x,A,F11.6)')
+     >       "   - Coordination Number Parameters (LJ): ",
+     >                  "n=    ",dbl_mb(shake_ptr),
+     >                  "m=    ",dbl_mb(shake_ptr+1),
+     >                  "r0=   ",dbl_mb(shake_ptr+2),
+     >                  "K=    ",dbl_mb(shake_ptr+3),
+     >                  "cn0=  ",dbl_mb(shake_ptr+4)
+               end if
+               write(*,'(6x,"Index1 =",10I5)')
+     >         (int_mb(i+mm-1),mm=1,ni)
+               write(*,'(6x,"Index2 =",10I5)')
+     >         (int_mb(j+mm-1),mm=1,nj)
+
+               ll = ll + 1
+               ii = ii + ni
+               jj = jj + nj 
+               kk = kk + 6
              end do
 
            end do
