@@ -1371,7 +1371,7 @@ c     **** external functions ***
 
 c     **** local variables ****
       integer dutask,taskid,np
-      integer w1,wk1,ks1,nbs,nas,ncbs,nbm,jj,kk,nds,ndds
+      integer w1,wk1,ks1,nbs,nas,ncbs,nbm,ii,jj,kk,ll,nds,ndds,ncns
       real*8  E
 
 c     **** external functions ***
@@ -1389,6 +1389,8 @@ c     **** external functions ***
       external pspw_qmmm_dihedral_spring_frag
       real*8   pspw_qmmm_dihedral_frag
       external pspw_qmmm_dihedral_frag
+      real*8   pspw_qmmm_spring_coordnum_frag
+      external pspw_qmmm_spring_coordnum_frag
       real*8   pspw_2qmmm_spring_E
       external pspw_2qmmm_spring_E
       logical  pspw_2qmmm_found
@@ -1409,6 +1411,7 @@ c     **** external functions ***
          nbm  = int_mb(nmbond(1)+wk1-1)
          nds   = int_mb(ndihedral_spring(1)+wk1-1)
          ndds  = int_mb(ndihedral(1)+wk1-1)
+         ncns  = int_mb(ncoord(1)+wk1-1)
          if (nbs.gt.0) then
             jj  = int_mb(nindx_bond_start(1)+wk1-1)
             kk  = int_mb(nKr0_bond_start(1) +wk1-1)
@@ -1458,6 +1461,20 @@ c     **** external functions ***
      >                        dbl_mb(Kr0_dihedral(1) +kk-1),
      >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)))
          end if
+         if (ncns.gt.0) then
+            ii  = int_mb(nindx0_coord_start(1)+wk1-1)
+            jj  = int_mb(nindx1_coord_start(1)+wk1-1)
+            kk  = int_mb(nindx2_coord_start(1)+wk1-1)
+            ll  = int_mb(nKr0_coord_start(1)  +wk1-1)
+            E = E + pspw_qmmm_spring_coordnum_frag(ncns,
+     >                        int_mb(nsize1_coord(1)+ii-1),
+     >                        int_mb(indx1_coord(1) +jj-1),
+     >                        int_mb(nsize2_coord(1)+ii-1),
+     >                        int_mb(indx2_coord(1) +kk-1),
+     >                        dbl_mb(Kr0_coord(1) +ll-1),
+     >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)))
+         end if
+
          end if
          dutask = mod(dutask+1,np)
         
@@ -1488,7 +1505,7 @@ c     **** non-fragments ****
 
 c     **** local variables ****
       integer dutask,taskid,np
-      integer w1,wk1,ks1,nbs,nas,ncbs,nbm,jj,kk,nds,ndds
+      integer w1,wk1,ks1,nbs,nas,ncbs,nbm,ii,jj,kk,ll,nds,ndds,ncns
 
 c     **** external functions ***
       integer  ion_rion_ptr
@@ -1510,6 +1527,7 @@ c     **** external functions ***
          nbm  = int_mb(nmbond(1)+wk1-1)
          nds  = int_mb(ndihedral_spring(1)+wk1-1)
          ndds  = int_mb(ndihedral(1)+wk1-1)
+         ncns  = int_mb(ncoord(1)+wk1-1)
          if (nbs.gt.0) then
             jj  = int_mb(nindx_bond_start(1)+wk1-1)
             kk  = int_mb(nKr0_bond_start(1) +wk1-1)
@@ -1564,7 +1582,20 @@ c     **** external functions ***
      >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)),
      >                        fion(1,ks1))
          end if
-
+         if (ncns.gt.0) then
+            ii  = int_mb(nindx0_coord_start(1)+wk1-1)
+            jj  = int_mb(nindx1_coord_start(1)+wk1-1)
+            kk  = int_mb(nindx2_coord_start(1)+wk1-1)
+            ll  = int_mb(nKr0_coord_start(1) +wk1-1)
+            call pspw_qmmm_spring_coordnum_frag_fion(ncns,
+     >                        int_mb(nsize1_coord(1)+ii-1),
+     >                        int_mb(indx1_coord(1) +jj-1),
+     >                        int_mb(nsize2_coord(1)+ii-1),
+     >                        int_mb(indx2_coord(1) +kk-1),
+     >                        dbl_mb(Kr0_coord(1)   +ll-1),
+     >                        dbl_mb(ion_rion_ptr()+3*(ks1-1)),
+     >                        fion(1,ks1))
+         end if
 
          end if
          dutask = mod(dutask+1,np)

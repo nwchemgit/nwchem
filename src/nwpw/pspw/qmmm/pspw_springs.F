@@ -903,3 +903,210 @@ cccc  E =  Kr0(1,b)*(1.0d0+dcos(Kr0(2,b)*phi-Kr0(3,b))) cccc
       end
 
 
+
+*     *************************************
+*     *                                   *
+*     *   pspw_qmmm_spring_coordnum_frag  *
+*     *                                   *
+*     *************************************
+
+*   This routine returns the coordination number spring energy.
+
+      real*8 function pspw_qmmm_spring_coordnum_frag(ncoords,
+     >                                           nsize1,indx1,
+     >                                           nsize2,indx2,
+     >                                            Kr0,rion)
+      implicit none
+      integer ncoords
+      integer nsize1(*),indx1(*)
+      integer nsize2(*),indx2(*)
+      real*8  Kr0(6,*)
+      real*8  rion(3,*)
+
+*     **** local variables ****
+      logical sprik
+      integer i,j,ii,jj,a1,a2,c,natom1,natom2
+      real*8  r,E,x,y,z,r0,f,n,m
+
+      E = 0.0d0
+      ii = 0 
+      jj = 0 
+      do c=1,ncoords
+         natom1 = nsize1(c)
+         natom2 = nsize2(c)
+         n      = Kr0(1,c)
+         m      = Kr0(2,c)
+         r0     = Kr0(3,c)
+         sprik  = (Kr0(6,c).gt.0.0d0)
+      
+         f = 0.0d0
+         do a1=1,natom1
+            do a2=1,natom2
+              i = indx1(ii+a1) 
+              j = indx2(jj+a2)
+              x = rion(1,i)-rion(1,j)
+              y = rion(2,i)-rion(2,j)
+              z = rion(3,i)-rion(3,j)
+              call lattice_min_difference(x,y,z)
+              r = dsqrt( x**2 + y**2 + z**2)
+              if (sprik) then
+                 f = f + 1.d0/(1.d0+dexp(n*(r-r0)))
+              else
+                 f = f + (1.0d0-(r/r0)**n)/(1.0d0-(r/r0)**m)
+              end if
+            end do
+         end do
+         E = E + Kr0(4,c)*(f-Kr0(5,c))**2
+         ii = ii + natom1
+         jj = jj + natom2
+      end do
+
+      pspw_qmmm_spring_coordnum_frag = E
+      return
+      end
+
+
+*     ******************************************
+*     *                                        *
+*     *  pspw_qmmm_spring_coordnum_frag_fion   *
+*     *                                        *
+*     ******************************************
+
+*   This routine calculates the coordination number spring force 
+*
+*   !!!!This routine can be sped up.
+*
+      subroutine pspw_qmmm_spring_coordnum_frag_fion(ncoords,
+     >                                           nsize1,indx1,
+     >                                           nsize2,indx2,
+     >                                           Kr0,rion,
+     >                                           fion)
+      implicit none
+      integer ncoords
+      integer nsize1(*),indx1(*)
+      integer nsize2(*),indx2(*)
+      real*8  Kr0(6,*)
+      real*8  rion(3,*)
+      real*8  fion(3,*)
+
+*     **** local variables ****
+      logical sprik
+      integer i,j,ii,jj,c,natom1,natom2,a1,a2
+      real*8  r,dE,x,y,z,n,m,f,df,r0,rn,rm
+
+      ii = 0 
+      jj = 0 
+      do c=1,ncoords
+         natom1 = nsize1(c)
+         natom2 = nsize2(c)
+         n      = Kr0(1,c)
+         m      = Kr0(2,c)
+         r0     = Kr0(3,c)
+         sprik  = (Kr0(6,c).gt.0.0d0)
+
+         !*** calculate f ****
+         f = 0.0d0
+         do a1=1,natom1
+            do a2=1,natom2
+              i = indx1(ii+a1) 
+              j = indx2(jj+a2)
+              x = rion(1,i)-rion(1,j)
+              y = rion(2,i)-rion(2,j)
+              z = rion(3,i)-rion(3,j)
+              call lattice_min_difference(x,y,z)
+              r = dsqrt( x**2 + y**2 + z**2)
+              if (sprik) then
+                 f = f + 1.0d0/(1.0d0+dexp(n*(r-r0)))
+              else
+                 f = f + (1.0d0-(r/r0)**n)/(1.0d0-(r/r0)**m)
+              end if
+            end do
+         end do
+         dE =  2.0d0*Kr0(4,c)*(f-Kr0(5,c))
+
+         do a1=1,natom1
+            do a2=1,natom2
+               i = indx1(ii+a1) 
+               j = indx2(jj+a2)
+               x = rion(1,i)-rion(1,j)
+               y = rion(2,i)-rion(2,j)
+               z = rion(3,i)-rion(3,j)
+               call lattice_min_difference(x,y,z)
+               r = dsqrt( x**2 + y**2 + z**2)
+               if (sprik) then
+                  rn  = 1.0d0+dexp(n*(r-r0))
+                  df = -n*(rn-1.0d0)/(rn*rn)
+               else
+                  rn  = (1.0d0-(r/r0)**n)
+                  rm  = (1.0d0-(r/r0)**m)
+                  df = (-n*rm/r0*(r/r0)**(n-1) + m*rn/r0*(r/r0)**(m-1))
+     >                 / (rm**2)
+               end if
+ 
+               fion(1,i) = fion(1,i) - (x/r)*df*dE
+               fion(2,i) = fion(2,i) - (y/r)*df*dE
+               fion(3,i) = fion(3,i) - (z/r)*df*dE
+
+               fion(1,j) = fion(1,j) + (x/r)*df*dE
+               fion(2,j) = fion(2,j) + (y/r)*df*dE
+               fion(3,j) = fion(3,j) + (z/r)*df*dE
+            end do
+         end do
+         ii = ii + natom1
+         jj = jj + natom2
+      end do
+
+      return
+      end
+
+
+*     *************************************
+*     *                                   *
+*     *   pspw_qmmm_coordnum              *
+*     *                                   *
+*     *************************************
+
+*   This routine returns the coordination number spring energy.
+
+      real*8 function pspw_qmmm_coordnum(nsize1,indx1,
+     >                                   nsize2,indx2,
+     >                                   Kr0,rion)
+      implicit none
+      integer ncoords
+      integer nsize1,indx1(*)
+      integer nsize2,indx2(*)
+      real*8  Kr0(6)
+      real*8  rion(3,*)
+
+*     **** local variables ****
+      logical sprik
+      integer i,j,a1,a2
+      real*8  r,x,y,z,r0,f,n,m
+
+      n      = Kr0(1)
+      m      = Kr0(2)
+      r0     = Kr0(3)
+      sprik  = (Kr0(6).gt.0.0d0)
+      
+      f = 0.0d0
+      do a1=1,nsize1
+         do a2=1,nsize2
+           i = indx1(a1) 
+           j = indx2(a2)
+           x = rion(1,i)-rion(1,j)
+           y = rion(2,i)-rion(2,j)
+           z = rion(3,i)-rion(3,j)
+           call lattice_min_difference(x,y,z)
+           r = dsqrt( x**2 + y**2 + z**2)
+           if (sprik) then
+              f = f + 1.d0/(1.d0+dexp(n*(r-r0)))
+           else
+              f = f + (1.0d0-(r/r0)**n)/(1.0d0-(r/r0)**m)
+           end if
+         end do
+      end do
+
+      pspw_qmmm_coordnum = f
+      return
+      end
+
