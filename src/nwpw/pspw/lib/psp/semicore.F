@@ -325,6 +325,7 @@ c     logical semicore(0:nkatmx)
         dbl_mb(ncore_sum(1)+ia-1) = 0.0d0
         if (log_mb(semicore(1)+ia)) then
 
+
 *          **** put sqrt(core-density) at atom position ****
            do k=1,npack0
               dcpl_mb(tmp(1)+k-1) 
@@ -340,6 +341,7 @@ c           call Pack_c_SMul(0,scal2,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
 *          ****  square it  ****
 c           call D3dB_rr_Sqr(1,dcpl_mb(tmp(1)),dcpl_mb(tmp(1)))
            call D3dB_rr_Sqr1(1,dcpl_mb(tmp(1)))
+
 
 *          ****  integrate it ****
            call D3dB_r_dsum(1,dcpl_mb(tmp(1)),sum)
