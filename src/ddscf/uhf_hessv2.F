@@ -83,6 +83,7 @@ c
       integer ivec, nfock, ndensity
       integer g_tmp1, g_tmp2, g_tmp3, g_tmp4
       integer nocc, nvir, g_vecs, nocc_diff, nvir_diff, g_vecs_diff
+      integer nnocc, nnocc_diff
       integer iset, isetoff, isetoff2
       integer istart, istart_diff, iend, iend_diff, vbase, vbase_diff
       integer g_d, g_j, g_k
@@ -169,7 +170,8 @@ c
          iend = istart + nocc*nvir - 1
          vbase = nocc+1         ! First virtual
 *ga:1:0
-         if (.not. ga_create(MT_DBL, nvir, nocc, 'uhf_hv2e: tmp1',
+         nnocc = max(1,nocc) ! nocc can be 0 in UHF 1-electron systems
+         if (.not. ga_create(MT_DBL, nvir, nnocc, 'uhf_hv2e: tmp1',
      $        0, 0, g_tmp1)) call errquit('uhf_hv2e: tmp1', 0, GA_ERR)
 *ga:1:0
          if (.not. ga_create(MT_DBL, nvir, nbf, 'uhf_hv2e: tmp2',
@@ -291,18 +293,20 @@ c
         iend_diff = istart_diff + nocc_diff*nvir_diff - 1
         vbase = nocc+1          ! First virtual
         vbase_diff = nocc_diff+1          ! First virtual
+        nnocc = max(1,nocc)
+        nnocc_diff = max(1,nocc_diff)
 *ga:1:0
-        if (.not. ga_create(MT_DBL, nbf, nocc, 'uhf_hv2e: tmp1',
+        if (.not. ga_create(MT_DBL, nbf, nnocc, 'uhf_hv2e: tmp1',
      $       0, 0, g_tmp1)) call errquit('uhf_hv2e: tmp1', 0,
      &       GA_ERR)
 *ga:1:0
-        if (.not. ga_create(MT_DBL, nvir, nocc, 'uhf_hv2e: tmp2',
+        if (.not. ga_create(MT_DBL, nvir, nnocc, 'uhf_hv2e: tmp2',
      $       0, 0, g_tmp2)) call errquit('uhf_hv2e: tmp2', 0, GA_ERR)
 *ga:1:0
-        if (.not. ga_create(MT_DBL, nbf, nocc_diff, 'uhf_hv2e: tmp3',
+        if (.not. ga_create(MT_DBL, nbf, nnocc_diff, 'uhf_hv2e: tmp3',
      $       0, 0, g_tmp3)) call errquit('uhf_hv2e: tmp3', 0, GA_ERR)
 *ga:1:0
-        if (.not. ga_create(MT_DBL,nvir_diff,nocc_diff,
+        if (.not. ga_create(MT_DBL,nvir_diff,nnocc_diff,
      $       'uhf_hv2e: tmp4',
      $       0, 0, g_tmp4)) call errquit('uhf_hv2e: tmp4', 0, GA_ERR)
         do ivec = 1, nvec

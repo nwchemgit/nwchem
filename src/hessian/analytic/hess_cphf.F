@@ -600,6 +600,9 @@ c
         bhi1(1) = ind
         blo2(1) = ind
         bhi2(1) = ind
+        if (nocc(ndns).le.0) then
+          call nga_zero_patch(g_rhs_x,blo2,bhi2)
+        else ! nocc(ndns).le.0
         call ga_zero(g_modx)
         
         call nga_matmul_patch ('n','n', 1.D0, 0.D0,
@@ -610,6 +613,8 @@ c
      $                g_modx      , alo1, ahi1,
      $                g_vecs(ndns), alo2, ahi2,
      $                g_rhs_x     , blo2, bhi2)
+
+        endif ! nocc(ndns).le.0
 c
        enddo
       enddo
