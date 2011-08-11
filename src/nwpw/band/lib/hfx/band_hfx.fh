@@ -8,12 +8,13 @@
       real*8  ehfx,phfx
       real*8  hfx_parameter
       integer solver_type,flag
-      integer norbs(2),ispin,nbrillioun
+      integer norbs(2),ispin,nbrillioun,nbrillq
       integer ehfx_orb(2,2)
       common / BAND_HFX_Block / ehfx,phfx,rcut,pp,
      >                          hfx_parameter,
      >                          ehfx_orb,
-     >                          norbs,ispin,nbrillioun,solver_type,flag,
+     >                          norbs,ispin,nbrillioun,nbrillq,
+     >                          solver_type,flag,
      >                          relaxed,orb_contribution,hfx_on
 
 *     **** BAND_HFX_frac common block ****
@@ -22,13 +23,13 @@
       common /BAND_HFX_frac_Block/ amatrix,frac_on
 
 *     **** BAND_HFX_replicated common block ****
-      logical replicated,butterfly
-      integer npj,taskid_j,nrsize,n2ft3d,neqall
-      integer psi_r_replicated(2),Hpsi_r_replicated(2)
-      common /BAND_HFX_replicated_Block/ psi_r_replicated,
-     >                                   Hpsi_r_replicated,
-     >                                   neqall,npj,taskid_j,
-     >                                   nrsize,n2ft3d,
-     >                                   replicated,butterfly
+      logical replicated
+      integer npk,taskid_k,nfft3d,neall
+      integer psi_r_replicated_tag,Hpsi_r_replicated_tag
+      common /BAND_HFX_replicated_Block/ psi_r_replicated_tag,
+     >                                   Hpsi_r_replicated_tag,
+     >                                   neall,npk,taskid_k,
+     >                                   nfft3d,
+     >                                   replicated
 
 

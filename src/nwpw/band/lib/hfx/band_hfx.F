@@ -24,16 +24,19 @@
       integer n1,n2,n3,mapping,ms,neq(2)
 
 *     **** external functions ****
-      integer  control_version,control_mapping,Butter_size
-      external control_version,control_mapping,Butter_size
+      integer  control_version,control_mapping,Pneb_nbrillq
+      external control_version,control_mapping,Pneb_nbrillq
+      integer  cpsi_data_alloc
+      external cpsi_data_alloc
 
       nbrillioun = nbrill0
+      nbrillq = Pneb_nbrillq()
       ispin = ispin0
       norbs(1) = 0
       norbs(2) = 0
       ehfx = 0.0d0
       hfx_on = .false.
-      call C3dB_n2ft3d(1,n2ft3d)
+      call C3dB_nfft3d(1,nfft3d)
 
       if (.not.rtdb_get(rtdb,'band:HFX',mt_log,1,hfx_on))
      >   hfx_on = .false.
@@ -86,9 +89,6 @@
 c         call coulomb_screened_init(flag,rcut,pp)
 
 *      
-        
-         
-
 *        **** initialize orb_contribution ****
          do ms=1,ispin
            value = MA_alloc_get(mt_dbl,norbs(ms),
@@ -101,6 +101,15 @@ c         call coulomb_screened_init(flag,rcut,pp)
 
 
 c     **** define extra psi and Hpsi  ****
+      call Parallel3d_np_k(npk)
+      call Parallel3d_taskid_k(taskid_k)
+      replicated = (npk.gt.1)
+      if (hfx_on.and.replicated) then
+        neall = ne(1)+ne(2)
+        psi_r_replicated_tag  = cpsi_data_alloc(nbrillq,neall,2*nfft3d)
+        Hpsi_r_replicated_tag = cpsi_data_alloc(nbrillq,neall,2*nfft3d)
+      end if
+
    
       return
       end
@@ -159,6 +168,12 @@ c     **** define extra psi and Hpsi  ****
 
 *        **** end coulomb_screened ****
 c         call coulomb_screened_end()
+
+*        **** deallocate replicated space if necessary ****
+         if (replicated) then
+            call cpsi_data_dealloc(psi_r_replicated_tag)
+            call cpsi_data_dealloc(Hpsi_r_replicated_tag)
+         end if
 
       end if
 
@@ -331,45 +346,48 @@ c***************** sub/replicated routines *****************************
 *     *     band_potential_HFX_sub   *
 *     *                              *
 *     ********************************
-      subroutine band_potential_HFX_sub(ispin0,psi_r_tag,Hpsi_r_tag)
+      subroutine band_potential_HFX_sub(psi1_r, psi2_r,
+     >                                  Hpsi1_r,Hpsi2_r)
       implicit none
-      integer    ispin0
-      integer    psi_r_tag
-      integer    Hpsi_r_tag
 
-#include "mafdecls.fh"
 #include "band_hfx.fh"
+#include "mafdecls.fh"
 #include "errquit.fh"
+
+      complex*16 psi1_r(nfft3d,*), psi2_r(nfft3d,*)
+      complex*16 Hpsi1_r(nfft3d,*),Hpsi2_r(nfft3d,*)
 
 *     **** local variables ****
       logical value,done
       integer i,j,n1,n2,n3,ms
       integer dn(2),vij(2),tmp1(2),tmp2(2),index1,index2
+      integer psir1,psir2,hpsir1,hpsir2
       integer i1,j1,k1,NN
       integer i2,j2,k2
       integer i3,j3,k3
+      integer kv1,kv2
       real*8  scal1,scal2,dv,eh,ph
 
 *     **** external functions ****
-      real*8   lattice_omega,icoulomb_screened_e
-      logical   C3dB_rc_pfft3_queue_filled,D3dB_cr_pfft3_queue_filled
-      external lattice_omega,icoulomb_screened_e
-      external  C3dB_rc_pfft3_queue_Cilled,D3dB_cr_pfft3_queue_filled
-
+      real*8   lattice_omega,c_icoulomb_screened_e
+      logical   C3dB_rc_pfft3_queue_filled,C3dB_cr_pfft3_queue_filled
+      external lattice_omega,c_icoulomb_screened_e
+      external  C3dB_rc_pfft3_queue_Cilled,C3dB_cr_pfft3_queue_filled
 
       ehfx = 0.0d0
       phfx = 0.0d0
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
+
          call C3dB_nx(1,n1)
          call C3dB_ny(1,n2)
          call C3dB_nz(1,n3)
-         value = MA_push_get(mt_dbl,n2ft3d,'dn_hfx',dn(2),dn(1))
+         value = MA_push_get(mt_dcpl,nfft3d,'dn_hfx',dn(2),dn(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,n2ft3d,'vij_hfx',vij(2),vij(1))
+     >           MA_push_get(mt_dcpl,nfft3d,'vij_hfx',vij(2),vij(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,n2ft3d,'tmp1_hfx',tmp1(2),tmp1(1))
+     >           MA_push_get(mt_dcpl,nfft3d,'tmp1_hfx',tmp1(2),tmp1(1))
          value = value.and.
-     >           MA_push_get(mt_dbl,n2ft3d,'tmp2_hfx',tmp2(2),tmp2(1))
+     >           MA_push_get(mt_dcpl,nfft3d,'tmp2_hfx',tmp2(2),tmp2(1))
          if (.not. value) 
      >      call errquit('band_potential_HFX:out of stack memory',0,
      >      MA_ERR)
@@ -379,142 +397,117 @@ c***************** sub/replicated routines *****************************
          scal2 = 1.0d0/lattice_omega()
          dv = scal1/scal2
  
-c*       ***** screened coulomb solver ****
-c        do ms=1,ispin0
-c           call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
-c           NN = norbs(ms)*(norbs(ms)+1)/2
-c           i1 = 1
-c           j1 = 1
-c           k1 = 1
-c           i2 = 1
-c           j2 = 1
-c           k2 = 1
-c           i3 = 1
-c           j3 = 1
-c           k3 = 1
-c           done = .false.
-c           do while (.not.done)
-c
-c              if (k1.le.NN) then
-c
-c                 if (mod(k1,npj).eq.taskid_j) then
-c                    index1 =(i1-1)*n2ft3d+1
-c                    index2 =(j1-1)*n2ft3d+1
-c
-c*                   **** generate dnij for Vij  ****
-c                    call D3dB_rr_Mul(1,psi_r(index2),
-c     >                                 psi_r(index1),dbl_mb(dn(1)))
-cc                    call D3dB_r_SMul(1,scal2*scal1,dbl_mb(dn(1)),
-cc     >                                             dbl_mb(dn(1)))
-c                    call D3dB_r_SMul1(1,scal2*scal1,dbl_mb(dn(1)))
-c                    call D3dB_r_Zero_Ends(1,dbl_mb(dn(1)))
-c
-c                    call D3dB_rc_pfft3f_queuein(0,dbl_mb(dn(1)))
-c                 end if
-c
-c                 k1 = k1 + 1
-c                 j1 = j1 + 1
-c                 if (j1.gt.i1) then
-c                    j1 = 1
-c                    i1 = i1 + 1
-c                 end if
-c              end if
-c 
-c              if (     ((D3dB_rc_pfft3_queue_filled()).or.(k1.gt.NN))
-c     >            .and.(k2.le.NN)) then
-c
-c                 if (mod(k2,npj).eq.taskid_j) then
-c                    call D3dB_rc_pfft3f_queueout(0,dbl_mb(dn(1)))
-c
-c*                   **** generate Vcoul ****
-c                    !eh = coulomb_screened_e(dbl_mb(dn(1)))
-c                    eh = icoulomb_screened_e(dbl_mb(dn(1)))
-c                    call coulomb_screened_v(dbl_mb(dn(1)),
-c     >                                      dbl_mb(vij(1)))
-c
-c
-c*                   **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
-c                    eh = eh*hfx_parameter
-c                    if (ispin0.eq.1) eh = eh + eh
-c                    ph = 2.0d0*eh
-c                    ehfx = ehfx - eh
-c                    phfx = phfx - ph
-c                    dbl_mb(ehfx_orb(1,ms)+i2-1) 
-c     >               = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
-c                    if (i2.ne.j2) then
-c                       ehfx = ehfx - eh
-c                       phfx = phfx - ph
-c                       dbl_mb(ehfx_orb(1,ms)+i2-1) 
-c     >                  = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
-c                    end if
-c
-c                    call D3dB_cr_pfft3b_queuein(0,dbl_mb(vij(1)))
-c                 end if
-c
-c                 k2 = k2 + 1
-c                 j2 = j2 + 1
-c                 if (j2.gt.i2) then
-c                    j2 = 1
-c                    i2 = i2 + 1
-c                 end if
-c              end if
-c
-c              if ((D3dB_cr_pfft3_queue_filled()).or.(k2.gt.NN)) then
-c
-c                 if (mod(k3,npj).eq.taskid_j) then
-c                    index1 =(i3-1)*n2ft3d+1
-c                    index2 =(j3-1)*n2ft3d+1
-c
-c                    call D3dB_cr_pfft3b_queueout(0,dbl_mb(vij(1)))
-c
-c*                   **** apply hfx_parameter ****
-cc                    call D3dB_r_SMul(1,hfx_parameter,
-cc     >                                 dbl_mb(vij(1)),
-cc     >                                 dbl_mb(vij(1)))
-c                    call D3dB_r_SMul1(1,hfx_parameter,dbl_mb(vij(1)))
-c
-c*                   **** generate (Vij)*psi_r ***
-c                    call D3dB_rr_Mul(1,dbl_mb(vij(1)),
-c     >                                 psi_r(index2),
-c     >                                 dbl_mb(tmp1(1)))
-c                    call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
-c
-c*                   **** add -(Vij)*psi_r to Hpsi_r ***
-cc                    call D3dB_rr_Sub(1,Hpsi_r(index1),
-cc     >                                 dbl_mb(tmp1(1)),
-cc     >                                 Hpsi_r(index1))
-c                    call D3dB_rr_Sub2(1,dbl_mb(tmp1(1)),Hpsi_r(index1))
-c
-c                    !**** include off diagonal terms ****
-c                    if (i3.ne.j3) then
-c*                      **** generate (Vij)*psi_r ***
-c                       call D3dB_rr_Mul(1,dbl_mb(vij(1)),
-c     >                                 psi_r(index1),
-c     >                                 dbl_mb(tmp2(1)))
-c                       call D3dB_r_Zero_Ends(1,dbl_mb(tmp2(1)))
-c
-c*                      **** add -(Vij)*psi_r to Hpsi_r ***
-cc                       call D3dB_rr_Sub(1,Hpsi_r(index2),
-cc     >                                 dbl_mb(tmp2(1)),
-cc     >                                 Hpsi_r(index2))
-c                       call D3dB_rr_Sub2(1,dbl_mb(tmp2(1)),
-c     >                                     Hpsi_r(index2))
-c                    end if
-c                 end if
-c
-c                 k3 = k3 + 1
-c                 j3 = j3 + 1
-c                 if (j3.gt.i3) then
-c                    j3 = 1
-c                    i3 = i3 + 1
-c                 end if
-c              end if
-c              done = (k1.gt.NN).and.(k2.gt.NN).and.(k3.gt.NN)
-c           end do !**** while ****
+*        ***** screened coulomb solver ****
+           do ms=1,ispin
+              call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
+              NN = norbs(ms)*(norbs(ms)+1)/2
+              i1 = 1
+              j1 = 1
+              k1 = 1
+              i2 = 1
+              j2 = 1
+              k2 = 1
+              i3 = 1
+              j3 = 1
+              k3 = 1
+              done = .false.
+              do while (.not.done)
 
-c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
-c       end do !**** ms *****
-c
+                 if (k1.le.NN) then
+
+                    if (mod(k1,npk).eq.taskid_k) then
+
+*                      **** generate dnij for Vij  ****
+                       call C3dB_cc_Mul(1,psi2_r(1,j1),
+     >                                    psi1_r(1,i1),dcpl_mb(dn(1)))
+                       call C3dB_c_SMul1(1,scal2*scal1,dcpl_mb(dn(1)))
+                       call C3dB_rc_pfft3f_queuein(0,dcpl_mb(dn(1)))
+                    end if
+ 
+                     k1 = k1 + 1
+                     j1 = j1 + 1
+                     if (j1.gt.i1) then
+                        j1 = 1
+                        i1 = i1 + 1
+                     end if
+                 end if
+ 
+                 if (     ((C3dB_rc_pfft3_queue_filled()).or.(k1.gt.NN))
+     >               .and.(k2.le.NN)) then
+
+                       call C3dB_rc_pfft3f_queueout(0,dcpl_mb(dn(1)))
+
+*                      **** generate Vcoul ****
+                       eh = c_icoulomb_screened_e(dcpl_mb(dn(1)))
+                       call c_coulomb_screened_v(dcpl_mb(dn(1)),
+     >                                           dcpl_mb(vij(1)))
+
+*                      **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
+                       eh = eh*hfx_parameter
+                       if (ispin.eq.1) eh = eh + eh
+                       ph = 2.0d0*eh
+                       ehfx = ehfx - eh
+                       phfx = phfx - ph
+                       dbl_mb(ehfx_orb(1,ms)+i2-1) 
+     >                  = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
+                       if (i2.ne.j2) then
+                          ehfx = ehfx - eh
+                          phfx = phfx - ph
+                          dbl_mb(ehfx_orb(1,ms)+i2-1) 
+     >                     = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
+                       end if
+
+                       call C3dB_cr_pfft3b_queuein(0,dcpl_mb(vij(1)))
+
+                       k2 = k2 + 1
+                       j2 = j2 + 1
+                       if (j2.gt.i2) then
+                          j2 = 1
+                          i2 = i2 + 1
+                       end if
+                 end if
+
+                 if ((C3dB_cr_pfft3_queue_filled()).or.(k2.gt.NN)) then
+
+                    call C3dB_cr_pfft3b_queueout(0,dcpl_mb(vij(1)))
+
+*                   **** apply hfx_parameter ****
+                    call C3dB_c_SMul1(1,hfx_parameter,dcpl_mb(vij(1)))
+
+*                   **** generate (Vij)*psi_r ***
+                    call C3dB_cc_Mul(1,dcpl_mb(vij(1)),
+     >                                 psi2_r(1,j3),
+     >                                 dcpl_mb(tmp1(1)))
+
+*                   **** add -(Vij)*psi_r to Hpsi_r ***
+                    call C3dB_cc_Sub2(1,dcpl_mb(tmp1(1)),Hpsi1_r(1,i3))
+
+                    !**** include off diagonal terms ****
+                    if (i3.ne.j3) then
+*                      **** generate (Vij)*psi_r ***
+                       call C3dB_cc_Mul(1,dcpl_mb(vij(1)),
+     >                                 psi1_r(1,i3),
+     >                                 dcpl_mb(tmp2(1)))
+
+*                      **** add -(Vij)*psi_r to Hpsi_r ***
+                       call C3dB_cc_Sub2(1,dcpl_mb(tmp2(1)),
+     >                                   Hpsi2_r(1,j3))
+                    end if
+
+                    k3 = k3 + 1
+                    j3 = j3 + 1
+                    if (j3.gt.i3) then
+                       j3 = 1
+                       i3 = i3 + 1
+                    end if
+                 end if
+
+              done = (k1.gt.NN).and.(k2.gt.NN).and.(k3.gt.NN)
+           end do !**** while ****
+
+           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
+       end do !**** ms *****
+
  
          value =           MA_pop_stack(tmp2(2))
          value = value.and.MA_pop_stack(tmp1(2))
@@ -566,9 +559,9 @@ c
         call C3dB_nx(1,n1)
         call C3dB_ny(1,n2)
         call C3dB_nz(1,n3)
-        value = MA_push_get(mt_dbl,(2*n2ft3d),'dn_hfx',dn(2),dn(1))
+        value = MA_push_get(mt_dcpl,(2*nfft3d),'dn_hfx',dn(2),dn(1))
         value = value.and.
-     >          MA_push_get(mt_dbl,(n2ft3d),'tmp1_hfx',tmp1(2),tmp1(1))
+     >          MA_push_get(mt_dcpl,(nfft3d),'tmp1_hfx',tmp1(2),tmp1(1))
         if (.not. value) 
      >     call errquit('band_energy_HFX_sub:out of stack memory',0,
      >       MA_ERR)
