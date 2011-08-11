@@ -12,7 +12,7 @@
 *   gga = 1-9 (reserved for other lda's)
 *
 *   **** GGAs ****
-*   gga = 10 pbe96
+*   gga = 10 pbe96, pbe
 *   gga = 11 blyp
 *   gga = 12 revpbe
 *   gga = 13 pbesol
@@ -53,6 +53,8 @@
 
 *     **** GGAs ****
       else if (inp_compare(.false.,exchange_correlation,'pbe96')) then
+        gga = 10
+      else if (inp_compare(.false.,exchange_correlation,'pbe')) then
         gga = 10
       else if (inp_compare(.false.,exchange_correlation,'blyp')) then
         gga = 11
