@@ -3213,6 +3213,30 @@ c      call Parallel3d_np_i(np)
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *          C3dB_cc_Sub2           *       
+*     *                                 *
+*     ***********************************
+
+      subroutine C3dB_cc_Sub2(nb,B,C)
+      implicit none 
+      integer    nb
+      complex*16 B(*)
+      complex*16 C(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,nfft3d_map(nb)
+         C(i) = C(i) - B(i)
+      end do
+
+      return
+      end
+
+
 
 
 *     ***********************************
