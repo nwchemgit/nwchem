@@ -1,46 +1,106 @@
 *
 * $Id$
 *
-      subroutine c_coulomb_screened_init(flag,rcut,pp)
+*     *************************************************
+*     *                                               *
+*     *           c_coulomb_screened_init             *
+*     *                                               *
+*     *************************************************
+*
+      subroutine c_coulomb_screened_init(flag0,rcut0,pp0)
       implicit none 
-      integer flag
+      integer flag0
+      real*8 rcut0,pp0
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block ****
       real*8 rcut,pp
+      integer flag
+      integer vc_indx,vc_hndl
+      common / c_vc_screened_block / rcut,pp,flag,vc_indx,vc_hndl
+
+*     **** local variables ****
+      integer npack0
+
+      call nwpw_timing_start(7)
+      flag = flag0
+      rcut = rcut0
+      pp   = pp0
+
+*     **** allocate vc memory ****
+      call Cram_npack(0,npack0)
+      if (.not.MA_alloc_get(mt_dbl,npack0,'vc',vc_hndl,vc_indx))
+     > call errquit('c_coulomb_screened_init:out of heap memory',
+     >              0,MA_ERR)
+
+      call nwpw_timing_end(7)
+      return
+      end
+
+
+*
+*     *************************************************
+*     *                                               *
+*     *           c_coulomb_screened_end              *
+*     *                                               *
+*     *************************************************
+      subroutine c_coulomb_screened_end()
+      implicit none
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block ****
+      real*8 rcut,pp
+      integer flag
+      integer vc_indx,vc_hndl
+      common / c_vc_screened_block / rcut,pp,flag,vc_indx,vc_hndl
+
+      if (MA_free_heap(vc_hndl))
+     > call errquit('c_coulomb_screened_init:errror freeing heap',
+     >              0,MA_ERR)
+
+      return
+      end
+
+
+*     *************************************************
+*     *                                               *
+*     *           c_coulomb_screened_set              *
+*     *                                               *
+*     *************************************************
+      subroutine c_coulomb_screened_set(kv1,kv2)
+      implicit none 
+      real*8 kv1(*),kv2(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
 
 *     **** common block used for coulomb.f ****
+      real*8 rcut,pp
+      integer flag
       integer vc_indx,vc_hndl
-      common / c_vc_screened_block / vc_indx,vc_hndl
+      common / c_vc_screened_block / rcut,pp,flag,vc_indx,vc_hndl
 
 *     **** local variables ****
       real*8 EPSILON
-c      parameter (EPSILON=1.0d0)
-
       logical value
       integer npack0,nfft3d,G(3),n2ft3d
       integer i,j,k,k1,k2,k3,p,q,index
       integer zero,qzero,pzero,taskid
       integer nx,ny,nz,nxh,nyh,nzh
       real*8  pi,twopi,fourpi,gg,x,y,z,temp,dV,pp2,scal1
-      real*8  a(3,3)
+      real*8  a(3,3),gx,gy,gz
       integer gk(2),glr(2),gk2(2)
 
 *     **** external functions ****
       integer  c_G_indx
       real*8   util_erf,lattice_omega,lattice_unita
-      real*8   kiril_coulomb_transform, kiril_coulomb_transform0
-      real*8  control_attenuation
       external c_G_indx
       external util_erf,lattice_omega,lattice_unita
-      external kiril_coulomb_transform, kiril_coulomb_transform0
-      external control_attenuation
 
-      if (flag.eq.2) then
-         EPSILON = control_attenuation()
-      else
-         EPSILON = 1.0d0
-      end if
 
       call nwpw_timing_start(7)
       call Parallel2d_taskid_i(taskid)
@@ -53,10 +113,9 @@ c      parameter (EPSILON=1.0d0)
       G(3) = c_G_indx(3)
       pp2 = pp + 2.0d0
 
-*     **** allocate vc memory ****
-      value = MA_alloc_get(mt_dbl,npack0,'vc',vc_hndl,vc_indx)
-      if (.not. value) call errquit('out of heap memory',0, MA_ERR)
+      EPSILON=1.0d0/rcut
 
+*     **** allocate vc memory ****
       value = MA_push_get(mt_dcpl,nfft3d,'gk',gk(2),gk(1))
       value = value.and.
      >        MA_push_get(mt_dbl,nfft3d,'glr',glr(2),glr(1))
@@ -106,25 +165,24 @@ c      parameter (EPSILON=1.0d0)
 
 *     **** short-range part of Greens function set only for short-range ****
       if (flag.eq.0) then
-      do i=1,nfft3d
+         do i=1,nfft3d
+            gx  =  dbl_mb(G(1)+i-1) + kv1(1) - kv2(1)
+            gy  =  dbl_mb(G(2)+i-1) + kv1(2) - kv2(2)
+            gz  =  dbl_mb(G(2)+i-1) + kv1(3) - kv2(3)
+            gg  = gx*gx + gy*gy + gz*gz
 
-         gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
-     >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
-     >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
-
-         if ((pzero.eq.taskid) .and. (i.eq.zero)) then
-            temp = pi/EPSILON**2
-         else
-            temp = (fourpi/gg)
-     >           * (1.0d0 - dexp(-gg/(4.0d0*EPSILON**2)))
-         end if
+            if (gg<1.0d-6) then
+               temp = pi/EPSILON**2
+            else
+               temp = (fourpi/gg)
+     >              * (1.0d0 - dexp(-gg/(4.0d0*EPSILON**2)))
+            end if
            
-         dcpl_mb(gk(1)+i-1) = dcmplx(temp,0.0d0)
-      end do
-      call C3dB_cr_fft3b(1,dcpl_mb(gk(1)))
-      call C3dB_c_SMul1(1,scal1,dcpl_mb(gk(1)))
+            dcpl_mb(gk(1)+i-1) = dcmplx(temp,0.0d0)
+         end do
+         call C3dB_cr_fft3b(1,dcpl_mb(gk(1)))
+         call C3dB_c_SMul1(1,scal1,dcpl_mb(gk(1)))
       end if
-
 
 
 *     **** long-range part of Greens function ****
@@ -208,35 +266,13 @@ c      parameter (EPSILON=1.0d0)
 
 
 
-*     ***********************************************
-*     ***** use periodic definitions of kernel ******
-*     ***********************************************
-      else if (flag.eq.3) then
-        i=0
-        j=0
-        k=0
-        call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
-
-*       **** short-range part of Greens function ****
-        call dcopy(nfft3d,0.0d0,0,dbl_mb(gk2(1)),1)
-        do i=1,nfft3d
-
-           gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
-     >           + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
-     >           + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
-
-           if ((pzero.eq.taskid) .and. (i.eq.zero)) then
-              temp = kiril_c_coulomb_transform0(flag,rcut,pp)
-           else
-              temp = kiril_c_coulomb_transform(flag,gg,rcut,pp)
-           end if
-           dbl_mb(gk2(1)+i-1) = temp
-        end do
-
 *     **************************************************************
 *     ***** flag==4 use erfc definitions of cutoff-kernel     ******
 *     **************************************************************
-      else
+      else if (flag.eq.4) then
+
+      EPSILON=1.0d0/rcut
+
 *     ***** find the G==0 point in the lattice *****
       i=0
       j=0
@@ -246,11 +282,12 @@ c      parameter (EPSILON=1.0d0)
 
 *     **** short-range part of Greens function set only for short-range ****
       do i=1,nfft3d
-         gg  = ( dbl_mb(G(1)+i-1)*dbl_mb(G(1)+i-1)
-     >         + dbl_mb(G(2)+i-1)*dbl_mb(G(2)+i-1)
-     >         + dbl_mb(G(3)+i-1)*dbl_mb(G(3)+i-1) )
+         gx  =  dbl_mb(G(1)+i-1) + kv1(1) - kv2(1)
+         gy  =  dbl_mb(G(2)+i-1) + kv1(2) - kv2(2)
+         gz  =  dbl_mb(G(2)+i-1) + kv1(3) - kv2(3)
+         gg  = gx*gx + gy*gy + gz*gz
 
-         if ((pzero.eq.taskid) .and. (i.eq.zero)) then
+         if (gg .lt. 1.0d-6) then
             temp = pi/EPSILON**2
          else
             temp = (fourpi/gg)
@@ -261,8 +298,6 @@ c      parameter (EPSILON=1.0d0)
       end do 
 
       end if
-
-
 
 *     *** Cram the kernel ****
       call Cram_r_pack(0,dbl_mb(gk2(1)))
@@ -278,53 +313,41 @@ c      parameter (EPSILON=1.0d0)
 
       call nwpw_timing_end(7)
 
-*     ***** DEBUG printing *****
-c      call coulomb_screened_init_print(rcut,pp)
-
-
-
       return
       end
 
 
 
-
-      subroutine c_coulomb_screened_end()
-      implicit none
-#include "mafdecls.fh"
-
-*     **** common block used for coulomb.f ****
-      integer vc_indx,vc_hndl
-      common / vc_screened_block / vc_indx,vc_hndl
-      logical value
-
-      value = MA_free_heap(vc_hndl)
-      return
-      end
-
-
-      subroutine coulomb_screened_v(dng,vc_out)
+*     *************************************************
+*     *                                               *
+*     *           c_coulomb_screened_v                *
+*     *                                               *
+*     *************************************************
+      subroutine c_coulomb_screened_v(dng,vc_out)
       implicit none
       complex*16 dng(*)
       complex*16 vc_out(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
-
-*     **** common block used for coulomb.f ****
+*     **** common block ****
+      real*8 rcut,pp
+      integer flag
       integer vc_indx,vc_hndl
-      common / vc_screened_block / vc_indx,vc_hndl
+      common / c_vc_screened_block / rcut,pp,flag,vc_indx,vc_hndl
 
       call nwpw_timing_start(7)
-      
       call Cram_rc_Mul(0,dbl_mb(vc_indx),dng,vc_out)
-     
       call nwpw_timing_end(7)
-
       return 
       end
 
-
+*     *************************************************
+*     *                                               *
+*     *           c_coulomb_screened_e                *
+*     *                                               *
+*     *************************************************
       real*8 function c_coulomb_screened_e(dng)
       implicit none
       complex*16 dng(*)
@@ -332,40 +355,44 @@ c      call coulomb_screened_init_print(rcut,pp)
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-*     **** common block used for coulomb.f ****
+*     **** common block ****
+      real*8 rcut,pp
+      integer flag
       integer vc_indx,vc_hndl
-      common / vc_screened_block / vc_indx,vc_hndl
+      common / c_vc_screened_block / rcut,pp,flag,vc_indx,vc_hndl
 
 *     **** local variables ****
       integer npack0
       real*8 ec
-
       integer tmp1(2)
-      logical value
 
 *     **** external functions ****
-      real*8  lattice_omega
+      real*8   lattice_omega
       external lattice_omega
 
       call nwpw_timing_start(7)
 
       call Cram_npack(0,npack0)
-      value = MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      if (.not.MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1)))
+     > call errquit('c_coulomb_screened_e:out of stack memory',0,MA_ERR)
       
       call Cram_cr_Sqr(0,dng,dbl_mb(tmp1(1)))
       call Cram_rr_dot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
-       
       ec = 0.5d0*ec*lattice_omega()
 
-      value = MA_pop_stack(tmp1(2))
+      if (.not.MA_pop_stack(tmp1(2)))
+     > call errquit('c_coulomb_screened_e:popping stack',0,MA_ERR)
       
       call nwpw_timing_end(7)
       c_coulomb_screened_e = ec
       return 
       end
 
-
+*     *************************************************
+*     *                                               *
+*     *           c_icoulomb_screened_e               *
+*     *                                               *
+*     *************************************************
       real*8 function c_icoulomb_screened_e(dng)
       implicit none
       complex*16 dng(*)
@@ -403,279 +430,6 @@ c      call coulomb_screened_init_print(rcut,pp)
       c_icoulomb_screened_e = ec
       return
       end
-
-
-
-
-*     *******************************
-*     *                             *
-*     *  kiril_c_coulomb_transform  *
-*     *                             *
-*     *******************************
-
-*     This function returns the fourier transform of 
-*
-*             if flag==1  v_kiril = exp(-(r/rcut)**pp)/r
-*     or      if flag==2  v_kiril = (1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)/r
-*
-*     Entry - gg: g squared
-*             rcut: 
-*             pp:
-*                                           
-*     Exit - returns 
-*                              /infty
-*                             | 
-*      v_kiril(g) = (4*pi)  * | r**2 * v_kiril(r)* j0(gr) dr
-*                             |
-*                            / 0
-
-      real*8 function kiril_c_coulomb_transform(flag,gg,rcut,pp)
-      implicit none
-      integer flag
-      real*8 gg,rcut,pp
-
-*     **** local variables ****
-      integer nrho
-      parameter (nrho=15000)
-
-      integer i
-      real*8 q,fourpi,r,sum,drho,pp2
-
-      pp2    = pp + 2.0d0
-      drho   = 2.0d0*rcut/dble(nrho)
-      q      = dsqrt(gg)
-      fourpi = 4.0d0*(4.0d0*datan(1.0d0))
-
-      sum = 0.0d0
-      r = 0.0d0
-      if (flag.eq.1) then
-       do i=2,nrho-1
-         r = r + drho
-         sum = sum + sin(q*r)*dexp(-(r/rcut)**pp)
-        end do
-        r = drho*(nrho-1)
-        sum = sum + 0.5d0*sin(q*r)*dexp(-(r/rcut)**pp)
-      else
-       do i=2,nrho-1
-c        r = (i-1)*drho
-         r = r + drho
-         sum = sum + sin(q*r)
-     >        *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
-        end do
-        r = drho*(nrho-1)
-        sum = sum + 0.5d0*sin(q*r)
-     >     *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
-      end if
-
-      kiril_c_coulomb_transform = (fourpi/q)*sum*drho
-      return
-      end
-
-*     *******************************
-*     *                             *
-*     * kiril_c_coulomb_transform0  *
-*     *                             *
-*     *******************************
-
-*     This function returns the fourier transform of 
-*
-*           if flag==1   v_kiril = exp(-(r/rcut)**pp)/r
-*     or    if flag==2   v_kiril = (1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)/r
-*
-*     Entry - 
-*             rcut: 
-*             pp:
-*                                           
-*     Exit - returns 
-*                              /infty
-*                             | 
-*      v_kiril(g=0) = (4*pi)* | r**2 * v_kiril(r) dr
-*                             |
-*                            / 0
-
-      real*8 function kiril_c_coulomb_transform0(flag,rcut,pp)
-      implicit none
-      integer flag
-      real*8 rcut,pp
-
-*     **** local variables ****
-      integer nrho
-      parameter (nrho=15000)
-
-      integer i
-      real*8  fourpi,r,sum,drho,pp2
-
-      pp2    = pp + 2.0d0
-      drho   = 2.0d0*rcut/dble(nrho)
-      fourpi = 4.0d0*(4.0d0*datan(1.0d0))
-
-      sum = 0.0d0
-      r   = 0.0d0
-      if (flag.eq.1) then
-        do i=2,nrho-1
-           r = r + drho
-           sum = sum + r*dexp(-(r/rcut)**pp)
-        end do
-        r = drho*(nrho-1)
-        sum = sum + 0.5d0*r*dexp(-(r/rcut)**pp)
-      else
-        do i=2,nrho-1
-c          r = (i-1)*drho
-           r = r + drho
-           sum = sum + r*
-     >          *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
-        end do
-        r = drho*(nrho-1)
-        sum = sum + 0.5d0*r*
-     >       *(1.0d0-(1.0d0-dexp(-(r/rcut)**pp2))**pp)
-      end if
-
-      kiril_c_coulomb_transform0 = (fourpi)*sum*drho
-      return
-      end
-
-
-
-
-*
-      subroutine c_coulomb_screened_init_print(rcut,pp)
-      implicit none 
-#include "errquit.fh"
-      real*8 rcut,pp
-
-#include "mafdecls.fh"
-
-*     **** common block used for coulomb.f ****
-      integer vc_indx,vc_hndl
-      common / vc_screened_block / vc_indx,vc_hndl
-
-*     
-      logical value
-      integer i,npack0,tmp1(2),nfft3d
-
-
-      call C3dB_nfft3d(1,nfft3d)
-      call Cram_npack(0,npack0)
-
-*     **** allocate memory ****
-      value = MA_push_get(mt_dcpl,nfft3d,'tmp1',tmp1(2),tmp1(1))
-      if (.not. value) 
-     >  call errquit('coulomb_screened_init_print:push stack',0, MA_ERR)
-
-
-      call dcopy(2*nfft3d,0.0d0,0,dcpl_mb(tmp1(1)),1)
-      do i=1,npack0
-         !dcpl_mb(tmp1(1)+i-1) = dcmplx(dbl_mb(vc_indx+i-1),0.0d0)
-         dcpl_mb(tmp1(1)+i-1) = dbl_mb(vc_indx+i-1)
-      end do
-
-
-      call Cram_c_unpack(0,dcpl_mb(tmp1(1)))
-
-      call C3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
-
-      call sub_coulomb_screened_init_print(dcpl_mb(tmp1(1)),rcut,pp)
-
-      value = MA_pop_stack(tmp1(2))
-      if (.not. value) 
-     >  call errquit('coulomb_screened_init_print:pop stack',1, MA_ERR)
-
-
-      return
-      end
-
-
-
-      subroutine sub_c_coulomb_screened_init_print(vc,rcut,pp)
-      implicit none
-      real*8 vc(*)
-      real*8 rcut,pp
-
-
-*     **** local variables ****
-      integer nfft3d,n2ft3d
-      integer i,j,k,p,q,taskid
-      integer index,k1,k2,k3
-      integer np1,np2,np3
-      integer nph1,nph2,nph3
-      real*8  a(3,3),r,pp2,dV,scal1
-      real*8  x,y,z
-
-      integer rtdb
-      integer  control_rtdb
-      external control_rtdb
-
-*     **** external functions ****
-      real*8   lattice_unita,lattice_omega
-      external lattice_unita,lattice_omega
-
-
-*     **** constants ****
-      call Parallel_taskid(taskid)
-      call C3dB_nfft3d(1,nfft3d)
-      n2ft3d = 2*nfft3d
-      call C3dB_nx(1,np1)
-      call C3dB_ny(1,np2)
-      call C3dB_nz(1,np3)
-      pp2    = pp + 2.0d0
-
-      nph1 = np1/2
-      nph2 = np2/2
-      nph3 = np3/2
-
-*     **** elemental vectors ****
-      do i=1,3
-         a(i,1) = lattice_unita(i,1)/np1
-         a(i,2) = lattice_unita(i,2)/np2
-         a(i,3) = lattice_unita(i,3)/np3
-      end do
-      scal1 = 1.0d0/dble(np1*np2*np3)
-      dV    = lattice_omega()/dble(np1*np2*np3)
-
-
-
-*     **** grid points in coordination space ****
-      k3=0
-      k2=0
-      do k1 = -nph1, nph1-1
-         i = k1
-         j = k2
-         k = k3
-         if (i.lt.0) i=i+np1
-         if (j.lt.0) j=j+np2
-         if (k.lt.0) k=k+np3
-
-         call C3dB_ijktoindex2p(1,i+1,j+1,k+1,index,p)
-         if (p .eq. taskid) then
-c           index = (q-1)*(np1+2)*np2
-c    >            + j    *(np1+2)
-c    >            + i+1
-
-*         **** reverse y and z ****
-          r = a(1,1)*k1
-          !r = a(1,1)*k1 + a(1,2)*k3 + a(1,3)*k2
-          !r(2) = a(2,1)*k1 + a(2,2)*k3 + a(2,3)*k2
-          !r(3) = a(3,1)*k1 + a(3,2)*k3 + a(3,3)*k2
-
-          if (dabs(r).gt.1.0d-4) then
-c          write(56,*) r,vc(index),
-c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
-          write(56,'(4E14.4)') r,vc(index),pp/dabs(r),pp
-          else
-          write(56,'(4E14.4)') r,vc(index),0.0d0,pp
-          end if
-
-         end if
-      end do
-      call util_flush(56)
-
-      rtdb = control_rtdb()
-      call dplot_gcube_write(rtdb,"kernel.cube",0,
-     >          "Screened Coulomb KERNEL",vc)
-
-      return
-      end
-
 
 
 
@@ -1165,7 +919,6 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
 *     *    c_coulomb_screened_euv      *
 *     *                                *
 *     **********************************
-
       subroutine c_coulomb_screened_euv(dng,euv)
       implicit none 
       complex*16 dng(*)
@@ -1192,7 +945,6 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
 *     **** external functions ****
       real*8   lattice_unitg,lattice_omega
       external lattice_unitg,lattice_omega
-
 
 
       call Cram_npack(0,npack0)
@@ -1246,9 +998,8 @@ c     >     (1.0d0-(1.0d0-dexp(-(dabs(r)/rcut)**pp2))**pp)/dabs(r) * dV
       end do
       end do
 
-      value = MA_pop_stack(tmp1(2))
-      if (.not. value) 
-     > call errquit('coulomb_screened_euv:popping stack',0,MA_ERR)
+      if (.not.MA_pop_stack(tmp1(2)))
+     > call errquit('c_coulomb_screened_euv:popping stack',0,MA_ERR)
 
       return
       end
