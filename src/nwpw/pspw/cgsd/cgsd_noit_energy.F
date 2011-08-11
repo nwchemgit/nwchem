@@ -316,6 +316,7 @@ c            end do
 *     **** debug - energies written to rtdb for numerical forces ****
       value = value.and.rtdb_put(rtdb,'pspw:E_LJ',   mt_dbl,1,E(11))
       value = value.and.rtdb_put(rtdb,'pspw:E_Q',    mt_dbl,1,E(12))
+      value = value.and.rtdb_put(rtdb,'pspw:E_spring', mt_dbl,1,E(13))
       if (.not. value) call errquit(
      >   'cgsd_noit_energy: numerical force - error writing rtdb',0,
      >       RTDB_ERR)

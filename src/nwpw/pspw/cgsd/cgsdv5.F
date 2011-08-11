@@ -259,7 +259,7 @@ c     value = psi_initialize()
       call phafac()
       if (control_version().eq.3) then
          call ewald_init()
-	 call ewald_phafac()
+         call ewald_phafac()
       end if
 
 *     **** read in wavefunctions and initialize psi ****
