@@ -157,6 +157,27 @@ c      enddo
       return
       end subroutine 
 
+C>     Function rism_util_power_2
+C>     returns true if number can be represented as power of 2
+C>      
+       function rism_util_power_2(n)
+       implicit none
+       logical rism_util_power_2
+       integer n
+       integer i,nsb,imsb
+
+       nsb = 0
+       do i=0,bit_size(n)-1
+        if(btest(n,i)) then
+          nsb = nsb+1
+          imsb = i
+        end if
+       end do
+
+       rism_util_power_2 = nsb.eq.1
+       return
+       end
+
       subroutine rism_message(buffer)
       implicit none
 #include "stdio.fh"
