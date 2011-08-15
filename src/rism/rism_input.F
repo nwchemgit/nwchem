@@ -164,24 +164,26 @@ c     solvent
 c     -----------
       keyword="solvent"
       if (inp_compare(.false.,keyword, token)) then
-31       continue
-         if (.not.inp_a(token)) goto 2
-         if(inp_compare(.false.,"model", token)) then
-           if (.not.inp_a(token))
-     >       call errquit(pname//'solvent model',0,INPUT_ERR)
-           tag="rism:solvent:model"
-           if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),1,token)) 
-     >         goto 999
-           goto 31
-         else if(inp_compare(.false.,"rdf", token)) then
-           if (.not.inp_a(token))
-     >       call errquit(pname//'solvent rdf',0,INPUT_ERR)
-           tag="rism:solvent:rdf"
-           if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),1,token)) 
-     >         goto 999
-           goto 31
-         end if
-        goto 2
+              write(*,*) "found solvane"
+              call rism_solvent_input(rtdb)
+c31       continue
+c         if (.not.inp_a(token)) goto 2
+c         if(inp_compare(.false.,"model", token)) then
+c           if (.not.inp_a(token))
+c     >       call errquit(pname//'solvent model',0,INPUT_ERR)
+c           tag="rism:solvent:model"
+c           if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),1,token)) 
+c     >         goto 999
+c           goto 31
+c         else if(inp_compare(.false.,"rdf", token)) then
+c           if (.not.inp_a(token))
+c     >       call errquit(pname//'solvent rdf',0,INPUT_ERR)
+c           tag="rism:solvent:rdf"
+c           if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),1,token)) 
+c     >         goto 999
+c           goto 31
+c         end if
+         goto 2
       endif
 c     
 c
@@ -222,6 +224,7 @@ c     -------------------
 c
       if (token.eq.'end') then
         write(luout,*) "out of ",pname
+        STOP
         return
       endif
 c
@@ -237,3 +240,86 @@ c
 
       end
 
+      subroutine rism_solvent_input(rtdb)
+c
+      implicit none
+#include "errquit.fh"
+c
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+c
+      integer rtdb
+c
+      character*32 tag
+      character*72 keyword
+      character*32 pname
+      character*255 token
+      character*255 message
+      character*32 mtoken(10)
+      integer  itoken(10)
+      logical status
+      integer ip,np
+      logical ltoken
+      logical ignore
+      double precision f
+c
+      pname = "rism_solvent_input: "
+c
+      write(luout,*) "in ",pname
+c
+c     read initial token
+c     ------------------
+      if (.not.inp_a(token)) goto 1000
+      write(*,*) "found token",token
+c      
+c     solvent model
+c     -------------
+      if(inp_compare(.false.,"model", token)) then
+        message = "processing for solvent model"
+        if (.not.inp_a(token)) goto 998
+        tag="rism:solvent:model"
+        if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),1,token)) 
+     >      goto 999
+        if (.not.inp_a(token)) goto 1000
+      end if
+c      
+c     solvent rdf with optional kspace flag
+c     -------------------------------------
+      if(inp_compare(.false.,"rdf", token)) then
+        message = "processing solvent rdf"
+        if (.not.inp_a(token)) goto 998
+        if(inp_compare(.false.,"kspace", token)) then
+          tag="rism:solvent:kspace"
+          if (.not.rtdb_put(rtdb,tag(1:inp_strlen(tag)),
+     >    mt_log,1,token)) 
+     >    goto 999
+          if (.not.inp_a(token)) goto 998
+        end if
+        tag="rism:solvent:rdf"
+        if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),1,token)) 
+     >      goto 999
+        if (.not.inp_a(token)) goto 1000
+      end if
+      message = "unknown tokens"
+      call util_message_master(pname(1:inp_strlen(pname))//
+     > ": ignoring the rest of input starting from "//
+     > token)
+c
+c     entry point for sucsessfull return
+c     -----------------------------------
+1000  continue
+      return
+c     -----------------------------------
+997   write(luout,*)pname//' unrecognized token:',
+     + token(1:inp_strlen(token))
+       call errquit(pname//'failed ',0,
+     >        RTDB_ERR)
+      return
+998   call errquit(pname//message(1:inp_strlen(message)),
+     >             0,0)
+999   call errquit(pname//'failed to store '//tag,0,
+     >        RTDB_ERR)
+
+      end
