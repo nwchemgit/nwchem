@@ -204,10 +204,14 @@ c
       character*32 sname
       double precision dr,r1,pi,dk
       integer i_kgrid,i_rgrid,ngrid
+      double precision d
       character*80 pname
 c
-      pname = "rism_prepare_grid"
+      logical okspace
+      logical rism_util_power_2
+      external rism_util_power_2
 c 
+      pname = "rism_prepare_grid"
 #ifdef RISM_PREP_DEBUG      
       call rism_message("in "//pname)
 #endif      
@@ -225,24 +229,45 @@ c     -----------------------------
       tag = "rism:solvent:rdf"
       if(.not.rtdb_cget(rtdb,tag,1,filename)) 
      >  call errquit("cannot get "//tag,0,0)
-      call rism_gr_grid(filename,dr)
+      call rism_grid_parse(filename,ngrid,d)
+c     
+c     check if grid size is power of 2
+c     --------------------------------
+      if(rism_util_power_2(ngrid)) then
+        call util_message_master("grid is power of 2")
+      else
+        call errquit(pname//"grid size has to be power of 2",0,0)
+      end if
+c
+c     check if rdf is given in kspace
+c     -------------------------------
+      tag="rism:solvent:kspace"
+      if (.not.rtdb_get(rtdb,tag,mt_log,1,okspace)) then
+        okspace = .false.
+      end if
+      tag = "okspace"
+      call db_data_put_log(sname,tag,1,okspace)
+      call db_data_create_get(sname,"rgrid",ngrid,mt_dbl,i_rgrid)
+      call db_data_create_get(sname,"kgrid",ngrid,mt_dbl,i_kgrid)
+      pi=2*asin(1.0)
+      if(okspace) then
+         dk = d
+         dr = pi/(ngrid+1)/dk
+      else
+         dr = d
+         dk = pi/(ngrid+1)/dr
+      end if
       tag = "dr"
       call db_data_put_dbl(sname,tag,1,dr)
-c      
-      pi=2*asin(1.0)
-      dk=pi/(ngrid+1)/dr
       tag = "dk"
       call db_data_put_dbl(sname,tag,1,dk)
 c      
-      call db_data_create_get(sname,"rgrid",ngrid,mt_dbl,i_rgrid)
-      call db_data_create_get(sname,"kgrid",ngrid,mt_dbl,i_kgrid)
 c     the zero point is excluded
       r1=dr   
       do i=1,ngrid
        dbl_mb(i_rgrid+i-1)=r1+dr*(i-1)
        dbl_mb(i_kgrid+i-1)=i*dk
-c       rgrid(i)=r1+dr*(i-1) 
-c       kgrid(i)=i*dk 
+       write(44,*) i,dbl_mb(i_rgrid+i-1),dbl_mb(i_kgrid+i-1)
       enddo 
 #ifdef RISM_PREP_DEBUG      
       call rism_message("out "//pname)
@@ -845,4 +870,45 @@ c
       close(fn)
       return
 30    call errquit(pname//"errors",0,0)
+      end
+
+      subroutine rism_grid_parse(filename,n,d)
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+      character*(*) filename
+      integer n
+      double precision d
+c
+      double precision g1,g2
+      integer fn
+      character*72 buffer
+      character*1 b1
+      character*30 pname
+c      
+      pname = "rism_grid_parse"
+      if(.not.util_get_io_unit(fn))
+     >  call errquit("cannot get file number",0,0)
+      open(unit=fn,status="old",form="formatted",file=filename)
+c  
+c     first determine spacing
+c     -----------------------
+      read(fn,*,ERR=30,END=31) g1
+      read(fn,*,ERR=30,END=31) g2
+      d = g2-g1
+      n=2
+c  
+c     now determine number of points
+c     -----------------------------
+28    continue
+      read(fn,*,ERR=30,END=29) g1
+      n=n+1
+      goto 28
+29    continue
+      close(fn)
+      return
+30    call errquit(pname//"error reading file "//filename,0,0)
+31    call errquit(pname//"premature end of file "//filename,0,0)
       end
