@@ -224,7 +224,6 @@ c     -------------------
 c
       if (token.eq.'end') then
         write(luout,*) "out of ",pname
-        STOP
         return
       endif
 c
