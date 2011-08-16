@@ -8,23 +8,22 @@
 #include "global.fh"
        integer rtdb
        logical  task_rism
-       character*80 pname
-c
-       pname = "task_rism"
-       call util_io_enable()
-       call util_message("in "//pname)
+       integer n
+       logical rism_util_power_2
+       external rism_util_power_2
 c       
 c      load data and allocate memory
 c      -----------------------------
        call rism_prepare(rtdb)
-       call util_message("preparation finished")
+       call util_message_master("finished with rism_prepare")
 c       
 c      main rism routine call
 c      ----------------------
+       call util_message_master("calling rism wrapper")
        call rism_wrapper(rtdb)
-
+     
        task_rism = .true.
-       call util_message("out "//pname)
+       call util_message_master("completed task rism")
        return
       end 
 c       
@@ -50,6 +49,7 @@ c
       integer i_sgvv,i_epsvv,i_qvv
       integer i_sigu,i_epsiu,i_qqu,i_wu
       character*72 rdffile,tag
+      logical okspace
 c       
       pname = "rism_wrapper"
 c      
@@ -88,6 +88,7 @@ c     --------------
      >               //dname(1:inp_strlen(dname)),0,0)
 
 
+      call util_message_master("finished with solute data")
 c
 c     solvent data
 c     -------------- 
@@ -170,6 +171,7 @@ c     --------------
       if(.not.result)
      >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
      >               //dname(1:inp_strlen(dname)),0,0)
+      call util_message_master("rism_wrapper 1")
 c
 c     grid data
 c     -------------- 
@@ -186,11 +188,17 @@ c     --------------
      >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
      >               //dname(1:inp_strlen(dname)),0,0)
 
+      dname = "okspace"
+      call db_data_get_log(sname,dname,1,okspace,result)
+      if(.not.result)
+     >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
+     >               //dname(1:inp_strlen(dname)),0,0)
       dname = "kgrid"
       call db_data_get_index(sname,dname,i_kgrid,result)
       if(.not.result)
      >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
      >               //dname(1:inp_strlen(dname)),0,0)
+      call util_message_master("rism_wrapper 2")
 c
 c     parameters
 c     -------------- 
@@ -249,6 +257,9 @@ c     -----------------------------
       tag = "rism:solvent:rdf"
       if(.not.rtdb_cget(rtdb,tag,1,rdffile)) 
      >  call errquit("cannot get "//tag,0,0)
+      call util_message_master("rism_wrapper 3")
+
+       call util_message_master("getting ready for main rism")
 
        call rism(rdffile,nu,nv,nvv,ngr,icl,
      +           dbl_mb(i_kgrid),dbl_mb(i_rgrid),
@@ -260,7 +271,7 @@ c     -----------------------------
      +           dbl_mb(i_qvv),dbl_mb(i_sigu),
      +           dbl_mb(i_epsiu),dbl_mb(i_qqu),
      +           t,lambd,
-     +           tol,dbl_mb(i_wu),dd)          
+     +           tol,dbl_mb(i_wu),dd,okspace)          
 
 c       call rism(nu,nv,nvv,ngr,icl,kgrid,rgrid,tv,isv,den,mv,xv,yv,zv,
 c     * icr,ims,tau,solperm,sgvv,epsvv,qvv,sigu,epsiu,qqu,t,lambd,
@@ -434,7 +445,7 @@ c
        subroutine rism(rdffile,nu,nv,nvv,ngr,icl,kgrid,rgrid,tv,isv,
      * den,mv,xv,yv,zv,
      * icr,ims,tau,solperm,sgvv,epsvv,qvv,sigu,epsiu,qqu,t,
-     * lambd,tol,wu,dd)       
+     * lambd,tol,wu,dd,okspace)       
        implicit none
 c      parameters
        character*(*) rdffile
@@ -450,6 +461,7 @@ c      solvent
        real*8 wv(1:nvv,1:nvv,1:ngr)
        real*8 sgvv(1:nvv),epsvv(1:nvv),qvv(1:nvv)
        character (4) tv(1:nv)
+       logical okspace
 c      potential
        real*8 plj(1:nu,1:nvv,1:ngr), ul(1:nu,1:nvv,1:ngr)
 c      functions
@@ -472,8 +484,175 @@ c      nd total number of different rdfs
        nd=(nvv+1)*nvv/2     
 c      chi(i,j,k) solvent susceptibility
 c
+c      WORK HERE
        call chicreat(rdffile,nd,nv,ngr,ims,nvv,
-     +               kgrid,tv,isv,den,mv,xv,yv,zv,chi) 
+     +               kgrid,tv,isv,den,mv,xv,yv,zv,chi,
+     +               qvv,tau,okspace) 
+c       
+c       call chicreat(rdffile,nd,nv,ngr,ims,nvv,
+c     +               kgrid,tv,isv,den,mv,xv,yv,zv,chi)
+
+c
+c      plj(j1,j2,r) lj potential+short part from coulomb
+c      ul(j1,j2,k) is the fourier trasnform of long range interactions
+       call potcreat(nvv,nu,ngr,icr,kgrid,rgrid,tau,solperm,
+     * sgvv,epsvv,qvv,sigu,epsiu,qqu,plj,ul) 
+c
+cc     initial value of c_short(r)       
+       kb=8.3144e-3
+       do i=1,ngr
+        do j=1,nu
+         do j1=1,nvv
+          gold(j,j1,i)=0
+          cold(j,j1,i)=0
+         enddo
+        enddo
+       enddo  
+c      starting counts for diis (kd) and for iterations k1
+       k1=1
+       kd=1
+1      continue 
+c      calculating c_new(r) and h_new(r) from closure
+       call clos(nvv,nu,ngr,t,plj,cnew,gold,icl)
+       do j=1,nu
+        do j1=1,nvv
+         do i=1,ngr
+          hold(j,j1,i)=gold(j,j1,i)+cnew(j,j1,i) 
+         enddo
+        enddo
+       enddo 
+c      fast fourier transform
+       dr=rgrid(2)-rgrid(1)      
+       do j=1,nu
+        do j1=1,nvv
+         c2(1)=0
+         do i=1,ngr-1  
+          c2(i+1)=cnew(j,j1,i)*rgrid(i) 
+         enddo
+         call sinft(c2,ngr)
+c        normalization of sin-fft with excluding the zeropoint (x=0)
+         do i=1,ngr-1
+          cf3(j,j1,i)=4*pi*c2(i+1)/kgrid(i)*dr 
+         enddo
+         cf3(j,j1,ngr)=cf3(j,j1,ngr-1) 
+        enddo
+       enddo             
+       dk=kgrid(2)-kgrid(1)
+       pi=2*asin(1.0)       
+c       adding the long-range potential to c_short 
+       do i=1,ngr
+        do j=1,nu
+         do j1=1,nvv
+          cf3(j,j1,i)=cf3(j,j1,i)-1.0/kb/t*ul(j,j1,i)
+         enddo
+        enddo
+       enddo 
+c      calculations of fourier transform of h(i,j,k) by
+c      site-site ornstein-zerinike equations       
+       call ssoz(nvv,nu,ngr,nv,ims,mv,wu,cf3,chi,hu)
+c      inverse fourier transform of h(i,j,k) & calculations of gamma(i,i,r) 
+       do j=1,nu
+        do j1=1,nvv
+         ht(1)=0
+         do i=1,ngr-1 
+          ht(i+1)=hu(j,j1,i)*kgrid(i)         
+         enddo
+         call sinft(ht,ngr)
+         do i=1,ngr-1
+          hnew(j,j1,i)=ht(i+1)*dk/2/rgrid(i)/pi**2
+          gnew(j,j1,i)=hnew(j,j1,i)-cnew(j,j1,i) 
+         enddo   
+         gnew(j,j1,ngr)=gnew(j,j1,ngr-1)
+         hnew(j,j1,ngr)=hnew(j,j1,ngr-1) 
+        enddo
+       enddo                   
+c      intialization del
+       do j=1,nu
+        do j1=1,nvv
+         del(j,j1)=0
+        enddo
+       mmax(j)=0 
+       enddo
+       mmaxi=0 
+c      evaluation of accuracy
+       do j=1,nu
+        do j1=1,nvv
+         do i=1,ngr
+          del(j,j1)=del(j,j1)+(gnew(j,j1,i)-gold(j,j1,i))**2                                
+         enddo
+         mmax(j)=del(j,j1)+mmax(j)                 
+        enddo
+        mmaxi=mmaxi+mmax(j)  
+       enddo  
+c      normalization
+       del0=(mmaxi/ngr/nu/nvv)**(1.0/2)
+c      diis procedure
+       call  diis(nu,nvv,ngr,lambd,kd,dd,gold,gnew,ggo,dgg)
+c      old functions as new functions for new cycle
+       do j=1,nu
+        do j1=1,nvv
+         do i=1,ngr
+          gold(j,j1,i)=gnew(j,j1,i)
+          cold(j,j1,i)=cnew(j,j1,i) 
+         enddo    
+        enddo
+       enddo 
+       k1=k1+1 
+       print*, k1,kd,del0       
+       if(k1.ge.500) goto 2         
+        if(del0.ge.tol) goto 1
+ 2     continue  
+       call thermo(nu,nv,nvv,ngr,icl,ims,den,t,rgrid,qqu,qvv,
+     * hnew,cnew,solperm,tau)
+       return 
+       end subroutine
+cc
+      subroutine rism0(rdffile,nu,nv,nvv,ngr,icl,kgrid,rgrid,tv,isv,
+     * den,mv,xv,yv,zv,
+     * icr,ims,tau,solperm,sgvv,epsvv,qvv,sigu,epsiu,qqu,t,
+     * lambd,tol,wu,dd,okspace)       
+       implicit none
+c      parameters
+       character*(*) rdffile
+       integer  nu, nv,nd,nvv, ngr, i,j1,j,k1,icl,k        
+       real*8 rgrid(1:ngr),kgrid(1:ngr)  
+       real*8 pi,dk,t,tau,solperm,tol,lambd,del0,kb,dr
+c      solute
+       real*8 wu(1:nu,1:nu,1:ngr), chi(1:nvv,1:nvv,1:ngr)   
+       real*8 sigu(1:nu),epsiu(1:nu),qqu(1:nu)
+c      solvent 
+       integer  icr,isv(1:nv),mv(1:nv),ims(1:nv)
+       real*8 den(1:nv),xv(1:nv),yv(1:nv),zv(1:nv)  
+       real*8 wv(1:nvv,1:nvv,1:ngr)
+       real*8 sgvv(1:nvv),epsvv(1:nvv),qvv(1:nvv)
+       character (4) tv(1:nv)
+       logical okspace
+c      potential
+       real*8 plj(1:nu,1:nvv,1:ngr), ul(1:nu,1:nvv,1:ngr)
+c      functions
+       real*8 cr(1:nu,1:nvv,1:ngr),c2(1:ngr),tt(1:nu,1:nvv)  
+       real*8 ht(1:ngr),c3(1:nu,1:nvv,1:ngr),cf3(1:nu,1:nvv,1:ngr)
+       real*8 cold(1:nu,1:nvv,1:ngr),cnew(1:nu,1:nvv,1:ngr)
+       real*8 gfold(1:nu,1:nvv,1:ngr),hu(1:nu,1:nvv,1:ngr) 
+       real*8 gold(1:nu,1:nvv,1:ngr), gnew(1:nu,1:nvv,1:ngr)   
+       real*8 hold(1:nu,1:nvv,1:ngr), hnew(1:nu,1:nvv,1:ngr)             
+       real*8 del(1:nu,1:nvv),mmaxi,mmax(1:nu),mmmax 
+c      diis functions and counts
+       real*8 ggo(1:dd,1:nu,1:nvv,1:ngr),dgg(1:dd,1:nu,1:nvv,1:ngr)
+       integer kd,dd 
+       write(76,*) nu,nv,nvv,ngr,icl,icr,tau,solperm
+       write(76,*) T,lambd,tol
+
+c
+       pi=2*asin(1.0)       
+c      nd total number of different rdfs
+       nd=(nvv+1)*nvv/2     
+c      chi(i,j,k) solvent susceptibility
+c
+c      WORK HERE
+       call chicreat(rdffile,nd,nv,ngr,ims,nvv,
+     +               kgrid,tv,isv,den,mv,xv,yv,zv,chi,
+     +               qvv,tau,okspace) 
 !      do i=1,ngr,40 
 !       print*, (chi(2,j,i), j=1,4) 
 !      enddo
@@ -663,7 +842,6 @@ c            symmerization
 c      solution of diis equation and change of baisis
        if(k1.eq.dd) then
         do jd=1,dd 
-c        print*, (ss(jd,jd1), jd1=1,dd)
         enddo     
         call dgesv(dd+1,1,ss,dd+1,ipiv,s0,dd+1,info)            
         do i=1,ngr
@@ -699,6 +877,123 @@ c      change count for diis
  1     continue    
        return
        end subroutine
+c
+c
+       subroutine thermo(nu,nv,nvv,ngr,icl,ims,den,t,rgrid,qqu,qvv,
+     * hnew,cnew,solperm,tau) 
+       implicit none
+       real*8 muh, mugf, muuh(1:nu,1:nvv),muugf(1:nu,1:nvv)        
+       integer  nu, nv,nvv, ngr, i,j1,j,icl,nd        
+       real*8 rgrid(1:ngr),dentv(1:nvv),cu(1:nu*nvv,1:ngr) 
+       real*8 pi,dr,kb,t,kcal,theta,ck,echar,solperm,nav,tau
+       real*8 den(1:nv),gu(1:nu*nvv,1:ngr),nc(1:nu*nvv,1:ngr)
+       integer ims(1:nv)
+       real*8 cnew(1:nu,1:nvv,1:ngr), hnew(1:nu,1:nvv,1:ngr)
+       real*8 ul(1:nu,1:nvv,1:ngr),hq(1:nu,1:nvv,1:ngr)
+       real*8 ulr(1:nu,1:nvv,1:ngr),qvv(1:nvv),qqu(1:nu)
+       do j=1,nv
+        dentv(ims(j))=den(ims(j))
+       enddo      
+       pi=2*asin(1.0)
+       kb=8.31441e-3
+       kcal=0.0019859
+       nd=(nvv+1)*nvv/2 
+       dr=rgrid(2)-rgrid(1) 
+       do j=1,nu
+        do j1=1,nvv
+         gu(nvv*(j-1)+j1,1)=0
+         nc(nvv*(j-1)+j1,1)=0
+         cu(nvv*(j-1)+j1,1)=cnew(j,j1,1) 
+         do i=2,ngr 
+          cu(nvv*(j-1)+j1,i)=cnew(j,j1,i) 
+          gu(nvv*(j-1)+j1,i)=hnew(j,j1,i-1)+1 
+          nc(nvv*(j-1)+j1,i)=nc(nvv*(j-1)+j1,i-1)
+     *    +4*pi*dr*dentv(j1)*gu(nvv*(j-1)+j1,i)*rgrid(i)**2.0
+         enddo
+        enddo
+       enddo 
+       open(3, file='rdf_out.data', status='unknown')  
+        do i=1,ngr        
+         write(3,*) rgrid(i),(gu(j,i), j=1,nu*nvv)          
+        enddo
+       close(3)
+       open(3, file='nc_out.data', status='unknown')  
+        do i=1,ngr        
+         write(3,*) rgrid(i),(nc(j,i), j=1,nu*nvv)          
+        enddo
+       close(3)
+       open(3, file='c_out.data', status='unknown')  
+        do i=1,ngr        
+         write(3,*) rgrid(i),(cu(j,i), j=1,nu*nvv)          
+        enddo
+       close(3)
+       mugf=0 
+       muh=0
+       do j=1,nu
+        do j1=1,nvv
+         muugf(j,j1)=0
+         muuh(j,j1)=0
+        enddo
+       enddo
+       dr=rgrid(2)-rgrid(1)
+       nav=6.02214179e+23
+       echar=4.803e-10
+       ck=nav*echar**2/solperm*0.01
+c      ulr electrostatic part of the interaction potential in real space
+       do j=1,nu
+        do j1=1,nvv      
+         do i=2,ngr 
+          ulr(j,j1,i)=ck*qqu(j)*qvv(j1)/rgrid(i)*erf(tau*rgrid(i))
+         enddo 
+         ulr(j,j1,1)=ulr(j,j1,2)
+        enddo
+       enddo 
+c      calculations of partial contibutions 
+       do j=1,nu
+        do j1=1,nvv  
+         do i=2,ngr
+          if(icl.eq.1) then 
+            hq(j,j1,i)=hnew(j,j1,i)
+          endif
+          if(icl.eq.2) then 
+           hq(j,j1,i)= -theta(-hnew(j,j1,i))
+          endif          
+          muugf(j,j1)=muugf(j,j1)-(2*cnew(j,j1,i)+hnew(j,j1,i)*
+     *    (cnew(j,j1,i)-ulr(j,j1,i)/kb/t))*rgrid(i)**2*dr*2*pi
+          muuh(j,j1)=muuh(j,j1)-(2*cnew(j,j1,i)+hnew(j,j1,i)*
+     *    (cnew(j,j1,i)-ulr(j,j1,i)/kb/t))*rgrid(i)**2*dr*2*pi
+     *    +hnew(j,j1,i)*hq(j,j1,i)*rgrid(i)**2*dr*2*pi      
+         enddo    
+        enddo
+       enddo 
+       do j=1,nu
+        do j1=1,nv
+         mugf=mugf+den(j1)*muugf(j,ims(j1))*kcal*t 
+         muh=muh+den(j1)*muuh(j,ims(j1))*kcal*t       
+        enddo
+       enddo             
+      
+c      mugf chem.potential in gaussian approximation
+c      muh   chem.potential in hnc approximation         
+       open(3, file='tout.data', status='unknown')         
+        write(3,108) muh,mugf
+       close(3)
+  108  format(2(2x,e10.4))
+       return 
+       end subroutine
+
+c
+      real*8 function theta(x)
+      real*8 x
+       if(x.le.0.0)then
+        theta=x
+        else
+        theta=0
+       endif
+       return
+       end      
+c
+
 c
 c uses realft
 c calculates the sine transform of a set of n real-valued data points stored in array y(1:n).
