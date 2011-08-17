@@ -1849,6 +1849,7 @@ c     **** define Gx,Gy and Gz in packed space ****
          end if
       end if
 
+
 *     **** send header data to all processors ****
       msglen = 1
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,version)
