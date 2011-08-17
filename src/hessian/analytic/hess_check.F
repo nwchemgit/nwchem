@@ -1,4 +1,6 @@
 c
+c     $Id$
+c
       logical function hess_check(rtdb)
       implicit none
 #include "errquit.fh"
@@ -23,14 +25,14 @@ c
       cdfit = .false.
       ipol = 1
 c
-c  Get theory type
+c     Get theory type
 c
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('hess_check: theory not specified',555,
      &       RTDB_ERR)
       if (theory.eq.'hyb') theory = 'dft'
 c
-c  Check for relativistic all-electron methods
+c     Check for relativistic all-electron methods
 c
       if (.not. rtdb_get(rtdb, 'dyall_mod_dir', MT_LOG, 1, dmd_rel))
      $   dmd_rel = .false.
@@ -45,7 +47,7 @@ c
          return
       endif
 c
-c  Check for ROHF in SCF
+c     Check for ROHF in SCF
 c
       if (theory.eq.'scf') then
         if (.not. rtdb_get(rtdb, 'scf:nopen', MT_INT, 1, nopen))
@@ -64,10 +66,11 @@ c
         endif
       endif
 c
-c     == restricted open-shell DFT ==
+c     Check for restricted open-shell DFT
+c
       if(theory.eq.'dft') then
         if (.not. rtdb_get(rtdb,'dft:rodft',mt_log,1,rodft))
-     1   rodft = .false.
+     1    rodft = .false.
 c
         if (rodft) then
            if (ga_nodeid().eq.0)
@@ -76,23 +79,7 @@ c
         end if
       end if
 c
-c  Check for UHF in DFT
-c
-      if (theory.eq.'dft') then
-        if (.not. rtdb_get(rtdb, 'dft:nopen', MT_INT, 1, nopen))
-     $    nopen = 0
-        if (.not. rtdb_get(rtdb, 'dft:mult', MT_INT, 1, mult))
-     $    mult = 1
-        if (.not. rtdb_get(rtdb, 'dft:ipol', MT_INT, 1, ipol))
-     $    ipol = 1
-        if (ipol.gt.1.or.nopen.gt.0.or.mult.gt.1) then
-          if (ga_nodeid().eq.0)
-     $      write(LuOut,*) 'Open shell DFT detected'
-          return
-        endif
-      endif
-c
-c  Check for CD fit
+c     Check for CD fit
 c
       if (theory.eq.'dft') then
          if (.not. geom_create(geom1, 'geometry'))
@@ -112,7 +99,7 @@ c
      $                   basis1, BASIS_ERR)
       endif
 c
-c     check for metaGGAs
+c     Check for metaGGAs
 c
       if(theory.eq.'dft') then
          if(xc_getxcfac(rtdb)) then
@@ -124,7 +111,7 @@ c
          endif
       endif
 c
-c     check for attenuated exchange-correlation forms
+c     Check for attenuated exchange-correlation forms
 c
       cam_exch = .false.
       if(theory.eq.'dft') then
@@ -137,7 +124,7 @@ c
          end if
       end if
 c
-c     check for cdfit
+c     Check for cdfit
 c      
       if (cdfit) then
         if (ga_nodeid().eq.0)
