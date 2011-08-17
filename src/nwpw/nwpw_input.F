@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 96)
+      parameter (num_dirs = 97)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -110,6 +110,7 @@ c
      >            'metadynamics',
      >            'pspspin',
      >            'Fei',
+     >            'parallel_io',
      >            'end'/
 
        double precision kb
@@ -164,7 +165,7 @@ c
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
-     >       6700,6800,6900,
+     >       6700,6800,6900,7000,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1334,8 +1335,27 @@ c
      > call errquit('nwpw_input: writing fei ', 6900, RTDB_ERR)
 
       goto 10
+c
+c  parallel_io
+c
+ 7000 if (inp_a(zone_name)) then
+         move = .true.
+         if (inp_compare(.false.,zone_name,'on'))     move = .true.
+         if (inp_compare(.false.,zone_name,'yes'))    move = .true.
+         if (inp_compare(.false.,zone_name,'.true.')) move = .true.
+         if (inp_compare(.false.,zone_name,'T'))      move = .true.
+         if (inp_compare(.false.,zone_name,'off'))     move = .false.
+         if (inp_compare(.false.,zone_name,'no'))      move = .false.
+         if (inp_compare(.false.,zone_name,'.false.')) move = .false.
+         if (inp_compare(.false.,zone_name,'F'))       move = .false.
+         if (inp_compare(.false.,zone_name,'fix'))     move = .false.
+      else
+         move = .true.
+      end if
+      if (.not.rtdb_put(rtdb,'nwpw:parallel_io',mt_log,1,move))
+     >  call errquit('nwpw_input: error writing to rtdb',7000,RTDB_ERR)
 
-
+      goto 10
 
 ************************************************************************
 c
