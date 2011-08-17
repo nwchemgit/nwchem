@@ -3421,7 +3421,7 @@ c         jend   = jcol
                   msglen = (nx(nb)/2+1)
                   call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
                end if
-            !end do
+            end do
          end do
          end do
 
