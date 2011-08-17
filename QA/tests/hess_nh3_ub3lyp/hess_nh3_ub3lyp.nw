@@ -1,0 +1,36 @@
+echo 
+
+start hess_nh3_dat
+
+# This input tests the accuracy of the finite difference
+# MP2 hessian.  The original calculation was compared with
+# analytic results supplied by the original reporter of
+# the problem.  The lowest frequency computed by NWChem 3.2.1
+# differed only by 0.1 wavenumbers whereas the highest differed
+# only by 0.02 wavenumbers.
+
+# On the IBM SP it took 5600s on 27 nodes.
+
+title "hessian calculation for (NH3)3- DFT(B3LYP)/aug-cc-pVDZ"
+
+geometry
+  symmetry C3v
+  n      0.00000000     0.00000000     0.11528732
+  h      0.66613072     0.66613072    -0.29294900
+  h     -0.90995149     0.24382077    -0.29294900
+  h      0.24382077    -0.90995149    -0.29294900
+end
+charge -1
+
+basis spherical
+ n   library aug-cc-pvdz
+ h   library aug-cc-pvdz
+end
+
+dft
+  xc b3lyp
+  odft
+  mult 2
+end
+
+task dft freq
