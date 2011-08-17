@@ -525,18 +525,30 @@ c     >                     dbl_mb(tmp2(1)))
 #endif
 
 *    *** local variables ***
-      integer MASTER,taskid,taskid_i
+      logical pio
+      integer MASTER,taskid,taskid_i,taskid_p,com_p
       parameter(MASTER=0)
       integer i,n,l
       integer msglen
       character*255 full_filename
 
+      logical  control_parallel_io
+      external control_parallel_io
 
-      !call Parallel_taskid(taskid)
+      call Parallel_taskid(taskid)
       call Parallel2d_taskid_i(taskid_i)
+
+      pio = control_parallel_io()
+      if (pio) then
+         taskid_p = taskid_i
+         com_p = 1
+      else
+         taskid_p = taskid
+         com_p = 0
+      end if
   
 *     **** open fname binary file ****
-      if (taskid_i.eq.MASTER) then
+      if (taskid_p.eq.MASTER) then
          call util_file_name_noprefix(fname,.false.,
      >                             .false.,
      >                       full_filename)
@@ -550,22 +562,30 @@ c     >                     dbl_mb(tmp2(1)))
 
 *     **** send header data to all processors ****
       msglen = 1
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,version)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,version)
       msglen = 3
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,nfft)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,nfft)
       msglen = 9
-      call Parallela_Brdcst_values(1,MASTER,msglen,unita)
+      call Parallela_Brdcst_values(com_p,MASTER,msglen,unita)
 
  
 *     *** read in vl 3d block ***
-      call D3dB_t_read(1,5,tmp2,tmp,-1)
+      if (pio) then
+         call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
+      else
+         call D3dB_t_read(1,5,tmp2,tmp,-1)
+      end if
       call Pack_t_pack(0,tmp2)
       call Pack_t_Copy(0,tmp2,dvl)
 
 *     **** read in vnl 3d blocks ****
       do n=1,lmmax
       do i=1,3
-         call D3dB_t_read(1,5,tmp2,tmp,-1)
+         if (pio) then
+            call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
+         else
+            call D3dB_t_read(1,5,tmp2,tmp,-1)
+         end if
          call Pack_t_pack(1,tmp2)
          call Pack_t_Copy(1,tmp2,dvnl(1,i,n))
       end do
@@ -574,13 +594,17 @@ c     >                     dbl_mb(tmp2(1)))
 *     **** read in semicore density block ****
       if (semicore) then
          !write(*,*) "reading in semicore block"   !debug
-         call D3dB_t_read(1,5,tmp2,tmp,-1)
+         if (pio) then
+            call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
+         else
+            call D3dB_t_read(1,5,tmp2,tmp,-1)
+         end if
          call Pack_t_pack(0,tmp2)
          call Pack_t_Copy(0,tmp2,dncore)
       end if
 
 *     *** close fname binary file ***
-      if (taskid_i.eq.MASTER) then
+      if (taskid_p.eq.MASTER) then
 c       close(11)
          call closefile(5)
       end if

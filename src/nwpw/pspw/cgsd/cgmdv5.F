@@ -103,8 +103,8 @@
       external control_time_step,control_fake_mass,control_bo_fake_mass
       logical  control_read,control_move,ion_init,control_out_of_time
       external control_read,control_move,ion_init,control_out_of_time
-      logical  control_translation,control_rotation
-      external control_translation,control_rotation
+      logical  control_translation,control_rotation,control_parallel_io
+      external control_translation,control_rotation,control_parallel_io
       integer  pack_nwave_all
       integer  control_it_in,control_it_out,control_gga,control_version
       integer  control_ngrid,pack_nwave,ion_nion,ion_natm,ion_katm
@@ -386,6 +386,11 @@ c      call frac_occ_init(rtdb,psi_ispin(),ne)
            write(luout,1116)
          end if
          write(luout,1115)
+         if (control_parallel_io()) then
+           write(luout,1123)
+         else
+           write(luout,1124)
+         end if
 
          write(luout,1121) control_boundry(),control_version()
          if (psi_ispin().eq.1) write(luout,1130) "restricted"
@@ -1151,6 +1156,8 @@ c      call frac_occ_end()
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1122 FORMAT(5X,' qmmm simulation')
+ 1123 FORMAT( ' parallel io              : on')
+ 1124 FORMAT( ' parallel io              : off')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')

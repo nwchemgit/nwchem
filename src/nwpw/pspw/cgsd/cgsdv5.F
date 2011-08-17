@@ -135,8 +135,8 @@
       external control_mapping,control_mapping1d,control_np_orbital
       integer  control_ks_maxit_orb,control_ks_maxit_orbs
       external control_ks_maxit_orb,control_ks_maxit_orbs
-      logical  control_fractional
-      external control_fractional
+      logical  control_fractional,control_parallel_io
+      external control_fractional,control_parallel_io
       integer  control_fractional_smeartype,control_excited_ne
       external control_fractional_smeartype,control_excited_ne
       real*8   control_fractional_kT,control_fractional_temperature
@@ -327,6 +327,11 @@ c     value = psi_initialize()
 #ifdef USE_OPENMP
          write(luout,1119)  omp_get_max_threads()
 #endif
+         if (control_parallel_io()) then
+           write(luout,1123)
+         else
+           write(luout,1124)
+         end if
 
          write(luout,1115)
          write(luout,1121) control_boundry(),control_version()
@@ -718,6 +723,8 @@ c      call frac_occ_end()
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
  1122 FORMAT(5X,' qmmm simulation')
+ 1123 FORMAT( ' parallel io              : on')
+ 1124 FORMAT( ' parallel io              : off')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')

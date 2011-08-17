@@ -28,14 +28,14 @@
       character*50 filename
       character*255 full_filename
 
-      integer MASTER,taskid,taskid_i,taskid_j
+      integer MASTER,taskid,taskid_i,taskid_j,taskid_p,com_p
       parameter(MASTER=0)
       integer n,q,pj
       integer msglen
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value,psi_nolattice,lprint
+      logical value,psi_nolattice,lprint,pio
 
 *     ***** local functions ****
       character*50 control_input_psi
@@ -44,8 +44,8 @@ c     complex*16 tmp(*)
       external         control_unita
       integer  control_ngrid,control_rtdb
       external control_ngrid,control_rtdb
-      logical  control_print
-      external control_print
+      logical  control_print,control_parallel_io
+      external control_print,control_parallel_io
       
 
       call Parallel_taskid(taskid)
@@ -53,6 +53,15 @@ c     complex*16 tmp(*)
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
+
+      pio = control_parallel_io()
+      if (pio) then
+         taskid_p = taskid_i
+         com_p = 1
+      else
+         taskid_p = taskid
+         com_p = 0
+      end if
 
       lprint= ((taskid.eq.MASTER).and.control_print(print_low))
 
@@ -64,7 +73,7 @@ c     complex*16 tmp(*)
        if (.not. value) call errquit('psi_read:pushing stack',0, MA_ERR)
 
 *     **** open ELCIN binary file ****
-      if (taskid_i.eq.MASTER) then
+      if (taskid_p.eq.MASTER) then
          filename = control_input_psi()
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
@@ -87,17 +96,17 @@ c    >                        full_filename)
 
 c     **** send header to all nodes ****
       msglen = 1
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,version)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,version)
       msglen = 3
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,nfft)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,nfft)
       msglen = 9
-      call Parallela_Brdcst_values(1,MASTER,msglen,unita)
+      call Parallela_Brdcst_values(com_p,MASTER,msglen,unita)
       msglen = 1
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,ispin)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,ispin)
       msglen = 2
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,ne)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,ne)
       msglen = 1
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,occupation)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,occupation)
 
 
 *     ***** Error checking ****
@@ -109,7 +118,7 @@ c     **** send header to all nodes ****
       if ( (nfft(1).ne.control_ngrid(1)) .or.
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
-        if (taskid_i.eq.MASTER) then
+        if (taskid_p.eq.MASTER) then
         write(*,*) "taskid_i,taskid_j=",taskid_i,taskid_j
         write(*,*) "nfft :",nfft
         write(*,*) "ngrid:",control_ngrid(1),
@@ -145,8 +154,13 @@ c     **** send header to all nodes ****
       do n=1,(ne(1)+ne(2))
          call Dneall_ntoqp(n,q,pj)
 
-         call D3dB_c_read(1,5,dcpl_mb(tmp2(1)),
-     >                        dcpl_mb(tmp(1)),pj)
+         if (pio) then
+            call D3dB_c_read_pio(1,5,dcpl_mb(tmp2(1)),
+     >                           dcpl_mb(tmp(1)),pj)
+         else
+            call D3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+     >                           dcpl_mb(tmp(1)),pj)
+         end if
          if (pj.eq.taskid_j) then
             call Pack_c_pack(1,dcpl_mb(tmp2(1)))
             call Pack_c_Copy(1,dcpl_mb(tmp2(1)),psi2(1+(q-1)*npack1))
@@ -154,15 +168,15 @@ c     **** send header to all nodes ****
       end do
 
       if (occupation.gt.0) then
-         if (taskid_i.eq.MASTER) then
+         if (taskid_p.eq.MASTER) then
             call dread(5,occ,(ne(1)+ne(2)))
          end if
-         call Parallela_Brdcst_values(1,MASTER,(ne(1)+ne(2)),occ)
+         call Parallela_Brdcst_values(com_p,MASTER,(ne(1)+ne(2)),occ)
       end if
       
 
 *     *** close ELCIN binary file ***
-      if (taskid_i.eq.MASTER) then
+      if (taskid_p.eq.MASTER) then
         call closefile(5)
       end if
  
@@ -201,14 +215,14 @@ c     **** send header to all nodes ****
       character*50 filename
       character*255 full_filename
 
-      integer MASTER,taskid,taskid_i,taskid_j
+      integer MASTER,taskid,taskid_i,taskid_j,taskid_p,com_p
       parameter(MASTER=0)
       integer n,q,pj
       integer msglen
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value,psi_nolattice
+      logical value,psi_nolattice,pio
 
 *     ***** local functions ****
       character*50 control_input_epsi
@@ -217,6 +231,8 @@ c     complex*16 tmp(*)
       external         control_unita
       integer  control_ngrid,control_rtdb
       external control_ngrid,control_rtdb
+      logical  control_parallel_io
+      external control_parallel_io
       
 
       call Parallel_taskid(taskid)
@@ -225,6 +241,14 @@ c     complex*16 tmp(*)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
 
+      pio = control_parallel_io()
+      if (pio) then
+         taskid_p = taskid_i
+         com_p = 1
+      else
+         taskid_p = taskid
+         com_p = 0
+      end if
 
       value = MA_push_get(mt_dcpl,nfft3d,'tmp',tmp(2),tmp(1))
       if (.not. value) call errquit('out of stack memory',0, MA_ERR)
@@ -233,7 +257,7 @@ c     complex*16 tmp(*)
        if (.not. value) call errquit('psi_read:pushing stack',0, MA_ERR)
 
 *     **** open ELCIN binary file ****
-      if (taskid_i.eq.MASTER) then
+      if (taskid_p.eq.MASTER) then
          filename = control_input_epsi()
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
@@ -253,15 +277,15 @@ c     complex*16 tmp(*)
 
 c     **** send header to all nodes ****
       msglen = 1
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,version)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,version)
       msglen = 3
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,nfft)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,nfft)
       msglen = 9
-      call Parallela_Brdcst_values(1,MASTER,msglen,unita)
+      call Parallela_Brdcst_values(com_p,MASTER,msglen,unita)
       msglen = 1
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,ispin)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,ispin)
       msglen = 2
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,ne)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,ne)
 
 
 *     ***** Error checking ****
@@ -308,8 +332,13 @@ c     **** send header to all nodes ****
       do n=1,(ne(1)+ne(2))
 c         call Dnexall_ntoqp(n,q,pj)
           
-         call D3dB_c_read(1,5,dcpl_mb(tmp2(1)),
-     >                        dcpl_mb(tmp(1)),-1)
+         if (pio) then
+            call D3dB_c_read_pio(1,5,dcpl_mb(tmp2(1)),
+     >                               dcpl_mb(tmp(1)),-1)
+         else
+             call D3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+     >                            dcpl_mb(tmp(1)),-1)
+         end if
          call Pack_c_pack(1,dcpl_mb(tmp2(1)))
          call Pack_c_Copy(1,dcpl_mb(tmp2(1)),psi2(1+(n-1)*npack1))
 
@@ -320,7 +349,7 @@ c         end if
       end do
 
 *     *** close ELCIN binary file ***
-      if (taskid_i.eq.MASTER) then
+      if (taskid_p.eq.MASTER) then
         call closefile(5)
       end if
  
@@ -359,14 +388,14 @@ c         end if
       character*50 filename
       character*255 full_filename
 
-      integer MASTER,taskid,taskid_i,taskid_j
+      integer MASTER,taskid,taskid_i,taskid_j,taskid_p,com_p
       parameter(MASTER=0)
       integer n,q,pj
       integer msglen
 
 c     complex*16 tmp(*)
       integer tmp(2),tmp2(2)
-      logical value,psi_nolattice,lprint
+      logical value,psi_nolattice,lprint,pio
 
 *     ***** local functions ****
       character*50 control_input_psi
@@ -375,8 +404,8 @@ c     complex*16 tmp(*)
       external         control_unita
       integer  control_ngrid,control_rtdb
       external control_ngrid,control_rtdb
-      logical  control_print
-      external control_print
+      logical  control_print,control_parallel_io
+      external control_print,control_parallel_io
       
 
       call Parallel_taskid(taskid)
@@ -384,6 +413,15 @@ c     complex*16 tmp(*)
       call Parallel2d_taskid_j(taskid_j)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
+
+      pio = control_parallel_io()
+      if (pio) then
+         taskid_p = taskid_i
+         com_p = 1
+      else
+         taskid_p = taskid
+         com_p = 0
+      end if
 
       lprint= ((taskid.eq.MASTER).and.control_print(print_low))
 
@@ -395,7 +433,7 @@ c     complex*16 tmp(*)
        if (.not. value) call errquit('psi_read:pushing stack',0, MA_ERR)
 
 *     **** open ELCIN binary file ****
-      if (taskid_i.eq.MASTER) then
+      if (taskid_p.eq.MASTER) then
          filename = control_input_psi()
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
@@ -418,15 +456,15 @@ c    >                        full_filename)
 
 c     **** send header to all nodes ****
       msglen = 1
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,version)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,version)
       msglen = 3
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,nfft)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,nfft)
       msglen = 9
-      call Parallela_Brdcst_values(1,MASTER,msglen,unita)
+      call Parallela_Brdcst_values(com_p,MASTER,msglen,unita)
       msglen = 1
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,ispin)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,ispin)
       msglen = 2
-      call Parallela_Brdcst_ivalues(1,MASTER,msglen,ne)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,ne)
 
 
 *     ***** Error checking ****
@@ -473,8 +511,13 @@ c     **** send header to all nodes ****
       do n=1,(ne(1)+ne(2))
          call Dneall_ntoqp(n,q,pj)
 
-         call D3dB_c_read(1,5,dcpl_mb(tmp2(1)),
-     >                        dcpl_mb(tmp(1)),pj)
+         if (pio) then
+            call D3dB_c_read_pio(1,5,dcpl_mb(tmp2(1)),
+     >                               dcpl_mb(tmp(1)),pj)
+         else
+            call D3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+     >                           dcpl_mb(tmp(1)),pj)
+         end if
          if (pj.eq.taskid_j) then
             call Pack_c_pack(1,dcpl_mb(tmp2(1)))
             call Pack_c_Copy(1,dcpl_mb(tmp2(1)),psi2(1+(q-1)*npack1))
@@ -490,7 +533,7 @@ c      end if
       
 
 *     *** close ELCIN binary file ***
-      if (taskid_i.eq.MASTER) then
+      if (taskid_p.eq.MASTER) then
         call closefile(5)
       end if
  

@@ -158,8 +158,8 @@ cccc#include "frac_occ.fh"
       logical  control_translation,control_rotation,control_balance
       external control_translation,control_rotation,control_balance
 
-      logical  Dneall_m_allocate,Dneall_m_free
-      external Dneall_m_allocate,Dneall_m_free
+      logical  Dneall_m_allocate,Dneall_m_free,control_parallel_io
+      external Dneall_m_allocate,Dneall_m_free,control_parallel_io
 
       real*8   Dneall_m_value
       external Dneall_m_value
@@ -428,6 +428,12 @@ c      call frac_occ_init(rtdb,ispin,ne)
          else
            write(luout,1116)
          end if
+         if (control_parallel_io()) then
+           write(luout,1119)
+         else
+           write(luout,1122)
+         end if
+
 
          write(luout,1115)
          IF(control_move()) THEN
@@ -975,8 +981,10 @@ c      call frac_occ_end()
  1116 FORMAT( ' parallel mapping         : not balanced')
  1117 FORMAT( ' processor grid           :',I4,' x',I4)
  1118 FORMAT( ' parallel mapping         :    2d hcurve')
+ 1119 FORMAT( ' parallel io              : on')
  1120 FORMAT(5X,' ionic motion         = ',A)
  1121 FORMAT(5X,' boundary conditions  = ',A,'(version', I1,')')
+ 1122 FORMAT( ' parallel io              : off')
  1130 FORMAT(5X,' electron spin        = ',A)
  1131 FORMAT(5X,' exchange-correlation = ',A)
  1132 FORMAT(5X,' using fractional occupation')
