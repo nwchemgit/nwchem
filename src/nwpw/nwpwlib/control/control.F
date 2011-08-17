@@ -53,6 +53,7 @@
       call util_print_get_level(print_level)
       !write(*,*) "Print level is ",print_level
 
+
 *     **** get parallel mappings ****
       if (.not.rtdb_get(rtdb,'nwpw:mapping',mt_int,1,mapping)) then
          mapping = 2
@@ -113,6 +114,13 @@
 *     **** get balance mapping ****
       if (.not.rtdb_get(rtdb,'nwpw:balance',mt_log,1,balance)) then
          balance = .true.
+      end if
+
+*     **** get parallel io ****
+      if (.not.rtdb_get(rtdb,'nwpw:parallel_io',mt_log,1,pio)) then
+         pio = .false.
+      else
+         pio = pio.and.(np_dimensions(2).gt.1)
       end if
 
 
@@ -3491,6 +3499,20 @@ c      end
 #include "control.fh"
 
       control_mapping1d = mapping1d
+      return
+      end
+
+*     *****************************
+*     *                           *
+*     *    control_parallel_io    *
+*     *                           *
+*     *****************************
+      logical function control_parallel_io()
+      implicit none
+
+#include "control.fh"
+
+      control_parallel_io = pio
       return
       end
 
