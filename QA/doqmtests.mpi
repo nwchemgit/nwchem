@@ -54,6 +54,7 @@ echo 'Please check the final gradient values for correctness.'
 ./runtests.mpi.unix procs $np grad_ozone
 ./runtests.mpi.unix procs $np dft_ozone 
 ./runtests.mpi.unix procs $np hess_c6h6
+./runtests.mpi.unix procs $np hess_nh3_ub3lyp
 ./runtests.mpi.unix procs $np intchk
 echo 'The intermediate values for this test may cause some differences.'
 echo 'Please check the final values for the last optimized structure.'
