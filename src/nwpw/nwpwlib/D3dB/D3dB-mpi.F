@@ -3970,8 +3970,7 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
 
             q      = int_mb(q_map1(1,nb)+(j-1)+(k-1)*ny(nb))
             ii     = int_mb(p_map1(1,nb)+(j-1)+(k-1)*ny(nb))
-            p_here = ii
-            !p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
+            p_here = Parallel2d_convert_taskid_ij(ii,taskid_j)
             if (p_here.eq.taskid) then
                msglen  = (nx(nb)/2+1)
                msgtype = 1
