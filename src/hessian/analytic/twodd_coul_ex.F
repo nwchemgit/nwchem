@@ -16,8 +16,14 @@
      $     bftoat, shbflo, shbfhi, jfac, kfac)
 c     $Id$
 c
-c  This routine was essentially stolen from gradients/grad2.F.  I will work
-c  to make these routines one after I get things working.
+c  This routine was essentially stolen from gradients/grad2.F.  I will 
+c  work to make these routines one after I get things working.
+c
+c     This routine evaluates the 2-electron integral contribution to the
+c     Hessian. The quantities jfac and kfac are used only to scale
+c     contributions as appropriate for Coulomb fitting and DFT 
+c     exchange-correlation contributions. Neither the Coulomb fitting
+c     or the DFT terms are evaluated here.
 c
       implicit none
 #include "errquit.fh"
@@ -339,9 +345,11 @@ c
                                     list(nq,4) = lsh
                                  endif
 c     
- 200                          end do ! next llsh
+ 200                             continue
+                              end do ! next llsh
                            end do
- 100                    end do  ! next jjsh
+ 100                       continue
+                        end do  ! next jjsh
                      end do
 
 
