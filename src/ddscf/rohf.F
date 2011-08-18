@@ -139,6 +139,7 @@ c
          endif
       endif
 c
+      call movecs_fix_phase(g_movecs)
       if (util_print('final vectors analysis', print_default)) then
          do ilo = 1,max(1,nclosed-10)
             if (dbl_mb(k_eval+ilo-1) .ge. eval_pr_tol_lo) goto 961

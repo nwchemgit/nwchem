@@ -130,11 +130,25 @@ c     get within 10% range
             endif
             do j = 0, n-1
                do k = 0, j
-                  if (abs(dbl_mb(k_vecs+int_mb(k_list+k))).lt.
-     $                abs(dbl_mb(k_vecs+int_mb(k_list+j)))) then
+                  if ((abs(dbl_mb(k_vecs+int_mb(k_list+k))).lt.
+     $                 abs(dbl_mb(k_vecs+int_mb(k_list+j)))).and.
+     $                (abs(dbl_mb(k_vecs+int_mb(k_list+k)))*1.01.lt.
+     $                 abs(dbl_mb(k_vecs+int_mb(k_list+j))))) then
                      m = int_mb(k_list+j)
                      int_mb(k_list+j) = int_mb(k_list+k)
                      int_mb(k_list+k) = m
+                  elseif((abs(dbl_mb(k_vecs+int_mb(k_list+k))).lt.
+     $                    abs(dbl_mb(k_vecs+int_mb(k_list+j))))
+     &                   .and..not.
+     $                   (abs(dbl_mb(k_vecs+int_mb(k_list+k)))*1.01.lt.
+     $                    abs(dbl_mb(k_vecs+int_mb(k_list+j))))) then
+                     if (int_mb(k_list+j).lt.int_mb(k_list+k)) then
+                       m = int_mb(k_list+j)
+                       int_mb(k_list+j) = int_mb(k_list+k)
+                       int_mb(k_list+k) = m
+                     endif
+                  else
+c                    the ordering is OK so do nothing
                   endif
                enddo
             enddo

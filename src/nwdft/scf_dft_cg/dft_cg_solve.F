@@ -158,6 +158,7 @@ c
           else
             blob = 'DFT Final Beta Molecular Orbital Analysis'
           endif
+          call movecs_fix_phase(g_movecs(ispin))
           call movecs_print_anal(basis, ilo, ihi, 0.15d0,
      &         g_movecs(ispin),blob,
      &         .true., dbl_mb(k_eval+(ispin-1)*nmo),
@@ -179,6 +180,7 @@ c
           ilo = 1
           ihi = nmo
         endif
+        call movecs_fix_phase(g_movecs)
         blob = 'DFT Final Molecular Orbital Analysis'
         call movecs_print_anal(basis, ilo, ihi, 0.15d0,
      &         g_movecs,blob,
