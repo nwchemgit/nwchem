@@ -221,12 +221,12 @@ c
       ntot_cube=0
       do 200 iqsh = 1, n_rec_in_file
 c         
-c           Define the current range of radial shells and integration center.
+c       Define the current range of radial shells and integration center.
 c          
-         if(.not.grid_file_read(nqpts_per_buf, nqpts, ictr_buf, 
-     &        rad,dbl_mb(irqbuf),nsubb)) goto 2001
-         if(nqpts.gt.buffer_size) call
-     *        errquit(' buffersize exceed by qpts',nqpts,UNKNOWN_ERR)
+        if(.not.grid_file_read(nqpts_per_buf, nqpts, ictr_buf, 
+     &      rad,dbl_mb(irqbuf),nsubb)) goto 2001
+        if(nqpts.gt.buffer_size) call
+     *      errquit(' buffersize exceed by qpts',nqpts,UNKNOWN_ERR)
         if(nqpts.eq.0) goto 200
         istep=0
         do 110 ncube=1,nsubb

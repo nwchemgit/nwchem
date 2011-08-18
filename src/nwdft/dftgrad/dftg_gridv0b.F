@@ -294,28 +294,28 @@ c              exchange-correlation contribution, with or without gradient terms
 c     
                if (do_force) then
 c 
-                  if(grad) then
+                  if (grad) then
                      if (.not. MA_Push_Get(MT_Dbl, nqpts*mbf_ao*ipol, 
      &                    'gradchi_ao2', l_ccdel,i_ccdel))call errquit
      &                    (' exit dftggridv0b: insuff stack',9, 0)
                   endif
 
-               if (odftps) call pstat_on(ps_qv0b)
-               call dftg_quadv0_b(ictr_buf, ldew, AO_bas_han, ipol,
-     &                            grad, kske, nbf_ao, mbf_ao, natoms, 
-     &                            nqpts,
-     &                            dbl_mb(ichi_ao), dbl_mb(idelchi_ao ),
-     &                            dbl_mb(iheschi_ao), Amat, Cmat, Mmat,
-     &                            dbl_mb(i_ccdel),
-     &                            ibf_ao, iniz, ifin, cetobfr,
-     &                            ppp, ff, 
-     &                            zzz, hh, iga_dens, force,
-     &                            oactive)
-               if (odftps) call pstat_off(ps_qv0b)
-                 if(grad) then
+                  if (odftps) call pstat_on(ps_qv0b)
+                  call dftg_quadv0_b(ictr_buf, ldew, AO_bas_han, ipol,
+     &                               grad, kske, nbf_ao, mbf_ao, natoms,
+     &                               nqpts,
+     &                               dbl_mb(ichi_ao),dbl_mb(idelchi_ao),
+     &                               dbl_mb(iheschi_ao),Amat,Cmat,Mmat,
+     &                               dbl_mb(i_ccdel),
+     &                               ibf_ao, iniz, ifin, cetobfr,
+     &                               ppp, ff, 
+     &                               zzz, hh, iga_dens, force,
+     &                               oactive)
+                 if (odftps) call pstat_off(ps_qv0b)
+                 if (grad) then
                     if (.not.ma_pop_stack(l_ccdel))
-     &                   call errquit('dftggv0b: pop stack ',1,0)
-                    endif
+     &                 call errquit('dftggv0b: pop stack ',1,0)
+                 endif
 c
                else if (do_hess) then
 c
@@ -328,18 +328,18 @@ c
                   if (.not.MA_push_get(MT_DBL, ipol*nqpts*3,
      &                 'Acof2', l_Acof2, k_Acof2)) call
      &                 errquit('dftg_gridv0b: cannot allocate Acof2',1,
-     &       MA_ERR)
+     &                         MA_ERR)
                   if (grad) then
                      if (.not.MA_push_get(MT_DBL, ipol*9*nqpts, 'CCof2',
      &                    l_Ccof2, k_Ccof2)) call
      &                    errquit('dftg_gridv0b: cant alloc Ccof2',1,
-     &       MA_ERR)
+     &                            MA_ERR)
                   endif
                   if (kske) then
                      if (.not.MA_push_get(MT_DBL, ipol*3*nqpts, 'MCof2',
      &                    l_Mcof2, k_Mcof2)) call
      &                    errquit('dftg_gridv0b: cant alloc Mcof2',1,
-     &       MA_ERR)
+     &                            MA_ERR)
                   end if
 c
                   call xc_d2expl(tol_rho, 
@@ -370,7 +370,7 @@ c
                   endif
                   if (.not.ma_pop_stack(l_Acof2))
      &                 call errquit('dftg_gridv0b: cannot pop Acof2',0,
-     &       MA_ERR)
+     &                              MA_ERR)
 c
                else if (do_cpks_r) then
 c

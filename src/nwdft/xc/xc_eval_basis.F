@@ -237,7 +237,7 @@ c
             if (ltype .lt. 0) then
                call errquit(
      &              'xc_eval_basis: sp-type orbital not coded',1,
-     &       CAPMIS_ERR)
+     &              CAPMIS_ERR)
             else
                l = ltype
             endif
@@ -259,7 +259,7 @@ c
             if (ncontr.ne.1) then
                call errquit(
      &              'xc_eval_basis: general contraction not ready',1,
-     &       UNKNOWN_ERR)
+     &              UNKNOWN_ERR)
             endif
 c
 c     Get exponents and contraction coefficients for this contraction set
@@ -271,12 +271,12 @@ c
 c     Evaluate the radial components of the contracted Gaussian functions
 c
             if(maxder.eq.0) then
-            call eval_radial0(dbl_mb(irad), rq(1,ictr), nq, 
-     &           dbl_mb(izprim), dbl_mb(iccoef), nprimo, ncontr)
-         else
-            call eval_radial(dbl_mb(irad), rq(1,ictr), nq, maxder,
-     &           dbl_mb(izprim), dbl_mb(iccoef), nprimo, ncontr)
-         endif
+               call eval_radial0(dbl_mb(irad), rq(1,ictr), nq, 
+     &              dbl_mb(izprim), dbl_mb(iccoef), nprimo, ncontr)
+            else
+               call eval_radial(dbl_mb(irad), rq(1,ictr), nq, maxder,
+     &              dbl_mb(izprim), dbl_mb(iccoef), nprimo, ncontr)
+            endif
 c
 c     Compute and store the derivatives of the radial function
 c
