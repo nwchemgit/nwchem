@@ -17,10 +17,11 @@ c
       integer i,j,k
       real*8 eq
 c
+      if (me .eq. 0) then
       do 1 k=1,nf
       rms(1,k)=zero
       rms(2,k)=zero
-      do 2 i=ngfr,ngto
+      do 2 i=1,ngrid
       eq=zero
       do 3 j=1,natoms
       eq=eq+qf(j,k)/dsqrt((g(1,i)-x(1,j))*(g(1,i)-x(1,j))+
@@ -30,6 +31,12 @@ c
       rms(2,k)=rms(2,k)+dabs(hundrd*(v(i)-eq)/v(i))
     2 continue
     1 continue
+      else
+      do k=1,nf
+      rms(1,k)=zero
+      rms(2,k)=zero
+      enddo
+      endif
       if(np.gt.1) then
       call ga_dgop(mre_004,rms,2*nf,'+')
       endif
