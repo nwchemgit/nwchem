@@ -82,7 +82,7 @@ c
       write(lfnout,613) (rms(1,i),i=1,nf)
   613 format(/,' RMS deviation kJ/mol',t33,6f12.6)
       write(lfnout,614) (rms(2,i),i=1,nf)
-  614 format(/,' RMS deviation %',t33,6f12.6)
+  614 format(/,' ABS deviation %',t33,6f12.6)
       endif
 c
       endif
