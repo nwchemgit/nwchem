@@ -330,6 +330,8 @@ c
       firstjk=.true.
       smax  = schwarz_max()
       call int_acc_std()
+      g_dens0 = 0
+      g_fock0 = 0
 c
       nproc = ga_nnodes()
       task_size = nshblocks*(nshblocks+1)/2
@@ -498,9 +500,11 @@ c
 c                    if (.not. ma_verify_allocator_stuff())
 c    $                    call errquit(' ',0, MA_ERR)
 c     
- 200                          end do ! next llsh
+ 200                             continue
+                              end do ! next llsh
                            end do
- 100                    end do  ! next jjsh
+ 100                       continue
+                        end do  ! next jjsh
                      end do
 c
                      if (nder.eq.0) then
