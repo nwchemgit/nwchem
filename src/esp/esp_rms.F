@@ -30,12 +30,6 @@ c
       rms(2,k)=rms(2,k)+dabs(hundrd*(v(i)-eq)/v(i))
     2 continue
     1 continue
-      else
-      do k=1,nf
-      rms(1,k)=zero
-      rms(2,k)=zero
-      enddo
-      endif
       do 4 k=1,nf
       rms(1,k)=cau2kj*dsqrt(rms(1,k))/dble(ngrid)
       rms(2,k)=rms(2,k)/dble(ngrid)
