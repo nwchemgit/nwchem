@@ -590,20 +590,20 @@ c     == better have static ldb at high node counts ==
       if(.not.rtdb_get(rtdb,'quickguess',mt_log,1,quickguess)) 
      .     quickguess=.false.
       if(quickguess.and.movecs_in.eq.'atomic') then
-      if (.not. rtdb_cput(rtdb, 'dft:input vectors', 1, movecs_out))
-     $     call errquit('dft_scf: DFT MO vectors not defined',0,
-     &       RTDB_ERR)
-      if (.not. rtdb_cput(rtdb, 'dft:output vectors', 1, movecs_out))
-     $     call errquit('dft_scf: DFT MO vectors not defined',0,
-     &       RTDB_ERR)
-      if (oskel) call ga_symmetrize(g_dens(1))
-         if(ipol.eq.2) then
-            call ga_copy(g_dens(1),g_dens(2))
-            call ga_dscal(g_dens(1),dble(ntotel-nclosed)/(ntotel))
-            call ga_dscal(g_dens(2),dble(nclosed)/(ntotel))
-            if(oskel) call ga_symmetrize(g_dens(2))
-         endif
-         goto 1789
+        if (.not. rtdb_cput(rtdb, 'dft:input vectors', 1, movecs_out))
+     $       call errquit('dft_scf: DFT MO vectors not defined',0,
+     &                     RTDB_ERR)
+        if (.not. rtdb_cput(rtdb, 'dft:output vectors', 1, movecs_out))
+     $       call errquit('dft_scf: DFT MO vectors not defined',0,
+     &                     RTDB_ERR)
+        if (oskel) call ga_symmetrize(g_dens(1))
+        if(ipol.eq.2) then
+          call ga_copy(g_dens(1),g_dens(2))
+          call ga_dscal(g_dens(1),dble(ntotel-nclosed)/(ntotel))
+          call ga_dscal(g_dens(2),dble(nclosed)/(ntotel))
+          if(oskel) call ga_symmetrize(g_dens(2))
+        endif
+        goto 1789
       endif
       if(oskel) then
         call ga_symmetrize(g_dens(1))
@@ -611,57 +611,56 @@ c     == better have static ldb at high node counts ==
       endif
 
       if(ldmix) then
-         tdots=0.d0
-         call dft_densm(g_dens, g_movecs, 
-     &        nbf_ao, nmo, ipol, 
-     &        geom, AO_bas_han,noc,ntotel,
-     &        Dbl_MB(k_eval(1)),dbl_mb(k_occ),
-     &        ssmear,tdots,iter,.false.,
-     .        fon, nel_fon,nmo_fon,
-     .        spinset.or.n_rabuck.ne.0)
+        tdots=0.d0
+        call dft_densm(g_dens, g_movecs, 
+     &       nbf_ao, nmo, ipol, 
+     &       geom, AO_bas_han,noc,ntotel,
+     &       Dbl_MB(k_eval(1)),dbl_mb(k_occ),
+     &       ssmear,tdots,iter,.false.,
+     .       fon, nel_fon,nmo_fon,
+     .       spinset.or.n_rabuck.ne.0)
 
-         if(oprint_info) then
-            pstrace=ga_ddot(g_dens,g_s)
-            if(ga_nodeid().eq.0) write(luout,*) ' pstrace ',pstrace
-         endif
+        if(oprint_info) then
+          pstrace=ga_ddot(g_dens,g_s)
+          if(ga_nodeid().eq.0) write(luout,*) ' pstrace ',pstrace
+        endif
 
 c
-c  Jorge Garza/Begin/Exact_pot
+c       Jorge Garza/Begin/Exact_pot
 c
-         if (exact_pot.eq.1) then
-           call open_xc_exact_pot(g_rho_exact, g_tmp_exact,
-     &                            g_addit_exact, g_movecs_aux,
-     &                            g_dens, dif_lamda, lamda,
-     &                            p_lamda, lamda_old, Ecoul_aux)
-         end if
+        if (exact_pot.eq.1) then
+          call open_xc_exact_pot(g_rho_exact, g_tmp_exact,
+     &                           g_addit_exact, g_movecs_aux,
+     &                           g_dens, dif_lamda, lamda,
+     &                           p_lamda, lamda_old, Ecoul_aux)
+        end if
 c
-c Jorge Garza/End/Exact_pot
+c       Jorge Garza/End/Exact_pot
 
-      call dft_prevals('inter',me,oprint_eval,oprint_vecs,noc,
-     ,     g_movecs,dbl_mb(k_eval(1)),dbl_mb(k_occ))
+        call dft_prevals('inter',me,oprint_eval,oprint_vecs,noc,
+     &                   g_movecs,dbl_mb(k_eval(1)),dbl_mb(k_occ))
 
-         endif
+      endif
 c
 c     Tidy up SCF
 c
- 1789    continue
+ 1789 continue
       call fock_2e_tidy(rtdb)
 c
       if (CDFIT)then
-         if (odftps) call pstat_on(ps_incore)
-         if(dft_mem3c(
-     I     natoms,npol,oprint_parm,oprint_3c2e,
-     O     n3c_int,n3c_dbl,n_semi_bufs,
-     O     l_3ceri,k_3cERI, l_3cwhat,k_3cwhat)) then
-            call dft_3cincor(n_batch, n3c_int, int_mb(k_3cwhat), 
-     &                       dbl_mb(k_3cERI), n3c_dbl, iwhat_max, 
-     &                       n_semi_bufs, fd)
-            incore=.true.
-         else
-            if (me.eq.0 .and. oprint_3c2e)write(LuOut,3230)
-            incore=.false.
-         endif
-      if (odftps) call pstat_off(ps_incore)
+        if (odftps) call pstat_on(ps_incore)
+        if(dft_mem3c(natoms,npol,oprint_parm,oprint_3c2e,
+     O               n3c_int,n3c_dbl,n_semi_bufs,
+     O               l_3ceri,k_3cERI, l_3cwhat,k_3cwhat)) then
+          call dft_3cincor(n_batch, n3c_int, int_mb(k_3cwhat), 
+     &                     dbl_mb(k_3cERI), n3c_dbl, iwhat_max, 
+     &                     n_semi_bufs, fd)
+          incore=.true.
+        else
+          if (me.eq.0 .and. oprint_3c2e)write(LuOut,3230)
+          incore=.false.
+        endif
+        if (odftps) call pstat_off(ps_incore)
       endif
  3230 format(/,10x,'Incore memory use for 3-center 2e- integrals is ',
      &     'turned off. ')
@@ -998,7 +997,7 @@ c
      $           nconstr,multipliers0,dbl_mb(k_mdiis))
             if (oprint_time)
      &           call dft_tstamp(' called diis driver ')
-         endif
+      endif
 c Qin
       if(lcdft) then
         do ispin = 1, ipol
@@ -1039,7 +1038,6 @@ c Constrained DFT: label 2004 is associated with optimization of cdft.
             endif
            enddo
          endif
-
          call dft_diagn(levelshifting,
      ,        nmo(ispin),ncanorg,
      .        g_focks(ispin),g_s,g_movecs(ispin),g_tmp,g_svecs,
@@ -1576,6 +1574,7 @@ c
 c     Vector analysis stolen from rohf.F
 c
       do ispin = 1, ipol
+         call movecs_fix_phase(g_movecs(ispin))
          if (util_print('final vectors analysis', print_default)) then
             do ilo = 1,max(1,nclosed-10)
                if (dbl_mb(k_eval(ispin)+ilo-1) .ge. eval_pr_tol_lo) 
