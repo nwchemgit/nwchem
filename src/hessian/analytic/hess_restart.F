@@ -34,11 +34,11 @@ c
       oprint = util_print('hess_follow',print_high)
       if (oprint.and.(ga_nodeid().eq.0)) then
         write(LuOut,*)
-        call util_flush(LuOut)
         write(LuOut,*) 'The Hessian after contributions:',restr
         call hess_hssout(dbl_mb(k_exy),n3xyz,n3xyz,n3xyz)
         write(LuOut,*)
         write(LuOut,*) 'The Fock derivatives :'
+        call util_flush(LuOut)
       endif
       if (oprint) then
         call ga_print(g_rhs)
@@ -116,11 +116,11 @@ c
       oprint = util_print('hess_follow',print_high)
       if (oprint.and.(ga_nodeid().eq.0)) then
         write(LuOut,*)
-        call util_flush(LuOut)
         write(LuOut,*) 'The Hessian at restart:'
         call hess_hssout(dbl_mb(k_exy),n3xyz,n3xyz,n3xyz)
         write(LuOut,*)
         write(LuOut,*) 'The Fock derivatives :'
+        call util_flush(LuOut)
       endif
       if (oprint) then
         call ga_print(g_rhs)

@@ -185,8 +185,11 @@ c
      $          nocc, nvirt, ndens, n3xyz, nbf)
       call ga_dscal(g_rhs,-pt5)
       if (ocphfprint) then
-        if(ga_nodeid().eq.0)write(LuOut,*)
-        if(ga_nodeid().eq.0)write(LuOut,*) 'Ta after scaling'
+        if(ga_nodeid().eq.0) then
+          write(LuOut,*)
+          write(LuOut,*) 'Ta after scaling'
+          call util_flush(LuOut)
+        endif
         call ga_print(g_rhs)
       endif
 c
@@ -199,11 +202,14 @@ c Do wxy = wxy + 8*sum(i)sum(j)[(ei+ej)*Ta((i-1*nocc)+j,x))*Ta((i-1*nocc)+j,y)]
 c This is the hondo equivalent of cpwab1 [ Ta is part of g_rhs, e is 
 c dbl_mb(k_evals) and wxy is dbl_mb(k_exy)
 c
-      if (oprint) write(LuOut,*) 'HESS: Ta contribution to Hessian'
+      if (oprint) then
+        write(LuOut,*) 'HESS: Ta contribution to Hessian: before'
+        call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
+      endif
       do ndns = 1, ndens
-       call hess_sxsy(dbl_mb(k_exy),
-     &    dbl_mb(k_evals+(ndns-1)*nbf),g_rhs,
-     &    log_mb(k_act),ncent,nocc(ndns),(ndns-1)*n3xyz,ouhf)
+        call hess_sxsy(dbl_mb(k_exy),
+     &     dbl_mb(k_evals+(ndns-1)*nbf),g_rhs,
+     &     log_mb(k_act),ncent,nocc(ndns),(ndns-1)*n3xyz,ouhf)
       enddo
 c
 c
@@ -260,7 +266,10 @@ c
 c
 c Transform ds/dx term into MO basis and scale by -0.5.
 c
-      if (ocphfprint) write(LuOut,*) 'Getting Ta again'
+      if (ocphfprint) then
+        write(LuOut,*) 'Getting Ta again'
+        call util_flush(LuOut)
+      endif
       call sx_read(g_rhs,nc*ndens,nbf,sx_dra_handle)
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
@@ -298,8 +307,11 @@ c Now scale
 c
       call ga_dscal(g_rhs,-pt5)
       if (ocphfprint) then
-        if(ga_nodeid().eq.0)write(LuOut,*)
-        if(ga_nodeid().eq.0)write(LuOut,*) 'Ta after scaling'
+        if(ga_nodeid().eq.0) then
+          write(LuOut,*)
+          write(LuOut,*) 'Ta after scaling'
+          call util_flush(LuOut)
+        endif
         call ga_print(g_rhs)
       endif
 c
@@ -309,16 +321,19 @@ c
         if(ga_nodeid().eq.0) then
           write(LuOut,*)
           write(LuOut,*) 'WAX after fock contribution'
+          call util_flush(LuOut)
         endif
         call ga_print(g_wax)
         if(ga_nodeid().eq.0) then
           write(LuOut,*)
           write(LuOut,*) 'AA after fock contribution'
+          call util_flush(LuOut)
         endif
         call ga_print(g_aa)
         if(ga_nodeid().eq.0) then
           write(LuOut,*)
           write(LuOut,*) 'g_rhs after fock contribution'
+          call util_flush(LuOut)
         endif
         call ga_print(g_rhs)
       endif
@@ -326,7 +341,10 @@ c
 c Do wxy = wxy + sum(i)sum(j){Ta([i-1]*nocc+j,x)*AA([i-1]*nocc+j,y) +
 c Ta([i-1]*nocc+j,y)*AA([i-1]*nocc+j,x)
 c
-      if (oprint) write(LuOut,*) 'HESS: Ta and AA contributions'
+      if (oprint) then
+         write(LuOut,*) 'HESS: Ta and AA contributions'
+         call util_flush(LuOut)
+      endif
       if (ndens.gt.1) call ga_dscal(g_aa,0.5d0)
       call hess_taaa(dbl_mb(k_exy),g_rhs, g_aa, nocc, 
      $               ndens, n3xyz)
@@ -496,8 +514,10 @@ c
 c  Transform the current AO based Fock derivatives to the MO basis
 c
       if (ocphf) then
-        if(ga_nodeid().eq.0) 
-     $        write(LuOut,*) 'RHS before MO transformation'
+        if(ga_nodeid().eq.0) then
+          write(LuOut,*) 'RHS before MO transformation'
+          call util_flush(LuOut)
+        endif
         call ga_print(g_rhs_x)
       endif
 c
@@ -540,8 +560,10 @@ c
       enddo
 c
       if (ocphf) then
-        if(ga_nodeid().eq.0) write(LuOut,*) 
-     $        'Transformed RHS after symmetrization'
+        if(ga_nodeid().eq.0) then
+          write(LuOut,*)'Transformed RHS in MO basis'
+          call util_flush(LuOut)
+        endif
         call ga_print(g_rhs_x)
       endif
 c
@@ -566,8 +588,10 @@ c
       integer alo2(2), ahi2(2), blo2(3), bhi2(3)
 c
       if (ocphf) then
-        if(ga_nodeid().eq.0) 
-     $    write(LuOut,*) 'RHS before AO transformation'
+        if(ga_nodeid().eq.0) then
+          write(LuOut,*) 'RHS before AO transformation'
+          call util_flush(LuOut)
+        endif
         call ga_print(g_rhs_x)
       endif
 c
@@ -620,8 +644,10 @@ c
       enddo
 c
       if (ocphf) then
-        if(ga_nodeid().eq.0) write(LuOut,*) 
-     $        'Transformed RHS '
+        if(ga_nodeid().eq.0) then
+          write(LuOut,*)'Transformed RHS in AO basis'
+          call util_flush(LuOut)
+        endif
         call ga_print(g_rhs_x)
       endif
 c
@@ -732,8 +758,10 @@ c
       enddo
 c
       if (ocphfprint) then
-        if(ga_nodeid().eq.0)write(LuOut,*) 
-     $        'g_wax after T addition'
+        if(ga_nodeid().eq.0) then
+          write(LuOut,*)'g_wax after T addition'
+          call util_flush(LuOut)
+        endif
         call ga_print(g_wax)
       endif
 c
@@ -860,6 +888,7 @@ c         dbl_mb(k_kfac+ind) =  0.0d+00*kfac(ndns)
       if (ocphfprint) then
         if(ga_nodeid().eq.0) then
           write(LuOut,*) 'density like matrix before fock_2e'
+          call util_flush(LuOut)
         endif
         call ga_print(g_tmp)
       endif
@@ -914,6 +943,7 @@ c
         if(ga_nodeid().eq.0) then
           write(LuOut,*)
           write(LuOut,*) 'fock matrix after shell_fock_build'
+          call util_flush(LuOut)
         endif
         call ga_print(g_rhs_x)
       endif

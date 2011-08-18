@@ -84,7 +84,7 @@ c!!! BGJ
 c!!! BGJ
 c
       integer geom,rtdb,nbf,basis
-      integer ipol              ! [in]
+      integer ipol              ! [input] =1 for RKS and =2 for UKS
       integer g_dens(*)         ! [input] array of handles to densities
       integer nactive           ! [input] number of active atoms
       logical oactive(nactive)  ! [input] key to active atoms

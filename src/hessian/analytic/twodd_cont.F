@@ -96,56 +96,60 @@ c
       if (theory.eq.'dft') then
          call int_init(rtdb, nbasis, basis_list)
          call xc_hessian(geom,rtdb,nbf,basis,
-     *       g_dens, nactive, log_mb(k_act), 
-     *     dbl_mb(k_hess_xc),scftype)
+     *        g_dens, nactive, log_mb(k_act), 
+     *        dbl_mb(k_hess_xc),scftype)
          call xc_cpks_rhs(geom,rtdb,nbf,basis,
-     *       g_dens,  nactive, log_mb(k_act),g_rhs_xc,scftype)
+     *        g_dens,  nactive, log_mb(k_act),g_rhs_xc,scftype)
          call int_terminate()
-        if (ocdfit) then
+         if (ocdfit) then
            call int_init(rtdb, nbasis, basis_list) !should this be intd?
            call schwarz_init(geom, basis)
            call j_cpks_rhs(g_dens, log_mb(k_act), nactive,
-     *     g_rhs_xc)
+     *          g_rhs_xc)
            call schwarz_tidy()   ! need to get rid of temp buffers
            call int_terminate()  !should this be intd?
-        endif
-      if (otwoprint) then
-        if(ga_nodeid().eq.0) then
-         write(LuOut,*)
-         write(LuOut,*) 'The Hessian dft contribution'
-         call hess_hssout(dbl_mb(k_hess_xc),n3xyz,n3xyz,n3xyz)
-         if(skelsym) then
-           call sym_hess_symmetrize(geom,dbl_mb(k_hess_xc))  
-           write(LuOut,*) 'The Hessian dft contribution symmetrized'
-           call hess_hssout(dbl_mb(k_hess_xc),n3xyz,n3xyz,n3xyz)
          endif
-         write(LuOut,*)
-         write(LuOut,*) 'The g_rhs dft contribution'
-        endif
-        call ga_print(g_rhs_xc)
-        if(ga_nodeid().eq.0)write(LuOut,*)
-        if(skelsym) then
-          if(ga_nodeid().eq.0)write(LuOut,*) 'symmetrized'
-          call  sym_symmetrize(geom,basis,.false.,g_rhs_xc)
-          call ga_print(g_rhs_xc)
-        endif
+         if (otwoprint) then
+           if(ga_nodeid().eq.0) then
+             write(LuOut,*)
+             write(LuOut,*) 'The Hessian dft contribution'
+             call hess_hssout(dbl_mb(k_hess_xc),n3xyz,n3xyz,n3xyz)
+             if(skelsym) then
+               call sym_hess_symmetrize(geom,dbl_mb(k_hess_xc))  
+               write(LuOut,*) 'The Hessian dft contribution symmetrized'
+               call hess_hssout(dbl_mb(k_hess_xc),n3xyz,n3xyz,n3xyz)
+             endif
+             write(LuOut,*)
+             write(LuOut,*) 'The g_rhs dft contribution'
+             call util_flush(LuOut)
+           endif
+           call ga_print(g_rhs_xc)
+           if(ga_nodeid().eq.0)write(LuOut,*)
+           if(skelsym) then
+             if(ga_nodeid().eq.0) then
+               write(LuOut,*) 'symmetrized'
+               call util_flush(LuOut)
+             endif
+             call  sym_symmetrize(geom,basis,.false.,g_rhs_xc)
+             call ga_print(g_rhs_xc)
+           endif
+         endif
+c
+c        The next statements are only temporarily in until we are
+c        confident the dft code is giving the correct contributions.
+c
+         call ga_add(1.0d+00,g_rhs_xc,1.0d+00,g_rhs,g_rhs)
+         call daxpy(n3xyz2,1.0d+00,dbl_mb(k_hess_xc),1,
+     *        dbl_mb(k_exy),1)
       endif
 c
-c  The next statements are only temporarily in until we are confident the
-c  dft code is giving the correct contributions.
-c
-        call ga_add(1.0d+00,g_rhs_xc,1.0d+00,g_rhs,g_rhs)
-        call daxpy(n3xyz2,1.0d+00,dbl_mb(k_hess_xc),1,
-     *    dbl_mb(k_exy),1)
-      endif
-c
-c  Release the global fock derivative matrices
+c     Release the global fock derivative matrices
 c
       if (.not.ga_destroy(g_rhs_xc)) 
      *  call errquit('twodd_cont: problem destroying g_rhs_xc',1,
      &       GA_ERR)
 c
-c Print out the hessian before adding anything else
+c    Print out the hessian before adding anything else
 c
       if (otwoprint) then
         if(ga_nodeid().eq.0) then
@@ -154,15 +158,16 @@ c
           call hess_hssout(dbl_mb(k_exy),n3xyz,n3xyz,n3xyz)
           write(LuOut,*)
           write(LuOut,*) 'The full g_rhs after the dft contribution'
+          call util_flush(LuOut)
         endif
         call ga_print(g_rhs)
         if(ga_nodeid().eq.0)write(LuOut,*)
       endif
 c
-c  Coulomb and exact exchange second derivative contributions to hessian
-c  Need to do a lot of setup for this.
+c     Coulomb and exact exchange second derivative contributions to
+c     hessian. Need to do a lot of setup for this.
 c
-c  Get some basis set and shell information.
+c     Get some basis set and shell information.
 c
       if (oprint.and.(ga_nodeid().eq.0)) 
      .     write(LuOut,*) 'HESS: setup and block order'
@@ -183,9 +188,9 @@ c
          else
             tol2e = 1.0d-7
          end if
-      end if                                                                    
+      end if
 c
-c initialize for integrals
+c     initialize for integrals
 c
       call int_init(rtdb, nbasis, basis_list)
       call schwarz_init(geom, basis)
@@ -194,8 +199,8 @@ c
       t0=util_wallsec()
       
 c
-c For now I am not dealing with the active atom stuff, just setting every
-c atom to active.
+c     For now I am not dealing with the active atom stuff, just setting
+c     every atom to active.
 c
 c     if (.not. ma_push_get(MT_LOG,ncent,'active atoms',l_act,k_act))
 c    $     call errquit('twodd_cont: could not allocate l_act',ncent) 
@@ -203,17 +208,20 @@ c    $     call errquit('twodd_cont: could not allocate l_act',ncent)
         log_mb(k_act+i-1) = .true.
       end do
 c
-c  Take care of the first derivative contributions to the rhs
+c     Take care of the first derivative contributions to the rhs
 c
       if(otwoprint) then
-        if(ga_nodeid().eq.0) write(LuOut,*) 'Original Density'
+        if(ga_nodeid().eq.0) then
+          write(LuOut,*) 'Original Density'
+          call util_flush(LuOut)
+        endif
         do i = 1, ndens
           call ga_print(g_dens(i))
         enddo
       endif
 C
-c This is temporary until I get the rest of the code working with multi-dimensional
-c GA for the density
+c     This is temporary until I get the rest of the code working with
+c     multi-dimensional GA for the density
 c
       dims(1) = ndens*n3xyz
       dims(2) = nbf
@@ -235,8 +243,8 @@ c
       blo(2) = 1
       bhi(2) = nbf
       do i = 1, ndens
-         alo(1) = i
-         ahi(1) = i
+        alo(1) = i
+        ahi(1) = i
         call nga_copy_patch('N',g_dens(i),blo,bhi,g_dens2,alo,ahi)
       enddo
 c
@@ -255,24 +263,25 @@ c
       call intdd_init(rtdb, nbasis, basis_list)
 c will eventually bring back - log_mb(k_act))
 c
-c Get rid of temporary memory
+c     Get rid of temporary memory
 c
       if (.not. ga_destroy(g_dens2)) call errquit
      *   ('twodd_cont: failed to free g_dens2', ndens, GA_ERR)
       if (otwoprint) then
          if(ga_nodeid().eq.0) then
-        write(LuOut,*) 'after going into shell_fock_build:'
-        write(LuOut,*) 'geom, basis, n3xyz, ndens, tol2e',geom,basis,
-     *      n3xyz, ndens, tol2e
-        endif
-        call ga_print(g_rhs)
-        do i = 1, ndens
-          call ga_print(g_dens(i))
-        enddo
+           write(LuOut,*) 'after going into shell_fock_build:'
+           write(LuOut,*) 'geom, basis, n3xyz, ndens, tol2e',geom,basis,
+     *                     n3xyz, ndens, tol2e
+           call util_flush(LuOut)
+         endif
+         call ga_print(g_rhs)
+         do i = 1, ndens
+           call ga_print(g_dens(i))
+         enddo
       endif
 c
-c  Set up some variables that would be set using mp2, etc... for the
-c  the call to twodd_coul_ex.
+c     Set up some variables that would be set using mp2, etc... for the
+c     the call to twodd_coul_ex.
 c
       omp2 = .false.
       k_pdm2  = 1            ! To avoid SEGV
@@ -315,10 +324,11 @@ c
       ld_il8  = 1
       ld_jk8  = 1
 c
-      blen = min(nbf,maxblen,6*max_sh_bf) ! d(6)*6=36, 6**4=1296 quartets
+      blen = min(nbf,maxblen,6*max_sh_bf) ! d(6)*6=36,6**4=1296 quartets
 c
-c Need to put the density in the D- and D+ formalism required for
-c 2pdm formalism in twodd_coul_ex.  g_wdens is used as temporary space.
+c     Need to put the density in the D- and D+ formalism required for
+c     2pdm formalism in twodd_coul_ex.  g_wdens is used as temporary
+c     space.
 c
       if (scftype .eq. 'UHF') then
         call ga_dadd (one, g_dens(1), mone, g_dens(2), g_wdens)
@@ -330,9 +340,8 @@ c
       if (.not. ga_destroy(g_wdens))
      *  call errquit('twodd_cont: failed to free g_wdens',555, GA_ERR)
 c
-c Set up memory needs
+c     Set up memory needs
 c
- 
       lsqa = blen*blen
  
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_ij', lh_ij, ld_ij))
@@ -350,7 +359,7 @@ c
       if (.not. ma_push_get(mt_dbl, lsqa, 'ld_il', lh_il, ld_il))
      $     call errquit('twodd_cont:could not allocate ld_il',lsqa,
      &       MA_ERR)
-      if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk', lh_jk, ld_jk))               
+      if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk', lh_jk, ld_jk))
      $     call errquit('twodd_cont:could not allocate ld_jk',lsqa,
      &       MA_ERR)
       if (scftype .eq. 'UHF' .or.
@@ -376,7 +385,7 @@ c
          if (.not. ma_push_get(mt_dbl, lsqa, 'ld_jk2', lh_jk2, ld_jk2))
      $        call errquit('twodd_cont:could not allocate ld_jk2',lsqa,
      &       MA_ERR)
-      end if                                                                    
+      end if
 c
       if (.not. ma_push_get(mt_dbl, blen**4, 'pdm2d',
      $     l_pdm2d, k_pdm2d)) call errquit
@@ -389,7 +398,7 @@ c     max2e = max(max2e,1296*100)          ! 100 D quartets
       lbuf = max(max1e, max2e)
       lscratch = max(mscratch_1e, mscratch_2e)
 c
-c probably need the 12 to be 78  CHECK
+c     probably need the 12 to be 78  CHECK
 c     if (.not. ma_push_get(mt_dbl,12*lbuf,'deriv buffer',l_buf,
       if (.not. ma_push_get(mt_dbl,78*lbuf,'deriv buffer',l_buf,
      $    k_buf)) call errquit('twodd_cont:could not allocate buffer'
@@ -455,8 +464,10 @@ c
          call ga_reorder(g_dens(i), .true., int_mb(k_rbfmap),
      $        .true., int_mb(k_rbfmap))
          if (otwoprint) then
-           if(ga_nodeid().eq.0)write(LuOut,*) 
-     $        'Density after reordering'
+           if(ga_nodeid().eq.0) then
+             write(LuOut,*) 'Density after reordering'
+             call util_flush(LuOut)
+           endif
            call ga_print(g_dens(i))
          endif
       end do
@@ -482,14 +493,14 @@ c
      $     dbl_mb(ld_ij3),dbl_mb(ld_kl3),dbl_mb(ld_ik3),
      $     dbl_mb(ld_jl3),dbl_mb(ld_il3),dbl_mb(ld_jk3),
      $     dbl_mb(ld_ij4),dbl_mb(ld_kl4),dbl_mb(ld_ik4),
-     $     dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),                        
-     $     dbl_mb(ld_ik5),dbl_mb(ld_jl5),dbl_mb(ld_il5),                        
+     $     dbl_mb(ld_jl4),dbl_mb(ld_il4),dbl_mb(ld_jk4),
+     $     dbl_mb(ld_ik5),dbl_mb(ld_jl5),dbl_mb(ld_il5),
      $     dbl_mb(ld_jk5),
-     $     dbl_mb(ld_ik6),dbl_mb(ld_jl6),dbl_mb(ld_il6),                        
+     $     dbl_mb(ld_ik6),dbl_mb(ld_jl6),dbl_mb(ld_il6),
      $     dbl_mb(ld_jk6),
-     $     dbl_mb(ld_ik7),dbl_mb(ld_jl7),dbl_mb(ld_il7),                        
+     $     dbl_mb(ld_ik7),dbl_mb(ld_jl7),dbl_mb(ld_il7),
      $     dbl_mb(ld_jk7),
-     $     dbl_mb(ld_ik8),dbl_mb(ld_jl8),dbl_mb(ld_il8),                        
+     $     dbl_mb(ld_ik8),dbl_mb(ld_jl8),dbl_mb(ld_il8),
      $     dbl_mb(ld_jk8),
      $     dbl_mb(k_exy), g_dens, g_force, blen,
      $     geom, basis, nproc, ncent,
@@ -507,7 +518,7 @@ c
      $     jfac, kfac) 
 c    $     jfac, kfac,.false.) 
 c
-c Print out the hessian before adding anything else
+c     Print out the hessian before adding anything else
 c
       if (otwoprint.and.(ga_nodeid().eq.0)) then
         write(LuOut,*)
@@ -516,20 +527,20 @@ c
         write(LuOut,*)
       endif
 c
-c  Get rid of the g_dens arrays since they are no longer needed.
+c     Get rid of the g_dens arrays since they are no longer needed.
 c
       do i = 1, ndens
         if (.not. ga_destroy(g_dens(i))) call errquit
      *     ('twodd_cont: failed to free g_dens()', ndens, GA_ERR)
       end do
 c
-c  Need to get rid of extra memory
+c     Need to get rid of extra memory
 c
       if (.not. ma_chop_stack(lh_ij))
      $  call errquit('twodd_cont: failed chopping MA stack',555, MA_ERR)
-
 c
-c call terminate since cphf will call it's own integral initialization
+c     call terminate since cphf will call it's own integral
+c     initialization
 c
       call schwarz_tidy()    ! need to get rid of temp buffers
       call intdd_terminate()

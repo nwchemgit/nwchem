@@ -55,13 +55,16 @@ c
       if (oneprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
         if(ga_nodeid().eq.0)write(LuOut,*) 'The weighted density is'
+        if(ga_nodeid().eq.0)call util_flush(LuOut)
         call ga_print(g_wdens)
         if(ga_nodeid().eq.0)write(LuOut,*)
         if(ga_nodeid().eq.0)write(LuOut,*) 'The density is'
+        if(ga_nodeid().eq.0)call util_flush(LuOut)
         call ga_print(g_dens(1))
         if (ndens.gt.1) then
           if(ga_nodeid().eq.0)write(LuOut,*)
-          if(ga_nodeid().eq.0)write(LuOut,*) 'the beta density is '
+          if(ga_nodeid().eq.0)write(LuOut,*) 'The beta density is '
+          if(ga_nodeid().eq.0)call util_flush(LuOut)
           call ga_print(g_dens(2))
         endif
       endif
@@ -83,9 +86,10 @@ c  first print out the rhs values (should be all zeroes)!
 c
       if (oneprint) then
         if(ga_nodeid().eq.0) then
-        write(LuOut,*)
-        write(LuOut,*) 'g_rhs before going into onedd_calc'
-        write(LuOut,*) 'These values should all be zero'
+          write(LuOut,*)
+          write(LuOut,*) 'g_rhs before going into onedd_calc'
+          write(LuOut,*) 'These values should all be zero'
+          call util_flush(LuOut)
         endif
         call ga_print(g_rhs)
       endif
@@ -108,7 +112,6 @@ c
       if(skelsym)call sym_hess_symmetrize(geom,dbl_mb(k_exy))
       if (oneprint.and.(ga_nodeid().eq.0)) then
         write(LuOut,*)
-        call util_flush(LuOut)
         write(LuOut,*) 'The Hessian after onedd contributions:'
         call hess_hssout(dbl_mb(k_exy),n3xyz,n3xyz,n3xyz)
         write(LuOut,*)
@@ -151,6 +154,7 @@ c
       if (oneprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
         if(ga_nodeid().eq.0)write(LuOut,*) 'Sx term'
+        if(ga_nodeid().eq.0)call util_flush(LuOut)
         call ga_print(g_rhs)
       endif
 c
@@ -177,6 +181,7 @@ c
       if (oneprint) then
         if(ga_nodeid().eq.0)write(LuOut,*)
         if(ga_nodeid().eq.0)write(LuOut,*) 'g_rhs'
+        if(ga_nodeid().eq.0)call util_flush(LuOut)
         call ga_print(g_rhs)
       endif
 c
