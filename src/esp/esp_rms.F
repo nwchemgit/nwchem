@@ -17,7 +17,6 @@ c
       integer i,j,k
       real*8 eq
 c
-      if (me .eq. 0) then
       do 1 k=1,nf
       rms(1,k)=zero
       rms(2,k)=zero
@@ -36,9 +35,6 @@ c
       rms(1,k)=zero
       rms(2,k)=zero
       enddo
-      endif
-      if(np.gt.1) then
-      call ga_dgop(mre_004,rms,2*nf,'+')
       endif
       do 4 k=1,nf
       rms(1,k)=cau2kj*dsqrt(rms(1,k))/dble(ngrid)

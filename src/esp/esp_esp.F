@@ -66,6 +66,9 @@ c
       endif
 c
       if(lscrn.ne.0) call schwarz_tidy()
+      if(np.gt.1) then
+      call ga_brdcst(mre_002,val,3*ngrid*ma_sizeof(mt_dbl,1,mt_byte),0)
+      endif
 c
 c     deallocate memory for the integrals
 c
