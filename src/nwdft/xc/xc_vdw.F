@@ -407,12 +407,12 @@ c
                endif
             enddo
          enddo
+         if (.not.ma_pop_stack(l_cnijk))
+     $      call errquit('xcvdw cnijk: cannot pop cnijk',4, MA_ERR)
+         if (.not.ma_pop_stack(l_cnij))
+     $      call errquit('xcvdw cnij: cannot pop cnij',4, MA_ERR)
       endif
 c
-      if (.not.ma_pop_stack(l_cnijk))
-     $   call errquit('xcvdw cnijk: cannot pop stack cnijk',4, MA_ERR)
-      if (.not.ma_pop_stack(l_cnij))
-     $   call errquit('xcvdw cnij: cannot pop stack cnij',4, MA_ERR)
 #ifdef DEBUG
       write(6,*) ' gradient vdw called'
 #endif
