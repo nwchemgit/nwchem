@@ -25,9 +25,9 @@ c
 c     order may be important here
 c     ---------------------------
       if(omaster) then
-       call rism_prepare_params(rtdb)
-       call rism_prepare_grid(rtdb)
-       call rism_prepare_solvent(rtdb)
+c       call rism_prepare_params(rtdb)
+c       call rism_prepare_grid(rtdb)
+c       call rism_prepare_solvent(rtdb)
        call rism_prepare_solute(rtdb)
 c       call db_data_print(6)
       end if
@@ -428,7 +428,8 @@ c     --------------------
 c      
 c     get number of solute atoms
 c     ---------------------------
-      call rism_natoms(nu,filename)
+c      call rism_natoms(nu,filename)
+      call rism_natoms_xyz(nu,filename)
 
       tag = "natoms"
       call db_data_put_int(sname,tag,1,nu)
@@ -453,11 +454,12 @@ c     +                            int_mb(i_mu),
 c     +                            dbl_mb(i_xu),dbl_mb(i_yu),
 c     +                            dbl_mb(i_zu),dbl_mb(i_sigu),
 c     +                            dbl_mb(i_epsiu),dbl_mb(i_qqu))
-      call rism_read_solute_file(filename,nu,
+      call rism_read_solute_file_xyz(filename,nu,
      +                            byte_mb(i_tu),
      +                            dbl_mb(i_xu),dbl_mb(i_yu),
      +                            dbl_mb(i_zu),
      +                            dbl_mb(i_qqu))
+      stop
 c
 c     compute solute structure factor
 c     -------------------------------
@@ -688,6 +690,65 @@ c
       call errquit("error reading solute file",0,0)
       end
 
+      subroutine rism_read_solute_file_xyz(filename,nu,
+     +                            tu,
+     +                            xu,yu,
+     +                            zu,
+     +                            qqu)
+
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "db_const_data.fh"
+      character*(*) filename
+      character(db_string_size) tu(nu)
+      integer  nu
+      real*8 xu(nu),yu(nu),zu(nu)
+      real*8 qqu(nu) 
+c
+      integer i
+      integer nu1
+      integer fn
+      character*180 buffer
+      character*1 b1
+      character*72 message
+      character*30 pname
+c
+      pname = "rism_read_solute_file_xyz"
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("in "//pname)
+#endif      
+c      
+      if(.not.util_get_io_unit(fn))
+     >  call errquit("cannot get file number",0,0)
+      open(unit=fn,status="old",form="formatted",file=filename)
+      message = "reading number of atoms"
+      read(fn,'(A180)',ERR=40,END=40) buffer
+      read(buffer,*,ERR=40,END=40) nu1
+      if(nu.ne.nu1) then
+        message = "incompatible number of atoms:"
+        goto 40
+      end if
+c      
+      message = "reading title line"
+      read(fn,'(A180)',ERR=40,END=40) buffer
+c      
+      message = "reading coordinates"
+      do i=1,nu
+        read(fn,'(A180)',ERR=40,END=40) buffer
+        read(buffer,*,ERR=40,END=40) tu(i),
+     +     xu(i),yu(i),zu(i),qqu(i) 
+        write(*,*) tu(i),
+     +     xu(i),yu(i),zu(i),qqu(i)
+      end do
+      close(fn)
+      return
+40    continue
+      call errquit(message(1:inp_strlen(message))//pname,0,0)
+      end
+
       subroutine rism_read_solute_file_legacy(filename,nu,
      +                            tu,isu,
      +                            mu,
@@ -842,6 +903,35 @@ c
       goto 10
 30    close(fn)
       return
+      end
+
+      subroutine rism_natoms_xyz(nt,filename)
+c find number of atoms from the file
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+      integer nt
+      character*(*) filename
+c
+      integer i
+      integer fn
+      character*30 pname
+c
+      pname = "rism_natoms_xyz"
+#ifdef RISM_PREP_DEBUG      
+      call rism_message("in "//pname)
+#endif      
+c      
+      if(.not.util_get_io_unit(fn))
+     >  call errquit("cannot get file number",0,0)
+      open(unit=fn,status="old",form="formatted",file=filename)
+      read(fn,*,ERR=30,END=30) nt
+      close(fn)
+      return
+30    continue
+      call errquit("cannot get number of solute atoms",0,0)
       end
 
       subroutine rism_gr_grid(filename,dr)
