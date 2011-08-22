@@ -83,3 +83,8 @@ dft
  disp vdw 1
 end
 task dft optimize
+
+dft
+ disp vdw 3
+end
+task dft energy
