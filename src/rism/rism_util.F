@@ -312,8 +312,9 @@ C>
 #include "inp.fh"
       character*(*) buffer
 c
-      write(luout,*) buffer(1:inp_strlen(buffer))," :",
-     >                 ga_nodeid()
+      character*12 cnode
+      write(cnode,'("node ",I3,": ")') ga_nodeid()
+      write(luout,*) cnode,buffer(1:inp_strlen(buffer))
       call util_flush(luout) 
       return
       end

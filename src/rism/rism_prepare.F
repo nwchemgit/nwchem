@@ -125,13 +125,14 @@ c     -----------------------------
       tag = "vdw_rule"
       call db_data_put_int(sname,tag,1,icr)
 c      
-c     solute permittivity
+c     solvent permittivity
 c     -----------------------------
-      tag = "rism:solute:permittivity"
+      tag = "rism:solvent:permittivity"
       if(.not.rtdb_get(rtdb,tag,mt_dbl,1,f)) then
         f = 1.0d0
 #ifdef RISM_PREP_DEBUG      
-        call rism_message(pname//" setting default for permittivity")
+        call rism_message(pname//
+     +       " setting default for solvent permittivity")
 #endif      
       end if
       tag = "solute_permittivity"

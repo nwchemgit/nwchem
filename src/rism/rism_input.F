@@ -283,18 +283,6 @@ c     -------------
      >      goto 999
         if (.not.inp_a(token)) goto 1000
       end if
-c      
-c     solute permittivity
-c     -------------------------------------
-      if(inp_compare(.false.,"permittivity", token)) then
-        message = "processing solute permittivity"
-        if (.not.inp_f(f)) goto 998
-        tag="rism:solute:permittivity"
-        if (.not.rtdb_put(rtdb,tag(1:inp_strlen(tag)),
-     >  mt_dbl,1,f)) 
-     >  goto 999
-        if (.not.inp_a(token)) goto 1000
-      end if
       message = "unknown tokens"
       call util_message_master(pname(1:inp_strlen(pname))//
      > ": ignoring the rest of input starting from "//
@@ -359,6 +347,18 @@ c     -------------
         tag="rism:solvent:model"
         if (.not.rtdb_cput(rtdb,tag(1:inp_strlen(tag)),1,token)) 
      >      goto 999
+        if (.not.inp_a(token)) goto 1000
+      end if
+c      
+c     solvent permittivity
+c     -------------------------------------
+      if(inp_compare(.false.,"permittivity", token)) then
+        message = "processing solvent permittivity"
+        if (.not.inp_f(f)) goto 998
+        tag="rism:solvent:permittivity"
+        if (.not.rtdb_put(rtdb,tag(1:inp_strlen(tag)),
+     >  mt_dbl,1,f)) 
+     >  goto 999
         if (.not.inp_a(token)) goto 1000
       end if
 c      
