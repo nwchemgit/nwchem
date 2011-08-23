@@ -21,7 +21,7 @@ c      main rism routine call
 c      ----------------------
        call util_message_master("calling rism wrapper")
        call rism_wrapper(rtdb)
-     
+       call rism_cleanup() 
        task_rism = .true.
        call util_message_master("completed task rism")
        return

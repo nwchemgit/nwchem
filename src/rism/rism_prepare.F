@@ -55,6 +55,28 @@ c     -----------------------------
  
       end
 
+      subroutine rism_cleanup()
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "rtdb.fh"
+#include "global.fh"
+#include "db_const_data.fh"
+      integer master
+      character*80 pname
+
+      pname = "rism_cleanup"
+      call db_namespace_destroy("solute") 
+      call db_namespace_destroy("solvent") 
+      call db_namespace_destroy("grid") 
+      call db_namespace_destroy("parameters") 
+      return
+ 
+      end
+
       subroutine rism_prepare_params(rtdb)
       implicit none
 #include "errquit.fh"
