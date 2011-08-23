@@ -25,9 +25,9 @@ c
 c     order may be important here
 c     ---------------------------
       if(omaster) then
-c       call rism_prepare_params(rtdb)
-c       call rism_prepare_grid(rtdb)
-c       call rism_prepare_solvent(rtdb)
+       call rism_prepare_params(rtdb)
+       call rism_prepare_grid(rtdb)
+       call rism_prepare_solvent(rtdb)
        call rism_prepare_solute(rtdb)
 c       call db_data_print(6)
       end if
@@ -127,9 +127,13 @@ c     -----------------------------
 c      
 c     solute permittivity
 c     -----------------------------
-      tag = "rism:permittivity"
-      if(.not.rtdb_get(rtdb,tag,mt_dbl,1,f)) 
-     >  f = 1.0d0
+      tag = "rism:solute:permittivity"
+      if(.not.rtdb_get(rtdb,tag,mt_dbl,1,f)) then
+        f = 1.0d0
+#ifdef RISM_PREP_DEBUG      
+        call rism_message(pname//" setting default for permittivity")
+#endif      
+      end if
       tag = "solute_permittivity"
       call db_data_put_dbl(sname,tag,1,f)
 c      
@@ -218,11 +222,11 @@ c
       sname = "grid"
       call db_namespace_create(sname)
 c      
-      tag="rism:ngrid"
-      if (.not.rtdb_get(rtdb,tag,mt_int,1,ngrid)) 
-     >  call errquit("cannot get "//tag,0,0)
-      tag = "npoints"
-      call db_data_put_int(sname,tag,1,ngrid)
+c      tag="rism:ngrid"
+c      if (.not.rtdb_get(rtdb,tag,mt_int,1,ngrid)) 
+c     >  call errquit("cannot get "//tag,0,0)
+c      tag = "npoints"
+c      call db_data_put_int(sname,tag,1,ngrid)
 c      
 c     get filename for solvent g(r)
 c     -----------------------------
@@ -238,6 +242,8 @@ c     --------------------------------
       else
         call errquit(pname//"grid size has to be power of 2",0,0)
       end if
+      tag = "npoints"
+      call db_data_put_int(sname,tag,1,ngrid)
 c
 c     check if rdf is given in kspace
 c     -------------------------------
@@ -422,7 +428,7 @@ c
 c      
 c     get solute filename
 c     --------------------
-      tag = "rism:solute"
+      tag = "rism:solute:configuration"
       if(.not.rtdb_cget(rtdb,tag,1,filename)) 
      >  call errquit("cannot get "//tag,0,0)
 c      
@@ -459,7 +465,6 @@ c     +                            dbl_mb(i_epsiu),dbl_mb(i_qqu))
      +                            dbl_mb(i_xu),dbl_mb(i_yu),
      +                            dbl_mb(i_zu),
      +                            dbl_mb(i_qqu))
-      stop
 c
 c     compute solute structure factor
 c     -------------------------------
