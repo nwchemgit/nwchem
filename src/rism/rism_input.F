@@ -284,7 +284,7 @@ c     -------------
         if (.not.inp_a(token)) goto 1000
       end if
       message = "unknown tokens"
-      call util_message_master(pname(1:inp_strlen(pname))//
+      call rism_message(pname(1:inp_strlen(pname))//
      > ": ignoring the rest of input starting from "//
      > token)
 c
@@ -380,7 +380,7 @@ c     -------------------------------------
         if (.not.inp_a(token)) goto 1000
       end if
       message = "unknown tokens"
-      call util_message_master(pname(1:inp_strlen(pname))//
+      call rism_message(pname(1:inp_strlen(pname))//
      > ": ignoring the rest of input starting from "//
      > token)
 c

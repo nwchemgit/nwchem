@@ -15,15 +15,15 @@ c
 c      load data and allocate memory
 c      -----------------------------
        call rism_prepare(rtdb)
-       call util_message_master("finished with rism_prepare")
+       call rism_message("finished with rism_prepare")
 c       
 c      main rism routine call
 c      ----------------------
-       call util_message_master("calling rism wrapper")
+       call rism_message("calling rism wrapper")
        call rism_wrapper(rtdb)
        call rism_cleanup() 
        task_rism = .true.
-       call util_message_master("completed task rism")
+       call rism_message("completed task rism")
        return
       end 
 c       
@@ -88,7 +88,7 @@ c     --------------
      >               //dname(1:inp_strlen(dname)),0,0)
 
 
-      call util_message_master("finished with solute data")
+      call rism_message("finished with solute data")
 c
 c     solvent data
 c     -------------- 
@@ -171,7 +171,7 @@ c     --------------
       if(.not.result)
      >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
      >               //dname(1:inp_strlen(dname)),0,0)
-      call util_message_master("rism_wrapper 1")
+      call rism_message("rism_wrapper 1")
 c
 c     grid data
 c     -------------- 
@@ -198,7 +198,7 @@ c     --------------
       if(.not.result)
      >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
      >               //dname(1:inp_strlen(dname)),0,0)
-      call util_message_master("rism_wrapper 2")
+      call rism_message("rism_wrapper 2")
 c
 c     parameters
 c     -------------- 
@@ -257,9 +257,9 @@ c     -----------------------------
       tag = "rism:solvent:rdf"
       if(.not.rtdb_cget(rtdb,tag,1,rdffile)) 
      >  call errquit("cannot get "//tag,0,0)
-      call util_message_master("rism_wrapper 3")
+      call rism_message("rism_wrapper 3")
 
-       call util_message_master("getting ready for main rism")
+       call rism_message("getting ready for main rism")
 
        call rism(rdffile,nu,nv,nvv,ngr,icl,
      +           dbl_mb(i_kgrid),dbl_mb(i_rgrid),

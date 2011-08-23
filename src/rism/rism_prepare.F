@@ -261,7 +261,7 @@ c
 c     check if grid size is power of 2
 c     --------------------------------
       if(rism_util_power_2(ngrid)) then
-        call util_message_master("grid is power of 2")
+        call rism_message("grid is power of 2")
       else
         call errquit(pname//"grid size has to be power of 2",0,0)
       end if
