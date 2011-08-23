@@ -113,7 +113,7 @@ c     vdw combination rule
 c     -----------------------------
       tag = "rism:vdw:rule"
       if(.not.rtdb_cget(rtdb,tag,1,buffer)) 
-     >  tag="geometric"
+     >  tag="arithmetic"
       if (inp_compare(.false.,"arithmetic", buffer)) then
         icr=t_arithmetic
       else if (inp_compare(.false.,"geometric", buffer)) then
@@ -135,7 +135,7 @@ c     -----------------------------
      +       " setting default for solvent permittivity")
 #endif      
       end if
-      tag = "solute_permittivity"
+      tag = "solvent_permittivity"
       call db_data_put_dbl(sname,tag,1,f)
 c      
 c     coulomb tail separation
@@ -415,6 +415,7 @@ c
       integer  i_isu
       integer  i_mu
       integer  i_tu
+      integer  i_tt
       integer  i_wu
       integer  i_kgrid,ngrid
       character*80 pname 
@@ -442,6 +443,7 @@ c      call rism_natoms(nu,filename)
       call db_data_put_int(sname,tag,1,nu)
 
       call db_data_create_get(sname,"tu",nu,MT_STR,i_tu)
+      call db_data_create_get(sname,"type",nu,MT_STR,i_tt)
 c      isu and mu arrays are not needed
 c      keeping them only for compatibility with original version
       call db_data_create_get(sname,"isu",nu,mt_int,i_isu)
@@ -465,7 +467,8 @@ c     +                            dbl_mb(i_epsiu),dbl_mb(i_qqu))
      +                            byte_mb(i_tu),
      +                            dbl_mb(i_xu),dbl_mb(i_yu),
      +                            dbl_mb(i_zu),
-     +                            dbl_mb(i_qqu))
+     +                            dbl_mb(i_qqu),
+     +                            byte_mb(i_tt))
 c
 c     compute solute structure factor
 c     -------------------------------
@@ -490,7 +493,7 @@ c     ---------------------
      >  call errquit("cannot get "//tag,0,0)
 
       call rism_read_vdw_params(filename,nu,
-     +                            byte_mb(i_tu),
+     +                            byte_mb(i_tt),
      +                            dbl_mb(i_sigu),
      +                            dbl_mb(i_epsiu))
 c
@@ -700,7 +703,8 @@ c
      +                            tu,
      +                            xu,yu,
      +                            zu,
-     +                            qqu)
+     +                            qqu,
+     +                            tt)
 
       implicit none
 #include "errquit.fh"
@@ -713,6 +717,7 @@ c
       integer  nu
       real*8 xu(nu),yu(nu),zu(nu)
       real*8 qqu(nu) 
+      character(db_string_size) tt(nu)
 c
       integer i
       integer nu1
@@ -745,9 +750,9 @@ c
       do i=1,nu
         read(fn,'(A180)',ERR=40,END=40) buffer
         read(buffer,*,ERR=40,END=40) tu(i),
-     +     xu(i),yu(i),zu(i),qqu(i) 
+     +     xu(i),yu(i),zu(i),qqu(i),tt(i)
         write(*,*) tu(i),
-     +     xu(i),yu(i),zu(i),qqu(i)
+     +     xu(i),yu(i),zu(i),qqu(i),tt(i)
       end do
       close(fn)
       return

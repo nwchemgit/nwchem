@@ -29,6 +29,7 @@ rism
  vdw rule arithmetic parameters vdw.par
  solute configuration solute2.data
  solvent model solvent3.data rdf full.data
+#solvent permittivity 3.0
  ngrid 4096
 end
 task dft  energy rism

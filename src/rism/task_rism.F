@@ -215,7 +215,7 @@ c     --------------
      >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
      >               //dname(1:inp_strlen(dname)),0,0)
 
-      dname = "solute_permittivity"
+      dname = "solvent_permittivity"
       call db_data_get_dbl(sname,dname,1,solperm,result)
       if(.not.result)
      >  call errquit(pname//"cannot get "//sname(1:inp_strlen(sname))
