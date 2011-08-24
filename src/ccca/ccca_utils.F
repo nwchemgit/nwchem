@@ -15,7 +15,7 @@ c
       logical tm
 c
 c     Vars
-      character*16 bas_data(48), mybas
+      character*18 bas_data(48), mybas, bas_name
       data bas_data/
      $ 'aug-cc-pvdz','aug-cc-pvdz','aug-cc-pvdz','aug-cc-pv(d+d)z',
      $ 'aug-cc-pvtz','aug-cc-pvtz','aug-cc-pvtz','aug-cc-pv(t+d)z',
@@ -37,7 +37,7 @@ c
 c
       character*255 filename
       double precision cart(3),charge
-      character*16 tag,element,bas_name
+      character*16 tag,element
       character*16 atom_lab(nw_max_atom),symbol
       character*16 calctype
       integer errcode, basis, i, j, nbas
