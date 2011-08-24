@@ -261,7 +261,7 @@ c     -----------------------------
 
        call rism_message("getting ready for main rism")
 
-       call rism(rdffile,nu,nv,nvv,ngr,icl,
+       call rism(rtdb,rdffile,nu,nv,nvv,ngr,icl,
      +           dbl_mb(i_kgrid),dbl_mb(i_rgrid),
      +           byte_mb(i_tv),int_mb(i_isv),dbl_mb(i_den),
      +           int_mb(i_mv),
@@ -442,12 +442,16 @@ c
 c
 ccc
 c    
-       subroutine rism(rdffile,nu,nv,nvv,ngr,icl,kgrid,rgrid,tv,isv,
+       subroutine rism(rtdb,rdffile,nu,nv,nvv,ngr,
+     * icl,kgrid,rgrid,tv,isv,
      * den,mv,xv,yv,zv,
      * icr,ims,tau,solperm,sgvv,epsvv,qvv,sigu,epsiu,qqu,t,
      * lambd,tol,wu,dd,okspace)       
        implicit none
+#include "rtdb.fh"
+#include "mafdecls.fh"
 c      parameters
+       integer rtdb
        character*(*) rdffile
        integer  nu, nv,nd,nvv, ngr, i,j1,j,k1,icl,k        
        real*8 rgrid(1:ngr),kgrid(1:ngr)  
@@ -475,6 +479,7 @@ c      functions
 c      diis functions and counts
        real*8 ggo(1:dd,1:nu,1:nvv,1:ngr),dgg(1:dd,1:nu,1:nvv,1:ngr)
        integer kd,dd 
+       double precision muh,mugf
        write(76,*) nu,nv,nvv,ngr,icl,icr,tau,solperm
        write(76,*) T,lambd,tol
 
@@ -603,7 +608,10 @@ c      old functions as new functions for new cycle
         if(del0.ge.tol) goto 1
  2     continue  
        call thermo(nu,nv,nvv,ngr,icl,ims,den,t,rgrid,qqu,qvv,
-     * hnew,cnew,solperm,tau)
+     * hnew,cnew,solperm,tau,muh,mugf)
+       if (.not. rtdb_put(rtdb, 'rism:energy', mt_dbl, 1, mugf))
+     $           call errquit('failed rism',0,0)
+
        return 
        end subroutine
 cc
@@ -689,7 +697,7 @@ c      change count for diis
 c
 c
        subroutine thermo(nu,nv,nvv,ngr,icl,ims,den,t,rgrid,qqu,qvv,
-     * hnew,cnew,solperm,tau) 
+     * hnew,cnew,solperm,tau,muh,mugf) 
        implicit none
        real*8 muh, mugf, muuh(1:nu,1:nvv),muugf(1:nu,1:nvv)        
        integer  nu, nv,nvv, ngr, i,j1,j,icl,nd        

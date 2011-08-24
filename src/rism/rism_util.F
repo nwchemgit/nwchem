@@ -20,16 +20,15 @@ c
        logical  util_get_io_unit
 c
        pi=2*asin(1.0)  
+       if(.not.util_get_io_unit(fn))
+     >   call errquit("cannot get file number",0,0)
+       open(unit=fn,status="old",form="formatted",file=rdffile)
        if(okspace) go to 1
 c      reading of solvent rdfs 
-      if(.not.util_get_io_unit(fn))
-     >  call errquit("cannot get file number",0,0)
-      open(unit=fn,status="old",form="formatted",file=rdffile)
 
         do i=1,ngr
          read(fn,*) rr(i), (hsol(j,i), j=1,nd)        
         enddo
-       close(fn) 
        dr=rr(2)-rr(1) 
 c      sin fft transform of rdfs with proper arrangement in array
        do j=1,nvv
@@ -122,6 +121,7 @@ c      chi(i,j,k) solvent susceptibility
          enddo
         enddo      
        enddo
+       close(fn) 
        return
        end subroutine 
 c
