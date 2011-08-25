@@ -1,4 +1,4 @@
-#define RISM_PREP_DEBUG
+#define RISM_PREP_DEBUG1
       subroutine rism_prepare(rtdb)
       implicit none
 #include "errquit.fh"
@@ -198,7 +198,6 @@ c     -----------------------------
       if(.not.rtdb_get(rtdb,tag,mt_int,1,ipar)) 
      >  ipar = 9
       tag = "diis"
-      write(*,*) "ipar=",ipar
       call db_data_put_int(sname,tag,1,ipar)
 c
       call db_data_namespace_print(sname,55)
@@ -261,7 +260,9 @@ c
 c     check if grid size is power of 2
 c     --------------------------------
       if(rism_util_power_2(ngrid)) then
+#ifdef RISM_DEBUG              
         call rism_message("grid is power of 2")
+#endif        
       else
         call errquit(pname//"grid size has to be power of 2",0,0)
       end if
@@ -773,8 +774,10 @@ c
         read(fn,'(A180)',ERR=40,END=40) buffer
         read(buffer,*,ERR=40,END=40) tu(i),
      +     xu(i),yu(i),zu(i),qqu(i),tt(i)
+#ifdef RISM_DEBUG      
         write(*,*) tu(i),
      +     xu(i),yu(i),zu(i),qqu(i),tt(i)
+#endif      
       end do
       close(fn)
       return

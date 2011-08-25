@@ -28,7 +28,9 @@ c
 c
       pname = "rism_input: "
 c
+#ifdef RISM_DEBUG      
       write(luout,*) "in ",pname
+#endif      
 c
       call inp_set_field(0)
 c
@@ -223,7 +225,9 @@ c     -------------------
       end if
 c
       if (token.eq.'end') then
+#ifdef RISM_DEBUG              
         write(luout,*) "out of ",pname
+#endif        
         return
       endif
 c
@@ -266,12 +270,16 @@ c
 c
       pname = "rism_solute_input: "
 c
+#ifdef RISM_DEBUG      
       write(luout,*) "in ",pname
+#endif      
 c
 c     read initial token
 c     ------------------
       if (.not.inp_a(token)) goto 1000
+#ifdef RISM_DEBUG      
       write(*,*) "found token",token
+#endif      
 c      
 c     solute model
 c     -------------
@@ -332,12 +340,16 @@ c
 c
       pname = "rism_solvent_input: "
 c
+#ifdef RISM_DEBUG      
       write(luout,*) "in ",pname
+#endif      
 c
 c     read initial token
 c     ------------------
       if (.not.inp_a(token)) goto 1000
+#ifdef RISM_DEBUG      
       write(*,*) "found token",token
+#endif      
 c      
 c     solvent model
 c     -------------

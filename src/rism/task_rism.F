@@ -11,11 +11,18 @@
        integer n
        logical rism_util_power_2
        external rism_util_power_2
+c
+       call rism_print_header()
 c       
 c      load data and allocate memory
 c      -----------------------------
        call rism_prepare(rtdb)
+#ifdef RISM_DEBUG       
        call rism_message("finished with rism_prepare")
+#endif       
+       call rism_print_params(rtdb)
+       call rism_print_solute_configuration(rtdb)
+       stop
 c       
 c      main rism routine call
 c      ----------------------
@@ -88,7 +95,9 @@ c     --------------
      >               //dname(1:inp_strlen(dname)),0,0)
 
 
+#ifdef RISM_DEBUG      
       call rism_message("finished with solute data")
+#endif      
 c
 c     solvent data
 c     -------------- 
@@ -611,6 +620,11 @@ c      old functions as new functions for new cycle
      * hnew,cnew,solperm,tau,muh,mugf)
        if (.not. rtdb_put(rtdb, 'rism:energy', mt_dbl, 1, mugf))
      $           call errquit('failed rism',0,0)
+       if (.not. rtdb_put(rtdb, 'rism:muh', mt_dbl, 1, muh))
+     $           call errquit('failed rism',0,0)
+       if (.not. rtdb_put(rtdb, 'rism:mugf', mt_dbl, 1, mugf))
+     $           call errquit('failed rism',0,0)
+
 
        return 
        end subroutine

@@ -2,7 +2,7 @@
 * $Id: db_data.F 20039 2011-03-03 22:11:00Z marat $
 *
 
-#define DB_DEBUG
+#define DB_DEBUG1
       block data initial_db_data
       implicit none
 #include "db_data.fh"
