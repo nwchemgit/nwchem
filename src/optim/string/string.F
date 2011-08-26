@@ -31,7 +31,7 @@
 ! The main routine can handle having all geometries specified, but the 
 ! driver does support reading them in yet.
 
-      logical function zts_driver(rtdb)
+      logical function task_string(rtdb)
       implicit none
 
 ! External stuff
@@ -75,44 +75,44 @@
 
 ! The general geometry structure
       if (.not. geom_create(geom, 'geometry'))
-     &   call errquit('zts_driver: geom_create?', 911, GEOM_ERR)
+     &   call errquit('task_string: geom_create?', 911, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom, 'geometry'))
-     &   call errquit('zts_driver: no geometry ', geom, RTDB_ERR)
+     &   call errquit('task_string: no geometry ', geom, RTDB_ERR)
 
 ! Get number of atoms
       if (.not. geom_ncent(geom,natoms))
-     $     call errquit('zts_driver: natoms?',geom, GEOM_ERR)
+     $     call errquit('task_string: natoms?',geom, GEOM_ERR)
 
 ! Get memory
       if(.not.ma_push_get(mt_dbl,nbeads,'dg',l_dg, k_dg))
-     $     call errquit('zts_driver: memory', nbeads, MA_ERR)
+     $     call errquit('task_string: memory', nbeads, MA_ERR)
       if(.not.ma_push_get(mt_dbl,nbeads,'energy',l_energy, k_energy))
-     $     call errquit('zts_driver: memory', nbeads, MA_ERR)
+     $     call errquit('task_string: memory', nbeads, MA_ERR)
       if(.not.ma_push_get(mt_dbl,nbeads,'dcoord',l_dcoords, k_dcoords))
-     $     call errquit('zts_driver: memory', nbeads, MA_ERR)
+     $     call errquit('task_string: memory', nbeads, MA_ERR)
       size = 3*natoms*nbeads
       if(.not.ma_push_get(mt_dbl,size,'dVdx',l_dVdx, k_dVdx))
-     $     call errquit('zts_driver: memory', size, MA_ERR)
+     $     call errquit('task_string: memory', size, MA_ERR)
       if(.not.ma_push_get(mt_dbl,size,'coords_old',l_coords_old,
      $     k_coords_old))
-     $     call errquit('zts_driver: memory', size, MA_ERR)
+     $     call errquit('task_string: memory', size, MA_ERR)
       if(.not.ma_push_get(mt_dbl,size,'wrk',l_wrk, k_wrk))
-     $     call errquit('zts_driver: memory', size, MA_ERR)
+     $     call errquit('task_string: memory', size, MA_ERR)
       if(.not.ma_push_get(mt_dbl,size,'coords',l_coords, k_coords))
-     $     call errquit('zts_driver: memory', size, MA_ERR)
+     $     call errquit('task_string: memory', size, MA_ERR)
 
 ! Set the coordinates of geometry 1
       if (.not. geom_cart_coords_get(geom, dbl_mb(k_coords)))
-     $        call errquit('zts_driver: geom?',0, GEOM_ERR)
+     $        call errquit('task_string: geom?',0, GEOM_ERR)
 
 ! Set the coordinates of last geometry
       size = k_coords + (nbeads-1)*3*natoms
       if (.not. geom_create(geom2, 'geom2'))
-     &   call errquit('zts_driver: geom_create?', 921, GEOM_ERR)
+     &   call errquit('task_string: geom_create?', 921, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, geom2, 'endgeom'))
-     &   call errquit('zts_driver: no endgeom ', geom2, RTDB_ERR)
+     &   call errquit('task_string: no endgeom ', geom2, RTDB_ERR)
       if (.not. geom_cart_coords_get(geom2, dbl_mb(size)))
-     $        call errquit('zts_driver: geom?',0, GEOM_ERR)
+     $        call errquit('task_string: geom?',0, GEOM_ERR)
 
 ! Middle geometry -- if it exists
       if (.not. geom_rtdb_load(rtdb, geom2, 'midgeom')) then
@@ -121,34 +121,34 @@
         middle = (nbeads/2)+1
         size = k_coords + (middle-1)*3*natoms
         if (.not. geom_cart_coords_get(geom2, dbl_mb(size)))
-     $        call errquit('zts_driver: geom?',0, GEOM_ERR)
+     $        call errquit('task_string: geom?',0, GEOM_ERR)
       endif
 
       if (.not. geom_destroy(geom2))
-     &   call errquit('zts_driver: geom_destroy?', geom2, GEOM_ERR)
+     &   call errquit('task_string: geom_destroy?', geom2, GEOM_ERR)
 
 ! Warning: No way to read in all nbead geomtries
 
 ! Call the code
       if (.not. rtdb_put(rtdb,'opt:string',mt_log,1,.true.))
-     $     call errquit('zts_driver: rtdb_put failed',0,
+     $     call errquit('task_string: rtdb_put failed',0,
      &       RTDB_ERR)
       call zts_meps(maxit,nbeads,tol,stepsize,natoms,middle,
      &    dbl_mb(k_coords),geom,rtdb,dbl_mb(k_dg),dbl_mb(k_energy),
      &    dbl_mb(k_dVdx),dbl_mb(k_dcoords),dbl_mb(k_coords_old),
      &    dbl_mb(k_wrk),interpol,converged)
       if (.not. rtdb_put(rtdb,'opt:string',mt_log,1,.false.))
-     $     call errquit('zts_driver: rtdb_put failed',0,
+     $     call errquit('task_string: rtdb_put failed',0,
      &       RTDB_ERR)
 ! Return memory - Being lazy, just pop is all in one fell swoop
       if(.not. ma_chop_stack(l_dg))
-     &   call errquit('zts_driver: ma?',99,MA_ERR)
+     &   call errquit('task_string: ma?',99,MA_ERR)
 
       if (.not. geom_destroy(geom))
-     &   call errquit('zts_driver: geom_destroy?', geom, GEOM_ERR)
+     &   call errquit('task_string: geom_destroy?', geom, GEOM_ERR)
 
 ! Done
-      zts_driver = converged
+      task_string = converged
       return
       end
 

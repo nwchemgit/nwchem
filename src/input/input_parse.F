@@ -101,6 +101,8 @@ c
                call tropt_input(rtdb)
             else if (inp_compare(.false.,test,'driver')) then
                call driver_input(rtdb)
+            else if (inp_compare(.false.,test,'string')) then
+               call string_input(rtdb)
             else if (inp_compare(.false.,test,'qcharge')) then
                call input_qcharge(rtdb)
             else if (inp_compare(.false.,test,'charge')) then

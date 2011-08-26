@@ -41,7 +41,7 @@ c
       logical argos,analyz,diana,esp,prepar,nwmd
       logical kgdtest, jvltest, jvltest2
       logical task_energy, task_gradient, task_optimize, task_freq
-      logical task_mepgs
+      logical task_mepgs, task_string
       logical task_hessian, task_saddle, task_lst, task_neb
       logical task_dynamics, task_rfcf
       logical orism
@@ -78,7 +78,7 @@ c
       external property, dplot, gapss, task_shell, moints_full
       external analyz,diana,esp,prepar,nwmd,argos
       external task_energy, task_gradient, task_optimize, task_freq
-      external task_mepgs
+      external task_mepgs, task_string
       external task_hessian, task_saddle, task_lst, task_neb
       external task_dynamics, task_rfcf
       external task_version, task_python, task_thermo,task_nbo
@@ -353,6 +353,8 @@ c        else
 c        end if
       else if (inp_compare(.false.,'mepgs', operation)) then
          status = task_mepgs(rtdb)
+      else if (inp_compare(.false.,'string', operation)) then
+         status = task_string(rtdb)
       else if (inp_compare(.false.,'dynamics',operation)) then
          if(oqmmm) then
            status = task_qmmm_dynamics(rtdb)

@@ -75,6 +75,8 @@ c
             operation = 'thermodynamics'
          else if (inp_compare(.false.,test,'mepgs')) then
             operation = 'mepgs'
+         else if (inp_compare(.false.,test,'string')) then
+            operation = 'string'
          else if (inp_compare(.false.,test,'et')) then
             operation = 'et'
          else if (inp_compare(.false.,test,'rt_tddft')) then
@@ -256,6 +258,7 @@ c
      >      operation.ne.'hessian' .and.
      >      operation.ne.'freq' .and.
      >      operation.ne.'mepgs' .and.
+     >      operation.ne.'string' .and.
      >      operation.ne.'gradient' .and.
      >      operation.ne.'property' .and.
      >      operation.ne.'dynamics' .and.
