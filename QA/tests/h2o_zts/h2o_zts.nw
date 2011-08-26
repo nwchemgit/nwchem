@@ -1,0 +1,39 @@
+echo
+start h2o_zts_dat
+
+geometry geometry nocenter
+  symmetry c1
+O  0.00000000    -0.02293938     0.00000000
+H  0.00000000     0.55046969     0.75406534
+H  0.00000000     0.55046969    -0.75406534
+end
+
+geometry endgeom nocenter
+  symmetry c1
+O  0.00000000     0.02293938     0.00000000
+H  0.00000000    -0.55046969     0.75406534
+H  0.00000000    -0.55046969    -0.75406534
+end
+
+geometry midgeom nocenter
+  symmetry c1
+O  0.00000000     0.00000000     0.00000000
+H  0.00000000     0.00000000     1.00000000
+H  0.00000000     0.00000000    -1.00000000
+end
+
+
+basis
+  * library 6-31G*
+end
+
+string
+tol  0.0001d0
+stepsize 0.10d0
+nbeads 25
+maxiter 100
+interpol 1
+end
+
+task string scf
+

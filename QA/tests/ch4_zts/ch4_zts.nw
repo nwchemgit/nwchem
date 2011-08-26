@@ -1,0 +1,36 @@
+#  Note that this sends H1 right through the Carbon - atom avoidance code must work
+echo
+start ch4_zts_dat
+
+geometry geometry nocenter
+  symmetry c1
+C     0.000000     0.000000     0.000000
+H     0.000000     0.000000     1.089000
+H     1.026719     0.000000    -0.363000
+H    -0.513360    -0.889165    -0.363000
+H    -0.513360     0.889165    -0.363000
+end
+
+geometry endgeom nocenter
+  symmetry c1
+C     0.000000     0.000000     0.000000
+H     0.000000     0.000000    -1.089000
+H     1.026719     0.000000     0.363000
+H    -0.513360    -0.889165     0.363000
+H    -0.513360     0.889165     0.363000
+end
+
+basis
+  * library 6-31G
+end
+
+string
+tol  0.0001d0
+stepsize 0.20d0
+nbeads 14
+maxiter 150
+interpol 3
+end
+
+task string scf
+
