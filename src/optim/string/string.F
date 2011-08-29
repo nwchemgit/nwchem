@@ -196,7 +196,7 @@
 ! Local variables
       integer i, j, k, nstep
       real*8 dgg
-      real*8 tmp
+      real*8 tmp, tmp2
       logical badgeom
 
 ! Setup the problem
@@ -250,8 +250,8 @@
         write(*,'(a,i9)')  '@ Number of replicas   = ', nbeads
         write(*,'(a,i9)')  '@ String Interpolator  = ', interpol
         write(*,'(a)')
-     &    '@  Step   xrms            E end           '
-     &     //'E middle            E end'
+     &    '@  Step   xrms          E end         '
+     &     //'E middle          E end          E max'
       endif
       do nstep = 1, maxit
 !        Look for atoms that are too close
@@ -338,11 +338,16 @@
      &      zts_distance(natoms,coords(1,1,i),coords_old(1,1,i))
          enddo
          tmp = tmp/dble(nbeads*natoms)
-         if (ga_nodeid() .eq. 0)
-     &   write(*,'(a2,i5,1x,f8.6,2x,f16.9,2x,f16.9,2x,f16.9')
+         if (ga_nodeid() .eq. 0) then
+           tmp2 = energy(1)
+           do i = 2, nbeads
+             if (energy(i) .gt. tmp2) tmp2=energy(i)
+           enddo
+           write(*,'(a2,i5,1x,f8.6,1x,f14.7,1x,f14.7,1x,f14.7,1x,f14.7')
      &             '@ ',nstep,tmp,energy(1),
      &                            energy(1+nbeads/2),
-     &                            energy(nbeads)
+     &                            energy(nbeads),tmp2
+         endif
          if ( tmp .lt. tol) goto 747
       enddo
  747  continue
