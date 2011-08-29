@@ -11,6 +11,7 @@
       integer g_s, g_shalf
 #include "global.fh"
 #include "errquit.fh"
+#include "stdio.fh"
 #include "geom.fh"
       integer i, j
       integer g_x, g_t
@@ -21,6 +22,52 @@
 
 c convert charge to number of electrons
       do i = 1, nconstr
+c
+c       Check the atom centers on the constraints
+c
+        if (iatms1(i).lt.1) then
+          if (ga_nodeid().eq.0) then
+            write(LuOut,*)'cdft_init: constraint no.',nconstr,
+     &                    ' lower atom number is ',iatms1(i),
+     &                    ' but should be at least 1'
+            call util_flush(LuOut)
+          endif
+          call errquit('cdft_init: lower center no. out of range',
+     &                 iatms1(i),INPUT_ERR)
+        endif
+        if (iatms2(i).ne.0.and.iatms2(i).lt.1) then
+          if (ga_nodeid().eq.0) then
+            write(LuOut,*)'cdft_init: constraint no.',nconstr,
+     &                    ' lower atom number is ',iatms2(i),
+     &                    ' but should be at least 1'
+            call util_flush(LuOut)
+          endif
+          call errquit('cdft_init: lower center no. out of range',
+     &                 iatms2(i),INPUT_ERR)
+        endif
+        if (fatms1(i).gt.ncenters) then
+          if (ga_nodeid().eq.0) then
+            write(LuOut,*)'cdft_init: constraint no.',nconstr,
+     &                    ' upper atom number is ',fatms1(i),
+     &                    ' but should be at most ',ncenters
+            call util_flush(LuOut)
+          endif
+          call errquit('cdft_init: upper center no. out of range',
+     &                 fatms1(i),INPUT_ERR)
+        endif
+        if (iatms2(i).ne.0.and.fatms2(i).gt.ncenters) then
+          if (ga_nodeid().eq.0) then
+            write(LuOut,*)'cdft_init: constraint no.',nconstr,
+     &                    ' upper atom number is ',fatms2(i),
+     &                    ' but should be at most ',ncenters
+            call util_flush(LuOut)
+          endif
+          call errquit('cdft_init: upper center no. out of range',
+     &                 fatms2(i),INPUT_ERR)
+        endif
+c
+c       Done checking
+c
         if(dtype(i).eq.1) then
           charge = 0d0
           do j = iatms1(i), fatms1(i)
