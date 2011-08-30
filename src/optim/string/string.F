@@ -51,7 +51,7 @@
 ! Local variables
       integer maxit,nbeads,natoms,middle,geom,geom2,size,i,interpol
       real*8 tol,stepsize
-      logical converged
+      logical converged, freeze1, freezeN
 
 ! Set convergence criteria
       if (.not. rtdb_get(rtdb,'string:tol',mt_dbl,1,tol))
@@ -127,6 +127,12 @@
       if (.not. geom_destroy(geom2))
      &   call errquit('task_string: geom_destroy?', geom2, GEOM_ERR)
 
+! Do we freeze bead 1 or N?
+           if (.not. rtdb_get(rtdb, 'string:freeze1', mt_log,1,freeze1))
+     &        freeze1 = .false.
+           if (.not. rtdb_get(rtdb, 'string:freezen', mt_log,1,freezeN))
+     &        freezeN = .false.
+
 ! Warning: No way to read in all nbead geomtries
 
 ! Call the code
@@ -136,7 +142,7 @@
       call zts_meps(maxit,nbeads,tol,stepsize,natoms,middle,
      &    dbl_mb(k_coords),geom,rtdb,dbl_mb(k_dg),dbl_mb(k_energy),
      &    dbl_mb(k_dVdx),dbl_mb(k_dcoords),dbl_mb(k_coords_old),
-     &    dbl_mb(k_wrk),interpol,converged)
+     &    dbl_mb(k_wrk),interpol,freeze1,freezeN,converged)
       if (.not. rtdb_put(rtdb,'opt:string',mt_log,1,.false.))
      $     call errquit('task_string: rtdb_put failed',0,
      &       RTDB_ERR)
@@ -154,7 +160,7 @@
 
       subroutine zts_meps(maxit,nbeads,tol,stepsize,natoms,middle,
      &    coords,geom,rtdb,dg,energy,dVdx,dcoords,coords_old,wrk,
-     &    interpol, converged)
+     &    interpol,freeze1,freezeN,converged)
       implicit none
       
 ! External stuff
@@ -179,6 +185,7 @@
                      !      of the coordinates are filled
       integer rtdb   ! The runtime database
       integer interpol ! The style of interpolation
+      logical freeze1, freezeN ! Freeze ends of string
 
 ! Input/output
       real*8  coords(3,natoms,nbeads)
@@ -249,6 +256,16 @@
         write(*,'(a,i9)')  '@ Maximum Time Steps   = ', maxit
         write(*,'(a,i9)')  '@ Number of replicas   = ', nbeads
         write(*,'(a,i9)')  '@ String Interpolator  = ', interpol
+        if (freeze1) then
+          write(*,'(a)')   '@ First Replica        = frozen'
+        else
+          write(*,'(a)')   '@ First Replica        = moves'
+        endif
+        if (freezeN) then
+          write(*,'(a)')   '@ Last Replica         = frozen'
+        else
+          write(*,'(a)')   '@ Last Replica         = moves'
+        endif
         write(*,'(a)')
      &    '@  Step   xrms          E end         '
      &     //'E middle          E end          E max'
@@ -277,16 +294,35 @@
            call sym_geom_project(geom, 1.0d-6)
            if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
      &       call errquit('zts_meps: store geometry',0,GEOM_ERR)
-           call ga_sync()
-           if ( .not. task_gradient(rtdb))
-     &        call errquit('zts_meps: gradient failed',0, 0)
-           if (.not. rtdb_get(rtdb, 'task:energy', mt_dbl,1,energy(i)))
-     &        call errquit('zts_meps: failed getting energy',0,
-     &        RTDB_ERR)
-           if (.not. rtdb_get(rtdb, 'task:gradient', mt_dbl, 3*natoms,
-     &         dVdx(1,1,i))) call errquit(
-     &         'zts_meps: failed getting gradient',0,RTDB_ERR)
+           if ((i .eq. 1 .and. freeze1 .and. nstep .ne. 1) .or. 
+     &         (i .eq. nbeads .and. freezeN .and. nstep .ne. 1)) then
+              ! Skip the gradient for frozen stuff, unless first step - need E
+           else
+             call ga_sync()
+             if ( .not. task_gradient(rtdb))
+     &          call errquit('zts_meps: gradient failed',0, 0)
+             if (.not. rtdb_get(rtdb,'task:energy',mt_dbl,1,energy(i)))
+     &          call errquit('zts_meps: failed getting energy',0,
+     &          RTDB_ERR)
+             if (.not. rtdb_get(rtdb, 'task:gradient', mt_dbl, 3*natoms,
+     &           dVdx(1,1,i))) call errquit(
+     &           'zts_meps: failed getting gradient',0,RTDB_ERR)
+           endif
          enddo
+         if (freeze1) then
+           do j = 1, natoms
+             do k = 1, 3
+               dVdx(k,j,1) = 0.0d0
+             enddo
+           enddo
+         endif
+         if (freezeN) then 
+           do j = 1, natoms
+             do k = 1, 3
+               dVdx(k,j,nbeads) = 0.0d0 
+             enddo
+           enddo
+         endif
          ! Take a step (evolve it in "time").  Warning: Very simple minded
          do i = 1, nbeads
            do j = 1, natoms
@@ -295,7 +331,7 @@
              enddo
            enddo
          enddo
-!        Project out net motion
+!        Project out net motion - Can rotate/translater frozen N bead
          do i = 2, nbeads
           call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
          enddo
@@ -331,6 +367,10 @@
          else
            call errquit('zts_meps: fatal error', 0, 0)
          end if
+!        Project out net motion - Can rotate/translater frozen N bead
+         do i = 2, nbeads
+          call zts_min_motion(natoms,coords(1,1,i),coords(1,1,i-1),geom)
+         enddo
          ! Check convergence
          tmp = 0.0d0
          do i = 1, nbeads
