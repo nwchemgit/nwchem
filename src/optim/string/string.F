@@ -164,8 +164,8 @@
       implicit none
       
 ! External stuff
-      logical task_gradient
-      external task_gradient
+      logical task_gradient, task_energy
+      external task_gradient, task_energy
       real*8 zts_distance
       external zts_distance
       integer ga_nodeid
@@ -205,9 +205,16 @@
       real*8 dgg
       real*8 tmp, tmp2
       logical badgeom
+      real*8 g1(3),g2(3),g3(3)
+      integer iistart, iiend
+      real*8 hess, e0, e1, a2, alpha, dsgrad
+      logical linopt
+      logical projection1
 
 ! Setup the problem
-      
+      linopt = .true.
+      projection1 = .false.
+
       do i = 1, nbeads
         dg(i) = dble(i-1)/dble(nbeads-1)
       enddo
@@ -321,6 +328,101 @@
              do k = 1, 3
                dVdx(k,j,nbeads) = 0.0d0 
              enddo
+           enddo
+         endif
+         ! Projection?
+         if (projection1) then
+           do i = 2, nbeads - 1
+             do j = 1, natoms
+               do k = 1, 3
+                 g1(k) = coords(k,j,i) - coords(k,j,i+1)
+                 g2(k) = coords(k,j,i) - coords(k,j,i-1)
+               enddo
+               call cross_product(g1,g2,g3) ! Vector perpendicular to plane
+               tmp = 0.0d0
+               do k = 1, 3
+                 tmp = tmp + g3(k)**2
+               enddo
+               if (tmp .gt. 1.0d-16) then
+                 tmp = 1.0d0/sqrt(tmp)
+                 do k = 1, 3
+                   g3(k) = g3(k)*tmp ! Normalize
+                 enddo
+                 ! Projection
+                 call cross_product(dVdx(1,j,i),g3,g2)
+                 call cross_product(g3,g2,dVdx(1,j,i))
+               endif
+             enddo
+           enddo
+         endif
+         ! Linear extrapolation - based upon linopt=1 in driver
+         if (linopt) then
+           if (freeze1) then
+              iistart = 2
+           else
+              iistart = 1
+           endif
+           if (freezeN) then
+              iiend   = nbeads-1
+           else
+              iiend   = nbeads
+           endif
+           do i = iistart,iiend
+             alpha = 1.0d0
+             dsgrad = 0.0d0
+             do j = 1, natoms
+               do k = 1, 3
+                  dsgrad = dVdx(k,j,i)**2
+               enddo
+             enddo
+             dsgrad=-stepsize*dsgrad ! ds*g (with ds=-stepsize*g)
+             e0 = energy(i)
+c
+c     Compute energy at alpha*ds
+c
+             do j = 1, natoms
+               do k = 1, 3
+                 wrk(k,j,1)=coords(k,j,i)-alpha*stepsize*dVdx(k,j,i) ! Force=-Gradient
+               enddo
+             enddo
+             if ( .not. geom_cart_coords_set( geom, wrk) )
+     &          call errquit('zts_meps: set geometry',0,GEOM_ERR)
+             call sym_geom_project(geom, 1.0d-6)
+             if (.not. geom_rtdb_store(rtdb, geom, 'geometry'))
+     &         call errquit('zts_meps: store geometry',0,GEOM_ERR)
+             call ga_sync()
+             if ( .not. task_energy(rtdb))
+     &          call errquit('zts_meps: energy failed',0, 0)
+             if (.not. rtdb_get(rtdb,'task:energy',mt_dbl,1,e1))
+     &          call errquit('zts_meps: failed get energy',0,RTDB_ERR)
+c
+c            Fit to a parabola as a function of alpha
+c
+             hess = (e1-e0-alpha*dsgrad)/alpha**2
+c
+             if (abs(e1-e0) .lt. 1.0d-7) then
+                a2 = alpha ! If no big deal, be conservative
+             else if (hess .gt. 0d0) then
+c
+c            Positive curvature.
+c
+                a2 = -dsgrad/(2d0*hess)  ! a2 will be positive
+                if (a2 .gt. 4.0d0*alpha) then
+                   a2 = 4.0d0*alpha! Limit
+                endif
+             else
+c
+c            Negative curvature and downhill
+c
+                 a2 = 4.0d0*alpha
+             endif
+c            scale gradient
+             alpha = a2
+             do j = 1, natoms
+               do k = 1, 3
+                 dVdx(k,j,i) = dVdx(k,j,i) * alpha
+               enddo
+             enddo 
            enddo
          endif
          ! Take a step (evolve it in "time").  Warning: Very simple minded

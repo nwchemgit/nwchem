@@ -29,7 +29,7 @@ end
 
 string
 tol  0.0001d0
-stepsize 0.10d0
+stepsize 0.30d0
 nbeads 25
 maxiter 100
 interpol 1

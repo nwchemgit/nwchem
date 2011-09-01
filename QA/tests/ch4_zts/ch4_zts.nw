@@ -28,8 +28,8 @@ string
 tol  0.0001d0
 stepsize 0.20d0
 nbeads 14
-maxiter 150
-interpol 3
+maxiter 400
+interpol 1
 end
 
 task string scf
