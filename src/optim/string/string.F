@@ -485,8 +485,8 @@ c            scale gradient
            do i = 2, nbeads
              if (energy(i) .gt. tmp2) tmp2=energy(i)
            enddo
-           write(*,'(a2,i5,1x,f8.6,1x,f14.7,1x,f14.7,1x,f14.7,1x,f14.7')
-     &             '@ ',nstep,tmp,energy(1),
+           write(*,'(a2,i5,1x,f8.6,1x,f14.7,1x,f14.7,1x,f14.7,1x,f14.7)'
+     &            )'@ ',nstep,tmp,energy(1),
      &                            energy(1+nbeads/2),
      &                            energy(nbeads),tmp2
          endif
