@@ -313,6 +313,11 @@ c           if(.not.geom_create_from_file(filename,rtdb)) call errquit
      $        call errquit
      $         ('geom_input: geom_create from file !', 0, GEOM_ERR)
             goto 20
+         else if(inp_compare(.false.,'load',field)) then
+            call
+     >      geom_external_input(rtdb,ncenter,max_center,tags,coords,
+     >                          charge,mass)
+            goto 20
          else if (inp_compare(.false.,'source',field)) then
             if (.not. inp_a(filename)) call errquit
      $           ('geom_input: file <filename>?', 0,
@@ -453,7 +458,7 @@ c     For molecules, apply requested conversion of units after we have
 c     all of the information
 c     
  30   continue
-
+      write(*,*) "ncenter=",ncenter
 
 *     **** do cartesian to frac conversion here ****
       if (ecce_periodic) then
@@ -646,6 +651,222 @@ c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 
 50    continue
       end
+
+      subroutine geom_external_input(rtdb,n,nmax,tags,c,q,m)
+C     $Id$
+      implicit none
+#include "errquit.fh"
+#include "stdio.fh"
+#include "inp.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "nwc_const.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+      integer rtdb              ! [input]
+      integer n
+      integer nmax
+      character*16 tags(nmax)
+      double precision c(3,nmax)
+      double precision q(nmax)
+      double precision m(nmax)
+      character*16 aformat
+      character*82 message
+      character*255 fname
+      character*30 pname 
+      character*255 field       ! for character input
+      integer stride
+      integer max_nr
+      parameter (max_nr=100)
+      integer iresi1(max_nr),iresi2(max_nr)
+      integer iframe
+      integer i
+      integer i1,i2
+      character*2 symbol
+      character*16 element
+      integer atn
+      logical  is_atom
+      integer n0
+c      
+      pname = "geom_external_input"
+#define MARAT_DEBUG
+#ifdef MARAT_DEBUG      
+      write(*,*) "in "//pname
+#endif
+      aformat=" "
+      fname = " "
+10    continue
+      if(inp_a(field)) then
+        if (inp_compare(.false.,'format',field)) then
+          message = "looking for format"
+          if(inp_a(field)) then
+            aformat = field
+          else
+            goto 998
+          end if
+          goto 10
+        else if(inp_compare(.false.,'frame',field)) then
+          if(.not.inp_i(iframe)) then
+            goto 998
+          end if
+          goto 10
+        else if(inp_compare(.false.,'resi',field)) then
+          i=0
+20        continue
+          if ( inp_irange(i1,i2,stride)) then
+#ifdef MARAT_DEBUG      
+             write(*,*) "found range",i1,i2,stride
+#endif
+             i = i+1
+             if(i.le.max_nr) then
+                iresi1(i)=i1
+                iresi2(i)=i2
+                goto 20
+             else
+                message = "out of range for resi, increase max_nr"
+                goto 998
+             end if
+          end if
+          goto 10
+        else
+          if(fname.eq." ") then
+            fname = field
+          else
+             message = fname(1:inp_strlen(fname))//":"//
+     >       field(1:inp_strlen(field)) 
+            goto 998
+          end if
+          goto 10
+        end if
+      end if
+c      if(aformat.eq."xyz") then
+        n0=n
+        call geom_read_file_xyz(fname,
+     +                              iframe, 
+     +                              n, 
+     +                              nmax,
+     +                              tags,
+     +                               c)
+c      end if
+       do i=n0+1,n
+        is_atom = geom_tag_to_element(tags(i), symbol,
+     $       element, atn)
+        if ((.not. is_atom) .and. symbol.ne.'bq') then
+           message = "bad atom name"
+           goto 998
+        end if
+c
+c..   set default mass
+c     
+        if (.not. geom_atn_to_default_mass(atn,m(i))) then
+          message = "default mass failed"
+          goto 998
+        end if
+        q(i) = atn
+
+      end do
+
+#ifdef MARAT_DEBUG      
+      write(*,*) "fname=",fname
+      write(*,*) "format=",aformat
+      write(*,*) "resi range"
+      do i1=1,i
+        write(*,*) iresi1(i),iresi2(i)
+      end do
+c      stop
+#endif
+      return
+998   call errquit(pname//message(1:inp_strlen(message)),
+     >             0,0)
+
+      end subroutine
+c
+      subroutine geom_read_file_xyz(filename,
+     +                            ifr, 
+     +                            n, 
+     +                            nmax,
+     +                            tags,
+     +                             c)
+
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+      character*(*) filename
+      integer  ifr
+      integer n
+      integer nmax
+      character*16 tags(nmax)
+      double precision c(3,nmax)
+c
+      integer i
+      integer  in
+      integer na
+      integer fn
+      character*180 buffer
+      character*1 b1
+      character*72 message
+      character*30 pname
+      integer  ifr0
+c
+      pname = "geom_read_file_xyz"
+#ifdef MARAT_DEBUG      
+      write(*,*) "in "//pname
+#endif      
+c      
+      if(.not.util_get_io_unit(fn))
+     >  call errquit("cannot get file number",0,0)
+      open(unit=fn,status="old",form="formatted",file=filename)
+c     initial frame counter
+      ifr0 = 0
+10    continue !restart point for frame rewinding
+      message = "reading number of atoms"
+      buffer = " "
+c     allow for empty lines
+      do while (buffer.eq." ")
+        read(fn,'(A180)',ERR=40,END=40) buffer
+      end do
+      read(buffer,*,ERR=40,END=40) na
+c     check if arrays would be beig enougth
+c      
+      message = "reading title line"
+      read(fn,'(A180)',ERR=40,END=40) buffer
+c      
+      ifr0 = ifr0+1
+      if(ifr0.ne.ifr) then
+        message = "rewinding"
+        do i=1,na
+          read(fn,'(A180)',ERR=40,END=40) buffer
+        end do
+        goto 10
+      end if
+      message = "reading coordinates"
+      do i=1,na
+        read(fn,'(A180)',ERR=40,END=40) buffer
+        n=n+1
+        if(n.gt.nmax) then
+          message = "too many atoms"
+          goto 40
+        end if
+        read(buffer,*,ERR=40,END=40) tags(n),
+     +     c(1,n),c(2,n),c(3,n)
+#ifdef MARAT_DEBUG      
+        write(*,*) tags(n),
+     +     c(1,n),c(2,n),c(3,n)
+#endif      
+      end do
+#ifdef MARAT_DEBUG      
+      write(*,*) "n=",n
+#endif
+      close(fn)
+      return
+40    continue
+      call errquit(message(1:inp_strlen(message)+1)//pname,0,0)
+      end
+
+c
       subroutine geom_sys_input(geom,scale,ecce_periodic)
       implicit none
 #include "errquit.fh"
