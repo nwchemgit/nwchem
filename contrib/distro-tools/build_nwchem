@@ -26,11 +26,52 @@
 #    different builds in different directories without getting caught
 #    out by variable settings you forgot about.
 #
+get_mpi_include ()
+{
+   inlist="`mpif90 -compile-info`"
+   outlist=""
+   for word in ${inlist} ; do
+      len=`expr "${word}" : '-I*'`
+      if [ ${len} -ge 2 ] ; then
+        outlist="${outlist} ${word}"
+      fi
+   done
+   echo ${outlist}
+}
+get_mpi_link ()
+{
+   inlist="`mpif90 -link-info`"
+   outlist=""
+   for word in ${inlist} ; do
+      len=`expr "${word}" : '-L*'`
+      if [ ${len} -ge 2 ] ; then
+        outlist="${outlist} ${word}"
+      fi
+   done
+   echo ${outlist}
+}
+get_mpi_lib ()
+{
+   inlist="`mpif90 -link-info`"
+   outlist=""
+   for word in ${inlist} ; do
+      len=`expr "${word}" : '-l*'`
+      if [ ${len} -ge 2 ] ; then
+        outlist="${outlist} ${word}"
+      fi
+   done
+   echo ${outlist}
+}
 export NWCHEM_TOP=`pwd`
 export NWCHEM_TARGET=LINUX64
 export NWCHEM_MODULES="all"
 export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/LINUX64/nwchem
 export LDOPTIONS="-static -static-libgcc -static-libgfortran"
+export USE_SUBGROUPS=yes
+export USE_MPI=yes
+export MPI_INCLUDE=`get_mpi_include`
+export MPI_LIB=`get_mpi_link`
+export LIBMPI=`get_mpi_lib`
 option=$1
 if [ "x$1" == "xpython" ]; then
   export PYTHONVERSION=2.4
@@ -54,5 +95,5 @@ else
   echo "==============="
 fi
 cd $NWCHEM_TOP/src
-make DIAG=PAR FC=gfortran CC=gcc LDOPTIONS="$LDOPTIONS" nwchem_config
-make DIAG=PAR FC=gfortran CC=gcc LDOPTIONS="$LDOPTIONS" $option
+make DIAG=PAR FC=gfortran CC=gcc CXX=g++ LDOPTIONS="$LDOPTIONS" nwchem_config
+make DIAG=PAR FC=gfortran CC=gcc CXX=g++ LDOPTIONS="$LDOPTIONS" $option
