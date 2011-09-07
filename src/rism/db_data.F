@@ -1,5 +1,5 @@
 *
-* $Id: db_data.F 20039 2011-03-03 22:11:00Z marat $
+* $Id$
 *
 
 #define DB_DEBUG1
@@ -1753,7 +1753,7 @@ c     >                         buffer)
       end
 
       subroutine db_data_test()
-C$Id: db_data.F 20039 2011-03-03 22:11:00Z marat $
+C$Id$
       implicit none
 c
 #include "mafdecls.fh"
