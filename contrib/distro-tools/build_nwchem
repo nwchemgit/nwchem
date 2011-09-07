@@ -28,6 +28,10 @@
 #
 get_mpi_include ()
 {
+   # This shell function extracts the MPI include file directories
+   # and returns them as a list for a compile line.
+   # E.g.: -I/usr/include
+   #
    inlist="`mpif90 -compile-info`"
    outlist=""
    for word in ${inlist} ; do
@@ -40,6 +44,10 @@ get_mpi_include ()
 }
 get_mpi_link ()
 {
+   # This shell function extracts the MPI library file directories
+   # and returns them as a list for a link line.
+   # E.g.: -L/usr/lib
+   #
    inlist="`mpif90 -link-info`"
    outlist=""
    for word in ${inlist} ; do
@@ -52,6 +60,10 @@ get_mpi_link ()
 }
 get_mpi_lib ()
 {
+   # This shell function extracts the MPI libraries
+   # and returns them as a list for a link line.
+   # E.g.: -lmpich
+   #
    inlist="`mpif90 -link-info`"
    outlist=""
    for word in ${inlist} ; do
@@ -67,8 +79,10 @@ export NWCHEM_TARGET=LINUX64
 export NWCHEM_MODULES="all"
 export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/LINUX64/nwchem
 export LDOPTIONS="-static -static-libgcc -static-libgfortran"
-export USE_SUBGROUPS=yes
-export USE_MPI=yes
+export USE_SUBGROUPS=y
+export USE_MPI=y
+export USE_MPIF=y
+export USE_MPIF4=y
 export MPI_INCLUDE=`get_mpi_include`
 export MPI_LIB=`get_mpi_link`
 export LIBMPI=`get_mpi_lib`
@@ -96,4 +110,6 @@ else
 fi
 cd $NWCHEM_TOP/src
 make DIAG=PAR FC=gfortran CC=gcc CXX=g++ LDOPTIONS="$LDOPTIONS" nwchem_config
+make DIAG=PAR FC=gfortran CC=gcc CXX=g++ LDOPTIONS="$LDOPTIONS" $option
+cd $NWCHEM_TOP/contrib/mov2asc
 make DIAG=PAR FC=gfortran CC=gcc CXX=g++ LDOPTIONS="$LDOPTIONS" $option
