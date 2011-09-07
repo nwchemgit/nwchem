@@ -35,11 +35,11 @@ ifeq ($(NWCHEM_TARGET),IBM)
 endif
 
 ifeq ($(NWCHEM_TARGET),IBM)
-   CPPFLAGS = -WF,"-I../../src/tools/include"		# Needs MA includes
+   CPPFLAGS = -WF,"-I../../src/tools/install/include"		# Needs MA includes
 else
-   CPPFLAGS = -I../../src/tools/include			# Needs MA includes
+   CPPFLAGS = -I../../src/tools/install/include			# Needs MA includes
 endif
-LDFLAGS = -L../../src/tools/lib/${NWCHEM_TARGET} -lma -larmci	# Needs MA library
+LDFLAGS = -L../../src/tools/install/lib -lga -larmci	# Needs MA library
 ifeq ($(USE_MPI),y)
 LDFLAGS += -L${MPI_LIB} ${LIBMPI}
 LDFLAGS += -L../../lib/${NWCHEM_TARGET} -lnwcutil
