@@ -652,7 +652,7 @@ c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 50    continue
       end
 
-      subroutine geom_external_input(rtdb,n,nmax,tags,c,q,m)
+      subroutine geom_external_input1(rtdb,n,nmax,tags,c,q,m)
 C     $Id$
       implicit none
 #include "errquit.fh"
@@ -789,6 +789,176 @@ c          end if
         end if
       end if
 20    continue
+c      if(aformat.eq."xyz") then
+        n0=n
+        call geom_read_file_xyz(fname,
+     +                              iframe, 
+     +                              ns, 
+     +                              asel, 
+     +                              isel, 
+     +                              n, 
+     +                              nmax,
+     +                              tags,
+     +                               c)
+c      end if
+       do i=n0+1,n
+        is_atom = geom_tag_to_element(tags(i), symbol,
+     $       element, atn)
+        if ((.not. is_atom) .and. symbol.ne.'bq') then
+           message = "bad atom name"
+           goto 998
+        end if
+c
+c..   set default mass
+c     
+        if (.not. geom_atn_to_default_mass(atn,m(i))) then
+          message = "default mass failed"
+          goto 998
+        end if
+        q(i) = atn
+
+      end do
+
+#ifdef MARAT_DEBUG      
+      write(*,*) "fname=",fname
+      write(*,*) "format=",aformat
+      write(*,*) "resi range"
+      do i=1,ns
+        write(*,*) "sel type: ",asel(i)
+      end do
+      do i=1,ns
+        write(*,*) isel(2*i-1),isel(2*i)
+      end do
+      stop
+#endif
+      return
+998   call errquit(pname//message(1:inp_strlen(message)),
+     >             0,0)
+
+      end subroutine
+
+      subroutine geom_external_input(rtdb,n,nmax,tags,c,q,m)
+C     $Id$
+      implicit none
+#include "errquit.fh"
+#include "stdio.fh"
+#include "inp.fh"
+#include "geom.fh"
+#include "global.fh"
+#include "rtdb.fh"
+#include "nwc_const.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+      integer rtdb              ! [input]
+      integer n
+      integer nmax
+      character*16 tags(nmax)
+      double precision c(3,nmax)
+      double precision q(nmax)
+      double precision m(nmax)
+      character*16 aformat
+      character*255 message
+      character*255 fname
+      character*30 pname 
+      character*255 field       ! for character input
+      integer stride
+      integer max_nr
+      parameter (max_nr=100)
+      integer max_ns
+      parameter (max_ns=100)
+      character*16 atype
+      integer  isel(max_ns*2)
+      character*16  asel(max_ns)
+      integer iresi1(max_nr),iresi2(max_nr),iresi(2*max_nr)
+      integer iframe
+      integer i
+      integer i1,i2
+      character*2 symbol
+      character*16 element
+      integer atn
+      logical  is_atom
+      integer n0
+      integer ns
+      character*1 a1
+c      
+      pname = "geom_external_input"
+#define MARAT_DEBUG
+#ifdef MARAT_DEBUG      
+      write(*,*) "in "//pname
+#endif
+      aformat=" "
+      fname = " "
+      ns=0
+      iframe = 1
+      message = "starting parsing"
+      if(.not.inp_a(field)) goto 998
+10    continue
+      write(*,*) "field=",field(1:inp_strlen(field))
+      if (inp_compare(.false.,'format',field)) then
+        message = "looking for format"
+        if(.not.inp_a(aformat)) goto 998
+        if(.not.inp_a(field)) goto 20
+        goto 10
+      else if(inp_compare(.false.,'frame',field)) then
+        if(.not.inp_i(iframe)) goto 998
+        if(.not.inp_a(field)) goto 20
+        goto 10
+      else if(inp_compare(.false.,'select',field)) then
+        if(.not.inp_a(field)) goto 998
+11      continue
+        if(inp_compare(.false.,'not',field)) then
+          a1="-"
+          if(.not.inp_a(field)) goto 998
+        else
+          a1="+"
+        end if
+        atype = field
+        write(*,*) "here",field(1:inp_strlen(field))
+        if(atype.eq."name") then
+          ns=ns+1
+          if(.not.inp_a(field)) goto 998
+          asel(ns)=a1//"aname"//field
+          if(.not.inp_a(field)) goto 20
+          goto 11
+        else if(atype.eq."rname") then
+          ns=ns+1
+          if(.not.inp_a(field)) goto 998
+          asel(ns)=a1//"rname"//field
+          if(.not.inp_a(field)) goto 20
+          goto 11
+        else if(atype.eq."id".or.
+     >         atype.eq."resi") then
+          do while(inp_irange(i1,i2,stride))
+            ns = ns+1
+            if(ns.gt.max_ns) then
+              message = "too many selections:increase max_ns"
+              goto 998
+            end if
+            asel(ns)=a1//atype
+            isel(2*ns-1)=i1
+            isel(2*ns)  =i2
+          end do
+          if(.not.inp_a(field)) goto 20
+          goto 11
+        end if
+        goto 10
+      else
+        if(fname.eq." ") then
+          fname = field
+        else
+           message = "too many input files "//
+     >     fname(1:inp_strlen(fname))//":"//
+     >     field(1:inp_strlen(field)) 
+          goto 998
+        end if
+        if(.not.inp_a(field)) goto 20
+        goto 10
+      end if
+20    continue
+      if(fname.eq." ") then
+         message = "please provide file to load from"
+         goto 998
+       end if
 c      if(aformat.eq."xyz") then
         n0=n
         call geom_read_file_xyz(fname,
