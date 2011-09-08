@@ -31,7 +31,7 @@ cccx      integer offset
       integer length
       integer offset_alpha,key_alpha
       logical used
-c--      logical parallel
+c--      logical parallel 
       character*255 filename
 c --- controls the logic of orbital integrals --
       logical l31s,l42s,lp31p42
@@ -237,20 +237,11 @@ c defining the order
             lp31p42=.true.
             check_key=index_pair(icol,irow)
          end if
-ccx         call tce_hash_n(int_mb(k_v2_alpha_offset),
-ccx     1                 key_alpha,offset_alpha)
-c - exascale ---
-        if(model.eq.'ccsd_act') then
-         call tce_hash_v2_act(int_mb(k_v2_alpha_offset),
+         call tce_hash_n(int_mb(k_v2_alpha_offset),
      1                 key_alpha,offset_alpha)
-        else
-         call tce_hash_v2(int_mb(k_v2_alpha_offset),
-     1                 key_alpha,offset_alpha)
-        end if
-c ---
 c check_key test
-ccx         if(check_key.ne.key_alpha)
-ccx     1   call errquit('get_block_ind:check_key1',0,UNKNOWN_ERR)
+         if(check_key.ne.key_alpha)
+     1   call errquit('get_block_ind:check_key1',0,UNKNOWN_ERR)
 c
 c
 c
@@ -481,20 +472,11 @@ c--- not opened yet            dbl_mb(k_a+i-1) = 0.0d0
           enddo
          end if
 c
-ccx         call tce_hash_n(int_mb(k_v2_alpha_offset),
-ccx     1                 key_alpha,offset_alpha)
-c - exascale ---
-        if(model.eq.'ccsd_act') then
-         call tce_hash_v2_act(int_mb(k_v2_alpha_offset),
+         call tce_hash_n(int_mb(k_v2_alpha_offset),
      1                 key_alpha,offset_alpha)
-        else
-         call tce_hash_v2(int_mb(k_v2_alpha_offset),
-     1                 key_alpha,offset_alpha)
-        end if
-c ---
 c check_key test
-ccx         if(check_key.ne.key_alpha)
-ccx     1   call errquit('get_block_ind:check_key2',0,UNKNOWN_ERR)
+         if(check_key.ne.key_alpha)
+     1   call errquit('get_block_ind:check_key2',0,UNKNOWN_ERR)
 c -------------
          IF(.not.MA_PUSH_GET(mt_dbl,size,'noname',l_a,k_a))
      1           CALL ERRQUIT('get-block-ind1',2,MA_ERR)
@@ -764,6 +746,11 @@ c
 c
 c keys to orbital integrals!
 c
+c *** debug ***
+c       write(6,*)'from gbbi g-s',w2b,w1b,w4b,w3b
+c       write(6,*)'from gbbi d_file',d_file
+c       call util_flush(6)
+c ***************
 c
        inx3=w3b
        inx4=w4b
@@ -909,23 +896,18 @@ c defining the order
             lp31p42=.true.
             check_key=index_pair(icol,irow)
          end if
-ccx         call tce_hash_n(int_mb(k_v2_alpha_offset),
-ccx     1                 key_alpha,offset_alpha)
-c - exascale ---
-       if(model.eq.'ccsd_act') then
-        call tce_hash_v2_act(int_mb(k_v2_alpha_offset),
+         call tce_hash_n(int_mb(k_v2_alpha_offset),
      1                 key_alpha,offset_alpha)
-       else
-         call tce_hash_v2(int_mb(k_v2_alpha_offset),
-     1                 key_alpha,offset_alpha)
-       end if
-c ---
 c check_key test
-ccx         if(check_key.ne.key_alpha)
-ccx     1   call errquit('get_block_ind:check_key1',0,UNKNOWN_ERR)
+         if(check_key.ne.key_alpha)
+     1   call errquit('get_block_ind:check_key1',0,UNKNOWN_ERR)
 c
 c
 c
+c *** debug ***
+c       write(6,*)'from gbbi before ma push get'
+c       call util_flush(6)
+c ***************
          IF(.not.MA_PUSH_GET(mt_dbl,size,'noname',l_a,k_a))
      1           CALL ERRQUIT('get-block-ind1',2,MA_ERR)
          do i = 1, size
@@ -936,8 +918,16 @@ c           array(i) = 0.0d0
 c           dbl_mb(k_a+i-1) = 0.0d0
            array(i) = 0.0d0
          enddo
+c *** debug ***
+c       write(6,*)'from gbbi d_v2orb 1',d_v2orb
+c       call util_flush(6)
+c ***************
          call ga_get(d_v2orb,offset_alpha+1,offset_alpha+size,1,1,
      1         dbl_mb(k_a),1)
+c *** debug ***
+c       write(6,*)'from gbbi d_v2orb 1',d_v2orb
+c       call util_flush(6)
+c ***************
 c
          size1 = int_mb(k_range+g1b-1)
          size2 = int_mb(k_range+g2b-1)
@@ -1147,8 +1137,18 @@ c
 c
 c
 c
+c *** debug ***
+c       write(6,*)'from gbbi second_half'
+c       call util_flush(6)
+c ***************
+c
+c
 c
         if (uaadaa.or.ubbdbb.or.uabdba.or.ubadab) then
+c *** debug ***
+c       write(6,*)'from gbbi in sec_half'
+c       call util_flush(6)
+c ***************
 c second half
 c--         key_alpha = int_mb(k_o2o_offset+indexc+length)
         key_alpha = second_h
@@ -1158,24 +1158,62 @@ c CHECK POINT
           call util_flush(6)
           call errquit('get_block_ind:second_h',0,UNKNOWN_ERR)
          end if
+c *** debug ***
+c       write(6,*)'from gbbi in sec_half s1'
+c       call util_flush(6)
+c ***************
 c defining the order
          ig2b=int_mb(k_b2am+g2b-1)
          ig1b=int_mb(k_b2am+g1b-1)
          ig3b=int_mb(k_b2am+g3b-1)
          ig4b=int_mb(k_b2am+g4b-1)
+c *** debug ***
+c       write(6,*)'from gbbi in sec_half s2'
+c       write(6,*)'g2b g1b g3b g4b',g2b,g1b,g3b,g4b
+c       write(6,*)'ig2b ig1b ig3b ig4b',ig2b,ig1b,ig3b,ig4b
+c       call util_flush(6)
+c ***************
          if(ig3b.ge.ig2b) then
+c *** debug ***
+c         write(6,*)'sh2 in1'
+c         call util_flush(6)
+c *************
             l32s=.false.
             irow=index_pair(ig3b,ig2b)
+c *** debug ***
+c        write(6,*)'from gbbi sh 1 irow',ig3b,ig2b,irow
+c *************
          else
+c *** debug ***
+c         write(6,*)'sh2 in2'
+c         call util_flush(6)
+c *************
             l32s=.true.
             irow=index_pair(ig2b,ig3b)
+c *** debug ***
+c        write(6,*)'from gbbi sh 2 irow',ig2b,ig3b,irow
+c *************
          end if
          if(ig4b.ge.ig1b) then
+c *** debug ***
+c         write(6,*)'sh2 in3'
+c         call util_flush(6)
+c *************
             l41s=.false.
             icol=index_pair(ig4b,ig1b)
+c *** debug ***
+c        write(6,*)'from gbbi sh 3 irow',ig4b,ig1b,icol
+c *************
          else
+c *** debug ***
+c         write(6,*)'sh2 in4'
+c         call util_flush(6)
+c *************
             l41s=.true.
             icol=index_pair(ig1b,ig4b)
+c *** debug ***
+c        write(6,*)'from gbbi sh 3 irow',ig1b,ig4b,icol
+c *************
          end if
          if(irow.ge.icol) then
             lp32p41=.false.
@@ -1184,6 +1222,12 @@ c defining the order
             lp32p41=.true.
             check_key=index_pair(icol,irow)
          end if
+c *** debug ***
+c       write(6,*)'from gbbi in sec_half s2a'
+c       write(6,*)'from gbbi in seci_half size',size
+c       write(6,*)'from gbbi in seci_half k_a',k_a
+c       call util_flush(6)
+c ***************
 c
          if(uabdba.or.ubadab) then
           do i = 1, size
@@ -1191,29 +1235,40 @@ c--- k_a is not opened          dbl_mb(k_a+i-1) = 0.0d0
             array(i) = 0.0d0
           enddo
          end if
+c *** debug ***
+c       write(6,*)'from gbbi in sec_half s3'
+c       call util_flush(6)
+c ***************
 c
-ccx         call tce_hash_n(int_mb(k_v2_alpha_offset),
-ccx     1                 key_alpha,offset_alpha)
-c - exascale ---
-       if(model.eq.'ccsd_act') then
-         call tce_hash_v2_act(int_mb(k_v2_alpha_offset),
+         call tce_hash_n(int_mb(k_v2_alpha_offset),
      1                 key_alpha,offset_alpha)
-       else
-         call tce_hash_v2(int_mb(k_v2_alpha_offset),
-     1                 key_alpha,offset_alpha)
-       end if
-c ---
+c *** debug ***
+c       write(6,*)'from gbbi in sec_half s4'
+c       call util_flush(6)
+c ***************
 c check_key test
-ccx         if(check_key.ne.key_alpha)
-ccx     1   call errquit('get_block_ind:check_key2',0,UNKNOWN_ERR)
+         if(check_key.ne.key_alpha)
+     1   call errquit('get_block_ind:check_key2',0,UNKNOWN_ERR)
 c -------------
+c *** debug ***
+c       write(6,*)'from gbbi before second ma push get'
+c       call util_flush(6)
+c ***************
          IF(.not.MA_PUSH_GET(mt_dbl,size,'noname',l_a,k_a))
      1           CALL ERRQUIT('get-block-ind1',2,MA_ERR)
          do i = 1, size
            dbl_mb(k_a+i-1) = 0.0d0
          enddo
+c *** debug ***
+c       write(6,*)'from gbbi d_v2orb 2',d_v2orb
+c       call util_flush(6)
+c ***************
          call ga_get(d_v2orb,offset_alpha+1,offset_alpha+size,1,1,
      1         dbl_mb(k_a),1)
+c *** debug ***
+c       write(6,*)'after gbbi d_v2orb 2'
+c       call util_flush(6)
+c ***************
 c
 c
          size3 = int_mb(k_range+g3b-1)
@@ -1428,6 +1483,11 @@ c
 c
 c
       end if    !ioalg
+c
+c *** debug ***
+c       write(6,*)'leaving gbbi g-s'
+c       call util_flush(6)
+c ***************
 c
 c      cpusecs(5) = cpusecs(5) + util_cpusec()
 c      cpusecs(55) = cpusecs(55) + util_wallsec()
