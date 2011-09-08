@@ -619,8 +619,6 @@ c
       irrep_c = 0
       irrep_g = 0
 c
-      idiv2e  = 2
-c
        thresh_l=thresh
        if (.not.rtdb_get(rtdb,'tce:threshl',mt_dbl,1,aux_x)) then
          if(nodezero) then
