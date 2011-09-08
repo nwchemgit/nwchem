@@ -284,12 +284,12 @@ c
 c  DIAGONALIZE l_shbar
 c
 c
-      call tce_dgeev('n','v',nxtrials,dbl_mb(k_shbar),nxtrials,
+      call tddft_dgeev('n','v',nxtrials,dbl_mb(k_shbar),nxtrials,
      1  omega,dbl_mb(k_ei),dbl_mb(k_vl),1,dbl_mb(k_vr),nxtrials,
      2  dbl_mb(k_wk),4*nxtrials,info)
       if (info.ne.0) call errquit('tce_eom_xdiagon: dgeev failed',info,
      1  UNKNOWN_ERR)
-      call tce_sort(nxtrials,omega,dbl_mb(k_vr),'A')
+      call tddft_sort(nxtrials,omega,dbl_mb(k_vr),'A')
       if (nodezero.and.util_print('omega',print_debug)) then
         do ivec = 1, nxtrials
           write(LuOut,9000) omega(ivec),omega(ivec)*au2ev
@@ -1188,6 +1188,404 @@ c
 c
 c
 c
+      subroutine deltax_ort_norm_act(k_x1_offset,k_x2_offset,
+     1                           size_x1,size_x2,
+     1                           imicro,xdiis)
+c
+c $Id$
+c
+c     Form a subspace matrix and diagonalize
+c
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "errquit.fh"
+#include "util.fh"
+      integer imicro,xdiis
+      integer  i,j
+      integer d_ex1,size_ex1
+      integer l_ex1_offset,k_ex1_offset
+      integer k_x1_offset,k_x2_offset
+      integer size_x1,size_x2
+      double precision over,over1,over2
+      character*255 filename
+c
+      irrep_c=irrep_x
+      irrep_d=irrep_x
+c
+      call tce_e_offset(l_ex1_offset,k_ex1_offset,size_ex1)
+      call createfile(filename,d_ex1,size_ex1)
+      call tce_zero(d_ex1,size_ex1)
+      call tce_filename('ex1',filename)
+c
+      do i=1,imicro-1
+       over=0.0d0
+       over1=0.0d0
+       over2=0.0d0
+       call tce_zero(d_ex1,size_ex1)
+       call c1_d1(x1(imicro),x1(i),d_ex1,k_x1_offset,k_x1_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over1,1,0)
+       call tce_zero(d_ex1,size_ex1)
+       call c2_d2_act(x2(imicro),x2(i),d_ex1,k_x2_offset,k_x2_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over2,1,0)
+       over=over1+over2
+c fix this and change header
+       call daxpyfile(1,(-1.0d0)*over,x1(i),
+     1                x1(imicro),size_x1)
+       call daxpyfile(1,(-1.0d0)*over,x2(i),
+     1                x2(imicro),size_x2)
+      enddo
+c normalization of x(imicro)
+       over=0.0d0
+       over1=0.0d0
+       over2=0.0d0
+       call tce_zero(d_ex1,size_ex1)
+       call c1_c1(x1(imicro),d_ex1,k_x1_offset,k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over1,1,0)
+       call tce_zero(d_ex1,size_ex1)
+       call c2_c2_act(x2(imicro),d_ex1,k_x2_offset,k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over2,1,0)
+       over=over1+over2
+       over=dsqrt(over)
+       call dscalfile(1.0d0/over,x1(imicro),size_x1)
+       call dscalfile(1.0d0/over,x2(imicro),size_x2)
+c
+c
+      call deletefile(d_ex1)
+      if (.not.ma_pop_stack(l_ex1_offset))
+     1    call errquit("tce_energy: deall1",24,MA_ERR)
+c
+      return 
+      end 
+c
+c
+c
+      subroutine form_correction_act(k_x1_offset,k_x2_offset,
+     &                     size_x1,size_x2,
+     &                     c_eff,omega,imicro,xdiis,residual)
+c
+c $Id$
+c
+c  delta_x = (omega - H-bar) xc
+c
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "errquit.fh"
+#include "util.fh"
+      integer imicro,xdiis
+      integer i,j
+      integer d_ex1,size_ex1
+      integer l_ex1_offset,k_ex1_offset
+      integer k_x1_offset,k_x2_offset
+      integer size_x1,size_x2
+      double precision over,over1,over2
+      double precision c_eff(xdiis),omega,residual
+      character*255 filename
+      logical nodezero         ! True if node 0
+c
+       nodezero=(ga_nodeid().eq.0)
+c
+      irrep_c=irrep_x
+      irrep_d=irrep_x
+c
+c
+c
+      do i=1,imicro-1
+       call daxpyfile(1,(-1.0d0)*omega*c_eff(i),x1(i),
+     1                x1(imicro),size_x1)
+       call daxpyfile(1,c_eff(i),xp1(i),
+     1                x1(imicro),size_x1) 
+       call daxpyfile(1,(-1.0d0)*omega*c_eff(i),x2(i),
+     1                x2(imicro),size_x2)
+       call daxpyfile(1,c_eff(i),xp2(i),
+     1                x2(imicro),size_x2)
+      enddo
+c 
+c calculating residual
+c
+      over1=0.0d0
+      over2=0.0d0
+c
+      call tce_e_offset(l_ex1_offset,k_ex1_offset,size_ex1)
+      call createfile(filename,d_ex1,size_ex1)
+      call tce_zero(d_ex1,size_ex1)
+      call tce_filename('ex1',filename)
+c
+      call c1_c1(x1(imicro),d_ex1,k_x1_offset,k_ex1_offset)
+      call reconcilefile(d_ex1,1)
+      call get_block(d_ex1,over1,1,0)
+c
+      call tce_zero(d_ex1,size_ex1)
+      call c2_c2_act(x2(imicro),d_ex1,k_x2_offset,k_ex1_offset)
+      call reconcilefile(d_ex1,1)
+      call get_block(d_ex1,over2,1,0)
+      residual=dsqrt(over1+over2)
+c
+c
+      call deletefile(d_ex1)
+      if (.not.ma_pop_stack(l_ex1_offset))
+     1    call errquit("tce_energy: deall2",24,MA_ERR)
+c
+c JACOBI
+c
+      call tce_jacobi_x1(x1(imicro),k_x1_offset,omega)
+      call tce_jacobi_x2a(x2(imicro),k_x2_offset,omega)
+c
+c
+c
+      return 
+      end 
+c
+c
+c
+c
+c
+c
+      subroutine form_heff_act(k_x1_offset,k_x2_offset,size_x1,size_x2,
+     &                     c_eff,h_eff,omega,imicro,xdiis)
+c
+c $Id$
+c
+c     Form a subspace matrix and diagonalize
+c
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "errquit.fh"
+#include "util.fh"
+      integer imicro,xdiis,residual
+      integer  i,j
+      integer d_ex1,size_ex1
+      integer l_ex1_offset,k_ex1_offset
+      integer k_x1_offset,k_x2_offset
+      integer size_x1,size_x2
+      double precision over,over1,over2
+      double precision h_eff(xdiis,xdiis),c_eff(xdiis) 
+      double precision h_eff_copy(xdiis,xdiis)
+      double precision omega,xmax
+c
+      character*1 jobvl,jobvr
+      integer lwork,info_x
+      double precision wr(xdiis),wi(xdiis)
+      double precision vl(xdiis,xdiis),vr(xdiis,xdiis)
+      double precision work(4*xdiis)
+c
+      character*255 filename
+c
+      logical nodezero         ! True if node 0
+c
+       nodezero=(ga_nodeid().eq.0)
+c
+      jobvl='N'
+      jobvr='V'
+      lwork=4*xdiis
+c
+      irrep_c=irrep_x
+      irrep_d=irrep_x
+c
+      call tce_e_offset(l_ex1_offset,k_ex1_offset,size_ex1)
+      call createfile(filename,d_ex1,size_ex1)
+      call tce_zero(d_ex1,size_ex1)
+      call tce_filename('ex1',filename)
+c
+      do i=1,imicro-1 !-------- i-loop
+       over=0.0d0
+       over1=0.0d0
+       over2=0.0d0
+c imicro - row
+       call tce_zero(d_ex1,size_ex1)
+       call c1_d1(x1(imicro),xp1(i),d_ex1,k_x1_offset,k_x1_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over1,1,0)
+       call tce_zero(d_ex1,size_ex1)
+       call c2_d2_act(x2(imicro),xp2(i),d_ex1,k_x2_offset,k_x2_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over2,1,0)
+       over=over1+over2
+c fix this and change header
+       h_eff(imicro,i)=over
+c normalization of x(imicro)
+       over=0.0d0
+       over1=0.0d0
+       over2=0.0d0
+c imicro - column
+       call tce_zero(d_ex1,size_ex1)
+       call c1_d1(x1(i),xp1(imicro),d_ex1,k_x1_offset,k_x1_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over1,1,0)
+       call tce_zero(d_ex1,size_ex1)
+       call c2_d2_act(x2(i),xp2(imicro),d_ex1,k_x2_offset,k_x2_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over2,1,0)
+       over=over1+over2
+c fix this and change header
+       h_eff(i,imicro)=over
+c normalization of x(imicro)
+       enddo !-------------------- i-loop
+c h_eff(imicro,imicro)
+       over=0.0d0
+       over1=0.0d0
+       over2=0.0d0
+c nxrtials - column
+       call tce_zero(d_ex1,size_ex1)
+       call c1_d1(x1(imicro),xp1(imicro),d_ex1,
+     1            k_x1_offset,k_x1_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over1,1,0)
+       call tce_zero(d_ex1,size_ex1)
+       call c2_d2_act(x2(imicro),xp2(imicro),d_ex1,
+     1            k_x2_offset,k_x2_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over2,1,0)
+       over=over1+over2
+c fix this and change header
+       h_eff(imicro,imicro)=over
+c
+      call deletefile(d_ex1)
+      if (.not.ma_pop_stack(l_ex1_offset))
+     1    call errquit("tce_energy: deall3",24,MA_ERR)
+c
+       do i=1,xdiis
+       do j=1,xdiis
+        h_eff_copy(i,j)=h_eff(i,j)
+       enddo
+       enddo
+c big number on diagonal beyond current space
+       do i=imicro+1,xdiis
+         h_eff(i,i)=10000000000.0d0
+       enddo
+c
+c
+c
+        call dgeev(jobvl,jobvr,xdiis,h_eff,xdiis,wr,wi,
+     &             vl,xdiis,vr,xdiis,work,lwork,info_x)
+c
+c selection
+c
+       xmax=0.0d0
+       j=0
+       do i=1,xdiis
+        if((dabs(vr(1,i)).gt.xmax).and.(dabs(wi(i)).lt.0.000010d0)) then
+         xmax=dabs(vr(1,i))
+         j=i
+        end if
+       enddo
+       if(j.eq.0) then
+        call errquit('Eigen-solver - imaginary roots',xdiis,CALC_ERR)
+       end if       
+c
+       xmax=0.0d0
+       omega=wr(j)
+       do i=1,xdiis
+        c_eff(i)=vr(i,j)
+        xmax=xmax+vr(i,j)*vr(i,j)
+       enddo
+       do i=1,xdiis
+        c_eff(i)=(1.0d0/dsqrt(xmax))*c_eff(i)
+       enddo
+c
+       do i=1,xdiis
+       do j=1,xdiis
+        h_eff(i,j)=h_eff_copy(i,j)
+       enddo
+       enddo
+c 
+      return 
+      end 
+c
+c
+c
+c
+c
+      subroutine norm_xc_vector_act(k_x1_offset,k_x2_offset,
+     1                           size_x1,size_x2,iroot)
+c
+c $Id$
+c
+c     Form a subspace matrix and diagonalize
+c
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "errquit.fh"
+#include "util.fh"
+      integer iroot
+      integer i,j
+      integer d_ex1,size_ex1
+      integer l_ex1_offset,k_ex1_offset
+      integer k_x1_offset,k_x2_offset
+      integer size_x1,size_x2
+      double precision over,over1,over2
+      character*255 filename
+c
+      irrep_c=irrep_x
+      irrep_d=irrep_x
+c
+      call tce_e_offset(l_ex1_offset,k_ex1_offset,size_ex1)
+      call createfile(filename,d_ex1,size_ex1)
+      call tce_zero(d_ex1,size_ex1)
+      call tce_filename('ex1',filename)
+c normalization of x(imicro)
+       over=0.0d0
+       over1=0.0d0
+       over2=0.0d0
+       call tce_zero(d_ex1,size_ex1)
+       call c1_c1(xc1(iroot),d_ex1,k_x1_offset,k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over1,1,0)
+       call tce_zero(d_ex1,size_ex1)
+       call c2_c2_act(xc2(iroot),d_ex1,k_x2_offset,k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over2,1,0)
+       over=over1+over2
+       over=dsqrt(over)
+       call dscalfile(1.0d0/over,xc1(iroot),size_x1)
+       call dscalfile(1.0d0/over,xc2(iroot),size_x2)
+c
+c
+      call deletefile(d_ex1)
+      if (.not.ma_pop_stack(l_ex1_offset))
+     1    call errquit("tce_energy: deall4",24,MA_ERR)
+c
+      return 
+      end 
+c
+c
+c
+c
 c
       subroutine norm_x_vector_mr(k_x1_offset,k_x2_offset,
      1                           size_x1,size_x2,totr)
@@ -1690,3 +2088,513 @@ c
 c
 c 
 c
+c
+c
+c
+c
+c
+c
+c
+      subroutine norm_x_vector_act_mr(k_x1_offset,k_x2_offset,
+     1                           size_x1,size_x2,totr)
+c
+c $Id$
+c
+c     Form a subspace matrix and diagonalize
+c
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "errquit.fh"
+#include "util.fh"
+      integer iroot
+      integer i,j,totr
+      integer d_ex1,size_ex1
+      integer l_ex1_offset,k_ex1_offset
+      integer k_x1_offset,k_x2_offset
+      integer size_x1,size_x2
+      double precision over,over1,over2
+      character*255 filename
+c
+      irrep_c=irrep_x
+      irrep_d=irrep_x
+c
+      call tce_e_offset(l_ex1_offset,k_ex1_offset,size_ex1)
+      call createfile(filename,d_ex1,size_ex1)
+      call tce_zero(d_ex1,size_ex1)
+      call tce_filename('ex1',filename)
+c normalization of initial  space
+      do i=1,totr
+c
+       do j=1,i-1
+        over=0.0d0
+        over1=0.0d0
+        over2=0.0d0
+        call tce_zero(d_ex1,size_ex1)
+        call c1_d1(x1(i),x1(j),d_ex1,k_x1_offset,k_x1_offset,
+     1             k_ex1_offset)
+        call reconcilefile(d_ex1,1)
+        call get_block(d_ex1,over1,1,0)
+        call tce_zero(d_ex1,size_ex1)
+        call c2_d2_act(x2(i),x2(j),d_ex1,k_x2_offset,k_x2_offset,
+     1             k_ex1_offset)
+        call reconcilefile(d_ex1,1)
+        call get_block(d_ex1,over2,1,0)
+        over=over1+over2
+c fix this and change header
+        call daxpyfile(1,(-1.0d0)*over,x1(j),
+     1                 x1(i),size_x1)
+        call daxpyfile(1,(-1.0d0)*over,x2(j),
+     1                 x2(i),size_x2)
+       enddo ! ---- over j
+c
+c normalization of x(i)
+       over=0.0d0
+       over1=0.0d0
+       over2=0.0d0
+       call tce_zero(d_ex1,size_ex1)
+       call c1_c1(x1(i),d_ex1,k_x1_offset,k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over1,1,0)
+       call tce_zero(d_ex1,size_ex1)
+       call c2_c2_act(x2(i),d_ex1,k_x2_offset,k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over2,1,0)
+       over=over1+over2
+       over=dsqrt(over)
+       call dscalfile(1.0d0/over,x1(i),size_x1)
+       call dscalfile(1.0d0/over,x2(i),size_x2)
+c
+      enddo !over i ------
+c
+      call deletefile(d_ex1)
+      if (.not.ma_pop_stack(l_ex1_offset))
+     1    call errquit("tce_energy: deall1",24,MA_ERR)
+c
+      return 
+      end 
+c
+c
+c
+c
+c
+      subroutine form_heff_act_mr(k_x1_offset,k_x2_offset,
+     &                    size_x1,size_x2,
+     &                    c_eff,h_eff,omega,imicro,xdiis,iter_eomcc)
+c
+c $Id$
+c
+c     Form a subspace matrix and diagonalize
+c
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "errquit.fh"
+#include "util.fh"
+      integer imicro,xdiis,residual
+      integer  i,j,iter_eomcc,ipos,ipos1,ipos2,imin
+      integer d_ex1,size_ex1
+      integer l_ex1_offset,k_ex1_offset
+      integer k_x1_offset,k_x2_offset
+      integer size_x1,size_x2
+      double precision over,over1,over2
+      double precision h_eff(xdiis*nroots_reduced,xdiis*nroots_reduced)
+      double precision c_eff(xdiis*nroots_reduced,nroots_reduced) 
+      double precision h_copy(xdiis*nroots_reduced,xdiis*nroots_reduced)
+      double precision omega(nroots_reduced),xmax,xmin
+c
+      character*1 jobvl,jobvr
+      integer lwork,info_x
+      double precision wr(xdiis*nroots_reduced),wi(xdiis*nroots_reduced)
+      double precision vl(xdiis*nroots_reduced,xdiis*nroots_reduced)
+      double precision vr(xdiis*nroots_reduced,xdiis*nroots_reduced)
+      double precision work(4*xdiis*nroots_reduced)
+c 
+      character*255 filename
+c
+      logical nodezero         ! True if node 0
+c
+       nodezero=(ga_nodeid().eq.0)
+c
+      jobvl='N'
+      jobvr='V'
+      lwork=4*xdiis*nroots_reduced
+c
+      irrep_c=irrep_x
+      irrep_d=irrep_x
+c 
+      call tce_e_offset(l_ex1_offset,k_ex1_offset,size_ex1)
+      call createfile(filename,d_ex1,size_ex1)
+      call tce_zero(d_ex1,size_ex1)
+      call tce_filename('ex1',filename)
+c
+      do i=1,(imicro-1)*nroots_reduced !-------- i-loop
+c
+       do j=1,nroots_reduced
+        over=0.0d0
+        over1=0.0d0
+        over2=0.0d0
+        ipos=(imicro-1)*nroots_reduced+j
+c j related to column
+       call tce_zero(d_ex1,size_ex1)
+       call c1_d1(x1(i),xp1(ipos),d_ex1,k_x1_offset,k_x1_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over1,1,0)
+       call tce_zero(d_ex1,size_ex1)
+       call c2_d2_act(x2(i),xp2(ipos),d_ex1,k_x2_offset,k_x2_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over2,1,0)
+       over=over1+over2
+c fix this and change header
+       h_eff(i,ipos)=over
+c normalization of x(imicro)
+       over=0.0d0
+       over1=0.0d0
+       over2=0.0d0
+c imicro - column
+       call tce_zero(d_ex1,size_ex1)
+       call c1_d1(x1(ipos),xp1(i),d_ex1,k_x1_offset,k_x1_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over1,1,0)
+       call tce_zero(d_ex1,size_ex1)
+       call c2_d2_act(x2(ipos),xp2(i),d_ex1,k_x2_offset,k_x2_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over2,1,0)
+       over=over1+over2
+c fix this and change header
+       h_eff(ipos,i)=over
+c normalization of x(imicro)
+
+       enddo !-------------------- j-loop
+       enddo !-------------------- i-loop
+c h_eff(imicro,imicro)
+       do i=1,nroots_reduced
+       do j=1,nroots_reduced
+       ipos1=(imicro-1)*nroots_reduced+i
+       ipos2=(imicro-1)*nroots_reduced+j
+       over=0.0d0
+       over1=0.0d0
+       over2=0.0d0
+c nxrtials - column
+       call tce_zero(d_ex1,size_ex1)
+       call c1_d1(x1(ipos1),xp1(ipos2),d_ex1,
+     1            k_x1_offset,k_x1_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over1,1,0)
+       call tce_zero(d_ex1,size_ex1)
+       call c2_d2_act(x2(ipos1),xp2(ipos2),d_ex1,
+     1            k_x2_offset,k_x2_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over2,1,0)
+       over=over1+over2
+c fix this and change header
+       h_eff(ipos1,ipos2)=over
+c
+      enddo !j ---------
+      enddo !i ---------
+c
+      call deletefile(d_ex1)
+      if (.not.ma_pop_stack(l_ex1_offset))
+     1    call errquit("tce_energy: deall3",24,MA_ERR)
+c
+       do i=1,xdiis*nroots_reduced
+       do j=1,xdiis*nroots_reduced
+        h_copy(i,j)=h_eff(i,j)
+       enddo
+       enddo
+c big number on diagonal beyond current space
+       do i=imicro*nroots_reduced+1,xdiis*nroots_reduced
+         h_eff(i,i)=10000000000.0d0
+       enddo
+c
+c
+        call dgeev(jobvl,jobvr,xdiis*nroots_reduced,h_eff,
+     &             xdiis*nroots_reduced,wr,wi,
+     &             vl,xdiis*nroots_reduced,vr,
+     &             xdiis*nroots_reduced,work,lwork,info_x)
+c
+c selection
+c
+       do j=1,nroots_reduced ! --- i
+       xmin=10000000001.0d0
+       imin=0
+       do i=1,xdiis*nroots_reduced
+        if((wr(i).lt.xmin).and.(dabs(wi(i)).lt.0.000010d0)) then
+         xmin=wr(i)
+         imin=i
+        end if
+       enddo
+       if(imin.eq.0) then
+        call errquit('Eigen-solver - imaginary roots',xdiis,CALC_ERR)
+       end if       
+c
+       omega(j)=wr(imin)
+       wr(imin)=10000000001.0d0
+
+       xmax=0.0d0
+       do i=1,xdiis*nroots_reduced
+        c_eff(i,j)=vr(i,imin)
+        xmax=xmax+vr(i,imin)*vr(i,imin)
+       enddo
+       do i=1,xdiis*nroots_reduced
+        c_eff(i,j)=(1.0d0/dsqrt(xmax))*c_eff(i,j)
+       enddo
+c
+       enddo ! j ---
+c
+c
+       do i=1,xdiis*nroots_reduced
+       do j=1,xdiis*nroots_reduced
+        h_eff(i,j)=h_copy(i,j)
+       enddo
+       enddo
+c 
+      return 
+      end 
+c
+c
+c
+      subroutine form_correction_act_mr(k_x1_offset,k_x2_offset,
+     &                     size_x1,size_x2,
+     &                     c_eff,omega,imicro,xdiis,residual,iroot)
+c
+c $Id$
+c
+c  delta_x = (omega - H-bar) xc
+c
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "errquit.fh"
+#include "util.fh"
+      integer imicro,xdiis
+      integer i,j,iroot
+      integer d_ex1,size_ex1
+      integer l_ex1_offset,k_ex1_offset
+      integer k_x1_offset,k_x2_offset
+      integer size_x1,size_x2
+      double precision over,over1,over2
+      double precision c_eff(xdiis*nroots_reduced),omega,residual
+      character*255 filename
+      logical nodezero         ! True if node 0
+c
+       nodezero=(ga_nodeid().eq.0)
+c
+      irrep_c=irrep_x
+      irrep_d=irrep_x
+c
+c
+      do i=1,(imicro-1)*nroots_reduced
+       call daxpyfile(1,(-1.0d0)*omega*c_eff(i),x1(i),
+     1                x1((imicro-1)*nroots_reduced+iroot),size_x1)
+       call daxpyfile(1,c_eff(i),xp1(i),
+     1                x1((imicro-1)*nroots_reduced+iroot),size_x1) 
+       call daxpyfile(1,(-1.0d0)*omega*c_eff(i),x2(i),
+     1                x2((imicro-1)*nroots_reduced+iroot),size_x2)
+       call daxpyfile(1,c_eff(i),xp2(i),
+     1                x2((imicro-1)*nroots_reduced+iroot),size_x2)
+c  
+c
+      enddo
+c 
+c calculating residual
+c
+      over1=0.0d0
+      over2=0.0d0
+c
+      call tce_e_offset(l_ex1_offset,k_ex1_offset,size_ex1)
+      call createfile(filename,d_ex1,size_ex1)
+      call tce_zero(d_ex1,size_ex1)
+      call tce_filename('ex1',filename)
+c
+      call c1_c1(x1((imicro-1)*nroots_reduced+iroot),
+     &     d_ex1,k_x1_offset,k_ex1_offset)
+      call reconcilefile(d_ex1,1)
+      call get_block(d_ex1,over1,1,0)
+c
+      call tce_zero(d_ex1,size_ex1)
+      call c2_c2_act(x2((imicro-1)*nroots_reduced+iroot),
+     &     d_ex1,k_x2_offset,k_ex1_offset)
+      call reconcilefile(d_ex1,1)
+      call get_block(d_ex1,over2,1,0)
+      residual=dsqrt(over1+over2)
+c
+c 
+      call deletefile(d_ex1)
+      if (.not.ma_pop_stack(l_ex1_offset))
+     1    call errquit("tce_energy: deall2",24,MA_ERR)
+c
+c JACOBI
+c
+      call tce_jacobi_x1(x1((imicro-1)*nroots_reduced+iroot),
+     &     k_x1_offset,omega)
+      call tce_jacobi_x2a(x2((imicro-1)*nroots_reduced+iroot),
+     &     k_x2_offset,omega)
+c
+c
+c
+      return 
+      end 
+c
+c
+c
+      subroutine form_best_guess_act_mr(k_x1_offset,k_x2_offset,
+     &                     size_x1,size_x2,
+     &                     c_eff,imicro_x,xdiis,iroot)
+c
+c $Id$
+c
+c  xc(iroot) = sum(i=1,...,imicro) x(i)
+c
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "errquit.fh"
+#include "util.fh"
+      integer imicro_x,xdiis,residual
+      integer i,j
+      integer d_ex1,size_ex1
+      integer l_ex1_offset,k_ex1_offset
+      integer k_x1_offset,k_x2_offset
+      integer size_x1,size_x2
+      integer iroot
+      double precision over,over1,over2
+      double precision c_eff(xdiis*nroots_reduced)
+      logical nodezero         ! True if node 0
+c
+       nodezero=(ga_nodeid().eq.0)
+c
+
+c
+      irrep_c=irrep_x
+      irrep_d=irrep_x
+c
+c
+      call tce_zero(xc1(iroot),size_x1)
+      call tce_zero(xc2(iroot),size_x2)
+c
+      do i=1,imicro_x*nroots_reduced
+       call daxpyfile(1,c_eff(i),x1(i),
+     1                xc1(iroot),size_x1)
+       call daxpyfile(1,c_eff(i),x2(i),
+     1                xc2(iroot),size_x2)
+      enddo
+c
+c
+      return 
+      end 
+c
+c
+c
+      subroutine deltax_ort_norm_act_mr(k_x1_offset,k_x2_offset,
+     1                           size_x1,size_x2,
+     1                           imicro,xdiis)
+c
+c $Id$
+c
+c     Form a subspace matrix and diagonalize
+c
+      implicit none
+#include "stdio.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "sym.fh"
+#include "tce.fh"
+#include "tce_main.fh"
+#include "tce_diis.fh"
+#include "errquit.fh"
+#include "util.fh"
+      integer imicro,xdiis
+      integer  i,j,ipos
+      integer d_ex1,size_ex1
+      integer l_ex1_offset,k_ex1_offset
+      integer k_x1_offset,k_x2_offset
+      integer size_x1,size_x2
+      double precision over,over1,over2
+      character*255 filename
+c
+      irrep_c=irrep_x
+      irrep_d=irrep_x
+c
+      call tce_e_offset(l_ex1_offset,k_ex1_offset,size_ex1)
+      call createfile(filename,d_ex1,size_ex1)
+      call tce_zero(d_ex1,size_ex1)
+      call tce_filename('ex1',filename)
+c
+      do i=1,nroots_reduced
+      ipos=(imicro-1)*nroots_reduced+i
+      do j=1,ipos-1
+       over=0.0d0
+       over1=0.0d0
+       over2=0.0d0
+       call tce_zero(d_ex1,size_ex1)
+       call c1_d1(x1(ipos),x1(j),d_ex1,k_x1_offset,k_x1_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over1,1,0)
+       call tce_zero(d_ex1,size_ex1)
+       call c2_d2_act(x2(ipos),x2(j),d_ex1,k_x2_offset,k_x2_offset,
+     1            k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over2,1,0)
+       over=over1+over2
+c fix this and change header
+       call daxpyfile(1,(-1.0d0)*over,x1(j),
+     1                x1(ipos),size_x1)
+       call daxpyfile(1,(-1.0d0)*over,x2(j),
+     1                x2(ipos),size_x2)
+      enddo !---j
+c normalization of x(imicro)
+       over=0.0d0
+       over1=0.0d0
+       over2=0.0d0
+       call tce_zero(d_ex1,size_ex1)
+       call c1_c1(x1(ipos),d_ex1,k_x1_offset,k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over1,1,0)
+       call tce_zero(d_ex1,size_ex1)
+       call c2_c2_act(x2(ipos),d_ex1,k_x2_offset,k_ex1_offset)
+       call reconcilefile(d_ex1,1)
+       call get_block(d_ex1,over2,1,0)
+       over=over1+over2
+       over=dsqrt(over)
+       call dscalfile(1.0d0/over,x1(ipos),size_x1)
+       call dscalfile(1.0d0/over,x2(ipos),size_x2)
+c
+      enddo ! --- i 
+c
+      call deletefile(d_ex1)
+      if (.not.ma_pop_stack(l_ex1_offset))
+     1    call errquit("tce_energy: deall1",24,MA_ERR)
+c
+      return 
+      end 
+c
+c 
+
