@@ -51,8 +51,6 @@ c
       integer irrep_trc           ! Irreducible representation of T(1) w.r.t. C
       integer irrep_trd           ! Irreducible representation of T(1) w.r.t. D
 c
-      integer idiv2e            ! offset related parameter
-c
 c     Currently not in use but I am reserving them for future use.
 c
 c      integer irrep_yra           ! Irreducible representation of L(1) w.r.t. A
@@ -89,7 +87,7 @@ c
      5  irrep_a,irrep_b,irrep_c,
      6  irrep_oa,irrep_ob,irrep_oc,irrep_od,
      7  irrep_tra,irrep_trb,irrep_trc,irrep_trd,
-     8  nproc_read_tensor,nproc_write_tensor,idiv2e
+     8  nproc_read_tensor,nproc_write_tensor
 c     8  irrep_yra,irrep_yrb,irrep_yrc,irrep_yrd
 c     9  irrep_qrab,irrep_qrac,irrep_qrad,
 c     1  irrep_qrbc,irrep_qrbd,irrep_qrcd,
