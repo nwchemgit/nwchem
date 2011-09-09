@@ -111,6 +111,9 @@ else
 fi
 cd $NWCHEM_TOP/src
 make DIAG=PAR FC=gfortran CC=gcc CXX=g++ LDOPTIONS="$LDOPTIONS" nwchem_config
+cd $NWCHEM_TOP/src/util
+make DIAG=PAR FC=gfortran CC=gcc CXX=g++ LDOPTIONS="$LDOPTIONS" version
+cd $NWCHEM_TOP/src
 make DIAG=PAR FC=gfortran CC=gcc CXX=g++ LDOPTIONS="$LDOPTIONS" $option
 cd $NWCHEM_TOP/contrib/mov2asc
 make DIAG=PAR FC=gfortran CC=gcc CXX=g++ LDOPTIONS="$LDOPTIONS" $option
