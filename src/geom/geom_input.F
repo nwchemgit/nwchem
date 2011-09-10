@@ -652,190 +652,6 @@ c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 50    continue
       end
 
-      subroutine geom_external_input1(rtdb,n,nmax,tags,c,q,m)
-C     $Id$
-      implicit none
-#include "errquit.fh"
-#include "stdio.fh"
-#include "inp.fh"
-#include "geom.fh"
-#include "global.fh"
-#include "rtdb.fh"
-#include "nwc_const.fh"
-#include "mafdecls.fh"
-#include "util.fh"
-      integer rtdb              ! [input]
-      integer n
-      integer nmax
-      character*16 tags(nmax)
-      double precision c(3,nmax)
-      double precision q(nmax)
-      double precision m(nmax)
-      character*16 aformat
-      character*255 message
-      character*255 fname
-      character*30 pname 
-      character*255 field       ! for character input
-      integer stride
-      integer max_nr
-      parameter (max_nr=100)
-      integer max_ns
-      parameter (max_ns=100)
-      character*16 atype
-      integer  isel(max_ns*2)
-      character*16  asel(max_ns)
-      integer iresi1(max_nr),iresi2(max_nr),iresi(2*max_nr)
-      integer iframe
-      integer i
-      integer i1,i2
-      character*2 symbol
-      character*16 element
-      integer atn
-      logical  is_atom
-      integer n0
-      integer ns
-      character*1 a1
-c      
-      pname = "geom_external_input"
-#define MARAT_DEBUG
-#ifdef MARAT_DEBUG      
-      write(*,*) "in "//pname
-#endif
-      aformat=" "
-      fname = " "
-      ns=0
-      iframe = 1
-10    continue
-      if(inp_a(field)) then
-              write(*,*) "field=",field(1:inp_strlen(field))
-        if (inp_compare(.false.,'format',field)) then
-          message = "looking for format"
-          if(.not.inp_a(aformat)) goto 998
-          goto 10
-        else if(inp_compare(.false.,'frame',field)) then
-          if(.not.inp_i(iframe)) then
-            goto 998
-          end if
-          goto 10
-        else if(inp_compare(.false.,'select',field)) then
-          if(.not.inp_a(field)) goto 998
-11        continue
-          if(inp_compare(.false.,'not',field)) then
-            a1="-"
-            if(.not.inp_a(field)) goto 998
-          else
-            a1="+"
-          end if
-          atype = field
-          write(*,*) "here",field(1:inp_strlen(field))
-          if(atype.eq."name") then
-            ns=ns+1
-            if(.not.inp_a(field)) goto 998
-            asel(ns)=a1//"aname"//field
-            goto 10
-          else if(atype.eq."rname") then
-            ns=ns+1
-            if(.not.inp_a(field)) goto 998
-            asel(ns)=a1//"rname"//field
-            goto 10
-          else if(atype.eq."id".or.
-     >           atype.eq."resi") then
-            do while(inp_irange(i1,i2,stride))
-              ns = ns+1
-              if(ns.gt.max_ns) then
-                message = "too many selections:increase max_ns"
-                goto 998
-              end if
-              asel(ns)=a1//atype
-              isel(2*ns-1)=i1
-              isel(2*ns)  =i2
-            end do
-            goto 10
-          else
-             message = "uknown selection "//atype
-             goto 998
-          end if
-
-c         else if(inp_compare(.false.,'resi',field)) then
-c          i=0
-c20        continue
-c          if ( inp_irange(i1,i2,stride)) then
-c#ifdef MARAT_DEBUG      
-c             write(*,*) "found range",i1,i2,stride
-c#endif
-c             i = i+1
-c             if(i.le.max_nr) then
-c                iresi(2*i-1)=i1
-c                iresi(2*i)  =i2
-c                iresi1(i)=i1
-c                iresi2(i)=i2
-c                goto 20
-c             else
-c                message = "out of range for resi, increase max_nr"
-c                goto 998
-c             end if
-c          end if
-          goto 10
-        else
-          if(fname.eq." ") then
-            fname = field
-          else
-             message = "too many input files "//
-     >       fname(1:inp_strlen(fname))//":"//
-     >       field(1:inp_strlen(field)) 
-            goto 998
-          end if
-          goto 10
-        end if
-      end if
-20    continue
-c      if(aformat.eq."xyz") then
-        n0=n
-        call geom_read_file_xyz(fname,
-     +                              iframe, 
-     +                              ns, 
-     +                              asel, 
-     +                              isel, 
-     +                              n, 
-     +                              nmax,
-     +                              tags,
-     +                               c)
-c      end if
-       do i=n0+1,n
-        is_atom = geom_tag_to_element(tags(i), symbol,
-     $       element, atn)
-        if ((.not. is_atom) .and. symbol.ne.'bq') then
-           message = "bad atom name"
-           goto 998
-        end if
-c
-c..   set default mass
-c     
-        if (.not. geom_atn_to_default_mass(atn,m(i))) then
-          message = "default mass failed"
-          goto 998
-        end if
-        q(i) = atn
-
-      end do
-
-#ifdef MARAT_DEBUG      
-      write(*,*) "fname=",fname
-      write(*,*) "format=",aformat
-      write(*,*) "resi range"
-      do i=1,ns
-        write(*,*) "sel type: ",asel(i)
-      end do
-      do i=1,ns
-        write(*,*) isel(2*i-1),isel(2*i)
-      end do
-      stop
-#endif
-      return
-998   call errquit(pname//message(1:inp_strlen(message)),
-     >             0,0)
-
-      end subroutine
 
       subroutine geom_external_input(rtdb,n,nmax,tags,c,q,m)
 C     $Id$
@@ -880,12 +696,14 @@ C     $Id$
       integer n0
       integer ns
       character*1 a1
+      logical ignore,l1
 c      
       pname = "geom_external_input"
-#define MARAT_DEBUG
 #ifdef MARAT_DEBUG      
       write(*,*) "in "//pname
 #endif
+      ignore=ma_set_hard_fail(l1)
+      ignore=ma_set_auto_verify(l1)
       aformat=" "
       fname = " "
       ns=0
@@ -893,7 +711,6 @@ c
       message = "starting parsing"
       if(.not.inp_a(field)) goto 998
 10    continue
-      write(*,*) "field=",field(1:inp_strlen(field))
       if (inp_compare(.false.,'format',field)) then
         message = "looking for format"
         if(.not.inp_a(aformat)) goto 998
@@ -913,7 +730,6 @@ c
           a1="+"
         end if
         atype = field
-        write(*,*) "here",field(1:inp_strlen(field))
         if(atype.eq."name") then
           ns=ns+1
           if(.not.inp_a(field)) goto 998
@@ -959,8 +775,12 @@ c
          message = "please provide file to load from"
          goto 998
        end if
-c      if(aformat.eq."xyz") then
-        n0=n
+      if(aformat.eq." ") then
+        i=INDEX(fname,".",.true.) 
+        aformat=fname(i+1:)
+      end if
+      n0=n
+      if(aformat.eq."xyz") then
         call geom_read_file_xyz(fname,
      +                              iframe, 
      +                              ns, 
@@ -970,7 +790,20 @@ c      if(aformat.eq."xyz") then
      +                              nmax,
      +                              tags,
      +                               c)
-c      end if
+      else if (aformat.eq."pdb") then
+        call geom_read_file_pdb(fname,
+     +                              iframe, 
+     +                              ns, 
+     +                              asel, 
+     +                              isel, 
+     +                              n, 
+     +                              nmax,
+     +                              tags,
+     +                               c)
+       else
+         message = "unknown format "//aformat
+         goto 998
+       end if
        do i=n0+1,n
         is_atom = geom_tag_to_element(tags(i), symbol,
      $       element, atn)
@@ -1097,28 +930,7 @@ c       process selections here
      +                          isel,
      +                          lsel)
 
-c        lsel=.true.
-c        do is=1,ns
-c        asel0=asel(is)
-c        lsel = lsel.and.(asel0(1:1).eq."-")
-c        asel0=asel0(2:)
-c        write(*,*) "lsel 1",lsel,asel0,tags(n)
-c        if(asel0(1:5).eq."aname") then
-c          if(tags(n).eq.asel0(6:)) then
-c            lsel=.not.lsel
-c        write(*,*) "lsel 2",lsel
-c          end if
-c        else if(asel0.eq."id") then
-c          ilo = isel(2*is-1)
-c          ihi = isel(2*is)
-c          if(i.ge.ilo.and.i.le.ihi) then
-c            lsel=.not.lsel
-c            write(*,*) "lsel 3",lsel,ilo,ihi,i
-c          end if
-c        end if
-c        end do
         if(.not.lsel) n=n-1
-c       end of selection processing
       end do
 #ifdef MARAT_DEBUG      
       write(*,*) "n=",n
@@ -1133,6 +945,103 @@ c       end of selection processing
       call errquit(message(1:inp_strlen(message)+1)//pname,0,0)
       end
 
+      subroutine geom_read_file_pdb(filename,
+     +                            ifr, 
+     +                            ns, 
+     +                            asel, 
+     +                            isel,
+     +                            n,
+     +                            nmax,
+     +                            tags,
+     +                             c)
+
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+      character*(*) filename
+      integer  ifr
+      character*(*) asel(ns)
+      integer ns
+      integer isel(2*ns)
+      integer n
+      integer nmax
+      character*16 tags(nmax)
+      double precision c(3,nmax)
+c
+      integer i
+      integer  in
+      integer na
+      integer fn
+      character*180 buffer
+      character*1 b1
+      character*72 message
+      character*30 pname
+      integer  ifr0
+      logical lsel
+      integer  is,ilo,ihi
+      character*16 asel0
+      character*16 a16
+      character*3 resn
+      integer  id,ir
+c
+      pname = "geom_read_file_pdb"
+#ifdef MARAT_DEBUG      
+      write(*,*) "in "//pname
+#endif      
+c      
+      if(.not.util_get_io_unit(fn))
+     >  call errquit("cannot get file number",0,0)
+      open(unit=fn,status="old",form="formatted",file=filename)
+c     initial frame counter
+      message = "rewinding to the frame"
+c     yes it should be one
+      ifr0=1
+      do while (ifr0.lt.ifr)
+        read(fn,'(A180)',ERR=40,END=40) buffer
+        if(buffer.eq."END") ifr0=ifr+1
+      end do
+      message = "reading coordinates"
+      buffer = " "
+      do while (buffer.ne."END")
+        read(fn,'(A180)',ERR=40,END=40) buffer
+        if(buffer(1:6).ne."ATOM".and.
+     >     buffer(1:6).ne."HETATM") cycle
+        n=n+1
+        if(n.gt.nmax) then
+          message = "too many atoms"
+          goto 40
+        end if
+        read(buffer,*,ERR=40,END=40) a16,id,tags(n),
+     +     resn,ir,c(1,n),c(2,n),c(3,n)
+c       process selections here
+
+        call geom_selection(id,
+     +                      ir,
+     +                      tags(n),
+     +                      resn,
+     +                      ns,
+     +                      asel,
+     +                      isel,
+     +                      lsel)
+
+          if(.not.lsel) n=n-1
+      write(*,*) "n=",n
+c         end of selection processing
+       end do
+#ifdef MARAT_DEBUG      
+      write(*,*) "n=",n
+      do i=1,n
+        write(*,*) tags(i),
+     +     c(1,i),c(2,i),c(3,i)
+      end do
+#endif
+      close(fn)
+      return
+40    continue
+      call errquit(message(1:inp_strlen(message)+1)//pname,0,0)
+      end
       subroutine geom_selection(id,
      +                          resi,
      +                          tag,
@@ -1171,6 +1080,8 @@ c
       pname = "geom_selection"
 #ifdef MARAT_DEBUG      
       write(*,*) "in "//pname
+      write(*,*) "id,resi,tag,rtag",
+     >            id,resi,tag,rtag
 #endif      
       atag = tag
       artag = rtag
@@ -1179,16 +1090,13 @@ c
       asel0=asel(is)
       lsel = asel0(1:1).eq."-"
       asel0=asel0(2:)
-      write(*,*) asel0,rtag
       if(asel0(1:5).eq."aname") then
         if(atag.eq.asel0(6:)) then
           lsel=.not.lsel
         end if
       else if(asel0(1:5).eq."rname") then
         if(artag.eq.asel0(6:)) then
-          write(*,*)  "1: ",lsel
           lsel=.not.lsel
-          write(*,*)  "1: ",lsel
         end if
       else if(asel0.eq."resi") then
         ilo = isel(2*is-1)
@@ -1200,9 +1108,7 @@ c
         ilo = isel(2*is-1)
         ihi = isel(2*is)
         if(id.ge.ilo.and.id.le.ihi) then
-          write(*,*)  "2: ",lsel
           lsel=.not.lsel
-          write(*,*)  "2: ",lsel
         end if
       end if
       if(.not.lsel) exit
