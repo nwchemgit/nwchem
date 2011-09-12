@@ -1122,6 +1122,7 @@ c
         end if
 
         value = value.and.MA_free_heap(ncoord(2))
+        value = value.and.MA_free_heap(nindx0_coord_start(2))
         value = value.and.MA_free_heap(nindx1_coord_start(2))
         value = value.and.MA_free_heap(nindx2_coord_start(2))
         value = value.and.MA_free_heap(nKr0_coord_start(2))
