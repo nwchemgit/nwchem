@@ -21,14 +21,16 @@ H    -0.513360     0.889165     0.363000
 end
 
 basis
-  * library 6-31G
+  * library STO-3G
 end
 
+print low
+
 string
-tol  0.0001d0
+tol  0.001d0
 stepsize 0.20d0
-nbeads 14
-maxiter 400
+nbeads 24
+maxiter 100
 interpol 1
 end
 
