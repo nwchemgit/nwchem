@@ -43,7 +43,27 @@ c     **********************************************
       rtdb_name = 'metadynamics_ncoordnum'
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,cnmeta)) cnmeta = 0
 
-      metafound = (bnmeta.gt.0).or.(anmeta.gt.0).or.(cnmeta.gt.0)
+      rtdb_name = 'metadynamics_gs_nbond'
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,bnmeta_gs)) 
+     >   bnmeta_gs = 0
+
+      rtdb_name = 'metadynamics_gs_nangle'
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,anmeta_gs))
+     >   anmeta_gs = 0
+
+      rtdb_name = 'metadynamics_gs_ncoordnum'
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,cnmeta_gs))
+     >   cnmeta_gs = 0
+
+      metafound = (bnmeta.gt.0).or.(bnmeta_gs.gt.0).or.
+     >            (anmeta.gt.0).or.(anmeta_gs.gt.0).or.
+     >            (cnmeta.gt.0).or.(cnmeta_gs.gt.0)
+
+      metafound_gs = (bnmeta_gs.gt.0).or.
+     >               (anmeta_gs.gt.0).or.
+     >               (cnmeta_gs.gt.0)
+
+
       if (metafound) then
 
          rtdb_name = 'metadynamics_update'
@@ -320,6 +340,59 @@ c     **********************************************
 
          end if
 
+         if (bnmeta_gs.gt.0) then
+            bnhmeta_gs = 5001
+            value = value.and.
+     >       MA_alloc_get(mt_dbl,bnmeta_gs*bnhmeta_gs,'bymeta_gs',
+     >                           bymeta_gs(2),bymeta_gs(1))
+            value = value.and.
+     >       MA_alloc_get(mt_dbl,2*bnmeta_gs,'by2meta_gs',
+     >                           by2meta_gs(2),by2meta_gs(1))
+
+*           **** load old data fits ****
+            rtdb_name = 'metadynamics_gs_bnymeta'
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,bnymeta_gs)) then
+               bnymeta_gs = 0
+            else
+               if (taskid.eq.MASTER)
+     >            write(*,*) "  ... reading bond metadynamics data"
+            end if
+
+            call dcopy(bnmeta_gs*bnhmeta_gs,0.0d0,0,
+     >                 dbl_mb(bymeta_gs(1)),1)
+            rtdb_name = 'metadynamics_gs_bymeta'
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,
+     >                  bnmeta_gs*bnhmeta_gs,dbl_mb(bymeta_gs(1)))) then
+               call dcopy(bnmeta_gs*bnhmeta_gs,0.0d0,0,
+     >                    dbl_mb(bymeta_gs(1)),1)
+            else
+               if (taskid.eq.MASTER)
+     >            write(*,*) "  ... reading bond metadynamics data"
+            end if
+
+            value = value.and.
+     >       MA_alloc_get(mt_dbl,2*bnmeta_gs,'bwsigmameta_gs',
+     >                    bwsigmameta_gs(2),bwsigmameta_gs(1))
+            value = value.and.
+     >       MA_alloc_get(mt_int,2*bnmeta_gs,'bindxmeta_gs',
+     >                    bindxmeta_gs(2),bindxmeta_gs(1))
+            do j=1,bnmeta_gs
+               rtdb_name =
+     >         'metadynamics_gs_bond_index:'//c_index_name(j)
+                value = value.and.
+     >             rtdb_get(rtdb,rtdb_name,mt_int,2,
+     >                      int_mb(bindxmeta_gs(1)+(j-1)*2))
+               rtdb_name =
+     >        'metadynamics_gs_bond_ksigma:'//c_index_name(j)
+               value = value.and.
+     >             rtdb_get(rtdb,rtdb_name,mt_dbl,2,
+     >                      dbl_mb(bwsigmameta_gs(1)+(j-1)*2))
+            end do
+
+         end if
+
+
+
          value = value.and.
      >           MA_alloc_get(mt_dbl,501,'tmeta',
      >                        tmeta(2),tmeta(1))
@@ -334,12 +407,22 @@ c     **********************************************
          write(*,*)  "MetaDynamics parameters:"
          do i=1,bnmeta
              write(*,'(A,5x,2I4,4x,A,F11.6,4x,A,F11.6)')
-     >       "   - Bond Parameters =  ",
+     >       "   - Bond Parameters (Spline) =  ",
      >                  (int_mb(bindxmeta(1)+2*(i-1)+j-1),j=1,2),
      >                  'w=',
      >                  dbl_mb(bwsigmameta(1)+(i-1)*2),
      >                  'sigma=',
      >                  dbl_mb(bwsigmameta(1)+(i-1)*2+1)
+
+         end do
+         do i=1,bnmeta_gs
+             write(*,'(A,5x,2I4,4x,A,F11.6,4x,A,F11.6)')
+     >       "   - Bond Parameters =  ",
+     >                  (int_mb(bindxmeta_gs(1)+2*(i-1)+j-1),j=1,2),
+     >                  'w=',
+     >                  dbl_mb(bwsigmameta_gs(1)+(i-1)*2),
+     >                  'sigma=',
+     >                  dbl_mb(bwsigmameta_gs(1)+(i-1)*2+1)
 
          end do
          do i=1,anmeta
@@ -490,8 +573,21 @@ c     **********************************************
             value = value.and.MA_free_heap(cindxsize1(2))
             value = value.and.MA_free_heap(cindxsize2(2))
          end if
-
          value = value.and.MA_free_heap(tmeta(2))
+
+         if (bnmeta_gs.gt.0) then
+*           **** write out current spline fits ****
+            rtdb_name = 'metadynamics_gs_bnymeta'
+            value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,bnymeta_gs)
+            rtdb_name = 'metadynamics_gs_bymeta'
+            value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                        bnmeta_gs*bnhmeta_gs,dbl_mb(bymeta_gs(1)))
+
+            value = value.and.MA_free_heap(bymeta_gs(2))
+            value = value.and.MA_free_heap(by2meta_gs(2))
+            value = value.and.MA_free_heap(bwsigmameta_gs(2))
+            value = value.and.MA_free_heap(bindxmeta_gs(2))
+         end if
       end if
 
       return
@@ -885,7 +981,7 @@ c    >                 / (rm**2)
                do i=1,bnxmeta
                   r = dbl_mb(bxmeta(1)+i-1)-r0
                   dbl_mb(yshift+i-1) = dbl_mb(yshift+i-1) 
-     >                               + w*dexp(-(r/sigma)**2)
+     >                               + w*dexp(-0.5d0*(r/sigma)**2)
                end do
 
                !**** five point formula ***
@@ -917,7 +1013,7 @@ c    >                 / (rm**2)
                do i=1,anxmeta
                   r = dbl_mb(axmeta(1)+i-1)-r0
                   dbl_mb(yshift+i-1) = dbl_mb(yshift+i-1)
-     >                               + w*dexp(-(r/sigma)**2)
+     >                               + w*dexp(-0.5d0*(r/sigma)**2)
                end do
 
                !**** five point formula ***
@@ -957,15 +1053,15 @@ c    >                 / (rm**2)
                do i=1,cnxmeta
                   r = dbl_mb(cxmeta(1)+i-1)-r0
                   dbl_mb(yshift+i-1) = dbl_mb(yshift+i-1)
-     >                               + w*dexp(-(r/sigma)**2)
+     >                               + w*dexp(-0.5d0*(r/sigma)**2)
 
                   if ((r.lt.a).and.(a.gt.0)) then
                      dbl_mb(yshift+i-1) = dbl_mb(yshift+i-1) 
-     >                                  + 2.0d0*w*dexp(-(r/sigma)**2)
+     >                              + 2.0d0*w*dexp(-0.5d0*(r/sigma)**2)
                   end if
                   if ((r.gt.b).and.(b.gt.0)) then
                      dbl_mb(yshift+i-1) = dbl_mb(yshift+i-1) 
-     >                                  + 2.0d0*w*dexp(-(r/sigma)**2)
+     >                              + 2.0d0*w*dexp(-0.5d0*(r/sigma)**2)
                   end if
                end do
 
@@ -987,6 +1083,17 @@ c    >                 / (rm**2)
                is2 = is2 + n2
             end do
          end if
+
+
+         if (bnmeta_gs.gt.0) then
+            do j=1,bnmeta_gs
+               r0 = meta_collective(1,int_mb(bindxmeta_gs(1)+(j-1)*2))
+               yshift = bymeta_gs(1) +(j-1)*bnhmeta_gs
+               dbl_mb(yshift+bnymeta_gs) = r0
+            end do
+            bnymeta_gs=bnymeta_gs+1
+         end if
+
 
          end if
 
@@ -1016,14 +1123,47 @@ c    >                 / (rm**2)
 #include "metadynamics.fh"
 
 *     **** local variables ****
-      integer j,nr,yshift,y2shift,is1,is2,n1,n2
-      real*8 r,dr,sigma,w,dv
+      integer i,j,nr,yshift,y2shift,is1,is2,n1,n2
+      real*8 r,dr,sigma,w,dv,v,r0,v0
 
 *     **** external functions ****
       real*8   nwpw_dsplint,meta_collective,meta_collective2
       external nwpw_dsplint,meta_collective,meta_collective2
       
       if (metafound) then
+
+         if (bnmeta_gs.gt.0) then
+            w = 1.0d0
+            do j=1,bnmeta_gs
+               w  = w*dbl_mb(bwsigmameta_gs(1)+(j-1)*2)
+               dbl_mb(by2meta_gs(1)+j) = 
+     >            meta_collective(1,int_mb(bindxmeta_gs(1)+(j-1)*2))
+            end do
+            w = w**(1.0d0/dble(bnmeta_gs))
+
+            do i=1,bnymeta_gs
+               v0 = 1.0d0
+               do j=1,bnmeta_gs
+                  yshift = bymeta_gs(1) +(j-1)*bnhmeta_gs
+                  r0     = dbl_mb(yshift+i-1)
+                  r      = dbl_mb(by2meta_gs(1)+j)
+                  sigma  = dbl_mb(bwsigmameta_gs(1)+(j-1)*2+1)
+                  v0 = v0*exp(-0.5d0*((r-r0)/sigma)**2)
+               end do
+               v = w*v0
+               
+               do j=1,bnmeta_gs
+                  yshift = bymeta_gs(1) +(j-1)*bnhmeta_gs
+                  r0     = dbl_mb(yshift+i-1)
+                  r      = dbl_mb(by2meta_gs(1)+j)
+                  sigma  = dbl_mb(bwsigmameta_gs(1)+(j-1)*2+1)
+                  dv = v*(r0-r)/(sigma**2)
+                  call meta_collective_force(1,
+     >                  int_mb(bindxmeta_gs(1)+(j-1)*2),dv,fmeta)
+               end do
+
+            end do
+         end if
 
          if (bnmeta.gt.0) then
             dr = dbl_mb(bxmeta(1)+1) - dbl_mb(bxmeta(1))
@@ -1105,8 +1245,8 @@ c    >                 / (rm**2)
 #include "metadynamics.fh"
 
 *     **** local variables ****
-      integer j,nr,yshift,y2shift,n1,n2,is1,is2
-      real*8 r,dr,sigma,w,v
+      integer i,j,nr,yshift,y2shift,n1,n2,is1,is2
+      real*8 r,dr,sigma,w,v,r0,v0
 
 *     **** external functions ****
       real*8   nwpw_splint,meta_collective,meta_collective2
@@ -1114,6 +1254,28 @@ c    >                 / (rm**2)
 
       v = 0.0d0
       if (metafound) then
+
+         if (bnmeta_gs.gt.0) then
+            w = 1.0d0
+            do j=1,bnmeta_gs
+               w  = w*dbl_mb(bwsigmameta_gs(1)+(j-1)*2)
+               dbl_mb(by2meta_gs(1)+j) = 
+     >            meta_collective(1,int_mb(bindxmeta_gs(1)+(j-1)*2))
+            end do
+            w = w**(1.0d0/dble(bnmeta_gs))
+
+            do i=1,bnymeta_gs
+               v0 = 1.0d0
+               do j=1,bnmeta_gs
+                  yshift = bymeta_gs(1) +(j-1)*bnhmeta_gs
+                  r0     = dbl_mb(yshift+i-1)
+                  r      = dbl_mb(by2meta_gs(1)+j)
+                  sigma  = dbl_mb(bwsigmameta_gs(1)+(j-1)*2+1)
+                  v0 = v0*exp(-0.5d0*((r-r0)/sigma)**2)
+               end do
+               v = v + w*v0
+            end do
+         end if
 
          if (bnmeta.gt.0) then
             dr = dbl_mb(bxmeta(1)+1) - dbl_mb(bxmeta(1))
@@ -1202,8 +1364,8 @@ c     **********************************************
       integer taskid,MASTER
       parameter (MASTER=0)
 
-      integer i,j,yshift,k
-      real*8 r
+      integer i,j,yshift,k,k1,k2,i1,kk
+      real*8 r,rmin,rmax,rr(100)
       character*80 filename
       character*255 full_filename
 
@@ -1214,6 +1376,73 @@ c     **********************************************
       call Parallel_taskid(taskid)
 
       if (metafound) then
+
+*        **** print out potentials ******
+         if (bnmeta_gs.gt.0) then
+            if (taskid.eq.MASTER) then
+
+
+               if (icount.gt.0) then
+                  filename = 
+     >            "meta_centers"//c_index_name(icount)//".dat"
+               else
+                  filename = "meta_centers.dat"
+               end if
+               call util_file_name_noprefix(filename,.false.,
+     >                                      .false.,
+     >                                      full_filename)
+               open(unit=53,file=full_filename,form='formatted')
+               do i=1,bnymeta_gs
+                   write(53,'(10F15.6)') 
+     >                  (dbl_mb(bymeta_gs(1)+(j-1)*bnhmeta_gs+i-1),
+     >                   j=1,bnmeta_gs)
+               end do
+               close(53)
+
+c               !*** find the number of dimensions ***
+c               do j=1,bnmeta_gs
+c                  rmin = 9999999999.0d0
+c                  rmax = 0.0d0
+c                  do i=1,bnymeta_gs
+c                     yshift = bymeta_gs(1) +(j-1)*bnhmeta_gs
+c                     r0     = dbl_mb(yshift+i-1)
+c                     if (r0.lt.rmin) rmin = r0
+c                     if (r0.gt.rmax) rmax = r0
+c                  end do
+c                  rmax = rmax + 1.0dd0
+c                  rmin = rmin - 1.0dd0
+c                  if (rmin.lt.0.0d0) rmin = 0.0d0
+c                  dbl_mb(by2meta_gs(1)+2*j-1) = rmin
+c                  dbl_mb(by2meta_gs(1)+2*j)   = rmax
+c               end do
+
+c               if (icount.gt.0) then
+c                  filename = 
+c     >            "meta"//c_index_name(icount)//".dat"
+c               else
+c                  filename = "meta.dat"
+c               end if
+c               call util_file_name_noprefix(filename,.false.,
+c     >                                      .false.,
+c     >                                      full_filename)
+c               open(unit=53,file=full_filename,form='formatted')
+c
+c               do k1=0,(101*bnmeta_gs-1)
+c                  kk = k1
+c                  do k2 = 1,bnmeta_gs
+c                     rmin = dbl_mb(by2meta_gs(1)+2*j-1)
+c                     rmax = dbl_mb(by2meta_gs(1)+2*j)
+c                     i1 = mod(kk,101)
+c                     kk = (kk-i1)/101
+c                     rr(k2) = rmin + i1*((rmax-rmin)/100.0d0)
+c                  end do
+c                  do k2 = 1,bnmeta_gs
+c                  
+c               end do
+c               close(53)
+
+            end if
+         end if
 
 *        **** print out potentials ******
          if (bnmeta.gt.0) then

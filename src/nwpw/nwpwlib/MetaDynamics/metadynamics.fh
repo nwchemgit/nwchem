@@ -20,7 +20,6 @@
       integer cindxsize1(2),cindxsize2(2) 
       integer cnxmeta,cnmeta
 
-
       common / metacommon / bxmeta,bymeta,by2meta,bwsigmameta,
      >                      bindxmeta,bnxmeta,bnmeta,
      >                      axmeta,aymeta,ay2meta,awsigmameta,
@@ -34,4 +33,30 @@
      >                      metaraycount,metarayshift,
      >                      metafound
 
+
+      logical metafound_gs
+      integer bymeta_gs(2),by2meta_gs(2)
+      integer bwsigmameta_gs(2)
+      integer bindxmeta_gs(2),bnhmeta_gs,bnmeta_gs,bnymeta_gs
+
+      integer axmeta_gs(2),aymeta_gs(2),ay2meta_gs(2)
+      integer awsigmameta_gs(2)
+      integer aindxmeta_gs(2),anxmeta_gs,anmeta_gs
+
+      integer cxmeta_gs(2),cymeta_gs(2),cy2meta_gs(2)
+      integer cwsigmameta_gs(2)
+      integer cindxmeta1_gs(2),cindxmeta2_gs(2) 
+      integer cindxsize1_gs(2),cindxsize2_gs(2) 
+      integer cnxmeta_gs,cnmeta_gs
+
+      common / metacommon_gs / 
+     >       bymeta_gs,by2meta_gs,bwsigmameta_gs,
+     >       bindxmeta_gs,bnhmeta_gs,bnmeta_gs,bnymeta_gs,
+     >       axmeta_gs,aymeta_gs,ay2meta_gs,awsigmameta_gs,
+     >       aindxmeta_gs,anxmeta_gs,anmeta_gs,
+     >       cxmeta_gs,cymeta_gs,cy2meta_gs,cwsigmameta_gs,
+     >       cindxmeta1_gs,cindxmeta2_gs,
+     >       cindxsize1_gs,cindxsize2_gs,
+     >       cnxmeta_gs,cnmeta_gs,
+     >       metafound_gs
 
