@@ -63,7 +63,7 @@ c
       maxshblock = min(256,nbf)
       if (.not. ma_push_get(mt_dbl, maxshblock*nmo, 'tmp1',
      $     l_tmp1, k_tmp1)) call errquit
-     $     ('moints_screen: allocating tmp?',ldim*nmo, MA_ERR)
+     $     ('moints_screen: allocating tmp?',maxshblock*nmo, MA_ERR)
       if (.not. ma_push_get(mt_dbl, nmo*nmo, 'tmp2',
      $     l_tmp2, k_tmp2)) call errquit
      $     ('moints_screen: allocating tmp?',nmo*nmo, MA_ERR)
