@@ -1,0 +1,107 @@
+echo
+start h2o
+
+memory global 40 mb stack 23 mb heap 5 mb
+
+
+basis
+  * library 6-31g*
+end
+#First test load entire system from xyz file
+geometry noautosym noautoz nocenter
+ load h2o.xyz 
+end
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+#The same system but now specified explicitly
+geometry noautosym noautoz nocenter
+O    -3.307   3.534   6.622
+H    -3.197   4.424   6.180   
+H    -3.992   2.998   6.128   
+end
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+#The same system but now specified via mixed input
+#using id selection
+geometry noautosym noautoz nocenter
+load h2o.xyz select id 1
+H    -3.197   4.424   6.180   
+H    -3.992   2.998   6.128   
+end
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+#The same system but now specified via mixed input
+#using id selection
+geometry noautosym noautoz nocenter
+load h2o.xyz select id 1
+H    -3.197   4.424   6.180   
+load h2o.xyz select id 3
+end
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+#The same system but now specified via mixed input
+#using id RANGE selection
+geometry noautosym noautoz nocenter
+load h2o.xyz select id 1:2
+H    -3.992   2.998   6.128
+end  
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+
+#The same system but now specified via mixed input
+#using id RANGE selection
+geometry noautosym noautoz nocenter
+O    -3.307   3.534   6.622
+load h2o.xyz select name H
+end  
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+
+#load frame 3 from multi-structure xyz file
+geometry noautosym noautoz nocenter
+ load frame 3 h2o.xyz 
+end
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+
+#load frame 3 from multi-structure xyz file
+#using selection within the frame
+geometry noautosym noautoz nocenter
+ load frame 3 select name O h2o.xyz 
+ load frame 3 select id 2:3 h2o.xyz 
+end
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+

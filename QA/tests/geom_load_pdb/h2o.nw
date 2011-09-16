@@ -1,0 +1,79 @@
+echo
+start h2o
+
+memory global 40 mb stack 23 mb heap 5 mb
+
+
+basis
+  * library 6-31g*
+end
+#load residue 3 from pdb file
+geometry noautosym noautoz nocenter
+ load test.pdb select resi 3
+end
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+#The same system but now specified explicitly
+geometry noautosym noautoz nocenter
+O   -13.980   1.241 -14.026 
+H   -13.936   0.318 -13.644    
+H   -14.107   1.903 -13.287    
+end
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+geometry noautosym noautoz nocenter
+ load test.pdb select resi 3 name OW
+ load test.pdb select resi 3 name 2HW
+ load test.pdb select resi 3 name 3HW
+end
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+geometry noautosym noautoz nocenter
+ load test.pdb select rname WTR 
+end
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+geometry noautosym noautoz nocenter
+ load test.pdb frame 2 select rname WTR 
+end
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+geometry noautosym noautoz nocenter
+ load test.pdb select rname WTR 
+end
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+geometry noautosym noautoz nocenter
+ load test.pdb select id 6:8
+end
+
+dft
+vectors input atomic
+end
+task dft gradient
+
+
