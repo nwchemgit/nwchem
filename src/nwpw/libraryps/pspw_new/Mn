@@ -1,0 +1,26 @@
+[lmax] 2
+[locp] 0
+[rlocal] 1.0
+[cutoff] 50.0
+
+ <atom>
+ Mn
+  0.250000E+02  0.540000E+02   3   3
+   1   0  0.200000E+01
+   2   0  0.200000E+01
+   2   1  0.600000E+01
+   3   0  0.200000E+01
+   3   1  0.600000E+01
+   3   2  0.500000E+01
+ <end>
+ <solver> pauli                     <end>
+ <pseudopotential> troullier-martins         <end>
+ <rcut>
+   0  1.18
+   1  1.80
+   2  1.20
+   3  2.20
+ <end>
+<screening_cut> 0.10 <end>
+<comment> Parameterized (9-17-11 by EJB) Troullier-Martin psp <end>
+
