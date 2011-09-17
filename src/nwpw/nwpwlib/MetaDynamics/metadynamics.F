@@ -25,8 +25,10 @@ c     **********************************************
 *     **** external functions ****
       real*8      lattice_unita
       character*7 c_index_name
+      integer     control_it_out
       external    lattice_unita
       external    c_index_name
+      external    control_it_out
 
       call Parallel_taskid(taskid)
       metaprintcount = 0
@@ -341,13 +343,10 @@ c     **********************************************
          end if
 
          if (bnmeta_gs.gt.0) then
-            bnhmeta_gs = 5001
-            value = value.and.
-     >       MA_alloc_get(mt_dbl,bnmeta_gs*bnhmeta_gs,'bymeta_gs',
-     >                           bymeta_gs(2),bymeta_gs(1))
-            value = value.and.
-     >       MA_alloc_get(mt_dbl,2*bnmeta_gs,'by2meta_gs',
-     >                           by2meta_gs(2),by2meta_gs(1))
+            rtdb_name = 'metadynamics_gs_bnhmeta'
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,bnhmeta_gs)) then
+               bnhmeta_gs = (maxmetacount+1)*(control_it_out()+1)  !*** need to change for bo_md***
+            end if
 
 *           **** load old data fits ****
             rtdb_name = 'metadynamics_gs_bnymeta'
@@ -357,12 +356,22 @@ c     **********************************************
                if (taskid.eq.MASTER)
      >            write(*,*) "  ... reading bond metadynamics data"
             end if
+            bnhmeta_gs = bnhmeta_gs+bnymeta_gs
 
+            value = value.and.
+     >       MA_alloc_get(mt_dbl,bnmeta_gs*bnhmeta_gs,'bymeta_gs',
+     >                           bymeta_gs(2),bymeta_gs(1))
+            value = value.and.
+     >       MA_alloc_get(mt_dbl,2*bnmeta_gs,'by2meta_gs',
+     >                           by2meta_gs(2),by2meta_gs(1))
+
+
+*           **** load old data fits ****
             call dcopy(bnmeta_gs*bnhmeta_gs,0.0d0,0,
      >                 dbl_mb(bymeta_gs(1)),1)
             rtdb_name = 'metadynamics_gs_bymeta'
             if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,
-     >                  bnmeta_gs*bnhmeta_gs,dbl_mb(bymeta_gs(1)))) then
+     >                  bnmeta_gs*bnymeta_gs,dbl_mb(bymeta_gs(1)))) then
                call dcopy(bnmeta_gs*bnhmeta_gs,0.0d0,0,
      >                    dbl_mb(bymeta_gs(1)),1)
             else
@@ -416,13 +425,15 @@ c     **********************************************
 
          end do
          do i=1,bnmeta_gs
-             write(*,'(A,5x,2I4,4x,A,F11.6,4x,A,F11.6)')
+             write(*,'(A,5x,2I4,4x,A,F11.6,4x,A,F11.6,4x,A,2I5)')
      >       "   - Bond Parameters =  ",
      >                  (int_mb(bindxmeta_gs(1)+2*(i-1)+j-1),j=1,2),
      >                  'w=',
      >                  dbl_mb(bwsigmameta_gs(1)+(i-1)*2),
      >                  'sigma=',
-     >                  dbl_mb(bwsigmameta_gs(1)+(i-1)*2+1)
+     >                  dbl_mb(bwsigmameta_gs(1)+(i-1)*2+1),
+     >                  'number of Gaussians(start,max)=',
+     >                   bnymeta_gs,bnhmeta_gs
 
          end do
          do i=1,anmeta
@@ -581,7 +592,7 @@ c     **********************************************
             value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,bnymeta_gs)
             rtdb_name = 'metadynamics_gs_bymeta'
             value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
-     >                        bnmeta_gs*bnhmeta_gs,dbl_mb(bymeta_gs(1)))
+     >                        bnmeta_gs*bnymeta_gs,dbl_mb(bymeta_gs(1)))
 
             value = value.and.MA_free_heap(bymeta_gs(2))
             value = value.and.MA_free_heap(by2meta_gs(2))
@@ -1088,8 +1099,9 @@ c    >                 / (rm**2)
          if (bnmeta_gs.gt.0) then
             do j=1,bnmeta_gs
                r0 = meta_collective(1,int_mb(bindxmeta_gs(1)+(j-1)*2))
-               yshift = bymeta_gs(1) +(j-1)*bnhmeta_gs
-               dbl_mb(yshift+bnymeta_gs) = r0
+               !yshift = bymeta_gs(1) +(j-1)*bnhmeta_gs
+               yshift = bymeta_gs(1) + (j-1)
+               dbl_mb(yshift+bnymeta_gs*bnmeta_gs) = r0
             end do
             bnymeta_gs=bnymeta_gs+1
          end if
@@ -1144,8 +1156,9 @@ c    >                 / (rm**2)
             do i=1,bnymeta_gs
                v0 = 1.0d0
                do j=1,bnmeta_gs
-                  yshift = bymeta_gs(1) +(j-1)*bnhmeta_gs
-                  r0     = dbl_mb(yshift+i-1)
+                  !yshift = bymeta_gs(1) + (j-1)*bnhmeta_gs
+                  yshift = bymeta_gs(1) + (j-1)
+                  r0     = dbl_mb(yshift+(i-1)*bnmeta_gs)
                   r      = dbl_mb(by2meta_gs(1)+j)
                   sigma  = dbl_mb(bwsigmameta_gs(1)+(j-1)*2+1)
                   v0 = v0*exp(-0.5d0*((r-r0)/sigma)**2)
@@ -1153,8 +1166,9 @@ c    >                 / (rm**2)
                v = w*v0
                
                do j=1,bnmeta_gs
-                  yshift = bymeta_gs(1) +(j-1)*bnhmeta_gs
-                  r0     = dbl_mb(yshift+i-1)
+                  !yshift = bymeta_gs(1) +(j-1)*bnhmeta_gs
+                  yshift = bymeta_gs(1) + (j-1)
+                  r0     = dbl_mb(yshift+(i-1)*bnmeta_gs)
                   r      = dbl_mb(by2meta_gs(1)+j)
                   sigma  = dbl_mb(bwsigmameta_gs(1)+(j-1)*2+1)
                   dv = v*(r0-r)/(sigma**2)
@@ -1267,8 +1281,9 @@ c    >                 / (rm**2)
             do i=1,bnymeta_gs
                v0 = 1.0d0
                do j=1,bnmeta_gs
-                  yshift = bymeta_gs(1) +(j-1)*bnhmeta_gs
-                  r0     = dbl_mb(yshift+i-1)
+                  !yshift = bymeta_gs(1) +(j-1)*bnhmeta_gs
+                  yshift = bymeta_gs(1) +(j-1)
+                  r0     = dbl_mb(yshift+(i-1)*bnmeta_gs)
                   r      = dbl_mb(by2meta_gs(1)+j)
                   sigma  = dbl_mb(bwsigmameta_gs(1)+(j-1)*2+1)
                   v0 = v0*exp(-0.5d0*((r-r0)/sigma)**2)
@@ -1394,7 +1409,7 @@ c     **********************************************
                open(unit=53,file=full_filename,form='formatted')
                do i=1,bnymeta_gs
                    write(53,'(10F15.6)') 
-     >                  (dbl_mb(bymeta_gs(1)+(j-1)*bnhmeta_gs+i-1),
+     >                  (dbl_mb(bymeta_gs(1)+(j-1)+(i-1)*bnmeta_gs),
      >                   j=1,bnmeta_gs)
                end do
                close(53)
