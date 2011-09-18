@@ -647,6 +647,9 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
          if (.not.control_rotation())    write(luout,1272)
          write(luout,1280) control_time_step(),control_fake_mass()
          write(luout,1290) control_rte(),control_rti()
+         write(luout,1281) control_it_in()*control_it_out(),
+     >                 control_it_in(),control_it_out()
+
          write(luout,1222) eke0,eki0,ekg
          write(luout,1223) eke1,eki1
          write(luout,1224) (eke1-eke0),(eki1-eki0)
@@ -1380,9 +1383,10 @@ ccc
  1271 FORMAT(5x, ' translation contrained')
  1272 FORMAT(5x, ' rotation constrained')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
+ 1281 FORMAT(5X, ' maximum iterations =',I10,
+     >           ' ( ',I4,' inner ',I6,' outer )')
  1290 FORMAT(5X, ' cooling/heatting rates: ',e12.5,' (psi)',2x,
      >                                       e12.5,' (ion)')
- 
  1293 format(/' Pressure Output Generated         ')
  1294 format(/' Constant Energy Simulation                     ')
  1295 format(/' Nose-Hoover Simulation - Thermostat Parameters:')
