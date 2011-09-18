@@ -1225,24 +1225,24 @@ c      call frac_occ_end()
  1271 FORMAT(5x, ' translation contrained')
  1272 FORMAT(5x, ' rotation constrained')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
- 1281 FORMAT(5X, ' maximum iterations =',I8, 
-     >           ' ( ',I4,' inner ',I4,' outer )')
+ 1281 FORMAT(5X, ' maximum iterations =',I10, 
+     >           ' ( ',I4,' inner ',I6,' outer )')
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (density)')
  1291 FORMAT(/' Kohn-Sham scf parameters:')
  1292 FORMAT(5X, ' Kohn-Sham algorithm  = ',A)
  1293 FORMAT(5X, ' SCF algorithm        = ',A)
  1294 FORMAT(5X, ' SCF mixing parameter =',F7.4)
- 1295 FORMAT(5X, ' Kohn-Sham iterations = ',I3,
-     >           ' (',I3,' outer)')
+ 1295 FORMAT(5X, ' Kohn-Sham iterations = ',I4,
+     >           ' (',I4,' outer)')
  1300 FORMAT(//)
  1301 FORMAT(5X, ' Kerker damping       =',F7.4)
  1310 FORMAT(/' molecular dynamics parameters:')
- 1320 FORMAT(5X, ' time step=',F10.2,5X,' iterations=',I8,
-     >           ' ( ',I4,' inner ',I4,' outer )')
+ 1320 FORMAT(5X, ' time step=',F10.2,5X,' iterations=',I10,
+     >           ' ( ',I4,' inner ',I6,' outer )')
  1321 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1,
-     >       /5X,' iterations=',I8,
-     >           ' ( ',I4,' inner ',I4,' outer )')
+     >       /5X,' iterations=',I10,
+     >           ' ( ',I4,' inner ',I6,' outer )')
  1330 FORMAT(5X, ' integration agorithm=   ',A)
  1340 FORMAT(/5X, ' cooling/heatting rate= ',e12.5,' (ion)')
  1350 FORMAT(I8,2E19.10,E14.5,4F14.2,2E19.10,2F8.4)

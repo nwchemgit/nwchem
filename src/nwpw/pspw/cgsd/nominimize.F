@@ -69,9 +69,9 @@ c
 
 *     ***** PAW functions ****
       logical  psp_pawexist
-      real*8   psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
+      real*8   psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom,psi_1xc_atom
       external psp_pawexist
-      external psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom
+      external psp_kinetic_core,psi_1ke_atom,psi_1vloc_atom,psi_1xc_atom
 
       call Pack_npack(1,npack1)
       neall = psi_neq(1)+psi_neq(2)
@@ -123,7 +123,9 @@ c      call psi_1toelectron()
       if (psp_pawexist()) then
          E(14) = psi_1ke_atom()      !*** kinetic atom ***
          E(15) = psp_kinetic_core()  !*** kinetic core ***
-         E(16) = psi_1vloc_atom()     !*** vlocal atom  ***
+         E(16) = psi_1vloc_atom()    !*** vlocal atom  ***
+         E(17) = 0.0d0               !*** vcoulomb atom  ***
+         E(18) = psi_1xc_atom()      !*** exc atom  ***
       end if
 
 *     **** get pspw_charge  energies ****
