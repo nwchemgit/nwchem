@@ -775,8 +775,8 @@ cc      call band_kp_structure(rtdb)
  
  1270 FORMAT(/' technical parameters:')
  1280 FORMAT(5X, ' time step=',F10.2,5X,'ficticious mass=',F10.1)
- 1281 FORMAT(5X, ' maximum iterations =',I8,
-     >           ' ( ',I4,' inner ',I4,' outer )')
+ 1281 FORMAT(5X, ' maximum iterations =',I10,
+     >           ' ( ',I4,' inner ',I6,' outer )')
  1290 FORMAT(5X, ' tolerance=',E8.3,' (energy)',E12.3,
      &        ' (density)')
  1291 FORMAT(/' Kohn-Sham scf parameters:')
