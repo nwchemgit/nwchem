@@ -595,12 +595,10 @@ c     == Call the main drivers ==
 c
 c      announce that spin-orbit calculations are being performed
        if (me.eq.0) then
-          write(luout,*)
-          write(luout,*) "==============================="
-          write(luout,*) " Performing SODFT calculations "
-          write(luout,*) "==============================="
-          write(luout,*)
-       end if
+         call util_print_centered(LuOut,
+     $    'Performing spin-orbit DFT (SO-DFT) calculations', 23, .true.)
+         write(LuOut,*)
+       endif
 c
        if (.not.lrt_tddft) then
         ! Spin-Orbit DFT

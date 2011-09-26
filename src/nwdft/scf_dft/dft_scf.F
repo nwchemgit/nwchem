@@ -492,7 +492,11 @@ c     == force sleazy SCF into "direct" mode ==
 c
 c     == get atomic zora contributions ==
       if (do_zora) then
-        if (me.eq.0) write(luout,*) "== Performing ZORA calculations =="
+        if (me.eq.0) then
+         call util_print_centered(LuOut,
+     $        'Performing ZORA calculations', 23, .true.)
+         write(LuOut,*)
+        endif
 c
 c       == get filename for the zora data ==
         call util_file_name('zora_sf',.false.,.false.,zorafilename)
