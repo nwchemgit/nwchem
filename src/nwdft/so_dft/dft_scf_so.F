@@ -528,7 +528,11 @@ c     extra arrays
 c
 c     == zora arrays ==
       if (do_zora) then
-       if (me.eq.0) write(luout,*) "== Performing ZORA calculations =="
+       if (me.eq.0) then
+         call util_print_centered(LuOut,
+     $        'Performing ZORA calculations', 23, .true.)
+         write(LuOut,*)
+      endif
 c
 c      == get filename for zora data ==
        call util_file_name('zora_so',.false.,.false.,zorafilename)
@@ -935,9 +939,9 @@ cso
 cso
 cso   Calculate the spin-orbit contributions from the ecp
       call int_1e_ga(ao_bas_han, ao_bas_han, g_so, 'so', oskel)
-      call ga_scale(g_so(1),dble(0.5d0))
-      call ga_scale(g_so(2),dble(0.5d0))
-      call ga_scale(g_so(3),dble(0.5d0))
+      call ga_scale(g_so(1),dble(0.5d0))  ! z
+      call ga_scale(g_so(2),dble(0.5d0))  ! y
+      call ga_scale(g_so(3),dble(0.5d0))  ! x
 cso
 cso   Add in the s.o. contribution to the fock matrix
       call ga_fock_so(g_so, g_fockso, nbf_ao)
