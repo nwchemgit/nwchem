@@ -763,6 +763,22 @@
       end
 
 
+*     ***********************************
+*     *					*
+*     *	        psp_xc_atom	        *
+*     *					*
+*     ***********************************
+
+*    This routine computes the paw atomic kinetic energy
+*
+      real*8 function psp_xc_atom(ispin,ne,psi1)
+      implicit none
+      integer    ispin,ne(2)
+      complex*16 psi1(*)
+
+      psp_xc_atom = 0.0d0
+      return
+      end
 
 
 
