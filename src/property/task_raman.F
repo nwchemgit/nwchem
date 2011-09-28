@@ -114,10 +114,10 @@ c
 c
 c ----------Load parameters from rtdb or assign defaults-----------------------    
 c
-      if (.not. rtdb_get(rtdb,'raman:plot',1,plot))
-     $      plot = 'normal' ! normal or resonance        
-      if (.not. rtdb_get(rtdb,'raman:line',1,line))
-     $      line = 'lorentzian ' !  lorentzian (l) or gaussian (g) lineshape
+      if (.not. rtdb_cget(rtdb,'raman:plot',1,plot))
+     $      plot = 'normal' ! set default "normal"
+      if (.not. rtdb_cget(rtdb,'raman:line',1,line))
+     $      line = 'lorentzian' !  lorentzian (l) or gaussian (g) lineshape
       if (.not. rtdb_get(rtdb,'raman:width',mt_dbl,1,width))
      $      width = 20.0D+00 ! full-width at half maximum (FWHM) in 1/cm
       if (.not. rtdb_get(rtdb,'raman:step_size',mt_dbl,1,step_size))
@@ -423,7 +423,7 @@ c      --- save response data from aoresponse
 c
 c ------------------------do finite defernced for mode ii----------------------
 c
-         call FD_raman (rtdb, ii, rmmodes, nat, nc, junk3, junk4,
+         call fd_raman(rtdb, ii, rmmodes, nat, nc, junk3, junk4,
      &           step_size, rminfo, eigenvecs, mass)
        enddo ! ii 
 c
@@ -431,8 +431,10 @@ c ---------------------calculate ramam spectra---------------------------------
 c
  200  continue ! come here on a restart to recalculate a plot / from the high variable
 c
-      call raman_scattering(rtdb,start,last,rmmodes,nfreq,plot,
+      if (ga_nodeid().eq.0 ) then
+        call raman_scattering(rtdb,start,last,rmmodes,nfreq,plot,
      &                      line,width,laser,rminfo)
+      end if
 c
       return
       end

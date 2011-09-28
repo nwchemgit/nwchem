@@ -34,7 +34,7 @@ c
 c  set some defaults
 c
       plot = 'normal' ! normal or resonance
-      line = 'lorentzian ' !  lorentzian (l) or gaussian (g) lineshape
+      line = 'lorentzian' !  lorentzian (l) or gaussian (g) lineshape
       width = 20.0D+00 ! full-width at half maximum (FWHM) in 1/cm
       step_size = 0.010D+00
       hyperraman = .false. ! flag to calculate hyperaman terms
@@ -55,9 +55,11 @@ c        ---- have we ended ? ---
          return
 c        --- determine plot style for output ---
       else if(inp_compare(.false.,'normal',test)) then
+         plot="normal"
          if (.not. rtdb_cput(rtdb,'raman:plot',1,plot))
      $    call errquit(pname//'rtdb put failed',0, RTDB_ERR)
       else if(inp_compare(.false.,'resonance',test)) then
+         plot="resonance"
          if (.not. rtdb_cput(rtdb,'raman:plot',1,plot))
      $    call errquit(pname//'rtdb put failed',0, RTDB_ERR)
 c          --- are we calculating hyper raman spec. --- 

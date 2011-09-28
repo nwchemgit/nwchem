@@ -1,12 +1,13 @@
 c
-c JMM  raman_input.F,v 1.0 2009/07/14 mullin 
-c
-      subroutine raman_modestep(rtdb,nat3,natom,geom,rmmodes,imode,
-     &    iii,first,eigenvecs,eigenvals,ncoords,rminfo,step_size)
 c ---------------------------------------------------------------------
 c computes the xyz coords along the imode normal mode
 c ---------------------------------------------------------------------
+c
+      subroutine raman_modestep(rtdb,nat3,natom,geom,rmmodes,imode,
+     &    iii,first,eigenvecs,eigenvals,ncoords,rminfo,step_size)
+c
       implicit none
+c
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -61,18 +62,22 @@ c
 c
       return
       end
-c --------------------------------------------------------------------
-      subroutine FD_raman (rtdb,imode,rmmodes,natom,nat3,alfarex2,
-     &           alfarimx2,step_size,rminfo,eigenvecs,mass)
+c
 c --------------------------------------------------------------------
 c    Finite differencing for Raman Scattering Calculations
 c --------------------------------------------------------------------
+c
+      subroutine fd_raman(rtdb,imode,rmmodes,natom,nat3,alfarex2,
+     &           alfarimx2,step_size,rminfo,eigenvecs,mass)
+c
       implicit none
+c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
+#include "util.fh"
 c
       logical debug
 c
@@ -219,17 +224,21 @@ c --------------------------------------------------------------------
  9003 FORMAT(/1X,F7.2,2X,'TOTAL    ',2X,F24.6/)
       return
       end 
-c --------------------------------------------------------------------
-      subroutine raman_scattering(rtdb,start,last,rmmodes,nfreq,plot,
-     *                            line,width,laser,rminfo)
+c
 c --------------------------------------------------------------------
 c   calculate absolute differential raman scattering cross section.
 c   Producing a raman scattering output file 
 c --------------------------------------------------------------------
+c
+      subroutine raman_scattering(rtdb,start,last,rmmodes,nfreq,plot,
+     &                            line,width,laser,rminfo)
+c
       implicit none
+c
 #include "global.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
+#include "inp.fh"
 c
       character*16 plot, line
 c
@@ -259,6 +268,10 @@ c      Double precision freq(rmmodes) ! [input] number of excitation frequencies
       Double precision avogadro, nm2icm, temp, scale, amu,au2nm
       Double precision exparg, conver, zero, two, one, forty_five
 c
+      character*255 filename
+      integer unitno
+      parameter (unitno = 77)
+c
       parameter (widthfac = 2.35482D+00)
       parameter (zero = 0.0D+00, one = 1.0D+00, 
      *           two = 2.0D+00, forty_five = 45.0D+00)
@@ -279,6 +292,7 @@ c
 c
       logical debug
       debug      = (.false. .and. ga_nodeid().eq.0) ! produce debug output
+c
 c ----------outline and units of the calculation:---------------------
 c d(sigma)/d(omega) = h/(8*(epsilon0)^2 *c) *(lambda-lambda_z)^4/lambda_z
 c                     /(1-exp(-h*c*lambda_z/(kT))*(scattering factor)/45                    
@@ -292,6 +306,7 @@ c   polarizability volumes in [Angstrom^4/amu].
 c   conversion factor: (4*pi*epsilon0)^2*10^-40{Angstrom^4/m^4}
 c                      /atomic_mass_unit{amu/kg}
 c --------------------------------------------------------------------
+c
       if (debug) then
           write(6,*) "rmmodes",rmmodes
           do ifreq = 1,nfreq
@@ -301,33 +316,41 @@ c --------------------------------------------------------------------
           call output(rminfo,1,rmmodes,1,4,rmmodes,4,1)
       endif
 c
-      if ( ga_nodeid().eq.0 )  write(luout,9002) plot
+c     === write plot to file ===
+      call util_file_name(plot,.false.,.false.,filename)
+      open(unitno, status='unknown', form='formatted',file=filename)
+
+      if (ga_nodeid().eq.0)  write(unitno,9002) plot
       if (ga_nodeid().eq.0) then
        do ifreq = 1,nfreq
-         write(luout,9003) au2nm/laser(ifreq)
+         write(unitno,9003) au2nm/laser(ifreq)
        end do
       end if
-      if ( ga_nodeid().eq.0 )  write(luout,9004) line 
-      if ( ga_nodeid().eq.0 )  write(luout,9005) width
-      if ( ga_nodeid().eq.0 )  write(luout,9010) rmmodes
+      if ( ga_nodeid().eq.0 )  write(unitno,9004) line 
+      if ( ga_nodeid().eq.0 )  write(unitno,9005) width
+      if ( ga_nodeid().eq.0 )  write(unitno,9010) rmmodes
 c
       if (plot =='normal'.and. ga_nodeid().eq.0 ) then
-         write(luout,9011)
+         write(unitno,9011)
          do i=1,rmmodes             
-            write(luout,9012) i, rminfo(i,1), rminfo(i,4)
+            write(unitno,9012) i, rminfo(i,1), rminfo(i,4)
          end do
-            write(luout,9006)
+            write(unitno,9006)
       else if (plot =='resonance'.and. ga_nodeid().eq.0 ) then
-         write(luout,9013)
+         write(unitno,9013)
          do i=1,rmmodes
-            write(luout,9014) i, rminfo(i,1), rminfo(i,4), 
+            write(unitno,9014) i, rminfo(i,1), rminfo(i,4), 
      &                        rminfo(i,2), rminfo(i,3)
          end do
-            write(luout,9006)
+            write(unitno,9006)
       end if ! normal
+c
 c ----------convert laser from au. -> nm -> 1/cm ----------------------------
+c
         lambda = nm2icm/(au2nm/laser(1))
+c
 c ------------Calculate differential cross section-----------------------
+c
       do i=start,rmmodes
          crs_real(i) = zero
          crs_imag(i) = zero
@@ -347,7 +370,9 @@ c
          frqmin = rminfo(1,1) - 60.0D+00  ! determine plot minimum
          frqmax = rminfo(rmmodes,1) + 60.0D+00 ! determine plot maximum
          dfrq   = ((frqmax-frqmin)) / (numpts-1) !energy steps determined by numpts
+c
 c ------calculate lineshape factors for the plot-----------------------
+c
       if (line == 'lorentzian') then
          afac = width/(two*pi)
          bfac = width/two
@@ -358,7 +383,9 @@ c
          afac = one/(sqrt(two*pi)*width)
          bfac = one/(two*width**two)
       end if
+c
 c ----------- make the plot---------------------------------------
+c
       do i=1,numpts ! loop over number of points
          conv_tot = zero
          conv_real = zero
@@ -370,21 +397,24 @@ c ----------- make the plot---------------------------------------
             else if (line == 'gaussian') then  
              factor = scale*afac*exp(-bfac* (frq-rminfo(j,1))**2)
             endif
-              conv_tot = conv_tot + factor*crs_tot(j)
-             if (plot == 'resonance') then
+            conv_tot = conv_tot + factor*crs_tot(j)
+            if (plot == 'resonance') then
                conv_real = conv_real + factor*crs_real(j)
                conv_imag = conv_imag + factor*crs_imag(j)
-             end if
-      end do  ! end loop over rmmodes 
+            end if
+         end do  ! end loop over rmmodes 
 c
          if (plot == 'normal' ) then
-            if ( ga_nodeid().eq.0 ) write (luout,9017) frq, conv_tot
+            write (unitno,9017) frq, conv_tot
          endif
+c
          if (plot == 'resonance') then 
-            if ( ga_nodeid().eq.0 ) write(luout,9018) frq,
-     *        conv_tot, conv_real, conv_imag
-          endif
+           write(unitno,9018) frq, conv_tot, conv_real, conv_imag
+         endif
       end do ! end loop over numpts
+c
+      close(unitno) 
+c
 c --------------------------------------------------------------------
  9002 FORMAT(/1X,60(1H-)/5X,A16,'Raman Scattering Plot'/1X,60(1H-))
  9003 FORMAT(1X,'Excitation wavelength',F8.2,1X,'nm')
@@ -400,8 +430,8 @@ c --------------------------------------------------------------------
  9014 FORMAT(1X,I3,F9.2,3F14.4)
  9015 FORMAT(1X,I4,F10.2,2E12.4)
  9016 FORMAT(1X,F10.2,3E12.4)
- 9017 FORMAT(1X,'plot',F8.2,G14.4)
- 9018 FORMAT(1X,'plot',F8.2,3G14.4)
+ 9017 FORMAT(1X,F8.2,G14.4)
+ 9018 FORMAT(1X,F8.2,3G14.4)
 c
       return
       end  
@@ -457,4 +487,3 @@ c
       return
       end
 c ----------------end raman_save------------------------------------------------
-
