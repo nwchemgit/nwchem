@@ -291,7 +291,7 @@ c
       parameter (numpts  = 1000)
 c
       logical debug
-      debug      = (.false. .and. ga_nodeid().eq.0) ! produce debug output
+      debug      = .false. ! produce debug output
 c
 c ----------outline and units of the calculation:---------------------
 c d(sigma)/d(omega) = h/(8*(epsilon0)^2 *c) *(lambda-lambda_z)^4/lambda_z
@@ -316,27 +316,26 @@ c
           call output(rminfo,1,rmmodes,1,4,rmmodes,4,1)
       endif
 c
-c     === write plot to file ===
+c     --- write raman scattering data to file ---
+c
       call util_file_name(plot,.false.,.false.,filename)
       open(unitno, status='unknown', form='formatted',file=filename)
 
-      if (ga_nodeid().eq.0)  write(unitno,9002) plot
-      if (ga_nodeid().eq.0) then
-       do ifreq = 1,nfreq
+      write(unitno,9002) plot
+      do ifreq = 1,nfreq
          write(unitno,9003) au2nm/laser(ifreq)
-       end do
-      end if
-      if ( ga_nodeid().eq.0 )  write(unitno,9004) line 
-      if ( ga_nodeid().eq.0 )  write(unitno,9005) width
-      if ( ga_nodeid().eq.0 )  write(unitno,9010) rmmodes
+      end do
+      write(unitno,9004) line 
+      write(unitno,9005) width
+      write(unitno,9010) rmmodes
 c
-      if (plot =='normal'.and. ga_nodeid().eq.0 ) then
+      if (plot =='normal') then
          write(unitno,9011)
          do i=1,rmmodes             
             write(unitno,9012) i, rminfo(i,1), rminfo(i,4)
          end do
             write(unitno,9006)
-      else if (plot =='resonance'.and. ga_nodeid().eq.0 ) then
+      else if (plot =='resonance') then
          write(unitno,9013)
          do i=1,rmmodes
             write(unitno,9014) i, rminfo(i,1), rminfo(i,4), 
@@ -406,14 +405,16 @@ c
 c
          if (plot == 'normal' ) then
             write (unitno,9017) frq, conv_tot
-         endif
-c
-         if (plot == 'resonance') then 
-           write(unitno,9018) frq, conv_tot, conv_real, conv_imag
-         endif
+         else if (plot =='resonance') then
+            write(unitno,9018) frq, conv_tot, conv_real, conv_imag
+         endif  ! plot
       end do ! end loop over numpts
 c
       close(unitno) 
+c
+      write(luout,22) filename(1:inp_strlen(filename))
+ 22   format(/' Raman scattering data written to ',a/)
+      call util_flush(luout)
 c
 c --------------------------------------------------------------------
  9002 FORMAT(/1X,60(1H-)/5X,A16,'Raman Scattering Plot'/1X,60(1H-))
