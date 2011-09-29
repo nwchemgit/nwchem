@@ -1,0 +1,40 @@
+echo
+
+start h2o_raman_4
+
+title "TDDFT h2o BP86/aug-cc-pVTZ"
+
+geometry
+symmetry c1
+O     0.00000000     0.00000000     0.12982363
+H     0.75933475     0.00000000    -0.46621158
+H    -0.75933475     0.00000000    -0.46621158
+end
+
+basis  spherical
+ O library aug-cc-pVTZ
+ H library aug-cc-pVTZ
+end
+
+dft
+xc becke88 perdew86 
+convergence energy 1d-8 nolevelshifting
+direct
+end
+
+hessian 
+thresh 1d-8
+profile 
+end
+
+property
+response  1 8.8559E-2
+damping 0.007
+end
+
+raman
+  resonance
+end
+
+task dft optimize
+task dft raman
