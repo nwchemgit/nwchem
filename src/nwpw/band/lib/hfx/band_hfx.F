@@ -86,16 +86,16 @@
  
 
 *        **** initialize coulomb_screened ****
-c         call coulomb_screened_init(flag,rcut,pp)
+         call c_coulomb_screened_init(flag,rcut,pp)
 
 *      
 *        **** initialize orb_contribution ****
-         do ms=1,ispin
-           value = MA_alloc_get(mt_dbl,norbs(ms),
-     >                'ehfx_orb',ehfx_orb(2,ms),ehfx_orb(1,ms))
-           if (.not. value)   
-     >       call errquit('band_init_HFX: out of heap memory',1, MA_ERR)
-         end do
+c         do ms=1,ispin
+c           value = MA_alloc_get(mt_dbl,norbs(ms),
+c     >                'ehfx_orb',ehfx_orb(2,ms),ehfx_orb(1,ms))
+c           if (.not. value)   
+c     >       call errquit('band_init_HFX: out of heap memory',1, MA_ERR)
+c         end do
 
       end if
 
@@ -106,8 +106,9 @@ c     **** define extra psi and Hpsi  ****
       replicated = (npk.gt.1)
       if (hfx_on.and.replicated) then
         neall = ne(1)+ne(2)
-        psi_r_replicated_tag  = cpsi_data_alloc(nbrillq,neall,2*nfft3d)
-        Hpsi_r_replicated_tag = cpsi_data_alloc(nbrillq,neall,2*nfft3d)
+        nrsize = 2*nbrillioun*neall*nfft3d
+        psi_r_replicated_tag =cpsi_data_alloc(nbrillioun,neall,2*nfft3d)
+        Hpsi_r_replicated_tag=cpsi_data_alloc(nbrillioun,neall,2*nfft3d)
       end if
 
    
@@ -140,34 +141,34 @@ c     **** define extra psi and Hpsi  ****
       if ((norbs(1)+norbs(2)).gt.0) then
 
 *       **** print out orbital contributions ****
-        if (orb_contribution) then
-           call Parallel_taskid(taskid)
-           if (taskid.eq.MASTER) then
-              write(6,487)
-              write(6,488)
-              do ms=1,ispin
-              do i=1,norbs(ms)
-                write(6,489) 
-     >            ms,i,
-     >            dbl_mb(ehfx_orb(1,ms)+i-1)
-              end do
-              end do
-           end if
-  487   format(//,'== Orbital Contributions to HFX ==')
-  488   format(/1x,'orbital',15x,
-     >         'HF_Exchange') 	
-  489   format(1x,i3,i7,2x,e18.6)
-        end if
+c        if (orb_contribution) then
+c           call Parallel_taskid(taskid)
+c           if (taskid.eq.MASTER) then
+c              write(6,487)
+c              write(6,488)
+c              do ms=1,ispin
+c              do i=1,norbs(ms)
+c                write(6,489) 
+c     >            ms,i,
+c     >            dbl_mb(ehfx_orb(1,ms)+i-1)
+c              end do
+c              end do
+c           end if
+c  487   format(//,'== Orbital Contributions to HFX ==')
+c  488   format(/1x,'orbital',15x,
+c     >         'HF_Exchange') 	
+c  489   format(1x,i3,i7,2x,e18.6)
+c        end if
 
 
 *       **** deallocate memory ****
         value = .true.
-        do ms=1,ispin
-          value = value.and.MA_free_heap(ehfx_orb(2,ms))
-        end do
+c        do ms=1,ispin
+c          value = value.and.MA_free_heap(ehfx_orb(2,ms))
+c        end do
 
 *        **** end coulomb_screened ****
-c         call coulomb_screened_end()
+         call c_coulomb_screened_end()
 
 *        **** deallocate replicated space if necessary ****
          if (replicated) then
@@ -251,19 +252,56 @@ c         call coulomb_screened_end()
 #include "band_hfx.fh"
 #include "errquit.fh"
 
+      integer nb1,nb2
       integer istart,iend,jstart,jend,imodn,imodtask
       integer ms,l,q,n,indx1,indx2,Levels,neq(2)
       integer requests(5),reqcnt
+      real*8  kv1(3),kv2(3)
 
-      integer  Butter_Levels,Dneall_na_ptr
-      external Butter_Levels,Dneall_na_ptr
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+c      integer  Butter_Levels,Dneall_na_ptr
+c      external Butter_Levels,Dneall_na_ptr
 
       call nwpw_timing_start(33)
       ehfx = 0.0d0
       phfx = 0.0d0
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
 
-      call band_potential_HFX_sub(ispin0,psi_r_tag,Hpsi_r_tag)
+c        **** reduceall algorithm ****
+         if (replicated) then
+            write(*,*) "into band_potential_HFX_sub"
+            !do nb=1,nbrillq
+            !end do
+            write(*,*) "out band_potential_HFX_sub"
+         else
+            ehfx = 0.0d0
+            phfx = 0.0d0
+            kv1(1) = 0.0d0
+            kv1(2) = 0.0d0
+            kv1(3) = 0.0d0
+            kv2(1) = 0.0d0
+            kv2(2) = 0.0d0
+            kv2(3) = 0.0d0
+            call c_coulomb_screened_set(kv1,kv2)
+            do nb1=1,nbrillioun
+               call band_potential_HFX_sub(
+     >                  dbl_mb(cpsi_data_get_chnk(psi_r_tag, nb1)),
+     >                  dbl_mb(cpsi_data_get_chnk(Hpsi_r_tag,nb1)))
+            end do
+            !do nb1=1,nbrillioun
+            !   do nb2=1,nbrillioun
+            !      call band_potential_HFX_sub(psi1_r, psi2_r,Hpsi1_r,Hpsi2_r)
+            !   end do
+            !end do
+
+            !call band_potential_HFX_sub(ispin0,psi_r_tag,Hpsi_r_tag)
+
+            call Parallel_SumAll(ehfx)
+            call Parallel_SumAll(phfx)
+         end if
+
 
       end if
       call nwpw_timing_end(33)
@@ -346,16 +384,18 @@ c***************** sub/replicated routines *****************************
 *     *     band_potential_HFX_sub   *
 *     *                              *
 *     ********************************
-      subroutine band_potential_HFX_sub(psi1_r, psi2_r,
-     >                                  Hpsi1_r,Hpsi2_r)
+*
+* calculates the exact exchange potentials and k=l
+*
+      subroutine band_potential_HFX_sub(psi_r,Hpsi_r)
       implicit none
 
 #include "band_hfx.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-      complex*16 psi1_r(nfft3d,*), psi2_r(nfft3d,*)
-      complex*16 Hpsi1_r(nfft3d,*),Hpsi2_r(nfft3d,*)
+      complex*16 psi_r(nfft3d,*)
+      complex*16 Hpsi_r(nfft3d,*)
 
 *     **** local variables ****
       logical value,done
@@ -374,8 +414,8 @@ c***************** sub/replicated routines *****************************
       external lattice_omega,c_icoulomb_screened_e
       external  C3dB_rc_pfft3_queue_Cilled,C3dB_cr_pfft3_queue_filled
 
-      ehfx = 0.0d0
-      phfx = 0.0d0
+      !ehfx = 0.0d0
+      !phfx = 0.0d0
       if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
 
          call C3dB_nx(1,n1)
@@ -399,7 +439,7 @@ c***************** sub/replicated routines *****************************
  
 *        ***** screened coulomb solver ****
            do ms=1,ispin
-              call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
+c              call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
               NN = norbs(ms)*(norbs(ms)+1)/2
               i1 = 1
               j1 = 1
@@ -415,21 +455,18 @@ c***************** sub/replicated routines *****************************
 
                  if (k1.le.NN) then
 
-                    if (mod(k1,npk).eq.taskid_k) then
-
-*                      **** generate dnij for Vij  ****
-                       call C3dB_cc_Mul(1,psi2_r(1,j1),
-     >                                    psi1_r(1,i1),dcpl_mb(dn(1)))
-                       call C3dB_c_SMul1(1,scal2*scal1,dcpl_mb(dn(1)))
-                       call C3dB_rc_pfft3f_queuein(0,dcpl_mb(dn(1)))
-                    end if
+*                   **** generate dnij for Vij  ****
+                    call C3dB_cc_Mul(1,psi_r(1,j1),
+     >                                 psi_r(1,i1),dcpl_mb(dn(1)))
+                    call C3dB_c_SMul1(1,scal2*scal1,dcpl_mb(dn(1)))
+                    call C3dB_rc_pfft3f_queuein(0,dcpl_mb(dn(1)))
  
-                     k1 = k1 + 1
-                     j1 = j1 + 1
-                     if (j1.gt.i1) then
-                        j1 = 1
-                        i1 = i1 + 1
-                     end if
+                    k1 = k1 + 1
+                    j1 = j1 + 1
+                    if (j1.gt.i1) then
+                       j1 = 1
+                       i1 = i1 + 1
+                    end if
                  end if
  
                  if (     ((C3dB_rc_pfft3_queue_filled()).or.(k1.gt.NN))
@@ -448,13 +485,13 @@ c***************** sub/replicated routines *****************************
                        ph = 2.0d0*eh
                        ehfx = ehfx - eh
                        phfx = phfx - ph
-                       dbl_mb(ehfx_orb(1,ms)+i2-1) 
-     >                  = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
+c                       dbl_mb(ehfx_orb(1,ms)+i2-1) 
+c     >                  = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
                        if (i2.ne.j2) then
                           ehfx = ehfx - eh
                           phfx = phfx - ph
-                          dbl_mb(ehfx_orb(1,ms)+i2-1) 
-     >                     = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
+c                          dbl_mb(ehfx_orb(1,ms)+i2-1) 
+c     >                     = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
                        end if
 
                        call C3dB_cr_pfft3b_queuein(0,dcpl_mb(vij(1)))
@@ -476,22 +513,22 @@ c***************** sub/replicated routines *****************************
 
 *                   **** generate (Vij)*psi_r ***
                     call C3dB_cc_Mul(1,dcpl_mb(vij(1)),
-     >                                 psi2_r(1,j3),
+     >                                 psi_r(1,j3),
      >                                 dcpl_mb(tmp1(1)))
 
 *                   **** add -(Vij)*psi_r to Hpsi_r ***
-                    call C3dB_cc_Sub2(1,dcpl_mb(tmp1(1)),Hpsi1_r(1,i3))
+                    call C3dB_cc_Sub2(1,dcpl_mb(tmp1(1)),Hpsi_r(1,i3))
 
                     !**** include off diagonal terms ****
                     if (i3.ne.j3) then
 *                      **** generate (Vij)*psi_r ***
                        call C3dB_cc_Mul(1,dcpl_mb(vij(1)),
-     >                                 psi1_r(1,i3),
+     >                                 psi_r(1,i3),
      >                                 dcpl_mb(tmp2(1)))
 
 *                      **** add -(Vij)*psi_r to Hpsi_r ***
                        call C3dB_cc_Sub2(1,dcpl_mb(tmp2(1)),
-     >                                   Hpsi2_r(1,j3))
+     >                                   Hpsi_r(1,j3))
                     end if
 
                     k3 = k3 + 1
@@ -505,7 +542,7 @@ c***************** sub/replicated routines *****************************
               done = (k1.gt.NN).and.(k2.gt.NN).and.(k3.gt.NN)
            end do !**** while ****
 
-           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
+c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
        end do !**** ms *****
 
  
@@ -517,8 +554,8 @@ c***************** sub/replicated routines *****************************
      >      call errquit('band_potential_HFX:popping stack memory',0,
      >      MA_ERR)
 
-         call Parallel_SumAll(ehfx)
-         call Parallel_SumAll(phfx)
+         !call Parallel_SumAll(ehfx)
+         !call Parallel_SumAll(phfx)
       end if
 
       return

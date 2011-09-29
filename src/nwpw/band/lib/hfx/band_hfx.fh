@@ -24,12 +24,12 @@
 
 *     **** BAND_HFX_replicated common block ****
       logical replicated
-      integer npk,taskid_k,nfft3d,neall
+      integer npk,taskid_k,nfft3d,neall,nrsize
       integer psi_r_replicated_tag,Hpsi_r_replicated_tag
       common /BAND_HFX_replicated_Block/ psi_r_replicated_tag,
      >                                   Hpsi_r_replicated_tag,
-     >                                   neall,npk,taskid_k,
-     >                                   nfft3d,
+     >                                   npk,taskid_k,
+     >                                   nfft3d,neall,nrsize,
      >                                   replicated
 
 
