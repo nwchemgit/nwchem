@@ -303,11 +303,11 @@
       call Cram_r_pack(0,dbl_mb(gk2(1)))
       call Cram_r_Copy(0,dbl_mb(gk2(1)),dbl_mb(vc_indx))
 
-      value = MA_pop_stack(glr(2))
-      value = value.and.MA_pop_stack(gk2(2))
+      value = MA_pop_stack(gk2(2))
+      value = value.and.MA_pop_stack(glr(2))
       value = value.and.MA_pop_stack(gk(2))
       if (.not. value) 
-     >  call errquit('c_coulomb_screened_init: poppingstack memory',0,
+     >  call errquit('c_coulomb_screened_set: poppingstack memory',0,
      &       MA_ERR)
 
 
