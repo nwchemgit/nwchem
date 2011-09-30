@@ -162,7 +162,6 @@ c
       if(.not.ogroupio) return
 
       close(luout)
-      luout = 6
 
       return
       end
