@@ -722,6 +722,8 @@ c
        real*8 cnew(1:nu,1:nvv,1:ngr), hnew(1:nu,1:nvv,1:ngr)
        real*8 ul(1:nu,1:nvv,1:ngr),hq(1:nu,1:nvv,1:ngr)
        real*8 ulr(1:nu,1:nvv,1:ngr),qvv(1:nvv),qqu(1:nu)
+       external util_erf
+       double precision util_erf
        do j=1,nv
         dentv(ims(j))=den(ims(j))
        enddo      
@@ -774,7 +776,7 @@ c      ulr electrostatic part of the interaction potential in real space
        do j=1,nu
         do j1=1,nvv      
          do i=2,ngr 
-          ulr(j,j1,i)=ck*qqu(j)*qvv(j1)/rgrid(i)*erf(tau*rgrid(i))
+          ulr(j,j1,i)=ck*qqu(j)*qvv(j1)/rgrid(i)*util_erf(tau*rgrid(i))
          enddo 
          ulr(j,j1,1)=ulr(j,j1,2)
         enddo
