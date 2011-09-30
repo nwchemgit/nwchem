@@ -52,6 +52,8 @@ c
       data rgridnames /'Euler-MacLaurin','Mura-Knowles',
      .     'Treutler-Ahlrichs','Gauss-Legendre','G-C-interv',
      ,     'Lindh','Chebyshev','Legendre'/
+c
+      logical status  ! FA
 c     
       me=ga_nodeid()
 c     
@@ -345,6 +347,24 @@ c
             if (ipol.eq.1)nb = noc(1)
             ichg = nint(rcharge)
             write(LuOut,8200)nel,na,nb,ichg,mult
+c
+cFA         Writing Number of electrons on rtdb to be used 
+c           in create_munu4nbo() defined in hnd_efgmap_Z4.F
+            status = rtdb_parallel(.false.)
+            if (.not. rtdb_put(rtdb, 'prop:Nel',mt_int,
+     $                      1,nel))
+     $      call errquit('prop_input-EFGZ4-nel: rtdb_put failed',
+     $                   555, RTDB_ERR)
+            if (.not. rtdb_put(rtdb, 'prop:Nocc_a',mt_int,
+     $                      1,na))
+     $      call errquit('prop_input-EFGZ4-Nocc_a: rtdb_put failed',
+     $                   555, RTDB_ERR)
+            if (.not. rtdb_put(rtdb, 'prop:Nocc_b',mt_int,
+     $                      1,nb))
+     $      call errquit('prop_input-EFGZ4-Nocc_b: rtdb_put failed',
+     $                   555, RTDB_ERR)
+            status = rtdb_parallel(.true.)
+cFA
             on_off_1 = 'off'
             if (oskel)on_off_1 = 'on'
             on_off_2 = 'off'
