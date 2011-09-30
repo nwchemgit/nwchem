@@ -116,7 +116,7 @@ c      call Cram_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
       ki  = 1
       nbi = 1 
       psi_shift   = cpsi_data_get_chnk(psi_r_tag,nbi)
-      Hpsir_shift = cpsi_data_get_chnk(Hpsi_r_tag,nbi)
+      if (dohfx) Hpsir_shift = cpsi_data_get_chnk(Hpsi_r_tag,nbi)
 
       kj  = 1
       nbj = 1 
@@ -152,7 +152,8 @@ c     >                       dcpl_mb(vpsi(1)))
                ki  = 1
                if (nbi.le.nbrillq) then
                   psi_shift   = cpsi_data_get_chnk(psi_r_tag, nbi)
-                  Hpsir_shift = cpsi_data_get_chnk(Hpsi_r_tag,nbi)
+                  if (dohfx) 
+     >               Hpsir_shift = cpsi_data_get_chnk(Hpsi_r_tag,nbi)
                endif
             end if
          end if

@@ -169,7 +169,7 @@
          do i=1,nfft3d
             gx  =  dbl_mb(G(1)+i-1) + kv1(1) - kv2(1)
             gy  =  dbl_mb(G(2)+i-1) + kv1(2) - kv2(2)
-            gz  =  dbl_mb(G(2)+i-1) + kv1(3) - kv2(3)
+            gz  =  dbl_mb(G(3)+i-1) + kv1(3) - kv2(3)
             gg  = gx*gx + gy*gy + gz*gz
 
             if (gg<1.0d-6) then
@@ -285,7 +285,7 @@ c      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
       do i=1,nfft3d
          gx  =  dbl_mb(G(1)+i-1) + kv1(1) - kv2(1)
          gy  =  dbl_mb(G(2)+i-1) + kv1(2) - kv2(2)
-         gz  =  dbl_mb(G(2)+i-1) + kv1(3) - kv2(3)
+         gz  =  dbl_mb(G(3)+i-1) + kv1(3) - kv2(3)
          gg  = gx*gx + gy*gy + gz*gz
 
          if (gg .lt. 1.0d-6) then
@@ -380,11 +380,8 @@ c      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
       if (.not.MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1)))
      > call errquit('c_coulomb_screened_e:out of stack memory',0,MA_ERR)
       
-      write(*,*) "fera"
       call Cram_cr_Sqr(0,dng,dbl_mb(tmp1(1)))
-      write(*,*) "ferb"
       call Cram_rr_dot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
-      write(*,*) "ferc"
       ec = 0.5d0*ec*lattice_omega()
 
       if (.not.MA_pop_stack(tmp1(2)))

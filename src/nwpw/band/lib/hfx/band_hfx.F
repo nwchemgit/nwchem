@@ -490,7 +490,6 @@ c        write(*,*) "dng 4 = ",dcpl_mb(dn(1)+3)
 c        write(*,*) "dng 5 = ",dcpl_mb(dn(1)+4)
 c        write(*,*) "dng 6 = ",dcpl_mb(dn(1)+5)
                        eh = c_icoulomb_screened_e(dcpl_mb(dn(1)))
-c            write(*,*) k1,k2,k3,eh
                        call c_coulomb_screened_v(dcpl_mb(dn(1)),
      >                                           dcpl_mb(vij(1)))
 
