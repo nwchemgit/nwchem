@@ -90,25 +90,40 @@ c     == check for restricted open-shell dft ==
       if (.not. rtdb_get(rtdb, 'dft:rodft', mt_log, 1,
      &         rodft))rodft = .false.
 c
-      if (mult.eq.1) then
-        scftype = 'RHF'
-        if (.not. rtdb_cput(rtdb, 'dft:scftype', 1, scftype))
-     &       call errquit('dft_input: rtdb_put failed', 1500, RTDB_ERR)
-        call dft_cscf_scftype(scftype)
-      end if
-c
       odft = .false.
-      if ((mult.ne.1)) then
-        if (.not.rodft) then
-           odft = .true.
-           scftype = 'UHF'
+      if (.not. rtdb_cget(rtdb, 'dft:scftype', 1, scftype)) then
+c
+c       If the user did not specify whether the calculation should use
+c       an open-shell or closed-shell formalism then work it out from
+c       the spin multiplicity and potentially from a request for rodft.
+c
+        if (mult.eq.1) then
+          scftype = 'RHF'
         else
-           scftype = 'ROHF'
-        end if
-        if (.not. rtdb_cput(rtdb, 'dft:scftype', 1, scftype))
-     &       call errquit('dft_input: rtdb_put failed', 1500, RTDB_ERR)
-        call dft_cscf_scftype(scftype)
-      end if
+          odft = .true.
+          if (rodft) then
+            scftype = 'ROHF'
+          else
+            scftype = 'UHF'
+          endif
+        endif
+c
+      else
+c
+c       If the user specified what formalism to use then use what the
+c       user ordered. Even if that means running a closed shell system
+c       with the UHF or ROHF formalism.
+c
+        if (scftype.eq.'UHF') then
+          odft = .true.
+        else if (scftype.eq.'ROHF')  then
+          odft = .true.
+        endif
+c
+      endif
+      if (.not. rtdb_cput(rtdb, 'dft:scftype', 1, scftype))
+     &     call errquit('dft_input: rtdb_put failed', 1500, RTDB_ERR)
+      call dft_cscf_scftype(scftype)
 c
       if ((.not.even).and.(.not.odft).and.(.not.rodft)) then
        call errquit(
@@ -119,7 +134,8 @@ c
 c     
 c     odd # of electrons or not a singlet state --> LSD
 c     
-      if ((.not.even).or.(mult.ne.1).or.(theory.eq.'sodft')) ipol=2
+      if ((.not.even).or.(mult.ne.1).or.(theory.eq.'sodft').or.
+     &    (scftype.eq.'UHF')) ipol=2
       noc(2)=0
 c     
 c     Calculate number of occupied orbitals.
