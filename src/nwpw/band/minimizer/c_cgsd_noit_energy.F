@@ -28,6 +28,7 @@ c     $Id$
 *     **** external functions ****
        integer  control_rtdb
        external control_rtdb
+      logical     band_HFX
       logical     cpsp_semicore,control_out_of_time,cpsi_spin_orbit
       logical     control_fractional,control_print,brillioun_print
       character*4 ion_aname
@@ -36,6 +37,7 @@ c     $Id$
       real*8      control_tole,control_tolc,cpsi_occupation_brdcst
       real*8      ion_rion,cpsi_eigenvalue_brdcst,cpsi_svector_brdcst
       real*8      ion_amass
+      external    band_HFX
       external    cpsp_semicore,control_out_of_time,cpsi_spin_orbit
       external    control_fractional,control_print,brillioun_print
       external ion_aname
@@ -98,6 +100,9 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
          write(luout,1440) E(2),E(2)/neall
          write(luout,1450) E(3),E(3)/neall
          write(luout,1460) E(4),E(4)/neall
+         if (band_HFX()) then
+           write(luout,1457) E(26),E(26)/neall
+         end if
          write(luout,1470) E(5),E(5)/ion_nion()
          if (control_fractional()) write(luout,1471) E(12),E(12)/neall
 
@@ -109,6 +114,9 @@ c         write(luout,1320) en(1),en(cpsi_ispin()),' (real space)'
          write(luout,1499) E(11),E(11)/neall
          virial = (E(11)+E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
+         if (band_HFX())  then
+           write(luout,1502) E(27),E(27)/neall
+         end if
       end if
 
       NN=cpsi_ne(1)-cpsi_ne(2)
@@ -223,6 +231,7 @@ c     call psi_2to1()
  1430 FORMAT(/' total     energy    :',E19.10,' (',E15.5,'/ion)')
  1440 FORMAT( ' total orbital energy:',E19.10,' (',E15.5,'/electron)')
  1450 FORMAT( ' hartree   energy    :',E19.10,' (',E15.5,'/electron)')
+ 1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1471 FORMAT( ' smearing  energy    :',E19.10,' (',E15.5,'/electron)')
@@ -237,6 +246,8 @@ c     call psi_2to1()
  1500 FORMAT(/' orbital energies:')
  1501 FORMAT(/' orbital energies not printed',
      >        ' - number of k-points is very large')
+ 1502 FORMAT( ' K.S. HFX energy     :',E19.10,
+     >        ' (',E15.5,'/electron)')
  1507 FORMAT(/' Fermi energy =',2(E18.7,' (',F8.3,'eV)'))
  1508 FORMAT(/' Brillouin zone point: ',i6,
      >       /'    weight=',f10.6,

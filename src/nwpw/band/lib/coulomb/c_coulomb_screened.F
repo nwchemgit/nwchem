@@ -35,6 +35,7 @@
      > call errquit('c_coulomb_screened_init:out of heap memory',
      >              0,MA_ERR)
 
+
       call nwpw_timing_end(7)
       return
       end
@@ -58,8 +59,8 @@
       integer vc_indx,vc_hndl
       common / c_vc_screened_block / rcut,pp,flag,vc_indx,vc_hndl
 
-      if (MA_free_heap(vc_hndl))
-     > call errquit('c_coulomb_screened_init:errror freeing heap',
+      if (.not.MA_free_heap(vc_hndl))
+     > call errquit('c_coulomb_screened_end:errror freeing heap',
      >              0,MA_ERR)
 
       return
@@ -274,10 +275,10 @@
       EPSILON=1.0d0/rcut
 
 *     ***** find the G==0 point in the lattice *****
-      i=0
-      j=0
-      k=0
-      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
+c      i=0
+c      j=0
+c      k=0
+c      call C3dB_ijktoindexp(1,i+1,j+1,k+1,zero,pzero)
       call dcopy(nfft3d,0.0d0,0,dbl_mb(gk2(1)),1)
 
 *     **** short-range part of Greens function set only for short-range ****
@@ -370,14 +371,20 @@
       real*8   lattice_omega
       external lattice_omega
 
+      write(*,*) "fera,npack0=",npack0
+      call util_flush(6)
       call nwpw_timing_start(7)
 
       call Cram_npack(0,npack0)
+      write(*,*) "fera,npack0=",npack0
       if (.not.MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1)))
      > call errquit('c_coulomb_screened_e:out of stack memory',0,MA_ERR)
       
+      write(*,*) "fera"
       call Cram_cr_Sqr(0,dng,dbl_mb(tmp1(1)))
+      write(*,*) "ferb"
       call Cram_rr_dot(0,dbl_mb(tmp1(1)),dbl_mb(vc_indx),ec)
+      write(*,*) "ferc"
       ec = 0.5d0*ec*lattice_omega()
 
       if (.not.MA_pop_stack(tmp1(2)))
@@ -400,9 +407,11 @@
 #include "mafdecls.fh"
 #include "errquit.fh"
 
-*     **** common block used for coulomb.f ****
+*     **** common block ****
+      real*8 rcut,pp
+      integer flag
       integer vc_indx,vc_hndl
-      common / vc_screened_block / vc_indx,vc_hndl
+      common / c_vc_screened_block / rcut,pp,flag,vc_indx,vc_hndl
 
 *     **** local variables ****
       integer tmp1(2)

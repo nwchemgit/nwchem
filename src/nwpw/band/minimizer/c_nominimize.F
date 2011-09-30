@@ -12,11 +12,12 @@ c
 *     **** local variables ****
       integer neall,npack1,nbrillq
       integer G1_tag
-      real*8  ehartree,eorbit,exc,pxc,eion
+      real*8  ehartree,eorbit,exc,pxc,eion,ehfx,phfx
       real*8  E0,Enew
 
 
 *     **** external functions ****
+      logical  band_HFX
       integer  cpsi_neq,Pneb_nbrillq,cpsi_data_alloc
       real*8   c_dng_1ehartree
       real*8   cpsi_1ke
@@ -27,6 +28,7 @@ c
       real*8   ewald_e
       real*8   cpsi_1eorbit,cpsi_smearcorrection
       real*8   cpsi_1vnlso
+      external band_HFX
       external cpsi_neq,Pneb_nbrillq,cpsi_data_alloc
       external c_dng_1ehartree
       external cpsi_1ke
@@ -70,6 +72,14 @@ c      call cpsi_1toelectron()
       E(9)  = 2.0d0*ehartree
       E(10) = pxc
       E(11) = cpsi_1vnlso()
+
+c     **** HFX terms ****
+      if (band_HFX()) then
+         call c_electron_HFX_energies(ehfx,phfx)
+         E(26) = ehfx
+         E(27) = phfx
+      end if
+
 
       call cpsi_data_dealloc(G1_tag)
 

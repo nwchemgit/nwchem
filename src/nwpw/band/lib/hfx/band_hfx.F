@@ -276,8 +276,8 @@ c        **** reduceall algorithm ****
             !end do
             write(*,*) "out band_potential_HFX_sub"
          else
-            ehfx = 0.0d0
-            phfx = 0.0d0
+            ehfx   = 0.0d0
+            phfx   = 0.0d0
             kv1(1) = 0.0d0
             kv1(2) = 0.0d0
             kv1(3) = 0.0d0
@@ -459,6 +459,14 @@ c              call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
                     call C3dB_cc_Mul(1,psi_r(1,j1),
      >                                 psi_r(1,i1),dcpl_mb(dn(1)))
                     call C3dB_c_SMul1(1,scal2*scal1,dcpl_mb(dn(1)))
+
+c        write(*,*) "dn 1 = ",dcpl_mb(dn(1)+0)
+c        write(*,*) "dn 2 = ",dcpl_mb(dn(1)+1)
+c        write(*,*) "dn 3 = ",dcpl_mb(dn(1)+2)
+c        write(*,*) "dn 4 = ",dcpl_mb(dn(1)+3)
+c        write(*,*) "dn 5 = ",dcpl_mb(dn(1)+4)
+c        write(*,*) "dn 6 = ",dcpl_mb(dn(1)+5)
+c        write(*,*) "dn 9996 = ",dcpl_mb(dn(1)+9995)
                     call C3dB_rc_pfft3f_queuein(0,dcpl_mb(dn(1)))
  
                     k1 = k1 + 1
@@ -475,7 +483,14 @@ c              call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
                        call C3dB_rc_pfft3f_queueout(0,dcpl_mb(dn(1)))
 
 *                      **** generate Vcoul ****
+c        write(*,*) "dng 1 = ",dcpl_mb(dn(1)+0)
+c        write(*,*) "dng 2 = ",dcpl_mb(dn(1)+1)
+c        write(*,*) "dng 3 = ",dcpl_mb(dn(1)+2)
+c        write(*,*) "dng 4 = ",dcpl_mb(dn(1)+3)
+c        write(*,*) "dng 5 = ",dcpl_mb(dn(1)+4)
+c        write(*,*) "dng 6 = ",dcpl_mb(dn(1)+5)
                        eh = c_icoulomb_screened_e(dcpl_mb(dn(1)))
+c            write(*,*) k1,k2,k3,eh
                        call c_coulomb_screened_v(dcpl_mb(dn(1)),
      >                                           dcpl_mb(vij(1)))
 
@@ -518,6 +533,7 @@ c     >                     = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
 
 *                   **** add -(Vij)*psi_r to Hpsi_r ***
                     call C3dB_cc_Sub2(1,dcpl_mb(tmp1(1)),Hpsi_r(1,i3))
+
 
                     !**** include off diagonal terms ****
                     if (i3.ne.j3) then

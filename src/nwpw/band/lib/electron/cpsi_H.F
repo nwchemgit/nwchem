@@ -30,7 +30,7 @@
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz
       integer ki,kj,nbi,nbj
-      integer psi_shift,Hpsi_shift,nshift1,nshift2
+      integer psi_shift,Hpsi_shift,Hpsir_shift,nshift1,nshift2
       real*8  scal1,scal2
 
 *     **** tempory space ****
@@ -42,11 +42,11 @@
 *     **** external functions ****
       logical  C3dB_rc_pfft3_queue_filled,band_HFX,band_HFX_relaxed
       integer  Pneb_nbrillq,Pneb_convert_nb
-      integer  cpsi_data_get_chnk,cpsi_data_nsize
+      integer  cpsi_data_get_chnk,cpsi_data_nsize,cpsi_data_alloc
       real*8   lattice_omega
       external C3dB_rc_pfft3_queue_filled,band_HFX,band_HFX_relaxed
       external Pneb_nbrillq,Pneb_convert_nb
-      external cpsi_data_get_chnk,cpsi_data_nsize
+      external cpsi_data_get_chnk,cpsi_data_nsize,cpsi_data_alloc
       external lattice_omega
 
       dohfx = (band_HFX().and.band_HFX_relaxed())
@@ -56,18 +56,6 @@
       call C3dB_nz(1,nz)
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(0,npack0)
-
-      value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
-
-      if (dohfx) then
-         Hpsi_r_tag = 0
-         !Hpsi_tag = cpsi_data_alloc(nbrillq,ne(1)+ne(2),2*nfft3d)
-      end if
-
-      
 
       scal2 = 1.0d0/lattice_omega()
       scal1 = 1.0d0/dble(nx*ny*nz)
@@ -79,6 +67,15 @@
       nbrillq = Pneb_nbrillq()
       nshift1 = cpsi_data_nsize(psi_r_tag)
       nshift2 = cpsi_data_nsize(Hpsi_k_tag)
+
+      value = MA_push_get(mt_dcpl,nfft3d,'vall',vall(2),vall(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,nfft3d,'vpsi',vpsi(2),vpsi(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
+      if (dohfx) then
+         Hpsi_r_tag = cpsi_data_alloc(nbrillq,ne(1)+ne(2),2*nfft3d)
+      end if
        
 
 *     ****************************
@@ -118,11 +115,12 @@ c      call Cram_cc_Sum(0,dcpl_mb(vall(1)),vc,dcpl_mb(vall(1)))
 
       ki  = 1
       nbi = 1 
-      psi_shift    = cpsi_data_get_chnk(psi_r_tag,nbi)
+      psi_shift   = cpsi_data_get_chnk(psi_r_tag,nbi)
+      Hpsir_shift = cpsi_data_get_chnk(Hpsi_r_tag,nbi)
 
       kj  = 1
       nbj = 1 
-      Hpsi_shift   = cpsi_data_get_chnk(Hpsi_k_tag,nbj)
+      Hpsi_shift  = cpsi_data_get_chnk(Hpsi_k_tag,nbj)
       done = .false.
       do while (.not.done)
          if (nbi.le.nbrillq) then
@@ -140,21 +138,21 @@ c     >                       dcpl_mb(vpsi(1)))
             call C3dB_bb_Mul2c(1,dbl_mb(psi_shift),
      >                           dcpl_mb(vpsi(1)))
 
-c            if (dohfx)
-c     >        call C3dB_rr_Sum2(1,dbl_mb(Hpsi_r(1)+(indx1-1)*n2ft3d),
-c     >                            dcpl_mb(vpsi(1)))
-
+            if (dohfx)
+     >         call C3dB_rr_Sum2(1,dbl_mb(Hpsir_shift),dcpl_mb(vpsi(1)))
 
 *           **** get vpsi_r in k-space ****
             call C3dB_rc_pfft3f_queuein(nbi,dcpl_mb(vpsi(1)))
 
-            psi_shift  = psi_shift  + nshift1
+            psi_shift   = psi_shift   + nshift1
+            Hpsir_shift = Hpsir_shift + nshift1
             ki         = ki + 1
             if (ki.gt.neall) then
                nbi = nbi + 1
                ki  = 1
                if (nbi.le.nbrillq) then
-                  psi_shift    = cpsi_data_get_chnk(psi_r_tag,nbi)
+                  psi_shift   = cpsi_data_get_chnk(psi_r_tag, nbi)
+                  Hpsir_shift = cpsi_data_get_chnk(Hpsi_r_tag,nbi)
                endif
             end if
          end if
@@ -185,8 +183,7 @@ c     >                            dcpl_mb(vpsi(1)))
 
 
       value = .true.
-c      if (dohfx)
-c     >  value = value.and.MA_pop_stack(Hpsi_r(2))
+      if (dohfx) call cpsi_data_dealloc(Hpsi_r_tag)
 
       value = value.and.MA_pop_stack(vpsi(2))
       value = value.and.MA_pop_stack(vall(2))
