@@ -26,13 +26,27 @@
 #    different builds in different directories without getting caught
 #    out by variable settings you forgot about.
 #
-get_mpi_include ()
+function get_mpi_include ()
 {
    # This shell function extracts the MPI include file directories
    # and returns them as a list for a compile line.
-   # E.g.: -I/usr/include
+   # E.g.: /usr/include -I/usr/local/include
+   #
+   # MPICH2 and MVAPICH2 support -compile-info
    #
    inlist="`mpif90 -compile-info`"
+   status=$?
+   if [ ${status} -ne 0 ] ; then
+     #
+     # OPENMPI supports -showme
+     #
+     inlist="`mpif90 -showme`"
+     status=$?
+   fi
+   if [ ${status} -ne 0 ] ; then
+     echo "ERROR: cannot get compile info from mpif90" > /dev/stderr
+     exit 1
+   fi
    outlist=""
    for word in ${inlist} ; do
       len=`expr "${word}" : '-I*'`
@@ -40,15 +54,33 @@ get_mpi_include ()
         outlist="${outlist} ${word}"
       fi
    done
+   len=`expr "${outlist}" : ' -I*'`
+   if [ ${len} -ge 3 ] ; then
+     outlist="${outlist:3}"
+   fi
    echo ${outlist}
 }
-get_mpi_link ()
+function get_mpi_link ()
 {
    # This shell function extracts the MPI library file directories
    # and returns them as a list for a link line.
-   # E.g.: -L/usr/lib
+   # E.g.: /usr/lib -L/usr/local/lib
+   #
+   # MPICH2 and MVAPICH2 support -link-info
    #
    inlist="`mpif90 -link-info`"
+   status=$?
+   if [ ${status} -ne 0 ] ; then
+     #
+     # OPENMPI supports -showme
+     #
+     inlist="`mpif90 -showme`"
+     status=$?
+   fi
+   if [ ${status} -ne 0 ] ; then
+     echo "ERROR: cannot get link info from mpif90" > /dev/stderr
+     exit 1
+   fi
    outlist=""
    for word in ${inlist} ; do
       len=`expr "${word}" : '-L*'`
@@ -56,15 +88,33 @@ get_mpi_link ()
         outlist="${outlist} ${word}"
       fi
    done
+   len=`expr "${outlist}" : ' -L*'`
+   if [ ${len} -ge 3 ] ; then
+     outlist="${outlist:3}"
+   fi
    echo ${outlist}
 }
-get_mpi_lib ()
+function get_mpi_lib ()
 {
    # This shell function extracts the MPI libraries
    # and returns them as a list for a link line.
    # E.g.: -lmpich
    #
+   # MPICH2 and MVAPICH2 support -link-info
+   #
    inlist="`mpif90 -link-info`"
+   result=$?
+   if [ ${result} -ne 0 ] ; then
+     #
+     # OPENMPI supports -showme
+     #
+     inlist="`mpif90 -showme`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
+     echo "ERROR: cannot get library info from mpif90" > /dev/stderr
+     exit 1
+   fi
    outlist=""
    for word in ${inlist} ; do
       len=`expr "${word}" : '-l*'`
@@ -73,6 +123,142 @@ get_mpi_lib ()
       fi
    done
    echo ${outlist}
+}
+function get_mpi_fortran ()
+{
+   # This shell function extracts the fortran compiler
+   # and returns its name as a list for a compile line.
+   # E.g.: gfortran
+   #
+   # MPICH2 and MVAPICH2 support -compile-info
+   #
+   inlist="`mpif90 -compile-info`"
+   status=$?
+   if [ ${status} -ne 0 ] ; then
+     #
+     # OPENMPI supports -showme
+     #
+     inlist="`mpif90 -showme`"
+     status=$?
+   fi
+   if [ ${status} -ne 0 ] ; then
+     echo "ERROR: cannot get compile info from mpif90" > /dev/stderr
+     exit 1
+   fi
+   outlist=""
+   for word in ${inlist} ; do
+      echo "c23456 test program">/tmp/$$.f
+      echo "       program test">>/tmp/$$.f
+      echo "       write(6,'(\"hello world\")')">>/tmp/$$.f
+      echo "       end">>/tmp/$$.f
+      ${word} -o /tmp/$$.x /tmp/$$.f
+      status=$?
+      if [ ${status} -eq 0 ] ; then
+        /tmp/$$.x > /dev/null
+        status=$?
+        if [ ${status} -eq 0 ] ; then
+          echo ${word}
+          return 0
+        fi
+      fi
+      rm -f /tmp/$$.x /tmp/$$.f
+   done
+   echo "ERROR: could not find a valid Fortran compiler" > /dev/stderr
+   exit 1
+}
+function get_mpi_cc ()
+{
+   # This shell function extracts the C compiler
+   # and returns its name as a list for a compile line.
+   # E.g.: gcc
+   #
+   # MPICH2 and MVAPICH2 support -compile-info
+   #
+   inlist="`mpicc -compile-info`"
+   status=$?
+   if [ ${status} -ne 0 ] ; then
+     #
+     # OPENMPI supports -showme
+     #
+     inlist="`mpicc -showme`"
+     status=$?
+   fi
+   if [ ${status} -ne 0 ] ; then
+     echo "ERROR: cannot get compile info from mpicc" > /dev/stderr
+     exit 1
+   fi
+   outlist=""
+   for word in ${inlist} ; do
+      echo "#include <stdio.h>">/tmp/$$.c
+      echo "int main(void){">>/tmp/$$.c
+      echo "    printf(\"hello world\n\");">>/tmp/$$.c
+      echo "    return 0;">>/tmp/$$.c
+      echo "}">>/tmp/$$.c
+      ${word} -o /tmp/$$.x /tmp/$$.c
+      status=$?
+      if [ ${status} -eq 0 ] ; then
+        /tmp/$$.x > /dev/null
+        status=$?
+        if [ ${status} -eq 0 ] ; then
+          echo ${word}
+          return 0
+        fi
+      fi
+      rm -f /tmp/$$.x /tmp/$$.c
+   done
+   echo "ERROR: could not find a valid C compiler" > /dev/stderr
+   exit 1
+}
+function get_mpi_cxx ()
+{
+   # This shell function extracts the C++ compiler
+   # and returns its name as a list for a compile line.
+   # E.g.: g++
+   #
+   # MPICH2 and MVAPICH2 support -compile-info
+   #
+   inlist="`mpiCC -compile-info`"
+   status=$?
+   if [ ${status} -ne 0 ] ; then
+     inlist="`mpicxx -compile-info`"
+     status=$?
+   fi
+   if [ ${status} -ne 0 ] ; then
+     #
+     # OPENMPI supports -showme
+     #
+     inlist="`mpiCC -showme`"
+     status=$?
+   fi
+   if [ ${status} -ne 0 ] ; then
+     inlist="`mpicxx -showme`"
+     status=$?
+   fi
+   if [ ${status} -ne 0 ] ; then
+     echo "ERROR: cannot get compile info from mpiCC" > /dev/stderr
+     exit 1
+   fi
+   outlist=""
+   for word in ${inlist} ; do
+      echo "#include <iostream>">/tmp/$$.cpp
+      echo "int main(void) {">>/tmp/$$.cpp
+      echo "    std::cout << \"hello world\n\";">>/tmp/$$.cpp
+      echo "    return 0;">>/tmp/$$.cpp
+      echo "}">>/tmp/$$.cpp
+      ${word} -o /tmp/$$.x /tmp/$$.cpp
+      status=$?
+      if [ ${status} -eq 0 ] ; then
+        /tmp/$$.x > /dev/null
+        status=$?
+        if [ ${status} -eq 0 ] ; then
+          echo ${word}
+          return 0
+        fi
+      fi
+      rm -f /tmp/$$.x /tmp/$$.cpp
+   done
+   echo "ERROR: could not find a valid C++ compiler" > /dev/stderr
+   exit 1
 }
 export NWCHEM_TOP=`pwd`
 export NWCHEM_TARGET=LINUX64
@@ -84,9 +270,43 @@ export USE_MPI=y
 export USE_MPIF=y
 export USE_MPIF4=y
 export MSG_COMMS=MPI
-export MPI_INCLUDE=`get_mpi_include`
-export MPI_LIB=`get_mpi_link`
-export LIBMPI=`get_mpi_lib`
+#
+# Below we have to realize that EXPORT is a command. Hence if we use
+#   EXPORT DUMMY=`ls`
+#   status=$?
+# then status will be set to the exit code of the EXPORT command. If we
+# want the exit code from the ls command we need to write
+#   DUMMY=`ls`
+#   status=$?
+#   EXPORT DUMMY
+#
+MPI_INCLUDE=`get_mpi_include`
+if [ $? -ne 0 ] ; then
+  exit 1
+fi
+MPI_LIB=`get_mpi_link`
+if [ $? -ne 0 ] ; then
+  exit 1
+fi
+LIBMPI=`get_mpi_lib`
+if [ $? -ne 0 ] ; then
+  exit 1
+fi
+MPI_F90=`get_mpi_fortran`
+if [ $? -ne 0 ] ; then
+  exit 1
+fi
+MPI_CC=`get_mpi_cc`
+if [ $? -ne 0 ] ; then
+  exit 1
+fi
+MPI_CXX=`get_mpi_cxx`
+if [ $? -ne 0 ] ; then
+  exit 1
+fi
+export MPI_INCLUDE
+export MPI_LIB
+export LIBMPI
 option=$1
 if [ "x$1" == "xpython" ]; then
   export PYTHONVERSION=2.4
@@ -95,6 +315,7 @@ if [ "x$1" == "xpython" ]; then
   export NWCHEM_MODULES="$NWCHEM_MODULES python"
   echo "Building NWChem including Python $PYTHONVERSION"
   echo "===================================="
+  echo
   option=""
 elif [ "x$1" == "xpython64" ]; then
   export USE_PYTHON64=yes
@@ -104,16 +325,26 @@ elif [ "x$1" == "xpython64" ]; then
   export NWCHEM_MODULES="$NWCHEM_MODULES python"
   echo "Building NWChem including Python $PYTHONVERSION"
   echo "===================================="
+  echo
   option=""
 else
   echo "Building NWChem"
   echo "==============="
+  echo
+fi
+echo "MPI_INCLUDE =" ${MPI_INCLUDE}
+echo "MPI_LIB     =" ${MPI_LIB}
+echo "LIBMPI      =" ${LIBMPI}
+echo "MPI_F90     =" ${MPI_F90}
+echo "MPI_CC      =" ${MPI_CC}
+echo "MPI_CXX     =" ${MPI_CXX}
+cd $NWCHEM_TOP/src
+make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" nwchem_config
+if [ "x${option}" == "x" ]; then
+  cd $NWCHEM_TOP/src/util
+  make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" version
 fi
 cd $NWCHEM_TOP/src
-make DIAG=PAR FC=gfortran CC=gcc CXX=g++ LDOPTIONS="$LDOPTIONS" nwchem_config
-cd $NWCHEM_TOP/src/util
-make DIAG=PAR FC=gfortran CC=gcc CXX=g++ LDOPTIONS="$LDOPTIONS" version
-cd $NWCHEM_TOP/src
-make DIAG=PAR FC=gfortran CC=gcc CXX=g++ LDOPTIONS="$LDOPTIONS" $option
+make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
 cd $NWCHEM_TOP/contrib/mov2asc
-make DIAG=PAR FC=gfortran CC=gcc CXX=g++ LDOPTIONS="$LDOPTIONS" $option
+make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
