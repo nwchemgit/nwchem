@@ -35,15 +35,22 @@ function get_mpi_include ()
    # MPICH2 and MVAPICH2 support -compile-info
    #
    inlist="`mpif90 -compile-info`"
-   status=$?
-   if [ ${status} -ne 0 ] ; then
+   result=$?
+   if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
      #
      inlist="`mpif90 -showme`"
-     status=$?
+     result=$?
    fi
-   if [ ${status} -ne 0 ] ; then
+   if [ ${result} -ne 0 ] ; then
+     #
+     # HPMPI supports -show
+     #
+     inlist="`mpif90 -show`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
      echo "ERROR: cannot get compile info from mpif90" > /dev/stderr
      exit 1
    fi
@@ -69,15 +76,22 @@ function get_mpi_link ()
    # MPICH2 and MVAPICH2 support -link-info
    #
    inlist="`mpif90 -link-info`"
-   status=$?
-   if [ ${status} -ne 0 ] ; then
+   result=$?
+   if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
      #
      inlist="`mpif90 -showme`"
-     status=$?
+     result=$?
    fi
-   if [ ${status} -ne 0 ] ; then
+   if [ ${result} -ne 0 ] ; then
+     #
+     # HPMPI supports -show
+     #
+     inlist="`mpif90 -show`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
      echo "ERROR: cannot get link info from mpif90" > /dev/stderr
      exit 1
    fi
@@ -112,6 +126,13 @@ function get_mpi_lib ()
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
+     #
+     # HPMPI supports -show
+     #
+     inlist="`mpif90 -show`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
      echo "ERROR: cannot get library info from mpif90" > /dev/stderr
      exit 1
    fi
@@ -133,15 +154,22 @@ function get_mpi_fortran ()
    # MPICH2 and MVAPICH2 support -compile-info
    #
    inlist="`mpif90 -compile-info`"
-   status=$?
-   if [ ${status} -ne 0 ] ; then
+   result=$?
+   if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
      #
      inlist="`mpif90 -showme`"
-     status=$?
+     result=$?
    fi
-   if [ ${status} -ne 0 ] ; then
+   if [ ${result} -ne 0 ] ; then
+     #
+     # HPMPI supports -show
+     #
+     inlist="`mpif90 -show`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
      echo "ERROR: cannot get compile info from mpif90" > /dev/stderr
      exit 1
    fi
@@ -152,11 +180,11 @@ function get_mpi_fortran ()
       echo "       write(6,'(\"hello world\")')">>/tmp/$$.f
       echo "       end">>/tmp/$$.f
       ${word} -o /tmp/$$.x /tmp/$$.f
-      status=$?
-      if [ ${status} -eq 0 ] ; then
+      result=$?
+      if [ ${result} -eq 0 ] ; then
         /tmp/$$.x > /dev/null
-        status=$?
-        if [ ${status} -eq 0 ] ; then
+        result=$?
+        if [ ${result} -eq 0 ] ; then
           echo ${word}
           return 0
         fi
@@ -175,15 +203,22 @@ function get_mpi_cc ()
    # MPICH2 and MVAPICH2 support -compile-info
    #
    inlist="`mpicc -compile-info`"
-   status=$?
-   if [ ${status} -ne 0 ] ; then
+   result=$?
+   if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
      #
      inlist="`mpicc -showme`"
-     status=$?
+     result=$?
    fi
-   if [ ${status} -ne 0 ] ; then
+   if [ ${result} -ne 0 ] ; then
+     #
+     # HPMPI supports -show
+     #
+     inlist="`mpicc -show`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
      echo "ERROR: cannot get compile info from mpicc" > /dev/stderr
      exit 1
    fi
@@ -195,11 +230,11 @@ function get_mpi_cc ()
       echo "    return 0;">>/tmp/$$.c
       echo "}">>/tmp/$$.c
       ${word} -o /tmp/$$.x /tmp/$$.c
-      status=$?
-      if [ ${status} -eq 0 ] ; then
+      result=$?
+      if [ ${result} -eq 0 ] ; then
         /tmp/$$.x > /dev/null
-        status=$?
-        if [ ${status} -eq 0 ] ; then
+        result=$?
+        if [ ${result} -eq 0 ] ; then
           echo ${word}
           return 0
         fi
@@ -218,23 +253,34 @@ function get_mpi_cxx ()
    # MPICH2 and MVAPICH2 support -compile-info
    #
    inlist="`mpiCC -compile-info`"
-   status=$?
-   if [ ${status} -ne 0 ] ; then
+   result=$?
+   if [ ${result} -ne 0 ] ; then
      inlist="`mpicxx -compile-info`"
-     status=$?
+     result=$?
    fi
-   if [ ${status} -ne 0 ] ; then
+   if [ ${result} -ne 0 ] ; then
      #
      # OPENMPI supports -showme
      #
      inlist="`mpiCC -showme`"
-     status=$?
+     result=$?
    fi
-   if [ ${status} -ne 0 ] ; then
+   if [ ${result} -ne 0 ] ; then
      inlist="`mpicxx -showme`"
-     status=$?
+     result=$?
    fi
-   if [ ${status} -ne 0 ] ; then
+   if [ ${result} -ne 0 ] ; then
+     #
+     # HPMPI supports -show
+     #
+     inlist="`mpiCC -show`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
+     inlist="`mpicxx -show`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
      echo "ERROR: cannot get compile info from mpiCC" > /dev/stderr
      exit 1
    fi
@@ -246,11 +292,11 @@ function get_mpi_cxx ()
       echo "    return 0;">>/tmp/$$.cpp
       echo "}">>/tmp/$$.cpp
       ${word} -o /tmp/$$.x /tmp/$$.cpp
-      status=$?
-      if [ ${status} -eq 0 ] ; then
+      result=$?
+      if [ ${result} -eq 0 ] ; then
         /tmp/$$.x > /dev/null
-        status=$?
-        if [ ${status} -eq 0 ] ; then
+        result=$?
+        if [ ${result} -eq 0 ] ; then
           echo ${word}
           return 0
         fi
@@ -270,6 +316,20 @@ export USE_MPI=y
 export USE_MPIF=y
 export USE_MPIF4=y
 export MSG_COMMS=MPI
+#
+# Now we try and guess the network on the machine.
+# The default is sockets.
+#
+if [ -f /dev/infiniband ] ; then
+  # There seems to be an infiniband network on this machine
+  export ARMCI_NETWORK="OPENIB"
+  if [ -f /usr/include/infiniband ] ; then
+    export IB_INCLUDE="/usr/include/infiniband"
+  else
+    echo "ERROR: Infiniband include files not in expected location"
+    exit 1
+  fi
+fi
 #
 # Below we have to realize that EXPORT is a command. Hence if we use
 #   EXPORT DUMMY=`ls`
@@ -338,6 +398,12 @@ echo "LIBMPI      =" ${LIBMPI}
 echo "MPI_F90     =" ${MPI_F90}
 echo "MPI_CC      =" ${MPI_CC}
 echo "MPI_CXX     =" ${MPI_CXX}
+if [ ${#ARMCI_NETWORK} -ne 0 ] ; then
+  echo "ARMCI_NETWORK=" ${ARMCI_NETWORK}
+fi
+if [ ${#IB_INCLUDE} -ne 0 ] ; then
+  echo "IB_INCLUDE   =" ${IB_INCLUDE}
+fi
 cd $NWCHEM_TOP/src
 make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" nwchem_config
 if [ "x${option}" == "x" ]; then
