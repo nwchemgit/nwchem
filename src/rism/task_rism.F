@@ -461,6 +461,7 @@ c
 #include "mafdecls.fh"
 c      parameters
        integer rtdb
+       integer kd,dd 
        character*(*) rdffile
        integer  nu, nv,nd,nvv, ngr, i,j1,j,k1,icl,k        
        real*8 rgrid(1:ngr),kgrid(1:ngr)  
@@ -487,7 +488,6 @@ c      functions
        real*8 del(1:nu,1:nvv),mmaxi,mmax(1:nu),mmmax 
 c      diis functions and counts
        real*8 ggo(1:dd,1:nu,1:nvv,1:ngr),dgg(1:dd,1:nu,1:nvv,1:ngr)
-       integer kd,dd 
        double precision muh,mugf
        write(76,*) nu,nv,nvv,ngr,icl,icr,tau,solperm
        write(76,*) T,lambd,tol
@@ -634,10 +634,10 @@ c      subroutine for evaluation diis residues dgg and matrix coefficients ss
 c
        subroutine diis(nu,nvv,ngr,lam,k1,dd,hold,hnew,ggo,dgg)
        implicit none
+       integer k1,dd,jd,jd1
        real*8 ggo(1:dd,1:nu,1:nvv,1:ngr),dgg(1:dd,1:nu,1:nvv,1:ngr)
        real*8 ss(1:dd+1,1:dd+1),hold(1:nu,1:nvv,1:ngr)
        real*8 s0(1:dd+1),s1,lam,hnew(1:nu,1:nvv,1:ngr)
-       integer k1,dd,jd,jd1
        integer j,j1,i,nu,nvv,ngr
        integer ipiv(1:dd+1),info
 c      initialization of overlap matrix for diis
