@@ -320,10 +320,11 @@ export MSG_COMMS=MPI
 # Now we try and guess the network on the machine.
 # The default is sockets.
 #
-if [ -f /dev/infiniband ] ; then
+if [ -d /dev/infiniband ] ; then
   # There seems to be an infiniband network on this machine
   export ARMCI_NETWORK="OPENIB"
-  if [ -f /usr/include/infiniband ] ; then
+  export LIBMPI="${LIBMPI} -libverbs"
+  if [ -d /usr/include/infiniband ] ; then
     export IB_INCLUDE="/usr/include/infiniband"
   else
     echo "ERROR: Infiniband include files not in expected location"
@@ -392,17 +393,15 @@ else
   echo "==============="
   echo
 fi
-echo "MPI_INCLUDE =" ${MPI_INCLUDE}
-echo "MPI_LIB     =" ${MPI_LIB}
-echo "LIBMPI      =" ${LIBMPI}
-echo "MPI_F90     =" ${MPI_F90}
-echo "MPI_CC      =" ${MPI_CC}
-echo "MPI_CXX     =" ${MPI_CXX}
-if [ ${#ARMCI_NETWORK} -ne 0 ] ; then
-  echo "ARMCI_NETWORK=" ${ARMCI_NETWORK}
-fi
+echo "MPI_INCLUDE   =" ${MPI_INCLUDE}
+echo "MPI_LIB       =" ${MPI_LIB}
+echo "LIBMPI        =" ${LIBMPI}
+echo "MPI_F90       =" ${MPI_F90}
+echo "MPI_CC        =" ${MPI_CC}
+echo "MPI_CXX       =" ${MPI_CXX}
+echo "ARMCI_NETWORK =" ${ARMCI_NETWORK}
 if [ ${#IB_INCLUDE} -ne 0 ] ; then
-  echo "IB_INCLUDE   =" ${IB_INCLUDE}
+  echo "IB_INCLUDE    =" ${IB_INCLUDE}
 fi
 cd $NWCHEM_TOP/src
 make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" nwchem_config
