@@ -630,6 +630,7 @@ c
 #include "rtdb.fh"
 #include "bgj.fh"
 #include "case.fh"
+#include "zora.fh"
 c     
 c     $Id$
 c
@@ -864,8 +865,11 @@ c     reuse g_a_exch to hold the 1-e integrals
 c
       g_hcore = g_a_exch
       call ga_zero(g_hcore)
-      call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)
-      call int_1e_ga(basis, basis, g_hcore, 'potential', oskel)
+      call int_1e_ga(basis, basis, g_hcore, 'kinetic', oskel)  ! kinetic
+      if (do_zora .and. .not.(do_NonRel)) then
+        call ga_dadd(1.d0,g_hcore,1.d0,g_zora_Kinetic(1),g_hcore) ! zora kinetic
+      endif
+      call int_1e_ga(basis, basis, g_hcore, 'potential', oskel) ! potential
       eone = 
      $     (ga_ddot(g_a_dens,g_hcore) + ga_ddot(g_b_dens,g_hcore))
       call ga_dadd(one, g_hcore, one, g_a_coul, g_a_coul)
