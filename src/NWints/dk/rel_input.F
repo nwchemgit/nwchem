@@ -17,6 +17,7 @@ c
 c     Read input for the relativistic block
 c     
       integer rtdb ! [input] handle to database
+      integer slc_spinpolAO ! for selecting spin-density matrix contrib
 c     
       character*255 test
       double precision clight
@@ -26,8 +27,14 @@ c
 
       logical status
       integer irelKey            ! Relativistic method keys
+      logical do_prntNMRCS
+      logical skip_csAOev,skip_gshiftAOev,
+     &        skip_hypAOev,skip_efgz4AOev,
+     &        Knucl
+      logical skip_cphf_ev_shield,
+     &        skip_cphf_ev_gshift,
+     &        skip_cphf_ev_hyp
 
-c     Initialise relativistic approach key
       irelKey = 0
 c
 c     Set the available relativistic approaches to .false.
@@ -116,8 +123,68 @@ c------------- zoracutoff_NMR, used in get_NMR() from dft_zora_utils.F -- FA-11-
          if (.not. rtdb_put(rtdb,'zora:not_zora_scale',                             ! FA
      &                     mt_log,1,not_zora_scale))                                ! FA
      &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)                    ! FA
-
-c
+c ------- SKIP ev. AO matrices for NMRCS or gshifts or hyperfine ---- START
+c Note.- It will read instead data from a file, if the file does not
+c        exist it will stop calc. with a warning message.
+      elseif(inp_compare(.false.,'zora:skip_csAOev',test)) then 
+         skip_csAOev = .true.      
+         if (.not. rtdb_put(rtdb,'zora:skip_csAOev',           
+     &                     mt_log,1,skip_csAOev))             
+     &    call errquit('rel_input: rtdb put failed skip csAOev',
+     &                  0, RTDB_ERR) 
+      elseif(inp_compare(.false.,'zora:skip_gshiftAOev',test)) then
+         skip_gshiftAOev = .true.                               
+         if (.not. rtdb_put(rtdb,'zora:skip_gshiftAOev',
+     &                     mt_log,1,skip_gshiftAOev))
+     &    call errquit('rel_input: rtdb put failed skip gshiftAOev',
+     &                  0, RTDB_ERR)
+      elseif(inp_compare(.false.,'zora:skip_hypAOev',test)) then  
+         skip_hypAOev = .true.
+         if (.not. rtdb_put(rtdb,'zora:skip_hypAOev',
+     &                     mt_log,1,skip_hypAOev))
+     &    call errquit('rel_input: rtdb put failed skip hypAOev',
+     &                  0, RTDB_ERR)
+      elseif(inp_compare(.false.,'zora:skip_efgz4AOev',test)) then   
+         skip_efgz4AOev = .true.
+         if (.not. rtdb_put(rtdb,'zora:skip_efgz4AOev',
+     &                     mt_log,1,skip_efgz4AOev))
+     &    call errquit('rel_input: rtdb put failed skip efgz4AOev',
+     &                  0, RTDB_ERR)
+c ++++++++++ definitions for skip-cphf flags ++++++++++ START
+      elseif(inp_compare(.false.,'zora:skip_cphf_ev_shield',test)) then
+         skip_cphf_ev_shield = .true.
+         if (.not. rtdb_put(rtdb,'zora:skip_cphf_ev_shield',
+     &                     mt_log,1,skip_cphf_ev_shield))
+     &    call errquit('rel_input-1: rtdb put failed skip cphf shield ',
+     &                  0, RTDB_ERR)
+      elseif(inp_compare(.false.,'zora:skip_cphf_ev_gshift',test)) then
+         skip_cphf_ev_gshift = .true.
+         if (.not. rtdb_put(rtdb,'zora:skip_cphf_ev_gshift',
+     &                     mt_log,1,skip_cphf_ev_gshift))
+     &    call errquit('rel_input-2: rtdb put failed skip cphf gshift',
+     &                  0, RTDB_ERR)
+      elseif(inp_compare(.false.,'zora:skip_cphf_ev_hyp',test)) then
+         skip_cphf_ev_hyp = .true.
+         if (.not. rtdb_put(rtdb,'zora:skip_cphf_ev_hyp',
+     &                     mt_log,1,skip_cphf_ev_hyp))
+     &    call errquit('rel_input-3: rtdb put failed skip cphf hyp',
+     &                  0, RTDB_ERR)
+c ++++++++++ definitions for skip-cphf flags ++++++++++ END
+      elseif(inp_compare(.false.,'zora:Knucl',test)) then
+c      Knucle purpose: For including ONLY nuclear part in evaluation of K ZORA
+         Knucl = .true. 
+         if (.not. rtdb_put(rtdb,'zora:Knucl',
+     &                     mt_log,1,Knucl))
+     &    call errquit('rel_input: rtdb put failed Knucl',
+     &                  0, RTDB_ERR)
+c ------- SKIP ev. AO matrices for NMRCS or gshifts or hyperfine ---- END
+      elseif(inp_compare(.false.,'zora:slc_spinpolAO',test)) then
+c   For selecting spin-density matrix (A-B means total spin density matrix)
+c   0=A-B,1=A,2=-B selecting spin-density matrix  
+         if (.not. inp_i(slc_spinpolAO)) slc_spinpolAO= 0  ! set a default 
+         if (.not. rtdb_put(rtdb,'zora:slc_spinpolAO',
+     &                      mt_int,1,slc_spinpolAO))
+     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)
       else if (inp_compare(.false.,'end', test)) then
 c
 c        end will be catched in while loop structure
