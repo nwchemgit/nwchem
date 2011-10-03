@@ -1234,6 +1234,7 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       call nwpw_timing_start(2)
       call Parallel3d_np_i(np)
       npack1 = int_mb(nidb2_list(1)+nb)
+      npack1 = npack_max
 
       call ZGEMM('N','N',npack1,n,m,
      >           alpha,

@@ -1067,11 +1067,9 @@ c     ****************************************
 #include "Pneb.fh"
 
 *     **** local variables ****
-      complex*16 zero,one
-      parameter (zero=(0.0d0,0.0d0),one=(1.0d0,0.0d0))
-
       integer nb,nb1,nb2,ms,ms1,ms2,n
       integer shift,shiftso,shift2,ishift2,ishift3
+
 
       if (mb.eq.0) then
          ms1 = 1
