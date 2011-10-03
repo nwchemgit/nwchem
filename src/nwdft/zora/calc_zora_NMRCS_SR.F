@@ -180,10 +180,12 @@ c     == calculate the total nuclear potential on the grid ==
 c     === define fac_arr
       do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-       amat_tot =-amat_coul(k,1)+amat_nucl(k)
-       Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
+        amat_tot =-amat_coul(k,1)+amat_nucl(k)
+        Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
+c       Kzora=1.0d0+0.5d0*amat_tot/clight_au2 ! Using Pauli approx
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       if (do_NonRel) then ! remove it after TEST
+c WARNING: When asking for NON REL will use K ne 1
+       if (do_NonRel) then             ! remove it after TEST
          Kzora=1.0d0                   ! remove it after TEST
        endif                           ! remove it after TEST
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -382,9 +384,11 @@ c     == calculate the total nuclear potential on the grid ==
 c     === define fac_arr
       do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-       amat_tot =-amat_coul(k,1)+amat_nucl(k)
-       Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
+        amat_tot =-amat_coul(k,1)+amat_nucl(k)
+        Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
+c        Kzora=1.0d0+0.5d0*amat_tot/clight_au2 ! Using Pauli
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+c WARNING: When asking for NON REL will use K ne 1
        if (do_NonRel) then ! remove it after TEST
          Kzora=1.0d0                   ! remove it after TEST
        endif                           ! remove it after TEST
@@ -651,8 +655,42 @@ c     == loop over the grid points ==
           dist3=dist*dist*dist
           do i=1,3
            amat_NMRnucl(i,igrid) = rxyz(i)/dist3
-          enddo
+          enddo 
+         goto 3
+         if (dist.lt.zoracutoff_NMR*100.5d0) then
+          if (ga_nodeid().eq.0) then
+          write(*,2) igrid,nqpts,
+     &     xyz_NMRcoords(1),xyz_NMRcoords(2),xyz_NMRcoords(3),
+     &     qxyz(1,igrid),qxyz(2,igrid),qxyz(3,igrid),
+     &     dist,zoracutoff_NMR,
+     &     amat_NMRnucl(1,igrid),amat_NMRnucl(2,igrid),
+     &     amat_NMRnucl(3,igrid)
+ 2       format('IN:(igrid,nqpts)=(',i8,',',i8,') ',
+     &          'xyz_NMRcoords=(',f15.8,',',f15.8,',',f15.8,') ',
+     &          'qxyz=(',f15.8,',',f15.8,',',f15.8,') ',
+     &          '(dist,zoracutoff_NMR,100.5)=(',f15.8,',',f15.8,') ',
+     &          ' NMRpot=(',f25.8,',',f25.8,',',f25.8,')')
+          endif 
+         endif
+ 3      continue
         else
+
+         goto 4
+         if (ga_nodeid().eq.0) then
+          write(*,1) igrid,nqpts,
+     &     xyz_NMRcoords(1),xyz_NMRcoords(2),xyz_NMRcoords(3),
+     &     qxyz(1,igrid),qxyz(2,igrid),qxyz(3,igrid),
+     &     dist,zoracutoff_NMR,
+     &     amat_NMRnucl(1,igrid),amat_NMRnucl(2,igrid),
+     &     amat_NMRnucl(3,igrid)
+ 1       format('OFF:(igrid,nqpts)=(',i8,',',i8,') ',
+     &          'xyz_NMRcoords=(',f15.8,',',f15.8,',',f15.8,') ',
+     &          'qxyz=(',f15.8,',',f15.8,',',f15.8,') ',
+     &          '(dist,zoracutoff_NMR)=(',f15.8,',',f15.8,
+     &          ' NMRpot=(',f25.8,',',f25.8,',',f25.8,')')
+         endif
+ 4       continue
+
           closegridpts(igrid) = igrid
         end if
        end do ! end-grid

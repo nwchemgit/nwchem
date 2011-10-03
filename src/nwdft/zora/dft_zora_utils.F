@@ -22,67 +22,56 @@ czora...Scale zora eigenvalues and energy
 #include "stdio.fh"
 #include "global.fh"
 #include "msgids.fh"
-#include "zora.fh" ! FA
-#include "rtdb.fh" ! FA
-#include "geom.fh" ! FA
-
+#include "zora.fh" 
+#include "rtdb.fh" 
+#include "geom.fh" 
+      integer rtdb,geom,ao_bas_han ! handles
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
       external get_rhoS,print_EFGZ4_version,
-     &         get_EPRg,print_EPRg_version
-
-      integer g_dens(2)
-      integer g_movecs(2)
-      integer g_s
-      integer g_zora_scale_sf(2)
-
-      double precision numelecs, ener_kin
-      integer g_orb
-      integer g_dens_sf
+     &         get_EPRg,print_EPRg_version,
+     &         get_NMRCS_SRZORA,print_NMRCS_SRZORA_version,
+     &         get_NMRHFine_ZORA,print_NMRHypFine_version,
+     &         get_densZ4,
+     &         dft_zorashield_read,dft_zorashield_write      
+      integer dft_zorashield_read,dft_zorashield_write
+      integer g_dens(2),g_movecs(2),g_zora_scale_sf(2)
+      integer g_s,ga_Fji,g_orb,g_dens_sf,g_zora_scr(2),
+     &        g_dens_at(2) 
       integer l_vecs,k_vecs
-      integer iorb
-      double precision eval_scal
-      double precision ener_scal
-      integer noc(2)
-      integer ispin
-      integer ipol
-
-      integer geom
-      integer ao_bas_han
-      integer nbf,nbf_ao
-
+      integer noc(2),iorb,ispin,ipol,i,nexc,noc1
+      integer nbf,nbf_ao,nat_slc  
+      double precision eval_scal,ener_scal,scf_dbl
       double precision focc(nbf*ipol)  ! occupation no.
-      double precision evals(ipol*nbf) ! eigenvalues
-
-      integer rtdb                 ! Added by FA
-      integer g_zora_scr(2)        ! Added by FA
-      integer g_dens_at(2)         ! Added by FA
-      integer nexc,noc1            ! Added by FA
-      logical do_zgc_old           ! Added by FA
-      double precision zora_eint,  ! Added by FA
-     &                 zora_denom  ! Added by FA
-      double precision scf_dbl     ! Added by FA  
-      logical status               ! Added by FA
-      integer nogshift             ! Added by FA 
-      data nogshift/1/             ! Added by FA 
-      integer nogiao               ! Added by FA 
-      data nogiao/1/               ! Added by FA 
-      integer noelfgz4             ! Added by FA 
-      data noelfgZ4/1/             ! Added by FA 
+      double precision evals(ipol*nbf) ! eigenvalues                     
+      double precision zora_eint,zora_denom,
+     &                 scale,scale_MO,scale_MO1  
+      logical status,done_Fji,do_zgc_old    
+      integer nospin,nogshift,nogiao,noelfgz4,efgfile     
+      data nospin,nogshift,nogiao,noelfgZ4/1,1,1,1/                       
+      data switch_focc/0/ ! =0 not using occ keyword =1 using occ keyword
+      data efgfile/0/     ! =0 no NLMO analysis      =1 doing NLMO analysis
+      character*255 zorafilename
       integer dims(3),chunk(3) ! for g_Cifull(i) i=1,ipol
-      integer ipolmunu
-      integer g_munuV6,g_munu_rhoS,
-     &        g_zora_scale_munu(2)
-      common/munu_EFG/g_munuV6,g_munu_rhoS,
-     &                g_zora_scale_munu,ipolmunu ! munu-matrices
-c
-c +++++++++++++++++++++++++++++++++++++++++++++++++++++
-      status=rtdb_get(rtdb,'prop:efieldgradZ4',MT_INT,1,noelfgZ4) ! FA
-      status=rtdb_get(rtdb,'prop:giao',MT_INT,1,nogiao)           ! FA
-      status=rtdb_get(rtdb,'prop:gshift',MT_INT,1,nogshift)       ! FA
-      do_zgc_old=do_zora_get_correction                           ! FA
+      integer g_densZ4(3),switch_focc,ind_occ
+      logical skip_csAOev,skip_gshiftAOev,
+     &        skip_hypAOev,skip_efgz4AOev
+c ---------- nlmo definitions ----------------- START
+      integer g_munuV6,g_munu_rhoS,g_densx,       
+     &        g_zora_scale_munu(2),ipolmunu 
+      integer ndir,dft_zoraEFGZ4_NLMOAnalysis_write
+      external dft_zoraEFGZ4_NLMOAnalysis_write
+     &         util_file_name
+c ---------- nlmo definitions ----------------- END
+      status=rtdb_get(rtdb,'prop:efgfile',mt_int,1,efgfile) ! for NLMO analysis
+      status=rtdb_get(rtdb,'focc:occ-switch',mt_int,1,switch_focc)  ! check-occupations-keyword
+      status=rtdb_get(rtdb,'prop:efieldgradZ4',MT_INT,1,noelfgZ4)   
+      status=rtdb_get(rtdb,'prop:giao'        ,MT_INT,1,nogiao)     
+      status=rtdb_get(rtdb,'prop:gshift'      ,MT_INT,1,nogshift)   
+      status=rtdb_get(rtdb,'prop:hyperfine'   ,MT_INT,1,nospin)     
+      do_zgc_old=do_zora_get_correction                             
       do_zora_get_correction=.true. ! -1  ! FORCE-ZORA-CALC-INTS
-c +++++++++++++++++++++++++++++++++++++++++++++++++++++
+
       if (ipol.eq.1) then
         scf_dbl=2.0d00
         noc1=noc(1)
@@ -90,58 +79,83 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++
         scf_dbl=1.0d00   
         noc1=noc(1)+noc(2)    
       endif
-      if (nogiao.eq.0) then
-       ipolmunu=ipol
-       if (ga_nodeid().eq.0) call print_NMRCS_SRZORA_version()
+      if (nospin.eq.0 .and. ga_nodeid().eq.0)
+     &   call print_NMRHypFine_version()
+      if (nogiao.eq.0 .and. ga_nodeid().eq.0)
+     &   call print_NMRCS_SRZORA_version()
+      if (nogshift.eq.0 .and. ga_nodeid().eq.0)
+     &   call print_EPRg_version()
+      if (noelfgZ4.eq.0 .and. ga_nodeid().eq.0) 
+     &   call print_EFGZ4_version()
+      if (noelfgZ4.eq.0 .or. nospin.eq.0 .or. 
+     &    nogshift.eq.0 .or. nogiao.eq.0) then
        if (.not.ga_create(MT_DBL,ipol,noc1,'dft_zora_scale: g_Ci',
      $       0,0,g_Ci)) call errquit('dft_zora_scale: g_Ci',0,
      &       GA_ERR)
        call ga_zero(g_Ci)
+      endif
+      if (nospin  .eq.0 .or. nogiao  .eq.0 .or.
+     &    nogshift.eq.0 .or. noelfgZ4.eq.0) then
 c ------- create g_Cifull for scaling MO vectors
        dims(1) =nbf
        chunk(1)=nbf 
        do ispin=1,ipol
-        if (.not. nga_create(mt_dbl,1,dims,"Array v",
+        if (.not. nga_create(mt_dbl,1,dims,"g_Cifull",
      &       chunk,g_Cifull(ispin)))
      $       call errquit('dft_zora_scale: g_Cifull', 0,
      &                    GA_ERR)
-       call ga_fill(g_Cifull(ispin),1.0d0)
+        call ga_fill(g_Cifull(ispin),1.0d0)
        enddo ! end-loop-ispin
-      endif
-      if (nogshift.eq.0) then
-       ipolmunu=ipol
-       if (ga_nodeid().eq.0) call print_EPRg_version()
-       if (.not.ga_create(MT_DBL,ipol,noc1,'dft_zora_scale: g_Ci',
-     $       0,0,g_Ci)) call errquit('dft_zora_scale: g_Ci',0,
-     &       GA_ERR)
-       call ga_zero(g_Ci)
-      endif
-      if(noelfgZ4.eq.0) then
-       if (ga_nodeid().eq.0) call print_EFGZ4_version()
-       if (.not.ga_create(MT_DBL,ipol,noc1,'dft_zora_scale: g_Ci',
-     $       0,0,g_Ci)) call errquit('dft_zora_scale: g_Ci',0,
-     &       GA_ERR)
-      call ga_zero(g_Ci)
-      endif
-c ----- execute this code ONLY when EFGZ4 is requested -- START
-       if(noelfgZ4.eq.0) then 
-         if(.not.ga_duplicate(g_zora_scale_sf(1),
-     &                        g_zora_scale_munu(1),'sf 1'))
-     &  call errquit('dft_zora_utils: ga_duplicate failed',1,GA_ERR)
+      endif   
+c -- execute this code for EFGSRZ4+NLMO analysis is requested -- START
+        if (noelfgZ4.eq.0 .and. efgfile.eq.1) then ! -- if-noelfgZ4.eq.0---- START
+         ipolmunu=ipol
+         if (.not. ga_create(mt_dbl,nbf,nbf,
+     &        'hnd_elfcon_symm: g_munu',0,0,g_zora_scale_munu(1)))
+     $    call errquit('hnd_elfcon_symm:',0,GA_ERR)
          call ga_copy(g_zora_scale_sf(1),g_zora_scale_munu(1))
          if(ipol.gt.1) then
-          if(.not.ga_duplicate(g_zora_scale_sf(2),
-     &                         g_zora_scale_munu(2),'sf 2'))
-     &     call errquit('dft_zora_utils: ga_duplicate failed',1,GA_ERR)
+          if (.not. ga_create(mt_dbl,nbf,nbf,
+     &        'hnd_elfcon_symm: g_munu',0,0,g_zora_scale_munu(2)))
+     $    call errquit('hnd_elfcon_symm:',0,GA_ERR)
           call ga_copy(g_zora_scale_sf(2),g_zora_scale_munu(2))
          endif
-       endif
-c ----- execute this code ONLY when EFGZ4 is requested -- END
+c ----- Store efgz4 data in a file ------- START
+c       Note.- lbl_nlmo defined in zora.fh
+        ndir=6
+        call util_file_name(lbl_nlmo,.false.,.false.,zorafilename)
+c ---------> Write NMLO analysis data: 1 of 3 ----- START
+        if (.not.dft_zoraEFGZ4_NLMOAnalysis_write(
+     &       zorafilename, ! in: filename
+     &                nbf, ! in: nr basis functions
+     &               ndir, ! in: nr of directions: 6 = xx yy zz xy xz yz
+     &              nlist, ! in: list of selected atoms 
+     &                  1, ! in: writing order =1,2,3
+     &           ipolmunu, ! in: write for ndada=1
+     &  g_zora_scale_munu, ! in: write for ndada=1
+     &        g_munu_rhoS, ! in: write for ndata=2
+     &            g_densx, ! in: write for ndata=2
+     &           g_munuV6))
+     &     call errquit('get_rhoS: dft_zoraNLMO_write failed',
+     &                  0,DISK_ERR)
+c ---------> Write NMLO analysis data: 1 of 3 ----- END
+        if (.not. ga_destroy(g_zora_scale_munu(1))) call errquit(
+     &    'dft_zora_utils: ga_destroy failed ',0, GA_ERR)
+         if (ipolmunu.gt.1) then
+         if (.not. ga_destroy(g_zora_scale_munu(2))) call errquit(
+     &    'dft_zora_utils: ga_destroy failed ',0, GA_ERR)
+         endif
+        endif ! -------- if-noelfgZ4.eq.0---- END
+c -- execute this code for EFGSRZ4+NLMO analysis is requested -- END
       if (.not. ma_alloc_get(mt_dbl,nbf_ao,'vec aux',l_vecs, k_vecs))
-     &    call errquit('dft_zora_utils: cannot allocate vec aux',
-     &                 911,MA_ERR)
+     &    call errquit(
+     &          'dft_zora_utils: cannot allocate vec aux',911,MA_ERR)
       g_orb     = ga_create_atom_blocked(geom, ao_bas_han, 'orbs')
       g_dens_sf = ga_create_atom_blocked(geom, ao_bas_han,'orbs dens')
+      do i=1,3 ! for scaled density matrix used in NMR-shieldigns,hyperfine,gshift,EFGZ4
+       g_densZ4(i)=ga_create_atom_blocked(geom,ao_bas_han,'orbs dens')
+       call ga_zero(g_densZ4(i))
+      end do
 c
 c     scale the eigenvalues and energy
       ener_scal = 0.d0
@@ -153,18 +167,45 @@ c     scale the eigenvalues and energy
         call ga_put(g_orb, 1, nbf, iorb, iorb,
      &              dbl_mb(k_vecs), 1)
         call ga_zero(g_dens_sf)
-        call ga_dgemm('n', 't', nbf, nbf, noc(ispin),1.0d00,
-     &                g_orb, g_orb, 0.d00, g_dens_sf)
+        call ga_dgemm('n','t',nbf,nbf,noc(ispin),
+     &                1.0d00,g_orb,g_orb,
+     &                0.0d00,g_dens_sf)
         eval_scal = evals(iorb)
         if (ispin.gt.1) eval_scal = evals(iorb + nbf)
         zora_eint = ga_ddot(g_dens_sf,g_zora_scale_sf(ispin)) ! FA
         if ((do_NonRel) .or. (not_zora_scale)) then
+c +++++++++ Create non-scaled density matrix +++++++ START
          zora_denom=1.0d0
          ener_scal = ener_scal-eval_scal ! for skipping scaling
+         if (iorb .le. noc(ispin)) then        
+          scale_MO=scf_dbl
+          if (switch_focc.eq.1) then ! adding focc()
+            ind_occ=nbf*(ispin-1)+iorb
+            scale_MO=scf_dbl*focc(ind_occ)
+          endif
+          call ga_add(1.0d0   ,g_densZ4(ispin),
+     &                scale_MO,g_dens_sf,
+     &                g_densZ4(ispin))
+         endif
+c +++++++++ Create non-scaled density matrix +++++++ END
         else
-         zora_denom= 1.d0+zora_eint                            ! FA   
-         eval_scal = eval_scal/zora_denom                      ! FA 
+c +++++++++ Create scaled density matrix +++++++ START
+         zora_denom= 1.d0+zora_eint                            
+         eval_scal = eval_scal/zora_denom                     
          ener_scal = ener_scal-eval_scal*zora_eint
+         if (iorb .le. noc(ispin)) then
+          scale=1.0d0/zora_denom
+          call ga_scale(g_dens_sf,scale)
+          scale_MO=scf_dbl
+          if (switch_focc.eq.1) then ! adding focc()
+            ind_occ=nbf*(ispin-1)+iorb
+            scale_MO=scf_dbl*focc(ind_occ)
+          endif
+          call ga_add(1.0d0   ,g_densZ4(ispin),
+     &                scale_MO,g_dens_sf,
+     &                g_densZ4(ispin))
+         endif
+c +++++++++ Create scaled density matrix +++++++ END
         endif
         if (ispin.le.1) then
             evals(iorb)     = eval_scal
@@ -172,47 +213,110 @@ c     scale the eigenvalues and energy
             evals(iorb+nbf) = eval_scal
         end if
 c ----- execute this code ONLY when EFGZ4/NMRCSZ4/EPRgshift is requested -- START
-         if(noelfgZ4.eq.0 .or. nogiao.eq.0 .or.
-     &      nogshift.eq.0) then
+         if(noelfgZ4.eq.0 .or. nospin.eq.0 .or. 
+     &      nogshift.eq.0 .or. nogiao.eq.0) then
           if ((ipol.eq.1 .and. iorb.le.noc(1)).or.
-     &      (ipol.eq.2 .and.
+     &        (ipol.eq.2 .and.
      &      (ispin.eq.1 .and. iorb.le.noc(1)).or.
      &      (ispin.eq.2 .and. iorb.le.noc(2)))) then
            call ga_fill_patch(g_Ci,ispin,ispin,iorb,iorb,
      &                        zora_denom)
-            if (nogiao.eq.0) then
+          endif
+         endif
+         if(nogiao  .eq.0 .or.
+     &      nogshift.eq.0 .or. nospin.eq.0) then
+          if ((ipol.eq.1 .and. iorb.le.noc(1)).or.
+     &        (ipol.eq.2 .and.
+     &      (ispin.eq.1 .and. iorb.le.noc(1)).or.
+     &      (ispin.eq.2 .and. iorb.le.noc(2)))) then
+            if (nogiao.eq.0 .or. nogshift.eq.0 .or.
+     &          nospin .eq. 0) then
+             scale_MO1=1.0d0/zora_denom
+             if (switch_focc.eq.1) then ! adding focc()
+              ind_occ=nbf*(ispin-1)+iorb
+              scale_MO1=1.0d0/zora_denom*focc(ind_occ)
+               if (ga_nodeid().eq.0) then
+                write(*,5) 1.0d0/zora_denom,ind_occ,focc(ind_occ)
+ 5              format('In dft_zora_utils:: (scl_MO,ind_occ,focc)=(',
+     &                  f15.8,',',i4,',',f15.8,')') 
+               endif
+             endif     
              call ga_fill_patch(g_Cifull(ispin),iorb,iorb,1,1,
-     &                          1.0/zora_denom)
+     &                          scale_MO1)
             endif
           end if
          endif
 c ----- execute this code ONLY when EFGZ4/NMRCSZ4/EPRgshift is requested -- END
        end do ! orbital loop
       end do ! polarization loop
-c
+c--- Create total scaled-density matrix ---- START
+      call ga_zero(g_densZ4(3))
+      call ga_copy(g_densZ4(1),g_densZ4(3))
+      if (ipol.gt.1) then 
+       call ga_add(1.0d00,g_densZ4(1),
+     &             1.0d00,g_densZ4(2),
+     &                    g_densZ4(3))      
+      end if
+c--- Create total scaled-density matrix ---- END
 c     double the energy for closed-shell calculations
       if (ipol.eq.1) ener_scal = 2.d0*ener_scal     
 c      write(luout,*) "scaled_energy:",ener_scal
-c ----- execute this code ONLY when EPR-gshift is requested -- START
-      if (nogshift.eq.0) then
-       if (ga_nodeid().eq.0) write(*,*) 'BEF: get_EPRg()'
-       call get_EPRg(rtdb,g_dens_at,nexc,
-     &               geom,ao_bas_han,
-     &               nbf,noc,ipol)
-       write(*,*) "STOP test EPR-g ..."
-       stop
-      endif
-c ----- execute this code ONLY when EPR-gshift is requested -- END
 c ----- execute this code ONLY when NMR-CS-Z4 is requested -- START
-      if (nogiao.eq.0) then
+      done_Fji=.false.
+      if(.not.rtdb_get(rtdb,'zora:skip_csAOev',
+     &                 mt_log,1,skip_csAOev))        
+     &  skip_csAOev = .false.       
+      if (nogiao.eq.0 .and. skip_csAOev .eq. .false.) then
        call get_NMRCS_SRZORA(rtdb,g_dens_at,nexc,
      &                       geom,ao_bas_han,
-     &                       nbf,noc,ipol)
+     &                       nbf,noc,ipol,
+     &                       ga_Fji,
+     &                       g_densZ4)
+       done_Fji=.true. ! I do not need to calculate again 
+                       ! if calling get_EPRg
       endif
 c ----- execute this code ONLY when NMR-CS-Z4 is requested -- END
+c ----- execute this code ONLY when NMR-spinspin is requested -- START
+      if(.not.rtdb_get(rtdb,'zora:skip_hypAOev',
+     &                 mt_log,1,skip_hypAOev))        
+     &  skip_hypAOev = .false.    
+      if (nospin.eq.0 .and. skip_hypAOev .eq. .false.) then
+        call get_NMRHFine_ZORA(rtdb,g_dens_at,nexc,
+     &                         geom,ao_bas_han,
+     &                         nbf,focc,noc,ipol,
+     &                         g_densZ4) 
+      endif
+c ----- execute this code ONLY when NMR-spinspin is requested -- END
+c ----- execute this code ONLY when EPR-gshift is requested -- START
+      skip_gshiftAOev = .false. 
+      if(.not.rtdb_get(rtdb,'zora:skip_gshiftAOev',
+     &                 mt_log,1,skip_gshiftAOev))        
+     &  skip_gshiftAOev = .false.  
+      
+      if (ga_nodeid().eq.0)
+     &  write(*,22) nogshift,skip_gshiftAOev,done_Fji
+ 22   format('(nogshift,skip_gshiftAOev,done_Fji)=(',
+     &        i2,',',L,',',L,')')
 
+      if (nogshift.eq.0 .and. skip_gshiftAOev .eq. .false.) then
+       call get_EPRg(rtdb,g_dens_at,nexc,
+     &               geom,ao_bas_han,
+     &               nbf,focc,noc,ipol,
+     &               done_Fji,ga_Fji,
+     &               g_densZ4)
+      endif   
+c ----- execute this code ONLY when EPR-gshift is requested -- END
+      if ((nogiao  .eq.0 .and. skip_csAOev     .eq. .false.).or. 
+     &    (nogshift.eq.0 .and. skip_gshiftAOev .eq. .false.)) then
+        if (.not.ga_destroy(ga_Fji)) call 
+     &    errquit('dft_zora_utils: ga_destroy failed ga_Fji',
+     &            0,GA_ERR)
+      endif
 c ----- execute this code ONLY when EFGZ4 is requested -- START
-      if(noelfgZ4.eq.0) then
+      if(.not.rtdb_get(rtdb,'zora:skip_efgz4AOev',
+     &                 mt_log,1,skip_efgz4AOev))        
+     &  skip_efgz4AOev = .false.  
+      if (noelfgZ4.eq.0 .and. skip_efgz4AOev .eq. .false.) then
        call get_rhoS(rtdb,g_dens_at,nexc,
      &               geom,ao_bas_han,nbf,nbf_ao,
      &               noc,ipol)     
@@ -225,6 +329,14 @@ c     deallocate memory
      &  'zora_scale_evals: ga_destroy failed ',0, GA_ERR)
       if (.not. ga_destroy(g_dens_sf)) call errquit(
      &  'zora_scale_evals: ga_destroy failed ',0, GA_ERR)
+        do i=1,ipol
+        if (.not. ga_destroy(g_densZ4(i))) call errquit(
+     &    'dft_zora_utils: ga_destroy failed ',0, GA_ERR)
+        enddo
+        if (ipol.eq.2) then
+        if (.not. ga_destroy(g_densZ4(3))) call errquit(
+     &    'dft_zora_utils: ga_destroy failed ',0, GA_ERR)
+        endif
 c +++++++++++++++ RESTORE VALUE +++++++++++++START
       do_zora_get_correction=do_zgc_old
 c +++++++++++++++ RESTORE VALUE +++++++++++++END  

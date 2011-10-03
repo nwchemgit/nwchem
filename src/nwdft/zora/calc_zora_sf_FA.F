@@ -1,21 +1,22 @@
 c
 c     == calculate spin-free zora contribution ==
-      subroutine calc_zora_sf_FA(ao_bas_han,! in: AO basis handle 
-     &                           geom,      ! in: geometry handle 
-     &                           ipol,      ! in: nr. of polarizations 
-     &                           g_dens,    ! in: superposit. atomic densities 
-     &                           chi_ao,    ! in: basis functions
-     &                           delchi_ao, ! in: deriv. of basis functions
-     &                           qxyz,      ! in: grid points 
-     &                           qwght,     ! in: weighting coeffs.
-     &                           nbf,       ! in: nr. basis functions
-     &                           npts,      ! in: nr. grid points
-     &                           natoms,    ! in: nr. atoms 
-     &                           zorasf,    ! out
-     &                           zorascal)  ! out
-c
+      subroutine calc_zora_sf_FA(ao_bas_han, ! in: AO basis handle 
+     &                           geom,       ! in: geometry handle 
+     &                           ipol,       ! in: nr. of polarizations 
+     &                           g_dens,     ! in: superposit. atomic densities 
+     &                           chi_ao,     ! in: basis functions
+     &                           delchi_ao,  ! in: deriv. of basis functions
+     &                           qxyz,       ! in: grid points 
+     &                           qwght,      ! in: weighting coeffs.
+     &                           nbf,        ! in: nr. basis functions
+     &                           npts,       ! in: nr. grid points
+     &                           natoms,     ! in: nr. atoms 
+     &                           zorasf,     ! out
+     &                           zorascal,   ! out
+     &                           ofinite,    ! in: =.true. if finite Nuclear Model (Gaussian)
+     &                           zetanuc_arr,! in: zetanuc(i) i=1,natoms
+     &                           Knucl)      ! in: = .true. if including ONLY nuclear part in K ZORA  
       implicit none
-c
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -39,8 +40,12 @@ c
       double precision denom
       double precision fac1_arr(npts),fac2_arr(npts)
       double precision ac_sf,ac_scl,prod
-      external get_ints_zora_sf
-
+      logical ofinite,Knucl
+c ------- for Gaussian Nuclear Model --- START
+      double precision zetanuc_arr(natoms)
+c ------- for Gaussian Nuclear Model --- START
+      external get_ints_zora_sf,gridNuclearPotential,
+     &         gridNuclearPotential1,gridNuclearPotential2    
       clight_au2 = clight_au*clight_au
 c
 c     == preliminaries ==
@@ -65,27 +70,57 @@ c     == calculate the hartree potential on a supplied list of points ==
       endif
 c
 c     == calculate the total nuclear potential on the grid ==
-      call gridNuclearPotential(geom,natoms,npts,qxyz,qwght,
-     &                          closegridpts,amat_nucl)
+      if (ofinite) then
+c ------ Choosing Nuclear Model: erf(zetanuc^0.5 r_L)
+        call gridNuclearPotential1(geom,natoms,npts,qxyz,qwght,
+     &                             zetanuc_arr,
+     &                             closegridpts,amat_nucl)
+c ------ Choosing Nuclear Model: P(1/2,zetanuc r_L^2)
+c        if (ga_nodeid().eq.0)
+c     &    write(*,*) 'BEF. gridNuclearPotential2 -calc_Zsf_FA...'
+c        call gridNuclearPotential2(geom,natoms,npts,qxyz,qwght,
+c     &                             closegridpts,amat_nucl)
+      else ! default : point charge model for nuclei
+        call gridNuclearPotential(geom,natoms,npts,qxyz,qwght,
+     &                            closegridpts,amat_nucl)
+      endif
       do k = 1,npts
         if (k.eq.closegridpts(k)) qwght(k) = 0.d0
       end do
-c     === define fac1_arr,fac2_arr -- FA
-      do k = 1,npts
+      if (Knucl) then ! V=Vnucl
+       do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-       amat_tot =-amat_coul(k,1)+amat_nucl(k)
-       fac1_arr(k)=amat_tot/(4.d0*clight_au2 - 2.d0*amat_tot)
-     &             *qwght(k)
-       denom = (2.d0*clight_au2 - amat_tot)
-       fac2_arr(k)=(clight_au2/denom/denom)
-     &             *qwght(k)
+        amat_tot = amat_nucl(k)
+        fac1_arr(k)=amat_tot/(4.d0*clight_au2 - 2.d0*amat_tot)
+     &              *qwght(k)
+        denom = (2.d0*clight_au2 - amat_tot)
+        fac2_arr(k)=(clight_au2/denom/denom)
+     &              *qwght(k)
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       if (do_NonRel) then ! remove it after TEST
-         fac1_arr(k)=0.0d0             ! remove it after TEST
-         fac2_arr(k)=0.0d0             ! remove it after TEST
-       endif                           ! remove it after TEST
+        if (do_NonRel) then ! remove it after TEST
+          fac1_arr(k)=0.0d0             ! remove it after TEST
+          fac2_arr(k)=0.0d0             ! remove it after TEST
+        endif                           ! remove it after TEST
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      end do
+       enddo ! end loop k grid points
+      else            ! V=Vnucl+Vee (default)
+c     === define fac1_arr,fac2_arr -- FA
+       do k = 1,npts
+c      == assemble hartree and nuclear contributions ==
+        amat_tot =-amat_coul(k,1)+amat_nucl(k)
+        fac1_arr(k)=amat_tot/(4.d0*clight_au2 - 2.d0*amat_tot)
+     &              *qwght(k)
+        denom = (2.d0*clight_au2 - amat_tot)
+        fac2_arr(k)=(clight_au2/denom/denom)
+     &              *qwght(k)
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        if (do_NonRel) then ! remove it after TEST
+          fac1_arr(k)=0.0d0             ! remove it after TEST
+          fac2_arr(k)=0.0d0             ! remove it after TEST
+        endif                           ! remove it after TEST
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+       enddo ! end loop k grid points
+      endif ! end-if-Knucl
 c     == assemble zora correction ==
 c -----main diagonal --- START
       do i = 1, nbf

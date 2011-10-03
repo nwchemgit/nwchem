@@ -23,7 +23,6 @@ c     B_{mu nu,kt}        =< chi_mu| K r_t| dchi_nu/dr_k >
 c     t=1,2,3 k=1,2,3
 c     
 c     (tmn)=123,231,312=xyz,yzx,zxy
-c     FA-11-01-10
       subroutine calc_zora_EPR(ao_bas_han,   ! in: AO basis handle 
      &                         geom,         ! in: geometry handle 
      &                         ipol,         ! in: nr. of polarizations 
@@ -35,6 +34,8 @@ c     FA-11-01-10
      &                         nbf,          ! in: nr. basis functions
      &                         npts,         ! in: nr. grid points
      &                         natoms,       ! in: nr. atoms 
+     &                         chi_cntr,     ! in: basis centers
+     &                         Knucl,        ! in: flag =T do Kzora with Nucl pot ONLY
      &                         scalx1,       ! out 
      &                         scaly1,       ! out 
      &                         scalz1,       ! out
@@ -58,7 +59,7 @@ c     FA-11-01-10
      &                         scalyz4,      ! out 
      &                         scalzx4,      ! out 
      &                         scalzy4,      ! out 
-     &                         scalzz4)      ! out 
+     &                         scalzz4)       ! out          
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -66,6 +67,7 @@ c     FA-11-01-10
 #include "global.fh"
 #include "bas.fh"
 #include "zora.fh"
+      logical Knucl
       integer nbf,npts,ao_bas_han,natoms,geom
       integer g_dens(2),ipol
       double precision qwght(npts)
@@ -103,8 +105,11 @@ c     FA-11-01-10
       double precision clight_au2,tol
       double precision amat_tot,Kzora
       double precision fac1_arr(npts),fac2_arr(3,npts)
+      double precision fac3_arr(3,npts)
       double precision ac_epr1(3),ac_epr2(3,3),
      &                 ac_epr3(3),ac_epr4(3,3)
+      double precision chi_cntr(3,nbf)
+
       external get_ints_zora_epr_12,get_ints_zora_epr_34
       clight_au2 = clight_au*clight_au
 c     == preliminaries ==
@@ -133,29 +138,54 @@ c     == calculate the total nuclear potential on the grid ==
         if (k.eq.closegridpts(k)) qwght(k) = 0.d0
       end do
 c     === define fac_arr
-      do k = 1,npts
+      if (Knucl .eq. .false.) then
+       do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
-       amat_tot =-amat_coul(k,1)+amat_nucl(k)
-       Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) 
+         amat_tot =+amat_nucl(k)-amat_coul(k,1)
+c        Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) ! for g-factors
+         Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2)-1.0d0 ! for g-shifts
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       if (do_NonRel) then ! remove it after TEST
-         Kzora=1.0d0                   ! remove it after TEST
-       endif                           ! remove it after TEST
+         if (do_NonRel) then             ! remove it after TEST
+           Kzora=1.0d0                   ! remove it after TEST
+         endif                           ! remove it after TEST
 c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
-       fac1_arr(k)=Kzora*qwght(k)
-       do n=1,3
-        fac2_arr(n,k)=fac1_arr(k)*qxyz(n,k)
-       enddo
-      end do
+        fac1_arr(k)=Kzora*qwght(k)
+        do n=1,3
+         fac2_arr(n,k)=fac1_arr(k)*qxyz(n,k)
+         fac3_arr(n,k)=qwght(k)*qxyz(n,k)
+        enddo ! end-loop-n
+       enddo ! end-loop-k
+      else if (Knucl .eq. .true.) then
+       do k = 1,npts
+c      == assemble hartree and nuclear contributions ==
+          amat_tot =+amat_nucl(k)
+c         Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2) ! for g-factors
+          Kzora=1.0d0/(1.0d0-0.5d0*amat_tot/clight_au2)-1.0d0 ! for g-shifts
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+         if (do_NonRel) then             ! remove it after TEST
+          Kzora=1.0d0                   ! remove it after TEST
+         endif                           ! remove it after TEST
+c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        fac1_arr(k)=Kzora*qwght(k)
+        do n=1,3
+         fac2_arr(n,k)=fac1_arr(k)*qxyz(n,k)
+         fac3_arr(n,k)=qwght(k)*qxyz(n,k)
+        enddo ! end-loop-n
+       enddo ! end-loop-k
+      else
+       write(*,*) 'Error in calc_zora_EPR: Knucl not T of F ...'
+       stop
+      endif
 c     == assemble zora correction ==
 c ----- main diagonal --- START
       do i = 1, nbf
           j=i
-          call get_ints_zora_epr_12(nbf,npts,delchi_ao,i,j,      
+          call get_ints_zora_epr_12(nbf,npts,
+     &                              delchi_ao,i,j,      
      &                              fac1_arr,
-     &                              fac2_arr,       
+     &                              fac2_arr,  
      &                              ac_epr1, ! out 
-     &                              ac_epr2) ! out 
+     &                              ac_epr2) ! out
           scalx1(i,j)  = scalx1(i,j)  + ac_epr1(1)
           scaly1(i,j)  = scaly1(i,j)  + ac_epr1(2)
           scalz1(i,j)  = scalz1(i,j)  + ac_epr1(3)
@@ -173,11 +203,12 @@ c ----- main diagonal --- END
 c ----- off diagonal --- START
       do i = 1, nbf
         do j = i+1, nbf
-          call get_ints_zora_epr_12(nbf,npts,delchi_ao,i,j,      
+          call get_ints_zora_epr_12(nbf,npts,
+     &                              delchi_ao,i,j,      
      &                              fac1_arr,
-     &                              fac2_arr,       
+     &                              fac2_arr,  
      &                              ac_epr1, ! out 
-     &                              ac_epr2) ! out 
+     &                              ac_epr2) ! out
           scalx1(i,j)  = scalx1(i,j)  + 2.0d0*ac_epr1(1)
           scaly1(i,j)  = scaly1(i,j)  + 2.0d0*ac_epr1(2)
           scalz1(i,j)  = scalz1(i,j)  + 2.0d0*ac_epr1(3)
@@ -198,9 +229,11 @@ c ---- full matrix calc -------- START
         do j = 1, nbf
           call get_ints_zora_epr_34(nbf,npts,chi_ao,delchi_ao,i,j,      
      &                              fac1_arr,
-     &                              fac2_arr,       
-     &                              ac_epr3, ! out 
-     &                              ac_epr4) ! out 
+     &                              fac2_arr,  
+     &                              fac3_arr,  
+     &                              chi_cntr, ! in     
+     &                              ac_epr3,  ! out 
+     &                              ac_epr4)  ! out
           scalx3(i,j)  = scalx3(i,j)  + ac_epr3(1)
           scaly3(i,j)  = scaly3(i,j)  + ac_epr3(2)
           scalz3(i,j)  = scalz3(i,j)  + ac_epr3(3)
@@ -269,7 +302,7 @@ c ---- full matrix calc -------- END
       enddo ! end-loo-k
       return
       end
-      subroutine get_ints_zora_epr_12(nbf,      ! in: nr. basis functions
+      subroutine get_ints_zora_epr_12(nbf,       ! in: nr. basis functions
      &                                npts,      ! in: grid points 
      &                                delchi_ao, ! in: deriv. of basis functions
      &                                i,j,       ! in: (i,j) indices for delchi_ao
@@ -284,8 +317,10 @@ c ---- full matrix calc -------- END
       integer nbf,npts,i,j,k,m,n
       double precision delchi_ao(npts,3,nbf)
       double precision fac1_arr(npts),fac2_arr(3,npts)
+      double precision fac3_arr(3,npts)
       double precision ac_epr1(3),ac_epr2(3,3)
       double precision prod(3)
+
       do n=1,3 ! reset
       ac_epr1(n) = 0.0d0
        do m=1,3
@@ -302,12 +337,13 @@ c ---- full matrix calc -------- END
        do n=1,3
         ac_epr1(n) = ac_epr1(n) + fac1_arr(k)*prod(n)
         do m=1,3
-         ac_epr2(m,n) = ac_epr2(m,n) + fac2_arr(m,k)*prod(n)
+          ac_epr2(m,n) = ac_epr2(m,n) + fac2_arr(m,k)*prod(n)
         enddo ! end-loop-m
        enddo ! end-loop-n
       enddo ! end-loo-k
       return
       end
+
       subroutine get_ints_zora_epr_34(nbf,       ! in: nr. basis functions
      &                                npts,      ! in: grid points 
      &                                chi_ao,    ! in:           basis functions
@@ -315,6 +351,8 @@ c ---- full matrix calc -------- END
      &                                i,j,       ! in: (i,j) indices for delchi_ao
      &                                fac1_arr,  ! in
      &                                fac2_arr,  ! in
+     &                                fac3_arr,  ! in 
+     &                                chi_cntr,  ! in : basis funct. centers
      &                                ac_epr3,   ! out 
      &                                ac_epr4)   ! out
       implicit none
@@ -325,8 +363,12 @@ c ---- full matrix calc -------- END
       double precision chi_ao(npts,nbf)
       double precision delchi_ao(npts,3,nbf)
       double precision fac1_arr(npts),fac2_arr(3,npts)
+      double precision fac3_arr(3,npts)
       double precision ac_epr3(3),ac_epr4(3,3) 
-      double precision prod1(3)
+      double precision prod(3),val
+      double precision prod1
+      double precision chi_cntr(3,nbf)
+
       do n=1,3 ! reset
        ac_epr3(n) = 0.0d0
        do m=1,3
@@ -334,13 +376,15 @@ c ---- full matrix calc -------- END
        enddo
       enddo    
       do k = 1, npts
+       prod1 = chi_ao(k,i)*chi_ao(k,j)
        do n=1,3
-        prod1(n) = chi_ao(k,i)*delchi_ao(k,n,j)
-       enddo
-       do n=1,3
-        ac_epr3(n) = ac_epr3(n) + fac1_arr(k)*prod1(n)
+        prod(n) = chi_ao(k,i)*delchi_ao(k,n,j)
+        ac_epr3(n) = ac_epr3(n) + fac1_arr(k)*prod(n)
+        prod(n)=prod(n)+chi_ao(k,j)*delchi_ao(k,n,i)
         do m=1,3
-         ac_epr4(m,n) = ac_epr4(m,n) + fac2_arr(m,k)*prod1(n)
+         ac_epr4(m,n)=ac_epr4(m,n)+(fac2_arr(m,k)-
+     &                              fac1_arr(k)*chi_cntr(m,j))*
+     &                              prod(n)
         enddo ! end-loop-m
        enddo ! end-loop-n
       enddo ! end-loo-k

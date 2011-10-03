@@ -18,13 +18,18 @@
 	dft_zora_EPR-NMR_tools.o\
 	zora_getv_EPR.o\
 	calc_zora_EPR.o\
+        dft_zora_Hyperfine.o\
+        zora_getv_HFine.o\
+        calc_zora_HFine.o\
 	zora_getv_sf.o\
 	zora_getv_so.o\
 	calc_EFG.o\
 	calc_zora_sf_FA.o\
 	calc_zora_so_FA.o\
 	calc_zora_sf.o\
-	calc_zora_so.o
+	calc_zora_so.o\
+        Incomplete_Gamma_TOMS_654.o\
+        merf.o
 
      LIBRARY = libnwdft.a
 

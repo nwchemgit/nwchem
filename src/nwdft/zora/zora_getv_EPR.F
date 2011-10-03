@@ -2,6 +2,8 @@
      &                         g_dens,        ! in : atomic density 
      &                         g_epr1,g_epr2, ! out: munu matrix
      &                         g_epr3,g_epr4, ! out: munu matrix
+     &                         chi_cntr,      ! in : R_nu or R_mu -basis-centers
+     &                         Knucl,         ! in : = T do Kzora with Nucl ONLY
      &                         nexc)
 c
 C$Id$
@@ -22,6 +24,7 @@ c Adapted from zora_getv_so
 #include "grid_cube.fh"
 c
 c     == arguments ==
+      logical Knucl
       integer rtdb
       integer g_dens(2)
       integer g_epr1(3),g_epr3(3),
@@ -50,6 +53,7 @@ c     == local variables ==
      &        lepr3(3),iepr3(3),
      &        lepr4(3,3),iepr4(3,3)
       integer inntsize,ddblsize,ok
+      double precision chi_cntr(3,nbf_ao)
       logical grid_file_rewind
       external grid_file_rewind,calc_zora_EPR,
      &         ga_antisymmetrize
@@ -61,14 +65,14 @@ c     == allocate memory ==
      &    call errquit('zora_getv_EPR: epr1',0, MA_ERR)
        if (.not.MA_Push_Get(mt_dbl,nbf_ao*nbf_ao,
      &                     'scal0',lepr3(i),iepr3(i))) 
-     &    call errquit('zora_getv_EPR: epr1',0, MA_ERR)
+     &    call errquit('zora_getv_EPR: epr3',0, MA_ERR)
        do j=1,3
         if (.not.MA_Push_Get(mt_dbl,nbf_ao*nbf_ao,
      &                      'scal0',lepr2(i,j),iepr2(i,j))) 
      &     call errquit('zora_getv_EPR: epr2',0, MA_ERR)
         if (.not.MA_Push_Get(mt_dbl,nbf_ao*nbf_ao,
      &                      'scal0',lepr4(i,j),iepr4(i,j))) 
-     &     call errquit('zora_getv_EPR: epr2',0, MA_ERR)
+     &     call errquit('zora_getv_EPR: epr4',0, MA_ERR)
        enddo ! end-loop-j
       enddo ! end-loop-i
 c     == preliminaries ==
@@ -87,7 +91,7 @@ c     == preliminaries ==
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
-      call grid_quadv0(rtdb,g_dens,g_epr1(1),nexc,rho_n,dummy,tmat)
+      call grid_quadv0(rtdb,g_dens,g_epr1,nexc,rho_n,dummy,tmat)
 c     == ao basis set info used by xc_eval_basis ==
       if (.not.bas_numcont(AO_bas_han, ncontrset))
      &     call errquit('zora_getv_sf:bas_numcont',0, BASIS_ERR)
@@ -187,7 +191,9 @@ c              == chi ==
      &                                  dbl_mb(ichi_ao),  
      &                                  dbl_mb(idelchi_ao),
      &                                  dbl_mb(iqxyz),dbl_mb(iqwght),        
-     &                                  nbf_ao,nqpts,ncenters,      
+     &                                  nbf_ao,nqpts,ncenters,   
+     &                                  chi_cntr, ! in : basis centers   
+     &                                  Knucl,    ! in : flag for Knucl
      &                                  dbl_mb(iepr1(1)),  ! out
      &                                  dbl_mb(iepr1(2)),  ! out
      &                                  dbl_mb(iepr1(3)),  ! out
@@ -211,7 +217,7 @@ c              == chi ==
      &                                  dbl_mb(iepr4(2,3)),! out
      &                                  dbl_mb(iepr4(3,1)),! out
      &                                  dbl_mb(iepr4(3,2)),! out
-     &                                  dbl_mb(iepr4(3,3)))! out
+     &                                  dbl_mb(iepr4(3,3)))  ! out
 c              == delete memory ==
                if(.not.MA_pop_stack(lchi_ao))
      &            call errquit("zora_getv: pop chi_ao", 100, MA_ERR)

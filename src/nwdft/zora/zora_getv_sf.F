@@ -2,6 +2,8 @@ c
 c     == compute the matrix elements for the zora corrections ==
       subroutine zora_getv_sf(rtdb, g_dens, 
      &                          g_zora_sf, g_zora_scale_sf,
+     &                          ofinite,zetanuc_arr,
+     &                          Knucl,
      &                          nexc)
 c
 C$Id$
@@ -51,8 +53,11 @@ c
      &     lzora0scal, izora0scal
 c
       integer inntsize,ddblsize,ok
-      logical grid_file_rewind
+      logical grid_file_rewind,ofinite,Knucl
       external grid_file_rewind
+c ------- for Gaussian Nuclear Model --- START
+      double precision zetanuc_arr(*)
+c ------- for Gaussian Nuclear Model --- START
 c
 c     == allocate memory ==
       if (.not.MA_Push_Get(mt_dbl,nbf_ao*nbf_ao,'zora0',lzora0,izora0)) 
@@ -180,7 +185,9 @@ c              == calculate spin-free zora contribution ==
                call calc_zora_sf_FA(ao_bas_han, geom, ipol, g_dens,
      &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao), dbl_mb(iqxyz), 
      &              dbl_mb(iqwght), nbf_ao, nqpts, ncenters, 
-     &              dbl_mb(izora0), dbl_mb(izora0scal))           
+     &              dbl_mb(izora0), dbl_mb(izora0scal),
+     &              ofinite,zetanuc_arr,
+     &              Knucl)  ! = .true. if including ONLY nuclear part in K ZORA         
 c              == delete memory ==
                if(.not.MA_pop_stack(lchi_ao))
      &            call errquit("zora_getv: pop chi_ao", 100, MA_ERR)

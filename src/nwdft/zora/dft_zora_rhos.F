@@ -11,7 +11,7 @@ c -- Purpose: Calculation of small component density, \rho_S
 c             for Electric Field Gradient calculation
 c             Source: van Lenthe, et.al.,JCP, V112,N19,Y2000
 c -- Author : Fredy Aquino 12-07-09
-c
+
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -22,58 +22,44 @@ c
 #include "geom.fh" 
 #include "zora.fh" 
 
-      integer rtdb     
-      integer g_efgz4(2)        
-      integer g_dens_ini(2)   
-      integer noc(2)
-      integer ipol
-      integer geom
-      integer ao_bas_han                      
-      integer ispin,pos_dat,
+      integer rtdb,geom,ao_bas_han   ! handles
+      integer g_efgz4(2),g_dens_ini(2),g_densZ4(3),
+     &        g_zora_scale_munu(2)  
+      integer noc(2),noc1,ipol,ispin,pos_dat,
+     &        nbf,nbf_ao,pos,ndir,
      &        do_zgc_old,nexc
-      integer iat,nat,noc1   
+      integer iat,iat1,nat,ipolmunu,zora_Qpq  
       integer l_xyzpt,k_xyzpt,     
-     &        l_zanpt,k_zanpt    
-      integer l_ilst,k_ilst,     
-     &        l_jlst,k_jlst,    
+     &        l_zanpt,k_zanpt,    
+     &        l_ilst,k_ilst,     
+     &        l_jlst,k_jlst,  
+     &        l_AtNr,k_AtNr,
      &        nlst,i,j,count
-      integer g_munu_rhoS,g_munuV6
+      integer g_rhoS,g_munu_rhoS,g_munuV6,
+     &        dft_zoraEFGZ4_write,efgfile
 c     g_munu_rhoS, contains xx,yy,zz,xy,xz,yz
 c                  munu half-triangle matrices
 c                  including main diagonal
       logical status               
       character*16 element, at_tag  
-      double precision scf_dbl,zora_eint,toac 
-c ++++++++++++++++++++++++++++
-      integer stat_read
-      integer iat1,l_AtNr,k_AtNr    
-c ++++++++++++++++++++++++++++
-      integer g_densZ4(3)
-      integer read_SLCTD_EFG_Atoms
+      character*255 zorafilename
+      double precision scf_dbl,zora_eint,toac,
+     &                 xyz_EFGcoords(3)  
+      integer stat_read,read_SLCTD_EFG_Atoms,
+     &        dft_zoraEFGZ4_NLMOAnalysis_write
       external get_densZ4,read_SLCTD_EFG_Atoms,
-     &         zora_getv_EFGZ4_SR 
-      integer nbf,nbf_ao,pos,ndir
-      integer g_zora_scale_munu(2)
-      integer ipolmunu
-      integer zora_Qpq
-      double precision xyz_EFGcoords(3)   
-      common/munu_EFG/g_munuV6,g_munu_rhoS,
-     &                g_zora_scale_munu,ipolmunu ! munu-matrices
+     &         zora_getv_EFGZ4_SR,dft_zoraEFGZ4_write,
+     &         util_file_name,
+     &         dft_zoraEFGZ4_NLMOAnalysis_write
 c     Note.- g_munu_rhoS is created in dft_zora_rhos.F
 c            g_munuV6    is created in hnd_elfcon_symm.F
-c            g_munuV6 is not created/defined here yet
-      
+c            g_munuV6 is not created/defined here yet     
 c
 c---- Input global variables (defined in zora.fh):
 c     1. zora_calc_type  ! =3 -> ZORA4-EFG
 c     2. so_term         ! =0 -> ZORA4-spin-free
 c     3. xyz_EFGcoords(i) i=1,2,3
 c     4. zora_Qpq=1,6 : xx,yy,zz,xy,xz,yz 
-
-c================================================   
-c     if (ga_nodeid().eq.0) write(*,17) zoracutoff_EFG
-c17   format('zoracutoff_EFG=',f15.8)
-c================================================
       if (ipol.eq.1) then
         scf_dbl=2.0d00
         noc1=noc(1)
@@ -90,79 +76,78 @@ c----- Allocate memory - FA
 c----- Allocate global arrays - FA
         do i=1,ipol
          if (.not. ga_create(mt_dbl,nbf,nbf,
-     &                       'get_rhoS: g_efgz4',
-     $                       0,0,g_efgz4(i)))
-     $       call errquit('get_rhoS: g_efgz4', 0,
-     &                    GA_ERR)
+     &      'get_rhoS: g_efgz4',0,0,g_efgz4(i)))
+     $       call errquit('get_rhoS: g_efgz4', 0,GA_ERR)
              call ga_zero(g_efgz4(i))
         enddo
-c ++++++++++++++++++++++++++++++++++
 c +++++ Read Atom Nr for EFG calc ++
          if (.not. ga_create(mt_dbl,1,nat,
-     &                       'get_rhoS: g_AtNr',
-     $                       0,0,g_AtNr)) 
-     $       call errquit('get_rhoS: g_AtNr', 0,
-     &                    GA_ERR)
+     &                  'get_rhoS: g_AtNr',0,0,g_AtNr)) 
+     $     call errquit('get_rhoS: g_AtNr', 0,GA_ERR)
         call ga_zero(g_AtNr)
        stat_read=read_SLCTD_EFG_Atoms
      &            (rtdb,nat,nlist,g_AtNr)
-        write(*,*) "==> nlist=",nlist
-        call ga_print(g_AtNr)
+        if (ga_nodeid().eq.0)
+     &      write(*,*) "==> nlist=",nlist
 c  Allocate memory for l_AtNr,k_AtNr 
-      if (.not.ma_alloc_get(mt_dbl,nat,'AtNr',
-     &    l_AtNr,k_AtNr))
+      if (.not.ma_alloc_get(mt_dbl,nat,'AtNr',l_AtNr,k_AtNr))
      &    call errquit('get_rhoS: ma failed',0,MA_ERR)
       call ga_get(g_AtNr,1,1,1,nat,dbl_mb(k_AtNr),1)
-c  Allocat memory for (l_ilst,k_ilst) (l_jlst,k_jlst)
+c ------------ for NLMO analysis --------- START
+      efgfile=0 ! not doing NLMO analysis by default
+      status=rtdb_get(rtdb,'prop:efgfile',mt_int,1,efgfile) ! for NLMO analysis
+      if (efgfile.eq.1) then ! ============= efgfile-if-START
+c  Allocate memory for (l_ilst,k_ilst) (l_jlst,k_jlst)
       nlst=nbf*(nbf+1)/2  ! single triangle matrix
-      if (.not.ma_alloc_get(mt_int,nlst,'ijlst',
-     &                      l_ilst,k_ilst))
-     &    call errquit('get_ijlst: ma failed',0,MA_ERR)
-      if (.not.ma_alloc_get(mt_int,nlst,'ijlst',
-     &                      l_jlst,k_jlst))
-     &    call errquit('get_ijlst: ma failed',0,MA_ERR)
+        if (.not.ma_alloc_get(mt_int,nlst,'ijlst',
+     &                        l_ilst,k_ilst))
+     &  call errquit('get_ijlst: ma failed',0,MA_ERR)
+        if (.not.ma_alloc_get(mt_int,nlst,'ijlst',
+     &                        l_jlst,k_jlst))
+     &  call errquit('get_ijlst: ma failed',0,MA_ERR)
 c ------- create ga_munu_rhoS --- START
 c WARNING : ONLY for one atom
-         ndir=6 ! Nr. directions: xx,yy,zz,xy,xz,yz
-         if (.not. ga_create(mt_dbl,1,nlst*ndir*nlist,
-     &                       'get_munu_rhoS: g_munu_rhoS',
-     $                       0,0,g_munu_rhoS)) 
-     $       call errquit('get_rhoS: g_AtNr', 0,
-     &                    GA_ERR)
+        ndir=6 ! Nr. directions: xx,yy,zz,xy,xz,yz
+        if (.not. ga_create(mt_dbl,1,nlst*ndir*nlist,
+     &     'get_munu_rhoS: g_munu_rhoS', 0,0,g_munu_rhoS)) 
+     $     call errquit('get_rhoS: g_AtNr', 0,GA_ERR)
         call ga_zero(g_munu_rhoS)
 c ------- create ga_munu_rhoS --- END
 c    Define (ilst,jlst) indices to store munu-rhoS elem.
-      count=0
-      do i=1,nbf
-       int_mb(k_ilst+count)=i
-       int_mb(k_jlst+count)=i
-       count=count+1      
-      enddo
-      do i=2,nbf
-       do j=1,i-1
+       count=0
+       do i=1,nbf
         int_mb(k_ilst+count)=i
-        int_mb(k_jlst+count)=j
-        count=count+1     
-       enddo 
-      enddo
+        int_mb(k_jlst+count)=i
+        count=count+1      
+       enddo
+       do i=2,nbf
+        do j=1,i-1
+         int_mb(k_ilst+count)=i
+         int_mb(k_jlst+count)=j
+         count=count+1     
+        enddo 
+       enddo
+      endif !=============================== efgfile-if-END
+c ------------ for NLMO analysis --------- END
 c ++++++++++++++++++++++++++++++++++
 c--- About content of g_rhoS:
 c--- 1st set of nat*6 elements corresponds to ZORA4-EFG
 c--- 2nd set of nat*6 elements corresponds to NUM-EFG
-         if (.not. ga_create(mt_dbl,1,nat*6*2,
+         if (.not. ga_create(mt_dbl,1,nlist*6*2,
      &                      'get_rhoS: g_rhoS',
      $                       0,0,g_rhoS)) 
      &       call errquit('get_rhoS: g_rhoS', 0,
      &                     GA_ERR)
-      call ga_zero(g_rhoS)
+      efgfile=0 ! not doing NLMO analysis by default
+      status=rtdb_get(rtdb,'prop:efgfile',mt_int,1,efgfile) ! for NLMO analysis
+
       pos_dat=1 ! data-counter in g_rhoS
 c     do zora_calc_type =3,4 !  ZORA4-EFG,NUM-EFG
       do zora_calc_type =4,3,-1 !  NUM-EFG,ZORA4-EFG
        do_NonRel=.false.
-       if (zora_calc_type.eq.4) do_NonRel=.true.                  
-       call get_densZ4(rtdb,ao_bas_han,geom,g_densZ4)
+       if (zora_calc_type.eq.4) do_NonRel=.true.                   
+       call get_densZ4(rtdb,ao_bas_han,geom,g_densZ4) 
        so_term=0           ! ZORA-spin-free
-       write(*,*) "zora_calc_type=",zora_calc_type
        pos=0  ! chunk-index counter for g_munu_rhoS
        do iat1=1,nlist  ! nlist <= nat
         iat=dbl_mb(k_AtNr+iat1-1)
@@ -178,7 +163,7 @@ c     do zora_calc_type =3,4 !  ZORA4-EFG,NUM-EFG
  19     format('xyz_EFG(',i2,')=(',f15.8,',',f15.8,',',
      &         f15.8,')')
         endif
-        do zora_Qpq=1,6 ! xx,yy,zz,xy,xz,yz - FA
+        do zora_Qpq=1,6 ! xx,yy,zz,xy,xz,yz 
 c------Generate munu A^{pq}_r ----- START
           do i=1,ipol
            call ga_zero(g_efgz4(i))
@@ -199,38 +184,95 @@ c------Generate munu A^{pq}_r ----- START
      &            f15.8,',',f15.8,')')  
           endif
          end do ! ispin-loop
-c ++++++++++++++++++++
-         if (zora_calc_type.eq.3) then
-          call get_munu_rhos_symm(g_efgz4,ipol,
+c ++++++ for NLMO analysis ++++++++++++++++++ START
+         if (zora_calc_type.eq.3 .and. efgfile.eq.1) then
+          call get_munu_rhos_symm(g_efgz4,     ! input
+     &                            ipol,
      &                            l_ilst,k_ilst,
      &                            l_jlst,k_jlst,
      &                            nlst,
-     &                            g_munu_rhoS,pos)
+     &                            g_munu_rhoS, ! output
+     &                            pos)
          endif
          pos=pos+1
-c ++++++++++++++++++++
-         call ga_fill_patch(g_rhoS,1,1,pos_dat,pos_dat,zora_eint) 
+c ++++++ for NLMO analysis ++++++++++++++++++ END
+         call ga_fill_patch(g_rhoS,1,1,pos_dat,pos_dat,
+     &                      zora_eint) ! zora_eint --> g_rhoS(pos_dat)
 c------Generate munu A^{pq}_r ----- END
          pos_dat=pos_dat+1   
         end do ! zora_Qpq loop
        end do ! iat loop
+c ------------- destroy g_densZ4() ------------ START
+        if (zora_calc_type.eq.4) then
+         do i=1,3
+          if (.not. ga_destroy(g_densZ4(i))) call errquit(
+     &    'dft_zora_rhos: ga_destroy failed ',0, GA_ERR)
+         enddo
+        endif
+c ------------- destroy g_densZ4() ------------ END
       end do ! zora_calc_type loop
-c----deallocate memory - FA
+c ----- Store efgz4 data in a file ------- START
+c       Note.- lbl_efgz4 defined in zora.fh
+        call util_file_name(lbl_efgz4,.false.,.false.,zorafilename)
+        if (.not.dft_zoraEFGZ4_write(
+     &           zorafilename,
+     &           nlist,
+     &           nat,
+     &           g_AtNr,
+     &           g_rhoS))
+     &     call errquit('get_rhoS: dft_zoraNMR_write failed',
+     &                  0,DISK_ERR)
+c ----- Store efgz4 data in a file ------- END
+      efgfile=0 ! not doing NLMO analysis by default
+      status=rtdb_get(rtdb,'prop:efgfile',mt_int,1,efgfile) ! for NLMO analysis
+      if (efgfile.eq.1) then ! ============ efgfile-if---START
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) '--------- g_munu_rhoS ---------- START'
+c        call ga_print(g_munu_rhoS)
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) '--------- g_munu_rhoS ---------- END'
+c ---------> Write NMLO analysis data: 2 of 3 ----- START
+        call util_file_name(lbl_nlmo,.false.,.false.,zorafilename)
+        if (.not.dft_zoraEFGZ4_NLMOAnalysis_write(
+     &       zorafilename, ! in: filename
+     &                nbf, ! in: nr basis functions
+     &               ndir, ! in: nr of directions: 6 = xx yy zz xy xz yz
+     &              nlist, ! in: list of selected atoms 
+     &                  2, ! in: writing order =1,2,3
+     &           ipolmunu, ! in: write for ndata=1
+     &  g_zora_scale_munu, ! in: write for ndata=1
+     &        g_munu_rhoS, ! in: write for ndata=2
+     &        g_densZ4(3), ! in: write for ndata=2
+     &           g_munuV6))! in: write for ndata=3
+     &     call errquit('get_rhoS: dft_zoraNLMO_write failed',
+     &                  0,DISK_ERR)
+        if (.not. ga_destroy(g_munu_rhoS)) call errquit(
+     &    'dft_zora_utils: ga_destroy failed ',0, GA_ERR)
+c ---------> Write NMLO analysis data: 2 of 3 ----- END
+        if (.not.ma_free_heap(l_ilst)) call
+     &      errquit('dft_zora_rhos: ma_free_heap l_ilst',0, MA_ERR)
+        if (.not.ma_free_heap(l_jlst)) call
+     &      errquit('dft_zora_rhos: ma_free_heap l_jlst',0, MA_ERR)
+       endif! ============================= efgfile-if---END
+c ------ destroy remaining from zora_calc_type=3 ------ START
+        do i=1,3
+         if (.not. ga_destroy(g_densZ4(i))) call errquit(
+     &    'dft_zora_rhos: ga_destroy failed ',0, GA_ERR)
+        enddo
+c ------ destroy remaining from zora_calc_type=3 ------ END
+c----deallocate memory
       if (.not.ma_free_heap(l_zanpt)) call errquit
      &   ('dft_zora_utils, ma_free_heap of l_zanpt failed',911,MA_ERR)
       if (.not.ma_free_heap(l_xyzpt)) call errquit
      &   ('dft_zora_utils, ma_free_heap of l_xyzpt failed',911,MA_ERR)
       if (.not.ma_free_heap(l_AtNr)) call
      &    errquit('dft_zora_utils: ma_free_heap l_AtNr',0, MA_ERR)
-      if (.not.ma_free_heap(l_ilst)) call
-     &    errquit('dft_zora_rhos: ma_free_heap l_ilst',0, MA_ERR)
-      if (.not.ma_free_heap(l_jlst)) call
-     &    errquit('dft_zora_rhos: ma_free_heap l_jlst',0, MA_ERR)
-c ---------------- added by FA ---- end
         do i=1,ipol
          if (.not. ga_destroy(g_efgz4(i))) call errquit(
      &    'dft_zora_rhos: ga_destroy failed ',0, GA_ERR)
         enddo
+         if (.not. ga_destroy(g_rhoS)) call errquit(
+     &    'dft_zora_rhos: ga_destroy failed ',0, GA_ERR)
       return
       end
 
@@ -392,9 +434,8 @@ c
 c     Purpose: Calculate Cmunu Z4 density matrix
 c              mu,nu indices for AO or Basis Set (BS)
 c     Author : Fredy Aquino
-c
+
        implicit none
-c
 #include "nwc_const.fh"
 #include "errquit.fh"
 #include "global.fh"
@@ -423,7 +464,7 @@ c
       common /Cmunu/g_dens_sf,prpvectors
 
       if (.not. bas_numbf(basis,nbf)) call
-     &    errquit('get_densZ4: could not get nbf',0, BASIS_ERR)
+     &    errquit('get_densZ4: could not get nbf',0, BASIS_ERR)      
       g_dens_sf=ga_create_atom_blocked(geom,basis,'orbs dens')
       do ii=1,3
        g_densZ4(ii)=ga_create_atom_blocked(geom,basis,'orbs dens')
@@ -453,7 +494,7 @@ c
      &                        nocc(ispin),scftyp_dbl)
          if ((do_NonRel) .or. (not_zora_scale)) then
              scale=1.0d0
-         else 
+         else
              scale=1.0d0/dbl_mb(k_Ci+porb-1)
          endif
          call ga_scale(g_dens_sf,scale)
@@ -485,9 +526,8 @@ c
       integer function read_SLCTD_EFG_Atoms
      &            (rtdb,nat,nlist,g_AtNr)
 c---- GA output: g_AtNr   
-c
+
       implicit none
-c
 #include "errquit.fh"
 #include "global.fh"
 #include "tcgmsg.fh"
@@ -508,11 +548,9 @@ c
       double precision AtNr_dbl
 
        read_SLCTD_EFG_Atoms = 0
-       efgz4atoms=0 ! reset
-        if (.not. rtdb_get(rtdb, 'prop:atnr',mt_int,
+        if (.not. rtdb_get(rtdb, 'efgz4:natoms',mt_int,
      $                     1,efgz4atoms))
-     $      call errquit('prop_input-EFGZ4: rtdb_get failed',
-     $                   555, RTDB_ERR)
+     &       efgz4atoms=0 ! reset
          if (efgz4atoms.eq.0) then
           efgz4atoms=nat
            nlist=efgz4atoms
@@ -521,7 +559,7 @@ c
             call ga_put(g_AtNr,1,1,ii,ii,AtNr_dbl,1)
            enddo     
          else
-          if (.not. rtdb_get(rtdb, 'prop:atnr1',mt_int,
+          if (.not. rtdb_get(rtdb, 'efgz4:atom list',mt_int,
      $                     efgz4atoms,atomnr))
      $      call errquit('prop_input-EFGZ4: rtdb_get failed',
      $                   555, RTDB_ERR)
@@ -534,21 +572,13 @@ c
        read_SLCTD_EFG_Atoms = 1
        return
        end    
-
-       subroutine print_EFGZ4_version()
-       implicit none
-       write(*,*) "+++++++++++++++++++++++++++++++++"
-       write(*,*) "+ EFG-Z4 Version 10-29-10 12:00 +"
-       write(*,*) "+ Author: Fredy W. Aquino       +"
-       write(*,*) "+++++++++++++++++++++++++++++++++"
-       return
-       end
-
-       subroutine get_munu_rhos_symm(g_munu,ipol,
-     &                               l_ilst,k_ilst,     
-     &                               l_jlst,k_jlst,                                        
-     &                               nlst,
-     &                               g_munu_rhoS,pos)
+       subroutine get_munu_rhos_symm(g_munu,        ! in  : munu matrix
+     &                               ipol,          ! in  : nr. polarizations
+     &                               l_ilst,k_ilst, ! in  : array of indices ilst      
+     &                               l_jlst,k_jlst, ! in  : array of indices jlst                       
+     &                               nlst,          ! in  : = nbf*(nbf+1)/2
+     &                               g_munu_rhoS,   ! out : accumulate main-diag,off-diag munu elements
+     &                               pos)
 c    g_munu_rhoS accumulates xx,yy,zz,xy,xz,yz
 c    matrices in the following format:
 c    11 22 ... (nbf nbf)  -> main diagonal first
@@ -573,25 +603,604 @@ c           --> the size of one chunk is nlst
        integer g_munu_rhoS
        integer g_munu(2)
        integer i,ipol
-       integer nlst,count,pos
+       integer nlst,pos
        integer l_ilst,k_ilst,     
      &         l_jlst,k_jlst
        integer jlo,jhi
        double precision v(nlst)
-
-       if (ipol.gt.1) then
-        call ga_add(1.0d00,g_munu(1),
-     &              1.0d00,g_munu(2),g_munu(1))
-       endif
-       call ga_gather(g_munu(1),v,
+       call ga_gather(g_munu(1),v,              ! g_munu ---> v
      &                int_mb(k_ilst),int_mb(k_jlst),
      &                nlst)
 c      Now accumulates ith-chunk on g_munu_rhoS
        jlo=pos*nlst+1
        jhi=pos*nlst+nlst
-       call ga_put(g_munu_rhoS,1,1,jlo,jhi,v,1)
+       call ga_put(g_munu_rhoS,1,1,jlo,jhi,v,1) ! v --> g_munu_rhoS
        return
        end
+c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+c +++++++++++ READ/WRITE EFGZ4 data +++++++++++++ START
+c Note.- Using modified versions of
+c        dft_zora_read() and dft_zoraNMR_write()
+c        --> located in dft_zora_utils.F
+czora...Write out the zora NMR shieldings to disk
+
+      logical function dft_zoraEFGZ4_write(
+     &           filename, ! in: filename
+     &              nlist, ! in: number of selected atoms
+     &                nat, ! in: total number of atoms
+     &            g_AtNr1, ! in: list of atoms to calc. shieldings
+     &             g_rhoS) ! in: rhoS values
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "inp.fh"
+#include "msgids.fh"
+#include "cscfps.fh"
+#include "util.fh"
+#include "stdio.fh"
+      character*(*) filename    ! [input] File to write to
+      integer nlist,   !       nr. slc atoms
+     &        nat,     ! total nr. of  atoms
+     &        ntot_efg ! = ntat*6*2 6=xx,yy,zz,xy,xz,yz 2=NonRel, EFGZ4
+      integer g_AtNr1, ! in: list of atoms to calc. shieldings 
+     &        g_rhoS   ! rhoS values
+      integer unitno
+      parameter (unitno = 77)
+      integer l_AtNr,k_AtNr,
+     &        l_rhoS,k_rhoS
+      integer ok, iset, i, j
+      integer inntsize
+      integer alo(3),ahi(3),ld(2)
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
+      call ga_sync()
+      ok = 0
+c     Read routines should be consistent with this
+c     Write out the atomic zora corrections
+      if (ga_nodeid() .eq. 0) then
+c     Open the file
+       open(unitno, status='unknown', form='unformatted',
+     $        file=filename, err=1000)
+c     Write out the number of sets and basis functions
+       write(unitno, err=1001) nlist
+       write(unitno, err=1001) nat
+c     Allocate the temporary buffer
+c ++++++++ using ma_alloc_get +++++++++++++++++++ START
+c ---> ma_alloc_get: to allocate memory
+c ---> ma_free_heap: to release allocated memory
+       if (.not. ma_alloc_get(mt_dbl,nlist,'dft_zoraEFGZ4_write',
+     &                        l_AtNr,k_AtNr))
+     $  call errquit('dft_zoraEFGZ4_write: ma failed', 
+     &               nlist, MA_ERR)
+       ntot_efg=nlist*6*2
+       if (.not. ma_alloc_get(mt_dbl,ntot_efg,
+     &                        'dft_zoraEFGZ4_write',
+     &                        l_rhoS,k_rhoS))
+     $  call errquit('dft_zoraEFGZ4_write: ma failed', 
+     &               ntot_efg, MA_ERR)
+c ++++++++ using ma_alloc_get +++++++++++++++++++ END
+       call ga_get(g_AtNr1,1,1,1,nlist,dbl_mb(k_AtNr),1)
+       call swrite(unitno,dbl_mb(k_AtNr),nlist)
+       call ga_get(g_rhoS,1,1,1,ntot_efg,dbl_mb(k_rhoS),1)
+       call swrite(unitno,dbl_mb(k_rhoS),ntot_efg)
+c
+c     Deallocate the temporary buffer
+c ----- Using ma_free_heap ------------ START
+      if (.not. ma_free_heap(l_AtNr))
+     $  call errquit('dft_zoraEFGZ4_write: ma free_heap failed', 
+     &               911, MA_ERR)
+      if (.not. ma_free_heap(l_rhoS))
+     $  call errquit('dft_zoraEFGZ4_write: ma free_heap failed', 
+     &               911, MA_ERR)
+c ----- Using ma_free_heap ------------ END
+c     Close the file
+      close(unitno,err=1002)
+      ok = 1
+      end if
+c     Broadcast status to other nodes
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
+      call ga_sync()
+      dft_zoraEFGZ4_write = (ok .eq. 1)
+      if (ga_nodeid() .eq. 0) then
+         write(6,22) filename(1:inp_strlen(filename))
+ 22      format(/' Wrote ZORA EFGZ4 data to ',a/)
+         call util_flush(luout)
+      endif
+      return
+ 1000 write(6,*) 'dft_zoraEFGZ4_write: failed to open ',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+ 1001 write(6,*) 'dft_zoraEFGZ4_write: failed to write ',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+ 1002 write(6,*) 'dft_zoraEFGZ4_write: failed to close',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+      end
+
+      logical function dft_zoraEFGZ4_read(
+     &           filename, ! in : filename
+     &              nlist, ! in : number of selected atoms
+     &                nat, ! in : total number of atoms
+     &            g_AtNr1, ! out: list of atoms to calc. shieldings
+     &             g_rhoS) ! out: rhoS values
+      implicit none
+#include "errquit.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "cscfps.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "stdio.fh"
+      character*(*) filename    ! [input] File to write to
+      integer nlist,   !       nr. slc atoms
+     &        nat,     ! total nr. of  atoms
+     &        ntot_efg ! = ntat*6*2 6=xx,yy,zz,xy,xz,yz 2=NonRel, EFGZ4
+      integer g_AtNr1, ! in: list of atoms to calc. shieldings 
+     &        g_rhoS
+      integer unitno
+      parameter (unitno = 77)
+      integer l_AtNr,k_AtNr,
+     &        l_rhoS,k_rhoS
+      integer ok,inntsize
+      integer nat_read,nlist_read
+c     Initialise to invalid MA handle
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
+      call ga_sync()
+      ok = 0
+c---- Create GA arrays: g_AtNr1,g_rhoS --- START
+         if (.not. ga_create(mt_dbl,1,nlist,
+     &   'dft_zoraEFGZ4_read: g_AtNr1',0,0,g_AtNr1)) 
+     $   call errquit('dft_zoraEFGZ4_read: g_AtNr1',0,GA_ERR)
+        call ga_zero(g_AtNr1) 
+        ntot_efg=nlist*6*2
+         if (.not. ga_create(mt_dbl,1,ntot_efg,
+     &   'dft_zoraEFGZ4_read: g_rhoS',0,0,g_rhoS)) 
+     $   call errquit('dft_zoraEFGZ4_read: g_rhoS',0,GA_ERR)
+        call ga_zero(g_rhoS)   
+c---- Create GA arrays: g_AtNr1,g_rhoS --- END
+      if (ga_nodeid() .eq. 0) then
+c      Print a message indicating the file being read
+       write(6,22) filename(1:inp_strlen(filename))
+ 22    format(/' Read ZORA EFGZ4 data from ',a/)
+       call util_flush(luout)
+c      Open the file
+       open(unitno, status='old', form='unformatted', file=filename,
+     $        err=1000)
+c      Read in some basics to check if they are consistent with the calculation
+       read(unitno, err=1001, end=1001) nlist_read 
+       read(unitno, err=1001, end=1001) nat_read      
+c      Error checks
+       if ((nat_read   .ne. nat) .or.
+     &     (nlist_read .ne. nlist) ) goto 1003
+c ++++++++ using ma_alloc_get +++++++++++++++++++ START
+c ---> ma_alloc_get: to allocate memory
+c ---> ma_free_heap: to release allocated memory
+       if (.not. ma_alloc_get(mt_dbl,nlist,'dft_zoraEFGZ4_read',
+     &                     l_AtNr,k_AtNr))
+     $  call errquit('dft_zoraEFGZ4_read: ma failed', 
+     &               nlist, MA_ERR)
+       if (.not. ma_alloc_get(mt_dbl,ntot_efg,'dft_zoraEFGZ4_read',
+     &                     l_rhoS,k_rhoS))
+     $  call errquit('dft_zoraEFGZ4_read: ma failed', 
+     &               ntot_efg, MA_ERR)
+c ++++++++ using ma_alloc_get +++++++++++++++++++ END
+       call sread(unitno,dbl_mb(k_AtNr),nlist)
+       call ga_put(g_AtNr1,1,1,1,nlist,dbl_mb(k_AtNr),1)
+       call sread(unitno,dbl_mb(k_rhoS),ntot_efg)
+       call ga_put(g_rhoS,1,1,1,ntot_efg,dbl_mb(k_rhoS),1)
+c
+c     Deallocate the temporary buffer
+c ----- Using ma_free_heap ------------ START
+      if (.not. ma_free_heap(l_AtNr))
+     $  call errquit('dft_zoraEFGZ4_read: ma free_heap failed', 
+     &               911, MA_ERR)
+      if (.not. ma_free_heap(l_rhoS))
+     $  call errquit('dft_zoraEFGZ4_read: ma free_heap failed', 
+     &               911, MA_ERR)
+c ----- Using ma_free_heap ------------ END
+c      Close the file
+       close(unitno,err=1002)
+       ok = 1
+      end if
+c
+c     Broadcast status to other nodes
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
+      call ga_sync()
+      dft_zoraEFGZ4_read = ok .eq. 1
+      return
+ 1000 write(6,*) 'dft_zoraEFGZ4_read: failed to open',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+ 1001 write(6,*) 'dft_zoraEFGZ4_read: failed to read',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+ 1003 write(6,*) 'dft_zoraEFGZ4_read: file inconsistent',
+     &           ' with calculation',
+     $           filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+ 1002 write(6,*) 'dft_zoraEFGZ4_read: failed to close',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+      end
+
+      logical function dft_zoraEFGZ4_NLMOAnalysis_write(
+     &           filename, ! in: filename
+     &                nbf, ! in: nr basis functions
+     &               ndir, ! in: nr of directions: 6 = xx yy zz xy xz yz
+     &              nlist, ! in: list of selected atoms 
+     &              ndata, ! in: writing order =1,2,3
+     &           ipolmunu, ! in: write for ndata=1
+     &  g_zora_scale_munu, ! in: write for ndata=1
+     &        g_munu_rhoS, ! in: write for ndata=2
+     &             g_dens, ! in: write for ndata=2
+     &           g_munuV6) ! in: write for ndata=3
+c Description: Collecting three matrices to be used
+c              in wefgfile(rtdb) and wnbofile(rtdb)
+c              Those routines are called in prop.F
+c              after hnd_property(rtdb)
+c              The info collected is:
+c              1. ipolmunu, nr. of polarizations 
+c              2. g_zora_scale_munu, = g_zora_scale_sf
+c                 --> Stored in dft_zora_scale() [dft_zora_utils.F]
+c              3. g_munu_rhoS, small component density munu matrix
+c                              about the format check info in header
+c                              of get_munu_rhos_symm()
+c                 --> Stored in get_rhoS() [dft_zora_rhos.F]
+c              4. g_munuV6, electronic EFG munu matrix (without the
+c                           small component density correction)
+c                 --> Stored in get_munuV6() [hnd_elfcon_symm.F] 
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "inp.fh"
+#include "msgids.fh"
+#include "cscfps.fh"
+#include "util.fh"
+#include "stdio.fh"
+      character*(*) filename    ! [input] File to write to
+      integer nlist,  ! = nr. slc atoms
+     &        nlst,   ! = nbf*(nbf+1)/2
+     &        nmat,   ! = nlst*ndir*nlist
+     &        nmat1   ! = nbf*nbf
+      integer ndata   ! = 1,2,3
+      integer ipolmunu,g_zora_scale_munu(2) ! write for ndata=1
+      integer g_munu_rhoS,g_dens            ! write for ndata=2
+      integer g_munuV6                      ! write for ndata=3
+      integer ndir,nbf
+      integer unitno
+      parameter (unitno = 77)
+      integer l_mat,k_mat,l_mat1,k_mat1
+      integer ok, iset, i, j
+      integer inntsize
+c WARNING: The sequence in which is called this routine is: 1->2->3.
+c ---- check ndata=1,2,3 ----- START
+      if (ndata.ne.1 .and. 
+     &    ndata.ne.2 .and. ndata.ne.3) then
+       write(*,*) 'Error in dft_zoraEFGZ4_NLMOAnalysis_write:',
+     &            'ndata=',ndata,' It should be 1, 2 or 3'
+       stop
+      endif
+c ---- check ndata=1,2,3 ----- END
+      nlst=nbf*(nbf+1)/2
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
+      call ga_sync()
+      ok = 0
+c     Read routines should be consistent with this
+c     Write out the atomic zora corrections
+      if (ga_nodeid() .eq. 0) then
+c     Allocate the temporary buffer
+c ++++++++ using ma_alloc_get +++++++++++++++++++ START
+c ---> ma_alloc_get: to allocate memory
+c ---> ma_free_heap: to release allocated memory
+       if      (ndata.eq.1) then
+        nmat=nbf
+       else if (ndata.eq.2) then
+        nmat=nlst*ndir*nlist
+        nmat1=nbf*nbf
+       else if (ndata.eq.3) then
+        nmat=nlst*ndir*nlist
+       endif
+       if (.not. ma_alloc_get(
+     &        mt_dbl,nmat,'dft_zoraNLMO_write',
+     &        l_mat,k_mat))
+     $  call errquit('dft_zoraNLMO_write: ma failed', 
+     &               nmat, MA_ERR)
+       if (.not. ma_alloc_get(
+     &        mt_dbl,nmat1,'dft_zoraNLMO_write',
+     &        l_mat1,k_mat1))
+     $  call errquit('dft_zoraNLMO_write: ma failed', 
+     &               nmat1, MA_ERR)
+c ++++++++ using ma_alloc_get +++++++++++++++++++ END
+       if      (ndata.eq.1) then
+c     Open the file - 1st time
+        open(unitno, status='unknown', form='unformatted',
+     $      file=filename, err=1000)
+c     Write out the number of sets and basis functions
+        write(unitno, err=1001) nbf
+        write(unitno, err=1001) nlst
+        write(unitno, err=1001) ndir
+        write(unitno, err=1001) ipolmunu
+c     Write out g_zora_scale_sf
+        do iset = 1, ipolmunu
+         do i = 1, nbf
+          call ga_get(g_zora_scale_munu(iset), 1, nbf, i, i, 
+     &               dbl_mb(k_mat),1)
+          call swrite(unitno, dbl_mb(k_mat), nbf)
+         end do
+        end do
+       else if (ndata.eq.2) then
+c     Open the file - 2nd time
+        open(unitno, status='unknown', form='unformatted',
+     $      file=filename, err=1000,access='append')
+        write(unitno, err=1001) nlist
+        call ga_get(g_munu_rhoS,1,1,1,nmat,
+     &              dbl_mb(k_mat),1)
+        call swrite(unitno,dbl_mb(k_mat),nmat)
+        call ga_get(g_dens,1,nbf,1,nbf,
+     &              dbl_mb(k_mat1),nbf)
+        call swrite(unitno,dbl_mb(k_mat1),nmat1)
+       else if (ndata.eq.3) then
+c     Open the file - 3rd time
+        open(unitno, status='unknown', form='unformatted',
+     $      file=filename, err=1000,access='append')
+        call ga_get(g_munuV6,1,1,1,nmat,
+     &              dbl_mb(k_mat),1)
+        call swrite(unitno,dbl_mb(k_mat),nmat)
+       endif
+c
+c     Deallocate the temporary buffer
+c ----- Using ma_free_heap ------------ START
+      if (.not. ma_free_heap(l_mat))
+     $  call errquit('dft_zoraNLMO_write: ma free_heap failed', 
+     &               911, MA_ERR)
+      if (.not. ma_free_heap(l_mat1))
+     $  call errquit('dft_zoraNLMO_write: ma free_heap1 failed', 
+     &               911, MA_ERR)
+c ----- Using ma_free_heap ------------ END
+c     Close the file
+      close(unitno,err=1002)
+      ok = 1
+      end if
+c     Broadcast status to other nodes
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
+      call ga_sync()
+      dft_zoraEFGZ4_NLMOAnalysis_write = (ok .eq. 1)
+      if (ga_nodeid() .eq. 0) then
+         write(6,22) filename(1:inp_strlen(filename))
+ 22      format(/' Wrote ZORA NLMO EFGZ4 data to ',a/)
+         call util_flush(luout)
+      endif
+      return
+ 1000 write(6,*) 'dft_zoraNLMO_write: failed to open ',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+ 1001 write(6,*) 'dft_zoraNLMO_write: failed to write ',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+ 1002 write(6,*) 'dft_zoraNLMO_write: failed to close',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+      end
+
+      logical function dft_zoraEFGZ4_NLMOAnalysis_read(
+     &           filename, ! in: filename
+     &                nbf, ! in: nr basis functions
+     &               ndir, ! in: nr of directions: 6 = xx yy zz xy xz yz
+     &              nlist, ! in: list of selected atoms 
+     &           ipolmunu, ! in: 
+     &  g_zora_scale_munu, ! out: 
+     &        g_munu_rhoS, ! out: 
+     &             g_dens, ! out:
+     &           g_munuV6) ! out:  
+      implicit none
+#include "errquit.fh"
+#include "global.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "mafdecls.fh"
+#include "msgids.fh"
+#include "cscfps.fh"
+#include "inp.fh"
+#include "util.fh"
+#include "stdio.fh"
+
+      character*(*) filename    ! [input] File to write to
+      integer nmat,nmat1
+      integer g_zora_scale_munu(2),
+     &        g_munu_rhoS,
+     &        g_dens,
+     &        g_munuV6
+      integer nbf,nbf_read,nlst,nlst_read,
+     &        ndir,ndir_read,nlist,nlist_read,
+     &        ipolmunu,ipolmunu_read
+      integer unitno
+      parameter (unitno = 77)
+      integer l_mat,k_mat,
+     &        l_mat1,k_mat1
+      integer ok, iset, i, j
+      integer inntsize
+c     Initialise to invalid MA handle
+      nlst=nbf*(nbf+1)/2
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
+      call ga_sync()
+      ok = 0
+c---- Create GA arrays: g_AtNr1,g_rhoS --- START
+         if (.not. ga_create(mt_dbl,nbf,nbf,
+     &   'dft_zoraNLMO_read: g_zora_scale_munu',
+     &    0,0,g_zora_scale_munu(1))) 
+     $   call errquit('dft_zoraNLMO_read: g_rhoS',0,GA_ERR)
+        call ga_zero(g_zora_scale_munu(1))
+       if (ipolmunu.gt.1) then
+         if (.not. ga_create(mt_dbl,nbf,nbf,
+     &   'dft_zoraNLMO_read: g_zora_scale_munu',
+     &    0,0,g_zora_scale_munu(2))) 
+     $   call errquit('dft_zoraNLMO_read: g_rhoS',0,GA_ERR)
+        call ga_zero(g_zora_scale_munu(2))
+       endif
+       nmat=nlst*ndir*nlist
+         if (.not. ga_create(mt_dbl,1,nmat,
+     &   'dft_zoraNLMO_read: g_rhoS',0,0,g_munu_rhoS)) 
+     $   call errquit('dft_zoraNLMO_read: g_rhoS',0,GA_ERR)
+        call ga_zero(g_munu_rhoS) 
+       if (.not. ga_create(mt_dbl,nbf,nbf,
+     &   'dft_zoraNLMO_read: g_sdens',0,0,g_dens)) 
+     $   call errquit('dft_zoraNLMO_read: g_dens',0,GA_ERR)
+        call ga_zero(g_dens)    
+         if (.not. ga_create(mt_dbl,1,nmat,
+     &   'dft_zoraNLMO_read: g_munuV6',0,0,g_munuV6)) 
+     $   call errquit('dft_zoraNLMO_read: g_munuV6',0,GA_ERR)
+        call ga_zero(g_munuV6)   
+c---- Create GA arrays: g_AtNr1,g_rhoS --- END
+      if (ga_nodeid() .eq. 0) then
+c      Print a message indicating the file being read
+       write(6,22) filename(1:inp_strlen(filename))
+ 22    format(/' Read ZORA EFGZ4 data from ',a/)
+       call util_flush(luout)
+c      Open the file
+       open(unitno, status='old', form='unformatted', file=filename,
+     $        err=1000)
+c      Read in some basics to check if they are consistent with the calculation
+       read(unitno, err=1001, end=1001) nbf_read
+       read(unitno, err=1001, end=1001) nlst_read
+       read(unitno, err=1001, end=1001) ndir_read
+       read(unitno, err=1001, end=1001) ipolmunu_read
+c      Error checks
+       if ((nbf_read      .ne. nbf)   .or.
+     &     (nlst_read     .ne. nlst)  .or.
+     &     (ndir_read     .ne. ndir)  .or.
+     &     (ipolmunu_read .ne. ipolmunu)) goto 1003
+c ---> ma_alloc_get: to allocate memory
+c ---> ma_free_heap: to release allocated memory
+c ------- Reading 1st matrix: g_zora_scale_munu ----- START
+       nmat=nbf
+       if (.not. ma_alloc_get(mt_dbl,nmat, ! allocate memory
+     &    'dft_zoraNLMO_read',l_mat,k_mat))
+     $  call errquit('dft_zoraNLMO_read: ma failed', 
+     &               nmat, MA_ERR)
+       do iset = 1, ipolmunu
+        do i = 1, nbf
+         call sread(unitno, dbl_mb(k_mat), nbf)
+         call ga_put(g_zora_scale_munu(iset), 1, nbf, i, i, 
+     &               dbl_mb(k_mat), 1)
+        end do
+       end do
+      if (.not. ma_free_heap(l_mat))       ! deallocate memory
+     $  call errquit('dft_zoraNLMO_read: ma free_heap failed', 
+     &               911, MA_ERR)
+c ------- Reading 1st matrix: g_zora_scale_munu ----- END
+c ------- Reading 2nd matrix: g_munu_rhoS ----- START
+       read(unitno, err=1001, end=1001) nlist_read  
+       if (nlist_read    .ne. nlist) goto 1003
+       nmat=nlst*ndir*nlist
+       if (.not. ma_alloc_get(mt_dbl,nmat, ! allocate memory
+     &    'dft_zoraNLMO_read',l_mat,k_mat))
+     $  call errquit('dft_zoraNLMO_read: ma failed', 
+     &               nmat, MA_ERR)
+       nmat1=nbf*nbf
+       if (.not. ma_alloc_get(mt_dbl,nmat1, ! allocate memory
+     &    'dft_zoraNLMO_read',l_mat1,k_mat1))
+     $  call errquit('dft_zoraNLMO_read: ma failed', 
+     &               nmat1, MA_ERR)
+       call sread(unitno,dbl_mb(k_mat),nmat)
+       call ga_put(g_munu_rhoS,1,1,1,nmat,dbl_mb(k_mat),1)
+       call sread(unitno,dbl_mb(k_mat1),nmat1)
+       call ga_put(g_dens,1,nbf,1,nbf,dbl_mb(k_mat1),nbf)
+      if (.not. ma_free_heap(l_mat))       ! deallocate memory
+     $  call errquit('dft_zoraNLMO_read: ma free_heap failed', 
+     &               911, MA_ERR)
+      if (.not. ma_free_heap(l_mat1))       ! deallocate memory
+     $  call errquit('dft_zoraNLMO_read: ma free_heap failed', 
+     &               911, MA_ERR)
+c ------- Reading 2nd matrix: g_munu_rhoS ----- END
+c ------- Reading 3rd matrix: g_munuV6 ----- START
+       nmat=nlst*ndir*nlist
+       if (.not. ma_alloc_get(mt_dbl,nmat, ! allocate memory
+     &    'dft_zoraNLMO_read',l_mat,k_mat))
+     $  call errquit('dft_zoraNLMO_read: ma failed', 
+     &               nmat, MA_ERR)
+       call sread(unitno,dbl_mb(k_mat),nmat)
+       call ga_put(g_munuV6,1,1,1,nmat,dbl_mb(k_mat),1)
+      if (.not. ma_free_heap(l_mat))       ! deallocate memory
+     $  call errquit('dft_zoraNLMO_read: ma free_heap failed', 
+     &               911, MA_ERR)
+c ------- Reading 3rd matrix: g_munuV6 ----- END
+c      Close the file
+       close(unitno,err=1002)
+       ok = 1
+      end if
+c
+c     Broadcast status to other nodes
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
+      call ga_sync()
+      dft_zoraEFGZ4_NLMOAnalysis_read = ok .eq. 1
+      return
+ 1000 write(6,*) 'dft_zoraNLMO_read: failed to open',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+ 1001 write(6,*) 'dft_zoraNLMO_read: failed to read',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+ 1003 write(6,*) 'dft_zoraNLMO_read: file inconsistent',
+     &           ' with calculation',
+     $           filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      close(unitno,err=1002)
+      goto 10
+ 1002 write(6,*) 'dft_zoraNLMO_read: failed to close',
+     $     filename(1:inp_strlen(filename))
+      call util_flush(luout)
+      ok = 0
+      goto 10
+      end
+c +++++++++++ READ/WRITE EFGZ4 data +++++++++++++ END
+c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 c=======================================================
 c================ Fredy Aquino's routines ======== END
 c=======================================================
+       subroutine print_EFGZ4_version()
+       implicit none
+       write(*,*) "+++++++++++++++++++++++++++++++++"
+       write(*,*) "+ EFG-Z4 Version 08-31-11 12:00 +"
+       write(*,*) "+ Author: Fredy W. Aquino       +"
+       write(*,*) "+++++++++++++++++++++++++++++++++"
+       return
+       end

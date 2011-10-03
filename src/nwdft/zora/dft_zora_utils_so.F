@@ -95,7 +95,7 @@ c ----- execute this code ONLY when EFGZ4 is requested -- START
       endif
 c ----- execute this code ONLY when EFGZ4 is requested -- END
 c     allocate memory
-c
+
       if (.not.MA_Push_Get(MT_Dbl, nbf_mo, 'real vec aux',
      &          l_vecsre, k_vecsre))
      & call errquit('dft_zora_scale_so: cannot allocate vec',0, MA_ERR)
@@ -133,19 +133,6 @@ c     scratch array
        if(.not.ga_duplicate(g_dens(2),g_scr(2),'scratch 2'))
      &  call errquit('dft_zora_scale_so: ga_duplicate failed',1, GA_ERR)
         call ga_zero(g_scr(2))
-c
-czora...debug
-c      call dft_densm_so(g_dens_so, g_moso, nbf_ao, noc)
-c      call ga_zero(g_scratch(1))
-c      call ga_zero(g_scratch(2))
-c      call ga_dens_sf(g_scratch, g_dens_so(1), nbf_ao)
-c      ener_kin = ga_ddot(g_scratch(1),g_zora_scale_sf(1))
-c      write(luout,*) "Kinetic energy spin up again:",ener_kin
-c      if (ipol.gt.1) then
-c        ener_kin = ga_ddot(g_scratch(2),g_zora_scale_sf(2))
-c        write(luout,*) "Kinetic energy spin down again:",ener_kin
-c      end if
-czora...debug
       j=0 ! FA
       ac_AB(1)=1
       ac_AB(2)=1
@@ -155,40 +142,40 @@ czora...debug
        call ga_get(g_moso(1),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsre),1)
        call ga_zero(g_orb(1))
        call  ga_put(g_orb(1),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsre),1)
-
        call ga_get(g_moso(2),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsim),1)
        call ga_zero(g_orb(2))
        call  ga_put(g_orb(2),1,nbf_mo,iorb,iorb,dbl_mb(k_vecsim),1)
-
        call dft_densm_so(g_dens_so, g_orb, nbf_ao, noc)
        call ga_zero(g_scr(1))
        call ga_zero(g_scr(2))
        call ga_dens_sf(g_scr, g_dens_so(1), nbf_ao)
-       ener_sf_1=ga_ddot(g_scr(1),g_zora_scale_sf(1))
-       ener_sf_2=ga_ddot(g_scr(2),g_zora_scale_sf(2))
-       ener_sf=ener_sf_1+ener_sf_2
-       ener_tot=ener_sf
-       do iter=1,3
-        call ga_zero(g_scr(1))
-        call ga_dens_so(g_scr(1),g_dens_so,nbf_ao,soxyz(iter))
-        ener_tot=ener_tot+ga_ddot(g_scr(1),g_zora_scale_so(iter)) 
-       end do
+        ener_sf_1=ga_ddot(g_scr(1),g_zora_scale_sf(1))
+        ener_sf_2=ga_ddot(g_scr(2),g_zora_scale_sf(2))
+        ener_sf=ener_sf_1+ener_sf_2
+        ener_tot=ener_sf
+        do iter=1,3
+         call ga_zero(g_scr(1))
+         call ga_dens_so(g_scr(1),g_dens_so,nbf_ao,soxyz(iter))
+         ener_tot=ener_tot+
+     &            ga_ddot(g_scr(1),g_zora_scale_so(iter)) 
+        end do
        zora_denom=1.d0+ener_tot
        eval_scal = evals(iorb)
        eval_scal = eval_scal/zora_denom
        ener_scal = ener_scal - eval_scal*ener_tot 
        evals(iorb) = eval_scal
 c ----- execute this code ONLY when EFGZ4 is requested -- START
-       if(noelfgZ4.eq.0) then
-        j1=j+1                          ! FA
-        if (ac_AB(j1).le.nocc(j1)) then ! FA
-         call ga_fill_patch(g_Ci,j1,j1,ac_AB(j1),ac_AB(j1),zora_denom) ! FA
-         ac_AB(j1)=ac_AB(j1)+1          ! FA
-        end if                          ! FA
-        j=1-j                           ! FA
-       endif
+        if(noelfgZ4.eq.0) then
+         j1=j+1                          ! FA
+         if (ac_AB(j1).le.nocc(j1)) then ! FA
+          call ga_fill_patch(g_Ci,j1,j1,ac_AB(j1),ac_AB(j1),
+     &                       zora_denom) ! FA
+          ac_AB(j1)=ac_AB(j1)+1          ! FA
+         end if                          ! FA
+        j=1-j                            ! FA
+        endif
 c ----- execute this code ONLY when EFGZ4 is requested -- END
-       end do 
+      enddo ! end-loop-iorb 
 c ----- execute this code ONLY when EFGZ4 is requested -- START
        if(noelfgZ4.eq.0) then
 c       if (ga_nodeid().eq.0) write(*,*) "---g_Ci_so -- START"
@@ -199,7 +186,6 @@ c       write(luout,*) "ener_scal:",ener_scal
      &                   geom,ao_bas_han,
      &                   nbf,nbf_ao,nbf_mo,
      &                   g_dens,g_moso,
-c     &                   g_zora_scale_sf,
      &                   noc,nocc,ipol)
 c -------- computing EFGs --------- START
         call hnd_efgmap_Z4_so(rtdb,ao_bas_han,geom,

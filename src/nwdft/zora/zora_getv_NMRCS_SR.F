@@ -61,6 +61,7 @@ c     == local variables ==
       logical grid_file_rewind
       external grid_file_rewind,calc_zora_NMRCS_SR,
      &         ga_antisymmetrize,grid_quadv0
+
 c
 c     == allocate memory ==
        do t=1,3
@@ -127,7 +128,7 @@ c     == preliminaries ==
 c     == generate the grid ==
       dummy(1) = 0.d0
       dummy(2) = 0.d0
-      call grid_quadv0(rtdb,g_dens,g_dia1,nexc,rho_n,dummy,tmat)
+      call grid_quadv0(rtdb,g_dens,g_dia2,nexc,rho_n,dummy,tmat)
 c     == ao basis set info used by xc_eval_basis ==
       if (.not.bas_numcont(AO_bas_han, ncontrset))
      &     call errquit('zora_getv_sf:bas_numcont',0, BASIS_ERR)
@@ -139,6 +140,7 @@ c     == ao basis set info used by xc_eval_basis ==
      &     lbas_cset_info, ibas_cset_info))
      &     call errquit('zora_getv_sf: cannot allocate bas_cset_info',0,
      &       MA_ERR)
+
       call xc_make_basis_info(AO_bas_han, int_mb(ibas_cent_info),
      &     int_mb(ibas_cset_info), ncenters)
       if (.not.MA_Push_Get(mt_log, ncontrset, 'docset',
@@ -176,7 +178,7 @@ c     == ao basis set info used by xc_eval_basis ==
       if (.not. grid_file_rewind())
      $     call errquit('zora_getv_sf: rewinding gridpts?', 0,
      &       UNKNOWN_ERR)
-c
+
 c     == loop over records in the grid file ==
       do iqsh = 1, n_rec_in_file
 c       == define the current range of radial shells and integration center ==
@@ -189,7 +191,8 @@ c        == loop over a subset of the grid ==
          do  ncube=1,nsubb
 c        put buf into currently used arrays qxyz and qwght
             call grid_repack(dbl_mb(irqbuf), dbl_mb(iqxyz),
-     &           dbl_mb(iqwght), nqpts, rad,istep)         
+     &           dbl_mb(iqwght), nqpts, rad,istep)      
+  
             if(nqpts.ne.0) then
 c        == compute the basis functions over the grid ==
                if(.not.MA_Push_get(MT_dbl, ncenters, 'rchi_atom',
