@@ -197,10 +197,12 @@ c     == zora related ==
       integer g_zora_so(3)
       integer g_zora_scale_so(3)
       double precision Ezora_sf
+      integer switch_sclMO_so ! switch =1,0 ON,OFF sclMO-FA-02-18-11
 c
       logical spinor
       logical dft_mem3c
       external dft_mem3c
+      external dft_scaleMO_so ! FA-occupations from input script 02-15-11
 c
       icd_coef = 0
       k_3cERI  = 0
@@ -763,6 +765,7 @@ c
             dbl_mb(i-1+k_occ) = avg_fon 
          enddo
       endif
+      switch_sclMO_so=0 ! FA-09-26-11
 c     
 c     the fractionally occupied mo's are scaled by the sqrt of the fon
 c     
@@ -772,11 +775,19 @@ c
      &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
          call ga_scale_patch(g_moso(2), 
      &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
+      else
+c ---- FA-02-18-11 : occupations keyword ---- START
+       call dft_scaleMO_so(rtdb,g_moso,dbl_mb(k_occ),g_densso,
+     &                     nbf_mo,nTotOcc,switch_sclMO_so)
       endif
 c
 c     calculate the spin-orbit density matrix using the scaled mo's
 c 
-      call dft_densm_so(g_densso, g_moso, nbf_ao, nTotOcc)
+       if (switch_sclMO_so.ne.1) then
+         if (ga_nodeid().eq.0)
+     &   write(*,*) 'ENTER calc so-density matrix std-way'
+         call dft_densm_so(g_densso, g_moso, nbf_ao, nTotOcc)
+       endif
 c
 c     restore the scaled mo's
 c
@@ -1389,6 +1400,8 @@ c
       call ga_sync 
       call ga_zero(g_densso(1))
       call ga_zero(g_densso(2)) 
+
+      switch_sclMO_so=0 ! FA=09-26-11 set OFF scaleMO_so
 c     
 c     the fractionally occupied mo's are scaled by the sqrt of the fon
 c     
@@ -1398,8 +1411,18 @@ c
      &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
          call ga_scale_patch(g_moso(2), 
      &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
+      else
+c ---- FA-02-15-11 : occupations keyword ---- START
+       call dft_scaleMO_so(rtdb,g_moso,dbl_mb(k_occ),g_densso,
+     &                     nbf_mo,nTotOcc,switch_sclMO_so)
+c ---- FA-02-15-11 : occupations keyword ---- END
       endif
-      call dft_densm_so(g_densso,g_moso,nbf_ao,nTotOcc) 
+
+       if (switch_sclMO_so.ne.1) then
+         if (ga_nodeid().eq.0)
+     &   write(*,*) 'ENTER calc so-density matrix std-way'
+         call dft_densm_so(g_densso, g_moso, nbf_ao, nTotOcc)
+       endif
 c     
 c     restore the scaled mo's
 c     
