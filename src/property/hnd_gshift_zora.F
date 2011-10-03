@@ -2021,7 +2021,7 @@ c ----------- Create scratch ga-arrays ------- START
      &                  0,GA_ERR)
        call ga_zero(g_s10)
 
-      if (do_zora .eqv. .false.) then ! do: HF or DFT (norel calc.)
+      if (.not. do_zora) then ! do: HF or DFT (norel calc.)
 
         if (ga_nodeid().eq.0)
      &   write(*,*) 'enter-NonRel-addH10'
@@ -4746,7 +4746,7 @@ c ----------- Create scratch ga-arrays ------- START
      &                  0,GA_ERR)
        call ga_zero(g_s10)
 
-      if (do_zora .eqv. .false.) then ! do: HF or DFT (norel calc.)
+      if (.not. do_zora) then ! do: HF or DFT (norel calc.)
         call int_giao_1ega(basis,basis,g_s10_1,
      &                     'l10' ,pos(1),natoms,oskel)
         NoKinetic=0 ! =0 DO-kinetic, =1 SKIP-kinetic

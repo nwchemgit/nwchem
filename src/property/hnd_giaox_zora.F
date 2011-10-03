@@ -1122,7 +1122,7 @@ c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       do ixy = 1, 9*natoms
          par(ixy) = 0.0d0  ! initialize
       enddo
-      if (do_zora .eqv. .true.) then
+      if (do_zora) then
        if (ga_nodeid().eq.0)
      &  write(*,*) 'Calc. par tensor-> zora'
 c +++++ Initialize dbl_mb(k_para) with ga_para1 ++++ START
@@ -1360,7 +1360,7 @@ c        - Relativistic (zora) in unrestricted/restricted calculations.
       do ixy = 1, 9*natoms
          par(ixy) = 0.0d0  ! initialize
       enddo
-      if (do_zora .eqv. .true.) then
+      if (do_zora) then
        if (ga_nodeid().eq.0)
      &  write(*,*) 'Calc. par tensor-> zora'
 c +++++ Initialize dbl_mb(k_para) with ga_para1 ++++ START
@@ -1578,7 +1578,7 @@ c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       do ixy = 1, 9*natoms
          dia(ixy) = 0.0d0  ! initialize
       enddo
-      if (do_zora .eqv. .true.) then  ! get-dia---- START
+      if (do_zora) then  ! get-dia---- START
 c ---- STORE: ga_dia --> dbl_mb(k_dia)
        alo(1)=1
        ahi(1)=3
