@@ -36,7 +36,8 @@
 	dft_canorg.o \
 	dft_diagn.o \
 	dft_dump_info.o \
-	dft_fant.o
+	dft_fant.o\
+        dft_scaleMO.o
 
      LIBRARY = libnwdft.a
 

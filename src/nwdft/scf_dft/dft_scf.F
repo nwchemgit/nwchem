@@ -182,9 +182,15 @@ c     == zora related ==
       integer g_zora_scale_sf(2)
       double precision ener_scal
       integer icalczora
+      logical ofinite,status,Knucl ! FA-added-09-26-11
 c
 c     timings 
       double precision time1,time2
+c -----FA: 04-21-11: for Gaussian Nuclear Model --- START
+      integer iatom,l_zetanuc, k_zetanuc
+      external get_zetanuc_arr
+c -----FA: 04-21-11: for Gaussian Nuclear Model --- END
+
 c
       gotsmear(ss)=abs(ss).gt.1d-9
 c
@@ -549,8 +555,41 @@ c       == calculate the zora spin-free atomic corrections ==
         if (icalczora.eq.1) then 
          if (me.eq.0) 
      &     write(luout,*) "== Generating atomic ZORA corrections =="
+c------- FA-code-added-09-26-11 --------------------------- START
+c ------ Read Knucl   for including ONLY nuclear part in K ZORA ----- START
+c Note.- stored in rel_input.F(rel_input(rtdb))
+         Knucl=.false.
+         status=rtdb_get(rtdb,'zora:Knucl',mt_log,1,Knucl) ! Check if gaussian nucl model requested
+         if (ga_nodeid().eq.0)
+     &     write(*,*) 'In dft_scf:: zora:Knucl=',Knucl
+c ------ Read Knucl   for including ONLY nuclear part in K ZORA ----- END
+c ------ Read ofinite to be used by HFine finite calc ---FA-03-21-11-- START
+c Note.- stored in geom_input.F (geom_input(rtdb))
+         ofinite=.false.
+         status=rtdb_get(rtdb,'prop:ofinite',mt_log,1,ofinite) ! Check if gaussian nucl model requested
+c ------ Read ofinite to be used by HFine finite calc ---FA-03-21-11-- END
+         if (ofinite) then
+          if (.not.ma_alloc_get(mt_dbl,natoms,
+     &                  'zetanuc',l_zetanuc,k_zetanuc))
+     &    call errquit('dft_scf: ma failed',0,MA_ERR)
+          call get_zetanuc_arr(geom,natoms,dbl_mb(k_zetanuc)) !  zetanuc_arr(i) i=1,natoms
+          do iatom = 1,natoms ! == loop over the atoms ==
+           if (ga_nodeid().eq.0)
+     &       write(*,11) iatom,dbl_mb(k_zetanuc+iatom-1)
+ 11          format('In dft_scf:: zetanuc_arr(',i3,')=',f35.8)
+           dbl_mb(k_zetanuc+iatom-1)=dsqrt(dbl_mb(k_zetanuc+iatom-1)) !  Calc sqrt(zetanuc)
+          enddo ! end-loop-iatom
+         endif
+          if (ga_nodeid().eq.0) then
+           write(*,*) 'dft_scf: ofinite=',ofinite
+          endif
+c------- FA-code-added-09-26-11 --------------------------- END
+c        call zora_getv_sf(rtdb, g_dens_at, g_zora_sf,g_zora_scale_sf,
+c    &                      nexc)
          call zora_getv_sf(rtdb, g_dens_at, g_zora_sf,g_zora_scale_sf,
-     &                      nexc)
+     &                     ofinite,dbl_mb(k_zetanuc),
+     &                     Knucl,
+     &                     nexc)
 c
 c       == write out the atomic zora corrections to file ==
         if (.not.dft_zora_write(rtdb, ao_bas_han, zorafilename,
@@ -622,7 +661,8 @@ c     == better have static ldb at high node counts ==
      &       Dbl_MB(k_eval(1)),dbl_mb(k_occ),
      &       ssmear,tdots,iter,.false.,
      .       fon, nel_fon,nmo_fon,
-     .       spinset.or.n_rabuck.ne.0)
+     .       spinset.or.n_rabuck.ne.0,
+     &       rtdb) ! FA-03-02-11 for occupations keyword
 
         if(oprint_info) then
           pstrace=ga_ddot(g_dens,g_s)
@@ -1177,13 +1217,14 @@ c
       tdots=0.d0
       if (oprint_time)
      &     call dft_tstamp(' calling densm ')
-      call dft_densm(g_dens, g_movecs, 
-     &     nbf_ao, nmo,ipol, 
-     &     geom, AO_bas_han,noc,ntotel,
-     &      Dbl_MB(k_eval(1)),dbl_mb(k_occ),
-     &     ssmear,tdots,iter,.true.,
-     .        fon, nel_fon,nmo_fon,
-     .        spinset.or.n_rabuck.ne.0)                                
+      call dft_densm(g_dens,g_movecs, 
+     &               nbf_ao,nmo,ipol, 
+     &               geom,AO_bas_han,noc,ntotel,
+     &               Dbl_MB(k_eval(1)),dbl_mb(k_occ),
+     &               ssmear,tdots,iter,.true.,
+     .               fon, nel_fon,nmo_fon,
+     .               spinset.or.n_rabuck.ne.0,           
+     &               rtdb) ! FA-03-02-11 for occupations keyword
       if(oprint_info) then
          pstrace=ga_ddot(g_dens,g_s)
          if(ga_nodeid().eq.0) write(luout,*) ' pstrace ',pstrace
