@@ -194,17 +194,12 @@ c        call c_dng_2to1()
 *     **** free memory ****
  30   call cpsi_data_pop_stack(G0_tag)
       call cpsi_data_pop_stack(S0_tag)
-c 30   value = MA_pop_stack(G0(2))
-c      value = value.and.
-c     >        MA_pop_stack(S0(2))
-c      if (.not. value) 
-c     > call errquit('c_bfgsminimize:error freeing heap',0,MA_ERR)
  
       call cpsi_2to1()
       call cpsi_1toelectron() 
 c     call c_rho_2to1()
 c     call c_dng_2to1()
-      call cpsi_check()
+c      call cpsi_check()
 
       eion = ewald_e()
 

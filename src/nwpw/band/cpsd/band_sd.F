@@ -121,8 +121,8 @@
       external control_time_step,control_fake_mass
       logical  control_read,control_move,ion_init,ion_q_FixIon
       external control_read,control_move,ion_init,ion_q_FixIon
-      logical  ion_q_zFixIon
-      external ion_q_zFixIon
+      logical  ion_q_zFixIon,band_HFX,band_HFX_relaxed
+      external ion_q_zFixIon,band_HFX,band_HFX_relaxed
 
       logical  brillioun_print
       external brillioun_print
@@ -262,7 +262,7 @@
       call C3dB_pfft_init()
 
 *     ***** Initialize double D3dB data structure ****
-      if ((control_gga().ge.10).and.(control_gga().lt.100)) then
+      if ((control_gga().ge.10).and.(control_gga().le.200)) then
          call D3dB_Init(1,ngrid(1),ngrid(2),ngrid(3),mapping)
          call G_init()
          call mask_init()
@@ -422,7 +422,7 @@ c     **** allocate other variables ****
 
 *     **** initialize SIC and HFX  ****
 c      call pspw_init_SIC(rtdb,ne)
-c      call pspw_init_HFX(rtdb,ispin,ne)
+       call band_init_HFX(rtdb,nbrillioun,ispin,ne)
 
 *     **** initialize QM/MM ****
 c      call pspw_init_APC(rtdb)
@@ -841,6 +841,9 @@ c      call cpsi_data_dealloc(lmd_tag)
          write(luout,1440) E(2),E(2)/neall
          write(luout,1450) E(3),E(3)/neall
          write(luout,1460) E(4),E(4)/neall
+         if (band_HFX()) then
+           write(luout,1457) E(20),E(20)/n2(ispin)
+         end if
 
          write(luout,1470) E(5),E(5)/ion_nion()
          write(luout,1480) E(6),E(6)/neall
@@ -848,6 +851,9 @@ c      call cpsi_data_dealloc(lmd_tag)
          write(luout,1495) E(8),E(8)/neall
          write(luout,1496) E(9),E(9)/neall
          write(luout,1497) E(10),E(10)/neall
+         if (band_HFX().and.band_HFX_relaxed())  then
+           write(luout,1502) E(21),E(21)/n2(ispin)
+         end if
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
       end if
@@ -966,7 +972,7 @@ c      end if
       call ion_end()
       call ion_end_FixIon()
 c      call pspw_end_SIC()
-c      call pspw_end_HFX()
+      call band_end_HFX()
 c      call pspw_end_APC()
 c      call pspw_qmmm_end()
 c
@@ -990,7 +996,7 @@ c
       call C3dB_pfft_end()
       call cpsi_data_end()
       call C3dB_end(1)
-      if ((control_gga().ge.10).and.(control_gga().lt.100)) then
+      if ((control_gga().ge.10).and.(control_gga().le.200)) then
          call mask_end()
          call G_end()
          call D3dB_end(1)

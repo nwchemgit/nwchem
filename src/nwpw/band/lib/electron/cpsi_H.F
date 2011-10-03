@@ -139,13 +139,13 @@ c     >                       dcpl_mb(vpsi(1)))
      >                           dcpl_mb(vpsi(1)))
 
             if (dohfx)
-     >         call C3dB_rr_Sum2(1,dbl_mb(Hpsir_shift),dcpl_mb(vpsi(1)))
+     >         call C3dB_bb_Sum2(1,dbl_mb(Hpsir_shift),dcpl_mb(vpsi(1)))
 
 *           **** get vpsi_r in k-space ****
             call C3dB_rc_pfft3f_queuein(nbi,dcpl_mb(vpsi(1)))
 
             psi_shift   = psi_shift   + nshift1
-            Hpsir_shift = Hpsir_shift + nshift1
+            if (dohfx) Hpsir_shift = Hpsir_shift + nshift1
             ki         = ki + 1
             if (ki.gt.neall) then
                nbi = nbi + 1
@@ -180,7 +180,6 @@ c     >                       dcpl_mb(vpsi(1)))
 
          done = ((nbi.gt.nbrillq).and.(nbj.gt.nbrillq))
       end do
-
 
 
       value = .true.

@@ -59,13 +59,13 @@
 *     ***** external functions ****
       logical  control_move,cpsp_semicore
       logical  pspw_SIC,pspw_SIC_relaxed
-      logical  pspw_HFX,pspw_HFX_relaxed
+      logical  band_HFX,band_HFX_relaxed
       integer  ion_nion,control_gga,cpsi_data_nsize
       real*8   control_time_step,control_fake_mass,ion_dti
       real*8   lattice_omega,c_coulomb_e,ewald_e
       external control_move,cpsp_semicore
       external pspw_SIC,pspw_SIC_relaxed
-      external pspw_HFX,pspw_HFX_relaxed
+      external band_HFX,band_HFX_relaxed
       external ion_nion,control_gga,cpsi_data_nsize
       external control_time_step,control_fake_mass,ion_dti
       external lattice_omega,c_coulomb_e,ewald_e
@@ -74,8 +74,6 @@
       real*8   brillioun_weight
       external brillioun_weight
 
-      double precision Dneall_m_trace
-      external         Dneall_m_trace
       logical  C3dB_cr_pfft3_queue_filled
       external C3dB_cr_pfft3_queue_filled
       logical  Pneb_w_push_get_block,Pneb_w_pop_stack
@@ -339,7 +337,7 @@ c        !*** this code needs to be optimized!!! ****
             else if (gga.eq.114) then
               call v_bwexc(14,n2ft3d,ispin,
      >                       dbl_mb(trho(1)),
-     >                       1.00d0,1.0d0,
+     >                       1.0d0,1.0d0,
      >                       dbl_mb(txcp(1)),
      >                       dbl_mb(txce(1)))
             end if
@@ -523,6 +521,19 @@ c         E(11) = e_lj
 c         E(12) = e_q
 c         E(13) = e_spring
 c      end if
+
+
+*     **** HFX corrections ****
+      if (band_HFX()) then
+         call band_energy_HFX(ispin,psir_tag,ehfx,phfx)
+         E(1) = E(1) + ehfx
+         E(20) = ehfx
+         if (band_HFX_relaxed()) then
+            E(1)  = E(1) - phfx
+            E(21) = phfx
+         end if
+      end if
+
 
 
 

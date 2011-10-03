@@ -46,6 +46,7 @@
       if (hfx_on) then
          norbs(1) = ne(1)
          norbs(2) = ne(2)
+         neall = ne(1)+ne(2)
 
          if (.not. rtdb_get(rtdb,
      >                      'band:HFX_screening_radius',
@@ -105,7 +106,6 @@ c     **** define extra psi and Hpsi  ****
       call Parallel3d_taskid_k(taskid_k)
       replicated = (npk.gt.1)
       if (hfx_on.and.replicated) then
-        neall = ne(1)+ne(2)
         nrsize = 2*nbrillioun*neall*nfft3d
         psi_r_replicated_tag =cpsi_data_alloc(nbrillioun,neall,2*nfft3d)
         Hpsi_r_replicated_tag=cpsi_data_alloc(nbrillioun,neall,2*nfft3d)
@@ -285,7 +285,9 @@ c        **** reduceall algorithm ****
             kv2(2) = 0.0d0
             kv2(3) = 0.0d0
             call c_coulomb_screened_set(kv1,kv2)
-            do nb1=1,nbrillioun
+            do nb1=1,nbrillq
+               call dcopy(2*nfft3d*neall,0.0d0,0,
+     >                    dbl_mb(cpsi_data_get_chnk(Hpsi_r_tag,nb1)),1)
                call band_potential_HFX_sub(
      >                  dbl_mb(cpsi_data_get_chnk(psi_r_tag, nb1)),
      >                  dbl_mb(cpsi_data_get_chnk(Hpsi_r_tag,nb1)))
@@ -459,14 +461,6 @@ c              call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
                     call C3dB_cc_Mul(1,psi_r(1,j1),
      >                                 psi_r(1,i1),dcpl_mb(dn(1)))
                     call C3dB_c_SMul1(1,scal2*scal1,dcpl_mb(dn(1)))
-
-c        write(*,*) "dn 1 = ",dcpl_mb(dn(1)+0)
-c        write(*,*) "dn 2 = ",dcpl_mb(dn(1)+1)
-c        write(*,*) "dn 3 = ",dcpl_mb(dn(1)+2)
-c        write(*,*) "dn 4 = ",dcpl_mb(dn(1)+3)
-c        write(*,*) "dn 5 = ",dcpl_mb(dn(1)+4)
-c        write(*,*) "dn 6 = ",dcpl_mb(dn(1)+5)
-c        write(*,*) "dn 9996 = ",dcpl_mb(dn(1)+9995)
                     call C3dB_rc_pfft3f_queuein(0,dcpl_mb(dn(1)))
  
                     k1 = k1 + 1
@@ -483,12 +477,6 @@ c        write(*,*) "dn 9996 = ",dcpl_mb(dn(1)+9995)
                        call C3dB_rc_pfft3f_queueout(0,dcpl_mb(dn(1)))
 
 *                      **** generate Vcoul ****
-c        write(*,*) "dng 1 = ",dcpl_mb(dn(1)+0)
-c        write(*,*) "dng 2 = ",dcpl_mb(dn(1)+1)
-c        write(*,*) "dng 3 = ",dcpl_mb(dn(1)+2)
-c        write(*,*) "dng 4 = ",dcpl_mb(dn(1)+3)
-c        write(*,*) "dng 5 = ",dcpl_mb(dn(1)+4)
-c        write(*,*) "dng 6 = ",dcpl_mb(dn(1)+5)
                        eh = c_icoulomb_screened_e(dcpl_mb(dn(1)))
                        call c_coulomb_screened_v(dcpl_mb(dn(1)),
      >                                           dcpl_mb(vij(1)))
@@ -690,8 +678,8 @@ c        end do
      >     call errquit('band_energy_HFX_sub:popping stack memory',0,
      >       MA_ERR)
 
-        call D1dB_SumAll(ehfx)
-        call D1dB_SumAll(phfx)
+c        call D1dB_SumAll(ehfx)
+c        call D1dB_SumAll(phfx)
       end if
 
       ehfx_out = ehfx

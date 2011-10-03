@@ -1611,14 +1611,15 @@ c         end do
 #include "cpsi_common.fh"
 
 *     ***** local variables *****
-      complex*16 zero,one
-      parameter (zero=(0.0d0,0.0d0), one=(1.0d0,0.0d0))
-
       integer nb,hml_shift,psi1_shift,psi2_shift
+      complex*16 zero,one
 
 *     **** external functions ****
       integer  cpsi_data_get_chnk
       external cpsi_data_get_chnk
+
+      zero = dcmplx(0.0d0,0.0d0)
+      one  = dcmplx(1.0d0,0.0d0)
 
       call cpsi_data_update(psi2_tag)
       do nb=1,nbrillq
