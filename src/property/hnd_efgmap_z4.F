@@ -906,34 +906,32 @@ c                    21 31 32 41 42 43 ... (off  diagonal elem)
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "rtdb.fh"
+#include "msgids.fh" ! Added by FA - for tag msg_efgs_col
+
       integer nlst    ! INPUT : Nr. elements to extract   
       integer nbf     ! INPUT
-      integer iarr(nlst),jarr(nlst) ! array of (i,j) to extract
       integer g_a     ! INPUT
       integer g_b     ! OUTPUT
       integer l_v,k_v
       integer i,j,count
-c--- generate-unique-indices--- START
-      count=1
-       do i=1,nbf
-        iarr(count)=i
-        jarr(count)=i
-        count=count+1
-       enddo
-       do i=2,nbf
-        do j=1,i-1
-         iarr(count)=i
-         jarr(count)=j
-         count=count+1
-        enddo
-       enddo
-c--- generate-unique-indices--- END
+      double precision val
 
       if (.not.ma_alloc_get(mt_dbl,nlst,'varr',
      &                      l_v,k_v))
      &    call errquit('get_ijlst: ma failed',0,MA_ERR)
-       call ga_gather(g_a,dbl_mb(k_v),
-     &                iarr,jarr,nlst)             ! g_a --> dbl_mb(k_v)
+       count=1
+       do i=1,nbf
+         call ga_get(g_a,i,i,i,i,val,1)
+         dbl_mb(k_v+count-1)=val
+        count=count+1
+       enddo
+       do i=2,nbf
+        do j=1,i-1
+         call ga_get(g_a,i,i,j,j,val,1)
+         dbl_mb(k_v+count-1)=val
+         count=count+1
+        enddo
+       enddo
 c      Now copy unique elements to g_b
          if (.not. ga_create(mt_dbl,1,nlst,
      &                       'munu4nbo: g_b',
@@ -941,8 +939,8 @@ c      Now copy unique elements to g_b
      $       call errquit('munu4nbo: g_b', 0,
      &                    GA_ERR)
        call ga_put(g_b,1,1,1,nlst,dbl_mb(k_v),1) ! dbl_mb(k_v) --> g_b
-      if (.not.ma_free_heap(l_v)) call
-     &    errquit('munu4nbo: ma_free_heap l_v',0, MA_ERR)
+       if (.not.ma_free_heap(l_v)) call
+     &    errquit('unique_elmat: ma_free_heap l_v',0, MA_ERR)
       return
       end
 

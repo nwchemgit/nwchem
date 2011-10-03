@@ -1185,24 +1185,7 @@ c ++++++ Read NLMO matrices +++++++++ START
      & write(*,*) 'AFT-reading-HYP-NLMO matrices: g_c1 ----- END'
  10   continue
 c ++++++ Read NLMO matrices +++++++++ END
-
-c       if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'BEF. get_unique_elmat ...'
-c      
-c        if (ga_nodeid().eq.0) 
-c     &  write(*,*) '----------g_sdens--------- START'      
-c        write(*,12) nlst,nbf
-c 12     format('(nlst,nbf)=(',i8,',',i8,')')
-c        call ga_print(g_sdens)
-c        if (ga_nodeid().eq.0) 
-c     &  write(*,*) '----------g_sdens--------- END'      
-c NOTE.- Somehow it halts here when using more than one node <===
-
       call get_unique_elmat(g_sdens,g_sdens1,nlst,nbf)   ! out: g_sdens1
-
-c       if (ga_nodeid().eq.0) 
-c     &  write(*,*) 'AFT. get_unique_elmat ...'
-
       ndir=6 ! Nr. of directions: xx,yy,zz,xy,xz,yz
       nsize=nbf*(nbf+1)/2 ! size of xx,yy,zz,xy,xz,yz chunk
       nsize1=nsize*ndir   ! size of whole munu per atom
@@ -1222,11 +1205,7 @@ c     &  write(*,*) 'AFT. get_unique_elmat ...'
         if (.not. ga_create(mt_dbl,1,nsize,
      &                      'munu4nbo: g_acc1',0,0,g_acc1)) 
      $    call errquit('munu4nbo: g_acc1', 0,GA_ERR)
-        call ga_zero(g_acc1)       
-
-       if (ga_nodeid().eq.0) 
-     &  write(*,*) 'reach-1'
-
+         call ga_zero(g_acc1)       
          alo(1) = nbf
          alo(2) = -1
          alo(3) = -1
@@ -1257,10 +1236,6 @@ c     &  write(*,*) 'AFT. get_unique_elmat ...'
      &   write(*,*) 'CHCooooooooooooo',
      &              ' NW-Hyperfine: Summary C+HC data [MHz] ',
      &              'oooooooooooooooo START'
-
-      if (ga_nodeid().eq.0) 
-     &  write(*,*) 'reach-2'
-
       do iat1=1,nat
         call ga_zero(g_munuPSOSO2d)
         iat=atmnr(iat1)
