@@ -20,6 +20,9 @@ c
       character*255 movecs_in
       character*255 movecs_out
       character*255 test
+      integer gshiftfile,gshiftopt
+      integer shldfile,shldopt
+      integer hypfile, hypopt
       integer efgfile, efgopt
       integer nbofile, nboopt
       integer dipole
@@ -44,9 +47,13 @@ c
       integer hyperfine
       integer spinspin, spnspnpairs
       integer giao, giaoatoms
+      integer hfineatoms
       integer efgz4atoms ! Added by FA
       integer center
-      integer l_at, k_at, l_pr, k_pr
+      integer l_atefg,k_atefg,
+     &        l_atshi,k_atshi,
+     &        l_athyp,k_athyp, 
+     &        l_pr, k_pr
       double precision point(3)
       logical status
 
@@ -57,7 +64,6 @@ c ... jochen:
      &        velocity, magneticpert, aor_giao, aor_damp, aor_conv,
      &        aor_orbeta, aor_quad, aor_analyze
       double precision gamwidth, convergence
-
 c     
 c>>>  declarations from NWdft
 c     
@@ -73,6 +79,12 @@ c
       nboopt            = 0
       efgfile           = 0 ! FA-04-24-10
       efgopt            = 0 ! FA-04-24-10
+      hypfile           = 0 ! FA-06-30-11
+      hypopt            = 0 ! FA-06-30-11
+      gshiftfile        = 0 ! FA-07-21-11
+      gshiftopt         = 0 ! FA-07-21-11
+      shldfile          = 0 ! FA-07-22-11
+      shldopt           = 0 ! FA-07-22-11
 c
       dipole            = 1
       quadrupole        = 1
@@ -96,11 +108,12 @@ c
       spinspin          = 1
       giao              = 1
       gshift            = 1 ! FA-09-13-10
-      center            = 1   ! default of center of charge
+      center            = 1 ! default of center of charge
       point(1)          = 0.0d+0
       point(2)          = 0.0d+0
       point(3)          = 0.0d+0
       giaoatoms         = 0
+      hfineatoms        = 0
       efgz4atoms        = 0 ! FA
       spnspnpairs       = 0
 
@@ -129,10 +142,33 @@ c
         
       if (inp_a(test)) then
 c       
-        if ( inp_compare(.false., 'print', test)) then
-          call util_print_input(rtdb, 'prop')
-        elseif ( inp_compare(.false., 'hyperfine', test)) then
+        if ( inp_compare(.false., 'hyperfine', test)) then
           hyperfine = 0
+          if (inp_i(hfineatoms)) then
+            if (.not. ma_push_get(mt_int,hfineatoms,'atoms',
+     &                            l_athyp,k_athyp))
+     &         call errquit('prp_input ma_push_get fail k_pr',0,MA_ERR)
+            icount = 0
+            do ii = 1, hfineatoms
+              status = inp_i(int_mb(k_athyp+ii-1))
+              if (status) then
+                icount = icount+1
+              else
+                write(6,'(a,a,i4,a)') 
+     &             'NMR hyperfine property input found',
+     &             ' viewer atoms than expected, only',icount,
+     &             ' will be used'
+                hfineatoms = icount
+                if (icount.eq.0) then 
+                  if (.not.ma_pop_stack(l_athyp)) call
+     &        errquit('prop_input: ma_pop_stack failed k_athyp',
+     &                0,MA_ERR)
+                endif
+                goto 14
+              endif
+            enddo
+          endif
+   14     continue      
         elseif ( inp_compare(.false., 'spinspin', test)) then
           spinspin = 0
           if (inp_i(spnspnpairs)) then
@@ -167,22 +203,34 @@ c
         elseif ( inp_compare(.false., 'shielding', test)) then
           giao = 0
           if (inp_i(giaoatoms)) then
-            if (.not. ma_push_get(mt_int,giaoatoms,'atoms',l_at,k_at))
-     &         call errquit('prp_input ma_push_get fail k_pr',0,MA_ERR)
+             if (.not.ma_alloc_get(
+     &          mt_int,giaoatoms,'atoms',l_atshi,k_atshi))
+     &        call errquit('prp_input ma_alloc_get failed k_ashi',
+     &                     0,MA_ERR)
+
+c            if (.not. ma_push_get(mt_int,giaoatoms,'atoms',
+c     &                            l_atshi,k_atshi))
+c     &         call errquit('prp_input ma_push_get fail k_pr',0,MA_ERR)
             icount = 0
             do ii = 1, giaoatoms
-              status = inp_i(int_mb(k_at+ii-1))
+              status = inp_i(int_mb(k_atshi+ii-1))
               if (status) then
                 icount = icount+1
               else
                 write(6,'(a,a,i4,a)') 
      &             'NMR shielding property input found',
-     &             ' viewer atoms than expected, only',icount,
+     &             ' fewer atoms than expected, only',icount,
      &             ' will be used'
                 giaoatoms = icount
                 if (icount.eq.0) then 
-                  if (.not.ma_pop_stack(l_at)) call
-     &        errquit('prop_input: ma_pop_stack failed k_at',0,MA_ERR)
+                  if (.not.ma_free_heap(l_atshi)) call
+     &              errquit('prop_input: ma_free_heap l_atshi',
+     &                      0, MA_ERR)
+
+c                  if (.not.ma_pop_stack(l_atshi)) call
+c     &        errquit('prop_input: ma_pop_stack failed k_atshi',
+c     &                0,MA_ERR)
+
                 endif
                 goto 11
               endif
@@ -272,12 +320,12 @@ c         boyslocalization = 1
       elseif ( inp_compare(.false., 'efieldgradZ4', test)) then ! Added FA
          efieldgradZ4    = 0 ! Added by FA
           if (inp_i(efgz4atoms)) then
-            if (.not. ma_push_get(mt_int,efgz4atoms,'atoms',l_at,k_at))
+            if (.not. ma_push_get(mt_int,efgz4atoms,'atoms',
+     &                            l_atefg,k_atefg))
      &         call errquit('prp_input ma_push_get fail k_pr',0,MA_ERR)
             icount = 0
             do ii = 1, efgz4atoms
-              status = inp_i(int_mb(k_at+ii-1))
-              atomnr(ii)=int_mb(k_at+ii-1)
+              status = inp_i(int_mb(k_atefg+ii-1))
               if (status) then
                 icount = icount+1
               else
@@ -287,25 +335,29 @@ c         boyslocalization = 1
      &             ' will be used'
                 efgz4atoms = icount
                 if (icount.eq.0) then 
-                  if (.not.ma_pop_stack(l_at)) call
-     &        errquit('prop_input: ma_pop_stack failed k_at',0,MA_ERR)
+                  if (.not.ma_pop_stack(l_atefg)) call
+     &        errquit('prop_input: ma_pop_stack failed k_atefg',
+     &                0,MA_ERR)
                 endif
                 goto 13
               endif
             enddo
-          else
-            efgz4atoms=0 ! check
           endif
    13     continue      
 c --------- storing selected atmnr in rtdb ------- START
-         if (.not. rtdb_put(rtdb, 'prop:atnr',mt_int,
-     $                      1,efgz4atoms))
+          if (efgz4atoms.gt.0) then
+           if (.not. rtdb_put(rtdb, 'efgz4:natoms',mt_int,
+     $                        1,efgz4atoms))
      $      call errquit('prop_input-EFGZ4: rtdb_put failed',
      $                   555, RTDB_ERR)
-        if (.not. rtdb_put(rtdb, 'prop:atnr1',mt_int,
-     $                     efgz4atoms,atomnr))
-     $      call errquit('prop_input-EFGZ41: rtdb_put failed',
+           if (.not. rtdb_put(rtdb, 'efgz4:atom list',mt_int,
+     $                        efgz4atoms,int_mb(k_atefg)))
+     $      call errquit('prop_input-EFGZ4: rtdb_put failed',
      $                   555, RTDB_ERR)
+          if (.not.ma_pop_stack(l_atefg)) call
+     &        errquit('prop_input: ma_pop_stack failed k_atefg',
+     &                0,MA_ERR)
+          endif
 c --------- storing selected atmnr in rtdb ------- END
 c ==========================================
       elseif ( inp_compare(.false., 'efieldmap', test)) then
@@ -335,11 +387,32 @@ c     what NBO options will appear
           if (inp_i(nboopt)) then 
              continue           ! just read the number
           end if
+      elseif ( inp_compare(.false., 'efgfile', test)) then
+         efgfile = 1
+c ... Fredy: read an option (integer value) to define 
+c     what EFG options will appear    
+          if (inp_i(efgopt)) then 
+             continue           ! just read the number
+          end if
+      elseif ( inp_compare(.false., 'hypfile', test)) then
+         hypfile = 1
+          if (inp_i(hypopt)) then 
+             continue           ! just read the number
+          end if
+      elseif ( inp_compare(.false., 'gshiftfile', test)) then
+         gshiftfile = 1
+          if (inp_i(gshiftopt)) then
+             continue           ! just read the number
+          end if
+      elseif ( inp_compare(.false., 'shldfile', test)) then
+         shldfile = 1
+          if (inp_i(shldopt)) then
+             continue           ! just read the number
+          end if
       elseif ( inp_compare(.false., 'all', test)) then
          giao   = 0
          gshift = 0
          boyslocalization = 0
-c         boyslocalization = 1
          pmlocalization = 0
          stoneanalysis  = 0
          stoneanalysis  = 1
@@ -360,9 +433,14 @@ c         boyslocalization = 1
          mulliken  = 0
          octupole  = 0
          quadrupole  = 0
-         dipole  = 0
-         nbofile = 1
-         efgfile = 1
+         dipole    = 0
+         nbofile   = 1
+         efgfile   = 1
+         hypfile   = 1
+         gshiftfile= 1
+         hypfile   = 1
+         gshiftfile= 1
+         shldfile  = 1
       elseif ( inp_compare(.false., 'center', test)) then
          if (inp_a(test)) then
            if (inp_compare(.false., 'coc', test)) then
@@ -421,6 +499,24 @@ c ... Fredy: also write EFG option key to RTDB:
       if (.not. rtdb_put(rtdb, 'prop:efgopt', mt_int, 1,
      $                               efgopt           ))
      $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:hypfile', mt_int, 1,
+     $                               hypfile           ))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:hypopt', mt_int, 1,
+     $                               hypopt           ))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:gshiftfile', mt_int, 1,
+     $                               gshiftfile           ))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:gshiftopt', mt_int, 1,
+     $                               gshiftopt           ))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:shldfile', mt_int, 1,
+     $                               shldfile           ))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not. rtdb_put(rtdb, 'prop:shldopt', mt_int, 1,
+     $                               shldopt           ))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:dipole', mt_int, 1,
      $                               dipole            ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
@@ -477,10 +573,6 @@ c
       if (.not. rtdb_put(rtdb, 'prop:pmlocalization', mt_int, 1,
      $                               pmlocalization  ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
-c
-      if (.not. rtdb_put(rtdb, 'prop:hyperfine', mt_int, 1,
-     $                               hyperfine         ))
-     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
       if (.not. rtdb_put(rtdb, 'prop:spinspin', mt_int, 1,
      $                               spinspin         ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
@@ -500,11 +592,31 @@ c
           if (.not. rtdb_put(rtdb, 'giao:natoms', mt_int, 1,giaoatoms))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
           if (.not. rtdb_put(rtdb, 'giao:atom list', mt_int, giaoatoms,
-     &                       int_mb(k_at)))
+     &                       int_mb(k_atshi)))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
-          if (.not.ma_pop_stack(l_at)) call
-     &        errquit('prop_input: ma_pop_stack failed k_at',0,MA_ERR)
+
+                  if (.not.ma_free_heap(l_atshi)) call
+     &              errquit('prop_input: ma_free_heap l_atshi-1',
+     &                      0, MA_ERR)
+
+c          if (.not.ma_pop_stack(l_atshi)) call
+c     &        errquit('prop_input: ma_pop_stack failed k_atshi',
+c     &                0,MA_ERR)
       endif
+      if (.not. rtdb_put(rtdb, 'prop:hyperfine', mt_int, 1,
+     $                               hyperfine         ))
+     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+      if (hfineatoms.gt.0) then
+         if (.not. rtdb_put(rtdb, 'hfine:natoms', mt_int, 1,hfineatoms))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+         if (.not. rtdb_put(rtdb, 'hfine:atom list', mt_int, hfineatoms,
+     &                      int_mb(k_athyp)))
+     $     call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+         if (.not.ma_pop_stack(l_athyp)) call
+     &       errquit('prop_input: ma_pop_stack failed k_athyp',
+     &               0,MA_ERR)
+      endif
+
       if (.not. rtdb_put(rtdb, 'prop:gshift', mt_int, 1,
      $                               gshift             ))
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)

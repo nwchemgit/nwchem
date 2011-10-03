@@ -1,7 +1,15 @@
 cedo#define NBACC 1
 cedo#define NBGET 1
-      subroutine new_giao_2e(geom,basis,nbf,tol2e,g_dens,g_fock,kfac)
+      subroutine new_giao_2e(geom, !  in: geometry handle
+     &                      basis, !  in: basis handle
+     &                        nbf, !  in: nr. of basis functions
+     &                      tol2e,
+     &                     g_dens, !  in: e-density
+     &                     g_fock, ! out: fock-matrix
+     &                       kfac, !  in: exchange factor =1 HF-xch =0.2 B3LYP 
+     &                       npol) !  in: nr. of polarizations
 c $Id$
+c                       2011-06-17 20:00     FA
       implicit none
 #include "nwc_const.fh"
 #include "errquit.fh"
@@ -11,38 +19,39 @@ c $Id$
 #include "hnd_pointers.fh"
 #include "global.fh"
 #include "case.fh"
-c
-      integer geom, basis, g_dens, g_fock, nbf
+
+      integer npol,ntot
+      integer geom, basis, g_fock, nbf
+      integer g_dens(3)  ! g_dens(npol)
+      integer g_fock1,disp
+      integer i,g_dens1(4) ! for udft calc
+      integer plo(3),phi(3),
+     &        qlo(3),qhi(3)
       double precision tol2e,kfac,Exc(2)
       integer nExc
-c
       integer nshell, maxang, blen, lend, leri, ii
       integer l_eri,k_eri,l_scr,k_scr,alo(4),ahi(4),g_xc
-c
       integer       k_d_kl,  k_d_ik,  k_d_jl,  k_d_il,  k_d_jk, 
      $     k_f_ij,  k_f_ji,  k_f_ik,  k_f_jl,  k_f_il,  k_f_jk,
      $              l_d_kl,  l_d_ik,  l_d_jl,  l_d_il,  l_d_jk, 
      $     l_f_ij,  l_f_ji,  l_f_ik,  l_f_jl,  l_f_il,  l_f_jk
-c
       integer g_loc
-c
       logical xc_gotxc
       external xc_gotxc
-c
-      double precision jloc,kloc
-c
+      double precision jloc,kloc,factor_xch
+      double precision factor_cam,cam_alpha1,cam_beta1
+      integer acc,ind,ispin,nfock(2),coeff(2)
+      integer debug_giaofock
+      data coeff /1,3/
+      data nfock/3,12/ ! For Unrest/Rest calc.
+
+      debug_giaofock=0  ! =1 for debugging giaofock
+
       if(.not.bas_high_angular(basis,maxang))
      &         call errquit('new_giao: angm error',maxang, BASIS_ERR)
       if (.not. bas_numcont(basis,nshell))
      $     call errquit('new_giao: could not get nsh',0, BASIS_ERR)
-c
-c     == local array ==
-      if (.not. ga_duplicate (g_fock, g_loc,'g_loc'))
-     &  call errquit('new_giao_2e: duplicate failed g_loc',555, GA_ERR)
-      call ga_zero(g_loc)
-c
       blen = (maxang+1)*(maxang+2)/2
-c
       lend = blen*blen
       if (.not. ma_push_get(mt_dbl, lend, 'd_kl', l_d_kl, k_d_kl)) 
      $     call errquit('new_giao: d_kl', lend, MA_ERR)
@@ -54,7 +63,6 @@ c
      $     call errquit('new_giao: d_jk', lend, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lend, 'd_jl', l_d_jl, k_d_jl)) 
      $     call errquit('new_giao: d_jl', lend, MA_ERR)
-c
       lend = blen*blen*3
       if (.not. ma_push_get(mt_dbl, lend, 'f_ij', l_f_ij, k_f_ij)) 
      $     call errquit('new_giao: f_ij', lend, MA_ERR)
@@ -68,63 +76,493 @@ c
      $     call errquit('new_giao: f_jk', lend, MA_ERR)
       if (.not. ma_push_get(mt_dbl, lend, 'f_jl', l_f_jl, k_f_jl)) 
      $     call errquit('new_giao: f_jl', lend, MA_ERR)
-c
       leri = ngint    ! times 6 blocks of integrals for gint(i*j*k*l) length
-c 
       if (.not. ma_push_get(mt_dbl,leri*6,'eri',l_eri,k_eri)) 
      $     call errquit('new_giao:could not allocate buffer',leri,
      &       MA_ERR)
       if (.not. ma_push_get(mt_dbl,iscrln,'scr',l_scr,k_scr))
      $     call errquit('new_giao: scratch alloc failed', iscrln,
      &       MA_ERR)
+
+c ------ create g_fock1 ---------- START
+      plo(1) = -1 
+      plo(2) = -1
+      plo(3) =  1
+      phi(1) = nbf
+      phi(2) = nbf
+      phi(3) =  3
+      if (.not.nga_create(MT_DBL,3,phi,'Fock matrix',plo,g_fock1)) call 
+     &    errquit('hnd_giaox: nga_create failed g_fock',0,GA_ERR)
+      call ga_zero(g_fock1)
+c     == local array ==
+      if (.not. ga_duplicate (g_fock1, g_loc,'g_loc'))
+     &  call errquit('new_giao_2e: duplicate failed g_loc',555, GA_ERR)
+      call ga_zero(g_loc)
+c ------ create g_fock1 ---------- END    
 c
 c     == take care of attenuated or non-attenuated 2e ==
-c
       call ga_zero(g_fock)
+      if      (npol.eq.1) then
+       ntot=1 
+       factor_cam =1.0d0 
+       factor_xch =1.0d0  
+      else if (npol.eq.2) then
+       ntot=3
+       factor_cam =2.0d0 
+       factor_xch =2.0d0  
+      else
+       write(*,*) 'Error in new_giao_2e:: npol=1 or 2 npol=',npol
+      endif
+
+      do ispin=1,npol
+          call ga_zero(g_fock1) ! reset g_fock1
+
       if (.not.cam_exch) then ! normal calculations
-        call ga_zero(g_loc)
-        call giaofock(basis,geom,g_dens,g_loc,
+c ------ Test : Coulomb + Exchange separate calcs. ----- START
+          call ga_zero(g_loc)
+          call giaofock(basis,geom,g_dens(ntot),g_loc,
      $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
      $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
-     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 1.d0, kfac)
-        call ga_add(1.d0, g_loc, 1.0d0, g_fock, g_fock)
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 1.d0, 0.d0) ! get full coulomb
+          call ga_add(1.d0, g_loc, 1.0d0, g_fock1, g_fock1)
+          call ga_zero(g_loc)
+          call giaofock(basis,geom,g_dens(ispin),g_loc,
+     $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
+     $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
+     $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
+     $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac) ! get full exchange           
+          call ga_add(factor_xch, g_loc, 1.0d0, g_fock1, g_fock1)
+c ------ Test : Coulomb + Exchange separate calcs. ----- END
       else
         call ga_zero(g_loc)
         call case_setflags(.false.) ! turn off attenuation
-        call giaofock(basis,geom,g_dens,g_loc,
+        call giaofock(basis,geom,g_dens(ntot),g_loc,
      $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
      $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
      $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 1.d0, 0.d0)  ! get full coulomb
-        call ga_add(1.d0, g_loc, 1.0d0, g_fock, g_fock)  ! full Coulomb
-c
+        call ga_add(1.d0, g_loc, 1.0d0, g_fock1, g_fock1)  ! full Coulomb
         call ga_zero(g_loc)
         call case_setflags(.false.) ! turn off attenuation
-        call giaofock(basis,geom,g_dens,g_loc,
+        cam_alpha1=factor_cam*cam_alpha
+        cam_beta1 =factor_cam*cam_beta
+        call giaofock(basis,geom,g_dens(ispin),g_loc,
      $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
      $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
-     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac)  ! get full exchange
-        call ga_add(cam_alpha, g_loc, 1.0d0, g_fock, g_fock) ! cam_alpha*Exchange
-c
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac) ! get full exchange
+        call ga_add(cam_alpha1, g_loc, 1.0d0, g_fock1, g_fock1)   ! cam_alpha*Exchange
         call ga_zero(g_loc)
         call case_setflags(.true.) ! set attenuation
-        call giaofock(basis,geom,g_dens,g_loc,
+        call giaofock(basis,geom,g_dens(ispin),g_loc,
      $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
      $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
-     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac)  ! get attenuated exchange
-        call ga_add(cam_beta, g_loc, 1.0d0, g_fock, g_fock) ! cam_beta*att_Exchange
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac) ! get attenuated exchange
+        call ga_add(cam_beta1, g_loc, 1.0d0, g_fock1, g_fock1)    ! cam_beta*att_Exchange
         call case_setflags(.false.) ! turn off attenuation
       end if  ! cam_exch
+
+        if (debug_giaofock.eq.1) then
+         if (ga_nodeid().eq.0) then
+          write(*,31) ispin
+ 31       format('---- giao_fock: g_fock1(',i3,') -------- START') 
+         endif
+         call ga_print(g_fock1)
+         if (ga_nodeid().eq.0) then
+          write(*,32) ispin
+ 32       format('---- giao_fock: g_fock1(',i3,') -------- END') 
+         endif
+        endif
+c ------ copying g_fock1 --> g_fock ----- START
+       plo(1) = 1
+       phi(1) = nbf
+       plo(2) = 1
+       phi(2) = nbf
+       plo(3) = 1
+       phi(3) = 3
+       disp=3*(ispin-1) 
+       qlo(1) = 1
+       qhi(1) = nbf
+       qlo(2) = 1
+       qhi(2) = nbf
+       qlo(3) = disp+1
+       qhi(3) = disp+3   
+       call nga_copy_patch('n',g_fock1,plo,phi,
+     &                          g_fock,qlo,qhi) 
+c ------ copying g_fock1 --> g_fock ----- END
+      enddo ! end-loop-ispin
+
+       if (.not.ga_destroy(g_fock1)) call 
+     &     errquit('new_giao_2e: ga_destroy failed g_fock1',
+     &              0,GA_ERR)
 c
 c     == Clean up memory allocated in this routine ==
+      if (.not. ma_chop_stack(l_d_kl))
+     $  call errquit('new_giao_2e:failed chopping MA stack',555,
+     &       MA_ERR)
 c
+c     Add DFT XC if running DFT calculation
+
+      if (xc_gotxc()) then
+         if (ga_nodeid().eq.0)
+     &     write(*,*) 'Entering for xc, kfac=',kfac
+         alo(1) = 1
+         ahi(1) = nfock(npol) ! =3 npol=1, 12 npol=2
+         alo(2) = 1
+         ahi(2) = nbf
+         alo(3) = 1
+         ahi(3) = nbf
+         if (.not.nga_create(MT_DBL,3,ahi,'xc matrix',alo,g_xc)) 
+     &      call errquit('hnd_giaox: nga_create failed g_xc',0,GA_ERR)
+
+c        if (ga_nodeid().eq.0)
+c    &     write(*,*) 'check npol=',npol    
+     
+         if      (npol.eq.1) then
+          do i=1,npol
+           if (.not. ga_create(mt_dbl,nbf,nbf,
+     &        'gCSSR: g_dia1',0,0,g_dens1(i)))
+     $     call errquit('gCSSR: g_dia1',0,GA_ERR)
+           call ga_zero(g_dens1(i))
+           call ga_copy(g_dens(i),g_dens1(i)) 
+          enddo
+         else if (npol.eq.2) then
+          do i=1,4
+           if (.not. ga_create(mt_dbl,nbf,nbf,
+     &        'gCSSR: g_dia1',0,0,g_dens1(i)))
+     $     call errquit('gCSSR: g_dia1',0,GA_ERR)
+          enddo
+          ind=1
+          do i=1,npol
+           call ga_zero(g_dens1(ind))
+           call ga_copy(g_dens(i),g_dens1(ind))            
+           call ga_zero(g_dens1(ind+1))
+           call ga_copy(g_dens(i),g_dens1(ind+1)) 
+           ind=ind+2
+          enddo
+c -------- check input g_dens1 -------- START        
+        if (debug_giaofock.eq.1) then
+          do i=1,4
+           if (ga_nodeid().eq.0)
+     &      write(*,*) '---- gdens1(',i,') -------- START'
+            call ga_print(g_dens1(i))
+           if (ga_nodeid().eq.0)
+     &      write(*,*) '---- gdens1(',i,') -------- END'
+          enddo
+        endif
+c -------- check input g_dens1 -------- END
+         endif
+         call ga_zero(g_xc)
+         Exc(1) = 0.0d0
+         Exc(2) = 0.0d0
+         nExc = 1
+c         if (ga_nodeid().eq.0)
+c     &     write(*,*) 'BEF fock_xc() ...'
+           call fock_xc(geom,nbf,basis,nfock(npol),
+     &                  g_dens1,g_xc,
+     &                  Exc,nExc,
+     &                  .false.) ! out: g_xc
+c        if (ga_nodeid().eq.0)
+c     &     write(*,*) 'AFT fock_xc() ...'
+
+        if (debug_giaofock.eq.1) then
+          if (ga_nodeid().eq.0)
+     &    write(*,*) '---- giao_fock: g_xc -------- START'
+          call ga_print(g_xc)
+          if (ga_nodeid().eq.0)
+     &    write(*,*) '---- giao_fock: g_xc -------- END'
+        endif
+
+          if      (npol.eq.1) then
+            do ii = 1, 3
+             alo(1) = ii
+             ahi(1) = ii
+             alo(4) = ii
+             ahi(4) = ii
+             call nga_add_patch(-2.0d0,g_xc,alo,ahi,
+     &                            1.d0,g_fock,alo(2),ahi(2),
+     &                                 g_fock,alo(2),ahi(2))
+            enddo ! end-loop-ii
+          else if (npol.eq.2) then
+           acc=1
+           do ispin=1,npol
+            ind=coeff(ispin)*3
+            do ii = 1,3
+             alo(1) = ind+ii
+             ahi(1) = ind+ii
+             alo(4) = acc
+             ahi(4) = acc
+             call nga_add_patch(+2.0d0,g_xc   ,alo,ahi,
+     &                           1.0d0,g_fock,alo(2),ahi(2),
+     &                                 g_fock,alo(2),ahi(2))
+             acc=acc+1
+            enddo ! end-loop-ii
+           enddo ! end-loop-ispin
+          endif
+
+        if (debug_giaofock.eq.1) then
+          if (ga_nodeid().eq.0)
+     &    write(*,*) '---- giao_fock: g_fock-updated ----- START'
+          call ga_print(g_fock)
+          if (ga_nodeid().eq.0)
+     &    write(*,*) '---- giao_fock: g_fock-updated -------- END'
+        endif
+
+         if (.not.ga_destroy(g_xc)) call
+     &      errquit('new_giao_2e: ga_destroy failed g_xc',0,GA_ERR)
+         if (npol.eq.1) then
+          if (.not.ga_destroy(g_dens1(1))) call
+     &       errquit('giao_aotomo: ga_destroy failed g_dens1',0,GA_ERR)
+         else
+          do i=1,4
+          if (.not.ga_destroy(g_dens1(i))) call
+     &       errquit('giao_aotomo: ga_destroy failed g_dens1',0,GA_ERR)
+          enddo
+         endif
+      endif  ! xc_gotxc()
+c
+c     == clean up local array ==
+      if (.not.ga_destroy(g_loc))
+     $  call errquit('new_giao_2e: destroy failed g_loc',555, GA_ERR)
+      end
+c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+c To produce output: g_fock_Coul,g_fock_Exch =========== START
+      subroutine new_giao_2e_JK(
+     &                       geom, !  in : geometry handle
+     &                      basis, !  in : basis handle
+     &                        nbf, !  in : nr. of basis functions
+     &                      tol2e,
+     &                     g_dens, !  in : e-density
+     &                     g_fock, ! out : fock-matrix
+     &                g_fock_Coul, ! out : fock-matrix with Coulomb  ONLY
+     &                g_fock_Exch, ! out : fock-matrix with Exchange ONLY
+     &                       kfac, !  in : exchange factor =1 HF-xch =0.2 B3LYP 
+     &                       npol) !  in : nr. of polarizations
+c $Id$
+      implicit none
+#include "nwc_const.fh"
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "bas.fh"
+#include "hnd_giao.fh"
+#include "hnd_pointers.fh"
+#include "global.fh"
+#include "case.fh"
+
+      integer npol,ntot
+      integer geom, basis, g_fock, nbf
+      integer g_fock_Coul,g_fock_Exch
+      integer g_dens(3)  ! g_dens(npol)
+      integer g_fock1,disp
+      integer i,g_dens1(4) ! for udft calc
+      integer plo(3),phi(3),
+     &        qlo(3),qhi(3)
+      double precision tol2e,kfac,Exc(2)
+      integer nExc
+      integer nshell, maxang, blen, lend, leri, ii
+      integer l_eri,k_eri,l_scr,k_scr,alo(4),ahi(4),g_xc
+      integer       k_d_kl,  k_d_ik,  k_d_jl,  k_d_il,  k_d_jk, 
+     $     k_f_ij,  k_f_ji,  k_f_ik,  k_f_jl,  k_f_il,  k_f_jk,
+     $              l_d_kl,  l_d_ik,  l_d_jl,  l_d_il,  l_d_jk, 
+     $     l_f_ij,  l_f_ji,  l_f_ik,  l_f_jl,  l_f_il,  l_f_jk
+      integer g_loc
+      logical xc_gotxc
+      external xc_gotxc
+      double precision jloc,kloc,factor_xch,
+     &       cam_alpha1,cam_beta1,factor_cam
+      integer acc,ind,ispin,nfock(2),coeff(2)
+      integer debug_giaofock
+      data coeff /1,3/
+      data nfock/3,12/ ! For Unrest/Rest calc.
+
+      debug_giaofock=0 ! =1 for debugging giaofock
+
+      if(.not.bas_high_angular(basis,maxang))
+     &         call errquit('new_giao: angm error',maxang, BASIS_ERR)
+      if (.not. bas_numcont(basis,nshell))
+     $     call errquit('new_giao: could not get nsh',0, BASIS_ERR)
+
+      blen = (maxang+1)*(maxang+2)/2
+      lend = blen*blen
+
+      if (.not. ma_push_get(mt_dbl, lend, 'd_kl', l_d_kl, k_d_kl)) 
+     $     call errquit('new_giao: d_kl', lend, MA_ERR)
+      if (.not. ma_push_get(mt_dbl, lend, 'd_ik', l_d_ik, k_d_ik)) 
+     $     call errquit('new_giao: d_ik', lend, MA_ERR)
+      if (.not. ma_push_get(mt_dbl, lend, 'd_il', l_d_il, k_d_il)) 
+     $     call errquit('new_giao: d_il', lend, MA_ERR)
+      if (.not. ma_push_get(mt_dbl, lend, 'd_jk', l_d_jk, k_d_jk)) 
+     $     call errquit('new_giao: d_jk', lend, MA_ERR)
+      if (.not. ma_push_get(mt_dbl, lend, 'd_jl', l_d_jl, k_d_jl)) 
+     $     call errquit('new_giao: d_jl', lend, MA_ERR)
+
+      lend = blen*blen*3
+      if (.not. ma_push_get(mt_dbl, lend, 'f_ij', l_f_ij, k_f_ij)) 
+     $     call errquit('new_giao: f_ij', lend, MA_ERR)
+      if (.not. ma_push_get(mt_dbl, lend, 'f_ji', l_f_ji, k_f_ji)) 
+     $     call errquit('new_giao: f_ji', lend, MA_ERR)
+      if (.not. ma_push_get(mt_dbl, lend, 'f_ik', l_f_ik, k_f_ik)) 
+     $     call errquit('new_giao: f_ik', lend, MA_ERR)
+      if (.not. ma_push_get(mt_dbl, lend, 'f_il', l_f_il, k_f_il)) 
+     $     call errquit('new_giao: f_il', lend, MA_ERR)
+      if (.not. ma_push_get(mt_dbl, lend, 'f_jk', l_f_jk, k_f_jk)) 
+     $     call errquit('new_giao: f_jk', lend, MA_ERR)
+      if (.not. ma_push_get(mt_dbl, lend, 'f_jl', l_f_jl, k_f_jl)) 
+     $     call errquit('new_giao: f_jl', lend, MA_ERR)
+
+      leri = ngint    ! times 6 blocks of integrals for gint(i*j*k*l) length
+ 
+      if (.not. ma_push_get(mt_dbl,leri*6,'eri',l_eri,k_eri)) 
+     $     call errquit('new_giao:could not allocate buffer',leri,
+     &       MA_ERR)
+      if (.not. ma_push_get(mt_dbl,iscrln,'scr',l_scr,k_scr))
+     $     call errquit('new_giao: scratch alloc failed', iscrln,
+     &       MA_ERR)
+
+c ------ create g_fock1 ---------- START
+      plo(1) = -1 
+      plo(2) = -1
+      plo(3) =  1
+      phi(1) = nbf
+      phi(2) = nbf
+      phi(3) =  3
+      if (.not.nga_create(MT_DBL,3,phi,'Fock matrix',plo,g_fock1)) call 
+     &    errquit('hnd_giaox: nga_create failed g_fock',0,GA_ERR)
+      call ga_zero(g_fock1)
+c     == local array ==
+      if (.not. ga_duplicate (g_fock1, g_loc,'g_loc'))
+     &  call errquit('new_giao_2e: duplicate failed g_loc',555, GA_ERR)
+      call ga_zero(g_loc)
+c ------ create g_fock1 ---------- END    
+
+      call ga_zero(g_fock)
+      if      (npol.eq.1) then
+       ntot=1 
+       factor_cam =1.0d0 
+       factor_xch =1.0d0  
+      else if (npol.eq.2) then
+       ntot=3
+       factor_cam =2.0d0 
+       factor_xch =2.0d0  
+      else
+       write(*,*) 'Error in new_giao_2e:: npol=1 or 2 npol=',npol
+      endif
+c     == take care of attenuated or non-attenuated 2e ==
+      call ga_zero(g_fock)
+      do ispin=1,npol
+       call ga_zero(g_fock1) ! reset g_fock1
+      if (.not.cam_exch) then ! normal calculations
+c ------ Test : Coulomb + Exchange separate calcs. ----- START
+          call ga_zero(g_loc)
+          call giaofock(basis,geom,g_dens(ntot),g_loc,
+     $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
+     $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
+     $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
+     $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 1.d0, 0.d0) ! get full coulomb
+          call ga_add(1.d0, g_loc, 1.0d0, g_fock1, g_fock1)
+          call ga_zero(g_loc)
+          call giaofock(basis,geom,g_dens(ispin),g_loc,
+     $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
+     $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
+     $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
+     $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac) ! get full exchange
+          call ga_add(factor_xch, g_loc, 1.0d0, g_fock1, g_fock1)
+c ------ Test : Coulomb + Exchange separate calcs. ----- END
+      else
+        call ga_zero(g_loc)
+        call case_setflags(.false.) ! turn off attenuation
+        call giaofock(basis,geom,g_dens(ntot),g_loc,
+     $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
+     $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
+     $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
+     $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 1.d0, 0.d0)  ! get full coulomb
+        call ga_add(1.d0, g_loc, 1.0d0, g_fock1, g_fock1)  ! full Coulomb
+        call ga_zero(g_loc)
+        call case_setflags(.false.) ! turn off attenuation
+        cam_alpha1=factor_cam*cam_alpha
+        cam_beta1 =factor_cam*cam_beta
+        call giaofock(basis,geom,g_dens(ispin),g_loc,
+     $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
+     $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
+     $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
+     $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac) ! get full exchange
+        call ga_add(cam_alpha1, g_loc, 1.0d0, g_fock1, g_fock1)   ! cam_alpha*Exchange
+        call ga_zero(g_loc)
+        call case_setflags(.true.) ! set attenuation
+        call giaofock(basis,geom,g_dens(ispin),g_loc,
+     $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
+     $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
+     $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
+     $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
+     $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac) ! get attenuated exchange
+        call ga_add(cam_beta1, g_loc, 1.0d0, g_fock1, g_fock1)    ! cam_beta*att_Exchange
+        call case_setflags(.false.) ! turn off attenuation
+      end if  ! cam_exch
+
+        if (debug_giaofock.eq.1) then
+         if (ga_nodeid().eq.0) then
+          write(*,31) ispin
+ 31       format('---- giao_fock: g_fock1(',i3,') -------- START') 
+         endif
+         call ga_print(g_fock1)
+         if (ga_nodeid().eq.0) then
+          write(*,32) ispin
+ 32       format('---- giao_fock: g_fock1(',i3,') -------- END') 
+         endif
+        endif
+c ------ copying g_fock1 --> g_fock ----- START
+       plo(1) = 1
+       phi(1) = nbf
+       plo(2) = 1
+       phi(2) = nbf
+       plo(3) = 1
+       phi(3) = 3
+       disp=3*(ispin-1) 
+       qlo(1) = 1
+       qhi(1) = nbf
+       qlo(2) = 1
+       qhi(2) = nbf
+       qlo(3) = disp+1
+       qhi(3) = disp+3   
+       call nga_copy_patch('n',g_fock1,plo,phi,
+     &                          g_fock,qlo,qhi) 
+c ------ copying g_fock1 --> g_fock ----- END
+      enddo ! end-loop-ispin
+
+c ------- Copying Coulomb contrib --------- START
+       call ga_zero(g_fock_Coul)
+       call ga_copy(g_fock,g_fock_Coul) 
+c ------- Copying Coulomb contrib --------- END
+
+       if (debug_giaofock.eq.1) then
+        if (ga_nodeid().eq.0) then
+         write(*,33) ispin
+ 33      format('---- giao_fock: g_fock-scaled(',i3,') -------- START') 
+        endif     
+          call ga_print(g_fock)
+        if (ga_nodeid().eq.0) then
+         write(*,34) ispin
+ 34      format('---- giao_fock: g_fock-scaled(',i3,') -------- END') 
+        endif
+       endif
+       if (.not.ga_destroy(g_fock1)) call 
+     &     errquit('new_giao_2e: ga_destroy failed g_fock1',
+     &              0,GA_ERR)
+c
+c     == Clean up memory allocated in this routine ==
+
       if (.not. ma_chop_stack(l_d_kl))
      $  call errquit('new_giao_2e:failed chopping MA stack',555,
      &       MA_ERR)
@@ -132,37 +570,143 @@ c
 c     Add DFT XC if running DFT calculation
 c
       if (xc_gotxc()) then
+         if (ga_nodeid().eq.0)
+     &     write(*,*) 'Entering for xc, kfac=',kfac
          alo(1) = 1
-         ahi(1) = 3
+         ahi(1) = nfock(npol) ! =3 npol=1, 12 npol=2
          alo(2) = 1
          ahi(2) = nbf
          alo(3) = 1
          ahi(3) = nbf
          if (.not.nga_create(MT_DBL,3,ahi,'xc matrix',alo,g_xc)) 
      &      call errquit('hnd_giaox: nga_create failed g_xc',0,GA_ERR)
+
+c        if (ga_nodeid().eq.0)
+c    &     write(*,*) 'check npol=',npol    
+     
+         if      (npol.eq.1) then
+          do i=1,npol
+           if (.not. ga_create(mt_dbl,nbf,nbf,
+     &        'gCSSR: g_dia1',0,0,g_dens1(i)))
+     $     call errquit('gCSSR: g_dia1',0,GA_ERR)
+           call ga_zero(g_dens1(i))
+           call ga_copy(g_dens(i),g_dens1(i)) 
+          enddo
+         else if (npol.eq.2) then
+          do i=1,4
+           if (.not. ga_create(mt_dbl,nbf,nbf,
+     &        'gCSSR: g_dia1',0,0,g_dens1(i)))
+     $     call errquit('gCSSR: g_dia1',0,GA_ERR)
+          enddo
+          ind=1
+          do i=1,npol
+           call ga_zero(g_dens1(ind))
+           call ga_copy(g_dens(i),g_dens1(ind))            
+           call ga_zero(g_dens1(ind+1))
+           call ga_copy(g_dens(i),g_dens1(ind+1)) 
+           ind=ind+2
+          enddo
+c -------- check input g_dens1 -------- START        
+        if (debug_giaofock.eq.1) then
+          do i=1,4
+           if (ga_nodeid().eq.0)
+     &      write(*,*) '---- gdens1(',i,') -------- START'
+            call ga_print(g_dens1(i))
+           if (ga_nodeid().eq.0)
+     &      write(*,*) '---- gdens1(',i,') -------- END'
+          enddo
+        endif
+c -------- check input g_dens1 -------- END
+         endif
          call ga_zero(g_xc)
          Exc(1) = 0.0d0
          Exc(2) = 0.0d0
-         nExc = 1
-         call fock_xc(geom,nbf,basis,3,g_dens,g_xc,Exc,nExc,.false.)
-         do ii = 1, 3
-            alo(1) = ii
-            ahi(1) = ii
-            alo(4) = ii
-            ahi(4) = ii
-            call nga_add_patch(-2.0d0,g_xc,alo,ahi,1.d0,g_fock,
-     &                         alo(2),ahi(2),g_fock,alo(2),ahi(2))
-         enddo
+c         nExc = 1
+         nExc = 2 ! BUG: Fixed on 05-10-11
+         call fock_xc(geom,nbf,basis,nfock(npol),
+     &                g_dens1,g_xc,
+     &                Exc,nExc,
+     &                .false.) ! out: g_xc
+        if (debug_giaofock.eq.1) then
+          if (ga_nodeid().eq.0)
+     &    write(*,*) '---- giao_fock: g_xc -------- START'
+          call ga_print(g_xc)
+          if (ga_nodeid().eq.0)
+     &    write(*,*) '---- giao_fock: g_xc -------- END'
+        endif
+     
+        call ga_zero(g_fock_Exch)
+
+          if      (npol.eq.1) then
+            do ii = 1, 3
+             alo(1) = ii
+             ahi(1) = ii
+             alo(4) = ii
+             ahi(4) = ii
+             call nga_add_patch(-2.0d0,g_xc,alo,ahi,
+     &                            1.d0,g_fock,alo(2),ahi(2),
+     &                                 g_fock,alo(2),ahi(2))
+c ------- Copying Exchange contrib --------- START
+            call nga_add_patch(-2.0d0,g_xc   ,alo,ahi,
+     &                          1.0d0,g_fock_Exch,alo(2),ahi(2),
+     &                                g_fock_Exch,alo(2),ahi(2))
+c ------- Copying Exchange contrib --------- END
+            enddo ! end-loop-ii
+          else if (npol.eq.2) then
+           acc=1
+           do ispin=1,npol
+            ind=coeff(ispin)*3
+            do ii = 1,3
+             alo(1) = ind+ii
+             ahi(1) = ind+ii
+             alo(4) = acc
+             ahi(4) = acc
+            call nga_add_patch(+2.0d0,g_xc   ,alo,ahi,
+     &                          1.0d0,g_fock,alo(2),ahi(2),
+     &                                g_fock,alo(2),ahi(2))
+c ------- Copying Exchange contrib --------- START
+            call nga_add_patch(+2.0d0,g_xc   ,alo,ahi,
+     &                          1.0d0,g_fock_Exch,alo(2),ahi(2),
+     &                                g_fock_Exch,alo(2),ahi(2))
+c ------- Copying Exchange contrib --------- END
+ 108   continue
+             acc=acc+1
+            enddo ! end-loop-ii
+           enddo ! end-loop-ispin
+          endif
+
+        if (debug_giaofock.eq.1) then
+          if (ga_nodeid().eq.0)
+     &    write(*,*) '---- giao_fock: g_fock-updated ----- START'
+          call ga_print(g_fock)
+          if (ga_nodeid().eq.0)
+     &    write(*,*) '---- giao_fock: g_fock-updated -------- END'
+        endif
+
          if (.not.ga_destroy(g_xc)) call
      &      errquit('new_giao_2e: ga_destroy failed g_xc',0,GA_ERR)
+         if (npol.eq.1) then
+          if (.not.ga_destroy(g_dens1(1))) call
+     &       errquit('giao_aotomo: ga_destroy failed g_dens1',0,GA_ERR)
+         else
+          do i=1,4
+          if (.not.ga_destroy(g_dens1(i))) call
+     &       errquit('giao_aotomo: ga_destroy failed g_dens1',0,GA_ERR)
+          enddo
+         endif
       endif  ! xc_gotxc()
+
 c
 c     == clean up local array ==
       if (.not.ga_destroy(g_loc))
      $  call errquit('new_giao_2e: destroy failed g_loc',555, GA_ERR)
-c
+
       end
-c
+c To produce output: g_fock_Coul,g_fock_Exch =========== END
+c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
       subroutine giaofock(basis, geom, g_dens, g_fock,
      $                    d_kl,  d_ik,  d_jl,  d_il,  d_jk, 
      $                    f_ij,  f_ji,  f_ik,  f_jl,  f_il,  f_jk, 
@@ -171,7 +715,6 @@ c
 c
 c  This routine was essentially stolen from gradients/grad2.F.  I will work
 c  to make these routines one after I get things working.
-c
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -182,7 +725,6 @@ c
       common/testdata/timing(20),irepeat
       double precision timing
       integer irepeat
-c
       integer basis, geom         ! [input] familiar handles
       integer g_dens, g_fock      ! [input]/[output] density/fock ga handle
       integer blen                ! [input] max dimension of density block
@@ -203,21 +745,16 @@ c
       double precision jfac
       double precision kfac       ! [input] kfactor depends on DFT or SCF
       integer nshell              ! [input] Number of shells
-c
       integer  next, ijblock
-c
       integer nxtask, task_size
       external nxtask
-c
       integer ish, jsh, ksh, lsh, idim, jdim, kdim, ldim
       integer ibflo, ibfhi, jbflo, jbfhi, kbflo, kbfhi, lbflo, lbfhi
       logical ieqj, keql, ijeqkl, keqi
-c
       logical ijfirst,jifirst,ikfirst,jlfirst,ilfirst,jkfirst
       integer ijhand,jihand,ikhand,jlhand,ilhand,jkhand
       integer dklhand,dikhand,djlhand,dilhand,djkhand
       integer g_densrep,g_dens0,g_fockrep,g_fock0,dorep_glob
-c
       integer nproc
       logical dorepl,dorepd,dorepf,dorepon
       logical util_mirrmat
@@ -239,7 +776,7 @@ c
 c     replicated DM and Fock
 c
 c     turned off for now: needs to be debugged
-c
+
       dorepon=.true.
       dorepl=.false.
       if(ga_cluster_nnodes().gt.1.and.dorepon) then
@@ -325,14 +862,13 @@ c
      $                    f_ij, f_ji, f_ik, f_jl, f_il, f_jk, 
      $                    blen, idim, jdim, kdim, ldim, ish,
      $                    jsh, ksh, lsh, jfac, kfac)
-c
+
                      call new_acc_giaofock_block(g_fock, blen, 
      $                    jbflo, jbfhi, lbflo, lbfhi, f_jl,
      F                    jlfirst,jlhand)
                      call new_acc_giaofock_block(g_fock, blen, 
      $                    ibflo, ibfhi, lbflo, lbfhi, f_il,
      F                    ilfirst,ilhand)
-c
                   end do
                   call new_acc_giaofock_block(g_fock, blen, 
      $                 ibflo, ibfhi, kbflo, kbfhi, f_ik,
@@ -354,7 +890,7 @@ c
       end do
 c
 c     call int_acc_std()
-c
+
       next = nxtask(-nproc,task_size)
       call ga_sync()
       if(dorepl) then
@@ -425,7 +961,6 @@ c
      $                         blen,idim,jdim,kdim,ldim,ish,jsh,ksh,lsh,
      $                         jfac,kfac)
       implicit none
-c
       integer blen
       integer leri
       integer idim, jdim, kdim, ldim, ish, jsh, ksh, lsh
@@ -442,9 +977,8 @@ c
       double precision fac,er2fac,errsum,errdif,
      V     erif,erif3,facij
       logical ieqj, keql, ijeqkl, keqi, doit
-c
       integer integ, i, j, k, l, v,m
-c
+
       ieqj   = ish.eq.jsh
       ijeqkl = ish.eq.ksh.and.jsh.eq.lsh
       keql   = ksh.eq.lsh
@@ -459,7 +993,6 @@ c
                      integ = integ + 1
 c
 c  Needs the following if statements, otherwise integrals are included double
-c
                      doit = .true.
                      if (ieqj.and.j.gt.i) doit = .false.
                      if (keql.and.l.gt.k) doit = .false.
@@ -483,5 +1016,4 @@ c
             end do
          end do
       end do
-c
       end

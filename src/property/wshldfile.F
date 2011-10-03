@@ -1,5 +1,13 @@
 c*****************************************************************************
-      subroutine wnbofile(rtdb)
+      subroutine wshldfile(rtdb,
+     &                     g_munu_rot,  ! dia term 
+     &                     g_munu_rot2, ! 1st term in para      g_munuEPRpar1
+     &                     g_acc2,      ! perturbed MO vector x,y,z
+     &                     g_munu_rot1, ! perturbed AO operator g_munuEPRHpar x,y,z
+     &                     nlst,npol_munu,       
+     &                     Ndir_munu,   ! OUTPUT: used in wgshiftfile(rtdb)
+     &                     Natoms_munu,
+     &                     atmnr_munu)
 c*****************************************************************************
 c
 c>>>  Purpose of routine:
@@ -30,7 +38,7 @@ c>>>  that gennbo already exists and has been ported to a number of
 c>>>  platforms.
 c
 *
-* $Id$
+* $Id: wnbofile.F,v 1.16 2004-12-03 21:50:20 bert Exp $
 *
       implicit none
 #include "errquit.fh"
@@ -40,24 +48,22 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
-      integer rtdb
+#include "zora.fh" ! FA-04-24-10
+c Using g_Ci defined in zora.fh, computed in dft_zora_scale() from dft_zora_utils.F
+      integer rtdb  
 c
 c>>>  handles
-c
-
       integer lbasis, lchg, lcoef,lcoord, leval, lexp, lgeom, lind1, 
      $    lind2, locc, lprim, lptr, lscr, ltags, ltype,
      &    lncomp
       integer g_bo(2), g_fock(2), g_movecs(2),  g_over, g_scr
 c
 c>>>  indices
-c
       integer ichg, icoef, icoord, ieval, iexp, iind1, iind2, iocc,
      $    iprim, iptr, iscr, itags, itype,
      &    incomp
 c
 c>>>  basis set objects
-
       integer atn, charge, maxL, nat, nbf, ncont, ngeno, nmo, 
      $     nprim, sphcart, type
       character*2   sym, elem
@@ -68,60 +74,110 @@ c>>>  things related to the NBO input file
       character*255 nbo_fname
 c
 c>>>  MO vector and calculation-type objects
-c
       character*4   spintype
       character*255 bas_vecs, movecs_in, title_vecs
       character*20 scftype_vecs
       integer  lenocc, nbf_vecs, nset, nmo_vecs(2)
-c
 c>>>  Functions
-c
       logical int_normalize
       logical  movecs_read, restricted, movecs_read_header
       integer  inp_strlen, ga_create_atom_blocked
-
       external int_normalize
       external inp_strlen, ga_create_atom_blocked, movecs_read, 
      $     movecs_read_header
-
 c
 c>>>  miscellaneous variables
-c
       character*5 cname(5)
-      integer i, iat, icol, icont, ilo, ihi, index, ix, iy ,iz, j,
-     $     l, len
+      integer i, iat, iat1,icol, icont, 
+     &        ilo, ihi, index, ix, iy ,iz, j,
+     $        l, len
       logical sshell, pshell, dshell, fshell, gshell
       data cname / 'CS = ', 'CP = ', 'CD = ', 'CF = ', 'CG = ' /
+      integer shldopt,ac
+      integer l_Ci,k_Ci ! FA-scaling-zora
+      integer ipol,noc1,nocc,nelec
+      logical lzora
+c     Assuming noc1=noc2 not true if (total spin .ne. 0)
+c              (noc_alpha = noc_beta)
+      character*15 fname_shield
+      integer nocc_a,nocc_b,idir,jlo,jhi,alo(3),ahi(3),ld(2)
+      integer l_buf,k_buf,
+     &        l_buf1,k_buf1,
+     &        indx  
+      integer g_munu_rot ,g_munu_rot1,
+     &        g_munu_rot2,nlst,g_acc2,
+     &        Ndir_munu,
+     &        Natoms_munu,npol_munu,
+     &        atmnr_munu(Natoms_munu)
+      double precision threshold4data
+      data threshold4data /1e-40/ ! Threshhold for output data
+      if (ga_nodeid().eq.0)
+     & write(*,*) 'Using data threshold :',threshold4data
+c     --> To store ONLY munu principal components xx,yy,zz
+c    Structure of g_munu_rot:
+c    n=nbf  Nr. of basis functions
+c    val_11_1_1 val_22_1_1 ... val_nn_1_1 val_21_1_1 
+c                                         val_31_1_1 val_32_1_1
+c                                         val_41_1_1 val_42_1_1 val_43_1_1 
+c                                         ...
+c    val_11_2_1 val_22_2_1 ... val_nn_2_1 val_21_2_1 
+c                                         val_31_2_1 val_32_2_1
+c                                         val_41_2_1 val_42_2_1 val_43_2_1 
+c                                         ...
+c    ...
+c    val_11_1_2 val_22_1_2 ... val_nn_1_2 val_21_1_2 
+c                                         val_31_1_2 val_32_1_2
+c                                         val_41_1_2 val_42_1_2 val_43_1_2
+c                                         ...
+c    val_11_2_2 val_22_2_2 ... val_nn_2_2 val_21_2_2 
+c                                         val_31_2_2 val_32_2_2
+c                                         val_41_2_2 val_42_2_2 val_43_2_2
+c                                         ...
+c    Notation.- val_PQ_R_S
+c               PQ, unique munu indices
+c               R, direction index = 1,2,3 (in this order) 
+c               S, atom number  R=1,nlist
+c               Correspondence with EFG eigenvalues:
+c               V33 V22 V11
+c               -> If multiplied with corresponding 
+c                  scaling density matrix it produces
+c                  the total EFG eigenvalues in the same order
+c                  as NWChem standard output.            
+c               nlist total number of atoms selected in
+c               keyword of input script: efieldgradZ4 [nlist] ...
+c                  
+c ======= reading from rtdb (nocc_a,nocc_b) === START
+c Those are stored in rtdb in dft_inpana.F
+         if (.not. rtdb_get(rtdb, 'prop:Nocc_a',mt_int,1,nocc_a))
+     $      call errquit('prop_input-EFGZ4-Nocc_a: rtdb_put failed',
+     $                   555, RTDB_ERR)
+         if (.not. rtdb_get(rtdb, 'prop:Nocc_b',mt_int,1,nocc_b))
+     $      call errquit('prop_input-EFGZ4-Nocc_b: rtdb_put failed',
+     $                   555, RTDB_ERR)
+c ======= reading from rtdb (nocc_a,nocc_b) === END
+c ------ Lines below are not necessary ------ START
+c      lfn = 25
+c      if(ga_nodeid().eq.0) then
+c        call util_file_name('hyp', .false., .false., nbo_fname)
+c        open(lfn,file=nbo_fname,status='unknown')
+c        len = inp_strlen(nbo_fname)
+c        write(LUout,9250) nbo_fname(1:len)
+c      endif 
+c ------ Lines below are not necessary ------ END
 
-      integer nboopt
-      character*20 fmtout
-
-      lfn = 25
-
-      if(ga_nodeid().eq.0) then
-        call util_file_name('gen', .false., .false., nbo_fname)
-        open(lfn,file=nbo_fname,status='unknown')
-        len = inp_strlen(nbo_fname)
-        write(LUout,9250) nbo_fname(1:len)
-      endif 
-c ... jochen: read NBO option key from RTDB.
-      nboopt = 0
-      if (.not.rtdb_get(rtdb, 'prop:nboopt', mt_int, 1,nboopt)) 
-     &    call errquit('wnbofile: nboopt RTDB failed',0, RTDB_ERR)
-      fmtout = '(5f20.10)' ! 'regular' output format
-      if (nboopt.gt.0) fmtout = '(3E25.16)' ! increased num. precision
-c ... jochen end
+c ... Fredy: read HYP option key fron RTDB.
+      shldopt = 0
+      if (.not.rtdb_get(rtdb, 'prop:shldopt', mt_int, 1,shldopt)) 
+     &    call errquit('wgshldfile: shldfile RTDB failed',0, RTDB_ERR)
+c ... Fredy end
 c
 c>>>  load geometry and symmetry info
-c
       if (.not. geom_create(lgeom, 'geometry'))
      $     call errquit('wnbofile: geom_create?', 0, GEOM_ERR)
       if (.not. geom_rtdb_load(rtdb, lgeom, 'geometry'))
      $     call errquit('wnbofile: no geometry ', 0, RTDB_ERR)
-
 c     
 c>>>  load the basis set and get info about it
-c
       if (.not. bas_create(lbasis, 'mo basis'))
      $     call errquit('prop: bas_create?', 0, BASIS_ERR)
       if (.not. bas_rtdb_load(rtdb, lgeom, lbasis, 'ao basis')) then
@@ -129,7 +185,6 @@ c
      $        call errquit('wnbofile: no mo or ao basis set', 0,
      &       RTDB_ERR)
       end if
-
       if (.not. bas_name(lbasis, name, trans))
      $     call errquit('wnbofile: bas_name?', 0, BASIS_ERR)
 c
@@ -141,13 +196,10 @@ c
 c>>>  For now simply set nmo = nbf.
 
       nmo = nbf
-     
+c     
 c>>>    Get information on molecular orbital vectors.
-
+c       
       call util_file_name('movecs', .false., .false., movecs_in)
-     
-      if (ga_nodeid().eq.0) write(*,*) 'Reading MOs from: ',movecs_in
-
       if(.not.movecs_read_header(movecs_in, title_vecs, bas_vecs,
      $     scftype_vecs, nbf_vecs, nset, nmo_vecs, 2))
      $     call errquit('wnbofile:  failed on movecs_read_header',0,
@@ -160,7 +212,168 @@ c>>>    Get information on molecular orbital vectors.
         restricted=.false.
         spintype = 'OPEN' 
       endif 
+c
+c>>>  Extract title, geometry, nuclear charges, and label info.
+      if (.not. geom_ncent(lgeom, nat))
+     $     call errquit('wnbofile: geom_ncent failed',1, GEOM_ERR)
+c       
+c>>>  Begin $GENNBO and $NBO keylist data.
+c ++++++++++++++++++++++++++++++++++++++++++
+c ++++++++++++ HYP printout ++++++++++ START
+       if (nset.eq.1) then
+        nocc=nocc_a
+       else
+        nocc = nocc_a+nocc_b
+       endif
+       lzora=.false.
+       if (do_zora .and. so_term.eq.0 .and. 
+     &     .not.(not_zora_scale)) lzora=.true.
+       if (lzora) then  ! spin-free-zora
+        
+        if (.not.ma_alloc_get(mt_dbl,nset*nocc,'Ci',l_Ci,k_Ci)) 
+     &     call errquit('wgshldffile: ma failed',0,MA_ERR)
 
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) '-------g_Ci---------- START'
+c        call ga_print(g_Ci)
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) '-------g_Ci---------- END'
+
+        call ga_get(g_Ci,1,nset,1,nocc,dbl_mb(k_Ci),nset)
+        do i=1,nset
+         do j=1,nocc
+          indx=nocc*(i-1)+j-1
+          if (dbl_mb(k_Ci+indx) .ne. 0.0d0)
+     &     dbl_mb(k_Ci+indx)=dbl_mb(k_Ci+indx)-1.0d0
+
+c           if (ga_nodeid().eq.0) then
+c             write(*,7) i,j,
+c     &                dbl_mb(k_Ci+indx),
+c     &                1.0d0/(1.0d0+dbl_mb(k_Ci+indx)),
+c     &                1.0d0/(1.0d0+dbl_mb(k_Ci+indx))**0.5d0
+c 7           format('g_Ci(',i4,',',i4,')=(',
+c     &               f15.8,',',f15.8,',',f15.8,')')
+c           endif
+
+         enddo
+        enddo
+       endif ! end-if-lzora
+
+      if( ga_nodeid().eq.0) then  ! ------- nodeid0----- START
+c ... now a loop over the EFG components, idir = 1,3.
+c     number of components was given in namelist
+c     ==>  nlst=nbf*(nbf+1)
+        if (.not.ma_alloc_get(mt_dbl,nlst,'buf',
+     &    l_buf,k_buf))
+     &    call errquit('wshldfile-buf: ma failed',0,MA_ERR)
+        if (.not.ma_alloc_get(mt_dbl,nbf*nocc,'buf',
+     &     l_buf1,k_buf1))
+     &     call errquit('wshldfile-buf: ma failed',0,MA_ERR)
+       do iat1=1,Natoms_munu
+        iat=atmnr_munu(iat1)
+c=====================================
+c ==== Generate filename per atom here
+c ====================================
+        write (fname_shield,1) iat
+ 1      format('shlddata.',i0)
+        write(*,*) 'Writing filename=',fname_shield
+        open (lfn, file=fname_shield, status='unknown')
+        write (lfn,
+     &   '(a,i10,a,i10,a,i10,/a,i10,a,i10,a,i10,a,i10,/a,l3,a/a)') 
+     &   '&inputdata nbasis=',nbf, 
+     &   ', nocc='  ,nocc,
+     &   ', nspin=' ,npol_munu,
+     &   ', nocc_a=',nocc_a,
+     &   ', nocc_b=',nocc_b,
+     &   ', nmo='   ,nmo, 
+     &   ', nelec=' ,nocc, 
+     &   ', threshold = 0.0, lzora=',lzora, 
+     &   ', spinorbit= F , label=''CS'', components=3', 
+     &   ', nbofile=''nbodata'', antisym = T, fullmat = F /'
+          if (lzora) then  ! spin-free-zora
+c     ----move down: g_Ci scaling factors
+           write (lfn,'(a)') 'ZORA MO scaling factors'
+           write (lfn, '(3e25.16)' ) (dbl_mb(k_Ci+i-1), i = 1,nocc)
+          endif
+          do idir=1,3
+            jlo=nlst*Ndir_munu*(iat1-1)+nlst*(idir-1)+1
+            jhi=jlo+nlst-1
+            call dcopy(nlst,0.0d0,0,dbl_mb(k_buf),1)
+            call ga_get(g_munu_rot,1,1,jlo,jhi,dbl_mb(k_buf),1)
+            do i=0,nlst-1
+             if (abs(dbl_mb(k_buf+i)) .lt. threshold4data)
+     &         dbl_mb(k_buf+i)=0.0d0
+            enddo
+            write (lfn,'(a,i1)') 'h1mat for direction ',idir
+            write (lfn,'(3e25.16)' ) (dbl_mb(k_buf+i), i = 0,nlst-1)
+          enddo ! end-loop-directions
+c ---- writing perturbed MO + perturbed AO ----- START
+          do idir=1,3
+c ---------- write par1 --------------- START
+            jlo=nlst*Ndir_munu*(iat1-1)+nlst*(idir-1)+1
+            jhi=jlo+nlst-1  
+            call dcopy(nlst,0.0d0,0,dbl_mb(k_buf),1)
+            call ga_get(g_munu_rot2,1,1,jlo,jhi,dbl_mb(k_buf),1)
+            do i=0,nlst-1
+             if (abs(dbl_mb(k_buf+i)) .lt. threshold4data)
+     &         dbl_mb(k_buf+i)=0.0d0
+            enddo
+            write (lfn,'(a,i1)') 'h1mat-par1 for direction ',idir
+            write (lfn,'(3e25.16)' ) (dbl_mb(k_buf+i), i = 0,nlst-1)
+c ---------- write par1 --------------- END
+            alo(1)=1
+            ahi(1)=nbf
+            alo(2)=1
+            ahi(2)=nocc
+            alo(3)=3*(iat1-1)+idir
+            ahi(3)=3*(iat1-1)+idir
+            ld(1)=nbf
+            ld(2)=nocc
+            call dcopy(nbf*nocc,0.0d0,0,dbl_mb(k_buf1),1)
+            call nga_get(g_acc2,alo,ahi,dbl_mb(k_buf1),ld)
+            do i=0,nbf*nocc-1
+             if (abs(dbl_mb(k_buf1+i)) .lt. threshold4data)
+     &         dbl_mb(k_buf1+i)=0.0d0
+            enddo
+            write (lfn,'(a,i1)') 'c10 for direction ',idir
+            write (lfn,'(3e25.16)' ) (dbl_mb(k_buf1+i),i=0,nbf*nocc-1)
+            jlo=nlst*Ndir_munu*(iat1-1)+nlst*(idir-1)+1
+            jhi=jlo+nlst-1
+            call dcopy(nlst,0.0d0,0,dbl_mb(k_buf),1)
+            call ga_get(g_munu_rot1,1,1,jlo,jhi,dbl_mb(k_buf),1)
+            do i=0,nlst-1
+             if (abs(dbl_mb(k_buf+i)) .lt. threshold4data)
+     &         dbl_mb(k_buf+i)=0.0d0
+            enddo
+            write (lfn,'(a,i1)') 'h1mat1 for direction ',idir
+            write (lfn,'(3e25.16)' ) (dbl_mb(k_buf+i),i=0,nlst-1)
+          enddo ! end-loop-directions
+c ---- writing perturbed MO + perturbed AO ----- END
+          close(lfn) ! close hypdata
+         enddo ! end-loop-atoms
+         if (.not.ma_free_heap(l_buf)) call
+     &    errquit('munu4nbo: ma_free_heap l_buf',0, MA_ERR)
+         if (.not.ma_free_heap(l_buf1)) call
+     &    errquit('munu4nbo: ma_free_heap l_buf1',0, MA_ERR)
+         if (lzora) then
+          if (.not.ma_free_heap(l_Ci)) call
+     &       errquit('wshldfile: ma_free_heap l_Ci',0, MA_ERR)
+         endif
+        endif ! ------- nodeid0----- END
+
+       goto 147
+
+       if (ga_nodeid().eq.0) then ! ------ if-ga_nodeid-1--- START
+      if(.not. rtdb_cget(rtdb, 'title', 1, title)) title = ' '
+      if(.not.Ma_Push_Get(MT_Dbl, nat*3, 'coordinates', lcoord, icoord))
+     $     call errquit('wnbofile: push_get failed',2, MA_ERR)
+      if(.not.Ma_Push_Get(MT_Dbl, nat, 'charges', lchg, ichg))
+     $     call errquit('wnbofile: push_get failed',3, MA_ERR)
+      if(.not.Ma_Push_Get(MT_Byte, nat*16, 'center tags', ltags, itags))
+     $     call errquit('wnbofile: push_get failed',4, MA_ERR)
+      if(.not.geom_cart_get(lgeom, nat, Byte_MB(itags), Dbl_MB(icoord), 
+     $     Dbl_MB(ichg)))
+     $     call errquit('wnbofile: geom_cart_get failed',5, GEOM_ERR)
       if (restricted) then
 *ga:1:0
         if (.not. ga_create(MT_DBL, nbf, nmo, 'wnbofile: MOs',
@@ -179,44 +392,33 @@ c>>>    Get information on molecular orbital vectors.
      &       GA_ERR)
         call ga_zero(g_movecs(2))
       endif
-c
-c>>>  Extract title, geometry, nuclear charges, and label info.
-c
-      if (.not. geom_ncent(lgeom, nat))
-     $     call errquit('wnbofile: geom_ncent failed',1, GEOM_ERR)
-      if(.not. rtdb_cget(rtdb, 'title', 1, title)) title = ' '
-      if(.not.Ma_Push_Get(MT_Dbl, nat*3, 'coordinates', lcoord, icoord))
-     $     call errquit('wnbofile: push_get failed',2, MA_ERR)
-      if(.not.Ma_Push_Get(MT_Dbl, nat, 'charges', lchg, ichg))
-     $     call errquit('wnbofile: push_get failed',3, MA_ERR)
-      if(.not.Ma_Push_Get(MT_Byte, nat*16, 'center tags', ltags, itags))
-     $     call errquit('wnbofile: push_get failed',4, MA_ERR)
-      if(.not.geom_cart_get(lgeom, nat, Byte_MB(itags), Dbl_MB(icoord), 
-     $     Dbl_MB(ichg)))
-     $     call errquit('wnbofile: geom_cart_get failed',5, GEOM_ERR)
-
-c       
-c>>>  Begin $GENNBO and $NBO keylist data.
-c
-      if( ga_nodeid().eq.0)then
+c -------- Creation of NBO auxiliary file -------------- START
+        open (lfn, file='nbodata.f47_extra', status='unknown')
+c ++++++++++++ EFG printout ++++++++++ END
+c ++++++++++++++++++++++++++++++++++++++++
         write(lfn,9000) nat, nbf, spintype
  9000   format('$GENNBO  UPPER  BODM  BOHR  NATOMS=',i5,
      $         '  NBAS=',i5,2x,a4,'  $END')
 c
-c ... jochen: here we write more detailed NBO input if requested. 
-        if (nboopt.eq.0) then ! default
+c ... Fredy: here we write more detailed NBO input if requested. 
+        if (shldopt.eq.0) then ! default
            write(lfn,'(a)')'$NBO     $END'
-        else if (nboopt.eq.1) then ! generate NLMOs, too, and dump info to files
+        else if (shldopt.eq.1) then ! generate NLMOs, too, and dump info to files
            write(lfn,'(a/a)')'$NBO BNDIDX NBONLMO=W AONBO=W AONLMO=W ',
      $          ' NLMOMO=W STERIC FILE=nbodata $END'
-        else if (nboopt.eq.2) then ! generate even more info, incl AO overlap etc.
+        else if (shldopt.eq.2) then ! generate even more info, incl AO overlap etc.
            write(lfn,'(a/a)')'$NBO BNDIDX NBONLMO=W AONBO=W AONLMO=W ',
      $          ' NLMOMO=W AOMO=W SAO=W STERIC FILE=nbodata $END'
         else ! other options not supported. Fall back to default
            write(lfn,'(a)')'$NBO     $END'
         end if
 c ... jochen end
-      endif
+      endif    ! ------ if-ga_nodeid-1--- END
+c ------- Destroy ga arrays -----------
+c      if (.not. ga_destroy(g_AtNr)) call errquit(
+c     &  'wshldfile: ga_destroy failed ',0, GA_ERR)
+c      if (.not. ga_destroy(g_Ci)) call errquit( ! destroy GA - FA
+c     &  'wshldfile: ga_destroy failed ',0, GA_ERR)
 c
 c>>>  End $GENNBO and $NBO keylist data.
 c
@@ -236,8 +438,8 @@ c>>>  Begin $COORD keylist.
           if(.not.geom_tag_to_element(Byte_MB(index),sym,elem,atn))
 cedo     $         call errquit('wnbofile: geom_tag_to_element failed',1)
      .         then
-          atn=0
-          charge=0
+           atn=0
+           charge=0
           endif
 
           charge = Dbl_MB(ichg+iat-1)
@@ -248,7 +450,6 @@ cedo     $         call errquit('wnbofile: geom_tag_to_element failed',1)
  9150   format(i3,2x,i3,2x,3f20.10)
         write(lfn,9200)
       endif
-
 c
 c>>>  End $COORD keylist.
 c
@@ -308,7 +509,6 @@ c
           if(type.eq.-2)then
 c
 c>>>        spd shell
-c
             int_mb(index)   = 1
             int_mb(index+1) = 101
             int_mb(index+2) = 102
@@ -439,7 +639,7 @@ c>>>  End $BASIS keylist.
 c
 c
 c>>> Begin $CONTRACT keylist.
-c
+
       if (ga_nodeid().eq.0) then
         if(.not.MA_Alloc_Get(MT_dbl,nprim,'exponents',lexp,iexp))
      $       call errquit('wnbofile: lexp memory alloc. failed',0,
@@ -584,16 +784,14 @@ c
 
         do icol = 1,nbf
           call ga_get(g_movecs(1),1,nmo,icol,icol,Dbl_MB(iscr),1)
-c... jochen          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,nbf-1)
-          write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,nbf-1)
+          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,nbf-1)
         enddo 
 
 
         if(.not. restricted) then
           do icol = 1,nbf
             call ga_get(g_movecs(2),1,nmo,icol,icol,Dbl_MB(iscr),1)
-c ... jochen           write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,nbf-1)
-            write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,nbf-1)
+            write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,nbf-1)
           enddo
         endif
 
@@ -708,16 +906,14 @@ c
 
         do icol = 1,nbf
           call ga_get(g_bo(1),1,nmo,icol,icol,Dbl_MB(iscr),1)
-c ... jochen          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
-          write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,icol-1)
+          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
         enddo 
 
 
         if(.not. restricted) then
           do icol = 1,nbf
             call ga_get(g_bo(2),1,nmo,icol,icol,Dbl_MB(iscr),1)
-c ... jochen            write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
-            write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,icol-1)
+            write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
           enddo
         endif
 
@@ -730,7 +926,7 @@ c>>>  End $DENSITY keylist.
 c
 c
 c>>>  Create overlap matrix.
-c
+
       call int_init(rtdb,1,lbasis)
       if (.not.int_normalize(rtdb,lbasis)) call errquit
      &    ('wnbofile: int_normalize failed',911, INT_ERR)
@@ -752,8 +948,7 @@ c>>>  Write out lower triangular section of overlap matrix.
 c
         do icol = 1,nbf
           call ga_get(g_over,1,nmo,icol,icol,Dbl_MB(iscr),1)
-c ... jochen          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
-          write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,icol-1)
+          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
         enddo 
 
         write(lfn,9200)
@@ -841,7 +1036,6 @@ c
      $       g_scr, 0.0d0, g_fock(2))
 
       endif 
-
 c
 c>>>  Begin $FOCK keylist.
 c
@@ -856,15 +1050,13 @@ c>>>  Write out lower triangular section of AO Fock matrix.
 c
         do icol = 1,nbf
           call ga_get(g_fock(1),1,nmo,icol,icol,Dbl_MB(iscr),1)
-c ... jochen          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
-          write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,icol-1)
+          write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
         enddo 
 
         if(.not. restricted) then
           do icol = 1,nbf
             call ga_get(g_fock(2),1,nmo,icol,icol,Dbl_MB(iscr),1)
-c ... jochen            write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
-            write(lfn,fmtout)(Dbl_MB(iscr+i),i=0,icol-1)
+            write(lfn,'(5f20.10)')(Dbl_MB(iscr+i),i=0,icol-1)
           enddo
         endif
 
@@ -880,21 +1072,21 @@ c
 c>>>  Print this out for debugging purposes.
 
       close(lfn)
-
+c -------- Creation of NBO auxiliary file -------------- END
 c
 c>>>  Free handles and destroy arrays.
-c
+
       if (restricted) then
-        if (.not. ga_destroy(g_scr)) 
-     $       call errquit('wnbofile: destroy g_scr',0, GA_ERR)
-        if (.not. ga_destroy(g_movecs(1))) 
-     $       call errquit('wnbofile: destroy g_movecs',0, GA_ERR)
         if (.not. ga_destroy(g_bo(1))) 
      $       call errquit('wnbofile: destroy g_bo',0, GA_ERR)
-        if (.not. ga_destroy(g_over)) 
-     $     call errquit('wnbofile: destroy g_over',0, GA_ERR)
+        if (.not. ga_destroy(g_scr)) 
+     $       call errquit('wnbofile: destroy g_scr',0, GA_ERR)
         if (.not. ga_destroy(g_fock(1))) 
      $       call errquit('wnbofile: destroy g_fock',0, GA_ERR)
+        if (.not. ga_destroy(g_movecs(1))) 
+     $       call errquit('wnbofile: destroy g_movecs',0, GA_ERR)
+        if (.not. ga_destroy(g_over)) 
+     $     call errquit('wnbofile: destroy g_over',0, GA_ERR)
       else
         if (.not. ga_destroy(g_scr)) 
      $       call errquit('wnbofile: destroy g_scr',0, GA_ERR)
@@ -914,7 +1106,6 @@ c
         if (.not. ga_destroy(g_fock(2))) 
      $       call errquit('wnbofile: destroy g_fock',0, GA_ERR)
       endif
-
       if (.not. ma_pop_stack(lind2))
      $     call errquit('wnbofile: lind2 pop stack failed',0, MA_ERR)
 
@@ -947,12 +1138,13 @@ c
 
       if (.not. ma_pop_stack(lcoord))
      $     call errquit('wnbofile: lcoord pop stack failed',0, MA_ERR)
-
+c ------  Deallocate memory ----------
       call int_terminate()
+
+ 147  continue
 
       if (.not. bas_destroy(lbasis)) call errquit
      $     ('wnbofile: basis destroy failed',0, BASIS_ERR)
-
       if (.not. geom_destroy(lgeom)) call errquit
      $     ('wnbofile: geom destroy failed', 0, GEOM_ERR)
 

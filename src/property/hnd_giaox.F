@@ -13,7 +13,6 @@ c $Id$
 #include "prop.fh"
 #include "bgj.fh"
 #include "case.fh"
-#include "cosmo.fh"
 c
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
@@ -44,15 +43,21 @@ c
       double precision ppm
       data ppm     /26.62566914d+00/ 
       data tol2e   /1.0d-10/
-      integer NoKinetic
+
+      integer debug_giaox
+
+      integer NoKinetic,npol
       common /skipKinetic/NoKinetic
-c
 c     bq charges
       integer nbq,nextbq,ncosbq
       nbq = 0
       nextbq = 0
       ncosbq = 0
+
+      debug_giaox=0 ! =1 for debugging print outs of matrices
 c
+      if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, npol))
+     $   npol = 1 ! Default nr of polarizations
       if (ga_nodeid().eq.0) write(luout,9999)
 
       debug = .false. .and. (ga_nodeid().eq.0) ! special debugging
@@ -333,8 +338,8 @@ c
          chi(1) = ifld
          call nga_matmul_patch('t','n',1.0d0,0.0d0,
      $        vectors(1), blo,bhi,
-     $        g_s10, alo,ahi,
-     $        g_fock, clo,chi )
+     $             g_s10, alo,ahi,
+     $            g_fock, clo,chi )
          blo(1) = 1
          bhi(1) = nclosed(1)*nvirt(1)
          blo(2) = ifld
@@ -364,26 +369,22 @@ c
       NoKinetic=0 ! =0 DO-kinetic, =1 SKIP-kinetic
       call int_giao_1ega(basis,basis,g_s10,'tv10',dbl_mb(k_xyz),
      &                   sh_atom,oskel)
-c
+c ++++++++++++ COSMO-added-07-13-11+++++++++++++ START
 c     Get external and cosmo bq contribution
-c
       nbq = 0
       nextbq = 0
       ncosbq = 0
       if(geom_extbq_on()) nextbq = geom_extbq_ncenter()
       nbq = nextbq ! external bq's
-c
       if (rtdb_get(rtdb,'cosmo:nefc',mt_int,1,ncosbq))
      &    nbq = ncosbq ! cosmo bq's
-c
       if (nextbq.gt.0.and.ncosbq.gt.0)
      &    nbq = nextbq + ncosbq  ! tally up cosmo and external bqs
-c
-c     if (ga_nodeid().eq.0) write(6,*) "nbq: ", nbq
       if (nbq.gt.0) then
         call int_giao_1ega(basis,basis,g_s10,'bq10',dbl_mb(k_xyz),
      &                   sh_atom,oskel)
       end if
+c ++++++++++++ COSMO-added-07-13-11+++++++++++++ END
 c
 c     ga_rhs(a,i) = ga_rhs(a,i) + H10(a,i)
 c     Transform H10 to MO and add to g_rhs
@@ -426,7 +427,18 @@ c
      $      call errquit('giaox: rtdb_put failed',0,RTDB_ERR)
       endif
 c
-      call new_giao_2e(geom,basis,nbf,tol2e,g_dens,g_fock,xfac)
+
+       if (debug_giaox.eq.1) then
+        if (ga_nodeid().eq.0) then
+         write(*,*) 'Aft. add_H10()'
+         write(*,*) '---- g_rhs-BEF-new_giao_2e -------- START'
+        endif
+        call ga_print(g_rhs)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '---- g_rhs-BEF-new_giao_2e -------- END'
+       endif
+
+      call new_giao_2e(geom,basis,nbf,tol2e,g_dens,g_fock,xfac,npol)
 c
       if(use_theory.eq.'dft') then
          ifld = 0
@@ -440,6 +452,15 @@ c
 c     Transform to MO basis and add to right-hand-side
 c
       call giao_aotomo(g_fock,vectors,nclosed,nvirt,1,3,nbf)
+
+      if (debug_giaox.eq.1) then
+       if (ga_nodeid().eq.0)
+     &   write(*,*) '---- g_fock-aft-giao_aotomo -------- START'
+       call ga_print(g_fock)
+       if (ga_nodeid().eq.0)
+     &   write(*,*) '---- g_fock-aft-giao_aotomo -------- END'
+      endif
+
       alo(1) = nclosed(1)+1
       ahi(1) = nmo
       alo(2) = 1
@@ -458,6 +479,15 @@ c
       if (.not.ga_destroy(g_fock)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_fock',0,GA_ERR)
       call nga_scale_patch(g_rhs,blo,bhi,-4.0d0)
+
+      if (debug_giaox.eq.1) then
+       if (ga_nodeid().eq.0)
+     &  write(*,*) '---- Reading INPUT-cphf: g_rhs -------- START'
+       call ga_print(g_rhs)
+       if (ga_nodeid().eq.0)
+     &  write(*,*) '---- Reading INPUT-cphf: g_rhs -------- END'
+      endif
+
 c
 c     Write ga_rhs to disk 
 c
@@ -488,7 +518,17 @@ c     Read solution vector from disk and put solutions in U matrices
 c
       call ga_zero(g_rhs)
       if(.not.file_read_ga(cphf_sol,g_rhs)) call errquit
-     $  ('hnd_giaox: could not read cphf_rhs',0, DISK_ERR)      
+     $  ('hnd_giaox: could not read cphf_rhs',0, DISK_ERR) 
+
+      if (debug_giaox.eq.1) then
+       if (ga_nodeid().eq.0)
+     &  write(*,*) '---- Reading sol-cphf: g_rhs -------- START'
+      call ga_print(g_rhs)
+       if (ga_nodeid().eq.0)
+     &  write(*,*) '---- Reading sol-cphf: g_rhs -------- END'  
+      endif
+
+     
       call nga_copy_patch('n',g_rhs,blo,bhi,g_u,alo,ahi)
 c
       if (.not.ga_destroy(g_rhs)) call 
@@ -558,6 +598,15 @@ c
          call nga_matmul_patch('n','t',-2.0d0,1.0d0,g_u,blo,bhi,  
      &                      vectors(1),alo,ahi,g_d1,clo,chi)
       enddo
+
+      if (debug_giaox.eq.1) then
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) '------g_d1---------- START'
+        call ga_print(g_d1)
+        if (ga_nodeid().eq.0) 
+     &   write(*,*) '------g_d1---------- END'
+      endif
+
       if (.not.ga_destroy(g_u)) call 
      &    errquit('hnd_giaox: ga_destroy failed g_u',0,GA_ERR)
 c
@@ -593,6 +642,13 @@ c
       call ga_zero(g_h01)
       call int_giao_1ega(basis,basis,g_h01,'h01',dbl_mb(k_xyz),
      &                   sh_atom,oskel)
+      if (debug_giaox.eq.1) then
+       if (ga_nodeid().eq.0)
+     &  write(*,*) '------ g_h01 --------- START'
+       call ga_print(g_h01)
+       if (ga_nodeid().eq.0)
+     &  write(*,*) '------ g_h01 --------- END'
+      endif
       alo(1) = 1
       ahi(1) = nbf
       alo(2) = 1
@@ -612,9 +668,27 @@ c
                alo(3) = ix
                ahi(3) = ix
                ixy = ixy + 1
+
                dbl_mb(k_para+ixy-1) = nga_ddot_patch(g_d1 ,'n',alo,ahi,
      &                                               g_h01,'n',blo,bhi)
                dbl_mb(k_para+ixy-1) = dbl_mb(k_para+ixy-1) * ppm
+
+      if (debug_giaox.eq.1) then
+               if (ga_nodeid().eq.0) then
+                write(*,12) iatom,iy,ix,
+     &                      alo(1),alo(2),alo(3),
+     &                      ahi(1),ahi(2),ahi(3),
+     &                      blo(1),blo(2),blo(3),
+     &                      bhi(1),bhi(2),bhi(3),dbl_mb(k_para+ixy-1)
+ 12             format('(iatom,iy,ix)=(',i3,',',i3,',',i3,') ',
+     &                  'alo=(',i3,',',i3,',',i3,') ',
+     &                  'ahi=(',i3,',',i3,',',i3,') ',
+     &                  'blo=(',i3,',',i3,',',i3,') ',
+     &                  'bhi=(',i3,',',i3,',',i3,') ',
+     &                  'para=',f15.8)
+               endif
+       endif
+
             enddo
          enddo
          call mat_transpose(dbl_mb(k_para+ixy-9)) ! transpose the paramagnetic part

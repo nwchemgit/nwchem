@@ -143,7 +143,22 @@ c
 c
 c     ----- atomic spin density -----
 c
-      if(nospin.eq.0) call hnd_spind(rtdb,basis,geom)
+      if(nospin.eq.0 .and. (.not.do_zora))
+     &  call hnd_spind(rtdb,basis,geom)
+
+      if((nospin.eq.0) .and. (do_zora)) then
+        if (ga_nodeid().eq.0) then
+         write(*,*) " ++++++++++++++++++++++++++++++++++++++"
+         write(*,*) " +++ NMR Hyperfine with ZORA ++++ START"
+         write(*,*) " ++++++++++++++++++++++++++++++++++++++"
+        endif
+        call hnd_hyperfine_ZORA(rtdb,basis,geom)
+        if (ga_nodeid().eq.0) then
+         write(*,*) " ++++++++++++++++++++++++++++++++++++"
+         write(*,*) " +++ NMR Hyperfine with ZORA ++++ END"
+         write(*,*) " ++++++++++++++++++++++++++++++++++++"
+        endif
+      end if
 c
 c     ----- electrostatic potential -----
 c
@@ -189,8 +204,24 @@ c
       if(noden.eq.0) call hnd_eldmap(rtdb,basis,geom)
 c
 c     ----- giao -nmr- chemical shifts -----
-      if(nogiao.eq.0 .and. (.not.do_zora)) 
-     $  call hnd_giaox(rtdb,basis,geom)
+      if(nogiao.eq.0 .and. (.not.do_zora)) then
+        call hnd_giaox(rtdb,basis,geom)
+        goto 111
+c Note.- hnd_giaox_ZORA() is not working yet for NonRel DFT
+c       it gives different results than hnd_giaox() FA-04-06-11
+        if (ga_nodeid().eq.0) then
+         write(*,*) " ++++++++++++++++++++++++++++++++++++++++++++++++"
+         write(*,*) " ++ NONREL NMR Shieldings  hnd_giao_ZORA ++ START"
+         write(*,*) " ++++++++++++++++++++++++++++++++++++++++++++++++"
+        endif
+       call hnd_giaox_ZORA(rtdb,basis,geom)
+        if (ga_nodeid().eq.0) then
+         write(*,*) " ++++++++++++++++++++++++++++++++++++++++++++++"
+         write(*,*) " ++ NONREL NMR Shieldings  hnd_giao_ZORA ++ END"
+         write(*,*) " ++++++++++++++++++++++++++++++++++++++++++++++"
+        endif
+ 111    continue
+      endif
  
       if((nogiao.eq.0) .and. (do_zora)) then
         if (ga_nodeid().eq.0) then
@@ -211,7 +242,7 @@ c     ----- giao -nmr- chemical shifts -----
          write(*,*) " ========= g shift ======== START"
          write(*,*) " ===================================="
         endif
-c        call hnd_giaox_gshift(rtdb,basis,geom)
+         call hnd_gshift_ZORA(rtdb,basis,geom)
         if (ga_nodeid().eq.0) then
          write(*,*) " ===================================="
          write(*,*) " ========= g shift ======== END"

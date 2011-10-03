@@ -4,12 +4,13 @@
 
 
    OBJ_OPTIMIZE = hnd_efgmap.o \
-         hnd_efgmap_Z4.o \
+         hnd_efgmap_z4.o \
          hnd_elfmap.o \
          hnd_elpmap.o \
          hnd_eldmap.o \
          hnd_spind.o \
          hnd_elfcon.o \
+         hnd_elfcon_symm.o \
          hnd_mtpcon.o \
          hnd_mtpole.o \
          prop_input.o \
@@ -18,6 +19,9 @@
          hnd_mulken.o \
          wnbofile.o \
          wefgfile.o \
+         whypfile.o \
+         wgshiftfile.o \
+         wshldfile.o \
          hnd_prp_get_dens.o \
          hnd_prp_vec_read.o \
          hnd_prop_dens_make.o \
@@ -25,7 +29,9 @@
          cosmo.o \
          giaofock.o \
          hnd_giaox.o \
-         hnd_giaox_ZORA.o \
+         hnd_hyperfine_zora.o \
+         hnd_gshift_zora.o \
+         hnd_giaox_zora.o \
          int_giao_1ega.o \
          hnd_diag.o \
          hnd_spinspin.o \

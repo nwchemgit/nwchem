@@ -464,7 +464,8 @@ c
      $      call errquit('giao_b1: rtdb_put failed',0,RTDB_ERR)
       endif
       if (debug) write (luout,*) 'calling new_giao_2e'
-      call new_giao_2e(geom, basis, nbf, tol2e, g_dens, g_fock, xfac)
+c     call new_giao_2e(geom, basis, nbf, tol2e, g_dens, g_fock, xfac)
+      call new_giao_2e(geom, basis, nbf, tol2e, g_dens, g_fock, xfac,1) ! FA-restricted calc
       if (debug) write (luout,*) 'done new_giao_2e'
       if(use_theory.eq.'dft') then
          ifld = 0
