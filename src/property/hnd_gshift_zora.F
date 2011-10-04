@@ -46,7 +46,7 @@ c Modified from hnd_giaox by F. Aquino 11-17-10
       integer type_nmrdata,g_AtNr1,icalczora,icalczora_AB
       integer ga_dia_epr,ga_para1_epr,ga_Fji,ga_h01_epr
       integer ga_dia_epr_AB,ga_para1_epr_AB ! for A,B tensor contrib.
-      integer dft_zoraNMR_read,dft_zoraNMR_read_AB
+      logical dft_zoraNMR_read,dft_zoraNMR_read_AB
       character*3 scftyp
       character*16 tag
       character*32 element
@@ -664,8 +664,8 @@ c     OUTPUT: g_rhs
       if(.not.rtdb_get(rtdb,'zora:skip_cphf_ev_gshift',
      &                 mt_log,1,skip_cphf_ev_gshift))        
      &  skip_cphf_ev_gshift = .false.       
-      if (switch_skip_cphf    .eq. .false. .and.
-     &    skip_cphf_ev_gshift .eq. .false.) then ! START-check-skip-cphf
+      if (switch_skip_cphf    .eqv. .false. .and.
+     &    skip_cphf_ev_gshift .eqv. .false.) then ! START-check-skip-cphf
        if (ga_nodeid().eq.0)
      &  write(*,*) 'COMPUTE cphf g-shift data ...'
 c     Write ga_rhs to disk 
@@ -712,7 +712,7 @@ c ----- write CPHF data to file ----------------- END
       else !--------------------------- else-check-skip-cphf
        if (ga_nodeid().eq.0)
      &  write(*,*) 'WARNING: SKIP cphf ...'
-       if (skip_cphf_ev_gshift .eq. .true.) then
+       if (skip_cphf_ev_gshift .eqv. .true.) then
         call ga_zero(g_rhs)
         call ga_zero(g_rhs0)
         do i=1,npol
@@ -1322,7 +1322,7 @@ c -------- Calculation g_rhs/(ej-ei) ----- START
       double precision eval(nmo*npol),tosclji,coeff
       logical debug_skip
 
-      debug_skip=0 ! =1 for debugging 
+      debug_skip= .false. ! =1 for debugging 
 
       if (npol.eq.1) then
         coeff=0.25d0
@@ -2021,7 +2021,7 @@ c ----------- Create scratch ga-arrays ------- START
      &                  0,GA_ERR)
        call ga_zero(g_s10)
 
-      if (.not. do_zora) then ! do: HF or DFT (norel calc.)
+      if (do_zora .eqv. .false.) then ! do: HF or DFT (norel calc.)
 
         if (ga_nodeid().eq.0)
      &   write(*,*) 'enter-NonRel-addH10'
@@ -2181,11 +2181,11 @@ c                                  = P^(1,0)_A -  P^(1,0)_B
       logical status,do_zora,do_NonRel,
      &        not_zora_scale,skip_hypAOev
 c ------ for Hyperfine NMLO analysis --------- START
-      integer hypfile,ntot,g_c1,  ! g_c1 , collects perturbed MO coeffs C1
+      integer hypfile,ntot,g_c1, ! g_c1 , collects pertrbed MO coeffs C1
      &        plo(3),phi(3),qlo(3),qhi(3),
      &        ndata,ndir,ndir1,nlist,
-     &        g_munuFCSD,g_munuPSOSO,g_sdens, ! dummy variables not used here
-     &        dft_zoraHYP_NLMOAnalysis_write
+     &        g_munuFCSD,g_munuPSOSO,g_sdens  ! dummy variables not used 
+      logical dft_zoraHYP_NLMOAnalysis_write
       character lbl_nlmohyp*(*)
       character*255 zorafilename
       external dft_zoraHYP_NLMOAnalysis_write,
@@ -2225,7 +2225,7 @@ c +++++++++ store g_u for NMLO analysis +++++++++ START
      &   skip_hypAOev = .false. 
          hypfile=0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:hypfile',mt_int,1,hypfile) ! for NLMO analysis
-         if (hypfile.eq.1 .and. skip_hypAOev .eq. .false.) then
+         if (hypfile.eq.1 .and. skip_hypAOev .eqv. .false.) then
           alo(1) = nbf
           alo(2) = -1
           alo(3) = -1
@@ -2368,7 +2368,7 @@ c ++++++ store g_u for NMLO analysis in Hyperfine calc.++++ START
      &   skip_hypAOev = .false.    
          hypfile=0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:hypfile',mt_int,1,hypfile) ! for NLMO analysis
-         if (hypfile.eq.1 .and. skip_hypAOev .eq. .false.) then
+         if (hypfile.eq.1 .and. skip_hypAOev .eqv. .false.) then
 c -------- g_u --> g_c1 ----------START
           shift=nocc(1)*(ispin-1)
           plo(1) = 1
@@ -2501,7 +2501,7 @@ c     Make D1
      &   skip_hypAOev = .false.    
          hypfile=0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:hypfile',mt_int,1,hypfile) ! for NLMO analysis
-         if (hypfile.eq.1 .and. skip_hypAOev .eq. .false.) then
+         if (hypfile.eq.1 .and. skip_hypAOev .eqv. .false.) then
 c -------- g_c1 --> file ----------START
          ndir1=3
          ndir =6
@@ -2607,8 +2607,8 @@ c ------ for g-shift NLMO analysis --------- START
      &        ndata,ndir,ndir1,nlist,
      &        g_munuEPRdia,g_munuEPRpar1, ! dummy variables not used here
      &        g_munuEPRHpar,              ! dummy variables not used here
-     &        g_sdens,                    ! dummy variables not used here
-     &        dft_zoraGshift_NLMOAnalysis_write
+     &        g_sdens                     ! dummy variables not used here
+      logical dft_zoraGshift_NLMOAnalysis_write
       character lbl_nlmogshift*(*)
       character*255 zorafilename
       external dft_zoraGshift_NLMOAnalysis_write,
@@ -2620,8 +2620,8 @@ c ------ for shield  NLMO analysis --------- START
       integer g_munudia,  ! in: dummy variable not used
      &        g_munupar1, ! in: dummy variable not used
      &        g_munu_h01, ! in: dummy variable not used
-     &        g_dens,     ! in: dummy not used here
-     &        dft_zoraShield_NLMOAnalysis_write
+     &        g_dens      ! in: dummy not used here
+      logical dft_zoraShield_NLMOAnalysis_write
       external dft_zoraShield_NLMOAnalysis_write
 c ------ for shield  NLMO analysis --------- END  
          
@@ -2681,8 +2681,8 @@ c +++++++++ store g_u for NMLO analysis +++++++++ START
          status=rtdb_get(rtdb,'prop:shldfile'  ,mt_int,1,shldfile)   ! for NLMO analysis
          gshiftfile=0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:gshiftfile',mt_int,1,gshiftfile) ! for NLMO analysis
-         if ((gshiftfile.eq.1 .and. skip_gshiftAOev .eq. .false.) .or. 
-     &       (shldfile  .eq.1 .and. skip_csAOev     .eq. .false.)) then
+         if ((gshiftfile.eq.1 .and. skip_gshiftAOev .eqv. .false.) .or. 
+     &       (shldfile  .eq.1 .and. skip_csAOev     .eqv. .false.)) then
           alo(1) = nbf
           alo(2) = -1
           alo(3) = -1
@@ -2850,8 +2850,8 @@ c ++++++ store g_u for NMLO analysis in g-shift calc.++++ START
          status=rtdb_get(rtdb,'prop:shldfile'  ,mt_int,1,shldfile)   ! for NLMO analysis
          gshiftfile=0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:gshiftfile',mt_int,1,gshiftfile) ! for NLMO analysis
-         if ((gshiftfile.eq.1 .and. skip_gshiftAOev .eq. .false.) .or. 
-     &       (shldfile  .eq.1 .and. skip_csAOev     .eq. .false.)) then
+         if ((gshiftfile.eq.1 .and. skip_gshiftAOev .eqv. .false.) .or. 
+     &       (shldfile  .eq.1 .and. skip_csAOev     .eqv. .false.)) then
 c -------- g_u --> g_c1 ----------START
           shift=nocc(1)*(ispin-1)
           plo(1) = 1
@@ -3027,7 +3027,7 @@ c       if (ga_nodeid().eq.0) write(*,*) '---g_p1_ov--AFT--EN'
      &   skip_csAOev = .false.    
          shldfile  =0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:shldfile'  ,mt_int,1,shldfile)   ! for NLMO analysis
-         if (shldfile.eq.1 .and. skip_csAOev .eq. .false.) then
+         if (shldfile.eq.1 .and. skip_csAOev .eqv. .false.) then
 c -------- g_c1 --> file ----------START
 c         if (ga_nodeid().eq.0)
 c     &    write(*,*) '----------BEF-writing: g_c1----------- START'
@@ -3067,7 +3067,7 @@ c -------- g_c1 --> file ----------END
      &   skip_gshiftAOev = .false.    
          gshiftfile=0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:gshiftfile',mt_int,1,gshiftfile) ! for NLMO analysis
-         if (gshiftfile.eq.1 .and. skip_gshiftAOev.eq. .false.) then
+         if (gshiftfile.eq.1 .and. skip_gshiftAOev.eqv. .false.) then
 c -------- g_c1 --> file ----------START
           ndir1=3
           ndir =6
@@ -3599,8 +3599,8 @@ c ------ for g-shift NMLO analysis --------- START
      &        ndata,ndir,ndir1,
      &        g_munuEPRdia,g_munuEPRpar1, ! dummy variables not used here
      &        g_munuEPRHpar,              ! dummy variables not used here
-     &        g_sdens,                    ! dummy variables not used here
-     &        dft_zoraGshift_NLMOAnalysis_write
+     &        g_sdens                     ! dummy variables not used here
+      logical dft_zoraGshift_NLMOAnalysis_write
       character lbl_nlmogshift*(*)
       character*255 zorafilename
       external dft_zoraGshift_NLMOAnalysis_write,
@@ -3612,8 +3612,8 @@ c ------ for shield  NLMO analysis --------- START
       integer g_munudia,  ! in: dummy variable not used
      &        g_munupar1, ! in: dummy variable not used
      &        g_munu_h01, ! in: dummy variable not used
-     &        g_dens,     ! in: dummy not used here
-     &        dft_zoraShield_NLMOAnalysis_write
+     &        g_dens      ! in: dummy not used here
+      logical dft_zoraShield_NLMOAnalysis_write
       external dft_zoraShield_NLMOAnalysis_write
 c ------ for shield  NLMO analysis --------- END  
       integer nogshift
@@ -4746,7 +4746,7 @@ c ----------- Create scratch ga-arrays ------- START
      &                  0,GA_ERR)
        call ga_zero(g_s10)
 
-      if (.not. do_zora) then ! do: HF or DFT (norel calc.)
+      if (do_zora .eqv. .false.) then ! do: HF or DFT (norel calc.)
         call int_giao_1ega(basis,basis,g_s10_1,
      &                     'l10' ,pos(1),natoms,oskel)
         NoKinetic=0 ! =0 DO-kinetic, =1 SKIP-kinetic
@@ -5775,7 +5775,7 @@ c                =3  xx yy zz
      &        g_p10,g_munuEPRHpar2d,g_munuEPRpar12d
       integer iind(2),jind(2),icalczora,type_NMR  
       integer alo(3),ahi(3),elo(3),ehi(3),flo(3),fhi(3)
-      integer dft_zoraGshift_NLMOAnalysis_read ! for read-nlmo-mat
+      logical dft_zoraGshift_NLMOAnalysis_read ! for read-nlmo-mat
       character*255 zorafilename              ! for read-nlmo-mat
       integer arr_ind(6,2)
        data ((arr_ind(j,i),i=1,2),j=1,6)

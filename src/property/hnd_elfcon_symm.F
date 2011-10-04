@@ -295,7 +295,7 @@ c               4 -> xy, 5 -> xz, 6 -> yz
 c ------------- added definitions -------- START
        character*(*) lbl_nlmo
        character*255 zorafilename
-       integer dft_zoraEFGZ4_NLMOAnalysis_write
+       logical dft_zoraEFGZ4_NLMOAnalysis_write
        external dft_zoraEFGZ4_NLMOAnalysis_write,
      &          util_file_name
 c ------------- added definitions -------- END

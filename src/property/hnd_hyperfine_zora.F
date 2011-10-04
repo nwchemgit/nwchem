@@ -35,7 +35,7 @@ c $Id: hnd_giaox.F,v 1.10 2007-10-15 23:31:27 bert Exp $
       integer vectors(2), geomnew, i, j, ij, g_xc(3)
       double precision atn, tol2e, val
       double precision a(6),axs(3,3),eig(3),conv2MHz
-      integer dft_zoraNMR_read
+      logical dft_zoraNMR_read
       character*255 zorafilename
       character*3 scftyp
       character*16 tag
@@ -300,7 +300,7 @@ c        goto 123
       if(.not.rtdb_get(rtdb,'zora:skip_cphf_ev_hyp',
      &                 mt_log,1,skip_cphf_ev_hyp))        
      &  skip_cphf_ev_hyp = .false.       
-      if (skip_cphf_ev_hyp .eq. .false.) then ! ----- if-skip-cphf--START
+      if (skip_cphf_ev_hyp .eqv. .false.) then ! ----- if-skip-cphf--START
        if (ga_nodeid().eq.0)
      &  write(*,*) 'COMPUTE cphf hyp data ...'
 c     Write ga_rhs to disk 
@@ -1114,7 +1114,7 @@ c                =3  xx yy zz
      &        g_p10,g_munuPSOSO2d
       integer iind(2),jind(2),icalczora,type_NMR  
       integer alo(3),ahi(3),elo(3),ehi(3),flo(3),fhi(3)
-      integer dft_zoraHYP_NLMOAnalysis_read ! for read-nlmo-mat
+      logical dft_zoraHYP_NLMOAnalysis_read ! for read-nlmo-mat
       character*255 zorafilename              ! for read-nlmo-mat
       integer arr_ind(6,2)
        data ((arr_ind(j,i),i=1,2),j=1,6)

@@ -52,7 +52,7 @@ c $Id: hnd_giaox.F,v 1.10 2007-10-15 23:31:27 bert Exp $
       external cphf2, file_write_ga, file_read_ga, cphf
       external giao_aotomo,hnd_giasym,mat_transpose, ! FA-09-16-10
      &         dft_zoraNMR_read,get_slctd_atoms
-      integer dft_zoraNMR_read
+      logical dft_zoraNMR_read
       double precision val1
       logical     oskel, status
       double precision val_ov_Coul,val_ov_Exch,val_ov_noJK,
@@ -658,8 +658,8 @@ c -------free allocated memory -------------- END
       if(.not.rtdb_get(rtdb,'zora:skip_cphf_ev_shield',
      &                 mt_log,1,skip_cphf_ev_shield))        
      &  skip_cphf_ev_shield = .false.       
-      if (switch_skip_cphf    .eq. .false. .and.
-     &    skip_cphf_ev_shield .eq. .false.) then
+      if (switch_skip_cphf    .eqv. .false. .and.
+     &    skip_cphf_ev_shield .eqv. .false.) then
        if (ga_nodeid().eq.0)
      &  write(*,*) 'COMPUTE cphf shield data ...'
 c     Write ga_rhs to disk 
@@ -714,7 +714,7 @@ c ----- write CPHF data to file ----------------- END
       else
        if (ga_nodeid().eq.0)
      &  write(*,*) 'WARNING: SKIP cphf ...'
-       if (skip_cphf_ev_shield .eq. .true.) then
+       if (skip_cphf_ev_shield .eqv. .true.) then
         call ga_zero(g_rhs)
         do i=1,npol
          call ga_zero(vectors(i))
@@ -1122,7 +1122,7 @@ c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       do ixy = 1, 9*natoms
          par(ixy) = 0.0d0  ! initialize
       enddo
-      if (do_zora) then
+      if (do_zora .eqv. .true.) then
        if (ga_nodeid().eq.0)
      &  write(*,*) 'Calc. par tensor-> zora'
 c +++++ Initialize dbl_mb(k_para) with ga_para1 ++++ START
@@ -1360,7 +1360,7 @@ c        - Relativistic (zora) in unrestricted/restricted calculations.
       do ixy = 1, 9*natoms
          par(ixy) = 0.0d0  ! initialize
       enddo
-      if (do_zora) then
+      if (do_zora .eqv. .true.) then
        if (ga_nodeid().eq.0)
      &  write(*,*) 'Calc. par tensor-> zora'
 c +++++ Initialize dbl_mb(k_para) with ga_para1 ++++ START
@@ -1578,7 +1578,7 @@ c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       do ixy = 1, 9*natoms
          dia(ixy) = 0.0d0  ! initialize
       enddo
-      if (do_zora) then  ! get-dia---- START
+      if (do_zora .eqv. .true.) then  ! get-dia---- START
 c ---- STORE: ga_dia --> dbl_mb(k_dia)
        alo(1)=1
        ahi(1)=3
@@ -1718,7 +1718,7 @@ c                =3  xx yy zz
      &        g_p10,g_munuCSHpar2d,g_munuCSpar12d
       integer iind(2),jind(2),icalczora,type_NMR,iat,nat
       integer alo(3),ahi(3),elo(3),ehi(3),flo(3),fhi(3)
-      integer dft_zoraShield_NLMOAnalysis_read ! for read-nlmo-mat
+      logical dft_zoraShield_NLMOAnalysis_read ! for read-nlmo-mat
       character*255 zorafilename              ! for read-nlmo-mat
       integer arr_ind(6,2)
        data ((arr_ind(j,i),i=1,2),j=1,6)

@@ -38,7 +38,8 @@ c Date        : 08-13-11 (Revised and improved)
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
       integer nefc, l_efcc, k_efcc, l_efcz, k_efcz
       integer l_AtNr,k_AtNr ! to store indices of selected atoms
-      integer g_rhoS,g_Atnr1,dft_zoraEFGz4_read
+      integer g_rhoS,g_Atnr1 
+      logical dft_zoraEFGz4_read
       double precision xp, yp, zp, xn, yn, zn, zan
       double precision vec(3,3), eig(3), a(6)
       double precision pi, deg, efgxx, efgyy, efgzz, efgxy, efgxz, efgyz
@@ -607,7 +608,7 @@ c                =3  xx yy zz
       integer g_tnp1,jlo1,jhi1,jlo2,jhi2
       integer g_ov,g_ov1,g_dens1,g_munu_rot
       integer iind(2),jind(2),icalczora   
-      integer dft_zoraEFGz4_NLMOAnalysis_read ! for read-nlmo-mat
+      logical dft_zoraEFGz4_NLMOAnalysis_read ! for read-nlmo-mat
       character*255 zorafilename              ! for read-nlmo-mat
       integer arr_ind(6,2)
        data ((arr_ind(j,i),i=1,2),j=1,6)
