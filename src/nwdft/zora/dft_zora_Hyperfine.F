@@ -31,7 +31,8 @@ c Date    : 03-10-11
       integer nat_slc,typeprop,nat,l_AtNr,k_AtNr
       integer alo(3),ahi(3),ld(2)
       logical status  
-      integer i,j,type_nmrdata,dft_zoraNMR_write
+      integer i,j,type_nmrdata
+      logical dft_zoraNMR_write
       integer ga_dia_hfine,ga_para1,
      &        ga_h01_hfine,ga_Fji_hfine
       logical is_atom,ofinite,Knucl
@@ -216,8 +217,8 @@ c    Date   : 03-10-11
 c +++++++++ definitions for NLMO analysis ++++++++ START
       integer ndir,ndir1,n_munu,count,count1,hypfile,
      &        g_munuFCSD,g_munuPSOSO, ! GA contains matrices
-     &        g_c1,ndata,
-     &        dft_zoraHYP_NLMOAnalysis_write
+     &        g_c1,ndata
+      logical dft_zoraHYP_NLMOAnalysis_write
 c +++++++++ definitions for NLMO analysis ++++++++ END
       external zora_getv_HFine,    
      &         get_chi_centers_ga,

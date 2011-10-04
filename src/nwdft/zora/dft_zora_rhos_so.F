@@ -35,7 +35,8 @@ c -- Author : Fredy Aquino 10-30-10
       integer geom
       integer ao_bas_han                      
       integer i,pos_dat,
-     &        do_zgc_old,nexc,dft_zoraEFGZ4_write
+     &        do_zgc_old,nexc
+      logical dft_zoraEFGZ4_write
       integer ipol,iat,nat,noc1,ac   
       integer l_xyzpt,k_xyzpt,     
      &        l_zanpt,k_zanpt    
@@ -430,7 +431,7 @@ c     bq variables (MV)
       integer i_cbq
       integer i_qbq
       double precision elpotbq
-      integer dft_zoraEFGZ4_read
+      logical dft_zoraEFGZ4_read
       integer g_rhoS,g_Atnr1,icalczora
       integer nder                       
       integer l_rhoS,k_rhoS              

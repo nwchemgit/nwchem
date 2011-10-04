@@ -21,8 +21,8 @@
 #include "zora.fh" 
       integer ga_dia_epr,ga_para1_epr,ga_h01_epr,ga_Fji
       character*255 zorafilename
-      integer type_nmrdata,nat_slc,
-     &        dft_zoraNMR_write,dft_zoraNMR_write_AB
+      integer type_nmrdata,nat_slc
+      logical dft_zoraNMR_write,dft_zoraNMR_write_AB
       integer g_densZ4(3),g_sdens,g_dens_at(2) 
       integer rtdb    
       integer geom
@@ -195,7 +195,7 @@ c      call ga_print(ga_h01_epr)
 c      if (ga_nodeid().eq.0) then
 c       write(*,*) '----OUT:ga_h01_epr----- END'
 c      endif
-      if (done_Fji .eq. .false.) then
+      if (done_Fji .eqv. .false.) then
       call get_Fji(ga_Fji, ! OUT: munu-mat-Fji
      &             rtdb,g_dens_at,nexc,
      &             geom,ao_bas_han,nbf)
@@ -319,7 +319,7 @@ c ----- for g-shift NLMO analysis ----------- START
       integer n_munu,ndir,ndir1,gshiftfile     
       integer g_munuEPRdia,g_munuEPRpar1 
       integer g_munuEPRHpar,g_par1A(3,3),g_c1
-      integer dft_zoraGshift_NLMOAnalysis_write,
+      logical dft_zoraGshift_NLMOAnalysis_write,
      &        dft_zoraGshift_NLMOAnalysis_read
 c ----- for g-shift NLMO analysis ----------- END
       integer nbf,ipol,noc(2)

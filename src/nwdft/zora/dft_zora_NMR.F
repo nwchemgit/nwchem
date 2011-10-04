@@ -38,7 +38,7 @@ c  #include "zora.fh"
       character*255 zorafilename
       double precision ppm
       integer i,j
-      integer dft_zoraNMR_write
+      logical dft_zoraNMR_write
       integer ga_dia,    ! OUTPUT
      &        ga_para1,  ! OUTPUT
      &        ga_h01_num,! OUTPUT
@@ -219,8 +219,8 @@ c --------- definitions for shieldings NLMO analysis --- START
       character*255 zorafilename
       integer g_dia2kt(3,3),g_par1kt(3,3)
       integer g_munudia,g_munupar1,g_munu_h01,g_c1,ndata
-      integer count,count1,count2,n_munu,ndir,ndir1,shldfile,
-     &        dft_zoraShield_NLMOAnalysis_write
+      integer count,count1,count2,n_munu,ndir,ndir1,shldfile
+      logical dft_zoraShield_NLMOAnalysis_write
       external fill_munuFCSD,dft_zoraShield_NLMOAnalysis_write,
      &         util_file_name
 c --------- definitions for shieldings NLMO analysis --- END

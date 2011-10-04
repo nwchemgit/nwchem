@@ -59,7 +59,8 @@ czora...Scale zora eigenvalues and energy
 c ---------- nlmo definitions ----------------- START
       integer g_munuV6,g_munu_rhoS,g_densx,       
      &        g_zora_scale_munu(2),ipolmunu 
-      integer ndir,dft_zoraEFGZ4_NLMOAnalysis_write
+      integer ndir
+      logical dft_zoraEFGZ4_NLMOAnalysis_write
       external dft_zoraEFGZ4_NLMOAnalysis_write
      &         util_file_name
 c ---------- nlmo definitions ----------------- END
@@ -125,7 +126,7 @@ c       Note.- lbl_nlmo defined in zora.fh
         ndir=6
         call util_file_name(lbl_nlmo,.false.,.false.,zorafilename)
 c ---------> Write NMLO analysis data: 1 of 3 ----- START
-        if (.not.dft_zoraEFGZ4_NLMOAnalysis_write(
+        if (.not. dft_zoraEFGZ4_NLMOAnalysis_write(
      &       zorafilename, ! in: filename
      &                nbf, ! in: nr basis functions
      &               ndir, ! in: nr of directions: 6 = xx yy zz xy xz yz
@@ -266,7 +267,7 @@ c ----- execute this code ONLY when NMR-CS-Z4 is requested -- START
       if(.not.rtdb_get(rtdb,'zora:skip_csAOev',
      &                 mt_log,1,skip_csAOev))        
      &  skip_csAOev = .false.       
-      if (nogiao.eq.0 .and. skip_csAOev .eq. .false.) then
+      if (nogiao.eq.0 .and. skip_csAOev .eqv. .false.) then
        call get_NMRCS_SRZORA(rtdb,g_dens_at,nexc,
      &                       geom,ao_bas_han,
      &                       nbf,noc,ipol,
@@ -280,7 +281,7 @@ c ----- execute this code ONLY when NMR-spinspin is requested -- START
       if(.not.rtdb_get(rtdb,'zora:skip_hypAOev',
      &                 mt_log,1,skip_hypAOev))        
      &  skip_hypAOev = .false.    
-      if (nospin.eq.0 .and. skip_hypAOev .eq. .false.) then
+      if (nospin.eq.0 .and. skip_hypAOev .eqv. .false.) then
         call get_NMRHFine_ZORA(rtdb,g_dens_at,nexc,
      &                         geom,ao_bas_han,
      &                         nbf,focc,noc,ipol,
@@ -298,7 +299,7 @@ c ----- execute this code ONLY when EPR-gshift is requested -- START
  22   format('(nogshift,skip_gshiftAOev,done_Fji)=(',
      &        i2,',',L,',',L,')')
 
-      if (nogshift.eq.0 .and. skip_gshiftAOev .eq. .false.) then
+      if (nogshift.eq.0 .and. skip_gshiftAOev .eqv. .false.) then
        call get_EPRg(rtdb,g_dens_at,nexc,
      &               geom,ao_bas_han,
      &               nbf,focc,noc,ipol,
@@ -306,8 +307,8 @@ c ----- execute this code ONLY when EPR-gshift is requested -- START
      &               g_densZ4)
       endif   
 c ----- execute this code ONLY when EPR-gshift is requested -- END
-      if ((nogiao  .eq.0 .and. skip_csAOev     .eq. .false.).or. 
-     &    (nogshift.eq.0 .and. skip_gshiftAOev .eq. .false.)) then
+      if ((nogiao  .eq.0 .and. skip_csAOev     .eqv. .false.).or. 
+     &    (nogshift.eq.0 .and. skip_gshiftAOev .eqv. .false.)) then
         if (.not.ga_destroy(ga_Fji)) call 
      &    errquit('dft_zora_utils: ga_destroy failed ga_Fji',
      &            0,GA_ERR)
@@ -316,7 +317,7 @@ c ----- execute this code ONLY when EFGZ4 is requested -- START
       if(.not.rtdb_get(rtdb,'zora:skip_efgz4AOev',
      &                 mt_log,1,skip_efgz4AOev))        
      &  skip_efgz4AOev = .false.  
-      if (noelfgZ4.eq.0 .and. skip_efgz4AOev .eq. .false.) then
+      if (noelfgZ4.eq.0 .and. skip_efgz4AOev .eqv. .false.) then
        call get_rhoS(rtdb,g_dens_at,nexc,
      &               geom,ao_bas_han,nbf,nbf_ao,
      &               noc,ipol)     

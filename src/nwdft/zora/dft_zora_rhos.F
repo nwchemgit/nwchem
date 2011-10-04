@@ -36,7 +36,8 @@ c -- Author : Fredy Aquino 12-07-09
      &        l_AtNr,k_AtNr,
      &        nlst,i,j,count
       integer g_rhoS,g_munu_rhoS,g_munuV6,
-     &        dft_zoraEFGZ4_write,efgfile
+     &        efgfile
+      logical dft_zoraEFGZ4_write
 c     g_munu_rhoS, contains xx,yy,zz,xy,xz,yz
 c                  munu half-triangle matrices
 c                  including main diagonal
@@ -45,8 +46,8 @@ c                  including main diagonal
       character*255 zorafilename
       double precision scf_dbl,zora_eint,toac,
      &                 xyz_EFGcoords(3)  
-      integer stat_read,read_SLCTD_EFG_Atoms,
-     &        dft_zoraEFGZ4_NLMOAnalysis_write
+      integer stat_read,read_SLCTD_EFG_Atoms
+      logical dft_zoraEFGZ4_NLMOAnalysis_write
       external get_densZ4,read_SLCTD_EFG_Atoms,
      &         zora_getv_EFGZ4_SR,dft_zoraEFGZ4_write,
      &         util_file_name,
