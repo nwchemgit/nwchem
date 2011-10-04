@@ -921,12 +921,14 @@ c ---> ma_alloc_get: to allocate memory
 c ---> ma_free_heap: to release allocated memory
        if      (ndata.eq.1) then
         nmat=nbf
+       if (.not. ma_alloc_get(
+     &        mt_dbl,nmat,'dft_zoraNLMO_write',
+     &        l_mat,k_mat))
+     $  call errquit('dft_zoraNLMO_write: ma failed', 
+     &               nmat, MA_ERR)
        else if (ndata.eq.2) then
         nmat=nlst*ndir*nlist
         nmat1=nbf*nbf
-       else if (ndata.eq.3) then
-        nmat=nlst*ndir*nlist
-       endif
        if (.not. ma_alloc_get(
      &        mt_dbl,nmat,'dft_zoraNLMO_write',
      &        l_mat,k_mat))
@@ -937,6 +939,14 @@ c ---> ma_free_heap: to release allocated memory
      &        l_mat1,k_mat1))
      $  call errquit('dft_zoraNLMO_write: ma failed', 
      &               nmat1, MA_ERR)
+       else if (ndata.eq.3) then
+        nmat=nlst*ndir*nlist
+       if (.not. ma_alloc_get(
+     &        mt_dbl,nmat,'dft_zoraNLMO_write',
+     &        l_mat,k_mat))
+     $  call errquit('dft_zoraNLMO_write: ma failed', 
+     &               nmat, MA_ERR)
+       endif
 c ++++++++ using ma_alloc_get +++++++++++++++++++ END
        if      (ndata.eq.1) then
 c     Open the file - 1st time
@@ -977,12 +987,22 @@ c     Open the file - 3rd time
 c
 c     Deallocate the temporary buffer
 c ----- Using ma_free_heap ------------ START
+      if      (ndata.eq.1) then
+      if (.not. ma_free_heap(l_mat))
+     $  call errquit('dft_zoraNLMO_write: ma free_heap failed', 
+     &               911, MA_ERR)
+      else if (ndata.eq.2) then
       if (.not. ma_free_heap(l_mat))
      $  call errquit('dft_zoraNLMO_write: ma free_heap failed', 
      &               911, MA_ERR)
       if (.not. ma_free_heap(l_mat1))
      $  call errquit('dft_zoraNLMO_write: ma free_heap1 failed', 
      &               911, MA_ERR)
+      else if (ndata.eq.3) then
+      if (.not. ma_free_heap(l_mat))
+     $  call errquit('dft_zoraNLMO_write: ma free_heap failed', 
+     &               911, MA_ERR)
+      endif
 c ----- Using ma_free_heap ------------ END
 c     Close the file
       close(unitno,err=1002)
