@@ -300,7 +300,7 @@ c        goto 123
       if(.not.rtdb_get(rtdb,'zora:skip_cphf_ev_hyp',
      &                 mt_log,1,skip_cphf_ev_hyp))        
      &  skip_cphf_ev_hyp = .false.       
-      if (skip_cphf_ev_hyp .eqv. .false.) then ! ----- if-skip-cphf--START
+      if (.not.(skip_cphf_ev_hyp)) then ! ----- if-skip-cphf--START
        if (ga_nodeid().eq.0)
      &  write(*,*) 'COMPUTE cphf hyp data ...'
 c     Write ga_rhs to disk 

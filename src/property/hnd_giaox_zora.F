@@ -658,8 +658,8 @@ c -------free allocated memory -------------- END
       if(.not.rtdb_get(rtdb,'zora:skip_cphf_ev_shield',
      &                 mt_log,1,skip_cphf_ev_shield))        
      &  skip_cphf_ev_shield = .false.       
-      if (switch_skip_cphf    .eqv. .false. .and.
-     &    skip_cphf_ev_shield .eqv. .false.) then
+      if (.not.(switch_skip_cphf) .and.
+     &    .not.(skip_cphf_ev_shield)) then
        if (ga_nodeid().eq.0)
      &  write(*,*) 'COMPUTE cphf shield data ...'
 c     Write ga_rhs to disk 
@@ -714,7 +714,7 @@ c ----- write CPHF data to file ----------------- END
       else
        if (ga_nodeid().eq.0)
      &  write(*,*) 'WARNING: SKIP cphf ...'
-       if (skip_cphf_ev_shield .eqv. .true.) then
+       if (skip_cphf_ev_shield) then
         call ga_zero(g_rhs)
         do i=1,npol
          call ga_zero(vectors(i))
@@ -1122,7 +1122,7 @@ c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       do ixy = 1, 9*natoms
          par(ixy) = 0.0d0  ! initialize
       enddo
-      if (do_zora .eqv. .true.) then
+      if (do_zora) then
        if (ga_nodeid().eq.0)
      &  write(*,*) 'Calc. par tensor-> zora'
 c +++++ Initialize dbl_mb(k_para) with ga_para1 ++++ START
@@ -1360,7 +1360,7 @@ c        - Relativistic (zora) in unrestricted/restricted calculations.
       do ixy = 1, 9*natoms
          par(ixy) = 0.0d0  ! initialize
       enddo
-      if (do_zora .eqv. .true.) then
+      if (do_zora) then
        if (ga_nodeid().eq.0)
      &  write(*,*) 'Calc. par tensor-> zora'
 c +++++ Initialize dbl_mb(k_para) with ga_para1 ++++ START
@@ -1578,7 +1578,7 @@ c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       do ixy = 1, 9*natoms
          dia(ixy) = 0.0d0  ! initialize
       enddo
-      if (do_zora .eqv. .true.) then  ! get-dia---- START
+      if (do_zora) then  ! get-dia---- START
 c ---- STORE: ga_dia --> dbl_mb(k_dia)
        alo(1)=1
        ahi(1)=3

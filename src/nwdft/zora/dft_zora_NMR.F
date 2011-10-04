@@ -84,12 +84,12 @@ c ------- get_NMRCSdia1 --------- START
      &                   geom,ao_bas_han,nbf,
      &                   noc,ipol,g_densZ4)
       call ga_add(1.0d0,ga_dia1,1.0d0,ga_dia2,ga_dia)
-      if (ga_nodeid().eq.0) write(*,*) '----OUT:ga_dia-ppm--- START'
-      call ga_print(ga_dia)
-      if (ga_nodeid().eq.0) write(*,*) '----OUT:ga_dia-ppm--- END'
-      if (ga_nodeid().eq.0) write(*,*) '----OUT:ga_para1-ppm- START'
-      call ga_print(ga_para1)
-      if (ga_nodeid().eq.0) write(*,*) '----OUT:ga_para1-ppm- END'
+c     if (ga_nodeid().eq.0) write(*,*) '----OUT:ga_dia-ppm--- START'
+c     call ga_print(ga_dia)
+c     if (ga_nodeid().eq.0) write(*,*) '----OUT:ga_dia-ppm--- END'
+c     if (ga_nodeid().eq.0) write(*,*) '----OUT:ga_para1-ppm- START'
+c     call ga_print(ga_para1)
+c     if (ga_nodeid().eq.0) write(*,*) '----OUT:ga_para1-ppm- END'
       if (do_prntNMRCS) then  ! printNMRCS-if-requested-START
        if (ga_nodeid().eq.0) then
         write(*,*) '----OUT:ga_dia2-ppm----- START'

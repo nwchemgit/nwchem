@@ -664,8 +664,8 @@ c     OUTPUT: g_rhs
       if(.not.rtdb_get(rtdb,'zora:skip_cphf_ev_gshift',
      &                 mt_log,1,skip_cphf_ev_gshift))        
      &  skip_cphf_ev_gshift = .false.       
-      if (switch_skip_cphf    .eqv. .false. .and.
-     &    skip_cphf_ev_gshift .eqv. .false.) then ! START-check-skip-cphf
+      if (.not.(switch_skip_cphf) .and.
+     &    .not.(skip_cphf_ev_gshift)) then ! START-check-skip-cphf
        if (ga_nodeid().eq.0)
      &  write(*,*) 'COMPUTE cphf g-shift data ...'
 c     Write ga_rhs to disk 
@@ -712,7 +712,7 @@ c ----- write CPHF data to file ----------------- END
       else !--------------------------- else-check-skip-cphf
        if (ga_nodeid().eq.0)
      &  write(*,*) 'WARNING: SKIP cphf ...'
-       if (skip_cphf_ev_gshift .eqv. .true.) then
+       if (skip_cphf_ev_gshift) then
         call ga_zero(g_rhs)
         call ga_zero(g_rhs0)
         do i=1,npol
@@ -2021,7 +2021,7 @@ c ----------- Create scratch ga-arrays ------- START
      &                  0,GA_ERR)
        call ga_zero(g_s10)
 
-      if (do_zora .eqv. .false.) then ! do: HF or DFT (norel calc.)
+      if (.not.(do_zora)) then ! do: HF or DFT (norel calc.)
 
         if (ga_nodeid().eq.0)
      &   write(*,*) 'enter-NonRel-addH10'
@@ -2225,7 +2225,7 @@ c +++++++++ store g_u for NMLO analysis +++++++++ START
      &   skip_hypAOev = .false. 
          hypfile=0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:hypfile',mt_int,1,hypfile) ! for NLMO analysis
-         if (hypfile.eq.1 .and. skip_hypAOev .eqv. .false.) then
+         if (hypfile.eq.1 .and. .not.(skip_hypAOev)) then
           alo(1) = nbf
           alo(2) = -1
           alo(3) = -1
@@ -2368,7 +2368,7 @@ c ++++++ store g_u for NMLO analysis in Hyperfine calc.++++ START
      &   skip_hypAOev = .false.    
          hypfile=0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:hypfile',mt_int,1,hypfile) ! for NLMO analysis
-         if (hypfile.eq.1 .and. skip_hypAOev .eqv. .false.) then
+         if (hypfile.eq.1 .and. .not.(skip_hypAOev)) then
 c -------- g_u --> g_c1 ----------START
           shift=nocc(1)*(ispin-1)
           plo(1) = 1
@@ -2501,7 +2501,7 @@ c     Make D1
      &   skip_hypAOev = .false.    
          hypfile=0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:hypfile',mt_int,1,hypfile) ! for NLMO analysis
-         if (hypfile.eq.1 .and. skip_hypAOev .eqv. .false.) then
+         if (hypfile.eq.1 .and. .not.(skip_hypAOev)) then
 c -------- g_c1 --> file ----------START
          ndir1=3
          ndir =6
@@ -2681,8 +2681,8 @@ c +++++++++ store g_u for NMLO analysis +++++++++ START
          status=rtdb_get(rtdb,'prop:shldfile'  ,mt_int,1,shldfile)   ! for NLMO analysis
          gshiftfile=0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:gshiftfile',mt_int,1,gshiftfile) ! for NLMO analysis
-         if ((gshiftfile.eq.1 .and. skip_gshiftAOev .eqv. .false.) .or. 
-     &       (shldfile  .eq.1 .and. skip_csAOev     .eqv. .false.)) then
+         if ((gshiftfile.eq.1 .and. .not.(skip_gshiftAOev)) .or. 
+     &       (shldfile  .eq.1 .and. .not.(skip_csAOev))) then
           alo(1) = nbf
           alo(2) = -1
           alo(3) = -1
@@ -2850,8 +2850,8 @@ c ++++++ store g_u for NMLO analysis in g-shift calc.++++ START
          status=rtdb_get(rtdb,'prop:shldfile'  ,mt_int,1,shldfile)   ! for NLMO analysis
          gshiftfile=0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:gshiftfile',mt_int,1,gshiftfile) ! for NLMO analysis
-         if ((gshiftfile.eq.1 .and. skip_gshiftAOev .eqv. .false.) .or. 
-     &       (shldfile  .eq.1 .and. skip_csAOev     .eqv. .false.)) then
+         if ((gshiftfile.eq.1 .and. .not.(skip_gshiftAOev)) .or. 
+     &       (shldfile  .eq.1 .and. .not.(skip_csAOev))) then
 c -------- g_u --> g_c1 ----------START
           shift=nocc(1)*(ispin-1)
           plo(1) = 1
@@ -3027,7 +3027,7 @@ c       if (ga_nodeid().eq.0) write(*,*) '---g_p1_ov--AFT--EN'
      &   skip_csAOev = .false.    
          shldfile  =0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:shldfile'  ,mt_int,1,shldfile)   ! for NLMO analysis
-         if (shldfile.eq.1 .and. skip_csAOev .eqv. .false.) then
+         if (shldfile.eq.1 .and. .not.(skip_csAOev)) then
 c -------- g_c1 --> file ----------START
 c         if (ga_nodeid().eq.0)
 c     &    write(*,*) '----------BEF-writing: g_c1----------- START'
@@ -3067,7 +3067,7 @@ c -------- g_c1 --> file ----------END
      &   skip_gshiftAOev = .false.    
          gshiftfile=0 ! not doing NLMO analysis by default
          status=rtdb_get(rtdb,'prop:gshiftfile',mt_int,1,gshiftfile) ! for NLMO analysis
-         if (gshiftfile.eq.1 .and. skip_gshiftAOev.eqv. .false.) then
+         if (gshiftfile.eq.1 .and. .not.(skip_gshiftAOev)) then
 c -------- g_c1 --> file ----------START
           ndir1=3
           ndir =6
@@ -4746,7 +4746,7 @@ c ----------- Create scratch ga-arrays ------- START
      &                  0,GA_ERR)
        call ga_zero(g_s10)
 
-      if (do_zora .eqv. .false.) then ! do: HF or DFT (norel calc.)
+      if (.not.(do_zora)) then ! do: HF or DFT (norel calc.)
         call int_giao_1ega(basis,basis,g_s10_1,
      &                     'l10' ,pos(1),natoms,oskel)
         NoKinetic=0 ! =0 DO-kinetic, =1 SKIP-kinetic

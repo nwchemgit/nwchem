@@ -181,13 +181,13 @@ c ------ Read Knucl   for including ONLY nuclear part in K ZORA ----- END
      &                         g_epr1,g_epr2,g_epr3,g_epr4,! in
      &                         geom,ao_bas_han,nbf,ipol,
      &                         lbl_nlmogshift,rtdb)        ! in
-      if (ga_nodeid().eq.0) then
-       write(*,*) '----OUT:ga_para1_epr-ppt----- START'
-      endif
-      call ga_print(ga_para1_epr)
-      if (ga_nodeid().eq.0) then
-       write(*,*) '----OUT:ga_para1_epr-ppt----- END'
-      endif
+c     if (ga_nodeid().eq.0) then
+c      write(*,*) '----OUT:ga_para1_epr-ppt----- START'
+c     endif
+c     call ga_print(ga_para1_epr)
+c     if (ga_nodeid().eq.0) then
+c      write(*,*) '----OUT:ga_para1_epr-ppt----- END'
+c     endif
 c      if (ga_nodeid().eq.0) then
 c       write(*,*) '----OUT:ga_h01_epr----- START'
 c      endif
@@ -195,7 +195,7 @@ c      call ga_print(ga_h01_epr)
 c      if (ga_nodeid().eq.0) then
 c       write(*,*) '----OUT:ga_h01_epr----- END'
 c      endif
-      if (done_Fji .eqv. .false.) then
+      if (.not.(done_Fji)) then
       call get_Fji(ga_Fji, ! OUT: munu-mat-Fji
      &             rtdb,g_dens_at,nexc,
      &             geom,ao_bas_han,nbf)
@@ -753,6 +753,7 @@ c ---- store par,dia AB ---------- START
       call nga_put(g_par1_epr_AB,alo,ahi,dbl_mb(k_buf4),ld)
       call nga_put(g_dia_epr_AB,alo,ahi,dbl_mb(k_buf5),ld)
 c ---- store par,dia AB ---------- END
+      goto 10
       if (ga_nodeid().eq.0) then
        write(*,*) '----OUT:ga_dia_epr-ppt----- START'
       endif
@@ -789,6 +790,7 @@ c ------- print dia,epr AB --------- START
       if (ga_nodeid().eq.0) then
        write(*,*) '----OUT:ga_par1_epr_AB-ppt----- END'
       endif
+ 10   continue
 c ------- print dia,epr AB --------- END
 c----deallocate memory - FA
        if (.not.ma_free_heap(l_buf)) call errquit

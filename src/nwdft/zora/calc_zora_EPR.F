@@ -138,7 +138,7 @@ c     == calculate the total nuclear potential on the grid ==
         if (k.eq.closegridpts(k)) qwght(k) = 0.d0
       end do
 c     === define fac_arr
-      if (Knucl .eqv. .false.) then
+      if (.not.(Knucl)) then
        do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
          amat_tot =+amat_nucl(k)-amat_coul(k,1)
@@ -155,7 +155,7 @@ c +++++++++++++++++++++++++++++++++++++++++++++++++++++++
          fac3_arr(n,k)=qwght(k)*qxyz(n,k)
         enddo ! end-loop-n
        enddo ! end-loop-k
-      else if (Knucl .eqv. .true.) then
+      else if (Knucl) then
        do k = 1,npts
 c      == assemble hartree and nuclear contributions ==
           amat_tot =+amat_nucl(k)

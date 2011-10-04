@@ -1,10 +1,12 @@
       subroutine dft_densm(g_dens,g_vecs,nbf,nmo,ipol,
-     ,     geom,AO_bas_han,noc,ntotel,
-     ,	evals,focc,ssmear,tdots,
-     ,     iter,search0,
-     .     fon, nel_fon,nmo_fon,
-     .     spinset)
+     ,                     geom,AO_bas_han,noc,ntotel,
+     ,	                   evals,focc,ssmear,tdots,
+     ,                     iter,search0,
+     .                     fon, nel_fon,nmo_fon,
+     .                     spinset,
+     .                     rtdb) ! FA : for dft_scaleMO()
 C$Id$
+C FA-10-04-11: Adding changes for using fractional occupations
       implicit none
 #include "errquit.fh"
 #include "bas.fh"
@@ -15,6 +17,7 @@ C$Id$
 #include "msgids.fh"
 #include "dftps.fh"
 #include "util.fh"
+#include "rtdb.fh" ! FA-02-22-11, for occupations
 
       integer geom
       integer AO_bas_han
@@ -50,6 +53,11 @@ c
       parameter(undovl=-20d0*2.3025d0)
       parameter (zero=0.d0,toll=1.d-9,one=1.d0,
      ,   kbau=1.d0,eps=1.d-4)
+      external dft_scaleMO ! FA-added-02-22-11
+      integer rtdb         ! FA-02-22-11, for occupations
+      integer switch_focc  ! FA-02-22-11, for occupations
+      logical status       ! FA-02-22-11, for occupations
+
 c
       sqrtpi=sqrt(acos(-1d0))
       me=ga_nodeid()
@@ -72,11 +80,29 @@ c
             endif
          endif  
          if (odftps) call pstat_on(ps_dgemm)
+c ------ Checking if occupations keyword was used ---- START
+         switch_focc=0
+         status=rtdb_get(rtdb,'focc:occ-switch',
+     &                   mt_int,1,switch_focc)
+c ------ Checking if occupations keyword was used ---- END        
+          if (switch_focc.eq.1 .and. status) then
+c ------ Get density matrix : Using occupations keyword ---- START
+           do isp=1,ipol
+            call dft_scaleMO(rtdb,g_vecs, ! IN  : MO vectors
+     &                       focc,g_dens, ! OUT : density matrix
+     &                       noc,         ! IN/OUT : nr. occupations
+     &                       nbf,ipol,ntotel)
+           enddo ! end-loop-ispin
+c ------ Get density matrix : Using occupations keyword ---- END
+          else
+c ------ Get density matrix : default ---- START
          do isp=1,ipol
-            call ga_dgemm('N', 'T', nbf, nbf, 
-     $           noc(isp), 2d0/dble(ipol), g_vecs(isp),
-     $           g_vecs(isp), zero, g_dens(isp))
+            call ga_dgemm('N', 'T', nbf, nbf, noc(isp),
+     $                    2d0/dble(ipol), g_vecs(isp),g_vecs(isp),
+     $                    zero, g_dens(isp))
          enddo
+c ------ Get density matrix : default ---- START
+          endif
          if (odftps) call pstat_off(ps_dgemm)
       else	
          if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))

@@ -194,9 +194,19 @@ c
             if (inp_compare(.false.,'finite', nucmodel) .or.
      &          inp_compare(.false.,'fi', nucmodel)) then
               ofinite = .true.
+c ------ Store ofinite to be used by HFine finite calc ---FA-03-21-11-- START
+c Note.- To be called in calc_zora_HFine_fast() or calc_zora_HFine_slow()
+c        located in ./src/nwdft/zora/calc_zora_HFine.F
+         if (.not. rtdb_put(rtdb, 'prop:ofinite',mt_log,1,ofinite))
+     $      call errquit('geo ofinite: rtdb_put failed',555, RTDB_ERR)
+c ------ Store ofinite to be used by HFine finite calc ---FA-03-21-11-- END
             else if (inp_compare(.false.,'point', nucmodel) .or.
      &          inp_compare(.false.,'pt', nucmodel)) then
               ofinite = .false.  
+c ------ Store ofinite to be used by HFine finite calc ---FA-03-21-11-- START
+         if (.not. rtdb_put(rtdb, 'prop:ofinite',mt_log,1,ofinite))
+     $      call errquit('geo ofinite: rtdb_put failed',555, RTDB_ERR)
+c ------ Store ofinite to be used by HFine finite calc ---FA-03-21-11-- END
             end if
          else
             if (name .ne. ' ') call errquit

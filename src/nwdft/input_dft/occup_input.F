@@ -66,8 +66,8 @@ c
       call inp_set_field(0)     ! goto start of line
       if (.not. inp_a(field))
      $     call errquit('occup_input: no input present', 0, INPUT_ERR)
-      if (.not. inp_compare(.false., 'occupations', field))
-     $     call errquit('occup_input: not occupations input',
+      if (.not. inp_compare(.false., 'occup', field))
+     $     call errquit('occup_input: not occup input',
      &                   0,INPUT_ERR)   
       status = .true.
       status = status .and. inp_i(nfocc_in(1))
