@@ -80,29 +80,23 @@ c
             endif
          endif  
          if (odftps) call pstat_on(ps_dgemm)
-c ------ Checking if occupations keyword was used ---- START
          switch_focc=0
          status=rtdb_get(rtdb,'focc:occ-switch',
      &                   mt_int,1,switch_focc)
-c ------ Checking if occupations keyword was used ---- END        
-          if (switch_focc.eq.1 .and. status) then
-c ------ Get density matrix : Using occupations keyword ---- START
+          if (switch_focc.eq.1 .and. status) then  ! using specified occupations
            do isp=1,ipol
             call dft_scaleMO(rtdb,g_vecs, ! IN  : MO vectors
      &                       focc,g_dens, ! OUT : density matrix
-     &                       noc,         ! IN/OUT : nr. occupations
+     &                       noc,         ! IN/OUT : orbital occupations
      &                       nbf,ipol,ntotel)
            enddo ! end-loop-ispin
-c ------ Get density matrix : Using occupations keyword ---- END
-          else
-c ------ Get density matrix : default ---- START
-         do isp=1,ipol
+          else   ! default occupations
+           do isp=1,ipol
             call ga_dgemm('N', 'T', nbf, nbf, noc(isp),
      $                    2d0/dble(ipol), g_vecs(isp),g_vecs(isp),
      $                    zero, g_dens(isp))
-         enddo
-c ------ Get density matrix : default ---- START
-          endif
+           enddo
+          endif   ! switch_focc
          if (odftps) call pstat_off(ps_dgemm)
       else	
          if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
