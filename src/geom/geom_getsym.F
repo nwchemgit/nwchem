@@ -74,6 +74,9 @@ c
          if (oautosym) then
             if (.not. geom_ncent(geom,ncenter)) call errquit
      $           ('geom_input: geom_cent?',0, GEOM_ERR)
+            if (ncenter_before_auto .gt. ncenter) call errquit
+     $           ('geom_input: autosym bug : too few atoms',ncenter,
+     &       GEOM_ERR)
             if (ncenter_before_auto .ne. ncenter) call errquit
      $           ('geom_input: autosym bug : too many atoms',ncenter,
      &       GEOM_ERR)
