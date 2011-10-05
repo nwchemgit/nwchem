@@ -779,6 +779,7 @@ c      call cpsi_data_dealloc(lmd_tag)
       end if
 
 
+
 *     ***** diagonalize the hamiltonian matrix but don't rotate ****
       call cpsi_data_update(hml_tag)
       call cpsi_data_update(eig_tag)
@@ -803,9 +804,9 @@ c      call cpsi_data_dealloc(lmd_tag)
      >                       dbl_mb(hml_shift),
      >                       zero,
      >                       dbl_mb(psi2_shift))
-
       end do
       call cpsi_data_noupdate(psi2_tag)
+
 
 
 *                |***************************|

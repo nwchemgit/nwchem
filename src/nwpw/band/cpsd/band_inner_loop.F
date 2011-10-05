@@ -444,7 +444,7 @@ c           if (pspw_qmmm_found()) call pspw_qmmm_fion(dbl_mb(fion(1)))
          psi_shift  = cpsi_data_get_chnk(psi1_tag,nb)
          hpsi_shift = cpsi_data_get_chnk(Hpsi_tag,nb)
          hml_shift  = cpsi_data_get_chnk(hml_tag,nb)
-         call Pneb_ffw_Multiply(0,nb,
+         call Pneb_ffw_hermit_Multiply(0,nb,
      >                  dbl_mb(psi_shift),
      >                  dbl_mb(hpsi_shift),npack1,
      >                  dbl_mb(hml_shift))
