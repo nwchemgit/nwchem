@@ -213,11 +213,12 @@ c     >                       dcpl_mb(vpsi(1)))
 *           xcp                 - xc potential in r-space
 *   Exit - Horb_k - gradient in k-space
 *
-      subroutine cpsi_Horb(nb,ispin,ms,
+      subroutine cpsi_Horb(notvirtual,nb,ispin,ms,
      >                 vall,
      >                 orb_k,orb_r,
      >                 Horb_k)
       implicit none
+      logical    notvirtual
       integer    nb,ispin,ms
       complex*16 vall(*)
       complex*16 orb_k(*)
@@ -250,7 +251,7 @@ c     >                       dcpl_mb(vpsi(1)))
       external zdotc,cpsi_ne
 
 
-      dohfx = band_HFX().and.band_HFX_relaxed()
+      dohfx = band_HFX().and.band_HFX_relaxed().and.notvirtual
 
       if (control_spin_orbit()) then
         call cpsi_Horb2com(nb,ispin,ms,

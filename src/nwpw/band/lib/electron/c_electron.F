@@ -268,7 +268,7 @@ c      complex*16 psi_k(*)
 *     ******************
 *     **** get Hpsi ****
 *     ******************
-      call cpsi_Horb(nb,ispin,ms,
+      call cpsi_Horb(.false.,nb,ispin,ms,
      >              dcpl_mb(vall(1)),
      >              orb,
      >              dcpl_mb(tmp_r(1)),
@@ -1009,7 +1009,7 @@ c     >                     THpsi_k)
 *     ******************
 *     **** get Hpsi ****
 *     ******************
-      call cpsi_Horb(nb,ispin,ms,
+      call cpsi_Horb(.true.,nb,ispin,ms,
      >              dcpl_mb(vall(1)),
      >              dbl_mb(psik_shift),
      >              dbl_mb(psir_shift),

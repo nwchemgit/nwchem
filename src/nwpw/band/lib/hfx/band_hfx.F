@@ -261,6 +261,8 @@ c        end do
 *     **** external functions ****
       integer  cpsi_data_get_chnk
       external cpsi_data_get_chnk
+      real*8   brillioun_weight,brillioun_k
+      external brillioun_weight,brillioun_k
 c      integer  Butter_Levels,Dneall_na_ptr
 c      external Butter_Levels,Dneall_na_ptr
 
@@ -288,18 +290,27 @@ c        **** reduceall algorithm ****
             do nb1=1,nbrillq
                call dcopy(2*nfft3d*neall,0.0d0,0,
      >                    dbl_mb(cpsi_data_get_chnk(Hpsi_r_tag,nb1)),1)
-               call band_potential_HFX_sub(
+               call band_potential_HFX_sub(brillioun_weight(nb1),
      >                  dbl_mb(cpsi_data_get_chnk(psi_r_tag, nb1)),
      >                  dbl_mb(cpsi_data_get_chnk(Hpsi_r_tag,nb1)))
             end do
-            !do nb1=1,nbrillioun
-            !   do nb2=1,nbrillioun
-            !      call band_potential_HFX_sub(psi1_r, psi2_r,Hpsi1_r,Hpsi2_r)
-            !   end do
-            !end do
-
-            !call band_potential_HFX_sub(ispin0,psi_r_tag,Hpsi_r_tag)
-
+            do nb1=1,nbrillq-1
+               do nb2=nb1+1,nbrillq
+                  kv1(1) = brillioun_k(1,nb1)
+                  kv1(2) = brillioun_k(2,nb1)
+                  kv1(3) = brillioun_k(3,nb1)
+                  kv2(1) = brillioun_k(1,nb2)
+                  kv2(2) = brillioun_k(2,nb2)
+                  kv2(3) = brillioun_k(3,nb2)
+                  call c_coulomb_screened_set(kv1,kv2)
+                  call band_potential_HFX_sub2(brillioun_weight(nb1),
+     >                                         brillioun_weight(nb2),
+     >                    dbl_mb(cpsi_data_get_chnk(psi_r_tag, nb1)),
+     >                    dbl_mb(cpsi_data_get_chnk(psi_r_tag, nb2)),
+     >                    dbl_mb(cpsi_data_get_chnk(Hpsi_r_tag,nb1)),
+     >                    dbl_mb(cpsi_data_get_chnk(Hpsi_r_tag,nb2)))
+               end do
+            end do
             call Parallel_SumAll(ehfx)
             call Parallel_SumAll(phfx)
          end if
@@ -389,13 +400,14 @@ c***************** sub/replicated routines *****************************
 *
 * calculates the exact exchange potentials and k=l
 *
-      subroutine band_potential_HFX_sub(psi_r,Hpsi_r)
+      subroutine band_potential_HFX_sub(weight,psi_r,Hpsi_r)
       implicit none
 
 #include "band_hfx.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
 
+      real*8     weight
       complex*16 psi_r(nfft3d,*)
       complex*16 Hpsi_r(nfft3d,*)
 
@@ -408,7 +420,7 @@ c***************** sub/replicated routines *****************************
       integer i2,j2,k2
       integer i3,j3,k3
       integer kv1,kv2
-      real*8  scal1,scal2,dv,eh,ph
+      real*8  scal1,scal2,dv,eh,ph,weight2
 
 *     **** external functions ****
       real*8   lattice_omega,c_icoulomb_screened_e
@@ -435,6 +447,7 @@ c***************** sub/replicated routines *****************************
      >      MA_ERR)
 
  
+         weight2 = weight*weight
          scal1 = 1.0d0/dble(n1*n2*n3)
          scal2 = 1.0d0/lattice_omega()
          dv = scal1/scal2
@@ -458,9 +471,9 @@ c              call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
                  if (k1.le.NN) then
 
 *                   **** generate dnij for Vij  ****
-                    call C3dB_cc_Mul(1,psi_r(1,j1),
+                    call C3dB_bb_Mul(1,psi_r(1,j1),
      >                                 psi_r(1,i1),dcpl_mb(dn(1)))
-                    call C3dB_c_SMul1(1,scal2*scal1,dcpl_mb(dn(1)))
+                    call C3dB_b_SMul1(1,scal2*scal1,dcpl_mb(dn(1)))
                     call C3dB_rc_pfft3f_queuein(0,dcpl_mb(dn(1)))
  
                     k1 = k1 + 1
@@ -482,7 +495,7 @@ c              call dcopy(norbs(ms),0.0d0,0,dbl_mb(ehfx_orb(1,ms)),1)
      >                                           dcpl_mb(vij(1)))
 
 *                      **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
-                       eh = eh*hfx_parameter
+                       eh = eh*hfx_parameter*weight2
                        if (ispin.eq.1) eh = eh + eh
                        ph = 2.0d0*eh
                        ehfx = ehfx - eh
@@ -511,26 +524,27 @@ c     >                     = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
                     call C3dB_cr_pfft3b_queueout(0,dcpl_mb(vij(1)))
 
 *                   **** apply hfx_parameter ****
-                    call C3dB_c_SMul1(1,hfx_parameter,dcpl_mb(vij(1)))
+                    call C3dB_b_SMul1(1,hfx_parameter*weight2,
+     >                                dcpl_mb(vij(1)))
 
 *                   **** generate (Vij)*psi_r ***
-                    call C3dB_cc_Mul(1,dcpl_mb(vij(1)),
+                    call C3dB_bb_ncMul(1,dcpl_mb(vij(1)),
      >                                 psi_r(1,j3),
      >                                 dcpl_mb(tmp1(1)))
 
 *                   **** add -(Vij)*psi_r to Hpsi_r ***
-                    call C3dB_cc_Sub2(1,dcpl_mb(tmp1(1)),Hpsi_r(1,i3))
+                    call C3dB_bb_Sub2(1,dcpl_mb(tmp1(1)),Hpsi_r(1,i3))
 
 
                     !**** include off diagonal terms ****
                     if (i3.ne.j3) then
 *                      **** generate (Vij)*psi_r ***
-                       call C3dB_cc_Mul(1,dcpl_mb(vij(1)),
+                       call C3dB_bb_Mul(1,dcpl_mb(vij(1)),
      >                                 psi_r(1,i3),
      >                                 dcpl_mb(tmp2(1)))
 
 *                      **** add -(Vij)*psi_r to Hpsi_r ***
-                       call C3dB_cc_Sub2(1,dcpl_mb(tmp2(1)),
+                       call C3dB_bb_Sub2(1,dcpl_mb(tmp2(1)),
      >                                   Hpsi_r(1,j3))
                     end if
 
@@ -557,12 +571,184 @@ c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
      >      call errquit('band_potential_HFX:popping stack memory',0,
      >      MA_ERR)
 
-         !call Parallel_SumAll(ehfx)
-         !call Parallel_SumAll(phfx)
       end if
 
       return
       end
+
+
+*     ********************************
+*     *                    	     *
+*     *     band_potential_HFX_sub2  *
+*     *                              *
+*     ********************************
+*
+* calculates the exact exchange potentials and k!=l
+*
+      subroutine band_potential_HFX_sub2(weight1,weight2,
+     >                                   psi1_r,psi2_r,
+     >                                   Hpsi1_r,Hpsi2_r)
+      implicit none
+
+#include "band_hfx.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+      real*8     weight1,weight2
+      complex*16  psi1_r(nfft3d,*), psi2_r(nfft3d,*)
+      complex*16 Hpsi1_r(nfft3d,*),Hpsi2_r(nfft3d,*)
+
+*     **** local variables ****
+      logical value,done
+      integer i,j,n1,n2,n3,ms
+      integer dn12(2),v12(2),tmp1(2),tmp2(2),index1,index2
+      integer psir1,psir2,hpsir1,hpsir2
+      integer i1,j1,k1,N,NN
+      integer i2,j2,k2
+      integer i3,j3,k3
+      integer kv1,kv2
+      real*8  scal1,scal2,dv,eh,ph,weight12
+
+*     **** external functions ****
+      real*8   lattice_omega,c_icoulomb_screened_e
+      logical   C3dB_rc_pfft3_queue_filled,C3dB_cr_pfft3_queue_filled
+      external lattice_omega,c_icoulomb_screened_e
+      external  C3dB_rc_pfft3_queue_Cilled,C3dB_cr_pfft3_queue_filled
+
+      if (((norbs(1)+norbs(2)).ne.0).and.relaxed) then
+
+         call C3dB_nx(1,n1)
+         call C3dB_ny(1,n2)
+         call C3dB_nz(1,n3)
+         value = MA_push_get(mt_dcpl,nfft3d,'dn12_hfx',dn12(2),dn12(1))
+         value = value.and.
+     >           MA_push_get(mt_dcpl,nfft3d,'v12_hfx',v12(2),v12(1))
+         value = value.and.
+     >           MA_push_get(mt_dcpl,nfft3d,'tmp1_hfx',tmp1(2),tmp1(1))
+         value = value.and.
+     >           MA_push_get(mt_dcpl,nfft3d,'tmp2_hfx',tmp2(2),tmp2(1))
+         if (.not. value) 
+     >      call errquit('band_potential_HFX:out of stack memory',0,
+     >      MA_ERR)
+
+ 
+         weight12 = weight1*weight2
+         scal1 = 1.0d0/dble(n1*n2*n3)
+         scal2 = 1.0d0/lattice_omega()
+         dv = scal1/scal2
+ 
+*        ***** screened coulomb solver ****
+           do ms=1,ispin
+              N  = norbs(ms)
+              NN = N*N
+              i1 = 1
+              j1 = 1
+              k1 = 1
+              i2 = 1
+              j2 = 1
+              k2 = 1
+              i3 = 1
+              j3 = 1
+              k3 = 1
+              done = .false.
+              do while (.not.done)
+
+                 if (k1.le.NN) then
+
+*                   **** generate dn12 for v12 ****
+                    call C3dB_bb_Mul(1,psi1_r(1,j1),
+     >                                 psi2_r(1,i1),
+     >                                 dcpl_mb(dn12(1)))
+                    call C3dB_b_SMul1(1,scal2*scal1,dcpl_mb(dn12(1)))
+                    call C3dB_rc_pfft3f_queuein(0,dcpl_mb(dn12(1)))
+ 
+                    k1 = k1 + 1
+                    j1 = j1 + 1
+                    if (j1.gt.N) then
+                       j1 = 1
+                       i1 = i1 + 1
+                    end if
+                 end if
+ 
+                 if (     ((C3dB_rc_pfft3_queue_filled()).or.(k1.gt.NN))
+     >               .and.(k2.le.NN)) then
+
+                       call C3dB_rc_pfft3f_queueout(0,dcpl_mb(dn12(1)))
+
+*                      **** generate V12 ****
+                       eh=2.0d0*c_icoulomb_screened_e(dcpl_mb(dn12(1)))
+                       call c_coulomb_screened_v(dcpl_mb(dn12(1)),
+     >                                           dcpl_mb(v12(1)))
+
+                       call C3dB_cr_pfft3b_queuein(0,dcpl_mb(v12(1)))
+
+*                      **** apply hfx_parameter, double eh for restricted, and calculcate ph ****
+                       eh = eh*hfx_parameter*weight12
+                       if (ispin.eq.1) eh = eh + eh
+                       ph = 2.0d0*eh
+                       ehfx = ehfx - eh
+                       phfx = phfx - ph
+                       if (i2.ne.j2) then
+                          ehfx = ehfx - eh
+                          phfx = phfx - ph
+                       end if
+
+                       k2 = k2 + 1
+                       j2 = j2 + 1
+                       if (j2.gt.N) then
+                          j2 = 1
+                          i2 = i2 + 1
+                       end if
+                 end if
+
+                 if ((C3dB_cr_pfft3_queue_filled()).or.(k2.gt.NN)) then
+
+                    call C3dB_cr_pfft3b_queueout(0,dcpl_mb(v12(1)))
+
+*                   **** apply hfx_parameter ****
+                    call C3dB_b_SMul1(1,hfx_parameter*weight12,
+     >                                dcpl_mb(v12(1)))
+
+*                   **** generate conjg(V12)*psi1_r and (V12)*psi2_r ***
+                    call C3dB_bb_Mul(1,dcpl_mb(v12(1)),psi1_r(1,j3),
+     >                                 dcpl_mb(tmp1(1)))
+                    call C3dB_bb_ncMul(1,dcpl_mb(v12(1)),psi2_r(1,j3),
+     >                                 dcpl_mb(tmp2(1)))
+
+*                   **** add -conjg(V12)*psi1_r to Hpsi2_r and add -(V12)*psi2_r to Hpsi1_r ***
+                    call C3dB_bb_Sub2(1,dcpl_mb(tmp1(1)),Hpsi2_r(1,i3))
+                    call C3dB_bb_Sub2(1,dcpl_mb(tmp2(1)),Hpsi1_r(1,i3))
+
+                    k3 = k3 + 1
+                    j3 = j3 + 1
+                    if (j3.gt.N) then
+                       j3 = 1
+                       i3 = i3 + 1
+                    end if
+                 end if
+
+              done = (k1.gt.NN).and.(k2.gt.NN).and.(k3.gt.NN)
+           end do !**** while ****
+
+       end do !**** ms *****
+
+ 
+         value =           MA_pop_stack(tmp2(2))
+         value = value.and.MA_pop_stack(tmp1(2))
+         value = value.and.MA_pop_stack(v12(2))
+         value = value.and.MA_pop_stack(dn12(2))
+         if (.not. value) 
+     >   call errquit('band_potential_HFX_sub2:popping stack memory',
+     >                0,MA_ERR)
+
+      end if
+
+      return
+      end
+
+
+
+
 
 
 *     *****************************
