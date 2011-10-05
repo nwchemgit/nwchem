@@ -1203,6 +1203,16 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
         hml(j,k) = dconjg(hml(k,j))
       end do
       end do
+      do k=1,n
+        hml(k,k) = dcmplx(dble(hml(k,k)),0.0d0)
+      end do
+
+c      do k=1,n
+c      do j=1,n
+c         write(*,*) "sym_izgemm=",j,k,hml(j,k)
+c      end do
+c      end do
+      
 
       call nwpw_timing_end(2)
       return
@@ -1234,7 +1244,6 @@ c     if (np.gt.1) call C3dB_SumAll(sum)
       call nwpw_timing_start(2)
       call Parallel3d_np_i(np)
       npack1 = int_mb(nidb2_list(1)+nb)
-      npack1 = npack_max
 
       call ZGEMM('N','N',npack1,n,m,
      >           alpha,
