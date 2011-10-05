@@ -109,7 +109,7 @@ c
                call input_charge(rtdb)
             else if (inp_compare(.false.,test,'dft')) then
                call dft_input(rtdb)
-            else if (inp_compare(.false.,test,'occupations')) then
+            else if (inp_compare(.false.,test,'occup')) then
                call occup_input(rtdb)
             else if (inp_compare(.false.,test,'prepare')) then
                call pre_input(rtdb)
