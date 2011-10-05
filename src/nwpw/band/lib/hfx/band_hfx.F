@@ -701,24 +701,22 @@ c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
 
                     call C3dB_cr_pfft3b_queueout(0,dcpl_mb(v12(1)))
 
-*                   **** apply hfx_parameter ****
-c                    call C3dB_b_SMul1(1,hfx_parameter*weight,
-c     >                                dcpl_mb(v12(1)))
-
 *                   **** generate conjg(V12)*psi1_r and add -conjg(V12)*psi1_r to Hpsi2_r ****
-                    call C3dB_bb_Mul(1,dcpl_mb(v12(1)),psi1_r(1,j3),
+                    call C3dB_bb_ncMul(1,dcpl_mb(v12(1)),psi1_r(1,j3),
      >                                 dcpl_mb(tmp1(1)))
+*                   **** apply hfx_parameter ****
                     call C3dB_b_SMul1(1,hfx_parameter*weight1,
      >                                dcpl_mb(tmp1(1)))
                     call C3dB_bb_Sub2(1,dcpl_mb(tmp1(1)),Hpsi2_r(1,i3))
 
 
 *                   **** generate (V12)*psi2_r and add -(V12)*psi2_r to Hpsi1_r ****
-                    call C3dB_bb_ncMul(1,dcpl_mb(v12(1)),psi2_r(1,j3),
+                    call C3dB_bb_Mul(1,dcpl_mb(v12(1)),psi2_r(1,i3),
      >                                 dcpl_mb(tmp2(1)))
+*                   **** apply hfx_parameter ****
                     call C3dB_b_SMul1(1,hfx_parameter*weight2,
      >                                dcpl_mb(tmp2(1)))
-                    call C3dB_bb_Sub2(1,dcpl_mb(tmp2(1)),Hpsi1_r(1,i3))
+                    call C3dB_bb_Sub2(1,dcpl_mb(tmp2(1)),Hpsi1_r(1,j3))
 
 
                     k3 = k3 + 1
