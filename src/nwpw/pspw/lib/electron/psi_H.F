@@ -236,12 +236,13 @@ c     >                         dcpl_mb(vpsi(1)))
 *           xcp                 - xc potential in r-space
 *   Exit - Hpsi_k - gradient in k-space
 *
-      subroutine psi_Horb(ispin,ms,
+      subroutine psi_Horb(notvirtual,ispin,ms,
      >                 psi_r,
      >                 vall,
      >                 orb_k,orb_r,
      >                 Horb_k)
       implicit none
+      logical    notvirtual
       integer    ispin,ms
       real*8     psi_r(*)
       real*8     vall(*)      
@@ -273,7 +274,7 @@ c     >                         dcpl_mb(vpsi(1)))
       external lattice_omega
 
 
-      dohfx = pspw_HFX().and.pspw_HFX_relaxed() 
+      dohfx = pspw_HFX().and.pspw_HFX_relaxed().and.notvirtual
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -391,14 +392,16 @@ c     >                      dcpl_mb(vpsi(1)))
 *           orb_k,orb_h         - replicated orbital in k-space and r-space
 *           vall                  - local +external fields+coulomb in r-space
 *           xcp                 - xc potential in r-space
+*           notvirtual
 *   Exit - Horb_k - replicated gradient in k-space
 *
-      subroutine psi_Horb_replicated(ispin,ms,
+      subroutine psi_Horb_replicated(notvirtual,ispin,ms,
      >                 psi_r,
      >                 vall,
      >                 orb_k,orb_r,
      >                 Horb_k)
       implicit none
+      logical    notvirtual
       integer    ispin,ms
       real*8     psi_r(*)
       real*8     vall(*)      
@@ -430,7 +433,7 @@ c     >                      dcpl_mb(vpsi(1)))
       external lattice_omega
 
 
-      dohfx = pspw_HFX().and.pspw_HFX_relaxed() 
+      dohfx = pspw_HFX().and.pspw_HFX_relaxed().and.notvirtual 
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
