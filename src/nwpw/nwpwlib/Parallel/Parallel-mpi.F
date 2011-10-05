@@ -464,6 +464,45 @@ c     implicit none
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *         Parallel_IMaxAll        *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_IMaxAll(isum)
+c     implicit none
+      integer  isum
+
+#include "Parallel.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+#ifdef MPI4
+      integer*4 isumall,isum2
+      if (np.gt.1) then
+         isum2 = isum
+         stupid_msglen = 1
+         call MPI_Allreduce(isum2,isumall,stupid_msglen,stupid_integer,
+     >                      stupid_max,stupid_world,stupid_ierr)
+         isum = isumall
+      end if
+#else
+      integer msglen,mpierr
+      integer isumall
+      if (np.gt.1) then
+         msglen = 1
+         call MPI_Allreduce(isum,isumall,msglen,MPI_INTEGER,
+     >                       MPI_MAX,MPI_COMM_WORLD,mpierr)
+         isum = isumall
+      end if
+#endif
+      return
+      end
+
 
 
 

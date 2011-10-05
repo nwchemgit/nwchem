@@ -272,6 +272,29 @@ c     implicit none
 
 
 
+
+*     ***********************************
+*     *                                 *
+*     *         Parallel_IMaxAll        *
+*     *                                 *
+*     ***********************************
+      subroutine Parallel_IMaxAll(isum)
+c     implicit none
+      integer isum
+
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+      if (np.gt.1) then
+         call GA_IGOP(9+MSGINT,isum,1,'max')
+      end if
+      return
+      end
+
+
+
+
 *     ***********************************
 *     *                                 *
 *     *         Parallel_SumAll         *
