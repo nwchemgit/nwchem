@@ -1197,12 +1197,14 @@ C
       RETURN
       END
       REAL FUNCTION EXPARG (IDUMMY)
+      REAL XMAX
 C--------------------------------------------------------------------
 C     COMPUTATION OF THE LARGEST ARGUMENT W FOR WHICH EXP(W)
 C     MAY BE COMPUTED. (ONLY AN APPROXIMATE VALUE IS NEEDED.)
 C--------------------------------------------------------------------
 cng      EXPARG = 0.99999*ALOG(SPMPAR(3))
-      EXPARG = 0.99999*ALOG(HUGE(1.d0))
+      XMAX = HUGE(1.d0)
+      EXPARG = 0.99999*ALOG(XMAX)
       RETURN
       END
       REAL FUNCTION GAM1(A)
