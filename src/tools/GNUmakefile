@@ -399,6 +399,8 @@ $(BUILDDIR)/.libs/libga.a: $(BUILDDIR)/Makefile $(BUILDDIR)/armci/Makefile
 	@echo ''
 	@(cd $(BUILDDIR) && $(MAKE)) || exit 1
 
+configure_ga: $(BUILDDIR)/Makefile
+
 $(BUILDDIR)/Makefile: $(GA_DIR)/Makefile.in $(BUILDDIR)/config.status
 	cd $(BUILDDIR) && $(SHELL) ./config.status
 

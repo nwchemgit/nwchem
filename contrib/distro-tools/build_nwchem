@@ -32,9 +32,9 @@ function get_mpi_include ()
    # and returns them as a list for a compile line.
    # E.g.: /usr/include -I/usr/local/include
    #
-   # MPICH2 and MVAPICH2 support -compile-info
+   # Most support -show
    #
-   inlist="`mpif90 -compile-info`"
+   inlist="`mpif90 -show`"
    result=$?
    if [ ${result} -ne 0 ] ; then
      #
@@ -45,7 +45,7 @@ function get_mpi_include ()
    fi
    if [ ${result} -ne 0 ] ; then
      #
-     # HPMPI supports -show
+     # MPICH2 and MVAPICH2 support -compile-info
      #
      inlist="`mpif90 -show`"
      result=$?
@@ -114,9 +114,9 @@ function get_mpi_lib ()
    # and returns them as a list for a link line.
    # E.g.: -lmpich
    #
-   # MPICH2 and MVAPICH2 support -link-info
+   # Most support -show
    #
-   inlist="`mpif90 -link-info`"
+   inlist="`mpif90 -show`"
    result=$?
    if [ ${result} -ne 0 ] ; then
      #
@@ -127,9 +127,9 @@ function get_mpi_lib ()
    fi
    if [ ${result} -ne 0 ] ; then
      #
-     # HPMPI supports -show
+     # MPICH2 and MVAPICH2 support -link-info
      #
-     inlist="`mpif90 -show`"
+     inlist="`mpif90 -link-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
@@ -151,9 +151,9 @@ function get_mpi_fortran ()
    # and returns its name as a list for a compile line.
    # E.g.: gfortran
    #
-   # MPICH2 and MVAPICH2 support -compile-info
+   # Most support -show
    #
-   inlist="`mpif90 -compile-info`"
+   inlist="`mpif90 -show`"
    result=$?
    if [ ${result} -ne 0 ] ; then
      #
@@ -164,9 +164,9 @@ function get_mpi_fortran ()
    fi
    if [ ${result} -ne 0 ] ; then
      #
-     # HPMPI supports -show
+     # MPICH2 and MVAPICH2 support -compile-info
      #
-     inlist="`mpif90 -show`"
+     inlist="`mpif90 -compile-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
@@ -200,9 +200,9 @@ function get_mpi_cc ()
    # and returns its name as a list for a compile line.
    # E.g.: gcc
    #
-   # MPICH2 and MVAPICH2 support -compile-info
+   # Most support -show
    #
-   inlist="`mpicc -compile-info`"
+   inlist="`mpicc -show`"
    result=$?
    if [ ${result} -ne 0 ] ; then
      #
@@ -213,9 +213,9 @@ function get_mpi_cc ()
    fi
    if [ ${result} -ne 0 ] ; then
      #
-     # HPMPI supports -show
+     # MPICH2 and MVAPICH2 support -compile-info
      #
-     inlist="`mpicc -show`"
+     inlist="`mpicc -compile-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
@@ -250,12 +250,16 @@ function get_mpi_cxx ()
    # and returns its name as a list for a compile line.
    # E.g.: g++
    #
-   # MPICH2 and MVAPICH2 support -compile-info
+   # Most support -show
    #
-   inlist="`mpiCC -compile-info`"
+   inlist="`mpiCC -show`"
    result=$?
    if [ ${result} -ne 0 ] ; then
-     inlist="`mpicxx -compile-info`"
+     inlist="`mpicxx -show`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
+     inlist="`mpic++ -show`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
@@ -270,14 +274,22 @@ function get_mpi_cxx ()
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
-     #
-     # HPMPI supports -show
-     #
-     inlist="`mpiCC -show`"
+     inlist="`mpic++ -showme`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
-     inlist="`mpicxx -show`"
+     #
+     # MPICH2 and MVAPICH2 support -compile-info
+     #
+     inlist="`mpiCC -compile-info`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
+     inlist="`mpicxx -compile-info`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
+     inlist="`mpic++ -compile-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
@@ -305,6 +317,33 @@ function get_mpi_cxx ()
    done
    echo "ERROR: could not find a valid C++ compiler" > /dev/stderr
    exit 1
+}
+function get_config_value()
+{
+   # This function extracts the value of a setting in config.status.
+   # The approach is to simply grep the key on the config.status file.
+   # We expect to get 1 line in response, and we return whatever appears
+   # after the equals sign.
+   key=$1
+   line=`grep $key ${NWCHEM_TOP}/src/tools/build/config.status`
+   line=${line/*=/}
+   line=${line/#\"/}
+   line=${line/%\"/}
+   echo ${line}
+}
+function config_is_set()
+{
+   # This function retrieves the value of a seting in config.status according
+   # to the key specified. It then checks the length of the result. If
+   # the result was "" (length <= 0) then it was not set, otherwise it is.
+   key=$1
+   result=`get_config_value $key`
+   if [ ${#result} -gt 0 ] ; then
+     value=0
+   else
+     value=1
+   fi
+   echo ${value}
 }
 export NWCHEM_TOP=`pwd`
 export NWCHEM_TARGET=LINUX64
@@ -404,9 +443,52 @@ if [ ${#IB_INCLUDE} -ne 0 ] ; then
   echo "IB_INCLUDE    =" ${IB_INCLUDE}
 fi
 cd $NWCHEM_TOP/src
-make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" nwchem_config
-if [ "x${option}" == "x" ]; then
-  cd $NWCHEM_TOP/src/util
+echo "=== configure GA ==="
+if [ "x${option}" != "xrealclean" ]; then
+  make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" configure_ga
+  #
+  # Extract information about BLAS libraries from the GA config.status file
+  #
+  have_blas_false=`get_config_value "HAVE_BLAS_FALSE"`
+  have_blas_true=`get_config_value "HAVE_BLAS_TRUE"`
+  if [ "x${have_blas_true}" == "x" ] ; then
+    if [ "x${have_blas_false}" == "x#" ] ; then
+      # The GA found some BLAS library, set GA_BLAS accordingly
+      GA_BLAS=`get_config_value "BLAS_LDFLAGS"`
+      GA_BLAS="${GA_BLAS} `get_config_value \"BLAS_LIBS\"`"
+      export GA_BLAS
+      echo "Found BLAS " ${GA_BLAS}
+    else
+      # Confused
+      echo "ERROR: A: inconsistent data on presence of BLAS library"
+      exit 1
+    fi
+  elif [ "x${have_blas_true}" == "x#" ] ; then
+    if [ "x${have_blas_false}" == "x" ] ; then
+      # The GA found no BLAS library, unset GA_BLAS to maintain consistency
+      unset GA_BLAS
+      echo "Found no BLAS "
+    else
+      # Confused
+      echo "ERROR: B: inconsistent data on presence of BLAS library"
+      exit 1
+    fi
+  else
+    echo "ERROR: C: invalid settings" ${have_blas_true} ${have_blas_false}
+    exit 1
+  fi
+fi
+if [ ${#BLASOPT} -eq 0 ] ; then
+  if [ ${#GA_BLAS} -ne 0 ] ; then
+    export BLASOPT=${GA_BLAS}
+  fi
+fi
+echo "=== configure NWChem ==="
+if [ "x${option}" != "xrealclean" ]; then
+  make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" nwchem_config
+fi
+cd $NWCHEM_TOP/src/util
+if [ "x${option}" != "xrealclean" ]; then
   make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" version
 fi
 cd $NWCHEM_TOP/src

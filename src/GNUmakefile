@@ -95,6 +95,9 @@ endif
 	$(LINK.f) -o nwchem_test nwchem.o stubs.o -lnwctask $(LIBS)
 	$(INSTALL)
 
+configure_ga:
+	$(MAKE) -C tools configure_ga
+
 # This dependency so that includes which are made by libraries rule
 # are updated before nwchem is compiled
 
