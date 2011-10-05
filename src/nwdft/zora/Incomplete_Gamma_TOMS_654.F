@@ -514,9 +514,9 @@ C            E IS THE SMALLEST NUMBER FOR WHICH 1.0 + E .GT. 1.0.
 C            XMIN IS THE SMALLEST POSITIVE NUMBER AND XMAX IS THE
 C            LARGEST POSITIVE NUMBER.
 C
-                   E = EPSILON(1.d0) !SPMPAR(1)
-                   XMIN = TINY(1.d0) !SPMPAR(2)
-                   XMAX = HUGE(1.d0) !SPMPAR(3)
+                   E = EPSILON(1.0) !SPMPAR(1)
+                   XMIN = TINY(1.0) !SPMPAR(2)
+                   XMAX = HUGE(1.0) !SPMPAR(3)
 C     -------------------
       X = 0.0
       IF (A .LE. 0.0) GO TO 500
@@ -1031,7 +1031,7 @@ C     CODE MAY BE OMITTED IF DESIRED.
 C
       IF (ABS(T) .GE. 1.E-30) GO TO 40
 cng      IF (ABS(T)*SPMPAR(3) .LE. 1.0001) RETURN
-      IF (ABS(T)*HUGE(1.d0) .LE. 1.0001) RETURN
+      IF (ABS(T)*HUGE(1.0) .LE. 1.0001) RETURN
       GAMMA = 1.0/T
       RETURN
 C
@@ -1203,7 +1203,7 @@ C     COMPUTATION OF THE LARGEST ARGUMENT W FOR WHICH EXP(W)
 C     MAY BE COMPUTED. (ONLY AN APPROXIMATE VALUE IS NEEDED.)
 C--------------------------------------------------------------------
 cng      EXPARG = 0.99999*ALOG(SPMPAR(3))
-      XMAX = HUGE(1.d0)
+      XMAX = HUGE(1.0)
       EXPARG = 0.99999*ALOG(XMAX)
       RETURN
       END
