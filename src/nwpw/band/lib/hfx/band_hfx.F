@@ -524,7 +524,7 @@ c     >                     = dbl_mb(ehfx_orb(1,ms)+i2-1) - eh
                     call C3dB_cr_pfft3b_queueout(0,dcpl_mb(vij(1)))
 
 *                   **** apply hfx_parameter ****
-                    call C3dB_b_SMul1(1,hfx_parameter*weight2,
+                    call C3dB_b_SMul1(1,hfx_parameter*weight,
      >                                dcpl_mb(vij(1)))
 
 *                   **** generate (Vij)*psi_r ***
@@ -688,10 +688,6 @@ c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
                        ph = 2.0d0*eh
                        ehfx = ehfx - eh
                        phfx = phfx - ph
-                       if (i2.ne.j2) then
-                          ehfx = ehfx - eh
-                          phfx = phfx - ph
-                       end if
 
                        k2 = k2 + 1
                        j2 = j2 + 1
@@ -706,18 +702,24 @@ c           call Parallel_Vector_SumAll(norbs(ms),dbl_mb(ehfx_orb(1,ms)))
                     call C3dB_cr_pfft3b_queueout(0,dcpl_mb(v12(1)))
 
 *                   **** apply hfx_parameter ****
-                    call C3dB_b_SMul1(1,hfx_parameter*weight12,
-     >                                dcpl_mb(v12(1)))
+c                    call C3dB_b_SMul1(1,hfx_parameter*weight,
+c     >                                dcpl_mb(v12(1)))
 
-*                   **** generate conjg(V12)*psi1_r and (V12)*psi2_r ***
+*                   **** generate conjg(V12)*psi1_r and add -conjg(V12)*psi1_r to Hpsi2_r ****
                     call C3dB_bb_Mul(1,dcpl_mb(v12(1)),psi1_r(1,j3),
      >                                 dcpl_mb(tmp1(1)))
+                    call C3dB_b_SMul1(1,hfx_parameter*weight1,
+     >                                dcpl_mb(tmp1(1)))
+                    call C3dB_bb_Sub2(1,dcpl_mb(tmp1(1)),Hpsi2_r(1,i3))
+
+
+*                   **** generate (V12)*psi2_r and add -(V12)*psi2_r to Hpsi1_r ****
                     call C3dB_bb_ncMul(1,dcpl_mb(v12(1)),psi2_r(1,j3),
      >                                 dcpl_mb(tmp2(1)))
-
-*                   **** add -conjg(V12)*psi1_r to Hpsi2_r and add -(V12)*psi2_r to Hpsi1_r ***
-                    call C3dB_bb_Sub2(1,dcpl_mb(tmp1(1)),Hpsi2_r(1,i3))
+                    call C3dB_b_SMul1(1,hfx_parameter*weight2,
+     >                                dcpl_mb(tmp2(1)))
                     call C3dB_bb_Sub2(1,dcpl_mb(tmp2(1)),Hpsi1_r(1,i3))
+
 
                     k3 = k3 + 1
                     j3 = j3 + 1
