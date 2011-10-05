@@ -1792,6 +1792,20 @@ c      call ga_sync()
       end
 
 
+      subroutine C3dB_b_SMul1(nb,scale,A)
+      implicit none
+      integer    nb        
+      real*8     scale
+      complex*16 A(*)
+#include "C3dB.fh"
+      integer i     
+      do i=1,n2ft3d_map(nb)
+         A(i) = scale*A(i)
+      end do      
+      return
+      end
+
+
 
       subroutine C3dB_r_SMul(nb,scale,A,C)     
       implicit none 
@@ -2838,17 +2852,28 @@ c      call Parallel3d_np_i(np)
       complex*16 A(*)
       complex*16 B(*)
       complex*16 C(*)
-
 #include "C3dB.fh"
-
       integer i
-
       do i=1,n2ft3d_map(nb)
-            C(i) = dconjg(A(i)) * B(i)
-         end do
-
+         C(i) = dconjg(A(i)) * B(i)
+      end do
       return
       end
+
+
+      subroutine C3dB_bb_ncMul(nb,A,B,C)
+      implicit none
+      integer    nb
+      complex*16 A(*)
+      complex*16 B(*)
+      complex*16 C(*)
+#include "C3dB.fh"
+      integer i
+      do i=1,n2ft3d_map(nb)
+         C(i) = A(i) * B(i)
+      end do
+      return
+      end                  
 
 
 
@@ -3252,6 +3277,22 @@ c      call Parallel3d_np_i(np)
          C(i) = C(i) - B(i)
       end do
 
+      return
+      end
+
+      subroutine C3dB_bb_Sub2(nb,B,C)
+      implicit none
+      integer    nb         
+      complex*16 B(*)
+      complex*16 C(*)
+
+#include "C3dB.fh"
+
+      integer i
+
+      do i=1,n2ft3d_map(nb)
+         C(i) = C(i) - B(i) 
+      end do                           
       return
       end
 
