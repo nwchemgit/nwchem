@@ -16,9 +16,9 @@ c     **********************************************
 *     **** local variables ****
       integer taskid,MASTER
       parameter (MASTER=0)
-      logical value
-      integer i,j,n1,n2,is1,is2
-      real*8 x,y,z,r,rmax,dr,pi,da,maxcoord
+      logical value,cnmeta_read
+      integer i,j,n1,n2,is1,is2,yshift,y2shift
+      real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,wab,sigmaab,yp1,ypn
       character*80 rtdb_name
       character*4 celement1,celement2
 
@@ -242,10 +242,12 @@ c     **********************************************
             if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,cnmeta*cnxmeta,
      >                       dbl_mb(cymeta(1)))) then
                call dcopy(cnmeta*cnxmeta,0.0d0,0,dbl_mb(cymeta(1)),1)
+               cnmeta_read = .false.
             else
                if (taskid.eq.MASTER)
      >           write(*,*) 
      >           "  ... reading coordination number metadynamics data"
+                 cnmeta_read = .true.
             end if
             rtdb_name = 'metadynamics_cy2meta'
             if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,cnmeta*cnxmeta,
@@ -258,7 +260,7 @@ c     **********************************************
             end if
 
             value = value.and.
-     >              MA_alloc_get(mt_dbl,9*cnmeta,'cwsigmameta',
+     >              MA_alloc_get(mt_dbl,11*cnmeta,'cwsigmameta',
      >                           cwsigmameta(2),cwsigmameta(1))
             value = value.and.
      >              MA_alloc_get(mt_int,cnmeta,'cindxsize1',
@@ -283,33 +285,35 @@ c     **********************************************
               is2 = is2 + int_mb(cindxsize2(1)+j-1)
 
               rtdb_name='metadynamics_coordnum_ksigma:'//c_index_name(j)
-              if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,9,
-     >                      dbl_mb(cwsigmameta(1)+(j-1)*9))) then
-                 dbl_mb(cwsigmameta(1)+(j-1)*9)   = 6.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*9+1) = 18.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*9+2) = 3.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*9+3) = 0.00005d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*9+4) = 0.10d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*9+5) = 25.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*9+6) = -1.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*9+7) = -1.0d0
-                 dbl_mb(cwsigmameta(1)+(j-1)*9+8) = -1.0d0
+              if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,11,
+     >                      dbl_mb(cwsigmameta(1)+(j-1)*11))) then
+                 dbl_mb(cwsigmameta(1)+(j-1)*11)   = 6.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*11+1) = 18.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*11+2) = 3.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*11+3) = 0.00005d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*11+4) = 0.10d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*11+5) = 25.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*11+6) = -1.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*11+7) = -1.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*11+8) = -1.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*11+9) = -1.0d0
+                 dbl_mb(cwsigmameta(1)+(j-1)*11+10) = -1.0d0
               end if
-              if (dbl_mb(cwsigmameta(1)+(j-1)*9).le.0.0d0)
-     >            dbl_mb(cwsigmameta(1)+(j-1)*9)   = 6.0d0
-              if (dbl_mb(cwsigmameta(1)+(j-1)*9+1).le.0.0d0)
-     >            dbl_mb(cwsigmameta(1)+(j-1)*9+1)   = 18.0d0
-              if (dbl_mb(cwsigmameta(1)+(j-1)*9+2).le.0.0d0)
-     >            dbl_mb(cwsigmameta(1)+(j-1)*9+2)   = 3.0d0 
-              if (dbl_mb(cwsigmameta(1)+(j-1)*9+3).le.0.0d0)
-     >            dbl_mb(cwsigmameta(1)+(j-1)*9+3)   = 0.00005d0
-              if (dbl_mb(cwsigmameta(1)+(j-1)*9+4).le.0.0d0)
-     >            dbl_mb(cwsigmameta(1)+(j-1)*9+4)   = 0.10d0
-              if (dbl_mb(cwsigmameta(1)+(j-1)*9+5).le.0.0d0)
-     >            dbl_mb(cwsigmameta(1)+(j-1)*9+5)   = 25.0d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*11).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*11)   = 6.0d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*11+1).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*11+1)   = 18.0d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*11+2).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*11+2)   = 3.0d0 
+              if (dbl_mb(cwsigmameta(1)+(j-1)*11+3).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*11+3)   = 0.00005d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*11+4).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*11+4)   = 0.10d0
+              if (dbl_mb(cwsigmameta(1)+(j-1)*11+5).le.0.0d0)
+     >            dbl_mb(cwsigmameta(1)+(j-1)*11+5)   = 25.0d0
 
-              if (dbl_mb(cwsigmameta(1)+(j-1)*9+5).gt.maxcoord) 
-     >           maxcoord=dbl_mb(cwsigmameta(1)+(j-1)*9+5)
+              if (dbl_mb(cwsigmameta(1)+(j-1)*11+5).gt.maxcoord) 
+     >           maxcoord=dbl_mb(cwsigmameta(1)+(j-1)*11+5)
             end do
 
             value = value.and.
@@ -339,6 +343,56 @@ c     **********************************************
                r = (i-1)*da
                dbl_mb(cxmeta(1)+i-1) = r
             end do
+
+            if (.not.cnmeta_read) then
+               a       = dbl_mb(cwsigmameta(1)+(j-1)*11+6)
+               b       = dbl_mb(cwsigmameta(1)+(j-1)*11+7)
+               wab     = dbl_mb(cwsigmameta(1)+(j-1)*11+8)
+               sigmaab = dbl_mb(cwsigmameta(1)+(j-1)*11+9)
+
+               dr = dbl_mb(cxmeta(1)+1) - dbl_mb(cxmeta(1))
+               is1 = 0
+               is2 = 0
+               do j=1,cnmeta
+                  n1 = int_mb(cindxsize1(1)+j-1)
+                  n2 = int_mb(cindxsize2(1)+j-1)
+                  a       = dbl_mb(cwsigmameta(1)+(j-1)*11+6)
+                  b       = dbl_mb(cwsigmameta(1)+(j-1)*11+7)
+                  wab     = dbl_mb(cwsigmameta(1)+(j-1)*11+8)
+                  sigmaab = dbl_mb(cwsigmameta(1)+(j-1)*11+9)
+                  yshift  = cymeta(1) +(j-1)*cnxmeta
+                  y2shift = cy2meta(1)+(j-1)*cnxmeta
+                  do i=1,cnxmeta
+                     if (a.gt.0) then
+                        r = dbl_mb(cxmeta(1)+i-1)-a
+                        dbl_mb(yshift+i-1) = dbl_mb(yshift+i-1)
+     >                                 + wab*dexp(-0.5d0*(r/sigmaab)**2)
+                     end if
+                     if (b.gt.0) then
+                        r = dbl_mb(cxmeta(1)+i-1)-b
+                        dbl_mb(yshift+i-1) = dbl_mb(yshift+i-1)
+     >                                 + wab*dexp(-0.5d0*(r/sigmaab)**2)
+                     end if
+                  end do
+
+                  !**** five point formula ***
+                  yp1 = ( -50.0d0*dbl_mb(yshift)
+     >                   + 96.0d0*dbl_mb(yshift+1)
+     >                   - 72.0d0*dbl_mb(yshift+2)
+     >                   + 32.0d0*dbl_mb(yshift+3)
+     >                   -  6.0d0*dbl_mb(yshift+4))/(24.0d0*dr)
+                  ypn = ( +50.0d0*dbl_mb(yshift+cnxmeta-5)
+     >                   - 96.0d0*dbl_mb(yshift+cnxmeta-4)
+     >                   + 72.0d0*dbl_mb(yshift+cnxmeta-3)
+     >                   - 32.0d0*dbl_mb(yshift+cnxmeta-2)
+     >                   +  6.0d0*dbl_mb(yshift+cnxmeta-1))/(24.0d0*dr)
+                  call nwpw_spline(dbl_mb(cxmeta(1)),
+     >                    dbl_mb(yshift),cnxmeta,yp1,ypn,
+     >                    dbl_mb(y2shift),dbl_mb(tmeta(1)))
+                  is1 = is1 + n1
+                  is2 = is2 + n2
+               end do
+            end if
 
          end if
 
@@ -456,25 +510,30 @@ c     **********************************************
 
             write(*,'(A,/6x,A,F11.6,4x,A,F11.6,
      >                  /6x,A,F11.6,4x,A,F11.6,
-     >                  /6x,A,F11.6,4x,A,F11.6
-     >                  /6x,A,F11.6,F11.6)')
+     >                  /6x,A,F11.6,4x,A,F11.6,
+     >                  /6x,A,F11.6,F11.6,
+     >                  /6x,A,F11.6,4x,A,F11.6)')
      >       "  - Coordination Number Parameters: ",
      >                  'n= ',
-     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+0),
+     >                  dbl_mb(cwsigmameta(1)+11*(i-1)+0),
      >                  'm=       ',
-     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+1),
+     >                  dbl_mb(cwsigmameta(1)+11*(i-1)+1),
      >                  'w= ',
-     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+3),
+     >                  dbl_mb(cwsigmameta(1)+11*(i-1)+3),
      >                  'sigma=   ',
-     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+4),
+     >                  dbl_mb(cwsigmameta(1)+11*(i-1)+4),
      >                  'r0=',
-     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+2),
+     >                  dbl_mb(cwsigmameta(1)+11*(i-1)+2),
      >                  'maxcoord=',
-     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+5),
+     >                  dbl_mb(cwsigmameta(1)+11*(i-1)+5),
      >                  'range=   ',
-     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+6),
-     >                  dbl_mb(cwsigmameta(1)+9*(i-1)+7)
-              if (dbl_mb(cwsigmameta(1)+9*(i-1)+8).lt.0) then
+     >                  dbl_mb(cwsigmameta(1)+11*(i-1)+6),
+     >                  dbl_mb(cwsigmameta(1)+11*(i-1)+7),
+     >                  'rangew=',
+     >                  dbl_mb(cwsigmameta(1)+11*(i-1)+8),
+     >                  'rangesigma=',
+     >                  dbl_mb(cwsigmameta(1)+11*(i-1)+9) 
+              if (dbl_mb(cwsigmameta(1)+11*(i-1)+10).lt.0) then
                  write(*,'(6x,A)') '- LJ function form'
               else
                  write(*,'(6x,A)') '- Sprik function form'
@@ -806,7 +865,7 @@ c     **********************************************
       f = 0.0d0
 c     **** coordination number ****
       if (ntype.eq.4) then
-         if (param(9).lt.0.0d0) then
+         if (param(11).lt.0.0d0) then
             f = 0.0d0
             n  = param(1)
             m  = param(2)
@@ -886,7 +945,7 @@ c     **********************************************
 
 c     **** coordination number ***
       if (ntype.eq.4) then
-         if (param(9).lt.0.0d0) then
+         if (param(11).lt.0.0d0) then
             n  = param(1)
             m  = param(2)
             r0 = param(3)
@@ -1054,11 +1113,13 @@ c    >                 / (rm**2)
                r0    = meta_collective2(4,
      >                 n1,int_mb(cindxmeta1(1)+is1),
      >                 n2,int_mb(cindxmeta2(1)+is2),
-     >                 dbl_mb(cwsigmameta(1)+(j-1)*9))
-               w     = dbl_mb(cwsigmameta(1)+(j-1)*9+3)
-               sigma = dbl_mb(cwsigmameta(1)+(j-1)*9+4)
-               a     = dbl_mb(cwsigmameta(1)+(j-1)*9+6)
-               b     = dbl_mb(cwsigmameta(1)+(j-1)*9+7)
+     >                 dbl_mb(cwsigmameta(1)+(j-1)*11))
+               w     = dbl_mb(cwsigmameta(1)+(j-1)*11+3)
+               sigma = dbl_mb(cwsigmameta(1)+(j-1)*11+4)
+c               a       = dbl_mb(cwsigmameta(1)+(j-1)*11+6)
+c               b       = dbl_mb(cwsigmameta(1)+(j-1)*11+7)
+c               wab     = dbl_mb(cwsigmameta(1)+(j-1)*11+8)
+c               sigmaab = dbl_mb(cwsigmameta(1)+(j-1)*11+9)
                yshift  = cymeta(1) +(j-1)*cnxmeta
                y2shift = cy2meta(1)+(j-1)*cnxmeta
                do i=1,cnxmeta
@@ -1066,14 +1127,14 @@ c    >                 / (rm**2)
                   dbl_mb(yshift+i-1) = dbl_mb(yshift+i-1)
      >                               + w*dexp(-0.5d0*(r/sigma)**2)
 
-                  if ((r.lt.a).and.(a.gt.0)) then
-                     dbl_mb(yshift+i-1) = dbl_mb(yshift+i-1) 
-     >                              + 2.0d0*w*dexp(-0.5d0*(r/sigma)**2)
-                  end if
-                  if ((r.gt.b).and.(b.gt.0)) then
-                     dbl_mb(yshift+i-1) = dbl_mb(yshift+i-1) 
-     >                              + 2.0d0*w*dexp(-0.5d0*(r/sigma)**2)
-                  end if
+c                  if ((r.lt.a).and.(a.gt.0)) then
+c                     dbl_mb(yshift+i-1) = dbl_mb(yshift+i-1) 
+c     >                              + 2.0d0*w*dexp(-0.5d0*(r/sigma)**2)
+c                  end if
+c                  if ((r.gt.b).and.(b.gt.0)) then
+c                     dbl_mb(yshift+i-1) = dbl_mb(yshift+i-1) 
+c     >                              + 2.0d0*w*dexp(-0.5d0*(r/sigma)**2)
+c                  end if
                end do
 
                !**** five point formula ***
@@ -1221,9 +1282,9 @@ c    >                 / (rm**2)
                r     = meta_collective2(4,
      >                 n1,int_mb(cindxmeta1(1)+is1),
      >                 n2,int_mb(cindxmeta2(1)+is2),
-     >                 dbl_mb(cwsigmameta(1)+(j-1)*9))
-               w     = dbl_mb(cwsigmameta(1)+(j-1)*9+3)
-               sigma = dbl_mb(cwsigmameta(1)+(j-1)*9+4)
+     >                 dbl_mb(cwsigmameta(1)+(j-1)*11))
+               w     = dbl_mb(cwsigmameta(1)+(j-1)*11+3)
+               sigma = dbl_mb(cwsigmameta(1)+(j-1)*11+4)
                yshift  = cymeta(1) +(j-1)*cnxmeta
                y2shift = cy2meta(1)+(j-1)*cnxmeta
                nr = r/dr + 1
@@ -1232,7 +1293,7 @@ c    >                 / (rm**2)
                call meta_collective2_force(4,
      >                   n1,int_mb(cindxmeta1(1)+is1),
      >                   n2,int_mb(cindxmeta2(1)+is2),
-     >                   dbl_mb(cwsigmameta(1)+(j-1)*9),
+     >                   dbl_mb(cwsigmameta(1)+(j-1)*11),
      >                   dv,fmeta)
                is1 = is1 + n1
                is2 = is2 + n2
@@ -1328,9 +1389,9 @@ c    >                 / (rm**2)
                r     = meta_collective2(4,
      >                 n1,int_mb(cindxmeta1(1)+is1),
      >                 n2,int_mb(cindxmeta2(1)+is2),
-     >                 dbl_mb(cwsigmameta(1)+(j-1)*9))
-               w     = dbl_mb(cwsigmameta(1)+(j-1)*9+3)
-               sigma = dbl_mb(cwsigmameta(1)+(j-1)*9+4)
+     >                 dbl_mb(cwsigmameta(1)+(j-1)*11))
+               w     = dbl_mb(cwsigmameta(1)+(j-1)*11+3)
+               sigma = dbl_mb(cwsigmameta(1)+(j-1)*11+4)
                yshift  = cymeta(1) +(j-1)*cnxmeta
                y2shift = cy2meta(1)+(j-1)*cnxmeta
                nr = r/dr + 1
