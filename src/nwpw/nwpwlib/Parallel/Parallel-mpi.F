@@ -1446,3 +1446,158 @@ c     implicit none
       return
       end
 
+
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_start_rotate     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_start_rotate(ic,shift,
+     >                                  A1,nsize1,
+     >                                  A2,nsize2,request)
+      implicit none
+      integer ic,shift
+      real*8  A1(*)
+      integer nsize1
+      real*8  A2(*)
+      integer nsize2
+      integer request(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Parallel.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+*     **** local variables ****
+      integer mynp,mytaskid,msglen,msgype,mpierr,proc_to,proc_from
+
+*     ***** external functions ****
+#ifdef MPI4
+      integer*4 getcomm
+      external  getcomm
+#else
+      integer  getcomm
+      external getcomm
+#endif
+
+      if (ic.eq.1) then
+         mynp     = np_i
+         mytaskid = taskid_i
+      else if (ic.eq.2) then
+         mynp     = np_j
+         mytaskid = taskid_j
+      else if (ic.eq.3) then
+         mynp     = np_k
+         mytaskid = taskid_k
+      else
+         mynp     = np
+         mytaskid = taskid
+      end if
+      proc_to   = mod(mytaskid+shift+mynp,mynp)
+      proc_from = mod(mytaskid-shift+mynp,mynp)
+
+#ifdef MPI4
+         if (nsize2.gt.0) then
+            stupid_msglen = nsize2
+            stupid_type   = shift
+            stupid_taskid = proc_from
+            call MPI_IRECV(A2,
+     >                  stupid_msglen,stupid_double,
+     >                  stupid_taskid,
+     >                  stupid_type,getcomm(ic),
+     >                  stupid_request,stupid_ierr)
+            request(1) = stupid_request
+            request(3) = 1
+         else
+            request(3) = 0
+         end if
+
+         if (nsize1.gt.0) then
+            stupid_msglen = nsize1
+            stupid_type   = shift
+            stupid_taskid = proc_to
+            call MPI_ISEND(A1,
+     >                  stupid_msglen,stupid_double,
+     >                  stupid_taskid,
+     >                  stupid_type,getcomm(ic),
+     >                  stupid_request,stupid_ierr)
+            request(2) = stupid_request
+            request(4) = 1
+         else
+            request(4) = 0
+         end if
+
+#else
+         if (nsize2.gt.0) then
+         msglen  = nsize2
+         msgtype = shift
+         call MPI_IRECV(A2,msglen,MPI_DOUBLE_PRECISION,
+     >                  proc_from,
+     >                  msgtype,getcomm(ic),
+     >                  request(1),mpierr)
+            request(3) = 1
+         else
+            request(3) = 0
+         end if
+
+         if (nsize1.gt.0) then
+         msglen  = nsize1
+         msgtype = shift
+         call MPI_ISEND(A1,msglen,MPI_DOUBLE_PRECISION,
+     >                  proc_to,
+     >                  msgtype,getcomm(ic),
+     >                  request(2),mpierr)
+            request(4) = 1
+         else
+            request(4) = 0
+         end if
+#endif
+
+      if ((request(3).eq.1).and.(request(4).eq.1)) then
+         request(3) = 1
+      else if (request(3).eq.1) then
+         request(3) = 2
+      else if (request(4).eq.1) then
+         request(3) = 3
+      else
+         request(3) = 4
+      end if
+
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_end_rotate       *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_end_rotate(request)
+      implicit none
+      integer request(*)
+
+*     **** wait for completion of mp_send, also do a sync ****
+      if (request(3).eq.1) then
+         call Parallel_mpiWaitAll(2,request)
+      else if (request(3).eq.2) then
+         call Parallel_mpiWaitAll(1,request)
+      else if (request(3).eq.3) then
+         call Parallel_mpiWaitAll(1,request(2))
+      endif
+
+      return
+      end
+
+
+
+

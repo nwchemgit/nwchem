@@ -752,3 +752,114 @@ c     implicit none
       return
       end
 
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_start_rotate     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_start_rotate(ic,shift,
+     >                                  A1,nsize1,
+     >                                  A2,nsize2,request)
+      implicit none
+      integer ic,shift
+      real*8  A1(*)
+      integer nsize1
+      real*8  A2(*)
+      integer nsize2
+      integer request(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Parallel.fh"
+
+
+*     **** local variables ****
+      integer mynp,mytaskid,msglen,msgype,mpierr,proc_to,proc_from
+      integer rcv_proc,rcv_len
+
+*     ***** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_i
+
+      if (ic.eq.1) then
+         mynp     = np_i
+         mytaskid = taskid_i
+         proc_to   = mod(mytaskid+shift+mynp,mynp)
+         proc_from = mod(mytaskid-shift+mynp,mynp)
+
+         proc_to   = Parallel3d_convert_taskid_i(proc_to)
+         proc_from = Parallel3d_convert_taskid_i(proc_from)
+      else if (ic.eq.2) then
+         mynp     = np_j
+         mytaskid = taskid_j
+         proc_to   = mod(mytaskid+shift+mynp,mynp)
+         proc_from = mod(mytaskid-shift+mynp,mynp)
+
+         proc_to   = Parallel3d_convert_taskid_j(proc_to)
+         proc_from = Parallel3d_convert_taskid_j(proc_from)
+      else if (ic.eq.3) then
+         mynp     = np_k
+         mytaskid = taskid_k
+         proc_to   = mod(mytaskid+shift+mynp,mynp)
+         proc_from = mod(mytaskid-shift+mynp,mynp)
+
+         proc_to   = Parallel3d_convert_taskid_k(proc_to)
+         proc_from = Parallel3d_convert_taskid_k(proc_from)
+      else
+         mynp     = np
+         mytaskid = taskid
+         proc_to   = mod(mytaskid+shift+mynp,mynp)
+         proc_from = mod(mytaskid-shift+mynp,mynp)
+      end if
+
+      if (nsize2.gt.0) then
+         msglen  = nsize2
+         call RCV(9+MSGDBL,A2,mdtob(msglen),rcv_len,
+     >         proc_from,rcv_proc,1)
+         request(3) = 1
+      else
+         request(3) = 0
+      end if
+
+      if (nsize1.gt.0) then
+         msglen  = nsize1
+         call SND(9+MSGDBL,A1,mdtob(msglen),proc_to,1)
+         request(4) = 1
+      else
+         request(4) = 0
+      end if
+
+      if ((request(3).eq.1).and.(request(4).eq.1)) then
+         request(3) = 1
+      else if (request(3).eq.1) then
+         request(3) = 2
+      else if (request(4).eq.1) then
+         request(3) = 3
+      else
+         request(3) = 4
+      end if
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_end_rotate       *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_end_rotate(request)
+      implicit none
+      integer request(*)
+
+*     **** wait for completion of mp_send, also do a sync ****
+      !*** do nothing ***
+
+      return
+      end
+
