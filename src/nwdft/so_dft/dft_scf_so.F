@@ -949,13 +949,16 @@ cso
       call ga_zero(g_so(3))
 cso
 cso   Calculate the spin-orbit contributions from the ecp
-      call int_1e_ga(ao_bas_han, ao_bas_han, g_so, 'so', oskel)
-      call ga_scale(g_so(1),dble(0.5d0))  ! z
-      call ga_scale(g_so(2),dble(0.5d0))  ! y
-      call ga_scale(g_so(3),dble(0.5d0))  ! x
+      if( .not. do_zora) then
+         call int_1e_ga(ao_bas_han, ao_bas_han, g_so, 'so', oskel)
+         call ga_scale(g_so(1),dble(0.5d0))  ! z
+         call ga_scale(g_so(2),dble(0.5d0))  ! y
+         call ga_scale(g_so(3),dble(0.5d0))  ! x
+      end if
 cso
 cso   Add in the s.o. contribution to the fock matrix
-      call ga_fock_so(g_so, g_fockso, nbf_ao)
+      if (.not. do_zora) 
+     &    call ga_fock_so(g_so, g_fockso, nbf_ao)
 cso  
 cso   Accumulate z-component s.o. contribution
 cso   Re(Dz)=-Im(Daa)+Im(Dbb) 
