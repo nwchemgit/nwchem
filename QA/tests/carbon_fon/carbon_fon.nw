@@ -1,0 +1,54 @@
+echo
+
+title "carbon"
+
+memory 128 mb
+#memory global 73 mb stack 20 mb heap 5 mb
+
+start carbon
+
+geometry units angstrom nocenter
+symmetry c1
+  C   0.0 0.0 0.0
+end
+
+basis
+  * library 6-31G
+end
+
+scf
+ direct
+end
+
+charge 0
+
+dft
+direct
+grid xfine
+convergence energy 1d-8 
+XC pbe0
+fon partial 3 electrons 1.8 filled 2
+end
+
+#set dft:debugfon .true.
+
+task dft energy
+
+dft
+odft
+fon alpha partial 3 electrons 0.9 filled 2
+fon beta partial 3 electrons 0.9 filled 2
+end
+
+task dft energy
+
+dft
+fon partial 6 electrons 1.8 filled 4
+end
+
+relativistic 
+ zora
+end
+
+task sodft energy
+
