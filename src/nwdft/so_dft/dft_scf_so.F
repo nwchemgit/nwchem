@@ -38,14 +38,19 @@ c      logical numerical
       integer g_s
 c
 c     declarations for fractional occupation 
+c ... jochen 10/11: modified and extended this 'fon-service'
 c
-      integer nel_fon, nmo_fon  ! number of fractionally occupied electrons and orbitals
+      integer nmo_fon  ! number of fractionally occupied orbitals
+      integer ncore_fon ! number of fully occupied orbitals
+      double precision nel_fon  ! fractional electron number
       double precision avg_fon  ! fractional occupancy (averaged)
       integer nTotOcc           ! nTotOcc: no. of (occupied maybe f.o.) mo's 
       logical fon 
-      double precision scale 
+      integer ntmp_fon(2)
+      double precision rtmp_fon(2), pstrace
+      double precision scale, ncheck
       integer kfon_occ, lfon_occ
-      logical det_eng 
+      logical debug_fon, det_eng 
 c
 c     so
       double precision rho_n, toll_s
@@ -629,6 +634,62 @@ c       == write out the atomic zora corrections to file ==
 c
        end if ! icalczora
       end if  ! do_zora
+
+c     -------------------
+c     check for fon input
+c     -------------------
+
+      if (rtdb_get(rtdb,'dft:fon',mt_log,1,fon)) then 
+
+c       fon is ringing
+
+c       variable 'fon' should be true, otherwise there's 
+c       something fishy going on:
+        if (.not.fon) call errquit(
+     &     'dft_scf_so: fon stored in RTDB but not .true.', 1,
+     &       RTDB_ERR)
+
+c       note: *_fon variables are read here not as arrays with
+c       two elements, assuming that the input didn't specify
+c       spects for alpha and beta separately
+
+        if (.not.rtdb_get(rtdb,'dft:nmo_fon',mt_int,2,ntmp_fon)) then
+          if (me.eq.0) then
+            write(LuOut,*)"Error: fractional occupation 
+     &         calculation specified without setting number of orbitals"
+          end if
+          call errquit('dft_scf_so: nmo_fon rtdb_get failed', 1,
+     &       RTDB_ERR)
+        else
+          nmo_fon = ntmp_fon(1)
+        end if
+        if (.not.rtdb_get(rtdb,'dft:nel_fon',mt_dbl,2,rtmp_fon)) then
+          if (me.eq.0) then
+            write(LuOut,*)"Error: fractional occupation 
+     &         specified without setting number of electrons"  
+          end if
+          call errquit('dft_scf_so: nel_fon rtdb_get failed', 1,
+     &       RTDB_ERR)
+        else
+          nel_fon = rtmp_fon(1)
+        end if
+        if (.not.rtdb_get(rtdb,'dft:ncore_fon',mt_int,2,ntmp_fon)) then
+          if (me.eq.0) then
+            write(LuOut,*)"Error: fractional occupation 
+     &         calculation specified without setting filled levels"  
+          end if
+          call errquit('dft_scf_so:  nel_core rtdb_get failed', 1,
+     &       RTDB_ERR)
+        else
+          ncore_fon = ntmp_fon(1)
+        end if
+        if (rtdb_get(rtdb, 'dft:debugfon', mt_log, 1,
+     &     debug_fon)) continue
+
+      else ! keyword not in RTDB
+        fon = .false.
+        debug_fon = .false.
+      end if ! fon
 c
       call ga_sync()
       call ga_zero(g_densso(1))
@@ -637,24 +698,17 @@ c
       spinor=spinor_guess(movecs_in)
 c
       if(.not.spinor)then 
-         if (rtdb_get(rtdb,'sodft:fon',mt_log,1,fon)) then 
-          if (.not.rtdb_get(rtdb,'sodft:nmo_fon',mt_int,1,nmo_fon)) then
-             if (me.eq.0) then
-                write(LuOut,*)"Warning: fractional occupation 
-     &          calculation specified without nmo_fon"
-             end if
-          end if
-          if (.not.rtdb_get(rtdb,'sodft:nel_fon',mt_int,1,nel_fon)) then
-             if (me.eq.0) then
-                write(LuOut,*)"Warning: fractional occupation 
-     &          calculation specified without nel_fon"  
-             end if
-          end if
-            anoca = noc(1)
-            anocb = noc(2)
-            noc(1)=(noc(1)+noc(2)-nel_fon)/2
-            noc(2)=(noc(1)+noc(2)-nel_fon)/2
-         endif
+        
+c       fractional occupations:
+        if (fon) then
+c ... jochen: presumably good enough for initial guess. We won't tinker
+c         with that. later, the fractional occupations
+c         are caluclated explicitly
+          anoca = noc(1)
+          anocb = noc(2)
+          noc(1)=(noc(1)+noc(2)-nel_fon)/2
+          noc(2)=(noc(1)+noc(2)-nel_fon)/2
+        endif                   ! fon
 c
          call dft_guessin(movecs_in,ldmix,ncanorg,fon,
      &     vecs_or_dens, ipol,nbf_ao,g_movecs,g_gmovecs,
@@ -670,9 +724,10 @@ c
 c
          call dft_guessout(nmo,nbf_ao,g_gmovecs,g_movecs,ipol)
 c
-         if (rtdb_get(rtdb,'sodft:fon',mt_log,1,fon))then 
-            noc(1)=anoca
-            noc(2)=anocb
+c        fon: undo temp setting of noc(:)
+         if (fon)then 
+           noc(1)=anoca
+           noc(2)=anocb
          endif
 c     
 c     spinor occupancies
@@ -752,58 +807,136 @@ c
 c     
 c     Form Re and Im of density matrix
 c     
-      if (.not.rtdb_get(rtdb,'sodft:fon',mt_log,1,fon))
-     &    fon = .false.
-      if (.not.rtdb_get(rtdb,'sodft:nmo_fon',mt_int,1,nmo_fon))
-     &    nmo_fon = 0
-      if (.not.rtdb_get(rtdb,'sodft:nel_fon',mt_int,1,nel_fon))
-     &    nel_fon = 0
-      nTotOcc = (nTotEl-nel_fon) + nmo_fon 
+c ... jochen 10/11: implemented new way of applying 
+c     fractional occupations. See dft_densm.F of the scalar 
+c     branch of the code
+
+c$$$      if (.not.rtdb_get(rtdb,'sodft:fon',mt_log,1,fon))
+c$$$     &    fon = .false.
+c$$$      if (.not.rtdb_get(rtdb,'sodft:nmo_fon',mt_int,1,nmo_fon))
+c$$$     &    nmo_fon = 0
+c$$$      if (.not.rtdb_get(rtdb,'sodft:nel_fon',mt_int,1,nel_fon))
+c$$$     &    nel_fon = 0
+c$$$      nTotOcc = (nTotEl-nel_fon) + nmo_fon 
       if(fon)then 
-         avg_fon = dble(nel_fon)/dble(nmo_fon) 
-         do i = (nTotEl-nel_fon)+1, nTotOcc  
-            dbl_mb(i-1+k_occ) = avg_fon 
-         enddo
-      endif
+c$$$         avg_fon = dble(nel_fon)/dble(nmo_fon) 
+c$$$         do i = (nTotEl-nel_fon)+1, nTotOcc  
+c$$$            dbl_mb(i-1+k_occ) = avg_fon 
+c$$$         enddo
+
+        if (nmo_fon.lt.1) call errquit(
+     &     'dft_scf_so:fon nmo_fon <1',
+     &     1, INPUT_ERR)
+        if (nel_fon.lt.0d0) call errquit(
+     &     'dft_scf_so:fon nel_fon <0',
+     &     1, INPUT_ERR)
+
+        avg_fon = nel_fon/dble(nmo_fon)
+        nTotOcc = ncore_fon + nmo_fon 
+
+c       debug code: 
+c$$$        write (luout,*) 'DEBUG: occupations before applying FON'
+c$$$        do i = 1,nbf_ao
+c$$$          write (luout,*) i, dbl_mb(i-1+k_occ), dbl_mb(i-1+nbf_ao+k_occ)
+c$$$        end do
+
+        ncheck = 0d0
+        do i = 1, ncore_fon
+          if (i> 2*nbf_ao) call errquit(
+     &       'dft_densm:fon focc index exceeds 2nbf error 1',
+     &       i, INPUT_ERR)
+          dbl_mb(i-1+k_occ) = 1d0
+          ncheck = ncheck + 1d0
+        end do
+        do i = ncore_fon + 1, ncore_fon + nmo_fon
+          if (i> 2*nbf_ao) call errquit(
+     &       'dft_densm:fon focc index exceeds 2nbf error 2',
+     &       i, INPUT_ERR)
+          dbl_mb(i-1+k_occ) = avg_fon
+          ncheck = ncheck + avg_fon
+        end do
+
+        if(abs(ncheck-dble(nTotEl)).gt.1d-3 .and. me.eq.0) then
+          write(luout,*) ' frac. electrons ',ncheck,' vs ',nTotEl
+        end if
+
+c$$$        write (luout,*) 'DEBUG: occupations AFTER applying FON'
+c$$$        do i = 1,nbf_ao
+c$$$          write (luout,*) i, dbl_mb(i-1+k_occ), dbl_mb(i-1+nbf_ao+k_occ)
+c$$$        end do
+      endif ! fon
+c ... jochen end
+
       switch_sclMO_so=0 ! FA-09-26-11
 c     
 c     the fractionally occupied mo's are scaled by the sqrt of the fon
 c     
-      if(nmo_fon .ne. 0 .and. nel_fon .ne. 0 .and. fon)then 
-         scale = sqrt(avg_fon)
-         call ga_scale_patch(g_moso(1), 
-     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
-         call ga_scale_patch(g_moso(2), 
-     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
-      else
+      if (fon) then 
+c         scale = sqrt(avg_fon)
+         do i = ncore_fon + 1, ncore_fon + nmo_fon
+           if (i> nbf_mo) call errquit(
+     &        'dft_densm:fon g_moso index exceeds nbf_mo',
+     &        i, INPUT_ERR)
+           scale = sqrt(dbl_mb(i-1+k_occ)) ! sqrt(occupation number)
+           call ga_scale_patch(g_moso(1), 
+     &        1, nbf_mo, i, i, scale)
+           call ga_scale_patch(g_moso(2), 
+     &        1, nbf_mo, i, i, scale)
+         end do
+         if(me.eq.0) write(luout,'(5x,a)')  'FON applied'
+       end if ! fon
+c      else
 c ---- FA-02-18-11 : occupations keyword ---- START
-       call dft_scaleMO_so(rtdb,g_moso,dbl_mb(k_occ),g_densso,
-     &                     nbf_mo,nTotOcc,switch_sclMO_so)
-      endif
+c       call dft_scaleMO_so(rtdb,g_moso,dbl_mb(k_occ),g_densso,
+c     &                     nbf_mo,nTotOcc,switch_sclMO_so)
+c      endif
 c
 c     calculate the spin-orbit density matrix using the scaled mo's
 c 
-       if (switch_sclMO_so.ne.1) then
-         if (ga_nodeid().eq.0)
-     &   write(*,*) 'ENTER calc so-density matrix std-way'
+c       if (switch_sclMO_so.ne.1) then
+c         if (ga_nodeid().eq.0)
+c     &   write(*,*) 'ENTER calc so-density matrix std-way'
          call dft_densm_so(g_densso, g_moso, nbf_ao, nTotOcc)
-       endif
+c       endif
 c
 c     restore the scaled mo's
 c
-      if(nmo_fon .ne. 0 .and. nel_fon .ne. 0 .and. fon)then 
-         scale = 1.0d0/scale 
-         call ga_scale_patch(g_moso(1), 
-     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
-         call ga_scale_patch(g_moso(2), 
-     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
-      endif
+      if (fon) then 
+c         scale = sqrt(avg_fon)
+         do i = ncore_fon + 1, ncore_fon + nmo_fon
+           if (i> nbf_mo) call errquit(
+     &        'dft_densm:fon g_moso index exceeds nbf_mo',
+     &        i, INPUT_ERR)
+           if (dbl_mb(i-1+k_occ) < 1d-4) call errquit(
+     &        'dft_densm:fon frac occup < 1E-4. Aborting suspisciously',
+     &        i, INPUT_ERR)           
+           scale = 1d0/sqrt(dbl_mb(i-1+k_occ)) ! 1/sqrt(occupation number)
+           call ga_scale_patch(g_moso(1), 
+     &        1, nbf_mo, i, i, scale)
+           call ga_scale_patch(g_moso(2), 
+     &        1, nbf_mo, i, i, scale)
+         end do
+       end if ! fon
 c      
 c     calculate the spin-free density matrix from the spin-orbit density matrix
 c
       call ga_zero(g_dens(1))
       call ga_zero(g_dens(2))
       call ga_dens_sf(g_dens, g_densso(1), nbf_ao)
+
+c ... jochen: to check fon, calculate tr[P S] and print
+
+c      if (debug_fon) call dft_pstrace(g_dens,ao_bas_han,nbf_ao,oskel)
+      if (fon) then
+        pstrace=ga_ddot(g_dens(1),g_s)
+        pstrace=pstrace + ga_ddot(g_dens(2),g_s)
+        if(ga_nodeid().eq.0) write (luout,'(5x,a,1x,e15.7)')
+     &     'tr(P*S): ',pstrace
+        if (.not. rtdb_put(rtdb, 'dft:pstrace', mt_dbl, 1, pstrace))
+     &     call errquit('dft_scf: rtdb_put pstrace failed', 1, RTDB_ERR)
+      end if
+c ... jochen end
+
 c
 c     Tidy up SCF
 c     
@@ -1408,34 +1541,50 @@ c
 c     
 c     the fractionally occupied mo's are scaled by the sqrt of the fon
 c     
-      if(nmo_fon .ne. 0 .and. nel_fon .ne. 0 .and. fon)then 
-         scale = sqrt(avg_fon)
-         call ga_scale_patch(g_moso(1), 
-     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
-         call ga_scale_patch(g_moso(2), 
-     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
-      else
+      if(fon)then 
+c         scale = sqrt(avg_fon)
+         do i = ncore_fon + 1, ncore_fon + nmo_fon
+           if (i> nbf_mo) call errquit(
+     &        'dft_densm:fon g_moso index exceeds nbf_mo',
+     &        i, INPUT_ERR)
+           scale = sqrt(dbl_mb(i-1+k_occ)) ! sqrt(occupation number)
+           call ga_scale_patch(g_moso(1), 
+     &        1, nbf_mo, i, i, scale)
+           call ga_scale_patch(g_moso(2), 
+     &        1, nbf_mo, i, i, scale)
+         end do
+         if(me.eq.0) write(luout,'(5x,a)')  'FON applied'
+c      else
 c ---- FA-02-15-11 : occupations keyword ---- START
-       call dft_scaleMO_so(rtdb,g_moso,dbl_mb(k_occ),g_densso,
-     &                     nbf_mo,nTotOcc,switch_sclMO_so)
+c       call dft_scaleMO_so(rtdb,g_moso,dbl_mb(k_occ),g_densso,
+c     &                     nbf_mo,nTotOcc,switch_sclMO_so)
 c ---- FA-02-15-11 : occupations keyword ---- END
       endif
 
-       if (switch_sclMO_so.ne.1) then
-         if (ga_nodeid().eq.0)
-     &   write(*,*) 'ENTER calc so-density matrix std-way'
+c       if (switch_sclMO_so.ne.1) then
+c         if (ga_nodeid().eq.0)
+c     &   write(*,*) 'ENTER calc so-density matrix std-way'
          call dft_densm_so(g_densso, g_moso, nbf_ao, nTotOcc)
-       endif
+c       endif
 c     
 c     restore the scaled mo's
 c     
-      if(nmo_fon .ne. 0 .and. nel_fon .ne. 0 .and. fon)then 
-         scale = 1.0d0/scale 
-         call ga_scale_patch(g_moso(1), 
-     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
-         call ga_scale_patch(g_moso(2), 
-     &        1, nbf_mo, (nTotEl-nel_fon)+1, nTotOcc, scale)
-      endif
+      if (fon) then 
+c         scale = sqrt(avg_fon)
+         do i = ncore_fon + 1, ncore_fon + nmo_fon
+           if (i> nbf_mo) call errquit(
+     &        'dft_densm:fon g_moso index exceeds nbf_mo',
+     &        i, INPUT_ERR)
+           if (dbl_mb(i-1+k_occ) < 1d-4) call errquit(
+     &        'dft_densm:fon frac occup < 1E-4. Aborting suspisciously',
+     &        i, INPUT_ERR)           
+           scale = 1d0/sqrt(dbl_mb(i-1+k_occ)) ! 1/sqrt(occupation number)
+           call ga_scale_patch(g_moso(1), 
+     &        1, nbf_mo, i, i, scale)
+           call ga_scale_patch(g_moso(2), 
+     &        1, nbf_mo, i, i, scale)
+         end do
+       end if ! fon
 cso
 cso   g_dens(1)=Re(Daa)+Re(Dbb) and g_dens(2)=Re(Dbb)
 cso   For coulomb and xc potentials only the alpha, Re(Daa), and  
@@ -1444,6 +1593,19 @@ cso
       call ga_zero(g_dens(1))
       call ga_zero(g_dens(2))
       call ga_dens_sf(g_dens, g_densso(1), nbf_ao)
+
+c ... jochen: to check g_dens, calculate tr[P S] and print
+c     if (debug_fon) call dft_pstrace(g_dens,ao_bas_han,nbf_ao,oskel)
+      if (fon) then
+        pstrace=ga_ddot(g_dens(1),g_s)
+        pstrace=pstrace + ga_ddot(g_dens(2),g_s)
+        if(ga_nodeid().eq.0) write (luout,'(5x,a,1x,e15.7)')
+     &       'tr(P*S): ',pstrace 
+        if (.not. rtdb_put(rtdb, 'dft:pstrace', mt_dbl, 1, pstrace))
+     &     call errquit('dft_scf: rtdb_put pstrace failed', 1, RTDB_ERR)
+      end if
+c ... jochen end
+
       call ga_sync
 c     
 c     Check convergence on Density.
@@ -1837,7 +1999,9 @@ c     &        'Calculation failed to converge', 20, .true.)
          call util_flush(LuOut)
       endif 
 c
-      if(.not.fon)goto 2002 
+c ... jochen 10/11: disable the following functionality for now
+c     by adding .or. .true.
+      if(.not.fon .or. .true.) goto 2002 
       if(idet .eq. 0)then 
          if (.not.rtdb_get(rtdb,'sodft:no_det',mt_int,1,no_det))
      &        no_det = 0
@@ -1908,14 +2072,15 @@ c
       endif
       idet = idet + 1 
       go to 1000 
-c     
- 2002 continue
 c
       if(fon)then 
          if (.not.ma_pop_stack(kfon_occ))
      &        call errquit('dft_scf: cannot pop stack:lfon_occ',0,
      &       MA_ERR)
       endif
+c     
+ 2002 continue
+
       if (.not. ga_destroy(g_damp_so(1))) call errquit
      &     ('dft_scf_so: could not destroy g_damp_so', 0, GA_ERR)
       if (.not. ga_destroy(g_damp_so(2))) call errquit

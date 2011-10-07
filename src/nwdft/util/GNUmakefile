@@ -9,6 +9,7 @@
 	dft_mpole.o \
 	dft_scatter.o \
 	dft_tstamp.o \
+        dft_pstrace.o \
 	get_col.o \
 	movecs_log.o \
 	nbf_to_mbf.o \

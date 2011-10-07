@@ -161,7 +161,9 @@ c
       external dft_rabuck
 c
       integer g_focks(2)
-      integer nel_fon(2),nmo_fon(2),g_movad,
+      double precision nel_fon(2)
+      integer nmo_fon(2), ncore_fon(2)
+      integer g_movad,
      ,     ncanorg,g_gmovecs(2)
       logical gotsmear,quickguess,diisreset
       logical llldb,llldb_out,util_statldb,staticguess
@@ -191,8 +193,14 @@ c -----FA: 04-21-11: for Gaussian Nuclear Model --- START
       external get_zetanuc_arr
 c -----FA: 04-21-11: for Gaussian Nuclear Model --- END
 
-c
       gotsmear(ss)=abs(ss).gt.1d-9
+c
+c     misc
+c
+      logical debug_fon
+c
+c     =========================================================================
+c
 c
       k_3cERI  = 0
       k_3cwhat = 0
@@ -261,17 +269,32 @@ c
             endif
          endif
       endif
-      if (rtdb_get(rtdb, 'dft:fon', mt_log, 1,
-     &   fon))then
+
+c     check for FON in rtdb:
+      if (rtdb_get(rtdb, 'dft:fon', mt_log, 1, fon)) then
+
+        if (.not.fon) call errquit(
+     &     'dft_scf: fon stored in RTDB but not .true.', 1,
+     &     RTDB_ERR)
+
       if (.not.rtdb_get(rtdb, 'dft:nmo_fon', mt_int, 2,
-     & nmo_fon)) call errquit('dft_scf: rtdb_gett failed', 2300,
+     & nmo_fon)) call errquit('dft_scf: rtdb_get failed', 2300,
      &       RTDB_ERR)
-      if (.not.rtdb_get(rtdb, 'dft:nel_fon', mt_int, 2,
+      if (.not.rtdb_get(rtdb, 'dft:ncore_fon', mt_int, 2,
+     & ncore_fon)) call errquit('dft_scf: rtdb_get failed', 2300,
+     &       RTDB_ERR)
+      if (.not.rtdb_get(rtdb, 'dft:nel_fon', mt_dbl, 2,
      & nel_fon)) call errquit('dft_scfp: rtdb_get failed', 2301,
      &       RTDB_ERR)
+      if (rtdb_get(rtdb, 'dft:debugfon', mt_log, 1,
+     &   debug_fon)) continue
+
       else
          fon=.false.
+         debug_fon = .false.
       endif
+
+
       if (.not.rtdb_get(rtdb, 'dft:reorth', mt_log, 1,
      &   reorth))reorth=.false.
 c
@@ -660,13 +683,24 @@ c     == better have static ldb at high node counts ==
      &       geom, AO_bas_han,noc,ntotel,
      &       Dbl_MB(k_eval(1)),dbl_mb(k_occ),
      &       ssmear,tdots,iter,.false.,
-     .       fon, nel_fon,nmo_fon,
+     .       fon, nel_fon,nmo_fon,ncore_fon,
      .       spinset.or.n_rabuck.ne.0,
      &       rtdb) ! FA-03-02-11 for occupations keyword
 
-        if(oprint_info) then
+c ... jochen: next line added '.or. fon' which
+c       gives us the number of electrons created by the
+c       fractional occupations:
+
+        if(oprint_info .or. fon) then
           pstrace=ga_ddot(g_dens,g_s)
-          if(ga_nodeid().eq.0) write(luout,*) ' pstrace ',pstrace
+          if(ga_nodeid().eq.0) then
+            write(luout,'(5x,a)') 'FON applied'
+            write (luout,'(5x,a,1x,e15.7)')
+     &         'tr(P*S): ',pstrace 
+          end if
+          if (.not. rtdb_put(rtdb, 'dft:pstrace', mt_dbl, 1, pstrace))
+     &       call errquit('dft_scf: rtdb_put pstrace failed',
+     &       1, RTDB_ERR)
         endif
 
 c
@@ -911,6 +945,20 @@ c
         if (e_homo.lt.dbl_mb(k_eval(2)+noc(2)-1))
      &  e_homo = dbl_mb(k_eval(2)+noc(2)-1)
       endif
+
+c ... jochen: to check FON, calculate tr[P S] and print
+c      if (debug_fon) call dft_pstrace(g_dens(1),ao_bas_han,nbf_ao,oskel)
+      if (fon) then
+        pstrace=ga_ddot(g_dens,g_s)
+        if(ga_nodeid().eq.0) then
+          write(luout,'(5x,a)') 'FON applied'
+          write (luout,'(5x,a,1x,e15.7)')
+     &       'tr(P*S): ',pstrace 
+        end if
+        if (.not. rtdb_put(rtdb, 'dft:pstrace', mt_dbl, 1, pstrace))
+     &     call errquit('dft_scf: rtdb_put pstrace failed', 1, RTDB_ERR)
+      end if                    ! fon
+
 c
 c     build DFT Fock matrix
 c
@@ -1137,11 +1185,11 @@ c
          if (oadapt)then
             if(nmo(ispin).ne.0) then
                if (.not. ga_create(mt_dbl, nbf_ao, nmo(ispin),
-     ,              'movad', nbf_ao, 0, g_movad)) call errquit(
-     '              'dft_scf: gacreate failed ',0, GA_ERR)
+     ,           'movad', nbf_ao, 0, g_movad)) call errquit(
+     '           'dft_scf: gacreate failed ',0, GA_ERR)
                call ga_copy_patch('n', g_movecs(ispin), 1, nbf_ao, 
-     .              1, nmo(ispin),
-     ,              g_movad, 1,nbf_ao,1,nmo(ispin))
+     .            1, nmo(ispin),
+     ,            g_movad, 1,nbf_ao,1,nmo(ispin))
             else
                g_movad=g_movecs(ispin)
             endif
@@ -1222,12 +1270,13 @@ c
      &               geom,AO_bas_han,noc,ntotel,
      &               Dbl_MB(k_eval(1)),dbl_mb(k_occ),
      &               ssmear,tdots,iter,.true.,
-     .               fon, nel_fon,nmo_fon,
+     .               fon, nel_fon,nmo_fon,ncore_fon,
      .               spinset.or.n_rabuck.ne.0,           
      &               rtdb) ! FA-03-02-11 for occupations keyword
       if(oprint_info) then
          pstrace=ga_ddot(g_dens,g_s)
-         if(ga_nodeid().eq.0) write(luout,*) ' pstrace ',pstrace
+         if(ga_nodeid().eq.0) write (luout,'(5x,a,1x,e15.7)')
+     &      'tr(P*S): ',pstrace 
       endif
 
       if (oprint_time)

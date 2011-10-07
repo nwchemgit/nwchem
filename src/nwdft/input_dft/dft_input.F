@@ -5,6 +5,10 @@ c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
 c
+c ... jochen: here and elsewhere I changed the 'fon' variables from integer
+c     to double precision, to allow for calculations with fractional
+c     charges
+c
       implicit none
 c
 #include "errquit.fh"
@@ -47,7 +51,9 @@ c
       double precision smear_sigma
       double precision shift
       double precision tol2e
-      integer nel_fon(2),nmo_fon(2),ispin
+      double precision nel_fon(2)
+      integer nmo_fon(2), ncore_fon(2)
+      integer ispin
       logical steric
       logical efield
       logical swapab
@@ -81,10 +87,12 @@ c
       status = rtdb_delete(rtdb,'dft:converged')
       if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
      &   ipol=1
-      nel_fon(1)=0
+      nel_fon(1)=0d0
       nmo_fon(1)=0
-      nel_fon(2)=0
+      nel_fon(2)=0d0
       nmo_fon(2)=0
+      ncore_fon(1) = 0
+      ncore_fon(2) = 0
 c
 c     Lebedev on by default
 c
@@ -352,13 +360,18 @@ c
             goto 2301
          endif
          if (inp_compare(.false.,'electrons', test)) then
-            if(.not.inp_i(nel_fon(ispin))) call errquit(
-     .           ' fon: required integer after electrons keyword',0,
+            if(.not.inp_f(nel_fon(ispin))) call errquit(
+     .           ' fon: required real after Electrons keyword',0,
      &       INPUT_ERR)
             goto 2301
-         else if (inp_compare(.false.,'orbitals', test)) then
+         else if (inp_compare(.false.,'filled', test)) then
+            if(.not.inp_i(ncore_fon(ispin))) call errquit(
+     .           ' fon: required integer after Filled keyword',0,
+     &       INPUT_ERR)
+            goto 2301
+         else if (inp_compare(.false.,'partial', test)) then
             if(.not.inp_i(nmo_fon(ispin))) call errquit(
-     .           ' fon: required integer after orbitals keyword',0,
+     .           ' fon: required integer after Partial keyword',0,
      &       INPUT_ERR)
             goto 2301
          endif
@@ -366,7 +379,10 @@ c
       if (.not.rtdb_put(rtdb, 'dft:nmo_fon', mt_int, 2,
      & nmo_fon)) call errquit('dft_inp: rtdb_put failed', 2300,
      &       RTDB_ERR)
-      if (.not.rtdb_put(rtdb, 'dft:nel_fon', mt_int, 2,
+      if (.not.rtdb_put(rtdb, 'dft:ncore_fon', mt_int, 2,
+     & ncore_fon)) call errquit('dft_inp: rtdb_put failed', 2300,
+     &       RTDB_ERR)
+      if (.not.rtdb_put(rtdb, 'dft:nel_fon', mt_dbl, 2,
      & nel_fon)) call errquit('dft_inp: rtdb_put failed', 2300,
      &       RTDB_ERR)
       if (.not.rtdb_put(rtdb, 'dft:fon', mt_log, 1,
@@ -710,7 +726,7 @@ c
       write(6,10001)
 10001 format(/' fon [alpha|beta] orbitals <norb> electrons <nelec>'/)
       call util_flush(6)
-      call errquit('vectors_input: invalid format', 0, INPUT_ERR)
+      call errquit('fon: invalid format', 0, INPUT_ERR)
 c
 c     for semidirect
 c

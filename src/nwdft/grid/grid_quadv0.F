@@ -75,8 +75,9 @@ c
 c
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
-     &        nscr, lscr, iscr,lamat,iamat,icmat,lcmat,
-     ,        nelec
+     &        nscr, lscr, iscr,lamat,iamat,icmat,lcmat
+
+      double precision nelec
 c
       integer libf_ao,iibf_ao,irqbuf,lrqbuf,lbp,ibp,
      .     irchi_atom,irdelchi_atom,lrchi_atom,lrdelchi_atom
@@ -91,6 +92,9 @@ c
       double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
       integer ii,isp
       equivalence (dummy(1),Ex), (dummy(2),Ec), (dummy(3),rho_int)
+
+      logical fon
+      double precision pstrace
 
 #ifdef SOLARIS
 c     needed for -stackvar option
@@ -501,26 +505,55 @@ c
       if (.not. rtdb_get(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
      &   job_grid_acc))
      &   call errquit('grid_acc_def: rtdb_put failed', 911, RTDB_ERR)
+
+c     fractional occupations?
+
+      if (rtdb_get(rtdb,'dft:fon',mt_log,1,fon)) then 
+        if (.not.fon) call errquit(
+     &     'grid_quadv0: fon stored in RTDB but not .true.', 1,
+     &     RTDB_ERR)
+        if (.not. rtdb_get(rtdb, 'dft:pstrace', mt_dbl, 1, pstrace))
+     &     call errquit('grid_quadv0: rtdb_get pstrace failed',
+     &     1, RTDB_ERR)
+      else
+        fon = .false.
+      end if
 c
 c     get number of electrons
 c
       if(ipol.eq.1) then
-         nelec=2*noc(1)
+         nelec=dble(2*noc(1))
       else
-         nelec=noc(1)+noc(2)
+         nelec=dble(noc(1)+noc(2))
       endif
+
+c ... jochen: if we have fractional occupations the
+c     correct electron number comes from tr[PS]:
+      if (fon) nelec = pstrace
 c         
       if(oprintw) then
          if(sic_orb_occ.eq.0) then
-            rho_err=abs(rho_int-dble(nelec))/nelec
+            rho_err=abs(rho_int-nelec)/nelec
          else
             rho_err=abs(rho_int-1d0)
          endif
          if (me.eq.0) then
+c ... jochen: changed rho_err to rho_int two lines below
+c             and changed the output format
            if(.not.do_cpks_l.and.rho_err.gt.job_grid_acc.and.me.eq.0)
-     &        write(LuOut,123) rho_err,job_grid_acc
+     &        write(LuOut,123) rho_int,job_grid_acc
          end if
       endif
+
+c     some debug output to check the density integration error:
+c$$$      if (me.eq.0) then
+c$$$        write(luout,'(1x,a,t15,i10)') "noc(1):",noc(1)
+c$$$        write(luout,'(1x,a,t15,i10)') "noc(2):",noc(2)
+c$$$        write(luout,'(1x,a,t15,i10)') "nelec:",nelec
+c$$$        write(luout,'(1x,a,t15,f15.8)') "rho_int:",rho_int
+c$$$        write(luout,'(1x,a,t15,f15.8)')
+c$$$     &     "rhodiff: ",abs(rho_int-dble(nelec))
+c$$$      end if
 c
       rho_n = rho_int  ! integrated density
 c
@@ -535,8 +568,8 @@ c
       if (.not.MA_Free_Heap(lxyz))
      &   call errquit('grid_den: cannot free heap',0, MA_ERR)
 c
- 123  format(' Warning: integrated density =',
-     , d10.2,/' greater than required accuracy ',d10.2)
+ 123  format(1x,'Warning: integrated density     ',e20.12,/
+     &       1x,'deviates from requested relative accuracy ',e10.2)
 c
       return
       end

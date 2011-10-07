@@ -71,6 +71,8 @@ c
       double precision time1_ke,time2_ke
       double precision time1_pot,time2_pot
 c
+c     =========================================================================
+
       me=ga_nodeid()
       if (odftps) call pstat_on(ps_fockb)
 c
