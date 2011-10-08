@@ -297,14 +297,14 @@ c
          endif
          if (util_print('version', print_debug))
      $        call util_version
-         if (util_print('citation', print_low))
+         if (util_print('citation', print_none))
      &       call util_cite()
       endif
       call perfm_end()
       total_wall = total_wall + util_wallsec()
       total_cpu  = total_cpu  + util_cpusec()
       if (ga_nodeid() .eq. 0) then
-        if (util_print('total time', print_low)) then
+        if (util_print('total time', print_none)) then
           write(LuOut,1,iostat=io_code) total_cpu, total_wall
  1        format(/' Total times  cpu:',f11.1,'s     wall:',f11.1,'s')
           if(io_code.ne.0.and.
