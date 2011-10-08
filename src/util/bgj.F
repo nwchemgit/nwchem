@@ -258,10 +258,10 @@ cDEBUG
       status = movecs_read_header(movecs_in, title_vecs, basis_vecs,
      &         scftype_vecs, nbf_vecs, nsets, nmo, 2)
 c
-c     ipol  1 closed-shell (RKS)
-c     ipol  2 open-shell (both ROKS and UKS)
-c     nsets 1 RKS and ROKS
-c     nsets 2 UKS
+c     ipol  1  closed-shell (RKS)
+c     ipol  2  open-shell (both ROKS and UKS)
+c     nsets 1  RKS and ROKS
+c     nsets 2  UKS
 c
       if (ipol .ne. nsets)then
         if (ipol.eq.1.and.nsets.eq.2) then
@@ -302,7 +302,7 @@ c
      &                 'bgj_get_scf_dens:beta density')
       endif
 c
-c     get mo eigevectors
+c     get mo eigenvectors
 c
       if (nbf_ao .ne. nbf_vecs)then
          write(6,*)'bgj_get_scf_dens movecs output = ',movecs_in

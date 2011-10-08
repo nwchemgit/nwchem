@@ -61,20 +61,20 @@ c
       if (xc_gotxc())then
 c     
 c        Compute via direct numerical quadrature.
-      if(.not.grid_written) then
+         if(.not.grid_written) then
 c
-c     check if we can get the grid from a file
+c        check if we can get the grid from a file
 c         
-         grid_written=grid_reopen(geom)
-      endif
-      if(grid_written) then
-         call grid_setquad(rtdb)
-         call grid_packing_info
-      endif
-      call dftg_gridv0(rtdb, geom,ao_bas_han,ipol,nbf_ao,
-     .     iga_dens, force, natom, oactive, 
-     &     nactive, rdens_atom,  cetobfr)
-      oreopen=.false.
+            grid_written=grid_reopen(geom)
+         endif
+         if(grid_written) then
+            call grid_setquad(rtdb)
+            call grid_packing_info
+         endif
+         call dftg_gridv0(rtdb, geom,ao_bas_han,ipol,nbf_ao,
+     .        iga_dens, force, natom, oactive, 
+     &        nactive, rdens_atom,  cetobfr)
+         oreopen=.false.
 
 c!!! BGJ test !!!
 c

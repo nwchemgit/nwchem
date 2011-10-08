@@ -132,7 +132,7 @@ c
 
       character*16 tag
       character*32 theory
-      character*8 scftype
+      character*8 scftype, lscftype ! lscftype is just for calling grad2
       character*32 rtdb_string
 
 c    
@@ -215,7 +215,8 @@ C     get SCF MO vectors for density
          if (.not. rtdb_cget(rtdb, 'mcscf:input vectors', 1, movecs_in))
      $        call errquit('gradients: MCSCF MO vectors not defined',0,
      &       RTDB_ERR)
-         scftype = 'mcscf'
+         scftype  = 'mcscf'
+         lscftype = 'mcscf'
       else if (theory .eq. 'dft') then
          odft = .true.
          if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
@@ -228,11 +229,11 @@ C     get SCF MO vectors for density
      &       RTDB_ERR)
          if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
      $        ipol = 1
-         if (ipol .eq. 1) then
-            scftype = 'rhf'
-         else
-            scftype = 'uhf'
-         endif
+         if (.not. rtdb_cget(rtdb, 'dft:scftype', 1, scftype))
+     &        call errquit('gradients: scftype not defined',0,
+     &       RTDB_ERR)
+         lscftype = scftype
+         if (scftype.eq.'ROHF') lscftype = 'UHF'
          jfac = 1.0d0
          if (ocdfit) jfac = 0.0d0
          kfac = xfac(1)
@@ -240,6 +241,7 @@ C     get SCF MO vectors for density
          if (.not. rtdb_cget(rtdb, 'scf:scftype', 1, scftype))
      $        call errquit('gradients: scftype not defined',0,
      &       RTDB_ERR)
+         lscftype = scftype
          if (.not. rtdb_cget(rtdb, 'scf:input vectors', 1, movecs_in))
      $        call errquit('gradients: SCF MO vectors not defined',0,
      &       RTDB_ERR)
@@ -267,12 +269,17 @@ C     scftype: MCSCF, RHF, ROHF or UHF
          if (.not. rtdb_get(rtdb, 'dft:noc', mt_int, 2, noc))
      &        call errquit('gradients: rtdb_get of noc failed', 0,
      &       RTDB_ERR)
-         if (ipol .eq. 1) then
+         if (scftype.eq.'RHF') then
             nclosed = noc(1)
             nopen   = 0
-         else
+         elseif (scftype.eq.'ROHF') then
             nclosed = min(noc(1),noc(2))
             nopen   = abs(noc(1) - noc(2))
+         elseif (scftype.eq.'UHF') then
+            nclosed = min(noc(1),noc(2))
+            nopen   = abs(noc(1) - noc(2))
+         else
+           call errquit("grad_force: invalid scftype",0,UERR)
          endif
       else
          if (.not. rtdb_get(rtdb, 'scf:nopen', mt_int, 1, nopen))
@@ -326,6 +333,10 @@ C     # of eigenvalues and density matrices
          else                   ! ROHF
             nbf2 = nbf
             ndens = 3
+            if (odft) then
+              nbf2 = 2*nbf
+              ndens = 2
+            endif
          end if
       end if
 
@@ -463,7 +474,7 @@ c
      & frac_occ  )) frac_occ=.false.
       call grad_dens(geom, basis, g_dens, g_wdens, g_eigen_diag, 
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2, 
-     $     nopen, nclosed, scftype, movecs_in, omp2, 
+     $     nopen, nclosed, scftype, movecs_in, omp2, odft,
      $     dbl_mb(k_pdm2), dbl_mb(k_coeff),frac_occ,.false.)
 
 C     free temporary arrays
@@ -853,7 +864,7 @@ c
      $     lscratch, dbl_mb(k_scr), lbuf/12, dbl_mb(k_buf), 
      $     int_mb(k_labels), maxq, int_mb(k_list), dbl_mb(k_q4),
      $     tol2e, nsh, 
-     $     log_mb(k_act), oskel, scftype, omp2, nopen, nbf,
+     $     log_mb(k_act), oskel, lscftype, omp2, nopen, nbf,
      $     dbl_mb(k_pdm2),dbl_mb(k_pdm2a),dbl_mb(k_pdm2b), ! MCSCF
      $     dbl_mb(k_pdm2c),dbl_mb(k_pdm2d), dbl_mb(k_coeff), ! MCSCF
      $     nshblocks,
@@ -887,7 +898,7 @@ c
      $     lscratch, dbl_mb(k_scr), lbuf/12, dbl_mb(k_buf), 
      $     int_mb(k_labels), maxq, int_mb(k_list), dbl_mb(k_q4),
      $     tol2e, nsh, 
-     $     log_mb(k_act), oskel, scftype, omp2, nopen, nbf,
+     $     log_mb(k_act), oskel, lscftype, omp2, nopen, nbf,
      $     dbl_mb(k_pdm2),dbl_mb(k_pdm2a),dbl_mb(k_pdm2b), ! MCSCF
      $     dbl_mb(k_pdm2c),dbl_mb(k_pdm2d), dbl_mb(k_coeff), ! MCSCF
      $     nshblocks,
@@ -920,7 +931,7 @@ c
      $     lscratch, dbl_mb(k_scr), lbuf/12, dbl_mb(k_buf), 
      $     int_mb(k_labels), maxq, int_mb(k_list), dbl_mb(k_q4),
      $     tol2e, nsh, 
-     $     log_mb(k_act), oskel, scftype, omp2, nopen, nbf,
+     $     log_mb(k_act), oskel, lscftype, omp2, nopen, nbf,
      $     dbl_mb(k_pdm2),dbl_mb(k_pdm2a),dbl_mb(k_pdm2b), ! MCSCF
      $     dbl_mb(k_pdm2c),dbl_mb(k_pdm2d), dbl_mb(k_coeff), ! MCSCF
      $     nshblocks,

@@ -289,11 +289,6 @@ c     == restricted open-shell DFT ==
       if(theory.eq.'dft') then
         if (.not. rtdb_get(rtdb,'dft:rodft',mt_log,1,rodft))
      1   rodft = .false.
-        if (rodft) then
-         numerical = .true.  ! do numerical gradients for restricted-open shell
-         if (ga_nodeid().eq.0) write(LuOut,*) 
-     1    'RODFT - numerical derivatives only'
-        end if
       end if
 c
 c     Currently cosmo does not work with analytic gradients

@@ -187,7 +187,7 @@ c    $     nopen = 0
       if (nopen .gt. nelec) call errquit
      $     ('scf: nopen > nelec ', nopen, INPUT_ERR)
       if (mod(nelec-nopen,2) .ne. 0) call errquit
-     $     ('scf: no. of closed-shell electrons is not even!',nopen,
+     $     ('dft: no. of closed-shell electrons is not even!',nopen,
      &       INPUT_ERR)
 c     nclosed = (nelec-nopen) / 2
 c     

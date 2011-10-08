@@ -210,9 +210,9 @@ c     -----------------------
          if(ndens.eq.2) then
             blo(1) = 2*nfock_xc+1+1
             bhi(1) = 2*nfock_xc+1+1
-         int_mb(igxcd+2*nfock_xc+1) =
+            int_mb(igxcd+2*nfock_xc+1) =
      =        ga_create_atom_blocked(geom,ao_bas_han,'gdens+2')
-         call ga_copy(g_dens_scf(2),int_mb(igxcd+2*nfock_xc+1))
+            call ga_copy(g_dens_scf(2),int_mb(igxcd+2*nfock_xc+1))
          endif
       else
          g_dens_scf(1) = int_mb(igxcd)

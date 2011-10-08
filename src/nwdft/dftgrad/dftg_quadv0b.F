@@ -1,4 +1,4 @@
-      Subroutine dftg_quadv0_b(ictr, ldew, AO_bas_han, ipol, GRAD, kske,
+      subroutine dftg_quadv0_b(ictr, ldew, AO_bas_han, ipol, GRAD, kske,
      &                         nbf_ao, mbf_ao, nat, nq, chi, delchi, 
      &                         heschi, Amat, Cmat, Mmat, ccrap, 
      I     ibf, iniz, ifin, cetobfr,

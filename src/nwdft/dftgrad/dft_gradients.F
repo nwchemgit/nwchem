@@ -65,6 +65,7 @@ c     integer noc(2)
       external grad_norm, grad_max
       character*255 title_vecs, basis_vecs
       character*20 scftype_vecs
+      character*80 scftype
       logical status,frac_occ
       integer me, nproc, max_sh_bf, max_at_bf, nat, max_sh_bfcd,
      $     lforce, nactive, i, nbf_vecs, nsets, ispin, 
@@ -226,18 +227,40 @@ c
      $     call errquit('dft_gradient: DFT MO vectors not defined',0,
      &       RTDB_ERR)
       status = movecs_read_header(movecs_in, title_vecs, basis_vecs,
-     $     scftype_vecs, nbf_vecs, nsets, nmo, 2)
-c     
-      if (ipol .ne. nsets)then  ! 1 for RHF, 2 for UHF
-         write (LuOut,*) 'dft_gradient:  ERROR ipol, nsets:',ipol,nsets
-         call errquit('dft_gradient:  ERROR ipol, nsets disagree',2,
-     &       INPUT_ERR)
-      endif 
+     $         scftype_vecs, nbf_vecs, nsets, nmo, 2)
+c
+c     ipol  - number of spin channels   (RKS=1, ROKS=2, UKS=2)
+c     nsets - number of sets of vectors (RKS=1, ROKS=1, UKS=2)
+c
+      if (.not. rtdb_cget(rtdb, 'dft:scftype', 1, scftype))
+     $     call errquit('dft_gradient: DFT scftype not defined',0,
+     &       RTDB_ERR)
+      if (scftype.eq.'RHF') then
+        if (ipol .ne. nsets .or. ipol.ne.1)then  
+          write (LuOut,*) 'dft_gradient:  ERROR ipol, nsets:',ipol,nsets
+          call errquit('dft_gradient:  ERROR ipol, nsets disagree',2,
+     &                 INPUT_ERR)
+        endif 
+      elseif (scftype.eq.'ROHF') then
+        if (nsets.ne.1.or.ipol.ne.2) then
+          write (LuOut,*) 'dft_gradient:  ERROR ipol, nsets:',ipol,nsets
+          call errquit('dft_gradient:  ERROR ipol, nsets disagree',2,
+     &                 INPUT_ERR)
+        endif 
+      elseif (scftype.eq.'UHF') then
+        if (nsets.ne.2.or.ipol.ne.2) then
+          write (LuOut,*) 'dft_gradient:  ERROR ipol, nsets:',ipol,nsets
+          call errquit('dft_gradient:  ERROR ipol, nsets disagree',2,
+     &                 INPUT_ERR)
+        endif
+      else
+        call errquit('dft_gradient: illegal scftype',0,UERR)
+      endif
 c     
 c     Should check much more info than just nbf for consistency
 c     
 c     
-c     get mo eigevectors
+c     get mo eigenvectors
 c     
       if (nbf_ao .ne. nbf_vecs)then
          write(LuOut,*)'dft_gradient movecs output = ',movecs_in
@@ -247,9 +270,9 @@ c
          status = .true.
          do ispin = 1, ipol
             status = status .and.
-     $           movecs_read(movecs_in, ispin, 
-     &          dbl_mb(k_occ+(ispin-1)*nbf_ao),
-     $           dbl_mb(k_evals(ispin)), g_vecs(ispin))
+     $           movecs_read(movecs_in, min(ispin,nsets), 
+     &                       dbl_mb(k_occ+(ispin-1)*nbf_ao),
+     $                       dbl_mb(k_evals(ispin)), g_vecs(ispin))
          enddo 
       endif
 c     
@@ -261,11 +284,11 @@ c
 c
       if(frac_occ) then
 c
-c     smearing, therefore check new nocs
+c       smearing, therefore check new nocs
 c
-      if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
-     &   call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
-         rhffact = one
+        if (.not. MA_Push_Get(MT_Dbl, nbf_ao, 'tmpm', ltmpm, itmpm))
+     &     call errquit('dftgforce: failed to alloc tmpm',0, MA_ERR)
+           rhffact = one
 c
         do ispin=1,ipol
           g_tmp(ispin) = ga_create_atom_blocked(geom, ao_bas_han,
@@ -283,8 +306,8 @@ c
             if(dbl_mb(ipoint+i).gt.toll) noc(ispin)=i
           enddo
         enddo
-      if (.not.ma_pop_stack(ltmpm))
-     &   call errquit('dftg_force: cannot pop stack',0, MA_ERR)
+        if (.not.ma_pop_stack(ltmpm))
+     &     call errquit('dftg_force: cannot pop stack',0, MA_ERR)
       
       else
         do ispin=1,ipol
@@ -293,12 +316,12 @@ c
       endif
       do ispin = 1, ipol
 c     
-c     dens = vecs*vecs
+c        dens = vecs*vecs
 c     
-      if (odftps) call pstat_on(ps_dgemm)
+         if (odftps) call pstat_on(ps_dgemm)
          call ga_dgemm('n', 't', nbf_ao, nbf_ao, noc(ispin), rhffact, 
      $        g_tmp(ispin), g_vecs(ispin), 0.0d0, iga_dens(ispin))
-      if (odftps) call pstat_off(ps_dgemm)
+         if (odftps) call pstat_off(ps_dgemm)
          call ga_symmetrize(iga_dens(ispin))
 c     
 c     free temporary arrays
@@ -420,10 +443,10 @@ c
      $        call errquit('dftg_force: could not alloc svec',0, MA_ERR)
          ippp=k_wdens
 c     
-      if (odftps) call pstat_on(ps_vcoul)
-      call xc_rep_init(rtdb, geom, ao_bas_han,iga_dens,iga_dens,
-     &     nbf_ao,ipol,.true.,.true.)
-         call  dftg_cdfit(ao_bas_han, cd_bas_han,
+         if (odftps) call pstat_on(ps_vcoul)
+         call xc_rep_init(rtdb, geom, ao_bas_han,iga_dens,iga_dens,
+     &        nbf_ao,ipol,.true.,.true.)
+         call dftg_cdfit(ao_bas_han, cd_bas_han,
      $        nbf_cd, nat, tol2e, dbl_mb(k_scr), 
      $        lscratch, dbl_mb(k_buf), lbuf,
      $        dbl_mb(isvec), dbl_mb(ippp), max_sh_bf,
@@ -433,17 +456,18 @@ c
      .        errquit(' dftggrad: xcrepclose failed ',0, 0)
 c     
          call ga_dgop(msg_grad_2el, dbl_mb(k_frc_2el), lforce, '+')
-      if (odftps) call pstat_off(ps_vcoul)
+         if (odftps) call pstat_off(ps_vcoul)
 c     
-      if (.not.ma_chop_stack(l_buf))
+         if (.not.ma_chop_stack(l_buf))
      $     call errquit('dft_gradient: cannot chop stack',0, MA_ERR)
 c     
-c     restore alpha DM in g_dens(1)
+c        restore alpha DM in g_dens(1)
 c     
-      if (ipol .eq. 2)then
-         onem = -1.d0
-         call ga_dadd(one, iga_dens(1), onem, iga_dens(2), iga_dens(1))
-      endif 
+         if (ipol .eq. 2)then
+            onem = -1.d0
+            call ga_dadd(one, iga_dens(1), onem, iga_dens(2), 
+     &                   iga_dens(1))
+         endif 
       endif
 c     
 c     get exchange-correlation contribution to the gradient

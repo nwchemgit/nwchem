@@ -137,7 +137,9 @@ c
 c     odd # of electrons or not a singlet state --> LSD
 c     
       if ((.not.even).or.(mult.ne.1).or.(theory.eq.'sodft').or.
-     &    (scftype.eq.'UHF')) ipol=2
+     &    (scftype.eq.'UHF').or.(scftype.eq.'ROHF')) then
+        ipol=2
+      endif
       noc(2)=0
 c     
 c     Calculate number of occupied orbitals.
@@ -336,9 +338,11 @@ c
             call util_print_centered
      &         (LuOut,'General Information',20,.true.)
             write(LuOut,9020)
-            if (ipol.eq.1)then
+            if (scftype.eq."RHF")then
                write(LuOut,9050)
-            elseif (ipol.eq.2)then
+            elseif (scftype.eq."ROHF")then
+               write(LuOut,9052)
+            elseif (scftype.eq."UHF")then
                write(LuOut,9055)
             endif
             write(LuOut,8150)ncenters
@@ -670,6 +674,7 @@ c
  9040 format(10x,'Convergence on density requested: ',1Pd8.2)
  9045 format(10x,'Convergence on gradient requested: ',1Pd8.2)
  9050 format(10x,'Wavefunction type:  closed shell.')
+ 9052 format(10x,'Wavefunction type:  restricted open shell.')
  9055 format(10x,'Wavefunction type:  spin polarized.')
  9056 format(10x,'Use of symmetry is: ',a3,
      &           '; symmetry adaption is: ',a3)

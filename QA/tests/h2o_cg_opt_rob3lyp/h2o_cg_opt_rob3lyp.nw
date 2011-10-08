@@ -1,0 +1,28 @@
+echo
+start h2o_cg_opt_rob3lyp_dat
+
+memory global 40 mb stack 23 mb heap 5 mb
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+charge 1
+
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+dft
+  cgmin
+  mult 2
+  rodft
+  xc slater
+  print "forces" "force components"
+  convergence nr 0.0
+end
+
+task dft optimize

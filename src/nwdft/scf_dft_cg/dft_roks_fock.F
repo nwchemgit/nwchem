@@ -151,7 +151,12 @@ c     cfock = closed shell AO fock
 c     odens = open shell density
 c     ocoul = open shell coulomb
 c     oexch = open shell exchange
-c     
+c
+      g_a_xc  = 0
+      g_b_xc  = 0
+      g_adens = 0
+      g_bdens = 0
+c
       g_cdens = ga_create_atom_blocked(geom, basis, 'rohf: cdens')
       g_cfock = ga_create_atom_blocked(geom, basis, 'rohf: cfock')
       g_hcore = ga_create_atom_blocked(geom, basis, 'rohf: hcore')

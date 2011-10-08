@@ -27,7 +27,7 @@ c
 c     integer rtdb, mult, g_vecs(2)
       integer rtdb, mult
       integer dftnoc(2), nbsize
-      logical oprint, omp2
+      logical oprint, omp2, odft
       logical cdfit, frac_occ
       integer nbf_cd, nbf2, mxnocc
       integer g_eigen_diag
@@ -53,6 +53,7 @@ c
 c
 c  get geometry and basis set handles and associated useful information
 c
+      odft = .false.
       if (oprint) write(LuOut,*) 'HESS: set up geometry and basis'
       if (.not. geom_create(geom, 'geometry'))
      *  call errquit('hess_init: geom_create problem', 555, GEOM_ERR)
@@ -181,6 +182,7 @@ c       nopen = nopen + 1
           kfac(2) = 1.0d0
         endif
       elseif (theory .eq. 'dft') then
+        odft = .true.
         if (.not. rtdb_get(rtdb, 'dft:mult', MT_INT, 1,mult))
      *    mult = 1
         nopen = mult - 1
@@ -324,7 +326,7 @@ c
       if (oprint) write(LuOut,*) 'HESS: getting densities'
       call grad_dens(geom, basis, g_dens, g_wdens, g_eigen_diag,
      $     dbl_mb(k_evals), dbl_mb(k_occ), ndens, nbf, nbf2,
-     $     nopen, nclosed, scftype, movecs_in, omp2,
+     $     nopen, nclosed, scftype, movecs_in, omp2, odft,
      $     dbl_mb(k_pdm2), dbl_mb(k_coeff),frac_occ,.true.)
 c
 c     free temporary arrays
