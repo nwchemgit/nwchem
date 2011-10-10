@@ -516,7 +516,7 @@ c
       if(lpstep) write(lfnout,1010)
  1010 format(14X,
      + '   U(bnd)     U(ang)     U(dih)     U(imp)  ',
-     + '   Ui(ele)    Ui(vdW) ',
+     + '   Ui(3rd)    Ui(non) ',
      + '   Uw(ele)    Uw(vdW)    U(kin)     U(pot)     U(tot)',/,14X,
      + '   kJ/mol     kJ/mol     kJ/mol     kJ/mol  ',
      + '   kJ/mol     kJ/mol  ',
@@ -534,10 +534,10 @@ c
  1011 format('   solvent  ',11f11.2)
       endif
       do 1 i=1,nsf
-      j=isprop+(i-1)*27
+      j=isprop+(i-1)*30
       rt=p(j+7)+p(j+8)+p(j+9)+p(j+10)+p(j+2)+p(j+3)+p(j+5)+p(j+6)
       write(lfnout,1012) i,p(j+7),p(j+8),p(j+9),p(j+10),
-     + p(j+2),p(j+3),p(j+5),p(j+6),p(j+16),rt,rt+p(j+16)
+     + p(j+14)+p(j+15),p(j+2)+p(j+3),p(j+5),p(j+6),p(j+16),rt,rt+p(j+16)
  1012 format('   solute',i3,11f11.2) 
     1 continue
       endif
