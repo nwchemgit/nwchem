@@ -251,3 +251,4 @@ C        write(6,*) 'atn is ',atn
       END DO
 
       END !SUBROUTINE TAGCHECK
+c $Id$

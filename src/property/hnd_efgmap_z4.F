@@ -1,6 +1,6 @@
       subroutine hnd_efgmap_z4(rtdb,basis,geom)
 c
-c $Id: hnd_efgmap_z4.F 19765 2010-11-10 19:37:59Z faquino $
+c $Id$
 c
 c     This routine calculates the electric field gradient and 
 c     the orientation of the EFG for a given density at the

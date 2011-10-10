@@ -1,5 +1,5 @@
       subroutine dft_get_conv_info(rtdb)
-C$Id: scf_get_info.F,v 1.61 2004-09-08 23:56:39 edo Exp $
+C$Id$
       implicit none
 #include "mafdecls.fh"
 #include "global.fh"

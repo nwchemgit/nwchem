@@ -47,3 +47,4 @@ c      write(*,*)"k1,k2,k3",k1,k2,k3
  23   continue
       return
       end
+c $Id$

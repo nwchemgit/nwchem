@@ -11,3 +11,4 @@ extern	int	init_xpansion2(int,int,double,
                               double*, double*, double*);
 
 #endif
+/* $Id$ */

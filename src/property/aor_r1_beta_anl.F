@@ -4,7 +4,7 @@
      &   froct, epst, nbf, nmo, nocct, nvirt, lgiao, lquad, lanalyze,
      &   lvelocity ,lifetime, lmagpert, g_vecE1, g_vecE1_im)
 
-c $Id:  $
+c $Id$
       
 c     =================================================================
       

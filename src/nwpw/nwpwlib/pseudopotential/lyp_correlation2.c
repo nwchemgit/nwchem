@@ -197,3 +197,4 @@ Vc[],
 
 } /* R_BLYP_Correlation */
 
+/* $Id$ */

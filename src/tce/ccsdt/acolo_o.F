@@ -19,3 +19,4 @@ c
       if(iocc.ge.numact) acolo_o=.true.
       RETURN
       END
+c $Id$

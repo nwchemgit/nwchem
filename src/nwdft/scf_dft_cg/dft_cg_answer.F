@@ -51,3 +51,4 @@ c
      &    call errquit('dft_scf: movec_write failed', 0, DISK_ERR)
 c
       end
+c $Id$

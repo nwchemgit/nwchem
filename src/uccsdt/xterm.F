@@ -345,3 +345,4 @@ csh  $    call errquit('write_t2 failed',0)
 c
       return
       end
+c $Id$

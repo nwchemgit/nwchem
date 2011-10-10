@@ -537,3 +537,4 @@ c
      1     call errquit('ccsd_1prdm: ma problem',03,ma_err)
 c     
       end
+c $Id$

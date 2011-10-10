@@ -172,3 +172,4 @@ c          write(LuOut,9101) cpusecs(37),cpusecs(38)
  9700 format(1x,'Skipping CCSD altogether')
       end
 
+c $Id$

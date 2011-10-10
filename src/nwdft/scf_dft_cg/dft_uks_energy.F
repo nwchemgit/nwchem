@@ -13,7 +13,7 @@
 #include "bgj.fh"
 #include "case.fh"
 c     
-c     $Id: uhf.F,v 1.69 2009-01-16 05:32:29 niri Exp $
+c     $Id$
 c
       integer g_vecs(2)
       double precision energy

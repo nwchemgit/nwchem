@@ -125,3 +125,4 @@ Vc_out[],
     dealloc_LogGrid(tmp);
 
 } /* R_PBE_Correlation */
+/* $Id$ */

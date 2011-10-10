@@ -25,3 +25,4 @@ c
       gdot = s_1
       return
       end
+c $Id$

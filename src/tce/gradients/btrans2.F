@@ -2448,3 +2448,4 @@ c      i_ind=i_ind+nalength2(ib)
       call ga_sync( )
       return
       end
+c $Id$

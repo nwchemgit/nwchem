@@ -1521,3 +1521,4 @@ c -------- routines for shieldings NLMO analysis ---- END
        write(*,*) "+++++++++++++++++++++++++++++++++++"
        return
        end
+c $Id$

@@ -2,7 +2,7 @@
       subroutine fiao_f1_movecs (rtdb, basis, geom, omega, lstatic,
      &   ncomp,  lvelocity, lifetime, gamwidth,g_vecF1, g_vecF1_im)
 
-c $Id:  $
+c $Id$
       
 c     =================================================================
       

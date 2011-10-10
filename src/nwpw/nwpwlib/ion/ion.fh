@@ -24,3 +24,4 @@
      >              sym_inversion,    !true if inversion symmetry
      >              periodic          !true if periodic
 
+c $Id$

@@ -8,7 +8,7 @@
      &         nder,      !  in: =2 means second derivative
      &         efgfile)   !  in: = 0 NOT NLMO/NBO =1 DO NLMO/NBO
 c
-c $Id: hnd_elfcon.F,v 1.4 2004-12-20 22:41:07 bert Exp $
+c $Id$
 c
 c     This routine calculates the electronic contribution of the
 c     electronic integral defined by nder for a given density at 

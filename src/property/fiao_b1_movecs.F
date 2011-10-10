@@ -1,6 +1,6 @@
       subroutine fiao_b1_movecs(rtdb,basis,geom, g_vecB1)
 
-c $Id: $
+c $Id$
 
 c     This routine is a modification of fiao_b1_movecs.F. We calculate
 c     the MO vectors perturbed by a STATIC external magnetic field but

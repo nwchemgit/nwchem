@@ -88,3 +88,4 @@ c     T(no_sym(msym,spin1),dim(kblock),dim(ablock),dim(bblock))
 c
 
 
+c $Id$

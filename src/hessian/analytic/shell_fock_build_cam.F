@@ -1,6 +1,6 @@
 c#define NBACC 1
 c
-c $Id: shell_fock_build.F,v 1.39 2008-12-30 22:16:41 bert Exp $
+c $Id$
 c
       subroutine shell_fock_build_cam(geom,basis, nder, ndens,
      $     jfac, kfac, tol2e, g_dens, g_fock, osym)

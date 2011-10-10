@@ -46,3 +46,4 @@ extern char *name_Atom(void);
 extern char *spin_Name(int i);
 extern int isRelativistic_Atom(void);
 #endif
+/* $Id$ */

@@ -884,3 +884,4 @@ c              This routine is used in gridNuclearPotential()
         enddo ! end-loop-i
        return
        end   
+c $Id$

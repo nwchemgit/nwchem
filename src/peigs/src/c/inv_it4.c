@@ -165,3 +165,4 @@ Integer inv_it4(iii,  n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, 
 }  
 
 
+/* $Id$ */

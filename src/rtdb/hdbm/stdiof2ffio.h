@@ -19,3 +19,4 @@ extern void	stdiof_ffrewind(FILE *stream);
 #define	fseek	stdiof_ffseek
 #define	ftell	stdiof_fftell
 #define	rewind	stdiof_ffrewind
+/* $Id$ */

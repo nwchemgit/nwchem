@@ -178,3 +178,4 @@ stdiof_fftell(FILE *stream)
 	return ( (long)cpos );
 
 }
+/* $Id$ */

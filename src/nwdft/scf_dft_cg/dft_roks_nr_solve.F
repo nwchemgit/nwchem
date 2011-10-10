@@ -1,6 +1,6 @@
       logical function dft_roks_nr_solve(rtdb, energy, eone, etwo, exc,
      +                                   enrep, nexc)
-c     $Id: rohf_nr_sol.F,v 1.30 2003-10-17 22:54:33 carlfahl Exp $
+c     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

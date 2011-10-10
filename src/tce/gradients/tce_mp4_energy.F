@@ -279,3 +279,4 @@ c
  9080 format(1x,A,' total energy / hartree       = ',f25.15)
  9100 format(1x,i4,2f18.13,2f8.1)
       end
+c $Id$

@@ -9,3 +9,4 @@ extern void R_Dirac_FixedLogDeriv(int n, int l, int s2, double Z, const double *
 	int match, double u_logderiv, double *Eig, double *u, double *uprime);
 
 #endif
+/* $Id$ */

@@ -1,6 +1,6 @@
       subroutine aoresponse_driver_new (rtdb, basis, geom)
 
-c     $Id: $
+c     $Id$
 
 c     ==================================================================
 

@@ -3,7 +3,7 @@
      $     eone, etwo, Exc, g_fcv, g_fpv,
      $     g_fcp, nExc, oskel, iter)
 *
-* $Id: rohf_fock.F,v 1.23 2009-01-16 05:32:29 niri Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

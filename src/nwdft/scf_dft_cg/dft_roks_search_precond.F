@@ -1,6 +1,6 @@
       subroutine dft_roks_search_precond(rtdb, g_grad, g_work)
 *
-* $Id: rohf_precon.F,v 1.12 1998-08-26 16:24:56 d3g681 Exp $
+* $Id$
 *
       implicit none
 #include "crohf.fh"      

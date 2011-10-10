@@ -21,3 +21,4 @@
       real*8 Rp,Rpe,alpha
 
       common /BLCJ_param_blck/ DELTA,q1,q2,q3,Rcoul,Rp,Rpe,alpha
+c $Id$

@@ -15,3 +15,4 @@ c
       if(io1.ge.numact-2)  acolo_1a_2h = .true.
       RETURN
       END
+c $Id$

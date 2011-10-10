@@ -37,7 +37,7 @@ c>>>  that gennbo already exists and has been ported to a number of
 c>>>  platforms.
 c
 *
-* $Id: wnbofile.F,v 1.16 2004-12-03 21:50:20 bert Exp $
+* $Id$
 *
       implicit none
 #include "errquit.fh"

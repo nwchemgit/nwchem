@@ -12,3 +12,4 @@ c
      + nums,isgan,isdt,lst)
       return
       end
+c $Id$

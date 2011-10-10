@@ -72,3 +72,4 @@ c     ----------------
       endif
 c      write(*,*) 'End of mymd_input.'
       end
+c $Id$

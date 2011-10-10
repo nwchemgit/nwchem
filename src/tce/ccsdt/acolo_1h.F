@@ -14,3 +14,4 @@ c
       if(iocc_o.ge.numact-2) acolo_1h=.true.
       RETURN
       END
+c $Id$

@@ -634,3 +634,4 @@ c      write (*,*) 'Long string : ', str
          read(12,*) n,nsteps,step,dt,mass,c,v,a,b,d,t
       end
         
+c $Id$

@@ -552,3 +552,4 @@ c       write(*,*) "pbe96:",i,ec,fnc,fdnc
 
       return
       end
+c $Id$

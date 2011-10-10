@@ -66,3 +66,4 @@ czora-nmr-cs FA
 c
         integer g_zora_Kinetic(2)
         common/zora_fock/g_zora_Kinetic
+c $Id$

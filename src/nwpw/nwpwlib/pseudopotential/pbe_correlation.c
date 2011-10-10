@@ -216,3 +216,4 @@ Vc_out[],
     dealloc_LogGrid(dadrho);
 
 } /* R_PBE_Correlation */
+/* $Id$ */

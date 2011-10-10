@@ -994,3 +994,4 @@ c
  9440 format(1x,A3,' axis ( ',A4,'symmetry)')
       return
       end
+c $Id$

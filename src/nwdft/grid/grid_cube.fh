@@ -2,3 +2,4 @@
       integer shft,nsub4
       logical sub4
       common /grspher/ shft,sub4,l_cube,nsub4
+c $Id$

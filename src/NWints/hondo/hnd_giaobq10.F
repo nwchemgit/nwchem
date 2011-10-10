@@ -1,7 +1,7 @@
       subroutine hnd_giaobq10(xyzi,expi,coefi,i_nprim,i_ngen,Li,xyzj,
      & expj,coefj,j_nprim,j_ngen,Lj,coordbq,zbq,nbq,nint,bq10,scr,lscr)
 c
-c $Id: hnd_giaobq10.F 19765 2010-11-10 19:37:59Z faquino $
+c $Id$
 c
 c     ----- Wrapper routine that sets the sizes of scratch blocks -----
 c

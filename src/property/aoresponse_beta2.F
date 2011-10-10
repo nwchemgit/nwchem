@@ -5,7 +5,7 @@
      &   nbf, nmo, nocct, nvirt, deps, lgiao, lquad, lvelocity,
      &   lmagpert, lifetime, gamwidth, alfare, alfaim, betare, betaim)
 
-c $Id:  $
+c $Id$
       
 c     =================================================================
       

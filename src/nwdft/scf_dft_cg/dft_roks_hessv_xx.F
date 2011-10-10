@@ -3,7 +3,7 @@
      $     pflg,
      $     g_movecs, oskel, g_fcv, g_fpv, g_fcp,
      $     acc, lshift, g_x, g_ax )
-C     $Id: rohf_hxx.F,v 1.6 2003-10-17 22:54:33 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

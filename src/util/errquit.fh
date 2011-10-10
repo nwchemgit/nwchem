@@ -22,3 +22,4 @@ c HEAP_ERR - error in MA heap
       parameter (CAPMIS_ERR=40, BASIS_ERR=50, GEOM_ERR=60, GA_ERR=70)
       parameter (MA_ERR=80, INT_ERR=90, DISK_ERR=100, CALC_ERR=110)
       parameter (FMM_ERR=120, STACK_ERR=11, HEAP_ERR=12)
+c $Id$

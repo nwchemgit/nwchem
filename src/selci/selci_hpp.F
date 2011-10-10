@@ -108,3 +108,4 @@ c         call ga_dgop (99, si(1, iroot), nci, '+')
 c 1010 continue
 c     
       end
+c $Id$

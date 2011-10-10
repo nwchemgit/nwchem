@@ -21,3 +21,4 @@ c
       if(iocc_o.ge.numact.and.iocc_v.ge.numact-1) acolo_o_2p=.true.
       RETURN
       END
+c $Id$

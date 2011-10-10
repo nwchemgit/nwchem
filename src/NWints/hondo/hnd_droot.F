@@ -1,5 +1,5 @@
       subroutine hnd_droot
-c $Id: hnd_giao_init.F 19696 2010-10-29 16:53:42Z d3y133 $
+c $Id$
       implicit none
 #include "hnd_rys.fh"
 c

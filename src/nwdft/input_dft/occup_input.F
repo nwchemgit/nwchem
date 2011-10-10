@@ -1,5 +1,5 @@
       subroutine occup_input(rtdb)
-C     $Id: occ_input.F 2011-02-01 FA $
+C     $Id$
 C     Adapted from geom_input
 c     Occupations format:
 c     occupations [nfocc_in]

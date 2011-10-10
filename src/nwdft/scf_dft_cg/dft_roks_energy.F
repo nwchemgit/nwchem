@@ -11,7 +11,7 @@
 #include "rtdb.fh"
 #include "cosmo.fh"
 c     
-c     $Id: rohf_wrap.F,v 1.22 2006-11-16 18:22:55 jochen Exp $
+c     $Id$
 c
       integer rtdb
 

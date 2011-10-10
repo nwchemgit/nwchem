@@ -17,3 +17,4 @@ c
       me = ga_nodeid()
       return
       end
+c $Id$

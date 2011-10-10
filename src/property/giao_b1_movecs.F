@@ -1,6 +1,6 @@
       subroutine giao_b1_movecs(rtdb,basis,geom, g_vecB1, g_sket1)
 
-c $Id: $
+c $Id$
 
 c     This routine is a modification of hnd_giaox.F. Instead of
 c     computing NMR shielding tensors we simply calculate the MO vectors

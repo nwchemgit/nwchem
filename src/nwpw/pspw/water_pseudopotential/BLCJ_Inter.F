@@ -522,3 +522,4 @@
       DGd = (a/x +2*r*b/dsqrt(x))*dexp(-(a*r/x + b*r*r/dsqrt(x)))
       return
       end
+c $Id$

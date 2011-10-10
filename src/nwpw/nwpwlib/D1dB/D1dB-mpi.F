@@ -793,3 +793,4 @@ cccccc      !Level = (log(dble(np_j))/log(2.0d0))
 
       return
       end
+c $Id$

@@ -253,3 +253,4 @@ Vx[],
 
 
 }/* R_BLYP_Exchange */
+/* $Id$ */

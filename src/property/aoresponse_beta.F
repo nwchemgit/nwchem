@@ -5,7 +5,7 @@
      &   , nmo, nocct, nvirt, deps, lgiao, lquad, lvelocity, lmagpert,
      &   lifetime, gamwidth, alfare, alfaim, betare, betaim)
 
-c $Id: aoresponse_beta.F $
+c $Id$
       
 c     =================================================================
       

@@ -9,3 +9,4 @@
      $     inp_line, inp_eof, inp_a_trunc, inp_irange, inp_ilist,
      $     inp_strtok, inp_read_physical_line, inp_contains, 
      $     inp_ilist_size
+c $Id$

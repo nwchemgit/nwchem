@@ -23,3 +23,4 @@ c
       call md_abort('Error readin command file',0)
       return
       end
+c $Id$

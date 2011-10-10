@@ -2,7 +2,7 @@ c
 c     == Main DFT quasi-Newton-Raphson driver ==
       logical function dft_cg_solve(rtdb)
 c     
-c     $Id: dft_main0d.F,v 1.92 2009-01-17 00:44:02 niri Exp $
+c     $Id$
 c     
       implicit none
 c

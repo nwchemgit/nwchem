@@ -154,3 +154,4 @@ void tce_sort_2_(double* unsorted,double* sorted,
     transpose_misaligned(unsorted,sorted,a,b,factor);
   }    
 }
+/* $Id$ */

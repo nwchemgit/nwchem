@@ -1256,3 +1256,4 @@ c -------------- for g-shift NLMO analysis ------------- END
        write(*,*) "+++++++++++++++++++++++++++++++++++++"
        return
        end
+c $Id$

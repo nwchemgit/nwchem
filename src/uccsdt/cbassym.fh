@@ -29,3 +29,4 @@ c
      $     bf_uq, char_tab, bf_per_ir, bf_per_ir_cum, bf_so_ir,
      $     so_uq_to_lab, so_lab1, so_lab2
       common /ccbassym/zir
+c $Id$

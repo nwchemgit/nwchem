@@ -466,3 +466,4 @@ double FATR util_timer_()
        return tcg_time();
 #endif
 }
+/* $Id$ */

@@ -1038,3 +1038,4 @@ c     -----------------------------
 30    call errquit(pname//"error reading file "//filename,0,0)
 31    call errquit(pname//"premature end of file "//filename,0,0)
       end
+c $Id$

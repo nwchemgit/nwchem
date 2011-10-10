@@ -8,7 +8,7 @@
      &                           g_fcsd,        ! out : FC+SD (v,u) term
      &                           nexc)
 c
-C$Id: zora_getv_EPR.F,v 1.3 2010-11-01 FA Exp $
+C$Id$
 c Adapted from zora_getv_so     
 
       implicit none
@@ -290,7 +290,7 @@ c ++++++++++++++++++++++++++++++++
      &                           g_fcsd,        ! out : FC+SD (v,u) term
      &                           nexc)
 c
-C$Id: zora_getv_EPR.F,v 1.3 2010-11-01 FA Exp $
+C$Id$
 c Adapted from zora_getv_so     
 
       implicit none
@@ -614,7 +614,7 @@ c ----- free memory ----------- END
      &          Knucl,        ! in: = .true. if K_ZORA(V=Nuclear pot. only)
      &          nexc)
 c
-C$Id: zora_getv_NMRCS_SR.F,v 1.3 2010-11-04 FA Exp $
+C$Id$
 c Adapted from zora_getv_sf
 
       implicit none

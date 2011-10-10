@@ -96,3 +96,4 @@ c     2  irrep_z,irrep_za,irrep_zb,irrep_zc,irrep_zd
       common /tcelogical/
      1  restricted,intorb,read_int,write_int,read_ta,write_ta,
      2  read_xa,write_xa,read_in3,write_in3
+c $Id$

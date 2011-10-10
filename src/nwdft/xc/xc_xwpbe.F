@@ -381,3 +381,4 @@ c     Compile source again for the 2nd derivative case
 c
 #include "xc_xwpbe.F"
 #endif
+c $Id$

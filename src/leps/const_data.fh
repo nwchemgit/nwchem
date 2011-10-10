@@ -8,3 +8,4 @@
       parameter(sqrpi    =  1.772453850905516d0)
       parameter(JToHartree = 2.2937128d+17)
       parameter(tolg     =1.0D-08)
+c $Id$

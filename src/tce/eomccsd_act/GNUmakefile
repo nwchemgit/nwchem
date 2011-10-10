@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.6 2007/10/31 14:43:57 jhammond Exp $
+#$Id$
 
 OBJ_OPTIMIZE = eomccsd_x1a.o eomccsd_x2a.o q2na_hc1.o
 

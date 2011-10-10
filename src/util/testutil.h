@@ -37,3 +37,4 @@ extern void print_subscript(char *pre,int ndim, int subscript[], char* post);
 extern void print_distribution(int g_a);
 
 
+/* $Id$ */

@@ -1,6 +1,6 @@
       subroutine localization_driver (rtdb, basis, geom, loctype)
 
-c     $Id: $
+c     $Id$
 
 c     ==================================================================
 c

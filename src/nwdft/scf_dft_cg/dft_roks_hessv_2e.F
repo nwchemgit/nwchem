@@ -1,6 +1,6 @@
       subroutine dft_roks_hessv_2e( basis, geom, nbf, nmo, nclosed,
      $                      nopen, g_movec, oskel, g_x, acc, g_ax )
-C     $Id: rohf_h2e.F,v 1.9 2003-10-17 22:54:33 carlfahl Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

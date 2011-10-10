@@ -3,3 +3,4 @@
       external nwmolden_geom,nwmolden_basis,nwmolden_movecs
       external nwmolden_openfile,nwmolden_closefile
 
+c $Id$

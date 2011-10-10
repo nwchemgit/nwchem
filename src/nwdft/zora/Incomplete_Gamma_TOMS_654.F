@@ -1352,3 +1352,4 @@ C
       RCOMP = RT2PIN*SQRT(A)*EXP(T1)
       RETURN
       END
+c $Id$

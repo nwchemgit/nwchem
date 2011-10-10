@@ -1,4 +1,4 @@
-c $Id: int_giaobq10.F 19696 2010-10-29 16:53:42Z d3y133 $
+c $Id$
 *
 c:tex-% this is part of the API Standard Integral routines.
 c:tex-\subsection{int\_giaobq10}

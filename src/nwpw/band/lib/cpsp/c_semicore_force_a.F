@@ -115,3 +115,4 @@ c     logocal semicore(0:nkatmx)
       end
 
 
+c $Id$

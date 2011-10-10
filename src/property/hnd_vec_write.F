@@ -76,3 +76,4 @@ c      write (luout,*) 'writing localized MOs to file ',trim(movecs)
 c
       return
       end
+c $Id$

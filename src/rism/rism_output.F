@@ -1,5 +1,5 @@
 c
-c $Id: qmmm_output.F 19708 2010-10-29 18:04:21Z d3y133 $
+c $Id$
 c
 c
       subroutine rism_print_header()

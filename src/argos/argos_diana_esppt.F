@@ -152,3 +152,4 @@ c
       write(*,'(a)') 'Error reading pdb file ',filpdb
       return
       end
+c $Id$

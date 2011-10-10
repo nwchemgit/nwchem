@@ -1,4 +1,4 @@
-#$Id: GNUmakefile,v 1.34 2006-06-07 15:57:32 edo Exp $
+#$Id$
 
    LIBRARY = libnwdft.a
 

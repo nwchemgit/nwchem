@@ -24,3 +24,4 @@ extern int 	pspw_atom(Atom_List_Type atom, int indx);
 extern void	pspw_atom_end(Atom_List_Type atom);
 
 #endif
+/* $Id$ */

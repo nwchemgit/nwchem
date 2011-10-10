@@ -158,3 +158,4 @@ Vx[],
     dealloc_LogGrid(dadrho);
 
 } /* R_PBE_Exchange */
+/* $Id$ */

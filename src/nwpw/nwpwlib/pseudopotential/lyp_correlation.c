@@ -188,3 +188,4 @@ Vc[],
 //     printf("gerg\n");
 
 } /* R_BLYP_Correlation */
+/* $Id$ */

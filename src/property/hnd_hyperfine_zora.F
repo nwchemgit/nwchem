@@ -1,5 +1,5 @@
       subroutine hnd_hyperfine_zora(rtdb,basis,geom)
-c $Id: hnd_giaox.F,v 1.10 2007-10-15 23:31:27 bert Exp $
+c $Id$
       implicit none
 #include "errquit.fh"
 #include "global.fh"

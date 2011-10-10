@@ -27,3 +27,4 @@ c
       if(iocc.ge.numact.and.ivirt.ge.numact) acolo=.true. 
       RETURN
       END
+c $Id$

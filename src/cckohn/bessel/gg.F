@@ -23,3 +23,4 @@ c
      1 (b*b-1)*cs(iklo+1))*rd26
       return
       end
+c $Id$

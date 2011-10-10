@@ -167,3 +167,4 @@ c ----- off diagonal --- END
           enddo ! end-loo-k
       return
       end
+c $Id$

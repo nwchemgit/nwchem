@@ -451,3 +451,4 @@ c
      1     call errquit('eomccsd_1prdm: ma problem',04,ma_err)
 
       end
+c $Id$

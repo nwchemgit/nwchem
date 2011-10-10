@@ -1,6 +1,6 @@
       logical function dft_uks_nr_solve(rtdb, energy, eone, etwo, exc,
      +                                  enrep, nexc)
-C     $Id: uhf.F,v 1.69 2009-01-16 05:32:29 niri Exp $
+C     $Id$
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

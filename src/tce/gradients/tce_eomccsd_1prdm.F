@@ -163,3 +163,4 @@ c
      1  call errquit('tce_ccsd_1prdm: ma problem',17,ma_err)
 c
       end
+c $Id$

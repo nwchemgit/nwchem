@@ -53,3 +53,4 @@ c
       argos_prop_rmri=.false.
       return
       end
+c $Id$
