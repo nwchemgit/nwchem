@@ -8,6 +8,7 @@
 #
 export ADD_ID_FORTRAN=${NWCHEM_TOP}/contrib/add_Id_Fortran
 export ADD_ID_C=${NWCHEM_TOP}/contrib/add_Id_C
+export ADD_ID_MAKEFILE=${NWCHEM_TOP}/contrib/add_Id_Makefile
 #
 echo -n "Adding \$Id: \$ to Fortran header files... "
 find . -name "*.fh" ! -exec grep Id: {} \; -exec $ADD_ID_FORTRAN {} \; 2>&1 > /dev/null
@@ -17,6 +18,7 @@ find . -name "*.f" ! -exec grep Id: {} \; -exec $ADD_ID_FORTRAN {} \; 2>&1 > /de
 find . -name "*.F" ! -exec grep Id: {} \; -exec $ADD_ID_FORTRAN {} \; 2>&1 > /dev/null
 echo "Done"
 echo -n "Adding \$Id: \$ to C header files...       "
+find . -name "make*.h" ! -exec grep Id: {} \; -exec $ADD_ID_MAKEFILE {} \; 2>&1 > /dev/null
 find . -name "*.h" ! -exec grep Id: {} \; -exec $ADD_ID_C {} \; 2>&1 > /dev/null
 echo "Done"
 echo -n "Adding \$Id: \$ to C source files...       "

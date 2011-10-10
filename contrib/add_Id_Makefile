@@ -1,0 +1,6 @@
+#!/bin/bash
+#
+# Add the $Id: $ construct to a Makefile. For simplicity it is simply appended.
+# This is used to avoid adding the C-style construct in Makefile include files.
+#
+echo "# \$Id: \$" >> $1
