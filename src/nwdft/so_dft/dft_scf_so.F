@@ -15,7 +15,7 @@ c
       double precision Etold, Enuc, trace
       integer iVcoul_opt
       integer iVxc_opt
-      integer iter, swap(20),no_swap, no_det, idet
+      integer iter, swap(20),nswap, ndet, idet
       integer g_dens(2), g_movecs(2), g_vxc(4), 
      &     g_fock, g_svecs,
      &     g_xcinv,  g_scr
@@ -1980,7 +1980,8 @@ c     &        'Calculation failed to converge', 20, .true.)
      &           enuc, rho_n, dft_time
          endif
  232     format(//
-     &        '(det_eng)Total DFT energy =', f20.12/
+     &        '       Determinant Energy'/
+     &        '       Total DFT energy =', f20.12/
      &        '      One electron energy =', f20.12/
      &        '           Coulomb energy =', f20.12/
      &        '    Exchange-Corr. energy =', f20.12/
@@ -1988,7 +1989,8 @@ c     &        'Calculation failed to converge', 20, .true.)
      &        ' Numeric. integr. density =', f20.12//
      &        '     Total iterative time =', f9.1,'s'//)
  233     format(//
-     &        '(det_eng)Total DFT energy =', f20.12/
+     &        '       Determinant Energy'/
+     &        '       Total DFT energy =', f20.12/
      &        '      One electron energy =', f20.12/
      &        '           Coulomb energy =', f20.12/
      &        '          Exchange energy =', f20.12/
@@ -1999,33 +2001,31 @@ c     &        'Calculation failed to converge', 20, .true.)
          call util_flush(LuOut)
       endif 
 c
-c ... jochen 10/11: disable the following functionality for now
-c     by adding .or. .true.
-      if(.not.fon .or. .true.) goto 2002 
-      if(idet .eq. 0)then 
-         if (.not.rtdb_get(rtdb,'sodft:no_det',mt_int,1,no_det))
-     &        no_det = 0
-         if(.not.ma_push_get(mt_int,nmo_fon*no_det,'det',kfon_occ,
+c     calculate the determinantal energy
+c     
+      if(.not.fon) goto 2002 
+      if (.not.rtdb_get(rtdb,'sodft:ndet',mt_int,1,ndet))
+     &        ndet = 0
+
+      if(idet .eq. 0 .and. ndet. gt. 0)then 
+           if(.not.ma_push_get(mt_int,nmo_fon*ndet,'det',kfon_occ,
      &        lfon_occ))
      &        call errquit('cannot alloctate lfon_occ',0, MA_ERR)
-         if (.not.rtdb_get(rtdb,'sodft:occupancy',mt_int,
-     &        nmo_fon*no_det,int_mb(lfon_occ)))
+           if (.not.rtdb_get(rtdb,'sodft:occupancy',mt_int,
+     &        nmo_fon*ndet,int_mb(lfon_occ)))
      &        call errquit('no occupancy specified',0, RTDB_ERR)
-      endif
+       endif  ! (idet.eq.0) and (ndet.gt.0)
 c
-c     calculate the determinantal energy
-c
- 2010 continue 
-      if(idet.eq.no_det)goto 2002    ! all determinant energies have been calculated
-      no_swap=0
+      if(idet.eq.ndet) goto 2002    ! all determinant energies have been calculated
+      nswap=0
       jstart=nel_fon+1
       do i = 1, nel_fon         ! the first nel_fon orbitals are occupied
          if(int_mb(lfon_occ+idet*nmo_fon+i-1).eq.0)then 
-            no_swap=no_swap+1
-            swap((no_swap-1)*2+1)=nTotEl-nel_fon+i
+            nswap=nswap+1
+            swap((nswap-1)*2+1)=nTotEl-nel_fon+i
             do j = jstart, nmo_fon
                if(int_mb(lfon_occ+idet*nmo_fon+j-1).eq.1)then
-                  swap((no_swap-1)*2+2)=nTotEl-nel_fon+j
+                  swap((nswap-1)*2+2)=nTotEl-nel_fon+j
                   jstart = jstart + 1
                endif
             enddo
@@ -2037,7 +2037,7 @@ c     the first nel_fon fractionally occupied mo's should be those
 c     occupied in the determinant. g_damp_so is used as tempary array
 c     to store the reordered mo's
 c     
-      do i = 1, no_swap
+      do i = 1, nswap
          if(.not.rtdb_put(rtdb,'sodft:swap',mt_int,2,swap((i-1)*2+1)))
      &        call errquit('swap: failed to put nelem in rtdb', 0,
      &       RTDB_ERR)
@@ -2055,28 +2055,32 @@ c
       call ga_sync
       det_eng = .true. 
 c     
-c     restore the orbital order 
+c     Restore the orbital order 
 c     
-      do i = 1, no_swap
+      if (me.eq.0) write(luout,4443)
+ 4443 format(/,1x,'Restoring orbital order')
+c
+      do i = 1, nswap
          if(.not.rtdb_put(rtdb,'sodft:swap',mt_int,2,swap((i-1)*2+1)))
      &        call errquit('swap: failed to put nelem in rtdb', 0,
      &       RTDB_ERR)
          call movecs_swap_so(rtdb,'dft',scftype,g_moso,
      &        dbl_mb(k_occ),dbl_mb(k_eval(1)))
       enddo
-      if(me .eq. 0)then 
-         write(LuOut, *)
-         write(Luout, *)"Determinant Occupancy: ", 
-     &        (int_mb(lfon_occ+idet*(nmo_fon)+i-1), i=1,nmo_fon)
-         write(LuOut, *)
-      endif
-      idet = idet + 1 
-      go to 1000 
 c
-      if(fon)then 
-         if (.not.ma_pop_stack(kfon_occ))
-     &        call errquit('dft_scf: cannot pop stack:lfon_occ',0,
-     &       MA_ERR)
+c     Write determinant configuration     
+c
+      if(me .eq. 0)then 
+         write(Luout,4444)
+     &    (int_mb(lfon_occ+idet*(nmo_fon)+i-1), i=1,nmo_fon)
+      endif
+      idet = idet + 1   ! determinant counter
+      go to 1000 
+ 4444 format(/,1x,'Determinant Occupancy: ',8(1x,i3,1x))
+c
+      if(fon.and.(ndet.gt.0))then 
+       if (.not.ma_pop_stack(kfon_occ))
+     &   call errquit('dft_scf: cannot pop stack:lfon_occ',0,MA_ERR)
       endif
 c     
  2002 continue
@@ -2197,13 +2201,11 @@ c
 c     computation of <S2> for open shell
 c     
       if (ipol.gt.1)then
-
          call dft_s2_value(geom,AO_bas_han,.false.,noc(1),noc(2),
      &        nbf_ao,g_dens(1),g_dens(2))
-
       endif
 c     
-c     computation of moments
+c     computation of multipole moments
 c
       if (natoms .gt. 1)
      &   call dft_mpole(rtdb, ao_bas_han, ipol, g_dens(1), g_dens(2))
@@ -2234,7 +2236,8 @@ c
      &              1, 1, nbf_ao, 1, 1)
             endif
             call util_flush(6)
-         endif
+         endif  ! util_print
+c
          if (oprint_final_vecs)then
             write(LuOut,*)
             call util_print_centered(
@@ -2243,6 +2246,7 @@ c
             call util_flush(LuOut)
          endif
       endif
+c
       if (oprint_final_vecs)then
 cso         call ga_print(g_movecs)
 cso         if (ipol.eq.2)call ga_print(g_movecs(2))
@@ -2262,17 +2266,17 @@ c
       call ecce_print1 ('nuclear repulsion energy', mt_dbl, Enuc, 1)
       call ecce_print1 ('coulomb energy', mt_dbl, Ecoul, 1)
       call ecce_print1 ('exchange energy', mt_dbl, Exc(1), 1)
-      if (nexc.gt. 1)then
+      if (nexc.gt.1) then
          call ecce_print1 ('correlation energy', mt_dbl, Exc(2), 1)
       endif
-c      call MA_SUMMARIZE_ALLOCATED_BLOCKS 
-
-      if (.not.ma_pop_stack(lbuff)) then
+c
+      if (.not.ma_chop_stack(lbuff)) then
         call ma_summarize_allocated_blocks()
         call util_flush(6)
         call util_flush(0)
         call errquit('dft_scf: cannot pop stack:lbuff',lbuff, MA_ERR)
       endif
+c
       if (.not.ma_pop_stack(lrwork))
      &   call errquit('dft_scf: cannot pop stacklrwork',0, MA_ERR)
       if (.not.ma_pop_stack(lwork))

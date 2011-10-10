@@ -483,13 +483,14 @@ c
             call ga_put(g_vecs(2), 1, dim1, i, i, dbl_mb(k_vecj),1)
             call ga_put(g_vecs(2), 1, dim1, j, j, dbl_mb(k_veci),1)
 c     
-         enddo
+         enddo  ! pair
+c
          if (oprint) call util_flush(6)
          if (.not. ma_pop_stack(l_vecj)) call errquit('ms:ma?', 0,
      &       MA_ERR)
          if (.not. ma_pop_stack(l_veci)) call errquit('ms:ma?', 0,
      &       MA_ERR)
-      endif
+      endif  ! ga_nodeid()
 c     
       do pair = 1, nelem, 2
          i = int_mb(index+pair-1)
