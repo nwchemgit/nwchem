@@ -38,7 +38,6 @@ c      logical numerical
       integer g_s
 c
 c     declarations for fractional occupation 
-c ... jochen 10/11: modified and extended this 'fon-service'
 c
       integer nmo_fon  ! number of fractionally occupied orbitals
       integer ncore_fon ! number of fully occupied orbitals
@@ -865,8 +864,7 @@ c$$$        do i = 1,nbf_ao
 c$$$          write (luout,*) i, dbl_mb(i-1+k_occ), dbl_mb(i-1+nbf_ao+k_occ)
 c$$$        end do
       endif ! fon
-c ... jochen end
-
+c
       switch_sclMO_so=0 ! FA-09-26-11
 c     
 c     the fractionally occupied mo's are scaled by the sqrt of the fon
@@ -924,8 +922,7 @@ c
       call ga_zero(g_dens(2))
       call ga_dens_sf(g_dens, g_densso(1), nbf_ao)
 
-c ... jochen: to check fon, calculate tr[P S] and print
-
+c     check fon, calculate tr[P S] and print
 c      if (debug_fon) call dft_pstrace(g_dens,ao_bas_han,nbf_ao,oskel)
       if (fon) then
         pstrace=ga_ddot(g_dens(1),g_s)
@@ -935,8 +932,6 @@ c      if (debug_fon) call dft_pstrace(g_dens,ao_bas_han,nbf_ao,oskel)
         if (.not. rtdb_put(rtdb, 'dft:pstrace', mt_dbl, 1, pstrace))
      &     call errquit('dft_scf: rtdb_put pstrace failed', 1, RTDB_ERR)
       end if
-c ... jochen end
-
 c
 c     Tidy up SCF
 c     
@@ -1594,7 +1589,7 @@ cso
       call ga_zero(g_dens(2))
       call ga_dens_sf(g_dens, g_densso(1), nbf_ao)
 
-c ... jochen: to check g_dens, calculate tr[P S] and print
+c     check g_dens, calculate tr[P S] and print
 c     if (debug_fon) call dft_pstrace(g_dens,ao_bas_han,nbf_ao,oskel)
       if (fon) then
         pstrace=ga_ddot(g_dens(1),g_s)
@@ -1604,8 +1599,7 @@ c     if (debug_fon) call dft_pstrace(g_dens,ao_bas_han,nbf_ao,oskel)
         if (.not. rtdb_put(rtdb, 'dft:pstrace', mt_dbl, 1, pstrace))
      &     call errquit('dft_scf: rtdb_put pstrace failed', 1, RTDB_ERR)
       end if
-c ... jochen end
-
+c
       call ga_sync
 c     
 c     Check convergence on Density.
