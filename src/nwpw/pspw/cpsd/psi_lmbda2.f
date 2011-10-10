@@ -166,7 +166,7 @@ c          call Dneall_f_ortho(ms,psi2,npack1)
       !**** local variables ****
       integer itrlmd
       real*8  convg
-      parameter (itrlmd=20, convg=1.0d-15)
+      parameter (itrlmd=120, convg=1.0d-15)
 
       integer it
       real*8  adiff

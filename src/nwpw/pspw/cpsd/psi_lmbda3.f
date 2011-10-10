@@ -29,7 +29,7 @@
 *     ::::  iteration limit and tolerence for non-liner equations  ::::
       integer itrlmd,idamax
       real*8  convg
-      parameter (itrlmd=20, convg=1.0d-15)
+      parameter (itrlmd=200, convg=1.0d-15)
 
 
       call nwpw_timing_start(3)

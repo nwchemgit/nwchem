@@ -23,7 +23,7 @@
 *     ::::  iteration limit and tolerence for non-liner equations  ::::
       integer itrlmd
       real*8  convg
-      parameter (itrlmd=50, convg=1.0d-12)
+      parameter (itrlmd=150, convg=1.0d-12)
 
 *     **** local variables ****
       logical notgram

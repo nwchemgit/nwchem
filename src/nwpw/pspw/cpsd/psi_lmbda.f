@@ -36,7 +36,7 @@
 *     ::::  iteration limit and tolerence for non-liner equations  ::::
       integer itrlmd
       real*8  convg
-      parameter (itrlmd=20, convg=1.0d-15)
+      parameter (itrlmd=120, convg=1.0d-15)
 
 *     **** external functions ****
       real*8   Dneall_m_dmax

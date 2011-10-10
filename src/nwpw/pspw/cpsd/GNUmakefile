@@ -21,7 +21,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = psi_lmbda.f psi_lmbda3.f psi_lmbda_sic.f \
+    USES_BLAS = psi_lmbda.f psi_lmbda2.f psi_lmbda3.f psi_lmbda_sic.f \
                 inner_loop.F inner_loop_md.F cpsdv5.F cpmdv5.F psi_lmbda2.f \
  		mmsdv1.F
 
