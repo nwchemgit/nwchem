@@ -63,7 +63,7 @@ c
 c
       logical oprint
       double precision rms(2), derr(2)
-      integer nmo(2), icall(2)
+      integer nmo(2), icall(2), nprint
       integer mclosed(2), mopen(2)  ! used for cosmo_charges: used in same way as scf does
       integer n3c_dbl, n3c_int, n_batch
       integer iwhat_max
@@ -1654,7 +1654,9 @@ c
  914  format(' (electrostatic) solvation energy = ',f20.10,
      $     ' (',f8.2,' kcal/mol)'                       )
  1970 continue
+c
 c     calculate final cosmo charges
+c
       if (.not.rtdb_get(rtdb,'cosmo_esp',mt_log,1,cosmo_esp)) 
      +  cosmo_esp=.false.
       if (cosmo_esp) then
@@ -1664,6 +1666,29 @@ c     calculate final cosmo charges
      $   ao_bas_han,geom,ecosmo,odbug,ipol,g_movecs,mclosed,mopen,
      $   nbf_ao, nmo)
       end if
+c
+c     Print all the eigenvalues
+c
+      nprint = nmo(1)
+      if (ga_nodeid() .eq. 0) then
+        if (util_print('final evals', print_high)) then
+         do ispin = 1, ipol
+            if (ipol.eq.1) then
+              call util_print_centered(6,'Final eigenvalues',
+     &           20,.true.)
+            else if (ipol.eq.2.and.ispin.eq.1) then
+              call util_print_centered(6,'Final alpha eigenvalues',
+     &           20,.true.)
+            else
+              call util_print_centered(6,'Final beta eigenvalues',
+     &           20,.true.)
+            end if ! ipol
+            call output(dbl_mb(k_eval(ispin)),1,nprint,1,1,nmo,1,1)
+            write(6,*)
+            call util_flush(6)
+         end do ! ispin
+        end if ! final evals
+      end if ! ga_nodeid()  
 c
 c     Vector analysis stolen from rohf.F
 c
