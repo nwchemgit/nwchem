@@ -637,7 +637,8 @@ c
 c     -------------------
 c     check for fon input
 c     -------------------
-
+c
+      fon = .false.
       if (rtdb_get(rtdb,'dft:fon',mt_log,1,fon)) then 
 
 c       fon is ringing
@@ -817,6 +818,8 @@ c$$$     &    nmo_fon = 0
 c$$$      if (.not.rtdb_get(rtdb,'sodft:nel_fon',mt_int,1,nel_fon))
 c$$$     &    nel_fon = 0
 c$$$      nTotOcc = (nTotEl-nel_fon) + nmo_fon 
+c
+      nTotOcc = nTotEl  ! if there is no fractional occupation 
       if(fon)then 
 c$$$         avg_fon = dble(nel_fon)/dble(nmo_fon) 
 c$$$         do i = (nTotEl-nel_fon)+1, nTotOcc  
@@ -2211,23 +2214,13 @@ c
 c     
       if (me .eq. 0)then
          if (util_print('final evals', print_high))then
-            call util_print_centered(LuOut,'Final alpha eigenvalues',
+            call util_print_centered(LuOut,'Final eigenvalues',
      &           20,.false.)
             call util_print_centered(LuOut,
      &           '(all occupied plus 10 virtual)',20,.true.)
             call output(dbl_mb(k_eval(1)),
      &           1, min(noc(1)+10,nbf_ao),
      &           1, 1, nbf_ao, 1, 1)
-            if (ipol.eq.2)then
-               write(LuOut,*)
-               call util_print_centered(LuOut,'Final beta eigenvalues',
-     &              20,.true.)
-               call util_print_centered(LuOut,
-     &              '(all occupied plus 10 virtual)',20,.true.)
-               call output(dbl_mb(k_eval(2)),
-     &              1, min(noc(1)+10,nbf_ao),
-     &              1, 1, nbf_ao, 1, 1)
-            endif
             call util_flush(6)
          endif  ! util_print
 c
