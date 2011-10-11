@@ -1036,7 +1036,6 @@ c
 c
       last_time_energy = .false.
 c
-
       det_eng = .false. 
       idet = 0 
  1000 continue   ! top of the scf loop
@@ -1998,9 +1997,8 @@ c
 c     calculate the determinantal energy
 c     
       if(.not.fon) goto 2002 
-      if (.not.rtdb_get(rtdb,'sodft:ndet',mt_int,1,ndet))
-     &        ndet = 0
-
+      if (.not.rtdb_get(rtdb,'sodft:ndet',mt_int,1,ndet)) ndet = 0
+c
       if(idet .eq. 0 .and. ndet. gt. 0)then 
            if(.not.ma_push_get(mt_int,nmo_fon*ndet,'det',kfon_occ,
      &        lfon_occ))
@@ -2011,6 +2009,7 @@ c
        endif  ! (idet.eq.0) and (ndet.gt.0)
 c
       if(idet.eq.ndet) goto 2002    ! all determinant energies have been calculated
+c
       nswap=0
       jstart=nel_fon+1
       do i = 1, nel_fon         ! the first nel_fon orbitals are occupied
