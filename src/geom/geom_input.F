@@ -662,7 +662,6 @@ c     if (.not. rtdb_print(rtdb, .true.)) call errquit('print failed',0)
 50    continue
       end
 
-
       subroutine geom_external_input(rtdb,n,nmax,tags,c,q,m)
 C     $Id$
       implicit none
@@ -995,6 +994,8 @@ c
       character*16 a16
       character*3 resn
       integer  id,ir
+      character*1 xchar(10)
+      data xchar /'0','1','2','3','4','5','6','7','8','9'/
 c
       pname = "geom_read_file_pdb"
 #ifdef MARAT_DEBUG      
@@ -1037,7 +1038,10 @@ c       process selections here
      +                      lsel)
 
           if(.not.lsel) n=n-1
-      write(*,*) "n=",n
+c         remove leading numeric character (if any) (e.g. 2HW->HW)
+          a16=tags(n)
+          i=scan(a16,"0123456789")
+          if(i.eq.1) tags(n)=a16(2:)
 c         end of selection processing
        end do
 #ifdef MARAT_DEBUG      
