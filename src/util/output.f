@@ -72,8 +72,9 @@ C$Id$
 * 2000 format (a1,'row',i4,1x,8f9.4)
 c
  1000 format (/1h ,8x,7('   ',i3,3x),('   ',i3))
- 2000 format (a1,i4,1x,8f9.4)
+ 2000 format (a1,i4,1x,8f15.4)
       end
+c
       subroutine doutput (z,rowlow,rowhi,collow,colhi,rowdim,coldim,
      $     nctl)
 c.......................................................................
@@ -150,6 +151,7 @@ c
  1000 format (/1h ,8x,7('   ',i3,3x),('   ',i3))
  2000 format (a1,i4,1x,1p,8d9.2)
       end
+c
       subroutine ioutput (z,rowlow,rowhi,collow,colhi,rowdim,coldim,
      $     nctl)
 c.......................................................................
