@@ -715,7 +715,7 @@ c
 c
 c       Jorge Garza/End/Exact_pot
 
-        call dft_prevals('inter',me,oprint_eval,oprint_vecs,noc,
+        call dft_prevals('inter',me,oprint_eval,oprint_vecs,
      &                   g_movecs,dbl_mb(k_eval(1)),dbl_mb(k_occ))
 
       endif
