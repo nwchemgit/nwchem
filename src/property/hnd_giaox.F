@@ -760,8 +760,8 @@ c
 c
 c     Print out tensor information, and write to Ecce file if necessary
 c
-c
       call ecce_print_module_entry('nmr')
+c
       do iatom = 1, sh_atom
          ioff = (iatom-1)*9
          if (.not. geom_cent_get(geom, int_mb(k_tmp+iatom-1), tag, 
@@ -770,7 +770,11 @@ c
          if (.not. geom_tag_to_element(tag, symbol, element, atn)) call
      &       errquit('hnd_giaox: geom_tag_to_element failed',0,GEOM_ERR)
 c
-c      Print tensor pieces and sum for total shielding tensor
+c     Symmetrize the diamagnetic and paramagnetic tensors
+c
+         call hnd_giasym(dbl_mb(k_dia+ioff),dbl_mb(k_para+ioff))
+c
+c     Print tensor pieces and sum for total shielding tensor
 c
          if (ga_nodeid().eq.0) then
             write(luout,9700) iatom,symbol
