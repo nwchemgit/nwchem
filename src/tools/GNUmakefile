@@ -287,42 +287,12 @@ endif
 endif # LAPI
 
 ifeq ($(ARMCI_NETWORK),MPI-SPAWN)
-    MPI_SPAWN_COMBINED =
-ifneq ($(MPI_SPAWN_INCLUDE),)
-        MPI_SPAWN_COMBINED += $(MPI_SPAWN_INCLUDE)
-endif
-ifneq ($(MPI_SPAWN_LIB),)
-        MPI_SPAWN_COMBINED += $(MPI_SPAWN_LIB)
-endif
-ifneq ($(MPI_SPAWN_LIB_NAME),)
-        MPI_SPAWN_COMBINED += $(MPI_SPAWN_LIB_NAME)
-endif
-MPI_SPAWN_COMBINED := $(strip $(MPI_SPAWN_COMBINED))
-ifeq ($(MPI_SPAWN_COMBINED),)
     MAYBE_ARMCI = --with-mpi-spawn
-else
-    MAYBE_ARMCI = --with-mpi-spawn="$(MPI_SPAWN_COMBINED)"
-endif
 endif # MPI-SPAWN
 
 # ARMCI over Multi-threaded MPI
 ifeq ($(ARMCI_NETWORK),MPI-MT) 
-    MPI_MT_COMBINED =
-ifneq ($(MPI_MT_INCLUDE),)
-        MPI_MT_COMBINED += $(MPI_MT_INCLUDE)
-endif
-ifneq ($(MPI_MT_LIB),)
-        MPI_MT_COMBINED += $(MPI_MT_LIB)
-endif
-ifneq ($(MPI_MT_LIB_NAME),)
-        MPI_MT_COMBINED += $(MPI_MT_LIB_NAME)
-endif
-MPI_MT_COMBINED := $(strip $(MPI_MT_COMBINED))
-ifeq ($(MPI_MT_COMBINED),)
     MAYBE_ARMCI = --with-mpi-mt
-else
-    MAYBE_ARMCI = --with-mpi-mt="$(MPI_MT_COMBINED)"
-endif
 endif # MPI-MT
 
 ifdef USE_MPI
@@ -405,7 +375,7 @@ BUILDDIR = build
 INSTALLDIR = install
 CONFIGURE_PATH = ../$(GA_DIR)/configure
 TOOLDIR = $(shell pwd)
-CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) $(MAYBE_MPI_INCLUDE) $(MAYBE_MPI_LIB) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_PROF1) $(MAYBE_PROF2)
+CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_PROF1) $(MAYBE_PROF2)
 SPACE :=
 SPACE +=
 STAMP_FC = $(subst $(SPACE),-,$(strip $(FC))).FC.stamp
