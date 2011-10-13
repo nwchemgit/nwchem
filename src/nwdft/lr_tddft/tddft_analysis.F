@@ -1194,13 +1194,11 @@ c
           else
             osc_str = 
      &        2.0d0/3.0d0*(tmom(2)**2+tmom(3)**2+tmom(4)**2)*apbval(n)
+c
             write(LuOut,9200) tmom(2),tmom(3),tmom(4),
      1                        tmom(5),tmom(6),tmom(7),
      2                        tmom(8),tmom(9),tmom(10),
-     2                        tmom(11),tmom(12),tmom(13),
-     2                        tmom(14),tmom(15),tmom(16),
-     2                        tmom(17),tmom(18),tmom(19),
-     2                        tmom(20),osc_str
+     2                        osc_str
 c            write(222,*)apbval(n)*au2ev,osc_str
 c
             if (cdspectrum) then
@@ -1535,11 +1533,7 @@ c
  9200 format(5x,'Transition Moments    X',f9.5,'   Y',f9.5,'   Z',f9.5
      1    ,/,5x,'Transition Moments   XX',f9.5,'  XY',f9.5,'  XZ',f9.5
      2    ,/,5x,'Transition Moments   YY',f9.5,'  YZ',f9.5,'  ZZ',f9.5
-     3    ,/,5x,'Transition Moments  XXX',f9.5,' XXY',f9.5,' XXZ',f9.5
-     4    ,/,5x,'Transition Moments  XYY',f9.5,' XYZ',f9.5,' XZZ',f9.5
-     5    ,/,5x,'Transition Moments  YYY',f9.5,' YYZ',f9.5,' YZZ',f9.5
-     6    ,/,5x,'Transition Moments  ZZZ',f9.5
-     7    ,/,5x,'Dipole Oscillator Strength',21x,f12.5)
+     7    ,/,5x,'Dipole Oscillator Strength',20x,f12.5)
  9210 format(5x,'Transition Moments                    Spin forbidden'
      1    ,/,5x,'Oscillator Strength                   Spin forbidden')
  9120 format(5x,'Occ.',i3,2x,a4,'---  Virt.',i3,2x,a4,f10.5)
