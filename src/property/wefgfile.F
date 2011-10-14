@@ -104,7 +104,8 @@ c
       logical sshell, pshell, dshell, fshell, gshell
       data cname / 'CS = ', 'CP = ', 'CD = ', 'CF = ', 'CG = ' /
       integer efgopt
-      integer l_Ci,k_Ci ! FA-scaling-zora
+      integer l_Ci,k_Ci, ! FA-scaling-zora
+     &        l_qscal,k_qscal,noc(2),indq,count_qscal,indx_inc
       integer ipol,noc1,nocc,nelec
       logical lzora
 c     Assuming noc1=noc2 not true if (total spin .ne. 0)
@@ -232,8 +233,11 @@ c ++++++++++++++++++++++++++++++++++++++++++
 c ++++++++++++ EFG printout ++++++++++ START
        if (nset.eq.1) then
         nocc=nocc_a
+        noc(1)=nocc_a
        else
         nocc = nocc_a+nocc_b
+        noc(1)=nocc_a
+        noc(2)=nocc_b
        endif
        lzora=.false.
        if (do_zora .and. so_term.eq.0 .and. 
@@ -241,23 +245,45 @@ c ++++++++++++ EFG printout ++++++++++ START
        if (lzora) then  ! spin-free-zora
         if (.not.ma_alloc_get(mt_dbl,nset*nocc,'Ci',l_Ci,k_Ci)) 
      &     call errquit('wefgfile: ma failed',0,MA_ERR)
-         call ga_get(g_Ci,1,nset,1,nocc,dbl_mb(k_Ci),nset)
-          do i=1,nset
-           do j=1,nocc
-            indx=nocc*(i-1)+j-1
-            if (dbl_mb(k_Ci+indx) .ne. 0.0d0)
-     &       dbl_mb(k_Ci+indx)=dbl_mb(k_Ci+indx)-1.0d0 
+        if (.not.ma_alloc_get(mt_dbl,nocc,'qscal',l_qscal,k_qscal)) 
+     &     call errquit('wefgfile: ma failed',0,MA_ERR)
 
-c             if (ga_nodeid().eq.0) then
-c                write(*,7) i,j,
-c     &          dbl_mb(k_Ci+indx),1.0d0/(1.0d0+dbl_mb(k_Ci+indx)),
-c     &          1.0d0/(1.0d0+dbl_mb(k_Ci+indx))**0.5d0
-c 7              format('g_Ci(',i4,',',i4,')=(',f15.8,
-c     &              ',',f15.8,',',f15.8,')')
-c             endif
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '-------g_Ci---------- START'
+        call ga_print(g_Ci)
+        if (ga_nodeid().eq.0)
+     &   write(*,*) '-------g_Ci---------- END'
 
-           enddo
-          enddo
+        call ga_get(g_Ci,1,nset,1,nocc,dbl_mb(k_Ci),nset)
+        if (nset.eq.1) then
+         indx_inc=1
+        else if (nset.eq.2) then
+         indx_inc=2
+        else
+         write(*,*) "ERROR in wefgfile:: nset=1 or 2 ..."
+         stop
+        endif
+        count_qscal=1
+        do i=1,nset
+         indx=i ! =1 for alpha (ODD nrs) =2 for beta (even nrs)
+         do j=1,noc(i)
+           indq=k_qscal+count_qscal-1
+           dbl_mb(indq)=dbl_mb(k_Ci+indx-1)
+
+           if (dbl_mb(indq) .ne. 0.0d0)
+     &      dbl_mb(indq)=dbl_mb(indq)-1.0d0
+
+          if (ga_nodeid().eq.0) then
+           write(*,7) i,j,
+     &                dbl_mb(indq),1.0d0/(1.0d0+dbl_mb(indq)),
+     &                1.0d0/(1.0d0+dbl_mb(indq))**0.5d0
+  7        format('wefgfile::qscal(',i4,',',i4,')=(',f15.8,',',
+     &             f15.8,',',f15.8,')')
+          endif
+          count_qscal=count_qscal+1
+          indx=indx+indx_inc
+         enddo ! end-loop-j
+        enddo ! end-loop-i
        endif ! end-if-lzora
 
       if( ga_nodeid().eq.0) then  ! ------- nodeid0----- START
@@ -291,7 +317,7 @@ c ====================================
           if (lzora) then  ! spin-free-zora
 c     ----move down: g_Ci scaling factors
            write (lfn,'(a)') 'ZORA MO scaling factors'
-           write (lfn, '(3e25.16)' ) (dbl_mb(k_Ci+i-1), i = 1,nocc)
+         write (lfn, '(3e25.16)' ) (dbl_mb(k_qscal+i-1), i = 1,nocc)
           endif
           do idir=1,3
            jlo=nlst*Ndir_munu*(iat1-1)+
@@ -315,6 +341,8 @@ c     ----move down: g_Ci scaling factors
          if (lzora) then
           if (.not.ma_free_heap(l_Ci)) call
      &      errquit('wshldfile: ma_free_heap l_Ci',0, MA_ERR)
+          if (.not.ma_free_heap(l_qscal)) call
+     &    errquit('wgshiftfile: ma_free_heap l_qscal',0, MA_ERR)
          endif
        endif ! ------- nodeid0----- START
        goto 147

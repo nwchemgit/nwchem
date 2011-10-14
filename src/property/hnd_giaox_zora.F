@@ -215,6 +215,7 @@ c    & write(*,*) 'npol=',npol
 
       if      (npol.eq.1) then
        nocc(1)=nclosed(1)
+       nocc(2)=0
       else if (npol.eq.2) then
        nocc(1)=nopen(1)   
        nocc(2)=nopen(2)     
@@ -382,6 +383,7 @@ c     &    write(*,*) 'Aft shell_fock_build ...'
       endif
       if      (npol.eq.1) then
        nocc(1)=nclosed(1)
+       nocc(2)=0
       else if (npol.eq.2) then
        nocc(1)=nopen(1)   
        nocc(2)=nopen(2)     

@@ -6201,4 +6201,3 @@ c           The only difference is that here natoms=1
       end
 c -------------- for g-shift NMLO analysis ----------------- END
 c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-c $Id$
