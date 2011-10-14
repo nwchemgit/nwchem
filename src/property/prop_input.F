@@ -77,14 +77,14 @@ c>>>  Default property settings.
 c
       nbofile           = 0
       nboopt            = 0
-      efgfile           = 0 ! FA-04-24-10
-      efgopt            = 0 ! FA-04-24-10
-      hypfile           = 0 ! FA-06-30-11
-      hypopt            = 0 ! FA-06-30-11
-      gshiftfile        = 0 ! FA-07-21-11
-      gshiftopt         = 0 ! FA-07-21-11
-      shldfile          = 0 ! FA-07-22-11
-      shldopt           = 0 ! FA-07-22-11
+      efgfile           = 0 
+      efgopt            = 0 
+      hypfile           = 0 
+      hypopt            = 0 
+      gshiftfile        = 0 
+      gshiftopt         = 0 
+      shldfile          = 0 
+      shldopt           = 0 
 c
       dipole            = 1
       quadrupole        = 1
@@ -107,7 +107,7 @@ c
       hyperfine         = 1
       spinspin          = 1
       giao              = 1
-      gshift            = 1 ! FA-09-13-10
+      gshift            = 1 
       center            = 1 ! default of center of charge
       point(1)          = 0.0d+0
       point(2)          = 0.0d+0
@@ -128,9 +128,8 @@ c ... jochen:
       aor_quad          = 1
       aor_analyze       = 1
       nfreq             = 0
-
 c     
-c>>>  read inputs; store in rtdb
+c     read inputs; store in rtdb
 c     
       do iline = 1,infinity     !  infinite loop over input lines
         
@@ -207,10 +206,6 @@ c
      &          mt_int,giaoatoms,'atoms',l_atshi,k_atshi))
      &        call errquit('prp_input ma_alloc_get failed k_ashi',
      &                     0,MA_ERR)
-
-c            if (.not. ma_push_get(mt_int,giaoatoms,'atoms',
-c     &                            l_atshi,k_atshi))
-c     &         call errquit('prp_input ma_push_get fail k_pr',0,MA_ERR)
             icount = 0
             do ii = 1, giaoatoms
               status = inp_i(int_mb(k_atshi+ii-1))
@@ -226,11 +221,6 @@ c     &         call errquit('prp_input ma_push_get fail k_pr',0,MA_ERR)
                   if (.not.ma_free_heap(l_atshi)) call
      &              errquit('prop_input: ma_free_heap l_atshi',
      &                      0, MA_ERR)
-
-c                  if (.not.ma_pop_stack(l_atshi)) call
-c     &        errquit('prop_input: ma_pop_stack failed k_atshi',
-c     &                0,MA_ERR)
-
                 endif
                 goto 11
               endif
@@ -279,7 +269,7 @@ c  ... jochen: parse input for response/aoresponse key
          aor_quad = 0
       elseif ( inp_compare(.false., 'analysis', test)) then
          aor_analyze = 0
-      elseif ( inp_compare(.false., 'gshift', test)) then ! FA-08-18-10
+      elseif ( inp_compare(.false., 'gshift', test)) then
          aor_giao = 0
       elseif ( inp_compare(.false., 'damping', test)) then
          aor_damp = 0
@@ -317,9 +307,12 @@ c         boyslocalization = 1
          efieldgrad      = 0
       elseif ( inp_compare(.false., 'efieldgrad', test)) then
          efieldgrad      = 0
-      elseif ( inp_compare(.false., 'efieldgradZ4', test)) then ! Added FA
-         efieldgradZ4    = 0 ! Added by FA
-          if (inp_i(efgz4atoms)) then
+      elseif ( inp_compare(.false., 'efieldgradZ4', test)) then
+         efieldgradZ4    = 0
+c
+c        calculate the efg for requested atoms
+c
+         if (inp_i(efgz4atoms)) then
             if (.not. ma_push_get(mt_int,efgz4atoms,'atoms',
      &                            l_atefg,k_atefg))
      &         call errquit('prp_input ma_push_get fail k_pr',0,MA_ERR)
@@ -342,8 +335,8 @@ c         boyslocalization = 1
                 goto 13
               endif
             enddo
-          endif
-   13     continue      
+         endif
+   13    continue      
 c --------- storing selected atmnr in rtdb ------- START
           if (efgz4atoms.gt.0) then
            if (.not. rtdb_put(rtdb, 'efgz4:natoms',mt_int,
@@ -421,8 +414,8 @@ c     what EFG options will appear
          electrondensitymap = 0
          electrondensity    = 0
          efieldgradmap   = 0
-         efieldgrad      = 0
-         efieldgradZ4    = 0 ! Added by FA
+         efieldgrad      = 0 ! regular efg
+         efieldgradZ4    = 0 ! picture change efg with zora/so-zora
          efieldmap       = 0
          efield          = 0
          esp             = 0
@@ -482,7 +475,7 @@ c
       enddo              ! end of infinite loop over input lines
 99999 continue 
 c
-c>>>    place integer parameters in rtdb
+c    place integer parameters in rtdb
 c       
       if (.not. rtdb_put(rtdb, 'prop:nbofile', mt_int, 1,
      $                               nbofile           ))
@@ -593,15 +586,10 @@ c
      $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
           if (.not. rtdb_put(rtdb, 'giao:atom list', mt_int, giaoatoms,
      &                       int_mb(k_atshi)))
-     $      call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
-
-                  if (.not.ma_free_heap(l_atshi)) call
-     &              errquit('prop_input: ma_free_heap l_atshi-1',
+     $    call errquit('prop_input: rtdb_put failed', 0, RTDB_ERR)
+          if (.not.ma_free_heap(l_atshi)) 
+     &    call errquit('prop_input: ma_free_heap l_atshi-1',
      &                      0, MA_ERR)
-
-c          if (.not.ma_pop_stack(l_atshi)) call
-c     &        errquit('prop_input: ma_pop_stack failed k_atshi',
-c     &                0,MA_ERR)
       endif
       if (.not. rtdb_put(rtdb, 'prop:hyperfine', mt_int, 1,
      $                               hyperfine         ))
@@ -683,21 +671,16 @@ c ... jochen: end response section
      $      call errquit('prop_input: rtdb_put failed', 555, RTDB_ERR)
       endif
 c       
-c>>>    store real parameters in rtdb
-c       
-cc        if (.not. rtdb_put(rtdb, 'inp:xxx', mt_dbl, 1, xxx))
-cc     $       call errquit('dft_input: rtdb_put failed', 0)
-c
-       if(movecs_in.ne.' ') then
+      if(movecs_in.ne.' ') then
          if (.not. rtdb_cput(rtdb, 'prop:vectors',1, movecs_in))
      $      call errquit('prop_input: rtdb_cput failed', 555, RTDB_ERR)
-       end if
+      end if
 
-        return
+      return
 c       
-10000   continue !  die with error
-        write (6,*) 'prop_input: error in input file, last field: '
-        write (6,'(a)') test
-        call errquit('prop_input: error in input file', 0, INPUT_ERR)
+10000 continue !  die with error
+      write (6,*) 'prop_input: error in input file, last field: '
+      write (6,'(a)') test
+      call errquit('prop_input: error in input file', 0, INPUT_ERR)
 c       
-        end
+      end
