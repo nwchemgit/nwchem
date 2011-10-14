@@ -130,14 +130,7 @@ c     and primitives comprising any given shell of this basis set.
 c
       acc_AO_gauss= iAOacc
 c
-c     Check for functional with problematic unrestricted 2nd derivative
-c     at rhoa=rhob
-c
-      if (do_hess) then
-         call bgj_check_xc_u2d()
-      endif
-c
-c     see if any Gradient Corrected Functional is not null
+c     See if any Gradient Corrected Functional is not null
 c
       grad=xc_chkgrad()
       kske=xc_chktau()
