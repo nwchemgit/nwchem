@@ -1,0 +1,49 @@
+echo
+
+start ch2_props4_bp
+
+title ch2_props4_bp
+
+memory total 800 stack 400 heap 50 global 350 mb
+
+geometry noautoz units angstrom nocenter
+symmetry c1
+ C     -0.00589147     +0.04720885     +0.01050160
+ H     +0.69831687     +0.86392831     -0.10575361
+ H     -1.02419158     -0.06390043     +0.36725854
+end
+
+basis
+"*" library 6-311G*
+end
+
+charge 0
+
+property
+ efieldgradZ4
+ gshift
+ hyperfine
+ shielding
+end
+
+relativistic
+ zora on
+ zora:cutoff_NMR 1d-8
+ zora:cutoff 1d-30
+end
+
+set dft:tol_rho 1d-30
+set int:acc_std 1d-32
+set int:cando_txs f
+set dft:job_grid_acc 1d-20
+
+dft
+ odft
+ mult 3
+ grid xfine
+ direct
+ xc becke88 perdew86
+ convergence energy 1e-8 diis 80 ncyds 80 damp 0
+end
+
+task dft property
