@@ -537,7 +537,7 @@ c
       j=isprop+(i-1)*30
       rt=p(j+7)+p(j+8)+p(j+9)+p(j+10)+p(j+2)+p(j+3)+p(j+5)+p(j+6)
       write(lfnout,1012) i,p(j+7),p(j+8),p(j+9),p(j+10),
-     + p(j+14)+p(j+15),p(j+2)+p(j+3),p(j+5),p(j+6),p(j+16),rt,rt+p(j+16)
+     + p(j+14)+p(j+15),p(j+2)+p(j+3),p(j+5),p(j+6),p(j+19),rt,rt+p(j+19)
  1012 format('   solute',i3,11f11.2) 
     1 continue
       endif
