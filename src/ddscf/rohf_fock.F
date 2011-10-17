@@ -7,6 +7,7 @@
 *
       implicit none
 #include "errquit.fh"
+#include "stdio.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -95,9 +96,9 @@ c
          if (nopen .gt. 0) call ga_print(g_odens)
       endif
 c
-c     Debug ... verify that the density is symmetric
+c     Verify that the density is symmetric
 c
-      if (oforcesym .and. oskel) then
+      if (oskel) then
          call ga_copy(g_cdens, g_hcore)
          if (oscfps) call pstat_on(ps_sym_sym)
          call sym_symmetrize(geom, basis, .true., g_cdens)
@@ -106,10 +107,14 @@ c
          call ga_maxelt(g_hcore, errmax)
          sym_tol = tol2e*10.0d0
          if (errmax .gt. sym_tol) then
-            write(6,*) ' Symmetry error ', errmax
-            call  errquit
-     $           ('rohf_fock:closed density is not totally symmetric',0,
-     &       UNKNOWN_ERR)
+           if (ga_nodeid().eq.0) then
+             write(luout,*)'Warning: symmetry breaking in RHF: ',
+     &                     errmax
+             call util_flush(luout)
+c            call  errquit
+c    $           ('rohf_fock:closed density is not totally symmetric',0,
+c    &            UNKNOWN_ERR)
+           endif
          endif
          if (nopen .gt. 0) then
             call ga_copy(g_odens, g_hcore)
@@ -119,10 +124,14 @@ c
             call ga_dadd(one, g_hcore, mone, g_odens, g_hcore)
             call ga_maxelt(g_hcore, errmax)
             if (errmax .gt. sym_tol) then
-               write(6,*) ' Symmetry error ', errmax
-               call errquit
-     $              ('rohf_fock:open density not totally symmetric',0,
-     &       UNKNOWN_ERR)
+              if (ga_nodeid().eq.0) then
+                write(luout,*)'Warning: symmetry breaking in ROHF: ',
+     &                        errmax
+                call util_flush(luout)
+c               call errquit
+c    $              ('rohf_fock:open density not totally symmetric',0,
+c    &               UNKNOWN_ERR)
+              endif
             endif
          endif
       endif
