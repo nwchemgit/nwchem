@@ -32,11 +32,11 @@ c
       do i=1,natoms
          if (.not. geom_cent_get(geom, i, tag, 
      &        xi, qi))call errquit
-     &        ('grid_acc_def: geom_cent_get failed', 0, GEOM_ERR)
+     &        ('dft_fant: geom_cent_get failed', 0, GEOM_ERR)
          do j=1,i-1
             if (.not. geom_cent_get(geom, j, tag, 
      &           xj, qj))call errquit
-     &           ('grid_acc_def: geom_cent_get failed', 0, GEOM_ERR)
+     &           ('dft_fant: geom_cent_get failed', 0, GEOM_ERR)
             rij=sqrt((xi(1)-xj(1))**2+(xi(2)-xj(2))**2+
      +           (xi(3)-xj(3))**2)
             dft_fant=dft_fant + d*exp(-a*rij)
