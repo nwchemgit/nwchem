@@ -116,6 +116,11 @@ int rtdb_clone(const int handle, const char *suffix)
     (void) fflush(stderr);
     return 0;
   }
+  if (par_mode[handle] == INACTIVE) {
+    (void) fprintf(stderr, "rtdb_clone: handle not active %d\n",handle);
+    (void) fflush(stderr);
+    return 0;
+  }
   if (parallel_mode != par_mode[handle]) {
     (void) fprintf(stderr, "rtdb_clone: mode of open and copy mismatch\n");
     (void) fflush(stderr);
@@ -143,6 +148,11 @@ int rtdb_getfname(const int handle,
 
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_getfname: handle out of range %d\n", handle);
+    (void) fflush(stderr);
+    return 0;
+  }
+  if (par_mode[handle] == INACTIVE) {
+    (void) fprintf(stderr, "rtdb_getfname: handle not active %d\n",handle);
     (void) fflush(stderr);
     return 0;
   }
@@ -182,6 +192,11 @@ int rtdb_close(const int handle, const char *mode)
     (void) fflush(stderr);
     return 0;
   }
+  if (par_mode[handle] == INACTIVE) {
+    (void) fprintf(stderr, "rtdb_close: handle not active %d\n",handle);
+    (void) fflush(stderr);
+    return 0;
+  }
   
   if (parallel_mode != par_mode[handle]) {
     (void) fprintf(stderr, "rtdb_close: mode of open and close mismatch\n");
@@ -194,6 +209,10 @@ int rtdb_close(const int handle, const char *mode)
 
   if (parallel_mode == PARALLEL)
     rtdb_broadcast(TYPE_RTDB_STATUS, MT_INT, 1, (void *) &status);
+
+  if (status) 
+    par_mode[handle] = INACTIVE;
+
   return status;
 }
 
@@ -209,6 +228,11 @@ int rtdb_put(const int handle, const char *name, const int ma_type,
 
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_put: handle out of range %d\n", handle);
+    (void) fflush(stderr);
+    return 0;
+  }
+  if (par_mode[handle] == INACTIVE) {
+    (void) fprintf(stderr, "rtdb_put: handle not active %d\n",handle);
     (void) fflush(stderr);
     return 0;
   }
@@ -241,6 +265,11 @@ int rtdb_get(const int handle, const char *name, const int ma_type,
 
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_get: handle out of range %d\n", handle);
+    (void) fflush(stderr);
+    return 0;
+  }
+  if (par_mode[handle] == INACTIVE) {
+    (void) fprintf(stderr, "rtdb_get: handle not active %d\n",handle);
     (void) fflush(stderr);
     return 0;
   }
@@ -284,6 +313,11 @@ int rtdb_get_info(const int handle,
     (void) fflush(stderr);
     return 0;
   }
+  if (par_mode[handle] == INACTIVE) {
+    (void) fprintf(stderr, "rtdb_get_info: handle not active %d\n",handle);
+    (void) fflush(stderr);
+    return 0;
+  }
 
   if (par_mode[handle] == SEQUENTIAL && parallel_mode == PARALLEL) {
     (void) fprintf(stderr, "rtdb_get_info: seq. open and par. get\n");
@@ -319,6 +353,11 @@ int rtdb_ma_get(const int handle, const char *name, int *ma_type,
 
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_ma_get: handle out of range %d\n", handle);
+    (void) fflush(stderr);
+    return 0;
+  }
+  if (par_mode[handle] == INACTIVE) {
+    (void) fprintf(stderr, "rtdb_ma_get: handle not active %d\n",handle);
     (void) fflush(stderr);
     return 0;
   }
@@ -380,6 +419,11 @@ int rtdb_first(const int handle, const int namelen, char *name)
     (void) fflush(stderr);
     return 0;
   }
+  if (par_mode[handle] == INACTIVE) {
+    (void) fprintf(stderr, "rtdb_first: handle not active %d\n",handle);
+    (void) fflush(stderr);
+    return 0;
+  }
 
   if (par_mode[handle] == SEQUENTIAL && parallel_mode == PARALLEL) {
     (void) fprintf(stderr, "rtdb_first: seq. open and par. first\n");
@@ -415,6 +459,11 @@ int rtdb_next(const int handle, const int namelen, char *name)
 
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_next: handle out of range %d\n", handle);
+    (void) fflush(stderr);
+    return 0;
+  }
+  if (par_mode[handle] == INACTIVE) {
+    (void) fprintf(stderr, "rtdb_next: handle not active %d\n",handle);
     (void) fflush(stderr);
     return 0;
   }
@@ -457,6 +506,11 @@ int rtdb_print(const int handle, const int print_values)
     (void) fflush(stderr);
     return 0;
   }
+  if (par_mode[handle] == INACTIVE) {
+    (void) fprintf(stderr, "rtdb_print: handle not active %d\n",handle);
+    (void) fflush(stderr);
+    return 0;
+  }
 
   if (par_mode[handle] == SEQUENTIAL && parallel_mode == PARALLEL) {
     (void) fprintf(stderr, "rtdb_print: seq. open and par. print\n");
@@ -484,6 +538,11 @@ int rtdb_delete(const int handle, const char *name)
 
   if (handle < 0 || handle >= MAX_RTDB) {
     (void) fprintf(stderr, "rtdb_delete: handle out of range %d\n", handle);
+    (void) fflush(stderr);
+    return 0;
+  }
+  if (par_mode[handle] == INACTIVE) {
+    (void) fprintf(stderr, "rtdb_delete: handle not active %d\n",handle);
     (void) fflush(stderr);
     return 0;
   }
