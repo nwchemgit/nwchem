@@ -25,10 +25,25 @@ C DESCRIPTION
 C     Combines user-specified memory limits with (hopefully intelligent)
 C     defaults to produce a complete memory specification.
 C
+C     As memory limits may now be specified by compiled in defaults,
+C     configuration files (i.e. .nwchemrc), environment variables,
+C     and/or the input file a priority system is needed to resolve
+C     inconsistencies. The priorities are (from highest to lowest):
+C     1. User input file
+C     2. Environment variables
+C     3. Configuration files (i.e. .nwchemrc)
+C     4. Defaults
+C     5. Not specified (i.e. always override)
+C     If inconsistencies are discovered in the memory specification
+C     the lowest priority quantit(y/ies) will be modified to resolve
+C     them.
+C
 C     On input, ?Source = 'U' indicates user-provided input.  All others
 C     must be 'N' for "not specified".  On output, notations may be:
 C        N)ot specified
-C        U)ser-specified
+C        F)ile .nwchemrc
+C        E)nvironment
+C        U)ser-specified (input file)
 C        D)efault (for total only)
 C        I)nferred from default partitioning and/or user input
 C        C)alculated from other inputs
@@ -37,8 +52,8 @@ C          (for total only)
 C
 C EXTERNAL ROUTINES
 #include "inp.fh"
-      logical  memory_env_nwchemrc_get
-      external memory_env_nwchemrc_get
+      logical  memory_env_get, memory_nwchemrc_get, memory_override
+      external memory_env_get, memory_nwchemrc_get, memory_override
 C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 C PARAMETERS
 C
@@ -132,9 +147,8 @@ C
 #endif
 C
 C LOCAL VARIABLES
-      Integer NSet, Missing, Borrow
-      Double precision Renorm
       Logical TGiven, HGiven, SGiven, GGiven
+      Logical TOverride, HOverride, SOverride, GOverride
 C-----------------------------------------------------------------------
 C
 C     Check inputs
@@ -144,125 +158,133 @@ C
       HGiven = inp_compare(.false., HSource, 'U')
       GGiven = inp_compare(.false., GSource, 'U')
       If ( .NOT. TGiven ) Then
-        TGiven = memory_env_nwchemrc_get(MEM_TOTAL,Total)
-        If (TGiven) TSource = 'U'
+        TGiven = memory_env_get(MEM_TOTAL,Total)
+        If (TGiven) TSource = 'E'
+      EndIf
+      If ( .NOT. TGiven ) Then
+        TGiven = memory_nwchemrc_get(MEM_TOTAL,Total)
+        If (TGiven) TSource = 'F'
       EndIf
       If ( .NOT. HGiven ) Then
-        HGiven = memory_env_nwchemrc_get(MEM_HEAP,Heap)
-        If (HGiven) HSource = 'U'
+        HGiven = memory_env_get(MEM_HEAP,Heap)
+        If (HGiven) HSource = 'E'
+      EndIf
+      If ( .NOT. HGiven ) Then
+        HGiven = memory_nwchemrc_get(MEM_HEAP,Heap)
+        If (HGiven) HSource = 'F'
       EndIf
       If ( .NOT. SGiven ) Then
-        SGiven = memory_env_nwchemrc_get(MEM_STACK,Stack)
-        If (SGiven) SSource = 'U'
+        SGiven = memory_env_get(MEM_STACK,Stack)
+        If (SGiven) SSource = 'E'
+      EndIf
+      If ( .NOT. SGiven ) Then
+        SGiven = memory_nwchemrc_get(MEM_STACK,Stack)
+        If (SGiven) SSource = 'F'
       EndIf
       If ( .NOT. GGiven ) Then
-        GGiven = memory_env_nwchemrc_get(MEM_GLOBAL,Global)
-        If (GGiven) GSource = 'U'
+        GGiven = memory_env_get(MEM_GLOBAL,Global)
+        If (GGiven) GSource = 'E'
       EndIf
-      If ( .NOT. ( TGiven .OR. inp_compare(.false.,TSource, 'N')))
+      If ( .NOT. GGiven ) Then
+        GGiven = memory_nwchemrc_get(MEM_GLOBAL,Global)
+        If (GGiven) GSource = 'F'
+      EndIf
+      If ( .NOT. 
+     &    (( TGiven .AND..NOT. inp_compare(.false.,TSource, 'N')).OR.
+     &     ( .NOT.TGiven .AND. inp_compare(.false.,TSource, 'N'))))
      $   Call ErrQuit('Memory_Defaults: Bad value for argument', 2,
      &       INPUT_ERR)
-      If ( .NOT. ( SGiven .OR. inp_compare(.false.,SSource, 'N')))
+      If ( .NOT. 
+     &    (( SGiven .AND..NOT. inp_compare(.false.,SSource, 'N')).OR.
+     &     ( .NOT.SGiven .AND. inp_compare(.false.,SSource, 'N'))))
      $   Call ErrQuit('Memory_Defaults: Bad value for argument', 4,
      &       INPUT_ERR)
-      If ( .NOT. ( HGiven .OR. inp_compare(.false.,HSource, 'N')))
+      If ( .NOT. 
+     &    (( HGiven .AND..NOT. inp_compare(.false.,HSource, 'N')).OR.
+     &     ( .NOT.HGiven .AND. inp_compare(.false.,HSource, 'N'))))
      $   Call ErrQuit('Memory_Defaults: Bad value for argument', 6,
      &       INPUT_ERR)
-      If ( .NOT. ( GGiven .OR. inp_compare(.false.,GSource, 'N')))
+      If ( .NOT. 
+     &    (( GGiven .AND..NOT. inp_compare(.false.,GSource, 'N')).OR.
+     &     ( .NOT.GGiven .AND. inp_compare(.false.,GSource, 'N'))))
      $   Call ErrQuit('Memory_Defaults: Bad value for argument', 8,
      &       INPUT_ERR)
 C
-C     Determine how many of (Stack, Heap, Global) the user has
-C     specified.
-C
-      NSet = 0
-      If ( SGiven ) NSet = NSet + 1
-      If ( HGiven ) NSet = NSet + 1
-      If ( GGiven ) NSet = NSet + 1
-C
 C     Use the default total limit if the user did not provide one.
-C     This may be overridden below if NSet = 3.
 C
       If ( .NOT. TGiven) then
          Total = Total_Dflt
          TSource = 'D' ! Default
       EndIf
 C
-C     If S, H, and G are all set by the user, then either T is
-C     determined from them, or it is also already set.
+C     Work out which variable(s) may be overridden based on the sources
+C     of the others.
 C
-      If ( NSet .eq. 3 ) then
-         If ( .NOT. TGiven .OR. ( TGiven 
-     $      .AND. Total .gt. Stack + Heap + Global) ) then
-            Total = Stack + Heap + Global
-            TSource = 'R'       ! Reset from other inputs
-         EndIf
-      EndIf
-C
-C     If two of (Stack, Heap, Global) have been specified, the third
-C     can now be found by subtraction.
-C
-      If ( NSet .eq. 2) then
-         Missing = Total - Max( Heap, 0) - Max( Stack, 0)
-     $      - Max( Global, 0)
-         If ( .NOT. SGiven ) then
-            Stack = Missing
-            SSource = 'C'
-         EndIf
-         If ( .NOT. HGiven ) then
-            Heap = Missing
-            HSource = 'C'
-         EndIf
-         If ( .NOT. GGiven ) then
-            Global = Missing
-            GSource = 'C'
-         EndIf
-      EndIF
-C
-C     If none or one of (Heap, Stack, Global) are specified, we can
-C     use the partitioning formula to figure out the rest.
-C
-      If ( NSet .le. 1) then
-C
-C        First pass: Find out how much memory has to be borrowed
-C        from the other categories to keep the total constant.
-C        Note that Borrow may be negative.  Also, figure out the
-C        normalization for the computing the distribution of
-C        Borrow among the other categories.
-C
-         Borrow = 0
-         Renorm = 1.0
-         If ( HGiven ) then
-            Borrow = Heap - (Heap_Frc * Total)
-            Renorm = 1.0 - Heap_Frc
-         EndIf
-         If ( SGiven ) then
-            Borrow = Stack - (Stack_Frc * Total)
-            Renorm = 1.0 - Stack_Frc
-         EndIf
-         If ( GGiven ) then
-            Borrow = Global - (Global_Frc * Total)
-            Renorm = 1.0 - Global_Frc
-         EndIf
-C
-C        Second pass: Set unspecified values based on defaults
-C        and what must be borrowed.  Note that if Borrow is zero
-C        (if nothing is specified by the user), each category
-C        just gets its fraction of the total.
-C
-         If ( .NOT. HGiven ) then
-            Heap   = (Heap_Frc*Total)   - (Borrow*Heap_Frc/Renorm)
-            HSource = 'I'
-         EndIf
-         If ( .NOT. SGiven ) then
-            Stack  = (Stack_Frc*Total)  - (Borrow*Stack_Frc/Renorm)
-            SSource = 'I'
-         EndIf
-         If ( .NOT. GGiven ) then
-            Global = (Global_Frc*Total) - (Borrow*Global_Frc/Renorm)
-            GSource = 'I'
-         EndIf
-      EndIf
+      TOverride = memory_override(TSource,HSource,SSource,GSource)
+      SOverride = memory_override(SSource,TSource,HSource,GSource)
+      HOverride = memory_override(HSource,TSource,SSource,GSource)
+      GOverride = memory_override(GSource,TSource,SSource,HSource)
+c
+      if (.not.(TOverride.or.SOverride.or.HOverride.or.GOverride)) then
+        if (Total .ne. Stack + Heap + Global) then
+          Call ErrQuit(
+     &    'Memory_Defaults: Inconsistent memory specification',
+     &    Total-Stack-Heap-Global, INPUT_ERR)
+        endif
+      else if (SOverride.or.HOverride.or.GOverride) then
+        if (SOverride.and.HOverride.and.GOverride) then
+          Stack   = Stack_Frc*Total
+          SSource = 'C'
+          Heap    = Heap_Frc*Total
+          HSource = 'C'
+          Global  = Global_Frc*Total
+          GSource = 'C'
+        else if ((.not.SOverride).and.HOverride.and.GOverride) then
+          Heap    = Heap_Frc*(Total-Stack)
+          HSource = 'C'
+          Global  = Global_Frc*(Total-Stack)
+          GSource = 'C'
+        else if ((.not.HOverride).and.SOverride.and.GOverride) then
+          Stack   = Stack_Frc*(Total-Heap)
+          SSource = 'C'
+          Global  = Global_Frc*(Total-Heap)
+          GSource = 'C'
+        else if ((.not.GOverride).and.SOverride.and.HOverride) then
+          Stack   = Stack_Frc*(Total-Global)
+          SSource = 'C'
+          Heap    = Heap_Frc*(Total-Global)
+          GSource = 'C'
+        else if ((.not.SOverride).and.(.not.HOverride).and.GOverride)
+     &  then
+          Global  = Global_Frc*(Total-Stack-Heap)
+          GSource = 'C'
+        else if ((.not.HOverride).and.(.not.GOverride).and.SOverride)
+     &  then
+          Stack   = Stack_Frc*(Total-Heap-Global)
+          SSource = 'C'
+        else if ((.not.SOverride).and.(.not.GOverride).and.HOverride)
+     &  then
+          Heap    = Heap_Frc*(Total-Stack-Global)
+          HSource = 'C'
+        endif
+        Heap   = max(0,Heap)
+        Stack  = max(0,Stack)
+        Global = max(0,Global)
+        if (TOverride) then
+          if (Total .ne. Stack + Heap + Global) then
+            Total   = Stack + Heap + Global
+            TSource = 'R'
+          endif
+        endif
+      else ! (TOverride)
+        Heap   = max(0,Heap)
+        Stack  = max(0,Stack)
+        Global = max(0,Global)
+        if (Total .ne. Stack + Heap + Global) then
+          Total   = Stack + Heap + Global
+          TSource = 'R'
+        endif
+      endif
 *
 *     rjh: ensure that heap+stack are at least 6 mb
 *
@@ -301,13 +323,143 @@ C
 c
 c-----------------------------------------------------------------------
 c
-      logical function memory_env_nwchemrc_get(iwhat,iwords)
+      logical function memory_override(Tcandidate,Tvar1,Tvar2,Tvar3)
+      implicit none
+c
+c     Work out if Tcandidate has the lowest priority in which case
+c     it may be overridden, otherwise it cannot be overriden.
+c     See subroutine memory_defaults for the definitions of the 
+c     priority levels.
+c
+      character*1 Tcandidate ! [input] The candidate variable
+      character*1 Tvar1      ! [input] An other variable
+      character*1 Tvar2      ! [input] An other variable
+      character*1 Tvar3      ! [input] An other variable
+c
+c     Local variables
+c
+      character*1 Highest    ! the highest priority among Tvar*
+      character*1 Lowest     ! the lowest priority among Tvar*
+c
+      Highest = 'N'
+      Lowest  = 'U'
+      if ((Highest.eq.'N').and.(Tvar1.eq.'D'.or.Tvar1.eq.'F'.or.
+     &                          Tvar1.eq.'E'.or.Tvar1.eq.'U')) then
+        Highest = Tvar1
+      else if ((Highest.eq.'D').and.(Tvar1.eq.'F'.or.Tvar1.eq.'E'.or.
+     &                               Tvar1.eq.'U')) then
+        Highest = Tvar1
+      else if ((Highest.eq.'F').and.(Tvar1.eq.'E'.or.Tvar1.eq.'U')) then
+        Highest = Tvar1
+      else if ((Highest.eq.'E').and.(Tvar1.eq.'U')) then
+        Highest = Tvar1
+      endif
+      if ((Highest.eq.'N').and.(Tvar2.eq.'D'.or.Tvar2.eq.'F'.or.
+     &                          Tvar2.eq.'E'.or.Tvar2.eq.'U')) then
+        Highest = Tvar2
+      else if ((Highest.eq.'D').and.(Tvar2.eq.'F'.or.Tvar2.eq.'E'.or.
+     &                               Tvar2.eq.'U')) then
+        Highest = Tvar2
+      else if ((Highest.eq.'F').and.(Tvar2.eq.'E'.or.Tvar2.eq.'U')) then
+        Highest = Tvar2
+      else if ((Highest.eq.'E').and.(Tvar2.eq.'U')) then
+        Highest = Tvar2
+      endif
+      if ((Highest.eq.'N').and.(Tvar3.eq.'D'.or.Tvar3.eq.'F'.or.
+     &                          Tvar3.eq.'E'.or.Tvar3.eq.'U')) then
+        Highest = Tvar3
+      else if ((Highest.eq.'D').and.(Tvar3.eq.'F'.or.Tvar3.eq.'E'.or.
+     &                               Tvar3.eq.'U')) then
+        Highest = Tvar3
+      else if ((Highest.eq.'F').and.(Tvar3.eq.'E'.or.Tvar3.eq.'U')) then
+        Highest = Tvar3
+      else if ((Highest.eq.'E').and.(Tvar3.eq.'U')) then
+        Highest = Tvar3
+      endif
+c
+      if ((Lowest.eq.'U').and.(Tvar1.eq.'N'.or.Tvar1.eq.'D'.or.
+     &                         Tvar1.eq.'F'.or.Tvar1.eq.'E')) then
+        Lowest = Tvar1
+      else if ((Lowest.eq.'E').and.(Tvar1.eq.'N'.or.Tvar1.eq.'D'.or.
+     &                              Tvar1.eq.'F')) then
+        Lowest = Tvar1
+      else if ((Lowest.eq.'F').and.(Tvar1.eq.'N'.or.Tvar1.eq.'D')) then
+        Lowest = Tvar1
+      else if ((Lowest.eq.'D').and.(Tvar1.eq.'N')) then
+        Lowest = Tvar1
+      endif
+      if ((Lowest.eq.'U').and.(Tvar2.eq.'N'.or.Tvar2.eq.'D'.or.
+     &                         Tvar2.eq.'F'.or.Tvar2.eq.'E')) then
+        Lowest = Tvar2
+      else if ((Lowest.eq.'E').and.(Tvar2.eq.'N'.or.Tvar2.eq.'D'.or.
+     &                              Tvar2.eq.'F')) then
+        Lowest = Tvar2
+      else if ((Lowest.eq.'F').and.(Tvar2.eq.'N'.or.Tvar2.eq.'D')) then
+        Lowest = Tvar2
+      else if ((Lowest.eq.'D').and.(Tvar2.eq.'N')) then
+        Lowest = Tvar2
+      endif
+      if ((Lowest.eq.'U').and.(Tvar3.eq.'N'.or.Tvar3.eq.'D'.or.
+     &                         Tvar3.eq.'F'.or.Tvar3.eq.'E')) then
+        Lowest = Tvar3
+      else if ((Lowest.eq.'E').and.(Tvar3.eq.'N'.or.Tvar3.eq.'D'.or.
+     &                              Tvar3.eq.'F')) then
+        Lowest = Tvar3
+      else if ((Lowest.eq.'F').and.(Tvar3.eq.'N'.or.Tvar3.eq.'D')) then
+        Lowest = Tvar3
+      else if ((Lowest.eq.'D').and.(Tvar3.eq.'N')) then
+        Lowest = Tvar3
+      endif
+c
+      memory_override = .false.
+      if (Tcandidate.eq.'N') then
+        memory_override = .true.
+      else if (Lowest.eq.Highest) then
+        if (Tcandidate.eq.Lowest) then
+          memory_override = .false.
+        else if ((Lowest.eq.'U').and.(Tcandidate.eq.'N'.or.
+     &           Tcandidate.eq.'D'.or.Tcandidate.eq.'F'.or.
+     &           Tcandidate.eq.'E')) then
+          memory_override = .true.
+        else if ((Lowest.eq.'E').and.(Tcandidate.eq.'N'.or.
+     &           Tcandidate.eq.'D'.or.Tcandidate.eq.'F')) then
+          memory_override = .true.
+        else if ((Lowest.eq.'F').and.(Tcandidate.eq.'N'.or.
+     &           Tcandidate.eq.'D')) then
+          memory_override = .true.
+        else if ((Lowest.eq.'D').and.(Tcandidate.eq.'N')) then
+          memory_override = .true.
+        endif
+      else
+        if (Tcandidate.eq.Lowest) then
+          memory_override = .true.
+        else if ((Lowest.eq.'U').and.(Tcandidate.eq.'N'.or.
+     &           Tcandidate.eq.'D'.or.Tcandidate.eq.'F'.or.
+     &           Tcandidate.eq.'E')) then
+          memory_override = .true.
+        else if ((Lowest.eq.'E').and.(Tcandidate.eq.'N'.or.
+     &           Tcandidate.eq.'D'.or.Tcandidate.eq.'F')) then
+          memory_override = .true.
+        else if ((Lowest.eq.'F').and.(Tcandidate.eq.'N'.or.
+     &           Tcandidate.eq.'D')) then
+          memory_override = .true.
+        else if ((Lowest.eq.'D').and.(Tcandidate.eq.'N')) then
+          memory_override = .true.
+        endif
+      endif
+c
+      return
+      end
+c
+c-----------------------------------------------------------------------
+c
+      logical function memory_env_get(iwhat,iwords)
       implicit none
 c
 c     Get the number of words of the memory quantity specified by iwhat
-c     from either environment variables or nwchemrc files. If an
-c     environment variable or nwchemrc key was found with a valid value
-c     the function returns .true. and the corresponding value in iwords.
+c     from environment variables. If an environment variable was found
+c     with a valid value the function returns .true. and the
+c     corresponding value in iwords.
 c     Otherwise the function returns .false. and iwords is unchanged.
 c
 #include "mem_what.fh"
@@ -322,40 +474,35 @@ c
       logical success
       integer ival
       character*32 strval
-      character*32 strenv, strkey
+      character*32 strenv
       logical debug
 c
       debug = .false.
 c
       success = .false.
-      memory_env_nwchemrc_get = success
+      memory_env_get = success
       if (iwhat.eq.MEM_TOTAL) then
         strenv = "NWCHEM_MEMORY_TOTAL"
-        strkey = "memory_total"
       else if (iwhat.eq.MEM_HEAP) then
         strenv = "NWCHEM_MEMORY_HEAP"
-        strkey = "memory_heap"
       else if (iwhat.eq.MEM_STACK) then
         strenv = "NWCHEM_MEMORY_STACK"
-        strkey = "memory_stack"
       else if (iwhat.eq.MEM_GLOBAL) then
         strenv = "NWCHEM_MEMORY_GLOBAL"
-        strkey = "memory_global"
       else
         if (debug) then
           write(LuOut,
-     +    '(i7," :memory_env_nwchemrc_get failed: invalid iwhat: ",i8)')
+     +    '(i7," :memory_env_get failed: invalid iwhat: ",i8)')
      +    ga_nodeid(),iwhat
         endif
         return
       endif
 c
 c     Now try and get the value.
-c     1. Try environment variable.
 c
       call util_getenv(strenv(1:inp_strlen(strenv)),strval)
       if (debug) then
-        write(LuOut,*)ga_nodeid(),"memory_env_nwchemrc_get: "
+        write(LuOut,*)ga_nodeid(),"memory_env_get: "
      +        //strenv(1:inp_strlen(strenv))//"=<"
      +        //strval(1:inp_strlen(strval))//">"
       endif
@@ -367,29 +514,86 @@ c
  900    continue
       endif
 c
-c     2. Try nwchemrc file(s)
+c     Check the outcome and return results accordingly
 c
-      if (.not.success) then
-        if (util_nwchemrc_get(strkey(1:inp_strlen(strkey)),strval)) then
-          read(strval,'(i32)',ERR=910)ival
-          if (ival.gt.0) then
-            success = .true.
-          endif
- 910      continue
-        endif
+      memory_env_get = success
+      if (success) iwords = ival
+      if (debug) then
+        write(LuOut,*)ga_nodeid(),"memory_env_get: ",success,
+     +                ival,iwords
+      endif
+c
+      return
+      end
+c
+c-----------------------------------------------------------------------
+c
+      logical function memory_nwchemrc_get(iwhat,iwords)
+      implicit none
+c
+c     Get the number of words of the memory quantity specified by iwhat
+c     from nwchemrc files. If an nwchemrc key was found with a valid
+c     value the function returns .true. and the corresponding value in
+c     iwords.
+c     Otherwise the function returns .false. and iwords is unchanged.
+c
+#include "mem_what.fh"
+#include "util.fh"
+#include "global.fh"
+#include "inp.fh"
+#include "stdio.fh"
+c
+      integer iwhat  ! [input] id specifying what memory quantity to get
+      integer iwords ! [input/output] how many words of memory
+c
+      logical success
+      integer ival
+      character*32 strval
+      character*32 strkey
+      logical debug
+c
+      debug = .false.
+c
+      success = .false.
+      memory_nwchemrc_get = success
+      if (iwhat.eq.MEM_TOTAL) then
+        strkey = "memory_total"
+      else if (iwhat.eq.MEM_HEAP) then
+        strkey = "memory_heap"
+      else if (iwhat.eq.MEM_STACK) then
+        strkey = "memory_stack"
+      else if (iwhat.eq.MEM_GLOBAL) then
+        strkey = "memory_global"
+      else
         if (debug) then
-          write(LuOut,*)ga_nodeid(),"memory_env_nwchemrc_get: "
-     +          //strkey(1:inp_strlen(strkey))//"=<"
-     +          //strval(1:inp_strlen(strval))//">"
+          write(LuOut,
+     +    '(i7," :memory_nwchemrc_get failed: invalid iwhat: ",i8)')
+     +    ga_nodeid(),iwhat
         endif
+        return
+      endif
+c
+c     Now try and get the value.
+c
+      if (util_nwchemrc_get(strkey(1:inp_strlen(strkey)),strval)) then
+        read(strval,'(i32)',ERR=910)ival
+        if (ival.gt.0) then
+          success = .true.
+        endif
+ 910    continue
+      endif
+      if (debug) then
+        write(LuOut,*)ga_nodeid(),"memory_nwchemrc_get: "
+     +        //strkey(1:inp_strlen(strkey))//"=<"
+     +        //strval(1:inp_strlen(strval))//">"
       endif
 c
 c     Check the outcome and return results accordingly
 c
-      memory_env_nwchemrc_get = success
+      memory_nwchemrc_get = success
       if (success) iwords = ival
       if (debug) then
-        write(LuOut,*)ga_nodeid(),"memory_env_nwchemrc_get: ",success,
+        write(LuOut,*)ga_nodeid(),"memory_nwchemrc_get: ",success,
      +                ival,iwords
       endif
 c
