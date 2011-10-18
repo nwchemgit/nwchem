@@ -1,0 +1,41 @@
+
+title "c2h4 test"
+
+start c2h4_dat
+
+echo
+
+memory stack 500 mb heap 100 mb global 1400 mb noverify
+
+charge 0
+geometry autosym units angstrom
+zmat
+C
+C 1 r1
+H 1 r2 2 a2
+H 1 r2 2 a2 3 so
+H 2 r2 1 a2 3 al
+H 2 r2 1 a2 5 so
+variables
+r1 1.451
+r2 1.080
+a2 121.45
+al 90.0
+so 180.0
+end
+symmetry c1
+end
+
+basis
+   * library cc-pvtz
+end
+
+scf
+singlet
+rhf
+thresh 1e-10
+print "final vectors analysis"
+end
+
+task scf energy
+

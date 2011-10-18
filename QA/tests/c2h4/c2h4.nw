@@ -7,6 +7,10 @@ echo
 
 memory stack 500 mb heap 100 mb global 1400 mb noverify
 
+# C1  symmetry: total energy is -77.891420365233
+# C2v symmetry: total energy is -77.862506448702
+# D2d symmetry: total energy is -77.747117694241
+
 charge 0
 geometry autosym units angstrom
 zmat
@@ -31,10 +35,37 @@ basis
 end
 
 scf
-singlet
-rhf
-thresh 1e-10
+  singlet
+  rhf
+  thresh 1e-10
+  print "final vectors analysis"
 end
 
 task scf energy
+
+scf
+  singlet
+  uhf
+  thresh 1e-10
+end
+
+task scf energy
+
+dft
+  cgmin
+  xc hfexch
+  mult 1
+  print "final vectors analysis"
+end
+
+task dft energy
+
+dft
+  cgmin
+  odft
+  xc hfexch
+  mult 1
+end
+
+task dft energy
 
