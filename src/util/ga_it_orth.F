@@ -92,7 +92,7 @@ c
          do i = ilo, ihi
             call ga_acc(g_ms, i, i, i, i, mone, 1, one)
          enddo
-	 call ga_maxelt(g_ms, err)
+         call ga_maxelt(g_ms, err)
 *         if ((ga_nodeid().eq.0))
 *     $        write(6,*) ' iter_orthog: err = ', err
 c     

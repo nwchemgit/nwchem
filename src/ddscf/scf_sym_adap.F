@@ -130,8 +130,8 @@ c
       endif
 c
       if (oirs) then
-	 do i = 1, nvec
-	    irs(i) = int_mb(k_irs+i-1)
+         do i = 1, nvec
+            irs(i) = int_mb(k_irs+i-1)
          enddo
       endif
 c
