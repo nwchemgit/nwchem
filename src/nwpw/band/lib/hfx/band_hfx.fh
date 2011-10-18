@@ -23,13 +23,20 @@
       common /BAND_HFX_frac_Block/ amatrix,frac_on
 
 *     **** BAND_HFX_replicated common block ****
-      logical replicated
-      integer npk,taskid_k,nfft3d,neall,nrsize
-      integer psi_r_replicated_tag,Hpsi_r_replicated_tag
-      common /BAND_HFX_replicated_Block/ psi_r_replicated_tag,
-     >                                   Hpsi_r_replicated_tag,
+      logical replicated,npkeven
+      integer npk,taskid_k,nfft3d,neall,nrsize,nbrillq_max,npkrot
+      integer  psi_rep1_tag, psi_rep2_tag
+      integer Hpsi_rep1_tag,Hpsi_rep2_tag
+      integer kw_rep1(2),kw_rep2(2)
+      common /BAND_HFX_replicated_Block/ psi_rep1_tag,
+     >                                   psi_rep2_tag,
+     >                                   Hpsi_rep1_tag,
+     >                                   Hpsi_rep2_tag,
+     >                                   kw_rep1,
+     >                                   kw_rep2,
      >                                   npk,taskid_k,
      >                                   nfft3d,neall,nrsize,
-     >                                   replicated
+     >                                   nbrillq_max,npkrot,
+     >                                   replicated,npkeven
 
 
