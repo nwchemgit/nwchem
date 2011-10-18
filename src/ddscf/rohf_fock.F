@@ -53,8 +53,6 @@ c
 c     
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-      logical oforcesym
-      data oforcesym /.false./
 c
       integer g_cos1e
       dimension g_cos1e(3)
@@ -96,7 +94,13 @@ c
          if (nopen .gt. 0) call ga_print(g_odens)
       endif
 c
-c     Verify that the density is symmetric
+c     Symmetrize the density matrix.
+c     If the HOMO and LUMO orbitals are of the same irrep and degenerate
+c     then they can rotate in arbitrary ways among eachother. As a
+c     result it cannot be guaranteed that a symmetric density matrix
+c     can be calculated even if the orbitals are symmetry adapted.
+c     Hence density matrix symmetrization is essential. This phenomenon
+c     was observed when running the c2h4 test case using D2d symmetry.
 c
       if (oskel) then
          call ga_copy(g_cdens, g_hcore)
@@ -111,9 +115,6 @@ c
              write(luout,*)'Warning: symmetry breaking in RHF: ',
      &                     errmax
              call util_flush(luout)
-c            call  errquit
-c    $           ('rohf_fock:closed density is not totally symmetric',0,
-c    &            UNKNOWN_ERR)
            endif
          endif
          if (nopen .gt. 0) then
@@ -128,9 +129,6 @@ c    &            UNKNOWN_ERR)
                 write(luout,*)'Warning: symmetry breaking in ROHF: ',
      &                        errmax
                 call util_flush(luout)
-c               call errquit
-c    $              ('rohf_fock:open density not totally symmetric',0,
-c    &               UNKNOWN_ERR)
               endif
             endif
          endif

@@ -7,6 +7,7 @@
 *
       implicit none
 #include "errquit.fh"
+#include "stdio.fh"
 #include "mafdecls.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -123,8 +124,6 @@ c
 c     
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
-      logical oforcesym
-      data oforcesym /.false./
 c
       integer g_cos1e
       dimension g_cos1e(3)
@@ -185,9 +184,15 @@ c
          if (nopen .gt. 0) call ga_print(g_odens)
       endif
 c
-c     Debug ... verify that the density is symmetric
+c     Symmetrize the density matrix.
+c     If the HOMO and LUMO orbitals are of the same irrep and degenerate
+c     then they can rotate in arbitrary ways among eachother. As a
+c     result it cannot be guaranteed that a symmetric density matrix
+c     can be calculated even if the orbitals are symmetry adapted.
+c     Hence density matrix symmetrization is essential. This phenomenon
+c     was observed when running the c2h4 test case using D2d symmetry.
 c
-      if (oforcesym .and. oskel) then
+      if (oskel) then
          call ga_copy(g_cdens, g_hcore)
          if (oscfps) call pstat_on(ps_sym_sym)
          call sym_symmetrize(geom, basis, .true., g_cdens)
@@ -196,10 +201,11 @@ c
          call ga_maxelt(g_hcore, errmax)
          sym_tol = tol2e*10.0d0
          if (errmax .gt. sym_tol) then
-            write(6,*) ' Symmetry error ', errmax
-            call errquit
-     $         ('dft_roks_fock:closed density is not totally symmetric',
-     $          0, UNKNOWN_ERR)
+           if (ga_nodeid().eq.0) then
+             write(luout,*)'Warning: symmetry breaking in RKS: ',
+     &                     errmax
+             call util_flush(luout)
+           endif
          endif
          if (nopen .gt. 0) then
             call ga_copy(g_odens, g_hcore)
@@ -209,10 +215,11 @@ c
             call ga_dadd(one, g_hcore, mone, g_odens, g_hcore)
             call ga_maxelt(g_hcore, errmax)
             if (errmax .gt. sym_tol) then
-               write(6,*) ' Symmetry error ', errmax
-               call errquit
-     $              ('dft_roks_fock:open density not totally symmetric',
-     $               0, UNKNOWN_ERR)
+              if (ga_nodeid().eq.0) then
+                write(luout,*)'Warning: symmetry breaking in ROKS: ',
+     &                        errmax
+                call util_flush(luout)
+              endif
             endif
          endif
       endif
