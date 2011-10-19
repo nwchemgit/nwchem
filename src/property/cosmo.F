@@ -692,6 +692,10 @@ c
 c
 c     ----- approximate sphere with segments and points -----
 c
+      do iat = 1, mxatm
+        nspa(iat) = 0
+        nppa(iat) = 0
+      enddo
       nseg = 0
       nfac = 0
       ndiv = 0
