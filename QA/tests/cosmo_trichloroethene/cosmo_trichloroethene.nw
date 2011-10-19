@@ -1,7 +1,7 @@
 echo
 title "Trichloroethene BLYP/DZVP2 solvated (UA Radii)"
 
-start trichloro
+start trichloro_dat
 
 charge 0
 
@@ -26,6 +26,7 @@ dft
    convergence lshift 0.05
    iterations 5000
 end
+task dft optimize
 cosmo
   lineq  0
   radius 1.962
