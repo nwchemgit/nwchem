@@ -28,6 +28,7 @@ c     by having both MM and QM pieces specified (e.g., task md dft).
 c
       character*30 operation
       character*32 theory
+      character*32 key
       logical status, ignore
       character*80 errmsg
       double precision task_cpu, task_wall
@@ -134,6 +135,7 @@ C#ifdef USE_SUBGROUPS
 C      logical util_sgstart
 C      external util_sgstart
 C#endif
+      logical do_cosmo, flag
 c
       oprint_task_times = util_print('task time',print_default)
       task_wall = -util_wallsec()
@@ -176,6 +178,23 @@ c
       if (.not. rtdb_get(rtdb, 'task:ignore', mt_log, 1, ignore))
      $     ignore = .false.
 c
+c     If this task is going to use cosmo then we need to (re)run the
+c     wavefunction calculation. To force this we set the 
+c     <theory>:converged flag to .false. if it exists. Otherwise the
+c     code will report that the wavefunction is already converged
+c     and exit the optimizer rather than calculating the solvation
+c     energy.
+c
+      if (.not. rtdb_get(rtdb, 'slv:cosmo', mt_log, 1, do_cosmo))
+     $     do_cosmo = .false.
+      if (do_cosmo) then
+        key = theory(1:inp_strlen(theory))//":converged"
+        if (rtdb_get(rtdb, key, mt_log, 1, flag)) then
+          if (.not. rtdb_put(rtdb, key, mt_log, 1, .false.))
+     $      call errquit("task: could not write to rtdb",0,RTDB_ERR)
+        endif
+      endif
+c
 c     if needed initialize qmmm for the duration of the task
 c
       if (oqmmm) then
@@ -196,8 +215,8 @@ c
       if(ocons) call cons_init(rtdb)
 c
       if(task_bq) then
-       status = bq_init(rtdb)
-       if ((ga_nodeid().eq.0) .and. (.not. status)) then
+        status = bq_init(rtdb)
+        if ((ga_nodeid().eq.0) .and. (.not. status)) then
               call errquit("failed to initialize bq", 0, CALC_ERR)
         end if
       end if
