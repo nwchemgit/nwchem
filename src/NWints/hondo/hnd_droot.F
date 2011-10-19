@@ -399,6 +399,8 @@ c
       double precision temp,rfac,wfac
       integer ierr,i,naux,map,offset
 c
+      call hnd_droot_new_set ! initialize rts_large,wts_large
+c
       if (yy.ge.large_z(nroots)) then
 c 
 c     Large Z values, use roots and weights from 2n-point Gauss-Hermite quadrature
