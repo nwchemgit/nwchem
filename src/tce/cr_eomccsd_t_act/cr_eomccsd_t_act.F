@@ -497,7 +497,7 @@ c
        write(6,*)'         '
        call util_flush(6)
       end if
- 112  format('CR-EOMCCSD(T)-act triples loop cpu wall ',2f15.1)
+ 112  format('CR-EOMCCSD(T)-ACT(II) triples loop cpu wall ',2f15.1)
 c --- toggle = 3 ---
       if(lr0) then
       call q3rexpt2_act(dbl_mb(k_left),d_i3_1,k_t1_local,d_t2,
