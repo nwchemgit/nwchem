@@ -877,8 +877,8 @@ c     ------- Deallocate MA memory ------
 c
 c     Terminate integrals
 
-      call schwarz_tidy()
-      call int_terminate()
+cng      call schwarz_tidy()
+cng      call int_terminate()
 
       return
  9999 format(/,10x,23(1h-),/,10x,'Electric field gradient',

@@ -192,9 +192,9 @@ c -------- computing EFGs --------- START
      &                        nbf,nbf_ao,nbf_mo,
      &                        g_dens,g_moso,
      &                        noc,nocc)
-         if (ga_nodeid().eq.0) 
-     &     write(*,*) "STOP-eval-EFG-so ..."
-         stop
+c         if (ga_nodeid().eq.0) 
+c     &     write(*,*) "STOP-eval-EFG-so ..."
+c         stop
 c -------- computing EFGs --------- END
        endif
 c ----- execute this code ONLY when EFGZ4 is requested -- START
