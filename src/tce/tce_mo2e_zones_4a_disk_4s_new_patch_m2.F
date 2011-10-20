@@ -119,6 +119,8 @@ c
       integer offset_bl1a3m,size_bl1a3m,a1_ini,a1_fin
 c I/O improvements
       integer handle_4a,handle_3a1m,handle_2a2m,handle_1a3m
+c new offseting fro 13 and 14
+      integer k_aux,l_aux,size_aux
 c
 c *** debug ***
 c      double precision xxx,xmax
@@ -171,6 +173,8 @@ c
 c
       max_size_temp=imaxsize**4
 c
+      call tce_mo2e_offset_intorb_old(l_aux,
+     &         k_aux,size_aux)
 c
       do ii=1,1000
        tot_zone(ii)=0.0d0
@@ -580,17 +584,17 @@ c        stop
 c *************
 c
 c *** debug ***
-          if(nodezero) then
-           write(6,*)'n_4a_files',n_4a_files
-           write(6,*)'n_3a1m_files',n_3a1m_files
-           write(6,*)'n_2a2m_files',n_2a2m_files
-           write(6,*)'n_1a3m_files',n_1a3m_files
-           write(6,*)'atpart',atpart
-           write(6,*)'noa+nva',noa+nva
-           write(6,*)'noa',noa
-           write(6,*)'nva',nva 
-           call util_flush(6)
-          end if
+c          if(nodezero) then
+c           write(6,*)'n_4a_files',n_4a_files
+c           write(6,*)'n_3a1m_files',n_3a1m_files
+c           write(6,*)'n_2a2m_files',n_2a2m_files
+c           write(6,*)'n_1a3m_files',n_1a3m_files
+c           write(6,*)'atpart',atpart
+c           write(6,*)'noa+nva',noa+nva
+c           write(6,*)'noa',noa
+c           write(6,*)'nva',nva 
+c           call util_flush(6)
+c          end if
 c *************
 c
 c
@@ -1700,7 +1704,7 @@ c 204   format('4M ',i5,3x,f19.8)
 c       call util_flush(6)
 c *************
          key_4m=ires
-         call tce_hash_n(int_mb(kax_v2_alpha_offset),key_4m,offset_4m)
+         call tce_hash_n(int_mb(k_aux),key_4m,offset_4m)
       call put_block(d_v2,dbl_mb(k_4m),size_4m,
      &               offset_4m)
 c
@@ -1801,7 +1805,8 @@ c
       if (.not.ma_pop_stack(l_integral))
      1  call errquit('tce_off_4a: MA problem',15,MA_ERR)
 c
-
+      if (.not.ma_pop_stack(l_aux))
+     1  call errquit('tce_off_4a: MA problem',15,MA_ERR)
 c
       call ga_sync()
 c *** debug ***
