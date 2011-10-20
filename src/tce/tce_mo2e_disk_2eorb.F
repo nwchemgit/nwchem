@@ -119,7 +119,8 @@ c
       integer offset_bl1a3m,size_bl1a3m,a1_ini,a1_fin
 c I/O improvements
       integer handle_4a,handle_3a1m,handle_2a2m,handle_1a3m
-c
+c new offseting for 13 and 14
+      integer k_aux,l_aux,size_aux
 c *** debug ***
 c      double precision xxx,xmax
 c      integer iqx
@@ -167,6 +168,8 @@ c
 c
       max_size_temp=imaxsize**4
 c
+      call tce_mo2e_offset_intorb_old(l_aux,
+     &         k_aux,size_aux)
 c
       do ii=1,1000
        tot_zone(ii)=0.0d0
@@ -1703,7 +1706,7 @@ c 204   format('4M ',i5,3x,f19.8)
 c       call util_flush(6)
 c *************
          key_4m=ires
-         call tce_hash_n(int_mb(kax_v2_alpha_offset),key_4m,offset_4m)
+         call tce_hash_n(int_mb(k_aux),key_4m,offset_4m)
       call put_block_sf(d_v2,dbl_mb(k_4m),size_4m,
      &               offset_4m)
 c
@@ -1804,7 +1807,8 @@ c
       if (.not.ma_pop_stack(l_integral))
      1  call errquit('tce_off_4a: MA problem',15,MA_ERR)
 c
-
+      if (.not.ma_pop_stack(l_aux))
+     1  call errquit('tce_off_4a: MA problem',15,MA_ERR)
 c
       call ga_sync()
       if(sf_rwtor(d_v2).ne.0)
