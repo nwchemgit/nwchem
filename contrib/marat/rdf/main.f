@@ -80,7 +80,7 @@ c
        double precision fourpi,x
        integer  nf 
        double precision vol,sum,norm,const,rl,ru,rho
-       integer l
+       integer l,sl
  
 c
        open(22,file="tmp.xyz",
@@ -152,9 +152,13 @@ c
 c       extract coords of secondary atoms
 c       with "atag" name (i1 is a central atom)
 c       ---------------------------------------
-        if((tag(i).eq.atag).and.i.ne.i1) then
+c        if((tag(i).eq.atag).and.i.ne.i1) then
+        sl = len_trim(atag)
+        if(index(tag(i),atag(1:sl)).ne.0) then
+        if(i.ne.i1) then
           j = j+1
           rd(j,:) = c(i,:)
+        end if
         end if
        end do
        
