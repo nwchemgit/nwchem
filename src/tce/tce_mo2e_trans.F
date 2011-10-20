@@ -77,6 +77,8 @@ c
       integer ixi,jxi,irshift
       integer size_mug3ij,l_mug3ij,k_mug3ij
       character*255 filename
+c new offseting for 13 and 14
+      integer k_aux,l_aux,size_aux
 c
       integer nxtask
       external nxtask
@@ -99,6 +101,8 @@ c N is the number of correlated orbitals
         ipa = nmo(1)-nocc(1)-nfv(1)
         ipb = nmo(ipol)-nocc(ipol)-nfv(ipol)
 c
+      call tce_mo2e_offset_intorb_old(l_aux,
+     &         k_aux,size_aux)
 c
 c     =======================
 c     Initialize integral API
@@ -423,7 +427,8 @@ c
 c
 c Second part of transformation starts here
 c
-        length = int_mb(k_v2_alpha_offset)
+ccx        length = int_mb(k_v2_alpha_offset)
+        length = int_mb(k_aux)
         len_pair = int_mb(k_gpair) 
         addr   = 0
         point_pair = 0
@@ -675,7 +680,8 @@ c
 c --- check point ---
 c
       IRES=INDEX_PAIR(IROW,ICOL) 
-      if(ires.ne.int_mb(k_v2_alpha_offset+addr)) then
+ccx      if(ires.ne.int_mb(k_v2_alpha_offset+addr)) then
+      if(ires.ne.int_mb(k_aux+addr)) then
         write(6,*)'SOMETHING WENT WRONG'
         call util_flush(6)
         stop
@@ -684,7 +690,8 @@ c -------------------
 c
 c read offset -> open small file -> fill it  -> ga_acc
 c
-      offset_ijkl = int_mb(k_v2_alpha_offset+length+addr)
+ccx      offset_ijkl = int_mb(k_v2_alpha_offset+length+addr)
+      offset_ijkl = int_mb(k_aux+length+addr)
       size_ijkl   = int_mb(k_range_alpha+g3b-1) *
      &int_mb(k_range_alpha+g4b-1) * int_mb(k_range_alpha+g1b-1) *
      &int_mb(k_range_alpha+g2b-1)
@@ -765,6 +772,9 @@ c
 c
       if (.not.ma_pop_stack(l_ap_offset))
      1  call errquit('tce_ao2e: MA problem',15,MA_ERR)
+c
+      if (.not.ma_pop_stack(l_aux))
+     1  call errquit('tce_ao2e: MA problem',15,MA_ERR)
 c closing d_v2int ga
       call deletefile(d_v2int) 
 c
@@ -775,4 +785,3 @@ c
 c
       return
       end
-c $Id$
