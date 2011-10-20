@@ -1454,7 +1454,7 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
 
 *     **** get Hpsi ****
       if (control_version().eq.3)
-     >  call psi_Horb_replicated(.false.,ispin,ms,
+     >  call psi_Horb_replicated(.true.,ispin,ms,
      >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
      >             orb,
@@ -1462,7 +1462,7 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
      >             Horb)
 
       if (control_version().eq.4)
-     >  call psi_Horbv4_replicated(.false.,ispin,ms,
+     >  call psi_Horbv4_replicated(.true.,ispin,ms,
      >             dbl_mb(psi_r(1)),
      >             dbl_mb(vall(1)),
      >             orb,
