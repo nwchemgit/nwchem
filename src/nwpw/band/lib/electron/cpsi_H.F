@@ -213,13 +213,15 @@ c     >                       dcpl_mb(vpsi(1)))
 *           xcp                 - xc potential in r-space
 *   Exit - Horb_k - gradient in k-space
 *
-      subroutine cpsi_Horb(notvirtual,nb,ispin,ms,
-     >                 vall,
-     >                 orb_k,orb_r,
-     >                 Horb_k)
+      subroutine cpsi_Horb(hfxon,nb,ispin,ms,
+     >                     psi_r_tag,
+     >                     vall,
+     >                     orb_k,orb_r,
+     >                     Horb_k)
       implicit none
-      logical    notvirtual
+      logical    hfxon
       integer    nb,ispin,ms
+      integer    psi_r_tag
       complex*16 vall(*)
       complex*16 orb_k(*)
       complex*16 orb_r(*)
@@ -251,7 +253,7 @@ c     >                       dcpl_mb(vpsi(1)))
       external zdotc,cpsi_ne
 
 
-      dohfx = band_HFX().and.band_HFX_relaxed().and.notvirtual
+      dohfx = band_HFX().and.band_HFX_relaxed().and.hfxon
 
       if (control_spin_orbit()) then
         call cpsi_Horb2com(nb,ispin,ms,
@@ -295,12 +297,12 @@ c     >                       dcpl_mb(vpsi(1)))
 *     **********************
 *     **** HFX energy   ****
 *     **********************
-c      if (dohfx) then
-c         call band_potential_HFX_orb(ms,
-c     >                               psi_r,
-c     >                               orb_r,
-c     >                               dcpl_mb(Horb_r(1)))
-c      end if
+      if (dohfx) then
+         call band_potential_HFX_orb(nb,ms,
+     >                               psi_r_tag,
+     >                               orb_r,
+     >                               dcpl_mb(Horb_r(1)))
+      end if
 
 
 
@@ -313,14 +315,13 @@ c      end if
      >                   orb_r,
      >                   dcpl_mb(vpsi(1)))
 
-c      if (dohfx)
-c     >   call C3dB_bb_Sum2(1,dcpl_mb(Horb_r(1)),
-c     >                      dcpl_mb(vpsi(1)))
+      if (dohfx)
+     >   call C3dB_bb_Sum2(1,dcpl_mb(Horb_r(1)),
+     >                      dcpl_mb(vpsi(1)))
 
 
 *     **** put vpsi_r in k-space ****
       call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
-      !call C3dB_rc_pfft3f(1,nb,dcpl_mb(vpsi(1)))
       call Cram_c_pack(nb,dcpl_mb(vpsi(1)))
 
 *     **** add to Horb_k ****
@@ -329,8 +330,7 @@ c     >                      dcpl_mb(vpsi(1)))
      >                   Horb_k)
 
       value = .true.
-      if (dohfx)
-     >  value = value.and.MA_pop_stack(Horb_r(2))
+      if (dohfx) value = value.and.MA_pop_stack(Horb_r(2))
       value = value.and.MA_pop_stack(vpsi(2))
       if (.not.value)
      >  call errquit('cpsi_Horb: popping stack',0,MA_ERR)

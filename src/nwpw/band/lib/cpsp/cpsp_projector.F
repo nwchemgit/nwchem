@@ -1,4 +1,5 @@
 
+c $Id$
 
 *     ************************************************
 *     *                                              *
@@ -172,4 +173,3 @@ c      end if
       cpsp_projector_get_ptr = indx + ((nb-1)*nprj + (n-1))*nsize
       return
       end
-c $Id$
