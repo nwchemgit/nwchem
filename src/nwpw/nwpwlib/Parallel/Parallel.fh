@@ -4,8 +4,8 @@
 
 
 *     *** Parallel common block ***
-      integer taskid,np
-      common / parallel / taskid,np
+      integer taskid,np,comm_world
+      common / parallel / taskid,np,comm_world
 
 *     *** ParallelNd common block ***
       integer taskid_i,np_i,comm_i,group_i

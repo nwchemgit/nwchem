@@ -26,10 +26,23 @@
 
 #include "tcgmsg.fh"
 #include "global.fh"
-
 #include "mpif.h"
 
+ccc#include "ga_mpi.fh"
+#ifndef GA_MPI_H_
+#define GA_MPI_H_
+!     usage: call ga_mpi_comm(OUT integer comm)
+!     usage: call ga_mpi_comm_pgroup(OUT integer comm, IN integer grp)
+!     usage: call ga_mpi_comm_pgroup_default(OUT integer comm)
+      external ga_mpi_comm
+      external ga_mpi_comm_pgroup
+      external ga_mpi_comm_pgroup_default
+#endif /* GA_MPI_H_ */
 
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#endif
 
 *     **** local variables ****
       integer i
@@ -39,16 +52,18 @@ cc     call MPI_INIT(mpierr)
 c      call MPI_COMM_RANK(MPI_COMM_WORLD,taskid,mpierr)
 c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
+cc      comm_world = MPI_COMM_WORLD
+      call ga_mpi_comm_pgroup_default(comm_world)
+
 #ifdef MPI4
-#include "stupid_mpi4.fh"
-      stupid_world   = MPI_COMM_WORLD
+      stupid_world   = comm_world
       stupid_sum     = MPI_SUM
       stupid_max     = MPI_MAX
       stupid_min     = MPI_MIN
       stupid_integer = MPI_INTEGER
       stupid_double  = MPI_DOUBLE_PRECISION
       stupid_complex = MPI_DOUBLE_COMPLEX
-      stupid_comm_i   = MPI_COMM_WORLD
+      stupid_comm_i   = comm_world
       stupid_comm_j   = -99
       stupid_comm_k   = -99
 #endif
@@ -70,7 +85,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       taskid_i = taskid
       taskid_j = 0
       taskid_k = 0
-      comm_i   = MPI_COMM_WORLD
+      comm_i   = comm_world
       comm_j   = -99 
       comm_k   = -99 
 
@@ -166,19 +181,19 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
 #else
 *     **** set global processor group ****
-      call MPI_COMM_group(MPI_COMM_WORLD,mpi_group,ierr)
+      call MPI_COMM_group(comm_world,mpi_group,ierr)
 
       do i=0,np_i-1
         int_mb(tmp(1)+i) = int_mb(procNd(1) + i + taskid_j*np_i) 
       end do
       call MPI_Group_incl(mpi_group,np_i,int_mb(tmp(1)),group_i,ierr)
-      call MPI_Comm_create(MPI_COMM_WORLD,group_i,comm_i,  ierr)
+      call MPI_Comm_create(comm_world,group_i,comm_i,  ierr)
 
       do j=0,np_j-1
         int_mb(tmp(1)+j) = int_mb(procNd(1) + taskid_i + j*np_i) 
       end do
       call MPI_Group_incl(mpi_group,np_j,int_mb(tmp(1)),group_j,ierr)
-      call MPI_Comm_create(MPI_COMM_WORLD,group_j,comm_j,  ierr)
+      call MPI_Comm_create(comm_world,group_j,comm_j,  ierr)
 #endif
 
       if (.not.MA_pop_stack(tmp(2)))
@@ -345,7 +360,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
 #else
 *     **** set global processor group ****
-      call MPI_COMM_group(MPI_COMM_WORLD,mpi_group,ierr)
+      call MPI_COMM_group(comm_world,mpi_group,ierr)
 
       do i=0,np_i-1
         int_mb(tmp(1)+i) = int_mb(procNd(1) 
@@ -354,7 +369,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >                           + taskid_k*np_i*np_j) 
       end do
       call MPI_Group_incl(mpi_group,np_i,int_mb(tmp(1)),group_i,ierr)
-      call MPI_Comm_create(MPI_COMM_WORLD,group_i,comm_i,ierr)
+      call MPI_Comm_create(comm_world,group_i,comm_i,ierr)
 
       do j=0,np_j-1
         int_mb(tmp(1)+j) = int_mb(procNd(1) 
@@ -363,7 +378,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >                           + taskid_k*np_i*np_j) 
       end do
       call MPI_Group_incl(mpi_group,np_j,int_mb(tmp(1)),group_j,ierr)
-      call MPI_Comm_create(MPI_COMM_WORLD,group_j,comm_j,ierr)
+      call MPI_Comm_create(comm_world,group_j,comm_j,ierr)
 
       do k=0,np_k-1
         int_mb(tmp(1)+k) = int_mb(procNd(1) 
@@ -372,7 +387,7 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
      >                           + k*np_i*np_j) 
       end do
       call MPI_Group_incl(mpi_group,np_k,int_mb(tmp(1)),group_k,ierr)
-      call MPI_Comm_create(MPI_COMM_WORLD,group_k,comm_k,ierr)
+      call MPI_Comm_create(comm_world,group_k,comm_k,ierr)
 #endif
 
       if (.not.MA_pop_stack(tmp(2)))
@@ -456,7 +471,7 @@ c     implicit none
       if (np.gt.1) then
          msglen = 1
          call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
-     >                       MPI_MAX,MPI_COMM_WORLD,mpierr)
+     >                       MPI_MAX,comm_world,mpierr)
          sum = sumall
       end if
 #endif
@@ -496,7 +511,7 @@ c     implicit none
       if (np.gt.1) then
          msglen = 1
          call MPI_Allreduce(isum,isumall,msglen,MPI_INTEGER,
-     >                       MPI_MAX,MPI_COMM_WORLD,mpierr)
+     >                       MPI_MAX,comm_world,mpierr)
          isum = isumall
       end if
 #endif
@@ -540,7 +555,7 @@ c     implicit none
       if (np.gt.1) then
          msglen = 1
          call MPI_Allreduce(sum,sumall,msglen,MPI_DOUBLE_PRECISION,
-     >                       MPI_SUM,MPI_COMM_WORLD,mpierr)
+     >                       MPI_SUM,comm_world,mpierr)
          sum = sumall
       end if
 #endif
@@ -587,7 +602,7 @@ c     implicit none
          msglen = 1
 
          call MPI_Allreduce(sum,sumall,msglen,MPI_INTEGER,
-     >                       MPI_SUM,MPI_COMM_WORLD,mpierr)
+     >                       MPI_SUM,comm_world,mpierr)
          sum = sumall
       end if
 #endif
@@ -640,7 +655,7 @@ c     implicit none
       msglen = n
       call MPI_Allreduce(sum,dbl_mb(sumall(1)),msglen,
      >                MPI_DOUBLE_PRECISION,
-     >                MPI_SUM,MPI_COMM_WORLD,mpierr)
+     >                MPI_SUM,comm_world,mpierr)
 #endif
 
       call dcopy(n,dbl_mb(sumall(1)),1,sum,1)
@@ -705,7 +720,7 @@ c     implicit none
       msglen = n
       call MPI_Allreduce(sum,int_mb(sumall(1)),msglen,
      >                MPI_INTEGER,
-     >                MPI_SUM,MPI_COMM_WORLD,mpierr)
+     >                MPI_SUM,comm_world,mpierr)
       call icopy(n,int_mb(sumall(1)),1,sum,1)
 #endif
       value = MA_pop_stack(sumall(2))
@@ -754,7 +769,7 @@ c     implicit none
 
       if (np.gt.1) then
          call MPI_Bcast(sum,1,MPI_DOUBLE_PRECISION,
-     >                  psend,MPI_COMM_WORLD,ierr)
+     >                  psend,comm_world,ierr)
       end if
 #endif
 
@@ -797,7 +812,7 @@ c     implicit none
 
       if (np.gt.1) then
          call MPI_Bcast(sum,nsize,MPI_DOUBLE_PRECISION,
-     >                  psend,MPI_COMM_WORLD,ierr)
+     >                  psend,comm_world,ierr)
       end if
 #endif
 
@@ -853,7 +868,7 @@ c     implicit none
 
       if (np.gt.1) then
          call MPI_Bcast(isum,nsize,MPI_INTEGER,
-     >                  psend,MPI_COMM_WORLD,ierr)
+     >                  psend,comm_world,ierr)
       end if
 #endif
 
@@ -1001,7 +1016,7 @@ c      call MPI_WAITALL(nreq,req,MPI_STATUSES_IGNORE,mpierr)
       else if (ic.eq.3) then
         icc = comm_k
       else 
-        icc = MPI_COMM_WORLD
+        icc = comm_world
       end if
 
       getcomm = icc
@@ -1456,11 +1471,11 @@ c     implicit none
 *     *                                 *
 *     ***********************************
 
-      subroutine Parallela_start_rotate(ic,shift,
+      subroutine Parallela_start_rotate(ic,shift,msgtype0,
      >                                  A1,nsize1,
      >                                  A2,nsize2,request)
       implicit none
-      integer ic,shift
+      integer ic,shift,msgtype0
       real*8  A1(*)
       integer nsize1
       real*8  A2(*)
@@ -1508,7 +1523,7 @@ c     implicit none
 #ifdef MPI4
          if (nsize2.gt.0) then
             stupid_msglen = nsize2
-            stupid_type   = shift
+            stupid_type   = msgtype0
             stupid_taskid = proc_from
             call MPI_IRECV(A2,
      >                  stupid_msglen,stupid_double,
@@ -1523,7 +1538,7 @@ c     implicit none
 
          if (nsize1.gt.0) then
             stupid_msglen = nsize1
-            stupid_type   = shift
+            stupid_type   = msgtype0
             stupid_taskid = proc_to
             call MPI_ISEND(A1,
      >                  stupid_msglen,stupid_double,
@@ -1539,7 +1554,7 @@ c     implicit none
 #else
          if (nsize2.gt.0) then
          msglen  = nsize2
-         msgtype = shift
+         msgtype = msgtype0
          call MPI_IRECV(A2,msglen,MPI_DOUBLE_PRECISION,
      >                  proc_from,
      >                  msgtype,getcomm(ic),
@@ -1551,7 +1566,7 @@ c     implicit none
 
          if (nsize1.gt.0) then
          msglen  = nsize1
-         msgtype = shift
+         msgtype = msgtype0
          call MPI_ISEND(A1,msglen,MPI_DOUBLE_PRECISION,
      >                  proc_to,
      >                  msgtype,getcomm(ic),
@@ -1574,6 +1589,134 @@ c     implicit none
 
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_start_Irotate     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_start_Irotate(ic,shift,msgtype0,
+     >                                  IA1,nsize1,
+     >                                  IA2,nsize2,request)
+      implicit none
+      integer ic,shift,msgtype0
+      integer IA1(*)
+      integer nsize1
+      integer IA2(*)
+      integer nsize2
+      integer request(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "Parallel.fh"
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+*     **** local variables ****
+      integer mynp,mytaskid,msglen,msgype,mpierr,proc_to,proc_from
+
+*     ***** external functions ****
+#ifdef MPI4
+      integer*4 getcomm
+      external  getcomm
+#else
+      integer  getcomm
+      external getcomm
+#endif
+
+      if (ic.eq.1) then
+         mynp     = np_i
+         mytaskid = taskid_i
+      else if (ic.eq.2) then
+         mynp     = np_j
+         mytaskid = taskid_j
+      else if (ic.eq.3) then
+         mynp     = np_k
+         mytaskid = taskid_k
+      else
+         mynp     = np
+         mytaskid = taskid
+      end if
+      proc_to   = mod(mytaskid+shift+mynp,mynp)
+      proc_from = mod(mytaskid-shift+mynp,mynp)
+
+#ifdef MPI4
+         if (nsize2.gt.0) then
+            stupid_msglen = nsize2
+            stupid_type   = msgtype0
+            stupid_taskid = proc_from
+            call MPI_IRECV(IA2,
+     >                  stupid_msglen,stupid_integer,
+     >                  stupid_taskid,
+     >                  stupid_type,getcomm(ic),
+     >                  stupid_request,stupid_ierr)
+            request(1) = stupid_request
+            request(3) = 1
+         else
+            request(3) = 0
+         end if
+
+         if (nsize1.gt.0) then
+            stupid_msglen = nsize1
+            stupid_type   = msgtype0
+            stupid_taskid = proc_to
+            call MPI_ISEND(IA1,
+     >                  stupid_msglen,stupid_integer,
+     >                  stupid_taskid,
+     >                  stupid_type,getcomm(ic),
+     >                  stupid_request,stupid_ierr)
+            request(2) = stupid_request
+            request(4) = 1
+         else
+            request(4) = 0
+         end if
+
+#else
+         if (nsize2.gt.0) then
+         msglen  = nsize2
+         msgtype = msgtype0
+         call MPI_IRECV(IA2,msglen,MPI_INTEGER,
+     >                  proc_from,
+     >                  msgtype,getcomm(ic),
+     >                  request(1),mpierr)
+            request(3) = 1
+         else
+            request(3) = 0
+         end if
+
+         if (nsize1.gt.0) then
+         msglen  = nsize1
+         msgtype = msgtype0
+         call MPI_ISEND(IA1,msglen,MPI_INTEGER,
+     >                  proc_to,
+     >                  msgtype,getcomm(ic),
+     >                  request(2),mpierr)
+            request(4) = 1
+         else
+            request(4) = 0
+         end if
+#endif
+
+      if ((request(3).eq.1).and.(request(4).eq.1)) then
+         request(3) = 1
+      else if (request(3).eq.1) then
+         request(3) = 2
+      else if (request(4).eq.1) then
+         request(3) = 3
+      else
+         request(3) = 4
+      end if
+
+      return
+      end
+
 
 
 *     ***********************************
