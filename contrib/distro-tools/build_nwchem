@@ -345,18 +345,99 @@ function config_is_set()
    fi
    echo ${value}
 }
-export NWCHEM_TOP=`pwd`
-export NWCHEM_TARGET=LINUX64
-export NWCHEM_MODULES="all"
-export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/LINUX64/nwchem
+#
+# See if we can detect which platform we are on.
+# This is most relevant to the various BlueGene platforms as they are a complete
+# package, i.e. if you know you are on a BlueGene/P then all required settings
+# are prescribed. This is not the case on other platforms.
+#
+if [ -d /bgsys/drivers/ppcfloor ] ; then
+  #
+  # This is a BlueGene/P machine
+  #
+  if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
+    export NWCHEM_TARGET=BGP
+  fi
+  if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
+    export ARMCI_NETWORK=DCMFMPI
+  fi
+  if [ ${#MSG_COMMS} -eq 0 ] ; then
+    export MSG_COMMS=DCMFMPI
+  fi
+  if [ ${#USE_MPI} -eq 0 ] ; then
+    export USE_MPI=y
+  fi
+  if [ ${#BGCOMPILERS} -eq 0 ] ; then
+    export BGCOMPILERS=/bgsys/drivers/ppcfloor/gnu-linux/bin
+  fi
+  if [ ${#BGP_INSTALLDIR} -eq 0 ] ; then
+    export BGP_INSTALLDIR=/bgsys/drivers/ppcfloor
+  fi
+  if [ ${#BGP_RUNTIMEPATH} -eq 0 ] ; then
+    export BGP_RUNTIMEPATH=/bgsys/drivers/ppcfloor/runtime
+  fi
+  if [ ${#ARMCIDRV} -eq 0 ] ; then
+    export ARMCIDRV=${BGP_INSTALLDIR}
+  fi
+  if [ ${#BGDRIVER} -eq 0 ] ; then
+    export BGDRIVER=${ARMCIDRV}
+  fi
+  if [ ${#MPI_LIB} -eq 0 ] ; then
+    export MPI_LIB=${BGDRIVER}/comm/lib
+  fi
+  if [ ${#MPI_INCLUDE} -eq 0 ] ; then
+    export MPI_INCLUDE=${BGDRIVER}/comm/include
+  fi
+  if [ ${#BGMLMPI_INCLUDE} -eq 0 ] ; then
+    export BGMLMPI_INCLUDE=${MPI_INCLUDE}
+  fi
+  if [ ${#LIBMPI} -eq 0 ] ; then
+    export LIBMPI="-L${MPI_LIB} -lfmpich_.cnk -lmpich.cnk -ldcmf.cnk -ldcmfcoll.cnk -lpthread -lrt -L${BGP_RUNTIMEPATH}/SPI -lSPI.cna"
+  fi
+  if [ ${#MPI_F90} -eq 0 ] ; then
+    export MPI_F90=mpixlf77
+  fi
+  if [ ${#MPI_CC} -eq 0 ] ; then
+    export MPI_CC=mpixlc
+  fi
+  if [ ${#MPI_CXX} -eq 0 ] ; then
+    export MPI_CXX=mpixlcxx
+  fi
+
+fi
+#
+# End of BlueGene stuff
+#
+if [ ${#NWCHEM_TOP} -eq 0 ] ; then
+  export NWCHEM_TOP=`pwd`
+fi
+if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
+  export NWCHEM_TARGET=LINUX64
+fi
+if [ ${#NWCHEM_MODULES} -eq 0 ] ; then
+  export NWCHEM_MODULES="all"
+fi
+if [ ${#NWCHEM_EXECUTABLE} -eq 0 ] ; then
+  export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem
+fi
+if [ ${#USE_MPI} -eq 0 ] ; then
+  export USE_MPI=y
+fi
+if [ ${#USE_MPI} -ne 0 ] ; then
+  if [ ${#USE_MPIF} -eq 0 ] ; then
+    export USE_MPIF=y
+  fi
+  if [ ${#USE_MPIF4} -eq 0 ] ; then
+    export USE_MPIF4=y
+  fi
+fi
+if [ ${#MSG_COMMS} -eq 0 ] ; then
+  export MSG_COMMS=MPI
+fi
 export LDOPTIONS=" "
 export USE_SUBGROUPS=y
-export USE_MPI=y
-export USE_MPIF=y
-export USE_MPIF4=y
-#export USE_GPROF=y
-export MSG_COMMS=MPI
 #export DEV_GA=y
+#export USE_GPROF=y
 #
 # Now we try and guess the network on the machine.
 # The default is sockets.
