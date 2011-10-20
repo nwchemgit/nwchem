@@ -16,7 +16,7 @@ ifdef USE_FDIST
   ifdef USE_MPI
     LIB_DEFINES += -DMPI_TIME
     ifneq ($(MPI_INCLUDE),)
-      LIB_INCLUDES += -I$(MPI_INCLUDE)
+      LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(MPI_INCLUDE))
     endif
   else
   endif
