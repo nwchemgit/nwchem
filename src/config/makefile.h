@@ -2297,7 +2297,7 @@ ifneq (,$(findstring $(notdir $(FC)), $(SKIP_LIBMPI)))
   LIBMPI =
 endif
 ifdef MPI_LIB 
-      CORE_LIBS += -L$(MPI_LIB) 
+      CORE_LIBS += $(patsubst -L-L%,-L%,-L$(MPI_LIB))
 endif 
 ifdef OLD_GA
   CORE_LIBS += -ltcgmsg-mpi $(LIBMPI) 

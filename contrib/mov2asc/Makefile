@@ -41,7 +41,7 @@ else
 endif
 LDFLAGS = -L../../src/tools/install/lib -lga -larmci	# Needs MA library
 ifeq ($(USE_MPI),y)
-LDFLAGS += -L${MPI_LIB} ${LIBMPI}
+LDFLAGS += $(patsubst -L-L%,-L%,${MPI_LIB} ${LIBMPI})
 LDFLAGS += -L../../lib/${NWCHEM_TARGET} -lnwcutil
 endif
 
