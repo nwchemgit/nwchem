@@ -56,7 +56,7 @@ OBJ_OPTIMIZE =  dasum.o      daxpy.o      dcopy.o      ddot.o         \
                 zgerc.o      zhemm.o      zhemv.o      zher2.o        \
                 zher2k.o     zherk.o      zscal.o      zswap.o        \
                 ztrmm.o      ztrmv.o      ztrsm.o      ztrsv.o        \
-                xerbla.o     zgeru.o dzasum.o dsyr.o 
+                xerbla.o     zgeru.o dzasum.o dsyr.o   zdotu.o
 #else
 #######################################################################
 #               ########     ########     ########     ########     
@@ -71,7 +71,7 @@ OBJ_OPTIMIZE +=sasum.o      saxpy.o      scopy.o      sdot.o         \
                 cgerc.o      chemm.o      chemv.o      cher2.o        \
                 cher2k.o     cherk.o      cscal.o      cswap.o        \
                 ctrmm.o      ctrmv.o      ctrsm.o      ctrsv.o        \
-                cgeru.o scasum.o 
+                cgeru.o scasum.o cdotu.o
 #endif
 ifeq ($(TARGET),CRAY-T3D)
 OBJ_OPTIMIZE = idamax.o
