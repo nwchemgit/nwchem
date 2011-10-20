@@ -52,8 +52,11 @@ cc     call MPI_INIT(mpierr)
 c      call MPI_COMM_RANK(MPI_COMM_WORLD,taskid,mpierr)
 c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
-cc      comm_world = MPI_COMM_WORLD
+#ifdef GA_DEV
       call ga_mpi_comm_pgroup_default(comm_world)
+#else
+      comm_world = MPI_COMM_WORLD
+#endif
 
 #ifdef MPI4
       stupid_world   = comm_world

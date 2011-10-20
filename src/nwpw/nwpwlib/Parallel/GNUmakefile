@@ -30,6 +30,9 @@ ifeq ($(USE_MPIF),y)
   ifneq ($(MPI_INCLUDE),)
     LIB_INCLUDES += $(patsubst -I-I%,-I%,-I$(MPI_INCLUDE))
   endif
+  ifeq ($(GA_DEV),y)
+    LIB_DEFINES += -DGA_DEV
+  endif
 else
   LIB_DEFINES += -DTCGMSG
 endif
