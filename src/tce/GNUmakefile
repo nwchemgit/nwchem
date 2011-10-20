@@ -1,4 +1,4 @@
-#$Id$ 
+#$Id$
 #
 
 SUBDIRS = include diis diis2 diis3 gradients \
@@ -7,7 +7,8 @@ SUBDIRS = include diis diis2 diis3 gradients \
           response ccsd_yr ccsd_alpha ccsd_beta \
           ccd lccd lccsd qcisd cc3 \
           mbpt1 mbpt2 mbpt3 mbpt4 cis cisd cisdt cisdtq \
-          ccsdt ccsdt_lambda eomccsdt
+          ccsdt ccsdt_lambda eomccsdt \
+          ccsd_act eomccsd_act cr_eomccsd_t_act
 
 ifdef CCSDTLR
       SUBDIRS += ccsdt_alpha_offdiag ccsdt_alpha_new ccsdt_yr ccsdt_beta
@@ -71,7 +72,9 @@ OBJ_OPTIMIZE = tce_tile.o tce_ao1e.o tce_mo1e.o tce_ao2e.o \
       tce_mo2e_2emet3.o tce_mo2e_2emet3_n5.o tce_mo2e_2emet4.o tce_mo2e_2emet4_n5.o \
       tce_make_denom1.o tce_make_denom2.o get_hash_block_ma.o \
       ccsd_energy_loc.o cc2_energy.o ccsd_lambda.o ccsd_imaginary.o ccsd_lr_alpha.o \
-      ccsd_qr_beta.o tce_dgeev.o tce_schmidt.o tensor_read_write.o
+      ccsd_qr_beta.o tce_dgeev.o tce_schmidt.o tensor_read_write.o \
+      tce_diis_act.o tce_mo2e_zones_4a_disk_ga_act.o tce_mo2e_zones_4a_disk_ga_chop_act.o \
+      tce_t2a_offset.o tce_x2a_offset.o
 
 OBJ_OPTIMIZE += tce_mo2e_zones_4a_disk_ga_N5.o tce_mo2e_zones_4a_disk_ga_chop_N5.o
 
@@ -116,7 +119,8 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_mo2e_disk_2eorb.F tce_mo2e_incore_2eorb.F tce_mo2e_incore_2eorb_split.F \
             tce_mo2e_hybrid_2eorb_split.F \
             tce_diagnose_t1.F ddotfile.F tce_ao2e_cholesky.F tce_energy.F \
-            ccsd_imaginary.F ccsd_lr_alpha.F ccsd_lr_beta.F tensor_read_write.F
+            ccsd_imaginary.F ccsd_lr_alpha.F ccsd_lr_beta.F tensor_read_write.F \
+            tce_diis_act.F tce_mo2e_zones_4a_disk_ga_act.F tce_mo2e_zones_4a_disk_ga_chop_act.F
 
 
 #LIB_DEFINES += -DNEWDIPOLE
