@@ -919,7 +919,8 @@ c
       endif
       if ((perturbative.ne.'none').and.
      1    (model.ne.'ccsd').and.(model.ne.'ccsdt').and.
-     2    (model.ne.'qcisd').and.(model.ne.'lccsd'))
+     2    (model.ne.'qcisd').and.(model.ne.'lccsd').and.
+     3    (model.ne.'ccsd_act'))
      3  call errquit('tce_init: unknown theory',0,CAPMIS_ERR)
       cperturbative = 'none'
       if (model.eq.'eionly') then
@@ -997,6 +998,18 @@ c
           ctype='Locally renormalized CCSD calculations'
          end if
         end if
+c ccsd_act/eomccsd_act
+        if (model.eq.'ccsd_act') then
+        if (perturbative.eq.'none') then
+         ctype='Coupled-cluster singles & act.doubles'
+        else if (perturbative.eq.'cr_t(a)') then
+         ctype='Coupled-cluster singles & act.doubles w/ perturbation'
+         cperturbative = 'Completely renormalized (T)-active'
+        else if (perturbative.eq.'creom(t)a') then
+         ctype='Coupled-cluster singles & act.doubles w/ perturbation'
+         cperturbative='active-space completely renormalized EOMCCSD(T)'
+        end if
+        end if  
 c
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
@@ -1040,6 +1053,18 @@ c         endif
         if (perturbative.eq.'2_q') then
           ctype='Coupled-cluster through triples w/ perturbation'
           cperturbative = '(2) quadruples (nonfactorized)'
+        endif
+        if ((module.ne.'tce').and.
+     1      (module.ne.'ucc').and.
+     2      (module.ne.'uccsdt'))
+     3    call errquit('tce_init: ucc/uccsdt module overridden',0,
+     4    UNKNOWN_ERR)
+c ccsd_act/eomccsd_act
+      else if (model.eq.'ccsd_act') then
+        ctype='Coupled-cluster singles & act.doubles'
+        if (perturbative.eq.'creom(t)a') then
+         ctype='Coupled-cluster singles & act.doubles w/ perturbation'
+         cperturbative = 'active-space CR-EOMCCSD(T),II'
         endif
         if ((module.ne.'tce').and.
      1      (module.ne.'ucc').and.
@@ -1226,6 +1251,53 @@ c     ---------------
 c     Active orbitals
 c     ---------------
 c
+c
+c     ccsd_act/eomccsd_act
+c
+      if(model.eq.'ccsd_act') then
+c
+       if(.not.rtdb_get(rtdb,'tce:oact',mt_int,1,oact))
+     1    call errquit('tce_init: act 1 analysis ',0,RTDB_ERR)
+       if(.not.rtdb_get(rtdb,'tce:uact',mt_int,1,uact))
+     1    call errquit('tce_init: act 2 analysis ',0,RTDB_ERR)
+       if(.not.rtdb_get(rtdb,'tce:eactmin',mt_dbl,1,emin_act))
+     1    call errquit('tce_init: act 3 analysis ',0,RTDB_ERR)
+       if(.not.rtdb_get(rtdb,'tce:eactmax',mt_dbl,1,emax_act))
+     1    call errquit('tce_init: act 4 analysis ',0,RTDB_ERR)
+
+       if((oact.ne.0).and.(uact.ne.0).and.(emin_act.ne.0.0d0).and.
+     1    (emin_act.ne.0.0d0))
+     4    call errquit('tce_init: both act. options used',0,RTDB_ERR)
+c
+       if((emin_act.ne.0.0d0).and.(emin_act.ne.0.0d0)) then !-energy gap
+        oact=0
+        do i=nfc(1)+1,nocc(2)
+         if(dbl_mb(k_evl(1)+i-1).ge.emin_act) oact=oact+1
+        enddo
+        uact=0
+        do i=nocc(1)+1,nmo(1)-nfv(1)
+         if(dbl_mb(k_evl(1)+i-1).le.emax_act) uact=uact+1
+        enddo
+        if((oact.eq.0).and.(uact.eq.0))
+     1   call errquit('tce_init:redefine emin_act emax_act',0,RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'tce:oact',mt_int,1,oact))
+     1    call errquit('tce_input: ene.int. oact',0,RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'tce:uact',mt_int,1,uact))
+     1    call errquit('tce_input: ene.int. uact',0,RTDB_ERR)
+        if(nodezero) then
+        write(LuOut,*)'active orbitals calculated using energy crit.'
+        call util_flush(6)
+        end if
+       end if !-energy gap
+       if (.not.rtdb_get(rtdb,'tce:oact',mt_int,1,oact))
+     1  call errquit('tce_init: failed to read oact',0,RTDB_ERR)
+       if (.not.rtdb_get(rtdb,'tce:uact',mt_int,1,uact))
+     1  call errquit('tce_init: failed to read uact',0,RTDB_ERR)
+      else
+       oact=0
+       uact=0
+      end if
+c
       if(activecalc) THEN
       if (.not.rtdb_get(rtdb,'tce:active_oa',mt_int,1,oactive(1)))
      1  call errquit('tce_init: failed to read oactive',0,RTDB_ERR)
@@ -1368,6 +1440,14 @@ c
          write(LuOut,9540) oactive(1),oactive(2)
          write(LuOut,9550) vactive(1),vactive(2)
          write(LuOut,9555) numact
+        end if
+c ccsd_act/eomccsd_act
+        if(model.eq.'ccsd_act') then
+         write(LuOut,9560) oact
+         write(LuOut,9561) uact
+         if((emin_act.ne.0.0d0).and.(emax_act.ne.0.0d0)) then
+          write(LuOut,9562) emin_act,emax_act
+         end if
         end if
         write(LuOut,9420) multchar(mult)
         write(LuOut,9050) nbf
@@ -1514,6 +1594,9 @@ c 9118 format(3x,' CC-IR DIIS level shift : ',d8.2,' (real part)')
  9550 format(3x,'  Alpha active virtuals :',2x,i4,/,
      1       3x,'   Beta active virtuals :',2x,i4)
  9555 format(3x,'  T3 active excitation level :',2x,i4)
+ 9560 format(3x,'  CCSD-act. oact:',2x,i5)
+ 9561 format(3x,'  CCSD-act. uact:',2x,i5)
+ 9562 format(3x,' Active orb. energy range [',2x,f12.5,' , ',f12.5,']')
 c
 c     ------
 c     Return
