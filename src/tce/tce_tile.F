@@ -54,6 +54,9 @@ c
       integer sym_tmp(max_size)
       integer range_tmp(max_size)
       integer active_tiles(max_size)
+c ccsd_act/eomccsd_act
+      integer active_tiles_n(max_size)
+      integer j_an,nblocks_an,l_an
 c INTORB
       integer b2am(max_size)
       integer spin_tmp_alpha(max_size)
@@ -131,7 +134,8 @@ c
       if ((model.eq."ccd").or.(model.eq."lccd").or.(model.eq."cis")
      1.or.(model.eq."ccsd").or.(model.eq."lccsd")
      2.or.(model.eq."qcisd").or.(model.eq."cisd")
-     4.or.(model.eq."mbpt2").or.(model.eq."mbpt3")) then
+     4.or.(model.eq."mbpt2").or.(model.eq."mbpt3")
+     5.or.(model.eq."ccsd_act")) then
         size = dfloat(available)
         size = size / 6.0d0
         size = dsqrt(dsqrt(size))
@@ -231,6 +235,22 @@ c        call errquit("tce_tile: the model NYI",0,CAPMIS_ERR)
  9040 format(1x,'Maximum block size',i10,' doubles')
  9050 format(1x,'Maximum block size supplied by input')
 c
+c ccsd_act/eomccsd_act
+c orbital energies
+ccx      if(model.eq.'ccsd_act') then
+ccx      if(nodezero) then
+ccx       write(6,*)'--------------------------------'
+ccx       write(6,*)'ORBITAL ENERGIES OF CORRELATED ORBITALS'
+ccx       do i=nfc(1)+1,nmo(1)-nfv(1)
+ccx         write(6,200) i,dbl_mb(k_evl(1)+i-1)
+ccx       enddo
+ccx       write(6,*)'--------------------------------'
+c
+ccx      end if
+ccx      end if
+ccx 200  format(i6,2x,f20.8)
+c 
+c
 c     ================================================
 c     Reorder the orbitals in the ha, hb, pa, pb order
 c     ================================================
@@ -277,9 +297,11 @@ c
 c
  8778  format('Orbital energy of the highest virtual orbital',2x,f17.8)
 c
-c
-c
-c
+c  initial zeroing
+       do i=1,max_size
+        active_tiles(i)=0
+        active_tiles_n(i)=0
+       enddo
 c
       if (.not.ma_push_get(mt_dbl,nbf*(nmo(1)-nfv(1)-nfc(1)
      1  +nmo(ipol)-nfv(ipol)-nfc(ipol)),"sorted MO coeffs",
@@ -607,7 +629,354 @@ c In order to construct the RHF or ROHF tiles
 c active space tiles algoritm was adopted
 c
       if(intorb) then
-      
+c ccsd_act/eomccsd_act
+      if(model.eq.'ccsd_act') then !----------------------------
+c
+c     Hole Alpha
+c
+      i = 0
+      noa = 0
+      do sym = 0, nirreps
+        j_ia = 0           !occ. inactive index
+        j_an = 0           !occ. semi-active
+        j_a  = 0           !occ. active index
+        do hole = nfc(1)+1, nocc(2)-oact
+          if (int_mb(k_irs(1)+hole-1).eq.sym) then
+             i = i + 1
+             j_ia = j_ia + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=1
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(1)+hole-1)
+             call ga_get(g_movecs(1),1,nbf,hole,hole,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+               int_mb(k_mo_index+i-1)=2*hole-1
+c              int_mb(k_mo_index+i-1)=hole
+c<-d3p975
+          endif
+        enddo
+        do hole = nocc(2)-oact+1,nocc(2)
+          if (int_mb(k_irs(1)+hole-1).eq.sym) then
+             i = i + 1
+             j_an = j_an + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=1
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(1)+hole-1)
+             call ga_get(g_movecs(1),1,nbf,hole,hole,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+               int_mb(k_mo_index+i-1)=2*hole-1
+c               int_mb(k_mo_index+i-1)=hole
+c<-d3p975
+          endif
+        enddo
+        do hole =nocc(2)+1,nocc(1) !FOR RHF this part does not contribute
+          if (int_mb(k_irs(1)+hole-1).eq.sym) then
+             i = i + 1
+             j_a = j_a + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=1
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(1)+hole-1)
+             call ga_get(g_movecs(1),1,nbf,hole,hole,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+               int_mb(k_mo_index+i-1)=2*hole-1
+c               int_mb(k_mo_index+i-1)=hole
+c<-d3p975
+          endif
+        enddo
+        j=j_ia+j_an+j_a
+        if (j.gt.0) then
+           nblocks_ia = j_ia/isize
+           nblocks_an = j_an/isize
+           nblocks_a  =  j_a/isize
+           if (j_ia .gt. isize*nblocks_ia) nblocks_ia = nblocks_ia+1
+           if (j_an .gt. isize*nblocks_an) nblocks_an = nblocks_an+1
+           if (j_a  .gt. isize*nblocks_a)  nblocks_a  = nblocks_a+1
+           l_ia = 0
+           do k = 1,nblocks_ia
+             noa = noa + 1
+             active_tiles(noa) = 0
+             active_tiles_n(noa) = 0
+             spin_tmp(noa) = 1
+              spin_tmp_alpha(noa) = 1
+             sym_tmp(noa) = sym
+              sym_tmp_alpha(noa) = sym
+             range_tmp(noa) = k*j_ia/nblocks_ia-l_ia
+              range_tmp_alpha(noa) = k*j_ia/nblocks_ia-l_ia
+             l_ia = l_ia + range_tmp(noa)
+           enddo
+           l_an = 0
+           do k = 1,nblocks_an
+             noa = noa + 1
+             active_tiles(noa) = 0
+             active_tiles_n(noa) = 1
+             spin_tmp(noa) = 1
+              spin_tmp_alpha(noa) = 1
+             sym_tmp(noa) = sym
+              sym_tmp_alpha(noa) = sym
+             range_tmp(noa) = k*j_an/nblocks_an-l_an
+              range_tmp_alpha(noa) = k*j_an/nblocks_an-l_an
+             l_an = l_an + range_tmp(noa)
+           enddo
+           l_a = 0
+           do k = 1,nblocks_a
+             noa = noa + 1
+             active_tiles(noa) = 1
+             active_tiles_n(noa) = 1
+             spin_tmp(noa) = 1
+              spin_tmp_alpha(noa) = 1
+             sym_tmp(noa) = sym
+              sym_tmp_alpha(noa) = sym
+             range_tmp(noa) = k*j_a/nblocks_a-l_a
+              range_tmp_alpha(noa) = k*j_a/nblocks_a-l_a
+             l_a = l_a + range_tmp(noa)
+           enddo
+        endif
+      enddo
+      oatiles(1)=nblocks_a
+c
+c     Hole Beta
+c
+      nob = 0
+      do sym = 0, nirreps
+        j_ia = 0
+        j_an = 0
+        do hole = nfc(ipol)+1, nocc(ipol)-oact !beta electrons here no active part
+          if (int_mb(k_irs(ipol)+hole-1).eq.sym) then
+             i = i + 1
+             j_ia = j_ia + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=2
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(ipol)+hole-1)
+             call ga_get(g_movecs(ipol),1,nbf,hole,hole,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+               int_mb(k_mo_index+i-1)=2*hole
+c               int_mb(k_mo_index+i-1)=hole
+c<-d3p975
+          endif
+        enddo
+        do hole = nocc(ipol)-oact+1,nocc(ipol) !beta electrons semi active part
+          if (int_mb(k_irs(ipol)+hole-1).eq.sym) then
+             i = i + 1
+             j_an = j_an + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=2
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(ipol)+hole-1)
+             call ga_get(g_movecs(ipol),1,nbf,hole,hole,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+               int_mb(k_mo_index+i-1)=2*hole
+c               int_mb(k_mo_index+i-1)=hole
+c<-d3p975
+          endif
+        enddo
+        j=j_ia+j_an
+        if (j.gt.0) then
+           nblocks_ia = j_ia/isize
+           nblocks_an = j_an/isize
+           if (j_ia .gt. isize*nblocks_ia) nblocks_ia = nblocks_ia+1
+           if (j_an .gt. isize*nblocks_an) nblocks_an = nblocks_an+1
+           l_ia = 0
+           do k = 1,nblocks_ia
+             nob = nob + 1
+             active_tiles(noa+nob) = 0
+             active_tiles_n(noa+nob) = 0
+             spin_tmp(noa+nob) = 2
+             sym_tmp(noa+nob) = sym
+             range_tmp(noa+nob) = k*j_ia/nblocks_ia-l_ia
+             l_ia = l_ia + range_tmp(noa+nob)
+           enddo
+           l_an = 0
+           do k = 1,nblocks_an
+             nob = nob + 1
+             active_tiles(noa+nob) = 0
+             active_tiles_n(noa+nob) = 1
+             spin_tmp(noa+nob) = 2
+             sym_tmp(noa+nob) = sym
+             range_tmp(noa+nob) = k*j_an/nblocks_an-l_an
+             l_an = l_an + range_tmp(noa+nob)
+           enddo
+        endif
+      enddo
+      oatiles(ipol)=0
+c
+c
+c     Particle Alpha
+c
+c
+      nva = 0
+      do sym = 0, nirreps
+        j_an = 0 
+        j_ia = 0
+        do particle = nocc(1)+1,nocc(1)+uact 
+          if (int_mb(k_irs(1)+particle-1).eq.sym) then
+             i = i + 1
+             j_an = j_an + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=1
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(1)+particle-1)
+             call ga_get(g_movecs(1),1,nbf,particle,particle,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+               int_mb(k_mo_index+i-1)=2*particle-1
+c               int_mb(k_mo_index+i-1)=particle
+c<-d3p975
+          endif
+        enddo
+        do particle = nocc(1)+uact+1, nmo(1)-nfv(1)
+          if (int_mb(k_irs(1)+particle-1).eq.sym) then
+             i = i + 1
+             j_ia = j_ia + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=1
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(1)+particle-1)
+             call ga_get(g_movecs(1),1,nbf,particle,particle,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+               int_mb(k_mo_index+i-1)=2*particle-1
+c               int_mb(k_mo_index+i-1)=particle
+c<-d3p975
+          endif
+        enddo
+        j=j_an+j_ia
+        if (j.gt.0) then
+           nblocks_an  =  j_an/isize
+           nblocks_ia  =  j_ia/isize
+           if (j_an  .gt. isize*nblocks_an)  nblocks_an  = nblocks_an+1
+           if (j_ia  .gt. isize*nblocks_ia)  nblocks_ia  = nblocks_ia+1
+           nblocks = nblocks_ia+nblocks_an
+           l_an = 0
+           do k = 1,nblocks_an
+             nva = nva + 1
+             active_tiles(noa+nob+nva) = 0
+             active_tiles_n(noa+nob+nva) = 1
+             spin_tmp(noa+nob+nva) = 1
+              spin_tmp_alpha(noa+nva) = 1
+             sym_tmp(noa+nob+nva) = sym
+              sym_tmp_alpha(noa+nva) = sym
+             range_tmp(noa+nob+nva) = k*j_an/nblocks_an-l_an
+              range_tmp_alpha(noa+nva) = k*j_an/nblocks_an-l_an
+             l_an = l_an + range_tmp(noa+nob+nva)
+           enddo
+           l_ia = 0
+           do k = 1,nblocks_ia
+             nva = nva + 1
+             active_tiles(noa+nob+nva) = 0
+             active_tiles_n(noa+nob+nva) = 0
+             spin_tmp(noa+nob+nva) = 1
+              spin_tmp_alpha(noa+nva) = 1
+             sym_tmp(noa+nob+nva) = sym
+              sym_tmp_alpha(noa+nva) = sym
+             range_tmp(noa+nob+nva) = k*j_ia/nblocks_ia-l_ia
+              range_tmp_alpha(noa+nva) = k*j_ia/nblocks_ia-l_ia
+             l_ia = l_ia + range_tmp(noa+nob+nva)
+           enddo
+        endif
+      enddo
+      vatiles(1)=0
+c
+c     Particle Beta
+c
+      nvb = 0
+      do sym = 0, nirreps
+        j_ia = 0
+        j_an = 0
+        j_a  = 0
+        do particle = nocc(ipol)+1, nocc(1) !for RHF this part does not contribute
+          if (int_mb(k_irs(ipol)+particle-1).eq.sym) then
+             i = i + 1
+             j_a = j_a + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=2
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(ipol)+particle-1)
+             call ga_get(g_movecs(ipol),1,nbf,particle,particle,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+               int_mb(k_mo_index+i-1)=2*particle
+c               int_mb(k_mo_index+i-1)=particle
+c<-d3p975
+          endif
+        enddo
+        do particle = nocc(1)+1, nocc(1)+uact
+          if (int_mb(k_irs(ipol)+particle-1).eq.sym) then
+             i = i + 1
+             j_an = j_an + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=2
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(ipol)+particle-1)
+             call ga_get(g_movecs(ipol),1,nbf,particle,particle,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+               int_mb(k_mo_index+i-1)=2*particle
+c               int_mb(k_mo_index+i-1)=particle
+c<-d3p975
+          endif
+        enddo
+        do particle = nocc(1)+uact+1, nmo(ipol)-nfv(ipol)
+          if (int_mb(k_irs(ipol)+particle-1).eq.sym) then
+             i = i + 1
+             j_ia = j_ia + 1
+             int_mb(k_irs_sorted+i-1)=sym
+             int_mb(k_spin_sorted+i-1)=2
+             dbl_mb(k_evl_sorted+i-1)=dbl_mb(k_evl(ipol)+particle-1)
+             call ga_get(g_movecs(ipol),1,nbf,particle,particle,
+     1         dbl_mb(k_movecs_sorted+(i-1)*nbf),nbf)
+c->d3p975
+               int_mb(k_mo_index+i-1)=2*particle
+c               int_mb(k_mo_index+i-1)=particle
+c<-d3p975
+          endif
+        enddo
+        j=j_a+j_an+j_ia
+        if (j.gt.0) then
+           nblocks_a   = j_a/isize
+           nblocks_an  = j_an/isize
+           nblocks_ia  =  j_ia/isize
+c           nblocks = nblocks_a+nblocks_ia
+           if (j_a .gt. isize*nblocks_a) nblocks_a = nblocks_a+1
+           if (j_an .gt. isize*nblocks_an) nblocks_an = nblocks_an+1
+           if (j_ia  .gt. isize*nblocks_ia)  nblocks_ia  = nblocks_ia+1
+           nblocks = nblocks_a+nblocks_an+nblocks_ia
+           l_a = 0
+           do k = 1,nblocks_a
+             nvb = nvb + 1
+             active_tiles(noa+nob+nva+nvb) = 1
+             active_tiles_n(noa+nob+nva+nvb) = 1
+             spin_tmp(noa+nob+nva+nvb) = 2
+             sym_tmp(noa+nob+nva+nvb) = sym
+             range_tmp(noa+nob+nva+nvb) = k*j_a/nblocks_a-l_a
+             l_a = l_a + range_tmp(noa+nob+nva+nvb)
+           enddo
+           l_an = 0
+           do k = 1,nblocks_an
+             nvb = nvb + 1
+             active_tiles(noa+nob+nva+nvb) = 0
+             active_tiles_n(noa+nob+nva+nvb) = 1
+             spin_tmp(noa+nob+nva+nvb) = 2
+             sym_tmp(noa+nob+nva+nvb) = sym
+             range_tmp(noa+nob+nva+nvb) = k*j_an/nblocks_an-l_an
+             l_an = l_an + range_tmp(noa+nob+nva+nvb)
+           enddo
+           l_ia = 0
+           do k = 1,nblocks_ia
+             nvb = nvb + 1
+             active_tiles(noa+nob+nva+nvb) = 0
+             active_tiles_n(noa+nob+nva+nvb) = 0
+             spin_tmp(noa+nob+nva+nvb) = 2
+             sym_tmp(noa+nob+nva+nvb) = sym
+             range_tmp(noa+nob+nva+nvb) = k*j_ia/nblocks_ia-l_ia
+             l_ia = l_ia + range_tmp(noa+nob+nva+nvb)
+           enddo
+        endif
+      enddo
+      go to 1111
+      end if !!!  (model.eq.'ccsd_act') !-----------------------
+c
+c
+c
+c still in intorb true (now general case)
 c
 c     Hole Alpha
 c
@@ -827,6 +1196,10 @@ c           nblocks = nblocks_a+nblocks_ia
       enddo
       vatiles(ipol)=nblocks_a
 c
+c
+c ccsd_act/eomccsd_act
+ 1111  continue
+c
 c     Holes and particles
 c
       noab = noa + nob
@@ -921,9 +1294,14 @@ c
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"alpha-izer",
      1  l_alpha,k_alpha)) call errquit("tce_tile: MA problem",8,
      2  MA_ERR)
-      if(activecalc.or.(.not.intorb)) THEN
+      if(activecalc.or.(.not.intorb).or.(model.eq."ccsd_act")) THEN
       if (.not.ma_push_get(mt_int,noa+nob+nva+nvb,"Active blocks ",
      1  l_active,k_active)) call errquit("tce_tile: MA problem",9,
+     2  MA_ERR)
+      end if
+      if(model.eq."ccsd_act") THEN
+      if (.not.ma_push_get(mt_int,noa+nva,"Active blocks alpha",
+     1  l_active_o,k_active_o)) call errquit("tce_tile: MA problem",9,
      2  MA_ERR)
       end if
       if(intorb) THEN
@@ -1001,9 +1379,24 @@ c
         int_mb(k_sym+i-1)=sym_tmp(i)
         int_mb(k_range+i-1)=range_tmp(i)
 c        int_mb(k_active+i-1)=active_tiles(i) !l_active will not be used
+c ccsd_act/eomccsd_act
+        if(model.eq."ccsd_act") then 
+        int_mb(k_active+i-1)=active_tiles_n(i) !l_active will not be used in stand.app.
+        end if
+c
         int_mb(k_offset+i-1)=j
         j = j + range_tmp(i)
       enddo
+c ccsd_act/eomccsd_act
+      if(model.eq."ccsd_act") then
+       do i = 1,noa
+         int_mb(k_active_o+i-1)=active_tiles_n(i)
+       enddo
+       do i = 1,nva
+         int_mb(k_active_o+i+noa-1)=active_tiles_n(i+noa+nob)
+       enddo
+      end if
+c
 c max_tile_size => tile_dim --------
         max_tile=0
         do i = 1,noa+nob+nva+nvb
