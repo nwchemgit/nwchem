@@ -894,6 +894,148 @@ c     implicit none
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *      Parallela_start_Irotate    *
+*     *                                 *
+*     ***********************************
+      subroutine Parallela_start_Irotate(ic,shift,
+     >                                  A1,nsize1,
+     >                                  A2,nsize2,request)
+      implicit none
+      integer ic,shift
+      integer A1(*)
+      integer nsize1
+      integer A2(*)
+      integer nsize2
+      integer request(*)
+
+#include "mafdecls.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "errquit.fh"
+
+#include "Parallel.fh"
+
+
+*     **** local variables ****
+      integer i,mynp,mytaskid,msglen,msgype,mpierr,proc_to,proc_from
+      integer rcv_proc,rcv_len,psr,tmp(2),pto
+
+*     ***** external functions ****
+      integer  Parallel3d_convert_taskid_i
+      integer  Parallel3d_convert_taskid_j
+      integer  Parallel3d_convert_taskid_k
+      external Parallel3d_convert_taskid_i
+      external Parallel3d_convert_taskid_j
+      external Parallel3d_convert_taskid_k
+
+      if (ic.eq.1) then
+         mynp     = np_i
+         mytaskid = taskid_i
+         proc_to   = mod(mytaskid+shift+mynp,mynp)
+         proc_from = mod(mytaskid-shift+mynp,mynp)
+
+         proc_to   = Parallel3d_convert_taskid_i(proc_to)
+         proc_from = Parallel3d_convert_taskid_i(proc_from)
+      else if (ic.eq.2) then
+         mynp     = np_j
+         mytaskid = taskid_j
+         proc_to   = mod(mytaskid+shift+mynp,mynp)
+         proc_from = mod(mytaskid-shift+mynp,mynp)
+
+         proc_to   = Parallel3d_convert_taskid_j(proc_to)
+         proc_from = Parallel3d_convert_taskid_j(proc_from)
+      else if (ic.eq.3) then
+         mynp     = np_k
+         mytaskid = taskid_k
+         proc_to   = mod(mytaskid+shift+mynp,mynp)
+         proc_from = mod(mytaskid-shift+mynp,mynp)
+
+         proc_to   = Parallel3d_convert_taskid_k(proc_to)
+         proc_from = Parallel3d_convert_taskid_k(proc_from)
+      else
+         mynp     = np
+         mytaskid = taskid
+         proc_to   = mod(mytaskid+shift+mynp,mynp)
+         proc_from = mod(mytaskid-shift+mynp,mynp)
+      end if
+
+      /* determine psr - should be made w/o using tmp array! */
+      if (.not.MA_push_get(mt_int,mynp,'tmppp2',tmp(2),tmp(1)))
+     >  call errquit('Parallela_start_rotate:out of stack',0,MA_ERR)
+      do i=0,np-1
+         int_mb(tmp(1)+i) = 0
+      end do
+      do i=0,np-1
+         pto = mod(i+shift+mynp,mynp)
+         if ((int_mb(tmp(1)+i).eq.0).and.(int_mb(tmp(1)+pto).eq.0)) then
+            int_mb(tmp(1)+i)   = 1
+            int_mb(tmp(1)+pto) = 2
+         end if
+      end do
+      psr = int_mb(tmp(1)+mytaskid)
+      if (psr.eq.0) psr = 2
+      if (.not.MA_pop_stack(tmp(2)))
+     >  call errquit('Parallela_start_rotate:popping stack',0,MA_ERR)
+
+*     **** send then receive ****
+      if (psr.eq.1) then
+
+         if (nsize1.gt.0) then
+            msglen  = nsize1
+            call SND(9+MSGINT,A1,mitob(msglen),proc_to,1)
+            request(4) = 1
+         else
+            request(4) = 0
+         end if
+
+         if (nsize2.gt.0) then
+            msglen  = nsize2
+            call RCV(9+MSGINT,A2,mitob(msglen),rcv_len,
+     >            proc_from,rcv_proc,1)
+            request(3) = 1
+         else
+            request(3) = 0
+         end if
+
+*     **** receive then receive ****
+      else
+         if (nsize2.gt.0) then
+            msglen  = nsize2
+            call RCV(9+MSGINT,A2,mitob(msglen),rcv_len,
+     >            proc_from,rcv_proc,1)
+            request(3) = 1
+         else
+            request(3) = 0
+         end if
+
+         if (nsize1.gt.0) then
+            msglen  = nsize1
+            call SND(9+MSGINT,A1,mitob(msglen),proc_to,1)
+            request(4) = 1
+         else
+            request(4) = 0
+         end if
+      end if
+
+      if ((request(3).eq.1).and.(request(4).eq.1)) then
+         request(3) = 1
+      else if (request(3).eq.1) then
+         request(3) = 2
+      else if (request(4).eq.1) then
+         request(3) = 3
+      else
+         request(3) = 4
+      end if
+
+      return
+      end
+
+
+
+
+
 
 *     ***********************************
 *     *                                 *
