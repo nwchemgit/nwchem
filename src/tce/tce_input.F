@@ -112,6 +112,9 @@ c<-d3p975
       integer oactive(2)
       integer vactive(2)
       integer numact
+c --- ccsd_act/eomccsd_act ---
+      integer uact,oact
+      double precision emin_act,emax_act
 c --- 4 index transform. ---
       integer maxs,ichopx,i4im,idiskx
 c --- EOM solver
@@ -322,6 +325,26 @@ c
      1  call errquit('tce_input: failed writing to rtdb',0,
      2  RTDB_ERR)
 c
+c     ccsd_act/eomccsd_act
+c
+      oact=0
+      if (.not.rtdb_put(rtdb,'tce:oact',mt_int,1,oact))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+      uact=0
+      if (.not.rtdb_put(rtdb,'tce:uact',mt_int,1,uact))
+     1  call errquit('tce_input: failed writing to rtdb',0,
+     2  RTDB_ERR)
+c
+      emin_act=0.0d0
+      if (.not.rtdb_put(rtdb,'tce:eactmin',mt_dbl,1,emin_act))
+     1  call errquit('tce_input: rtdb eactmin problem',0,
+     2  RTDB_ERR)
+      emax_act=0.0d0
+      if (.not.rtdb_put(rtdb,'tce:eactmax',mt_dbl,1,emax_act))
+     1  call errquit('tce_input: rtdb eactmax problem',0,
+     2  RTDB_ERR)
+c
 c     ACTIVE_VA,VB (Number of active virtual orbitals)
 c
       vactive(1)=0
@@ -439,6 +462,17 @@ c
         call errquit('tce_input: multiple theory inputs',0,
      1    INPUT_ERR)
         endif
+c ccsd_act/eomccsd_act
+      else if (inp_compare(.false.,test,'ccsd_act')) then
+        if (module.eq.'tce') then
+        model='ccsd_act'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
       else if (inp_compare(.false.,test,'lccsd')) then
         if (module.eq.'tce') then
         model='lccsd'
@@ -470,6 +504,21 @@ c
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
         perturbative='cr_(t)'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+c ccsd_act/eomccsd_act
+      else if (inp_compare(.false.,test,'crsd(t)ac')) then
+        if (module.eq.'tce') then
+        model='ccsd_act'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='cr_(t)a'
         if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
@@ -668,6 +717,21 @@ c
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
         perturbative='creom_(t)'
+        if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        else
+        call errquit('tce_input: multiple theory inputs',0,
+     1    INPUT_ERR)
+        endif
+c ccsd_act/eomccsd-act
+      else if (inp_compare(.false.,test,'creom(t)ac')) then
+        if (module.eq.'tce') then
+        model='ccsd_act'
+        if (.not.rtdb_cput(rtdb,'tce:model',1,model))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+        perturbative='creom(t)a'
         if (.not.rtdb_cput(rtdb,'tce:perturbative',1,perturbative))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
@@ -1307,6 +1371,34 @@ c
       else if (inp_compare(.false.,test,'nofock')) then
         recompf=.false.
         if (.not.rtdb_put(rtdb,'tce:recompf',mt_log,1,recompf))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+c    ccsd_act/eomccsd_act
+c
+      else if (inp_compare(.false.,test,'oact')) then
+        if (.not.inp_i(oact))
+     1    call errquit('tce_input: no oact given',0,INPUT_ERR)
+        if (.not.rtdb_put(rtdb,'tce:oact',mt_int,1,oact))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+      else if (inp_compare(.false.,test,'uact')) then
+        if (.not.inp_i(uact))
+     1    call errquit('tce_input: no uact given',0,INPUT_ERR)
+        if (.not.rtdb_put(rtdb,'tce:uact',mt_int,1,uact))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+c
+      else if (inp_compare(.false.,test,'emin_act')) then
+        if (.not.inp_f(emin_act))
+     1    call errquit('tce_input: no emin_act given',0,INPUT_ERR)
+        if (.not.rtdb_put(rtdb,'tce:eactmin',mt_dbl,1,emin_act))
+     1    call errquit('tce_input: failed writing to rtdb',0,
+     2    RTDB_ERR)
+      else if (inp_compare(.false.,test,'emax_act')) then
+        if (.not.inp_f(emax_act))
+     1    call errquit('tce_input: no emax_act given',0,INPUT_ERR)
+        if (.not.rtdb_put(rtdb,'tce:eactmax',mt_dbl,1,emax_act))
      1    call errquit('tce_input: failed writing to rtdb',0,
      2    RTDB_ERR)
 c
