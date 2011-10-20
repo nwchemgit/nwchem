@@ -955,10 +955,10 @@ c     ****************************************
            if (n.eq.0) go to 30
 
               call Cram_ccm_izgemm(nb,n,n,Y1(shift),Y2(shift),
-     >                            one,zero,hml(shift2))
+     >                             one,zero,hml(shift2))
 
               if (spin_orbit) then
-                 call Cram_ccm_izgemm(nb,n,n,Y1(shiftso),Y2(shiftso),
+                call Cram_ccm_izgemm(nb,n,n,Y1(shiftso),Y2(shiftso),
      >                               one,one,hml(shift2))
               end if
 
@@ -1021,19 +1021,20 @@ c     ****************************************
 
       do nb=nb1,nb2
          do ms=ms1,ms2
-           shift  = 1 + (ms-1)*ne(1)*npack1 +
-     >                     (nb-nb1)*(ne(1)+ne(2))*npack1
+           shift  = 1 + (ms-1)*ne(1)*npack1 
+     >                + (nb-nb1)*(ne(1)+ne(2))*npack1
            shiftso = shift + ne(1)*npack1
-           shift2 = 1 + (ms-1)*ishift2      +(nb-nb1)*ishift3
+           shift2 = 1 + (ms-1)*ishift2 
+     >                +(nb-nb1)*ishift3
            n = ne(ms)
            if (n.eq.0) go to 30
 
               call Cram_ccm_sym_izgemm(nb,n,Y1(shift),Y2(shift),
-     >                            one,zero,hml(shift2))
+     >                                 one,zero,hml(shift2))
 
               if (spin_orbit) then
                  call Cram_ccm_sym_izgemm(nb,n,Y1(shiftso),Y2(shiftso),
-     >                               one,one,hml(shift2))
+     >                                    one,one,hml(shift2))
               end if
 
  30        continue
@@ -1404,9 +1405,10 @@ c     ccccccccccccccccccccccccccccccccccc
 
 c     *** local variables ***
       logical value
-      integer nb,nb1,nb2,ms,ms1,ms2
+      integer nb,nb1,nb2,ms,ms1,ms2,i,j,k
       integer rwork(2),work(2),lwork,ierr
       integer vindex,sindex
+      integer W(2),VL(2),VR(2)
 
       if (nbb.eq.0) then
         nb1=1
@@ -1426,25 +1428,60 @@ c     *** local variables ***
 
 
 c     **** get temp memory from stack ****
-      lwork=3*ne(1)*ne(1)
+      lwork=4*ne(1)*ne(1)
       value =MA_push_get(mt_dbl,lwork,'rwork',rwork(2),rwork(1))
       value =value.and.MA_push_get(mt_dcpl,lwork,'work',work(2),work(1))
+
+      value =value.and.MA_push_get(mt_dcpl,ne(1),      'W', W(2), W(1))
+      value =value.and.MA_push_get(mt_dcpl,ne(1)*ne(1),'VL',VL(2),VL(1))
+      value =value.and.MA_push_get(mt_dcpl,ne(1)*ne(1),'VR',VR(2),VR(1))
       if (.not.value) call errquit('Pneb_w_diag: out of stack',0,MA_ERR)
 
       sindex = 1
       vindex = 1
       do nb=nb1,nb2
       do ms=ms1,ms2
+
+c        do i=1,16
+c          write(*,*) "ZHEEV IN V=",i,V(i),lwork,vindex,sindex,ne(ms)
+c        end do
+
         if (ne(ms).gt.0) then
-           call ZHEEV('V','L',ne(ms),
+c           call ZHEEV('V','L',ne(ms),
+c     >                 V(vindex),ne(ms),
+c     >                 S(sindex),
+c     >                 dcpl_mb(work(1)),lwork,
+c     >                 dbl_mb(rwork(1)),
+c     >                 ierr)
+c           if (ierr.ne.0) then
+c             call errquit("Pneb_w_diag: ZHEEV failed",ierr,0)
+c           end if
+
+           call ZGEEV('V','V',ne(ms),
      >                 V(vindex),ne(ms),
-     >                 S(sindex),
+     >                 dcpl_mb(W(1)),
+     >                 dcpl_mb(VL(1)),ne(ms),
+     >                 dcpl_mb(VR(1)),ne(ms),
      >                 dcpl_mb(work(1)),lwork,
      >                 dbl_mb(rwork(1)),
      >                 ierr)
-           if (ierr.ne.0) 
-     >       call errquit("Pneb_w_diag: ZHEEV failed",ierr,0)
-        endif
+           if (ierr.ne.0) then
+             call errquit("Pneb_w_diag: ZGEEV failed",ierr,0)
+           end if
+           call dcopy(2*ne(ms)*ne(ms),dcpl_mb(VR(1)),1,V,1)
+           do i=1,ne(ms)
+              S(sindex+i-1) = dble(dcpl_mb(W(1)+i-1))
+           end do
+
+        end if
+
+c        do i=1,4
+c          write(*,*) "zheev eigs=",i,S(i),ne(ms),vindex,sindex
+c        end do
+c        write(*,*)
+c        do i=1,16
+c          write(*,*) "zheev out v=",i,V(i)
+c        end do
 
         vindex=vindex + ne(ms)*ne(ms)
         sindex=sindex + ne(ms)       
@@ -1453,7 +1490,10 @@ c     **** get temp memory from stack ****
              
 
 c     ***** pop stack memory *****
-      value=          MA_pop_stack(work(2))
+      value=          MA_pop_stack(VR(2))
+      value=value.and.MA_pop_stack(VL(2))
+      value=value.and.MA_pop_stack(W(2))
+      value=value.and.MA_pop_stack(work(2))
       value=value.and.MA_pop_stack(rwork(2))
       if (.not.value) then
         call errquit('Pneb_w_diag:error popping stack',0,MA_ERR)
@@ -1588,7 +1628,7 @@ c     ***** local variables ******
        end if
 
 c     ***  compute C = Y'*Y ( ne x ne )= V*S*S*V' ****
-      call Pneb_ffw_Multiply(mbb,nbb,Y,Y,npack1,V)
+      call Pneb_ffw_hermit_Multiply(mbb,nbb,Y,Y,npack1,V)
 
 
 c     ***  compute S2=S*S and V from C  **** 
