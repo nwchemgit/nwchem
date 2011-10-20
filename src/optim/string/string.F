@@ -230,24 +230,7 @@
          enddo
         enddo
       else if (middle .gt. 1 .and. middle .lt. nbeads) then ! TS guess
-        do i = 2, middle-1
-         dgg = dble(i-1)/dble(middle-1)
-         do j = 1, natoms
-           do k = 1, 3
-            coords(k,j,i) = coords(k,j,1)*(1-dgg) +
-     &                      coords(k,j,middle)*dgg
-           enddo
-         enddo
-        enddo
-        do i = middle+1, nbeads-1
-         dgg = dble(i-middle)/dble(nbeads-middle)
-         do j = 1, natoms
-           do k = 1, 3
-            coords(k,j,i) = coords(k,j,middle)*(1-dgg) +
-     &                      coords(k,j,nbeads)*dgg
-           enddo
-         enddo
-        enddo
+        call zts_guess(natoms,nbeads,middle,coords)
       else if (middle .eq. -1) then  ! We know exactly what we are doing
         ! Do nothing.  All coordinates were setup on entry.
       else  ! This makes no sense
@@ -1103,7 +1086,47 @@ c            scale gradient
     
       return
       end
-! com_interp_spline
+
+      subroutine zts_guess(natoms,nbeads,middle,coords)
+      implicit none
+! Input
+      integer natoms, nbeads, middle
+! Input/Output
+      real*8 coords(3,natoms,nbeads)
+! Local variables
+      integer i,j,k
+      real*8 dgg
+      integer guess
+
+      guess = 1
+
+!     Simple linear interpolation
+
+      if (guess .eq. 1) then
+        do i = 2, middle-1
+         dgg = dble(i-1)/dble(middle-1)
+         do j = 1, natoms
+           do k = 1, 3
+            coords(k,j,i) = coords(k,j,1)*(1-dgg) +
+     &                      coords(k,j,middle)*dgg
+           enddo
+         enddo
+        enddo
+        do i = middle+1, nbeads-1
+         dgg = dble(i-middle)/dble(nbeads-middle)
+         do j = 1, natoms
+           do k = 1, 3
+            coords(k,j,i) = coords(k,j,middle)*(1-dgg) +
+     &                      coords(k,j,nbeads)*dgg
+           enddo
+         enddo
+        enddo
+      else
+        call errquit('zts_guess: Bad Guess type', guess, 0)
+      endif
+
+      return
+      end
 
 
 c $Id$
