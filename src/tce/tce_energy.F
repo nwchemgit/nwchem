@@ -619,6 +619,8 @@ c
       irrep_c = 0
       irrep_g = 0
 c
+      idiv2e  = 2
+c
        thresh_l=thresh
        if (.not.rtdb_get(rtdb,'tce:threshl',mt_dbl,1,aux_x)) then
          if(nodezero) then
@@ -735,8 +737,8 @@ c     ==============
 c     Create a mutex
 c     ==============
 c
-      if (.not.ga_create_mutexes(1))
-     1  call errquit('tce_energy: GA problem',0,GA_ERR)
+ccx      if (.not.ga_create_mutexes(1))
+ccx     1  call errquit('tce_energy: GA problem',0,GA_ERR)
 c
 c     =========================
 c     Reorder and tile orbitals
@@ -1077,6 +1079,16 @@ c === jaguar ===
 c ==============
 c
       io_v2=IOGA
+c ccsd_act/eomccsd_act
+      if((model.eq.'ccsd_act').and.(.not.intorb)) then
+       call errquit('tce_energy: ccsd_act with 2eorb only (RHF,ROHF)',
+     1               911,GA_ERR)
+      end if
+      if((model.eq.'ccsd_act').and.
+     1   (.not.((fast2e.eq.13).or.(fast2e.eq.14)))) then
+       call errquit('tce_energy: ccsd_act 2emet 13 or 14 only',
+     1               911,GA_ERR)
+      end if
 c
       if(.not.intorb) THEN  !--------------
         if (read_integrals(2)) then
@@ -1201,8 +1213,15 @@ c ==============
           call tce_mo2e_offset_intorb(lax_v2_alpha_offset_sf,
      &         kax_v2_alpha_offset_sf,size_2e_sf)
         else
+         if(model.ne.'ccsd_act') then
           call tce_mo2e_offset_intorb(lax_v2_alpha_offset,
      &         kax_v2_alpha_offset,size_2e)
+         else
+c ccsd_act/eomccsd_act
+          call tce_mo2e_offset_intorb_act(lax_v2_alpha_offset,
+     &         kax_v2_alpha_offset,size_2e)
+c --------------------
+         end if
         endif
         l_v2_alpha_offset=lax_v2_alpha_offset
         k_v2_alpha_offset=kax_v2_alpha_offset
@@ -1369,8 +1388,15 @@ c === jaguar ===
           go to 3003
          end if
 c ==============
+         if(model.ne.'ccsd_act') then
           call tce_mo2e_zones_4a_disk_ga_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
+         else
+c ccsd_act/eomccsd_act
+          call tce_mo2e_zones_4a_disk_ga_act(rtdb,d_v2,
+     1                                  kax_v2_alpha_offset,size_2e)
+c --------------------
+         end if
 c === jaguar ===
          if(write_int)  then
           call util_file_name('v2int',.false.,.false.,filename)
@@ -1390,8 +1416,15 @@ c === jaguar ===
           go to 3004
          end if
 c ==============
+         if(model.ne.'ccsd_act') then
           call  tce_mo2e_zones_4a_disk_ga_chop_N5(rtdb,d_v2,
      1                                  kax_v2_alpha_offset,size_2e)
+         else 
+c ccsd_act/eomccsd_act
+          call  tce_mo2e_zones_4a_disk_ga_chop_act(rtdb,d_v2,
+     1                                  kax_v2_alpha_offset,size_2e)
+c --------------------
+         end if
 c === jaguar ===
          if(write_int)  then
           call util_file_name('v2int',.false.,.false.,filename)
@@ -1472,6 +1505,10 @@ c
         needt2 = .true.
       elseif (((model.eq.'ccsd').or.(model.eq.'lccsd')).or.
      1        ((model.eq.'qcisd').or.(model.eq.'cisd'))) then
+        needt1 = .true.
+        needt2 = .true.
+c ccsd_act/eomccsd_act
+      elseif(model.eq.'ccsd_act') then
         needt1 = .true.
         needt2 = .true.
       elseif ((model.eq.'ccsdt').or.(model.eq.'cisdt')) then
@@ -1567,6 +1604,11 @@ c -------------
 #else
         call createfile(filename,d_t1,size_t1)
 #endif
+c ccsd_act/eomccsd_act
+        if(model.eq.'ccsd_act') then
+          call ga_zero(d_t1)
+          go to 8711
+        end if
 c === jaguar ===
         if(.not.read_in3) then !---
 c ==============
@@ -1583,6 +1625,8 @@ c ==============
      1                         handle_t1,irrep_t)
         endif
 cc        call tce_guess_t1_zero(d_t1,k_t1_offset)
+c ccsd_act/eomccsd_act
+ 8711   continue
         call reconcilefile(d_t1,size_t1)
         cpu = cpu + util_cpusec()
         if (nodezero.and.util_print('t1',print_default)) then
@@ -1694,7 +1738,13 @@ c
 c--       if(.not.intorb) then ! ----------
         cpu = - util_cpusec()
         call tce_filename('t2',filename)
+        if(model.ne.'ccsd_act') then
         call tce_t2_offset(l_t2_offset,k_t2_offset,size_t2)
+        else
+c ccsd_act/eomccsd_act
+         call tce_t2a_offset(l_t2_offset,k_t2_offset,size_t2)
+c --------------------
+        end if
 c ------------
         if(nodezero) then
          write(LuOut,*)'T2-number-of-boxes',int_mb(k_t2_offset)
@@ -1702,6 +1752,8 @@ c ------------
         end if
 c -------------
         call createfile(filename,d_t2,size_t2)
+c ccsd_act/eomccsd_act
+        if(model.eq.'ccsd_act') go to 8712
         if (.not.read_t(2)) then
 c === jaguar ===
         if(.not.read_in3) then ! --- read_in3
@@ -1732,6 +1784,7 @@ c ==============
             write(LuOut,9040) ref + corr
           endif
         endif
+ 8712   continue
         cpu = cpu + util_cpusec()
         if (nodezero.and.util_print('t2',print_default)) then
           write(LuOut,*)
@@ -2094,7 +2147,13 @@ c
       endif
       if (do_mbpt) then
        if (needt1) call tce_t1_offset(l_r1_offset,k_r1_offset,size_r1)
-       if (needt2) call tce_t2_offset(l_r2_offset,k_r2_offset,size_r2)
+       if (needt2) then
+        if(model.ne.'ccsd_act') then
+         call tce_t2_offset(l_r2_offset,k_r2_offset,size_r2)
+        else
+         call tce_t2a_offset(l_r2_offset,k_r2_offset,size_r2) 
+        end if
+       end if
        if (needt3) call tce_t3_offset(l_r3_offset,k_r3_offset,size_r3)
        if (needt3a) call tce_t3a_offset(l_r3_offset,k_r3_offset,size_r3)
        if (needt4) call tce_t4_offset(l_r4_offset,k_r4_offset,size_r4)
@@ -2336,6 +2395,122 @@ c -------------
         call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
   102 continue
       endif
+c
+c
+       if (model.eq.'ccsd_act') then
+c ------------------------
+c  ccsd_act/eomccsd_act
+c ------------------------
+c === jaguar ===
+      if(read_ta)  then
+       call tce_zero(d_t1,size_t1)
+       call tce_zero(d_t2,size_t2)
+       call util_file_name('t1amp',.false.,.false.,filename)
+       unitn=79
+       call read_tensor(filename,d_t1,size_t1,unitn)
+       call util_file_name('t2amp',.false.,.false.,filename)
+       unitn=80
+       call read_tensor(filename,d_t2,size_t2,unitn)
+       call ga_sync()
+       go to 3203
+      end if
+c ==============
+        call tce_diis_init()
+        do iter=1,maxiter
+          cpu=-util_cpusec()
+          wall=-util_wallsec()
+          if (nodezero.and.(iter.eq.1)) write(LuOut,9050) "CCSD-act"
+c - T1/X1 LOCALIZATION ----------
+       if(ccsd_var.ne.'cc2') then
+c    opening l_t1_local
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
+c    copy d_t1 ==> l_t1_local
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+       end if
+c -------------------------------
+          call tce_filename('e',filename)
+          call createfile(filename,d_e,size_e)
+c - T1/X1 LOCALIZATION --
+          call ccsd_ea(d_f1,d_e,k_t1_local,d_t2,d_v2,
+     1                k_f1_offset,k_e_offset,
+     2                k_t1_offset,k_t2_offset,k_v2_offset)
+c -----------------------
+          call reconcilefile(d_e,size_e)
+          call tce_filename('r1',filename)
+          size_r1=size_t1
+          call createfile(filename,d_r1,size_r1)
+c - T1/X1 LOCALIZATION --
+          call ccsd_t1a(d_f1,d_r1,k_t1_local,d_t2,d_v2,
+     1                 k_f1_offset,k_t1_offset,
+     2                 k_t1_offset,k_t2_offset,k_v2_offset)
+c -----------------------
+          call reconcilefile(d_r1,size_r1)
+          size_r2=size_t2
+          call tce_filename('r2',filename)
+          call createfile(filename,d_r2,size_r2)
+c - T1/X1 LOCALIZATION --
+          call ccsd_t2a(d_f1,d_r2,k_t1_local,d_t2,d_v2,
+     1                 k_f1_offset,k_t2_offset,
+     2              k_t1_offset,k_t2_offset,k_v2_offset)!,size_t2)
+c -----------------------
+          call reconcilefile(d_r2,size_r2)
+          call tce_residual_t1(d_r1,k_t1_offset,r1)
+          call tce_residual_t2a(d_r2,k_t2_offset,r2)
+          residual = max(r1,r2)
+          call get_block(d_e,corr,1,0)
+c - T1/X1 LOCALIZATION --
+       if(ccsd_var.ne.'cc2') then
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',2,MA_ERR)
+       end if
+c -----------------------
+          cpu=cpu+util_cpusec()
+          wall=wall+util_wallsec()
+          if (nodezero) write(LuOut,9100) iter,residual,corr,cpu,wall
+          if (residual .lt. thresh) then
+            if (nodezero) then
+              write(LuOut,9060)
+                write(LuOut,9070) "CCSD",corr
+                write(LuOut,9080) "CCSD",ref + corr
+            endif
+            call deletefile(d_r2)
+            call deletefile(d_r1)
+            call deletefile(d_e)
+            irrep_x = irrep_t ! Caution
+            call tce_print_x1(d_t1,k_t1_offset,printtol,irrep_t)
+            call tce_print_x2a(d_t2,k_t2_offset,printtol,irrep_t)
+            call tce_diis_tidy()
+c === jaguar ===
+      if(write_ta)  then
+       call util_file_name('t1amp',.false.,.false.,filename)
+       unitn=79
+       call write_tensor(filename,d_t1,size_t1,unitn)
+       call util_file_name('t2amp',.false.,.false.,filename)
+        unitn=80
+       call write_tensor(filename,d_t2,size_t2,unitn)
+       call ga_sync()
+      end if
+c ==============
+            goto 3203
+          endif
+          call tce_diis_act(.false.,iter,.true.,.true.,.false.,.false.,
+     1                  d_r1,d_t1,k_t1_offset,size_t1,
+     2                  d_r2,d_t2,k_t2_offset,size_t2,
+     3                  dummy,dummy,dummy,dummy,
+     4                  dummy,dummy,dummy,dummy)
+          call deletefile(d_r2)
+          call deletefile(d_r1)
+          call deletefile(d_e)
+          if (nodezero) call util_flush(LuOut)
+        enddo
+        call errquit('tce_energy: maxiter exceeded',iter,CALC_ERR)
+ 3203   continue
+c
+        end if ! ccsd_act/eomccsd_act
+c
       if ((model.eq.'ccsd').or.do_ccsd) then
 c -------------
 c CCSD    right
@@ -6893,6 +7068,8 @@ c
           end if
 c new EOMCC solver
        if(.not.((model.ne.'ccsd').and.(eom_solver.eq.2))) then
+c ccsd_act/eomccsd_act
+       if(.not.(model.eq.'ccsd_act')) then
        if (.not.ma_push_get(mt_dbl,hbard*hbard,'hbar',
      1  l_hbar,k_hbar)) call errquit('tce_eom_xdiagon: MA problem',0,
      2  MA_ERR)
@@ -6902,6 +7079,7 @@ c new EOMCC solver
         do ihbar=1,hbard
          dbl_mb(k_hbar+(ihbar-1)*hbard+ihbar-1)=1.0d+8
         enddo
+        end if
         end if
 c
 c
@@ -6935,7 +7113,12 @@ c
             endif
           endif
           if (needt2) then
+           if(model.ne.'ccsd_act') then
             call tce_x2_offset(l_x2_offset,k_x2_offset,size_x2)
+           else 
+c ccsd_act/eomccsd_act
+            call tce_x2a_offset(l_x2_offset,k_x2_offset,size_x2)
+           end if 
             call tce_filename('rx2',filename)
             call createfile(filename,d_rx2,size_x2)
             call gatoeaf(d_rx2)
@@ -8524,14 +8707,14 @@ c
           wall = wall + util_wallsec()
        if(perturbative.eq.'creom_(t)') then
           if (nodezero) then
-           write(LuOut,9080)"CR-EOMCCSD(T)IA",ref+corr+excit+pt3_6
+           write(LuOut,9080)"CR-EOMCCSD(T) ",ref+corr+excit+pt3_6
 c UWAGA
 c ACHTUNG
 c BHUMAHE
 c ATTENTION
 c           write(LuOut,9085)"CR-EOMCCSD(T)IA - CR-CCSD(T)IA",
 c     &                      (ref+corr+excit+pt3_6-energy_grcr)*au2ev
-           write(LuOut,9085)"delta-CR-EOMCCSD(T),IA        ",
+           write(LuOut,9085)"CR-EOMCCSD(T) ",
      &                      (excit+pt3_6)*au2ev
            write(LuOut,*)
            call util_flush(LuOut)
@@ -8576,6 +8759,714 @@ c
 c
  3443   CONTINUE
         end if !cr-eom
+c
+c
+c
+c
+c
+        else if (model.eq.'ccsd_act') then
+c == jaguar ====
+      if(read_xa)  then
+        nroots_reduced=nroots
+        if(nodezero) then
+         write(6,*)'nroots_reduced: ',nroots_reduced
+         call util_flush(6)
+        end if
+        if (.not.rtdb_get(rtdb,'tce:omg',mt_dbl,nroots,eom_excit)) then
+          call errquit('tce_energy: reading omg',nroots,CALC_ERR) 
+        end if 
+        if (.not.rtdb_get(rtdb,'tce:r0',mt_dbl,nroots,eom_r0)) then
+          if(read_in3) then
+           call errquit('tce: read_in3 active - r0 reading failed',
+     &      nroots,CALC_ERR)
+          else
+           if(nodezero) then
+           write(LuOut,*)'no R0-s restarted !!!!!'
+           call util_flush(6)
+           end if 
+          end if
+        end if
+        do ivec=1,nroots
+        dbl_mb(k_omegax+ivec-1)=eom_excit(ivec)
+        if(nodezero) then
+         write(6,*)'read excitation energy: ',dbl_mb(k_omegax+ivec-1)
+         call util_flush(6)
+        end if
+        enddo
+c
+       if(nroots_reduced.ge.1) then
+        unitn=81
+        ivec=1
+        call tce_filenameindexed(ivec,'xc1',filename)
+        call createfile(filename,xc1(ivec),size_x1)
+        xc1_exist(ivec) = .true.
+        call util_file_name('x1am1',.false.,.false.,filename)
+        call read_tensor(filename,xc1(ivec),size_x1,unitn)
+        unitn=82
+        call tce_filenameindexed(ivec,'xc2',filename)
+        call createfile(filename,xc2(ivec),size_x2)
+        xc2_exist(ivec) = .true.
+        call util_file_name('x2am1',.false.,.false.,filename)
+        call read_tensor(filename,xc2(ivec),size_x2,unitn)
+          if(nodezero)
+     &            write(LuOut,*)'EOMCCSD root nr. ',ivec
+          call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
+          call tce_print_x2a(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
+c
+        if(nroots_reduced.ge.2) then
+         unitn=83
+         ivec=2
+         call tce_filenameindexed(ivec,'xc1',filename)
+         call createfile(filename,xc1(ivec),size_x1)
+         xc1_exist(ivec) = .true.
+         call util_file_name('x1am2',.false.,.false.,filename)
+         call read_tensor(filename,xc1(ivec),size_x1,unitn)
+         unitn=84
+         call tce_filenameindexed(ivec,'xc2',filename)
+         call createfile(filename,xc2(ivec),size_x2)
+         xc2_exist(ivec) = .true.
+         call util_file_name('x2am2',.false.,.false.,filename)
+         call read_tensor(filename,xc2(ivec),size_x2,unitn)
+           if(nodezero)
+     &         write(LuOut,*)'EOMCCSD root nr. ',ivec
+           call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
+           call tce_print_x2a(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
+c
+         if(nroots_reduced.ge.3) then
+          unitn=85
+          ivec=3
+          call tce_filenameindexed(ivec,'xc1',filename)
+          call createfile(filename,xc1(ivec),size_x1)
+          xc1_exist(ivec) = .true.
+          call util_file_name('x1am3',.false.,.false.,filename)
+          call read_tensor(filename,xc1(ivec),size_x1,unitn)
+          unitn=86
+          call tce_filenameindexed(ivec,'xc2',filename)
+          call createfile(filename,xc2(ivec),size_x2)
+          xc2_exist(ivec) = .true.
+          call util_file_name('x2am3',.false.,.false.,filename)
+          call read_tensor(filename,xc2(ivec),size_x2,unitn)
+            if(nodezero)
+     &              write(LuOut,*)'EOMCCSD root nr. ',ivec
+            call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
+            call tce_print_x2a(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
+c
+          if(nroots_reduced.ge.4) then
+           unitn=87
+           ivec=4
+           call tce_filenameindexed(ivec,'xc1',filename)
+           call createfile(filename,xc1(ivec),size_x1)
+           xc1_exist(ivec) = .true.
+           call util_file_name('x1am4',.false.,.false.,filename)
+           call read_tensor(filename,xc1(ivec),size_x1,unitn)
+           unitn=88
+           call tce_filenameindexed(ivec,'xc2',filename)
+           call createfile(filename,xc2(ivec),size_x2)
+           xc2_exist(ivec) = .true.
+           call util_file_name('x2am4',.false.,.false.,filename)
+           call read_tensor(filename,xc2(ivec),size_x2,unitn)
+             if(nodezero)
+     &              write(LuOut,*)'EOMCCSD root nr. ',ivec
+             call tce_print_x1(xc1(ivec),k_x1_offset,0.10d0,irrep_x)
+             call tce_print_x2a(xc2(ivec),k_x2_offset,0.10d0,irrep_x)
+          end if
+         end if
+        end if
+       end if
+c
+        go to 2001
+      end if
+c ==============
+
+c -------------------------------------
+c    ccsd_act/eomccsd_act
+c -------------------------------------
+c
+       modelname = "CIS ini. guess for act-EOM-CCSD"
+        if (nodezero) write(LuOut,9220)
+     1  modelname(1:inp_strlen(modelname))
+c
+        call cis(LuOut,size_x1,k_x1_offset,d_f1,k_f1_offset,d_v2,
+     1           k_v2_offset,k_omegax,l_omegax,d_rx1)
+c
+c
+c
+           if(nodezero) then
+            write(6,*)'INITIAL STARTS -----'
+            call util_flush(6)
+           end if
+           do iroot=1,nroots_reduced
+            call tce_print_x1(x1_ini(iroot),k_x1_offset,0.10d0,irrep_x)
+           enddo
+           if(nodezero) then
+            write(6,*)'                    '
+            write(6,*)'INITIAL STARTS -----'
+            call util_flush(6)
+           end if
+c
+c
+c
+            if (nxtrials.eq.0) goto 2001
+            call tce_eom_init
+c
+      ister=0
+c rec_s_1
+       CALL OFFSET_eomccsd_x1a_1_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_1_1_i1',filename)
+       CALL CREATEFILE(filename,rec_s_1,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs1',-1,MA_ERR)
+c rec_s_2
+       CALL OFFSET_eomccsd_x1a_2_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_2_1_i1',filename)
+       CALL CREATEFILE(filename,rec_s_2,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs2',-1,MA_ERR)
+c rec_s_3
+       CALL OFFSET_eomccsd_x1a_4_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_4_1_i1',filename)
+       CALL CREATEFILE(filename,rec_s_3,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs3',-1,MA_ERR)
+c rec_s_4
+       CALL OFFSET_eomccsd_x1a_5_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_5_1_i1',filename)
+       CALL CREATEFILE(filename,rec_s_4,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs4',-1,MA_ERR)
+c rec_s_5
+       CALL OFFSET_eomccsd_x1a_7_1_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x1_7_1_1_i2',filename)
+       CALL CREATEFILE(filename,rec_s_5,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rs5',-1,MA_ERR)
+c rec_d_1
+       CALL OFFSET_eomccsd_x2a_1_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_1_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_1,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd1',-1,MA_ERR)
+c rec_d_2
+       CALL OFFSET_eomccsd_x2a_3_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_3_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_2,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd2',-1,MA_ERR)
+c rec_d_3
+       CALL OFFSET_eomccsd_x2a_4_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_4_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_3,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd3',-1,MA_ERR)
+c rec_d_4
+       CALL OFFSET_eomccsd_x2a_5_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_5_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_4,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd4',-1,MA_ERR)
+c rec_d_5
+       CALL OFFSET_eomccsd_x2a_6_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_6_1_i1',filename)
+       CALL CREATEFILE(filename,rec_d_5,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd5',-1,MA_ERR)
+c rec_d_6
+       CALL OFFSET_eomccsd_x2a_8_1_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_8_1_1_i2',filename)
+       CALL CREATEFILE(filename,rec_d_6,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd6',-1,MA_ERR)
+c rec_d_7
+       CALL OFFSET_eomccsd_x2a_8_3_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_8_3_1_i2',filename)
+       CALL CREATEFILE(filename,rec_d_7,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd7',-1,MA_ERR)
+c rec_d_8
+       CALL OFFSET_eomccsd_x2a_8_4_1(l_aux_off,k_aux_off,size_aux)
+       CALL TCE_FILENAME('eomccsd_x2_8_4_1_i2',filename)
+       CALL CREATEFILE(filename,rec_d_8,size_aux)
+       IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd8',-1,MA_ERR)
+c rec_d_9
+      CALL OFFSET_eomccsd_x2a_10_1_1(l_aux_off,k_aux_off,size_aux)
+      CALL TCE_FILENAME('eomccsd_x2_10_1_1_i2',filename)
+      CALL CREATEFILE(filename,rec_d_9,size_aux)
+      IF (.not.MA_POP_STACK(l_aux_off)) CALL ERRQUIT('rd9',-1,MA_ERR)
+c
+            xdiis=diis
+            do imicro=1,xdiis*nroots_reduced
+              call tce_filenameindexed(imicro,'xp1',filename)
+              call createfile(filename,xp1(imicro),size_x1)
+              call gatodra(xp1(imicro))
+              xp1_exist(imicro)=.true.
+              call tce_filenameindexed(imicro,'xp2',filename)
+              call createfile(filename,xp2(imicro),size_x2)
+              call gatodra(xp2(imicro))
+              xp2_exist(imicro)=.true.
+              call tce_filenameindexed(imicro,'x1',filename)
+              call createfile(filename,x1(imicro),size_x1)
+              call tce_zero(x1(imicro),size_x1)
+              call gatodra(x1(imicro))
+              x1_exist(imicro)=.true.
+              call tce_filenameindexed(imicro,'x2',filename)
+              call createfile(filename,x2(imicro),size_x2)
+              call tce_zero(x2(imicro),size_x2)
+              call gatodra(x2(imicro))
+              x2_exist(imicro)=.true.
+            enddo
+c
+          do ivec=1,nroots_reduced
+            call tce_filenameindexed(ivec,'xc1',filename)
+            call createfile(filename,xc1(ivec),size_x1)
+            call gatoeaf(xc1(ivec))
+            call gatodra(xc1(ivec))
+            xc1_exist(ivec) = .true.
+            call tce_filenameindexed(ivec,'xc2',filename)
+            call createfile(filename,xc2(ivec),size_x2)
+            call gatoeaf(xc2(ivec))
+            call gatodra(xc2(ivec))
+            xc2_exist(ivec) = .true.
+          enddo
+c
+            modelname = "EOM-CCSD-act"
+            if (nodezero) write(LuOut,9220)
+     1        modelname(1:inp_strlen(modelname))
+c
+c open k_h_eff  and k_c_eff
+c
+        if (.not.MA_PUSH_GET(mt_dbl,
+     1      xdiis*xdiis*nroots_reduced*nroots_reduced,'h_eff',
+     1      l_h_eff,k_h_eff)) call errquit('h_eff',1,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,xdiis*nroots_reduced*nroots_reduced,
+     1      'c_eff',
+     1      l_c_eff,k_c_eff)) call errquit('c_eff',1,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,nroots_reduced,'residual',
+     1          l_residual,k_residual)) call errquit('l_res',1,MA_ERR)
+c
+cmmm          do iroot=1,nroots_reduced  ! ---- main loop over the roots
+c
+            iter=1
+c
+c
+             if(iter.eq.1) then
+              do iroot=1,nroots_reduced
+               call copyfile(x1_ini(iroot),xc1(iroot),size_x1)
+               call tce_zero(xc2(iroot),size_x2)
+              enddo
+             endif 
+c
+c
+ 4111         continue  !iter continuation
+c
+             imicro = 1
+c
+            do iroot=1,nroots_reduced
+             call copyfile(xc1(iroot),x1(iroot),size_x1)
+             call copyfile(xc2(iroot),x2(iroot),size_x2)
+            enddo
+c
+            call norm_x_vector_act_mr(k_x1_offset,k_x2_offset,
+     1                            size_x1,size_x2,nroots_reduced)
+c
+            do iroot=1,nroots_reduced
+             call tce_zero(xp1(iroot),size_x1)
+             call tce_zero(xp2(iroot),size_x2)
+            enddo
+c
+             imicro = 1
+c
+             do i=1,xdiis*nroots_reduced*nroots_reduced
+              dbl_mb(k_c_eff+i-1)=0.0d0
+             enddo
+             do i=1,nroots_reduced
+             dbl_mb(k_c_eff+(i-1)*xdiis*nroots_reduced+i-1)=1.0d0
+             enddo
+             do i=1,xdiis*xdiis*nroots_reduced*nroots_reduced
+               dbl_mb(k_h_eff+i-1)=0.0d0
+             enddo
+c
+      cpu=-util_cpusec()
+      wall=-util_wallsec()
+c
+      do iroot=1,nroots_reduced ! x-x-x-x-x-x-x-x-x
+c
+c - T1/X1 LOCALIZATION ----------
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,size_x1,'x1_local',
+     1      l_x1_local,k_x1_local))
+     1      call errquit('x1_local',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
+        call ma_zero(dbl_mb(k_x1_local),size_x1)
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+        call ga_get(x1(iroot),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+c -------------------------------
+          call eomccsd_x1a(d_f1,xp1(iroot),k_t1_local,d_t2,d_v2,
+     1      k_x1_local,x2(iroot),k_f1_offset,k_x1_offset,
+     2      k_t1_offset,k_t2_offset,k_v2_offset,
+     3      k_x1_offset,k_x2_offset,
+     4      ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5      rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6      rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+          call eomccsd_x2a(d_f1,xp2(iroot),k_t1_local,d_t2,d_v2,
+     1       k_x1_local,x2(iroot),k_f1_offset,k_x2_offset,
+     2       k_t1_offset,k_t2_offset,k_v2_offset,
+     3       k_x1_offset,k_x2_offset,size_x1,size_x2,
+     4       ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5       rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6       rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+c
+         ister=1
+c - T1/X1 LOCALIZATION --
+         if(.not.MA_POP_STACK(l_x1_local))
+     &      call errquit('l_x1_local',4,MA_ERR)
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',4,MA_ERR)
+c -----------------------------
+         enddo ! x-x-x-x-x-x-x-x-x
+c   calculate  H-bar delta x
+c
+         call form_heff_act_mr(k_x1_offset,k_x2_offset,size_x1,size_x2,
+     &        dbl_mb(k_c_eff),dbl_mb(k_h_eff),dbl_mb(k_omegax),
+     &        imicro,xdiis,iter)
+c
+          do imicro=2,xdiis !microloop(imicro)
+c
+          do iroot=1,nroots_reduced
+           ipos=(imicro-1)*nroots_reduced+iroot
+           call tce_zero(x1(ipos),size_x1)
+           call tce_zero(x2(ipos),size_x2)
+           call tce_zero(xp1(ipos),size_x1)
+           call tce_zero(xp2(ipos),size_x2)
+          enddo
+c
+          do iroot=1,nroots_reduced
+           dbl_mb(k_residual+iroot-1)=0.0d0
+          enddo
+c
+          do iroot=1,nroots_reduced
+           call form_correction_act_mr(k_x1_offset,k_x2_offset,
+     1                  size_x1,size_x2,
+     1                  dbl_mb(k_c_eff+(iroot-1)*xdiis*nroots_reduced),
+     1                  dbl_mb(k_omegax+iroot-1),
+     1                  imicro,xdiis,dbl_mb(k_residual+iroot-1),iroot)
+          enddo
+c
+      cpu=cpu+util_cpusec()
+      wall=wall+util_wallsec()
+      if(nodezero) then
+                  write(LuOut,9211) iter
+             do iroot=1,nroots_reduced
+                  write(LuOut,9230) dbl_mb(k_residual+iroot-1),
+     2            dbl_mb(k_omegax+iroot-1),
+     3            dbl_mb(k_omegax+iroot-1)*au2ev,cpu,wall
+             enddo
+      end if
+      call util_flush(LuOut)
+      cpu=-util_cpusec()
+      wall=-util_wallsec()
+c
+           converged=.true.
+           do iroot=1,nroots_reduced-1
+             if(dabs(dbl_mb(k_residual+iroot-1)).gt.thresh_eom)
+     &             converged=.false.
+           enddo
+           if(dabs(dbl_mb(k_residual+nroots_reduced-1)).gt.thresh_l)
+     7             converged=.false.
+c
+            if(converged) then
+             do iroot=1,nroots_reduced
+              call form_best_guess_act_mr(k_x1_offset,k_x2_offset,
+     &                size_x1,size_x2,
+     &                dbl_mb(k_c_eff+(iroot-1)*xdiis*nroots_reduced),
+     &                imicro-1,
+     &                xdiis,iroot)
+             enddo
+c
+             do iroot=1,nroots_reduced
+              if(nodezero)
+     &                write(LuOut,*)'EOMCCSD root nr. ',iroot
+              call tce_print_x1(xc1(iroot),k_x1_offset,0.10d0,irrep_x)
+              call tce_print_x2a(xc2(iroot),k_x2_offset,0.10d0,irrep_x)
+             enddo
+             go to 4112
+            end if
+c all together
+            call deltax_ort_norm_act_mr(k_x1_offset,k_x2_offset,
+     1                              size_x1,size_x2,
+     1                              imicro,xdiis)
+c
+         do iroot=1,nroots_reduced ! --- iroot
+c
+          ipos=(imicro-1)*nroots_reduced+iroot
+c
+c - T1/X1 LOCALIZATION ----------
+        if (.not.MA_PUSH_GET(mt_dbl,size_t1,'t1_local',
+     1      l_t1_local,k_t1_local))
+     1      call errquit('t1_local',1,MA_ERR)
+        if (.not.MA_PUSH_GET(mt_dbl,size_x1,'x1_local',
+     1      l_x1_local,k_x1_local))
+     1      call errquit('x1_local',1,MA_ERR)
+        call ma_zero(dbl_mb(k_t1_local),size_t1)
+        call ma_zero(dbl_mb(k_x1_local),size_x1)
+        call ga_get(d_t1,1,size_t1,1,1,dbl_mb(k_t1_local),1)
+        call ga_get(x1(ipos),1,size_x1,1,1,dbl_mb(k_x1_local),1)
+c -------------------------------
+          call eomccsd_x1a(d_f1,xp1(ipos),k_t1_local,d_t2,d_v2,
+     1      k_x1_local,x2(ipos),k_f1_offset,k_x1_offset,
+     2      k_t1_offset,k_t2_offset,k_v2_offset,
+     3      k_x1_offset,k_x2_offset,
+     4      ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5      rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6      rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+          call eomccsd_x2a(d_f1,xp2(ipos),k_t1_local,d_t2,d_v2,
+     1       k_x1_local,x2(ipos),k_f1_offset,k_x2_offset,
+     2       k_t1_offset,k_t2_offset,k_v2_offset,
+     3       k_x1_offset,k_x2_offset,size_x1,size_x2,
+     4       ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5       rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6       rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+c
+         ister=1
+c - T1/X1 LOCALIZATION --
+         if(.not.MA_POP_STACK(l_x1_local))
+     &      call errquit('l_x1_local',4,MA_ERR)
+         if(.not.MA_POP_STACK(l_t1_local))
+     &      call errquit('l_t1_local',4,MA_ERR)
+c -----------------------
+c
+        enddo ! --- iroot 
+c
+c             calculate  H-bar delta x
+c
+         call form_heff_act_mr(k_x1_offset,k_x2_offset,size_x1,size_x2,
+     &        dbl_mb(k_c_eff),dbl_mb(k_h_eff),dbl_mb(k_omegax),
+     &        imicro,xdiis,iter)
+c
+           iter=iter+1                              
+             if(iter.gt.maxiter) then
+              if(nodezero) then
+                 write(LuOut,9233) iroot
+              end if
+c
+             do iroot=1,nroots_reduced
+              call form_best_guess_act_mr(k_x1_offset,k_x2_offset,
+     &                size_x1,size_x2,
+     &                dbl_mb(k_c_eff+(iroot-1)*xdiis*nroots_reduced),
+     &                imicro,
+     &                xdiis,iroot)
+              call tce_print_x1(xc1(iroot),k_x1_offset,0.10d0,irrep_x)
+              call tce_print_x2a(xc2(iroot),k_x2_offset,0.10d0,irrep_x)
+             enddo
+c
+              go to 4112
+             end if
+c
+          enddo   !microloop(imicro)
+c
+             do iroot=1,nroots_reduced
+              call form_best_guess_act_mr(k_x1_offset,k_x2_offset,
+     &                size_x1,size_x2,
+     &                dbl_mb(k_c_eff+(iroot-1)*xdiis*nroots_reduced),
+     &                xdiis,
+     &                xdiis,iroot)
+             enddo
+c
+               go to 4111
+c
+ 4112          continue !from converged
+cmmm            enddo ! ---- main loop over the roots (iroot)
+c
+c === jaguar ===
+      if(write_xa)  then
+       if(nroots_reduced.ge.1) then
+        unitn=81
+        call util_file_name('x1am1',.false.,.false.,filename)
+        call write_tensor(filename,xc1(1),size_x1,unitn)
+        unitn=82
+        call util_file_name('x2am1',.false.,.false.,filename)
+        call write_tensor(filename,xc2(1),size_x2,unitn)
+        if(nroots_reduced.ge.2) then
+         unitn=83
+         call util_file_name('x1am2',.false.,.false.,filename)
+         call write_tensor(filename,xc1(2),size_x1,unitn)
+         unitn=84
+         call util_file_name('x2am2',.false.,.false.,filename)
+         call write_tensor(filename,xc2(2),size_x2,unitn)
+         if(nroots_reduced.ge.3) then
+          unitn=85
+          call util_file_name('x1am3',.false.,.false.,filename)
+          call write_tensor(filename,xc1(3),size_x1,unitn)
+          unitn=86
+          call util_file_name('x2am3',.false.,.false.,filename)
+          call write_tensor(filename,xc2(3),size_x2,unitn)
+          if(nroots_reduced.ge.4) then
+           unitn=87
+           call util_file_name('x1am4',.false.,.false.,filename)
+           call write_tensor(filename,xc1(4),size_x1,unitn)
+           unitn=88
+           call util_file_name('x2am4',.false.,.false.,filename)
+           call write_tensor(filename,xc2(4),size_x2,unitn)
+          end if
+         end if
+        end if
+       end if
+      end if
+c ==============
+c
+         if(.not.MA_POP_STACK(l_residual))
+     &      call errquit('l_residual',4,MA_ERR)
+         if(.not.MA_POP_STACK(l_c_eff))
+     &      call errquit('l_c_eff',4,MA_ERR)
+         if(.not.MA_POP_STACK(l_h_eff))
+     &      call errquit('l_h_eff',4,MA_ERR)
+c
+            do imicro=1,xdiis
+              call deletefile(xp1(imicro))
+              xp1_exist(imicro)=.false.
+              call deletefile(xp2(imicro))
+              xp2_exist(imicro)=.false.
+              call deletefile(x1(imicro))
+              x1_exist(imicro)=.false.
+              call deletefile(x2(imicro))
+              x2_exist(imicro)=.false.
+            enddo
+c
+c
+c
+c xc1 xc2 are deleted by tce_eom_tidy (later on)
+c
+c
+c
+          call deletefile(rec_d_9)
+          call deletefile(rec_d_8)
+          call deletefile(rec_d_7)
+          call deletefile(rec_d_6)
+          call deletefile(rec_d_5)
+          call deletefile(rec_d_4)
+          call deletefile(rec_d_3)
+          call deletefile(rec_d_2)
+          call deletefile(rec_d_1)
+          call deletefile(rec_s_5)
+          call deletefile(rec_s_4)
+          call deletefile(rec_s_3)
+          call deletefile(rec_s_2)
+          call deletefile(rec_s_1)
+c
+         do ivec=1,maxtrials
+           if(x1_ini_exist(ivec))  then
+            call deletefile(x1_ini(ivec))
+            x1_ini_exist(ivec) = .false.
+           end if
+         enddo
+c
+c
+c --------------------------------------
+c
+ 2001   continue
+c -------------------------
+c CR-EOMCCSD(T)-ACT
+c -------------------------
+        if ((perturbative.eq.'creom(t)a').or.
+     &      (perturbative.eq.'creom(t)asim')) THEN
+        irrep_c = irrep_x  !important
+        DO 3449,ivec = 1,nroots_reduced
+          cpu = - util_cpusec()
+          wall = - util_wallsec()
+c d_e,d_ex1,d_ex2 global arrays
+c
+            call tce_x1_offset(l_c1_offset,k_c1_offset,size_c1)
+            call tce_filename('c1',filename)
+            call createfile(filename,d_c1,size_c1)
+cc            call gatoeaf(d_c1)
+            call tce_zero(d_c1,size_c1)
+c
+            call tce_x2a_offset(l_c2_offset,k_c2_offset,size_c2)
+            call tce_filename('c2',filename)
+            call createfile(filename,d_c2,size_c2)
+cc            call gatoeaf(d_c2)
+            call tce_zero(d_c2,size_c2)
+c
+      pt3_5 = 0.0d0
+      pt3_6 = 0.0d0
+      excit = dbl_mb(k_omegax+ivec-1)
+      call tce_e_offset(l_e_offset,k_e_offset,size_e)
+      call tce_e_offset(l_ex1_offset,k_ex1_offset,size_ex1)
+      call tce_e_offset(l_ex2_offset,k_ex2_offset,size_ex2)
+          call tce_filename('e',filename)
+          call createfile(filename,d_e,size_e)
+          call tce_zero(d_e,size_e)
+          call tce_filename('ex1',filename)
+          call createfile(filename,d_ex1,size_ex1)
+          call tce_zero(d_ex1,size_ex1)
+          call tce_filename('ex2',filename)
+          call createfile(filename,d_ex2,size_ex2)
+          call tce_zero(d_ex2,size_ex2)
+                    call dratoga(xc1(ivec))
+                    call dratoga(xc2(ivec))
+      if(perturbative.eq.'creom(t)a') then
+      call cr_eomccsd_t_act(
+     1              xc1(ivec),k_x1_offset,xc2(ivec),k_x2_offset,
+     1                        d_t1,k_t1_offset,d_t2,k_t2_offset,
+     2                        d_f1,k_f1_offset,d_v2,k_v2_offset,
+     3                        d_e,k_e_offset,
+     4                        d_ex1,k_ex1_offset,size_ex1,
+     5                        d_ex2,k_ex2_offset,size_ex2,
+     6                        d_c1,k_c1_offset,size_c1,
+     7                        d_c2,k_c2_offset,size_c2,
+     8                        excit,pt3_6,pt3_5,size_t1,size_x1)
+                    call gatodra(xc2(ivec))
+                    call gatodra(xc1(ivec))
+      end if
+      if(perturbative.eq.'creom(t)asim') then
+      call cr_eomccsd_tasim(
+     1              xc1(ivec),k_x1_offset,xc2(ivec),k_x2_offset,
+     1                        d_t1,k_t1_offset,d_t2,k_t2_offset,
+     2                        d_f1,k_f1_offset,d_v2,k_v2_offset,
+     3                        d_e,k_e_offset,
+     4                        d_ex1,k_ex1_offset,size_ex1,
+     5                        d_ex2,k_ex2_offset,size_ex2,
+     6                        d_c1,k_c1_offset,size_c1,
+     7                        d_c2,k_c2_offset,size_c2,
+     8                        excit,pt3_6,pt3_5,size_t1,size_x1)
+                    call gatodra(xc2(ivec))
+                    call gatodra(xc1(ivec))
+      end if
+c
+          call deletefile(d_ex2)
+          call deletefile(d_ex1)
+          call deletefile(d_e)
+          if (.not.ma_pop_stack(l_ex2_offset))
+     1     call errquit("tce_energy: MA problem",24,MA_ERR)
+          if (.not.ma_pop_stack(l_ex1_offset))
+     1     call errquit("tce_energy: MA problem",24,MA_ERR)
+          if (.not.ma_pop_stack(l_e_offset))
+     1     call errquit("tce_energy: MA problem",24,MA_ERR)
+c
+          cpu = cpu + util_cpusec()
+          wall = wall + util_wallsec()
+         if(perturbative.eq.'creom(t)a') then
+          if (nodezero) then
+          write(LuOut,9080)"CR-EOMCCSD(T)-ACT(II) ",ref+corr+excit+pt3_6
+          write(LuOut,9085)"CR-EOMCCSD(T)-ACT(II) ",
+     &                      (excit+pt3_6)*au2ev
+           write(LuOut,*)
+           call util_flush(LuOut)
+          endif
+         end if
+         if(perturbative.eq.'creom(t)asim') then
+          if (nodezero) then
+      write(LuOut,9080)"CR-EOMCCSD(T)-ACT(II)-SIMP",ref+corr+excit+pt3_6
+      write(LuOut,9085)"CR-EOMCCSD(T)-ACT(II)-SIMP",
+     &                      (excit+pt3_6)*au2ev
+           write(LuOut,*)
+           call util_flush(LuOut)
+          endif
+         end if
+c redefining the vector with excitation energies
+          dbl_mb(k_omegax+ivec-1)=dbl_mb(k_omegax+ivec-1)+pt3_6
+c
+            call deletefile(d_c2)
+            if (.not.ma_pop_stack(l_c2_offset))
+     1        call errquit("tce_energy: MA problem",36,MA_ERR)
+            call deletefile(d_c1)
+            if (.not.ma_pop_stack(l_c1_offset))
+     1        call errquit("tce_energy: MA problem",37,MA_ERR)
+c
+ 3449   CONTINUE
+        end if !triples corr. to EOMCCSd
+c
+c
+c
 c
 c
           elseif (model.eq.'ccsdt') then
@@ -9757,8 +10648,11 @@ ccc
      1      call errquit("tce_energy: MA problem",1002,MA_ERR)
 c new EOMCC solver
        if(.not.((model.ne.'ccsd').and.(eom_solver.eq.2))) then
-      if (.not.ma_pop_stack(l_hbar))
+c ccsd_act/eomccsd_act
+       if(.not.(model.eq.'ccsd_act')) then
+       if (.not.ma_pop_stack(l_hbar))
      1  call errquit('tce_eom_xdiagon: MA problem',12,MA_ERR)
+      end if
       end if
           endif
         enddo
@@ -9999,7 +10893,11 @@ c ==============
 c ---
 c check if read_in3 is needed here
 c ---
-      if(activecalc.or.(.not.intorb)) THEN
+      if(model.eq."ccsd_act") THEN
+      if (.not.ma_pop_stack(l_active_o))
+     1  call errquit("tce_energy: MA problem",35,MA_ERR)
+      end if
+      if(activecalc.or.(.not.intorb).or.(model.eq."ccsd_act")) THEN
       if (.not.ma_pop_stack(l_active))
      1  call errquit("tce_energy: MA problem",34,MA_ERR)
       end if
@@ -10034,8 +10932,8 @@ c     ===============
 c     Destroy a mutex
 c     ===============
 c
-      if (.not.ga_destroy_mutexes())
-     1  call errquit('tce_energy: GA problem',1,GA_ERR)
+ccx      if (.not.ga_destroy_mutexes())
+ccx     1  call errquit('tce_energy: GA problem',1,GA_ERR)
 c
 c     =========
 c     Terminate
