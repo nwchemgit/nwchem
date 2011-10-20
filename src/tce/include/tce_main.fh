@@ -35,6 +35,12 @@ c
       integer vatiles(2)                      ! Number of active unoccupied tiles
       integer l_active,k_active               ! Active tiles (0-inactive, 1 otherwise)
       integer numact                          ! Active excitation level
+c ccsd_act/eomccsd_act
+      integer oact,uact        ! active space
+      integer l_active_n,k_active_n ! Active tiles (0-inactive, 1 otherwise)
+      integer l_active_o,k_active_o ! same as above but for orbitals
+      double precision emin_act,emax_act ! energy interval for active CC calculations
+c
       character*10 model                      ! CC model
       character*10 perturbative               ! PT model
       character*10 ccsd_var                   ! CCSD variant (CC2)
@@ -108,7 +114,7 @@ c tce.fh < logical intorb
       integer k_v2_alpha_offset               ! Offset for 2e integrals if intorb=.true. 
       integer l_v2spin_offset
       integer k_v2spin_offset
-c
+c --------------------------------------
       integer tile_dim
       integer idisk,fast2e,ichop,imaxsize
 c
@@ -146,14 +152,15 @@ c
      1  l_v2_alpha_offset,k_v2_alpha_offset,l_v2spin_offset,
      2  k_v2spin_offset,atpart,nalength,a2length,tile_dim,
      3  idisk,fast2e,ichop,imaxsize,l_mo_index, k_mo_index,
-     4  l_alpha,k_alpha,l_offset,k_offset,rec_mem
+     4  l_alpha,k_alpha,l_offset,k_offset,rec_mem,
+     5  l_active_n,k_active_n,oact,uact,l_active_o,k_active_o
 c
 c     Doubles
 c
       common /tcemaindouble/
      1  thresh,printtol,tol2e,cpusecs,
      2  zlshift,zlshiftl,zlshift2,zlshift3,
-     3  maxdiff,damp3
+     3  maxdiff,damp3,emin_act,emax_act
 c
 c     Characters
 c
