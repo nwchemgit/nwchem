@@ -61,10 +61,10 @@ function get_mpi_include ()
         outlist="${outlist} ${word}"
       fi
    done
-   len=`expr "${outlist}" : ' -I*'`
-   if [ ${len} -ge 3 ] ; then
-     outlist="${outlist:3}"
-   fi
+#  len=`expr "${outlist}" : ' -I*'`
+#  if [ ${len} -ge 3 ] ; then
+#    outlist="${outlist:3}"
+#  fi
    echo ${outlist}
 }
 function get_mpi_link ()
@@ -102,10 +102,10 @@ function get_mpi_link ()
         outlist="${outlist} ${word}"
       fi
    done
-   len=`expr "${outlist}" : ' -L*'`
-   if [ ${len} -ge 3 ] ; then
-     outlist="${outlist:3}"
-   fi
+#  len=`expr "${outlist}" : ' -L*'`
+#  if [ ${len} -ge 3 ] ; then
+#    outlist="${outlist:3}"
+#  fi
    echo ${outlist}
 }
 function get_mpi_lib ()
@@ -354,22 +354,29 @@ export USE_SUBGROUPS=y
 export USE_MPI=y
 export USE_MPIF=y
 export USE_MPIF4=y
+#export USE_GPROF=y
 export MSG_COMMS=MPI
+#export DEV_GA=y
 #
 # Now we try and guess the network on the machine.
 # The default is sockets.
 #
-if [ -d /dev/infiniband ] ; then
-  # There seems to be an infiniband network on this machine
-  export ARMCI_NETWORK="OPENIB"
-  export LIBMPI="${LIBMPI} -libverbs"
-  if [ -d /usr/include/infiniband ] ; then
-    export IB_INCLUDE="/usr/include/infiniband"
-  else
-    echo "ERROR: Infiniband include files not in expected location"
-    exit 1
+if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
+  if [ -d /dev/infiniband ] ; then
+    # There seems to be an infiniband network on this machine
+    export ARMCI_NETWORK="OPENIB"
+    export LIBMPI="${LIBMPI} -libverbs"
+    if [ -d /usr/include/infiniband ] ; then
+      export IB_INCLUDE="/usr/include/infiniband"
+    else
+      echo "ERROR: Infiniband include files not in expected location"
+      exit 1
+    fi
   fi
 fi
+#if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
+#  export ARMCI_NETWORK="MPI-MT"
+#fi
 #
 # Below we have to realize that EXPORT is a command. Hence if we use
 #   EXPORT DUMMY=`ls`
@@ -380,29 +387,41 @@ fi
 #   status=$?
 #   EXPORT DUMMY
 #
-MPI_INCLUDE=`get_mpi_include`
-if [ $? -ne 0 ] ; then
-  exit 1
+if [ ${#MPI_INCLUDE} -eq 0 ] ; then
+  MPI_INCLUDE=`get_mpi_include`
+  if [ $? -ne 0 ] ; then
+    exit 1
+  fi
 fi
-MPI_LIB=`get_mpi_link`
-if [ $? -ne 0 ] ; then
-  exit 1
+if [ ${#MPI_LIB} -eq 0 ] ; then
+  MPI_LIB=`get_mpi_link`
+  if [ $? -ne 0 ] ; then
+    exit 1
+  fi
 fi
-LIBMPI=`get_mpi_lib`
-if [ $? -ne 0 ] ; then
-  exit 1
+if [ ${#LIBMPI} -eq 0 ] ; then
+  LIBMPI=`get_mpi_lib`
+  if [ $? -ne 0 ] ; then
+    exit 1
+  fi
 fi
-MPI_F90=`get_mpi_fortran`
-if [ $? -ne 0 ] ; then
-  exit 1
+if [ ${#MPI_F90} -eq 0 ] ; then
+  MPI_F90=`get_mpi_fortran`
+  if [ $? -ne 0 ] ; then
+    exit 1
+  fi
 fi
-MPI_CC=`get_mpi_cc`
-if [ $? -ne 0 ] ; then
-  exit 1
+if [ ${#MPI_CC} -eq 0 ] ; then
+  MPI_CC=`get_mpi_cc`
+  if [ $? -ne 0 ] ; then
+    exit 1
+  fi
 fi
-MPI_CXX=`get_mpi_cxx`
-if [ $? -ne 0 ] ; then
-  exit 1
+if [ ${#MPI_CXX} -eq 0 ] ; then
+  MPI_CXX=`get_mpi_cxx`
+  if [ $? -ne 0 ] ; then
+    exit 1
+  fi
 fi
 export MPI_INCLUDE
 export MPI_LIB
@@ -461,6 +480,8 @@ if [ "x${option}" != "xrealclean" ]; then
     else
       # Confused
       echo "ERROR: A: inconsistent data on presence of BLAS library"
+      echo "have_blas_true  = " ${have_blas_true}
+      echo "have_blas_false = " ${have_blas_false}
       exit 1
     fi
   elif [ "x${have_blas_true}" == "x#" ] ; then
@@ -471,10 +492,14 @@ if [ "x${option}" != "xrealclean" ]; then
     else
       # Confused
       echo "ERROR: B: inconsistent data on presence of BLAS library"
+      echo "have_blas_true  = " ${have_blas_true}
+      echo "have_blas_false = " ${have_blas_false}
       exit 1
     fi
   else
-    echo "ERROR: C: invalid settings" ${have_blas_true} ${have_blas_false}
+    echo "ERROR: C: invalid settings" 
+    echo "have_blas_true  = " ${have_blas_true}
+    echo "have_blas_false = " ${have_blas_false}
     exit 1
   fi
 fi
