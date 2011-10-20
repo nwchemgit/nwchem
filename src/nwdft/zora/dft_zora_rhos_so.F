@@ -875,11 +875,6 @@ c     ------- Deallocate MA memory ------
       if (.not.ma_free_heap(l_tmp)) call
      &    errquit('hnd_efgmap_Z4: ma_free_heap l_tmp',0, MA_ERR)
 c
-c     Terminate integrals
-
-cng      call schwarz_tidy()
-cng      call int_terminate()
-
       return
  9999 format(/,10x,23(1h-),/,10x,'Electric field gradient',
      1       /,10x,23(1h-),/)
