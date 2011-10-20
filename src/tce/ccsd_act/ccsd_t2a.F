@@ -88,10 +88,6 @@ c ---------------------------------------
       double precision cpu     ! CPU sec counter
       double precision wall    ! WALL sec counter
       nodezero=(ga_nodeid().eq.0)
-c *** debug ***
-c       write(6,*)'step1'
-c       call util_flush(6)
-c *************
       CALL ccsd_t2a_1(d_v2,k_v2_offset,d_i0,k_i0_offset)
       CALL OFFSET_ccsd_t2a_2_1(l_i1_offset,k_i1_offset,size_i1)
       CALL TCE_FILENAME('ccsd_t2a_2_1_i1',filename)
@@ -101,10 +97,6 @@ c *************
       CALL TCE_FILENAME('ccsd_t2a_2_2_1_i2',filename)
       CALL CREATEFILE(filename,d_i2,size_i2)
       CALL ccsd_t2a_2_2_1(d_v2,k_v2_offset,d_i2,k_i2_offset)
-c *** debug ***
-c       write(6,*)'step2'
-c       call util_flush(6)
-c *************
       CALL OFFSET_ccsd_t2a_2_2_2_1(l_i3_offset,k_i3_offset,size_i3)
       CALL TCE_FILENAME('ccsd_t2a_2_2_2_1_i3',filename)
       CALL CREATEFILE(filename,d_i3,size_i3)
@@ -117,10 +109,6 @@ c *************
       CALL DELETEFILE(d_i3)
       IF (.not.MA_POP_STACK(l_i3_offset)) CALL ERRQUIT('ccsd_t2',-1,MA_E
      &RR)
-c *** debug ***
-c       write(6,*)'step3'
-c       call util_flush(6)
-c *************
       CALL ccsd_t2a_2_2_3(d_t2,k_t2a_offset,d_v2,k_v2_offset,
      &d_i2,k_i2_offset)
       CALL RECONCILEFILE(d_i2,size_i2)
@@ -135,10 +123,6 @@ c *************
       CALL ccsd_t2a_2_4_1(d_f1,k_f1_offset,d_i2,k_i2_offset)
       CALL ccsd_t2a_2_4_2(d_t1,k_t1_offset,d_v2,k_v2_offset,
      &d_i2,k_i2_offset)
-c *** debug ***
-c       write(6,*)'step4'
-c       call util_flush(6)
-c *************
       CALL RECONCILEFILE(d_i2,size_i2)
       CALL ccsd_t2a_2_4(d_t2,k_t2a_offset,d_i2,k_i2_offset,
      &d_i1,k_i1_offset)
@@ -151,10 +135,6 @@ c *************
       CALL ccsd_t2a_2_5_1(d_v2,k_v2_offset,d_i2,k_i2_offset)
       CALL ccsd_t2a_2_5_2(d_t1,k_t1_offset,d_v2,k_v2_offset,
      &d_i2,k_i2_offset)
-c *** debug ***
-c       write(6,*)'step5'
-c       call util_flush(6)
-c *************
       CALL RECONCILEFILE(d_i2,size_i2)
       CALL ccsd_t2a_2_5(d_t2,k_t2a_offset,d_i2,k_i2_offset,
      &d_i1,k_i1_offset)
@@ -174,10 +154,6 @@ cc      CALL RECONCILEFILE(d_i1,size_i1)
      &RR)
       CALL lccsd_t2a_3x(d_t1,k_t1_offset,d_v2,k_v2_offset,d_i0,
      &k_i0_offset)
-c *** debug ***
-c       write(6,*)'step6'
-c       call util_flush(6)
-c *************
       CALL OFFSET_ccsd_t2a_4_1(l_i1_offset,k_i1_offset,size_i1)
       CALL TCE_FILENAME('ccsd_t2a_4_1_i1',filename)
       CALL CREATEFILE(filename,d_i1,size_i1)
@@ -191,10 +167,6 @@ c *************
       CALL RECONCILEFILE(d_i2,size_i2)
       CALL ccsd_t2a_4_2(d_t1,k_t1_offset,d_i2,k_i2_offset,
      &d_i1,k_i1_offset)
-c *** debug ***
-c       write(6,*)'step7'
-c       call util_flush(6)
-c *************
       CALL DELETEFILE(d_i2)
       IF (.not.MA_POP_STACK(l_i2_offset)) CALL ERRQUIT('ccsd_t2',-1,MA_E
      &RR)
@@ -203,10 +175,6 @@ c *************
       CALL ccsd_t2a_4_4(d_t2,k_t2a_offset,d_v2,k_v2_offset,
      &d_i1,k_i1_offset)
       CALL RECONCILEFILE(d_i1,size_i1)
-c *** debug ***
-c       write(6,*)'step8'
-c       call util_flush(6)
-c *************
 c - T1/X1 LOCALIZATION ----------
         if (.not.MA_PUSH_GET(mt_dbl,size_i1,'i1_local',
      1      l_i1_local,k_i1_local))
@@ -222,10 +190,6 @@ c - T1/X1 LOCALIZATION --
          if(.not.MA_POP_STACK(l_i1_local))
      &      call errquit('l_i1_local',2,MA_ERR)
 c -----------------------
-c *** debug ***
-c       write(6,*)'step9'
-c       call util_flush(6)
-c *************
       CALL DELETEFILE(d_i1)
       IF (.not.MA_POP_STACK(l_i1_offset)) CALL ERRQUIT('ccsd_t2',-1,MA_E
      &RR)
@@ -238,10 +202,6 @@ c *************
       CALL ccsd_t2a_5_3(d_t2,k_t2a_offset,d_v2,k_v2_offset,
      &d_i1,k_i1_offset)
       CALL RECONCILEFILE(d_i1,size_i1)
-c *** debug ***
-c       write(6,*)'step10'
-c       call util_flush(6)
-c *************
 c - T1/X1 LOCALIZATION ----------
         if (.not.MA_PUSH_GET(mt_dbl,size_i1,'i1_local',
      1      l_i1_local,k_i1_local))
@@ -257,10 +217,6 @@ c - T1/X1 LOCALIZATION --
          if(.not.MA_POP_STACK(l_i1_local))
      &      call errquit('l_i1_local',2,MA_ERR)
 c -----------------------
-c *** debug ***
-c       write(6,*)'step11'
-c       call util_flush(6)
-c *************
       CALL DELETEFILE(d_i1)
       IF (.not.MA_POP_STACK(l_i1_offset)) CALL ERRQUIT('ccsd_t2',-1,MA_E
      &RR)
@@ -275,10 +231,6 @@ c *************
       CALL ccsd_t2a_6_2_2(d_t1,k_t1_offset,d_v2,k_v2_offset,
      &d_i2,k_i2_offset)
       CALL RECONCILEFILE(d_i2,size_i2)
-c *** debug ***
-c       write(6,*)'step12'
-c       call util_flush(6)
-c *************
       CALL ccsd_t2a_6_2(d_t1,k_t1_offset,d_i2,k_i2_offset,
      &d_i1,k_i1_offset)
       CALL DELETEFILE(d_i2)
@@ -292,10 +244,6 @@ c *************
       CALL DELETEFILE(d_i1)
       IF (.not.MA_POP_STACK(l_i1_offset)) CALL ERRQUIT('ccsd_t2',-1,MA_E
      &RR)
-c *** debug ***
-c       write(6,*)'step13'
-c       call util_flush(6)
-c *************
       CALL OFFSET_ccsd_t2a_7_1(l_i1_offset,k_i1_offset,size_i1)
       CALL TCE_FILENAME('ccsd_t2a_7_1_i1',filename)
       CALL CREATEFILE(filename,d_i1,size_i1)
@@ -308,10 +256,6 @@ c *************
       CALL ccsd_t2a_7(d_t2,k_t2a_offset,d_i1,k_i1_offset,
      &d_i0,k_i0_offset)
       CALL DELETEFILE(d_i1)
-c *** debug ***
-c       write(6,*)'step14'
-c       call util_flush(6)
-c *************
       IF (.not.MA_POP_STACK(l_i1_offset)) CALL ERRQUIT('ccsd_t2',-1,MA_E
      &RR)
       CALL OFFSET_avt1t1_1_1(l_i1_offset,k_i1_offset,size_i1)
@@ -324,41 +268,17 @@ c *************
       CALL DELETEFILE(d_i1)
       IF (.not.MA_POP_STACK(l_i1_offset)) CALL ERRQUIT('vt1t1',-1,MA_ERR
      &)
-c *** debug ***
-c       write(6,*)'step15'
-c       call util_flush(6)
-c *************
       CALL c2f_t2a_t12(d_t1,k_t1_offset,d_t2,k_t2a_offset)
-c *** debug ***
-c       write(6,*)'step15a'
-c       call util_flush(6)
-c *************
       CALL ccsd_t2a_8(d_t2,k_t2a_offset,d_v2,k_v2_offset,
      &d_i0,k_i0_offset)
-c *** debug ***
-c       write(6,*)'step15b'
-c       call util_flush(6)
-c *************
       CALL c2d_t2a_t12(d_t1,k_t1_offset,d_t2,k_t2a_offset)
-c *** debug ***
-c       write(6,*)'step15c'
-c       call util_flush(6)
-c *************
 c diag1 ---
       CALL OFFSET_diag1_act2_1_1(l_i1_offset,k_i1_offset,size_i1)
       CALL TCE_FILENAME('diag1_act2_1_1_i1',filename)
       CALL CREATEFILE(filename,d_i1,size_i1)
-c *** debug ***
-c       write(6,*)'step15d'
-c       call util_flush(6)
-c *************
       CALL diag1_act2_1_1(d_t2,k_t2a_offset,d_v2,
      &k_v2_offset,d_i1,k_i1_offset)
       CALL RECONCILEFILE(d_i1,size_i1)
-c *** debug ***
-c       write(6,*)'step16'
-c       call util_flush(6)
-c *************
       CALL diag1_act2_1(d_t1,k_t1_offset,d_i1,k_i1_offset,d_i0,k_i0_offs
      &et)
       CALL DELETEFILE(d_i1)
@@ -374,10 +294,6 @@ c diag2 ---
       CALL diag2_act2_1_1_1(d_t1,k_t1_offset,d_v2,k_v2_offset,d_i2,k_i2_
      &offset)
       CALL RECONCILEFILE(d_i2,size_i2)
-c *** debug ***
-c       write(6,*)'step17'
-c       call util_flush(6)
-c *************
       CALL diag2_act2_1_1(d_t1,k_t1_offset,d_i2,k_i2_offset,d_i1,k_i1_of
      &fset)
       CALL DELETEFILE(d_i2)
@@ -389,10 +305,6 @@ c *************
       CALL DELETEFILE(d_i1)
       IF (.not.MA_POP_STACK(l_i1_offset)) CALL ERRQUIT('diag2_act2',-1,M
      &A_ERR)
-c *** debug ***
-c       write(6,*)'step18'
-c       call util_flush(6)
-c *************
 c ---------
 c --- PETA ----------
 c 9020 format('DIAG-D',i3,1x,'Cpu & wall time / sec',2f15.4)
