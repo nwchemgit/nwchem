@@ -61,6 +61,7 @@ c     == zora related ==
       logical ldmix
       character*7 vecs_or_dens
       integer icalczora
+      logical do_purescalar
 c
 c     == vdw contrib ==
       double precision dum
@@ -211,6 +212,16 @@ c
       icd_coef = 0
       k_3cERI  = 0
       k_3cwhat = 0
+      me = ga_nodeid()
+      nproc = ga_nnodes()
+c
+c     to do scalar relativistic calculations within the two-component framework
+c
+      do_purescalar = .false.
+      if (.not.rtdb_get(rtdb,'sodft:purescalar',mt_log,1,do_purescalar))
+     &     do_purescalar = .false.
+c
+c     if (me.eq.0) write(6,*) "sodft:purescalar ",do_purescalar
 c
       call ecce_print_module_entry('dft')
       dft_scf_so = .false.
@@ -236,8 +247,7 @@ c
       oprint_interm_overlap = util_print('intermediate overlap',
      &     print_high)
       oprint_final_vecs = util_print('final vectors', print_high)
-      me = ga_nodeid()
-      nproc = ga_nnodes()
+c
       ispin=1
       call int_1e_uncache_ga()      
 c     !!! BGJ
@@ -646,6 +656,16 @@ c       == write out the atomic zora corrections to file ==
      &    g_zora_so, g_zora_scale_so))
      &    call errquit('dft_scf_so: dft_zora_write_so failed', 0, 
      &            DISK_ERR)
+c
+c       == for scalar calculations via the 2 component formalism
+        if (do_purescalar) then 
+            call ga_zero(g_zora_so(1))
+            call ga_zero(g_zora_so(2))
+            call ga_zero(g_zora_so(3))
+            call ga_zero(g_zora_scale_so(1))
+            call ga_zero(g_zora_scale_so(2))
+            call ga_zero(g_zora_scale_so(3))
+        end if
 c
        end if ! icalczora
       end if  ! do_zora
@@ -1094,6 +1114,13 @@ cso   Calculate the spin-orbit contributions from the ecp
          call ga_scale(g_so(1),dble(0.5d0))  ! z
          call ga_scale(g_so(2),dble(0.5d0))  ! y
          call ga_scale(g_so(3),dble(0.5d0))  ! x
+      end if
+c
+c     zero out spin-orbit components for purescalar
+      if (do_purescalar) then
+        call ga_zero(g_so(1))
+        call ga_zero(g_so(2))
+        call ga_zero(g_so(3))
       end if
 cso
 cso   Add in the s.o. contribution to the fock matrix
