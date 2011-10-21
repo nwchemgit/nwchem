@@ -96,6 +96,9 @@ c
        logical          nose,nosers
        double precision Pe,Te,fe
        double precision Pr,Tr
+
+       logical  nwpw_parse_boolean
+       external nwpw_parse_boolean
         
 
 *     ***** initializations ****
@@ -508,10 +511,11 @@ c pressure
 c
  3000 if (.not.inp_a(zone_name)) zone_name = 'on'
       value = .true.
-      if (inp_compare(.false.,zone_name,'on'))      value=.true.
-      if (inp_compare(.false.,zone_name,'.true.'))  value=.true.
-      if (inp_compare(.false.,zone_name,'off'))     value=.false.
-      if (inp_compare(.false.,zone_name,'.false.')) value=.false.
+      value = nwpw_parse_boolean(zone_name,value)
+c      if (inp_compare(.false.,zone_name,'on'))      value=.true.
+c      if (inp_compare(.false.,zone_name,'.true.'))  value=.true.
+c      if (inp_compare(.false.,zone_name,'off'))     value=.false.
+c      if (inp_compare(.false.,zone_name,'.false.')) value=.false.
       if (.not.rtdb_put(rtdb,'cpmd:pressure',mt_log,1,value))
      > call errquit('cpmd_input: writing pressure ', 3000, RTDB_ERR)
       goto 10
