@@ -657,6 +657,8 @@ c       == write out the atomic zora corrections to file ==
      &    call errquit('dft_scf_so: dft_zora_write_so failed', 0, 
      &            DISK_ERR)
 c
+       end if ! icalczora
+c
 c       == for scalar calculations via the 2 component formalism
         if (do_purescalar) then 
             call ga_zero(g_zora_so(1))
@@ -667,7 +669,6 @@ c       == for scalar calculations via the 2 component formalism
             call ga_zero(g_zora_scale_so(3))
         end if
 c
-       end if ! icalczora
       end if  ! do_zora
 c
 c     check for fon input
