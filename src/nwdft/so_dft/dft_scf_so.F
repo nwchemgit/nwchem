@@ -610,15 +610,31 @@ c      == generate an superposition of atomic densities ==
             if(oskel) call ga_symmetrize(g_dens_at(2))
        end if
 c
+c       == in case fon is used together with zora ==
+c       == pstrace is queried in the grid code ==
+c
+       fon = .false.
+       if (rtdb_get(rtdb,'dft:fon',mt_log,1,fon)) then 
+         pstrace=ga_ddot(g_dens_at(1),g_s)
+         pstrace=pstrace + ga_ddot(g_dens_at(2),g_s)
+         if(ga_nodeid().eq.0) write (luout,'(5x,a,1x,e15.7)')
+     &      'tr(P*S): ',pstrace
+         if (.not. rtdb_put(rtdb, 'dft:pstrace', mt_dbl, 1, pstrace))
+     &     call errquit('dft_scf: rtdb_put pstrace failed', 1, RTDB_ERR)
+       end if ! fon check
+c
 c      == try reading the zora contributions from file ==
        icalczora = 0
        if (.not.dft_zora_read_so(zorafilename, nbf_ao, ipol, nmo, mult,
      &     g_zora_sf, g_zora_scale_sf, g_zora_so, g_zora_scale_so)) 
      &     icalczora = 1
- 
+c 
        if (icalczora.eq.1) then
-       if (me.eq.0) 
-     &  write(luout,*) "== Generating atomic ZORA corrections =="
+        if (me.eq.0) then
+         call util_print_centered(LuOut,
+     $        'Generating atomic ZORA corrections', 23, .true.)
+         write(LuOut,*)
+        end if ! me = 0
 c
 c       == calculate the zora atomic corrections ==
         call zora_getv_so(rtdb, g_dens_at, g_zora_sf, g_zora_scale_sf,
@@ -633,16 +649,12 @@ c       == write out the atomic zora corrections to file ==
 c
        end if ! icalczora
       end if  ! do_zora
-
-c     -------------------
+c
 c     check for fon input
-c     -------------------
 c
       fon = .false.
       if (rtdb_get(rtdb,'dft:fon',mt_log,1,fon)) then 
-
-c       fon is ringing
-
+c
 c       variable 'fon' should be true, otherwise there's 
 c       something fishy going on:
         if (.not.fon) call errquit(
@@ -873,7 +885,6 @@ c
 c     the fractionally occupied mo's are scaled by the sqrt of the fon
 c     
       if (fon) then 
-c         scale = sqrt(avg_fon)
          do i = ncore_fon + 1, ncore_fon + nmo_fon
            if (i> nbf_mo) call errquit(
      &        'dft_densm:fon g_moso index exceeds nbf_mo',
@@ -903,7 +914,6 @@ c
 c     restore the scaled mo's
 c
       if (fon) then 
-c         scale = sqrt(avg_fon)
          do i = ncore_fon + 1, ncore_fon + nmo_fon
            if (i> nbf_mo) call errquit(
      &        'dft_densm:fon g_moso index exceeds nbf_mo',

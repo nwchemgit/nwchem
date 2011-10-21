@@ -569,6 +569,15 @@ c       == generate an superposition of atomic densities ==
             if(oskel) call ga_symmetrize(g_dens_at(2))
         end if
 c
+c       == in case fon is used together with zora ==
+c       pstrace is queried in the grid code ==
+        if (fon) then
+          pstrace=ga_ddot(g_dens_at,g_s)
+          if (.not. rtdb_put(rtdb, 'dft:pstrace', mt_dbl, 1, pstrace))
+     &       call errquit('dft_scf: rtdb_put pstrace failed',
+     &       1, RTDB_ERR)
+        endif ! fon
+c
 c       == try reading the zora atomic corrections from file ==
         icalczora = 0  ! initialize the flag
         if (.not.dft_zora_read(zorafilename, nbf_ao, ipol, nmo,
@@ -576,8 +585,12 @@ c       == try reading the zora atomic corrections from file ==
 c
 c       == calculate the zora spin-free atomic corrections ==
         if (icalczora.eq.1) then 
-         if (me.eq.0) 
-     &     write(luout,*) "== Generating atomic ZORA corrections =="
+         if (me.eq.0) then
+           call util_print_centered(LuOut,
+     $        'Generating atomic ZORA corrections', 23, .true.)
+           write(LuOut,*)
+         endif
+c
 c------- FA-code-added-09-26-11 --------------------------- START
 c ------ Read Knucl   for including ONLY nuclear part in K ZORA ----- START
 c Note.- stored in rel_input.F(rel_input(rtdb))
@@ -702,7 +715,6 @@ c       fractional occupations:
      &       call errquit('dft_scf: rtdb_put pstrace failed',
      &       1, RTDB_ERR)
         endif
-
 c
 c       Jorge Garza/Begin/Exact_pot
 c
@@ -945,9 +957,9 @@ c
         if (e_homo.lt.dbl_mb(k_eval(2)+noc(2)-1))
      &  e_homo = dbl_mb(k_eval(2)+noc(2)-1)
       endif
-
-c ... jochen: to check FON, calculate tr[P S] and print
-c      if (debug_fon) call dft_pstrace(g_dens(1),ao_bas_han,nbf_ao,oskel)
+c
+c     check for fractional occupations (fon), calculate tr[P S] and print
+c     if (debug_fon) call dft_pstrace(g_dens(1),ao_bas_han,nbf_ao,oskel)
       if (fon) then
         pstrace=ga_ddot(g_dens,g_s)
         if(ga_nodeid().eq.0) then
@@ -958,7 +970,6 @@ c      if (debug_fon) call dft_pstrace(g_dens(1),ao_bas_han,nbf_ao,oskel)
         if (.not. rtdb_put(rtdb, 'dft:pstrace', mt_dbl, 1, pstrace))
      &     call errquit('dft_scf: rtdb_put pstrace failed', 1, RTDB_ERR)
       end if                    ! fon
-
 c
 c     build DFT Fock matrix
 c

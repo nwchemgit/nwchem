@@ -92,9 +92,9 @@ c
       double precision rho_int, ex, ec,dummy(3),job_grid_acc,rho_err
       integer ii,isp
       equivalence (dummy(1),Ex), (dummy(2),Ec), (dummy(3),rho_int)
-
-      logical fon
-      double precision pstrace
+c
+      logical fon ! fractional occupancy
+      double precision pstrace  ! a measure of the total charge
 
 #ifdef SOLARIS
 c     needed for -stackvar option
@@ -505,9 +505,10 @@ c
       if (.not. rtdb_get(rtdb, 'dft:job_grid_acc', mt_dbl, 1, 
      &   job_grid_acc))
      &   call errquit('grid_acc_def: rtdb_put failed', 911, RTDB_ERR)
-
+c
+      fon = .false.
 c     fractional occupations?
-
+c
       if (rtdb_get(rtdb,'dft:fon',mt_log,1,fon)) then 
         if (.not.fon) call errquit(
      &     'grid_quadv0: fon stored in RTDB but not .true.', 1,
@@ -526,9 +527,8 @@ c
       else
          nelec=dble(noc(1)+noc(2))
       endif
-
-c ... jochen: if we have fractional occupations the
-c     correct electron number comes from tr[PS]:
+c
+c     for fractional occupations the correct electron number comes from tr[PS]
       if (fon) nelec = pstrace
 c         
       if(oprintw) then
