@@ -31,7 +31,8 @@
 		butter.o \
 		print_elapsed_time.o \
 		log_integrate.o \
-		nwpw_gaunt.o
+		nwpw_gaunt.o \
+		nwpw_parse.o
 
 	  OBJ = 
 
