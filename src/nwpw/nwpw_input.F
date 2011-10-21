@@ -130,6 +130,8 @@ c
        integer ispin,multiplicity,space_avail
        integer nx,ny,nz,minimizer,h_values,i_values
        
+       logical  nwpw_parse_boolean
+       external nwpw_parse_boolean
 
 *     ***** initializations ****
       call nwpw_default(rtdb)
@@ -928,15 +930,16 @@ c
 c  rotation
 c
  4900 if (.not.inp_a(zone_name)) goto 4901
-       if (inp_compare(.false.,zone_name,'on'))     move = .true.
-       if (inp_compare(.false.,zone_name,'yes'))    move = .true.
-       if (inp_compare(.false.,zone_name,'.true.')) move = .true.
-       if (inp_compare(.false.,zone_name,'T'))      move = .true.
-       if (inp_compare(.false.,zone_name,'off'))     move = .false.
-       if (inp_compare(.false.,zone_name,'no'))      move = .false.
-       if (inp_compare(.false.,zone_name,'.false.')) move = .false.
-       if (inp_compare(.false.,zone_name,'F'))       move = .false.
-       if (inp_compare(.false.,zone_name,'fix'))     move = .false.
+      move = nwpw_parse_boolean(zone_name,.false.)
+c       if (inp_compare(.false.,zone_name,'on'))     move = .true.
+c       if (inp_compare(.false.,zone_name,'yes'))    move = .true.
+c       if (inp_compare(.false.,zone_name,'.true.')) move = .true.
+c       if (inp_compare(.false.,zone_name,'T'))      move = .true.
+c       if (inp_compare(.false.,zone_name,'off'))     move = .false.
+c       if (inp_compare(.false.,zone_name,'no'))      move = .false.
+c       if (inp_compare(.false.,zone_name,'.false.')) move = .false.
+c       if (inp_compare(.false.,zone_name,'F'))       move = .false.
+c       if (inp_compare(.false.,zone_name,'fix'))     move = .false.
       if (.not.rtdb_put(rtdb,'nwpw:rotation',mt_log,1,move))
      >  call errquit('nwpw_input: error writing to rtdb',4900,RTDB_ERR)
 
@@ -948,15 +951,16 @@ c
 c  translation
 c
  5000 if (.not.inp_a(zone_name)) goto 5001
-      if (inp_compare(.false.,zone_name,'on'))     move = .true.
-      if (inp_compare(.false.,zone_name,'yes'))    move = .true.
-      if (inp_compare(.false.,zone_name,'.true.')) move = .true.
-      if (inp_compare(.false.,zone_name,'T'))      move = .true.
-      if (inp_compare(.false.,zone_name,'off'))     move = .false.
-      if (inp_compare(.false.,zone_name,'no'))      move = .false.
-      if (inp_compare(.false.,zone_name,'.false.')) move = .false.
-      if (inp_compare(.false.,zone_name,'F'))       move = .false.
-      if (inp_compare(.false.,zone_name,'fix'))     move = .false.
+      move = nwpw_parse_boolean(zone_name,.true.)
+c      if (inp_compare(.false.,zone_name,'on'))     move = .true.
+c      if (inp_compare(.false.,zone_name,'yes'))    move = .true.
+c      if (inp_compare(.false.,zone_name,'.true.')) move = .true.
+c      if (inp_compare(.false.,zone_name,'T'))      move = .true.
+c      if (inp_compare(.false.,zone_name,'off'))     move = .false.
+c      if (inp_compare(.false.,zone_name,'no'))      move = .false.
+c      if (inp_compare(.false.,zone_name,'.false.')) move = .false.
+c      if (inp_compare(.false.,zone_name,'F'))       move = .false.
+c      if (inp_compare(.false.,zone_name,'fix'))     move = .false.
       if (.not.rtdb_put(rtdb,'cgsd:allow_translation',mt_log,1,move))
      >  call errquit('nwpw_input: error writing to rtdb',5000,RTDB_ERR)
       if (.not.rtdb_put(rtdb,'band:allow_translation',mt_log,1,move))
@@ -1068,15 +1072,16 @@ c
 c spin orbit option "watch out"
 c
  6000 if (.not.inp_a(zone_name)) move = .true.
-      if (inp_compare(.false.,zone_name,'on'))     move = .true.
-      if (inp_compare(.false.,zone_name,'yes'))    move = .true.
-      if (inp_compare(.false.,zone_name,'.true.')) move = .true.
-      if (inp_compare(.false.,zone_name,'T'))      move = .true.
-      if (inp_compare(.false.,zone_name,'off'))     move = .false.
-      if (inp_compare(.false.,zone_name,'no'))      move = .false.
-      if (inp_compare(.false.,zone_name,'.false.')) move = .false.
-      if (inp_compare(.false.,zone_name,'F'))       move = .false.
-      if (inp_compare(.false.,zone_name,'fix'))     move = .false.
+      move = nwpw_parse_boolean(zone_name,move)
+c      if (inp_compare(.false.,zone_name,'on'))     move = .true.
+c      if (inp_compare(.false.,zone_name,'yes'))    move = .true.
+c      if (inp_compare(.false.,zone_name,'.true.')) move = .true.
+c      if (inp_compare(.false.,zone_name,'T'))      move = .true.
+c      if (inp_compare(.false.,zone_name,'off'))     move = .false.
+c      if (inp_compare(.false.,zone_name,'no'))      move = .false.
+c      if (inp_compare(.false.,zone_name,'.false.')) move = .false.
+c      if (inp_compare(.false.,zone_name,'F'))       move = .false.
+c      if (inp_compare(.false.,zone_name,'fix'))     move = .false.
 
       if (.not.rtdb_put(rtdb,'nwpw:spin_orbit',mt_log,1,move))
      >  call errquit('nwpw_input: error writing to rtdb',6000,RTDB_ERR)
@@ -1340,15 +1345,16 @@ c  parallel_io
 c
  7000 if (inp_a(zone_name)) then
          move = .true.
-         if (inp_compare(.false.,zone_name,'on'))     move = .true.
-         if (inp_compare(.false.,zone_name,'yes'))    move = .true.
-         if (inp_compare(.false.,zone_name,'.true.')) move = .true.
-         if (inp_compare(.false.,zone_name,'T'))      move = .true.
-         if (inp_compare(.false.,zone_name,'off'))     move = .false.
-         if (inp_compare(.false.,zone_name,'no'))      move = .false.
-         if (inp_compare(.false.,zone_name,'.false.')) move = .false.
-         if (inp_compare(.false.,zone_name,'F'))       move = .false.
-         if (inp_compare(.false.,zone_name,'fix'))     move = .false.
+         move = nwpw_parse_boolean(zone_name,move)
+c         if (inp_compare(.false.,zone_name,'on'))     move = .true.
+c         if (inp_compare(.false.,zone_name,'yes'))    move = .true.
+c         if (inp_compare(.false.,zone_name,'.true.')) move = .true.
+c         if (inp_compare(.false.,zone_name,'T'))      move = .true.
+c         if (inp_compare(.false.,zone_name,'off'))     move = .false.
+c         if (inp_compare(.false.,zone_name,'no'))      move = .false.
+c         if (inp_compare(.false.,zone_name,'.false.')) move = .false.
+c         if (inp_compare(.false.,zone_name,'F'))       move = .false.
+c         if (inp_compare(.false.,zone_name,'fix'))     move = .false.
       else
          move = .true.
       end if
