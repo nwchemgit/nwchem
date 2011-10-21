@@ -1,5 +1,5 @@
 #ifdef CRAYXT
-#warning undeffing nxtval
+c#warning undeffing nxtval
 #undef NXT
 #endif      
       subroutine ccsd_itm(nocc,nvir,nact,hiu,giu,habe,gabe,

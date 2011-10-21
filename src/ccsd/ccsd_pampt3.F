@@ -483,7 +483,7 @@ c
 #define NBGET 1
 c
 #ifdef CRAYXT
-#warning undefining NBGET
+c#warning undefining NBGET
 #undef NBGET
 #endif
       integer idim,jlo,jhi,nsh,llo,lhi,lnoo,nocc
