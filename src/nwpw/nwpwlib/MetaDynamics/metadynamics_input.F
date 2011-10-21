@@ -58,6 +58,8 @@ c
 *     **** external functions ****
       character*7 c_index_name
       external    c_index_name
+      logical     nwpw_parse_boolean
+      external    nwpw_parse_boolean
 
       nka   = 0
       nkb   = 0
@@ -512,14 +514,15 @@ c  spline
 c
  700  spline = .true.
       if (inp_a(test)) then
-         if (inp_compare(.false.,test,'on'))      spline = .true.
-         if (inp_compare(.false.,test,'yes'))     spline = .true.
-         if (inp_compare(.false.,test,'.true.'))  spline = .true.
-         if (inp_compare(.false.,test,'T'))       spline = .true.
-         if (inp_compare(.false.,test,'off'))     spline = .false.
-         if (inp_compare(.false.,test,'no'))      spline = .false.
-         if (inp_compare(.false.,test,'.false.')) spline = .false.
-         if (inp_compare(.false.,test,'F'))       spline = .false.
+         spline = nwpw_parse_boolean(test,spline)
+c         if (inp_compare(.false.,test,'on'))      spline = .true.
+c         if (inp_compare(.false.,test,'yes'))     spline = .true.
+c         if (inp_compare(.false.,test,'.true.'))  spline = .true.
+c         if (inp_compare(.false.,test,'T'))       spline = .true.
+c         if (inp_compare(.false.,test,'off'))     spline = .false.
+c         if (inp_compare(.false.,test,'no'))      spline = .false.
+c         if (inp_compare(.false.,test,'.false.')) spline = .false.
+c         if (inp_compare(.false.,test,'F'))       spline = .false.
       end if
 
       goto 10
