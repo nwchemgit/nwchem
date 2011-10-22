@@ -455,6 +455,17 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
     fi
   fi
 fi
+if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
+  #
+  # This test is stolen from GASNET
+  # /dev/ukbride present then we are probably on a Cray XT machine
+  # /proc/portals/meminfo present then this machine has Cray Portals
+  #
+  if [ -f /proc/portals/meminfo ] ; then
+    # There seems to be a portals infrastructure on this machine
+    export ARMCI_NETWORK="PORTALS"
+  fi
+fi
 #if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
 #  export ARMCI_NETWORK="MPI-MT"
 #fi
