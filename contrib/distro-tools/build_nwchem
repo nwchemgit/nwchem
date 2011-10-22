@@ -464,6 +464,15 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
   if [ -f /proc/portals/meminfo ] ; then
     # There seems to be a portals infrastructure on this machine
     export ARMCI_NETWORK="PORTALS"
+    if [ ${#MPI_F90} -eq 0 ] ; then
+      export MPI_F90=ftn
+    fi
+    if [ ${#MPI_CC} -eq 0 ] ; then
+      export MPI_CC=cc
+    fi
+    if [ ${#MPI_CXX} -eq 0 ] ; then
+      export MPI_CXX=CC
+    fi
   fi
 fi
 #if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
@@ -482,37 +491,37 @@ fi
 if [ ${#MPI_INCLUDE} -eq 0 ] ; then
   MPI_INCLUDE=`get_mpi_include`
   if [ $? -ne 0 ] ; then
-    exit 1
+    unset MPI_INCLUDE
   fi
 fi
 if [ ${#MPI_LIB} -eq 0 ] ; then
   MPI_LIB=`get_mpi_link`
   if [ $? -ne 0 ] ; then
-    exit 1
+    unset MPI_LIB
   fi
 fi
 if [ ${#LIBMPI} -eq 0 ] ; then
   LIBMPI=`get_mpi_lib`
   if [ $? -ne 0 ] ; then
-    exit 1
+    unset LIBMPI
   fi
 fi
 if [ ${#MPI_F90} -eq 0 ] ; then
   MPI_F90=`get_mpi_fortran`
   if [ $? -ne 0 ] ; then
-    exit 1
+    unset MPI_F90
   fi
 fi
 if [ ${#MPI_CC} -eq 0 ] ; then
   MPI_CC=`get_mpi_cc`
   if [ $? -ne 0 ] ; then
-    exit 1
+    unset MPI_CC
   fi
 fi
 if [ ${#MPI_CXX} -eq 0 ] ; then
   MPI_CXX=`get_mpi_cxx`
   if [ $? -ne 0 ] ; then
-    exit 1
+    unset MPI_CXX
   fi
 fi
 export MPI_INCLUDE
@@ -543,6 +552,7 @@ else
   echo "==============="
   echo
 fi
+echo "NWCHEM_TARGET =" ${NWCHEM_TARGET}
 echo "MPI_INCLUDE   =" ${MPI_INCLUDE}
 echo "MPI_LIB       =" ${MPI_LIB}
 echo "LIBMPI        =" ${LIBMPI}
