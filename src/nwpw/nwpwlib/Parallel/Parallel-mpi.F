@@ -28,6 +28,8 @@
 #include "global.fh"
 #include "mpif.h"
 
+#ifdef GA_DEV
+
 ccc#include "ga_mpi.fh"
 #ifndef GA_MPI_H_
 #define GA_MPI_H_
@@ -38,6 +40,8 @@ ccc#include "ga_mpi.fh"
       external ga_mpi_comm_pgroup
       external ga_mpi_comm_pgroup_default
 #endif /* GA_MPI_H_ */
+
+#endif /* GA_DEV */
 
 
 #ifdef MPI4
