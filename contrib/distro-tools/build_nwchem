@@ -556,8 +556,15 @@ if [ "x${option}" != "xrealclean" ]; then
       # The GA found some BLAS library, set GA_BLAS accordingly
       GA_BLAS=`get_config_value "BLAS_LDFLAGS"`
       GA_BLAS="${GA_BLAS} `get_config_value \"BLAS_LIBS\"`"
+      GA_BLAS_SIZE=`get_config_value "BLAS_SIZE"`
       export GA_BLAS
+      if [ "${GA_BLAS_SIZE}" == "4" ] ; then
+        export USE_64TO32=y
+      else
+        unset USE_64TO32
+      fi
       echo "Found BLAS " ${GA_BLAS}
+      echo "Found BLAS type: integer*"${GA_BLAS_SIZE}
     else
       # Confused
       echo "ERROR: A: inconsistent data on presence of BLAS library"
