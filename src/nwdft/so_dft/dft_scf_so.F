@@ -50,6 +50,7 @@ c
       double precision scale, ncheck
       integer kfon_occ, lfon_occ
       logical debug_fon, det_eng 
+      integer iswap,jswap
 c
 c     so
       double precision rho_n, toll_s
@@ -2048,33 +2049,19 @@ c
 c
       if(idet.eq.ndet) goto 2002    ! all determinant energies have been calculated
 c
-      nswap=0
-      jstart=nel_fon+1
-      do i = 1, nel_fon         ! the first nel_fon orbitals are occupied
-         if(int_mb(lfon_occ+idet*nmo_fon+i-1).eq.0)then 
-            nswap=nswap+1
-            swap((nswap-1)*2+1)=nTotEl-nel_fon+i
-            do j = jstart, nmo_fon
-               if(int_mb(lfon_occ+idet*nmo_fon+j-1).eq.1)then
-                  swap((nswap-1)*2+2)=nTotEl-nel_fon+j
-                  jstart = jstart + 1
-               endif
-            enddo
-         endif
-      enddo
-c     
-c     switch the mo order to match the determinantal occupancy 
-c     the first nel_fon fractionally occupied mo's should be those 
-c     occupied in the determinant. g_damp_so is used as tempary array
-c     to store the reordered mo's
-c     
-      do i = 1, nswap
-         if(.not.rtdb_put(rtdb,'sodft:swap',mt_int,2,swap((i-1)*2+1)))
+c     Switch the mo order to match the determinantal occupancy 
+c
+      iswap = ncore_fon + 1  ! first partially filled orbital
+      jswap = iswap + idet ! forms the pair (i,j) to be swapped
+      swap(1) = iswap  ! assign the pair
+      swap(2) = jswap  ! assign the pair
+      if (jswap.ge.iswap) then
+         if(.not.rtdb_put(rtdb,'sodft:swap',mt_int,2,swap))  ! swap is queried in movecs_swap_so
      &        call errquit('swap: failed to put nelem in rtdb', 0,
      &       RTDB_ERR)
-         call movecs_swap_so(rtdb,'dft',scftype,g_moso,
+         call movecs_swap_so(rtdb,'dft',scftype,g_moso,   ! do the swap
      &        dbl_mb(k_occ),dbl_mb(k_eval(1)))
-      enddo
+      end if
 c     
 c     form a new density matrix and calculate the corresponding energy 
 c     
@@ -2086,18 +2073,18 @@ c
       call ga_sync
       det_eng = .true. 
 c     
-c     Restore the orbital order 
+c     Restore the mo order so that we have a fixed reference
 c     
       if (me.eq.0) write(luout,4443)
  4443 format(/,1x,'Restoring orbital order')
 c
-      do i = 1, nswap
-         if(.not.rtdb_put(rtdb,'sodft:swap',mt_int,2,swap((i-1)*2+1)))
+      if (jswap.ge.iswap) then
+         if(.not.rtdb_put(rtdb,'sodft:swap',mt_int,2,swap))  ! swap is queried in movecs_swap_so
      &        call errquit('swap: failed to put nelem in rtdb', 0,
      &       RTDB_ERR)
-         call movecs_swap_so(rtdb,'dft',scftype,g_moso,
+         call movecs_swap_so(rtdb,'dft',scftype,g_moso,  ! do the swap
      &        dbl_mb(k_occ),dbl_mb(k_eval(1)))
-      enddo
+      end if
 c
 c     Write determinant configuration     
 c
