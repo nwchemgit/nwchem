@@ -218,10 +218,14 @@ c
 c     to do scalar relativistic calculations within the two-component framework
 c
       do_purescalar = .false.
-      if (.not.rtdb_get(rtdb,'sodft:purescalar',mt_log,1,do_purescalar))
+      if (.not.rtdb_get(rtdb,'sodft:scalar',mt_log,1,do_purescalar))
      &     do_purescalar = .false.
 c
-c     if (me.eq.0) write(6,*) "sodft:purescalar ",do_purescalar
+      if (me.eq.0.and.do_purescalar) then
+         call util_print_centered(LuOut,
+     $        'Neglecting spin-orbit terms', 23, .true.)
+         write(LuOut,*)
+       endif ! me
 c
       call ecce_print_module_entry('dft')
       dft_scf_so = .false.
@@ -548,7 +552,7 @@ c     == zora arrays ==
          call util_print_centered(LuOut,
      $        'Performing ZORA calculations', 23, .true.)
          write(LuOut,*)
-      endif
+       endif ! me
 c
 c      == get filename for zora data ==
        call util_file_name('zora_so',.false.,.false.,zorafilename)
@@ -1110,18 +1114,11 @@ cso
       call ga_zero(g_so(3))
 cso
 cso   Calculate the spin-orbit contributions from the ecp
-      if( .not. do_zora) then
+      if( .not. do_zora .and. .not. do_purescalar) then
          call int_1e_ga(ao_bas_han, ao_bas_han, g_so, 'so', oskel)
          call ga_scale(g_so(1),dble(0.5d0))  ! z
          call ga_scale(g_so(2),dble(0.5d0))  ! y
          call ga_scale(g_so(3),dble(0.5d0))  ! x
-      end if
-c
-c     zero out spin-orbit components for purescalar
-      if (do_purescalar) then
-        call ga_zero(g_so(1))
-        call ga_zero(g_so(2))
-        call ga_zero(g_so(3))
       end if
 cso
 cso   Add in the s.o. contribution to the fock matrix
@@ -2015,7 +2012,7 @@ c     &        'Calculation failed to converge', 20, .true.)
          endif
  232     format(//
      &        '       Determinant Energy'/
-     &        '       Total DFT energy =', f20.12/
+     &        '         Total DFT energy =', f20.12/
      &        '      One electron energy =', f20.12/
      &        '           Coulomb energy =', f20.12/
      &        '    Exchange-Corr. energy =', f20.12/
@@ -2024,7 +2021,7 @@ c     &        'Calculation failed to converge', 20, .true.)
      &        '     Total iterative time =', f9.1,'s'//)
  233     format(//
      &        '       Determinant Energy'/
-     &        '       Total DFT energy =', f20.12/
+     &        '         Total DFT energy =', f20.12/
      &        '      One electron energy =', f20.12/
      &        '           Coulomb energy =', f20.12/
      &        '          Exchange energy =', f20.12/
