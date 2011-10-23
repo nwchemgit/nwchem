@@ -473,6 +473,9 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
     if [ ${#MPI_CXX} -eq 0 ] ; then
       export MPI_CXX=CC
     fi
+    if [ ${#MA_USE_ARMCI_MEM} -eq 0 ] ; then
+      export MA_USE_ARMCI_MEM=1
+    fi
   fi
 fi
 #if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
