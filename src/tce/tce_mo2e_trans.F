@@ -78,7 +78,7 @@ c
       integer size_mug3ij,l_mug3ij,k_mug3ij
       character*255 filename
 c new offseting for 13 and 14
-      integer k_aux,l_aux,size_aux
+      integer k_aux,l_aux
 c
       integer nxtask
       external nxtask
