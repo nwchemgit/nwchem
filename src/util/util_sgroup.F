@@ -664,16 +664,73 @@ C###############################################################################
       integer function util_sgroup_mygroup()
 #include "util_sgroup.fh"
       util_sgroup_mygroup = mygroup(depth)
+      return
       end
 C###############################################################################
       integer function util_sgroup_numgroups()
 #include "util_sgroup.fh"
       util_sgroup_numgroups = ngroups(depth)
+      return
       end
 C###############################################################################
       integer function util_sgroup_zero_group()
 #include "util_sgroup.fh"
       util_sgroup_zero_group = my_ga_0_grp(depth)
+      return
+      end
+C###############################################################################
+      integer function util_sgroup_depth()
+#include "util_sgroup.fh"
+      util_sgroup_depth = depth
+      return
+      end
+C###############################################################################
+      integer function util_sgroup_set_ioname(filename)
+      implicit none
+      character*(*) filename
+
+#include "stdio.fh"
+#include "util_sgroup.fh"
+
+      logical       found
+      character*255 full_filename
+      character ch_tmp
+
+      LuOut = mygroup(depth)+200
+
+      call util_file_name_noprefix(filename,.false.,.false.,
+     >                             full_filename)
+
+      inquire(file=full_filename,exist=found)
+
+*     **** FILE already exists - parse to EOF ****
+      if (found) then
+         open(unit=LuOut,file=full_filename,form='formatted',
+     >             status='old')
+         do while(.true.)
+            read(LuOut,*,ERR=30,END=30) ch_tmp
+         end do
+ 30      continue
+#if defined(FUJITSU_SOLARIS) || defined(PSCALE) || defined(__crayx1)
+         backspace LuOut
+#endif
+*     **** FILE does not exist ****
+      else
+         open(unit=LuOut,file=full_filename,form='formatted')
+      end if
+      util_sgroup_set_ioname = LuOut
+      return
+      end
+C###############################################################################
+      integer function util_sgroup_unset_io()
+      implicit none
+#include "stdio.fh"
+#include "util_sgroup.fh"
+      
+      close(LuOut)
+      LuOut    = 6
+      util_sgroup_unset_io = LuOut
+      return
       end
 C###############################################################################
 
