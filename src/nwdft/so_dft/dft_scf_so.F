@@ -1120,11 +1120,10 @@ cso   Calculate the spin-orbit contributions from the ecp
          call ga_scale(g_so(1),dble(0.5d0))  ! z
          call ga_scale(g_so(2),dble(0.5d0))  ! y
          call ga_scale(g_so(3),dble(0.5d0))  ! x
-      end if
 cso
 cso   Add in the s.o. contribution to the fock matrix
-      if (.not. do_zora) 
-     &    call ga_fock_so(g_so, g_fockso, nbf_ao)
+         call ga_fock_so(g_so, g_fockso, nbf_ao)
+      end if
 cso  
 cso   Accumulate z-component s.o. contribution
 cso   Re(Dz)=-Im(Daa)+Im(Dbb) 
@@ -2007,9 +2006,11 @@ c     &        'Calculation failed to converge', 20, .true.)
          if (nexc.le.1)then
             write(LuOut,232)etnew+enuc, ecore, Ecoul, Exc(1), enuc, 
      &           rho_n, dft_time
+            if (do_zora) write(luout,2221) ener_scal
          else
             write(LuOut,233)etnew+enuc, ecore, Ecoul, Exc(1), Exc(2),
      &           enuc, rho_n, dft_time
+            if (do_zora) write(luout,2221) ener_scal
          endif
  232     format(//
      &        '       Determinant Energy'/
