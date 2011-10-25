@@ -712,13 +712,13 @@ C###############################################################################
       character*255 full_filename
       character ch_tmp
 
+#ifdef USE_SUBGROUPS
       LuOut = mygroup(depth)+200
 
       call util_file_name_noprefix(filename,.false.,.false.,
      >                             full_filename)
 
       inquire(file=full_filename,exist=found)
-
 *     **** FILE already exists - parse to EOF ****
       if (found) then
          open(unit=LuOut,file=full_filename,form='formatted',
@@ -735,6 +735,9 @@ C###############################################################################
          open(unit=LuOut,file=full_filename,form='formatted')
       end if
       util_sgroup_set_ioname = LuOut
+#else
+      util_sgroup_set_ioname = -1
+#endif
       return
       end
 C###############################################################################
@@ -743,9 +746,13 @@ C###############################################################################
 #include "stdio.fh"
 #include "util_sgroup.fh"
       
+#ifdef USE_SUBGROUPS
       close(LuOut)
       LuOut    = 6
       util_sgroup_unset_io = LuOut
+#else
+      util_sgroup_unset_io = -1
+#endif
       return
       end
 C###############################################################################
