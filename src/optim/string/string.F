@@ -201,7 +201,11 @@
       real*8 wrk(3,natoms,nbeads)
 
 ! Local variables
+      integer MAX_N
+      PARAMETER (MAX_N=750)
       integer i, j, k, nstep
+      integer ix, iix
+      logical done(MAX_N)
       real*8 dgg
       real*8 tmp, tmp2
       logical badgeom
@@ -219,16 +223,41 @@
         dg(i) = dble(i-1)/dble(nbeads-1)
       enddo
       
-      if (middle .eq. 0) then  ! Mindless interpolation
-        do i = 2, nbeads-1
-         dgg = dg(i)
-         do j = 1, natoms
-           do k = 1, 3
-            coords(k,j,i) = coords(k,j,1)*(1-dgg) +
-     &                      coords(k,j,nbeads)*dgg
-           enddo
-         enddo
+      if (middle .eq. 0) then  ! Flexible linear interpolation to get TS
+        if (nbeads .gt. MAX_N)
+     &     call errquit('zts_meps: MAX_N exceeded', 0, 0)
+        done(1) = .true.
+        do i = 2, nbeads - 1
+          done(i) = .false.
         enddo
+        done(nbeads) = .true.
+ 625    continue ! Loop
+          ix = -1
+          iix= -1
+          do i = 1, nbeads ! Find un-done region
+            if (ix .eq. -1 .and. .not. done(i)) then
+              ix = i-1
+            endif
+            if (ix .ne. -1 .and. done(i)) then
+              iix = i
+              goto 626
+            endif
+          enddo
+          goto 627 ! Nothing found, we are done
+ 626      continue
+          i = (iix+ix)/2
+          dgg = dble(i-ix)/dble(iix-ix) 
+          do j = 1, natoms
+            do k = 1, 3
+              coords(k,j,i) = coords(k,j,ix )*(1-dgg) +
+     &                        coords(k,j,iix)*dgg
+            enddo
+          enddo
+          call zts_Robinson(natoms,geom,coords(1,1,i),badgeom)
+          done(i) = .true.
+          goto 625
+        ! End of loop
+ 627    continue
       else if (middle .gt. 1 .and. middle .lt. nbeads) then ! TS guess
         call zts_guess(natoms,nbeads,middle,coords)
       else if (middle .eq. -1) then  ! We know exactly what we are doing
@@ -1096,6 +1125,7 @@ c            scale gradient
 ! Local variables
       integer i,j,k
       real*8 dgg
+      real*8 a,b,c
       integer guess
 
       guess = 1
@@ -1118,6 +1148,43 @@ c            scale gradient
            do k = 1, 3
             coords(k,j,i) = coords(k,j,middle)*(1-dgg) +
      &                      coords(k,j,nbeads)*dgg
+           enddo
+         enddo
+        enddo
+      else if (guess .eq. 2) then ! Quadratic in x,y,z
+        do j = 1, natoms
+          do k = 1, 3
+            dgg = dble(middle-1)/dble(nbeads-1)
+            a=coords(k,j,1)
+            b=((coords(k,j,middle)-coords(k,j,1))-
+     &         (coords(k,j,nbeads)-coords(k,j,1))*dgg**2) /
+     &        (dgg-dgg**2) 
+            c=(coords(k,j,nbeads)-coords(k,j,1)) - b
+            do i = 2, nbeads-1
+              dgg = dble(i-1)/dble(nbeads-1)
+              coords(k,j,i) = a+b*dgg+c*dgg**2
+            enddo
+          enddo
+        enddo
+      else if (guess .eq. 3) then ! Quadratic both parts with dx=0 at ends
+        ! this just turns out to be linear with more points need ends
+        do i = 2, middle-1
+         dgg = dble(i-1)/dble(middle-1)
+         do j = 1, natoms
+           do k = 1, 3
+            a = coords(k,j,1)
+            b = coords(k,j,middle) - coords(k,j,1)
+            coords(k,j,i) = a + b*(3*dgg**2 + 2*dgg**3)
+           enddo
+         enddo
+        enddo
+        do i = middle+1, nbeads-1
+         dgg = dble(i-middle)/dble(nbeads-middle)
+         do j = 1, natoms
+           do k = 1, 3
+            a = coords(k,j,middle)
+            b = coords(k,j,nbeads) - coords(k,j,middle)
+            coords(k,j,i) = a + b*(3*dgg**2 + 2*dgg**3)
            enddo
          enddo
         enddo
