@@ -1,0 +1,46 @@
+echo
+start ch4cl_zts_dat
+
+charge -1
+
+geometry geometry nocenter
+  symmetry c1
+C     0.000000     0.000000     0.000000
+H     0.000000     0.000000     1.089000
+H     1.026719     0.000000    -0.363000
+H    -0.513360    -0.889165    -0.363000
+H    -0.513360     0.889165    -0.363000
+Cl    0.000000     0.000000    -4.000000
+end
+
+geometry endgeom nocenter
+  symmetry c1
+C     0.000000     0.000000     0.000000
+H     0.000000     0.000000     4.000000
+H     1.030648     0.000000     0.348926
+H    -0.515324    -0.892568     0.348926
+H    -0.515324     0.892568     0.348926
+Cl    0.000000     0.000000    -1.805001
+end
+
+
+basis
+  * library STO-3G
+end
+
+print low
+
+string
+tol  0.001d0
+stepsize 0.20d0
+nbeads 24
+maxiter 100
+interpol 1
+end
+
+# We have to freeze the end points since this reaction has no barrier
+set string:freezen .true.
+set string:freeze1 .true.
+
+task string scf
+
