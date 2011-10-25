@@ -626,6 +626,7 @@ c
       myproc=ga_nodeid()
 
        if (.not.(rtdb_cget(rtdb,'scf:input vectors',1,movecs_in).or.
+     >           rtdb_cget(rtdb,'pspw:input vectors',1,movecs_in).or.
      $           rtdb_cget(rtdb,'dft:input vectors',1, movecs_in)))
      $     movecs_in = 'atomic'
        if (movecs_in.eq.'atomic')
@@ -645,17 +646,32 @@ c
 c
 c Set output movecs
 c
-      if (.not.(rtdb_cget(rtdb,'task:theory',1,theory)))
-     *     call errquit('rtdb_get task:theory failed',0,0)
-      if (theory.eq.'dft') then
-       tag='dft:output vectors'
-      else
-       tag='scf:output vectors'
-      endif
+c      if (.not.(rtdb_cget(rtdb,'task:theory',1,theory)))
+c     *     call errquit('rtdb_get task:theory failed',0,0)
+c      if (theory.eq.'dft') then
+c         tag='dft:output vectors'
+c      else
+c         tag='scf:output vectors'
+c      endif
 c
+      tag='dft:output vectors'
       if (.not. rtdb_cput(rtdb,tag,1,sg_movecs_out)) then
        write (LuOut,*) 'error in rtdb_cput'
       endif
+      tag='scf:output vectors'
+      if (.not. rtdb_cput(rtdb,tag,1,sg_movecs_out)) then
+       write (LuOut,*) 'error in rtdb_cput'
+      endif
+
+      tag='pspw:input vectors'
+      if (.not. rtdb_cput(rtdb,tag,1,sg_movecs_out)) then
+       write (LuOut,*) 'error in rtdb_cput'
+      endif
+      tag='pspw:output vectors'
+      if (.not. rtdb_cput(rtdb,tag,1,sg_movecs_out)) then
+       write (LuOut,*) 'error in rtdb_cput'
+      endif
+
 c
       return
       end
