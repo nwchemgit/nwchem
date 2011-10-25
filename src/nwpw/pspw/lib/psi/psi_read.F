@@ -19,6 +19,7 @@
 #include "rtdb.fh"
 #include "util.fh"
 #include "errquit.fh"
+#include "stdio.fh"
 
 *    *** local variables ***
       integer version,l,rtdb
@@ -82,7 +83,7 @@ c    >                                .false.,
 c    >                        full_filename)
 
          l = index(full_filename,' ') -1
-         if (lprint) write(*,1210) full_filename(1:l)
+         if (lprint) write(LuOut,1210) full_filename(1:l)
  1210    FORMAT(/' input psi filename:',A)
 
          call openfile(5,full_filename,l,'r',l)
@@ -119,9 +120,9 @@ c     **** send header to all nodes ****
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
         if (taskid_p.eq.MASTER) then
-        write(*,*) "taskid_i,taskid_j=",taskid_i,taskid_j
-        write(*,*) "nfft :",nfft
-        write(*,*) "ngrid:",control_ngrid(1),
+        write(LuOut,*) "taskid_i,taskid_j=",taskid_i,taskid_j
+        write(LuOut,*) "nfft :",nfft
+        write(LuOut,*) "ngrid:",control_ngrid(1),
      >                      control_ngrid(2),
      >                      control_ngrid(3)
         end if
@@ -205,6 +206,7 @@ c     **** send header to all nodes ****
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
+#include "stdio.fh"
 
 
 *    *** local variables ***
@@ -263,7 +265,7 @@ c     complex*16 tmp(*)
          call util_file_name_resolve(full_filename, .false.)
 
          l = index(full_filename,' ') -1
-         write(*,1220) full_filename(1:l)
+         write(LuOut,1220) full_filename(1:l)
  1220    FORMAT(/' input epsi filename:',A)
 
          call openfile(5,full_filename,l,'r',l)
@@ -298,8 +300,8 @@ c     **** send header to all nodes ****
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
         if (taskid.eq.MASTER) then
-        write(*,*) "nfft :",nfft
-        write(*,*) "ngrid:",control_ngrid(1),
+        write(LuOut,*) "nfft :",nfft
+        write(LuOut,*) "ngrid:",control_ngrid(1),
      >                      control_ngrid(2),
      >                      control_ngrid(3)
         end if
@@ -379,6 +381,7 @@ c         end if
 #include "rtdb.fh"
 #include "util.fh"
 #include "errquit.fh"
+#include "stdio.fh"
 
 *    *** local variables ***
       integer version,l,rtdb
@@ -442,7 +445,7 @@ c    >                                .false.,
 c    >                        full_filename)
 
          l = index(full_filename,' ') -1
-         if (lprint) write(*,1210) full_filename(1:l)
+         if (lprint) write(LuOut,1210) full_filename(1:l)
  1210    FORMAT(/' input psi filename:',A)
 
          call openfile(5,full_filename,l,'r',l)
@@ -477,8 +480,8 @@ c     **** send header to all nodes ****
      >     (nfft(2).ne.control_ngrid(2)) .or.
      >     (nfft(3).ne.control_ngrid(3)) ) then
         if (taskid.eq.MASTER) then
-        write(*,*) "nfft :",nfft
-        write(*,*) "ngrid:",control_ngrid(1),
+        write(LuOut,*) "nfft :",nfft
+        write(LuOut,*) "ngrid:",control_ngrid(1),
      >                      control_ngrid(2),
      >                      control_ngrid(3)
         end if

@@ -543,7 +543,7 @@ c     end if
       call cgsd_oep_eigenvalues()
 
 *     **** extra energy output for QA test ****
-      if (lprint) write(6,1600) EV
+      if (lprint) write(LuOut,1600) EV
 
 *     **** calculate the spin contamination ****
       if (flag.gt.-1) call psi_spin2(dipole(1))

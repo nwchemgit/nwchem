@@ -1,3 +1,6 @@
+c $Id$
+
+
 *     ******************************
 *     *                            *
 *     *    Calculate_psi_spin2     *
@@ -17,6 +20,7 @@
 #include "util.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "stdio.fh"
 ccc#include "frac_occ.fh"
 
 *     **** local variables ****
@@ -90,13 +94,12 @@ c         Sab = Sexact + en(2) - Sab
       end if
 
       if (oprint) then
-         WRITE(*,'(//A)') '=== Spin Contamination ==='
-         write(*,*)
-         write(*,*) "<Sexact^2> = ", Sexact
-         write(*,*) "<S^2>      = ", Sab
-         write(*,*)
+         write(LuOut,'(//A)') '=== Spin Contamination ==='
+         write(LuOut,*)
+         write(LuOut,*) "<Sexact^2> = ", Sexact
+         write(LuOut,*) "<S^2>      = ", Sab
+         write(LuOut,*)
       end if
 
       return
       end
-c $Id$

@@ -17,6 +17,7 @@
 
 #include "mafdecls.fh"
 #include "util.fh"
+#include "stdio.fh"
 #include "errquit.fh"
 
 *    *** local variables ***
@@ -91,7 +92,7 @@ c     complex*16 tmp(*)
          full_filename = filename
          call util_file_name_resolve(full_filename, .false.)
          l = index(full_filename,' ') -1
-         if (lprint) write(*,1210) full_filename(1:l)
+         if (lprint) write(LuOut,1210) full_filename(1:l)
  1210    FORMAT(/' output psi filename:',A)
 
          call openfile(6,full_filename,l,'w',l)
@@ -166,6 +167,7 @@ c     complex*16 tmp(*)
 
 #include "mafdecls.fh"
 #include "util.fh"
+#include "stdio.fh"
 #include "errquit.fh"
 
 
@@ -243,7 +245,7 @@ c     complex*16 tmp(*)
          call util_file_name_resolve(full_filename, .false.)
 
          l = index(full_filename,' ') -1
-         if (lprint) write(*,1220) full_filename(1:l)
+         if (lprint) write(LuOut,1220) full_filename(1:l)
  1220    FORMAT(/' output epsi filename:',A)
          call openfile(6,full_filename,l,'w',l)
          if (taskid.eq.MASTER) then
@@ -315,6 +317,7 @@ c      end do
 
 #include "mafdecls.fh"
 #include "util.fh"
+#include "stdio.fh"
 #include "errquit.fh"
 
 *    *** local variables ***
@@ -391,7 +394,7 @@ c        call util_file_name_noprefix(filename,.false.,
 c    >                                .false.,
 c    >                       full_filename)
          l = index(full_filename,' ') -1
-         if (lprint) write(*,1210) full_filename(1:l)
+         if (lprint) write(LuOut,1210) full_filename(1:l)
  1210    FORMAT(/' output psi filename:',A)
 
          call openfile(6,full_filename,l,'w',l)

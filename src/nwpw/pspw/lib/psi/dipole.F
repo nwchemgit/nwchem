@@ -18,6 +18,7 @@
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "util.fh"
+#include "stdio.fh"
 
 
 *     **** local variables ****
@@ -240,13 +241,13 @@
       cdz3=cdz3/rmax
 
       if (oprint) then
-        WRITE(*,1200)
-        WRITE(*,1220) 'spin up   ',CDX1,CDY1,CDZ1
+        write(LuOut,1200)
+        write(LuOut,1220) 'spin up   ',CDX1,CDY1,CDZ1
         if (ne(ispin).ne.0) 
-     >    WRITE(*,1220) 'spin down ',CDX2,CDY2,CDZ2
-        WRITE(*,1220) '     total',CDX3,CDY3,CDZ3
-        WRITE(*,1220) 'ionic     ',qGX,qGY,qGZ
-        WRITE(*,1220) 'crystal   ',cqGX,cqGY,cqGZ
+     >    write(LuOut,1220) 'spin down ',CDX2,CDY2,CDZ2
+        write(LuOut,1220) '     total',CDX3,CDY3,CDZ3
+        write(LuOut,1220) 'ionic     ',qGX,qGY,qGZ
+        write(LuOut,1220) 'crystal   ',cqGX,cqGY,cqGZ
       end if
       dtmp(1) = CDX3
       dtmp(2) = CDY3
@@ -281,9 +282,9 @@
      >            + dipole_crystal(2)**2 
      >            + dipole_crystal(3)**2)
       if (oprint) then
-         WRITE(*,1240)
-         WRITE(*,1231) dipole_crystal
-         WRITE(*,1232) cdx1,cdx1*autoDebye
+         write(LuOut,1240)
+         write(LuOut,1231) dipole_crystal
+         write(LuOut,1232) cdx1,cdx1*autoDebye
       end if
 
 *     ***** calculate dipole with respect to center of mass ****
@@ -299,9 +300,9 @@
      >            + dipole_molecule(2)**2 
      >            + dipole_molecule(3)**2)
       if (oprint) then
-         WRITE(*,1230)
-         WRITE(*,1231) dipole_molecule
-         WRITE(*,1232) cdx1,cdx1*autoDebye
+         write(LuOut,1230)
+         write(LuOut,1231) dipole_molecule
+         write(LuOut,1232) cdx1,cdx1*autoDebye
       end if
  1230 FORMAT(//'== Molecular Dipole wrt Center of Mass =='/)
  1231 FORMAT('mu   =  (',F10.4,',',F10.4,',',F10.4,' ) au')
