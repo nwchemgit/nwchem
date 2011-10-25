@@ -1534,7 +1534,7 @@ c     implicit none
 #endif
 
 *     **** local variables ****
-      integer mynp,mytaskid,msglen,msgype,mpierr,proc_to,proc_from
+      integer mynp,mytaskid,msglen,msgtype,mpierr,proc_to,proc_from
 
 *     ***** external functions ****
 #ifdef MPI4
@@ -1661,7 +1661,7 @@ c     implicit none
 #endif
 
 *     **** local variables ****
-      integer mynp,mytaskid,msglen,msgype,mpierr,proc_to,proc_from
+      integer mynp,mytaskid,msglen,msgtype,mpierr,proc_to,proc_from
 
 *     ***** external functions ****
 #ifdef MPI4

@@ -458,6 +458,20 @@
       return
       end
 
+*     *************************************
+*     *                                   *
+*     *         Parallel_comm_world       *
+*     *                                   *
+*     *************************************
+      integer function Parallel_comm_world()
+      implicit none
+
+#include "Parallel.fh"
+
+      Parallel_comm_world = comm_world
+      return
+      end
+
 
 
 
