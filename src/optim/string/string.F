@@ -1133,7 +1133,7 @@ c            scale gradient
       real*8 a,b,c
       integer guess
 
-      guess = 1
+      guess = 2
 
 !     Simple linear interpolation
 
