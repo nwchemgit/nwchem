@@ -3082,7 +3082,7 @@ c     >                  source,rcv_proc,1)
       integer MASTER,taskid,taskid_i,taskid_j
       parameter(MASTER=0)
       integer p_to, p_here,q
-      integer j,k,index,index2
+      integer j,k,index,index2,mpierr
       integer source,msglen,msgtype,status(2)
 
 c      integer taskid_j,np_j
@@ -3331,7 +3331,7 @@ c     >                  source,rcv_proc,1)
       integer MASTER,taskid
       parameter(MASTER=0)
       integer p_to, p_here,q
-      integer j,k,index,index2
+      integer j,k,index,index2,mpierr
       integer source,msglen,msgtype,status(2)
 
       integer taskid_j,np_j
@@ -3567,7 +3567,7 @@ c     >                  source,rcv_proc,1)
       logical value,fillcolumn,readcolumn
       integer p_to, p_here,q
       integer j,k,index
-      integer source,msglen,msgtype,status(2)
+      integer source,msglen,msgtype,status(2),mpierr
       integer tmp1(2),tmp2(2)
 
 c      integer taskid_j,np_j
@@ -3818,7 +3818,7 @@ c     >                  source,rcv_proc,1)
       logical value,fillcolumn
       integer p_to, p_here,q
       integer j,k,index
-      integer source,msglen,msgtype,status(2)
+      integer source,msglen,msgtype,status(2),mpierr
       integer tmp1(2),tmp2(2)
 
       integer taskid_j,np_j
@@ -3879,7 +3879,7 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                  call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     p_to,
-     >                     msgtype,MPI_COMM_WORLD(),mpierr)
+     >                     msgtype,MPI_COMM_WORLD,mpierr)
 #endif
               end if
             end do
@@ -4063,7 +4063,7 @@ c     >                  source,rcv_proc,1)
       integer p_from, p_here,q
       integer j,k,index
       integer dest,source,msglen,msgtype,status(2)
-      integer dum,dum_msglen,dum_msgtype
+      integer dum,dum_msglen,dum_msgtype,mpierr
       integer tmp1(2),tmp2(2)
 
       integer ii
@@ -4371,7 +4371,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
       logical value
       integer p_from, p_here,q
       integer j,k,index
-      integer dest,source,msglen,msgtype,status(2)
+      integer dest,source,msglen,msgtype,status(2),mpierr
       integer dum,dum_msglen,dum_msgtype
       integer tmp1(2),tmp2(2)
 
@@ -4667,7 +4667,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
       parameter(MASTER=0)
       integer p_from, p_here,q
       integer j,k,index,index2
-      integer dest,source,msglen,msgtype,status(2)
+      integer dest,source,msglen,msgtype,status(2),mpierr
 
       integer taskid_j,ii
 
@@ -4886,7 +4886,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       logical value
       integer p_from, p_here,q
       integer j,k,index
-      integer dest,source,msglen,msgtype,status(2)
+      integer dest,source,msglen,msgtype,status(2),mpierr
       integer dum,dum_msglen,dum_msgtype
       integer tmp1(2),tmp2(2)
 
@@ -5005,7 +5005,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
      >                    dum_msgtype,MPI_COMM_WORLD,
      >                    int_mb(status(1)),mpierr)
                   call MPI_SEND(tmp,
-     >                     msglen,MPI_DOUBLE_PRECSION,
+     >                     msglen,MPI_DOUBLE_PRECISION,
      >                     dest,
      >                     msgtype,MPI_COMM_WORLD,mpierr)
 #endif
@@ -5190,7 +5190,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       parameter(MASTER=0)
       integer p_from, p_here,q
       integer i,j,k,index,index2
-      integer dest,source,msglen,msgtype,status(2)
+      integer dest,source,msglen,msgtype,status(2),mpierr
 
       call Parallel_taskid(taskid)
 
@@ -5416,7 +5416,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       parameter(MASTER=0)
       integer p_from, p_here,q
       integer i,j,k,index
-      integer dest,source,msglen,idum,msgtype,status(2)
+      integer dest,source,msglen,idum,msgtype,status(2),mpierr
 
       call Parallel_taskid(taskid)
 
@@ -5671,7 +5671,7 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       parameter(MASTER=0)
       integer p_from, p_here,q
       integer i,j,k,index
-      integer dest,source,msglen,msgtype,status(2)
+      integer dest,source,msglen,msgtype,status(2),mpierr
 
       call Parallel_taskid(taskid)
 
