@@ -1,16 +1,23 @@
 #!/bin/bash
-if [ $# != 1 ] ; then
-  echo "Usage: $0 source-directory"
+release=nwchem-6.0
+if [[ ! ( $# == 1 || $# == 2 ) ]] ; then
+  echo "Usage: $0 source-directory [distribution-directory]"
   echo ""
   echo "The source-directory is the directory in which the source code"
-  echo "lives. This code and the data files are copied from there into"
-  echo "the distribution directory. Any artifacts from testing the code"
-  echo "are removed and the resulting directory packaged as a compressed"
-  echo "tar-file."
+  echo "lives. The distribution-directory is the directory that the"
+  echo "source will be copied into and which is used to generate the"
+  echo "distribution tar-ball. If the distribution-directory is not"
+  echo "specified ${release} will be used instead."
+  echo "Any artifacts from testing the code are removed and the resulting"
+  echo "directory packaged as a compressed tar-file."
   exit 1
 fi
 source=`pwd`/$1
-distro=nwchem-6.0
+if [ $# == 2 ] ; then
+  distro=$2
+else
+  distro=${release}
+fi
 target=`pwd`/${distro}
 echo "Generating source distro"
 echo "Source: " ${source}
