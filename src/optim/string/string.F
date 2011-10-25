@@ -289,6 +289,11 @@
      &    '@  Step   xrms          E end         '
      &     //'E middle          E end          E max'
       endif
+      if (maxit .lt. 1) then ! Just printing out initial geometries
+         do i = 1, nbeads
+           energy(i) = 0
+         enddo
+      endif
       do nstep = 1, maxit
 !        Look for atoms that are too close
          do i = 1, nbeads
