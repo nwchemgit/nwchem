@@ -14,6 +14,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "pspw_LJ.fh"
+#include "stdio.fh"
 #include "errquit.fh"
 
 *     **** local variables
@@ -88,12 +89,12 @@ c
       
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
-          write(*,*)
-          write(*,*) 'Ion LJ Parameters:'
+          write(luout,*)
+          write(luout,*) 'Ion LJ Parameters:'
           if (include_qm)
-     >       write(*,*) '- including QM/QM LJ interactions'
+     >       write(luout,*) '- including QM/QM LJ interactions'
           do i=1,nkatm
-            write(*,'(A4,4x,A12,E10.3,A9,A12,E10.3,A9)') 
+            write(luout,'(A4,4x,A12,E10.3,A9,A12,E10.3,A9)') 
      >       ion_atom(i),
      >       'sigma:',  
      >       dbl_mb(sigma_atom(1)+i-1)*(0.529177d0), 
@@ -102,12 +103,12 @@ c
      >       dbl_mb(epsilon_atom(1)+i-1)*(23.06d0*27.2116d0),
      >       'kcal/mol'
           end do
-          write(*,*)
+          write(luout,*)
           if (include_qm) then
              do j=1,nkatm_qm
              do i=j,nkatm_qm
                if (dbl_mb(epsilon_all(1)+(j-1)*nkatm+i-1).gt.1e-11)
-     >          write(*,'(A4,1x,A4,4x,A7,E10.3,A9,A12,E10.3,A9)') 
+     >          write(luout,'(A4,1x,A4,4x,A7,E10.3,A9,A12,E10.3,A9)') 
      >          ion_atom(i),ion_atom(j),
      >          'sigma:',  
      >          dbl_mb(sigma_all(1)+(j-1)*nkatm+i-1)*(0.529177d0), 
@@ -121,7 +122,7 @@ c
           do j=1,nkatm_qm
           do i=nkatm_qm+1,nkatm
             if (dbl_mb(epsilon_all(1)+(j-1)*nkatm+i-1).gt.1e-11)
-     >       write(*,'(A4,1x,A4,4x,A7,E10.3,A9,A12,E10.3,A9)') 
+     >       write(luout,'(A4,1x,A4,4x,A7,E10.3,A9,A12,E10.3,A9)') 
      >       ion_atom(i),ion_atom(j),
      >       'sigma:',  
      >       dbl_mb(sigma_all(1)+(j-1)*nkatm+i-1)*(0.529177d0), 
@@ -134,7 +135,7 @@ c
           do j=nkatm_qm+1,nkatm
           do i=j,nkatm
             if (dbl_mb(epsilon_all(1)+(j-1)*nkatm+i-1).gt.1e-11)
-     >       write(*,'(A4,1x,A4,4x,A7,E10.3,A9,A12,E10.3,A9)') 
+     >       write(luout,'(A4,1x,A4,4x,A7,E10.3,A9,A12,E10.3,A9)') 
      >       ion_atom(i),ion_atom(j),
      >       'sigma:',  
      >       dbl_mb(sigma_all(1)+(j-1)*nkatm+i-1)*(0.529177d0), 
@@ -144,7 +145,7 @@ c
      >       'kcal/mol'
           end do
           end do
-          write(*,*)
+          write(luout,*)
       end if
 
       return

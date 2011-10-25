@@ -15,6 +15,7 @@ c
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "errquit.fh"
+#include "stdio.fh"
 #include "pspw_2qmmm.fh"
 
 
@@ -753,27 +754,27 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
 *       ***** write out header info ****
         call Parallel_taskid(taskid)
         if (taskid.eq.MASTER) then
-           write(*,*)
-           write(*,'(1x,A)') "Auxiliary Potential Parameters:"
-           write(*,'(2x,"fragments start (index_start) =",10I5)')
+           write(luout,*)
+           write(luout,'(1x,A)') "Auxiliary Potential Parameters:"
+           write(luout,'(2x,"fragments start (index_start) =",10I5)')
      >         (int_mb(indx_frag_start(1)+mm-1),mm=1,nfrag)
-           write(*,'(2x,"fragments kind                =",10I5)')
+           write(luout,'(2x,"fragments kind                =",10I5)')
      >         (int_mb(kfrag(1)+mm-1),mm=1,nfrag)
            do ia=1,nkfrag
-             write(*,'(/2x,A,I5)') "non-fragment: ",ia
-             write(*,'(2x,A,I5)') " - non-fragment size = ",
+             write(luout,'(/2x,A,I5)') "non-fragment: ",ia
+             write(luout,'(2x,A,I5)') " - non-fragment size = ",
      >                         int_mb(size_frag(1)+ia-1)
              if (log_mb(self_interaction(1)+ia-1)) then
-                write(*,*) "  - ionic non-fragment"
+                write(luout,*) "  - ionic non-fragment"
              else
-                write(*,*) "  - covalent non-fragment"
+                write(luout,*) "  - covalent non-fragment"
              end if
              if (log_mb(incell_frag(1)+ia-1)) then
-                write(*,*) "  - incell non-fragment"
+                write(luout,*) "  - incell non-fragment"
              else
-                write(*,*) "  - not incell non-fragment"
+                write(luout,*) "  - not incell non-fragment"
              end if
-             write(*,*) "  - Switching Parameters = ",
+             write(luout,*) "  - Switching Parameters = ",
      >                  dbl_mb(switch_Rin(1)+ia-1),
      >                  dbl_mb(switch_Rout(1)+ia-1)
 
@@ -788,13 +789,13 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
                 indx_ptr  = indx_shake(1)+ii-1
                 shake_ptr = dsq_shake(1) +jj-1
                 if (natmp.eq.nbtmp) then
-                   write(*,'(A,5(I4,F8.3))')   
+                   write(luout,'(A,5(I4,F8.3))')   
      >                "   - shake = ",
      >                (int_mb(indx_ptr+j-1),
      >                 dsqrt(dbl_mb(shake_ptr+j-1)),
      >                 j=1,nbtmp)
              else
-                   write(*,'(A,5(I4,F8.3))')   
+                   write(luout,'(A,5(I4,F8.3))')   
      >                "   - shake = ",
      >                (int_mb(indx_ptr+j-1),
      >                 dsqrt(dbl_mb(shake_ptr+j-1)),
@@ -812,7 +813,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
                 indx_ptr  = indx_bond(1)+ii-1
                 shake_ptr = Kr0_bond(1) +jj-1
 
-             write(*,'(A,2I4,4x,A,F11.6,4x,A,F11.6)') 
+             write(luout,'(A,2I4,4x,A,F11.6,4x,A,F11.6)') 
      >       "   - Bond Spring Parameters =  ",
      >                  (int_mb(indx_ptr+j-1),j=1,2),
      >                  'K=',
@@ -829,7 +830,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
                 indx_ptr  = indx_angle(1)+ii-1
                 shake_ptr = Kr0_angle(1) +jj-1
 
-             write(*,'(A,3I4,4x,A,F11.6,4x,A,F11.6)') 
+             write(luout,'(A,3I4,4x,A,F11.6,4x,A,F11.6)') 
      >       "   - Angle Spring Parameters = ",
      >                  (int_mb(indx_ptr+j-1),j=1,3),
      >                  'Ktheta=',
@@ -846,7 +847,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
                 indx_ptr  = indx_cbond(1)+ii-1
                 shake_ptr = Kr0_cbond(1) +jj-1
 
-             write(*,'(A,A,2I4,4x,A,F11.6, 
+             write(luout,'(A,A,2I4,4x,A,F11.6, 
      >             /35x, A,2I4,4x,A,F11.6,4x,A,F11.6)') 
      >       "   - Cross Bond Spring Parameters: ",
      >                  'indexes1=',
@@ -869,7 +870,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
                 indx_ptr  = indx_mbond(1)+ii-1
                 shake_ptr = Kr0_mbond(1) +jj-1
 
-             write(*,'(A,A,2I4,3(4x,A,F11.6))') 
+             write(luout,'(A,A,2I4,3(4x,A,F11.6))') 
      >       "   - Morse Parameters: ",
      >                  "indexes=",
      >                  (int_mb(indx_ptr+j-1),j=1,2),
@@ -886,7 +887,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
                 indx_ptr  = indx_dihedral_spring(1)+ii-1
                 shake_ptr = Kr0_dihedral_spring(1) +jj-1
 
-             write(*,'(A,A,4I4,2(4x,A,F11.6))')
+             write(luout,'(A,A,4I4,2(4x,A,F11.6))')
      >       "   - Dihedral Spring Parameters: ",
      >                  "indexes=",
      >                  (int_mb(indx_ptr+j-1),j=1,4),
@@ -902,7 +903,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
                 indx_ptr  = indx_dihedral(1)+ii-1
                 shake_ptr = Kr0_dihedral(1) +jj-1
 
-             write(*,'(A,A,4I4,3(4x,A,F11.6))')
+             write(luout,'(A,A,4I4,3(4x,A,F11.6))')
      >       "   - Dihedral Parameters: ",
      >                  "indexes=",
      >                  (int_mb(indx_ptr+j-1),j=1,4),
@@ -925,7 +926,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
                 shake_ptr = Kr0_coord(1)+kk-1
 
                 if (dbl_mb(shake_ptr+5).gt.0) then
-                write(*,'(A,/6x,A,F11.6,4x,A,F11.6,
+                write(luout,'(A,/6x,A,F11.6,4x,A,F11.6,
      >                      /6x,A,F11.6,4x,A,F11.6)')
      >       "   - Coordination Number Parameters (Sprik): ",
      >                  "n=    ",dbl_mb(shake_ptr),
@@ -933,7 +934,7 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
      >                  "K=    ",dbl_mb(shake_ptr+3),
      >                  "cn0=  ",dbl_mb(shake_ptr+4)
                else
-                write(*,'(A,/6x,A,F11.6,4x,A,F11.6,4x,A,F11.6,
+                write(luout,'(A,/6x,A,F11.6,4x,A,F11.6,4x,A,F11.6,
      >                      /6x,A,F11.6,4x,A,F11.6)')
      >       "   - Coordination Number Parameters (LJ): ",
      >                  "n=    ",dbl_mb(shake_ptr),
@@ -942,9 +943,9 @@ cccc      qmmm_found  =  (ion_nion_mm().gt.0).and.(nfrag.gt.0)
      >                  "K=    ",dbl_mb(shake_ptr+3),
      >                  "cn0=  ",dbl_mb(shake_ptr+4)
                end if
-               write(*,'(6x,"Index1 =",10I5)')
+               write(luout,'(6x,"Index1 =",10I5)')
      >         (int_mb(i+mm-1),mm=1,ni)
-               write(*,'(6x,"Index2 =",10I5)')
+               write(luout,'(6x,"Index2 =",10I5)')
      >         (int_mb(j+mm-1),mm=1,nj)
 
                ll = ll + 1

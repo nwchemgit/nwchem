@@ -13,10 +13,11 @@ c
 *
       subroutine Model_Potential_init(rtdb)
       implicit none
-#include "errquit.fh"
       integer rtdb
 
+#include "errquit.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 #include "mafdecls.fh"
 
 ***** Mode Potential common block *****
@@ -73,18 +74,18 @@ c
       end do
 
       if (taskid.eq.MASTER) then
-        write(*,*)
-        write(*,*) "Model Potential - Long-Range Potential   "
-        write(*,*) "-----------------------------------------"
-        write(*,*)
-        write(*,'  (A15,2x,A15,2x,A4)') "q","rcut","atom"
+        write(luout,*)
+        write(luout,*) "Model Potential - Long-Range Potential   "
+        write(luout,*) "-----------------------------------------"
+        write(luout,*)
+        write(luout,'  (A15,2x,A15,2x,A4)') "q","rcut","atom"
         do ia=1,pspw_qmmm_nkatm()
-           write(*,'  (E15.6,2x,E15.6,2x,A4)') 
+           write(luout,'  (E15.6,2x,E15.6,2x,A4)') 
      >         pspw_Q_zv_MM(ia),
      >         dbl_mb(lr_cutoff(1)+ia-1),
      >         pspw_qmmm_atom(ia)
         end do
-        write(*,*)
+        write(luout,*)
       end if
 
 
@@ -161,18 +162,18 @@ c
         end do
 
         if (taskid.eq.MASTER) then
-           write(*,*)
-           write(*,*) "Model Potential - Gaussian Basis   "
-           write(*,*) "-----------------------------------"
-           write(*,*)
-           write(*,'  (A15,2x,A15,2x,A4)') "coeff","exponent","atom"
+           write(luout,*)
+           write(luout,*) "Model Potential - Gaussian Basis   "
+           write(luout,*) "-----------------------------------"
+           write(luout,*)
+           write(luout,'  (A15,2x,A15,2x,A4)') "coeff","exponent","atom"
            do i=1,Nbasis
-              write(*,'  (E15.6,2x,E15.6,2x,A4)') 
+              write(luout,'  (E15.6,2x,E15.6,2x,A4)') 
      >            dbl_mb(c(1)+i-1),
      >            dbl_mb(g(1)+i-1),
      >            pspw_qmmm_atom(int_mb(iatom(1)+i-1))
            end do
-           write(*,*)
+           write(luout,*)
         end if
 
          sqrtpi = dsqrt(4.0d0*datan(1.0d0))

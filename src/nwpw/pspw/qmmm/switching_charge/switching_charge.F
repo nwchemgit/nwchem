@@ -26,6 +26,7 @@ c
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 #include "switching_charge.fh"
 
 *     **** local variables ****
@@ -41,8 +42,8 @@ c
 
 
       if (taskid.eq.MASTER) then
-          write(*,1170)
-          write(*,1171) s_sigma
+          write(luout,1170)
+          write(luout,1171) s_sigma
       end if
  1170 FORMAT(/' Electrostatic point charges used:')
  1171 FORMAT(5X, '- sigma = (',E11.3,' )  ')
@@ -75,11 +76,12 @@ c
 *     *************************************
       subroutine Switching_Charge_Generate_V(n2ft3d,rgrid,Vqm)
       implicit none
-#include "errquit.fh"
       integer n2ft3d
       real*8  rgrid(3,*)
       real*8  Vqm(*)
 
+#include "errquit.fh"
+#include "stdio.fh"
 #include "mafdecls.fh"
 #include "switching_charge.fh"
 
@@ -112,14 +114,14 @@ c       call dcopy(n2ft3d,1.0d0,0,dbl_mb(xtmp(1)),1)
        do i=1,n2ft3d
            
           if ( dabs(dbl_mb(xtmp(1)+i-1)) .gt.0.1d0) then
-          write(*,*) "T:",i,dbl_mb(xtmp(1)+i-1)
+          write(luout,*) "T:",i,dbl_mb(xtmp(1)+i-1)
           end if
           if ( dbl_mb(xtmp(1)+i-1) .lt.0.0d0) then
              scal2 = scal2 + dbl_mb(xtmp(1)+i-1)
              count = count + 1
           end if
        end do
-       write(*,*) "ERROR:",count,scal2
+       write(luout,*) "ERROR:",count,scal2
 
 *     **** Tall*Vqm ****
 c      call D3dB_rr_Mul(1,Vqm,dbl_mb(xtmp(1)),Vqm)
