@@ -8,6 +8,7 @@
       integer rtdb
 #include "mafdecls.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 
       logical value
       integer version
@@ -170,7 +171,7 @@ c             CFULL(K)=CFULL(K)+(0.5d0-RAND())/DSQRT(dble(NFFT3D))
             P=gcdotc(nfft1,nfft2,nfft3,
      >               dcpl_mb(cfull_indx),
      >               dcpl_mb(cfull_indx))
-            write(6,*) ' Random noise is added to this psi. P=',P
+            write(luout,*) ' Random noise is added to this psi. P=',P
             P=1.0d0/dsqrt(P)
             call dscal(n2ft3d,P,dcpl_mb(cfull_indx),1)
           ENDIF
@@ -178,7 +179,7 @@ c             CFULL(K)=CFULL(K)+(0.5d0-RAND())/DSQRT(dble(NFFT3D))
 
  1011     FORMAT(' writing <spin=',I2,',psi=',I3,'>    -     (',
      >           3I3,' : ',I3,')')
-          WRITE(6,1011) ms,n,filling(1,n,ms),
+          WRITE(luout,1011) ms,n,filling(1,n,ms),
      >                       filling(2,n,ms),
      >                       filling(3,n,ms),
      >                       filling(4,n,ms)

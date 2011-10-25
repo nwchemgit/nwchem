@@ -16,6 +16,7 @@
       integer      ispin,nein(2)
 
 #include "mafdecls.fh"
+#include "stdio.fh"
 #include "errquit.fh"
  
 *     **** local variables ****
@@ -64,9 +65,9 @@
      >                     ne,
      >                     fractional,
      >                     fractional_orbitals)
-        write(*,*) "random planewave guess, initial psi:",
+        write(luout,*) "random planewave guess, initial psi:",
      >             wavefunction_filename
-        write(*,*) "-   spin, nalpha, nbeta:",ispin,ne
+        write(luout,*) "-   spin, nalpha, nbeta:",ispin,ne
         value = MA_pop_stack(filling(2))
         if (.not. value) call errquit('popping stack memory',0, MA_ERR)
       end if
