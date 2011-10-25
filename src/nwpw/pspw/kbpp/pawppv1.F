@@ -23,6 +23,7 @@
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "util.fh"
+#include "stdio.fh"
 
 *     ***** local variables ****
       integer taskid,MASTER,msglen
@@ -326,11 +327,11 @@ c      fourpi = 16.0d0*datan(1.0d0)
 c      zcore = fourpi*log_integrate_def(0,
 c     >                         dbl_mb(core_ae(1)),
 c     >                         2,dbl_mb(rgrid(1)),log_amesh,n1dgrid)
-c      write(*,*) "Zcore=",zcore,rmax,dbl_mb(rgrid(1)+n1dgrid-1)
+c      write(luout,*) "Zcore=",zcore,rmax,dbl_mb(rgrid(1)+n1dgrid-1)
 c      zcore = fourpi*log_integrate_def(0,
 c     >                         dbl_mb(core_ps(1)),
 c     >                         2,dbl_mb(rgrid(1)),log_amesh,n1dgrid)
-c      write(*,*) "Zcoreps=",zcore
+c      write(luout,*) "Zcoreps=",zcore
 
 
       if (taskid.eq.MASTER) then
@@ -340,9 +341,9 @@ c      write(*,*) "Zcoreps=",zcore
      >                    full_filename)
       l = index(full_filename,' ') - 1
       if (mprint) then
-      write(*,*)
-      write(*,*) "Generated formatted_filename: ",full_filename(1:l)
-c      if (filter) write(*,*) "- filtering pseudopotential -"
+      write(luout,*)
+      write(luout,*) "Generated formatted_filename: ",full_filename(1:l)
+c      if (filter) write(luout,*) "- filtering pseudopotential -"
       end if
       call openfile(2,full_filename,l,'w',l)
 

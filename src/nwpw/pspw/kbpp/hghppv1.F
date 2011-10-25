@@ -18,6 +18,7 @@
 #include "msgtypesf.h"
 #include "errquit.fh"
 #include "util.fh"
+#include "stdio.fh"
 
       logical          oprint_in
       integer          version
@@ -140,12 +141,12 @@ c      call Parallel_init()
       !**** determine nprj ****
       nprj= 0
       do l=0,lmax
-            !write(*,*) "???H :",l,(H(i,l),i=1,3)
+            !write(luout,*) "???H :",l,(H(i,l),i=1,3)
       do i=1,3 
         if ((H(i,l).ne.0.0d0)) nprj = nprj + (2*l+1)
       end do
       end do
-      !write(*,*) "???nprj:", nprj
+      !write(luout,*) "???nprj:", nprj
         
 
 
@@ -262,7 +263,7 @@ c      call Parallel_init()
      >                     dbl_mb(G_indx),
      >                     dbl_mb(vnl_indx+(i-1)*nsize))
          if ((taskid.eq.MASTER).and.(oprint)) 
-     >      write(*,*) "creating projector:",n,l,m
+     >      write(luout,*) "creating projector:",n,l,m
          do j=1,nsize
           dbl_mb(vnl_indx+(i-1)*nsize+j-1)
      >    = dbl_mb(vnl_indx+(i-1)*nsize+j-1)*dbl_mb(Ylm_indx+j-1)
@@ -272,41 +273,41 @@ c      call Parallel_init()
 
 
       if ((taskid.eq.MASTER).and.(oprint)) then
-      write(*,*) "     ********************************************"
-      write(*,*) "     *                                          *"
-      write(*,*) "     *    HGHPPV1 - Pseudopotential Formatter   *"
-      write(*,*) "     *                                          *"
-      write(*,*) "     *      version last updated 11/13/03       *"
-      write(*,*) "     *                                          *"
-      write(*,*) "     *       developed by Eric J. Bylaska       *"
-      write(*,*) "     *                                          *"
-      write(*,*) "     ********************************************"
+      write(luout,*) "     ********************************************"
+      write(luout,*) "     *                                          *"
+      write(luout,*) "     *    HGHPPV1 - Pseudopotential Formatter   *"
+      write(luout,*) "     *                                          *"
+      write(luout,*) "     *      version last updated 11/13/03       *"
+      write(luout,*) "     *                                          *"
+      write(luout,*) "     *       developed by Eric J. Bylaska       *"
+      write(luout,*) "     *                                          *"
+      write(luout,*) "     ********************************************"
       call nwpw_message(1)
-      write(*,*)
-      write(*,*) "Pseudpotential Data"
-      write(*,*) "-------------------"
-      write(*,*) "  atom     :",atom
-      write(*,*) "  charge   :",Zion
-      write(*,*) "  highest angular component used :",lmax
-      write(*,*) "  highest radial  component used :",nmax
-      write(*,*) "  number of non-local projectors :",nprj
-      write(*,111) "   projector cutoffs: ",(r(i), i=0,lmax)
-      write(*,*)
-      write(*,111) " local psp cutoff       : ",rloc
-      write(*,111) " local psp coefficients : ",C1,C2,C3,C4
+      write(luout,*)
+      write(luout,*) "Pseudpotential Data"
+      write(luout,*) "-------------------"
+      write(luout,*) "  atom     :",atom
+      write(luout,*) "  charge   :",Zion
+      write(luout,*) "  highest angular component used :",lmax
+      write(luout,*) "  highest radial  component used :",nmax
+      write(luout,*) "  number of non-local projectors :",nprj
+      write(luout,111) "   projector cutoffs: ",(r(i), i=0,lmax)
+      write(luout,*)
+      write(luout,111) " local psp cutoff       : ",rloc
+      write(luout,111) " local psp coefficients : ",C1,C2,C3,C4
       if (version.eq.4) 
-     >   write(*,*) "  aperiodic cutoff radius        :",rlocal
+     >   write(luout,*) "  aperiodic cutoff radius        :",rlocal
       
-      write(*,*)
-      write(*,*) "Simulation Cell"
-      write(*,*) "---------------"
-      if (version.eq.3) write(*,112) "  boundry: periodic"
-      if (version.eq.4) write(*,112) "  boundry: aperiodic"
-      write(*,113) "  ngrid  :",ngrid
-      write(*,114) "  unita  :",unita(1,1),unita(2,1),unita(3,1)
-      write(*,114) "          ",unita(1,2),unita(2,2),unita(3,2)
-      write(*,114) "          ",unita(1,3),unita(2,3),unita(3,3)
-      write(*,*)
+      write(luout,*)
+      write(luout,*) "Simulation Cell"
+      write(luout,*) "---------------"
+      if (version.eq.3) write(luout,112) "  boundry: periodic"
+      if (version.eq.4) write(luout,112) "  boundry: aperiodic"
+      write(luout,113) "  ngrid  :",ngrid
+      write(luout,114) "  unita  :",unita(1,1),unita(2,1),unita(3,1)
+      write(luout,114) "          ",unita(1,2),unita(2,2),unita(3,2)
+      write(luout,114) "          ",unita(1,3),unita(2,3),unita(3,3)
+      write(luout,*)
   111 format(a,10f10.3)
   112 format(a)
   113 format(a,3I4)
@@ -324,9 +325,9 @@ c      call Parallel_init()
      >                    full_filename)
       l = index(full_filename,' ') - 1
       if (mprint) then
-      write(*,*)
-      write(*,*) "Generated formatted_filename: ",full_filename(1:l)
-      !write(*,*)
+      write(luout,*)
+      write(luout,*) "Generated formatted_filename: ",full_filename(1:l)
+      !write(luout,*)
       end if
       call openfile(2,full_filename,l,'w',l)     
 

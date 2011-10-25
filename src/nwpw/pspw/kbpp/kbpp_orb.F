@@ -23,6 +23,7 @@
 #include "tcgmsg.fh"
 #include "msgtypesf.h"
 #include "util.fh"
+#include "stdio.fh"
 
       character*255 full_filename
 
@@ -189,38 +190,38 @@ c      call Parallel_Init()
 
 
       if ((taskid.eq.MASTER).and.(oprint)) then
-      write(*,*) "     ********************************************"
-      write(*,*) "     *                                          *"
-      write(*,*) "     *     KBPP_ORB - Atomic Orbital Formatter  *"
-      write(*,*) "     *                                          *"
-      write(*,*) "     *      version last updated 4/15/99        *"
-      write(*,*) "     *                                          *"
-      write(*,*) "     * This code was written by Eric J. Bylaska *"
-      write(*,*) "     * and was based upon algorithms and code   *"
-      write(*,*) "     * developed by the group of                *"
-      write(*,*) "     * Prof. John H. Weare                      *"
-      write(*,*) "     ********************************************"
+      write(luout,*) "     ********************************************"
+      write(luout,*) "     *                                          *"
+      write(luout,*) "     *     KBPP_ORB - Atomic Orbital Formatter  *"
+      write(luout,*) "     *                                          *"
+      write(luout,*) "     *      version last updated 4/15/99        *"
+      write(luout,*) "     *                                          *"
+      write(luout,*) "     * This code was written by Eric J. Bylaska *"
+      write(luout,*) "     * and was based upon algorithms and code   *"
+      write(luout,*) "     * developed by the group of                *"
+      write(luout,*) "     * Prof. John H. Weare                      *"
+      write(luout,*) "     ********************************************"
       call nwpw_message(1)
-      write(*,*)
-      write(*,*) "Pseudpotential Data"
-      write(*,*) "-------------------"
-      write(*,*) "  atom     :",atom
-      write(*,*) "  charge   :",zv
-      write(*,*) "  mass no. :",amass
-      write(*,*) "  highest angular component      :",lmax0
-      write(*,*) "  highest angular component used :",lmax
-      write(*,*) "  local potential used           :",locp
+      write(luout,*)
+      write(luout,*) "Pseudpotential Data"
+      write(luout,*) "-------------------"
+      write(luout,*) "  atom     :",atom
+      write(luout,*) "  charge   :",zv
+      write(luout,*) "  mass no. :",amass
+      write(luout,*) "  highest angular component      :",lmax0
+      write(luout,*) "  highest angular component used :",lmax
+      write(luout,*) "  local potential used           :",locp
 
-      write(*,*)
-      write(*,*) "Simulation Cell"
-      write(*,*) "---------------"
-      if (version.eq.3) write(*,112) "  boundry: periodic"
-      if (version.eq.4) write(*,112) "  boundry: aperiodic"
-      write(*,113) "  ngrid  :",ngrid
-      write(*,114) "  unita  :",unita(1,1),unita(2,1),unita(3,1)
-      write(*,114) "          ",unita(1,2),unita(2,2),unita(3,2)
-      write(*,114) "          ",unita(1,3),unita(2,3),unita(3,3)
-      write(*,*)
+      write(luout,*)
+      write(luout,*) "Simulation Cell"
+      write(luout,*) "---------------"
+      if (version.eq.3) write(luout,112) "  boundry: periodic"
+      if (version.eq.4) write(luout,112) "  boundry: aperiodic"
+      write(luout,113) "  ngrid  :",ngrid
+      write(luout,114) "  unita  :",unita(1,1),unita(2,1),unita(3,1)
+      write(luout,114) "          ",unita(1,2),unita(2,2),unita(3,2)
+      write(luout,114) "          ",unita(1,3),unita(2,3),unita(3,3)
+      write(luout,*)
   111 format(a,10f10.3)
   112 format(a)
   113 format(a,3I4)
@@ -258,8 +259,8 @@ c      call Parallel_Init()
      >                    full_filename)
       l = index(full_filename,' ') - 1
       if (mprint) then
-      write(*,*)
-      write(*,*) "Generated formatted atomic orbitals, filename: ",
+      write(luout,*)
+      write(luout,*) "Generated formatted atomic orbitals, filename: ",
      >            full_filename(1:l)
       !write(*,*)
       end if
