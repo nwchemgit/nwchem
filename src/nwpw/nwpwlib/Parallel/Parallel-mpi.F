@@ -30,6 +30,7 @@
 
 #ifdef GA_DEV
 
+
 ccc#include "ga_mpi.fh"
 #ifndef GA_MPI_H_
 #define GA_MPI_H_
@@ -39,6 +40,7 @@ ccc#include "ga_mpi.fh"
       external ga_mpi_comm
       external ga_mpi_comm_pgroup
       external ga_mpi_comm_pgroup_default
+
 #endif /* GA_MPI_H_ */
 
 #endif /* GA_DEV */
@@ -49,15 +51,30 @@ ccc#include "ga_mpi.fh"
 #endif
 
 *     **** local variables ****
-      integer i
+      integer MASTER
+      parameter (MASTER=0)
+      integer i,mpierr,mygroup,myio,mydepth
+      character*50 nwfilename
+      character*7 c_index_name
+      external    c_index_name
+      integer  util_sgroup_set_ioname,util_sgroup_mygroup
+      integer  util_sgroup_depth
+      external util_sgroup_set_ioname,util_sgroup_mygroup
+      external util_sgroup_depth
 
 c*     **** MPI initiializer *****
 cc     call MPI_INIT(mpierr)
 c      call MPI_COMM_RANK(MPI_COMM_WORLD,taskid,mpierr)
 c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
 
+#ifdef USE_SUBGROUPS
+
 #ifdef GA_DEV
       call ga_mpi_comm_pgroup_default(comm_world)
+#else
+      comm_world = MPI_COMM_WORLD
+#endif
+
 #else
       comm_world = MPI_COMM_WORLD
 #endif
@@ -75,8 +92,25 @@ c      call MPI_COMM_SIZE(MPI_COMM_WORLD,np,mpierr)
       stupid_comm_k   = -99
 #endif
 
+#ifdef USE_SUBGROUPS
+#ifdef GA_DEV
+      call MPI_COMM_RANK(comm_world,taskid,mpierr)
+      call MPI_COMM_SIZE(comm_world,np,mpierr)
+      mydepth = util_sgroup_depth()
+      mygroup = util_sgroup_mygroup()
+      if ((taskid.eq.MASTER).and.(mydepth.gt.0)) then
+         myio = util_sgroup_set_ioname(
+     >              "nwpw"//c_index_name(mygroup)//".output")
+      end if
+#else
       np     = nnodes()
       taskid = nodeid()
+#endif
+
+#else
+      np     = nnodes()
+      taskid = nodeid()
+#endif
 
 
 *     **** set up 3d processor grid = np x 1 x 1****

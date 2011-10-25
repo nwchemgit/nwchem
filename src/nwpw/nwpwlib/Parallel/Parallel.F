@@ -25,6 +25,20 @@
 #include "mafdecls.fh"
 #include "errquit.fh"
 
+#ifdef USE_SUBGROUPS
+#ifdef GA_DEV
+#ifdef MPI
+      integer myio,MASTER,mydepth
+      parameter (MASTER=0)
+      integer  util_sgroup_unset_io,util_sgroup_depth
+      external util_sgroup_unset_io,util_sgroup_depth
+      mydepth = util_sgroup_depth()
+      if ((taskid.eq.MASTER).and.(mydepth.gt.0)) then
+         myio = util_sgroup_unset_io()
+      end if
+#endif
+#endif
+#endif
       if (.not.MA_free_heap(procNd(2)))
      >  call errquit('Parralel_finalalize',1,MA_ERR)
 
