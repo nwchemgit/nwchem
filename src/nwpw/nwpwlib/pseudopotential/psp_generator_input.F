@@ -555,6 +555,7 @@ c      call flush(6)
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "stdio.fh"
 
       integer iopt
       character*4 atom
@@ -610,7 +611,7 @@ c
       psp_type=nwpw_libgpsp_type(atom)
        
 c      if (hprint) then
-      write(*,*) "Generating 1d pseudopotential for ",atom
+      write(luout,*) "Generating 1d pseudopotential for ",atom
 
 c      end if
 
@@ -784,6 +785,7 @@ c        *** revPBE ***
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "stdio.fh"
 
       character*4 atom
       double precision rlocal
@@ -837,7 +839,7 @@ c
       psp_type=nwpw_libgpsp_type(atom)
        
       if (hprint) then
-      write(*,*) "Generating 1d atomic orbitals for ",atom
+      write(luout,*) "Generating 1d atomic orbitals for ",atom
       end if
 
       !*** CPI pseudopotential format ***
