@@ -62,8 +62,8 @@ c     integer i2_start(NFFT3+1)
       integer mpierr
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
       
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
@@ -125,7 +125,7 @@ c     integer i2_start(NFFT3+1)
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
 #endif
          end if
@@ -154,7 +154,7 @@ c     integer i2_start(NFFT3+1)
             call MPI_SEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
          end if
 
@@ -242,8 +242,8 @@ c     integer i2_start(NFFT3+1)
       integer mpierr
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
 
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
@@ -301,7 +301,7 @@ c     integer i2_start(NFFT3+1)
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(request(1)+reqcnt-1),mpierr)
 #endif
          end if
@@ -331,7 +331,7 @@ c     integer i2_start(NFFT3+1)
             call MPI_SEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
          end if
 
@@ -424,8 +424,8 @@ c     integer i2_start(NFFT3+1)
       integer mpierr
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
 
       
       call Parallel2d_taskid_i(taskid)
@@ -487,7 +487,7 @@ c     integer i2_start(NFFT3+1)
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
 #endif
          end if
@@ -516,7 +516,7 @@ c     integer i2_start(NFFT3+1)
             call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
          end if
 
@@ -609,8 +609,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer mpierr
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
       
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
@@ -672,7 +672,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
 #endif
          end if
@@ -701,7 +701,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     Parallel2d_convert_taskid_i(proc_to),
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
          end if
 
@@ -1019,8 +1019,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer mpierr,n1,n2
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
       
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
@@ -1076,7 +1076,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    type,MPI_COMM_WORLD,
+     >                    type,Parallel_comm_world(),
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
 #endif
          end if
@@ -1105,7 +1105,7 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
             call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
          end if
 
@@ -1186,8 +1186,8 @@ c     integer status(MPI_STATUS_SIZE,512),request(512),reqcnt
       integer mpierr,n1,n2
 
 c     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
       
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
@@ -1242,7 +1242,7 @@ c     **** external functions ****
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    type,MPI_COMM_WORLD,
+     >                    type,Parallel_comm_world(),
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
 #endif
          end if
@@ -1271,7 +1271,7 @@ c     **** external functions ****
             call MPI_SEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
          end if
 
@@ -1359,8 +1359,8 @@ c     **** external functions ****
       integer mpierr
 
 c     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
       
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
@@ -1420,7 +1420,7 @@ c     **** external functions ****
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(request(1)+reqcnt-1),mpierr) 
 #endif
          end if
@@ -1449,7 +1449,7 @@ c     **** external functions ****
             call MPI_SEND(tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
          end if
 
@@ -1503,8 +1503,8 @@ c     **** external functions ****
       integer pto,pfrom,msglen,indx,mpierr
 
 c     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
 
 
       reqcnt = 0
@@ -1532,7 +1532,7 @@ c            send data....
             call MPI_ISEND(A(indx),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(pto),
-     >                     msgtype,MPI_COMM_WORLD,
+     >                     msgtype,Parallel_comm_world(),
      >                     request(reqcnt),mpierr)
 #endif
             end if
@@ -1565,7 +1565,7 @@ c            recieve data....
             call MPI_IRECV(A(indx),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(pfrom),
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    request(reqcnt),mpierr)
 #endif
             end if
@@ -1626,8 +1626,8 @@ c            recieve data....
       integer pto,pfrom,msglen,indx,mpierr
 
 c     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
 
 
       reqcnt=0
@@ -1655,7 +1655,7 @@ c            recieve data....
             call MPI_IRECV(A(indx),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(pfrom),
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    request(reqcnt),mpierr)
 #endif
             end if
@@ -1687,7 +1687,7 @@ c            send data....
             call MPI_ISEND(A(indx),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(pto),
-     >                     msgtype,MPI_COMM_WORLD,
+     >                     msgtype,Parallel_comm_world(),
      >                     request(reqcnt),mpierr)
 #endif
 
@@ -1778,8 +1778,8 @@ c            send data....
       integer mpierr,n1
 
 c     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
       
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
@@ -1827,7 +1827,7 @@ c         type   = 1
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    request(reqcnt),mpierr) 
 #endif
          end if
@@ -1860,7 +1860,7 @@ c         msgtype   = 1
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
-     >                     msgtype,MPI_COMM_WORLD,
+     >                     msgtype,Parallel_comm_world(),
      >                     request(reqcnt),mpierr)
 #endif
          end if
@@ -1980,8 +1980,8 @@ c         msgtype   = 1
       integer mpierr,n1
 
 c     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
       
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
@@ -2030,7 +2030,7 @@ c         type   = 1
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    request(reqcnt),mpierr) 
 #endif
          end if
@@ -2063,7 +2063,7 @@ c         msgtype   = 1
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
-     >                     msgtype,MPI_COMM_WORLD,
+     >                     msgtype,Parallel_comm_world(),
      >                     request(reqcnt),mpierr)
 #endif
          end if
@@ -2191,8 +2191,8 @@ c         msgtype   = 1
       integer mpierr
 
 c     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
       
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
@@ -2242,7 +2242,7 @@ c         type   = 1
             call MPI_IRECV(tmp2(int_mb(h_i2_start(1,op,nbb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    request(reqcnt),mpierr) 
 #endif
          end if
@@ -2275,7 +2275,7 @@ c         msgtype   = 1
             call MPI_ISEND(tmp1(int_mb(h_i1_start(1,op,nbb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
-     >                     msgtype,MPI_COMM_WORLD,
+     >                     msgtype,Parallel_comm_world(),
      >                     request(reqcnt),mpierr)
 #endif
          end if
@@ -2403,8 +2403,8 @@ c     integer i2_start(NFFT3+1)
       integer mpierr
 
 c     **** external functions ****
-      integer  Parallel2d_convert_taskid_i
-      external Parallel2d_convert_taskid_i
+      integer  Parallel2d_convert_taskid_i,Parallel_comm_world
+      external Parallel2d_convert_taskid_i,Parallel_comm_world
 
       call Parallel2d_taskid_i(taskid)
       call Parallel2d_np_i(np)
@@ -2461,7 +2461,7 @@ c         type   = 1
             call MPI_IRECV(tmp2(int_mb(i2_start(1,nb)+it+1-1)),
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    Parallel2d_convert_taskid_i(source),
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    request(reqcnt),mpierr)
 #endif
          end if
@@ -2495,7 +2495,7 @@ c         msgtype   = 1
             call MPI_ISEND(tmp1(int_mb(i1_start(1,nb)+it+1-1)),
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     Parallel2d_convert_taskid_i(proc_to),
-     >                     msgtype,MPI_COMM_WORLD,
+     >                     msgtype,Parallel_comm_world(),
      >                     request(reqcnt),mpierr)
 #endif
          end if
@@ -2852,8 +2852,8 @@ c     >                  source,rcv_proc,1)
       integer status(2),mpierr
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij
-      external Parallel2d_convert_taskid_ij
+      integer  Parallel2d_convert_taskid_ij,Parallel_comm_world
+      external Parallel2d_convert_taskid_ij,Parallel_comm_world
 
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_j(taskid_j)
@@ -2908,7 +2908,7 @@ c                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     p_to,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
                end if
             end do
@@ -2939,7 +2939,7 @@ c     >                  source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
@@ -2985,7 +2985,7 @@ cc                  call SND(9+MSGDBL,tmp,mdtob(2*msglen),p_to,1)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     p_to,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
                end if
             end do
@@ -3019,7 +3019,7 @@ c     >                  source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
                index = (q-1)*(nx(nb)/2+1) + 1
@@ -3338,8 +3338,8 @@ c     >                  source,rcv_proc,1)
       integer ii,jj,jstart,jend
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij
-      external Parallel2d_convert_taskid_ij
+      integer  Parallel2d_convert_taskid_ij,Parallel_comm_world
+      external Parallel2d_convert_taskid_ij,Parallel_comm_world
 
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_j(taskid_j)
@@ -3399,7 +3399,7 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     p_to,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
                end if
             end do
@@ -3431,7 +3431,7 @@ c     >                       source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
                do j=1,ny(nb)
@@ -3484,7 +3484,7 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     p_to,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
 
                end if
@@ -3519,7 +3519,7 @@ c     >                  source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
                index = (q-1)*(nx(nb)+2) + 1
@@ -3825,8 +3825,8 @@ c     >                  source,rcv_proc,1)
       integer ii,jj,jstart,jend
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij
-      external Parallel2d_convert_taskid_ij
+      integer  Parallel2d_convert_taskid_ij,Parallel_comm_world
+      external Parallel2d_convert_taskid_ij,Parallel_comm_world
 
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_j(taskid_j)
@@ -3879,7 +3879,7 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                  call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     p_to,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
               end if
             end do
@@ -3910,7 +3910,7 @@ c     >                       source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
                index = (q-1)*(nx(nb)/2+1)*ny(nb) + 1
@@ -3956,7 +3956,7 @@ c                  call SND(9+MSGDBL,tmp,mdtob(msglen),p_to,1)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     p_to,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
                end if
             end do
@@ -3990,7 +3990,7 @@ c     >                  source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
                index = (q-1)*(nx(nb)/2+1) + 1
@@ -4378,8 +4378,8 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
       integer ii
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij
-      external Parallel2d_convert_taskid_ij
+      integer  Parallel2d_convert_taskid_ij,Parallel_comm_world
+      external Parallel2d_convert_taskid_ij,Parallel_comm_world
 
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_j(taskid_j)
@@ -4436,11 +4436,11 @@ c     >                       source,rcv_proc,1)
                call MPI_SEND(dum,
      >                     dum_msglen,MPI_INTEGER,
      >                     source,
-     >                     dum_msgtype,MPI_COMM_WORLD,mpierr)
+     >                     dum_msgtype,Parallel_comm_world(),mpierr)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
             end if
@@ -4486,12 +4486,12 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
                   call MPI_RECV(dum,
      >                    dum_msglen,MPI_INTEGER,
      >                    dest,
-     >                    dum_msgtype,MPI_COMM_WORLD,
+     >                    dum_msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     dest,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
             end if
 
@@ -4568,11 +4568,11 @@ c     >                       source,rcv_proc,1)
                call MPI_SEND(dum,
      >                     dum_msglen,MPI_INTEGER,
      >                     source,
-     >                     dum_msgtype,MPI_COMM_WORLD,mpierr)
+     >                     dum_msgtype,Parallel_comm_world(),mpierr)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_COMPLEX,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
             end if
@@ -4620,12 +4620,12 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
                   call MPI_RECV(dum,
      >                    dum_msglen,MPI_INTEGER,
      >                    dest,
-     >                    dum_msgtype,MPI_COMM_WORLD,
+     >                    dum_msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_COMPLEX,
      >                     dest,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
             end if
          end do
@@ -4672,8 +4672,8 @@ c               call SND(9+MSGDBL,tmp,mdtob(2*msglen),dest,1)
       integer taskid_j,ii
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij
-      external Parallel2d_convert_taskid_ij
+      integer  Parallel2d_convert_taskid_ij,Parallel_comm_world
+      external Parallel2d_convert_taskid_ij,Parallel_comm_world
 
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_j(taskid_j)
@@ -4722,7 +4722,7 @@ c     >                       source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
             end if
@@ -4761,7 +4761,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     dest,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
             end if
 
@@ -4804,7 +4804,7 @@ c     >                       source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
 
@@ -4845,7 +4845,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     dest,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
             end if
 
@@ -4893,8 +4893,8 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       integer ii,taskid_j
 
 *     **** external functions ****
-      integer  Parallel2d_convert_taskid_ij
-      external Parallel2d_convert_taskid_ij
+      integer  Parallel2d_convert_taskid_ij,Parallel_comm_world
+      external Parallel2d_convert_taskid_ij,Parallel_comm_world
 
       call Parallel_taskid(taskid)
       call Parallel2d_taskid_j(taskid_j)
@@ -4950,11 +4950,11 @@ c     >                       source,rcv_proc,1)
                call MPI_SEND(dum,
      >                     dum_msglen,MPI_INTEGER,
      >                     source,
-     >                     dum_msgtype,MPI_COMM_WORLD,mpierr)
+     >                     dum_msgtype,Parallel_comm_world(),mpierr)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
 
@@ -5002,12 +5002,12 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
                   call MPI_RECV(dum,
      >                    dum_msglen,MPI_INTEGER,
      >                    dest,
-     >                    dum_msgtype,MPI_COMM_WORLD,
+     >                    dum_msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     dest,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
             end if
 
@@ -5084,11 +5084,11 @@ c     >                       source,rcv_proc,1)
                call MPI_SEND(dum,
      >                     dum_msglen,MPI_INTEGER,
      >                     source,
-     >                     dum_msgtype,MPI_COMM_WORLD,mpierr)
+     >                     dum_msgtype,Parallel_comm_world(),mpierr)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
 
@@ -5139,12 +5139,12 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
                call MPI_RECV(dum,
      >                    dum_msglen,MPI_INTEGER,
      >                    dest,
-     >                    dum_msgtype,MPI_COMM_WORLD,
+     >                    dum_msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     dest,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
             end if
 
@@ -5191,6 +5191,8 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       integer p_from, p_here,q
       integer i,j,k,index,index2
       integer dest,source,msglen,msgtype,status(2),mpierr
+      integer  Parallel_comm_world
+      external Parallel_comm_world
 
       call Parallel_taskid(taskid)
 
@@ -5239,7 +5241,7 @@ c     >                       source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
             end if
@@ -5281,7 +5283,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     dest,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
             end if
 
@@ -5328,7 +5330,7 @@ c     >                       source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
 
@@ -5370,7 +5372,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     dest,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
             end if
 
@@ -5417,6 +5419,8 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       integer p_from, p_here,q
       integer i,j,k,index
       integer dest,source,msglen,idum,msgtype,status(2),mpierr
+      integer  Parallel_comm_world
+      external Parallel_comm_world
 
       call Parallel_taskid(taskid)
 
@@ -5466,11 +5470,11 @@ c     >                         source,rcv_proc,1)
                call MPI_SEND(idum,
      >                     msglen,MPI_INTEGER,
      >                     source,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
                call MPI_RECV(tmp(k),
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
 
@@ -5518,12 +5522,12 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
                  call MPI_RECV(idum,
      >                    msglen,MPI_INTEGER,
      >                    dest,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
                  call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     dest,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
               end if
             end do
@@ -5571,11 +5575,11 @@ c     >                         source,rcv_proc,1)
                  call MPI_SEND(idum,
      >                     msglen,MPI_INTEGER,
      >                     source,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
                  call MPI_RECV(tmp(k),
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
               end if
@@ -5619,12 +5623,12 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
                  call MPI_RECV(idum,
      >                    msglen,MPI_INTEGER,
      >                    dest,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
                  call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     dest,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
               end if
             end do
@@ -5672,6 +5676,8 @@ c                 call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
       integer p_from, p_here,q
       integer i,j,k,index
       integer dest,source,msglen,msgtype,status(2),mpierr
+      integer  Parallel_comm_world
+      external Parallel_comm_world
 
       call Parallel_taskid(taskid)
 
@@ -5716,7 +5722,7 @@ c     >                       source,rcv_proc,1)
                call MPI_RECV(tmp,
      >                    msglen,MPI_DOUBLE_PRECISION,
      >                    source,
-     >                    msgtype,MPI_COMM_WORLD,
+     >                    msgtype,Parallel_comm_world(),
      >                    int_mb(status(1)),mpierr)
 #endif
 
@@ -5758,7 +5764,7 @@ c               call SND(9+MSGDBL,tmp,mdtob(msglen),dest,1)
                   call MPI_SEND(tmp,
      >                     msglen,MPI_DOUBLE_PRECISION,
      >                     dest,
-     >                     msgtype,MPI_COMM_WORLD,mpierr)
+     >                     msgtype,Parallel_comm_world(),mpierr)
 #endif
             end if
 
