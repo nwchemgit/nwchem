@@ -7,10 +7,9 @@
 *     *              nwpw_compcharge_init             *
 *     *                                               *
 *     *************************************************
-      subroutine nwpw_compcharge_init(lmax0,sigma0,sigma_smooth0)
+      subroutine nwpw_compcharge_init(sigma_smooth0)
       implicit none
-      integer lmax0,nkatm0
-      real*8  sigma0(*),sigma_smooth0
+      real*8  sigma_smooth0
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -18,18 +17,19 @@
 
 *     ***** local variables ****
       logical value
-      integer k,l,m,lm,ia,Gindx,Gall(2),G(3)
+      integer k,l,m,lm,ia,Gindx,Gall(2),G(3),lmax0,psp_type
       real*8  scal,gg,fourpioveromega
 
 *     **** external functions ****
       integer  control_code,G_indx,c_G_indx,ion_nkatm_qm
-      real*8   double_factorial,lattice_omega
+      integer  psp_psp_type,cpsp_psp_type,psp_lmax,cpsp_lmax
+      real*8   double_factorial,lattice_omega,ewald_rcut,psp_sigma
       external control_code,G_indx,c_G_indx,ion_nkatm_qm
-      external double_factorial,lattice_omega
+      external psp_psp_type,cpsp_psp_type,psp_lmax,cpsp_lmax
+      external double_factorial,lattice_omega,ewald_rcut,psp_sigma
 
-      nkatm   = ion_nkatm_qm()
-      lmax    = lmax0
-      lm_size = (lmax+1)**2
+      nkatm        = ion_nkatm_qm()
+      sigma_smooth = ewald_rcut()
 
       !**** band structure code ****
       if ((control_code().eq.5).or.
@@ -44,13 +44,28 @@
          call D3dB_nfft3d(1,nfft3d)
          call Pack_npack(0,npack0)
          Gindx = G_indx(1)
+         lmax = 0
+         do ia=1,nkatm
+            if (psp_psp_type(ia).eq.4) then
+               lmax0 = psp_lmax(ia)
+               if (lmax0.gt.lmax) lmax = lmax0
+            end if
+         end do
       else
          call C3dB_nfft3d(1,nfft3d)
          call Cram_npack(0,npack0)
          Gindx = c_G_indx(1)
+         lmax = 0
+         do ia=1,nkatm
+            if (cpsp_psp_type(ia).eq.4) then
+               lmax0 = cpsp_lmax(ia)
+               if (lmax0.gt.lmax) lmax = lmax0
+            end if
+         end do
       end if
 
       !*** allocate gk_smooth, gk,and glm ***
+      lm_size = (lmax+1)**2
       value = MA_alloc_get(mt_dbl,npack0,
      >                     "gk_smooth",gk_smooth(2),gk_smooth(1))
       value = value.and.
@@ -60,7 +75,7 @@
       value = value.and.
      >        MA_push_get(mt_dbl,3*nfft3d,"Gall",Gall(2),Gall(1))
       if (.not.value)
-     >   call errquit("nwpw_compcharge_end:allocate memory",0,MA_ERR)
+     >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
 
       call dcopy(3*nfft3d,dbl_mb(Gindx),1,dbl_mb(Gall(1)),1)
       G(1) = Gall(1)
@@ -121,14 +136,19 @@
 
 *     **** define gk(k,ia)  = 4*pi * Exp[-k*k*sigma(ia**2 / 4] ****
       do ia=1,nkatm
-         do k=1,npack0
-            scal = 0.25d0*sigma(ia)**2
-            gg   = dbl_mb(G(1)+k-1)**2 
-     >           + dbl_mb(G(2)+k-1)**2 
-     >           + dbl_mb(G(3)+k-1)**2
-            dbl_mb(gk(1)+(ia-1)*npack0+k-1) 
-     >           = fourpioveromega*dexp(-gg*scal)
-         end do
+         psp_type = psp_psp_type(ia)
+         if (psp_type.eq.4) then
+            do k=1,npack0
+               scal = 0.25d0*psp_sigma(ia)**2
+               gg   = dbl_mb(G(1)+k-1)**2 
+     >              + dbl_mb(G(2)+k-1)**2 
+     >              + dbl_mb(G(3)+k-1)**2
+               dbl_mb(gk(1)+(ia-1)*npack0+k-1) 
+     >              = fourpioveromega*dexp(-gg*scal)
+            end do
+         else
+            call dcopy(npack0,0.0d0,0,dbl_mb(gk(1)+(ia-1)*npack0),1)
+         end if
       end do
 
       if (.not.MA_pop_stack(Gall(2)))
