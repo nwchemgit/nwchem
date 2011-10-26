@@ -1,0 +1,26 @@
+*
+* $Id: nwpw_compcharge.fh 19707 2010-10-29 17:59:36Z d3y133 $
+*
+
+*     **** common block for nwpw_compcharge data  ****
+      logical isgamma
+      integer nkatm,lmax,lm_size,npack0,nfft3d
+      integer sigma(2)
+      real*8 sigma_smooth
+
+      integer gk_smooth(2)   ! gk_smooth(k)  = 4*pi * Exp[-k*k*sigma_smooth**2 / 4] 
+      integer gk(2)          ! gk(k,1:nkatm) = 4*pi * Exp[-k*k*sigma(ia)**2 / 4]
+      integer glm(2)         ! glm(k, lm=1:(max_mult_l+1)**2) =  Tlm(k) * |k|**l / (2*l+1)!!
+                             !    - Note that (-i)**l factor will be assumed in the calculation.
+                             !      Also note that  the Tlm and gaussian terms are rearranged to save space
+                             !      It is more natural to define g_lm, gk and gk_smooth
+                             !           g_lm      =  4*pi*Tlm(k)
+                             !           gk        = |k|**l * Exp[-k*k*sigma(ia)**2 / 4] / (2*l+1)!!
+                             !           gk_smooth = |k|**l * Exp[-k*k*sigma_smooth**2 / 4] / (2*l+1)!!
+                             !       but this requires more space
+
+      common / nwpw_compcharge_block / gk_smooth,gk,glm,
+     >                           sigma,sigma_smooth,
+     >                           nkatm,lmax,lm_size,npack0,nfft3d,
+     >                           isgamma
+

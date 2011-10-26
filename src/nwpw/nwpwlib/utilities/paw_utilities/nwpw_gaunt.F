@@ -350,6 +350,116 @@ c         end if
       return
       end
 
+*     **************************************
+*     *                                    *
+*     *      Tesseral3_vector_lm           *
+*     *                                    *
+*     **************************************
+
+*  Calculates the tesseral harmonic for x,y,z such that
+*
+*                                               {cos(|m|*phi)   m>0
+*      T_lm(cos_theta,phi)=rtheta_lm(cos_theta)*{1              m==0
+*                                               {sin(|m|*phi)   m<0
+*  
+*    where   cos_theta = z/r and phi = atan2(y,x)
+*
+      subroutine Tesseral3_vector_lm(l,m,nfft3d,x,y,z,Tlm)
+      implicit none
+      integer l,m
+      integer nfft3d
+      real*8 x(*),y(*),z(*),Tlm(*)
+
+*     **** local variables ****
+      integer i,k,mod_m
+      real*8 phi,cos_theta,tmp2,r,twopi,coeff
+
+*     **** external functions
+      real*8   rlegendre_lm,rtheta_lm
+      external rlegendre_lm,rtheta_lm
+
+      twopi = 8.0d0*datan(1.0d0)
+
+      mod_m = abs(m)
+      if (mod_m .gt. l) 
+     >  write(*,*) 
+     >  'parameter out of order in function Tesseral3_vector_lm'
+
+!     *** find coefficient ***
+      if (mod_m.eq.0) then 
+         coeff= 0.5d0
+      else if (mod_m.gt.0) then
+         coeff= 1.0d0 
+         do i=1,2*mod_m
+            coeff = coeff/dble(l-mod_m+i)
+         end do
+      endif
+      coeff = coeff*(2*l+1)/twopi
+      coeff = sqrt(coeff)
+
+
+      do k=1,nfft3d
+         r = sqrt(x(k)*x(k) + y(k)*y(k) + z(k)*z(k))
+         cos_theta = z(k)/r
+         phi = datan2(y(k),x(k))
+
+         if (m.lt.0) then
+            tmp2 = dsin(mod_m*phi)
+         else if (m.gt.0) then
+            tmp2 = dcos(mod_m*phi)
+         else
+            tmp2 = 1.0d0
+         end if
+
+         Tlm(k) = tmp2*coeff*rlegendre_lm(l,mod_m,cos_theta)
+      end do
+      return
+      end
+
+
+*     **************************************
+*     *                                    *
+*     *           Tesseral3_lm             *
+*     *                                    *
+*     **************************************
+
+*  Calculates the tesseral harmonic for x,y,z such that
+*
+*                                               {cos(|m|*phi)   m>0
+*      T_lm(cos_theta,phi)=rtheta_lm(cos_theta)*{1              m==0
+*                                               {sin(|m|*phi)   m<0
+*  
+*    where   cos_theta = z/r and phi = atan2(y,x)
+*
+      double precision function Tesseral3_lm(l,m,x,y,z)
+      implicit none
+      integer l,m
+      real*8 x,y,z
+
+*     **** local variables ****
+      integer mod_m
+      real*8 phi,cos_theta,tmp2,r
+
+*     **** external functions
+      real*8   rtheta_lm
+      external rtheta_lm
+
+      r = sqrt(x*x + y*y + z*z)
+      cos_theta = z/r
+      phi = datan2(y,x)
+      
+      if (m.lt.0) then
+         tmp2 = dsin(mod_m*phi)
+      else if (m.gt.0) then
+         tmp2 = dcos(mod_m*phi)
+      else
+         tmp2 = 1.0d0
+      end if
+
+      Tesseral3_lm = rtheta_lm(l,m,cos_theta)*tmp2
+      return
+      end
+
 
 c!  *************************************************
 c!  
@@ -643,4 +753,4 @@ c!  *************************************************
       return
       end 
 
-c $Id$
+c $Id: nwpw_gaunt.F 21176 2011-10-10 06:35:49Z d3y133 $

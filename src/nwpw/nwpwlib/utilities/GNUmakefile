@@ -1,6 +1,7 @@
 #
 # $Id$
 #
+      SUBDIRS = paw_utilities
 
  OBJ_OPTIMIZE = \
 		nwpw_filefind.o \
@@ -31,7 +32,6 @@
 		butter.o \
 		print_elapsed_time.o \
 		log_integrate.o \
-		nwpw_gaunt.o \
 		nwpw_parse.o
 
 	  OBJ = 
