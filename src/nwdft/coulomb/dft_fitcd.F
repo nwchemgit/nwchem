@@ -68,7 +68,8 @@ c
       integer          itype,nprimo,isphere
       external dabsmax,nxtask
       logical spherical
-      integer LU,ierr
+      integer LU,ierr,ilo,ihi,jlo,jhi,nnii
+      integer adrc,ldc,iptr
       character*255 errmsg
       
 c     
@@ -545,6 +546,7 @@ c     Need another temp array to store S**(-1) * cgtf
 c
       if(.not.MA_Push_Get(MT_Dbl,nbf_cd,'Tcgtf',lTcgtf,iTcgtf))
      &     call errquit('dft_fitcd: cannot allocate Tcgtf',0, MA_ERR)
+#if 0
       call dfill(nbf_cd,0.D0,dbl_mb(iTcgtf),1)
 c
       next = nxtask(nproc, 1)+1
@@ -562,6 +564,26 @@ c
         endif
       enddo
       next = nxtask(-nproc, 1)
+#else
+       call dcopy(nbf_cd,0.D0,0,dbl_mb(iTcgtf),1)
+c
+      call  ga_distribution(g_cdinv,me,ilo,ihi,jlo,jhi)
+      if (ilo.gt.0) then
+      call ga_access(g_cdinv, ilo, ihi, jlo, jhi, adrc, ldc)
+         nnii=ihi-ilo+1
+         do j = jlo,jhi
+            iptr=adrc+(j-jlo)*ldc
+            AZ = ddot(nnii,DBL_mb(iptr),1,DBL_MB(icgtf+ilo-1),1)
+            dbl_mb(iTcgtf+j-1) = dbl_mb(iTcgtf+j-1) + AZ
+            do ifit = 1, nfit
+               AZ = ddot(nnii,DBL_mb(iptr),1,
+     &              DBL_MB(iTvec+(ifit-1)*nbf_cd+ilo-1),1)
+               CD_coef(j,ifit) = CD_coef(j,ifit) + AZ
+          enddo
+       enddo
+      call ga_release(g_cdinv, ilo, ihi, jlo, jhi)
+      endif
+#endif
 cedo      call ga_sync
       call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd*nfit,'+')
 c!!! What Msg should be here? !!!
