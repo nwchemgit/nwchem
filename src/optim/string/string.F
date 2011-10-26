@@ -21,6 +21,12 @@
 ! string:nbeads  : The number of points on the string more=>slow & stable
 ! string:maxit     : The number of time steps
 ! string:interpol  : Linear or spline or other.  Not very important.
+! string:freeze1  : freeze endpoint 1
+! string:freezen  : freeze endpoint N
+! string:linopt   : Turn on/off linear optimization
+! string:projection1  : Turn off/on projection of gradient
+! string:pathguess  : which method for guessing path from 1 to TS to N
+
 
 ! This code requires at two or three geometry blocks to be defined
 ! "geometry"  Endpoint #1
@@ -128,9 +134,9 @@
      &   call errquit('task_string: geom_destroy?', geom2, GEOM_ERR)
 
 ! Do we freeze bead 1 or N?
-           if (.not. rtdb_get(rtdb, 'string:freeze1', mt_log,1,freeze1))
+      if (.not. rtdb_get(rtdb, 'string:freeze1', mt_log,1,freeze1))
      &        freeze1 = .false.
-           if (.not. rtdb_get(rtdb, 'string:freezen', mt_log,1,freezeN))
+      if (.not. rtdb_get(rtdb, 'string:freezen', mt_log,1,freezeN))
      &        freezeN = .false.
 
 ! Warning: No way to read in all nbead geomtries
@@ -201,12 +207,7 @@
       real*8 wrk(3,natoms,nbeads)
 
 ! Local variables
-      integer MAX_N
-      PARAMETER (MAX_N=750)
       integer i, j, k, nstep
-      integer ix, iix
-      logical done(MAX_N)
-      real*8 dgg
       real*8 tmp, tmp2
       logical badgeom
       real*8 g1(3),g2(3),g3(3)
@@ -214,52 +215,25 @@
       real*8 hess, e0, e1, a2, alpha, dsgrad
       logical linopt
       logical projection1
+      integer pathguess
 
 ! Setup the problem
-      linopt = .true.
-      projection1 = .false.
+! "Secret" options with defaults that generally do not need changed
+      if (.not. rtdb_get(rtdb, 'string:linopt', mt_log,1,linopt))
+     &        linopt = .true.
+      if (.not.rtdb_get(rtdb,'string:projection1',mt_log,1,projection1))
+     &        projection1 = .false.
+      if (.not. rtdb_get(rtdb,'string:pathguess',mt_int,1,pathguess))
+     $      pathguess = 2
 
       do i = 1, nbeads
         dg(i) = dble(i-1)/dble(nbeads-1)
       enddo
       
       if (middle .eq. 0) then  ! Flexible linear interpolation to get TS
-        if (nbeads .gt. MAX_N)
-     &     call errquit('zts_meps: MAX_N exceeded', 0, 0)
-        done(1) = .true.
-        do i = 2, nbeads - 1
-          done(i) = .false.
-        enddo
-        done(nbeads) = .true.
- 625    continue ! Loop
-          ix = -1
-          iix= -1
-          do i = 1, nbeads ! Find un-done region
-            if (ix .eq. -1 .and. .not. done(i)) then
-              ix = i-1
-            endif
-            if (ix .ne. -1 .and. done(i)) then
-              iix = i
-              goto 626
-            endif
-          enddo
-          goto 627 ! Nothing found, we are done
- 626      continue
-          i = (iix+ix)/2
-          dgg = dble(i-ix)/dble(iix-ix) 
-          do j = 1, natoms
-            do k = 1, 3
-              coords(k,j,i) = coords(k,j,ix )*(1-dgg) +
-     &                        coords(k,j,iix)*dgg
-            enddo
-          enddo
-          call zts_Robinson(natoms,geom,coords(1,1,i),badgeom)
-          done(i) = .true.
-          goto 625
-        ! End of loop
- 627    continue
+        call zts_guessall(natoms,nbeads,coords,geom)
       else if (middle .gt. 1 .and. middle .lt. nbeads) then ! TS guess
-        call zts_guess(natoms,nbeads,middle,coords)
+        call zts_guess(natoms,nbeads,middle,coords,pathguess)
       else if (middle .eq. -1) then  ! We know exactly what we are doing
         ! Do nothing.  All coordinates were setup on entry.
       else  ! This makes no sense
@@ -347,7 +321,7 @@
              enddo
            enddo
          endif
-         ! Projection?
+         ! Projection of gradient onto perpedicular to path?
          if (projection1) then
            do i = 2, nbeads - 1
              do j = 1, natoms
@@ -593,7 +567,7 @@ c            scale gradient
       ! input/output
       real*8 Y(nvar,nbeads)
       ! local variables
-      integer ivar, ibead, i
+      integer ivar, ibead
       real*8 X
       
       integer MAX_N
@@ -880,7 +854,7 @@ c            scale gradient
        real*8 charges(nw_max_atom)
 
 ! Warning: These assume Angstom units and non-fractional
-! Otherwise they are way to hard a constraint
+! Otherwise they are way too hard a constraint
        min_h_h = 0.7d0
        min_x_h = 0.9d0
        min_x_x = 1.0d0
@@ -930,11 +904,11 @@ c            scale gradient
           typei = bad(3,ij)
           typej = bad(4,ij)
           if (typej .lt. typei) then  ! Move lighter atom
-            i = bad(2,ij)
-            j = bad(1,ij)
+            i = nint(bad(2,ij))
+            j = nint(bad(1,ij))
           else
-            i = bad(1,ij)
-            j = bad(2,ij)
+            i = nint(bad(1,ij))
+            j = nint(bad(2,ij))
           endif
           is_h = 0
           if (typei .le. 2) is_h = is_h + 1
@@ -1013,7 +987,7 @@ c            scale gradient
       ! input/output
       real*8 Y(nvar,nbeads)
       ! local variables
-      integer ivar, ibead, i
+      integer ivar, ibead
       real*8 X
       
       integer MAX_N
@@ -1121,19 +1095,18 @@ c            scale gradient
       return
       end
 
-      subroutine zts_guess(natoms,nbeads,middle,coords)
+      subroutine zts_guess(natoms,nbeads,middle,coords,guess)
       implicit none
 ! Input
-      integer natoms, nbeads, middle
+      integer natoms, nbeads, middle,guess
 ! Input/Output
       real*8 coords(3,natoms,nbeads)
 ! Local variables
       integer i,j,k
       real*8 dgg
       real*8 a,b,c
-      integer guess
-
-      guess = 2
+      real*8 pi
+      parameter (pi=3.141592653589793238462643383279d0)
 
 !     Simple linear interpolation
 
@@ -1193,6 +1166,19 @@ c            scale gradient
            enddo
          enddo
         enddo
+      else if (guess .eq. 4) then ! f=a+b*x+c*sin(pi*x)
+        do j = 1, natoms
+          do k = 1, 3
+            dgg = dble(middle-1)/dble(nbeads-1)
+            a=coords(k,j,1)
+            b=coords(k,j,nbeads) - coords(k,j,1)
+            c=((coords(k,j,middle)-coords(k,j,1)) - b*dgg)/sin(pi*dgg)
+            do i = 2, nbeads-1
+              dgg = dble(i-1)/dble(nbeads-1)
+              coords(k,j,i) = a+b*dgg+c*sin(pi*dgg)
+            enddo
+          enddo
+        enddo
       else
         call errquit('zts_guess: Bad Guess type', guess, 0)
       endif
@@ -1200,5 +1186,55 @@ c            scale gradient
       return
       end
 
+      subroutine zts_guessall(natoms,nbeads,coords,geom)
+      implicit none
+!     Input
+      integer natoms, nbeads, geom
+!     Input/Output
+      real*8 coords(3,natoms,nbeads)
+!     Local variabls
+      integer i, ix, iix, k, j
+      integer MAX_N
+      PARAMETER (MAX_N=750)
+      logical done(MAX_N)
+      logical badgeom
+      real*8 dgg
 
+      if (nbeads .gt. MAX_N)
+     &     call errquit('zts_meps: MAX_N exceeded', 0, 0)
+      done(1) = .true.
+      do i = 2, nbeads - 1
+        done(i) = .false.
+      enddo
+      done(nbeads) = .true.
+ 625  continue ! Loop start
+        ix = -1
+        iix= -1
+        do i = 1, nbeads ! Find un-done region
+          if (ix .eq. -1 .and. .not. done(i)) then
+            ix = i-1
+          endif
+          if (ix .ne. -1 .and. done(i)) then
+            iix = i
+            goto 626
+          endif
+        enddo
+        goto 627 ! Nothing found, we are done
+ 626    continue
+        i = (iix+ix)/2
+        dgg = dble(i-ix)/dble(iix-ix)
+        do j = 1, natoms
+          do k = 1, 3
+            coords(k,j,i) = coords(k,j,ix )*(1-dgg) +
+     &                      coords(k,j,iix)*dgg
+          enddo
+        enddo
+        call zts_Robinson(natoms,geom,coords(1,1,i),badgeom)
+        done(i) = .true.
+        goto 625
+      ! End of loop
+ 627  continue
+
+        return
+        end
 c $Id$
