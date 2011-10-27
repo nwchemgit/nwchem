@@ -17,7 +17,7 @@
      >                            n_prj,l_prj,m_prj,
      >                            Gijl,
      >                            hartree_matrix,
-     >                            cmp_charge_matrix,cmp_pot_matrix,
+     >                            comp_charge_matrix,comp_pot_matrix,
      >                            nray,G_ray,vl_ray,vnl_ray,
      >                            tmp_ray,
      >                            filter,
@@ -49,9 +49,9 @@
       double precision vnl(nfft1/2+1,nfft2,nfft3,nproj)
       integer          n_prj(nproj),l_prj(nproj),m_prj(nproj)
       double precision Gijl(nmax,nmax,0:lmax,5)
-      double precision hartree_matrix(nproj,nproj,nproj,nproj,0:lmax)
-      double precision cmp_charge_matrix(nproj,nproj,nproj,nproj,0:lmax)
-      double precision cmp_pot_matrix(nproj,nproj,nproj,nproj,0:lmax)
+      real*8 hartree_matrix(nbasis,nbasis,nbasis,nbasis,0:lmax)
+      real*8 comp_charge_matrix(nbasis,nbasis,0:lmax)
+      real*8 comp_pot_matrix(nbasis,nbasis,0:lmax)
 
       integer nray
       double precision G_ray(nray)
@@ -193,6 +193,20 @@ c      P3=dsqrt(105.0d0*forpi)
       call daxpy(l,1.0d0,Gijl(1,1,0,4),1,Gijl(1,1,0,1),1)  !** pseudo  **
 c      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)
         
+*     **** cmp_charge_matrix(nbasis,nbasis,0:lmax) ****
+      do i=1,nbasis
+         do j=1,i-1
+            do k=1,nrho
+               f(k) = phi_ae(k,i)*phi_ae(k,j)
+     >              - phi_ps(k,i)*phi_ps(k,j)
+            end do
+            do l=0,lmax
+               d = log_integrate_def(2*l+2,f,l,rho,log_amesh,nrho)
+               comp_charge_matrix(i,j,l) = d
+               comp_charge_matrix(j,i,l) = d
+            end do
+         end do
+      end do
 
 *     ************* compute ray fourier transforms *********************
       call integrate_paw_ray(version,rlocal,
@@ -433,6 +447,7 @@ c      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)
           vnl(1,1,1,lcount)=vnl_ray(1,i,1) !*** j0!=0 at G=0***
         end if
       end do
+
 
 
 
