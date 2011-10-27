@@ -47,6 +47,7 @@
 
 *     **** matrix data ****
       integer Gijl(2)
+      integer hartree_matrix(2),comp_charge_matrix(2),comp_pot_matrix(2)
 
 *     ***** ngrid data *****
       integer nproj,nsize,nfft1,nfft2,nfft3
@@ -237,6 +238,18 @@
       l = nmax*nmax*(lmax+1)
       value=          MA_alloc_get(mt_dbl,5*l,'Gijl',Gijl(2),Gijl(1))
       !value=value.and.MA_alloc_get(mt_dbl,l,'Tijl',Tijl(2),Tijl(1))
+      l = nproj*nproj*nproj*nproj*(lmax+1)
+      value=value.and.
+     >      MA_alloc_get(mt_dbl,l,'hartree_matrix',
+     >                   hartree_matrix(2),hartree_matrix(1))
+      l = nproj*nproj*(lmax+1)
+      value=value.and.
+     >      MA_alloc_get(mt_dbl,l,'comp_charge_matrix',
+     >                   comp_charge_matrix(2),comp_charge_matrix(1))
+      l = nproj*nproj*(lmax+1)
+      value=value.and.
+     >      MA_alloc_get(mt_dbl,l,'comp_pot_matrix',
+     >                   comp_pot_matrix(2),comp_pot_matrix(1))
 
 *     **** allocate nprj,lprj,mprj ****
       value=value.and.MA_alloc_get(mt_int,nproj,'nprj',nprj(2),nprj(1))
@@ -305,6 +318,9 @@
      >                                int_mb(lprj(1)),
      >                                int_mb(mprj(1)),
      >                                dbl_mb(Gijl(1)),
+     >                                dbl_mb(hartree_matrix(1)),
+     >                                dbl_mb(comp_charge_matrix(1)),
+     >                                dbl_mb(comp_pot_matrix(1)),
      >                      nray,
      >                                dbl_mb(G_ray_indx),
      >                                dbl_mb(vl_ray_indx),
@@ -380,6 +396,13 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
             call dwrite(2,dbl_mb(vnl(1)),nsize*nproj)
          end if
 
+*        **** other PAW matrices ****
+         l = nproj*nproj*nproj*nproj*(lmax+1)
+         call dwrite(2,dbl_mb(hartree_matrix(1)),l)
+         l = nproj*nproj*(lmax+1)
+         call dwrite(2,dbl_mb(comp_charge_matrix(1)),l)
+         call dwrite(2,dbl_mb(comp_pot_matrix(1)),l)
+
 *        **** miscelaneous PAW energies ****
          call dwrite(2,core_kin_energy,1)
 
@@ -417,6 +440,9 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
       value = value.and.MA_free_heap(f(2))
 
       value = value.and.MA_free_heap(Gijl(2))
+      value = value.and.MA_free_heap(hartree_matrix(2))
+      value = value.and.MA_free_heap(comp_charge_matrix(2))
+      value = value.and.MA_free_heap(comp_pot_matrix(2))
 
       value = value.and.MA_free_heap(mprj(2))
       value = value.and.MA_free_heap(lprj(2))

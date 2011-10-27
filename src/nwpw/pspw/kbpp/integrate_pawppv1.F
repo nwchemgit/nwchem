@@ -16,6 +16,8 @@
      >                            G,vl,vnl,
      >                            n_prj,l_prj,m_prj,
      >                            Gijl,
+     >                            hartree_matrix,
+     >                            cmp_charge_matrix,cmp_pot_matrix,
      >                            nray,G_ray,vl_ray,vnl_ray,
      >                            tmp_ray,
      >                            filter,
@@ -47,6 +49,9 @@
       double precision vnl(nfft1/2+1,nfft2,nfft3,nproj)
       integer          n_prj(nproj),l_prj(nproj),m_prj(nproj)
       double precision Gijl(nmax,nmax,0:lmax,5)
+      double precision hartree_matrix(nproj,nproj,nproj,nproj,0:lmax)
+      double precision cmp_charge_matrix(nproj,nproj,nproj,nproj,0:lmax)
+      double precision cmp_pot_matrix(nproj,nproj,nproj,nproj,0:lmax)
 
       integer nray
       double precision G_ray(nray)
