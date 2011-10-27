@@ -15,7 +15,7 @@ c
       character*255 dipole_file
       logical dmdr, dipole_file_exists
       logical linear, restart
-      integer geom, rtdb, nat, geom_ref, nnm
+      integer geom, rtdb, nat, geom_ref, nnm, geom_new
       dimension vec(3*nat,3*nat), eigen(3*nat)
       integer NSTART(7)
 c
@@ -65,6 +65,10 @@ c
 c     memory for vscf
 c     the first two of these hold harmonic normal modes and frequencies
 c
+      if (.not.
+     &  ma_push_get(mt_dbl,NNM*NNM*NNM*NGRID*NGRID*NGRID,
+     &  'XTRIPV',l_XTRIPV,k_XTRIPV))
+     &  call errquit('vscfm: could not allocate l_XTRIPV',555, MA_ERR)
       if (.not. 
      &  ma_push_get(mt_dbl,nnm,'vscf freqs',l_fvscf,k_fvscf))
      &  call errquit('vscfm: could not allocate l_fvscf',555, MA_ERR)
@@ -162,7 +166,8 @@ c
      &                     nnm,ngrid,dbl_mb(k_rq),dbl_mb(k_dq),
      &                     dbl_mb(k_diagv),dbl_mb(k_dmx),dbl_mb(k_dmy),
      &                     dbl_mb(k_dmz),dbl_mb(k_dm2x),dbl_mb(k_dm2y),
-     &                     dbl_mb(k_dm2z),dbl_mb(k_coupv),XTRIPV,ndipmo)
+     &                     dbl_mb(k_dm2z),dbl_mb(k_coupv),
+     &                     dbl_mb(k_XTRIPV),ndipmo)
       if (restart) then
         if (.not.geom_create(geom_ref,'vscf_reference')) call errquit
      *    ('vscfm: vscf_reference geom_create failed',551, GEOM_ERR)
@@ -195,7 +200,8 @@ C     Calculate diagonal and coupling potentials on grids
 C
       CALL VGRID(vec,eigen,dbl_mb(k_sfreq),dbl_mb(k_rq),dbl_mb(k_dq),
      *           dbl_mb(k_dx),coords(1,1,geom_ref),dbl_mb(k_diagv),
-     *           dbl_mb(k_coupv),XTRIPV,dbl_mb(k_dmx),dbl_mb(k_dmy),
+     *           dbl_mb(k_coupv),dbl_mb(k_XTRIPV),dbl_mb(k_dmx),
+     *           dbl_mb(k_dmy),
      *           dbl_mb(k_dmz),dbl_mb(k_dm2x),dbl_mb(k_dm2y),
      *           dbl_mb(k_dm2z),NC1,NAT,NNM,NGRID,NDIPMO,NSTART,
      *           NCOUP,rtdb,geom_new,ldiag,lcoup,ltrip)
@@ -330,8 +336,8 @@ C
      *               int_mb(k_ia1),dbl_mb(k_gr),dbl_mb(k_tmp),
      *               dbl_mb(k_twave),dbl_mb(k_emp0),dbl_mb(k_vmp),
      *               dbl_mb(k_ovrlp),int_mb(k_virt),int_mb(k_ref),
-     *               dbl_mb(k_fvscf),dbl_mb(k_fmp2),xtripv,vcfct,NNM,
-     *               NGRID,NGRID2,NST,NVIRST,ncoup,nmax,iexc)
+     *               dbl_mb(k_fvscf),dbl_mb(k_fmp2),dbl_mb(k_XTRIPV),
+     *               vcfct,NNM,NGRID,NGRID2,NST,NVIRST,ncoup,nmax,iexc)
          WRITE(LuOut,9070)
       END IF
 c
@@ -460,6 +466,8 @@ c
      &  call errquit('vscfm:ma_pop of l_fmp2 failed',555, MA_ERR)
       if (.not. ma_pop_stack(l_fvscf))
      &  call errquit('vscfm:ma_pop of l_fvscf failed',555, MA_ERR)
+      if (.not. ma_pop_stack(l_XTRIPV))
+     &  call errquit('vscfm:ma_pop of l_XTRIPV failed',555, MA_ERR)
 c
 c     Reset geometry to default (reference) geometry
 c
@@ -744,7 +752,8 @@ c
 c     If nfin(2).gt.zero, then we have not reached the restart
 c     point and we need to skip one more
 c
-                  if (im.eq.nfin(2).and.jm.eq.nfin(4).and.
+                  if (nfin(1) .le. 1) then ! Do them all
+                  else if (im.eq.nfin(2).and.jm.eq.nfin(4).and.
      &                il.eq.nfin(3).and.jl.eq.nfin(5)) then
                      nfin(2)=0
                      goto 199
@@ -855,7 +864,8 @@ c
 c     If nfin(2).gt.zero, then we have not reached the restart
 c     point and we need to skip one more
 c
-                  if (im.eq.nfin(2).and.jm.eq.nfin(4).and.
+                  if (nfin(1) .le. 2) then ! Do them all
+                  else if (im.eq.nfin(2).and.jm.eq.nfin(4).and.
      &                il.eq.nfin(3).and.jl.eq.nfin(5).and.
      &                km.eq.nfin(6).and.kl.eq.nfin(7)) then
                      nfin(2)=0
@@ -2590,7 +2600,7 @@ c
       integer rtdb
 c
       do ii=1,7
-        nstart(ii) = 0
+        nstart(ii) = -1
       enddo
 c
 c     Open files for diagonal, coupling, and triple potentials 
@@ -2647,7 +2657,7 @@ c
       endif
       if (trip_exists.and.ncoup.eq.3) then
          if(ga_nodeid().eq.0) write(LuOut,9050)
-         CALL RDTRIP(XTRIPV,NNM,NGRID,nstart,ltrip)
+         CALL RDTRIP(TRIPV,NNM,NGRID,nstart,ltrip)
       endif
 c
 c     Restart if user specified restart keyword and we are reusing 

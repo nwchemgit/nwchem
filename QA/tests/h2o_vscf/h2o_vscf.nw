@@ -12,4 +12,15 @@ basis
   H library 6-31g*
 end
 
+vscf
+coupling diagonal
+end
+
 task scf vscf
+
+vscf
+coupling pair
+end
+
+task scf vscf
+
