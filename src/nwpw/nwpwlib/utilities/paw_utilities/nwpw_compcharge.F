@@ -7,9 +7,8 @@
 *     *              nwpw_compcharge_init             *
 *     *                                               *
 *     *************************************************
-      subroutine nwpw_compcharge_init(sigma_smooth0)
+      subroutine nwpw_compcharge_init()
       implicit none
-      real*8  sigma_smooth0
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -175,5 +174,6 @@
       value = value.and.MA_free_heap(glm(2))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end: freeing heap",0,MA_ERR)
+
       return
       end 
