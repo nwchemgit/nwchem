@@ -86,6 +86,15 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
 
 *     ***** PAW variables *****
       value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'hartree_matrix',
+     >                     hartree_matrix(2),hartree_matrix(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'comp_charge_matrix',
+     >                     comp_charge_matrix(2),comp_charge_matrix(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'comp_pot_matrix',
+     >                     comp_pot_matrix(2),comp_pot_matrix(1))
+      value = value.and.
      > MA_alloc_get(mt_dbl,(npsp),'log_amesh',log_amesh(2),log_amesh(1))
       value = value.and.
      >  MA_alloc_get(mt_dbl,(npsp),'r1',r1(2),r1(1))
@@ -129,7 +138,6 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
      >        MA_alloc_get(mt_int,npsp,'core_ps',core_ps(2),core_ps(1))
       value = value.and.
      >        MA_alloc_get(mt_int,npsp,'rgrid',rgrid(2),rgrid(1))
-
 
 *     **** setup pspspin structure - used for generating antiferromagnetic structures ****
       pspspin = control_pspspin()
@@ -235,6 +243,9 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
            call psi_data_dealloc(int_mb(Gijl(1)+ia-1))
         end if
         if (int_mb(psp_type(1)+ia-1).eq.4) then
+           call psi_data_dealloc(int_mb(hartree_matrix(1)+ia-1))
+           call psi_data_dealloc(int_mb(comp_charge_matrix(1)+ia-1))
+           call psi_data_dealloc(int_mb(comp_pot_matrix(1)+ia-1))
            call psi_data_dealloc(int_mb(eig(1)+ia-1))
            call psi_data_dealloc(int_mb(phi_ae(1)+ia-1))
            call psi_data_dealloc(int_mb(dphi_ae(1)+ia-1))
@@ -266,6 +277,9 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       value = value.and.MA_free_heap(rlocal(2))
 
 *     **** PAW variables ****
+      value = value.and.MA_free_heap(hartree_matrix(2))
+      value = value.and.MA_free_heap(comp_charge_matrix(2))
+      value = value.and.MA_free_heap(comp_pot_matrix(2))
       value = value.and.MA_free_heap(log_amesh(2))
       value = value.and.MA_free_heap(r1(2))
       value = value.and.MA_free_heap(rmax(2))
@@ -1745,6 +1759,7 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                       phi_ps_tag,dphi_ps_tag,
      >                       core_ae_tag,core_ps_tag,rgrid_tag,
      >                       core_kin_energy,
+     >                       hartree_tag,comp_charge_tag,comp_pot_tag,
      >                       tmp,tmp2,
      >                       ierr)
       implicit none 
@@ -1778,6 +1793,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       integer phi_ae_tag,dphi_ae_tag,phi_ps_tag,dphi_ps_tag
       integer core_ae_tag,core_ps_tag,rgrid_tag
       real*8  core_kin_energy
+      integer hartree_tag,comp_charge_tag,comp_pot_tag
 
       complex*16 tmp(*)
       real*8     tmp2(*)
@@ -1987,6 +2003,38 @@ c     **** define Gx,Gy and Gz in packed space ****
 
 *     ***** Miscellaneous paw energies and 1d wavefunctions****
       if (psp_type.eq.4) then
+
+         !**** allocate and reading hartree_matrix(nprj,nprj,nprj,nprj,lmax+1) ****
+         msglen=nprj*nprj*nprj*nprj
+         hartree_tag  = psi_data_alloc(lmax+1,msglen)
+         indx = psi_data_get_chnk(hartree_tag)
+         if (taskid_p.eq.MASTER) then
+            call dread(5,dbl_mb(indx),(lmax+1)*msglen)      
+         end if
+         call Parallela_Brdcst_values(com_p,MASTER,(lmax+1)*msglen,
+     >                                dbl_mb(indx))
+
+         !**** allocate and reading comp_charge_matrix(nprj,nprj,lmax+1) ****
+         msglen=nprj*nprj
+         comp_charge_tag  = psi_data_alloc(lmax+1,msglen)
+         indx = psi_data_get_chnk(comp_charge_tag)
+         if (taskid_p.eq.MASTER) then
+            call dread(5,dbl_mb(indx),(lmax+1)*msglen)      
+         end if
+         call Parallela_Brdcst_values(com_p,MASTER,(lmax+1)*msglen,
+     >                                dbl_mb(indx))
+
+         !**** allocate and reading comp_pot_matrix(nprj,nprj,lmax+1) ****
+         msglen=nprj*nprj
+         comp_pot_tag  = psi_data_alloc(lmax+1,msglen)
+         indx = psi_data_get_chnk(comp_pot_tag)
+         if (taskid_p.eq.MASTER) then
+            call dread(5,dbl_mb(indx),(lmax+1)*msglen)      
+         end if
+         call Parallela_Brdcst_values(com_p,MASTER,(lmax+1)*msglen,
+     >                                dbl_mb(indx))
+
+
         if (taskid_p.eq.MASTER) call dread(5,core_kin_energy,1)
         msglen=1
         call Parallela_Brdcst_values(com_p,MASTER,msglen,
@@ -2213,6 +2261,9 @@ c     logocal semicore(0:nkatmx)
      >                  int_mb(core_ps(1)+ia-1),
      >                  int_mb(rgrid(1)+ia-1),
      >                  dbl_mb(core_kin(1)+ia-1),
+     >                  int_mb(hartree_matrix(1)+ia-1),
+     >                  int_mb(comp_charge_matrix(1)+ia-1),
+     >                  int_mb(comp_pot_matrix(1)+ia-1),
      >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
      >                  ierr)
 
