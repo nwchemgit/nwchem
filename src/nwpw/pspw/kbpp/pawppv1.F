@@ -52,7 +52,7 @@
 *     ***** ngrid data *****
       integer nproj,nsize,nfft1,nfft2,nfft3
       integer vl(2),vnl(2),G_indx,G_hndl
-      integer f(2),cs(2),sn(2)
+      integer f1(2),f2(2),f3(2),f4(2),cs(2),sn(2)
 
 *     **** ray data ****
       logical filter
@@ -259,7 +259,10 @@
 
 
 *    **** more temporary space ****
-      value =           MA_alloc_get(mt_dbl,n1dgrid,'f',f(2),f(1))
+      value =           MA_alloc_get(mt_dbl,n1dgrid,'f1',f1(2),f1(1))
+      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'f2',f2(2),f2(1))
+      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'f3',f3(2),f3(1))
+      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'f4',f4(2),f4(1))
       value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'cs',cs(2),cs(1))
       value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'sn',sn(2),sn(1))
       if (.not.value)call errquit('pawppv1:out of heap',0,MA_ERR)
@@ -307,7 +310,10 @@
      >                                dbl_mb(phi_ps(1)),
      >                                dbl_mb(dphi_ps(1)),
      >                                dbl_mb(rgrid(1)),
-     >                                dbl_mb(f(1)),
+     >                                dbl_mb(f1(1)),
+     >                                dbl_mb(f2(1)),
+     >                                dbl_mb(f3(1)),
+     >                                dbl_mb(f4(1)),
      >                                dbl_mb(cs(1)),
      >                                dbl_mb(sn(1)),
      >                      nfft1,nfft2,nfft3,nproj,
@@ -437,7 +443,10 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
       value = value.and.MA_free_heap(vl(2))
       value = value.and.MA_free_heap(sn(2))
       value = value.and.MA_free_heap(cs(2))
-      value = value.and.MA_free_heap(f(2))
+      value = value.and.MA_free_heap(f1(2))
+      value = value.and.MA_free_heap(f2(2))
+      value = value.and.MA_free_heap(f3(2))
+      value = value.and.MA_free_heap(f4(2))
 
       value = value.and.MA_free_heap(Gijl(2))
       value = value.and.MA_free_heap(hartree_matrix(2))

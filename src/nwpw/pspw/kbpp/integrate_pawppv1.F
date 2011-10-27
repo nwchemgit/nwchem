@@ -11,7 +11,7 @@
      >                            n_ps,l_ps,
      >                            v_ps,prj_ps,
      >                            phi_ae,dphi_ae,phi_ps,dphi_ps,
-     >                            rho,f,cs,sn,
+     >                            rho,f1,f2,f3,f4,cs,sn,
      >                            nfft1,nfft2,nfft3,nproj,
      >                            G,vl,vnl,
      >                            n_prj,l_prj,m_prj,
@@ -39,7 +39,7 @@
       double precision dphi_ps(nrho,nbasis)
 
       double precision rho(nrho)
-      double precision f(nrho)
+      double precision f1(nrho),f2(nrho),f3(nrho),f4(nrho)
       double precision cs(nrho)
       double precision sn(nrho)
 
@@ -62,12 +62,16 @@
 
       integer ierr
 
+#include "mafdecls.fh"
+#include "errquit.fh"
+
       integer np,taskid,MASTER
       parameter (MASTER=0)
 
 *     *** local variables ****
       integer lcount,task_count,nfft3d
-      integer k1,k2,k3,i,j,k,l,nx,la,na,lb,nb,power_f
+      integer k1,k2,k3,i,j,i2,j2,k,l,nx,la,na,lb,nb,power_f
+      integer sum_l,dif_l,sum_l2,dif_l2
       double precision pi,twopi,forpi
       double precision p0,p1,p2,p3,p
       double precision gx,gy,gz,a,q,d
@@ -75,10 +79,10 @@
       double precision xerf,yerf
 
 *     **** external functions ****
-      double precision control_ecut,control_wcut,util_erf
-      double precision nwpw_splint,log_integrate_def
-      external         control_ecut,control_wcut,util_erf
-      external         nwpw_splint,log_integrate_def
+      real*8   control_ecut,control_wcut,util_erf
+      real*8   nwpw_splint,log_integrate_def,log_multipole_energy
+      external control_ecut,control_wcut,util_erf
+      external nwpw_splint,log_integrate_def,log_multipole_energy
 
       call Parallel_np(np)
       call Parallel_taskid(taskid)
@@ -102,10 +106,10 @@ c      P3=dsqrt(105.0d0*forpi)
          na = n_ps(i) - la
          power_f = 2*la + 2
          do k=1,nrho
-           f(k) = phi_ae(k,i)*phi_ae(k,i)
-     >          - phi_ps(k,i)*phi_ps(k,i)
+           f1(k) = phi_ae(k,i)*phi_ae(k,i)
+     >           - phi_ps(k,i)*phi_ps(k,i)
          end do
-         d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
+         d = log_integrate_def(power_f,f1,0,rho,log_amesh,nrho)
          Gijl(na,na,la,2) = Gijl(na,na,la,2) + d
 
          do j=1,i-1
@@ -113,10 +117,10 @@ c      P3=dsqrt(105.0d0*forpi)
             nb = n_ps(j) - lb
             if (la.eq.lb) then
               do k=1,nrho
-                f(k) = phi_ae(k,i)*phi_ae(k,j)
-     >               - phi_ps(k,i)*phi_ps(k,j)
+                f1(k) = phi_ae(k,i)*phi_ae(k,j)
+     >                - phi_ps(k,i)*phi_ps(k,j)
               end do
-              d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
+              d = log_integrate_def(power_f,f1,0,rho,log_amesh,nrho)
               Gijl(na,nb,la,2) = Gijl(na,nb,la,2) + d
               Gijl(nb,na,la,2) = Gijl(nb,na,la,2) + d
             end if
@@ -131,12 +135,12 @@ c      P3=dsqrt(105.0d0*forpi)
          na = n_ps(i) - la
          power_f = 2*la
          do k=1,nrho
-           f(k) = 0.5d0*(dphi_ae(k,i)*dphi_ae(k,i)
-     >                  -dphi_ps(k,i)*dphi_ps(k,i))
-     >       + 0.5d0*la*(la+1)*(phi_ae(k,i)*phi_ae(k,i) -
-     >                          phi_ps(k,i)*phi_ps(k,i))/rho(k)**2
+           f1(k) = 0.5d0*(dphi_ae(k,i)*dphi_ae(k,i)
+     >                   -dphi_ps(k,i)*dphi_ps(k,i))
+     >           + 0.5d0*la*(la+1)*(phi_ae(k,i)*phi_ae(k,i) 
+     >                             -phi_ps(k,i)*phi_ps(k,i))/rho(k)**2
          end do
-         d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
+         d = log_integrate_def(power_f,f1,0,rho,log_amesh,nrho)
          Gijl(na,na,la,3) = Gijl(na,na,la,3) + d
 
          do j=1,i-1
@@ -144,12 +148,12 @@ c      P3=dsqrt(105.0d0*forpi)
             nb = n_ps(j) - lb
             if (la.eq.lb) then
               do k=1,nrho
-                f(k) = 0.5d0*(dphi_ae(k,i)*dphi_ae(k,j)
-     >                       -dphi_ps(k,i)*dphi_ps(k,j))
+                f1(k) = 0.5d0*(dphi_ae(k,i)*dphi_ae(k,j)
+     >                        -dphi_ps(k,i)*dphi_ps(k,j))
      >            + 0.5d0*la*(la+1)*(phi_ae(k,i)*phi_ae(k,j) -
      >                               phi_ps(k,i)*phi_ps(k,j))/rho(k)**2
               end do
-              d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
+              d = log_integrate_def(power_f,f1,0,rho,log_amesh,nrho)
               Gijl(na,nb,la,3) = Gijl(na,nb,la,3) + d
               Gijl(nb,na,la,3) = Gijl(nb,na,la,3) + d
             end if
@@ -166,9 +170,9 @@ c      P3=dsqrt(105.0d0*forpi)
            !xerf = rho(k)/rlocal
            !yerf = -zv*(1.0d0-util_erf(xerf))/rho(k) - zc/rho(k)
            !f(k) = phi_ps(k,i)*phi_ps(k,i)*(yerf - v_ps(k))
-           f(k) = phi_ps(k,i)*phi_ps(k,i)*(-v_ps(k))
+           f1(k) = phi_ps(k,i)*phi_ps(k,i)*(-v_ps(k))
          end do
-         d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
+         d = log_integrate_def(power_f,f1,0,rho,log_amesh,nrho)
          Gijl(na,na,la,4) = Gijl(na,na,la,4) + d
 
          do j=1,i-1
@@ -179,9 +183,9 @@ c      P3=dsqrt(105.0d0*forpi)
                 !xerf = rho(k)/rlocal
                 !yerf = -zv*(1.0d0-util_erf(xerf))/rho(k) - zc/rho(k)
                 !f(k) = phi_ps(k,i)*phi_ps(k,j)*(yerf - v_ps(k))
-                f(k) = phi_ps(k,i)*phi_ps(k,j)*(-v_ps(k))
+                f1(k) = phi_ps(k,i)*phi_ps(k,j)*(-v_ps(k))
               end do
-              d = log_integrate_def(power_f,f,0,rho,log_amesh,nrho)
+              d = log_integrate_def(power_f,f1,0,rho,log_amesh,nrho)
               Gijl(na,nb,la,4) = Gijl(na,nb,la,4) + d
               Gijl(nb,na,la,4) = Gijl(nb,na,la,4) + d
             end if
@@ -197,23 +201,85 @@ c      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)
       do i=1,nbasis
          do j=1,i-1
             do k=1,nrho
-               f(k) = phi_ae(k,i)*phi_ae(k,j)
-     >              - phi_ps(k,i)*phi_ps(k,j)
+               f1(k) = phi_ae(k,i)*phi_ae(k,j)
+     >               - phi_ps(k,i)*phi_ps(k,j)
             end do
             do l=0,lmax
-               d = log_integrate_def(2*l+2,f,l,rho,log_amesh,nrho)
+               d = log_integrate_def(2*l+2,f1,l,rho,log_amesh,nrho)
                comp_charge_matrix(i,j,l) = d
                comp_charge_matrix(j,i,l) = d
             end do
          end do
       end do
 
+*     **** cmp_pot_matrix(nbasis,nbasis,0:lmax) ****
+      do i=1,nbasis
+         do j=1,i-1
+            do k=1,nrho
+               f1(k) = phi_ae(k,i)*phi_ae(k,j)
+     >               - phi_ps(k,i)*phi_ps(k,j)
+            end do
+            do l=0,lmax
+               d = log_integrate_def(2*l+2,f1,l,rho,log_amesh,nrho)
+               comp_pot_matrix(i,j,l) = d
+               comp_pot_matrix(j,i,l) = d
+            end do
+         end do
+      end do
+
+*     **** hartree_matrix(nbasis,nbasis,nbasis,nbasis,0:lmax) ****
+      l = nbasis*nbasis*nbasis*nbasis*(lmax+1)
+      call dcopy(l,0.0d0,0,hartree_matrix,1)
+      do i=1,nbasis
+         do j=1,i
+            sum_l = l_ps(i)+l_ps(j)
+            dif_l = abs(l_ps(i)-l_ps(j))
+            k1 = sum_l + 2
+
+            do k=1,nrho
+               f1(k) = phi_ae(k,i)*phi_ae(k,j)
+               f3(k) = phi_ps(k,i)*phi_ps(k,j)
+            end do
+
+            do i2=1,nbasis
+               do j2=1,i2
+                  sum_l2 = l_ps(i2)+l_ps(j2)
+                  dif_l2 = abs(l_ps(i2)-l_ps(j2))
+                  k2 = sum_l2 + 2
+
+                  do k=1,nrho
+                     f2(k) = phi_ae(k,i2)*phi_ae(k,j2)
+                     f4(k) = phi_ps(k,i2)*phi_ps(k,j2)
+                  end do
+
+                  do l=0,lmax
+                     if ((l.le.sum_l) .and.(l.ge.dif_l)) then
+                     if ((l.le.sum_l2).and.(l.ge.dif_l2)) then
+                        d = log_multipole_energy(l,nrho,rho,
+     >                                   k1,f1,
+     >                                   k2,f2,log_amesh)
+     >                    - log_multipole_energy(l,nrho,rho,
+     >                                   k1,f3,
+     >                                   k2,f4,log_amesh)
+                        hartree_matrix(i,j,i2,j2,l) = d
+                        hartree_matrix(j,i,i2,j2,l) = d
+                        hartree_matrix(i,j,j2,i2,l) = d
+                        hartree_matrix(j,i,j2,i2,l) = d
+                     end if
+                     end if
+                  end do
+               end do
+            end do
+         end do
+      end do
+
+
 *     ************* compute ray fourier transforms *********************
       call integrate_paw_ray(version,rlocal,
      >                       nrho,log_amesh,zv,
      >                       nbasis,n_ps,l_ps,
      >                       v_ps,prj_ps,
-     >                       rho,f,cs,sn,
+     >                       rho,f1,cs,sn,
      >                       nray,
      >                       G_ray,vl_ray,vnl_ray,
      >                       ierr)
