@@ -743,7 +743,7 @@ c
 #include "errquit.fh"
       integer moints_unit
       character*(*) intfmt
-      double precision buf      ! Not used
+      double precision buf(1)   ! Not used
       integer labels(4)         ! Not used
 c
       if (intfmt .eq. 'ascii') then

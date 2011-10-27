@@ -1197,7 +1197,7 @@ c
       implicit none
 #include "bas.fh"
       integer basis
-      double precision eri
+      double precision eri(*)
       integer ish, jsh, ksh, lsh
       logical status
       integer ilo, ihi, jlo, jhi, klo, khi, llo, lhi
