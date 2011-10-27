@@ -55,6 +55,7 @@ c
       logical dowork
       logical oprint_ioinfo
       integer ndone,ipoint,ipoint2
+      integer ilo, ihi, jlo, jhi, adrc, ldc,nnii,iptr,j
       external nxtask
 c
 c !!! BGJ test !!!
@@ -210,7 +211,6 @@ c
             if( CD_coef_max*ERI_est.gt.THRESHOLD )then
               ischw1 = ischw1 + nshells_cd
               
-c!!!              call dfill(Nao2*nmat,0.D0,dbl_mb(isvec),1)
               nfunz=0
               ipoint2=ipoint
 c                 
@@ -224,7 +224,6 @@ c
                  call dgemv('N',Nao2,nbf_cd,1.D0,
      &                i3c_ERI(ipoint),Nao2,
      &                CD_coef,1,0.D0,Dbl_MB(isvec),1)
-c!!!     &                CD_coef,1,1.D0,Dbl_MB(isvec),1)
 c
               else
 c
@@ -241,11 +240,12 @@ c
               if(dermat) then
                  call errquit('fitvc: not coded yet',0,0)
               else
-                 call sca_lab_mat(AO_bas_han,ishc,ishd,
-     &                nshbfc,nshbfd,g_vc,
-!old     &                DBL_MB(isvec+(imat-1)*Nao2),dbl_mb(isvec2),
-     &                DBL_MB(isvec),dbl_mb(isvec2),
-     .                'put')
+                 if(ifirstd.ne.ifirstc)
+     S            call dscal(nshbfc*nshbfd, 2d0, dbl_mb(isvec), 1)
+                 call ga_put(g_vc,
+     *                ifirstd,ilastd,
+     *                ifirstc,ilastc,
+     *                dbl_mb(isvec),nshbfd)
               endif
 c
             endif
@@ -411,10 +411,12 @@ c
      &                DBL_MB(isvec),dbl_mb(isvec2),
      .                'put')
               else
-                    call sca_lab_mat(AO_bas_han,ishc,ishd,
-     &                   nshbfc,nshbfd,g_vc,
-     &                   DBL_MB(isvec),dbl_mb(isvec2),
-     .                   'put')
+                 if(ifirstd.ne.ifirstc)
+     S                call dscal(nshbfc*nshbfd, 2d0, dbl_mb(isvec), 1)
+                 call ga_put(g_vc,
+     *                ifirstd,ilastd,
+     *                ifirstc,ilastc,
+     *                dbl_mb(isvec),nshbfd)
               endif
             endif
 c            
@@ -445,6 +447,7 @@ c
 c
 c
       n1 = nxtask(-nproc,icount)
+      call ga_symmetrize(g_vc)
 c      
       if(.not.ma_pop_stack(lcd_shell))
      &  call errquit('dft_fitvc: cannot pop stack',0,0)
@@ -467,17 +470,17 @@ c     !!! Should modify this so that nothing is done if nmat > 1
 c     !!! Looks like g_2ceri not needed in that case
 c
       Ecoul2=0.D0
-      next=nxtask(nproc, 1)+1
-      do i=1,nbf_cd
-        if(i.eq.next) then
-          next=nxtask(nproc, 1)+1
-          call get_col(g_2ceri,nbf_cd,i,DBL_MB(iscr))
-          Ecoul2 = Ecoul2+ddot(
-     *         nbf_cd,CD_coef,1,Dbl_MB(iscr),1)*CD_coef(i,1)
-        endif
-      enddo
-c     
-      next=nxtask(-nproc, 1)
+      call  ga_distribution(g_2ceri,me,ilo,ihi,jlo,jhi)
+      if (ilo.gt.0) then
+      call ga_access(g_2ceri, ilo, ihi, jlo, jhi, adrc, ldc)
+         nnii=ihi-ilo+1
+         do j = jlo,jhi
+            iptr=adrc+(j-jlo)*ldc
+            Ecoul2 = Ecoul2+ ddot(nnii,DBL_mb(iptr),1,
+     C           cd_coef(ilo,1),1)*cd_coef(j,1)
+       enddo
+      call ga_release(g_2ceri, ilo, ihi, jlo, jhi)
+      endif
 c     
 
       Ecoul2=Ecoul2*0.5D0
