@@ -20,13 +20,14 @@
       real*8  scal,gg,fourpioveromega
 
 *     **** external functions ****
-      integer  control_code,G_indx,c_G_indx,ion_nkatm_qm
+      integer  control_code,G_indx,c_G_indx,ion_nkatm_qm,ion_nion_qm
       integer  psp_psp_type,cpsp_psp_type,psp_lmax,cpsp_lmax
       real*8   double_factorial,lattice_omega,ewald_rcut,psp_sigma
-      external control_code,G_indx,c_G_indx,ion_nkatm_qm
+      external control_code,G_indx,c_G_indx,ion_nkatm_qm,ion_nion_qm
       external psp_psp_type,cpsp_psp_type,psp_lmax,cpsp_lmax
       external double_factorial,lattice_omega,ewald_rcut,psp_sigma
 
+      nion         = ion_nion_qm()
       nkatm        = ion_nkatm_qm()
       sigma_smooth = ewald_rcut()
 
@@ -72,10 +73,13 @@
       value = value.and.
      >        MA_alloc_get(mt_dbl,npack0*lm_size,"glm",glm(2),glm(1))
       value = value.and.
+     >        MA_alloc_get(mt_dbl,nion*lm_size,"Qlm",Qlm(2),Qlm(1))
+      value = value.and.
      >        MA_push_get(mt_dbl,3*nfft3d,"Gall",Gall(2),Gall(1))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
 
+      call dcopy(nion*lm_size,0.0d0,0,dbl_mb(Qlm(1)),1)
       call dcopy(3*nfft3d,dbl_mb(Gindx),1,dbl_mb(Gall(1)),1)
       G(1) = Gall(1)
       G(2) = Gall(1)+nfft3d
@@ -172,8 +176,125 @@
       value =           MA_free_heap(gk_smooth(2))
       value = value.and.MA_free_heap(gk(2))
       value = value.and.MA_free_heap(glm(2))
+      value = value.and.MA_free_heap(Qlm(2))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end: freeing heap",0,MA_ERR)
+      return
+      end 
+
+*     *************************************************
+*     *                                               *
+*     *              nwpw_compcharge_gen_Qlm          *
+*     *                                               *
+*     *************************************************
+
+*     This routine computes Qlm for atom ii.
+
+      subroutine nwpw_compcharge_gen_Qlm(ii,ia,nprj,neall,sw1)
+      implicit none
+      integer ii,ia
+      integer nprj,neall
+      real*8  sw1(neall,nprj)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      integer l,m,lm,shiftia
+
+c      shiftia = int_mb(Tndiff_shift(1)+ia)
+c      do l=0,lmax
+c         do m=-l,l
+c            dbl_mb(Qlm(1)+(ii-1)*lm_size + lm) 
+c     >         = nwpw_compcharge_Qlm_sub(nprj,neall,
+c     >               dbl_mb(Tndiff(1)+shiftia+(lm-1)*nprj*nprj)
+c     >               sw1)
+c
+c            lm = lm + 1
+c         end do
+c      end do
 
       return
       end 
+
+*     *************************************************
+*     *                                               *
+*     *              nwpw_compcharge_Qlm_sub          *
+*     *                                               *
+*     *************************************************
+      real*8 function nwpw_compcharge_Qlm_sub(nprj,neall,Tndiff,sw1)
+      implicit none
+      integer nprj,neall
+      real*8  Tndiff(nprj,nprj)
+      real*8  sw1(neall,nprj)
+
+*     **** local variables ****
+      integer i,j,n
+      real*8 qlm,psum
+
+      qlm = 0.0d0
+      do j=1,nprj
+         do i=1,nprj
+            psum = 0.0d0
+            do n=1,neall
+               psum = psum + sw1(n,i)*sw1(n,j)
+            end do
+            qlm = qlm + Tndiff(i,j)*psum
+         end do
+      end do
+
+      nwpw_compcharge_Qlm_sub = qlm
+      return
+      end
+
+*     *************************************************
+*     *                                               *
+*     *              nwpw_compcharge_Qlm_setup        *
+*     *                                               *
+*     *************************************************
+c      subroutine nwpw_compcharge_Qlm_setup(nkatm,nprj,psp_type,
+c     >                                     comp_charge_matrix)
+      
+
+
+*     *************************************************
+*     *                                               *
+*     *          nwpw_compcharge_gen_rgaussian         *
+*     *                                               *
+*     *************************************************
+      subroutine nwpw_compcharge_gen_rgaussian(l,sigma,nr,r,gl)
+      implicit none
+      integer  l
+      integer  nr
+      real*8 sigma
+      double precision r(*)
+      double precision gl(*)
+
+      !*** local variables ***
+      integer i
+      real*8  c,pi
+
+*     ***** external functions ****
+      real*8   double_factorial
+      external double_factorial
+
+      pi = 4.0d0*datan(1.0d0)
+      c  = 2**(l+2)/(dsqrt(pi)*double_factorial(2*l+1)*sigma**(2*l+3))
+
+      !*** this fixes possible underflow error ***
+      do i=1,nr
+         gl(i) = 0.0d0
+      end do
+
+      do i=1,nr
+        if (dabs(r(i)) .lt. (8.0d0*sigma))
+     >     gl(i) = c*r(i)**l*dexp(-(r(i)/sigma)**2)
+      end do
+
+      return
+      end
+
+
+
+
