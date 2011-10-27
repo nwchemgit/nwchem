@@ -70,8 +70,8 @@ c      integer ga_idot
       integer i,j, req, err, dim1, dim2, type
       integer me, nproc
       logical status
-      character*1 filename(200)
-      character*80 name
+      character*200 filename
+      character*100 name
 c      external ga_idot
 c    
       nproc = ga_nnodes()

@@ -347,7 +347,7 @@ c
       ofw = 0
       do offset = 0, length, (IO_TEST_SZ)*8
          nwrite = nint(min(length-offset+1.0d0,(IO_TEST_SZ)*8.0d0))
-         call util_dfill_eaf(nwrite/8, offset, buf, 1)
+         call util_dfill_eaf(nwrite/8, dble(offset), buf, 1)
          if (ofw .le. offset) then
             write(6,*) ' writing at ',offset, nwrite
             ofw = ofw + 100000000.0d0

@@ -1286,7 +1286,7 @@ c
 c     
          nwords = nwords + (ihi-ilo+1)*(jhi-jlo+1)
 c
-         call util_ifill(n*n, 0.0d0, b, 1)
+         call util_ifill(n*n, 0, b, 1)
          call ga_get(g_a, ilo, ihi, jlo, jhi, b(ilo, jlo), n)
 c
          sum1 = 0.0d0
@@ -2325,6 +2325,9 @@ c
 
 
       integer function iran(i)
+      implicit none
+      double precision util_drand
+      external util_drand
       integer i
       iran = int(util_drand(0)*dfloat(i))+1
       return
