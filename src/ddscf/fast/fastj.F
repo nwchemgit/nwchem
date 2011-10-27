@@ -14,7 +14,7 @@
       integer basis
       integer g_dens
       double precision eps
-      integer data
+      integer data(2)
 c
 c     Given a normalized basis set and a density matrix
 c     solve Poisson's equation so that subsequent calls to
