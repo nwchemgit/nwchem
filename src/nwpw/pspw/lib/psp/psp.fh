@@ -11,6 +11,7 @@
       integer    zv(2),amass(2),rc(2)
       integer    lmmax(2),lmax(2),locp(2),nmax(2)
       integer    nprj(2),n_projector(2),l_projector(2),m_projector(2)
+      integer    b_projector(2)
       integer    npsp,nprj_max,nprj_mult
       integer    psp_type(2)
 
@@ -21,6 +22,7 @@
       common / psp_block / prjtmp,vl,vnl,Gijl,zv,amass,rc,
      >                     lmmax,lmax,locp,nmax,
      >                     nprj,n_projector,l_projector,m_projector,
+     >                     b_projector,
      >                     psp_type,npsp,nprj_max,nprj_mult,
      >                     atom,comment
 

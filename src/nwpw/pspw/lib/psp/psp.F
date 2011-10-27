@@ -62,6 +62,9 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       value = value.and.
      >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
      >                     'm_projector',m_projector(2),m_projector(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,(npsp*nmax_max*lmmax_max),
+     >                     'b_projector',b_projector(2),b_projector(1))
 
       value = value.and.
      >        MA_alloc_get(mt_dbl,(npsp),'zv',zv(2),zv(1))
@@ -266,6 +269,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       value = value.and.MA_free_heap(n_projector(2))
       value = value.and.MA_free_heap(l_projector(2))
       value = value.and.MA_free_heap(m_projector(2))
+      value = value.and.MA_free_heap(b_projector(2))
       value = value.and.MA_free_heap(zv(2))
       value = value.and.MA_free_heap(amass(2))
       value = value.and.MA_free_heap(rc(2))
@@ -1748,6 +1752,7 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                       atom,amass,zv,lmmax,lmax,locp,nmax,
      >                       rc,
      >                       nprj,n_projector,l_projector,m_projector,
+     >                       b_projector,
      >                       Gijl_tag,
      >                       rlocal,
      >                       nfft3d,npack1,npack0,
@@ -1778,6 +1783,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       real*8 rc(*)
 
       integer nprj,n_projector(*),l_projector(*),m_projector(*)
+      integer b_projector(*)
       integer Gijl_tag
 
       real*8 rlocal
@@ -1862,6 +1868,7 @@ c     **** define Gx,Gy and Gz in packed space ****
          call iread(5,n_projector,nprj)
          call iread(5,l_projector,nprj)
          call iread(5,m_projector,nprj)
+         call iread(5,b_projector,nprj)
          end if
       end if
 
@@ -1902,6 +1909,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,n_projector)
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,l_projector)
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,m_projector)
+      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,b_projector)
 
 
 *     ***** read in Gijl's ****
@@ -2229,6 +2237,8 @@ c     logocal semicore(0:nkatmx)
      >                  int_mb(l_projector(1) 
      >                         + (ia-1)*(nmax_max*lmmax_max)),
      >                  int_mb(m_projector(1) 
+     >                         + (ia-1)*(nmax_max*lmmax_max)),
+     >                  int_mb(b_projector(1) 
      >                         + (ia-1)*(nmax_max*lmmax_max)),
      >                  int_mb(Gijl(1)+(ia-1)), 
      >                  dbl_mb(rlocal(1) + (ia-1)),
