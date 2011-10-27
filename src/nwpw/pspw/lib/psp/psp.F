@@ -2005,7 +2005,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       if (psp_type.eq.4) then
 
          !**** allocate and reading hartree_matrix(nprj,nprj,nprj,nprj,lmax+1) ****
-         msglen=nprj*nprj*nprj*nprj
+         msglen=n1dbasis*n1dbasis*n1dbasis*n1dbasis
          hartree_tag  = psi_data_alloc(lmax+1,msglen)
          indx = psi_data_get_chnk(hartree_tag)
          if (taskid_p.eq.MASTER) then
@@ -2015,7 +2015,7 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                                dbl_mb(indx))
 
          !**** allocate and reading comp_charge_matrix(nprj,nprj,lmax+1) ****
-         msglen=nprj*nprj
+         msglen=n1dbasis*n1dbasis
          comp_charge_tag  = psi_data_alloc(lmax+1,msglen)
          indx = psi_data_get_chnk(comp_charge_tag)
          if (taskid_p.eq.MASTER) then
@@ -2025,7 +2025,7 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                                dbl_mb(indx))
 
          !**** allocate and reading comp_pot_matrix(nprj,nprj,lmax+1) ****
-         msglen=nprj*nprj
+         msglen=n1dbasis*n1dbasis
          comp_pot_tag  = psi_data_alloc(lmax+1,msglen)
          indx = psi_data_get_chnk(comp_pot_tag)
          if (taskid_p.eq.MASTER) then
