@@ -14,7 +14,7 @@ c
       integer g_dens(*)         ! [input] array of handles to densities
       integer nactive           ! [input] number of active atoms
       logical oactive(nactive)  ! [input] key to active atoms
-      double precision hess  ! [output] XC hessian matrix
+      double precision hess(*)  ! [output] XC hessian matrix
 c
       integer ipol
       external xc_gotxc

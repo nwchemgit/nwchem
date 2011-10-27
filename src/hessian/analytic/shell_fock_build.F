@@ -256,13 +256,13 @@ c
       integer g_dens, g_fock
       integer blen              ! [input] max dimension of density block
       double precision          ! [scratch] 6 blocks per possible density
-     $     d_ij,  d_kl,  
-     $     d_ik,  d_jl,  
-     $     d_il,  d_jk
+     $     d_ij(*),  d_kl(*),  
+     $     d_ik(*),  d_jl(*),  
+     $     d_il(*),  d_jk(*)
       double precision          ! [scratch] 6 blocks per possible fock
-     $     f_ij,  f_kl,  
-     $     f_ik,  f_jl,  
-     $     f_il,  f_jk
+     $     f_ij(*),  f_kl(*),  
+     $     f_ik(*),  f_jl(*),  
+     $     f_il(*),  f_jk(*)
 c     
       integer lscr              ! [input] Size of scratch for integrals
       double precision scr(lscr) ![scratch] Scratch space for integrals

@@ -8,6 +8,7 @@ c
       implicit real*8 (a-h,o-z)
       parameter(lenbuf=2047, n1eabf=1636, n2eabf=1364)
       common/blkin/buffer(lenbuf),ibuf(n2eabf*4)
+      dimension h(*)
 c
 c     get the 1 electron hamiltonian (t+v)
 c
