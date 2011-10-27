@@ -38,8 +38,8 @@
       character*2 atom
       character*80 comment
 
-      integer mprj(2),lprj(2),nprj(2),prj_ps0(2),prj_ps(2),v_ps(2)
-      integer core_ps(2),core_ae(2)
+      integer bprj(2),mprj(2),lprj(2),nprj(2),prj_ps0(2),prj_ps(2)
+      integer v_ps(2),core_ps(2),core_ae(2)
       integer dphi_ps(2),phi_ps(2),dphi_ae(2),phi_ae(2)
       integer eig(2),lps(2),nps(2),nae(2)
       integer rgrid(2)
@@ -251,10 +251,11 @@
      >      MA_alloc_get(mt_dbl,l,'comp_pot_matrix',
      >                   comp_pot_matrix(2),comp_pot_matrix(1))
 
-*     **** allocate nprj,lprj,mprj ****
+*     **** allocate nprj,lprj,mprj,bprj ****
       value=value.and.MA_alloc_get(mt_int,nproj,'nprj',nprj(2),nprj(1))
       value=value.and.MA_alloc_get(mt_int,nproj,'lprj',lprj(2),lprj(1))
       value=value.and.MA_alloc_get(mt_int,nproj,'mprj',mprj(2),mprj(1))
+      value=value.and.MA_alloc_get(mt_int,nproj,'bprj',bprj(2),bprj(1))
       if (.not.value)  call errquit('pawppv1:out of heap',2,MA_ERR)
 
 
@@ -302,6 +303,7 @@
         zcore = zion - zv
         call integrate_pawppv1(version,rlocal,
      >                     n1dgrid,log_amesh,nbasis,nmax,lmax,zv,zcore,
+     >                     sigma,
      >                     int_mb(nps(1)),int_mb(lps(1)),
      >                                dbl_mb(v_ps(1)),
      >                                dbl_mb(prj_ps(1)),
@@ -323,6 +325,7 @@
      >                                int_mb(nprj(1)),
      >                                int_mb(lprj(1)),
      >                                int_mb(mprj(1)),
+     >                                int_mb(bprj(1)),
      >                                dbl_mb(Gijl(1)),
      >                                dbl_mb(hartree_matrix(1)),
      >                                dbl_mb(comp_charge_matrix(1)),
@@ -390,6 +393,7 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
          call iwrite(2,int_mb(nprj(1)),nproj)
          call iwrite(2,int_mb(lprj(1)),nproj)
          call iwrite(2,int_mb(mprj(1)),nproj)
+         call iwrite(2,int_mb(bprj(1)),nproj)
          call dwrite(2,dbl_mb(Gijl(1)),5*nmax*nmax*(lmax+1))
          end if
 
@@ -453,6 +457,7 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
       value = value.and.MA_free_heap(comp_charge_matrix(2))
       value = value.and.MA_free_heap(comp_pot_matrix(2))
 
+      value = value.and.MA_free_heap(bprj(2))
       value = value.and.MA_free_heap(mprj(2))
       value = value.and.MA_free_heap(lprj(2))
       value = value.and.MA_free_heap(nprj(2))

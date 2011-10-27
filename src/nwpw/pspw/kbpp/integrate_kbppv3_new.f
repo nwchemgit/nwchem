@@ -6,7 +6,7 @@
      >                            vp,wp,rho,f,cs,sn,
      >                            nfft1,nfft2,nfft3,lmmax,
      >                            G,vl,vnl,
-     >                            n_prj,l_prj,m_prj,vnlnrm,
+     >                            n_prj,l_prj,m_prj,b_prj,vnlnrm,
      >                            semicore,rho_sc_r,rho_sc_k,
      >                            nray,G_ray,vl_ray,vnl_ray,
      >                            rho_sc_k_ray,tmp_ray,
@@ -32,6 +32,7 @@
       double precision vl(nfft1/2+1,nfft2,nfft3)
       double precision vnl(nfft1/2+1,nfft2,nfft3,lmmax)
       integer          n_prj(lmmax),l_prj(lmmax),m_prj(lmmax)
+      integer          b_prj(lmmax)
       double precision vnlnrm(0:lmax)
 
       logical semicore
@@ -303,36 +304,43 @@
           n_prj(lcount) = 1
           l_prj(lcount) = 3
           m_prj(lcount) = -3
+          b_prj(lcount) = 4
     
           lcount = lcount-1
           n_prj(lcount) = 1
           l_prj(lcount) = 3
           m_prj(lcount) = -2
+          b_prj(lcount) = 4
            
           lcount = lcount-1
           n_prj(lcount) = 1
           l_prj(lcount) = 3
           m_prj(lcount) = -1
+          b_prj(lcount) = 4
      
           lcount = lcount-1
           n_prj(lcount) = 1
           l_prj(lcount) = 3
           m_prj(lcount) = 0
+          b_prj(lcount) = 4
            
           lcount = lcount-1
           n_prj(lcount) = 1
           l_prj(lcount) = 3
           m_prj(lcount) = 1
+          b_prj(lcount) = 4
            
           lcount = lcount-1
           n_prj(lcount) = 1
           l_prj(lcount) = 3
           m_prj(lcount) = 2
+          b_prj(lcount) = 4
      
           lcount = lcount-1
           n_prj(lcount) = 1
           l_prj(lcount) = 3
           m_prj(lcount) = 3
+          b_prj(lcount) = 4
         end if
 
 
@@ -343,26 +351,31 @@
           n_prj(lcount) = 1
           l_prj(lcount) = 2
           m_prj(lcount) = -2
+          b_prj(lcount) = 3
 
           lcount = lcount-1
           n_prj(lcount) = 1
           l_prj(lcount) = 2
           m_prj(lcount) = -1
+          b_prj(lcount) = 3
           
           lcount = lcount-1
           n_prj(lcount) = 1
           l_prj(lcount) = 2
           m_prj(lcount) = 0
+          b_prj(lcount) = 3
           
           lcount = lcount-1
           n_prj(lcount) = 1
           l_prj(lcount) = 2
           m_prj(lcount) = 1
+          b_prj(lcount) = 3
           
           lcount = lcount-1
           n_prj(lcount) = 1
           l_prj(lcount) = 2
           m_prj(lcount) = 2
+          b_prj(lcount) = 3
         end if
 
 
@@ -373,16 +386,19 @@
           n_prj(lcount) = 1
           l_prj(lcount) = 1
           m_prj(lcount) = -1
+          b_prj(lcount) = 2
 
           lcount = lcount-1
           n_prj(lcount) = 1
           l_prj(lcount) = 1
           m_prj(lcount) = 0
+          b_prj(lcount) = 2
 
           lcount = lcount-1
           n_prj(lcount) = 1
           l_prj(lcount) = 1
           m_prj(lcount) = 1
+          b_prj(lcount) = 2
         end if
 
 
@@ -393,6 +409,7 @@
           n_prj(lcount) = 1
           l_prj(lcount) = 0
           m_prj(lcount) = 0
+          b_prj(lcount) = 1
         end if
 
 

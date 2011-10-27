@@ -44,9 +44,9 @@
       double precision rcore,core_charge
 
       integer f_indx,cs_indx,sn_indx
-      integer n_prj_indx,l_prj_indx,m_prj_indx
+      integer n_prj_indx,l_prj_indx,m_prj_indx,b_prj_indx
       integer f_hndl,cs_hndl,sn_hndl
-      integer n_prj_hndl,l_prj_hndl,m_prj_hndl
+      integer n_prj_hndl,l_prj_hndl,m_prj_hndl,b_prj_hndl
 
 *     ***** ngrid data *****
       integer vl_indx,vnl_indx,vnlnrm_indx,G_indx
@@ -194,6 +194,8 @@ c      call Parallel_Init()
      >                        'l_prj', l_prj_hndl, l_prj_indx)
       value = value.and.MA_alloc_get(mt_int,nprj,
      >                        'm_prj', m_prj_hndl, m_prj_indx)
+      value = value.and.MA_alloc_get(mt_int,nprj,
+     >                        'b_prj', b_prj_hndl, b_prj_indx)
       if (.not.value) 
      > call errquit('kbppv3:out of heap memory',0,MA_ERR)
 
@@ -240,6 +242,7 @@ c      call Parallel_Init()
      >                                int_mb(n_prj_indx),
      >                                int_mb(l_prj_indx),
      >                                int_mb(m_prj_indx),
+     >                                int_mb(b_prj_indx),
      >                                dbl_mb(vnlnrm_indx),
      >                                semicore,
      >                                dbl_mb(sc_r_indx),
@@ -276,6 +279,7 @@ c      call Parallel_Init()
      >                                int_mb(n_prj_indx),
      >                                int_mb(l_prj_indx),
      >                                int_mb(m_prj_indx),
+     >                                int_mb(b_prj_indx),
      >                                dbl_mb(vnlnrm_indx),
      >                                semicore,
      >                                dbl_mb(sc_r_indx),
@@ -381,6 +385,7 @@ c      call Parallel_Init()
          call iwrite(2,int_mb(n_prj_indx),nprj)
          call iwrite(2,int_mb(l_prj_indx),nprj)
          call iwrite(2,int_mb(m_prj_indx),nprj)
+         call iwrite(2,int_mb(b_prj_indx),nprj)
          call dwrite(2,dbl_mb(vnlnrm_indx),(lmax+1))
          end if
 
@@ -416,6 +421,7 @@ c      call Parallel_Init()
       value = value.and.MA_free_heap(n_prj_hndl)
       value = value.and.MA_free_heap(l_prj_hndl)
       value = value.and.MA_free_heap(m_prj_hndl)
+      value = value.and.MA_free_heap(b_prj_hndl)
       if (.not.value) 
      > call errquit('kbppv3:Error freeing memory',0,MA_ERR)
 

@@ -47,8 +47,8 @@
 
       integer lmax,locp
 
-      integer n_prj_indx,l_prj_indx,m_prj_indx
-      integer n_prj_hndl,l_prj_hndl,m_prj_hndl
+      integer n_prj_indx,l_prj_indx,m_prj_indx,b_prj_indx
+      integer n_prj_hndl,l_prj_hndl,m_prj_hndl,b_prj_hndl
 
 *     ***** ngrid data *****
       integer Ylm_indx,vl_indx,vnl_indx,G_indx
@@ -216,12 +216,15 @@ c      call Parallel_init()
      >                        'l_prj', l_prj_hndl, l_prj_indx)
       value = value.and.MA_alloc_get(mt_int,nprj,
      >                        'm_prj', m_prj_hndl, m_prj_indx)
+      value = value.and.MA_alloc_get(mt_int,nprj,
+     >                        'b_prj', b_prj_hndl, b_prj_indx)
       if(.not.value)
      >    call errquit('hghppv1: out of heap memory', 0, MA_ERR)
 
 
       !**** determine n_prj, l_prj, and m_prj arrays ****
-      indx = 0
+      indx  = 0
+      nfft1 = 1
       do l=0,lmax
       do i=1,3 
         if ((H(i,l).ne.0.0d0)) then
@@ -229,8 +232,10 @@ c      call Parallel_init()
             int_mb(n_prj_indx+indx) = i
             int_mb(l_prj_indx+indx) = l
             int_mb(m_prj_indx+indx) = m
+            int_mb(b_prj_indx+indx) = nfft1
             indx = indx + 1
           end do 
+          nfft1=nfft1+1
         end if
       end do
       end do
@@ -351,6 +356,7 @@ c      call Parallel_init()
           call iwrite(2,int_mb(n_prj_indx),nprj)
           call iwrite(2,int_mb(l_prj_indx),nprj)
           call iwrite(2,int_mb(m_prj_indx),nprj)
+          call iwrite(2,int_mb(b_prj_indx),nprj)
           call dwrite(2,Gijl,(nmax*nmax*(lmax+1)))
          end if
 
@@ -374,6 +380,7 @@ c      call Parallel_init()
       value = value.and.MA_free_heap(n_prj_hndl)
       value = value.and.MA_free_heap(l_prj_hndl)
       value = value.and.MA_free_heap(m_prj_hndl)
+      value = value.and.MA_free_heap(b_prj_hndl)
       if(.not.value)
      >  call errquit('hghppv1: deallocatin heap memory', 0, MA_ERR)
 
