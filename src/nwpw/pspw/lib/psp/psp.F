@@ -281,6 +281,9 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       value = value.and.MA_free_heap(rlocal(2))
 
 *     **** PAW variables ****
+      if (pawexist) then
+         call nwpw_compcharge_end()
+      end if
       value = value.and.MA_free_heap(hartree_matrix(2))
       value = value.and.MA_free_heap(comp_charge_matrix(2))
       value = value.and.MA_free_heap(comp_pot_matrix(2))
@@ -2180,12 +2183,12 @@ c     logocal semicore(0:nkatmx)
 
 *     **** external functions ****
       logical      nwpw_filefind,control_print
-      integer      control_ngrid
+      integer      control_ngrid,ion_nion
       real*8       control_unita
       character*12 control_boundry
       character*4  ion_atom
       external     nwpw_filefind,control_print
-      external     control_ngrid
+      external     control_ngrid,ion_nion
       external     control_unita
       external     control_boundry
       external     ion_atom
@@ -2338,6 +2341,21 @@ c     logocal semicore(0:nkatmx)
 
 *     **** done reading set nprj_max and prjtmp for nonlocal psp operator ****
       call psp_proj_init()
+
+      if (pawexist) then
+         call nwpw_compcharge_init(ion_nion(),npsp,
+     >                             int_mb(nprj(1)),
+     >                             int_mb(n1dbasis(1)),
+     >                             int_mb(psp_type(1)),
+     >                             int_mb(lmax(1)),
+     >                             dbl_mb(sigma(1)),
+     >                             nmax_max*lmmax_max,
+     >                             int_mb(l_projector(1)),
+     >                             int_mb(m_projector(1)),
+     >                             int_mb(b_projector(1)),
+     >                             int_mb(comp_charge_matrix(1)))
+      end if
+
 
       return
       end
