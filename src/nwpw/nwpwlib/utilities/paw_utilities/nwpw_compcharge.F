@@ -94,7 +94,7 @@
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
 
-      call dcopy(nion*lm_size,0.0d0,0,dbl_mb(Qlm(1)),1)
+      call dcopy(nion*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)),1)
       call dcopy(3*nfft3d,dbl_mb(Gindx),1,dbl_mb(Gall(1)),1)
       G(1) = Gall(1)
       G(2) = Gall(1)+nfft3d
