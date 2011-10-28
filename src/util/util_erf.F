@@ -65,7 +65,7 @@ c !      This is a slightly modified version of Log(Gamma) function
 c !      program from Num. Rec.
 c !************************************************************************
 
-      real*8 FUNCTION ln_gamma(xx)
+      real*8 function ln_gamma(xx)
       implicit none
       real*8  xx
 
@@ -79,23 +79,39 @@ c !************************************************************************
       x=xx
       y=x
       tmp=x+5.5d0
-      tmp=(x+0.5d0)*DLOG(tmp)-tmp
+      tmp=(x+0.5d0)*dlog(tmp)-tmp
       ser=1.000000000190015d0
       DO 11 j=1,6
         y=y+1.0d0
         ser=ser+cof(j)/y
 11    CONTINUE
 
-      ln_gamma=tmp+DLOG(stp*ser/x)
+      ln_gamma=tmp+dlog(stp*ser/x)
 
       return
       END
 
+      real*8 function util_gamma(x)
+      implicit none
+      real*8 x
+
+      real*8 xx
+      real*8   ln_gamma
+      external ln_gamma
+
+      XX = X
+      util_gamma = dexp(ln_gamma(xx))
+
+      return
+      END
+
+
      
       real*8 function gammp(a,x)
       implicit none
-#include "errquit.fh"
       real*8 a,x
+
+#include "errquit.fh"
 
 *     **** external functions ****
       real*8   gammcf,gamser,gln
