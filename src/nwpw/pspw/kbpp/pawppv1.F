@@ -311,6 +311,8 @@
      >                                dbl_mb(dphi_ae(1)),
      >                                dbl_mb(phi_ps(1)),
      >                                dbl_mb(dphi_ps(1)),
+     >                                dbl_mb(core_ae(1)),
+     >                                dbl_mb(core_ps(1)),
      >                                dbl_mb(rgrid(1)),
      >                                dbl_mb(f1(1)),
      >                                dbl_mb(f2(1)),

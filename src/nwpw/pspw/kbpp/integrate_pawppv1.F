@@ -12,6 +12,7 @@
      >                            n_ps,l_ps,
      >                            v_ps,prj_ps,
      >                            phi_ae,dphi_ae,phi_ps,dphi_ps,
+     >                            core_ae,core_ps,
      >                            rho,f1,f2,f3,f4,cs,sn,
      >                            nfft1,nfft2,nfft3,nproj,
      >                            G,vl,vnl,
@@ -38,6 +39,9 @@
       double precision dphi_ae(nrho,nbasis)
       double precision phi_ps(nrho,nbasis)
       double precision dphi_ps(nrho,nbasis)
+
+      double precision core_ae(nrho)
+      double precision core_ps(nrho)
 
       double precision rho(nrho)
       double precision f1(nrho),f2(nrho),f3(nrho),f4(nrho)
@@ -195,6 +199,10 @@ c      P3=dsqrt(105.0d0*forpi)
       end do
 
 *     **** vcore ***
+      do k=1,nrho
+         f3(k) = core_ae(k)*rho(k)**2
+         f4(k) = core_ps(k)*rho(k)**2
+      end do
       do i=1,nbasis
          la = l_ps(i)
          na = n_ps(i) - la
