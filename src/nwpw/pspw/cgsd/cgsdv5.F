@@ -141,6 +141,8 @@
       external control_fractional_smeartype,control_excited_ne
       real*8   control_fractional_kT,control_fractional_temperature
       external control_fractional_kT,control_fractional_temperature
+      logical  psp_pawexist
+      external psp_pawexist
 
 #ifdef USE_OPENMP
       integer  omp_get_max_threads
@@ -288,6 +290,7 @@ c     value = psi_initialize()
       else
          call geodesic_init()
       end if
+
 
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)
