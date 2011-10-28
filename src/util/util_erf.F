@@ -105,6 +105,29 @@ c !************************************************************************
       return
       END
 
+      real*8 function util_gammp(a,x)
+      implicit none
+      real*8 a,x
+
+#include "errquit.fh"
+
+*     **** external functions ****
+      real*8   gammcf,gamser,gln
+
+      IF(x.LT.0.0d0 .OR. a.LE.0.0d0) THEN
+        call errquit('bad arguments in util_gammp',0, INPUT_ERR)
+      END IF
+
+      IF (x .lt. (a+1.0d0)) THEN
+        call gser(gamser,a,x,gln)
+        util_gammp=gamser
+      ELSE
+        CALL gcf(gammcf,a,x,gln)
+        util_gammp=1.0d0-gammcf
+      ENDIF
+      return
+      end
+
 
      
       real*8 function gammp(a,x)
@@ -118,21 +141,15 @@ c !************************************************************************
 
       IF(x.LT.0.0d0 .OR. a.LE.0.0d0) THEN
         call errquit('bad arguments in gammp',0, INPUT_ERR)
-
       END IF
 
       IF (x .lt. (a+1.0d0)) THEN
-
         call gser(gamser,a,x,gln)
         gammp=gamser
-
       ELSE
-
         CALL gcf(gammcf,a,x,gln)
         gammp=1.0d0-gammcf
-
       ENDIF
-
       return
       end
 
