@@ -612,6 +612,22 @@ c     psp_rc = rc(i,ia)
 
 *     ***********************************
 *     *					*
+*     *	 	   psp_nmax		*
+*     *					*
+*     ***********************************
+      integer function psp_nmax(ia)
+      implicit none
+      integer  ia
+
+#include "mafdecls.fh"
+#include "psp.fh"
+
+      psp_nmax = int_mb(nmax(1)+ia-1)
+      return
+      end
+
+*     ***********************************
+*     *					*
 *     *	 	   psp_locp		*
 *     *					*
 *     ***********************************
@@ -2015,34 +2031,34 @@ c     **** define Gx,Gy and Gz in packed space ****
 *     ***** Miscellaneous paw energies and 1d wavefunctions****
       if (psp_type.eq.4) then
 
-         !**** allocate and reading hartree_matrix(nprj,nprj,nprj,nprj,lmax+1) ****
+         !**** allocate and reading hartree_matrix(nprj,nprj,nprj,nprj,2*lmax+1) ****
          msglen=n1dbasis*n1dbasis*n1dbasis*n1dbasis
-         hartree_tag  = psi_data_alloc(lmax+1,msglen)
+         hartree_tag  = psi_data_alloc(2*lmax+1,msglen)
          indx = psi_data_get_chnk(hartree_tag)
          if (taskid_p.eq.MASTER) then
-            call dread(5,dbl_mb(indx),(lmax+1)*msglen)      
+            call dread(5,dbl_mb(indx),(2*lmax+1)*msglen)      
          end if
-         call Parallela_Brdcst_values(com_p,MASTER,(lmax+1)*msglen,
+         call Parallela_Brdcst_values(com_p,MASTER,(2*lmax+1)*msglen,
      >                                dbl_mb(indx))
 
-         !**** allocate and reading comp_charge_matrix(nprj,nprj,lmax+1) ****
+         !**** allocate and reading comp_charge_matrix(nprj,nprj,2*lmax+1) ****
          msglen=n1dbasis*n1dbasis
-         comp_charge_tag  = psi_data_alloc(lmax+1,msglen)
+         comp_charge_tag  = psi_data_alloc(2*lmax+1,msglen)
          indx = psi_data_get_chnk(comp_charge_tag)
          if (taskid_p.eq.MASTER) then
-            call dread(5,dbl_mb(indx),(lmax+1)*msglen)      
+            call dread(5,dbl_mb(indx),(2*lmax+1)*msglen)      
          end if
-         call Parallela_Brdcst_values(com_p,MASTER,(lmax+1)*msglen,
+         call Parallela_Brdcst_values(com_p,MASTER,(2*lmax+1)*msglen,
      >                                dbl_mb(indx))
 
-         !**** allocate and reading comp_pot_matrix(nprj,nprj,lmax+1) ****
+         !**** allocate and reading comp_pot_matrix(nprj,nprj,2*lmax+1) ****
          msglen=n1dbasis*n1dbasis
-         comp_pot_tag  = psi_data_alloc(lmax+1,msglen)
+         comp_pot_tag  = psi_data_alloc(2*lmax+1,msglen)
          indx = psi_data_get_chnk(comp_pot_tag)
          if (taskid_p.eq.MASTER) then
-            call dread(5,dbl_mb(indx),(lmax+1)*msglen)      
+            call dread(5,dbl_mb(indx),(2*lmax+1)*msglen)      
          end if
-         call Parallela_Brdcst_values(com_p,MASTER,(lmax+1)*msglen,
+         call Parallela_Brdcst_values(com_p,MASTER,(2*lmax+1)*msglen,
      >                                dbl_mb(indx))
 
 
@@ -2466,3 +2482,119 @@ c     logocal semicore(0:nkatmx)
       return
       end
 
+*     ***********************************
+*     *					*
+*     *	 	  psp_check_print 	*
+*     *					*
+*     ***********************************
+      subroutine psp_check_print(ia)      
+      implicit none
+      integer ia
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "util.fh"
+#include "stdio.fh"
+#include "psp.fh"
+
+*     **** local variables ****
+      integer taskid,MASTER
+      parameter (MASTER=0)
+
+      logical oprint
+      integer i,j,r,s,l,n,nbasis,indx,indx0
+
+*     **** external functions ****
+      logical  control_print
+      external control_print
+      integer  psp_psp_type,psp_lmax,psp_n1dbasis,psp_nmax
+      external psp_psp_type,psp_lmax,psp_n1dbasis,psp_nmax
+      integer  psi_data_get_ptr
+      external psi_data_get_ptr
+
+      call Parallel_taskid(taskid)
+      oprint= (taskid.eq.MASTER)
+
+      nbasis = psp_n1dbasis(ia)
+      n   = psp_nmax(ia)
+      if (oprint) then
+
+*        **** print vcore matrix ****
+         if (psp_psp_type(ia).eq.4) then
+            do l=0,2*psp_lmax(ia)
+
+              indx0 = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),2)
+              write(*,*) "overlap matrix: ia=",ia,"  l=",l
+              do i=1,n
+                 indx = indx0 + l*n*n + (i-1)
+                 write(*,'(10E11.3)') (dbl_mb(indx+(j-1)*n),j=1,n)
+              end do
+              write(*,*) 
+
+c              indx0 = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),3)
+c              write(*,*) "kinetic matrix: ia=",ia,"  l=",l
+c              do i=1,n
+c                 indx = indx0 + l*n*n + (i-1)
+c                 write(*,'(10E11.3)') (dbl_mb(indx+(j-1)*n),j=1,n)
+c              end do
+c              write(*,*) 
+c
+c              indx0 = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),4)
+c              write(*,*) "vpseudo matrix: ia=",ia,"  l=",l
+c              do i=1,n
+c                 indx = indx0 + l*n*n + (i-1)
+c                 write(*,'(10E11.3)') (dbl_mb(indx+(j-1)*n),j=1,n)
+c              end do
+c              write(*,*) 
+
+c               indx0 = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),5)
+c               write(*,*) "vcore matrix: ia=",ia,"  l=",l
+c               do i=1,n
+c                  indx = indx0 + l*n*n + (i-1)
+c                  write(*,'(10E11.3)') (dbl_mb(indx+(j-1)*n),j=1,n)
+c               end do
+c               write(*,*) 
+               
+c               write(*,*) "comp_charge matrix: ia=",ia,"  l=",l
+c               indx0 = 
+c     >          psi_data_get_ptr(int_mb(comp_charge_matrix(1)+ia-1),l+1)
+c               do i=1,nbasis
+c                  indx = indx0 + (i-1)
+c                  write(*,'(10E13.3)') (dbl_mb(indx+(j-1)*nbasis),
+c     >                                   j=1,nbasis)
+c               end do
+c               write(*,*) 
+
+c               write(*,*) "comp_pot matrix: ia=",ia,"  l=",l
+c               indx0 = 
+c     >          psi_data_get_ptr(int_mb(comp_pot_matrix(1)+ia-1),l+1)
+c               do i=1,nbasis
+c                  indx = indx0 + (i-1)
+c                  write(*,'(10E13.3)') (dbl_mb(indx+(j-1)*nbasis),
+c     >                                   j=1,nbasis)
+c               end do
+c               write(*,*) 
+
+c               write(*,*) "hartree matrix: ia=",ia,"  l=",l
+c               indx0 = 
+c     >          psi_data_get_ptr(int_mb(hartree_matrix(1)+ia-1),l+1)
+c               do i=1,nbasis
+c                  do j=1,nbasis
+c                     do r=1,nbasis
+c                        indx = indx0 + (i-1)*nbasis*nbasis*nbasis 
+c     >                               + (j-1)*nbasis*nbasis 
+c     >                               + (r-1)*nbasis
+c                        write(*,'(10E13.3)') (dbl_mb(indx+(s-1)),
+c     >                                        s=1,nbasis)
+c                     end do
+c                  end do
+c               end do
+c               write(*,*) 
+
+            end do
+         end if
+
+      end if
+
+      return
+      end 
