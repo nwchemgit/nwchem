@@ -7,8 +7,8 @@
 *     *                                                   *
 *     *****************************************************
       subroutine integrate_pawppv1(version,rlocal,
-     >                            nrho,log_amesh,nbasis,nmax,lmax,zv,zc,
-     >                            sigma,
+     >                            nrho,log_amesh,nbasis,nmax,lmax,icut,
+     >                            zv,zc,sigma,
      >                            n_ps,l_ps,
      >                            v_ps,prj_ps,
      >                            phi_ae,dphi_ae,phi_ps,dphi_ps,
@@ -29,7 +29,7 @@
       double precision rlocal
       integer          nrho
       double precision log_amesh
-      integer          nbasis,nmax,lmax
+      integer          nbasis,nmax,lmax,icut
       double precision zv,zc,sigma
       integer          n_ps(*),l_ps(*)
       double precision v_ps(nrho)
@@ -55,9 +55,9 @@
       integer          n_prj(nproj),l_prj(nproj),m_prj(nproj)
       integer          b_prj(nproj)
       double precision Gijl(nmax,nmax,0:lmax,5)
-      real*8 hartree_matrix(nbasis,nbasis,nbasis,nbasis,0:lmax)
-      real*8 comp_charge_matrix(nbasis,nbasis,0:lmax)
-      real*8 comp_pot_matrix(nbasis,nbasis,0:lmax)
+      real*8 hartree_matrix(nbasis,nbasis,nbasis,nbasis,0:(2*lmax))
+      real*8 comp_charge_matrix(nbasis,nbasis,0:(2*lmax))
+      real*8 comp_pot_matrix(nbasis,nbasis,0:(2*lmax))
 
       integer nray
       double precision G_ray(nray)
@@ -199,7 +199,7 @@ c      P3=dsqrt(105.0d0*forpi)
       end do
 
 *     **** vcore ***
-      do k=1,nrho
+      do k=1,icut
          f3(k) = core_ae(k)*rho(k)**2
          f4(k) = core_ps(k)*rho(k)**2
       end do
@@ -207,17 +207,27 @@ c      P3=dsqrt(105.0d0*forpi)
          la = l_ps(i)
          na = n_ps(i) - la
          power_f = 2*la + 2
-         do j=1,i
+         do k=1,icut
+            f1(k) = phi_ae(k,i)*phi_ae(k,i)
+            f2(k) = phi_ps(k,i)*phi_ps(k,i)
+         end do
+         d = log_multipole_energy(0,icut,rho,power_f,
+     >                           f1,2,f3,log_amesh)
+     >     - log_multipole_energy(0,icut,rho,power_f,
+     >                           f2,2,f4,log_amesh)
+         Gijl(na,na,la,5) = Gijl(na,na,la,5) + d
+
+         do j=1,i-1
             lb = l_ps(j)
             nb = n_ps(j) - lb
             if (la.eq.lb) then
-               do k=1,nrho
+               do k=1,icut
                   f1(k) = phi_ae(k,i)*phi_ae(k,j)
                   f2(k) = phi_ps(k,i)*phi_ps(k,j)
                end do
-               d = log_multipole_energy(0,nrho,rho,power_f,
+               d = log_multipole_energy(0,icut,rho,power_f,
      >                                 f1,2,f3,log_amesh)
-     >           - log_multipole_energy(0,nrho,rho,power_f,
+     >           - log_multipole_energy(0,icut,rho,power_f,
      >                                 f2,2,f4,log_amesh)
                Gijl(na,nb,la,5) = Gijl(na,nb,la,5) + d
                Gijl(nb,na,la,5) = Gijl(nb,na,la,5) + d
@@ -230,43 +240,35 @@ c      P3=dsqrt(105.0d0*forpi)
       call daxpy(l,1.0d0,Gijl(1,1,0,4),1,Gijl(1,1,0,1),1)  !** pseudo  **
 c      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)
         
-*     **** comp_charge_matrix(nbasis,nbasis,0:lmax) ****
+*     **** comp_charge_matrix(nbasis,nbasis,0:2*lmax) ****
       do i=1,nbasis
-         do k=1,nrho
-            f2(k)=phi_ae(k,i)*phi_ae(k,i)-phi_ps(k,i)*phi_ps(k,i)
-         end do
-         do l=0,lmax
-            d = log_integrate_def(2*l+2,f2,l,rho,log_amesh,nrho)
-            comp_charge_matrix(i,i,l) = d
-         end do
-
-         do j=1,i-1
-            do k=1,nrho
+         do j=1,i
+            do k=1,icut
                f1(k)=phi_ae(k,i)*phi_ae(k,j)-phi_ps(k,i)*phi_ps(k,j)
             end do
-            do l=0,lmax
-               d = log_integrate_def(2*l+2,f1,l,rho,log_amesh,nrho)
+            do l=0,2*lmax
+               d = log_integrate_def(2*l+2,f1,l,rho,log_amesh,icut)
                comp_charge_matrix(i,j,l) = d
                comp_charge_matrix(j,i,l) = d
             end do
          end do
       end do
 
-*     **** comp_pot_matrix(nbasis,nbasis,0:lmax) ****
-      do l=0,lmax
+*     **** comp_pot_matrix(nbasis,nbasis,0:2*lmax) ****
+      do l=0,2*lmax
          k1 = l+2
          k2 = 2*l+2
          
          call nwpw_compcharge_gen_rgaussian(l,sigma,nrho,rho,f1)
-         do k=1,nrho
+         do k=1,icut
             f1(k) = f1(k)*rho(k)*rho(k)
          end do
          do i=1,nbasis
             do j=1,i
-               do k=1,nrho
+               do k=1,icut
                   f2(k) = phi_ps(k,i)*phi_ps(k,j)
                end do
-               d = log_multipole_energy(l,nrho,rho,
+               d = log_multipole_energy(l,icut,rho,
      >                                  k1,f1,
      >                                  k2,f2,log_amesh)
                comp_pot_matrix(i,j,l) = d
@@ -275,8 +277,8 @@ c      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)
          end do
       end do
 
-*     **** hartree_matrix(nbasis,nbasis,nbasis,nbasis,0:lmax) ****
-      l = nbasis*nbasis*nbasis*nbasis*(lmax+1)
+*     **** hartree_matrix(nbasis,nbasis,nbasis,nbasis,0:2*lmax) ****
+      l = nbasis*nbasis*nbasis*nbasis*(2*lmax+1)
       call dcopy(l,0.0d0,0,hartree_matrix,1)
       do i=1,nbasis
          do j=1,i
@@ -284,7 +286,7 @@ c      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)
             dif_l = abs(l_ps(i)-l_ps(j))
             k1 = sum_l + 2
 
-            do k=1,nrho
+            do k=1,icut
                f1(k) = phi_ae(k,i)*phi_ae(k,j)
                f3(k) = phi_ps(k,i)*phi_ps(k,j)
             end do
@@ -295,18 +297,18 @@ c      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)
                   dif_l2 = abs(l_ps(i2)-l_ps(j2))
                   k2 = sum_l2 + 2
 
-                  do k=1,nrho
+                  do k=1,icut
                      f2(k) = phi_ae(k,i2)*phi_ae(k,j2)
                      f4(k) = phi_ps(k,i2)*phi_ps(k,j2)
                   end do
 
-                  do l=0,lmax
+                  do l=0,2*lmax
                      if ((l.le.sum_l) .and.(l.ge.dif_l)) then
                      if ((l.le.sum_l2).and.(l.ge.dif_l2)) then
-                        d = log_multipole_energy(l,nrho,rho,
+                        d = log_multipole_energy(l,icut,rho,
      >                                   k1,f1,
      >                                   k2,f2,log_amesh)
-     >                    - log_multipole_energy(l,nrho,rho,
+     >                    - log_multipole_energy(l,icut,rho,
      >                                   k1,f3,
      >                                   k2,f4,log_amesh)
                         hartree_matrix(i,j,i2,j2,l) = d

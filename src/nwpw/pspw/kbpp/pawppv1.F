@@ -238,15 +238,15 @@
       l = nmax*nmax*(lmax+1)
       value=          MA_alloc_get(mt_dbl,5*l,'Gijl',Gijl(2),Gijl(1))
       !value=value.and.MA_alloc_get(mt_dbl,l,'Tijl',Tijl(2),Tijl(1))
-      l = nbasis*nbasis*nbasis*nbasis*(lmax+1)
+      l = nbasis*nbasis*nbasis*nbasis*(2*lmax+1)
       value=value.and.
      >      MA_alloc_get(mt_dbl,l,'hartree_matrix',
      >                   hartree_matrix(2),hartree_matrix(1))
-      l = nbasis*nbasis*(lmax+1)
+      l = nbasis*nbasis*(2*lmax+1)
       value=value.and.
      >      MA_alloc_get(mt_dbl,l,'comp_charge_matrix',
      >                   comp_charge_matrix(2),comp_charge_matrix(1))
-      l = nbasis*nbasis*(lmax+1)
+      l = nbasis*nbasis*(2*lmax+1)
       value=value.and.
      >      MA_alloc_get(mt_dbl,l,'comp_pot_matrix',
      >                   comp_pot_matrix(2),comp_pot_matrix(1))
@@ -302,8 +302,8 @@
 
         zcore = zion - zv
         call integrate_pawppv1(version,rlocal,
-     >                     n1dgrid,log_amesh,nbasis,nmax,lmax,zv,zcore,
-     >                     sigma,
+     >                     n1dgrid,log_amesh,nbasis,nmax,lmax,icut,
+     >                     zv,zcore,sigma,
      >                     int_mb(nps(1)),int_mb(lps(1)),
      >                                dbl_mb(v_ps(1)),
      >                                dbl_mb(prj_ps(1)),
@@ -409,9 +409,9 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
          end if
 
 *        **** other PAW matrices ****
-         l = nbasis*nbasis*nbasis*nbasis*(lmax+1)
+         l = nbasis*nbasis*nbasis*nbasis*(2*lmax+1)
          call dwrite(2,dbl_mb(hartree_matrix(1)),l)
-         l = nbasis*nbasis*(lmax+1)
+         l = nbasis*nbasis*(2*lmax+1)
          call dwrite(2,dbl_mb(comp_charge_matrix(1)),l)
          call dwrite(2,dbl_mb(comp_pot_matrix(1)),l)
 
