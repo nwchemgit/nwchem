@@ -4,7 +4,8 @@
 
  OBJ_OPTIMIZE = \
 		nwpw_gaunt.o \
-		nwpw_compcharge.o
+		nwpw_compcharge.o\
+		nwpw_hypergeom1F1.o
 
 	  OBJ = 
 

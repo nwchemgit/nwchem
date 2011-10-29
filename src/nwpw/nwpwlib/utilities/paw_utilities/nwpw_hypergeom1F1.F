@@ -14,18 +14,18 @@ c $Id: nwpw_hypergeom1F1.F 21176 2011-10-10 06:35:49Z d3y133 $
       real*8 function nwpw_hypergeom1F1 (N, L, Z)
       implicit none
  
-      INTEGER N, L
-      DOUBLE PRECISION Z
+      integer N, L
+      real*8 Z
  
 !    *** local variables ***
-      INTEGER I
-      DOUBLE PRECISION A, B, X
-      DOUBLE PRECISION M1,M3
-      DOUBLE PRECISION EPS
-      DOUBLE PRECISION S
+      integer I
+      real*8 A, B, X
+      real*8 M1,M3
+      real*8 EPS
+      real*8 S
  
-      DOUBLE PRECISION nwpw_gamma,nwpw_gammp
-      EXTERNAL         nwpw_gamma,nwpw_gammp
+      real*8   util_gamma,util_gammp
+      external util_gamma,util_gammp
  
 !    *** cannot handle positive z ***
       IF (Z .GT. 0) THEN
@@ -44,9 +44,9 @@ c $Id: nwpw_hypergeom1F1.F 21176 2011-10-10 06:35:49Z d3y133 $
  
       IF (N .EQ. L) THEN
  
-         nwpw_hypergeom1F1 = nwpw_gammp(N + 0.5D0,(-Z))
+         nwpw_hypergeom1F1 = util_gammp(N + 0.5D0,(-Z))
      >                     *(N + 0.5)*(-Z)**((-N)- 0.5D0)
-     >                     *nwpw_gamma(N + 0.5D0)
+     >                     *util_gamma(N + 0.5D0)
  
          RETURN 
  
@@ -93,7 +93,7 @@ c $Id: nwpw_hypergeom1F1.F 21176 2011-10-10 06:35:49Z d3y133 $
       !*** M1 = M(a,b-1) ***
       !*** M2 = M(a,b,z) ***
          M1 = dexp(Z)
-         nwpw_hypergeom1F1 = nwpw_gammp(A,(-Z))*A/(-Z)**A*nwpw_gamma(A)
+         nwpw_hypergeom1F1 = util_gammp(A,(-Z))*A/(-Z)**A*util_gamma(A)
  
       !**********************************************
       ! using recursion formula
@@ -120,8 +120,8 @@ c $Id: nwpw_hypergeom1F1.F 21176 2011-10-10 06:35:49Z d3y133 $
  
       !*** M1 = M(a-1,b) ***
       !*** M2 = M(a,a,z) ***
-         M1 = nwpw_gammp(A - 1.0D0,(-Z))*(A - 1.0D0)/(-Z)**(A - 1.0D0)*
-     >      nwpw_gamma(A - 1.0D0)
+         M1 = util_gammp(A - 1.0D0,(-Z))*(A - 1.0D0)/(-Z)**(A - 1.0D0)*
+     >      util_gamma(A - 1.0D0)
          nwpw_hypergeom1F1 = dexp(Z)
  
       !**********************************************

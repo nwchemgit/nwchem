@@ -4,8 +4,8 @@
 
 *     **** common block for nwpw_compcharge data  ****
       logical isgamma
-      integer nion,nkatm,lmax_max,lm_size_max,npack0,nfft3d
-      integer lmax(2),lm_size(2)
+      integer nion,nkatm,mult_l_max,lm_size_max,npack0,nfft3d
+      integer mult_l(2),lm_size(2)
 c      integer sigma(2)
       real*8 sigma_smooth
 
@@ -20,13 +20,13 @@ c      integer sigma(2)
                              !           gk_smooth = |k|**l * Exp[-k*k*sigma_smooth**2 / 4] / (2*l+1)!!
                              !       but this requires more space
 
-      integer Qlm(2)         ! Qlm(lm=1:(lmax+1)**2,1:nion) = compensation charge coefficients
+      integer Qlm(2)         ! Qlm(lm=1:(mult_l+1)**2,1:nion) = compensation charge coefficients
       integer Tndiff(2)   
       integer Tndiff_shift(2)   
 
       common / nwpw_compcharge_block / gk_smooth,gk,glm,Qlm,
-     >                           sigma_smooth,
-     >                           lmax,lm_size,Tndiff,Tndiff_shift,
-     >                           nion,nkatm,lmax_max,lm_size_max,npack0,nfft3d,
-     >                           isgamma
+     >                  sigma_smooth,
+     >                  mult_l,lm_size,Tndiff,Tndiff_shift,
+     >                  nion,nkatm,mult_l_max,lm_size_max,npack0,nfft3d,
+     >                  isgamma
 

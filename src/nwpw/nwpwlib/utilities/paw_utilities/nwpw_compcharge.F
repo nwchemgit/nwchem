@@ -44,7 +44,7 @@
       nion         = nion0
       nkatm        = nkatm0
       sigma_smooth = ewald_rcut()
-      value = MA_alloc_get(mt_int,nkatm,"lmax",lmax(2),lmax(1))
+      value = MA_alloc_get(mt_int,nkatm,"mult_l",mult_l(2),mult_l(1))
       value = value.and.
      >        MA_alloc_get(mt_int,nkatm,"lm_size",lm_size(2),lm_size(1))
       if (.not.value)
@@ -69,17 +69,17 @@
          Gindx = c_G_indx(1)
       end if
 
-      lmax_max = 0
+      mult_l_max = 0
       do ia=1,nkatm
          if (psp_type(ia).eq.4) then
-            int_mb(lmax(1)+ia-1)    = lmax0(ia)
-            int_mb(lm_size(1)+ia-1) = (lmax0(ia)+1)**2
-            if (lmax0(ia).gt.lmax_max) lmax_max = lmax0(ia)
+            int_mb(mult_l(1)+ia-1)  = 2*lmax0(ia)
+            int_mb(lm_size(1)+ia-1) = (2*lmax0(ia)+1)**2
+            if (mult_l_max.lt.(2*lmax0(ia))) mult_l_max = 2*lmax0(ia)
          end if
       end do
 
       !*** allocate gk_smooth, gk,and glm ***
-      lm_size_max = (lmax_max+1)**2
+      lm_size_max = (mult_l_max+1)**2
       value = MA_alloc_get(mt_dbl,npack0,
      >                     "gk_smooth",gk_smooth(2),gk_smooth(1))
       value = value.and.
@@ -110,7 +110,7 @@
       end if
 
       lm = 0
-      do l =0,lmax_max
+      do l =0,mult_l_max
 
 *        **** define  |k|**l / (2*l+1)!! ****
          scal = 1.0d0/double_factorial(2*l+1)
@@ -193,11 +193,11 @@
       indx = 0
       do ia=1,nkatm
          if (psp_type(ia).eq.4) then
-            comp_charge_tag = int_mb(comp_charge_matrix(1)+ia-1)
+            comp_charge_tag = comp_charge_matrix(ia)
 
             lm = 0
-            do l=0,int_mb(lmax(1)+ia-1)
-               comp_indx = psi_data_get_ptr(comp_charge_tag,l)
+            do l=0,int_mb(mult_l(1)+ia-1)
+               comp_indx = psi_data_get_ptr(comp_charge_tag,l+1)
                do m=-l,l
 
                   do j=1,nprj(ia)
@@ -210,9 +210,15 @@
                         mi = l_prj(i,ia)
                         bi = b_prj(i,ia)
 
-                        taunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
+                        taunt = nwpw_gaunt(.true.,l,m,li,mi,lj,mj)
                         dbl_mb(Tndiff(1)+indx)
      >                    = taunt*dbl_mb(comp_indx+bi+(bj-1)*nbasis(ia))
+
+c                  write(*,'(A,7I4,3E13.3)') "i,j,l,m,indx,bi,bj",
+c     >                         i,j,l,m,indx,
+c     >                         bi,bj,
+c     >                         taunt,dbl_mb(Tndiff(1)+indx),
+c     >                     dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
 
                         indx = indx + 1
                      end do
@@ -222,6 +228,21 @@
             end do
          end if
       end do
+
+c      lm = 0
+c      ia = 1
+c      do l=0,int_mb(mult_l(1)+ia-1)
+c      do m=-l,l
+c          write(*,*) "Tndiff, l,m=",l,m
+c          do i=1,nprj(ia)
+c             indx = (i-1) + lm*nprj(ia)*nprj(ia)
+c             write(*,'(12E13.3)') 
+c     >       (dbl_mb(Tndiff(1)+indx+(j-1)*nprj(ia)),j=1,nprj(ia))
+c          end do
+c          write(*,*)
+c          lm = lm + 1
+c      end do
+c      end do
 
       return
       end
@@ -240,7 +261,7 @@
 #include "nwpw_compcharge.fh"
 
       logical value
-      value =           MA_free_heap(lmax(2))
+      value =           MA_free_heap(mult_l(2))
       value = value.and.MA_free_heap(lm_size(2))
       value = value.and.MA_free_heap(gk_smooth(2))
       value = value.and.MA_free_heap(gk(2))
@@ -273,18 +294,36 @@
 
 *     **** local variables ****
       integer l,m,lm,shiftia
+      real*8  scal
 
-c      shiftia = int_mb(Tndiff_shift(1)+ia)
-c      do l=0,lmax
-c         do m=-l,l
-c            dbl_mb(Qlm(1)+(ii-1)*lm_size + lm) 
-c     >         = nwpw_compcharge_Qlm_sub(nprj,neall,
-c     >               dbl_mb(Tndiff(1)+shiftia+(lm-1)*nprj*nprj)
-c     >               sw1)
-c
-c            lm = lm + 1
-c         end do
+*     **** external functions ****
+      real*8   nwpw_compcharge_Qlm_sub,lattice_omega
+      external nwpw_compcharge_Qlm_sub,lattice_omega
+
+      shiftia = int_mb(Tndiff_shift(1)+ia-1)
+
+c      write(*,*) "sw1="
+c      do m=1,neall
+c         write(*,'(10E13.3)') (sw1(m,l),l=1,nprj)
 c      end do
+c      write(*,*)
+      scal = 1.0d0/lattice_omega()
+
+      lm = 0
+      do l=0,int_mb(mult_l(1)+ia-1)
+         do m=-l,l
+            dbl_mb(Qlm(1)+(ii-1)*lm_size_max + lm) 
+     >         = scal*nwpw_compcharge_Qlm_sub(nprj,neall,
+     >                    dbl_mb(Tndiff(1)+shiftia+lm*nprj*nprj),
+     >                    sw1)
+
+            write(*,*) "l,m,qlm,Tndiff=",l,m,
+     >                 dbl_mb(Qlm(1)+(ii-1)*lm_size_max+lm),
+     >                 dbl_mb(Tndiff(1)+shiftia+(lm-1)*nprj*nprj)
+     
+            lm = lm + 1
+         end do
+      end do
 
       return
       end 
@@ -319,89 +358,6 @@ c      end do
       return
       end
 
-c*     *************************************************
-c*     *                                               *
-c*     *              nwpw_compcharge_Qlm_setup        *
-c*     *                                               *
-c*     *************************************************
-c      subroutine nwpw_compcharge_Qlm_setup(nkatm,nprj,nbasis,psp_type,
-c     >                                     nprj_max,l_prj,m_prj,b_prj,
-c     >                                     comp_charge_matrix)
-c      implicit none
-c      integer nkatm,nprj(*),nbasis(*),psp_type(*)
-c      integer nprj_max
-c      integer l_prj(nprj_max,*),m_prj(nprj_max,*),b_prj(nprj_max,*)
-c      integer comp_charge_matrix(*)
-c
-c#include "mafdecls.fh"
-c#include "errquit.fh"
-c#include "nwpw_compcharge.fh"
-c
-c*     **** local variables ****
-c      integer ia,iasize,tsize,i,j,l,m,li,mi,lj,mj,bi,bj
-c      integer indx,comp_charge_tag,comp_indx
-c      real*8  taunt
-c
-c*     **** external functions ****
-c      integer  psi_data_get_ptr
-c      external psi_data_get_ptr
-c      real*8   nwpw_gaunt
-c      external nwpw_gaunt
-c
-c
-c
-c      if (.not.MA_alloc_get(mt_int,nkatm,"Tndiff_shift",
-c     >                     Tndiff_shift(2),Tndiff_shift(1)))
-c     >  call errquit("nwpw_compcharge_Qlm_setup:allocate fail",0,MA_ERR)
-c
-c      tsize = 0
-c      do ia=1,nkatm
-c         int_mb(Tndiff_shift(1)+ia-1) = tsize
-c         if (psp_type(ia).eq.4) then
-c            iasize = int_mb(lm_size(1)+ia-1)*nprj(ia)*nprj(ia)
-c            tsize  = tsize + iasize
-c         end if
-c      end do
-c      if (.not.MA_alloc_get(mt_dbl,tsize,"Tndiff",
-c     >                     Tndiff(2),Tndiff(1)))
-c     >  call errquit("nwpw_compcharge_Qlm_setup:allocate fail",1,MA_ERR)
-c
-c      indx = 0
-c      do ia=1,nkatm
-c         if (psp_type(ia).eq.4) then
-c            comp_charge_tag = int_mb(comp_charge_matrix(1)+ia-1)
-c
-c            lm = 0
-c            do l=0,int_mb(lmax(1)+ia-1)
-c               comp_indx = psi_data_get_ptr(comp_charge_tag,l)
-c               do m=-l,l
-c
-c                  do j=1,nprj(ia)
-c                     lj = l_prj(j,ia)
-c                     mj = l_prj(j,ia)
-c                     bj = b_prj(j,ia)
-c
-c                     do i=1,nprj(ia)
-c                        li = l_prj(i,ia)
-c                        mi = l_prj(i,ia)
-c                        bi = b_prj(i,ia)
-c
-c                        taunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
-c                        dbl_mb(Tndiff(1)+indx)
-c     >                    = taunt*dbl_mb(comp_indx+bi+(bj-1)*nbasis(ia))
-c
-c                        indx = indx + 1
-c                     end do
-c                  end do
-c
-c               end do
-c            end do
-c         end if
-c      end do
-c
-c      return
-c      end
-      
 
 *     *************************************************
 *     *                                               *
