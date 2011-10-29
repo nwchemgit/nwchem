@@ -19,8 +19,10 @@
       integer cindxmeta1(2),cindxmeta2(2) 
       integer cindxsize1(2),cindxsize2(2) 
       integer cnxmeta,cnmeta
+      real*8  dTtempered
 
-      common / metacommon / bxmeta,bymeta,by2meta,bwsigmameta,
+      common / metacommon / dTtempered,
+     >                      bxmeta,bymeta,by2meta,bwsigmameta,
      >                      bindxmeta,bnxmeta,bnmeta,
      >                      axmeta,aymeta,ay2meta,awsigmameta,
      >                      aindxmeta,anxmeta,anmeta,

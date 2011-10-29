@@ -1,3 +1,5 @@
+c $Id$
+
 *     *********************************************
 *     *                                           *
 *     *           metadynamics_input              *
@@ -18,7 +20,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 8)
+      parameter (num_dirs = 9)
       character*15 dirs(num_dirs)
       data dirs / 'update',
      >            'print_shift',
@@ -27,6 +29,7 @@ c
      >            'dihedral',
      >            'coord_number',
      >            'spline',
+     >            'tempered',
      >            'end'/
 
       integer num_dirs2          ! No. of known directives
@@ -69,7 +72,7 @@ c
       nkb_gs  = 0
       nkc_gs  = 0
       nkd_gs  = 0
-      spline = .false.
+      spline = .true.
 
  10   if (.not. inp_read()) 
      >  call errquit(
@@ -81,7 +84,7 @@ c
      >  call errquit(
      >  'metadynamics_input: unknown directive',0,INPUT_ERR)
 
-      goto ( 100, 150, 200, 300, 400, 500, 700,
+      goto ( 100, 150, 200, 300, 400, 500, 700, 800,
      >      9999) ind
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind,INPUT_ERR)
@@ -515,21 +518,22 @@ c
  700  spline = .true.
       if (inp_a(test)) then
          spline = nwpw_parse_boolean(test,spline)
-c         if (inp_compare(.false.,test,'on'))      spline = .true.
-c         if (inp_compare(.false.,test,'yes'))     spline = .true.
-c         if (inp_compare(.false.,test,'.true.'))  spline = .true.
-c         if (inp_compare(.false.,test,'T'))       spline = .true.
-c         if (inp_compare(.false.,test,'off'))     spline = .false.
-c         if (inp_compare(.false.,test,'no'))      spline = .false.
-c         if (inp_compare(.false.,test,'.false.')) spline = .false.
-c         if (inp_compare(.false.,test,'F'))       spline = .false.
       end if
 
       goto 10
 
+c
+c  tempered
+c
+ 800  if (.not.inp_f(sdist(1))) sdist(1)=-1.0d0
+      rtdb_name='metadynamics_tempered'
+      if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,1,sdist))
+     >   call errquit('metadynamics_input:failed writing tempered',
+     >                 0,RTDB_ERR)
+
+      goto 10
 
  9999 continue
 
       return
       end
-c $Id$

@@ -84,6 +84,10 @@ c     **********************************************
          if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,metaraycount)) 
      >      metaraycount = 0
 
+         rtdb_name = 'metadynamics_tempered'
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,dTtempered)) 
+     >      dTtempered = -1.0d0
+
          value = .true.
          if (bnmeta.gt.0) then
             bnxmeta = 501
@@ -468,6 +472,9 @@ c     **********************************************
       if (taskid.eq.MASTER) then
          write(*,*) 
          write(*,*)  "MetaDynamics parameters:"
+         if (dTtempered.gt.0.0d0) then
+            write(*,'(A,5x,F11.6)') "   - Tempered dT =  ",dTtempered
+         end if
          do i=1,bnmeta
              write(*,'(A,5x,2I4,4x,A,F11.6,4x,A,F11.6)')
      >       "   - Bond Parameters (Spline) =  ",
@@ -1028,11 +1035,11 @@ c    >                 / (rm**2)
 
 *     **** local variables ****
       integer i,j,yshift,y2shift,is1,is2,n1,n2
-      real*8  r0,r,dr,w,sigma,yp1,ypn,a,b
+      real*8  r0,r,dr,w,sigma,yp1,ypn,a,b,v,expv
 
 *     **** external functions ****
-      real*8   meta_collective,meta_collective2
-      external meta_collective,meta_collective2
+      real*8   meta_collective,meta_collective2,meta_energy
+      external meta_collective,meta_collective2,meta_energy
 
       if (metafound) then
 
@@ -1040,11 +1047,19 @@ c    >                 / (rm**2)
          if (metacount.ge.maxmetacount) then
          metacount = 0
 
+         if (dTtempered.gt.0.0d0) then
+            v    = meta_energy()
+            expv = dexp(-v/dTtempered)
+         else
+            v    = 0.0d0
+            expv = 1.0d0
+         end if
+
          if (bnmeta.gt.0) then
             dr = dbl_mb(bxmeta(1)+1) - dbl_mb(bxmeta(1))
             do j=1,bnmeta
                r0    = meta_collective(1,int_mb(bindxmeta(1)+(j-1)*2))
-               w     = dbl_mb(bwsigmameta(1)+(j-1)*2)
+               w     = dbl_mb(bwsigmameta(1)+(j-1)*2)*expv
                sigma = dbl_mb(bwsigmameta(1)+(j-1)*2+1)
                yshift  = bymeta(1) +(j-1)*bnxmeta
                y2shift = by2meta(1)+(j-1)*bnxmeta
@@ -1076,7 +1091,7 @@ c    >                 / (rm**2)
             dr = dbl_mb(axmeta(1)+1) - dbl_mb(axmeta(1))
             do j=1,anmeta
                r0    = meta_collective(2,int_mb(aindxmeta(1)+(j-1)*3))
-               w     = dbl_mb(awsigmameta(1)+(j-1)*2)
+               w     = dbl_mb(awsigmameta(1)+(j-1)*2)*expv
                sigma = dbl_mb(awsigmameta(1)+(j-1)*2+1)
                yshift  = aymeta(1) +(j-1)*anxmeta
                y2shift = ay2meta(1)+(j-1)*anxmeta
@@ -1114,7 +1129,7 @@ c    >                 / (rm**2)
      >                 n1,int_mb(cindxmeta1(1)+is1),
      >                 n2,int_mb(cindxmeta2(1)+is2),
      >                 dbl_mb(cwsigmameta(1)+(j-1)*11))
-               w     = dbl_mb(cwsigmameta(1)+(j-1)*11+3)
+               w     = dbl_mb(cwsigmameta(1)+(j-1)*11+3)*expv
                sigma = dbl_mb(cwsigmameta(1)+(j-1)*11+4)
 c               a       = dbl_mb(cwsigmameta(1)+(j-1)*11+6)
 c               b       = dbl_mb(cwsigmameta(1)+(j-1)*11+7)
