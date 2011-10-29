@@ -20,7 +20,6 @@
      >                           nrange)
                     
       implicit none
-#include "errquit.fh"
       integer power_f
       complex*16  f(*)
       integer power_r
@@ -30,6 +29,7 @@
       complex*16 c_def_integr
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 
       !*** local variables ***
@@ -94,7 +94,6 @@ c     >      + log_amesh*zsum(nrange,dcpl_mb(integrand(1)),1)
      >                           nrange)
                     
       implicit none
-#include "errquit.fh"
       integer power_f
       real*8  f(*)
       integer power_r
@@ -103,6 +102,7 @@ c     >      + log_amesh*zsum(nrange,dcpl_mb(integrand(1)),1)
       integer i,nrange
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
       !*** local variables ***
       logical value
@@ -167,7 +167,6 @@ c     >      + log_amesh*dsum(nrange,dbl_mb(integrand(1)),1)
      >                        nrange,
      >                        sum_f)
       implicit none
-#include "errquit.fh"
       integer  power_f
       real*8   f(*)
       integer  power_r
@@ -177,6 +176,7 @@ c     >      + log_amesh*dsum(nrange,dbl_mb(integrand(1)),1)
       real*8  sum_f(*)
  
 #include "mafdecls.fh"
+#include "errquit.fh"
 
       !*** local variables ***
       logical value

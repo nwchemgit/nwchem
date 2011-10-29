@@ -191,7 +191,6 @@
 
       end do
 
-
       ok = ma_chop_stack(l_f1)
 
       return

@@ -4,7 +4,7 @@
 
 !*************************************************
 !
-!   name :   find_kinetic_matrix
+!   name :   find_paw_hartree_matrix
 !
 !
 !   purpose :
@@ -57,6 +57,8 @@
 
 
       power_r = 0
+      la = nbasis*nbasis*nbasis*nbasis*(mult_l+1)
+      call dcopy(la,0.0d0,0,matrix,1)
 
       !*** temporary array for calculations ***
       ok =        ma_push_get(mt_dbl,ic,"tmp_array1",l_f1,i_f1)
