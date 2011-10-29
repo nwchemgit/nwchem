@@ -162,11 +162,12 @@ c     $Id$
 
 c        **** paw energies ****
          if (psp_pawexist()) then
-         write(luout,1680) E(14),E(14)/ion_nion()
-         write(luout,1681) E(15),E(15)/ion_nion()
-         write(luout,1690) E(16),E(16)/ion_nion()
-         write(luout,1696) E(17),E(17)/ion_nion()
-         write(luout,1697) E(18),E(18)/ion_nion()
+         write(luout,1680) E(14),E(14)/neall
+         write(luout,1681) E(15),E(15)/neall
+         write(luout,1690) E(16),E(16)/neall
+         write(luout,1696) E(17),E(17)/neall
+         write(luout,1697) E(18),E(18)/neall
+         write(luout,1698) E(19),E(19)/ion_nion()
          end if
 
         if (pspw_qmmm_found()) then
@@ -392,11 +393,12 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1512 FORMAT(2(E18.7,' (',F8.3,'eV)',A4))
  1513 FORMAT(2(E18.7,' (',F8.3,'eV)',A4,' occ=',F5.3))
 
- 1680 FORMAT(/' kinetic (loc. basis):',E19.10,' (',E15.5,'/ion)')
- 1681 FORMAT( ' kinetic       (core):',E19.10,' (',E15.5,'/ion)')
+ 1680 FORMAT(/' kinetic (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1681 FORMAT( ' kinetic       (core):',E19.10,' (',E15.5,'/electron)')
  1690 FORMAT( ' V_local (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1696 FORMAT( ' coulomb (loc. basis):',E19.10,' (',E15.5,'/electron)')
  1697 FORMAT( ' exc-cor (loc. basis):',E19.10,' (',E15.5,'/electron)')
+ 1698 FORMAT(/' coulomb (multipole) :',E19.10,' (',E15.5,'/ion)')
 
 
 
