@@ -2808,6 +2808,23 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       end
 
 
+*     ***********************************
+*     *                                 *
+*     *         psi_1qlm_atom           *
+*     *                                 *
+*     ***********************************
+      subroutine psi_1qlm_atom()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+      call  psp_qlm_atom(ispin,neq,dcpl_mb(psi1(1)))
+      return
+      end
+
+
+
 
 *     ***********************************
 *     *					*

@@ -25,5 +25,4 @@ F
    1    1.2000000
 <end>
 
-#<semicore> 0.32   <end>
-#<semicore_type> quadratic <end>
+<screening_cut> 0.10 <end>

@@ -1167,6 +1167,7 @@ c        **** add to current rows of C ****
       integer comm_i,comm_j
 
       real*8  work1(*),work2(*)
+      real*8 VV(7,7),VV2(7,7)
 
 #ifdef MPI4
 #include "stupid_mpi4.fh"
@@ -1248,6 +1249,7 @@ c        **** add to current rows of C ****
          end do
 #ifdef MPI4
          stupid_msglen = 1
+         stupid_taskid = icur1
          call MPI_AllReduce(mu0,mu,stupid_msglen,
      >                      stupid_double,stupid_sum,
      >                      stupid_comm_i,stupid_ierr)
@@ -1265,7 +1267,7 @@ c        **** add to current rows of C ****
            stupid_msglen = 1
            stupid_taskid = icur1
            call MPI_Bcast(beta,stupid_msglen,stupid_double,
-     >                  stupid_taskid,stupid_comm_i,stupid_ierr)
+     >                    stupid_taskid,stupid_comm_i,stupid_ierr)
 #else
            call MPI_Bcast(beta,1,MPI_DOUBLE_PRECISION,
      >                  icur1,comm_i,ierr)
@@ -1330,6 +1332,86 @@ c        **** add to current rows of C ****
      >             comm_i, comm_j,
      >             work1,work2)
       call nwpw_timing_end(28)
+
+      do j=1,7
+         do i=1,7
+            VV(i,j) = 0.0d0
+         end do
+      end do
+
+      jcur = 0
+      jj   = 1
+      do j=1,7
+         icur = 0
+         ii   = 1
+         do i=1,7
+            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+               VV(i,j) = V(ii,jj)
+            end if
+            ii = ii + 1
+            if (ii.gt.ma(icur+1)) then
+               icur = icur + 1
+               ii = 1
+            end if
+         end do
+         jj = jj + 1
+         if (jj.gt.na(jcur+1)) then
+            jcur = jcur + 1
+            jj = 1
+         end if
+      end do
+      stupid_msglen = 7*7
+      call MPI_AllReduce(VV,VV2,stupid_msglen,
+     >                      stupid_double,stupid_sum,
+     >                      stupid_world,stupid_ierr)
+      
+      if ((taskid_i.eq.0).and.(taskid_j.eq.0)) then
+         write(*,*) "jcol=",jcol,"  V="
+         do i=1,7
+            write(*,'(10F12.3)') (VV2(i,j),j=1,7)
+         end do
+      end if
+
+      do j=1,7
+         do i=1,7
+            VV(i,j) = 0.0d0
+         end do
+      end do
+
+      jcur = 0
+      jj   = 1
+      do j=1,7
+         icur = 0
+         ii   = 1
+         do i=1,7
+            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+               VV(i,j) = Q(ii,jj)
+            end if
+            ii = ii + 1
+            if (ii.gt.ma(icur+1)) then
+               icur = icur + 1
+               ii = 1
+            end if
+         end do
+         jj = jj + 1
+         if (jj.gt.na(jcur+1)) then
+            jcur = jcur + 1
+            jj = 1
+         end if
+      end do
+      stupid_msglen = 7*7
+      call MPI_AllReduce(VV,VV2,stupid_msglen,
+     >                      stupid_double,stupid_sum,
+     >                      stupid_world,stupid_ierr)
+      
+
+
+      if ((taskid_i.eq.0).and.(taskid_j.eq.0)) then
+         write(*,*) "Q="
+         do i=1,7
+            write(*,'(10F12.3)') (VV2(i,j),j=1,7)
+         end do
+      end if
 
 
       return
@@ -1972,6 +2054,333 @@ c        **** add to current rows of C ****
          end if
 
       end do
+
+      return
+      end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *         DMatrix_houseq_V        *
+*     *                                 *
+*     ***********************************
+      subroutine DMatrix_houseq_V(jcol,
+     >                  n,
+     >                  A,V1,V1t,lda,ma,na,
+     >                  r2,
+     >                  taskid_i,taskid_j,
+     >                  np_i,np_j,
+     >                  comm_i, comm_j,
+     >                  work1,work2)
+      implicit none
+      integer jcol,n
+
+      integer lda,ma(*),na(*)
+      real*8  A(lda,*),V1(lda,*),V1t(lda,*)
+      real*8  r2
+
+      integer taskid_i,taskid_j
+      integer np_i,np_j
+      integer comm_i,comm_j
+
+      real*8 work1(*),work2(*)
+
+      real*8 VV(7,7),VV2(7,7)
+
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+*     **** local variables ****
+      logical crossing
+      integer i,j,ii,jj,ll
+      integer kk,iwrk,icur,jcur,ierr,shift
+      integer ii0,icur0,ii1,icur1,ii2,icur2
+      integer jj0,jcur0,jj1,jcur1
+      real*8  beta,mu0,mu,r20
+
+      call dcopy(ma(taskid_i+1)*na(taskid_j+1),0.0d0,0,V1,1)
+      call dcopy(ma(taskid_i+1)*na(taskid_j+1),0.0d0,0,V1t,1)
+
+      jcur0 = 0
+      jj0   = 1
+      do j=1,jcol-1
+        jj0 = jj0 + 1
+        if (jj0.gt.na(jcur0+1)) then
+           jcur0 = jcur0 + 1
+           jj0 = 1
+        end if
+      end do
+      jcur1 = jcur0
+      jj1   = jj0 + 1
+      if (jj1.gt.na(jcur1+1)) then
+           jcur1 = jcur1 + 1
+           jj1 = 1
+      end if
+      icur0 = 0
+      ii0   = 1
+      do i=1,jcol-1
+        ii0 = ii0 + 1
+        if (ii0.gt.ma(icur0+1)) then
+           icur0 = icur0 + 1
+           ii0 = 1
+        end if
+      end do
+      icur1 = icur0
+      ii1   = ii0 + 1
+      if (ii1.gt.ma(icur1+1)) then
+           icur1 = icur1 + 1
+           ii1 = 1
+      end if
+      icur2 = icur1
+      ii2   = ii1 + 1
+      if (ii2.gt.ma(icur2+1)) then
+           icur2 = icur2 + 1
+           ii2 = 1
+      end if
+
+      if (jcur0.eq.taskid_j) then
+         icur = icur1
+         ii   = ii1
+         do i=jcol+1,n
+            if (icur.eq.taskid_i) V1(ii,jj0) = A(ii,jj0)
+            ii = ii + 1
+            if (ii.gt.ma(icur+1)) then
+               icur = icur + 1
+               ii = 1
+            end if
+         end do
+         mu0 = 0.0d0
+         icur = icur1
+         ii   = ii1
+         do i=jcol+1,n
+            if (icur.eq.taskid_i) mu0 = mu0 + V1(ii,jj0)**2
+            ii = ii + 1
+            if (ii.gt.ma(icur+1)) then
+               icur = icur + 1
+               ii = 1
+            end if
+         end do
+#ifdef MPI4
+         stupid_msglen = 1
+         stupid_taskid = icur1
+         call MPI_AllReduce(mu0,mu,stupid_msglen,
+     >                      stupid_double,stupid_sum,
+     >                      stupid_comm_i,stupid_ierr)
+#else
+         call MPI_AllReduce(mu0,mu,1,
+     >                      MPI_DOUBLE_PRECISION,MPI_SUM,comm_i,ierr)
+#endif
+         mu = dsqrt(mu)
+         if (mu.ne.0.0d0) then
+           if (icur1.eq.taskid_i)
+     >        beta = V1(ii1,jj0) + dsign(mu,V1(ii1,jj0))
+#ifdef MPI4
+           stupid_msglen = 1
+           stupid_taskid = icur1
+           call MPI_Bcast(beta,stupid_msglen,stupid_double,
+     >                    stupid_taskid,stupid_comm_i,stupid_ierr)
+#else
+           call MPI_Bcast(beta,1,MPI_DOUBLE_PRECISION,
+     >                  icur1,comm_i,ierr)
+#endif
+           icur = icur2
+           ii   = ii2
+           do i=jcol+2,n
+              if (icur.eq.taskid_i) V1(ii,jj0) = V1(ii,jj0)/beta
+              ii = ii + 1
+              if (ii.gt.ma(icur+1)) then
+                 icur = icur + 1
+                 ii = 1
+              end if
+           end do
+         end if
+         if (icur1.eq.taskid_i)  V1(ii1,jj0) = 1.0d0
+         if (icur0.eq.taskid_i)  V1(ii0,jj0) = 0.0d0
+
+         r20 = 0.0d0
+         icur = icur0
+         ii   = ii0
+         do i=jcol,n
+            if (icur.eq.taskid_i) r20 = r20 + V1(ii,jj0)**2
+            ii = ii + 1
+            if (ii.gt.ma(icur+1)) then
+               icur = icur + 1
+               ii = 1
+            end if
+         end do
+#ifdef MPI4
+         stupid_msglen = 1
+         call MPI_AllReduce(r20,r2,stupid_msglen,
+     >                      stupid_double,stupid_sum,
+     >                      stupid_comm_i,stupid_ierr)
+#else
+         call MPI_AllReduce(r20,r2,1,
+     >                      MPI_DOUBLE_PRECISION,MPI_SUM,comm_i,ierr)
+#endif
+         r2 = 2.0d0/r2
+      end if
+#ifdef MPI4
+      stupid_msglen = 1
+      stupid_taskid = jcur0
+      call MPI_Bcast(r2,stupid_msglen,stupid_double,
+     >               stupid_taskid,stupid_comm_j,stupid_ierr)
+#else
+      call MPI_Bcast(r2,1,MPI_DOUBLE_PRECISION,
+     >               jcur0,comm_j,ierr)
+#endif
+
+*     **** generate V1*Ones(N) matrix ****
+      if (jcur0.eq.taskid_j) then
+         do ii=1,ma(taskid_i+1)
+            V1(ii,1) = V1(ii,jj0)
+         end do
+      end if
+#ifdef MPI4
+      stupid_msglen = ma(taskid_i+1)
+      stupid_taskid = jcur0
+      call MPI_Bcast(V1,stupid_msglen,stupid_double,
+     >               stupid_taskid,stupid_comm_j,stupid_ierr)
+#else
+      call MPI_Bcast(V1,ma(taskid_i+1),MPI_DOUBLE_PRECISION,
+     >               jcur0,comm_j,ierr)
+#endif
+      do jj=2,na(taskid_j+1)
+         do ii=1,ma(taskid_i+1)
+            V1(ii,jj) = V1(ii,1)
+         end do
+      end do
+
+
+      crossing = .false.
+      kk   = 1
+      ii   = 1
+      jj   = 1
+      icur = 0
+      jcur = 0
+      do i=1,n
+         if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+            work1(kk) = V1(ii,jj)
+         end if
+
+         kk = kk + 1
+         if ((ii.ge.ma(icur+1)).or.(jj.ge.na(jcur+1))) crossing=.true.
+         if (crossing) then
+            if ((taskid_i.eq.0).and.(taskid_j.eq.0))
+     >      write(*,'(A,6I4)') 
+     >      "crossing:",ii,jj,icur,jcur,ma(icur+1),na(jcur+1)
+
+            if (jcur.eq.taskid_j) then
+               stupid_msglen = kk-1
+               stupid_taskid = icur
+               call MPI_Bcast(work1,stupid_msglen,stupid_double,
+     >               stupid_taskid,stupid_comm_i,stupid_ierr)
+
+               do ll=1,kk-1
+                  do iwrk=1,ma(taskid_i+1)
+                     V1t(iwrk,jj+1-ll) = work1(kk-ll)
+                  end do
+               end do
+            end if
+            kk = 1
+            crossing = .false.
+         end if
+         ii = ii + 1
+         if (ii.gt.ma(icur+1)) then
+            icur = icur + 1
+            ii = 1
+         end if
+         jj = jj + 1
+         if (jj.gt.na(jcur+1)) then
+            jcur = jcur + 1
+            jj = 1
+         end if
+      end do
+
+
+      do j=1,7
+         do i=1,7
+            VV(i,j) = 0.0d0
+         end do
+      end do
+
+      jcur = 0
+      jj   = 1
+      do j=1,7
+         icur = 0
+         ii   = 1
+         do i=1,7
+            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+               VV(i,j) = V1(ii,jj)
+            end if
+            ii = ii + 1
+            if (ii.gt.ma(icur+1)) then
+               icur = icur + 1
+               ii = 1
+            end if
+         end do
+         jj = jj + 1
+         if (jj.gt.na(jcur+1)) then
+            jcur = jcur + 1
+            jj = 1
+         end if
+      end do
+      stupid_msglen = 7*7
+      call MPI_AllReduce(VV,VV2,stupid_msglen,
+     >                      stupid_double,stupid_sum,
+     >                      stupid_world,stupid_ierr)
+      
+      if ((taskid_i.eq.0).and.(taskid_j.eq.0)) then
+         write(*,*) "jcol=",jcol,"  V*ones(7)="
+         do i=1,7
+            write(*,'(10F12.3)') (VV2(i,j),j=1,7)
+         end do
+      end if
+
+      do j=1,7
+         do i=1,7
+            VV(i,j) = 0.0d0
+         end do
+      end do
+
+      jcur = 0
+      jj   = 1
+      do j=1,7
+         icur = 0
+         ii   = 1
+         do i=1,7
+            if ((icur.eq.taskid_i).and.(jcur.eq.taskid_j)) then
+               VV(i,j) = V1t(ii,jj)
+            end if
+            ii = ii + 1
+            if (ii.gt.ma(icur+1)) then
+               icur = icur + 1
+               ii = 1
+            end if
+         end do
+         jj = jj + 1
+         if (jj.gt.na(jcur+1)) then
+            jcur = jcur + 1
+            jj = 1
+         end if
+      end do
+      stupid_msglen = 7*7
+      call MPI_AllReduce(VV,VV2,stupid_msglen,
+     >                      stupid_double,stupid_sum,
+     >                      stupid_world,stupid_ierr)
+      
+
+
+      if ((taskid_i.eq.0).and.(taskid_j.eq.0)) then
+         write(*,*) "V1t*ones(7)="
+         do i=1,7
+            write(*,'(10F12.3)') (VV2(i,j),j=1,7)
+         end do
+      end if
+
 
       return
       end
