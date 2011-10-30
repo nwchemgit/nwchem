@@ -210,9 +210,10 @@
                         mi = l_prj(i,ia)
                         bi = b_prj(i,ia)
 
-                        taunt = nwpw_gaunt(.true.,l,m,li,mi,lj,mj)
+                        taunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
                         dbl_mb(Tndiff(1)+indx)
-     >                    = taunt*dbl_mb(comp_indx+bi+(bj-1)*nbasis(ia))
+     >                    = taunt
+     >                     *dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
 
 c                  write(*,'(A,7I4,3E13.3)') "i,j,l,m,indx,bi,bj",
 c     >                         i,j,l,m,indx,
@@ -228,6 +229,11 @@ c     >                     dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
             end do
          end if
       end do
+
+      write(*,*) "taun00_00_00=",nwpw_gaunt(.false.,0,0,0,0,0,0)
+      comp_charge_tag = comp_charge_matrix(1)
+      comp_indx = psi_data_get_ptr(comp_charge_tag,0+1)
+      write(*,*) "comp_charge00=",dbl_mb(comp_indx)
 
 c      lm = 0
 c      ia = 1
@@ -294,7 +300,7 @@ c      end do
 
 *     **** local variables ****
       integer l,m,lm,shiftia
-      real*8  scal
+      real*8  scal,tmp
 
 *     **** external functions ****
       real*8   nwpw_compcharge_Qlm_sub,lattice_omega
@@ -308,6 +314,8 @@ c         write(*,'(10E13.3)') (sw1(m,l),l=1,nprj)
 c      end do
 c      write(*,*)
       scal = 1.0d0/lattice_omega()
+      tmp = scal*sw1(1,1)**2
+      write(*,*) "sw1**2/omega=",tmp
 
       lm = 0
       do l=0,int_mb(mult_l(1)+ia-1)
@@ -396,6 +404,74 @@ c      write(*,*)
       return
       end
 
+*     *************************************************
+*     *                                               *
+*     *     nwpw_compcharge_gen_dn_cmp_smooth         *
+*     *                                               *
+*     *************************************************
+      subroutine nwpw_compcharge_gen_dn_cmp_smooth(ms,dng_smooth)
+      implicit none
+      integer ms
+      complex*16 dng_smooth(*)
 
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      logical value
+      integer ii,ia,lm,l,m,QTlm(2),tmp(2),exi(2)
+      real*8  q
+
+*     **** external functions ****
+      integer  ion_katm
+      external ion_katm
+
+      value = MA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+      if (.not.value)
+     >  call errquit("nwpw_compcharge_gen_dn_cmp_smooth:stack",0,MA_ERR)
+
+      call dcopy(2*npack0,0.0d0,0,dng_smooth,1)
+
+      do ii=1,nion
+         ia = ion_katm(ii)
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+
+         call dcopy(2*npack0,0.0d0,0,dcpl_mb(QTlm(1)),1)
+         lm = 0
+         do l=0,int_mb(mult_l(1)+ia-1)
+            do m=-l,l
+               q = dbl_mb(Qlm(1)+(ii-1)*lm_size_max + lm) 
+               if (mod(l,2).eq.0) then
+                  call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
+     >                               dcpl_mb(exi(1)),
+     >                               dcpl_mb(tmp(1)))
+               
+               else
+                  call Pack_tc_iMul(0,dbl_mb(glm(1)+lm*npack0),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(tmp(1)))
+               end if
+               call Pack_cc_daxpy(0,q,dcpl_mb(tmp(1)),
+     >                                dcpl_mb(QTlm(1)))
+               lm = lm + 1
+            end do
+         end do
+         call Pack_tc_Mul2(0,dbl_mb(gk_smooth(1)),dcpl_mb(QTlm(1)))
+         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_smooth)
+      end do
+
+      value =           MA_pop_stack(exi(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      value = value.and.MA_pop_stack(QTlm(2))
+      if (.not.value)
+     >  call errquit("nwpw_compcharge_gen_dn_cmp_smooth:stack",1,MA_ERR)
+
+      return
+      end
 
 
