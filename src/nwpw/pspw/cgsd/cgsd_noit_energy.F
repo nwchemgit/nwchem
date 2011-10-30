@@ -27,8 +27,8 @@ c     $Id$
       real*8  cx,cy,cz
       real*8  gx,gy,gz
       real*8  en(2),en1(2),en2(2)
-      real*8  E(30)
-      integer rtdb
+      real*8  E(30),scal,sumall
+      integer rtdb,tmp1(2),nx,ny,nz,n2ft3d
 
 
 *     **** external functions ****
@@ -56,8 +56,8 @@ c     $Id$
       external    control_symmetry,control_version
       logical  psp_pawexist
       external psp_pawexist
-      real*8   psi_smearfermi,psi_smearcorrection
-      external psi_smearfermi,psi_smearcorrection
+      real*8   psi_smearfermi,psi_smearcorrection,lattice_omega
+      external psi_smearfermi,psi_smearcorrection,lattice_omega
 
 
 
@@ -78,8 +78,29 @@ c     $Id$
 *     **** diagonalize hamiltonian ****
       call psi_spin_density(en1)
       if (psp_pawexist()) then
-         en2(1) = 0.0
-         en2(2) = 0.0
+         call D3dB_n2ft3d(1,n2ft3d)
+         call D3dB_nx(1,nx)
+         call D3dB_ny(1,ny)
+         call D3dB_nz(1,nz)
+         scal = lattice_omega()/dble(nx*ny*nz)
+         !en2(1) = 0.0
+         !en2(2) = 0.0
+         if (.not.MA_push_get(mt_dbl,n2ft3d,'tmp1',tmp1(2),tmp1(1)))
+     >   call errquit(
+     >        'cgsd_noit_energy: out of stack memory',0,MA_ERR)
+         call psi_1qlm_atom()
+         do ms=1,psi_ispin()
+            call nwpw_compcharge_gen_dn_cmp_smooth(ms,dbl_mb(tmp1(1)))
+            call Pack_c_unpack(0,dbl_mb(tmp1(1)))
+            call D3dB_cr_fft3b(1,dbl_mb(tmp1(1)))
+            call D3dB_r_Zero_Ends(1,dbl_mb(tmp1(1)))
+            call D3dB_r_dsum(1,dbl_mb(tmp1(1)),sumall)
+            en2(ms) = sumall*scal
+         end do
+         if (.not.MA_pop_stack(tmp1(2)))
+     >   call errquit(
+     >        'cgsd_noit_energy: popping stack memory',0,MA_ERR)
+
       else
          en2(1) = 0.0
          en2(2) = 0.0
