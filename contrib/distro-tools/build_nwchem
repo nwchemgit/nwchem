@@ -436,22 +436,33 @@ if [ ${#MSG_COMMS} -eq 0 ] ; then
 fi
 export LDOPTIONS=" "
 export USE_SUBGROUPS=y
-#export DEV_GA=y
+export DEV_GA=y
 #export USE_GPROF=y
 #
 # Now we try and guess the network on the machine.
-# The default is sockets.
+# The default is MPI-MT.
 #
 if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
-  if [ -d /dev/infiniband ] ; then
-    # There seems to be an infiniband network on this machine
-    export ARMCI_NETWORK="OPENIB"
-    export LIBMPI="${LIBMPI} -libverbs"
-    if [ -d /usr/include/infiniband ] ; then
-      export IB_INCLUDE="/usr/include/infiniband"
-    else
-      echo "ERROR: Infiniband include files not in expected location"
-      exit 1
+  #
+  # Do we have a CRAY Gemini interconnect?
+  # /opt/cray present then we are probably on a Cray machine
+  # /opt/cray/*/gemini present then we have a Gemini interconnect
+  # This is at least the situation on Hopper/NERSC.
+  #
+  if [ -d /opt/cray ] ; then
+    GEMINIDIRS=`find /opt/cray -name gemini`
+    if ${#GEMINIDIRS} -ne 0 ] ; then
+      # There seems to be a Gemini interconnect on this Cray machine
+      export ARMCI_NETWORK="GEMINI"
+      if [ ${#MPI_F90} -eq 0 ] ; then
+        export MPI_F90=ftn
+      fi
+      if [ ${#MPI_CC} -eq 0 ] ; then
+        export MPI_CC=cc
+      fi
+      if [ ${#MPI_CXX} -eq 0 ] ; then
+        export MPI_CXX=CC
+      fi
     fi
   fi
 fi
@@ -478,9 +489,22 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
     fi
   fi
 fi
-#if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
-#  export ARMCI_NETWORK="MPI-MT"
-#fi
+if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
+  if [ -d /dev/infiniband ] ; then
+    # There seems to be an infiniband network on this machine
+    export ARMCI_NETWORK="OPENIB"
+    export LIBMPI="${LIBMPI} -libverbs"
+    if [ -d /usr/include/infiniband ] ; then
+      export IB_INCLUDE="/usr/include/infiniband"
+    else
+      echo "ERROR: Infiniband include files not in expected location"
+      exit 1
+    fi
+  fi
+fi
+if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
+  export ARMCI_NETWORK="MPI-MT"
+fi
 #
 # Below we have to realize that EXPORT is a command. Hence if we use
 #   EXPORT DUMMY=`ls`
