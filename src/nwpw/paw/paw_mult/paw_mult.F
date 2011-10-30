@@ -445,6 +445,7 @@
          call dcopy(2*npack0,0.0d0,0,dcpl_mb(QYlm(1)),1)
          do l=0,mult_l
          do m=-l,l
+
            call Pack_cc_zaxpy(0,
      >               dcpl_mb(paw_qlm(1)+jj),
      >               dcpl_mb(g_lm(1)+(kk)*npack0),
@@ -1277,6 +1278,7 @@ c     >                    dcpl_mb(QYlm(1)))
      >               dcpl_mb(g_lm(1)+(kk)*npack0),
      >               dcpl_mb(QYlm(1)))
 
+           write(*,*) " qlm=",l,m,dcpl_mb(paw_qlm_spin(1,ms)+jj)
            jj = jj + 1
            kk = kk + 1
          end do
