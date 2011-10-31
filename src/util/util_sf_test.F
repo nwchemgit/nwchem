@@ -149,9 +149,9 @@ c       write(*,*)'test passed ', 8*maxid*dimnsn,' bytes'
 c       write(*,*) 8.0e-6*maxid*dimnsn/ttw,' MB/s write rate'
 c       write(*,*) 8.0e-6*maxid*dimnsn/ttr,' MB/s read rate'
 c       write(*,*)' '
-        write(6,'(A,F5.1,A)') ' sf_write rate .................... ',
+        write(6,'(A,F7.1,A)') ' sf_write rate .................... ',
      1  8.0e-6*maxid*dimnsn/ttw,' MB/s'
-        write(6,'(A,F5.1,A)') ' sf_read rate ..................... ',
+        write(6,'(A,F7.1,A)') ' sf_read rate ..................... ',
      1  8.0e-6*maxid*dimnsn/ttr,' MB/s'
         call ffflush(6)
       endif

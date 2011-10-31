@@ -261,8 +261,8 @@ All connections between all procs tested: SUCCESS
  sf_write/sf_waitall .............. OK
  sf_read/sf_wait .................. OK
  sf_destroy ....................... OK
- sf_write rate .................... 267.5 MB/s
- sf_read rate ..................... ***** MB/s
+ sf_write rate ....................   267.5 MB/s
+ sf_read rate .....................  1103.0 MB/s
 
  Commencing EAF Test
  -------------------
