@@ -7,7 +7,8 @@
 *     *              nwpw_compcharge_init             *
 *     *                                               *
 *     *************************************************
-      subroutine nwpw_compcharge_init(nion0,nkatm0,nprj,nbasis,psp_type,
+      subroutine nwpw_compcharge_init(nion0,nkatm0,
+     >                                nprj,nbasis,psp_type,
      >                                lmax0,sigma,
      >                                nprj_max,l_prj,m_prj,b_prj,
      >                                comp_charge_matrix)
@@ -28,7 +29,7 @@
       integer k,l,m,lm,ia,Gindx,Gall(2),G(3),tsize
       integer iasize,i,j,li,mi,lj,mj,bi,bj
       integer indx,comp_charge_tag,comp_indx
-      real*8  scal,gg,fourpioveromega
+      real*8  scal,gg,fourpioveromega,sumall
       real*8  taunt
 
 *     **** external functions ****
@@ -88,13 +89,14 @@
      >        MA_alloc_get(mt_dbl,npack0*lm_size_max,
      >                     "glm",glm(2),glm(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,nion*lm_size_max,"Qlm",Qlm(2),Qlm(1))
+     >        MA_alloc_get(mt_dbl,2*nion*lm_size_max,
+     >                     "Qlm",Qlm(2),Qlm(1))
       value = value.and.
      >        MA_push_get(mt_dbl,3*nfft3d,"Gall",Gall(2),Gall(1))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end:allocate memory",1,MA_ERR)
 
-      call dcopy(nion*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)),1)
+      call dcopy(2*nion*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)),1)
       call dcopy(3*nfft3d,dbl_mb(Gindx),1,dbl_mb(Gall(1)),1)
       G(1) = Gall(1)
       G(2) = Gall(1)+nfft3d
@@ -167,9 +169,9 @@
             call dcopy(npack0,0.0d0,0,dbl_mb(gk(1)+(ia-1)*npack0),1)
          end if
       end do
-
       if (.not.MA_pop_stack(Gall(2)))
      >   call errquit("nwpw_compcharge_init: pop stack",0,MA_ERR)
+
 
 
 
@@ -215,12 +217,6 @@
      >                    = taunt
      >                     *dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
 
-c                  write(*,'(A,7I4,3E13.3)') "i,j,l,m,indx,bi,bj",
-c     >                         i,j,l,m,indx,
-c     >                         bi,bj,
-c     >                         taunt,dbl_mb(Tndiff(1)+indx),
-c     >                     dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
-
                         indx = indx + 1
                      end do
                   end do
@@ -230,25 +226,6 @@ c     >                     dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
          end if
       end do
 
-      write(*,*) "taun00_00_00=",nwpw_gaunt(.false.,0,0,0,0,0,0)
-      comp_charge_tag = comp_charge_matrix(1)
-      comp_indx = psi_data_get_ptr(comp_charge_tag,0+1)
-      write(*,*) "comp_charge00=",dbl_mb(comp_indx)
-
-c      lm = 0
-c      ia = 1
-c      do l=0,int_mb(mult_l(1)+ia-1)
-c      do m=-l,l
-c          write(*,*) "Tndiff, l,m=",l,m
-c          do i=1,nprj(ia)
-c             indx = (i-1) + lm*nprj(ia)*nprj(ia)
-c             write(*,'(12E13.3)') 
-c     >       (dbl_mb(Tndiff(1)+indx+(j-1)*nprj(ia)),j=1,nprj(ia))
-c          end do
-c          write(*,*)
-c          lm = lm + 1
-c      end do
-c      end do
 
       return
       end
@@ -288,19 +265,19 @@ c      end do
 
 *     This routine computes Qlm for atom ii.
 
-      subroutine nwpw_compcharge_gen_Qlm(ii,ia,nprj,neall,sw1)
+      subroutine nwpw_compcharge_gen_Qlm(ii,ia,ispin,ne,nprj,sw1)
       implicit none
       integer ii,ia
-      integer nprj,neall
-      real*8  sw1(neall,nprj)
+      integer ispin,ne(2),nprj
+      real*8  sw1(ne(1)+ne(2),nprj)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
 #include "nwpw_compcharge.fh"
 
 *     **** local variables ****
-      integer l,m,lm,shiftia
-      real*8  scal,tmp
+      integer l,m,lm,shiftia,indx,ms
+      real*8  scal,tmp,q(2)
 
 *     **** external functions ****
       real*8   nwpw_compcharge_Qlm_sub,lattice_omega
@@ -308,27 +285,19 @@ c      end do
 
       shiftia = int_mb(Tndiff_shift(1)+ia-1)
 
-c      write(*,*) "sw1="
-c      do m=1,neall
-c         write(*,'(10E13.3)') (sw1(m,l),l=1,nprj)
-c      end do
-c      write(*,*)
       scal = 1.0d0/lattice_omega()
-      tmp = scal*sw1(1,1)**2
-      write(*,*) "sw1**2/omega=",tmp
 
       lm = 0
       do l=0,int_mb(mult_l(1)+ia-1)
          do m=-l,l
-            dbl_mb(Qlm(1)+(ii-1)*lm_size_max + lm) 
-     >         = scal*nwpw_compcharge_Qlm_sub(nprj,neall,
-     >                    dbl_mb(Tndiff(1)+shiftia+lm*nprj*nprj),
-     >                    sw1)
+            call nwpw_compcharge_Qlm_sub(ispin,ne,nprj,
+     >               dbl_mb(Tndiff(1)+shiftia+lm*nprj*nprj),sw1,q)
 
-            write(*,*) "l,m,qlm,Tndiff=",l,m,
-     >                 dbl_mb(Qlm(1)+(ii-1)*lm_size_max+lm),
-     >                 dbl_mb(Tndiff(1)+shiftia+(lm-1)*nprj*nprj)
-     
+            do ms=1,ispin
+               indx = (ms-1)*nion*lm_size_max+(ii-1)*lm_size_max + lm
+               dbl_mb(Qlm(1)+indx) = scal*q(ms)
+            end do
+
             lm = lm + 1
          end do
       end do
@@ -341,28 +310,35 @@ c      write(*,*)
 *     *              nwpw_compcharge_Qlm_sub          *
 *     *                                               *
 *     *************************************************
-      real*8 function nwpw_compcharge_Qlm_sub(nprj,neall,Tndiff,sw1)
+      subroutine nwpw_compcharge_Qlm_sub(ispin,ne,nprj,Tndiff,sw1,qlm)
       implicit none
-      integer nprj,neall
+      integer ispin,ne(2),nprj
       real*8  Tndiff(nprj,nprj)
-      real*8  sw1(neall,nprj)
+      real*8  sw1(ne(1)+ne(2),nprj)
+      real*8  qlm(*)
 
 *     **** local variables ****
-      integer i,j,n
-      real*8 qlm,psum
+      integer ms,i,j,n,n1(2),n2(2)
+      real*8 psum
 
-      qlm = 0.0d0
+      n1(1) = 1
+      n1(2) = ne(1)+1
+      n2(1) = ne(1)
+      n2(2) = ne(1)+ne(2)
+      do ms=1,ispin
+         qlm(ms) = 0.0d0
+      end do
       do j=1,nprj
          do i=1,nprj
-            psum = 0.0d0
-            do n=1,neall
-               psum = psum + sw1(n,i)*sw1(n,j)
+            do ms=1,ispin
+               psum = 0.0d0
+               do n=n1(ms),n2(ms)
+                  psum = psum + sw1(n,i)*sw1(n,j)
+               end do
+               qlm(ms) = qlm(ms) + Tndiff(i,j)*psum
             end do
-            qlm = qlm + Tndiff(i,j)*psum
          end do
       end do
-
-      nwpw_compcharge_Qlm_sub = qlm
       return
       end
 
@@ -420,8 +396,8 @@ c      write(*,*)
 
 *     **** local variables ****
       logical value
-      integer ii,ia,lm,l,m,QTlm(2),tmp(2),exi(2)
-      real*8  q
+      integer ii,ia,lm,l,m,indx,QTlm(2),tmp(2),exi(2)
+      real*8  q,sumall
 
 *     **** external functions ****
       integer  ion_katm
@@ -436,7 +412,6 @@ c      write(*,*)
      >  call errquit("nwpw_compcharge_gen_dn_cmp_smooth:stack",0,MA_ERR)
 
       call dcopy(2*npack0,0.0d0,0,dng_smooth,1)
-
       do ii=1,nion
          ia = ion_katm(ii)
          call strfac_pack(0,ii,dcpl_mb(exi(1)))
@@ -445,25 +420,29 @@ c      write(*,*)
          lm = 0
          do l=0,int_mb(mult_l(1)+ia-1)
             do m=-l,l
-               q = dbl_mb(Qlm(1)+(ii-1)*lm_size_max + lm) 
+               indx = (ms-1)*nion*lm_size_max + (ii-1)*lm_size_max + lm 
+               q = dbl_mb(Qlm(1)+indx)
                if (mod(l,2).eq.0) then
                   call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
      >                               dcpl_mb(exi(1)),
      >                               dcpl_mb(tmp(1)))
-               
                else
                   call Pack_tc_iMul(0,dbl_mb(glm(1)+lm*npack0),
      >                                dcpl_mb(exi(1)),
      >                                dcpl_mb(tmp(1)))
                end if
+
                call Pack_cc_daxpy(0,q,dcpl_mb(tmp(1)),
      >                                dcpl_mb(QTlm(1)))
+
                lm = lm + 1
             end do
          end do
-         call Pack_tc_Mul2(0,dbl_mb(gk_smooth(1)),dcpl_mb(QTlm(1)))
          call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_smooth)
+
       end do
+      call Pack_tc_Mul2(0,dbl_mb(gk_smooth(1)),dng_smooth)
+
 
       value =           MA_pop_stack(exi(2))
       value = value.and.MA_pop_stack(tmp(2))

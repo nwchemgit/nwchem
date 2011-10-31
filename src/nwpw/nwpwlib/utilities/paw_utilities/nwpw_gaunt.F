@@ -400,18 +400,26 @@ c         end if
 
       do k=1,nfft3d
          r = sqrt(x(k)*x(k) + y(k)*y(k) + z(k)*z(k))
-         cos_theta = z(k)/r
-         phi = datan2(y(k),x(k))
+         if (r.gt.1.0d-9) then
+            cos_theta = z(k)/r
+            phi = datan2(y(k),x(k))
 
-         if (m.lt.0) then
-            tmp2 = dsin(mod_m*phi)
-         else if (m.gt.0) then
-            tmp2 = dcos(mod_m*phi)
+            if (m.lt.0) then
+               tmp2 = dsin(mod_m*phi)
+            else if (m.gt.0) then
+               tmp2 = dcos(mod_m*phi)
+            else
+               tmp2 = 1.0d0
+            end if
+
+            Tlm(k) = tmp2*coeff*rlegendre_lm(l,mod_m,cos_theta)
          else
-            tmp2 = 1.0d0
+            if (l.eq.0) then
+               Tlm(k) = 1.0d0/dsqrt(2*twopi)
+            else
+               Tlm(k) = 0.0d0
+            end if
          end if
-
-         Tlm(k) = tmp2*coeff*rlegendre_lm(l,mod_m,cos_theta)
       end do
       return
       end
