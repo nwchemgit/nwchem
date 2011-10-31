@@ -1002,7 +1002,7 @@ c
 c     restart calculations work only for energy calculation
       if (rtdb_get(rtdb,'ccca:restart',MT_LOG,1,restart)) then
         if (restart)
-     $    call ccca_err(rtdb_get(rtdb,'ccca:stage',MT_INT,1,stage))
+     $    call ccca_err(rtdb_get(rtdb,'ccca:stage',MT_INT,1,stage),0)
       endif
       call ccca_err(rtdb_cget(rtdb,'ccca:intype',1,calctype),errcode)
       call ccca_err(rtdb_get(rtdb,'ccca:tm',MT_LOG,1,tm),errcode) 
