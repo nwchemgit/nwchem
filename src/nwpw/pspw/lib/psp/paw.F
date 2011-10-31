@@ -976,7 +976,8 @@ c     >                          l_prj(i),m_prj(i))
         end do
         call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
 
-        call nwpw_compcharge_gen_Qlm(ii,ia,nproj,nn,dbl_mb(sw1(1)))
+        call nwpw_compcharge_gen_Qlm(ii,ia,ispin,ne,nproj,
+     >                               dbl_mb(sw1(1)))
 
 
         end if !** nproj>0 **
