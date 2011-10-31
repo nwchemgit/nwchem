@@ -6,7 +6,11 @@ c $Id$
 c
       implicit double precision (a-h,o-z)
 #include "hnd_pointers.fh"
+      dimension xyzi(3),xyzj(3),expi(i_nprim),expj(j_nprim)
+      dimension coefi(i_nprim,i_ngen),coefj(j_nprim,j_ngen)
+      dimension xyzpt(3,npt)
       dimension scr(lscr) 
+      dimension elfder(*)
 c
 c
 c     ----- Wrapper routine that sets the sizes of scratch blocks -----

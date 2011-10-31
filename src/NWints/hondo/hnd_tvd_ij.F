@@ -35,16 +35,16 @@ c
       double precision expj(j_nprim)  ! [input] exponents on j
       double precision coefj(j_nprim,j_ngen)  ! [input] j coeffs
       double precision xyz(3,nat) ! [input] all atom positions
-      double precision ditij ! [output] 1rst derivative wrt i for T
-      double precision djtij ! [output] 1rst derivative wrt j for T
-      double precision diditij ! [output] 2nd derivative wrt i,i for T
-      double precision didjtij ! [output] 2nd derivative wrt i,j for T
-      double precision djdjtij ! [output] 2nd derivative wrt j,j for T
-      double precision divij ! [output] 1rst derivative wrt i for V
-      double precision djvij ! [output] 1rst derivative wrt j for V
-      double precision didivij ! [output] 2nd derivative wrt i,i for V
-      double precision didjvij ! [output] 2nd derivative wrt i,j for V
-      double precision djdjvij ! [output] 2nd derivative wrt j,j for V
+      double precision ditij(nint,3) ! [output] 1rst derivative wrt i for T
+      double precision djtij(nint,3) ! [output] 1rst derivative wrt j for T
+      double precision diditij(nint,3,3) ! [output] 2nd derivative wrt i,i for T
+      double precision didjtij(nint,3,3) ! [output] 2nd derivative wrt i,j for T
+      double precision djdjtij(nint,3,3) ! [output] 2nd derivative wrt j,j for T
+      double precision divij(nint,3) ! [output] 1rst derivative wrt i for V
+      double precision djvij(nint,3) ! [output] 1rst derivative wrt j for V
+      double precision didivij(nint,3,3) ! [output] 2nd derivative wrt i,i for V
+      double precision didjvij(nint,3,3) ! [output] 2nd derivative wrt i,j for V
+      double precision djdjvij(nint,3,3) ! [output] 2nd derivative wrt j,j for V
       double precision zan(nat) ! [input] nuclear charges
       double precision scr(lscr) ! [input] scratch buffer
 c

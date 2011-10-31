@@ -27,11 +27,11 @@ c
       double precision xyzj(3)  ! [input] position of center j
       double precision expj(j_nprim)  ! [input] exponents on j
       double precision coefj(j_nprim,j_ngen)  ! [input] j coeffs
-      double precision disij ! [output] 1rst derivative wrt i
-      double precision djsij ! [output] 1rst derivative wrt j
-      double precision didisij ! [output] 2nd derivative wrt i,i
-      double precision didjsij ! [output] 2nd derivative wrt i,j
-      double precision djdjsij ! [output] 2nd derivative wrt j,j
+      double precision disij(nint,3)! [output] 1rst derivative wrt i
+      double precision djsij(nint,3) ! [output] 1rst derivative wrt j
+      double precision didisij(nint,3,3) ! [output] 2nd derivative wrt i,i
+      double precision didjsij(nint,3,3) ! [output] 2nd derivative wrt i,j
+      double precision djdjsij(nint,3,3) ! [output] 2nd derivative wrt j,j
       double precision scr(lscr) ! [input] scratch buffer
 c
 # include "hnd_pointers.fh"

@@ -7,6 +7,9 @@ c     ----- Wrapper routine that sets the sizes of scratch blocks -----
 c
       implicit double precision (a-h,o-z)
 #include "hnd_pointers.fh"
+      dimension xyzi(3),xyzj(3),expi(i_nprim),expj(j_nprim)
+      dimension coefi(i_nprim,i_ngen),coefj(j_nprim,j_ngen)
+      double precision l10(nint,3)
       dimension scr(lscr)
 c
 c Use scratch for temps in integral calculation

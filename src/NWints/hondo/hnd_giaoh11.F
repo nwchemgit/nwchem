@@ -10,6 +10,10 @@ c
 #include "hnd_pointers.fh"
       dimension scr(lscr)
       logical para,dia
+      dimension xyzi(3),xyzj(3),expi(i_nprim),expj(j_nprim)
+      dimension coefi(i_nprim,i_ngen),coefj(j_nprim,j_ngen)
+      dimension e11(nint,3,3,*)
+      dimension catms(3,nat)
 c
 c Use scratch for temps in integral calculation
 c Scratch needs are

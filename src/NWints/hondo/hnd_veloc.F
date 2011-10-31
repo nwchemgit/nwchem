@@ -8,6 +8,9 @@ c
       implicit double precision (a-h,o-z)
 #include "hnd_pointers.fh"
       dimension scr(lscr)
+      dimension xyzi(3),xyzj(3),expi(i_nprim),expj(j_nprim)
+      dimension coefi(i_nprim,i_ngen),coefj(j_nprim,j_ngen)
+      dimension veloc(nint,3)
 c
 c Use scratch for temps in integral calculation
 c Scratch needs are 6*(Li+1)*(Lj+2)
