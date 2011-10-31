@@ -1,0 +1,433 @@
+refund: Number of nodes          = 1
+refund: Number of cores per node = 4
+All connections between all procs tested: SUCCESS
+ argument  1 = /mscf/home/d3p852/nwchem-6.0/QA/tests/testtask/testtask.nw
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.0
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname      = cu1n1
+    program       = /scratch/nwchem
+    date          = Mon Oct 31 11:36:06 2011
+
+    compiled      = Mon_Oct_31_11:33:56_2011
+    source        = /home/d3p852/nwchem-6.0
+    nwchem branch = Development
+    input         = /mscf/home/d3p852/nwchem-6.0/QA/tests/testtask/testtask.nw
+    prefix        = testtask.
+    data base     = ./testtask.db
+    status        = startup
+    nproc         =        4
+    time left     =   1766s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =  104857601 doubles =    800.0 Mbytes
+    stack    =  104857601 doubles =    800.0 Mbytes
+    global   =  209715200 doubles =   1600.0 Mbytes (distinct from heap & stack)
+    total    =  419430402 doubles =   3200.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                            Global Array & ParI/O Tests
+                            ---------------------------
+
+
+ Commencing GA Basic Test
+ ------------------------
+
+ Number of processes ..............  4
+ Number of cluster nodes ..........  1
+
+ Checking doubles  
+
+ ga_create ........................ OK
+ ga_zero .......................... OK
+ ga_put ........................... OK
+ ga_get ........................... OK
+ ga_acc (disjoint) ................ OK
+ ga_acc (overlap) ................. OK
+ ga_add ........................... OK
+ ga_ddot .......................... OK
+ ga_scale ......................... OK
+ ga_copy .......................... OK
+ ga_gather ........................ OK
+ ga_scatter ....................... OK
+ ga_destroy ....................... OK
+
+ Checking double complexes
+
+ ga_create ........................ OK
+ ga_zero .......................... OK
+ ga_put ........................... OK
+ ga_get ........................... OK
+ ga_acc (disjoint) ................ OK
+ ga_acc (overlap) ................. OK
+ ga_copy .......................... OK
+ ga_scale ......................... OK
+ ga_gather ........................ OK
+ ga_scatter ....................... OK
+ ga_add ........................... OK
+ ga_zdot .......................... OK
+ ga_destroy ....................... OK
+
+ Checking integers  
+
+ ga_create ........................ OK
+ ga_zero .......................... OK
+ ga_put ........................... OK
+ ga_get ........................... OK
+ ga_read_inc ...................... OK
+ ga_create_mutexes ................ OK
+ ga_destroy_mutexes ............... OK
+ ga_locate_region ................. OK
+ ga_destroy ....................... OK
+
+ Checking single precisions 
+
+ ga_create ........................ OK
+ ga_zero .......................... OK
+ ga_put ........................... OK
+ ga_get ........................... OK
+ ga_acc (disjoint) ................ OK
+ ga_acc (overlap) ................. OK
+ ga_add ........................... OK
+ ga_sdot .......................... OK
+ ga_scale ......................... OK
+ ga_copy .......................... OK
+ ga_gather ........................ OK
+ ga_scatter ....................... OK
+ ga_destroy ....................... OK
+
+ Checking wrappers to MP collective operations
+
+ ga_igop .......................... OK
+ ga_dgop .......................... OK
+ ga_sgop .......................... OK
+ ga_brdcst ........................ OK
+
+ Commencing GA Patch Test
+ ------------------------
+
+ Checking doubles  
+
+ ga_create ........................ OK
+ ga_fill_patch .................... OK
+ ga_copy_patch .................... OK
+ ga_copy_patch (transpose) ........ OK
+ ga_scale_patch ................... OK
+ ga_add_patch ..................... OK
+ ga_ddot_patch .................... OK
+ ga_matmul_patch .................. OK
+ ga_matmul_patch (transposed A) ... OK
+ ga_matmul_patch (transposed B) ... OK
+ ga_matmul_patch (transposed A & B) OK
+ ga_destory ....................... OK
+
+ Checking double complexes  
+
+ ga_create ........................ OK
+ ga_fill_patch .................... OK
+ ga_copy_patch .................... OK
+ ga_copy_patch (transpose) ........ OK
+ ga_scale_patch ................... OK
+ ga_add_patch ..................... OK
+ ga_zdot_patch .................... OK
+ ga_matmul_patch .................. OK
+ ga_matmul_patch (transposed A) ... OK
+ ga_matmul_patch (transposed B) ... OK
+ ga_matmul_patch (transposed A & B) OK
+ ga_destroy ....................... OK
+
+ Checking single precisions 
+
+ ga_create ........................ OK
+ ga_fill_patch .................... OK
+ ga_copy_patch .................... OK
+ ga_copy_patch (transpose) ........ OK
+ ga_scale_patch ................... OK
+ ga_add_patch ..................... OK
+ ga_sdot_patch .................... OK
+ ga_destory ....................... OK
+
+ Commencing NGA Test
+ -------------------
+
+ Checking 3-Dimensional Arrays
+
+ ga_fill .......................... OK
+ nga_put .......................... OK
+ nga_get .......................... OK
+ nga_acc .......................... OK
+
+ Checking 4-Dimensional Arrays
+
+ ga_fill .......................... OK
+ nga_put .......................... OK
+ nga_get .......................... OK
+ nga_acc .......................... OK
+
+ Commencing GA Matrix Algebra Test
+ ---------------------------------
+
+ ga_symmetrize .................... OK
+ ga_transpose ..................... OK
+ ga_dgemm ......................... OK
+ ga_diag .......................... OK
+ ga_diag_std ...................... OK
+ ga_lu_solve (multiple RHS) ....... OK
+ ga_lu_solve (single RHS) ......... OK
+
+ Commencing DRA Test
+ -------------------
+
+ Checking integers
+
+ dra_init ......................... OK
+ dra_create ....................... OK
+ dra_write ........................ OK
+ dra_close ........................ OK
+ dra_open ......................... OK
+ dra_inquire ...................... OK
+ dra_read ......................... OK
+ dra_delete ....................... OK
+
+ Checking doubles
+
+ dra_create ....................... OK
+ dra_write ........................ OK
+ dra_read ......................... OK
+ dra_read_section ................. OK
+ dra_delete ....................... OK
+ dra_create (large) ............... OK
+ dra_write_section (large) ........ OK
+ dra_delete (large) ............... OK
+ dra_terminate .................... OK
+
+ Commencing SF Test
+ ------------------
+
+ sf_create ........................ OK
+ sf_write/sf_waitall .............. OK
+ sf_read/sf_wait .................. OK
+ sf_destroy ....................... OK
+ sf_write rate .................... 267.5 MB/s
+ sf_read rate ..................... ***** MB/s
+
+ Commencing EAF Test
+ -------------------
+
+ eaf_open ......................... OK
+ eaf_write ........................ OK
+ eaf_read ......................... OK
+ eaf_close ........................ OK
+ eaf_delete ....................... OK
+ eaf_awrite ....................... OK
+ eaf_wait ......................... OK
+ [Next test will take a few minutes]
+ eaf_aread ........................ OK
+ eaf_probe ........................ OK
+ eaf_truncate ..................... OK
+ eaf_length ....................... OK
+ eaf_length (empty file) .......... OK
+
+ Commencing GA Performance Test
+ ------------------------------
+
+                          Local 2-D Array Section  
+     section           get               put           accumulate
+  bytes    dim     sec      MB/s     sec      MB/s     sec      MB/s
+      8      1  .539D-06 .148D+02 .411D-06 .195D+02 .672D-06 .119D+02
+     72      3  .119D-05 .607D+02 .113D-05 .640D+02 .754D-06 .955D+02
+    128      4  .635D-06 .202D+03 .577D-06 .222D+03 .926D-06 .138D+03
+    648      9  .869D-06 .746D+03 .778D-06 .833D+03 .130D-05 .500D+03
+   2048     16  .155D-05 .132D+04 .140D-05 .147D+04 .172D-05 .119D+04
+   4608     24  .273D-05 .169D+04 .238D-05 .194D+04 .282D-05 .163D+04
+   7200     30  .388D-05 .185D+04 .360D-05 .200D+04 .420D-05 .171D+04
+  18432     48  .819D-05 .225D+04 .798D-05 .231D+04 .862D-05 .214D+04
+  32768     64  .139D-04 .235D+04 .136D-04 .241D+04 .160D-04 .205D+04
+  66248     91  .284D-04 .233D+04 .272D-04 .243D+04 .290D-04 .228D+04
+ 131072    128  .632D-04 .207D+04 .607D-04 .216D+04 .633D-04 .207D+04
+ 233928    171  .125D-03 .188D+04 .119D-03 .197D+04 .124D-03 .189D+04
+ 524288    256  .357D-03 .147D+04 .348D-03 .151D+04 .364D-03 .144D+04
+ 996872    353  .650D-03 .153D+04 .642D-03 .155D+04 .666D-03 .150D+04
+1548800    440  .975D-03 .159D+04 .963D-03 .161D+04 .100D-02 .155D+04
+2097152    512  .766D-03 .274D+04 .847D-03 .248D+04 .126D-02 .167D+04
+                          Remote 2-D Array Section 
+     section           get               put           accumulate
+  bytes    dim     sec      MB/s     sec      MB/s     sec      MB/s
+      8      1  .629D-06 .127D+02 .440D-06 .182D+02 .649D-06 .123D+02
+     72      3  .127D-05 .566D+02 .107D-05 .672D+02 .753D-06 .956D+02
+    128      4  .721D-06 .178D+03 .600D-06 .213D+03 .977D-06 .131D+03
+    648      9  .920D-06 .704D+03 .814D-06 .796D+03 .150D-05 .433D+03
+   2048     16  .276D-05 .742D+03 .219D-05 .936D+03 .322D-05 .636D+03
+   4608     24  .435D-05 .106D+04 .423D-05 .109D+04 .600D-05 .768D+03
+   7200     30  .612D-05 .118D+04 .566D-05 .127D+04 .786D-05 .916D+03
+  18432     48  .126D-04 .146D+04 .124D-04 .148D+04 .174D-04 .106D+04
+  32768     64  .211D-04 .156D+04 .207D-04 .158D+04 .293D-04 .112D+04
+  66248     91  .379D-04 .175D+04 .374D-04 .177D+04 .546D-04 .121D+04
+ 131072    128  .668D-04 .196D+04 .641D-04 .204D+04 .823D-04 .159D+04
+ 233928    171  .135D-03 .173D+04 .127D-03 .183D+04 .165D-03 .142D+04
+ 524288    256  .366D-03 .143D+04 .356D-03 .147D+04 .370D-03 .142D+04
+ 996872    353  .654D-03 .152D+04 .653D-03 .153D+04 .678D-03 .147D+04
+1548800    440  .970D-03 .160D+04 .978D-03 .158D+04 .104D-02 .149D+04
+2097152    512  .700D-03 .300D+04 .720D-03 .291D+04 .135D-02 .156D+04
+  
+                          Local 1-D Array Section  
+     section           get               put           accumulate
+  bytes    dim     sec      MB/s     sec      MB/s     sec      MB/s
+      8      1  .470D-06 .170D+02 .416D-06 .192D+02 .609D-06 .131D+02
+     72      9  .554D-06 .130D+03 .496D-06 .145D+03 .609D-06 .118D+03
+    128     16  .597D-06 .214D+03 .540D-06 .237D+03 .621D-06 .206D+03
+    648     81  .663D-06 .977D+03 .616D-06 .105D+04 .825D-06 .785D+03
+   2048    256  .113D-05 .181D+04 .107D-05 .191D+04 .122D-05 .167D+04
+   4608    576  .197D-05 .234D+04 .185D-05 .249D+04 .209D-05 .221D+04
+   7200    900  .276D-05 .261D+04 .267D-05 .269D+04 .276D-05 .261D+04
+  18432   2304  .639D-05 .288D+04 .615D-05 .300D+04 .647D-05 .285D+04
+  32768   4096  .116D-04 .283D+04 .112D-04 .294D+04 .116D-04 .283D+04
+  66248   8281  .249D-04 .266D+04 .234D-04 .283D+04 .237D-04 .279D+04
+ 131072  16384  .497D-04 .264D+04 .479D-04 .274D+04 .496D-04 .264D+04
+ 233928  29241  .940D-04 .249D+04 .896D-04 .261D+04 .925D-04 .253D+04
+ 524288  65536  .188D-03 .278D+04 .182D-03 .287D+04 .253D-03 .207D+04
+ 996872 124609  .364D-03 .274D+04 .405D-03 .246D+04 .528D-03 .189D+04
+1548800 193600  .561D-03 .276D+04 .535D-03 .289D+04 .956D-03 .162D+04
+2097152 262144  .766D-03 .274D+04 .848D-03 .247D+04 .125D-02 .167D+04
+  
+                          Remote 1-D Array Section 
+     section           get               put           accumulate
+  bytes    dim     sec      MB/s     sec      MB/s     sec      MB/s
+      8      1  .493D-06 .162D+02 .436D-06 .183D+02 .691D-06 .116D+02
+     72      9  .583D-06 .123D+03 .562D-06 .128D+03 .698D-06 .103D+03
+    128     16  .617D-06 .207D+03 .587D-06 .218D+03 .739D-06 .173D+03
+    648     81  .726D-06 .893D+03 .685D-06 .945D+03 .107D-05 .608D+03
+   2048    256  .128D-05 .160D+04 .126D-05 .162D+04 .187D-05 .109D+04
+   4608    576  .223D-05 .207D+04 .227D-05 .203D+04 .332D-05 .139D+04
+   7200    900  .322D-05 .223D+04 .324D-05 .222D+04 .478D-05 .151D+04
+  18432   2304  .747D-05 .247D+04 .773D-05 .238D+04 .112D-04 .165D+04
+  32768   4096  .131D-04 .251D+04 .135D-04 .243D+04 .194D-04 .169D+04
+  66248   8281  .264D-04 .251D+04 .275D-04 .241D+04 .390D-04 .170D+04
+ 131072  16384  .527D-04 .249D+04 .551D-04 .238D+04 .749D-04 .175D+04
+ 233928  29241  .984D-04 .238D+04 .100D-03 .234D+04 .132D-03 .177D+04
+ 524288  65536  .170D-03 .308D+04 .182D-03 .289D+04 .311D-03 .168D+04
+ 996872 124609  .339D-03 .294D+04 .342D-03 .291D+04 .571D-03 .175D+04
+1548800 193600  .492D-03 .315D+04 .537D-03 .288D+04 .958D-03 .162D+04
+2097152 262144  .699D-03 .300D+04 .724D-03 .290D+04 .134D-02 .156D+04
+
+ Task  times  cpu:       74.3s     wall:      353.1s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Summary of allocated global arrays
+-----------------------------------
+  No active global arrays
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:   71       71     4.62e+04 4.39e+04 4.18e+04   17       13      100     
+number of processes/call 1.02e+00 1.03e+00 1.00e+00 3.29e+00 4.00e+00
+bytes total:             1.04e+08 9.46e+07 1.24e+08 1.50e+04 1.63e+04 8.00e+02
+bytes remote:            5.49e+07 4.97e+07 7.02e+07 2.05e+03 1.20e+04 8.00e+02
+Max memory consumed for GA by this process: 2097152 bytes
+
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	         0	         5
+	current total bytes		         0	         0
+	maximum total bytes		         0	    242080
+	maximum total K-bytes		         0	       243
+	maximum total M-bytes		         0	         1
+
+
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+    J. Autschbach, F. Aquino, J. Mullin, P. Nichols, S. Hirata, M. T. Hackler,
+   Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann,
+    J. Nieplocha, V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen,
+      M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby,
+        E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+
+ Total times  cpu:       74.3s     wall:      353.2s

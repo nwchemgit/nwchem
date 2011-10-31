@@ -255,6 +255,7 @@ c
             status = jantest(rtdb)
          else if (inp_compare(.false.,'test', theory)) then
             call util_test(rtdb)
+            status = .true.
          else if (inp_compare(.false.,'uccsdtest', theory)) then
             status = uccsdtest(rtdb)
          else if (inp_compare(.false.,'jvltest', theory)) then
