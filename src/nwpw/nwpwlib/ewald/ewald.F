@@ -2806,3 +2806,178 @@ c         end do
       return
       end
 
+
+
+
+*     ***********************************
+*     *	        			*
+*     *		ewald_efg		*
+*     *		       			*
+*     ***********************************
+
+      subroutine ewald_efg(efg)
+      implicit none
+      real*8  efg(3,3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "ewald.fh"
+
+*     **** local variables ****
+      integer dutask
+      integer ii,jj,kk,l,k,u,v,nion
+      real*8  w,dx,dy,dz,x,y,z,r,qj
+      real*8  yerfc,kfac
+      real*8  aconst,bconst,scal2,sqrt_pi
+
+*     **** temporary workspace variables ****
+      integer exi(2),s(2),guv(2)
+      logical value
+
+*     **** external functions ****
+      integer  ion_nion,ion_katm,ewald_nshl3d
+      external ion_nion,ion_katm,ewald_nshl3d
+      real*8   lattice_omega,ewald_zv,ion_rion,util_erfc
+      external lattice_omega,ewald_zv,ion_rion,util_erfc
+      real*8   ewald_efg_tmp1
+      external ewald_efg_tmp1
+
+      call nwpw_timing_start(21)
+      nion = ion_nion()
+
+      scal2 = 1.0d0/lattice_omega()
+      sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
+
+*     **** aconst = 4*pi/3 ****
+      aconst = 16.0d0*datan(1.0d0)/3.0d0
+
+*     **** bconst = (4/3)/(sqrt_pi*rcut**3) *****
+      bconst = 4.0d0/(3.0d0*sqrt_pi*rcut**3)
+
+*     **** allocate temp workspace ****
+      call dcopy(9*nion,0.0d0,0,efg,1)
+
+*     **** reciprocal space part of efg ****
+      if (notzero_enpack) then
+         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dbl, 6*enpack,'guv',guv(2),guv(1)) 
+         if(.not.value) call errquit('ewald_efg:out of stack',0,MA_ERR)
+         call dcopy(6*enpack,0.0d0,0,dbl_mb(guv(1)),1)
+
+
+*        **** s(k) = q(ii)*strfac(k,ii) ****
+         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
+         do ii=1,nion
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
+            call daxpy(2*enpack,ewald_zv(ion_katm(ii)),
+     >                 dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
+         end do
+
+         kk = 0
+         do v=1,3
+            do k=1+nida,enpack
+               dbl_mb(guv(1)+kk*enpack+k-1) = dbl_mb(vg(1)+k-1)
+     >                          *( aconst/dbl_mb(vcx(1)+k-1)
+     >                           - dbl_mb(eG(v)+k-1)*dbl_mb(eG(v)+k-1) )
+            end do
+            kk = kk + 1
+            do u=v+1,3
+               do k=1+nida,enpack
+                  dbl_mb(guv(1)+kk*enpack+k-1) =
+     >                -dbl_mb(vg(1)+k-1)
+     >                 *dbl_mb(eG(v)+k-1)*dbl_mb(eG(v)+k-1)
+               end do
+               kk = kk + 1
+            end do
+         end do
+       
+         do ii=1,nion
+            call ewald_strfac(ii,dcpl_mb(exi(1)))
+            do v=1,3
+               efg(v,v,ii) = ewald_efg_tmp1(enpack,dcpl_mb(s(1)),
+     >                                      dcpl_mb(exi(1)),
+     >                                      dbl_mb(guv(1)+kk*enpack))
+               kk = kk + 1
+               do u=v+1,3
+                  w = ewald_efg_tmp1(enpack,dcpl_mb(s(1)),
+     >                                 dcpl_mb(exi(1)),
+     >                                 dbl_mb(guv(1)+kk*enpack))
+                  efg(u,v,ii) = w
+                  efg(v,u,ii) = w
+                  kk = kk + 1
+               end do
+            end do
+         end do
+         value =           MA_pop_stack(guv(2))
+         value = value.and.MA_pop_stack(s(2))
+         value = value.and.MA_pop_stack(exi(2))
+         if (.not. value) 
+     >     call errquit('ewald_efg:popping stack memory',1,MA_ERR)
+
+      end if
+
+*     **** real-space part of efg ****
+      dutask=0
+      do ii=1,nion-1
+      do jj=ii+1,nion
+       if (dutask.eq.tid) then
+        dx = ion_rion(1,ii) - ion_rion(1,jj)
+        dy = ion_rion(2,ii) - ion_rion(2,jj)
+        dz = ion_rion(3,ii) - ion_rion(3,jj)
+        qj = ewald_zv(ion_katm(jj))
+        do l=1,nshl3d
+           x = dbl_mb(rcell(1)+(l-1))          + dx
+           y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
+           z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
+           r = dsqrt(x*x+y*y+z*z)
+           if (r.gt.1.0d-6) then
+              w = r/rcut
+              yerfc = util_erfc(w)
+              kfac = bconst*(1.0d0+3.0d0/(2.0d0*w*w))*exp(-w*w)
+     >             + 3.0d0*sqrt_pi*yerfc/(4.0d0*w**3)
+
+              efg(1,1,ii)=efg(1,1,ii)-qj*kfac*(1.0d0-3.0d0*(x*x)/r**2)
+              efg(2,1,ii)=efg(2,1,ii)-qj*kfac*(     -3.0d0*(y*x)/r**2)
+              efg(3,1,ii)=efg(3,1,ii)-qj*kfac*(     -3.0d0*(z*x)/r**2)
+              efg(1,2,ii)=efg(1,2,ii)-qj*kfac*(     -3.0d0*(x*y)/r**2)
+              efg(2,2,ii)=efg(2,2,ii)-qj*kfac*(1.0d0-3.0d0*(y*y)/r**2)
+              efg(3,2,ii)=efg(3,2,ii)-qj*kfac*(     -3.0d0*(z*y)/r**2)
+              efg(1,3,ii)=efg(1,3,ii)-qj*kfac*(     -3.0d0*(x*z)/r**2)
+              efg(2,3,ii)=efg(2,3,ii)-qj*kfac*(     -3.0d0*(y*z)/r**2)
+              efg(3,3,ii)=efg(3,3,ii)-qj*kfac*(1.0d0-3.0d0*(z*z)/r**2)
+           end if
+        end do !** lattice vectors **
+
+       end if
+       dutask = mod((dutask+1),tnp)
+      end do !**j**
+      end do !**i**
+
+      if (tnp.gt.1) then
+        call Parallel_Vector_SumAll(9*nion,efg)
+      end if
+
+      call nwpw_timing_end(21)
+      return
+      end
+
+      real*8 function ewald_efg_tmp1(n,b,c,t)
+      implicit none
+      integer n
+      complex*16 b(n),c(n)
+      real*8     t(n)
+
+      integer i
+      real*8 sumall
+
+      sumall = 0.0d0
+      do i=1,n
+        sumall = t(n)*dble(dconjg(b(n))*c(n))
+      end do
+
+      ewald_efg_tmp1 = sumall
+      return
+      end
