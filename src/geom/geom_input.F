@@ -3874,6 +3874,7 @@ c
       DIMENSION   V3(3,MXATOM)
       DIMENSION   AXS(3,3),EIG(3)
       DIMENSION   RT(3,3)
+      DIMENSION   TR(3)
 C
       DBUG=.FALSE.
       OUT =.FALSE. 
@@ -4901,6 +4902,12 @@ C
             ENDDO
             RT(I,J)=DUM
          ENDDO
+      ENDDO
+C
+C     ----- SET TRANSLATIONS TO ZERO -----
+C
+      DO J=1,3
+         TR(J)=ZERO
       ENDDO
 C
 C     ----- NOW GET -C3- FROM -C1- -----
