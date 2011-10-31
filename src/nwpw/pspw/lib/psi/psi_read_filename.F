@@ -48,6 +48,8 @@ c     complex*16 tmp(*)
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(1,npack1)
 
+      pio = control_parallel_io()
+
       if (pio) then
          taskid_p = taskid_i
          com_p = 1
