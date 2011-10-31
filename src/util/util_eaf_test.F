@@ -12,6 +12,7 @@
 
       subroutine util_eaf_test
 c     
+      implicit none
       call test1
       call test2
       call test3
@@ -44,10 +45,10 @@ c     write(6,*) ' TEST 2 ... asynchronous read/write of multiple files'
 c     write(6,*) ' ----------------------------------------------------'
 c     write(6,*)
 c     
- 10   format (A,'.', I1)
+ 10   format (A,'.', I1,'.',I4.4)
 c     
       do fnum = 1, IO_NUM_FILES
-         write (fname, 10) FNAME, fnum
+         write (fname, 10) FNAME, fnum, ga_nodeid()
 c     
          call testerr(eaf_open(fname, eaf_rw, fd(fnum)))
 c     
@@ -87,7 +88,7 @@ c.................................
 c     print *,'testing EAF_ARead'
       do fnum = 1, IO_NUM_FILES
 
-         write (fname, 10) FNAME, fnum
+         write (fname, 10) FNAME, fnum, ga_nodeid()
 
          call testerr(eaf_open(fname, eaf_r, fd(fnum)))
          
@@ -131,7 +132,7 @@ c
       do fnum = 1, IO_NUM_FILES
 c        call eaf_print_stats(fd(fnum))
          call testerr(eaf_close(fd(fnum)))
-         write (fname, 10) FNAME, fnum
+         write (fname, 10) FNAME, fnum, ga_nodeid()
          call testerr(eaf_delete(fname))
       enddo
       if (ga_nodeid().eq.0) then
@@ -161,9 +162,9 @@ c     write(6,*) ' ---------------------------------------------------'
 c     write(6,*)
 c     
       do fnum = 1, IO_NUM_FILES
-         write (fname, 10) FNAME, fnum
+         write (fname, 10) FNAME, fnum, ga_nodeid()
 
- 10      format (A,'.', I1)
+ 10      format (A,'.', I1,'.',I4.4)
          call testerr(eaf_open(fname, eaf_rw, fd(fnum)))
 
 c        print *, 'testing EAF_Write'
@@ -190,7 +191,7 @@ c
 c.................................
 c     
       do fnum = 1, IO_NUM_FILES
-         write (fname, 10) FNAME, fnum
+         write (fname, 10) FNAME, fnum, ga_nodeid()
 c     
          call testerr(eaf_open(fname, eaf_r, fd(fnum)))
 c     
@@ -217,7 +218,7 @@ c
       do fnum = 1, IO_NUM_FILES
 c        call eaf_print_stats(fd(fnum))
          call testerr(eaf_close(fd(fnum)))
-         write (fname, 10) FNAME, fnum
+         write (fname, 10) FNAME, fnum, ga_nodeid()
          call testerr(eaf_delete(fname))
       enddo
       if (ga_nodeid().eq.0) then
@@ -270,8 +271,8 @@ c     write(6,*) ' TEST 3 ... misc. functions'
 c     write(6,*) ' --------------------------'
 c     write(6,*)
 c
-c     write (fname, 10) FNAME, 1
- 10   format (A,'.', I1)
+      write (fname, 10) FNAME, 1, ga_nodeid()
+ 10   format (A,'.', I1,'.',I4.4)
 c
       call testerr(eaf_stat(fname, avail, fstype))
 c     write(6,*) ' avail = ', avail, ' fstype = ', fstype
@@ -315,6 +316,7 @@ c
       end
       subroutine test4
       implicit none
+#include "global.fh"
 #include "eaf.fh"
       character*200 fname
       character*255 fstype
@@ -329,8 +331,8 @@ c
       write(6,*)
 c
       fname = ' '
-      write (fname, 10) FNAME, 1
- 10   format (A,'.', I1)
+      write (fname, 10) FNAME, 1, ga_nodeid()
+ 10   format (A,'.', I1,'.',I4.4)
 c
       call testerr(eaf_stat(fname, avail, fstype))
       write(6,*) ' avail = ', avail, ' fstype = ', fstype
