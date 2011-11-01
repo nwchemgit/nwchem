@@ -284,3 +284,99 @@ c     >                                   dbl_mb(tmp2(1)))
 
       return
       end
+
+
+*     **********************************************
+*     *                                            *
+*     *              coulomb_efg                   *
+*     *                                            *
+*     **********************************************
+      subroutine coulomb_efg(dng,efg)
+      implicit none 
+      complex*16 dng(*)
+      real*8 efg(3,3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** common block used for coulomb.f ****
+      integer vc_indx,vc_hndl
+      common / vc_block / vc_indx,vc_hndl
+
+*     **** local variables ****
+      logical value
+      integer npack0,nfft3d
+      integer ii,k
+      integer u,v
+      integer tmp0(2),tmp1(2),tmp2(2),Gtmp(2),exi(2),G(3)
+      real*8 w,gg
+
+*     **** external functions ****
+      integer  G_indx,ion_nion
+      external G_indx,ion_nion
+
+      call D3dB_nfft3d(1,nfft3d)
+      call Pack_npack(0,npack0)
+
+      value = MA_push_get(mt_dbl,nfft3d,'Gtmp',Gtmp(2),Gtmp(1))
+      G(1) = Gtmp(1)
+      G(2) = Gtmp(1)+nfft3d
+      G(3) = Gtmp(1)+nfft3d
+      value = value.and.
+     >        MA_push_get(mt_dbl,npack0,'tmp0',tmp0(2),tmp0(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,npack0,'tmp2',tmp2(2),tmp2(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
+      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+      call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(G(1)),1)
+      call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(G(2)),1)
+      call dcopy(nfft3d,dbl_mb(G_indx(3)),1,dbl_mb(G(3)),1)
+      call Pack_t_pack(0,dbl_mb(G(1)))
+      call Pack_t_pack(0,dbl_mb(G(2)))
+      call Pack_t_pack(0,dbl_mb(G(3)))
+
+*     ***** form tmp0 = -G**2/3.0d0  *****
+      do k=1,npack0
+         gg  = ( dbl_mb(G(1)+k-1)*dbl_mb(G(1)+k-1)
+     >         + dbl_mb(G(2)+k-1)*dbl_mb(G(2)+k-1)
+     >         + dbl_mb(G(3)+k-1)*dbl_mb(G(3)+k-1) )
+         dbl_mb(tmp0(1)+k-1) = -gg/3.0d0
+      end do
+
+*     **** efg(u,v,ii) =  ****
+      do ii=1,ion_nion()
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+         call Pack_cct_Mul(0,dcpl_mb(exi(1)),dng,dbl_mb(tmp2(1)))
+
+         do v=1,3
+            call Pack_tt_Mul(0,dbl_mb(G(v)),
+     >                         dbl_mb(G(v)),
+     >                         dbl_mb(tmp1(1)))
+            call Pack_tt_Sum2(0,dbl_mb(tmp0(1)),dbl_mb(tmp1(1)))
+            call Pack_tt_Mul2(0,dbl_mb(vc_indx),dbl_mb(tmp1(1)))
+            call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)),w)
+            efg(v,v,ii) = efg(v,v,ii) + w
+ 
+            do u=v+1,3
+               call Pack_tt_Mul(0,dbl_mb(G(u)),
+     >                            dbl_mb(G(v)),
+     >                            dbl_mb(tmp1(1)))
+               call Pack_tt_Mul2(0,dbl_mb(vc_indx),dbl_mb(tmp1(1)))
+               call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)),w)
+               efg(u,v,ii) = efg(u,v,ii) + w
+               efg(v,u,ii) = efg(v,u,ii) + w
+            end do
+         end do
+      end do
+ 
+      value =           MA_pop_stack(exi(2))
+      value = value.and.MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      value = value.and.MA_pop_stack(tmp0(2))
+      value = value.and.MA_pop_stack(Gtmp(2))
+      if (.not. value) call errquit('popstack',1, MA_ERR)
+      return
+      end
