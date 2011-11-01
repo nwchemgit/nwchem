@@ -956,7 +956,7 @@ c ----- Using ma_free_heap ------------ END
      &                nmat, MA_ERR)
 c     Open the file - 2nd time
         open(unitno, status='unknown', form='unformatted',
-     $       file=filename, err=1000,access='append')
+     $       file=filename, err=1000,position='append')
         write(unitno, err=1001) nocc(1)
         write(unitno, err=1001) nocc(2)  
         write(unitno, err=1001) ntot

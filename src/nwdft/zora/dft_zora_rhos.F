@@ -968,7 +968,7 @@ c     Write out g_zora_scale_sf
        else if (ndata.eq.2) then
 c     Open the file - 2nd time
         open(unitno, status='unknown', form='unformatted',
-     $      file=filename, err=1000,access='append')
+     $      file=filename, err=1000,position='append')
         write(unitno, err=1001) nlist
         call ga_get(g_munu_rhoS,1,1,1,nmat,
      &              dbl_mb(k_mat),1)
@@ -979,7 +979,7 @@ c     Open the file - 2nd time
        else if (ndata.eq.3) then
 c     Open the file - 3rd time
         open(unitno, status='unknown', form='unformatted',
-     $      file=filename, err=1000,access='append')
+     $      file=filename, err=1000,position='append')
         call ga_get(g_munuV6,1,1,1,nmat,
      &              dbl_mb(k_mat),1)
         call swrite(unitno,dbl_mb(k_mat),nmat)
