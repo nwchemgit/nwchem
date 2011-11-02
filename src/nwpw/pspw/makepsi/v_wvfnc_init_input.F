@@ -21,7 +21,8 @@ c
       character*30 dirs(num_dirs)
       character*255 test
 
-      character*25 cell_name,v_wavefunction_filename
+      character*25 cell_name
+      character*50 v_wavefunction_filename
       integer nup
       integer ndown
       logical restricted

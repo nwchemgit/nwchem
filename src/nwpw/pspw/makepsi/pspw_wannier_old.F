@@ -29,8 +29,8 @@
 
       complex*16 wx,wy,wz
 
-      character*30 new_wavefunction_filename
-      character*30 old_wavefunction_filename
+      character*50 new_wavefunction_filename
+      character*50 old_wavefunction_filename
       character*255 full_filename,full_filename2
 
 *     **** external functions ****

@@ -86,7 +86,7 @@
       real*8 hunita(3,3)
       integer ind,vers
 
-      character*50 filename
+      character*255 filename
       character*50 control_input_psi
       external     control_input_psi
       logical  c_wvfnc_expander

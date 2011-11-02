@@ -414,7 +414,7 @@ c      value = value.and.MA_free_heap(psi2(2))
 
       character*72 cube_comment
       character*50 name1,name2,name3
-      character*50 filename
+      character*255 filename
       integer name1_len,name2_len,name3_len,ind,ind2
 
 
@@ -932,7 +932,7 @@ c      value = value.and.MA_free_heap(psi2(2))
      >                             number,cube_comment,rho)
       implicit none
       integer rtdb
-      character*50 filename
+      character*255 filename
       integer      number
       character*72 cube_comment
       real*8 rho(*)
@@ -1098,7 +1098,7 @@ c     if (.not. value) call errquit('closing geometry',0)
      >                             number,cube_comment,rho)
       implicit none
       integer rtdb
-      character*50 filename
+      character*255 filename
       integer      number
       character*72 cube_comment
       real*8 rho(*)
@@ -1463,7 +1463,7 @@ c     if (.not. value) call errquit('closing geometry',0)
      >                                        orb,kv,isreal)
       implicit none
       integer rtdb
-      character*50 filename
+      character*255 filename
       integer      number
       character*72 cube_comment
       complex*16   orb(*)

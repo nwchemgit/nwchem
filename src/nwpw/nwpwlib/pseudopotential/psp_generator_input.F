@@ -34,7 +34,7 @@ c
       character*25  solver_type
       character*25  correlation_type
       character*25  exchange_type,semicore_type
-      character*25  pseudopotential_filename
+      character*255 pseudopotential_filename
       integer number_core,number_valence
       integer n_number(NMAX)
       character l_char
