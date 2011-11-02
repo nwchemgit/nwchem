@@ -1267,10 +1267,10 @@ ifeq ($(TARGET),MACX64)
 # MacOSX 64bit
 #
 ifdef USE_VECLIB
-    @echo The Apple supplied vector math library does not support MACX64
-    @echo It only supports 4-byte integers
-    @exit 1
-    CORE_SUBDIRS_EXTRA =  blas
+vecliberr:
+	@echo The Apple supplied vector math library does not support MACX64
+	@echo It only supports 4-byte integers
+	@exit 1
 else
     CORE_SUBDIRS_EXTRA =  blas lapack
 endif
