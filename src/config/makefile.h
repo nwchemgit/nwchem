@@ -1123,20 +1123,6 @@ ifeq ($(TARGET),MACX)
 #
 # MacOSX 
 #
-# 
-#  ifndef USE_MPI
-#  mpimacx:
-#	@echo You must define USE_MPI=y to compile
-#	@echo nwchem on MAC OS X.
-#	@echo Please type
-#	@echo 
-#	@echo " make  USE_MPI=y"
-#	@echo "  or "
-#	@echo " make  FC=xlf USE_MPI=y"
-#	@echo 
-#	@exit 1
-#  endif
-#
 ifdef USE_VECLIB
     CORE_SUBDIRS_EXTRA =  blas
 else
@@ -1281,18 +1267,6 @@ ifeq ($(TARGET),MACX64)
 # MacOSX 64bit
 #
 # 
-  ifndef USE_MPI
-  mpimacx64:
-	@echo You must define USE_MPI=y to compile
-	@echo nwchem on 64bit MAC OS X.
-	@echo Please type
-	@echo 
-	@echo " make  USE_MPI=y"
-	@echo "  or "
-	@echo " make  FC=gfortran USE_MPI=y"
-	@echo 
-	@exit 1
-  endif
   ifndef USE_64TO32
   macx64to32:
 	@echo You must define USE_64TO32=y to compile
