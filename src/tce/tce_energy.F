@@ -718,6 +718,13 @@ c
         write_in3=res_log
        end if
 c
+       res_log=.false.
+       if (.not.rtdb_get(rtdb,'tce:nts',mt_log,1,res_log)) then
+         continue 
+       else
+         ccsd_var='ic'
+       end if
+c
        if(nodezero) then
         write(LuOut,*)'TCE RESTART OPTIONS'
         write(LuOut,*)'READ_INT:  ',read_int
@@ -7066,6 +7073,9 @@ c
           if(nodezero) then
            write(LuOut,9251) hbard
           end if
+c
+          if(ccsd_var.eq.'ic') eom_solver=2
+c
 c new EOMCC solver
        if(.not.((model.ne.'ccsd').and.(eom_solver.eq.2))) then
 c ccsd_act/eomccsd_act
@@ -7522,7 +7532,7 @@ c
 c
       else !  ------- EOM-SOLVER --------------- (solver 2)
 c
-c
+c 
       if(nodezero) then
        write(LuOut,9510) eom_solver
        call util_flush(LuOut)
@@ -7960,6 +7970,15 @@ c -------------------------------
      &      k_f1_offset,k_x1_offset,k_t1_offset,k_t2_offset,
      &      k_v2_offset,k_x1_offset,k_x2_offset)
          else
+          if(ccsd_var.eq.'ic') then
+          call eomicsd_x1(d_f1,xp1(iroot),k_t1_local,d_t2,d_v2,
+     1      k_x1_local,x2(iroot),k_f1_offset,k_x1_offset,
+     2      k_t1_offset,k_t2_offset,k_v2_offset,
+     3      k_x1_offset,k_x2_offset,
+     4      ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5      rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6      rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+          else
           call eomccsd_x1_n(d_f1,xp1(iroot),k_t1_local,d_t2,d_v2,
      1      k_x1_local,x2(iroot),k_f1_offset,k_x1_offset,
      2      k_t1_offset,k_t2_offset,k_v2_offset,
@@ -7967,6 +7986,7 @@ c -------------------------------
      4      ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
      5      rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
      6      rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+          end if
          end if
          if(ccsd_var.eq.'lr-ccsd') then
             call tce_j1_x1_scaling(xp1(iroot),k_x1_offset,
@@ -7978,6 +7998,23 @@ c -------------------------------
      &       k_f1_offset,k_x2_offset,k_t1_offset,k_v2_offset,
      &       k_x1_offset,k_x2_offset,size_x1,size_x2)
          else
+          if(ccsd_var.eq.'ic') then
+           irrep_c=irrep_x
+           call tce_filename('c2',filename)
+           call createfile(filename,d_c2,size_x2)
+           call tce_zero(d_c2,size_x2)
+           call c2excit2_loc(d_c2,k_t1_local,k_x1_local,
+     &       x2(iroot),k_x2_offset,k_t1_offset,k_x1_offset,
+     &       k_x2_offset)
+           call eomicsd_x2(d_f1,xp2(iroot),k_t1_local,d_t2,d_v2,
+     1       k_x1_local,x2(iroot),k_f1_offset,k_x2_offset,
+     2       k_t1_offset,k_t2_offset,k_v2_offset,
+     3       k_x1_offset,k_x2_offset,size_x1,size_x2,
+     4       ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5       rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6       rec_d_6,rec_d_7,rec_d_8,rec_d_9,d_c2)
+           call deletefile(d_c2)
+          else
            call eomccsd_x2_n(d_f1,xp2(iroot),k_t1_local,d_t2,d_v2,
      1       k_x1_local,x2(iroot),k_f1_offset,k_x2_offset,
      2       k_t1_offset,k_t2_offset,k_v2_offset,
@@ -7985,6 +8022,7 @@ c -------------------------------
      4       ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
      5       rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
      6       rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+          end if
          end if
          if(ccsd_var.eq.'lr-ccsd') then
            call tce_j1_x1_scaling(xp1(iroot),k_x1_offset,
@@ -8114,6 +8152,15 @@ c -------------------------------
      &      k_f1_offset,k_x1_offset,k_t1_offset,k_t2_offset,
      &      k_v2_offset,k_x1_offset,k_x2_offset)
          else
+          if(ccsd_var.eq.'ic') then
+          call eomicsd_x1(d_f1,xp1(ipos),k_t1_local,d_t2,d_v2,
+     1      k_x1_local,x2(ipos),k_f1_offset,k_x1_offset,
+     2      k_t1_offset,k_t2_offset,k_v2_offset,
+     3      k_x1_offset,k_x2_offset,
+     4      ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5      rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6      rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+          else
           call eomccsd_x1_n(d_f1,xp1(ipos),k_t1_local,d_t2,d_v2,
      1      k_x1_local,x2(ipos),k_f1_offset,k_x1_offset,
      2      k_t1_offset,k_t2_offset,k_v2_offset,
@@ -8121,6 +8168,7 @@ c -------------------------------
      4      ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
      5      rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
      6      rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+           end if
          end if
          if(ccsd_var.eq.'lr-ccsd') then
             call tce_j1_x1_scaling(xp1(ipos),k_x1_offset,
@@ -8132,6 +8180,23 @@ c -------------------------------
      &       k_f1_offset,k_x2_offset,k_t1_offset,k_v2_offset,
      &       k_x1_offset,k_x2_offset,size_x1,size_x2)
          else
+          if(ccsd_var.eq.'ic') then
+           irrep_c=irrep_x
+           call tce_filename('c2',filename)
+           call createfile(filename,d_c2,size_x2)
+           call tce_zero(d_c2,size_x2)
+           call c2excit2_loc(d_c2,k_t1_local,k_x1_local,
+     &       x2(ipos),k_x2_offset,k_t1_offset,k_x1_offset,
+     &       k_x2_offset)
+           call eomicsd_x2(d_f1,xp2(ipos),k_t1_local,d_t2,d_v2,
+     1       k_x1_local,x2(ipos),k_f1_offset,k_x2_offset,
+     2       k_t1_offset,k_t2_offset,k_v2_offset,
+     3       k_x1_offset,k_x2_offset,size_x1,size_x2,
+     4       ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
+     5       rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
+     6       rec_d_6,rec_d_7,rec_d_8,rec_d_9,d_c2)
+           call deletefile(d_c2)
+          else
            call eomccsd_x2_n(d_f1,xp2(ipos),k_t1_local,d_t2,d_v2,
      1       k_x1_local,x2(ipos),k_f1_offset,k_x2_offset,
      2       k_t1_offset,k_t2_offset,k_v2_offset,
@@ -8139,6 +8204,7 @@ c -------------------------------
      4       ister,rec_s_1,rec_s_2,rec_s_3,rec_s_4,rec_s_5,
      5       rec_d_1,rec_d_2,rec_d_3,rec_d_4,rec_d_5,
      6       rec_d_6,rec_d_7,rec_d_8,rec_d_9)
+          end if
          end if
          if(ccsd_var.eq.'lr-ccsd') then
            call tce_j1_x1_scaling(xp1(ipos),k_x1_offset,
