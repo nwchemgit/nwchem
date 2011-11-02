@@ -6,6 +6,7 @@ c $Id$
 #include "y64.fh"
       CHARACTER          HOWMNY, SIDE
       INTEGER            INFO, LDT, LDVL, LDVR, M, MM, N
+C Warning size of logical=size of integer:  Will not work with HOWMNY="S"
       LOGICAL            SELECT( * )
       DOUBLE PRECISION   T( LDT, * ), VL( LDVL, * ), VR( LDVR, * ),
      $                   WORK( * )

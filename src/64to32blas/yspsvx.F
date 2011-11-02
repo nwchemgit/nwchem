@@ -13,6 +13,8 @@ c
      $                   FERR( * ), WORK( * ), X( LDX, * )
 c
       INTGR4            INFO4, LDB4, LDX4, N4, NRHS4
+C Warning the values of IPIV should not be used, since they are not
+C changed before outputting
 cedo      INTEGER            IPIV4(maxn), IWORK4(maxn)
 c
       ldb4=ldb

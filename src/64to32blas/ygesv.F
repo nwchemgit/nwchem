@@ -9,6 +9,8 @@
       DOUBLE PRECISION   A( LDA, * ), B( LDB, * )
 c
       INTGR4            INFO4, LDA4, LDB4, N4, NRHS4
+C Warning the values of IPIV should not be used, since they are not
+C changed before outputting
 C      integer maxn
 C      parameter (maxn=10000)
 C      INTGR4            IPIV4(maxn)

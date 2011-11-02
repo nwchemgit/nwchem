@@ -16,7 +16,7 @@ c
       M4=m
       N4=n
 c
-      call DGEBAK( JOB, SIDE, N4, ILO4, IHI4, SCALE, M, V, LDV4,
+      call DGEBAK( JOB, SIDE, N4, ILO4, IHI4, SCALE, M4, V, LDV4,
      $                   INFO4 )
       info=info4
       return

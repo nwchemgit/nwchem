@@ -11,6 +11,9 @@ c
       INTGR4 incx4,incy4,n4
 c
       if(n.le.0)return
+      incx4 = incx
+      incy4 = incy
+      n4 = n
       call zaxpy(n4,za,zx,incx4,zy,incy4)
       return
       end
