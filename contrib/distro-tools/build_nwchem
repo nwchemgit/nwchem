@@ -582,6 +582,71 @@ function get_scalapack_lib()
    done
    echo ${lib}
 }
+function get_scalapack_integer()
+{
+   # This function works out whether the LAPACK library uses 
+   # an integer*4 or integer*8 interface.
+   fcomp=$1
+   blaslapacksca=$2
+   echo "      program testscalapack" > testscalapack$$.f
+   echo "      implicit none" >> testscalapack$$.f
+   echo "      double precision a, b" >> testscalapack$$.f
+   echo "      integer*8 n" >> testscalapack$$.f
+   echo "      integer*8 ia,ja,ib,jb" >> testscalapack$$.f
+   echo "      integer*8 id(9),ip(10)" >> testscalapack$$.f
+   echo "      integer*8 info" >> testscalapack$$.f
+   echo "      integer*8 typecast" >> testscalapack$$.f
+   echo "      logical   integer8" >> testscalapack$$.f
+   echo "      external  typecast,integer8" >> testscalapack$$.f
+   echo "      integer*4 data(2)" >> testscalapack$$.f
+   echo "      a = 1.0d0" >> testscalapack$$.f
+   echo "      b = 1.0d0" >> testscalapack$$.f
+   echo "      do ia = 1, 9" >> testscalapack$$.f
+   echo "        id(ia) = -1" >> testscalapack$$.f
+   echo "      enddo" >> testscalapack$$.f
+   echo "      ia = 0" >> testscalapack$$.f
+   echo "      ib = 0" >> testscalapack$$.f
+   echo "      data(1) = -1" >> testscalapack$$.f
+   echo "      data(2) = -1" >> testscalapack$$.f
+   echo "      ja = typecast(data)" >> testscalapack$$.f
+   echo "      jb = typecast(data)" >> testscalapack$$.f
+   echo "      data(2) = 0" >> testscalapack$$.f
+   echo "      data(1) = 8" >> testscalapack$$.f
+   echo "      n = typecast(data)" >> testscalapack$$.f
+   echo "      data(1) = 999999" >> testscalapack$$.f
+   echo "      data(2) = 999999" >> testscalapack$$.f
+   echo "      info = typecast(data)" >> testscalapack$$.f
+   echo "      call pdgetrs('n',n,n,a,ia,ja,id,ip,b,ib,jb,id,info)" >> testscalapack$$.f
+   echo "      if (integer8(data,info)) then" >> testscalapack$$.f
+   echo "        write(*,*)'8'" >> ./testscalapack$$.f
+   echo "      else" >> ./testscalapack$$.f
+   echo "        write(*,*)'4'" >> ./testscalapack$$.f
+   echo "      endif" >> ./testscalapack$$.f
+   echo "      end" >> testscalapack$$.f
+   echo "      integer*8 function typecast(input)" >> ./testscalapack$$.f
+   echo "      implicit none" >> testscalapack$$.f
+   echo "      integer*8 input" >> ./testscalapack$$.f
+   echo "      typecast = input" >> ./testscalapack$$.f
+   echo "      return" >> ./testscalapack$$.f
+   echo "      end" >> ./testscalapack$$.f
+   echo "      logical function integer8(data,input)" >> ./testscalapack$$.f
+   echo "      implicit none" >> testscalapack$$.f
+   echo "      integer*4 input(2),data(2)" >> ./testscalapack$$.f
+   echo "      integer8 = (input(1).ne.data(1)).and.(input(2).ne.data(2))" >> ./testscalapack$$.f
+   echo "      return" >> ./testscalapack$$.f
+   echo "      end" >> ./testscalapack$$.f
+   $fcomp -o testscalapack$$.x testscalapack$$.f ${blaslapacksca} > /dev/null
+   result=`./testscalapack$$.x`
+   out=`expr "${result}" : '*4'`
+   if [ ${#out} -eq 0 ] ; then
+     out=8
+   else
+     out=4
+   fi
+   rm -f ./testscalapack$$.x
+   rm -f ./testscalapack$$.f
+   echo ${out}
+}
 #
 # See if we can detect which platform we are on.
 # This is most relevant to the various BlueGene platforms as they are a complete
@@ -804,8 +869,8 @@ if [ ${#BLAS_SIZE} -eq 0 ] ; then
     if [ $? -ne 0 ] ; then
       BLAS_SIZE=8
     fi
-    export BLAS_SIZE
   fi
+  export BLAS_SIZE
 fi
 if [ ${#LAPACK_LIB} -eq 0 ] ; then
   LAPACK_LIB=`get_lapack_lib ${MPI_F90} ${BLAS_LIB}`
@@ -817,13 +882,21 @@ if [ ${#LAPACK_SIZE} -eq 0 ] ; then
     LAPACK_SIZE=8
   else
     LAPACK_SIZE=`get_lapack_integer ${MPI_F90} "${LAPACK_LIB} ${BLAS_LIB}"`
-    #echo "***"${LAPACK_SIZE}"***"
-    export LAPACK_SIZE
   fi
+  export LAPACK_SIZE
 fi
 if [ ${#SCALAPACK_LIB} -eq 0 ] ; then
   SCALAPACK_LIB=`get_scalapack_lib ${MPI_F90} "${LAPACK_LIB} ${BLAS_LIB} ${MPI_LIB} ${LIBMPI}"`
   export SCALAPACK_LIB
+fi
+if [ ${#SCALAPACK_SIZE} -eq 0 ] ; then
+  if [ ${#SCALAPACK_LIB} -eq 0 ] ; then
+    # In this case there is no ScaLAPACK
+    SCALAPACK_SIZE=0
+  else
+    SCALAPACK_SIZE=`get_scalapack_integer ${MPI_F90} "${SCALAPACK_LIB} ${LAPACK_LIB} ${BLAS_LIB} ${MPI_LIB} ${LIBMPI}"`
+  fi
+  export SCALAPACK_SIZE
 fi
 option=$1
 if [ "x$1" == "xpython" ]; then
@@ -868,7 +941,7 @@ if [ ${#LAPACK_LIB} -ne 0 ] ; then
   echo "LAPACK_LIB    =" ${LAPACK_LIB} " integer-size = " ${LAPACK_SIZE}
 fi
 if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
-  echo "SCALAPACK_LIB =" ${SCALAPACK_LIB}
+  echo "SCALAPACK_LIB =" ${SCALAPACK_LIB} " integer-size = " ${SCALAPACK_SIZE}
 fi
 cd $NWCHEM_TOP/src
 echo "=== configure GA ==="
