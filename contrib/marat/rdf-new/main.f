@@ -26,15 +26,20 @@
        integer fn_in
        integer fn_out
        integer n,n1,n2
+       double precision dr
+       integer nf
+       integer nfrm
 c      allocatable arrays
        double precision, dimension(:,:), allocatable :: c
        double precision, dimension(:,:), allocatable :: c1
        double precision, dimension(:,:), allocatable :: c2
+       double precision, dimension(:), allocatable :: gr0
        double precision, dimension(:), allocatable :: gr
 c
 c      --------------------------------------------      
 c      beging parsing command line arguments if any
 c      --------------------------------------------      
+       nfrm = 0
        aformat = " "
        file_in  = " "
        file_out = " "
@@ -113,6 +118,17 @@ c          go to 14
             read(buffer,*) rmax
           else
             message = "Maximum radius gas to be a number"
+            goto 911
+          end if
+          go to 16
+        else if(buffer.eq."-nframes") then
+          i = i+1
+          call get_command_argument(i,buffer,l,istatus)
+          if(istatus.ne.0) goto 18
+          if(is_integer(buffer)) then
+            read(buffer,*) nfrm
+          else
+            message = "Number of frames have to be integer"
             goto 911
           end if
           go to 16
@@ -230,30 +246,58 @@ c      figure out format for trajectory file
        allocate(c1(n,3))
        allocate(c2(n,3))
        allocate(gr(nb))
+       allocate(gr0(nb))
        write(*,*) "number of atoms", n
 c       call xyz_read_coords_byname(n,c,atom1_tag,fn_in)
+c      -----------------------------
+c      start looping over the frames
+c      -----------------------------
+       nf = 0
+       gr = 0
 30     continue
+       do
        n1=n
        n2=n
        call xyz_read_coords_byname2(n1,c1,atom1_tag,
      +                              n2,c2,atom2_tag,
      +                              fn_in)
-       if(n1.eq.0.or.n2.eq.0) goto 31
+       if(n1.eq.0.or.n2.eq.0) then
+          write(*,*) "exiting because there are no coordinates",nf
+          exit
+       end if
        do i=1,n1
          write(34,*) (c1(i,k),k=1,3)
        end do
        do i=1,n2
          write(35,*) (c2(i,k),k=1,3)
        end do
-c
+
+       gr0 = 0
        call rdf_compute(n, n1,c1,atom1_tag,
      +                  n2,c2,atom2_tag,
      +                  nb,rmax,lat,
-     +                  gr,
+     +                  gr0,
      +                  fn_in)
-       goto 30
+       gr = gr + gr0
+       nf = nf+1
+       if(nfrm.gt.0.and.nf.gt.nfrm) then
+          write(*,*) "exiting because exceeded number of frames",nf,nfrm
+          exit
+       end if
+       end do
+c       goto 30
+c      ---------------------------
+c      end looping over the frames
+c      ---------------------------
 31     continue
-       write(*,*) "came to the end of the file"
+c      average RDF over the frames
+       gr = gr/real(nf)
+       write(*,*) "came to the end of the file",nf
+       dr = rmax/nb
+       do k=1,nb
+         write(fn_out,'(2F12.6)') 
+     >             real(k)*dr,gr(k)
+       end do
        stop
 
        call pair_compute(rmax,lat,i1,atag,nb,infile)
@@ -328,6 +372,7 @@ c
        character*30 pname 
 c
        pname = "xyz_read_coords_byname"
+       c = 0.0d0
 c      ------------------------------------------
 c      get number of atoms (skipping empty lines)
 c      ------------------------------------------
@@ -420,6 +465,8 @@ c
        character*30 pname 
 c
        pname = "xyz_read_coords_byname"
+       c1 = 0.0d0
+       c2 = 0.0d0
        write(*,*) "in "//pname
        j1 = 0
        j2 = 0
@@ -445,6 +492,7 @@ c
 c       ------------------------------------
 c       read coordinates(skipping empty lines)
 c       ------------------------------------
+       write(*,*) "reading coordinates"
        do i=1,n
         read(fn_in,20) bigbuf
         l=l+1
@@ -453,15 +501,18 @@ c       ------------------------------------
         read(bigbuf,*,err=137) tag,(c3(k),k=1,3)
 c        
         if(index(tag,atag1(1:len_trim(atag1))).ne.0) then
+          write(*,*) "found ",atag1(1:len_trim(atag1))
           j1 = j1+1
           if(j1.gt.n1) goto 138
           c1(j1,:)=c3
         else if(index(tag,atag2(1:len_trim(atag2))).ne.0) then
+          write(*,*) "found ",atag1(1:len_trim(atag2))
           j2 = j2+1
           if(j2.gt.n2) goto 138
           c2(j2,:)=c3
         end if
        end do
+       write(*,*) "finshed reading coordinates"
 135    continue
        n1=j1
        n2=j2
