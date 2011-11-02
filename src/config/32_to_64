@@ -37,7 +37,7 @@ if (`hostname` == mcurie) set JOB_LIMIT = 3
 
 foreach file ($argv)
 
-  echo converting $file back to 8-bit integers
+  echo converting $file back to 8-byte integer blas calls
   if ($useperl) then
      ($perlexe $perlscript $file) &	
   else
