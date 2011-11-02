@@ -1266,21 +1266,10 @@ ifeq ($(TARGET),MACX64)
 #
 # MacOSX 64bit
 #
-# 
-  ifndef USE_64TO32
-  macx64to32:
-	@echo You must define USE_64TO32=y to compile
-	@echo nwchem on 64bit MAC OS X.
-	@echo Please type
-	@echo 
-	@echo " make  USE_64TO32=y"
-	@echo "  or "
-	@echo " make  FC=gfortran USE_64TO32=y"
-	@echo 
-	@exit 1
-  endif
-#
 ifdef USE_VECLIB
+    @echo The Apple supplied vector math library does not support MACX64
+    @echo It only supports 4-byte integers
+    @exit 1
     CORE_SUBDIRS_EXTRA =  blas
 else
     CORE_SUBDIRS_EXTRA =  blas lapack
