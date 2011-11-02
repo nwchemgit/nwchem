@@ -1,0 +1,49 @@
+title "uracil-6-31-Gs-act"
+echo
+start uracil-6-31-Gs-act
+
+memory stack 1000 mb heap 100 mb global 1000 mb noverify
+
+geometry units angstrom
+N            .034130    -.986909     .000000
+N          -1.173397     .981920     .000000
+C          -1.218805    -.408164     .000000
+C           -.007302    1.702153     .000000
+C           1.196200    1.107045     .000000
+C           1.289085    -.345905     .000000
+O           2.310232    -.996874     .000000
+O          -2.257041   -1.026495     .000000
+H            .049329   -1.997961     .000000
+H          -2.070598    1.437050     .000000
+H           -.125651    2.776484     .000000
+H           2.111671    1.674079     .000000
+end
+
+basis cartesian
+* library 6-31G*
+end
+
+scf
+thresh 1.0e-10
+tol2e 1.0e-10
+singlet
+rhf
+end
+
+tce
+freeze atomic
+creom(t)ac
+##emin_act  xxx
+##emax_act  yyy
+oact 21
+uact 99
+tilesize 15
+thresh 1.0d-5
+2eorb
+2emet 13
+nroots 1
+symmetry 
+targetsym a'
+end
+
+task tce energy
