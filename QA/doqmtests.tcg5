@@ -74,6 +74,7 @@ echo 'Please check the final values for the last optimized structure.'
 ./runtests.tcg5.unix procs $np grad_nh3_trimer 
 ./runtests.tcg5.unix procs $np hess_nh3
 ./runtests.tcg5.unix procs $np hess_nh3_dimer
+./runtests.tcg5.unix procs $np hess_actlist
 ./runtests.tcg5.unix procs $np mp2_si2h6
 ./runtests.tcg5.unix procs $np pbo_nesc1e
 ./runtests.tcg5.unix procs $np bf_cis

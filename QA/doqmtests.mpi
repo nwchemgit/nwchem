@@ -166,6 +166,7 @@ endif
 ./runtests.mpi.unix procs $np grad_nh3_trimer 
 ./runtests.mpi.unix procs $np hess_nh3
 ./runtests.mpi.unix procs $np hess_nh3_dimer
+./runtests.mpi.unix procs $np hess_actlist
 ./runtests.mpi.unix procs $np mp2_si2h6
 ./runtests.mpi.unix procs $np pbo_nesc1e
 ./runtests.mpi.unix procs $np bf_cis
