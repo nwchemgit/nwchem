@@ -1,0 +1,94 @@
+      integer paw_xc_work_size
+      integer paw_rho2_ae(2)
+      integer paw_rho2_ps(2)
+      integer paw_rho2_ae_prime(2)
+      integer paw_rho2_ps_prime(2)
+      integer rho_ae(2)
+      integer rho_ps(2)
+      integer rho_ae_prime(2)
+      integer rho_ps_prime(2)
+      integer agr_ae(2)
+      integer agr_ps(2)
+      integer vxc_ae(2)
+      integer vxc_ps(2)
+      integer fdn_ae(2)
+      integer fdn_ps(2)
+      integer exc_ae(2)
+      integer exc_ps(2)
+      integer xc_temp(2)
+      integer xc_c_temp(2)
+
+      common /nwpw_xc_work_data/ paw_xc_work_size,
+     >                          paw_rho2_ae,  
+     >                          paw_rho2_ps,  
+     >                          paw_rho2_ae_prime,  
+     >                          paw_rho2_ps_prime,  
+     >                          rho_ae,  
+     >                          rho_ps,
+     >                          rho_ae_prime,  
+     >                          rho_ps_prime,
+     >                          agr_ae,
+     >                          agr_ps,
+     >                          vxc_ae,
+     >                          vxc_ps,
+     >                          fdn_ae,
+     >                          fdn_ps,
+     >                          exc_ae,
+     >                          exc_ps,
+     >                          xc_c_temp,
+     >                          xc_temp
+
+      integer paw_xc_gga
+      integer paw_xc_ispin
+      integer paw_xc_lmax
+      integer paw_xc_nphi
+      integer paw_xc_ntheta
+
+      integer paw_xc_tlm(2)
+
+      integer paw_xc_dtlm_theta(2)
+      integer paw_xc_dtlm_phi(2)
+
+      integer paw_xc_angle_phi(2)
+      integer paw_xc_cos_theta(2)
+      integer paw_xc_w_phi(2)
+      integer paw_xc_w_theta(2)
+      integer paw_xc_e(2)
+      integer i_paw_xc_pot(2)
+
+      integer paw_vxc_ae(2)
+      integer paw_vxc_ps(2)
+
+      integer paw_dvxc_ae(2)
+      integer paw_dvxc_ps(2)
+
+
+      integer paw_xc_pot_size
+      integer paw_xc_pot(2)
+      integer paw_xc_matr(2)
+      integer paw_xc_dmatr(2)
+
+      common /nwpw_exc_data/   paw_xc_gga,
+     >                        paw_xc_ispin,
+     >                        paw_xc_lmax,
+     >                        paw_xc_nphi,
+     >                        paw_xc_ntheta,
+     >                        paw_xc_e,
+     >                        i_paw_xc_pot,
+     >                        paw_xc_angle_phi,
+     >                        paw_xc_cos_theta,
+     >                        paw_xc_tlm,
+     >                        paw_xc_dtlm_theta,
+     >                        paw_xc_dtlm_phi,
+     >                        paw_xc_w_phi,
+     >                        paw_xc_w_theta,
+     >                        paw_vxc_ae,
+     >                        paw_vxc_ps,
+     >                        paw_dvxc_ae,
+     >                        paw_dvxc_ps,
+     >                        paw_xc_pot,
+     >                        paw_xc_pot_size,
+     >                        paw_xc_matr,
+     >                        paw_xc_dmatr
+
+

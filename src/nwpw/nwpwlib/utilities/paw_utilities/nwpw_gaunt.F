@@ -48,7 +48,7 @@
 *     *** local variables ****
       double precision pi
       double precision piover2,twopi,fourpi
-      parameter(pi = 3.14159265358979323846264338327950288419D0)
+      parameter(pi = 3.14159265358979323846264338327950288419d0)
       parameter(piover2= pi*0.5d0)
       parameter(twopi  = pi*2.0d0)
       parameter(fourpi = pi*4.0d0)
@@ -512,7 +512,7 @@ c      double precision theta_lm !*RESULT*
          end do
       endif
       coeff = coeff*(2*l+1)/twopi
-      coeff = sqrt(coeff)
+      coeff = dsqrt(coeff)
       f     = coeff*rlegendre_lm(l,mod_m,cos_theta)
 
       rtheta_lm = f
