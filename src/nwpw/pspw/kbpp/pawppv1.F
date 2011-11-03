@@ -403,10 +403,6 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
          rcore = 0.0d0
          call dwrite(2,rcore,1)
 
-         call dwrite(2,dbl_mb(vl(1)),nsize)
-         if (nproj.gt.0) then
-            call dwrite(2,dbl_mb(vnl(1)),nsize*nproj)
-         end if
 
 *        **** other PAW matrices ****
          l = nbasis*nbasis*nbasis*nbasis*(2*lmax+1)
@@ -438,6 +434,11 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
          call dwrite(2,dbl_mb(dphi_ps(1)),n1dgrid*nbasis)
          call dwrite(2,dbl_mb(core_ae(1)),n1dgrid)
          call dwrite(2,dbl_mb(core_ps(1)),n1dgrid)
+
+         call dwrite(2,dbl_mb(vl(1)),nsize)
+         if (nproj.gt.0) then
+            call dwrite(2,dbl_mb(vnl(1)),nsize*nproj)
+         end if
 
       call closefile(2)
       end if
