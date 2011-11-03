@@ -34,8 +34,7 @@ else
 endif
 
 set JOB_LIMIT = 4
-if (`hostname` == circus) set JOB_LIMIT = 20
-if (`hostname` == mcurie) set JOB_LIMIT = 3
+
 @ njob = 0
 
 foreach file ($argv)
