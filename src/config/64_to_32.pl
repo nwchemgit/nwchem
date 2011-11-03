@@ -26,6 +26,15 @@
 #           Richland, WA 99352-0999
 #           email: ra_kendall@pnl.gov
 #
+
+sub copy_case() {   # Take case from "from" and apply it to "to" and return that new string
+    my ($from, $to) = @_;
+    my ($lf, $lt) = map length, @_;
+    if ($lt < $lf) { $from = substr $from, 0, $lt }
+    else { $from .= substr $to, $lf }
+    return uc $to | ($from ^ uc $from);
+}                   
+ 
 $debug = 0;
 @from = ();
 @to   = ();
@@ -89,23 +98,25 @@ foreach $file (@ARGV){
 	    {
 		if (/$from[$compare]/i){
 
+		    $froom = index(uc $_,uc $from[$compare]); # Find where the string starts ie the "from"
+		    $toot = &copy_case(substr($_,$froom),$to[$compare]) ; # Generate a "to" that matches the case
+
 		    if (/^[ ]{5}[^\s]/) {
-			s/([ ]{5}.)$from[$compare](\W{1})/$1$to[$compare]$2/gi ;
+			s/([ ]{5}.)$from[$compare](\W{1})/$1${toot}$2/gi ;
 		    }
 #this takes care of the tab chars in C
 		    if (/^[ \t]/){
-			s/(\W{1})$from[$compare](\W{1})/$1$to[$compare]$2/gi ;
+			s/(\W{1})$from[$compare](\W{1})/$1${toot}$2/gi ;
 		    }
 #this takes care of declarations in C
 		    if (/^[ \S]/){
-			s/(\W{1})$from[$compare](\W{1})/$1$to[$compare]$2/gi ;
+			s/(\W{1})$from[$compare](\W{1})/$1${toot}$2/gi ;
 		    }
 		    if (/^[ \d]/){
-			s/(\W{1})$from[$compare](\W{1})/$1$to[$compare]$2/gi ;
+			s/(\W{1})$from[$compare](\W{1})/$1${toot}$2/gi ;
 		    }
 		}
 	    }
-	    
 	    print FIXEDFILE $_;
 	}
     }
