@@ -15,7 +15,7 @@ c       character*5 atag
        character*(180) buffer
        character*(180) message
        integer istatus
-       logical overb,ohelp
+       logical overb,ohelp,odistinct
        character*255 file_lattice,file_in,file_out
        character*16 atom1_tag
        character*16 atom2_tag
@@ -46,6 +46,7 @@ c      --------------------------------------------
        file_in  = " "
        file_out = " "
        overb = .false.
+       odistinct = .true.
        file_lattice = " "
        latv = -1.0
        lat = 0.0
@@ -85,6 +86,12 @@ c              write(*,*) "lat",k,latv(k)
             end if
           end do
 c          write(*,*) "done reading lattice"
+          go to 16
+       else if(buffer.eq."-nodistinct") then
+          odistinct=.false.
+          go to 16
+       else if(buffer.eq."-distinct") then
+          odistinct=.true.
           go to 16
        else if(buffer.eq."-v") then
           overb=.true.
@@ -267,22 +274,17 @@ c      loop over frames
          if(n.eq.0) exit
          write(*,*) "number of atoms", n
          oc1=.false.
-         if(atom1_id.gt.0) then
-           oc1=.false.
-           oc1(atom1_id) = .true.
-         else if(atom1_tag.ne." ") then
-           oc1 = atag.eq.atom1_tag
-c           call mask_byname(n,c,atag,oc1,atom1_tag)
-         end if
+         call mask_all(n,c,atag,oc1,atom1_id,atom1_tag)
          oc2=.false.
-         if(atom2_id.gt.0) then
-           oc2(atom2_id) = .true.
-         else if(atom2_tag.ne." ") then
-           oc2 = (atag.eq.atom2_tag).and.(.not.oc1)
-c           call mask_byname(n,c,atag,oc2,atom2_tag)
-         else
-           oc2=oc1
-         end if
+         call mask_all(n,c,atag,oc2,atom2_id,atom2_tag)
+c        if possible make atom1 and atom2 distinct
+         oc2=oc2.and.(.not.oc1)
+         if(count(oc2).eq.0) oc2=oc1
+c
+         do i=1,n
+           write(78,*) oc1(i),oc2(i)
+         end do
+         if(any(oc2.and.oc1)) oc2=oc2.and.(.not.oc1)
          gr0 = 0
          call rdf_compute2(n,c,oc1,oc2,
      +                    nb,rmax,lat,
@@ -290,7 +292,7 @@ c           call mask_byname(n,c,atag,oc2,atom2_tag)
      +                    fn_in)
          gr = gr + gr0
          nf = nf+1
-         if(nfrm.gt.0.and.nf.gt.nfrm) then
+         if(nfrm.gt.0.and.nf.ge.nfrm) then
             write(*,*) "exiting because exceeded number of frames",nf,nfrm
             exit
          end if
@@ -726,6 +728,24 @@ c      -----------------
 1020     FORMAT(A180)
        end
 
+       subroutine mask_all(n,c,atag,oc,mid,mtag)
+       implicit none
+       integer n
+       double precision c(n,3)
+       character*(*) atag(n)
+       logical oc(n)
+       integer mid
+       character*(*) mtag
+c
+       integer i
+       if(mid.ne.0) then
+         oc(mid)=.true.
+        else if (mtag.ne. " ") then
+c         oc=atag(i).eq.mtag(1:len_trim(mtag))
+         oc=index(atag,mtag(1:len_trim(mtag))).ne.0
+       end if
+       end
+
        subroutine mask_byname(n,c,atag,oc,mtag)
        implicit none
        integer n
@@ -737,7 +757,7 @@ c
        integer i
        do i=1,n
          oc(i)=oc(i).and.(atag(i).eq.mtag)
-c         oc(i)=index(atag(i),mtag(1:len_trim(mtag))).ne.0
+c         oc(i)=oc(i).and.index(atag(i),mtag(1:len_trim(mtag))).ne.0
        end do
        end
 
