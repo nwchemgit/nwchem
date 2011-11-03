@@ -1,0 +1,50 @@
+echo
+title "numerical hessian with actlist followed by hessian compression"
+
+start kmgo_partial
+
+geometry
+o   0     0    0
+mg  1.75  0    0
+mg -1.75  0    0
+mg  0    1.75  0
+mg  0   -1.75  0
+mg  0     0    -1.75
+k   0     0    2.5
+end
+
+charge +9
+
+basis
+* library 6-31g*
+end
+
+dft
+xc hfexch
+end
+
+task dft
+
+set gen_hess:actlist 1 7
+
+#the combination of the restricted geometry (in the next task frequiencies)
+#and of the hessian:compress directive here
+#gets rid of the rubbish coming out
+#from non actlisted atoms
+
+set hessian:compress logical .true.
+task dft hessian numerical 
+
+freq
+ reuse kmgo_partial.hess
+end
+
+
+
+geometry
+o   0     0    0
+k   0     0    2.5
+end
+
+
+task dft frequencies #numerical
