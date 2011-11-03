@@ -35,6 +35,7 @@ c::   local
       integer h_gradm, k_gradm ! handle/index for central gradient
       integer h_gradp, k_gradp ! handle/index for delta gradient
       integer h_hess, k_hess   ! handle/index for hessian matrix
+      integer h_hessc,k_hessc
       integer h_ddipole, k_ddipole
       integer iatom, ixyz
       integer iatom_start, ixyz_start
@@ -63,7 +64,7 @@ c::   local
       character*40 first_geom_name
       double precision q1
       logical task_gradient, task_save_state, task_restore_state,
-     &    task_delete_state, task_energy
+     &    task_delete_state, task_energy,hesscompress
       external task_gradient, task_save_state, task_restore_state,
      &    task_delete_state, task_energy
 c     
@@ -531,6 +532,8 @@ c
      &          rank_hess,dbl_mb(k_gradp)))
      &          call errquit('stpr_gen_hess_at: rtdb_get failed',27,
      &       RTDB_ERR)
+c     zero non-active components
+            call stpr_grad_act(rtdb,nat,dbl_mb(k_gradp))
             if(.not. rtdb_get(rtdb,'task:dipole',mt_dbl,
      &          3,pdipole)) dipole_okay = .false.
 c
@@ -649,6 +652,8 @@ c      Gradient is in k_gradm
      &          call errquit('stpr_gen_hess_at: rtdb_get failed',38,
      &       RTDB_ERR)
 c
+c     zero non-active components
+            call stpr_grad_act(rtdb,nat,dbl_mb(k_gradm))
             if(.not. rtdb_get(rtdb,'task:dipole',mt_dbl,
      &          3,mdipole)) dipole_okay = .false.
          endif
@@ -763,7 +768,8 @@ c     be the same
 c     
           call stpr_gen_hess_foldave(dbl_mb(k_hess),rank_hess)
         else
-          call stpr_gen_hess_fold(dbl_mb(k_hess),rank_hess)
+          call stpr_gen_hess_foldave(dbl_mb(k_hess),rank_hess)
+cedo          call stpr_gen_hess_fold(dbl_mb(k_hess),rank_hess)
 c     
 c     assumes zeroed hessian prior to fd computations
 c     
@@ -782,6 +788,28 @@ c
      &        ' finite difference derivative dipole; delta = ',delta
           call stpr_print_ddipole(dbl_mb(k_ddipole),
      &        tmpname, nat, -1.0d00)
+        endif
+c
+c     compress hessian if actlist is on
+c
+        if(.not. rtdb_get(rtdb,'hessian:compress',mt_log,
+     &       1,hesscompress)) hesscompress = .false.
+        if(hesscompress)then
+           if (.not. MA_Push_Get(MT_DBL,9*nat_active*nat_active,
+     &        'hesscompress',
+     &        h_hessc,k_hessc)) call errquit
+     &        ('stpr_gen_hess_at: ma_push_get failed?',13, MA_ERR)
+          call output(dbl_mb(k_hess),1,rank_hess,1,rank_hess,
+     &        rank_hess,rank_hess,1)
+           call stpr_hesscompr(nat,nat_active,
+     A          int_mb(i_active),dbl_mb(k_hess),dbl_mb(k_hessc))
+           rank_hess=3*nat_active
+          call output(dbl_mb(k_hessc),1,rank_hess,1,rank_hess,
+     &        rank_hess,rank_hess,1)
+           call dcopy(9*nat_active*nat_active,dbl_mb(k_hessc),1,
+     C          dbl_mb(k_hess),1)
+           if (.not.ma_pop_stack(h_hessc)) call errquit
+     &      ('stpr_ghat_set_active: ma_pop k_hessc failed?',22, MA_ERR)
         endif
         call stpr_wrt_fd_from_sq(dbl_mb(k_hess),rank_hess,FILEHESS)
         if (dipole_okay) then
@@ -964,4 +992,74 @@ c
       endif
       call ga_sync()
       ignore_status = rtdb_parallel(current_rtdb_status)
+      end
+c     zero non-active components of grad
+      subroutine stpr_grad_act(rtdb,nat,grad)
+      implicit none
+      integer rtdb,nat
+      double precision grad(3,*)
+#include "errquit.fh"
+#include "stdio.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "util.fh"
+      integer nactive   ! number of active atoms
+      integer h_actlist ! ma handle for actlist
+      integer k_actlist ! ma index for actlist
+      integer ma_type
+      integer ii,i0,iact
+      logical dozero
+      integer ga_nodeid
+      external ga_nodeid
+c
+       if (.not.rtdb_ma_get(rtdb,'gen_hess:actlist', ma_type, 
+     $     nactive,h_actlist)) return
+C       if(.true.)return
+       if (nactive.le.0 .or. nactive.gt.nat) call errquit
+     &    ('stpr_grr: invalid number of active atoms',nactive,
+     &       INPUT_ERR)
+      if (.not.MA_get_index(h_actlist,k_actlist)) call errquit
+     &    ('stpr_grr: ma_get_index failed for actlist',911, MA_ERR)
+      i0=1
+      do ii=1,nat
+         dozero=.true.
+         do iact=i0,nactive
+            if(ii.eq.int_mb(k_actlist+iact-1)) then
+               dozero=.false.
+               i0=iact+1
+            endif
+         enddo
+         if(dozero) then
+            grad(1,ii)=0d0
+            grad(2,ii)=0d0
+            grad(3,ii)=0d0
+         endif
+      enddo
+      if (.not.MA_free_heap(h_actlist)) call errquit
+     C     ('stpr_grr: mafreeheap failed',0,MA_ERR)
+      return
+      end
+      subroutine stpr_hesscompr(nat,nactive,
+     A          i_active,hessin,hessout)
+      implicit none
+      integer nat,nactive
+      integer i_active(*)
+      double precision hessin(3,nat,3,nat)
+      double precision hessout(3,nactive,3,nactive)
+c
+      integer iatom,jatom
+      integer icount,jcount,ix,jx
+c
+      do iatom=1,nactive
+         icount=i_active(iatom)
+         do jatom=1,nactive
+            jcount=i_active(jatom)
+            do ix=1,3
+               do jx=1,3
+                  hessout(jx,jatom,ix,iatom)=hessin(jx,jcount,ix,icount)
+               enddo
+            enddo
+         enddo
+      enddo
+      return
       end
