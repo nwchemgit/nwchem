@@ -326,7 +326,7 @@ c        ic = paw_basis_i_cut(ia)
 *
 *
 **********************************
-      subroutine paw_xc_solve()
+      subroutine nwpw_xc_solve()
       implicit none
 
 #include "paw_geom.fh"
