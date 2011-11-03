@@ -1,17 +1,4 @@
 c $Id$
-#if defined(CRAY) || defined(KSR)
-#   define xgemm SGEMM
-#   define ygemm CGEMM
-#else
-#   define xgemm DGEMM
-#   define ygemm ZGEMM
-#endif
-#if defined(FUJITSU) || defined(CRAY_YMP)
-# define THRESH  1.0d-10
-#else
-# define THRESH  1.0d-20
-#endif
-#define MISMATCH(x,y) abs(x-y)/max(1,abs(x)).gt.THRESH
 c
 c
       subroutine util_patch_test
@@ -417,7 +404,7 @@ c     endif
      $                      g_a, ailo,ailo+n/2, ajlo, ajlo+n/3,
      $                      g_b, bilo,bilo+n/3, bjlo, bjlo+n/2,
      $                      g_c, bilo,bilo+n/2, bjlo, bjlo+n/2)
-      call xgemm('n','n',n/2+1,n/2+1,n/3+1,1d0,a(ailo,ajlo), n,
+      call DGEMM('n','n',n/2+1,n/2+1,n/3+1,1d0,a(ailo,ajlo), n,
      $            b(bilo,bjlo),n, 0d0, c, n)
 *     call ga_print_patch(g_a, ailo,ailo+n/2, ajlo, ajlo+n/3)
 *     call ga_print_patch(g_b, bilo,bilo+n/3, bjlo, bjlo+n/2)
@@ -453,7 +440,7 @@ c
      $                      g_a, ailo,ailo+n/2, ajlo, ajlo+n/3,
      $                      g_b, bilo,bilo+n/3, bjlo, bjlo+n/2,
      $                      g_c, bilo,bilo+n/2, bjlo, bjlo+n/2)
-      call xgemm('t','n',n/2+1,n/2+1,n/3+1,1d0,a(ajlo,ailo), n,
+      call DGEMM('t','n',n/2+1,n/2+1,n/3+1,1d0,a(ajlo,ailo), n,
      $            b(bilo,bjlo),n, 0d0, c, n)
 *     call ga_print(g_a,1) 
 *     call ga_print_patch(g_b, bilo,bilo+n/3, bjlo, bjlo+n/2)
@@ -489,7 +476,7 @@ c
      $                      g_a, ailo,ailo+n/2, ajlo, ajlo+n/3,
      $                      g_b, bilo,bilo+n/3, bjlo, bjlo+n/2,
      $                      g_c, bilo,bilo+n/2, bjlo, bjlo+n/2)
-      call xgemm('n','t',n/2+1,n/2+1,n/3+1,1d0,a(ailo,ajlo), n,
+      call DGEMM('n','t',n/2+1,n/2+1,n/3+1,1d0,a(ailo,ajlo), n,
      $            b(bjlo,bilo),n, 0d0, c, n)
 *     call ga_print(g_a,1)
 *     call ga_print_patch(g_b, bilo,bilo+n/3, bjlo, bjlo+n/2)
@@ -525,7 +512,7 @@ c
      $                      g_a, ailo,ailo+n/2, ajlo, ajlo+n/3,
      $                      g_b, bilo,bilo+n/3, bjlo, bjlo+n/2,
      $                      g_c, bilo,bilo+n/2, bjlo, bjlo+n/2)
-      call xgemm('t','t',n/2+1,n/2+1,n/3+1,1d0,a(ajlo,ailo), n,
+      call DGEMM('t','t',n/2+1,n/2+1,n/3+1,1d0,a(ajlo,ailo), n,
      $            b(bjlo,bilo),n, 0d0, c, n)
 *     call ga_print(g_a,1)
 *     call ga_print_patch(g_b, bilo,bilo+n/3, bjlo, bjlo+n/2)
@@ -904,7 +891,7 @@ c     endif
      $                      g_a, ailo,ailo+n/2, ajlo, ajlo+n/3,
      $                      g_b, bilo,bilo+n/3, bjlo, bjlo+n/2,
      $                      g_c, bilo,bilo+n/2, bjlo, bjlo+n/2)
-      call ygemm('n','n',n/2+1,n/2+1,n/3+1,(1d0,0d0),
+      call ZGEMM('n','n',n/2+1,n/2+1,n/3+1,(1d0,0d0),
      $            a(ailo,ajlo), n,
      $            b(bilo,bjlo),n, (0d0,0d0), c, n)
 *     call ga_print_patch(g_a, ailo,ailo+n/2, ajlo, ajlo+n/3)
@@ -941,7 +928,7 @@ c
      $                      g_a, ailo,ailo+n/2, ajlo, ajlo+n/3,
      $                      g_b, bilo,bilo+n/3, bjlo, bjlo+n/2,
      $                      g_c, bilo,bilo+n/2, bjlo, bjlo+n/2)
-      call ygemm('t','n',n/2+1,n/2+1,n/3+1,(1d0,0d0),
+      call ZGEMM('t','n',n/2+1,n/2+1,n/3+1,(1d0,0d0),
      $            a(ajlo,ailo), n,
      $            b(bilo,bjlo),n, (0d0,0d0), c, n)
 *     call ga_print(g_a,1) 
@@ -978,7 +965,7 @@ c
      $                      g_a, ailo,ailo+n/2, ajlo, ajlo+n/3,
      $                      g_b, bilo,bilo+n/3, bjlo, bjlo+n/2,
      $                      g_c, bilo,bilo+n/2, bjlo, bjlo+n/2)
-      call ygemm('n','t',n/2+1,n/2+1,n/3+1,(1d0,0d0),
+      call ZGEMM('n','t',n/2+1,n/2+1,n/3+1,(1d0,0d0),
      $            a(ailo,ajlo), n,
      $            b(bjlo,bilo),n, (0d0,0d0), c, n)
 *     call ga_print(g_a,1)
@@ -1015,7 +1002,7 @@ c
      $                      g_a, ailo,ailo+n/2, ajlo, ajlo+n/3,
      $                      g_b, bilo,bilo+n/3, bjlo, bjlo+n/2,
      $                      g_c, bilo,bilo+n/2, bjlo, bjlo+n/2)
-      call ygemm('t','t',n/2+1,n/2+1,n/3+1,(1d0,0d0),
+      call ZGEMM('t','t',n/2+1,n/2+1,n/3+1,(1d0,0d0),
      $            a(ajlo,ailo), n,
      $            b(bilo,bjlo),n, (0d0,0d0), c, n)
 *     call ga_print(g_a,1)
@@ -1395,7 +1382,7 @@ ccc      call ga_matmul_patch('n','n', 1.0, 0.0,
 ccc     $                      g_a, ailo,ailo+n/2, ajlo, ajlo+n/3,
 ccc     $                      g_b, bilo,bilo+n/3, bjlo, bjlo+n/2,
 ccc     $                      g_c, bilo,bilo+n/2, bjlo, bjlo+n/2)
-ccc      call xgemm('n','n',n/2+1,n/2+1,n/3+1,1d0,a(ailo,ajlo), n,
+ccc      call DGEMM('n','n',n/2+1,n/2+1,n/3+1,1d0,a(ailo,ajlo), n,
 ccc     $            b(bilo,bjlo),n, 0d0, c, n)
 ccc*     call ga_print_patch(g_a, ailo,ailo+n/2, ajlo, ajlo+n/3)
 ccc*     call ga_print_patch(g_b, bilo,bilo+n/3, bjlo, bjlo+n/2)
@@ -1427,7 +1414,7 @@ ccc      call ga_matmul_patch('t','n', 1d0, 0d0,
 ccc     $                      g_a, ailo,ailo+n/2, ajlo, ajlo+n/3,
 ccc     $                      g_b, bilo,bilo+n/3, bjlo, bjlo+n/2,
 ccc     $                      g_c, bilo,bilo+n/2, bjlo, bjlo+n/2)
-ccc      call xgemm('t','n',n/2+1,n/2+1,n/3+1,1.0,a(ajlo,ailo), n,
+ccc      call DGEMM('t','n',n/2+1,n/2+1,n/3+1,1.0,a(ajlo,ailo), n,
 ccc     $            b(bilo,bjlo),n, 0.0, c, n)
 ccc*     call ga_print(g_a,1)
 ccc*     call ga_print_patch(g_b, bilo,bilo+n/3, bjlo, bjlo+n/2)
@@ -1459,7 +1446,7 @@ ccc      call ga_matmul_patch('n','t', 1.0, 0.0,
 ccc     $                      g_a, ailo,ailo+n/2, ajlo, ajlo+n/3,
 ccc     $                      g_b, bilo,bilo+n/3, bjlo, bjlo+n/2,
 ccc     $                      g_c, bilo,bilo+n/2, bjlo, bjlo+n/2)
-ccc      call xgemm('n','t',n/2+1,n/2+1,n/3+1,1.0,a(ailo,ajlo), n,
+ccc      call DGEMM('n','t',n/2+1,n/2+1,n/3+1,1.0,a(ailo,ajlo), n,
 ccc     $            b(bjlo,bilo),n, 0.0, c, n)
 ccc*     call ga_print(g_a,1)
 ccc*     call ga_print_patch(g_b, bilo,bilo+n/3, bjlo, bjlo+n/2)
@@ -1492,7 +1479,7 @@ ccc      call ga_matmul_patch('t','t', 1d0, 0d0,
 ccc     $                      g_a, ailo,ailo+n/2, ajlo, ajlo+n/3,
 ccc     $                      g_b, bilo,bilo+n/3, bjlo, bjlo+n/2,
 ccc     $                      g_c, bilo,bilo+n/2, bjlo, bjlo+n/2)
-ccc      call xgemm('t','t',n/2+1,n/2+1,n/3+1,1.0,a(ajlo,ailo), n,
+ccc      call DGEMM('t','t',n/2+1,n/2+1,n/3+1,1.0,a(ajlo,ailo), n,
 ccc     $            b(bjlo,bilo),n, 0.0, c, n)
 ccc*     call ga_print(g_a,1)
 ccc*     call ga_print_patch(g_b, bilo,bilo+n/3, bjlo, bjlo+n/2)
