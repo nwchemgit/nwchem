@@ -1966,68 +1966,6 @@ c     **** define Gx,Gy and Gz in packed space ****
          semicore = .false.
       end if
 
- 
-*     *** read in vl 3d block ***
-      if (pio) then
-         call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
-      else
-         call D3dB_t_read(1,5,tmp2,tmp,-1)
-      end if
-      call Pack_t_pack(0,tmp2)
-      call Pack_t_Copy(0,tmp2,vl)
-
-
-*     **** read in vnl 3d blocks ****
-      if (nprj.gt.0) then
-         vnl_tag = psi_data_alloc(nprj,npack1)
-
-         do n=1,nprj
-            if (pio) then
-               call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
-            else
-               call D3dB_t_read(1,5,tmp2,tmp,-1)
-            end if
-            call Pack_t_pack(1,tmp2)
-            !call Pack_t_Copy(1,tmp2,vnl(1,n))
-            call psi_data_add(vnl_tag,n,tmp2)
-         end do
-      end if
-
-*     **** read in semicore density block ****
-      if (semicore) then
-         if (pio) then
-            call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
-         else
-            call D3dB_t_read(1,5,tmp2,tmp,-1)
-         end if
-         call Pack_t_pack(0,tmp2)
-         call Pack_t_Copy(0,tmp2,ncore(1))
-
-         if (pio) then
-            call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
-         else
-            call D3dB_t_read(1,5,tmp2,tmp,-1)
-         end if
-         call Pack_t_pack(0,tmp2)
-         call Pack_t_Copy(0,tmp2,ncore(1+2*npack0))
-
-         if (pio) then
-            call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
-         else
-            call D3dB_t_read(1,5,tmp2,tmp,-1)
-         end if
-         call Pack_t_pack(0,tmp2)
-         call Pack_t_Copy(0,tmp2,ncore(1+3*npack0))
-
-         if (pio) then
-            call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
-         else
-            call D3dB_t_read(1,5,tmp2,tmp,-1)
-         end if
-         call Pack_t_pack(0,tmp2)
-         call Pack_t_Copy(0,tmp2,ncore(1+4*npack0))
-      end if
-
 *     ***** Miscellaneous paw energies and 1d wavefunctions****
       if (psp_type.eq.4) then
 
@@ -2143,6 +2081,67 @@ c     **** define Gx,Gy and Gz in packed space ****
         if (taskid_p.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
         call Parallela_Brdcst_values(com_p,MASTER,n1dgrid,dbl_mb(indx))
 
+      end if
+
+*     *** read in vl 3d block ***
+      if (pio) then
+         call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
+      else
+         call D3dB_t_read(1,5,tmp2,tmp,-1)
+      end if
+      call Pack_t_pack(0,tmp2)
+      call Pack_t_Copy(0,tmp2,vl)
+
+
+*     **** read in vnl 3d blocks ****
+      if (nprj.gt.0) then
+         vnl_tag = psi_data_alloc(nprj,npack1)
+
+         do n=1,nprj
+            if (pio) then
+               call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
+            else
+               call D3dB_t_read(1,5,tmp2,tmp,-1)
+            end if
+            call Pack_t_pack(1,tmp2)
+            !call Pack_t_Copy(1,tmp2,vnl(1,n))
+            call psi_data_add(vnl_tag,n,tmp2)
+         end do
+      end if
+
+*     **** read in semicore density block ****
+      if (semicore) then
+         if (pio) then
+            call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
+         else
+            call D3dB_t_read(1,5,tmp2,tmp,-1)
+         end if
+         call Pack_t_pack(0,tmp2)
+         call Pack_t_Copy(0,tmp2,ncore(1))
+
+         if (pio) then
+            call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
+         else
+            call D3dB_t_read(1,5,tmp2,tmp,-1)
+         end if
+         call Pack_t_pack(0,tmp2)
+         call Pack_t_Copy(0,tmp2,ncore(1+2*npack0))
+
+         if (pio) then
+            call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
+         else
+            call D3dB_t_read(1,5,tmp2,tmp,-1)
+         end if 
+         call Pack_t_pack(0,tmp2)
+         call Pack_t_Copy(0,tmp2,ncore(1+3*npack0))
+
+         if (pio) then
+            call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
+         else
+            call D3dB_t_read(1,5,tmp2,tmp,-1)
+         end if
+         call Pack_t_pack(0,tmp2)
+         call Pack_t_Copy(0,tmp2,ncore(1+4*npack0))
       end if
 
 *     *** close fname binary file ***
@@ -2296,6 +2295,7 @@ c     logocal semicore(0:nkatmx)
      >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
      >                  ierr)
 
+
 *          **** set semicore(0) ****
            if (log_mb(semicore(1)+ia)) log_mb(semicore(1)) = .true.
            if (ierr.gt.0) go to 9000
@@ -2334,6 +2334,19 @@ c     logocal semicore(0:nkatmx)
               if (int_mb(nprj(1)+ia-1).gt.0) then
               call psi_data_dealloc(int_mb(vnl(1)+ia-1))
               call psi_data_dealloc(int_mb(Gijl(1)+ia-1))
+               if (int_mb(psp_type(1)+ia-1).eq.4) then
+               call psi_data_dealloc(int_mb(hartree_matrix(1)+ia-1))
+               call psi_data_dealloc(int_mb(comp_charge_matrix(1)+ia-1))
+               call psi_data_dealloc(int_mb(comp_pot_matrix(1)+ia-1))
+               call psi_data_dealloc(int_mb(eig(1)+ia-1))
+               call psi_data_dealloc(int_mb(phi_ae(1)+ia-1))
+               call psi_data_dealloc(int_mb(dphi_ae(1)+ia-1))
+               call psi_data_dealloc(int_mb(phi_ps(1)+ia-1))
+               call psi_data_dealloc(int_mb(dphi_ps(1)+ia-1))
+               call psi_data_dealloc(int_mb(core_ae(1)+ia-1))
+               call psi_data_dealloc(int_mb(core_ps(1)+ia-1))
+               call psi_data_dealloc(int_mb(rgrid(1)+ia-1))
+               end if
               end if
            end if
            if (correct_box) found = .true.
