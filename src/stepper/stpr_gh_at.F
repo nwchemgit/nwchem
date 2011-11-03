@@ -72,6 +72,7 @@ c
       o_stepper_debug = util_print('debug_stepper',print_debug)
       o_directions    = util_print('directions', print_medium)
       o_debug_restart = util_print('debug_stepper_restart',print_debug)
+      q1=1d0
 
 c     Check if single differencing is requested 
       if (.not. rtdb_get(rtdb,'hessian:numerical_single',mt_log,1,
