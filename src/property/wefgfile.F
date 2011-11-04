@@ -165,7 +165,7 @@ c ======= reading from rtdb (nocc_a,nocc_b) === START
      $                   555, RTDB_ERR)
 c ======= reading from rtdb (nocc_a,nocc_b) === END
 c ------ Lines below are not necessary ------ START
-c      lfn = 25
+       lfn = 25
 c      if(ga_nodeid().eq.0) then
 c        call util_file_name('hyp', .false., .false., nbo_fname)
 c        open(lfn,file=nbo_fname,status='unknown')
