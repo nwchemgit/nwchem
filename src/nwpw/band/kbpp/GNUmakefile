@@ -33,7 +33,7 @@
 		kbpp_band_stress.F integrate_kbpp_band_stress_local.F \
                 integrate_kbpp_band_stress_nonlocal.F \
 		HGH_band_local.F HGH_band_nonlocal.F Tesseral_band.F \
-		Spherical_band.F hghpp_band.F rkbpp.F 
+		Spherical_band.F hghpp_band.F 
 
   LIB_DEFINES =
 

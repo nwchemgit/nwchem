@@ -10,7 +10,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = ewald.o ewald_strfac.o
+    USES_BLAS = ewald.F ewald_strfac.F
 
   LIB_DEFINES = 
 

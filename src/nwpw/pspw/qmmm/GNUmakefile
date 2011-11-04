@@ -13,7 +13,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = pspw_qmmm.F pspw_qmmm2.F
+    USES_BLAS = pspw_qmmm.F
   LIB_DEFINES =
   LIB_INCLUDES = 
 

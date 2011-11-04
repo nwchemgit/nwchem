@@ -72,7 +72,7 @@
 
    LIB_INCLUDES = -I../nwdft/include -I../ddscf
 
-USES_BLAS = hnd_elfcon.F hnd_elfcon_Z4.F wnbofile.F hnd_spinspin.F hnd_mtpole.F hnd_mulken.F \
+USES_BLAS = hnd_elfcon.F wnbofile.F hnd_spinspin.F hnd_mtpole.F hnd_mulken.F \
             hnd_elpmap.F hnd_elfmap.F hnd_mtpcon.F giaofock.F hnd_spinspin.F \
             aoresponse_driver.F
 

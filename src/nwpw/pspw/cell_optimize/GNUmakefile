@@ -19,7 +19,7 @@ include ../../../config/makefile.h
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = update_unitcell.F stress_fd.F force_fd
+    USES_BLAS = update_unitcell.F stress_fd.F force_fd.F
                 
   LIB_DEFINES =
 

@@ -6,7 +6,7 @@
          dplot_defgrid.o dplot_dump.o dplot_dos.o ao_rdm_read.o
 
    LIBRARY = libdplot.a
- USES_BLAS = dplot.F dmat.F create_contour.F  get_charges.F  dplot_dos.F tce_dplot.F
+ USES_BLAS = dplot.F dmat.F create_contour.F  get_charges.F  dplot_dos.F
 
 include ../config/makefile.h
 include ../config/makelib.h

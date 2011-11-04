@@ -12,7 +12,7 @@
 
       LIBRARY = libofpw.a
 
-    USES_BLAS = psi_H.F psi_Hv4.F
+    USES_BLAS = chi_H.F chi_Hv4.F
 
   LIB_DEFINES = 
 

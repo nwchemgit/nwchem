@@ -88,8 +88,6 @@ USES_BLAS = ecp_bess_pow.f \
       ecp_int0.F     \
       ecp_int1.F     \
       ecp_int2.F     \
-      ecp_int3.F     \
-      ecp_int4.F     \
       ecp_integral.F \
       ecp_local0.F   \
       ecp_local1.F   \
