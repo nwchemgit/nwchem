@@ -4,6 +4,7 @@
        double precision lat(3,3),latv(3)
        double precision rmax
        integer i1,nb
+       character*5 tvr
        character*255 infile
 c       character*5 atag
        logical ofile
@@ -22,6 +23,7 @@ c       character*5 atag
        character*5 aformat
        integer atom1_id,atom2_id
        integer k 
+       logical ok
        double precision f
        integer fn_in
        integer fn_out
@@ -29,6 +31,7 @@ c       character*5 atag
        double precision dr
        integer nf
        integer nfrm
+       integer nu,nvm,nva,nv,nprec
 c      allocatable arrays
        logical, dimension(:), allocatable :: oc1,oc2
        double precision, dimension(:,:), allocatable :: c
@@ -36,7 +39,9 @@ c      allocatable arrays
        double precision, dimension(:,:), allocatable :: c2
        double precision, dimension(:), allocatable :: gr0
        double precision, dimension(:), allocatable :: gr
-       character*6, dimension(:), allocatable :: atag
+       character*5, dimension(:), allocatable :: atag
+       character*5 , dimension(:), allocatable :: tva,tua,tur
+       integer, dimension(:), allocatable :: iur
 c
 c      --------------------------------------------      
 c      beging parsing command line arguments if any
@@ -176,7 +181,7 @@ c      ---------------------------
        atom1_id = 1
        atom2_tag = "O"
        latv = 10.0014453
-       file_in = "test.xyz"
+       file_in = "m.trj"
        file_out = "test.out"
        file_lattice = "lat.dat"
 c      ---------------------------      
@@ -256,7 +261,18 @@ c      figure out format for trajectory file
         write(*,*) "format is ",aformat
        end if
 
-       call xyz_read_natoms(n,fn_in)
+       if(aformat.eq."trj") then
+         call trj_read_header(fn_in,nvm,nva,nu,nprec)
+         allocate(tva(nva))
+         allocate(tua(nu))
+         allocate(tur(nu))
+         allocate(iur(nu))
+         call trj_read_solvent_specs(fn_in,nva,tvr,tva)
+         call trj_read_solute_specs(fn_in,nu,tur,tua,iur)
+         n = nva*nvm + nu
+       else if(aformat.eq."xyz") then
+         call xyz_read_natoms(n,fn_in)
+       end if
        rewind(fn_in)
        allocate(c(n,3))
        allocate(c1(n,3))
@@ -270,8 +286,17 @@ c      loop over frames
        nf = 0
        gr = 0
        do
-         call xyz_read(n,c,atag,fn_in)
-         if(n.eq.0) exit
+         if(aformat.eq."trj") then
+           call trj_read_coords(fn_in,nv,nu,c(nu+1,:),c,ok)
+         else if(aformat.eq."xyz")  then
+           call xyz_read(n,c,atag,fn_in)
+           ok=n.ne.0
+         end if
+         do i=1,n
+           write(88,*) i,(c(i,k),k=1,3)
+         end do
+         stop
+         if(.not.ok) exit
          write(*,*) "number of atoms", n
          oc1=.false.
          call mask_all(n,c,atag,oc1,atom1_id,atom1_tag)
@@ -1572,3 +1597,117 @@ c
       end do
       is_integer = verify(string(i:l), anumber).eq.0
       end function
+
+      subroutine trj_read_solvent_specs(fn,nva,tvr,tva)
+      implicit none
+      integer, intent(in)    :: fn  
+      integer, intent(in)   :: nva
+      character*5, intent(out) :: tvr
+      character*5, intent(out) :: tva(nva)
+c      
+      character*80 card
+      character*80 message
+      character*30 token
+      character*1 sep
+      character*1 a1
+      integer i0
+      integer i,k,lb,lt
+      logical ostatus
+c
+      rewind(fn)
+c      
+c     look for the "header"
+c     ---------------------
+  100 continue
+      read(fn,1000,end=911) card
+ 1000 format(a)
+      if(card(1:6).ne.'header') goto 100
+c     skip one line      
+      read(fn,1000,err=911,end=911) card
+c      
+      sep = " "
+      do i=1,nva
+        read(fn,1000,err=911,end=911) card
+        i0 = 1
+        call get_next_token(i0,card,sep,token,ostatus)
+        read(token,*) tvr
+        call get_next_token(i0,card,sep,token,ostatus)
+        read(token,*) tva(i)
+      end do
+c      do i=1,nva
+c        write(*,*) tvr,tva(i)
+c      end do
+      return
+911    continue       
+c      if you reach this you are in trouble
+       write(*,*) "found error"
+       write(*,*) message
+       stop
+
+      end subroutine
+
+      subroutine trj_read_solute_specs(fn,n,tur,tua,iur)
+      implicit none
+      integer, intent(in)    :: fn  
+      integer, intent(in)   :: n
+      character*5, intent(out) :: tur(n)
+      character*5, intent(out) :: tua(n)
+      integer, intent(out) :: iur(n)
+c      
+      integer nu,nva
+      character*80 card
+      character*80 message
+      character*30 token
+      character*1 sep
+      character*1 a1
+      integer i0
+      integer i,k,lb,lt
+      logical ostatus
+c
+      rewind(fn)
+      sep = " "
+c      
+c     look for the "header"
+c     ---------------------
+  100 continue
+      read(fn,1000,end=911) card
+ 1000 format(a)
+      if(card(1:6).ne.'header') goto 100
+c     find how many lines to skip 
+      read(fn,1000,err=911,end=911) card
+      i0 = 1
+      call get_next_token(i0,card,sep,token,ostatus)
+      read(token,*) nva
+      call get_next_token(i0,card,sep,token,ostatus)
+      read(token,*) nu
+      if(nu.gt.n) then
+        message = "insufficient solute size "
+        goto 911
+      end if
+c     skip solvent block      
+      do i=1,nva
+        read(fn,1000,err=911,end=911) card
+      end do
+      do i=1,nu
+        read(fn,1000,err=911,end=911) card
+        i0 = 1
+        call get_next_token(i0,card,sep,token,ostatus)
+        read(token,*) tur(i)
+        call get_next_token(i0,card,sep,token,ostatus)
+        read(token,*) tua(i)
+        call get_next_token(i0,card,sep,token,ostatus)
+        read(token,*) iur(i)
+      end do
+c      do i=1,nu
+c        write(*,*) tur(i),tua(i),iur(i)
+c      end do
+      return
+911    continue       
+c      if you reach this you are in trouble
+       write(*,*) "found error"
+       write(*,*) message
+       stop
+
+      end subroutine
+
+
