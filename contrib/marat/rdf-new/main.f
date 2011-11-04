@@ -181,7 +181,7 @@ c      ---------------------------
        atom1_id = 1
        atom2_tag = "O"
        latv = 10.0014453
-       file_in = "m.trj"
+       file_in = "test.xyz"
        file_out = "test.out"
        file_lattice = "lat.dat"
 c      ---------------------------      
@@ -274,9 +274,7 @@ c      figure out format for trajectory file
          call xyz_read_natoms(n,fn_in)
        end if
        rewind(fn_in)
-       allocate(c(n,3))
-       allocate(c1(n,3))
-       allocate(c2(n,3))
+       allocate(c(3,n))
        allocate(gr(nb))
        allocate(gr0(nb))
        allocate(atag(n))
@@ -292,10 +290,10 @@ c      loop over frames
            call xyz_read(n,c,atag,fn_in)
            ok=n.ne.0
          end if
-         do i=1,n
-           write(88,*) i,(c(i,k),k=1,3)
-         end do
-         stop
+c         do i=1,n
+c           write(88,*) i,(c(i,k),k=1,3)
+c         end do
+c         stop
          if(.not.ok) exit
          write(*,*) "number of atoms", n
          oc1=.false.
@@ -587,101 +585,10 @@ c      -----------------
 20     FORMAT(A180)
        end
 
-       subroutine xyz_read_coords_byname(n0,c,atag,fn_in)
-       implicit none
-       integer n0
-       double precision c(n0,3)
-       integer fn_in
-       character*(*) atag
-c       
-       double precision rmax
-       integer i1,nb
-c
-       integer j
-       integer i,n,a,nd,k
-       double precision rlat(3,3),r1(3)
-       character*30 buf
-       character*30 tag
-       character*180 bigbuf
-       character*180 message
-       integer l,sl
-       logical is_integer
-       external is_integer
-       character*30 pname 
-c
-       pname = "xyz_read_coords_byname"
-       c = 0.0d0
-c      ------------------------------------------
-c      get number of atoms (skipping empty lines)
-c      ------------------------------------------
-11     continue
-       message = "looking for number of atoms "//pname
-       read(fn_in,20,end=138) bigbuf
-       write(*,*) bigbuf(1:len_trim(bigbuf)),is_integer(bigbuf)
-c      increment line number
-       l=l+1
-       write(*,*) "is it integer",is_integer(bigbuf)
-       if(.not.is_integer(bigbuf)) goto 11
-       write(*,*) bigbuf(1:len_trim(bigbuf))
-       read(bigbuf,*,err=136) n
-c
-c      -------------------
-c      get title field(if any) 
-c      -------------------
-       read(fn_in,20) bigbuf
-       l=l+1
-c      processing coodinates
-       j = 0
-c
-c       ------------------------------------
-c       read coordinates(skipping empty lines)
-c       ------------------------------------
-       do i=1,n
-        read(fn_in,20) bigbuf
-        l=l+1
-        j = j+1
-        message = "verifying array size"
-        if(j.gt.n0) goto 138
-        if(bigbuf.eq."") cycle
-        read(bigbuf,*,err=137) tag,(c(j,k),k=1,3)
-c        
-        sl = len_trim(atag)
-        if(index(tag,atag(1:sl)).eq.0) then
-          j = j-1
-        end if
-       end do
-       n0=j
-       return
-c      -------------
-c      error section
-c      -------------
-136    continue
-       write(*,*) "subroutine:" //pname(1:len_trim(pname))
-       write(*,*) "error number of atoms field"
-       write(*,*) "line number: ", l
-       write(*,*) "buffer: ",bigbuf
-       stop
-       return
-137    continue
-       write(*,*) "error reading coords field"
-       write(*,*) "line number: ", l
-       write(*,*) "buffer: ", bigbuf
-       stop
-       return
-138    continue
-       write(*,*) message
-       stop
-c
-c      format statements
-c      -----------------
-30     FORMAT(180A1)
-20     FORMAT(A180)
-       end
-
        subroutine xyz_read(n0,c,atag,fn_in)
        implicit none
        integer n0
-       double precision c(n0,3)
+       double precision c(3,n0)
        integer fn_in
        character*(*) atag(n0)
 c
@@ -727,7 +634,7 @@ c       ------------------------------------
           end if
         end do
         message = "reading "//bigbuf
-        read(bigbuf,*,err=911) atag(i),(c(i,k),k=1,3)
+        read(bigbuf,*,err=911) atag(i),(c(k,i),k=1,3)
         n0=i
        end do
 c      check if all atoms were read
@@ -756,7 +663,7 @@ c      -----------------
        subroutine mask_all(n,c,atag,oc,mid,mtag)
        implicit none
        integer n
-       double precision c(n,3)
+       double precision c(3,n)
        character*(*) atag(n)
        logical oc(n)
        integer mid
@@ -771,243 +678,13 @@ c         oc=atag(i).eq.mtag(1:len_trim(mtag))
        end if
        end
 
-       subroutine mask_byname(n,c,atag,oc,mtag)
-       implicit none
-       integer n
-       double precision c(n,3)
-       character*(*) atag(n)
-       logical oc(n)
-       character*(*) mtag
-c
-       integer i
-       do i=1,n
-         oc(i)=oc(i).and.(atag(i).eq.mtag)
-c         oc(i)=oc(i).and.index(atag(i),mtag(1:len_trim(mtag))).ne.0
-       end do
-       end
-
-       subroutine xyz_read_coords_byname2(n1,c1,atag1,
-     +                                    n2,c2,atag2,
-     +                                    fn_in)
-       implicit none
-       integer n1,n2
-       double precision c1(n1,3),c2(n2,3)
-       integer fn_in
-       character*(*) atag1,atag2
-c       
-       double precision rmax
-       integer i1,nb
-c
-       integer j1,j2
-       integer i,n,a,nd,k
-       double precision c3(3)
-       character*30 buf
-       character*30 tag
-       character*180 bigbuf
-       character*180 message
-       integer l
-       logical is_integer
-       external is_integer
-       character*30 pname 
-c
-       pname = "xyz_read_coords_byname"
-       c1 = 0.0d0
-       c2 = 0.0d0
-c       write(*,*) "in "//pname
-       j1 = 0
-       j2 = 0
-c      ------------------------------------------
-c      get number of atoms (skipping empty lines)
-c      ------------------------------------------
-11     continue
-       message = "looking for number of atoms "//pname
-       read(fn_in,20,end=135) bigbuf
-c       write(*,*) bigbuf(1:len_trim(bigbuf)),is_integer(bigbuf)
-c      increment line number
-       l=l+1
-       if(.not.is_integer(bigbuf)) goto 11
-       read(bigbuf,*,err=136) n
-c
-c      -------------------
-c      get title field(if any) 
-c      -------------------
-       read(fn_in,20) bigbuf
-       l=l+1
-c      processing coodinates
-c
-c       ------------------------------------
-c       read coordinates(skipping empty lines)
-c       ------------------------------------
-c       write(*,*) "reading coordinates"
-       do i=1,n
-        read(fn_in,20) bigbuf
-        l=l+1
-        message = "verifying array size"
-        if(bigbuf.eq."") cycle
-        read(bigbuf,*,err=137) tag,(c3(k),k=1,3)
-c        
-        if(index(tag,atag1(1:len_trim(atag1))).ne.0) then
-c          write(*,*) "found ",atag1(1:len_trim(atag1))
-          j1 = j1+1
-          if(j1.gt.n1) goto 138
-          c1(j1,:)=c3
-        else if(index(tag,atag2(1:len_trim(atag2))).ne.0) then
-c          write(*,*) "found ",atag1(1:len_trim(atag2))
-          j2 = j2+1
-          if(j2.gt.n2) goto 138
-          c2(j2,:)=c3
-        end if
-       end do
-c       write(*,*) "finshed reading coordinates"
-135    continue
-       n1=j1
-       n2=j2
-c       write(*,*) "out "//pname
-       return
-c      -------------
-c      error section
-c      -------------
-136    continue
-       write(*,*) "subroutine:" //pname(1:len_trim(pname))
-       write(*,*) "error number of atoms field"
-       write(*,*) "line number: ", l
-       write(*,*) "buffer: ",bigbuf
-       stop
-       return
-137    continue
-       write(*,*) "error reading coords field"
-       write(*,*) "line number: ", l
-       write(*,*) "buffer: ", bigbuf
-       stop
-       return
-138    continue
-       write(*,*) message
-       stop
-c
-c      format statements
-c      -----------------
-30     FORMAT(180A1)
-20     FORMAT(A180)
-       end
-
-       subroutine xyz_read_coords_byname_id2(n1,c1,atag1,id1,
-     +                                     n2,c2,atag2,id2,
-     +                                    fn_in)
-       implicit none
-       integer n1,n2
-       double precision c1(n1,3),c2(n2,3)
-       integer fn_in
-       character*(*) atag1,atag2
-       integer id1,id2
-c       
-       double precision rmax
-       integer i1,nb
-c
-       integer j1,j2
-       integer i,n,a,nd,k
-       double precision c3(3)
-       character*30 buf
-       character*30 tag
-       character*180 bigbuf
-       character*180 message
-       integer l
-       logical is_integer
-       external is_integer
-       character*30 pname 
-       integer id
-       logical latom1,latom2
-c
-       pname = "xyz_read_coords_byname"
-       c1 = 0.0d0
-       c2 = 0.0d0
-c       write(*,*) "in "//pname
-       j1 = 0
-       j2 = 0
-c
-       call xyz_read_natoms(n,fn_in)
-       if(n.eq.0) goto 135
-c
-c      -------------------
-c      get title field(if any) 
-c      -------------------
-       read(fn_in,20) bigbuf
-       l=l+1
-c      processing coodinates
-c
-c       ------------------------------------
-c       read coordinates(skipping empty lines)
-c       ------------------------------------
-c       write(*,*) "reading coordinates"
-       id = 0
-       do i=1,n
-        read(fn_in,20) bigbuf
-        l=l+1
-        message = "verifying array size"
-        if(bigbuf.eq."") cycle
-        read(bigbuf,*,err=137) tag,(c3(k),k=1,3)
-        id = id + 1
-c       
-        if(id1.ne.0) then
-          latom1=id1.eq.id
-        else if(atag1.ne." ") then
-          latom1 = index(tag,atag1(1:len_trim(atag1))).ne.0
-        end if
-        if(id2.ne.0) then
-          latom2=id2.eq.id
-        else if(atag2.ne." ") then
-          latom2 = index(tag,atag2(1:len_trim(atag2))).ne.0
-        end if
-        if(latom1) then
-c         write(*,*) "found ",id,atag1(1:len_trim(atag1))
-          j1 = j1+1
-          if(j1.gt.n1) goto 138
-          c1(j1,:)=c3
-        else if(latom2) then
-c          write(*,*) "found ",id,atag2(1:len_trim(atag2))
-          j2 = j2+1
-          if(j2.gt.n2) goto 138
-          c2(j2,:)=c3
-        end if
-       end do
-c       write(*,*) "finshed reading coordinates"
-135    continue
-       n1=j1
-       n2=j2
-c       write(*,*) "out "//pname
-       return
-c      -------------
-c      error section
-c      -------------
-136    continue
-       write(*,*) "subroutine:" //pname(1:len_trim(pname))
-       write(*,*) "error number of atoms field"
-       write(*,*) "line number: ", l
-       write(*,*) "buffer: ",bigbuf
-       stop
-       return
-137    continue
-       write(*,*) "error reading coords field"
-       write(*,*) "line number: ", l
-       write(*,*) "buffer: ", bigbuf
-       stop
-       return
-138    continue
-       write(*,*) message
-       stop
-c
-c      format statements
-c      -----------------
-30     FORMAT(180A1)
-20     FORMAT(A180)
-       end
-
        subroutine rdf_compute2(n,c,oc1,oc2,
      +                        nb,rmax,lat,
      +                        gr,
      +                        fn_in)
        implicit none
        integer n
-       double precision c(n,3)
+       double precision c(3,n)
        logical oc1(n),oc2(n)
        integer fn_in
        integer nb
@@ -1053,7 +730,7 @@ c      ----------------------------
          do i2=1,n
            if(oc2(i2)) then
            i = i+1
-           rd = c(i1,:)-c(i2,:)
+           rd = c(:,i1)-c(:,i2)
 
            ss = matmul(rlat,rd)
            rr = ss-nint(ss)
@@ -1092,430 +769,6 @@ c      -------------
        stop
        return
        end
-
-       subroutine rdf_compute(n0,n1,c1,atag1,
-     +                        n2,c2,atag2,
-     +                        nb,rmax,lat,
-     +                        gr,
-     +                        fn_in)
-       implicit none
-       integer n0,n1,n2
-       double precision c1(n0,3),c2(n0,3)
-       integer fn_in
-       character*(*) atag1,atag2
-       integer nb
-       double precision rmax
-       double precision gr(nb)
-       double precision lat(3,3)
-c       
-       integer i1,i2
-       double precision rd(3)
-c
-       integer j
-       integer i,n,a,nd,k
-       double precision c3(3)
-       double precision rlat(3,3)
-       character*30 buf
-       character*30 tag
-       character*180 bigbuf
-       character*180 message
-       integer l
-       logical is_integer
-       external is_integer
-       character*30 pname 
-       double precision d,dr,const
-       double precision fourpi,x
-       double precision ru,rl,vol,norm
-       double precision  sx,sy,sz,xs,ys,zs
-       double precision  ss(3),rr(3)
-       pname = "rdf_compute"
-c
-c      ----------------------
-c      compute lattice params
-c      ----------------------
-       call smd_lat_invrt(lat,rlat)
-       call smd_latt_vol(lat,vol)
-c      ----------------------------
-c      construct relative distances
-c      and bin rdf
-c      ----------------------------
-       dr = rmax/nb
-       i=0
-       do i1=1,n1
-         do i2=1,n2
-           rd = c2(i2,:)-c1(i1,:)
-
-           ss = matmul(rlat,rd)
-           rr = ss-nint(ss)
-           rd = matmul(lat,rr)
-
-           d = sqrt(sum(rd*rd))
-           k = int(d/dr)+1
-
-           if(k.le.nb ) then
-            gr(k) = gr(k) + 1
-           end if
-
-         end do
-       end do
-c
-       fourpi = 16.0*atan(1.0)
-       const = fourpi*real(n1)*real(n2)/(vol*3.0d0)
-       do k=1,nb
-         rl = real(k-1)*dr
-         ru = rl+dr
-         norm = const*(ru**3-rl**3)
-         gr(k) = gr(k)/norm
-       end do
-       return
-c      -------------
-c      error section
-c      -------------
-911    continue
-       write(*,*) "subroutine:" //pname(1:len_trim(pname))
-       stop
-       return
-       end
-
-       subroutine rdf_compute1(n0,n1,c1,atag1,
-     +                        n2,c2,atag2,
-     +                        nb,rmax,lat,
-     +                        gr,
-     +                        fn_in)
-       implicit none
-       integer n0,n1,n2
-       double precision c1(n0,3),c2(n0,3)
-       integer fn_in
-       character*(*) atag1,atag2
-       integer nb
-       double precision rmax
-       double precision gr(nb)
-       double precision lat(3,3)
-c       
-       integer i1,i2
-       double precision rd(n2+n1,3)
-c
-       integer j
-       integer i,n,a,nd,k
-       double precision c3(3)
-       double precision rlat(3,3)
-       character*30 buf
-       character*30 tag
-       character*180 bigbuf
-       character*180 message
-       integer l
-       logical is_integer
-       external is_integer
-       character*30 pname 
-       double precision d,dr,const
-       double precision fourpi,x
-       double precision ru,rl,vol,norm
-       pname = "rdf_compute"
-c
-c      ----------------------
-c      compute lattice params
-c      ----------------------
-       call smd_lat_invrt(lat,rlat)
-       call smd_latt_vol(lat,vol)
-c      ----------------------------
-c      construct relative distances
-c      ----------------------------
-c       do i=1,n1
-c         write(64,*) (c1(i,k),k=1,3)
-c       end do
-c       do i=1,n2
-c         write(65,*) (c2(i,k),k=1,3)
-c       end do
-c
-       i=0
-       do i1=1,n1
-         do i2=1,n2
-           i = i+1
-           rd(i,:) = c2(i2,:)-c1(i1,:)
-            write(57,*) rd(i,:)
-         end do
-       end do
-       n = i
-       call smd_util_rebox(n,n,lat,rlat,rd)
-c
-c      compute histogram
-c      -----------------
-c      size of the bin
-       dr = rmax/nb
-       do j=1,n
-         d=sqrt(rd(j,1)*rd(j,1)+rd(j,2)*rd(j,2)+rd(j,3)*rd(j,3))
-         k = int(d/dr)+1
-         if(k.le.nb ) then
-          gr(k) = gr(k) + 1
-         end if
-       end do
-c
-       do j=1,nb
-         write(55,*) gr(j)
-       end do
-c
-       fourpi = 16.0*atan(1.0)
-       const = fourpi*real(n1)*real(n2)/(vol*3.0d0)
-       do k=1,nb
-         rl = real(k-1)*dr
-         ru = rl+dr
-         norm = const*(ru**3-rl**3)
-         gr(k) = gr(k)/norm
-       end do
-       do j=1,nb
-         write(56,*) gr(j)
-       end do
-       return
-c      -------------
-c      error section
-c      -------------
-136    continue
-       write(*,*) "subroutine:" //pname(1:len_trim(pname))
-       write(*,*) "error number of atoms field"
-       write(*,*) "line number: ", l
-       write(*,*) "buffer: ",bigbuf
-       stop
-       return
-137    continue
-       write(*,*) "error reading coords field"
-       write(*,*) "line number: ", l
-       write(*,*) "buffer: ", bigbuf
-       stop
-       return
-138    continue
-       write(*,*) message
-       stop
-c
-c      format statements
-c      -----------------
-30     FORMAT(180A1)
-20     FORMAT(A180)
-       end
-
-       subroutine pair_compute(rmax,lat,i1,atag,nb,infile)
-       implicit none
-       double precision lat(3,3)
-       double precision rmax
-       integer i1,nb
-       character*(*) atag
-       character*(*) infile
-c
-       integer j
-       integer i,n,a,nd,k,n0
-       double precision rlat(3,3),r1(3)
-       double precision, dimension(:,:), allocatable :: c
-       double precision, dimension(:,:), allocatable :: rd
-       character*5, dimension(:), allocatable :: tag
-       integer, dimension(:), allocatable :: gr
-       double precision, dimension(:), allocatable :: grs
-       character*30 buf
-       character*180 bigbuf
-       double precision d,dr
-       double precision fourpi,x
-       integer  nf 
-       double precision vol,sum,norm,const,rl,ru,rho
-       integer l,sl
- 
-c
-c
-       nf = 0
-c
-c      size of the bin
-       dr = rmax/nb
-c      g(r) array
-       allocate(gr(nb))
-       allocate(grs(nb))
-       gr = 0
-       grs = 0.0d0
-c      get reciprocal lattice vectors 
-       call smd_lat_invrt(lat,rlat)
-c       write(*,*) "Inverse Lattice vectors"
-c       write(*,*) (rlat(i,1),i=1,3)
-c       write(*,*) (rlat(i,2),i=1,3)
-c       write(*,*) (rlat(i,3),i=1,3)
-c      get lattice volume
-       call smd_latt_vol(lat,vol)
-c
-c      allocate other memory
-       open(10,file=infile,
-     $            form='formatted',status='old')
-       read(10,*) n
-       rewind(10)
-       allocate(c(n,3))
-       allocate(rd(n,3))
-       allocate(tag(n))
-c      start calculating distances
-       l = 0
-       n0 = 0
-10     continue
-c
-c      get number of atoms (skipping empty lines)
-c      ------------------------------------------
-11     continue
-       read(10,20,end=135) bigbuf
-c      increment line number
-       l=l+1
-       if(bigbuf.eq."") goto 11
-       read(bigbuf,*,err=136) n
-c      check if number of atoms consistent with prior
-       if(n0.eq.0) then
-         n0=n
-       else if(n0.ne.n) then
-         goto 136
-       end if
-c
-c      get title field(if any) 
-c      -------------------
-       read(10,20) bigbuf
-       l=l+1
-c      processing coodinates
-       j = 0
-       do i=1,n
-c
-c       read coordinates(skipping empty lines)
-c       ------------------------------------
-12      continue
-        read(10,20) bigbuf
-        l=l+1
-        if(bigbuf.eq."") goto 12
-        read(bigbuf,*,err=137) tag(i),(c(i,k),k=1,3)
-c
-c       extract coords of secondary atoms
-c       with "atag" name (i1 is a central atom)
-c       ---------------------------------------
-c        if((tag(i).eq.atag).and.i.ne.i1) then
-        sl = len_trim(atag)
-        if(index(tag(i),atag(1:sl)).ne.0) then
-        if(i.ne.i1) then
-          j = j+1
-          rd(j,:) = c(i,:)
-        end if
-        end if
-       end do
-       
-c
-c      construct relative distances
-c      ----------------------------
-       nd = j 
-       r1 = c(i1,:)
-       do j=1,nd
-         rd(j,:) = rd(j,:)-r1
-       end do
-
-c
-c      fold the distances into the box
-c      -------------------------------
-       call smd_util_rebox(nd,n,lat,rlat,rd)
-
-c
-c      compute histogram
-c      -----------------
-       do j=1,nd
-         d=sqrt(rd(j,1)*rd(j,1)+rd(j,2)*rd(j,2)+rd(j,3)*rd(j,3))
-         k = int(d/dr)+1
-         if(k.le.nb ) then
-          gr(k) = gr(k) + 1
-         end if
-       end do
-       nf = nf + 1
-
-       goto 10
-      
-135    continue
-        write(*,*) "Number of frames processed",nf
-c
-c      smoothing g(r) per Allan/Tild. p 204 (6.48)
-c      ------------------------------------------
-       grs(1)=(69.0*gr(1)+4.0*gr(2)-6.0*gr(3)+
-     >         4.0*gr(4)-gr(5))/70.0d0
-       grs(2)=(2.0*gr(1)+27.0*gr(2)+12.0*gr(3)
-     >  -8.0*gr(4)+2.0*gr(5))/35.0d0
-       do i=3,nb-2
-         grs(i) =(-3.0*gr(i-2)+12.0*gr(i-1)+17.0*gr(i)+
-     >            12.0*gr(i+1)-3.0*gr(i+2))/35.0d0 
-       end do
-       grs(nb-1)=(2.0*gr(nb)+27*gr(nb-1)+12.0*gr(nb-2)-
-     >            8.0*gr(nb-3)+2.0*gr(nb-4))/35.0d0
-       grs(nb)=(69.0*gr(nb)+4.0*gr(nb-1)-6.0*gr(nb-2)+
-     >          4.0*gr(nb-3)-gr(nb-4))/70.0d0
-       open(12,file="gr.dat",
-     $            form='formatted',status='unknown')
-
-       fourpi = 16.0*atan(1.0)
-       rho = real(nd)/vol
-       x = 1.0/real(nf)
-       const = fourpi*rho/3.0d0
-       sum = 0.0d0
-       do k=1,nb
-         rl = real(k-1)*dr
-         ru = rl+dr
-         norm = const*(ru**3-rl**3)
-         sum = sum + grs(k)*x
-c         write(12,'(i5,F12.6,I5,F12.6,F12.6)') 
-c     >             k,ru,gr(k),sum,real(gr(k))*x/norm
-         write(12,'(3F12.6)') 
-     >             ru,real(grs(k))*x/norm,sum
-       end do
-       return
-c      error section
-c      -------------
-136    continue
-       write(*,*) "error number of atoms field"
-       write(*,*) "line number: ", l
-       write(*,*) "buffer: ",bigbuf
-       return
-137    continue
-       write(*,*) "error reading coords field"
-       write(*,*) "line number: ", l
-       write(*,*) "buffer: ", bigbuf
-       return
-c
-c      format statements
-c      -----------------
-30     FORMAT(180A1)
-20     FORMAT(A180)
-       end
-
-      subroutine smd_util_rebox(n,nmax,latt,rlatt,aaa)
-
-      implicit none
-
-      integer n,nmax
-      double precision rlatt(3,3),latt(3,3)
-      double precision  aaa(nmax,3)
-c
-      integer i
-      double precision  ssx,ssy,ssz,xss,yss,zss
-      logical oprint
-
-
-      if(n.eq.1) then
-       oprint =.true.
-      else
-       oprint = .false.
-      end if
-      oprint = .false.
-      do i=1,n
-
-       if(oprint)
-     >          write(*,*) "rebox",aaa(i,1),aaa(i,2),aaa(i,3)
-       ssx=(rlatt(1,1)*aaa(i,1)+rlatt(1,2)*aaa(i,2)+rlatt(1,3)*aaa(i,3))
-       ssy=(rlatt(2,1)*aaa(i,1)+rlatt(2,2)*aaa(i,2)+rlatt(2,3)*aaa(i,3))
-       ssz=(rlatt(3,1)*aaa(i,1)+rlatt(3,2)*aaa(i,2)+rlatt(3,3)*aaa(i,3))
-
-       xss=ssx-nint(ssx)
-       yss=ssy-nint(ssy)
-       zss=ssz-nint(ssz)
-
-       aaa(i,1)=(latt(1,1)*xss+latt(1,2)*yss+latt(1,3)*zss)
-       aaa(i,2)=(latt(2,1)*xss+latt(2,2)*yss+latt(2,3)*zss)
-       aaa(i,3)=(latt(3,1)*xss+latt(3,2)*yss+latt(3,3)*zss)
-
-      enddo
-
-      return
-
-      END
 
       subroutine smd_latt_vol(latt,vol)
       implicit none
@@ -1709,5 +962,4 @@ c      if you reach this you are in trouble
        stop
 
       end subroutine
-
 
