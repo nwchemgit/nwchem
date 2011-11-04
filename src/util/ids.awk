@@ -5,6 +5,7 @@
 # a CVS ID    -> produce a write statement with the ID ("Exp" at the end)
 # a SVN ID    -> produce a write statement with the ID (no "Exp" at the end)
 # module name -> produce a write statement for the module name
+# prev_str    -> skip to eliminate duplicates
 # other       -> produce nothing
 # 
 # $Id$
@@ -17,6 +18,7 @@ BEGIN {
 		printf("      write(6,*)\n");
 		printf("      write(6,*) ' Software version information'\n");
 		printf("      write(6,*) ' ----------------------------'\n");
+		prev_str = underline;
 }
 
 /^module/			{
@@ -26,12 +28,17 @@ BEGIN {
 				 printf("      write(6,*) ' %s'\n",substr(underline,1,len));
 				}
 
+0 != match($0,prev_str)		{
+				  $0="";
+				}
+
 /\$\I\d: [^\n]*Exp \$/		{
 				 i = index($0, "$Id: ") + 5;
 				 j = index($0, "Exp $") - 1;
 				 n = j - i + 1;
 				 if (n > (72 - 20)) n = 72 - 20;
 				 printf("      write(6,*) ' %s'\n",substr($0,i,n));
+				 prev_str = substr($0,i,n);
 				}
 
 /\$\I\d: [^\n]* \$/		{
@@ -39,6 +46,7 @@ BEGIN {
 				 n = index(substr($0,i), " $") - 1;
 				 if (n > (72 - 20)) n = 72 - 20;
 				 printf("      write(6,*) ' %s'\n",substr($0,i,n));
+				 prev_str = substr($0,i,n);
 				}
 
 END {
