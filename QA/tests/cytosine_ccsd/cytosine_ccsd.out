@@ -10,7 +10,7 @@ All connections between all procs tested: SUCCESS
 
 
 ============================== echo of input deck ==============================
-# $Id: cytosine_ccsd.nw 19708 2010-10-29 18:04:21Z d3y133 $
+# $Id$
 start cytosine
 memory 1024 mb
 

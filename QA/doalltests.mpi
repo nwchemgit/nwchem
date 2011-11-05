@@ -1,5 +1,7 @@
 #!/bin/bash
 #
+# $Id$
+#
 # This is only a sample script to run all the relevant QA test cases.
 #
 # You will at least need to change NWCHEM_TARGET to match the target for your
