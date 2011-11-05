@@ -1,3 +1,5 @@
+c $Id$
+
       integer paw_xc_work_size
       integer paw_rho2_ae(2)
       integer paw_rho2_ps(2)
@@ -96,4 +98,14 @@
      >                        paw_xc_dmatr
 
 
-c $Id$
+      integer nindx_rholm(2)
+      integer shift_rholm(2)
+      integer coeff_rholm(2)
+      integer i_rholm(2)
+      integer j_rholm(2)
+      integer iprj_rholm(2)
+      integer jprj_rholm(2)
+      integer lm_rholm(2)
+      common /nwpw_xc_rholm_data/ nindx_rholm,shift_rholm,coeff_rholm,
+     >                            i_rholm,j_rholm,iprj_rholm,jprj_rholm,
+     >                            lm_rholm
