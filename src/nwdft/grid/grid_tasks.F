@@ -43,6 +43,7 @@ c
       integer k_gridscr,l_gridscr ! [out]  grid handles
       integer k_iscr,l_iscr ! [out] iscr handles
       integer nq_left	
+      integer eaf_size_in_mb
       integer grid_nxyz
       external grid_nxyz
 c
@@ -63,6 +64,8 @@ c
      $     MT_INT, 1, filesize)) filesize = 0
       if (.not. rtdb_get(rtdb, 'grid:memsize',
      $     MT_INT, 1, memsize)) memsize = 0
+      if (.not. rtdb_get(rtdb, 'grid:eaf_size_in_mb',
+     $     MT_INT, 1, eaf_size_in_mb)) eaf_size_in_mb = 0
 c
 c     The opening routine will put the .pid on the grid_pts filename
 c     (hence even tho' parallel file, open as sequential)
@@ -76,7 +79,7 @@ c
          if(.not.geom_nuc_rep_energy(geom, Enuc)) 
      .        call errquit(' gridquad: enucrep failed ',0, GEOM_ERR)
          if (.not. grid_file_open(enuc,
-     .        gridfilename, memsize, filesize))
+     .        gridfilename, memsize, filesize,eaf_size_in_mb))
      $        call errquit('grid_tasks: opening gridpts?', 0, DISK_ERR)
       endif
 c

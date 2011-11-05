@@ -17,7 +17,13 @@ c
       logical otrace
 c
       otrace = util_print('griddebug',print_debug)
+cedo      ierr=eaf_open(grinfo, eaf_rw, fdg)
+cedo            ierr=eaf_open(grinfo, 100, fdg)
+#ifndef EAFHACK
       ierr=eaf_open(grinfo, eaf_rw, fdg)
+#else
+      ierr=eaf_open(grinfo, 1001024, fdg)
+#endif
       if (ierr .ne. 0) then
          call eaf_errmsg(ierr,errmsg)
          write(LuOut,*) ga_nodeid(),errmsg

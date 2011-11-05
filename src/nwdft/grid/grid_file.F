@@ -11,7 +11,7 @@
       end
       logical function grid_file_open(enuc_in,
      $     filename,
-     $     cachesize, filesize)
+     $     cachesize, filesize, eaf_size_in_mb)
       implicit none
 #include "errquit.fh"
 #include "cgridfile.fh"
@@ -29,6 +29,7 @@
 c
       double precision enuc_in ! [in]
       double precision enuc
+      integer eaf_size_in_mb
       integer  sdlen
       double precision availkb
       character*20 fstype
@@ -41,6 +42,7 @@ c
       external util_scratch_dir_avail_for_me
       logical grid_file_rewind
       logical oreafail
+      integer eaftypegr
       external grid_file_rewind
       logical grid_grinfoinit,grid_grinfo2
       external grid_grinfoinit,grid_grinfo2
@@ -78,14 +80,29 @@ c
       call grid_buf_clear()
       call dfill(4*buffer_size, 0.0d0, values, 1)
       cur_rec_rad=0d0
+      eaftype=100
+c 256m should be plenty for grid pts
+      if(eaf_size_in_mb.eq.0) eaf_size_in_mb=256
+      eaftype=1000000+eaf_size_in_mb*1024*1024
+c     1k is plenty for grinfo
+      eaftypegr=1000000+1024
+#ifdef DEBUG
+      if(ga_nodeid().eq.0) then
+         write(6,*) '1eaftype',eaftype,eaf_size_in_mb
+         call util_flush(LuOut)
+      endif
+      if(ga_nodeid().eq.0) then
+         write(6,*) ' grinfo type size',eaftypegr
+         call util_flush(LuOut)
+      endif
+#endif
 c
 c     defer allocation of memory until the first write otherwise
 c     this memory is sitting around during the initial guess routines
 c
       call util_file_name('grinfo',.true.,.false.,grinfo_in)
       call util_pname(grinfo_in, grinfo)
-c     If "largenode", then it should never be opened
-      if(.not.oreopen .or. largenode) then
+      if(.not.oreopen) then
 c
 c     Figure out sizes.  The -1 is to leave room for the end record
 c     which for semidirect may be written out after EOF has been reported.
@@ -132,7 +149,6 @@ c     dont use disk for grid pts
 c     
                 largenode=.true.
                 grid_file_open=.true.
-                if(oreopen)grid_file_open=.false.
                 return
              endif
             max_file_rec = nint((0.95*1024.0d0*availkb) / 
@@ -188,7 +204,11 @@ c
      $        call errquit('grfile: rewinding gridpts?',1, DISK_ERR)
          file_opened=.false.
          filedump_opened=.false.
+#ifndef EAFHACK
          ierr=eaf_open(actualname, eaf_rw, fd)
+#else
+         ierr=eaf_open(actualname, eaftypegr, fd)
+#endif
          if (ierr .ne. 0) then
             call eaf_errmsg(ierr,errmsg)
             write(LuOut,*) ga_nodeid(),errmsg
@@ -375,18 +395,21 @@ c
 c
  10   continue
          if (.not. file_opened) then
-            if (eaf_open(actualname, eaf_rw, fd) .ne. 0) then
-cold     $           call errquit('grid_pckbufw: eaf_open failed', 0,
-cold     &       DISK_ERR)
-               write(6,*)ga_nodeid(),'grid_pckbufw: eaf_open failed'
-               ierr=eaf_delete(actualname)
-               write(6,*)ga_nodeid(),'grpck: eaf_del rc=',ierr
-               call util_flush(6)
-               if (eaf_open(actualname, eaf_rw, fd) .ne. 0) 
-     $              call errquit('grid_pckbufw: eaf_open failed', 0,
-     &              DISK_ERR)
+#ifdef DEBUG
+          if(ga_nodeid().eq.0) then
+             write(6,*) ' grid file type',eaftype
+            call util_flush(LuOut)
             endif
+#endif
+#ifndef EAFHACK
+            if (eaf_open(actualname, eaf_rw, fd) .ne. 0) then
+#else
+            if (eaf_open(actualname, eaftype, fd) .ne. 0) then
+#endif
+               call errquit('grid_pckbufw: eaf_open failed', 0,
+     &       DISK_ERR)
             file_opened = .true.
+            endif
          endif
        if (cur_rec .le. max_cache_rec) then
           if(.not.grid_opencache()) goto 10 ! Dirty ... go back and try again
@@ -618,7 +641,7 @@ c
       logical grid_file_open
       external grid_file_open
       integer avail, localmemsize
-      integer filesize, memsize
+      integer filesize, memsize,eaf_size_in_mb
       character*255 gridfilename
       double precision nq
       logical ofirst
@@ -632,6 +655,8 @@ c
      $     MT_INT, 1, filesize)) filesize = 0
       if (.not. rtdb_get(rtdb, 'grid:memsize',
      $     MT_INT, 1, memsize)) memsize = 0
+      if (.not. rtdb_get(rtdb, 'grid:eaf_size_in_mb',
+     $     MT_INT, 1, eaf_size_in_mb)) eaf_size_in_mb = 0
       if (filesize.lt.0 .and. memsize.lt.0) return
 c
 c     Determine if we should automatically run an in-core calculation
@@ -679,7 +704,7 @@ c
      .        call errquit(' gridtestmem: enucrep failed ',0, GEOM_ERR)
         call util_file_name('gridpts',.true.,.false.,gridfilename)
          if (.not. grid_file_open(enuc,gridfilename, 
-     $        localmemsize, filesize))
+     $        localmemsize, filesize,eaf_size_in_mb))
      $        call errquit('grid_test_mem: grid_file_open failed',0,
      &       DISK_ERR)
          grid_test_mem = .true.
@@ -703,7 +728,6 @@ c
       double precision aqbuf(4,nqpts)
       double precision rad
       integer ncube ! [in] cube
-!      integer nsubb ! [in] no. cubes in buffer
       logical grid_buf_write
       external grid_buf_write
 c
@@ -742,7 +766,6 @@ c     to avoid excessive fragmentation of a single cube
       cur_rec_rad = max(rad,cur_rec_rad)
 c     This copy can be made a lot more efficient
       if (n_in_rec .ge. n_per_rec-1) then
-!         write(LuOut,*) '1bufw',n_in_rec
          grid_file_write = grid_buf_write(.false.)
          if (.not. grid_file_write) return
       endif
@@ -758,7 +781,6 @@ c     This copy can be made a lot more efficient
 c after 1st shell contribution to cube
          do ind = 1, nqpts
             if (n_in_rec .eq. n_per_rec) then
-!               write(LuOut,*) '2bufw',n_in_rec,ind
                grid_file_write = grid_buf_write(.false.)
                if (.not. grid_file_write) return
                nsubb=1
@@ -775,15 +797,12 @@ c
          next_value = next_value + 1
 c     
          values(1,ptr_cube)=values(1,ptr_cube)+1d0
-!            write(0,'(A,i4,4F16.9)') 
-!     .           ' FF ',n_in_rec,
          values(1,n_in_rec)   = aqbuf(1,ind)
          values(2,n_in_rec)   = aqbuf(2,ind)
          values(3,n_in_rec)   = aqbuf(3,ind)
          values(4,n_in_rec)   = aqbuf(4,ind)
 c
       end do
-!      write(0,*) ' endw nr',n_in_rec,' nq ',nqpts,' nsubb ',nsubb
 c
       end
       logical function grid_file_read(maxqpts, nqpts, nctr,rad,aqbuf,
@@ -870,12 +889,13 @@ c
 #include "errquit.fh"
 #include "geom.fh"
 #include "cgridfile.fh"
-#include "bgj.fh"
+cedo#include "bgj.fh"
+#include "global.fh"
 c
       integer geom ![in]
 c
       double precision enuc
-      integer filesize, memsize
+      integer filesize, memsize,eaf_size_in_mb
       logical grid_file_open
       external grid_file_open
       character*255 gridfilename
@@ -884,8 +904,13 @@ c
       grid_reopen=.false.
         call util_file_name('gridpts',.true.,.false.,gridfilename)
       oreopen=.true.
+      eaf_size_in_mb=256
+      if(ga_nodeid().eq.0) then
+      write(6,*) 'eafmnb ',eaf_size_in_mb
+      call util_flush(6)
+      endif
       grid_reopen=
      .     grid_file_open(enuc,
-     .     gridfilename, memsize, filesize)
+     .     gridfilename, memsize, filesize, eaf_size_in_mb)
       return
       end
