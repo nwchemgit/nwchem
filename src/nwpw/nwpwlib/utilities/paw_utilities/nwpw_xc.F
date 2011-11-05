@@ -1403,3 +1403,4 @@ c        **** compute |grad nup| and |grad ndn| ****
       return
       end
 
+c $Id$

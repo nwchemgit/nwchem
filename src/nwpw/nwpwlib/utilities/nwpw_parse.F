@@ -27,3 +27,4 @@
       nwpw_parse_boolean = value
       return
       end
+c $Id$

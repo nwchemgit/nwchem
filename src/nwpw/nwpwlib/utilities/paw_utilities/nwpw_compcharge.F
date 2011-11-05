@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_compcharge.F 19707 2010-10-29 17:59:36Z d3y133 $
+* $Id$
 *
 
 *     *************************************************
@@ -280,8 +280,8 @@
       real*8  scal,tmp,q(2)
 
 *     **** external functions ****
-      real*8   nwpw_compcharge_Qlm_sub,lattice_omega
-      external nwpw_compcharge_Qlm_sub,lattice_omega
+      real*8   lattice_omega
+      external lattice_omega
 
       shiftia = int_mb(Tndiff_shift(1)+ia-1)
 
