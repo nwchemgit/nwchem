@@ -26,6 +26,7 @@ BEGIN {
 				 printf("      write(6,*)\n");
 				 printf("      write(6,*) ' %s'\n",$0);
 				 printf("      write(6,*) ' %s'\n",substr(underline,1,len));
+				 prev_str = underline;
 				}
 
 0 != match($0,prev_str)		{
@@ -39,6 +40,7 @@ BEGIN {
 				 if (n > (72 - 20)) n = 72 - 20;
 				 printf("      write(6,*) ' %s'\n",substr($0,i,n));
 				 prev_str = substr($0,i,n);
+				 $0=""
 				}
 
 /\$\I\d: [^\n]* \$/		{
