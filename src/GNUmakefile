@@ -131,6 +131,7 @@ realclean:
 	done
 	-$(RM) $(LIBDIR)/*.a $(BINDIR)/*
 	-$(RM) *.db movecs fort.41 fort.44
+	-$(RM) 64_to_32 32_to_64
 
 .PHONY:	cleanF
 cleanF:
@@ -164,6 +165,13 @@ endif
 ifeq ($(TARGET),CRAY-T3D)
 	$(MAKE) cleanDEP
 endif        
+ifeq ($@,64_to_32)
+	-$(RM) 32_to_64
+endif
+ifeq ($@,32_to_64)
+	-$(RM) 64_to_32
+endif
+	touch $@
 #
 # This rule to make necessary subdirectories in lib and bin (normally)
 #
