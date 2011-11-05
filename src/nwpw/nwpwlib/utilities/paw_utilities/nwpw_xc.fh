@@ -17,6 +17,9 @@
       integer exc_ps(2)
       integer xc_temp(2)
       integer xc_c_temp(2)
+      integer n1dgrid_max
+      integer nbasis_max
+      integer nprj_max
 
       common /nwpw_xc_work_data/ paw_xc_work_size,
      >                          paw_rho2_ae,  
@@ -36,7 +39,8 @@
      >                          exc_ae,
      >                          exc_ps,
      >                          xc_c_temp,
-     >                          xc_temp
+     >                          xc_temp,
+     >                          n1dgrid_max,nbasis_max,nprj_max
 
       integer paw_xc_gga
       integer paw_xc_ispin
