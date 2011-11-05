@@ -6,6 +6,11 @@
 # This script looks for source code files that do not have a $Id: $ construct in them.
 # When such a file is found it will add the particular construct at the end of the file.
 #
+if [ ${#NWCHEM_TOP} -eq 0 ] ; then
+  echo "NWCHEM_TOP not set. Assuming that this script is running in NWChem"
+  echo "top directory (i.e. just above the src directory)."
+  export NWCHEM_TOP=`pwd`
+fi
 export ADD_ID_FORTRAN=${NWCHEM_TOP}/contrib/add_Id_Fortran
 export ADD_ID_C=${NWCHEM_TOP}/contrib/add_Id_C
 export ADD_ID_MAKEFILE=${NWCHEM_TOP}/contrib/add_Id_Makefile
