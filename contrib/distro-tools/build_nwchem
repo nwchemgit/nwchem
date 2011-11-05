@@ -351,7 +351,7 @@ function get_blas_lib()
    # a Fortran program that calls BLAS routines to compile, link and run.
    # The first library that matches these criteria is returned.
    fcomp=$1
-   list="-lmkl -lacml -lcxml -lscs -lcomplib.sgimath -lsunmath -latlas -lessl -llapack -lcblas -lblas -lf77blas"
+   list="-lmkl -lacml -lcxml -lscs -lcomplib.sgimath -lsunmath -latlas -lessl -lscalapack -llapack -lcblas -lblas -lf77blas"
    lib=""
    for candidate in ${list} ; do
      # echo "blas: trying ${candidate}" > /dev/stderr
@@ -447,7 +447,7 @@ function get_lapack_lib()
    # The first library that matches these criteria is returned.
    fcomp=$1
    blas=$2
-   list="-lmkl -lacml -lcxml -lscs -lcomplib.sgimath -lsunmath -latlas -lessl -llapack"
+   list="-lmkl -lacml -lcxml -lscs -lcomplib.sgimath -lsunmath -latlas -lessl -lscalapack -llapack -lcblas -lblas -lf77blas"
    lib=""
    for candidate in ${list} ; do
      # echo "lapack: trying ${candidate}" > /dev/stderr
@@ -545,7 +545,7 @@ function get_scalapack_lib()
    # The first library that matches these criteria is returned.
    fcomp=$1
    lapackblas=$2
-   list="-lmkl -lacml -lcxml -lscs -lcomplib.sgimath -lsunmath -latlas -lessl -lscalapack"
+   list="-lmkl -lacml -lcxml -lscs -lcomplib.sgimath -lsunmath -latlas -lessl -lscalapack -llapack -lcblas -lblas -lf77blas"
    lib=""
    for candidate in ${list} ; do
      # echo "lapack: trying ${candidate}" > /dev/stderr
@@ -653,6 +653,7 @@ function get_scalapack_integer()
 # package, i.e. if you know you are on a BlueGene/P then all required settings
 # are prescribed. This is not the case on other platforms.
 #
+echo "=== figure out Network, MPI, and LinAlg libraries ==="
 if [ -d /bgsys/drivers/ppcfloor ] ; then
   #
   # This is a BlueGene/P machine
@@ -898,12 +899,47 @@ if [ ${#SCALAPACK_SIZE} -eq 0 ] ; then
   fi
   export SCALAPACK_SIZE
 fi
+#
+# Work out whether BLAS, LAPACK and SCALAPACK are compatible and based on that
+# what we are actually going to use.
+#
+if [ ${#SCALAPACK_LIB} -eq 0 ] ; then
+  # No ScaLAPACK found so worry only about BLAS and LAPACK
+  if [ ${LAPACK_SIZE} -ne ${BLAS_SIZE} ] ; then
+    # So at least one of LAPACK and BLAS has to fall back to source code
+    # and integer*8.
+    if [ ${BLAS_SIZE} -eq 4 ] ; then
+      export BLAS_LIB=""
+      export BLAS_SIZE=8
+    fi
+    if [ ${LAPACK_SIZE} -eq 4 ] ; then
+      export LAPACK_LIB=""
+      export LAPACK_SIZE=8
+    fi
+  fi
+else
+  if [[ ( ${LAPACK_SIZE} -ne ${BLAS_SIZE} ) || ( ${SCALAPACK_SIZE} -ne ${BLAS_SIZE} ) ]] ; then
+    if [ ${BLAS_SIZE} -eq 4 ] ; then
+      export BLAS_LIB=""
+      export BLAS_SIZE=8
+    fi
+    if [ ${LAPACK_SIZE} -eq 4 ] ; then
+      export LAPACK_LIB=""
+      export LAPACK_SIZE=8
+    fi
+    if [ ${SCALAPACK_SIZE} -eq 4 ] ; then
+      export SCALAPACK_LIB=""
+      export SCALAPACK_SIZE=8
+    fi
+  fi
+fi
 option=$1
 if [ "x$1" == "xpython" ]; then
   export PYTHONVERSION=2.4
   export PYTHONHOME=/usr
   export PYTHONPATH=./:$NWCHEM_TOP/contrib/python/
   export NWCHEM_MODULES="$NWCHEM_MODULES python"
+  echo "===================================="
   echo "Building NWChem including Python $PYTHONVERSION"
   echo "===================================="
   echo
@@ -914,11 +950,13 @@ elif [ "x$1" == "xpython64" ]; then
   export PYTHONHOME=/usr
   export PYTHONPATH=./:$NWCHEM_TOP/contrib/python/
   export NWCHEM_MODULES="$NWCHEM_MODULES python"
+  echo "===================================="
   echo "Building NWChem including Python $PYTHONVERSION"
   echo "===================================="
   echo
   option=""
 else
+  echo "==============="
   echo "Building NWChem"
   echo "==============="
   echo
@@ -1002,10 +1040,33 @@ if [ "x${option}" != "xrealclean" ]; then
   make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" nwchem_config
 fi
 cd $NWCHEM_TOP/src/util
+echo "=== build NWChem version table ==="
 if [ "x${option}" != "xrealclean" ]; then
   make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" version
 fi
 cd $NWCHEM_TOP/src
+echo "=== do NWChem code conversion ==="
+if [ "x${option}" != "xrealclean" ]; then
+  if [ ${#USE_64TO32} -eq 0 ] ; then
+     make 32_to_64
+  else
+     make 64_to_32
+  fi
+  # The make 32_to_64 or 64_to_32 forced the dependencies to be created
+  # However, at this time the Global Arrays have not been built yet and
+  # therefore the nwchem/src/tools/install/include directory does not exist,
+  # and hence the GA include files cannot be successfully located. As a result
+  # all the dependencies involving GA include files are bogus and wrong.
+  # So delete the time stamps that protect these dependencies so that new
+  # dependencies can be recorded at the right moment in the following make.
+  if [[ ! ( -d $NWCHEM_TOP/src/tools/install/include || \
+            -d $NWCHEM_TOP/src/tools/include ) ]] ; then
+    find . -name include_stamp -exec rm -f {} \; -print
+    find . -name dependencies -exec rm -f {} \; -print
+  fi
+fi
+echo "=== compile nwchem ==="
 make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
 cd $NWCHEM_TOP/contrib/mov2asc
 make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" $option
+echo "=== all done ==="
