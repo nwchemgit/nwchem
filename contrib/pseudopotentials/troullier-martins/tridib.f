@@ -280,3 +280,4 @@ C                EXACTLY THE DESIRED EIGENVALUES **********
       RETURN
 C     ********** LAST CARD OF TRIDIB **********
       END
+c $Id$
