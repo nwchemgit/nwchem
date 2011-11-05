@@ -352,8 +352,33 @@ else
     endif
 endif
 
+ifneq ($(BLAS_LIB),)
+    ifeq ($(BLAS_SIZE),4)
+        MAYBE_BLAS = --with-blas4="$(strip $(BLAS_LIB))"
+    else
+        MAYBE_BLAS = --with-blas8="$(strip $(BLAS_LIB))"
+    endif
+endif
 ifneq ($(BLASOPT),)
-    MAYBE_BLAS = --with-blas="$(strip $(BLASOPT))"
+    ifeq ($(MAYBE_BLAS),)
+        MAYBE_BLAS = --with-blas="$(strip $(BLASOPT))"
+    endif
+endif
+
+ifneq ($(LAPACK_LIB),)
+    ifeq ($(LAPACK_SIZE),4)
+        MAYBE_LAPACK = --with-lapack="$(strip $(LAPACK_LIB))"
+    else
+        MAYBE_LAPACK = --with-lapack="$(strip $(LAPACK_LIB))"
+    endif
+endif
+
+ifneq ($(SCALAPACK_LIB),)
+    ifeq ($(SCALAPACK_SIZE),4)
+        MAYBE_SCALAPACK = --with-scalapack="$(strip $(SCALAPACK_LIB))"
+    else
+        MAYBE_SCALAPACK = --with-scalapack8="$(strip $(SCALAPACK_LIB))"
+    endif
 endif
 
 ifeq ($(TARGET),BGP)
@@ -375,7 +400,7 @@ BUILDDIR = build
 INSTALLDIR = install
 CONFIGURE_PATH = ../$(GA_DIR)/configure
 TOOLDIR = $(shell pwd)
-CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_PROF1) $(MAYBE_PROF2)
+CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_PROF1) $(MAYBE_PROF2)
 SPACE :=
 SPACE +=
 STAMP_FC = $(subst $(SPACE),-,$(strip $(FC))).FC.stamp
