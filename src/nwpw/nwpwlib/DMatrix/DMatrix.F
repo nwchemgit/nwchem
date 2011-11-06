@@ -90,9 +90,9 @@ c
       call DMatrix_eye(n,n,1.0d0,Q,lda,ma,na,taskid_i,taskid_j)
       do k = 1,n-2
 
-         call DMatrix_houseq_V(k,n,A,V1,Q1,lda,ma,na,r2,
-     >            taskid_i,taskid_j,np_i,np_j,comm_i,comm_j,
-     >            work1,work2)
+c         call DMatrix_houseq_V(k,n,A,V1,Q1,lda,ma,na,r2,
+c     >            taskid_i,taskid_j,np_i,np_j,comm_i,comm_j,
+c     >            work1,work2)
 
          call nwpw_timing_start(26)
          call DMatrix_houseq(k,n,A,V1,Q1,lda,ma,na,
