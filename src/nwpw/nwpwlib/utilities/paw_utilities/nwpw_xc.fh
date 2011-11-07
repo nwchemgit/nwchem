@@ -1,5 +1,6 @@
 c $Id$
 
+      integer mult_l_max,nion,nkatm,gga
       integer paw_xc_work_size
       integer paw_rho2_ae(2)
       integer paw_rho2_ps(2)
@@ -18,7 +19,7 @@ c $Id$
       integer exc_ae(2)
       integer exc_ps(2)
       integer xc_temp(2)
-      integer xc_c_temp(2)
+      integer xc_temp2(2)
       integer n1dgrid_max
       integer nbasis_max
       integer nprj_max
@@ -40,13 +41,12 @@ c $Id$
      >                          fdn_ps,
      >                          exc_ae,
      >                          exc_ps,
-     >                          xc_c_temp,
+     >                          xc_temp2,
      >                          xc_temp,
-     >                          n1dgrid_max,nbasis_max,nprj_max
+     >                          n1dgrid_max,nbasis_max,nprj_max,
+     >                          mult_l_max,nion,nkatm,gga
 
-      integer paw_xc_gga
-      integer paw_xc_ispin
-      integer paw_xc_lmax
+
       integer paw_xc_nphi
       integer paw_xc_ntheta
 
@@ -74,10 +74,7 @@ c $Id$
       integer paw_xc_matr(2)
       integer paw_xc_dmatr(2)
 
-      common /nwpw_exc_data/   paw_xc_gga,
-     >                        paw_xc_ispin,
-     >                        paw_xc_lmax,
-     >                        paw_xc_nphi,
+      common /nwpw_exc_data/  paw_xc_nphi,
      >                        paw_xc_ntheta,
      >                        paw_xc_e,
      >                        i_paw_xc_pot,
@@ -101,11 +98,11 @@ c $Id$
       integer nindx_rholm(2)
       integer shift_rholm(2)
       integer coeff_rholm(2)
-      integer i_rholm(2)
-      integer j_rholm(2)
+      integer bi_rholm(2)
+      integer bj_rholm(2)
       integer iprj_rholm(2)
       integer jprj_rholm(2)
       integer lm_rholm(2)
       common /nwpw_xc_rholm_data/ nindx_rholm,shift_rholm,coeff_rholm,
-     >                            i_rholm,j_rholm,iprj_rholm,jprj_rholm,
-     >                            lm_rholm
+     >                            bi_rholm,bj_rholm,
+     >                            iprj_rholm,jprj_rholm,lm_rholm

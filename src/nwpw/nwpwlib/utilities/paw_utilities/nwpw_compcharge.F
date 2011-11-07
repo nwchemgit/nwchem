@@ -174,23 +174,61 @@
 
 
 
-
-
-      if (.not.MA_alloc_get(mt_int,nkatm,"Tndiff_shift",
-     >                     Tndiff_shift(2),Tndiff_shift(1)))
+      if (.not.MA_alloc_get(mt_int,nkatm,"nindx_Tndiff",
+     >                      nindx_Tndiff(2),nindx_Tndiff(1)))
      >  call errquit("nwpw_compcharge_init:allocate fail",3,MA_ERR)
 
-      tsize = 0
+      if (.not.MA_alloc_get(mt_int,nkatm,"shift_Tndiff",
+     >                      shift_Tndiff(2),shift_Tndiff(1)))
+     >  call errquit("nwpw_compcharge_init:allocate fail",3,MA_ERR)
+
+      indx = 0
       do ia=1,nkatm
-         int_mb(Tndiff_shift(1)+ia-1) = tsize
+         int_mb(shift_Tndiff(1)+ia-1) = indx
          if (psp_type(ia).eq.4) then
-            iasize = int_mb(lm_size(1)+ia-1)*nprj(ia)*nprj(ia)
-            tsize  = tsize + iasize
+            comp_charge_tag = comp_charge_matrix(ia)
+
+            do l=0,int_mb(mult_l(1)+ia-1)
+               comp_indx = psi_data_get_ptr(comp_charge_tag,l+1)
+               do m=-l,l
+
+                  do j=1,nprj(ia)
+                     lj = l_prj(j,ia)
+                     mj = l_prj(j,ia)
+                     bj = b_prj(j,ia)
+
+                     do i=1,nprj(ia)
+                        li = l_prj(i,ia)
+                        mi = l_prj(i,ia)
+                        bi = b_prj(i,ia)
+                        taunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
+     >                       *dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
+                        if (dabs(taunt).gt.1.0d-11) then
+                           indx = indx + 1
+                        end if
+                     end do
+                  end do
+
+               end do
+            end do
          end if
+         int_mb(nindx_Tndiff(1)+ia-1) = indx
       end do
-      if (.not.MA_alloc_get(mt_dbl,tsize,"Tndiff",
-     >                     Tndiff(2),Tndiff(1)))
-     >  call errquit("nwpw_compcharge_init:allocate fail",4,MA_ERR)
+
+      value = MA_alloc_get(mt_int,indx,"lm_Tndiff",
+     >                     lm_Tndiff(2),lm_Tndiff(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,indx,"iprj_Tndiff",
+     >                     iprj_Tndiff(2),iprj_Tndiff(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,indx,"jprj_Tndiff",
+     >                     jprj_Tndiff(2),jprj_Tndiff(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,indx,"coeff_Tndiff",
+     >                     coeff_Tndiff(2),coeff_Tndiff(1))
+      if (.not.value)
+     > call errquit(
+     >  "nwpw_compcharge_init: error allocating work arrays",0,MA_ERR)
 
       indx = 0
       do ia=1,nkatm
@@ -211,16 +249,18 @@
                         li = l_prj(i,ia)
                         mi = l_prj(i,ia)
                         bi = b_prj(i,ia)
-
                         taunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
-                        dbl_mb(Tndiff(1)+indx)
-     >                    = taunt
-     >                     *dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
-
-                        indx = indx + 1
+     >                       *dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
+                        if (dabs(taunt).gt.1.0d-11) then
+                           int_mb(lm_Tndiff(1)+indx)   = lm
+                           int_mb(iprj_Tndiff(1)+indx) = i
+                           int_mb(jprj_Tndiff(1)+indx) = j
+                           dbl_mb(coeff_Tndiff(1)+indx) = taunt
+                           indx = indx + 1
+                        end if
                      end do
                   end do
-
+                  lm = lm + 1
                end do
             end do
          end if
@@ -250,8 +290,12 @@
       value = value.and.MA_free_heap(gk(2))
       value = value.and.MA_free_heap(glm(2))
       value = value.and.MA_free_heap(Qlm(2))
-      value = value.and.MA_free_heap(Tndiff_shift(2))
-      value = value.and.MA_free_heap(Tndiff(2))
+      value = value.and.MA_free_heap(shift_Tndiff(2))
+      value = value.and.MA_free_heap(nindx_Tndiff(2))
+      value = value.and.MA_free_heap(lm_Tndiff(2))
+      value = value.and.MA_free_heap(iprj_Tndiff(2))
+      value = value.and.MA_free_heap(jprj_Tndiff(2))
+      value = value.and.MA_free_heap(coeff_Tndiff(2))
       if (.not.value)
      >   call errquit("nwpw_compcharge_end: freeing heap",0,MA_ERR)
       return
@@ -276,71 +320,76 @@
 #include "nwpw_compcharge.fh"
 
 *     **** local variables ****
-      integer l,m,lm,shiftia,indx,ms
-      real*8  scal,tmp,q(2)
+      integer n,k,ms,lm,iprj,jprj,shift,indx,n1(2),n2(2)
+      real*8  scal,coeff,w
 
 *     **** external functions ****
       real*8   lattice_omega
       external lattice_omega
 
-      shiftia = int_mb(Tndiff_shift(1)+ia-1)
-
-      scal = 1.0d0/lattice_omega()
-
-      lm = 0
-      do l=0,int_mb(mult_l(1)+ia-1)
-         do m=-l,l
-            call nwpw_compcharge_Qlm_sub(ispin,ne,nprj,
-     >               dbl_mb(Tndiff(1)+shiftia+lm*nprj*nprj),sw1,q)
-
-            do ms=1,ispin
-               indx = (ms-1)*nion*lm_size_max+(ii-1)*lm_size_max + lm
-               dbl_mb(Qlm(1)+indx) = scal*q(ms)
-            end do
-
-            lm = lm + 1
-         end do
-      end do
-
-      return
-      end 
-
-*     *************************************************
-*     *                                               *
-*     *              nwpw_compcharge_Qlm_sub          *
-*     *                                               *
-*     *************************************************
-      subroutine nwpw_compcharge_Qlm_sub(ispin,ne,nprj,Tndiff,sw1,qlm)
-      implicit none
-      integer ispin,ne(2),nprj
-      real*8  Tndiff(nprj,nprj)
-      real*8  sw1(ne(1)+ne(2),nprj)
-      real*8  qlm(*)
-
-*     **** local variables ****
-      integer ms,i,j,n,n1(2),n2(2)
-      real*8 psum
-
+      call dcopy(ispin*nion*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)+indx),1)
       n1(1) = 1
       n1(2) = ne(1)+1
       n2(1) = ne(1)
       n2(2) = ne(1)+ne(2)
-      do ms=1,ispin
-         qlm(ms) = 0.0d0
-      end do
-      do j=1,nprj
-         do i=1,nprj
-            do ms=1,ispin
-               psum = 0.0d0
-               do n=n1(ms),n2(ms)
-                  psum = psum + sw1(n,i)*sw1(n,j)
-               end do
-               qlm(ms) = qlm(ms) + Tndiff(i,j)*psum
+      scal = 1.0d0/lattice_omega()
+
+      shift = int_mb(shift_Tndiff(1)+ia-1)
+      do k=1,int_mb(nindx_Tndiff(1)+ia-1)
+         lm    = int_mb(lm_Tndiff(1)+shift+k-1)
+         iprj  = int_mb(iprj_Tndiff(1)+shift+k-1)
+         jprj  = int_mb(jprj_Tndiff(1)+shift+k-1)
+         coeff = scal*dbl_mb(coeff_Tndiff(1)+shift+k-1)
+         do ms=1,ispin
+            w = 0.0d0
+            do n=n1(ms),n2(ms)
+               w = w + sw1(n,iprj)*sw1(n,jprj)
             end do
+            indx = (ms-1)*nion*lm_size_max+(ii-1)*lm_size_max + lm
+            dbl_mb(Qlm(1)+indx) = dbl_mb(Qlm(1)+indx) + coeff*w
          end do
       end do
+
+
       return
-      end
+      end 
+
+c*     *************************************************
+c*     *                                               *
+c*     *              nwpw_compcharge_Qlm_sub          *
+c*     *                                               *
+c*     *************************************************
+c      subroutine nwpw_compcharge_Qlm_sub(ispin,ne,nprj,Tndiff,sw1,qlm)
+c      implicit none
+c      integer ispin,ne(2),nprj
+c      real*8  Tndiff(nprj,nprj)
+c      real*8  sw1(ne(1)+ne(2),nprj)
+c      real*8  qlm(*)
+c
+c*     **** local variables ****
+c      integer ms,i,j,n,n1(2),n2(2)
+c      real*8 psum
+c
+c      n1(1) = 1
+c      n1(2) = ne(1)+1
+c      n2(1) = ne(1)
+c      n2(2) = ne(1)+ne(2)
+c      do ms=1,ispin
+c         qlm(ms) = 0.0d0
+c      end do
+c      do j=1,nprj
+c         do i=1,nprj
+c            do ms=1,ispin
+c               psum = 0.0d0
+c               do n=n1(ms),n2(ms)
+c                  psum = psum + sw1(n,i)*sw1(n,j)
+c               end do
+c               qlm(ms) = qlm(ms) + Tndiff(i,j)*psum
+c            end do
+c         end do
+c      end do
+c      return
+c      end
 
 
 *     *************************************************

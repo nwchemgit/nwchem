@@ -5,12 +5,12 @@ c $Id$
 *     *         nwpw_xc_init          *
 *     *                               *
 *     *********************************
-      subroutine nwpw_xc_init(ispin,lmax,nion,nkatm,
-     >                        nprj,nbasis,n1dgrid,psp_type,
+      subroutine nwpw_xc_init(nion0,nkatm0,
+     >                        nprj,nbasis,n1dgrid,psp_type,lmax0,
      >                        nprj_max0,l_prj,m_prj,b_prj)
       implicit none
-      integer ispin,lmax,nion,nkatm
-      integer nprj(*),nbasis(*),n1dgrid(*),psp_type(*)
+      integer nion0,nkatm0
+      integer nprj(*),nbasis(*),n1dgrid(*),psp_type(*),lmax0(*)
       integer nprj_max0
       integer l_prj(nprj_max0,*),m_prj(nprj_max0,*),b_prj(nprj_max0,*)
 
@@ -23,20 +23,20 @@ c     **** local variables ****
       logical ok
       integer ii,ia,nsize
       integer ic
-      integer l,m
+      integer l,m,li,mi,lj,mj,bi,bj,iprj,jprj,lm
       integer i_p,i_t
       integer i_tlm,i_plm,i_rlm
       integer mtr_size
       integer nb
-      real*8  tmp_theta,cs_theta,tmp_phi
+      real*8  tmp_theta,cs_theta,tmp_phi,tmp_gaunt
       real*8  angle_phi
       integer paw_vxc_size
 
 c     **** external functions ****
-      integer  control_gga
-      external control_gga
-      real*8   rtheta_lm,drtheta_lm
-      external rtheta_lm,drtheta_lm
+      integer  control_gga,control_lmax_multipole
+      external control_gga,control_lmax_multipole
+      real*8   rtheta_lm,drtheta_lm,nwpw_gaunt
+      external rtheta_lm,drtheta_lm,nwpw_gaunt
 
 
       call nwpw_timing_start(4)
@@ -50,29 +50,34 @@ c     **** external functions ****
          if (nbasis(ia) .gt.nbasis_max)  nbasis_max = nbasis(ia)
          if (n1dgrid(ia).gt.n1dgrid_max) n1dgrid_max = n1dgrid(ia)
       end do
+      nion  = nion0
+      nkatm = nkatm0
+      gga   = control_gga()
 
-*     *** spin treatment flag (LDA=1,LSDA=2) ***
-      paw_xc_ispin = ispin      
+      mult_l_max = control_lmax_multipole()
+      if (mult_l_max.lt.0) then
+         mult_l_max = 0
+         do ia=1,nkatm
+            if (psp_type(ia).eq.4) then
+               if (mult_l_max.lt.(2*lmax0(ia))) mult_l_max = 2*lmax0(ia)
+            end if
+         end do
+      end if
 
-*     *** gga calculation ***
-      paw_xc_gga = control_gga()
-
-*     *** lmax for multipole expansion of the density***      
-      paw_xc_lmax = lmax
       
 *     ***paw_xc energies ***
       ok = MA_alloc_get(mt_dbl,nion,"paw_xc_e",paw_xc_e(2),paw_xc_e(1))
 
       
-*     *** xc matrix arrays - nbasis_max**2 * (lmax+1)**2 ***
-      mtr_size = (nbasis_max**2)*((paw_xc_lmax+1)**2)
+*     *** xc matrix arrays - nbasis_max**2 * (mult_l_max+1)**2 ***
+      mtr_size = (nbasis_max**2)*((mult_l_max+1)**2)
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,ispin*mtr_size,"paw_xc_matr_u",
+     >     MA_alloc_get(mt_dbl,2*mtr_size,"paw_xc_matr",
      >                  paw_xc_matr(2),paw_xc_matr(1))
 
-      if (paw_xc_gga.ge.10) then
+      if (gga.ge.10) then
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,3*ispin*mtr_size,"paw_xc_dmatr_u",
+     >     MA_alloc_get(mt_dbl,3*2*mtr_size,"paw_xc_dmatr_u",
      >                  paw_xc_dmatr(2),paw_xc_dmatr(1))
       end if
       if (.not.ok)
@@ -81,8 +86,7 @@ c     **** external functions ****
  
 
       mtr_size        = nprj_max*nprj_max
-      paw_xc_pot_size = mtr_size
-      ok = MA_alloc_get(mt_dbl,ispin*mtr_size,"paw_xc_pot_u",
+      ok = MA_alloc_get(mt_dbl,2*mtr_size,"paw_xc_pot",
      >                  paw_xc_pot(2),paw_xc_pot(1)) 
       if (.not.ok)
      > call errquit("init_paw_vxc: error allocating paw_xc_pot",
@@ -91,12 +95,12 @@ c     **** external functions ****
 
 
 *     *** spherical grid arrays ***
-      if(paw_xc_lmax .eq. 0 ) then
+      if(mult_l_max .eq. 0 ) then
         paw_xc_nphi   = 1
         paw_xc_ntheta = 1
       else
-        paw_xc_nphi   = 3*paw_xc_lmax
-        paw_xc_ntheta = 3*paw_xc_lmax                      
+        paw_xc_nphi   = 3*mult_l_max
+        paw_xc_ntheta = 3*mult_l_max                      
       end if
       
 
@@ -117,25 +121,25 @@ c     **** external functions ****
 
       ok = ok.and. 
      >     MA_alloc_get(mt_dbl,
-     >              paw_xc_ntheta*paw_xc_nphi*(paw_xc_lmax+1)**2,
+     >              paw_xc_ntheta*paw_xc_nphi*(mult_l_max+1)**2,
      >              "paw_xc_tlm",
      >              paw_xc_tlm(2),paw_xc_tlm(1))
 
 
-*     **** used for generating derivatives of ylm's ****
-      if (paw_xc_gga.ge.10) then
+*     **** used for generating derivatives of tlm's ****
+      if (gga.ge.10) then
 
 c     **** derivatives wrt to theta ****
       ok = ok.and. 
      >     MA_alloc_get(mt_dbl,
-     >              paw_xc_ntheta*paw_xc_nphi*(paw_xc_lmax+1)**2,
+     >              paw_xc_ntheta*paw_xc_nphi*(mult_l_max+1)**2,
      >              "paw_xc_dtlm_theta",
      >              paw_xc_dtlm_theta(2),paw_xc_dtlm_theta(1))
 
 c     **** derivatives wrt to phi ****
       ok = ok.and. 
      >     MA_alloc_get(mt_dbl,
-     >              paw_xc_ntheta*paw_xc_nphi*(paw_xc_lmax+1)**2,
+     >              paw_xc_ntheta*paw_xc_nphi*(mult_l_max+1)**2,
      >              "paw_xc_dtlm_phi",
      >              paw_xc_dtlm_phi(2),paw_xc_dtlm_phi(2))
 
@@ -151,7 +155,7 @@ c     **** define tlm's ****
       i_tlm = 0
       do i_t=1,paw_xc_ntheta
       do i_p=1,paw_xc_nphi
-         do l=0,paw_xc_lmax
+         do l=0,mult_l_max
          do m=-l,l
            tmp_theta = rtheta_lm(l,m,
      >              dbl_mb(paw_xc_cos_theta(1)+i_t-1))
@@ -163,20 +167,20 @@ c     **** define tlm's ****
            else
               tmp_phi = 1.0d0
            end if
-           dcpl_mb(paw_xc_tlm(1)+i_tlm) = tmp_theta*tmp_phi
+           dbl_mb(paw_xc_tlm(1)+i_tlm) = tmp_theta*tmp_phi
            i_tlm = i_tlm + 1                          
          end do
          end do
       end do
       end do
 
-      if (paw_xc_gga.ge.10) then
+      if (gga.ge.10) then
 
 c       **** define derivative wrt to theta ****
         i_tlm = 0
         do i_t=1,paw_xc_ntheta
         do i_p=1,paw_xc_nphi
-           do l=0,paw_xc_lmax
+           do l=0,mult_l_max
            do m=-l,l
               tmp_theta = drtheta_lm(l,m,
      >                               dbl_mb(paw_xc_cos_theta(1)+i_t-1))
@@ -188,7 +192,7 @@ c       **** define derivative wrt to theta ****
               else
                  tmp_phi = 1.0d0
               end if
-              dcpl_mb(paw_xc_dtlm_theta(1)+i_tlm) = tmp_theta*tmp_phi
+              dbl_mb(paw_xc_dtlm_theta(1)+i_tlm) = tmp_theta*tmp_phi
               i_tlm = i_tlm + 1 
            end do
            end do
@@ -199,7 +203,7 @@ c       **** define derivative wrt to phi ****
         i_tlm = 0
         do i_t=1,paw_xc_ntheta
         do i_p=1,paw_xc_nphi
-           do l=0,paw_xc_lmax
+           do l=0,mult_l_max
            do m=-l,l
               tmp_theta = rtheta_lm(l,m,
      >                              dbl_mb(paw_xc_cos_theta(1)+i_t-1))
@@ -224,15 +228,15 @@ c       **** define derivative wrt to phi ****
 *     *** temp arrays ***
       nsize = 2*n1dgrid_max
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,nsize,"paw_tmp_rho_ae",
+     >     MA_alloc_get(mt_dbl,nsize,"rho_ae",
      >                  rho_ae(2),rho_ae(1))
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,nsize,"paw_tmp_rho_ps",
+     >     MA_alloc_get(mt_dbl,nsize,"rho_ps",
      >                  rho_ps(2),rho_ps(1))
       
 *     **** allocate gradient's and agr's ****
-      if (paw_xc_gga.ge.10) then
-       nsize = ispin*3*n1dgrid_max
+      if (gga.ge.10) then
+       nsize = 2*3*n1dgrid_max
        ok = ok.and.
      >      MA_alloc_get(mt_dbl,nsize,
      >              "paw_tmp_drho_ae",
@@ -241,96 +245,181 @@ c       **** define derivative wrt to phi ****
      >      MA_alloc_get(mt_dbl,nsize,
      >                   "paw_tmp_drho_ps",
      >                   rho_ps_prime(2),rho_ps_prime(1))
-       nsize = (2*ispin-1)*n1dgrid_max
+       nsize = (2*2-1)*n1dgrid_max
        ok = ok.and.
      >      MA_alloc_get(mt_dbl,nsize,
-     >                   "paw_tmp_agr_ae",
+     >                   "agr_ae",
      >                   agr_ae(2),agr_ae(1))
        ok = ok.and.
      >      MA_alloc_get(mt_dbl,nsize,
-     >                   "paw_tmp_agr_ps",
+     >                   "agr_ps",
      >                    agr_ps(2),agr_ps(1))
        ok = ok.and.
      >      MA_alloc_get(mt_dbl,nsize,
-     >                   "paw_tmp_fdn_ae",
+     >                   "fdn_ae",
      >                   fdn_ae(2),fdn_ae(1))
        ok = ok.and.
      >      MA_alloc_get(mt_dbl,nsize,
-     >                   "paw_tmp_fdn_ps",
+     >                   "fdn_ps",
      >                   fdn_ps(2),fdn_ps(1))
       end if
 
       nsize = 2*n1dgrid_max
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,nsize,"paw_tmp_vxc_ae",
+     >     MA_alloc_get(mt_dbl,nsize,"vxc_ae",
      >                  vxc_ae(2),vxc_ae(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"paw_tmp_vxc_ps",
+     >     MA_alloc_get(mt_dbl,nsize,"vxc_ps",
      >                  vxc_ps(2),vxc_ps(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"paw_tmp_exc_ae",
+     >     MA_alloc_get(mt_dbl,nsize,"exc_ae",
      >                  exc_ae(2),exc_ae(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"paw_tmp_exc_ps",
+     >     MA_alloc_get(mt_dbl,nsize,"exc_ps",
      >                  exc_ps(2),exc_ps(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"paw_tmp_x",
+     >     MA_alloc_get(mt_dbl,nsize,"x_temp",
      >                   xc_temp(2),xc_temp(1))
       ok = ok.and.
      >     MA_alloc_get(mt_dbl,nsize,
-     >                  "paw_tmp_x_cmplx",
-     >                  xc_c_temp(2),xc_c_temp(1))
+     >                  "xc_temp2",
+     >                  xc_temp2(2),xc_temp2(1))
 
 
 *     *** allocate vxclm multipole expansion  arrays ****
-      nsize = n1dgrid_max*(paw_xc_lmax+1)**2
+      nsize = n1dgrid_max*(mult_l_max+1)**2
 
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,ispin*nsize,"paw_vxc_u_ae",
+     >     MA_alloc_get(mt_dbl,2*nsize,"paw_vxc_ae",
      >                  paw_vxc_ae(2),paw_vxc_ae(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,ispin*nsize,"paw_vxc_u_ps",
+     >     MA_alloc_get(mt_dbl,2*nsize,"paw_vxc_ps",
      >                  paw_vxc_ps(2),paw_vxc_ps(1))
 
 *     *** allocate dvxclm multipole expansion  arrays ****
-      if (paw_xc_gga.ge.10) then
+      if (gga.ge.10) then
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,3*ispin*nsize,
+     >     MA_alloc_get(mt_dbl,3*2*nsize,
      >                  "paw_dvxc_u_ae",
      >                  paw_dvxc_ae(2),paw_dvxc_ae(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,3*ispin*nsize,
+     >     MA_alloc_get(mt_dbl,3*2*nsize,
      >                  "paw_dvxc_u_ps",
      >                  paw_dvxc_ps(2),paw_dvxc_ps(1))
       end if
 
 *     *** allocate rholm multipole expansion  arrays ****
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,ispin*nsize,"paw_rho2_ae",
+     >     MA_alloc_get(mt_dbl,2*nsize,"paw_rho2_ae",
      >                  paw_rho2_ae(2),paw_rho2_ae(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,ispin*nsize,"paw_rho2_ps",
+     >     MA_alloc_get(mt_dbl,2*nsize,"paw_rho2_ps",
      >                  paw_rho2_ps(2),paw_rho2_ps(1))
 
 *     *** allocate rholm_prime multipole expansion arrays - need for GGA's****
-      if (paw_xc_gga.ge.10) then
+      if (gga.ge.10) then
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,ispin*nsize,
+     >     MA_alloc_get(mt_dbl,2*nsize,
      >                  "paw_rho2_ae_prime",
      >                   paw_rho2_ae_prime(2),paw_rho2_ae_prime(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,ispin*nsize,
+     >     MA_alloc_get(mt_dbl,2*nsize,
      >                  "paw_rho2_ps_prime",
      >                  paw_rho2_ps_prime(2),paw_rho2_ps_prime(1))
       end if
       if (.not.ok)
      > call errquit("nwpw_xc_init: error allocating work arrays",0,0)
       
-      call nwpw_init_gntxc(paw_xc_lmax)
-      if ((paw_xc_gga.ge.10).and.(paw_xc_lmax.ge.1)) then
-        call nwpw_init_gntxc2(paw_xc_lmax)
-        call nwpw_init_gntxc3(paw_xc_lmax)
-      end if
+c      call nwpw_init_gntxc(mult_l_max)
+c      if ((gga.ge.10).and.(mult_l_max.ge.1)) then
+c        call nwpw_init_gntxc2(mult_l_max)
+c        call nwpw_init_gntxc3(mult_l_max)
+c      end if
+
+
+*      ***** set up index arrays for nwpw_xc_density_solve2 *****
+      ok = MA_alloc_get(mt_int,nkatm,"nindx_rholm",
+     >                  nindx_rholm(2),nindx_rholm(1))
+      ok = ok.and.
+     >     MA_alloc_get(mt_int,nkatm,"shift_rholm",
+     >                  shift_rholm(2),shift_rholm(1))
+      if (.not.ok)
+     > call errquit("nwpw_xc_init: error allocating work arrays",0,0)
+
+      nsize = 0
+      do ia=1,nkatm
+         int_mb(shift_rholm(1)+ia-1) = nsize
+         do jprj = 1,nprj(ia)
+            lj = l_prj(jprj,ia)
+            mj = m_prj(jprj,ia)
+            do iprj = 1,nprj(ia)
+               li = l_prj(iprj,ia)
+               mi = m_prj(iprj,ia)
+               do l=0,mult_l_max
+                  do m=-l,l
+                     if ((l.le.(li+lj)) .and. (l.ge.abs(li-lj))) then
+                        tmp_gaunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
+                        if (dabs(tmp_gaunt).gt.1.0d-11) then
+                           nsize = nsize + 1
+                        end if
+                     end if
+                  end do
+               end do
+
+            end do
+         end do
+        int_mb(nindx_rholm(1)+ia-1) = nsize
+      end do
+
+      ok = MA_alloc_get(mt_int,nsize,"bi_rholm",bi_rholm(2),bi_rholm(1))
+      ok = ok.and.
+     >     MA_alloc_get(mt_int,nsize,"bj_rholm",bj_rholm(2),bj_rholm(1))
+      ok = ok.and.
+     >     MA_alloc_get(mt_int,nsize,"lm_rholm",lm_rholm(2),lm_rholm(1))
+      ok = ok.and.
+     >     MA_alloc_get(mt_int,nsize,"iprj_rholm",
+     >                 iprj_rholm(2),iprj_rholm(1))
+      ok = ok.and.
+     >     MA_alloc_get(mt_int,nsize,"jprj_rholm",
+     >                 jprj_rholm(2),jprj_rholm(1))
+      ok = ok.and.
+     >     MA_alloc_get(mt_dbl,nsize,"coeff_rholm",
+     >                 coeff_rholm(2),coeff_rholm(1))
+      if (.not.ok)
+     > call errquit("nwpw_xc_init: error allocating work arrays",0,0)
+
+      nsize = 0
+      do ia=1,nkatm
+         do jprj = 1,nprj(ia)
+            lj = l_prj(jprj,ia)
+            mj = m_prj(jprj,ia)
+            bj = b_prj(jprj,ia)
+            do iprj = 1,nprj(ia)
+               li = l_prj(iprj,ia)
+               mi = m_prj(iprj,ia)
+               bi = b_prj(iprj,ia)
+               lm = 0
+               do l=0,mult_l_max
+                  do m=-l,l
+                     if ((l.le.(li+lj)) .and. (l.ge.abs(li-lj))) then
+                        tmp_gaunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
+                        if (dabs(tmp_gaunt).gt.1.0d-11) then
+                           dbl_mb(coeff_rholm(1)+nsize) = tmp_gaunt
+                           int_mb(lm_rholm(1)+nsize)   = lm
+                           int_mb(iprj_rholm(1)+nsize) = iprj
+                           int_mb(jprj_rholm(1)+nsize) = jprj
+                           int_mb(bi_rholm(1)+nsize)   = bi
+                           int_mb(bj_rholm(1)+nsize)   = bj
+                           nsize = nsize + 1
+                        end if
+                     end if
+                     lm = lm + 1
+                  end do
+               end do
+            end do
+         end do
+      end do
+
 
       call nwpw_timing_end(4)
       return
@@ -344,7 +433,7 @@ c       **** define derivative wrt to phi ****
       subroutine nwpw_xc_solve(ii,ia,n1dgrid,nbasis,
      >               phi_ae,phi_ps,phi_ae_prime,phi_ps_prime,
      >               core_ae,core_ps,core_ae_prime,core_ps_prime,
-     >               regrid,log_amesh,
+     >               rgrid,log_amesh,
      >               ispin,ne,nprj,sw1,sw2)
       implicit none
       integer ii,ia
@@ -360,7 +449,7 @@ c       **** define derivative wrt to phi ****
       real*8  rgrid(n1dgrid)
       real*8  log_amesh
 
-      integer ispin,ne(2)
+      integer ispin,ne(2),nprj
       real*8  sw1(ne(1)+ne(2),nprj)
       real*8  sw2(ne(1)+ne(2),nprj)
 
@@ -368,40 +457,41 @@ c       **** define derivative wrt to phi ****
 #include "errquit.fh"
 #include "nwpw_xc.fh"
 
-      integer i,j,np
+      integer i,j,np,i_tlm,i_tlm1,lmax2,nsize
       integer i_t,i_p
-      integer nion 
-      integer l,m,ms
-      integer ng,ic,ig,igg,istart
-      integer i_rho0,i_rho
-      integer n_s
-      integer i_ylm,i_ylm1
-      integer nlmi
-      integer i_core_ps,i_core_ae
-      integer i_core_ps_prime,i_core_ae_prime
-      integer i_vxc0,i_vxc
-      integer i_pot0,i_pot
-      integer i_r
-      integer nb,nb2
-      integer i_mtr0,i_mtr
-      integer li,lj,mi,mj
-      integer nilm,njlm
-      integer lmax2
-      double precision exc_tmp,gnt1
-      double precision tmp_ae,tmp_ps
-      real*8 tmp
-      real*8 tlm
-
+c      integer nion 
+c      integer l,m,ms
+c      integer ng,ic,ig,igg,istart
+c      integer i_rho0,i_rho
+c      integer n_s
+c      integer i_ylm,i_ylm1
+c      integer nlmi
+c      integer i_core_ps,i_core_ae
+c      integer i_core_ps_prime,i_core_ae_prime
+c      integer i_vxc0,i_vxc
+c      integer i_pot0,i_pot
+c      integer i_r
+c      integer nb,nb2
+c      integer i_mtr0,i_mtr
+c      integer li,lj,mi,mj
+c      integer nilm,njlm
+c      integer lmax2
+c      double precision exc_tmp,gnt1
+c      double precision tmp_ae,tmp_ps
+c      real*8 tmp
+c      real*8 tlm
+c
       call nwpw_timing_start(4)
       call nwpw_timing_start(22)
       call Parallel_np(np)
+      write(*,*) "HERA"
 
       i_tlm = 0
       i_tlm1 = 0
 
 
 *     *** index for spin down in temp arrays ***      
-      lmax2  = (paw_xc_lmax+1)**2
+      lmax2  = (mult_l_max+1)**2
       dbl_mb(paw_xc_e(1)+ii-1)=0.0d0
      
 *     *** zero out vxclm multipole arrays ***
@@ -410,9 +500,9 @@ c       **** define derivative wrt to phi ****
       call dcopy(nsize,0.0d0,0,dbl_mb(paw_vxc_ps(1)),1)
 
 *     *** zero out dvxclm multipole arrays ***
-      if (paw_xc_gga.ge.10) then
-      call dcopy(3*nsize,0.0d0,0,dbl_mb(paw_dvxc_ae(1)),1)
-      call dcopy(3*nsize,0.0d0,0,dbl_mb(paw_dvxc_ps(1)),1)
+      if (gga.ge.10) then
+         call dcopy(3*nsize,0.0d0,0,dbl_mb(paw_dvxc_ae(1)),1)
+         call dcopy(3*nsize,0.0d0,0,dbl_mb(paw_dvxc_ps(1)),1)
       end if
 
       do i_t = 1,paw_xc_ntheta
@@ -426,296 +516,294 @@ c       **** define derivative wrt to phi ****
         call dcopy(nsize,0.0d0,0,dbl_mb(vxc_ps(1)),1)
         call dcopy(nsize,0.0d0,0,dbl_mb(exc_ae(1)),1)
         call dcopy(nsize,0.0d0,0,dbl_mb(exc_ps(1)),1)
-
-       
-*       *** find rholm multipole expansion on spherical grid ***          
-        call paw_density_solve2(in,paw_xc_lmax,
-     >                          ic,lmax2,paw_xc_ispin,
-     >                          dbl_mb(paw_rho2_ae(1)),
-     >                          dbl_mb(paw_rho2_ps(1)))
-
-*       *** generate atomic densities on spherical grid ***          
-        call paw_xc_gen_atomic_densities(ic,lmax2,paw_xc_ispin,
-     >                                    dcpl_mb(paw_rho2_ae(1)),
-     >                                    dcpl_mb(paw_xc_tlm(1)+i_ylm),
-     >                                    dbl_mb(i_core_ae+istart-1),
-     >                                    dbl_mb(rho_ae(1)))
-        call paw_xc_gen_atomic_densities(ic,lmax2,paw_xc_ispin,
-     >                                    dcpl_mb(paw_rho2_ps(1)),
-     >                                    dcpl_mb(paw_xc_tlm(1)+i_ylm),
-     >                                    dbl_mb(i_core_ps+istart-1),
-     >                                    dbl_mb(rho_ps(1)))
-
-
-*       ***************************************************
-*       *** find exchange-correlation on spherical grid ***
-*       ***************************************************
-
-
-*       **** LDA functionals on spherical grid ****
-        if (paw_xc_gga.lt.10) then
-
-*          **** LDA functionals of ae and ps atomic densities ****
-           call paw_vosko(ic,ic,paw_xc_ispin,
-     >                    dbl_mb(rho_ae(1)),        
-     >                    dbl_mb(exc_ae(1)),        
-     >                    dbl_mb(vxc_ae(1)),        
-     >                    dbl_mb(xc_temp(1)) )       
-
-           call paw_vosko(ic,ic,paw_xc_ispin,
-     >                    dbl_mb(rho_ps(1)),        
-     >                    dbl_mb(exc_ps(1)),        
-     >                    dbl_mb(vxc_ps(1)),        
-     >                    dbl_mb(xc_temp(1)) )       
-
-
-
-*       **** GGA functionals on spherical grid ****
-        else
-
-*         *** find rholm_prime multipole expansion on spherical grid ***          
-          call paw_density_prime_solve2(in,paw_xc_lmax,
-     >                          ic,lmax2,paw_xc_ispin,
-     >                          dcpl_mb(paw_rho2_ae_prime(1)),
-     >                          dcpl_mb(paw_rho2_ps_prime(1)))
-
-*       *** generate the gradient of atomic densities in spherical ****
-*       **** coordinates  on spherical grid                        ****          
-          call paw_xc_gen_atomic_gradients(ic,lmax2,paw_xc_ispin,
-     >                 dbl_mb(paw_rho2_ae(1)),
-     >                 dbl_mb(paw_rho2_ae_prime(1)),
-     >                 dbl_mb(paw_xc_tlm(1)+i_ylm),
-     >                 dbl_mb(paw_xc_dtlm_theta(1)+i_ylm),
-     >                 dbl_mb(paw_xc_dtlm_phi(1)+i_ylm),
-     >                 dbl_mb(i_r+istart-1),
-     >                 dbl_mb(i_core_ae+istart-1),
-     >                 dbl_mb(i_core_ae_prime+istart-1),
-     >                 dbl_mb(rho_ae_prime(1)))
-          call paw_xc_gen_atomic_gradients(ic,lmax2,paw_xc_ispin,
-     >                 dbl_mb(paw_rho2_ps(1)),
-     >                 dbl_mb(paw_rho2_ps_prime(1)),
-     >                 dbl_mb(paw_xc_tlm(1)+i_ylm),
-     >                 dbl_mb(paw_xc_dtlm_theta(1)+i_ylm),
-     >                 dbl_mb(paw_xc_dtlm_phi(1)+i_ylm),
-     >                 dbl_mb(i_r+istart-1),
-     >                 dbl_mb(i_core_ps+istart-1),
-     >                 dbl_mb(i_core_ps_prime+istart-1),
-     >                 dbl_mb(rho_ps_prime(1)))
-
-
-*         **** generate agr ****
-          call paw_xc_gen_atomic_agr(ic,lmax2,paw_xc_ispin,
-     >                               dbl_mb(rho_ae_prime(1)),
-     >                               dbl_mb(agr_ae(1)))
-          call paw_xc_gen_atomic_agr(ic,lmax2,paw_xc_ispin,
-     >                               dbl_mb(rho_ps_prime(1)),
-     >                               dbl_mb(agr_ps(1)))
-
-
-*          **** GGA functionals of ae and ps atomic densities ****
-           call paw_gga(paw_xc_gga,ic,paw_xc_ispin,
-     >                    dbl_mb(rho_ae(1)),        
-     >                    dbl_mb(agr_ae(1)),        
-     >                    dbl_mb(exc_ae(1)),
-     >                    dbl_mb(vxc_ae(1)),    !* df/dnup, df/dndn
-     >                    dbl_mb(fdn_ae(1)),    !* df/d|grad nup|,df/d|grad ndn|, df/d|grad n|
-     >                    dbl_mb(xc_temp(1)))       
-
-           call paw_gga(paw_xc_gga,ic,paw_xc_ispin,
-     >                    dbl_mb(rho_ps(1)),        
-     >                    dbl_mb(agr_ps(1)),        
-     >                    dbl_mb(exc_ps(1)),
-     >                    dbl_mb(vxc_ps(1)),   !* df/dnup, df/dndn
-     >                    dbl_mb(fdn_ps(1)),   !* df/d|grad nup|,df/d|grad ndn|, df/d|grad n|
-     >                    dbl_mb(xc_temp(1)))       
-
-
-c          **** if restricted calculate df/d|grad n| *(grad n)/|grad n|  ****
-*          *****   and put it in rho_prime                               ****
-
-*          **** if unrestricted calculate (df/d|grad nup|* (grad nup)/|grad nup|)  ****
-*          ****                         + (df/d|grad n|  * (grad n)/|grad n|)      ****
-*          ****             and calculate (df/d|grad ndn|* (grad ndn)/|grad ndn|)  ****
-*          ****                         + (df/d|grad n|  * (grad n)/|grad n|)      ****
-*          *****   and put it in rho_prime                                         ****
-           call paw_xc_gen_dvxc(ic,lmax2,paw_xc_ispin,
-     >                          dbl_mb(fdn_ae(1)),
-     >                          dbl_mb(agr_ae(1)),
-     >                          dbl_mb(rho_ae_prime(1)))
-           call paw_xc_gen_dvxc(ic,lmax2,paw_xc_ispin,
-     >                          dbl_mb(fdn_ps(1)),
-     >                          dbl_mb(agr_ps(1)),
-     >                          dbl_mb(rho_ps_prime(1)))
-
-c          **** find dvxclm multipole expansion ****
-           call paw_xc_addto_dvxclm(ic,lmax2,paw_xc_ispin,
-     >                          (dbl_mb(paw_xc_w_theta(1)+i_t-1)
-     >                          *dbl_mb(paw_xc_w_phi(1)  +i_p-1)),
-     >                          dcpl_mb(paw_xc_ylm(1)+i_ylm),
-     >                          dbl_mb(rho_ae_prime(1)),
-     >                          dbl_mb(rho_ps_prime(1)),
-     >                          dcpl_mb(paw_dvxc_ae(1)),
-     >                          dcpl_mb(paw_dvxc_ps(1)))
-
-        end if
-        i_tlm = i_tlm + lmax2
-
-*       ************************************************************************************
-*       *** find vxclm the multipole expansion of atomic vxc=df/dn  or (df/dnup,df/dndn) ***          
-*       ************************************************************************************
-        call paw_xc_addto_vxclm(ic,lmax2,paw_xc_ispin,
-     >                          (dbl_mb(paw_xc_w_theta(1)+i_t-1)
-     >                          *dbl_mb(paw_xc_w_phi(1)  +i_p-1)),
-     >                          dcpl_mb(paw_xc_tlm(1)+i_ylm1),
-     >                          dbl_mb(vxc_ae(1)),
-     >                          dbl_mb(vxc_ps(1)),
-     >                          dcpl_mb(paw_vxc_ae(1)),
-     >                          dcpl_mb(paw_vxc_ps(1)))
-        i_tlm1 = i_tlm1 + lmax2
-
-
-
-
-
-*        ******************************************************
-*        *** compute the atomic exchange correlation energy ***
-*        ******************************************************
-         do ig=1,ic
-          dbl_mb(xc_temp(1)+ig-1)=
-     >             (
-     >             dbl_mb(rho_ae(1)+ig-1)  + 
-     >             dbl_mb(rho_ae(1)+(paw_xc_ispin-1)*ic+ig-1)
-     >             )*dbl_mb(exc_ae(1)+ig-1)
-     >             -
-     >             (
-     >             dbl_mb(rho_ps(1)+ig-1)+ 
-     >             dbl_mb(rho_ps(1)+(paw_xc_ispin-1)*ic+ig-1)
-     >             )*
-     >             dbl_mb(exc_ps(1)+ig-1)
-        end do
-        exc_tmp = def_integr1(0,dbl_mb(xc_temp(1)),2,
-     >                       dbl_mb(i_r+istart-1),
-     >                       log_amesh,ic,istart)
-
-        dbl_mb(paw_xc_e(1)+in-1)=dbl_mb(paw_xc_e(1)+in-1)+
-     >                           exc_tmp*
-     >                           dbl_mb(paw_xc_w_theta(1)+i_t-1)*
-     >                           dbl_mb(paw_xc_w_phi(1)+i_p-1)
-
-
-
-      end do !i_phi
-      end do !i_theta
-
-
-*       *********************************************************
-*       ****    non-local operator computation - LDA part    ****
-*       *********************************************************
-        nb  = paw_basis_nbasis(ia)
-        nb2 = nb*nb
-        i_phi_ae0 = paw_basis_i_phi_ae(ia)
-        i_phi_ps0 = paw_basis_i_phi_ps(ia)
- 
-*       **** compute (vxc^a)_nln'l'^lm radial integrals *****
-        call paw_xc_gen_matr(ng,nb,ic,istart,lmax2,paw_xc_ispin,
-     >                       log_amesh,
-     >                       dbl_mb(i_phi_ae0),
-     >                       dbl_mb(i_phi_ps0),
-     >                       dbl_mb(i_r+istart-1),
-     >                       dbl_mb(paw_vxc_ae(1)),
-     >                       dbl_mb(paw_vxc_ps(1)),
-     >                       dbl_mb(xc_c_temp(1)),
-     >                       dbl_mb(paw_xc_matr(1)))
-
-
-*       **** xc potential  non-local matrix elements ****
-        i_pot0 = int_mb(i_paw_xc_pot(1) + in - 1)
-        do ms=1,paw_xc_ispin
-           call paw_addto_potential_gntxc(ia,
-     >           dcpl_mb(paw_xc_matr(1)+(ms-1)*nb2*lmax2),
-     >           dcpl_mb(paw_xc_pot(1)+i_pot0+(ms-1)*paw_xc_pot_size))
-        end do
-
-
-*       *********************************************************
-*       ****    non-local operator computation - GGA part    ****
-*       *********************************************************
-        if (paw_xc_gga.ge.10) then
-
-          i_phi_ae0_prime = paw_basis_i_phi_ae_prime(ia)
-          i_phi_ps0_prime = paw_basis_i_phi_ps_prime(ia)
-
-*         **** compute (dvxc^a)_nln'l'^lm radial integrals *****
-          call paw_xc_gen_dmatr(ng,nb,ic,istart,lmax2,paw_xc_ispin,
-     >                       log_amesh,
-     >                       dbl_mb(i_phi_ae0),
-     >                       dbl_mb(i_phi_ps0),
-     >                       dbl_mb(i_phi_ae0_prime),
-     >                       dbl_mb(i_phi_ps0_prime),
-     >                       dbl_mb(i_r+istart-1),
-     >                       dcpl_mb(paw_dvxc_ae(1)),
-     >                       dcpl_mb(paw_dvxc_ps(1)),
-     >                       dcpl_mb(xc_c_temp(1)),
-     >                       dcpl_mb(paw_xc_dmatr(1)))
-
-
-*         **** xc potential  non-local matrix elements ****
-          !i_pot0 = int_mb(i_paw_xc_pot(1) + in - 1)
-          do ms=1,paw_xc_ispin
-           call paw_addto_potential_gntxc(ia,
-     >           dbl_mb(paw_xc_dmatr(1)+(ms-1)*nb2*lmax2*3),
-     >           dbl_mb(paw_xc_pot(1)+i_pot0+(ms-1)*paw_xc_pot_size))
-          end do
-
-c         **** theta and phi parts ****
-          if (lmax2.gt.1) then
-
-c           **** theta derivatives ****
-            do ms=1,paw_xc_ispin
-             call paw_addto_potential_gntxc2(ia,
-     >         dbl_mb(paw_xc_dmatr(1)+nb2*lmax2+(ms-1)*nb2*lmax2*3),
-     >         dbl_mb(paw_xc_pot(1)+i_pot0+(ms-1)*paw_xc_pot_size))
-            end do
-
-c           **** phi derivatives ****
-            do ms=1,paw_xc_ispin
-             call paw_addto_potential_gntxc3(ia,
-     >         dbl_mb(paw_xc_dmatr(1)+nb2*lmax2*2+(ms-1)*nb2*lmax2*3),
-     >         dbl_mb(paw_xc_pot(1)+i_pot0+(ms-1)*paw_xc_pot_size))
-            end do
-
-
-         end if !**lmax2>1**
-
         
-        end if !**gga**
- 
-      end do !in
+c*       *** find rholm multipole expansion on spherical grid ***          
+c        call paw_density_solve2(ii,mult_l_lmax,
+c     >                          ic,lmax2,ispin,
+c     >                          dbl_mb(paw_rho2_ae(1)),
+c     >                          dbl_mb(paw_rho2_ps(1)))
+c
+c*       *** generate atomic densities on spherical grid ***          
+c        call paw_xc_gen_atomic_densities(ic,lmax2,ispin,
+c     >                                    dcpl_mb(paw_rho2_ae(1)),
+c     >                                    dcpl_mb(paw_xc_tlm(1)+i_ylm),
+c     >                                    dbl_mb(i_core_ae+istart-1),
+c     >                                    dbl_mb(rho_ae(1)))
+c        call paw_xc_gen_atomic_densities(ic,lmax2,ispin,
+c     >                                    dcpl_mb(paw_rho2_ps(1)),
+c     >                                    dcpl_mb(paw_xc_tlm(1)+i_ylm),
+c     >                                    dbl_mb(i_core_ps+istart-1),
+c     >                                    dbl_mb(rho_ps(1)))
+c
+c
+c*       ***************************************************
+c*       *** find exchange-correlation on spherical grid ***
+c*       ***************************************************
+c
+c
+c*       **** LDA functionals on spherical grid ****
+c        if (gga.lt.10) then
+c
+c*          **** LDA functionals of ae and ps atomic densities ****
+c           call paw_vosko(ic,ic,ispin,
+c     >                    dbl_mb(rho_ae(1)),        
+c     >                    dbl_mb(exc_ae(1)),        
+c     >                    dbl_mb(vxc_ae(1)),        
+c     >                    dbl_mb(xc_temp(1)) )       
+c
+c           call paw_vosko(ic,ic,ispin,
+c     >                    dbl_mb(rho_ps(1)),        
+c     >                    dbl_mb(exc_ps(1)),        
+c     >                    dbl_mb(vxc_ps(1)),        
+c     >                    dbl_mb(xc_temp(1)) )       
+c
+c
+c
+c*       **** GGA functionals on spherical grid ****
+c        else
+c
+c*         *** find rholm_prime multipole expansion on spherical grid ***          
+c          call paw_density_prime_solve2(in,lmax,
+c     >                          ic,lmax2,ispin,
+c     >                          dcpl_mb(paw_rho2_ae_prime(1)),
+c     >                          dcpl_mb(paw_rho2_ps_prime(1)))
+c
+c*       *** generate the gradient of atomic densities in spherical ****
+c*       **** coordinates  on spherical grid                        ****          
+c          call paw_xc_gen_atomic_gradients(ic,lmax2,ispin,
+c     >                 dbl_mb(paw_rho2_ae(1)),
+c     >                 dbl_mb(paw_rho2_ae_prime(1)),
+c     >                 dbl_mb(paw_xc_tlm(1)+i_ylm),
+c     >                 dbl_mb(paw_xc_dtlm_theta(1)+i_ylm),
+c     >                 dbl_mb(paw_xc_dtlm_phi(1)+i_ylm),
+c     >                 dbl_mb(i_r+istart-1),
+c     >                 dbl_mb(i_core_ae+istart-1),
+c     >                 dbl_mb(i_core_ae_prime+istart-1),
+c     >                 dbl_mb(rho_ae_prime(1)))
+c          call paw_xc_gen_atomic_gradients(ic,lmax2,ispin,
+c     >                 dbl_mb(paw_rho2_ps(1)),
+c     >                 dbl_mb(paw_rho2_ps_prime(1)),
+c     >                 dbl_mb(paw_xc_tlm(1)+i_ylm),
+c     >                 dbl_mb(paw_xc_dtlm_theta(1)+i_ylm),
+c     >                 dbl_mb(paw_xc_dtlm_phi(1)+i_ylm),
+c     >                 dbl_mb(i_r+istart-1),
+c     >                 dbl_mb(i_core_ps+istart-1),
+c     >                 dbl_mb(i_core_ps_prime+istart-1),
+c     >                 dbl_mb(rho_ps_prime(1)))
+c
+c
+c*         **** generate agr ****
+c          call paw_xc_gen_atomic_agr(ic,lmax2,ispin,
+c     >                               dbl_mb(rho_ae_prime(1)),
+c     >                               dbl_mb(agr_ae(1)))
+c          call paw_xc_gen_atomic_agr(ic,lmax2,ispin,
+c     >                               dbl_mb(rho_ps_prime(1)),
+c     >                               dbl_mb(agr_ps(1)))
+c
+c
+c*          **** GGA functionals of ae and ps atomic densities ****
+c           call paw_gga(gga,ic,ispin,
+c     >                    dbl_mb(rho_ae(1)),        
+c     >                    dbl_mb(agr_ae(1)),        
+c     >                    dbl_mb(exc_ae(1)),
+c     >                    dbl_mb(vxc_ae(1)),    !* df/dnup, df/dndn
+c     >                    dbl_mb(fdn_ae(1)),    !* df/d|grad nup|,df/d|grad ndn|, df/d|grad n|
+c     >                    dbl_mb(xc_temp(1)))       
+c
+c           call paw_gga(gga,ic,ispin,
+c     >                    dbl_mb(rho_ps(1)),        
+c     >                    dbl_mb(agr_ps(1)),        
+c     >                    dbl_mb(exc_ps(1)),
+c     >                    dbl_mb(vxc_ps(1)),   !* df/dnup, df/dndn
+c     >                    dbl_mb(fdn_ps(1)),   !* df/d|grad nup|,df/d|grad ndn|, df/d|grad n|
+c     >                    dbl_mb(xc_temp(1)))       
+c
+c
+cc          **** if restricted calculate df/d|grad n| *(grad n)/|grad n|  ****
+c*          *****   and put it in rho_prime                               ****
+c
+c*          **** if unrestricted calculate (df/d|grad nup|* (grad nup)/|grad nup|)  ****
+c*          ****                         + (df/d|grad n|  * (grad n)/|grad n|)      ****
+c*          ****             and calculate (df/d|grad ndn|* (grad ndn)/|grad ndn|)  ****
+c*          ****                         + (df/d|grad n|  * (grad n)/|grad n|)      ****
+c*          *****   and put it in rho_prime                                         ****
+c           call paw_xc_gen_dvxc(ic,lmax2,ispin,
+c     >                          dbl_mb(fdn_ae(1)),
+c     >                          dbl_mb(agr_ae(1)),
+c     >                          dbl_mb(rho_ae_prime(1)))
+c           call paw_xc_gen_dvxc(ic,lmax2,ispin,
+c     >                          dbl_mb(fdn_ps(1)),
+c     >                          dbl_mb(agr_ps(1)),
+c     >                          dbl_mb(rho_ps_prime(1)))
+c
+cc          **** find dvxclm multipole expansion ****
+c           call paw_xc_addto_dvxclm(ic,lmax2,ispin,
+c     >                          (dbl_mb(paw_xc_w_theta(1)+i_t-1)
+c     >                          *dbl_mb(paw_xc_w_phi(1)  +i_p-1)),
+c     >                          dcpl_mb(paw_xc_ylm(1)+i_ylm),
+c     >                          dbl_mb(rho_ae_prime(1)),
+c     >                          dbl_mb(rho_ps_prime(1)),
+c     >                          dcpl_mb(paw_dvxc_ae(1)),
+c     >                          dcpl_mb(paw_dvxc_ps(1)))
+c
+c        end if
+c        i_tlm = i_tlm + lmax2
+c
+c*       ************************************************************************************
+c*       *** find vxclm the multipole expansion of atomic vxc=df/dn  or (df/dnup,df/dndn) ***          
+c*       ************************************************************************************
+c        call paw_xc_addto_vxclm(ic,lmax2,ispin,
+c     >                          (dbl_mb(paw_xc_w_theta(1)+i_t-1)
+c     >                          *dbl_mb(paw_xc_w_phi(1)  +i_p-1)),
+c     >                          dcpl_mb(paw_xc_tlm(1)+i_ylm1),
+c     >                          dbl_mb(vxc_ae(1)),
+c     >                          dbl_mb(vxc_ps(1)),
+c     >                          dcpl_mb(paw_vxc_ae(1)),
+c     >                          dcpl_mb(paw_vxc_ps(1)))
+c        i_tlm1 = i_tlm1 + lmax2
+cc
+c
+c
+c
+c
+c*        ******************************************************
+c*        *** compute the atomic exchange correlation energy ***
+c*        ******************************************************
+c         do ig=1,ic
+c          dbl_mb(xc_temp(1)+ig-1)=
+c     >             (
+c     >             dbl_mb(rho_ae(1)+ig-1)  + 
+c     >             dbl_mb(rho_ae(1)+(ispin-1)*ic+ig-1)
+c     >             )*dbl_mb(exc_ae(1)+ig-1)
+c     >             -
+c     >             (
+c     >             dbl_mb(rho_ps(1)+ig-1)+ 
+c     >             dbl_mb(rho_ps(1)+(ispin-1)*ic+ig-1)
+c     >             )*
+c     >             dbl_mb(exc_ps(1)+ig-1)
+c        end do
+c        exc_tmp = def_integr1(0,dbl_mb(xc_temp(1)),2,
+c     >                       dbl_mb(i_r+istart-1),
+c     >                       log_amesh,ic,istart)
+c
+c        dbl_mb(paw_xc_e(1)+in-1)=dbl_mb(paw_xc_e(1)+in-1)+
+c     >                           exc_tmp*
+c     >                           dbl_mb(paw_xc_w_theta(1)+i_t-1)*
+c     >                           dbl_mb(paw_xc_w_phi(1)+i_p-1)
+c
+c
+c
+      end do !i_p
+      end do !i_t
+c
+c
+c*       *********************************************************
+c*       ****    non-local operator computation - LDA part    ****
+c*       *********************************************************
+c        nb  = paw_basis_nbasis(ia)
+c        nb2 = nb*nb
+c        i_phi_ae0 = paw_basis_i_phi_ae(ia)
+c        i_phi_ps0 = paw_basis_i_phi_ps(ia)
+c 
+c*       **** compute (vxc^a)_nln'l'^lm radial integrals *****
+c        call paw_xc_gen_matr(ng,nb,ic,istart,lmax2,ispin,
+c     >                       log_amesh,
+c     >                       dbl_mb(i_phi_ae0),
+c     >                       dbl_mb(i_phi_ps0),
+c     >                       dbl_mb(i_r+istart-1),
+c     >                       dbl_mb(paw_vxc_ae(1)),
+c     >                       dbl_mb(paw_vxc_ps(1)),
+c     >                       dbl_mb(xc_c_temp(1)),
+c     >                       dbl_mb(paw_xc_matr(1)))
+c
+c
+c*       **** xc potential  non-local matrix elements ****
+c        i_pot0 = int_mb(i_paw_xc_pot(1) + in - 1)
+c        do ms=1,ispin
+c           call paw_addto_potential_gntxc(ia,
+c     >           dcpl_mb(paw_xc_matr(1)+(ms-1)*nb2*lmax2),
+c     >           dcpl_mb(paw_xc_pot(1)+i_pot0+(ms-1)*paw_xc_pot_size))
+c        end do
+c
+c
+c*       *********************************************************
+c*       ****    non-local operator computation - GGA part    ****
+c*       *********************************************************
+c        if (gga.ge.10) then
+c
+c          i_phi_ae0_prime = paw_basis_i_phi_ae_prime(ia)
+c          i_phi_ps0_prime = paw_basis_i_phi_ps_prime(ia)
+c
+c*         **** compute (dvxc^a)_nln'l'^lm radial integrals *****
+c          call paw_xc_gen_dmatr(ng,nb,ic,istart,lmax2,ispin,
+c     >                       log_amesh,
+c     >                       dbl_mb(i_phi_ae0),
+c     >                       dbl_mb(i_phi_ps0),
+c     >                       dbl_mb(i_phi_ae0_prime),
+c     >                       dbl_mb(i_phi_ps0_prime),
+c     >                       dbl_mb(i_r+istart-1),
+c     >                       dcpl_mb(paw_dvxc_ae(1)),
+c     >                       dcpl_mb(paw_dvxc_ps(1)),
+c     >                       dcpl_mb(xc_c_temp(1)),
+c     >                       dcpl_mb(paw_xc_dmatr(1)))
+c
+c
+c*         **** xc potential  non-local matrix elements ****
+c          !i_pot0 = int_mb(i_paw_xc_pot(1) + in - 1)
+c          do ms=1,ispin
+c           call paw_addto_potential_gntxc(ia,
+c     >           dbl_mb(paw_xc_dmatr(1)+(ms-1)*nb2*lmax2*3),
+c     >           dbl_mb(paw_xc_pot(1)+i_pot0+(ms-1)*paw_xc_pot_size))
+c          end do
+c
+cc         **** theta and phi parts ****
+c          if (lmax2.gt.1) then
+c
+cc           **** theta derivatives ****
+c            do ms=1,ispin
+c             call paw_addto_potential_gntxc2(ia,
+c     >         dbl_mb(paw_xc_dmatr(1)+nb2*lmax2+(ms-1)*nb2*lmax2*3),
+c     >         dbl_mb(paw_xc_pot(1)+i_pot0+(ms-1)*paw_xc_pot_size))
+c            end do
+c
+cc           **** phi derivatives ****
+c            do ms=1,ispin
+c             call paw_addto_potential_gntxc3(ia,
+c     >         dbl_mb(paw_xc_dmatr(1)+nb2*lmax2*2+(ms-1)*nb2*lmax2*3),
+c     >         dbl_mb(paw_xc_pot(1)+i_pot0+(ms-1)*paw_xc_pot_size))
+c            end do
+c
+c
+c         end if !**lmax2>1**
+c
+c        
+c        end if !**gga**
+c 
+c      end do !in
+c
+c      if (np.gt.1)  then
+c
+cc       **** xc non-local matrix elements ****
+c        call D3dB_Vector_Sumall(2*paw_xc_pot(3),
+c     >                          dbl_mb(paw_xc_pot(1)))
+c
+cc       **** atomic exchange-correlation energies ****
+c        call D3dB_Vector_Sumall(paw_xc_e(3),dbl_mb(paw_xc_e(1)))
+c      end if
+c     
+c
+c      call nwpw_timing_end(4)
+c      call nwpw_timing_end(22)
 
-      if (np.gt.1)  then
-
-c       **** xc non-local matrix elements ****
-        call D3dB_Vector_Sumall(2*paw_xc_pot(3),
-     >                          dbl_mb(paw_xc_pot(1)))
-
-c       **** atomic exchange-correlation energies ****
-        call D3dB_Vector_Sumall(paw_xc_e(3),dbl_mb(paw_xc_e(1)))
-      end if
-     
-
-      call nwpw_timing_end(4)
-      call nwpw_timing_end(22)
       return
       end 
 
 
-**********************************
-*
-*
-*
-*
-*
-**********************************
+*     *****************************************
+*     *                                       *
+*     *             nwpw_xc_end               *
+*     *                                       *
+*     *****************************************
       subroutine nwpw_xc_end()
       implicit none
 
@@ -728,6 +816,15 @@ c       **** atomic exchange-correlation energies ****
       
       call nwpw_timing_start(4)
       ok = .true.
+      ok = ok.and.MA_free_heap(coeff_rholm(2))
+      ok = ok.and.MA_free_heap(jprj_rholm(2))
+      ok = ok.and.MA_free_heap(iprj_rholm(2))
+      ok = ok.and.MA_free_heap(lm_rholm(2))
+      ok = ok.and.MA_free_heap(bj_rholm(2))
+      ok = ok.and.MA_free_heap(bi_rholm(2))
+      ok = ok.and.MA_free_heap(shift_rholm(2))
+      ok = ok.and.MA_free_heap(nindx_rholm(2))
+
       ok = ok.and.MA_free_heap(exc_ps(2))
       ok = ok.and.MA_free_heap(exc_ae(2))
       ok = ok.and.MA_free_heap(vxc_ps(2))
@@ -735,16 +832,15 @@ c       **** atomic exchange-correlation energies ****
       ok = ok.and.MA_free_heap(rho_ps(2))
       ok = ok.and.MA_free_heap(rho_ae(2))
       ok = ok.and.MA_free_heap(xc_temp(2))
+      ok = ok.and.MA_free_heap(xc_temp2(2))
 
-      ok = ok.and.MA_free_heap(i_paw_xc_pot(2))
       ok = ok.and.MA_free_heap(paw_xc_e(2))
-      ok = ok.and.MA_free_heap(paw_xc_ylm(2)) 
-      ok = ok.and.MA_free_heap(paw_xc_w_theta)(2) 
+      ok = ok.and.MA_free_heap(paw_xc_tlm(2)) 
+      ok = ok.and.MA_free_heap(paw_xc_w_theta(2) )
       ok = ok.and.MA_free_heap(paw_xc_w_phi(2))
       ok = ok.and.MA_free_heap(paw_xc_cos_theta(2)) 
       ok = ok.and.MA_free_heap(paw_xc_angle_phi(2))
 
-      ok = ok.and.MA_free_heap(xc_c_temp(2))
       ok = ok.and.MA_free_heap(paw_xc_pot(2))
       ok = ok.and.MA_free_heap(paw_xc_matr(2))
       ok = ok.and.MA_free_heap(paw_vxc_ae(2))
@@ -752,7 +848,7 @@ c       **** atomic exchange-correlation energies ****
       ok = ok.and.MA_free_heap(paw_rho2_ae(2))
       ok = ok.and.MA_free_heap(paw_rho2_ps(2))
 
-      if (paw_xc_gga.ge.10) then
+      if (gga.ge.10) then
          ok = ok.and.MA_free_heap(paw_rho2_ae_prime(2))
          ok = ok.and.MA_free_heap(paw_rho2_ps_prime(2))
          ok = ok.and.MA_free_heap(rho_ps_prime(2))
@@ -761,21 +857,21 @@ c       **** atomic exchange-correlation energies ****
          ok = ok.and.MA_free_heap(agr_ps(2))
          ok = ok.and.MA_free_heap(fdn_ae(2))
          ok = ok.and.MA_free_heap(fdn_ps(2))
-         ok = ok.and.MA_free_heap(paw_xc_dylm_theta(2))
-         ok = ok.and.MA_free_heap(paw_xc_dylm_phi(2))
+         ok = ok.and.MA_free_heap(paw_xc_dtlm_theta(2))
+         ok = ok.and.MA_free_heap(paw_xc_dtlm_phi(2))
          ok = ok.and.MA_free_heap(paw_dvxc_ae(2))
          ok = ok.and.MA_free_heap(paw_dvxc_ps(2))
          ok = ok.and.MA_free_heap(paw_xc_dmatr(2))
       end if
       if (.not.ok)
-     > call errquit("nwpw_xc_end: error freeing heap",0,0)
+     > call errquit("nwpw_xc_end: error freeing heap",0,MA_ERR)
 
 
-      call nwpw_end_gntxc()
-      if ((paw_xc_gga.ge.10).and.(paw_xc_lmax.ge.1)) then
-        call nwpw_end_gntxc2()
-        call nwpw_end_gntxc3()
-      end if
+c      call nwpw_end_gntxc()
+c      if ((gga.ge.10).and.(lmax.ge.1)) then
+c        call nwpw_end_gntxc2()
+c        call nwpw_end_gntxc3()
+c      end if
 
       call nwpw_timing_end(4)
       return
@@ -784,10 +880,10 @@ c       **** atomic exchange-correlation energies ****
 
 *      ******************************************
 *      *                                        *
-*      *          nwpw_energy_xc_atom           *
+*      *          nwpw_xc_energy_atom           *
 *      *                                        *
 *      ******************************************
-      real*8 function nwpw_energy_xc_atom()
+      real*8 function nwpw_xc_energy_atom()
       implicit none
 
 #include "mafdecls.fh"
@@ -795,48 +891,28 @@ c       **** atomic exchange-correlation energies ****
 #include "nwpw_xc.fh"
 
       integer ii
+      real*8 e
 
-      nwpw_energy_xc_atom = 0
-      do ii=1,paw_xc_e(3)
-       nwpw_energy_xc_atom = nwpw_energy_xc_atom + 
-     >                      dbl_mb(paw_xc_e(1)+ii-1)  
+      e = 0.0d0
+      do ii=1,nion
+         e = e + dbl_mb(paw_xc_e(1)+ii-1)
       end do
+      nwpw_xc_energy_atom = e
       return
       end
 
 
 
-      subroutine paw_xc_pot_up_ptr(ptr)
-      implicit none
-      integer ptr
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "nwpw_xc.fh"
-
-
-      ptr = paw_xc_pot(1)
-      return
-      end
-
-      subroutine paw_xc_pot_down_ptr(ptr)
-      implicit none
-      integer ptr
-
-#include "mafdecls.fh"
-#include "errquit.fh"
-#include "nwpw_xc.fh"
-
-      ptr = paw_xc_pot(1) + paw_xc_pot_size
-      return
-      end
-
-
-      subroutine nwpw_xc_gen_sphere_rho(lmax2,ic,rholm,Ylm,rho)
+*     ******************************************
+*     *                                        *
+*     *          nwpw_xc_gen_sphere_rho        *
+*     *                                        *
+*     ******************************************
+      subroutine nwpw_xc_gen_sphere_rho(lmax2,ic,rholm,Tlm,rho)
       implicit none
       integer lmax2,ic
       real*8     rholm(*)
-      real*8     Ylm(*)
+      real*8     Tlm(*)
       real*8     rho(*)
 
       integer    l,indx1,igg1,ig
@@ -844,20 +920,21 @@ c       **** atomic exchange-correlation energies ****
       indx1 = 1
       igg1  = 1
       do l=1,lmax2
-      do ig=1,ic
-        rho(ig) = rho(ig) + rholm(igg1)*Ylm(indx1) 
-     >                    - rholm(igg1+1)*Ylm(indx1+1) 
-        igg1 = igg1 + 2
-      end do
-      indx1 = indx1 + 2
+         do ig=1,ic
+           rho(ig) = rho(ig) + rholm(ig)*Tlm(indx1) 
+         end do
+      indx1 = indx1 + 1
       end do
       
       return
       end
 
 
-
-
+*     ******************************************
+*     *                                        *
+*     *          nwpw_xc_rho_div_r             *
+*     *                                        *
+*     ******************************************
       subroutine nwpw_xc_rho_div_r(ic,r,rho)
       implicit none
       integer ic
@@ -865,115 +942,113 @@ c       **** atomic exchange-correlation energies ****
       real*8     rho(*)
 
       integer    ig
-
       do ig=1,ic
         rho(ig) = rho(ig)/r(ig)
       end do
-
       return
       end
 
 
 
-*     ********************************************************
-*     *                                                      *
-*     *             nwpw_xc_addto_vxclm                      *
-*     *                                                      *
-*     ********************************************************
-      subroutine nwpw_xc_addto_vxclm(ic,lmax2,ispin,
-     >                              alpha,
-     >                              ylm,
-     >                              vxc_ae,vxc_ps,
-     >                              vxclm_ae,vxclm_ps)
-      implicit none
-      integer ic,lmax2,ispin
-      double precision alpha
-      double precision ylm(2,*)
-      double precision vxc_ae(ic,ispin)
-      double precision vxc_ps(ic,ispin)
+c*     ********************************************************
+c*     *                                                      *
+c*     *             nwpw_xc_addto_vxclm                      *
+c*     *                                                      *
+c*     ********************************************************
+c      subroutine nwpw_xc_addto_vxclm(ic,lmax2,ispin,
+c     >                              alpha,
+c     >                              ylm,
+c     >                              vxc_ae,vxc_ps,
+c     >                              vxclm_ae,vxclm_ps)
+c      implicit none
+c      integer ic,lmax2,ispin
+c      double precision alpha
+c      double precision ylm(2,*)
+c      double precision vxc_ae(ic,ispin)
+c      double precision vxc_ps(ic,ispin)
+c
+c      double precision vxclm_ae(2,ic,lmax2,ispin)
+c      double precision vxclm_ps(2,ic,lmax2,ispin)
+c
+c      integer    i,lm,ms
+c
+c      do ms = 1,ispin
+c      do lm = 1,lmax2
+c      do i  = 1,ic
+c        vxclm_ae(1,i,lm,ms) = vxclm_ae(1,i,lm,ms) 
+c     >                      + vxc_ae(i,ms)*(ylm(1,lm)*alpha)
+c        vxclm_ae(2,i,lm,ms) = vxclm_ae(2,i,lm,ms) 
+c     >                      - vxc_ae(i,ms)*(ylm(2,lm)*alpha)
+cc      end do
+c      end do
+c      end do
+c
+c      do ms = 1,ispin
+c      do lm = 1,lmax2
+c      do i  = 1,ic
+c        vxclm_ps(1,i,lm,ms) = vxclm_ps(1,i,lm,ms) 
+c     >                      + vxc_ps(i,ms)*(ylm(1,lm)*alpha)
+c        vxclm_ps(2,i,lm,ms) = vxclm_ps(2,i,lm,ms) 
+c     >                      - vxc_ps(i,ms)*(ylm(2,lm)*alpha)
+c      end do
+c      end do
+c      end do
+c
+c      return
+c      end
 
-      double precision vxclm_ae(2,ic,lmax2,ispin)
-      double precision vxclm_ps(2,ic,lmax2,ispin)
-
-      integer    i,lm,ms
-
-      do ms = 1,ispin
-      do lm = 1,lmax2
-      do i  = 1,ic
-        vxclm_ae(1,i,lm,ms) = vxclm_ae(1,i,lm,ms) 
-     >                      + vxc_ae(i,ms)*(ylm(1,lm)*alpha)
-        vxclm_ae(2,i,lm,ms) = vxclm_ae(2,i,lm,ms) 
-     >                      - vxc_ae(i,ms)*(ylm(2,lm)*alpha)
-      end do
-      end do
-      end do
-
-      do ms = 1,ispin
-      do lm = 1,lmax2
-      do i  = 1,ic
-        vxclm_ps(1,i,lm,ms) = vxclm_ps(1,i,lm,ms) 
-     >                      + vxc_ps(i,ms)*(ylm(1,lm)*alpha)
-        vxclm_ps(2,i,lm,ms) = vxclm_ps(2,i,lm,ms) 
-     >                      - vxc_ps(i,ms)*(ylm(2,lm)*alpha)
-      end do
-      end do
-      end do
-
-      return
-      end
-
-*     ********************************************************
-*     *                                                      *
-*     *             nwpw_xc_gen_matr                         *
-*     *                                                      *
-*     ********************************************************
-      subroutine nwpw_xc_gen_matr(ng,nb,ic,istart,lmax2,ispin,log_amesh,
-     >                           phi_ae,phi_ps,r,
-     >                           vxclm_ae,vxclm_ps,
-     >                           tmpC,
-     >                           matr) 
-      implicit none
-      integer ng,nb,ic,istart,lmax2,ispin
-      double precision log_amesh
-
-      double precision  phi_ae(ng,nb)
-      double precision  phi_ps(ng,nb)
-      double precision  r(ic)
-      double precision  vxclm_ae(ic,lmax2,ispin)
-      double precision  vxclm_ps(ic,lmax2,ispin)
-      double precision  tmpC(ic)
-
-      double complex   matr(nb,nb,lmax2,ispin)
-
-
-*     **** local varialbles ****
-      integer ig,i,j,lm,ms
-      double precision tmp_ae,tmp_ps
-
-      do ms=1,ispin
-      do lm=1,lmax2
-        do i=1,nb
-        do j=i,nb
-          do ig=1,ic
-             tmp_ae = phi_ae(ig+istart-1,i)
-     >               *phi_ae(ig+istart-1,j)
-     >               /(r(ig)**2)
-             tmp_ps = phi_ps(ig+istart-1,i)
-     >               *phi_ps(ig+istart-1,j)
-     >               /(r(ig)**2)
-             tmpC(ig) = vxclm_ae(ig,lm,ms)*tmp_ae
-     >                - vxclm_ps(ig,lm,ms)*tmp_ps
-          end do
-          matr(i,j,lm,ms)=log_integrate_def(0,tmpC,2,r,log_amesh,ic)
-          if (i.ne.j) matr(j,i,lm,ms) = matr(i,j,lm,ms)
-        end do
-        end do
-      end do
-      end do
-
-      return
-      end
-
+c*     ********************************************************
+c*     *                                                      *
+c*     *             nwpw_xc_gen_matr                         *
+c*     *                                                      *
+c*     ********************************************************
+c      subroutine nwpw_xc_gen_matr(ng,nb,ic,istart,lmax2,ispin,log_amesh,
+c     >                           phi_ae,phi_ps,r,
+c     >                           vxclm_ae,vxclm_ps,
+c     >                           tmpC,
+c     >                           matr) 
+c      implicit none
+c      integer ng,nb,ic,istart,lmax2,ispin
+c      double precision log_amesh
+c
+c      double precision  phi_ae(ng,nb)
+c      double precision  phi_ps(ng,nb)
+c      double precision  r(ic)
+c      double precision  vxclm_ae(ic,lmax2,ispin)
+c      double precision  vxclm_ps(ic,lmax2,ispin)
+c      double precision  tmpC(ic)
+c
+c      double complex   matr(nb,nb,lmax2,ispin)
+c
+c
+c*     **** local varialbles ****
+c      integer ig,i,j,lm,ms
+c      double precision tmp_ae,tmp_ps
+c
+c      do ms=1,ispin
+c      do lm=1,lmax2
+c        do i=1,nb
+c        do j=i,nb
+c          do ig=1,ic
+c             tmp_ae = phi_ae(ig+istart-1,i)
+c     >               *phi_ae(ig+istart-1,j)
+c     >               /(r(ig)**2)
+c             tmp_ps = phi_ps(ig+istart-1,i)
+c     >               *phi_ps(ig+istart-1,j)
+c     >               /(r(ig)**2)
+c             tmpC(ig) = vxclm_ae(ig,lm,ms)*tmp_ae
+c     >                - vxclm_ps(ig,lm,ms)*tmp_ps
+c          end do
+c          matr(i,j,lm,ms)=log_integrate_def(0,tmpC,2,r,log_amesh,ic)
+c          if (i.ne.j) matr(j,i,lm,ms) = matr(i,j,lm,ms)
+c        end do
+c        end do
+c      end do
+c      end do
+c
+c      return
+c      end
+c
 
 *     ********************************************************
 *     *                                                      *
@@ -997,7 +1072,7 @@ c       **** atomic exchange-correlation energies ****
       do ms=1,ispin
          call nwpw_xc_gen_sphere_rho(lmax2,ic,
      >                              rholm(1,1,ms),
-     >                              ylm,
+     >                              tlm,
      >                              rho(1,ms))
          call daxpy(ic,0.5d0,rhocore,1,rho(1,ms),1)
       end do
@@ -1014,7 +1089,7 @@ c       **** atomic exchange-correlation energies ****
 *     ********************************************************
       subroutine nwpw_xc_gen_atomic_gradients(ic,lmax2,ispin,
      >                                       rholm,rholm_prime,
-     >                                       ylm,dylm_theta,dylm_phi,
+     >                                       tlm,dtlm_theta,dtlm_phi,
      >                                       r,rhocore,rhocore_prime,
      >                                       rho_prime)
       implicit none
@@ -1147,237 +1222,237 @@ c        **** compute |grad nup| and |grad ndn| ****
                                        
 
 
-*    ************************************
-*    *                                  *
-*    *      nwpw_xc_gen_dvxc            *
-*    *                                  *
-*    ************************************
-      subroutine nwpw_xc_gen_dvxc(ic,lmax2,ispin,
-     >                           fdn,agr,rho_prime)
-      implicit none
-      integer ic,lmax2,ispin
-      real*8  fdn(ic,*)
-      real*8  agr(ic,*)
-      real*8  rho_prime(ic,3,ispin)
-
-      integer i,j,lm,ms,jmax
-      real*8  drho1,drho2,drhoa
-
-      !*** only computate radial derivatives if lmax2=1 ****
-      if (lmax2.eq.1) then
-         jmax = 1
-      else
-         jmax = 3
-      end if
-
-*     *** restricted ****
-      if (ispin.eq.1) then
-         do j=1,jmax
-          do i=1,ic
-           rho_prime(i,j,1) = (rho_prime(i,j,1)+rho_prime(i,j,1))
-     >                       *(fdn(i,1)/agr(i,1))
-          end do
-         end do
-
-*     *** unrestricted ****
-      else
-         do j=1,jmax
-          do i=1,ic
-            drho1 = rho_prime(i,j,1)
-            drho2 = rho_prime(i,j,2)
-            drhoa = drho1+drho2
-            rho_prime(i,j,1) = (drho1/agr(i,1))*fdn(i,1)
-     >                       + (drhoa/agr(i,3))*fdn(i,3)
-            rho_prime(i,j,2) = (drho2/agr(i,2))*fdn(i,2)
-     >                       + (drhoa/agr(i,3))*fdn(i,3)
-          end do
-         end do
-        
-
-      end if
-
-      return
-      end
-
-*    ************************************
-*    *                                  *
-*    *      nwpw_xc_addto_dvxclm        *
-*    *                                  *
-*    ************************************
-      subroutine nwpw_xc_addto_dvxclm(ic,lmax2,ispin,
-     >                              alpha,
-     >                              tlm,
-     >                              dvxc_ae,dvxc_ps,
-     >                              dvxclm_ae,dvxclm_ps)
-      implicit none
-      integer ic,lmax2,ispin
-      real*8  alpha
-      real*8  tlm(*)
-      real*8  dvxc_ae(ic,3,ispin)
-      real*8  dvxc_ps(ic,3,ispin)
-
-      real*8  dvxclm_ae(ic,lmax2,3,ispin)
-      real*8  dvxclm_ps(ic,lmax2,3,ispin)
-
-      integer    i,j,lm,ms,jmax
-
-      !*** only computate radial derivatives if lmax2=1 ****
-      if (lmax2.eq.1) then
-         jmax = 1
-      else
-         jmax = 3
-      end if
-
-      do ms = 1,ispin
-      do j  = 1,jmax
-      do lm = 1,lmax2
-      do i  = 1,ic
-        dvxclm_ae(i,lm,j,ms) = dvxclm_ae(i,lm,j,ms)
-     >                         + dvxc_ae(i,j,ms)*(tlm(lm)*alpha)
-      end do
-      end do
-      end do
-      end do
-
-      do ms = 1,ispin
-      do j  = 1,jmax
-      do lm = 1,lmax2
-      do i  = 1,ic
-        dvxclm_ps(i,lm,j,ms) = dvxclm_ps(i,lm,j,ms)
-     >                         + dvxc_ps(i,j,ms)*(tlm(lm)*alpha)
-      end do
-      end do
-      end do
-      end do
-
-      return
-      end
-
-
+c*    ************************************
+c*    *                                  *
+c*    *      nwpw_xc_gen_dvxc            *
+c*    *                                  *
+c*    ************************************
+c      subroutine nwpw_xc_gen_dvxc(ic,lmax2,ispin,
+c     >                           fdn,agr,rho_prime)
+c      implicit none
+c      integer ic,lmax2,ispin
+c      real*8  fdn(ic,*)
+c      real*8  agr(ic,*)
+c      real*8  rho_prime(ic,3,ispin)
+c
+c      integer i,j,lm,ms,jmax
+c      real*8  drho1,drho2,drhoa
+c
+c      !*** only computate radial derivatives if lmax2=1 ****
+c      if (lmax2.eq.1) then
+c         jmax = 1
+c      else
+c         jmax = 3
+c      end if
+c
+c*     *** restricted ****
+c      if (ispin.eq.1) then
+c         do j=1,jmax
+c          do i=1,ic
+c           rho_prime(i,j,1) = (rho_prime(i,j,1)+rho_prime(i,j,1))
+c     >                       *(fdn(i,1)/agr(i,1))
+c          end do
+c         end do
+c
+c*     *** unrestricted ****
+c      else
+c         do j=1,jmax
+c          do i=1,ic
+c            drho1 = rho_prime(i,j,1)
+c            drho2 = rho_prime(i,j,2)
+c            drhoa = drho1+drho2
+c            rho_prime(i,j,1) = (drho1/agr(i,1))*fdn(i,1)
+c     >                       + (drhoa/agr(i,3))*fdn(i,3)
+c            rho_prime(i,j,2) = (drho2/agr(i,2))*fdn(i,2)
+c     >                       + (drhoa/agr(i,3))*fdn(i,3)
+c          end do
+c         end do
+c        
+c
+c      end if
+c
+c      return
+c      end
+c
+c*    ************************************
+c*    *                                  *
+c*    *      nwpw_xc_addto_dvxclm        *
+c*    *                                  *
+c*    ************************************
+c      subroutine nwpw_xc_addto_dvxclm(ic,lmax2,ispin,
+c     >                              alpha,
+c     >                              tlm,
+c     >                              dvxc_ae,dvxc_ps,
+c     >                              dvxclm_ae,dvxclm_ps)
+c      implicit none
+c      integer ic,lmax2,ispin
+c      real*8  alpha
+c      real*8  tlm(*)
+c      real*8  dvxc_ae(ic,3,ispin)
+c      real*8  dvxc_ps(ic,3,ispin)
+c
+c      real*8  dvxclm_ae(ic,lmax2,3,ispin)
+c      real*8  dvxclm_ps(ic,lmax2,3,ispin)
+c
+c      integer    i,j,lm,ms,jmax
+c
+c      !*** only computate radial derivatives if lmax2=1 ****
+c      if (lmax2.eq.1) then
+c         jmax = 1
+c      else
+c         jmax = 3
+c      end if
+c
+c      do ms = 1,ispin
+c      do j  = 1,jmax
+c      do lm = 1,lmax2
+c      do i  = 1,ic
+c        dvxclm_ae(i,lm,j,ms) = dvxclm_ae(i,lm,j,ms)
+c     >                         + dvxc_ae(i,j,ms)*(tlm(lm)*alpha)
+c      end do
+c      end do
+c      end do
+c      end do
+c
+c      do ms = 1,ispin
+c      do j  = 1,jmax
+c      do lm = 1,lmax2
+c      do i  = 1,ic
+c        dvxclm_ps(i,lm,j,ms) = dvxclm_ps(i,lm,j,ms)
+c     >                         + dvxc_ps(i,j,ms)*(tlm(lm)*alpha)
+c      end do
+c      end do
+c      end do
+c      end do
+c
+c      return
+c      end
 
 
-*    ************************************
-*    *                                  *
-*    *      nwpw_xc_gen_dmatr           *
-*    *                                  *
-*    ************************************
-
-      subroutine nwpw_xc_gen_dmatr(ng,nb,ic,istart,lmax2,
-     >                           ispin,log_amesh,
-     >                           phi_ae,phi_ps,
-     >                           phi_ae_prime,phi_ps_prime,
-     >                           r,
-     >                           dvxclm_ae,dvxclm_ps,
-     >                           tmpC,
-     >                           dmatr)
-      implicit none
-      integer ng,nb,ic,istart,lmax2,ispin
-      real*8  log_amesh
-
-      real*8  phi_ae(ng,nb)
-      real*8  phi_ps(ng,nb)
-      real*8  phi_ae_prime(ng,nb)
-      real*8  phi_ps_prime(ng,nb)
-      real*8  r(ic)
-      real*8  dvxclm_ae(ic,lmax2,3,ispin)
-      real*8  dvxclm_ps(ic,lmax2,3,ispin)
-      real*8  tmpC(ic)
-
-      real*8   dmatr(nb,nb,lmax2,3,ispin)
-
-*     **** local varialbles ****
-      integer ig,i,j,lm,ms
-      double precision tmp_ae,tmp_ps
 
 
-*     **** radial derivative integral ****
-      do ms=1,ispin
-      do lm=1,lmax2
-        do i=1,nb
-        do j=i,nb
-
-          do ig=1,ic
-            tmp_ae 
-     >        = ( phi_ae_prime(ig+istart-1,i)*phi_ae(ig+istart-1,j)
-     >          + phi_ae(ig+istart-1,i)*phi_ae_prime(ig+istart-1,j))
-     >          /(r(ig)**2)
-     >        - 2.0d0*phi_ae(ig+istart-1,i)*phi_ae(ig+istart-1,j)
-     >          /(r(ig)**3)
-            tmp_ps 
-     >        = ( phi_ps_prime(ig+istart-1,i)*phi_ps(ig+istart-1,j)
-     >          + phi_ps(ig+istart-1,i)*phi_ps_prime(ig+istart-1,j))
-     >          /(r(ig)**2)
-     >        - 2.0d0*phi_ps(ig+istart-1,i)*phi_ps(ig+istart-1,j)
-     >          /(r(ig)**3)
-
-
-             tmpC(ig) = dvxclm_ae(ig,lm,1,ms)*tmp_ae
-     >                - dvxclm_ps(ig,lm,1,ms)*tmp_ps
-
-          end do
-          dmatr(i,j,lm,1,ms)=log_integrate_def(0,tmpC,2,r,log_amesh,ic)
-          if (i.ne.j) dmatr(j,i,lm,1,ms) = dmatr(i,j,lm,1,ms)
-        end do
-        end do
-      end do
-      end do
-
-
-*     *** only comnpute theta and phi integrals if lmax2>1 ****
-      if (lmax2.gt.1) then
-
-*     **** theta derivative integral ****
-      do ms=1,ispin
-      do lm=1,lmax2
-        do i=1,nb
-        do j=i,nb
-
-          do ig=1,ic
-             tmp_ae = phi_ae(ig+istart-1,i)
-     >               *phi_ae(ig+istart-1,j)
-     >               /(r(ig)**3)
-             tmp_ps = phi_ps(ig+istart-1,i)
-     >               *phi_ps(ig+istart-1,j)
-     >               /(r(ig)**3)
-             tmpC(ig) = dvxclm_ae(ig,lm,2,ms)*tmp_ae
-     >                - dvxclm_ps(ig,lm,2,ms)*tmp_ps
-          end do
-          dmatr(i,j,lm,2,ms) =
-     >         log_integrate_def(0,tmpC,2,r,log_amesh,ic,istart)
-          if (i.ne.j) dmatr(j,i,lm,2,ms) = dmatr(i,j,lm,2,ms)
-        end do
-        end do
-      end do
-      end do
-
-*     **** phi   derivative integral ****
-      do ms=1,ispin
-      do lm=1,lmax2
-        do i=1,nb
-        do j=i,nb
-
-          do ig=1,ic
-             tmp_ae = phi_ae(ig+istart-1,i)
-     >               *phi_ae(ig+istart-1,j)
-     >               /(r(ig)**3)
-             tmp_ps = phi_ps(ig+istart-1,i)
-     >               *phi_ps(ig+istart-1,j)
-     >               /(r(ig)**3)
-             tmpC(ig) = dvxclm_ae(ig,lm,3,ms)*tmp_ae
-     >                - dvxclm_ps(ig,lm,3,ms)*tmp_ps
-          end do
-          dmatr(i,j,lm,3,ms)
-     >      = log_integrate_def(0,tmpC,2,r,log_amesh,ic)
-          if (i.ne.j) dmatr(j,i,lm,3,ms) = dmatr(i,j,lm,3,ms)
-        end do
-        end do
-      end do
-      end do
-
-      end if
-
-      return
-      end
+c*    ************************************
+c*    *                                  *
+c*    *      nwpw_xc_gen_dmatr           *
+c*    *                                  *
+c*    ************************************
+c
+c      subroutine nwpw_xc_gen_dmatr(ng,nb,ic,istart,lmax2,
+c     >                           ispin,log_amesh,
+c     >                           phi_ae,phi_ps,
+c     >                           phi_ae_prime,phi_ps_prime,
+c     >                           r,
+c     >                           dvxclm_ae,dvxclm_ps,
+c     >                           tmpC,
+c     >                           dmatr)
+c      implicit none
+c      integer ng,nb,ic,istart,lmax2,ispin
+c      real*8  log_amesh
+c
+c      real*8  phi_ae(ng,nb)
+c      real*8  phi_ps(ng,nb)
+c      real*8  phi_ae_prime(ng,nb)
+c      real*8  phi_ps_prime(ng,nb)
+c      real*8  r(ic)
+c      real*8  dvxclm_ae(ic,lmax2,3,ispin)
+c      real*8  dvxclm_ps(ic,lmax2,3,ispin)
+c      real*8  tmpC(ic)
+c
+c      real*8   dmatr(nb,nb,lmax2,3,ispin)
+c
+c*     **** local varialbles ****
+c      integer ig,i,j,lm,ms
+c      double precision tmp_ae,tmp_ps
+c
+c
+c*     **** radial derivative integral ****
+c      do ms=1,ispin
+c      do lm=1,lmax2
+c        do i=1,nb
+c        do j=i,nb
+c
+c          do ig=1,ic
+c            tmp_ae 
+c     >        = ( phi_ae_prime(ig+istart-1,i)*phi_ae(ig+istart-1,j)
+c     >          + phi_ae(ig+istart-1,i)*phi_ae_prime(ig+istart-1,j))
+c     >          /(r(ig)**2)
+c     >        - 2.0d0*phi_ae(ig+istart-1,i)*phi_ae(ig+istart-1,j)
+c     >          /(r(ig)**3)
+c            tmp_ps 
+c     >        = ( phi_ps_prime(ig+istart-1,i)*phi_ps(ig+istart-1,j)
+c     >          + phi_ps(ig+istart-1,i)*phi_ps_prime(ig+istart-1,j))
+c     >          /(r(ig)**2)
+c     >        - 2.0d0*phi_ps(ig+istart-1,i)*phi_ps(ig+istart-1,j)
+c     >          /(r(ig)**3)
+c
+c
+c             tmpC(ig) = dvxclm_ae(ig,lm,1,ms)*tmp_ae
+c     >                - dvxclm_ps(ig,lm,1,ms)*tmp_ps
+c
+c          end do
+c          dmatr(i,j,lm,1,ms)=log_integrate_def(0,tmpC,2,r,log_amesh,ic)
+c          if (i.ne.j) dmatr(j,i,lm,1,ms) = dmatr(i,j,lm,1,ms)
+c        end do
+c        end do
+c      end do
+c      end do
+c
+c
+c*     *** only comnpute theta and phi integrals if lmax2>1 ****
+c      if (lmax2.gt.1) then
+c
+c*     **** theta derivative integral ****
+c      do ms=1,ispin
+c      do lm=1,lmax2
+c        do i=1,nb
+c        do j=i,nb
+c
+c          do ig=1,ic
+c             tmp_ae = phi_ae(ig+istart-1,i)
+c     >               *phi_ae(ig+istart-1,j)
+c     >               /(r(ig)**3)
+c             tmp_ps = phi_ps(ig+istart-1,i)
+c     >               *phi_ps(ig+istart-1,j)
+c     >               /(r(ig)**3)
+c             tmpC(ig) = dvxclm_ae(ig,lm,2,ms)*tmp_ae
+c     >                - dvxclm_ps(ig,lm,2,ms)*tmp_ps
+c          end do
+c          dmatr(i,j,lm,2,ms) =
+c     >         log_integrate_def(0,tmpC,2,r,log_amesh,ic,istart)
+c          if (i.ne.j) dmatr(j,i,lm,2,ms) = dmatr(i,j,lm,2,ms)
+c        end do
+c        end do
+c      end do
+c      end do
+c
+c*     **** phi   derivative integral ****
+c      do ms=1,ispin
+c      do lm=1,lmax2
+c        do i=1,nb
+c        do j=i,nb
+c
+c          do ig=1,ic
+c             tmp_ae = phi_ae(ig+istart-1,i)
+c     >               *phi_ae(ig+istart-1,j)
+c     >               /(r(ig)**3)
+c             tmp_ps = phi_ps(ig+istart-1,i)
+c     >               *phi_ps(ig+istart-1,j)
+c     >               /(r(ig)**3)
+c             tmpC(ig) = dvxclm_ae(ig,lm,3,ms)*tmp_ae
+c     >                - dvxclm_ps(ig,lm,3,ms)*tmp_ps
+c          end do
+c          dmatr(i,j,lm,3,ms)
+c     >      = log_integrate_def(0,tmpC,2,r,log_amesh,ic)
+c          if (i.ne.j) dmatr(j,i,lm,3,ms) = dmatr(i,j,lm,3,ms)
+c        end do
+c        end do
+c      end do
+c      end do
+c
+c      end if
+c
+c      return
+c      end
 
 
 *     *****************************************************
@@ -1471,4 +1546,195 @@ c        **** compute |grad nup| and |grad ndn| ****
       end do
       return
       end
+
+
+c     *********************************************
+c     *                                           *
+c     *           nwpw_xc_density_solve2          *
+c     *                                           *
+c     *********************************************
+c
+c   Calculates the atomic density lm expansions  from the
+c   overlap coefficients.
+
+      subroutine nwpw_xc_density_solve2(ispin,ne,nprj,sw1,
+     >                                  n1dgrid,nbasis,lmax2,
+     >                                  nindx,lm_rholm,
+     >                                  iprj_rholm,jprj_rholm,
+     >                                  bi_rholm,bj_rholm,
+     >                                  coeff_rholm,
+     >                                  phi_ae,phi_ps,rgrid,
+     >                                  rho_ae,rho_ps)
+      implicit none
+      integer ispin,ne(2),nprj
+      real*8  sw1(ne(1)+ne(2),nprj)
+      integer n1dgrid,nbasis,lmax2
+      integer nindx,lm_rholm(*),iprj_rholm(*),jprj_rholm(*)
+      integer bi_rholm(*),bj_rholm(*)
+      real*8  coeff_rholm(*)
+      real*8  phi_ae(n1dgrid,nbasis),phi_ps(n1dgrid,nbasis)
+      real*8  rgrid(n1dgrid)
+      real*8  rho_ae(n1dgrid,lmax2,ispin)
+      real*8  rho_ps(n1dgrid,lmax2,ispin)
+
+      integer ms,n,i,lm,iprj,jprj,bi,bj,n1(2),n2(2)
+      real*8  tmp_ms,coeff,w
+      
+      call nwpw_timing_start(21)
+      n1(1) = 1 
+      n1(2) = ne(1)+1 
+      n2(1) = ne(1)
+      n2(2) = ne(1)+ne(2)
+
+*     ***init to zero***
+      call dcopy(ispin*lmax2*n1dgrid,0.0d0,0,rho_ae,1)
+      call dcopy(ispin*lmax2*n1dgrid,0.0d0,0,rho_ps,1)
+
+      do i=1,nindx
+         lm    = lm_rholm(i)
+         iprj  = iprj_rholm(i)
+         jprj  = jprj_rholm(i)
+         bi    = bi_rholm(i)
+         bj    = bi_rholm(i)
+         coeff = coeff_rholm(i)
+         do ms=1,ispin
+            w = 0.0d0
+            do n=n1(ms),n2(ms)
+               w = w + sw1(n,iprj)*sw1(n,jprj)
+            end do
+            tmp_ms = w*coeff
+            call nwpw_xc_density_gen_rho(n1dgrid,tmp_ms,
+     >               rgrid,phi_ae(1,bi),phi_ae(1,bj),
+     >               rho_ae(1,lm,ms))
+            call nwpw_xc_density_gen_rho(n1dgrid,tmp_ms,
+     >               rgrid,phi_ps(1,bi),phi_ps(1,bj),
+     >               rho_ps(1,lm,ms))
+
+         end do
+      end do
+
+      call nwpw_timing_end(21)
+      return
+      end
+
+      subroutine nwpw_xc_density_gen_rho(ic,alpha,r,phi1,phi2,rho)
+      implicit none
+      integer ic
+      double precision alpha
+      double precision r(ic)
+      double precision phi1(ic)
+      double precision phi2(ic)
+      double precision rho(ic)
+
+*     **** local variables ****
+      integer i
+      double precision tmp
+
+      do i=1,ic
+         tmp = (phi1(i)*phi2(i))/(r(i)**2)
+         rho(i) = rho(i) + alpha*tmp
+      end do
+
+      return
+      end
+
+
+c     *********************************************
+c     *                                           *
+c     *        nwpw_xc_density_prime_solve2       *
+c     *                                           *
+c     *********************************************
+c
+c   Calculates the atomic density lm expansions  from the
+c   overlap coefficients.
+      subroutine nwpw_xc_density_prime_solve2(ispin,ne,nprj,sw1,
+     >                                  n1dgrid,nbasis,lmax2,
+     >                                  nindx,lm_rholm,
+     >                                  iprj_rholm,jprj_rholm,
+     >                                  bi_rholm,bj_rholm,
+     >                                  coeff_rholm,
+     >                                  phi_ae,phi_ps,
+     >                                  dphi_ae,dphi_ps,rgrid,
+     >                                  rho_ae_prime,rho_ps_prime)
+      implicit none
+      integer ispin,ne(2),nprj
+      real*8  sw1(ne(1)+ne(2),nprj)
+      integer n1dgrid,nbasis,lmax2
+      integer nindx,lm_rholm(*),iprj_rholm(*),jprj_rholm(*)
+      integer bi_rholm(*),bj_rholm(*)
+      real*8  coeff_rholm(*)
+      real*8  phi_ae(n1dgrid,nbasis),phi_ps(n1dgrid,nbasis)
+      real*8  dphi_ae(n1dgrid,nbasis),dphi_ps(n1dgrid,nbasis)
+      real*8  rgrid(n1dgrid)
+      real*8  rho_ae_prime(n1dgrid,lmax2,ispin)
+      real*8  rho_ps_prime(n1dgrid,lmax2,ispin)
+
+      integer ms,n,i,lm,iprj,jprj,bi,bj,n1(2),n2(2)
+      real*8  tmp_ms,coeff,w
+
+      call nwpw_timing_start(21)
+      n1(1) = 1
+      n1(2) = ne(1)+1
+      n2(1) = ne(1)
+      n2(2) = ne(1)+ne(2)
+
+*     ***init to zero***
+      call dcopy(2*n1dgrid*lmax2*ispin,0.0d0,0,rho_ae_prime,1)
+      call dcopy(2*n1dgrid*lmax2*ispin,0.0d0,0,rho_ps_prime,1)
+
+      do i=1,nindx
+         lm    = lm_rholm(i)
+         iprj  = iprj_rholm(i)
+         jprj  = jprj_rholm(i)
+         bi    = bi_rholm(i)
+         bj    = bi_rholm(i)
+         coeff = coeff_rholm(i)
+         do ms=1,ispin
+            w = 0.0d0
+            do n=n1(ms),n2(ms)
+               w = w + sw1(n,iprj)*sw1(n,jprj)
+            end do
+            tmp_ms = w*coeff
+            call nwpw_xc_density_gen_drho(n1dgrid,tmp_ms,
+     >               rgrid,
+     >               phi_ae(1,bi),dphi_ae(1,bi),
+     >               phi_ae(1,bj),dphi_ae(1,bj),
+     >               rho_ae_prime(1,lm,ms))
+            call nwpw_xc_density_gen_drho(n1dgrid,tmp_ms,
+     >               rgrid,
+     >               phi_ps(1,bi),dphi_ps(1,bi),
+     >               phi_ps(1,bj),dphi_ps(1,bj),
+     >               rho_ps_prime(1,lm,ms))
+
+         end do
+      end do
+
+      call nwpw_timing_end(21)
+      return
+      end
+
+      subroutine nwpw_xc_density_gen_drho(ic,alpha,r,
+     >                                phi1,dphi1,
+     >                                phi2,dphi2,
+     >                                drho)
+      implicit none
+      integer ic
+      double precision alpha
+      double precision r(ic)
+      double precision phi1(ic),dphi1(ic)
+      double precision phi2(ic),dphi2(ic)
+      double precision drho(ic)
+
+*     **** local variables ****
+      integer i
+      double precision tmp
+
+      do i=1,ic
+         tmp = (dphi1(i)*phi2(i)+phi1(i)*dphi2(i))/(r(i)**2)
+     >       - 2.0d0*(phi1(i)*phi2(i))/(r(i)**3)
+         drho(i) = drho(i) + alpha*tmp
+      end do
+      return
+      end
+
 
