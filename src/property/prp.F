@@ -145,19 +145,15 @@ c     ----- atomic spin density -----
 c
       if(nospin.eq.0 .and. (.not.do_zora))
      &  call hnd_spind(rtdb,basis,geom)
-
+c
       if((nospin.eq.0) .and. (do_zora)) then
         if (ga_nodeid().eq.0) then
-         write(*,*) " ++++++++++++++++++++++++++++++++++++++"
-         write(*,*) " +++ NMR Hyperfine with ZORA ++++ START"
-         write(*,*) " ++++++++++++++++++++++++++++++++++++++"
+         write(LuOut,*)
+         call util_print_centered(LuOut,
+     $   'ZORA NMR Hyperfine Spin-Spin Coupling Constants', 23, .true.)
+         write(LuOut,*)
         endif
         call hnd_hyperfine_ZORA(rtdb,basis,geom)
-        if (ga_nodeid().eq.0) then
-         write(*,*) " ++++++++++++++++++++++++++++++++++++"
-         write(*,*) " +++ NMR Hyperfine with ZORA ++++ END"
-         write(*,*) " ++++++++++++++++++++++++++++++++++++"
-        endif
       end if
 c
 c     ----- electrostatic potential -----
@@ -174,29 +170,15 @@ c
 c
 c     ----- electric field gradient with ZORA 4 ----- FA-11-24-09
 c
-      if(noelfgZ4.eq.0) then
+      if(noelfgZ4.eq.0) then 
         if (ga_nodeid().eq.0) then
-         write(*,*) " ===================================="
-         write(*,*) " ========= ZORA-EFG =========== START"
-         write(*,*) " ===================================="
+         write(LuOut,*)
+         call util_print_centered(LuOut,
+     $   'ZORA EFG-Z4', 23, .true.)
+         write(LuOut,*)
         endif
-       call hnd_efgmap(rtdb,basis,geom)
-        if (ga_nodeid().eq.0) then
-         write(*,*) " ===================================="
-         write(*,*) " ========= ZORA-EFG =========== END"
-         write(*,*) " ===================================="
-        endif
-        if (ga_nodeid().eq.0) then
-         write(*,*) " ++++++++++++++++++++++++++++++++++++++++"
-         write(*,*) " +++++++++ ZORA4-SR-EFG +++++++++++ START"
-         write(*,*) " ++++++++++++++++++++++++++++++++++++++++"
-        endif
-       call hnd_efgmap_Z4(rtdb,basis,geom)
-        if (ga_nodeid().eq.0) then
-         write(*,*) " ++++++++++++++++++++++++++++++++++++++++"
-         write(*,*) " +++++++++ ZORA4-SR-EFG +++++++++++ END"
-         write(*,*) " ++++++++++++++++++++++++++++++++++++++++"
-        endif
+        call hnd_efgmap(rtdb,basis,geom)
+        call hnd_efgmap_Z4(rtdb,basis,geom)
       end if
 c
 c     ----- electron and spin densities -----
@@ -225,29 +207,22 @@ c       it gives different results than hnd_giaox() FA-04-06-11
  
       if((nogiao.eq.0) .and. (do_zora)) then
         if (ga_nodeid().eq.0) then
-         write(*,*) " +++++++++++++++++++++++++++++++++++++++++"
-         write(*,*) " +++ NMR Shieldings with ZORA-SR +++ START"
-         write(*,*) " +++++++++++++++++++++++++++++++++++++++++"
+         write(LuOut,*)
+         call util_print_centered(LuOut,
+     $   'Scalar ZORA NMR Shielding', 23, .true.)
+         write(LuOut,*)
         endif
-       call hnd_giaox_ZORA(rtdb,basis,geom)
-        if (ga_nodeid().eq.0) then
-         write(*,*) " +++++++++++++++++++++++++++++++++++++++++"
-         write(*,*) " +++ NMR Shieldings with ZORA-SR +++   END"
-         write(*,*) " +++++++++++++++++++++++++++++++++++++++++"
-        endif
+        call hnd_giaox_ZORA(rtdb,basis,geom)
       end if
-       if(nogshift.eq.0) then
+c
+      if(nogshift.eq.0) then
         if (ga_nodeid().eq.0) then
-         write(*,*) " ===================================="
-         write(*,*) " ========= g shift ======== START"
-         write(*,*) " ===================================="
+         write(LuOut,*)
+         call util_print_centered(LuOut,
+     $   'ZORA GShift', 23, .true.)
+         write(LuOut,*)
         endif
-         call hnd_gshift_ZORA(rtdb,basis,geom)
-        if (ga_nodeid().eq.0) then
-         write(*,*) " ===================================="
-         write(*,*) " ========= g shift ======== END"
-         write(*,*) " ===================================="
-        endif
+        call hnd_gshift_ZORA(rtdb,basis,geom)
       end if
 c
 c     ----- stone's distributed multipole analysis -----
