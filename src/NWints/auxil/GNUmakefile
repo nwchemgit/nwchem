@@ -15,7 +15,7 @@ endif
 
  LIB_TARGETS = spherical spherical.o testnat testnat.o
 
- USES_BLAS = int_spcart.F spherical.F xlm_norm.F xlmcoeff.F 
+ USES_BLAS = int_spcart.F spherical.F xlm_norm.F xlmcoeff.F  int_norm_2c.F int_spcart2.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h

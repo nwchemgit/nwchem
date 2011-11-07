@@ -14,7 +14,7 @@
        LIBRARY = libdrdy.a
    LIB_TARGETS = 
 
-     USES_BLAS = nwc_gen.F 
+     USES_BLAS = nwc_gen.F  nwc_s2.F nwc_s1.F
 
 include ../config/makefile.h
 include ../config/makelib.h

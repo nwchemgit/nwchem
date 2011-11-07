@@ -188,7 +188,8 @@ cr_s_m3.F \
 nr0.F \
 q3rexpt2.F \
 t2t12.F \
-creomccsd_t_n2_mem.F
+creomccsd_t_n2_mem.F \
+cr_eomccsd_t.F
 
 
 LIB_DEFINES = -DDEBUG_PRINT

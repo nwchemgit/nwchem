@@ -10,7 +10,8 @@ LIBRARY = libtce.a
 
 USES_BLAS = cr_ccsd_t_E_act.F  q3rexpt2_act.F  \
             cr_ccsd_t_N_act.F creomccsd_t_n2_act_mem.F \
-            cr_eomt_simac.F ccsd_t_d_act.F
+            cr_eomt_simac.F ccsd_t_d_act.F  cr_eomccsd_t_act.F \
+            cr_eomccsd_tasim.F
 
 
 LIB_DEFINES = -DDEBUG_PRINT

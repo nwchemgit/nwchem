@@ -70,7 +70,30 @@ USES_BLAS = ccsd_1pdm_hh_mo.F   ccsd_1pdm_pp_mo.F ccsd_1pdm_hp_mo.F ccsd_1pdm_ph
             eomccsd_2pdm_hphh_mo.F eomccsd_2pdm_hphp_mo.F eomccsd_2pdm_hppp_mo.F \
             eomccsd_2pdm_pphh_mo.F eomccsd_2pdm_pphp_mo.F eomccsd_2pdm_pppp_mo.F \
             eomccsd_z1.F eomccsd_z2.F eomccsd_2pdm_pphh_zvec_mo.F eomccsd_1pdm_hp_mo.F \
-            eomccsd_1pdm_ph_mo.F eomccsd_x1_grad.F eomccsd_x2_grad.F tce_eom_xdiagon_grad.F
+            eomccsd_1pdm_ph_mo.F eomccsd_x1_grad.F eomccsd_x2_grad.F tce_eom_xdiagon_grad.F \
+            tce_cisdt_denominator.F cisdtq_2pdm_hhhh_mo.F cisdtq_2pdm_hphp_mo.F cisdtq_2pdm_hppp_mo.F \
+            cisdtq_2pdm_pphp_mo.F cisdtq_2pdm_pppp_mo.F mp4_1pdm_pp_mo_III_b.F tce_cis_denominator.F \
+            cisd_1pdm_hh_mo.F ccsdt_2pdm_hphh_mo.F ccsdt_2pdm_hhhp_mo.F mp3_1pdm_hh_mo.F \
+            ccsdt_2pdm_pphh_mo.F tce_cisdtq_denominator.F tce_mp4_t24.F cis_x1.F \
+            cisd_2pdm_hhhh_mo.F mp4_1pdm_hh_mo_II.F cisd_2pdm_hphp_mo.F cisdtq_1pdm_hh_mo.F \
+            cisd_2pdm_hppp_mo.F cisd_2pdm_pphp_mo.F cis_1pdm_pp_mo.F cisd_2pdm_pppp_mo.F \
+            ccsdt_1pdm_pp_mo.F cisdt_1pdm_pp_mo.F mp4_2pdm_hphh_mo.F mp2_1pdm_hh_mo.F \
+            mp4_2pdm_pphh_mo.F ccsdtq_2pdm_hphh_mo.F ccsdtq_2pdm_hhhp_mo.F cis_2pdm_hphp_mo.F \
+            tce_cisd_denominator.F ccsdtq_2pdm_pphh_mo.F cisdt_2pdm_hhhh_mo.F mp4_1pdm_hh_mo_III_a.F \
+            ccsdtq_1pdm_pp_mo.F cisdt_2pdm_hphp_mo.F btrans1.F cisdt_2pdm_hppp_mo.F \
+            cisdt_2pdm_pphp_mo.F cisdt_2pdm_pppp_mo.F cisdtq_2pdm_hphh_mo.F cisdtq_2pdm_hhhp_mo.F \
+            wdm_hp_mo_b_d_a.F cisdtq_2pdm_pphh_mo.F cisdtq_2pdm_hhpp_mo.F mp4_1pdm_hh_mo_III_b.F \
+            btrans2.F ccsdt_2pdm_hhhh_mo.F wdm_hp_mo_b_d_b.F ccsdt_2pdm_hphp_mo.F \
+            cisd_1pdm_pp_mo.F ccsdt_2pdm_hppp_mo.F ccsdt_2pdm_pphp_mo.F mp3_1pdm_pp_mo.F \
+            ccsdt_2pdm_pppp_mo.F tce_mp2_norm.F cisd_2pdm_hphh_mo.F cisd_2pdm_hhhp_mo.F \
+            cis_1pdm_hh_mo.F cisd_2pdm_pphh_mo.F cisd_2pdm_hhpp_mo.F wdm_hp_mo_b_e_a.F \
+            ccsdt_1pdm_hh_mo.F mp4_1pdm_pp_mo_II.F cisdt_1pdm_hh_mo.F cisdtq_1pdm_pp_mo.F \
+            ccsdt_1pdm_ph_mo.F mp4_2pdm_hhhh_mo.F cis_xdiagon.F mp4_2pdm_hphp_mo.F \
+            ccsdtq_2pdm_hhhh_mo.F mp4_2pdm_pphp_mo.F mp2_1pdm_pp_mo.F mp3_2pdm_hhhh_mo.F \
+            ccsdtq_1pdm_hh_mo.F mp4_2pdm_pppp_mo.F ccsdtq_2pdm_hphp_mo.F wdm_hp_mo_b_e_b.F \
+            ccsdtq_1pdm_ph_mo.F ccsdtq_2pdm_hppp_mo.F ccsdtq_2pdm_pphp_mo.F cisdt_2pdm_hphh_mo.F \
+            cisdt_2pdm_hhhp_mo.F mp3_2pdm_hphp_mo.F ccsdtq_2pdm_pppp_mo.F cisdt_2pdm_pphh_mo.F \
+            cisdt_2pdm_hhpp_mo.F mp4_1pdm_pp_mo_III_a.F mp3_2pdm_pppp_mo.F 
 
 
 LIB_DEFINES = -DDEBUG_PRINT

@@ -19,7 +19,8 @@ ifdef TESTING
   OBJ_OPTIMIZE = 
 endif
 
- USES_BLAS = potential.F pot_shell.F fmm.F newfmm.F testfmm.F cart_trans.F xlm_poles.F
+ USES_BLAS = potential.F pot_shell.F fmm.F newfmm.F testfmm.F cart_trans.F xlm_poles.F fastj.F solver.F
+
  LIB_TARGETS = solver testcheby testcarttrans testfmm
 
 

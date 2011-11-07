@@ -74,7 +74,8 @@ include ../../config/makefile.h
        LIBRARY = libnwints.a
 
      USES_BLAS = hnd_stvint.F hnd_stvintd.F hnd_stvintdd.F\
-hnd_elfder.F hnd_pso.F hnd_dso.F hnd_giaoh11.F hnd_giaoh01.F hnd_giaotv10.F hnd_giaobq10.F hnd_giaol10.F hnd_giaos10.F
+hnd_elfder.F hnd_pso.F hnd_dso.F hnd_giaoh11.F hnd_giaoh01.F hnd_giaotv10.F hnd_giaobq10.F hnd_giaol10.F hnd_giaos10.F \
+hnd_giaos100.F hnd_vstat.F hnd_veloc.F hnd_dipder.F hnd_angmom.F hnd_dipvel.F hnd_giahnd.F
 
 include ../../config/makelib.h
   ifeq ($(FC),efc)

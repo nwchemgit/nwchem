@@ -8,7 +8,7 @@ LIBRARY=liboptim.a
 
 HEADERS=
 
-USES_BLAS= neb_drv.F
+USES_BLAS= neb_drv.F neb_utils.F neb_init.F
 
 include ../../config/makefile.h
 

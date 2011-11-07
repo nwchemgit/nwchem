@@ -120,7 +120,12 @@ USES_BLAS = tce_mbpt2.F tce_residual_t1.F tce_residual_t2.F \
             tce_mo2e_hybrid_2eorb_split.F \
             tce_diagnose_t1.F ddotfile.F tce_ao2e_cholesky.F tce_energy.F \
             ccsd_imaginary.F ccsd_lr_alpha.F ccsd_lr_beta.F tensor_read_write.F \
-            tce_diis_act.F tce_mo2e_zones_4a_disk_ga_act.F tce_mo2e_zones_4a_disk_ga_chop_act.F
+            tce_diis_act.F tce_mo2e_zones_4a_disk_ga_act.F tce_mo2e_zones_4a_disk_ga_chop_act.F \
+            ccsd_qr_beta.F daxpyfile.F tce_ao2e_cholesky_orb.F tce_ao2e_disk.F \
+            tce_ao2e_new.F tce_dgeev.F tce_mo2e_disk.F tce_mo2e_new.F \
+            tce_mo2e_zones_4a_disk_4s_new_patch_m3.F tce_mo2e_zones_4a_disk_ga_N5.F \
+            tce_mo2e_zones_4a_disk_ga_chop_N5.F tce_mod1_new.F
+
 
 
 #LIB_DEFINES += -DNEWDIPOLE

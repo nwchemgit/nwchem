@@ -40,7 +40,7 @@ selci_hpp.o
 OBJ_OPTIMIZE = $(UOBJ) $(DVOBJ) $(CIOBJ) $(SELOBJ) $(BLAS)
 #OBJ = $(UOBJ) $(DVOBJ) $(CIOBJ) $(SELOBJ) $(BLAS)
 
-USES_BLAS = davids.F fcidim.F makeh.F makehs.F makhdb.F tester.F
+USES_BLAS = davids.F fcidim.F makeh.F makehs.F makhdb.F tester.F selci_hpp.F
 
 include ../config/makefile.h
 include ../config/makelib.h

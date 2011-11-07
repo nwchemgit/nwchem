@@ -12,7 +12,9 @@ LIBRARY = libtce.a
 USES_BLAS = ccsd_e.F ccsd_t1.F ccsd_t2.F cc2_t1.F cc2_t2.F \
             ccsd_1prdm_hh.F ccsd_1prdm_hp.F ccsd_1prdm_ph.F \
             ccsd_1prdm_pp.F ccsd_1prdm.F \
-            icsd_t1.F icsd_t2.F
+            icsd_t1.F icsd_t2.F ccsd_t1_noloc.F \
+            ccsd_e_noloc.F ccsd_t2_noloc.F
+
 
 LIB_DEFINES = -DDEBUG_PRINT
 #

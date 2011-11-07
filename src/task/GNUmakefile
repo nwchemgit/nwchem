@@ -10,7 +10,7 @@
         task_vscf.o task_property.o task_dntmc.o task_bsse.o \
         task_jefftce.o task_ncc.o task_rfcf.o 
 
-USES_BLAS = task_num_grad.F
+USES_BLAS = task_num_grad.F task_bsse.F
 
 include ../config/makefile.h
 include ../config/makelib.h

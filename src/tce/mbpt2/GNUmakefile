@@ -13,7 +13,8 @@ mbpt2_t2_b.F \
 mbpt2_t2.F \
 mbpt2_t3.F \
 mbpt2_t1_sd.F \
-mbpt2_t2_sd.F
+mbpt2_t2_sd.F \
+mbpt2_t4.F
 
 
 LIB_DEFINES = -DDEBUG_PRINT

@@ -6,7 +6,7 @@ LIB_INCLUDES = -I../include
 
 LIBRARY = libtce.a
 
-USES_BLAS = 
+USES_BLAS =  c2vt1_s.F c1v.F
 
 LIB_DEFINES = -DDEBUG_PRINT
 #

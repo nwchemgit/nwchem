@@ -16,7 +16,7 @@ LIBRARY=libqmmm.a
 
 HEADERS=
 
-USES_BLAS=
+USES_BLAS= task_qmmm_gradient.F qmmm_lbfgsb.F mm_interface.F 
 
 include ../config/makefile.h
 
