@@ -43,8 +43,6 @@ c
 c     give at least 8mb plus 20 pctage load imabalance
          eaf_size_in_mb = max(8,
      =     nq_list*120/(ga_nnodes()*100)*4*8/1000/1000)
-      if(ga_nodeid().eq.0)
-     Wwrite(0,*) ' eaf size in mb',eaf_size_in_mb
       if (.not. rtdb_put(rtdb, 'grid:eaf_size_in_mb',
      $     MT_INT, 1, eaf_size_in_mb)) call
      C     errquit('grid_init:rtdb_put failed',0,0)
