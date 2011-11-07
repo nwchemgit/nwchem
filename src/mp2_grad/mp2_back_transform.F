@@ -10,7 +10,8 @@
      $     irs_a, irs_b,
      $     c_a, c_b,            ! Better left in a GA to conserve memory
      $     nva_lo_local, nva_hi_local, 
-     $     tunita, tunitb, grad)
+     $     tunita, tunitb, grad,
+     P     p_file_size)
 *
 * $Id$
 *
@@ -59,10 +60,13 @@ c
 c
       integer k_scr, l_scr, k_lab, l_lab, k_eri, l_eri, leneri, lenscr
       integer k_bftosh, l_bftosh, k_bftoce, l_bftoce, k_pdm, l_pdm
+      integer eaftype,eaf_size_in_mb,inntsize
+      double precision p_file_size
 c
       character*(nw_max_path_len) fname
 c
       double precision tol2e
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
 c
       if (.not. rtdb_get(rtdb, 'mp2:backtol', mt_dbl, 1, tol2e))
      $     tol2e = 1d-9
@@ -137,7 +141,23 @@ c
      &       GA_ERR)
 c     
       call util_file_name('2pdm', .true., .true., fname)
-      if (eaf_open(fname,eaf_rw,twopdmunit) .ne. 0)
+#ifdef EAFHACK
+         if (.not. rtdb_get(rtdb, 'mp2:eaf_size_in_mb',
+     $        MT_INT, 1, eaf_size_in_mb)) eaf_size_in_mb = 0
+             if(eaf_size_in_mb.ne.0) then
+                eaftype=1000000+eaf_size_in_mb*1024*1024
+             else
+                eaftype=1000000+inntsize*p_file_size*11/10
+             endif
+             if(ga_nodeid().eq.0) then
+                write(6,*)' EAF nonsep ',
+     A            eaf_size_in_mb, eaftype
+                call util_flush(6)
+             endif
+#else
+             eaftype=eaf_rw
+#endif
+      if (eaf_open(fname,eaftype,twopdmunit) .ne. 0)
      $     call errquit('mp2: backt: failed to open file',0, DISK_ERR)
 c     
 c     Now do the back transformation
@@ -176,7 +196,7 @@ c
      $     l_t, k_t)) call errquit
      $     ('mp2: backt: failed ma for nonsep test', tdim, MA_ERR)
       tdim = shmax*shmax*nbf
-      if (.not. ma_push_get(mt_dbl, tdim, 'mp2:back tbuf',
+      if (.not. ma_push_get(mt_dbl, tdim*ninseg, 'mp2:back tbuf',
      $     l_tmp, k_tmp)) call errquit
      $     ('mp2: backt: failed ma for nonsep test', tdim, MA_ERR)
       if (.not. ma_push_get(mt_dbl, ninseg*nbf, 'mp2:back c_t',
@@ -783,13 +803,13 @@ c     t(x,v,u,i,ush,vsh)
 c     
 c     Read this in and transpose to in core structure t(i,x,v,u)
 c     
+        if (eaf_read(twopdmunit, fileptr, tbuf, ninseg*count*8).ne.0)
+     $       call errquit('mp2: ao test: failed reading density', 0,
+     &     DISK_ERR)
          do i = 1, ninseg
-            if (eaf_read(twopdmunit, fileptr, tbuf, count*8).ne.0)
-     $           call errquit('mp2: ao test: failed reading density', 0,
-     &       DISK_ERR)
-            fileptr = fileptr + count*8.0d0
-            call dcopy(count, tbuf, 1, t(i), ninseg)
+            call dcopy(count, tbuf(count*(i-1)+1), 1, t(i), ninseg)
          end do
+            fileptr = fileptr + ninseg*count*8.0d0
 c     
          xsh_start = 1          ! For braindead multipassing
          ysh_start = 1

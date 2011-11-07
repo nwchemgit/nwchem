@@ -30,8 +30,9 @@ c
 c
 c
 c
-       subroutine moints_semi( basis, tol2e, oseglo, oseghi, 
-     $                         olo, ohi, vlo, vhi, g_movecs, oblk )
+       subroutine moints_semi( rtdb, basis, tol2e, oseglo, oseghi, 
+     $                         olo, ohi, vlo, vhi, g_movecs, oblk ,
+     K     k_file_size)
        implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -40,7 +41,9 @@ c
 #include "util.fh"
 #include "sym.fh"
 #include "bas.fh"
+#include "rtdb.fh"
 c
+       integer rtdb
        integer basis                          ! [input]  Basis handle
        double precision tol2e                 ! [input]  Integral tolerance
        integer oseglo, oseghi                 ! [input]  Occupied segment range
@@ -73,6 +76,8 @@ c
 c
        integer moints_numgr
        integer moints_lmem
+       integer eaftype,eaf_size_in_mb,inntsize
+       double precision k_file_size
        external moints_numgr
        external moints_lmem
        data osym/.false./
@@ -83,6 +88,7 @@ c                         nocc      : number of occupieds to highest i
 c
        myid = ga_nodeid()
        numnodes = ga_nnodes()
+       inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
        nocc = ohi - olo + 1
        nseg = oseghi - oseglo + 1
        nvir = vhi - vlo + 1
@@ -144,7 +150,7 @@ c
        mxrlen = int(gmem/(nseg*nvir_node))
        mxrlen = min(
      $      mxrlen, 
-     $      min(nbf*nbf,10*maxbfsh*maxbfsh*numnodes))
+     $      min(nbf*nbf,maxbfsh*maxbfsh*numnodes))
 c
        if (oprint_mem) then
           write(6,720) mxrlen, nseg, nvir, nbf, maxbfsh, numnodes
@@ -231,17 +237,32 @@ c
        vtmp(3) = pvlo
        vtmp(4) = pvhi
        call util_file_name('kh', .true.,.true., fnamek)
-       if (eaf_open( fnamek, EAF_RW, kunit).ne.0)
+#ifdef EAFHACK
+         if (.not. rtdb_get(rtdb, 'mp2:eaf_size_in_mb',
+     $        MT_INT, 1, eaf_size_in_mb)) eaf_size_in_mb = 0
+             if(eaf_size_in_mb.ne.0) then
+                eaftype=1000000+eaf_size_in_mb*1024*1024
+             else
+                eaftype=1000000+inntsize*k_file_size*11/10
+             endif
+             if(ga_nodeid().eq.0) then
+                write(6,*)' EAF moints', eaf_size_in_mb, eaftype
+                call util_flush(6)
+             endif
+#else
+             eaftype=EAF_RW
+#endif
+       if (eaf_open( fnamek, eaftype, kunit).ne.0)
      $   call errquit('moints_semi: failed to open half int file',0,
      &       DISK_ERR)
        if (eaf_write(kunit, 0.d0, vtmp,
      $               ma_sizeof(MT_INT,10,MT_BYTE)).ne.0)
-     $   call errquit('moints_semi: failed to write header info',0,
+     $   call errquit('moints_semi: failed to write header info1',0,
      &       DISK_ERR)
        iotmpptr = ma_sizeof(MT_INT,10,MT_BYTE)
        if (eaf_write(kunit, iotmpptr, int_mb(k_rloc),
      $               ma_sizeof(MT_INT,nnbf,MT_BYTE)).ne.0)
-     $   call errquit('moints_semi: failed to write header info',0,
+     $   call errquit('moints_semi: failed to write header info2',0,
      &       DISK_ERR)
        if (.not. ma_pop_stack(l_rloc))
      $     call errquit('moints: failed to pop', 1, MA_ERR)
@@ -424,8 +445,12 @@ c
      &       MA_ERR)
 c
        if (.not. ma_push_get(MT_DBL,(nbf*vhi),'r movecs',l_xmo,k_xmo))
-     $     call errquit('moints_semi: failed to alloc mos', nbf*vhi,
+     $     then
+      write(6,*) ' avail dbles',ma_inquire_avail(MT_DBL)
+       call util_flush(6)
+          call errquit('moints_semi: failed to alloc mos', nbf*vhi,
      &       MA_ERR)
+      endif
 c
        call ga_get(g_movecs, 1, nbf, qlo, qhi, dbl_mb(k_xmo_t), nbf )
        call row_exch( nbf, nmo, rbfmap, dbl_mb(k_xmo_t), dbl_mb(k_xmo) )
@@ -491,9 +516,17 @@ c
                    t0 = util_cpusec()
 
                    if (.not. ma_push_get(MT_DBL,n_ssbb1,'ssbb blk',
-     $                  l_ssbb,k_ssbb))
-     $                  call errquit('moints_semi: ssbb', n_ssbb1,
+     $                  l_ssbb,k_ssbb)) then
+                      write(6,*) ga_nodeid(),
+     C                     ' avail dbles',ma_inquire_avail(MT_DBL)
+                      call util_flush(6)
+                      if(ga_nodeid().eq.0)
+     M                     call ma_summarize_allocated_blocks()
+                      
+                      call ga_sync()
+                       call errquit('moints_semi: ssbb', n_ssbb1,
      &       MA_ERR)
+                    endif
                    if (.not. ma_push_get(MT_DBL, max2e, 'ibuf', 
      $                  l_eri, k_eri)) 
      $                  call errquit('moints_semi: eri', max2e,
@@ -580,9 +613,13 @@ c
      $              call errquit('moints_semi: hlp3', n_hlp3,
      &       MA_ERR)
                if (.not. ma_push_get(MT_DBL,(nbf*vhi),'r movecs',
-     $              l_xmo,k_xmo)) call errquit
-     $              ('moints_semi: failed to alloc mos', nbf*vhi,
+     $              l_xmo,k_xmo)) then
+      write(6,*) ' avail dbles',ma_inquire_avail(MT_DBL)
+       call util_flush(6)
+                     call errquit
+     $              ('moints_semi: failed to alloc mos3', nbf*vhi,
      &       MA_ERR)
+             endif
 c
 c     Generate the untranposed mos by transposing the transpose
 c
@@ -900,7 +937,11 @@ c
 
       tmp2 = util_cpusec()
       call util_file_name('kh',.true.,.true.,fname)
+#ifdef EAFHACK
+      if (eaf_open(fname, 200, kunit).ne.0)
+#else
       if (eaf_open(fname, EAF_RW, kunit).ne.0)
+#endif
      $  call errquit('moints_readintK: cannot open half int file',0,
      &       DISK_ERR)
       myid = ga_nodeid()

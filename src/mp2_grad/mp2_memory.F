@@ -1,6 +1,7 @@
       subroutine mp2_memory(basis,geom,rtdb,tol2e,oskel,
      $     nbf,noa,nva,nob,nvb,
-     $     batch_size,max_ma,max_ga,max_file,task,scftype)
+     $     batch_size,max_ma,max_ga,max_file,task,scftype,
+     k     k_file_size,t_file_size,p_file_size)
 *     
 *     $Id$
 *     

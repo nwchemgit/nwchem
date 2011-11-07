@@ -1820,7 +1820,7 @@ endif
         FDEBUG = -g -O2
         DEFINES  += -DCHKUNDFLW -DPGLINUX
        ifeq ($(FC),ftn)
-          DEFINES  += -DCRAYXT
+          DEFINES  += -DCRAYXT -DEAFHACK
           LINK.f = ftn  $(LDFLAGS) $(FOPTIONS)
        endif
        ifeq ($(NWCHEM_TARGET),CATAMOUNT)

@@ -88,7 +88,11 @@ c
       double precision util_scratch_dir_avail_for_me
       external util_scratch_dir_avail_for_me
       integer max_ga,max_ma,avail_ga,avail_ma,iavail_file
+      integer eaftype,eaf_size_in_mb,npass_first
       double precision max_file, avail_file
+      double precision k_file_size,t_file_size,p_file_size
+      integer inntsize
+      logical status
       character*20 info
 c     
 c...  for texas blocking in moints_semi
@@ -100,6 +104,7 @@ c
       oprint_where = util_print('where',print_default) .and. 
      $     ga_nodeid().eq.0
 c     
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       if (scftype .eq. 'RHF') then
          info = ' for RHF alpha+beta'
       else if (passab .eq. 1) then
@@ -124,19 +129,6 @@ c
          nir = 1
       endif
 c     
-      call util_file_name('kh',.true.,.true.,fnamek)
-#ifdef CRAYXT
-c just 256mb for crayxt
-      avail_file=256*1024d0*128d0
-#else
-      if(rtdb_get(rtdb,'mp2:scratchdisk',mt_dbl,1,avail_file)) then
-         avail_file=avail_file*1024d0*128d0
-         if (oprint_mem) 
-     1            write(0,*) ' #avail ',avail_file
-      else
-         avail_file=util_scratch_dir_avail_for_me()*128.0d0
-      endif
-#endif
 c
       if (task .eq. 'gradient') then
         call intd_init(rtdb,1,basis) ! int_init allocates some memory
@@ -145,6 +137,14 @@ c
       endif
       avail_ma = MA_inquire_avail(mt_dbl)
       call int_terminate()
+      call util_file_name('kh',.true.,.true.,fnamek)
+      if(rtdb_get(rtdb,'mp2:scratchdisk',mt_dbl,1,avail_file)) then
+         avail_file=avail_file*1024d0*128d0
+         write(0,*) ' #avail ',avail_file
+      else
+         avail_file=0.99d0*((avail_ma*(9d0*3d0))/(16d0*4d0))
+         avail_ma=(7d0*avail_ma)/16d0
+      endif
 c
       if (ga_uses_ma() .and. ga_memory_limited()) 
      $     avail_ma = avail_ma - ga_memory_avail()
@@ -168,11 +168,14 @@ c
          call util_flush(6)
       end if
 c     
-      do npasses = 1, noa_hi-noa_lo+1
+      if(.not.rtdb_get(rtdb,'mp2:npasses',mt_int,1,npass_first)) 
+     C   npass_first=1
+      do npasses = npass_first, noa_hi-noa_lo+1
          num_i_perseg = (noa_hi-noa_lo)/npasses + 1
          call mp2_memory(basis,geom,rtdb,tol2e,oskel,nbf,noa,nva,nob,
      $        nvb,
-     $        num_i_perseg,max_ma,max_ga,max_file,task,scftype)
+     $        num_i_perseg,max_ma,max_ga,max_file,task,scftype,
+     k        k_file_size,t_file_size,p_file_size)
          if(oprint_mem) then
             write(6,22) npasses, num_i_perseg, max_ma, max_ga, max_file
  22         format(1x,i3,' passes of',i4,':  ',
@@ -219,8 +222,9 @@ c
          call pstat_on(ps_moints)
          call int_init(rtdb,1,basis)
          call schwarz_init(geom,basis)
-         call moints_semi(basis,tol2e,oseg_lo,oseg_hi,
-     $        noa_lo,noa_hi,nva_lo,nva_hi,g_vecs_a,oblk)
+         call moints_semi(rtdb,basis,tol2e,oseg_lo,oseg_hi,
+     $        noa_lo,noa_hi,nva_lo,nva_hi,g_vecs_a,oblk,
+     K        k_file_size)
          call int_terminate()
          call schwarz_tidy()
          call pstat_off(ps_moints)
@@ -262,10 +266,21 @@ c
          if (scftype .eq. 'UHF') 
      $        call ga_brdcst(135, dbl_mb(k_bmos), nbf*nmo*8, 0)
 c     
+#ifdef EAFHACK
+         if (.not. rtdb_get(rtdb, 'mp2:eaf_size_in_mb',
+     $        MT_INT, 1, eaf_size_in_mb)) eaf_size_in_mb = 0
+             if(eaf_size_in_mb.ne.0) then
+                eaftype=1000000+eaf_size_in_mb*1024*1024
+             else
+                eaftype=1000000+inntsize*k_file_size*11/10
+             endif
+#else
+             eaftype=EAF_RW
+#endif
          call util_file_name('kh',.true.,.true.,fnamek)
-         if (eaf_open(fnamek, EAF_RW, kunit).ne.0)
-     $     call errquit('mp2_grad_doit: cannot open half int file',1,
-     &       DISK_ERR)
+         if (eaf_open(fnamek, eaftype, kunit).ne.0) 
+     $        call errquit('tunitb: eaf_open failed', 0,
+     &        DISK_ERR)
          call moints_vrange(kunit,nva_lo_local,nva_hi_local,nnbf,ioff)
 c     
          if(.not.ma_push_get(mt_int,(nnbf+mod(nnbf,2)),'scatter',
@@ -276,12 +291,13 @@ c
          if(task.eq.'gradient')then
             call util_file_name('ta',.true.,.true.,fnameta)
             call util_file_name('tb',.true.,.true.,fnametb)
-            if (eaf_open(fnameta,eaf_rw,tunita) .ne. 0)
+            if (eaf_open(fnameta,eaftype,tunita) .ne. 0)
      $           call errquit('mp2_grad: eaf open of ta failed',0,
      &       DISK_ERR)
-            if (eaf_open(fnametb,eaf_rw,tunitb) .ne. 0)
+            if (eaf_open(fnametb,eaftype,tunitb) .ne. 0)
      $           call errquit('mp2_grad: eaf open of tb failed',0,
      &       DISK_ERR)
+
          end if
          call pstat_on(ps_maket)
          call mp2_make_tuhf(nbf,noa_lo,noa_hi,nva_lo,nva_hi,
@@ -454,7 +470,8 @@ c
      $           irs_a, irs_b,
      $           dbl_mb(k_amos), dbl_mb(k_bmos), 
      $           nva_lo_local, nva_hi_local, 
-     $           tunita, tunitb, grad)
+     $           tunita, tunitb, grad,
+     P           p_file_size)
 c     
             if (oprint_where) then
                write(6,111) 'nonsep', util_wallsec()

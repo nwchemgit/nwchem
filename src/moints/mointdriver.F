@@ -449,8 +449,11 @@ c
        oseg_lo = oseg_hi + 1
        oseg_hi = min((oseg_lo + seg_incr - 1),occ_hi)
 c
+cedo  open a 128mb file enough?
        call moints_semi( basis, tol2e, oseg_lo, oseg_hi,
-     $                  occ_lo, occ_hi, vir_lo, vir_hi, g_vecs, oblk )
+     $                  occ_lo, occ_hi, vir_lo, vir_hi, g_vecs, oblk ,
+     c      128*1024*1024)
+
        status = ma_push_get(MT_DBL, (nbf*nmo), 'mos', l_x, k_x )
        call ga_get(g_vecs,1,nbf,1,nmo,dbl_mb(k_x),nbf)
        call moints_readintK( nbf, oseg_lo, oseg_hi, occ_lo, occ_hi,
