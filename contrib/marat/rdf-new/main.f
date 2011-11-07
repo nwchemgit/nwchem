@@ -19,7 +19,7 @@ c       character*5 atag
        character*(180) buffer
        character*(180) message
        integer istatus
-       logical overb,ohelp,odistinct
+       logical overb,ohelp
        character*255 file_lattice,file_in,file_out
        character*16 atom1_tag
        character*16 atom2_tag
@@ -58,10 +58,7 @@ c      --------------------------------------------
        fn_out = 11
        nfrm = 0
        aformat = " "
-       file_in  = " "
-       file_out = " "
        overb = .false.
-       odistinct = .true.
        file_lattice = " "
        latv = -1.0
        lat = 0.0
@@ -69,19 +66,16 @@ c      --------------------------------------------
        atom2_id = 0
        atom1_tag = " "
        atom2_tag = " "
-       file_in = " "
-       file_out = " "
        rmax = -1
        nb = -1
 c
 c      ------------------------
-c      allocate input file array
+c      allocate io file array
 c      ------------------------
        nc = my_command_argument_count()
-       write(*,*) "nc=",nc
        call get_carg_nfiles(nc)
-       write(*,*) "number of files",nc
        allocate(infile(nc))
+       infile = " "
 c      --------------------------------------------      
 c      beging parsing command line arguments if any
 c      --------------------------------------------      
@@ -118,12 +112,6 @@ c              write(*,*) "lat",k,latv(k)
           end do
 c          write(*,*) "done reading lattice"
           go to 16
-       else if(buffer.eq."-nodistinct") then
-          odistinct=.false.
-          go to 16
-       else if(buffer.eq."-distinct") then
-          odistinct=.true.
-          go to 16
        else if(buffer.eq."-v") then
           overb=.true.
           go to 16
@@ -136,8 +124,6 @@ c          go to 14
           call my_get_command_argument(i,buffer,l,istatus)
           if(istatus.ne.0) goto 18
           if(is_integer(buffer)) then
-c            message = "Only atom tags are supported now"
-c            goto 911
             read(buffer,*) atom1_id
           else
             atom1_tag = buffer
@@ -148,8 +134,6 @@ c            goto 911
           call my_get_command_argument(i,buffer,l,istatus)
           if(istatus.ne.0) goto 18
           if(is_number(buffer)) then
-c            message = "Only atom tags are supported now"
-c            goto 911
             read(buffer,*) atom2_id
           else
             atom2_tag = buffer
@@ -189,7 +173,6 @@ c            goto 911
           end if
           go to 16
        else 
-               write(*,*) "file buffer", buffer
           nfil = nfil+1
           infile(nfil) = buffer
           go to 16
@@ -210,23 +193,19 @@ c      ---------------------------
          write(*,*) "Output file",infile(nfil)
        end if
 c       
-       rmax = 4.0
-       nb = 100
-       atom1_tag = " "
-       atom1_id = 3910
-       atom2_tag = "O"
-       latv = 10.0014453
-       file_in = "test.xyz"
-       file_in = "m.trj"
-       file_out = "test.out"
-       file_lattice = "lat.dat"
-c       nfrm = 2
+c       rmax = 4.0
+c       nb = 100
+c       atom1_tag = " "
+c       atom1_id = 3910
+c       atom2_tag = "O"
+c       latv = 10.0014453
+c       file_lattice = "lat.dat"
 c      ---------------------------      
 c      start checks/balances
 c      ---------------------------      
 c      files
        if(nfil.lt.2) then
-         message = "please provide input/output files"
+         message = "please provide input and output files"
          goto 911
        end if
 c      atom tags
@@ -236,6 +215,8 @@ c      atom tags
        end if
 c      the lattice
        if(file_lattice.ne." ") then
+         if(overb) write(*,*) "reading lattive from
+     +       file"//trim(file_lattice)
          call lattice_read_file(file_lattice,lat)
        else
          do k=1,3
@@ -931,7 +912,6 @@ c
       l = 0
       call getarg(i,buffer)
       if(buffer.eq." ") istatus = 1
-      write(*,*) "current buffer is ",trim(buffer)
 c      call get_command_argument(i,buffer,l,istatus)
       end subroutine
 
