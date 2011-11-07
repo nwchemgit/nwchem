@@ -905,10 +905,12 @@ c
         call util_file_name('gridpts',.true.,.false.,gridfilename)
       oreopen=.true.
       eaf_size_in_mb=256
+#ifdef DEBUG
       if(ga_nodeid().eq.0) then
       write(6,*) 'eafmnb ',eaf_size_in_mb
       call util_flush(6)
       endif
+#endif
       grid_reopen=
      .     grid_file_open(enuc,
      .     gridfilename, memsize, filesize, eaf_size_in_mb)
