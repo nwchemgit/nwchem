@@ -69,7 +69,12 @@ c ----- Definitions for NLMO analysis ---- END
       logical skip_cphf_ev_hyp
 
       debug_giaox=0 ! =1 for debugging print outs of matrices
-      if (ga_nodeid().eq.0) write(luout,9999)
+      if (ga_nodeid().eq.0) then
+        write(LuOut,*)
+        call util_print_centered(LuOut,
+     $   'Hyperfine Tensor (in au)', 23, .true.)
+        write(LuOut,*)
+      end if
 c
 c     Current CPHF does not handle symmetry 
 c     Making C1 geometry and store it on rtdb   

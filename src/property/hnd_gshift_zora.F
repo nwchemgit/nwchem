@@ -90,7 +90,12 @@ c      switch_gshift_analysis=.true.  ! For analysis of gshift tensor
 
       debug_gshift=0 ! =1 for debugging print outs of matrices
       npol=2 ! gshift works ONLY for npol=2
-      if (ga_nodeid().eq.0) write(luout,9999)
+      if (ga_nodeid().eq.0) then
+        write(LuOut,*)
+        call util_print_centered(LuOut,
+     $   'g-Shift Tensor (in ppm)', 23, .true.)
+        write(LuOut,*)
+      end if
 c
 c     Current CPHF does not handle symmetry 
 c     Making C1 geometry and store it on rtdb   

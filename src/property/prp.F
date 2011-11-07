@@ -150,7 +150,7 @@ c
         if (ga_nodeid().eq.0) then
          write(LuOut,*)
          call util_print_centered(LuOut,
-     $   'ZORA NMR Hyperfine Spin-Spin Coupling Constants', 23, .true.)
+     $   'ZORA NMR Hyperfine', 23, .true.)
          write(LuOut,*)
         endif
         call hnd_hyperfine_ZORA(rtdb,basis,geom)
@@ -219,7 +219,7 @@ c
         if (ga_nodeid().eq.0) then
          write(LuOut,*)
          call util_print_centered(LuOut,
-     $   'ZORA GShift', 23, .true.)
+     $   'ZORA g-Shift', 23, .true.)
          write(LuOut,*)
         endif
         call hnd_gshift_ZORA(rtdb,basis,geom)
