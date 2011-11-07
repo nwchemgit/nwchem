@@ -761,7 +761,7 @@ c     >        beta = V(ii1,jj0) + dsign(mu,V(ii1,jj0))
       call CMatrix_eye(n,n,dcmplx(1.0d0,0.0d0),
      >                 Q,lda,ma,na,taskid_i,taskid_j)
       call CMatrix_zgemm3(n,n,n,64,
-     >             (-v2),
+     >             dcmplx(-v2,0.0d0),
      >             V,ma(taskid_i+1), ma,na,
      >             V,ma(taskid_i+1), ma,na,
      >             dcmplx(1.0d0,0.0d0),
