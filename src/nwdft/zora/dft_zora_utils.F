@@ -72,7 +72,7 @@ c ---------- nlmo definitions ----------------- END
       status=rtdb_get(rtdb,'prop:hyperfine'   ,MT_INT,1,nospin)     
       do_zgc_old=do_zora_get_correction                             
       do_zora_get_correction=.true. ! -1  ! FORCE-ZORA-CALC-INTS
-
+c
       if (ipol.eq.1) then
         scf_dbl=2.0d00
         noc1=noc(1)
@@ -80,14 +80,26 @@ c ---------- nlmo definitions ----------------- END
         scf_dbl=1.0d00   
         noc1=noc(1)+noc(2)    
       endif
-      if (nospin.eq.0 .and. ga_nodeid().eq.0)
-     &   call print_NMRHypFine_version()
-      if (nogiao.eq.0 .and. ga_nodeid().eq.0)
-     &   call print_NMRCS_SRZORA_version()
-      if (nogshift.eq.0 .and. ga_nodeid().eq.0)
-     &   call print_EPRg_version()
-      if (noelfgZ4.eq.0 .and. ga_nodeid().eq.0) 
-     &   call print_EFGZ4_version()
+c
+      if (noelfgZ4.eq.0 .or. nospin.eq.0 .or. 
+     &    nogshift.eq.0 .or. nogiao.eq.0) then
+        if (ga_nodeid().eq.0) then
+          write(LuOut,*)
+          call util_print_centered(LuOut,
+     $   'Commencing ZORA Property Calculations', 23, .true.)
+          write(LuOut,*)
+        end if
+      end if
+c
+c      if (nospin.eq.0 .and. ga_nodeid().eq.0)
+c     &   call print_NMRHypFine_version()
+c      if (nogiao.eq.0 .and. ga_nodeid().eq.0)
+c     &   call print_NMRCS_SRZORA_version()
+c      if (nogshift.eq.0 .and. ga_nodeid().eq.0)
+c     &   call print_EPRg_version()
+c      if (noelfgZ4.eq.0 .and. ga_nodeid().eq.0) 
+c     &   call print_EFGZ4_version()
+c
       if (noelfgZ4.eq.0 .or. nospin.eq.0 .or. 
      &    nogshift.eq.0 .or. nogiao.eq.0) then
        if (.not.ga_create(MT_DBL,ipol,noc1,'dft_zora_scale: g_Ci',
@@ -95,6 +107,7 @@ c ---------- nlmo definitions ----------------- END
      &       GA_ERR)
        call ga_zero(g_Ci)
       endif
+c
       if (nospin  .eq.0 .or. nogiao  .eq.0 .or.
      &    nogshift.eq.0 .or. noelfgZ4.eq.0) then
 c ------- create g_Cifull for scaling MO vectors
