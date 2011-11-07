@@ -34,9 +34,12 @@ c       character*5 atag
        double precision dr
        integer nf
        integer nfrm
+       integer naver
        integer nu,nvm,nva,nv,nprec
+       integer ifil
 c      allocatable arrays
        integer nc
+       integer nfil
        logical, dimension(:), allocatable :: oc1,oc2
        double precision, dimension(:,:), allocatable :: c
        double precision, dimension(:,:), allocatable :: c1
@@ -51,6 +54,8 @@ c
 c      --------------------------------------------      
 c      set some default values
 c      --------------------------------------------      
+       fn_in = 10
+       fn_out = 11
        nfrm = 0
        aformat = " "
        file_in  = " "
@@ -74,11 +79,14 @@ c      allocate input file array
 c      ------------------------
        nc = my_command_argument_count()
        write(*,*) "nc=",nc
-c
+       call get_carg_nfiles(nc)
+       write(*,*) "number of files",nc
+       allocate(infile(nc))
 c      --------------------------------------------      
 c      beging parsing command line arguments if any
 c      --------------------------------------------      
        i = 0
+       nfil = 0
 16     continue
        i = i+1
        call my_get_command_argument(i,buffer,l,istatus)
@@ -96,7 +104,10 @@ c            write(*,*) "argument ",i,buffer,is_number(buffer)
               latv(k:3) = f
 c              write(*,*) "lat",k,latv(k)
             else
-              if(buffer(1:1).eq."-") then
+              if(k.gt.1) then
+                i = i-1 
+                goto 16
+              else if(buffer(1:1).eq."-") then
                 i = i-1
                 goto 16
               else
@@ -178,14 +189,12 @@ c            goto 911
           end if
           go to 16
        else 
-          if(file_in .eq. ' ') then
-            file_in=buffer
-            go to 16
-          else if(file_out.eq." ") then
-            file_out=buffer
-            go to 16
-          end if
+               write(*,*) "file buffer", buffer
+          nfil = nfil+1
+          infile(nfil) = buffer
+          go to 16
        end if 
+       
 c      ---------------------------      
 c      end of command line parsing
 c      ---------------------------      
@@ -194,8 +203,12 @@ c      ---------------------------
          write(*,*) "Maximum Distance:",rmax 
          write(*,*) "Lattice vectors",(latv(i),i=1,3)
          write(*,*) "Number of bins:",nb
+         write(*,*) "Input file(s)"
+         do i=1,nfil-1
+           write(*,*) trim(infile(i))
+         end do
+         write(*,*) "Output file",infile(nfil)
        end if
-       stop
 c       
        rmax = 4.0
        nb = 100
@@ -211,6 +224,11 @@ c       nfrm = 2
 c      ---------------------------      
 c      start checks/balances
 c      ---------------------------      
+c      files
+       if(nfil.lt.2) then
+         message = "please provide input/output files"
+         goto 911
+       end if
 c      atom tags
        if(atom1_id.eq.0.and.atom1_tag.eq." ") then
          message = "please provide central atom id or tag"
@@ -236,26 +254,8 @@ c      number of bins
        if(nb.lt.0) then
          nb = INT(rmax/0.1)
        end if
-c      input file
-       if(file_in.eq." ") then
-         file_in = "traj.xyz"
-       end if
 c      output file
-       if(file_out.eq." ") then
-         file_out = "gr.dat"
-       end if
-c      open io channels
-       inquire(file=file_in,exist=ofile)
-       fn_in = 10
-       if(ofile) then
-          open(fn_in,file=file_in,
-     $            form='formatted',status='old',err=911)
-       else
-           message = "no file found: "//file_in
-           goto 911
-       end if 
-
-       fn_out = 11
+       file_out = infile(nfil)
        if(ofile) then
                message = "opening output file "//file_out
           open(fn_out,file=file_out,
@@ -278,12 +278,26 @@ c      open io channels
          write(*,*) "Output file: ",file_out
        end if
 
+       allocate(gr(nb))
+       allocate(gr0(nb))
+       naver = 0
+       gr = 0
 c      figure out format for trajectory file
-       if(aformat.eq." ") then
-        i=INDEX(file_in,".",.true.) 
-        aformat=file_in(i+1:)
-        write(*,*) "format is ",aformat
-       end if
+       do ifil=1,nfil-1
+       file_in = infile(ifil)
+c      open input channel
+       inquire(file=file_in,exist=ofile)
+       if(ofile) then
+          open(fn_in,file=file_in,
+     $            form='formatted',status='old',err=911)
+       else
+           message = "no file found: "//file_in
+           goto 911
+       end if 
+
+       i=INDEX(file_in,".",.true.) 
+       aformat=file_in(i+1:)
+       write(*,*) "format is ",aformat
 
        if(aformat.eq."trj") then
          call trj_read_header(fn_in,nvm,nva,nu,nprec)
@@ -299,8 +313,6 @@ c      figure out format for trajectory file
        end if
        rewind(fn_in)
        allocate(c(3,n))
-       allocate(gr(nb))
-       allocate(gr0(nb))
        allocate(atag(n))
        allocate(oc1(n))
        allocate(oc2(n))
@@ -320,7 +332,6 @@ c
        end if
 c      loop over frames
        nf = 0
-       gr = 0
        do
          if(aformat.eq."trj") then
            call trj_read(fn_in,n,c,lat,ok)
@@ -328,10 +339,6 @@ c      loop over frames
            call xyz_read(n,c,atag,fn_in)
            ok=n.ne.0
          end if
-C         do i=1,n
-C           write(88,*) i,atag(i),(c(k,i),k=1,3)
-C         end do
-C         stop
          if(.not.ok) exit
          write(*,*) "number of atoms", n
          oc1=.false.
@@ -342,9 +349,6 @@ c        if possible make atom1 and atom2 distinct
          oc2=oc2.and.(.not.oc1)
          if(count(oc2).eq.0) oc2=oc1
 c
-         do i=1,n
-           write(78,*) oc1(i),oc2(i)
-         end do
          if(any(oc2.and.oc1)) oc2=oc2.and.(.not.oc1)
          gr0 = 0
          call rdf_compute2(n,c,oc1,oc2,
@@ -358,12 +362,27 @@ c
             exit
          end if
        end do
+       close(fn_in)
+       naver = naver + nf
 c      ---------------------------
 c      end looping over the frames
 c      ---------------------------
 31     continue
+       deallocate(oc2)
+       deallocate(oc1)
+       deallocate(atag)
+       deallocate(c)
+       
+       if(aformat.eq."trj") then
+         deallocate(iur)
+         deallocate(tur)
+         deallocate(tua)
+         deallocate(tva)
+       end if
+       end do
+c       
 c      average RDF over the frames
-       gr = gr/real(nf)
+       gr = gr/real(naver)
        write(*,*) "came to the end of the file",nf
        dr = rmax/nb
        do k=1,nb
@@ -912,8 +931,52 @@ c
       l = 0
       call getarg(i,buffer)
       if(buffer.eq." ") istatus = 1
+      write(*,*) "current buffer is ",trim(buffer)
 c      call get_command_argument(i,buffer,l,istatus)
       end subroutine
+
+      subroutine get_carg_files(n,buffer,nb,istatus)
+      implicit none
+      integer n
+      integer nb
+      character*(*) buffer(n)
+      integer istatus
+c
+      integer i,nc
+      character*1 buf1
+      nc = iargc()
+      n = 0
+      do i=nc,1,-1
+        n = n+1
+        call getarg(i,buffer(n))
+        buf1 = adjustl(buffer(n))
+        if(buf1.eq."-") then
+          buffer(n) = " "
+          n = n-1
+          exit
+        end if
+      end do
+      end subroutine
+
+      subroutine get_carg_nfiles(n)
+      implicit none
+      integer n
+      integer istatus
+c
+      integer i,nc
+      character*1 a1
+      nc = iargc()
+      n = 0
+      do i=nc,1,-1
+        n = n+1
+        call getarg(i,a1)
+        if(a1.eq."-") then
+          n = n-1
+          exit
+        end if
+      end do
+      end subroutine
+
       subroutine trj_read_solvent_specs(fn,nva,tvr,tva)
       implicit none
       integer, intent(in)    :: fn  
