@@ -750,11 +750,19 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
   # Do we have a CRAY Gemini interconnect?
   # /opt/cray present then we are probably on a Cray machine
   # /opt/cray/*/gemini present then we have a Gemini interconnect
-  # This is at least the situation on Hopper/NERSC.
+  # This is at least the situation on Hopper @ NERSC.
   #
   if [ -d /opt/cray ] ; then
     GEMINIDIRS=`find /opt/cray -name gemini`
-    if ${#GEMINIDIRS} -ne 0 ] ; then
+    if [ ${#GEMINIDIRS} -ne 0 ] ; then
+      echo "This machine is a Cray with a GEMINI interconnect"
+      echo "Please ensure you have the following modules loaded:"
+      echo "  module load ntk"
+      echo "  module load onesided"
+      echo "Module ntk provides numatoolkit.h and libnumatoolkit,"
+      echo "whereas module onesided provides onesided.h and libonesided."
+      echo "Use the following command to check which modules are loaded:"
+      echo "  module list"
       # There seems to be a Gemini interconnect on this Cray machine
       export ARMCI_NETWORK="GEMINI"
       if [ ${#MPI_F90} -eq 0 ] ; then
