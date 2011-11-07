@@ -85,18 +85,14 @@ c      --------------------------------------------
        i = i+1
        call my_get_command_argument(i,buffer,l,istatus)
        if(istatus.ne.0) goto 18
-c       write(*,*) "argument ",i,buffer
        if(buffer.eq."-lattice") then
-c          write(*,*) "reading lattice"
           do k=1,3
             i = i+1
             call my_get_command_argument(i,buffer,l,istatus)
             if(istatus.ne.0) goto 18
-c            write(*,*) "argument ",i,buffer,is_number(buffer)
             if(is_number(buffer)) then
               read(buffer,*) f
               latv(k:3) = f
-c              write(*,*) "lat",k,latv(k)
             else
               if(k.gt.1) then
                 i = i-1 
@@ -110,7 +106,6 @@ c              write(*,*) "lat",k,latv(k)
               end if
             end if
           end do
-c          write(*,*) "done reading lattice"
           go to 16
        else if(buffer.eq."-v") then
           overb=.true.
@@ -182,24 +177,6 @@ c      ---------------------------
 c      end of command line parsing
 c      ---------------------------      
 18     continue
-       if(overb) then
-         write(*,*) "Maximum Distance:",rmax 
-         write(*,*) "Lattice vectors",(latv(i),i=1,3)
-         write(*,*) "Number of bins:",nb
-         write(*,*) "Input file(s)"
-         do i=1,nfil-1
-           write(*,*) trim(infile(i))
-         end do
-         write(*,*) "Output file",infile(nfil)
-       end if
-c       
-c       rmax = 4.0
-c       nb = 100
-c       atom1_tag = " "
-c       atom1_id = 3910
-c       atom2_tag = "O"
-c       latv = 10.0014453
-c       file_lattice = "lat.dat"
 c      ---------------------------      
 c      start checks/balances
 c      ---------------------------      
@@ -215,7 +192,7 @@ c      atom tags
        end if
 c      the lattice
        if(file_lattice.ne." ") then
-         if(overb) write(*,*) "reading lattive from
+         if(overb) write(*,*) "reading lattice from
      +       file"//trim(file_lattice)
          call lattice_read_file(file_lattice,lat)
        else
@@ -251,12 +228,24 @@ c      output file
          write(*,*) (lat(i,1),i=1,3)
          write(*,*) (lat(i,2),i=1,3)
          write(*,*) (lat(i,3),i=1,3)
-         write(*,*) "1st atom tag: ",atom1_tag
-         write(*,*) "2nd atom tag: ",atom2_tag
+         if(atom1_id.ne.0) then
+           write(*,*) "1st atom ID: ",atom1_id
+         else
+           write(*,*) "1st atom tag: ",atom1_tag
+         end if
+         if(atom2_id.ne.0) then
+           write(*,*) "2nd atom ID: ",atom2_id
+         else
+           write(*,*) "2nd atom tag: ",atom2_tag
+         end if
          write(*,*) "Number of bins:",nb
          write(*,*) "Maximum radius:",rmax
-         write(*,*) "Input file: " ,file_in
-         write(*,*) "Output file: ",file_out
+         write(*,*) "Input file(s)"
+         do i=1,nfil-1
+           write(*,*) trim(infile(i))
+         end do
+         write(*,*) "Output file:"
+         write(*,*) trim(infile(nfil))
        end if
 
        allocate(gr(nb))
@@ -278,7 +267,6 @@ c      open input channel
 
        i=INDEX(file_in,".",.true.) 
        aformat=file_in(i+1:)
-       write(*,*) "format is ",aformat
 
        if(aformat.eq."trj") then
          call trj_read_header(fn_in,nvm,nva,nu,nprec)
@@ -321,7 +309,6 @@ c      loop over frames
            ok=n.ne.0
          end if
          if(.not.ok) exit
-         write(*,*) "number of atoms", n
          oc1=.false.
          call mask_all(n,c,atag,oc1,atom1_id,atom1_tag)
          oc2=.false.
@@ -339,7 +326,8 @@ c
          gr = gr + gr0
          nf = nf+1
          if(nfrm.gt.0.and.nf.ge.nfrm) then
-            write(*,*) "exiting because exceeded number of frames",nf,nfrm
+            if(overb) 
+     +      write(*,*) "exiting because exceeded number of frames",nf,nfrm
             exit
          end if
        end do
@@ -360,11 +348,13 @@ c      ---------------------------
          deallocate(tua)
          deallocate(tva)
        end if
+c      end of loop of input files
        end do
 c       
 c      average RDF over the frames
        gr = gr/real(naver)
-       write(*,*) "came to the end of the file",nf
+       if(overb) 
+     +   write(*,*) "averaging over ",naver," smaples"
        dr = rmax/nb
        do k=1,nb
          write(fn_out,'(2F12.6)') 
@@ -403,19 +393,16 @@ c     look for the start of the fame record
 c     -------------------------------------
   100 continue
       read(fn,1000,end=11,err=911) card
-      write(*,*) card
  1000 format(a)
       if(card(1:5).ne.'frame') goto 100
 c
 c     skip one lines here
 c     --------------------
       read(fn,1000,err=911,end=911) card
-      write(*,*) card
 c     read lattice
       message = "reading lattice"
       do i=1,3
         read(fn,1000,err=911,end=911) card
-      write(*,*) card
         i0=1
         do k=1,3
           message = message(1:len_trim(message)+1)//token
@@ -543,7 +530,6 @@ c
        external is_integer
 c
        pname = "lattice_read_file"
-       write(*,*) "reading lattice from file"
        lat = 0.0d0
        ifn = 13
        inquire(file=fname,exist=ofile)
