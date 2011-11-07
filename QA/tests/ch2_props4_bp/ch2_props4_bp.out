@@ -94,9 +94,9 @@ task dft property
 
     hostname      = orion
     program       = ../../../bin/LINUX64/nwchem
-    date          = Fri Oct 14 11:29:45 2011
+    date          = Mon Nov  7 15:26:45 2011
 
-    compiled      = Fri_Oct_14_11:26:26_2011
+    compiled      = Mon_Nov_07_15:23:24_2011
     source        = /home/niri/nwchem/nwchem-trunk
     nwchem branch = Development
     input         = ch2_props4_bp.nw
@@ -364,15 +364,17 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
  Read atomic ZORA corrections from ./ch2_props4_bp.zora_sf
 
  dft_zora_read: failed to open./ch2_props4_bp.zora_sf
- == Generating atomic ZORA corrections ==
+       Generating atomic ZORA corrections
+       ----------------------------------
+ 
  In dft_scf:: zora:Knucl= F
  dft_scf: ofinite= F
 
  Grid_pts file          = ./ch2_props4_bp.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     41        Max. recs in file   =    197452
+ Max. records in memory =     41        Max. recs in file   =    132543
 
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 
  Wrote atomic ZORA corrections to ./ch2_props4_bp.zora_sf
@@ -392,9 +394,9 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
  HOMO         =      -0.184236
  LUMO         =      -0.135421
  
-   Time after variat. SCF:      1.6
-   Time prior to 1st pass:      1.6
- Warning: integrated density       0.799999997585E+01
+   Time after variat. SCF:      1.7
+   Time prior to 1st pass:      1.7
+ Warning: integrated density       0.799999996959E+01
  deviates from requested relative accuracy   0.10E-19
 
            Memory utilization after 1st SCF pass: 
@@ -403,55 +405,41 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -39.1543657882 -4.53D+01  8.93D-03  6.65D-02     1.9
+ d= 0,ls=0.0,diis     1    -39.1543657879 -4.53D+01  8.93D-03  6.65D-02     2.0
                                                      4.51D-03  5.41D-02
  Warning: integrated density       0.799999999970E+01
  deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     2    -39.1708777170 -1.65D-02  4.75D-03  1.39D-02     2.2
+ d= 0,ls=0.0,diis     2    -39.1708777145 -1.65D-02  4.75D-03  1.39D-02     2.3
                                                      3.23D-03  9.49D-03
- Warning: integrated density       0.800000000005E+01
+ Warning: integrated density       0.800000000004E+01
  deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     3    -39.1749869667 -4.11D-03  2.14D-03  5.85D-03     2.5
+ d= 0,ls=0.0,diis     3    -39.1749869664 -4.11D-03  2.14D-03  5.85D-03     2.6
                                                      1.04D-03  2.67D-03
  Warning: integrated density       0.799999999993E+01
  deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     4    -39.1772952647 -2.31D-03  1.22D-04  2.22D-05     2.8
+ d= 0,ls=0.0,diis     4    -39.1772952647 -2.31D-03  1.22D-04  2.22D-05     2.9
                                                      1.93D-04  4.18D-05
  Warning: integrated density       0.799999999996E+01
  deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     5    -39.1773173135 -2.20D-05  5.54D-05  2.78D-06     3.1
+ d= 0,ls=0.0,diis     5    -39.1773173135 -2.20D-05  5.54D-05  2.78D-06     3.3
                                                      3.35D-05  9.21D-07
  Warning: integrated density       0.799999999996E+01
  deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     6    -39.1773186737 -1.36D-06  9.90D-06  5.06D-08     3.4
+ d= 0,ls=0.0,diis     6    -39.1773186737 -1.36D-06  9.90D-06  5.06D-08     3.6
                                                      7.80D-06  3.50D-08
  Warning: integrated density       0.799999999996E+01
  deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     7    -39.1773187164 -4.27D-08  7.92D-07  2.49D-10     3.8
+ d= 0,ls=0.0,diis     7    -39.1773187164 -4.27D-08  7.92D-07  2.49D-10     3.9
                                                      9.11D-07  5.35D-10
  Warning: integrated density       0.799999999996E+01
  deviates from requested relative accuracy   0.10E-19
- d= 0,ls=0.0,diis     8    -39.1773187168 -3.76D-10  1.30D-07  8.76D-12     4.1
+ d= 0,ls=0.0,diis     8    -39.1773187168 -3.76D-10  1.30D-07  8.76D-12     4.2
                                                      9.49D-08  4.48D-12
- +++++++++++++++++++++++++++++++++++++
- + ZORA NMR HypFine (08-31-11 12:00) +
- + spin-spin coupling constants      +
- + Author: Fredy W. Aquino           +
- +++++++++++++++++++++++++++++++++++++
- +++++++++++++++++++++++++++++++++++
- + NMR Shieldings (08-31-11 12:00) +
- + Scalar Relativistic ZORA        +
- + Author: Fredy W. Aquino         +
- +++++++++++++++++++++++++++++++++++
- +++++++++++++++++++++++++++++++++++++
- + EPR-gshift Version 08-31-11 12:00 +
- + Author: Fredy W. Aquino           +
- +++++++++++++++++++++++++++++++++++++
- +++++++++++++++++++++++++++++++++
- + EFG-Z4 Version 08-31-11 12:00 +
- + Author: Fredy W. Aquino       +
- +++++++++++++++++++++++++++++++++
- Warning: integrated density       0.800000000227E+01
+ 
+      Commencing ZORA Property Calculations
+      -------------------------------------
+ 
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 dia1(k,t,iat1,ispin)=(  1,  1,  1,  1)=(   147.47332126,   147.47332126) ppm
 dia1(k,t,iat1,ispin)=(  1,  1,  1,  2)=(   116.74168818,   264.21500944) ppm
@@ -489,7 +477,7 @@ dia1(k,t,iat1,ispin)=(  3,  3,  1,  2)=(   116.24734931,   258.16825488) ppm
 (dia2,par1)(k,t,iat1,spin)=(  2,  3,  1,  2)=(    -0.24478072,    -0.19610536,    -0.08128707,    -0.07168523) ppm
 (dia2,par1)(k,t,iat1,spin)=(  3,  3,  1,  1)=(    -1.81285334,    -1.81285334,    -0.05445454,    -0.05445454) ppm
 (dia2,par1)(k,t,iat1,spin)=(  3,  3,  1,  2)=(    -0.91417498,    -2.72702832,     0.46100174,     0.40654720) ppm
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 dia1(k,t,iat1,ispin)=(  1,  1,  2,  1)=(    16.13140629,    16.13140629) ppm
 dia1(k,t,iat1,ispin)=(  1,  1,  2,  2)=(    10.87552904,    27.00693534) ppm
@@ -527,7 +515,7 @@ dia1(k,t,iat1,ispin)=(  3,  3,  2,  2)=(     8.01206552,    18.19910726) ppm
 (dia2,par1)(k,t,iat1,spin)=(  2,  3,  2,  2)=(     0.27568355,     0.51304162,    -0.00414615,    -0.00019029) ppm
 (dia2,par1)(k,t,iat1,spin)=(  3,  3,  2,  1)=(     3.05099362,     3.05099362,    -0.02243474,    -0.02243474) ppm
 (dia2,par1)(k,t,iat1,spin)=(  3,  3,  2,  2)=(     3.40605098,     6.45704460,     0.02351395,     0.00107922) ppm
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 dia1(k,t,iat1,ispin)=(  1,  1,  3,  1)=(    21.33580060,    21.33580060) ppm
 dia1(k,t,iat1,ispin)=(  1,  1,  3,  2)=(    14.85582771,    36.19162832) ppm
@@ -548,7 +536,7 @@ dia1(k,t,iat1,ispin)=(  3,  2,  3,  2)=(    -0.14990473,    -0.63737142) ppm
 dia1(k,t,iat1,ispin)=(  3,  3,  3,  1)=(    11.28102143,    11.28102143) ppm
 dia1(k,t,iat1,ispin)=(  3,  3,  3,  2)=(     8.84882319,    20.12984461) ppm
 (dia2,par1)(k,t,iat1,spin)=(  1,  1,  3,  1)=(     0.28749872,     0.28749872,    -0.00239324,    -0.00239324) ppm
-(dia2,par1)(k,t,iat1,spin)=(  1,  1,  3,  2)=(     0.39353315,     0.68103187,     0.00250855,     0.00011532) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  3,  2)=(     0.39353316,     0.68103187,     0.00250855,     0.00011532) ppm
 (dia2,par1)(k,t,iat1,spin)=(  2,  1,  3,  1)=(    -0.68925173,    -0.68925173,     0.00114180,     0.00114180) ppm
 (dia2,par1)(k,t,iat1,spin)=(  2,  1,  3,  2)=(    -0.04342698,    -0.73267871,    -0.00119682,    -0.00005502) ppm
 (dia2,par1)(k,t,iat1,spin)=(  3,  1,  3,  1)=(     0.92026166,     0.92026166,    -0.00647547,    -0.00647547) ppm
@@ -565,7 +553,7 @@ dia1(k,t,iat1,ispin)=(  3,  3,  3,  2)=(     8.84882319,    20.12984461) ppm
 (dia2,par1)(k,t,iat1,spin)=(  2,  3,  3,  2)=(     0.00503649,     0.24449284,    -0.00323827,    -0.00014886) ppm
 (dia2,par1)(k,t,iat1,spin)=(  3,  3,  3,  1)=(     2.78527771,     2.78527771,    -0.01752091,    -0.01752091) ppm
 (dia2,par1)(k,t,iat1,spin)=(  3,  3,  3,  2)=(     3.04487858,     5.83015629,     0.01836514,     0.00084423) ppm
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 
  Wrote ZORA NMR data to ./ch2_props4_bp.zora_nmrcs
@@ -577,7 +565,7 @@ In dft_zora_Hyperfine:: atomnr(  1)=    1
 In dft_zora_Hyperfine:: atomnr(  2)=    2
 In dft_zora_Hyperfine:: atomnr(  3)=    3
 CHECK:(atom,ofinite,atmass,zetanucl_slc)=(   1,F,    12.00000000,                 680775029.28673279)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 gFCSD(  1,  1,  1)=     2.17326354
 gFCSD(  1,  1,  2)=    -0.62877073
@@ -589,7 +577,7 @@ gFCSD(  1,  3,  1)=     0.39755793
 gFCSD(  1,  3,  2)=     0.12819736
 gFCSD(  1,  3,  3)=     3.42460698
 CHECK:(atom,ofinite,atmass,zetanucl_slc)=(   2,F,     1.00782500,                2118265472.55233526)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 gFCSD(  2,  1,  1)=    -0.04569495
 gFCSD(  2,  1,  2)=     0.11347925
@@ -601,7 +589,7 @@ gFCSD(  2,  3,  1)=    -0.01135622
 gFCSD(  2,  3,  2)=    -0.02237332
 gFCSD(  2,  3,  3)=    -0.13030937
 CHECK:(atom,ofinite,atmass,zetanucl_slc)=(   3,F,     1.00782500,                2118265472.55233526)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 gFCSD(  3,  1,  1)=     0.05848558
 gFCSD(  3,  1,  2)=     0.02449069
@@ -612,7 +600,7 @@ gFCSD(  3,  2,  3)=    -0.01171884
 gFCSD(  3,  3,  1)=    -0.06554955
 gFCSD(  3,  3,  2)=    -0.01171825
 gFCSD(  3,  3,  3)=    -0.10839950
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 
  Wrote ZORA NMR data to ./ch2_props4_bp.zora_nmrhyp
@@ -621,7 +609,7 @@ gFCSD(  3,  3,  3)=    -0.10839950
 In dft_zora_EPR:: slc_spinpolAO=  0
  WARNING: SLC A-B contrib
  In dft_zora_EPR:: zora:Knucl= F
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 (q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  1,  1)=(  0.00027732, -0.00010772,  0.00016960, -0.00163960, -0.00147000, -0.01274028, -0.01421028)
 (q1,-q2,q1-q2,q3,dia2,dia1,dia2+dia1)(  1,  2)=(  0.00051407,  0.00005139,  0.00056546, -0.00135718, -0.00079172,  0.00328411,  0.00249239)
@@ -640,152 +628,152 @@ In dft_zora_EPR:: slc_spinpolAO=  0
 
  ==> nlist=                     3
 xyz_EFG( 1)=(    -0.01113326,     0.08921179,     0.01984515)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  1,  1,  1,  1)=(    -0.17402426,    -0.17402426)
 zora-efg(  4,  1,  1,  2,  1)=(     0.50509963,     0.33107537)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  1,  2,  1,  2)=(    -0.00688251,    -0.00688251)
 zora-efg(  4,  1,  2,  2,  2)=(    -0.11302981,    -0.11991232)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  1,  3,  1,  3)=(     0.18090677,     0.18090677)
 zora-efg(  4,  1,  3,  2,  3)=(    -0.39206982,    -0.21116305)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  1,  4,  1,  4)=(    -0.14671221,    -0.14671221)
 zora-efg(  4,  1,  4,  2,  4)=(     0.48243861,     0.33572640)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  1,  5,  1,  5)=(     0.12093731,     0.12093731)
 zora-efg(  4,  1,  5,  2,  5)=(    -0.27686122,    -0.15592391)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  1,  6,  1,  6)=(     0.01365361,     0.01365361)
 zora-efg(  4,  1,  6,  2,  6)=(    -0.11462109,    -0.10096748)
 xyz_EFG( 2)=(     1.31962754,     1.63258778,    -0.19984535)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  2,  1,  1,  7)=(     0.08881726,     0.08881726)
 zora-efg(  4,  2,  1,  2,  7)=(     0.06931162,     0.15812889)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  2,  2,  1,  8)=(     0.20927878,     0.20927878)
 zora-efg(  4,  2,  2,  2,  8)=(     0.16367035,     0.37294913)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  2,  3,  1,  9)=(    -0.29809604,    -0.29809604)
 zora-efg(  4,  2,  3,  2,  9)=(    -0.23298197,    -0.53107801)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  2,  4,  1, 10)=(     0.46331419,     0.46331419)
 zora-efg(  4,  2,  4,  2, 10)=(     0.34982910,     0.81314329)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  2,  5,  1, 11)=(    -0.06496073,    -0.06496073)
 zora-efg(  4,  2,  5,  2, 11)=(    -0.05360387,    -0.11856460)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  2,  6,  1, 12)=(    -0.08002486,    -0.08002486)
 zora-efg(  4,  2,  6,  2, 12)=(    -0.05765027,    -0.13767513)
 xyz_EFG( 3)=(    -1.93544145,    -0.12075430,     0.69401801)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  3,  1,  1, 13)=(     0.51586241,     0.51586241)
 zora-efg(  4,  3,  1,  2, 13)=(     0.39217057,     0.90803297)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  3,  2,  1, 14)=(    -0.30759147,    -0.30759147)
 zora-efg(  4,  3,  2,  2, 14)=(    -0.22710222,    -0.53469368)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  3,  3,  1, 15)=(    -0.20827094,    -0.20827094)
 zora-efg(  4,  3,  3,  2, 15)=(    -0.16506835,    -0.37333929)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  3,  4,  1, 16)=(     0.09853662,     0.09853662)
 zora-efg(  4,  3,  4,  2, 16)=(     0.07404289,     0.17257952)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  3,  5,  1, 17)=(    -0.28710135,    -0.28710135)
 zora-efg(  4,  3,  5,  2, 17)=(    -0.22154820,    -0.50864955)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  4,  3,  6,  1, 18)=(    -0.03635098,    -0.03635098)
 zora-efg(  4,  3,  6,  2, 18)=(    -0.02463140,    -0.06098238)
 xyz_EFG( 1)=(    -0.01113326,     0.08921179,     0.01984515)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  1,  1,  1, 19)=(     0.00004142,     0.00004142)
 zora-efg(  3,  1,  1,  2, 19)=(    -0.00003578,     0.00000564)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  1,  2,  1, 20)=(    -0.00000180,    -0.00000180)
 zora-efg(  3,  1,  2,  2, 20)=(     0.00001070,     0.00000890)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  1,  3,  1, 21)=(    -0.00003962,    -0.00003962)
 zora-efg(  3,  1,  3,  2, 21)=(     0.00002508,    -0.00001454)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  1,  4,  1, 22)=(     0.00003638,     0.00003638)
 zora-efg(  3,  1,  4,  2, 22)=(    -0.00003532,     0.00000106)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  1,  5,  1, 23)=(    -0.00002687,    -0.00002687)
 zora-efg(  3,  1,  5,  2, 23)=(     0.00001811,    -0.00000876)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  1,  6,  1, 24)=(    -0.00000519,    -0.00000519)
 zora-efg(  3,  1,  6,  2, 24)=(     0.00000964,     0.00000445)
 xyz_EFG( 2)=(     1.31962754,     1.63258778,    -0.19984535)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  2,  1,  1, 25)=(     0.00001474,     0.00001474)
 zora-efg(  3,  2,  1,  2, 25)=(     0.00001434,     0.00002907)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  2,  2,  1, 26)=(     0.00004082,     0.00004082)
 zora-efg(  3,  2,  2,  2, 26)=(     0.00003554,     0.00007636)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  2,  3,  1, 27)=(    -0.00005555,    -0.00005555)
 zora-efg(  3,  2,  3,  2, 27)=(    -0.00004988,    -0.00010543)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  2,  4,  1, 28)=(     0.00008423,     0.00008423)
 zora-efg(  3,  2,  4,  2, 28)=(     0.00007582,     0.00016005)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  2,  5,  1, 29)=(    -0.00001185,    -0.00001185)
 zora-efg(  3,  2,  5,  2, 29)=(    -0.00001105,    -0.00002290)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  2,  6,  1, 30)=(    -0.00001379,    -0.00001379)
 zora-efg(  3,  2,  6,  2, 30)=(    -0.00001263,    -0.00002643)
 xyz_EFG( 3)=(    -1.93544145,    -0.12075430,     0.69401801)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  3,  1,  1, 31)=(     0.00009451,     0.00009451)
 zora-efg(  3,  3,  1,  2, 31)=(     0.00008487,     0.00017938)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  3,  2,  1, 32)=(    -0.00005574,    -0.00005574)
 zora-efg(  3,  3,  2,  2, 32)=(    -0.00004983,    -0.00010556)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  3,  3,  1, 33)=(    -0.00003877,    -0.00003877)
 zora-efg(  3,  3,  3,  2, 33)=(    -0.00003504,    -0.00007381)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  3,  4,  1, 34)=(     0.00001608,     0.00001608)
 zora-efg(  3,  3,  4,  2, 34)=(     0.00001558,     0.00003165)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  3,  5,  1, 35)=(    -0.00005334,    -0.00005334)
 zora-efg(  3,  3,  5,  2, 35)=(    -0.00004774,    -0.00010108)
- Warning: integrated density       0.800000000227E+01
+ Warning: integrated density       0.800000000226E+01
  deviates from requested relative accuracy   0.10E-19
 zora-efg(  3,  3,  6,  1, 36)=(    -0.00000563,    -0.00000563)
 zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
@@ -795,16 +783,16 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
 
 
          Total DFT energy =      -39.177318716777
-      One electron energy =      -63.920927226472
-           Coulomb energy =       24.709003684815
-    Exchange-Corr. energy =       -6.082732827824
+      One electron energy =      -63.920927226430
+           Coulomb energy =       24.709003684766
+    Exchange-Corr. energy =       -6.082732827818
  Nuclear repulsion energy =        6.117337652705
 
        Scaling correction =        0.008526237774
 
- Numeric. integr. density =        7.999999999963
+ Numeric. integr. density =        7.999999999961
 
-     Total iterative time =     45.5s
+     Total iterative time =     49.3s
 
 
  
@@ -1120,14 +1108,14 @@ zora-efg(  3,  3,  6,  2, 36)=(    -0.00000542,    -0.00001105)
      2   0 1 1     -0.074909      0.101400      0.223139     -0.399448
      2   0 0 2     -5.968969     -4.796054     -1.696878      0.523962
  
-  ++++++++++++++++++++++++++++++++++++++
-  +++ NMR Hyperfine with ZORA ++++ START
-  ++++++++++++++++++++++++++++++++++++++
-
-          -----------------------------------------
-          Hyperfine Tensors (in au)
-          -----------------------------------------
-
+ 
+               ZORA NMR Hyperfine
+               ------------------
+ 
+ 
+            Hyperfine Tensor (in au)
+            ------------------------
+ 
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
@@ -1161,7 +1149,7 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
 
  Warning: integrated density       0.799999999996E+01
  deviates from requested relative accuracy   0.10E-19
-residual=     0.00000057
+ SCF residual:   5.745922542178817E-007
 
 
 Iterative solution of linear equations
@@ -1170,12 +1158,12 @@ Iterative solution of linear equations
   Maximum subspace       30
         Iterations       50
        Convergence  1.0D-04
-        Start time     48.6
+        Start time     52.1
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      3    3.58D-11      49.5
+     1      3    3.58D-11      53.1
 
  Wrote ZORA CPHF data to ./ch2_props4_bp.zora_hypcphf
 
@@ -1318,12 +1306,10 @@ NW:(dia,par,dia+par)(3,3,3)=(    -0.05419975      0.00002113     -0.05417862 )
 
 
 
-  ++++++++++++++++++++++++++++++++++++
-  +++ NMR Hyperfine with ZORA ++++ END
-  ++++++++++++++++++++++++++++++++++++
-  ====================================
-  ========= ZORA-EFG =========== START
-  ====================================
+ 
+                   ZORA EFG-Z4
+                   -----------
+ 
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
@@ -1397,12 +1383,6 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
         0.111956      -0.163176       0.980224
        -0.327059       0.925417       0.191407
   
-  ====================================
-  ========= ZORA-EFG =========== END
-  ====================================
-  ++++++++++++++++++++++++++++++++++++++++
-  +++++++++ ZORA4-SR-EFG +++++++++++ START
-  ++++++++++++++++++++++++++++++++++++++++
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
@@ -1510,12 +1490,10 @@ EFG-tot (H )=(   0.90803361,  -0.53469403,  -0.37333957,   0.17257902,  -0.50865
         0.111957      -0.163176       0.980224
        -0.327059       0.925417       0.191408
   
-  ++++++++++++++++++++++++++++++++++++++++
-  +++++++++ ZORA4-SR-EFG +++++++++++ END
-  ++++++++++++++++++++++++++++++++++++++++
-  +++++++++++++++++++++++++++++++++++++++++
-  +++ NMR Shieldings with ZORA-SR +++ START
-  +++++++++++++++++++++++++++++++++++++++++
+ 
+            Scalar ZORA NMR Shielding
+            -------------------------
+ 
  switch_skip_cphf= F
  switch_nmrcs_analysis= F
 
@@ -1568,7 +1546,7 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
 
  Warning: integrated density       0.799999999996E+01
  deviates from requested relative accuracy   0.10E-19
-residual=     0.00000057
+ SCF residual:   5.745922542375818E-007
 
 
 Iterative solution of linear equations
@@ -1577,12 +1555,12 @@ Iterative solution of linear equations
   Maximum subspace       30
         Iterations       50
        Convergence  1.0D-04
-        Start time     51.3
+        Start time     54.8
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      3    4.03D-07      52.3
+     1      3    4.03D-07      55.7
 
  Wrote ZORA CPHF data to ./ch2_props4_bp.zora_shieldcphf
 
@@ -1704,17 +1682,14 @@ NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,3,3)=(         25.960001          -0.00084
 
 
 
-  +++++++++++++++++++++++++++++++++++++++++
-  +++ NMR Shieldings with ZORA-SR +++   END
-  +++++++++++++++++++++++++++++++++++++++++
-  ====================================
-  ========= g shift ======== START
-  ====================================
-
-          -----------------------------------------
-          g shift Tensors (GIAO, in ppt)
-          -----------------------------------------
-
+ 
+                  ZORA g-Shift
+                  ------------
+ 
+ 
+             g-Shift Tensor (in ppm)
+             -----------------------
+ 
 
 int_init: setting std/high accuracies to  1.0D-32  1.0D-64
   int_init: cando_txs set to always be  F
@@ -1748,7 +1723,7 @@ int_init: setting std/high accuracies to  1.0D-32  1.0D-64
 
  Warning: integrated density       0.799999999996E+01
  deviates from requested relative accuracy   0.10E-19
-residual=     0.00000057
+ SCF residual:   5.745922542782060E-007
 
 
 Iterative solution of linear equations
@@ -1757,12 +1732,12 @@ Iterative solution of linear equations
   Maximum subspace       30
         Iterations       50
        Convergence  1.0D-04
-        Start time     54.0
+        Start time     57.5
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      3    4.03D-07      55.0
+     1      3    4.03D-07      58.4
 
  Wrote ZORA CPHF data to ./ch2_props4_bp.zora_gshiftcphf
 
@@ -1824,11 +1799,8 @@ NW-T:(dia,gauge,OO,OV,Totpar)(3,3)=(   -0.021786     0.000789     0.077271     0
 
 
 
-  ====================================
-  ========= g shift ======== END
-  ====================================
 
- Task  times  cpu:       53.6s     wall:       54.8s
+ Task  times  cpu:       57.5s     wall:       58.3s
  
  
                                 NWChem Input Module
@@ -1851,10 +1823,10 @@ NW-T:(dia,gauge,OO,OV,Totpar)(3,3)=(   -0.021786     0.000789     0.077271     0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 1639     1627     5.99e+05 4803     4.13e+04  195        0        0     
+calls: 1639     1627     5.85e+05 4801     3.86e+04  195        0        0     
 number of processes/call 1.05e+00 2.11e+00 1.70e+00 2.51e+00 0.00e+00
-bytes total:             5.18e+07 4.97e+06 2.85e+07 1.18e+05 0.00e+00 0.00e+00
-bytes remote:            1.89e+07 1.88e+06 1.77e+07 -9.38e+04 0.00e+00 0.00e+00
+bytes total:             4.99e+07 4.97e+06 2.69e+07 1.18e+05 0.00e+00 0.00e+00
+bytes remote:            1.86e+07 1.88e+06 1.67e+07 -9.38e+04 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 1090888 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
@@ -1901,4 +1873,4 @@ MA usage statistics:
     X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
        M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:       53.6s     wall:       55.0s
+ Total times  cpu:       57.5s     wall:       58.5s
