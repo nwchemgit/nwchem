@@ -40,6 +40,7 @@
 
       integer bprj(2),mprj(2),lprj(2),nprj(2),prj_ps0(2),prj_ps(2)
       integer v_ps(2),core_ps(2),core_ae(2)
+      integer core_ps_prime(2),core_ae_prime(2)
       integer dphi_ps(2),phi_ps(2),dphi_ae(2),phi_ae(2)
       integer eig(2),lps(2),nps(2),nae(2)
       integer rgrid(2)
@@ -142,6 +143,10 @@
      >                              core_ae(2),core_ae(1))
       value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'core_ps',
      >                              core_ps(2),core_ps(1))
+      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'core_ae_prime',
+     >                              core_ae_prime(2),core_ae_prime(1))
+      value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'core_ps_prime',
+     >                              core_ps_prime(2),core_ps_prime(1))
       value = value.and.MA_alloc_get(mt_dbl,n1dgrid,'v_ps',
      >                              v_ps(2),v_ps(1))
       value = value.and.MA_alloc_get(mt_dbl,nbasis*n1dgrid,'prj_ps',
@@ -347,7 +352,19 @@
      >   call errquit('pawppv1:Error freeing memory',0,MA_ERR)
 
 
-
+*      **** calculate radial derivatives of core densities ****
+         call pawppv1_derivative_ngrid(
+     >            n1dgrid,
+     >            log_amesh,
+     >            dbl_mb(rgrid(1)),
+     >            dbl_mb(core_ae(1)),
+     >            dbl_mb(core_ae_prime(1)))
+         call pawppv1_derivative_ngrid(
+     >            n1dgrid,
+     >            log_amesh,
+     >            dbl_mb(rgrid(1)),
+     >            dbl_mb(core_ps(1)),
+     >            dbl_mb(core_ps_prime(1)))
 
 c*     *** integrate core density ***
 c      fourpi = 16.0d0*datan(1.0d0)
@@ -434,6 +451,8 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
          call dwrite(2,dbl_mb(dphi_ps(1)),n1dgrid*nbasis)
          call dwrite(2,dbl_mb(core_ae(1)),n1dgrid)
          call dwrite(2,dbl_mb(core_ps(1)),n1dgrid)
+         call dwrite(2,dbl_mb(core_ae_prime(1)),n1dgrid)
+         call dwrite(2,dbl_mb(core_ps_prime(1)),n1dgrid)
 
          call dwrite(2,dbl_mb(vl(1)),nsize)
          if (nproj.gt.0) then
@@ -468,6 +487,8 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
       value = value.and.MA_free_heap(prj_ps0(2))
       value = value.and.MA_free_heap(prj_ps(2))
       value = value.and.MA_free_heap(v_ps(2))
+      value = value.and.MA_free_heap(core_ps_prime(2))
+      value = value.and.MA_free_heap(core_ae_prime(2))
       value = value.and.MA_free_heap(core_ps(2))
       value = value.and.MA_free_heap(core_ae(2))
       value = value.and.MA_free_heap(dphi_ps(2))
@@ -491,6 +512,119 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
       return
 
       END
+
+
+
+
+c     *************************************************
+c     *                                               *
+c     *        pawppv1_derivative_ngrid               *
+c     *                                               *
+c     *************************************************
+c
+c  This routine computes the seven point derivative of f.
+c  where f and df are stored on a logarithmic grid. The
+c  dimensions of f and df are, f(1:ng), and df(1:ng)
+
+      subroutine pawppv1_derivative_ngrid(ng,log_amesh,r,f,df)
+      implicit none
+      integer           ng
+      double precision  log_amesh
+      double precision  r(ng)
+      double precision  f(ng)
+      double precision df(ng)
+
+      double precision one_over_60
+      parameter (one_over_60 = 1.0d0/60.0d0)
+
+      integer i,n1,n2,m1,m2
+      double precision aa
+
+      aa = one_over_60/log_amesh
+      n1 = 1
+      n2 = ng
+      m1 = n1
+      m2 = n2
+
+
+      if (n1.le.3) then
+        if ((n1.eq.1).and.(n1.ge.m1).and.(n1.le.m2)) then
+          df(1) = aa*(-147.0d0*f(1)
+     >               + 360.0d0*f(2)
+     >               - 450.0d0*f(3)
+     >               + 400.0d0*f(4)
+     >               - 225.0d0*f(5)
+     >               +  72.0d0*f(6)
+     >               -  10.0d0*f(7))/r(1)
+          n1 = n1+1
+        end if
+        if ((n1.eq.2).and.(n1.ge.m1).and.(n1.le.m2)) then
+          df(2) = aa*( -10.0d0*f(1)
+     >               -  77.0d0*f(2)
+     >               + 150.0d0*f(3)
+     >               - 100.0d0*f(4)
+     >               +  50.0d0*f(5)
+     >               -  15.0d0*f(6)
+     >               +   2.0d0*f(7))/r(2)
+          n1 = n1+1
+        end if
+        if ((n1.eq.3.and.(n1.ge.m1).and.(n1.le.m2))) then
+          df(3) = aa*(  +2.0d0*f(1)
+     >               -  24.0d0*f(2)
+     >               -  35.0d0*f(3)
+     >               +  80.0d0*f(4)
+     >               -  30.0d0*f(5)
+     >               +   8.0d0*f(6)
+     >               -   1.0d0*f(7))/r(3)
+          n1 = n1+1
+        end if
+      end if
+
+      if (n2.ge.(ng-2)) then
+        if ((n2.eq.ng).and.(n2.ge.m1).and.(n2.le.m2)) then
+          df(ng) = aa*( +147.0d0*f(ng)
+     >                - 360.0d0*f(ng-1)
+     >                + 450.0d0*f(ng-2)
+     >                - 400.0d0*f(ng-3)
+     >                + 225.0d0*f(ng-4)
+     >                -  72.0d0*f(ng-5)
+     >                +  10.0d0*f(ng-6))/r(ng)
+          n2 = n2-1
+        end if
+        if ((n2.eq.(ng-1).and.(n2.ge.m1).and.(n2.le.m2))) then
+          df(ng-1) = aa*( +10.0d0*f(ng)
+     >                  +  77.0d0*f(ng-1)
+     >                  - 150.0d0*f(ng-2)
+     >                  + 100.0d0*f(ng-3)
+     >                  -  50.0d0*f(ng-4)
+     >                  +  15.0d0*f(ng-5)
+     >                  -   2.0d0*f(ng-6))/r(ng-1)
+          n2 = n2-1
+        end if
+        if ((n2.eq.(ng-2).and.(n2.ge.m1).and.(n2.le.m2))) then
+          df(ng-2) = aa*(  -2.0d0*f(ng)
+     >                  +  24.0d0*f(ng-1)
+     >                  +  35.0d0*f(ng-2)
+     >                  -  80.0d0*f(ng-3)
+     >                  +  30.0d0*f(ng-4)
+     >                  -   8.0d0*f(ng-5)
+     >                  +   1.0d0*f(ng-6))/r(ng-2)
+          n2 = n2-1
+        end if
+      end if
+
+      do i=n1,n2
+        df(i) = aa*(  -1.0d0*f(i-3)
+     >             +   9.0d0*f(i-2)
+     >             -  45.0d0*f(i-1)
+     >             +  45.0d0*f(i+1)
+     >             -   9.0d0*f(i+2)
+     >             +   1.0d0*f(i+3))/r(i)
+      end do
+
+      return
+      end
+
 
       
 
