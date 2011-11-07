@@ -1,0 +1,1073 @@
+ argument  1 = ch3f_zora_shielding.nw
+ 
+
+
+============================== echo of input deck ==============================
+echo
+
+start ch3f_zora_shielding
+
+title "ch3f_zora_shielding"
+
+geometry noautoz units angstrom nocenter
+symmetry c1
+  c     +1.00000000     +2.00000000     +3.00000000
+  f     +1.00000000     +2.00000000     +4.38300000
+  h     +2.02800000     +2.00000000     +2.65000000
+  h     +0.48600000     +2.89000000     +2.65000000
+  h     +0.48600000     +1.11000000     +2.65000000
+end
+
+basis
+"*" library 6-311G*
+end
+
+charge 0
+
+property
+ shielding
+end
+
+relativistic
+  zora on
+  zora:cutoff_NMR 1d-8
+  zora:cutoff 1d-30
+end
+
+dft
+grid xfine
+direct
+xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
+cam 0.33 cam_alpha 0.19 cam_beta 0.46
+convergence energy 1e-8 diis 80 ncyds 80 damp 0
+end
+
+task dft property
+================================================================================
+
+
+                                         
+                                         
+ 
+ 
+              Northwest Computational Chemistry Package (NWChem) 6.0
+              ------------------------------------------------------
+ 
+ 
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+ 
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+ 
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+ 
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname      = orion
+    program       = ../../../bin/LINUX64/nwchem
+    date          = Mon Nov  7 15:30:56 2011
+
+    compiled      = Mon_Nov_07_15:23:24_2011
+    source        = /home/niri/nwchem/nwchem-trunk
+    nwchem branch = Development
+    input         = ch3f_zora_shielding.nw
+    prefix        = ch3f_zora_shielding.
+    data base     = ./ch3f_zora_shielding.db
+    status        = startup
+    nproc         =        4
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107201 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428802 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+ 
+  0 permanent = .
+  0 scratch   = .
+ 
+ 
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+                                ch3f_zora_shielding
+                                -------------------
+ ncenter=                     5
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ Turning off AUTOSYM since
+ SYMMETRY directive was detected!
+ 
+ 
+ 
+                             Geometry "geometry" -> ""
+                             -------------------------
+ 
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+ 
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 c                    6.0000     1.00000000     2.00000000     3.00000000
+    2 f                    9.0000     1.00000000     2.00000000     4.38300000
+    3 h                    1.0000     2.02800000     2.00000000     2.65000000
+    4 h                    1.0000     0.48600000     2.89000000     2.65000000
+    5 h                    1.0000     0.48600000     1.11000000     2.65000000
+ 
+      Atomic Mass 
+      ----------- 
+ 
+      c                 12.000000
+      f                 18.998400
+      h                  1.007825
+ 
+
+ Effective nuclear repulsion energy (a.u.)      37.4174025949
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+    34.0150677944    68.0301355889   123.5824104752
+ 
+ 
+            XYZ format geometry
+            -------------------
+     5
+ geometry
+ c                     1.00000000     2.00000000     3.00000000
+ f                     1.00000000     2.00000000     4.38300000
+ h                     2.02800000     2.00000000     2.65000000
+ h                     0.48600000     2.89000000     2.65000000
+ h                     0.48600000     1.11000000     2.65000000
+ 
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 f                |   1 c                |     2.61349  |     1.38300
+    3 h                |   1 c                |     2.05214  |     1.08595
+    4 h                |   1 c                |     2.05172  |     1.08572
+    5 h                |   1 c                |     2.05172  |     1.08572
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          4
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 f                |   1 c                |   3 h                |   108.80
+    2 f                |   1 c                |   4 h                |   108.81
+    2 f                |   1 c                |   5 h                |   108.81
+    3 h                |   1 c                |   4 h                |   110.14
+    3 h                |   1 c                |   5 h                |   110.14
+    4 h                |   1 c                |   5 h                |   110.12
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          6
+ ==============================================================================
+
+
+
+  library name resolved from: environment
+  library file name is: </home/niri/nwchem/nwchem-trunk/src/basis/libraries/>
+  
+
+
+ Summary of "ao basis" -> "" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ *                          6-311G*                   on all atoms 
+
+
+                              NWChem Property Module
+                              ----------------------
+ 
+ 
+                                ch3f_zora_shielding
+ 
+  itol2e modified to match energy
+  convergence criterion.
+ 
+                                 NWChem DFT Module
+                                 -----------------
+ 
+ 
+                                ch3f_zora_shielding
+ 
+ 
+                      Basis "ao basis" -> "ao basis" (cartesian)
+                      -----
+  c (Carbon)
+  ----------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  4.56324000E+03  0.001967
+  1 S  6.82024000E+02  0.015231
+  1 S  1.54973000E+02  0.076127
+  1 S  4.44553000E+01  0.260801
+  1 S  1.30290000E+01  0.616462
+  1 S  1.82773000E+00  0.221006
+ 
+  2 S  2.09642000E+01  0.114660
+  2 S  4.80331000E+00  0.919999
+  2 S  1.45933000E+00 -0.003031
+ 
+  3 P  2.09642000E+01  0.040249
+  3 P  4.80331000E+00  0.237594
+  3 P  1.45933000E+00  0.815854
+ 
+  4 S  4.83456000E-01  1.000000
+ 
+  5 P  4.83456000E-01  1.000000
+ 
+  6 S  1.45585000E-01  1.000000
+ 
+  7 P  1.45585000E-01  1.000000
+ 
+  8 D  6.26000000E-01  1.000000
+ 
+  f (Fluorine)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  1.14271000E+04  0.001801
+  1 S  1.72235000E+03  0.013742
+  1 S  3.95746000E+02  0.068133
+  1 S  1.15139000E+02  0.233325
+  1 S  3.36026000E+01  0.589086
+  1 S  4.91901000E+00  0.299505
+ 
+  2 S  5.54441000E+01  0.114536
+  2 S  1.26323000E+01  0.920512
+  2 S  3.71756000E+00 -0.003378
+ 
+  3 P  5.54441000E+01  0.035461
+  3 P  1.26323000E+01  0.237451
+  3 P  3.71756000E+00  0.820458
+ 
+  4 S  1.16545000E+00  1.000000
+ 
+  5 P  1.16545000E+00  1.000000
+ 
+  6 S  3.21892000E-01  1.000000
+ 
+  7 P  3.21892000E-01  1.000000
+ 
+  8 D  1.75000000E+00  1.000000
+ 
+  h (Hydrogen)
+  ------------
+            Exponent  Coefficients 
+       -------------- ---------------------------------------------------------
+  1 S  3.38650000E+01  0.025494
+  1 S  5.09479000E+00  0.190373
+  1 S  1.15879000E+00  0.852161
+ 
+  2 S  3.25840000E-01  1.000000
+ 
+  3 S  1.02741000E-01  1.000000
+ 
+
+
+ Summary of "ao basis" -> "ao basis" (cartesian)
+ ------------------------------------------------------------------------------
+       Tag                 Description            Shells   Functions and Types
+ ---------------- ------------------------------  ------  ---------------------
+ c                          6-311G*                  8       19   4s3p1d
+ f                          6-311G*                  8       19   4s3p1d
+ h                          6-311G*                  3        3   3s
+
+
+  int_init: cando_txs set to always be  F
+  Caching 1-el integrals 
+ 
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     5
+          No. of electrons :    18
+           Alpha electrons :     9
+            Beta electrons :     9
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations:  30
+          This is a Direct SCF calculation.
+          AO basis - number of functions:    47
+                     number of shells:    25
+          Convergence on energy requested: 1.00D-08
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+ 
+              XC Information
+              --------------
+                     Hartree-Fock (Exact) Exchange  1.000          
+                   CAM-Becke88 Exchange Functional  1.000          
+                      VWN V Correlation Functional  0.190 local    
+              Lee-Yang-Parr Correlation Functional  0.810          
+ 
+             Grid Information
+             ----------------
+          Grid used for XC integration:  xfine     
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          c                   0.70      100           7.0      1454
+          f                   0.50      100           7.0      1454
+          h                   0.35      100           8.0      1202
+          Grid pruning is: on 
+          Number of quadrature shells:   500
+          Spatial weights used:  Erf1
+ 
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 80 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters         30 iters            80 iters 
+
+ 
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-11
+          AO Gaussian exp screening on grid/accAOfunc:  18
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-09
+
+          Performing ZORA calculations
+          ----------------------------
+ 
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:        -138.57325452
+
+ Read atomic ZORA corrections from ./ch3f_zora_shielding.zora_sf
+
+ 
+      Superposition of Atomic Density Guess
+      -------------------------------------
+ 
+ Sum of atomic energies:        -138.57325452
+ 
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =    -139.229769
+ 1-e energy   =    -264.952728
+ 2-e energy   =      88.305556
+ HOMO         =      -0.444074
+ LUMO         =       0.111438
+ 
+   Time after variat. SCF:      0.1
+   Time prior to 1st pass:      0.1
+
+ Grid_pts file          = ./ch3f_zora_shielding.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     67        Max. recs in file   =    132523
+
+ Warning: integrated density       0.179999969798E+02
+ deviates from requested relative accuracy   0.10E-06
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.28            12279667
+          Stack Space remaining (MW):       13.11            13106807
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1   -139.8395990587 -1.77D+02  9.68D-03  1.05D+00     0.9
+ d= 0,ls=0.0,diis     2   -139.8553152653 -1.57D-02  6.14D-03  3.74D-01     1.8
+ d= 0,ls=0.0,diis     3   -139.8764215467 -2.11D-02  1.99D-03  1.17D-01     2.6
+ d= 0,ls=0.0,diis     4   -139.8840279013 -7.61D-03  2.97D-04  9.08D-04     3.4
+ d= 0,ls=0.0,diis     5   -139.8841089982 -8.11D-05  6.82D-05  5.00D-05     4.2
+ d= 0,ls=0.0,diis     6   -139.8841136723 -4.67D-06  1.07D-05  2.59D-07     5.1
+ d= 0,ls=0.0,diis     7   -139.8841137172 -4.50D-08  1.87D-06  9.91D-09     5.9
+ d= 0,ls=0.0,diis     8   -139.8841137184 -1.15D-09  3.47D-07  8.93D-11     6.7
+ 
+      Commencing ZORA Property Calculations
+      -------------------------------------
+ 
+dia1(k,t,iat1,ispin)=(  1,  1,  1,  1)=(   251.59397155,   251.59397155) ppm
+dia1(k,t,iat1,ispin)=(  1,  2,  1,  1)=(     0.00000000,     0.00000000) ppm
+dia1(k,t,iat1,ispin)=(  1,  3,  1,  1)=(     0.00016408,     0.00016408) ppm
+dia1(k,t,iat1,ispin)=(  2,  1,  1,  1)=(     0.00000000,     0.00000000) ppm
+dia1(k,t,iat1,ispin)=(  2,  2,  1,  1)=(   251.59300675,   251.59300675) ppm
+dia1(k,t,iat1,ispin)=(  2,  3,  1,  1)=(     0.00000000,     0.00000000) ppm
+dia1(k,t,iat1,ispin)=(  3,  1,  1,  1)=(    -0.00009568,    -0.00009568) ppm
+dia1(k,t,iat1,ispin)=(  3,  2,  1,  1)=(     0.00000000,     0.00000000) ppm
+dia1(k,t,iat1,ispin)=(  3,  3,  1,  1)=(   263.66016143,   263.66016143) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  1,  1)=(    -6.00058335,    -6.00058335,    -7.09670866,    -7.09670866) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  1,  1,  1)=(     0.00000000,     0.00000000,     0.00000001,     0.00000001) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  1,  1,  1)=(    -0.00048187,    -0.00048187,     3.30973207,     3.30973207) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  2,  1,  1)=(     0.00000000,     0.00000000,    -0.00146877,    -0.00146877) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  2,  1,  1)=(    -5.99775253,    -5.99775253,    -7.08012643,    -7.08012643) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  2,  1,  1)=(     0.00000000,     0.00000000,     6.61059299,     6.61059299) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  3,  1,  1)=(    -0.00026714,    -0.00026714,     0.02299719,     0.02299719) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  3,  1,  1)=(     0.00000000,     0.00000000,    -0.00000001,    -0.00000001) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  3,  1,  1)=(    -6.01983911,    -6.01983911,     1.99081867,     1.99081867) ppm
+dia1(k,t,iat1,ispin)=(  1,  1,  2,  1)=(   462.61427352,   462.61427352) ppm
+dia1(k,t,iat1,ispin)=(  1,  2,  2,  1)=(     0.00000000,     0.00000000) ppm
+dia1(k,t,iat1,ispin)=(  1,  3,  2,  1)=(     0.00073176,     0.00073176) ppm
+dia1(k,t,iat1,ispin)=(  2,  1,  2,  1)=(     0.00000000,     0.00000000) ppm
+dia1(k,t,iat1,ispin)=(  2,  2,  2,  1)=(   462.61434833,   462.61434833) ppm
+dia1(k,t,iat1,ispin)=(  2,  3,  2,  1)=(    -0.00000001,    -0.00000001) ppm
+dia1(k,t,iat1,ispin)=(  3,  1,  2,  1)=(    -0.00006148,    -0.00006148) ppm
+dia1(k,t,iat1,ispin)=(  3,  2,  2,  1)=(     0.00000000,     0.00000000) ppm
+dia1(k,t,iat1,ispin)=(  3,  3,  2,  1)=(   490.97468070,   490.97468070) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  2,  1)=(    -4.81796365,    -4.81796365,    17.66526302,    17.66526302) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  1,  2,  1)=(     0.00000000,     0.00000000,     0.00000002,     0.00000002) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  1,  2,  1)=(     0.00027359,     0.00027359,    -4.25845987,    -4.25845987) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  2,  2,  1)=(     0.00000000,     0.00000000,    -0.00191127,    -0.00191127) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  2,  2,  1)=(    -4.81771198,    -4.81771198,    17.67309927,    17.67309927) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  2,  2,  1)=(     0.00000000,     0.00000000,    -8.52098380,    -8.52098380) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  3,  2,  1)=(     0.00051187,     0.00051187,     0.00045283,     0.00045283) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  3,  2,  1)=(    -0.00000001,    -0.00000001,     0.00000000,     0.00000000) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  3,  2,  1)=(     1.88594153,     1.88594153,     0.26781791,     0.26781791) ppm
+dia1(k,t,iat1,ispin)=(  1,  1,  3,  1)=(    36.64577474,    36.64577474) ppm
+dia1(k,t,iat1,ispin)=(  1,  2,  3,  1)=(     0.00000000,     0.00000000) ppm
+dia1(k,t,iat1,ispin)=(  1,  3,  3,  1)=(    -8.47409502,    -8.47409502) ppm
+dia1(k,t,iat1,ispin)=(  2,  1,  3,  1)=(     0.00000000,     0.00000000) ppm
+dia1(k,t,iat1,ispin)=(  2,  2,  3,  1)=(    16.77487884,    16.77487884) ppm
+dia1(k,t,iat1,ispin)=(  2,  3,  3,  1)=(     0.00000000,     0.00000000) ppm
+dia1(k,t,iat1,ispin)=(  3,  1,  3,  1)=(    -8.00232742,    -8.00232742) ppm
+dia1(k,t,iat1,ispin)=(  3,  2,  3,  1)=(     0.00000000,     0.00000000) ppm
+dia1(k,t,iat1,ispin)=(  3,  3,  3,  1)=(    22.53594940,    22.53594940) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  3,  1)=(    -0.51230847,    -0.51230847,    -1.39831062,    -1.39831062) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  1,  3,  1)=(     0.00000000,     0.00000000,     0.00000000,     0.00000000) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  1,  3,  1)=(     2.13929182,     2.13929182,     0.60443826,     0.60443826) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  2,  3,  1)=(     0.00000000,     0.00000000,    -1.48803807,    -1.48803807) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  2,  3,  1)=(     6.29864722,     6.29864722,    -0.65515171,    -0.65515171) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  2,  3,  1)=(     0.00000000,     0.00000000,     1.20962421,     1.20962421) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  3,  3,  1)=(     2.16686740,     2.16686740,    -1.65650646,    -1.65650646) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  3,  3,  1)=(     0.00000000,     0.00000000,     0.00000000,     0.00000000) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  3,  3,  1)=(     5.90822032,     5.90822032,     0.87208793,     0.87208793) ppm
+dia1(k,t,iat1,ispin)=(  1,  1,  4,  1)=(    21.75019695,    21.75019695) ppm
+dia1(k,t,iat1,ispin)=(  1,  2,  4,  1)=(    -8.60700087,    -8.60700087) ppm
+dia1(k,t,iat1,ispin)=(  1,  3,  4,  1)=(     4.23924516,     4.23924516) ppm
+dia1(k,t,iat1,ispin)=(  2,  1,  4,  1)=(    -8.60708370,    -8.60708370) ppm
+dia1(k,t,iat1,ispin)=(  2,  2,  4,  1)=(    31.68224754,    31.68224754) ppm
+dia1(k,t,iat1,ispin)=(  2,  3,  4,  1)=(    -7.34033838,    -7.34033838) ppm
+dia1(k,t,iat1,ispin)=(  3,  1,  4,  1)=(     4.00341488,     4.00341488) ppm
+dia1(k,t,iat1,ispin)=(  3,  2,  4,  1)=(    -6.93199669,    -6.93199669) ppm
+dia1(k,t,iat1,ispin)=(  3,  3,  4,  1)=(    22.54262683,    22.54262683) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  4,  1)=(     4.59467059,     4.59467059,    -0.11125932,    -0.11125932) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  1,  4,  1)=(     2.94951748,     2.94951748,    -0.64244077,    -0.64244077) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  1,  4,  1)=(    -1.07058992,    -1.07058992,     0.60377521,     0.60377521) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  2,  4,  1)=(     2.94998843,     2.94998843,     0.74316054,     0.74316054) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  2,  4,  1)=(     1.19179812,     1.19179812,    -1.76893865,    -1.76893865) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  2,  4,  1)=(     1.85358327,     1.85358327,     1.20853347,     1.20853347) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  3,  4,  1)=(    -1.08404659,    -1.08404659,     0.83218428,     0.83218428) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  3,  4,  1)=(     1.87663179,     1.87663179,    -1.44019825,    -1.44019825) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  3,  4,  1)=(     5.90765774,     5.90765774,     0.98222778,     0.98222778) ppm
+dia1(k,t,iat1,ispin)=(  1,  1,  5,  1)=(    21.75019695,    21.75019695) ppm
+dia1(k,t,iat1,ispin)=(  1,  2,  5,  1)=(     8.60700087,     8.60700087) ppm
+dia1(k,t,iat1,ispin)=(  1,  3,  5,  1)=(     4.23924516,     4.23924516) ppm
+dia1(k,t,iat1,ispin)=(  2,  1,  5,  1)=(     8.60708369,     8.60708369) ppm
+dia1(k,t,iat1,ispin)=(  2,  2,  5,  1)=(    31.68224754,    31.68224754) ppm
+dia1(k,t,iat1,ispin)=(  2,  3,  5,  1)=(     7.34033838,     7.34033838) ppm
+dia1(k,t,iat1,ispin)=(  3,  1,  5,  1)=(     4.00341488,     4.00341488) ppm
+dia1(k,t,iat1,ispin)=(  3,  2,  5,  1)=(     6.93199669,     6.93199669) ppm
+dia1(k,t,iat1,ispin)=(  3,  3,  5,  1)=(    22.54262683,    22.54262683) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  1,  5,  1)=(     4.59467059,     4.59467059,    -2.68633122,    -2.68633122) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  1,  5,  1)=(    -2.94951748,    -2.94951748,     0.64244077,     0.64244077) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  1,  5,  1)=(    -1.07058992,    -1.07058992,     0.60558274,     0.60558274) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  2,  5,  1)=(    -2.94998843,    -2.94998843,     0.74315955,     0.74315955) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  2,  5,  1)=(     1.19179812,     1.19179812,    -1.76893865,    -1.76893865) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  2,  5,  1)=(    -1.85358327,    -1.85358327,     1.20852830,     1.20852830) ppm
+(dia2,par1)(k,t,iat1,spin)=(  1,  3,  5,  1)=(    -1.08404659,    -1.08404659,     0.83332756,     0.83332756) ppm
+(dia2,par1)(k,t,iat1,spin)=(  2,  3,  5,  1)=(    -1.87663179,    -1.87663179,     1.44019825,     1.44019825) ppm
+(dia2,par1)(k,t,iat1,spin)=(  3,  3,  5,  1)=(     5.90765774,     5.90765774,    -0.63509730,    -0.63509730) ppm
+
+ Wrote ZORA NMR data to ./ch3f_zora_shielding.zora_nmrcs
+
+(nogshift,skip_gshiftAOev,done_Fji)=( 1, F, T)
+
+
+         Total DFT energy =     -139.884113718373
+      One electron energy =     -266.873998732440
+           Coulomb energy =      106.567612651223
+    Exchange-Corr. energy =      -16.995130232062
+ Nuclear repulsion energy =       37.417402594906
+
+       Scaling correction =        0.058379649441
+
+ Numeric. integr. density =       17.999999993984
+
+     Total iterative time =     46.2s
+
+
+ 
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+ 
+ Vector    1  Occ=2.000000D+00  E=-2.473432D+01
+              MO Center=  1.0D+00,  2.0D+00,  4.4D+00, r^2= 1.2D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      0.552294  2 F  s                 21      0.464983  2 F  s          
+ 
+ Vector    2  Occ=2.000000D+00  E=-1.031864D+01
+              MO Center=  1.0D+00,  2.0D+00,  3.0D+00, r^2= 2.8D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.565555  1 C  s                  2      0.457729  1 C  s          
+ 
+ Vector    3  Occ=2.000000D+00  E=-1.262973D+00
+              MO Center=  1.0D+00,  2.0D+00,  4.2D+00, r^2= 4.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    25      0.589602  2 F  s                 29      0.438209  2 F  s          
+    21     -0.195867  2 F  s          
+ 
+ Vector    4  Occ=2.000000D+00  E=-7.809072D-01
+              MO Center=  1.0D+00,  2.0D+00,  3.1D+00, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.451910  1 C  s                 10      0.271685  1 C  s          
+    29     -0.205898  2 F  s                 25     -0.195210  2 F  s          
+     2     -0.160458  1 C  s          
+ 
+ Vector    5  Occ=2.000000D+00  E=-5.524704D-01
+              MO Center=  1.1D+00,  2.0D+00,  3.5D+00, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      0.269118  1 C  px                26      0.265893  2 F  px         
+    30      0.229522  2 F  px                22      0.186483  2 F  px         
+    11      0.181754  1 C  px                 3      0.170270  1 C  px         
+ 
+ Vector    6  Occ=2.000000D+00  E=-5.524652D-01
+              MO Center=  8.8D-01,  2.0D+00,  3.5D+00, r^2= 1.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      0.269136  1 C  py                27      0.265917  2 F  py         
+    31      0.229547  2 F  py                23      0.186500  2 F  py         
+    12      0.181749  1 C  py                 4      0.170291  1 C  py         
+ 
+ Vector    7  Occ=2.000000D+00  E=-5.508452D-01
+              MO Center=  1.0D+00,  2.0D+00,  3.9D+00, r^2= 1.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      0.355373  2 F  pz                32      0.295070  2 F  pz         
+     9     -0.256970  1 C  pz                24      0.252313  2 F  pz         
+    29      0.173212  2 F  s                  5     -0.155256  1 C  pz         
+ 
+ Vector    8  Occ=2.000000D+00  E=-4.086983D-01
+              MO Center=  1.1D+00,  2.0D+00,  3.7D+00, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    30      0.378799  2 F  px                26      0.362310  2 F  px         
+    22      0.261875  2 F  px                 7     -0.200132  1 C  px         
+    40     -0.199744  3 H  s          
+ 
+ Vector    9  Occ=2.000000D+00  E=-4.086941D-01
+              MO Center=  8.7D-01,  2.0D+00,  3.7D+00, r^2= 1.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    31      0.378796  2 F  py                27      0.362304  2 F  py         
+    23      0.261871  2 F  py                 8     -0.200150  1 C  py         
+    43     -0.172974  4 H  s                 46      0.172974  5 H  s          
+ 
+ Vector   10  Occ=0.000000D+00  E= 9.085316D-02
+              MO Center=  1.0D+00,  2.0D+00,  2.5D+00, r^2= 4.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      2.073450  1 C  s                 41     -0.971173  3 H  s          
+    44     -0.970964  4 H  s                 47     -0.970964  5 H  s          
+    13     -0.380056  1 C  pz                 6      0.162156  1 C  s          
+ 
+ Vector   11  Occ=0.000000D+00  E= 1.515615D-01
+              MO Center=  1.7D+00,  2.0D+00,  2.5D+00, r^2= 4.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    41      2.059374  3 H  s                 11     -1.092308  1 C  px         
+    44     -1.030222  4 H  s                 47     -1.030214  5 H  s          
+     7     -0.214428  1 C  px                 3     -0.169365  1 C  px         
+ 
+ Vector   12  Occ=0.000000D+00  E= 1.515836D-01
+              MO Center=  2.5D-01,  2.0D+00,  2.5D+00, r^2= 4.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    44     -1.784191  4 H  s                 47      1.784195  5 H  s          
+    12      1.092282  1 C  py                 8      0.214397  1 C  py         
+     4      0.169353  1 C  py         
+ 
+ Vector   13  Occ=0.000000D+00  E= 1.565244D-01
+              MO Center=  1.0D+00,  2.0D+00,  3.0D+00, r^2= 2.3D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      1.168792  1 C  pz                29     -0.855916  2 F  s          
+    10      0.544231  1 C  s                 32      0.465998  2 F  pz         
+     9      0.228310  1 C  pz                28      0.193991  2 F  pz         
+    25     -0.183943  2 F  s                  5      0.159268  1 C  pz         
+     6      0.152785  1 C  s                 24      0.152029  2 F  pz         
+ 
+ Vector   14  Occ=0.000000D+00  E= 3.586990D-01
+              MO Center=  1.2D+00,  2.0D+00,  3.0D+00, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      1.622023  1 C  py                43     -1.115265  4 H  s          
+    46      1.115265  5 H  s                 31     -0.280333  2 F  py         
+ 
+ Vector   15  Occ=0.000000D+00  E= 3.587371D-01
+              MO Center=  7.6D-01,  2.0D+00,  3.0D+00, r^2= 2.8D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      1.622182  1 C  px                40     -1.288255  3 H  s          
+    43      0.643721  4 H  s                 46      0.643721  5 H  s          
+    30     -0.280366  2 F  px         
+ 
+ Vector   16  Occ=0.000000D+00  E= 4.877819D-01
+              MO Center=  1.0D+00,  2.0D+00,  3.0D+00, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    13      1.145693  1 C  pz                 9     -0.730068  1 C  pz         
+     6     -0.580836  1 C  s                 40      0.468574  3 H  s          
+    43      0.468943  4 H  s                 46      0.468943  5 H  s          
+    29     -0.349730  2 F  s                  5     -0.266171  1 C  pz         
+    28     -0.238008  2 F  pz                32     -0.176527  2 F  pz         
+ 
+ Vector   17  Occ=0.000000D+00  E= 5.388099D-01
+              MO Center=  1.0D+00,  2.0D+00,  2.9D+00, r^2= 2.5D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      1.642204  1 C  s                 40     -1.130407  3 H  s          
+    43     -1.131018  4 H  s                 46     -1.131018  5 H  s          
+    29     -0.521346  2 F  s                  9     -0.498987  1 C  pz         
+    13      0.329869  1 C  pz                41      0.280237  3 H  s          
+    44      0.277932  4 H  s                 47      0.277932  5 H  s          
+ 
+ Vector   18  Occ=0.000000D+00  E= 6.181046D-01
+              MO Center=  1.2D+00,  2.0D+00,  2.8D+00, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      1.883376  1 C  px                41     -1.862195  3 H  s          
+     7     -1.053135  1 C  px                44      0.931229  4 H  s          
+    47      0.931223  5 H  s                 40      0.516709  3 H  s          
+     3     -0.275959  1 C  px                43     -0.259731  4 H  s          
+    46     -0.259730  5 H  s          
+ 
+ Vector   19  Occ=0.000000D+00  E= 6.181457D-01
+              MO Center=  7.6D-01,  2.0D+00,  2.8D+00, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      1.883103  1 C  py                44     -1.613078  4 H  s          
+    47      1.613081  5 H  s                  8     -1.053169  1 C  py         
+    43      0.448559  4 H  s                 46     -0.448560  5 H  s          
+     4     -0.275959  1 C  py         
+ 
+
+ center of mass
+ --------------
+ x =   1.88972599 y =   3.77945198 z =   7.06981827
+
+ moments of inertia (a.u.)
+ ------------------
+          70.045742832072           0.000000000000           0.000000000000
+           0.000000000000          70.049255463773           0.000000000000
+           0.000000000000           0.000000000000          11.406609230869
+ 
+     Multipole analysis of the density
+     ---------------------------------
+ 
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0      0.000000     -9.000000     -9.000000     18.000000
+ 
+     1   1 0 0     -0.000098    -17.007583    -17.007583     34.015068
+     1   0 1 0      0.000000    -34.015068    -34.015068     68.030136
+     1   0 0 1     -0.758665    -62.170538    -62.170538    123.582410
+ 
+     2   2 0 0     -8.778104    -39.359014    -39.359014     69.939923
+     2   1 1 0     -0.000371    -64.279343    -64.279343    128.558315
+     2   1 0 1     -1.434106   -117.485499   -117.485499    233.536893
+     2   0 2 0     -8.778431   -135.776171   -135.776171    262.773911
+     2   0 1 1     -2.867337   -234.970561   -234.970561    467.073786
+     2   0 0 2    -19.587765   -452.541044   -452.541044    885.494323
+ 
+ 
+            Scalar ZORA NMR Shielding
+            -------------------------
+ 
+ switch_skip_cphf= F
+ switch_nmrcs_analysis= F
+
+          -----------------------------------------
+          Chemical Shielding Tensors (GIAO, in ppm)
+          -----------------------------------------
+
+(j,k)(  1)=(     0.00000000,    -1.00000000)
+(j,k)(  2)=(     0.00000000,    -1.00000000)
+(j,k)(  3)=(     0.00000000,    -1.00000000)
+(j,k)(  4)=(     0.00000000,    -1.00000000)
+(j,k)(  5)=(     0.00000000,    -1.00000000)
+(j,k)(  6)=(     0.00000000,    -1.00000000)
+(j,k)(  7)=(     0.00000000,    -1.00000000)
+(j,k)(  8)=(     0.00000000,    -1.00000000)
+(j,k)(  9)=(     0.00000000,    -1.00000000)
+(j,k)( 10)=(     0.00000000,    -1.00000000)
+(j,k)( 11)=(     0.00000000,    -1.00000000)
+(j,k)( 12)=(     0.00000000,    -1.00000000)
+  int_init: cando_txs set to always be  F
+ nat_slc=                     5
+In hnd_giaox_zora:: atomnr(  1)=    1
+In hnd_giaox_zora:: atomnr(  2)=    2
+In hnd_giaox_zora:: atomnr(  3)=    3
+In hnd_giaox_zora:: atomnr(  4)=    4
+In hnd_giaox_zora:: atomnr(  5)=    5
+
+ Read ZORA NMR data from ./ch3f_zora_shielding.zora_nmrcs
+
+ Entering for xc, kfac=   1.00000000000000     
+ COMPUTE cphf shield data ...
+                                NWChem CPHF Module
+                                ------------------
+ 
+ 
+  int_init: cando_txs set to always be  F
+  scftype          =     RHF 
+  nclosed          =        9
+  nopen            =        0
+  variables        =      342
+  # of vectors     =        3
+  tolerance        = 0.10D-03
+  level shift      = 0.00D+00
+  max iterations   =       50
+  max subspace     =       30
+
+ SCF residual:   2.256694257847751E-006
+
+
+Iterative solution of linear equations
+  No. of variables      342
+  No. of equations        3
+  Maximum subspace       30
+        Iterations       50
+       Convergence  1.0D-04
+        Start time     52.9
+
+
+   iter   nsub   residual    time
+   ----  ------  --------  ---------
+     1      3    1.17D+00      55.0
+     2      6    7.00D-02      57.2
+     3      9    5.73D-03      59.4
+     4     12    8.69D-04      61.6
+     5     15    1.06D-04      63.7
+     6     18    9.83D-06      65.9
+
+ Wrote ZORA CPHF data to ./ch3f_zora_shielding.zora_shieldcphf
+
+  int_init: cando_txs set to always be  F
+ Calc. par tensor-> zora
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,1,1)=(        245.593388           7.096709          -2.124123        -168.970952        -163.998367          81.595022 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,2,1)=(          0.000000           0.001469          -0.000967          -0.000812          -0.000310          -0.000310 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,3,1)=(         -0.000340          -0.022997           0.053950          -0.048202          -0.017249          -0.017589 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,1,1)=(          0.000000           0.000000           0.000000          -0.000319          -0.000319          -0.000319 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,2,1)=(        245.595254           7.080126          -2.098559        -168.979077        -163.997510          81.597744 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,3,1)=(          0.000000           0.000000           0.000000           0.000105           0.000105           0.000105 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,1,1)=(         -0.000340          -3.309732          19.277955         -15.981369          -0.013146          -0.013486 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,2,1)=(          0.000000          -6.610593          38.542947         -31.926843           0.005511           0.005511 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,3,1)=(        257.640322          -1.990819         101.416249        -172.045016         -72.619586         185.020736 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,1,2)=(        457.796310         -17.665263         189.168532        -135.590932          35.912337         493.708647 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,2,2)=(          0.000000           0.001911          -0.010349           0.009806           0.001368           0.001368 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,3,2)=(          0.000728          -0.000453          -0.048015          -0.000536          -0.049004          -0.048276 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,1,2)=(          0.000000           0.000000           0.000000           0.001163           0.001163           0.001163 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,2,2)=(        457.796636         -17.673099         189.147648        -135.600123          35.874426         493.671063 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,3,2)=(          0.000000           0.000000           0.000000           0.000461           0.000461           0.000461 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,1,2)=(          0.000728           4.258460           4.208378          -8.471568          -0.004730          -0.004002 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,2,2)=(          0.000000           8.520984           8.437784         -16.951286           0.007482           0.007482 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,3,2)=(        492.860622          -0.267818         -37.327415         -38.194598         -75.789831         417.070792 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,1,3)=(         36.133466           1.398311           4.755842         -14.490027          -8.335874          27.797592 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,2,3)=(          0.000000           1.488038          16.002598         -17.494648          -0.004012          -0.004012 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,3,3)=(         -6.085132           1.656506          15.358291         -11.760637           5.254161          -0.830971 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,1,3)=(          0.000000           0.000000           0.000000          -0.000018          -0.000018          -0.000018 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,2,3)=(         23.073526           0.655152          -4.464710           5.882841           2.073283          25.146809 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,3,3)=(          0.000000           0.000000           0.000000           0.000016           0.000016           0.000016 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,1,3)=(         -6.085132          -0.604438          -2.347959           4.582886           1.630488          -4.454643 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,2,3)=(          0.000000          -1.209624          -2.791616           3.999278          -0.001962          -0.001962 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,3,3)=(         28.444170          -0.872088          -5.178281           8.800996           2.750627          31.194797 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,1,4)=(         26.344868           0.111259         -10.013483           9.373346          -0.528878          25.815990 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,2,4)=(         -5.657289          -0.743161          -8.532742          13.787598           4.511696          -1.145593 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,3,4)=(          3.044012          -0.832184          -7.682943           5.886019          -2.629108           0.414903 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,1,4)=(         -5.657289           0.642441           6.401073          -2.535496           4.508018          -1.149271 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,2,4)=(         32.874046           1.768939           8.456489         -15.962756          -5.737328          27.136717 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,3,4)=(         -5.271060           1.440198          13.301854         -10.189516           4.552536          -0.718524 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,1,4)=(          3.044012          -0.603775          -1.004304           0.790312          -0.817766           2.226245 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,2,4)=(         -5.271060          -1.208533          -3.473232           6.094397           1.412632          -3.858428 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,3,4)=(         28.450285          -0.982228          -6.486990          10.218162           2.748945          31.199229 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,1,5)=(         26.344868           2.686331          17.705430         -20.927600          -0.535839          25.809029 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,2,5)=(          5.657289          -0.743160          -7.475039           3.710502          -4.507697           1.149593 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(1,3,5)=(          3.044012          -0.833328          -7.683735           5.887889          -2.629174           0.414837 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,1,5)=(          5.657289          -0.642441          -6.401073           2.535490          -4.508024           1.149266 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,2,5)=(         32.874046           1.768939           8.456489         -15.962771          -5.737343          27.136703 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(2,3,5)=(          5.271060          -1.440198         -13.301854          10.189495          -4.552557           0.718503 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,1,5)=(          3.044012          -0.605583           0.254247          -0.465654          -0.816990           2.227022 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,2,5)=(          5.271060          -1.208528           0.065352          -0.272013          -1.415189           3.855871 )
+NW:(dia,gauge,OO,OV,Totpar,dia+par)(3,3,5)=(         28.450285           0.635097          13.057637         -10.935354           2.757380          31.207665 )
+      Atom:    1  C 
+        Diamagnetic
+    245.5934      0.0000     -0.0003
+      0.0000    245.5953      0.0000
+     -0.0003      0.0000    257.6403
+
+        Paramagnetic
+   -163.9984     -0.0003     -0.0152
+     -0.0003   -163.9975      0.0028
+     -0.0152      0.0028    -72.6196
+
+        Total Shielding Tensor
+     81.5950     -0.0003     -0.0155
+     -0.0003     81.5977      0.0028
+     -0.0155      0.0028    185.0207
+
+           isotropic =     116.0712
+          anisotropy =     103.4244
+
+          Principal Components and Axis System
+                 1           2           3
+              185.0207     81.5978     81.5950
+
+      1        -0.0002     -0.1131      0.9936
+      2         0.0000      0.9936      0.1131
+      3         1.0000      0.0000      0.0001
+
+
+
+      Atom:    2  F 
+        Diamagnetic
+    457.7963      0.0000      0.0007
+      0.0000    457.7966      0.0000
+      0.0007      0.0000    492.8606
+
+        Paramagnetic
+     35.9123      0.0013     -0.0269
+      0.0013     35.8744      0.0040
+     -0.0269      0.0040    -75.7898
+
+        Total Shielding Tensor
+    493.7086      0.0013     -0.0261
+      0.0013    493.6711      0.0040
+     -0.0261      0.0040    417.0708
+
+           isotropic =     468.1502
+          anisotropy =      38.3378
+
+          Principal Components and Axis System
+                 1           2           3
+              493.7087    493.6710    417.0708
+
+      1         0.9994     -0.0336      0.0003
+      2         0.0336      0.9994     -0.0001
+      3        -0.0003      0.0001      1.0000
+
+
+
+      Atom:    3  H 
+        Diamagnetic
+     36.1335      0.0000     -6.0851
+      0.0000     23.0735      0.0000
+     -6.0851      0.0000     28.4442
+
+        Paramagnetic
+     -8.3359     -0.0020      3.4423
+     -0.0020      2.0733     -0.0010
+      3.4423     -0.0010      2.7506
+
+        Total Shielding Tensor
+     27.7976     -0.0020     -2.6428
+     -0.0020     25.1468     -0.0010
+     -2.6428     -0.0010     31.1948
+
+           isotropic =      28.0464
+          anisotropy =       6.8871
+
+          Principal Components and Axis System
+                 1           2           3
+               32.6378     26.3546     25.1468
+
+      1        -0.4792      0.8777      0.0016
+      2         0.0000     -0.0019      1.0000
+      3         0.8777      0.4792      0.0009
+
+
+
+      Atom:    4  H 
+        Diamagnetic
+     26.3449     -5.6573      3.0440
+     -5.6573     32.8740     -5.2711
+      3.0440     -5.2711     28.4503
+
+        Paramagnetic
+     -0.5289      4.5099     -1.7234
+      4.5099     -5.7373      2.9826
+     -1.7234      2.9826      2.7489
+
+        Total Shielding Tensor
+     25.8160     -1.1474      1.3206
+     -1.1474     27.1367     -2.2885
+      1.3206     -2.2885     31.1992
+
+           isotropic =      28.0506
+          anisotropy =       6.8860
+
+          Principal Components and Axis System
+                 1           2           3
+               32.6413     26.3582     25.1525
+
+      1         0.2396     -0.4402      0.8653
+      2        -0.4149      0.7594      0.5012
+      3         0.8778      0.4791      0.0007
+
+
+
+      Atom:    5  H 
+        Diamagnetic
+     26.3449      5.6573      3.0440
+      5.6573     32.8740      5.2711
+      3.0440      5.2711     28.4503
+
+        Paramagnetic
+     -0.5358     -4.5079     -1.7231
+     -4.5079     -5.7373     -2.9839
+     -1.7231     -2.9839      2.7574
+
+        Total Shielding Tensor
+     25.8090      1.1494      1.3209
+      1.1494     27.1367      2.2872
+      1.3209      2.2872     31.2077
+
+           isotropic =      28.0511
+          anisotropy =       6.8938
+
+          Principal Components and Axis System
+                 1           2           3
+               32.6470     26.3609     25.1455
+
+      1         0.2393      0.4388      0.8661
+      2         0.4144      0.7606     -0.4998
+      3         0.8781     -0.4785     -0.0002
+
+
+
+
+ Task  times  cpu:       64.2s     wall:       65.8s
+ 
+ 
+                                NWChem Input Module
+                                -------------------
+ 
+ 
+ Summary of allocated global arrays
+-----------------------------------
+  array 0 => double precision sf 1(47,47),  handle: -987 
+  array 1 => double precision dft_zora_scale: g_Ci(1,9),  handle: -986 
+  array 2 => double precision DFT CPKS RHS(1,47,47),  handle: -978 
+
+
+
+                         GA Statistics for process    0
+                         ------------------------------
+
+       create   destroy   get      put      acc     scatter   gather  read&inc
+calls:  917      907     7.90e+05 4237     2.49e+05   88        0        0     
+number of processes/call 1.13e+00 1.81e+00 1.16e+00 1.86e+00 0.00e+00
+bytes total:             1.09e+08 1.12e+07 5.19e+07 3.81e+05 0.00e+00 0.00e+00
+bytes remote:            6.42e+07 4.10e+06 3.63e+07 -1.47e+05 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 2384168 bytes
+ 
+MA_summarize_allocated_blocks: starting scan ...
+MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+MA usage statistics:
+
+	allocation statistics:
+					      heap	     stack
+					      ----	     -----
+	current number of blocks	         0	         0
+	maximum number of blocks	        60	        48
+	current total bytes		         0	         0
+	maximum total bytes		   7277736	  22511808
+	maximum total K-bytes		      7278	     22512
+	maximum total M-bytes		         8	        23
+ 
+ 
+                                     CITATION
+                                     --------
+                Please cite the following reference when publishing
+                           results obtained with NWChem:
+ 
+                 M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski,
+              T.P. Straatsma, H.J.J. van Dam, D. Wang, J. Nieplocha,
+                        E. Apra, T.L. Windus, W.A. de Jong
+                 "NWChem: a comprehensive and scalable open-source
+                  solution for large scale molecular simulations"
+                      Comput. Phys. Commun. 181, 1477 (2010)
+                           doi:10.1016/j.cpc.2010.04.018
+ 
+                              AUTHORS & CONTRIBUTORS
+                              ----------------------
+      E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
+     M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
+    J. Autschbach, F. Aquino, J. Mullin, P. Nichols, S. Hirata, M. T. Hackler,
+   Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann,
+    J. Nieplocha, V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen,
+      M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby,
+        E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+        R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
+       D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
+        K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
+        B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefield,
+    X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
+       M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
+
+ Total times  cpu:       64.2s     wall:       66.0s

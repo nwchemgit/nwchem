@@ -1,0 +1,40 @@
+echo
+
+start ch3f_zora_shielding
+
+title "ch3f_zora_shielding"
+
+geometry noautoz units angstrom nocenter
+symmetry c1
+  c     +1.00000000     +2.00000000     +3.00000000
+  f     +1.00000000     +2.00000000     +4.38300000
+  h     +2.02800000     +2.00000000     +2.65000000
+  h     +0.48600000     +2.89000000     +2.65000000
+  h     +0.48600000     +1.11000000     +2.65000000
+end
+
+basis
+"*" library 6-311G*
+end
+
+charge 0
+
+property
+ shielding
+end
+
+relativistic
+  zora on
+  zora:cutoff_NMR 1d-8
+  zora:cutoff 1d-30
+end
+
+dft
+grid xfine
+direct
+xc xcamb88 1.00 lyp 0.81 vwn_5 0.19 hfexch 1.00
+cam 0.33 cam_alpha 0.19 cam_beta 0.46
+convergence energy 1e-8 diis 80 ncyds 80 damp 0
+end
+
+task dft property
