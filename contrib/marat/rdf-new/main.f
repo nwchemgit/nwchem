@@ -110,10 +110,10 @@ c      --------------------------------------------
        else if(buffer.eq."-v") then
           overb=.true.
           go to 16
-c       else if(buffer.eq."-help") then
-c          ohelp=.true.
-c          write(*,1000)
-c          go to 14
+       else if(buffer.eq."-help") then
+          ohelp=.true.
+          write(*,1000)
+          stop
        else if(buffer.eq."-atom1") then
           i = i+1
           call my_get_command_argument(i,buffer,l,istatus)
@@ -206,7 +206,8 @@ c      the lattice
        end if
 c      maximum radius
        if(rmax.lt.0) then
-         rmax = 0.5*MINVAL(latv)
+         message = "please provide rmax"
+         goto 911
        end if
 c      number of bins
        if(nb.lt.0) then
@@ -361,8 +362,30 @@ c      average RDF over the frames
      >             real(k)*dr,gr(k)
        end do
        stop
-
-911    continue       
+411    continue
+1000   format(
+     > "NAME:",/
+     > " rdf constructs radial density function ",
+     > " from NWChem trajectory or xyz files",//,
+     >  "SYNOPSIS",/,
+     > " rdf [-help] [-v ]",
+     > " [-frames ] [-lattice ] [-nbins ] [-rmax] [-atom1] [-atom2]",
+     > " input file(s) outpiut file ",//,
+     >  "DESCRIPTION",/,
+     > " This utility builds rdf from NWChem trajectory",
+     > " or xyz files",//,
+     > " The required option are as follows:",/,
+     > " -atom1   first atom id or name",/,
+     > " -atom2   second atom id or name",/,
+     > " -lattice lattice file or vector(3)",/,
+     > " -rmax    maximum distance ",//,
+     > " other options are as follows:",/,
+     > " -help  prints out this message",/,
+     > " -v  generate more verbose output",/,
+     > " -frames  maximum number of frames default is all ",/,
+     > " -nbins number of bins with default of rmax/0.1"
+     > )
+ 911    continue       
 c      if you reach this you are in trouble
        write(*,*) "Emergency STOP"
        write(*,*) message
@@ -551,6 +574,7 @@ c        increment line number
          read(bigbuf,*,err=10) (lat(k,i),k=1,3)
          if(i.eq.3) exit
        end do
+       close(ifn)
 10     continue
        if(i.eq.0.or.i.eq.2) then
          message = "something wrong with format"
@@ -575,6 +599,19 @@ c      format statements
 c      -----------------
 30     FORMAT(180A1)
 20     FORMAT(A180)
+       end
+
+       subroutine compute_default_rmax(rmax,lat)
+       implicit none
+       double precision rmax,lat(3,3)
+c       
+       double precision d(3)
+
+       d(1) = sqrt(SUM(lat(:,1)*lat(:,1)))
+       d(2) = sqrt(SUM(lat(:,2)*lat(:,2)))
+       d(3) = sqrt(SUM(lat(:,3)*lat(:,3)))
+       rmax = 0.5*MINVAL(d)
+       return
        end
 
        subroutine xyz_read_natoms(n,fn_in)
