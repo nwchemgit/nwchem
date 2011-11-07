@@ -230,23 +230,15 @@ c !!! BGJ
      &       RTDB_ERR)
 c !!! BGJ
 c
+c     == check the residual ==
       residual = sqrt(ga_ddot(g_work, g_work))
-c ========= CHECK RESIDUAL ============= START
-      if (ga_nodeid().eq.0) then  ! Check residual
-       write(*,1) residual
- 1     format('residual=',f15.8)
+      if (ga_nodeid().eq.0) then  
+       write(luout,*) 'SCF residual: ', residual
       endif
-c ========= CHECK RESIDUAL ============= END
-      if (residual .gt. 1d-4) then
-         if (ga_nodeid() .eq. 0) then
-            write(luout,*) ' WARNING: SCF residual = ', residual
-            call util_flush(6)
-         endif
-         if(residual .gt.1d-2) then
+      if(residual .gt.1d-2) then
          call ga_sync()
-         call errquit('cphf_solve:the available MOs do not satisfy'//
-     $        ' the SCF equations',0, UNKNOWN_ERR)
-         endif
+         call errquit('cphf_solve2:SCF residual greater than 1d-2',
+     &              0,UNKNOWN_ERR)
       endif
 c
       if (.not. ga_destroy(g_work)) call errquit('cphf_solve:ga?',0,

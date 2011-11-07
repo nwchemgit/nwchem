@@ -14,6 +14,7 @@
 #include "sym.fh"
 #include "util.fh"
 #include "cscf.fh"
+#include "stdio.fh"
 c!!! BGJ
 #include "bgj.fh"
 c!!! BGJ
@@ -213,19 +214,18 @@ c !!! BGJ
      &       RTDB_ERR)
 c !!! BGJ
 c
+c     == check the residual ==
       residual = sqrt(ga_ddot(g_work, g_work))
-      if (residual .gt. 1d-4) then
-         if (ga_nodeid() .eq. 0) then
-            write(6,*) ' SCF residual = ', residual
-            call util_flush(6)
-         endif
+      if (ga_nodeid().eq.0) then
+       write(luout,*) 'SCF residual: ', residual
+      endif
+      if(residual .gt.1d-2) then
          call ga_sync()
-         call errquit('cphf_solve:the available MOs do not satisfy'//
-     $        ' the SCF equations',0, INPUT_ERR)
+         call errquit('cphf_solve:SCF residual greater than 1d-2',
+     &              0,UNKNOWN_ERR)
       endif
 c
       call ga_zero(g_work)      ! Essential to get default initial guess
-c
 c
 c !!! BGJ
       if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
