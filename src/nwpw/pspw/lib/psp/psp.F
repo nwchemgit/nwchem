@@ -140,6 +140,12 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       value = value.and.
      >        MA_alloc_get(mt_int,npsp,'core_ps',core_ps(2),core_ps(1))
       value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'core_ae_prime',
+     >                    core_ae_prime(2),core_ae_prime(1))
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'core_ps_prime',
+     >                     core_ps_prime(2),core_ps_prime(1))
+      value = value.and.
      >        MA_alloc_get(mt_int,npsp,'rgrid',rgrid(2),rgrid(1))
 
 *     **** setup pspspin structure - used for generating antiferromagnetic structures ****
@@ -256,6 +262,8 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
            call psi_data_dealloc(int_mb(dphi_ps(1)+ia-1))
            call psi_data_dealloc(int_mb(core_ae(1)+ia-1))
            call psi_data_dealloc(int_mb(core_ps(1)+ia-1))
+           call psi_data_dealloc(int_mb(core_ae_prime(1)+ia-1))
+           call psi_data_dealloc(int_mb(core_ps_prime(1)+ia-1))
            call psi_data_dealloc(int_mb(rgrid(1)+ia-1))
         end if
       end do
@@ -282,7 +290,11 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
 
 *     **** PAW variables ****
       if (pawexist) then
+         write(*,*) "hera"
          call nwpw_compcharge_end()
+         write(*,*) "herb"
+         call nwpw_xc_end()
+         write(*,*) "herc"
       end if
       value = value.and.MA_free_heap(hartree_matrix(2))
       value = value.and.MA_free_heap(comp_charge_matrix(2))
@@ -306,6 +318,8 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       value = value.and.MA_free_heap(dphi_ps(2))
       value = value.and.MA_free_heap(core_ae(2))
       value = value.and.MA_free_heap(core_ps(2))
+      value = value.and.MA_free_heap(core_ae_prime(2))
+      value = value.and.MA_free_heap(core_ps_prime(2))
       value = value.and.MA_free_heap(rgrid(2))
 
       if (pspspin) then
@@ -1781,7 +1795,9 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                       n1dgrid,n1dbasis,nae,nps,lps,icut,eig_tag,
      >                       phi_ae_tag,dphi_ae_tag,
      >                       phi_ps_tag,dphi_ps_tag,
-     >                       core_ae_tag,core_ps_tag,rgrid_tag,
+     >                       core_ae_tag,core_ps_tag,
+     >                       core_ae_prime_tag,core_ps_prime_tag,
+     >                       rgrid_tag,
      >                       core_kin_energy,
      >                       hartree_tag,comp_charge_tag,comp_pot_tag,
      >                       tmp,tmp2,
@@ -1816,7 +1832,9 @@ c     **** define Gx,Gy and Gz in packed space ****
       real*8  log_amesh,r1,rmax,sigma,zion
       integer n1dgrid,n1dbasis,nae(*),nps(*),lps(*),icut,eig_tag
       integer phi_ae_tag,dphi_ae_tag,phi_ps_tag,dphi_ps_tag
-      integer core_ae_tag,core_ps_tag,rgrid_tag
+      integer core_ae_tag,core_ps_tag
+      integer core_ae_prime_tag,core_ps_prime_tag
+      integer rgrid_tag
       real*8  core_kin_energy
       integer hartree_tag,comp_charge_tag,comp_pot_tag
 
@@ -2030,6 +2048,8 @@ c     **** define Gx,Gy and Gz in packed space ****
         dphi_ps_tag = psi_data_alloc(n1dbasis,n1dgrid)
         core_ae_tag = psi_data_alloc(1,n1dgrid)
         core_ps_tag = psi_data_alloc(1,n1dgrid)
+        core_ae_prime_tag = psi_data_alloc(1,n1dgrid)
+        core_ps_prime_tag = psi_data_alloc(1,n1dgrid)
         rgrid_tag   = psi_data_alloc(1,n1dgrid)
         
         indx = psi_data_get_chnk(eig_tag)
@@ -2078,6 +2098,14 @@ c     **** define Gx,Gy and Gz in packed space ****
         call Parallela_Brdcst_values(com_p,MASTER,n1dgrid,dbl_mb(indx))
 
         indx = psi_data_get_chnk(core_ps_tag)
+        if (taskid_p.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
+        call Parallela_Brdcst_values(com_p,MASTER,n1dgrid,dbl_mb(indx))
+
+        indx = psi_data_get_chnk(core_ae_prime_tag)
+        if (taskid_p.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
+        call Parallela_Brdcst_values(com_p,MASTER,n1dgrid,dbl_mb(indx))
+
+        indx = psi_data_get_chnk(core_ps_prime_tag)
         if (taskid_p.eq.MASTER) call dread(5,dbl_mb(indx),n1dgrid)
         call Parallela_Brdcst_values(com_p,MASTER,n1dgrid,dbl_mb(indx))
 
@@ -2287,6 +2315,8 @@ c     logocal semicore(0:nkatmx)
      >                  int_mb(dphi_ps(1)+ia-1),
      >                  int_mb(core_ae(1)+ia-1),
      >                  int_mb(core_ps(1)+ia-1),
+     >                  int_mb(core_ae_prime(1)+ia-1),
+     >                  int_mb(core_ps_prime(1)+ia-1),
      >                  int_mb(rgrid(1)+ia-1),
      >                  dbl_mb(core_kin(1)+ia-1),
      >                  int_mb(hartree_matrix(1)+ia-1),
@@ -2345,6 +2375,8 @@ c     logocal semicore(0:nkatmx)
                call psi_data_dealloc(int_mb(dphi_ps(1)+ia-1))
                call psi_data_dealloc(int_mb(core_ae(1)+ia-1))
                call psi_data_dealloc(int_mb(core_ps(1)+ia-1))
+               call psi_data_dealloc(int_mb(core_ae_prime(1)+ia-1))
+               call psi_data_dealloc(int_mb(core_ps_prime(1)+ia-1))
                call psi_data_dealloc(int_mb(rgrid(1)+ia-1))
                end if
               end if
@@ -2383,6 +2415,18 @@ c     logocal semicore(0:nkatmx)
      >                             int_mb(m_projector(1)),
      >                             int_mb(b_projector(1)),
      >                             int_mb(comp_charge_matrix(1)))
+
+         call nwpw_xc_init(ion_nion(),npsp,
+     >                     int_mb(nprj(1)),
+     >                     int_mb(n1dbasis(1)),
+     >                     int_mb(n1dgrid(1)),
+     >                     int_mb(psp_type(1)),
+     >                     int_mb(lmax(1)),
+     >                     nmax_max*lmmax_max,
+     >                     int_mb(l_projector(1)),
+     >                     int_mb(m_projector(1)),
+     >                     int_mb(b_projector(1)))
+
       end if
 
 

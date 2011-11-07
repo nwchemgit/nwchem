@@ -763,22 +763,158 @@
       end
 
 
+c*     ***********************************
+c*     *					*
+c*     *	        psp_xc_atom	        *
+c*     *					*
+c*     ***********************************
+c
+c*    This routine computes the paw atomic kinetic energy
+c*
+c      real*8 function psp_xc_atom(ispin,ne,psi1)
+c      implicit none
+c      integer    ispin,ne(2)
+c      complex*16 psi1(*)
+c
+c      psp_xc_atom = 0.0d0
+c      return
+c      end
+
 *     ***********************************
 *     *					*
-*     *	        psp_xc_atom	        *
+*     *	        psp_xc_atom		*
 *     *					*
 *     ***********************************
 
-*    This routine computes the paw atomic kinetic energy
+*    This routine computes the paw atomic xc psp energy
 *
       real*8 function psp_xc_atom(ispin,ne,psi1)
       implicit none
       integer    ispin,ne(2)
       complex*16 psi1(*)
 
-      psp_xc_atom = 0.0d0
-      return
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     *** local variables ***
+      integer npack1,nion
+      integer ii,ia,l,nn
+      integer k,shift,l_prj,nproj,Gijl_indx
+      real*8  omega,scal,scalsqr
+      integer exi(2),sw1(2),sw2(2)
+      logical value,sd_function
+
+
+*     **** external functions ****
+      integer  ion_nion,ion_katm
+      integer  psi_data_get_chnk,psi_data_get_ptr
+      real*8   lattice_omega,nwpw_xc_energy_atom
+      external ion_nion,ion_katm
+      external psi_data_get_chnk,psi_data_get_ptr
+      external lattice_omega,nwpw_xc_energy_atom
+
+
+      nn = ne(1)+ne(2)
+
+*     **** allocate local memory ****
+      nion = ion_nion()
+      call Pack_npack(1,npack1)
+
+      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,nn*nprj_max,'sw2',sw2(2),sw2(1))
+      if (.not.value) 
+     >  call errquit('psp_overlap_orb: out of stack',0,MA_ERR)
+
+      omega = lattice_omega()
+      scal    = 1.0d0/(omega)
+      scalsqr = scal*scal
+
+
+      do ii=1,nion
+        ia    = ion_katm(ii)
+        nproj = int_mb(nprj(1)+ia-1)
+
+        if ((int_mb(psp_type(1)+ia-1).eq.4).and.(nproj.gt.0)) then
+
+*       **** structure factor and local pseudopotential ****
+        call strfac_pack(1,ii,dcpl_mb(exi(1)))
+
+*       **** generate sw1's and projectors ****
+        do l=1,nproj
+
+           shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
+           l_prj = int_mb(l_projector(1)+(l-1) 
+     >                                  + (ia-1)*(nmax_max*lmmax_max))
+           !sd_function = .not.and(l_prj,1)
+#ifdef GCC4
+           k = iand(l_prj,1)
+#else
+           k = and(l_prj,1)
+#endif
+           sd_function = (k.eq.0)
+
+
+*          **** phase factor does not matter therefore ****
+*          **** (-i)^l is the same as (i)^l in the     ****
+*          **** Rayleigh scattering formula            ****
+
+*          *** current function is s or d ****
+           if (sd_function) then
+              call Pack_tc_Mul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
+*          *** current function is p or f ****
+           else
+              call Pack_tc_iMul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
+           end if
+           call Pack_cc_indot(1,nn,
+     >                      psi1,
+     >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                      dbl_mb(sw1(1)+(l-1)*nn))
+
+        end do
+        call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
+
+
+*       **** sw2 = Vxcijl*sw1 ******
+        call nwpw_xc_solve(ii,ia,
+     >     int_mb(n1dgrid(1)+ia-1),
+     >     int_mb(n1dbasis(1)+ia-1),
+     >     dbl_mb(psi_data_get_chnk(int_mb(phi_ae(1)+ia-1))),
+     >     dbl_mb(psi_data_get_chnk(int_mb(phi_ps(1)+ia-1))),
+     >     dbl_mb(psi_data_get_chnk(int_mb(dphi_ae(1)+ia-1))),
+     >     dbl_mb(psi_data_get_chnk(int_mb(dphi_ps(1)+ia-1))),
+     >     dbl_mb(psi_data_get_chnk(int_mb(core_ae(1)+ia-1))),
+     >     dbl_mb(psi_data_get_chnk(int_mb(core_ps(1)+ia-1))),
+     >     dbl_mb(psi_data_get_chnk(int_mb(core_ae_prime(1)+ia-1))),
+     >     dbl_mb(psi_data_get_chnk(int_mb(core_ps_prime(1)+ia-1))),
+     >     dbl_mb(psi_data_get_chnk(int_mb(rgrid(1)+ia-1))),
+     >     dbl_mb(log_amesh(1)+ia-1),
+     >     ispin,ne,int_mb(nprj(1)+ia-1),dbl_mb(sw1(1)),dbl_mb(sw2(1)))
+
+        end if !** nproj>0 **
+      end do !** ii **
+
+      value =           MA_pop_stack(sw2(2))
+      value = value.and.MA_pop_stack(sw1(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not.value) call errquit('psp_xc_atom: popping stack',3,
+     &       MA_ERR)
+
+
+      psp_xc_atom = nwpw_xc_energy_atom()
+      return 
       end
+
+
+
+
 
 
 

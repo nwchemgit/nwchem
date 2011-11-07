@@ -36,16 +36,18 @@
       integer log_amesh(2),r1(2),rmax(2),sigma(2),zion(2)
       integer n1dgrid(2),n1dbasis(2),nae(2),nps(2),lps(2),icut(2),eig(2)
       integer phi_ae(2),dphi_ae(2),phi_ps(2),dphi_ps(2)
-      integer core_ae(2),core_ps(2),rgrid(2),core_kin(2)
+      integer core_ae(2),core_ps(2),core_ae_prime(2),core_ps_prime(2)
+      integer rgrid(2),core_kin(2)
       integer hartree_matrix(2),comp_charge_matrix(2),comp_pot_matrix(2)
       logical pawexist
       common /psp_paw_block/ log_amesh,r1,rmax,sigma,zion,
-     >                       n1dgrid,n1dbasis,nae,nps,lps,icut,eig,
-     >                       phi_ae,dphi_ae,phi_ps,dphi_ps,
-     >                       core_ae,core_ps,rgrid,core_kin,
-     >                       hartree_matrix,
-     >                       comp_charge_matrix,comp_pot_matrix,
-     >                       pawexist
+     >                      n1dgrid,n1dbasis,nae,nps,lps,icut,eig,
+     >                      phi_ae,dphi_ae,phi_ps,dphi_ps,
+     >                      core_ae,core_ps,core_ae_prime,core_ps_prime,
+     >                      rgrid,core_kin,
+     >                      hartree_matrix,
+     >                      comp_charge_matrix,comp_pot_matrix,
+     >                      pawexist
 
 *     **** common block for psp_xc_data ****
       integer paw_xc_nphi
