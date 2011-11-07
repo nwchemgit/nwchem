@@ -1247,13 +1247,20 @@ c     Broadcast status to other nodes
       ok = 0
       goto 10
       end
+c
 c -------------- for g-shift NLMO analysis ------------- END
-       subroutine print_EPRg_version()
-       implicit none
-       write(*,*) "+++++++++++++++++++++++++++++++++++++"
-       write(*,*) "+ EPR-gshift Version 08-31-11 12:00 +"
-       write(*,*) "+ Author: Fredy W. Aquino           +"
-       write(*,*) "+++++++++++++++++++++++++++++++++++++"
-       return
-       end
+      subroutine print_EPRg_version()
+c
+      implicit none
+c
+#include "stdio.fh"
+c
+      write(LuOut,*)
+      call util_print_centered(LuOut,
+     $   'EPR GShift', 23, .true.)
+      write(LuOut,*)
+c
+      return
+      end
+c
 c $Id$

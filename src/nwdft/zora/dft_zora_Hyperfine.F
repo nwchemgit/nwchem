@@ -13,6 +13,7 @@ c Date    : 03-10-11
      &                             ipol, 
      &                             g_densZ4)
        implicit none
+c
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
@@ -1527,15 +1528,18 @@ c---- GA output: g_AtNr
        read_SLCTD_HFine_Atoms = 1
        return
        end   
-
+c
       subroutine print_NMRHypFine_version()
-       implicit none
-       write(*,*) "+++++++++++++++++++++++++++++++++++++"
-       write(*,*) "+ ZORA NMR HypFine (08-31-11 12:00) +"
-       write(*,*) "+ spin-spin coupling constants      +"
-       write(*,*) "+ Author: Fredy W. Aquino           +"
-       write(*,*) "+++++++++++++++++++++++++++++++++++++"
-       return
-       end
+c
+      implicit none
+#include "stdio.fh"
+c
+      write(LuOut,*)
+      call util_print_centered(LuOut,
+     $   'ZORA NMR Hyperfine Spin-Spin Coupling Constants', 23, .true.)
+      write(LuOut,*)
+c
+      return
+      end
 
 c $Id$

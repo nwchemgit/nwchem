@@ -1509,16 +1509,19 @@ c     Broadcast status to other nodes
       ok = 0
       goto 10
       end
-
-
+c
 c -------- routines for shieldings NLMO analysis ---- END
       subroutine print_NMRCS_SRZORA_version()
-       implicit none
-       write(*,*) "+++++++++++++++++++++++++++++++++++"
-       write(*,*) "+ NMR Shieldings (08-31-11 12:00) +"
-       write(*,*) "+ Scalar Relativistic ZORA        +"
-       write(*,*) "+ Author: Fredy W. Aquino         +"
-       write(*,*) "+++++++++++++++++++++++++++++++++++"
-       return
-       end
+c
+      implicit none
+c
+#include "stdio.fh"
+c
+      write(LuOut,*)
+      call util_print_centered(LuOut,
+     $   'Scalar Relativistic ZORA NMR Shielding', 23, .true.)
+      write(LuOut,*)
+c
+      return
+      end
 c $Id$

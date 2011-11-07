@@ -1214,15 +1214,18 @@ c     Broadcast status to other nodes
       end
 c +++++++++++ READ/WRITE EFGZ4 data +++++++++++++ END
 c ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-c=======================================================
-c================ Fredy Aquino's routines ======== END
-c=======================================================
-       subroutine print_EFGZ4_version()
-       implicit none
-       write(*,*) "+++++++++++++++++++++++++++++++++"
-       write(*,*) "+ EFG-Z4 Version 08-31-11 12:00 +"
-       write(*,*) "+ Author: Fredy W. Aquino       +"
-       write(*,*) "+++++++++++++++++++++++++++++++++"
-       return
-       end
+c
+      subroutine print_EFGZ4_version()
+c
+      implicit none
+c
+#include "stdio.fh"
+c
+      write(LuOut,*)
+      call util_print_centered(LuOut,
+     $   'EPR Z4', 23, .true.)
+      write(LuOut,*)
+c
+      return
+      end
 c $Id$
