@@ -32,7 +32,9 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = cgsdv5.F cgmdv5.F cgsd_energy.F bybminimize.F bybminimize2.F pspw_bq_gradient.F
+    USES_BLAS = cgsdv5.F cgmdv5.F cgsd_energy.F bybminimize.F bybminimize2.F pspw_bq_gradient.F \
+            cgminimize.F mmmdv1.F bfgsminimize2.F bfgsminimize3.F md_energy.F \
+            cgminimize2.F cgsd_noit_energy.F bfgsminimize.F 
 
   LIB_DEFINES = 
   LIB_INCLUDES = -I../../nwpwlib/include

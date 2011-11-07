@@ -12,7 +12,7 @@
 
       LIBRARY = libband.a
 
-    USES_BLAS = c_electron.F
+    USES_BLAS = c_electron.F psi_lmbda.f cpsi_H.F
 
   LIB_DEFINES = 
 

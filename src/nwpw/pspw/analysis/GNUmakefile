@@ -18,7 +18,8 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS =  pspw_Lubin_water_analysis.F pspw_atom_analysis.F analysis.F
+    USES_BLAS =  pspw_Lubin_water_analysis.F pspw_atom_analysis.F analysis.F orb_pop_kawai.F orb_pop_aorb.F
+
 
   LIB_DEFINES = 
 

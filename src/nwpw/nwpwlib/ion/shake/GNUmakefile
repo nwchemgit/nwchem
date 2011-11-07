@@ -16,7 +16,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = 
+    USES_BLAS = molecular.F
 
   LIB_DEFINES = 
 

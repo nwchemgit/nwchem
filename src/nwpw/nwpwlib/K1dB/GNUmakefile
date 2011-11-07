@@ -14,7 +14,7 @@ endif
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS =
+    USES_BLAS = K1dB-mpi.F
 
   LIB_DEFINES = 
 

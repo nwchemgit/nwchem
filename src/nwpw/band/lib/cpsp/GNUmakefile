@@ -16,7 +16,8 @@
 
       LIBRARY = libband.a
 
-    USES_BLAS = cpsp.F cpsp_stress.F c_semicore.F
+    USES_BLAS = cpsp.F cpsp_stress.F c_semicore.F cpsp_projector.F c_semicore_force_a.F c_semicore_force_b.F cpsp_relativistic.F
+
 
   LIB_DEFINES = 
 

@@ -15,7 +15,7 @@ endif
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS =
+    USES_BLAS =  CMatrix.F CMatrix-tcgmsg.F CMatrix-mpi.F
 
   LIB_DEFINES = 
 

@@ -12,7 +12,7 @@
 
       LIBRARY = libpaw.a
 
-    USES_BLAS = paw_stress_fd.F
+    USES_BLAS = paw_stress_fd.F paw_update_unitcell.F
                 
 
   LIB_DEFINES =

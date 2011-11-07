@@ -19,7 +19,8 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = 
+    USES_BLAS = v_bwexc_euv.F v_bwexc.F
+
 
   LIB_DEFINES = 
 

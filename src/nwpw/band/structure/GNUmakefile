@@ -12,7 +12,7 @@
 
       LIBRARY = libband.a
 
-    USES_BLAS = band_structure.F band_interpolate_structure.F 
+    USES_BLAS = band_structure.F band_interpolate_structure.F  band_kp_structure.F band_fft_structure.F
                 
 
   LIB_DEFINES =

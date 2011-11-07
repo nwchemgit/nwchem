@@ -13,7 +13,7 @@ endif
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = D3dB-new.F D3dB_pfft.F
+    USES_BLAS = D3dB-new.F D3dB_pfft.F D3dB-mpi.F
   LIB_DEFINES = 
 
 

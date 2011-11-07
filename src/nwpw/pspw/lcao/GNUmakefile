@@ -19,7 +19,7 @@
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = lcao_diis_dn.F lcao_init_dn.F lcao_new_dn.F lcao_new_mix_dn.F lcao_generate_vhxcmatrix.F
+    USES_BLAS = lcao_diis_dn.F lcao_init_dn.F lcao_new_dn.F lcao_new_mix_dn.F lcao_generate_vhxcmatrix.F lcao_diis.F
 
   LIB_DEFINES = 
 

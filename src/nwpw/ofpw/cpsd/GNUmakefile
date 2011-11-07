@@ -10,7 +10,7 @@
 
       LIBRARY = libofpw.a
 
-    USES_BLAS = ofpwsd.F inner_loop_ofpw.F
+    USES_BLAS = ofpwsd.F inner_loop_ofpw.F chi_lmbda.f
 
   LIB_DEFINES =
 

@@ -9,7 +9,7 @@
 
       LIBRARY =	libpaw.a
 
-   USES_BLAS =  paw_pot_hartree.F
+   USES_BLAS =  paw_pot_hartree.F paw_matrix_hartree.F
 
   LIB_INCLUDES = -I../include/
 

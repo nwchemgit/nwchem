@@ -16,7 +16,7 @@ endif
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = 
+    USES_BLAS = Parallel-mpi.F 
 
   LIB_DEFINES = 
 

@@ -38,7 +38,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F cell.F cellgeometry.F nwpw_list.F cpsi_data.F psi_data.F
+    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F cell.F cellgeometry.F nwpw_list.F cpsi_data.F psi_data.F nwpw_diis.F nwpw_kain.F
 
   LIB_DEFINES = 
 

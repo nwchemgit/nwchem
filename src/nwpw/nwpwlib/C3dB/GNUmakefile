@@ -15,7 +15,7 @@ endif
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = C3dB-new.F C3dB_pfft.F
+    USES_BLAS = C3dB-new.F C3dB_pfft.F  C3dB-tcgmsg.F C3dB-mpi.F
 
   LIB_DEFINES = 
 

@@ -10,7 +10,7 @@
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = 
+    USES_BLAS = metadynamics.F
 
   LIB_DEFINES = 
 
