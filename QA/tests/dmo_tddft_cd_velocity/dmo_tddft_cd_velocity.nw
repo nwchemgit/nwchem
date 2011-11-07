@@ -1,0 +1,52 @@
+echo
+
+title "dmo_tddft_cd_velocity"
+
+memory 800 mb
+#memory global 73 mb stack 20 mb heap 5 mb
+
+start dmo_tddft_cd_velocity
+
+geometry units angstrom
+symmetry c1
+C       -1.0434290        0.6153280       -0.0615190
+C        0.1515990       -0.0360920        0.4888630
+H        0.1531120       -0.2526560        1.5570100
+O       -0.8257760       -0.7892730       -0.2415100
+H       -0.9522010        1.2186250       -0.9624750
+H       -1.8701630        0.8793260        0.5941530
+C        1.5090730        0.0997910       -0.1483000
+H        2.0832840        0.9000390        0.3286960
+H        1.4131530        0.3248980       -1.2127570
+H        2.0755690       -0.8302050       -0.0468100
+end
+
+basis
+  * library sto-3g
+end
+
+charge 0
+
+scf
+  semidirect filesize 0
+  maxiter 100
+end
+
+set int:cando_txs f
+dft
+  convergence energy 1d-8 nolevelshifting
+  xc b3lyp
+  iterations 100
+  direct
+  print medium
+end
+
+tddft
+  rpa
+  singlet
+  notriplet
+  nroots 1
+  cdspectrum
+  velocity
+end
+task tddft energy
