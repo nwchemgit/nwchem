@@ -1,3 +1,5 @@
+c $Id$
+
        program pair_correlation
        implicit none
        integer i,l
@@ -1024,4 +1026,3 @@ c      if you reach this you are in trouble
 
       end subroutine
 
-c $Id$
