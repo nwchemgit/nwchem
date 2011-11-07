@@ -155,6 +155,12 @@ cleanDEP:
 	@/bin/rm -f dependencies
 
 sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
+ifeq ($@,64_to_32)
+	-$(RM) 32_to_64
+endif
+ifeq ($@,32_to_64)
+	-$(RM) 64_to_32
+endif
 	@$(MAKE) directories
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
@@ -165,12 +171,6 @@ endif
 ifeq ($(TARGET),CRAY-T3D)
 	$(MAKE) cleanDEP
 endif        
-ifeq ($@,64_to_32)
-	-$(RM) 32_to_64
-endif
-ifeq ($@,32_to_64)
-	-$(RM) 64_to_32
-endif
 	touch $@
 #
 # This rule to make necessary subdirectories in lib and bin (normally)
