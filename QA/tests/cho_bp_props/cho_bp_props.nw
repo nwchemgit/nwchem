@@ -1,0 +1,56 @@
+
+echo
+start cho_bp_props
+title cho_bp_props
+
+memory total 800 stack 400 heap 50 global 350 mb
+
+geometry noautoz units angstrom nocenter
+symmetry c1
+  C    +10.00000000    +20.00000000    +30.00000000
+  O    +11.18337200    +20.00000000    +30.00000000
+  H     +9.36848179    +20.94387462    +30.00000000
+end
+
+basis
+"*" library 6-311G**
+end
+
+charge 0
+
+property
+ efieldgradZ4 1 3
+ shielding 2 1 2
+ hyperfine 2 1 3
+ gshift
+# nbofile 2
+# gshiftfile
+# hypfile
+# shldfile
+# efgfile
+end
+
+relativistic
+  zora on
+  zora:cutoff_NMR 1d-8
+  zora:cutoff 1d-30
+# zora:do_NonRel
+# zora:do_prntNMRCS
+# zora:not_zora_scale
+end
+
+set dft:tol_rho 1d-30
+set int:acc_std 1d-32
+set int:cando_txs f
+set dft:job_grid_acc 1d-20
+
+dft
+odft
+mult 2
+grid xfine
+direct
+xc becke88 perdew86
+convergence energy 1e-8 diis 80 ncyds 80 damp 0
+end
+
+task dft property
