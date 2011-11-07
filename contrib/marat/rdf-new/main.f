@@ -3,9 +3,8 @@
        integer i,l
        double precision lat(3,3),latv(3)
        double precision rmax
-       integer i1,nb
+       integer i1,j1,nb
        character*5 tvr
-       character*255 infile
 c       character*5 atag
        logical ofile
        CHARACTER(LEN=11) :: anumber = "0123456789."
@@ -13,6 +12,8 @@ c       character*5 atag
        external is_integer
        logical is_number
        external is_number
+       integer  my_command_argument_count
+       external my_command_argument_count
        character*(180) buffer
        character*(180) message
        integer istatus
@@ -33,6 +34,7 @@ c       character*5 atag
        integer nfrm
        integer nu,nvm,nva,nv,nprec
 c      allocatable arrays
+       integer nc
        logical, dimension(:), allocatable :: oc1,oc2
        double precision, dimension(:,:), allocatable :: c
        double precision, dimension(:,:), allocatable :: c1
@@ -42,9 +44,10 @@ c      allocatable arrays
        character*5, dimension(:), allocatable :: atag
        character*5 , dimension(:), allocatable :: tva,tua,tur
        integer, dimension(:), allocatable :: iur
+       character*180 , dimension(:), allocatable :: infile
 c
 c      --------------------------------------------      
-c      beging parsing command line arguments if any
+c      set some default values
 c      --------------------------------------------      
        nfrm = 0
        aformat = " "
@@ -63,17 +66,27 @@ c      --------------------------------------------
        file_out = " "
        rmax = -1
        nb = -1
+c
+c      ------------------------
+c      allocate input file array
+c      ------------------------
+       nc = my_command_argument_count()
+       write(*,*) "nc=",nc
+c
+c      --------------------------------------------      
+c      beging parsing command line arguments if any
+c      --------------------------------------------      
        i = 0
 16     continue
        i = i+1
-       call get_command_argument(i,buffer,l,istatus)
+       call my_get_command_argument(i,buffer,l,istatus)
        if(istatus.ne.0) goto 18
 c       write(*,*) "argument ",i,buffer
        if(buffer.eq."-lattice") then
 c          write(*,*) "reading lattice"
           do k=1,3
             i = i+1
-            call get_command_argument(i,buffer,l,istatus)
+            call my_get_command_argument(i,buffer,l,istatus)
             if(istatus.ne.0) goto 18
 c            write(*,*) "argument ",i,buffer,is_number(buffer)
             if(is_number(buffer)) then
@@ -107,7 +120,7 @@ c          write(*,1000)
 c          go to 14
        else if(buffer.eq."-atom1") then
           i = i+1
-          call get_command_argument(i,buffer,l,istatus)
+          call my_get_command_argument(i,buffer,l,istatus)
           if(istatus.ne.0) goto 18
           if(is_integer(buffer)) then
 c            message = "Only atom tags are supported now"
@@ -119,7 +132,7 @@ c            goto 911
           go to 16
        else if(buffer.eq."-atom2") then
           i = i+1
-          call get_command_argument(i,buffer,l,istatus)
+          call my_get_command_argument(i,buffer,l,istatus)
           if(istatus.ne.0) goto 18
           if(is_number(buffer)) then
 c            message = "Only atom tags are supported now"
@@ -131,7 +144,7 @@ c            goto 911
           go to 16
        else if(buffer.eq."-rmax") then
           i = i+1
-          call get_command_argument(i,buffer,l,istatus)
+          call my_get_command_argument(i,buffer,l,istatus)
           if(istatus.ne.0) goto 18
           if(is_number(buffer)) then
             read(buffer,*) rmax
@@ -142,7 +155,7 @@ c            goto 911
           go to 16
         else if(buffer.eq."-nframes") then
           i = i+1
-          call get_command_argument(i,buffer,l,istatus)
+          call my_get_command_argument(i,buffer,l,istatus)
           if(istatus.ne.0) goto 18
           if(is_integer(buffer)) then
             read(buffer,*) nfrm
@@ -153,7 +166,7 @@ c            goto 911
           go to 16
         else if(buffer.eq."-nbins") then
           i = i+1
-          call get_command_argument(i,buffer,l,istatus)
+          call my_get_command_argument(i,buffer,l,istatus)
           if(istatus.ne.0) goto 18
           if(is_integer(buffer)) then
             read(buffer,*) nb
@@ -175,15 +188,24 @@ c      ---------------------------
 c      end of command line parsing
 c      ---------------------------      
 18     continue
+       if(overb) then
+         write(*,*) "Maximum Distance:",rmax 
+         write(*,*) "Lattice vectors",(latv(i),i=1,3)
+         write(*,*) "Number of bins:",nb
+       end if
+       stop
+c       
        rmax = 4.0
        nb = 100
        atom1_tag = " "
-       atom1_id = 1
+       atom1_id = 3910
        atom2_tag = "O"
        latv = 10.0014453
        file_in = "test.xyz"
+       file_in = "m.trj"
        file_out = "test.out"
        file_lattice = "lat.dat"
+c       nfrm = 2
 c      ---------------------------      
 c      start checks/balances
 c      ---------------------------      
@@ -280,20 +302,34 @@ c      figure out format for trajectory file
        allocate(atag(n))
        allocate(oc1(n))
        allocate(oc2(n))
+c       
+       if(aformat.eq."trj") then
+         i=0
+         do i1=1,nvm
+         do j1=1,nva
+           i=i+1
+           atag(i) = tva(j1)
+         end do
+         end do
+         do i1=1,nu
+           i=i+1
+           atag(i) = tua(i1)
+         end do
+       end if
 c      loop over frames
        nf = 0
        gr = 0
        do
          if(aformat.eq."trj") then
-           call trj_read_coords(fn_in,nv,nu,c(nu+1,:),c,ok)
+           call trj_read(fn_in,n,c,lat,ok)
          else if(aformat.eq."xyz")  then
            call xyz_read(n,c,atag,fn_in)
            ok=n.ne.0
          end if
-c         do i=1,n
-c           write(88,*) i,(c(i,k),k=1,3)
-c         end do
-c         stop
+C         do i=1,n
+C           write(88,*) i,atag(i),(c(k,i),k=1,3)
+C         end do
+C         stop
          if(.not.ok) exit
          write(*,*) "number of atoms", n
          oc1=.false.
@@ -334,7 +370,6 @@ c      average RDF over the frames
        end do
        stop
 
-       return
 911    continue       
 c      if you reach this you are in trouble
        write(*,*) "Emergency STOP"
@@ -342,14 +377,13 @@ c      if you reach this you are in trouble
        stop
        end program
 
-      subroutine trj_read_coords(fn,nv,nu,cv,cu,ok)
+      subroutine trj_read(fn,n,c,lat,ok)
       implicit none
       integer, intent(in)    :: fn  
-      integer, intent(in)   :: nv
-      integer, intent(in)   :: nu
+      integer, intent(in)   :: n
       logical, intent(out)  :: ok
-      double precision, intent(out)   :: cv(3,nv)
-      double precision, intent(out)   :: cu(3,nu)
+      double precision, intent(out)   :: c(3,n)
+      double precision, intent(out)   :: lat(3,3)
 c      
       character*80 card
       character*80 message
@@ -367,31 +401,37 @@ c     look for the start of the fame record
 c     -------------------------------------
   100 continue
       read(fn,1000,end=11,err=911) card
-c      write(*,*) card
+      write(*,*) card
  1000 format(a)
       if(card(1:5).ne.'frame') goto 100
 c
-c     skip five lines here
+c     skip one lines here
 c     --------------------
-      do i=1,5
+      read(fn,1000,err=911,end=911) card
+      write(*,*) card
+c     read lattice
+      message = "reading lattice"
+      do i=1,3
         read(fn,1000,err=911,end=911) card
-      end do
-      do i=1,nv
-        read(fn,1000,err=911,end=911) card
-        i0 = 1
+      write(*,*) card
+        i0=1
         do k=1,3
+          message = message(1:len_trim(message)+1)//token
           call get_next_token(i0,card,sep,token,ostatus)
-          read(token,*,ERR=911,END=911) cv(k,i)
+          read(token,*,ERR=911,END=911) lat(i,k)
         end do
       end do
-      do i=1,nu
+      lat = lat*10.0d0
+      read(fn,1000,err=911,end=911) card
+      do i=1,n
         read(fn,1000,err=911,end=911) card
-        i0 = 1
+        i0=1
         do k=1,3
           call get_next_token(i0,card,sep,token,ostatus)
-          read(token,*,ERR=911,END=911) cu(k,i)
+          read(token,*,ERR=911,END=911) c(k,i)
         end do
       end do
+      c = c*10.0d0
       ok = .true.
 11    continue
       return
@@ -834,6 +874,14 @@ c
       is_number = verify(string(i:l), anumber).eq.0
       end function
 
+      function my_command_argument_count()
+      implicit none
+      integer my_command_argument_count
+c
+      my_command_argument_count = iargc()
+c      my_command_argument_count = command_argument_count() 
+      end function
+
       function is_integer(string)
       implicit none
       character*(*) string
@@ -851,6 +899,19 @@ c
       is_integer = verify(string(i:l), anumber).eq.0
       end function
 
+      subroutine my_get_command_argument(i,buffer,l,istatus)
+      implicit none
+      integer i
+      integer l
+      character*(*) buffer
+      integer istatus
+c
+      istatus = 0
+      l = 0
+      call getarg(i,buffer)
+      if(buffer.eq." ") istatus = 1
+c      call get_command_argument(i,buffer,l,istatus)
+      end subroutine
       subroutine trj_read_solvent_specs(fn,nva,tvr,tva)
       implicit none
       integer, intent(in)    :: fn  
