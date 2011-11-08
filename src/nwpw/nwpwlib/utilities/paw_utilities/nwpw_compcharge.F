@@ -328,7 +328,8 @@
       external lattice_omega
 
 
-      call dcopy(ispin*nion*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)),1)
+      indx = (ii-1)*2*lm_size_max
+      call dcopy(2*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)+indx),1)
       n1(1) = 1
       n1(2) = ne(1)+1
       n2(1) = ne(1)
@@ -346,7 +347,7 @@
             do n=n1(ms),n2(ms)
                w = w + sw1(n,iprj)*sw1(n,jprj)
             end do
-            indx = (ms-1)*nion*lm_size_max+(ii-1)*lm_size_max + lm
+            indx = (ii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
             dbl_mb(Qlm(1)+indx) = dbl_mb(Qlm(1)+indx) + coeff*w
          end do
       end do
@@ -469,7 +470,8 @@ c      end
          lm = 0
          do l=0,int_mb(mult_l(1)+ia-1)
             do m=-l,l
-               indx = (ms-1)*nion*lm_size_max + (ii-1)*lm_size_max + lm 
+               
+               indx = (ii-1)*2*lm_size_max+(ms-1)*lm_size_max + lm
                q = dbl_mb(Qlm(1)+indx)
                if (mod(l,2).eq.0) then
                   call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
