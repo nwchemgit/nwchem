@@ -172,6 +172,9 @@ c      --------------------------------------------
             goto 911
           end if
           go to 16
+       else if(buffer(1:1).eq."-") then
+          message = "Unknown keyword: "//trim(buffer)
+          goto 911
        else 
           nfil = nfil+1
           infile(nfil) = buffer
