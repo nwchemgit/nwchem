@@ -194,12 +194,12 @@
 
                   do j=1,nprj(ia)
                      lj = l_prj(j,ia)
-                     mj = l_prj(j,ia)
+                     mj = m_prj(j,ia)
                      bj = b_prj(j,ia)
 
                      do i=1,nprj(ia)
                         li = l_prj(i,ia)
-                        mi = l_prj(i,ia)
+                        mi = m_prj(i,ia)
                         bi = b_prj(i,ia)
                         taunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
      >                       *dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
@@ -242,12 +242,12 @@
 
                   do j=1,nprj(ia)
                      lj = l_prj(j,ia)
-                     mj = l_prj(j,ia)
+                     mj = m_prj(j,ia)
                      bj = b_prj(j,ia)
 
                      do i=1,nprj(ia)
                         li = l_prj(i,ia)
-                        mi = l_prj(i,ia)
+                        mi = m_prj(i,ia)
                         bi = b_prj(i,ia)
                         taunt = nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
      >                       *dbl_mb(comp_indx+(bi-1)+(bj-1)*nbasis(ia))
@@ -327,7 +327,8 @@
       real*8   lattice_omega
       external lattice_omega
 
-      call dcopy(ispin*nion*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)+indx),1)
+
+      call dcopy(ispin*nion*lm_size_max,0.0d0,0,dbl_mb(Qlm(1)),1)
       n1(1) = 1
       n1(2) = ne(1)+1
       n2(1) = ne(1)
@@ -349,7 +350,6 @@
             dbl_mb(Qlm(1)+indx) = dbl_mb(Qlm(1)+indx) + coeff*w
          end do
       end do
-
 
       return
       end 

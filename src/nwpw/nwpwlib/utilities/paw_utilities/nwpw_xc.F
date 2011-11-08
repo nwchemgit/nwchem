@@ -228,11 +228,9 @@ c       **** define derivative wrt to phi ****
 *     *** temp arrays ***
       nsize = 2*n1dgrid_max
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,nsize,"rho_ae",
-     >                  rho_ae(2),rho_ae(1))
+     >     MA_alloc_get(mt_dbl,nsize,"rho_ae",rho_ae(2),rho_ae(1))
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,nsize,"rho_ps",
-     >                  rho_ps(2),rho_ps(1))
+     >     MA_alloc_get(mt_dbl,nsize,"rho_ps",rho_ps(2),rho_ps(1))
       
 *     **** allocate gradient's and agr's ****
       if (gga.ge.10) then
@@ -277,8 +275,7 @@ c       **** define derivative wrt to phi ****
      >     MA_alloc_get(mt_dbl,nsize,"xc_temp",
      >                   xc_temp(2),xc_temp(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,
-     >                  "xc_temp2",
+     >     MA_alloc_get(mt_dbl,nsize,"xc_temp2",
      >                  xc_temp2(2),xc_temp2(1))
 
 
@@ -453,6 +450,7 @@ c      end if
 #include "errquit.fh"
 #include "nwpw_xc.fh"
 
+      logical value
       integer i,j,np,i_tlm,i_tlm1,lmax2,nsize,shift,ig
       integer i_t,i_p
       real*8 exc_tmp
@@ -518,7 +516,7 @@ c      real*8 tlm
         call dcopy(nsize,0.0d0,0,dbl_mb(exc_ae(1)),1)
         call dcopy(nsize,0.0d0,0,dbl_mb(exc_ps(1)),1)
 
-        write(*,*) "HERA"
+        write(*,*) "HERA1"
         
 *       *** find rholm multipole expansion on spherical grid ***          
         shift = int_mb(shift_rholm(1)+ia-1)
@@ -535,7 +533,7 @@ c      real*8 tlm
      >                               dbl_mb(paw_rho2_ae(1)),
      >                               dbl_mb(paw_rho2_ps(1)))
 
-        write(*,*) "HERB"
+        write(*,*) "HERB",dbl_mb(paw_xc_tlm(1)+i_tlm),i_tlm,lmax2
 
 *       *** generate atomic densities on spherical grid ***          
         call nwpw_xc_gen_atomic_densities(n1dgrid,lmax2,ispin,
@@ -555,19 +553,31 @@ c      real*8 tlm
 *       ***************************************************
 
         write(*,*) "HERC"
+        value = MA_verify_allocator_stuff()
 
 *       **** LDA functionals on spherical grid ****
         if (gga.lt.10) then
 
            write(*,*) "n1dgrid,ispin,=",n1dgrid,ispin,n1dgrid_max
+           write(*,*) "rhoae=",dbl_mb(rho_ae(1)+2725),
+     >                         dbl_mb(rho_ae(1)+2726+2725)
+           write(*,*) "vxcae=",dbl_mb(vxc_ae(1)+2725),
+     >                         dbl_mb(vxc_ae(1)+2726+2725)
+           write(*,*) "excae=",dbl_mb(exc_ae(1)+2725),
+     >                         dbl_mb(exc_ae(1)+2726+2725)
+           write(*,*) "xctem=",dbl_mb(xc_temp(1)+2725),
+     >                         dbl_mb(xc_temp(1)+2726+2725)
+
+           write(*,*) "rhoptr=",rho_ae
+           
 *          **** LDA functionals of ae and ps atomic densities ****
-           call vxc(n1dgrid,ispin,
+           call nwpw_vosko(n1dgrid,n1dgrid,ispin,
      >              dbl_mb(rho_ae(1)),        
-     >              dbl_mb(vxc_ae(1)),        
      >              dbl_mb(exc_ae(1)),        
+     >              dbl_mb(vxc_ae(1)),        
      >              dbl_mb(xc_temp(1)))       
         write(*,*) "HERCC"
-           call vxc(n1dgrid,ispin,
+           call nwpw_vosko(n1dgrid,n1dgrid,ispin,
      >              dbl_mb(rho_ps(1)),        
      >              dbl_mb(vxc_ps(1)),        
      >              dbl_mb(exc_ps(1)),        
@@ -917,7 +927,7 @@ c      end if
 *     *          nwpw_xc_gen_sphere_rho        *
 *     *                                        *
 *     ******************************************
-      subroutine nwpw_xc_gen_sphere_rho(lmax2,ng,rholm,Tlm,rho)
+      subroutine nwpw_xc_gen_sphere_rho(ng,lmax2,rholm,Tlm,rho)
       implicit none
       integer lmax2,ng
       real*8     rholm(ng,lmax2)
@@ -927,7 +937,7 @@ c      end if
       integer    lm,ig
 
       do lm=1,lmax2
-         do ig=1,ic
+         do ig=1,ng
            rho(ig) = rho(ig) + rholm(ig,lm)*Tlm(lm)
          end do
       end do
@@ -1047,26 +1057,26 @@ c      end if
 *     *             nwpw_xc_gen_atomic_densities             *
 *     *                                                      *
 *     ********************************************************
-      subroutine nwpw_xc_gen_atomic_densities(ic,lmax2,ispin,
+      subroutine nwpw_xc_gen_atomic_densities(ng,lmax2,ispin,
      >                                 rholm,
      >                                 tlm,
      >                                 rhocore,
      >                                 rho)
       implicit none
-      integer ic,lmax2,ispin
-      real*8 rholm(ic,lmax2,ispin)
+      integer ng,lmax2,ispin
+      real*8 rholm(ng,lmax2,ispin)
       real*8 tlm(lmax2)
-      real*8 rhocore(ic)
-      real*8 rho(ic,ispin)
+      real*8 rhocore(ng)
+      real*8 rho(ng,ispin)
 
       integer ms 
 
       do ms=1,ispin
-         call nwpw_xc_gen_sphere_rho(lmax2,ic,
+         call nwpw_xc_gen_sphere_rho(ng,lmax2,
      >                              rholm(1,1,ms),
      >                              tlm,
      >                              rho(1,ms))
-         call daxpy(ic,0.5d0,rhocore,1,rho(1,ms),1)
+         call daxpy(ng,0.5d0,rhocore,1,rho(1,ms),1)
       end do
 
       return
@@ -1105,7 +1115,7 @@ c      end if
       do ms=1,ispin
 
 *        *** find [d/dr paw_rho_ae] on spherical grid ***
-         call nwpw_xc_gen_sphere_rho(lmax2,ic,
+         call nwpw_xc_gen_sphere_rho(ic,lmax2,
      >                              rholm_prime(1,1,ms),
      >                              tlm,
      >                              rho_prime(1,1,ms))
