@@ -126,96 +126,46 @@ c     ========================
 c     Determine the block size
 c     ========================
 c
-      size = dfloat(available)
-      size = size / dfloat(nbf*(nbf+1)/2)
-      size = size / 2.0d0
-      size = dsqrt(size)
-      isize = int(size)
+c     previous estimation scheme led to huge tilesies in some cases
+c     and users encountered segfaults
+c     these estimates are what Jeff and Karol recommend anyways
+c
+      isize = 36
       if ((model.eq."ccd").or.(model.eq."lccd").or.(model.eq."cis")
      1.or.(model.eq."ccsd").or.(model.eq."lccsd")
      2.or.(model.eq."qcisd").or.(model.eq."cisd")
      4.or.(model.eq."mbpt2").or.(model.eq."mbpt3")
      5.or.(model.eq."ccsd_act")) then
-        size = dfloat(available)
-        size = size / 6.0d0
-        size = dsqrt(dsqrt(size))
-        isize = min(isize,int(size))
-c      else if (model.eq."lccd") then
-c        size = dfloat(available)
-c        size = size / 6.0d0
-c        size = dsqrt(dsqrt(size))
-c        isize = min(isize,int(size))
-c      else if (model.eq."ccsd") then
-c        size = dfloat(available)
-c        size = size / 6.0d0
-c        size = dsqrt(dsqrt(size))
-c        isize = min(isize,int(size))
-c      else if (model.eq."lccsd") then
-c        size = dfloat(available)
-c        size = size / 6.0d0
-c        size = dsqrt(dsqrt(size))
-c        isize = min(isize,int(size))
-c      else if (model.eq."qcisd") then
-c        size = dfloat(available)
-c        size = size / 6.0d0
-c        size = dsqrt(dsqrt(size))
-c        isize = min(isize,int(size))
-c      else if (model.eq."cis") then
-c        size = dfloat(available)
-c        size = size / 6.0d0
-c        size = dsqrt(dsqrt(size))
-c        isize = min(isize,int(size))
-c      else if (model.eq."cisd") then
-c        size = dfloat(available)
-c        size = size / 6.0d0
-c        size = dsqrt(dsqrt(size))
-c        isize = min(isize,int(size))
-c      else if (model.eq."mbpt2") then
-c        size = dfloat(available)
-c        size = size / 6.0d0
-c        size = dsqrt(dsqrt(size))
-c        isize = min(isize,int(size))
-c      else if (model.eq."mbpt3") then
-c        size = dfloat(available)
-c        size = size / 6.0d0
-c        size = dsqrt(dsqrt(size))
-c        isize = min(isize,int(size))
+        isize = 36
+        if (rtdb_cget(rtdb,'tce:perturbative',1,perturbative)) then
+          if (perturbative.eq.'(t)') isize = 20
+          if (perturbative.eq.'[t]') isize = 20
+          if (perturbative.eq.'lambda(t)') isize = 20
+          if (perturbative.eq.'cr_(t)') isize = 20
+          if (perturbative.eq.'cr_[t]') isize = 20
+          if (perturbative.eq.'creom_(t)') isize = 20
+          if (perturbative.eq.'emb1') isize = 20
+          if (perturbative.eq.'emb2') isize = 20
+          if (perturbative.eq.'2_t') isize = 20
+          if (perturbative.eq.'2_tq') isize = 15
+          if (perturbative.eq.'2_q') isize = 15
+          if (perturbative.eq.'lr_(t)') isize = 20
+          if (perturbative.eq.'lr_(tq1)') isize = 15
+          if (perturbative.eq.'lr_(tq1p)') isize = 15
+        endif
       else if (model.eq."ccsdta") then
-        size = dfloat(available)
-        size = size / 6.0d0
-        size = size ** (1.0d0/6.0d0)
-        isize = min(isize,int(size))
+        isize = 20
       elseif ((model.eq."ccsdt").or.(model.eq."cisdt")) then
-        size = dfloat(available)
-        size = size / 6.0d0
-        size = size ** (1.0d0/6.0d0)
-        isize = min(isize,int(size))
-c      else if (model.eq."cisdt") then
-c        size = dfloat(available)
-c        size = size / 6.0d0
-c        size = size ** (1.0d0/6.0d0)
-c        isize = min(isize,int(size))
+        isize = 20
       elseif ((model.eq."ccsdtq").or.(model.eq."cisdtq")
      1   .or.(model.eq."mbpt4")) then
-        size = dfloat(available)
-        size = size / 6.0d0
-        size = size ** (1.0d0/8.0d0)
-        isize = min(isize,int(size))
-c      else if (model.eq."cisdtq") then
-c        size = dfloat(available)
-c        size = size / 6.0d0
-c        size = size ** (1.0d0/8.0d0)
-c        isize = min(isize,int(size))
-c      else if (model.eq."mbpt4") then
-c        size = dfloat(available)
-c        size = size / 6.0d0
-c        size = size ** (1.0d0/8.0d0)
-c        isize = min(isize,int(size))
+        isize = 12
+c       special case of mbpt4sdq(t) can use CCSD(T)-like tilesizes
+        if (rtdb_cget(rtdb,'tce:perturbative',1,perturbative)) then
+          if (perturbative.eq.'(t)') isize = 20
+        endif
       else
-        size = dfloat(available)
-        size = size / 6.0d0
-        size = dsqrt(dsqrt(size))
-        isize = min(isize,int(size))
+        isize = 36
         if (nodezero) then
           write(LuOut,*) 
           write(LuOut,*) 
