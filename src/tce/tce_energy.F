@@ -205,6 +205,7 @@ c     CC Lambda equation
 c
 #if !defined(NEWDIPOLE)
       integer g_aod1(3)         ! GA handle for AO dipole matrices
+      integer g_aoq1(6)         ! GA handle for AO quadrupole matrices
 #endif
       integer d_d1(3)           ! MO dipole integral file
       integer l_d1_offset(3)    ! Offset for d1 integral file
@@ -764,6 +765,10 @@ c
         wall = - util_wallsec()
         call tce_nud1(dipole_scf)
         call tce_aod1(rtdb,g_aod1,dipole_scf)
+        quadrupole_scf = 0.0 ! don't need this
+        if (nodezero) write(LuOut,*) 'before tce_aoq1'
+        call tce_aoq1(rtdb,g_aoq1,quadrupole_scf)
+        if (nodezero) write(LuOut,*) 'after tce_aoq1'
         cpu = cpu + util_cpusec()
         wall = wall + util_wallsec()
         dipole_scf_t = dsqrt( dipole_scf(1)*dipole_scf(1) +
@@ -821,6 +826,31 @@ c
         endif
         do axis = 1, 3
           call gatoeaf(d_d1(axis))
+        enddo
+        do axis = 1, 6
+          irrep_d=sym_abelian_axis(geom,axis+3)
+          call sym_irrepname(geom,irrep_d+1,irrepname)
+          if (nodezero.and.util_print('moq1',print_default)) then
+            write(LuOut,*)
+            write(LuOut,9440) axisname(axis),irrepname
+          endif
+          if (nodezero) write(LuOut,*) 'before tce_mod1_offset_new'
+          call tce_mod1_offset_new(l_q1_offset(axis),k_q1_offset(axis),
+     1      size_q1(axis),irrep_d)
+          if (nodezero) write(LuOut,*) 'after tce_mod1_offset_new'
+          call tce_filename(dfilename(axis),filename)
+          call createfile(filename,d_q1(axis),size_q1(axis))
+          if (nodezero.and.util_print('moq1',print_default)) then
+            write(LuOut,*)
+            write(LuOut,9000) 'quadrupole',size_q1(axis)
+            write(LuOut,9010) 'quadrupole',filename(1:20)
+          endif
+        enddo
+        if (nodezero) write(LuOut,*) 'before tce_mom1'
+        call tce_mom1(g_aoq1,d_q1,6)
+        if (nodezero) write(LuOut,*) 'after tce_mom1'
+        do axis = 1, 6
+          call gatoeaf(d_q1(axis))
         enddo
 #endif
 c
@@ -2537,15 +2567,15 @@ c === jaguar ===
           end if
 c ==============
 #ifdef MIRROR_SING
-        call ccsd_energy_noloc(d_e,d_f1,d_v2,d_t1,d_t2,
-     1       k_e_offset,k_f1_offset,k_v2_offset,
-     2       k_t1_offset,k_t2_offset,
-     3       size_t1,size_t2,ref,corr)
+          call ccsd_energy_noloc(d_e,d_f1,d_v2,d_t1,d_t2,
+     1         k_e_offset,k_f1_offset,k_v2_offset,
+     2         k_t1_offset,k_t2_offset,
+     3         size_t1,size_t2,ref,corr)
 #else
-        call ccsd_energy_loc(d_e,d_f1,d_v2,d_t1,d_t2,
-     1       k_e_offset,k_f1_offset,k_v2_offset,
-     2       k_t1_offset,k_t2_offset,
-     3       size_t1,size_t2,ref,corr)
+          call ccsd_energy_loc(d_e,d_f1,d_v2,d_t1,d_t2,
+     1         k_e_offset,k_f1_offset,k_v2_offset,
+     2         k_t1_offset,k_t2_offset,
+     3         size_t1,size_t2,ref,corr)
 #endif
 c === jaguar ===
          if(write_ta)  then
@@ -2558,6 +2588,7 @@ c === jaguar ===
           call ga_sync()
          end if
 c ==============
+        endif
   320    continue
 c -------------
 c CCSD    left
@@ -2588,6 +2619,14 @@ c CCSD-IR
 c -------------
  2234   continue
         if (imagresp) then
+          if(nodezero) write(6,*) 'YOU WILL GET WRONG RESULTS'
+            call ccsd_imaginary(d_a0,d_f1,d_v2,d_d1,
+     1           d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
+     2           k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
+     4           k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
+     6           k_tr1_offset,k_tr2_offset,
+     7           size_tr1,size_tr2)
+          call errquit('MANUAL STOP',0,CALC_ERR)
           if(nodezero) then
             write(6,*) 'inumfreq = ',inumfreq
             write(6,*) 'Casimir-Polder integration points are:'
@@ -2675,7 +2714,7 @@ c
               cpu=-util_cpusec()
               wall=-util_wallsec()
               if (nodezero.and.(iter.eq.1))
-     &          write(LuOut,9400) "CCSD-IR (real component)"
+     &        write(LuOut,9400) "CCSD-IR (real component) - squared"
 c
               call tce_filename(rr1filename(axis),filename)
               call createfile(filename,d_rr1(axis),size_tr1(axis))
@@ -2899,7 +2938,7 @@ c
               cpu=-util_cpusec()
               wall=-util_wallsec()
               if (nodezero.and.(iter.eq.1))
-     &          write(LuOut,9400) "CCSD-IR (imaginary component)"
+     &        write(LuOut,9400) "CCSD-IR (imaginary component) - linear"
 c
               call tce_filename(rr1filename(axis),filename)
               call createfile(filename,d_rr1(axis),size_tr1(axis))
@@ -3224,7 +3263,7 @@ c -------------
 c CCSD-LR
 c -------------
         if (lineresp) then
-          call ccsd_lr_alpha(d_d0,d_a0,d_f1,d_v2,d_d1,
+          call ccsd_lr_alpha(rtdb,d_d0,d_a0,d_f1,d_v2,d_d1,
      1         d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
      2         k_d0_offset,k_a0_offset,
      3         k_f1_offset,k_v2_offset,k_d1_offset,
@@ -3237,7 +3276,7 @@ c -------------
 c CCSD-YR
 c -------------
         if (leftresp) then
-          call ccsd_qr_beta(d_a0,d_b0,d_f1,d_v2,d_d1,
+          call ccsd_qr_beta(rtdb,d_a0,d_b0,d_f1,d_v2,d_d1,
      1         d_t1,d_t2,d_lambda1,d_lambda2,d_yr1,d_yr2,d_tr1,d_tr2,
      2         k_a0_offset,k_b0_offset,
      3         k_f1_offset,k_v2_offset,k_d1_offset,
@@ -10935,6 +10974,10 @@ c ==============
      1        call errquit("tce_energy: MA problem",3020+axis,MA_ERR)
           enddo
         endif
+        do axis=6,1,-1
+          if (.not.ma_pop_stack(l_q1_offset(axis)))
+     1      call errquit("tce_energy: MA problem",3010+axis,MA_ERR)
+        enddo
         do axis=3,1,-1
           if (.not.ma_pop_stack(l_d1_offset(axis)))
      1      call errquit("tce_energy: MA problem",3010+axis,MA_ERR)
