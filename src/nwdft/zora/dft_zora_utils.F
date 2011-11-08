@@ -351,10 +351,6 @@ c     deallocate memory
         if (.not. ga_destroy(g_densZ4(3))) call errquit(
      &    'dft_zora_utils: ga_destroy failed ',0, GA_ERR)
       endif
-      do ispin=1,ipol
-        if (.not. ga_destroy(g_Cifull(ispin))) call errquit(
-     &     'dft_zora_utils: ga_destroy failed ',0, GA_ERR)
-      enddo ! ispin
 c
       do_zora_get_correction=do_zgc_old   ! restore value
 c

@@ -569,8 +569,8 @@ c
      &   call errquit('grid_den: cannot free heap',0, MA_ERR)
 c
  123  format(
-     &   1x,'Integrated density ',f20.12,/
-     &   1x,'deviates from requested grid integration accuracy ',e10.2)
+     &   1x,'Grid integrated density ',f20.12,/
+     &   1x,'deviates from requested integration accuracy ',e10.2)
 c
       return
       end
