@@ -3,7 +3,7 @@ c $Id$
        program pair_correlation
        implicit none
        integer i,l
-       double precision lat(3,3),latv(3)
+       double precision lat(3,3),latv(3),lat1(3,3)
        double precision rmax
        integer i1,j1,nb
        character*5 tvr
@@ -55,7 +55,7 @@ c      --------------------------------------------
 c      set some default values
 c      --------------------------------------------      
        fn_in = 10
-       fn_out = 11
+       fn_out = 21
        nfrm = 0
        aformat = " "
        overb = .false.
@@ -200,10 +200,6 @@ c      the lattice
            lat(k,k) = latv(k)
          end do
        end if
-       if(any(lat.lt.0)) then
-          message = "problems with lattice input"
-          goto 911
-       end if
 c      maximum radius
        if(rmax.lt.0) then
          message = "please provide rmax"
@@ -215,14 +211,9 @@ c      number of bins
        end if
 c      output file
        file_out = infile(nfil)
-       if(ofile) then
-               message = "opening output file "//file_out
-          open(fn_out,file=file_out,
+       message = "opening output file "//file_out
+       open(fn_out,file=file_out,
      $            form='formatted',status='unknown',err=911)
-       else
-           message = "cannot open output file: "//file_out
-           goto 911
-       end if 
 
        if(overb) then
          write(*,*) "lattice vectors"
@@ -304,10 +295,16 @@ c      loop over frames
        nf = 0
        do
          if(aformat.eq."trj") then
-           call trj_read(fn_in,n,c,lat,ok)
+           call trj_read(fn_in,n,c,lat1,ok)
          else if(aformat.eq."xyz")  then
            call xyz_read(n,c,atag,fn_in)
            ok=n.ne.0
+           lat1=lat
+         end if
+c        check lattice
+         if(any(lat1.lt.0)) then
+            message = "problems with lattice input"
+            goto 911
          end if
          if(.not.ok) exit
          oc1=.false.
@@ -321,7 +318,7 @@ c
          if(any(oc2.and.oc1)) oc2=oc2.and.(.not.oc1)
          gr0 = 0
          call rdf_compute2(n,c,oc1,oc2,
-     +                    nb,rmax,lat,
+     +                    nb,rmax,lat1,
      +                    gr0,
      +                    fn_in)
          gr = gr + gr0
