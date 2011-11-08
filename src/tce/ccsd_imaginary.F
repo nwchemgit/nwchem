@@ -30,11 +30,12 @@ c
       integer k_tr1_offset(3),k_tr2_offset(3)
       integer size_tr1(3),size_tr2(3)
       integer sym_abelian_axis
+      integer zero,one
       external sym_abelian_axis
       double precision pi
       parameter(pi = 3.14159265358979323846264338327950288419D0)
-      integer izero
-      parameter (izero=0)
+      parameter(zero = 0)
+      parameter(one  = 0)
       double precision omega
       double precision threeoverpi
       parameter (threeoverpi=3.0d0/pi)
@@ -77,7 +78,7 @@ c
                 call ccsd_ir_guess(d_d1,d_t1,d_t2,d_tr1,d_tr2,
      1             k_d1_offset,k_t1_offset,k_t2_offset,
      2             k_tr1_offset,k_tr2_offset,
-     4             size_tr1,size_tr2,izero,axis,omega)
+     4             size_tr1,size_tr2,zero,axis,omega)
               endif ! guess_ir_real
               call ccsd_ir_real_sq_it(axis,dynaxis,omega,
      1             d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
@@ -1064,6 +1065,9 @@ c
       integer k_tr1_offset(3),k_tr2_offset(3)
       integer size_tr1(3),size_tr2(3)
       integer sym_abelian_axis
+      integer zero,one
+      parameter(zero = 0)
+      parameter(one  = 1)
       external sym_abelian_axis
       double precision rr1,rr2,rr3,rr4,rres,ires,residual
       double precision omega
@@ -1102,7 +1106,7 @@ c
           call ccsd_ir_guess(d_d1,d_t1,d_t2,d_tr1,d_tr2,
      1         k_d1_offset,k_t1_offset,k_t2_offset,
      2         k_tr1_offset,k_tr2_offset,
-     4         size_tr1,size_tr2,1,axis,omega)
+     4         size_tr1,size_tr2,one,axis,omega)
         endif
 c
         call tce_filename(rr1filename(axis),filename)
@@ -1394,6 +1398,9 @@ c CCSD-IR evaluation step
 c
       cpu=-util_cpusec()
       wall=-util_wallsec()
+
+      omega = ifreq(omegacount)
+
       do axisA = 1, 3
         do axisB = 1, axisA
           alpha(axisA,axisB)=0.0d0
