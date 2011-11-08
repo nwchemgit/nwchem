@@ -46,6 +46,8 @@ c     == distance from the grid points to the atom centers ==
       end do
       return
       end 
+c
+c     == Finite nucleus 1 ==
       subroutine gridNuclearPotential1(
      &               geom,
      &               natoms,      ! IN : number of atoms
@@ -55,6 +57,7 @@ c     == distance from the grid points to the atom centers ==
      &               zetanuc_arr, ! IN : sqrt(zetanuc) for Gaussian Nuclear Model
      &               closegridpts,
      &               amat_nucl)   ! OUT : nuclear potential
+c
 c Evaluates: V_L^{Gauss}(r) = \sum_L -Z_L/r_L erf(\tilde{r}_L)
 c            \tilde{r}_L = srqt(zetanuc) r_L
 c            r_L = |r_grid-r_N|
@@ -64,6 +67,7 @@ c            according to: Autschbach, J. ChemPhysChem 2009,V10,P 22774-2283
 c            page 2276
 c Author: Fredy W. Aquino 
 c Date  : 04-20-11
+c
       implicit none
 #include "geom.fh"
 #include "stdio.fh"
@@ -105,6 +109,8 @@ c     == distance from the grid points to the atom centers ==
       end do ! end-loop-igrid
       return
       end
+c
+c     == Finite nucleus 2 ==
       subroutine gridNuclearPotential2(
      &               geom,
      &               natoms,      ! IN : number of atoms
