@@ -171,9 +171,9 @@ c              == chi ==
      &              dbl_mb(iqxyz), dbl_mb(ixyz), nqpts, ncenters,
      &              int_mb(iniz), log_mb(idocset),
      &              int_mb(ibas_cent_info), int_mb(ibas_cset_info))
+c
 c              == calculate scalar and spin-orbit zora contribution ==
-c              write(*,*) 'Bef calc_zora_so_FA ...'
-               call calc_zora_so_FA(ao_bas_han, geom, ipol, g_dens,
+               call calc_zora_so(ao_bas_han, geom, ipol, g_dens,
      &                              dbl_mb(idelchi_ao),
      &                              dbl_mb(iqxyz),dbl_mb(iqwght),
      &                              nbf_ao, nqpts, ncenters,

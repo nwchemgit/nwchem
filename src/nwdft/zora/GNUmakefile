@@ -24,8 +24,6 @@
 	zora_getv_sf.o\
 	zora_getv_so.o\
 	calc_EFG.o\
-	calc_zora_sf_FA.o\
-	calc_zora_so_FA.o\
 	calc_zora_sf.o\
 	calc_zora_so.o\
         Incomplete_Gamma_TOMS_654.o\

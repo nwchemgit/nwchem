@@ -181,8 +181,9 @@ c              == chi ==
      &              dbl_mb(iqxyz), dbl_mb(ixyz), nqpts, ncenters,
      &              int_mb(iniz), log_mb(idocset),
      &              int_mb(ibas_cent_info), int_mb(ibas_cset_info))
+c
 c              == calculate spin-free zora contribution ==
-               call calc_zora_sf_FA(ao_bas_han, geom, ipol, g_dens,
+               call calc_zora_sf(ao_bas_han, geom, ipol, g_dens,
      &              dbl_mb(ichi_ao), dbl_mb(idelchi_ao), dbl_mb(iqxyz), 
      &              dbl_mb(iqwght), nbf_ao, nqpts, ncenters, 
      &              dbl_mb(izora0), dbl_mb(izora0scal),
@@ -245,6 +246,7 @@ c     == pack into a ga ==
        call ga_symmetrize(g_zora_scale_sf(i))
       enddo
       call ga_sync()
+c
 c     == clean memory ==
       return
       end
