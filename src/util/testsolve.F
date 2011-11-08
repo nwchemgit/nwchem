@@ -23,7 +23,7 @@ c
       call pbeginf
       heap = max(8, (dim-1)/nnodes()+1)
       heap = dim*(heap + 2)
-      heap = heap * 1.1 + 128*128*3
+      heap = heap * 1.1d0 + 128*128*3
       if (.not. ma_init(MT_DBL, heap, heap)) call errquit
      $     ('test: ma_init?', 0, MA_ERR)
       status = ma_set_auto_verify(.true.)
@@ -89,7 +89,7 @@ c
       do i = ga_nodeid()+1, n, ga_nnodes()
          call ga_get(g_a, 1, n, i, i, col(1), 1)
          do j = 1, n
-            col(j) = col(j) + 1.d-2*(drandm(0)-0.5d0)
+            col(j) = col(j) + 1.0d-8*(drandm(0)-0.5d0)
          enddo
          call ga_put(g_a, 1, n, i, i, col(1), 1)
       enddo
@@ -106,7 +106,7 @@ c
 c
       if (ga_nodeid() .eq. 0) then
          do i = 1, n
-            col(i) = 0.5 - drandm(0)
+            col(i) = 0.5d0 - drandm(0)
          enddo
          call ga_put(g_b, 1, n, 1, 1, col, 1)
       endif
@@ -200,8 +200,8 @@ c
          call ga_get(g_a, i, i, i, i, denominator, 1)
          call ga_get(g_r, i, i, 1, 1, numerator, 1)
          denominator = denominator - shift
-         if (abs(denominator) .lt. 0.1) denominator =
-     $        sign(0.1, denominator)
+         if (abs(denominator) .lt. 0.1d0) denominator =
+     $        sign(0.1d0, denominator)
          x = numerator / denominator
          call ga_put(g_r, i, i, 1, 1, x, 1)
       enddo
@@ -278,7 +278,7 @@ c
             local(j) = 0.1*drandm(0)
             x = x + local(j)
          enddo
-         local(i) = 1.0 + x
+         local(i) = 1.0d0 + x
          call ga_put(g_a, 1, n, i, i, local, n)
       enddo
       call ga_symmetrize(g_a)
@@ -309,7 +309,7 @@ c
       else if (mode .eq. 'accept step') then
          call ga_maxelt(g_grad, x)
          call ga_dadd(step, g_s, 1.0d0, g_x, g_x)
-         if (x.gt.0.00001) goto 10
+         if (x.gt.0.00001d0) goto 10
       else
          write(6,*) mode
          call errquit('unknown mode', 0, GA_ERR)
