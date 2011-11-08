@@ -31,9 +31,10 @@ c
       integer size_tr1(3),size_tr2(3)
       integer sym_abelian_axis
       external sym_abelian_axis
-      double precision pi, zero
+      double precision pi
       parameter(pi = 3.14159265358979323846264338327950288419D0)
-      parameter(zero = 0.0d0)
+      integer izero
+      parameter (izero=0)
       double precision omega
       double precision threeoverpi
       parameter (threeoverpi=3.0d0/pi)
@@ -76,7 +77,7 @@ c
                 call ccsd_ir_guess(d_d1,d_t1,d_t2,d_tr1,d_tr2,
      1             k_d1_offset,k_t1_offset,k_t2_offset,
      2             k_tr1_offset,k_tr2_offset,
-     4             size_tr1,size_tr2,zero,axis,omega)
+     4             size_tr1,size_tr2,izero,axis,omega)
               endif ! guess_ir_real
               call ccsd_ir_real_sq_it(axis,dynaxis,omega,
      1             d_f1,d_v2,d_d1,d_t1,d_t2,d_tr1,d_tr2,
