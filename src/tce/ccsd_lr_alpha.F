@@ -1,10 +1,11 @@
-      subroutine ccsd_lr_alpha(d_d0,d_a0,d_f1,d_v2,d_d1,
+      subroutine ccsd_lr_alpha(rtdb,d_d0,d_a0,d_f1,d_v2,d_d1,
      1           d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
      2           k_d0_offset,k_a0_offset,k_f1_offset,k_v2_offset,
      3           k_d1_offset,k_t1_offset,k_t2_offset,
      4           k_l1_offset,k_l2_offset,k_tr1_offset,k_tr2_offset,
      7           size_tr1,size_tr2,dipole_scf,dipole_cor)
       implicit none
+#include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -15,6 +16,7 @@
 #include "tce_prop.fh"
 #include "tce_restart.fh"
 c
+      integer rtdb
       integer i,j,dummy,axis
       integer omegacount,omegasign,dynaxis,dynfreq
       integer irrep_g
@@ -118,7 +120,7 @@ c
         if (nopolar) then
           if (nodezero) write(LuOut,9701)
         else
-          call ccsd_lr_alpha_eval(omega,d_a0,d_f1,d_v2,d_d1,
+          call ccsd_lr_alpha_eval(rtdb,omega,d_a0,d_f1,d_v2,d_d1,
      1         d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
      2         k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
      4         k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
@@ -322,12 +324,13 @@ c
       end
 
 
-      subroutine ccsd_lr_alpha_eval(omega,d_a0,d_f1,d_v2,d_d1,
+      subroutine ccsd_lr_alpha_eval(rtdb,omega,d_a0,d_f1,d_v2,d_d1,
      1           d_t1,d_t2,d_lambda1,d_lambda2,d_tr1,d_tr2,
      2           k_a0_offset,k_f1_offset,k_v2_offset,k_d1_offset,
      4           k_t1_offset,k_t2_offset,k_l1_offset,k_l2_offset,
      6           k_tr1_offset,k_tr2_offset)
       implicit none
+#include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -337,6 +340,7 @@ c
 #include "tce_main.fh"
 #include "tce_prop.fh"
 c
+      integer rtdb
       integer i,j,dummy,axis
       integer dynfreq,dynaxis,axisA,axisB,omegasign
       integer d_a0,d_f1,d_v2,d_d1(3)
@@ -561,6 +565,17 @@ c
       if (nodezero) write(LuOut,9020) cpu, wall
       call util_flush(LuOut)
 c
+      if (.not. rtdb_put(rtdb, 'raman:alfare ', mt_dbl, 9, alphacopy))
+     &  call errquit('ccsd_lr_alpha_eval: rtdb_put fail', 0, RTDB_ERR)
+c     zero this out and call it imaginary part, since that is not computed
+      do i = 1, 3
+        do j = 1, 3
+          alphacopy(i,j)=0
+        enddo
+      enddo
+      if (.not. rtdb_put(rtdb, 'raman:alfaim ', mt_dbl, 9, alphacopy))
+     &  call errquit('ccsd_lr_alpha_eval: rtdb_put fail', 1, RTDB_ERR)
+
  9020 format(1x,'Cpu & wall time / sec',2f15.1)
  9082 format(1x,'amplitude norm of ',A9,' = ',f25.15)
  9100 format(1x,i4,2f18.13,2f8.1)
