@@ -1,4 +1,4 @@
-      subroutine ccsd_qr_beta(d_a0,d_b0,d_f1,d_v2,d_d1,
+      subroutine ccsd_qr_beta(rtdb,d_a0,d_b0,d_f1,d_v2,d_d1,
      1           d_t1,d_t2,d_y1,d_y2,d_yr1,d_yr2,d_tr1,d_tr2,
      2           k_a0_offset,k_b0_offset,
      3           k_f1_offset,k_v2_offset,k_d1_offset,
@@ -6,6 +6,7 @@
      5           k_tr1_offset,k_tr2_offset,k_yr1_offset,k_yr2_offset,
      6           size_yr1,size_yr2)
       implicit none
+#include "rtdb.fh"
 #include "global.fh"
 #include "mafdecls.fh"
 #include "util.fh"
@@ -16,6 +17,7 @@
 #include "tce_prop.fh"
 #include "tce_restart.fh"
 c
+      integer rtdb
       integer i,j,dummy,axis,dynaxis,dynfreq
       integer omegacount,omegasign
       integer irrep_g
