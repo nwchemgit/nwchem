@@ -907,7 +907,6 @@ c      end
       if (.not.value) call errquit('psp_xc_atom: popping stack',3,
      &       MA_ERR)
 
-
       psp_xc_atom = nwpw_xc_energy_atom()
       return 
       end

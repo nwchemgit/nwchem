@@ -290,11 +290,8 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
 
 *     **** PAW variables ****
       if (pawexist) then
-         write(*,*) "hera"
          call nwpw_compcharge_end()
-         write(*,*) "herb"
          call nwpw_xc_end()
-         write(*,*) "herc"
       end if
       value = value.and.MA_free_heap(hartree_matrix(2))
       value = value.and.MA_free_heap(comp_charge_matrix(2))
