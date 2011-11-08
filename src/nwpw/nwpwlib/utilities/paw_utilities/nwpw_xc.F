@@ -42,6 +42,10 @@ c     **** external functions ****
       call nwpw_timing_start(4)
       ok = .true.
 
+      nion  = nion0
+      nkatm = nkatm0
+      gga   = control_gga()
+
       nprj_max    = 0
       nbasis_max  = 0
       n1dgrid_max = 0
@@ -50,9 +54,6 @@ c     **** external functions ****
          if (nbasis(ia) .gt.nbasis_max)  nbasis_max = nbasis(ia)
          if (n1dgrid(ia).gt.n1dgrid_max) n1dgrid_max = n1dgrid(ia)
       end do
-      nion  = nion0
-      nkatm = nkatm0
-      gga   = control_gga()
 
       mult_l_max = control_lmax_multipole()
       if (mult_l_max.lt.0) then
@@ -63,7 +64,6 @@ c     **** external functions ****
             end if
          end do
       end if
-
       
 *     ***paw_xc energies ***
       ok = MA_alloc_get(mt_dbl,nion,"paw_xc_e",paw_xc_e(2),paw_xc_e(1))
@@ -266,19 +266,15 @@ c       **** define derivative wrt to phi ****
 
       nsize = 2*n1dgrid_max
       ok = ok.and. 
-     >     MA_alloc_get(mt_dbl,nsize,"vxc_ae",
-     >                  vxc_ae(2),vxc_ae(1))
+     >     MA_alloc_get(mt_dbl,nsize,"vxc_ae",vxc_ae(2),vxc_ae(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"vxc_ps",
-     >                  vxc_ps(2),vxc_ps(1))
+     >     MA_alloc_get(mt_dbl,nsize,"vxc_ps",vxc_ps(2),vxc_ps(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"exc_ae",
-     >                  exc_ae(2),exc_ae(1))
+     >     MA_alloc_get(mt_dbl,nsize,"exc_ae",exc_ae(2),exc_ae(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"exc_ps",
-     >                  exc_ps(2),exc_ps(1))
+     >     MA_alloc_get(mt_dbl,nsize,"exc_ps",exc_ps(2),exc_ps(1))
       ok = ok.and.
-     >     MA_alloc_get(mt_dbl,nsize,"x_temp",
+     >     MA_alloc_get(mt_dbl,nsize,"xc_temp",
      >                   xc_temp(2),xc_temp(1))
       ok = ok.and.
      >     MA_alloc_get(mt_dbl,nsize,
@@ -368,7 +364,7 @@ c      end if
 
             end do
          end do
-        int_mb(nindx_rholm(1)+ia-1) = nsize
+        int_mb(nindx_rholm(1)+ia-1) = nsize-int_mb(shift_rholm(1)+ia-1)
       end do
 
       ok = MA_alloc_get(mt_int,nsize,"bi_rholm",bi_rholm(2),bi_rholm(1))
@@ -457,8 +453,10 @@ c      end if
 #include "errquit.fh"
 #include "nwpw_xc.fh"
 
-      integer i,j,np,i_tlm,i_tlm1,lmax2,nsize
+      integer i,j,np,i_tlm,i_tlm1,lmax2,nsize,shift,ig
       integer i_t,i_p
+      real*8 exc_tmp
+
 c      integer nion 
 c      integer l,m,ms
 c      integer ng,ic,ig,igg,istart
@@ -480,15 +478,16 @@ c      double precision exc_tmp,gnt1
 c      double precision tmp_ae,tmp_ps
 c      real*8 tmp
 c      real*8 tlm
-c
+
+*     **** external functions ****
+      real*8   log_integrate_def
+      external log_integrate_def
+
+      write(*,*) "into xc_solve, ii,ia=",ii,ia
+
       call nwpw_timing_start(4)
       call nwpw_timing_start(22)
       call Parallel_np(np)
-      write(*,*) "HERA"
-
-      i_tlm = 0
-      i_tlm1 = 0
-
 
 *     *** index for spin down in temp arrays ***      
       lmax2  = (mult_l_max+1)**2
@@ -505,6 +504,8 @@ c
          call dcopy(3*nsize,0.0d0,0,dbl_mb(paw_dvxc_ps(1)),1)
       end if
 
+      i_tlm = 0
+      i_tlm1 = 0
       do i_t = 1,paw_xc_ntheta
       do i_p = 1,paw_xc_nphi
       
@@ -516,49 +517,64 @@ c
         call dcopy(nsize,0.0d0,0,dbl_mb(vxc_ps(1)),1)
         call dcopy(nsize,0.0d0,0,dbl_mb(exc_ae(1)),1)
         call dcopy(nsize,0.0d0,0,dbl_mb(exc_ps(1)),1)
+
+        write(*,*) "HERA"
         
-c*       *** find rholm multipole expansion on spherical grid ***          
-c        call paw_density_solve2(ii,mult_l_lmax,
-c     >                          ic,lmax2,ispin,
-c     >                          dbl_mb(paw_rho2_ae(1)),
-c     >                          dbl_mb(paw_rho2_ps(1)))
-c
-c*       *** generate atomic densities on spherical grid ***          
-c        call paw_xc_gen_atomic_densities(ic,lmax2,ispin,
-c     >                                    dcpl_mb(paw_rho2_ae(1)),
-c     >                                    dcpl_mb(paw_xc_tlm(1)+i_ylm),
-c     >                                    dbl_mb(i_core_ae+istart-1),
-c     >                                    dbl_mb(rho_ae(1)))
-c        call paw_xc_gen_atomic_densities(ic,lmax2,ispin,
-c     >                                    dcpl_mb(paw_rho2_ps(1)),
-c     >                                    dcpl_mb(paw_xc_tlm(1)+i_ylm),
-c     >                                    dbl_mb(i_core_ps+istart-1),
-c     >                                    dbl_mb(rho_ps(1)))
-c
-c
-c*       ***************************************************
-c*       *** find exchange-correlation on spherical grid ***
-c*       ***************************************************
-c
-c
-c*       **** LDA functionals on spherical grid ****
-c        if (gga.lt.10) then
-c
-c*          **** LDA functionals of ae and ps atomic densities ****
-c           call paw_vosko(ic,ic,ispin,
-c     >                    dbl_mb(rho_ae(1)),        
-c     >                    dbl_mb(exc_ae(1)),        
-c     >                    dbl_mb(vxc_ae(1)),        
-c     >                    dbl_mb(xc_temp(1)) )       
-c
-c           call paw_vosko(ic,ic,ispin,
-c     >                    dbl_mb(rho_ps(1)),        
-c     >                    dbl_mb(exc_ps(1)),        
-c     >                    dbl_mb(vxc_ps(1)),        
-c     >                    dbl_mb(xc_temp(1)) )       
-c
-c
-c
+*       *** find rholm multipole expansion on spherical grid ***          
+        shift = int_mb(shift_rholm(1)+ia-1)
+        call nwpw_xc_density_solve2(ispin,ne,nprj,sw1,
+     >                               n1dgrid,nbasis,lmax2,
+     >                               int_mb(nindx_rholm(1)+ia-1),
+     >                               int_mb(lm_rholm(1)+shift),
+     >                               int_mb(iprj_rholm(1)+shift),
+     >                               int_mb(jprj_rholm(1)+shift),
+     >                               int_mb(bi_rholm(1)+shift),
+     >                               int_mb(bj_rholm(1)+shift),
+     >                               dbl_mb(coeff_rholm(1)+shift),
+     >                               phi_ae,phi_ps,rgrid,
+     >                               dbl_mb(paw_rho2_ae(1)),
+     >                               dbl_mb(paw_rho2_ps(1)))
+
+        write(*,*) "HERB"
+
+*       *** generate atomic densities on spherical grid ***          
+        call nwpw_xc_gen_atomic_densities(n1dgrid,lmax2,ispin,
+     >                                    dbl_mb(paw_rho2_ae(1)),
+     >                                    dbl_mb(paw_xc_tlm(1)+i_tlm),
+     >                                    core_ae,
+     >                                    dbl_mb(rho_ae(1)))
+        call nwpw_xc_gen_atomic_densities(n1dgrid,lmax2,ispin,
+     >                                    dbl_mb(paw_rho2_ps(1)),
+     >                                    dbl_mb(paw_xc_tlm(1)+i_tlm),
+     >                                    core_ps,
+     >                                    dbl_mb(rho_ps(1)))
+
+
+*       ***************************************************
+*       *** find exchange-correlation on spherical grid ***
+*       ***************************************************
+
+        write(*,*) "HERC"
+
+*       **** LDA functionals on spherical grid ****
+        if (gga.lt.10) then
+
+           write(*,*) "n1dgrid,ispin,=",n1dgrid,ispin,n1dgrid_max
+*          **** LDA functionals of ae and ps atomic densities ****
+           call vxc(n1dgrid,ispin,
+     >              dbl_mb(rho_ae(1)),        
+     >              dbl_mb(vxc_ae(1)),        
+     >              dbl_mb(exc_ae(1)),        
+     >              dbl_mb(xc_temp(1)))       
+        write(*,*) "HERCC"
+           call vxc(n1dgrid,ispin,
+     >              dbl_mb(rho_ps(1)),        
+     >              dbl_mb(vxc_ps(1)),        
+     >              dbl_mb(exc_ps(1)),        
+     >              dbl_mb(xc_temp(1)) )       
+
+        write(*,*) "HERCCC"
+
 c*       **** GGA functionals on spherical grid ****
 c        else
 c
@@ -646,77 +662,68 @@ c     >                          dbl_mb(rho_ps_prime(1)),
 c     >                          dcpl_mb(paw_dvxc_ae(1)),
 c     >                          dcpl_mb(paw_dvxc_ps(1)))
 c
-c        end if
-c        i_tlm = i_tlm + lmax2
-c
-c*       ************************************************************************************
-c*       *** find vxclm the multipole expansion of atomic vxc=df/dn  or (df/dnup,df/dndn) ***          
-c*       ************************************************************************************
-c        call paw_xc_addto_vxclm(ic,lmax2,ispin,
-c     >                          (dbl_mb(paw_xc_w_theta(1)+i_t-1)
-c     >                          *dbl_mb(paw_xc_w_phi(1)  +i_p-1)),
-c     >                          dcpl_mb(paw_xc_tlm(1)+i_ylm1),
-c     >                          dbl_mb(vxc_ae(1)),
-c     >                          dbl_mb(vxc_ps(1)),
-c     >                          dcpl_mb(paw_vxc_ae(1)),
-c     >                          dcpl_mb(paw_vxc_ps(1)))
-c        i_tlm1 = i_tlm1 + lmax2
-cc
-c
-c
-c
-c
-c*        ******************************************************
-c*        *** compute the atomic exchange correlation energy ***
-c*        ******************************************************
-c         do ig=1,ic
-c          dbl_mb(xc_temp(1)+ig-1)=
-c     >             (
-c     >             dbl_mb(rho_ae(1)+ig-1)  + 
-c     >             dbl_mb(rho_ae(1)+(ispin-1)*ic+ig-1)
-c     >             )*dbl_mb(exc_ae(1)+ig-1)
-c     >             -
-c     >             (
-c     >             dbl_mb(rho_ps(1)+ig-1)+ 
-c     >             dbl_mb(rho_ps(1)+(ispin-1)*ic+ig-1)
-c     >             )*
-c     >             dbl_mb(exc_ps(1)+ig-1)
-c        end do
-c        exc_tmp = def_integr1(0,dbl_mb(xc_temp(1)),2,
-c     >                       dbl_mb(i_r+istart-1),
-c     >                       log_amesh,ic,istart)
-c
-c        dbl_mb(paw_xc_e(1)+in-1)=dbl_mb(paw_xc_e(1)+in-1)+
-c     >                           exc_tmp*
-c     >                           dbl_mb(paw_xc_w_theta(1)+i_t-1)*
-c     >                           dbl_mb(paw_xc_w_phi(1)+i_p-1)
-c
-c
-c
+        end if
+        i_tlm = i_tlm + lmax2
+
+
+*       ************************************************************************************
+*       *** find vxclm the multipole expansion of atomic vxc=df/dn  or (df/dnup,df/dndn) ***          
+*       ************************************************************************************
+        write(*,*) "HERD"
+         call nwpw_xc_addto_vxclm(n1dgrid,lmax2,ispin,
+     >                          (dbl_mb(paw_xc_w_theta(1)+i_t-1)
+     >                          *dbl_mb(paw_xc_w_phi(1)  +i_p-1)),
+     >                          dbl_mb(paw_xc_tlm(1)+i_tlm1),
+     >                          dbl_mb(vxc_ae(1)),
+     >                          dbl_mb(vxc_ps(1)),
+     >                          dbl_mb(paw_vxc_ae(1)),
+     >                          dbl_mb(paw_vxc_ps(1)))
+         i_tlm1 = i_tlm1 + lmax2
+        write(*,*) "HERE"
+
+*        ******************************************************
+*        *** compute the atomic exchange correlation energy ***
+*        ******************************************************
+         do ig=1,n1dgrid
+            dbl_mb(xc_temp(1)+ig-1)=
+     >             (
+     >             dbl_mb(rho_ae(1)+ig-1)  + 
+     >             dbl_mb(rho_ae(1)+(ispin-1)*n1dgrid+ig-1)
+     >             )*dbl_mb(exc_ae(1)+ig-1)
+     >             -
+     >             (
+     >             dbl_mb(rho_ps(1)+ig-1)+ 
+     >             dbl_mb(rho_ps(1)+(ispin-1)*n1dgrid+ig-1)
+     >             )*
+     >             dbl_mb(exc_ps(1)+ig-1)
+         end do
+         exc_tmp = log_integrate_def(0,dbl_mb(xc_temp(1)),
+     >                               2,rgrid,log_amesh,n1dgrid)
+
+         dbl_mb(paw_xc_e(1)+ii-1)=dbl_mb(paw_xc_e(1)+ii-1)+
+     >                           exc_tmp*
+     >                           dbl_mb(paw_xc_w_theta(1)+i_t-1)*
+     >                           dbl_mb(paw_xc_w_phi(1)+i_p-1)
+
+        write(*,*) "HERF"
       end do !i_p
       end do !i_t
-c
-c
-c*       *********************************************************
-c*       ****    non-local operator computation - LDA part    ****
-c*       *********************************************************
-c        nb  = paw_basis_nbasis(ia)
-c        nb2 = nb*nb
-c        i_phi_ae0 = paw_basis_i_phi_ae(ia)
-c        i_phi_ps0 = paw_basis_i_phi_ps(ia)
-c 
-c*       **** compute (vxc^a)_nln'l'^lm radial integrals *****
-c        call paw_xc_gen_matr(ng,nb,ic,istart,lmax2,ispin,
-c     >                       log_amesh,
-c     >                       dbl_mb(i_phi_ae0),
-c     >                       dbl_mb(i_phi_ps0),
-c     >                       dbl_mb(i_r+istart-1),
-c     >                       dbl_mb(paw_vxc_ae(1)),
-c     >                       dbl_mb(paw_vxc_ps(1)),
-c     >                       dbl_mb(xc_c_temp(1)),
-c     >                       dbl_mb(paw_xc_matr(1)))
-c
-c
+
+
+*       *********************************************************
+*       ****    non-local operator computation - LDA part    ****
+*       *********************************************************
+
+*       **** compute (vxc^a)_nln'l'^lm radial integrals *****
+        call nwpw_xc_gen_matr(n1dgrid,nbasis,lmax2,ispin,
+     >                        log_amesh,
+     >                        phi_ae,phi_ps,rgrid,
+     >                        dbl_mb(paw_vxc_ae(1)),
+     >                        dbl_mb(paw_vxc_ps(1)),
+     >                        dbl_mb(xc_temp(1)),
+     >                        dbl_mb(paw_xc_matr(1)))
+
+
 c*       **** xc potential  non-local matrix elements ****
 c        i_pot0 = int_mb(i_paw_xc_pot(1) + in - 1)
 c        do ms=1,ispin
@@ -792,8 +799,10 @@ c        call D3dB_Vector_Sumall(paw_xc_e(3),dbl_mb(paw_xc_e(1)))
 c      end if
 c     
 c
-c      call nwpw_timing_end(4)
-c      call nwpw_timing_end(22)
+      call nwpw_timing_end(4)
+      call nwpw_timing_end(22)
+
+      write(*,*) "out  xc_solve,ii,ia",ii,ia
 
       return
       end 
@@ -908,22 +917,19 @@ c      end if
 *     *          nwpw_xc_gen_sphere_rho        *
 *     *                                        *
 *     ******************************************
-      subroutine nwpw_xc_gen_sphere_rho(lmax2,ic,rholm,Tlm,rho)
+      subroutine nwpw_xc_gen_sphere_rho(lmax2,ng,rholm,Tlm,rho)
       implicit none
-      integer lmax2,ic
-      real*8     rholm(*)
-      real*8     Tlm(*)
-      real*8     rho(*)
+      integer lmax2,ng
+      real*8     rholm(ng,lmax2)
+      real*8     Tlm(lmax2)
+      real*8     rho(ng)
 
-      integer    l,indx1,igg1,ig
+      integer    lm,ig
 
-      indx1 = 1
-      igg1  = 1
-      do l=1,lmax2
+      do lm=1,lmax2
          do ig=1,ic
-           rho(ig) = rho(ig) + rholm(ig)*Tlm(indx1) 
+           rho(ig) = rho(ig) + rholm(ig,lm)*Tlm(lm)
          end do
-      indx1 = indx1 + 1
       end do
       
       return
@@ -950,105 +956,91 @@ c      end if
 
 
 
-c*     ********************************************************
-c*     *                                                      *
-c*     *             nwpw_xc_addto_vxclm                      *
-c*     *                                                      *
-c*     ********************************************************
-c      subroutine nwpw_xc_addto_vxclm(ic,lmax2,ispin,
-c     >                              alpha,
-c     >                              ylm,
-c     >                              vxc_ae,vxc_ps,
-c     >                              vxclm_ae,vxclm_ps)
-c      implicit none
-c      integer ic,lmax2,ispin
-c      double precision alpha
-c      double precision ylm(2,*)
-c      double precision vxc_ae(ic,ispin)
-c      double precision vxc_ps(ic,ispin)
-c
-c      double precision vxclm_ae(2,ic,lmax2,ispin)
-c      double precision vxclm_ps(2,ic,lmax2,ispin)
-c
-c      integer    i,lm,ms
-c
-c      do ms = 1,ispin
-c      do lm = 1,lmax2
-c      do i  = 1,ic
-c        vxclm_ae(1,i,lm,ms) = vxclm_ae(1,i,lm,ms) 
-c     >                      + vxc_ae(i,ms)*(ylm(1,lm)*alpha)
-c        vxclm_ae(2,i,lm,ms) = vxclm_ae(2,i,lm,ms) 
-c     >                      - vxc_ae(i,ms)*(ylm(2,lm)*alpha)
-cc      end do
-c      end do
-c      end do
-c
-c      do ms = 1,ispin
-c      do lm = 1,lmax2
-c      do i  = 1,ic
-c        vxclm_ps(1,i,lm,ms) = vxclm_ps(1,i,lm,ms) 
-c     >                      + vxc_ps(i,ms)*(ylm(1,lm)*alpha)
-c        vxclm_ps(2,i,lm,ms) = vxclm_ps(2,i,lm,ms) 
-c     >                      - vxc_ps(i,ms)*(ylm(2,lm)*alpha)
-c      end do
-c      end do
-c      end do
-c
-c      return
-c      end
+*     ********************************************************
+*     *                                                      *
+*     *             nwpw_xc_addto_vxclm                      *
+*     *                                                      *
+*     ********************************************************
+      subroutine nwpw_xc_addto_vxclm(ic,lmax2,ispin,
+     >                              alpha,
+     >                              tlm,
+     >                              vxc_ae,vxc_ps,
+     >                              vxclm_ae,vxclm_ps)
+      implicit none
+      integer ic,lmax2,ispin
+      real*8 alpha
+      real*8 tlm(*)
+      real*8 vxc_ae(ic,ispin)
+      real*8 vxc_ps(ic,ispin)
+      real*8 vxclm_ae(ic,lmax2,ispin)
+      real*8 vxclm_ps(ic,lmax2,ispin)
 
-c*     ********************************************************
-c*     *                                                      *
-c*     *             nwpw_xc_gen_matr                         *
-c*     *                                                      *
-c*     ********************************************************
-c      subroutine nwpw_xc_gen_matr(ng,nb,ic,istart,lmax2,ispin,log_amesh,
-c     >                           phi_ae,phi_ps,r,
-c     >                           vxclm_ae,vxclm_ps,
-c     >                           tmpC,
-c     >                           matr) 
-c      implicit none
-c      integer ng,nb,ic,istart,lmax2,ispin
-c      double precision log_amesh
-c
-c      double precision  phi_ae(ng,nb)
-c      double precision  phi_ps(ng,nb)
-c      double precision  r(ic)
-c      double precision  vxclm_ae(ic,lmax2,ispin)
-c      double precision  vxclm_ps(ic,lmax2,ispin)
-c      double precision  tmpC(ic)
-c
-c      double complex   matr(nb,nb,lmax2,ispin)
-c
-c
-c*     **** local varialbles ****
-c      integer ig,i,j,lm,ms
-c      double precision tmp_ae,tmp_ps
-c
-c      do ms=1,ispin
-c      do lm=1,lmax2
-c        do i=1,nb
-c        do j=i,nb
-c          do ig=1,ic
-c             tmp_ae = phi_ae(ig+istart-1,i)
-c     >               *phi_ae(ig+istart-1,j)
-c     >               /(r(ig)**2)
-c             tmp_ps = phi_ps(ig+istart-1,i)
-c     >               *phi_ps(ig+istart-1,j)
-c     >               /(r(ig)**2)
-c             tmpC(ig) = vxclm_ae(ig,lm,ms)*tmp_ae
-c     >                - vxclm_ps(ig,lm,ms)*tmp_ps
-c          end do
-c          matr(i,j,lm,ms)=log_integrate_def(0,tmpC,2,r,log_amesh,ic)
-c          if (i.ne.j) matr(j,i,lm,ms) = matr(i,j,lm,ms)
-c        end do
-c        end do
-c      end do
-c      end do
-c
-c      return
-c      end
-c
+*     **** local variables ****
+      integer    i,lm,ms
+
+      do ms = 1,ispin
+         do lm = 1,lmax2
+            do i  = 1,ic
+               vxclm_ae(i,lm,ms) = vxclm_ae(i,lm,ms) 
+     >                           + vxc_ae(i,ms)*(tlm(lm)*alpha)
+               vxclm_ps(i,lm,ms) = vxclm_ps(i,lm,ms) 
+     >                          + vxc_ps(i,ms)*(tlm(lm)*alpha)
+            end do
+         end do
+      end do
+      return
+      end
+
+*     ********************************************************
+*     *                                                      *
+*     *             nwpw_xc_gen_matr                         *
+*     *                                                      *
+*     ********************************************************
+      subroutine nwpw_xc_gen_matr(ng,nb,lmax2,ispin,log_amesh,
+     >                           phi_ae,phi_ps,r,
+     >                           vxclm_ae,vxclm_ps,
+     >                           tmpC,
+     >                           matr) 
+      implicit none
+      integer ng,nb,lmax2,ispin
+      real*8  log_amesh
+      real*8  phi_ae(ng,nb)
+      real*8  phi_ps(ng,nb)
+      real*8  r(ng)
+      real*8  vxclm_ae(ng,lmax2,ispin)
+      real*8  vxclm_ps(ng,lmax2,ispin)
+      real*8  tmpC(ng)
+      real*8 matr(nb,nb,lmax2,ispin)
+
+*     **** local varialbles ****
+      integer ig,i,j,lm,ms
+      real*8  tmp_ae,tmp_ps
+
+*     **** external functions ****
+      real*8   log_integrate_def
+      external log_integrate_def
+
+      do ms=1,ispin
+         do lm=1,lmax2
+           do i=1,nb
+           do j=i,nb
+              do ig=1,ng
+                 tmp_ae = phi_ae(ig,i)
+     >                   *phi_ae(ig,j)/(r(ig)**2)
+                 tmp_ps = phi_ps(ig,i)
+     >                   *phi_ps(ig,j)/(r(ig)**2)
+                 tmpC(ig) = vxclm_ae(ig,lm,ms)*tmp_ae
+     >                    - vxclm_ps(ig,lm,ms)*tmp_ps
+              end do
+              matr(i,j,lm,ms)=log_integrate_def(0,tmpC,2,r,log_amesh,ng)
+              if (i.ne.j) matr(j,i,lm,ms) = matr(i,j,lm,ms)
+           end do
+           end do
+         end do
+      end do
+      return
+      end
+
 
 *     ********************************************************
 *     *                                                      *
@@ -1563,7 +1555,8 @@ c   overlap coefficients.
      >                                  iprj_rholm,jprj_rholm,
      >                                  bi_rholm,bj_rholm,
      >                                  coeff_rholm,
-     >                                  phi_ae,phi_ps,rgrid,
+     >                                  phi_ae,phi_ps,
+     >                                  rgrid,
      >                                  rho_ae,rho_ps)
       implicit none
       integer ispin,ne(2),nprj
@@ -1578,13 +1571,18 @@ c   overlap coefficients.
       real*8  rho_ps(n1dgrid,lmax2,ispin)
 
       integer ms,n,i,lm,iprj,jprj,bi,bj,n1(2),n2(2)
-      real*8  tmp_ms,coeff,w
+      real*8  tmp_ms,coeff,w,scal
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
       
       call nwpw_timing_start(21)
       n1(1) = 1 
       n1(2) = ne(1)+1 
       n2(1) = ne(1)
       n2(2) = ne(1)+ne(2)
+      scal = 1.0d0/lattice_omega()
 
 *     ***init to zero***
       call dcopy(ispin*lmax2*n1dgrid,0.0d0,0,rho_ae,1)
@@ -1596,22 +1594,24 @@ c   overlap coefficients.
          jprj  = jprj_rholm(i)
          bi    = bi_rholm(i)
          bj    = bi_rholm(i)
-         coeff = coeff_rholm(i)
+         coeff = coeff_rholm(i)*scal
          do ms=1,ispin
-            w = 0.0d0
-            do n=n1(ms),n2(ms)
-               w = w + sw1(n,iprj)*sw1(n,jprj)
-            end do
-            tmp_ms = w*coeff
-            call nwpw_xc_density_gen_rho(n1dgrid,tmp_ms,
-     >               rgrid,phi_ae(1,bi),phi_ae(1,bj),
-     >               rho_ae(1,lm,ms))
-            call nwpw_xc_density_gen_rho(n1dgrid,tmp_ms,
-     >               rgrid,phi_ps(1,bi),phi_ps(1,bj),
-     >               rho_ps(1,lm,ms))
-
+            if (ne(ms).gt.0) then
+               w = 0.0d0
+               do n=n1(ms),n2(ms)
+                  w = w + sw1(n,iprj)*sw1(n,jprj)
+               end do
+               tmp_ms = w*coeff
+               call nwpw_xc_density_gen_rho(n1dgrid,tmp_ms,
+     >                  rgrid,phi_ae(1,bi),phi_ae(1,bj),
+     >                  rho_ae(1,lm+1,ms))
+               call nwpw_xc_density_gen_rho(n1dgrid,tmp_ms,
+     >                  rgrid,phi_ps(1,bi),phi_ps(1,bj),
+     >                  rho_ps(1,lm+1,ms))
+            end if
          end do
       end do
+
 
       call nwpw_timing_end(21)
       return
@@ -1690,22 +1690,23 @@ c   overlap coefficients.
          bj    = bi_rholm(i)
          coeff = coeff_rholm(i)
          do ms=1,ispin
-            w = 0.0d0
-            do n=n1(ms),n2(ms)
-               w = w + sw1(n,iprj)*sw1(n,jprj)
-            end do
-            tmp_ms = w*coeff
-            call nwpw_xc_density_gen_drho(n1dgrid,tmp_ms,
-     >               rgrid,
-     >               phi_ae(1,bi),dphi_ae(1,bi),
-     >               phi_ae(1,bj),dphi_ae(1,bj),
-     >               rho_ae_prime(1,lm,ms))
-            call nwpw_xc_density_gen_drho(n1dgrid,tmp_ms,
-     >               rgrid,
-     >               phi_ps(1,bi),dphi_ps(1,bi),
-     >               phi_ps(1,bj),dphi_ps(1,bj),
-     >               rho_ps_prime(1,lm,ms))
-
+            if (ne(ms).gt.0) then
+               w = 0.0d0
+               do n=n1(ms),n2(ms)
+                  w = w + sw1(n,iprj)*sw1(n,jprj)
+               end do
+               tmp_ms = w*coeff
+               call nwpw_xc_density_gen_drho(n1dgrid,tmp_ms,
+     >                  rgrid,
+     >                  phi_ae(1,bi),dphi_ae(1,bi),
+     >                  phi_ae(1,bj),dphi_ae(1,bj),
+     >                  rho_ae_prime(1,lm+1,ms))
+               call nwpw_xc_density_gen_drho(n1dgrid,tmp_ms,
+     >                  rgrid,
+     >                  phi_ps(1,bi),dphi_ps(1,bi),
+     >                  phi_ps(1,bj),dphi_ps(1,bj),
+     >                  rho_ps_prime(1,lm+1,ms))
+            end if
          end do
       end do
 

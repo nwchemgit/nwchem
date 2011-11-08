@@ -212,7 +212,7 @@
                end do
             end do
          end if
-         int_mb(nindx_Tndiff(1)+ia-1) = indx
+         int_mb(nindx_Tndiff(1)+ia-1)=indx-int_mb(shift_Tndiff(1)+ia-1)
       end do
 
       value = MA_alloc_get(mt_int,indx,"lm_Tndiff",
