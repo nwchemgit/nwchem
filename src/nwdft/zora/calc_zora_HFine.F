@@ -92,10 +92,11 @@ c ------- for Gaussian Nuclear Model --- START
 
       external get_ints_zora_hfine_slow,
      &         gridNMRPotential,get_Pnucl,
-     &         gridNuclearPotential1,gridNuclearPotential2
-      clight_au2 = clight_au*clight_au
-
+     &         gridNuclearPotentialFinite,
+     &         gridNuclearPotentialFinite2
+c
 c     == preliminaries ==
+      clight_au2 = clight_au*clight_au
       do ipt = 1,npts
         do i=1,ipol
          amat_coul(ipt,i) = 0.d0            
@@ -107,6 +108,7 @@ c     == preliminaries ==
          amat_NMRnucl(i,ipt) = 0.d0
         enddo
       end do
+c
 c     == calculate the hartree potential on a supplied list of points ==
       tol = 1d-8
       do i=1,ipol
@@ -118,17 +120,19 @@ c     == calculate the hartree potential on a supplied list of points ==
         amat_coul(k,1)=amat_coul(k,1)+amat_coul(k,2)
        enddo
       endif
+c
 c     == calculate the total nuclear potential on the grid ==
       if (ofinite) then
 c ------ Choosing Nuclear Model: erf(zetanuc^0.5 r_L)
-        call gridNuclearPotential1(geom,natoms,npts,qxyz,qwght,
+        call gridNuclearPotentialFinite(geom,natoms,npts,qxyz,qwght,
      &                             zetanuc_arr,
-     &                             closegridpts,amat_nucl)
+     &                             closegridpts,
+     &                             amat_nucl)
 c ------ Choosing Nuclear Model: P(1/2,zetanuc r_L^2)
-c        call gridNuclearPotential2(geom,natoms,npts,qxyz,qwght,
+c        call gridNuclearPotentialFinite2(geom,natoms,npts,qxyz,qwght,
 c     &                             closegridpts,amat_nucl)
       else ! default : point charge model for nuclei
-        call gridNuclearPotential(geom,natoms,npts,qxyz,qwght,
+        call gridNuclearPotentialPoint(geom,natoms,npts,qxyz,qwght,
      &                            closegridpts,amat_nucl)
       endif
       do k = 1,npts
@@ -330,19 +334,18 @@ c +++++++++++++++++++++++++++++++++++++++
       real threehalf
       data threehalf /1.5/
       logical ofinite,Knucl
-
+c
       external get_ints_zora_hfine_fast,
      &         gridNMRPotential,get_Pnucl1,
-     &         gridNuclearPotential1,gridNuclearPotential2
-c ------- for Gaussian Nuclear Model --- START
+     &         gridNuclearPotentialFinite,
+     &         gridNuclearPotentialFinite2
+c
       double precision zetanuc_arr(natoms),Pnucl
       double precision zetanuc_slc
-
       integer count_pt ! ONLY for checking get_Pnucl
-
-c ------- for Gaussian Nuclear Model --- START
-      clight_au2 = clight_au*clight_au
+c
 c     == preliminaries ==
+      clight_au2 = clight_au*clight_au
       do ipt = 1,npts
         do i=1,ipol
          amat_coul(ipt,i) = 0.d0            
@@ -353,6 +356,7 @@ c     == preliminaries ==
          amat_NMRnucl(i,ipt) = 0.d0
         enddo
       end do
+c
 c     == calculate the hartree potential on a supplied list of points ==
       tol = 1d-8
       do i=1,ipol
@@ -364,26 +368,27 @@ c     == calculate the hartree potential on a supplied list of points ==
         amat_coul(k,1)=amat_coul(k,1)+amat_coul(k,2)
        enddo
       endif
+c
 c     == calculate the total nuclear potential on the grid ==
       if (ofinite) then
-c        if (ga_nodeid().eq.0)
-c     &    write(*,*) 'BEF. gridNuclearPotential1 ...'
+c
 c ------ Choosing Nuclear Model: erf(zetanuc^0.5 r_L)
-        call gridNuclearPotential1(geom,natoms,npts,qxyz,qwght,
-     &                             zetanuc_arr,
-     &                             closegridpts,amat_nucl)
+        call gridNuclearPotentialFinite(geom,natoms,npts,qxyz,qwght,
+     &                         zetanuc_arr,
+     &                         closegridpts,amat_nucl)
 c ------ Choosing Nuclear Model: P(1/2,zetanuc r_L^2)
-c        if (ga_nodeid().eq.0)
-c     &    write(*,*) 'BEF. gridNuclearPotential2 ...'
-c        call gridNuclearPotential2(geom,natoms,npts,qxyz,qwght,
+c        call gridNuclearPotentialFinite2(geom,natoms,npts,qxyz,qwght,
 c     &                             closegridpts,amat_nucl)
       else ! default : point charge model for nuclei
-        call gridNuclearPotential(geom,natoms,npts,qxyz,qwght,
+c
+        call gridNuclearPotentialPoint(geom,natoms,npts,qxyz,qwght,
      &                            closegridpts,amat_nucl)
       endif
+c
       do k = 1,npts
         if (k.eq.closegridpts(k)) qwght(k) = 0.d0
       end do
+c
       call gridNMRPotential(amat_NMRnucl,  ! out: NMR potential
      &                      xyz_NMRcoords, 
      &                      npts,qxyz,closegridpts)
@@ -598,8 +603,8 @@ c           [\vec{p} K x \vec{p}]_v  v=1,2,3=x,y,z
       logical ofinite,Knucl
       double precision zetanuc_arr(natoms)
       external get_ints_zora_hfine_F1ji, 
-     &         gridNuclearPotential1,
-     &         gridNuclearPotential
+     &         gridNuclearPotentialFinite,
+     &         gridNuclearPotentialPoint
       clight_au2 = clight_au*clight_au
 c     == preliminaries ==
       do ipt = 1,npts
@@ -622,20 +627,16 @@ c     == calculate the hartree potential on a supplied list of points ==
       endif
 c     == calculate the total nuclear potential on the grid ==
       if (ofinite) then
-        if (ga_nodeid().eq.0)
-     &    write(*,*) 'calc_NMRHFine_F1ij::',
-     &               'BEF. gridNuclearPotential1 ...'
+c
 c ------ Choosing Nuclear Model: erf(zetanuc^0.5 r_L)
-        call gridNuclearPotential1(geom,natoms,npts,qxyz,qwght,
+        call gridNuclearPotentialFinite(geom,natoms,npts,qxyz,qwght,
      &                             zetanuc_arr,
      &                             closegridpts,amat_nucl)
 c ------ Choosing Nuclear Model: P(1/2,zetanuc r_L^2)
-c        if (ga_nodeid().eq.0)
-c     &    write(*,*) 'BEF. gridNuclearPotential2 ...'
-c        call gridNuclearPotential2(geom,natoms,npts,qxyz,qwght,
+c        call gridNuclearPotentialFinite2(geom,natoms,npts,qxyz,qwght,
 c     &                             closegridpts,amat_nucl)
       else ! default : point charge model for nuclei
-        call gridNuclearPotential(geom,natoms,npts,qxyz,qwght,
+        call gridNuclearPotentialPoint(geom,natoms,npts,qxyz,qwght,
      &                            closegridpts,amat_nucl)
       endif
       do k = 1,npts
@@ -853,17 +854,19 @@ c              call gratio(threehalf,rtemp,gammap,gammaq,0)
        zetanuc = three / ( two * (rtemp**2))
        return
        end
-   
-        subroutine get_zetanuc_arr(
-     &                          geom,        !  INPUT  : handle for geometry
-     &                          natoms,      !  INPUT  : number of atoms
-     &                          zetanuc_arr) !  OUTPUT : zetanuc_arr
+c   
 c     Purpose: Evaluation of zetanuc arr
 c              to be used in evaluation of Incomplete
 c              Gamma Function [gratio(...)]
 c              rtemp = zetanuc*ac_prod  ! dist*dist
 c              call gratio(threehalf,rtemp,gammap,gammaq,0)
 c              This routine is used in gridNuclearPotential()
+c
+        subroutine get_zetanuc_arr(
+     &                          geom,        !  INPUT  : handle for geometry
+     &                          natoms,      !  INPUT  : number of atoms
+     &                          zetanuc_arr) !  OUTPUT : zetanuc_arr
+c
       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"

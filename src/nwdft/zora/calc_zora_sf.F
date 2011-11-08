@@ -41,14 +41,16 @@ c     == calculate spin-free zora contribution ==
       double precision fac1_arr(npts),fac2_arr(npts)
       double precision ac_sf,ac_scl,prod
       logical ofinite,Knucl
+c
 c ------- for Gaussian Nuclear Model --- START
       double precision zetanuc_arr(natoms)
 c ------- for Gaussian Nuclear Model --- START
-      external get_ints_zora_sf,gridNuclearPotential,
-     &         gridNuclearPotential1,gridNuclearPotential2    
-      clight_au2 = clight_au*clight_au
+      external get_ints_zora_sf,gridNuclearPotentialPoint,
+     &         gridNuclearPotentialFinite,
+     &         gridNuclearPotentialFinite2
 c
 c     == preliminaries ==
+      clight_au2 = clight_au*clight_au
       do ipt = 1,npts
         do i=1,ipol
          amat_coul(ipt,i) = 0.d0            
@@ -72,16 +74,14 @@ c
 c     == calculate the total nuclear potential on the grid ==
       if (ofinite) then
 c ------ Choosing Nuclear Model: erf(zetanuc^0.5 r_L)
-        call gridNuclearPotential1(geom,natoms,npts,qxyz,qwght,
+        call gridNuclearPotentialFinite(geom,natoms,npts,qxyz,qwght,
      &                             zetanuc_arr,
      &                             closegridpts,amat_nucl)
 c ------ Choosing Nuclear Model: P(1/2,zetanuc r_L^2)
-c        if (ga_nodeid().eq.0)
-c     &    write(*,*) 'BEF. gridNuclearPotential2 -calc_Zsf_FA...'
-c        call gridNuclearPotential2(geom,natoms,npts,qxyz,qwght,
+c        call gridNuclearPotentialFinite2(geom,natoms,npts,qxyz,qwght,
 c     &                             closegridpts,amat_nucl)
       else ! default : point charge model for nuclei
-        call gridNuclearPotential(geom,natoms,npts,qxyz,qwght,
+        call gridNuclearPotentialPoint(geom,natoms,npts,qxyz,qwght,
      &                            closegridpts,amat_nucl)
       endif
       do k = 1,npts

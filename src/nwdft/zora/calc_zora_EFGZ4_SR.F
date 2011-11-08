@@ -64,7 +64,7 @@ c     == calculate the hartree potential on a supplied list of points ==
        enddo
       endif
 c     == calculate the total nuclear potential on the grid ==
-      call gridNuclearPotential(geom,natoms,npts,qxyz,qwght,
+      call gridNuclearPotentialPoint(geom,natoms,npts,qxyz,qwght,
      &                          closegridpts,amat_nucl)
       call gridQpqPotential(zora_Qpq,xyz_EFGcoords,
      &                      npts,qxyz,           

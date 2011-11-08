@@ -1,6 +1,6 @@
 c
-c     == Calculate the nuclear potential on the grid ==
-      subroutine gridNuclearPotential(geom,
+c     == Calculate the point nuclear potential on the grid ==
+      subroutine gridNuclearPotentialPoint(geom,
      &                                natoms,      ! IN : number of atoms
      &                                nqpts,       ! IN : number of grid points
      &                                qxyz,        ! IN : grid points
@@ -48,7 +48,7 @@ c     == distance from the grid points to the atom centers ==
       end 
 c
 c     == Finite nucleus 1 ==
-      subroutine gridNuclearPotential1(
+      subroutine gridNuclearPotentialFinite(
      &               geom,
      &               natoms,      ! IN : number of atoms
      &               nqpts,       ! IN : number of grid points
@@ -111,7 +111,7 @@ c     == distance from the grid points to the atom centers ==
       end
 c
 c     == Finite nucleus 2 ==
-      subroutine gridNuclearPotential2(
+      subroutine gridNuclearPotentialFinite2(
      &               geom,
      &               natoms,      ! IN : number of atoms
      &               nqpts,       ! IN : number of grid points
