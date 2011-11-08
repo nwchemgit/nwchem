@@ -27,6 +27,7 @@ c       character*5 atag
        integer atom1_id,atom2_id
        integer k 
        logical ok
+       logical osmooth
        double precision f
        integer fn_in
        integer fn_out
@@ -68,6 +69,7 @@ c      --------------------------------------------
        atom2_tag = " "
        rmax = -1
        nb = -1
+       osmooth = .false.
 c
 c      ------------------------
 c      allocate io file array
@@ -134,6 +136,9 @@ c      --------------------------------------------
             atom2_tag = buffer
           end if
           go to 16
+       else if(buffer.eq."-smooth") then
+          osmooth = .true.
+          goto 16
        else if(buffer.eq."-rmax") then
           i = i+1
           call my_get_command_argument(i,buffer,l,istatus)
@@ -350,9 +355,32 @@ c      end of loop of input files
        end do
 c       
 c      average RDF over the frames
-       gr = gr/real(naver)
        if(overb) 
      +   write(*,*) "averaging over ",naver," smaples"
+       gr = gr/real(naver)
+c
+c      smoothing g(r) per Allan/Tild. p 204 (6.48)
+c      ------------------------------------------
+       if(osmooth) then
+       if(overb) 
+     +   write(*,*) "smoothing rdf"
+       gr0=0.0d0
+       gr0(1)=(69.0*gr(1)+4.0*gr(2)-6.0*gr(3)+
+     >         4.0*gr(4)-gr(5))/70.0d0
+       gr0(2)=(2.0*gr(1)+27.0*gr(2)+12.0*gr(3)
+     >  -8.0*gr(4)+2.0*gr(5))/35.0d0
+       do i=3,nb-2
+         gr0(i) =(-3.0*gr(i-2)+12.0*gr(i-1)+17.0*gr(i)+
+     >            12.0*gr(i+1)-3.0*gr(i+2))/35.0d0 
+       end do
+       gr0(nb-1)=(2.0*gr(nb)+27*gr(nb-1)+12.0*gr(nb-2)-
+     >            8.0*gr(nb-3)+2.0*gr(nb-4))/35.0d0
+       gr0(nb)=(69.0*gr(nb)+4.0*gr(nb-1)-6.0*gr(nb-2)+
+     >          4.0*gr(nb-3)-gr(nb-4))/70.0d0
+       end if
+       gr = gr0
+
+
        dr = rmax/nb
        do k=1,nb
          write(fn_out,'(2F12.6)') 
