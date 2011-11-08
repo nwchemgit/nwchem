@@ -343,17 +343,21 @@ c     deallocate memory
      &  'zora_scale_evals: ga_destroy failed ',0, GA_ERR)
       if (.not. ga_destroy(g_dens_sf)) call errquit(
      &  'zora_scale_evals: ga_destroy failed ',0, GA_ERR)
-        do i=1,ipol
+      do i=1,ipol
         if (.not. ga_destroy(g_densZ4(i))) call errquit(
      &    'dft_zora_utils: ga_destroy failed ',0, GA_ERR)
-        enddo
-        if (ipol.eq.2) then
+      enddo
+      if (ipol.eq.2) then
         if (.not. ga_destroy(g_densZ4(3))) call errquit(
      &    'dft_zora_utils: ga_destroy failed ',0, GA_ERR)
-        endif
-c +++++++++++++++ RESTORE VALUE +++++++++++++START
-      do_zora_get_correction=do_zgc_old
-c +++++++++++++++ RESTORE VALUE +++++++++++++END  
+      endif
+      do ispin=1,ipol
+        if (.not. ga_destroy(g_Cifull(ispin))) call errquit(
+     &     'dft_zora_utils: ga_destroy failed ',0, GA_ERR)
+      enddo ! ispin
+c
+      do_zora_get_correction=do_zgc_old   ! restore value
+c
       return
       end
 c
