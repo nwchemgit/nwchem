@@ -657,8 +657,8 @@ c      value = value.and.MA_free_heap(psi2(2))
                 call K1dB_Vector_SumAll(2*nfft3d,dcpl_mb(orb(1)))
                 call band_dplot_gcube_write3d_orb(rtdb,filename,
      >                  number,cube_comment,
-     >                  kv,
      >                  dcpl_mb(orb(1)),
+     >                  kv,
      >                  .true.)
              else
                 call C3dB_c_Zero(1,dcpl_mb(orb(1)))
@@ -695,7 +695,7 @@ c      value = value.and.MA_free_heap(psi2(2))
                 call K1dB_Vector_SumAll(2*nfft3d,dcpl_mb(orb(1)))
                 call band_dplot_gcube_write3d_orb(rtdb,filename,
      >                         number,cube_comment,
-     >                         dcpl_mb(orb(1)),.false.)
+     >                         dcpl_mb(orb(1)),kv,.false.)
              else
                 call C3dB_c_Zero(1,dcpl_mb(orb(1)))
                 if (p.eq.taskid_k) then
