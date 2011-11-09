@@ -19,7 +19,6 @@ c
      $     drand
       double precision x, y, z, dimx, dimy, dimz, time
       real*4 etime, stuff(2)
-      external etime
 c
       integer ncharge, i, ntest, j
       parameter (ncharge = 10, ntest=100)

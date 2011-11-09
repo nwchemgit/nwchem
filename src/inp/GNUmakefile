@@ -16,7 +16,7 @@ include ../config/makefile.h
 include ../config/makelib.h
 
 test:	test.o
-	$(FC) $(FFLAGS) -o $@ $^ $(LIBS)
+	$(LINK.f) $(FFLAGS) -o $@ $^ $(LIBS)
 
 hnd_rdfree:	hnd_rdfree.o
 	$(LINK.f) -o $@ $^ $(LIBS) $(LIBS)

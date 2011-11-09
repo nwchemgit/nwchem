@@ -35,7 +35,7 @@ compare:	compare.o
 libcheck:	libcheck.o
 	$(LINK.f) -o $@ libcheck.o $(LIBS) 
 testbasis:	testbasis.o
-	$(LINK.f) -o $@ testbasis.o  $(LIBS)
+	$(LINK.f) -o $@ testbasis.o  $(LIBS) ../stubs.o -lnwctask
 
 basP.fh:	bas_staticP.fh
 	@touch basP.fh

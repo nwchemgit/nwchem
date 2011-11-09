@@ -51,7 +51,7 @@ davetest:	davetest.o $(LIBRARY_PATH)
 	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ davetest.o $(LIBS)
 
 cntx:	cntx.o  $(LIBRARY_PATH)
-	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^ cntx.o  $(LIBS)
+	$(FC) $(FFLAGS) $(LDFLAGS) -o $@ $^  $(LIBS)
 
 interact:	interact.o $(LIBRARY_PATH)
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ interact.o $(LIBRARY_PATH) -lglobal -ltcgmsg -L/msrc/apps/f771.4/SC1.0 -lF77 -lV77 -lm
