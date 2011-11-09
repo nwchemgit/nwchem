@@ -59,9 +59,10 @@ xerbla.o:	xerbla.f
 		$(peigs_FC) -c xerbla.f
 
 gendrv.o:	gendrv.F
-		$(peigs_CPP) < gendrv.F > gendrv.f
-		$(peigs_FC) $(peigs_FOPT) -c gendrv.f
-		rm gendrv.f
+		$(peigs_CPP) < gendrv.F > gendrvf.f
+		$(peigs_FC) $(peigs_FOPT) -c gendrvf.f
+		mv gendrvf.o gendrv.o
+		rm gendrvf.f
 
 
 .f.o: ;	 $(peigs_FC) -g $(peigs_FOPT) -c $<
