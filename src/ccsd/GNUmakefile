@@ -2,9 +2,10 @@
 
 include ../config/makefile.h
 
- LIB_DEFINES =
+ #OBJ = \
 
- OBJ = 	ccden_driver.o \
+ OBJ_OPTIMIZE = \
+    	ccden_driver.o \
 		ccden_interm2.o \
 		ccden_1pdm.o \
 		ccsd_driver.o \
@@ -13,9 +14,8 @@ include ../config/makefile.h
 		ccden_2pdma.o \
 		ccden_2pdmb.o \
 		ccsd_mktau_ga.o \
-		ccden_interm4.o
-
- OBJ_OPTIMIZE = aoccsd2.o \
+		ccden_interm4.o \
+        aoccsd2.o \
 		ccsd_itm.o \
 		ccsd_t2pm.o \
 		ccsd_pampt2.o \
@@ -81,7 +81,8 @@ endif
      ccden_1pdm.F \
      geaxpy.f \
      ccsd_mktau_ga.F \
-     ccden_2pdmb.F aoccsd2.F \
+     ccden_2pdmb.F \
+	 aoccsd2.F \
      moints_trp.F
 
 ifeq ($(TARGET),BGP)
