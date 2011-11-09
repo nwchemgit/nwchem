@@ -140,7 +140,7 @@ c Date  : 04-20-11
       double precision rx,ry,rz,dist
       double precision amat_nucl(nqpts),
      &                zetanuc_arr(natoms)
-      real a_coeff,rtemp,gammap,gammaq
+      double precision a_coeff,rtemp,gammap,gammaq
       integer closegridpts(*)
 c
       external gratio,  ! Evaluates Incomplete Gamma Function P(a,x)

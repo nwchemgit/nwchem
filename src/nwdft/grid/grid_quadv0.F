@@ -537,12 +537,7 @@ c
          else
             rho_err=abs(rho_int-1d0)
          endif
-         if (me.eq.0) then
-c ... jochen: changed rho_err to rho_int two lines below
-c             and changed the output format
-           if(.not.do_cpks_l.and.rho_err.gt.job_grid_acc.and.me.eq.0)
-     &        write(LuOut,123) rho_int,job_grid_acc
-         end if
+         if (me.eq.0) write(LuOut,123) rho_int,job_grid_acc
       endif
 
 c     some debug output to check the density integration error:
@@ -569,8 +564,8 @@ c
      &   call errquit('grid_den: cannot free heap',0, MA_ERR)
 c
  123  format(
-     &   1x,'Grid integrated density ',f20.12,/
-     &   1x,'deviates from requested integration accuracy ',e10.2)
+     &   1x,'Grid integrated density: ',f20.12,/
+     &   1x,'Requested integration accuracy: ',e10.2)
 c
       return
       end

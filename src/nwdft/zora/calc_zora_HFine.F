@@ -331,7 +331,7 @@ c +++++++++++++++++++++++++++++++++++++++
       double precision ac_zpso(3,3)
       double precision xyz_NMRcoords(3)
       double precision chi_cntr(3,nbf),qxyz1(3)
-      real threehalf
+      double precision threehalf
       data threehalf /1.5/
       logical ofinite,Knucl
 c
@@ -732,7 +732,7 @@ c ---- off diagonal -------- END
       enddo ! end-loo-k
       return
       end
-
+c
       subroutine get_Pnucl(amat_Pnucl,    ! out: potential
      &                     atmass,        ! in : atomic mass
      &                     xyz_NMRcoords, ! in : EFG-nuclear coord.
@@ -802,8 +802,8 @@ c    =1/2 for Vnucl (in gridNuclearPotential)
       double precision xyz_NMRcoords(3)
       double precision qxyz(3),Pnucl
       double precision rxyz(3),dist,dist2,ac_prod
-      real gammap,gammaq,rtemp,a_coeff
       double precision zetanuc_slc
+      real gammap,gammaq,rtemp,a_coeff
       external gratio ! defined in Incomplete_Gamma_TOMS_654.F
 c ---------- Defining values at hand to check --------- START    
 
