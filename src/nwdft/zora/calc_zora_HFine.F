@@ -757,24 +757,27 @@ c    =1/2 for Vnucl (in gridNuclearPotential)
       character*2  symbol
       character*16 tags
       logical is_atom
-      double precision atmass
+      double precision atmass,zetanuc
       real gammap,gammaq,rtemp,a_coeff
-      real zetanuc
+c
       external gratio,  ! defined in Incomplete_Gamma_TOMS_654.F
      &         get_znuc
-       call get_znuc(atmass,zetanuc) ! OUTPUT : zetanuc
-       do igrid = 1,nqpts
+c
+      call get_znuc(atmass,zetanuc)
+      do igrid = 1,nqpts
         ac_prod=0.0d0
         do i=1,3
          rxyz(i) = qxyz(i,igrid)-xyz_NMRcoords(i) 
          ac_prod=ac_prod+rxyz(i)*rxyz(i)
         enddo
-        rtemp = zetanuc*ac_prod  ! dist*dist
+        rtemp = real(zetanuc*ac_prod)  ! dist*dist
         call gratio(a_coeff,rtemp,gammap,gammaq,0)
         amat_Pnucl(igrid) = gammap  ! P(3/2,\tilde{r}_N^2)
-       end do ! end-grid
-       return
-       end
+      end do ! igrid
+c
+      return
+      end
+c
 c------- get_Pnucl1() ------------ START
 c Purpose : Get one single value of Pnucl
       subroutine get_Pnucl1(Pnucl,        ! out: potential
@@ -828,17 +831,20 @@ c ---------- Defining values at hand to check --------- ENd
         Pnucl = dble(gammap)  ! P(3/2,\tilde{r}_N^2)
        return
        end
+c
 c------- get_Pnucl1() ------------ END
-       subroutine get_znuc(atmass,  ! INPUT: atomic mass
-     &                     zetanuc) ! OUTPUT : zetanuc
 c     Purpose: Evaluation of zetanuc
 c              to be used in evaluation of Incomplete
 c              Gamma Function [gratio(...)]
 c              rtemp = zetanuc*ac_prod  ! dist*dist
 c              call gratio(threehalf,rtemp,gammap,gammaq,0)
-      implicit none
+c
+       subroutine get_znuc(atmass, zetanuc)
+c
+       implicit none
 #include "msgids.fh"
 #include "stdio.fh"
+c
        double precision atmass
        double precision parnuc1,parnuc2,
      &      one,two,three,threehalf,
@@ -862,12 +868,9 @@ c              rtemp = zetanuc*ac_prod  ! dist*dist
 c              call gratio(threehalf,rtemp,gammap,gammaq,0)
 c              This routine is used in gridNuclearPotential()
 c
-        subroutine get_zetanuc_arr(
-     &                          geom,        !  INPUT  : handle for geometry
-     &                          natoms,      !  INPUT  : number of atoms
-     &                          zetanuc_arr) !  OUTPUT : zetanuc_arr
+       subroutine get_zetanuc_arr(geom, natoms, zetanuc_arr) 
 c
-      implicit none
+       implicit none
 #include "errquit.fh"
 #include "mafdecls.fh"
 #include "geom.fh"

@@ -142,11 +142,12 @@ c Date  : 04-20-11
      &                zetanuc_arr(natoms)
       real a_coeff,rtemp,gammap,gammaq
       integer closegridpts(*)
+c
       external gratio,  ! Evaluates Incomplete Gamma Function P(a,x)
      &         get_zetanuc_arr
-
+c
       call get_zetanuc_arr(geom,natoms,zetanuc_arr) ! zetanuc_arr(i) i=1,natoms
-
+c
       a_coeff=0.5
       do igrid = 1,nqpts   ! == loop over the grid points ==
        amat_nucl(igrid) = 0.d0  
