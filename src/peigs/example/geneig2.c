@@ -52,6 +52,7 @@
 
 #include "globalp.c.h"
 
+static Integer countlist();
 
 #ifdef TIMING
 #include "timing.h"
@@ -96,7 +97,6 @@ void MAIN1()
   extern TIMINGG test_timing;
 #endif
   
-  extern Integer countlist();
   extern void geneig_res();
   extern void b_ortho();
   extern void tim_com();

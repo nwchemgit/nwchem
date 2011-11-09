@@ -49,6 +49,8 @@
 TIMINGG test_timing;
 #endif
 
+Integer static countlist();
+
 
 #ifdef CRAY_T3D
 void MAIN1()
@@ -83,8 +85,6 @@ static Integer IZERO = (Integer) 0;
   DoublePrecision time1, time2, timex;
   extern TIMINGG test_timing;
 #endif
-  
-  static Integer countlist();
   
   extern void tim_com();
   extern void mxend_();

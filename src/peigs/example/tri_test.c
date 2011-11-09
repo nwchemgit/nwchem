@@ -50,6 +50,8 @@
 TIMINGG test_timing;
 #endif
 
+extern Integer mxsync_();
+static Integer countlist();
 
 #ifdef CRAY_T3D
 void MAIN1()
@@ -87,8 +89,6 @@ void MAIN1()
   DoublePrecision time1, time2, timex;
   extern TIMINGG test_timing;
 #endif
-  
-  Integer countlist();
   
   extern void tim_com();
   extern void mxend_();
