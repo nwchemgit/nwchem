@@ -47,11 +47,11 @@ c
            fj(m+N+N+N,0)=ftex(3)*faci
         enddo
       else
-      do  m = 1,N
-         call fm(fj(m,0),l,ftex)
-         call dcopy(l+1,ftex,1,fj(m,0),N)
-      enddo
-         call dscal(N*(L+1),faci,fj(1,0),1)
+        do  m = 1,N
+           call fm(fj(m,0),l,ftex)
+           call dcopy(l+1,ftex,1,fj(m,0),N)
+        enddo
+        call dscal(N*(L+1),faci,fj(1,0),1)
       endif
       return
       end
