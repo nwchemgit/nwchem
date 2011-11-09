@@ -853,7 +853,8 @@ c      --> ga_dia_hfine,ga_h01_hfine,ga_Fji_hfine
       integer ld(2),cbuf,cbuf1,cbuf2
       integer nbf,natoms,ispin
       integer iatom,ix,iy,ixy
-      double precision dia(*),ga_dia_hfine,coeffpol
+      integer ga_dia_hfine
+      double precision dia(*),coeffpol
       logical oskel
       double precision val
       do ixy = 1, 9*natoms

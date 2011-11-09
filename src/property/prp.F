@@ -2,10 +2,9 @@
 * $Id$
 *
       subroutine hnd_propty(rtdb,basis,geom)
-
-c ... jochen: added some response stuff here
-
+c
       implicit none
+c
 #include "nwc_const.fh"
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -13,7 +12,8 @@ c ... jochen: added some response stuff here
 #include "rtdb.fh"
 #include "stdio.fh"
 #include "int_nbf.fh"
-#include "zora.fh" ! FA-09-24-10
+#include "zora.fh"
+c
       integer     rtdb   ! runtime database handle
       integer     basis  ! basis set "object" handle
       integer     geom   ! geometry "object" handle
@@ -21,7 +21,8 @@ c ... jochen: added some response stuff here
       logical     some
       logical     out 
       integer     iopt
-c     Modified by Fredy Aquino to Add EFG-ZORA4,G-shifts-ZORA
+      integer     i,ipol
+c
       integer
      &     nodip,noqdp,nootp,nopop,nospin,nodpl,nodhp,nod2hp,
      1     nofpl,nofhp,nof2hp,nosos,noelp,noelf,noelfg,noelfgZ4,noden,
@@ -50,13 +51,12 @@ c
       status=rtdb_get(rtdb,'prop:esp',MT_INT,1,noelp)               !done
       status=rtdb_get(rtdb,'prop:efield',MT_INT,1,noelf)            !done
       status=rtdb_get(rtdb,'prop:efieldgrad',MT_INT,1,noelfg)       !done
-      status=rtdb_get(rtdb,'prop:efieldgradZ4',MT_INT,1,noelfgZ4)   !done FA
+      status=rtdb_get(rtdb,'prop:efieldgradZ4',MT_INT,1,noelfgZ4)   !done
       status=rtdb_get(rtdb,'prop:electrondensity',MT_INT,1,noden)   !done
       status=rtdb_get(rtdb,'prop:stoneanalysis',MT_INT,1,noston)
       status=rtdb_get(rtdb,'prop:giao',MT_INT,1,nogiao)             !done
-      status=rtdb_get(rtdb,'prop:gshift',MT_INT,1,nogshift)         !done FA-09-13-10
+      status=rtdb_get(rtdb,'prop:gshift',MT_INT,1,nogshift)         !done
       status=rtdb_get(rtdb,'prop:spinspin',MT_INT,1,nospinspin)     !done
-c ... jochen:
       status=rtdb_get(rtdb,'prop:aoresponse',MT_INT,1,noaoresponse) !done
 c
       if(nodhp.eq.0.or.nod2hp.eq.0) nodpl=0
@@ -65,16 +65,16 @@ c
 
 c     ----- orbital localization ----
 
+c     Pipek-Mezey localization
       if (nopmloc.eq.0) then
-c       Pipek-Mezey localization
         call localization_driver(rtdb, basis, geom, 1)
       end if
+c
+c     Boys localization
       if (noboysloc.eq.0) then
-c       Boys localization
         call localization_driver(rtdb, basis, geom, 2)
       end if
-      
-
+c
 c     ----- aoresponse: frequency dependent response -----
 c
       if (noaoresponse.eq.0) then
@@ -224,6 +224,17 @@ c
         endif
         call hnd_gshift_ZORA(rtdb,basis,geom)
       end if
+c
+c     === deallocate used ga's ===
+      if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
+     &   ipol=1
+      if (nogshift.eq.0 .or. nogiao.eq.0 .or. nospin.eq.0 .and. 
+     &  do_zora) then
+        do i=1,ipol
+           if (.not. ga_destroy(g_Cifull(i))) call errquit(
+     &         'prp: ga_destroy failed ',0, GA_ERR)
+        enddo ! ipol
+      end if ! check
 c
 c     ----- stone's distributed multipole analysis -----
 c
