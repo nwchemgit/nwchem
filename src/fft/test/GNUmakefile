@@ -85,6 +85,6 @@ test:	$(OBJ)
 	(cd $(WRAP); $(MAKE) USE_ESSL='$(DO_ESSL)';)
 	touch testfft3.F
 	$(MAKE) testfft3.o
-	$(LINK.f) -o testfft3 $(OBJ) -ltask $(LIBS)	
+	$(LINK.f) -o testfft3 $(OBJ) -lnwctask $(LIBS)	
 
 
