@@ -3571,7 +3571,7 @@ c
           corr = corr + pt3_1
         endif
        endif
-      endif
+      !JEFFendif
       if ((model.eq.'lccsd').or.do_lccsd) then
 c -------------
 c LCCSD   right
