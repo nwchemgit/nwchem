@@ -160,7 +160,7 @@ c     == distance from the grid points to the atom centers ==
         ry = nucCoords(2) - qxyz(2,igrid)
         rz = nucCoords(3) - qxyz(3,igrid)
         dist = dsqrt(rx*rx + ry*ry + rz*rz)
-        rtemp = zetanuc_arr(iatom)*dist*dist
+        rtemp = real(zetanuc_arr(iatom)*dist*dist)
         call gratio(a_coeff,rtemp,gammap,gammaq,0)! Evaluate P(1/2,zetanuc r_L^2)
         if (dist.gt.zoracutoff) then ! == check cutoff ==          
            amat_nucl(igrid) = amat_nucl(igrid) - 
