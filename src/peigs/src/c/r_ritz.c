@@ -68,7 +68,7 @@ void r_ritz_(n, d, e, eval, map, evec, scratch, info)
 	  */
 	val =fabs(val1 - eval[i]);
 	if ( val > 1.e-13 ){
-	  printf(" PeIGS rayleigh estimates r-ritz i %d eval error val = %20.16f, eval %20.16f rel_error %20.16f \n", i, val1, eval[i], val);
+	  printf(" PeIGS rayleigh estimates r-ritz i %d eval error val = %20.16f, eval %20.16f rel_error %20.16f \n", (int)i, val1, eval[i], val);
 	  *info = -100;
 	  return;
 	}
@@ -83,7 +83,7 @@ void r_ritz_(n, d, e, eval, map, evec, scratch, info)
 	if ( map[j] == me ){
 	  val1 = ddot_(&msize, evec[ptr], &IONE, evec[k], &IONE);
 	  if ( fabs(val1) > 1.e-13 ){
-	    printf(" PEIGS r-ritz ortho i %d j %d dot_val = %20.16g \n", i, j, val1);
+	    printf(" PEIGS r-ritz ortho i %d j %d dot_val = %20.16g \n", (int)i, (int)j, val1);
 	    *info = -100;
 	    return;
 	  }

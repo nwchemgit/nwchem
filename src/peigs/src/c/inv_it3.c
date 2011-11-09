@@ -163,16 +163,18 @@ Integer inv_it3( n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, eval, eps
       niter++;
       
       if (niter > MAXITR){
-	fprintf(stderr, " \n me = %d MAXITS exceeded in inv_it \n \n", me);
-	fprintf(stderr, " c1= %d cn= %d b1= %d bn = %d \n", *c1,*cn,*b1,*bn);
+	fprintf(stderr, " \n me = %d MAXITS exceeded in inv_it \n \n", (int)me);
+	fprintf(stderr, " c1= %d cn= %d b1= %d bn = %d \n",
+                (int)*c1,(int)*cn,(int)*b1,(int)*bn);
 	fprintf(stderr, " nrm = %g stpcrt = %g \n", nrm, *stpcrt );
 	fprintf(stderr, "xj = %e onenrm = %e \n", xj, *onenrm);
 	for (indx22  = *b1; indx22 < *bn + 1; indx22++ )
 	  fprintf(stderr, "d[%d] = %e e[%d] = %e \n",
-		  indx22, d[indx22], indx22, e[indx22]);
+		  (int)indx22, d[indx22], (int)indx22, e[indx22]);
 
 	
-	printf(" \n me = %d Eigenvector %d failed to convergve in inv_it3 \n \n", me, *c1 + j );
+	printf(" \n me = %d Eigenvector %d failed to convergve in inv_it3 \n \n",
+               (int)me, (int)(*c1 + j) );
 	
         if( ibad == 0 )
 	  ibad = *c1 + j + 1;   /* note +1 needed since *c1 may be 0 */

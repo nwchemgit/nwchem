@@ -262,7 +262,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    me    = mxmynd_();
    nproc = mxnprc_();
 
-   sprintf( filename, "pdspevx.%d", me);
+   sprintf( filename, "pdspevx.%d", (int)me);
    strcpy( msg,  "Error in pstebz." );
    
 #ifdef DEBUG1
@@ -317,7 +317,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
         *info = linfo;
 
      fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
-              msg, me, -linfo );
+              msg, (int)me, (int)-linfo );
      xstop_( &linfo );
      return;
    }
@@ -375,7 +375,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    
    if ( linfo != 0 ) {
        fprintf( stderr, " %s me = %d argument %d has an illegal value. \n",
-                msg, me, -linfo );
+                msg, (int)me, (int)-linfo );
        *info = linfo;
        xstop_( info );
        return;
@@ -615,13 +615,13 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    
    if ( *info != 0 ) {
      if ( me == 0 )
-       printf(" PeIGS error from dstebz %d ...trying dsterf \n", *info );
+       printf(" PeIGS error from dstebz %d ...trying dsterf \n", (int)*info );
 
      file = fopen(filename, "a+");
-     fprintf(file, "info = %d \n", linfo);
-     fprintf(file, "%d \n", msize);
+     fprintf(file, "info = %d \n", (int)linfo);
+     fprintf(file, "%d \n", (int)msize);
      for ( iii = 0; iii < msize; iii++)
-       fprintf(file, "%d %20.16f %20.16f \n", iii, d[iii], e[iii]);
+       fprintf(file, "%d %20.16f %20.16f \n", (int)iii, d[iii], e[iii]);
      fflush(file);
      fclose(file);
      
@@ -634,7 +634,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
      dsterf_( &msize, &work[0], &work[msize+1], info);
      if ( *info != 0 ){
        if ( me == 0 )
-	 printf(" error from dsterf %d \n", *info );
+	 printf(" error from dsterf %d \n", (int)*info );
      }
      eval[0] = work[0];
    }
@@ -688,7 +688,7 @@ void pstebz10_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
 
      if ( *info != 0 ){
        if ( me == 0 )
-	 printf(" error from dsterf %d \n", *info );
+	 printf(" error from dsterf %d \n", (int)*info );
      }
      
      for (i = 0; i < msize; i++ ){

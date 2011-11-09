@@ -160,7 +160,7 @@ Integer inv_it4(iii,  n, c1, cn, b1, bn, Zbegin, map, mapvec, vector, d, e, ld, 
   free(wwork1);
   free(iwork1);
   */
-  printf(" exit inv_it4 me = %d \n", me);  
+  printf(" exit inv_it4 me = %d \n", (int)me);  
   return(ibad);
 }  
 

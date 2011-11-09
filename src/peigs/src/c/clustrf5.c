@@ -445,7 +445,8 @@ Integer clustrf5_ (n, d, e, m, w, mapZ, vecZ, iblock, nsplit, isplit, ptbeval, n
 	  eps1 = fabs(eps * xj);
 	  pertol = eps1 * R_TEN;
 	  if ((xj - w[j-1]) < -eps1) {
-	    printf(" Error in ordering eigenvalues: -5 error clustrf me = %d \n", me );
+	    printf(" Error in ordering eigenvalues: -5 error clustrf me = %d \n",
+                   (int) me );
 	  }
 	  sep = xj - xjm;
 /*

@@ -313,7 +313,7 @@ void pstebz11_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
         *info = linfo;
 
      fprintf( stderr, " %s me = %d argument %d is a pointer to NULL. \n",
-              msg, me, -linfo );
+              msg, (int)me, (int)-linfo );
      xstop_( &linfo );
      return;
    }
@@ -359,7 +359,7 @@ void pstebz11_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    
    if ( linfo != 0 ) {
        fprintf( stderr, " %s me = %d argument %d has an illegal value. \n",
-                msg, me, -linfo );
+                msg, (int)me, (int)-linfo );
        *info = linfo;
        xstop_( info );
        return;
@@ -713,9 +713,9 @@ void pstebz11_( job, n, lb, ub, jjjlb, jjjub, abstol, d, e, dplus, lplus, mapZ, 
    
    if ( *info != 0 ) {
      fprintf(stderr, " me = %d ifakeme=%d dlasq1 returned info = %d to pstebz \n",
-	     me, ifakeme, *info );
+	     (int)me, (int)ifakeme, (int)*info );
      fprintf(stderr, " me = %d ifakeme=%d dlasq1 also returned neig= %d il=%d iu=%d \n",
-	     me, ifakeme, m, il, iu );
+	     (int)me, (int)ifakeme, (int)m, (int)il, (int)iu );
      *info = 1;
      exit(-30);
    }
