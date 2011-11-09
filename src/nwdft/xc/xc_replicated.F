@@ -61,26 +61,25 @@ c  Check number of nodes to decide to use Mirror Array
         
 
       if (.not. rtdb_get(rtdb, 'dft:dorepdm', mt_log, 1, 
-     .     dorepdm))
+     &     dorepdm))
      &     dorepdm=.true.
       if (.not. rtdb_get(rtdb, 'dft:dorepxc', mt_log, 1, 
-     .     dorepxc))
+     &     dorepxc))
      &     dorepxc=.true.
       if (rtdb_get(rtdb, 'dft:xcreplicated', mt_log, 1, 
-     .     xcreplicated_l)) then
+     &     xcreplicated_l)) then
          if(.not.xcreplicated_l) return
       else
          xcreplicated_l=.false.
       endif
       if (.not. rtdb_get(rtdb, 'dft:xcrepirrg', mt_log, 1, 
-     .     xcrepirrg)) xcrepirrg=.false.
+     &     xcrepirrg)) xcrepirrg=.false.
       if(dorepxc) dorepxc=xc_ndim.eq.2
       if(dograd) truerepxc=.false.
       if(truerepxc) truerepxc=xc_ndim.eq.2
-
-         xcreplicated_l=.false.
-	 xcrep_ga=.false.
-         if(truerep) then
+      xcreplicated_l=.false.
+      xcrep_ga=.false.
+      if(truerep) then
 c
 c     true replicated data aka no mirroring
 c
