@@ -5,10 +5,14 @@
       integer zcomp,zcomm
       integer valcomm,valcomp
       integer newdist
+      integer ga_Nodeid
+      external ga_Nodeid
+      integer getdist
+      external getdist
 
       stcr='comp'
       call initialize_dist()
-      zcomp = getdist( strc )
+      zcomp = getdist( stcr )
 
       valcomp=123456
       call updist(zcomp, valcomp-1)
