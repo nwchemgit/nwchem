@@ -4,7 +4,7 @@ c! 2) #include "ccsdps.fh" is unnecessary
 c! 3) constants to variables is bad 
 c! 4) remove if (occsdps) for a moment
 c! 
-c! Orignial   60794725
+c! Original 60794725
 c! Computed 42410408, intrinsics for d0-d9
         subroutine ccsd_tengy_bgp2(f1n,f1t,f2n,f2t,f3n,f3t,f4n,f4t,
      1             dintc,dintx,t1v,eorb_r,eaijk,emp4,emp5,nvir)
