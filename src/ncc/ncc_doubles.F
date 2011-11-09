@@ -158,6 +158,8 @@ c
 c
 #ifdef DEBUG_PRINT
       print*,'top of ncc_doubles_create_aa'
+      DP(tszocc)
+      DP(tszvir)
 #endif
 c
 c     determine number of full tiles (dimension tszocc^2 * tszvir^2)

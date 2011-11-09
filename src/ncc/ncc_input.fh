@@ -3,13 +3,15 @@ c
 c Include file for NCC module
 c
       integer debugmode
+      integer occtile
+      integer virtile
       double precision thresh
       character*20 method
 c
 c     Integers
 c 
       common /nccinputinteger/
-     1 debugmode
+     1 debugmode,occtile,virtile
 c
 c     Doubles
 c

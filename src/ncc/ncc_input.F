@@ -88,17 +88,22 @@ c
         else
           debugmode = itemp
         endif
+#ifndef NO_RTDB_CALLS
+        if (.not.rtdb_put(rtdb,'ncc:debugmode',mt_int,1,thresh)) then
+          call errquit('ncc_input: rtdb_put failed',0,RTDB_ERR)
+        endif
+#endif
         if (debug) write(LuOut,150) debugmode
 c
 c     FREEZE (frozen cores/virtuals)
 c
-      else if (inp_compare(.false.,test,'freeze')) then
+      elseif (inp_compare(.false.,test,'freeze')) then
         if (debug) write(LuOut,100) 'freeze'
         call freeze_input(rtdb,'ncc')
 c
 c     METHOD (ccsd, etc.)
 c
-      else if (inp_compare(.false.,test,'method')) then
+      elseif (inp_compare(.false.,test,'method')) then
         if (debug) write(LuOut,100) 'method'
         if (.not.inp_a(ctemp)) then
           call errquit('ncc_input: no method given',0,RTDB_ERR)
@@ -113,7 +118,7 @@ c
 c
 c     THRESH (convergence threshold for Davidson iteration)
 c
-      else if (inp_compare(.false.,test,'thresh')) then
+      elseif (inp_compare(.false.,test,'thresh')) then
         if (debug) write(LuOut,100) 'thresh'
         if (.not.inp_f(dtemp)) then
           call errquit('ncc_input: no thresh given',0,RTDB_ERR)
@@ -126,15 +131,47 @@ c
 #endif
         if (debug) write(LuOut,160) thresh
 c
+c     TILING
+c
+      elseif (inp_compare(.false.,test,'occtile')) then
+        if (debug) write(LuOut,100) 'occtile'
+        if (.not.inp_i(itemp)) then
+          write(LuOut,200) 'occtile',10
+          occtile = 10
+        else
+          occtile = itemp
+        endif
+#ifndef NO_RTDB_CALLS
+        if (.not.rtdb_put(rtdb,'ncc:occtile',mt_int,1,thresh)) then
+          call errquit('ncc_input: rtdb_put failed',0,RTDB_ERR)
+        endif
+#endif
+        if (debug) write(LuOut,150) occtile
+c
+      elseif (inp_compare(.false.,test,'virtile')) then
+        if (debug) write(LuOut,100) 'virtile'
+        if (.not.inp_i(itemp)) then
+          write(LuOut,200) 'virtile',25
+          virtile = 25
+        else
+          virtile = itemp
+        endif
+#ifndef NO_RTDB_CALLS
+        if (.not.rtdb_put(rtdb,'ncc:virtile',mt_int,1,thresh)) then
+          call errquit('ncc_input: rtdb_put failed',0,RTDB_ERR)
+        endif
+#endif
+        if (debug) write(LuOut,150) virtile
+c
 c     PRINT
 c
-      else if (inp_compare(.false.,test,'print')) then
+      elseif (inp_compare(.false.,test,'print')) then
         if (debug) write(LuOut,100) 'print'
         call util_print_input(rtdb,'ncc')
 c
 c     END
 c
-      else if (inp_compare(.false.,test,'end')) then
+      elseif (inp_compare(.false.,test,'end')) then
         if (debug) write(LuOut,100) 'end'
         goto 20
       else
@@ -161,6 +198,6 @@ c
  160  format(8x,'using value:           ',f20.8)
  170  format(8x,'using value:           ',a20)
  200  format(8x,'value not found for:   ',a20,/,
-     &          'using default value of ',i20)
+     &       8x,'using default value of ',i20)
 c
       end
