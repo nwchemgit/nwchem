@@ -204,7 +204,7 @@ void FATR pspsolve_
 	  strcat (full_filename, name);
 
 	  printf("Outputing pseudopotentials: %s\n", full_filename);
-	  fp = fopen (full_filename, "w+");
+	  fp = fopen(full_filename, "w+");
 	  for (k = 0; k < Nlinear; ++k)
 	    {
 	      fprintf(fp, "%12.8lf", rl[k]);
@@ -435,8 +435,8 @@ void FATR pspsolve_
       full_filename[m9 + 1] = '\0';
       strcat (full_filename, name);
 
-      printf ("Outputing atom density: %s\n", full_filename);
-      fp = fopen (full_filename, "w+");
+      printf("Outputing atom density: %s\n", full_filename);
+      fp = fopen(full_filename, "w+");
       for (k = 0; k < Ngrid; ++k)
 	fprintf(fp, "%12.8lf %12.8lf\n", rgrid[k], rho_Atom()[k]);
       fclose(fp);
@@ -493,7 +493,7 @@ void FATR pspsolve_
       strcat (full_filename, name);
 
       printf("Outputing semicore density: %s\n", full_filename);
-      fp = fopen (full_filename, "w+");
+      fp = fopen(full_filename, "w+");
       for (k = 0; k < Ngrid; ++k)
 	fprintf(fp, "%12.8lf %12.8lf\n", rgrid[k], rho_semicore_Psp()[k]);
       fclose(fp);
