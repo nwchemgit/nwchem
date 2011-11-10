@@ -804,7 +804,7 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
   if [ -d /dev/infiniband ] ; then
     # There seems to be an infiniband network on this machine
     export ARMCI_NETWORK="OPENIB"
-    export LIBMPI="${LIBMPI} -libverbs"
+    export IB_LIB="-libverbs"
     if [ -d /usr/include/infiniband ] ; then
       export IB_INCLUDE="/usr/include/infiniband"
     else
@@ -843,6 +843,7 @@ if [ ${#LIBMPI} -eq 0 ] ; then
   if [ $? -ne 0 ] ; then
     unset LIBMPI
   fi
+  LIBMPI="${LIBMPI} ${IB_LIB}"
 fi
 if [ ${#MPI_F90} -eq 0 ] ; then
   MPI_F90=`get_mpi_fortran`
