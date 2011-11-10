@@ -882,7 +882,7 @@ c      end
         call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
 
 
-*       **** sw2 = Vxcijl*sw1 ******
+*       **** sw2 = sw2 + Vxcijl*sw1 ******
         call nwpw_xc_solve(ii,ia,
      >     int_mb(n1dgrid(1)+ia-1),
      >     int_mb(n1dbasis(1)+ia-1),

@@ -85,7 +85,9 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
      >                     'psp_type',psp_type(2),psp_type(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,(npsp),'rlocal',rlocal(2),rlocal(1))
-
+      value = value.and.
+     >        MA_alloc_get(mt_int,npsp,'r3_matrix',
+     >                     r3_matrix(2),r3_matrix(1))
 
 *     ***** PAW variables *****
       value = value.and.
@@ -266,6 +268,9 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
            call psi_data_dealloc(int_mb(core_ps_prime(1)+ia-1))
            call psi_data_dealloc(int_mb(rgrid(1)+ia-1))
         end if
+        if (int_mb(psp_type(1)+ia-1).ne.4) then
+           call psi_data_dealloc(int_mb(r3_matrix(1)+ia-1))
+        end if
       end do
 
       value = MA_free_heap(prjtmp(2))
@@ -293,6 +298,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
          call nwpw_compcharge_end()
          call nwpw_xc_end()
       end if
+      value = value.and.MA_free_heap(r3_matrix(2))
       value = value.and.MA_free_heap(hartree_matrix(2))
       value = value.and.MA_free_heap(comp_charge_matrix(2))
       value = value.and.MA_free_heap(comp_pot_matrix(2))
@@ -1267,11 +1273,11 @@ ccccccc#include "frac_occ.fh"
 *     **** external functions ****
       logical  is_sORd
       integer  ion_nion,ion_katm,Pack_G_indx
-      integer  psi_data_get_ptr
+      integer  psi_data_get_ptr,psi_data_get_chnk
       real*8   lattice_omega
       external is_sORd
       external ion_nion,ion_katm,Pack_G_indx
-      external psi_data_get_ptr
+      external psi_data_get_ptr,psi_data_get_chnk
       external lattice_omega
 
       call nwpw_timing_start(6) 
@@ -1393,6 +1399,29 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
         !scal = 1.0d0/(omega)
         call dscal(nn*int_mb(nprj(1)+ia-1)*nprj_mult,
      >             scal,dbl_mb(sw2(1)),1)
+
+*       **** add xc and coulomb paw parts to sw2 ***
+        if ((int_mb(psp_type(1)+ia-1).eq.4)) then
+
+*          **** sw2 = sw2 + Vxcijl*sw1 ******
+           call nwpw_xc_solve(ii,ia,
+     >        int_mb(n1dgrid(1)+ia-1),
+     >        int_mb(n1dbasis(1)+ia-1),
+     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ae(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(phi_ps(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ae(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(dphi_ps(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(core_ae_prime(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(core_ps_prime(1)+ia-1))),
+     >        dbl_mb(psi_data_get_chnk(int_mb(rgrid(1)+ia-1))),
+     >        dbl_mb(log_amesh(1)+ia-1),
+     >        ispin,ne,int_mb(nprj(1)+ia-1),
+     >        dbl_mb(sw1(1)),dbl_mb(sw2(1)))
+
+        end if
+
         call DGEMM('N','T',2*npack1,nn,int_mb(nprj(1)+ia-1)*nprj_mult,
      >             (-1.0d0),
      >             dcpl_mb(prjtmp(1)), 2*npack1,
@@ -1797,6 +1826,7 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                       rgrid_tag,
      >                       core_kin_energy,
      >                       hartree_tag,comp_charge_tag,comp_pot_tag,
+     >                       r3_tag,
      >                       tmp,tmp2,
      >                       ierr)
       implicit none 
@@ -1834,6 +1864,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       integer rgrid_tag
       real*8  core_kin_energy
       integer hartree_tag,comp_charge_tag,comp_pot_tag
+      integer r3_tag
 
       complex*16 tmp(*)
       real*8     tmp2(*)
@@ -1984,7 +2015,7 @@ c     **** define Gx,Gy and Gz in packed space ****
 *     ***** Miscellaneous paw energies and 1d wavefunctions****
       if (psp_type.eq.4) then
 
-         !**** allocate and reading hartree_matrix(nprj,nprj,nprj,nprj,2*lmax+1) ****
+         !**** allocate and reading hartree_matrix(n1dbasis,n1dbasis,n1dbasis,n1dbasi,2*lmax+1) ****
          msglen=n1dbasis*n1dbasis*n1dbasis*n1dbasis
          hartree_tag  = psi_data_alloc(2*lmax+1,msglen)
          indx = psi_data_get_chnk(hartree_tag)
@@ -1994,7 +2025,7 @@ c     **** define Gx,Gy and Gz in packed space ****
          call Parallela_Brdcst_values(com_p,MASTER,(2*lmax+1)*msglen,
      >                                dbl_mb(indx))
 
-         !**** allocate and reading comp_charge_matrix(nprj,nprj,2*lmax+1) ****
+         !**** allocate and reading comp_charge_matrix(n1dbasis,n1dbasis,2*lmax+1) ****
          msglen=n1dbasis*n1dbasis
          comp_charge_tag  = psi_data_alloc(2*lmax+1,msglen)
          indx = psi_data_get_chnk(comp_charge_tag)
@@ -2004,7 +2035,7 @@ c     **** define Gx,Gy and Gz in packed space ****
          call Parallela_Brdcst_values(com_p,MASTER,(2*lmax+1)*msglen,
      >                                dbl_mb(indx))
 
-         !**** allocate and reading comp_pot_matrix(nprj,nprj,2*lmax+1) ****
+         !**** allocate and reading comp_pot_matrix(n1dbasis,n1dbasi,2*lmax+1) ****
          msglen=n1dbasis*n1dbasis
          comp_pot_tag  = psi_data_alloc(2*lmax+1,msglen)
          indx = psi_data_get_chnk(comp_pot_tag)
@@ -2169,6 +2200,21 @@ c     **** define Gx,Gy and Gz in packed space ****
          call Pack_t_Copy(0,tmp2,ncore(1+4*npack0))
       end if
 
+*     **** read in r3_matrix if not paw(for now) ****
+      if (psp_type.ne.4) then
+
+         !**** allocate and reading r3_matrix(n1dbasis,n1dbasis) ****
+         msglen=n1dbasis*n1dbasis
+         r3_tag = psi_data_alloc(1,msglen)
+         indx   = psi_data_get_chnk(r3_tag)
+         if (taskid_p.eq.MASTER) then
+            call dread(5,dbl_mb(indx),msglen)      
+         end if
+         call Parallela_Brdcst_values(com_p,MASTER,msglen,
+     >                                dbl_mb(indx))
+
+      end if
+
 *     *** close fname binary file ***
       if (taskid_p.eq.MASTER) then
 c       close(11)
@@ -2319,6 +2365,7 @@ c     logocal semicore(0:nkatmx)
      >                  int_mb(hartree_matrix(1)+ia-1),
      >                  int_mb(comp_charge_matrix(1)+ia-1),
      >                  int_mb(comp_pot_matrix(1)+ia-1),
+     >                  int_mb(r3_matrix(1)+ia-1),
      >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
      >                  ierr)
 
@@ -2376,7 +2423,11 @@ c     logocal semicore(0:nkatmx)
                call psi_data_dealloc(int_mb(core_ps_prime(1)+ia-1))
                call psi_data_dealloc(int_mb(rgrid(1)+ia-1))
                end if
+               if (int_mb(psp_type(1)+ia-1).ne.4) then
+               call psi_data_dealloc(int_mb(r3_matrix(1)+ia-1))
+               end if
               end if
+
            end if
            if (correct_box) found = .true.
 

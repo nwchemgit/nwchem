@@ -14,6 +14,7 @@
       integer    b_projector(2)
       integer    npsp,nprj_max,nprj_mult
       integer    psp_type(2)
+      integer    r3_matrix(2)
 
       integer nkatmx,lmmax_max,lmax_max,nmax_max
       parameter (nkatmx=50,lmax_max=4,lmmax_max=16,nmax_max=3)
@@ -22,7 +23,7 @@
       common / psp_block / prjtmp,vl,vnl,Gijl,zv,amass,rc,
      >                     lmmax,lmax,locp,nmax,
      >                     nprj,n_projector,l_projector,m_projector,
-     >                     b_projector,
+     >                     b_projector,r3_matrix,
      >                     psp_type,npsp,nprj_max,nprj_mult,
      >                     atom,comment
 
