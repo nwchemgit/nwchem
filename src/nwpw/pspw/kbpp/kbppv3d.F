@@ -145,11 +145,11 @@ c      call Parallel_Init()
      > call errquit('kbppv3d:out of heap memory',0,MA_ERR)
 
       if (taskid.eq.MASTER) then
-      call read_vpwp(11,nrho,lmax,dbl_mb(rho_indx),
+      call read_vpwpup(11,nrho,lmax,dbl_mb(rho_indx),
      >                         dbl_mb(vp_indx),
-     >                         dbl_mb(wp_indx))
+     >                         dbl_mb(wp_indx),
+     >                         dbl_mb(up_indx))
       call read_semicore(11,isemicore,rcore,nrho,dbl_mb(sc_r_indx))
-      call read_up(11,nrho,lmax,dbl_mb(up_indx))
       close(11)
       end if
 

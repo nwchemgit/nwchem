@@ -439,12 +439,14 @@ c      call Parallel_Init()
 
       subroutine read_vpwp(unit,nrho,lmax,rho,vp,wp)
       implicit none
-#include "errquit.fh"
       integer unit
       integer nrho,lmax
       double precision rho(nrho)
       double precision vp(nrho,0:lmax)
       double precision wp(nrho,0:lmax)
+
+#include "errquit.fh"
+
       integer i,j
 
 
@@ -467,21 +469,28 @@ c     read(11,*,ERR=9116,END=9117)(RHO(I),(WP(I,J),J=0,LMAX),I=1,NRHO)
       end
 
 
-      subroutine read_up(unit,nrho,lmax,up)
+      subroutine read_vpwpup(unit,nrho,lmax,rho,vp,wp,up)
       implicit none
       integer unit
       integer nrho,lmax
+      double precision rho(nrho)
+      double precision vp(nrho,0:lmax)
+      double precision wp(nrho,0:lmax)
       double precision up(nrho,0:lmax)
 
 #include "errquit.fh"
-     
+
       integer i,j
-      real*8  rr
 
       do i=1,nrho
-        read(unit,*,ERR=9999,END=9999) rr,(up(i,j),j=0,lmax)
+        read(unit,*,ERR=9999,END=9999) rho(i),(vp(i,j),j=0,lmax)
       end do
-
+      do i=1,nrho
+        read(unit,*,ERR=9999,END=9999) rho(i),
+     >                                 (wp(i,j),j=0,lmax),
+     >                                 (up(i,j),j=0,lmax)
+      end do
+      
       return
  9999 call errquit('kbppv3:Error reading psp_filename',0, DISK_ERR)
       end
