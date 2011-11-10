@@ -397,7 +397,8 @@ c
          if (.not. file_opened) then
 #ifdef DEBUG
           if(ga_nodeid().eq.0) then
-             write(6,*) ' grid file type',eaftype
+             write(6,*) ' grid file type',eaftype,
+     C            ' fop ',file_opened
             call util_flush(LuOut)
             endif
 #endif
@@ -408,7 +409,8 @@ c
 #endif
                call errquit('grid_pckbufw: eaf_open failed', 0,
      &       DISK_ERR)
-            file_opened = .true.
+            else
+               file_opened = .true.
             endif
          endif
        if (cur_rec .le. max_cache_rec) then
