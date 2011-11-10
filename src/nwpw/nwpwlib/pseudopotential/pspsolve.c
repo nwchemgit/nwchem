@@ -263,17 +263,18 @@ void FATR pspsolve_
 	}
       if (print)
 	{
-	  printf("  + Appending pseudowavefunctions: %s thru %s\n",
-		  spd_Name (0), spd_Name (lmax_Psp()));
+	  printf("  + Appending pseudowavefunctions and aewavefunctions: %s thru %s\n",
+		  spd_Name(0), spd_Name(lmax_Psp()));
 	}
       for (k = 0; k < Nlinear; ++k)
 	{
 	  fprintf(fp, "%12.8lf", rl[k]);
 	  for (p = 0; p <= lmax_Psp(); ++p)
 	    fprintf(fp, " %12.8lf", psil[p][k]);
+	  for (p = 0; p <= lmax_Psp(); ++p)
+	    fprintf(fp, " %12.8lf", psil_ae[p][k]);
 	  fprintf(fp, "\n");
 	}
-
 
       /* append semicore corrections */
       if (r_semicore_Psp() != 0.0)
@@ -297,19 +298,6 @@ void FATR pspsolve_
 	    fprintf (fp, "%12.8lf %12.8lf\n", rl[k], (rhol[k] * over_fourpi));
 	}
 
-      if (print)
-	{
-	  printf("  + Appending ae wavefunctions: %s thru %s\n",
-		  spd_Name (0), spd_Name(lmax_Psp()));
-	}
-
-      for (k = 0; k < Nlinear; ++k)
-	{
-	  fprintf(fp, "%12.8lf", rl[k]);
-	  for (p = 0; p <= lmax_Psp(); ++p)
-	    fprintf(fp, " %12.8lf", psil_ae[p][k]);
-	  fprintf(fp, "\n");
-	}
 
       fclose(fp);
     }				/* Norm-conserving PSP output */
