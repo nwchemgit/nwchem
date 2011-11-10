@@ -36,8 +36,8 @@
       double precision rc(0:9),rlocal1
       integer nrho
       double precision drho
-      integer rho_indx,vp_indx,wp_indx,sc_r_indx,sc_k_indx
-      integer rho_hndl,vp_hndl,wp_hndl,sc_r_hndl,sc_k_hndl
+      integer rho_indx,vp_indx,wp_indx,up_indx,sc_r_indx,sc_k_indx
+      integer rho_hndl,vp_hndl,wp_hndl,up_hndl,sc_r_hndl,sc_k_hndl
 
       integer          isemicore
       logical          semicore
@@ -47,6 +47,8 @@
       integer n_prj_indx,l_prj_indx,m_prj_indx,b_prj_indx
       integer f_hndl,cs_hndl,sn_hndl
       integer n_prj_hndl,l_prj_hndl,m_prj_hndl,b_prj_hndl
+
+      integer r3_matrix(2)
 
 *     ***** ngrid data *****
       integer vl_indx,vnl_indx,vnlnrm_indx,tmp(2)
@@ -135,6 +137,8 @@ c      call Parallel_Init()
      >                        'vp',vp_hndl, vp_indx)
       value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'wp', wp_hndl, wp_indx)
+      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
+     >                        'up', up_hndl, up_indx)
       value = value.and.MA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
       if (.not.value) 
@@ -145,6 +149,7 @@ c      call Parallel_Init()
      >                         dbl_mb(vp_indx),
      >                         dbl_mb(wp_indx))
       call read_semicore(11,isemicore,rcore,nrho,dbl_mb(sc_r_indx))
+      call read_up(11,nrho,lmax,dbl_mb(up_indx))
       close(11)
       end if
 
@@ -153,6 +158,7 @@ c      call Parallel_Init()
       msglen = nrho*(lmax+1)
       call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(vp_indx))
       call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(wp_indx))
+      call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(up_indx))
 
       msglen = 1
       call Parallel_Brdcst_ivalues(MASTER,msglen,isemicore)
@@ -163,6 +169,14 @@ c      call Parallel_Init()
       else
          rcore = 0.0d0
       end if
+
+*     **** allocate Mdipole ****
+      l=(lmax+1)**2
+      value=value.and.
+     >      MA_alloc_get(mt_dbl,l,'r3_matrix',
+     >                   r3_matrix(2),r3_matrix(1))
+      call dcopy(l,0.0d0,0,dbl_mb(r3_matrix(1)),1)
+
 
 
 *    **** more temporary space ****
@@ -285,6 +299,12 @@ c      call Parallel_Init()
       end if
 
 
+*     **** compute the <1/r3> matrix elements ****
+      call generate_r3_matrix(nrho,lmax,drho,
+     >                        dbl_mb(rho_indx),
+     >                        dbl_mb(wp_indx),dbl_mb(up_indx),
+     >                        dbl_mb(f_indx),
+     >                        dbl_mb(r3_matrix(1)))
 
       if ((taskid.eq.MASTER).and.(oprint)) then
       write(luout,*) "     ********************************************"
@@ -404,7 +424,11 @@ c      call Parallel_Init()
       call D3dB_t_write(1,2,dbl_mb(sc_k_indx+2*nsize),dcpl_mb(tmp(1)),0)
       call D3dB_t_write(1,2,dbl_mb(sc_k_indx+3*nsize),dcpl_mb(tmp(1)),0)
       end if
-      
+
+*     **** writeout the r3_matrix ****
+      if (taskid.eq.MASTER) then
+         call dwrite(2,dbl_mb(r3_matrix(1)),(lmax+1)**2)
+      end if
 
       if (taskid.eq.MASTER) then
       call closefile(2)
@@ -414,6 +438,7 @@ c      call Parallel_Init()
 *     **** free heap space ****
       value = MA_free_heap(rho_hndl)
       value = value.and.MA_free_heap(vp_hndl)
+      value = value.and.MA_free_heap(up_hndl)
       value = value.and.MA_free_heap(wp_hndl)
       value = value.and.MA_free_heap(sc_r_hndl)
       value = value.and.MA_free_heap(sc_k_hndl)
@@ -428,6 +453,7 @@ c      call Parallel_Init()
       value = value.and.MA_free_heap(l_prj_hndl)
       value = value.and.MA_free_heap(m_prj_hndl)
       value = value.and.MA_free_heap(b_prj_hndl)
+      value = value.and.MA_free_heap(r3_matrix(2))
       value = value.and.MA_free_heap(tmp(2))
       if (.not.value) 
      > call errquit('kbppv3:Error freeing memory',0,MA_ERR)
@@ -444,6 +470,54 @@ c      call Parallel_Init()
 
       END
 
+*     *******************************************************
+*     *                                                     *
+*     *             generate_r3_matrix                      *
+*     *                                                     *
+*     *******************************************************
+*
+*     Computes the matrix elements for EFG tensor calculations
+*
+*      r3_matrix(li,lj) = <uli|1/r3|ulj> - <wli|1/r3|wlj>
+*
+      subroutine generate_r3_matrix(nrho,lmax,drho,rho,wp,up,f,
+     >                              r3_matrix)
+      implicit none
+      integer nrho,lmax
+      real*8  drho
+      real*8  rho(nrho)
+      real*8  wp(nrho,0:lmax)
+      real*8  up(nrho,0:lmax)
+      real*8  f(nrho)
+      real*8  r3_matrix(0:lmax,0:lmax)
+
+*     **** local variables ****
+      integer li,lj,i
+      real*8  coeff
+
+*     **** external functions ****
+      real*8   simp
+      external simp
+
+      call dcopy((lmax+1)**2,0.0d0,0,r3_matrix,1)
+      do lj=0,lmax
+         do li=lj,lmax
+            if ((li+lj).gt.0) then
+               
+               do i=1,nrho
+                  f(i) = (up(i,li)*up(i,lj)-wp(i,li)*wp(i,lj))
+     >                   /(rho(i)**3)
+               end do
+               coeff = simp(nrho,f,drho)
+               r3_matrix(li,lj) = coeff
+               if (li.ne.lj) r3_matrix(lj,li) = coeff
+
+            end if
+         end do
+      end do
+
+      return
+      end
 
 
 

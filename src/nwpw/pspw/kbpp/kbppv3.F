@@ -463,20 +463,41 @@ c     read(11,*,ERR=9116,END=9117)(RHO(I),(WP(I,J),J=0,LMAX),I=1,NRHO)
 
       
       return
-
  9999 call errquit('kbppv3:Error reading psp_filename',0, DISK_ERR)
       end
 
+
+      subroutine read_up(unit,nrho,lmax,up)
+      implicit none
+      integer unit
+      integer nrho,lmax
+      double precision up(nrho,0:lmax)
+
+#include "errquit.fh"
+     
+      integer i,j
+      real*8  rr
+
+      do i=1,nrho
+        read(unit,*,ERR=9999,END=9999) rr,(up(i,j),j=0,lmax)
+      end do
+
+      return
+ 9999 call errquit('kbppv3:Error reading psp_filename',0, DISK_ERR)
+      end
+
+
       subroutine read_semicore(unit,isemicore,rcore,nrho,rho_sc)
       implicit none
-#include "errquit.fh"
       integer unit
       integer isemicore
       double precision rcore
       integer nrho
       double precision rho_sc(nrho,2),rr
-      integer i
 
+#include "errquit.fh"
+
+      integer i
 
       read(unit,*,ERR=8887,END=8887) rcore
 
