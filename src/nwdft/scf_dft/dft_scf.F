@@ -1666,6 +1666,11 @@ c
      $     ' (',f8.2,' kcal/mol)'                       )
  1970 continue
 c
+c     do analysis of MO occupations per irrep
+c
+      call print_irrep_occp(ao_bas_han, nbf_ao, int_mb(k_ir),
+     &                      dbl_mb(k_occ), ipol)
+c
 c     calculate final cosmo charges
 c
       if (.not.rtdb_get(rtdb,'cosmo_esp',mt_log,1,cosmo_esp)) 
