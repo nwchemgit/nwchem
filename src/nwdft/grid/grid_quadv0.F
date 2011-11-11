@@ -537,8 +537,9 @@ c
          else
             rho_err=abs(rho_int-1d0)
          endif
-         if (me.eq.0) write(LuOut,123) rho_int,job_grid_acc
-      endif
+         if(.not.do_cpks_l.and.rho_err.gt.job_grid_acc.and.me.eq.0)
+     &      write(LuOut,123) rho_int,job_grid_acc
+      endif ! oprintw
 
 c     some debug output to check the density integration error:
 c$$$      if (me.eq.0) then
