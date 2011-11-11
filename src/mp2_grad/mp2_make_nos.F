@@ -100,7 +100,11 @@ c
          call ga_scale(g_dens,-1.0d0)
 c
 #ifdef PARALLEL_DIAG
+#ifdef SCALAPACK
+         call ga_pdsyev  (g_dens, g_work, dbl_mb(k_eval+ioff), 0)
+#else
          call ga_diag_std(g_dens, g_work, dbl_mb(k_eval+ioff))
+#endif
 #else
          call ga_diag_std_seq(g_dens, g_work, dbl_mb(k_eval+ioff))
 #endif
