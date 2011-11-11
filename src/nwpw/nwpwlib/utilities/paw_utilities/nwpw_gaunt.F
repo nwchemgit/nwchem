@@ -541,13 +541,14 @@ c!  *************************************************
 
       !*** local variables ***
       integer i,mod_m
-      double precision coeff,twopi,fourpi,f
+      double precision coeff,twopi,fourpi,f,sin_theta
 
       !*** external functions *** 
       double precision rlegendre_lm
       external         rlegendre_lm
 
       twopi = 8.0d0*datan(1.0d0)
+      sin_theta = dsqrt(1.0d0-cos_theta*cos_theta)
 
       mod_m = abs(m)
       if (mod_m.gt.l) 
@@ -564,11 +565,25 @@ c!  *************************************************
       endif
       coeff = coeff*(2*l+1)/twopi
       coeff = dsqrt(coeff)
-      if (mod_m.lt.l) then
-         f = coeff*(-mod_m*cos_theta*rlegendre_lm(l,mod_m,cos_theta)
-     >             + rlegendre_lm(l,mod_m+1,cos_theta))
+      if (sin_theta.le.1.0d-9) then
+         if (mod_m.eq.1) then
+            if (mod(l,2).eq.0) then
+               f = 0.5d0*coeff*l*(l+1)
+            else
+               f = cos_theta*0.5d0*coeff*l*(l+1)
+            end if
+         else
+            f = 0.0d0
+         end if
       else
-         f = coeff*(-mod_m*cos_theta*rlegendre_lm(l,mod_m,cos_theta))
+         if (mod_m.lt.l) then
+            f = coeff*(mod_m*(cos_theta/sin_theta)
+     >                      *rlegendre_lm(l,mod_m,cos_theta)
+     >                - rlegendre_lm(l,mod_m+1,cos_theta))
+         else
+            f = coeff*(mod_m*(cos_theta/sin_theta)
+     >                      *rlegendre_lm(l,mod_m,cos_theta))
+         end if
       end if
       drtheta_lm = f
       return
