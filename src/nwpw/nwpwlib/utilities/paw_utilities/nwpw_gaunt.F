@@ -520,6 +520,57 @@ c      double precision theta_lm !*RESULT*
       return
       end 
 
+c!  *************************************************
+c!  
+c!     Name    : rtheta_lm_div
+c!  
+c!  
+c!     Purpose : calculates rtheta_lm_div for a scalar cos_theta
+c!               such that
+c!                                                            {cos(|m|*phi)   m>0
+c!     T_lm(cos_theta,phi)/sin_theta=rtheta_lm_div(cos_theta)*{1              m==0
+c!                                                            {sin(|m|*phi)   m<0
+c!  
+c!  *************************************************
+
+      double precision function rtheta_lm_div(l,m,cos_theta)        
+      implicit none
+      integer l,m                                               
+      double precision cos_theta
+c      double precision theta_lm !*RESULT*
+
+      !*** local variables ***
+      integer i,mod_m
+      double precision coeff,twopi,fourpi,f
+      
+      !*** external functions ***
+      double precision rlegendre_lm_div
+      external         rlegendre_lm_div
+      
+      twopi = 8.0d0*datan(1.0d0)
+
+      mod_m = abs(m)
+      if (mod_m .gt. l)
+     >write(*,*) 'parameter out of order in function rtheta_lm_div'
+
+!     *** find coefficient ***
+      if (mod_m.eq.0) then
+         coeff= 0.5d0
+      else if (mod_m.gt.0) then
+         coeff= 1.0d0
+         do i=1,2*mod_m
+            coeff = coeff/dble(l-mod_m+i)
+         end do
+      endif
+      coeff = coeff*(2*l+1)/twopi
+      coeff = dsqrt(coeff)
+      f     = coeff*rlegendre_lm_div(l,mod_m,cos_theta)
+
+      rtheta_lm_div = f
+      return
+      end
+
+
 
 c!  *************************************************
 c!  
@@ -711,6 +762,71 @@ c         rlegendre_lm = rlegendre_lm*coeff
 c      end if
       return 
       end 
+
+*     ***********************************
+*     *                                 *
+*     *           rlegendre_lm_div      *
+*     *                                 *
+*     ***********************************
+*
+* Compute the associated legendre polynomial divided by sin(theta) w/o 
+* a Condon-Shortley phase.
+*
+      double precision function rlegendre_lm_div(l,m,x)
+      implicit none
+      integer l,m
+      double precision x
+
+      !*** local variables ***
+      integer i
+      double precision p_mm,p_mp1m,tmp,fact,f
+
+      !*** check the arguments ***
+      if ((m.lt.0)           .or.
+     >    (m.gt.l)           .or.
+     >    (dabs(x).gt.1.0d0) .or.
+     >    (m.eq.0) ) then
+        call errquit(
+     >        'parameter ot of range in rlegendre_lm_div',0,0)
+      end if
+
+      !*** P(1,1,x)/sqrt(1-x**2) ***
+      p_mm = 1.0d0
+
+      !*** P(m,m,x)/sqrt(1-x**2)            ***
+      !***   = (2*m-1)*sqrt(1-x**2)         ***
+      !***     *(P(m-1,m-1,x)/sqrt(1-x**2)) ***
+      fact = 3.0d0
+      tmp = dsqrt((1.0d0-x)*(1.0d0+x))
+
+      do i=2,m
+        p_mm = p_mm*fact*tmp
+        fact = fact + 2.0d0
+      end do
+
+      !*** find P(l,m) ***
+      if (m.eq.l) then
+        f = p_mm
+      else
+          !*** find P(m+1,m) ***
+          p_mp1m = x*(2*m+1)*p_mm
+          if (l.eq.(m+1)) then
+            f = p_mp1m
+          else
+            do i=m+2,l
+              tmp = (x*(2*i-1)*p_mp1m - (i+m-1)*p_mm)/dble(i-m)
+              p_mm = p_mp1m
+              p_mp1m = tmp
+            end do
+            f = tmp
+          end if
+      end if
+      rlegendre_lm_div = f
+      return
+      end
+
+
+
 
       DOUBLE PRECISION FUNCTION LEGENDRE_LM (L, M, X)
       INTEGER L

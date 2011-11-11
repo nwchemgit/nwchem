@@ -36,7 +36,9 @@ c     **** external functions ****
       integer  control_gga,control_lmax_multipole
       external control_gga,control_lmax_multipole
       real*8   rtheta_lm,drtheta_lm,nwpw_gaunt,nwpw_gaunt2,nwpw_gaunt3
+      real*8   rtheta_lm_div
       external rtheta_lm,drtheta_lm,nwpw_gaunt,nwpw_gaunt2,nwpw_gaunt3
+      external rtheta_lm_div
 
 
       call nwpw_timing_start(4)
@@ -205,18 +207,22 @@ c       **** define derivative wrt to phi ****
         do i_p=1,paw_xc_nphi
            do l=0,mult_l_max
            do m=-l,l
-              tmp_theta = rtheta_lm(l,m,
+              if (m.eq.0) then
+                 dbl_mb(paw_xc_dtlm_phi(1)+ i_tlm) = 0.0d0
+              else
+                 tmp_theta = rtheta_lm_div(l,m,
      >                              dbl_mb(paw_xc_cos_theta(1)+i_t-1))
 
-              angle_phi=dbl_mb(paw_xc_angle_phi(1)+i_p-1)
-              if (m.lt.0) then
-                 tmp_phi = abs(m)*dcos(abs(m)*angle_phi)
-              else if (m.gt.0) then
-                 tmp_phi = -abs(m)*dsin(abs(m)*angle_phi)
-              else
-                 tmp_phi = 0.0d0
+                 angle_phi=dbl_mb(paw_xc_angle_phi(1)+i_p-1)
+                 if (m.lt.0) then
+                    tmp_phi = abs(m)*dcos(abs(m)*angle_phi)
+                 else if (m.gt.0) then
+                    tmp_phi = -abs(m)*dsin(abs(m)*angle_phi)
+                 else
+                    tmp_phi = 0.0d0
+                 end if
+                 dbl_mb(paw_xc_dtlm_phi(1)+ i_tlm) = tmp_theta*tmp_phi
               end if
-              dbl_mb(paw_xc_dtlm_phi(1)+ i_tlm) = tmp_theta*tmp_phi
               i_tlm = i_tlm + 1
            end do
            end do
@@ -487,12 +493,11 @@ c      end if
             end do
          end do
 
-
          ok = MA_alloc_get(mt_int,nkatm,"nindx_3rholm",
-     >                  nindx_2rholm(2),nindx_3rholm(1))
+     >                  nindx_3rholm(2),nindx_3rholm(1))
          ok = ok.and.
      >        MA_alloc_get(mt_int,nkatm,"shift_3rholm",
-     >                  shift_2rholm(2),shift_3rholm(1))
+     >                  shift_3rholm(2),shift_3rholm(1))
          if (.not.ok)
      >    call errquit("nwpw_xc_init: error allocating work arrays",0,0)
 
@@ -567,11 +572,6 @@ c      end if
                end do
             end do
          end do
-
-
-
-
-
 
       end if
 
@@ -1013,6 +1013,7 @@ c
          ok = ok.and.MA_free_heap(bi_2rholm(2))
          ok = ok.and.MA_free_heap(shift_2rholm(2))
          ok = ok.and.MA_free_heap(nindx_2rholm(2))
+
          ok = ok.and.MA_free_heap(coeff_3rholm(2))
          ok = ok.and.MA_free_heap(jprj_3rholm(2))
          ok = ok.and.MA_free_heap(iprj_3rholm(2))
