@@ -5,14 +5,16 @@ c $Id: nwpw_xc.F 21509 2011-11-11 03:30:21Z bylaska $
 *     *         nwpw_hartree_init     *
 *     *                               *
 *     *********************************
-      subroutine nwpw_hartree_init(nion0,nkatm0,
-     >                        nprj,nbasis,psp_type,lmax0,
-     >                        nprj_max0,l_prj,m_prj,b_prj)
+      subroutine nwpw_hartree_init(nkatm,
+     >                        nprj,nbasis,psp_type,lmax,
+     >                        nprj_max0,l_prj,m_prj,b_prj,
+     <                        hartree_tag)
       implicit none
-      integer nion0,nkatm0
-      integer nprj(*),nbasis(*),psp_type(*),lmax0(*)
+      integer nkatm
+      integer nprj(*),nbasis(*),psp_type(*),lmax(*)
       integer nprj_max0
       integer l_prj(nprj_max0,*),m_prj(nprj_max0,*),b_prj(nprj_max0,*)
+      integer hartree_tag
 
 
 #include "mafdecls.fh"
@@ -24,34 +26,21 @@ c     **** local variables ****
       integer ii,ia,nsize
       integer ic
       integer l,m,li,mi,lj,mj,bi,bj,iprj,jprj,lm
+      integer li1,mi1,lj1,mj1,bi1,bj1,iprj1,jprj1
       integer i_p,i_t
       integer i_tlm,i_plm,i_rlm
-      integer mtr_size
+      integer matr_ptr
       integer nb
       real*8  tmp_theta,cs_theta,tmp_phi,tmp_gaunt
-      real*8  angle_phi
-      integer paw_vxc_size
 
 c     **** external functions ****
+      integer  psi_data_get_chnk
+      external psi_data_get_chnk
       real*8   rtheta_lm,drtheta_lm,nwpw_gaunt,nwpw_gaunt2,nwpw_gaunt3
       external rtheta_lm,drtheta_lm,nwpw_gaunt,nwpw_gaunt2,nwpw_gaunt3
 
-
       call nwpw_timing_start(4)
       ok = .true.
-
-      nion  = nion0
-      nkatm = nkatm0
-
-      nprj_max    = 0
-      nbasis_max  = 0
-      n1dgrid_max = 0
-      do ia=1,nkatm
-         if (nprj(ia)   .gt.nprj_max)    nprj_max = nprj(ia)
-         if (nbasis(ia) .gt.nbasis_max)  nbasis_max = nbasis(ia)
-         if (n1dgrid(ia).gt.n1dgrid_max) n1dgrid_max = n1dgrid(ia)
-      end do
-
 
 *      ***** set up index arrays for nwpw_hartree_solve2 *****
       ok = MA_alloc_get(mt_int,nkatm,"nindx_hartree",
@@ -65,7 +54,7 @@ c     **** external functions ****
       nsize = 0
       do ia=1,nkatm
          nb = nbasis(ia)
-         matr_ptr = psi_data_get_chnk(hatree_tag(ia))
+         matr_ptr = psi_data_get_chnk(hartree_tag(ia))
          int_mb(shift_hartree(1)+ia-1) = nsize
          do jprj = 1,nprj(ia)
             lj = l_prj(jprj,ia)
@@ -109,15 +98,11 @@ c     **** external functions ****
      >                                - int_mb(shift_hartree(1)+ia-1)
       end do
 
-      ok = ok.and.
-     >     MA_alloc_get(mt_int,nsize,"lm_hartree",
-     >                  lm_hartree(2),lm_hartree(1))
-      ok = ok.and.
-     >     MA_alloc_get(mt_int,nsize,"iprj_hartree",
+      ok = MA_alloc_get(mt_int,nsize,"iprj_hartree",
      >                 iprj_hartree(2),iprj_hartree(1))
       ok = ok.and.
      >     MA_alloc_get(mt_int,nsize,"jprj_hartree",
-     >                 jprj_hartree(2),jprj_rholm(1))
+     >                 jprj_hartree(2),jprj_hartree(1))
       ok = ok.and.
      >     MA_alloc_get(mt_int,nsize,"iprj1_hartree",
      >                 iprj1_hartree(2),iprj1_hartree(1))
@@ -134,7 +119,7 @@ c     **** external functions ****
       nsize = 0
       do ia=1,nkatm
          nb = nbasis(ia)
-         matr_ptr = psi_data_get_chnk(hatree_tag(ia))
+         matr_ptr = psi_data_get_chnk(hartree_tag(ia))
          do jprj = 1,nprj(ia)
             lj = l_prj(jprj,ia)
             mj = m_prj(jprj,ia)
@@ -164,9 +149,9 @@ c     **** external functions ****
      >                              + l*nb*nb*nb*nb)
                            if (dabs(tmp_gaunt).gt.1.0d-11) then
                               int_mb(iprj_hartree(1)+nsize)  = iprj
-                              int_mb(iprj_hartree(1)+nsize)  = jprj
-                              int_mb(ipri1_hartree(1)+nsize) = iprj1
-                              int_mb(iprj1_hartree(1)+nsize) = jprj1
+                              int_mb(jprj_hartree(1)+nsize)  = jprj
+                              int_mb(iprj1_hartree(1)+nsize) = iprj1
+                              int_mb(jprj1_hartree(1)+nsize) = jprj1
                               nsize = nsize + 1
                            end if
                         end do
@@ -209,7 +194,6 @@ c     **** external functions ****
       shift = int_mb(shift_hartree(1)+ia-1)
       call nwpw_hartree_sw1tosw2(ispin,ne,nprj,sw1,sw2,
      >                           int_mb(nindx_hartree(1)+ia-1),
-     >                           int_mb(lm_hartree(1)+shift),
      >                           int_mb(iprj_hartree(1)+shift),
      >                           int_mb(jprj_hartree(1)+shift),
      >                           int_mb(iprj1_hartree(1)+shift),

@@ -8,13 +8,14 @@
 		nwpw_xc.o\
 		nwpw_vosko.o\
 		nwpw_gga.o\
+		nwpw_hartree.o\
 		nwpw_hypergeom1F1.o
 
 	  OBJ = 
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = nwpw_gaunt.F nwpw_compcharge.F nwpw_xc.F
+    USES_BLAS = nwpw_gaunt.F nwpw_compcharge.F nwpw_xc.F nwpw_hartree.F
 
   LIB_DEFINES = 
 
