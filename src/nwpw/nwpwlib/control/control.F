@@ -3440,6 +3440,33 @@ c      end
       return
       end
 
+*     *************************************
+*     *                                   *
+*     *         control_ortho             *
+*     *                                   *
+*     *************************************
+      logical function control_ortho()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical ortho
+
+      if (.not.
+     >    rtdb_get(rtdb,'nwpw:ortho_initialize',mt_log,1,ortho)) then
+         ortho = .true.
+      end if
+
+      control_ortho = ortho
+      return
+      end
+
+
 
 
 *     *****************************
