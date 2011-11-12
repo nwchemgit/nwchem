@@ -2666,9 +2666,9 @@ c
 *
 *  returns the index of the ion nearest to rtest
 
-      integer function ion_nearest_index(rtest)
+      integer function ion_nearest_index(xx,yy,zz)
       implicit none
-      real*8 rtest(*)
+      real*8 xx,yy,zz
 
 #include "mafdecls.fh"
 #include "ion.fh"
@@ -2691,9 +2691,9 @@ c
       iimin = -1
       dmin = 9999999990099.0d0
       do ii=1,nion
-         dx = dbl_mb(r1(1)+3*(ii-1))   - rtest(1)
-         dy = dbl_mb(r1(1)+3*(ii-1)+1) - rtest(2)
-         dz = dbl_mb(r1(1)+3*(ii-1)+2) - rtest(3)
+         dx = dbl_mb(r1(1)+3*(ii-1))   - xx
+         dy = dbl_mb(r1(1)+3*(ii-1)+1) - yy
+         dz = dbl_mb(r1(1)+3*(ii-1)+2) - zz
          do i3=-1,1
             do i2=-1,1
                do i1=-1,1
