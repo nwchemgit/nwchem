@@ -2845,6 +2845,7 @@ c         end do
       call nwpw_timing_start(21)
       nion = ion_nion()
 
+
       scal2 = 1.0d0/lattice_omega()
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
 
@@ -2893,9 +2894,11 @@ c         end do
                kk = kk + 1
             end do
          end do
+
        
          do ii=1,nion
             call ewald_strfac(ii,dcpl_mb(exi(1)))
+            kk = 0
             do v=1,3
                efg(v,v,ii) = ewald_efg_tmp1(enpack,dcpl_mb(s(1)),
      >                                      dcpl_mb(exi(1)),
