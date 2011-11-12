@@ -147,26 +147,47 @@ c     parameter (c6=0.00004306380d0)
              F(I)=A*WP(I,3)*VP(I,3)
            end do
            D=P3*SIMP(NRHO,F,DRHO)/Q
-           lcount = lcount-1
-           vnl(k1,k2,k3,lcount)=D*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
-     >                          /dsqrt(24.0d0)
+
            lcount = lcount-1
            vnl(k1,k2,k3,lcount)=D*GY*(3.0d0*(1.0d0-GZ*GZ)-4.0d0*GY*GY)
      >                          /dsqrt(24.0d0)
            lcount = lcount-1
-           vnl(k1,k2,k3,lcount)=D*GZ*(GX*GX - GY*GY)
-     >                          /2.0d0
-           lcount = lcount-1
            vnl(k1,k2,k3,lcount)=D*GX*GY*GZ
-           lcount = lcount-1
-           vnl(k1,k2,k3,lcount)=D*GX*(5.0d0*GZ*GZ-1.0d0)
-     >                          /dsqrt(40.0d0)
            lcount = lcount-1
            vnl(k1,k2,k3,lcount)=D*GY*(5.0d0*GZ*GZ-1.0d0)
      >                          /dsqrt(40.0d0)
            lcount = lcount-1
            vnl(k1,k2,k3,lcount)=D*GZ*(5.0d0*GZ*GZ-3.0d0)
      >                          /dsqrt(60.0d0)
+           lcount = lcount-1
+           vnl(k1,k2,k3,lcount)=D*GX*(5.0d0*GZ*GZ-1.0d0)
+     >                          /dsqrt(40.0d0)
+           lcount = lcount-1
+           vnl(k1,k2,k3,lcount)=D*GZ*(GX*GX - GY*GY)
+     >                          /2.0d0
+           lcount = lcount-1
+           vnl(k1,k2,k3,lcount)=D*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
+     >                          /dsqrt(24.0d0)
+c           lcount = lcount-1
+c           vnl(k1,k2,k3,lcount)=D*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
+c     >                          /dsqrt(24.0d0)
+c           lcount = lcount-1
+c           vnl(k1,k2,k3,lcount)=D*GY*(3.0d0*(1.0d0-GZ*GZ)-4.0d0*GY*GY)
+c     >                          /dsqrt(24.0d0)
+c           lcount = lcount-1
+c           vnl(k1,k2,k3,lcount)=D*GZ*(GX*GX - GY*GY)
+c     >                          /2.0d0
+c           lcount = lcount-1
+c           vnl(k1,k2,k3,lcount)=D*GX*GY*GZ
+c           lcount = lcount-1
+c           vnl(k1,k2,k3,lcount)=D*GX*(5.0d0*GZ*GZ-1.0d0)
+c     >                          /dsqrt(40.0d0)
+c           lcount = lcount-1
+c           vnl(k1,k2,k3,lcount)=D*GY*(5.0d0*GZ*GZ-1.0d0)
+c     >                          /dsqrt(40.0d0)
+c           lcount = lcount-1
+c           vnl(k1,k2,k3,lcount)=D*GZ*(5.0d0*GZ*GZ-3.0d0)
+c     >                          /dsqrt(60.0d0)
         end if
 
 
@@ -180,17 +201,30 @@ c     parameter (c6=0.00004306380d0)
             F(I)=A*WP(I,2)*VP(I,2)
           END DO
           D=P2*SIMP(NRHO,F,DRHO)/Q
-          lcount = lcount-1
-          vnl(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
-     >                          /(2.0d0*dsqrt(3.0d0))
+
           lcount = lcount-1
           vnl(k1,k2,k3,lcount)=D*GX*GY
           lcount = lcount-1
           vnl(k1,k2,k3,lcount)=D*GY*GZ
           lcount = lcount-1
+          vnl(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
+     >                          /(2.0d0*dsqrt(3.0d0))
+          lcount = lcount-1
           vnl(k1,k2,k3,lcount)=D*GZ*GX
           lcount = lcount-1
           vnl(k1,k2,k3,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
+
+c          lcount = lcount-1
+c          vnl(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
+c     >                          /(2.0d0*dsqrt(3.0d0))
+c          lcount = lcount-1
+c          vnl(k1,k2,k3,lcount)=D*GX*GY
+c          lcount = lcount-1
+c          vnl(k1,k2,k3,lcount)=D*GY*GZ
+c          lcount = lcount-1
+c          vnl(k1,k2,k3,lcount)=D*GZ*GX
+c          lcount = lcount-1
+c          vnl(k1,k2,k3,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
         end if
 
 *::::::::::::::::::::::::::::::  p-wave  ::::::::::::::::::::::::::::::
@@ -202,11 +236,17 @@ c     parameter (c6=0.00004306380d0)
            END DO
            P=P1*SIMP(NRHO,F,DRHO)/Q
            lcount = lcount-1
-           vnl(k1,k2,k3,lcount)=P*GX
-           lcount = lcount-1
            vnl(k1,k2,k3,lcount)=P*GY
            lcount = lcount-1
            vnl(k1,k2,k3,lcount)=P*GZ
+           lcount = lcount-1
+           vnl(k1,k2,k3,lcount)=P*GX
+c           lcount = lcount-1
+c           vnl(k1,k2,k3,lcount)=P*GX
+c           lcount = lcount-1
+c           vnl(k1,k2,k3,lcount)=P*GY
+c           lcount = lcount-1
+c           vnl(k1,k2,k3,lcount)=P*GZ
         end if
 
 *::::::::::::::::::::::::::::::  s-wave  :::::::::::::::::::::::::::::::

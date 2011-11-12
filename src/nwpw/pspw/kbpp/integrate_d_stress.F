@@ -167,18 +167,6 @@
            DD=P3*SIMP(nrho,F,drho)
 
            lcount = lcount-1
-           T = gx*(4.0d0*gx*gx - 3.0d0*(1.0d0-gz*gz))/dsqrt(24.0d0)
-           dTdux = (12.0d0*gx*gx-3.0d0*(1.0d0-gz*gz))/dsqrt(24.0d0)
-           dTduy = 0.0d0
-           dTduz = 6.0d0*gx*gz/dsqrt(24.0d0)
-           sumx = dTdux*duxdGx + dTduy*duydGx + dTduz*duzdGx
-           sumy = dTdux*duxdGy + dTduy*duydGy + dTduz*duzdGy
-           sumz = dTdux*duxdGz + dTduy*duydGz + dTduz*duzdGz
-           dvnl(k1,1,lcount)=DD*T*gx + D*sumx
-           dvnl(k1,2,lcount)=DD*T*gy + D*sumy
-           dvnl(k1,3,lcount)=DD*T*gz + D*sumz
-
-           lcount = lcount-1
            T = gy*(3.0d0*(1.0d0-gz*gz)-4.0d0*gy*gy)/dsqrt(24.0d0)
            dTdux = 0.0d0
            dTduy = (3.0d0*(1.0d0-gz*gz)-12.0d0*gy*gy)/dsqrt(24.0d0)
@@ -191,34 +179,10 @@
            dvnl(k1,3,lcount)=DD*T*gz + D*sumz
 
            lcount = lcount-1
-           T =gz*(gx*gx - gy*gy)/2.0d0 
-           dTdux =  gx*gz
-           dTduy = -gy*gz
-           dTduz = (gx*gx-gy*gy)/2.0d0
-           sumx = dTdux*duxdGx + dTduy*duydGx + dTduz*duzdGx
-           sumy = dTdux*duxdGy + dTduy*duydGy + dTduz*duzdGy
-           sumz = dTdux*duxdGz + dTduy*duydGz + dTduz*duzdGz
-           dvnl(k1,1,lcount)=DD*T*gx + D*sumx
-           dvnl(k1,2,lcount)=DD*T*gy + D*sumy
-           dvnl(k1,3,lcount)=DD*T*gz + D*sumz
-
-           lcount = lcount-1
            T =gx*gy*gz 
            dTdux = gy*gz
            dTduy = gx*gz
            dTduz = gx*gy
-           sumx = dTdux*duxdGx + dTduy*duydGx + dTduz*duzdGx
-           sumy = dTdux*duxdGy + dTduy*duydGy + dTduz*duzdGy
-           sumz = dTdux*duxdGz + dTduy*duydGz + dTduz*duzdGz
-           dvnl(k1,1,lcount)=DD*T*gx + D*sumx
-           dvnl(k1,2,lcount)=DD*T*gy + D*sumy
-           dvnl(k1,3,lcount)=DD*T*gz + D*sumz
-
-           lcount = lcount-1
-           T =  gx*(5.0d0*gz*gz-1.0d0)/dsqrt(40.0d0) 
-           dTdux = (5.0d0*gz*gz-1.0d0)/dsqrt(40.0d0)
-           dTduy = 0.0d0
-           dTduz = 10.0d0*gx*gz/dsqrt(40.0d0)
            sumx = dTdux*duxdGx + dTduy*duydGx + dTduz*duzdGx
            sumy = dTdux*duxdGy + dTduy*duydGy + dTduz*duzdGy
            sumz = dTdux*duxdGz + dTduy*duydGz + dTduz*duzdGz
@@ -243,6 +207,42 @@
            dTdux = 0.0d0
            dTduy = 0.0d0
            dTduz =(15.0d0*gz*gz -3.0d0)/dsqrt(60.0d0)
+           sumx = dTdux*duxdGx + dTduy*duydGx + dTduz*duzdGx
+           sumy = dTdux*duxdGy + dTduy*duydGy + dTduz*duzdGy
+           sumz = dTdux*duxdGz + dTduy*duydGz + dTduz*duzdGz
+           dvnl(k1,1,lcount)=DD*T*gx + D*sumx
+           dvnl(k1,2,lcount)=DD*T*gy + D*sumy
+           dvnl(k1,3,lcount)=DD*T*gz + D*sumz
+
+           lcount = lcount-1
+           T =  gx*(5.0d0*gz*gz-1.0d0)/dsqrt(40.0d0) 
+           dTdux = (5.0d0*gz*gz-1.0d0)/dsqrt(40.0d0)
+           dTduy = 0.0d0
+           dTduz = 10.0d0*gx*gz/dsqrt(40.0d0)
+           sumx = dTdux*duxdGx + dTduy*duydGx + dTduz*duzdGx
+           sumy = dTdux*duxdGy + dTduy*duydGy + dTduz*duzdGy
+           sumz = dTdux*duxdGz + dTduy*duydGz + dTduz*duzdGz
+           dvnl(k1,1,lcount)=DD*T*gx + D*sumx
+           dvnl(k1,2,lcount)=DD*T*gy + D*sumy
+           dvnl(k1,3,lcount)=DD*T*gz + D*sumz
+
+           lcount = lcount-1
+           T =gz*(gx*gx - gy*gy)/2.0d0 
+           dTdux =  gx*gz
+           dTduy = -gy*gz
+           dTduz = (gx*gx-gy*gy)/2.0d0
+           sumx = dTdux*duxdGx + dTduy*duydGx + dTduz*duzdGx
+           sumy = dTdux*duxdGy + dTduy*duydGy + dTduz*duzdGy
+           sumz = dTdux*duxdGz + dTduy*duydGz + dTduz*duzdGz
+           dvnl(k1,1,lcount)=DD*T*gx + D*sumx
+           dvnl(k1,2,lcount)=DD*T*gy + D*sumy
+           dvnl(k1,3,lcount)=DD*T*gz + D*sumz
+
+           lcount = lcount-1
+           T = gx*(4.0d0*gx*gx - 3.0d0*(1.0d0-gz*gz))/dsqrt(24.0d0)
+           dTdux = (12.0d0*gx*gx-3.0d0*(1.0d0-gz*gz))/dsqrt(24.0d0)
+           dTduy = 0.0d0
+           dTduz = 6.0d0*gx*gz/dsqrt(24.0d0)
            sumx = dTdux*duxdGx + dTduy*duydGx + dTduz*duzdGx
            sumy = dTdux*duxdGy + dTduy*duydGy + dTduz*duzdGy
            sumz = dTdux*duxdGz + dTduy*duydGz + dTduz*duzdGz
@@ -274,18 +274,6 @@
           DD=P2*SIMP(nrho,F,drho)
 
           lcount = lcount-1
-          T = (3.0d0*gz*gz-1.0d0)/(2.0d0*dsqrt(3.0d0)) 
-          dTdux = 0.0d0
-          dTduy = 0.0d0
-          dTduz = 6.0d0*gz/(2.0d0*dsqrt(3.0d0))
-          sumx = dTdux*duxdGx + dTduy*duydGx + dTduz*duzdGx
-          sumy = dTdux*duxdGy + dTduy*duydGy + dTduz*duzdGy
-          sumz = dTdux*duxdGz + dTduy*duydGz + dTduz*duzdGz
-          dvnl(k1,1,lcount)=DD*T*gx + D*sumx
-          dvnl(k1,2,lcount)=DD*T*gy + D*sumy
-          dvnl(k1,3,lcount)=DD*T*gz + D*sumz
-
-          lcount = lcount-1
           T = gx*gy
           dTdux = gy
           dTduy = gx
@@ -302,6 +290,18 @@
           dTdux = 0.0d0
           dTduy = gz
           dTduz = gy
+          sumx = dTdux*duxdGx + dTduy*duydGx + dTduz*duzdGx
+          sumy = dTdux*duxdGy + dTduy*duydGy + dTduz*duzdGy
+          sumz = dTdux*duxdGz + dTduy*duydGz + dTduz*duzdGz
+          dvnl(k1,1,lcount)=DD*T*gx + D*sumx
+          dvnl(k1,2,lcount)=DD*T*gy + D*sumy
+          dvnl(k1,3,lcount)=DD*T*gz + D*sumz
+
+          lcount = lcount-1
+          T = (3.0d0*gz*gz-1.0d0)/(2.0d0*dsqrt(3.0d0)) 
+          dTdux = 0.0d0
+          dTduy = 0.0d0
+          dTduz = 6.0d0*gz/(2.0d0*dsqrt(3.0d0))
           sumx = dTdux*duxdGx + dTduy*duydGx + dTduz*duzdGx
           sumy = dTdux*duxdGy + dTduy*duydGy + dTduz*duzdGy
           sumz = dTdux*duxdGz + dTduy*duydGz + dTduz*duzdGz
@@ -352,19 +352,6 @@
            PP=P1*SIMP(nrho,F,drho)
 
            lcount = lcount-1
-           T = gx
-           dTdux = 1.0d0
-           dTduy = 0.0d0
-           dTduz = 0.0d0
-           sumx = dTdux*duxdGx + dTduy*duydGx + dTduz*duzdGx
-           sumy = dTdux*duxdGy + dTduy*duydGy + dTduz*duzdGy
-           sumz = dTdux*duxdGz + dTduy*duydGz + dTduz*duzdGz
-           dvnl(k1,1,lcount)= PP*T*gx + P*sumx
-           dvnl(k1,2,lcount)= PP*T*gy + P*sumy
-           dvnl(k1,3,lcount)= PP*T*gz + P*sumz
-
-
-           lcount = lcount-1
            T = gy
            dTdux = 0.0d0
            dTduy = 1.0d0
@@ -387,6 +374,19 @@
            dvnl(k1,1,lcount)= PP*T*gx + P*sumx
            dvnl(k1,2,lcount)= PP*T*gy + P*sumy
            dvnl(k1,3,lcount)= PP*T*gz + P*sumz
+
+           lcount = lcount-1
+           T = gx
+           dTdux = 1.0d0
+           dTduy = 0.0d0
+           dTduz = 0.0d0
+           sumx = dTdux*duxdGx + dTduy*duydGx + dTduz*duzdGx
+           sumy = dTdux*duxdGy + dTduy*duydGy + dTduz*duzdGy
+           sumz = dTdux*duxdGz + dTduy*duydGz + dTduz*duzdGz
+           dvnl(k1,1,lcount)= PP*T*gx + P*sumx
+           dvnl(k1,2,lcount)= PP*T*gy + P*sumy
+           dvnl(k1,3,lcount)= PP*T*gz + P*sumz
+
         end if
 
 *::::::::::::::::::::::::::::::  s-wave  :::::::::::::::::::::::::::::::
