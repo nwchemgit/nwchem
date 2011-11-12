@@ -505,3 +505,61 @@
 
       return
       end
+
+
+
+*     ********************************
+*     *                              *
+*     *         ion_ion_efg          *
+*     *                              *
+*     ********************************
+*
+*   This routine computes the (free-space) electric field tensor
+*   ion cores.
+
+      subroutine ion_ion_efg(efg)
+      implicit none
+      real*8 efg(3,3,*)
+
+*     *** local variables ***
+      integer i,j
+      real*8 x,y,z,r,v,v2
+
+*     *** external functions ***
+      integer  ion_nion,ion_katm
+      real*8   psp_zv,ion_rion
+      external ion_nion,ion_katm
+      external psp_zv,ion_rion
+
+*     *** do nothing if only one atom ***
+      if (ion_nion().eq.1) return
+
+      do j=1,ion_nion()
+        do i=1,ion_nion()
+          x = ion_rion(1,i) - ion_rion(1,j)
+          y = ion_rion(2,i) - ion_rion(2,j)
+          z = ion_rion(3,i) - ion_rion(3,j)
+          r = dsqrt(x*x + y*y + z*z)
+
+          v  = psp_zv(ion_katm(i))/r**3
+          v2 = psp_zv(ion_katm(i))/r**5
+
+          efg(1,1,j) = v - 3.0d0*x*x*v2
+          efg(2,1,j) = -3.0d0*x*y*v2
+          efg(3,1,j) = -3.0d0*x*z*v2
+
+          efg(1,2,j) = -3.0d0*x*y*v2
+          efg(2,2,j) = v - 3.0d0*y*y*v2
+          efg(3,2,j) = -3.0d0*z*y*v2
+
+          efg(1,3,j) = -3.0d0*x*z*v2
+          efg(2,3,j) = -3.0d0*y*z*v2
+          efg(3,3,j) = v - 3.0d0*z*z*v2
+        end do
+      end do
+
+      return
+      end
+
+
+
