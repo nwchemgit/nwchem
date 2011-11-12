@@ -2657,3 +2657,60 @@ c
       return
       end
 
+
+*     ***************************
+*     *                         *
+*     *      ion_nearest_index  *
+*     *                         *
+*     ***************************
+*
+*  returns the index of the ion nearest to rtest
+
+      integer function ion_nearest_index(rtest)
+      implicit none
+      real*8 rtest(*)
+
+#include "mafdecls.fh"
+#include "ion.fh"
+
+*     **** local variables ****
+      integer ii,iimin,i1,i2,i3
+      real*8 d,dmin,x,y,z,dx,dy,dz
+      real*8 a(3,3)
+
+*     **** external functions ****
+      real*8   lattice_unita
+      external lattice_unita
+
+      do i2=1,3
+         do i1=1,3
+            a(i1,i2) = lattice_unita(i1,i2)
+         end do
+      end do
+
+      iimin = -1
+      dmin = 9999999990099.0d0
+      do ii=1,nion
+         dx = dbl_mb(r1(1)+3*(ii-1))   - rtest(1)
+         dy = dbl_mb(r1(1)+3*(ii-1)+1) - rtest(2)
+         dz = dbl_mb(r1(1)+3*(ii-1)+2) - rtest(3)
+         do i3=-1,1
+            do i2=-1,1
+               do i1=-1,1
+                  x = dx + i1*a(1,1) + i2*a(1,2) + i3*a(1,3)
+                  y = dy + i1*a(2,1) + i2*a(2,2) + i3*a(2,3)
+                  z = dz + i1*a(3,1) + i2*a(3,2) + i3*a(3,3)
+                  d = dsqrt(x*x + y*y + z*z)
+                  if (d.lt.dmin) then
+                     dmin = d
+                     iimin = ii
+                  end if
+               end do
+            end do
+         end do
+      end do
+
+      ion_nearest_index = iimin
+      return
+      end
+
