@@ -1296,7 +1296,7 @@ c     >                          l_prj(i),m_prj(i))
             do l=0,2,2
                do m=-l,l
                   coeflm(lm) = coeflm(lm) 
-     >                       + tmp**nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
+     >                       + tmp*nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
                   lm = lm + 1
                end do
             end do
