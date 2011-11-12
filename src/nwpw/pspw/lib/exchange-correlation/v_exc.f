@@ -47,6 +47,7 @@
       call nwpw_timing_start(4)
       pi=4.0d0*datan(1.0d0)
 
+
 *     square root of wigner radius
       do 100 k=1,n2ft3d
         rho=dn(k,1)+dn(k,ispin)+dncut
@@ -104,7 +105,5 @@
   200 continue
       
       call nwpw_timing_end(4)
-
-
       return
       end

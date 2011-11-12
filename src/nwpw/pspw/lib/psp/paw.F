@@ -1127,3 +1127,212 @@ c     >                          l_prj(i),m_prj(i))
       end
 
 
+
+
+
+
+
+
+*     ***********************************
+*     *					*
+*     *	        psp_efg_atoms		*
+*     *					*
+*     ***********************************
+*    This routine computes the efg
+*
+      subroutine psp_efg_atoms(ispin,ne,psi1,efg)
+      implicit none
+      integer    ispin,ne(2)
+      complex*16 psi1(*)
+      real*8 efg(3,3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psp.fh"
+
+*     *** local variables ***
+      integer npack1,nion
+      integer ii,ia,l,nn
+      integer k,shift,l_prj,nproj,Gijl_indx
+      real*8  omega,scal,scalsqr
+      integer exi(2),sw1(2),sw2(2)
+      logical value,sd_function
+
+*     **** external functions ****
+      integer  ion_nion,ion_katm
+      integer  psi_data_get_chnk,psi_data_get_ptr
+      real*8   lattice_omega,nwpw_xc_energy_atom
+      external ion_nion,ion_katm
+      external psi_data_get_chnk,psi_data_get_ptr
+      external lattice_omega,nwpw_xc_energy_atom
+
+      nn = ne(1)+ne(2)
+
+*     **** allocate local memory ****
+      nion = ion_nion()
+      call Pack_npack(1,npack1)
+
+      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,nn*nprj_max,'sw1',sw1(2),sw1(1))
+      if (.not.value) 
+     >  call errquit('psp_efg_atoms: out of stack',0,MA_ERR)
+
+      omega = lattice_omega()
+      scal    = 1.0d0/(omega)
+      scalsqr = scal*scal
+
+
+      do ii=1,nion
+        ia    = ion_katm(ii)
+        nproj = int_mb(nprj(1)+ia-1)
+
+        if ((int_mb(psp_type(1)+ia-1).ne.4).and.(nproj.gt.0)) then
+
+*       **** structure factor and local pseudopotential ****
+        call strfac_pack(1,ii,dcpl_mb(exi(1)))
+
+*       **** generate sw1's and projectors ****
+        do l=1,nproj
+
+           shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
+           l_prj = int_mb(l_projector(1)+(l-1) 
+     >                                  + (ia-1)*(nmax_max*lmmax_max))
+           !sd_function = .not.and(l_prj,1)
+#ifdef GCC4
+           k = iand(l_prj,1)
+#else
+           k = and(l_prj,1)
+#endif
+           sd_function = (k.eq.0)
+
+
+*          **** phase factor does not matter therefore ****
+*          **** (-i)^l is the same as (i)^l in the     ****
+*          **** Rayleigh scattering formula            ****
+
+*          *** current function is s or d ****
+           if (sd_function) then
+              call Pack_tc_Mul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
+*          *** current function is p or f ****
+           else
+              call Pack_tc_iMul(1,dbl_mb(shift),
+     >                           dcpl_mb(exi(1)),
+     >                           dcpl_mb(prjtmp(1)+(l-1)*npack1))
+           end if
+           call Pack_cc_indot(1,nn,
+     >                      psi1,
+     >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                      dbl_mb(sw1(1)+(l-1)*nn))
+
+        end do
+        call D3dB_Vector_SumAll((nn*nproj),dbl_mb(sw1(1)))
+
+        call psp_efg_solve(ia,int_mb(lmax(1)+ia-1),
+     >     int_mb(l_projector(1)+(ia-1)*(nmax_max*lmmax_max)),
+     >     int_mb(m_projector(1)+(ia-1)*(nmax_max*lmmax_max)),
+     >     dbl_mb(psi_data_get_chnk(int_mb(r3_matrix(1)+ia-1))),
+     >     ispin,ne,int_mb(nprj(1)+ia-1),dbl_mb(sw1(1)),efg(1,1,ii))
+
+        end if !** nproj>0 **
+      end do !** ii **
+
+      value =           MA_pop_stack(sw1(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not.value) call errquit('psp_efg_atom: popping stack',3,
+     &       MA_ERR)
+      return 
+      end
+
+*     ********************************************************
+*     *                                                      *
+*     *                psp_efg_solve                         *
+*     *                                                      *
+*     ********************************************************
+      subroutine psp_efg_solve(ia,lmax,l_prj,m_prj,
+     >                          r3_matrix,
+     >                          ispin,ne,nprj,sw1,
+     >                          efg)
+      implicit none
+      integer ia,lmax
+      integer l_prj(*)
+      integer m_prj(*)
+      real*8 r3_matrix(0:lmax,0:lmax)
+      integer ispin,ne(2),nprj
+      real*8 sw1(ne(1)+ne(2),nprj)
+      real*8 efg(3,3)
+
+*     **** external functions ****
+      real*8   nwpw_gaunt,lattice_omega
+      external nwpw_gaunt,lattice_omega
+
+*     **** local variables ****
+      integer i,j,li,lj,mi,mj,l,m,lm,n
+      real*8  coeflm(6),tmp,scal,pi,c1,c2,c3
+
+      pi = 4.0d0*datan(1.0d0)
+
+      scal = 1.0d0/lattice_omega()
+      do lm=1,6
+         coeflm(lm) = 0.0d0
+      end do
+
+      do j=1,nprj
+         lj=l_prj(j)
+         mj=m_prj(j)
+         do i=1,nprj
+            li=l_prj(i)
+            mi=m_prj(i)
+
+            tmp = 0.0d0
+            do n=1,(ne(1)+ne(2))
+               tmp = tmp + sw1(n,i)*sw1(n,j)
+            end do
+            tmp = tmp*scal*r3_matrix(li,lj)
+
+            lm = 1
+            do l=0,2,2
+               do m=-l,l
+                  coeflm(lm) = coeflm(lm) 
+     >                       + tmp**nwpw_gaunt(.false.,l,m,li,mi,lj,mj)
+                  lm = lm + 1
+               end do
+            end do
+         end do
+      end do
+
+      c1 = 2.0d0*dsqrt(pi)
+      c2 = 6.0d0*dsqrt(pi/15.0d0)
+      c3 = 2.0d0*dsqrt(pi/5.0d0)
+
+      !*** 2*sqrt(pi)*(l=0,m=0) + 6*sqrt(pi/15)*(l=2,m=2) + 2*sqrt(pi/5)*(l=2,m=0) ****
+      efg(1,1) = efg(1,1) + c1*coeflm(1) + c2*coeflm(6) + c3*coeflm(4)
+
+      !*** 6*sqrt(pi/15)*(l=2,m=-2)***
+      efg(2,1) = efg(2,1) + c1*coeflm(2)
+      efg(1,2) = efg(1,2) + efg(2,1)
+
+      !*** 6*sqrt(pi/15)*(l=2,m=1)***
+      efg(3,1) = efg(3,1) + c1*coeflm(5)
+      efg(1,3) = efg(1,3) + efg(3,1)
+
+      !*** 2*sqrt(pi)*(l=0,m=0) - 6*sqrt(pi/15)*(l=2,m=2) + 2*sqrt(pi/5)*(l=2,m=0) ****
+      efg(2,2) = efg(2,2) + c1*coeflm(1) -c2*coeflm(6) + c3*coeflm(4)
+
+      !*** 6*sqrt(pi/15)*(l=2,m=-1)***
+      efg(3,2) = efg(3,2) + c2*coeflm(3)
+      efg(2,3) = efg(2,3) + efg(3,2)
+
+      !*** 4*(l=2,m=0)+ 2*sqrt(pi)(l=0,m=0) ***
+      efg(3,3) = efg(3,3) + 4.0d0*coeflm(4) + c1*coeflm(1)
+
+      return
+      end 
+      
+
+
+
+
+

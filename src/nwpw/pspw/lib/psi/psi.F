@@ -5639,6 +5639,8 @@ c      call OrthoCheck_geo(ispin,ne,dcpl_mb(psi2(1)))
       double precision control_fractional_kT
       external         control_fractional_smeartype
       external         control_fractional_kT
+      logical          control_ortho
+      external         control_ortho
 
 
       ne_excited(1) = 0
@@ -5810,7 +5812,7 @@ c     >        MA_alloc_get(mt_dbl,(2*nemax*nemax),'hml',hml(2),hml(1))
 
 
       sum1 = dble(ne(1) + ne(2))
-      if (dabs(sum2-sum1).gt.1.0d-10) then
+      if ((control_ortho()).and.(dabs(sum2-sum1).gt.1.0d-10)) then
          call Parallel_taskid(taskid)
          if (psp_pawexist()) then
          call Dneall_f_Sortho(0,dcpl_mb(psi1(1)),
@@ -6160,6 +6162,10 @@ c      end if
       call pspw_print_APC(6)
 
       call pspw_gen_Efield(rtdb,ispin,dbl_mb(rho1(1)),dcpl_mb(dng1(1)))
+
+      call pspw_gen_Efield_grad(rtdb,ispin,ne,
+     >                          dcpl_mb(psi1(1)),
+     >                          dcpl_mb(dng1(1)))
 
       return
       end

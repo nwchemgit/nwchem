@@ -318,10 +318,10 @@ c     >                                   dbl_mb(tmp2(1)))
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(0,npack0)
 
-      value = MA_push_get(mt_dbl,nfft3d,'Gtmp',Gtmp(2),Gtmp(1))
+      value = MA_push_get(mt_dbl,3*nfft3d,'Gtmp',Gtmp(2),Gtmp(1))
       G(1) = Gtmp(1)
       G(2) = Gtmp(1)+nfft3d
-      G(3) = Gtmp(1)+nfft3d
+      G(3) = Gtmp(2)+nfft3d
       value = value.and.
      >        MA_push_get(mt_dbl,npack0,'tmp0',tmp0(2),tmp0(1))
       value = value.and.

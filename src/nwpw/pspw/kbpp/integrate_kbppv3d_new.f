@@ -194,53 +194,94 @@
   200   CONTINUE
         if (locp.ne.3) then
           D = nwpw_splint(G_ray,vnl_ray(1,3,1),vnl_ray(1,3,2),nray,nx,Q)
-           lcount = lcount-1
-           vnl(k1,lcount)=D*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
-     >                          /dsqrt(24.0d0)
+
            lcount = lcount-1
            vnl(k1,lcount)=D*GY*(3.0d0*(1.0d0-GZ*GZ)-4.0d0*GY*GY)
      >                          /dsqrt(24.0d0)
            lcount = lcount-1
-           vnl(k1,lcount)=D*GZ*(GX*GX - GY*GY)
-     >                          /2.0d0
-           lcount = lcount-1
            vnl(k1,lcount)=D*GX*GY*GZ
-           lcount = lcount-1
-           vnl(k1,lcount)=D*GX*(5.0d0*GZ*GZ-1.0d0)
-     >                          /dsqrt(40.0d0)
            lcount = lcount-1
            vnl(k1,lcount)=D*GY*(5.0d0*GZ*GZ-1.0d0)
      >                          /dsqrt(40.0d0)
            lcount = lcount-1
            vnl(k1,lcount)=D*GZ*(5.0d0*GZ*GZ-3.0d0)
      >                          /dsqrt(60.0d0)
+           lcount = lcount-1
+           vnl(k1,lcount)=D*GX*(5.0d0*GZ*GZ-1.0d0)
+     >                          /dsqrt(40.0d0)
+           lcount = lcount-1
+           vnl(k1,lcount)=D*GZ*(GX*GX - GY*GY)
+     >                          /2.0d0
+           lcount = lcount-1
+           vnl(k1,lcount)=D*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
+     >                          /dsqrt(24.0d0)
+c           lcount = lcount-1
+c           vnl(k1,lcount)=D*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
+c     >                          /dsqrt(24.0d0)
+c           lcount = lcount-1
+c           vnl(k1,lcount)=D*GY*(3.0d0*(1.0d0-GZ*GZ)-4.0d0*GY*GY)
+c     >                          /dsqrt(24.0d0)
+c           lcount = lcount-1
+c           vnl(k1,lcount)=D*GZ*(GX*GX - GY*GY)
+c     >                          /2.0d0
+c           lcount = lcount-1
+c           vnl(k1,lcount)=D*GX*GY*GZ
+c           lcount = lcount-1
+c           vnl(k1,lcount)=D*GX*(5.0d0*GZ*GZ-1.0d0)
+c     >                          /dsqrt(40.0d0)
+c           lcount = lcount-1
+c           vnl(k1,lcount)=D*GY*(5.0d0*GZ*GZ-1.0d0)
+c     >                          /dsqrt(40.0d0)
+c           lcount = lcount-1
+c           vnl(k1,lcount)=D*GZ*(5.0d0*GZ*GZ-3.0d0)
+c     >                          /dsqrt(60.0d0)
         end if
 *       ::::::::::::::::::::::::::::::  d-wave  ::::::::::::::::::::::::::::::
   300   CONTINUE
         if (locp.ne.2) then
           D = nwpw_splint(G_ray,vnl_ray(1,2,1),vnl_ray(1,2,2),nray,nx,Q)
           lcount = lcount-1
-          vnl(k1,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
-     >                          /(2.0d0*dsqrt(3.0d0))
-          lcount = lcount-1
           vnl(k1,lcount)=D*GX*GY
           lcount = lcount-1
           vnl(k1,lcount)=D*GY*GZ
           lcount = lcount-1
+          vnl(k1,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
+     >                          /(2.0d0*dsqrt(3.0d0))
+          lcount = lcount-1
           vnl(k1,lcount)=D*GZ*GX
           lcount = lcount-1
           vnl(k1,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
+
+c          lcount = lcount-1
+c          vnl(k1,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
+c     >                          /(2.0d0*dsqrt(3.0d0))
+c          lcount = lcount-1
+c          vnl(k1,lcount)=D*GX*GY
+c          lcount = lcount-1
+c          vnl(k1,lcount)=D*GY*GZ
+c          lcount = lcount-1
+c          vnl(k1,lcount)=D*GZ*GX
+c          lcount = lcount-1
+c          vnl(k1,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
         end if
 *       ::::::::::::::::::::::::::::::  p-wave  ::::::::::::::::::::::::::::::
   400   CONTINUE
         if (locp.ne.1) then
           P = nwpw_splint(G_ray,vnl_ray(1,1,1),vnl_ray(1,1,2),nray,nx,Q)
-           lcount = lcount-1
-           vnl(k1,lcount)=P*GX
+
            lcount = lcount-1
            vnl(k1,lcount)=P*GY
            lcount = lcount-1
            vnl(k1,lcount)=P*GZ
+           lcount = lcount-1
+           vnl(k1,lcount)=P*GX
+
+c           lcount = lcount-1
+c           vnl(k1,lcount)=P*GX
+c           lcount = lcount-1
+c           vnl(k1,lcount)=P*GY
+c           lcount = lcount-1
+c           vnl(k1,lcount)=P*GZ
         end if
 *       ::::::::::::::::::::::::::::::  s-wave  :::::::::::::::::::::::::::::::
   500   CONTINUE
