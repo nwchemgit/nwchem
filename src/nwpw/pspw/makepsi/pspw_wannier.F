@@ -20,7 +20,7 @@
       integer neq(2),nemaxq,shift,rank
       integer nfft3d,n2ft3d,npack1
       integer info
-      integer np,nion
+      integer np,nion,ii
 
       integer psi(2),psi2(2),psi_r(2),psi_r2(2)
       integer X(2,6)
@@ -63,8 +63,10 @@ c      character*255 full_filename,full_filename2
       external     ion_rion,psp_zv
       logical  Dneall_m_allocate,Dneall_w_allocate,Dneall_m_free
       external Dneall_m_allocate,Dneall_w_allocate,Dneall_m_free
-      integer  ion_nearest_index
-      external ion_nearest_index
+      integer     ion_nearest_index
+      external    ion_nearest_index
+      character*2 ion_aname_nocarat
+      external    ion_aname_nocarat
 
       value = .true.
 
@@ -444,13 +446,14 @@ c     *** Silvestrelli G3 ***
                yy=yy+bv(2,j)*arg/scal
                zz=zz+bv(3,j)*arg/scal
             end do
+            ii = ion_nearest_index(xx,yy,zz)
 
             if (ms.eq.1)
-     >        write(6,1390) i,xx,yy,zz,ion_nearest_index(xx,yy,zz)
+     >        write(6,1390) i,xx,yy,zz,ion_aname_nocarat(ii),ii
 
 
             if (ms.eq.2)
-     >        write(6,1391) i+ne(1),xx,yy,zz,ion_nearest_index(xx,yy,zz)
+     >        write(6,1391) i+ne(1),xx,yy,zz,ion_aname_nocarat(ii),ii
           end do
           write(6,1800)
         end if
@@ -478,17 +481,18 @@ c     *** Silvestrelli G3 ***
                yy=yy+bv(2,j)*arg/scal
                zz=zz+bv(3,j)*arg/scal
             end do
+            ii = ion_nearest_index(xx,yy,zz)
             dx=dx+xx
             dy=dy+yy
             dz=dz+zz
             if (ms.eq.1) then
-              write(6,1390) i,xx,yy,zz,ion_nearest_index(xx,yy,zz)
+              write(6,1390) i,xx,yy,zz,ion_aname_nocarat(ii),ii
               write(15,*) "H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
             end if
 
 
             if (ms.eq.2) then
-              write(6,1391) i+ne(1),xx,yy,zz,ion_nearest_index(xx,yy,zz)
+              write(6,1391) i+ne(1),xx,yy,zz,ion_aname_nocarat(ii),ii
               write(15,*) "H ",xx*0.529177d0,yy*0.529177d0,zz*0.529177d0
             end if
           end do
@@ -618,9 +622,9 @@ c      end do
  1380 FORMAT(/' initial position of Wannier centers:')
  1381 FORMAT(/' final position of Wannier centers:')
  1390 FORMAT(5X,'psi',I5,' (',3F11.5,
-     >       ' ) - spin up orbital, nearest ion=',I5)
+     >       ' ) - spin up orbital, nearest ion=',A2,I5)
  1391 FORMAT(5X,'psi',I5,' (',3F11.5,
-     >       ' ) - spin down orbital, nearest ion=',I5)
+     >       ' ) - spin down orbital, nearest ion=',A2,I5)
  1776 FORMAT(/"ELECTRONIC DIPOLES")
  1777 FORMAT("DX =",F11.5," DY= ",F11.5," DZ= ",F11.5)
  1780 FORMAT("NUCLEAR DIPOLES")
