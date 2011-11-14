@@ -157,14 +157,14 @@ init_Atom (char *filename)
       Ncv = Ncore + Nvalence;
 
       /* allocate the necessary memory for eigenvalues */
-      n = (int *) malloc ((Ncv + 2) * sizeof (int));
-      l = (int *) malloc ((Ncv + 2) * sizeof (int));
-      s2 = (int *) malloc ((Ncv + 2) * sizeof (int));
-      fill = (double *) malloc ((Ncv + 2) * sizeof (double));
+      n = (int *) malloc((Ncv + 2) * sizeof (int));
+      l = (int *) malloc((Ncv + 2) * sizeof (int));
+      s2 = (int *) malloc((Ncv + 2) * sizeof (int));
+      fill = (double *) malloc((Ncv + 2) * sizeof (double));
 
       /* allocate memory for outer peak and turning_point positions */
-      turning_point = (int *) malloc ((Ncv + 2) * sizeof (int));
-      peak = (double *) malloc ((Ncv + 2) * sizeof (double));
+      turning_point = (int *) malloc((Ncv + 2) * sizeof (int));
+      peak = (double *) malloc((Ncv + 2) * sizeof (double));
 
       /* set eigenvalue arrays */
       lmax = 0;
@@ -197,35 +197,35 @@ init_Atom (char *filename)
 	}
 
       /* set up logarithmic grid */
-      init_LogGrid (Zion);
-      Ngrid = N_LogGrid ();
-      rgrid = r_LogGrid ();
+      init_LogGrid(Zion);
+      Ngrid = N_LogGrid();
+      rgrid = r_LogGrid();
 
 
       /* allocate the necessary memory */
-      eigenvalue = (double *) malloc ((Ncv + 2) * sizeof (double));
-      r_psi = (double **) malloc ((Ncv + 2) * sizeof (double *));
-      r_psi_prime = (double **) malloc ((Ncv + 2) * sizeof (double *));
+      eigenvalue = (double *) malloc((Ncv + 2) * sizeof (double));
+      r_psi = (double **) malloc((Ncv + 2) * sizeof (double *));
+      r_psi_prime = (double **) malloc((Ncv + 2) * sizeof (double *));
       for (i = 0; i < (Ncv + 2); ++i)
 	{
-	  r_psi[i] = alloc_LogGrid ();
-	  r_psi_prime[i] = alloc_LogGrid ();
+	  r_psi[i] = alloc_LogGrid();
+	  r_psi_prime[i] = alloc_LogGrid();
 	}
     }
-  rho = alloc_LogGrid ();
-  rho_core = alloc_LogGrid ();
-  rho_valence = alloc_LogGrid ();
-  Vion = alloc_LogGrid ();
-  Vall = alloc_LogGrid ();
+  rho = alloc_LogGrid();
+  rho_core = alloc_LogGrid();
+  rho_valence = alloc_LogGrid();
+  Vion = alloc_LogGrid();
+  Vall = alloc_LogGrid();
 
   /* set Vion */
   for (i = 0; i < Ngrid; ++i)
     Vion[i] = -Zion / rgrid[i];
-  fclose (fp);
+  fclose(fp);
 
 
   /* initialize DFT stuff */
-  init_DFT (filename);
+  init_DFT(filename);
 }
 
 
@@ -501,8 +501,7 @@ solve_Atom ()
  *				*
  ********************************/
 
-void
-solve_Scattering_State_Atom (int nt, int lt, double et, double rmax)
+void solve_Scattering_State_Atom (int nt, int lt, double et, double rmax)
 {
   double r0, al;
   int st;
@@ -519,13 +518,13 @@ solve_Scattering_State_Atom (int nt, int lt, double et, double rmax)
 
   if (Solver_Type == Schrodinger)
     {
-      R_Schrodinger_Fixed_E (nt, lt, Vall,
+      R_Schrodinger_Fixed_E(nt, lt, Vall,
 			     turning_point[Ncv], et,
 			     r_psi[Ncv], r_psi_prime[Ncv]);
     }
   else if (Solver_Type == Pauli)
     {
-      R_Pauli_Fixed_E (nt, lt, Zion, Vall,
+      R_Pauli_Fixed_E(nt, lt, Zion, Vall,
 		       turning_point[Ncv], et, r_psi[Ncv], r_psi_prime[Ncv]);
     }
   else if (Solver_Type == Dirac)
@@ -695,100 +694,84 @@ set_Solver_Atom (solver)
  *				*
  ********************************/
 
-double
-E_Atom ()
+double E_Atom()
 {
   return Total_E;
 }				/*E_Atom */
 
-double
-eigenvalue_Atom (int i)
+double eigenvalue_Atom(int i)
 {
   return eigenvalue[i];
 }
 
-double *
-rho_Atom ()
+double * rho_Atom()
 {
   return rho;
 }
 
-double *
-rho_core_Atom ()
+double * rho_core_Atom()
 {
   return rho_core;
 }
 
-double *
-rho_valence_Atom ()
+double * rho_valence_Atom()
 {
   return rho_valence;
 }
 
 
-double *
-Vall_Atom ()
+double * Vall_Atom()
 {
   return Vall;
 }
 
 
-double *
-r_psi_Atom (int i)
+double * r_psi_Atom(int i)
 {
   return r_psi[i];
 }
 
-double *
-r_psi_prime_Atom (int i)
+double * r_psi_prime_Atom(int i)
 {
   return r_psi_prime[i];
 }
 
-int
-n_Atom (int i)
+int n_Atom(int i)
 {
   return n[i];
 }
 
-int
-l_Atom (int i)
+int l_Atom(int i)
 {
   return l[i];
 }
 
-int
-s_Atom (int i)
+int s_Atom(int i)
 {
   return s2[i];
 };
 
-int
-lmax_Atom ()
+int lmax_Atom()
 {
   return lmax;
 }
 
-double
-fill_Atom (int i)
+double fill_Atom(int i)
 {
   return fill[i];
 }
 
-int
-Ncore_Atom ()
+int Ncore_Atom()
 {
   return Ncore;
 }
 
-int
-Nvalence_Atom ()
+int Nvalence_Atom()
 {
   return Nvalence;
 }
 
-double
-peak_Atom (int i)
+double peak_Atom(int i)
 {
   return peak[i];
 }

@@ -692,12 +692,12 @@ double	*r_psi_Psp(int i)
    return r_psi[i];
 }
 
-int	n_Psp(int i)
+int n_Psp(int i)
 {
    return n[i];
 }
 
-int	l_Psp(int i)
+int l_Psp(int i)
 {
    return l[i];
 }

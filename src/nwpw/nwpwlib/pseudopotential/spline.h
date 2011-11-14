@@ -13,6 +13,7 @@ extern	double	drl_Linear();
 extern void	Log_to_Linear();
 extern void	Log_to_Linear_zero();
 extern void	normalize_Linear(double*);
+extern void	normalize_Linear2(double*,double*);
 
 #endif
 

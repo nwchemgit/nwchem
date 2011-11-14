@@ -70,15 +70,15 @@ void FATR pspsolve_
 
 #endif
 
-  int i, j, k, l, p, Nlinear, Nvalence,Ncore;
+  int i, j, k, l, p, Nlinear, Nvalence,Ncore,istate,mch;
   int debug, print;
   double *rl, *rhol, **psil_ae,**psil, **pspl;
-  double over_fourpi, c, x, y;
+  double over_fourpi, c, x, y,nu0;
   int Ngrid;
   double *vall, *rgrid;
   char name[255];
   int lmax_out, locp_out;
-  double rlocal_out;
+  double rlocal_out,rmax;
 
   FILE *fp;
 
@@ -157,15 +157,28 @@ void FATR pspsolve_
       for (p = 0; p < Nvalence; ++p)
 	{
 	  Log_to_Linear(r_psi_Psp(p),  rl, psil[p]);
-	  Log_to_Linear(r_psi_Atom(p+Ncore), rl, psil_ae[p]);
 	  Log_to_Linear_zero(V_Psp(p), rl, pspl[p]);
 
 	  /* normalize scattering state */
 	  if (fill_Psp(p) == 0.0)
-	    {
-	      normalize_Linear(psil[p]);
-	      normalize_Linear(psil_ae[p]);
-	    }
+	  {
+             rgrid = r_LogGrid();
+             Ngrid = N_LogGrid();
+             istate = Nvalence_Atom() + Ncore_Atom();
+             rmax = 20.0;
+             solve_Scattering_State_Atom(n_Psp(p),l_Psp(p),eigenvalue_Psp(p),rmax);
+     
+             rmax = 2.5*rcut_Psp(p);
+             mch = rint(log(rmax/rgrid[0])/log_amesh_LogGrid());
+             nu0 = r_psi_Psp(p)[mch]/r_psi_Atom(istate)[mch];
+             for (i=0; i<Ngrid; ++i)
+                r_psi_Atom(istate)[i] *= nu0;
+	     Log_to_Linear(r_psi_Atom(istate), rl, psil_ae[p]);
+	     normalize_Linear2(psil[p],psil_ae[p]);
+	  }
+          else
+	     Log_to_Linear(r_psi_Atom(p+Ncore), rl, psil_ae[p]);
+          
 	}
       Log_to_Linear(rho_Psp(), rl, rhol);
 

@@ -306,3 +306,16 @@ void	normalize_Linear(double	*wl)
 }
 
 
+void	normalize_Linear2(double *wl, double *ul)
+{
+    int	  k;
+    double norm;
+
+    norm = nm2(nrl,wl,drl);
+    norm = 1.0/sqrt(norm);
+    for (k=0; k<nrl; ++k)
+    {
+        wl[k] = norm*wl[k];
+        ul[k] = norm*ul[k];
+    }
+}

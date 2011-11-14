@@ -274,7 +274,7 @@ Integer	*n3;
     {
         fprintf(fp,"%12.8lf", rl[k]);
         for (p=0; p<=lmax; ++p)
-            fprintf(fp," %12.8lf", psil[p][k]);
+            fprintf(fp," %12.8lf %12.8lf", psil[p][k],psil[p][k]);
         fprintf(fp,"\n");
     }
     for (p=0; p<=lmax; ++p) free(psil[p]);
