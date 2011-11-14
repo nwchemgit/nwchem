@@ -358,7 +358,7 @@ c
 c
 c                 Screening per Grimme
 c
-                  if (rAj.gt.1600d0*r0aj/r0AB(1,1)) goto 911
+                  if (rAj.gt.1600d0*r0aj/r0AB(1,1)) goto 910
 c
 c                 Third center involved
 c
@@ -402,8 +402,9 @@ c
      $                      -fdmp6*s6*grad_c6(3)/(rjk**3.0d0)
      $                      -3.0d0*fdmp8*s8*grad_c6(3)*Qfac/(rjk**4.0d0)
                      endif
- 911                 continue
+ 911              continue
                   enddo
+ 910           continue
                endif
             enddo
          enddo
