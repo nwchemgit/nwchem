@@ -4,9 +4,9 @@ main.f
 OBJS =$(SRCS:.f=.o)
 
 .f.o :
-	${FC} -g -c $<
+	gfortran -g -c $<
 ${EXE}: $(OBJS) ;
-	${FC} -g -o ${EXE} ${OBJS}
+	gfortran -g -o ${EXE} ${OBJS}
 	dsymutil ${EXE}
 
 clean:

@@ -51,6 +51,8 @@ c      allocatable arrays
        character*5 , dimension(:), allocatable :: tva,tua,tur
        integer, dimension(:), allocatable :: iur
        character*180 , dimension(:), allocatable :: infile
+       logical util_get_io_unit
+       external util_get_io_unit
 c
 c      --------------------------------------------      
 c      set some default values
@@ -220,6 +222,10 @@ c      number of bins
 c      output file
        file_out = infile(nfil)
        message = "opening output file "//file_out
+       if(.not.util_get_io_unit(fn_out)) then
+           message = "no free file units"
+           goto 911
+       end if 
        open(fn_out,file=file_out,
      $            form='formatted',status='unknown',err=911)
 
@@ -257,6 +263,10 @@ c      figure out format for trajectory file
        file_in = infile(ifil)
 c      open input channel
        inquire(file=file_in,exist=ofile)
+       if(.not.util_get_io_unit(fn_in)) then
+           message = "no free file units"
+           goto 911
+       end if 
        if(ofile) then
           open(fn_in,file=file_in,
      $            form='formatted',status='old',err=911)
@@ -579,11 +589,16 @@ c
        integer i,k
        logical is_integer
        external is_integer
+       logical util_get_io_unit
+       external util_get_io_unit
 c
        pname = "lattice_read_file"
        lat = 0.0d0
-       ifn = 13
        inquire(file=fname,exist=ofile)
+       if(.not.util_get_io_unit(ifn)) then
+           message = "no free file units"
+           goto 911
+       end if 
        if(ofile) then
                open(ifn,file=fname,
      $            form='formatted',status='old',err=911)
@@ -787,6 +802,7 @@ c         oc=atag(i).eq.mtag(1:len_trim(mtag))
 c       
        integer i1,i2
        double precision rd(3)
+       double precision rd1(3)
 c
        integer j
        integer i,a,nd,k
@@ -805,6 +821,12 @@ c
        double precision ru,rl,vol,norm
        double precision  sx,sy,sz,xs,ys,zs
        double precision  ss(3),rr(3)
+       integer ic
+       double precision ang,d1,ang0,ang1
+       logical ocons,ofile
+       integer fnc
+       logical util_get_io_unit
+       external util_get_io_unit
        pname = "rdf_compute"
 c
 c      ----------------------
@@ -812,6 +834,25 @@ c      compute lattice params
 c      ----------------------
        call smd_lat_invrt(lat,rlat)
        call smd_latt_vol(lat,vol)
+c
+c      any constraints?
+       ic = 0
+       ang0=0.0d0
+       ang1=0.0d0
+       inquire(file="cons.dat",exist=ofile)
+       if(ofile) then
+         write(*,*) "found constraint file"
+         if(.not.util_get_io_unit(fnc)) then
+             message = "no free file units"
+             goto 911
+         end if 
+
+          open(fnc,file="cons.dat",
+     $            form='formatted',status='old',err=911)
+          read(fnc,*,err=911) ic,ang0,ang1
+          close(fnc)
+       end if 
+
 c      ----------------------------
 c      construct relative distances
 c      and bin rdf
@@ -823,17 +864,26 @@ c      ----------------------------
          do i2=1,n
            if(oc2(i2)) then
            i = i+1
-           rd = c(:,i1)-c(:,i2)
+           rd =  c(:,i2)-c(:,i1)
 
            ss = matmul(rlat,rd)
            rr = ss-nint(ss)
            rd = matmul(lat,rr)
 
            d = sqrt(sum(rd*rd))
-
+           ocons =.true.
+           if(ic.gt.0) then
+             rd1 = c(:,ic)-c(:,i1)
+             d1= sqrt(sum(rd1*rd1))
+             ang = SUM(rd*rd1)/(d1*d)
+             ocons = ang.ge.ang0
+             ocons = ocons.and.(ang.le.ang1)
+             write(45,*) i2,i1,ic,ang,ocons
+           end if
            if(d.gt.0.01) k = int(d/dr)+1
-           if(k.le.nb ) gr(k) = gr(k) + 1
-
+           if(k.le.nb.and.ocons ) then
+                   gr(k) = gr(k) + 1
+           end if
            end if
          end do
          end if
@@ -1120,3 +1170,26 @@ c      if you reach this you are in trouble
 
       end subroutine
 
+      function util_get_io_unit(fn)
+
+      implicit none
+      integer fn
+      logical util_get_io_unit
+c 
+      integer k
+      logical ostatus
+c
+      do k=80,90
+        INQUIRE(UNIT=k,OPENED=ostatus)
+        ostatus = .not.ostatus
+        if(ostatus) 
+     >    INQUIRE(UNIT=k,EXIST=ostatus)
+        if(ostatus) then
+          fn = k
+          util_get_io_unit = .true.
+          return
+        end if 
+      end do
+      util_get_io_unit = .false.
+      return
+      end
