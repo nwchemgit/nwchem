@@ -827,7 +827,10 @@ c
        integer fnc
        logical util_get_io_unit
        external util_get_io_unit
+       double precision pi
+c
        pname = "rdf_compute"
+       pi = acos(-1.0)
 c
 c      ----------------------
 c      compute lattice params
@@ -841,7 +844,7 @@ c      any constraints?
        ang1=0.0d0
        inquire(file="cons.dat",exist=ofile)
        if(ofile) then
-         write(*,*) "found constraint file"
+c         write(*,*) "found constraint file"
          if(.not.util_get_io_unit(fnc)) then
              message = "no free file units"
              goto 911
@@ -851,8 +854,11 @@ c      any constraints?
      $            form='formatted',status='old',err=911)
           read(fnc,*,err=911) ic,ang0,ang1
           close(fnc)
+          ang0 = pi*ang0/180.0
+          ang1= pi*ang1/180.0
+          ang0=cos(ang0)
+          ang1=cos(ang1)
        end if 
-
 c      ----------------------------
 c      construct relative distances
 c      and bin rdf
@@ -878,7 +884,6 @@ c      ----------------------------
              ang = SUM(rd*rd1)/(d1*d)
              ocons = ang.ge.ang0
              ocons = ocons.and.(ang.le.ang1)
-             write(45,*) i2,i1,ic,ang,ocons
            end if
            if(d.gt.0.01) k = int(d/dr)+1
            if(k.le.nb.and.ocons ) then
@@ -888,13 +893,12 @@ c      ----------------------------
          end do
          end if
        end do
-       do j=1,nb
-         write(55,*) gr(j)
-       end do
+c       do j=1,nb
+c         write(55,*) gr(j)
+c       end do
        i1 = count(oc1)
        i2 = count(oc2)
 c
-       write(57,*) i1,i2
        fourpi = 16.0*atan(1.0)
        const = fourpi*real(i1*i2)/(vol*3.0d0)
        do k=1,nb
@@ -996,7 +1000,6 @@ c
       if(string.eq." ") return
       l  = len_trim(string)
       do i=1,l
-       write(13,*) i,string(i:i)
        if(string(i:i).ne." ") exit
       end do
       is_integer = verify(string(i:l), anumber).eq.0
