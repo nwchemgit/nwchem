@@ -21,7 +21,6 @@
 #           Pacific Northwest National Laboratory
 #           P.O. Box 999
 #           Richland, WA 99352-0999
-#           email: ra_kendall@pnl.gov
 #
 $debug = 0;
 @from = ();
