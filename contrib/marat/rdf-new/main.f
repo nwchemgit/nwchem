@@ -47,6 +47,7 @@ c      allocatable arrays
        double precision, dimension(:,:), allocatable :: c2
        double precision, dimension(:), allocatable :: gr0
        double precision, dimension(:), allocatable :: gr
+       double precision, dimension(:), allocatable :: occ,occ0
        character*5, dimension(:), allocatable :: atag
        character*5 , dimension(:), allocatable :: tva,tua,tur
        integer, dimension(:), allocatable :: iur
@@ -256,8 +257,11 @@ c      output file
 
        allocate(gr(nb))
        allocate(gr0(nb))
+       allocate(occ(nb))
+       allocate(occ0(nb))
        naver = 0
        gr = 0
+       occ = 0
 c      figure out format for trajectory file
        do ifil=1,nfil-1
        file_in = infile(ifil)
@@ -338,8 +342,10 @@ c
          call rdf_compute2(n,c,oc1,oc2,
      +                    nb,rmax,lat1,
      +                    gr0,
+     +                    occ0,
      +                    fn_in)
          gr = gr + gr0
+         occ = occ + occ0
          nf = nf+1
          if(nfrm.gt.0.and.nf.ge.nfrm) then
             if(overb) 
@@ -371,6 +377,7 @@ c      average RDF over the frames
        if(overb) 
      +   write(*,*) "averaging over ",naver," smaples"
        gr = gr/real(naver)
+       occ = occ/real(naver)
 c
 c      smoothing g(r) per Allan/Tild. p 204 (6.48)
 c      ------------------------------------------
@@ -396,8 +403,8 @@ c      ------------------------------------------
 
        dr = rmax/nb
        do k=1,nb
-         write(fn_out,'(2F12.6)') 
-     >             real(k)*dr,gr(k)
+         write(fn_out,'(3F12.6)') 
+     >             real(k)*dr,gr(k),occ(k)
        end do
        stop
 411    continue
@@ -789,6 +796,7 @@ c         oc=atag(i).eq.mtag(1:len_trim(mtag))
        subroutine rdf_compute2(n,c,oc1,oc2,
      +                        nb,rmax,lat,
      +                        gr,
+     +                        occ,
      +                        fn_in)
        implicit none
        integer n
@@ -798,6 +806,7 @@ c         oc=atag(i).eq.mtag(1:len_trim(mtag))
        integer nb
        double precision rmax
        double precision gr(nb)
+       double precision occ(nb)
        double precision lat(3,3)
 c       
        integer i1,i2
@@ -828,6 +837,7 @@ c
        logical util_get_io_unit
        external util_get_io_unit
        double precision pi
+       double precision asum
 c
        pname = "rdf_compute"
        pi = acos(-1.0)
@@ -901,6 +911,12 @@ c       end do
 c
        fourpi = 16.0*atan(1.0)
        const = fourpi*real(i1*i2)/(vol*3.0d0)
+       asum = 0.0d0
+       do k=1,nb
+         asum   = asum+gr(k)
+         occ(k) = asum
+       end do
+       occ = occ/i1
        do k=1,nb
          rl = real(k-1)*dr
          ru = rl+dr
