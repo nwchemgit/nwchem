@@ -1009,7 +1009,7 @@ c
       integer rtdb
       integer  geom
       double precision dum
-      integer dum1
+      double precision dum1(1)
       character*255 name
 c
       if (.not. rtdb_cget(rtdb,'geometry', 1, name))
@@ -1046,7 +1046,7 @@ c analysis are generated.
       double precision s6,s8,sr6,sr8
       integer n                
       double precision x(3,n)
-      double precision z(n)
+      integer z(n)
       double precision l_force(3,n)
       double precision r_force(3,n)
       double precision hessvdw(3,n,3,n)
@@ -1291,7 +1291,8 @@ c
       subroutine c6_grad(grad,iat,jat,kat,x,z,n,cnij,cnijk)
       implicit none
 #include "xc_vdw.fh"
-      integer n,iat,jat,kat,z(n),i,j,x(3,n)
+      integer n,iat,jat,kat,z(n),i,j
+      double precision x(3,n)
       double precision grad(3),cnij(3,n),cnijk(3,n,n),cni,cnj
       double precision crd_nr,cnik(3),cnjk(3)
       external crd_nr
