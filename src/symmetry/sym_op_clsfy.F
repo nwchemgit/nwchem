@@ -5,6 +5,7 @@ C$Id$
 #include "sym.fh"
 #include "inp.fh"
 #include "util.fh"
+#include "global.fh"
       integer geom              ! [input]
       integer op_class_index(*) ! [output] Class number of each operator
 c     
@@ -42,6 +43,8 @@ c
 c     
 c     Derive class name of each operator just from the matrices
 c
+      if (util_print('sym_op_classify',print_never))
+     $        write(6,*) 0, ' = E is implied'
       do h = 1, nop
          call sym_get_cart_op(geom, h, hh)
          call sym_op_type(hh, op_type, order, power, direction)
@@ -147,6 +150,12 @@ c     See comments above about this switch
 c
       do ir = 1, nir
          if (count(ir).ne.iclass_dim(ir)) then
+            if (ga_nodeid().eq.0) then
+             write(6,*) "Name       Found        Expected"
+             do i = 1, nir
+              write(6,*) zclass(i),count(i),iclass_dim(i)
+             enddo
+            endif
             call errquit('sym_classify: classes wrong', ir,
      &       GEOM_ERR)
          endif
