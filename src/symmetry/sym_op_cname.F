@@ -86,6 +86,20 @@ c
                else
                   class = 'c2"'
                endif
+            else if (group_name(1:2).eq.'D8') then
+c
+c     Added by Kurt on 16 NOV 2011
+c
+               if (abs(direction(3)-1.0d0).lt.1e-3) then
+                  class = 'c2'
+               else if (
+     $                 abs(direction(1)-0.7071).lt.1d-3 .or.
+     $                 abs(direction(1)-1.0000).lt.1d-3 .or.
+     $                 abs(direction(2)-1.0000).lt.1d-3) then
+                  class = 'c2'''
+               else
+                  class = 'c2"'
+               endif
             else if (group_name(1:1).eq.'O') then
 c     
 c     C2 normal to x/y/z axes, C2' imbetween
@@ -177,10 +191,26 @@ c
                else
                   class = 'si.d'
                endif
+
+            else if (group_name.eq.'C8v' .or. group_name.eq.'D8h') then
+c
+c    Added by Kurt 16 Nov 2011
+c
+               if (
+     $              abs(direction(1)-0.7071).lt.1d-3 .or.
+     $              abs(direction(1)-1.0000).lt.1d-3 .or.
+     $              abs(direction(2)-1.0000).lt.1d-3) then
+                  class = 'si.v'
+               else
+                  class = 'si.d'
+               endif
             endif
          endif
       else
          write(6,*) ' sym_op_class_name: unknown op type ', op_type
       endif
 c
+c      print*,op_type, order, power, direction(1:3),group_name,
+c     &     class,acos(direction(1))*180/3.1415926535897932384626d0
+
       end
