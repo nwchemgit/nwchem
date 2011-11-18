@@ -200,9 +200,9 @@ c
      $              abs(direction(1)-0.7071).lt.1d-3 .or.
      $              abs(direction(1)-1.0000).lt.1d-3 .or.
      $              abs(direction(2)-1.0000).lt.1d-3) then
-                  class = 'si.v'
-               else
                   class = 'si.d'
+               else
+                  class = 'si.v'
                endif
             endif
          endif
