@@ -112,6 +112,76 @@ o  1 0 1
 o  1 0.866025403 0.5
 end
 
+# Symmetry C2H
+#trans -1,2-dichloroethylene
+geometry units angstrom noautoz autosym
+C  0    0  0.5
+C  0    0 -0.5
+H  0 -0.4 -1.0
+H  0  0.4  1.0
+Cl 0 -0.4  1.0
+Cl 0  0.4 -1.0
+end
+
+# Symmetry D2D
+# C3H4:
+geometry units angstrom noautoz autosym
+C  1 0 0
+C  0 0 0
+C -1 0 0
+H -1.2 0  0.8
+H -1.2 0 -0.8
+H  1.2  0.8 0
+H  1.2 -0.8 0
+end
+
+# symmetry S8
+geometry units angstrom noautoz autosym
+ c                     1.00000000     1.00000000     1.00000000
+ c                     0.00000000     1.41421356    -1.00000000
+ c                    -1.00000000     1.00000000     1.00000000
+ c                    -1.41421356    -0.00000000    -1.00000000
+ c                    -1.00000000    -1.00000000     1.00000000
+ c                     0.00000000    -1.41421356    -1.00000000
+ c                     1.00000000    -1.00000000     1.00000000
+ c                     1.41421356    -0.00000000    -1.00000000
+ h                     1.00000000     1.10000000     1.00000000
+ h                    -0.07071068     1.48492424    -1.00000000
+ h                    -1.10000000     1.00000000     1.00000000
+ h                    -1.48492424    -0.07071068    -1.00000000
+ h                    -1.00000000    -1.10000000     1.00000000
+ h                     0.07071068    -1.48492424    -1.00000000
+ h                     1.10000000    -1.00000000     1.00000000
+ h                     1.48492424     0.07071068    -1.00000000
+ N                     0.00000000    -0.00000000     1.00000000
+ N                     0.00000000    -0.00000000    -1.00000000
+end
+
+# Symmetry Cs
+geometry units angstrom noautoz autosym
+  c    -0.01768833     0.00000000    -0.68118028
+  o    -0.01768833     0.00000000     0.79881972
+  h     1.29788134     0.00000000    -0.20235208
+  h    -0.52512235    -0.87890150    -1.05056203
+  h    -0.52512235     0.87890150    -1.05056203
+end
+
+# Symmetry D2H
+geometry units angstrom noautoz autosym
+C      0.00000000     2.70988558     0.00000000
+C      0.00000000    -2.70988558     0.00000000
+C      2.41085575     1.26154952     0.00000000
+C     -2.41085575     1.26154952     0.00000000
+C      2.41085575    -1.26154952     0.00000000
+C     -2.41085575    -1.26154952     0.00000000
+N      0.00000000     5.02025763     0.00000000
+N      0.00000000    -5.02025763     0.00000000
+H      4.14271262     2.33001546     0.00000000
+H     -4.14271262     2.33001546     0.00000000
+H      4.14271262    -2.33001546     0.00000000
+H     -4.14271262    -2.33001546     0.00000000
+End
+
 # Symmetry O
 geometry units angstrom noautoz autosym
 N  1.67275  5.938  3.77525
@@ -1314,13 +1384,13 @@ task scf freq
            Job information
            ---------------
 
-    hostname      = cu0login1
-    program       = /hptc_cluster/scicons/apps/nwchem-6.0.oct19/bin/LINUX64/nwchem
-    date          = Wed Nov 10 11:22:38 2010
+    hostname      = cu0login2
+    program       = /home/d3p852/nwchem-6.0/bin/LINUX64/nwchem
+    date          = Fri Nov 18 11:28:04 2011
 
-    compiled      = Mon_Nov_01_15:59:31_2010
-    source        = /home/scicons/user/kurt/nwchem-6.0-release-pgf90-final/
-    nwchem branch = 6.0
+    compiled      = Fri_Nov_18_11:25:02_2011
+    source        = /home/d3p852/nwchem-6.0
+    nwchem branch = Development
     input         = autosym.nw
     prefix        = autosym.
     data base     = ./autosym.db
@@ -1354,6 +1424,7 @@ task scf freq
                                 -------------------
 
 
+ ncenter=                        5
  TD  symmetry detected
 
           ------
@@ -1465,6 +1536,7 @@ task scf freq
 
 
 
+ ncenter=                        2
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
 
@@ -1578,6 +1650,7 @@ task scf freq
 
 
 
+ ncenter=                       24
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -1910,6 +1983,7 @@ task scf freq
 
 
 
+ ncenter=                       12
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -2016,6 +2090,7 @@ task scf freq
 
 
 
+ ncenter=                        6
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -2089,6 +2164,7 @@ task scf freq
 
 
 
+ ncenter=                        3
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -2142,6 +2218,7 @@ task scf freq
  H                     0.14942925    -0.55767754     0.00000000
  H                    -0.55767754     0.14942925     0.00000000
 
+ ncenter=                        6
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -2239,6 +2316,531 @@ task scf freq
 
 
 
+ ncenter=                        6
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ C2H symmetry detected
+
+
+                         Geometry "geometry" -> "        "
+                         ---------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 C                    6.0000    -0.16804435     0.47091517     0.00000000
+    2 C                    6.0000     0.16804435    -0.47091517     0.00000000
+    3 H                    1.0000     0.71282084    -0.80739485     0.00000000
+    4 H                    1.0000    -0.71282084     0.80739485     0.00000000
+    5 Cl                  17.0000     0.04064343     1.07626582     0.00000000
+    6 Cl                  17.0000    -0.04064343    -1.07626582     0.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      C                 12.000000
+      H                  1.007825
+      Cl                34.968850
+
+
+ Effective nuclear repulsion energy (a.u.)     373.9178491646
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             C2h       
+ Group number             21
+ Group order               4
+ No. of unique centers     3
+
+      Symmetry unique atoms
+
+     1    3    5
+
+
+            XYZ format geometry
+            -------------------
+     6
+ geometry
+ C                    -0.16804435     0.47091517     0.00000000
+ C                     0.16804435    -0.47091517     0.00000000
+ H                     0.71282084    -0.80739485     0.00000000
+ H                    -0.71282084     0.80739485     0.00000000
+ Cl                    0.04064343     1.07626582     0.00000000
+ Cl                   -0.04064343    -1.07626582     0.00000000
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 C                |   1 C                |     1.88973  |     1.00000
+    3 H                |   2 C                |     1.21002  |     0.64031
+    4 H                |   1 C                |     1.21002  |     0.64031
+    5 Cl               |   1 C                |     1.21002  |     0.64031
+    5 Cl               |   2 C                |     2.93364  |     1.55242
+    5 Cl               |   4 H                |     1.51178  |     0.80000
+    6 Cl               |   1 C                |     2.93364  |     1.55242
+    6 Cl               |   2 C                |     1.21002  |     0.64031
+    6 Cl               |   3 H                |     1.51178  |     0.80000
+    6 Cl               |   5 Cl               |     4.07059  |     2.15407
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:         10
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 C                |   1 C                |   4 H                |   141.34
+    2 C                |   1 C                |   5 Cl               |   141.34
+    1 C                |   2 C                |   6 Cl               |   141.34
+    4 H                |   1 C                |   5 Cl               |    77.32
+    4 H                |   1 C                |   6 Cl               |   126.41
+    5 Cl               |   1 C                |   6 Cl               |   156.27
+    1 C                |   2 C                |   3 H                |   141.34
+    2 C                |   1 C                |   5 Cl               |   141.34
+    1 C                |   2 C                |   6 Cl               |   141.34
+    3 H                |   2 C                |   5 Cl               |   126.41
+    3 H                |   2 C                |   6 Cl               |    77.32
+    5 Cl               |   2 C                |   6 Cl               |   156.27
+    3 H                |   2 C                |   6 Cl               |    77.32
+    4 H                |   1 C                |   5 Cl               |    77.32
+    5 Cl               |   1 C                |   2 C                |   141.34
+    5 Cl               |   1 C                |   4 H                |    77.32
+    5 Cl               |   1 C                |   6 Cl               |   156.27
+    2 C                |   5 Cl               |   4 H                |    75.07
+    5 Cl               |   2 C                |   6 Cl               |   156.27
+    4 H                |   5 Cl               |   6 Cl               |    68.20
+    6 Cl               |   2 C                |   1 C                |   141.34
+    1 C                |   6 Cl               |   3 H                |    75.07
+    6 Cl               |   1 C                |   5 Cl               |   156.27
+    6 Cl               |   2 C                |   3 H                |    77.32
+    6 Cl               |   2 C                |   5 Cl               |   156.27
+    3 H                |   6 Cl               |   5 Cl               |    68.20
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:         26
+ ==============================================================================
+
+
+
+ ncenter=                        7
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ D2D symmetry detected
+
+
+                         Geometry "geometry" -> "        "
+                         ---------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 C                    6.0000     0.00000000     0.00000000     1.00000000
+    2 C                    6.0000     0.00000000     0.00000000     0.00000000
+    3 C                    6.0000     0.00000000     0.00000000    -1.00000000
+    4 H                    1.0000    -0.56568542     0.56568542    -1.20000000
+    5 H                    1.0000     0.56568542    -0.56568542    -1.20000000
+    6 H                    1.0000     0.56568542     0.56568542     1.20000000
+    7 H                    1.0000    -0.56568542    -0.56568542     1.20000000
+
+      Atomic Mass 
+      ----------- 
+
+      C                 12.000000
+      H                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)      78.7178302069
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             D2d       
+ Group number             32
+ Group order               8
+ No. of unique centers     3
+
+      Symmetry unique atoms
+
+     1    2    4
+
+
+            XYZ format geometry
+            -------------------
+     7
+ geometry
+ C                     0.00000000     0.00000000     1.00000000
+ C                     0.00000000     0.00000000     0.00000000
+ C                     0.00000000     0.00000000    -1.00000000
+ H                    -0.56568542     0.56568542    -1.20000000
+ H                     0.56568542    -0.56568542    -1.20000000
+ H                     0.56568542     0.56568542     1.20000000
+ H                    -0.56568542    -0.56568542     1.20000000
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 C                |   1 C                |     1.88973  |     1.00000
+    3 C                |   2 C                |     1.88973  |     1.00000
+    4 H                |   3 C                |     1.55831  |     0.82462
+    5 H                |   3 C                |     1.55831  |     0.82462
+    6 H                |   1 C                |     1.55831  |     0.82462
+    7 H                |   1 C                |     1.55831  |     0.82462
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          6
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 C                |   1 C                |   6 H                |   104.04
+    2 C                |   1 C                |   7 H                |   104.04
+    6 H                |   1 C                |   7 H                |   151.93
+    1 C                |   2 C                |   3 C                |   180.00
+    2 C                |   3 C                |   4 H                |   104.04
+    2 C                |   3 C                |   5 H                |   104.04
+    4 H                |   3 C                |   5 H                |   151.93
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          7
+ ==============================================================================
+
+
+
+ ncenter=                       18
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ S8  symmetry detected
+
+
+                         Geometry "geometry" -> "        "
+                         ---------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 c                    6.0000     0.00000000     1.41421356     1.00000000
+    2 c                    6.0000    -1.00000000     1.00000000    -1.00000000
+    3 c                    6.0000    -1.41421356     0.00000000     1.00000000
+    4 c                    6.0000    -1.00000000    -1.00000000    -1.00000000
+    5 c                    6.0000     0.00000000    -1.41421356     1.00000000
+    6 c                    6.0000     1.00000000    -1.00000000    -1.00000000
+    7 c                    6.0000     1.41421356     0.00000000     1.00000000
+    8 c                    6.0000     1.00000000     1.00000000    -1.00000000
+    9 h                    1.0000    -0.07071068     1.48492424     1.00000000
+   10 h                    1.0000    -1.10000000     1.00000000    -1.00000000
+   11 h                    1.0000    -1.48492424    -0.07071068     1.00000000
+   12 h                    1.0000    -1.00000000    -1.10000000    -1.00000000
+   13 h                    1.0000     0.07071068    -1.48492424     1.00000000
+   14 h                    1.0000     1.10000000    -1.00000000    -1.00000000
+   15 h                    1.0000     1.48492424     0.07071068     1.00000000
+   16 h                    1.0000     1.00000000     1.10000000    -1.00000000
+   17 N                    7.0000     0.00000000     0.00000000     1.00000000
+   18 N                    7.0000     0.00000000     0.00000000    -1.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      c                 12.000000
+      h                  1.007825
+      N                 14.003070
+
+
+ Effective nuclear repulsion energy (a.u.)     790.3254507561
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name              S8       
+ Group number             39
+ Group order               8
+ No. of unique centers     3
+
+      Symmetry unique atoms
+
+     1    9   17
+
+
+            XYZ format geometry
+            -------------------
+    18
+ geometry
+ c                     0.00000000     1.41421356     1.00000000
+ c                    -1.00000000     1.00000000    -1.00000000
+ c                    -1.41421356     0.00000000     1.00000000
+ c                    -1.00000000    -1.00000000    -1.00000000
+ c                     0.00000000    -1.41421356     1.00000000
+ c                     1.00000000    -1.00000000    -1.00000000
+ c                     1.41421356     0.00000000     1.00000000
+ c                     1.00000000     1.00000000    -1.00000000
+ h                    -0.07071068     1.48492424     1.00000000
+ h                    -1.10000000     1.00000000    -1.00000000
+ h                    -1.48492424    -0.07071068     1.00000000
+ h                    -1.00000000    -1.10000000    -1.00000000
+ h                     0.07071068    -1.48492424     1.00000000
+ h                     1.10000000    -1.00000000    -1.00000000
+ h                     1.48492424     0.07071068     1.00000000
+ h                     1.00000000     1.10000000    -1.00000000
+ N                     0.00000000     0.00000000     1.00000000
+ N                     0.00000000     0.00000000    -1.00000000
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    9 h                |   1 c                |     0.18897  |     0.10000
+   10 h                |   2 c                |     0.18897  |     0.10000
+   11 h                |   3 c                |     0.18897  |     0.10000
+   12 h                |   4 c                |     0.18897  |     0.10000
+   13 h                |   5 c                |     0.18897  |     0.10000
+   14 h                |   6 c                |     0.18897  |     0.10000
+   15 h                |   7 c                |     0.18897  |     0.10000
+   16 h                |   8 c                |     0.18897  |     0.10000
+   17 N                |   1 c                |     2.67248  |     1.41421
+   17 N                |   3 c                |     2.67248  |     1.41421
+   17 N                |   5 c                |     2.67248  |     1.41421
+   17 N                |   7 c                |     2.67248  |     1.41421
+   18 N                |   2 c                |     2.67248  |     1.41421
+   18 N                |   4 c                |     2.67248  |     1.41421
+   18 N                |   6 c                |     2.67248  |     1.41421
+   18 N                |   8 c                |     2.67248  |     1.41421
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:         16
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    9 h                |   1 c                |  17 N                |   135.00
+   10 h                |   2 c                |  18 N                |   135.00
+   11 h                |   3 c                |  17 N                |   135.00
+   12 h                |   4 c                |  18 N                |   135.00
+   13 h                |   5 c                |  17 N                |   135.00
+   14 h                |   6 c                |  18 N                |   135.00
+   15 h                |   7 c                |  17 N                |   135.00
+   16 h                |   8 c                |  18 N                |   135.00
+    1 c                |  17 N                |   3 c                |    90.00
+    1 c                |  17 N                |   5 c                |   180.00
+    1 c                |  17 N                |   7 c                |    90.00
+    3 c                |  17 N                |   5 c                |    90.00
+    3 c                |  17 N                |   7 c                |   180.00
+    5 c                |  17 N                |   7 c                |    90.00
+    2 c                |  18 N                |   4 c                |    90.00
+    2 c                |  18 N                |   6 c                |   180.00
+    2 c                |  18 N                |   8 c                |    90.00
+    4 c                |  18 N                |   6 c                |    90.00
+    4 c                |  18 N                |   8 c                |   180.00
+    6 c                |  18 N                |   8 c                |    90.00
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:         20
+ ==============================================================================
+
+
+
+ ncenter=                        5
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ CS  symmetry detected
+
+
+                         Geometry "geometry" -> "        "
+                         ---------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 c                    6.0000    -0.01640926     0.68121229     0.00000000
+    2 o                    8.0000     0.05762644    -0.79693477     0.00000000
+    3 h                    1.0000    -1.30637889     0.13717335     0.00000000
+    4 h                    1.0000     0.47191146     1.07551552     0.87890150
+    5 h                    1.0000     0.47191146     1.07551552    -0.87890150
+
+      Atomic Mass 
+      ----------- 
+
+      c                 12.000000
+      o                 15.994910
+      h                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)      32.6678346073
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             Cs        
+ Group number              2
+ Group order               2
+ No. of unique centers     4
+
+      Symmetry unique atoms
+
+     1    2    3    4
+
+
+            XYZ format geometry
+            -------------------
+     5
+ geometry
+ c                    -0.01640926     0.68121229     0.00000000
+ o                     0.05762644    -0.79693477     0.00000000
+ h                    -1.30637889     0.13717335     0.00000000
+ h                     0.47191146     1.07551552     0.87890150
+ h                     0.47191146     1.07551552    -0.87890150
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |  angstroms
+ ------------------------------------------------------------------------------
+    2 o                |   1 c                |     2.79679  |     1.48000
+    4 h                |   1 c                |     2.04090  |     1.08000
+    5 h                |   1 c                |     2.04090  |     1.08000
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          3
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 o                |   1 c                |   4 h                |   110.00
+    2 o                |   1 c                |   5 h                |   110.00
+    4 h                |   1 c                |   5 h                |   108.94
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          3
+ ==============================================================================
+
+
+
+ ncenter=                       12
+
+ Scaling coordinates for geometry "geometry" by  1.889725989
+ (inverse scale =  0.529177249)
+
+ D2H symmetry detected
+
+
+                         Geometry "geometry" -> "        "
+                         ---------------------------------
+
+ Output coordinates in angstroms (scale by  1.889725989 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 C                    6.0000     0.00000000     2.70988558     0.00000000
+    2 C                    6.0000     0.00000000    -2.70988558     0.00000000
+    3 C                    6.0000     2.41085575     1.26154952     0.00000000
+    4 C                    6.0000    -2.41085575     1.26154952     0.00000000
+    5 C                    6.0000     2.41085575    -1.26154952     0.00000000
+    6 C                    6.0000    -2.41085575    -1.26154952     0.00000000
+    7 N                    7.0000     0.00000000     5.02025763     0.00000000
+    8 N                    7.0000     0.00000000    -5.02025763     0.00000000
+    9 H                    1.0000     4.14271262     2.33001546     0.00000000
+   10 H                    1.0000    -4.14271262     2.33001546     0.00000000
+   11 H                    1.0000     4.14271262    -2.33001546     0.00000000
+   12 H                    1.0000    -4.14271262    -2.33001546     0.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      C                 12.000000
+      N                 14.003070
+      H                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)     160.9690666200
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             D2h       
+ Group number             26
+ Group order               8
+ No. of unique centers     4
+
+      Symmetry unique atoms
+
+     1    3    7    9
+
+
+            XYZ format geometry
+            -------------------
+    12
+ geometry
+ C                     0.00000000     2.70988558     0.00000000
+ C                     0.00000000    -2.70988558     0.00000000
+ C                     2.41085575     1.26154952     0.00000000
+ C                    -2.41085575     1.26154952     0.00000000
+ C                     2.41085575    -1.26154952     0.00000000
+ C                    -2.41085575    -1.26154952     0.00000000
+ N                     0.00000000     5.02025763     0.00000000
+ N                     0.00000000    -5.02025763     0.00000000
+ H                     4.14271262     2.33001546     0.00000000
+ H                    -4.14271262     2.33001546     0.00000000
+ H                     4.14271262    -2.33001546     0.00000000
+ H                    -4.14271262    -2.33001546     0.00000000
+
+ ncenter=                       24
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -2334,6 +2936,7 @@ task scf freq
  N                     5.93800000     3.77525000     1.67275000
  N                    -5.93800000     3.77525000    -1.67275000
 
+ ncenter=                       60
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -2503,6 +3106,7 @@ task scf freq
  H                    -1.89401020    -3.32620306    -3.78802040
  H                     1.82850490    -1.57768354    -4.81326131
 
+ ncenter=                       12
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -2576,6 +3180,7 @@ task scf freq
  B                    -1.78885438     0.00000000     0.89442719
  B                     0.55278640    -1.70130162    -0.89442719
 
+ ncenter=                       24
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -2671,6 +3276,7 @@ task scf freq
  C                    -4.00000000    -3.00000000     2.00000000
  C                    -4.00000000     3.00000000    -2.00000000
 
+ ncenter=                       42
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -2946,6 +3552,7 @@ task scf freq
 
 
 
+ ncenter=                        6
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -3043,6 +3650,7 @@ task scf freq
 
 
 
+ ncenter=                       31
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -3337,6 +3945,7 @@ task scf freq
 
 
 
+ ncenter=                       10
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -3456,6 +4065,7 @@ task scf freq
 
 
 
+ ncenter=                       10
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -3575,6 +4185,7 @@ task scf freq
 
 
 
+ ncenter=                       18
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -3736,6 +4347,7 @@ task scf freq
 
 
 
+ ncenter=                       13
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -3869,6 +4481,7 @@ task scf freq
 
 
 
+ ncenter=                       18
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -4029,6 +4642,7 @@ task scf freq
 
 
 
+ ncenter=                       18
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -4191,6 +4805,7 @@ task scf freq
 
 
 
+ ncenter=                       21
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -4439,6 +5054,7 @@ task scf freq
 
 
 
+ ncenter=                       18
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -4610,6 +5226,7 @@ task scf freq
 
 
 
+ ncenter=                       13
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -4732,6 +5349,7 @@ task scf freq
 
 
 
+ ncenter=                       34
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -4964,6 +5582,7 @@ task scf freq
 
 
 
+ ncenter=                       19
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -5118,6 +5737,7 @@ task scf freq
 
 
 
+ ncenter=                       26
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -5328,6 +5948,7 @@ task scf freq
 
 
 
+ ncenter=                       13
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -5458,6 +6079,7 @@ task scf freq
 
 
 
+ ncenter=                       20
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -5850,6 +6472,7 @@ task scf freq
 
 
 
+ ncenter=                       68
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -6287,6 +6910,7 @@ task scf freq
 
 
 
+ ncenter=                       33
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -6504,6 +7128,7 @@ task scf freq
 
 
 
+ ncenter=                       25
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -6799,6 +7424,7 @@ task scf freq
 
 
 
+ ncenter=                        8
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -6899,6 +7525,7 @@ task scf freq
 
 
 
+ ncenter=                       22
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -7189,6 +7816,7 @@ task scf freq
 
 
 
+ ncenter=                       26
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -7399,6 +8027,7 @@ task scf freq
 
 
 
+ ncenter=                       21
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -7647,6 +8276,7 @@ task scf freq
 
 
 
+ ncenter=                       13
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -7773,6 +8403,7 @@ task scf freq
 
 
 
+ ncenter=                       19
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -7951,6 +8582,7 @@ task scf freq
 
 
 
+ ncenter=                       28
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -8158,6 +8790,7 @@ task scf freq
 
 
 
+ ncenter=                      126
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -8836,6 +9469,7 @@ task scf freq
 
 
 
+ ncenter=                       79
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -9336,6 +9970,7 @@ task scf freq
  *                           sto-3g                   on all atoms 
 
 
+ ncenter=                        5
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
 
@@ -9522,7 +10157,7 @@ task scf freq
 
 
 
- Forming initial guess at       1.5s
+ Forming initial guess at       1.4s
 
 
       Superposition of Atomic Density Guess
@@ -9540,7 +10175,7 @@ task scf freq
  LUMO         =       0.643814
 
 
- Starting SCF solution at       1.5s
+ Starting SCF solution at       1.4s
 
 
 
@@ -9557,7 +10192,7 @@ task scf freq
              ----- ------------------- --------- --------- --------
                  1      -39.7216048853  2.13D-01  1.58D-01      0.8
                  2      -39.7265875723  3.33D-02  2.52D-02      0.8
-                 3      -39.7266704674  1.55D-04  1.48D-04      0.9
+                 3      -39.7266704674  1.55D-04  1.48D-04      0.8
                  4      -39.7266704679  1.08D-10  1.08D-10      0.9
 
 
@@ -9576,15 +10211,15 @@ task scf freq
              -----------------
 
               1      
-    1  -11.0304
-    2   -0.9082
-    3   -0.5175
-    4   -0.5175
-    5   -0.5175
-    6    0.7125
-    7    0.7125
-    8    0.7125
-    9    0.7496
+    1        -11.0304
+    2         -0.9082
+    3         -0.5175
+    4         -0.5175
+    5         -0.5175
+    6          0.7125
+    7          0.7125
+    8          0.7125
+    9          0.7496
 
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
@@ -9594,8 +10229,8 @@ task scf freq
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.629705  1 C  s                  1     -0.221144  1 C  s          
-     9      0.180782  5 H  s                  7      0.180782  3 H  s          
-     8      0.180782  4 H  s                  6      0.180782  2 H  s          
+     6      0.180782  2 H  s                  7      0.180782  3 H  s          
+     8      0.180782  4 H  s                  9      0.180782  5 H  s          
 
  Vector    3  Occ=2.000000D+00  E=-5.174988D-01
               MO Center=  2.6D-01, -1.7D-02, -3.0D-02, r^2= 1.2D+00
@@ -9648,8 +10283,8 @@ task scf freq
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      1.613037  1 C  s                  6     -0.662618  2 H  s          
-     7     -0.662618  3 H  s                  9     -0.662618  5 H  s          
-     8     -0.662618  4 H  s                  1     -0.251623  1 C  s          
+     7     -0.662618  3 H  s                  8     -0.662618  4 H  s          
+     9     -0.662618  5 H  s                  1     -0.251623  1 C  s          
 
 
  center of mass
@@ -9691,8 +10326,6 @@ task scf freq
      2   0 1 1      0.000000      0.000000      0.000000
      2   0 0 2     -5.829989      0.000000      5.663369
 
-  stpr_wrt_fd_from_sq: overwrite of existing file:./autosym.hess
- stpr_wrt_fd_dipole: overwrite of existing file./autosym.fd_ddipole
 
  HESSIAN: the one electron contributions are done in       0.0s
 
@@ -9721,6 +10354,7 @@ task scf freq
   max iterations   =       50
   max subspace     =      150
 
+ SCF residual:    1.0814075897913350E-010
 
 
 Iterative solution of linear equations
@@ -9729,15 +10363,15 @@ Iterative solution of linear equations
   Maximum subspace      150
         Iterations       50
        Convergence  1.0D-04
-        Start time      1.9
+        Start time      1.7
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1     15    7.59D-02       1.9
-     2     30    2.69D-03       1.9
-     3     45    2.10D-04       2.0
-     4     60    6.80D-15       2.0
+     1     15    7.59D-02       1.8
+     2     30    2.69D-03       1.8
+     3     45    2.10D-04       1.8
+     4     60    6.80D-15       1.8
  HESSIAN: the CPHF contributions are done
   stpr_wrt_fd_from_sq: overwrite of existing file:./autosym.hess
  stpr_wrt_fd_dipole: overwrite of existing file./autosym.fd_ddipole
@@ -10081,13 +10715,14 @@ The Zero-Point Energy (Kcal/mol) =          33.62348156
 
  vib:animation   F
 
- Task  times  cpu:        0.4s     wall:        0.8s
+ Task  times  cpu:        0.4s     wall:        0.7s
 
 
                                 NWChem Input Module
                                 -------------------
 
 
+ ncenter=                        5
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
 
@@ -10238,7 +10873,7 @@ The Zero-Point Energy (Kcal/mol) =          33.62348156
 
 
 
- Forming initial guess at       2.2s
+ Forming initial guess at       2.1s
 
 
  Loading old vectors from job with title :
@@ -10246,7 +10881,7 @@ The Zero-Point Energy (Kcal/mol) =          33.62348156
 
 
 
- Starting SCF solution at       2.3s
+ Starting SCF solution at       2.1s
 
 
 
@@ -10279,15 +10914,15 @@ The Zero-Point Energy (Kcal/mol) =          33.62348156
              -----------------
 
               1      
-    1  -11.0304
-    2   -0.9082
-    3   -0.5175
-    4   -0.5175
-    5   -0.5175
-    6    0.7125
-    7    0.7125
-    8    0.7125
-    9    0.7496
+    1        -11.0304
+    2         -0.9082
+    3         -0.5175
+    4         -0.5175
+    5         -0.5175
+    6          0.7125
+    7          0.7125
+    8          0.7125
+    9          0.7496
 
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
@@ -10297,8 +10932,8 @@ The Zero-Point Energy (Kcal/mol) =          33.62348156
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.629705  1 C  s                  1     -0.221144  1 C  s          
-     8      0.180782  4 H  s                  6      0.180782  2 H  s          
-     9      0.180782  5 H  s                  7      0.180782  3 H  s          
+     6      0.180782  2 H  s                  7      0.180782  3 H  s          
+     8      0.180782  4 H  s                  9      0.180782  5 H  s          
 
  Vector    3  Occ=2.000000D+00  E=-5.174988D-01
               MO Center=  2.6D-01, -2.7D-02, -5.0D-02, r^2= 1.2D+00
@@ -10424,6 +11059,7 @@ The Zero-Point Energy (Kcal/mol) =          33.62348156
   max iterations   =       50
   max subspace     =      150
 
+ SCF residual:    1.0814976318238620E-010
 
 
 Iterative solution of linear equations
@@ -10432,15 +11068,15 @@ Iterative solution of linear equations
   Maximum subspace      150
         Iterations       50
        Convergence  1.0D-04
-        Start time      2.5
+        Start time      2.3
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1     15    7.55D-02       2.5
-     2     30    2.69D-03       2.5
-     3     45    2.10D-04       2.6
-     4     60    6.80D-15       2.6
+     1     15    7.55D-02       2.4
+     2     30    2.69D-03       2.4
+     3     45    2.10D-04       2.4
+     4     60    6.80D-15       2.4
  HESSIAN: the CPHF contributions are done
   stpr_wrt_fd_from_sq: overwrite of existing file:./autosym.hess
  stpr_wrt_fd_dipole: overwrite of existing file./autosym.fd_ddipole
@@ -10791,6 +11427,7 @@ The Zero-Point Energy (Kcal/mol) =          33.62348157
                                 -------------------
 
 
+ ncenter=                        5
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
 
@@ -10975,6 +11612,7 @@ The Zero-Point Energy (Kcal/mol) =          33.62348157
   max iterations   =       50
   max subspace     =      150
 
+ SCF residual:    1.0814976318238620E-010
 
 
 Iterative solution of linear equations
@@ -10983,15 +11621,15 @@ Iterative solution of linear equations
   Maximum subspace      150
         Iterations       50
        Convergence  1.0D-04
-        Start time      3.1
+        Start time      2.9
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1     15    7.55D-02       3.1
-     2     30    2.69D-03       3.1
-     3     45    2.10D-04       3.1
-     4     60    6.80D-15       3.1
+     1     15    7.55D-02       2.9
+     2     30    2.69D-03       2.9
+     3     45    2.10D-04       2.9
+     4     60    6.80D-15       3.0
  HESSIAN: the CPHF contributions are done
   stpr_wrt_fd_from_sq: overwrite of existing file:./autosym.hess
  stpr_wrt_fd_dipole: overwrite of existing file./autosym.fd_ddipole
@@ -11335,13 +11973,14 @@ The Zero-Point Energy (Kcal/mol) =          33.62348157
 
  vib:animation   F
 
- Task  times  cpu:        0.3s     wall:        0.5s
+ Task  times  cpu:        0.2s     wall:        0.5s
 
 
                                 NWChem Input Module
                                 -------------------
 
 
+ ncenter=                        5
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
 
@@ -11526,6 +12165,7 @@ The Zero-Point Energy (Kcal/mol) =          33.62348157
   max iterations   =       50
   max subspace     =      150
 
+ SCF residual:    1.0814976318238620E-010
 
 
 Iterative solution of linear equations
@@ -11534,15 +12174,15 @@ Iterative solution of linear equations
   Maximum subspace      150
         Iterations       50
        Convergence  1.0D-04
-        Start time      3.6
+        Start time      3.4
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1     15    7.55D-02       3.6
-     2     30    2.69D-03       3.7
-     3     45    2.10D-04       3.7
-     4     60    6.80D-15       3.7
+     1     15    7.55D-02       3.5
+     2     30    2.69D-03       3.5
+     3     45    2.10D-04       3.5
+     4     60    6.80D-15       3.5
  HESSIAN: the CPHF contributions are done
   stpr_wrt_fd_from_sq: overwrite of existing file:./autosym.hess
  stpr_wrt_fd_dipole: overwrite of existing file./autosym.fd_ddipole
@@ -11893,6 +12533,7 @@ The Zero-Point Energy (Kcal/mol) =          33.62348157
                                 -------------------
 
 
+ ncenter=                        5
  Turning off AUTOSYM since
  SYMMETRY directive was detected!
 
@@ -12065,6 +12706,7 @@ The Zero-Point Energy (Kcal/mol) =          33.62348157
   max iterations   =       50
   max subspace     =      150
 
+ SCF residual:    1.0814976318238620E-010
 
 
 Iterative solution of linear equations
@@ -12073,15 +12715,15 @@ Iterative solution of linear equations
   Maximum subspace      150
         Iterations       50
        Convergence  1.0D-04
-        Start time      4.2
+        Start time      4.0
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1     15    7.55D-02       4.2
-     2     30    2.69D-03       4.2
-     3     45    2.10D-04       4.3
-     4     60    6.80D-15       4.3
+     1     15    7.55D-02       4.0
+     2     30    2.69D-03       4.0
+     3     45    2.10D-04       4.0
+     4     60    6.80D-15       4.1
  HESSIAN: the CPHF contributions are done
   stpr_wrt_fd_from_sq: overwrite of existing file:./autosym.hess
  stpr_wrt_fd_dipole: overwrite of existing file./autosym.fd_ddipole
@@ -12442,7 +13084,7 @@ The Zero-Point Energy (Kcal/mol) =          33.62348157
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 4612     4612     5.30e+04 3.67e+04 1.40e+04 1580        0        0     
+calls: 4612     4612     5.32e+04 3.67e+04 1.40e+04 1580        0        0     
 number of processes/call 1.00e+00 1.00e+00 1.00e+00 1.00e+00 0.00e+00
 bytes total:             1.08e+07 4.39e+06 6.64e+06 8.77e+05 0.00e+00 0.00e+00
 bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
@@ -12480,11 +13122,11 @@ MA usage statistics:
                               ----------------------
       E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
      M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
-     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
-      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
-      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
-      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
-             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+    J. Autschbach, F. Aquino, J. Mullin, P. Nichols, S. Hirata, M. T. Hackler,
+   Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann,
+    J. Nieplocha, V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen,
+      M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby,
+        E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
         R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
        D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
         K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
@@ -12492,4 +13134,4 @@ MA usage statistics:
     X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
        M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:        2.3s     wall:        4.5s
+ Total times  cpu:        2.2s     wall:        4.3s
