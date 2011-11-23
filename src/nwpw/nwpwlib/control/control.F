@@ -4424,6 +4424,31 @@ c      end
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *        control_hfxon_virtual    *
+*     *                                 *
+*     ***********************************
+      logical function control_hfxon_virtual()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.rtdb_get(rtdb,'nwpw:hfxon_virtual',mt_log,1,value))
+     >   value = .true.
+
+      control_hfxon_virtual = value
+      return
+      end
+
 
 
 
