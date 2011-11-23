@@ -257,6 +257,9 @@ c      complex*16 psi_k(*)
 *     **** local variables ****
       integer tmp_r(2)
 
+      logical  control_hfxon_virtual
+      external control_hfxon_virtual
+
       if (.not.MA_push_get(mt_dcpl,(nfft3d),'tmp_r',tmp_r(2),tmp_r(1)))
      >   call errquit('c_electron_get_gradient_virtual: push stack',0,
      &       MA_ERR)
@@ -268,7 +271,7 @@ c      complex*16 psi_k(*)
 *     ******************
 *     **** get Hpsi ****
 *     ******************
-      call cpsi_Horb(.true.,nb,ispin,ms,psi_r_tag,
+      call cpsi_Horb(control_hfxon_virtual(),nb,ispin,ms,psi_r_tag,
      >              dcpl_mb(vall(1)),
      >              orb,
      >              dcpl_mb(tmp_r(1)),
