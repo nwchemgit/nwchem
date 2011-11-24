@@ -1071,7 +1071,6 @@ c     ****************************************
       integer nb,nb1,nb2,ms,ms1,ms2,n
       integer shift,shiftso,shift2,ishift2,ishift3
 
-
       if (mb.eq.0) then
          ms1 = 1
          ms2 = ispinq
@@ -1094,10 +1093,11 @@ c     ****************************************
 
       do nb=nb1,nb2
          do ms=ms1,ms2           
-            shift = 1 + (ms-1)*ne(1)*npack1 +
-     >              (nb-nb1)*(ne(1)+ne(2))*npack1
+            shift = 1 + (ms-1)*ne(1)*npack1
+     >                +  (nb-nb1)*(ne(1)+ne(2))*npack1
             shiftso = shift + ne(1)*npack1
-            shift2  = 1 + (ms-1)*ishift2 +((nb-nb1))*ishift3
+            shift2  = 1 + (ms-1)*ishift2 
+     >                  + (nb-nb1)*ishift3
             n = ne(ms)
             if (n.eq.0) go to 30
 
@@ -1428,72 +1428,34 @@ c     *** local variables ***
 
 
 c     **** get temp memory from stack ****
-      lwork=4*ne(1)*ne(1)
+      lwork=3*ne(1)*ne(1)
       value =MA_push_get(mt_dbl,lwork,'rwork',rwork(2),rwork(1))
       value =value.and.MA_push_get(mt_dcpl,lwork,'work',work(2),work(1))
-
-      value =value.and.MA_push_get(mt_dcpl,ne(1),      'W', W(2), W(1))
-      value =value.and.MA_push_get(mt_dcpl,ne(1)*ne(1),'VL',VL(2),VL(1))
-      value =value.and.MA_push_get(mt_dcpl,ne(1)*ne(1),'VR',VR(2),VR(1))
       if (.not.value) call errquit('Pneb_w_diag: out of stack',0,MA_ERR)
 
       sindex = 1
       vindex = 1
       do nb=nb1,nb2
       do ms=ms1,ms2
-
-c        do i=1,16
-c          write(*,*) "ZHEEV IN V=",i,V(i),lwork,vindex,sindex,ne(ms)
-c        end do
-
         if (ne(ms).gt.0) then
-c           call ZHEEV('V','L',ne(ms),
-c     >                 V(vindex),ne(ms),
-c     >                 S(sindex),
-c     >                 dcpl_mb(work(1)),lwork,
-c     >                 dbl_mb(rwork(1)),
-c     >                 ierr)
-c           if (ierr.ne.0) then
-c             call errquit("Pneb_w_diag: ZHEEV failed",ierr,0)
-c           end if
-
-           call ZGEEV('V','V',ne(ms),
+           call ZHEEV('V','L',ne(ms),
      >                 V(vindex),ne(ms),
-     >                 dcpl_mb(W(1)),
-     >                 dcpl_mb(VL(1)),ne(ms),
-     >                 dcpl_mb(VR(1)),ne(ms),
+     >                 S(sindex),
      >                 dcpl_mb(work(1)),lwork,
      >                 dbl_mb(rwork(1)),
      >                 ierr)
-           if (ierr.ne.0) then
-             call errquit("Pneb_w_diag: ZGEEV failed",ierr,0)
-           end if
-           call dcopy(2*ne(ms)*ne(ms),dcpl_mb(VR(1)),1,V,1)
-           do i=1,ne(ms)
-              S(sindex+i-1) = dble(dcpl_mb(W(1)+i-1))
-           end do
+           if (ierr.ne.0) 
+     >       call errquit("Pneb_w_diag: ZHEEV failed",ierr,0)
 
         end if
-
-c        do i=1,4
-c          write(*,*) "zheev eigs=",i,S(i),ne(ms),vindex,sindex
-c        end do
-c        write(*,*)
-c        do i=1,16
-c          write(*,*) "zheev out v=",i,V(i)
-c        end do
 
         vindex=vindex + ne(ms)*ne(ms)
         sindex=sindex + ne(ms)       
       end do
       end do
-             
 
 c     ***** pop stack memory *****
-      value=          MA_pop_stack(VR(2))
-      value=value.and.MA_pop_stack(VL(2))
-      value=value.and.MA_pop_stack(W(2))
-      value=value.and.MA_pop_stack(work(2))
+      value=          MA_pop_stack(work(2))
       value=value.and.MA_pop_stack(rwork(2))
       if (.not.value) then
         call errquit('Pneb_w_diag:error popping stack',0,MA_ERR)
