@@ -2829,6 +2829,7 @@ c         end do
       real*8  w,dx,dy,dz,x,y,z,r,qj
       real*8  yerfc,kfac
       real*8  aconst,bconst,scal2,sqrt_pi
+      integer mu,nu
 
 *     **** temporary workspace variables ****
       integer exi(2),s(2),guv(2)
@@ -2908,8 +2909,8 @@ c         end do
                   w = ewald_efg_tmp1(enpack,dcpl_mb(s(1)),
      >                                 dcpl_mb(exi(1)),
      >                                 dbl_mb(guv(1)+kk*enpack))
-                  efg(u,v,ii) = w
-                  efg(v,u,ii) = w
+                  efg(u,v,ii) = 0.0 ! w
+                  efg(v,u,ii) = 0.0 ! w
                   kk = kk + 1
                end do
             end do
@@ -2924,8 +2925,8 @@ c         end do
 
 *     **** real-space part of efg ****
       dutask=0
-      do ii=1,nion-1
-      do jj=ii+1,nion
+      do ii=1,nion
+      do jj=1,nion
        if (dutask.eq.tid) then
         dx = ion_rion(1,ii) - ion_rion(1,jj)
         dy = ion_rion(2,ii) - ion_rion(2,jj)
@@ -2939,18 +2940,18 @@ c         end do
            if (r.gt.1.0d-6) then
               w = r/rcut
               yerfc = util_erfc(w)
-              kfac = bconst*(1.0d0+3.0d0/(2.0d0*w*w))*exp(-w*w)
-     >             + 3.0d0*sqrt_pi*yerfc/(4.0d0*w**3)
-
-              efg(1,1,ii)=efg(1,1,ii)-qj*kfac*(1.0d0-3.0d0*(x*x)/r**2)
-              efg(2,1,ii)=efg(2,1,ii)-qj*kfac*(     -3.0d0*(y*x)/r**2)
-              efg(3,1,ii)=efg(3,1,ii)-qj*kfac*(     -3.0d0*(z*x)/r**2)
-              efg(1,2,ii)=efg(1,2,ii)-qj*kfac*(     -3.0d0*(x*y)/r**2)
-              efg(2,2,ii)=efg(2,2,ii)-qj*kfac*(1.0d0-3.0d0*(y*y)/r**2)
-              efg(3,2,ii)=efg(3,2,ii)-qj*kfac*(     -3.0d0*(z*y)/r**2)
-              efg(1,3,ii)=efg(1,3,ii)-qj*kfac*(     -3.0d0*(x*z)/r**2)
-              efg(2,3,ii)=efg(2,3,ii)-qj*kfac*(     -3.0d0*(y*z)/r**2)
-              efg(3,3,ii)=efg(3,3,ii)-qj*kfac*(1.0d0-3.0d0*(z*z)/r**2)
+!             Honma eq. 2.10
+              kfac = (1.0d0+3.0d0/(2.0d0*w*w))*exp(-w*w) 
+     >            + 3.0d0*sqrt_pi*yerfc/(4.0d0*w**3)
+              efg(1,1,ii)=efg(1,1,ii)+qj*kfac*(1.0d0-3.0d0*(x*x)/r**2)
+              efg(2,1,ii)=efg(2,1,ii)+qj*kfac*(     -3.0d0*(y*x)/r**2)
+              efg(3,1,ii)=efg(3,1,ii)+qj*kfac*(     -3.0d0*(z*x)/r**2)
+              efg(1,2,ii)=efg(1,2,ii)+qj*kfac*(     -3.0d0*(x*y)/r**2)
+              efg(2,2,ii)=efg(2,2,ii)+qj*kfac*(1.0d0-3.0d0*(y*y)/r**2)
+              efg(3,2,ii)=efg(3,2,ii)+qj*kfac*(     -3.0d0*(z*y)/r**2)
+              efg(1,3,ii)=efg(1,3,ii)+qj*kfac*(     -3.0d0*(x*z)/r**2)
+              efg(2,3,ii)=efg(2,3,ii)+qj*kfac*(     -3.0d0*(y*z)/r**2)
+              efg(3,3,ii)=efg(3,3,ii)+qj*kfac*(1.0d0-3.0d0*(z*z)/r**2)
            end if
         end do !** lattice vectors **
 
@@ -2958,11 +2959,20 @@ c         end do
        dutask = mod((dutask+1),tnp)
       end do !**j**
       end do !**i**
-
+!
+!     real space part
+      do ii = 1,nion
+        do mu = 1,3
+          do nu = 1,3
+           efg(mu,nu,ii) = -bconst*efg(mu,nu,ii)
+          end do
+        end do
+      end do
+!
       if (tnp.gt.1) then
         call Parallel_Vector_SumAll(9*nion,efg)
       end if
-
+!
       call nwpw_timing_end(21)
       return
       end
