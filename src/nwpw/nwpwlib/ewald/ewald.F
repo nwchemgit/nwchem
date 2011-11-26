@@ -2830,99 +2830,59 @@ c         end do
       real*8  yerfc,kfac
       real*8  aconst,bconst,scal2,sqrt_pi
       integer mu,nu
-
-*     **** temporary workspace variables ****
-      integer exi(2),s(2),guv(2)
-      logical value
+      real*8  gvec(3),gg,phase,cosphase
+      real*8  rhoj(3),termgg,pi,expfac
 
 *     **** external functions ****
       integer  ion_nion,ion_katm,ewald_nshl3d
       external ion_nion,ion_katm,ewald_nshl3d
       real*8   lattice_omega,ewald_zv,ion_rion,util_erfc
       external lattice_omega,ewald_zv,ion_rion,util_erfc
-      real*8   ewald_efg_tmp1
-      external ewald_efg_tmp1
 
       call nwpw_timing_start(21)
       nion = ion_nion()
 
-
-      scal2 = 1.0d0/lattice_omega()
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
+      pi = sqrt_pi*sqrt_pi
 
-*     **** aconst = 4*pi/3 ****
-      aconst = 16.0d0*datan(1.0d0)/3.0d0
+*     **** aconst = 4*pi/3/v ****
+      aconst = 4.d0*pi/3.d0/lattice_omega()
 
-*     **** bconst = (4/3)/(sqrt_pi*rcut**3) *****
+*     **** bconst = (4/3)/(sqrt_pi*rcut**3) ****
       bconst = 4.0d0/(3.0d0*sqrt_pi*rcut**3)
 
 *     **** allocate temp workspace ****
       call dcopy(9*nion,0.0d0,0,efg,1)
 
 *     **** reciprocal space part of efg ****
-      if (notzero_enpack) then
-         value = MA_push_get(mt_dcpl,enpack,'exi',exi(2),exi(1)) 
-         value = value.and.
-     >           MA_push_get(mt_dcpl,enpack,'s',s(2),s(1)) 
-         value = value.and.
-     >           MA_push_get(mt_dbl, 6*enpack,'guv',guv(2),guv(1)) 
-         if(.not.value) call errquit('ewald_efg:out of stack',0,MA_ERR)
-         call dcopy(6*enpack,0.0d0,0,dbl_mb(guv(1)),1)
-
-
-*        **** s(k) = q(ii)*strfac(k,ii) ****
-         call dcopy((2*enpack),0.0d0,0,dcpl_mb(s(1)),1)
-         do ii=1,nion
-            call ewald_strfac(ii,dcpl_mb(exi(1)))
-            call daxpy(2*enpack,ewald_zv(ion_katm(ii)),
-     >                 dcpl_mb(exi(1)),1,dcpl_mb(s(1)),1)
-         end do
-
-         kk = 0
-         do v=1,3
-            do k=1+nida,enpack
-               dbl_mb(guv(1)+kk*enpack+k-1) = dbl_mb(vg(1)+k-1)
-     >                          *( aconst/dbl_mb(vcx(1)+k-1)
-     >                           - dbl_mb(eG(v)+k-1)*dbl_mb(eG(v)+k-1) )
-            end do
-            kk = kk + 1
-            do u=v+1,3
-               do k=1+nida,enpack
-                  dbl_mb(guv(1)+kk*enpack+k-1) =
-     >                -dbl_mb(vg(1)+k-1)
-     >                 *dbl_mb(eG(v)+k-1)*dbl_mb(eG(v)+k-1)
+      if (notzero_enpack) then  ! eliminate g=0 term
+         do k=1+nida,enpack
+           gvec(1) = dbl_mb(eG(1)+k-1)
+           gvec(2) = dbl_mb(eG(2)+k-1)
+           gvec(3) = dbl_mb(eG(3)+k-1)
+           gg=gvec(1)*gvec(1)+gvec(2)*gvec(2)+gvec(3)*gvec(3)
+           expfac = aconst*dbl_mb(vg(1)+k-1)/dbl_mb(vcx(1)+k-1) 
+           do ii=1,nion
+            do jj=1,nion
+               qj = ewald_zv(ion_katm(jj))
+               rhoj(1) = ion_rion(1,jj) - ion_rion(1,ii)
+               rhoj(2) = ion_rion(2,jj) - ion_rion(2,ii)
+               rhoj(3) = ion_rion(3,jj) - ion_rion(3,ii)
+               phase = gvec(1)*rhoj(1)+gvec(2)*rhoj(2)+gvec(3)*rhoj(3)
+               cosphase = cos(phase)
+               do mu= 1,3
+                 do nu= 1,3
+                   termgg = -3.d0*gvec(mu)*gvec(nu)/gg
+                   if (mu == nu) termgg = 1.d0 + termgg
+                   efg(mu,nu,ii) = efg(mu,nu,ii) 
+     &                          + qj*cosphase*termgg*expfac
+                 end do
                end do
-               kk = kk + 1
-            end do
-         end do
-
-       
-         do ii=1,nion
-            call ewald_strfac(ii,dcpl_mb(exi(1)))
-            kk = 0
-            do v=1,3
-               efg(v,v,ii) = ewald_efg_tmp1(enpack,dcpl_mb(s(1)),
-     >                                      dcpl_mb(exi(1)),
-     >                                      dbl_mb(guv(1)+kk*enpack))
-               kk = kk + 1
-               do u=v+1,3
-                  w = ewald_efg_tmp1(enpack,dcpl_mb(s(1)),
-     >                                 dcpl_mb(exi(1)),
-     >                                 dbl_mb(guv(1)+kk*enpack))
-                  efg(u,v,ii) = 0.0 ! w
-                  efg(v,u,ii) = 0.0 ! w
-                  kk = kk + 1
-               end do
-            end do
-         end do
-         value =           MA_pop_stack(guv(2))
-         value = value.and.MA_pop_stack(s(2))
-         value = value.and.MA_pop_stack(exi(2))
-         if (.not. value) 
-     >     call errquit('ewald_efg:popping stack memory',1,MA_ERR)
-
-      end if
-
+             end do ! jj
+           end do ! ii
+         end do  ! k
+      end if   ! notzero_enpack
+!
 *     **** real-space part of efg ****
       dutask=0
       do ii=1,nion
@@ -2941,8 +2901,8 @@ c         end do
               w = r/rcut
               yerfc = util_erfc(w)
 !             Honma eq. 2.10
-              kfac = (1.0d0+3.0d0/(2.0d0*w*w))*exp(-w*w) 
-     >            + 3.0d0*sqrt_pi*yerfc/(4.0d0*w**3)
+              kfac = -bconst*((1.0d0+3.0d0/(2.0d0*w*w))*exp(-w*w) 
+     >            + 3.0d0*sqrt_pi*yerfc/(4.0d0*w**3))
               efg(1,1,ii)=efg(1,1,ii)+qj*kfac*(1.0d0-3.0d0*(x*x)/r**2)
               efg(2,1,ii)=efg(2,1,ii)+qj*kfac*(     -3.0d0*(y*x)/r**2)
               efg(3,1,ii)=efg(3,1,ii)+qj*kfac*(     -3.0d0*(z*x)/r**2)
@@ -2959,15 +2919,6 @@ c         end do
        dutask = mod((dutask+1),tnp)
       end do !**j**
       end do !**i**
-!
-!     real space part
-      do ii = 1,nion
-        do mu = 1,3
-          do nu = 1,3
-           efg(mu,nu,ii) = -bconst*efg(mu,nu,ii)
-          end do
-        end do
-      end do
 !
       if (tnp.gt.1) then
         call Parallel_Vector_SumAll(9*nion,efg)
