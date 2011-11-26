@@ -1,8 +1,8 @@
 # $Id$
 
-HEADERS = xc.fh
+HEADERS = xc.fh xc_vdw.fh xc_params.fh
 
-	OBJ=xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o xc_chkdispauto.o
+	OBJ = xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o xc_chkdispauto.o xc_vdw_init.o
 
 	OBJ_OPTIMIZE = xc_eval_basis.o  \
 	a_dist.o \
@@ -35,12 +35,13 @@ HEADERS = xc.fh
 	xc_cpkzb99.o   xc_cMpbe96.o xc_xtpss03.o xc_ctpss03.o \
 	xc_oep.o xc_sic_pert.o xc_sic.o localize_sic.o \
 	xc_optx.o xc_optc.o xc_atomblock.o xc_replicated.o xc_ft97.o \
-        xc_lb94.o xc_cs00.o xc_vdw.o xc_op.o xc_kop.o \
-        xc_bc95.o xc_xm05.o xc_cm05.o xc_xpw6.o\
-        xc_xvs98.o xc_cvs98.o xc_xm06.o xc_cm06.o \
-        xc_spbe96.o xc_kt1.o xc_ssbD_1.o \
-        xc_camb88.o xc_att_xc.o xc_camxpbe96.o xc_camxlsd.o xc_xwpbe.o hse08fx.o \
-	steric_energy.o
+    xc_lb94.o xc_cs00.o xc_op.o xc_kop.o \
+    xc_bc95.o xc_xm05.o xc_cm05.o xc_xpw6.o\
+    xc_xvs98.o xc_cvs98.o xc_xm06.o xc_cm06.o \
+    xc_spbe96.o xc_kt1.o xc_ssbD_1.o \
+    xc_camb88.o xc_att_xc.o xc_camxpbe96.o xc_camxlsd.o xc_xwpbe.o hse08fx.o \
+	steric_energy.o \
+	xc_vdw_main.o xc_vdw_util.o
 
 
      LIBRARY = libnwdft.a
@@ -55,8 +56,8 @@ endif
 
    USES_BLAS = xc_fitv.F xc_dirac.F xc_rodaes_erf.F xc_att_xc.F xc_tabcd.F xc_rhogen.F \
                xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
-               xc_eval_basis.F xc_fd.F xc_optc.F xc_atomblock.F xc_vdw.F scat_mat.F \
-               xc_replicated.F
+               xc_eval_basis.F xc_fd.F xc_optc.F xc_atomblock.F scat_mat.F \
+               xc_replicated.F xc_vdw_main.F xc_vdw_util.F
 
 include ../../config/makefile.h
 include ../../config/makelib.h
