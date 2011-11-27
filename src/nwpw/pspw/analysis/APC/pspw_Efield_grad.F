@@ -35,7 +35,10 @@ c
 
       logical value,doefield
       integer nion
-      integer efg(2),efg_ion(2),efg_smooth(2),efg_cor(2)
+      integer efg(2)   ! total efg
+      integer efg_ion(2) ! ionic part
+      integer efg_smoothr(2),efg_smoothi(2) ! real and imag parts of smooth electronic part
+      integer efg_cor(2)  ! paw part
 
 *     **** external functions ****
       integer  ion_nion,control_version
@@ -52,8 +55,10 @@ c
      >                               efg(2),efg(1))
        value = value.and.MA_push_get(mt_dbl,9*nion,'efg_ion',
      >                               efg_ion(2),efg_ion(1))
-       value = value.and.MA_push_get(mt_dbl,9*nion,'efg_smooth',
-     >                               efg_smooth(2),efg_smooth(1))
+       value = value.and.MA_push_get(mt_dbl,9*nion,'efg_smooth_real',
+     >                               efg_smoothr(2),efg_smoothr(1))
+       value = value.and.MA_push_get(mt_dbl,9*nion,'efg_smooth_imag',
+     >                               efg_smoothi(2),efg_smoothi(1))
        value = value.and.MA_push_get(mt_dbl,9*nion,'efg_cor',
      >                               efg_cor(2),efg_cor(1))
        if (.not.value) 
@@ -61,17 +66,19 @@ c
      >                 MA_ERR)
 
        call dcopy(9*nion,0.0d0,0,dbl_mb(efg_ion(1)),1)
-       call dcopy(9*nion,0.0d0,0,dbl_mb(efg_smooth(1)),1)
+       call dcopy(9*nion,0.0d0,0,dbl_mb(efg_smoothr(1)),1)
+       call dcopy(9*nion,0.0d0,0,dbl_mb(efg_smoothi(1)),1)
        call dcopy(9*nion,0.0d0,0,dbl_mb(efg_cor(1)),1)
        call dcopy(9*nion,0.0d0,0,dbl_mb(efg(1)),1)
 
-       call ewald_efg(dbl_mb(efg_ion(1)))
-       call coulomb_efg(dng,dbl_mb(efg_smooth(1)))
-       call psp_efg_atoms(ispin,ne,psi,dbl_mb(efg_cor(1)))
+       call ewald_efg(dbl_mb(efg_ion(1)))   ! ionic part
+       call coulomb_efg(dng,dbl_mb(efg_smoothr(1)),   ! smooth electronic part
+     &                      dbl_mb(efg_smoothi(1)) )
+       call psp_efg_atoms(ispin,ne,psi,dbl_mb(efg_cor(1)))  ! paw part
 
-       call daxpy(9*nion,1.0d0,dbl_mb(efg_ion(1)),1,dbl_mb(efg(1)),1)
-       call daxpy(9*nion,1.0d0,dbl_mb(efg_smooth(1)),1,dbl_mb(efg(1)),1)
-       call daxpy(9*nion,1.0d0,dbl_mb(efg_cor(1)),1,dbl_mb(efg(1)),1)
+       call daxpy(9*nion,1.d0,dbl_mb(efg_ion(1)),1,dbl_mb(efg(1)),1)
+       call daxpy(9*nion,1.d0,dbl_mb(efg_smoothr(1)),1,dbl_mb(efg(1)),1)
+       call daxpy(9*nion,1.d0,dbl_mb(efg_cor(1)),1,dbl_mb(efg(1)),1)
 
 
        if (taskid.eq.MASTER) then
@@ -79,11 +86,12 @@ c
      >                               nion,
      >                               dbl_mb(efg(1)),
      >                               dbl_mb(efg_ion(1)),
-     >                               dbl_mb(efg_smooth(1)),
+     >                               dbl_mb(efg_smoothr(1)),
      >                               dbl_mb(efg_cor(1)))
        end if
        value =           MA_pop_stack(efg_cor(2))
-       value = value.and.MA_pop_stack(efg_smooth(2))
+       value = value.and.MA_pop_stack(efg_smoothi(2))
+       value = value.and.MA_pop_stack(efg_smoothr(2))
        value = value.and.MA_pop_stack(efg_ion(2))
        value = value.and.MA_pop_stack(efg(2))
        if (.not.value) 
