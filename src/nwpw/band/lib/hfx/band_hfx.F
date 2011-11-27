@@ -120,9 +120,17 @@ c     **** define extra psi and Hpsi  ****
          value = value.and.
      >           MA_alloc_get(mt_dbl,4*nbrillq_max,'kw_rep2',
      >                        kw_rep2(2),kw_rep2(1))
+         value = value.and.
+     >           MA_alloc_get(mt_int,npk,'nbrillq_rep',
+     >                        nbrillq_rep(2),nbrillq_rep(1))
          if (.not. value)   
      >      call errquit('band_init_HFX: out of heap memory',1, MA_ERR)
 
+         do n1=1,npk
+            int_mb(nbrillq_rep(1)+n1-1) = 0
+         end do
+         int_mb(nbrillq_rep(1)+taskid_k) = nbrillq
+         call Parallel_Vector_ISumAll(npk,int_mb(nbrillq_rep(1)))
       end if
 
    
@@ -190,8 +198,9 @@ c        end do
             call cpsi_data_dealloc(psi_rep2_tag)
             call cpsi_data_dealloc(Hpsi_rep1_tag)
             call cpsi_data_dealloc(Hpsi_rep2_tag)
-            value = MA_free_heap(kw_rep1)
-            value = value.and.MA_free_heap(kw_rep2)
+            value =           MA_free_heap(kw_rep1(2))
+            value = value.and.MA_free_heap(kw_rep2(2))
+            value = value.and.MA_free_heap(nbrillq_rep(2))
             if (.not. value)   
      >         call errquit('band_end_HFX: free heap memory',1,MA_ERR)
          end if
@@ -275,8 +284,8 @@ c        end do
       integer nb1,nb2
       integer istart,iend,jstart,jend,imodn,imodtask
       integer ms,l,q,n,indx1,indx2,Levels,neq(2)
-      integer nbrillq_rep1,nbrillq_rep2,r1
-      integer request1(4),request2(4),request3(4),request4(4)
+      integer nbrillq_rep1,r1,r2
+      integer request2(4),request3(4),request4(4)
       real*8  kv1(3),kv2(3),w2
 
 *     **** external functions ****
@@ -304,6 +313,7 @@ c        **** reduceall algorithm ****
                dbl_mb(kw_rep1(1)+4*(nb1-1)+2) = brillioun_k(3,nb1)
                dbl_mb(kw_rep1(1)+4*(nb1-1)+3) = brillioun_weight(nb1)
             end do
+            r2 = taskid_k
             nbrillq_rep1 = nbrillq
             call dcopy(nrsize,0.0d0,0,
      >                 dbl_mb(cpsi_data_get_allptr(psi_rep1_tag)),1)
@@ -321,12 +331,10 @@ c        **** reduceall algorithm ****
      >                 0.0d0,0,
      >                 dbl_mb(cpsi_data_get_allptr(Hpsi_r_tag)),1)
 
-            call Parallela_start_Irotate(3,1,11,
-     >                                  nbrillq_rep1,1,
-     >                                  nbrillq_rep2,1,request1)
+
             call Parallela_start_rotate(3,1,12,
-     >                                 dbl_mb(kw_rep1(1)),3*nbrillq_max,
-     >                                 dbl_mb(kw_rep2(1)),3*nbrillq_max,
+     >                                 dbl_mb(kw_rep1(1)),4*nbrillq_max,
+     >                                 dbl_mb(kw_rep2(1)),4*nbrillq_max,
      >                                 request2)
             call Parallela_start_rotate(3,1,13,
      >           dbl_mb(cpsi_data_get_allptr(psi_rep1_tag)),nrsize,
@@ -364,33 +372,31 @@ c        **** reduceall algorithm ****
      >                    dbl_mb(cpsi_data_get_chnk(Hpsi_r_tag,nb2)))
                end do
             end do
-            do r1=1,npkrot-1
-               call Parallela_end_rotate(3,request1)
-               nbrillq_rep1 = nbrillq_rep2
 
-               call Parallela_end_rotate(3,request2)
+            do r1=1,npkrot-1
+               r2 = mod(r2-1+npk,npk)
+               nbrillq_rep1 = int_mb(nbrillq_rep(1)+r2)
+
+               call Parallela_end_rotate(request2)
                call dcopy(4*nbrillq_max,
      >                    dbl_mb(kw_rep2(1)),1,dbl_mb(kw_rep1(1)),1)
 
-               call Parallela_end_rotate(3,request3)
+               call Parallela_end_rotate(request3)
                call dcopy(nrsize,
      >                 dbl_mb(cpsi_data_get_allptr(psi_rep2_tag)),1,
      >                 dbl_mb(cpsi_data_get_allptr(psi_rep1_tag)),1)
 
                if (r1.gt.1) then
-                  call Parallela_end_rotate(3,request4)
+                  call Parallela_end_rotate(request4)
                   call dcopy(nrsize,
      >                 dbl_mb(cpsi_data_get_allptr(Hpsi_rep2_tag)),1,
      >                 dbl_mb(cpsi_data_get_allptr(Hpsi_rep1_tag)),1)
                end if
 
                if ((r1.lt.(npkrot-1)).or.(npkeven)) then
-                  call Parallela_start_Irotate(3,1,11,
-     >                                     nbrillq_rep1,1,
-     >                                     nbrillq_rep2,1,request1)
                   call Parallela_start_rotate(3,1,12,
-     >                                 dbl_mb(kw_rep1(1)),3*nbrillq_max,
-     >                                 dbl_mb(kw_rep2(1)),3*nbrillq_max,
+     >                                 dbl_mb(kw_rep1(1)),4*nbrillq_max,
+     >                                 dbl_mb(kw_rep2(1)),4*nbrillq_max,
      >                                 request2)
                   call Parallela_start_rotate(3,1,13,
      >              dbl_mb(cpsi_data_get_allptr(psi_rep1_tag)),nrsize,
@@ -399,8 +405,8 @@ c        **** reduceall algorithm ****
                end if
 
 
-               do nb1=1,nbrillq-1
-                  do nb2=nb1+1,nbrillq_rep1
+               do nb1=1,nbrillq
+                  do nb2=1,nbrillq_rep1
                      kv1(1) = brillioun_k(1,nb1)
                      kv1(2) = brillioun_k(2,nb1)
                      kv1(3) = brillioun_k(3,nb1)
@@ -419,8 +425,13 @@ c        **** reduceall algorithm ****
                   end do
                end do
 
-               if ((r1.lt.(npkrot-1)).and.(npkeven)) then
+               if (r1.lt.(npkrot-1)) then
                   call Parallela_start_rotate(3,1,14,
+     >              dbl_mb(cpsi_data_get_allptr(Hpsi_rep1_tag)),nrsize,
+     >              dbl_mb(cpsi_data_get_allptr(Hpsi_rep2_tag)),nrsize,
+     >              request4)
+               else
+                  call Parallela_start_rotate(3,-r1,14,
      >              dbl_mb(cpsi_data_get_allptr(Hpsi_rep1_tag)),nrsize,
      >              dbl_mb(cpsi_data_get_allptr(Hpsi_rep2_tag)),nrsize,
      >              request4)
@@ -428,25 +439,20 @@ c        **** reduceall algorithm ****
 
             end do
             if (npkeven) then
-               call Parallela_end_rotate(3,request1)
-               nbrillq_rep1 = nbrillq_rep2
+               r2 = mod(r2-1+npk,npk)
+               nbrillq_rep1 = int_mb(nbrillq_rep(1)+r2)
 
-               call Parallela_end_rotate(3,request2)
+               call Parallela_end_rotate(request2)
                call dcopy(4*nbrillq_max,
      >                    dbl_mb(kw_rep2(1)),1,dbl_mb(kw_rep1(1)),1)
 
-               call Parallela_end_rotate(3,request3)
+               call Parallela_end_rotate(request3)
                call dcopy(nrsize,
      >                 dbl_mb(cpsi_data_get_allptr(psi_rep2_tag)),1,
      >                 dbl_mb(cpsi_data_get_allptr(psi_rep1_tag)),1)
 
-               call Parallela_end_rotate(3,request4)
-               call dcopy(nrsize,
-     >                 dbl_mb(cpsi_data_get_allptr(Hpsi_rep2_tag)),1,
-     >                 dbl_mb(cpsi_data_get_allptr(Hpsi_rep1_tag)),1)
-
-               do nb1=1,nbrillq-1
-                  do nb2=nb1+1,nbrillq_rep1
+               do nb1=1,nbrillq
+                  do nb2=1,nbrillq_rep1
                      kv1(1) = brillioun_k(1,nb1)
                      kv1(2) = brillioun_k(2,nb1)
                      kv1(3) = brillioun_k(3,nb1)
@@ -460,18 +466,12 @@ c        **** reduceall algorithm ****
      >                    brillioun_weight(nb1),w2,
      >                    dbl_mb(cpsi_data_get_chnk(psi_r_tag,nb1)),
      >                    dbl_mb(cpsi_data_get_chnk(psi_rep1_tag,nb2)),
-     >                    dbl_mb(cpsi_data_get_chnk(Hpsi_r_tag,nb1)),
-     >                    dbl_mb(cpsi_data_get_chnk(Hpsi_rep1_tag,nb2)))
+     >                    dbl_mb(cpsi_data_get_chnk(Hpsi_r_tag,nb1)))
                   end do
                end do
             end if
 
-            call Parallela_end_rotate(3,request4)
-            call Parallela_start_rotate(3,-npkrot,14,
-     >           dbl_mb(cpsi_data_get_allptr(Hpsi_rep1_tag)),nrsize,
-     >           dbl_mb(cpsi_data_get_allptr(Hpsi_rep2_tag)),nrsize,
-     >           request4)
-
+            call Parallela_end_rotate(request4)
             call daxpy(nbrillq*2*nfft3d*neall,1.0d0,
      >                 dbl_mb(cpsi_data_get_allptr(Hpsi_rep2_tag)),1,
      >                 dbl_mb(cpsi_data_get_allptr(Hpsi_r_tag)),1)
@@ -479,8 +479,6 @@ c        **** reduceall algorithm ****
             call Parallel_SumAll(ehfx)
             call Parallel_SumAll(phfx)
 
-
-            write(*,*) "out band_potential_HFX_sub"
          else
             ehfx   = 0.0d0
             phfx   = 0.0d0
@@ -492,6 +490,7 @@ c        **** reduceall algorithm ****
             kv2(3) = 0.0d0
             call c_coulomb_screened_set(kv1,kv2)
             do nb1=1,nbrillq
+            
                call dcopy(2*nfft3d*neall,0.0d0,0,
      >                    dbl_mb(cpsi_data_get_chnk(Hpsi_r_tag,nb1)),1)
                call band_potential_HFX_sub(brillioun_weight(nb1),
@@ -506,6 +505,7 @@ c        **** reduceall algorithm ****
                   kv2(1) = brillioun_k(1,nb2)
                   kv2(2) = brillioun_k(2,nb2)
                   kv2(3) = brillioun_k(3,nb2)
+           
                   call c_coulomb_screened_set(kv1,kv2)
                   call band_potential_HFX_sub2(brillioun_weight(nb1),
      >                                         brillioun_weight(nb2),
