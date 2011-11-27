@@ -291,10 +291,12 @@ c     >                                   dbl_mb(tmp2(1)))
 *     *              coulomb_efg                   *
 *     *                                            *
 *     **********************************************
-      subroutine coulomb_efg(dng,efg)
+      subroutine coulomb_efg(dng,efg_smoothr,efg_smoothi)
+
       implicit none 
+
       complex*16 dng(*)
-      real*8 efg(3,3,*)
+      real*8 efg_smoothr(3,3,*),efg_smoothi(3,3,*) ! real and complex parts
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -308,12 +310,24 @@ c     >                                   dbl_mb(tmp2(1)))
       integer npack0,nfft3d
       integer ii,k
       integer u,v
-      integer tmp0(2),tmp1(2),tmp2(2),Gtmp(2),exi(2),G(3)
+      integer Gtmp(2),G(3)
       real*8 w,gg
+      integer mu,nu,nion
+      real*8 rdng,cdng,gvec(3),termgg
+      real*8 pi,two_pi,four_pi,sqrt_pi
+      real*8 phase,cphase,sphase
+      real*8 r1,r2,r3
 
 *     **** external functions ****
       integer  G_indx,ion_nion
       external G_indx,ion_nion
+      real*8   lattice_omega,ion_rion,util_erfc
+      external lattice_omega,ion_rion,util_erfc
+
+      sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
+      pi = sqrt_pi*sqrt_pi
+      two_pi = 2.d0*pi
+      four_pi = 4.d0*pi
 
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(0,npack0)
@@ -322,15 +336,7 @@ c     >                                   dbl_mb(tmp2(1)))
       G(1) = Gtmp(1)
       G(2) = Gtmp(1)+nfft3d
       G(3) = Gtmp(2)+nfft3d
-      value = value.and.
-     >        MA_push_get(mt_dbl,npack0,'tmp0',tmp0(2),tmp0(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
-      value = value.and.
-     >        MA_push_get(mt_dbl,npack0,'tmp2',tmp2(2),tmp2(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,npack0,'exi', exi(2), exi(1))
-      if (.not. value) call errquit('out of stack memory',0, MA_ERR)
+
       call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(G(1)),1)
       call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(G(2)),1)
       call dcopy(nfft3d,dbl_mb(G_indx(3)),1,dbl_mb(G(3)),1)
@@ -338,45 +344,50 @@ c     >                                   dbl_mb(tmp2(1)))
       call Pack_t_pack(0,dbl_mb(G(2)))
       call Pack_t_pack(0,dbl_mb(G(3)))
 
-*     ***** form tmp0 = -G**2/3.0d0  *****
+*     **** initialize ***
+      nion = ion_nion()
+      do mu = 1,3
+        do nu = 1,3
+          do ii=1,nion
+             efg_smoothr(mu,nu,ii) = 0.d0
+             efg_smoothi(mu,nu,ii) = 0.d0
+          end do ! ii
+        end do ! nu
+      end do ! mu
+!
       do k=1,npack0
-         gg  = ( dbl_mb(G(1)+k-1)*dbl_mb(G(1)+k-1)
-     >         + dbl_mb(G(2)+k-1)*dbl_mb(G(2)+k-1)
-     >         + dbl_mb(G(3)+k-1)*dbl_mb(G(3)+k-1) )
-         dbl_mb(tmp0(1)+k-1) = -gg/3.0d0
-      end do
+        gvec(1) = dbl_mb(G(1)+k-1)
+        gvec(2) = dbl_mb(G(2)+k-1)
+        gvec(3) = dbl_mb(G(3)+k-1)
+        gg = gvec(1)*gvec(1) + gvec(2)*gvec(2) + gvec(3)*gvec(3)
+        if (gg .gt. 0.d0) then  ! eliminate g=o term
+         do mu=1,3
+          do nu=1,3
+           termgg = gvec(mu)*gvec(nu) 
+           if (mu == nu) termgg = termgg - gg/3.d0
+           do ii=1,nion
+            r1 = ion_rion(1,ii)
+            r2 = ion_rion(2,ii)
+            r3 = ion_rion(3,ii)
+            phase = two_pi*(gvec(1)*r1+gvec(2)*r2+gvec(3)*r3)
+            cphase = cos(phase)
+            sphase = sin(phase)
+            rdng = real(dng(k))
+            cdng = aimag(dng(k))
 
-*     **** efg(u,v,ii) =  ****
-      do ii=1,ion_nion()
-         call strfac_pack(0,ii,dcpl_mb(exi(1)))
-         call Pack_cct_Mul(0,dcpl_mb(exi(1)),dng,dbl_mb(tmp2(1)))
+            efg_smoothr(mu,nu,ii) = efg_smoothr(mu,nu,ii) -
+     &       four_pi*termgg*(rdng*cphase-cdng*sphase)/gg 
+            efg_smoothi(mu,nu,ii) = efg_smoothi(mu,nu,ii) -
+     &       four_pi*termgg*(rdng*sphase+cdng*cphase)/gg 
+             
+           end do ! ii 
+          end do ! nu
+         end do ! mu
+        end if !gg
+      end do ! k
 
-         do v=1,3
-            call Pack_tt_Mul(0,dbl_mb(G(v)),
-     >                         dbl_mb(G(v)),
-     >                         dbl_mb(tmp1(1)))
-            call Pack_tt_Sum2(0,dbl_mb(tmp0(1)),dbl_mb(tmp1(1)))
-            call Pack_tt_Mul2(0,dbl_mb(vc_indx),dbl_mb(tmp1(1)))
-            call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)),w)
-            efg(v,v,ii) = efg(v,v,ii) + w
- 
-            do u=v+1,3
-               call Pack_tt_Mul(0,dbl_mb(G(u)),
-     >                            dbl_mb(G(v)),
-     >                            dbl_mb(tmp1(1)))
-               call Pack_tt_Mul2(0,dbl_mb(vc_indx),dbl_mb(tmp1(1)))
-               call Pack_tt_dot(0,dbl_mb(tmp1(1)),dbl_mb(tmp2(1)),w)
-               efg(u,v,ii) = efg(u,v,ii) + w
-               efg(v,u,ii) = efg(v,u,ii) + w
-            end do
-         end do
-      end do
- 
-      value =           MA_pop_stack(exi(2))
-      value = value.and.MA_pop_stack(tmp2(2))
-      value = value.and.MA_pop_stack(tmp1(2))
-      value = value.and.MA_pop_stack(tmp0(2))
-      value = value.and.MA_pop_stack(Gtmp(2))
+      value = MA_pop_stack(Gtmp(2))
       if (.not. value) call errquit('popstack',1, MA_ERR)
+!
       return
       end
