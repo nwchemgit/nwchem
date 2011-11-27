@@ -315,7 +315,7 @@ c     >                                   dbl_mb(tmp2(1)))
       integer mu,nu,nion
       real*8 rdng,cdng,gvec(3),termgg
       real*8 pi,two_pi,four_pi,sqrt_pi
-      real*8 phase,cphase,sphase
+      real*8 phase,cosgr,singr
       real*8 r1,r2,r3
 
 *     **** external functions ****
@@ -369,17 +369,19 @@ c     >                                   dbl_mb(tmp2(1)))
             r1 = ion_rion(1,ii)
             r2 = ion_rion(2,ii)
             r3 = ion_rion(3,ii)
+!
             phase = two_pi*(gvec(1)*r1+gvec(2)*r2+gvec(3)*r3)
-            cphase = cos(phase)
-            sphase = sin(phase)
+            cosgr = cos(phase)  ! cos(2pi*G.R)
+            singr = sin(phase)  ! sin(2pi*G.R)
+!
             rdng = real(dng(k))
             cdng = aimag(dng(k))
-
+!
             efg_smoothr(mu,nu,ii) = efg_smoothr(mu,nu,ii) -
-     &       four_pi*termgg*(rdng*cphase-cdng*sphase)/gg 
+     &       four_pi*termgg*(rdng*cosgr-cdng*singr)/gg 
             efg_smoothi(mu,nu,ii) = efg_smoothi(mu,nu,ii) -
-     &       four_pi*termgg*(rdng*sphase+cdng*cphase)/gg 
-             
+     &       four_pi*termgg*(rdng*singr+cdng*cosgr)/gg 
+!             
            end do ! ii 
           end do ! nu
          end do ! mu
