@@ -2815,9 +2815,9 @@ c         end do
 *     *		       			*
 *     ***********************************
 
-      subroutine ewald_efg(efg)
+      subroutine ewald_efg(efg_ion)
       implicit none
-      real*8  efg(3,3,*)
+      real*8  efg_ion(3,3,*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -2831,7 +2831,7 @@ c         end do
       real*8  aconst,bconst,scal2,sqrt_pi
       integer mu,nu
       real*8  gvec(3),gg,phase,cosphase
-      real*8  rhoj(3),termgg,pi,expfac
+      real*8  rji(3),termgg,pi,expfac
 
 *     **** external functions ****
       integer  ion_nion,ion_katm,ewald_nshl3d
@@ -2839,51 +2839,49 @@ c         end do
       real*8   lattice_omega,ewald_zv,ion_rion,util_erfc
       external lattice_omega,ewald_zv,ion_rion,util_erfc
 
+*     **** preliminaries ****
       call nwpw_timing_start(21)
       nion = ion_nion()
-
       sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
       pi = sqrt_pi*sqrt_pi
 
-*     **** aconst = 4*pi/3/v ****
+*     **** initialize efg_ion ****
+      call dcopy(9*nion,0.0d0,0,efg_ion,1)
+
+*     **** reciprocal space part of efg_ion ****
+*     **** Honma eq. 4.8 ****
       aconst = 4.d0*pi/3.d0/lattice_omega()
-
-*     **** bconst = (4/3)/(sqrt_pi*rcut**3) ****
-      bconst = 4.0d0/(3.0d0*sqrt_pi*rcut**3)
-
-*     **** allocate temp workspace ****
-      call dcopy(9*nion,0.0d0,0,efg,1)
-
-*     **** reciprocal space part of efg ****
       if (notzero_enpack) then  ! eliminate g=0 term
          do k=1+nida,enpack
            gvec(1) = dbl_mb(eG(1)+k-1)
            gvec(2) = dbl_mb(eG(2)+k-1)
            gvec(3) = dbl_mb(eG(3)+k-1)
            gg=gvec(1)*gvec(1)+gvec(2)*gvec(2)+gvec(3)*gvec(3)
-           expfac = aconst*dbl_mb(vg(1)+k-1)/dbl_mb(vcx(1)+k-1) 
+           expfac = aconst*dbl_mb(vg(1)+k-1)/dbl_mb(vcx(1)+k-1)  ! see ewald_init for exp factors
            do ii=1,nion
             do jj=1,nion
-               qj = ewald_zv(ion_katm(jj))
-               rhoj(1) = ion_rion(1,jj) - ion_rion(1,ii)
-               rhoj(2) = ion_rion(2,jj) - ion_rion(2,ii)
-               rhoj(3) = ion_rion(3,jj) - ion_rion(3,ii)
-               phase = gvec(1)*rhoj(1)+gvec(2)*rhoj(2)+gvec(3)*rhoj(3)
-               cosphase = cos(phase)
-               do mu= 1,3
-                 do nu= 1,3
-                   termgg = -3.d0*gvec(mu)*gvec(nu)/gg
-                   if (mu == nu) termgg = 1.d0 + termgg
-                   efg(mu,nu,ii) = efg(mu,nu,ii) 
-     &                          + qj*cosphase*termgg*expfac
-                 end do
-               end do
-             end do ! jj
+             qj = ewald_zv(ion_katm(jj))
+             rji(1) = ion_rion(1,jj) - ion_rion(1,ii)
+             rji(2) = ion_rion(2,jj) - ion_rion(2,ii)
+             rji(3) = ion_rion(3,jj) - ion_rion(3,ii)
+             phase = gvec(1)*rji(1)+gvec(2)*rji(2)+gvec(3)*rji(3)
+             cosphase = cos(phase)
+             do mu= 1,3
+              do nu= 1,3
+               termgg = -3.d0*gvec(mu)*gvec(nu)/gg
+               if (mu == nu) termgg = 1.d0 + termgg
+               efg_ion(mu,nu,ii) = efg_ion(mu,nu,ii) 
+     &                           + qj*cosphase*termgg*expfac
+              end do
+             end do
+            end do ! jj
            end do ! ii
          end do  ! k
       end if   ! notzero_enpack
 !
-*     **** real-space part of efg ****
+*     **** real-space part of efg_ion ****
+*     **** Honma eq. 2.10 ****
+      bconst = 4.0d0/(3.0d0*sqrt_pi*rcut**3)
       dutask=0
       do ii=1,nion
       do jj=1,nion
@@ -2893,55 +2891,36 @@ c         end do
         dz = ion_rion(3,ii) - ion_rion(3,jj)
         qj = ewald_zv(ion_katm(jj))
         do l=1,nshl3d
-           x = dbl_mb(rcell(1)+(l-1))          + dx
-           y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
-           z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
-           r = dsqrt(x*x+y*y+z*z)
-           if (r.gt.1.0d-6) then
-              w = r/rcut
-              yerfc = util_erfc(w)
-!             Honma eq. 2.10
-              kfac = -bconst*((1.0d0+3.0d0/(2.0d0*w*w))*exp(-w*w) 
+         x = dbl_mb(rcell(1)+(l-1))          + dx
+         y = dbl_mb(rcell(1)+(l-1)+  nshl3d) + dy
+         z = dbl_mb(rcell(1)+(l-1)+2*nshl3d) + dz
+         r = dsqrt(x*x+y*y+z*z)
+         if (r.gt.1.0d-6) then
+          w = r/rcut
+          yerfc = util_erfc(w)
+          kfac = -bconst*((1.0d0+3.0d0/(2.0d0*w*w))*exp(-w*w) 
      >            + 3.0d0*sqrt_pi*yerfc/(4.0d0*w**3))
-              efg(1,1,ii)=efg(1,1,ii)+qj*kfac*(1.0d0-3.0d0*(x*x)/r**2)
-              efg(2,1,ii)=efg(2,1,ii)+qj*kfac*(     -3.0d0*(y*x)/r**2)
-              efg(3,1,ii)=efg(3,1,ii)+qj*kfac*(     -3.0d0*(z*x)/r**2)
-              efg(1,2,ii)=efg(1,2,ii)+qj*kfac*(     -3.0d0*(x*y)/r**2)
-              efg(2,2,ii)=efg(2,2,ii)+qj*kfac*(1.0d0-3.0d0*(y*y)/r**2)
-              efg(3,2,ii)=efg(3,2,ii)+qj*kfac*(     -3.0d0*(z*y)/r**2)
-              efg(1,3,ii)=efg(1,3,ii)+qj*kfac*(     -3.0d0*(x*z)/r**2)
-              efg(2,3,ii)=efg(2,3,ii)+qj*kfac*(     -3.0d0*(y*z)/r**2)
-              efg(3,3,ii)=efg(3,3,ii)+qj*kfac*(1.0d0-3.0d0*(z*z)/r**2)
-           end if
+          efg_ion(1,1,ii)=efg_ion(1,1,ii)+qj*kfac*(1.d0-3.d0*(x*x)/r**2)
+          efg_ion(2,1,ii)=efg_ion(2,1,ii)+qj*kfac*(    -3.d0*(y*x)/r**2)
+          efg_ion(3,1,ii)=efg_ion(3,1,ii)+qj*kfac*(    -3.d0*(z*x)/r**2)
+          efg_ion(1,2,ii)=efg_ion(1,2,ii)+qj*kfac*(    -3.d0*(x*y)/r**2)
+          efg_ion(2,2,ii)=efg_ion(2,2,ii)+qj*kfac*(1.d0-3.d0*(y*y)/r**2)
+          efg_ion(3,2,ii)=efg_ion(3,2,ii)+qj*kfac*(    -3.d0*(z*y)/r**2)
+          efg_ion(1,3,ii)=efg_ion(1,3,ii)+qj*kfac*(    -3.d0*(x*z)/r**2)
+          efg_ion(2,3,ii)=efg_ion(2,3,ii)+qj*kfac*(    -3.d0*(y*z)/r**2)
+          efg_ion(3,3,ii)=efg_ion(3,3,ii)+qj*kfac*(1.d0-3.d0*(z*z)/r**2)
+         end if
         end do !** lattice vectors **
-
-       end if
+       end if ! dutask
        dutask = mod((dutask+1),tnp)
-      end do !**j**
-      end do !**i**
+      end do !**jj**
+      end do !**ii**
 !
       if (tnp.gt.1) then
-        call Parallel_Vector_SumAll(9*nion,efg)
+        call Parallel_Vector_SumAll(9*nion,efg_ion)
       end if
 !
       call nwpw_timing_end(21)
-      return
-      end
-
-      real*8 function ewald_efg_tmp1(n,b,c,t)
-      implicit none
-      integer n
-      complex*16 b(n),c(n)
-      real*8     t(n)
-
-      integer i
-      real*8 sumall
-
-      sumall = 0.0d0
-      do i=1,n
-        sumall = t(n)*dble(dconjg(b(n))*c(n))
-      end do
-
-      ewald_efg_tmp1 = sumall
+!
       return
       end
