@@ -13,7 +13,7 @@
       integer vc(2)
       integer xcp(2)
       integer xce(2)
-      logical spin_orbit
+      logical spin_orbit,hfxon_virtual
       real*8  ehfx,phfx               ! HFX energies
 
       common / c_electron_block / ehfx,phfx,
@@ -21,7 +21,7 @@
      >                          vl,vl_lr,vall,vc,xcp,xce,
      >                          ne,neq,ispin,ispinq,
      >                          nfft3d,npack0,npack1,nbrill,nbrillq,
-     >                          spin_orbit
+     >                          spin_orbit,hfxon_virtual
 
 *     **** electron_counter common block ****
       integer counter

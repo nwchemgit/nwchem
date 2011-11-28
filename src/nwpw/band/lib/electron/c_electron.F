@@ -44,10 +44,10 @@
 *     **** external functions ****
       integer  cpsi_ispin,cpsi_ne
       integer  cpsi_data_alloc,Pneb_ispinq,Pneb_nbrillq
-      logical  cpsi_spin_orbit
+      logical  cpsi_spin_orbit,control_hfxon_virtual
       external cpsi_ispin,cpsi_ne
       external cpsi_data_alloc,Pneb_ispinq,Pneb_nbrillq
-      external cpsi_spin_orbit
+      external cpsi_spin_orbit,control_hfxon_virtual
 
       counter = 0
 
@@ -55,6 +55,7 @@
       ne(1)  = cpsi_ne(1)
       ne(2)  = cpsi_ne(2)
       spin_orbit= cpsi_spin_orbit()
+      hfxon_virtual = control_hfxon_virtual()
 
       ispinq  = Pneb_ispinq()
       call Pneb_neq(neq)
@@ -257,9 +258,6 @@ c      complex*16 psi_k(*)
 *     **** local variables ****
       integer tmp_r(2)
 
-      logical  control_hfxon_virtual
-      external control_hfxon_virtual
-
       if (.not.MA_push_get(mt_dcpl,(nfft3d),'tmp_r',tmp_r(2),tmp_r(1)))
      >   call errquit('c_electron_get_gradient_virtual: push stack',0,
      &       MA_ERR)
@@ -271,7 +269,7 @@ c      complex*16 psi_k(*)
 *     ******************
 *     **** get Hpsi ****
 *     ******************
-      call cpsi_Horb(control_hfxon_virtual(),nb,ispin,ms,psi_r_tag,
+      call cpsi_Horb(hfxon_virtual,nb,ispin,ms,psi_r_tag,
      >              dcpl_mb(vall(1)),
      >              orb,
      >              dcpl_mb(tmp_r(1)),
