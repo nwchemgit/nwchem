@@ -361,33 +361,30 @@ c     >                                   dbl_mb(tmp2(1)))
         gvec(3) = dbl_mb(G(3)+k-1)
         gg = gvec(1)*gvec(1) + gvec(2)*gvec(2) + gvec(3)*gvec(3)
         if (gg .gt. 0.d0) then  ! eliminate g=o term
-         do mu=1,3
-          do nu=1,3
-           termgg = gvec(mu)*gvec(nu) 
-           if (mu == nu) termgg = termgg - gg/3.d0
-           do ii=1,nion
+          do ii=1,nion
             r1 = ion_rion(1,ii)
             r2 = ion_rion(2,ii)
             r3 = ion_rion(3,ii)
-!
             phase = two_pi*(gvec(1)*r1+gvec(2)*r2+gvec(3)*r3)
             cosgr = cos(phase)  ! cos(2pi*G.R)
             singr = sin(phase)  ! sin(2pi*G.R)
+            do mu=1,3
+             do nu=1,3
+                termgg = gvec(mu)*gvec(nu) 
+                if (mu == nu) termgg = termgg - gg/3.d0
+                rdng = real(dng(k))
+                cdng = aimag(dng(k))
 !
-            rdng = real(dng(k))
-            cdng = aimag(dng(k))
-!
-            efg_smoothr(mu,nu,ii) = efg_smoothr(mu,nu,ii) -
-     &       four_pi*termgg*(rdng*cosgr-cdng*singr)/gg 
-            efg_smoothi(mu,nu,ii) = efg_smoothi(mu,nu,ii) -
-     &       four_pi*termgg*(rdng*singr+cdng*cosgr)/gg 
-!             
-           end do ! ii 
-          end do ! nu
-         end do ! mu
-        end if !gg
+                efg_smoothr(mu,nu,ii) = efg_smoothr(mu,nu,ii) -   ! real part
+     &            four_pi*termgg*(rdng*cosgr-cdng*singr)/gg 
+                efg_smoothi(mu,nu,ii) = efg_smoothi(mu,nu,ii) -   ! imag part
+     &            four_pi*termgg*(rdng*singr+cdng*cosgr)/gg 
+             end do ! nu
+            end do ! mu
+          end do ! ii
+        end if ! gg ne 0
       end do ! k
-
+!
       value = MA_pop_stack(Gtmp(2))
       if (.not. value) call errquit('popstack',1, MA_ERR)
 !
