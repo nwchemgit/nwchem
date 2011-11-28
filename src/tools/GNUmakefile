@@ -403,8 +403,8 @@ TOOLDIR = $(shell pwd)
 CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_PROF1) $(MAYBE_PROF2)
 SPACE :=
 SPACE +=
-STAMP_FC = $(subst $(SPACE),-,$(strip $(FC))).FC.stamp
-STAMP_CC = $(subst $(SPACE),-,$(strip $(CC))).CC.stamp
+STAMP_FC = $(subst /,-,$(subst $(SPACE),-,$(strip $(FC))).FC.stamp)
+STAMP_CC = $(subst /,-,$(subst $(SPACE),-,$(strip $(CC))).CC.stamp)
 STAMP_DIR = $(subst $(SPACE),-,$(strip $(GA_DIR))).DIR.stamp
 
 $(INSTALLDIR)/lib/libga.a: $(BUILDDIR)/.libs/libga.a
@@ -444,14 +444,14 @@ $(GA_DIR)/configure:
 $(GA_DIR)/armci/configure:
 	@echo "You must run ./get-tools" && exit 1
 $(STAMP_FC): 
-	rm -f *.FC.stamp
+	rm -f ./*.FC.stamp
 	echo "" > $(STAMP_FC)
 $(STAMP_CC): 
-	rm -f *.CC.stamp
+	rm -f ./*.CC.stamp
 	echo "" > $(STAMP_CC)
 $(STAMP_DIR): 
 	rm -rf $(BUILDDIR) $(INSTALLDIR)
-	rm -f *.DIR.stamp
+	rm -f ./*.DIR.stamp
 	echo "" > $(STAMP_DIR)
 
 clean:
