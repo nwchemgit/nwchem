@@ -310,13 +310,14 @@ c     >                                   dbl_mb(tmp2(1)))
       integer npack0,nfft3d
       integer ii,k
       integer u,v
-      integer Gtmp(2),G(3)
+      integer Gtmp(2),G(3),tmp1(2),tmp2(2),exi(2)
       real*8 w,gg
       integer mu,nu,nion
       real*8 rdng,cdng,gvec(3),termgg
       real*8 pi,two_pi,four_pi,sqrt_pi
       real*8 phase,cosgr,singr
       real*8 r1,r2,r3
+      complex*16 zsum
 
 *     **** external functions ****
       integer  G_indx,ion_nion
@@ -336,6 +337,14 @@ c     >                                   dbl_mb(tmp2(1)))
       G(1) = Gtmp(1)
       G(2) = Gtmp(1)+nfft3d
       G(3) = Gtmp(2)+nfft3d
+      value = value.and.
+     >        MA_push_get(mt_dbl,npack0,'tmp1',tmp1(2),tmp1(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,npack0,'tmp2',tmp2(2),tmp2(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,'exi',exi(2),exi(1))
+      if (.not. value) 
+     > call errquit('coulomb_efg:out of stack memory',0, MA_ERR)
 
       call dcopy(nfft3d,dbl_mb(G_indx(1)),1,dbl_mb(G(1)),1)
       call dcopy(nfft3d,dbl_mb(G_indx(2)),1,dbl_mb(G(2)),1)
@@ -354,39 +363,92 @@ c     >                                   dbl_mb(tmp2(1)))
           end do ! ii
         end do ! nu
       end do ! mu
-!
+
+      !*** compute (-1/3)gg ***
       do k=1,npack0
-        gvec(1) = dbl_mb(G(1)+k-1)
-        gvec(2) = dbl_mb(G(2)+k-1)
-        gvec(3) = dbl_mb(G(3)+k-1)
-        gg = gvec(1)*gvec(1) + gvec(2)*gvec(2) + gvec(3)*gvec(3)
-        if (gg .gt. 0.d0) then  ! eliminate g=o term
-          do ii=1,nion
-            r1 = ion_rion(1,ii)
-            r2 = ion_rion(2,ii)
-            r3 = ion_rion(3,ii)
-            phase = two_pi*(gvec(1)*r1+gvec(2)*r2+gvec(3)*r3)
-            cosgr = cos(phase)  ! cos(2pi*G.R)
-            singr = sin(phase)  ! sin(2pi*G.R)
-            do mu=1,3
-             do nu=1,3
-                termgg = gvec(mu)*gvec(nu) 
-                if (mu == nu) termgg = termgg - gg/3.d0
-                rdng = real(dng(k))
-                cdng = aimag(dng(k))
+          dbl_mb(tmp1(1)+k-1) = ( dbl_mb(G(1)+k-1)**2
+     >                           +dbl_mb(G(2)+k-1)**2
+     >                           +dbl_mb(G(3)+k-1)**2)/(-3.0d0)
+      end do
+      do ii=1,nion
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+         do mu=1,3
+            call Pack_ttt_dzaxpy(0,dbl_mb(G(mu)),
+     >                             dbl_mb(G(mu)),
+     >                             dbl_mb(tmp1(1)),
+     >                             dbl_mb(tmp2(1)))
+            call Pack_tt_Mul2(0,dbl_mb(vc_indx),dbl_mb(tmp2(1)))
+
+            zsum = dcmplx(0.0d0,0.0d0) 
+            do k=1,npack0
+               zsum = zsum 
+     >              - 2.0d0*dng(k)
+     >                     *dcpl_mb(exi(1)+k-1)
+     >                     *dbl_mb(tmp2(1)+k-1)
+            end do
+            efg_smoothr(mu,mu,ii) = dble(zsum)
+            efg_smoothi(mu,mu,ii) = dimag(zsum)
+
+            do nu=mu+1,3
+               call Pack_tt_Mul(0,dbl_mb(G(mu)),
+     >                            dbl_mb(G(nu)),
+     >                            dbl_mb(tmp2(1)))
+               call Pack_tt_Mul2(0,dbl_mb(vc_indx),dbl_mb(tmp2(1)))
+
+               zsum = dcmplx(0.0d0,0.0d0) 
+               do k=1,npack0
+                  zsum = zsum 
+     >                 - 2.0d0*dng(k)
+     >                        *dcpl_mb(exi(1)+k-1)
+     >                        *dbl_mb(tmp2(1)+k-1)
+               end do
+               efg_smoothr(mu,nu,ii) = dble(zsum)
+               efg_smoothr(nu,mu,ii) = dble(zsum)
+               efg_smoothi(mu,nu,ii) = dimag(zsum)
+               efg_smoothi(nu,mu,ii) = dimag(zsum)
+
+            end do
+         end do
+      end do
+
+c      do k=1,npack0
+c        gvec(1) = dbl_mb(G(1)+k-1)
+c        gvec(2) = dbl_mb(G(2)+k-1)
+c        gvec(3) = dbl_mb(G(3)+k-1)
+c        gg = gvec(1)*gvec(1) + gvec(2)*gvec(2) + gvec(3)*gvec(3)
+c        if (gg .gt. 0.d0) then  ! eliminate g=o term
+c          do ii=1,nion
+c            r1 = ion_rion(1,ii)
+c            r2 = ion_rion(2,ii)
+c            r3 = ion_rion(3,ii)
+c            phase = (gvec(1)*r1+gvec(2)*r2+gvec(3)*r3)
+c            cosgr = cos(phase)  ! cos(G.R)
+c            singr = sin(phase)  ! sin(G.R)
+c            do mu=1,3
+c             do nu=1,3
+c                termgg = gvec(mu)*gvec(nu) 
+c                if (mu == nu) termgg = termgg - gg/3.d0
+c                rdng = real(dng(k))
+c                cdng = aimag(dng(k))
+c!
+c                efg_smoothr(mu,nu,ii) = efg_smoothr(mu,nu,ii) -   ! real part
+c     &            2.0d0*four_pi*termgg*(rdng*cosgr-cdng*singr)/gg 
+c                efg_smoothi(mu,nu,ii) = efg_smoothi(mu,nu,ii) -   ! imag part
+c     &            2.0d0*four_pi*termgg*(rdng*singr+cdng*cosgr)/gg 
+c             end do ! nu
+c            end do ! mu
+c          end do ! ii
+c        end if ! gg ne 0
+c      end do ! k
+
+      call D3dB_Vector_SumAll(9*nion,efg_smoothr)
+      call D3dB_Vector_SumAll(9*nion,efg_smoothi)
 !
-                efg_smoothr(mu,nu,ii) = efg_smoothr(mu,nu,ii) -   ! real part
-     &            four_pi*termgg*(rdng*cosgr-cdng*singr)/gg 
-                efg_smoothi(mu,nu,ii) = efg_smoothi(mu,nu,ii) -   ! imag part
-     &            four_pi*termgg*(rdng*singr+cdng*cosgr)/gg 
-             end do ! nu
-            end do ! mu
-          end do ! ii
-        end if ! gg ne 0
-      end do ! k
-!
-      value = MA_pop_stack(Gtmp(2))
-      if (.not. value) call errquit('popstack',1, MA_ERR)
+      value =           MA_pop_stack(exi(2))
+      value = value.and.MA_pop_stack(tmp2(2))
+      value = value.and.MA_pop_stack(tmp1(2))
+      value = value.and. MA_pop_stack(Gtmp(2))
+      if (.not. value) call errquit('coulomb_efg:popstack',1,MA_ERR)
 !
       return
       end
