@@ -106,6 +106,7 @@ c     **** define extra psi and Hpsi  ****
       call Parallel3d_taskid_k(taskid_k)
       npkrot  = npk/2
       npkeven = (mod(npk,2).eq.0)
+      if (.not.npkeven) npkrot = npkrot+1
       replicated = (npk.gt.1)
       if (hfx_on.and.replicated) then
          nbrillq_max = nbrillq
@@ -130,7 +131,7 @@ c     **** define extra psi and Hpsi  ****
             int_mb(nbrillq_rep(1)+n1-1) = 0
          end do
          int_mb(nbrillq_rep(1)+taskid_k) = nbrillq
-         call Parallel_Vector_ISumAll(npk,int_mb(nbrillq_rep(1)))
+         call Parallela_Vector_ISumAll(3,npk,int_mb(nbrillq_rep(1)))
       end if
 
    
@@ -403,7 +404,6 @@ c        **** reduceall algorithm ****
      >              dbl_mb(cpsi_data_get_allptr(psi_rep2_tag)),nrsize,
      >              request3)
                end if
-
 
                do nb1=1,nbrillq
                   do nb2=1,nbrillq_rep1
