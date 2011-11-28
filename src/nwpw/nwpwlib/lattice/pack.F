@@ -2307,6 +2307,37 @@ c      end do
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *          Pack_ttt_dzaxpy        *
+*     *                                 *
+*     ***********************************
+      subroutine Pack_ttt_dzaxpy(nb,A,B,C,D)
+      implicit none
+      integer  nb
+      real*8   A(*)
+      real*8   B(*)
+      real*8   C(*)
+      real*8   D(*)
+
+*     **** common block for pack ****
+      integer nida(0:1),nidb(0:1)
+      integer pack(2,0:1)
+      common / pack_blk / pack,nida,nidb
+
+*     **** local variables ****
+      integer i
+
+      do i=1,(nida(nb)+nidb(nb))
+        D(i) = C(i) + A(i)*B(i)
+      end do
+
+      return
+      end
+
+
+
 *     ***********************************
 *     *                                 *
 *     *          Pack_tt_Mul2           *
