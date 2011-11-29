@@ -172,7 +172,7 @@ c
      >      /12X,        '                          (',3F11.5,' )')
  1194 FORMAT(1x,'Principal components (a.u.) and orientation ',
      2       10x,'eta',10x,'Cq'/,1x,86(1h-))
- 1195 FORMAT(1x,3f11.5,15x,f11.5,1x,f11.5/)
+ 1195 FORMAT(1x,3f11.5,15x,f11.5,2x,f11.5/)
  1196 FORMAT(1x,3F11.5)
  1199 FORMAT(3X,I4,1x,A4)
 
