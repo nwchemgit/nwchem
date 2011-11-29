@@ -365,12 +365,13 @@ c     >                                   dbl_mb(tmp2(1)))
       end do ! mu
 
       !*** compute (-1/3)gg ***
-      do k=1,npack0
-          dbl_mb(tmp1(1)+k-1) = ( dbl_mb(G(1)+k-1)**2
-     >                           +dbl_mb(G(2)+k-1)**2
-     >                           +dbl_mb(G(3)+k-1)**2)/(-3.0d0)
-      end do
-      do ii=1,nion
+       do k=1,npack0
+         dbl_mb(tmp1(1)+k-1) = 
+     &    dbl_mb(G(1)+k-1)**2+dbl_mb(G(2)+k-1)**2+dbl_mb(G(3)+k-1)**2
+          dbl_mb(tmp1(1)+k-1) = -dbl_mb(tmp1(1)+k-1)/3.d0
+       end do ! k
+c
+       do ii=1,nion
          call strfac_pack(0,ii,dcpl_mb(exi(1)))
          do mu=1,3
             call Pack_ttt_dzaxpy(0,dbl_mb(G(mu)),
@@ -381,10 +382,8 @@ c     >                                   dbl_mb(tmp2(1)))
 
             zsum = dcmplx(0.0d0,0.0d0) 
             do k=1,npack0
-               zsum = zsum 
-     >              - 2.0d0*dng(k)
-     >                     *dcpl_mb(exi(1)+k-1)
-     >                     *dbl_mb(tmp2(1)+k-1)
+              zsum = zsum 
+     >            - 2.0d0*dng(k)*dcpl_mb(exi(1)+k-1)*dbl_mb(tmp2(1)+k-1)
             end do
             efg_smoothr(mu,mu,ii) = dble(zsum)
             efg_smoothi(mu,mu,ii) = dimag(zsum)
@@ -397,9 +396,7 @@ c     >                                   dbl_mb(tmp2(1)))
 
                zsum = dcmplx(0.0d0,0.0d0) 
                do k=1,npack0
-                  zsum = zsum 
-     >                 - 2.0d0*dng(k)
-     >                        *dcpl_mb(exi(1)+k-1)
+                  zsum = zsum - 2.0d0*dng(k)*dcpl_mb(exi(1)+k-1)
      >                        *dbl_mb(tmp2(1)+k-1)
                end do
                efg_smoothr(mu,nu,ii) = dble(zsum)
@@ -407,9 +404,9 @@ c     >                                   dbl_mb(tmp2(1)))
                efg_smoothi(mu,nu,ii) = dimag(zsum)
                efg_smoothi(nu,mu,ii) = dimag(zsum)
 
-            end do
-         end do
-      end do
+            end do  ! nu
+         end do ! mu
+      end do ! ii
 
 c      do k=1,npack0
 c        gvec(1) = dbl_mb(G(1)+k-1)
