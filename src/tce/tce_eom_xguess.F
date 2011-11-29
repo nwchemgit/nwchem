@@ -1,4 +1,4 @@
-      subroutine tce_eom_xguess(needx1,needx2,needx3,needx4,
+      subroutine tce_eom_xguess(rtdb,needx1,needx2,needx3,needx4,
      1  size_x1,size_x2,size_x3,size_x4,
      2  k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
 c
@@ -12,6 +12,7 @@ c
 #include "global.fh"
 #include "mafdecls.fh"
 #include "sym.fh"
+#include "rtdb.fh"
 #include "tce.fh"
 #include "tce_main.fh"
 #include "tce_diis.fh"
@@ -23,6 +24,7 @@ c
       logical needx2
       logical needx3
       logical needx4
+      integer rtdb
       integer size_x1
       integer size_x2
       integer size_x3
@@ -41,8 +43,9 @@ c
       integer size
       integer ivec, jvec
 c      double precision maxdiff
-      double precision nextmaxdiff
+      double precision nextmaxdiff,maxeorb
       integer i,ibumper
+      logical defmeo
       character*255 filename
 c
 c     Determine threshold
@@ -98,6 +101,16 @@ cx      call dfill(maxtrials,1.0d99,dbl_mb(k_diff),1)
   110 continue
       if (.not.ma_pop_stack(l_diff))
      1  call errquit('tce_eom_xguess: MA problem',1,MA_ERR)
+c
+       maxeorb=0.0d0
+       defmeo=.false.
+       if (.not.rtdb_get(rtdb,'tce:maxeorb',mt_dbl,1,maxeorb)) then
+         defmeo=.false.
+       else
+         defmeo=.true.
+         maxdiff=maxeorb 
+       end if
+c
 c
 c     Make trial X1
 c
@@ -165,6 +178,8 @@ c
           endif
         enddo
       enddo
+c
+      if(defmeo) go to 300
 c
 c     Make trial X2
 c
@@ -290,6 +305,9 @@ c
         enddo
       enddo
       endif
+c
+ 300  continue
+c
       if (nxtrials.lt.nroots_reduced)
      1  call errquit('there is a bug in the program',0,UNKNOWN_ERR)
       if (nodezero) then
