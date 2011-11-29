@@ -269,7 +269,8 @@ C     i0 ( p2 h1 )_tf + = -1 * Sum ( h7 ) * t ( p2 h7 )_t * i1 ( h7 h1 )_f
      & ERRQUIT('cc2_t1_2',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) CALL ERRQUIT('
      &cc2_t1_2',2,MA_ERR)
-      CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h7b_1
+      CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),dbl_mb(k_a),dima,
+     &int_mb(k_a_offset),(h7b_1
      & - 1 + noab * (p2b_1 - noab - 1)))
       CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_a_sort),int_mb(k_range+p2b-1)
      &,int_mb(k_range+h7b-1),1,2,1.0d0)
@@ -529,7 +530,8 @@ C     i1 ( h7 h1 )_ft + = 1 * Sum ( p3 ) * t ( p3 h1 )_t * i2 ( h7 p3 )_f
      & ERRQUIT('cc2_t1_2_2',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) CALL ERRQUIT('
      &cc2_t1_2_2',2,MA_ERR)
-      CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h1b_1
+      CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),dbl_mb(k_a),dima,
+     &int_mb(k_a_offset),(h1b_1
      & - 1 + noab * (p3b_1 - noab - 1)))
       CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_a_sort),int_mb(k_range+p3b-1)
      &,int_mb(k_range+h1b-1),2,1,1.0d0)
@@ -795,7 +797,8 @@ C     i2 ( h7 p3 )_vt + = -1 * Sum ( h6 p5 ) * t ( p5 h6 )_t * v ( h6 h7 p3 p5 )
      & ERRQUIT('cc2_t1_2_2_2',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) CALL ERRQUIT('
      &cc2_t1_2_2_2',2,MA_ERR)
-      CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h6b_1
+      CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),dbl_mb(k_a),dima,
+     &int_mb(k_a_offset),(h6b_1
      & - 1 + noab * (p5b_1 - noab - 1)))
       CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_a_sort),int_mb(k_range+p5b-1)
      &,int_mb(k_range+h6b-1),2,1,1.0d0)
@@ -981,7 +984,8 @@ C     i1 ( h7 h1 )_vt + = -1 * Sum ( h5 p4 ) * t ( p4 h5 )_t * v ( h5 h7 h1 p4 )
      & ERRQUIT('cc2_t1_2_3',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) CALL ERRQUIT('
      &cc2_t1_2_3',2,MA_ERR)
-      CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h5b_1
+      CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),dbl_mb(k_a),dima,
+     &int_mb(k_a_offset),(h5b_1
      & - 1 + noab * (p4b_1 - noab - 1)))
       CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_a_sort),int_mb(k_range+p4b-1)
      &,int_mb(k_range+h5b-1),2,1,1.0d0)
@@ -1319,7 +1323,8 @@ C     i0 ( p2 h1 )_tf + = 1 * Sum ( p3 ) * t ( p3 h1 )_t * i1 ( p2 p3 )_f
      & ERRQUIT('cc2_t1_3',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) CALL ERRQUIT('
      &cc2_t1_3',2,MA_ERR)
-      CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h1b_1
+      CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),dbl_mb(k_a),dima,
+     &int_mb(k_a_offset),(h1b_1
      & - 1 + noab * (p3b_1 - noab - 1)))
       CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_a_sort),int_mb(k_range+p3b-1)
      &,int_mb(k_range+h1b-1),2,1,1.0d0)
@@ -1583,7 +1588,8 @@ C     i1 ( p2 p3 )_vt + = -1 * Sum ( h5 p4 ) * t ( p4 h5 )_t * v ( h5 p2 p3 p4 )
      & ERRQUIT('cc2_t1_3_2',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) CALL ERRQUIT('
      &cc2_t1_3_2',2,MA_ERR)
-      CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h5b_1
+      CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),dbl_mb(k_a),dima,
+     &int_mb(k_a_offset),(h5b_1
      & - 1 + noab * (p4b_1 - noab - 1)))
       CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_a_sort),int_mb(k_range+p4b-1)
      &,int_mb(k_range+h5b-1),2,1,1.0d0)
@@ -1738,7 +1744,8 @@ C     i0 ( p2 h1 )_vt + = -1 * Sum ( h4 p3 ) * t ( p3 h4 )_t * v ( h4 p2 h1 p3 )
      & ERRQUIT('cc2_t1_4',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) CALL ERRQUIT('
      &cc2_t1_4',2,MA_ERR)
-      CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h4b_1
+      CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),dbl_mb(k_a),dima,
+     &int_mb(k_a_offset),(h4b_1
      & - 1 + noab * (p3b_1 - noab - 1)))
       CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_a_sort),int_mb(k_range+p3b-1)
      &,int_mb(k_range+h4b-1),2,1,1.0d0)
@@ -2170,7 +2177,8 @@ C     i1 ( h8 p7 )_vt + = 1 * Sum ( h6 p5 ) * t ( p5 h6 )_t * v ( h6 h8 p5 p7 )_
      & ERRQUIT('cc2_t1_5_2',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) CALL ERRQUIT('
      &cc2_t1_5_2',2,MA_ERR)
-      CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h6b_1
+      CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),dbl_mb(k_a),dima,
+     &int_mb(k_a_offset),(h6b_1
      & - 1 + noab * (p5b_1 - noab - 1)))
       CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_a_sort),int_mb(k_range+p5b-1)
      &,int_mb(k_range+h6b-1),2,1,1.0d0)
@@ -2697,7 +2705,8 @@ C     i1 ( h4 h5 h1 p3 )_vt + = -1 * Sum ( p6 ) * t ( p6 h1 )_t * v ( h4 h5 p3 p
      & ERRQUIT('cc2_t1_6_2',1,MA_ERR)
       IF (.not.MA_PUSH_GET(mt_dbl,dima,'noname',l_a,k_a)) CALL ERRQUIT('
      &cc2_t1_6_2',2,MA_ERR)
-      CALL GET_HASH_BLOCK(d_a,dbl_mb(k_a),dima,int_mb(k_a_offset),(h1b_1
+      CALL GET_HASH_BLOCK_MA(dbl_mb(d_a),dbl_mb(k_a),dima,
+     &int_mb(k_a_offset),(h1b_1
      & - 1 + noab * (p6b_1 - noab - 1)))
       CALL TCE_SORT_2(dbl_mb(k_a),dbl_mb(k_a_sort),int_mb(k_range+p6b-1)
      &,int_mb(k_range+h1b-1),2,1,1.0d0)
