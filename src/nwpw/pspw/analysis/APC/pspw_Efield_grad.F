@@ -1,8 +1,6 @@
 c
 c $Id: pspw_Efield_grad.F 19707 2010-10-29 17:59:36Z d3y133 $
 c
-
-
 ********************************************************************
 *
 *	pspw_gen_Efield_grad module: used to generate electric gradients fields at atoms
@@ -38,7 +36,7 @@ c
       integer efg(2)   ! total efg
       integer efg_ion(2) ! ionic part
       integer efg_smoothr(2),efg_smoothi(2) ! real and imag parts of smooth electronic part
-      integer efg_cor(2)  ! paw part
+      integer efg_paw(2)  ! paw part
 
 *     **** external functions ****
       integer  ion_nion,control_version
@@ -59,8 +57,8 @@ c
      >                               efg_smoothr(2),efg_smoothr(1))
        value = value.and.MA_push_get(mt_dbl,9*nion,'efg_smooth_imag',
      >                               efg_smoothi(2),efg_smoothi(1))
-       value = value.and.MA_push_get(mt_dbl,9*nion,'efg_cor',
-     >                               efg_cor(2),efg_cor(1))
+       value = value.and.MA_push_get(mt_dbl,9*nion,'efg_paw',
+     >                               efg_paw(2),efg_paw(1))
        if (.not.value) 
      >    call errquit('pspw_gen_Efield_grad:out of stack memory',0,
      >                 MA_ERR)
@@ -68,28 +66,30 @@ c
        call dcopy(9*nion,0.0d0,0,dbl_mb(efg_ion(1)),1)
        call dcopy(9*nion,0.0d0,0,dbl_mb(efg_smoothr(1)),1)
        call dcopy(9*nion,0.0d0,0,dbl_mb(efg_smoothi(1)),1)
-       call dcopy(9*nion,0.0d0,0,dbl_mb(efg_cor(1)),1)
+       call dcopy(9*nion,0.0d0,0,dbl_mb(efg_paw(1)),1)
        call dcopy(9*nion,0.0d0,0,dbl_mb(efg(1)),1)
 
        call ewald_efg(dbl_mb(efg_ion(1)))   ! ionic part
        call coulomb_efg(dng,dbl_mb(efg_smoothr(1)),   ! smooth electronic part
      &                      dbl_mb(efg_smoothi(1)) )
-       call psp_efg_atoms(ispin,ne,psi,dbl_mb(efg_cor(1)))  ! paw part
+       call psp_efg_atoms(ispin,ne,psi,dbl_mb(efg_paw(1)))  ! paw part
 
        call daxpy(9*nion,1.d0,dbl_mb(efg_ion(1)),1,dbl_mb(efg(1)),1)
        call daxpy(9*nion,1.d0,dbl_mb(efg_smoothr(1)),1,dbl_mb(efg(1)),1)
-       call daxpy(9*nion,1.d0,dbl_mb(efg_cor(1)),1,dbl_mb(efg(1)),1)
-
+       call daxpy(9*nion,1.d0,dbl_mb(efg_paw(1)),1,dbl_mb(efg(1)),1)
 
        if (taskid.eq.MASTER) then
-         call pspw_print_Efield_grad(luout,
+         call pspw_final_Efield_grad(luout,
      >                               nion,
      >                               dbl_mb(efg(1)),
      >                               dbl_mb(efg_ion(1)),
      >                               dbl_mb(efg_smoothr(1)),
-     >                               dbl_mb(efg_cor(1)))
+     >                               dbl_mb(efg_paw(1)))
        end if
-       value =           MA_pop_stack(efg_cor(2))
+
+
+
+       value =           MA_pop_stack(efg_paw(2))
        value = value.and.MA_pop_stack(efg_smoothi(2))
        value = value.and.MA_pop_stack(efg_smoothr(2))
        value = value.and.MA_pop_stack(efg_ion(2))
@@ -105,44 +105,58 @@ c
 
 *     ***********************************
 *     *					*
-*     *	    pspw_print_Efield_grad	*
+*     *	    pspw_final_Efield_grad	*
 *     *					*
 *     ***********************************
-      subroutine pspw_print_Efield_grad(unit,nion,efg,
-     >                                  efg_ion,efg_smooth,efg_cor)
+      subroutine pspw_final_Efield_grad(unit,nion,efg,
+     >                                  efg_ion,efg_smooth,efg_paw)
       implicit none
+
       integer unit
       integer nion
       real*8 efg(3,3,*)
       real*8 efg_ion(3,3,*)
       real*8 efg_smooth(3,3,*)
-      real*8 efg_cor(3,3,*)
+      real*8 efg_paw(3,3,*)
+      real*8 eta,eig(3),vec(3,3),tmp1(3),tmp2(3)
+      real*8 eigvec(3,3),cq
 
 *     **** local variables ****
-      integer ii,j,k
+      integer ii,i,j,k
 
 *     **** external functions ****
       character*4 ion_aname
       external    ion_aname
 
+*     **** print efg tensors for atoms ****
       write(unit,1300)
-      write(unit,1190)(ii,ion_aname(ii),
-     >                ((efg(j,k,ii),k=1,3),j=1,3),
-     >                  ii=1,nion)
-      write(unit,*)
-      write(unit,1191)(ii,ion_aname(ii),
-     >                ((efg_ion(j,k,ii),k=1,3),j=1,3),
-     >                  ii=1,nion)
-      write(unit,*)
-      write(unit,1192)(ii,ion_aname(ii),
-     >                ((efg_smooth(j,k,ii),k=1,3),j=1,3),
-     >                  ii=1,nion)
+      do ii=1,nion
+       write(unit,1190) ii,ion_aname(ii),((efg(j,k,ii),k=1,3),j=1,3)
+       write(unit,1191) ii,ion_aname(ii),((efg_ion(j,k,ii),k=1,3),j=1,3)
+       write(unit,1192) ii,ion_aname(ii),
+     &         ((efg_smooth(j,k,ii),k=1,3),j=1,3)
+       write(unit,1193) ii,ion_aname(ii),
+     &         ((efg_paw(j,k,ii),k=1,3),j=1,3)
+       write(unit,*)
+      end do  ! ii
 
-      write(unit,*)
-      write(unit,1193)(ii,ion_aname(ii),
-     >                ((efg_cor(j,k,ii),k=1,3),j=1,3),
-     >                  ii=1,nion)
-
+*     **** compute principal components and spectroscopic parameters ****
+      write(unit,1194)
+      do ii = 1,nion
+        do i=1,3
+         do j=1,3
+            vec(i,j) = efg(i,j,ii)
+         end do
+        end do
+        call util_diag_jacobi(unit,3,3,vec,eig,eigvec,tmp1,tmp2) ! diagonalize matrix
+        if (abs(eig(3)) > 1.d-5) eta = (eig(1)-eig(2)) / eig(3) ! asymmetry parameter
+        cq = eig(3)  ! quadupolar coupling constant
+        write(unit,1199) ii,ion_aname(ii)
+        write(unit,1195) eig(1),eig(2),eig(3),eta,cq
+        write(unit,1196) ((eigvec(i,j),j=1,3),i=1,3)
+        write(unit,*)
+      enddo ! ii
+c
  1300 FORMAT(//'=== Electric Field gradient at Atoms ==='/)
  1190 FORMAT(3X,I4,1x,A4,' Electric Field Gradient =(',3F11.5,' )',
      >      /12X,        '                          (',3F11.5,' )',
@@ -156,7 +170,11 @@ c
  1193 FORMAT(3X,I4,1x,A4,' Electric Field Gradient =(',3F11.5,' )',
      >      /12X,        ' (paw)                    (',3F11.5,' )',
      >      /12X,        '                          (',3F11.5,' )')
+ 1194 FORMAT(1x,'Principal components (a.u.) and orientation ',
+     2       10x,'eta',10x,'Cq'/,1x,86(1h-))
+ 1195 FORMAT(1x,3f11.5,15x,f11.5,1x,f11.5/)
+ 1196 FORMAT(1x,3F11.5)
+ 1199 FORMAT(3X,I4,1x,A4)
 
       return
       end
-

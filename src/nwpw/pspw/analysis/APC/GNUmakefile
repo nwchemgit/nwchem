@@ -4,6 +4,7 @@
  OBJ_OPTIMIZE = \
 				pspw_APC.o\
 				pspw_Efield.o\
+				util_diag_jacobi.o\
 				pspw_Efield_grad.o 
 
 	  OBJ = 
