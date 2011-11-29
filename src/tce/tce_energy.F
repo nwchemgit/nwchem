@@ -7349,7 +7349,7 @@ c
             call tce_loc_j2_inv(d_j2,k_j2_offset)
       end if
 c
-            call tce_eom_xguess(needt1,needt2,needt3,needt4,
+            call tce_eom_xguess(rtdb,needt1,needt2,needt3,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
      2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
             if (nxtrials.eq.0) goto 200
@@ -9578,7 +9578,7 @@ c
 c -------------
 c EOM-CCSDT   right
 c -------------
-            call tce_eom_xguess(needt1,needt2,needt3,needt4,
+            call tce_eom_xguess(rtdb,needt1,needt2,needt3,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
      2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
 cedo            if (nxtrials.eq.0) goto 210
@@ -9727,7 +9727,7 @@ c
 c -----------------------
 c EOM-CCSDt  right
 c -----------------------
-            call tce_eom_xguess(needt1,needt2,needt3a,needt4,
+            call tce_eom_xguess(rtdb,needt1,needt2,needt3a,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
      2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
 cccx            if (nxtrials.eq.0) goto 210
@@ -9875,7 +9875,7 @@ c
 c -------------
 c EOM-CCSDTQ  right
 c -------------
-            call tce_eom_xguess(needt1,needt2,needt3,needt4,
+            call tce_eom_xguess(rtdb,needt1,needt2,needt3,needt4,
      1        size_x1,size_x2,size_x3,size_x4,
      2        k_x1_offset,k_x2_offset,k_x3_offset,k_x4_offset)
             if (nxtrials.eq.0) goto 220
