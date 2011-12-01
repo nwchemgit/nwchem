@@ -327,15 +327,14 @@ c
         rlshift=rlshift_def
       endif        
       if (nodiis)diising = .false.
-c     
-!      Etold = Etnew
 c
       lmaxov = lmaxov_sv
-      if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
-         lmaxov = .false.
-         if (ga_nodeid().eq.0 .and. oprint)
-     &      write(LuOut,224)homo, lumo
-      endif
+c      don't turn off max_ovl
+c      if ((lumo - homo).lt.-hl_tol.and.lmaxov)then
+c         lmaxov = .false.
+c         if (ga_nodeid().eq.0 .and. oprint)
+c     &      write(LuOut,224)homo, lumo
+c      endif
 c     
       if (oprint.and.ga_nodeid().eq.0)then         
          current_cpu = util_cpusec()

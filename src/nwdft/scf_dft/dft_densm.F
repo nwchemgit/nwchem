@@ -1,13 +1,13 @@
+c
       subroutine dft_densm(g_dens,g_vecs,nbf,nmo,ipol,
      ,     geom,AO_bas_han,noc,ntotel,
      ,	evals,focc,ssmear,tdots,
      ,     iter,search0,
      .     fon, nel_fon,nmo_fon,ncore_fon,
-     .                     spinset,
-     .                     rtdb) ! FA : for dft_scaleMO()
-C$Id$
-C FA-10-04-11: Adding changes for using fractional occupations
+     .                     spinset, rtdb)
+c
       implicit none
+c
 #include "errquit.fh"
 #include "bas.fh"
 #include "geom.fh"
@@ -18,7 +18,7 @@ C FA-10-04-11: Adding changes for using fractional occupations
 #include "dftps.fh"
 #include "util.fh"
 #include "rtdb.fh" 
-
+c
       integer geom
       integer AO_bas_han
       integer ipol                  ! no. of spin states
@@ -36,7 +36,6 @@ C FA-10-04-11: Adding changes for using fractional occupations
       double precision nel_fon(2)
       integer ncore_fon(2), nmo_fon(2)
       integer ilo,ihi,jlo,jhi,numi,numj,icount
-
 c
       integer i,isp,g_tmp
       integer me, nproc
@@ -54,68 +53,64 @@ c
       parameter(undovl=-20d0*2.3025d0)
       parameter (zero=0.d0,toll=1.d-9,one=1.d0,
      ,   kbau=1.d0,eps=1.d-4)
-      external dft_scaleMO ! FA-added-02-22-11
+c
       integer rtdb         ! FA-02-22-11, for occupations
       integer switch_focc  ! FA-02-22-11, for occupations
       logical status       ! FA-02-22-11, for occupations
       logical debug_fon
-
 c
+c     preliminaries
       sqrtpi=sqrt(acos(-1d0))
       me=ga_nodeid()
       nproc=ga_nnodes()
       rhfuhf=2d0
       if(ipol.eq.2) rhfuhf=1d0
+c
       if(ssmear.lt.toll.or.iter.lt.-1) then
 c       
-c       check degener
+c     check degener
 c       
-        
         if (rtdb_get(rtdb, 'dft:debugfon', mt_log, 1,
      &     debug_fon)) then
           if (debug_fon .and. me.eq.0)
      &       write(luout,*) "fon is on ",fon
         end if
-                
+c                
+c       average fractional occupations (leading orbitals)
         if (fon) then
           status = dft_checkdg(rtdb,nmo_fon,ncore_fon,nel_fon,
      .       nbf,ntotel,focc,noc,ipol,me)
-cng            if(dft_checkdg(nmo_fon,ncore_fon,nel_fon,
-cng     .          nbf,ntotel,focc,noc,ipol,me)) then
           do isp=1,ipol
             call dft_focdm(focc(1+(isp-1)*nbf),noc(isp),geom,
-     ,         AO_bas_han,nbf,
-     *         g_vecs(isp),g_dens(isp),toll)
+     &         AO_bas_han,nbf,g_vecs(isp),g_dens(isp),toll)
           enddo
           return
-cng            endif
-         endif
-
-
+        endif ! fon
+c
         if (odftps) call pstat_on(ps_dgemm)
-
+c
+c       fractional occupation by orbital
         switch_focc=0
-        status=rtdb_get(rtdb,'focc:occ-switch',
-     &     mt_int,1,switch_focc)
+        status=rtdb_get(rtdb,'focc:occup_switch', mt_int,1,switch_focc)
         if (switch_focc.eq.1 .and. status) then ! using specified occupations
           do isp=1,ipol
-            call dft_scaleMO(rtdb,g_vecs, ! IN  : MO vectors
-     &         focc,g_dens,     ! OUT : density matrix
-     &         noc,             ! IN/OUT : orbital occupations
-     &         nbf,ipol,ntotel)
-          enddo                 ! end-loop-ispin
-
+            call dft_frac_mo(rtdb,g_vecs(isp),focc,nbf,ipol,ntotel)
+            call dft_focdm(focc(1+(isp-1)*nbf),noc(isp),geom,
+     &         AO_bas_han,nbf,g_vecs(isp),g_dens(isp),toll)
+          enddo  ! isp
+          return
         else                    ! default occupations
           do isp=1,ipol
             call ga_dgemm('N', 'T', nbf, nbf, noc(isp),
      $         2d0/dble(ipol), g_vecs(isp),g_vecs(isp),
      $         zero, g_dens(isp))
           enddo
-
         endif                   ! switch_focc
 
         if (odftps) call pstat_off(ps_dgemm)
-      else	
+c
+      else	  ! with smearing
+c
         if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
      &     call errquit('dftdensm: failed to alloc tmpm',nbf, MA_ERR)
 c       
@@ -223,6 +218,7 @@ C          write(LuOut,1723) (focc(i),i=1,nbf*ipol)
 C          1723       format(' Foccs ',(
          endif
        endif
+c
        if(spinset.and.ipol.eq.2) then
          if(search0) then
            noc(1)=nint(ntot(1))
@@ -232,9 +228,12 @@ C          1723       format(' Foccs ',(
            noc(2)=nocsave(2)
          endif
        endif
-      endif
+c
+      endif  ! smear
+c
       return
       end
+c
       subroutine dft_zero(ipol,nbf,nmo,
      ,     ntotel,efermi,evals,ssmear,toll,spinset)
       implicit none
@@ -353,6 +352,7 @@ C         endif
 
       return
       end
+c
       double precision function fzero(
      *     ipol,efermi,evals,nbf,nmo,ntotel,ssmear)
       implicit none
@@ -391,6 +391,7 @@ C      write(0,*) ' fzero efer ',fzero,efermi
 C      write(0,*) ' ==============='
       return
       end
+c
       subroutine dft_focdm(focc,noc,geom,AO_bas_han,nbf,
      *     g_vecs,g_dens,toll)
       implicit none
@@ -408,16 +409,13 @@ c
       double precision zero
       parameter(zero=0.d0)
       logical debug
-
+c
+c     preliminaries
       me = ga_nodeid()
       nproc = ga_nnodes()
       nocold=noc
       debug = .false.
-
-      if (me.eq.0 .and .debug) then
-        write (luout,*) 'hello from dft_focdm'
-      end if
-        
+c
       if (.not. MA_Push_Get(MT_Dbl, nbf, 'tmpm', ltmpm, itmpm))
      &   call errquit('dftdensm: failed to alloc tmpm',0, MA_ERR)
       if (.not. ga_duplicate(g_dens, g_tmp, 'ga_temp'))
@@ -444,20 +442,13 @@ c
 c     reset noc for future calls
 c     
       noc=nocold
-c     call dfill(nbf, 0.d0, focc, 1)
-c     call dfill(noc, rhfuhf, focc, 1)
       return
       end
-
-      logical function dft_checkdg(rtdb,nmo_fon,ncore_fon,nel_fon,
-     .     nbf,ntotel,focc,noc,ipol,
-     , me)
 c
-c ... jochen 10/11: changed this routine to apply fractional occupations
-c     during DFT SCF cycles. This also allows for the use of fractional
-c     electron numbers overall.
-c     This routine is called from within dft_densm during non-spinorbit
-c     calculations
+c     determine fractional occupations for fon calculations
+c
+      logical function dft_checkdg(rtdb,nmo_fon,ncore_fon,nel_fon,
+     .     nbf,ntotel,focc,noc,ipol,me)
 c
       implicit none
 #include "global.fh"
@@ -490,27 +481,6 @@ c
         write (luout,*) 'FON: ipol, noc, ntotel',ipol,noc(:),ntotel
       end if                    ! debug
 c
-c  assignments      
-c
-c ... jochen: this functionality was not doing what 
-c     I thought it was doing. Let's try differently
-
-c$$$      do ispin=1,ipol
-c$$$         avg_fon = dble(nel_fon(ispin))/dble(nmo_fon(ispin)) 
-c$$$         do i=1,noc(ispin)-nel_fon(ispin)
-c$$$            focc(i,ispin) = 2d0/ipol
-c$$$         enddo
-c$$$            ncheck=(noc(ispin)-nel_fon(ispin)+1d0)*
-c$$$     .      2d0/dble(ipol)
-c$$$         do i = noc(ispin)-nel_fon(ispin)+1,
-c$$$     ,        noc(ispin)-nel_fon(ispin)+nmo_fon(ispin)
-c$$$            focc(i,ispin) = avg_fon*(2d0/ipol)
-c$$$            ncheck=ncheck+focc(i,ispin)
-c$$$         enddo
-c$$$      enddo
-
-c ... jochen: new code:
-
       ncheck = 0d0
       do ispin = 1,ipol
 
