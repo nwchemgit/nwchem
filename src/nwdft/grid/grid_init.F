@@ -40,9 +40,9 @@ c
      $     MT_INT, 1, memsize)) memsize = 0
       if (.not. rtdb_get(rtdb, 'grid:eaf_size_in_mb',
      $     MT_INT, 1, eaf_size_in_mb)) then
-c     give at least 8mb plus 20 pctage load imabalance
-         eaf_size_in_mb = max(8,
-     =     nq_list*120/(ga_nnodes()*100)*4*8/1000/1000)
+c     give at least 24mb plus 50 pctage load imabalance
+         eaf_size_in_mb = max(24,
+     =     nq_list*150/(ga_nnodes()*100)*4*8/1000/1000)
       if (.not. rtdb_put(rtdb, 'grid:eaf_size_in_mb',
      $     MT_INT, 1, eaf_size_in_mb)) call
      C     errquit('grid_init:rtdb_put failed',0,0)

@@ -80,19 +80,12 @@ c
       call grid_buf_clear()
       call dfill(4*buffer_size, 0.0d0, values, 1)
       cur_rec_rad=0d0
-      eaftype=100
-c 256m should be plenty for grid pts
-      if(eaf_size_in_mb.eq.0) eaf_size_in_mb=256
       eaftype=1000000+eaf_size_in_mb*1024*1024
 c     1k is plenty for grinfo
       eaftypegr=1000000+1024
 #ifdef DEBUG
       if(ga_nodeid().eq.0) then
          write(6,*) '1eaftype',eaftype,eaf_size_in_mb
-         call util_flush(LuOut)
-      endif
-      if(ga_nodeid().eq.0) then
-         write(6,*) ' grinfo type size',eaftypegr
          call util_flush(LuOut)
       endif
 #endif
@@ -207,7 +200,12 @@ c
 #ifndef EAFHACK
          ierr=eaf_open(actualname, eaf_rw, fd)
 #else
-         ierr=eaf_open(actualname, eaftypegr, fd)
+#ifdef DEBUG
+         write(6,'(I3,A,I15,A)') ga_nodeid(),
+     G        'Geafopengr typegr ',eaftype,
+     A        actualname
+#endif
+         ierr=eaf_open(actualname, eaftype, fd)
 #endif
          if (ierr .ne. 0) then
             call eaf_errmsg(ierr,errmsg)
@@ -395,13 +393,6 @@ c
 c
  10   continue
          if (.not. file_opened) then
-#ifdef DEBUG
-          if(ga_nodeid().eq.0) then
-             write(6,*) ' grid file type',eaftype,
-     C            ' fop ',file_opened
-            call util_flush(LuOut)
-            endif
-#endif
 #ifndef EAFHACK
             if (eaf_open(actualname, eaf_rw, fd) .ne. 0) then
 #else
@@ -427,9 +418,11 @@ c
      .              8*rec_len_in_dbl)
                if (ierr .ne. 0) then
                   call eaf_errmsg(ierr, errmsg)
+                  write(luout,*) ' availdbl ',MA_inquire_avail(mt_dbl)
                   write(LuOut,*) ' IO offset ', offset
                   write(LuOut,*) ' IO error message ',
-     $                 errmsg(1:inp_strlen(errmsg))
+     $                 errmsg(1:inp_strlen(errmsg)),
+     $                 ' nrecdbl ',8*rec_len_in_dbl
                   call errquit('grid_packed_buf_write: write failed',0,
      &       DISK_ERR)
                endif
@@ -443,7 +436,8 @@ c
             call eaf_errmsg(ierr, errmsg)
             write(LuOut,*) ' IO offset ', offset
             write(LuOut,*) ' IO error message ',
-     $                     errmsg(1:inp_strlen(errmsg))
+     $                     errmsg(1:inp_strlen(errmsg)),
+     $                 '2nrecdbl ',8*rec_len_in_dbl
             call errquit('grid_packed_buf_write: write failed',0,
      &       DISK_ERR)
          endif
@@ -906,13 +900,9 @@ c
       grid_reopen=.false.
         call util_file_name('gridpts',.true.,.false.,gridfilename)
       oreopen=.true.
-      eaf_size_in_mb=256
-#ifdef DEBUG
-      if(ga_nodeid().eq.0) then
-      write(6,*) 'eafmnb ',eaf_size_in_mb
-      call util_flush(6)
-      endif
-#endif
+c     extract eaf_size_in_mn from eaftype
+c      eaftype=1000000+eaf_size_in_mb*1024*1024
+      eaf_size_in_mb=(eaftype-1000000)/1024/1024
       grid_reopen=
      .     grid_file_open(enuc,
      .     gridfilename, memsize, filesize, eaf_size_in_mb)
