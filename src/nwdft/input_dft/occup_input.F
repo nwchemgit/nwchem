@@ -1,4 +1,7 @@
+c     fractional occupation handler
+c
       subroutine occup_input(rtdb)
+c
 C     $Id$
 C     Adapted from geom_input
 c     Occupations format:
@@ -50,8 +53,8 @@ c     FA-02-10-11
       integer ac,noccA,noccB    ! counts no. of centers as input
       logical status            ! scratch for return codes
       integer i,ind_min,ind_max
-      integer nfocc_in(2),nfocc_tot ! input of nfocc
-      integer l_Iocc,k_Iocc
+      integer nfocc_in(2),nfocc ! input of nfocc
+      integer l_occ,k_occ
       integer switch_focc
 c     
 c     read occupations from the input deck 
@@ -75,16 +78,15 @@ c
       if (status) then ! --------nfocc-in---START      
 c       write(*,2) nfocc_in(1),nfocc_in(2)
 c2      format('nfocc_in=(',i5,',',i5,')')  
-        nfocc_tot=nfocc_in(1)+nfocc_in(2)
+        nfocc=nfocc_in(1)+nfocc_in(2)
         ind_min=2
         ind_max=1
         if (nfocc_in(1).lt.nfocc_in(2)) then
          ind_min=1
          ind_max=2
         endif
-        if (.not. ma_push_get(mt_dbl,nfocc_tot,'occup1',
-     &                        l_Iocc,k_Iocc))
-     &  call errquit('occ_input ma_push_get fail k_Iocc',
+        if (.not. ma_push_get(mt_dbl,nfocc,'occup', l_occ,k_occ))
+     &  call errquit('occ_input ma_push_get fail k_occ',
      &               0,MA_ERR)  
 c----- Start reading <occ-A> <occ-B> sets
        noccA=1
@@ -105,12 +107,8 @@ c
             status = .true.
 c ------- Case 1: Reading occ-A occ-B
           if (noccA .le. nfocc_in(ind_min)) then
-            status = status .and. inp_f(dbl_mb(k_Iocc+ac))
-            status = status .and. inp_f(dbl_mb(k_Iocc+ac+1))
-c           write(*,1) ac,
-c    &                 dbl_mb(k_Iocc+ac),dbl_mb(k_Iocc+ac+1)
-c 1         format('TEST-occ: fractional occupations(',i3,')=(',
-c    &              f15.8,',',f15.8,')')
+            status = status .and. inp_f(dbl_mb(k_occ+ac))
+            status = status .and. inp_f(dbl_mb(k_occ+ac+1))
             if (.not. status) call errquit
      $          ('occup_input: <occ>',ac+1,INPUT_ERR)
             ac = ac + 2
@@ -118,11 +116,7 @@ c    &              f15.8,',',f15.8,')')
             noccB=noccB+1
           else if (ac/2+1 .gt. nfocc_in(ind_min)) then
 c ------- Case 2: Reading occ-A (unpaired electrons)
-            status = status .and. inp_f(dbl_mb(k_Iocc+ac))
-c           write(*,3) ac,
-c    &                 dbl_mb(k_Iocc+ac)
-c 3         format('TEST-occ: fractional occupations(',i3,')=',
-c    &              f15.8)      
+            status = status .and. inp_f(dbl_mb(k_occ+ac))
             if (.not. status) call errquit
      $          ('occup_input: <occ>',ac+1,INPUT_ERR)
             if (ind_max.eq.1) noccA=noccA+1
@@ -147,29 +141,28 @@ c5    format('(noccA,noccB)=(',i5,',',i5,')')
          call errquit('occup_input: mismatch noccA-ith or noccB-ith',
      &                0,INPUT_ERR)      
       endif
-c ---- check that int_mb(k_nIocc) > 0 and dbl_mb(k_Iocc) > 0
-      do i=1,nfocc_tot
-c      write(*,4) i,dbl_mb(k_Iocc+i-1)
-c4     format('frac-occ-all(',i5,')=',f15.8)
-       if (dbl_mb(k_Iocc+i-1).le.0.0d0) then
-        call errquit('occup_input: Problem focc input ith val<0',
-     &                0,INPUT_ERR)    
-       endif 
-      enddo
-c ----- Store focc in rtdb ----- START   
-       switch_focc=1 ! 1 means using occupations keyword
-      if (.not. rtdb_put(rtdb,'focc:occ-switch',
+c
+c ---- check that int_mb(k_nocc) > 0 and dbl_mb(k_occ) > 0
+c      do i=1,nfocc
+c       if (dbl_mb(k_occ+i-1).le.0.0d0) then
+c        call errquit('occup_input: Problem focc input ith val<0',
+c     &                0,INPUT_ERR)    
+c       endif 
+c      enddo
+c
+c     store in rtdb 
+      switch_focc=1 ! 1 means using occupations keyword
+      if (.not. rtdb_put(rtdb,'focc:occup_switch',
      &                   mt_int,1,switch_focc))  
-     &   call errquit('occ_input: rtdb_put failed', 1201, RTDB_ERR)
-      if (.not. rtdb_put(rtdb,'focc:occupations',
-     &                   mt_int,2,nfocc_in))
-     &   call errquit('occ_input: rtdb_put failed', 1201, RTDB_ERR)
-      if (.not. rtdb_put(rtdb,'focc:occup list',
-     &                   mt_dbl,nfocc_tot,dbl_mb(k_Iocc)))
-     $      call errquit('occ_input: rtdb_put failed', 0, RTDB_ERR)
-      if (.not.ma_pop_stack(l_Iocc)) ! Free memory
-     &      call errquit('occ input: ma_pop_stack failed k_Iocc',
+     &   call errquit('occup_input: rtdb_put failed', 1201, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'focc:occup',mt_int,2,nfocc_in))
+     &   call errquit('occup_input: rtdb_put failed', 1201, RTDB_ERR)
+      if (.not. rtdb_put(rtdb,'focc:occup_list',
+     &                   mt_dbl,nfocc,dbl_mb(k_occ)))
+     $      call errquit('occup_input: rtdb_put failed', 0, RTDB_ERR)
+      if (.not.ma_pop_stack(l_occ)) ! Free memory
+     &      call errquit('occ input: ma_pop_stack failed k_occ',
      &                    0,MA_ERR)
-c ----- Store focc in rtdb ----- END    
+c
 50    continue
       end
