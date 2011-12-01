@@ -75,8 +75,8 @@ c
        call psp_efg_atoms(ispin,ne,psi,dbl_mb(efg_paw(1)))  ! paw part
 
        call daxpy(9*nion,1.d0,dbl_mb(efg_ion(1)),1,dbl_mb(efg(1)),1)
-       call daxpy(9*nion,1.d0,dbl_mb(efg_smoothr(1)),1,dbl_mb(efg(1)),1)
-       call daxpy(9*nion,1.d0,dbl_mb(efg_paw(1)),1,dbl_mb(efg(1)),1)
+!       call daxpy(9*nion,1.d0,dbl_mb(efg_smoothr(1)),1,dbl_mb(efg(1)),1)
+!       call daxpy(9*nion,1.d0,dbl_mb(efg_paw(1)),1,dbl_mb(efg(1)),1)
 
        if (taskid.eq.MASTER) then
          call pspw_final_Efield_grad(luout,
@@ -118,8 +118,9 @@ c
       real*8 efg_ion(3,3,*)
       real*8 efg_smooth(3,3,*)
       real*8 efg_paw(3,3,*)
-      real*8 eta,eig(3),vec(3,3),tmp1(3),tmp2(3)
-      real*8 eigvec(3,3),cq
+      real*8 eta,eigval(3),vec(3,3),tmp1(3),tmp2(3)
+      real*8 eigvec(3,3),cq,eval(3),evec(3,3)
+      integer ind(3)
 
 *     **** local variables ****
       integer ii,i,j,k
@@ -144,15 +145,27 @@ c
       write(unit,1194)
       do ii = 1,nion
         do i=1,3
+         ind(i) = 0
          do j=1,3
             vec(i,j) = efg(i,j,ii)
          end do
         end do
-        call util_diag_jacobi(unit,3,3,vec,eig,eigvec,tmp1,tmp2) ! diagonalize matrix
-        if (abs(eig(3)) > 1.d-5) eta = (eig(1)-eig(2)) / eig(3) ! asymmetry parameter
-        cq = eig(3)  ! quadupolar coupling constant
+        call util_diag_jacobi(unit,3,3,vec,eval,evec,tmp1,tmp2) ! diagonalize matrix
+        do i = 1,3
+           eigval(i) = eval(i)
+        end do
+        call util_sorteps(3, dabs(eval), ind, 1.d-4)
+        do i=1,3
+        !  write(unit,*) i,eigval(ind(i)),ind(i)
+           eigval(i) = eigval(ind(i))
+        end do
+        write(unit,*)
+
+        eta = (eigval(1)-eigval(2))/eigval(3) ! asymmetry parameter
+        if (abs(eigval(3)) <= 1.d-4) eta = 0.d0
+        cq = eigval(3)  ! quadupolar coupling constant
         write(unit,1199) ii,ion_aname(ii)
-        write(unit,1195) eig(1),eig(2),eig(3),eta,cq
+        write(unit,1195) eigval(1),eigval(2),eigval(3),eta,cq
         write(unit,1196) ((eigvec(i,j),j=1,3),i=1,3)
         write(unit,*)
       enddo ! ii

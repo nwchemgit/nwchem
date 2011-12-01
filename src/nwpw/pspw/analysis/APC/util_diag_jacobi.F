@@ -2,14 +2,14 @@
 
 *     Matrix diagonalization of a real symmetric matrix using Jacobi rotations
 *
-*     unit: output unit
-*     n:    logical dimension of the matrix to be diagonalized
-*     np:   physical dimension of the matrix storage area
-*     a:    input with the matrix to be diagonalized (real symmetric)
-*     d:    returned with the eigenvalues in ascending order
-*     v:    returned with the eigenvectors of the matrix
-*     b:    temporary work vector
-*     z:    temporary work vector
+*     unit:  output unit
+*     n:     logical dimension of the matrix to be diagonalized
+*     np:    physical dimension of the matrix storage area
+*     a:     input with the matrix to be diagonalized (real symmetric)
+*     d:     returned with the eigenvalues in ascending order
+*     v:     returned with the eigenvectors of the matrix
+*     b:     temporary work vector
+*     z:     temporary work vector
 
       subroutine util_diag_jacobi(unit,n,np,a,d,v,b,z)
 
@@ -114,26 +114,30 @@
    20    format (/,' util_diag_jacobi -- Diagonalization not converged')
       end if
 
-*     **** sort eigenvalues and eigenvectors
-      do i = 1, n-1
-         k = i
-         p = d(i)
-         do j = i+1, n
-            if (d(j) .lt. p) then
-               k = j
-               p = d(j)
-            end if
-         end do
-         if (k .ne. i) then
-            d(k) = d(i)
-            d(i) = p
-            do j = 1, n
-               p = v(j,i)
-               v(j,i) = v(j,k)
-               v(j,k) = p
-            end do
-         end if
-      end do
-
       return
+
+*     **** sort eigenvalues and eigenvectors in ascending order ****
+c      if (lsort) then
+c       do i = 1, n-1
+c         k = i
+c         p = d(i)
+c         do j = i+1, n
+c            if (d(j) .lt. p) then
+c               k = j
+c               p = d(j)
+c            end if
+c         end do
+c         if (k .ne. i) then
+c            d(k) = d(i)
+c            d(i) = p
+c            do j = 1, n
+c               p = v(j,i)
+c               v(j,i) = v(j,k)
+c               v(j,k) = p
+c            end do
+c         end if
+c       end do
+c      end if ! lsort
+c      return
+
       end
