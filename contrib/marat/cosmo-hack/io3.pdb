@@ -1,0 +1,21 @@
+HEADER
+TITLE     
+TITLE    2
+TITLE    3
+REMARK   4 XXXX COMPLIES WITH FORMAT V. 2.1, 25-OCT-1996
+CRYST1   20.000   20.000   20.000  90.00  90.00  90.00
+ATOM      1  I1  IO3     1       0.033   0.004  -0.218        1.33     I
+ATOM      2  O1  IO3     1       1.102   1.178   0.677       -0.78     O
+ATOM      3  O2  IO3     1       0.361  -1.636   0.507       -0.78     O
+ATOM      4  O3  IO3     1      -1.680   0.428   0.237       -0.78     O
+TER
+ATOM      8  OW  HOH     5      -0.826  -3.497   4.337        0.00     O
+ATOM      9 2HW  HOH     5      -0.409  -2.627   4.237        0.00     H
+ATOM     10 3HW  HOH     5      -0.973  -3.790   3.419        0.00     H
+ATOM     11  OW  HOH     6      -0.996  -4.225   1.515        0.00     O
+ATOM     12 2HW  HOH     6      -0.230  -4.684   1.133        0.00     H
+ATOM     13 3HW  HOH     6      -1.716  -4.342   0.881        0.00     H
+ATOM     14  OW  HOH     7      -1.078   3.930   2.123        0.00     O
+ATOM     15 2HW  HOH     7      -1.677   3.747   1.369        0.00     H
+ATOM     17 3HW  HOH     7      -1.316   3.239   2.782        0.00     H
+
