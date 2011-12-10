@@ -18,6 +18,7 @@
 #include "case.fh"
 #include "zora.fh"
 #include "crohf.fh"
+#include "frozemb.fh"
 c     
 c     Build fock matrices and energies for ROHF wavefunction
 c     
@@ -61,7 +62,6 @@ c
 c
       integer itype_wfn
 c
-c     
 c     Initialise
 c     
       if (.not. bas_numbf(basis, nbf))
@@ -79,6 +79,7 @@ c
       g_cdens = ga_create_atom_blocked(geom, basis, 'rohf: cdens')
       g_cfock = ga_create_atom_blocked(geom, basis, 'rohf: cfock')
       g_hcore = ga_create_atom_blocked(geom, basis, 'rohf: hcore')
+c
       if (nopen .gt. 0) then
          g_odens = ga_create_atom_blocked(geom, basis, 'rohf: odens')
          g_ocoul = ga_create_atom_blocked(geom, basis, 'rohf: oexch')
@@ -155,6 +156,11 @@ c
         call int_1e_ga(basis,basis,g_hcore,'cos_chg_pot',.false.)
       endif
       call ga_sync()
+c
+c     add in frozen embedding
+      if (frozemb) then
+        call ga_dadd(1.d0,g_hcore,1.d0,g_frozemb,g_hcore)
+      end if
 c
       eone_closed = ga_ddot(g_hcore, g_cdens)
       eone_open = 0.0d0

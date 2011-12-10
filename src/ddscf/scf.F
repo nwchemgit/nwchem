@@ -13,6 +13,7 @@ C$Id$
 #include "util.fh"
 #include "cscf.fh"
 #include "case.fh"
+#include "frozemb.fh"
 c
 c     ROHF module.
 c
@@ -36,6 +37,9 @@ c
       logical cphf_poliz, do_poliz
       external cphf_poliz
       integer necp,itype
+c
+      integer ga_create_atom_blocked
+      external ga_create_atom_blocked
 c
 c     Make sure database is parallel, 
 c     and initialize performance statistics
@@ -287,6 +291,16 @@ c
       if (ga_nodeid().eq.0 .and. oprint) write(6,712) util_wallsec()
  712  format(/' Starting SCF solution at ',f9.1,'s'/)
 c
+c     frozen embedding 
+      frozemb = .false.
+      if (.not.rtdb_get(rtdb, 'scf:frozemb', mt_log, 1, frozemb))
+     &   frozemb=.false.
+      if (frozemb) then
+       g_frozemb = ga_create_atom_blocked(geom, basis, 'rohf: frozemb')
+       call ga_zero(g_frozemb)
+       call scf_frozemb(rtdb, geom, basis, nbf, g_frozemb)
+      end if   ! frozemb
+c
       if (scftype .eq. 'UHF') then
          converged = uhf(rtdb, energy)
       else
@@ -362,6 +376,8 @@ c
       call int_1e_uncache_ga()
       call schwarz_tidy()
       call int_terminate
+      if (.not. ga_destroy(g_frozemb)) call errquit
+     $     ('rohf_fock: ga_destroy failed',0, GA_ERR)
 c
 c     SCF is done ... tidy up memory etc.
 c

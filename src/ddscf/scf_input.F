@@ -16,6 +16,7 @@ c
       integer maxiter, poff, nopen, task_chunks, task_bf, maxsub
       integer memsize, filesize
       integer nriscf, ri_store
+      logical frozemb
 c     
 c     Any SCF input results in it being marked non-converged
 c     
@@ -23,6 +24,7 @@ c
 c     
       multiplicity = ' '         ! If changed it needs storing at end
       nopen = -1                ! If changed it needs storing at end
+      frozemb = .false.
 c
 c     While loop
 c     
@@ -161,6 +163,12 @@ c
       else if (inp_compare(.false.,'octet', test)) then
          nopen = 7
          multiplicity = test
+c
+      else if (inp_compare(.false.,'frozemb', test)) then
+        frozemb = .true.
+        if (.not. rtdb_put(rtdb,'scf:frozemb', MT_LOG, 1, frozemb))
+     $     call errquit('scf_input: failed to store frozemb',0,
+     &     RTDB_ERR)
 c     
       else if (inp_compare(.false.,'chunk', test)) then
 c     
