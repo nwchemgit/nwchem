@@ -631,6 +631,7 @@ c
 #include "bgj.fh"
 #include "case.fh"
 #include "zora.fh"
+#include "frozemb.fh"
 c     
 c     $Id$
 c
@@ -870,6 +871,12 @@ c
         call ga_dadd(1.d0,g_hcore,1.d0,g_zora_Kinetic(1),g_hcore) ! zora kinetic
       endif
       call int_1e_ga(basis, basis, g_hcore, 'potential', oskel) ! potential
+c
+c     add in frozen embedding
+      if (frozemb) then
+        call ga_dadd(1.d0,g_hcore,1.d0,g_frozemb,g_hcore)
+      end if
+c
       eone = 
      $     (ga_ddot(g_a_dens,g_hcore) + ga_ddot(g_b_dens,g_hcore))
       call ga_dadd(one, g_hcore, one, g_a_coul, g_a_coul)

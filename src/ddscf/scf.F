@@ -376,8 +376,12 @@ c
       call int_1e_uncache_ga()
       call schwarz_tidy()
       call int_terminate
-      if (.not. ga_destroy(g_frozemb)) call errquit
+c 
+c     clean up frozen embedding
+      if (frozemb) then
+        if (.not. ga_destroy(g_frozemb)) call errquit
      $     ('rohf_fock: ga_destroy failed',0, GA_ERR)
+      end if
 c
 c     SCF is done ... tidy up memory etc.
 c
