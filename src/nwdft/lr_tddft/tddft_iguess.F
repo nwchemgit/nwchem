@@ -1,7 +1,7 @@
       subroutine tddft_iguess(rtdb,geom,nbf_ao,ipol,
      1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_buffer1,g_buffer2,
      2  d_trials,g_movecs,evl,ntrials,nproducts,algorithm,targetsym,
-     3  symmetry,l_irs,k_irs,tda,lecut,ecut)
+     3  symmetry,l_irs,k_irs,tda,lecut,ecut,lowin,owstart,owend)
 c
 c $Id$
 c
@@ -82,6 +82,8 @@ c
       integer necut
       double precision ecut,evl_diff
       logical lecut,evl_lower 
+      logical lowin, in_win
+      integer owstart(2), owend(2), nowin
       double precision au2ev   ! Conversion factor from a.u. to eV
       parameter (au2ev=27.2113961d0)
 c
@@ -238,6 +240,7 @@ c ----------------------------------
 c
       l=0
       necut = 0
+      nowin = 0
       do i=1,ipol
         do j=nfc(i)+1,nocc(i)
           do k=nocc(i)+1,nmo(i)-nfv(i)
@@ -248,10 +251,16 @@ c
                   l=necut
                   dbl_mb(k_ediff+l-1)=evl_diff
                end if
+            else if (lowin) then
+              if ((j.ge.owstart(i)).and.(j.le.owend(i))) then
+                nowin = nowin+1
+                l = nowin
+                dbl_mb(k_ediff+l-1)=evl_diff
+              endif
             else
                l=l+1
                dbl_mb(k_ediff+l-1)=evl_diff
-            endif  ! lecut
+            endif  ! lecut and lowin
           enddo
         enddo
       enddo
@@ -281,11 +290,15 @@ c
       if (lecut.and.nroots.gt.necut) then
          nroots = necut
       end if
+      if (lowin.and.(nroots.gt.nowin)) then
+        nroots = nowin
+      endif
       n=min(nroots+buf,nov(1)+nov(2))
       do m=1,n
         swap=huge
         l=0
         necut=0
+        nowin=0
         found=.false.
         do i=1,ipol
          do j=nfc(i)+1,nocc(i)
@@ -300,11 +313,19 @@ c
                  necut=necut+1
                  l=necut
                endif
+             else if (lowin) then
+               in_win = .false.
+               if ((j.ge.owstart(i)).and.(j.le.owend(i))) then
+                 in_win = .true.
+                 nowin=nowin+1
+                 l=nowin
+               endif
              else
                l=l+1
              endif
 c
-             if (.not.lecut .or. evl_lower) then
+             if (((.not.lecut).and.(.not.lowin))
+     1         .or.evl_lower.or.in_win) then
                if (((.not.symmetry).or.(targetsym.eq.oname))
      1             .and.(dbl_mb(k_ediff+l-1).lt.swap)) then
                    int_mb(k_sorto+m-1)=j
@@ -360,6 +381,8 @@ c --------------------------------------------------------
 c
       if (lecut.and.nroots.gt.necut) then
            nroots = necut
+      else if (lowin.and.(nroots.gt.nowin)) then
+           nroots = nowin
       else if (nroots.gt.nov(1)+nov(2)) then
         if (nodezero.and.util_print('initial guess',print_default))
      1    write(LuOut,9040) nroots,nov(1)+nov(2)

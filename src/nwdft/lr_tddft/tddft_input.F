@@ -12,6 +12,8 @@ c                 [virtual <integer nfzv default 0>]]
 c        [(CIS||RPA) default RPA]
 c        [NROOTS <integer nroots default 1>]
 c        [ECUT   <not default: double ecut default -ihuge>]
+c        [AWIN <integer astart> <integer aend>]
+c        [BWIN <integer bstart> <integer bend>]
 c        [MAXVECS <integer maxvecs default 1000>]
 c        [(SINGLET||NOSINGLET) default SINGLET]
 c        [(TRIPLET||NOTRIPLET) default TRIPLET]
@@ -47,6 +49,9 @@ C     character*80 vector
       double precision thresh
       double precision ecut
       logical lecut
+      logical lowin
+      integer owstart(2)
+      integer owend(2)
       double precision diff_max
 c
 c ------------------
@@ -77,6 +82,20 @@ c
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
       if (.not.rtdb_put(rtdb,'tddft:lecut',mt_log,1,lecut))
      1  call errquit('tddft_input: failed writing to rtdb',0, RTDB_ERR)
+c
+c     OWIN
+c
+      lowin = .false.
+      owstart(1) = 0
+      owstart(2) = 0
+      owend(1) = -1 ! -1 is flag for it not being set
+      owend(2) = -1 ! -1 is flag for it not being set
+      if (.not.rtdb_put(rtdb,'tddft:lowin',mt_log,1,lowin))
+     1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'tddft:owstart',mt_int,2,owstart))
+     1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'tddft:owend',mt_int,2,owstart))
+     1  call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
 c
 c     DIFF_MAX (largest eigenvalue difference) : For solver
 c
@@ -210,6 +229,11 @@ c     ECUT (energy cutoff for occupied states)
 c
       else if (inp_compare(.false.,test,'ecut')) then
         lecut = .true.
+        if (lowin) then
+          write(LuOut,*) 'tddft_input: cannot use energy cutoff and ',
+     &      'orbital window simultaneously.'
+          call errquit('tddft_input: orbital window error',0,INPUT_ERR)
+        endif
         if (.not.inp_f(ecut)) then
           write(LuOut,*) 'tddft_input: ecut value not found; ',
      1      'default value of 0.d0 will be used'
@@ -233,6 +257,62 @@ c
         if (.not.rtdb_put(rtdb,'tddft:diff_max',mt_dbl,1,diff_max))
      &    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
+c
+c     AWIN
+c
+      else if (inp_compare(.false.,test,'awin')) then
+        lowin = .true.
+        if (lecut) then
+          write(LuOut,*) 'tddft_input: cannot use energy cutoff and ',
+     &      'orbital window simultaneously.'
+          call errquit('tddft_input: orbital window error',0,INPUT_ERR)
+        endif
+        if (.not.rtdb_get(rtdb,'tddft:owstart',mt_int,2,owstart))
+     &    call errquit('tddft_input: failed reading rtdb',0,RTDB_ERR)
+        if (.not.rtdb_get(rtdb,'tddft:owend',mt_int,2,owend))
+     &    call errquit('tddft_input: failed reading rtdb',0,RTDB_ERR)
+        if (.not.inp_i(owstart(1))) then
+          write(LuOut,*) 'failed to find astart'
+          owstart(1) = 0
+        endif
+        if (.not.inp_i(owend(1))) then
+          write(LuOut,*) 'failed to find aend'
+          owend(1) = -1
+        endif
+        if (.not.rtdb_put(rtdb,'tddft:lowin',mt_log,1,lowin))
+     &    call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'tddft:owstart',mt_int,2,owstart))
+     &    call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'tddft:owend',mt_int,2,owend))
+     &    call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+c
+c     BWIN
+c
+      else if (inp_compare(.false.,test,'bwin')) then
+        lowin = .true.
+        if (lecut) then
+          write(LuOut,*) 'tddft_input: cannot use energy cutoff and ',
+     &      'orbital window simultaneously.'
+          call errquit('tddft_input: orbital window error',0,INPUT_ERR)
+        endif
+        if (.not.rtdb_get(rtdb,'tddft:owstart',mt_int,2,owstart))
+     &    call errquit('tddft_input: failed reading rtdb',0,RTDB_ERR)
+        if (.not.rtdb_get(rtdb,'tddft:owend',mt_int,2,owend))
+     &    call errquit('tddft_input: failed reading rtdb',0,RTDB_ERR)
+        if (.not.inp_i(owstart(2))) then
+          write(LuOut,*) 'failed to find astart'
+          owstart(2) = 0
+        endif
+        if (.not.inp_i(owend(2))) then
+          write(LuOut,*) 'failed to find aend'
+          owend(2) = -1
+        endif
+        if (.not.rtdb_put(rtdb,'tddft:lowin',mt_log,1,lowin))
+     &    call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'tddft:owstart',mt_int,2,owstart))
+     &    call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'tddft:owend',mt_int,2,owend))
+     &    call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
 c
 c     MAXVECS (the maximum number of trial vectors)
 c

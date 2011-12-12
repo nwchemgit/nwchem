@@ -178,6 +178,9 @@ c
       logical lecut
       double precision ecut
       double precision diff_max
+      logical lowin
+      integer owstart(2)
+      integer owend(2)
 c
       integer ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -240,6 +243,16 @@ c --------------------------------------------
       if (.not.rtdb_get(rtdb,'tddft:diff_max',mt_dbl,1,diff_max))
      &   diff_max = 100000.d0
 c
+c ------------------------------------------------
+c Get window of occupied orbitals and set defaults
+c ------------------------------------------------
+      if (.not.rtdb_get(rtdb,'tddft:lowin',mt_log,1,lowin))
+     &  lowin = .false.
+      if (.not.rtdb_get(rtdb,'tddft:owstart',mt_int,2,owstart))
+     &  lowin = .false.
+      if (.not.rtdb_get(rtdb,'tddft:owend',mt_int,2,owend))
+     &  lowin = .false.
+c
 c -------------------------
 c Top of Davidson iteration
 c -------------------------
@@ -252,6 +265,7 @@ c
         if (ipol.eq.1) then
           if (singlet) write(LuOut,9010)
           if (triplet) write(LuOut,9020)
+          if (lowin) write(LuOut,9040) owstart(1), owend(1)
         else
           write(LuOut,9030)
         endif
@@ -262,6 +276,7 @@ c
  9010 format(2x,'Restricted singlet excited states')
  9020 format(2x,'Restricted triplet excited states')
  9030 format(2x,'Unrestricted')
+ 9040 format(2x,'Orbital Window',2x,i4,2x,i4)
  9100 format(/,
      1  '  Iter ','  NTrls ','  NConv ',
      2  '   DeltaV  ','   DeltaE  ','    Time   ',/,
@@ -430,10 +445,12 @@ c
           do n=nproducts+1,ntrials
             if (algorithm.eq.1) then
               call tddft_epsilon(n,g_trials,g_prod_p,
-     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
+     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
+     2          lowin,owstart,owend)
               if (.not.tda) then
                 call tddft_epsilon(n,g_trials,g_prod_m,
-     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
+     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
+     2            lowin, owstart,owend)
               endif
             else
               do i=1,ipol
@@ -447,7 +464,8 @@ c
                 dummy=dra_wait(request)
               enddo
               call tddft_epsilon(1,g_buffer1,g_buffer2,
-     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
+     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
+     2          lowin,owstart,owend)
               do i=1,ipol
                 dummy=dra_write_section(.false.,
      1            g_buffer2(i),1,nov(i),1,1,
@@ -466,7 +484,8 @@ c
                   dummy=dra_wait(request)
                 enddo
                 call tddft_epsilon(1,g_buffer1,g_buffer2,
-     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
+     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
+     2            lowin,owstart,owend)
                 do i=1,ipol
                   dummy=dra_write_section(.false.,
      1              g_buffer2(i),1,nov(i),1,1,
@@ -609,10 +628,12 @@ c --------------------------------------
 c
             if (algorithm.eq.2) then
               call tddft_epsilon(n,g_trials,g_prod_p,
-     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
+     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
+     2          lowin,owstart,owend)
               if (.not.tda) then
                 call tddft_epsilon(n,g_trials,g_prod_m,
-     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
+     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
+     2            lowin,owstart,owend)
               endif
             else
               do i=1,ipol
@@ -626,7 +647,8 @@ c
                 dummy=dra_wait(request)
               enddo
               call tddft_epsilon(1,g_buffer1,g_buffer2,
-     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
+     1          ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
+     2          lowin,owstart,owend)
               do i=1,ipol
                 dummy=dra_write_section(.false.,
      1            g_buffer2(i),1,nov(i),1,1,
@@ -645,7 +667,8 @@ c
                   dummy=dra_wait(request)
                 enddo
                 call tddft_epsilon(1,g_buffer1,g_buffer2,
-     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
+     1            ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
+     2            lowin,owstart,owend)
                 do i=1,ipol
                   dummy=dra_write_section(.false.,
      1              g_buffer2(i),1,nov(i),1,1,
@@ -743,7 +766,7 @@ c
      4    dbl_mb(k_residual_2),g_residuals_1,g_residuals_2,thresh,
      5    dbl_mb(k_valsav),maxresidual,maxomega,converged,maxvecs,
      6    evl,nconverged,nnewtrials,nresiduals,algorithm,lecut,ecut,
-     7    diff_max)
+     7    diff_max,lowin,owstart,owend)
         nproducts = ntrials ! ntrials may have changed do due restart
         ccpu=ccpu+util_cpusec()
         cwall=cwall+util_wallsec()

@@ -4,7 +4,7 @@
      3  ambvec,residual_1,residual_2,g_residuals_1,g_residuals_2,
      4  thresh,valsav,maxresidual,maxomega,converged,maxvecs,evl,
      5  nconverged,nnewtrials,nresiduals,algorithm,lecut,ecut,
-     6  diff_max)
+     6  diff_max,lowin,owstart,owend)
 c
 c $Id$
 c
@@ -86,6 +86,9 @@ c
       integer dummy,request
       double precision ecut,evl_diff
       logical lecut
+      logical lowin
+      integer owstart(2)
+      integer owend(2)
       double precision diff_max
 c
       iproc=ga_nodeid()
@@ -869,6 +872,11 @@ c
                  if (evl(j,i).le.ecut) then
                     evl_diff = evl(k,i)-evl(j,i)
                  end if
+              else if (lowin) then
+                evl_diff = diff_max
+                if ((j.ge.owstart(i)).and.(j.le.owend(i))) then
+                  evl_diff = evl(k,i)-evl(j,i)
+                endif
               else
                 evl_diff = evl(k,i)-evl(j,i)
               endif
@@ -965,10 +973,16 @@ c
                   if (evl(j,i).le.ecut) then
                     evl_diff = evl(k,i)-evl(j,i)
                   end if
+                else if (lowin) then
+                  evl_diff = diff_max
+                  if((j.ge.owstart(i)).and.(j.le.owend(i))) then
+                    evl_diff = evl(k,i)-evl(j,i)
+                  endif
                 else
                   evl_diff = evl(k,i)-evl(j,i)
                 endif
-                r=r/(evl(k,i)-evl(j,i)-apbval(n))
+c                r=r/(evl(k,i)-evl(j,i)-apbval(n))
+                r=r/(evl_diff-apbval(n)) 
                 call ga_put(g_residuals_2(i),l,l,n,n,r,1)
               enddo
             enddo

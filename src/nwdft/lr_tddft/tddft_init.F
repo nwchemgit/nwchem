@@ -4,7 +4,8 @@
      3  lhf,ldft,lhybrid,lhasdft,lhashf,
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
-     6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult,lecut,ecut,diff_max)
+     6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult,lecut,ecut,diff_max,
+     7  lowin,owstart,owend)
 c
 c $Id$
 c
@@ -93,6 +94,9 @@ c
       logical lecut
       double precision ecut
       double precision diff_max
+      logical lowin
+      integer owstart(2)
+      integer owend(2)
 c
       logical int_normalize
       external int_normalize
@@ -268,6 +272,26 @@ c --------------------------------------------
       end if
       if (.not.rtdb_get(rtdb,'tddft:diff_max',mt_dbl,1,diff_max))
      &   diff_max = 100000.d0
+c
+c ------------------------------------------------
+c Get window of occupied orbitals and set defaults
+c ------------------------------------------------
+      if (.not.rtdb_get(rtdb,'tddft:lowin',mt_log,1,lowin))
+     &  lowin = .false.
+      if (.not.rtdb_get(rtdb,'tddft:owstart',mt_int,2,owstart)) then
+        owstart(1) = 0
+        owstart(2) = 0
+      endif
+      if (.not.rtdb_get(rtdb,'tddft:owend',mt_int,2,owend)) then
+        owend(1) = nocc(1)
+        owend(2) = nocc(2)
+      endif
+      if (owend(1).eq.-1)
+     &  owend(1) = nocc(1)
+      if (owend(2).eq.-1)
+     &  owend(2) = nocc(2)
+      if (.not.rtdb_put(rtdb,'tddft:owend',mt_int,2,owend))
+     &  call errquit('tddft_init: failed to write owend',0,RTDB_ERR)
 c
 c ----------------------
 c 2-e integral tolerance
@@ -520,6 +544,10 @@ c -------------
         write(LuOut,9130) maxiter
         write(LuOut,9120) target
         write(LuOut,9150) targetsym
+        if (lowin) then
+          write (LuOut, 9180) owstart(1), owend(1)
+          write (LuOut, 9190) owstart(2), owend(2)
+        endif
         if (symmetry) then
           write(LuOut,9160) 'on '
         else
@@ -570,6 +598,8 @@ c -------------
  9160 format(3x,'   Symmetry restriction :',1x,a3)
  9130 format(3x,'         Max iterations :',2x,i4)
  9140 format(3x,'              Algorithm : ',a)
+ 9180 format(3x,'           Alpha Window :',2x,i4,2x,i4)
+ 9190 format(3x,'            Beta Window :',2x,i4,2x,i4)
  9300 format(3x,a40)
  9310 format(3x,a40,1x,f6.2,1x,a9)
  9320 format(3x,a44,1x,f10.6,1x,a2)

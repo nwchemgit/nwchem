@@ -1,5 +1,6 @@
       subroutine tddft_epsilon(ivector,g_trials,g_prod_s,
-     1  ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max)
+     1  ipol,nbf_ao,nocc,nmo,nfc,nfv,evl,lecut,ecut,diff_max,
+     2  lowin, owstart, owend)
 c
 c $Id$
 c
@@ -36,6 +37,9 @@ c
       double precision evl(nbf_ao,2)   ! Eigenvalues
       logical lecut
       double precision ecut
+      logical lowin
+      integer owstart(2)
+      integer owend(2)
       double precision diff_max
 c
       integer i,j,k,l
@@ -63,8 +67,13 @@ c
              if (evl(j,i).le.ecut) then
                 evl_diff = evl(k,i)-evl(j,i)
              end if
+          else if (lowin) then
+            evl_diff = diff_max
+            if (j.ge.owstart(i) .and. j.le.owend(i)) then
+              evl_diff = evl(k,i)-evl(j,i)
+            end if
           else
-             evl_diff = evl(k,i)-evl(j,i)
+            evl_diff = evl(k,i)-evl(j,i)
           endif
           p=p+(evl_diff)*t
           call ga_put(g_prod_s(i),l,l,ivector,ivector,p,1)
