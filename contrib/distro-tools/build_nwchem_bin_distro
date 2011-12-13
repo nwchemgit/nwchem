@@ -45,6 +45,15 @@ cp -a ${source}/src/data/* ${target}/usr.local.lib.nwchem/.
 cp -a ${source}/src/basis/libraries ${target}/usr.local.lib.nwchem/.
 cp -a ${source}/src/nwpw/libraryps ${target}/usr.local.lib.nwchem/.
 cp -a ${source}/QA ${target}/.
+rm -f ${target}/usr.local.lib.nwchem/libraryps/nwpw_set_library.F
+rm -f ${target}/usr.local.lib.nwchem/libraryps/nwpw_library.F
+rm -f ${target}/usr.local.lib.nwchem/libraryps/nwpw_libfile.F
+rm -f ${target}/usr.local.lib.nwchem/libraryps/nwpw_inp.fh
+rm -f ${target}/usr.local.lib.nwchem/libraryps/include_stamp
+rm -f ${target}/usr.local.lib.nwchem/libraryps/dependencies
+rm -f ${target}/usr.local.lib.nwchem/libraryps/MakeFile
+rm -f ${target}/usr.local.lib.nwchem/libraryps/GNUmakefile
+
 if [ -d ${target}/QA/testoutputs ] ; then
    echo "Found validation results in " $target "Deleting it now..."
    rm -rf ${target}/QA/testoutputs
