@@ -4,6 +4,8 @@
        character*255 solutefile
        character*255 cosmofile
        character*255 outfile
+       character*255 infile
+       character*255 buffer
        character*16  tar
        character*4 a4
        character*255 buf
@@ -16,32 +18,103 @@
        character*5, dimension(:), allocatable :: atag
        double precision, dimension(:,:), allocatable :: c
        double precision, dimension(:), allocatable :: q
-       integer id(100),nid
+       integer id(100),nid,ida(2)
        double precision angle,pi,x(3),v(3),v1(3)
+       integer istatus,k,l
 c
        external util_get_io_unit
        logical util_get_io_unit
+       external is_integer
+       logical is_integer
+       logical is_number
+       external is_number
+c      --------------------------------------------      
+c      beging parsing command line arguments if any
+c      --------------------------------------------      
+       infile = " "
+       outfile = " "
+       nid = 0
+       i = 0
+16     continue
+       i = i+1
+       call my_get_command_argument(i,buffer,l,istatus)
+       write(*,*) "buffer=",buffer
+       if(istatus.ne.0) goto 18
+       if(buffer.eq."-atoms") then
+          do 
+            i = i+1
+            call my_get_command_argument(i,buffer,l,istatus)
+            if(istatus.ne.0) goto 18
+            if(is_integer(buffer)) then
+              nid = nid+1
+              read(buffer,*) id(nid)
+            else
+              i = i-1 
+              exit
+            end if
+          end do
+          go to 16
+       else if(buffer.eq."-angle") then
+          i = i+1
+          call my_get_command_argument(i,buffer,l,istatus)
+          if(is_number(buffer)) then
+            read(buffer,*) angle
+            goto 16
+          else
+            goto 911
+          end if
+       else if(buffer.eq."-axis") then
+          do k=1,2
+            i = i+1
+            call my_get_command_argument(i,buffer,l,istatus)
+            if(istatus.ne.0) goto 18
+            if(is_integer(buffer)) then
+              read(buffer,*) ida(k)
+            else
+              goto 911
+            end if
+           end do
+          go to 16
+       else 
+          if(infile.eq." ") then
+              infile = buffer
+              goto 16
+          else if (outfile.eq." ") then
+              outfile = buffer
+              goto 18
+          end if
+       end if 
+c       ---------------------------      
+c      end of command line parsing
+c      ---------------------------      
+18     continue
+       write(*,*) "id ",(id(k),k=1,nid)
+       write(*,*) "ida ",(ida(k),k=1,2)
+       write(*,*) "angle",angle
+       write(*,*) "infile",infile
+       write(*,*) "outfile",outfile
+c      
 c      ---------------------
 c      read input parameters
 c      ---------------------
        pi = 4.0*atan(1.0)
-       inquire(file="rotate.dat",exist=ofile)
-       if(ofile) then
-          open(10,file="rotate.dat",
-     $            form='formatted',status='unknown')
-          read(10,*,ERR=911) solutefile
-          read(10,*,ERR=911) outfile
-          read(10,*,ERR=911) angle
-          do i=1,1000
-            read(10,*,ERR=911,END=30) id(i)
-            nid = i
-          end do
-          close(10)
-       else
-          goto 911
-       end if 
+c       inquire(file="rotate.dat",exist=ofile)
+c       if(ofile) then
+c          open(10,file="rotate.dat",
+c     $            form='formatted',status='unknown')
+c          read(10,*,ERR=911) infile
+c          read(10,*,ERR=911) outfile
+c          read(10,*,ERR=911) angle
+c          do i=1,1000
+c            read(10,*,ERR=911,END=30) id(i)
+c            nid = i
+c          end do
+c          close(10)
+c       else
+c          goto 911
+c       end if 
 30     continue
-       write(*,*) solutefile
+       write(*,*) infile
        write(*,*) outfile
        write(*,*) "index ",(id(i),i=1,nid)
 c      -------------
@@ -51,8 +124,8 @@ c      -------------
            message = "no free file units"
            goto 911
        else
-           message = "opening "//trim(solutefile)
-           open(fns,file=trim(solutefile),
+           message = "opening "//trim(infile)
+           open(fns,file=trim(infile),
      $                form='formatted',status='old',err=911)
        end if 
        if(.not.util_get_io_unit(fno)) then
@@ -73,9 +146,9 @@ c      -------------------
        rewind(fns)
        call xyz_read(nat,c,atag,fns)
        write(*,*) "nat",nat
-       do i=1,nid-2
-         v  = c(:,id(nid-1)) 
-         v1 = c(:,id(nid))-v
+       do i=1,nid
+         v  = c(:,ida(1)) 
+         v1 = c(:,ida(2))-v
          x = c(:,id(i))
          write(*,*) "rotating by",angle
          angle = angle*pi/180.0
@@ -414,3 +487,35 @@ c      -----------------
          y = y1
          z = z1
        end subroutine
+
+      subroutine my_get_command_argument(i,buffer,l,istatus)
+      implicit none
+      integer i
+      integer l
+      character*(*) buffer
+      integer istatus
+c
+      istatus = 0
+      l = 0
+      call getarg(i,buffer)
+      if(buffer.eq." ") istatus = 1
+c      call get_command_argument(i,buffer,l,istatus)
+      end subroutine
+
+      function is_number(string)
+      implicit none
+      character*(*) string
+      logical is_number
+c
+      character(len=11) :: anumber = "0123456789."
+      integer i,l
+      is_number = .false.
+      if(string.eq." ") return
+      l = len_trim(string)
+      do i=1,l
+       if(string(i:i).ne." ") exit
+      end do
+      is_number = verify(string(i:l), anumber).eq.0
+      end function
+
+
