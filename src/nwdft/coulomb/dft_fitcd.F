@@ -67,8 +67,6 @@ c
       integer nxtask
       integer          itype,nprimo,isphere
       external dabsmax,nxtask
-      double precision   ddot
-      external           ddot
       logical spherical
       integer LU,ierr,ilo,ihi,jlo,jhi,nnii
       integer adrc,ldc,iptr
