@@ -67,6 +67,8 @@ c
       integer nxtask
       integer          itype,nprimo,isphere
       external dabsmax,nxtask
+      double precision   ddot
+      external           ddot
       logical spherical
       integer LU,ierr,ilo,ihi,jlo,jhi,nnii
       integer adrc,ldc,iptr
@@ -98,7 +100,7 @@ c
 c     Initialize the T vector.
 c
       if (have_Tvec) then
-         call dcopy(nbf_cd*nfit, Tvec, 1, dbl_mb(iTvec), 1)
+         call ycopy(nbf_cd*nfit, Tvec, 1, dbl_mb(iTvec), 1)
       else
          call dfill(nbf_cd*nfit, 0.D0, Dbl_MB(iTvec), 1)
       endif
@@ -210,10 +212,10 @@ c
 c             Use dgemv for case of 1 fit (more efficient), else use dgemm
 c
               if (nfit.eq.1) then
-                 call dgemv('T',Nao2,nbf_cd,fac,i3c_ERI(ipoint),Nao2,
+                 call ygemv('T',Nao2,nbf_cd,fac,i3c_ERI(ipoint),Nao2,
      &                Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
               else
-                 call dgemm('T','N',nbf_cd,nfit,Nao2,fac,
+                 call ygemm('T','N',nbf_cd,nfit,Nao2,fac,
      &                i3c_ERI(ipoint),Nao2,dbl_mb(igvec),nbf_cd,
      &                1d0,dbl_mb(iTvec),nbf_cd)
                  call errquit('not impl in dft_fitcd',0, UNKNOWN_ERR)
@@ -357,9 +359,9 @@ c
                    if (sym_shell(cd_bas_han, ishp, q1))then
                       call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
      &                ishd,nscr,Dbl_MB(iscr),Ninteg_api,Dbl_MB(istart))
-                      call dscal(Nintegrals, q1, Dbl_MB(istart), 1)
+                      call yscal(Nintegrals, q1, Dbl_MB(istart), 1)
                    else
-                      call dcopy(nintegrals,0d0,0,Dbl_MB(istart), 1)
+                      call ycopy(nintegrals,0d0,0,Dbl_MB(istart), 1)
                    endif
                 else
                    call int_2e3c(CD_bas_han,ishp,AO_bas_han,ishc,
@@ -373,7 +375,7 @@ c
 c             Multiply the matrix of 3-ctr ERIs by the density matrix elements.
 c               
               if (nfit.eq.1) then
-                 call dgemv('T',Nao2,nbf_cd,fac,Dbl_MB(iERI),Nao2,
+                 call ygemv('T',Nao2,nbf_cd,fac,Dbl_MB(iERI),Nao2,
      &                Dbl_MB(igvec),1,1.d0,Dbl_MB(iTvec),1)
               else
                  call errquit('dft_fitcd: not impl',1, BASIS_ERR)
@@ -502,7 +504,7 @@ c
         if (j.eq.next) then
           next = nxtask(nproc, 1)+1
           call get_col(g_cdinv,nbf_cd,j,Dbl_MB(iscr))
-          AZ = ddot(nbf_cd,DBL_mb(iscr),1,DBL_MB(icgtf),1)
+          AZ = ydot(nbf_cd,DBL_mb(iscr),1,DBL_MB(icgtf),1)
           F(1) = F(1)+AZ*DBL_MB(iTvec+j-1)
           F(2) = F(2)+AZ*DBL_MB(icgtf+j-1)
         endif
@@ -527,7 +529,7 @@ c
           next = nxtask(nproc, 1) + 1
           AZ = DBL_MB(iTvec+j-1) + alpha*DBL_MB(icgtf+j-1)
           call get_col(g_cdinv,nbf_cd,j,Dbl_MB(iscr))
-          call daxpy(nbf_cd,AZ,DBL_MB(iscr),1,CD_Coef,1)
+          call yaxpy(nbf_cd,AZ,DBL_MB(iscr),1,CD_Coef,1)
         endif
       enddo
       next = nxtask(-nproc, 1)
@@ -554,10 +556,10 @@ c
         if (j.eq.next) then
           next = nxtask(nproc, 1)+1
           call get_col(g_cdinv,nbf_cd,j,Dbl_MB(iscr))
-          AZ = ddot(nbf_cd,DBL_mb(iscr),1,DBL_MB(icgtf),1)
+          AZ = ydot(nbf_cd,DBL_mb(iscr),1,DBL_MB(icgtf),1)
           dbl_mb(iTcgtf+j-1) = dbl_mb(iTcgtf+j-1) + AZ
           do ifit = 1, nfit
-             AZ = ddot(nbf_cd,DBL_mb(iscr),1,
+             AZ = ydot(nbf_cd,DBL_mb(iscr),1,
      &            DBL_MB(iTvec+(ifit-1)*nbf_cd),1)
              CD_coef(j,ifit) = CD_coef(j,ifit) + AZ
           enddo
@@ -592,13 +594,13 @@ cedo      call ga_sync
 c
 c     Apply constraint correction to fits
 c
-      F(2) = ddot(nbf_cd,DBL_mb(icgtf),1,DBL_MB(iTcgtf),1)
+      F(2) = ydot(nbf_cd,DBL_mb(icgtf),1,DBL_MB(iTcgtf),1)
 c
       do ifit = 1, nfit
 c
 c        Compute Lagrange multiplier, alpha
 c
-         F(1) = ddot(nbf_cd,DBL_mb(icgtf),1,CD_coef(1,ifit),1)
+         F(1) = ydot(nbf_cd,DBL_mb(icgtf),1,CD_coef(1,ifit),1)
             alpha = (Q - F(1))/F(2)
 c         write(*,*)'F alpha',f(1),f(2),alpha
 c
@@ -656,7 +658,7 @@ c
 c     Compute the integrated electron density from the fit.
 c      
       do ifit = 1, nfit
-         rho_int = ddot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
+         rho_int = ydot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
          if (dabs(rho_int-Q).gt.0.001d0)then
             write(*,*)' rho_int check 1, density',ifit,' = ',rho_int
             call errquit('dft_fitcd: problem w/fitted density',911,
@@ -715,13 +717,13 @@ c
 c     calculation of Ecoul1
 c
       if (.not.derfit) then
-         Ecoul1 = ddot(nbf_cd,DBL_mb(iTvec),1,CD_coef,1)
+         Ecoul1 = ydot(nbf_cd,DBL_mb(iTvec),1,CD_coef,1)
       endif
 c      
 c     Compute the integrated electron density from the fit.
 c      
       do ifit = 1, nfit
-         rho_int = ddot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
+         rho_int = ydot(nbf_cd,CD_coef(1,ifit),1,Dbl_MB(icgtf),1)
          if (dabs(rho_int-Q).gt.0.001d0) then
             write(*,*)' rho_int check 2, density',ifit,' = ',rho_int
             call errquit('dft_fitcd: problem w/fitted density',911,
@@ -798,7 +800,7 @@ c            else
 c               shell_labels(ish) = ang_mom_label(11)
 c            endif
             shell_types(iat,ish) = itype
-            qshell(ish) = ddot(it,cd_coef(ifirst),1,cgtf(ifirst),1)
+            qshell(ish) = ydot(it,cd_coef(ifirst),1,cgtf(ifirst),1)
             qatom(iat) = qatom(iat) + qshell(ish)
          enddo
       enddo

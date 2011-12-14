@@ -57,6 +57,8 @@ c
       integer ndone,ipoint,ipoint2
       integer ilo, ihi, jlo, jhi, adrc, ldc,nnii,iptr,j
       external nxtask
+      double precision   ddot
+      external           ddot
 c
 c !!! BGJ test !!!
 c      write(*,*)'*** dft_fitvc: dermat nmat =',dermat,nmat
