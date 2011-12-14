@@ -186,11 +186,12 @@ function get_mpi_fortran ()
         result=$?
         if [ ${result} -eq 0 ] ; then
           echo ${word}
+          rm -f /tmp/$$.x /tmp/$$.o /tmp/$$.f
           return 0
         fi
       fi
-      rm -f /tmp/$$.x /tmp/$$.f
    done
+   rm -f /tmp/$$.x /tmp/$$.o /tmp/$$.f
    echo "ERROR: could not find a valid Fortran compiler" > /dev/stderr
    exit 1
 }
@@ -236,11 +237,12 @@ function get_mpi_cc ()
         result=$?
         if [ ${result} -eq 0 ] ; then
           echo ${word}
+          rm -f /tmp/$$.x /tmp/$$.o /tmp/$$.c
           return 0
         fi
       fi
-      rm -f /tmp/$$.x /tmp/$$.c
    done
+   rm -f /tmp/$$.x /tmp/$$.o /tmp/$$.c
    echo "ERROR: could not find a valid C compiler" > /dev/stderr
    exit 1
 }
@@ -248,16 +250,16 @@ function get_mpi_cxx ()
 {
    # This shell function extracts the C++ compiler
    # and returns its name as a list for a compile line.
+   # Because there are some case insensitive file systems we
+   # have to try mpic++ and mpicxx first because if they are
+   # not found mpiCC will find the C-compiler wrapper script
+   # on those systems.
    # E.g.: g++
    #
    # Most support -show
    #
-   inlist="`mpiCC -show`"
+   inlist="`mpicxx -show`"
    result=$?
-   if [ ${result} -ne 0 ] ; then
-     inlist="`mpicxx -show`"
-     result=$?
-   fi
    if [ ${result} -ne 0 ] ; then
      inlist="`mpic++ -show`"
      result=$?
@@ -266,10 +268,6 @@ function get_mpi_cxx ()
      #
      # OPENMPI supports -showme
      #
-     inlist="`mpiCC -showme`"
-     result=$?
-   fi
-   if [ ${result} -ne 0 ] ; then
      inlist="`mpicxx -showme`"
      result=$?
    fi
@@ -281,15 +279,32 @@ function get_mpi_cxx ()
      #
      # MPICH2 and MVAPICH2 support -compile-info
      #
-     inlist="`mpiCC -compile-info`"
-     result=$?
-   fi
-   if [ ${result} -ne 0 ] ; then
      inlist="`mpicxx -compile-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
      inlist="`mpic++ -compile-info`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
+     #
+     # Most support -show
+     #
+     inlist="`mpiCC -show`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
+     #
+     # OPENMPI supports -showme
+     #
+     inlist="`mpiCC -showme`"
+     result=$?
+   fi
+   if [ ${result} -ne 0 ] ; then
+     #
+     # MPICH2 and MVAPICH2 support -compile-info
+     #
+     inlist="`mpiCC -compile-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
@@ -310,11 +325,12 @@ function get_mpi_cxx ()
         result=$?
         if [ ${result} -eq 0 ] ; then
           echo ${word}
+          rm -f /tmp/$$.x /tmp/$$.o /tmp/$$.cpp
           return 0
         fi
       fi
-      rm -f /tmp/$$.x /tmp/$$.cpp
    done
+   rm -f /tmp/$$.x /tmp/$$.o /tmp/$$.cpp
    echo "ERROR: could not find a valid C++ compiler" > /dev/stderr
    exit 1
 }
@@ -351,6 +367,11 @@ function get_blas_lib()
    # a Fortran program that calls BLAS routines to compile, link and run.
    # The first library that matches these criteria is returned.
    fcomp=$1
+   local compare="x${fcomp}"
+   if [ ${compare} = "x" ] ; then
+       echo
+       return
+   fi
    list="-lmkl -lacml -lcxml -lscs -lcomplib.sgimath -lsunmath -latlas -lessl -lscalapack -llapack -lcblas -lblas -lf77blas"
    lib=""
    for candidate in ${list} ; do
@@ -436,6 +457,12 @@ function get_blas_integer()
    echo "      end" >> ./testblas$$.f
    ${fcomp} -o ./testblas$$.x ./testblas$$.f ${blaslib}
    result=`./testblas$$.x`
+   status=$?
+   if [ ${status} -ne 0 ] ; then
+     result=8
+   elif [ "${result}" != "4" ] ; then
+     result=8
+   fi
    rm -f ./testblas$$.f
    rm -f ./testblas$$.x
    echo ${result}
@@ -446,6 +473,11 @@ function get_lapack_lib()
    # a Fortran program that calls LAPACK routines to compile, link and run.
    # The first library that matches these criteria is returned.
    fcomp=$1
+   local compare="x${fcomp}"
+   if [ ${compare} = "x" ] ; then
+       echo
+       return
+   fi
    blas=$2
    list="-lmkl -lacml -lcxml -lscs -lcomplib.sgimath -lsunmath -latlas -lessl -lscalapack -llapack -lcblas -lblas -lf77blas"
    lib=""
@@ -545,6 +577,11 @@ function get_scalapack_lib()
    # The first library that matches these criteria is returned.
    fcomp=$1
    lapackblas=$2
+   local compare="x${fcomp}"
+   if [ ${compare} = "x" ] ; then
+       echo
+       return
+   fi
    list="-lmkl -lacml -lcxml -lscs -lcomplib.sgimath -lsunmath -latlas -lessl -lscalapack -llapack -lcblas -lblas -lf77blas"
    lib=""
    for candidate in ${list} ; do
@@ -577,6 +614,7 @@ function get_scalapack_lib()
          fi
          rm -f ./testscalapack$$.x
        fi
+       rm -f ./testscalapack$$.o
        rm -f ./testscalapack$$.f
      fi
    done
@@ -644,8 +682,38 @@ function get_scalapack_integer()
      out=4
    fi
    rm -f ./testscalapack$$.x
+   rm -f ./testscalapack$$.o
    rm -f ./testscalapack$$.f
    echo ${out}
+}
+function get_pointer_size ()
+{
+   # This shell function works out whether pointers
+   # are 8- or 4-bytes on this platform. This function
+   # expects to be given the compiler to use as an input.
+   ccomp=$1
+   output=""
+   echo "#include <stdio.h>">/tmp/$$.c
+   echo "int main(void){">>/tmp/$$.c
+   echo "    int* ptr;">>/tmp/$$.c
+   echo "    int size = sizeof(ptr);">>/tmp/$$.c
+   echo "    printf(\"%d\n\",size);">>/tmp/$$.c
+   echo "    return 0;">>/tmp/$$.c
+   echo "}">>/tmp/$$.c
+   ${ccomp} -o /tmp/$$.x /tmp/$$.c
+   result=$?
+   if [ ${result} -eq 0 ] ; then
+     output=`/tmp/$$.x`
+     result=$?
+     if [ ${result} -eq 0 ] ; then
+       echo ${output}
+       rm -f  /tmp/$$.c /tmp/$$.o /tmp/$$.x
+       return 0
+     fi
+   fi
+   rm -f  /tmp/$$.c /tmp/$$.o /tmp/$$.x
+   echo "ERROR: could not establish the pointer size" > /dev/stderr
+   exit 1
 }
 #
 # See if we can detect which platform we are on.
@@ -706,7 +774,6 @@ if [ -d /bgsys/drivers/ppcfloor ] ; then
   if [ ${#MPI_CXX} -eq 0 ] ; then
     export MPI_CXX=mpixlcxx
   fi
-
 fi
 #
 # End of BlueGene stuff
@@ -714,14 +781,8 @@ fi
 if [ ${#NWCHEM_TOP} -eq 0 ] ; then
   export NWCHEM_TOP=`pwd`
 fi
-if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
-  export NWCHEM_TARGET=LINUX64
-fi
 if [ ${#NWCHEM_MODULES} -eq 0 ] ; then
   export NWCHEM_MODULES="all"
-fi
-if [ ${#NWCHEM_EXECUTABLE} -eq 0 ] ; then
-  export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem
 fi
 if [ ${#USE_MPI} -eq 0 ] ; then
   export USE_MPI=y
@@ -739,7 +800,7 @@ if [ ${#MSG_COMMS} -eq 0 ] ; then
 fi
 export LDOPTIONS=" "
 export USE_SUBGROUPS=y
-export DEV_GA=y
+#export DEV_GA=y    # do not set this for the release
 #export USE_GPROF=y
 #
 # Now we try and guess the network on the machine.
@@ -892,6 +953,9 @@ if [ ${#LAPACK_SIZE} -eq 0 ] ; then
     LAPACK_SIZE=8
   else
     LAPACK_SIZE=`get_lapack_integer ${MPI_F90} "${LAPACK_LIB} ${BLAS_LIB}"`
+    if [ $? -ne 0 ] ; then
+      LAPACK_SIZE=8
+    fi
   fi
   export LAPACK_SIZE
 fi
@@ -942,6 +1006,44 @@ else
     fi
   fi
 fi
+#
+# Work out whether this is a 32- or 64-bit platform
+#
+if [ ${#NWCHEM_PTR_SIZE} -eq 0 ] ; then
+  NWCHEM_PTR_SIZE=`get_pointer_size ${MPI_CC}`
+  if [ $? -ne 0 ] ; then
+    unset NWCHEM_PTR_SIZE
+  fi
+fi
+if [ ${#NWCHEM_OS} -eq 0 ] ; then
+  NWCHEM_OS=`uname | tr '[a-z]' '[A-Z]'`
+  if [ $? -ne 0 ] ; then
+    unset NWCHEM_OS
+  fi
+  if [ ${#NWCHEM_OS} -ne 0 ] ; then
+    if [ ${NWCHEM_OS} == "Darwin" ] ; then
+      export NWCHEM_OS=MACX
+    fi
+  fi
+fi
+if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
+  if [ ${#NWCHEM_PTR_SIZE} -eq 0 ] ; then
+    echo "ERROR: could not establish pointer size needed to set NWCHEM_TARGET: aborting..."
+    exit 1
+  fi
+  if [ ${#NWCHEM_OS} -eq 0 ] ; then
+    echo "ERROR: could not establish the OS needed to set NWCHEM_TARGET: aborting..."
+    exit 1
+  fi
+  if [ ${NWCHEM_PTR_SIZE} -eq 4 ] ; then
+    export NWCHEM_TARGET=${NWCHEM_OS}
+  else
+    export NWCHEM_TARGET=${NWCHEM_OS}64
+  fi
+fi
+if [ ${#NWCHEM_EXECUTABLE} -eq 0 ] ; then
+  export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem
+fi
 option=$1
 if [ "x$1" == "xpython" ]; then
   export PYTHONVERSION=2.4
@@ -970,6 +1072,7 @@ else
   echo "==============="
   echo
 fi
+echo "NWCHEM_TOP    =" ${NWCHEM_TOP}
 echo "NWCHEM_TARGET =" ${NWCHEM_TARGET}
 echo "MPI_INCLUDE   =" ${MPI_INCLUDE}
 echo "MPI_LIB       =" ${MPI_LIB}
@@ -989,6 +1092,27 @@ if [ ${#LAPACK_LIB} -ne 0 ] ; then
 fi
 if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
   echo "SCALAPACK_LIB =" ${SCALAPACK_LIB} " integer-size = " ${SCALAPACK_SIZE}
+fi
+#
+# Stop if we find essential information missing.
+# I.e. no Fortran, C, or C++ compilers or settings to use obsolete versions
+# of GA.
+#
+if [ ${#MPI_F90} -eq 0 ] ; then
+  echo "ERROR: No Fortran compiler found: aborting..." > /dev/stderr
+  exit 1
+fi
+if [ ${#MPI_CC} -eq 0 ] ; then
+  echo "ERROR: No C compiler found: aborting..." > /dev/stderr
+  exit 1
+fi
+if [ ${#MPI_CXX} -eq 0 ] ; then
+  echo "ERROR: No C++ compiler found: aborting..." > /dev/stderr
+  exit 1
+fi
+if [ ${#OLD_GA} -ne 0 ] ; then
+  echo "ERROR: OLD_GA is set but this script only works with GA-5-1 or later: aborting..." > /dev/stderr
+  exit 1
 fi
 cd $NWCHEM_TOP/src
 echo "=== configure GA ==="
