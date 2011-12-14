@@ -10,6 +10,7 @@
        character*4 a4
        character*255 buf
        logical ofile
+       logical overb
        integer fns,fnc,fno      
        integer iat,ires,ires0
        integer nrs
@@ -31,14 +32,16 @@ c
 c      --------------------------------------------      
 c      beging parsing command line arguments if any
 c      --------------------------------------------      
+       overb = .false.
        infile = " "
        outfile = " "
        nid = 0
        i = 0
+       ida = 0
+       angle = 1000
 16     continue
        i = i+1
        call my_get_command_argument(i,buffer,l,istatus)
-       write(*,*) "buffer=",buffer
        if(istatus.ne.0) goto 18
        if(buffer.eq."-atoms") then
           do 
@@ -54,6 +57,12 @@ c      --------------------------------------------
             end if
           end do
           go to 16
+       else if(buffer.eq."-v") then
+          overb = .true.
+          goto 16
+       else if(buffer.eq."-help") then
+          write(*,1000)
+          stop
        else if(buffer.eq."-angle") then
           i = i+1
           call my_get_command_argument(i,buffer,l,istatus)
@@ -71,6 +80,7 @@ c      --------------------------------------------
             if(is_integer(buffer)) then
               read(buffer,*) ida(k)
             else
+              message = "two atom ids are required to define the axis"
               goto 911
             end if
            end do
@@ -88,11 +98,37 @@ c       ---------------------------
 c      end of command line parsing
 c      ---------------------------      
 18     continue
-       write(*,*) "id ",(id(k),k=1,nid)
-       write(*,*) "ida ",(ida(k),k=1,2)
-       write(*,*) "angle",angle
-       write(*,*) "infile",infile
-       write(*,*) "outfile",outfile
+       if(nid.eq.0) then
+          message = "no atoms to rotate"
+          goto 911
+       end if
+       if(ANY(ida.eq.0)) then
+          message = "missing complete axis specification"
+          goto 911
+       end if
+       if(angle.ge.1000) then
+          message = "mising angle specification"
+          goto 911
+       end if
+       if(infile.eq." ") then
+          message = "missing input file"
+          goto 911
+       end if
+       if(outfile.eq." ") then
+          message = "missing output file"
+          goto 911
+       end if
+       if(ABS(angle).gt.360) then
+          message = "angle should be between -360 and 360 degrees"
+          goto 911
+       end if
+       if(overb) then
+          write(*,*) "atom id ",(id(k),k=1,nid)
+          write(*,*) "axis id ",(ida(k),k=1,2)
+          write(*,*) "angle",angle
+          write(*,*) "infile ",trim(infile)
+          write(*,*) "outfile ",trim(outfile)
+       end if
 c      
 c      ---------------------
 c      read input parameters
@@ -114,9 +150,6 @@ c       else
 c          goto 911
 c       end if 
 30     continue
-       write(*,*) infile
-       write(*,*) outfile
-       write(*,*) "index ",(id(i),i=1,nid)
 c      -------------
 c      open io units
 c      -------------
@@ -140,43 +173,44 @@ c      -------------------
 c      read xyz input file
 c      -------------------
        call xyz_read_natoms(nat,fns)
-       write(*,*) "nat",nat
+       if(overb) write(*,*) "total number of atoms",nat
        allocate(c(3,nat))
        allocate(atag(nat))
        rewind(fns)
        call xyz_read(nat,c,atag,fns)
-       write(*,*) "nat",nat
+       angle = angle*pi/180.0
+       v  = c(:,ida(1)) 
+       v1 = c(:,ida(2))-v
+       if(overb) write(*,*) "rotating by",angle
        do i=1,nid
-         v  = c(:,ida(1)) 
-         v1 = c(:,ida(2))-v
          x = c(:,id(i))
-         write(*,*) "rotating by",angle
-         angle = angle*pi/180.0
-         write(*,*) "rotating by",angle
          call rot_around_axis(v(1),v(2),v(3),v1(1),v1(2),v1(3),
      >                        x(1),x(2),x(3),angle)
-c         call
-c     >   RotatePointAroundVector(x(1),x(2),x(3),
-c     >                           v,v1,angle)
          c(:,id(i))=x
        end do
        call xyz_write(nat,c,atag,fno)
-       angle = 62
-       angle = angle*pi/180.0
-       v(1) = -4
-       v(2) = 0
-       v(3) = -5
-       v1(1) = 3
-       v1(2) = 2
-       v1(3) = -5
-       x(1) = 4
-       x(2) = 0
-       x(3) = -5
-         call rot_around_axis(v(1),v(2),v(3),v1(1),v1(2),v1(3),
-     >                        x(1),x(2),x(3),angle)
-         write(*,*) "x=",x(1),x(2),x(3)
+       if(overb) write(*,*) "succesfull completion"
        stop
 c      if you reach this you are in trouble
+1000   format(
+     > "NAME:",/
+     > " rotate rotate atoms ",
+     > " around specified axis               ",//,
+     >  "SYNOPSIS",/,
+     > " rdf [-help] ",
+     > " [-atoms ] [-axis ] [-angle ] ",
+     > " input file(s) outpiut file ",//,
+     >  "DESCRIPTION",/,
+     > " This utility rotates selected atoms around the axis",
+     > " from the xyz files",//,
+     > " The required option are as follows:",/,
+     > " -atoms   atom ids to be rotated",/,
+     > " -axis   pair of atom ids used as the axis",/,
+     > " -angle rotation angle",/,
+     > " other options are as follows:",/,
+     > " -help  prints out this message",/,
+     > " -v  generate more verbose output"
+     > )
 911    continue
        write(*,*) "Emergency STOP"
        write(*,*) message
@@ -322,7 +356,6 @@ c      check if all atoms were read
          goto 911
        end if
 20     continue
-       write(*,*) "out "//pname
        return
 c      -------------
 c      error section
@@ -360,7 +393,6 @@ c
        do i=1,n0
         write(fn_in,*) atag(i),(c(k,i),k=1,3)
        end do
-       write(*,*) "out "//pname
        return
 c      -------------
 c      error section
@@ -460,7 +492,6 @@ c      -----------------
         double precision x1,y1,z1
         nrm = u*u+v*v+w*w
         nrm = sqrt(nrm)
-        write(*,*) "nrm=",nrm
         u = u/nrm
         v = v/nrm
         w = w/nrm
