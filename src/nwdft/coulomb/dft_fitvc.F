@@ -4,6 +4,7 @@
      &                     dermat, nmat, do_init)
 c     $Id$
       implicit none
+c
 #include "errquit.fh"
 c      
 #include "bas.fh"
