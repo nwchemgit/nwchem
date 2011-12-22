@@ -18,6 +18,8 @@ c
       integer num_gridtypes, grid_acc_index,jj,igridin
       parameter (num_gridtypes = 7)
       logical oprint, oprint_grid,lgridin,qmmm_init
+      logical grid_tagdefd
+      external grid_tagdefd
       character*2 symbol
       character*15 gridtypes(num_gridtypes)
       double precision grid_acc(num_gridtypes)
@@ -448,19 +450,21 @@ c
                   nrad(itype) = nradpts
                   nang(itype) = nagrid
                else
-                     nrad(itype) = grid_params(grid_acc_index,1,grptr,
-     &                                    i_atomic_number)
-                  if(grid_acc_index.le.5) then
-                     iangat=grid_params(grid_acc_index,2,2,
-     &                                    i_atomic_number)
-                     nang(itype) = xc_leb_acc2nrd(iangat)
-                     iangquad=max(iangquad,iangat)
-                  else
-c     user defined lebedev
-                  nang(itype) = grid_params(grid_acc_index,2,2,
-     &                                    i_atomic_number)
-                     nang(itype) = xc_leb_acc2nrd(iangquad)
+c bq handling
+               lgridin=grid_tagdefd(tag(3:),ngridin,grtagin,
+     I              igridin)
+c
+               if(lgridin) then
+                  nrad(itype) = nradin(igridin)
+                  iangat=nangin(igridin)
+               else
+                  nrad(itype) = grid_params(min(grid_acc_index,5),
+     A                 1,grptr, i_atomic_number)
+                  iangat=grid_params(min(grid_acc_index,5),
+     A                 2,grptr,       i_atomic_number)
                   endif
+                  nang(itype) = xc_leb_acc2nrd(iangat)
+                  iangquad=max(iangquad,iangat)
                endif
 c                
                if(nrad(itype).gt.mxnrad)mxnrad = nrad(itype)
@@ -482,17 +486,8 @@ c
 c
 c     check if by atom grid parameters have been redifined by input
 c
-               
-               lgridin=.false.
-               if(ngridin.ne.0) then
-               do jj=1,ngridin
-                  if(grtagin(jj).eq.tag) then
-                     lgridin=.true.
-                     igridin=jj
-                  endif
-               enddo
-            endif
-!               write(0,*) ' jj tag ig ',jj,tag,igridin,lgridin
+               lgridin=grid_tagdefd(tag,ngridin,grtagin,
+     I              igridin)
 c     
 c
                if(lgridin) then
@@ -523,7 +518,6 @@ cedo                  rad_cutoff(1,itype)=accqrin(igridin)
      &                                    i_atomic_number)
                   endif
                endif
-!               write(0,*) ' it ',itype,nrad(itype),nang(itype)
 c                
                if(nrad(itype).gt.mxnrad)mxnrad = nrad(itype)
                if(nang(itype).gt.mxnang)mxnang = nang(itype)
@@ -562,6 +556,26 @@ c
      &              (nrad(itype),itype = 1, ntypes)
          write(LuOut,*)' nang(ntypes) ',
      &              (nang(itype),itype = 1, ntypes)
+      endif
+      return
+      end
+      logical function grid_tagdefd(tag,ngridin,grtagin,
+     I     igridin)
+      implicit none
+      character*(*) tag,grtagin(*)
+      integer ngridin
+      integer igridin
+c
+      integer jj
+c      
+      grid_tagdefd=.false.
+      if(ngridin.ne.0) then
+         do jj=1,ngridin
+            if(grtagin(jj).eq.tag) then
+               grid_tagdefd=.true.
+               igridin=jj
+            endif
+         enddo
       endif
       return
       end
