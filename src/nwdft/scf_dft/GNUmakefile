@@ -46,7 +46,7 @@
 
 LIB_INCLUDES = -I../include -I../grid
 
-   USES_BLAS = dft_mxovl.F diis_bld12.F diis_bsolve.F dft_densm.F dft_swapab.F dft_canorg.F
+   USES_BLAS = dft_mxovl.F diis_bld12.F diis_bsolve.F dft_densm.F dft_swapab.F dft_canorg.F cdft_util.F
 
 HEADERS = dftps.fh dft_fdist.fh dft_conv.fh
 
