@@ -55,7 +55,7 @@ c
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,3,ipol), tauN
+      double precision tau(nq,ipol), tauN
  
 c
 c     Quadrature Weights
@@ -126,9 +126,7 @@ c
 c  In the m05css subroutine, we use 2*TA as the tau, so we do not divide 
 c  the tau by 2 here
 
-         TA = tau(n,1,1) + 
-     &             tau(n,2,1) + 
-     &             tau(n,3,1)
+         TA = tau(n,1)
                   
          Call m05css(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                ChiA,EUPA,ChiAP,ChiAG,ijzy)
@@ -169,9 +167,7 @@ c
 c
 c  In the m05css subroutine, we use 2*TA as the tau 
 c
-         TA = 2*(tau(n,1,1) +
-     &        tau(n,2,1) +
-     &        tau(n,3,1))
+         TA = 2*tau(n,1) 
 
          Call m05css(DTol,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,
      &                ChiA,EUPA,ChiAP,ChiAG,ijzy)
@@ -193,9 +189,7 @@ c
      &           delrho(n,2,2)*delrho(n,2,2) +
      &          delrho(n,3,2)*delrho(n,3,2)
 
-         TB = 2*(tau(n,1,2) +
-     &        tau(n,2,2) +
-     &        tau(n,3,2))
+         TB = 2*tau(n,2)
 
          Call m05css(DTol,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,
      &                ChiB,EUPB,ChiBP,ChiBG,ijzy)

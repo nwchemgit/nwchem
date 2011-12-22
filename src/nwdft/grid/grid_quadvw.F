@@ -11,7 +11,7 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
-     .     l3d,triplet, tau, ttau, Mmat, Mmat2)
+     .     l3d,triplet, ttau, Mmat, Mmat2)
 c
 c$Id$
 c
@@ -84,7 +84,7 @@ c
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,
      ,     do_nmrks_r, tmat,
      ,     l3d,triplet,
-     &     tau, ttau, kske, Mmat, Mmat2,
+     &     ttau, kske, Mmat, Mmat2,
      ,     iqat,
      ,     qsh, aqbuf,rij,rho_int,
      D     ddum1,ddum1,ddum1,ddum1,ddum1,ddum1,ddum1,

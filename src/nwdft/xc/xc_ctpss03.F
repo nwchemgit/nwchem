@@ -52,7 +52,7 @@ c
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,3,ipol), tauN
+      double precision tau(nq,ipol), tauN
  
 c
 c     Quadrature Weights
@@ -183,7 +183,7 @@ c
 c        epGGA = n*(epsilon_c^GGA) / n =cor. energy per electron
 c        epGGA= ec^LDA +H  = pbe
 
-         tauN = tau(n,1,1) + tau(n,2,1) + tau(n,3,1)
+         tauN = tau(n,1)
 
          ccc = 0.53d0           !since zeta=0
 
@@ -345,8 +345,8 @@ c
      &        delrho(n,2,1)*delrho(n,2,2) +
      &        delrho(n,3,1)*delrho(n,3,2))
          gam12=dsqrt(gammaval)
-         tauNa = tau(n,1,1) + tau(n,2,1) + tau(n,3,1)
-         tauNb = tau(n,1,2) + tau(n,2,2) + tau(n,3,2)
+         tauNa = tau(n,1)
+         tauNb = tau(n,2)
          taun = tauna+taunb
          rhoa=rho(n,2)   
          rhob=rho(n,3)   

@@ -64,7 +64,7 @@ c
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,3,ipol), tauN
+      double precision tau(nq,ipol), tauN
  
 c
 c     Quadrature Weights
@@ -161,9 +161,7 @@ c
 c  In the bc95css subroutine, we use 2*TA as the tau, so we do not divide 
 c  the tau by 2 here
 
-         TA = tau(n,1,1) + 
-     &             tau(n,2,1) + 
-     &             tau(n,3,1)
+         TA = tau(n,1) 
          if(ta.lt.dtol) goto 20
                   
          Call vs98ss(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
@@ -211,9 +209,7 @@ c
 c
 c  In the bc95css subroutine, we use 2*TA as the tau 
 c
-         TA = (tau(n,1,1) +
-     &        tau(n,2,1) +
-     &        tau(n,3,1))*2.0d0
+         TA = tau(n,1)*2.0d0
 
          Call vs98ss(tol_rho,PA,GAA,TA,FA,FPA,FGA,FTA,EUA,ZA,
      &                ChiA,EUPA,ChiAP,ChiAG,ZAP,ZAT,ijzy)
@@ -240,9 +236,7 @@ c
      &           delrho(n,2,2)*delrho(n,2,2) +
      &          delrho(n,3,2)*delrho(n,3,2)
 
-         TB = (tau(n,1,2) +
-     &        tau(n,2,2) +
-     &        tau(n,3,2))*2.0d0
+         TB = tau(n,2)*2.0d0
 
          Call vs98ss(tol_rho,PB,GBB,TB,FB,FPB,FGB,FTB,EUB,ZB,
      &                ChiB,EUPB,ChiBP,ChiBG,ZBP,ZBT,ijzy)

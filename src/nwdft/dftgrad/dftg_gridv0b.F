@@ -13,7 +13,7 @@
      &     acc_ao_gauss, ldew,grad,gradchi,hesschi,der3chi,
      &     do_hess, do_cpks_r, natoms, oactive,
      &     nactive, rdens_atom, 
-     &     cetobfr, tau, dttau, kske, Mmat, Mmat2,
+     &     cetobfr, dttau, kske, Mmat, Mmat2,
      &     ldbw, fact, dtype, nconstr)  ! Qin
 c      
 c     $Id$
@@ -60,7 +60,6 @@ c
       double precision rho(n_per_rec,ipol*(ipol+1)/2)
       double precision delrho(n_per_rec,3,ipol)
 c
-      double precision tau(n_per_rec,3,ipol)
       double precision dttau(*)
       double precision Mmat(*)
 c
@@ -227,7 +226,7 @@ c
      &              ibf_ao, iniz, ifin, rho, delrho,
      &              rchi_atom, rdelchi_atom,
      &              rdens_atom, cetobfr,wmax, 
-     &              tau, dttau, kske)
+     &              dttau, kske)
                if (.not.ma_verify_allocator_stuff()) stop ' ma ck 2e'
 c
                if (do_hess .or. do_cpks_r) then
@@ -248,7 +247,7 @@ c
      &                 drhonuc, ddelrhonuc,
      &                 rchi_atom, rdelchi_atom, 
      &                 rdens_atom, cetobfr,1d0,
-     D                 tau, dttau, kske)
+     D                 dttau, kske)
                endif
                if (odftps) call pstat_off(ps_xcrho)
 c
@@ -286,7 +285,7 @@ c Qin end
                do_2nd = (do_hess .or. do_cpks_r)
                call xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &            nqpts, Ex, Ec, qwght, GRAD, ldew, func, do_2nd,
-     &            tau, dttau, kske, Mmat, Mmat2,
+     &            dttau, kske, Mmat, Mmat2,
      &            StericEnergy)
                if (odftps) call pstat_off(ps_ebf)
 c     

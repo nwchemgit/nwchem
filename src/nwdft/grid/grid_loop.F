@@ -15,7 +15,7 @@ c
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,
      ,     do_nmrks_r, tmat,
      ,     l3d,triplet,
-     &     tau, ttau, kske, Mmat, Mmat2,
+     &     ttau, kske, Mmat, Mmat2,
      ,     iqat,
      ,     qsh,aqbuf,rij,rho_int,
      D     func,d_qwght,rq0,hh,ppp,ff,zzz,
@@ -53,7 +53,7 @@ c
      ,     rchi_atom(*),rdelchi_atom(*),
      ,     Ex, Ec, amat(*),cmat(*),
      ,     Amat2(*), Cmat2(*),bp(*),
-     ,     tmat(*), tau(*), Mmat(*), 
+     ,     tmat(*), Mmat(*), 
      &     ttau(*), Mmat2(*)
 CA
       double precision func(*),d_qwght(*),
@@ -164,7 +164,7 @@ c
      ,                    Ex, Ec, amat,cmat,g_vxc,
      ,                    Amat2, Cmat2,
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     &                    tau, ttau, kske, Mmat, Mmat2,
+     &                    ttau, kske, Mmat, Mmat2,
      D                    func,d_qwght,rq0,hh,ppp,ff,zzz,
      D                    drhonuc,ddelrhonuc,d2scr,force,
      D                    acc_ao_gauss,
@@ -197,7 +197,7 @@ c
      ,                    nmat, do_scf, do_cpks_l, do_cpks_r,
      ,                    do_nmrks_r, tmat,
      ,                    l3d,triplet,
-     &                    tau, ttau, kske, Mmat, Mmat2)
+     &                    ttau, kske, Mmat, Mmat2)
                      endif
                   endif
                enddo            ! end loop over angular shells
@@ -223,7 +223,7 @@ c
      ,                 nmat, do_scf, do_cpks_l, do_cpks_r,
      ,                 do_nmrks_r, tmat,l3d,
      ,                 triplet,
-     &                 tau, ttau, kske,Mmat, Mmat2 )
+     &                 ttau, kske,Mmat, Mmat2 )
                    endif
                   ncubenz=ncubenz+1
                endif

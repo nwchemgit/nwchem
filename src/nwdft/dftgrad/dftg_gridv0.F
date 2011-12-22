@@ -87,7 +87,7 @@ c
      &        lPmat, iPmat, lrho, irho, lBmat, iBmat,
      &        lhh, ihh,  landex, iandex, idelrho, ldelrho,
      &        ltags, itags,
-     &        itau, ltau, iMmat, lMmat, ittau, lttau
+     &        iMmat, lMmat, ittau, lttau
       logical do_force, do_hess, do_cpks_r
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, len_Bmat
       integer l_Mmat2, k_Mmat2
@@ -101,7 +101,7 @@ c
       integer llmax, MXcont, max_elem_ang_scr,nxang
       integer nbf_ao_mxnbf_ce
       integer lgthpmat
-      integer len_tau,len_Mmat,len_ttau,len_Mmat2
+      integer len_Mmat,len_ttau,len_Mmat2
       integer lscr,iscr
       integer nxtask
       external nxtask
@@ -289,12 +289,6 @@ c
      &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
      &       MA_ERR)
 c
-      len_tau = 1
-      if (kske) len_tau = 3*ipol*n_per_rec
-      if (.not.MA_Push_Get(MT_Dbl,len_tau,'tau',ltau,itau))
-     &   call errquit(' exiting in dftg_gridv0: insuff stack',13,
-     &       MA_ERR)
-c
       len_ttau = 1
       if (kske) len_ttau = ipol*n_per_rec
       if (.not.MA_Push_Get(MT_Dbl,len_ttau,'ttau',lttau,ittau))
@@ -472,7 +466,7 @@ c
      &     force, hess, g_rhs, do_force, do_hess,
      &     do_cpks_r, natoms, oactive, nactive,
      &     rdens_atom,  cetobfr,
-     &     dbl_mb(itau), dbl_mb(ittau), 
+     &     dbl_mb(ittau), 
      &     dbl_mb(iMmat), dbl_mb(k_Mmat2))
       else
        if (.not.MA_Push_Get(mt_dbl, nscr, 'scrCD', lscr, iscr))
@@ -498,7 +492,7 @@ c
      &     force, hess, g_rhs, do_force, do_hess,
      &     do_cpks_r, natoms, oactive, nactive,
      &     rdens_atom,  cetobfr,
-     &     dbl_mb(itau), dbl_mb(ittau), 
+     &     dbl_mb(ittau), 
      &     dbl_mb(iMmat), dbl_mb(k_Mmat2))
       if (.not.ma_pop_stack(lscr))
      &   call errquit('dftg_gridv0: cannot pop stack',21, MA_ERR)

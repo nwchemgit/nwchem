@@ -16,7 +16,7 @@
      ,     Ex, Ec, amat,cmat,g_vxc,
      ,     Amat2, Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r,tmat,
-     ,     tau, ttau, kske, Mmat, Mmat2,
+     ,     ttau, kske, Mmat, Mmat2,
      D     func,d_qwght,rq0,hh,ppp,ff,zzz,
      D     drhonuc,ddelrhonuc,d2scr,force,
      D     acc_ao_gauss,
@@ -177,7 +177,7 @@ c
      &     do_hess, do_cpks_r, natoms, oactive,
      &     nactive, rdens_atom, 
      &     cetobfr,
-     &     tau, ttau, kske, Mmat, Mmat2,
+     &     ttau, kske, Mmat, Mmat2,
      &     ldbw, fact, dtype, nconstr)  ! Qin
 
 c         

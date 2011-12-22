@@ -82,7 +82,7 @@ c     -----------------------------------------------------------------
      ,     rdens_atom,
      ,     Fmat, Pmat, Bmat,
      ,     vect1,delrho_sig,
-     &     tau, ttau, kske)
+     &     ttau, kske)
 c
       implicit none
 c
@@ -97,7 +97,7 @@ c
       double precision Fmat(*), Pmat(*), Bmat(*)
       double precision rho(*),delrho(*) ! [in]
 
-      double precision tau(*), ttau(*)
+      double precision ttau(*)
       logical kske
 
       double precision chi_ao(*), delchi_ao(*),
@@ -126,7 +126,7 @@ c
      &        ibf_ao, iniz, ifin, 
      R     rho, delrho, rchi_atom, 
      R     rdelchi_atom,  rdens_atom, cetobfr,wmax,
-     &         tau,ttau,kske )
+     &         ttau,kske )
          if (.not.ma_pop_stack(lDmat))
      &        call errquit('grid_iscrho: cannot pop stack', 1, MA_ERR)
 !      endif

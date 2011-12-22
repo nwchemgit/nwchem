@@ -71,7 +71,7 @@ c
      &        lPmat, iPmat, lrho, irho, ldelrho, idelrho, lBmat, iBmat,
      &        lhess, ihess, lrq, irq, 
      &        lfin, ifin, ltags, itags,
-     &        ltau, itau,  lmmat, immat, lttau, ittau
+     &        lmmat, immat, lttau, ittau
 c
       integer lcntoce, icntoce, lcntobfr, icntobfr,
      &        lcetobfr, icetobfr, lrdens_atom, irdens_atom,
@@ -85,7 +85,7 @@ c
      , laqbuf, iaqbuf,lRij,iRij,ndbl,l_qat,k_qat,irqlen
       integer l_Amat2, k_Amat2, l_Cmat2, k_Cmat2, l_Mmat2, k_Mmat2
       integer len_rho, len_delrho, len_Amat2, len_Cmat2, len_Mmat2
-      integer len_tau, len_mmat, len_ttau
+      integer len_mmat, len_ttau
       logical do_scf, do_cpks_l, do_cpks_r, do_nmrks_r
       integer max_elem_ang_scr, max_component
       integer nexpo,nibf
@@ -155,7 +155,6 @@ c
         write(*,*) " *** grid_quadv0: n_per_rec:",n_per_rec
       end if
 c
-      len_tau = 1
       len_mmat = 1
       len_ttau = 1
       len_Amat2 = 1
@@ -165,13 +164,11 @@ c
       if (do_scf .or. do_nmrks_r) then
          len_rho = npol*n_per_rec
          len_delrho = 3*ipol*n_per_rec
-         if (kske) len_tau = 3*ipol*n_per_rec
          if (kske) len_ttau = npol*n_per_rec
          if (kske) len_mmat =ipol*n_per_rec  
       elseif (do_cpks_l) then
          len_rho = ipol*n_per_rec*(nmat+1)+n_per_rec
          len_delrho = 3*ipol*n_per_rec*(nmat+1)+3*n_per_rec
-         if (kske) len_tau = 3*ipol*n_per_rec*(nmat+1)+3*n_per_rec
          if (kske) len_ttau = ipol*n_per_rec*(nmat+1)+n_per_rec
          len_Amat2 = n_per_rec*NCOL_AMAT2
          len_Cmat2 = n_per_rec*NCOL_CMAT2
@@ -240,8 +237,6 @@ c
       if (.not.MA_Push_Get(MT_Dbl,len_delrho,'delrho',ldelrho, idelrho))
      &   call errquit('grid_den: cannot allocate delrho',0, MA_ERR)
 c
-      if (.not.MA_Push_Get(MT_Dbl,len_tau,'tau',ltau, itau))
-     &    call errquit('grid_den: cannot allocate tau',0, MA_ERR)
       if (.not.MA_Push_Get(MT_Dbl,len_ttau,'ttau',lttau, ittau))
      &   call errquit('grid_den: cannot allocate ttau',0, MA_ERR)
 c
@@ -408,7 +403,7 @@ c
      ,        dbl_mb(k_amat2), dbl_mb(k_cmat2),
      ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,        l3d,triplet,
-     ,        dbl_mb(itau), dbl_mb(ittau), 
+     ,        dbl_mb(ittau), 
      &        dbl_mb(immat), dbl_mb(k_mmat2),StericEnergyTotal)
       else
 c
@@ -446,7 +441,7 @@ c
      ,        dbl_mb(k_amat2),dbl_mb(k_cmat2),
      ,        nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,        l3d,triplet,
-     ,        dbl_mb(itau), dbl_mb(ittau), 
+     ,        dbl_mb(ittau), 
      &        dbl_mb(immat), dbl_mb(k_mmat2))
 c
          if (.not. MA_chop_Stack(lqs))

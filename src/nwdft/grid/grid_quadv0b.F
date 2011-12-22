@@ -13,7 +13,7 @@
      &     l3d,triplet,
      &     bas_cent_xinfo,bas_cset_xinfo,
      &     docsetx, 
-     &     tau, ttau, kske, Mmat, Mmat2,
+     &     ttau, kske, Mmat, Mmat2,
      &     StericEnergy)
 c
 c$Id$
@@ -149,7 +149,7 @@ c
      &        ibf_ao, iniz, ifin, rho, delrho, 
      &        rchi_atom, rdelchi_atom,
      &        rdens_atom, cetobfr,wmax, 
-     &        tau, ttau, kske)
+     &        ttau, kske)
          if (odftps) call pstat_off(ps_xcrho)
          if (sic_orb_index.eq.1) then
             call grid_sicrho(nqpts,mbf_ao,cetobfr,wmax,
@@ -159,7 +159,7 @@ c
      ,        rdens_atom,
      ,        Fmat, Pmat, Bmat,
      ,        dbl_mb(i_vect1),dbl_mb(idelrho_sig),
-     &        tau, ttau, kske)
+     &        ttau, kske)
          endif
       else  if (do_cpks_l) then
             call xc_rhogen(1,
@@ -171,7 +171,7 @@ c
      &        ibf_ao, iniz, ifin, rho, delrho, 
      &        rchi_atom, rdelchi_atom, 
      &        rdens_atom, cetobfr,wmax, 
-     &        tau, ttau, kske)
+     &        ttau, kske)
       else if (do_cpks_r) then
        call errquit('gridquadv0b: what do do for cpks rhs?',0, CALC_ERR)
       endif
@@ -214,7 +214,7 @@ c
       call xc_eval_fnl(rho(iscf_rho), delrho(iscf_delrho), 
      &     Amat, Amat2, Cmat, Cmat2, nqpts, Ex, Ec, qwght,
      &     grad, .false., 0d0, do_2nd, 
-     &     tau, ttau, kske, Mmat, Mmat2,
+     &     ttau, kske, Mmat, Mmat2,
      &     StericEnergy)
       if (odftps) call pstat_off(ps_excf)
 c

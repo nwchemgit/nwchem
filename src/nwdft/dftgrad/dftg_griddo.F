@@ -10,7 +10,7 @@
      .     drhonuc,ddelrhonuc,d2scr,iscr,nscr,
      ,     force, hess, g_rhs, do_force,
      &     do_hess, do_cpks_r, natoms, oactive,
-     &     nactive, rdens_atom, cetobfr, tau, ttau, 
+     &     nactive, rdens_atom, cetobfr, ttau, 
      &     Mmat, Mmat2)
 c      
 c     $Id$
@@ -52,7 +52,7 @@ c
       double precision rho(n_per_rec,ipol*(ipol+1)/2)
       double precision delrho(n_per_rec,3,ipol)
 
-      double precision tau(*), Mmat(*), ttau(*)
+      double precision Mmat(*), ttau(*)
 
       double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
      &                 Bmat(n_per_rec,*)
@@ -188,7 +188,7 @@ c
      ,     Amat2, Cmat2,
      ,     idum1, ldum1, ldum1, do_cpks_r,ldum1,ddum1,
      ,     ldum1,ldum1,
-     &     tau, ttau, kske, Mmat, Mmat2,
+     &     ttau, kske, Mmat, Mmat2,
      ,     int_mb(k_qat),
      ,     int_mb(k_qsh),dbl_mb(irqbuf),dbl_mb(irij),rho_int,
      D     func,d_qwght,rq0,hh,ppp,ff,zzz,

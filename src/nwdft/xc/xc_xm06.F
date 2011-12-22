@@ -60,7 +60,7 @@ c
 c
 c     kinetic energy density   or  tau
 c
-      double precision tau(nq,3,ipol), Mmat(nq,*)
+      double precision tau(nq,ipol), Mmat(nq,*)
 
       double precision tauN,tauu,DTol
       double precision F83, F23, F53, F43, F13, F1o3
@@ -187,9 +187,7 @@ c
 
 c
              
-            tauN = tau(n,1,1) +
-     &             tau(n,2,1) +
-     &             tau(n,3,1)
+            tauN = tau(n,1)
          if(taun.lt.dtol) goto 10
             tauu=tauN 
             TauUEG=0.3d0*P32*rho53
@@ -272,9 +270,7 @@ c
 
 c
 
-             tauN = tau(n,1,1) +
-     &              tau(n,2,1) +
-     &              tau(n,3,1)
+             tauN = tau(n,1)
              tauu = Two*tauN
              TauUEG=0.3d0*P32*rho53
              Tsig =TauUEG/tauu
@@ -356,9 +352,7 @@ c
 
 c
 
-             tauN = tau(n,1,2) +
-     &              tau(n,2,2) +
-     &              tau(n,3,2)
+             tauN = tau(n,2)
              tauu = Two*tauN
              TauUEG=0.3d0*P32*rho53
              Tsig =TauUEG/tauu

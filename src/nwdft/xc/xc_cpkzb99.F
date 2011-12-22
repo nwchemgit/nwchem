@@ -45,7 +45,7 @@ c
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,3,ipol)
+      double precision tau(nq,ipol)
  
 c
 c     Quadrature Weights
@@ -137,7 +137,7 @@ c
      &        1, ipol, neGGA)
          pbe = neGGA
 
-         tauN = tau(n,1,1) + tau(n,2,1) + tau(n,3,1)
+         tauN = tau(n,1)
          tauw = 0.125d0*gammaval/rhoval
          xx2 = (tauw/tauN)**2.d0
          en = pbe*(1.d0 + ccc*xx2)
@@ -281,8 +281,8 @@ c
          tauwa = 0.125d0*gaa/rhoa
          tauwb = 0.125d0*gbb/rhob
 c
-         tauna = tau(n,1,1) + tau(n,2,1) + tau(n,3,1)
-         taunb = tau(n,1,2) + tau(n,2,2) + tau(n,3,2)
+         tauna = tau(n,1)
+         taunb = tau(n,2)
 c
          tauw = tauwa+tauwb
          taun = tauna+taunb

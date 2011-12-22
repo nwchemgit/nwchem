@@ -48,7 +48,7 @@ c
 c
 c     kinetic energy density   or  tau
 c
-      double precision tau(nq,3,ipol), Mmat(nq,*)
+      double precision tau(nq,ipol), Mmat(nq,*)
       double precision tauN
 
       double precision  p, qtil, x
@@ -109,7 +109,7 @@ c
      &              delrho(n,3,1)*delrho(n,3,1)
 c            gam12 = dsqrt(gamma)
 c            if (.not.(nlfac.and.gam12.gt.tol_rho)) goto 10
-            tauN = tau(n,1,1) + tau(n,2,1) + tau(n,3,1)
+            tauN = tau(n,1)
 
             p=P32*gamma/(rho83*2.d0)
             qtil=(3.d0*tauN*P32/rho53)-G920-(p/12.d0)
@@ -221,9 +221,7 @@ c            gam12 = 2d0*dsqrt(gamma)
 c            if (.not.(nlfac.and.gam12.gt.tol_rho)) goto 25
 
 c   below note factor of two for spin scaling
-            tauN = 2.d0*( tau(n,1,1) + 
-     &                    tau(n,2,1) + 
-     &                    tau(n,3,1)   )
+            tauN = 2.d0* tau(n,1)
             
 c
 c     Evaluate the GC part of Fx, i.e. mt(x) = Fx - 1
@@ -319,9 +317,7 @@ c            gam12 = 2d0*dsqrt(gamma)
 c            if (.not.(nlfac.and.gam12.gt.tol_rho)) goto 20
 
 c   below note factor of two for spin scaling
-            tauN = 2.d0*( tau(n,1,2) + 
-     &                    tau(n,2,2) + 
-     &                    tau(n,3,2)   )
+            tauN = 2.d0* tau(n,2)
 
             
 c

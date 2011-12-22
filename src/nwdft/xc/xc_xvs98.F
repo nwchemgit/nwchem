@@ -59,7 +59,7 @@ c
 c
 c     kinetic energy density or tau
 c
-      double precision tau(nq,3,ipol), Mmat(nq,*)
+      double precision tau(nq,ipol), Mmat(nq,*)
 
       double precision tauN,tauu,DTol
       double precision Tiny, f13, f43, f53, f83, f113 
@@ -153,9 +153,7 @@ c
             rho83 = rho53*rhoo 
 c
              
-            tauN = tau(n,1,1) +
-     &             tau(n,2,1) +
-     &             tau(n,3,1)
+            tauN = tau(n,1)
             if(taun.lt.dtol) goto 10
             tauu=tauN
             gamma = delrho(n,1,1)*delrho(n,1,1) +
@@ -208,9 +206,7 @@ c
 
 c
 
-             tauN = tau(n,1,1) +
-     &              tau(n,2,1) +
-     &              tau(n,3,1)
+             tauN = tau(n,1)
              tauu = tauN*Two
 
             Gamma = delrho(n,1,1)*delrho(n,1,1) +
@@ -257,9 +253,7 @@ c
 
 c
 
-             tauN = tau(n,1,2) +
-     &              tau(n,2,2) +
-     &              tau(n,3,2)
+             tauN = tau(n,2)
              tauu = Two*tauN
 
 

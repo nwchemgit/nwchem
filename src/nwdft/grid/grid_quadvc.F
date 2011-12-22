@@ -12,7 +12,7 @@
      ,     Ex, Ec, Amat,Cmat,g_vxc,Amat2,Cmat2,
      ,     nmat, do_scf, do_cpks_l, do_cpks_r, do_nmrks_r, tmat,
      ,     l3d, triplet, 
-     &     tau, ttau, kske, Mmat, Mmat2)
+     &     ttau, kske, Mmat, Mmat2)
 C$Id$
       implicit none
 #include "errquit.fh"
@@ -121,7 +121,7 @@ c
      ,        l3d,triplet,
      .     int_mb(ibas_cent_xinfo),int_mb(ibas_cset_xinfo),
      .        log_mb(idocsetx),
-     &        tau, ttau, kske, Mmat, Mmat2, StericEnergy)
+     &        ttau, kske, Mmat, Mmat2, StericEnergy)
          ntot_cube=ntot_cube+1
          if(cube_done) then
             nwrbuf=nwrbuf+1

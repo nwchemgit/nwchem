@@ -43,7 +43,7 @@ c
 c
 c     kinetic energy density   or  tau
 c
-      double precision tau(nq,3,ipol), Mmat(nq,*)
+      double precision tau(nq,ipol), Mmat(nq,*)
       double precision tol_rho
 c
       integer ispin,cmatpos
@@ -69,7 +69,7 @@ c     Ex = Ex[2n_up]/2 + Ex[2n_down]/2
      &           Amat(1,ispin), Cmat(1,cmatpos), 
      &           nq, Ex, 2d0,
      &           qwght, ldew, func, 
-     T           tau(1,1,ispin),Mmat(1,ispin))
+     T           tau(1,ispin),Mmat(1,ispin))
          enddo
 
       endif
@@ -103,7 +103,7 @@ c
 c
 c     kinetic energy density   or  tau
 c
-      double precision tau(nq,3), Mmat(nq)
+      double precision tau(nq,*), Mmat(nq)
 c
       double precision facttwo ! 2 for o.s. 1 for c.s.
 c
@@ -186,7 +186,7 @@ c
      &           delrho(n,2)*delrho(n,2) +
      &           delrho(n,3)*delrho(n,3)
             gamma=gamma*facttwo*facttwo
-            tauN = (tau(n,1) + tau(n,2) + tau(n,3))*facttwo
+            tauN = tau(n,1)*facttwo
             tauW=0.125d0*gamma*rrho
             tauU=0.3d0*P32*rhoval**F53
 c     

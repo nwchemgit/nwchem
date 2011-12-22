@@ -9,7 +9,7 @@
      .            drhonuc,ddelrhonuc,d2scr,nscr,
      ,            force, hess, g_rhs, do_force,
      &            do_hess, do_cpks_r, natoms, oactive,
-     &            nactive, rdens_atom, cetobfr, tau, ttau, Mmat, Mmat2)
+     &            nactive, rdens_atom, cetobfr, ttau, Mmat, Mmat2)
 c      
 c     $Id$
 c     
@@ -56,7 +56,7 @@ c
       double precision rho(n_per_rec,ipol*(ipol+1)/2)
       double precision delrho(n_per_rec,3,ipol)
 
-      double precision tau(*), Mmat(*), ttau(*)
+      double precision Mmat(*), ttau(*)
 
       double precision Amat(n_per_rec,ipol), Cmat(n_per_rec,3,ipol),
      &                 Bmat(n_per_rec,*)
@@ -258,7 +258,7 @@ c Qin/end
      &     do_hess, do_cpks_r, natoms, oactive,
      &     nactive, rdens_atom, 
      &     cetobfr,
-     &     tau, ttau, kske, Mmat, Mmat2, ldbw,
+     &     ttau, kske, Mmat, Mmat2, ldbw,
      $     fact, dtype, nconstr)  ! Qin
 
  110      ntot_cube=ntot_cube+1
