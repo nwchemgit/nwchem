@@ -247,9 +247,6 @@ ifdef SLURM
   DEFINES += -DSLURM
 endif
 
-util_version.o:      util_version.F
-	$(FC) -c $(FFLAGS) -O0 util_version.F
-
 include ../config/makelib.h
 
 
