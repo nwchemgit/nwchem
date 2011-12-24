@@ -3,10 +3,6 @@ c
 c $Id$
 c
       implicit none
-#include "global.fh"
-#include "mafdecls.fh"
-#include "tce.fh"
-#include "tce_main.fh"
 c
       integer size
       integer hash(*)
@@ -27,8 +23,8 @@ c
 c
 c
       subroutine ma_zero(array,size_ma)
-#include "global.fh"
-#include "mafdecls.fh"
+      implicit none
+c
       integer k_ma,size_ma,i
       double precision array(size_ma)
       do i=1,size_ma
