@@ -1,5 +1,5 @@
 c
-c      Specify fractional MO occupations
+c      Fractional MO occupations handler
 c      occup nA nB
 c          occA-1 occB-1
 c          ...
@@ -30,8 +30,7 @@ c
        integer nbf             ! input
        integer npol            ! nr of polarizations
        integer g_vecs(npol)    ! input/output
-       integer i,ispin,iorb,iorb1,ntot_occ,nbf_ao,
-     &         ind_min,ind_max
+       integer i,ispin,iorb,iorb1,ntot_occ,nbf_ao,ind_min,ind_max
        logical loccup_list,loccup,lerror_check
        integer l_occ,k_occ,nfocc_in(npol),nfocc
        double precision user_occ,diff_occ,error_occ 
@@ -51,6 +50,7 @@ c
        end if
        if (nfocc.eq.0) return
 c
+c      memory for the user occupations
        if (.not. ma_push_get(mt_dbl,nfocc,'occups',l_occ,k_occ))
      &  call errquit('dft_frac_mo: k_occ error',0,MA_ERR)
 c
@@ -66,20 +66,11 @@ c      tally up user occupation
        enddo
        diff_occ=abs(ntot_occ*1.0d0-user_occ)
 c
-c      occupation consistency check
-       error_occ=1e-2
-       lerror_check = (diff_occ .gt. error_occ)
-       if (lerror_check) then
-         write(luout,*) 'diff_occ :', diff_occ
-         write(luout,*) 'error_occ :', error_occ
-         call errquit('dft_frac_mo: diff_occ error ',0, GA_ERR)
-       else
-         do i=1,nfocc
-           dbl_mb(k_occ+i-1)=sqrt(dbl_mb(k_occ+i-1))
-         enddo
-      endif ! lerror_check
+       do i=1,nfocc
+          dbl_mb(k_occ+i-1)=sqrt(dbl_mb(k_occ+i-1))
+       enddo
 c
-c      reset fractional occupations
+c      initialize fractional occupations
        do i=1,nbf*npol
          focc(i)=0.0d0
        enddo
