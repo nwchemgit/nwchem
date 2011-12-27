@@ -287,13 +287,14 @@ c ------------------------------------------
 c Find nroot smallest eigenvalue differences
 c ------------------------------------------
 c
-      if (lecut.and.nroots.gt.necut) then
-         nroots = necut
-      end if
-      if (lowin.and.(nroots.gt.nowin)) then
-        nroots = nowin
+      if (lecut) then
+       if (nroots.gt.necut) nroots = necut
+      else if (lowin) then
+       if (nroots.gt.nowin) nroots = nowin
       endif
+c
       n=min(nroots+buf,nov(1)+nov(2))
+c
       do m=1,n
         swap=huge
         l=0
@@ -379,10 +380,10 @@ c Check if the nroots-th excited state could be degenerate
 c If so, increase nroots iteratively
 c --------------------------------------------------------
 c
-      if (lecut.and.nroots.gt.necut) then
-           nroots = necut
-      else if (lowin.and.(nroots.gt.nowin)) then
-           nroots = nowin
+      if (lecut) then
+       if (nroots.gt.necut) nroots = necut
+      else if (lowin) then
+       if (nroots.gt.nowin) nroots = nowin
       else if (nroots.gt.nov(1)+nov(2)) then
         if (nodezero.and.util_print('initial guess',print_default))
      1    write(LuOut,9040) nroots,nov(1)+nov(2)
