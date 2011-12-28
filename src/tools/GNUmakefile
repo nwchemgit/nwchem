@@ -394,7 +394,7 @@ endif
 ifdef DEV_GA
 GA_DIR = ga-dev
 else
-GA_DIR = ga-5-0
+GA_DIR = ga-5-1
 endif
 BUILDDIR = build
 INSTALLDIR = install
