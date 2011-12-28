@@ -16,8 +16,8 @@ TOOLDIR=`pwd`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
    GA_DEV_SVN=https://svn.pnl.gov/svn/hpctools/trunk/ga
        GA_DEV=ga-dev
-GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-0
-    GA_STABLE=ga-5-0
+GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-1
+    GA_STABLE=ga-5-1
    GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-4-3
        GA_OLD=ga-4-3
 
