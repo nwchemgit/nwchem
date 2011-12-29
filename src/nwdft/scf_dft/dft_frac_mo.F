@@ -25,9 +25,9 @@ c
 #include "util.fh"
 c
        integer rtdb
+       integer nbf             ! input
        double precision focc(nbf*npol) ! fractional occupancies
        integer g_dens(npol)       ! spin-orbit density matrix
-       integer nbf             ! input
        integer npol            ! nr of polarizations
        integer g_vecs(npol)    ! input/output
        integer i,ispin,iorb,iorb1,ntot_occ,nbf_ao,ind_min,ind_max
