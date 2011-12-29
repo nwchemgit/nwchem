@@ -203,12 +203,11 @@ c     == zora related ==
       integer g_zora_so(3)
       integer g_zora_scale_so(3)
       double precision Ezora_sf
-      integer switch_sclMO_so ! switch =1,0 ON,OFF sclMO-FA-02-18-11
+      integer switch_focc
 c
       logical spinor
       logical dft_mem3c
       external dft_mem3c
-      external dft_scaleMO_so ! FA-occupations from input script 02-15-11
 c
       icd_coef = 0
       k_3cERI  = 0
@@ -906,8 +905,6 @@ c$$$          write (luout,*) i, dbl_mb(i-1+k_occ), dbl_mb(i-1+nbf_ao+k_occ)
 c$$$        end do
       endif ! fon
 c
-      switch_sclMO_so=0 ! FA-09-26-11
-c     
 c     the fractionally occupied mo's are scaled by the sqrt of the fon
 c     
       if (fon) then 
@@ -922,20 +919,20 @@ c
      &        1, nbf_mo, i, i, scale)
          end do
          if(me.eq.0) write(luout,'(5x,a)')  'FON applied'
-       end if ! fon
-c      else
-c ---- FA-02-18-11 : occupations keyword ---- START
-c       call dft_scaleMO_so(rtdb,g_moso,dbl_mb(k_occ),g_densso,
-c     &                     nbf_mo,nTotOcc,switch_sclMO_so)
-c      endif
+      end if ! fon
 c
-c     calculate the spin-orbit density matrix using the scaled mo's
-c 
-c       if (switch_sclMO_so.ne.1) then
-c         if (ga_nodeid().eq.0)
-c     &   write(*,*) 'ENTER calc so-density matrix std-way'
-         call dft_densm_so(g_densso, g_moso, nbf_ao, nTotOcc)
-c       endif
+c     fractional occupations by orbital
+      switch_focc = 0
+      status=rtdb_get(rtdb,'focc:occup_switch', mt_int,1,switch_focc)
+
+      write(6,*) "switch_focc:",switch_focc
+
+      if (switch_focc.eq.1 .and. status) then ! using specified occupations 
+        call dft_frac_mo_so(rtdb,g_moso,dbl_mb(k_occ),g_densso,
+     &                     nbf_mo,nTotOcc)
+      else
+        call dft_densm_so(g_densso, g_moso, nbf_ao, nTotOcc) ! standard way
+      endif
 c
 c     restore the scaled mo's
 c
@@ -1568,8 +1565,7 @@ c
       call ga_sync 
       call ga_zero(g_densso(1))
       call ga_zero(g_densso(2)) 
-
-      switch_sclMO_so=0 ! FA=09-26-11 set OFF scaleMO_so
+c
 c     
 c     the fractionally occupied mo's are scaled by the sqrt of the fon
 c     
@@ -1585,19 +1581,17 @@ c         scale = sqrt(avg_fon)
            call ga_scale_patch(g_moso(2), 
      &        1, nbf_mo, i, i, scale)
          end do
-         if(me.eq.0) write(luout,'(5x,a)')  'FON applied'
-c      else
-c ---- FA-02-15-11 : occupations keyword ---- START
-c       call dft_scaleMO_so(rtdb,g_moso,dbl_mb(k_occ),g_densso,
-c     &                     nbf_mo,nTotOcc,switch_sclMO_so)
-c ---- FA-02-15-11 : occupations keyword ---- END
+      end if ! fon
+c
+c     fractional occupations by orbital
+      switch_focc = 0
+      status=rtdb_get(rtdb,'focc:occup_switch', mt_int,1,switch_focc)
+      if (switch_focc.eq.1 .and. status) then ! using specified occupations
+        call dft_frac_mo_so(rtdb,g_moso,dbl_mb(k_occ),g_densso,
+     &                     nbf_mo,nTotOcc)
+      else
+        call dft_densm_so(g_densso, g_moso, nbf_ao, nTotOcc) ! standard way
       endif
-
-c       if (switch_sclMO_so.ne.1) then
-c         if (ga_nodeid().eq.0)
-c     &   write(*,*) 'ENTER calc so-density matrix std-way'
-         call dft_densm_so(g_densso, g_moso, nbf_ao, nTotOcc)
-c       endif
 c     
 c     restore the scaled mo's
 c     
