@@ -468,7 +468,7 @@ c     For molecules, apply requested conversion of units after we have
 c     all of the information
 c     
  30   continue
-      write(*,*) "ncenter=",ncenter
+ccc      write(*,*) "ncenter=",ncenter
 
 *     **** do cartesian to frac conversion here ****
       if (ecce_periodic) then
