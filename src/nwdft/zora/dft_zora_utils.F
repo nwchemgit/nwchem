@@ -47,13 +47,13 @@ czora...Scale zora eigenvalues and energy
       double precision zora_eint,zora_denom,
      &                 scale,scale_MO,scale_MO1  
       logical status,done_Fji,do_zgc_old    
-      integer nospin,nogshift,nogiao,noelfgz4,efgfile     
+      integer nospin,nogshift,nogiao,noelfgz4,efgfile,switch_focc
       data nospin,nogshift,nogiao,noelfgZ4/1,1,1,1/                       
       data switch_focc/0/ ! =0 not using occ keyword =1 using occ keyword
       data efgfile/0/     ! =0 no NLMO analysis      =1 doing NLMO analysis
       character*255 zorafilename
       integer dims(3),chunk(3) ! for g_Cifull(i) i=1,ipol
-      integer g_densZ4(3),switch_focc,ind_occ
+      integer g_densZ4(3),ind_occ
       logical skip_csAOev,skip_gshiftAOev,
      &        skip_hypAOev,skip_efgz4AOev
 c ---------- nlmo definitions ----------------- START
