@@ -9,6 +9,7 @@
 		nwpw_list.o \
 		nwpw_scf_mixing.o \
 		nwpw_spline.o \
+		nwpw_interp.o \
 		kerker_G.o \
 		cpmd_properties.o \
 		nwpw_rdf.o \
