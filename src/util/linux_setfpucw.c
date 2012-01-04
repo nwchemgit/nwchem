@@ -3,7 +3,7 @@
  */
 #include <stdio.h>
 #ifdef __CYGWIN__
-#include <mingw/fenv.h>
+#include <fenv.h>
 #elif  __FreeBSD__
 #include <ieeefp.h>
 #else
