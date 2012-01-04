@@ -25,10 +25,12 @@ RELEASE :=
 
 ifndef NWCHEM_TOP
 error1:
-	@echo You must define NWCHEM_TOP in your environment to be the path
-	@echo of the top level nwchem directory ... something like
-	@echo     setenv NWCHEM_TOP /msrc/home/elvis/nwchem
-	@exit 1
+$(info     )
+$(info You must define NWCHEM_TOP in your environment to be the path)
+$(info of the top level nwchem directory ... something like)
+$(info     setenv NWCHEM_TOP /msrc/home/elvis/nwchem)
+$(info     )
+$(error )
 endif
 
 # Select the old (pre-autotools version of GA) by uncommenting the next line.
