@@ -20,7 +20,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 9)
+      parameter (num_dirs = 12)
       character*15 dirs(num_dirs)
       data dirs / 'update',
      >            'print_shift',
@@ -29,6 +29,9 @@ c
      >            'dihedral',
      >            'coord_number',
      >            'n-plane',
+     >            'x',
+     >            'y',
+     >            'z',
      >            'tempered',
      >            'end'/
 
@@ -129,7 +132,7 @@ c
      >  call errquit(
      >  'metadynamics_input: unknown_directive',ind,INPUT_ERR)
 
-      goto ( 100, 150, 200, 300, 400, 500, 600, 800,
+      goto ( 100, 150, 200, 300, 400, 500, 600, 701,702,703, 800,
      >      9999) ind
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind,INPUT_ERR)
@@ -757,6 +760,111 @@ c
       end if
       goto 10
 
+c
+c  x,y,z
+c
+ 701  sindx(1) = 1
+      goto 704
+ 702  sindx(1) = 2
+      goto 704
+ 703  sindx(1) = 3
+      goto 704
+
+ 704  if (inp_i(sindx(2))) then
+
+*     *** set defaults for w,sigma,range and nrange ***
+      sdist(1) = 0.00005d0
+      sdist(2) = 0.10000d0
+      sdist(3) = -999.0d0
+      sdist(4) = -999.0d0
+      sindx(3) = 501
+
+ 705  if (.not.inp_a(test)) goto 799
+      if (.not. inp_match(num_dirs3,.false.,test,dirs3,ind3))
+     >  call errquit(
+     >  'metadynamics_input: unknown directive',0,INPUT_ERR)
+
+      goto ( 710,720,730,740) ind3
+      call errquit(
+     >     'metadynamics_input: unimplemented directive',ind3,INPUT_ERR)
+
+c
+c w, default=0.00005 au = 0.03175 kcal/mol
+c
+ 710  if (.not.inp_f(sdist(1))) sdist(1)=0.00005d0
+      goto 705
+c
+c sigma, default = 0.1 au
+c
+ 720  if (.not.inp_f(sdist(2))) sdist(2)=0.1d0
+      goto 705
+c
+c range
+c
+ 730  if (.not.inp_f(sdist(3))) sdist(3)=-999.0d0
+      if (.not.inp_f(sdist(4))) sdist(4)=-999.0d0
+      goto 705
+c
+c nrange, default = 501
+c
+ 740  if (.not.inp_i(sindx(3))) sindx(3)=501
+      goto 705
+
+
+ 799  continue
+      int_mb(sindxmeta(1) +nmeta)     = nindxmeta
+      int_mb(indxmeta(1)+nindxmeta)   = 6
+      int_mb(indxmeta(1)+nindxmeta+1) = sindx(1)
+      int_mb(indxmeta(1)+nindxmeta+2) = sindx(2)
+      nindxmeta  = nindxmeta + 3
+
+      int_mb(sparammeta(1)+nmeta)       = nparammeta
+      dbl_mb(parammeta(1)+nparammeta)   = sdist(1)
+      dbl_mb(parammeta(1)+nparammeta+1) = sdist(2)
+      nparammeta  = nparammeta + 2
+
+      nxmeta_all = nxmeta_all*sindx(3)
+      int_mb(nxmeta(1)+nmeta) = sindx(3)
+      dbl_mb(ameta(1)+nmeta)  = sdist(3)
+      dbl_mb(bmeta(1)+nmeta)  = sdist(4)
+
+      nmeta = nmeta + 1
+
+      rtdb_name = 'metadynamics_nindxmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
+      rtdb_name = 'metadynamics_sindxmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nmeta,int_mb(sindxmeta(1)))
+      rtdb_name = 'metadynamics_indxmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nindxmeta,int_mb(indxmeta(1)))
+      rtdb_name = 'metadynamics_nparammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
+      rtdb_name = 'metadynamics_sparammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nmeta,int_mb(sparammeta(1)))
+      rtdb_name = 'metadynamics_parammeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                 nparammeta,dbl_mb(parammeta(1)))
+      rtdb_name = 'metadynamics_ameta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
+      rtdb_name = 'metadynamics_bmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
+      rtdb_name = 'metadynamics_nxmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
+      rtdb_name = 'metadynamics_nmeta'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
+      rtdb_name = 'metadynamics_nxmeta_all'
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
+      if (.not. value) call errquit(
+     >'metadynamics_input:failed writing x,y,z',0,RTDB_ERR)
+
+      end if
+      goto 10
+ 
 
 
 c

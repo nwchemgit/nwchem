@@ -278,6 +278,37 @@ c     **********************************************
      >           'w=',w,'sigma=',sigma,
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
      >           'nrange= ',int_mb(nxmeta(1)+d-1)
+            else if (ntype.eq.6) then
+
+             if (int_mb(indxmeta(1)+s1+1).eq.1) then
+             write(*,'(A,5x,I4,
+     >                /6x,A,F11.6,4x,A,F11.6,
+     >                /6x,A,F11.6,F11.6,4x,A,I5)')
+     >       "   - X Parameters =  ",
+     >           int_mb(indxmeta(1)+s1+2),
+     >           'w=',w,'sigma=',sigma,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1)
+             else if (int_mb(indxmeta(1)+s1+1).eq.2) then
+             write(*,'(A,5x,I4,
+     >                /6x,A,F11.6,4x,A,F11.6,
+     >                /6x,A,F11.6,F11.6,4x,A,I5)')
+     >       "   - Y Parameters =  ",
+     >           int_mb(indxmeta(1)+s1+2),
+     >           'w=',w,'sigma=',sigma,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1)
+             else 
+             write(*,'(A,5x,I4,
+     >                /6x,A,F11.6,4x,A,F11.6,
+     >                /6x,A,F11.6,F11.6,4x,A,I5)')
+     >       "   - Z Parameters =  ",
+     >           int_mb(indxmeta(1)+s1+2),
+     >           'w=',w,'sigma=',sigma,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1)
+             end if
+
             end if
 
          end do
@@ -497,6 +528,15 @@ c     **** n-plane ****
          end do
          f = f/dble(n1)
 
+*     **** x,y,z ****
+      else if (ntype.eq.6) then
+         if (indx(2).eq.1)  then
+            f = ion_rion(1,indx(3))
+         else if (indx(2).eq.1)  then
+            f = ion_rion(2,indx(3))
+         else
+            f = ion_rion(3,indx(3))
+         end if
       end if
 
       meta_collective = f
@@ -707,6 +747,16 @@ c     **** n-plane ****
             fmeta(2,indx(3+i)) = fmeta(2,indx(3+i)) + ny*df
             fmeta(3,indx(3+i)) = fmeta(3,indx(3+i)) + nz*df
          end do
+
+*     **** x,y,z ****
+      else if (ntype.eq.6) then
+         if (indx(2).eq.1)  then
+            fmeta(1,indx(3)) = fmeta(1,indx(3)) - dv
+         else if (indx(2).eq.1)  then
+            fmeta(2,indx(3)) = fmeta(2,indx(3)) - dv
+         else
+            fmeta(3,indx(3)) = fmeta(3,indx(3)) - dv
+         end if
       end if
 
       return
