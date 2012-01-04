@@ -382,12 +382,26 @@ ifneq ($(SCALAPACK_LIB),)
 endif
 
 ifeq ($(TARGET),BGP)
-    MAYBE_HOST = --host=powerpc-bgp-linux CFLAGS="-g" FFLAGS="-g" CXXFLAGS="-g"
+    MAYBE_HOST = --host=powerpc-bgp-linux 
+    FFLAGS="-g"
+    CFLAGS="-g"
+    CXXFLAGS="-g"
 endif
 
 ifeq ($(USE_GPROF),y)
-    MAYBE_PROF1="CFLAGS=-pg"
-    MAYBE_PROF2="FFLAGS=-pg"
+    FFLAGS="-pg"
+    CFLAGS="-pg"
+    CXXFLAGS="-pg"
+endif
+
+ifdef FFLAGS
+    MAYBE_FFLAGS=FFLAGS="$(FFLAGS)"
+endif
+ifdef CFLAGS
+    MAYBE_CFLAGS=CFLAGS="$(CFLAGS)"
+endif
+ifdef CXXFLAGS
+    MAYBE_CXXFLAGS=CXXFLAGS="$(CXXFLAGS)"
 endif
 # End conversion of env vars to configure options
 
@@ -400,7 +414,7 @@ BUILDDIR = build
 INSTALLDIR = install
 CONFIGURE_PATH = ../$(GA_DIR)/configure
 TOOLDIR = $(shell pwd)
-CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_PROF1) $(MAYBE_PROF2)
+CONFIGURE_ARGS = --prefix=$(TOOLDIR)/$(INSTALLDIR) $(MAYBE_HOST) --with-tcgmsg $(MAYBE_MPI) --enable-peigs --enable-underscoring --disable-mpi-tests $(MAYBE_SCALAPACK) $(MAYBE_LAPACK) $(MAYBE_BLAS) $(MAYBE_ARMCI) $(MAYBE_CC) $(MAYBE_MPICC) $(MAYBE_F77) $(MAYBE_MPIF77) $(MAYBE_FFLAGS) $(MAYBE_CFLAGS) $(MAYBE_CXXFLAGS)
 SPACE :=
 SPACE +=
 STAMP_FC = $(subst /,-,$(subst $(SPACE),-,$(strip $(FC))).FC.stamp)
