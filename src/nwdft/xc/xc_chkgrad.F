@@ -88,6 +88,7 @@ c     hcth functionals
      .     xfac(15).ne.0d0.or.
      .     xfac(17).ne.0d0.or.
      .     xfac(22).ne.0d0.or.
+     .     xfac(16).ne.0d0.or.  ! optx
      .     cfac(13).ne.0d0.or.
      .     cfac(14).ne.0d0.or.
      .     cfac(15).ne.0d0.or.
