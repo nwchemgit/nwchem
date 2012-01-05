@@ -530,12 +530,12 @@ c
 c
 c n
 c
- 530  if (.not.inp_f(sdist(1))) sdist(3)=6.0d0
+ 530  if (.not.inp_f(sdist(3))) sdist(3)=6.0d0
       goto 501
 c
 c m
 c
- 540  if (.not.inp_f(sdist(2))) sdist(4)=12.0d0
+ 540  if (.not.inp_f(sdist(4))) sdist(4)=12.0d0
       goto 501
 c
 c r0

@@ -242,6 +242,9 @@ c     **********************************************
             else if (ntype.eq.4) then
              n1 = int_mb(indxmeta(1)+s1+1)
              n2 = int_mb(indxmeta(1)+s1+2)
+             n  =  dbl_mb(parammeta(1)+s2+2)
+             m  =  dbl_mb(parammeta(1)+s2+3)
+             r0 =  dbl_mb(parammeta(1)+s2+4)
              write(*,1001) (int_mb(indxmeta(1)+s1+3+j-1),j=1,n1)
              write(*,1002) (int_mb(indxmeta(1)+s2+3+n1+j-1),j=1,n2)
 
