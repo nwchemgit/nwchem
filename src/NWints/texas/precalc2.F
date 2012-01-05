@@ -1205,7 +1205,9 @@ cccc  dimension abprim(nparij,ijcont,3)
       dimension apb(ijcont),rapb(ijcont),sab(nij_uniqe,ijcont)
       dimension ij_uniqe(nij_uniqe)
 c
-      dimension sqrtx(400),eexx(400)
+      integer dimmx
+      parameter(dimmx=500)
+      dimension sqrtx(dimmx),eexx(dimmx)
 c---------------------------------------------------------------
 cccc  do 100 ijpar=1,nparij
 cccc  ijcs=ijbl(ibl,ijpar)
@@ -1240,6 +1242,9 @@ c
         rr=xab*xab+yab*yab+zab*zab
 c
            ij=0
+           if((ie-ia+1)*(je-ja+1).gt.dimmx) call errquit(
+     A          ' ab_prim_2: increased dimmx to ',
+     C          (ie-ia+1)*(je-ja+1),0)
            do 200 is=ia,ie
            aa=datbas(1,is)
 c----------------------------------
