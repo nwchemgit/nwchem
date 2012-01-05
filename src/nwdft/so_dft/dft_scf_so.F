@@ -924,9 +924,6 @@ c
 c     fractional occupations by orbital
       switch_focc = 0
       status=rtdb_get(rtdb,'focc:occup_switch', mt_int,1,switch_focc)
-
-      write(6,*) "switch_focc:",switch_focc
-
       if (switch_focc.eq.1 .and. status) then ! using specified occupations 
         call dft_frac_mo_so(rtdb,g_moso,dbl_mb(k_occ),g_densso,
      &                     nbf_mo,nTotOcc)
