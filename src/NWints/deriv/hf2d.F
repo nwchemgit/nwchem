@@ -138,6 +138,9 @@ c
      &    W0,maxW0)
       
       Implicit None
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "case.fh"
       
       Logical canAB,canCD,canPQ,dryrun
       
@@ -177,6 +180,7 @@ c:: local
       integer i_ERI, i_Eq, i_Ep, i_IJK, i_R0
       integer i_pf, i_P, i_Q, i_PQ, i_ff, i_Rj, i_E3, i_sum
       integer i_dP, i_dQ, i_dR, i_dS
+      integer i_ffscr,l_ffscr,i_rscr,l_rscr,nvals
 c
 c Compute gradients of 4-ctr electron repulsion integrals (ERI) for 4 shells 
 c of contracted Gaussian functions.
@@ -380,10 +384,25 @@ c Assign pointers to scratch space.
       if( dryrun )then
         MaxMem = max( MaxMem, i_top)
       else
+         nvals=1
+         if(doscreen) nvals=2*NPP*NPQ
+         if (.not.MA_Push_get(mt_dbl,nvals,'ffscr',
+     C        l_ffscr,i_ffscr)) call errquit(
+     E        'hf2d: ran out of MA memory',0,MEM_ERR)
+         nvals=1
+         if(doscreen) nvals=2*NPP*NPQ*lr3*(lr+1)
+         if (.not.MA_Push_get(mt_dbl,nvals,'rscr',
+     C        l_rscr,i_rscr)) call errquit(
+     E        'hf2d: ran out of MA memory',1,MEM_ERR)
+         
         call hf2mkr(
      &      Axyz,Bxyz,Cxyz,Dxyz,W0(i_ALPHAp),W0(i_ALPHAq),
      &      W0(i_R0),W0(i_IJK),W0(i_P),W0(i_Q),W0(i_PQ),
-     &      W0(i_ff),W0(i_Rj),NPP,NPQ,Lr,Lr3)
+     &      W0(i_ff),W0(i_Rj),
+     &        dbl_mb(i_ffscr),dbl_mb(i_rscr),
+     N        NPP,NPQ,Lr,Lr3)
+        if (.not.ma_chop_stack(l_ffscr)) call errquit(
+     E       'hf2d: machopstack failed',0,MEM_ERR)
       endif
       
 c Compute the gradient ERIs.

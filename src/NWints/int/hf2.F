@@ -10,6 +10,7 @@ c $Id$
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "errquit.fh"
+#include "case.fh"
 
       Integer NPA,NCA,La
       Integer NPB,NCB,Lb
@@ -51,6 +52,7 @@ c--> Local variables
       Integer i_R0,i_IJK,i_P,i_Q,i_PQ,i_ff,i_Rj
       Integer i_E3,i_t1,i_t2,i_t3,i_t4,i_eri,i_top
       Integer i,j,istep
+      integer i_ffscr,l_ffscr,i_rscr,l_rscr,nvals
 
       Logical doit_PQ
 
@@ -303,19 +305,33 @@ c   If insufficient memory, do multipassing.
           if( DryRun )then
             MaxMem = max( MaxMem, i_top )
           else
+             nvals=1
+             if(doscreen) nvals=2*MPP*MPQ
+             if (.not.MA_Push_get(mt_dbl,nvals,'ffscr',
+     C            l_ffscr,i_ffscr)) call errquit(
+     E            'hf2: ran out of MA memory',0,MEM_ERR)
+             nvals=1
+             if(doscreen) nvals=2*MPP*MPQ*lr3*(lr+1)
+             if (.not.MA_Push_get(mt_dbl,nvals,'rscr',
+     C            l_rscr,i_rscr)) call errquit(
+     E            'hf2: ran out of MA memory',1,MEM_ERR)
             if (doit_PQ) then
               call hf2mkr(Axyz,Bxyz,Cxyz,Dxyz,
      &            W0(i_ALPHAp+2*ipp),W0(i_ALPHAq+2*ipq),
      &            W0(i_R0),W0(i_IJK),W0(i_P),W0(i_Q),W0(i_PQ),
      &            W0(i_ff),W0(i_Rj),
+     &            dbl_mb(i_ffscr),dbl_mb(i_rscr),
      &            MPP,MPQ,Lr,Lr3)
             else
               call hf2mkr(Cxyz,Dxyz,Axyz,Bxyz,
      &            W0(i_ALPHAq+2*ipq),W0(i_ALPHAp+2*ipp),
      &            W0(i_R0),W0(i_IJK),W0(i_Q),W0(i_P),W0(i_PQ),
      &            W0(i_ff),W0(i_Rj),
+     &            dbl_mb(i_ffscr),dbl_mb(i_rscr),
      &            MPQ,MPP,Lr,Lr3)
             end if
+             if (.not.ma_chop_stack(l_ffscr)) call errquit(
+     E            'hf2: machopstack failed',0,MEM_ERR)
           end if
 
 c Compute the ERI.

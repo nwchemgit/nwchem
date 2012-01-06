@@ -1,5 +1,5 @@
       Subroutine hf2mkr(Axyz,Bxyz,Cxyz,Dxyz,alpha_p,alpha_q,R0,IJK,
-     &    Pxyz,Qxyz,PQ,ff,R,NPP,NPQ,Lr,Lr3)
+     &    Pxyz,Qxyz,PQ,ff,R,ffscr,rscr,NPP,NPQ,Lr,Lr3)
 c
 c $Id$
 
