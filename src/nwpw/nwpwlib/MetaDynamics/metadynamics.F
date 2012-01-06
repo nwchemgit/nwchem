@@ -358,8 +358,8 @@ c     **********************************************
       if (metafound) then
 
 *        **** print out potentials ******
-         metaraycount = metaraycount + metarayshift
-         call meta_print_potentials(metaraycount)
+         !metaraycount = metaraycount + metarayshift
+         call meta_print_potentials(0)
 
          value=.true.
          rtdb_name='metadynamics_metacount'
