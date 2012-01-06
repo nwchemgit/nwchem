@@ -120,7 +120,6 @@ c     GA handle for magnetic field perturbed MO vectors:
      $        lbeta, lquad
       logical oprint
 
-#ifdef JEFF_OUTPUT
       double precision alfare2(3,3), alfaim2(3,3)
       double precision auXnm   ! Conversion factor from a.u. to nm
       parameter (auXnm=45.563353d0)
@@ -132,7 +131,7 @@ c     GA handle for magnetic field perturbed MO vectors:
       double precision awork(9)     ! dgeev workspace
       double precision alpha_rtdb(12) ! omega, XX, XY, XZ, YY, YZ, ZZ, LL, MM, NN, Iso, Ani
       integer aeiginfo              ! dgeev information
-#endif
+cccc#endif
 
 c     ==================================================================
 
@@ -780,24 +779,16 @@ c     ------------
         call output(alfare,1,3,1,3,3,3,1)
       endif
 c
-c
-c
-#ifdef JEFF_OUTPUT
           do idir = 1,3
             do ipert = 1,3
               alfare2(idir,ipert) = alfare(idir,ipert)
               alfaim2(idir,ipert) = alfaim(idir,ipert)
             enddo
           enddo
-
-c THIS CALL IS A PROBLEM WITH MANY BLAS LIBRARIES.
-c I DO NOT UNDERSTAND WHAT THE PROBLEM IS.          
-c          call dgeev('N','N',3,alfare2,3,alphaevr,alphaevi,
-c     1               aeigvec,3,aeigvec,3,awork,9,aeiginfo)
-c          if (aeiginfo.ne.0) write(LuOut,*) 'aeiginfo = ',aeiginfo
-c UNTESTED
-          call hnd_diag(alfare2,alphaevr,3,.false.,.false.)
-
+c
+c         diagonalize
+          call hnd_diag(alfare2,alphaevr,3,.false.,.false.)  ! replaces dgeev call
+c
           alphaiso = (alphaevr(1)+alphaevr(2)+alphaevr(3))/3.0d0
           alphaani = (alphaevr(1)-alphaevr(2))*(alphaevr(1)-alphaevr(2))
      1             + (alphaevr(1)-alphaevr(3))*(alphaevr(1)-alphaevr(3))
@@ -847,7 +838,7 @@ c
      2       call errquit('aoresponse_driver: rtdb_put failed',12,
      3                    RTDB_ERR)
 c
-#endif
+ccc#endif
 c
 c
 c
