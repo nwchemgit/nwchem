@@ -2228,12 +2228,12 @@ endif
   CORE_LIBS += $(SCALAPACK) $(PBLAS) $(BLACS)
 endif
 
-ifdef BLASOPT
-       CORE_LIBS +=  $(BLASOPT) 
-endif
 ifdef USE_64TO32
       CORE_LIBS +=  -l64to32
 NWSUBDIRS += 64to32blas
+endif
+ifdef BLASOPT
+       CORE_LIBS +=  $(BLASOPT) 
 endif
       CORE_LIBS +=  -llapack  -lblas 
 
