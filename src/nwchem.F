@@ -28,7 +28,7 @@ c
 c     $Id$
 c
 c      ======================================================================================================
-c      Northwest Computational Chemistry Package (NWChem) 6.0
+c      Northwest Computational Chemistry Package (NWChem) 6.1
 c
 c      Environmental Molecular Sciences Laboratory (EMSL)
 c      Pacific Northwest National Laboratory
@@ -379,7 +379,7 @@ c
       write(LuOut,*)
       write(LuOut,*)
       call util_print_centered(LuOut,
-     $     'Northwest Computational Chemistry Package (NWChem) 6.0',
+     $     'Northwest Computational Chemistry Package (NWChem) 6.1',
      $     40, .true.)
       write(LuOut,*)
       write(LuOut,*)
@@ -470,7 +470,7 @@ C
 C  Print version information to ecce.out file
 C
       compiled(inp_strlen(compiled)+1:inp_strlen(compiled)+25) = 
-     $         ' Version 6.0'
+     $         ' Version 6.1'
       call ecce_print_version(compiled(1:inp_strlen(compiled)))
 C
       If ( Inp_StrLen(BatchID) .gt. 0) then
