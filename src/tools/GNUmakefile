@@ -394,14 +394,14 @@ ifeq ($(USE_GPROF),y)
     CXXFLAGS="-pg"
 endif
 
-ifdef FFLAGS
-    MAYBE_FFLAGS=FFLAGS="$(FFLAGS)"
+ifdef FFLAGS_FORGA
+    MAYBE_FFLAGS=FFLAGS="$(FFLAGS_FORGA)"
 endif
-ifdef CFLAGS
-    MAYBE_CFLAGS=CFLAGS="$(CFLAGS)"
+ifdef CFLAGS_FORGA
+    MAYBE_CFLAGS=CFLAGS="$(CFLAGS_FORGA)"
 endif
-ifdef CXXFLAGS
-    MAYBE_CXXFLAGS=CXXFLAGS="$(CXXFLAGS)"
+ifdef CXXFLAGS_FORGA
+    MAYBE_CXXFLAGS=CXXFLAGS="$(CXXFLAGS_FORGA)"
 endif
 # End conversion of env vars to configure options
 
