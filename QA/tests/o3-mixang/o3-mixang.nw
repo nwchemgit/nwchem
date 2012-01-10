@@ -1,0 +1,40 @@
+echo
+
+start o3-mixang
+
+title o3-mixang
+
+memory 1000 mb noverify
+
+geometry noautoz nocenter 
+O1                 0.00000000    0.00000000   -0.50788777
+O2                 0.00000000   -1.07796685    0.25394388
+O3                -0.00000000    1.07796685    0.25394388
+symmetry c1
+end
+
+basis 
+* library 6-31G*
+end
+
+dft
+xc hfexch
+odft
+mult 1
+mulliken
+vectors input atomic output symm.mos
+end
+task dft
+
+set mixang 120.
+dft
+xc b3lyp
+adapt off
+vectors input symm.mos  swap alpha 13 12 output brksymm.mos
+end
+
+#task dft
+dft
+xc b3lyp
+end
+task dft
