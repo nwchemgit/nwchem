@@ -12,7 +12,7 @@ basis noprint
   H library sto-3g
   O library sto-3g
 end
- charge 0
+charge 0
 property
   mulliken
   dipole
@@ -27,10 +27,22 @@ end
 
 task scf property
 
+charge 1
 dft
+ mult 2
  xc b3lyp
  fukui
  print "Fukui information"
+end
+property
+  mulliken
+  dipole
+  quadrupole
+  octupole
+  esp
+  efield
+  efieldgrad
+  electrondensity
 end
 
 task dft property
