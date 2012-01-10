@@ -211,8 +211,8 @@ c
 c     Add DFT XC if running DFT calculation
 
       if (xc_gotxc()) then
-         if (ga_nodeid().eq.0)
-     &     write(*,*) 'Entering for xc, kfac=',kfac
+c         if (ga_nodeid().eq.0)
+c     &     write(*,*) 'Entering for xc, kfac=',kfac
          alo(1) = 1
          ahi(1) = nfock(npol) ! =3 npol=1, 12 npol=2
          alo(2) = 1

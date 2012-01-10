@@ -228,12 +228,14 @@ c
 c     === deallocate used ga's ===
       if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
      &   ipol=1
-      if (nogshift.eq.0 .or. nogiao.eq.0 .or. nospin.eq.0 .and. 
-     &  do_zora) then
+c
+      if (nogshift.eq.0 .or. nogiao.eq.0 .or. nospin.eq.0) then
+       if (do_zora) then 
         do i=1,ipol
            if (.not. ga_destroy(g_Cifull(i))) call errquit(
      &         'prp: ga_destroy failed ',0, GA_ERR)
         enddo ! ipol
+       end if
       end if ! check
 c
 c     ----- stone's distributed multipole analysis -----
