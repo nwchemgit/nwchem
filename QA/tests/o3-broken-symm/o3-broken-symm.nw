@@ -1,0 +1,56 @@
+echo
+start o3-broken-symm
+
+title o3-broken-symm
+
+memory 1000 mb noverify
+
+geometry o3 noautoz nocenter
+O1                 0.00000000    0.00000000   -0.50788777
+O2                 0.00000000   -1.07796685    0.25394388
+O3                -0.00000000    1.07796685    0.25394388
+end
+
+geometry o noautoz nocenter
+O                 0.00000000    0.00000000   0
+end
+
+basis 
+* library 6-31G*
+end
+
+set geometry o
+dft
+xc b3lyp
+vectors input atomic output osingl.mos
+odft
+mult 1
+end
+
+task dft 
+
+dft
+mult 3
+vectors input atomic output oup.mos
+end
+
+task dft
+
+dft
+mult -3
+vectors input atomic output odown.mos
+end
+
+task dft
+
+set geometry o3
+
+dft
+mult 1
+odft
+xc b3lyp
+mulliken
+vectors input fragment osingl.mos oup.mos odown.mos
+end
+
+task dft
