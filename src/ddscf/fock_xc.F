@@ -13,7 +13,6 @@ c
 #include "global.fh"
 #include "geom.fh"
 #include "mafdecls.fh"
-#include "../nwdft/grid/cgridfile.fh"
 c!!! BGJ
 #include "bgj.fh"
 #include "rtdb.fh"
@@ -66,7 +65,7 @@ c
       integer nfock_xc,i
       integer ityp, ndim
       logical lcgmin
-      external grid_reopen,xc_gotxc,xc_getipol
+      external xc_gotxc,xc_getipol
       integer ga_create_atom_blocked,dft_npatch
       external ga_create_atom_blocked
 c
@@ -270,7 +269,6 @@ c
 c     
 c     check if we can get the grid from a file
 c         
-      grid_written=grid_reopen(geom)
 c
       if (.not.lcgmin) then
        call grid_quadv0_gen(rtdb, 
@@ -335,8 +333,6 @@ c
      &         call errquit('fock_xc: could not destroy DM',2, GA_ERR)
          endif
       endif
-c
-      call grid_cleanup(.true.)
 c
       if (oprint) then
          if(ga_nodeid().eq.0)write(luout,*)'XC matrix at end fock_xc:'

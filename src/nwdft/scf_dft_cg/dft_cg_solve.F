@@ -35,6 +35,7 @@ c
 #include "zora.fh"
 #include "rel_consts.fh"
 #include "case.fh"
+#include "../nwdft/grid/cgridfile.fh"
 c
       integer  ga_create_atom_blocked
       external ga_create_atom_blocked
@@ -57,6 +58,8 @@ c
 c
       logical int_normalize
       external int_normalize
+      external grid_reopen
+      logical grid_reopen
 c
       logical lsuccess, ltried_scf, ltried_cgmin, lcgmin
       logical dft_scf,atmblk, lcdft, dft_cscf_equals_scftype
@@ -106,6 +109,7 @@ c     == Do quasi-Newton-Raphson DFT ==
       call dft_cg_init(rtdb)
       call dft_cg_guess(rtdb)
       dft_time = -util_cpusec()
+      grid_written=grid_reopen(geom)
       if (dft_cscf_equals_scftype("UHF")) then
         call uhf_init(rtdb)
         lsuccess = dft_uks_nr_solve(rtdb, energy, eone, etwo, exc,
@@ -117,6 +121,7 @@ c     == Do quasi-Newton-Raphson DFT ==
      +                               exc, enrep, nexc)
         call rohf_tidy
       endif
+      call grid_cleanup(.true.)
 c
       dft_time = dft_time + util_cpusec()
 c
