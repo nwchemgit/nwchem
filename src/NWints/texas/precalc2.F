@@ -1206,7 +1206,7 @@ cccc  dimension abprim(nparij,ijcont,3)
       dimension ij_uniqe(nij_uniqe)
 c
       integer dimmx
-      parameter(dimmx=500)
+      parameter(dimmx=1500)
       dimension sqrtx(dimmx),eexx(dimmx)
 c---------------------------------------------------------------
 cccc  do 100 ijpar=1,nparij
