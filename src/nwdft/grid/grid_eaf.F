@@ -37,7 +37,7 @@ cgrinfo     enuc in first record
       endif
       grid_grinfoinit=ierr.eq.0
       if (otrace) then
-         write(LuOut,*) ' INFO ' // what(1:4)// ' from ',grinfo
+         write(LuOut,*) '1INFO ' // what(1:4)// ' from ',grinfo
          write(LuOut,*) '      enuc',enuc_in
          call util_flush(LuOut)
       endif
@@ -97,7 +97,7 @@ cgrinfo     foplog in 5th record
      I        ierr, DISK_ERR)
       endif
       if (otrace) then
-         write(LuOut,*) ' INFO ' // what(1:4) // ' from ',grinfo
+         write(LuOut,*) '2INFO ' // what(1:4) // ' from ',grinfo
          write(LuOut,*) ' ierr ',ierr
          write(LuOut,*) '      mxcrec',max_cache_rec
          write(LuOut,*) '      nrecfil',n_rec_in_file
