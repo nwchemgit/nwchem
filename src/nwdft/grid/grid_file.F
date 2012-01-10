@@ -42,7 +42,6 @@ c
       external util_scratch_dir_avail_for_me
       logical grid_file_rewind
       logical oreafail
-      integer eaftypegr
       external grid_file_rewind
       logical grid_grinfoinit,grid_grinfo2
       external grid_grinfoinit,grid_grinfo2
@@ -82,7 +81,6 @@ c
       cur_rec_rad=0d0
       eaftype=1000000+eaf_size_in_mb*1024*1024
 c     1k is plenty for grinfo
-      eaftypegr=1000000+1024
 #ifdef DEBUG
       if(ga_nodeid().eq.0) then
          write(6,*) '1eaftype',eaftype,eaf_size_in_mb
@@ -202,11 +200,6 @@ c
 #ifndef EAFHACK
          ierr=eaf_open(actualname, eaf_rw, fd)
 #else
-#ifdef DEBUG
-         write(6,'(I3,A,I15,A)') ga_nodeid(),
-     G        'Geafopengr typegr ',eaftype,
-     A        actualname
-#endif
          ierr=eaf_open(actualname, eaftype, fd)
 #endif
          if (ierr .ne. 0) then
@@ -425,6 +418,10 @@ c
                   write(LuOut,*) ' IO error message ',
      $                 errmsg(1:inp_strlen(errmsg)),
      $                 ' nrecdbl ',8*rec_len_in_dbl
+                  call util_flush(luout)
+                  call MA_summarize_allocated_blocks()
+                  call util_flush(luout)
+                  call util_flush(0)
                   call errquit('grid_packed_buf_write: write failed',0,
      &       DISK_ERR)
                endif
@@ -887,8 +884,6 @@ c
 #include "errquit.fh"
 #include "geom.fh"
 #include "cgridfile.fh"
-cedo#include "bgj.fh"
-#include "global.fh"
 c
       integer geom ![in]
 c
