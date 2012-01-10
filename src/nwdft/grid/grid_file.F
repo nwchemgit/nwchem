@@ -255,7 +255,8 @@ c
             write(luout,*) ' lstatus ',lstatus,ierr,ll
             call util_flush(lstatus)
          endif
-         if(lstatus) then
+         if(lstatus.and.file_opened) then
+cold         if(lstatus) then
             if(.not.grid_grinfo2(fdg,grinfo,'write',
      I           max_file_rec, max_cache_rec,n_rec_in_file,
      L           file_opened)) goto 199
