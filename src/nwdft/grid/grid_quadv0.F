@@ -117,15 +117,15 @@ c
 c     Open grid pts file
 c     
 cng
-cng      if (grid_written .and. n_rec_in_file .le. 0 ) then
+      if (grid_written .and. n_rec_in_file .le. 0 ) then
 c
 c       Somebody (fock_xc?) closed the grid file, better reopen it
 c       before continuing. Note, fock_xc tends to open the grid file
 c       at the beginning and close it at the end.
 c
-cng        if (.not.grid_reopen(geom)) call errquit(
-cng     &    'grid_quadv0: could not open grid file',0,DISK_ERR)
-cng      endif
+        if (.not.grid_reopen(geom)) call errquit(
+     &    'grid_quadv0: could not open grid file',0,DISK_ERR)
+      endif
 cng
       if (.not. grid_written .or. n_per_rec .le. 0 ) then
          call grid_packing_info
