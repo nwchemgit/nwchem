@@ -249,6 +249,9 @@ c
          if (eaf_close(fd) .ne. 0) call errquit
      $        ('grid_file_close: eaf_close failed',0, DISK_ERR)
          if (.not. okeep) then
+#ifdef EAFHACK
+            fd=-1
+#endif
             if (eaf_delete(actualname) .ne. 0) call errquit
      $           ('grid_file_close: delete failed', 0, DISK_ERR)
          endif
@@ -270,7 +273,9 @@ cold         if(lstatus) then
      $        ('grid_file_close: eaf_close failed',0, DISK_ERR)
          endif
       else
+#ifdef EAFHACK
          fdg=-1
+#endif
          if (eaf_delete(grinfo) .ne. 0)goto 2001
       endif
 c
