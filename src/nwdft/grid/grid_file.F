@@ -8,6 +8,8 @@
       data filedump_opened /.false./
       data oreopen /.false./
       data l_cache /-1/
+      data fdg /-1/
+      data fd /-1/
       end
       logical function grid_file_open(enuc_in,
      $     filename,
@@ -200,7 +202,11 @@ c
 #ifndef EAFHACK
          ierr=eaf_open(actualname, eaf_rw, fd)
 #else
-         ierr=eaf_open(actualname, eaftype, fd)
+         if(fd.eq.-1) then
+            ierr=eaf_open(actualname, eaftype, fd)
+         else
+            ierr=0
+         endif
 #endif
          if (ierr .ne. 0) then
             call eaf_errmsg(ierr,errmsg)
@@ -264,6 +270,7 @@ cold         if(lstatus) then
      $        ('grid_file_close: eaf_close failed',0, DISK_ERR)
          endif
       else
+         fdg=-1
          if (eaf_delete(grinfo) .ne. 0)goto 2001
       endif
 c
@@ -389,16 +396,19 @@ c
 c
  10   continue
          if (.not. file_opened) then
+            file_opened = .true.
 #ifndef EAFHACK
-            if (eaf_open(actualname, eaf_rw, fd) .ne. 0) then
+            ierr=eaf_open(actualname, eaf_rw, fd)
 #else
-            if (eaf_open(actualname, eaftype, fd) .ne. 0) then
+         if(fd.eq.-1) then
+            ierr=eaf_open(actualname, eaftype, fd)
+         else
+            ierr=0
+         endif
 #endif
-               call errquit('grid_pckbufw: eaf_open failed', 0,
-     &       DISK_ERR)
-            else
-               file_opened = .true.
-            endif
+         if(ierr.ne.0)  call 
+     E        errquit('grid_pckbufw: eaf_open failed', 0,
+     &        DISK_ERR)
          endif
        if (cur_rec .le. max_cache_rec) then
           if(.not.grid_opencache()) goto 10 ! Dirty ... go back and try again

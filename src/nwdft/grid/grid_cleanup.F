@@ -24,10 +24,13 @@ c
       if(.not.largenode) then
          if(.not.grid_file_close(okeep)) call
      .        errquit(' grclup: file_close failed',0, DISK_ERR)
+#if 0
          if(.not.okeep) then
             open(unit=gr_unit,file=grinfo)
             close(unit=gr_unit,status='delete')
          endif
+#else
+#endif
       endif
 
 c

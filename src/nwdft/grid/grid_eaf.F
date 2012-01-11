@@ -7,7 +7,7 @@ C $Id$
 #include "stdio.fh"
 #include "util.fh"
 #include "inp.fh"
-      double precision fdg
+      integer fdg
       character*(*) grinfo, what
       double precision enuc_in
 c
@@ -16,15 +16,21 @@ c
       double precision offset
       logical otrace
 c
-      otrace = util_print('griddebug',print_debug)
+      otrace = util_print('grinfodebug',print_debug)
+      if(otrace) then
+         write(luout,*) '1fdg in ',fdg
+         call util_flush(luout)
+      endif
+      if(fdg.eq.-1) then
 cold      ierr=eaf_open(grinfo, eaf_rw, fdg)
 c now we open a MA of 1k since eaftype=10000+1024
-      ierr=eaf_open(grinfo, 1001024, fdg)
-      if (ierr .ne. 0) then
-         call eaf_errmsg(ierr,errmsg)
-         write(LuOut,*) ga_nodeid(),errmsg
-         call errquit('gridfileopen: eaf_open grinfo failed', ierr,
-     &        DISK_ERR)
+         ierr=eaf_open(grinfo, 1001024, fdg)
+         if (ierr .ne. 0) then
+            call eaf_errmsg(ierr,errmsg)
+            write(LuOut,*) ga_nodeid(),errmsg
+            call errquit('grideaf: eaf_open grinfo failed', ierr,
+     &           DISK_ERR)
+         endif
       endif
 cgrinfo     enuc in first record
       offset=0
@@ -53,7 +59,7 @@ cgrinfo     enuc in first record
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "util.fh"
-      double precision fdg
+      integer fdg
       character*(*) grinfo, what
       integer max_file_rec, max_cache_rec,n_rec_in_file
       logical file_opened
@@ -65,7 +71,11 @@ c
       character*80 errmsg
 c
       intlgt=ma_sizeof(mt_int,1,mt_byte)
-      otrace = util_print('griddebug',print_debug)
+      otrace = util_print('grinfodebug',print_debug)
+      if(otrace) then
+         write(luout,*) '2fdg in ',fdg
+         call util_flush(luout)
+      endif
       offset=8d0
 cgrinfo     max_file_rec in 2nd record
 cgrinfo     max_cache_rec in 3nd record

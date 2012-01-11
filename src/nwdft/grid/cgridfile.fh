@@ -9,8 +9,8 @@ c
       double precision values   ! Buffer for grid_pt values
       double precision cur_rec_rad       ! Max Radius of current record
       double precision buf      ! Compressed buffer for IO only
-      double precision fd                ! CHEMIO fd
-      double precision fdg                ! CHEMIO fdg
+      integer fd                ! CHEMIO fd
+      integer fdg                ! CHEMIO fdg
       double precision buf2     ! Compressed buffer for IO only - ASYNC
       integer n_in_rec          ! No. of entries in buffer
       integer n_in_rec_tot      ! Total no. of entries 
