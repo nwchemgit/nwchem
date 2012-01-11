@@ -7,7 +7,7 @@ c     BGJ (8/98)
 c
       Subroutine xc_eval_fnl(rho, delrho, Amat, Amat2, Cmat, Cmat2,
      &                       nq, Ex, Ec, qwght, grad, ldew, func,
-     &                       do_2nd, ttau, kske, Mmat, Mmat2,
+     &                       do_2nd, tau, ttau, kske, Mmat, Mmat2,
      &                       StericEnergy)
 c
 c     $Id$
@@ -22,7 +22,7 @@ c
       integer nq
       double precision rho(*), delrho(*)
 c
-      double precision Mmat(*), ttau(*)
+      double precision tau(*), Mmat(*), ttau(*)
 c
       double precision Amat(*), Cmat(*), Amat2(*), Cmat2(*), Mmat2(*)
       double precision Ex, Ec
@@ -486,7 +486,7 @@ c
          if (.not. do_2nd) then
             call xc_xpkzb99(tol_rho, xfac(18), lxfac(18), nlxfac(18), 
      &           rho, delrho, Amat, Cmat, nq, ipol, 
-     &           Ex, qwght,ldew,func,ttau, Mmat)
+     &           Ex, qwght,ldew,func,tau, Mmat)
          else
             call xc_xpkzb99_d2()
          endif
@@ -513,7 +513,7 @@ c
          if (.not. do_2nd) then
             call xc_cpkzb99(tol_rho, cfac(25), lcfac(25), nlcfac(25),  
      &           rho, delrho,  nq, ipol, 
-     &           Ec, qwght, ldew, func, ttau,Amat,Cmat,Mmat)
+     &           Ec, qwght, ldew, func, tau,Amat,Cmat,Mmat)
          else
             call xc_cpkzb99_d2()
          endif
@@ -525,7 +525,7 @@ c
          if (.not. do_2nd) then
             call xc_xtpss03(tol_rho, xfac(21),  
      &           rho, delrho, Amat, Cmat, nq, ipol, 
-     &           Ex, qwght,ldew,func,ttau,Mmat)
+     &           Ex, qwght,ldew,func,tau,Mmat)
          else
             call xc_xtpss03_d2()
          endif
@@ -542,7 +542,7 @@ c
          if (.not. do_2nd) then
             call xc_ctpss03(tol_rho, cfac(27), lcfac(27), nlcfac(27),  
      &           rho, delrho,  nq, ipol, 
-     &           Ec, qwght, ldew, func, ttau,Amat,Cmat,Mmat)
+     &           Ec, qwght, ldew, func, tau,Amat,Cmat,Mmat)
 
          else
             call xc_ctpss03_d2()
@@ -562,7 +562,7 @@ c
          if (.not. do_2nd) then
             call xc_bc95(tol_rho, cfac(31), lcfac(31), nlcfac(31),
      &           rho, delrho,  nq, ipol,
-     &           Ec, qwght, ldew,func, ttau,Amat,Cmat,Mmat,0)
+     &           Ec, qwght, ldew,func, tau,Amat,Cmat,Mmat,0)
       
          else
             call xc_bc95_d2()
@@ -603,7 +603,7 @@ c
          if (.not. do_2nd) then
             call xc_xm05(tol_rho, xfac(28), lxfac(28), nlxfac(28),
      &           rho, delrho, Amat, Cmat, nq, ipol,
-     &           Ex, qwght,ldew,func,ttau,Mmat,1)
+     &           Ex, qwght,ldew,func,tau,Mmat,1)
          else
             call xc_xm05_d2()
          endif
@@ -615,7 +615,7 @@ c
          if (.not. do_2nd) then
             call xc_xm05(tol_rho, xfac(29), lxfac(29), nlxfac(29),
      &           rho, delrho, Amat, Cmat, nq, ipol,
-     &           Ex, qwght,ldew, func,ttau,Mmat,2)
+     &           Ex, qwght,ldew, func,tau,Mmat,2)
          else
             call xc_xm05_d2()
          endif
@@ -627,7 +627,7 @@ c
          if (.not. do_2nd) then
             call xc_xvs98(tol_rho, xfac(33), lxfac(33), nlxfac(33),
      &           rho, delrho, Amat, Cmat, nq, ipol,
-     &           Ex, qwght,ldew, func,ttau,Mmat,1)
+     &           Ex, qwght,ldew, func,tau,Mmat,1)
          else
             call xc_xvs98_d2()
          endif
@@ -639,9 +639,9 @@ c
          if (.not. do_2nd) then
             call xc_xm06(tol_rho, xfac(34), lxfac(34), nlxfac(34),
      &           rho, delrho, Amat, Cmat, nq, ipol,
-     &           Ex, qwght,ldew, func,ttau,Mmat,1)
+     &           Ex, qwght,ldew, func,tau,Mmat,1)
          else
-            call xc_xvs98_d2()
+            call xc_xm06_d2()
          endif
       endif
 c
@@ -651,7 +651,7 @@ c
          if (.not. do_2nd) then
             call xc_xm06(tol_rho, xfac(35), lxfac(35), nlxfac(35),
      &           rho, delrho, Amat, Cmat, nq, ipol,
-     &           Ex, qwght,ldew, func,ttau,Mmat,2)
+     &           Ex, qwght,ldew, func,tau,Mmat,2)
          else
             call xc_xm06_d2()
          endif
@@ -663,7 +663,7 @@ c
          if (.not. do_2nd) then
             call xc_xm06(tol_rho, xfac(36), lxfac(36), nlxfac(36),
      &           rho, delrho, Amat, Cmat, nq, ipol,
-     &           Ex, qwght,ldew, func,ttau,Mmat,3)
+     &           Ex, qwght,ldew, func,tau,Mmat,3)
          else
             call xc_xm06_d2()
          endif
@@ -675,7 +675,7 @@ c
          if (.not. do_2nd) then
             call xc_xm06(tol_rho, xfac(37), lxfac(37), nlxfac(37),
      &           rho, delrho, Amat, Cmat, nq, ipol,
-     &           Ex, qwght,ldew, func,ttau,Mmat,4)
+     &           Ex, qwght,ldew, func,tau,Mmat,4)
          else
             call xc_xm06_d2()
          endif
@@ -760,7 +760,7 @@ c
          if (.not. do_2nd) then
             call xc_bc95(tol_rho, cfac(32), lcfac(32), nlcfac(32),
      &           rho, delrho,  nq, ipol,
-     &           Ec, qwght, ldew,func, ttau,Amat,Cmat,Mmat,1)
+     &           Ec, qwght, ldew,func, tau,Amat,Cmat,Mmat,1)
 
          else
             call xc_bc95_d2()
@@ -779,7 +779,7 @@ c
             
             call xc_bc95(tol_rho, cfac(33), lcfac(33), nlcfac(33),
      &           rho, delrho,  nq, ipol,
-     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,2)
+     &           Ec, qwght, ldew,func,tau,Amat,Cmat,Mmat,2)
 
          else
             call xc_bc95_d2()
@@ -797,7 +797,7 @@ c
          if (.not. do_2nd) then
             call xc_cm05(tol_rho, cfac(34), lcfac(34), nlcfac(34),
      &           rho, delrho,  nq, ipol,
-     &           Ec, qwght, ldew, func,ttau,Amat,Cmat,Mmat,1)
+     &           Ec, qwght, ldew, func,tau,Amat,Cmat,Mmat,1)
 
          else
             call xc_cm05_d2()
@@ -815,7 +815,7 @@ c
          if (.not. do_2nd) then
             call xc_cm05(tol_rho, cfac(35), lcfac(35), nlcfac(35),
      &           rho, delrho,  nq, ipol,
-     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,2)
+     &           Ec, qwght, ldew,func,tau,Amat,Cmat,Mmat,2)
 
          else
             call xc_cm05_d2()
@@ -833,7 +833,7 @@ c
          if (.not. do_2nd) then
             call xc_cvs98(tol_rho, cfac(29), lcfac(29), nlcfac(29),
      &           rho, delrho,  nq, ipol,
-     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,1)
+     &           Ec, qwght, ldew,func,tau,Amat,Cmat,Mmat,1)
 
          else
             call xc_cvs98_d2()
@@ -851,7 +851,7 @@ c
          if (.not. do_2nd) then
             call xc_cm06(tol_rho, cfac(30), lcfac(30), nlcfac(30),
      &           rho, delrho,  nq, ipol,
-     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,1)
+     &           Ec, qwght, ldew,func,tau,Amat,Cmat,Mmat,1)
 
          else
             call xc_cm06_d2()
@@ -869,7 +869,7 @@ c
          if (.not. do_2nd) then
             call xc_cm06(tol_rho, cfac(38), lcfac(38), nlcfac(38),
      &           rho, delrho,  nq, ipol,
-     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,2)
+     &           Ec, qwght, ldew,func,tau,Amat,Cmat,Mmat,2)
 
          else
             call xc_cm06_d2()
@@ -887,7 +887,7 @@ c
          if (.not. do_2nd) then
             call xc_cm06(tol_rho, cfac(39), lcfac(39), nlcfac(39),
      &           rho, delrho,  nq, ipol,
-     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,3)
+     &           Ec, qwght, ldew,func,tau,Amat,Cmat,Mmat,3)
 
          else
             call xc_cm06_d2()
@@ -905,7 +905,7 @@ c
          if (.not. do_2nd) then
             call xc_cm06(tol_rho, cfac(40), lcfac(40), nlcfac(40),
      &           rho, delrho,  nq, ipol,
-     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,4)
+     &           Ec, qwght, ldew,func,tau,Amat,Cmat,Mmat,4)
 
          else
             call xc_cm06_d2()

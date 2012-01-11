@@ -48,9 +48,9 @@ c
       double precision Exc(2)
       integer nocc1, nvir1, nocc_diff1, nvir_diff1
 c
-      logical xc_gotxc
+      logical xc_gotxc,xc_got2nd
       double precision xc_hfexch
-      external xc_gotxc, xc_hfexch
+      external xc_gotxc,xc_hfexch,xc_got2nd
 c
       double precision itol_floor, itol_ceil
       parameter(itol_floor=1.d-15, itol_ceil=1.d-3)
@@ -202,7 +202,12 @@ c
         if (.not.rtdb_put(rtdb,'fock_xc:calc_type',MT_INT,1,2))
      +      call errquit('dft_uks_hessv_2e: could not reset calc_type',
      +                   0,UERR)
-        call fock_xc(geom,nbf,basis,nfock,g_dd,g_ff,Exc,nExc,.true.)
+c
+c       include hessian contribution only if second derivatives are available
+        if(xc_got2nd()) then
+           call fock_xc(geom,nbf,basis,nfock,g_dd,g_ff,Exc,nExc,.true.)
+        end if
+c
         if (.not.rtdb_put(rtdb,'fock_xc:calc_type',MT_INT,1,calc_type))
      +      call errquit('dft_uks_hessv_2e: could not reset calc_type',
      +                   0,UERR)

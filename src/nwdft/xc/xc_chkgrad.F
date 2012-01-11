@@ -69,14 +69,16 @@ c
       xc_getipol=ipol
       return
       end
-
-
+c
+c     return true for functional without 2nds
+c
       logical function xc_got2nd()
       implicit none
+c
 #include "cdft.fh"
-c     return true for functional without 2nds
+c
       xc_got2nd=.not.(
-c     hcth functionals
+c
      .     xfac(4).ne.0d0.or.
      .     xfac(5).ne.0d0.or.
      .     xfac(6).ne.0d0.or.
@@ -86,9 +88,19 @@ c     hcth functionals
      .     xfac(13).ne.0d0.or.
      .     xfac(14).ne.0d0.or.
      .     xfac(15).ne.0d0.or.
-     .     xfac(17).ne.0d0.or.
-     .     xfac(22).ne.0d0.or.
      .     xfac(16).ne.0d0.or.  ! optx
+     .     xfac(17).ne.0d0.or.
+     .     xfac(18).ne.0d0.or.
+     .     xfac(21).ne.0d0.or.
+     .     xfac(22).ne.0d0.or.
+     .     xfac(28).ne.0d0.or.
+     .     xfac(29).ne.0d0.or.
+     .     xfac(33).ne.0d0.or.
+     .     xfac(34).ne.0d0.or.
+     .     xfac(35).ne.0d0.or.
+     .     xfac(36).ne.0d0.or.
+     .     xfac(37).ne.0d0.or.
+c
      .     cfac(13).ne.0d0.or.
      .     cfac(14).ne.0d0.or.
      .     cfac(15).ne.0d0.or.
@@ -99,9 +111,19 @@ c     hcth functionals
      .     cfac(20).ne.0d0.or.
      .     cfac(21).ne.0d0.or.
      .     cfac(22).ne.0d0.or.
-     .     cfac(23).ne.0d0.or.
-     .     cfac(28).ne.0d0.or.
+     .     cfac(25).ne.0d0.or.
+     .     cfac(27).ne.0d0.or.
+     .     cfac(29).ne.0d0.or.
+     .     cfac(30).ne.0d0.or.
+     .     cfac(31).ne.0d0.or.
+     .     cfac(32).ne.0d0.or.
+     .     cfac(33).ne.0d0.or.
+     .     cfac(34).ne.0d0.or.
+     .     cfac(35).ne.0d0.or.
+     .     cfac(38).ne.0d0.or.
+     .     cfac(39).ne.0d0.or.
+     .     cfac(40).ne.0d0.or.
      .     cfac(36).ne.0d0)
+c
       return
       end
-

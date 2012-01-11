@@ -52,9 +52,9 @@ c
 c
       double precision Exc(2)
       integer nExc
-      logical xc_gotxc
+      logical xc_gotxc,xc_got2nd
       double precision xc_hfexch
-      external xc_gotxc, xc_hfexch
+      external xc_gotxc,xc_hfexch,xc_got2nd
 c     
 c     This get's cleaned up a lot when the Fock build accepts
 c     a single multiple dimension GA for its input.
@@ -274,8 +274,12 @@ c
         else
           jfock = 8*nfock/3
         endif
-        call fock_xc(geom, nbf, basis, jfock, g_dd, g_ff,
+c        
+c       include hessian contribution only if second derivatives are available
+        if(xc_got2nd()) then
+           call fock_xc(geom, nbf, basis, jfock, g_dd, g_ff,
      +               Exc, nExc, .true.)
+        end if
 c
         if (.not. rtdb_put(rtdb, 'fock_xc:calc_type', mt_int, 1,
      &                     calc_type))
