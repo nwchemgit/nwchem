@@ -292,7 +292,7 @@ c
 
       Subroutine xc_xvs98_d2()
       implicit none
-      call errquit(' not coded ',0,0)
+      call errquit(' xvs98: d2 not coded ',0,0)
       return
       end
 

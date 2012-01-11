@@ -665,6 +665,6 @@ c
       end
 c
       Subroutine xc_ctpss03_d2()
-         call errquit(' not coded ',0,0)
+         call errquit(' ctpss03: d2 not coded ',0,0)
       return
       end

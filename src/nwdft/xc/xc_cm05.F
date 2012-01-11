@@ -248,7 +248,7 @@ c      Stop
 
       Subroutine xc_cm05_d2()
       implicit none
-      call errquit(' not coded ',0,0)
+      call errquit(' cm05: d2 not coded ',0,0)
       return
       end
 

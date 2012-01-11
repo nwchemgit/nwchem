@@ -394,7 +394,7 @@ c
 
 
       Subroutine xc_xpkzb99_d2()
-      call errquit(' not coded ',0,0)
+      call errquit(' xpkzb99: d2 not coded ',0,0)
       return
       end
 

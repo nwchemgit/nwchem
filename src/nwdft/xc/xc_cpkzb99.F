@@ -467,6 +467,6 @@ c     derivs wrt ta,tb
 
 c
       Subroutine xc_cpkzb99_d2()
-      call errquit(' not coded ',0,0)
+      call errquit(' cpkzb99: d2 not coded ',0,0)
       return
       end

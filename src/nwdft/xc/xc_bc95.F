@@ -239,7 +239,7 @@ c      stop
       end
 
       Subroutine xc_bc95_d2()
-      call errquit(' not coded ',0,0)
+      call errquit(' bc95: d2 not coded ',0,0)
       return
       end
 

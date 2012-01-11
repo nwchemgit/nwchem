@@ -319,7 +319,7 @@ c
       end
 
       Subroutine xc_xtpss03_d2()
-      call errquit(' not coded ',0,0)
+      call errquit(' xtpss03: d2 not coded ',0,0)
       return
       end
 

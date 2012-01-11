@@ -390,7 +390,7 @@ c
 
 
       Subroutine xc_xm05_d2()
-      call errquit(' not coded ',0,0)
+      call errquit(' xm05: d2 not coded ',0,0)
       return
       end
 

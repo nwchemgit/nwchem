@@ -298,7 +298,7 @@ c      stop
       end
 
       Subroutine xc_cvs98_d2()
-      call errquit(' not coded ',0,0)
+      call errquit(' cvs98: d2 not coded ',0,0)
       return
       end
 
