@@ -237,12 +237,16 @@ c
                call ga_print(vg_fock(ifock))
             endif
          endif
-         
-         if (.not.ga_destroy(g_xc)) then
-            call errquit('fock_2e: problem destroying test array',1,
-     &       GA_ERR)
-         endif
+c         
       endif !xc_active
       end if  ! doxc
+c
+      if (xc_active) then
+        if (.not.ga_destroy(g_xc)) then
+            call errquit('fock_2e: problem destroying test array',1,
+     &       GA_ERR)
+        endif
+      end if ! xc_active
+c
       return
       end
