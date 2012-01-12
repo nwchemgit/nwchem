@@ -258,24 +258,15 @@ c
       endif
 c
       if(okeep) then
-         ierr=eaf_length(fdg,ll)
-         lstatus=ierr.eq.0.and.ll.gt.0d0
-         if(otrace) then
-            write(luout,*) ' lstatus ',lstatus,ierr,ll
-            call util_flush(lstatus)
-         endif
-         if(lstatus.and.file_opened) then
-cold         if(lstatus) then
+         if(file_opened) then
             if(.not.grid_grinfo2(fdg,grinfo,'write',
      I           max_file_rec, max_cache_rec,n_rec_in_file,
      L           file_opened)) goto 199
-            if (eaf_close(fdg) .ne. 0) call errquit
-     $        ('grid_file_close: eaf_close failed',0, DISK_ERR)
+cbad        for acr cam3lyp cdfit
          fdg=-1
          endif
       else
          fdg=-1
-         if (eaf_delete(grinfo) .ne. 0)goto 2001
       endif
 c
          call ga_igop(msg_grid_stat1, n_rec_in_file, 1, '+')
