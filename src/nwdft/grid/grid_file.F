@@ -248,10 +248,10 @@ c
      $        call eaf_print_stats(fd)
          if (eaf_close(fd) .ne. 0) call errquit
      $        ('grid_file_close: eaf_close failed',0, DISK_ERR)
-         if (.not. okeep) then
 #ifdef EAFHACK
             fd=-1
 #endif
+         if (.not. okeep) then
             if (eaf_delete(actualname) .ne. 0) call errquit
      $           ('grid_file_close: delete failed', 0, DISK_ERR)
          endif
@@ -271,11 +271,10 @@ cold         if(lstatus) then
      L           file_opened)) goto 199
             if (eaf_close(fdg) .ne. 0) call errquit
      $        ('grid_file_close: eaf_close failed',0, DISK_ERR)
+         fdg=-1
          endif
       else
-#ifdef EAFHACK
          fdg=-1
-#endif
          if (eaf_delete(grinfo) .ne. 0)goto 2001
       endif
 c

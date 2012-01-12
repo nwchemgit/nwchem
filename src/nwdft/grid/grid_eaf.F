@@ -7,6 +7,7 @@ C $Id$
 #include "stdio.fh"
 #include "util.fh"
 #include "inp.fh"
+#include "mafdecls.fh"
       integer fdg
       character*(*) grinfo, what
       double precision enuc_in
@@ -14,6 +15,7 @@ c
       integer ierr
       character*80 errmsg
       double precision offset
+      integer uvect(4)
       logical otrace
 c
       otrace = util_print('grinfodebug',print_debug)
@@ -37,6 +39,13 @@ cgrinfo     enuc in first record
       if(what.eq.'write') then
          ierr = eaf_write(fdg, offset, enuc_in,
      .        8)
+cdump garbage on next record to invalidate fields
+         uvect(1)=-123
+         uvect(2)=-123
+         uvect(3)=-123
+         uvect(4)=-123
+         ierr = eaf_write(fdg, 8d0, uvect,
+     .        4*ma_sizeof(mt_int,1,mt_byte))
          else
          ierr = eaf_read(fdg, offset, enuc_in,
      .        8)
