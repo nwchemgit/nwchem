@@ -33,8 +33,9 @@
 *     **** 1d pseudopotential data ****
       integer psp_type
       integer n1dgrid,nbasis,icut,nmax
-      real*8  zv,r1,rmax,core_kin_energy,zion,sigma,rcore,amass,rc(25)
-      real*8  log_amesh,amesh
+      real*8  zv,r1,rmax,core_kin_energy,core_ion_energy
+      real*8  zion,sigma,rcore,amass,rc(25)
+      real*8  log_amesh,amesh,ecorez,ecorecore
       character*2 atom
       character*80 comment
 
@@ -72,8 +73,8 @@
 *     **** external functions ****
       logical  control_print,control_kbpp_filter
       external control_print,control_kbpp_filter
-      real*8   log_integrate_def
-      external log_integrate_def
+      real*8   log_integrate_def,log_coulomb0_energy,log_coulomb_energy
+      external log_integrate_def,log_coulomb0_energy,log_coulomb_energy
       integer  kbpp_calc_nray
       external kbpp_calc_nray
 
@@ -377,6 +378,19 @@ c     >                         dbl_mb(core_ps(1)),
 c     >                         2,dbl_mb(rgrid(1)),log_amesh,n1dgrid)
 c      write(luout,*) "Zcoreps=",zcore
 
+c*     **** compute the core_ion_energy = ecorez + ecorecore ****
+c      ecorez = -zion*fourpi
+c     >              *log_integrate_def(0,dbl_mb(core_ae(1)),
+c     >                                 1,dbl_mb(rgrid(1)),
+c     >                                 log_amesh,n1dgrid)
+      ecorez = log_coulomb0_energy(dbl_mb(core_ae(1)),zion-zv,
+     >                             dbl_mb(rgrid(1)),n1dgrid,log_amesh,
+     >                             zion)
+      ecorecore = log_coulomb_energy(dbl_mb(core_ae(1)),zion-zv,
+     >                               dbl_mb(rgrid(1)),n1dgrid,log_amesh)
+      core_ion_energy = ecorez + ecorecore
+
+
 
       if (taskid.eq.MASTER) then
       call util_file_name_noprefix(formatted_filename,
@@ -430,6 +444,7 @@ c      if (filter) write(luout,*) "- filtering pseudopotential -"
 
 *        **** miscelaneous PAW energies ****
          call dwrite(2,core_kin_energy,1)
+         call dwrite(2,core_ion_energy,1)
 
 *        **** write 1d-wavefunctions ****
          call iwrite(2,n1dgrid,1)
