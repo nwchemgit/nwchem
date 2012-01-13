@@ -32,9 +32,12 @@ c
        integer, dimension(:), allocatable :: im
        integer, dimension(:,:), allocatable :: p2
        integer, dimension(:,:), allocatable :: p3
+       integer, dimension(:,:), allocatable :: p4
        character*16 , dimension(:), allocatable :: ta,tr
-       integer i
+       integer i,il
        integer n2
+       integer n3
+       integer n4
  
 c
        call smd_pdb_natoms(infile,ntot)
@@ -52,8 +55,17 @@ c
        n2 = nres*(nres-1)/2
        allocate(p2(2,n2))
        call parse_dimers(nres,cg,n2,p2)
-       allocate(p3(3,n2))
-       call parse_trimers(n2,p2,n2,2,p2,p3)
+       n3 = 1000
+       allocate(p3(3,n3))
+       call parse_trimers(n2,p2,n2,2,p2,n3,p3)
+c       do i=1,n3
+c         write(*,*) (p3(il,i),il=1,3)
+c       end do
+       allocate(p4(4,n4))
+       call parse_fourmers(n2,p2,n3,3,p3,n4,p4)
+       do i=1,n4
+         write(*,*) (p4(il,i),il=1,4)
+       end do
 !      == deallocate arrays ==
        deallocate(p2)
        deallocate(cg)
@@ -84,7 +96,6 @@ c
       do j=i+1,nres
         r2 = cg(:,j)
         rd  = dist(r1,r2)
-        write(*,*) "testing ",i,j,rd,r1,r2
         if(rd.lt.3.0) then
           k = k + 1
           p2(1,k) = i
@@ -96,21 +107,28 @@ c
       nb = k
       end subroutine
 
-      subroutine parse_trimers(nb2,p2,nb,l,p,px)
+      subroutine parse_trimers(nb2,p2,nb,l,p,nx,px)
       implicit none
-      integer nb2,nb,l
+      integer nb2,nb,l,nx
       integer p2(2,nb2)
-      integer px(l+1,nb)
       integer p(l,nb)
+      integer px(l+1,nx)
 c 
       integer ptmp(l+1)
+      integer ptmp0(l+1)
       integer i,j
       integer k
       integer tail, head
       logical ohead, otail
       integer ic
 
-      integer i2,i3,j3
+      integer i2,i3,j3,ik
+      integer fn_out
+      logical ofound,omatch
+
+      fn_out = 78
+       open(fn_out,file="trimer.dat",
+     $            form='formatted',status='unknown')
 
       k = 0
       do i2=1,nb2
@@ -130,17 +148,90 @@ c
            end if
         end do
         if(ic.eq.1) then
-           k = k+1
-c          px(1:l,k) = p(:,i)
-c          px(l+1,k) = tail
           call sort(l+1,ptmp)
-          write(14,*) (p(j,i),j=1,l),head,tail
-          write(15,*) (ptmp(j),j=1,l+1)
+          if(k.ne.0) rewind(fn_out)
+          ofound = .false.
+          do ik=1,k
+            read(fn_out,*) ptmp0
+            if(ALL(ptmp0.eq.ptmp)) ofound = .true.
+          end do
+          if(.not.ofound) then
+             write(fn_out,*) ptmp
+             k = k +1
+             px(:,k) = ptmp
+          end if
         end if
       end do
       end do
+      nx = k
+      close(fn_out)
       end subroutine
 
+      subroutine parse_fourmers(nb2,p2,nb,l,p,nx,px)
+      implicit none
+      integer nb2,nb,l,nx
+      integer p2(2,nb2)
+      integer p(l,nb)
+      integer px(l+1,nx)
+c 
+      integer ptmp(l+1)
+      integer ptmp0(l+1)
+      integer i,j
+      integer k
+      integer tail, head
+      logical ohead, otail
+      integer ic
+
+      integer i2,i3,j3,ik
+      integer fn_out
+      logical ofound,omatch
+
+      fn_out = 33
+       open(unit=fn_out,file="fourimer.dat",
+     $            form='formatted',status='unknown',err=911)
+
+      k = 0
+      do i2=1,nb2
+      head = p2(1,i2)
+      tail = p2(2,i2)
+      do i=1,nb
+        ic = 0
+        do j=1,l
+           ptmp(j) = p(j,i)
+           if(p(j,i).eq.head) then
+             ic = ic + 1
+             ptmp(l+1) = tail
+           end if
+           if(p(j,i).eq.tail) then
+             ic = ic + 1
+             ptmp(l+1) = head
+           end if
+        end do
+        if(ic.eq.1) then
+          call sort(l+1,ptmp)
+          if(k.ne.0) rewind(fn_out)
+          ofound = .false.
+          do ik=1,k
+            write(*,*) "ik=",ik
+            read(fn_out,*) ptmp0
+            write(*,*) "ptmp0=",ptmp0
+            if(ALL(ptmp0.eq.ptmp)) ofound = .true.
+          end do
+          if(.not.ofound) then
+             k = k +1
+             write(*,*) k,ptmp
+             write(fn_out,*) ptmp
+             px(:,k) = ptmp
+          end if
+        end if
+      end do
+      end do
+      close(fn_out)
+911    continue       
+c      if you reach this you are in trouble
+       write(*,*) "Emergency STOP "
+       stop
+       end subroutine
       subroutine sort(n,a)
       implicit none
       integer n
@@ -186,6 +277,7 @@ c     local variables:
       dist = sqrt(dist)
       return
       end function
+
       subroutine my_get_command_argument(i,buffer,l,istatus)
       implicit none
       integer i
@@ -201,5 +293,114 @@ c      call get_command_argument(i,buffer,l,istatus)
       end subroutine
 
 
+      subroutine parse_trimers0(nb2,p2,nb,l,p,px)
+      implicit none
+      integer nb2,nb,l
+      integer p2(2,nb2)
+      integer px(l+1,nb)
+      integer p(l,nb)
+c 
+      integer ptmp(l+1)
+      integer i,j
+      integer k
+      integer tail, head
+      logical ohead, otail
+      integer ic
 
+      integer i2,i3,j3
+
+      k = 0
+      do i2=1,nb2
+      head = p2(1,i2)
+      tail = p2(2,i2)
+      do i=1,nb
+        ic = 0
+        do j=1,l
+           ptmp(j) = p(j,i)
+           if(p(j,i).eq.head) then
+             ic = ic + 1
+             ptmp(l+1) = tail
+           end if
+           if(p(j,i).eq.tail) then
+             ic = ic + 1
+             ptmp(l+1) = head
+           end if
+        end do
+        if(ic.eq.1) then
+           k = k+1
+c          px(1:l,k) = p(:,i)
+c          px(l+1,k) = tail
+c         call sort(l+1,ptmp)
+          write(14,*) (p(j,i),j=1,l),head,tail
+          write(15,*) (ptmp(j),j=1,l+1)
+        end if
+        do j=1,l+1
+          write(*,*) j,k,nb
+          px(j,k) = ptmp(j)
+        end do
+      end do
+      end do
+      end subroutine
+
+      subroutine parse_trimers1(nb2,p2,nb,l,p)
+      implicit none
+      integer nb2,nb,l
+      integer p2(2,nb2)
+      integer p(l,nb)
+c 
+      integer ptmp0(l+1)
+      integer ptmp(l+1)
+      integer i,j
+      integer tail, head
+      logical ohead, otail
+      integer ic
+
+      integer ik,in,il,jn,k,h0,h1,kk
+      character*256 buf0,buf1
+      logical ofound,omatch
+      integer fn_out
+
+      fn_out = 78
+       open(fn_out,file="trimer.dat",
+     $            form='formatted',status='unknown')
+      kk = 0
+      buf0 = " "
+      ptmp0 = 0
+      do in=1,nb
+      do il=1,l
+         h0 = p(il,in)
+         h1 = p(min(il+1,l),in)
+         do jn=1,nb2
+           omatch = .false.
+           if(p2(1,jn).eq.h0) then
+             if(p2(2,jn).ne.h1) then
+                     omatch = .true.
+             end if
+           else if(p2(2,jn).eq.h0) then
+            omatch = .true.
+           end if
+           if(omatch) then
+                write(14,*) (p(k,in),k=1,l),p2(1,jn),p2(2,jn)
+                ptmp(2:l+1)= p(:,in)
+                ptmp(1) = p2(2,jn)
+                call sort(l+1,ptmp)
+                write(buf1,*) (ptmp(k),k=1,l+1)
+                ofound = .false.
+                if(kk.ne.0) rewind(fn_out)
+                do ik=1,kk
+                  read(fn_out,*) ptmp0
+                  if(ALL(ptmp0.eq.ptmp)) ofound = .true.
+                end do
+                if(.not.ofound) then
+                   write(fn_out,*) ptmp
+                   kk = kk +1
+                end if
+           end if
+         end do
+      end do
+      end do
+      rewind(fn_out)
+      read(fn_out,'(a)') buf0
+      write(*,*) "buf0",buf0
+      end subroutine
 c $Id: main.f 21413 2011-11-05 06:53:49Z d3y133 $
