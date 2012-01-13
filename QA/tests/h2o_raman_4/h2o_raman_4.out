@@ -50,7 +50,7 @@ task dft raman
                                          
  
  
-              Northwest Computational Chemistry Package (NWChem) 6.0
+              Northwest Computational Chemistry Package (NWChem) 6.1
               ------------------------------------------------------
  
  
@@ -85,11 +85,11 @@ task dft raman
 
     hostname      = orion
     program       = ../../../bin/LINUX64/nwchem
-    date          = Thu Sep 29 10:13:26 2011
+    date          = Tue Jan 10 14:30:34 2012
 
-    compiled      = Wed_Sep_28_15:28:46_2011
-    source        = /home/niri/nwchem/nwchem-trunk
-    nwchem branch = Development
+    compiled      = Tue_Jan_10_11:40:32_2012
+    source        = /home/niri/nwchem/nwchem-6.1
+    nwchem branch = 6.1
     input         = h2o_raman_4.nw
     prefix        = h2o_raman_4.
     data base     = ./h2o_raman_4.db
@@ -125,7 +125,6 @@ task dft raman
  
                             TDDFT h2o BP86/aug-cc-pVTZ
                             --------------------------
- ncenter=                     3
 
  Scaling coordinates for geometry "geometry" by  1.889725989
  (inverse scale =  0.529177249)
@@ -213,7 +212,7 @@ task dft raman
 
 
   library name resolved from: environment
-  library file name is: </home/niri/nwchem/nwchem-trunk/src/basis/libraries/>
+  library file name is: </home/niri/nwchem/nwchem-6.1/src/basis/libraries/>
   
                       Basis "ao basis" -> "" (spherical)
                       -----
@@ -470,7 +469,7 @@ task dft raman
 
  Grid_pts file          = ./h2o_raman_4.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      7        Max. recs in file   =    212783
+ Max. records in memory =      7        Max. recs in file   =     76126
 
 
            Memory utilization after 1st SCF pass: 
@@ -480,7 +479,7 @@ task dft raman
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
  d= 0,ls=0.0,diis     1    -76.4209090740 -8.55D+01  6.82D-03  4.71D-01     0.7
- d= 0,ls=0.0,diis     2    -76.3451382272  7.58D-02  3.89D-03  1.31D+00     1.1
+ d= 0,ls=0.0,diis     2    -76.3451382265  7.58D-02  3.89D-03  1.31D+00     1.1
  d= 0,ls=0.0,diis     3    -76.4635036521 -1.18D-01  5.51D-04  3.25D-02     1.6
  d= 0,ls=0.0,diis     4    -76.4659518961 -2.45D-03  8.95D-05  8.01D-04     2.1
  d= 0,ls=0.0,diis     5    -76.4660252039 -7.33D-05  1.26D-05  7.96D-06     2.5
@@ -489,8 +488,8 @@ task dft raman
 
 
          Total DFT energy =      -76.466026030182
-      One electron energy =     -122.862011113072
-           Coulomb energy =       46.594300322052
+      One electron energy =     -122.862011113070
+           Coulomb energy =       46.594300322050
     Exchange-Corr. energy =       -9.317756621713
  Nuclear repulsion energy =        9.119441382552
 
@@ -504,26 +503,26 @@ task dft raman
                        ------------------------------------
  
  Vector    1  Occ=2.000000D+00  E=-1.878098D+01
-              MO Center=  2.9D-17, -1.2D-17,  1.2D-01, r^2= 1.5D-02
+              MO Center= -3.5D-16, -1.0D-17,  1.2D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.974179  1 O  s          
  
  Vector    2  Occ=2.000000D+00  E=-9.339677D-01
-              MO Center= -9.0D-17,  1.2D-15, -8.7D-02, r^2= 5.0D-01
+              MO Center= -3.2D-13, -1.1D-16, -8.7D-02, r^2= 5.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.481521  1 O  s                  4      0.277365  1 O  s          
  
  Vector    3  Occ=2.000000D+00  E=-4.850126D-01
-              MO Center=  2.2D-15,  1.9D-16, -9.6D-02, r^2= 7.8D-01
+              MO Center=  2.0D-13,  3.2D-17, -9.6D-02, r^2= 7.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      0.324514  1 O  px                 6      0.301665  1 O  px         
     48      0.228415  2 H  s                 71     -0.228415  3 H  s          
  
  Vector    4  Occ=2.000000D+00  E=-3.479940D-01
-              MO Center= -8.6D-16, -1.0D-15,  1.8D-01, r^2= 7.5D-01
+              MO Center= -1.4D-13,  1.9D-16,  1.8D-01, r^2= 7.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      0.359025  1 O  pz                 4      0.347780  1 O  s          
@@ -532,14 +531,14 @@ task dft raman
     71     -0.176063  3 H  s          
  
  Vector    5  Occ=2.000000D+00  E=-2.701049D-01
-              MO Center= -1.3D-15,  1.2D-15,  7.2D-02, r^2= 7.2D-01
+              MO Center= -7.3D-14, -6.4D-17,  7.2D-02, r^2= 7.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.428090  1 O  py                 7      0.364992  1 O  py         
     13      0.323481  1 O  py         
  
  Vector    6  Occ=0.000000D+00  E=-3.172511D-02
-              MO Center= -6.7D-14, -7.7D-15, -7.8D-01, r^2= 7.3D+00
+              MO Center= -2.9D-12, -5.3D-15, -7.8D-01, r^2= 7.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.491130  1 O  s                 50     -0.467853  2 H  s          
@@ -548,7 +547,7 @@ task dft raman
     14     -0.191310  1 O  pz         
  
  Vector    7  Occ=0.000000D+00  E= 1.551584D-02
-              MO Center= -2.8D-13,  6.1D-16, -7.6D-01, r^2= 1.5D+01
+              MO Center=  4.7D-13,  1.3D-15, -7.6D-01, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     50     -2.668860  2 H  s                 73      2.668860  3 H  s          
@@ -557,7 +556,7 @@ task dft raman
     48     -0.159539  2 H  s                 71      0.159539  3 H  s          
  
  Vector    8  Occ=0.000000D+00  E= 6.650076D-02
-              MO Center=  9.2D-14,  1.4D-15, -5.4D-02, r^2= 1.4D+01
+              MO Center= -4.2D-12,  1.0D-14, -5.4D-02, r^2= 1.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      5.427493  1 O  s                 49     -2.151186  2 H  s          
@@ -567,14 +566,14 @@ task dft raman
     80     -0.679097  3 H  px                59     -0.544367  2 H  pz         
  
  Vector    9  Occ=0.000000D+00  E= 9.413777D-02
-              MO Center=  4.3D-14, -7.2D-15,  3.5D-01, r^2= 7.1D+00
+              MO Center= -1.4D-13, -1.4D-14,  3.5D-01, r^2= 7.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      1.498968  1 O  py                58     -0.313566  2 H  py         
     81     -0.313566  3 H  py         
  
  Vector   10  Occ=0.000000D+00  E= 9.929848D-02
-              MO Center= -3.6D-12,  3.7D-15,  1.6D-01, r^2= 8.2D+00
+              MO Center= -2.0D-11,  2.9D-15,  1.6D-01, r^2= 8.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.444643  1 O  pz                49      0.507820  2 H  s          
@@ -584,7 +583,7 @@ task dft raman
      4      0.309093  1 O  s                 57      0.300297  2 H  px         
  
  Vector   11  Occ=0.000000D+00  E= 1.022249D-01
-              MO Center=  3.8D-12, -1.6D-15, -8.3D-01, r^2= 1.1D+01
+              MO Center=  2.4D-11, -1.6D-15, -8.3D-01, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     50      2.940551  2 H  s                 73     -2.940551  3 H  s          
@@ -594,7 +593,7 @@ task dft raman
     82     -0.927589  3 H  pz                12     -0.565436  1 O  px         
  
  Vector   12  Occ=0.000000D+00  E= 1.479623D-01
-              MO Center=  8.7D-13, -3.4D-15,  6.4D-01, r^2= 8.7D+00
+              MO Center= -1.9D-13, -2.4D-17,  6.4D-01, r^2= 8.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      3.196864  1 O  px                49     -2.806830  2 H  s          
@@ -604,7 +603,7 @@ task dft raman
     31      0.583775  1 O  d  1       
  
  Vector   13  Occ=0.000000D+00  E= 1.686729D-01
-              MO Center= -6.4D-13,  7.5D-16, -1.9D-01, r^2= 6.2D+00
+              MO Center= -7.7D-13, -9.3D-16, -1.9D-01, r^2= 6.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.369602  1 O  s                 49     -1.626884  2 H  s          
@@ -614,7 +613,7 @@ task dft raman
      4      0.437172  1 O  s                 30     -0.427721  1 O  d  0       
  
  Vector   14  Occ=0.000000D+00  E= 1.915047D-01
-              MO Center=  2.5D-13,  6.4D-15, -5.0D-01, r^2= 5.9D+00
+              MO Center=  1.7D-14,  4.9D-15, -5.0D-01, r^2= 5.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     58      1.596935  2 H  py                81     -1.596935  3 H  py         
@@ -624,7 +623,7 @@ task dft raman
     89     -0.168551  3 H  d -1       
  
  Vector   15  Occ=0.000000D+00  E= 2.138475D-01
-              MO Center= -2.7D-13, -9.5D-14, -2.7D-01, r^2= 6.3D+00
+              MO Center=  4.1D-14,  9.2D-15, -2.7D-01, r^2= 6.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      1.986271  1 O  py                58     -1.727290  2 H  py         
@@ -634,7 +633,7 @@ task dft raman
     88     -0.247567  3 H  d -2       
  
  Vector   16  Occ=0.000000D+00  E= 2.159429D-01
-              MO Center= -8.9D-13,  1.1D-13,  2.3D-01, r^2= 6.8D+00
+              MO Center=  8.0D-13, -3.7D-16,  2.3D-01, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      7.572023  1 O  s                 49     -3.849439  2 H  s          
@@ -644,7 +643,7 @@ task dft raman
     59      0.640328  2 H  pz                82      0.640328  3 H  pz         
  
  Vector   17  Occ=0.000000D+00  E= 3.085503D-01
-              MO Center=  3.8D-12, -7.9D-16, -3.0D-01, r^2= 8.0D+00
+              MO Center=  2.6D-12, -1.9D-15, -3.0D-01, r^2= 8.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     57      4.126605  2 H  px                80      4.126605  3 H  px         
@@ -654,7 +653,7 @@ task dft raman
     50      0.836356  2 H  s                 73     -0.836356  3 H  s          
  
  Vector   18  Occ=0.000000D+00  E= 3.141720D-01
-              MO Center=  1.4D-11,  3.8D-15, -8.2D-01, r^2= 8.0D+00
+              MO Center= -4.6D-11,  2.3D-15, -8.2D-01, r^2= 8.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      8.824764  1 O  s                 49     -4.955270  2 H  s          
@@ -664,27 +663,27 @@ task dft raman
     50     -0.754804  2 H  s                 73     -0.754804  3 H  s          
  
  Vector   19  Occ=0.000000D+00  E= 3.264315D-01
-              MO Center= -1.8D-11, -4.0D-16, -9.1D-01, r^2= 7.3D+00
+              MO Center=  4.4D-11,  9.3D-16, -9.1D-01, r^2= 7.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    49     -7.979624  2 H  s                 72      7.979624  3 H  s          
-    57      3.017552  2 H  px                80      3.017552  3 H  px         
-    59     -2.190322  2 H  pz                82      2.190322  3 H  pz         
-    50     -2.038065  2 H  s                 73      2.038065  3 H  s          
-    15      1.992017  1 O  px                12      1.675596  1 O  px         
+    49      7.979624  2 H  s                 72     -7.979624  3 H  s          
+    57     -3.017552  2 H  px                80     -3.017552  3 H  px         
+    59      2.190322  2 H  pz                82     -2.190322  3 H  pz         
+    50      2.038065  2 H  s                 73     -2.038065  3 H  s          
+    15     -1.992017  1 O  px                12     -1.675596  1 O  px         
  
  Vector   20  Occ=0.000000D+00  E= 4.550069D-01
-              MO Center= -8.0D-13, -6.5D-15,  2.2D-01, r^2= 6.2D+00
+              MO Center= -6.3D-13, -4.5D-15,  2.2D-01, r^2= 6.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    49      9.787796  2 H  s                 72     -9.787796  3 H  s          
-    12     -3.657142  1 O  px                15     -3.016794  1 O  px         
-    57     -2.481840  2 H  px                80     -2.481840  3 H  px         
-    31     -1.976174  1 O  d  1              48      1.961321  2 H  s          
-    71     -1.961321  3 H  s                 50      1.505701  2 H  s          
+    49     -9.787796  2 H  s                 72      9.787796  3 H  s          
+    12      3.657142  1 O  px                15      3.016794  1 O  px         
+    57      2.481840  2 H  px                80      2.481840  3 H  px         
+    31      1.976174  1 O  d  1              48     -1.961321  2 H  s          
+    71      1.961321  3 H  s                 50     -1.505701  2 H  s          
  
  Vector   21  Occ=0.000000D+00  E= 4.962258D-01
-              MO Center=  2.1D-12,  6.7D-15, -6.4D-01, r^2= 4.1D+00
+              MO Center=  4.5D-13,  6.6D-15, -6.4D-01, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      6.837978  1 O  s                 49     -4.358382  2 H  s          
@@ -694,7 +693,7 @@ task dft raman
     30     -0.902319  1 O  d  0              14      0.872052  1 O  pz         
  
  Vector   22  Occ=0.000000D+00  E= 5.448292D-01
-              MO Center= -5.2D-13, -5.8D-15,  2.9D-01, r^2= 4.2D+00
+              MO Center= -3.1D-13, -3.0D-15,  2.9D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.125841  1 O  s                 49     -1.979611  2 H  s          
@@ -758,14 +757,14 @@ task dft raman
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       1.78   |
+                 |  CPU   |       0.00   |       1.75   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       1.80   |
+                 |  WALL  |       0.00   |       1.78   |
                  ----------------------------------------
 
 @ Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
 @ ---- ---------------- -------- -------- -------- -------- -------- --------
-@    0     -76.46602603  0.0D+00  0.00588  0.00484  0.00000  0.00000      6.5
+@    0     -76.46602603  0.0D+00  0.00588  0.00484  0.00000  0.00000      7.5
                                                                     
 
 
@@ -862,25 +861,25 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
  Grid_pts file          = ./h2o_raman_4.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      7        Max. recs in file   =    212783
+ Max. records in memory =      7        Max. recs in file   =     76126
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       13.02            13017841
+           Heap Space remaining (MW):       13.02            13017639
           Stack Space remaining (MW):       13.11            13106626
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
  d= 0,ls=0.0,diis     1    -76.4660413552 -8.55D+01  2.13D-04  5.52D-04     6.1
- d= 0,ls=0.0,diis     2    -76.4660632032 -2.18D-05  8.76D-05  2.38D-04     6.6
+ d= 0,ls=0.0,diis     2    -76.4660632032 -2.18D-05  8.76D-05  2.38D-04     6.5
  d= 0,ls=0.0,diis     3    -76.4660648665 -1.66D-06  4.59D-05  2.22D-04     7.0
  d= 0,ls=0.0,diis     4    -76.4660831612 -1.83D-05  3.16D-06  7.76D-07     7.5
- d= 0,ls=0.0,diis     5    -76.4660832315 -7.03D-08  3.49D-07  1.06D-08     8.0
+ d= 0,ls=0.0,diis     5    -76.4660832315 -7.03D-08  3.49D-07  1.06D-08     7.9
  d= 0,ls=0.0,diis     6    -76.4660832325 -1.03D-09  1.39D-08  9.62D-12     8.4
 
 
-         Total DFT energy =      -76.466083232479
-      One electron energy =     -122.715620443558
+         Total DFT energy =      -76.466083232480
+      One electron energy =     -122.715620443559
            Coulomb energy =       46.522773571238
     Exchange-Corr. energy =       -9.309455696994
  Nuclear repulsion energy =        9.036219336835
@@ -895,26 +894,26 @@ TDDFT h2o BP86/aug-cc-pVTZ
                        ------------------------------------
  
  Vector    1  Occ=2.000000D+00  E=-1.878214D+01
-              MO Center= -4.3D-10,  1.0D-19,  1.2D-01, r^2= 1.5D-02
+              MO Center= -4.3D-10, -4.2D-19,  1.2D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.973964  1 O  s          
  
  Vector    2  Occ=2.000000D+00  E=-9.299921D-01
-              MO Center= -8.2D-10,  1.6D-16, -8.3D-02, r^2= 5.0D-01
+              MO Center= -8.2D-10, -7.3D-17, -8.3D-02, r^2= 5.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.482989  1 O  s                  4      0.282226  1 O  s          
  
  Vector    3  Occ=2.000000D+00  E=-4.831361D-01
-              MO Center=  3.4D-10,  1.3D-17, -9.6D-02, r^2= 7.8D-01
+              MO Center=  3.4D-10,  4.4D-17, -9.6D-02, r^2= 7.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      0.325417  1 O  px                 6      0.300717  1 O  px         
     48      0.225249  2 H  s                 71     -0.225249  3 H  s          
  
  Vector    4  Occ=2.000000D+00  E=-3.463817D-01
-              MO Center= -3.1D-10,  3.5D-16,  1.8D-01, r^2= 7.6D-01
+              MO Center= -3.1D-10,  1.6D-15,  1.8D-01, r^2= 7.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      0.359603  1 O  pz                 4      0.344100  1 O  s          
@@ -923,14 +922,14 @@ TDDFT h2o BP86/aug-cc-pVTZ
     71     -0.175150  3 H  s          
  
  Vector    5  Occ=2.000000D+00  E=-2.693241D-01
-              MO Center= -4.4D-10, -4.0D-16,  7.3D-02, r^2= 7.2D-01
+              MO Center= -4.4D-10, -1.4D-15,  7.3D-02, r^2= 7.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.428288  1 O  py                 7      0.365089  1 O  py         
     13      0.324788  1 O  py         
  
  Vector    6  Occ=0.000000D+00  E=-3.268046D-02
-              MO Center=  4.4D-09,  1.3D-16, -7.7D-01, r^2= 7.2D+00
+              MO Center=  4.4D-09,  1.8D-15, -7.7D-01, r^2= 7.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.474685  1 O  s                 50     -0.460282  2 H  s          
@@ -939,7 +938,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     14     -0.191694  1 O  pz                 2      0.151681  1 O  s          
  
  Vector    7  Occ=0.000000D+00  E= 1.495627D-02
-              MO Center= -1.1D-08, -3.0D-16, -7.7D-01, r^2= 1.5D+01
+              MO Center= -1.1D-08, -7.2D-16, -7.7D-01, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     50     -2.612714  2 H  s                 73      2.612714  3 H  s          
@@ -948,7 +947,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     48     -0.157658  2 H  s                 71      0.157658  3 H  s          
  
  Vector    8  Occ=0.000000D+00  E= 6.574365D-02
-              MO Center=  4.3D-08, -4.8D-15, -7.2D-02, r^2= 1.4D+01
+              MO Center=  4.3D-08,  4.0D-15, -7.2D-02, r^2= 1.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      5.370084  1 O  s                 49     -2.110736  2 H  s          
@@ -958,14 +957,14 @@ TDDFT h2o BP86/aug-cc-pVTZ
     80     -0.688523  3 H  px                59     -0.541246  2 H  pz         
  
  Vector    9  Occ=0.000000D+00  E= 9.422570D-02
-              MO Center=  1.5D-10, -1.6D-15,  3.5D-01, r^2= 7.1D+00
+              MO Center=  1.5D-10, -8.3D-15,  3.5D-01, r^2= 7.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      1.491756  1 O  py                58     -0.307444  2 H  py         
     81     -0.307444  3 H  py         
  
  Vector   10  Occ=0.000000D+00  E= 9.868142D-02
-              MO Center= -5.4D-08,  8.1D-15,  1.6D-01, r^2= 8.1D+00
+              MO Center= -5.4D-08, -5.7D-15,  1.6D-01, r^2= 8.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.467256  1 O  pz                49      0.594716  2 H  s          
@@ -975,7 +974,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     80     -0.275734  3 H  px                 4      0.251058  1 O  s          
  
  Vector   11  Occ=0.000000D+00  E= 1.002086D-01
-              MO Center=  1.7D-08,  2.2D-15, -8.2D-01, r^2= 1.1D+01
+              MO Center=  1.7D-08, -5.9D-16, -8.2D-01, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     50      2.887614  2 H  s                 73     -2.887614  3 H  s          
@@ -985,7 +984,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     82     -0.903015  3 H  pz                12     -0.538021  1 O  px         
  
  Vector   12  Occ=0.000000D+00  E= 1.477023D-01
-              MO Center=  1.8D-08, -5.8D-15,  6.4D-01, r^2= 8.8D+00
+              MO Center=  1.8D-08, -6.8D-16,  6.4D-01, r^2= 8.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      3.211004  1 O  px                49     -2.844880  2 H  s          
@@ -995,7 +994,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     31      0.577224  1 O  d  1       
  
  Vector   13  Occ=0.000000D+00  E= 1.677130D-01
-              MO Center=  2.0D-08, -2.0D-15, -1.8D-01, r^2= 6.3D+00
+              MO Center=  2.0D-08,  3.0D-15, -1.8D-01, r^2= 6.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.468325  1 O  s                 49     -1.655476  2 H  s          
@@ -1005,7 +1004,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
      4      0.444475  1 O  s                 30     -0.422396  1 O  d  0       
  
  Vector   14  Occ=0.000000D+00  E= 1.908805D-01
-              MO Center=  2.7D-09,  4.1D-15, -5.0D-01, r^2= 5.9D+00
+              MO Center=  2.7D-09,  2.4D-15, -5.0D-01, r^2= 5.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     58      1.575597  2 H  py                81     -1.575597  3 H  py         
@@ -1015,7 +1014,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     89     -0.166365  3 H  d -1       
  
  Vector   15  Occ=0.000000D+00  E= 2.138537D-01
-              MO Center= -3.3D-09,  1.5D-14, -2.7D-01, r^2= 6.4D+00
+              MO Center= -3.3D-09, -3.3D-14, -2.7D-01, r^2= 6.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      1.983094  1 O  py                58     -1.719757  2 H  py         
@@ -1025,7 +1024,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     88     -0.246688  3 H  d -2       
  
  Vector   16  Occ=0.000000D+00  E= 2.156112D-01
-              MO Center= -2.6D-08, -1.1D-14,  2.4D-01, r^2= 6.8D+00
+              MO Center= -2.6D-08,  3.6D-14,  2.4D-01, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      7.583261  1 O  s                 49     -3.855146  2 H  s          
@@ -1035,7 +1034,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     59      0.631100  2 H  pz                82      0.631100  3 H  pz         
  
  Vector   17  Occ=0.000000D+00  E= 3.077500D-01
-              MO Center= -3.4D-07,  4.9D-16, -3.1D-01, r^2= 8.0D+00
+              MO Center= -3.4D-07, -8.4D-16, -3.1D-01, r^2= 8.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     57      3.987592  2 H  px                80      3.987596  3 H  px         
@@ -1045,7 +1044,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     50      0.835143  2 H  s                 73     -0.835142  3 H  s          
  
  Vector   18  Occ=0.000000D+00  E= 3.121411D-01
-              MO Center=  4.7D-07,  1.8D-15, -8.2D-01, r^2= 8.0D+00
+              MO Center=  4.7D-07, -2.6D-15, -8.2D-01, r^2= 8.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      8.670224  1 O  s                 49     -4.849684  2 H  s          
@@ -1055,7 +1054,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     50     -0.750973  2 H  s                 73     -0.750974  3 H  s          
  
  Vector   19  Occ=0.000000D+00  E= 3.240692D-01
-              MO Center= -1.5D-07, -6.6D-16, -9.0D-01, r^2= 7.4D+00
+              MO Center= -1.5D-07, -9.9D-16, -9.0D-01, r^2= 7.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     49     -7.737063  2 H  s                 72      7.737063  3 H  s          
@@ -1065,7 +1064,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     15      1.943174  1 O  px                12      1.649512  1 O  px         
  
  Vector   20  Occ=0.000000D+00  E= 4.553791D-01
-              MO Center=  4.5D-08,  1.8D-17,  2.2D-01, r^2= 6.2D+00
+              MO Center=  4.5D-08, -8.9D-16,  2.2D-01, r^2= 6.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     49     -9.618983  2 H  s                 72      9.618984  3 H  s          
@@ -1075,7 +1074,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     71      1.901979  3 H  s                 50     -1.497827  2 H  s          
  
  Vector   21  Occ=0.000000D+00  E= 4.944954D-01
-              MO Center= -2.2D-08,  3.4D-15, -6.4D-01, r^2= 4.1D+00
+              MO Center= -2.2D-08, -8.4D-15, -6.4D-01, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      6.995235  1 O  s                 49     -4.460654  2 H  s          
@@ -1085,7 +1084,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     30     -0.897166  1 O  d  0              14      0.865871  1 O  pz         
  
  Vector   22  Occ=0.000000D+00  E= 5.451788D-01
-              MO Center= -1.5D-08, -7.7D-16,  2.9D-01, r^2= 4.2D+00
+              MO Center= -1.5D-08, -4.1D-15,  2.9D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.139132  1 O  s                 49     -1.992375  2 H  s          
@@ -1101,9 +1100,9 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
  moments of inertia (a.u.)
  ------------------
-           2.281000573209           0.000000000000           0.000000003368
+           2.281000573209           0.000000000000           0.000000003367
            0.000000000000           6.541960739106           0.000000000000
-           0.000000003368           0.000000000000           4.260960165897
+           0.000000003367           0.000000000000           4.260960165897
  
      Multipole analysis of the density
      ---------------------------------
@@ -1150,7 +1149,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
       H                  1.007825
  
 
- Effective nuclear repulsion energy (a.u.)       9.0624769641
+ Effective nuclear repulsion energy (a.u.)       9.0624769637
 
             Nuclear Dipole moment (a.u.) 
             ----------------------------
@@ -1239,28 +1238,28 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
  Grid_pts file          = ./h2o_raman_4.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      7        Max. recs in file   =    212783
+ Max. records in memory =      7        Max. recs in file   =     76126
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       13.02            13017841
+           Heap Space remaining (MW):       13.02            13017639
           Stack Space remaining (MW):       13.11            13106626
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -76.4660947349 -8.55D+01  6.70D-05  5.39D-05     9.0
- d= 0,ls=0.0,diis     2    -76.4660966576 -1.92D-06  2.79D-05  2.54D-05     9.5
+ d= 0,ls=0.0,diis     1    -76.4660947349 -8.55D+01  6.70D-05  5.39D-05     8.9
+ d= 0,ls=0.0,diis     2    -76.4660966576 -1.92D-06  2.79D-05  2.54D-05     9.4
  d= 0,ls=0.0,diis     3    -76.4660970347 -3.77D-07  1.43D-05  2.14D-05     9.9
- d= 0,ls=0.0,diis     4    -76.4660988032 -1.77D-06  9.98D-07  7.87D-08    10.4
+ d= 0,ls=0.0,diis     4    -76.4660988032 -1.77D-06  9.98D-07  7.87D-08    10.3
  d= 0,ls=0.0,diis     5    -76.4660987885  1.47D-08  1.10D-07  1.04D-09    10.8
  d= 0,ls=0.0,diis     6    -76.4660987886 -1.01D-10  3.68D-09  6.60D-13    11.3
 
 
-         Total DFT energy =      -76.466098788598
-      One electron energy =     -122.761898322192
-           Coulomb energy =       46.545402246668
-    Exchange-Corr. energy =       -9.312079677196
- Nuclear repulsion energy =        9.062476964122
+         Total DFT energy =      -76.466098788599
+      One electron energy =     -122.761898321505
+           Coulomb energy =       46.545402246333
+    Exchange-Corr. energy =       -9.312079677157
+ Nuclear repulsion energy =        9.062476963731
 
  Numeric. integr. density =       10.000002306184
 
@@ -1272,26 +1271,26 @@ TDDFT h2o BP86/aug-cc-pVTZ
                        ------------------------------------
  
  Vector    1  Occ=2.000000D+00  E=-1.878177D+01
-              MO Center= -2.9D-10,  3.6D-19,  1.2D-01, r^2= 1.5D-02
+              MO Center= -2.9D-10, -4.6D-19,  1.2D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.974031  1 O  s          
  
  Vector    2  Occ=2.000000D+00  E=-9.312436D-01
-              MO Center= -5.6D-10,  1.2D-16, -8.4D-02, r^2= 5.0D-01
+              MO Center= -5.6D-10,  5.6D-17, -8.4D-02, r^2= 5.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.482527  1 O  s                  4      0.280698  1 O  s          
  
  Vector    3  Occ=2.000000D+00  E=-4.837316D-01
-              MO Center=  2.3D-10, -3.8D-17, -9.6D-02, r^2= 7.8D-01
+              MO Center=  2.3D-10, -8.9D-17, -9.6D-02, r^2= 7.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      0.325136  1 O  px                 6      0.301017  1 O  px         
     48      0.226241  2 H  s                 71     -0.226241  3 H  s          
  
  Vector    4  Occ=2.000000D+00  E=-3.468925D-01
-              MO Center= -2.1D-10,  9.8D-16,  1.8D-01, r^2= 7.5D-01
+              MO Center= -2.1D-10, -1.2D-15,  1.8D-01, r^2= 7.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      0.359422  1 O  pz                 4      0.345274  1 O  s          
@@ -1300,14 +1299,14 @@ TDDFT h2o BP86/aug-cc-pVTZ
     71     -0.175442  3 H  s          
  
  Vector    5  Occ=2.000000D+00  E=-2.695710D-01
-              MO Center= -3.0D-10, -1.0D-15,  7.3D-02, r^2= 7.2D-01
+              MO Center= -3.0D-10,  1.3D-15,  7.3D-02, r^2= 7.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.428227  1 O  py                 7      0.365057  1 O  py         
     13      0.324375  1 O  py         
  
  Vector    6  Occ=0.000000D+00  E=-3.237130D-02
-              MO Center=  3.0D-09,  5.2D-15, -7.7D-01, r^2= 7.3D+00
+              MO Center=  3.0D-09, -5.2D-15, -7.7D-01, r^2= 7.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.479938  1 O  s                 50     -0.462720  2 H  s          
@@ -1316,7 +1315,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     14     -0.191584  1 O  pz                 2      0.150968  1 O  s          
  
  Vector    7  Occ=0.000000D+00  E= 1.513718D-02
-              MO Center= -7.8D-09,  1.6D-15, -7.7D-01, r^2= 1.5D+01
+              MO Center= -7.8D-09, -4.4D-16, -7.7D-01, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     50     -2.630531  2 H  s                 73      2.630531  3 H  s          
@@ -1325,7 +1324,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     48     -0.158241  2 H  s                 71      0.158241  3 H  s          
  
  Vector    8  Occ=0.000000D+00  E= 6.598967D-02
-              MO Center=  2.9D-08, -8.2D-15, -6.6D-02, r^2= 1.4D+01
+              MO Center=  2.9D-08,  3.7D-15, -6.6D-02, r^2= 1.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      5.389022  1 O  s                 49     -2.123919  2 H  s          
@@ -1335,14 +1334,14 @@ TDDFT h2o BP86/aug-cc-pVTZ
     80     -0.685660  3 H  px                59     -0.542355  2 H  pz         
  
  Vector    9  Occ=0.000000D+00  E= 9.419808D-02
-              MO Center=  1.0D-10, -9.1D-15,  3.5D-01, r^2= 7.1D+00
+              MO Center=  1.0D-10, -1.8D-15,  3.5D-01, r^2= 7.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      1.494050  1 O  py                58     -0.309390  2 H  py         
     81     -0.309390  3 H  py         
  
  Vector   10  Occ=0.000000D+00  E= 9.887753D-02
-              MO Center= -3.0D-08,  1.4D-14,  1.6D-01, r^2= 8.2D+00
+              MO Center= -3.0D-08,  3.3D-15,  1.6D-01, r^2= 8.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.460070  1 O  pz                49      0.567131  2 H  s          
@@ -1352,7 +1351,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     80     -0.283672  3 H  px                 5      0.279489  1 O  s          
  
  Vector   11  Occ=0.000000D+00  E= 1.008518D-01
-              MO Center=  5.3D-09,  8.9D-16, -8.2D-01, r^2= 1.1D+01
+              MO Center=  5.3D-09,  1.7D-15, -8.2D-01, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     50      2.903893  2 H  s                 73     -2.903893  3 H  s          
@@ -1362,7 +1361,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     82     -0.910770  3 H  pz                12     -0.546506  1 O  px         
  
  Vector   12  Occ=0.000000D+00  E= 1.477820D-01
-              MO Center=  1.2D-08,  4.4D-15,  6.4D-01, r^2= 8.7D+00
+              MO Center=  1.2D-08,  3.4D-15,  6.4D-01, r^2= 8.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      3.206850  1 O  px                49     -2.833647  2 H  s          
@@ -1372,7 +1371,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     31      0.579342  1 O  d  1       
  
  Vector   13  Occ=0.000000D+00  E= 1.680154D-01
-              MO Center=  1.4D-08, -4.0D-15, -1.8D-01, r^2= 6.2D+00
+              MO Center=  1.4D-08,  1.9D-15, -1.8D-01, r^2= 6.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.437251  1 O  s                 49     -1.646561  2 H  s          
@@ -1382,7 +1381,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
      4      0.442183  1 O  s                 30     -0.424103  1 O  d  0       
  
  Vector   14  Occ=0.000000D+00  E= 1.910792D-01
-              MO Center=  1.9D-09, -5.9D-15, -5.0D-01, r^2= 5.9D+00
+              MO Center=  1.9D-09, -5.0D-15, -5.0D-01, r^2= 5.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     58      1.582323  2 H  py                81     -1.582323  3 H  py         
@@ -1392,7 +1391,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     89     -0.167062  3 H  d -1       
  
  Vector   15  Occ=0.000000D+00  E= 2.138497D-01
-              MO Center= -2.3D-09, -8.0D-15, -2.7D-01, r^2= 6.4D+00
+              MO Center= -2.3D-09, -3.1D-14, -2.7D-01, r^2= 6.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      1.984100  1 O  py                58     -1.722151  2 H  py         
@@ -1402,7 +1401,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     88     -0.246982  3 H  d -2       
  
  Vector   16  Occ=0.000000D+00  E= 2.157152D-01
-              MO Center= -1.8D-08,  1.3D-14,  2.3D-01, r^2= 6.8D+00
+              MO Center= -1.8D-08,  2.5D-14,  2.3D-01, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      7.579815  1 O  s                 49     -3.853388  2 H  s          
@@ -1412,7 +1411,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     59      0.634005  2 H  pz                82      0.634005  3 H  pz         
  
  Vector   17  Occ=0.000000D+00  E= 3.080028D-01
-              MO Center= -2.2D-07, -1.4D-16, -3.1D-01, r^2= 8.0D+00
+              MO Center= -2.2D-07,  2.7D-15, -3.1D-01, r^2= 8.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     57      4.032125  2 H  px                80      4.032127  3 H  px         
@@ -1422,7 +1421,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     50      0.834957  2 H  s                 73     -0.834956  3 H  s          
  
  Vector   18  Occ=0.000000D+00  E= 3.127860D-01
-              MO Center=  3.1D-07,  1.4D-15, -8.2D-01, r^2= 8.0D+00
+              MO Center=  3.1D-07, -3.6D-15, -8.2D-01, r^2= 8.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      8.719574  1 O  s                 49     -4.883405  2 H  s          
@@ -1442,7 +1441,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     15      1.959468  1 O  px                12      1.657962  1 O  px         
  
  Vector   20  Occ=0.000000D+00  E= 4.552601D-01
-              MO Center=  3.1D-08, -3.9D-15,  2.2D-01, r^2= 6.2D+00
+              MO Center=  3.1D-08, -4.7D-15,  2.2D-01, r^2= 6.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     49     -9.671971  2 H  s                 72      9.671971  3 H  s          
@@ -1452,7 +1451,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     71      1.920849  3 H  s                 50     -1.500396  2 H  s          
  
  Vector   21  Occ=0.000000D+00  E= 4.950389D-01
-              MO Center= -1.6D-08,  3.6D-15, -6.4D-01, r^2= 4.1D+00
+              MO Center= -1.6D-08, -9.6D-16, -6.4D-01, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      6.945443  1 O  s                 49     -4.428278  2 H  s          
@@ -1462,7 +1461,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     30     -0.898956  1 O  d  0              14      0.868374  1 O  pz         
  
  Vector   22  Occ=0.000000D+00  E= 5.450654D-01
-              MO Center= -1.1D-08, -5.4D-15,  2.9D-01, r^2= 4.2D+00
+              MO Center= -1.1D-08, -7.3D-16,  2.9D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.135589  1 O  s                 49     -1.988777  2 H  s          
@@ -1478,9 +1477,9 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
  moments of inertia (a.u.)
  ------------------
-           2.277887710170           0.000000000000           0.000000002297
-           0.000000000000           6.503513748501           0.000000000000
-           0.000000002297           0.000000000000           4.225626038331
+           2.277887710217           0.000000000000           0.000000002296
+           0.000000000000           6.503513749070           0.000000000000
+           0.000000002296           0.000000000000           4.225626038853
  
      Multipole analysis of the density
      ---------------------------------
@@ -1526,14 +1525,14 @@ TDDFT h2o BP86/aug-cc-pVTZ
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       1.76   |
+                 |  CPU   |       0.00   |       1.74   |
                  ----------------------------------------
-                 |  WALL  |       0.00   |       1.77   |
+                 |  WALL  |       0.00   |       1.75   |
                  ----------------------------------------
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    1     -76.46609879 -7.3D-05  0.00004  0.00003  0.00614  0.01299     15.6
+@    1     -76.46609879 -7.3D-05  0.00004  0.00003  0.00614  0.01299     16.6
                                      ok       ok                    
 
 
@@ -1630,24 +1629,24 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
  Grid_pts file          = ./h2o_raman_4.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      7        Max. recs in file   =    212783
+ Max. records in memory =      7        Max. recs in file   =     76126
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       13.02            13017841
+           Heap Space remaining (MW):       13.02            13017639
           Stack Space remaining (MW):       13.11            13106626
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
  d= 0,ls=0.0,diis     1    -76.4660987911 -8.55D+01  1.32D-06  1.75D-08    13.9
- d= 0,ls=0.0,diis     2    -76.4660987926 -1.50D-09  3.17D-07  2.73D-09    14.4
+ d= 0,ls=0.0,diis     2    -76.4660987926 -1.50D-09  3.17D-07  2.73D-09    14.3
 
 
-         Total DFT energy =      -76.466098792590
-      One electron energy =     -122.762684139506
-           Coulomb energy =       46.545861992635
-    Exchange-Corr. energy =       -9.312132245001
- Nuclear repulsion energy =        9.062855599282
+         Total DFT energy =      -76.466098792591
+      One electron energy =     -122.762684139651
+           Coulomb energy =       46.545861992808
+    Exchange-Corr. energy =       -9.312132245022
+ Nuclear repulsion energy =        9.062855599274
 
  Numeric. integr. density =       10.000002304602
 
@@ -1659,26 +1658,26 @@ TDDFT h2o BP86/aug-cc-pVTZ
                        ------------------------------------
  
  Vector    1  Occ=2.000000D+00  E=-1.878175D+01
-              MO Center= -1.0D-10, -1.3D-19,  1.2D-01, r^2= 1.5D-02
+              MO Center= -1.0D-10, -3.8D-19,  1.2D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.974032  1 O  s          
  
  Vector    2  Occ=2.000000D+00  E=-9.312504D-01
-              MO Center= -2.2D-10,  1.4D-16, -8.4D-02, r^2= 5.0D-01
+              MO Center= -2.2D-10, -7.9D-17, -8.4D-02, r^2= 5.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.482522  1 O  s                  4      0.280680  1 O  s          
  
  Vector    3  Occ=2.000000D+00  E=-4.837516D-01
-              MO Center=  9.6D-11, -3.4D-17, -9.6D-02, r^2= 7.8D-01
+              MO Center=  9.6D-11, -8.5D-17, -9.6D-02, r^2= 7.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      0.325124  1 O  px                 6      0.301016  1 O  px         
     48      0.226262  2 H  s                 71     -0.226262  3 H  s          
  
  Vector    4  Occ=2.000000D+00  E=-3.468787D-01
-              MO Center= -8.6D-11,  1.1D-15,  1.8D-01, r^2= 7.5D-01
+              MO Center= -8.6D-11,  6.0D-16,  1.8D-01, r^2= 7.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      0.359427  1 O  pz                 4      0.345280  1 O  s          
@@ -1687,14 +1686,14 @@ TDDFT h2o BP86/aug-cc-pVTZ
     71     -0.175440  3 H  s          
  
  Vector    5  Occ=2.000000D+00  E=-2.695672D-01
-              MO Center= -1.1D-10, -8.5D-16,  7.3D-02, r^2= 7.2D-01
+              MO Center= -1.1D-10,  1.5D-16,  7.3D-02, r^2= 7.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.428223  1 O  py                 7      0.365055  1 O  py         
     13      0.324371  1 O  py         
  
  Vector    6  Occ=0.000000D+00  E=-3.236468D-02
-              MO Center=  9.6D-10,  9.5D-16, -7.7D-01, r^2= 7.3D+00
+              MO Center=  9.6D-10, -1.8D-15, -7.7D-01, r^2= 7.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.480098  1 O  s                 50     -0.462773  2 H  s          
@@ -1703,7 +1702,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     14     -0.191567  1 O  pz                 2      0.150961  1 O  s          
  
  Vector    7  Occ=0.000000D+00  E= 1.513959D-02
-              MO Center= -2.7D-09,  3.4D-16, -7.7D-01, r^2= 1.5D+01
+              MO Center= -2.7D-09, -1.9D-15, -7.7D-01, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     50     -2.630672  2 H  s                 73      2.630672  3 H  s          
@@ -1712,7 +1711,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     48     -0.158251  2 H  s                 71      0.158251  3 H  s          
  
  Vector    8  Occ=0.000000D+00  E= 6.599518D-02
-              MO Center=  1.0D-08, -1.0D-14, -6.6D-02, r^2= 1.4D+01
+              MO Center=  1.0D-08, -1.7D-14, -6.6D-02, r^2= 1.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      5.389489  1 O  s                 49     -2.124195  2 H  s          
@@ -1722,14 +1721,14 @@ TDDFT h2o BP86/aug-cc-pVTZ
     80     -0.685721  3 H  px                59     -0.542294  2 H  pz         
  
  Vector    9  Occ=0.000000D+00  E= 9.419781D-02
-              MO Center=  3.0D-12,  1.0D-14,  3.5D-01, r^2= 7.1D+00
+              MO Center=  2.7D-12,  6.1D-15,  3.5D-01, r^2= 7.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      1.494151  1 O  py                58     -0.309476  2 H  py         
     81     -0.309476  3 H  py         
  
  Vector   10  Occ=0.000000D+00  E= 9.887826D-02
-              MO Center= -1.2D-08, -2.6D-15,  1.6D-01, r^2= 8.2D+00
+              MO Center= -1.2D-08,  6.8D-15,  1.6D-01, r^2= 8.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.460017  1 O  pz                49      0.566798  2 H  s          
@@ -1739,7 +1738,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     80     -0.283761  3 H  px                 5      0.280149  1 O  s          
  
  Vector   11  Occ=0.000000D+00  E= 1.008637D-01
-              MO Center=  2.7D-09,  1.8D-15, -8.2D-01, r^2= 1.1D+01
+              MO Center=  2.7D-09,  4.7D-16, -8.2D-01, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     50      2.904173  2 H  s                 73     -2.904173  3 H  s          
@@ -1749,7 +1748,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     82     -0.910874  3 H  pz                12     -0.546784  1 O  px         
  
  Vector   12  Occ=0.000000D+00  E= 1.477860D-01
-              MO Center=  4.5D-09, -3.5D-15,  6.4D-01, r^2= 8.7D+00
+              MO Center=  4.5D-09, -2.7D-15,  6.4D-01, r^2= 8.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      3.206731  1 O  px                49     -2.833380  2 H  s          
@@ -1759,7 +1758,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     31      0.579424  1 O  d  1       
  
  Vector   13  Occ=0.000000D+00  E= 1.680165D-01
-              MO Center=  5.0D-09,  3.7D-15, -1.8D-01, r^2= 6.2D+00
+              MO Center=  5.0D-09,  8.6D-16, -1.8D-01, r^2= 6.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.438152  1 O  s                 49     -1.647014  2 H  s          
@@ -1769,7 +1768,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
      4      0.442469  1 O  s                 30     -0.424069  1 O  d  0       
  
  Vector   14  Occ=0.000000D+00  E= 1.910792D-01
-              MO Center=  6.3D-10,  3.3D-15, -5.0D-01, r^2= 5.9D+00
+              MO Center=  6.4D-10,  5.5D-15, -5.0D-01, r^2= 5.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     58      1.582360  2 H  py                81     -1.582360  3 H  py         
@@ -1779,7 +1778,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     89     -0.167067  3 H  d -1       
  
  Vector   15  Occ=0.000000D+00  E= 2.138588D-01
-              MO Center= -7.5D-10, -1.3D-13, -2.7D-01, r^2= 6.4D+00
+              MO Center= -7.6D-10, -1.1D-13, -2.7D-01, r^2= 6.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      1.984206  1 O  py                58     -1.722279  2 H  py         
@@ -1789,7 +1788,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     88     -0.247016  3 H  d -2       
  
  Vector   16  Occ=0.000000D+00  E= 2.157235D-01
-              MO Center= -6.4D-09,  1.3D-13,  2.3D-01, r^2= 6.8D+00
+              MO Center= -6.4D-09,  1.1D-13,  2.3D-01, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      7.579372  1 O  s                 49     -3.853227  2 H  s          
@@ -1799,7 +1798,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     59      0.634325  2 H  pz                82      0.634326  3 H  pz         
  
  Vector   17  Occ=0.000000D+00  E= 3.080045D-01
-              MO Center= -7.8D-08, -1.1D-15, -3.1D-01, r^2= 8.0D+00
+              MO Center= -7.8D-08, -2.8D-15, -3.1D-01, r^2= 8.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     57      4.031830  2 H  px                80      4.031831  3 H  px         
@@ -1809,7 +1808,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     50      0.835350  2 H  s                 73     -0.835350  3 H  s          
  
  Vector   18  Occ=0.000000D+00  E= 3.127968D-01
-              MO Center=  1.1D-07, -2.6D-15, -8.2D-01, r^2= 8.0D+00
+              MO Center=  1.1D-07, -8.4D-16, -8.2D-01, r^2= 8.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      8.720222  1 O  s                 49     -4.883872  2 H  s          
@@ -1819,7 +1818,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     50     -0.752216  2 H  s                 73     -0.752217  3 H  s          
  
  Vector   19  Occ=0.000000D+00  E= 3.248310D-01
-              MO Center= -3.6D-08,  1.1D-15, -9.1D-01, r^2= 7.4D+00
+              MO Center= -3.6D-08, -3.4D-16, -9.1D-01, r^2= 7.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     49     -7.813608  2 H  s                 72      7.813608  3 H  s          
@@ -1829,7 +1828,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     15      1.959345  1 O  px                12      1.657984  1 O  px         
  
  Vector   20  Occ=0.000000D+00  E= 4.552613D-01
-              MO Center=  1.1D-08, -4.6D-15,  2.2D-01, r^2= 6.2D+00
+              MO Center=  1.1D-08,  8.4D-16,  2.2D-01, r^2= 6.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     49     -9.671425  2 H  s                 72      9.671425  3 H  s          
@@ -1839,7 +1838,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     71      1.921414  3 H  s                 50     -1.500308  2 H  s          
  
  Vector   21  Occ=0.000000D+00  E= 4.950364D-01
-              MO Center= -5.7D-09, -6.3D-15, -6.4D-01, r^2= 4.1D+00
+              MO Center= -5.7D-09, -3.2D-15, -6.4D-01, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      6.946074  1 O  s                 49     -4.428599  2 H  s          
@@ -1849,7 +1848,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     30     -0.898837  1 O  d  0              14      0.868119  1 O  pz         
  
  Vector   22  Occ=0.000000D+00  E= 5.450725D-01
-              MO Center= -3.9D-09, -4.1D-15,  2.9D-01, r^2= 4.2D+00
+              MO Center= -3.9D-09, -2.0D-15,  2.9D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.134191  1 O  s                 49     -1.987888  2 H  s          
@@ -1865,9 +1864,9 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
  moments of inertia (a.u.)
  ------------------
-           2.277381878345           0.000000000000           0.000000000830
-           0.000000000000           6.502988839495           0.000000000000
-           0.000000000830           0.000000000000           4.225606961149
+           2.277381878348           0.000000000000           0.000000000830
+           0.000000000000           6.502988839505           0.000000000000
+           0.000000000830           0.000000000000           4.225606961157
  
      Multipole analysis of the density
      ---------------------------------
@@ -1933,7 +1932,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
   The DFT is already converged 
 
-         Total DFT energy =    -76.466098792590
+         Total DFT energy =    -76.466098792591
 
  
  
@@ -1961,14 +1960,14 @@ TDDFT h2o BP86/aug-cc-pVTZ
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.00   |       1.76   |
+                 |  CPU   |       0.00   |       1.74   |
                  ----------------------------------------
-                 |  WALL  |       0.01   |       1.76   |
+                 |  WALL  |       0.00   |       1.75   |
                  ----------------------------------------
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    2     -76.46609879 -4.0D-09  0.00000  0.00000  0.00003  0.00008     19.3
+@    2     -76.46609879 -4.0D-09  0.00000  0.00000  0.00003  0.00008     20.3
                                      ok       ok       ok       ok  
 
 
@@ -1992,7 +1991,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
   Step       Energy      Delta E   Gmax     Grms     Xrms     Xmax   Walltime
   ---- ---------------- -------- -------- -------- -------- -------- --------
-@    2     -76.46609879 -4.0D-09  0.00000  0.00000  0.00003  0.00008     19.3
+@    2     -76.46609879 -4.0D-09  0.00000  0.00000  0.00003  0.00008     20.3
                                      ok       ok       ok       ok  
 
 
@@ -2079,7 +2078,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
 
 
- Task  times  cpu:       16.5s     wall:       19.1s
+ Task  times  cpu:       16.4s     wall:       19.2s
  
  
                                 NWChem Input Module
@@ -2176,30 +2175,30 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
 TDDFT h2o BP86/aug-cc-pVTZ
 
-   Time after variat. SCF:     16.6
-   Time prior to 1st pass:     16.6
+   Time after variat. SCF:     16.5
+   Time prior to 1st pass:     16.5
 
  Grid_pts file          = ./h2o_raman_4.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    212783
+ Max. records in memory =     12        Max. recs in file   =     76126
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.96            12956396
+           Heap Space remaining (MW):       12.96            12956257
           Stack Space remaining (MW):       13.11            13106626
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -76.4660924934 -8.55D+01  5.92D-07  3.40D-09    17.2
- d= 0,ls=0.0,diis     2    -76.4660924926  8.24D-10  3.47D-07  1.33D-08    17.8
- d= 0,ls=0.0,diis     3    -76.4660924937 -1.10D-09  1.59D-08  1.22D-11    18.4
+ d= 0,ls=0.0,diis     1    -76.4660924934 -8.55D+01  5.92D-07  3.40D-09    17.1
+ d= 0,ls=0.0,diis     2    -76.4660924926  8.24D-10  3.47D-07  1.33D-08    17.7
+ d= 0,ls=0.0,diis     3    -76.4660924937 -1.10D-09  1.59D-08  1.22D-11    18.3
 
 
          Total DFT energy =      -76.466092493711
-      One electron energy =     -122.762568960233
-           Coulomb energy =       46.545731021507
+      One electron energy =     -122.762568960226
+           Coulomb energy =       46.545731021508
     Exchange-Corr. energy =       -9.312110154267
- Nuclear repulsion energy =        9.062855599282
+ Nuclear repulsion energy =        9.062855599274
 
  Numeric. integr. density =       10.000000000532
 
@@ -2321,7 +2320,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
      4      0.442679  1 O  s                 30     -0.424050  1 O  d  0       
  
  Vector   14  Occ=0.000000D+00  E= 1.910788D-01
-              MO Center=  1.1D-10, -1.8D-09, -5.0D-01, r^2= 5.9D+00
+              MO Center=  1.2D-10, -1.8D-09, -5.0D-01, r^2= 5.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     58      1.582359  2 H  py                81     -1.582359  3 H  py         
@@ -2417,9 +2416,9 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
  moments of inertia (a.u.)
  ------------------
-           2.277381878345           0.000000000000           0.000000000830
-           0.000000000000           6.502988839495           0.000000000000
-           0.000000000830           0.000000000000           4.225606961149
+           2.277381878348           0.000000000000           0.000000000830
+           0.000000000000           6.502988839505           0.000000000000
+           0.000000000830           0.000000000000           4.225606961157
  
      Multipole analysis of the density
      ---------------------------------
@@ -2451,7 +2450,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
   stpr_wrt_fd_from_sq: overwrite of existing file:./h2o_raman_4.hess
  stpr_wrt_fd_dipole: overwrite of existing file./h2o_raman_4.fd_ddipole
 
- HESSIAN: the two electron contributions are done in      17.0s
+ HESSIAN: the two electron contributions are done in      16.8s
 
                                 NWChem CPHF Module
                                 ------------------
@@ -2467,7 +2466,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
   max iterations   =       50
   max subspace     =       90
 
-residual=     0.00000142
+ SCF residual:   1.424522353070951E-006
 
 
 Iterative solution of linear equations
@@ -2476,15 +2475,15 @@ Iterative solution of linear equations
   Maximum subspace       90
         Iterations       50
        Convergence  1.0D-04
-        Start time     42.9
+        Start time     43.8
 
 
    iter   nsub   residual    time
    ----  ------  --------  ---------
-     1      9    1.46D-01      46.3
-     2     18    7.06D-02      49.6
-     3     27    1.62D-03      53.0
-     4     36    7.05D-05      56.3
+     1      9    1.46D-01      47.2
+     2     18    7.06D-02      50.5
+     3     27    1.62D-03      53.9
+     4     36    7.05D-05      57.2
  HESSIAN: the CPHF contributions are done
   stpr_wrt_fd_from_sq: overwrite of existing file:./h2o_raman_4.hess
  stpr_wrt_fd_dipole: overwrite of existing file./h2o_raman_4.fd_ddipole
@@ -2492,19 +2491,19 @@ Iterative solution of linear equations
  Performance information
  -----------------------
 
- Timer overhead =  4.00D-07 seconds/call
+ Timer overhead =  1.00D-07 seconds/call
 
                Nr. of calls         CPU time (s)                 Wall time (s)                GFlops
              ---------------    -------------------     ------------------------------   -------------------
 Name         Min   Avg   Max    Min     Avg     Max     Min     Avg     Max   Mx/calls   Min     Max     Sum
 hess: tot     1     1     1    36.     36.     36.      37.     37.     37.     37.      0.0     0.0     0.0   
-hess: int     1     1     1   6.40E-2 6.72E-2 7.10E-2  7.77E-2 7.77E-2 7.77E-2 7.77E-2   0.0     0.0     0.0   
-hess: nuc     1     1     1    0.0     0.0     0.0     9.54E-7 1.43E-6 1.91E-6 1.91E-6   0.0     0.0     0.0   
-hess: int     1     1     1    17.     17.     17.      17.     17.     17.     17.      0.0     0.0     0.0   
+hess: int     1     1     1   6.70E-2 6.87E-2 7.20E-2  7.61E-2 7.61E-2 7.61E-2 7.61E-2   0.0     0.0     0.0   
+hess: nuc     1     1     1    0.0     0.0     0.0     9.53E-7 1.85E-6 2.14E-6 2.14E-6   0.0     0.0     0.0   
+hess: int     1     1     1    16.     16.     16.      17.     17.     17.     17.      0.0     0.0     0.0   
 hess: cph     1     1     1    17.     17.     17.      17.     17.     17.     17.      0.0     0.0     0.0   
 
  The average no. of pstat calls per process was 5.00D+00
- with a timing overhead of 2.00D-06s
+ with a timing overhead of 5.00D-07s
 
  HESSIAN: the Hessian is done
  
@@ -2522,7 +2521,7 @@ hess: cph     1     1     1    17.     17.     17.      17.     17.     17.     
  ---------------------------- Atom information ----------------------------
      atom    #        X              Y              Z            mass
  --------------------------------------------------------------------------
-    O        1 -1.9804433D-10  0.0000000D+00  2.2632810D-01  1.5994910D+01
+    O        1 -1.9809571D-10  0.0000000D+00  2.2632810D-01  1.5994910D+01
     H        2  1.4478947D+00  0.0000000D+00 -9.0160431D-01  1.0078250D+00
     H        3 -1.4478947D+00  0.0000000D+00 -9.0160431D-01  1.0078250D+00
  --------------------------------------------------------------------------
@@ -2538,14 +2537,14 @@ hess: cph     1     1     1    17.     17.     17.      17.     17.     17.     
               1           2           3           4           5           6           7           8           9
    ----- ----- ----- ----- -----
     1   3.93638D+01
-    2   1.75105D-06-6.29580D-02
-    3   1.98183D-06 2.45116D-06 2.63943D+01
-    4  -7.85208D+01 5.06674D-08 4.65814D+01 3.42534D+02
-    5   6.42211D-08-6.70755D-04 2.00087D-07 3.92167D-07-1.04385D-02
-    6   6.11684D+01 8.39625D-08-5.26966D+01-2.14635D+02-1.28802D-09 1.99873D+02
-    7  -7.85208D+01-1.82064D-08-4.65814D+01-2.97248D+01-1.44325D-07-2.90549D+01 3.42534D+02
-    8   1.98386D-07-6.70518D-04 3.95604D-07 3.79896D-07 1.77420D-03-2.53901D-07-4.35638D-07-1.04386D-02
-    9  -6.11684D+01 1.22052D-07-5.26966D+01 2.90567D+01-8.12987D-08 1.00493D+01 2.14635D+02-6.05379D-08 1.99873D+02
+    2   1.75064D-06-6.29580D-02
+    3   1.98207D-06 2.45064D-06 2.63943D+01
+    4  -7.85208D+01 5.07733D-08 4.65814D+01 3.42534D+02
+    5   6.51002D-08-6.70756D-04 2.00263D-07 3.91760D-07-1.04385D-02
+    6   6.11684D+01 8.35823D-08-5.26966D+01-2.14635D+02-5.64191D-10 1.99873D+02
+    7  -7.85208D+01-1.87571D-08-4.65814D+01-2.97248D+01-1.43222D-07-2.90549D+01 3.42534D+02
+    8   1.99267D-07-6.70519D-04 3.95777D-07 3.79477D-07 1.77420D-03-2.54021D-07-4.38738D-07-1.04386D-02
+    9  -6.11684D+01 1.22019D-07-5.26966D+01 2.90567D+01-8.12308D-08 1.00493D+01 2.14635D+02-6.04638D-08 1.99873D+02
 
 
 
@@ -2561,12 +2560,12 @@ hess: cph     1     1     1    17.     17.     17.      17.     17.     17.     
            1    -0.00004     0.00440    -0.24074    -0.00117     0.00000     0.00000
            2     0.25000    -0.00008    -0.00004     0.00000     0.00000     0.00437
            3    -0.00007    -0.23560    -0.00430    -0.00100     0.00000     0.00000
-           4    -0.00002     0.00457    -0.14766    -0.43358     0.00017     0.00000
+           4    -0.00002     0.00457    -0.14766    -0.43358     0.00018     0.00000
            5     0.01230     0.00000     0.00000     0.00029     0.70435    -0.70426
-           6    -0.00005    -0.23534     0.11515    -0.55607     0.00022     0.00000
-           7    -0.00002     0.00450    -0.14766    -0.43358     0.00017     0.00000
+           6    -0.00005    -0.23534     0.11515    -0.55607     0.00023     0.00000
+           7    -0.00002     0.00450    -0.14766    -0.43358     0.00018     0.00000
            8     0.01230     0.00000     0.00000    -0.00028    -0.70437    -0.70424
-           9    -0.00009    -0.23570    -0.12375     0.55407    -0.00022     0.00000
+           9    -0.00009    -0.23570    -0.12375     0.55407    -0.00023     0.00000
 
                     7           8           9
  
@@ -2625,12 +2624,12 @@ hess: cph     1     1     1    17.     17.     17.      17.     17.     17.     
         Vibrational analysis via the FX method 
   --- with translations and rotations projected out ---
   --- via the Eckart algorithm                      ---
- Projected Nuclear Hessian trans-rot subspace norm:1.0499D-32
+ Projected Nuclear Hessian trans-rot subspace norm:1.2389D-32
                          (should be close to zero!) 
 
 
 From the projected analysis 
-The Zero-Point Energy (Kcal/mol) =          12.94946961
+The Zero-Point Energy (Kcal/mol) =          12.94946960
 
  center of mass
  --------------
@@ -2638,9 +2637,9 @@ The Zero-Point Energy (Kcal/mol) =          12.94946961
 
  moments of inertia (a.u.)
  ------------------
-           2.277381878345           0.000000000000           0.000000000830
-           0.000000000000           6.502988839495           0.000000000000
-           0.000000000830           0.000000000000           4.225606961149
+           2.277381878348           0.000000000000           0.000000000830
+           0.000000000000           6.502988839505           0.000000000000
+           0.000000000830           0.000000000000           4.225606961157
 
  Rotational Constants
  --------------------
@@ -2677,15 +2676,15 @@ The Zero-Point Energy (Kcal/mol) =          12.94946961
  
  P.Frequency        0.00        0.00        0.00        0.00        0.00        0.00
  
-           1    -0.04552     0.01756     0.00000     0.00000     0.00000    -0.23578
+           1    -0.04552    -0.23578     0.00000     0.00000     0.00000     0.01756
            2     0.00000     0.00000     0.25004     0.00000     0.00000     0.00000
-           3    -0.08481    -0.21984     0.00000     0.00000     0.00000     0.00000
-           4     0.36714    -0.14164     0.00000     0.00000     0.00000    -0.23445
+           3    -0.08481     0.00000     0.00000     0.00000     0.00000    -0.21984
+           4     0.36714    -0.23445     0.00000     0.00000     0.00000    -0.14164
            5     0.00000     0.00000     0.00000     0.99611     0.00000     0.00000
-           6     0.44491    -0.42420     0.00000     0.00000     0.00000     0.00170
-           7     0.36714    -0.14164     0.00000     0.00000     0.00000    -0.23445
+           6     0.44491     0.00170     0.00000     0.00000     0.00000    -0.42420
+           7     0.36714    -0.23445     0.00000     0.00000     0.00000    -0.14164
            8     0.00000     0.00000     0.00000     0.00000     0.99611     0.00000
-           9    -0.61454    -0.01548     0.00000     0.00000     0.00000    -0.00171
+           9    -0.61454    -0.00171     0.00000     0.00000     0.00000    -0.01548
 
                     7           8           9
  
@@ -2708,11 +2707,11 @@ The Zero-Point Energy (Kcal/mol) =          12.94946961
   Mode   [cm**-1]  ||      [d/dqX]             [d/dqY]           [d/dqZ]
  ------ ---------- || ------------------ ------------------ -----------------
     1        0.000 ||      -1.250               0.000             0.000
-    2        0.000 ||       0.482               0.000             0.000
+    2        0.000 ||      -0.004               0.000             0.000
     3        0.000 ||       0.000              -0.757             0.000
     4        0.000 ||       0.000               1.508             0.000
     5        0.000 ||       0.000               1.508             0.000
-    6        0.000 ||      -0.004               0.000             0.000
+    6        0.000 ||       0.482               0.000             0.000
     7     1591.504 ||       0.000               0.000             1.260
     8     3680.211 ||       0.000               0.000             0.198
     9     3783.859 ||       1.071               0.000             0.000
@@ -2727,11 +2726,11 @@ The Zero-Point Energy (Kcal/mol) =          12.94946961
   Mode   [cm**-1]  || [atomic units] [(debye/angs)**2] [(KM/mol)] [arbitrary]
  ------ ---------- || -------------- ----------------- ---------- -----------
     1        0.000 ||    0.067704           1.562        66.001      14.505
-    2        0.000 ||    0.010076           0.232         9.823       2.159
+    2        0.000 ||    0.000001           0.000         0.001       0.000
     3        0.000 ||    0.024856           0.573        24.231       5.325
     4        0.000 ||    0.098614           2.275        96.133      21.127
     5        0.000 ||    0.098614           2.275        96.133      21.127
-    6        0.000 ||    0.000001           0.000         0.001       0.000
+    6        0.000 ||    0.010076           0.232         9.823       2.159
     7     1591.504 ||    0.068767           1.587        67.037      14.733
     8     3680.211 ||    0.001705           0.039         1.662       0.365
     9     3783.859 ||    0.049744           1.148        48.493      10.657
@@ -2826,32 +2825,32 @@ The Zero-Point Energy (Kcal/mol) =          12.94946961
 
 TDDFT h2o BP86/aug-cc-pVTZ
 
-   Time after variat. SCF:     52.3
-   Time prior to 1st pass:     52.3
+   Time after variat. SCF:     52.0
+   Time prior to 1st pass:     52.0
 
  Grid_pts file          = ./h2o_raman_4.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    212783
+ Max. records in memory =     12        Max. recs in file   =     76126
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.96            12956396
+           Heap Space remaining (MW):       12.96            12956257
           Stack Space remaining (MW):       13.11            13106484
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -76.4660846408 -8.55D+01  4.44D-05  2.68D-05    53.0
- d= 0,ls=0.0,diis     2    -76.4660876222 -2.98D-06  1.10D-05  2.15D-06    53.6
- d= 0,ls=0.0,diis     3    -76.4660873233  2.99D-07  7.03D-06  4.56D-06    54.2
- d= 0,ls=0.0,diis     4    -76.4660877958 -4.72D-07  8.61D-07  9.05D-08    54.8
- d= 0,ls=0.0,diis     5    -76.4660878031 -7.29D-09  5.29D-08  9.90D-11    55.3
+ d= 0,ls=0.0,diis     1    -76.4660846408 -8.55D+01  4.44D-05  2.68D-05    52.7
+ d= 0,ls=0.0,diis     2    -76.4660876222 -2.98D-06  1.10D-05  2.15D-06    53.3
+ d= 0,ls=0.0,diis     3    -76.4660873233  2.99D-07  7.03D-06  4.56D-06    53.9
+ d= 0,ls=0.0,diis     4    -76.4660877958 -4.72D-07  8.61D-07  9.05D-08    54.5
+ d= 0,ls=0.0,diis     5    -76.4660878031 -7.29D-09  5.29D-08  9.90D-11    55.0
 
 
-         Total DFT energy =      -76.466087803058
-      One electron energy =     -122.766074995744
-           Coulomb energy =       46.548001627122
-    Exchange-Corr. energy =       -9.312284469732
- Nuclear repulsion energy =        9.064270035296
+         Total DFT energy =      -76.466087803057
+      One electron energy =     -122.766074995728
+           Coulomb energy =       46.548001627114
+    Exchange-Corr. energy =       -9.312284469731
+ Nuclear repulsion energy =        9.064270035287
 
  Numeric. integr. density =        9.999999990956
 
@@ -3069,9 +3068,9 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
  moments of inertia (a.u.)
  ------------------
-           2.252866550108           0.000000000000          -0.000000012475
-           0.000000000000           6.502362197264           0.000000000000
-          -0.000000012475           0.000000000000           4.249495647156
+           2.252866550112           0.000000000000          -0.000000012475
+           0.000000000000           6.502362197276           0.000000000000
+          -0.000000012475           0.000000000000           4.249495647165
  
      Multipole analysis of the density
      ---------------------------------
@@ -3138,6 +3137,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
   tolerance =   1.0D-04
   max. iter =   50
 
+ SCF residual:   1.160124722205299E-006
 
 
 Iterative solution of linear equations
@@ -3145,63 +3145,62 @@ Iterative solution of linear equations
   No. of equations        3
   Maximum subspace       30
        Convergence  1.0D-04
-        Start time     60.9
+        Start time     61.6
 
 
    iter   nsub   residual    time 
    ----  ------  --------  --------- 
-     1      3    2.11D+00      64.5
-     2      6    1.85D+00      68.0
-     3      9    1.60D-01      71.5
-     4     12    3.11D-02      75.0
-     5     15    2.22D-02      78.6
-     6     18    3.34D-04      82.3
-     7     21    4.97D-05      85.9
+     1      3    1.05D+00      65.1
+     2      6    5.40D-01      68.6
+     3      9    3.16D-02      72.1
+     4     12    3.66D-03      75.6
+     5     15    1.69D-03      79.1
+     6     18    4.20D-05      82.6
  Electric Dipole Response Matrix (nonzero elements):
 
               1        2        3      
-    1   11.0521   0.0000   0.0000
-    2    0.0000  10.7154   0.0000
-    3    0.0000   0.0000  10.7262
+    1   12.5931   0.0000  -0.0175
+    2    0.0000  11.4930   0.0000
+    3    0.0042   0.0000  12.0205
 
  DFT Linear Response polarizability / au 
  Frequency  =       0.0885590 / au
  Wavelength =     514.4971488 / nm
               X              Y              Z
  -----------------------------------------------
- X      11.0521331      0.0000000      0.0000000
- Y       0.0000000     10.7153778      0.0000000
- Z       0.0000000      0.0000000     10.7261920
+ X      12.5931179      0.0000000     -0.0174926
+ Y       0.0000000     11.4929794      0.0000000
+ Z       0.0042134      0.0000000     12.0205265
  -----------------------------------------------
- Eigenvalues =      11.0521331     10.7261920     10.7153778
- Isotropic   =      10.8312343
- Anisotropic =       0.3314806
+ Eigenvalues =      12.5936518     11.4929794     12.0199926
+ Isotropic   =      12.0355413
+ Anisotropic =       0.9534955
  -----------------------------------------------
  
  Imaginary part:
 
               1        2        3      
-    1    0.1217   0.0000   0.0000
-    2    0.0000   0.1910   0.0000
-    3    0.0000   0.0000   0.1413
+    1    0.1441   0.0000  -0.0010
+    2    0.0000   0.1882   0.0000
+    3    0.0003   0.0000   0.1593
  
- average:    10.8312343279482       + I   0.151311484653560     
+ average:    12.0355412532622       + I   0.163853150912229     
  
  Magnetic Dipole Response Matrix (nonzero elements):
  Optical rotation tensor Beta
 
               1        2        3      
-    1    0.0000   0.4351   0.0000
-    2    0.7364   0.0000   0.0000
-    3    0.0000   0.0000   0.0000
+    1    0.0000   0.5494   0.0000
+    2    0.6840   0.0000  -0.0004
+    3    0.0000   0.0011   0.0000
  
  Imaginary part:
 
               1        2        3      
-    1    0.0000   0.0157   0.0000
-    2    0.0552   0.0000   0.0000
-    3    0.0000   0.0000   0.0000
- average:  -9.214463354633019E-011  + I  -5.239758629757174E-012
+    1    0.0000   0.0196   0.0000
+    2    0.0512   0.0000  -0.0001
+    3    0.0000   0.0001   0.0000
+ average:   1.166155978948246E-011  + I   5.331269307620065E-012
  
  Exiting AOResponse driver routine
                               NWChem Property Module
@@ -3286,33 +3285,33 @@ Iterative solution of linear equations
 
 TDDFT h2o BP86/aug-cc-pVTZ
 
-   Time after variat. SCF:     80.6
-   Time prior to 1st pass:     80.6
+   Time after variat. SCF:     76.5
+   Time prior to 1st pass:     76.5
 
  Grid_pts file          = ./h2o_raman_4.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    212783
+ Max. records in memory =     12        Max. recs in file   =     76126
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.96            12956396
+           Heap Space remaining (MW):       12.96            12956257
           Stack Space remaining (MW):       13.11            13106484
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -76.4660749984 -8.55D+01  8.86D-05  1.07D-04    81.3
- d= 0,ls=0.0,diis     2    -76.4660869403 -1.19D-05  2.17D-05  8.18D-06    81.9
- d= 0,ls=0.0,diis     3    -76.4660861416  7.99D-07  1.38D-05  1.76D-05    82.4
- d= 0,ls=0.0,diis     4    -76.4660876034 -1.46D-06  1.72D-06  3.58D-07    83.0
- d= 0,ls=0.0,diis     5    -76.4660876323 -2.89D-08  1.05D-07  3.93D-10    83.6
- d= 0,ls=0.0,diis     6    -76.4660876323 -4.34D-11  1.68D-08  2.64D-12    84.2
+ d= 0,ls=0.0,diis     1    -76.4660749984 -8.55D+01  8.86D-05  1.07D-04    77.1
+ d= 0,ls=0.0,diis     2    -76.4660869403 -1.19D-05  2.17D-05  8.18D-06    77.7
+ d= 0,ls=0.0,diis     3    -76.4660861416  7.99D-07  1.38D-05  1.76D-05    78.3
+ d= 0,ls=0.0,diis     4    -76.4660876034 -1.46D-06  1.72D-06  3.58D-07    78.9
+ d= 0,ls=0.0,diis     5    -76.4660876323 -2.89D-08  1.05D-07  3.93D-10    79.5
+ d= 0,ls=0.0,diis     6    -76.4660876323 -4.35D-11  1.68D-08  2.64D-12    80.1
 
 
          Total DFT energy =      -76.466087632348
-      One electron energy =     -122.758816413996
-           Coulomb energy =       46.543339701926
+      One electron energy =     -122.758816413984
+           Coulomb energy =       46.543339701920
     Exchange-Corr. energy =       -9.311920541930
- Nuclear repulsion energy =        9.061309621653
+ Nuclear repulsion energy =        9.061309621646
 
  Numeric. integr. density =       10.000000010157
 
@@ -3530,9 +3529,9 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
  moments of inertia (a.u.)
  ------------------
-           2.302029871652           0.000000000000           0.000000014169
-           0.000000000000           6.503815481725           0.000000000000
-           0.000000014169           0.000000000000           4.201785610074
+           2.302029871654           0.000000000000           0.000000014169
+           0.000000000000           6.503815481734           0.000000000000
+           0.000000014169           0.000000000000           4.201785610080
  
      Multipole analysis of the density
      ---------------------------------
@@ -3599,6 +3598,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
   tolerance =   1.0D-04
   max. iter =   50
 
+ SCF residual:   3.353021414358049E-007
 
 
 Iterative solution of linear equations
@@ -3606,74 +3606,73 @@ Iterative solution of linear equations
   No. of equations        3
   Maximum subspace       30
        Convergence  1.0D-04
-        Start time     90.8
+        Start time     87.5
 
 
    iter   nsub   residual    time 
    ----  ------  --------  --------- 
-     1      3    2.14D+00      96.6
-     2      6    1.86D+00     100.1
-     3      9    1.59D-01     103.6
-     4     12    3.16D-02     107.1
-     5     15    2.22D-02     110.7
-     6     18    3.37D-04     114.2
-     7     21    5.03D-05     117.7
+     1      3    1.06D+00      91.0
+     2      6    5.44D-01      94.5
+     3      9    3.15D-02      97.9
+     4     12    3.72D-03     101.4
+     5     15    1.70D-03     104.9
+     6     18    4.20D-05     108.4
  Electric Dipole Response Matrix (nonzero elements):
 
               1        2        3      
-    1   11.0364   0.0000   0.0000
-    2    0.0000  10.7148   0.0000
-    3    0.0000   0.0000  10.7400
+    1   12.5721   0.0000  -0.0171
+    2    0.0000  11.4923   0.0000
+    3    0.0042   0.0000  12.0502
 
  DFT Linear Response polarizability / au 
  Frequency  =       0.0885590 / au
  Wavelength =     514.4971488 / nm
               X              Y              Z
  -----------------------------------------------
- X      11.0363918      0.0000000      0.0000000
- Y       0.0000000     10.7148457      0.0000000
- Z       0.0000000      0.0000000     10.7399896
+ X      12.5721483      0.0000000     -0.0171298
+ Y       0.0000000     11.4922944      0.0000000
+ Z       0.0042443      0.0000000     12.0502030
  -----------------------------------------------
- Eigenvalues =      11.0363918     10.7148457     10.7399896
- Isotropic   =      10.8304090
- Anisotropic =       0.3097405
+ Eigenvalues =      12.5727098     11.4922944     12.0496414
+ Isotropic   =      12.0382152
+ Anisotropic =       0.9358242
  -----------------------------------------------
  
  Imaginary part:
 
               1        2        3      
-    1    0.1215   0.0000   0.0000
-    2    0.0000   0.1910   0.0000
-    3    0.0000   0.0000   0.1408
+    1    0.1439   0.0000  -0.0010
+    2    0.0000   0.1882   0.0000
+    3    0.0003   0.0000   0.1591
  
- average:    10.8304090235578       + I   0.151116232694459     
+ average:    12.0382152281631       + I   0.163728148810899     
  
  Magnetic Dipole Response Matrix (nonzero elements):
  Optical rotation tensor Beta
 
               1        2        3      
-    1    0.0000   0.4213   0.0000
-    2    0.7469   0.0000   0.0000
-    3    0.0000   0.0000   0.0000
+    1    0.0000   0.5357   0.0000
+    2    0.6958   0.0000  -0.0004
+    3    0.0000   0.0011   0.0000
  
  Imaginary part:
 
               1        2        3      
-    1    0.0000   0.0152   0.0000
-    2    0.0555   0.0000   0.0000
-    3    0.0000   0.0000   0.0000
- average:  -8.983688041407341E-011  + I  -4.735849958878803E-012
+    1    0.0000   0.0192   0.0000
+    2    0.0515   0.0000  -0.0001
+    3    0.0000   0.0001   0.0000
+ average:   1.162621731332380E-011  + I   4.995786699255175E-012
  
  Exiting AOResponse driver routine
- Stepsize :  1.040753822041099E-002
+ Stepsize :  1.040753822039017E-002
 
- 1591.50  REAL                       0.834877
-
-
- 1591.50  IMAGINARY                  0.000545
+ 1591.50  REAL                       2.527657
 
 
- 1591.50  TOTAL                      0.835422
+ 1591.50  IMAGINARY                  0.000168
+
+
+ 1591.50  TOTAL                      2.527825
 
                               NWChem Property Module
                               ----------------------
@@ -3757,32 +3756,32 @@ Iterative solution of linear equations
 
 TDDFT h2o BP86/aug-cc-pVTZ
 
-   Time after variat. SCF:    110.1
-   Time prior to 1st pass:    110.1
+   Time after variat. SCF:    101.5
+   Time prior to 1st pass:    101.5
 
  Grid_pts file          = ./h2o_raman_4.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    212783
+ Max. records in memory =     12        Max. recs in file   =     76126
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.96            12956396
+           Heap Space remaining (MW):       12.96            12956257
           Stack Space remaining (MW):       13.11            13106484
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -76.4660590342 -8.55D+01  8.74D-05  1.03D-04   110.7
- d= 0,ls=0.0,diis     2    -76.4660630776 -4.04D-06  3.95D-05  4.93D-05   111.3
- d= 0,ls=0.0,diis     3    -76.4660636789 -6.01D-07  1.99D-05  4.30D-05   111.9
- d= 0,ls=0.0,diis     4    -76.4660672312 -3.55D-06  1.07D-06  8.15D-08   112.5
- d= 0,ls=0.0,diis     5    -76.4660672386 -7.39D-09  1.42D-07  1.78D-09   113.1
+ d= 0,ls=0.0,diis     1    -76.4660590342 -8.55D+01  8.74D-05  1.03D-04   102.1
+ d= 0,ls=0.0,diis     2    -76.4660630776 -4.04D-06  3.95D-05  4.93D-05   102.7
+ d= 0,ls=0.0,diis     3    -76.4660636789 -6.01D-07  1.99D-05  4.30D-05   103.3
+ d= 0,ls=0.0,diis     4    -76.4660672312 -3.55D-06  1.07D-06  8.15D-08   103.9
+ d= 0,ls=0.0,diis     5    -76.4660672386 -7.39D-09  1.42D-07  1.78D-09   104.5
 
 
          Total DFT energy =      -76.466067238632
-      One electron energy =     -122.699712497656
-           Coulomb energy =       46.514738415051
-    Exchange-Corr. energy =       -9.308565636069
- Nuclear repulsion energy =        9.027472480042
+      One electron energy =     -122.699712497643
+           Coulomb energy =       46.514738415044
+    Exchange-Corr. energy =       -9.308565636068
+ Nuclear repulsion energy =        9.027472480034
 
  Numeric. integr. density =       10.000000023249
 
@@ -4000,9 +3999,9 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
  moments of inertia (a.u.)
  ------------------
-           2.294928247060           0.000000000000          -0.000000111132
-           0.000000000000           6.554085579849           0.000000000000
-          -0.000000111132           0.000000000000           4.259157332789
+           2.294928247064           0.000000000000          -0.000000111122
+           0.000000000000           6.554085579860           0.000000000000
+          -0.000000111122           0.000000000000           4.259157332796
  
      Multipole analysis of the density
      ---------------------------------
@@ -4069,6 +4068,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
   tolerance =   1.0D-04
   max. iter =   50
 
+ SCF residual:   1.540600165143793E-006
 
 
 Iterative solution of linear equations
@@ -4076,63 +4076,62 @@ Iterative solution of linear equations
   No. of equations        3
   Maximum subspace       30
        Convergence  1.0D-04
-        Start time    122.1
+        Start time    112.7
 
 
    iter   nsub   residual    time 
    ----  ------  --------  --------- 
-     1      3    2.15D+00     125.6
-     2      6    1.87D+00     129.1
-     3      9    1.60D-01     132.6
-     4     12    3.23D-02     136.2
-     5     15    2.23D-02     139.7
-     6     18    3.41D-04     143.2
-     7     21    5.07D-05     146.8
+     1      3    1.07D+00     116.3
+     2      6    5.47D-01     119.7
+     3      9    3.18D-02     123.2
+     4     12    3.80D-03     126.7
+     5     15    1.71D-03     130.2
+     6     18    4.23D-05     133.7
  Electric Dipole Response Matrix (nonzero elements):
 
               1        2        3      
-    1   11.1280   0.0000   0.0000
-    2    0.0000  10.7431   0.0000
-    3    0.0000   0.0000  10.7877
+    1   12.6865   0.0000  -0.0176
+    2    0.0000  11.5196   0.0000
+    3    0.0042   0.0000  12.1056
 
  DFT Linear Response polarizability / au 
  Frequency  =       0.0885590 / au
  Wavelength =     514.4971488 / nm
               X              Y              Z
  -----------------------------------------------
- X      11.1279545      0.0000000      0.0000002
- Y       0.0000000     10.7430988      0.0000000
- Z       0.0000002      0.0000000     10.7876962
+ X      12.6865025      0.0000000     -0.0175669
+ Y       0.0000000     11.5196319      0.0000000
+ Z       0.0041865      0.0000000     12.1056242
  -----------------------------------------------
- Eigenvalues =      11.1279545     10.7430988     10.7876962
- Isotropic   =      10.8862498
- Anisotropic =       0.3646084
+ Eigenvalues =      12.6870333     11.5196319     12.1050935
+ Isotropic   =      12.1039195
+ Anisotropic =       1.0110008
  -----------------------------------------------
  
  Imaginary part:
 
               1        2        3      
-    1    0.1229   0.0000   0.0000
-    2    0.0000   0.1919   0.0000
-    3    0.0000   0.0000   0.1421
+    1    0.1458   0.0000  -0.0010
+    2    0.0000   0.1888   0.0000
+    3    0.0003   0.0000   0.1606
  
- average:    10.8862498170242       + I   0.152309646039306     
+ average:    12.1039195439266       + I   0.165075678469510     
  
  Magnetic Dipole Response Matrix (nonzero elements):
  Optical rotation tensor Beta
 
               1        2        3      
-    1    0.0000   0.4273   0.0000
-    2    0.7787   0.0000   0.0000
-    3    0.0000   0.0000   0.0000
+    1    0.0000   0.5438   0.0000
+    2    0.7257   0.0000  -0.0004
+    3    0.0000   0.0011   0.0000
  
  Imaginary part:
 
               1        2        3      
-    1    0.0000   0.0156   0.0000
-    2    0.0580   0.0000   0.0000
-    3    0.0000   0.0000   0.0000
- average:  -9.099055932876056E-011  + I  -5.061342607135065E-012
+    1    0.0000   0.0196   0.0000
+    2    0.0539   0.0000  -0.0001
+    3    0.0000   0.0001   0.0000
+ average:   1.313738541006430E-011  + I   5.405367176245370E-012
  
  Exiting AOResponse driver routine
                               NWChem Property Module
@@ -4217,33 +4216,33 @@ Iterative solution of linear equations
 
 TDDFT h2o BP86/aug-cc-pVTZ
 
-   Time after variat. SCF:    138.3
-   Time prior to 1st pass:    138.3
+   Time after variat. SCF:    125.8
+   Time prior to 1st pass:    125.8
 
  Grid_pts file          = ./h2o_raman_4.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    212783
+ Max. records in memory =     12        Max. recs in file   =     76126
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.96            12956396
+           Heap Space remaining (MW):       12.96            12956257
           Stack Space remaining (MW):       13.11            13106484
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -76.4660352745 -8.56D+01  1.91D-04  3.88D-04   138.9
- d= 0,ls=0.0,diis     2    -76.4660536580 -1.84D-05  6.97D-05  1.52D-04   139.5
- d= 0,ls=0.0,diis     3    -76.4660545356 -8.78D-07  3.79D-05  1.44D-04   140.1
- d= 0,ls=0.0,diis     4    -76.4660663444 -1.18D-05  3.42D-06  9.69D-07   140.7
- d= 0,ls=0.0,diis     5    -76.4660664315 -8.71D-08  3.12D-07  8.15D-09   141.3
- d= 0,ls=0.0,diis     6    -76.4660664323 -8.02D-10  1.07D-08  6.11D-12   141.9
+ d= 0,ls=0.0,diis     1    -76.4660352745 -8.56D+01  1.91D-04  3.88D-04   126.5
+ d= 0,ls=0.0,diis     2    -76.4660536580 -1.84D-05  6.97D-05  1.52D-04   127.0
+ d= 0,ls=0.0,diis     3    -76.4660545356 -8.78D-07  3.79D-05  1.44D-04   127.6
+ d= 0,ls=0.0,diis     4    -76.4660663444 -1.18D-05  3.42D-06  9.69D-07   128.2
+ d= 0,ls=0.0,diis     5    -76.4660664315 -8.71D-08  3.12D-07  8.15D-09   128.8
+ d= 0,ls=0.0,diis     6    -76.4660664323 -8.01D-10  1.07D-08  6.11D-12   129.4
 
 
          Total DFT energy =      -76.466066432302
-      One electron energy =     -122.825891138665
-           Coulomb energy =       46.576999995131
+      One electron energy =     -122.825891138651
+           Coulomb energy =       46.576999995125
     Exchange-Corr. energy =       -9.315692439500
- Nuclear repulsion energy =        9.098517150732
+ Nuclear repulsion energy =        9.098517150724
 
  Numeric. integr. density =        9.999999987840
 
@@ -4461,9 +4460,9 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
  moments of inertia (a.u.)
  ------------------
-           2.259902844562           0.000000000000           0.000000111921
-           0.000000000000           6.452092099140           0.000000000000
-           0.000000111921           0.000000000000           4.192189254578
+           2.259902844564           0.000000000000           0.000000111911
+           0.000000000000           6.452092099150           0.000000000000
+           0.000000111911           0.000000000000           4.192189254586
  
      Multipole analysis of the density
      ---------------------------------
@@ -4530,6 +4529,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
   tolerance =   1.0D-04
   max. iter =   50
 
+ SCF residual:   1.848827774936466E-007
 
 
 Iterative solution of linear equations
@@ -4537,74 +4537,73 @@ Iterative solution of linear equations
   No. of equations        3
   Maximum subspace       30
        Convergence  1.0D-04
-        Start time    151.7
+        Start time    138.7
 
 
    iter   nsub   residual    time 
    ----  ------  --------  --------- 
-     1      3    2.10D+00     155.2
-     2      6    1.84D+00     158.8
-     3      9    1.58D-01     162.3
-     4     12    3.05D-02     165.8
-     5     15    2.21D-02     169.3
-     6     18    3.28D-04     172.9
-     7     21    4.93D-05     176.4
+     1      3    1.04D+00     142.2
+     2      6    5.37D-01     145.7
+     3      9    3.15D-02     149.2
+     4     12    3.57D-03     152.7
+     5     15    1.68D-03     156.1
+     6     18    4.02D-05     159.6
  Electric Dipole Response Matrix (nonzero elements):
 
               1        2        3      
-    1   10.9610   0.0000   0.0000
-    2    0.0000  10.6871   0.0000
-    3    0.0000   0.0000  10.6787
+    1   12.4798   0.0000  -0.0173
+    2    0.0000  11.4655   0.0000
+    3    0.0045   0.0000  11.9654
 
  DFT Linear Response polarizability / au 
  Frequency  =       0.0885590 / au
  Wavelength =     514.4971488 / nm
               X              Y              Z
  -----------------------------------------------
- X      10.9609939      0.0000000     -0.0000002
- Y       0.0000000     10.6870852      0.0000000
- Z      -0.0000002      0.0000000     10.6786652
+ X      12.4797673      0.0000000     -0.0172987
+ Y       0.0000000     11.4655384      0.0000000
+ Z       0.0044549      0.0000000     11.9653502
  -----------------------------------------------
- Eigenvalues =      10.9609939     10.6870852     10.6786652
- Isotropic   =      10.7755814
- Anisotropic =       0.2782143
+ Eigenvalues =      12.4803484     11.4655384     11.9647692
+ Isotropic   =      11.9702186
+ Anisotropic =       0.8788893
  -----------------------------------------------
  
  Imaginary part:
 
               1        2        3      
-    1    0.1203   0.0000   0.0000
-    2    0.0000   0.1901   0.0000
-    3    0.0000   0.0000   0.1401
+    1    0.1422   0.0000  -0.0010
+    2    0.0000   0.1875   0.0000
+    3    0.0003   0.0000   0.1578
  
- average:    10.7755814264835       + I   0.150135456674197     
+ average:    11.9702186387700       + I   0.162528838571991     
  
  Magnetic Dipole Response Matrix (nonzero elements):
  Optical rotation tensor Beta
 
               1        2        3      
-    1    0.0000   0.4292   0.0000
-    2    0.7050   0.0000   0.0000
-    3    0.0000   0.0000   0.0000
+    1    0.0000   0.5415   0.0000
+    2    0.6545   0.0000  -0.0004
+    3    0.0000   0.0011   0.0000
  
  Imaginary part:
 
               1        2        3      
-    1    0.0000   0.0153   0.0000
-    2    0.0527   0.0000   0.0000
-    3    0.0000   0.0000   0.0000
- average:  -8.986514980393849E-011  + I  -5.055207281884260E-012
+    1    0.0000   0.0192   0.0000
+    2    0.0489   0.0000   0.0000
+    3    0.0000   0.0001   0.0000
+ average:   1.168630706306879E-011  + I   4.868843347629735E-012
  
  Exiting AOResponse driver routine
- Stepsize :  1.022109685839790E-002
+ Stepsize :  1.022109685841763E-002
 
- 3680.21  REAL                     115.555700
-
-
- 3680.21  IMAGINARY                  0.040705
+ 3680.21  REAL                     174.031026
 
 
- 3680.21  TOTAL                    115.596405
+ 3680.21  IMAGINARY                  0.060036
+
+
+ 3680.21  TOTAL                    174.091063
 
                               NWChem Property Module
                               ----------------------
@@ -4688,33 +4687,33 @@ Iterative solution of linear equations
 
 TDDFT h2o BP86/aug-cc-pVTZ
 
-   Time after variat. SCF:    167.1
-   Time prior to 1st pass:    167.1
+   Time after variat. SCF:    150.8
+   Time prior to 1st pass:    150.8
 
  Grid_pts file          = ./h2o_raman_4.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    212783
+ Max. records in memory =     12        Max. recs in file   =     76126
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.96            12956396
+           Heap Space remaining (MW):       12.96            12956257
           Stack Space remaining (MW):       13.11            13106484
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -76.4660494347 -8.55D+01  1.38D-04  2.00D-04   167.8
- d= 0,ls=0.0,diis     2    -76.4660616355 -1.22D-05  4.09D-05  4.35D-05   168.4
- d= 0,ls=0.0,diis     3    -76.4660608151  8.20D-07  2.40D-05  5.41D-05   169.0
- d= 0,ls=0.0,diis     4    -76.4660652308 -4.42D-06  4.04D-06  1.05D-06   169.5
- d= 0,ls=0.0,diis     5    -76.4660653284 -9.76D-08  4.45D-07  9.05D-09   170.1
- d= 0,ls=0.0,diis     6    -76.4660653294 -9.98D-10  6.07D-08  2.78D-10   170.7
+ d= 0,ls=0.0,diis     1    -76.4660494347 -8.55D+01  1.38D-04  2.00D-04   151.5
+ d= 0,ls=0.0,diis     2    -76.4660616355 -1.22D-05  4.09D-05  4.35D-05   152.1
+ d= 0,ls=0.0,diis     3    -76.4660608151  8.20D-07  2.40D-05  5.41D-05   152.7
+ d= 0,ls=0.0,diis     4    -76.4660652308 -4.42D-06  4.04D-06  1.05D-06   153.3
+ d= 0,ls=0.0,diis     5    -76.4660653284 -9.76D-08  4.45D-07  9.05D-09   153.9
+ d= 0,ls=0.0,diis     6    -76.4660653294 -9.98D-10  6.07D-08  2.78D-10   154.5
 
 
          Total DFT energy =      -76.466065329399
-      One electron energy =     -122.762769233812
-           Coulomb energy =       46.545837212515
-    Exchange-Corr. energy =       -9.312125551297
- Nuclear repulsion energy =        9.062992243195
+      One electron energy =     -122.762769233824
+           Coulomb energy =       46.545837212521
+    Exchange-Corr. energy =       -9.312125551298
+ Nuclear repulsion energy =        9.062992243202
 
  Numeric. integr. density =       10.000000004440
 
@@ -4726,26 +4725,26 @@ TDDFT h2o BP86/aug-cc-pVTZ
                        ------------------------------------
  
  Vector    1  Occ=2.000000D+00  E=-1.878176D+01
-              MO Center= -3.6D-04, -2.7D-17,  1.2D-01, r^2= 1.5D-02
+              MO Center= -3.6D-04, -2.6D-17,  1.2D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.974034  1 O  s          
  
  Vector    2  Occ=2.000000D+00  E=-9.312679D-01
-              MO Center= -3.1D-03, -2.7D-15, -8.4D-02, r^2= 5.0D-01
+              MO Center= -3.1D-03, -2.2D-15, -8.4D-02, r^2= 5.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.482516  1 O  s                  4      0.280645  1 O  s          
  
  Vector    3  Occ=2.000000D+00  E=-4.837544D-01
-              MO Center=  4.2D-03,  2.2D-15, -9.6D-02, r^2= 7.8D-01
+              MO Center=  4.2D-03,  2.3D-15, -9.6D-02, r^2= 7.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      0.325125  1 O  px                 6      0.301016  1 O  px         
     71     -0.227636  3 H  s                 48      0.224884  2 H  s          
  
  Vector    4  Occ=2.000000D+00  E=-3.468832D-01
-              MO Center=  6.4D-04, -1.3D-14,  1.8D-01, r^2= 7.5D-01
+              MO Center=  6.4D-04, -1.7D-14,  1.8D-01, r^2= 7.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      0.359427  1 O  pz                 4      0.345274  1 O  s          
@@ -4754,14 +4753,14 @@ TDDFT h2o BP86/aug-cc-pVTZ
     71     -0.175809  3 H  s          
  
  Vector    5  Occ=2.000000D+00  E=-2.695741D-01
-              MO Center= -5.1D-04,  8.0D-15,  7.3D-02, r^2= 7.2D-01
+              MO Center= -5.1D-04,  1.1D-14,  7.3D-02, r^2= 7.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.428224  1 O  py                 7      0.365058  1 O  py         
     13      0.324364  1 O  py         
  
  Vector    6  Occ=0.000000D+00  E=-3.237868D-02
-              MO Center=  2.2D-02, -2.1D-14, -7.7D-01, r^2= 7.3D+00
+              MO Center=  2.2D-02, -1.9D-14, -7.7D-01, r^2= 7.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.481225  1 O  s                 50     -0.470821  2 H  s          
@@ -4770,7 +4769,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     14     -0.191714  1 O  pz                 2      0.150950  1 O  s          
  
  Vector    7  Occ=0.000000D+00  E= 1.509528D-02
-              MO Center= -3.1D-02,  9.1D-14, -7.7D-01, r^2= 1.5D+01
+              MO Center= -3.1D-02,  8.7D-14, -7.7D-01, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     73      2.641516  3 H  s                 50     -2.624495  2 H  s          
@@ -4779,7 +4778,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     71      0.160679  3 H  s                 48     -0.157262  2 H  s          
  
  Vector    8  Occ=0.000000D+00  E= 6.595381D-02
-              MO Center=  6.7D-02, -9.4D-14, -6.7D-02, r^2= 1.4D+01
+              MO Center=  6.7D-02, -1.2D-13, -6.7D-02, r^2= 1.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      5.389549  1 O  s                 49     -2.131265  2 H  s          
@@ -4789,14 +4788,14 @@ TDDFT h2o BP86/aug-cc-pVTZ
     80     -0.675390  3 H  px                59     -0.554273  2 H  pz         
  
  Vector    9  Occ=0.000000D+00  E= 9.419621D-02
-              MO Center=  4.3D-03,  1.5D-13,  3.5D-01, r^2= 7.1D+00
+              MO Center=  4.3D-03,  1.7D-13,  3.5D-01, r^2= 7.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      1.494148  1 O  py                81     -0.314656  3 H  py         
     58     -0.304297  2 H  py         
  
  Vector   10  Occ=0.000000D+00  E= 9.877945D-02
-              MO Center=  2.3D-01, -4.0D-13,  1.2D-01, r^2= 8.3D+00
+              MO Center=  2.3D-01, -3.9D-13,  1.2D-01, r^2= 8.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.432846  1 O  pz                72      0.995204  3 H  s          
@@ -4816,7 +4815,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     59     -0.811510  2 H  pz                12      0.537905  1 O  px         
  
  Vector   12  Occ=0.000000D+00  E= 1.477604D-01
-              MO Center=  1.0D-02, -1.2D-13,  6.4D-01, r^2= 8.7D+00
+              MO Center=  1.0D-02, -1.1D-13,  6.4D-01, r^2= 8.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      3.206024  1 O  px                49     -2.863025  2 H  s          
@@ -4836,7 +4835,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
      4      0.442455  1 O  s                 30     -0.424054  1 O  d  0       
  
  Vector   14  Occ=0.000000D+00  E= 1.910774D-01
-              MO Center=  1.2D-02, -1.3D-14, -5.0D-01, r^2= 5.9D+00
+              MO Center=  1.2D-02, -1.8D-14, -5.0D-01, r^2= 5.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     58      1.595641  2 H  py                81     -1.568719  3 H  py         
@@ -4846,7 +4845,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     89     -0.166468  3 H  d -1       
  
  Vector   15  Occ=0.000000D+00  E= 2.138609D-01
-              MO Center= -1.1D-02,  5.1D-13, -2.7D-01, r^2= 6.4D+00
+              MO Center= -1.1D-02,  5.7D-13, -2.7D-01, r^2= 6.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      1.984149  1 O  py                81     -1.747648  3 H  py         
@@ -4856,7 +4855,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     65      0.243309  2 H  d -2       
  
  Vector   16  Occ=0.000000D+00  E= 2.157199D-01
-              MO Center= -2.3D-03, -2.4D-13,  2.3D-01, r^2= 6.8D+00
+              MO Center= -2.3D-03, -3.1D-13,  2.3D-01, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      7.579667  1 O  s                 72     -3.865783  3 H  s          
@@ -4866,7 +4865,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     82      0.644671  3 H  pz                59      0.623855  2 H  pz         
  
  Vector   17  Occ=0.000000D+00  E= 3.079962D-01
-              MO Center=  1.2D-02,  3.8D-14, -3.1D-01, r^2= 8.0D+00
+              MO Center=  1.2D-02,  3.5D-14, -3.1D-01, r^2= 8.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     57      4.096837  2 H  px                80      3.971761  3 H  px         
@@ -4876,7 +4875,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     73     -0.858070  3 H  s                 50      0.803987  2 H  s          
  
  Vector   18  Occ=0.000000D+00  E= 3.126891D-01
-              MO Center=  2.6D-01,  9.8D-16, -8.2D-01, r^2= 7.9D+00
+              MO Center=  2.6D-01,  3.0D-15, -8.2D-01, r^2= 7.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      8.669144  1 O  s                 49     -5.394235  2 H  s          
@@ -4886,7 +4885,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     50     -0.957026  2 H  s                 73     -0.539514  3 H  s          
  
  Vector   19  Occ=0.000000D+00  E= 3.249113D-01
-              MO Center= -2.7D-01,  2.1D-15, -9.0D-01, r^2= 7.3D+00
+              MO Center= -2.7D-01,  1.5D-15, -9.0D-01, r^2= 7.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     72      8.302074  3 H  s                 49     -7.282222  2 H  s          
@@ -4896,7 +4895,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     50     -1.935335  2 H  s                 12      1.649465  1 O  px         
  
  Vector   20  Occ=0.000000D+00  E= 4.552491D-01
-              MO Center=  5.1D-03, -4.0D-14,  2.2D-01, r^2= 6.2D+00
+              MO Center=  5.1D-03, -4.1D-14,  2.2D-01, r^2= 6.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     49      9.702745  2 H  s                 72     -9.637402  3 H  s          
@@ -4906,7 +4905,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     48      1.899948  2 H  s                 50      1.501568  2 H  s          
  
  Vector   21  Occ=0.000000D+00  E= 4.950400D-01
-              MO Center=  3.4D-03, -3.9D-15, -6.4D-01, r^2= 4.1D+00
+              MO Center=  3.4D-03, -1.6D-15, -6.4D-01, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      6.945142  1 O  s                 49     -4.447359  2 H  s          
@@ -4916,7 +4915,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     30     -0.898788  1 O  d  0              14      0.867968  1 O  pz         
  
  Vector   22  Occ=0.000000D+00  E= 5.450733D-01
-              MO Center=  1.9D-03, -7.0D-15,  2.9D-01, r^2= 4.2D+00
+              MO Center=  1.9D-03, -9.5D-15,  2.9D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.133752  1 O  s                 49     -1.992292  2 H  s          
@@ -4932,9 +4931,9 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
  moments of inertia (a.u.)
  ------------------
-           2.277416965709           0.000000000000           0.024329657406
-           0.000000000000           6.503089072878           0.000000000000
-           0.024329657406           0.000000000000           4.225672107169
+           2.277416965705           0.000000000000           0.024329657406
+           0.000000000000           6.503089072868           0.000000000000
+           0.024329657406           0.000000000000           4.225672107163
  
      Multipole analysis of the density
      ---------------------------------
@@ -5001,6 +5000,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
   tolerance =   1.0D-04
   max. iter =   50
 
+ SCF residual:   9.594871286925828E-007
 
 
 Iterative solution of linear equations
@@ -5008,63 +5008,62 @@ Iterative solution of linear equations
   No. of equations        3
   Maximum subspace       30
        Convergence  1.0D-04
-        Start time    181.4
+        Start time    164.6
 
 
    iter   nsub   residual    time 
    ----  ------  --------  --------- 
-     1      3    2.11D+00     184.9
-     2      6    1.85D+00     188.4
-     3      9    1.59D-01     191.9
-     4     12    3.14D-02     195.5
-     5     15    2.19D-02     199.0
-     6     18    3.34D-04     202.5
-     7     21    5.00D-05     206.0
+     1      3    1.05D+00     168.1
+     2      6    5.42D-01     171.6
+     3      9    3.16D-02     175.1
+     4     12    3.68D-03     178.5
+     5     15    1.74D-03     182.0
+     6     18    4.14D-05     185.5
  Electric Dipole Response Matrix (nonzero elements):
 
               1        2        3      
-    1   11.0443   0.0000  -0.0432
-    2    0.0000  10.7151   0.0000
-    3   -0.0432   0.0000  10.7332
+    1   12.5828   0.0000  -0.0725
+    2    0.0000  11.4925   0.0000
+    3   -0.0554   0.0000  12.0354
 
  DFT Linear Response polarizability / au 
  Frequency  =       0.0885590 / au
  Wavelength =     514.4971488 / nm
               X              Y              Z
  -----------------------------------------------
- X      11.0442876      0.0000000     -0.0431936
- Y       0.0000000     10.7150700      0.0000000
- Z      -0.0431936      0.0000000     10.7332124
+ X      12.5828030      0.0000000     -0.0724820
+ Y       0.0000000     11.4924736      0.0000000
+ Z      -0.0553807      0.0000000     12.0353991
  -----------------------------------------------
- Eigenvalues =      11.0501737     10.7273263     10.7150700
- Isotropic   =      10.8308567
- Anisotropic =       0.3291468
+ Eigenvalues =      12.5922378     11.4924736     12.0259643
+ Isotropic   =      12.0368919
+ Anisotropic =       0.9525647
  -----------------------------------------------
  
  Imaginary part:
 
               1        2        3      
-    1    0.1216   0.0000  -0.0008
-    2    0.0000   0.1910   0.0000
-    3   -0.0008   0.0000   0.1411
+    1    0.1440   0.0000  -0.0021
+    2    0.0000   0.1882   0.0000
+    3   -0.0009   0.0000   0.1592
  
- average:    10.8308566557608       + I   0.151220652992576     
+ average:    12.0368918851864       + I   0.163793562151720     
  
  Magnetic Dipole Response Matrix (nonzero elements):
  Optical rotation tensor Beta
 
               1        2        3      
-    1    0.0000   0.4284   0.0000
-    2    0.7417   0.0000   0.0397
-    3    0.0000  -0.0335   0.0000
+    1    0.0000   0.5429   0.0000
+    2    0.6899   0.0000   0.0379
+    3    0.0000  -0.0359   0.0000
  
  Imaginary part:
 
               1        2        3      
-    1    0.0000   0.0155   0.0000
-    2    0.0554   0.0000   0.0027
-    3    0.0000  -0.0015   0.0000
- average:   1.056232876135258E-013  + I  -8.310594848139362E-014
+    1    0.0000   0.0194   0.0000
+    2    0.0514   0.0000   0.0025
+    3    0.0000  -0.0016   0.0000
+ average:  -2.946292899346088E-013  + I  -5.034934714424132E-013
  
  Exiting AOResponse driver routine
                               NWChem Property Module
@@ -5149,32 +5148,32 @@ Iterative solution of linear equations
 
 TDDFT h2o BP86/aug-cc-pVTZ
 
-   Time after variat. SCF:    195.9
-   Time prior to 1st pass:    195.9
+   Time after variat. SCF:    176.0
+   Time prior to 1st pass:    176.0
 
  Grid_pts file          = ./h2o_raman_4.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    212783
+ Max. records in memory =     12        Max. recs in file   =     76126
 
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):       12.96            12956396
+           Heap Space remaining (MW):       12.96            12956257
           Stack Space remaining (MW):       13.11            13106484
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -76.4660331410 -8.55D+01  1.99D-04  4.02D-04   196.5
- d= 0,ls=0.0,diis     2    -76.4660623426 -2.92D-05  3.36D-05  3.11D-05   197.1
- d= 0,ls=0.0,diis     3    -76.4660647504 -2.41D-06  1.15D-05  5.71D-06   197.7
- d= 0,ls=0.0,diis     4    -76.4660653115 -5.61D-07  2.32D-06  2.02D-07   198.3
- d= 0,ls=0.0,diis     5    -76.4660653193 -7.76D-09  1.05D-06  1.20D-07   198.8
+ d= 0,ls=0.0,diis     1    -76.4660331410 -8.55D+01  1.99D-04  4.02D-04   176.6
+ d= 0,ls=0.0,diis     2    -76.4660623426 -2.92D-05  3.36D-05  3.11D-05   177.2
+ d= 0,ls=0.0,diis     3    -76.4660647504 -2.41D-06  1.15D-05  5.71D-06   177.8
+ d= 0,ls=0.0,diis     4    -76.4660653115 -5.61D-07  2.32D-06  2.02D-07   178.4
+ d= 0,ls=0.0,diis     5    -76.4660653193 -7.76D-09  1.05D-06  1.20D-07   179.0
 
 
-         Total DFT energy =      -76.466065319303
-      One electron energy =     -122.762035195807
-           Coulomb energy =       46.545003104161
-    Exchange-Corr. energy =       -9.312025794894
- Nuclear repulsion energy =        9.062992567238
+         Total DFT energy =      -76.466065319304
+      One electron energy =     -122.762035195769
+           Coulomb energy =       46.545003104142
+    Exchange-Corr. energy =       -9.312025794892
+ Nuclear repulsion energy =        9.062992567216
 
  Numeric. integr. density =       10.000000004463
 
@@ -5186,26 +5185,26 @@ TDDFT h2o BP86/aug-cc-pVTZ
                        ------------------------------------
  
  Vector    1  Occ=2.000000D+00  E=-1.878176D+01
-              MO Center=  3.6D-04,  4.2D-19,  1.2D-01, r^2= 1.5D-02
+              MO Center=  3.6D-04, -2.1D-19,  1.2D-01, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.974034  1 O  s          
  
  Vector    2  Occ=2.000000D+00  E=-9.312680D-01
-              MO Center=  3.1D-03, -2.2D-17, -8.4D-02, r^2= 5.0D-01
+              MO Center=  3.1D-03, -3.4D-16, -8.4D-02, r^2= 5.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      2      0.482516  1 O  s                  4      0.280645  1 O  s          
  
  Vector    3  Occ=2.000000D+00  E=-4.837546D-01
-              MO Center= -4.2D-03, -7.2D-17, -9.6D-02, r^2= 7.8D-01
+              MO Center= -4.2D-03,  1.3D-16, -9.6D-02, r^2= 7.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      9      0.325125  1 O  px                 6      0.301016  1 O  px         
     48      0.227635  2 H  s                 71     -0.224884  3 H  s          
  
  Vector    4  Occ=2.000000D+00  E=-3.468833D-01
-              MO Center= -6.4D-04,  8.5D-16,  1.8D-01, r^2= 7.5D-01
+              MO Center= -6.4D-04,  4.6D-16,  1.8D-01, r^2= 7.5D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     11      0.359427  1 O  pz                 4      0.345274  1 O  s          
@@ -5214,14 +5213,14 @@ TDDFT h2o BP86/aug-cc-pVTZ
     71     -0.175069  3 H  s          
  
  Vector    5  Occ=2.000000D+00  E=-2.695742D-01
-              MO Center=  5.1D-04, -4.2D-16,  7.3D-02, r^2= 7.2D-01
+              MO Center=  5.1D-04,  7.5D-16,  7.3D-02, r^2= 7.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     10      0.428224  1 O  py                 7      0.365058  1 O  py         
     13      0.324364  1 O  py         
  
  Vector    6  Occ=0.000000D+00  E=-3.237871D-02
-              MO Center= -2.2D-02, -3.8D-16, -7.7D-01, r^2= 7.3D+00
+              MO Center= -2.2D-02, -6.8D-15, -7.7D-01, r^2= 7.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      0.481224  1 O  s                 73     -0.470822  3 H  s          
@@ -5230,7 +5229,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     14     -0.191714  1 O  pz                 2      0.150950  1 O  s          
  
  Vector    7  Occ=0.000000D+00  E= 1.509525D-02
-              MO Center=  3.1D-02,  2.0D-15, -7.7D-01, r^2= 1.5D+01
+              MO Center=  3.1D-02,  1.0D-15, -7.7D-01, r^2= 1.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     50      2.641515  2 H  s                 73     -2.624494  3 H  s          
@@ -5239,7 +5238,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     48      0.160679  2 H  s                 71     -0.157262  3 H  s          
  
  Vector    8  Occ=0.000000D+00  E= 6.595379D-02
-              MO Center= -6.7D-02, -1.2D-14, -6.7D-02, r^2= 1.4D+01
+              MO Center= -6.7D-02, -9.6D-16, -6.7D-02, r^2= 1.4D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      5.389547  1 O  s                 72     -2.131265  3 H  s          
@@ -5249,14 +5248,14 @@ TDDFT h2o BP86/aug-cc-pVTZ
     57      0.675389  2 H  px                82     -0.554273  3 H  pz         
  
  Vector    9  Occ=0.000000D+00  E= 9.419621D-02
-              MO Center= -4.3D-03,  1.3D-14,  3.5D-01, r^2= 7.1D+00
+              MO Center= -4.3D-03,  3.9D-15,  3.5D-01, r^2= 7.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     16      1.494148  1 O  py                58     -0.314658  2 H  py         
     81     -0.304295  3 H  py         
  
  Vector   10  Occ=0.000000D+00  E= 9.877942D-02
-              MO Center= -2.3D-01, -3.8D-15,  1.2D-01, r^2= 8.3D+00
+              MO Center= -2.3D-01, -6.1D-17,  1.2D-01, r^2= 8.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     17      1.432839  1 O  pz                49      0.995254  2 H  s          
@@ -5266,7 +5265,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
      5      0.236765  1 O  s                 14     -0.221700  1 O  pz         
  
  Vector   11  Occ=0.000000D+00  E= 1.009127D-01
-              MO Center=  2.9D-01,  2.2D-15, -7.8D-01, r^2= 1.1D+01
+              MO Center=  2.9D-01,  1.1D-15, -7.8D-01, r^2= 1.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     50      2.938216  2 H  s                 73     -2.744425  3 H  s          
@@ -5276,7 +5275,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     82     -0.811497  3 H  pz                12     -0.537902  1 O  px         
  
  Vector   12  Occ=0.000000D+00  E= 1.477604D-01
-              MO Center= -1.0D-02,  1.5D-15,  6.4D-01, r^2= 8.7D+00
+              MO Center= -1.0D-02, -9.1D-15,  6.4D-01, r^2= 8.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     15      3.206024  1 O  px                72      2.863030  3 H  s          
@@ -5286,7 +5285,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     31      0.579391  1 O  d  1       
  
  Vector   13  Occ=0.000000D+00  E= 1.680166D-01
-              MO Center= -1.9D-03,  3.3D-16, -1.8D-01, r^2= 6.2D+00
+              MO Center= -1.9D-03,  6.6D-15, -1.8D-01, r^2= 6.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.437603  1 O  s                 49     -1.646849  2 H  s          
@@ -5296,7 +5295,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
      4      0.442455  1 O  s                 30     -0.424053  1 O  d  0       
  
  Vector   14  Occ=0.000000D+00  E= 1.910774D-01
-              MO Center= -1.2D-02, -4.2D-16, -5.0D-01, r^2= 5.9D+00
+              MO Center= -1.2D-02,  6.4D-15, -5.0D-01, r^2= 5.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     81      1.595649  3 H  py                58     -1.568711  2 H  py         
@@ -5316,7 +5315,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     88     -0.243308  3 H  d -2       
  
  Vector   16  Occ=0.000000D+00  E= 2.157199D-01
-              MO Center=  2.3D-03,  3.1D-14,  2.3D-01, r^2= 6.8D+00
+              MO Center=  2.3D-03,  2.7D-14,  2.3D-01, r^2= 6.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      7.579668  1 O  s                 49     -3.865791  2 H  s          
@@ -5326,7 +5325,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     59      0.644671  2 H  pz                82      0.623856  3 H  pz         
  
  Vector   17  Occ=0.000000D+00  E= 3.079962D-01
-              MO Center= -1.2D-02, -1.1D-15, -3.1D-01, r^2= 8.0D+00
+              MO Center= -1.2D-02, -1.2D-15, -3.1D-01, r^2= 8.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     80      4.096846  3 H  px                57      3.971753  2 H  px         
@@ -5336,7 +5335,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     50      0.858073  2 H  s                 73     -0.803983  3 H  s          
  
  Vector   18  Occ=0.000000D+00  E= 3.126890D-01
-              MO Center= -2.6D-01, -1.4D-15, -8.2D-01, r^2= 7.9D+00
+              MO Center= -2.6D-01, -2.3D-15, -8.2D-01, r^2= 7.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      8.669136  1 O  s                 72     -5.394267  3 H  s          
@@ -5346,7 +5345,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     73     -0.957043  3 H  s                 50     -0.539497  2 H  s          
  
  Vector   19  Occ=0.000000D+00  E= 3.249113D-01
-              MO Center=  2.7D-01, -9.4D-16, -9.0D-01, r^2= 7.3D+00
+              MO Center=  2.7D-01, -3.2D-16, -9.0D-01, r^2= 7.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     49      8.302105  2 H  s                 72     -7.282182  3 H  s          
@@ -5356,7 +5355,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     73     -1.935329  3 H  s                 12     -1.649464  1 O  px         
  
  Vector   20  Occ=0.000000D+00  E= 4.552491D-01
-              MO Center= -5.1D-03,  1.8D-15,  2.2D-01, r^2= 6.2D+00
+              MO Center= -5.1D-03, -1.0D-15,  2.2D-01, r^2= 6.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
     72      9.702756  3 H  s                 49     -9.637393  2 H  s          
@@ -5366,7 +5365,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     71      1.899949  3 H  s                 50     -1.497516  2 H  s          
  
  Vector   21  Occ=0.000000D+00  E= 4.950400D-01
-              MO Center= -3.4D-03,  4.9D-16, -6.4D-01, r^2= 4.1D+00
+              MO Center= -3.4D-03, -7.7D-15, -6.4D-01, r^2= 4.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      6.945142  1 O  s                 72     -4.447353  3 H  s          
@@ -5376,7 +5375,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
     30     -0.898788  1 O  d  0              14      0.867968  1 O  pz         
  
  Vector   22  Occ=0.000000D+00  E= 5.450733D-01
-              MO Center= -1.9D-03, -4.3D-16,  2.9D-01, r^2= 4.2D+00
+              MO Center= -1.9D-03, -1.7D-15,  2.9D-01, r^2= 4.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      5      3.133753  1 O  s                 49     -1.982974  2 H  s          
@@ -5392,9 +5391,9 @@ TDDFT h2o BP86/aug-cc-pVTZ
 
  moments of inertia (a.u.)
  ------------------
-           2.277416832064           0.000000000000          -0.024329654910
-           0.000000000000           6.503088606111           0.000000000000
-          -0.024329654910           0.000000000000           4.225671774047
+           2.277416832074           0.000000000000          -0.024329654910
+           0.000000000000           6.503088606142           0.000000000000
+          -0.024329654910           0.000000000000           4.225671774068
  
      Multipole analysis of the density
      ---------------------------------
@@ -5461,6 +5460,7 @@ TDDFT h2o BP86/aug-cc-pVTZ
   tolerance =   1.0D-04
   max. iter =   50
 
+ SCF residual:   2.908535538085879E-006
 
 
 Iterative solution of linear equations
@@ -5468,80 +5468,79 @@ Iterative solution of linear equations
   No. of equations        3
   Maximum subspace       30
        Convergence  1.0D-04
-        Start time    210.4
+        Start time    189.9
 
 
    iter   nsub   residual    time 
    ----  ------  --------  --------- 
-     1      3    2.11D+00     213.9
-     2      6    1.85D+00     217.4
-     3      9    1.59D-01     220.9
-     4     12    3.14D-02     224.5
-     5     15    2.19D-02     228.0
-     6     18    3.34D-04     231.5
-     7     21    5.00D-05     235.1
+     1      3    1.05D+00     193.4
+     2      6    5.42D-01     196.8
+     3      9    3.16D-02     200.3
+     4     12    3.68D-03     203.8
+     5     15    1.63D-03     207.3
+     6     18    4.09D-05     210.8
  Electric Dipole Response Matrix (nonzero elements):
 
               1        2        3      
-    1   11.0443   0.0000   0.0432
-    2    0.0000  10.7151   0.0000
-    3    0.0432   0.0000  10.7332
+    1   12.5830   0.0000   0.0376
+    2    0.0000  11.4927   0.0000
+    3    0.0640   0.0000  12.0356
 
  DFT Linear Response polarizability / au 
  Frequency  =       0.0885590 / au
  Wavelength =     514.4971488 / nm
               X              Y              Z
  -----------------------------------------------
- X      11.0442866      0.0000000      0.0431928
- Y       0.0000000     10.7150692      0.0000000
- Z       0.0431928      0.0000000     10.7332116
+ X      12.5830112      0.0000000      0.0376098
+ Y       0.0000000     11.4926632      0.0000000
+ Z       0.0640150      0.0000000     12.0355687
  -----------------------------------------------
- Eigenvalues =      11.0501725     10.7273256     10.7150692
- Isotropic   =      10.8308558
- Anisotropic =       0.3291463
+ Eigenvalues =      12.5855829     11.4926632     12.0329969
+ Isotropic   =      12.0370810
+ Anisotropic =       0.9465161
  -----------------------------------------------
  
  Imaginary part:
 
               1        2        3      
-    1    0.1216   0.0000   0.0008
-    2    0.0000   0.1910   0.0000
-    3    0.0008   0.0000   0.1411
+    1    0.1440   0.0000   0.0000
+    2    0.0000   0.1882   0.0000
+    3    0.0016   0.0000   0.1592
  
- average:    10.8308557958954       + I   0.151220721371999     
+ average:    12.0370810349559       + I   0.163806817188279     
  
  Magnetic Dipole Response Matrix (nonzero elements):
  Optical rotation tensor Beta
 
               1        2        3      
-    1    0.0000   0.4284   0.0000
-    2    0.7417   0.0000  -0.0397
-    3    0.0000   0.0336   0.0000
+    1    0.0000   0.5427   0.0000
+    2    0.6899   0.0000  -0.0388
+    3    0.0000   0.0381   0.0000
  
  Imaginary part:
 
               1        2        3      
-    1    0.0000   0.0155   0.0000
-    2    0.0554   0.0000  -0.0027
-    3    0.0000   0.0015   0.0000
- average:  -3.427810850737339E-014  + I   5.238084176176875E-014
+    1    0.0000   0.0194   0.0000
+    2    0.0514   0.0000  -0.0026
+    3    0.0000   0.0018   0.0000
+ average:  -9.358148551223429E-014  + I  -1.172239049236247E-013
  
  Exiting AOResponse driver routine
- Stepsize :  1.039961178671827E-002
+ Stepsize :  1.039961178671833E-002
 
- 3783.86  REAL                      28.406660
-
-
- 3783.86  IMAGINARY                  0.009970
+ 3783.86  REAL                      54.263706
 
 
- 3783.86  TOTAL                     28.416630
+ 3783.86  IMAGINARY                  0.024756
+
+
+ 3783.86  TOTAL                     54.288462
 
 
  Raman scattering data written to ./h2o_raman_4.resonance
 
 
- Task  times  cpu:      207.5s     wall:      215.8s
+ Task  times  cpu:      183.9s     wall:      190.5s
  
  
                                 NWChem Input Module
@@ -5558,24 +5557,30 @@ Iterative solution of linear equations
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 6750     6750     5.52e+06 5.98e+04 1.66e+06 4130        0        0     
-number of processes/call 1.17e+00 2.69e+00 1.19e+00 3.21e+00 0.00e+00
-bytes total:             3.53e+09 1.11e+08 1.49e+09 2.33e+07 0.00e+00 0.00e+00
-bytes remote:            2.84e+09 4.02e+07 1.23e+09 -4.45e+07 0.00e+00 0.00e+00
+calls: 6078     6078     4.72e+06 5.43e+04 1.44e+06 3590        0        0     
+number of processes/call 1.17e+00 2.65e+00 1.19e+00 3.20e+00 0.00e+00
+bytes total:             3.11e+09 1.02e+08 1.31e+09 2.02e+07 0.00e+00 0.00e+00
+bytes remote:            2.50e+09 3.67e+07 1.09e+09 -3.84e+07 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 1184232 bytes
  
 MA_summarize_allocated_blocks: starting scan ...
-MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
+heap block './h2o_raman_4.grinfo.0', handle 53, address 0x2af328c71958:
+	type of elements:		char
+	number of elements:		1024
+	address of client space:	0x2af328c719ac
+	index for client space:		47223661107853
+	total number of bytes:		1112
+MA_summarize_allocated_blocks: scan completed: 1 heap block, 0 stack blocks
 MA usage statistics:
 
 	allocation statistics:
 					      heap	     stack
 					      ----	     -----
-	current number of blocks	         0	         0
-	maximum number of blocks	        24	        56
-	current total bytes		         0	         0
-	maximum total bytes		   1205184	 111509496
-	maximum total K-bytes		      1206	    111510
+	current number of blocks	         1	         0
+	maximum number of blocks	        25	        56
+	current total bytes		      1112	         0
+	maximum total bytes		   1206296	 111509496
+	maximum total K-bytes		      1207	    111510
 	maximum total M-bytes		         2	       112
  
  
@@ -5596,8 +5601,8 @@ MA usage statistics:
                               ----------------------
       E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
      M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
-     J. Autschbach, F. Aquino, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao,
-       P.-D. Fan, R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann,
+    J. Autschbach, F. Aquino, J. Mullin, P. Nichols, S. Hirata, M. T. Hackler,
+   Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann,
     J. Nieplocha, V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen,
       M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby,
         E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
@@ -5608,4 +5613,4 @@ MA usage statistics:
     X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
        M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:      224.0s     wall:      235.2s
+ Total times  cpu:      200.3s     wall:      210.9s
