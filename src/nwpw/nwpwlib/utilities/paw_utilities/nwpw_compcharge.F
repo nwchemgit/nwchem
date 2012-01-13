@@ -351,6 +351,7 @@
             dbl_mb(Qlm(1)+indx) = dbl_mb(Qlm(1)+indx) + coeff*w
          end do
       end do
+      call D1dB_SumAll(dbl_mb(Qlm(1)+indx))
 
       return
       end 
@@ -500,6 +501,90 @@ c      end
       value = value.and.MA_pop_stack(QTlm(2))
       if (.not.value)
      >  call errquit("nwpw_compcharge_gen_dn_cmp_smooth:stack",1,MA_ERR)
+
+      return
+      end
+
+
+
+*     *************************************************
+*     *                                               *
+*     *           nwpw_compcharge_gen_dn_cmp2         *
+*     *                                               *
+*     *************************************************
+*
+*   This routine computes the fourier transforms of dn_cmp and dn_cmp_smooth
+ 
+      subroutine nwpw_compcharge_gen_dn_cmp2(ispin,dng_cmp,dng_smooth)
+      implicit none
+      integer    ispin
+      complex*16 dng_cmp(*)
+      complex*16 dng_smooth(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "nwpw_compcharge.fh"
+
+*     **** local variables ****
+      logical value
+      integer ii,ia,lm,l,m,indx1,indx2,QTlm(2),tmp(2),exi(2)
+      real*8  q,sumall
+
+*     **** external functions ****
+      integer  ion_katm
+      external ion_katm
+
+      value = MA_push_get(mt_dcpl,npack0,"QTlm",QTlm(2),QTlm(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,"tmp",tmp(2),tmp(1))
+      value = value.and.
+     >        MA_push_get(mt_dcpl,npack0,"exi",exi(2),exi(1))
+      if (.not.value)
+     >  call errquit("nwpw_compcharge_gen_dn_cmp:stack",0,MA_ERR)
+
+      call dcopy(2*npack0,0.0d0,0,dng_cmp,1)
+      call dcopy(2*npack0,0.0d0,0,dng_smooth,1)
+      do ii=1,nion
+         ia = ion_katm(ii)
+         call strfac_pack(0,ii,dcpl_mb(exi(1)))
+
+         call dcopy(2*npack0,0.0d0,0,dcpl_mb(QTlm(1)),1)
+         lm = 0
+         do l=0,int_mb(mult_l(1)+ia-1)
+            do m=-l,l
+               
+               indx1 = (ii-1)*2*lm_size_max+ lm
+               indx2 = (ii-1)*2*lm_size_max+(ispin-1)*lm_size_max + lm
+               q = dbl_mb(Qlm(1)+indx1) + dbl_mb(Qlm(1)+indx2)
+               if (mod(l,2).eq.0) then
+                  call Pack_tc_Mul(0,dbl_mb(glm(1)+lm*npack0),
+     >                               dcpl_mb(exi(1)),
+     >                               dcpl_mb(tmp(1)))
+               else
+                  call Pack_tc_iMul(0,dbl_mb(glm(1)+lm*npack0),
+     >                                dcpl_mb(exi(1)),
+     >                                dcpl_mb(tmp(1)))
+               end if
+
+               call Pack_cc_daxpy(0,q,dcpl_mb(tmp(1)),
+     >                                dcpl_mb(QTlm(1)))
+
+               lm = lm + 1
+            end do
+         end do
+         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_smooth)
+         call Pack_tc_Mul2(0,dbl_mb(gk(1)+(ia-1)*npack0),
+     >                       dcpl_mb(QTlm(1)))
+         call Pack_cc_Sum2(0,dcpl_mb(QTlm(1)),dng_cmp)
+
+      end do
+      call Pack_tc_Mul2(0,dbl_mb(gk_smooth(1)),dng_smooth)
+
+      value =           MA_pop_stack(exi(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      value = value.and.MA_pop_stack(QTlm(2))
+      if (.not.value)
+     >  call errquit("nwpw_compcharge_gen_dn_cmp:stack",1,MA_ERR)
 
       return
       end

@@ -188,5 +188,162 @@ c     **** local variables ***
       end
 
 
+*     ************************************************
+*     *                                              *
+*     *            log_coulomb_energy                *
+*     *                                              *
+*     ************************************************
+      real*8 function log_coulomb_energy(rho,charge,
+     >                                   rgrid,ngrid,log_amesh)
+      implicit none
+      integer ngrid
+      real*8  rho(*),rgrid(*),log_amesh,charge
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      logical value
+      integer i
+      integer tt,tmp(2),vh(2)
+      real*8  E,fourpi
+
+*     **** external functions ****
+      real*8   log_corrector_iF,log_r2integrate_eric
+      external log_corrector_iF,log_r2integrate_eric
+
+      fourpi = 16.0d0*datan(1.0d0)
+
+      value =           MA_push_get(mt_dbl,ngrid,'tmp',tmp(2),tmp(1))
+      value = value.and.MA_push_get(mt_dbl,ngrid,'vh',vh(2),vh(1))
+      if (.not.value)
+     >   call errquit('log_coulomb_energy:push stack',0,MA_ERR)
+
+      do i=1,ngrid
+         dbl_mb(tmp(1)+i-1) = fourpi*rho(i)*log_amesh*rgrid(i)**3
+      end do
+
+      dbl_mb(vh(1)+ngrid-1) = charge
+      dbl_mb(vh(1)+ngrid-2) = charge
+      dbl_mb(vh(1)+ngrid-3) = charge
+      do i=(ngrid-3), 1, -1
+         dbl_mb(vh(1)+i-1) = dbl_mb(vh(1)+i) 
+     >                     + log_corrector_iF(i,dbl_mb(tmp(1)))
+      end do
+
+      do i=1,ngrid
+         dbl_mb(tmp(1)+i-1) = fourpi*rho(i)*log_amesh*rgrid(i)*2
+      end do
+
+      tt = 0.0d0
+      do i=(ngrid-3), 1, -1
+         tt = tt + log_corrector_iF(i,dbl_mb(tmp(1)))
+         dbl_mb(vh(1)+i-1) = dbl_mb(vh(1)+i-1) - rgrid(i)*tt
+      end do
+
+      do i=1,ngrid
+         dbl_mb(vh(1)+i-1) = dbl_mb(vh(1)+i-1)/rgrid(i)
+      end do
+
+      do i=1,ngrid
+         dbl_mb(tmp(1)+i-1) = fourpi*rho(i)*dbl_mb(vh(1)+i-1)
+      end do
+      E  = log_r2integrate_eric(ngrid,log_amesh,rgrid,dbl_mb(tmp(1)))
+
+      value =           MA_pop_stack(vh(2))
+      value = value.and.MA_pop_stack(tmp(2))
+      if (.not.value)
+     >   call errquit('log_coulomb_energy:pop stack',1,MA_ERR)
+
+      log_coulomb_energy = E
+      return
+      end 
+
+*     ************************************************
+*     *                                              *
+*     *            log_coulomb0_energy               *
+*     *                                              *
+*     ************************************************
+      real*8 function log_coulomb0_energy(rho,charge,
+     >                                    rgrid,ngrid,log_amesh,zion)
+      implicit none
+      integer ngrid
+      real*8  rho(*),rgrid(*),log_amesh,charge,zion
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+
+*     **** local variables ****
+      integer i,tmp(2)
+      real*8  E,fourpi
+
+*     **** external functions ****
+      real*8   log_r2integrate_eric
+      external log_r2integrate_eric
+
+      fourpi = 16.0d0*datan(1.0d0)
+      if (.not.MA_push_get(mt_dbl,ngrid,'tmp',tmp(2),tmp(1)))
+     >   call errquit('log_coulomb0_energy:push stack',0,MA_ERR)
+
+      do i=1,ngrid
+         dbl_mb(tmp(1)+i-1) = fourpi*rho(i)/rgrid(i)
+      end do
+      E  = log_r2integrate_eric(ngrid,log_amesh,rgrid,dbl_mb(tmp(1)))
+      E  = -E*zion
+
+      if (.not.MA_pop_stack(tmp(2)))
+     >   call errquit('log_coulomb0_energy:pop stack',1,MA_ERR)
+
+      log_coulomb0_energy = E
+      return
+      end
 
 
+*     ************************************************
+*     *                                              *
+*     *            log_corrector_iF                  *
+*     *                                              *
+*     ************************************************
+*
+*    Computes y(i) <-- y(i+1) + F(f(i),f(i+1),f(i+2),f(i+3))
+*   where F is a 5 point corrector
+*
+      real*8 function log_corrector_iF(i,f)
+      implicit none
+      integer i
+      real*8 f(*)
+
+*     **** local variables ****
+      real*8 oneo24
+      parameter (oneo24=1.0d0/24.0d0)
+      log_corrector_iF = -oneo24 * (   9.0d0*f(i)
+     >                              + 19.0d0*f(i+1)
+     >                              -  5.0d0*f(i+2)
+     >                              +  1.0d0*f(i+3))
+      return
+      end
+
+*     ************************************************
+*     *                                              *
+*     *            log_r2integrate_eric              *
+*     *                                              *
+*     ************************************************
+      real*8 function log_r2integrate_eric(ngrid,log_amesh,rgrid,f)
+      implicit none
+      integer ngrid
+      real*8 log_amesh,rgrid(*),f(*)
+
+*     **** local variables ****
+      integer i
+      real*8 mysum
+
+      mysum = (   9.0d0*f(1)*(rgrid(1)**3)
+     >         + 28.0d0*f(2)*(rgrid(2)**3)
+     >         + 23.0d0*f(3)*(rgrid(3)**3)
+     >        )/24.0d0
+      do i=4,ngrid
+         mysum = mysum + f(i)*(rgrid(i)**3)
+      end do
+      log_r2integrate_eric = log_amesh*mysum + f(1)*(rgrid(1)**3)/3.0d0
+      return
+      end
