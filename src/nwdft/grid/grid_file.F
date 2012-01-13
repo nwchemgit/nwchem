@@ -13,7 +13,7 @@
       end
       logical function grid_file_open(enuc_in,
      $     filename,
-     $     cachesize, filesize, eaf_size_in_mb)
+     $     cachesize, filesize, eaf_size_in_dbl)
       implicit none
 #include "errquit.fh"
 #include "cgridfile.fh"
@@ -31,7 +31,7 @@
 c
       double precision enuc_in ! [in]
       double precision enuc
-      integer eaf_size_in_mb
+      integer eaf_size_in_dbl
       integer  sdlen
       double precision availkb
       character*20 fstype
@@ -45,8 +45,8 @@ c
       logical grid_file_rewind
       logical oreafail
       external grid_file_rewind
-      logical grid_grinfoinit,grid_grinfo2
-      external grid_grinfoinit,grid_grinfo2
+      logical grid_grinfoinit,grid_grinfo2,grid_ptsalloc
+      external grid_grinfoinit,grid_grinfo2,grid_ptsalloc
 c     Open file returning CHEMIO filehandle (not yet)
 c     Return true on success, false on failure
 c
@@ -81,14 +81,7 @@ c
       call grid_buf_clear()
       call dfill(4*buffer_size, 0.0d0, values, 1)
       cur_rec_rad=0d0
-      eaftype=1000000+eaf_size_in_mb*1024*1024
-c     1k is plenty for grinfo
-#ifdef DEBUG
-      if(ga_nodeid().eq.0) then
-         write(6,*) '1eaftype',eaftype,eaf_size_in_mb
-         call util_flush(LuOut)
-      endif
-#endif
+      eaftype=1000000+eaf_size_in_dbl
 c
 c     defer allocation of memory until the first write otherwise
 c     this memory is sitting around during the initial guess routines
@@ -202,11 +195,9 @@ c
 #ifndef EAFHACK
          ierr=eaf_open(actualname, eaf_rw, fd)
 #else
-         if(fd.eq.-1) then
-            ierr=eaf_open(actualname, eaftype, fd)
-         else
-            ierr=0
-         endif
+            ierr=-1
+            if(grid_ptsalloc(fd,eaf_size_in_dbl,
+     C           actualname))ierr=0
 #endif
          if (ierr .ne. 0) then
             call eaf_errmsg(ierr,errmsg)
@@ -239,21 +230,25 @@ c
       logical oprint,lstatus
       integer ierr
       double precision ll
-      logical grid_grinfo2
-      external grid_grinfo2
+      logical grid_grinfo2,grid_ptsdel
+      external grid_grinfo2,grid_ptsdel
       oprint=util_print('iostats',print_high).and.ga_nodeid().eq.0
 c
       if (file_opened) then
          if (oprint) 
      $        call eaf_print_stats(fd)
+#ifndef EAFHACK
          if (eaf_close(fd) .ne. 0) call errquit
      $        ('grid_file_close: eaf_close failed',0, DISK_ERR)
-#ifdef EAFHACK
-            fd=-1
 #endif
          if (.not. okeep) then
+#ifndef EAFHACK
             if (eaf_delete(actualname) .ne. 0) call errquit
      $           ('grid_file_close: delete failed', 0, DISK_ERR)
+#else
+            if (.not.grid_ptsdel(fd)) call errquit
+     $           ('grid_file_close: delete failed', 1, MA_ERR)
+#endif
          endif
       endif
 c
@@ -344,8 +339,8 @@ c
 #include "stdio.fh"
 #include "global.fh"
       logical oend           ! [input]
-      logical grid_opencache,status
-      external grid_opencache
+      logical grid_opencache,status,grid_ptsalloc
+      external grid_opencache,grid_ptsalloc
 c
 c     Write the grid_pts buffer to disk.  For all but the
 c     end record it is called with oend=.false. meaning
@@ -357,6 +352,8 @@ c
       double precision offset
       integer ierr
       character*80 errmsg
+      integer grid_ptswrite
+      external grid_ptswrite
 c
 c     test for overflowing the file and memory cache
 c
@@ -395,11 +392,9 @@ c
 #ifndef EAFHACK
             ierr=eaf_open(actualname, eaf_rw, fd)
 #else
-         if(fd.eq.-1) then
-            ierr=eaf_open(actualname, eaftype, fd)
-         else
-            ierr=0
-         endif
+            ierr=-1
+            if(grid_ptsalloc(fd,eaftype-1000000,
+     C           actualname)) ierr=0
 #endif
          if(ierr.ne.0)  call 
      E        errquit('grid_pckbufw: eaf_open failed', 0,
@@ -414,9 +409,15 @@ c
 c     dump cache to disk
 c
                offset = 8.0d0*rec_len_in_dbl*(cur_rec-1)
+#ifndef EAFHACK
                ierr = eaf_write(fd, offset, dbl_mb(k_cache+
      +              (cur_rec-1)*rec_len_in_dbl),
      .              8*rec_len_in_dbl)
+#else
+               ierr=grid_ptswrite(fd, offset, dbl_mb(k_cache+
+     +              (cur_rec-1)*rec_len_in_dbl),
+     .              8*rec_len_in_dbl)
+#endif
                if (ierr .ne. 0) then
                   call eaf_errmsg(ierr, errmsg)
                   write(luout,*) ' availdbl ',MA_inquire_avail(mt_dbl)
@@ -436,7 +437,11 @@ c
 c     Should really detect failures in writing and return false
 c
          offset = 8.0d0*rec_len_in_dbl*(cur_rec-1)
+#ifndef EAFHACK
          ierr = eaf_write(fd, offset, buf, 8*rec_len_in_dbl)
+#else
+         ierr = grid_ptswrite(fd, offset, buf, 8*rec_len_in_dbl)
+#endif
          if (ierr .ne. 0) then
             call eaf_errmsg(ierr, errmsg)
             write(LuOut,*) ' IO offset ', offset
@@ -502,6 +507,8 @@ c
 c
       double precision offset
       integer ierr
+      integer grid_ptsread
+      external grid_ptsread
       character*80 errmsg
 c
       call grid_buf_clear
@@ -531,7 +538,11 @@ c     Record is on disk
 c
          offset = 8.0d0*rec_len_in_dbl*(cur_rec-1)
 c
+#ifndef EAFHACK
          ierr = eaf_read(fd, offset, buf, 8*rec_len_in_dbl)
+#else
+         ierr = grid_ptsread(fd, offset, buf, 8*rec_len_in_dbl)
+#endif
          if (ierr.ne.0) then
             call eaf_errmsg(ierr,errmsg)
             write(LuOut,*) ga_nodeid(),errmsg
@@ -642,7 +653,7 @@ c
       logical grid_file_open
       external grid_file_open
       integer avail, localmemsize
-      integer filesize, memsize,eaf_size_in_mb
+      integer filesize, memsize,eaf_size_in_dbl
       character*255 gridfilename
       double precision nq
       logical ofirst
@@ -656,8 +667,8 @@ c
      $     MT_INT, 1, filesize)) filesize = 0
       if (.not. rtdb_get(rtdb, 'grid:memsize',
      $     MT_INT, 1, memsize)) memsize = 0
-      if (.not. rtdb_get(rtdb, 'grid:eaf_size_in_mb',
-     $     MT_INT, 1, eaf_size_in_mb)) eaf_size_in_mb = 0
+      if (.not. rtdb_get(rtdb, 'grid:eaf_size_in_dbl',
+     $     MT_INT, 1, eaf_size_in_dbl)) eaf_size_in_dbl = 0
       if (filesize.lt.0 .and. memsize.lt.0) return
 c
 c     Determine if we should automatically run an in-core calculation
@@ -705,7 +716,7 @@ c
      .        call errquit(' gridtestmem: enucrep failed ',0, GEOM_ERR)
         call util_file_name('gridpts',.true.,.false.,gridfilename)
          if (.not. grid_file_open(enuc,gridfilename, 
-     $        localmemsize, filesize,eaf_size_in_mb))
+     $        localmemsize, filesize,eaf_size_in_dbl))
      $        call errquit('grid_test_mem: grid_file_open failed',0,
      &       DISK_ERR)
          grid_test_mem = .true.
@@ -894,7 +905,7 @@ c
       integer geom ![in]
 c
       double precision enuc
-      integer filesize, memsize,eaf_size_in_mb
+      integer filesize, memsize,eaf_size_in_dbl
       logical grid_file_open
       external grid_file_open
       character*255 gridfilename
@@ -903,11 +914,10 @@ c
       grid_reopen=.false.
         call util_file_name('gridpts',.true.,.false.,gridfilename)
       oreopen=.true.
-c     extract eaf_size_in_mn from eaftype
-c      eaftype=1000000+eaf_size_in_mb*1024*1024
-      eaf_size_in_mb=(eaftype-1000000)/1024/1024
+c     extract eaf_size_in_dbl from eaftype
+      eaf_size_in_dbl=(eaftype-1000000)
       grid_reopen=
      .     grid_file_open(enuc,
-     .     gridfilename, memsize, filesize, eaf_size_in_mb)
+     .     gridfilename, memsize, filesize, eaf_size_in_dbl)
       return
       end
