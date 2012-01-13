@@ -1,0 +1,8 @@
+C $Id: grid_eaf.F 21764 2012-01-12 10:05:06Z edo $
+c
+      double  precision uenuc   ! grinfo enuc
+      integer uvect(4) ! grinfo contents
+      common /grgr/ uenuc,uvect
+
+      integer l_gridp,k_gridp,grpsize
+      common /grpgrp/ l_gridp,k_gridp,grpsize
