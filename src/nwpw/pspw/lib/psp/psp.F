@@ -112,6 +112,8 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       value = value.and.
      >  MA_alloc_get(mt_dbl,(npsp),'core_kin',core_kin(2),core_kin(1))
       value = value.and.
+     >  MA_alloc_get(mt_dbl,(npsp),'core_ion',core_ion(2),core_ion(1))
+      value = value.and.
      >        MA_alloc_get(mt_int,npsp,'n1dgrid',n1dgrid(2),n1dgrid(1))
       value = value.and.
      >        MA_alloc_get(mt_int,npsp,
@@ -179,6 +181,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       call dcopy(npsp*(lmax_max+1),    0.0d0,0,dbl_mb(rc(1)),1)
       call dcopy(npsp,                 0.0d0,0,dbl_mb(rlocal(1)),1)
       call dcopy(npsp,                 0.0d0,0,dbl_mb(core_kin(1)),1)
+      call dcopy(npsp,                 0.0d0,0,dbl_mb(core_ion(1)),1)
 
 *     **** allocate semicore data ****
       call semicore_init()
@@ -308,6 +311,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       value = value.and.MA_free_heap(sigma(2))
       value = value.and.MA_free_heap(zion(2))
       value = value.and.MA_free_heap(core_kin(2))
+      value = value.and.MA_free_heap(core_ion(2))
       value = value.and.MA_free_heap(n1dgrid(2))
       value = value.and.MA_free_heap(n1dbasis(2))
       value = value.and.MA_free_heap(nae(2))
@@ -1824,7 +1828,7 @@ c     **** define Gx,Gy and Gz in packed space ****
      >                       core_ae_tag,core_ps_tag,
      >                       core_ae_prime_tag,core_ps_prime_tag,
      >                       rgrid_tag,
-     >                       core_kin_energy,
+     >                       core_kin_energy,core_ion_energy,
      >                       hartree_tag,comp_charge_tag,comp_pot_tag,
      >                       r3_tag,
      >                       tmp,tmp2,
@@ -1862,7 +1866,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       integer core_ae_tag,core_ps_tag
       integer core_ae_prime_tag,core_ps_prime_tag
       integer rgrid_tag
-      real*8  core_kin_energy
+      real*8  core_kin_energy,core_ion_energy
       integer hartree_tag,comp_charge_tag,comp_pot_tag
       integer r3_tag
 
@@ -2047,9 +2051,12 @@ c     **** define Gx,Gy and Gz in packed space ****
 
 
         if (taskid_p.eq.MASTER) call dread(5,core_kin_energy,1)
+        if (taskid_p.eq.MASTER) call dread(5,core_ion_energy,1)
         msglen=1
         call Parallela_Brdcst_values(com_p,MASTER,msglen,
      >                               core_kin_energy)
+        call Parallela_Brdcst_values(com_p,MASTER,msglen,
+     >                               core_ion_energy)
 
         if (taskid_p.eq.MASTER) then
            call iread(5,n1dgrid,1)
@@ -2362,6 +2369,7 @@ c     logocal semicore(0:nkatmx)
      >                  int_mb(core_ps_prime(1)+ia-1),
      >                  int_mb(rgrid(1)+ia-1),
      >                  dbl_mb(core_kin(1)+ia-1),
+     >                  dbl_mb(core_ion(1)+ia-1),
      >                  int_mb(hartree_matrix(1)+ia-1),
      >                  int_mb(comp_charge_matrix(1)+ia-1),
      >                  int_mb(comp_pot_matrix(1)+ia-1),
