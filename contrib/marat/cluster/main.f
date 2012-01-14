@@ -15,7 +15,6 @@ c
 18     continue
        write(*,*) "input file is",trim(infile)
        call cluster(infile)
-       stop
 c
        end
 
@@ -33,12 +32,24 @@ c
        integer, dimension(:,:), allocatable :: p2
        integer, dimension(:,:), allocatable :: p3
        integer, dimension(:,:), allocatable :: p4
+       integer, dimension(:,:), allocatable :: p5
+       integer, dimension(:,:), allocatable :: p6
+       integer, dimension(:,:), allocatable :: p7
+       integer, dimension(:,:), allocatable :: p8
+       integer, dimension(:,:), allocatable :: p9
        character*16 , dimension(:), allocatable :: ta,tr
        integer i,il
        integer n2
        integer n3
        integer n4
+       integer n5
+       integer n6
+       integer n7
+       integer n8
+       integer n9
  
+       integer nmax
+       nmax = 500
 c
        call smd_pdb_natoms(infile,ntot)
        allocate(c(3,ntot))
@@ -55,18 +66,38 @@ c
        n2 = nres*(nres-1)/2
        allocate(p2(2,n2))
        call parse_dimers(nres,cg,n2,p2)
-       n3 = 1000
-       allocate(p3(3,n3))
+       allocate(p3(3,nmax))
+       allocate(p4(4,nmax))
+       allocate(p5(5,nmax))
+       allocate(p6(6,nmax))
+       allocate(p7(7,nmax))
+       allocate(p8(8,nmax))
+       allocate(p9(9,nmax))
+       n3 = nmax
+       n4 = nmax
+       n5 = nmax
+       n6 = nmax
+       n7 = nmax
+       n8 = nmax
+       n9 = nmax
+
        call parse_trimers(n2,p2,n2,2,p2,n3,p3)
 c       do i=1,n3
 c         write(*,*) (p3(il,i),il=1,3)
 c       end do
-       allocate(p4(4,n4))
-       call parse_fourmers(n2,p2,n3,3,p3,n4,p4)
+       call parse_trimers(n2,p2,n3,3,p3,n4,p4)
        do i=1,n4
-         write(*,*) (p4(il,i),il=1,4)
+         write(*,'(100I4)') (p4(il,i),il=1,4)
        end do
-!      == deallocate arrays ==
+       call parse_trimers(n2,p2,n4,4,p4,n5,p5)
+       do i=1,n5
+         write(*,'(100I4)') (p5(il,i),il=1,5)
+       end do
+       call parse_trimers(n2,p2,n5,5,p5,n6,p6)
+       do i=1,n6
+         write(*,'(100I4)') (p6(il,i),il=1,6)
+       end do
+!!!      == deallocate arrays ==
        deallocate(p2)
        deallocate(cg)
        deallocate(ir)
@@ -127,9 +158,10 @@ c
       logical ofound,omatch
 
       fn_out = 78
-       open(fn_out,file="trimer.dat",
-     $            form='formatted',status='unknown')
+c       open(fn_out,file="trimer.dat",
+c     $            form='formatted',status='unknown')
 
+      open(fn_out, form='formatted', status='scratch')
       k = 0
       do i2=1,nb2
       head = p2(1,i2)
@@ -185,7 +217,9 @@ c
       integer i2,i3,j3,ik
       integer fn_out
       logical ofound,omatch
+      character*73 message
 
+      message = "opening file"
       fn_out = 33
        open(unit=fn_out,file="fourimer.dat",
      $            form='formatted',status='unknown',err=911)
@@ -227,9 +261,12 @@ c
       end do
       end do
       close(fn_out)
+      nx = k
+      return
 911    continue       
 c      if you reach this you are in trouble
        write(*,*) "Emergency STOP "
+       write(*,*) trim(message)
        stop
        end subroutine
       subroutine sort(n,a)
@@ -291,7 +328,6 @@ c
       if(buffer.eq." ") istatus = 1
 c      call get_command_argument(i,buffer,l,istatus)
       end subroutine
-
 
       subroutine parse_trimers0(nb2,p2,nb,l,p,px)
       implicit none
