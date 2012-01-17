@@ -562,6 +562,7 @@ c
       logical function grid_tagdefd(tag,ngridin,grtagin,
      I     igridin)
       implicit none
+#include "inp.fh"
       character*(*) tag,grtagin(*)
       integer ngridin
       integer igridin
@@ -571,7 +572,7 @@ c
       grid_tagdefd=.false.
       if(ngridin.ne.0) then
          do jj=1,ngridin
-            if(grtagin(jj).eq.tag) then
+            if(inp_compare(.false.,grtagin(jj),tag)) then
                grid_tagdefd=.true.
                igridin=jj
             endif
