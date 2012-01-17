@@ -19,7 +19,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 34)
+      parameter (num_dirs = 35)
       integer NMAX              ! maximum wavfunctions
       parameter (NMAX = 100)
  
@@ -49,7 +49,7 @@ c
       real*8  v_eig(NMAX)
       real*8  v_rcut(NMAX)
       real*8  r_semicore
-      integer lmax00,locp00
+      integer lmax00,locp00,efg00
       real*8  rlocal00,screening_cut
 
       character lmax,locp
@@ -87,6 +87,7 @@ c
      >            'aperiodic_cutoff',
      >            'screening_cutoff',
      >            'semicore_type',
+     >            'efg_type',
      >            'end'/
 
 
@@ -114,6 +115,7 @@ c
       semicore_type = 'fuchs'
       rlocal00  = 1.0d0
       screening_cut = 0.0d0
+      efg00 = 0
 
  10   if (.not. inp_read()) 
      >     call errquit(
@@ -131,7 +133,7 @@ c
      >       1000,1100,1200,1300,1400,
      >       100,  200, 300, 400, 500, 600, 700,800,900,
      >       1000,1100,1200,1300,1400,
-     >       700,710,1500,1600,1450,
+     >       700,710,1500,1600,1450,1700,
      >      9999) ind
       call errquit(
      >      'psp_generator_input: unimplemented directive', ind,
@@ -424,6 +426,12 @@ c
  1600 if (.not. inp_f(screening_cut)) screening_cut = 0.0d0
       goto 10
 
+c
+c  efg_type
+c
+ 1700 if (.not. inp_i(efg00)) efg00 = 1
+      goto 10
+
 
 *     ***** generate temporary data file  and run pspsolve ****
  9999 continue
@@ -528,7 +536,7 @@ c
 
       !rlocal00 = 1.0d0 ! 
       call pspsolve(print,debug,
-     >              lmax00,locp00,rlocal00,
+     >              lmax00,locp00,rlocal00,efg00,
      >              sdir_name(1:h),   h,
      >              dir_name(1:i),    i,
      >              pspgenerator(1:j),j,
@@ -568,17 +576,19 @@ c
       logical value,hprint
       character*255 dir_name,sdir_name
       character*16 psp_in,psp_out
-      integer h,i,j,k,ka,debug,psp_type,print
+      integer h,i,j,k,ka,debug,psp_type,print,efg_type
       character ch_tmp
 
 *     **** external functions ****
       logical  control_print
       integer  nwpw_libglmax,nwpw_libglocp,control_gga
       integer  nwpw_libgpsp_type
+      integer  nwpw_libgefg_type
       double precision nwpw_libgrlocal
       external control_print
       external nwpw_libglmax,nwpw_libglocp,control_gga
       external nwpw_libgpsp_type
+      external nwpw_libgefg_type
       external nwpw_libgrlocal
 c
       call Parallel_taskid(taskid)
@@ -609,6 +619,7 @@ c
       locp=nwpw_libglocp(atom)
       rlocal=nwpw_libgrlocal(atom)
       psp_type=nwpw_libgpsp_type(atom)
+      efg_type=nwpw_libgefg_type(atom)
        
 c      if (hprint) then
       write(luout,*) "Generating 1d pseudopotential for ",atom
@@ -675,7 +686,7 @@ c        *** revPBE ***
          if (control_print(print_debug)) debug = 1
          if (control_print(print_high)) print  = 1
          call pspsolve(print,debug,
-     >        lmax,locp,rlocal,
+     >        lmax,locp,rlocal,efg_type,
      >        sdir_name(1:h),h,
      >        dir_name(1:i),i,
      >        psp_in(1:j),j,
@@ -947,7 +958,7 @@ c           write(99,*) '<correlation> off   <end>'
          if (control_print(print_debug)) debug = 1
          if (control_print(print_high)) print  = 1
          call pspsolve(print,debug,
-     >        lmax,locp,rlocal,
+     >        lmax,locp,rlocal,0,
      >        sdir_name(1:h),h,
      >        dir_name(1:i),i,
      >        psp_in(1:j),j,

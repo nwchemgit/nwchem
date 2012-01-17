@@ -37,6 +37,7 @@ void FATR pspsolve_
    Integer * lmax_ptr,
    Integer * locp_ptr,
    double *rlocal_ptr,
+   Integer * efg_ptr,
    const _fcd fcd_sdir_name,
    Integer * n9,
    const _fcd fcd_dir_name,
@@ -51,13 +52,14 @@ void FATR pspsolve_
 
 #else
  
-  (print_ptr, debug_ptr, lmax_ptr, locp_ptr, rlocal_ptr,
+  (print_ptr, debug_ptr, lmax_ptr, locp_ptr, rlocal_ptr,efg_ptr,
    sdir_name, n9, dir_name, n0, in_filename, n1, out_filename, n2)
      Integer *print_ptr;
      Integer *debug_ptr;
      Integer *lmax_ptr;
      Integer *locp_ptr;
      double *rlocal_ptr;
+     Integer *efg_ptr;
      char sdir_name[];
      Integer *n9;
      char dir_name[];
@@ -77,7 +79,7 @@ void FATR pspsolve_
   int Ngrid;
   double *vall, *rgrid;
   char name[255];
-  int lmax_out, locp_out;
+  int lmax_out, locp_out,efg_type;
   double rlocal_out,rmax;
 
   FILE *fp;
@@ -96,6 +98,7 @@ void FATR pspsolve_
   lmax_out = *lmax_ptr;
   locp_out = *locp_ptr;
   rlocal_out = *rlocal_ptr;
+  efg_type = *efg_ptr;
 
   (void) strncpy (infile, sdir_name, m9);
   infile[m9] = '\0';
@@ -253,7 +256,11 @@ void FATR pspsolve_
 		  outfile);
 	}
       fp = fopen(outfile, "w+");
-      fprintf(fp, "%s\n", name_Atom());
+      if (efg_type) 
+         fprintf(fp, "%s %d\n", name_Atom(),1);
+      else
+         fprintf(fp, "%s\n", name_Atom());
+
       fprintf(fp, "%lf %lf %d   %d %d %lf\n", Zion_Psp(), Amass_Atom(),
 	       lmax_Psp(), lmax_out, locp_out, rlocal_out);
       for (p = 0; p <= lmax_Psp(); ++p)
@@ -284,8 +291,13 @@ void FATR pspsolve_
 	  fprintf(fp, "%12.8lf", rl[k]);
 	  for (p = 0; p <= lmax_Psp(); ++p)
 	    fprintf(fp, " %12.8lf", psil[p][k]);
-	  for (p = 0; p <= lmax_Psp(); ++p)
-	    fprintf(fp, " %12.8lf", psil_ae[p][k]);
+
+          if (efg_type)
+          {
+	     for (p = 0; p <= lmax_Psp(); ++p)
+	        fprintf(fp, " %12.8lf", psil_ae[p][k]);
+          }
+
 	  fprintf(fp, "\n");
 	}
 
