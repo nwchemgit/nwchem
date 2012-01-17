@@ -3,7 +3,7 @@
 *
 
 *     ***** electron common block *************************************
-      logical field_exist
+      logical field_exist,paw_exist
       integer ispin,ne(2),neq(2),nfft3d,npack1,npack0
       integer Hpsi_k(2)
       integer psi_r(2)
@@ -14,13 +14,17 @@
       integer xcp(2)        ! xc potential
       integer xce(2)        ! xc energy density
       integer vall(2)
+      integer dng_cmp(2)
+      integer dng_cmp_smooth(2)
+      integer vcomp(2),vh(2)
       real*8  ehsic,exsic,phsic,pxsic ! SIC energies
       real*8  ehfx,phfx               ! HFX energies
 
       common / electron_block / ehsic,exsic,phsic,pxsic,ehfx,phfx,
      >                          Hpsi_k,psi_r,
      >                          vl,vl_lr,v_field,vc,xcp,xce,vall,
+     >                          dng_cmp,dng_cmp_smooth,vcomp,vh,
      >                          ne,neq,ispin,nfft3d,npack1,npack0,
-     >                          field_exist
+     >                          field_exist,paw_exist
 *     *****************************************************************
 

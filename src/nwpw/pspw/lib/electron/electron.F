@@ -26,9 +26,9 @@
       integer n2ft3d
 
 *     **** external functions ****
-      logical  ion_chargeexist,ion_mmexist
+      logical  ion_chargeexist,ion_mmexist,psp_pawexist
       integer  psi_ispin,psi_ne,psi_neq,control_version
-      external ion_chargeexist,ion_mmexist
+      external ion_chargeexist,ion_mmexist,psp_pawexist
       external psi_ispin,psi_ne,psi_neq,control_version
 
       counter = 0
@@ -45,6 +45,8 @@
       call Pack_npack(0,npack0)
       call D3dB_nfft3d(1,nfft3d)
       n2ft3d = 2*nfft3d
+
+      paw_exist = psp_pawexist()
 
 *     **** allocate memory ****
       value = MA_alloc_get(mt_dcpl,npack1*(neq(1)+neq(2)),
@@ -65,15 +67,43 @@
      >        MA_alloc_get(mt_dbl,2*n2ft3d,
      >                     'vall',vall(2),vall(1))
 
+      if (paw_exist) then
+         value = value.and.
+     >           MA_alloc_get(mt_dcpl,npack0,
+     >                     'dng_cmp',dng_cmp(2),dng_cmp(1))
+         value = value.and.
+     >           MA_alloc_get(mt_dcpl,npack0,
+     >                     'dng_cmp_smooth',
+     >                     dng_cmp_smooth(2),
+     >                     dng_cmp_smooth(1))
+      end if
+
+
       if (control_version().eq.3) then
         value = value.and.
      >        MA_alloc_get(mt_dcpl,npack0,
      >                     'vc',vc(2),vc(1))
+        if (paw_exist) then
+        value = value.and.
+     >        MA_alloc_get(mt_dcpl,npack0,
+     >                     'vh',vh(2),vh(1))
+        value = value.and.
+     >        MA_alloc_get(mt_dcpl,npack0,
+     >                     'vcomp',vcomp(2),vcomp(1))
+        end if
       end if
       if (control_version().eq.4) then
         value = value.and.
      >        MA_alloc_get(mt_dcpl,nfft3d,
      >                     'vc',vc(2),vc(1))
+        if (paw_exist) then
+        value = value.and.
+     >        MA_alloc_get(mt_dcpl,nfft3d,
+     >                     'vh',vh(2),vh(1))
+        value = value.and.
+     >        MA_alloc_get(mt_dcpl,nfft3d,
+     >                     'vcomp',vcomp(2),vcomp(1))
+        end if
       end if
 
       value = value.and.
@@ -126,6 +156,13 @@
      >        MA_free_heap(xcp(2))
       value = value.and.
      >        MA_free_heap(xce(2))
+
+      if (paw_exist) then
+      value = value.and.MA_free_heap(dng_cmp(2))
+      value = value.and.MA_free_heap(dng_cmp_smooth(2))
+      value = value.and.MA_free_heap(vcomp(2))
+      value = value.and.MA_free_heap(vh(2))
+      end if
       if (.not. value) 
      >  call errquit('electron_init: error freeing heap memory',0,
      &       MA_ERR)
@@ -1499,6 +1536,11 @@ c     >                 dcpl_mb(Hpsi_k(1)+index2))
       integer n,nemax,n2ft3d
 
 
+*     ***** generate compensation charge ****
+      if (paw_exist) then
+         call psp_qlm_atom(ispin,neq,psi_k)
+      end if
+
       n2ft3d = 2*nfft3d
       nemax = neq(1) + neq(2)
 
@@ -1671,6 +1713,7 @@ cccccccccc#include "frac_occ.fh"
 *     *********************
 *     **** generate dn ****
 *     *********************
+
       call dcopy(2*n2ft3d,0.0d0,0,dn,1)
       if (fractional) then
       do ms=1,ispin
@@ -1984,7 +2027,7 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
 *     ***** local variables ****
       logical value
       integer n2ft3d,gga
-      integer tmp1(2)
+      integer tmp1(2),tmp2(2)
       real*8  gmma
 
 *     **** external functions ****
@@ -1997,24 +2040,85 @@ c     >                     dbl_mb( vall(1)+(ms-1)*n2ft3d))
       n2ft3d = 2*nfft3d
       gga = control_gga()
 
-      if (control_version().eq.3) then
-         call coulomb_v(dng,dcpl_mb(vc(1)))
-      end if
-
-      if (control_version().eq.4)  then
-         value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
+      if (paw_exist) then
+         value = MA_push_get(mt_dcpl,(nfft3d),'tmp1',tmp1(2),tmp1(1)) 
+         value = value.and.
+     >           MA_push_get(mt_dcpl,(nfft3d),'tmp2',tmp2(2),tmp2(1)) 
          if (.not. value) call errquit(
-     >     'electron_gen_scf_potentials: out of stack memory',0, MA_ERR)
-      
-         call D3dB_rr_Sum(1,dn(1),dn(1+(ispin-1)*n2ft3d),
-     >                    dbl_mb(tmp1(1)))
-         call coulomb2_v(dbl_mb(tmp1(1)),dcpl_mb(vc(1)))
+     >   'electron_gen_scf_potentials: out of stack memory',0,MA_ERR)
 
-         value = MA_pop_stack(tmp1(2)) 
+         call  nwpw_compcharge_gen_dn_cmp2(ispin,
+     >                                     dcpl_mb(dng_cmp(1)),
+     >                                     dcpl_mb(dng_cmp_smooth(1)))
+         call Pack_cc_Sub(0,
+     >                    dcpl_mb(dng_cmp(1)),
+     >                    dcpl_mb(dng_cmp_smooth(1)),
+     >                    dcpl_mb(tmp2(1))) !** tmp2 = dn_cmp - dn_cmp_smooth
+         call Pack_cc_Sum(0,
+     >                    dcpl_mb(dng_cmp_smooth(1)),
+     >                    dng,
+     >                    dcpl_mb(tmp1(1))) !** tmp1 = dng+dn_cmp_smooth **
+
+         if (control_version().eq.3) then
+
+            !**** vc ****
+            call coulomb_v(dcpl_mb(tmp1(1)),dcpl_mb(vh(1)))
+
+            !**** vcmp *****
+            call coulomb_v(dcpl_mb(tmp2(1)),dcpl_mb(vcomp(1)))
+
+            call Pack_cc_Sum(0,dcpl_mb(vh(1)),
+     >                         dcpl_mb(vcomp(1)),
+     >                         dcpl_mb(vc(1)))
+         end if
+
+         if (control_version().eq.4) then
+            !**** vc ****
+            call Pack_c_unpack(0,dcpl_mb(tmp1(1)))
+            call D3dB_cr_fft3b(1,dcpl_mb(tmp1(1)))
+            call D3dB_r_Zero_Ends(1,dcpl_mb(tmp1(1)))
+            call coulomb2_v(dcpl_mb(tmp1(1)),dcpl_mb(vh(1)))
+
+            !**** vcmp ****
+            call Pack_c_unpack(0,dcpl_mb(tmp2(1)))
+            call D3dB_cr_fft3b(1,dcpl_mb(tmp2(1)))
+            call D3dB_r_Zero_Ends(1,dcpl_mb(tmp2(1)))
+            call coulomb2_v(dcpl_mb(tmp2(1)),dcpl_mb(vcomp(1)))
+
+
+            call D3dB_rr_Sum(1,dcpl_mb(vh(1)),
+     >                         dcpl_mb(vcomp(1)),
+     >                         dcpl_mb(vc(1)))
+         end if
+
+         value =           MA_pop_stack(tmp2(2)) 
+         value = value.and.MA_pop_stack(tmp1(2)) 
          if (.not. value) call errquit(
-     >     'electron_gen_scf_potentials: error popping stack memory',0,
+     >   'electron_gen_scf_potentials: error popping stack memory',0,
      &       MA_ERR)
+
+      else
+         if (control_version().eq.3) then
+            call coulomb_v(dng,dcpl_mb(vc(1)))
+         end if
+
+         if (control_version().eq.4)  then
+            value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
+            if (.not. value) call errquit(
+     >      'electron_gen_scf_potentials: out of stack memory',0,MA_ERR)
+      
+            call D3dB_rr_Sum(1,dn(1),dn(1+(ispin-1)*n2ft3d),
+     >                       dbl_mb(tmp1(1)))
+            call coulomb2_v(dbl_mb(tmp1(1)),dcpl_mb(vc(1)))
+
+            value = MA_pop_stack(tmp1(2)) 
+            if (.not. value) call errquit(
+     >      'electron_gen_scf_potentials: error popping stack memory',0,
+     &          MA_ERR)
+         end if
       end if
+
+
 
       if (gga.eq.0) then
          value = MA_push_get(mt_dbl,(n2ft3d),'tmp1',tmp1(2),tmp1(1)) 
