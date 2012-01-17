@@ -2310,7 +2310,7 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
 #include "cpsi_common.fh"
       
       !*** local variables ***
-      integer maxit_orb
+      integer maxit_orb,taskid_k
       integer ii,l,nb,epsi_ptr,eig_ptr
       real*8  sum,maxerror,error_out,e0
 
@@ -2322,6 +2322,7 @@ c      write(*,*)"line nb,i,e1= ",nb,i,e1
 
       maxit_orb=120
       maxerror = control_tole()
+      call Parallel3d_taskid_k(taskid_k)
 
       do nb=1,nbrillq
       do ii=1,(ne_excited(1)+ne_excited(2))

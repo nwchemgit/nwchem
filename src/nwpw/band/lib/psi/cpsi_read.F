@@ -696,7 +696,7 @@ c     **** spin_orbit - ispin=3 --> ispin=2,spin_orbit=.true ****
               pj=0
               q=n
 
-             call C3dB_c_read(1,5,dcpl_mb(tmp2(1)),
+             call C3dB_c_Read(1,5,dcpl_mb(tmp2(1)),
      >                        dcpl_mb(tmp(1)),pj,pk)
 
              if ((pj.eq.taskid_j).and.(pk.eq.taskid_k)) then
