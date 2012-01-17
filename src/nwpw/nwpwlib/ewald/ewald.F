@@ -2865,7 +2865,7 @@ c         end do
              rji(2) = ion_rion(2,jj) - ion_rion(2,ii)
              rji(3) = ion_rion(3,jj) - ion_rion(3,ii)
              phase = gvec(1)*rji(1)+gvec(2)*rji(2)+gvec(3)*rji(3)
-             cosphase = cos(phase)
+             cosphase = dcos(phase)
              do mu= 1,3
               do nu= 1,3
                termgg = -3.d0*gvec(mu)*gvec(nu)/gg
