@@ -625,7 +625,6 @@ c
      >                               dbl_mb(rho_ps_prime(1)),
      >                               dbl_mb(agr_ps(1)))
 
-
 *          **** GGA functionals of ae and ps atomic densities ****
            call paw_gga(paw_xc_gga,ic,paw_xc_ispin,
      >                    dbl_mb(rho_ae(1)),        
