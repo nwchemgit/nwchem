@@ -39,7 +39,7 @@
       integer rho_indx,vp_indx,wp_indx,up_indx,sc_r_indx,sc_k_indx
       integer rho_hndl,vp_hndl,wp_hndl,up_hndl,sc_r_hndl,sc_k_hndl
 
-      integer          isemicore
+      integer          isemicore,ihasae
       logical          semicore
       double precision rcore,core_charge
 
@@ -86,6 +86,7 @@ c      call Parallel_Init()
       oprint = (oprint_in.or.hprint)
 
       value = .false.
+      ihasae = 0
   
 *     ***** read in pseudopotential data ****
       if (taskid.eq.MASTER) then
@@ -94,7 +95,15 @@ c      call Parallel_Init()
       l = index(full_filename,' ') - 1
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
+      read(11,'(A2,I2)',ERR=14,END=14) atom,ihasae
+      goto 15
+   14 ihasae = 0
+      close(11)
+      open(unit=11,file=full_filename(1:l),
+     >             status='old',form='formatted')
       read(11,'(A2)',ERR=9999,END=9999) atom
+
+   15 continue
       read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
       read(11,*,ERR=9999,END=9999) nrho,drho
@@ -108,6 +117,7 @@ c      call Parallel_Init()
       call Parallel_Brdcst_ivalues(MASTER,msglen,lmax0)
       call Parallel_Brdcst_ivalues(MASTER,msglen,lmax1)
       call Parallel_Brdcst_ivalues(MASTER,msglen,locp1)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ihasae)
 
       msglen = lmax0+1
       call Parallel_Brdcst_values(MASTER,msglen,rc)
@@ -137,20 +147,29 @@ c      call Parallel_Init()
      >                        'vp',vp_hndl, vp_indx)
       value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'wp', wp_hndl, wp_indx)
-      value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
+
+      if (ihasae.gt.0)
+     >  value = value.and.MA_alloc_get(mt_dbl,nrho*(lmax+1),
      >                        'up', up_hndl, up_indx)
+
       value = value.and.MA_alloc_get(mt_dbl,2*nrho,
      >                        'sc', sc_r_hndl, sc_r_indx)
       if (.not.value) 
      > call errquit('kbppv3d:out of heap memory',0,MA_ERR)
 
       if (taskid.eq.MASTER) then
-      call read_vpwpup(11,nrho,lmax,dbl_mb(rho_indx),
+         if (ihasae.gt.0) then
+            call read_vpwpup(11,nrho,lmax,dbl_mb(rho_indx),
      >                         dbl_mb(vp_indx),
      >                         dbl_mb(wp_indx),
      >                         dbl_mb(up_indx))
-      call read_semicore(11,isemicore,rcore,nrho,dbl_mb(sc_r_indx))
-      close(11)
+         else
+            call read_vpwp(11,nrho,lmax,dbl_mb(rho_indx),
+     >                         dbl_mb(vp_indx),
+     >                         dbl_mb(wp_indx))
+         end if
+         call read_semicore(11,isemicore,rcore,nrho,dbl_mb(sc_r_indx))
+         close(11)
       end if
 
       msglen = nrho
@@ -171,11 +190,13 @@ c      call Parallel_Init()
       end if
 
 *     **** allocate Mdipole ****
-      l=(lmax+1)**2
-      value=value.and.
-     >      MA_alloc_get(mt_dbl,l,'r3_matrix',
-     >                   r3_matrix(2),r3_matrix(1))
-      call dcopy(l,0.0d0,0,dbl_mb(r3_matrix(1)),1)
+      if (ihasae.gt.0) then
+         l=(lmax+1)**2
+         value=value.and.
+     >         MA_alloc_get(mt_dbl,l,'r3_matrix',
+     >                      r3_matrix(2),r3_matrix(1))
+         call dcopy(l,0.0d0,0,dbl_mb(r3_matrix(1)),1)
+      end if
 
 
 
@@ -382,7 +403,11 @@ c      call Parallel_Init()
       call openfile(2,full_filename,l,'w',l)     
 
          call cwrite(2,comment,80)
-         psp_type = 0
+         if (ihasae.gt.0) then
+            psp_type = 3
+         else
+            psp_type = 0
+         end if
          call iwrite(2,psp_type,1)
          call iwrite(2,version,1)
          call iwrite(2,ngrid,3)
@@ -426,8 +451,10 @@ c      call Parallel_Init()
       end if
 
 *     **** writeout the r3_matrix ****
-      if (taskid.eq.MASTER) then
-         call dwrite(2,dbl_mb(r3_matrix(1)),(lmax+1)**2)
+      if (ihasae.gt.0) then
+         if (taskid.eq.MASTER) then
+            call dwrite(2,dbl_mb(r3_matrix(1)),(lmax+1)**2)
+         end if
       end if
 
       if (taskid.eq.MASTER) then
@@ -438,7 +465,8 @@ c      call Parallel_Init()
 *     **** free heap space ****
       value = MA_free_heap(rho_hndl)
       value = value.and.MA_free_heap(vp_hndl)
-      value = value.and.MA_free_heap(up_hndl)
+      if (ihasae.gt.0) 
+     > value = value.and.MA_free_heap(up_hndl)
       value = value.and.MA_free_heap(wp_hndl)
       value = value.and.MA_free_heap(sc_r_hndl)
       value = value.and.MA_free_heap(sc_k_hndl)
@@ -453,7 +481,8 @@ c      call Parallel_Init()
       value = value.and.MA_free_heap(l_prj_hndl)
       value = value.and.MA_free_heap(m_prj_hndl)
       value = value.and.MA_free_heap(b_prj_hndl)
-      value = value.and.MA_free_heap(r3_matrix(2))
+      if (ihasae.gt.0)
+     > value = value.and.MA_free_heap(r3_matrix(2))
       value = value.and.MA_free_heap(tmp(2))
       if (.not.value) 
      > call errquit('kbppv3:Error freeing memory',0,MA_ERR)
