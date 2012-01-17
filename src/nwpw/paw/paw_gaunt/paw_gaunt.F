@@ -974,11 +974,6 @@ c     **** local varialbles ****
 
 
 
-
-
-
-
-
 *     *********************************************
 *     *                                           *
 *     *        paw_addto_potential_gntxc2         *
