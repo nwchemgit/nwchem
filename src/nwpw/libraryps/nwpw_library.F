@@ -79,6 +79,14 @@ c
 	return
 	end
 
+	integer function nwpw_libgefg_type(atom)
+	implicit none
+#include "nwpw_inp.fh"
+	character*(*) atom
+	nwpw_libgefg_type= efg_type
+	return
+	end
+
 	double precision function nwpw_libgrlocal(atom)
 	implicit none
 #include "nwpw_inp.fh"
@@ -116,6 +124,7 @@ c
 	locp_read=-1
 	rlocal_read=1.d0
         psp_type=0
+        efg_type=0
         cutoff_read = 30.0d0
 
         if      (library_type.eq.2) then
@@ -157,6 +166,8 @@ c       lmax
 	      read(line(sqptr_r+1:l_lgth),*) cutoff_read
 	   elseif(keyread(1:k_lgth).eq.'psp_type') then
 	      read(line(sqptr_r+1:l_lgth),*) psp_type
+	   elseif(keyread(1:k_lgth).eq.'efg_type') then
+	      read(line(sqptr_r+1:l_lgth),*) efg_type
 	   else
 	      write(0,*) ' failed keyword recognition for',
      .  keyread(1:k_lgth)
