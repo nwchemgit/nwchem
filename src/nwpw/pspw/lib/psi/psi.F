@@ -3228,6 +3228,7 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
      >   call errquit('out of stack memory in psi_1get_Tradient',0,
      >       MA_ERR)
 
+
       call electron_run(dcpl_mb(psi1(1)),
      >                   dbl_mb(rho1(1)),
      >                  dcpl_mb(dng1(1)),
