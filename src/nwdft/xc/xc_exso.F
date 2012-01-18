@@ -91,14 +91,16 @@ c
          call ga_zero(g_jk(2))
          call ga_zero(g_jk(3))
          call ga_zero(g_jk(4))
+c
          jfac(1)=zero
          jfac(2)=zero
          jfac(3)=zero
          jfac(4)=zero
+c
          kfac(1)=zero
-         kfac(2)=one
+         kfac(2)=-one
          kfac(3)=zero
-         kfac(4)=one 
+         kfac(4)=-one 
 c
 c     Im(Kaa) and Im(Kbb) (g_dens(1) and g_dens(2))
 c
@@ -120,14 +122,13 @@ c            call ga_print(g_dens(2))
          endif
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
-         call ga_scale(g_jk(2),dble(-1.0d0))
-         call ga_scale(g_jk(4),dble(-1.0d0))
-         call asym_fock2e(g_jk(2))
-         call asym_fock2e(g_jk(4))
+         call asym_fock2e(g_jk(2))  ! asymmetrize outside
+         call asym_fock2e(g_jk(4))  ! asymmetrize outside
 c
          exc(1) = exc(1) + xfac(1)*0.5d0*( ! All exchange energy (i.i=-1)
      $        onem*ga_ddot(g_dens(1),g_jk(2)) +
      $        onem*ga_ddot(g_dens(2),g_jk(4)))
+c
          call ga_dadd_patch(1.0d0,g_fockso(2),1,nao,1,nao, 
      &                    xfac(1),g_jk(2),    1,nao,1,nao,
      &                            g_fockso(2),1,nao,1,nao)
@@ -165,22 +166,28 @@ c
          g_d(4)  = g_dens(2)
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
-         call ga_scale(g_jk(2),dble(-1.0d0))
-         call ga_scale(g_jk(4),dble(-1.0d0))
          call ga_transpose(g_jk(4),g_jk(1))
          call ga_add(dble(0.5d0),g_jk(2),dble(0.5d0),g_jk(1), 
-     &        g_jk(2))          !g_jk(2) has Kab
-         call ga_transpose(g_jk(2),g_jk(4))
+     &        g_jk(1))   
 c
-         exc(1) = exc(1) - xfac(1)*0.5d0*( ! All exchange energy 
+         call ga_transpose(g_jk(2),g_jk(3))
+         call ga_add(dble(0.5d0),g_jk(4),dble(0.5d0),g_jk(3), 
+     &        g_jk(3)) 
+c
+         call ga_copy(g_jk(1),g_jk(2))
+         call ga_copy(g_jk(3),g_jk(4))
+c
+         exc(1) = exc(1) + xfac(1)*0.5d0*( ! All exchange energy 
      $        ga_ddot(g_dens(1),g_jk(2)) +
      $        ga_ddot(g_dens(2),g_jk(4)))
+c
          call ga_dadd_patch(1.0d0,g_fockso(1),1,nao,nao+1,2*nao, 
-     &                   -xfac(1),g_jk(2),    1,nao,1,nao,
+     &                   xfac(1),g_jk(2),    1,nao,1,nao,
      &                            g_fockso(1),1,nao,nao+1,2*nao)
          call ga_dadd_patch(1.0d0,g_fockso(1),nao+1,2*nao,1,nao, 
-     &                   -xfac(1),g_jk(4),    1,nao,1,nao,
+     &                   xfac(1),g_jk(4),    1,nao,1,nao,
      &                            g_fockso(1),nao+1,2*nao,1,nao)
+c
          if (oprint_intermediate_xc)then
             if(me.eq.0)write(*,*)'Fock XC matrix:Re(Kab) and Im(Kab):'
             call ga_print(g_jk(2))
@@ -209,23 +216,29 @@ c
          g_d(4)  = g_dens(2)
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
-         call ga_scale(g_jk(2),dble(-1.0d0))
-         call ga_scale(g_jk(4),dble(-1.0d0))
+c
          call ga_transpose(g_jk(4),g_jk(1))
          call ga_add(dble(0.5d0),g_jk(2),dble(-0.5d0),g_jk(1),
-     &        g_jk(2))
-         call ga_transpose(g_jk(2),g_jk(4))
-         call ga_scale(g_jk(4),dble(-1.0d0))
+     &        g_jk(1))
+c
+         call ga_transpose(g_jk(2),g_jk(3))
+         call ga_add(dble(0.5d0),g_jk(4),dble(-0.5d0),g_jk(3),
+     &        g_jk(3))
+c
+         call ga_copy(g_jk(1),g_jk(2))
+         call ga_copy(g_jk(3),g_jk(4))
 c
          exc(1) = exc(1) + xfac(1)*0.5d0*( ! All exchange energy 
      $        onem*ga_ddot(g_dens(1),g_jk(2)) +
      $        onem*ga_ddot(g_dens(2),g_jk(4)))
+c
          call ga_dadd_patch(1.0d0,g_fockso(2),1,nao,nao+1,2*nao,
      &                    xfac(1),g_jk(2),    1,nao,1,nao,
      &                            g_fockso(2),1,nao,nao+1,2*nao)
          call ga_dadd_patch(1.0d0,g_fockso(2),nao+1,2*nao,1,nao, 
      &                    xfac(1),g_jk(4),    1,nao,1,nao,
      &                            g_fockso(2),nao+1,2*nao,1,nao)
+c
          if (oprint_intermediate_xc)then
             if(me.eq.0)write(*,*)'Fock XC matrix:Re(Kba) and Im(Kba):'
             call ga_print(g_jk(2))
@@ -247,6 +260,7 @@ c
      $        ('xc_exso: ga corrupt?',1, GA_ERR)
       endif
       if (oprint_time)call dft_tstamp('  After call to fock_2e. ')
+c
       if (oprint_intermediate_xc)then
          if(me.eq.0)write(*,*)'Fock XC matrix:Leaving xc_exso:'
 c         call ga_print(g_fockso(1))
@@ -260,6 +274,7 @@ c     Unset attenuation before exiting
       return
       end
 c
+c     antisymmetrize fock matrix
       subroutine asym_fock2e(g_fock)
       implicit none
 #include "errquit.fh"
