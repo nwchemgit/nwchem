@@ -1799,7 +1799,7 @@ endif
         FDEBUG = -g -O2
         DEFINES  += -DCHKUNDFLW -DPGLINUX
        ifeq ($(FC),ftn)
-          DEFINES  += -DCRAYXT -DEAFHACK
+          DEFINES  += -DCRAYXT -DEAFHACK -DNOFSCHECK
           LINK.f = ftn  $(LDFLAGS) $(FOPTIONS)
        endif
        ifeq ($(NWCHEM_TARGET),CATAMOUNT)
@@ -2096,7 +2096,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP))
     AR     = $(BGCOMPILERS)/powerpc-bgp-linux-ar
     AS     = $(BGCOMPILERS)/powerpc-bgp-linux-as
     RANLIB = $(BGCOMPILERS)/powerpc-bgp-linux-ranlib
-    DEFINES  += -DDCMF -DBGP
+    DEFINES  += -DDCMF -DBGP -DNOFSCHECK
     FOPTIONS += -qthreaded -qnosave -qalign=4k
     FOPTIMIZE += -qarch=450d -qtune=450
     COPTIMIZE += -qarch=450 -qtune=450

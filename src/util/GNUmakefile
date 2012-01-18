@@ -247,6 +247,10 @@ ifdef SLURM
   DEFINES += -DSLURM
 endif
 
+ifdef USE_NOFSCHECK
+  DEFINES += -DNOFSCHECK
+endif
+
 include ../config/makelib.h
 
 

@@ -70,6 +70,13 @@ BASIC BUILD INSTRUCTIONS:
                                  enable large files in the file system), e.g.
     setenv LARGE_FILES TRUE
 
+   USE_NOFSCHECK                needed to avoid creating files for each 
+                                process when testing the size of the scratch 
+                                directory (a.k.a. creation of junk files)
+                                
+    setenv USE_NOFSCHECK TRUE
+
+
    LIB_DEFINES                  additional defines for the C preprocessor
                                 (for both Fortran and C), e.g.
     setenv LIB_DEFINES -DDFLT_TOT_MEM=16777216

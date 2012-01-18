@@ -777,6 +777,11 @@ c
       me = ga_nodeid()
       nproc = ga_nnodes()
       nattpt=0
+#ifdef NOFSCHECK
+      avail0=10**8
+      nuse=ga_nnodes()
+      avail1=-16d0*nuse+avail0
+#else
 1025  call util_file_name('junk',.true.,.true.,mine)
       ierr=eaf_delete(mine)
       ierr=eaf_open(mine, eaf_rw, fd)
@@ -784,11 +789,6 @@ c
      &       DISK_ERR)
       call ga_sync()
       ierr = eaf_stat(mine, avail0, fstype)
-#if defined(CRAYXT) || defined(BGP)
-      nuse=ga_nnodes()
-      avail1=-16d0*nuse+avail0
-      ierr=eaf_delete(mine)
-#else
 c
 c     now write 5M of doubles
 c
