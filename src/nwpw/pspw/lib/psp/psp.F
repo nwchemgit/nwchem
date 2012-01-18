@@ -271,7 +271,7 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
            call psi_data_dealloc(int_mb(core_ps_prime(1)+ia-1))
            call psi_data_dealloc(int_mb(rgrid(1)+ia-1))
         end if
-        if (int_mb(psp_type(1)+ia-1).eq.3) then
+        if (int_mb(psp_type(1)+ia-1).eq.9) then
            call psi_data_dealloc(int_mb(r3_matrix(1)+ia-1))
         end if
       end do
@@ -2208,7 +2208,7 @@ c     **** define Gx,Gy and Gz in packed space ****
       end if
 
 *     **** read in r3_matrix if not paw(for now) ****
-      if (psp_type.eq.3) then
+      if (psp_type.eq.9) then
 
          !**** allocate and reading r3_matrix(n1dbasis,n1dbasis) ****
          msglen=n1dbasis*n1dbasis
@@ -2431,7 +2431,7 @@ c     logocal semicore(0:nkatmx)
                call psi_data_dealloc(int_mb(core_ps_prime(1)+ia-1))
                call psi_data_dealloc(int_mb(rgrid(1)+ia-1))
                end if
-               if (int_mb(psp_type(1)+ia-1).eq.3) then
+               if (int_mb(psp_type(1)+ia-1).eq.9) then
                call psi_data_dealloc(int_mb(r3_matrix(1)+ia-1))
                end if
               end if
