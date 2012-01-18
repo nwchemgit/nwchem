@@ -256,10 +256,8 @@ void FATR pspsolve_
 		  outfile);
 	}
       fp = fopen(outfile, "w+");
-      if (efg_type) 
-         fprintf(fp, "%s %d\n", name_Atom(),1);
-      else
-         fprintf(fp, "%s\n", name_Atom());
+      if (efg_type) fprintf(fp, "9\n");
+      fprintf(fp, "%s\n", name_Atom());
 
       fprintf(fp, "%lf %lf %d   %d %d %lf\n", Zion_Psp(), Amass_Atom(),
 	       lmax_Psp(), lmax_out, locp_out, rlocal_out);
