@@ -95,15 +95,17 @@ c      call Parallel_Init()
       l = index(full_filename,' ') - 1
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
-      read(11,'(A2,I2)',ERR=14,END=14) atom,ihasae
+      read(11,12,ERR=14,END=14) ihasae
+      write(*,*) "File contains ae orbitals, ihasae=",ihasae
+   12 format(i1)
       goto 15
    14 ihasae = 0
       close(11)
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
-      read(11,'(A2)',ERR=9999,END=9999) atom
 
    15 continue
+      read(11,'(A2)',ERR=9999,END=9999) atom
       read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
       read(11,*,ERR=9999,END=9999) nrho,drho
@@ -404,7 +406,7 @@ c      call Parallel_Init()
 
          call cwrite(2,comment,80)
          if (ihasae.gt.0) then
-            psp_type = 3
+            psp_type = ihasae
          else
             psp_type = 0
          end if

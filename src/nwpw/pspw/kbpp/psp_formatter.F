@@ -195,7 +195,7 @@ c
 
       call get_psp_type(psp_filename,psp_type)
 
-      if (psp_type.eq.0) then
+      if ((psp_type.eq.0).or.(psp_type.eq.9)) then
          value = kbppv3d(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,rlocal)
