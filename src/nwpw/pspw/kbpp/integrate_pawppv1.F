@@ -106,7 +106,7 @@ c      P3=dsqrt(105.0d0*forpi)
 *     ***********  Normarization constants  *************
       call dcopy(5*nmax*nmax*(lmax+1),0.0d0,0,Gijl,1)
 
-*     **** overlap ***
+*     **** overlap  - 2 ***
       do i=1,nbasis
          la = l_ps(i)
          na = n_ps(i) - la
@@ -134,8 +134,7 @@ c      P3=dsqrt(105.0d0*forpi)
       end do
 
 
-
-*     **** add kinetic ***
+*     **** add kinetic  - 3 ***
       do i=1,nbasis
          la = l_ps(i)
          na = n_ps(i) - la
@@ -167,7 +166,7 @@ c      P3=dsqrt(105.0d0*forpi)
       end do
 
 
-*     **** add pseudo ***
+*     **** add pseudo  - 4 ***
       do i=1,nbasis
          la = l_ps(i)
          na = n_ps(i) - la
@@ -198,73 +197,75 @@ c      P3=dsqrt(105.0d0*forpi)
          end do
       end do
 
-*     **** vcore ***
-      do k=1,icut
-         f3(k) = core_ae(k)*rho(k)**2
-c         f4(k) = core_ps(k)*rho(k)**2   !*** core_ps is zero ****
-      end do
-      do i=1,nbasis
-         la = l_ps(i)
-         na = n_ps(i) - la
-         power_f = 2*la + 2
+*     **** vcore - 5 ***
+      if (Zc.gt.0.0d0) then
          do k=1,icut
-            f1(k) = phi_ae(k,i)*phi_ae(k,i)
-            f2(k) = phi_ps(k,i)*phi_ps(k,i)
+            f3(k) = core_ae(k)*rho(k)**2
+c            f4(k) = core_ps(k)*rho(k)**2   !*** core_ps is zero ****
          end do
-         d = log_multipole_energy(0,icut,rho,power_f,
-     >                           f1,2,f3,log_amesh)
-c     >     - log_multipole_energy(0,icut,rho,power_f,
-c     >                           f2,2,f4,log_amesh)
-         Gijl(na,na,la,5) = Gijl(na,na,la,5) + d
+         do i=1,nbasis
+            la = l_ps(i)
+            na = n_ps(i) - la
+            power_f = 2*la + 2
+            do k=1,icut
+               f1(k) = phi_ae(k,i)*phi_ae(k,i)
+c               f2(k) = phi_ps(k,i)*phi_ps(k,i)
+            end do
+            d = log_multipole_energy(0,icut,rho,power_f,
+     >                              f1,2,f3,log_amesh)
+c     >        - log_multipole_energy(0,icut,rho,power_f,
+c     >                              f2,2,f4,log_amesh)
+            Gijl(na,na,la,5) = Gijl(na,na,la,5) + d
 
-         do j=1,i-1
-            lb = l_ps(j)
-            nb = n_ps(j) - lb
-            if (la.eq.lb) then
-               do k=1,icut
-                  f1(k) = phi_ae(k,i)*phi_ae(k,j)
-c                  f2(k) = phi_ps(k,i)*phi_ps(k,j)
-               end do
-               d = log_multipole_energy(0,icut,rho,power_f,
-     >                                 f1,2,f3,log_amesh)
-c     >           - log_multipole_energy(0,icut,rho,power_f,
-c     >                                 f2,2,f4,log_amesh)
-               Gijl(na,nb,la,5) = Gijl(na,nb,la,5) + d
-               Gijl(nb,na,la,5) = Gijl(nb,na,la,5) + d
-            end if
+            do j=1,i-1
+               lb = l_ps(j)
+               nb = n_ps(j) - lb
+               if (la.eq.lb) then
+                  do k=1,icut
+                     f1(k) = phi_ae(k,i)*phi_ae(k,j)
+c                     f2(k) = phi_ps(k,i)*phi_ps(k,j)
+                  end do
+                  d = log_multipole_energy(0,icut,rho,power_f,
+     >                                    f1,2,f3,log_amesh)
+c     >              - log_multipole_energy(0,icut,rho,power_f,
+c     >                                    f2,2,f4,log_amesh)
+                  Gijl(na,nb,la,5) = Gijl(na,nb,la,5) + d
+                  Gijl(nb,na,la,5) = Gijl(nb,na,la,5) + d
+               end if
+            end do
          end do
-      end do
 
-*     **** add -Vzc to vcore***
-      do i=1,nbasis
-         la = l_ps(i)
-         na = n_ps(i) - la
-         power_f = 2*la + 2
-         do k=1,icut
-            f1(k) = phi_ae(k,i)*phi_ae(k,i)/rho(k)
+*        **** add -Vzc to vcore - 5 ***
+         do i=1,nbasis
+            la = l_ps(i)
+            na = n_ps(i) - la
+            power_f = 2*la + 2
+            do k=1,icut
+               f1(k) = phi_ae(k,i)*phi_ae(k,i)/rho(k)
+            end do
+            d = Zc*log_integrate_def(power_f,f1,0,rho,log_amesh,icut)
+            Gijl(na,na,la,5) = Gijl(na,na,la,5) - d
+
+            do j=1,i-1
+               lb = l_ps(j)
+               nb = n_ps(j) - lb
+               if (la.eq.lb) then
+                  do k=1,icut
+                     f1(k) = phi_ae(k,i)*phi_ae(k,j)/rho(k)
+                  end do
+                  d = Zc*log_integrate_def(power_f,f1,0,
+     >                                     rho,log_amesh,icut)
+                  Gijl(na,nb,la,5) = Gijl(na,nb,la,5) - d
+                  Gijl(nb,na,la,5) = Gijl(nb,na,la,5) - d
+               end if
+            end do
          end do
-         d = Zc*log_integrate_def(power_f,f1,0,rho,log_amesh,icut)
-         Gijl(na,na,la,5) = Gijl(na,na,la,5) - d
-
-         do j=1,i-1
-            lb = l_ps(j)
-            nb = n_ps(j) - lb
-            if (la.eq.lb) then
-               do k=1,icut
-                  f1(k) = phi_ae(k,i)*phi_ae(k,j)/rho(k)
-               end do
-               d = Zc*log_integrate_def(power_f,f1,0,rho,log_amesh,icut)
-               Gijl(na,nb,la,5) = Gijl(na,nb,la,5) - d
-               Gijl(nb,na,la,5) = Gijl(nb,na,la,5) - d
-            end if
-         end do
-      end do
-
+      end if
 
       l = nmax*nmax*(lmax+1)
       call dcopy(l,      Gijl(1,1,0,3),1,Gijl(1,1,0,1),1)  !** kinetic **
       call daxpy(l,1.0d0,Gijl(1,1,0,4),1,Gijl(1,1,0,1),1)  !** pseudo  **
-c      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)
+      call daxpy(l,1.0d0,Gijl(1,1,0,5),1,Gijl(1,1,0,1),1)  !** vcore   **
         
 *     **** comp_charge_matrix(nbasis,nbasis,0:2*lmax) ****
       do i=1,nbasis

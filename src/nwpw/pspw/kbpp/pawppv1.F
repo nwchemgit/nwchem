@@ -240,7 +240,7 @@
      > call errquit('pawppv1:error popping stack',0,MA_ERR)
 
 
-*     **** allocate Gijl,Sijl,Tijl,VSRCZ,Vpseuo ****
+*     **** allocate Gijl,Sijl,Tijl,vcore,Vpseuo ****
       l = nmax*nmax*(lmax+1)
       value=          MA_alloc_get(mt_dbl,5*l,'Gijl',Gijl(2),Gijl(1))
       !value=value.and.MA_alloc_get(mt_dbl,l,'Tijl',Tijl(2),Tijl(1))
@@ -383,12 +383,16 @@ c      ecorez = -zion*fourpi
 c     >              *log_integrate_def(0,dbl_mb(core_ae(1)),
 c     >                                 1,dbl_mb(rgrid(1)),
 c     >                                 log_amesh,n1dgrid)
-      ecorez = log_coulomb0_energy(dbl_mb(core_ae(1)),zion-zv,
-     >                             dbl_mb(rgrid(1)),n1dgrid,log_amesh,
-     >                             zion)
-      ecorecore = log_coulomb_energy(dbl_mb(core_ae(1)),zion-zv,
+      if (dabs(zcore).gt.1.0d-9) then
+         ecorez = log_coulomb0_energy(dbl_mb(core_ae(1)),zion-zv,
+     >                               dbl_mb(rgrid(1)),n1dgrid,log_amesh,
+     >                               zion)
+         ecorecore = log_coulomb_energy(dbl_mb(core_ae(1)),zion-zv,
      >                               dbl_mb(rgrid(1)),n1dgrid,log_amesh)
-      core_ion_energy = ecorez + ecorecore
+         core_ion_energy = ecorez + ecorecore
+      else
+         core_ion_energy = 0.0d0
+      end if
 
 
 
