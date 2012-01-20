@@ -2755,6 +2755,32 @@ c      call OrthoCheck(ispin,ne,dcpl_mb(psi1(1)))
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *     psi_1valence_core_atom      *
+*     *                                 *
+*     ***********************************
+      real*8 function psi_1valence_core_atom()
+      implicit none
+
+#include "mafdecls.fh"
+#include "psi.fh"
+
+*     **** local variables ***
+      real*8 ave
+
+*     **** external functions ****
+      real*8   psp_valence_core_atom
+      external psp_valence_core_atom
+
+      ave =  psp_valence_core_atom(ispin,neq,dcpl_mb(psi1(1)))
+      call D1dB_SumAll(ave)
+
+      psi_1valence_core_atom = ave
+      return
+      end
+
+
 
 *     ***********************************
 *     *                                 *
