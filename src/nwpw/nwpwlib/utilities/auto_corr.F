@@ -77,7 +77,7 @@ c
          write(*,*) 'cpmd_properties: out of stack memory'
          write(*,*) ' + velocity autocorrelation not performed'
          close(unit=19)
-         return
+         goto 999
       end if
       if (.not.MA_push_get(mt_dcpl,2*natoms*nframes,'vy',vy(2),vy(1)))
      >   then
@@ -88,7 +88,7 @@ c
      >    call errquit('cpmd_properties: cannot release stack memory',1,
      >                 MA_ERR)
          close(unit=19)
-         return
+         goto 999
       end if
       if (.not.MA_push_get(mt_dcpl,2*natoms*nframes,'vz',vz(2),vz(1)))
      >   then
@@ -100,7 +100,7 @@ c
      >    call errquit('cpmd_properties: cannot release stack memory',2,
      >                 MA_ERR)
          close(unit=19)
-         return
+         goto 999
       end if
       if (.not.MA_push_get(mt_dcpl,2*nframes,'vt',vt(2),vt(1)))
      >   then
@@ -113,7 +113,7 @@ c
      >    call errquit('cpmd_properties: cannot release stack memory',3,
      >                 MA_ERR)
          close(unit=19)
-         return
+         goto 999
       end if
       if (.not.MA_push_get(mt_dcpl,2*nframes,'vk',vk(2),vk(1)))
      >   then
@@ -127,7 +127,7 @@ c
      >    call errquit('cpmd_properties: cannot release stack memory',4,
      >                 MA_ERR)
          close(unit=19)
-         return
+         goto 999
       end if
        if (.not.MA_push_get(mt_dcpl,(8*nframes+15),
      >    'tfft',tfft(2),tfft(1))) then
@@ -142,7 +142,7 @@ c
      >    call errquit('cpmd_properties: cannot release stack memory',5,
      >                 MA_ERR)
          close(unit=19)
-         return
+         goto 999
       end if
       
 
@@ -283,6 +283,7 @@ c
       end if
 
 *     *** synchronization ***
+  999 continue
       call ga_sync()
 
       return
