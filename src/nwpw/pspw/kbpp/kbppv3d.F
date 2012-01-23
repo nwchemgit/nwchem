@@ -100,7 +100,7 @@ c      call Parallel_Init()
    12 format(i1)
       goto 15
    14 ihasae = 0
-      close(11)
+      close(unit=11)
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
 
@@ -112,6 +112,7 @@ c      call Parallel_Init()
       read(11,'(A)',ERR=9999,END=9999) comment
       end if
 
+
       msglen = 1
       call Parallel_Brdcst_values(MASTER,msglen,zv)
       call Parallel_Brdcst_values(MASTER,msglen,amass)
@@ -120,6 +121,7 @@ c      call Parallel_Init()
       call Parallel_Brdcst_ivalues(MASTER,msglen,lmax1)
       call Parallel_Brdcst_ivalues(MASTER,msglen,locp1)
       call Parallel_Brdcst_ivalues(MASTER,msglen,ihasae)
+
 
       msglen = lmax0+1
       call Parallel_Brdcst_values(MASTER,msglen,rc)
@@ -323,11 +325,13 @@ c      call Parallel_Init()
 
 
 *     **** compute the <1/r3> matrix elements ****
-      call generate_r3_matrix(nrho,lmax,drho,
-     >                        dbl_mb(rho_indx),
-     >                        dbl_mb(wp_indx),dbl_mb(up_indx),
-     >                        dbl_mb(f_indx),
-     >                        dbl_mb(r3_matrix(1)))
+      if (ihasae.gt.0) then
+         call generate_r3_matrix(nrho,lmax,drho,
+     >                           dbl_mb(rho_indx),
+     >                           dbl_mb(wp_indx),dbl_mb(up_indx),
+     >                           dbl_mb(f_indx),
+     >                           dbl_mb(r3_matrix(1)))
+      end if
 
       if ((taskid.eq.MASTER).and.(oprint)) then
       write(luout,*) "     ********************************************"
