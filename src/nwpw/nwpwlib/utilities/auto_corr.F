@@ -71,33 +71,80 @@ c
 
       open(unit=19,file=filename,form='formatted')
 
-      value = MA_push_get(mt_dcpl,2*natoms*nframes,'vx',vx(2),vx(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,2*natoms*nframes,'vy',vy(2),vy(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,2*natoms*nframes,'vz',vz(2),vz(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,2*nframes,'vt',vt(2),vt(1))
-      value = value.and.
-     >        MA_push_get(mt_dcpl,2*nframes,'vk',vk(2),vk(1))
-       value = value.and.
-     >        MA_push_get(mt_dcpl,(8*nframes+15),'tfft',tfft(2),tfft(1))
-      
-*     **** try to exit in a nice way ****
-      if (.not. value) then
-        write(*,*) 'cpmd_properties: out of stack memory'
-        write(*,*) ' + velocity autocorrelation not performed'
-
-        value = MA_pop_stack(tfft(2))
-        value = MA_pop_stack(vk(2))
-        value = MA_pop_stack(vt(2))
-        value = MA_pop_stack(vz(2))
-        value = MA_pop_stack(vy(2))
-        value = MA_pop_stack(vx(2))
-
-        return
+*     **** try to exit in a nice way if too not enough memory available ****
+      if (.not.MA_push_get(mt_dcpl,2*natoms*nframes,'vx',vx(2),vx(1))) 
+     >   then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + velocity autocorrelation not performed'
+         close(unit=19)
+         return
       end if
-   
+      if (.not.MA_push_get(mt_dcpl,2*natoms*nframes,'vy',vy(2),vy(1)))
+     >   then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + velocity autocorrelation not performed'
+         value = MA_pop_stack(vx(2))
+         if (.not. value) 
+     >    call errquit('cpmd_properties: cannot release stack memory',1,
+     >                 MA_ERR)
+         close(unit=19)
+         return
+      end if
+      if (.not.MA_push_get(mt_dcpl,2*natoms*nframes,'vz',vz(2),vz(1)))
+     >   then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + velocity autocorrelation not performed'
+         value =           MA_pop_stack(vy(2))
+         value = value.and.MA_pop_stack(vx(2))
+         if (.not. value) 
+     >    call errquit('cpmd_properties: cannot release stack memory',2,
+     >                 MA_ERR)
+         close(unit=19)
+         return
+      end if
+      if (.not.MA_push_get(mt_dcpl,2*nframes,'vt',vt(2),vt(1)))
+     >   then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + velocity autocorrelation not performed'
+         value =           MA_pop_stack(vz(2))
+         value = value.and.MA_pop_stack(vy(2))
+         value = value.and.MA_pop_stack(vx(2))
+         if (.not. value) 
+     >    call errquit('cpmd_properties: cannot release stack memory',3,
+     >                 MA_ERR)
+         close(unit=19)
+         return
+      end if
+      if (.not.MA_push_get(mt_dcpl,2*nframes,'vk',vk(2),vk(1)))
+     >   then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + velocity autocorrelation not performed'
+         value =           MA_pop_stack(vt(2))
+         value = value.and.MA_pop_stack(vz(2))
+         value = value.and.MA_pop_stack(vy(2))
+         value = value.and.MA_pop_stack(vx(2))
+         if (.not. value) 
+     >    call errquit('cpmd_properties: cannot release stack memory',4,
+     >                 MA_ERR)
+         close(unit=19)
+         return
+      end if
+       if (.not.MA_push_get(mt_dcpl,(8*nframes+15),
+     >    'tfft',tfft(2),tfft(1))) then
+         write(*,*) 'cpmd_properties: out of stack memory'
+         write(*,*) ' + velocity autocorrelation not performed'
+         value =           MA_pop_stack(vk(2))
+         value = value.and.MA_pop_stack(vt(2))
+         value = value.and.MA_pop_stack(vz(2))
+         value = value.and.MA_pop_stack(vy(2))
+         value = value.and.MA_pop_stack(vx(2))
+         if (.not. value) 
+     >    call errquit('cpmd_properties: cannot release stack memory',5,
+     >                 MA_ERR)
+         close(unit=19)
+         return
+      end if
+      
 
       call dcopy(4*natoms*nframes,0.0d0,0,dcpl_mb(vx(1)),1)
       call dcopy(4*natoms*nframes,0.0d0,0,dcpl_mb(vy(1)),1)
@@ -231,7 +278,7 @@ c
       value = value.and.MA_pop_stack(vx(2))
       if (.not. value) 
      >    call errquit('cpmd_properties: cant release stack memory',0,
-     &       MA_ERR)
+     >       MA_ERR)
      
       end if
 
