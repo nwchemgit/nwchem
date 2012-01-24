@@ -269,12 +269,14 @@ ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
 	$(CNFDIR)/64_to_32 $(USES_BLAS)
+	@/bin/rm -f dependencies
 
 32_to_64:
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
 	$(CNFDIR)/32_to_64 $(USES_BLAS)
+	@/bin/rm -f dependencies
 
 else
 
@@ -282,6 +284,7 @@ sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
+	@/bin/rm -f dependencies
 	@echo $@ : no conversion necessary
 endif
 
