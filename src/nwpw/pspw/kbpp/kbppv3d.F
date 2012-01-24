@@ -181,7 +181,8 @@ c      call Parallel_Init()
       msglen = nrho*(lmax+1)
       call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(vp_indx))
       call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(wp_indx))
-      call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(up_indx))
+      if (ihasae.gt.0) 
+     >   call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(up_indx))
 
       msglen = 1
       call Parallel_Brdcst_ivalues(MASTER,msglen,isemicore)
