@@ -42,7 +42,7 @@ c
       integer  ion_nion,control_version
       external ion_nion,control_version
 
-      if (.not.rtdb_get(rtdb,'nwpw:efield',mt_log,1,doefield)) 
+      if (.not.rtdb_get(rtdb,'nwpw:efield_grad',mt_log,1,doefield)) 
      >  doefield=.false.
 
       if (doefield) then
