@@ -168,7 +168,7 @@ c
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
-     >       6700,6800,6900,7000,4200,
+     >       6700,6800,6900,7000,4250,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -794,6 +794,14 @@ c  EFIELD
 c
  4200 if (.not.rtdb_put(rtdb,'nwpw:efield',mt_log,1,.true.))
      >  call errquit('nwpw_input: error writing to rtdb',4200,RTDB_ERR)
+
+      goto 10
+
+c
+c  EFIELD_GRAD
+c
+ 4250 if (.not.rtdb_put(rtdb,'nwpw:efield_grad',mt_log,1,.true.))
+     >  call errquit('nwpw_input: error writing to rtdb',4250,RTDB_ERR)
 
       goto 10
 
