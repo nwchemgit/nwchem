@@ -1968,7 +1968,12 @@ c     **** define Gx,Gy and Gz in packed space ****
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,nmax)
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,nprj)
       lmmax=(lmax+1)**2 - (2*locp+1)
-      n1dbasis = locp
+      if (psp_type.eq.4) then
+         n1dbasis = locp
+      else
+         n1dbasis = lmax+1
+      end if
+
 
       msglen=lmax+1
       call Parallela_Brdcst_values(com_p,MASTER,msglen,rc)
