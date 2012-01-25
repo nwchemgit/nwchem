@@ -43,7 +43,7 @@ c
       external ion_nion,control_version
 
       if (.not.rtdb_get(rtdb,'nwpw:efield',mt_log,1,doefield)) 
-     >  doefield=.true.
+     >  doefield=.false.
 
       if (doefield) then
        
