@@ -25,11 +25,13 @@ c
 cgrinfo     enuc in first record
       if(what.eq.'write') then
          uenuc=enuc_in
+#if 0
 cdump garbage on next record to invalidate fields
          uvect(1)=-123
          uvect(2)=-123
          uvect(3)=-123
          uvect(4)=-123
+#endif
          else
          enuc_in=uenuc
       endif
