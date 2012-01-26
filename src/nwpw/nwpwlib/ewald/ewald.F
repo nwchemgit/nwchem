@@ -2871,7 +2871,7 @@ c         end do
                termgg = -3.d0*gvec(mu)*gvec(nu)/gg
                if (mu == nu) termgg = 1.d0 + termgg
                efg_ion(mu,nu,ii) = efg_ion(mu,nu,ii) 
-     &                           + qj*cosphase*termgg*expfac
+     &                           + 2.0d0*qj*cosphase*termgg*expfac
               end do
              end do
             end do ! jj
