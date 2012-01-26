@@ -534,8 +534,7 @@ c
 c  wavefunction_cutoff
 c 
  2700 if (.not. inp_f(wcut))
-     >     call errquit(
-     >          'nwpw_nwpwt: failed to read ndown', 0, INPUT_ERR)
+     > call errquit('nwpw_input: failed to read wcut',0,INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:wcut',mt_dbl,1,wcut)
      >   .and.rtdb_put(rtdb,'band:wcut',mt_dbl,1,wcut)
      >   .and.rtdb_put(rtdb,'cpsd:wcut',mt_dbl,1,wcut)
@@ -548,17 +547,18 @@ c
 c
 c  cutoff
 c
- 2750 if (.not. inp_f(wcut))
-     >     call errquit(
-     >          'nwpw_nwpwt: failed to read ndown', 0, INPUT_ERR)
+ 2750 if (.not.inp_f(wcut))
+     > call errquit('nwpw_input: failed to read wcut',0,INPUT_ERR)
+      if (.not.inp_f(ecut)) ecut = 2.0d0*wcut
+
       value = rtdb_put(rtdb,'cgsd:wcut',mt_dbl,1,wcut)
      >   .and.rtdb_put(rtdb,'band:wcut',mt_dbl,1,wcut)
      >   .and.rtdb_put(rtdb,'cpsd:wcut',mt_dbl,1,wcut)
      >   .and.rtdb_put(rtdb,'cpmd:wcut',mt_dbl,1,wcut)
-     >   .and.rtdb_put(rtdb,'cgsd:ecut',mt_dbl,1,2.0d0*wcut)
-     >   .and.rtdb_put(rtdb,'band:ecut',mt_dbl,1,2.0d0*wcut)
-     >   .and.rtdb_put(rtdb,'cpsd:ecut',mt_dbl,1,2.0d0*wcut)
-     >   .and.rtdb_put(rtdb,'cpmd:ecut',mt_dbl,1,2.0d0*wcut)
+     >   .and.rtdb_put(rtdb,'cgsd:ecut',mt_dbl,1,ecut)
+     >   .and.rtdb_put(rtdb,'band:ecut',mt_dbl,1,ecut)
+     >   .and.rtdb_put(rtdb,'cpsd:ecut',mt_dbl,1,ecut)
+     >   .and.rtdb_put(rtdb,'cpmd:ecut',mt_dbl,1,ecut)
       if (.not.value)
      >  call errquit(
      >       'nwpw_input: error writing to rtdb', 2750, RTDB_ERR)
