@@ -386,7 +386,10 @@ c
       logical file_write_ga_patch
       external file_write_ga_patch
 c
-      call ga_sync
+c     file_write_ga_patch does a ga_sync immediately upon entry, 
+c     so this call is unnecessary
+c
+c      call ga_sync
 c
       ccsd_write_restart = 
      $     file_write_ga_patch(t2file,g_t2,offt2+1,offt2+lhoov,1,nvir+1)
