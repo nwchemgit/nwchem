@@ -2870,6 +2870,8 @@ c         end do
               do nu= 1,3
                termgg = -3.d0*gvec(mu)*gvec(nu)/gg
                if (mu == nu) termgg = 1.d0 + termgg
+
+               !**** extra factor of 2 needed because its an integral ****
                efg_ion(mu,nu,ii) = efg_ion(mu,nu,ii) 
      &                           + 2.0d0*qj*cosphase*termgg*expfac
               end do
