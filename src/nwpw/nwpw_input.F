@@ -518,9 +518,8 @@ c
 c
 c  energy_cutoff
 c 
- 2600 if (.not. inp_f(ecut))
-     >     call errquit(
-     >          'nwpw_input: failed to read ndown', 0, INPUT_ERR)
+ 2600 if (.not.inp_f(ecut))
+     > call errquit('nwpw_input: failed to read ecut',0,INPUT_ERR)
       value = rtdb_put(rtdb,'cgsd:ecut',mt_dbl,1,ecut)
      >   .and.rtdb_put(rtdb,'band:ecut',mt_dbl,1,ecut)
      >   .and.rtdb_put(rtdb,'cpsd:ecut',mt_dbl,1,ecut)
