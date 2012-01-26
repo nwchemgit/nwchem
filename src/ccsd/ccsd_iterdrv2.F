@@ -195,8 +195,7 @@ c
 c     Write out the current T1 and T2 for possible restart
 c     (note that T1 is kept at end of T2)
 c
-      if (.not. ccsd_write_restart(t2file, g_t2, 
-     $     nvir, lhoov, offt2))
+      if (.not. ccsd_write_restart(t2file, g_t2, nvir, lhoov, offt2))
      $     call errquit('ccsd: failed saving vector for restart',0,
      &       UNKNOWN_ERR)
 c
@@ -312,13 +311,12 @@ c
       time_prev_iter = nint((util_wallsec() - time_iter_start)*1.2d0)
 c
       if (util_test_time_remaining(rtdb,time_prev_iter)) then
-         goto 99
+        goto 99
       else
-         if (.not. ccsd_write_restart(t2file, g_t2, 
-     $        nvir, lhoov, offt2))
-     $        call errquit('ccsd: failed saving vector for restart',0,
-     &          UNKNOWN_ERR)
-         goto 999
+        if (.not. ccsd_write_restart(t2file, g_t2, nvir, lhoov, offt2))
+     $       call errquit('ccsd: failed saving vector for restart',1,
+     &         UNKNOWN_ERR)
+        goto 999
       endif
 c
  999  continue
