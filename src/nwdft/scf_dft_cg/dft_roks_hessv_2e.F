@@ -52,7 +52,7 @@ c
 c
       double precision Exc(2)
       integer nExc
-      logical xc_gotxc,xc_got2nd
+      logical xc_gotxc,xc_got2nd,rodft
       double precision xc_hfexch
       external xc_gotxc,xc_hfexch,xc_got2nd
 c     
@@ -276,7 +276,12 @@ c
         endif
 c        
 c       include hessian contribution only if second derivatives are available
-        if(xc_got2nd()) then
+c       and if the calculation is not a rodft calculation
+c
+        if (.not. rtdb_get(rtdb, 'dft:rodft', mt_log, 1, rodft))
+     &      rodft = .false.   ! query the rtdb for the type of calculation
+
+        if(xc_got2nd().and. (.not. rodft)) then
            call fock_xc(geom, nbf, basis, jfock, g_dd, g_ff,
      +               Exc, nExc, .true.)
         end if
