@@ -325,10 +325,10 @@ c     >                                   dbl_mb(tmp2(1)))
       real*8   lattice_omega,ion_rion,util_erfc
       external lattice_omega,ion_rion,util_erfc
 
-      sqrt_pi = dsqrt(4.0d0*datan(1.0d0))
-      pi = sqrt_pi*sqrt_pi
-      two_pi = 2.d0*pi
-      four_pi = 4.d0*pi
+      pi = 4.0d0*datan(1.0d0)
+      sqrt_pi  = dsqrt(pi)
+      two_pi   = 2.0d0*pi
+      four_pi  = 4.0d0*pi
 
       call D3dB_nfft3d(1,nfft3d)
       call Pack_npack(0,npack0)
@@ -358,17 +358,17 @@ c     >                                   dbl_mb(tmp2(1)))
       do mu = 1,3
         do nu = 1,3
           do ii=1,nion
-             efg_smoothr(mu,nu,ii) = 0.d0
-             efg_smoothi(mu,nu,ii) = 0.d0
+             efg_smoothr(mu,nu,ii) = 0.0d0
+             efg_smoothi(mu,nu,ii) = 0.0d0
           end do ! ii
         end do ! nu
       end do ! mu
 
       !*** compute (-1/3)gg ***
        do k=1,npack0
-         dbl_mb(tmp1(1)+k-1) = 
-     &    dbl_mb(G(1)+k-1)**2+dbl_mb(G(2)+k-1)**2+dbl_mb(G(3)+k-1)**2
-          dbl_mb(tmp1(1)+k-1) = -dbl_mb(tmp1(1)+k-1)/3.d0
+          dbl_mb(tmp1(1)+k-1) = -( dbl_mb(G(1)+k-1)**2
+     >                           + dbl_mb(G(2)+k-1)**2
+     >                           + dbl_mb(G(3)+k-1)**2)/3.0d0
        end do ! k
 c
        do ii=1,nion
@@ -382,8 +382,10 @@ c
 
             zsum = dcmplx(0.0d0,0.0d0) 
             do k=1,npack0
-              zsum = zsum 
-     >            - 2.0d0*dng(k)*dcpl_mb(exi(1)+k-1)*dbl_mb(tmp2(1)+k-1)
+               zsum = zsum 
+     >              - 2.0d0*dng(k)
+     >                     *dcpl_mb(exi(1)+k-1)
+     >                     *dbl_mb(tmp2(1)+k-1)
             end do
             efg_smoothr(mu,mu,ii) = dble(zsum)
             efg_smoothi(mu,mu,ii) = dimag(zsum)
@@ -396,8 +398,9 @@ c
 
                zsum = dcmplx(0.0d0,0.0d0) 
                do k=1,npack0
-                  zsum = zsum - 2.0d0*dng(k)*dcpl_mb(exi(1)+k-1)
-     >                        *dbl_mb(tmp2(1)+k-1)
+                  zsum = zsum - 2.0d0*dng(k)
+     >                               *dcpl_mb(exi(1)+k-1)
+     >                               *dbl_mb(tmp2(1)+k-1)
                end do
                efg_smoothr(mu,nu,ii) = dble(zsum)
                efg_smoothr(nu,mu,ii) = dble(zsum)
