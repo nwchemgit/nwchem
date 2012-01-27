@@ -211,7 +211,7 @@ c     **********************************************
          write(*,*) 
          write(*,*)  "MetaDynamics parameters:"
          if (dTtempered.gt.0.0d0) then
-            write(*,'(A,5x,F11.6)') "   - Tempered dT =  ",dTtempered
+            write(*,'(A,5x,F11.6)') "   - Tempered dT (K) = ",dTtempered
          end if
          do d=1,nmeta
             s1 = int_mb(sindxmeta(1) +d-1)
@@ -780,6 +780,9 @@ c     **** n-plane ****
 #include "metadynamics.fh"
 
 *     **** local variables ****
+      double precision kb
+      parameter (kb=3.16679d-6)
+
       integer d,i,j(10),s1,s2
       real*8  r0,r,x,w,ww,sigma,v,expv
 
@@ -795,7 +798,7 @@ c     **** n-plane ****
 
          if (dTtempered.gt.0.0d0) then
             v    = meta_energy()
-            expv = dexp(-v/dTtempered)
+            expv = dexp(-v/(kb*dTtempered))
          else
             v    = 0.0d0
             expv = 1.0d0
@@ -976,21 +979,33 @@ c     **********************************************
       parameter (MASTER=0)
 
       integer d,i,j(10)
-      real*8  x(10),r,v,dv(10)
+      real*8  x(10),r,v,dv(10),fac,temp
       character*80 filename
       character*255 full_filename
 
 *     **** external functions ****
+      logical  control_Nose
+      external control_Nose
       character*7 c_index_name
       external    c_index_name
-      real*8   nwpw_interp
-      external nwpw_interp
+      real*8   nwpw_interp,control_Nose_Tr,ion_Temperature
+      external nwpw_interp,control_Nose_Tr,ion_Temperature
 
       call Parallel_taskid(taskid)
 
       if (metafound) then
 
-*        **** print out potentials ******
+*        **** determine tempered metadynamics factor ****
+         fac = 1.0d0
+         if (dTtempered.gt.0.0d0) then
+            if (control_Nose()) then
+               temp = control_Nose_Tr()
+            else
+               temp = ion_Temperature()
+            end if
+            fac = (temp+dTtempered)/dTtempered
+         end if
+
 
 *        **** print out potentials ******
          if (nmeta.gt.0) then
@@ -1016,7 +1031,7 @@ c     **********************************************
      >                      /dble(int_mb(nxmeta(1)+d-1)-1)
                   end do
                   write(53,'(12F15.6)') 
-     >                 (x(d),d=1,nmeta),dbl_mb(ymeta(1)+i-1)
+     >                 (x(d),d=1,nmeta),dbl_mb(ymeta(1)+i-1)*fac
 
                   j(1) = j(1) + 1
 
@@ -1035,25 +1050,25 @@ c     **********************************************
                close(53)
                
 
-               filename = "test.dat"
-               call util_file_name_noprefix(filename,.false.,
-     >                                      .false.,
-     >                                      full_filename)
-               open(unit=53,file=full_filename,form='formatted')
-               do i=1,501
-                  x(1) = 1.0d0 + (i-1)*8.0d0/501.0d0
-                
-                  v = nwpw_interp(nmeta,int_mb(nxmeta(1)),
-     >                      dbl_mb(ameta(1)),dbl_mb(bmeta(1)),
-     >                      dbl_mb(ymeta(1)),x)
-                  call nwpw_dinterp(nmeta,int_mb(nxmeta(1)),
-     >                        dbl_mb(ameta(1)),dbl_mb(bmeta(1)),
-     >                        dbl_mb(ymeta(1)),x,dv)
-
-                  write(53,'(12F15.6)') x(1),v,dv(1)
-
-               end do
-               close(53)
+c               filename = "test.dat"
+c               call util_file_name_noprefix(filename,.false.,
+c     >                                      .false.,
+c     >                                      full_filename)
+c               open(unit=53,file=full_filename,form='formatted')
+c               do i=1,501
+c                  x(1) = 1.0d0 + (i-1)*8.0d0/501.0d0
+c                
+c                  v = nwpw_interp(nmeta,int_mb(nxmeta(1)),
+c     >                      dbl_mb(ameta(1)),dbl_mb(bmeta(1)),
+c     >                      dbl_mb(ymeta(1)),x)
+c                  call nwpw_dinterp(nmeta,int_mb(nxmeta(1)),
+c     >                        dbl_mb(ameta(1)),dbl_mb(bmeta(1)),
+c     >                        dbl_mb(ymeta(1)),x,dv)
+c
+c                  write(53,'(12F15.6)') x(1),v,dv(1)
+c
+c               end do
+c               close(53)
 
             end if
          end if
