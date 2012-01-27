@@ -1,0 +1,109 @@
+NWChem Version 6.1 Release Notes
+
+NOTE: These release notes are not a substitute for reading the User Manual!
+
+They are meant to give a thumbnail sketch of the new capabilities and bug
+fixes that are available in NWChem Version 6.1. When there is a conflict
+between the release notes and the User Manual, the User Manual takes
+precedence. 
+
+NWChem 6.1 is released as open-source under the ECL 2.0 license.
+
+NWChem 6.1 will be released with the latest Global Arrays Toolkit (GA-5.1).
+
+NEW FUNCTIONALITY 
+
+High accuracy
+
+    * New Active.space non-iterative methods
+    * New improved Equation-of-Motion solvers for excited states
+    * Restart capabilities added
+    * Improved iterative performance 
+
+Gaussian basis DFT & TDDFT
+
+    * New density functionals (LC-wPBE,LC-wPBEh,BHLYP)
+    * Analytical Hessians for open-shell systems
+    * Core states with TDDFT
+    * TDDFT with scalar ZORA
+    * Finite nucleus ZORA calculations
+    * Proper restart for Davidson procedure in TDDFT
+    * Spin-density initialization DFT in general
+    * Quadratic-convergence DFT
+    * DFT-D3 implementation
+    * Extension of SMEAR directive controlling Sz 
+
+Plane-wave DFT and dynamics
+
+    * Unit cell geometry optimization
+    * Meta-dynamics plane wave module
+    * WHAM method plane wave module
+    * Hybrid DFT Exchange HSE plane wave
+    * New DFT functionals (need a list here)
+    * Spin-density initialization DFT in general
+    * Auto-restart CPMD
+    * Automatic generation of g(r) CPMD
+    * Born-Oppenheimer MD
+    * Parallel I/O for large processor counts
+    * k-point parallelization
+    * String method
+    * PAW/PSPW/Band integration
+    * Full PSPW Pseudopotential set 
+
+Properties
+
+    * (Para)magnetic NMR with scalar ZORA (experimental)
+    * Electric field gradients with scalar ZORA (Z4)
+    * Optical rotation
+    * Raman spectra
+    * Range separated functionals with NMR properties
+    * Plane-wave EFG (experimental)
+    * ESP for spherical basis sets 
+
+Molecular Dynamics
+
+    * Multiple ensemble MD 
+
+Input
+
+    * Support for all space groups
+    * CAR reader
+    * PDB reader
+    * XYZ reader 
+
+Other
+
+    * New implementation CCCA
+    * All basis sets from BSE
+    * Dihedral constraints for optimizations
+    * Various new QM/MM features
+    * Embedding charges via bq_charges file (format: Bq x y z charge)
+    * Expanded python scripting functionality 
+
+BUG FIXES 
+
+    * COSMO Rsolve now consistent with standard implementations
+    * ROHF Gradients
+    * Rys-roots hondo integrals for properties for high angular momenta
+    * Origin independence of NMR calculations with COSMO and Bq charges
+    * DFT + D (dispersion) fixes with ECPs
+    * SR and SO-ZORA calculations can now be performed with fragment guesses
+    * Reduced memory footprint with Bq gradient
+    * Proper handling of ECP core in initial guess
+    * Performance improvement CPHF
+    * Avoiding zero length arrays for 1 electron calculations
+    * Constrained DFT the code tests for valid atoms
+    * Fixed xc_active parameter in the runtime database
+    * Reduced the output from the Mulliken analysis in the property module
+    * Use of ga_initialize_ltd to address memory management problems
+    * BSSE code now always uses sensible masses
+    * Fixed logic of ATOM directive in prepare module
+    * Fixed basis set input trying to close an undefined file unit number
+    * Fixed an uninitialized variable problem in the VS98 correlation functional
+    * Fixed a problem with not creating a GA if no electrons exist in a spin-channel movecs_print_anal
+    * Fixed density functionals handling small and even slightly negative densities
+    * Fixed a file name dimension to avoid truncation
+    * Proper handling of combinations of AO and fitting basis sets (such a mixing Cartesian and Spherical Harmonics)
+    * Removed Fortran STOP statements from the integral code
+    * Added an extra check on Z-matrix lines to trap instances where the same atom is referred to twice
+    * Fixed the memory usage of the direct MP2 
