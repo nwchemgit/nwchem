@@ -116,6 +116,10 @@ c
 c    *** extra tetragonal groups ***
 c      data (sym_spgnames(i),i=???,???)/
 c     & /
+c
+c    *** extra trigonal groups ***
+c      data (sym_spgnames(i),i=???,???)/
+c     & /
 
 c--> names of the 3-dimensional space groups, without _ for car files
 c
