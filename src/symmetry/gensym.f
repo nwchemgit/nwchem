@@ -69,11 +69,13 @@ C$Id$
       logical oprint
       double precision s_vec(max_gen,3)
       data kpos/' 2',' 3',' 4',' 6',' 1'/,kneg/'-1','-6','-4','-3',' m'/
+
 c
 c-->call spgen with correct system type flag to make generators
 c
-      call spgen(itype,numgrp,numset,gens,cntvec,ngen,numvec,
-     $     group_name,max_gen,s_vec,oprint)
+         call spgen(itype,numgrp,numset,gens,cntvec,ngen,numvec,
+     $              group_name,max_gen,s_vec,oprint)
+
 c
 c-----------------------------------------------------------------------
 c

@@ -12,6 +12,7 @@ HEADERS = sym.fh ../NWints/auxil/spcartP.fh
 
 OBJ =     dosymops.o \
           gensym.o \
+          gensym_extra.o \
           sym_vec_sym.o \
           ludcmp.o \
           mprint.o \

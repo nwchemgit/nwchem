@@ -59,8 +59,15 @@ c
 c    generate symmetry operators for whatever group (crystals, surfaces
 c    polymers or molecules) have been requested.
 c
-      call gensym(itype,numgrp,numset,sym_ops(1,1,geom),
-     $     nops,oprint, group_name(geom))
+      if ((itype.eq.3).and.(numgrp.gt.230)) then
+          !write(*,*) "generating unsual groups"
+          call gensym_extra(itype,numgrp,numset,sym_ops(1,1,geom),
+     $                      nops,oprint, group_name(geom))
+      else
+         call gensym(itype,numgrp,numset,sym_ops(1,1,geom),
+     $               nops,oprint, group_name(geom))
+      end if
+
 c
 c     scratch space needed by dosymops: tags, coordinates
 c     space on stack: pointer list, points to the assymetric (distinct) atoms
