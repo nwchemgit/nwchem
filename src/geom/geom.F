@@ -62,51 +62,57 @@ c
 c
 c--> names of the extra 3-dimensional space groups
 c
-c    *** extra triclinic groups ***
+c     *** extra triclinic groups ***
       data (sym_spgnames(i),i=231,240)/
      & 'A1', 'B1', 'C1', 'F1', 'I1',
      & 'A-1','B-1','C-1','F-1','I-1'/
 c
-c    *** extra monoclinic groups ***
-c      data (sym_spgnames(i),i=241,???)/
+c     *** extra monoclinic groups - 45 groups - y-axis unique***
+c      data (sym_spgnames(i),i=241,285)/
 c     & 'P121', 'B121', 
 c     & 'P12_11', 'B12_11',
 c     & 'C121','A121',I121','F121',
 c     & 'P1m1','B1m1',
-c     & 'P1c1',
-c     & 'C1m1',
-c     & 'C1c1',
-c     & 'P12/m1',
-c     & 'P12/m1',
-c     & 'P12_1/m1',
-c     & 'C12/m1',
-c     & 'P12/c1',
-c     & 'P12_1/c1',
-c     & 'C12/c1',
-c     & 'P112',
-c     & 'P112_1',
-c     & 'A112',
-c     & 'P11m',
-c     & 'A11m',
-c     & 'A11a',
-c     & 'P112/m',
-c     & 'P112_1/m',
-c     & 'A112/m',
-c     & 'P112/a',
-c     & 'P112_1/a',
-c     & 'A112/a',
-c     & 'P211',
-c     & 'P2_111',
-c     & 'B211',
-c     & 'Pm11',
-c     & 'Pb11',
-c     & 'Bm11',
-c     & 'Bb11',
-c     & 'P2/m11',
-c     & 'P2_1/m11',
-c     & 'B2/m11',
-c     & 'P2/b11',
-c     & 'P2_1/b11',
+c     & 'P1c1','P1a1','P1n1','B1a1','B1d1',
+c     & 'C1m1','A1m1','I1m1','F1m1',
+c     & 'C1c1','A1a1','I1a1','F1d1'
+c     & 'P12/m1','B12/m1',
+c     & 'P12_1/m1','B12_1/m1',
+c     & 'C12/m1','A12/m1','I12/m1','F12/m1',
+c     & 'P12/c1','P12/a1','P12/n1','B12/a1','B12/d1',
+c     & 'P12_1/c1','P12_1/a1','P12_1/n1','B12_1/a1','B12_1/d1',
+c     & 'C12/c1','A12/a1','I12/a1','F12/d1'/
+c
+c     *** extra monoclinic groups - 45 groups - z-axis unique ***
+c      data (sym_spgnames(i),i=286,330)/
+c     & 'P112','C112',
+c     & 'P112_1','C112_1',
+c     & 'A112','B112','I112','F112',
+c     & 'P11m','C11m',
+c     & 'P11a','P11b','P11n','C11a','C11d',
+c     & 'A11m','B11m','I11m','F11m',
+c     & 'A11a','B11b','I11a','F11d',
+c     & 'P112/m','C112/m'
+c     & 'P112_1/m','C112_1/m'
+c     & 'A112/m','B112/m','I112/m','F112/m',
+c     & 'P112/a','P112/b','P112/n','C112/a','C112/d'
+c     & 'P112_1/a','P112_1/b','P112_1/n','C112_1/a','C112_1/d',
+c     & 'A112/a','B112/b','I112/a','F112/d'/
+c
+c     *** extra monoclinic groups - 45 groups - x-axis unique ***
+c      data (sym_spgnames(i),i=331,375)/
+c     & 'P211','A211',
+c     & 'P2_111','A2_111',
+c     & 'B211','C211','I211','F211',
+c     & 'Pm11','Am11',
+c     & 'Pb11','Pc11','Pn11','Ab11','Ad11',
+c     & 'Bm11','Cm11','Im11','Fm11',
+c     & 'Bb11','Cc11','Ib11','Fd11',
+c     & 'P2/m11','A2/m11',
+c     & 'P2_1/m11','A2_1/m11',
+c     & 'B2/m11','C2/m11','I2/m11','F2/m11',
+c     & 'P2/b11','P2/c11','P2/n11','A2/b11','A2/d11',
+c     & 'P2_1/b11','P2_1/c11','P2_1/n11','A2_1/b11','A2_1/d11',
 c     & 'B2_1/b11','C2/c11','I2/b11','F2/d11'/
 c
 c    *** extra orthorhombic groups ***
