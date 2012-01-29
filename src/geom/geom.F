@@ -62,11 +62,61 @@ c
 c
 c--> names of the extra 3-dimensional space groups
 c
-c    *** extra triclinic cells ***
+c    *** extra triclinic groups ***
       data (sym_spgnames(i),i=231,240)/
      & 'A1', 'B1', 'C1', 'F1', 'I1',
      & 'A-1','B-1','C-1','F-1','I-1'/
 c
+c    *** extra monoclinic groups ***
+c      data (sym_spgnames(i),i=241,???)/
+c     & 'P121', 'B121', 
+c     & 'P12_11', 'B12_11',
+c     & 'C121','A121',I121','F121',
+c     & 'P1m1','B1m1',
+c     & 'P1c1',
+c     & 'C1m1',
+c     & 'C1c1',
+c     & 'P12/m1',
+c     & 'P12/m1',
+c     & 'P12_1/m1',
+c     & 'C12/m1',
+c     & 'P12/c1',
+c     & 'P12_1/c1',
+c     & 'C12/c1',
+c     & 'P112',
+c     & 'P112_1',
+c     & 'A112',
+c     & 'P11m',
+c     & 'A11m',
+c     & 'A11a',
+c     & 'P112/m',
+c     & 'P112_1/m',
+c     & 'A112/m',
+c     & 'P112/a',
+c     & 'P112_1/a',
+c     & 'A112/a',
+c     & 'P211',
+c     & 'P2_111',
+c     & 'B211',
+c     & 'Pm11',
+c     & 'Pb11',
+c     & 'Bm11',
+c     & 'Bb11',
+c     & 'P2/m11',
+c     & 'P2_1/m11',
+c     & 'B2/m11',
+c     & 'P2/b11',
+c     & 'P2_1/b11',
+c     & 'B2_1/b11','C2/c11','I2/b11','F2/d11'/
+c
+c    *** extra orthorhombic groups ***
+c      data (sym_spgnames(i),i=???,???)/
+c     & /
+c
+c    *** extra tetragonal groups ***
+c      data (sym_spgnames(i),i=???,???)/
+c     & /
+
 c--> names of the 3-dimensional space groups, without _ for car files
 c
       data (sym_carnames(i),i=1,95) /
