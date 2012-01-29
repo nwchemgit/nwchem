@@ -1584,7 +1584,7 @@ c
                      status = inp_match(46,.false.,test,sym_molgnames,
      $                    group_number(geom))
                   else
-                     status = inp_match(230,.false.,test,sym_spgnames,
+                     status = inp_match(240,.false.,test,sym_spgnames,
      $                 group_number(geom))
                   endif
                   if (.not. status)

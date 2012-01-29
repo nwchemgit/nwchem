@@ -38,7 +38,8 @@ c     include_bqbq(geom) = include bqbq interactions for this molecule
 c
 c--> symmetry information
 c
-c     sym_sgpnames(1:230) = list of known space groups ... must match spgen
+c     sym_spgnames(1:230) = list of known space groups ... must match spgen
+c     sym_spgnames(1:240) = list of known space groups +extra space groups ... 1:230 must match spgen
 c     sym_mgpnames(1:46)  = list of known molecular groups ... ditto
 c     ncenter_unique(1:max_geom) = no. of symmetry unique centers
 c     unique_cent(1:max_cent,1:max_geom) = list of symmetry unique centers
@@ -222,7 +223,7 @@ c
      $     tags(max_cent, max_geom),
      $     group_name(max_geom),
      $     user_units(max_geom),
-     $     sym_spgnames(230),
+     $     sym_spgnames(240),
      $     sym_carnames(230),
      $     sym_molgnames(46),
      $     zmt_varname(max_izmat,max_geom),

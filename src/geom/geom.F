@@ -60,6 +60,13 @@ c
      & 'Pm-3m','Pn-3n','Pm-3n','Pn-3m','Fm-3m',
      & 'Fm-3c','Fd-3m','Fd-3c','Im-3m','Ia-3d'/
 c
+c--> names of the extra 3-dimensional space groups
+c
+c    *** extra triclinic cells ***
+      data (sym_spgnames(i),i=231,240)/
+     & 'A1', 'B1', 'C1', 'F1', 'I1',
+     & 'A-1','B-1','C-1','F-1','I-1'/
+c
 c--> names of the 3-dimensional space groups, without _ for car files
 c
       data (sym_carnames(i),i=1,95) /
@@ -111,6 +118,7 @@ c
      & 'F-43m','I-43m','P-43n','F-43c','I-43d',
      & 'Pm-3m','Pn-3n','Pm-3n','Pn-3m','Fm-3m',
      & 'Fm-3c','Fd-3m','Fd-3c','Im-3m','Ia-3d'/
+
 c
 c--> names of the molecular point groups
 c
@@ -1322,13 +1330,15 @@ c
          geom_group_set = inp_match(46,.false.,group,sym_molgnames,
      $        group_number(geom))
       else
-         geom_group_set = inp_match(230,.false.,group,sym_spgnames,
+         geom_group_set = inp_match(240,.false.,group,sym_spgnames,
      $        group_number(geom))
+
 c        try car file style names
          if (.not. geom_group_set ) then
             geom_group_set = inp_match(230,.false.,group,sym_carnames,
      $        group_number(geom))
          endif
+
       endif
 c
       end
