@@ -685,10 +685,10 @@ c LC-BNL 2007 Exchange
 c
       if (abs(xfac(38)).gt.eps)then
        if (.not. do_2nd) then
-        call xc_rodaes_erf(tol_rho, xfac(38), lxfac(38), nlxfac(38), 
+        call xc_bnl(tol_rho, xfac(38), lxfac(38), nlxfac(38), 
      &    rho, Amat, nq, ipol, Ex, qwght, ldew, func)
        else
-        call xc_rodaes_erf_d2(tol_rho, xfac(38), lxfac(38), nlxfac(38), 
+        call xc_bnl_d2(tol_rho, xfac(38), lxfac(38), nlxfac(38), 
      &    rho, Amat, Amat2, nq, ipol, Ex, qwght, ldew, func)
        endif
       endif

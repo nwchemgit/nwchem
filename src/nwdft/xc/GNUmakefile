@@ -12,7 +12,7 @@ HEADERS = xc.fh xc_vdw.fh xc_params.fh
 	setACmat.o \
 	xc_becke88.o \
 	xc_dirac.o \
-	xc_rodaes_erf.o \
+	xc_bnl.o \
 	xc_dirac_screened.o \
 	xc_fitv.o \
 	xc_hfexch.o\

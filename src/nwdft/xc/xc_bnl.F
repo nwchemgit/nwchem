@@ -9,12 +9,12 @@ c     R. Baer, D. Neuhauser, Phys. Rev. Lett., 94, 043002 (2005)
 c     -----------------------------------------------------------------------
 c
 #ifndef SECOND_DERIV
-      subroutine xc_rodaes_erf(tol_rho, fac, lfac, nlfac, rho, Amat, nq,
+      subroutine xc_bnl(tol_rho, fac, lfac, nlfac, rho, Amat, nq,
      &                    ipol, Ex, qwght, ldew, func)
 #else
 c     For locations of 2nd derivatives of functionals in array
 #include "dft2drv.fh"
-      subroutine xc_rodaes_erf_d2(tol_rho, fac, lfac, nlfac, rho, Amat,
+      subroutine xc_bnl_d2(tol_rho, fac, lfac, nlfac, rho, Amat,
      &                       Amat2, nq, ipol, Ex, qwght, ldew, func)
 #endif
 c
@@ -52,11 +52,7 @@ c     Preliminaries
 c     -----------------------------------------------------------------------
 c
       gamma = cam_omega
-
-c      write(luout,*) "In xc_rodaes_erf"
-c      write(luout,*) "cam_omega:",cam_omega
-c      write(luout,*) "gamma:",gamma
-
+c
       do n = 1,nq
          if (ipol.eq.1) then   ! spin-restricted
             rA(n) = rho(n,1)
@@ -125,7 +121,7 @@ c
 #ifndef SECOND_DERIV
 #define SECOND_DERIV
 c
-#include "xc_rodaes_erf.F"
+#include "xc_bnl.F"
 c
 c     ---------------------------------------------------------------------------------------
 c     Utility functions
@@ -420,4 +416,4 @@ c
       end
 c
 #endif
-c $Id$
+c $Id: xc_bnl.F 21176 2011-10-10 06:35:49Z d3y133 $
