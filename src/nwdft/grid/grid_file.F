@@ -197,7 +197,7 @@ c
 #else
             ierr=-1
             if(grid_ptsalloc(fd,eaf_size_in_dbl,
-     C           actualname))ierr=0
+     C           'gridpts'))ierr=0
 #endif
          if (ierr .ne. 0) then
             call eaf_errmsg(ierr,errmsg)
@@ -394,7 +394,7 @@ c
 #else
             ierr=-1
             if(grid_ptsalloc(fd,eaftype-1000000,
-     C           actualname)) ierr=0
+     C           'gridpts')) ierr=0
 #endif
          if(ierr.ne.0)  call 
      E        errquit('grid_pckbufw: eaf_open failed', 0,
