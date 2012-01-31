@@ -2,5 +2,5 @@ c
 c     Common for xc parameters 
 c
       integer numfunc
-      parameter(numfunc=51) 
+      parameter(numfunc=58) 
 c $Id$

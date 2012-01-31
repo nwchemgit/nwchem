@@ -54,7 +54,7 @@ ifeq ($(TARGET),cray-sv2)
 endif
 
 
-   USES_BLAS = xc_fitv.F xc_dirac.F xc_rodaes_erf.F xc_att_xc.F xc_tabcd.F xc_rhogen.F \
+   USES_BLAS = xc_fitv.F xc_dirac.F xc_bnl.F xc_att_xc.F xc_tabcd.F xc_rhogen.F \
                xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
                xc_eval_basis.F xc_fd.F xc_optc.F xc_atomblock.F scat_mat.F \
                xc_replicated.F xc_vdw_main.F xc_vdw_util.F xc_vdw.F
