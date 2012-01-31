@@ -63,6 +63,9 @@ c
          if (.not. task_gradient(rtdb))
      $        call errquit('driver: task_gradient failed',0, GEOM_ERR)
          call opt_get_grad(rtdb,geom) ! Into gx
+         if (ostress2) then
+           call sym_lattice_stress2(geom,gx(nat_real*3+1))
+         endif
          if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, energy))
      $        call errquit('driver: could not get energy',0, RTDB_ERR)
 c
@@ -1621,6 +1624,7 @@ c
      $     l_hess, k_hess)) call errquit
      $     ('driver_search_dir: memory for hessian',nvar**2, MA_ERR)
       call driver_project_hess_grad(dbl_mb(k_hess), pg)
+      if (ostress2) call sym_lattice_stress2(geom,pg(3*nat_real+1))
 c
 c     Diagonalize the Hessian.  Should really do the generalized
 c     eigenvalue problem since the underlying basis is not independent
@@ -2848,7 +2852,7 @@ c
      $     g, 1, 0d0, pg, 1)
       if (odebug) then
          write(6,*) ' Gradient after projection'
-         call doutput(g, 1, nvar, 1, 1, nvar, 1, 1)
+         call doutput(pg, 1, nvar, 1, 1, nvar, 1, 1)
       endif
 c
 c     PHP + 1000*(1-P)
@@ -3729,6 +3733,11 @@ c
       if (.not. task_gradient(rtdb))
      $     call errquit('driver: task_gradient failed',0,0)
       call opt_get_grad(rtdb,geom) ! Into gx
+
+      if (ostress2) then
+        call sym_lattice_stress2(geom,gx(nat_real*3+1))
+      endif
+
       if (.not. rtdb_get(rtdb,'task:energy', mt_dbl, 1, e0))
      $     call errquit('driver: could not get energy',0,0)
 
