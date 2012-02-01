@@ -91,7 +91,9 @@ c
       if (bgj_have_j_fit()) then
         nbases = 2
         bases(2) = bgj_CD_bas_han()
-        write(*,*) __FILE__,': bases',bases
+        if (ga_nodeid().eq.0) then
+          write(LuOut,*) __FILE__,': bases',bases
+        endif
       endif
       call int_init(rtdb,nbases,bases)
       call schwarz_init(geom, basis)
