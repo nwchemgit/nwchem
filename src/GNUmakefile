@@ -131,7 +131,7 @@ realclean:
 	done
 	-$(RM) $(LIBDIR)/*.a $(BINDIR)/*
 	-$(RM) *.db movecs fort.41 fort.44
-	-$(RM) 64_to_32 32_to_64
+	@# -$(RM) 64_to_32 32_to_64 # This conversion is such a hassle that realclean should not force it.
 
 .PHONY:	cleanF
 cleanF:
