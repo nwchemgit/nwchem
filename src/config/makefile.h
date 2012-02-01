@@ -879,8 +879,12 @@ ifeq ($(TARGET),IBM64)
 # tested on ecs1 May 10 2000 AIX 4.3.3.10
 # does not run on AIX  4.3.2.1 (skunkworks)
 #
-
-    CORE_SUBDIRS_EXTRA = lapack blas
+   ifeq ($(LAPACK_LIB),)
+      CORE_SUBDIRS_EXTRA += lapack
+   endif
+   ifeq ($(BLAS_LIB),)
+      CORE_SUBDIRS_EXTRA += blas
+   endif
          FC = xlf
          ifeq ($(FC),xlf)
            _FC=xlf
@@ -927,7 +931,13 @@ endif
   endif
   LDOPTIONS += -bloadmap:nwchem.ibm64map -bbigtoc
   LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed because of bigtoc
-   CORE_LIBS += -llapack $(BLASOPT) -lblas
+  ifeq ($(LAPACK_LIB),)
+     CORE_LIBS += -llapack
+  endif
+  CORE_LIBS += $(BLASOPT)
+  ifeq ($(BLAS_LIB),)
+     CORE_LIBS += -lblas
+  endif
   XLFBREN = y
 
 
@@ -1246,16 +1256,21 @@ ifeq ($(TARGET),MACX64)
 # MacOSX 64bit
 #
 ifdef USE_VECLIB
-ifdef USE_64TO32
-   CORE_SUBDIRS_EXTRA =
+   ifdef USE_64TO32
+      CORE_SUBDIRS_EXTRA =
+   else
+      vecliberr:
+		@echo The Apple supplied vector math library does not support 8-byte integers
+		@echo You must also set USE_64TO32 and do a "make 64_to_32" to change the source code
+		@exit 1
+   endif
 else
-vecliberr:
-	@echo The Apple supplied vector math library does not support 8-byte integers
-	@echo You must also set USE_64TO32 and do a "make 64_to_32" to change the source code
-	@exit 1
-endif
-else
-    CORE_SUBDIRS_EXTRA =  blas lapack
+   ifeq ($(BLAS_LIB),)
+      CORE_SUBDIRS_EXTRA += blas
+   endif
+   ifeq ($(LAPACK_LIB),)
+      CORE_SUBDIRS_EXTRA += lapack
+   endif
 endif
                _CPU = $(shell machine  )
                     FC = gfortran
@@ -1287,7 +1302,13 @@ endif
 ifdef USE_VECLIB
              CORE_LIBS += $(BLASOPT)  -Wl,-framework -Wl,vecLib -lblas
 else
-             CORE_LIBS +=   -llapack $(BLASOPT)  -lblas
+   ifeq ($(LAPACK_LIB),)
+      CORE_LIBS += -llapack
+   endif
+   CORE_LIBS +=    $(BLASOPT)
+   ifeq ($(BLAS_LIB),)
+      CORE_LIBS += -lblas
+   endif
 endif
   _GCC4= $(shell gcc -v  2>&1|egrep spec|head -n 1|awk ' / 3./  {print "N";exit}; / 2./ {print "N";exit};{print "Y"}')
     ifeq ($(_GCC4),Y) 
@@ -1602,7 +1623,12 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
        DEFINES  += -DEXT_INT
   MAKEFLAGS = -j 1 --no-print-directory
      _CPU = $(shell uname -m  )
-     CORE_SUBDIRS_EXTRA = blas lapack
+     ifeq ($(BLAS_LIB),)
+       CORE_SUBDIRS_EXTRA += blas
+     endif
+     ifeq ($(LAPACK_LIB),)
+       CORE_SUBDIRS_EXTRA += lapack
+     endif
      RANLIB = echo
      DEFINES   +=   -DLINUX -DLINUX64
      ifeq ($(_CPU),alpha)
@@ -2212,7 +2238,12 @@ endif
 ifdef BLASOPT
        CORE_LIBS +=  $(BLASOPT) 
 endif
-      CORE_LIBS +=  -llapack  -lblas 
+ifeq ($(LAPACK_LIB),)
+      CORE_LIBS +=  -llapack 
+endif
+ifeq ($(BLAS_LIB),)
+      CORE_LIBS +=  -lblas 
+endif
 
 
 ifdef USE_SUBGROUPS

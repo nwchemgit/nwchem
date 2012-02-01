@@ -114,13 +114,13 @@ function usage()
  to have the same value, either 4 or 8, to successfully build NWChem.
 
  Huub van Dam
- \$Id: build_nwchem 21766 2012-01-12 18:12:33Z d3y133 $
+ \$Id: build_nwchem 21881 2012-01-27 00:03:59Z d3y133 $
 EOF
 }
 declare -a LIST_COMPFLAGS
 declare -a LIST_LINLIBS
 LIST_COMPFLAGS=( ' ' '-q64' )
-LIST_LINLIBS=( '-lmkl' '-lacml' '-lcxml' '-lscs' '-lcomplib.sgimath' '-lsunmath' '-latlas' '-lgoto' '-lessl' '-lscalapack' '-llapack' '-lcblas' '-lblas' '-lf77blas' )
+LIST_LINLIBS=( '-lmkl' '-lacml' '-lcxml' '-lscs' '-lcomplib.sgimath' '-lsunmath' '-latlas' '-lgoto' '-lessl' '-lscalapack' '-llapack' '-lcblas' '-lblas' '-lf77blas' '-framework Accelerate' )
 export LIST_COMPFLAGS
 export LIST_LINLIBS
 function get_mpi_include ()
@@ -491,7 +491,11 @@ function get_blas_lib()
        return
    fi
    lib=""
-   for candidate in ${LIST_LINLIBS} ; do
+   length=${#LIST_LINLIBS[*]}
+   indx=0
+   while [ "${indx}" -lt "${length}" ] ; do
+     candidate="${LIST_LINLIBS[${indx}]}"
+     ((indx++))
      # echo "blas: trying ${candidate}" > /dev/stderr
      if [ "${blasopt}" != "0" ] ; then
        candidate="${blasopt}"
@@ -518,7 +522,7 @@ function get_blas_lib()
          result=$?
          if [ ${result} -eq 0 ] ; then
            # This library worked so we will go with this
-           lib=${candidate}
+           lib="${candidate}"
            # echo "blas: found ${lib}" > /dev/stderr
          fi
          rm -f ./testblas$$.x
@@ -600,7 +604,11 @@ function get_lapack_lib()
    blas=$2
    blasopt=$3
    lib=""
-   for candidate in ${LIST_LINLIBS} ; do
+   length=${#LIST_LINLIBS[*]}
+   indx=0
+   while [ "${indx}" -lt "${length}" ] ; do
+     candidate="${LIST_LINLIBS[${indx}]}"
+     ((indx++))
      # echo "lapack: trying ${candidate}" > /dev/stderr
      if [ "${blasopt}" != "0" ] ; then
        candidate="${blasopt}"
@@ -625,7 +633,7 @@ function get_lapack_lib()
          result=$?
          if [ ${result} -eq 0 ] ; then
            # This library worked so we will go with this
-           lib=${candidate}
+           lib="${candidate}"
            # echo "lapack: found ${lib}" > /dev/stderr
          fi
          rm -f ./testlapack$$.x
@@ -705,7 +713,11 @@ function get_scalapack_lib()
        return
    fi
    lib=""
-   for candidate in ${LIST_LINLIBS} ; do
+   length=${#LIST_LINLIBS[*]}
+   indx=0
+   while [ "${indx}" -lt "${length}" ] ; do
+     candidate="${LIST_LINLIBS[${indx}]}"
+     ((indx++))
      # echo "lapack: trying ${candidate}" > /dev/stderr
      if [ "${blasopt}" != "0" ] ; then
        candidate="${blasopt}"
@@ -733,7 +745,7 @@ function get_scalapack_lib()
          result=$?
          if [ ${result} -eq 0 ] ; then
            # This library worked so we will go with this
-           lib=${candidate}
+           lib="${candidate}"
            # echo "lapack: found ${lib}" > /dev/stderr
          fi
          rm -f ./testscalapack$$.x
@@ -1038,7 +1050,50 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
   fi
 fi
 if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
-  export ARMCI_NETWORK="MPI-MT"
+  echo "#include \"stdio.h\""                                         >  ./mpi_threads$$.c
+  echo "#include \"mpi.h\""                                           >> ./mpi_threads$$.c
+  echo "int main(int argc, char **argv)"                              >> ./mpi_threads$$.c
+  echo "{"                                                            >> ./mpi_threads$$.c
+  echo "   int required = MPI_THREAD_MULTIPLE;"                       >> ./mpi_threads$$.c
+  echo "   int provided;"                                             >> ./mpi_threads$$.c
+  echo "   int result;"                                               >> ./mpi_threads$$.c
+  echo "   result = MPI_Init_thread(&argc,&argv,required,&provided);" >> ./mpi_threads$$.c
+  echo "   if (provided == MPI_THREAD_MULTIPLE) {"                    >> ./mpi_threads$$.c
+  echo "     printf(\"multithreaded\n\");"                            >> ./mpi_threads$$.c
+  echo "   } else if (provided == MPI_THREAD_SERIALIZED) {"           >> ./mpi_threads$$.c
+  echo "     printf(\"serialthreaded\n\");"                           >> ./mpi_threads$$.c
+  echo "   } else if (provided == MPI_THREAD_FUNNELED) {"             >> ./mpi_threads$$.c
+  echo "     printf(\"funnelthreaded\n\");"                           >> ./mpi_threads$$.c
+  echo "   } else if (provided == MPI_THREAD_SINGLE) {"               >> ./mpi_threads$$.c
+  echo "     printf(\"singlethreaded\n\");"                           >> ./mpi_threads$$.c
+  echo "   } else {"                                                  >> ./mpi_threads$$.c
+  echo "     result = 1;"                                             >> ./mpi_threads$$.c
+  echo "   }"                                                         >> ./mpi_threads$$.c
+  echo "   result = result || MPI_Finalize();"                        >> ./mpi_threads$$.c
+  echo "   return result;"                                            >> ./mpi_threads$$.c
+  echo "}"                                                            >> ./mpi_threads$$.c
+  mpicc -o ./mpi_threads$$.x ./mpi_threads$$.c
+  result=$?
+  if [ ${result} -ne 0 ] ; then
+    # Compiling with multi-threaded support did not work, so no hope here
+    export ARMCI_NETWORK=""
+  else
+    output=`./mpi_threads$$.x`
+    result=$?
+    if [ ${result} -ne 0 ] ; then
+      # Testing multi-threaded support did not work, so hope for the best
+      # (the sysadmin may have blocked MPI applications from running
+      #  interactively, we hope that systems with such rigorous controls have
+      #  advanced MPI libraries...)
+      export ARMCI_NETWORK="MPI-MT"
+    else
+      if [ "${output}" == "multithreaded" ] ; then
+        # We have confirmed multi-threaded support!
+        export ARMCI_NETWORK="MPI-MT"
+      fi
+    fi
+  fi
+  rm -f ./mpi_threads$$.x ./mpi_threads$$.c
 fi
 #
 # Below we have to realize that EXPORT is a command. Hence if we use
@@ -1109,7 +1164,7 @@ if [ ${#NWCHEM_OS} -eq 0 ] ; then
     unset NWCHEM_OS
   fi
   if [ ${#NWCHEM_OS} -ne 0 ] ; then
-    if [ ${NWCHEM_OS} == "Darwin" ] ; then
+    if [ ${NWCHEM_OS} == "DARWIN" ] ; then
       export NWCHEM_OS=MACX
     fi
     if [ ${NWCHEM_OS} == "AIX" ] ; then
@@ -1246,6 +1301,9 @@ else
     fi
   fi
 fi
+if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
+  export USE_SCALAPACK=y
+fi
 if [ ${#NWCHEM_EXECUTABLE} -eq 0 ] ; then
   export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem
 fi
@@ -1350,6 +1408,12 @@ if [ "x${option}" != "xrealclean" ]; then
       GA_BLAS="${GA_BLAS} `get_config_value \"BLAS_LIBS\"`"
       GA_BLAS_SIZE=`get_config_value "BLAS_SIZE"`
       export GA_BLAS
+      if [ ${#BLAS_SIZE} -ne 0 ] ; then
+        if [ "${BLAS_SIZE}" != "${GA_BLAS_SIZE}" ] ; then
+          echo "Warning: BLAS_SIZE and GA_BLAS_SIZE do not match " ${BLAS_SIZE} ${GA_BLAS_SIZE}
+          export GA_BLAS_SIZE=${BLAS_SIZE}
+        fi
+      fi
       if [ "${GA_BLAS_SIZE}" == "4" ] ; then
         export USE_64TO32=y
       else
