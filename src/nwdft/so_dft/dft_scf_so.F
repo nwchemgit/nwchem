@@ -204,6 +204,7 @@ c     == zora related ==
       integer g_zora_scale_so(3)
       double precision Ezora_sf
       integer switch_focc
+      logical do_avg_fon
 c
       logical spinor
       logical dft_mem3c
@@ -226,6 +227,11 @@ c
      $        'Neglecting spin-orbit terms', 23, .true.)
          write(LuOut,*)
        endif ! me
+c
+c     do average fractional occupation by default
+      do_avg_fon = .true.
+      if (.not.rtdb_get(rtdb,'dft:avg_fon',mt_log,1,do_avg_fon))
+     &     do_avg_fon = .true.
 c
       call ecce_print_module_entry('dft')
       dft_scf_so = .false.
@@ -738,7 +744,7 @@ c
         
 c       fractional occupations:
         if (fon) then
-c ... jochen: presumably good enough for initial guess. We won't tinker
+c         presumably good enough for initial guess. We won't tinker
 c         with that. later, the fractional occupations
 c         are caluclated explicitly
           anoca = noc(1)
@@ -844,25 +850,10 @@ c
 c     
 c     Form Re and Im of density matrix
 c     
-c ... jochen 10/11: implemented new way of applying 
-c     fractional occupations. See dft_densm.F of the scalar 
-c     branch of the code
+c     applying fractional occupations
 
-c$$$      if (.not.rtdb_get(rtdb,'sodft:fon',mt_log,1,fon))
-c$$$     &    fon = .false.
-c$$$      if (.not.rtdb_get(rtdb,'sodft:nmo_fon',mt_int,1,nmo_fon))
-c$$$     &    nmo_fon = 0
-c$$$      if (.not.rtdb_get(rtdb,'sodft:nel_fon',mt_int,1,nel_fon))
-c$$$     &    nel_fon = 0
-c$$$      nTotOcc = (nTotEl-nel_fon) + nmo_fon 
-c
       nTotOcc = nTotEl  ! if there is no fractional occupation 
       if(fon)then 
-c$$$         avg_fon = dble(nel_fon)/dble(nmo_fon) 
-c$$$         do i = (nTotEl-nel_fon)+1, nTotOcc  
-c$$$            dbl_mb(i-1+k_occ) = avg_fon 
-c$$$         enddo
-
         if (nmo_fon.lt.1) call errquit(
      &     'dft_scf_so:fon nmo_fon <1',
      &     1, INPUT_ERR)
@@ -872,13 +863,13 @@ c$$$         enddo
 
         avg_fon = nel_fon/dble(nmo_fon)
         nTotOcc = ncore_fon + nmo_fon 
-
-c       debug code: 
-c$$$        write (luout,*) 'DEBUG: occupations before applying FON'
-c$$$        do i = 1,nbf_ao
-c$$$          write (luout,*) i, dbl_mb(i-1+k_occ), dbl_mb(i-1+nbf_ao+k_occ)
-c$$$        end do
-
+c
+c       initialization
+        do i = 1,2*nbf_ao
+          dbl_mb(i-1+k_occ) = 0.d0
+        end do
+c
+c       fully filled molecular orbitals
         ncheck = 0d0
         do i = 1, ncore_fon
           if (i> 2*nbf_ao) call errquit(
@@ -887,22 +878,26 @@ c$$$        end do
           dbl_mb(i-1+k_occ) = 1d0
           ncheck = ncheck + 1d0
         end do
+c
+c       partially filled molecular orbitals
         do i = ncore_fon + 1, ncore_fon + nmo_fon
           if (i> 2*nbf_ao) call errquit(
      &       'dft_densm:fon focc index exceeds 2nbf error 2',
      &       i, INPUT_ERR)
-          dbl_mb(i-1+k_occ) = avg_fon
-          ncheck = ncheck + avg_fon
+c
+          if (do_avg_fon) then
+             dbl_mb(i-1+k_occ) = avg_fon
+          else
+             dbl_mb(i-1+k_occ) = nel_fon
+          end if  ! do_avg_fon
+c
+          ncheck = ncheck + dbl_mb(i-1+k_occ)
         end do
-
+c
         if(abs(ncheck-dble(nTotEl)).gt.1d-3 .and. me.eq.0) then
           write(luout,*) ' frac. electrons ',ncheck,' vs ',nTotEl
         end if
-
-c$$$        write (luout,*) 'DEBUG: occupations AFTER applying FON'
-c$$$        do i = 1,nbf_ao
-c$$$          write (luout,*) i, dbl_mb(i-1+k_occ), dbl_mb(i-1+nbf_ao+k_occ)
-c$$$        end do
+c
       endif ! fon
 c
 c     the fractionally occupied mo's are scaled by the sqrt of the fon
