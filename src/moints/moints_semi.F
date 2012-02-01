@@ -201,14 +201,21 @@ c
 c  Reorder shells by descending shell-length
 c  and group shells by blocksize
 c
-       status = ma_push_get(MT_INT,nsh,'shell order map',
-     $                      l_shmap, k_shmap)
-       status = ma_push_get(MT_INT,nsh,'group lo', l_glo, k_glo )
-       status = ma_push_get(MT_INT,nsh,'group hi', l_ghi, k_ghi)
-       status = ma_push_get(MT_INT,nbf,'basis map',
-     $                      l_bfmap, k_bfmap)
-       status = ma_push_get(MT_INT,nbf,'rev basis map',
-     $                      l_rbfmap, k_rbfmap)
+       status = .true.
+       status = status .and. ma_push_get(MT_INT,nsh,'shell order map',
+     $                                   l_shmap, k_shmap)
+       status = status .and. ma_push_get(MT_INT,nsh,'group lo',
+     $                                   l_glo, k_glo )
+       status = status .and. ma_push_get(MT_INT,nsh,'group hi',
+     $                                   l_ghi, k_ghi)
+       status = status .and. ma_push_get(MT_INT,nbf,'basis map',
+     $                                   l_bfmap, k_bfmap)
+       status = status .and. ma_push_get(MT_INT,nbf,'rev basis map',
+     $                                   l_rbfmap, k_rbfmap)
+       if (.not.status) then
+         call errquit("moints_semi: failed to allocate buffers shorder",
+     $                0,MA_ERR)
+       endif
        call moints_shorder( basis, nsh, nbf, blen, ngrp,
      $                      int_mb(k_glo), int_mb(k_ghi),
      $                      int_mb(k_shmap),
@@ -217,12 +224,21 @@ c
 c  Generate locator and reverse map
 c
        itmp = (nsh*(nsh+1))/2+numnodes
-       status = ma_push_get(MT_INT, (nbf*nbf), 'loc', l_gloc, k_gloc )
-       status = ma_push_get(MT_INT, itmp, 'io', l_ionext, k_ionext )
-       status = ma_push_get(MT_INT, itmp, 'rec len', l_rlen, k_rlen )
+       status = .true.
+       status = status .and. ma_push_get(MT_INT, (nbf*nbf), 'loc',
+     $                                   l_gloc, k_gloc )
+       status = status .and. ma_push_get(MT_INT, itmp, 'io',
+     $                                   l_ionext, k_ionext )
+       status = status .and. ma_push_get(MT_INT, itmp, 'rec len',
+     $                                   l_rlen, k_rlen )
        itmp = (nbf*(nbf+1))/2
        itmp = itmp + mod(itmp,2)
-       status = ma_push_get(MT_INT, itmp, 'rev loc', l_rloc, k_rloc )
+       status = status .and. ma_push_get(MT_INT, itmp, 'rev loc',
+     $                                   l_rloc, k_rloc )
+       if (.not.status) then
+         call errquit("moints_semi: failed to allocate buffers locmap",
+     $                0,MA_ERR)
+       endif
        call ifill(itmp, 0, int_mb(k_rloc), 1 )
        call moints_locmap( basis, nsh, nbf, tol2e, int_mb(k_shmap),
      $                     mxrlen, int_mb(k_gloc), nnbf,
@@ -281,23 +297,23 @@ c
 c  Clean up
 c
        if (.not. ma_pop_stack(l_rlen))
-     $     call errquit('moints: failed to pop', 2, MA_ERR)
+     $     call errquit('moints_semi: failed to pop', 2, MA_ERR)
        if (.not. ma_pop_stack(l_ionext))
-     $     call errquit('moints: failed to pop', 3, MA_ERR)
+     $     call errquit('moints_semi: failed to pop', 3, MA_ERR)
        if (.not. ma_pop_stack(l_gloc))
-     $     call errquit('moints: failed to pop', 4, MA_ERR)
+     $     call errquit('moints_semi: failed to pop', 4, MA_ERR)
        if (.not. ma_pop_stack(l_rbfmap))
-     $     call errquit('moints: failed to pop', 6, MA_ERR)
+     $     call errquit('moints_semi: failed to pop', 6, MA_ERR)
        if (.not. ma_pop_stack(l_bfmap))
-     $     call errquit('moints: failed to pop', 7, MA_ERR)
+     $     call errquit('moints_semi: failed to pop', 7, MA_ERR)
        if (.not. ma_pop_stack(l_ghi))
-     $     call errquit('moints: failed to pop', 8, MA_ERR)
+     $     call errquit('moints_semi: failed to pop', 8, MA_ERR)
        if (.not. ma_pop_stack(l_glo))
-     $     call errquit('moints: failed to pop', 9, MA_ERR)
+     $     call errquit('moints_semi: failed to pop', 9, MA_ERR)
        if (.not. ma_pop_stack(l_shmap))
-     $     call errquit('moints: failed to pop', 10, MA_ERR)
+     $     call errquit('moints_semi: failed to pop', 10, MA_ERR)
        if (.not. ga_destroy(g_kbuf))
-     $      call errquit('moints: failed to destroy g_kbuf',g_kbuf,
+     $      call errquit('moints_semi: failed to destroy g_kbuf',g_kbuf,
      &       GA_ERR)
 c
        if (eaf_close(kunit).ne.0)
