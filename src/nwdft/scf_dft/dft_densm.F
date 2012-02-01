@@ -58,6 +58,7 @@ c
       integer switch_focc  ! FA-02-22-11, for occupations
       logical status       ! FA-02-22-11, for occupations
       logical debug_fon
+      logical no_avg_fon
 c
 c     preliminaries
       sqrtpi=sqrt(acos(-1d0))
@@ -73,9 +74,9 @@ c
         if (rtdb_get(rtdb, 'dft:debugfon', mt_log, 1,
      &     debug_fon)) then
           if (debug_fon .and. me.eq.0)
-     &       write(luout,*) "fon is on ",fon
+     &       write(luout,*) "fractional occupation (fon) is on ",fon
         end if
-c                
+c
 c       average fractional occupations (leading orbitals)
         if (fon) then
           status = dft_checkdg(rtdb,nmo_fon,ncore_fon,nel_fon,
@@ -456,6 +457,7 @@ c
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
+c
       integer rtdb
       integer ipol
       integer nbf
@@ -471,54 +473,75 @@ c
       integer ispin
       double precision ncheck
       logical debug
-      integer ncor
-
+      integer nfilled
+      logical do_avg_fon
+c
       debug = .false.
-      if (rtdb_get(rtdb, 'dft:debugfon', mt_log, 1,
-     &   debug)) continue
-
+      if (rtdb_get(rtdb, 'dft:debugfon', mt_log, 1, debug)) 
+     &     continue
+c
+c     do average fractional occupation by default
+      do_avg_fon = .true.
+      if (.not.rtdb_get(rtdb,'dft:avg_fon',mt_log,1,do_avg_fon))
+     &     do_avg_fon = .true.
+c
       if (me.eq.0 .and. debug) then
         write (luout,*) 'FON: ipol, noc, ntotel',ipol,noc(:),ntotel
+        write (luout,*) 'do_avg_fon: ', do_avg_fon
       end if                    ! debug
 c
       ncheck = 0d0
       do ispin = 1,ipol
-
-        if (nmo_fon(ispin).lt.1) call errquit(
-     &     'dft_densm:fon nmo_fon <1',
-     &     1, INPUT_ERR)
-        if (nel_fon(ispin).lt.0d0) call errquit(
-     &     'dft_scf_so:fon nel_fon <0',
-     &     1, INPUT_ERR)
-
-        avg_fon = nel_fon(ispin)/dble(nmo_fon(ispin))
-        ncor = ncore_fon(ispin)
-        do i = 1,ncor
+        if (nmo_fon(ispin).lt.1) 
+     &     call errquit('dft_densm:fon nmo_fon <1',1, INPUT_ERR)
+        if (nel_fon(ispin).lt.0d0) 
+     &     call errquit('dft_scf_so:fon nel_fon <0',1, INPUT_ERR)
+c
+        avg_fon = nel_fon(ispin)/dble(nmo_fon(ispin))  ! average occupation
+        nfilled = ncore_fon(ispin)  ! number of filled orbitals for each spin
+c
+c       initialize
+        do i = 1,nbf
+          focc(i,ispin) = 0.0
+        end do   
+c
+c       fully filled molecular orbitals
+        do i = 1,nfilled
           if (i>nbf) call errquit(
-     &       'dft_densm:fon focc index exceeds nbf',
-     &       1, INPUT_ERR)
+     &     'dft_densm:fon focc index exceeds nbf',1,INPUT_ERR)
           focc(i,ispin) = 2d0/ipol
           ncheck = ncheck + focc(i,ispin)
+          if (me.eq.0 .and. debug) 
+     &        write(luout,*) i,ispin,focc(i,ispin)
         end do
+c
+c       partially filled molecular orbitals
         do i = 1,nmo_fon(ispin)   
-          if (i+ncor>nbf) call errquit(
-     &       'dft_densm:fon focc index exceeds nbf',
-     &       1, INPUT_ERR)         
-          focc(i+ncor,ispin) = avg_fon
-          ncheck = ncheck + focc(i+ncor,ispin)
+          if (i+nfilled > nbf) call errquit(
+     &     'dft_densm:fon focc index exceeds nbf',1,INPUT_ERR)         
+          if (do_avg_fon) then
+             focc(i+nfilled,ispin) = avg_fon  ! assign average occupation
+          else
+             focc(i+nfilled,ispin) = nel_fon(ispin) ! assign given fractional electron
+          end if ! do_avg_fon
+c
+          ncheck = ncheck + focc(i+nfilled,ispin)
+          if (me.eq.0 .and. debug) 
+     &        write(luout,*) i,ispin,focc(i+nfilled,ispin)
         end do
       end do                    ! ispin
-      
+c
       if (me.eq.0 .and. debug) then
-        write (luout,*) 'FON: focc:',focc(:,1)
+        write(luout,*) 'FON: focc:',focc(:,1)
+        write(luout,*) 'ncheck:' , ncheck
+        write(luout,*) 'ntotel:' , ntotel
       end if   
-
+c
       if(abs(ncheck-dble(ntotel)).gt.1d-3 .and. me.eq.0) then
-c         write(luout,*) ' frac. electrons ',ncheck,' vs ',ntotel
          dft_checkdg=.false.
       else
          dft_checkdg=.true.
       endif
-c      if(me.eq.0) write(luout,'(5x,a)') 'FON applied'
+c
       return
       end
