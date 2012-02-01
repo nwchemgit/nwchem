@@ -14,6 +14,7 @@ Options:
  -h         Print this help
  -s         Print the singlet spectrum  (default)
  -t         Print the triplet spectrum
+ -o         Print the open-shell spectrum
  -u  value  Use value as the units. Must be in [h,eV,kcal/mol]; default eV
 
 Send any errors or additions to Rick Muller, rmuller@sandia.gov.
@@ -23,6 +24,7 @@ defaults = {
     'alpha' : 10000,
     'plot_singlet': True,
     'plot_triplet': False,
+    'plot_unrestricted': False,
     'plot_zeros': False, # Show zero oscillator strengths as slight negative blips
     'units': 'eV',
     }
@@ -34,8 +36,10 @@ def parse_nwchem_output(fname):
     from pprint import pprint
     singlet_pat = re.compile('\s+Root\s+\d+\s+singlet')
     triplet_pat = re.compile('\s+Root\s+\d+\s+triplet')
+    unrestricted_pat = re.compile('\s+Root\s+\d')
     singlets = []
     triplets = []
+    unrestricted = []
     f = open(fname)
     while 1:
         line = f.readline()
@@ -46,13 +50,21 @@ def parse_nwchem_output(fname):
         if triplet_pat.search(line):
             energy,osc,trans_mom = parse_element(line,f)
             triplets.append((energy,osc))
+        if unrestricted_pat.search(line):
+            energy,osc,trans_mom = parse_element(line,f)
+            unrestricted.append((energy,osc))
     #pprint(singlets)
     #pprint(triplets)
-    return singlets,triplets
+    return singlets,triplets,unrestricted
 
 def parse_element(line,f):
+    import re
+    oscillator_pat = re.compile('\s+Oscillator')
     words = line.split()
-    energy = float(words[4])
+    try:
+        energy = float(words[4])
+    except:
+        energy = float(words[3])
     line = f.readline() # skip ----
     line = f.readline()
     words = line.split()
@@ -62,8 +74,11 @@ def parse_element(line,f):
         txyz = (0,0,0)
     line = f.readline()
     words = line.split()
+    while None == oscillator_pat.search(line):
+      line = f.readline()
+      words = line.split()
     try:
-        osc = float(words[2])
+        osc = float(words[3])
     except:
         osc = 0
     return energy,osc,txyz
@@ -98,7 +113,7 @@ def nwchem_tddft_spectrum(fname,**kwargs):
         conv = 627.51
     else:
         conv = 1.0 # h
-    singlet,triplet = parse_nwchem_output(fname)
+    singlet,triplet,unrestricted = parse_nwchem_output(fname)
     if thetitle: title(thetitle)
     if kwargs['plot_singlet']:
         Es0,Spectrum0 = to_plot(singlet,**kwargs)
@@ -106,6 +121,9 @@ def nwchem_tddft_spectrum(fname,**kwargs):
     if kwargs['plot_triplet']:
         Es1,Spectrum1 = to_plot(triplet,**kwargs)
         plot(Es1*conv,Spectrum1,label='trip')
+    if kwargs['plot_unrestricted']:
+        Es1,Spectrum1 = to_plot(unrestricted,**kwargs)
+        plot(Es1*conv,Spectrum1,label='open')
     legend()
     xlabel('Energy (%s)' % units)
     ylabel('Oscillator Strength')
@@ -119,7 +137,7 @@ def nwchem_tddft_spectrum(fname,**kwargs):
 
 if __name__ == '__main__':
     from getopt import getopt
-    opts,args = getopt(sys.argv[1:],'hsta:b')
+    opts,args = getopt(sys.argv[1:],'hstoa:b')
     kwargs = defaults
     for key,val in opts:
         if key == '-a':
@@ -127,12 +145,19 @@ if __name__ == '__main__':
         if key == '-b':
             kwargs['plot_singlet'] = True
             kwargs['plot_triplet'] = True
+            kwargs['plot_unrestricted'] = False
         if key == '-s':
             kwargs['plot_singlet'] = True
             kwargs['plot_triplet'] = False
+            kwargs['plot_unrestricted'] = False
         if key == '-t':
             kwargs['plot_singlet'] = False
             kwargs['plot_triplet'] = True
+            kwargs['plot_unrestricted'] = False
+        if key == '-o':
+            kwargs['plot_singlet'] = False
+            kwargs['plot_triplet'] = False
+            kwargs['plot_unrestricted'] = True
         if key == '-h':
             print __doc__
             sys.exit()
