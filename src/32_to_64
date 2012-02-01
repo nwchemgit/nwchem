@@ -1,3 +1,4 @@
 Place holder file to prevent a 32-to-64 bit conversion happening on code
-that is "as is in the repository". Make realclean forces a code conversion
-phase to happen irrespective of the current state of the code.
+that is "as is in the repository". Delete either or both files 32_to_64 and
+64_to_32 to force a code conversion phase to happen irrespective of the current
+state of the code.
