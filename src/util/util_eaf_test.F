@@ -37,6 +37,10 @@ c
       integer buf_sz
       integer aio(IO_NUM_FILES, MAX_ITER)
       integer stat2
+      integer icountdown
+      logical oeaf_probe
+c
+      oeaf_probe = .true.
 c     
       buf_sz = (IO_TEST_SZ*eaf_util_szint())
 c
@@ -102,15 +106,18 @@ c     print *,'testing EAF_ARead'
      $           buf2, buf_sz, 
      $           aio(fnum,iter)))
 
+            icountdown = 100
  1000       call testerr(eaf_probe(aio(fnum, iter), stat2))
 c           write(0,999) stat2
  999        format(i5,i8)
-            if(stat2 .ne. 0) then
+            if(stat2 .ne. 0 .and. icountdown .ge. 0) then
                do nap=1, 2000000
                   dummy = 2.0**2.0+nap
                enddo
+               icountdown = icountdown - 1
                goto 1000
             endif
+            oeaf_probe = oeaf_probe.and.(stat2.eq.0.and.icountdown.ge.0)
 
             call util_sleep(10)
 c           write(0,*) 'Finished reading file=',fnum, 
@@ -135,9 +142,16 @@ c        call eaf_print_stats(fd(fnum))
          write (fname, 10) FNAME, fnum, ga_nodeid()
          call testerr(eaf_delete(fname))
       enddo
+      oeaf_probe = .not.oeaf_probe
+      call ga_igop(MT_LOG,oeaf_probe,1,"or")
+      oeaf_probe = .not.oeaf_probe
       if (ga_nodeid().eq.0) then
          write(6,'(A)') ' eaf_aread ........................ OK'
-         write(6,'(A)') ' eaf_probe ........................ OK'
+         if (oeaf_probe) then
+           write(6,'(A)') ' eaf_probe ........................ OK'
+         else
+           write(6,'(A)') ' eaf_probe ........................ fail'
+         endif
          call ffflush(6)
       endif
 c     
