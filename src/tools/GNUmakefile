@@ -298,10 +298,10 @@ endif # MPI-MT
 ifdef USE_MPI
     MPI_COMBINED =
     ifneq ($(MPI_INCLUDE),)
-        MPI_COMBINED += $(MPI_INCLUDE)
+        MPI_COMBINED += $(patsubst -I-I%,-I%,-I${MPI_INCLUDE})
     endif
     ifneq ($(MPI_LIB),)
-        MPI_COMBINED += $(MPI_LIB)
+        MPI_COMBINED += $(patsubst -L-L%,-L%,-L${MPI_LIB})
     endif
     ifneq ($(LIBMPI),)
         MPI_COMBINED += $(LIBMPI)
@@ -360,8 +360,10 @@ ifneq ($(BLAS_LIB),)
     endif
 endif
 ifneq ($(BLASOPT),)
-    ifeq ($(MAYBE_BLAS),)
-        MAYBE_BLAS = --with-blas="$(strip $(BLASOPT))"
+    ifeq ($(BLAS_SIZE),4)
+        MAYBE_BLAS = --with-blas4="$(strip $(BLASOPT))"
+    else
+        MAYBE_BLAS = --with-blas8="$(strip $(BLASOPT))"
     endif
 endif
 
@@ -378,6 +380,14 @@ ifneq ($(SCALAPACK_LIB),)
         MAYBE_SCALAPACK = --with-scalapack="$(strip $(SCALAPACK_LIB))"
     else
         MAYBE_SCALAPACK = --with-scalapack8="$(strip $(SCALAPACK_LIB))"
+    endif
+endif
+
+ifneq ($(SCALAPACK),)
+    ifeq ($(SCALAPACK_SIZE),4)
+        MAYBE_SCALAPACK = --with-scalapack="$(strip $(SCALAPACK))"
+    else
+        MAYBE_SCALAPACK = --with-scalapack8="$(strip $(SCALAPACK))"
     endif
 endif
 
