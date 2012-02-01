@@ -433,7 +433,8 @@
       end do
       end if
 
-      if (.not. value) call errquit('error freeing heap',0,MA_ERR)
+      if (.not. value) 
+     > call errquit('D3dB_pfft_end:error freeing heap',0,MA_ERR)
 
       call D3dB_pfft3_queue_end()
       return
@@ -3634,7 +3635,8 @@ c     **** allocate bqueue ****
 
       value = value.and.MA_free_heap(tmp1z(2))
       value = value.and.MA_free_heap(tmp2z(2))
-      if (.not. value) call errquit('error freeing heap',0,MA_ERR)
+      if (.not. value) 
+     > call errquit('D3dB_pfft3_queue_end:error freeing heap',0,MA_ERR)
 
       return
       end
