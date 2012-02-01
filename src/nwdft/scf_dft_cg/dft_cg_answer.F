@@ -17,9 +17,12 @@ c
       external movecs_write
 c
       integer nsets
+      integer nmo_t(2)
 c
+      nmo_t(1) = nmo
       if (scftype.eq.'UHF') then
         nsets = 2
+        nmo_t(2) = nmo
       else
         nsets = 1
       endif
@@ -46,7 +49,7 @@ c
 c     output energies and eigenvectors to disk
 c     
       if (.not.movecs_write(rtdb, basis, movecs_out, 'dft', title,
-     &                      nbf, nsets, nmo, dbl_mb(k_occ), nbf, 
+     &                      nbf, nsets, nmo_t, dbl_mb(k_occ), nbf, 
      &                      dbl_mb(k_eval), nbf, g_movecs))
      &    call errquit('dft_scf: movec_write failed', 0, DISK_ERR)
 c

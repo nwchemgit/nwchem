@@ -145,11 +145,11 @@ c
         ipol = 2
         do ispin = 1, ipol
           do ilo = 1,max(1,min(nalpha,nbeta)-10)
-            if (dbl_mb(k_eval+(ispin-1)*nmo+ilo-1) .ge. eval_pr_tol_lo)
+            if (dbl_mb(k_eval+(ispin-1)*nbf+ilo-1) .ge. eval_pr_tol_lo)
      &          goto 900
           enddo
  900      do ihi = min(max(nalpha,nbeta)+10,nmo),nmo
-            if (dbl_mb(k_eval+(ispin-1)*nmo+ihi-1) .ge. eval_pr_tol_hi)
+            if (dbl_mb(k_eval+(ispin-1)*nbf+ihi-1) .ge. eval_pr_tol_hi)
      &          goto 910
           enddo
           ihi = max(ihi-1,1)
@@ -166,9 +166,9 @@ c
           call movecs_fix_phase(g_movecs(ispin))
           call movecs_print_anal(basis, ilo, ihi, 0.15d0,
      &         g_movecs(ispin),blob,
-     &         .true., dbl_mb(k_eval+(ispin-1)*nmo),
-     &         oadapt, int_mb(k_irs+(ispin-1)*nmo),
-     &         .true., dbl_mb(k_occ+(ispin-1)*nmo))
+     &         .true., dbl_mb(k_eval+(ispin-1)*nbf),
+     &         oadapt, int_mb(k_irs+(ispin-1)*nbf),
+     &         .true., dbl_mb(k_occ+(ispin-1)*nbf))
         enddo
 c
       else  ! closed shell
