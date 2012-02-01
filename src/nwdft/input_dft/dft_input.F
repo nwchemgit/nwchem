@@ -347,10 +347,11 @@ c       this is an invalid subdirective
      &   call errquit('dft_inp: rtdb_put failed', 2201, RTDB_ERR)
       goto 10
 c
-c     fon
+c     fon: fractional occupation
 c
  2300 continue
       ispin=1
+c
  2301 if (inp_a(test)) then
          if (inp_compare(.false.,'alpha', test)) then
             ispin=1
@@ -376,6 +377,7 @@ c
             goto 2301
          endif
       endif
+c
       if (.not.rtdb_put(rtdb, 'dft:nmo_fon', mt_int, 2,
      & nmo_fon)) call errquit('dft_inp: rtdb_put failed', 2300,
      &       RTDB_ERR)
