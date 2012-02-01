@@ -1128,6 +1128,8 @@ c
       end
       subroutine uhf_precond(g_x, solveshift)
       implicit none
+#include "stdio.fh"
+#include "util.fh"
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1140,13 +1142,20 @@ c
       integer i, j, ioff, ibase
       integer l_diag, k_diag, l_x, k_x
       integer g_f(2), ivec, nvec, gtype, vlen
-      double precision diag, denominator, shift
+      double precision diag, denominator, shift, dnrm
+      integer ilo(2), ihi(2)
+c
+      logical oprint, olprint
+c
       diag(i) = dbl_mb(k_diag + i - 1)
 c     
       g_f(1) = cuhf_g_falpha
       g_f(2) = cuhf_g_fbeta
       nocc(1) = nalpha
       nocc(2) = nbeta
+c
+      oprint = util_print('precond',print_high)
+      olprint = oprint .and. (ga_nodeid().eq.0)
 c
       if (.not.ma_push_get(MT_DBL,nmo,'uhf: tmp',l_diag,k_diag))
      $     call errquit('uhf_precond: cannot allocate',0, MA_ERR)
@@ -1157,6 +1166,20 @@ c
       call ga_inquire(g_x, gtype, vlen, nvec)
 c
       shift = lshift - solveshift
+c
+      if (oprint) then
+        do ivec = 1, nvec
+          ilo(1) = 1
+          ilo(2) = ivec
+          ihi(1) = vlen
+          ihi(2) = ivec
+          call nga_normf_patch(g_x,ilo,ihi,dnrm)
+          if (olprint) then
+            write(LuOut,'(1x,a,": in g_x = ",i4,f24.8)')
+     +      __FILE__,ivec,dnrm
+          endif
+        enddo
+      endif
 c
       ibase = 1
       do iset = 1, 2
@@ -1181,6 +1204,20 @@ c
          endif
          ibase = ibase + nocc(1)*(nmo-nocc(1))
       end do
+c
+      if (oprint) then
+        do ivec = 1, nvec
+          ilo(1) = 1
+          ilo(2) = ivec
+          ihi(1) = vlen
+          ihi(2) = ivec
+          call nga_normf_patch(g_x,ilo,ihi,dnrm)
+          if (olprint) then
+            write(LuOut,'(1x,a,": out g_x = ",i4,f24.8)')
+     +      __FILE__,ivec,dnrm
+          endif
+        enddo
+      endif
 c
       if (.not. ma_pop_stack(l_x)) call errquit('uhf:pop x',0, MA_ERR)
       if (.not. ma_pop_stack(l_diag)) call errquit('uhf:pop ',0, MA_ERR)

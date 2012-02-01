@@ -254,6 +254,9 @@ c
 
       subroutine rohf_hessv_precond( g_x, solveshift )
       implicit none
+#include "global.fh"
+#include "stdio.fh"
+#include "util.fh"
 #include "errquit.fh"
 #include "crohf.fh"
 #include "cscf.fh"
@@ -265,9 +268,17 @@ c
 c     
       integer gtype, grow, gcol
       double precision crohf_lshift
+c
+      logical oprint, olprint
+      integer ilo(2), ihi(2)
+      integer icol
+      double precision dnrm
 c     
 c     Check
-c     
+c
+      oprint = util_print('precond',print_high)
+      olprint = oprint .and. (ga_nodeid().eq.0)
+c
       if (crohf_init_flag.ne.1)
      $     call errquit(
      $     'rohf_hessv_precond: ROHF internal block invalid',0,
@@ -276,12 +287,40 @@ c
       if (grow.ne.crohf_vlen)
      $     call errquit('rohf_hessv_precond: invalid vector length',0,
      &       UNKNOWN_ERR)
+c
+      if (oprint) then
+        do icol = 1, gcol
+          ilo(1) = 1
+          ilo(2) = icol
+          ihi(1) = grow
+          ihi(2) = icol
+          call nga_normf_patch(g_x,ilo,ihi,dnrm)
+          if (olprint) then
+            write(LuOut,'(1x,a,": in g_x = ",i4,f24.8)')
+     +      __FILE__,icol,dnrm
+          endif
+        enddo
+      endif
 c     
       crohf_lshift = lshift - solveshift
       call rohf_hdiag_scale(nmo, nclosed, nopen,
      $     lshift,
      $     crohf_g_fcv, crohf_g_fpv, crohf_g_fcp,
      $     g_x)
+c
+      if (oprint) then
+        do icol = 1, gcol
+          ilo(1) = 1
+          ilo(2) = icol
+          ihi(1) = grow
+          ihi(2) = icol
+          call nga_normf_patch(g_x,ilo,ihi,dnrm)
+          if (olprint) then
+            write(LuOut,'(1x,a,": out g_x = ",i4,f24.8)')
+     +      __FILE__,icol,dnrm
+          endif
+        enddo
+      endif
 c
       end
 
@@ -290,7 +329,7 @@ c
 c ... jochen: modified version of rohf_hessv_precond to go along with
 c     cphf_solve3. This preconditioner PRESUMABLY sets up the rhs of
 c     the CPKS problem which is where we should add and subtract
-c     the frequency from the enegy denominator
+c     the frequency from the energy denominator
 c
       implicit none
 #include "errquit.fh"
@@ -342,7 +381,7 @@ c
 c ... jochen: modified version of rohf_hessv_precond to go along with
 c     cphf_solve3. This preconditioner PRESUMABLY sets up the rhs of
 c     the CPKS problem which is where we should add and subtract
-c     the frequency from the enegy denominator.
+c     the frequency from the energy denominator.
 c     NOTE: this is a modified version of rohf_hessv_precond3 for
 c     calculations with finite-lifetime damping
 c

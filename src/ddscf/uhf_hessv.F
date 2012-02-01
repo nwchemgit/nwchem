@@ -3,6 +3,7 @@
 * $Id$
 *
       implicit none
+#include "stdio.fh"
 #include "errquit.fh"
 #include "cuhf.fh"
 #include "cscf.fh"
@@ -10,13 +11,21 @@
 #include "bgj.fh"
 #include "mafdecls.fh"
 #include "global.fh"
+#include "util.fh"
 
 c     
       double precision acc      ! [input] required accuracy of products
       integer g_x               ! [input] handle to input vectors
       integer g_ax              ! [input] handle to output products
 c
-      integer gtype, vlen, nvec, nvecp, g_tmp
+      integer gtype, vlen, nvec, nvecp, g_tmp, ivec
+      double precision dnrm
+      integer ilo(2),ihi(2)
+c
+      logical oprint, olprint
+c
+      oprint = util_print("hessv",print_high)
+      olprint = oprint .and. (ga_nodeid().eq.0)
 c
 c     Multiply a set of vectors by the level-shifted UHF hessian.
 c     
@@ -38,6 +47,19 @@ c      if (cuhf_init_flag.ne.1)
      $     call errquit('uhf_hessv: invalid nvecp',nvecp,
      &       UNKNOWN_ERR)
 c
+      if (oprint) then
+        do ivec = 1, nvec
+          ilo(1) = 1
+          ilo(2) = ivec
+          ihi(1) = vlen
+          ihi(2) = ivec
+          call nga_normf_patch(g_x,ilo,ihi,dnrm)
+          if (olprint) then
+            write(LuOut,*)__FILE__,": g_x = ",ivec,dnrm
+          endif
+        enddo
+      endif
+c
       call ga_zero(g_ax)
 *      write(6,*) ' lshift ', lshift
       if (lshift .ne. 0.0d0)
@@ -49,6 +71,19 @@ c
 c
       if (pflg .gt. 1)then 
          call uhf_hessv_2e(acc, g_x, g_ax, nvec)
+      endif
+c
+      if (oprint) then
+        do ivec = 1, nvec
+          ilo(1) = 1
+          ilo(2) = ivec
+          ihi(1) = vlen
+          ihi(2) = ivec
+          call nga_normf_patch(g_ax,ilo,ihi,dnrm)
+          if (olprint) then
+            write(LuOut,*)__FILE__,": g_ax = ",ivec,dnrm
+          endif
+        enddo
       endif
 c
       end

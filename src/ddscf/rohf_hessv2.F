@@ -1,5 +1,6 @@
       subroutine rohf_hessv2( acc, g_x, g_ax )
       implicit none
+#include "global.fh"
 #include "errquit.fh"
 #include "crohf.fh"
 #include "cscf.fh"
@@ -12,11 +13,14 @@ c
       double precision acc
 c     
       integer gtype,grow,gcol,growp,gcolp
-      logical oprint
+      integer icol,ilo(2),ihi(2)
+      logical oprint, olprint
+      double precision dnrm
 c     
 c     Check
 c     
-      oprint= util_print('rohf_hessv2',print_debug)
+      oprint = util_print('hessv',print_high)
+      olprint = oprint.and.(ga_nodeid().eq.0)
       if (crohf_init_flag.ne.1)
      $     call errquit('rohf_hessv: ROHF internal block invalid',0,
      &       UNKNOWN_ERR)
@@ -31,6 +35,20 @@ c
       if (gcol.ne.gcolp)
      $     call errquit('rohf_hessv: invalid no. of vectors',0,
      &       UNKNOWN_ERR)
+c
+      if (oprint) then
+        do icol = 1, gcol
+          ilo(1) = 1
+          ilo(2) = icol
+          ihi(1) = grow
+          ihi(2) = icol
+          call nga_normf_patch(g_x,ilo,ihi,dnrm)
+          if (olprint) then
+            write(LuOut,'(1x,a,": g_x = ",i4,f24.8)')
+     +      __FILE__,icol,dnrm
+          endif
+        enddo
+      endif
 c     
 c     Call internal routine
 c     
@@ -48,6 +66,20 @@ c     tight convergence.
 c
 *      call ga_screen(g_ax, acc*0.01d0)
       call ga_screen(g_ax, min(acc*acc,acc*0.01d0,1d-12))
+c
+      if (oprint) then
+        do icol = 1, gcolp
+          ilo(1) = 1
+          ilo(2) = icol
+          ihi(1) = growp
+          ihi(2) = icol
+          call nga_normf_patch(g_ax,ilo,ihi,dnrm)
+          if (olprint) then
+            write(LuOut,'(1x,a,": g_ax = ",i4,f24.8)')
+     +      __FILE__,icol,dnrm
+          endif
+        enddo
+      endif
 c
       end
       subroutine rohf_hessv_xx2( basis, geom, nbf, nmo, nclosed, nopen, 
