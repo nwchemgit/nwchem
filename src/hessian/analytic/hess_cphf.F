@@ -27,16 +27,19 @@ c
       integer g_aa
       integer g_tmp, g_sol
 c
+      integer ilo(3), ihi(3)
       integer alo(3), ahi(3), blo(2), bhi(2)
       integer dims(3), chunk(3)
+      integer i, idens
 c
       character*256 cphf_rhs, cphf_sol
       character*255 movecs
       character*255 tmpname
-      logical hf_job, oprint, ocphfprint, ouhf
+      logical hf_job, oprint, olprint, ocphfprint, ouhf
       double precision tol2e
-      double precision pt5, four
-      data pt5, four      /0.5d+00, 4.0d+00/
+      double precision pt5, four, zero
+      double precision dnrm
+      data pt5, four, zero/0.5d+00, 4.0d+00, 0.0d+00/
 c
       logical  cphf2, file_write_ga, file_read_ga, movecs_read
       integer  ga_create_atom_blocked
@@ -48,10 +51,10 @@ c
 c
 c Set up printing
 c
-      oprint = util_print('hess_follow',print_high)
-      oprint = oprint .and. (ga_nodeid().eq.0)
+      oprint  = util_print('hess_follow',print_high)
+      olprint = oprint .and. (ga_nodeid().eq.0)
       ocphfprint = util_print('cphf_cont',print_debug)
-      if (oprint) write(LuOut,*) 'HESS: setting up cphf'
+      if (olprint) write(LuOut,*) 'HESS: setting up cphf'
 c 
 c     ----- define parameters -----
 c
@@ -93,6 +96,8 @@ c     occupation numbers
      &       MA_ERR)
 c
       call ga_zero(g_vecs(1))
+      call dfill(nbf,zero,dbl_mb(k_occ),1)
+      call dfill(nbf,zero,dbl_mb(k_evals),1)
 c
       if (.not. movecs_read (movecs,1,dbl_mb(k_occ),dbl_mb(k_evals), 
      $     g_vecs(1)))
@@ -102,6 +107,8 @@ c
       if (ouhf) then
          g_vecs(2) = ga_create_atom_blocked(geom, basis, 
      $       'uhf mo vectors')
+         call ga_zero(g_vecs(2))
+         call dfill(nbf,zero,dbl_mb(k_evals+nbf),1)
          if (.not. movecs_read(movecs, 2, dbl_mb(k_occ), 
      $        dbl_mb(k_evals+nbf), g_vecs(2))) call errquit
      $        ('hess_cphf: could not read beta UHF MOs',0,
@@ -128,10 +135,23 @@ c
              call hnd_prsq(dbl_mb(k_evals+nbf),1,nmo,nbf)
              write(LuOut,*)
            endif
+           call util_flush(LuOut)
          endif
          call ga_print(g_vecs(1))
          if (ouhf) call ga_print(g_vecs(2))
          if(ga_nodeid().eq.0) write(LuOut,*)
+      endif
+      if (oprint) then
+        call ga_normf(g_vecs(1),dnrm)
+        if (olprint) then
+          write(LuOut,*)__FILE__,': norm of vectors = ',dnrm
+        endif
+        if (ouhf) then
+          call ga_normf(g_vecs(2),dnrm)
+          if (olprint) then
+            write(LuOut,*)__FILE__,': norm of beta vectors = ',dnrm
+          endif
+        endif
       endif
 c
 c give back unnecessary memory
@@ -165,7 +185,7 @@ c  Transform the current AO based Fock derivatives to the MO basis,
 c  scale by four, and populate g_aa and g_wax 
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
-     $          oprint, ocphfprint,
+     $          olprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, nbf)
       call ga_dscal(g_rhs,four)
       call ga_zero(g_wax)
@@ -179,9 +199,9 @@ c Transform ds/dx term into MO basis and scale by -0.5.
 c
       call sx_read(g_rhs,nc*ndens,nbf,sx_dra_handle)
 c
-      if (oprint) write(LuOut,*) 'HESS: Ta contribution to Wax'
+      if (olprint) write(LuOut,*) 'HESS: Ta contribution to Wax'
       call hess_aotomo(g_rhs, g_vecs, g_modx,
-     $          oprint, ocphfprint,
+     $          olprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, nbf)
       call ga_dscal(g_rhs,-pt5)
       if (ocphfprint) then
@@ -190,7 +210,37 @@ c
           write(LuOut,*) 'Ta after scaling'
           call util_flush(LuOut)
         endif
-        call ga_print(g_rhs)
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)+nvirt(idens)
+            ihi(3) = nocc(idens)+nvirt(idens)
+            call nga_print_patch(g_rhs,ilo,ihi,1)
+          enddo
+        enddo
+      endif
+      if (oprint) then
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)+nvirt(idens)
+            ihi(3) = nocc(idens)+nvirt(idens)
+            call nga_normf_patch(g_rhs,ilo,ihi,dnrm)
+            if (olprint) then
+              write(LuOut,*)__FILE__,": Ta = ",idens,i,dnrm
+            endif
+          enddo
+        enddo
       endif
 c
 c get contribution to wax
@@ -202,7 +252,7 @@ c Do wxy = wxy + 8*sum(i)sum(j)[(ei+ej)*Ta((i-1*nocc)+j,x))*Ta((i-1*nocc)+j,y)]
 c This is the hondo equivalent of cpwab1 [ Ta is part of g_rhs, e is 
 c dbl_mb(k_evals) and wxy is dbl_mb(k_exy)
 c
-      if (oprint) then
+      if (olprint) then
         write(LuOut,*) 'HESS: Ta contribution to Hessian: before'
         call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
       endif
@@ -219,7 +269,7 @@ c
 c
 c Print intermediate result
 c
-      if (ocphfprint.and.ga_nodeid().eq.0) then
+      if (olprint.or.(ocphfprint.and.ga_nodeid().eq.0)) then
         write(LuOut,*)
         write(LuOut,*) 'Hessian after Ta*Tb contribution'
         call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
@@ -235,12 +285,12 @@ c adds to g_aa and g_wax.  Ta needs to be transformed back into the AO
 c basis, combined with the integrals, and then transformed back into the
 c MO basis.
 c
-      if (oprint) write(LuOut,*) 'HESS: Modified Fock builds'
+      if (olprint) write(LuOut,*) 'HESS: Modified Fock builds'
       if (.not. rtdb_get(rtdb, 'scf:tol2e', MT_DBL, 1, tol2e)) 
      $  tol2e = 1.0d-9
 c
       call hess_moootoao(g_rhs, g_vecs, g_modx,
-     $          oprint, ocphfprint,
+     $          olprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, nbf)
       if (.not. ga_duplicate (g_rhs, g_tmp,'Temporary g_rhs')) then
         if (ga_nodeid().eq.0) then
@@ -256,7 +306,7 @@ c
      $  call errquit('hess_cphf: cannot destroy g_tmp',555, GA_ERR)
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
-     $          oprint, ocphfprint,
+     $          olprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, nbf)
 c
 c Now form the Wax and Aa contributions
@@ -273,7 +323,7 @@ c
       call sx_read(g_rhs,nc*ndens,nbf,sx_dra_handle)
 c
       call hess_aotomo(g_rhs, g_vecs, g_modx,
-     $          oprint, ocphfprint,
+     $          olprint, ocphfprint,
      $          nocc, nvirt, ndens, n3xyz, nbf)
 c
 c Before doing the scaling, we will get the dipole integrals into 3
@@ -293,7 +343,7 @@ c
       call ga_zero(g_dip)
       call hess_dipint(rtdb, geom, basis, g_dip, ndens, nbf)
       ndip = 3
-      call hess_aotomo(g_dip, g_vecs, g_modx, oprint,
+      call hess_aotomo(g_dip, g_vecs, g_modx, olprint,
      $          ocphfprint, nocc, nvirt, ndens, ndip, nbf)
       call hess_sxdip(g_rhs, dbl_mb(k_dder), g_dip, nocc, ndens, 
      $   n3xyz, nbf)
@@ -312,7 +362,38 @@ c
           write(LuOut,*) 'Ta after scaling'
           call util_flush(LuOut)
         endif
-        call ga_print(g_rhs)
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)+nvirt(idens)
+            ihi(3) = nocc(idens)+nvirt(idens)
+            call nga_print_patch(g_rhs,ilo,ihi,1)
+          enddo
+        enddo
+      endif
+      if (oprint) then
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)+nvirt(idens)
+            ihi(3) = nocc(idens)+nvirt(idens)
+            call nga_normf_patch(g_rhs,ilo,ihi,dnrm)
+            if (olprint) then
+              write(LuOut,*)__FILE__,": Ta after scaling = ",
+     &                      idens,i,dnrm
+            endif
+          enddo
+        enddo
       endif
 c
 c Print out intermediate results
@@ -323,25 +404,114 @@ c
           write(LuOut,*) 'WAX after fock contribution'
           call util_flush(LuOut)
         endif
-        call ga_print(g_wax)
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)
+            ihi(3) = nvirt(idens)
+            call nga_print_patch(g_wax,ilo,ihi,1)
+          enddo
+        enddo
         if(ga_nodeid().eq.0) then
           write(LuOut,*)
           write(LuOut,*) 'AA after fock contribution'
           call util_flush(LuOut)
         endif
-        call ga_print(g_aa)
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)
+            ihi(3) = nocc(idens)
+            call nga_print_patch(g_aa,ilo,ihi,1)
+          enddo
+        enddo
         if(ga_nodeid().eq.0) then
           write(LuOut,*)
           write(LuOut,*) 'g_rhs after fock contribution'
           call util_flush(LuOut)
         endif
-        call ga_print(g_rhs)
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)
+            ihi(3) = nvirt(idens)
+            call nga_print_patch(g_wax,ilo,ihi,1)
+          enddo
+        enddo
+      endif
+      if (oprint) then
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)
+            ihi(3) = nvirt(idens)
+            call nga_normf_patch(g_wax,ilo,ihi,dnrm)
+            if (olprint) then
+              write(LuOut,*)__FILE__,": WAX after fock = ",
+     &                      idens,i,dnrm
+            endif
+          enddo
+        enddo
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)
+            ihi(3) = nocc(idens)
+            call nga_normf_patch(g_aa,ilo,ihi,dnrm)
+            if (olprint) then
+              write(LuOut,*)__FILE__,": AA after fock = ",
+     &                      idens,i,dnrm
+            endif
+          enddo
+        enddo
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)+nvirt(idens)
+            ihi(3) = nocc(idens)+nvirt(idens)
+            call nga_normf_patch(g_rhs,ilo,ihi,dnrm)
+            if (olprint) then
+              write(LuOut,*)__FILE__,": RHS after fock = ",
+     &                      idens,i,dnrm
+            endif
+          enddo
+        enddo
       endif
 c
 c Do wxy = wxy + sum(i)sum(j){Ta([i-1]*nocc+j,x)*AA([i-1]*nocc+j,y) +
 c Ta([i-1]*nocc+j,y)*AA([i-1]*nocc+j,x)
 c
-      if (oprint) then
+      if (olprint) then
          write(LuOut,*) 'HESS: Ta and AA contributions'
          call util_flush(LuOut)
       endif
@@ -356,7 +526,7 @@ c
 c
 c Print intermediate result
 c
-      if (ocphfprint.and.(ga_nodeid().eq.0)) then
+      if (olprint.or.(ocphfprint.and.(ga_nodeid().eq.0))) then
         write(LuOut,*)
         write(LuOut,*) 'Hessian after Ta*AA contribution'
         call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
@@ -371,7 +541,7 @@ c
 c
 c Now actually set up the CPHF matrices 
 c
-      if (oprint) write(LuOut,*) 'HESS: CPHF contributions'
+      if (olprint) write(LuOut,*) 'HESS: CPHF contributions'
       call util_file_name('cphf_rhs',.true.,.true.,cphf_rhs)
  
       call util_file_name('cphf_sol',.true.,.true.,cphf_sol)
@@ -416,8 +586,42 @@ c
      $  ('cannot destroy g_wax ',555, GA_ERR)
 c
       if (ocphfprint) then
-        if(ga_nodeid().eq.0)write(LuOut,*)
-        call ga_print(g_sol)
+        if(ga_nodeid().eq.0)then
+          write(LuOut,*)
+          call util_flush(LuOut)
+        endif
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)+nvirt(idens)
+            ihi(3) = nocc(idens)+nvirt(idens)
+            call nga_print_patch(g_sol,ilo,ihi,1)
+          enddo
+        enddo
+      endif
+      if (oprint) then
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)+nvirt(idens)
+            ihi(3) = nocc(idens)+nvirt(idens)
+            call nga_normf_patch(g_sol,ilo,ihi,dnrm)
+            if (olprint) then
+              write(LuOut,*)__FILE__,": solution = ",
+     &                      idens,i,dnrm
+            endif
+          enddo
+        enddo
       endif
 c
       if(.not.file_write_ga(cphf_rhs,g_sol)) call errquit
@@ -444,10 +648,40 @@ c
      $  ('hess_cphf:could not read cphf_rhs',555, DISK_ERR)
 c
       if (ocphfprint) then
-        if(ga_nodeid().eq.0)write(LuOut,*) 'g_wax after disk'
-        call ga_print(g_wax)
-        if(ga_nodeid().eq.0)write(LuOut,*) 'g_sol after disk'
-        call ga_print(g_sol)
+        if(ga_nodeid().eq.0) then
+          write(LuOut,*) 'g_wax after disk'
+          call util_flush(LuOut)
+        endif
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)+nvirt(idens)
+            ihi(3) = nocc(idens)+nvirt(idens)
+            call nga_print_patch(g_wax,ilo,ihi,1)
+          enddo
+        enddo
+        if(ga_nodeid().eq.0) then
+          write(LuOut,*) 'g_sol after disk'
+          call util_flush(LuOut)
+        endif
+        ind = 0
+        do idens = 1, ndens
+          do i = 1, n3xyz
+            ind = ind + 1
+            ilo(1) = ind
+            ilo(2) = 1
+            ilo(3) = 1
+            ihi(1) = ind
+            ihi(2) = nocc(idens)+nvirt(idens)
+            ihi(3) = nocc(idens)+nvirt(idens)
+            call nga_print_patch(g_sol,ilo,ihi,1)
+          enddo
+        enddo
       endif
 c
 c Combine the RHS and CPHF solution to get final contribution to hessian.
@@ -478,7 +712,7 @@ c
 c
 c Print intermediate result
 c
-      if(ocphfprint.and.ga_nodeid().eq.0) then
+      if(olprint.or.(ocphfprint.and.ga_nodeid().eq.0)) then
          write(LuOut,*)
          write(LuOut,*) 'Hessian after CPHF contribution'
          call hess_hssout(dbl_mb(k_exy),ncent*3,ncent*3,ncent*3)
