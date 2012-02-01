@@ -1,0 +1,15 @@
+Authentication realm: <https://svn.pnl.gov:443> nwchem
+------------------------------------------------------------------------
+r21871 | d3y133 | 2012-01-25 23:39:15 -0800 (Wed, 25 Jan 2012) | 10 lines
+
+HvD: This test case tests running a DFT calculation with cgmin and following
+that up with a Hessian calculation. At the moment this calculation fails
+miserably in the cphf_solve2. The reason for the failure is that in 
+rohf_energy a Fock matrix is supposed to be generated but instead of a 2D
+GA a 3D GA is passed into the Fock builder.
+Somehow this problem seems to be related to the logic involving lcgmin on
+line 273 of nwchem/src/ddscf/fock_xc.F. However, it is not clear to me what
+that logic is trying to achieve so I am not sure what to do about it.
+Any hints are welcome.
+
+------------------------------------------------------------------------

@@ -22,12 +22,13 @@ else
 endif
 #
 #---   small tests
+./runtests.mpi.unix procs 4 testtask
 ./runtests.mpi.unix procs $np h2o_opt c2h4
 ./runtests.mpi.unix procs $np auh2o autosym dft_he2+ h2mp2 h2o hess_h2o prop_h2o pyqa
 ./runtests.mpi.unix procs $np geom_zmatrix rimp2_ne rimp2_he scf_feco5 small_intchk tagcheck testtab
 ./runtests.mpi.unix procs $np h2o_dk u_sodft cosmo_h2o ch5n_nbo h2s_finite startag
-./runtests.mpi.unix procs $np cosmo_h2o_dft
-./runtests.mpi.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse
+./runtests.mpi.unix procs $np cosmo_h2o_dft cosmo_h2o_bq
+./runtests.mpi.unix procs $np cosmo_trichloroethene esp esp_uhf dft_bsse bsse_dft_trimer
 ./runtests.mpi.unix procs $np dplot dft_meta dft_mpwb1khf dft_m05nh2ch3 prop_uhf_h2o
 ./runtests.mpi.unix procs $np et_zn_dimer vectors_rotate sad_ch3hf
 ./runtests.mpi.unix procs $np h2o_diag_to_cg h2o_cg_to_diag 
@@ -112,6 +113,10 @@ echo "qmmm frequency  test  may  fail"
 #
 # newproperty tests
 ./runtests.mpi.unix procs $np prop_ch3f prop_uhf_ch3f
+./runtests.mpi.unix procs $np ch3f_rot ch3f_unrot
+./runtests.mpi.unix procs $np ch3f_trans ch3f_trans_cosmo ch3f_trans_cam_nmr ch3f_notrans_cosmo
+./runtests.mpi.unix procs $np ch3f-lc-wpbe ch3f-lc-wpbeh
+./runtests.mpi.unix procs $np ch3f_zora_shielding
 #
 #--- range-separated functionals tests
 ./runtests.mpi.unix procs $np acr-camb3lyp-cdfit
@@ -140,6 +145,7 @@ echo "qmmm frequency  test  may  fail"
 #
 #--- cdspectrum tests
 ./runtests.mpi.unix procs $np dmo_tddft_cd
+./runtests.mpi.unix procs $np dmo_tddft_cd_velocity
 #
 #--- spherical atom symmetry test
 ./runtests.mpi.unix procs $np ptatom
@@ -153,6 +159,41 @@ echo "qmmm frequency  test  may  fail"
 #
 #--- response tests
 ./runtests.mpi.unix procs $np h2o-response
+#
+#--- other tests
+./runtests.mpi.unix procs $np mep-test
+./runtests.mpi.unix procs $np ch2_props4_bp
+./runtests.mpi.unix procs $np pkzb
+./runtests.mpi.unix procs $np k6h2o
+./runtests.mpi.unix procs $np mcscf_ch2 mcscf_ozone
+./runtests.mpi.unix procs $np sif_sodft
+./runtests.mpi.unix procs $np h2o_raman_3
+./runtests.mpi.unix procs $np h2o_raman_4
+./runtests.mpi.unix procs $np tropt-ch3nh2
+./runtests.mpi.unix procs $np h3tr1 h3_dirdyvtst
+./runtests.mpi.unix procs $np h2o_zts
+./runtests.mpi.unix procs $np ch4_zts
+./runtests.mpi.unix procs $np ch4cl_zts
+./runtests.mpi.unix procs $np geom_load_xyz
+./runtests.mpi.unix procs $np dft_sicperth2o
+./runtests.mpi.unix procs $np h2o_hcons
+./runtests.mpi.unix procs $np etf_hcons
+./runtests.mpi.unix procs $np h2o2-prop-notrans
+./runtests.mpi.unix procs $np cnh5_m06-2x
+./runtests.mpi.unix procs $np bq_nio
+./runtests.mpi.unix procs $np hess_ch4
+./runtests.mpi.unix procs $np h2o_frozemb
+./runtests.mpi.unix procs $np cho_bp_props
+./runtests.mpi.unix procs $np h2o-ssb-d-b3lyp
+./runtests.mpi.unix procs $np cu2_m06-l
+./runtests.mpi.unix procs $np ch3_m06-hf
+./runtests.mpi.unix procs $np dntmc_h2o_nh3
+./runtests.mpi.unix procs $np 5h2o_core
+./runtests.mpi.unix procs $np talc
+./runtests.mpi.unix procs $np h2o-b3lyp-disp
+./runtests.mpi.unix procs $np carbon_fon
+./runtests.mpi.unix procs $np ch5n_nbo
+./runtests.mpi.unix procs $np tpss tpssh
 #
 #--- if we only want quick tests get out now!
 if ($what == "xfast") then
@@ -175,3 +216,4 @@ endif
 ./runtests.mpi.unix procs $np h2o_selci
 echo 'This test requires 16 processors to run quickly'
 ./runtests.mpi.unix procs $np tce_polar_ccsd_big
+./runtests.mpi.unix procs $np hess_biph

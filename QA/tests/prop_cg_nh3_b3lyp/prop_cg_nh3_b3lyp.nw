@@ -1,0 +1,64 @@
+echo 
+
+start prop_nh3_dat
+
+# This calculation tests the property code in the case where
+# the DFT part uses the quasi Newton-Raphson solver.
+# Obviously the method used to solve the DFT problem should
+# not matter for the properties but unintentional interactions
+# have been noticed.
+
+title "property calculation for (NH3) - DFT(B3LYP)/aug-cc-pVDZ"
+
+geometry
+  symmetry C3v
+  n      0.00000000     0.00000000     0.11528732
+  h      0.66613072     0.66613072    -0.29294900
+  h     -0.90995149     0.24382077    -0.29294900
+  h      0.24382077    -0.90995149    -0.29294900
+end
+
+basis spherical
+ n   library aug-cc-pvdz
+ h   library aug-cc-pvdz
+end
+
+dft
+  cgmin
+  xc b3lyp
+  mult 1
+end
+
+property
+  shielding
+end
+
+task dft property
+
+dft
+  cgmin
+  odft
+  xc b3lyp
+  mult 1
+end
+
+property
+  spinspin
+end
+
+task dft property
+
+charge 1
+dft
+  cgmin
+  odft
+  xc b3lyp
+  mult 2
+end
+
+property
+  hyperfine
+end
+
+task dft property
+

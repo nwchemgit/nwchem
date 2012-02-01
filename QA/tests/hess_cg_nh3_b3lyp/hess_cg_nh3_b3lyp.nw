@@ -1,0 +1,33 @@
+echo 
+
+start hess_nh3_dat
+
+# This calculation tests the Hessian code in the case where
+# the SCF part uses the quasi Newton-Raphson solver.
+# Obviously this the way to solving the SCF problem should
+# not matter for the Hessians but unintentional interactions
+# have been noticed.
+
+title "hessian calculation for (NH3)3- DFT(B3LYP)/aug-cc-pVDZ"
+
+geometry
+  symmetry C3v
+  n      0.00000000     0.00000000     0.11528732
+  h      0.66613072     0.66613072    -0.29294900
+  h     -0.90995149     0.24382077    -0.29294900
+  h      0.24382077    -0.90995149    -0.29294900
+end
+
+basis spherical
+ n   library aug-cc-pvdz
+ h   library aug-cc-pvdz
+end
+
+dft
+  cgmin
+  xc b3lyp
+  mult 1
+end
+
+task dft hessian
+

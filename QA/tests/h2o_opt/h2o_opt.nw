@@ -1,6 +1,13 @@
 echo
 start h2o_opt_dat
 
+# NOTE
+# ====
+#
+# This test case currently fails, but it should actually complete
+# successfully or stop with a helpful error message. See the README
+# file for more details.
+
 geometry h2o_c1 units angstroms
   symmetry c1
   zmatrix

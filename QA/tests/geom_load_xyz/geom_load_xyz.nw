@@ -9,7 +9,7 @@ basis
 end
 #First test load entire system from xyz file
 geometry noautosym noautoz nocenter
- load h2o.xyz 
+ load geom_load_xyz.xyz 
 end
 
 dft
@@ -32,7 +32,7 @@ task dft gradient
 #The same system but now specified via mixed input
 #using id selection
 geometry noautosym noautoz nocenter
-load h2o.xyz select id 1
+load geom_load_xyz.xyz select id 1
 H    -3.197   4.424   6.180   
 H    -3.992   2.998   6.128   
 end
@@ -45,9 +45,9 @@ task dft gradient
 #The same system but now specified via mixed input
 #using id selection
 geometry noautosym noautoz nocenter
-load h2o.xyz select id 1
+load geom_load_xyz.xyz select id 1
 H    -3.197   4.424   6.180   
-load h2o.xyz select id 3
+load geom_load_xyz.xyz select id 3
 end
 
 dft
@@ -58,7 +58,7 @@ task dft gradient
 #The same system but now specified via mixed input
 #using id RANGE selection
 geometry noautosym noautoz nocenter
-load h2o.xyz select id 1:2
+load geom_load_xyz.xyz select id 1:2
 H    -3.992   2.998   6.128
 end  
 
@@ -72,7 +72,7 @@ task dft gradient
 #using id RANGE selection
 geometry noautosym noautoz nocenter
 O    -3.307   3.534   6.622
-load h2o.xyz select name H
+load geom_load_xyz.xyz select name H
 end  
 
 dft
@@ -83,7 +83,7 @@ task dft gradient
 
 #load frame 3 from multi-structure xyz file
 geometry noautosym noautoz nocenter
- load frame 3 h2o.xyz 
+ load frame 3 geom_load_xyz.xyz 
 end
 
 dft
@@ -95,8 +95,8 @@ task dft gradient
 #load frame 3 from multi-structure xyz file
 #using selection within the frame
 geometry noautosym noautoz nocenter
- load frame 3 select name O h2o.xyz 
- load frame 3 select id 2:3 h2o.xyz 
+ load frame 3 select name O geom_load_xyz.xyz 
+ load frame 3 select id 2:3 geom_load_xyz.xyz 
 end
 
 dft
