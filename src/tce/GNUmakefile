@@ -87,7 +87,7 @@ else
       #OBJ_OPTIMIZE += tce_sort8.o tce_sortacc8.o tce_sortacc_saday.o tce_sort_saday.o
 endif
 
-ifeq ($(NWCHEM_TARGET),LAPI64)
+ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),LAPI64 IBM64))
       #OBJ += tce_eom_xguess_karol.o tce_eom_yguess_karol.o
       OBJ += tce_eom_xguess.o tce_eom_yguess.o
 else

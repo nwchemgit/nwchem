@@ -1,6 +1,15 @@
 #$Id$
 
-OBJ_OPTIMIZE =  cis.o cis_x1.o cis_xguess.o cis_xdiagon.o cis_xtidy.o
+OBJ_OPTIMIZE =  cis.o cis_x1.o cis_xdiagon.o cis_xtidy.o
+
+# For unknown reasons the IBM xlf compiler generated an ICE on Power7 systems
+# while trying to optimize this code. This problem might go away in future.
+# Date 01/11/2012.
+ifeq ($(NWCHEM_TARGET),$(findstring $(NWCHEM_TARGET),LAPI64 IBM64))
+  OBJ += cis_xguess.o
+else
+  OBJ_OPTIMIZE += cis_xguess.o
+endif
 
 LIB_INCLUDES = -I../include
 
