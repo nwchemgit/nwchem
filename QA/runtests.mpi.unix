@@ -233,6 +233,8 @@ foreach TEST ($args_2_use)
   endif
 
   cp $TESTDIR/$INPUTFILE $SCRATCHDIR
+  if (-f $TESTDIR/$STUB.xyz) cp $TESTDIR/$STUB.xyz $SCRATCHDIR
+  if (-f $TESTDIR/EMBPOT) cp $TESTDIR/EMBPOT $SCRATCHDIR
   if (-f $TESTOUTPUTS/$STUB.ok.out) /bin/rm -f $TESTOUTPUTS/$STUB.ok.out
   if($md_test_run) then
   if(-f $TESTDIR/$OUTPUTFILE) cp $TESTDIR/$OUTPUTFILE $TESTOUTPUTS/$STUB.ok.out
