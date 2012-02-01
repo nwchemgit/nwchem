@@ -70,6 +70,7 @@ foreach $filename (@FILES_TO_PARSE) {
     
     $selcipt_block = 0;
     $gradient_block = 0;
+    $dirdyv_block = 0;
     $lines = 0 ;
     while (<FILE_TO_PARSE>){
 	$lines ++;
@@ -460,8 +461,31 @@ foreach $filename (@FILES_TO_PARSE) {
 	    if (! $quiet){printf "%.5f\n", set_to_digits(@line_tokens[$itok],5);}
 	    printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
 	}
+        if ($dirdyv_block && /drdy_NWChem has finished/){
+          # Found end of DIRDYVTST block
+          $dirdyv_block = 0;
+        }
+        if ($dirdyv_block) {
+          @line_tokens = split(' ');
+          $num_line_tokens = @line_tokens;
+          if ($num_line_tokens != 4) {
+            printf FILE_OUTPUT "%s ",@line_tokens[0];
+	    for ($itok = 1; $itok < ($num_line_tokens - 1); $itok++){
+	      printf FILE_OUTPUT "%.5f ", set_to_digits(@line_tokens[$itok],5);
+            }
+	    printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+          } else {
+	    for ($itok = 0; $itok < ($num_line_tokens - 1); $itok++){
+	      printf FILE_OUTPUT "%.5f ", set_to_digits(@line_tokens[$itok],5);
+            }
+	    printf FILE_OUTPUT "%.5f\n", set_to_digits(@line_tokens[$itok],5);
+          }
+        }
+        if (/s \(au\)                      frequencies \(cm\^-1\)/) {
+          # Found a DIRDYVTST block
+          $dirdyv_block = 1;
+        }
     }
-    
 #
 #
 #
