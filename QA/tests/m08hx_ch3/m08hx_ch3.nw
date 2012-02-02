@@ -1,0 +1,27 @@
+echo
+title m08hx_ch3
+
+start m08hx_ch3
+
+geometry units angstroms
+C 0.000000 0.000000 0.000000
+H 0.000000 1.078000 0.000000
+H 0.933000 -0.539000 0.000000
+H -0.933000 -0.539000 0.000000
+end
+
+basis
+ H library 6-31+G*
+ C library 6-31+G*
+end
+
+dft
+ mult 2
+ iterations 50
+ print intermediate energy info
+ xc m08-hx
+ decomp
+ grid lebedev 99 14
+ direct
+end
+task dft
