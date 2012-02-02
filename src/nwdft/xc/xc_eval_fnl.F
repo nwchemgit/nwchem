@@ -681,6 +681,215 @@ c
          endif
       endif
 c
+c M08-HX   meta GGA Exchange
+c
+      if (abs(xfac(48)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm11(tol_rho, xfac(48), lxfac(48), nlxfac(48),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,ttau,Mmat,1)
+         else
+            call xc_xm11_d2()
+         endif
+      endif
+c
+c M08-SO   meta GGA Exchange
+c
+      if (abs(xfac(49)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm11(tol_rho, xfac(49), lxfac(49), nlxfac(49),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,ttau,Mmat,2)
+         else
+            call xc_xm11_d2()
+         endif
+      endif
+c
+c M11   meta GGA Exchange
+c
+      if (abs(xfac(50)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm11(tol_rho, xfac(50), lxfac(50), nlxfac(50),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,ttau,Mmat,3)
+         else
+            call xc_xm11_d2()
+         endif
+      endif
+c
+c M11-L   meta GGA Exchange
+c
+      if (abs(xfac(51)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xm11(tol_rho, xfac(51), lxfac(51), nlxfac(51),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,ttau,Mmat,4)
+         else
+            call xc_xm11_d2()
+         endif
+      endif
+c
+c SOGGA GGA Exchange
+c
+      if (abs(xfac(52)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xsogga(tol_rho, xfac(48), lxfac(48), nlxfac(48),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,1)
+         else
+            call xc_xsogga_d2()
+         endif
+      endif
+c
+c SOGGA11 GGA Exchange
+c
+      if (abs(xfac(53)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xsogga(tol_rho, xfac(49), lxfac(49), nlxfac(49),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,2)
+         else
+            call xc_xsogga_d2()
+         endif
+      endif
+c
+c SOGGA11-X GGA Exchange
+c
+      if (abs(xfac(54)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xsogga(tol_rho, xfac(50), lxfac(50), nlxfac(50),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,3)
+         else
+            call xc_xsogga_d2()
+         endif
+      endif
+c
+c     cm08-hx is special in that the GGA part is
+c     defined to be dependent on
+c     the E(LDA) ...
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c
+      if (abs(cfac(48)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm11(tol_rho, cfac(48), lcfac(48), nlcfac(48),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,1)
+
+         else
+            call xc_cm11_d2()
+         endif
+      endif
+c
+c     cm08-so is special in that the GGA part is
+c     defined to be dependent on
+c     the E(LDA) ...
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c
+      if (abs(cfac(49)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm11(tol_rho, cfac(49), lcfac(49), nlcfac(49),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,2)
+
+         else
+            call xc_cm11_d2()
+         endif
+      endif
+c
+c     cm11 is special in that the GGA part is
+c     defined to be dependent on
+c     the E(LDA) ...
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c
+      if (abs(cfac(50)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm11(tol_rho, cfac(50), lcfac(50), nlcfac(50),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,3)
+
+         else
+            call xc_cm11_d2()
+         endif
+      endif
+c
+c     cm11-l is special in that the GGA part is
+c     defined to be dependent on
+c     the E(LDA) ...
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c
+      if (abs(cfac(51)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cm11(tol_rho, cfac(51), lcfac(51), nlcfac(51),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat,4)
+
+         else
+            call xc_cm11_d2()
+         endif
+      endif
+c
+c     csogga is special in that the GGA part is
+c     defined to be dependent on
+c     the E(LDA) ...
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c
+      if (abs(cfac(52)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cpbe96(tol_rho, cfac, lcfac, nlcfac, rho,
+     &           delrho, Amat, Cmat, nq, ipol,
+     &           Ec, qwght, ldew, func)
+         else
+            call xc_csogga_d2()
+         endif
+      endif
+c
+c     csogga11 is special in that the GGA part is
+c     defined to be dependent on
+c     the E(LDA) ...
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c
+      if (abs(cfac(53)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_csogga(tol_rho, cfac(49), lcfac(49), nlcfac(49),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,Amat,Cmat,1)
+
+         else
+            call xc_csogga_d2()
+         endif
+      endif
+c
+c     csogga11-x is special in that the GGA part is
+c     defined to be dependent on
+c     the E(LDA) ...
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c
+      if (abs(cfac(54)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_csogga(tol_rho, cfac(50), lcfac(50), nlcfac(50),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,Amat,Cmat,2)
+
+         else
+            call xc_csogga_d2()
+         endif
+      endif
+c
 c LC-BNL 2007 Exchange 
 c
       if (abs(xfac(38)).gt.eps)then

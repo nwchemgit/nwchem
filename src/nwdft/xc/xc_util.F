@@ -1,8 +1,12 @@
+c
+c     xc utility functions
+c
       logical function xc_chkgrad()
 *
-* $Id$
+* $Id: xc_chkgrad.F 21746 2012-01-11 08:15:11Z niri $
 *
       implicit none
+c
 #include "cdft.fh"
 #include "steric.fh"
 c
@@ -10,22 +14,26 @@ c     see if any Gradient Corrected Functional is not null
 c
       double precision tot,eps
       parameter(eps=1.d-10)
+c
       tot = xfac(3) + xfac(4) + xfac(5) + xfac(6) + xfac(7) +
-     + xfac(8) + xfac(9) + xfac(10) + xfac(11) +xfac(12)+ xfac(13)+
-     + xfac(14)+xfac(15)+xfac(16)+xfac(17)+xfac(18) +xfac(19) +
-     +     xfac(22)+
-     +     xfac(30)+xfac(31)+ xfac(33) + xfac(39) + cfac(29) +
-     +     cfac(2) + cfac(4) + cfac(5) + cfac(12) +
-     +     cfac(13)+cfac(14)+cfac(15) +cfac(16) + cfac(17)+cfac(18)+
-     + cfac(19) + cfac(20)+cfac(21)+cfac(22)+cfac(23) + cfac(24) +
-     + xfac(25) + cfac(25) +cfac(26)+xfac(20)+xfac(21)+cfac(27) +
+     + xfac(8)  + xfac(9)  + xfac(10) + xfac(11) +xfac(12)+ xfac(13)+
+     + xfac(14) + xfac(15) + xfac(16)+xfac(17)+xfac(18) +xfac(19) +
+     + xfac(22) +
+     + xfac(30) + xfac(31) + xfac(33) + xfac(39) + cfac(29) +
+     + cfac(2)  + cfac(4)  + cfac(5)  + cfac(12) +
+     + cfac(13) + cfac(14) + cfac(15) + cfac(16) + cfac(17)+cfac(18)+
+     + cfac(19) + cfac(20) + cfac(21) + cfac(22) + cfac(23) + cfac(24) +
+     + xfac(25) + cfac(25) + cfac(26) + xfac(20) + xfac(21)+cfac(27) +
      + xfac(26) + xfac(27) + xfac(28) + xfac(29) + cfac(31) + 
      + cfac(32) + cfac(33) + cfac(34) + cfac(35) + cfac(36) +
      + xfac(34) + xfac(35) + xfac(36) + xfac(37) +
      + cfac(30) + cfac(38) + cfac(39) + cfac(40) + cfac(41) +
-     + xfac(46) + cfac(46) + xfac(47) + cfac(47) + xfac(40) + xfac(41)
-
-c    +     cfac(28) + cfac(36)
+     + xfac(46) + cfac(46) + xfac(47) + cfac(47) + xfac(40) + xfac(41) +
+     + xfac(48) + xfac(49) + xfac(50) + xfac(51) +
+     + cfac(48) + cfac(49) + cfac(50) + cfac(51) +
+     + xfac(52) + xfac(53) + xfac(54) +
+     + cfac(52) + cfac(53) + cfac(54)
+c
       if (abs(tot).gt.eps.or.lb94.or.cs00)then
          xc_chkgrad = .true.
       else if (lsteric) then ! turn on gradients for steric calculations
@@ -33,10 +41,10 @@ c    +     cfac(28) + cfac(36)
       else
          xc_chkgrad = .false.
       end if
-
+c
       return
       end
-
+c
       logical function xc_gotxc()
       implicit none
 #include "cdft.fh"
@@ -53,16 +61,14 @@ c
       xc_gotxc = tot.gt.1d-8.or.lb94.or.cs00
       return
       end
-
-
+c
       integer function xc_getnqmx()
       implicit none
 #include "cdft.fh"
       xc_getnqmx=nqmax
       return
       end
-
-
+c
       integer function xc_getipol()
       implicit none
 #include "cdft.fh"
@@ -100,6 +106,13 @@ c
      .     xfac(35).ne.0d0.or.
      .     xfac(36).ne.0d0.or.
      .     xfac(37).ne.0d0.or.
+     .     xfac(48).ne.0d0.or.
+     .     xfac(49).ne.0d0.or.
+     .     xfac(50).ne.0d0.or.
+     .     xfac(51).ne.0d0.or.
+     .     xfac(52).ne.0d0.or.
+     .     xfac(53).ne.0d0.or.
+     .     xfac(54).ne.0d0.or.
 c
      .     cfac(13).ne.0d0.or.
      .     cfac(14).ne.0d0.or.
@@ -123,7 +136,58 @@ c
      .     cfac(38).ne.0d0.or.
      .     cfac(39).ne.0d0.or.
      .     cfac(40).ne.0d0.or.
+     .     cfac(48).ne.0d0.or.
+     .     cfac(49).ne.0d0.or.
+     .     cfac(50).ne.0d0.or.
+     .     cfac(51).ne.0d0.or.
+     .     cfac(52).ne.0d0.or.
+     .     cfac(53).ne.0d0.or.
+     .     cfac(54).ne.0d0.or.
      .     cfac(36).ne.0d0)
 c
+      return
+      end
+c
+      logical function xc_chktau()
+C
+C $Id: xc_chktau.F 20594 2011-06-17 22:55:57Z niri $ 
+C
+      implicit none
+ 
+c
+c     see if any metaGGA Functional using TAU is not null
+c
+#include "cdft.fh"
+C  note in cdft.fh,they define cfac(numfunc) and xfac(numfunc)
+c 
+      double precision tot,eps
+      parameter(eps=1.d-10)
+      tot = xfac(18) + cfac(25) + xfac(21) + cfac(27) 
+     +       + xfac(28) + xfac(29) + xfac(33) + xfac(34) + xfac(35)
+     +       + xfac(36) + cfac(29) + cfac(31) + cfac(32) + cfac(33) 
+     +       + cfac(34) + cfac(35) + cfac(30) + cfac(38)
+     +       + cfac(39) + cfac(40)
+     +       + cfac(48) + cfac(49) + cfac(50) + cfac(51)
+c
+      if (abs(tot).gt.eps)then
+         xc_chktau = .true.
+      else
+         xc_chktau = .false.
+      endif
+      return
+      end
+c
+      logical function xc_getxcfac(rtdb)
+      implicit none
+      integer rtdb
+c     load cfac and xfac into cdft.fh
+#include "cdft.fh"
+#include "rtdb.fh"
+#include "mafdecls.fh"
+      xc_getxcfac=rtdb_get(rtdb, 'dft:xfac', mt_dbl, numfunc,
+     &xfac)
+      xc_getxcfac=xc_getxcfac.and.
+     A     rtdb_get(rtdb, 'dft:cfac', mt_dbl, numfunc,
+     &     cfac)
       return
       end

@@ -547,6 +547,13 @@ c
       cname(41)='      Becke 1997-D Correlation Potential'
       cname(46)='    simplified PBE Correlation Potential'
       cname(47)='        ------  NO Correlation ---------'
+      cname(48)='            M08-HX Correlation Potential'
+      cname(49)='            M08-SO Correlation Potential'
+      cname(50)='               M11 Correlation Potential'
+      cname(51)='             M11-L Correlation Potential'
+      cname(52)='             SOGGA Correlation Potential'
+      cname(53)='           SOGGA11 Correlation Potential'
+      cname(54)='         SOGGA11-X Correlation Potential'
 c
 c     Exchange functional name defaults.
 c
@@ -592,6 +599,14 @@ c
       xname(43)='           LC-wPBE(h)Exchange Functional'
       xname(46)='               SSB-1 Exchange Functional'
       xname(47)='                 KT1 gradient correction'
+      xname(48)='              M08-HX gradient correction'
+      xname(49)='              M08-SO gradient correction'
+      xname(50)='                 M11 gradient correction'
+      xname(51)='               M11-L gradient correction'
+      xname(52)='               SOGGA gradient correction'
+      xname(53)='             SOGGA11 gradient correction'
+      xname(54)='           SOGGA11-X gradient correction'
+
 c
 c     Exchange-Correlation combination functional name defaults.
 c
@@ -633,6 +648,13 @@ c
       xcname(38)='             LC-BNL Method XC Functional'
       xcname(46)='              SSB-D Method XC Functional'
       xcname(47)='                KT2 Method XC Functional'
+      xcname(48)='             M08-HX Method XC Functional'
+      xcname(49)='             M08-SO Method XC Functional'
+      xcname(50)='                M11 Method XC Functional'
+      xcname(51)='              M11-L Method XC Functional'
+      xcname(52)='              SOGGA Method XC Functional'
+      xcname(53)='            SOGGA11 Method XC Functional'
+      xcname(54)='          SOGGA11-X Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     

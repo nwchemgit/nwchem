@@ -2,7 +2,7 @@
 
 HEADERS = xc.fh xc_vdw.fh xc_params.fh
 
-	OBJ = xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_chkgrad.o xc_chktau.o xc_chkdispauto.o xc_vdw_init.o
+	OBJ = xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_util.o xc_chkdispauto.o xc_vdw_init.o
 
 	OBJ_OPTIMIZE = xc_eval_basis.o  \
 	a_dist.o \
@@ -55,7 +55,6 @@ LIB_INCLUDES = -I../include
 ifeq ($(TARGET),cray-sv2)
     EXPLICITF=TRUE
 endif
-
 
    USES_BLAS = xc_fitv.F xc_dirac.F xc_bnl.F xc_att_xc.F xc_tabcd.F xc_rhogen.F \
                xc_oep.F xc_sic_pert.F xc_sic.F localize_sic.F \
