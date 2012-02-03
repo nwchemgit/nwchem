@@ -946,6 +946,14 @@ fi
 if [ ${#NWCHEM_MODULES} -eq 0 ] ; then
   export NWCHEM_MODULES="all"
 fi
+if [ ${#LARGE_FILES} -eq 0 ] ; then
+  # Apparently LARGE_FILES is important so that the code can use files that
+  # are larger than 2GB. Also nobody has been able to give me a good reason
+  # why it should not be turned on in some cases. So I'll just hardwire it to
+  # be turned on always. Of course if it should always be turned on nowadays
+  # then why are we keeping this option?
+  export LARGE_FILES=y
+fi
 if [ ${#USE_MPI} -eq 0 ] ; then
   export USE_MPI=y
 fi
