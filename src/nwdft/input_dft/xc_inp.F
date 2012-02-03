@@ -168,6 +168,8 @@ c
 c     becke97-d, ssb-d
       logical disp
 c
+      double precision cam_omega,cam_alpha,cam_beta
+c
 c     Only these few arrays are initialized (not defaults).
 c
       do iline = 1, numfunc
@@ -2641,6 +2643,12 @@ c
        lxfac(1) = .true.
       nlxfac(1) = .true.
 c    
+c     set cam parameters since this is a range-separated functional 
+      cam_omega = 0.25
+      cam_alpha = 0.428
+      cam_beta = 0.572
+      call xc_setcamparam(rtdb,cam_omega,cam_alpha,cam_beta)
+c
       goto 10
 c
 c M11 exchange part
@@ -2672,7 +2680,8 @@ c
       if (.not. inp_f(xfac(50))) then
          xfac(50) = 1.0d0
       endif
-       goto 10
+c    
+      goto 10
 c
 c M11 correlation part
 c
