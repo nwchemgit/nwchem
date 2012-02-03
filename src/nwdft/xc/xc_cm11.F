@@ -69,7 +69,7 @@ c
 c
 c     Kinetic Energy Density
 c
-      double precision tau(nq,3,ipol)
+      double precision tau(nq,ipol)
 c
 c     Quadrature Weights
 c
@@ -264,9 +264,7 @@ c
         gammaval =(delrho(n,1,1)*delrho(n,1,1) +
      &             delrho(n,2,1)*delrho(n,2,1) +
      &             delrho(n,3,1)*delrho(n,3,1))
-        TA = (tau(n,1,1) +
-     &        tau(n,2,1) +
-     &        tau(n,3,1))/F2
+        TA = tau(n,1)/F2
         TB=TA
       else
         RHOA = rho(n,2)
@@ -283,12 +281,8 @@ c
      &       2.d0*(delrho(n,1,1)*delrho(n,1,2) +
      &             delrho(n,2,1)*delrho(n,2,2) +
      &             delrho(n,3,1)*delrho(n,3,2))
-        TA =  tau(n,1,1) +
-     &        tau(n,2,1) +
-     &        tau(n,3,1)
-        TB =  tau(n,1,2) +
-     &        tau(n,2,2) +
-     &        tau(n,3,2)
+        TA =  tau(n,1)
+        TB =  tau(n,2)
       endif
       RHOVAL  = RHOA + RHOB
       TauP = TA+TB

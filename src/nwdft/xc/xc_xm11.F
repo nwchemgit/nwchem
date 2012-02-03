@@ -53,7 +53,7 @@ c
 c
 c     kinetic energy density   or  tau
 c
-      double precision tau(nq,3,ipol)
+      double precision tau(nq,ipol)
       double precision tauN,tauu,DTol
 c
 c      functional derivatives
@@ -308,9 +308,7 @@ c
             rho13 = rho43/rhoo
             rho53 = rhoo**F5o3
 c            
-            tauN = (tau(n,1,1) +
-     &             tau(n,2,1) +
-     &             tau(n,3,1))
+            tauN = tau(n,1)
          if(taun.lt.dtol) goto 10
             tauu=tauN
             TAUUEG=F3O5*((F6*PI*PI)**F2O3)*RHO53
@@ -464,9 +462,7 @@ c
             rho13 = rho43/rhoo
             rho53 = rhoo**F5o3
 c       
-            tauN = (tau(n,1,1) +
-     &             tau(n,2,1) +
-     &             tau(n,3,1))*F2
+            tauN = tau(n,1)*F2
      
          if(taun.lt.dtol) goto 25
             tauu=tauN
@@ -610,9 +606,7 @@ c
             rho53 = rhoo**F5o3
 c
              
-            tauN = (tau(n,1,2) +
-     &              tau(n,2,2) +
-     &              tau(n,3,2))*F2
+            tauN = tau(n,2)*F2
      
          if(taun.lt.dtol) goto 20
             tauu=tauN
