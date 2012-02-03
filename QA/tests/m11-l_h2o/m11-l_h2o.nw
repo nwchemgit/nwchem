@@ -1,0 +1,25 @@
+echo
+
+title m11-l_h2o
+start m11-l_h2o
+
+geometry units angstroms
+ O     0.000000     0.000000     0.000000
+ H     0.000000     0.000000     0.956914
+ H     0.926363     0.000000    -0.239868
+end
+
+basis
+ H library 6-31+G*
+ O library 6-31+G*
+end
+
+dft
+ iterations 50
+ print intermediate energy info
+ xc m11-l
+ decomp
+ grid lebedev 99 14
+ direct
+end
+task dft
