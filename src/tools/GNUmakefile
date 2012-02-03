@@ -384,10 +384,10 @@ ifneq ($(SCALAPACK_LIB),)
 endif
 
 ifneq ($(SCALAPACK),)
-    ifeq ($(SCALAPACK_SIZE),4)
-        MAYBE_SCALAPACK = --with-scalapack="$(strip $(SCALAPACK))"
-    else
+    ifeq ($(SCALAPACK_SIZE),8)
         MAYBE_SCALAPACK = --with-scalapack8="$(strip $(SCALAPACK))"
+    else
+        MAYBE_SCALAPACK = --with-scalapack="$(strip $(SCALAPACK))"
     endif
 endif
 
