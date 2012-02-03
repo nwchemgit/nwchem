@@ -91,7 +91,6 @@ c
 c
       me=ga_nodeid()
       havehfxc=abs(xfac(1)).gt.1d-8
-c      nproc=ga_nnodes()
 c
       if (oprint_intermediate_xc)then
          write(luout,*)' rtdb, Exc, nExc, iVxc_opt, g_xcinv: ',

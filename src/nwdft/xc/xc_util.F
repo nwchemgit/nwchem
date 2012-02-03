@@ -191,3 +191,62 @@ c     load cfac and xfac into cdft.fh
      &     cfac)
       return
       end
+c
+c     return true for functionals with cam
+c
+      logical function xc_hascam()
+      implicit none
+c
+#include "cdft.fh"
+c
+      xc_hascam=(
+     .     xfac(38).ne.0d0.or.
+     .     xfac(40).ne.0d0.or.
+     .     xfac(41).ne.0d0.or.
+     .     xfac(42).ne.0d0.or.
+     .     xfac(43).ne.0d0.or.
+     .     xfac(50).ne.0d0.or.
+     .     xfac(51).ne.0d0)
+c
+      return
+      end
+c
+c     set cam parameters
+c
+      subroutine xc_setcamparam(rtdb,omega,alpha,beta)
+      implicit none
+c
+      integer rtdb
+c
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+c
+      logical cam_exch
+      double precision omega,alpha,beta
+c
+c     set cam parameters
+      cam_exch = .true.    
+c
+c     set cam flag 
+      if (.not.rtdb_put(rtdb,'dft:cam_exch', mt_log, 1, cam_exch))
+     & call errquit('xc_setcamparam: rtdb_put failed', 2700, RTDB_ERR)
+c
+c     set cam_omega
+      if (.not.rtdb_put(rtdb,'dft:cam_omega',mt_dbl,1,omega))
+     & call errquit('xc_setcamparam: rtdb_put failed', 2700, RTDB_ERR)
+c
+c     set cam_alpha
+      if (.not.rtdb_put(rtdb,'dft:cam_alpha',mt_dbl,1,alpha))
+     & call errquit('xc_setcamparam: rtdb_put failed', 2700, RTDB_ERR)
+c
+c     set cam_beta
+      if (.not.rtdb_put(rtdb,'dft:cam_beta',mt_dbl,1,beta))
+     & call errquit('xc_setcamparam: rtdb_put failed', 2700, RTDB_ERR)
+c
+c     Force texas integrals to false for CAM calculations
+      if (.not.rtdb_put(rtdb,'int:cando_txs',mt_log,1,.false.))
+     &   call errquit('cannot set int:cando_txs',0, RTDB_ERR)
+c
+      return
+      end
