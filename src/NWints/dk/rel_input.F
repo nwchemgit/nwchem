@@ -94,36 +94,42 @@ c
          call zora_input(rtdb)
 c
       elseif(inp_compare(.false.,'zora:cutoff',test)) then
-         if(.not. inp_f(zoracutoff)) zoracutoff = 1.0d-08  ! set a default cutoff
+         if(.not. inp_f(zoracutoff)) zoracutoff = 1.0d-15  ! set a default cutoff
          if (.not. rtdb_put(rtdb,'zora:cutoff',mt_dbl,1,zoracutoff))
      &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)
-c------------- zoracutoff_EFG, used in get_rhoS() from dft_zora_utils.F -- FA-01-01-10
-      elseif(inp_compare(.false.,'zora:cutoff_EFG',test)) then                      ! FA
-         if(.not. inp_f(zoracutoff_EFG)) zoracutoff_EFG = 1.0d-04 ! set dflt cutoff   FA
-         if (.not. rtdb_put(rtdb,'zora:cutoff_EFG',                                 ! FA
-     &                      mt_dbl,1,zoracutoff_EFG))                               ! FA
-     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)                    ! FA
-c------------- zoracutoff_NMR, used in get_NMR() from dft_zora_utils.F -- FA-11-01-10
-      elseif(inp_compare(.false.,'zora:cutoff_NMR',test)) then                      ! FA
-         if(.not. inp_f(zoracutoff_NMR)) zoracutoff_NMR = 1.0d-08 ! set dflt cutoff   FA
-         if (.not. rtdb_put(rtdb,'zora:cutoff_NMR',                                 ! FA
-     &                      mt_dbl,1,zoracutoff_NMR))                               ! FA
-     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)                    ! FA
-      elseif(inp_compare(.false.,'zora:do_NonRel',test)) then                       ! FA
-         do_NonRel = .true.                                  ! set do_NonRel          FA
-         if (.not. rtdb_put(rtdb,'zora:do_NonRel', mt_log,1,do_NonRel))             ! FA
-     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)                    ! FA
-      elseif(inp_compare(.false.,'zora:do_prntNMRCS',test)) then                    ! FA
-         do_prntNMRCS = .true.                            ! set do_prntNMRCS          FA
-         if (.not. rtdb_put(rtdb,'zora:do_prntNMRCS',                               ! FA
-     &                      mt_log,1,do_prntNMRCS))                                 ! FA
-     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)                    ! FA
-      elseif(inp_compare(.false.,'zora:not_zora_scale',test)) then                  ! FA
-         not_zora_scale = .true.                               ! set not_zora_scale   FA
-         if (.not. rtdb_put(rtdb,'zora:not_zora_scale',                             ! FA
-     &                     mt_log,1,not_zora_scale))                                ! FA
-     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)                    ! FA
-c ------- SKIP ev. AO matrices for NMRCS or gshifts or hyperfine ---- START
+c
+c     zoracutoff_EFG, used in get_rhoS() from dft_zora_utils.F
+      elseif(inp_compare(.false.,'zora:cutoff_EFG',test)) then
+         if(.not. inp_f(zoracutoff_EFG)) zoracutoff_EFG = 1.0d-04 ! set dflt cutoff
+         if (.not. rtdb_put(rtdb,'zora:cutoff_EFG', 
+     &                      mt_dbl,1,zoracutoff_EFG))
+     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)
+c
+c     zoracutoff_NMR, used in get_NMR() from dft_zora_utils.F
+      elseif(inp_compare(.false.,'zora:cutoff_NMR',test)) then
+         if(.not. inp_f(zoracutoff_NMR)) zoracutoff_NMR = 1.0d-08 ! set dflt cutoff
+         if (.not. rtdb_put(rtdb,'zora:cutoff_NMR',
+     &                      mt_dbl,1,zoracutoff_NMR))
+     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)
+c
+      elseif(inp_compare(.false.,'zora:do_NonRel',test)) then
+         do_NonRel = .true.                                  ! set do_NonRel
+         if (.not. rtdb_put(rtdb,'zora:do_NonRel', mt_log,1,do_NonRel))
+     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)
+c
+      elseif(inp_compare(.false.,'zora:do_prntNMRCS',test)) then
+         do_prntNMRCS = .true.                            ! set do_prntNMRCS
+         if (.not. rtdb_put(rtdb,'zora:do_prntNMRCS',
+     &                      mt_log,1,do_prntNMRCS))
+     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)
+c
+      elseif(inp_compare(.false.,'zora:not_zora_scale',test)) then 
+         not_zora_scale = .true.                               ! set not_zora_scale
+         if (.not. rtdb_put(rtdb,'zora:not_zora_scale',
+     &                     mt_log,1,not_zora_scale))
+     &    call errquit('rel_input: rtdb put failed',0, RTDB_ERR)
+c
+c ------- SKIP ev. AO matrices for NMRCS or gshifts or hyperfine
 c Note.- It will read instead data from a file, if the file does not
 c        exist it will stop calc. with a warning message.
       elseif(inp_compare(.false.,'zora:skip_csAOev',test)) then 
@@ -150,7 +156,8 @@ c        exist it will stop calc. with a warning message.
      &                     mt_log,1,skip_efgz4AOev))
      &    call errquit('rel_input: rtdb put failed skip efgz4AOev',
      &                  0, RTDB_ERR)
-c ++++++++++ definitions for skip-cphf flags ++++++++++ START
+c
+c     definitions for skip-cphf flags
       elseif(inp_compare(.false.,'zora:skip_cphf_ev_shield',test)) then
          skip_cphf_ev_shield = .true.
          if (.not. rtdb_put(rtdb,'zora:skip_cphf_ev_shield',
@@ -169,7 +176,7 @@ c ++++++++++ definitions for skip-cphf flags ++++++++++ START
      &                     mt_log,1,skip_cphf_ev_hyp))
      &    call errquit('rel_input-3: rtdb put failed skip cphf hyp',
      &                  0, RTDB_ERR)
-c ++++++++++ definitions for skip-cphf flags ++++++++++ END
+c
       elseif(inp_compare(.false.,'zora:Knucl',test)) then
 c      Knucle purpose: For including ONLY nuclear part in evaluation of K ZORA
          Knucl = .true. 
@@ -177,7 +184,6 @@ c      Knucle purpose: For including ONLY nuclear part in evaluation of K ZORA
      &                     mt_log,1,Knucl))
      &    call errquit('rel_input: rtdb put failed Knucl',
      &                  0, RTDB_ERR)
-c ------- SKIP ev. AO matrices for NMRCS or gshifts or hyperfine ---- END
       elseif(inp_compare(.false.,'zora:slc_spinpolAO',test)) then
 c   For selecting spin-density matrix (A-B means total spin density matrix)
 c   0=A-B,1=A,2=-B selecting spin-density matrix  
