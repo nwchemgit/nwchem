@@ -35,7 +35,7 @@ c
 #include "util.fh"
 c
       character*80 chr01,chr02,chr03,chr04,chr05,chr06,chr07,chr08
-      character*80 chr09,chr10,chr11,chr12,chr13
+      character*80 chr09,chr10,chr11,chr12,chr13,chr14
       data chr01/
      +'E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straa
      +tsma,'/
@@ -70,12 +70,12 @@ c
      +'B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefiel
      +d,'/
       data chr12/
-     +'X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. 
-     +Sandrone,'/
+     +'X. Long, B. Meng, T. Nakajima, S. Niu, R. Peverati, L. Pollack, M
+     +. Rosing,'/
       data chr13/
-     +'M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zha
-     +ng.'/
-
+     +'G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,'/
+      data chr14/
+     +'A. Wong, Z. Zhang.'/
 c
 c     == default ==
       write(luout,*)
@@ -97,6 +97,7 @@ c     == default ==
       call util_print_centered(luout, chr11, 40, .false.)
       call util_print_centered(luout, chr12, 40, .false.)
       call util_print_centered(luout, chr13, 40, .false.)
+      call util_print_centered(luout, chr14, 40, .false.)
 c
 c     == print high ==
       if (util_print('references',print_high)) then
