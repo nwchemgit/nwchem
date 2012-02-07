@@ -3,8 +3,8 @@ Created on Feb 5, 2012
 
 @author: marat
 '''
-from myatom import *
-import string 
+from myatom import Atom
+
 from atom_dictionary import *
 
 class ResAtom(Atom):
@@ -42,7 +42,7 @@ class ResAtom(Atom):
             self.resid = 1              
 
         if params.has_key("element"):
-            element = params["element"]
+            self.element = params["element"]
         else:
             if name != "atom":
                 self.element = AtomDictionary.elementName(name)
@@ -81,7 +81,7 @@ class ResAtom(Atom):
         else:
             sys.exit(1)
 
-    def toPDBrecord(self):
+    def toPDBrecord(self,i=1):
  
         a1=" "
         a2=2*" "
@@ -91,47 +91,14 @@ class ResAtom(Atom):
         a6=6*" "
         a8=8*" "
         a22=22*" "
-        
-        rec = 78*" "
-        recname=a6
-        serial=a5
-        atom=a4
-        resname=a3
-        chain=a1 
-        seq=a5
-        x=a8
-        y=a8
-        z=a8
-
-        recname = "ATOM"
+ 
         pdbformat="%-6s%5s%1s%4s%1s%3s%1s%4s%4s%8.3f%8.3f%8.3f%22s%2s"
 
-        print pdbformat%('ATOM',str(1),a1,self.name,a1,
+        return pdbformat%('ATOM',str(i),a1,self.name,a1,
                                            self.resname,a2,str(self.resid),a4,
                                            self.coords[0],self.coords[1],self.coords[2],a22,
                                            self.element)  
-                
-#        print '"{:<30}"'.format('left aligned')
-#        print '{:<4}'.format('ATOM')
-#        i=1
-#        serial="%4d"%i
-        
-        print recname+serial
-#        if string.startswith('ATOM'):
-#            d = {}
-#            aname = string[12:16].strip()
-#            d['name']=aname
-#            rname = string[17:20].strip()
-#            d['resname']=rname
-#            resid = int(string[22:26].strip())
-#            d['resid']=resid
-#            x = float(string[30:38].strip())
-#            y = float(string[38:46].strip())
-#            z = float(string[46:54].strip())
-#            d['coords']=[x,y,z]
-#            return cls(d)
-#        else:
-#            sys.exit(1)
+ 
                                 
 if __name__ == '__main__':
     aline1="ATOM    588 1HG  GLU    18     -13.363  -4.163  -2.372  1.00  0.00           H"
@@ -145,6 +112,6 @@ if __name__ == '__main__':
     print b
     print Atom.bondlength(a, b)
     print aline1[0:78]
-    b.toPDBrecord()
-    a.toPDBrecord()
+    print b.toPDBrecord(588)
+    print a.toPDBrecord()
     

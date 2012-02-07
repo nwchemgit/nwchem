@@ -31,6 +31,15 @@ class Residue:
         for a in self.atoms:
             output=output + str(a)+"\n"
         return output
+    
+    def toPDBrecord(self):
+        output = ""
+        i=0
+        for a in self.atoms:
+            i = i + 1
+            output=output + a.toPDBrecord(i) +"\n"
+        return output    
+
 
     def AddAtom(self,a):
         if self.name =="" :
@@ -50,4 +59,4 @@ if __name__ == '__main__':
     b = ResAtom.fromPDBrecord(aline1)
     res0.AddAtom(a)
     res0.AddAtom(b)
-    print res0
+    print res0.toPDBrecord()
