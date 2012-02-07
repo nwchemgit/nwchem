@@ -1354,6 +1354,9 @@ echo "ARMCI_NETWORK =" ${ARMCI_NETWORK}
 if [ ${#IB_INCLUDE} -ne 0 ] ; then
   echo "IB_INCLUDE    =" ${IB_INCLUDE}
 fi
+if [ ${#BLASOPT} -ne 0 ] ; then
+  echo "BLASOPT       =" ${BLASOPT} 
+fi
 if [ ${#BLAS_LIB} -ne 0 ] ; then
   echo "BLAS_LIB      =" ${BLAS_LIB} " integer-size = " ${BLAS_SIZE}
 fi
@@ -1454,11 +1457,68 @@ if [ "x${option}" != "xrealclean" ]; then
     echo "have_blas_false = " ${have_blas_false}
     exit 1
   fi
+  #
+  # Extract information about LAPACK libraries from the GA config.status file
+  #
+  have_lapack_false=`get_config_value "HAVE_LAPACK_FALSE"`
+  have_lapack_true=`get_config_value "HAVE_LAPACK_TRUE"`
+  if [ "x${have_lapack_true}" == "x" ] ; then
+    if [ "x${have_lapack_false}" == "x#" ] ; then
+      # The GA found some LAPACK library, set GA_LAPACK accordingly
+      GA_LAPACK=`get_config_value "LAPACK_LDFLAGS"`
+      GA_LAPACK="${GA_LAPACK} `get_config_value \"LAPACK_LIBS\"`"
+      GA_LAPACK_SIZE=`get_config_value "LAPACK_SIZE"`
+      export GA_LAPACK
+      if [ ${#LAPACK_SIZE} -ne 0 ] ; then
+        if [ "${LAPACK_SIZE}" != "${GA_LAPACK_SIZE}" ] ; then
+          echo "Warning: LAPACK_SIZE and GA_LAPACK_SIZE do not match " ${LAPACK_SIZE} ${GA_LAPACK_SIZE}
+          export GA_LAPACK_SIZE=${LAPACK_SIZE}
+        fi
+      fi
+      if [ "${GA_LAPACK_SIZE}" == "4" ] ; then
+        export USE_64TO32=y
+      else
+        unset USE_64TO32
+      fi
+      echo "Found LAPACK " ${GA_LAPACK}
+      echo "Found LAPACK type: integer*"${GA_LAPACK_SIZE}
+    else
+      # Confused
+      echo "ERROR: A: inconsistent data on presence of LAPACK library"
+      echo "have_lapack_true  = " ${have_lapack_true}
+      echo "have_lapack_false = " ${have_lapack_false}
+      exit 1
+    fi
+  elif [ "x${have_lapack_true}" == "x#" ] ; then
+    if [ "x${have_lapack_false}" == "x" ] ; then
+      # The GA found no LAPACK library, unset GA_LAPACK to maintain consistency
+      unset GA_LAPACK
+      echo "Found no LAPACK "
+    else
+      # Confused
+      echo "ERROR: B: inconsistent data on presence of LAPACK library"
+      echo "have_lapack_true  = " ${have_lapack_true}
+      echo "have_lapack_false = " ${have_lapack_false}
+      exit 1
+    fi
+  else
+    echo "ERROR: C: invalid settings" 
+    echo "have_lapack_true  = " ${have_lapack_true}
+    echo "have_lapack_false = " ${have_lapack_false}
+    exit 1
+  fi
 fi
 if [ ${#BLASOPT} -eq 0 ] ; then
-  if [ ${#GA_BLAS} -ne 0 ] ; then
-    export BLASOPT=${GA_BLAS}
+  if [ ${#GA_SCALAPACK} -ne 0 ] ; then
+    export BLASOPT="${GA_SCALAPACK}"
   fi
+  if [ ${#GA_LAPACK} -ne 0 ] ; then
+    export BLASOPT="${BLASOPT} ${GA_LAPACK}"
+  fi
+  if [ ${#GA_BLAS} -ne 0 ] ; then
+    export BLASOPT="${BLASOPT} ${GA_BLAS}"
+  fi
+  echo "BLASOPT from GA = " ${BLASOPT}
 fi
 echo "=== configure NWChem ==="
 if [ "x${option}" != "xrealclean" ]; then
