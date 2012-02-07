@@ -1507,6 +1507,56 @@ if [ "x${option}" != "xrealclean" ]; then
     echo "have_lapack_false = " ${have_lapack_false}
     exit 1
   fi
+  #
+  # Extract information about SCALAPACK libraries from the GA config.status file
+  #
+  have_scalapack_false=`get_config_value "HAVE_SCALAPACK_FALSE"`
+  have_scalapack_true=`get_config_value "HAVE_SCALAPACK_TRUE"`
+  if [ "x${have_scalapack_true}" == "x" ] ; then
+    if [ "x${have_scalapack_false}" == "x#" ] ; then
+      # The GA found some SCALAPACK library, set GA_SCALAPACK accordingly
+      GA_SCALAPACK=`get_config_value "SCALAPACK_LDFLAGS"`
+      GA_SCALAPACK="${GA_SCALAPACK} `get_config_value \"SCALAPACK_LIBS\"`"
+      GA_SCALAPACK_SIZE=`get_config_value "SCALAPACK_SIZE"`
+      export GA_SCALAPACK
+      if [ ${#SCALAPACK_SIZE} -ne 0 ] ; then
+        if [ "${SCALAPACK_SIZE}" != "${GA_SCALAPACK_SIZE}" ] ; then
+          echo "Warning: SCALAPACK_SIZE and GA_SCALAPACK_SIZE do not match " ${SCALAPACK_SIZE} ${GA_SCALAPACK_SIZE}
+          export GA_SCALAPACK_SIZE=${SCALAPACK_SIZE}
+        fi
+      fi
+      if [ "${GA_SCALAPACK_SIZE}" == "4" ] ; then
+        export USE_64TO32=y
+      else
+        unset USE_64TO32
+      fi
+      echo "Found SCALAPACK " ${GA_SCALAPACK}
+      echo "Found SCALAPACK type: integer*"${GA_SCALAPACK_SIZE}
+    else
+      # Confused
+      echo "ERROR: A: inconsistent data on presence of SCALAPACK library"
+      echo "have_scalapack_true  = " ${have_scalapack_true}
+      echo "have_scalapack_false = " ${have_scalapack_false}
+      exit 1
+    fi
+  elif [ "x${have_scalapack_true}" == "x#" ] ; then
+    if [ "x${have_scalapack_false}" == "x" ] ; then
+      # The GA found no SCALAPACK library, unset GA_SCALAPACK to maintain consistency
+      unset GA_SCALAPACK
+      echo "Found no SCALAPACK "
+    else
+      # Confused
+      echo "ERROR: B: inconsistent data on presence of SCALAPACK library"
+      echo "have_scalapack_true  = " ${have_scalapack_true}
+      echo "have_scalapack_false = " ${have_scalapack_false}
+      exit 1
+    fi
+  else
+    echo "ERROR: C: invalid settings" 
+    echo "have_scalapack_true  = " ${have_scalapack_true}
+    echo "have_scalapack_false = " ${have_scalapack_false}
+    exit 1
+  fi
 fi
 if [ ${#BLASOPT} -eq 0 ] ; then
   if [ ${#GA_SCALAPACK} -ne 0 ] ; then
