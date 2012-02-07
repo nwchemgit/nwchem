@@ -1,5 +1,5 @@
 #!/bin/bash
-release=nwchem-6.0
+release=nwchem-6.1
 if [[ ! ( $# == 1 || $# == 2 ) ]] ; then
   echo "Usage: $0 source-directory [distribution-directory]"
   echo ""
