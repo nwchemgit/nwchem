@@ -51,12 +51,7 @@ class ResAtom(Atom):
                                        
         
     def __str__(self):
-        output = self.name + "  " 
-        output = output + self.resname + "  " 
-        output = output + str(self.resid) + "  " 
-        for x in self.coords:
-            output = output + "  %12.6f"%x
-        return output + "  " + self.element
+        return self.toPDBrecord()
 
     @classmethod        
     def fromPDBrecord(cls,string):
@@ -65,11 +60,9 @@ class ResAtom(Atom):
         '''
         if string.startswith('ATOM'):
             d = {}
-            aname = string[12:16]
-            print "here",string[12:16]
-            print "here",aname
+            aname = string[12:16] #this actually means characters from 12 - 15 inclusive
             d['name']=aname
-            rname = string[17:20].strip()
+            rname = string[17:20]
             d['resname']=rname
             resid = int(string[22:26].strip())
             d['resid']=resid
@@ -81,7 +74,7 @@ class ResAtom(Atom):
         else:
             sys.exit(1)
 
-    def toPDBrecord(self,i=1):
+    def toPDBrecord(self,id_atom=1,id_res=0):
  
         a1=" "
         a2=2*" "
@@ -94,24 +87,70 @@ class ResAtom(Atom):
  
         pdbformat="%-6s%5s%1s%4s%1s%3s%1s%4s%4s%8.3f%8.3f%8.3f%22s%2s"
 
-        return pdbformat%('ATOM',str(i),a1,self.name,a1,
-                                           self.resname,a2,str(self.resid),a4,
+        if id_res==0:
+            resi = str(self.resid)
+        else:
+            resi = id_res
+        return pdbformat%('ATOM',str(id_atom),a1,self.name,a1,
+                                           self.resname,a2,str(resi),a4,
                                            self.coords[0],self.coords[1],self.coords[2],a22,
                                            self.element)  
  
                                 
 if __name__ == '__main__':
-    aline1="ATOM    588 1HG  GLU    18     -13.363  -4.163  -2.372  1.00  0.00           H"
-    aline2="ATOM    589 2HG  GLU    18     -12.634  -3.023  -3.475  1.00  0.00           H"
-#    aline1 = "ATOM      3  O2  IO3     1      -1.182   1.410   0.573       -0.80     O"
-#    aline2 = "ATOM      1  I1  IO3     1      -1.555  -0.350   0.333        1.39     I"
-
-    a = ResAtom.fromPDBrecord(aline2)
-    b = ResAtom.fromPDBrecord(aline1)
-    print a
-    print b
-    print Atom.bondlength(a, b)
-    print aline1[0:78]
-    print b.toPDBrecord(588)
-    print a.toPDBrecord()
     
+    print "creating first atom"
+    aline1="ATOM    588 1HG  GLU    18     -13.363  -4.163  -2.372  1.00  0.00           H"
+    print aline1
+    a = ResAtom.fromPDBrecord(aline1)   
+    print "it should come out as this"
+    print a
+    aline2="ATOM    589 2HG  GLU    18     -12.634  -3.023  -3.475  1.00  0.00           H"
+
+    print "creating second atom"
+    aline2="ATOM    589 2HG  GLU    18     -12.634  -3.023  -3.475  1.00  0.00           H"
+    print aline2
+    b = ResAtom.fromPDBrecord(aline2)   
+    print "it should come out as this"
+    print b
+
+    print "The distance between these two atoms is", Atom.bondlength(a, b)
+    
+    print "PDB record for second atom with starting index 5 and resid 23" 
+    print b.toPDBrecord(id_atom=5,id_res=23)
+
+    
+#    PDB ATOM RECORD FORMAT
+#    COLUMNS      DATA TYPE        FIELD      DEFINITION
+#    ------------------------------------------------------
+#     1 -  6      Record name      "ATOM    "
+#     7 - 11      Integer          serial     Atom serial number.
+#    13 - 16      Atom             name       Atom name.
+#    17           Character        altLoc     Alternate location indicator.
+#    18 - 20      Residue name     resName    Residue name.
+#    22           Character        chainID    Chain identifier.
+#    23 - 26      Integer          resSeq     Residue sequence number.
+#    27           AChar            iCode      Code for insertion of residues.
+#    31 - 38      Real(8.3)        x          Orthogonal coordinates for X in 
+#                                             Angstroms
+#    39 - 46      Real(8.3)        y          Orthogonal coordinates for Y in 
+#                                             Angstroms
+#    47 - 54      Real(8.3)        z          Orthogonal coordinates for Z in 
+#                                             Angstroms
+#    55 - 60      Real(6.2)        occupancy  Occupancy.
+#    61 - 66      Real(6.2)        tempFactor Temperature factor.
+#    77 - 78      LString(2)       element    Element symbol, right-justified.
+#    79 - 80      LString(2)       charge     Charge on the atom.
+
+#    Example
+#             1         2         3         4         5         6         7         8
+#    12345678901234567890123456789012345678901234567890123456789012345678901234567890
+#    MODEL        1
+#    ATOM      1  N   ALA     1      11.104   6.134  -6.504  1.00  0.00           N
+#    ATOM      2  CA  ALA     1      11.639   6.071  -5.147  1.00  0.00           C
+#    ...
+#    ...
+#    ATOM    293 1HG  GLU    18     -14.861  -4.847   0.361  1.00  0.00           H
+#    ATOM    294 2HG  GLU    18     -13.518  -3.769   0.084  1.00  0.00           H
+                                          
+

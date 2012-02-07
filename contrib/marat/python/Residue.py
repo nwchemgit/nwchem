@@ -14,7 +14,9 @@ class Residue:
 
     def __init__(self,params={}):
         '''
-        Constructor
+        Default constructor for Residue class
+        atoms list of atoms in the residue
+        name residue name
         '''
         if params.has_key("atoms"):
             self.atoms = params["coords"]
@@ -32,9 +34,9 @@ class Residue:
             output=output + str(a)+"\n"
         return output
     
-    def toPDBrecord(self):
+    def toPDBrecord(self,id_atom=1,id_res=1):
         output = ""
-        i=0
+        i=id_atom-1
         for a in self.atoms:
             i = i + 1
             output=output + a.toPDBrecord(i) +"\n"
@@ -59,4 +61,4 @@ if __name__ == '__main__':
     b = ResAtom.fromPDBrecord(aline1)
     res0.AddAtom(a)
     res0.AddAtom(b)
-    print res0.toPDBrecord()
+    print res0.toPDBrecord(id_atom=4)

@@ -1,3 +1,6 @@
+'''
+testing pydoc
+'''
 import re
 import string
 import sys
