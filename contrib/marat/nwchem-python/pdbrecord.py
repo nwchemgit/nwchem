@@ -67,11 +67,20 @@ class PDBRecord:
                 float(PDBRecord.genrecord(self.buf,self.iz))]
 
               
-                            
+    def getDict(self):
+        d = {}
+        d["element"]=self.elemName()  
+        d["coords"]=self.atomCoord() 
+        d["name"]=self.atomName()
+        d["resid"]=self.resId()
+        d["resname"]=self.resName()
+
+        return d   
+                          
     @staticmethod     
     def genrecord(buf,ir):
         return buf[ir[0]:ir[1]] 
-
+       
         
     def __str__(self):
         return self.buf
@@ -86,7 +95,8 @@ if __name__ == '__main__':
     print pdb1.resName() 
     print pdb1.resId()
     print pdb1.elemName()     
-    print pdb1.atomCoord()          
+    print pdb1.atomCoord()        
+    print pdb1.getDict()
 
 #    Example
 #             1         2         3         4         5         6         7         8
