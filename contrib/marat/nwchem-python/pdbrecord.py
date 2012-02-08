@@ -39,32 +39,37 @@ class PDBRecord:
 #    77 - 78      LString(2)       element    Element symbol, right-justified.
 #    79 - 80      LString(2)       charge     Charge on the atom.
 
-    def __init__(self,line):
-        '''
-        Constructor
-        '''
-        self.buf=line
+#    def __init__(self,line):
+#        '''
+#        Constructor
+#        '''
+#        pass
 
-
-    def recordName(self):
-        return PDBRecord.genrecord(self.buf,self.irecord)
-
-    def atomName(self):
-        return PDBRecord.genrecord(self.buf,self.iname)
-
-    def resName(self):
-        return PDBRecord.genrecord(self.buf,self.iresname)
-
-    def elemName(self):
-        return PDBRecord.genrecord(self.buf,self.iel)
+    @staticmethod   
+    def recordName(buf):
+        return PDBRecord.genrecord(buf,PDBRecord.irecord)
     
-    def resId(self):
-        return int(PDBRecord.genrecord(self.buf,self.iresid))
+    @staticmethod   
+    def atomName(buf):
+        return PDBRecord.genrecord(buf,PDBRecord.iname)
     
-    def atomCoord(self):
-        return [float(PDBRecord.genrecord(self.buf,self.ix)),
-                float(PDBRecord.genrecord(self.buf,self.iy)),
-                float(PDBRecord.genrecord(self.buf,self.iz))]
+    @staticmethod   
+    def resName(buf):
+        return PDBRecord.genrecord(buf,PDBRecord.iresname)
+    
+    @staticmethod   
+    def elemName(buf):
+        return PDBRecord.genrecord(buf,PDBRecord.iel)
+    
+    @staticmethod     
+    def resId(buf):
+        return int(PDBRecord.genrecord(buf,PDBRecord.iresid))
+    
+    @staticmethod     
+    def atomCoord(buf):
+        return [float(PDBRecord.genrecord(buf,PDBRecord.ix)),
+                float(PDBRecord.genrecord(buf,PDBRecord.iy)),
+                float(PDBRecord.genrecord(buf,PDBRecord.iz))]
 
               
     def getDict(self):
@@ -88,15 +93,15 @@ class PDBRecord:
 
 if __name__ == '__main__':
     aline1="ATOM    588 1HG  GLU    18     -13.363  -4.163  -2.372  1.00  0.00           H"
-    pdb1 = PDBRecord(aline1)
+
     print aline1
-    print pdb1.recordName()
-    print pdb1.atomName()    
-    print pdb1.resName() 
-    print pdb1.resId()
-    print pdb1.elemName()     
-    print pdb1.atomCoord()        
-    print pdb1.getDict()
+    print PDBRecord.recordName(aline1)
+    print PDBRecord.atomName(aline1)    
+    print PDBRecord.resName(aline1) 
+    print PDBRecord.resId(aline1)
+    print PDBRecord.elemName(aline1)     
+    print PDBRecord.atomCoord(aline1)        
+#    print pdb1.getDict()
 
 #    Example
 #             1         2         3         4         5         6         7         8
