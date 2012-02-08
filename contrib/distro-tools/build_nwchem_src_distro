@@ -29,7 +29,25 @@ if [ -d ${target} ] ; then
 fi
 cp -a ${source} ${target}
 export NWCHEM_TOP=${target}
-export NWCHEM_TARGET=LINUX64
+if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
+  NWCHEM_OS=`uname | tr '[a-z]' '[A-Z]'`
+  if [ $? -ne 0 ] ; then
+    unset NWCHEM_OS
+  fi
+  if [ ${#NWCHEM_OS} -ne 0 ] ; then
+    if [ ${NWCHEM_OS} == "DARWIN" ] ; then
+      export NWCHEM_TARGET=MACX64
+    elif [ `expr match ${NWCHEM_OS} CYGWIN` != "0" ] ; then
+      export NWCHEM_TARGET=CYGWIN
+    elif [ `expr match ${NWCHEM_OS} CYGNUS` != "0" ] ; then
+      export NWCHEM_TARGET=CYGNUS
+    elif [ `expr match ${NWCHEM_OS} INTERIX` != "0" ] ; then
+      export NWCHEM_TARGET=INTERIX
+    else
+      export NWCHEM_TARGET=LINUX64
+    fi
+  fi
+fi
 #
 # Make sure we include the Global Arrays
 #

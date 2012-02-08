@@ -1174,9 +1174,26 @@ if [ ${#NWCHEM_OS} -eq 0 ] ; then
   if [ ${#NWCHEM_OS} -ne 0 ] ; then
     if [ ${NWCHEM_OS} == "DARWIN" ] ; then
       export NWCHEM_OS=MACX
-    fi
-    if [ ${NWCHEM_OS} == "AIX" ] ; then
+    elif [ ${NWCHEM_OS} == "AIX" ] ; then
       export NWCHEM_OS=IBM
+    elif [ `expr match ${NWCHEM_OS} CYGWIN` != "0" ] ; then
+      export NWCHEM_OS=CYGWIN
+      if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
+        # There is no CYGWIN64 target so set NWCHEM_TARGET here
+        export NWCHEM_TARGET=${NWCHEM_OS}
+      fi
+    elif [ `expr match ${NWCHEM_OS} CYGNUS` != "0" ] ; then
+      export NWCHEM_OS=CYGNUS
+      if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
+        # There is no CYGNUS64 target so set NWCHEM_TARGET here
+        export NWCHEM_TARGET=${NWCHEM_OS}
+      fi
+    elif [ `expr match ${NWCHEM_OS} INTERIX` != "0" ] ; then
+      export NWCHEM_OS=INTERIX
+      if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
+        # There is no INTERIX64 target so set NWCHEM_TARGET here
+        export NWCHEM_TARGET=${NWCHEM_OS}
+      fi
     fi
   fi
 fi
