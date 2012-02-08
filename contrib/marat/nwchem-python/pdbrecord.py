@@ -5,6 +5,8 @@ Created on Feb 7, 2012
 '''
 import string 
 from array import *
+import inspect
+
 class PDBRecord:
     '''
     classdocs
@@ -47,6 +49,7 @@ class PDBRecord:
 
     @staticmethod   
     def recordName(buf):
+#        print inspect.getsource(PDBRecord.recordName)
         return PDBRecord.genrecord(buf,PDBRecord.irecord)
     
     @staticmethod   
@@ -71,14 +74,14 @@ class PDBRecord:
                 float(PDBRecord.genrecord(buf,PDBRecord.iy)),
                 float(PDBRecord.genrecord(buf,PDBRecord.iz))]
 
-              
-    def getDict(self):
+    @staticmethod              
+    def getDict(buf):
         d = {}
-        d["element"]=self.elemName()  
-        d["coords"]=self.atomCoord() 
-        d["name"]=self.atomName()
-        d["resid"]=self.resId()
-        d["resname"]=self.resName()
+        d["element"]=PDBRecord.elemName(buf)  
+        d["coords"]=PDBRecord.atomCoord(buf) 
+        d["name"]=PDBRecord.atomName(buf)
+        d["resid"]=PDBRecord.resId(buf)
+        d["resname"]=PDBRecord.resName(buf)
 
         return d   
                           
@@ -101,7 +104,7 @@ if __name__ == '__main__':
     print PDBRecord.resId(aline1)
     print PDBRecord.elemName(aline1)     
     print PDBRecord.atomCoord(aline1)        
-#    print pdb1.getDict()
+    print PDBRecord.getDict(aline1)
 
 #    Example
 #             1         2         3         4         5         6         7         8
