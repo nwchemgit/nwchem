@@ -68,7 +68,7 @@ c  Check number of nodes to decide to use Mirror Array
      &     dorepxc=.true.
       if (rtdb_get(rtdb, 'dft:xcreplicated', mt_log, 1, 
      &     xcreplicated_l)) then
-         if(.not.xcreplicated_l) return
+         if(.not.xcreplicated_l.and.(.not.truerep)) return
       else
          xcreplicated_l=.false.
       endif
