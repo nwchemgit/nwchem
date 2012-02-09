@@ -11,7 +11,7 @@ def rrecordName(buf):
 #        print inspect.getsource(PDBAtomParser.recordName)
     return buf
     
-class PDBAtomParser:
+class PDBAtomParser(object):
     '''
     class PDBAtomParser parses ATOM or HETATM line in PDB file.
     It can only properly handle ATOM or HETATM records.
@@ -29,7 +29,12 @@ class PDBAtomParser:
     iy=[38,46]
     iz=[46,54]
     iel=[76,78]
-
+    irec=dict(record=[0,6],atomId=[6,11],name=[12,16],resname=[17,20],
+              resid=[22,26],coord=[30,54],element=[76,78])
+    atype=dict(record="string",atomId="int",name="string",resname="string",
+               resid="int",coord="float array",element="string")
+    print irec
+    print atype
     def __init__(self):
         '''
         Constructor
@@ -47,85 +52,121 @@ class PDBAtomParser:
             value=None
             raise ValueError("empty field while parsing PDB file")
         return value 
-    
+
+    @staticmethod
+    def genrecord1(buf,ir,atype):
+        '''
+        returns value of a record as a string
+        if string is empty exception is raised
+        '''
+        value = buf[ir[0]:ir[1]]
+        if value.strip()=='':
+            value=None
+            raise ValueError("empty field while parsing PDB file")
+        if atype=='int':
+            value = int(value)
+        elif atype=='float':
+            value=float(value)
+        elif atype=='string':
+            pass
+        elif atype=='float array':
+            value=[float(x) for x  in value.split()]
+        else:
+            raise ValueError("unknown type definition")
+        
+                        
+        return value 
+        
     @staticmethod   
     def recordName(buf):
 #        print inspect.getsource(PDBAtomParser.recordName)
-        try:
-            return PDBAtomParser.genrecord(buf,PDBAtomParser.irecord)
-        except:
-            raise ValueError
+        return PDBAtomParser.genrecord(buf,PDBAtomParser.irecord)
+    
+    @staticmethod
+    def record(name,buf):
+        ir=PDBAtomParser.irec[name]
+        atype=PDBAtomParser.atype[name]
+        value = buf[ir[0]:ir[1]]
+        if value.strip()=='':
+            return None
+        if atype=='int':
+            value = int(value)
+        elif atype=='float':
+            value=float(value)
+        elif atype=='string':
+            pass
+        elif atype=='float array':
+            value=[float(x) for x  in value.split()]
+        else:
+            raise ValueError("unknown type definition")
+                                
+        return value 
+    
+    @staticmethod
+    def getDict(buf):
+#        d = dict((name,PDBAtomParser.record(name,buf)) 
+#                 for name in PDBAtomParser.irec.iterkeys() )
+        d={}
+        for name in PDBAtomParser.irec.iterkeys():
+            value=PDBAtomParser.record(name,buf)
+            if value!=None:
+                d[name]=value
 
+        return d   
+                          
+    
+    @staticmethod
+    def record2(name,buf):
+        ir=PDBAtomParser.irec[name]
+        atype=PDBAtomParser.atype[name]
+        return PDBAtomParser.genrecord1(buf,ir,atype)
+    
+    @staticmethod
+    def record0(name,buf):
+        ir=PDBAtomParser.irec[name]
+        atype=PDBAtomParser.atype[name]
+        methodToCall = getattr(PDBAtomParser, name)
+        return methodToCall(buf,ir)
+            
+         
     @staticmethod     
     def atomId(buf):
         value= PDBAtomParser.genrecord(buf,PDBAtomParser.inum)
-        try:
-            return int(value)
-        except:
-            raise ValueError("bad field"+value)
+        return int(value)
                 
     @staticmethod   
     def atomName(buf):
-        try:
-            return PDBAtomParser.genrecord(buf,PDBAtomParser.iname)
-        except:
-            raise ValueError
+        return PDBAtomParser.genrecord(buf,PDBAtomParser.iname)
             
     @staticmethod   
     def resName(buf):
-        try:
-            return PDBAtomParser.genrecord(buf,PDBAtomParser.iresname)
-        except:
-            raise ValueError  
-          
+        return PDBAtomParser.genrecord(buf,PDBAtomParser.iresname)
+
+    @staticmethod   
+    def resname(buf,ir):
+        return PDBAtomParser.genrecord(buf,ir)
+              
     @staticmethod   
     def elemName(buf):
-        try:
-            return PDBAtomParser.genrecord(buf,PDBAtomParser.iel)
-        except:
-            raise ValueError
-            
-    @staticmethod     
-    def resId(buf):
-        value = PDBAtomParser.genrecord(buf,PDBAtomParser.iresid)
-        try:
-            return int(value)
-        except:
-            raise ValueError("bad field"+str(value))
-        
-    @staticmethod        
-    def toInt(f):
-        value = f
-        try:
-            return int(value)
-        except:
-            raise ValueError("bad field"+str(value))
+        return PDBAtomParser.genrecord(buf,PDBAtomParser.iel)
                 
     @staticmethod
-    def resId0(buf):
+    def resId(buf):
         return int(PDBAtomParser.genrecord(buf,PDBAtomParser.iresid))
- 
-
-            
+    
+    @staticmethod
+    def resid(buf,ir):
+        return int(PDBAtomParser.genrecord(buf,ir))
+                
     @staticmethod     
     def atomCoord(buf):
         value = (PDBAtomParser.genrecord(buf,PDBAtomParser.ix),
                  PDBAtomParser.genrecord(buf,PDBAtomParser.iy),
                  PDBAtomParser.genrecord(buf,PDBAtomParser.iz))
-        try:
-            return [float(x) for x in value]
-        except:
-            raise ValueError("bad field"+str(value))
-        
-#        try:
-#            return [float(PDBAtomParser.genrecord(buf,PDBAtomParser.ix)),
-#                    float(PDBAtomParser.genrecord(buf,PDBAtomParser.iy)),
-#                    float(PDBAtomParser.genrecord(buf,PDBAtomParser.iz))]
-#        except:
-#            raise ValueError
+        return [float(x) for x in value]
         
     @staticmethod              
-    def getDict(buf):
+    def getDict1(buf):
         d = {}
         d["record"]=PDBAtomParser.recordName(buf)
 #        if d["record"] not in ("ATOM  ", "HETATM"):
@@ -174,7 +215,9 @@ class PDBAtomParser:
         else:
             d["resname"]=value      
         
-
+        methodToCall = getattr(PDBAtomParser, 'resName')
+        print methodToCall(buf)
+        print "name is", methodToCall.__name__,PDBAtomParser.atomId.__name__
         return d   
                           
 
@@ -189,7 +232,7 @@ class PDBAtomParser:
     
 
 if __name__ == '__main__':
-    aline1="ATOM    588 1HG  GLU    A8     -13.363  -4.163  -2.372  1.00  0.00           H"
+    aline1="ATOM    588 1HG  GLU           -13.363  -4.163  -2.372  1.00  0.00           H"
     aline2="ATOM    5A8      GLU    18     -13.363  -4.163  -2.372  1.00  0.00"
 
 #    print PDBAtomParser.atomId(aline1) 
@@ -206,6 +249,7 @@ if __name__ == '__main__':
 #    print PDBAtomParser.getDict("567 rty")
 #    print PDBAtomParser.getDict(aline2)
     print PDBAtomParser.getDict(aline1)
+#    print PDBAtomParser.record("coord",aline1)
 
 
 #
