@@ -2311,7 +2311,7 @@ endif
 
 # lower level libs used by communication libraries 
  
-
+COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
 ifdef COMM_LIBS 
  CORE_LIBS += $(COMM_LIBS) 
 endif 

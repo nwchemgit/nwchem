@@ -1,8 +1,6 @@
 
 # $Id$
 TARGET = $(NWCHEM_TARGET)
-include ./tools/armci/config/makecoms.h  
-include ./tools/armci/config/makemp.h  
 include config/makefile.h
 
   SUBDIRS =  $(NWSUBDIRS)
