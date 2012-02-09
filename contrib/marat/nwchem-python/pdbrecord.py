@@ -6,28 +6,32 @@ Created on Feb 7, 2012
     
 class PDBAtomRecord(object):
     '''
-    class PDBAtomRecord parses ATOM or HETATM line in PDB file.
-    It can only properly handle ATOM or HETATM records.
-    Before getting individual fields one should test
-    whether the record is atom based using PDBAtomRecord.test() method.
-    Perhaps the best way to use this class at this point is to generate 
-    dictionary using PDBAtomRecord.dict(aline1)
+    Class PDBAtomRecord processes ATOM or HETATM line in PDB file.
+    For all other records None value will be returned.
+    PDBAtomRecord.test is used to verify PDB line is of ATOM or HETATM type.
+    PDBAtomRecord.dct will return all available records in a dictionary with the keys 
+    indicated below
     '''
-
+#   Dictionary for column locations (see at the end for more info)
     irec=dict(record=[0,6],atomid=[6,11],name=[12,16],resname=[17,20],
               resid=[22,26],coord=[30,54],element=[76,78])
+#   Dictionary for types of fields
     atype=dict(record="string",atomid="int",name="string",resname="string",
                resid="int",coord="float array",element="string")
 
-    def __init__(self):
-        '''
-        Constructor
-        '''
-        pass
+#    def __init__(self):
+#        '''
+#        Constructor
+#        '''
+#        pass
 
     
     @staticmethod
     def field(name,buf):
+        '''
+        returns value of the "name" field in the provided "buf" buffer
+        always returns None value if buffer is not of ATOM or HETATM type
+        '''
 #        print inspect.getsource(PDBAtomRecord.fieldName)   
         if not PDBAtomRecord.test(buf):
             return None     
@@ -59,7 +63,10 @@ class PDBAtomRecord(object):
         return value 
     
     @staticmethod
-    def dict(buf):
+    def dct(buf):
+        '''
+        returns all the available fields in a dictionary
+        '''
         if not PDBAtomRecord.test(buf):
             return None
         
@@ -73,11 +80,10 @@ class PDBAtomRecord(object):
    
     @staticmethod     
     def test(buf):
+        '''
+        tests whether buffer is of ATOM or HETATM type
+        '''
         return buf[0:6] in ("ATOM  ","HETATM")
-              
-        
-    def __str__(self):
-        return self.buf
     
 
 if __name__ == '__main__':
@@ -87,10 +93,10 @@ if __name__ == '__main__':
     
     print PDBAtomRecord.field("name",'') 
     print PDBAtomRecord.field("name",aline3) 
-    print PDBAtomRecord.dict(aline1)
-    print PDBAtomRecord.dict(aline2)
-    print PDBAtomRecord.dict(aline3)
-    print PDBAtomRecord.dict('')
+    print PDBAtomRecord.dct(aline1)
+    print PDBAtomRecord.dct(aline2)
+    print PDBAtomRecord.dct(aline3)
+    print PDBAtomRecord.dct('')
 
 
 #     1 -  6      Record name      "ATOM    "
