@@ -4,9 +4,8 @@ Created on Feb 7, 2012
 @author: marat
 '''
 import sys
-from types import *
 from pdbrecord import PDBAtomRecord 
-from numpy import *
+from numpy import array,linalg
 
 class GenericAtom(object):
     '''
