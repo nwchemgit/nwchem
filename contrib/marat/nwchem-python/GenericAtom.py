@@ -6,6 +6,7 @@ Created on Feb 7, 2012
 import sys
 from pdbrecord import PDBAtomRecord 
 from numpy import array,linalg
+from atom_params import *
 
 class GenericAtom(object):
     '''
@@ -39,11 +40,20 @@ class GenericAtom(object):
         if d:
             return cls(d)
         return None
+    
     @staticmethod
     def bondlength(a1,a2):
         dr=a1.coord-a2.coord
         return linalg.norm(dr)
-
+    
+    def covRadius(self):
+        name = self.dct["name"]
+        return AtomParams.covRadius(name)   
+    
+    @staticmethod    
+    def bonded(a1,a2):
+        dr = linalg.norm(a1.coord-a2.coord)
+        return dr <= (a1.covRadius()+a2.covRadius())
             
 if __name__ == '__main__':
     aline1="ATOM    588 1HG  GLU    18     -13.363  -4.163  -2.372  1.00  0.00           H"
@@ -56,4 +66,8 @@ if __name__ == '__main__':
     b=GenericAtom.fromPDBrecord(aline3)
     print b.coord
     print b.dct         
-    print GenericAtom.bondlength(a,b)
+    print GenericAtom.bondlength(a,b),GenericAtom.bonded(a,b)
+    print a.covRadius()+b.covRadius()
+    c=GenericAtom.fromPDBrecord(aline1)
+    print GenericAtom.bondlength(a,c),GenericAtom.bonded(a,c)
+    
