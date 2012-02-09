@@ -2157,10 +2157,13 @@ errorpython2:
 	@exit 1
 endif
 #
+ifndef PYTHONLIBTYPE
+	PYTHONLIBTYPE=a
+endif
 ifdef USE_PYTHON64
-  CORE_LIBS += $(PYTHONHOME)/lib64/python$(PYTHONVERSION)/config/libpython$(PYTHONVERSION).a
+  CORE_LIBS += $(PYTHONHOME)/lib64/python$(PYTHONVERSION)/config/libpython$(PYTHONVERSION).$(PYTHONLIBTYPE)
 else
-  CORE_LIBS += $(PYTHONHOME)/lib/python$(PYTHONVERSION)/config/libpython$(PYTHONVERSION).a
+  CORE_LIBS += $(PYTHONHOME)/lib/python$(PYTHONVERSION)/config/libpython$(PYTHONVERSION).$(PYTHONLIBTYPE)
 endif
 endif
 #
