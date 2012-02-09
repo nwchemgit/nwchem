@@ -62,14 +62,14 @@ python
   g.xlabel('Out-of-plane angle')
   g.ylabel('Energy')
   g.title('Inversion of NH3 - Energy vs. angle')
-  g('set data style linespoints')
+  g('set style data linespoints')
   g('set xrange [-25:25]')
 
   gr = Gnuplot.Gnuplot()
   gr.xlabel('Out-of-plane angle')
   gr.ylabel('Bond')
   gr.title('Inversion of NH3 - Bond-length vs. angle')
-  gr('set data style linespoints')
+  gr('set style data linespoints')
   gr('set xrange [-25:25]')
 
   # Generate points in a visually interesting order
