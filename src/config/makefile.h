@@ -1776,6 +1776,18 @@ endif
        _FC=gfortran
        DEFINES  += -DGFORTRAN
       endif
+
+ifeq ($(_FC),noifc)
+ifndef USE_RISKYFC
+error2:
+$(info     )
+$(info You must define FC to a know compiler, instead of $(_FC) )
+$(info for example, ifort, gfortran or pgf90)
+$(info     )
+$(error )
+endif
+endif
+
       ifeq ($(_FC),ifc)
      _GOTSSE3= $(shell cat /proc/cpuinfo | egrep sse3 | tail -n 1 | awk ' /sse3/  {print "Y"}')
        _IFCE = $(shell ifort -V  2>&1 |head -1 |awk ' /64/ {print "Y";exit};')
