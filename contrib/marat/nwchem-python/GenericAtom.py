@@ -49,7 +49,22 @@ class GenericAtom(object):
     def covRadius(self):
         name = self.dct["name"]
         return AtomParams.covRadius(name)   
-    
+   
+    def groupTag(self):
+        '''
+        returns that identifies group association of an atom
+        based on residue name and residue id (e.g. "ASP_1")
+        Default values of "UNK" and "0" are used should 
+        residue name and residue id be absent
+        '''
+        resname = self.dct.get("resname","UNK").strip()
+        resid = str(self.dct.get("resid",0)).strip()
+        return "_".join((resname,resid))
+        
+    def __str__(self):
+        return str(self.dct) + " " + str(self.coord)
+
+        
     @staticmethod    
     def bonded(a1,a2):
         dr = linalg.norm(a1.coord-a2.coord)
@@ -59,8 +74,10 @@ if __name__ == '__main__':
     aline1="ATOM    588 1HG  GLU    18     -13.363  -4.163  -2.372  1.00  0.00           H"
     aline2="ATOM      1  I1  IO3     1      -1.555  -0.350   0.333        1.39           I"
     aline3="ATOM      2  O1  IO3     1      -0.985  -1.156   1.840       -0.80           O"
+    aline4="ATOM      2  O1                 -0.985  -1.156   1.840       -0.80           O"
 
     a=GenericAtom.fromPDBrecord(aline2)   
+    print a.groupTag()
     print a.coord
     print a.dct     
     b=GenericAtom.fromPDBrecord(aline3)
@@ -70,4 +87,5 @@ if __name__ == '__main__':
     print a.covRadius()+b.covRadius()
     c=GenericAtom.fromPDBrecord(aline1)
     print GenericAtom.bondlength(a,c),GenericAtom.bonded(a,c)
-    
+    c=GenericAtom.fromPDBrecord(aline4)    
+    print c.groupTag()
