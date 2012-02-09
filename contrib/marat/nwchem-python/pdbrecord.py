@@ -3,24 +3,95 @@ Created on Feb 7, 2012
 
 @author: marat
 '''
-import string 
-from array import *
-import inspect
-
-class PDBRecord:
-    '''
-    classdocs
-    '''
-    irecord=[0,6]
-    inum=[6,11]
-    iname=[12,16]
-    iresname=[17,20]
-    iresid=[22,26]
-    ix=[30,38]
-    iy=[38,46]
-    iz=[46,54]
-    iel=[76,78]
     
+class PDBAtomRecord(object):
+    '''
+    class PDBAtomRecord parses ATOM or HETATM line in PDB file.
+    It can only properly handle ATOM or HETATM records.
+    Before getting individual fields one should test
+    whether the record is atom based using PDBAtomRecord.test() method.
+    Perhaps the best way to use this class at this point is to generate 
+    dictionary using PDBAtomRecord.dict(aline1)
+    '''
+
+    irec=dict(record=[0,6],atomid=[6,11],name=[12,16],resname=[17,20],
+              resid=[22,26],coord=[30,54],element=[76,78])
+    atype=dict(record="string",atomid="int",name="string",resname="string",
+               resid="int",coord="float array",element="string")
+
+    def __init__(self):
+        '''
+        Constructor
+        '''
+        pass
+
+    
+    @staticmethod
+    def field(name,buf):
+#        print inspect.getsource(PDBAtomRecord.fieldName)   
+        if not PDBAtomRecord.test(buf):
+            return None     
+        ir=PDBAtomRecord.irec[name]
+        atype=PDBAtomRecord.atype[name]
+        value = buf[ir[0]:ir[1]]
+        if value.strip()=='':
+            return None
+        if atype=='int':
+            try:
+                value = int(value)
+            except:
+                value = None
+        elif atype=='float':
+            try:
+                value = float(value)
+            except:
+                value = None
+        elif atype=='string':
+            pass
+        elif atype=='float array':
+            try:
+                value = [float(x) for x  in value.split()]
+            except:
+                value = None
+        else:
+            raise ValueError("unknown type definition")
+                                
+        return value 
+    
+    @staticmethod
+    def dict(buf):
+        if not PDBAtomRecord.test(buf):
+            return None
+        
+        d={}
+        for name in PDBAtomRecord.irec.iterkeys():
+            value=PDBAtomRecord.field(name,buf)
+            if value!=None:
+                d[name]=value
+
+        return d   
+   
+    @staticmethod     
+    def test(buf):
+        return buf[0:6] in ("ATOM  ","HETATM")
+              
+        
+    def __str__(self):
+        return self.buf
+    
+
+if __name__ == '__main__':
+    aline1="ATOM    588 1HG  GLU    18     -13.363  -4.163  -2.372  1.00  0.00           H"
+    aline2="ATOM    588      GLU           -13.363  -4.163  -2.372  1.00  0.00"
+    aline3="ATTM    588      GLU           -13.363  -4.163  -2.372  1.00  0.00"
+    
+    print PDBAtomRecord.field("name",'') 
+    print PDBAtomRecord.field("name",aline3) 
+    print PDBAtomRecord.dict(aline1)
+    print PDBAtomRecord.dict(aline2)
+    print PDBAtomRecord.dict(aline3)
+    print PDBAtomRecord.dict('')
+
 
 #     1 -  6      Record name      "ATOM    "
 #     7 - 11      Integer          serial     Atom serial number.
@@ -39,72 +110,7 @@ class PDBRecord:
 #    55 - 60      Real(6.2)        occupancy  Occupancy.
 #    61 - 66      Real(6.2)        tempFactor Temperature factor.
 #    77 - 78      LString(2)       element    Element symbol, right-justified.
-#    79 - 80      LString(2)       charge     Charge on the atom.
-
-#    def __init__(self,line):
-#        '''
-#        Constructor
-#        '''
-#        pass
-
-    @staticmethod   
-    def recordName(buf):
-#        print inspect.getsource(PDBRecord.recordName)
-        return PDBRecord.genrecord(buf,PDBRecord.irecord)
-    
-    @staticmethod   
-    def atomName(buf):
-        return PDBRecord.genrecord(buf,PDBRecord.iname)
-    
-    @staticmethod   
-    def resName(buf):
-        return PDBRecord.genrecord(buf,PDBRecord.iresname)
-    
-    @staticmethod   
-    def elemName(buf):
-        return PDBRecord.genrecord(buf,PDBRecord.iel)
-    
-    @staticmethod     
-    def resId(buf):
-        return int(PDBRecord.genrecord(buf,PDBRecord.iresid))
-    
-    @staticmethod     
-    def atomCoord(buf):
-        return [float(PDBRecord.genrecord(buf,PDBRecord.ix)),
-                float(PDBRecord.genrecord(buf,PDBRecord.iy)),
-                float(PDBRecord.genrecord(buf,PDBRecord.iz))]
-
-    @staticmethod              
-    def getDict(buf):
-        d = {}
-        d["element"]=PDBRecord.elemName(buf)  
-        d["coords"]=PDBRecord.atomCoord(buf) 
-        d["name"]=PDBRecord.atomName(buf)
-        d["resid"]=PDBRecord.resId(buf)
-        d["resname"]=PDBRecord.resName(buf)
-
-        return d   
-                          
-    @staticmethod     
-    def genrecord(buf,ir):
-        return buf[ir[0]:ir[1]] 
-       
-        
-    def __str__(self):
-        return self.buf
-    
-
-if __name__ == '__main__':
-    aline1="ATOM    588 1HG  GLU    18     -13.363  -4.163  -2.372  1.00  0.00           H"
-
-    print aline1
-    print PDBRecord.recordName(aline1)
-    print PDBRecord.atomName(aline1)    
-    print PDBRecord.resName(aline1) 
-    print PDBRecord.resId(aline1)
-    print PDBRecord.elemName(aline1)     
-    print PDBRecord.atomCoord(aline1)        
-    print PDBRecord.getDict(aline1)
+#    79 - 80      LString(2)       charge     Charge on the atom.    
 
 #    Example
 #             1         2         3         4         5         6         7         8
