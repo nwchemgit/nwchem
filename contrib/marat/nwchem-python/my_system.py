@@ -43,7 +43,22 @@ class MySystem(object):
                 a=GenericAtom.fromPDBrecord(line)
                 cls.AddAtom(a)
         return cls
-    
+
+    @classmethod        
+    def fromXYZfile(cls,filename):
+        '''
+        alternative constructor from PDB file
+        '''
+        cls = MySystem()
+
+        fp = open(str(filename),'r')
+        
+        for line in fp.readlines():
+            a=GenericAtom.fromXYZrecord(line)
+            if a is not None:
+                cls.AddAtom(a)
+        return cls
+        
     def toPDBfile(self):
         for residue in self.residues.itervalues():
             print residue
@@ -52,16 +67,51 @@ class MySystem(object):
         self.atoms.append(a1)
         rmap = self.residues
         tag = a1.groupTag()
-#        print tag
         if tag not in rmap:
-#            print "tag not found"
             rmap[tag]=GenericResidue()
         rmap[tag].AddAtom(a1)
 
-        
+    def connectAtoms(self):
+        for i in range(len(self.atoms)):
+            for j in range(i+1,len(self.atoms)):
+                a1=self.atoms[i]
+                a2=self.atoms[j]
+                if GenericAtom.bonded(a1, a2):
+                    a1.setBond(j)
+                    a2.setBond(i)
+                    
+        for a in self.atoms:
+            print a                    
+
+    def groupAtoms(self):
+        rmap = self.residues
+        ir = 0
+        for i in range(len(self.atoms)):
+            a1=self.atoms[i]
+            if a1.groupTag()!="XYZ":
+                continue
+            ir = ir +1
+#            tag = '{:0>3}'.format(ir)
+            tag="00"+str(ir)
+            tag=tag[-3:]
+            a1.setGroupTag(tag)
+            rmap[tag]=GenericResidue()
+            rmap[tag].AddAtom(a1)
+            rmap["XYZ"].delAtom(a1)
+            for j in range(i+1,len(self.atoms)):                
+                a2=self.atoms[j]
+                if GenericAtom.bonded(a1, a2):
+                    a2.setGroupTag(tag)
+                    rmap[tag].AddAtom(a2)
+                    rmap["XYZ"].delAtom(a2)
+        del rmap["XYZ"]
+        for a in self.atoms:
+            print a                       
+                    
     def info(self):
-        for residue in self.residues.itervalues():
-            print residue           
+        for tag,res in self.residues.iteritems():
+            print tag 
+            print res       
     
 if __name__ == '__main__':
 #    sim0 = MySystem("test")
@@ -80,7 +130,10 @@ if __name__ == '__main__':
 #    a = ResAtom.fromPDBrecord(aline2)
 #    sim0.AddAtom(a)
 #    
-    sim1 = MySystem.fromPDBfile("test.pdb")
+    sim1 = MySystem.fromXYZfile("test.xyz")
+    print sim1.residues["XYZ"]
+#    sim1.connectAtoms()
+    sim1.groupAtoms()
     sim1.info()
 #    sim1 = MySystem.fromPDBfile("test.pdb")
 # 
