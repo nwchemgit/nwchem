@@ -88,7 +88,7 @@ Features:
 
 Restrictions:
     
- -  Relies on the Numeric Python extension.  This can be obtained
+ -  Relies on the numpy Python extension.  This can be obtained
     from LLNL (See ftp://ftp-icf.llnl.gov/pub/python/README.html).
     If you're interested in gnuplot, you would probably also want
     NumPy anyway.
@@ -98,7 +98,7 @@ Restrictions:
     explicit method functions.  However, you can give arbitrary
     commands to gnuplot manually; for example:
         'g = Gnuplot.Gnuplot()',
-        'g('set data style linespoints')',
+        'g('set style data linespoints')',
         'g('set pointsize 5')',
     etc.  I might add a more organized way of setting arbitrary
     options.
@@ -125,7 +125,7 @@ Bugs:
 __version__ = "1.1a"
 __cvs_version__ = "CVS version $Revision: 1.1 $"
 
-import sys, os, string, tempfile, Numeric
+import sys, os, string, tempfile, numpy
 
 
 # Set after first call of test_persist().  This will be set from None
@@ -211,10 +211,10 @@ class PlotItem:
                 self.options.append('notitle')
             else:
                 self.options.append('title "' + self.title + '"')
-        if keyw.has_key('with'):
-            self.with = keyw['with']
-            del keyw['with']
-            self.options.append('with ' + self.with)
+        if keyw.has_key('with_'):
+            self.with_ = keyw['with_']
+            del keyw['with_']
+            self.options.append('with ' + self.with_)
         if keyw:
             raise OptionException(keyw)
 
@@ -248,7 +248,7 @@ class Func(PlotItem):
     The argument to the contructor is a string which is a expression.
     Example:
 
-        g.plot(Func("sin(x)", with="line 3"))
+        g.plot(Func("sin(x)", with_="line 3"))
 
     or the shorthand example:
 
@@ -345,7 +345,7 @@ class ArrayFile(AnyFile):
     """A file to which, upon creation, an array is written.
 
     When an ArrayFile is constructed, it creates a file and fills it
-    with the contents of a 2-d or 3-d Numeric array in the format
+    with the contents of a 2-d or 3-d numpy array in the format
     expected by gnuplot.  Specifically, for 2-d, the file organization
     is for example:
 
@@ -451,8 +451,8 @@ class Data(File):
         """Construct a Data object from a numeric array.
 
         Create a Data object (which is a type of PlotItem) out of one
-        or more Float Python Numeric arrays (or objects that can be
-        converted to a Float Numeric array).  If the routine is passed
+        or more Float Python numpy arrays (or objects that can be
+        converted to a Float numpy array).  If the routine is passed
         one array, the last index ranges over the values comprising a
         single data point (e.g., [x, y, and sigma]) and the rest of
         the indices select the data point.  If the routine is passed
@@ -480,15 +480,15 @@ class Data(File):
 
         if len(set) == 1:
             # set was passed as a single structure
-            set = Numeric.asarray(set, Numeric.Float)
+            set = numpy.asarray(set, dtype=numpy.float32)
         else:
             # set was passed column by column (for example, Data(x,y))
-            set = Numeric.asarray(set, Numeric.Float)
+            set = numpy.asarray(set, dtype=numpy.float32)
             dims = len(set.shape)
             # transpose so that the last index selects x vs. y:
-            set = Numeric.transpose(set, (dims-1,) + tuple(range(dims-1)))
+            set = numpy.transpose(set, (dims-1,) + tuple(range(dims-1)))
         if keyw.has_key('cols') and keyw['cols'] is not None:
-            set = Numeric.take(set, keyw['cols'], -1)
+            set = numpy.take(set, keyw['cols'], -1)
             del keyw['cols']
         apply(File.__init__, (self, TempArrayFile(set)), keyw)
 
@@ -527,28 +527,28 @@ class GridData(File):
 
         """
 
-        data = Numeric.asarray(data, Numeric.Float)
+        data = numpy.asarray(data, dtype=numpy.float32)
         assert len(data.shape) == 2
         (numx, numy) = data.shape
 
         if xvals is None:
-            xvals = Numeric.arange(numx)
+            xvals = numpy.arange(numx)
         else:
-            xvals = Numeric.asarray(xvals, Numeric.Float)
+            xvals = numpy.asarray(xvals, dtype=numpy.float32)
             assert len(xvals.shape) == 1
             assert xvals.shape[0] == numx
 
         if yvals is None:
-            yvals = Numeric.arange(numy)
+            yvals = numpy.arange(numy)
         else:
-            yvals = Numeric.asarray(yvals, Numeric.Float)
+            yvals = numpy.asarray(yvals, dtype=numpy.float32)
             assert len(yvals.shape) == 1
             assert yvals.shape[0] == numy
 
-        set = Numeric.transpose(
-            Numeric.array(
-                (Numeric.transpose(Numeric.resize(xvals, (numy, numx))),
-                 Numeric.resize(yvals, (numx, numy)),
+        set = numpy.transpose(
+            numpy.array(
+                (numpy.transpose(numpy.resize(xvals, (numy, numx))),
+                 numpy.resize(yvals, (numx, numy)),
                  data)), (1,2,0))
 
         apply(File.__init__, (self, TempArrayFile(set)), keyw)
@@ -566,11 +566,11 @@ def grid_function(f, xvals, yvals):
     Note that f is evaluated at each pair of points using a Python loop,
     which can be slow if the number of points is large.  If speed is an
     issue, you are better off computing functions matrix-wise using
-    Numeric's built-in ufuncs.
+    numpy's built-in ufuncs.
 
     """
 
-    m = Numeric.zeros((len(xvals), len(yvals)), Numeric.Float)
+    m = numpy.zeros((len(xvals), len(yvals)), dtype=numpy.float32)
     for xi in range(len(xvals)):
         x = xvals[xi]
         for yi in range(len(yvals)):
@@ -718,8 +718,8 @@ class Gnuplot:
 
         'items' is a list or tuple of items, each of which should be a
         'PlotItem' of some kind, a string (interpreted as a function
-        string for gnuplot to evaluate), or a Numeric array (or
-        something that can be converted to a Numeric array).
+        string for gnuplot to evaluate), or a numpy array (or
+        something that can be converted to a numpy array).
 
         """
 
@@ -887,7 +887,7 @@ class Gnuplot:
             filename = _default_lpr
         setterm = ['set', 'term', 'postscript']
         if eps: setterm.append('eps')
-        else: setterm.append('default')
+        else: setterm.append(' ')
         if enhanced: setterm.append('enhanced')
         if color: setterm.append('color')
         self(string.join(setterm))
@@ -912,7 +912,7 @@ def plot(*items, **keyw):
     interface only.  It is recommended that you use the new
     object-oriented Gnuplot interface, which is much more flexible.
 
-    It can only plot Numeric array data.  In this routine an NxM array
+    It can only plot numpy array data.  In this routine an NxM array
     is plotted as M-1 separate datasets, using columns 1:2, 1:3, ...,
     1:M.
 
@@ -926,19 +926,19 @@ def plot(*items, **keyw):
     newitems = []
     for item in items:
         # assume data is an array:
-        item = Numeric.asarray(item, Numeric.Float)
+        item = numpy.asarray(item, dtype=numpy.float32)
         dim = len(item.shape)
         if dim == 1:
-            newitems.append(Data(item[:, Numeric.NewAxis], with='lines'))
+            newitems.append(Data(item[:, numpy.newaxis], with_='lines'))
         elif dim == 2:
             if item.shape[1] == 1:
                 # one column; just store one item for tempfile:
-                newitems.append(Data(item, with='lines'))
+                newitems.append(Data(item, with_='lines'))
             else:
                 # more than one column; store item for each 1:2, 1:3, etc.
                 tempf = TempArrayFile(item)
                 for col in range(1, item.shape[1]):
-                    newitems.append(File(tempf, using=(1,col+1), with='lines'))
+                    newitems.append(File(tempf, using=(1,col+1), with_='lines'))
         else:
             raise DataException("Data array must be 1 or 2 dimensional")
     items = tuple(newitems)
@@ -964,7 +964,7 @@ def plot(*items, **keyw):
 
 # Demo code
 if __name__ == '__main__':
-    from Numeric import *
+    from numpy import *
     import sys
 
     # A straightforward use of gnuplot.  The `debug=1' switch is used
@@ -972,15 +972,15 @@ if __name__ == '__main__':
     # are also output on stderr.
     g1 = Gnuplot(debug=1)
     g1.title('A simple example') # (optional)
-    g1('set data style linespoints') # give gnuplot an arbitrary command
-    # Plot a list of (x, y) pairs (tuples or a Numeric array would
+    g1('set style data linespoints') # give gnuplot an arbitrary command
+    # Plot a list of (x, y) pairs (tuples or a numpy array would
     # also be OK):
     g1.plot([[0.,1.1], [1.,5.8], [2.,3.3], [3.,4.2]])
 
     # Plot one dataset from an array and one via a gnuplot function;
     # also demonstrate the use of item-specific options:
     g2 = Gnuplot(debug=1)
-    x = arange(10, typecode=Float)
+    x = arange(10, dtype=numpy.float32)
     y1 = x**2
     # Notice how this plotitem is created here but used later?  This
     # is convenient if the same dataset has to be plotted multiple
@@ -988,7 +988,7 @@ if __name__ == '__main__':
     # once.
     d = Data(x, y1,
              title="calculated by python",
-             with="points 3 3")
+             with_="points pointsize 3 pointtype 3")
     g2.title('Data can be computed by python or gnuplot')
     g2.xlabel('x')
     g2.ylabel('x squared')
@@ -1007,10 +1007,10 @@ if __name__ == '__main__':
     # Make a 2-d array containing a function of x and y.  First create
     # xm and ym which contain the x and y values in a matrix form that
     # can be `broadcast' into a matrix of the appropriate shape:
-    xm = x[:,NewAxis]
-    ym = y[NewAxis,:]
+    xm = x[:,newaxis]
+    ym = y[newaxis,:]
     m = (sin(xm) + 0.1*xm) - ym**2
-    g3('set data style lines')
+    g3('set style data lines')
     g3('set hidden')
     g3('set contour base')
     g3.xlabel('x')
