@@ -1011,6 +1011,7 @@ c     >                     THpsi_k)
 *     **** get Hpsi ****
 *     ******************
       call cpsi_Horb(.true.,nb,ispin,ms,
+     >              psi_r_tag,
      >              dcpl_mb(vall(1)),
      >              dbl_mb(psik_shift),
      >              dbl_mb(psir_shift),
