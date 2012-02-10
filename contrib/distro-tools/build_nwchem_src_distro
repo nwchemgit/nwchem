@@ -94,6 +94,11 @@ fi
 if [ -d ${target}/src/stubs.F ] ; then
   rm -rf ${target}/src/stubs.F
 fi
+if [ -d ${target}/contrib/mov2asc ] ; then
+  rm -rf ${target}/contrib/mov2asc/*.o \
+         ${target}/contrib/mov2asc/asc2mov \
+         ${target}/contrib/mov2asc/mov2asc
+fi
 find ${target} -name .svn -exec rm -rf {} \;                2>&1 > /dev/null
 find ${target} -name testoutputs -exec rm -rf {} \;         2>&1 > /dev/null
 find ${target} -name bin -exec rm -rf {} \;                 2>&1 > /dev/null
