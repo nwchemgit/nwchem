@@ -4,7 +4,7 @@ Created on Feb 5, 2012
 @author: marat
 '''
 import sys
-from GenericAtom import *
+from generic_atom import *
 
 class GenericResidue(object):
     '''
@@ -27,6 +27,18 @@ class GenericResidue(object):
     def AddAtom(self,a):
         self.atoms.append(a)
         
+    def delAtom(self,a):
+        self.atoms.remove(a)
+        
+    def __str__(self):
+        output = ""
+        for a in self.atoms:
+            output = output + str(a) + "\n"
+        return output
+
+    def size(self):
+        return len(self.atoms)
+    
 if __name__ == '__main__':
     aline1 = "ATOM      3  O2  IO3     1      -1.182   1.410   0.573       -0.80     O"
     aline2 = "ATOM      1  I1  IO3     1      -1.555  -0.350   0.333        1.39     I"
@@ -36,7 +48,7 @@ if __name__ == '__main__':
     a = GenericAtom.fromPDBrecord(aline2)
     print a
     res0.AddAtom(a)
-    print res0.atoms[0]
+    print res0.size()
     
 #    b = ResAtom.fromPDBrecord(aline1)
 #    res0.AddAtom(a)
