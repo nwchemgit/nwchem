@@ -1609,6 +1609,7 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	@exit 1
    endif
       _FC=noifc
+      FC=gfortran
        ifdef USE_I4FLAGS
            ifneq ($(FC),gfortran)
              FOPTIONS += -i4 
@@ -1781,8 +1782,8 @@ ifeq ($(_FC),noifc)
 ifndef USE_RISKYFC
 error2:
 $(info     )
-$(info You must define FC to a know compiler, instead of $(_FC) )
-$(info for example, ifort, gfortran or pgf90)
+$(info You must define FC to a known compiler, instead of $(FC) )
+$(info For example: ifort, gfortran or pgf90)
 $(info     )
 $(error )
 endif
