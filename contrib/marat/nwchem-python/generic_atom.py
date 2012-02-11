@@ -5,7 +5,8 @@ Created on Feb 7, 2012
 '''
 import sys
 from pdbrecord import PDBAtomRecord 
-from numpy import array,linalg
+import numpy 
+import math
 from atom_params import *
 
 class GenericAtom(object):
@@ -27,7 +28,7 @@ class GenericAtom(object):
             else:
                 self.dct  = d
         try:
-            self.coord=array(self.dct.pop("coord"))
+            self.coord=numpy.array(self.dct.pop("coord"))
         except:
             self.coord=None
                 
@@ -54,12 +55,26 @@ class GenericAtom(object):
     @staticmethod
     def bondlength(a1,a2):
         dr=a1.coord-a2.coord
-        return linalg.norm(dr)
-    
+        return numpy.linalg.norm(dr)
+
+    @staticmethod
+    def angle(a1,a2,a3):
+        u=a1.coord-a2.coord
+        v=a3.coord-a2.coord
+        c = numpy.dot(u,v)/numpy.linalg.norm(u)/numpy.linalg.norm(v) 
+        return  math.degrees(math.acos(c))
+        
     def covRadius(self):
         name = self.dct["name"]
-        return AtomParams.covRadius(name)   
-   
+        return AtomParams.covRadius(name)  
+     
+    def elemName(self):
+        name = self.dct["name"]
+        return AtomParams.elementName(name)   
+
+    def name(self):
+        return self.dct["name"]
+               
     def groupTag(self):
         '''
         returns that identifies group association of an atom
@@ -112,7 +127,7 @@ class GenericAtom(object):
         
     @staticmethod    
     def bonded(a1,a2):
-        dr = linalg.norm(a1.coord-a2.coord)
+        dr = numpy.linalg.norm(a1.coord-a2.coord)
         return dr <= (a1.covRadius()+a2.covRadius())
             
 if __name__ == '__main__':
@@ -137,5 +152,5 @@ if __name__ == '__main__':
     aline6="O1                 -0.985  -1.156   1.140  0.0 0.0  "
     aline5="O1                 -0.985  -1.156   "
     d=GenericAtom.fromXYZrecord(aline6)
-    print d
-        
+    print d.elemName()
+    print numpy.dot(3,4),numpy.linalg.norm(3)
