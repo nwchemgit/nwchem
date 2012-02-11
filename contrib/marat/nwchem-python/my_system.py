@@ -135,6 +135,7 @@ if __name__ == '__main__':
 #    sim1.connectAtoms()
     sim1.groupAtoms()
     sim1.info()
+
 #    sim1 = MySystem.fromPDBfile("test.pdb")
 # 
 #    sim1.toPDBfile()
