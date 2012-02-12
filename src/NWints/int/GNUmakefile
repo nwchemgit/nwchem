@@ -32,7 +32,7 @@ showxyz ${BINDIR}/showxyz:	showxyz.o
 	$(FC) $(FFLAGS) $(LDFLAGS) -o ${BINDIR}/showxyz showxyz.o $(LIBS)
 	rm -f showxyz.o
 int_order ${BINDIR}/int_order:	int_order.o
-	$(FC) $(FFLAGS) $(LDFLAGS) -o ${BINDIR}/int_order int_order.o $(LIBS) -lutil
+	$(FC) $(FFLAGS) $(LDFLAGS) -o ${BINDIR}/int_order int_order.o $(LIBS) -lga -lutil
 	rm -f int_order.o
 int_order.o:	int_order.F	int_order.fh
 
