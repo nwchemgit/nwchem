@@ -12,12 +12,13 @@ class GenericResidue(object):
     '''
 
 
-    def __init__(self,atoms=None):
+    def __init__(self,atoms=None,name="UNK"):
         '''
         Default constructor for Residue class
         atoms list of atoms in the residue
         name residue name
         '''
+        self.name = name
         if atoms:
             self.atoms = atoms
         else:
@@ -44,11 +45,11 @@ class GenericResidue(object):
     def delAtom(self,a):
         self.atoms.remove(a)
         
-    def __str__(self):
-        output = ""
-        for a in self.atoms:
-            output = output + str(a) + "\n"
-        return output
+#    def __str__(self):
+#        output = ""
+#        for a in self.atoms:
+#            output = output + str(a) + "\n"
+#        return output
 
     def connectAtoms(self):
         for i in range(len(self.atoms)):
@@ -62,7 +63,6 @@ class GenericResidue(object):
     def get_bonded(self,a0,elem=None):
         al =[]
         for a in self.byFilter():
-            print GenericAtom.bonded(a, a0),GenericAtom.bondlength(a, a0)
             if a!=a0 and GenericAtom.bonded(a, a0):
                 al.append(a)
         return al
@@ -81,11 +81,30 @@ class GenericResidue(object):
     
     @staticmethod
     def hbonded(res1,res2):
-        rOH=2.0
-        OHO=143
-        (r,a1,a2)=GenericResidue.distance(res1, res2)
+#        rOH=2.0
+#        OHO=143
+        elems = set(['O', 'H'])
+        rOH=2.27
+        OHO=138
+#       find minimum distance pair
+        rmin=100
+        for a1 in res1.atoms:
+            el1=a1.elemName() 
+            if el1 in elems:
+                for a2 in res2.atoms:
+                    el2=a2.elemName()
+                    if el2 in elems and el1!=el2:
+                        r = GenericAtom.bondlength(a1, a2)
+                        if r < rmin:
+                            a1_min = a1
+                            a2_min = a2
+                            rmin = r
+        a1=a1_min
+        a2=a2_min
+        r=rmin                
+
         if r > rOH:
-            return r, False
+            return False
         if a1.elemName()=='H':
             res1,res2=res2,res1
             a1,a2=a2,a1
@@ -95,8 +114,30 @@ class GenericResidue(object):
             return False
         a3 = res2.get_bonded(a2, 'O')[0]
         angle = GenericAtom.angle(a1, a2, a3)
-        return angle>OHO,r,angle
+        print r,angle
+        return angle>OHO
     
+    @staticmethod
+    def hbonded1(res1,res2):
+#        rOH=2.0
+#        OHO=143
+        rOH=2.27
+        OHO=138
+        (r,a1,a2)=GenericResidue.distance(res1, res2)
+        if r > rOH:
+            return False
+        if a1.elemName()=='H':
+            res1,res2=res2,res1
+            a1,a2=a2,a1
+        elif a2.elemName()=='H':
+            pass
+        else:
+            return False
+        a3 = res2.get_bonded(a2, 'O')[0]
+        angle = GenericAtom.angle(a1, a2, a3)
+        print r,angle
+        return angle>OHO
+        
     @staticmethod
     def distance1(res1,res2):
         dr=100
