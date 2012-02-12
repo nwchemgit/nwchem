@@ -12,18 +12,44 @@ class GenericResidue(object):
     '''
 
 
-    def __init__(self,atoms=None,name="UNK"):
+    def __init__(self,atoms=None,name="UNK",offset=0):
         '''
         Default constructor for Residue class
         atoms list of atoms in the residue
         name residue name
         '''
         self.name = name
+        self.offset = offset
         if atoms:
             self.atoms = atoms
         else:
             self.atoms=[]
             
+    def toPDBrecord(self,resid):
+ 
+        a1=" "
+        a2=2*" "
+        a3=3*" "
+        a4=4*" "
+        a5=5*" "
+        a6=6*" "
+        a8=8*" "
+        a22=22*" "
+ 
+        pdbformat="%-6s%5s%1s%4s%1s%3s%1s%4s%4s%8.3f%8.3f%8.3f%22s%2s"
+        pdbformat="%-6s%5d%1s%4s%1s%3s%1s%4s%4s%8.3f%8.3f%8.3f%22s%2s"
+        
+        output=''
+        atomid=self.offset
+        for a in self.atoms:
+            atomid = atomid + 1
+            output = output + pdbformat%('ATOM',atomid,a1,a.name(),a1,
+                                           self.name,a2,str(resid),a4,
+                                           a.coord[0],a.coord[1],a.coord[2],a22,
+                                           a.elemName())  + "\n"
+
+        return output
+    
     @classmethod        
     def fromPDBfile(cls,filename):
         '''
@@ -186,6 +212,8 @@ if __name__ == '__main__':
     name = None
     print (filter(lambda a: name is None or a.elemName()==name,res1.atoms ))
     print GenericResidue.hbonded(res0,res1)
+    print "HERE COMES PDB RECORD"
+    print res0.toPDBrecord(1)
 #    b = ResAtom.fromPDBrecord(aline1)
 #    res0.AddAtom(a)
 #    res0.AddAtom(b)
