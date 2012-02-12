@@ -62,16 +62,20 @@ class MySystem(object):
         cls.residues={}
         return cls
         
-    def toPDBfile(self):
-        for residue in self.residues.itervalues():
-            print residue
+    def toPDBfile(self,filename):
+        fp = open(str(filename),'w')
+        i=0
+        for residue in self.reslist:
+            i = i+1
+            fp.write(residue.toPDBrecord(resid=i))
             
     def AddAtom(self,a1):
         self.atoms.append(a1)
         rmap = self.residues
         tag = a1.groupTag()
+        offset = len(self.atoms)
         if tag not in rmap:
-            rmap[tag]=GenericResidue(name=tag)
+            rmap[tag]=GenericResidue(name=tag,offset=offset)
             self.reslist.append(rmap[tag])
         rmap[tag].AddAtom(a1)
         
@@ -92,6 +96,7 @@ class MySystem(object):
         rmap = self.residues
         reslist=self.reslist
         ir = 0
+        offset=0
         for i in range(len(self.atoms)):
             a1=self.atoms[i]
             if a1.groupTag()!="XYZ":
@@ -101,15 +106,16 @@ class MySystem(object):
             tag="00"+str(ir)
             tag=tag[-3:]
             a1.setGroupTag(tag)
-            rmap[tag]=GenericResidue(name=tag)
+            rmap[tag]=GenericResidue(name=tag,offset=offset)
             rmap[tag].AddAtom(a1)
+            offset = offset + 1
             reslist.append(rmap[tag])
             for j in range(i+1,len(self.atoms)):                
                 a2=self.atoms[j]
                 if GenericAtom.bonded(a1, a2):
                     a2.setGroupTag(tag)
                     rmap[tag].AddAtom(a2)
-               
+                    offset = offset + 1
                     
     def info(self):
         for tag,res in self.residues.iteritems():
@@ -123,7 +129,7 @@ if __name__ == '__main__':
     import numpy
     import pygraphviz as pgv
     import networkx as nx
-    
+    import matplotlib.pyplot as plt    
 
 
     aline1 = "ATOM      3  O2  IO3     1      -1.182   1.410   0.573       -0.80     O"
@@ -170,11 +176,37 @@ if __name__ == '__main__':
     print nx.connected_components(G)
     print nx.clustering(G)
     nx.write_dot(G,'file.dot')
+    pos=nx.spring_layout(G)
+    colors=range(20)
+ #   nx.draw(G,pos,node_color='#A0CBE2',edge_cmap=plt.cm.Blues,with_labels=True)
+#    nx.draw_spring(G)
+#    plt.show()
+#    plt.savefig("path.png")
     print "looking for cliques"
     print list(nx.find_cliques(G))
     print nx.number_connected_components(G)
     print sorted(nx.degree(G).values())
-        
+    
+    sim1.toPDBfile("mytest.pdb")    
+    try:
+        import numpy.linalg
+        eigenvalues=numpy.linalg.eigvals
+    except ImportError:
+        raise ImportError("numpy can not be imported.")
+
+    L=nx.generalized_laplacian(G)
+    e=eigenvalues(L)
+    print e
+    print "pagerank"
+    d= nx.degree(G)
+    for w in sorted(d, key=d.get, reverse=True):
+      print w, d[w]
+
+#    T=nx.minimum_spanning_tree(G)
+#    print(sorted(T.edges(data=True)))
+#    print(nx.cycle_basis(G))
+ #   nx.draw_spring(G)
+ #   plt.show()
 #    print len(hbond)
     
 #    sim1.info()
