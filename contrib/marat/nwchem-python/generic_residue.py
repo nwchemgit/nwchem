@@ -11,7 +11,8 @@ class GenericResidue(object):
     classdocs
     '''
 
-
+    dict_name=dict(HHO="WAT",IOOO="IO3")
+    
     def __init__(self,atoms=None,name="UNK",offset=0):
         '''
         Default constructor for Residue class
@@ -24,6 +25,16 @@ class GenericResidue(object):
             self.atoms = atoms
         else:
             self.atoms=[]
+            
+    def signature(self):
+        s=sorted(x.elemName() for x in self.atoms)
+        return ''.join(s)
+            
+    def guess_name(self):
+        s=sorted(x.elemName() for x in self.atoms)
+        name = GenericResidue.dict_name.get(self.signature(),None)
+        if name:
+            self.name = name
             
     def toPDBrecord(self,resid):
  
@@ -140,7 +151,6 @@ class GenericResidue(object):
             return False
         a3 = res2.get_bonded(a2, 'O')[0]
         angle = GenericAtom.angle(a1, a2, a3)
-        print r,angle
         return angle>OHO
     
     @staticmethod
@@ -203,7 +213,12 @@ if __name__ == '__main__':
     print res0
  
     res1 = GenericResidue.fromPDBfile("h2o-1.pdb")
-    print res1
+    print res1.signature()
+    print res0.signature()
+    res1.guess_name()
+    print res1.name
+    res0.guess_name()
+    print res0.name
     
     print "distance test"
     (r,a1,a2)=GenericResidue.distance(res0, res1)
