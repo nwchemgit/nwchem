@@ -28,7 +28,7 @@ c
       integer l_eval,k_eval,l_focc,k_focc,
      K     k_proj,l_proj,k_c,l_c,k_sc,l_sc,k_fproj,l_fproj
       double precision span,trasly
-      character*24 dfile
+      character*80 dfile
       integer nproj,angproj
       logical doproj
 c
