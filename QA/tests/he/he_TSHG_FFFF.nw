@@ -1,0 +1,12 @@
+echo
+start he_dat
+
+geometry
+  he 0 0 0
+end
+
+basis
+ * library cc-pVDZ
+end
+
+task scf energy

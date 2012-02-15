@@ -216,6 +216,20 @@ C
          Total = Total_Dflt
          TSource = 'D' ! Default
       EndIf
+c
+c     Set up defaults, the remaining inputs are considered as
+c     modifications of the defaults
+c
+      If (inp_compare(.false.,GSource, 'N')) Then
+        Global = Global_Frc*Total_Dflt
+      EndIf
+      If (inp_compare(.false.,HSource, 'N')) Then
+        Heap = Heap_Frc*Total_Dflt
+      EndIf
+      If (inp_compare(.false.,SSource, 'N')) Then
+        Stack = Stack_Frc*Total_Dflt
+      EndIf
+c
 C
 C     Work out which variable(s) may be overridden based on the sources
 C     of the others.
@@ -225,65 +239,138 @@ C
       HOverride = memory_override(HSource,TSource,SSource,GSource)
       GOverride = memory_override(GSource,TSource,SSource,HSource)
 c
-      if (.not.(TOverride.or.SOverride.or.HOverride.or.GOverride)) then
-        if (Total .ne. Stack + Heap + Global) then
-          Call ErrQuit(
-     &    'Memory_Defaults: Inconsistent memory specification',
-     &    Total-Stack-Heap-Global, INPUT_ERR)
-        endif
-      else if (SOverride.or.HOverride.or.GOverride) then
-        if (SOverride.and.HOverride.and.GOverride) then
-          Stack   = Stack_Frc*Total
-          SSource = 'C'
-          Heap    = Heap_Frc*Total
-          HSource = 'C'
-          Global  = Global_Frc*Total
-          GSource = 'C'
-        else if ((.not.SOverride).and.HOverride.and.GOverride) then
-          Heap    = Heap_Frc*(Total-Stack)
-          HSource = 'C'
-          Global  = Global_Frc*(Total-Stack)
-          GSource = 'C'
-        else if ((.not.HOverride).and.SOverride.and.GOverride) then
-          Stack   = Stack_Frc*(Total-Heap)
-          SSource = 'C'
-          Global  = Global_Frc*(Total-Heap)
-          GSource = 'C'
-        else if ((.not.GOverride).and.SOverride.and.HOverride) then
-          Stack   = Stack_Frc*(Total-Global)
-          SSource = 'C'
-          Heap    = Heap_Frc*(Total-Global)
-          GSource = 'C'
-        else if ((.not.SOverride).and.(.not.HOverride).and.GOverride)
-     &  then
-          Global  = Global_Frc*(Total-Stack-Heap)
-          GSource = 'C'
-        else if ((.not.HOverride).and.(.not.GOverride).and.SOverride)
-     &  then
-          Stack   = Stack_Frc*(Total-Heap-Global)
-          SSource = 'C'
-        else if ((.not.SOverride).and.(.not.GOverride).and.HOverride)
-     &  then
-          Heap    = Heap_Frc*(Total-Stack-Global)
-          HSource = 'C'
-        endif
-        Heap   = max(0,Heap)
-        Stack  = max(0,Stack)
-        Global = max(0,Global)
-        if (TOverride) then
-          if (Total .ne. Stack + Heap + Global) then
-            Total   = Stack + Heap + Global
-            TSource = 'R'
-          endif
-        endif
-      else ! (TOverride)
-        Heap   = max(0,Heap)
-        Stack  = max(0,Stack)
-        Global = max(0,Global)
-        if (Total .ne. Stack + Heap + Global) then
-          Total   = Stack + Heap + Global
-          TSource = 'R'
-        endif
+c     There are 16 potential cases which we work out below
+c
+      if (TOverride) then
+        if (SOverride) then
+          if (HOverride) then
+            if (GOverride) then
+c             T T T T: all settings have equal priority so they must
+c                      match
+              if (Total .ne. Stack + Heap + Global) then
+                Call ErrQuit(
+     &          'Memory_Defaults: Inconsistent memory specification',
+     &          Total-Stack-Heap-Global, INPUT_ERR)
+              endif
+            else  ! GOverride
+c             T T T F: global is set, all others to be computed.
+c                      compute total as sum of the rest.
+              TSource = 'C'
+              Total = Stack+Heap+Global
+            endif ! GOverride
+          else  ! HOverride
+            if (GOverride) then
+c             T T F T: heap is set, all others to be computed.
+c                      compute total as sum of the rest
+              TSource = 'C'
+              Total = Stack+Heap+Global
+            else  ! GOverride
+c             T T F F: heap and global are set all others to be computed.
+c                      compute total as sum of the rest
+              TSource = 'C'
+              Total = Stack+Heap+Global
+            endif ! GOverride
+          endif ! HOverride
+        else  ! SOverride
+          if (HOverride) then
+            if (GOverride) then
+c             T F T T: stack is set, all others to be computed.
+c                      compute total as sum of the rest
+              TSource = 'C'
+              Total = Stack+Heap+Global
+            else  ! GOverride
+c             T F T F: stack and global are set, all others to be computed.
+c                      compute total as sum of the rest
+              TSource = 'C'
+              Total = Stack+Heap+Global
+            endif ! GOverride
+          else  ! HOverride
+            if (GOverride) then
+c             T F F T: stack and heap are set, all others to be computed.
+c                      compute total as sum of the rest
+              TSource = 'C'
+              Total = Stack+Heap+Global
+            else  ! GOverride
+c             T F F F: stack, heap and global are set, total to be computed.
+c                      compute total as sum of the rest
+              TSource = 'C'
+              Total = Stack+Heap+Global
+            endif ! GOverride
+          endif ! HOverride
+        endif ! SOVerride
+      else  ! TOverride
+        if (SOverride) then
+          if (HOverride) then
+            if (GOverride) then
+c             F T T T: total is set, all others are to be computed.
+c                      split total according to standard fractions
+              SSource = 'C'
+              HSource = 'C'
+              GSource = 'C'
+              Stack   = Stack_Frc*Total
+              Heap    = Heap_Frc*Total
+              Global  = Global_Frc*Total
+            else  ! GOverride
+c             F T T F: total and global are set, all others are to be computed.
+c                      split remainder of total according to standard fractions
+              SSource = 'C'
+              HSource = 'C'
+              Stack   = Stack_Frc*(Total-Global)/(Stack_Frc+Heap_Frc)
+              Heap    = Heap_Frc*(Total-Global)/(Stack_Frc+Heap_Frc)
+            endif ! GOverride
+          else  ! HOverride
+            if (GOverride) then
+c             F T F T: total and heap are set, all others are to be computed.
+c                      split remainder of total according to standard fractions
+              SSource = 'C'
+              GSource = 'C'
+              Stack   = Stack_Frc*(Total-Heap)/(Stack_Frc+Global_Frc)
+              Global  = Global_Frc*(Total-Heap)/(Stack_Frc+Global_Frc)
+            else  ! GOverride
+c             F T F F: total, heap and global are set, stack is to be computed.
+              SSource = 'C'
+              Stack   = Total-Heap-Global
+            endif ! GOverride
+          endif ! HOverride
+        else  ! SOverride
+          if (HOverride) then
+            if (GOverride) then
+c             F F T T: total and stack are set, all others are to be computed.
+c                      split remainder of total according to standard fractions
+              HSource = 'C'
+              GSource = 'C'
+              Heap    = Heap_Frc*(Total-Stack)/(Global_Frc+Heap_Frc)
+              Global  = Global_Frc*(Total-Stack)/(Global_Frc+Heap_Frc)
+            else  ! GOverride
+c             F F T F: total, stack and global are set, heap is to be computed.
+              HSource = 'C'
+              Heap    = Total-Stack-Global
+            endif ! GOverride
+          else  ! HOverride
+            if (GOverride) then
+c             F F F T: total, stack and heap are set, global is to be computed.
+              GSource = 'C'
+              Global  = Total-Stack-Heap
+            else  ! GOverride
+c             F F F F: total, stack, heap and global are set, the settings
+c                      better match
+              if (Total .ne. Stack + Heap + Global) then
+                Call ErrQuit(
+     &          'Memory_Defaults: Inconsistent memory specification',
+     &          Total-Stack-Heap-Global, INPUT_ERR)
+              endif
+            endif ! GOverride
+          endif ! HOverride
+        endif ! SOVerride
+      endif ! TOverride
+c
+      Heap   = max(0,Heap)
+      Stack  = max(0,Stack)
+      Global = max(0,Global)
+      Total  = max(0,Total)
+      if (Total .ne. Stack + Heap + Global) then
+        Total   = Stack + Heap + Global
+        TSource = 'R'
       endif
 *
 *     rjh: ensure that heap+stack are at least 6 mb
@@ -343,8 +430,8 @@ c
 c
       Highest = 'N'
       Lowest  = 'U'
-      if ((Highest.eq.'N').and.(Tvar1.eq.'D'.or.Tvar1.eq.'F'.or.
-     &                          Tvar1.eq.'E'.or.Tvar1.eq.'U')) then
+      if ((Highest.eq.'N').and.(Tvar1.eq.'F'.or.Tvar1.eq.'E'.or.
+     &                          Tvar1.eq.'U')) then
         Highest = Tvar1
       else if ((Highest.eq.'D').and.(Tvar1.eq.'F'.or.Tvar1.eq.'E'.or.
      &                               Tvar1.eq.'U')) then
@@ -354,8 +441,8 @@ c
       else if ((Highest.eq.'E').and.(Tvar1.eq.'U')) then
         Highest = Tvar1
       endif
-      if ((Highest.eq.'N').and.(Tvar2.eq.'D'.or.Tvar2.eq.'F'.or.
-     &                          Tvar2.eq.'E'.or.Tvar2.eq.'U')) then
+      if ((Highest.eq.'N').and.(Tvar2.eq.'F'.or.Tvar2.eq.'E'.or.
+     &                          Tvar2.eq.'U')) then
         Highest = Tvar2
       else if ((Highest.eq.'D').and.(Tvar2.eq.'F'.or.Tvar2.eq.'E'.or.
      &                               Tvar2.eq.'U')) then
@@ -365,8 +452,8 @@ c
       else if ((Highest.eq.'E').and.(Tvar2.eq.'U')) then
         Highest = Tvar2
       endif
-      if ((Highest.eq.'N').and.(Tvar3.eq.'D'.or.Tvar3.eq.'F'.or.
-     &                          Tvar3.eq.'E'.or.Tvar3.eq.'U')) then
+      if ((Highest.eq.'N').and.(Tvar3.eq.'F'.or.Tvar3.eq.'E'.or.
+     &                          Tvar3.eq.'U')) then
         Highest = Tvar3
       else if ((Highest.eq.'D').and.(Tvar3.eq.'F'.or.Tvar3.eq.'E'.or.
      &                               Tvar3.eq.'U')) then
@@ -444,6 +531,8 @@ c
      &           Tcandidate.eq.'D')) then
           memory_override = .true.
         else if ((Lowest.eq.'D').and.(Tcandidate.eq.'N')) then
+          memory_override = .true.
+        else if ((Lowest.eq.'N').and.(Tcandidate.eq.'D')) then
           memory_override = .true.
         endif
       endif
