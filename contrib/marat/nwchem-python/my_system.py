@@ -87,14 +87,28 @@ class MySystem(object):
         for residue in self.reslist:
             i = i+1
             fp.write(residue.toPDBrecord(resid=i))
-            
+
+    def toPDBfile1(self,filename,rlist,comment=None):
+        fp = open(str(filename),'w')
+        if comment:
+            fp.write("#comment: %s\n"%comment)
+        i=0
+        offset = 0
+        for ir in rlist:
+            residue = self.reslist[ir]
+            i = i+1
+            fp.write(residue.toPDBrecord(resid=i,offset=offset))
+            offset = offset + residue.size()
+        fp.close()  
+                      
     def AddAtom(self,a1):
         self.atoms.append(a1)
         rmap = self.residues
         tag = a1.groupTag()
         offset = len(self.atoms)
+        resname = a1.res_name()
         if tag not in rmap:
-            rmap[tag]=GenericResidue(name=tag,offset=offset)
+            rmap[tag]=GenericResidue(name=resname,offset=offset)
             self.reslist.append(rmap[tag])
         rmap[tag].AddAtom(a1)
 
@@ -104,8 +118,8 @@ class MySystem(object):
         for i,r in enumerate(self.reslist):
             G.add_node(i+1,name=r.name)
         print G.nodes()
-        solvent = [n for n,d in G.nodes_iter(data=True) if d['name']=='WAT' ]
-        solute = [n for n,d in G.nodes_iter(data=True) if d['name']!='WAT' ]
+        solvent = [n for n,d in G.nodes_iter(data=True) if d['name'] in ['WAT','HOH','WTR' ]]
+        solute = [n for n,d in G.nodes_iter(data=True) if d['name'] not in ['WAT','HOH','WTR' ]]
         print "solute",solute
         
         h = self.hbond_matrix()
@@ -113,13 +127,18 @@ class MySystem(object):
         for i in range(nr):
             for j in range(i+1,nr):
                 if h[i][j]==1:
-                    G.add_edge(i+1,j+1) 
+                    G.add_edge(i+1,j+1,name="hbond") 
+                elif GenericResidue.spec_bonded(self.reslist[i], self.reslist[j]):
+                    G.add_edge(i+1,j+1,name="special")                     
                            
-        esolute = [(u,v) for u,v,d in G.edges_iter(data=True) if u in solute or v in solute ]
+        esolute = [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solute or v in solute) and  d['name']=='hbond'  ]
         print esolute
-        esolvent= [(u,v) for u,v,d in G.edges_iter(data=True) if u in solvent and v in solvent ]
+        esolvent= [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solvent and v in solvent) and  d['name']=='hbond']
         print esolvent       
-        
+
+        especial= [(u,v) for u,v,d in G.edges_iter(data=True) if d['name']=='special' ]
+        print especial      
+                
         pos0=nx.spectral_layout(G)
         pos=nx.spring_layout(G,iterations=500,pos=pos0)
 #        pos=nx.graphviz_layout(G,root=1,prog='dot')
@@ -131,13 +150,51 @@ class MySystem(object):
                             width=3,edge_color='red',style='dashed')
         nx.draw_networkx_edges(G,pos,edgelist=esolvent,
                             width=3,edge_color='blue')   
+        nx.draw_networkx_edges(G,pos,edgelist=especial,
+                            width=3,edge_color='c',style='dashed')           
         nx.draw_networkx_labels(G,pos)
              
         plt.axis('off')
         plt.savefig(name)
+        T=nx.dfs_tree(G)
+        print(sorted(T.edges(data=True)))
+  
 #        plt.show() # display
 #        return G
             
+    def create_simple_graph(self,name):
+        import networkx as nx
+        G=nx.Graph()
+        for i,r in enumerate(self.reslist):
+            G.add_node(i+1,name=r.name)
+        print G.nodes()
+
+        
+        h = self.hbond_matrix()
+        nr = numpy.size(h,0)
+        for i in range(nr):
+            for j in range(i+1,nr):
+                if GenericResidue.touching(self.reslist[i], self.reslist[j],2.8):
+                    print 'adding edge',i+1,j+1
+                    G.add_edge(i+1,j+1,name="special")                     
+ 
+#        pos0=nx.spectral_layout(G)
+#        pos=nx.spring_layout(G,iterations=500,pos=pos0)
+
+#        pos=nx.spring_layout(G,iterations=500)
+        
+#        nx.draw_shell(G)
+
+        pos0=nx.spectral_layout(G)
+        pos=nx.spring_layout(G,iterations=500,pos=pos0)
+#        pos=nx.graphviz_layout(G,root=1,prog='dot')
+#        nx.draw(G)
+        nx.draw_networkx(G,pos)
+                     
+        plt.axis('off')
+        plt.savefig(name)
+            
+        
         
 
     def connectAtoms(self):
@@ -161,7 +218,27 @@ class MySystem(object):
                 hbond[i][j]=GenericResidue.hbonded(ri,rj)
                 hbond[j][i]=hbond[i][j]
         return hbond
-            
+
+    def dist_matrix(self,rcut):
+        nr = len(self.reslist)
+        dm = numpy.zeros(shape=(nr,nr),dtype=int)    
+    
+        for i in range(nr):
+            ri=self.reslist[i]   
+            for j in range(i+1,nr):
+                rj=self.reslist[j]
+                dm[i][j]=GenericResidue.touching(self.reslist[i], self.reslist[j],2.8)
+                dm[j][i]=dm[i][j]
+        return dm
+
+        h = self.hbond_matrix()
+        nr = numpy.size(h,0)
+        for i in range(nr):
+            for j in range(i+1,nr):
+                if GenericResidue.touching(self.reslist[i], self.reslist[j],2.8):
+                    print 'adding edge',i+1,j+1
+                    G.add_edge(i+1,j+1,name="special")                 
+                                        
     def groupAtoms(self):
         rmap = self.residues
         reslist=self.reslist
@@ -203,11 +280,50 @@ if __name__ == '__main__':
     import pygraphviz as pgv
     import networkx as nx
     import matplotlib.pyplot as plt    
-
+    import random
+    
 #    
-    sim1 = MySystem.from_file("w12-12.xyz")
-    sim1.toPDBfile("w12-12.pdb")       
-    sim1.create_graph("w12-12.png")
+    sim1 = MySystem.fromPDBfile("shell.pdb")
+    sim1.toPDBfile("shell-1.pdb")       
+    sim1.create_simple_graph("shell.png")
+    dm=sim1.dist_matrix(2.8)
+    chain0=[0]
+    level=2
+    chain1=[]
+    print dm
+    for i in chain0:
+        for j in range(i+1,25):
+            if dm[i][j]==1:
+                chain1.append([i,j])
+    print chain1
+    
+    chain0=chain1
+    chain1=[]
+
+    for i in chain0[0]:
+        for j in range(i+1,25):
+            if dm[i][j]==1:
+                chain1.append([i,j])
+    print chain1
+ 
+    slist=set() 
+    while len(slist)<15:
+        alist = set()
+        while len(alist)<7:
+            i=random.randint(3, 20)
+            alist.add(i)     
+        
+        slist.add((0,1,2)+tuple(sorted(alist)))
+        
+    for i,s in enumerate(slist):
+        filename = "cw9-%d.pdb"%(i)
+        comment="-".join(["%s" % el for el in s])
+        print s,filename,comment
+        sim1.toPDBfile1(filename,s,comment)
+
+#    it = iter(slist)
+#    sim1.toPDBfile1("test-123.pdb",next(it),comment="my best trs")
+    
 #
 #    nx.draw_spring(H)
 #    plt.show()
