@@ -42,9 +42,9 @@ c
       character*80 errmsg
       character*256 grinfo_in
       external util_scratch_dir_avail_for_me
-      logical grid_file_rewind
+      logical grid_file_rewind,grid_file_close
       logical oreafail
-      external grid_file_rewind
+      external grid_file_rewind,grid_file_close
       logical grid_grinfoinit,grid_grinfo2,grid_ptsalloc
       external grid_grinfoinit,grid_grinfo2,grid_ptsalloc
 c     Open file returning CHEMIO filehandle (not yet)
@@ -190,6 +190,12 @@ c
          grid_file_open=.true.
          if (.not. grid_file_rewind())
      $        call errquit('grfile: rewinding gridpts?',1, DISK_ERR)
+cbugfix for idle procs
+         if(n_rec_in_file.le.1) then
+         if (.not. grid_file_close(.false.))
+     $        call errquit('grfile: deleting idle grid?',1, DISK_ERR)
+         endif
+
          file_opened=.false.
          filedump_opened=.false.
 #ifndef EAFHACK
@@ -241,15 +247,6 @@ c
          if (eaf_close(fd) .ne. 0) call errquit
      $        ('grid_file_close: eaf_close failed',0, DISK_ERR)
 #endif
-         if (.not. okeep) then
-#ifndef EAFHACK
-            if (eaf_delete(actualname) .ne. 0) call errquit
-     $           ('grid_file_close: delete failed', 0, DISK_ERR)
-#else
-            if (.not.grid_ptsdel(fd)) call errquit
-     $           ('grid_file_close: delete failed', 1, MA_ERR)
-#endif
-         endif
       endif
 c
       if(okeep) then
@@ -261,10 +258,23 @@ cbad        for acr cam3lyp cdfit
          fdg=-1
          endif
       else
+#ifndef EAFHACK
+         if(fd.ne.-1) then
+         if (eaf_close(fd) .ne. 0) call errquit
+     $        ('grid_file_close: eaf_close2 for fd ',fd, DISK_ERR)
+            if (eaf_delete(actualname) .ne. 0) call errquit
+     $           ('grid_file_close: delete failed', 0, DISK_ERR)
+         endif
+#else
+            if (.not.grid_ptsdel(fd)) call errquit
+     $           ('grid_file_close: delete failed', 1, MA_ERR)
+#endif
          fdg=-1
       endif
 c
+#ifdef OLD
          call ga_igop(msg_grid_stat1, n_rec_in_file, 1, '+')
+#endif
          if (oprint) then
             write(LuOut,1) n_rec_in_file
  1          format(/
@@ -272,6 +282,7 @@ c
             call util_flush(LuOut)
          end if
  2001    continue
+
          if (otrace) then
             write(LuOut,*) ' grid_file: closing ',
      $           actualname(1:inp_strlen(actualname))
