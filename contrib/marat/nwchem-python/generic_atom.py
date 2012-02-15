@@ -74,7 +74,12 @@ class GenericAtom(object):
 
     def name(self):
         return self.dct["name"]
-               
+    
+    def res_name(self):
+        '''
+        '''
+        return  self.dct.get("resname","UNK").strip()
+                   
     def groupTag(self):
         '''
         returns that identifies group association of an atom
