@@ -36,7 +36,7 @@ class GenericResidue(object):
         if name:
             self.name = name
             
-    def toPDBrecord(self,resid):
+    def toPDBrecord(self,resid,offset=None):
  
         a1=" "
         a2=2*" "
@@ -51,7 +51,11 @@ class GenericResidue(object):
         pdbformat="%-6s%5d%1s%4s%1s%3s%1s%4s%4s%8.3f%8.3f%8.3f%22s%2s"
         
         output=''
-        atomid=self.offset
+        if offset is not None:
+            print "found offset", offset
+            atomid=offset
+        else:
+            atomid=self.offset
         for a in self.atoms:
             atomid = atomid + 1
             output = output + pdbformat%('ATOM',atomid,a1,a.name(),a1,
@@ -152,7 +156,31 @@ class GenericResidue(object):
         a3 = res2.get_bonded(a2, 'O')[0]
         angle = GenericAtom.angle(a1, a2, a3)
         return angle>OHO
-    
+
+    @staticmethod
+    def spec_bonded(res1,res2):
+        if set([res1.name,res2.name])!=set(["IO3","WAT"]):
+            return False
+        elems = set(['O', 'I'])
+#       find minimum distance pair
+        rmin=100
+        for a1 in res1.atoms:
+            el1=a1.elemName() 
+            if el1 in elems:
+                for a2 in res2.atoms:
+                    el2=a2.elemName()
+                    if el2 in elems and el1!=el2:
+                        r = GenericAtom.bondlength(a1, a2)
+                        if r < rmin:
+                            rmin = r
+ 
+        return rmin < 2.9                    
+
+    @staticmethod
+    def touching(res1,res2,rcut):
+        return rcut > GenericResidue.distance(res1, res2)[0]
+                
+
     @staticmethod
     def hbonded1(res1,res2):
 #        rOH=2.0
