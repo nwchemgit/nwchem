@@ -178,6 +178,22 @@ class MySystem(object):
 #        plt.show() # display
 #        return G
 
+    def num_hbonds(self):
+        '''
+        '''
+        nu=0
+        nv=0
+        h = self.hbond_matrix1()
+        nr = numpy.size(h,0)
+        for i in range(nr):
+            for j in range(i+1,nr):
+                if (self.reslist[i].name in  ['WAT','HOH','WTR' ] 
+                    and  self.reslist[j].name in  ['WAT','HOH','WTR' ]):
+                    nv = nv + h[i][j]         
+                else:
+                    nu = nu + h[i][j]  
+        return nu+nv,nu,nv
+                        
     def graph(self):
         '''
         '''
@@ -348,6 +364,7 @@ if __name__ == '__main__':
 #    sim1.create_graph("shell.png")
     G=sim1.graph()
     print nx.density(G)
+    print sim1.num_hbonds()[0]
 #    dm=sim1.dist_matrix(2.8)
 #    chain0=[0]
 #    level=2
