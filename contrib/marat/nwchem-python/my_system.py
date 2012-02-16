@@ -114,7 +114,7 @@ class MySystem(object):
 
     def create_graph(self,name):
         import networkx as nx
-        G=nx.Graph()
+        G=nx.MultiGraph()
         for i,r in enumerate(self.reslist):
             G.add_node(i+1,name=r.name)
         print G.nodes()
@@ -122,17 +122,25 @@ class MySystem(object):
         solute = [n for n,d in G.nodes_iter(data=True) if d['name'] not in ['WAT','HOH','WTR' ]]
         print "solute",solute
         
-        h = self.hbond_matrix()
+        h = self.hbond_matrix1()
         nr = numpy.size(h,0)
         for i in range(nr):
             for j in range(i+1,nr):
                 if h[i][j]==1:
                     G.add_edge(i+1,j+1,name="hbond") 
+                if h[i][j]==2:
+                    G.add_edge(i+1,j+1,name="hbond2")     
+                    G.add_edge(i+1,j+1,name="hbond2")          
                 elif GenericResidue.spec_bonded(self.reslist[i], self.reslist[j]):
                     G.add_edge(i+1,j+1,name="special")                     
-                           
+         
+        print "all",[(u,v) for u,v,d in G.edges_iter(data=True)]                   
         esolute = [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solute or v in solute) and  d['name']=='hbond'  ]
         print esolute
+
+        esolute2 = [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solute or v in solute) and  d['name']=='hbond2'  ]
+        print esolute2
+                
         esolvent= [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solvent and v in solvent) and  d['name']=='hbond']
         print esolvent       
 
@@ -151,13 +159,18 @@ class MySystem(object):
         nx.draw_networkx_edges(G,pos,edgelist=esolvent,
                             width=3,edge_color='blue')   
         nx.draw_networkx_edges(G,pos,edgelist=especial,
-                            width=3,edge_color='c',style='dashed')           
+                            width=3,edge_color='c',style='dashed')     
+
+        nx.draw_networkx_edges(G,pos,edgelist=esolute2,
+                            width=8,edge_color='red',style='dashed')             
+              
         nx.draw_networkx_labels(G,pos)
              
         plt.axis('off')
         plt.savefig(name)
         T=nx.dfs_tree(G)
         print(sorted(T.edges(data=True)))
+        nx.write_dot(G,"shell.dot")
   
 #        plt.show() # display
 #        return G
@@ -219,6 +232,18 @@ class MySystem(object):
                 hbond[j][i]=hbond[i][j]
         return hbond
 
+    def hbond_matrix1(self):
+        nr = len(self.reslist)
+        hbond = numpy.zeros(shape=(nr,nr),dtype=int)    
+    
+        for i in range(nr):
+            ri=self.reslist[i]   
+            for j in range(i+1,nr):
+                rj=self.reslist[j]
+                hbond[i][j]=GenericResidue.hbonded1(ri,rj)
+                hbond[j][i]=hbond[i][j]
+        return hbond
+    
     def dist_matrix(self,rcut):
         nr = len(self.reslist)
         dm = numpy.zeros(shape=(nr,nr),dtype=int)    
@@ -283,43 +308,44 @@ if __name__ == '__main__':
     import random
     
 #    
-    sim1 = MySystem.fromPDBfile("shell.pdb")
-    sim1.toPDBfile("shell-1.pdb")       
-    sim1.create_simple_graph("shell.png")
-    dm=sim1.dist_matrix(2.8)
-    chain0=[0]
-    level=2
-    chain1=[]
-    print dm
-    for i in chain0:
-        for j in range(i+1,25):
-            if dm[i][j]==1:
-                chain1.append([i,j])
-    print chain1
-    
-    chain0=chain1
-    chain1=[]
-
-    for i in chain0[0]:
-        for j in range(i+1,25):
-            if dm[i][j]==1:
-                chain1.append([i,j])
-    print chain1
- 
-    slist=set() 
-    while len(slist)<15:
-        alist = set()
-        while len(alist)<7:
-            i=random.randint(3, 20)
-            alist.add(i)     
-        
-        slist.add((0,1,2)+tuple(sorted(alist)))
-        
-    for i,s in enumerate(slist):
-        filename = "cw9-%d.pdb"%(i)
-        comment="-".join(["%s" % el for el in s])
-        print s,filename,comment
-        sim1.toPDBfile1(filename,s,comment)
+    sim1 = MySystem.fromPDBfile("w4-1.pdb")
+    print sim1.hbond_matrix1()
+#    sim1.toPDBfile("shell-1.pdb")       
+    sim1.create_graph("shell.png")
+#    dm=sim1.dist_matrix(2.8)
+#    chain0=[0]
+#    level=2
+#    chain1=[]
+#    print dm
+#    for i in chain0:
+#        for j in range(i+1,25):
+#            if dm[i][j]==1:
+#                chain1.append([i,j])
+#    print chain1
+#    
+#    chain0=chain1
+#    chain1=[]
+#
+#    for i in chain0[0]:
+#        for j in range(i+1,25):
+#            if dm[i][j]==1:
+#                chain1.append([i,j])
+#    print chain1
+# 
+#    slist=set() 
+#    while len(slist)<15:
+#        alist = set()
+#        while len(alist)<7:
+#            i=random.randint(3, 20)
+#            alist.add(i)     
+#        
+#        slist.add((0,1,2)+tuple(sorted(alist)))
+#        
+#    for i,s in enumerate(slist):
+#        filename = "cw9-%d.pdb"%(i)
+#        comment="-".join(["%s" % el for el in s])
+#        print s,filename,comment
+#        sim1.toPDBfile1(filename,s,comment)
 
 #    it = iter(slist)
 #    sim1.toPDBfile1("test-123.pdb",next(it),comment="my best trs")
