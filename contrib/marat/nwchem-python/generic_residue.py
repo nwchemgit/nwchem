@@ -158,6 +158,44 @@ class GenericResidue(object):
         return angle>OHO
 
     @staticmethod
+    def hbonded1(res1,res2):
+#        rOH=2.0
+#        OHO=143
+        elems = set(['O', 'H'])
+        rOH=2.27
+        OHO=138
+        ohbond = False
+        nhb=0
+#       find minimum distance pair
+        plist=[]
+        for a1 in res1.atoms:
+            el1=a1.elemName() 
+            if el1 in elems:
+                for a2 in res2.atoms:
+                    el2=a2.elemName()
+                    if el2 in elems and el1!=el2:
+                        r = GenericAtom.bondlength(a1, a2)
+                        if r < rOH:
+                            plist.append([a1,a2])
+#        print "plist",plist
+        for a1,a2 in plist:
+            if a1.elemName()=='H':
+                res1,res2=res2,res1
+                a1,a2=a2,a1
+            elif a2.elemName()=='H':
+                pass
+            else:
+                continue
+            a3 = res2.get_bonded(a2, 'O')[0]
+            angle = GenericAtom.angle(a1, a2, a3)
+            if angle>OHO:
+                hbond = True
+                nhb = nhb +1
+                
+        return nhb
+
+
+    @staticmethod
     def spec_bonded(res1,res2):
         if set([res1.name,res2.name])!=set(["IO3","WAT"]):
             return False
@@ -181,26 +219,26 @@ class GenericResidue(object):
         return rcut > GenericResidue.distance(res1, res2)[0]
                 
 
-    @staticmethod
-    def hbonded1(res1,res2):
-#        rOH=2.0
-#        OHO=143
-        rOH=2.27
-        OHO=138
-        (r,a1,a2)=GenericResidue.distance(res1, res2)
-        if r > rOH:
-            return False
-        if a1.elemName()=='H':
-            res1,res2=res2,res1
-            a1,a2=a2,a1
-        elif a2.elemName()=='H':
-            pass
-        else:
-            return False
-        a3 = res2.get_bonded(a2, 'O')[0]
-        angle = GenericAtom.angle(a1, a2, a3)
-        print r,angle
-        return angle>OHO
+#    @staticmethod
+#    def hbonded1(res1,res2):
+##        rOH=2.0
+##        OHO=143
+#        rOH=2.27
+#        OHO=138
+#        (r,a1,a2)=GenericResidue.distance(res1, res2)
+#        if r > rOH:
+#            return False
+#        if a1.elemName()=='H':
+#            res1,res2=res2,res1
+#            a1,a2=a2,a1
+#        elif a2.elemName()=='H':
+#            pass
+#        else:
+#            return False
+#        a3 = res2.get_bonded(a2, 'O')[0]
+#        angle = GenericAtom.angle(a1, a2, a3)
+#        print r,angle
+#        return angle>OHO
         
     @staticmethod
     def distance1(res1,res2):
