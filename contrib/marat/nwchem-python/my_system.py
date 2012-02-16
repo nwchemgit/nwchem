@@ -115,6 +115,7 @@ class MySystem(object):
 
     def create_graph(self,name):
         import networkx as nx
+        import matplotlib.pyplot as plt    
         G=nx.MultiGraph()
         for i,r in enumerate(self.reslist):
             G.add_node(i+1,name=r.name)
