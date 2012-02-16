@@ -168,12 +168,44 @@ class MySystem(object):
              
         plt.axis('off')
         plt.savefig(name)
-        T=nx.dfs_tree(G)
-        print(sorted(T.edges(data=True)))
-        nx.write_dot(G,"shell.dot")
+#        T=nx.dfs_tree(G)
+#        print(sorted(T.edges(data=True)))
+#        nx.write_dot(G,"shell.dot")
+#        print "density=",nx.density(G)
   
 #        plt.show() # display
 #        return G
+
+    def graph(self):
+        '''
+        '''
+        import networkx as nx
+        G=nx.MultiGraph()
+        for i,r in enumerate(self.reslist):
+            G.add_node(i+1,name=r.name)
+
+        solvent = [n for n,d in G.nodes_iter(data=True) if d['name'] in ['WAT','HOH','WTR' ]]
+        solute = [n for n,d in G.nodes_iter(data=True) if d['name'] not in ['WAT','HOH','WTR' ]]
+        
+        h = self.hbond_matrix1()
+        nr = numpy.size(h,0)
+        for i in range(nr):
+            for j in range(i+1,nr):
+                if h[i][j]==1:
+                    G.add_edge(i+1,j+1,name="hbond") 
+                if h[i][j]==2:
+                    G.add_edge(i+1,j+1,name="hbond2")     
+                    G.add_edge(i+1,j+1,name="hbond2")          
+                elif GenericResidue.spec_bonded(self.reslist[i], self.reslist[j]):
+                    G.add_edge(i+1,j+1,name="special")                     
+                        
+        esolute = [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solute or v in solute) and  d['name']=='hbond'  ]
+        esolute2 = [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solute or v in solute) and  d['name']=='hbond2'  ]                
+        esolvent= [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solvent and v in solvent) and  d['name']=='hbond']       
+        especial= [(u,v) for u,v,d in G.edges_iter(data=True) if d['name']=='special' ]  
+                
+        return G
+  
             
     def create_simple_graph(self,name):
         import networkx as nx
@@ -311,7 +343,9 @@ if __name__ == '__main__':
     sim1 = MySystem.fromPDBfile("w4-1.pdb")
     print sim1.hbond_matrix1()
 #    sim1.toPDBfile("shell-1.pdb")       
-    sim1.create_graph("shell.png")
+#    sim1.create_graph("shell.png")
+    G=sim1.graph()
+    print nx.density(G)
 #    dm=sim1.dist_matrix(2.8)
 #    chain0=[0]
 #    level=2
