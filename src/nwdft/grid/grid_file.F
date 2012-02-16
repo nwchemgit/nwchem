@@ -191,7 +191,7 @@ c
          if (.not. grid_file_rewind())
      $        call errquit('grfile: rewinding gridpts?',1, DISK_ERR)
 cbugfix for idle procs
-         if(n_rec_in_file.le.1) then
+         if(n_rec_in_file.le.0) then
          if (.not. grid_file_close(.false.))
      $        call errquit('grfile: deleting idle grid?',1, DISK_ERR)
          endif
