@@ -7,7 +7,8 @@ from atom_params import *
 from generic_atom import *
 from generic_residue import *
 import numpy
-
+import networkx as nx
+    
 class MySystem(object):
     '''
     classdocs
