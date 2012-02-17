@@ -54,8 +54,8 @@ while (<DATA>)
 	@tokens = split(' ');      
 	$num_tokens = @tokens ;
 	if($debug){print "tokens: @tokens $#tokens $num_tokens \n";}
-	push(from,$tokens[0]);
-	push(to,  $tokens[1]);
+	push(@from,$tokens[0]);
+	push(@to,  $tokens[1]);
     }
 }
 close (DATA);
