@@ -41,8 +41,10 @@
         dft_frac_mo.o
 
      LIBRARY = libnwdft.a
-
- LIB_DEFINES =
+_PDSYEVR = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_PDSYEVR\ 1/ {print "Y"}')
+ifeq ($(_PDSYEVR),Y) 
+ LIB_DEFINES += -DUSE_PDSYVER
+endif
 
 LIB_INCLUDES = -I../include -I../grid
 
