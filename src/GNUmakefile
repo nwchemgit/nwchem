@@ -152,14 +152,13 @@ cleanDEP:
 	done
 	@/bin/rm -f dependencies
 
-sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
+sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64: directories
 ifeq ($@,64_to_32)
 	-$(RM) 32_to_64
 endif
 ifeq ($@,32_to_64)
 	-$(RM) 64_to_32
 endif
-	@$(MAKE) directories
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
@@ -175,6 +174,7 @@ endif
 #
 
 directories:
+	test \! -f 64_to_32 -o \! -f 32_to_64 || rm -f 64_to_32 32_to_64
 	test -d $(LIBDIR) || $(MKDIR) -p $(LIBDIR)
 	test -d $(BINDIR) || $(MKDIR) -p $(BINDIR)
 
