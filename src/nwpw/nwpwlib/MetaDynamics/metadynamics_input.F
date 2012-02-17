@@ -20,7 +20,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 12)
+      parameter (num_dirs = 13)
       character*15 dirs(num_dirs)
       data dirs / 'update',
      >            'print_shift',
@@ -33,6 +33,7 @@ c
      >            'y',
      >            'z',
      >            'tempered',
+     >            'boundary',
      >            'end'/
 
       integer num_dirs2          ! No. of known directives
@@ -132,7 +133,7 @@ c
      >  call errquit(
      >  'metadynamics_input: unknown_directive',ind,INPUT_ERR)
 
-      goto ( 100, 150, 200, 300, 400, 500, 600, 701,702,703, 800,
+      goto ( 100, 150, 200, 300, 400, 500, 600, 701,702,703, 800,900,
      >      9999) ind
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind,INPUT_ERR)
@@ -227,7 +228,7 @@ c
       nmeta = nmeta + 1
 
       rtdb_name = 'metadynamics_nindxmeta'
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
+      value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
       rtdb_name = 'metadynamics_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
@@ -329,7 +330,7 @@ c
       nmeta = nmeta + 1
 
       rtdb_name = 'metadynamics_nindxmeta'
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
+      value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
       rtdb_name = 'metadynamics_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
@@ -434,7 +435,7 @@ c
       nmeta = nmeta + 1
 
       rtdb_name = 'metadynamics_nindxmeta'
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
+      value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
       rtdb_name = 'metadynamics_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
@@ -601,7 +602,7 @@ c
       nmeta = nmeta + 1
 
       rtdb_name = 'metadynamics_nindxmeta'
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
+      value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
       rtdb_name = 'metadynamics_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
@@ -726,7 +727,7 @@ c
       nmeta = nmeta + 1
 
       rtdb_name = 'metadynamics_nindxmeta'
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
+      value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
       rtdb_name = 'metadynamics_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
@@ -831,7 +832,7 @@ c
       nmeta = nmeta + 1
 
       rtdb_name = 'metadynamics_nindxmeta'
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
+      value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
       rtdb_name = 'metadynamics_sindxmeta'
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
      >                 nmeta,int_mb(sindxmeta(1)))
@@ -876,6 +877,17 @@ c
      >   call errquit('metadynamics_input:failed writing tempered',
      >                 0,RTDB_ERR)
 
+      goto 10
+
+c
+c  boundary
+c
+ 900  if (.not.inp_f(sdist(1))) sdist(1)= 0.0d0
+      if (.not.inp_f(sdist(2))) sdist(2)= 1.0d0
+      rtdb_name='metadynamics_boundary'
+      if (.not.rtdb_put(rtdb,rtdb_name,mt_dbl,2,sdist))
+     >   call errquit('metadynamics_input:failed writing boundary',
+     >                 0,RTDB_ERR)
       goto 10
 
  9999 continue

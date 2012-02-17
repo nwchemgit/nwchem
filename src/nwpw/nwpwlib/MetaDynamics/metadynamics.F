@@ -20,6 +20,7 @@ c     **********************************************
       logical value,cnmeta_read
       integer d,i,j,n1,n2,s1,s2,yshift,ntype
       real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,n,m,sigma,w,r0
+      real*8 boundary(2)
       character*80 rtdb_name
       character*4 celement1,celement2
 
@@ -63,6 +64,12 @@ c     **********************************************
          rtdb_name = 'metadynamics_tempered'
          if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,dTtempered)) 
      >      dTtempered = -1.0d0
+
+         rtdb_name = 'metadynamics_boundary'
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,2,boundary)) then
+            boundary(1) = 0.0d0
+            boundary(2) = 0.0d0
+         end if
 
          value = .true.
          if (nmeta.gt.0) then
@@ -154,17 +161,6 @@ c     **********************************************
                end do
             end if
 
-*           **** load old spline fits ****
-            call dcopy(nxmeta_all,0.0d0,0,dbl_mb(ymeta(1)),1)
-            rtdb_name = 'metadynamics_ymeta'
-            if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,nxmeta_all,
-     >                       dbl_mb(ymeta(1)))) then
-               call dcopy(nxmeta_all,0.0d0,0,dbl_mb(ymeta(1)),1)
-            else
-               if (taskid.eq.MASTER) 
-     >            write(*,*) "  ... reading bond metadynamics data"
-            end if
-
 *           **** set default limits ****
             x = lattice_unita(1,1)
             y = lattice_unita(2,1)
@@ -198,6 +194,25 @@ c     **********************************************
                end if
             end do
          end if
+
+*        **** load old spline fits ****
+         call dcopy(nxmeta_all,0.0d0,0,dbl_mb(ymeta(1)),1)
+         rtdb_name = 'metadynamics_ymeta'
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,nxmeta_all,
+     >                       dbl_mb(ymeta(1)))) then
+            call dcopy(nxmeta_all,0.0d0,0,dbl_mb(ymeta(1)),1)
+            if (boundary(1).gt.0.0d0) then
+               if (taskid.eq.MASTER)
+     >            write(*,'(A,2F11.6)') 
+     >                 "  ... setting boundary, w,sigma=",
+     >                 boundary(1),boundary(2)
+               call meta_setboundary(boundary(1),boundary(2))
+            end if
+         else
+            if (taskid.eq.MASTER) 
+     >         write(*,*) "  ... reading bond metadynamics data"
+         end if
+
 
          call nwpw_interp_init(nmeta,8)
 
@@ -1075,5 +1090,59 @@ c               close(53)
 
       end if
 
+      return
+      end
+
+
+
+
+
+*     ***********************************************
+*     *                                             *
+*     *              meta_setboundary               *
+*     *                                             *
+*     ***********************************************
+      subroutine meta_setboundary(bheight,bsigma)
+      implicit none
+      real*8 bheight,bsigma
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "metadynamics.fh"
+
+*     **** local variables ****
+      integer d,i,j(10)
+      real*8  r0,r,x,w,ww,wa,wb,ra,rb
+
+      if (metafound) then
+         if (nmeta.gt.0) then
+            do d=1,nmeta
+               j(d) = 0
+            end do
+            do i=1,nxmeta_all
+               ww = 0.0d0
+               do d=1,nmeta
+                  x = dbl_mb(ameta(1)+d-1) 
+     >              + j(d)*(dbl_mb(bmeta(1)+d-1)-dbl_mb(ameta(1)+d-1))
+     >                    /dble(int_mb(nxmeta(1)+d-1)-1)
+                  ra= dbl_mb(ameta(1)+d-1)
+                  rb= dbl_mb(bmeta(1)+d-1)
+                  wa = dexp(-0.5d0*((x-ra)/bsigma)**2)
+                  wb = dexp(-0.5d0*((x-rb)/bsigma)**2)
+                  ww = ww + wa + wb
+               end do
+            
+               dbl_mb(ymeta(1)+i-1) = dbl_mb(ymeta(1)+i-1) + bheight*ww
+
+               j(1) = j(1) + 1
+               do d=1,nmeta-1
+                  if (j(d).ge.int_mb(nxmeta(1)+d-1)) then
+                     j(d) = 0
+                     j(d+1) = j(d+1)+1
+                  end if
+               end do
+            end do
+         end if
+      end if
       return
       end
