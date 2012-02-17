@@ -1326,6 +1326,16 @@ else
     fi
   fi
 fi
+if [ "${BLAS_LIB}" == " " ] ; then
+  export BLAS_LIB=""
+fi
+if [ "${LAPACK_LIB}" == " " ] ; then
+  export LAPACK_LIB=""
+fi
+if [ "${SCALAPACK_LIB}" == " " ] ; then
+  export SCALAPACK_LIB=""
+fi
+if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
 if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
   export USE_SCALAPACK=y
 fi
