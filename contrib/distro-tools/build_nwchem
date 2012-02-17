@@ -1336,7 +1336,6 @@ if [ "${SCALAPACK_LIB}" == " " ] ; then
   export SCALAPACK_LIB=""
 fi
 if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
-if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
   export USE_SCALAPACK=y
 fi
 if [ ${#NWCHEM_EXECUTABLE} -eq 0 ] ; then
