@@ -1612,6 +1612,7 @@ fi
 cd $NWCHEM_TOP/src
 echo "=== do NWChem code conversion ==="
 if [ "x${option}" != "xrealclean" ]; then
+  make directories
   if [ ${#USE_64TO32} -eq 0 ] ; then
      make 32_to_64
   else
