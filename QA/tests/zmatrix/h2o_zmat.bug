@@ -1,0 +1,241 @@
+ argument  1 = h2o_zmat.nw
+
+
+
+============================== echo of input deck ==============================
+echo
+
+start h2o_zmat.temp
+
+basis spherical noprint
+  * library cc-pvdz
+end
+
+scf
+  singlet
+  rhf
+  print low
+end
+
+geometry units bohr
+  symmetry c1
+  O      0.000000000000     0.000000000000    -0.123909374404
+  H      0.000000000000     1.429936611037     0.983265845431
+  H      0.000000000000    -1.429936611037     0.983265845431
+end
+
+task scf energy
+
+geometry units angstrom
+ zmatrix
+  O
+  H 1 R
+  H 1 R 2 A
+  variables
+   R   0.9575091749
+   A 104.4784445984
+  end
+end
+
+task scf energy
+================================================================================
+
+
+                                         
+                                         
+
+
+              Northwest Computational Chemistry Package (NWChem) 6.1
+              ------------------------------------------------------
+
+
+                    Environmental Molecular Sciences Laboratory
+                       Pacific Northwest National Laboratory
+                                Richland, WA 99352
+
+                              Copyright (c) 1994-2010
+                       Pacific Northwest National Laboratory
+                            Battelle Memorial Institute
+
+             NWChem is an open-source computational chemistry package
+                        distributed under the terms of the
+                      Educational Community License (ECL) 2.0
+             A copy of the license is included with this distribution
+                              in the LICENSE.TXT file
+
+                                  ACKNOWLEDGMENT
+                                  --------------
+
+            This software and its documentation were developed at the
+            EMSL at Pacific Northwest National Laboratory, a multiprogram
+            national laboratory, operated for the U.S. Department of Energy
+            by Battelle under Contract Number DE-AC05-76RL01830. Support
+            for this work was provided by the Department of Energy Office
+            of Biological and Environmental Research, Office of Basic
+            Energy Sciences, and the Office of Advanced Scientific Computing.
+
+
+           Job information
+           ---------------
+
+    hostname      = megatron
+    program       = nwchem
+    date          = Sat Feb 18 17:33:27 2012
+
+    compiled      = Mon_Feb_13_15:04:47_2012
+    source        = /software/nwchem/nwchem-trunk
+    nwchem branch = Development
+    input         = h2o_zmat.nw
+    prefix        = h2o_zmat.temp.
+    data base     = ./h2o_zmat.temp.db
+    status        = startup
+    nproc         =        1
+    time left     =     -1s
+
+
+
+           Memory information
+           ------------------
+
+    heap     =   13107201 doubles =    100.0 Mbytes
+    stack    =   13107201 doubles =    100.0 Mbytes
+    global   =   26214400 doubles =    200.0 Mbytes (distinct from heap & stack)
+    total    =   52428802 doubles =    400.0 Mbytes
+    verify   = yes
+    hardfail = no 
+
+
+           Directory information
+           ---------------------
+
+  0 permanent = .
+  0 scratch   = .
+
+
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+ Turning off AUTOSYM since
+ SYMMETRY directive was detected!
+
+
+          ------
+          auto-z
+          ------
+
+
+                             Geometry "geometry" -> ""
+                             -------------------------
+
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 O                    8.0000     0.00000000     0.00000000    -0.22143504
+    2 H                    1.0000     0.00000000     1.42993661     0.88574018
+    3 H                    1.0000     0.00000000    -1.42993661     0.88574018
+
+      Atomic Mass 
+      ----------- 
+
+      O                 15.994910
+      H                  1.007825
+
+
+ Effective nuclear repulsion energy (a.u.)       9.1969343804
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       0.95700
+    2 Stretch                  1     3                       0.95700
+    3 Bend                     2     1     3               104.50000
+
+
+            XYZ format geometry
+            -------------------
+     3
+ geometry
+ O                     0.00000000     0.00000000    -0.11717839
+ H                     0.00000000     0.75668992     0.46871355
+ H                     0.00000000    -0.75668992     0.46871355
+
+ ==============================================================================
+                                internuclear distances
+ ------------------------------------------------------------------------------
+       center one      |      center two      | atomic units |       a.u.
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |     1.80847  |     1.80847
+    3 H                |   1 O                |     1.80847  |     1.80847
+ ------------------------------------------------------------------------------
+                         number of included internuclear distances:          2
+ ==============================================================================
+
+
+
+ ==============================================================================
+                                 internuclear angles
+ ------------------------------------------------------------------------------
+        center 1       |       center 2       |       center 3       |  degrees
+ ------------------------------------------------------------------------------
+    2 H                |   1 O                |   3 H                |   104.50
+ ------------------------------------------------------------------------------
+                            number of included internuclear angles:          1
+ ==============================================================================
+
+
+
+                                 NWChem SCF Module
+                                 -----------------
+
+
+
+  ao basis        = "ao basis"
+  functions       =    24
+  atoms           =     3
+  closed shells   =     5
+  open shells     =     0
+  charge          =   0.00
+  wavefunction    = RHF 
+  input vectors   = atomic
+  output vectors  = ./h2o_zmat.temp.movecs
+  use symmetry    = F
+  symmetry adapt  = F
+
+
+ Forming initial guess at       0.0s
+
+
+ Starting SCF solution at       0.1s
+
+
+
+       Final RHF  results 
+       ------------------ 
+
+         Total SCF energy =    -76.026808177092
+      One-electron energy =   -123.154597349507
+      Two-electron energy =     37.930854791972
+ Nuclear repulsion energy =      9.196934380443
+
+        Time for solution =      0.1s
+
+
+
+ Task  times  cpu:        0.1s     wall:        0.2s
+Segmentation fault
