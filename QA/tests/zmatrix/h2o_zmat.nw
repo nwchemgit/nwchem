@@ -1,0 +1,35 @@
+echo
+
+start h2o_zmat.temp
+
+basis spherical noprint
+  * library cc-pvdz
+end
+
+scf
+  singlet
+  rhf
+  print low
+end
+
+geometry units bohr
+  symmetry c1
+  O      0.000000000000     0.000000000000    -0.123909374404
+  H      0.000000000000     1.429936611037     0.983265845431
+  H      0.000000000000    -1.429936611037     0.983265845431
+end
+
+task scf energy
+
+geometry units angstrom
+ zmatrix
+  O
+  H 1 R
+  H 1 R 2 A
+  variables
+   R   0.9575091749
+   A 104.4784445984
+  end
+end
+
+task scf energy
