@@ -1,0 +1,82 @@
+echo
+
+start tce_save_h2o.temp
+
+memory stack 800 mb heap 100 mb global 800 mb
+
+geometry units bohr
+  symmetry c1
+  O      0.000000000000     0.000000000000    -0.123909374404
+  H      0.000000000000     1.429936611037     0.983265845431
+  H      0.000000000000    -1.429936611037     0.983265845431
+end
+
+#geometry units angstrom
+# zmatrix
+#  O
+#  H 1 R
+#  H 1 R 2 A
+#  variables
+#   R   0.9575091749
+#   A 104.4784445984
+#  end
+#end
+
+basis spherical
+  * library aug-cc-pvdz
+end
+
+scf
+  singlet
+  rhf
+  thresh 1e-9
+  semidirect memsize 50000000 filesize 0
+end
+
+tce
+  freeze atomic
+  scf
+  ccsd
+  thresh 1e-7
+  io ga
+  2eorb
+  2emet 13
+  tilesize 32 
+  attilesize 32
+end
+
+task tce energy
+
+set tce:printtol 1e-1
+
+set tce:lineresp T
+set tce:respaxis T T T
+set tce:afreq 0.0
+
+set tce:save_integrals T T T F F
+set tce:save_t T T F F
+set tce:save_l T T F F
+set tce:save_tr T T F F
+
+#set tce:guess_lr_real T
+
+task tce energy
+
+set tce:lineresp T
+set tce:respaxis T T T
+set tce:afreq 0.1 0.2 0.3 0.4 0.5
+
+set tce:read_integrals T T T F F
+set tce:save_integrals F F F F F
+
+set tce:read_t T T F F
+set tce:save_t F F F F
+
+set tce:read_l T T F F
+set tce:save_l F F F F
+
+set tce:read_tr F F F F
+set tce:save_tr T T F F
+
+task tce energy
+
