@@ -52,7 +52,6 @@ class GenericResidue(object):
         
         output=''
         if offset is not None:
-            print "found offset", offset
             atomid=offset
         else:
             atomid=self.offset
@@ -157,13 +156,16 @@ class GenericResidue(object):
         angle = GenericAtom.angle(a1, a2, a3)
         return angle>OHO
 
+    
     @staticmethod
-    def hbonded1(res1,res2):
+    def hbonded1(res1,res2,**kwargs):
 #        rOH=2.0
 #        OHO=143
+        rOH = kwargs.get('rOH',2.27)
+        OHO = kwargs.get('OHO',138)
+#        rOH=2.27
+#        OHO=138        
         elems = set(['O', 'H'])
-        rOH=2.27
-        OHO=138
         ohbond = False
         nhb=0
 #       find minimum distance pair
@@ -194,6 +196,44 @@ class GenericResidue(object):
                 
         return nhb
 
+    @staticmethod
+    def hbonded1_directed(res1,res2):
+#        rOH=2.0
+#        OHO=143
+        elems = set(['O', 'H'])
+        rOH=2.27
+        OHO=138
+        ohbond = False
+        nhb=0
+#       find minimum distance pair
+        plist=[]
+        hbond = []
+        for a1 in res1.atoms:
+            el1=a1.elemName() 
+            if el1 in elems:
+                for a2 in res2.atoms:
+                    el2=a2.elemName()
+                    if el2 in elems and el1!=el2:
+                        r = GenericAtom.bondlength(a1, a2)
+                        if r < rOH:
+                            plist.append([a1,a2])
+#        print "plist",plist
+        for a1,a2 in plist:
+            if a1.elemName()=='H':
+                res1,res2=res2,res1
+                a1,a2=a2,a1
+                h=1
+            elif a2.elemName()=='H':
+                h=-1
+            else:
+                continue
+            a3 = res2.get_bonded(a2, 'O')[0]
+            angle = GenericAtom.angle(a1, a2, a3)
+            if angle>OHO:
+                hbond.append(h)
+                
+        return hbond
+    
 
     @staticmethod
     def spec_bonded(res1,res2):
