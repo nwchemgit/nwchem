@@ -18,7 +18,7 @@ def extract_random_clusters(filename,nres,prefix=None,nconf=15,with_residues=Non
     '''
     import random
     import string
-    from  my_system import *
+    from  my_system import MySystem
     
     if with_residues is None:
         with_residues=[]
@@ -43,14 +43,9 @@ def extract_random_clusters(filename,nres,prefix=None,nconf=15,with_residues=Non
         filename = "%s-%d.pdb"%(prefix,i)
         comment="-".join(["%s" % el for el in s])
         sim1.toPDBfile1(filename,s,comment)
+        print "generated cluster",s,"as",filename
 
 
-def create_hbond_graph():
-    from my_system import *
-    print sys.argv[1]
-#    sim1 = MySystem.fromPDBfile("shell.pdb")
-#    sim1.toPDBfile("shell-1.pdb")       
-#    sim1.create_graph("shell.png")
     
 def make_unique(seq, idfun=None):  
     # order preserving 
