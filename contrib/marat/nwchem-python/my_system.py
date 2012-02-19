@@ -8,6 +8,7 @@ from generic_atom import *
 from generic_residue import *
 import numpy
 import networkx as nx
+import itertools as it
     
 class MySystem(object):
     '''
@@ -30,7 +31,13 @@ class MySystem(object):
         for x in self.atoms:
             output = output + str(x)+"\n"
         return output
-    
+
+    def natoms(self):
+        return len(self.atoms)
+
+    def nres(self):
+        return len(self.reslist)
+            
     @classmethod        
     def from_file(cls,filename):
         '''
@@ -113,6 +120,80 @@ class MySystem(object):
             self.reslist.append(rmap[tag])
         rmap[tag].AddAtom(a1)
 
+    def create_graph_directed(self,name):
+        import networkx as nx
+        import matplotlib.pyplot as plt    
+        G=nx.MultiDiGraph()
+        for i,r in enumerate(self.reslist):
+            G.add_node(i+1,name=r.name)
+        print G.nodes()
+        solvent = [n for n,d in G.nodes_iter(data=True) if d['name'] in ['WAT','HOH','WTR' ]]
+        solute = [n for n,d in G.nodes_iter(data=True) if d['name'] not in ['WAT','HOH','WTR' ]]
+        print "solute",solute
+        
+        nr = len(self.reslist)
+        for i in range(nr):
+            ri = self.reslist[i]
+            for j in range(i+1,nr):
+                rj = self.reslist[j]
+                hbond = GenericResidue.hbonded1_directed(ri, rj)
+                if len(hbond) > 1:
+                    hname = "hbond2"
+                else:
+                    hname = "hbond"
+                for h in hbond:
+                    if h <0:
+                        G.add_edge(j+1,i+1,name=hname) 
+                    else:
+                        G.add_edge(i+1,j+1,name=hname)                         
+                if GenericResidue.spec_bonded(ri, rj):
+                    G.add_edge(j+1,i+1,name="special")                     
+         
+        print "all",[(u,v) for u,v,d in G.edges_iter(data=True)]                   
+        esolute = [(u,v,d) for u,v,d in G.edges_iter(data=True) if (u in solute or v in solute) and  d['name']=='hbond'  ]
+        print "solute-solute",esolute
+
+        esolute2 = [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solute or v in solute) and  d['name']=='hbond2'  ]
+        print "double solute",esolute2
+                
+        esolvent= [(u,v) for u,v,d in G.edges_iter(data=True) if (u in solvent and v in solvent) and  d['name']=='hbond']
+        print "solvent-solvent",esolvent       
+
+        especial= [(u,v) for u,v,d in G.edges_iter(data=True) if d['name']=='special' ]
+        print especial      
+        
+        G=nx.relabel_nodes(G,lambda x: str(x))        
+        pos0=nx.spectral_layout(G)
+        pos=nx.spring_layout(G,iterations=500,pos=pos0)
+#        pos=nx.shell_layout(G)
+#        pos=nx.graphviz_layout(G,root=1,prog='dot')
+        nx.draw(G)
+#        nx.draw_networkx_nodes(G,pos,node_size=500,nodelist=solute)
+#        nx.draw_networkx_nodes(G,pos,node_size=300,nodelist=solvent,node_color='b')
+#
+#        nx.draw_networkx_edges(G,pos,edgelist=esolute,
+#                            width=3,edge_color='red',style='dashed')
+#        nx.draw_networkx_edges(G,pos,edgelist=esolvent,
+#                            width=3,edge_color='blue')   
+#        nx.draw_networkx_edges(G,pos,edgelist=especial,
+#                            width=3,edge_color='c',style='dashed')     
+#
+#        nx.draw_networkx_edges(G,pos,edgelist=esolute2,
+#                            width=8,edge_color='red',style='dashed')             
+#              
+#        nx.draw_networkx_labels(G,pos)
+#             
+#        plt.axis('off')
+        plt.savefig(name)
+#        T=nx.dfs_tree(G)
+#        print(sorted(T.edges(data=True)))
+        nx.write_dot(G,"shell.dot")
+#        print "density=",nx.density(G)
+        nx.write_gml(G, "test.gml")
+#        plt.show() # display
+#        return G
+
+
     def create_graph(self,name):
         import networkx as nx
         import matplotlib.pyplot as plt    
@@ -178,12 +259,12 @@ class MySystem(object):
 #        plt.show() # display
 #        return G
 
-    def num_hbonds(self):
+    def num_hbonds(self,**kwargs):
         '''
         '''
         nu=0
         nv=0
-        h = self.hbond_matrix1()
+        h = self.hbond_matrix1(**kwargs)
         nr = numpy.size(h,0)
         for i in range(nr):
             for j in range(i+1,nr):
@@ -255,9 +336,7 @@ class MySystem(object):
         nx.draw_networkx(G,pos)
                      
         plt.axis('off')
-        plt.savefig(name)
-            
-        
+        plt.savefig(name)       
         
 
     def connectAtoms(self):
@@ -282,15 +361,15 @@ class MySystem(object):
                 hbond[j][i]=hbond[i][j]
         return hbond
 
-    def hbond_matrix1(self):
+    def hbond_matrix1(self,**kwargs):
         nr = len(self.reslist)
         hbond = numpy.zeros(shape=(nr,nr),dtype=int)    
-    
         for i in range(nr):
             ri=self.reslist[i]   
             for j in range(i+1,nr):
                 rj=self.reslist[j]
-                hbond[i][j]=GenericResidue.hbonded1(ri,rj)
+                hbond[i][j]=GenericResidue.hbonded1(ri,rj,**kwargs)
+#                hbond[i][j]=hbonded(ri,rj)
                 hbond[j][i]=hbond[i][j]
         return hbond
     
@@ -304,15 +383,8 @@ class MySystem(object):
                 rj=self.reslist[j]
                 dm[i][j]=GenericResidue.touching(self.reslist[i], self.reslist[j],2.8)
                 dm[j][i]=dm[i][j]
-        return dm
+        return dm         
 
-        h = self.hbond_matrix()
-        nr = numpy.size(h,0)
-        for i in range(nr):
-            for j in range(i+1,nr):
-                if GenericResidue.touching(self.reslist[i], self.reslist[j],2.8):
-                    print 'adding edge',i+1,j+1
-                    G.add_edge(i+1,j+1,name="special")                 
                                         
     def groupAtoms(self):
         rmap = self.residues
@@ -324,7 +396,6 @@ class MySystem(object):
             if a1.groupTag()!="XYZ":
                 continue
             ir = ir +1
-#            tag = '{:0>3}'.format(ir)
             tag="00"+str(ir)
             tag=tag[-3:]
             a1.setGroupTag(tag)
@@ -358,13 +429,14 @@ if __name__ == '__main__':
     import random
     
 #    
-    sim1 = MySystem.fromPDBfile("w4-1.pdb")
-    print sim1.hbond_matrix1()
+    sim1 = MySystem.from_file("w10-11.xyz")
+    print sim1.num_hbonds(rOH=2.18, HOH=138)
+#    sim1.create_graph_directed("test.png")
 #    sim1.toPDBfile("shell-1.pdb")       
 #    sim1.create_graph("shell.png")
-    G=sim1.graph()
-    print nx.density(G)
-    print sim1.num_hbonds()[0]
+#    G=sim1.graph()
+#    print nx.density(G)
+#    print sim1.num_hbonds()[0]
 #    dm=sim1.dist_matrix(2.8)
 #    chain0=[0]
 #    level=2
