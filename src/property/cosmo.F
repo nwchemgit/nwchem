@@ -2539,7 +2539,7 @@ c
         end if
 c
         write(fn,*) nefc
-        write(fn,*) "cosmo charges"
+        write(fn,*) "cosmo charges (coordinates in Angstrom)"
         do ief=1,nefc
            write(fn,*) 
      +      "Bq",
