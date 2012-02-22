@@ -848,7 +848,7 @@ C Everything internal
       double precision uu, usum, uavr, usqrdsum, usqrd
       double precision rsim, rsimsum, rsimavr
       double precision rmin, rmax
-      double precision seed, r, numbersum, numberavr
+      double precision  r, numbersum, numberavr
       integer number, iacceptt, iacceptv, iacceptr, iacceptpr, iacceptpi
       integer ivtry, ittry, irtry
       integer rsmcstps, i, j, ir
@@ -860,7 +860,7 @@ C Everything internal
       character*256 fprefixcat
       integer ncent, k, rdim
       double precision coords, dipole(3)
-      dimension SEED(1)
+      double precision dntSEED(1)
       integer ti
       character*256 dntmc_dir
 
@@ -889,7 +889,7 @@ C  Main Program
       OPEN(UNIT = 20,FILE = fprefixcat(1:inp_strlen(fprefixcat))
      +    ,STATUS = 'OLD')
 
-         READ(20,*)SEED(1)
+         READ(20,*)dntSEED(1)
          READ(20,*)UU
          READ(20,*)USUM
          READ(20,*)UAVR
@@ -926,7 +926,7 @@ C Changed format to columns for each spc
          CLOSE(20)
 
       if (.not. rtdb_put(rtdb, 'dntmc:seed:'//prcfil(1:4), MT_DBL, 1,
-     &   SEED(1)))
+     &   dntSEED(1)))
      &   call errquit('dntmc_copy_filertdb:rtdb error for seed(1)',0,
      &   RTDB_ERR)
 
@@ -1470,17 +1470,17 @@ C Variables for Common Blocks
       double precision disp, alpha
       INTEGER ROTF
       integer idum
-      double precision seed
       INTEGER AB
       double precision rmin, rmax, rsim
       double precision rclcm
       integer nmin, ncurr, nmax
+      double precision dntSEED
 
 C Common Blocks
       COMMON/CONSTANTS/e,k,esqrd,kb,PI
       COMMON/TRPS/DISP,ALPHA,ROTF
-      COMMON/SEED/IDUM
-      COMMON/SEEDS/SEED(1)
+      COMMON/dntSEED/IDUM
+      COMMON/SEEDS/dntSEED(1)
       COMMON/AORB/AB
       COMMON/RADIUS/RMIN,RSIM,RMAX
       COMMON/COORD2/RCLCM(3)
@@ -1531,7 +1531,7 @@ C        if (groupnums(i) .eq. idmedium) then
           IDUM = i
         endif
       enddo
-      SEED(1) = 962525439.0d+00
+      dntSEED(1) = 962525439.0d+00
 
 C Aquire Input Information
       if (.not. rtdb_get(rtdb, 'dntmc:norestart', MT_INT, 1, CONT1))
@@ -2032,7 +2032,7 @@ C Common Block Variables
       double precision e,ki,esqrd,kb,pi
 
 C Common Blocks
-      COMMON/SEED/IDUM
+      COMMON/dntSEED/IDUM
       COMMON/COORD2/RCLCM(3)
       COMMON/CONSTANTS/e,ki,esqrd,kb,PI
 
@@ -2367,7 +2367,6 @@ C Variable Declarations
 C All Output
       double precision uu, usum, uavr, usqrdsum, usqrd
       double precision rsim, rsimsum, rsimavr
-      double precision seed
       double precision rmax, rmin
       integer iacceptt, iacceptv, iacceptr, iacceptpr, iacceptpi
       integer ivtry, ittry, irtry
@@ -2387,16 +2386,17 @@ C End of Change
       integer natom(nspc), spc(nmols)
       character*16 tag(nattotal)
       integer spctag(nspc)
+      double precision dntSEED
 
 C Common Blocks
 
       COMMON/RADIUS/RMIN,RSIM,RMAX
       COMMON/AVR/USUM,USQRDSUM
-      COMMON/SEEDS/SEED(1)
+      COMMON/SEEDS/dntSEED(1)
 
 C Main Program
       if (.not. rtdb_get(rtdb, 'dntmc:seed:'//prcfil(1:4), MT_DBL, 1,
-     &   SEED(1)))
+     &   dntSEED(1)))
      &   call errquit('dntmc_readrestart:  rtdb error for seed(1)',0,
      &   RTDB_ERR)
 
@@ -3213,7 +3213,6 @@ C***********************************************************************
       INTEGER ROTF
       INTEGER NMIN,NCURR,NMAX
       integer l
-      double precision seed
       double precision rnnum
       integer idum
 
@@ -3243,6 +3242,7 @@ C***********************************************************************
 C Added array for configuration files
       integer ti
 C End added array
+      double precision dntSEED
 
       COMMON/RADIUS/RMIN,RSIM,RMAX
       COMMON/COORD2/RCLCM(3)
@@ -3250,9 +3250,9 @@ C End added array
       COMMON/TRPS/DISP,ALPHA,ROTF
       COMMON/GRAND/NMIN,NCURR,NMAX
       COMMON/MSTP/L
-      COMMON/SEEDS/SEED(1)
+      COMMON/SEEDS/dntSEED(1)
       COMMON/RNNUMS/RNNUM(1)
-      COMMON/SEED/IDUM
+      COMMON/dntSEED/IDUM
 
       DIMENSION DELTA(3)
 
@@ -3796,7 +3796,6 @@ C***********************************************************************
       INTEGER ROTF
       INTEGER NMIN,NCURR,NMAX
       integer l
-      double precision seed
       double precision rnnum
       integer idum
 
@@ -3824,15 +3823,16 @@ C***********************************************************************
 C Added array for configuration files
       integer ti
 C End added array
+      double precision dntSEED
       COMMON/RADIUS/RMIN,RSIM,RMAX
       COMMON/COORD2/RCLCM(3)
       COMMON/CONSTANTS/e,k,esqrd,kb,PI
       COMMON/TRPS/DISP,ALPHA,ROTF
       COMMON/GRAND/NMIN,NCURR,NMAX
       COMMON/MSTP/L
-      COMMON/SEEDS/SEED(1)
+      COMMON/SEEDS/dntSEED(1)
       COMMON/RNNUMS/RNNUM(1)
-      COMMON/SEED/IDUM
+      COMMON/dntSEED/IDUM
 
       DIMENSION DELTA(3)
 
@@ -4550,7 +4550,7 @@ C Change dimension to (nob, nspc)
       integer IDUM
 
       COMMON/RADIUS/RMIN,RSIM,RMAX
-      COMMON/SEED/IDUM
+      COMMON/dntSEED/IDUM
 
 
       INCR = (RSIM - RMIN)/(RMAX - RMIN)
@@ -4909,7 +4909,6 @@ C***********************************************************************
 
       double precision uu, usum, uavr, usqrdsum, usqrd
       double precision rsim, rsimsum, rsimavr
-      double precision seed
       double precision rmin, rmax, rinc, dipole(3)
       integer iacceptt, iacceptv, iacceptr, iacceptpr, iacceptpi
       integer ivtry, ittry, irtry
@@ -4926,6 +4925,7 @@ C***********************************************************************
 C Changed to dimension (nob,nspc)
       integer number(nob,nspc)
       double precision numbersum(nob,nspc), numberavr(nob,nspc)
+      double precision dntseed
 
       integer natom(nspc)
       integer spc(nmols)
@@ -4934,7 +4934,7 @@ C Changed to dimension (nob,nspc)
 
       COMMON/RADIUS/RMIN,RSIM,RMAX
       COMMON/AVR/USUM,USQRDSUM
-      COMMON/SEEDS/SEED(1)
+      COMMON/dntSEEDS/dntSEED(1)
 
 
       write(fprefixcat,'(256(a))') (' ', i=1, 256)
@@ -4951,7 +4951,7 @@ C      OPEN(UNIT = 20, FILE = file_prefix(1:inp_strlen(file_prefix))
 C     &    //'.restart.'//prcfil(1:4),
 C     +    STATUS = "UNKNOWN")
 
-         WRITE(20,*)SEED(1)
+         WRITE(20,*)dntSEED(1)
          WRITE(20,*)UU
          WRITE(20,*)USUM
          WRITE(20,*)UAVR
