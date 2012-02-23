@@ -2539,7 +2539,8 @@ c
         end if
 c
         write(fn,*) nefc
-        write(fn,*) "cosmo charges (coordinates in Angstrom)"
+        write(fn,*) "cosmo charges (= -Bq-charge) (coordinates in Angstr
+     +om) format: Bq x y z q"
         do ief=1,nefc
            write(fn,*) 
      +      "Bq",
