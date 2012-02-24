@@ -63,7 +63,10 @@ class GenericAtom(object):
         v=a3.coord-a2.coord
         c = numpy.dot(u,v)/numpy.linalg.norm(u)/numpy.linalg.norm(v) 
         return  math.degrees(math.acos(c))
-        
+
+    def translate(self,v):
+        self.coord=self.coord-v
+            
     def covRadius(self):
         name = self.dct["name"]
         return AtomParams.covRadius(name)  
@@ -157,5 +160,5 @@ if __name__ == '__main__':
     aline6="O1                 -0.985  -1.156   1.140  0.0 0.0  "
     aline5="O1                 -0.985  -1.156   "
     d=GenericAtom.fromXYZrecord(aline6)
-    print d.elemName()
-    print numpy.dot(3,4),numpy.linalg.norm(3)
+    d.translate([1.0,1.0,1.0])
+    print d
