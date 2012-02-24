@@ -320,6 +320,7 @@ c
 #include "geom.fh"
 #include "rtdb.fh"
 #include "stdio.fh"
+#include "bq.fh"
 c
 c     Temporary routine
 c
@@ -339,13 +340,14 @@ c
 c
       integer unitno            ! Unit no. for writing
       parameter (unitno = 67)   ! These need to be managed !!!
+      integer bq_handle         ! Handle of the BQ fragment
       integer lentit
       integer lenbas
       integer l_vecs, k_vecs
       integer ok, iset, i, j
       integer geom, ma_type, nelem
       character*26 date
-      character*32 geomsum, basissum, key
+      character*32 geomsum, basissum, bqsum, key
       character*20 scftype20    ! DECL MUST match movecs_converged routine
       character*128 basis_name, trans_name
       double precision energy, enrep
@@ -367,6 +369,13 @@ c
          if (.not. bas_name(basis, basis_name, trans_name))
      $        call errquit('movecs_write: bad basis',0, BASIS_ERR)
          if (trans_name .ne. ' ') basis_name = trans_name
+         if (.not. bq_get_active(bq_handle)) then
+              bqsum = ' '
+         else
+           if (.not. bq_namespace(bq_handle,bqsum)) then
+              bqsum = ' '
+           endif
+         endif
 c         
          key = ' '
          write(key,'(a,'':converged'')') scftype(1:inp_strlen(scftype))
@@ -404,7 +413,8 @@ c
 c
 c     Information about convergence
 c
-         write(unitno, err=1001) basissum, geomsum, scftype20, date
+         write(unitno, err=1001) basissum, geomsum, bqsum, scftype20,
+     $                           date
 c
 c     Check that read routines are both consistent with this
 c
@@ -853,6 +863,7 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "tcgmsg.fh"
+#include "bq.fh"
       integer rtdb              ! [input]
       integer basis             ! [input]
       character*(*) scftype     ! [input] Current SCF type
@@ -879,10 +890,12 @@ c     c) basis and geometry checksums match
 c
       character*20 filescftype  ! MUST MATCH WRITE ROUTINE DECL
       character*32 filebasissum, filegeomsum, basissum, geomsum
+      character*32 filebqsum, bqsum
       logical oconverged
       character*40 key
       character*26 date, filedate
       integer geom, ma_type, nelem
+      integer bq_handle         ! Handle of the BQ fragment
       integer unitno            ! Unit no. for reading
       integer inntsize
       parameter (unitno = 67)   ! These need to be managed !!!
@@ -896,7 +909,8 @@ c
          open(unitno, status='old', form='unformatted',
      $        file=filename, err=1000)
          read(unitno, end=1001, err=1001)
-     $        filebasissum, filegeomsum, filescftype, filedate
+     $        filebasissum, filegeomsum, filebqsum, filescftype,
+     $        filedate
          close(unitno, err=1002)
 c     
 c     a)
@@ -923,7 +937,15 @@ c
          if (.not. geom_checksum(geom, geomsum))
      $        call errquit('movecs_converged: bad geometry',0,
      &       BASIS_ERR)
-         if (basissum.ne.filebasissum .or. geomsum.ne.filegeomsum) 
+         if (.not. bq_get_active(bq_handle)) then
+              bqsum = ' '
+         else
+           if (.not. bq_namespace(bq_handle,bqsum)) then
+              bqsum = ' '
+           endif
+         endif
+         if (basissum.ne.filebasissum .or. geomsum.ne.filegeomsum .or.
+     $       bqsum.ne.filebqsum) 
      $        goto 10
 c     
 c     Cool ... it is converged!
