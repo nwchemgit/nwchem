@@ -1,0 +1,89 @@
+echo
+
+title "carbon-frac"
+
+start carbon-frac
+
+memory 128 mb
+
+geometry units angstrom nocenter
+symmetry c1
+  C   0.0 0.0 0.0
+end
+
+basis
+  * library 6-31G
+end
+
+#This example will perform N=5.8 as a closed shell
+dft
+  direct
+  xc pbe0
+  fon partial 3 electrons 1.8 filled 2
+end
+task dft energy
+
+#This example will perform N=9.4 as a closed shell and no averaging
+set dft:avg_fon .false.
+dft
+  direct
+  xc pbe0
+  fon partial 3 electrons 1.8 filled 2
+end
+task dft energy
+
+##This example will perform a N=7.5 calculation
+dft
+  odft
+  direct
+  xc pbe0
+  fon alpha partial 1 electrons 0.5 filled 3
+  fon beta partial 1 electrons 0.0 filled 4 
+end 
+task dft energy
+
+#This example will perform a N=7.5 calculation but the 0.5 electrons will be averaged over 2 partially occupied orbitals
+dft
+  odft
+  direct
+  xc pbe0
+  fon alpha partial 2 electrons 0.5 filled 3
+  fon beta partial 1 electrons 0.0 filled 4 
+end 
+task dft energy
+
+#This example will perform a N=8 calculation. The set directive turns off the averaging. 
+#This calculation will be performed with 7 filled orbitals and 2 x 0.5 alpha orbitals
+#NOTE: Average occupation = true by default
+set dft:avg_fon .false.
+dft
+  odft
+  direct
+  xc pbe0
+  fon alpha partial 2 electrons 0.5 filled 3
+  fon beta partial 1 electrons 0.0 filled 4 
+end 
+task dft energy
+
+#This example will perform a N=8 calculation. 3.5 alpha and 4.5 beta electrons 
+dft
+  odft
+  direct
+  xc pbe0
+  fon alpha partial 1 electrons 0.5 filled 3
+  fon beta partial 1 electrons 0.5 filled 4 
+end 
+task dft energy
+
+#This example will perform N=6.5 using the following assignment
+dft
+  odft
+  direct
+  xc pbe0
+  fon alpha partial 1 electrons 1.0 filled 3
+  fon beta partial 1 electrons 0.5 filled 2 
+end 
+task dft energy
+
+# For debugging
+#set dft:debugfon .true.
