@@ -358,13 +358,15 @@ ifneq ($(BLAS_LIB),)
     else
         MAYBE_BLAS = --with-blas8="$(strip $(BLAS_LIB))"
     endif
+else
+    MAYBE_BLAS = --without-blas
 endif
 ifneq ($(BLASOPT),)
-    ifeq ($(BLAS_SIZE),4)
-        MAYBE_BLAS = --with-blas4="$(strip $(BLASOPT))"
-    else
-        MAYBE_BLAS = --with-blas8="$(strip $(BLASOPT))"
-    endif
+     ifeq ($(BLAS_SIZE),4)
+         MAYBE_BLAS = --with-blas4="$(strip $(BLASOPT))"
+     else
+         MAYBE_BLAS = --with-blas8="$(strip $(BLASOPT))"
+     endif
 endif
 
 ifneq ($(LAPACK_LIB),)

@@ -120,7 +120,7 @@ EOF
 declare -a LIST_COMPFLAGS
 declare -a LIST_LINLIBS
 LIST_COMPFLAGS=( ' ' '-q64' )
-LIST_LINLIBS=( '-lmkl' '-lacml' '-lcxml' '-lscs' '-lcomplib.sgimath' '-lsunmath' '-latlas' '-lgoto' '-lessl' '-lscalapack' '-llapack' '-lcblas' '-lblas' '-lf77blas' '-framework Accelerate' )
+LIST_LINLIBS=( '-lmkl' '-lacml' '-lcxml' '-lscs' '-lcomplib.sgimath' '-lsunmath' '-latlas' '-lgoto' '-lessl' '-lscalapack' '-llapack' '-lcblas' '-lblas' '-lf77blas' )
 export LIST_COMPFLAGS
 export LIST_LINLIBS
 function get_mpi_include ()
@@ -1174,6 +1174,8 @@ if [ ${#NWCHEM_OS} -eq 0 ] ; then
   if [ ${#NWCHEM_OS} -ne 0 ] ; then
     if [ ${NWCHEM_OS} == "DARWIN" ] ; then
       export NWCHEM_OS=MACX
+      export BLAS_LIB=" " # At present Mac BLAS/LAPACK libraries fail for large matrices so we switch the code to use the internal implementations
+      export LAPACK_LIB=" " # At present Mac BLAS/LAPACK libraries fail for large matrices so we switch the code to use the internal implementations
     elif [ ${NWCHEM_OS} == "AIX" ] ; then
       export NWCHEM_OS=IBM
     elif [ `expr match ${NWCHEM_OS} CYGWIN` != "0" ] ; then
