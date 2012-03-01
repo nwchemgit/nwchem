@@ -1,0 +1,33 @@
+echo
+
+title "carbon-frac-so"
+
+start carbon-frac-so
+
+memory 128 mb
+
+geometry units angstrom nocenter
+symmetry c1
+  C   0.0 0.0 0.0
+end
+
+basis
+  * library 6-31G
+end
+
+# For no averaging
+#set dft:avg_fon .false.
+dft
+  direct
+  xc pbe0
+  fon partial 6 electrons 1.8 filled 4
+end
+
+relativistic
+ zora
+end
+task sodft energy
+
+
+# For debugging
+#set dft:debugfon .true.
