@@ -16,9 +16,11 @@ TOOLDIR=`pwd`
 CONFIG=$NWCHEM_TOP/src/config/makefile.h
    GA_DEV_SVN=https://svn.pnl.gov/svn/hpctools/trunk/ga
        GA_DEV=ga-dev
-GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-1
+GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/tags/ga-5-1     # For GA release 5.1
+GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-1 # Comment this line out for NWChem releases
     GA_STABLE=ga-5-1
-   GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-4-3
+   GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/tags/ga-4-3     # For GA release 4.3
+   GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-4-3 # Comment this line out for NWChem releases
        GA_OLD=ga-4-3
 
 # If OLD_GA is set at all in the user's environment then it means 'yes'
