@@ -72,12 +72,10 @@ c
      &      alpha = 20.0d0
       if (ivdw.eq.3) alpha = 14.0d0
 c
-      if (.not.rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6))
-     &   s6=0.0d0
-c
 c     Get proper scaling factors depending on Grimme dispersion version
 c
-      call get_scaling_fac(s6,s8,sr6,sr8)
+      if (.not.rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6))
+     &    call get_scaling_fac(s6,s8,sr6,sr8)
 c
       if(what.eq.'energy') then
 c
