@@ -11,9 +11,11 @@ C $Id$
 #include "stdio.fh"
 #include "util.fh"
 #include "grid_eaf.fh"
+#include "inp.fh"
       integer fdg
       character*(*) grinfo, what
       double precision enuc_in
+c
       integer ierr
       logical otrace
 c
@@ -25,7 +27,7 @@ c
 cgrinfo     enuc in first record
       if(what.eq.'write') then
          uenuc=enuc_in
-#if 0
+#if 1
 cdump garbage on next record to invalidate fields
          uvect(1)=-123
          uvect(2)=-123
@@ -38,9 +40,9 @@ cdump garbage on next record to invalidate fields
       ierr=0
       grid_grinfoinit=ierr.eq.0
       if (otrace) then
-         write(LuOut,*) '1INFO ' // what(1:4)// ' from ',grinfo
-         write(LuOut,*) '      enuc',enuc_in
-         call util_flush(LuOut)
+         write(LuOut,125) '1INFO ' // what(1:4)// ' from ',
+     A        grinfo(1:inp_strlen(grinfo)), ' enuc ',enuc_in
+ 125     format(A,A,A,e14.8)
       endif
       return
       end
@@ -52,6 +54,7 @@ cdump garbage on next record to invalidate fields
 #include "global.fh"
 #include "stdio.fh"
 #include "util.fh"
+#include "inp.fh"
 #include "grid_eaf.fh"
       integer fdg
       character*(*) grinfo, what
@@ -60,6 +63,7 @@ cdump garbage on next record to invalidate fields
 c
       integer foplog,ierr
       logical otrace
+      ierr=0
 c
       otrace = util_print('grinfodebug',print_debug)
       if(otrace) then
@@ -77,20 +81,26 @@ cgrinfo     foplog in 5th record
          uvect(2)=max_cache_rec 
          uvect(3)=n_rec_in_file 
          uvect(4)=foplog
+          fdg=1
       else
          max_file_rec =uvect(1)
          max_cache_rec=uvect(2) 
          n_rec_in_file=uvect(3) 
          foplog       =uvect(4)
          file_opened=foplog.eq.1
+c         if(fdg.eq.-1) then
+c            ierr=-1
+c            file_opened=.false.
+c            n_rec_in_file=0
+c         endif
       endif
-      ierr=0
       if (otrace) then
-         write(LuOut,*) '2INFO ' // what(1:4) // ' from ',grinfo
-         write(LuOut,*) ' ierr ',ierr
-         write(LuOut,*) '      mxcrec',max_cache_rec
-         write(LuOut,*) '      nrecfil',n_rec_in_file
-         write(LuOut,*) '      flopend',file_opened
+         write(LuOut,*) '2INFO ' // what(1:4) // ' from ',
+     R        grinfo(1:inp_strlen(grinfo)),
+     A        '  mxcrec',max_cache_rec,
+     A        '  nrecfil',n_rec_in_file,
+     A        '  flopend ',file_opened
+ 123     format(3A,I3,A,I5,A,I5,A,I1)
          call util_flush(LuOut)
       endif
       grid_grinfo2=ierr.eq.0

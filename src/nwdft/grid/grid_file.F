@@ -191,10 +191,7 @@ c
          if (.not. grid_file_rewind())
      $        call errquit('grfile: rewinding gridpts?',1, DISK_ERR)
 cbugfix for idle procs
-         if(n_rec_in_file.le.0) then
-         if (.not. grid_file_close(.false.))
-     $        call errquit('grfile: deleting idle grid?',1, DISK_ERR)
-         endif
+         if(n_rec_in_file.le.0) return
 
          file_opened=.false.
          filedump_opened=.false.
@@ -236,7 +233,7 @@ c
       logical oprint,lstatus
       integer ierr
       double precision ll
-      logical grid_grinfo2,grid_ptsdel
+      logical grid_grinfo2,grid_ptsdel,file_closedone
       external grid_grinfo2,grid_ptsdel
       oprint=util_print('iostats',print_high).and.ga_nodeid().eq.0
 c
@@ -247,6 +244,7 @@ c
          if (eaf_close(fd) .ne. 0) call errquit
      $        ('grid_file_close: eaf_close failed',0, DISK_ERR)
 #endif
+         file_closedone=.true.
       endif
 c
       if(okeep) then
@@ -260,8 +258,10 @@ cbad        for acr cam3lyp cdfit
       else
 #ifndef EAFHACK
          if(fd.ne.-1) then
+         if(.not.file_closedone) then
          if (eaf_close(fd) .ne. 0) call errquit
      $        ('grid_file_close: eaf_close2 for fd ',fd, DISK_ERR)
+      endif
             if (eaf_delete(actualname) .ne. 0) call errquit
      $           ('grid_file_close: delete failed', 0, DISK_ERR)
          endif
@@ -350,8 +350,8 @@ c
 #include "stdio.fh"
 #include "global.fh"
       logical oend           ! [input]
-      logical grid_opencache,status,grid_ptsalloc
-      external grid_opencache,grid_ptsalloc
+      logical grid_opencache,status,grid_ptsalloc,grid_file_close
+      external grid_opencache,grid_ptsalloc,grid_file_close
 c
 c     Write the grid_pts buffer to disk.  For all but the
 c     end record it is called with oend=.false. meaning
@@ -672,7 +672,7 @@ c
 c     
       grid_test_mem = .false.
 c
-      if (file_opened) return
+cbad      if (file_opened) return
       oreopen=.false.
       if (.not. rtdb_get(rtdb, 'grid:filesize',
      $     MT_INT, 1, filesize)) filesize = 0
