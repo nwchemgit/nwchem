@@ -1,0 +1,16 @@
+#!/bin/bash
+#
+# Doxygen run script for NWChem
+#
+# Doxygen is a source code documentation tool. It interprets and analyses
+# the source code and writes a substantial chunk of documentation. The 
+# documentation can be enriched by providing more details in comment lines.
+# Doxygen is the defacto standard approach to documenting C-code. 
+#
+# Experience on NWChem so far has shown that this is challenging with 
+# Doxygen generating many error messages and even seg-faulting.
+#
+# This script has been designed to be run in the $NWCHEM_TOP directory,
+# and producing a directory with documentation in $NWCHEM_TOP/srcdoc.
+#
+doxygen ./contrib/doxygen/doxygen.rc

@@ -1,0 +1,24 @@
+ROBODOC README
+==============
+
+This directory contains experimental material to generate source code 
+documentation using Robodoc.
+
+To generate the source code documentation run
+
+	cd $NWCHEM_TOP
+	./contrib/robodoc/run_robodoc
+
+After this $NWCHEM_TOP/srcdoc.html should contain the source code documentation
+of all of NWChem. As currently very few (i.e. no) files contain the appropriate
+comments that Robodoc recognizes this file will be small.
+
+Experience so far has shown Robodoc to be stable and capable to handle a 
+large code. How the tool will behave if a large fraction of the source code
+is documented is unknown.
+
+For more details on Robodoc see:
+
+ - http://sourceforge.net/projects/robodoc/       -- project pages
+ - http://www.xs4all.nl/~rfsber/Robo/robodoc.html -- general info
+

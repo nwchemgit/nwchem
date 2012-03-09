@@ -1,0 +1,102 @@
+# Robodoc configuration file for the documentation of DL-FIND
+#
+items:
+    NAME
+    FUNCTION
+    SYNOPSIS
+    INPUTS
+    OUTPUTS
+    COMMENTS
+    DATA
+    SIDE EFFECTS
+    HISTORY
+    BUGS
+    COPYRIGHT
+    PORTABILITY
+ignore items:
+    HISTORY
+    BUGS 
+    COPYRIGHT
+    SOURCE
+item order:
+    NAME
+    SYNOPSIS
+    INPUTS
+    OUTPUTS
+    FUNCTION
+source items:
+    SYNOPSIS
+    INPUTS
+    OUTPUTS
+preformatted items:
+    DATA
+format items:
+    FUNCTION
+    SIDE EFFECTS
+options:
+    --src src
+    --doc srcdoc
+    --html
+#   --nosort
+    --singledoc
+    --sections
+    --index
+    --toc
+    --tabsize 8
+    --syntaxcolors
+    --documenttitle "NWChem Source Documentation"
+    --nopre
+#   --css contrib/robodoc/robodoc.css
+headertypes:
+    J  "Projects"          robo_projects    2
+    F  "Files"             robo_files       1
+    e  "Makefile Entries"  robo_mk_entries
+    x  "System Tests"      robo_syst_tests
+    q  Queries             robo_queries
+ignore files:
+    README
+    CVS
+    .svn
+    *.bak
+    *~
+    "a test_*"
+accept files:
+    *.f90
+    *.f
+    *.fh
+    *.F
+    *.c
+header separate characters:
+    ,
+header ignore characters:
+    [
+remark markers:
+    c
+    *
+remark begin markers:
+    /*
+remark end markers:
+    */
+header markers:
+    ****
+    c****
+end markers:
+    ******
+    c******
+source line comments:
+    //
+keywords:
+    if
+    else
+    end
+    do
+    end do
+    enddo
+    select
+    end select
+    case
+    while
+    for
+    subroutine
+    function
+    call

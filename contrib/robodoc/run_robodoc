@@ -1,0 +1,32 @@
+#!/bin/bash
+#
+# Designed to use Robodoc 4.99.38
+#
+# Robodoc still seems to change non-trivially so the robodoc.rc
+# and the default behaviors might produce unexpected results when
+# used with different versions of robodoc.
+#
+# See also:
+# - http://sourceforge.net/projects/robodoc/       -- project pages
+# - http://www.xs4all.nl/~rfsber/Robo/robodoc.html -- general info
+#
+#
+#
+# The include directory contains header files that duplicate some
+# of the information that Robodocs extracts from the same header files
+# in the source code directories. To suppress duplicates from the
+# Robodoc generated documentation we deny access to the include 
+# directory.
+#
+chmod 000 src/include
+#
+# Now we run Robodoc to generate the documentation. Note that all the
+# settings are retrieved from the robodoc.rc file. The settings are
+# based on the expectation that Robodoc runs in the $NWCHEM_TOP
+# directory.
+#
+robodoc --rc contrib/robodoc/robodoc.rc
+#
+# Restore normal access privileges to the include directory.
+#
+chmod 750 src/include

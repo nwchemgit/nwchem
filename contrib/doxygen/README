@@ -1,0 +1,22 @@
+DOXYGEN README
+==============
+
+This directory contains experimental material to generate source code
+documentation using Doxygen. 
+
+To generate the source code documentation run
+
+	cd $NWCHEM_TOP
+	./contrib/docygen/run_doxygen
+
+After this $NWCHEM_TOP/srcdoc/html should contain the source code documentation.
+At the moment very few files of NWChem have been provided with the appropriate
+comments. Hence the Doxygen documentation essentially only contains what
+the tool can extract from the source code itself.
+
+More information on Doxygen can be found at:
+
+ - http://www.stack.nl/~dimitri/doxygen
+
+Experience so far has shown that the tool cannot easily cope with a code as
+large as NWChem. 
