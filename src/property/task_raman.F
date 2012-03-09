@@ -173,9 +173,8 @@ c
 c -------------grab laser freq(s) from rtdb---------------------------
 c          (blatanly stolen from aoresponse_driver.F)
 c
-      if (.not.rtdb_get(rtdb, 'aoresponse:nfreq', mt_int, 1, nfreq))then  
-        call errquit(pname//'nfreq failed ',0, RTDB_ERR)
-      endif
+      if (.not.rtdb_get(rtdb, 'aoresponse:nfreq', mt_int, 1, nfreq))
+     &  nfreq = 0
       if (debug) write (luout,*) 'nfreq',nfreq
 c
 c     at present we will tie the response order to the number
@@ -190,6 +189,10 @@ c
       else
         call errquit (pname//'nfreq .lt. zero',nfreq,RTDB_ERR)
       end if
+c
+c     exit if response order is larger than one (TEMPORARY)
+      if (response_order.gt.1)
+     &   call errquit (pname//'order>1',response_order,INPUT_ERR)
 c
 c     allocate memory for frequencies list and read values 
 c     into dbl_mb(k_fr). If nfreq = 0, assign a single frequency = 0
@@ -209,9 +212,7 @@ c       static response: set all frequencies to zero
           dbl_mb(k_fr + (i-1)) = 0d0
         end do
       endif                     ! nfreq.ne.0
-c     exit if response order is larger than one (TEMPORARY)
-      if (response_order.gt.1)
-     &   call errquit (pname//'order>1',response_order,INPUT_ERR)
+c
 c     force nfreq = 1 if response order equals 1 (no freq. input)
       if (response_order.eq.1 .and. nfreq.ne.1) nfreq = 1
       if (debug) write (luout,*) 'freqs',dbl_mb(k_fr)

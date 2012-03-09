@@ -155,7 +155,7 @@ c
               else
                 write(6,'(a,a,i4,a)') 
      &             'NMR hyperfine property input found',
-     &             ' viewer atoms than expected, only',icount,
+     &             ' fewer atoms than expected, only',icount,
      &             ' will be used'
                 hfineatoms = icount
                 if (icount.eq.0) then 
@@ -182,7 +182,7 @@ c
               else
                 write(6,'(a,a,i4,a)') 
      &             'Spin-spin property input found',
-     &             ' viewer pairs than expected, only',icount,
+     &             ' fewer pairs than expected, only',icount,
      &             ' will be used'
                 if (icount.gt.0) then
                   do jj = 0, icount-1

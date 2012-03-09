@@ -438,7 +438,7 @@ c
       end  
 c ----------------end raman_scattering---------------------------------------
 c
-      subroutine raman_save(rtdb,ii,junk3,junk4)
+      subroutine raman_save(rtdb,ii,temp3,temp4)
 c
       implicit none
 #include "errquit.fh"
@@ -453,32 +453,39 @@ c
       integer i,j,n,ii ! counting indexes
       integer rtdb     ! [input] rtdb handle
       double precision alfare(3,3),alfaim(3,3) ! [aoresponse] real and imaginary polarizanbility
-      double precision junk3(6,3),junk4(6,3) ! temp. arrays for FD of polarizanbility
+      double precision temp3(6,3),temp4(6,3) ! temp. arrays for FD of polarizanbility
       logical debug
       logical status
+      logical lalfare,lalfaim
 c
       debug      = (.false. .and. ga_nodeid().eq.0) ! produce debug output
       status = rtdb_parallel(.true.)
 c  -------------get raman ploarizability from rtdb ----------------------------
-        if (.not. rtdb_get(rtdb, 'raman:alfare ', mt_dbl, 9, alfare))
-     &   call errquit('raman_save:failed to get alfare', 1, RTDB_ERR)
+        lalfare = .true.
+        if (.not. rtdb_get(rtdb, 'raman:alfare ', mt_dbl, 9, alfare)) 
+     &   lalfare = .false.
+
+        lalfaim = .true.
         if (.not. rtdb_get(rtdb, 'raman:alfaim ', mt_dbl, 9, alfaim)) 
-     &   call errquit('raman_save:failed to get alfaim', 2, RTDB_ERR)
+     &   lalfaim = .false.
 c
       n=(ii-1)*3
       DO i=1,3
          n=n+1
         DO j=1,3
-          junk3(n,j)= alfare(i,j) ! add AORESPONSE real data to array for finite_differencing
-          junk4(n,j)= alfaim(i,j) ! add AORESPONSE imaginary data to array for finite_differencing
+          temp3(n,j)= 0.d0
+          if (lalfare) temp3(n,j)= alfare(i,j) ! add AORESPONSE real data to array for finite_differencing
+          temp4(n,j)= 0.d0
+          if (lalfaim) temp4(n,j)= alfaim(i,j) ! add AORESPONSE imag data to array for finite_differencing
         enddo ! j loop
        enddo ! i loop
+
 c  -------------delete raman ploarizability from rtdb ----------------------------
       IF (debug) THEN
-          write(luout,*) 'junk3'
-          call output(junk3,1,6,1,3,6,3,1)
-          write(luout,*) 'junk4'
-          call output(junk4,1,6,1,3,6,3,1)
+          write(luout,*) 'temp3'
+          call output(temp3,1,6,1,3,6,3,1)
+          write(luout,*) 'temp4'
+          call output(temp4,1,6,1,3,6,3,1)
           write(luout,*) 'alfare'
           call output(alfare,1,3,1,3,3,3,1)
           write(luout,*) 'alfaim'
