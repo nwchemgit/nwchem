@@ -466,25 +466,25 @@ c     real molecular orbital vectors
      &     g_moso(1)))     
      &     call errquit('dft_scf_so: error creating Movecs Re',0,
      &       GA_ERR)
-      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'Movecs Re',0,0, 
-     &     g_gmovecs(1)))     
-     &     call errquit('dft_scf_so: error creating Movecs Re',0,
-     &       GA_ERR)
+c     if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'Movecs Re',0,0, 
+c    &     g_gmovecs(1)))     
+c    &     call errquit('dft_scf_so: error creating Movecs Re',0,
+c    &       GA_ERR)
 c
 c     imaginary molecular orbital vectors
       if(.not.ga_create(mt_dbl,nbf_mo, nbf_mo,'Movecs Im',0,0, 
      &     g_moso(2)))
      &     call errquit('dft_scf_so: error creating Movecs Im',0,
      &       GA_ERR)
-      if(.not.ga_create(mt_dbl,nbf_ao, nbf_ao,'Movecs Im',0,0, 
-     &     g_gmovecs(2)))
-     &     call errquit('dft_scf_so: error creating Movecs Im',0,
-     &       GA_ERR)
+c     if(.not.ga_create(mt_dbl,nbf_ao, nbf_ao,'Movecs Im',0,0, 
+c    &     g_gmovecs(2)))
+c    &     call errquit('dft_scf_so: error creating Movecs Im',0,
+c    &       GA_ERR)
 c
       call ga_zero(g_moso(1))
       call ga_zero(g_moso(2))
-      call ga_zero(g_gmovecs(1))
-      call ga_zero(g_gmovecs(2))
+c     call ga_zero(g_gmovecs(1))
+c     call ga_zero(g_gmovecs(2))
 c
       call ga_sync() 
 c
