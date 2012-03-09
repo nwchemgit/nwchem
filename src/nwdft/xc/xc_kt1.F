@@ -152,7 +152,7 @@ c
             g = GAMKT * gamma * gdenom
 c
             Ex = Ex + g*qwght(n)*fac
-            if (ldew)  func(n) = func(n) + 2d0*g*fac
+            if (ldew)  func(n) = func(n) + g*fac
             Amat(n,1) = Amat(n,1) - (4d0/3d0)*GAMKT*gamma*rho13*
      &                 gdenom2*fac
             Cmat(n,D1_GAA) = Cmat(n,D1_GAA) + GAMKT*gdenom*fac
@@ -192,7 +192,7 @@ c
             g = GAMKT * gamma * gdenom
 c           
             Ex = Ex + g*qwght(n)*fac
-            if (ldew)  func(n) = func(n) + 2d0*g*fac
+            if (ldew)  func(n) = func(n) + g*fac
             Amat(n,2) = Amat(n,2) - (4d0/3d0)*GAMKT*gamma*rho13*
      &            fac*gdenom2
             Cmat(n,D1_GBB) = Cmat(n,D1_GBB) + GAMKT*gdenom*fac
