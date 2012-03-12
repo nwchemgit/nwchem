@@ -595,6 +595,7 @@ c
          call sym_movecs_adapt(basis, 1.d-8, g_movecs,
      $        int_mb(k_sym), nmixed)
          call ga_orthog_mos(basis, g_movecs)
+         call movecs_fix_phase(g_movecs)
 c
          call mcscf_save_vec(rtdb,geom,basis, nbf, 
      $        dbl_mb(k_evals), dbl_mb(k_occ), g_movecs)
@@ -671,7 +672,6 @@ c
       call ecce_print1('two-electron energy', mt_dbl, etwo, 1)
       call ecce_print1('one-electron energy', mt_dbl, eone, 1)
       call ecce_print1('nuclear repulsion energy', mt_dbl, enrep, 1)
-      call movecs_fix_phase(g_movecs)
       call movecs_ecce(nbf, nbf, 1, min(nclosed+nact+20,nbf),
      $     dbl_mb(k_evals),
      $     dbl_mb(k_occ), int_mb(k_sym), 
