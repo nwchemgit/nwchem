@@ -197,13 +197,38 @@ cso      call ga_symmetrize(g_dens(1))
 cso      call ga_symmetrize(g_dens(2))
       return
       end 
+c
+      subroutine ga_dens_aabbr(g_dens, g_densso, nbf)
+C$Id$
+      implicit none
 
-      subroutine ga_dens_aabbi(g_dens, g_a, nbf)
+      integer g_dens(2)
+      integer g_densso(2)
+      integer nbf, npone, ntwice
+c
+      call ga_zero(g_dens(1))
+      call ga_zero(g_dens(2))
+c
+      npone=nbf+1
+      ntwice=2*nbf
+c
+c     == alpha (real) ==
+      call ga_dadd_patch(0.d0, g_dens(1), 1, nbf, 1, nbf, 
+     &                   1.d0, g_densso(1),  1, nbf, 1, nbf,
+     &                         g_dens(1), 1, nbf, 1, nbf)
+c     == beta (real) ==
+      call ga_dadd_patch(0.d0, g_dens(2), 1, nbf, 1, nbf, 
+     &                   1.d0, g_densso(1), npone,ntwice,npone,ntwice, 
+     &                         g_dens(2), 1, nbf, 1, nbf)
+      return
+      end
+c
+      subroutine ga_dens_aabbi(g_dens, g_densso, nbf)
 C     $Id$
       implicit none
       
       integer g_dens(2)
-      integer g_a(2)
+      integer g_densso(2)
       integer nbf, npone, ntwice
 c     
       call ga_zero(g_dens(1))
@@ -212,15 +237,17 @@ c
       npone=nbf+1 
       ntwice=2*nbf
 c     
+c     == alpha (imag) ==
       call ga_dadd_patch(0.d0, g_dens(1), 1, nbf, 1, nbf, 
-     &                   1.d0, g_a(2),    1, nbf, 1, nbf,
+     &                   1.d0, g_densso(2),1, nbf, 1, nbf,
      &                         g_dens(1), 1, nbf, 1, nbf)
+c     == beta (imag) ==
       call ga_dadd_patch(0.d0, g_dens(2), 1, nbf, 1, nbf, 
-     &                   1.d0, g_a(2),    npone,ntwice,npone,ntwice, 
+     &                   1.d0, g_densso(2),npone,ntwice,npone,ntwice, 
      &                         g_dens(2), 1, nbf, 1, nbf)
       return
       end
-
+c
       subroutine ga_dens_abbar(g_dens, g_a, nbf)
 C$Id$
       implicit none

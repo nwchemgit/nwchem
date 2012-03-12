@@ -2,7 +2,16 @@
 
 HEADERS = xc.fh xc_vdw.fh xc_params.fh
 
-	OBJ = xc_getv.o xc_exact_pot.o xc_sicutil.o xc_exso.o xc_util.o xc_chkdispauto.o xc_vdw_init.o
+	OBJ = xc_getv.o \
+	getv_coul.o \
+	getv_exch0.o \
+	getv_exchZ.o \
+	xc_exact_pot.o \
+	xc_sicutil.o \
+	xc_exso.o \
+	xc_util.o \
+	xc_chkdispauto.o \
+	xc_vdw_init.o
 
 	OBJ_OPTIMIZE = xc_eval_basis.o  \
 	a_dist.o \

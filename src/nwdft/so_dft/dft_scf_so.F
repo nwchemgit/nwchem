@@ -52,6 +52,8 @@ c
       logical debug_fon, det_eng 
       integer iswap,jswap
 c
+      character*4 which
+c
 c     so
       double precision rho_n, toll_s
 c     
@@ -95,6 +97,11 @@ c
 c     
       logical oprint, status
       double precision Exc(2), rms(2), derr(2)
+      double precision Exc2(2)
+      double precision exch0,exch0r,exch0i
+      double precision exchZ,exchZr,exchZi
+      double precision exchX,exchXr,exchXi
+      double precision exchY,exchYr,exchYi
       integer nmo(2), icall(2)
 c      integer nva
       integer n3c_dbl, n3c_int, n_batch
@@ -112,6 +119,7 @@ c      integer nva
       integer i, j,  i1, jstart 
       integer me, nproc
       integer g_tmp, g_fockt, g_wght, g_xyz,g_nq
+      integer g_tmp1, g_tmp2
 c     so
       integer g_so(3)
 c     so
@@ -131,7 +139,8 @@ c     so
      &     save_wall, current_cpu, start_cpu,
      &     wall_time_reqd
       integer int_wall_time_reqd
-      double precision ecoul, ecore, noso
+      double precision ecoul, ecore, noso, dummy
+      double precision exch_sum,exch_diff
       double precision pp, delta
       double precision anucl_charg, anel
       double precision anoca, anocb, onempp
@@ -379,6 +388,8 @@ c
 c     SCF energy convergence criterion. 
 c     
       g_tmp = ga_create_atom_blocked(geom, AO_bas_han, 'ga_temp')
+      g_tmp1 = ga_create_atom_blocked(geom, AO_bas_han, 'ga_temp1')
+      g_tmp2 = ga_create_atom_blocked(geom, AO_bas_han, 'ga_temp2')
       g_fockt = ga_create_atom_blocked(geom, AO_bas_han, 'fock tr')
 c     
 c     Set up local convergence parameters
@@ -529,16 +540,13 @@ c     extra arrays
       call ga_zero(g_tmp_ri)
 c
 c     spin-orbit matrices: 1->z, 2->y, 3->x
-      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'so z',0,0, 
-     &     g_so(1)))
+      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'so z',0,0, g_so(1)))
      &     call errquit('dft_scf_so: error creating so z',0, GA_ERR)
       call ga_zero(g_so(1))
-      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'so y',0,0, 
-     &     g_so(2)))
+      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'so y',0,0, g_so(2)))
      &     call errquit('dft_scf_so: error creating so y',0, GA_ERR)
       call ga_zero(g_so(2))
-      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'so x',0,0, 
-     &     g_so(3)))
+      if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'so x',0,0, g_so(3)))
      &     call errquit('dft_scf_so: error creating so x',0, GA_ERR)
       call ga_zero(g_so(3))
 c
@@ -1076,9 +1084,6 @@ c
       if (me.eq.0.and.oprint_tol)write(LuOut,3234)itol2e,iAOacc,iXCacc
  3234 format(10x,'itol2e=',i2,' iAOacc=',i2,' iXCacc=',i2)
 
-      Ecoul  = ZERO
-      Exc(1) = ZERO
-      Exc(2) = ZERO
 
       call ga_zero(g_fockso(1))
       call ga_zero(g_fockso(2))
@@ -1206,9 +1211,8 @@ cso   call ga_dadd(one, g_tmp, one, g_fock, g_fock)
       endif
 c     
 c     Restore alpha and beta densities.
-c     
-      call ga_dadd(one, g_dens(1), onem, g_dens(2), g_dens(1))
-c     
+      call ga_dadd(1.d0, g_dens(1), -1.d0, g_dens(2), g_dens(1))
+c
 c     Note that g_dens(1) now contains the alpha density
 c     matrix and g_dens(2) contains the beta
 c     
@@ -1231,18 +1235,47 @@ c
       rho_n = 0.0d0
       call ga_zero(g_vxc(2))
 c
-c     == attenuation ==
-      if (cam_exch) call case_setflags(.true.) ! set attenuation
-c
       if (oprint_time)call dft_tstamp(' Before call to GETVXC.  ')
-      call xc_getv
-     &   (rtdb, Exc, Ecoul,nExc, iVxc_opt, g_xcinv, g_dens, 
-     &   g_vxc, IOLGC, g_wght, g_xyz, g_nq,wght_GA, rho_n,
-     &   dbl_mb(irdens_atom), int_mb(icetobfr), natoms)
-c     write(*,*)"Ecoul, Exc(1)", Ecoul, Exc(1)
+c
+c     =========================================================================
+c     == calculate pure coulomb (sum) ==
+      ecoul  = 0.d0
+      if (cam_exch) call case_setflags(.false.) ! unset attenuation for coulomb
+      call getv_coul(rtdb, ecoul, g_densso, g_fockso, g_vxc)
 c
 c     == attenuation ==
-      if (cam_exch) call case_setflags(.false.) ! unset attenuation if set
+      if (cam_exch) call case_setflags(.true.) ! set attenuation for exchange, if needed
+c
+c     == D0 part of exchange: depends on total density  ==
+      exch0r = 0.d0
+      call getv_exch0(rtdb, exch0r, g_densso, g_fockso, g_vxc, 'real')
+      call getv_exch0(rtdb, exch0i, g_densso, g_fockso, g_vxc, 'imag')
+      exch0 = exch0r + exch0i
+c
+c     == DZ part of exchange: depends on difference density  ==
+      exchZ = 0.d0
+      call getv_exchZ(rtdb, exchZr, g_densso, g_fockso, g_vxc, 'real')
+      call getv_exchZ(rtdb, exchZi, g_densso, g_fockso, g_vxc, 'imag')
+      exchZ = exchZr + exchZi
+c
+c     == DX part of exchange: depends on difference density  ==
+      exchX = 0.d0
+c      call getv_exchX(rtdb, exchXr, g_densso, g_fockso, g_vxc, 'real')
+c      call getv_exchX(rtdb, exchXi, g_densso, g_fockso, g_vxc, 'imag')
+c      exchX = exchXr + exchXi
+c
+c     == DY part of exchange: depends on difference density  ==
+      exchY = 0.d0
+c      call getv_exchY(rtdb, exchYr, g_densso, g_fockso, g_vxc, 'real')
+c      call getv_exchY(rtdb, exchYi, g_densso, g_fockso, g_vxc, 'imag')
+c      exchY = exchYr + exchYi
+c
+c     == tally up energy ==
+      Exc(1) = exch0 + exchZ + exchX + exchY
+c
+c     == attenuation ==
+      if (cam_exch) call case_setflags(.false.) ! unset attenuation
+c     =========================================================================
 c
 c     == add in zora contributions ==
       if (do_zora) then
@@ -1261,23 +1294,8 @@ c        == add spin-orbit zora to fock matrix ==
 
       end if  ! do_zora
 c
-c     == add in the exchange-correlation to the fock matrix ==
-      call ga_sync()
-      call ga_dadd_patch( 1.d0, g_fockso(1), 1, nbf_ao, 
-     &     1, nbf_ao, 
-     &     1.0d0, g_vxc(1),  1, nbf_ao, 
-     &     1, nbf_ao,
-     &     g_fockso(1), 1, nbf_ao, 
-     &     1, nbf_ao) 
-      call ga_dadd_patch( 1.d0, g_fockso(1), 1+nbf_ao, nbf_mo, 
-     &     1+nbf_ao, nbf_mo,
-     &     1.0d0, g_vxc(2),  1, nbf_ao, 
-     &     1, nbf_ao,
-     &     g_fockso(1), 1+nbf_ao, nbf_mo, 
-     &     1+nbf_ao, nbf_mo)
-c     
 c     == get the exact exchange contribution ==
-      call xc_exso(rtdb,Exc,Ecoul,nExc,g_densso,g_fockso)
+c      call xc_exso(rtdb,Exc,Ecoul,nExc,g_densso,g_fockso)
 c
       if (oprint_time)
      &     call dft_tstamp(' End of parallel region. ')
@@ -1291,7 +1309,7 @@ c
          Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
          if(det_eng)goto 2001
       endif
-
+c
       if (last_time_energy)then
 c     
 c     If open shell put the total density matrix back in 
@@ -2290,6 +2308,10 @@ c
       endif
       if (.not. ga_destroy(g_tmp)) call errquit
      &   ('dft_scf: could not destroy g_tmp', 0, GA_ERR)
+      if (.not. ga_destroy(g_tmp1)) call errquit
+     &   ('dft_scf: could not destroy g_tmp1', 0, GA_ERR)
+      if (.not. ga_destroy(g_tmp2)) call errquit
+     &   ('dft_scf: could not destroy g_tmp2', 0, GA_ERR)
 c
       call fock_2e_tidy(rtdb)
 c     
