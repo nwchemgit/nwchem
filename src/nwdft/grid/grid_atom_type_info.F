@@ -162,11 +162,19 @@ c
 c        
          if (abs(znuc_atom_type(itype)).lt.EPS) then ! uncharged ghost atom; 
 c
-c           identify atom label following "bq"
+c           identify atom label following "bq" or "x" (we already know this
+c           cannot be element Xeon).
 c
             iptr=3
 c hack for nbo
             if(tag(3:4).eq.'gh') iptr=5
+c
+c           Dummy centers (i.e. X, XH, X1, whatever) by convention
+c           cannot have charges or basis sets. They are purely
+c           mathematical constructs to specify complex Z-matrices.
+c           Hence they should always have i_atomic_number .eq. 0
+c           no matter what follows the X.
+c
             if(tag(1:1).eq.'X'.or.tag(1:1).eq.'x') iptr=2
             if (.not. geom_tag_to_element(tag(iptr:), symbol, 
      &           element, i_atomic_number)) then
@@ -179,6 +187,10 @@ c hack for nbo
      &            'grid_atom_type_info: non-bq center with zero charge',
      &             0, INPUT_ERR)
      &              
+               endif
+            else
+               if (inp_compare(.false.,tag(1:1),'X')) then 
+                  i_atomic_number = 0
                endif
             endif
 c

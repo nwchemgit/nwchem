@@ -3463,22 +3463,22 @@ c     ----- Check for X and remove them from list ---------------------
 c     ----- Special check for Xe --------------------------------------
 c     ----- Bq are ghost centers and not to be touched ----------------
 c
- 230  continue
-      do icenter=1,ncenter
-         if ((inp_compare(.false.,tags(icenter)(1:1),'x')).and.
-     &       (.not.inp_compare(.false.,tags(icenter)(1:2),'xe'))) then
-            do jcenter=icenter+1,ncenter
-               coords(1,jcenter-1)=coords(1,jcenter)
-               coords(2,jcenter-1)=coords(2,jcenter)
-               coords(3,jcenter-1)=coords(3,jcenter)
-               charge(jcenter-1)=charge(jcenter)
-               tags(jcenter-1)=tags(jcenter)
-            enddo
-            ncenter=ncenter-1
-            found_cart = .true.
-            goto 230
-         endif
-      enddo
+c230  continue
+c     do icenter=1,ncenter
+c        if ((inp_compare(.false.,tags(icenter)(1:1),'x')).and.
+c    &       (.not.inp_compare(.false.,tags(icenter)(1:2),'xe'))) then
+c           do jcenter=icenter+1,ncenter
+c              coords(1,jcenter-1)=coords(1,jcenter)
+c              coords(2,jcenter-1)=coords(2,jcenter)
+c              coords(3,jcenter-1)=coords(3,jcenter)
+c              charge(jcenter-1)=charge(jcenter)
+c              tags(jcenter-1)=tags(jcenter)
+c           enddo
+c           ncenter=ncenter-1
+c           found_cart = .true.
+c           goto 230
+c        endif
+c     enddo
 C
       RETURN
  9999 FORMAT(A80)
