@@ -215,8 +215,8 @@ C     get SCF MO vectors for density
          if (.not. rtdb_cget(rtdb, 'mcscf:input vectors', 1, movecs_in))
      $        call errquit('gradients: MCSCF MO vectors not defined',0,
      &       RTDB_ERR)
-         scftype  = 'mcscf'
-         lscftype = 'mcscf'
+         scftype  = 'MCSCF'
+         lscftype = 'MCSCF'
       else if (theory .eq. 'dft') then
          odft = .true.
          if (.not. rtdb_cget(rtdb, 'dft:input vectors', 1, movecs_in))
@@ -256,10 +256,13 @@ C     get information about type of calculation
       else
          omp2 = .false.
       end if
-
+c     
+      call inp_ucase(scftype)
+      call inp_ucase(lscftype)
+c
 C     scftype: MCSCF, RHF, ROHF or UHF
 
-      if (scftype .eq. 'mcscf') then
+      if (scftype .eq. 'MCSCF') then
          if (.not. rtdb_get(rtdb, 'mcscf:nclosed', mt_int, 1, nclosed))
      $        nclosed = 0
          if (.not. rtdb_get(rtdb, 'mcscf:nact', mt_int, 1, nopen))
@@ -304,8 +307,6 @@ C     is it MP2?
          end if
          
       end if
-c     
-      call inp_ucase(scftype)
 
 C     # of eigenvalues and density matrices
       if (omp2) then
