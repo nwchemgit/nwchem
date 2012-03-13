@@ -3,9 +3,6 @@
 HEADERS = xc.fh xc_vdw.fh xc_params.fh
 
 	OBJ = xc_getv.o \
-	getv_coul.o \
-	getv_exch0.o \
-	getv_exchZ.o \
 	xc_exact_pot.o \
 	xc_sicutil.o \
 	xc_exso.o \
