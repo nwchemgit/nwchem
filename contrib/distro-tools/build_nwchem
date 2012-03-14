@@ -114,7 +114,7 @@ function usage()
  to have the same value, either 4 or 8, to successfully build NWChem.
 
  Huub van Dam
- \$Id: build_nwchem 21881 2012-01-27 00:03:59Z d3y133 $
+ \$Id: build_nwchem 22155 2012-03-14 21:03:15Z d3y133 $
 EOF
 }
 declare -a LIST_COMPFLAGS
@@ -969,8 +969,8 @@ if [ ${#MSG_COMMS} -eq 0 ] ; then
   export MSG_COMMS=MPI
 fi
 export LDOPTIONS=" "
-#export USE_SUBGROUPS=y  # disables parallel diag, do not set for release
-#export DEV_GA=y         # do not set this for the release
+#export USE_SUBGROUPS=y # disables parallel diag, do not set for release
+#export DEV_GA=y        # do not set this for the release
 #export USE_GPROF=y
 #
 # Now we try and guess the network on the machine.
@@ -1237,7 +1237,10 @@ if [ ${#BLASOPT} -ne 0 ] ; then
   if [ ${result} -eq 0 ] ; then
     export LAPACK_LIB="${BLASOPT}"
   fi
-  MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
+  if [ ${#MPI_LIB} -ne 0 ] ; then
+    # Only set MPI_LIB_TMP if MPI_LIB is non-empty
+    MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
+  fi
   DUMMY=`get_scalapack_lib ${MPI_F90} "${BLASOPT} ${MPI_LIB_TMP} ${LIBMPI}" "${BLASOPT}"`
   result=$?
   if [ ${result} -eq 0 ] ; then
@@ -1280,7 +1283,10 @@ if [ ${#LAPACK_SIZE} -eq 0 ] ; then
   export LAPACK_SIZE
 fi
 if [ ${#SCALAPACK_LIB} -eq 0 ] ; then
-  MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
+  if [ ${#MPI_LIB} -ne 0 ] ; then
+    # Only set MPI_LIB_TMP if MPI_LIB is non-empty
+    MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
+  fi
   SCALAPACK_LIB=`get_scalapack_lib ${MPI_F90} "${LAPACK_LIB} ${BLAS_LIB} ${MPI_LIB_TMP} ${LIBMPI}" 0`
   export SCALAPACK_LIB
 fi
@@ -1289,7 +1295,10 @@ if [ ${#SCALAPACK_SIZE} -eq 0 ] ; then
     # In this case there is no ScaLAPACK
     SCALAPACK_SIZE=0
   else
-    MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
+    if [ ${#MPI_LIB} -ne 0 ] ; then
+      # Only set MPI_LIB_TMP if MPI_LIB is non-empty
+      MPI_LIB_TMP=`echo "-L${MPI_LIB}" | sed 's/^-L-L/-L/'`
+    fi
     SCALAPACK_SIZE=`get_scalapack_integer ${MPI_F90} "${SCALAPACK_LIB} ${LAPACK_LIB} ${BLAS_LIB} ${MPI_LIB_TMP} ${LIBMPI}"`
   fi
   export SCALAPACK_SIZE
