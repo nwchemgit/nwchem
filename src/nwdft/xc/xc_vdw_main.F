@@ -1,4 +1,6 @@
 c
+c     $Id: xc_vdw.F 21530 2011-11-15 17:52:06Z d3p852 $
+c
       subroutine xc_vdw_der(s6,s8,sr6,sr8,n,x,z,force)
 c
 c     S. Grimme J Comp Chem 25, 1463 (2004)
@@ -281,7 +283,7 @@ c
       endif
       return
       end
-c     $Id: xc_vdw.F 21530 2011-11-15 17:52:06Z d3p852 $
+c
       subroutine xc_vdw(rtdb,geom,exc,force,what)
       implicit none
       character *(*) what
@@ -355,12 +357,10 @@ c
      &      alpha = 20.0d0
       if (ivdw.eq.3) alpha = 14.0d0
 c
-      if (.not.rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6))
-     &   s6=0.0d0
-c
 c     Get proper scaling factors depending on Grimme dispersion version
 c
-      call get_scaling_fac(s6,s8,sr6,sr8)
+      if (.not.rtdb_get(rtdb, 'dft:vdw', mt_dbl, 1, s6))
+     &    call get_scaling_fac(s6,s8,sr6,sr8)
 c
       if(what.eq.'energy') then
 c

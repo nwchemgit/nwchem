@@ -1,4 +1,6 @@
 c
+c     $Id: xc_vdw.F 22087 2012-03-06 21:23:47Z niri $
+c
       logical function xc_vdw_init(angs2au)
       implicit none
 #include "xc_vdw.fh"
@@ -35841,7 +35843,7 @@ c
       do iline=1,nlines
        iat=int(grimme_c6_parameters(idata+1))
        jat=int(grimme_c6_parameters(idata+2))
-       call limit(iat,jat,iadr,jadr)
+       call xc_vdwlimit(iat,jat,iadr,jadr)
        maxcn(iat)=max(maxcn(iat),iadr)
        maxcn(jat)=max(maxcn(jat),jadr)
        c6ab(iat,jat,iadr,jadr,1)=grimme_c6_parameters(idata)

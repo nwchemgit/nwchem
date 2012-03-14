@@ -1,4 +1,7 @@
 c
+c     $Id: xc_vdw.F 22087 2012-03-06 21:23:47Z niri $
+c
+
 c      Interpolation of C6 to account for coordination number dependence
 c
       double precision function c6cn(iat,jat,cni,cnj)
@@ -238,7 +241,6 @@ c
       fdmp=1.0d0/(1.0d0+dexp(-alpha*((x1/x2)-1.0d0)))
       return
       end
-c
       subroutine get_scaling_fac(scales6,scales8,scalesr6,scalesr8)
       implicit none
 #include "cdft.fh"
@@ -503,7 +505,7 @@ c
 c     Small function to extract coordination number representation number
 c     and atomic number from column two and three of the table
 c
-      subroutine limit(iat,jat,iadr,jadr)
+      subroutine xc_vdwlimit(iat,jat,iadr,jadr)
       implicit none
       integer iat,jat,iadr,jadr
 c
