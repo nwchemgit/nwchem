@@ -9,85 +9,87 @@ echo
 charge -18
 
 geometry o noprint noautosym
-O 0 0 0
-symmetry c2v
+  O 0 0 0
+  symmetry c2v
 end
-geometry ni noprint  noautosym
-Ni 0 0 0
-symmetry c2v
+geometry ni noprint  noautosym noautoz
+  bq 0 0 -2.1 charge +0.5
+  Ni 0 0 0
+  bq 0 0  2.1 charge +0.5
+  symmetry c2v
 end
 
 geometry  nio_old units angstrom noautoz noprint noautosym
-bqn    0     2.1   0.0 charge +2
-bqn    0    -2.1   0.0 charge +2
-bqn   2.1    0.0   0.0 charge +2
-bqn  -2.1    0.0   0.0 charge +2
- O     0     0     0
- Ni    0     0     2.1
-bq     0     2.1   2.1 charge -2
-bq     0    -2.1   2.1 charge -2
-bq     2.1   0     2.1 charge -2
-bq    -2.1   0     2.1 charge -2
-bq     0     0     4.2 charge -2
- Ni    0     0    -2.1
-bq     0     2.1  -2.1 charge -2
-bq     0    -2.1  -2.1 charge -2
-bq     2.1   0    -2.1 charge -2
-bq    -2.1   0    -2.1 charge -2
-bq     0     0    -4.2 charge -2
-symmetry c2v
+  bqn    0     2.1   0.0 charge +2
+  bqn    0    -2.1   0.0 charge +2
+  bqn   2.1    0.0   0.0 charge +2
+  bqn  -2.1    0.0   0.0 charge +2
+   O     0     0     0
+   Ni    0     0     2.1
+  bq     0     2.1   2.1 charge -2
+  bq     0    -2.1   2.1 charge -2
+  bq    2.1    0     2.1 charge -2
+  bq   -2.1    0     2.1 charge -2
+  bq     0     0     4.2 charge -2
+   Ni    0     0    -2.1
+  bq     0     2.1  -2.1 charge -2
+  bq     0    -2.1  -2.1 charge -2
+  bq    2.1    0    -2.1 charge -2
+  bq   -2.1    0    -2.1 charge -2
+  bq     0     0    -4.2 charge -2
+  symmetry c2v
 end
 
 
 basis "ao basis" spherical
-ni library "Wachters+f"
-o library "DZP (Dunning)"
+  ni library "Wachters+f"
+  o library "DZP (Dunning)"
 END
 
 dft
+  direct
+  mulliken
   mult 1
   odft
   xc hfexch
+  convergence energy 1d-8
 end
 
 set geometry ni
-charge +2
+charge +3
 dft
-odft
-mult 3
-vectors input atomic swap alpha 16 14 output  nia.mos
-convergence lshift 0.15 hl_tol 20d0
-#max_ovl
+  odft
+  mult 3
+  vectors input atomic output  nia.mos
 end
-task dft
+task dft ignore
 
 set geometry ni
-charge +2
+charge +3
 dft
-odft
-mult -3
-vectors input atomic swap beta 16 14 output  nib.mos
+  odft
+  mult -3
+  vectors input atomic output  nib.mos
 end
-task dft
+task dft ignore
 
 set geometry o
 charge -2
 dft
-odft
-mult 1
-vectors input atomic output  o.mos
+  odft
+  mult 1
+  vectors input atomic output  o.mos
 end
-task dft
+task dft ignore
 
 charge -10
 set geometry nio_old
 dft
   mult 1
   odft
-vectors input fragment o.mos \
-nia.mos nib.mos output nio.mos
-convergence lshift 0.15 hl_tol 20d0
-iterations 100
+  vectors input fragment o.mos \
+    nia.mos nib.mos output nio.mos
+  iterations 100
 end
 
 task dft energy 
@@ -100,27 +102,27 @@ title "new bq input"
 charge +2
 
 geometry  nio_new units angstrom noautoz nocenter noprint noautosym
- O     0     0     0
- Ni    0     0     2.1
- Ni    0     0    -2.1
-symmetry c2v
+  O     0     0     0
+  Ni    0     0     2.1
+  Ni    0     0    -2.1
+  symmetry c2v
 end
 
 bq
- +2    0     2.1   0.0
- +2    0    -2.1   0.0
- +2   2.1    0.0   0.0
- +2  -2.1    0.0   0.0
- -2    0     2.1   2.1
- -2    0    -2.1   2.1
- -2    2.1   0     2.1
- -2   -2.1   0     2.1
- -2    0     0     4.2
- -2    0     2.1  -2.1
- -2    0    -2.1  -2.1
- -2    2.1   0    -2.1
- -2   -2.1   0    -2.1
- -2    0     0    -4.2
+  +2    0     2.1   0.0
+  +2    0    -2.1   0.0
+  +2   2.1    0.0   0.0
+  +2  -2.1    0.0   0.0
+  -2    0     2.1   2.1
+  -2    0    -2.1   2.1
+  -2   2.1    0     2.1
+  -2  -2.1    0     2.1
+  -2    0     0     4.2
+  -2    0     2.1  -2.1
+  -2    0    -2.1  -2.1
+  -2   2.1    0    -2.1
+  -2  -2.1    0    -2.1
+  -2    0     0    -4.2
 end
 
 set geometry nio_new
@@ -128,13 +130,9 @@ set geometry nio_new
 dft
   mult 1
   odft
-vectors input fragment o.mos \
-nia.mos nib.mos output nio_new.mos
+  vectors input fragment o.mos \
+    nia.mos nib.mos output nio_new.mos
 end
 
 task dft energy
-
-
-
-
 
