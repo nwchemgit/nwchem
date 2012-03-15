@@ -777,12 +777,14 @@ c
       endif
 c     
       if (.not. s) then
-         write(LuOut,*) ' geom_rtdb_load: not found or rtdb corrupt: ',
-     $        names(geom)(1:lenn(geom)), ' -> ',
-     $        trans(geom)(1:lent(geom))
-         call geom_err_info('geom_rtdb_load')
-         geom_rtdb_load = .false.
-         return
+        if (ga_nodeid().eq.0) then
+          write(LuOut,*)' geom_rtdb_load: not found or rtdb corrupt: ',
+     $                  names(geom)(1:lenn(geom)), ' -> ',
+     $                  trans(geom)(1:lent(geom))
+          call geom_err_info('geom_rtdb_load')
+        endif
+        geom_rtdb_load = .false.
+        return
       end if
 c     
 c     Determine if external fields are applied
