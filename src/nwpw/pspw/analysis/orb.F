@@ -101,7 +101,7 @@ c
              read(18,*,end=100) 
            end do
   100      continue
-#ifdef FUJITSU_SOLARIS
+#if defined(FUJITSU_SOLARIS)||defined(GCC46)
            backspace 18
 #endif
         else

@@ -1894,12 +1894,20 @@ endif
           FOPTIONS +=  -ff2c -fno-second-underscore
         endif
         DEFINES  += -DCHKUNDFLW -DGCC4
+        _GCC46= $(shell gcc -dumpversion  2>&1|awk ' /4.6./  {print "Y";exit};{print "N"}')
+        ifeq ($(_GCC46),Y) 
+          DEFINES  += -DGCC46
+        endif
         ifeq ($(_GOT3DNOW),Y) 
 #we guess its an opteron
           FOPTIMIZE += -march=opteron -mtune=opteron
         else
+        ifeq ($(_GCC46),Y) 
+          FOPTIMIZE += -march=native -mtune=native
+        else
 #we guess its a nocona em64t
           FOPTIMIZE += -march=nocona -mtune=nocona
+        endif
         endif
 #        FVECTORIZE  += -ftree-vectorize -ftree-vectorizer-verbose=1
       endif
