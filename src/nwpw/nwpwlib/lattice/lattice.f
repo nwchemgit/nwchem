@@ -20,9 +20,9 @@
       c1 = x*ub(1,1) + y*ub(2,1) + z*ub(3,1)
       c2 = x*ub(1,2) + y*ub(2,2) + z*ub(3,2)
       c3 = x*ub(1,3) + y*ub(2,3) + z*ub(3,3)
-      c1 = c1 - ANINT(c1)
-      c2 = c2 - ANINT(c2)
-      c3 = c3 - ANINT(c3)
+      c1 = c1 - DNINT(c1)
+      c2 = c2 - DNINT(c2)
+      c3 = c3 - DNINT(c3)
       x = ua(1,1)*c1 + ua(1,2)*c2 + ua(1,3)*c3
       y = ua(2,1)*c1 + ua(2,2)*c2 + ua(2,3)*c3
       z = ua(3,1)*c1 + ua(3,2)*c2 + ua(3,3)*c3
