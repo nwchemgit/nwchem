@@ -42,6 +42,9 @@ c
       logical odft,rodft
       character*4 scftype
 c
+      logical cam_exch
+      double precision cam_alpha,cam_beta,cam_omega
+c
       character*9 local_c, nonlocal_c, nineb_c
       character*10 start_10c, NA_10c, asap_10c
       character*10 strng1, strng2, strng3, strng4, strng5, strng6
@@ -81,6 +84,16 @@ c
       if (abs(anucl_charg - rcharge - dble(nel)) .gt. 1d-8)
      $     call errquit('dft_inpana: non-integral # of electrons ?', 0,
      &       INPUT_ERR)
+c
+c     == Coulomb Attenuation Method (CAM/LC) parameters ==
+      if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch)) 
+     &   cam_exch=.false.
+      if (.not.rtdb_get(rtdb, 'dft:cam_omega', mt_dbl, 1,cam_omega)) 
+     &   cam_omega=0.d0
+      if (.not.rtdb_get(rtdb, 'dft:cam_alpha', mt_dbl, 1,cam_alpha)) 
+     &   cam_alpha=0.d0
+      if (.not.rtdb_get(rtdb, 'dft:cam_beta', mt_dbl, 1, cam_beta)) 
+     &   cam_beta=0.d0
 c     
 c     Check to see if calculation type is allowed.
 c     
@@ -500,8 +513,17 @@ c
                write(LuOut,9226) 
      &         '         van Leeuwen-Baerends correction    '
             endif
+c
+c           Print range-separation parameters
+            if (cam_exch) then
+              write(LuOut,*)
+              write(LuOut,8201)cam_alpha,cam_beta,cam_omega
+            end if ! cam_exch
+c
             call util_flush(LuOut)
-         endif
+c
+         endif ! oprint_xc
+c
          if (oprint_sic) then
            if (test_sic.eq.1) then
              write(LuOut,'(/,14x,"SIC perturbative approximation")')
@@ -709,6 +731,9 @@ c 9139 format(10x,'Spatial weights used: Delley. ')
      &       10x,'  Beta electrons :',2x,i4,/,
      &       10x,'Charge           :',2x,i4,/,
      &       10x,'Spin multiplicity:',2x,i4)
+ 8201 format(10x,' Alpha           :',f6.2,/,
+     &       10x,' Beta            :',f6.2,/,
+     &       10x,' Gamma           :',f6.2)
  9372 format(10x,'Density screening/tol_rho: ',1Pd8.2,/,
      &       10x,'AO Gaussian exp screening on grid/accAOfunc: ',i3,/,
      &       10x,'CD Gaussian exp screening on grid/accCDfunc: ',i3,/,
