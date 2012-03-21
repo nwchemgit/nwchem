@@ -65,10 +65,10 @@ c ----- Definitions for NLMO analysis ---- END
      &         dft_zoraCPHF_write,dft_zoraCPHF_read
 
       integer ntot,ispin,indA,indB,nocc(2),nind_jk
-      integer debug_giaox
+      integer debug_hyperfine
       logical skip_cphf_ev_hyp
 
-      debug_giaox=0 ! =1 for debugging print outs of matrices
+      debug_hyperfine=0 ! =1 for debugging print outs of matrices
       if (ga_nodeid().eq.0) then
         write(LuOut,*)
         call util_print_centered(LuOut,
@@ -183,7 +183,7 @@ c     & write(*,*) 'npol=',npol
        nocc(1)=nopen(1)   
        nocc(2)=nopen(2)     
       endif
-      if (debug_giaox.eq.1) then
+      if (debug_hyperfine.eq.1) then
        write(*,10) nocc(1),nocc(2),
      &             nopen(1),nopen(2),
      &             nclosed(1),nclosed(2),
@@ -247,7 +247,7 @@ c     Get Unperturbed Density Matrix
      &   call errquit('hnd_gshift: ga_create failed g_rhs',0,GA_ERR)
       call ga_zero(g_rhs)
 
-       if (debug_giaox.eq.1) then
+       if (debug_hyperfine.eq.1) then
         write(*,*) 'after-creating g_rhs ...'
         write(*,102)npol,nocc(1),nocc(2),
      &              nclosed(1),nclosed(2),
@@ -259,7 +259,7 @@ c     Get Unperturbed Density Matrix
        call add_H10_hfine(g_rhs, ! out: ga_rhs(a,i)=ga_rhs(a,i)+H10(a,i)
      &                    ga_Fji_hfine,vectors, 
      &                    basis,nbf,nmo,npol,nocc,nvirt) 
-       if (debug_giaox.eq.1) then
+       if (debug_hyperfine.eq.1) then
         if (ga_nodeid().eq.0) then
          write(*,*) 'Aft. add_H10()'
          write(*,*) '---- g_rhs-aft-add_H10 -------- START'
@@ -283,7 +283,7 @@ c -------free allocated memory -------------- START
       if (.not.ma_pop_stack(l_occ)) call
      &    errquit('hnd_gshift: ma_pop_stack failed k_occ',0,MA_ERR)
 c -------free allocated memory -------------- END
-      if (debug_giaox.eq.1) then
+      if (debug_hyperfine.eq.1) then
        if (ga_nodeid().eq.0)
      &  write(*,*) '---- Reading INPUT-cphf: g_rhs -------- START'
        call ga_print(g_rhs)
@@ -378,7 +378,7 @@ c     &   write(*,*) '---------- g_rhs-hyp--read --------- END'
 
  123  continue ! SKIPPING cphf
 
-      if (debug_giaox.eq.1) then
+      if (debug_hyperfine.eq.1) then
        if (ga_nodeid().eq.0)
      &  write(*,*) '---- Reading sol-cphf: g_rhs -------- START'
       call ga_print(g_rhs)
@@ -422,8 +422,9 @@ c     integrals. They were terminated by the cphf.
      &                   coeffpol,
      &                   basis,nbf,nat_slc,rtdb)
 c +++++++++ print-total-pardia-transferred +++ START
-      if (ga_nodeid().eq.0)      
-     &   write(*,105) nat_slc
+
+      if (debug_hyperfine.eq.1 .and. ga_nodeid().eq.0 ) then
+        write(*,105) nat_slc
  105     format('NATOMS=',i3) 
       ic=1
       do iatom = 1, nat_slc
@@ -443,6 +444,8 @@ c +++++++++ print-total-pardia-transferred +++ START
         enddo ! end-loop-iy
        enddo ! end-loop-ix
       enddo ! end-loop-iatom
+      end if ! debug_hyperfine & ga_nodeid()
+c
 c +++++++++ print-total-dia-transferred +++ END
        do ispin=1,npol
         if (.not.ga_destroy(g_dens(ispin))) call 

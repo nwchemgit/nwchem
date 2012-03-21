@@ -859,7 +859,8 @@ c ------- TEST: get_par() get_dia()------ START
      &             dbl_mb(k_xyz),nat_slc,rtdb)
 c ------- TEST: get_par() get_dia()------ END
 c +++++++++ print-total-pardia-transferred +++ START
-       if (ga_nodeid().eq.0) then
+
+      if (debug_giaox.eq.1 .and. ga_nodeid().eq.0) then
       ic=1
        do iatom = 1, nat_slc
         do ix = 1, 3
@@ -900,8 +901,9 @@ c +++++++++ print-total-pardia-transferred +++ START
          enddo ! end-loop-iy
         enddo ! end-loop-ix
        enddo ! end-loop-iatom
-       endif ! end-if-ga_nodeid-eq-0
+       endif ! end-if-ga_nodeid-eq-0 and debug_giaox
 c +++++++++ print-total-dia-transferred +++ END
+c
       if (.not.ma_pop_stack(l_pararr)) call
      &    errquit('hnd_giaox: ma_pop_stack failed k_para',0,MA_ERR)
        do ispin=1,npol

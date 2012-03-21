@@ -990,7 +990,9 @@ c -------- symmetrize total dia ------------ START
        enddo
       enddo
 c -------- symmetrize total dia ------------ END
+c
 c +++++++++ print-total-pardia-transferred +++ START
+      if (debug_gshift.eq.1) then
        if (ga_nodeid().eq.0) then
         ic=1
         do ix = 1, 3
@@ -1024,7 +1026,9 @@ c +++++++++ print-total-pardia-transferred +++ START
          enddo ! end-loop-iy
         enddo ! end-loop-ix
        endif ! end-if-ga_nodeid-eq-0
+      end if ! debug_gshift
 c +++++++++ print-total-dia-transferred +++ END
+c
        if (.not.ga_destroy(g_rhs)) call 
      &    errquit('hnd_gshift_zora: ga_destroy failed g_rhs',
      &            0,GA_ERR)
@@ -4926,7 +4930,9 @@ c ----- out: g_rhs_1e ------- END
      &         get_P10_JK_AorB
       integer debug_gshift
       integer shift,disp
-
+c
+      debug_gshift = 0
+c
       if (.not. ma_push_get(mt_dbl,9*sh_atom,'sh para',l_para,k_para)) 
      &    call errquit('hnd_gshift: ma_push_get failed k_para',0,MA_ERR)
       if (.not. ma_push_get(mt_dbl,9*sh_atom,'sh dia',l_dia,k_dia)) call
@@ -5067,7 +5073,9 @@ c ---- STORE: ga_dia_epr --> dbl_mb(k_dia)
       ld(1)=3
       ld(2)=3 
       call nga_get(ga_dia_epr_AB,alo,ahi,dbl_mb(k_dia),ld)
+c
 c +++++++++ print-total-pardia-transferred +++ START
+      if (debug_gshift.eq.1) then
        if (ga_nodeid().eq.0) then
         ic=1
         do ix = 1, 3
@@ -5105,6 +5113,8 @@ c +++++++++ print-total-pardia-transferred +++ START
          enddo ! end-loop-iy
         enddo ! end-loop-ix
        endif ! ---- END-if-ga_nodeid-eq-0
+      end if ! debug_gshift
+c
 c ----- destroy created GA arrays in get_P10_JK ---- START
        if (.not.ga_destroy(g_d1_oo)) call 
      &  errquit('gprelim_fock: ga_destroy failed g_s10',0,GA_ERR)
