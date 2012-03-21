@@ -38,6 +38,9 @@
       double precision ehsic_stress(3,3)
       double precision excsic_stress(3,3)
       double precision hfx_stress(3,3)
+      double precision LJ_stress(3,3)
+      double precision Q_stress(3,3)
+      double precision spring_stress(3,3)
 
       double precision lattice(6)
       double precision lattice2(6)
@@ -56,6 +59,9 @@
       double precision ehsic_lstress(6)
       double precision excsic_lstress(6)
       double precision hfx_lstress(6)
+      double precision LJ_lstress(6)
+      double precision Q_lstress(6)
+      double precision spring_lstress(6)
 
       integer date_len
       character*40 date_string
@@ -99,6 +105,9 @@
       call dcopy(9,0.0d0,0,ehsic_stress,1)
       call dcopy(9,0.0d0,0,excsic_stress,1)
       call dcopy(9,0.0d0,0,hfx_stress,1)
+      call dcopy(9,0.0d0,0,LJ_stress,1)
+      call dcopy(9,0.0d0,0,Q_stress,1)
+      call dcopy(9,0.0d0,0,spring_stress,1)
 
       do j=1,3
       do i=1,3
@@ -161,6 +170,18 @@
      >        rtdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
       hfx_stress(i,j) = E
 
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
+      LJ_stress(i,j) = E
+
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
+      Q_stress(i,j) = E
+
+      value = value.and.
+     >        rtdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
+      spring_stress(i,j) = E
+
 *     *****************************
 *     **** - finite difference ****
 *     *****************************
@@ -209,6 +230,15 @@
       value = value.and.rtdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
       hfx_stress(i,j) = hfx_stress(i,j) - E
 
+      value = value.and.rtdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
+      LJ_stress(i,j) = LJ_stress(i,j) - E
+
+      value = value.and.rtdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
+      Q_stress(i,j) = Q_stress(i,j) - E
+
+      value = value.and.rtdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
+      spring_stress(i,j) = spring_stress(i,j) - E
+
       end do
       end do
       call dscal(9,(0.5d0/alpha),ke_stress,1)
@@ -220,6 +250,9 @@
       call dscal(9,(0.5d0/alpha),ehsic_stress,1)
       call dscal(9,(0.5d0/alpha),excsic_stress,1)
       call dscal(9,(0.5d0/alpha),hfx_stress,1)
+      call dscal(9,(0.5d0/alpha),LJ_stress,1)
+      call dscal(9,(0.5d0/alpha),Q_stress,1)
+      call dscal(9,(0.5d0/alpha),spring_stress,1)
 
       call write_stress(ke_stress,"ke FD")
       call write_stress(hartree_stress,"coulomb FD")
@@ -230,6 +263,9 @@
       call write_stress(ehsic_stress,"Eh SIC FD")
       call write_stress(excsic_stress,"Exc SIC FD")
       call write_stress(hfx_stress,"HFX FD")
+      call write_stress(LJ_stress,"LJ FD")
+      call write_stress(Q_stress,"Q FD")
+      call write_stress(spring_stress,"spring FD")
 
       call dcopy(9,ke_stress,1,stress,1)
       call daxpy(9,1.0d0,xc_stress,1,stress,1)
@@ -240,6 +276,9 @@
       call daxpy(9,1.0d0,ehsic_stress,1,stress,1)
       call daxpy(9,1.0d0,excsic_stress,1,stress,1)
       call daxpy(9,1.0d0,hfx_stress,1,stress,1)
+      call daxpy(9,1.0d0,LJ_stress,1,stress,1)
+      call daxpy(9,1.0d0,Q_stress,1,stress,1)
+      call daxpy(9,1.0d0,spring_stress,1,stress,1)
       call write_stress(stress,"TOTAL FD")
 
 *     **************************************
@@ -299,6 +338,15 @@
             value = value.and.
      >              rtdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
             hfx_lstress(i) = E
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
+            LJ_lstress(i) = E
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
+            Q_lstress(i) = E
+            value = value.and.
+     >              rtdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
+            spring_lstress(i) = E
 
 *           *****************************
 *           **** - finite difference ****
@@ -348,6 +396,15 @@
 
             value = value.and.rtdb_get(rtdb,'pspw:E_hfx',mt_dbl,1,E)
             hfx_lstress(i) = hfx_lstress(i) - E
+
+            value = value.and.rtdb_get(rtdb,'pspw:E_LJ',mt_dbl,1,E)
+            LJ_lstress(i) = LJ_lstress(i) - E
+
+            value = value.and.rtdb_get(rtdb,'pspw:E_Q',mt_dbl,1,E)
+            Q_lstress(i) = Q_lstress(i) - E
+
+            value = value.and.rtdb_get(rtdb,'pspw:E_spring',mt_dbl,1,E)
+            spring_lstress(i) = spring_lstress(i) - E
          end do
 
          call dscal(6,(0.5d0/alpha),ke_lstress,1)
@@ -359,6 +416,9 @@
          call dscal(6,(0.5d0/alpha),ehsic_lstress,1)
          call dscal(6,(0.5d0/alpha),excsic_lstress,1)
          call dscal(6,(0.5d0/alpha),hfx_lstress,1)
+         call dscal(6,(0.5d0/alpha),LJ_lstress,1)
+         call dscal(6,(0.5d0/alpha),Q_lstress,1)
+         call dscal(6,(0.5d0/alpha),spring_lstress,1)
 
          call write_lstress(ke_lstress,"ke FD")
          call write_lstress(hartree_lstress,"coulomb FD")
@@ -369,6 +429,9 @@
          call write_lstress(ehsic_lstress,"Eh SIC FD")
          call write_lstress(excsic_lstress,"Exc SIC FD")
          call write_lstress(hfx_lstress,"HFX FD")
+         call write_lstress(LJ_lstress,"LJ FD")
+         call write_lstress(Q_lstress,"Q FD")
+         call write_lstress(spring_lstress,"spring FD")
 
          call dcopy(6,ke_lstress,1,lstress,1)
          call daxpy(6,1.0d0,xc_lstress,1,lstress,1)
@@ -379,6 +442,9 @@
          call daxpy(6,1.0d0,ehsic_lstress,1,lstress,1)
          call daxpy(6,1.0d0,excsic_lstress,1,lstress,1)
          call daxpy(6,1.0d0,hfx_lstress,1,lstress,1)
+         call daxpy(6,1.0d0,LJ_lstress,1,lstress,1)
+         call daxpy(6,1.0d0,Q_lstress,1,lstress,1)
+         call daxpy(6,1.0d0,spring_lstress,1,lstress,1)
          call write_lstress(lstress,"TOTAL FD")
 
 *        **************************************
