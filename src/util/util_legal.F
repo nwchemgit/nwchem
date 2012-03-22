@@ -37,17 +37,16 @@ c
       character*80 chr01,chr02,chr03,chr04,chr05,chr06,chr07,chr08
       character*80 chr09,chr10,chr11,chr12,chr13,chr14
       data chr01/
-     +'E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straa
-     +tsma,'/
+     +'E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T.
+     + P. Straatsma,'/
       data chr02/
-     +'M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. H
-     +ammond,'/
+     +'M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus, J. Hammond,'/
       data chr03/
-     +'J. Autschbach, F. Aquino, J. Mullin, P. Nichols, S. Hirata, M. T.
-     + Hackler,'/
+     +'J. Autschbach, F. Aquino, S. Hirata, M. T. Hackler, J. Mullin, P.
+     + Nichols, '/
       data chr04/
-     +'Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupuis, D. M. A. Smith, K.
-     + Glaesemann,'/
+     +'R. Peverati, Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupuis, D. M.
+     + A. Smith,'/
       data chr05/
      +'J. Nieplocha, V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L
      +. Jensen,'/
@@ -70,8 +69,8 @@ c
      +'B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefiel
      +d,'/
       data chr12/
-     +'X. Long, B. Meng, T. Nakajima, S. Niu, R. Peverati, L. Pollack, M
-     +. Rosing,'/
+     +'X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. 
+     +Glaesemann,'/
       data chr13/
      +'G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,'/
       data chr14/
