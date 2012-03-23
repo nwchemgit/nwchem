@@ -35,6 +35,9 @@ c
       parameter(zero=0.d0,one=1.d0,onem=-1.d0)
       double precision tol2e, denmax1, denmax2, denmax
 c
+      logical chk_dens
+      external chk_dens
+c
       call ga_inquire(g_densso(1),type,nao,nao)
       nao=nao/2
 c
@@ -105,13 +108,10 @@ c
 c     Im(Kaa) and Im(Kbb) (g_dens(1) and g_dens(2))
 c
          call ga_dens_aabbi(g_dens, g_densso, nao)
-         denmax1 = 0.0d0
-         denmax2 = 0.0d0
-         denmax=0.0d0
-         call ga_maxelt(g_dens(1), denmax1)
-         call ga_maxelt(g_dens(2), denmax2)
-         denmax=max(denmax1,denmax2)
-         if(denmax.lt.1.0d-6)goto 1001
+c
+c        Check density
+         if (.not. chk_dens(rtdb, g_dens)) goto 1001
+c
          g_d(1)  = g_dens(1)
          g_d(2)  = g_dens(1)
          g_d(3)  = g_dens(2)
@@ -153,17 +153,16 @@ c     should be calculating Im(Kab) and Im(Kba) unless I am very
 c     mistaken.
 c     
          call ga_dens_abbar(g_dens, g_densso, nao)
-         denmax1 = 0.0d0
-         denmax2 = 0.0d0
-         denmax=0.0d0
-         call ga_maxelt(g_dens(1), denmax1)
-         call ga_maxelt(g_dens(2), denmax2)
-         denmax=max(denmax1,denmax2)
-         if(denmax.lt.1.0d-6)goto 1002
-         g_d(1)  = g_dens(1)
-         g_d(2)  = g_dens(1)
-         g_d(3)  = g_dens(2)
-         g_d(4)  = g_dens(2)
+c
+c        Check density
+         if (.not. chk_dens(rtdb, g_dens)) goto 1002
+c
+c        Note: Pba and Pab are swapped
+         g_d(1)  = g_dens(2)
+         g_d(2)  = g_dens(2)
+         g_d(3)  = g_dens(1)
+         g_d(4)  = g_dens(1)
+c
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
          call ga_transpose(g_jk(4),g_jk(1))
@@ -203,17 +202,16 @@ c
 c     Im(Kab) and Im(Kba) (g_dens(1) and g_dens(2))
 c
          call ga_dens_abbai(g_dens, g_densso, nao)
-         denmax1 = 0.0d0
-         denmax2 = 0.0d0
-         denmax=0.0d0
-         call ga_maxelt(g_dens(1), denmax1)
-         call ga_maxelt(g_dens(2), denmax2)
-         denmax=max(denmax1,denmax2)
-         if(denmax.lt.1.0d-6)goto 1003
-         g_d(1)  = g_dens(1)
-         g_d(2)  = g_dens(1)
-         g_d(3)  = g_dens(2)
-         g_d(4)  = g_dens(2)
+c
+c        Check density
+         if (.not. chk_dens(rtdb, g_dens)) goto 1003
+c
+c        Note: Pba and Pab are swapped
+         g_d(1)  = g_dens(2)
+         g_d(2)  = g_dens(2)
+         g_d(3)  = g_dens(1)
+         g_d(4)  = g_dens(1)
+c
          call fock_2e(geom, AO_bas_han, 4, jfac, kfac,
      &        tol2e, oskel, g_d(1), g_jk(1), .true.)
 c
