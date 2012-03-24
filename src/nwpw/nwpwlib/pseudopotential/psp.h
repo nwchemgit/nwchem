@@ -44,6 +44,11 @@ extern int      Vanderbilt_Psp();
 extern int      NormConserving_Psp();
 extern char     *comment_Psp();
 
+extern int      n_extra_Psp();
+extern int      n_expansion_Psp(int);
+extern double   *r_psi_extra_Psp(int );
+
+
 /* used for setting solver parameters */
 extern void	set_Solver_Psp();
 

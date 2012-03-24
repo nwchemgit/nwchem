@@ -30,6 +30,8 @@ static	int	Nvalence;
 static  int     npsp_states;
 static	int	*n;
 static	int	*l;
+static  int	n_extra;
+static	int	*n_expansion;
 static	int	lmax;
 static 	double	*fill;
 static 	double	*rcut;
@@ -44,6 +46,8 @@ static	double	Total_E,
 static	double  *eigenvalue;
 static	double	**r_psi;
 static	double	**r_psi_prime;
+static	double	**r_psi_extra;
+static	double	**r_psi_prime_extra;
 static  double  *rho;
 static  double  *rho_semicore;
 static  double  *drho_semicore;
@@ -149,11 +153,14 @@ void	init_Psp(char *filename)
    /* allocate memory for n,l,fill,rcut,peak, and eigenvalue */
    n    	 = (int *)    malloc((npsp_states)*sizeof(int));
    l    	 = (int *)    malloc((npsp_states)*sizeof(int));
+   n_expansion 	 = (int *)    malloc((npsp_states)*sizeof(int));
    fill 	 = (double *) malloc((npsp_states)*sizeof(double));
    rcut 	 = (double *) malloc((npsp_states)*sizeof(double));
    peak 	 = (double *) malloc((npsp_states)*sizeof(double));
    eigenvalue = (double *) malloc((npsp_states)*sizeof(double));
 
+   for (p=0; p<npsp_states; ++p)
+      n_expansion[p] = 1;
    
    /* allocate memory for r_psi, V_psp, and rho */ 
    r_psi       = (double **) malloc((npsp_states)*sizeof(double*));
@@ -333,6 +340,29 @@ void	init_Psp(char *filename)
       }
       fclose(fp);
 
+
+      /* get n_expansion */
+      fp = fopen(filename,"r+");
+      w = get_word(fp);
+      while ((w!=NIL) && (strcmp("<n_expansion>",w)!=0))
+         w = get_word(fp);
+
+      if (w!=NIL)
+      {
+         w = get_word(fp);
+         while ((w!=NIL) && (strcmp("<end>",w) != 0))
+         {
+            sscanf(w,"%d", &ltmp);
+            w = get_word(fp);
+            sscanf(w,"%d", &p1);
+            w = get_word(fp);
+            n_expansion[ltmp] = p1;
+         }
+      }
+      fclose(fp);
+
+
+
       /* get ecut */
       fp = fopen(filename,"r+");
       w = get_word(fp);
@@ -416,6 +446,22 @@ void	init_Psp(char *filename)
       Zion -= fill_Atom(p);
 
 
+   /* define n_extra and .... */
+   n_extra = 0;
+   for (p=0; p<npsp_states; ++p)
+      n_extra += (n_expansion[l[p]] - 1);
+   if (n_extra>0)
+   {
+      r_psi_extra       = (double **) malloc((n_extra)*sizeof(double*));
+      r_psi_prime_extra = (double **) malloc((n_extra)*sizeof(double*));
+      for (p=0; p<n_extra; ++p)
+      {
+         r_psi_extra[p]       = alloc_LogGrid();
+         r_psi_prime_extra[p] = alloc_LogGrid();
+      }
+   }
+
+
 
    
 } /* init_Psp */
@@ -451,7 +497,8 @@ void	solve_Psp()
 		&Total_E,
 		&E_Hartree,&P_Hartree,
 		&E_exchange,&P_exchange,
-		&E_correlation,&P_correlation);
+		&E_correlation,&P_correlation,
+                n_expansion,r_psi_extra,r_psi_prime_extra);
    else if (Solver_Type == Vanderbilt)
       solve_Vanderbilt(Nvalence,n,l,eigenvalue,fill,rcut,rlocal,clocal,
                 ns,indx_il,indx_ijl,
@@ -692,6 +739,11 @@ double	*r_psi_Psp(int i)
    return r_psi[i];
 }
 
+double	*r_psi_extra_Psp(int i)
+{
+   return r_psi_extra[i];
+}
+
 int n_Psp(int i)
 {
    return n[i];
@@ -717,6 +769,18 @@ int	Nvalence_Psp()
 {
    return Nvalence;
 }
+
+
+int   n_extra_Psp()
+{
+   return n_extra;
+}
+
+int   n_expansion_Psp(int i)
+{
+   return n_expansion[i];
+}
+
 
 double	peak_Psp(int i)
 {

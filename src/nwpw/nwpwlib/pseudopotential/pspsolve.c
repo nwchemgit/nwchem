@@ -72,9 +72,9 @@ void FATR pspsolve_
 
 #endif
 
-  int i, j, k, l, p, Nlinear, Nvalence,Ncore,istate,mch;
+  int i, j, k, l, p, Nlinear, Nvalence,Ncore,istate,mch,n_extra;
   int debug, print;
-  double *rl, *rhol, **psil_ae,**psil, **pspl;
+  double *rl, *rhol, **psil_ae,**psil, **psil_extra, **pspl;
   double over_fourpi, c, x, y,nu0;
   int Ngrid;
   double *vall, *rgrid;
@@ -185,6 +185,19 @@ void FATR pspsolve_
 	}
       Log_to_Linear(rho_Psp(), rl, rhol);
 
+      n_extra = n_extra_Psp();
+      printf("n_extra=%d\n",n_extra);
+      if (n_extra>0)
+      {
+         psil_extra = (double **) malloc(n_extra*sizeof(double*));
+         for (p=0; p<n_extra; ++p)
+         {
+            psil_extra[p] = (double *) malloc(Nlinear*sizeof(double));
+            Log_to_Linear(r_psi_extra_Psp(p),rl,psil_extra[p]);
+         }
+      }
+
+
       if (debug)
 	{
 	  /* output pseudowavefunctions argv[1].psw */
@@ -204,6 +217,9 @@ void FATR pspsolve_
 	      fprintf(fp, "%12.8lf", rl[k]);
 	      for (p = 0; p < Nvalence; ++p)
 		fprintf(fp, " %12.8lf", psil[p][k]);
+              for (p=0; p<n_extra; ++p)
+                 fprintf(fp," %12.8lf", psil_extra[p][k]);
+
 	      fprintf(fp, "\n");
 	    }
 	  fclose(fp);
@@ -256,7 +272,10 @@ void FATR pspsolve_
 		  outfile);
 	}
       fp = fopen(outfile, "w+");
-      if (efg_type) fprintf(fp, "9\n");
+      if (efg_type && n_extra) 
+         fprintf(fp, "99\n");
+      else if (efg_type) fprintf(fp, "9\n");
+      else if (n_extra)  fprintf(fp, "-9\n");
       fprintf(fp, "%s\n", name_Atom());
 
       fprintf(fp, "%lf %lf %d   %d %d %lf\n", Zion_Psp(), Amass_Atom(),
@@ -264,8 +283,16 @@ void FATR pspsolve_
       for (p = 0; p <= lmax_Psp(); ++p)
 	fprintf(fp, "%lf ", rcut_Psp(p));
       fprintf(fp, "\n");
+      if (n_extra)
+      {
+         fprintf(fp, "%d\n", n_extra);
+         for (p = 0; p <= lmax_Psp(); ++p)
+            fprintf(fp, "%d ", n_expansion_Psp(p));
+         fprintf(fp, "\n");
+      }
       fprintf(fp, "%d %lf\n", nrl_Linear(), drl_Linear());
       fprintf(fp, "%s\n", comment_Psp());
+       
 
       if (print)
 	{
@@ -289,6 +316,8 @@ void FATR pspsolve_
 	  fprintf(fp, "%12.8lf", rl[k]);
 	  for (p = 0; p <= lmax_Psp(); ++p)
 	    fprintf(fp, " %12.8lf", psil[p][k]);
+	  for (p = 0; p<n_extra; ++p)
+	    fprintf(fp, " %12.8lf", psil_extra[p][k]);
 
           if (efg_type)
           {

@@ -157,7 +157,9 @@ void	solve_Troullier(num_psp,n_psp,l_psp,e_psp,fill_psp,rcut_psp,
                      eall_psp,
                      eh_psp,ph_psp,
                      ex_psp,px_psp,
-                     ec_psp,pc_psp)
+                     ec_psp,pc_psp,
+                     n_expansion,r_psi_extra,r_psi_prime_extra)
+
 
 int	num_psp;
 int	n_psp[];
@@ -177,6 +179,10 @@ double	*ex_psp;
 double	*px_psp;
 double	*ec_psp;
 double	*pc_psp;
+int     n_expansion[];
+double  **r_psi_extra;
+double  **r_psi_prime_extra;
+
 {
     int 		istate,
     i,l,k,
@@ -343,6 +349,28 @@ double	*pc_psp;
 
 
     } /* for l */
+
+   /* solve for other states */
+   if (debug_print)
+   {
+      printf("\n\nTroullier pseudopotential extra states\n\n");
+      printf("l\tn\tE psp\n");
+   }
+   i = 0;
+   for (l=0; l<num_psp; ++l)
+   {
+      Vl = V_psp[l];
+      el = e_psp[l]+0.1;
+      for (k=0; k<(n_expansion[l_psp[l]]-1); ++k)
+      {
+         wl       = r_psi_extra[i];
+         wl_prime = r_psi_prime_extra[i];
+         R_Schrodinger(l_psp[l]+2+k,l_psp[l],Vl,&mch,&el,wl,wl_prime);
+         ++i;
+         if (debug_print) printf("%d\t%d\t%lf\n",l_psp[l],l_psp[l]+2+k,el);
+      }
+   }
+
 
 
     /***************************************/
