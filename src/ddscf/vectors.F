@@ -413,8 +413,9 @@ c
 c
 c     Information about convergence
 c
-         write(unitno, err=1001) basissum, geomsum, bqsum, scftype20,
-     $                           date
+c      write(unitno, err=1001) basissum, geomsum, bqsum, scftype20,
+c     $                           date
+       write(unitno, err=1001) basissum, geomsum, scftype20, date
 c
 c     Check that read routines are both consistent with this
 c
@@ -908,9 +909,11 @@ c
       if (ga_nodeid() .eq. 0) then
          open(unitno, status='old', form='unformatted',
      $        file=filename, err=1000)
+c         read(unitno, end=1001, err=1001)
+c     $        filebasissum, filegeomsum, filebqsum, filescftype,
+c     $        filedate
          read(unitno, end=1001, err=1001)
-     $        filebasissum, filegeomsum, filebqsum, filescftype,
-     $        filedate
+     $     filebasissum, filegeomsum, filescftype, filedate
          close(unitno, err=1002)
 c     
 c     a)
@@ -944,8 +947,9 @@ c
               bqsum = ' '
            endif
          endif
-         if (basissum.ne.filebasissum .or. geomsum.ne.filegeomsum .or.
-     $       bqsum.ne.filebqsum) 
+c         if (basissum.ne.filebasissum .or. geomsum.ne.filegeomsum .or.
+c     $       bqsum.ne.filebqsum) 
+         if (basissum.ne.filebasissum .or. geomsum.ne.filegeomsum) 
      $        goto 10
 c     
 c     Cool ... it is converged!
