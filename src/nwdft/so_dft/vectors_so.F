@@ -286,6 +286,7 @@ c
 #include "bas.fh"
 #include "geom.fh"
 #include "rtdb.fh"
+#include "bq.fh"
 c
 c     Temporary routine
 c
@@ -301,13 +302,14 @@ c
 c
       integer unitno            ! Unit no. for writing
       parameter (unitno = 67)   ! These need to be managed !!!
+      integer bq_handle         ! Handle of the BQ fragment
       integer lentit
       integer lenbas
       integer l_vecs, k_vecs
       integer ok, iset, i, j
       integer geom, ma_type, nelem
       character*26 date
-      character*32 geomsum, basissum, key
+      character*32 geomsum, basissum, bqsum, key
       character*20 scftype20    ! DECL MUST match movecs_converged routine
       character*128 basis_name, trans_name
 c
@@ -326,6 +328,13 @@ c
          if (.not. bas_name(basis, basis_name, trans_name))
      $        call errquit('movecs_write_so: bad basis',0, BASIS_ERR)
          if (trans_name .ne. ' ') basis_name = trans_name
+         if (.not. bq_get_active(bq_handle)) then
+              bqsum = ' '
+         else
+           if (.not. bq_namespace(bq_handle,bqsum)) then
+              bqsum = ' '
+           endif
+         endif
 c         
          key = ' '
          write(key,'(a,'':converged'')') scftype(1:inp_strlen(scftype))
@@ -334,6 +343,7 @@ c
       else
          basissum = ' '
          geomsum  = ' '
+         bqsum    = ' '
          date     = ' '
       endif
       scftype20 = scftype
@@ -344,11 +354,12 @@ c
          open(unitno, status='unknown', form='unformatted',
      $        file=filename, err=1000)
 c
-c     Information about convergence
+c        Information about convergence
 c
-         write(unitno, err=1001) basissum, geomsum, scftype20, date
+         write(unitno, err=1001) basissum, geomsum, bqsum, scftype20,
+     $                           date
 c
-c     Check that read routines are both consistent with this
+c        Check that read routines are both consistent with this
 c
          write(unitno, err=1001) scftype20
          lentit = max(1,inp_strlen(title)) ! 0 length record confuses f2c

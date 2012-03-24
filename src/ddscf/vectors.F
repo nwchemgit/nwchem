@@ -384,6 +384,7 @@ c
       else
          basissum = ' '
          geomsum  = ' '
+         bqsum = ' '
          date     = ' '
       endif
       scftype20 = scftype
@@ -411,13 +412,12 @@ c
          open(unitno, status='unknown', form='unformatted',
      $        file=filename, err=1000)
 c
-c     Information about convergence
+c        Information about convergence
 c
-c      write(unitno, err=1001) basissum, geomsum, bqsum, scftype20,
-c     $                           date
-       write(unitno, err=1001) basissum, geomsum, scftype20, date
+         write(unitno, err=1001) basissum, geomsum, bqsum, scftype20,
+     $                           date
 c
-c     Check that read routines are both consistent with this
+c        Check that read routines are both consistent with this
 c
          write(unitno, err=1001) scftype20
          lentit = max(1,inp_strlen(title)) ! 0 length record confuses f2c
@@ -909,11 +909,24 @@ c
       if (ga_nodeid() .eq. 0) then
          open(unitno, status='old', form='unformatted',
      $        file=filename, err=1000)
-c         read(unitno, end=1001, err=1001)
-c     $        filebasissum, filegeomsum, filebqsum, filescftype,
-c     $        filedate
+         read(unitno, end=1001, err=2001)
+     $        filebasissum, filegeomsum, filebqsum, filescftype,
+     $        filedate
+         goto 3001
+c
+c        If the previous read statement failed we may have a movecs
+c        file from an old version of the code. So try reading the 
+c        old format (but this means that the vectors cannot be
+c        considered as converged). Non-convergence of the vectors
+c        is detected from the filebqsum value which we set to something
+c        unusual so it will not match anything obvious.
+c
+ 2001    continue
+         filebqsum = "HuubvanDam_hack"
+         rewind(unitno, err=1001)
          read(unitno, end=1001, err=1001)
      $     filebasissum, filegeomsum, filescftype, filedate
+ 3001    continue
          close(unitno, err=1002)
 c     
 c     a)
@@ -947,9 +960,8 @@ c
               bqsum = ' '
            endif
          endif
-c         if (basissum.ne.filebasissum .or. geomsum.ne.filegeomsum .or.
-c     $       bqsum.ne.filebqsum) 
-         if (basissum.ne.filebasissum .or. geomsum.ne.filegeomsum) 
+         if (basissum.ne.filebasissum .or. geomsum.ne.filegeomsum .or.
+     $       bqsum.ne.filebqsum) 
      $        goto 10
 c     
 c     Cool ... it is converged!
