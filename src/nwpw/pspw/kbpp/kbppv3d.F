@@ -39,7 +39,7 @@
       integer rho_indx,vp_indx,wp_indx,up_indx,sc_r_indx,sc_k_indx
       integer rho_hndl,vp_hndl,wp_hndl,up_hndl,sc_r_hndl,sc_k_hndl
 
-      integer          isemicore,ihasae
+      integer          isemicore,ihasae,n_extra,n_expansion(0:9)
       logical          semicore
       double precision rcore,core_charge
 
@@ -96,8 +96,9 @@ c      call Parallel_Init()
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
       read(11,12,ERR=14,END=14) ihasae
-      write(*,*) "File contains ae orbitals, ihasae=",ihasae
-   12 format(i1)
+      if (ihasae.ne.(-9)) 
+     >   write(*,*) "File contains ae orbitals, ihasae=",ihasae
+   12 format(i2)
       goto 15
    14 ihasae = 0
       close(unit=11)
@@ -108,6 +109,10 @@ c      call Parallel_Init()
       read(11,'(A2)',ERR=9999,END=9999) atom
       read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
+      if (ihasae.eq.(-9)) then
+         read(11,*,ERR=9999,END=9999) n_extra
+         read(11,*,ERR=9999,END=9999) (n_expansion(i),i=0,lmax0)
+      end if
       read(11,*,ERR=9999,END=9999) nrho,drho
       read(11,'(A)',ERR=9999,END=9999) comment
       end if
@@ -529,11 +534,13 @@ c      call Parallel_Init()
 
 *     **** local variables ****
       integer li,lj,i
-      real*8  coeff
+      real*8  coeff,fourpi
 
 *     **** external functions ****
       real*8   simp
       external simp
+
+      fourpi = 16.0d0*datan(1.0d0)
 
       call dcopy((lmax+1)**2,0.0d0,0,r3_matrix,1)
       do lj=0,lmax
@@ -544,13 +551,51 @@ c      call Parallel_Init()
                   f(i) = (up(i,li)*up(i,lj)-wp(i,li)*wp(i,lj))
      >                   /(rho(i)**3)
                end do
-               coeff = simp(nrho,f,drho)
+               coeff = fourpi*simp(nrho,f,drho)
                r3_matrix(li,lj) = coeff
                if (li.ne.lj) r3_matrix(lj,li) = coeff
 
             end if
          end do
       end do
+
+      write(*,*) "r3_matrix kbppv3d:"
+      do li=0,lmax
+         write(*,*) (r3_matrix(li,lj),lj=0,lmax)
+      end do
+
+      write(*,*)
+      write(*,*) "norm check"
+      do i=1,nrho
+         f(i) = (up(i,0)*up(i,0))
+      end do
+      coeff = simp(nrho,f,drho)
+      write(*,*) "<u(s)|u(s)> = ",coeff
+      do i=1,nrho
+         f(i) = (wp(i,0)*wp(i,0))
+      end do
+      coeff = simp(nrho,f,drho)
+      write(*,*) "<w(s)|w(s)> = ",coeff
+      do i=1,nrho
+         f(i) = (up(i,1)*up(i,1))
+      end do
+      coeff = simp(nrho,f,drho)
+      write(*,*) "<u(p)|u(p)> = ",coeff
+      do i=1,nrho
+         f(i) = (wp(i,1)*wp(i,1))
+      end do
+      coeff = simp(nrho,f,drho)
+      write(*,*) "<w(p)|w(p)> = ",coeff
+      do i=1,nrho
+         f(i) = (up(i,2)*up(i,2))
+      end do
+      coeff = simp(nrho,f,drho)
+      write(*,*) "<u(d)|u(d)> = ",coeff
+      do i=1,nrho
+         f(i) = (wp(i,2)*wp(i,2))
+      end do
+      coeff = simp(nrho,f,drho)
+      write(*,*) "<w(d)|w(d)> = ",coeff
 
       return
       end
