@@ -99,9 +99,9 @@ cxxxxxxxxxxxxxxxxxxxxx
      2               k_t1_offset,k_t2_offset,k_v2_offset,
      3               size_t1,size_t2,d_c2,iter)
            call deletefile(d_c2)
-           call ccsd_t2(d_f1,d_r2,k_t1_local,d_t2,d_v2,
-     1                  k_f1_offset,k_t2_offset,
-     2               k_t1_offset,k_t2_offset,k_v2_offset,size_t2)
+ccx           call ccsd_t2(d_f1,d_r2,k_t1_local,d_t2,d_v2,
+ccx     1                  k_f1_offset,k_t2_offset,
+ccx     2               k_t1_offset,k_t2_offset,k_v2_offset,size_t2)
            else
            call ccsd_t2(d_f1,d_r2,k_t1_local,d_t2,d_v2,
      1                  k_f1_offset,k_t2_offset,
