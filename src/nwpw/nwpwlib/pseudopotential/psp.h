@@ -44,8 +44,8 @@ extern int      Vanderbilt_Psp();
 extern int      NormConserving_Psp();
 extern char     *comment_Psp();
 
-extern int      n_extra_Psp();
-extern int      n_expansion_Psp(int);
+extern int      kb_extra_Psp();
+extern int      kb_expansion_Psp(int);
 extern double   *r_psi_extra_Psp(int );
 
 

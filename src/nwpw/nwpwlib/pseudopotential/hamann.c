@@ -165,7 +165,8 @@ void	solve_Hamann(num_psp,n_psp,l_psp,e_psp,fill_psp,rcut_psp,
                   eall_psp,
                   eh_psp,ph_psp,
                   ex_psp,px_psp,
-                  ec_psp,pc_psp)
+                  ec_psp,pc_psp,
+                  kb_expansion,r_psi_extra,r_psi_prime_extra)
 
 int	num_psp;
 int	n_psp[];
@@ -185,6 +186,9 @@ double	*ex_psp;
 double	*px_psp;
 double	*ec_psp;
 double	*pc_psp;
+int     kb_expansion[];
+double  **r_psi_extra;
+double  **r_psi_prime_extra;
 {
     int 		iteration,
     converged,
@@ -406,6 +410,28 @@ double	*pc_psp;
         }
 
     } /* for p */
+
+   /* solve for other states */
+   if (debug_print())
+   {
+      printf("\n\nHamann pseudopotential extra states\n\n");
+      printf("l\tn\tE psp\n");
+   }
+   i = 0;
+   for (p=0; p<num_psp; ++p)
+   {
+      V1l = V_psp[p];
+      e1l = e_psp[p]+0.1;
+      for (k=0; k<(kb_expansion[l_psp[p]]-1); ++k)
+      {
+         w1l       = r_psi_extra[i];
+         w1l_prime = r_psi_prime_extra[i];
+         R_Schrodinger(l_psp[p]+2+k,l_psp[p],V1l,&mch,&e1l,w1l,w1l_prime);
+         ++i;
+         if (debug_print()) printf("%d\t%d\t%lf\n",l_psp[p],l_psp[p]+2+k,e1l);
+      }
+   }
+
 
 
     /***************************************************/
