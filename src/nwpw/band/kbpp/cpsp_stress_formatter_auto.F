@@ -34,11 +34,11 @@ c
       integer      control_version
       integer      control_ngrid,brillioun_nbrillioun
       real*8       control_unita,brillioun_all_k
-      logical      kbpp_band_stress, nwpw_filefind
+      logical      kbpp_band_stress, nwpw_filefind,kbpp_e_band_stress
       external     control_version
       external     control_ngrid,brillioun_nbrillioun
       external     control_unita,brillioun_all_k
-      external     kbpp_band_stress, nwpw_filefind
+      external     kbpp_band_stress, nwpw_filefind,kbpp_e_band_stress
 
       value  = .true.
 
@@ -93,6 +93,13 @@ c
       else if (psp_type.eq.1) then
         call errquit('cpsp_stress_formatter_auto: unknown psp_type',
      >              psp_type,INPUT_ERR)
+
+      else if (psp_type.eq.2) then
+      value = value.and.
+     >       kbpp_e_band_stress(.false.,
+     >              version,psp_filename,formatted_filename,ngrid,unita,
+     >              locp,lmax,
+     >              nbrillioun,dbl_mb(kv(1)))
 
       else if (psp_type.eq.7) then
         call errquit('cpsp_stress_formatter_auto: unknown psp_type',

@@ -29,11 +29,12 @@
       integer      control_ngrid, brillioun_nbrillioun
       real*8       control_unita, brillioun_all_k
       logical      kbpp_band,nwpw_filefind,hghpp_band,rkbpp_band
+      logical      kbpp_e_band
       external     control_version
       external     control_ngrid, brillioun_nbrillioun
       external     control_unita, brillioun_all_k
       external     kbpp_band,nwpw_filefind,hghpp_band
-      external     rkbpp_band
+      external     rkbpp_band,kbpp_e_band
       value  = .true.
 
 *     **** get lmax,locp,and rlocal from psp library ****
@@ -101,6 +102,14 @@ c      call flush(6)
      >            nbrillioun,dbl_mb(kv(1)))
          goto 50
       end if         
+      if (psp_type.eq.2) then
+         value = value.and.
+     >     kbpp_e_band(.false.,
+     >            version,psp_filename,formatted_filename,ngrid,unita,
+     >            locp,lmax,
+     >            nbrillioun,dbl_mb(kv(1)))
+         goto 50
+      end if
       if (psp_type.eq.7) then
          value = value.and.
      >     rkbpp_band(.false.,
