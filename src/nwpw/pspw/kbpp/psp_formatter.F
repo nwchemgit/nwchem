@@ -155,11 +155,11 @@ c
       integer      control_version
       integer      control_ngrid
       real*8       control_unita
-      logical      kbppv3d,hghppv1,pawppv1,nwpw_filefind
+      logical      kbppv3d,kbppv3e,hghppv1,pawppv1,nwpw_filefind
       external     control_version
       external     control_ngrid
       external     control_unita
-      external     kbppv3d,hghppv1,pawppv1,nwpw_filefind
+      external     kbppv3d,kbppv3e,hghppv1,pawppv1,nwpw_filefind
 
 
 *     **** get lmax,locp,and rlocal from psp library ****
@@ -195,7 +195,7 @@ c
 
       call get_psp_type(psp_filename,psp_type)
 
-      if ((psp_type.eq.0).or.(psp_type.eq.9).or.(psp_type.eq.99)) then
+      if ((psp_type.eq.0).or.(psp_type.eq.9)) then
          value = kbppv3d(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            locp,lmax,rlocal)
@@ -203,6 +203,10 @@ c
          value = hghppv1(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
      >            rlocal)
+      else if (psp_type.eq.2) then
+         value = kbppv3e(.false.,
+     >            version,psp_filename,formatted_filename,ngrid,unita,
+     >            locp,lmax,rlocal)
       else if (psp_type.eq.4) then
          value = pawppv1(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,

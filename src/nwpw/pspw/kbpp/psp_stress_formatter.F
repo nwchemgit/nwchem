@@ -153,7 +153,7 @@ c
 
 *     ***** local variables *****
       logical       value
-      integer       i,j,l
+      integer       i,j,l,psp_type
       integer	    locp,lmax
       character*50  psp_filename,formatted_filename
       character*5   element
@@ -167,11 +167,11 @@ c
       integer      control_version
       integer      control_ngrid
       real*8       control_unita
-      logical      kbppv3d_stress, nwpw_filefind
+      logical      kbppv3d_stress,nwpw_filefind,kbppv3e_stress
       external     control_version
       external     control_ngrid
       external     control_unita
-      external     kbppv3d_stress, nwpw_filefind
+      external     kbppv3d_stress,nwpw_filefind,kbppv3e_stress
 
       value  = .true.
 
@@ -206,11 +206,21 @@ c
          end do
       end do
 
+
+
       if (version .eq.3) then
-        value = value.and.
-     >       kbppv3d_stress(.false.,
+         call get_psp_type(psp_filename,psp_type)
+         if (psp_type.eq.2) then
+            value = value.and.
+     >              kbppv3e_stress(.false.,
      >              version,psp_filename,formatted_filename,ngrid,unita,
      >              locp,lmax,rlocal)
+         else
+            value = value.and.
+     >              kbppv3d_stress(.false.,
+     >              version,psp_filename,formatted_filename,ngrid,unita,
+     >              locp,lmax,rlocal)
+         end if
       else
         write(*,*) 
      >  "Only periodic boundary conditions appropriate for stress."

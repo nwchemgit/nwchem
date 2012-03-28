@@ -99,10 +99,11 @@ c     parameter (c6=0.00004306380d0)
       do l=0,lmax
         if (l.ne.locp) then
           do i=1,nrho
-            f(I)=vp(I,L)*wp(I,L)**2
+            f(i)=vp(i,l)*wp(i,l)**2
           end do   
           a=simp(nrho,f,drho)
           vnlnrm(l) = (1.0d0/a)
+          write(*,*) "vnlnrm=",a,vnlnrm(l)
         else
           vnlnrm(l) = 0.0d0
         end if

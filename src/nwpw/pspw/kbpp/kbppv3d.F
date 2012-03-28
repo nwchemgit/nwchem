@@ -39,7 +39,7 @@
       integer rho_indx,vp_indx,wp_indx,up_indx,sc_r_indx,sc_k_indx
       integer rho_hndl,vp_hndl,wp_hndl,up_hndl,sc_r_hndl,sc_k_hndl
 
-      integer          isemicore,ihasae,n_extra,n_expansion(0:9)
+      integer          isemicore,ihasae
       logical          semicore
       double precision rcore,core_charge
 
@@ -96,8 +96,7 @@ c      call Parallel_Init()
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
       read(11,12,ERR=14,END=14) ihasae
-      if (ihasae.ne.(-9)) 
-     >   write(*,*) "File contains ae orbitals, ihasae=",ihasae
+      write(*,*) "File contains ae orbitals, ihasae=",ihasae
    12 format(i2)
       goto 15
    14 ihasae = 0
@@ -109,10 +108,6 @@ c      call Parallel_Init()
       read(11,'(A2)',ERR=9999,END=9999) atom
       read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
       read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
-      if (ihasae.eq.(-9)) then
-         read(11,*,ERR=9999,END=9999) n_extra
-         read(11,*,ERR=9999,END=9999) (n_expansion(i),i=0,lmax0)
-      end if
       read(11,*,ERR=9999,END=9999) nrho,drho
       read(11,'(A)',ERR=9999,END=9999) comment
       end if
