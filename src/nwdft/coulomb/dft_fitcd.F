@@ -7,7 +7,6 @@
 * $Id$
 *
       implicit none
-c
 #include "errquit.fh"
 c
 #include "bas.fh"
@@ -568,6 +567,7 @@ c
 #else
        call dcopy(nbf_cd,0.D0,0,dbl_mb(iTcgtf),1)
 c
+      call ga_sync()
       call  ga_distribution(g_cdinv,me,ilo,ihi,jlo,jhi)
       if (ilo.gt.0) then
       call ga_access(g_cdinv, ilo, ihi, jlo, jhi, adrc, ldc)
@@ -585,7 +585,7 @@ c
       call ga_release(g_cdinv, ilo, ihi, jlo, jhi)
       endif
 #endif
-cedo      call ga_sync
+      call ga_sync
       call ga_dgop(Msg_CD_coef,CD_coef,nbf_cd*nfit,'+')
 c!!! What Msg should be here? !!!
       call ga_dgop(Msg_Tcgtf,dbl_mb(iTcgtf),nbf_cd,'+')

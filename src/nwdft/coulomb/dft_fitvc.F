@@ -4,7 +4,6 @@
      &                     dermat, nmat, do_init)
 c     $Id$
       implicit none
-c
 #include "errquit.fh"
 c      
 #include "bas.fh"
@@ -241,12 +240,11 @@ c
               if(dermat) then
                  call errquit('fitvc: not coded yet',0,0)
               else
-                 if(ifirstd.ne.ifirstc)
-     S            call dscal(nshbfc*nshbfd, 2d0, dbl_mb(isvec), 1)
-                 call ga_put(g_vc,
-     *                ifirstd,ilastd,
-     *                ifirstc,ilastc,
-     *                dbl_mb(isvec),nshbfd)
+                 call sca_lab_mat(AO_bas_han,ishc,ishd,
+     &                nshbfc,nshbfd,g_vc,
+!old     &                DBL_MB(isvec+(imat-1)*Nao2),dbl_mb(isvec2),
+     &                DBL_MB(isvec),dbl_mb(isvec2),
+     .                'put')
               endif
 c
             endif
@@ -412,12 +410,10 @@ c
      &                DBL_MB(isvec),dbl_mb(isvec2),
      .                'put')
               else
-                 if(ifirstd.ne.ifirstc)
-     S                call dscal(nshbfc*nshbfd, 2d0, dbl_mb(isvec), 1)
-                 call ga_put(g_vc,
-     *                ifirstd,ilastd,
-     *                ifirstc,ilastc,
-     *                dbl_mb(isvec),nshbfd)
+                    call sca_lab_mat(AO_bas_han,ishc,ishd,
+     &                   nshbfc,nshbfd,g_vc,
+     &                   DBL_MB(isvec),dbl_mb(isvec2),
+     .                   'put')
               endif
             endif
 c            
@@ -448,7 +444,6 @@ c
 c
 c
       n1 = nxtask(-nproc,icount)
-      call ga_symmetrize(g_vc)
 c      
       if(.not.ma_pop_stack(lcd_shell))
      &  call errquit('dft_fitvc: cannot pop stack',0,0)
@@ -471,6 +466,7 @@ c     !!! Should modify this so that nothing is done if nmat > 1
 c     !!! Looks like g_2ceri not needed in that case
 c
       Ecoul2=0.D0
+      call ga_sync()
       call  ga_distribution(g_2ceri,me,ilo,ihi,jlo,jhi)
       if (ilo.gt.0) then
       call ga_access(g_2ceri, ilo, ihi, jlo, jhi, adrc, ldc)
@@ -487,7 +483,7 @@ c
       Ecoul2=Ecoul2*0.5D0
 c
 c         write(*,*)'*** After destroy g_2ceri'
-c      call ga_sync
+      call ga_sync
       call ga_dgop(Msg_Ecoul2,Ecoul2,1,'+')
       if (IOLGC)then
          if (.not. ga_destroy(g_2ceri)) call errquit
