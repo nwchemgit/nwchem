@@ -270,6 +270,7 @@ c DFT-D3
 c
       else if (ivdw.eq.3) then
          do i=1,n-1
+            if(z(i).ne.0) then
             do j=i+1,n
                rij=dsqrt(
      +            (x(1,i)-x(1,j))**2 +
@@ -284,6 +285,7 @@ c
                e8=e8-c8*fdmp3(rij,r0AB(z(i),z(j))*sr8,alpha+2.0d0)*
      *            (rij)**(-8.0d0)
             enddo
+            endif
          enddo
          xc_vdw_e=e6*s6+e8*s8
       endif
