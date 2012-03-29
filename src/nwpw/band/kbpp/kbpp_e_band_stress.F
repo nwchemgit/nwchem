@@ -147,7 +147,7 @@ c      call Parallel_init()
      >                         dbl_mb(rho_indx),
      >                         dbl_mb(vp_indx),
      >                         dbl_mb(wp_indx))
-      call read_semicore(11,isemicore,rcore,nrho,dbl_mb(sc_r_indx))
+      call read_semicore_band(11,isemicore,rcore,nrho,dbl_mb(sc_r_indx))
       close(11)
       end if
 

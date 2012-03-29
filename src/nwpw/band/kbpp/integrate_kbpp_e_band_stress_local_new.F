@@ -25,7 +25,7 @@
       integer          lmax
       integer          locp
       integer          nmax
-      integer          n_extra,n_expansion
+      integer          n_extra,n_expansion(0:lmax)
       double precision zv
       double precision vp(nrho,0:lmax)
       double precision wp(nrho,0:(lmax+n_extra))
