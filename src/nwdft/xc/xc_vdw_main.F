@@ -39,6 +39,7 @@ c
             force(1,A)=0d0
             force(2,A)=0d0
             force(3,A)=0d0
+            if(z(A).ne.0) then
             do j=1,n
                if(A.ne.j) then
                   rAj=sqrt(
@@ -56,6 +57,7 @@ c
                   enddo
                endif
             enddo
+            endif
          enddo
          if(abs(s6-1d0).gt.1d-9) 
      F        call dscal(3*n,s6,force,1)
@@ -248,6 +250,7 @@ c DFT-D1 / DFT-D2
 c
       if (ivdw.le.2) then
          do i=1,n-1
+            if(z(i).ne.0) then
             do j=i+1,n
                rij=dsqrt(
      +            (x(1,i)-x(1,j))**2 +
@@ -257,6 +260,7 @@ c
      *            fdmp(rij,r0(z(i))+r0(z(j)))*
      *            (rij)**(-6.0d0)
             enddo
+            endif
          enddo
          xc_vdw_e=xc_vdw_e*s6
 c
