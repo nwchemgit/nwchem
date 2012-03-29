@@ -79,6 +79,7 @@ c
             force(1,A)=0.0d0
             force(2,A)=0.0d0
             force(3,A)=0.0d0
+            if(z(A).ne.0) then
             do j=1,n
                if(A.ne.j) then      
                   dxAj=x(1,A)-x(1,j)
@@ -211,6 +212,7 @@ c
  910           continue
                endif
             enddo
+            endif
          enddo
          if (.not.ma_pop_stack(l_cnijk))
      $      call errquit('xcvdw cnijk: cannot pop cnijk',4, MA_ERR)
