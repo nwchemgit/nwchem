@@ -33,13 +33,14 @@
 		butter.o \
 		print_elapsed_time.o \
 		log_integrate.o \
-		nwpw_parse.o
+		nwpw_parse.o \
+		nwpw_matrix_invert.o
 
 	  OBJ = 
 
       LIBRARY = libnwpwlib.a
 
-    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F cell.F cellgeometry.F nwpw_list.F cpsi_data.F psi_data.F nwpw_diis.F nwpw_kain.F
+    USES_BLAS = auto_corr.F  matrix.f nwpw_scf_mixing.F kerker_G.F cell.F cellgeometry.F nwpw_list.F cpsi_data.F psi_data.F nwpw_diis.F nwpw_kain.F nwpw_matrix_invert.F
 
   LIB_DEFINES = 
 
