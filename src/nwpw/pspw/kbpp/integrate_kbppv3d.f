@@ -103,7 +103,6 @@ c     parameter (c6=0.00004306380d0)
           end do   
           a=simp(nrho,f,drho)
           vnlnrm(l) = (1.0d0/a)
-          write(*,*) "vnlnrm=",a,vnlnrm(l)
         else
           vnlnrm(l) = 0.0d0
         end if
