@@ -1,5 +1,5 @@
-[lmax] 2
-[locp] 0
+[lmax] 3
+[locp] 3
 [rlocal] 1.0
 [cutoff] 50.0
 
@@ -20,6 +20,10 @@
    1  1.80
    2  1.80
    3  2.20
+ <end>
+ <kb_expansion>
+   0  2
+   1  2
  <end>
 <screening_cut> 0.10 <end>
 <comment> Parameterized (5-02-11 by EJB) Troullier-Martin psp <end>
