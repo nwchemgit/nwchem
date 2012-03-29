@@ -159,7 +159,7 @@
            if (locp.ne.1) then
              do n=1,n_expansion(1)
                 P = nwpw_splint(G_ray,vnl_ray(1,indx(n,1),1),
-     >                           vnl_ray(1,indx(n,1),2),nray,nx,Q)
+     >                                vnl_ray(1,indx(n,1),2),nray,nx,Q)
                 lcount = lcount-1
                 vnl(k1,k2,k3,lcount)=P*GX
                 lcount = lcount-1

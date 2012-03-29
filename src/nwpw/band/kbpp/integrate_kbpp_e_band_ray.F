@@ -108,7 +108,7 @@
                 A=15.0d0*(A-CS(I))/(Q*RHO(I))**2 - 6*A + CS(I)
                 F(I)=A*WP(I,indx(n,3))*VP(I,3)
               end do
-             vnl_ray(k1,3)=P3*SIMP(NRHO,F,DRHO)/Q
+             vnl_ray(k1,indx(n,3))=P3*SIMP(NRHO,F,DRHO)/Q
           end do
         end if
 
@@ -121,7 +121,7 @@
                A=3.0d0*(SN(I)/(Q*RHO(I))-CS(I))/(Q*RHO(I))-SN(I)
                F(I)=A*WP(I,indx(n,2))*VP(I,2)
              END DO
-             vnl_ray(k1,2)=P2*SIMP(NRHO,F,DRHO)/Q
+             vnl_ray(k1,indx(n,2))=P2*SIMP(NRHO,F,DRHO)/Q
           end do
         end if
 
@@ -133,7 +133,7 @@
               DO I=2,NRHO
                 F(I)=(SN(I)/(Q*RHO(I))-CS(I))*WP(I,indx(n,1))*VP(I,1)
               END DO
-              vnl_ray(k1,1)=P1*SIMP(NRHO,F,DRHO)/Q
+              vnl_ray(k1,indx(n,1))=P1*SIMP(NRHO,F,DRHO)/Q
            end do
         end if
 
@@ -145,7 +145,7 @@
                F(I)=SN(I)*WP(I,indx(n,0))*VP(I,0)
              END DO
              lcount = lcount-1
-             vnl_ray(k1,0)=P0*SIMP(NRHO,F,DRHO)/Q
+             vnl_ray(k1,indx(n,0))=P0*SIMP(NRHO,F,DRHO)/Q
           end do
         end if
 
