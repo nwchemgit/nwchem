@@ -46,8 +46,9 @@ c
       integer old_basis
       integer nbf, i, j, nmo
       double precision temp
-      character*80 old_basis_name, old_filename, old_title
-      character*80 project(2), basis_name_from_file
+      character*255 old_title,basis_name_from_file,old_basis_name,
+     A     old_filename
+      character*80 project(2)
       character*20 old_scftype
       character*(*) calling_module
       logical oprint, oprint_info
