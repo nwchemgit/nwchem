@@ -195,7 +195,7 @@ c
 c
       do j = 1, ncol
          do i = 1, nrow
-	a(i,j) = alpha*(a(i,j)-b(j,i))
+            a(i,j) = alpha*(a(i,j)-b(j,i))
          enddo
       enddo
       END
@@ -215,7 +215,7 @@ c
       do j = 1, ncol
          do i = 1, nrow
             do f = 1, nmat
-	a(f,i,j) = alpha*(a(f,i,j)-b(f,j,i))
+               a(f,i,j) = alpha*(a(f,i,j)-b(f,j,i))
             enddo
          enddo
       enddo
