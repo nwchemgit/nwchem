@@ -16,10 +16,9 @@
  <solver> pauli                     <end>
  <pseudopotential> troullier-martins         <end>
  <rcut>
-   0  1.20
-   1  2.00
-   2  1.40
-   3  2.20
+   0  1.80
+   1  1.80
+   2  1.80
  <end>
  <kb_expansion>
    0  1
