@@ -1,5 +1,5 @@
-[lmax] 3
-[locp] 3
+[lmax] 2
+[locp] 0
 [rlocal] 1.0
 [cutoff] 50.0
 
@@ -16,13 +16,13 @@
  <solver> pauli                     <end>
  <pseudopotential> troullier-martins         <end>
  <rcut>
-   0  1.80
-   1  1.80
-   2  1.80
+   0  1.20
+   1  2.00
+   2  1.40
    3  2.20
  <end>
  <kb_expansion>
-   0  2
+   0  1
    1  2
  <end>
 <screening_cut> 0.10 <end>
