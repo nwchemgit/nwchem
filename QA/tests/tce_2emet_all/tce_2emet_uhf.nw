@@ -1,0 +1,44 @@
+echo
+
+start tce_2emet_uhf
+
+memory stack 900 mb heap 100 mb global 900 mb
+
+permanent_dir /tmp
+scratch_dir /tmp
+
+geometry units angstrom noprint
+ # Aces CCSD(T)/aug-cc-pVQZ(ae) optimized geometry
+ zmatrix
+  O
+  H 1 R
+  H 1 R 2 A
+  variables
+   R   0.9575091749
+   A 104.4784445984
+  end
+end
+
+charge +1
+
+basis spherical 
+  * library cc-pVDZ
+end
+
+scf
+  doublet
+  uhf
+  thresh 1e-9
+  semidirect memsize 50000000 filesize 0
+end
+
+tce
+  freeze atomic
+  scf
+  ccsd
+  thresh 1e-7
+  io ga
+  tilesize 20
+end
+
+task tce energy
