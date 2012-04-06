@@ -1732,17 +1732,12 @@ c
 c     Check for SCF convergence.
 c     
       call ga_sync
-      if (do_zora) then
-        call dft_zora_scfcvg(rms, derr, Etold, Etnew, 
+c
+      call dft_scfcvg(rms, derr, Etold, Etnew, 
      &     e_conv, d_conv, g_conv, ipol, 
      &     iter, iterations, idone, rtdb,
      &     converged, diising)
-      else
-        call dft_scfcvg(rms, derr, Etold, Etnew, 
-     &     e_conv, d_conv, g_conv, ipol, 
-     &     iter, iterations, idone, rtdb,
-     &     converged, diising)
-      end if ! do_zora
+c
       if (delta.lt.1.d-3)then
 c     
 c     Set coulomb acc to max (e.g., input parameter).
