@@ -1443,17 +1443,10 @@ c
       if (oprint_time)
      &     call dft_tstamp(' calling scfcvg ')
 c
-      if (do_zora) then
-        call dft_zora_scfcvg(rms, derr, Etold, Etnew,
+      call dft_scfcvg(rms, derr, Etold, Etnew,
      &                e_conv, d_conv, g_conv, ipol, 
      &                iter, iterations, idone, rtdb,
      &                converged, diising)
-      else
-        call dft_scfcvg(rms, derr, Etold, Etnew,
-     &                e_conv, d_conv, g_conv, ipol, 
-     &                iter, iterations, idone, rtdb,
-     &                converged, diising)
-      end if
 c
       if (oprint_time)
      &     call dft_tstamp(' called scfcvg ')
