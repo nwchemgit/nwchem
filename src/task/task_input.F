@@ -188,6 +188,9 @@ c            oembed = .true.
          else if (inp_compare(.false.,test,
      >                        'rdf')) then
             operation='rdf'
+         else if (inp_compare(.false.,test,
+     >                        'lcao')) then
+            operation='lcao'
 
          else if (theory .eq. ' ') then
             theory = test
