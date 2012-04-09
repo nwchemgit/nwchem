@@ -12,14 +12,15 @@
 				lcao_init_dn.o \
 				lcao_new_dn.o \
 				lcao_make_psi.o \
-				lcao_write_psi.o 
+				lcao_write_psi.o \
+				lcaov1.o
 
 
 	  OBJ = 
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = lcao_diis_dn.F lcao_init_dn.F lcao_new_dn.F lcao_new_mix_dn.F lcao_generate_vhxcmatrix.F lcao_diis.F
+    USES_BLAS = lcao_diis_dn.F lcao_init_dn.F lcao_new_dn.F lcao_new_mix_dn.F lcao_generate_vhxcmatrix.F lcao_diis.F lcaov1.F
 
   LIB_DEFINES = 
 
