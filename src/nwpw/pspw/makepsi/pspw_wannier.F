@@ -622,9 +622,9 @@ c      end do
  1380 FORMAT(/' initial position of Wannier centers:')
  1381 FORMAT(/' final position of Wannier centers:')
  1390 FORMAT(5X,'psi',I5,' (',3F11.5,
-     >       ' ) - spin up orbital, nearest ion=',A2,I5)
+     >       ' ) - spin up orbital, nearest ion=',A3,I5)
  1391 FORMAT(5X,'psi',I5,' (',3F11.5,
-     >       ' ) - spin down orbital, nearest ion=',A2,I5)
+     >       ' ) - spin down orbital, nearest ion=',A3,I5)
  1776 FORMAT(/"ELECTRONIC DIPOLES")
  1777 FORMAT("DX =",F11.5," DY= ",F11.5," DZ= ",F11.5)
  1780 FORMAT("NUCLEAR DIPOLES")
