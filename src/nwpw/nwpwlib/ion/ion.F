@@ -2299,6 +2299,43 @@ c      end do
       end
 
 
+*     ***************************
+*     *                         *
+*     *   ion_sym_number_ops    *
+*     *                         *
+*     ***************************
+      integer function ion_sym_number_ops()
+      implicit none
+
+#include "sym.fh"
+
+      integer geom
+      common / ION2/ geom
+
+      ion_sym_number_ops = sym_number_ops(geom)
+      return
+      end
+
+*     ***************************
+*     *                         *
+*     *   ion_sym_get_cart_op   *
+*     *                         *
+*     ***************************
+      subroutine ion_sym_get_cart_op(opnum,matrix)
+      implicit none
+      integer opnum
+      real*8 matrix(3,4)
+
+#include "sym.fh"
+
+      integer geom
+      common / ION2/ geom
+
+      call sym_get_cart_op(geom,opnum,matrix)
+      return
+      end
+
+
 
 
 *     ********************************
