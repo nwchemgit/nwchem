@@ -496,7 +496,7 @@ c     >                     dbl_mb(tmp2(1)))
      >                       version,
      >                       nfft,unita,
      >                       npack0,dvl,
-     >                       npack1,lmmax,dvnl,
+     >                       npack1,nprj,dvnl,
      >                       semicore,dncore,
      >                       tmp,tmp2,
      >                       ierr)
@@ -507,8 +507,8 @@ c     >                     dbl_mb(tmp2(1)))
       real*8  unita(3,3)
       integer npack0
       real*8 dvl(*)
-      integer npack1,lmmax
-      real*8 dvnl(npack1,3,lmmax)
+      integer npack1,nprj
+      real*8 dvnl(npack1,3,nprj)
       logical semicore
       real*8 dncore(*)
       complex*16 tmp(*)
@@ -579,7 +579,7 @@ c     >                     dbl_mb(tmp2(1)))
       call Pack_t_Copy(0,tmp2,dvl)
 
 *     **** read in vnl 3d blocks ****
-      do n=1,lmmax
+      do n=1,nprj
       do i=1,3
          if (pio) then
             call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
@@ -653,13 +653,13 @@ c       close(11)
 *     **** external functions ****
       logical      nwpw_filefind,control_print
       integer      control_ngrid
-      integer      psp_lmmax
+      integer      psp_nprj
       real*8       control_unita
       character*12 control_boundry
       character*4  ion_atom
       external     nwpw_filefind,control_print
       external     control_ngrid
-      external     psp_lmmax
+      external     psp_nprj
       external     control_unita
       external     control_boundry
       external     ion_atom
@@ -684,7 +684,6 @@ c       close(11)
          element = ion_atom(ia)
          l = index(element,' ') - 1
          fname = element(1:l)//'.vpp2'
-         !nproj = psp_lmmax(ia)
          nproj=int_mb(nprj(1)+ia-1)
     
 
