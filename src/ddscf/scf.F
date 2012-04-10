@@ -224,46 +224,8 @@ c     Initialize integral library, schwarz screening, cached 1-e integs
 c
       call int_init(rtdb,1, basis)
 c
-      if (util_print('kinetic',print_never)) then
-          write(6,*) "===================================="
-          write(6,*) "Begin kinetic 1-e integrals"
-          write(6,*) "===================================="
-          call print_1eints(basis, basis, 'kinetic', oskel)
-          write(6,*) "===================================="
-          write(6,*) "End kinetic 1-e integrals"
-          write(6,*) "===================================="
-      endif
-      if (util_print('potential',print_never)) then
-          write(6,*) "===================================="
-          write(6,*) "Begin potential 1-e integrals"
-          write(6,*) "===================================="
-          call print_1eints(basis, basis, 'potential', oskel)
-          write(6,*) "===================================="
-          write(6,*) "End potential 1-e integrals"
-          write(6,*) "===================================="
-      endif
-      if (util_print('overlap',print_never)) then
-          write(6,*) "===================================="
-          write(6,*) "Begin overlap 1-e integrals"
-          write(6,*) "===================================="
-          call print_1eints(basis, basis, 'overlap', oskel)
-          write(6,*) "===================================="
-          write(6,*) "End overlap 1-e integrals"
-          write(6,*) "===================================="
-      endif
-      if (util_print('ao2eints',print_never)) then
-          write(6,*) "===================================="
-          write(6,*) "Begin all 2-e integrals"
-          write(6,*) "===================================="
-          call print_aoints(basis)
-          write(6,*) "===================================="
-          write(6,*) "End all 2-e integrals"
-          write(6,*) "===================================="
-      endif
-c
-      if (util_print('allaoints',print_never)) ! Debug
-     $     call print_aoints(basis)
-c
+      call print_integrals(basis,oskel) ! print integrals, if requested
+c 
       call schwarz_init(geom, basis)
       if ((nbf*nbf*3*8)/ga_nnodes() .lt. 2000000) ! Cache 1e if < 2MB/node
      $     call int_1e_cache_ga(basis, oskel)

@@ -39,14 +39,14 @@
 	riscf_dovecs.o          rohf_scat.o \
         uhf.o                   uhf_hessv.o fock_2e_rep.o \
         uhf_hessv2.o \
-        print_integ.o           print_1eints.o \
+        print_integ_list.o           print_1eints.o \
 	riscf_square.o 		riscf_io.o movecs_pr_anal.o \
         rohf_lagr.o 		rohf_diis.o \
 	rhf_fock.o              multipole.o ga_mat_to_vec.o \
         movecs_frag.o  localize.o int_dip_ga.o \
         fock_xc.o fock_j_fit.o rohf_jkfac.o uhf_jkfac.o \
         rohf_hessv3.o \
-	fock_2e_cam.o ga_get2eri.o scf_frozemb.o
+	fock_2e_cam.o ga_get2eri.o scf_frozemb.o print_integrals.o
 
 
  OBJ_OPTIMIZE = \
@@ -79,5 +79,3 @@ SUBDIRS = fast
 
 include ../config/makefile.h
 include ../config/makelib.h
-
-
