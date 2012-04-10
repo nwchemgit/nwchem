@@ -226,6 +226,8 @@ c     == Initialize the integral object ==
       endif
       call int_init(rtdb, i3, bases)
 c
+      call print_integrals(bases, oskel) ! print integrals, if needed
+c
 c     == Get 1-el in cache ==
       call schwarz_init(geom, AO_bas_han)
 c
