@@ -13,7 +13,7 @@ c
 c
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 98)
+      parameter (num_dirs = 99)
       character*30 dirs(num_dirs)
       character*255 test
       data dirs / 'simulation_cell',
@@ -112,6 +112,7 @@ c
      >            'Fei',
      >            'parallel_io',
      >            'efield_grad',
+     >            'uterm',
      >            'end'/
 
        double precision kb
@@ -168,7 +169,7 @@ c
      >       4100,4200,4300,4400,4500,4600,4700,4800,4900,5000,5100,
      >       5200,5300, 5400,5500,5600,5650,5700,5800,5900,6000,6000,
      >       2750,6090,6100,1809,6200,6300,6400,6500,1510,6600,1807,
-     >       6700,6800,6900,7000,4250,
+     >       6700,6800,6900,7000,4250,7100,
      >       9999) ind
       call errquit('nwpw_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -1228,13 +1229,13 @@ c
 c  metadynamics
 c
 
-6700  call metadynamics_input(rtdb)
+ 6700 call metadynamics_input(rtdb)
       goto 10
 
 c
 c  pspspin up d scale atom_indexes
 c
-6800  if (inp_a(zone_name)) then
+ 6800 if (inp_a(zone_name)) then
          value = .true.
 
          if (inp_compare(.false.,zone_name,'off')) then
@@ -1369,6 +1370,60 @@ c         if (inp_compare(.false.,zone_name,'fix'))     move = .false.
      >  call errquit('nwpw_input: error writing to rtdb',7000,RTDB_ERR)
 
       goto 10
+c
+c  uterm d scale atom_indexes
+c
+ 7100 if (inp_a(zone_name)) then
+         value = .true.
+
+         if (inp_compare(.false.,zone_name,'off')) then
+            value = rtdb_put(rtdb,'nwpw:uterm',mt_log,1,.false.)
+            goto 7110
+         end if
+         if (inp_compare(.false.,zone_name,'.false.')) then
+            value = rtdb_put(rtdb,'nwpw:uterm',mt_log,1,.false.)
+            goto 7110
+         end if
+
+         value = rtdb_put(rtdb,'nwpw:uterm',mt_log,1,.true.)
+         if (inp_f(emax)) then
+               value = value.and.
+     >         rtdb_put(rtdb,'nwpw:uterm_scale',mt_dbl,1,emax)
+               nx = -1
+               if (inp_compare(.false.,zone_name,'s')) nx = 0
+               if (inp_compare(.false.,zone_name,'p')) nx = 1
+               if (inp_compare(.false.,zone_name,'d')) nx = 2
+               if (inp_compare(.false.,zone_name,'f')) nx = 3
+               if (inp_compare(.false.,zone_name,'0')) nx = 0
+               if (inp_compare(.false.,zone_name,'1')) nx = 1
+               if (inp_compare(.false.,zone_name,'2')) nx = 2
+               if (inp_compare(.false.,zone_name,'3')) nx = 3
+               value = value.and.
+     >         rtdb_put(rtdb,'nwpw:uterm_l',mt_int,1,nx)
+
+               space_avail = min(100000,ma_inquire_avail(mt_int))
+               if (.not.ma_push_get(mt_int,space_avail,'input scratch',
+     >            h_values, i_values) ) call errquit(
+     >            'nwpw_input: unable to allocate input scratch space',
+     >            space_avail, MA_ERR)
+               if (.not.inp_ilist(space_avail,int_mb(i_values),nx))
+     >         call errquit('nwpw_input: failed reading integer list',
+     >                      0, INPUT_ERR)
+               value = value.and.
+     >         rtdb_put(rtdb,'nwpw:uterm_ions',mt_int,
+     >                  nx,int_mb(i_values))
+               if (.not.ma_pop_stack(h_values)) call errquit(
+     >         'nwpw_input: unable to deallocate input scratch space',
+     >                      0, INPUT_ERR)
+         end if
+
+ 7110    if (.not.value)
+     >    call errquit('nwpw_input: writing ', 7100, RTDB_ERR)
+
+      end if
+
+      goto 10
+
 
 ************************************************************************
 c
