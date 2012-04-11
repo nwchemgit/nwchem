@@ -26,8 +26,8 @@
       logical value
 
 *     **** external functions *****
-      logical  control_pspspin
-      external control_pspspin
+      logical  control_pspspin,control_psputerm
+      external control_pspspin,control_psputerm
       integer  ion_nkatm,ion_nion
       external ion_nkatm,ion_nion
  
@@ -170,6 +170,20 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
      >                            nion,
      >                            log_mb(pspspin_upions(1)),
      >                            log_mb(pspspin_downions(1)))
+      end if
+
+*     **** setup psputerm structure - used for adding Hubbard U term ****
+      psputerm = control_psputerm()
+      if (psputerm) then
+         nion  = ion_nion()
+         value = value.and.
+     >   MA_alloc_get(mt_log,nion,'psputerm_ions',
+     >                psputerm_ions(2),psputerm_ions(1))
+         if (.not. value)
+     >   call errquit('psp_init:out of heap memory',0, MA_ERR)
+
+         call control_set_psputerm(psputerm_scale,psputerm_l,
+     >                             nion,log_mb(psputerm_ions(1)))
       end if
 
       if (.not. value) 
@@ -332,6 +346,9 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       if (pspspin) then
          value = value.and.MA_free_heap(pspspin_upions(2))
          value = value.and.MA_free_heap(pspspin_downions(2))
+      end if
+      if (psputerm) then
+         value = value.and.MA_free_heap(psputerm_ions(2))
       end if
 
       if (.not. value) 

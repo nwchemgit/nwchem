@@ -91,3 +91,11 @@
      >                         pspspin_upions, pspspin_downions,
      >                         pspspin_upl,    pspspin_downl,
      >                         pspspin
+
+*     **** common block for psputerm ****
+      logical psputerm
+      integer psputerm_l
+      integer psputerm_ions(2)
+      real*8  psputerm_scale
+      common / psputerm_block / psputerm_scale,psputerm_ions,
+     >                          psputerm_l,psputerm
