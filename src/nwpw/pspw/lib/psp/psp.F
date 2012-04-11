@@ -177,13 +177,16 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       if (psputerm) then
          nion  = ion_nion()
          value = value.and.
-     >   MA_alloc_get(mt_log,nion,'psputerm_ions',
-     >                psputerm_ions(2),psputerm_ions(1))
+     >   MA_alloc_get(mt_int,nion,'psputerm_l',
+     >                psputerm_l(2),psputerm_l(1))
+         value = value.and.
+     >   MA_alloc_get(mt_dbl,nion,'psputerm_scale',
+     >                psputerm_scale(2),psputerm_scale(1))
          if (.not. value)
      >   call errquit('psp_init:out of heap memory',0, MA_ERR)
 
-         call control_set_psputerm(psputerm_scale,psputerm_l,
-     >                             nion,log_mb(psputerm_ions(1)))
+         call control_set_psputerm(nion,int_mb(psputerm_l(1)),
+     >                                  dbl_mb(psputerm_scale(1)))
       end if
 
       if (.not. value) 
@@ -348,7 +351,8 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
          value = value.and.MA_free_heap(pspspin_downions(2))
       end if
       if (psputerm) then
-         value = value.and.MA_free_heap(psputerm_ions(2))
+         value = value.and.MA_free_heap(psputerm_l(2))
+         value = value.and.MA_free_heap(psputerm_scale(2))
       end if
 
       if (.not. value) 
