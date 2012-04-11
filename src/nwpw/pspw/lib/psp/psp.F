@@ -28,8 +28,8 @@
 *     **** external functions *****
       logical  control_pspspin,control_psputerm
       external control_pspspin,control_psputerm
-      integer  ion_nkatm,ion_nion
-      external ion_nkatm,ion_nion
+      integer  ion_nkatm,ion_nion,control_pspnuterms
+      external ion_nkatm,ion_nion,control_pspnuterms
  
       call Pack_npack(1,npack1)
       call Pack_npack(0,npack0)
@@ -173,20 +173,26 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
       end if
 
 *     **** setup psputerm structure - used for adding Hubbard U term ****
-      psputerm = control_psputerm()
+      pspnuterms = control_pspnuterms()
+      psputerm   = control_psputerm().and.(pspnuterms.gt.0)
       if (psputerm) then
          nion  = ion_nion()
          value = value.and.
-     >   MA_alloc_get(mt_int,nion,'psputerm_l',
+     >   MA_alloc_get(mt_int,pspnuterms,'psputerm_l',
      >                psputerm_l(2),psputerm_l(1))
          value = value.and.
-     >   MA_alloc_get(mt_dbl,nion,'psputerm_scale',
+     >   MA_alloc_get(mt_dbl,pspnuterms,'psputerm_scale',
      >                psputerm_scale(2),psputerm_scale(1))
+         value = value.and.
+     >   MA_alloc_get(mt_log,nion*pspnuterms,'psputerm_ions',
+     >                psputerm_ions(2),psputerm_ions(1))
          if (.not. value)
      >   call errquit('psp_init:out of heap memory',0, MA_ERR)
 
-         call control_set_psputerm(nion,int_mb(psputerm_l(1)),
-     >                                  dbl_mb(psputerm_scale(1)))
+         call control_set_psputerm(nion,pspnuterms,
+     >                             int_mb(psputerm_l(1)),
+     >                             dbl_mb(psputerm_scale(1)),
+     >                             log_mb(psputerm_ions(1)))
       end if
 
       if (.not. value) 
@@ -353,6 +359,7 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       if (psputerm) then
          value = value.and.MA_free_heap(psputerm_l(2))
          value = value.and.MA_free_heap(psputerm_scale(2))
+         value = value.and.MA_free_heap(psputerm_ions(2))
       end if
 
       if (.not. value) 

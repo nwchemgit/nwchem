@@ -94,6 +94,9 @@
 
 *     **** common block for psputerm ****
       logical psputerm
+      integer pspnuterms
       integer psputerm_l(2)
       integer psputerm_scale(2)
-      common / psputerm_block / psputerm_scale,psputerm_l,psputerm
+      integer psputerm_ions(2)
+      common / psputerm_block / psputerm_scale,psputerm_l,psputerm_ions,
+     >                          pspnuterms,psputerm
