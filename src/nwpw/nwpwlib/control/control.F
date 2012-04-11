@@ -4794,3 +4794,90 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *        control_psputerm         *
+*     *                                 *
+*     ***********************************
+      logical function control_psputerm()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      logical value
+
+      value = .true.
+      if (.not.rtdb_get(rtdb,'nwpw:psputerm',mt_log,1,value))
+     >   value = .false.
+
+      control_psputerm = value
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *        control_set_psputerm     *
+*     *                                 *
+*     ***********************************
+      subroutine control_set_psputerm(scale,l,nion,ions)
+      implicit none
+      real*8 scale
+      integer l,nion
+      logical ions(*)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+      integer taskid,MASTER
+      parameter (MASTER=0)
+      integer i,ma_type,nactive_atoms,h_actlist,l_actlist
+
+      call Parallel_taskid(taskid)
+
+      if (.not.rtdb_get(rtdb,'nwpw:psputerm_scale',mt_dbl,1,scale))
+     >   scale = 0.0d0
+
+      if (.not.rtdb_get(rtdb,'nwpw:psputerm_l',mt_int,1,l))
+     >   l = -1
+
+      do i=1,nion
+         ions(i)   = .false.
+      end do
+
+      if (taskid.eq.MASTER) write(*,3300) 
+      if (taskid.eq.MASTER) write(*,3301) l
+
+      if (rtdb_ma_get(rtdb, 'nwpw:psputerm_ions',ma_type,
+     >                nactive_atoms, h_actlist)) then
+         if (.not.MA_get_index(h_actlist,l_actlist))
+     >      call errquit(
+     >       'control_set_psputerm: ma_get_index failed',0,
+     >       MA_ERR)
+         
+         if (taskid.eq.MASTER) 
+     >      write(*,3302) (int_mb(l_actlist+i),i=0,nactive_atoms-1)
+         
+         do i=1,nactive_atoms
+            ions(int_mb(l_actlist+i-1)) = .true.
+         end do
+         if (.not. MA_free_heap(h_actlist))
+     >    call errquit(
+     >     'control_set_psputerm:error freeing heap memory',0,MA_ERR)
+      end if
+
+ 3300 format(/1x,"Hubbard Uterm Function Input:")
+ 3301 format(2x," - psputerm: l =",I2,"  scale =",F8.3)
+ 3302 format(2x," - psputerm: ion indexes  =",10I5)
+      return
+      end
+
