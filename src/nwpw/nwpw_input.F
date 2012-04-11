@@ -115,25 +115,28 @@ c
      >            'uterm',
      >            'end'/
 
-       double precision kb
-       parameter (kb=3.16679d-6)
-       logical      value,move,mulliken_kawai,nose,nosers
-       character*50 cell_name,zone_name
-       character*50 input_wavefunction_filename
-       character*50 output_wavefunction_filename
-       character*50 exchange_correlation
-       double precision fake_mass,time_step,rcut
-       integer loop(2),ncut,cell_expand(3)
-       double precision tolerances(3),ecut,wcut,fe,ff,scaling(2)
-       double precision alpha,emin,emax
-       double precision Pe,Pr,Te,Tr
-       integer npoints
-       logical mulliken,allow_translation
-       integer ispin,multiplicity,space_avail
-       integer nx,ny,nz,minimizer,h_values,i_values
+      double precision kb
+      parameter (kb=3.16679d-6)
+      logical      value,move,mulliken_kawai,nose,nosers
+      character*50 cell_name,zone_name,rtdb_name
+      character*50 input_wavefunction_filename
+      character*50 output_wavefunction_filename
+      character*50 exchange_correlation
+      double precision fake_mass,time_step,rcut
+      integer loop(2),ncut,cell_expand(3)
+      double precision tolerances(3),ecut,wcut,fe,ff,scaling(2)
+      double precision alpha,emin,emax
+      double precision Pe,Pr,Te,Tr
+      integer npoints
+      logical mulliken,allow_translation
+      integer ispin,multiplicity,space_avail
+      integer nx,ny,nz,minimizer,h_values,i_values,nuterms
        
-       logical  nwpw_parse_boolean
-       external nwpw_parse_boolean
+*     **** external functions ****
+      character*7 c_index_name
+      external    c_index_name
+      logical  nwpw_parse_boolean
+      external nwpw_parse_boolean
 
 *     ***** initializations ****
       call nwpw_default(rtdb)
@@ -1371,24 +1374,34 @@ c         if (inp_compare(.false.,zone_name,'fix'))     move = .false.
 
       goto 10
 c
-c  uterm d scale atom_indexes
+c  uterm l scale atom_indexes
+c  uterm s 1.2 2:3
+c  uterm d 1.4 4:20:2
+c  uterm off
 c
  7100 if (inp_a(zone_name)) then
          value = .true.
-
-         if (inp_compare(.false.,zone_name,'off')) then
+         if (.not.rtdb_get(rtdb,'nwpw:nuterms',mt_int,1,nuterms)) then
+            nuterms = 0
+         end if
+         nuterms = nuterms + 1
+         
+         if ((inp_compare(.false.,zone_name,'off')).or.
+     >       (inp_compare(.false.,zone_name,'.false.'))) then
             value = rtdb_put(rtdb,'nwpw:uterm',mt_log,1,.false.)
+            value = value.and.
+     >              rtdb_put(rtdb,'nwpw:nuterms',mt_int,1,0)
             goto 7110
          end if
-         if (inp_compare(.false.,zone_name,'.false.')) then
-            value = rtdb_put(rtdb,'nwpw:uterm',mt_log,1,.false.)
-            goto 7110
-         end if
-
          value = rtdb_put(rtdb,'nwpw:uterm',mt_log,1,.true.)
+         value = value.and.
+     >           rtdb_put(rtdb,'nwpw:nuterms',mt_int,1,nuterms)
+
+
          if (inp_f(emax)) then
+               cell_name = 'nwpw:uterm_scale:'//c_index_name(nuterms)
                value = value.and.
-     >         rtdb_put(rtdb,'nwpw:uterm_scale',mt_dbl,1,emax)
+     >         rtdb_put(rtdb,cell_name,mt_dbl,1,emax)
                nx = -1
                if (inp_compare(.false.,zone_name,'s')) nx = 0
                if (inp_compare(.false.,zone_name,'p')) nx = 1
@@ -1398,20 +1411,21 @@ c
                if (inp_compare(.false.,zone_name,'1')) nx = 1
                if (inp_compare(.false.,zone_name,'2')) nx = 2
                if (inp_compare(.false.,zone_name,'3')) nx = 3
+               cell_name = 'nwpw:uterm_l:'//c_index_name(nuterms)
                value = value.and.
-     >         rtdb_put(rtdb,'nwpw:uterm_l',mt_int,1,nx)
+     >         rtdb_put(rtdb,cell_name,mt_int,1,nx)
 
                space_avail = min(100000,ma_inquire_avail(mt_int))
                if (.not.ma_push_get(mt_int,space_avail,'input scratch',
      >            h_values, i_values) ) call errquit(
      >            'nwpw_input: unable to allocate input scratch space',
      >            space_avail, MA_ERR)
-               if (.not.inp_ilist(space_avail,int_mb(i_values),nx))
+               if (.not.inp_ilist(space_avail,int_mb(i_values),ny))
      >         call errquit('nwpw_input: failed reading integer list',
      >                      0, INPUT_ERR)
+               cell_name = 'nwpw:uterm_ions:'//c_index_name(nuterms)
                value = value.and.
-     >         rtdb_put(rtdb,'nwpw:uterm_ions',mt_int,
-     >                  nx,int_mb(i_values))
+     >         rtdb_put(rtdb,cell_name,mt_int,ny,int_mb(i_values))
                if (.not.ma_pop_stack(h_values)) call errquit(
      >         'nwpw_input: unable to deallocate input scratch space',
      >                      0, INPUT_ERR)
@@ -1432,3 +1446,4 @@ c
  9999 continue
       return
       end
+
