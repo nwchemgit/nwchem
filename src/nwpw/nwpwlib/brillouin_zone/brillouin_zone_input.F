@@ -684,26 +684,26 @@ c
         goodpoint = .true.
       end if
       if (p.eq.9) then   !h
-        kvector(1) = 1.0d0/3.0d0 - 1.0d0/(3.0d0*dsqrt(3.0d0))
-        kvector(2) = 1.0d0/3.0d0 + 1.0d0/(3.0d0*dsqrt(3.0d0))
+        kvector(1) = 1.0d0/3.0d0
+        kvector(2) = 1.0d0/3.0d0
         kvector(3) = 0.50d0
         goodpoint = .true.
       end if
       if (p.eq.10) then   !k
-        kvector(1) = 1.0d0/3.0d0 - 1.0d0/(3.0d0*dsqrt(3.0d0))
-        kvector(2) = 1.0d0/3.0d0 + 1.0d0/(3.0d0*dsqrt(3.0d0))
+        kvector(1) = 1.0d0/3.0d0
+        kvector(2) = 1.0d0/3.0d0
         kvector(3) = 0.00d0
         goodpoint = .true.
       end if
       if (p.eq.11) then   !l
         kvector(1) = 0.50d0
-        kvector(2) = 0.50d0
+        kvector(2) = 0.00d0
         kvector(3) = 0.50d0
         goodpoint = .true.
       end if
       if (p.eq.12) then   !m
         kvector(1) = 0.50d0
-        kvector(2) = 0.50d0
+        kvector(2) = 0.00d0
         kvector(3) = 0.00d0
         goodpoint = .true.
       end if
