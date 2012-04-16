@@ -16,11 +16,7 @@ OBJ_OPTIMIZE =  hess_anal.o \
                 twodd_cont.o \
                 twodd_coul_ex.o \
                 shell_fock_build.o \
-                shell_fock_build_cam_single.o \
-                shell_fock_build_cam_multiple.o \
                 shell_fock_build_cam.o \
-                shell_fock_buildjk.o \
-                shell_fock_buildxc.o \
                 hess_cphf.o \
                 hess_pxfy.o \
                 hess_sxsy.o \
