@@ -1,0 +1,30 @@
+#!/bin/bash
+#
+# This script tests various builds to ensure that routines are stubbed 
+# properly when not needed. 
+#
+if [ ${#NWCHEM_MODULES} -ne 0 ]; then
+  export NWCHEM_MODULES_SAVE="${NWCHEM_MODULES}"
+fi
+export DATE=`date | sed 's/ /_/g'`
+
+export NWCHEM_MODULES=classical
+./contrib/distro-tools/build_nwchem realclean
+./contrib/distro-tools/build_nwchem 2>&1 | tee build_nwchem.${DATE}.${NWCHEM_MODULES}.log
+./contrib/distro-tools/build_nwchem realclean
+export NWCHEM_MODULES=md
+./contrib/distro-tools/build_nwchem 2>&1 | tee build_nwchem.${DATE}.${NWCHEM_MODULES}.log
+./contrib/distro-tools/build_nwchem realclean
+export NWCHEM_MODULES=qmandpw
+./contrib/distro-tools/build_nwchem 2>&1 | tee build_nwchem.${DATE}.${NWCHEM_MODULES}.log
+./contrib/distro-tools/build_nwchem realclean
+export NWCHEM_MODULES=qm
+./contrib/distro-tools/build_nwchem 2>&1 | tee build_nwchem.${DATE}.${NWCHEM_MODULES}.log
+./contrib/distro-tools/build_nwchem realclean
+export NWCHEM_MODULES=all
+./contrib/distro-tools/build_nwchem 2>&1 | tee build_nwchem.${DATE}.${NWCHEM_MODULES}.log
+if [ ${#NWCHEM_MODULES_SAVE} -ne 0 ] ; then
+  export NWCHEM_MODULES="${NWCHEM_MODULES_SAVE}"
+  ./contrib/distro-tools/build_nwchem realclean
+  ./contrib/distro-tools/build_nwchem 2>&1 | tee build_nwchem.${DATE}.${NWCHEM_MODULES}.log
+fi
