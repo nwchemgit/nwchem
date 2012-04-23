@@ -84,7 +84,8 @@ c ----- Definitions for NLMO analysis ---- END
      &        ga_h01_num,! OUTPUT
      &        ga_Fji     ! OUTPUT
       logical skip_cphf_ev_shield
-
+c Note.- switch_nmrcs_analysis=.true. has to go together with
+c        switch_skip_cphf=.true.
 c      switch_skip_cphf=.true. ! For skipping cphf or cpks
       switch_skip_cphf=.false. ! For NOT skipping cphf or cpks
       switch_nmrcs_analysis=.false. ! For default mode NO nmrcs analysis
@@ -94,7 +95,7 @@ c      switch_nmrcs_analysis=.true.  ! For analysis of nmrcs tensor
         if (ga_nodeid().eq.0)
      &    write(*,*) 'switch_nmrcs_analysis=',switch_nmrcs_analysis
       debug_giaox=0 ! =1 for debugging print outs of matrices
-
+c      debug_giaox=1 ! =1 for debugging print outs of matrices
       if (ga_nodeid().eq.0) write(luout,9999)
 c
 c     Current CPHF does not handle symmetry 
@@ -198,9 +199,11 @@ c ++++++ Reading shieldings data from file ++++++ END
      &    errquit('hnd_giaox_zora: ma_push_get failed k_occ',0,MA_ERR)
       if (.not. ma_push_get(mt_dbl,2*nbf,'eigenval',l_eval,k_eval)) call
      &    errquit('hnd_giaox_zora: ma_push_get failed k_eval',0,MA_ERR)
+
       call hnd_prp_vec_read(rtdb,geom,basis,nbf,nclosed,nopen,
      &                      nvirt,scftyp,vectors,dbl_mb(k_occ),
      &                      dbl_mb(k_eval),nmo)
+
 c ------ define npol ----- START
       if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, npol)) then
         if      (scftyp .eq. 'UHF') then
@@ -324,7 +327,6 @@ c ----- TEST: for testing Coulomb and Exchange contrib --- END
        if (ga_nodeid().eq.0)
      &  write(*,*) '---- g_rhs-aft-get_prelim_fock -------- START'
       endif 
-
 c     Build "first order fock matrix"
       if (use_theory.eq.'dft') then
          if(.not. rtdb_put(rtdb,'bgj:xc_active', MT_LOG, 1, .true.))
@@ -502,6 +504,7 @@ c ++++++++ calling new_giao_2e() ++++++
         if (ga_nodeid().eq.0)
      &    write(*,*) '---- g_dens bef new_giao_2e  -------- END'    
        endif
+       call ga_sync()
 c ------ WARNING: skip new_giao_2d() ---- START
 c       if (ga_nodeid().eq.0)
 c    &   write(*,*) 'WARNING: SKIP new_giao_2e() ...'
@@ -566,6 +569,7 @@ c ----- TEST: AO2MO for g_fock_Coul,g_fock_Exch ------ END
       if (debug_giaox.eq.1) then
        write(*,*) 'Aft add_fock1-giao-aotomo()'
        write(*,*) 'BEF. giao_aotomo: npol='
+       write(*,*) '---- g_fock-aft-giao_aotomo -------- START'
        call ga_print(g_fock)
        write(*,*) '---- g_fock-aft-giao_aotomo -------- END'
       endif
@@ -612,6 +616,10 @@ c ------- Store g_rhs without Coulomb and Exchange ---- END
        call add_fock1(g_rhs_Exch, ! out: accumulated rhs expression
      &                g_fock_Exch,! in 
      &                nmo,npol,nocc,nvirt) 
+       if (.not. ga_destroy(g_fock_Coul)) call errquit(
+     &    'hnd_giaox_zora: ga_destroy failed g_fock_Coul',0, GA_ERR) 
+       if (.not. ga_destroy(g_fock_Exch)) call errquit(
+     &    'hnd_giaox_zora: ga_destroy failed g_fock_Exch',0, GA_ERR) 
       endif
       if (debug_giaox.eq.1) then
        write(*,*) 'Aft add_fock1()'
@@ -754,24 +762,34 @@ c     &   write(*,*) '---------- g_rhs-cs-read --------- END'
      &          g_d1_oo, ! out: Perturbed density matrix occ-occ  contrib
      &          g_d1_ov, ! out: Perturbed density matrix occ-virt contrib
      &          type_NMR,
-     &          g_d1_ov_Coul,
-     &          g_d1_ov_Exch,
-     &          g_d1_ov_noJK,
-     &          g_d1_ov_1e,
-     &          g_d1_ov_eSji,
-     &          g_rhs, ! in: accumulated rhs expression
+     &          g_d1_ov_Coul,! out: Perturbed (spin)density matrix with Coulomb  contrib
+     &          g_d1_ov_Exch,! out: Perturbed (spin)density matrix with Exchange contrib (fock_xc)
+     &          g_d1_ov_noJK,! out: Perturbed (spin)density matrix remaining terms not J or K
+     &          g_d1_ov_1e,  ! out: Perturbed (spin)density matrix 1e-operator contrib
+     &          g_d1_ov_eSji,! out: Perturbed (spin)density matrix perturbed overlap matrix
+     &          g_rhs,       ! in: accumulated rhs expression
      &          g_rhs_Coul,
      &          g_rhs_Exch,
      &          g_rhs_noJK,
      &          g_rhs_1e,
      &          g_rhs_eSji,
-     &          g_rhs0, ! in: from get_prelim_fock()
+     &          g_rhs0,      ! in: from get_prelim_fock()
      &          vectors,g_CiFull, 
      &          nbf,nmo,npol,nocc,nvirt,
      &          do_zora,do_NonRel,not_zora_scale,
      &          lbl_nlmogshift, ! in: for g-shift NLMO analysis
      &          lbl_nlmoshield, ! in: for shield  NLMO analysis
      &          rtdb) 
+      if (.not. ga_destroy(g_rhs_Coul)) call errquit(  
+     &  'hnd_giaox_zora: ga_destroy failed g_rhs_Exch',0, GA_ERR)
+      if (.not. ga_destroy(g_rhs_Exch)) call errquit(  
+     &  'hnd_giaox_zora: ga_destroy failed g_rhs_Exch',0, GA_ERR)
+      if (.not. ga_destroy(g_rhs_noJK)) call errquit(  
+     &  'hnd_giaox_zora: ga_destroy failed g_rhs_noJK',0, GA_ERR)
+      if (.not. ga_destroy(g_rhs_1e)) call errquit(  
+     &  'hnd_giaox_zora: ga_destroy failed g_rhs_1e',0, GA_ERR)
+      if (.not. ga_destroy(g_rhs_eSji)) call errquit(  
+     &  'hnd_giaox_zora: ga_destroy failed g_rhs_1e',0, GA_ERR)
       else  ! default
 c      call get_P10(  g_d1, ! out: Perturbed density matrix
 c     &              g_rhs, !  in: accumulated rhs expression
@@ -839,6 +857,16 @@ c ------- TEST: get_par() get_dia()------ START
      &   dbl_mb(k_xyz),   ! IN  : Nuclear positions (x,y,z)
      &   nat_slc,         ! IN  : nr. atoms
      &   rtdb)
+      if (.not. ga_destroy(g_d1_ov_Coul)) call errquit(  
+     &  'hnd_giaox_zora: ga_destroy failed g_d1_ov_Coul',0, GA_ERR)
+      if (.not. ga_destroy(g_d1_ov_Exch)) call errquit(  
+     &  'hnd_giaox_zora: ga_destroy failed g_d1_ov_Exch',0, GA_ERR)
+      if (.not. ga_destroy(g_d1_ov_noJK)) call errquit(  
+     &  'hnd_giaox_zora: ga_destroy failed g_d1_ov_noJK',0, GA_ERR)
+      if (.not. ga_destroy(g_d1_ov_1e)) call errquit(  
+     &  'hnd_giaox_zora: ga_destroy failed g_d1_ov_noJK',0, GA_ERR)
+      if (.not. ga_destroy(g_d1_ov_eSji)) call errquit(  
+     &  'hnd_giaox_zora: ga_destroy failed g_d1_ov_noJK',0, GA_ERR)
       else
        call get_par(
      &   dbl_mb(k_para),  ! OUT : paramagnetic tensor
@@ -859,8 +887,7 @@ c ------- TEST: get_par() get_dia()------ START
      &             dbl_mb(k_xyz),nat_slc,rtdb)
 c ------- TEST: get_par() get_dia()------ END
 c +++++++++ print-total-pardia-transferred +++ START
-
-      if (debug_giaox.eq.1 .and. ga_nodeid().eq.0) then
+       if (ga_nodeid().eq.0) then
       ic=1
        do iatom = 1, nat_slc
         do ix = 1, 3
@@ -901,16 +928,25 @@ c +++++++++ print-total-pardia-transferred +++ START
          enddo ! end-loop-iy
         enddo ! end-loop-ix
        enddo ! end-loop-iatom
-       endif ! end-if-ga_nodeid-eq-0 and debug_giaox
+       endif ! end-if-ga_nodeid-eq-0
 c +++++++++ print-total-dia-transferred +++ END
-c
       if (.not.ma_pop_stack(l_pararr)) call
      &    errquit('hnd_giaox: ma_pop_stack failed k_para',0,MA_ERR)
-       do ispin=1,npol
+       do ispin=1,ndens
         if (.not.ga_destroy(g_dens(ispin))) call 
      &    errquit('hnd_giaox_zora: ga_destroy failed g_dens',
      &    0,GA_ERR)
        enddo
+
+c --------- allocating array for NLMO analysis --------------- START
+      shldfile=0 ! not doing NLMO analysis by default
+      status=rtdb_get(rtdb,'prop:shldfile',mt_int,1,shldfile) ! for NLMO analysis
+      if (shldfile.eq.1) then
+       if (.not. ma_alloc_get(mt_dbl,nat_slc*9,'tvec',l_tvec,k_tvec)) 
+     &    call
+     &    errquit('hnd_giaox_zora: ma_push_get failed tvec',0,MA_ERR)   
+      endif ! end-if-shldfile
+c --------- allocating array for NLMO analysis --------------- END
 c
 c     Print out tensor information, and write to Ecce file if necessary
       status = rtdb_parallel(.false.)   
@@ -1011,8 +1047,8 @@ c
      &                           basis,npol,nocc,nvirt,nmo) 
         if (.not. ga_destroy(g_tvec)) call errquit( ! destroy GA
      &      'hnd_giaox_zora: ga_destroy failed ',0, GA_ERR)   
-c        if (.not.ma_free_heap(l_tvec)) call
-c     &      errquit('hnd_giaox_zora: ma_free_heap l_tvec',0,MA_ERR)    
+        if (.not.ma_free_heap(l_tvec)) call
+     &      errquit('hnd_giaox_zora: ma_free_heap l_tvec',0,MA_ERR)    
       endif ! ------------------------ hypfile-if++++ END
 c ---- Destroy stored ga arrays ------ START
            if (.not. ga_destroy(g_d1_oo)) call errquit(
@@ -1028,7 +1064,7 @@ c ---- Destroy stored ga arrays ------ START
         if (.not. ga_destroy(ga_Fji)) call errquit(
      &    'hnd_giaox_zora: ga_destroy failed ',0, GA_ERR)    
         if (.not. ga_destroy(g_AtNr1)) call errquit(
-     &    'hnd_giaox_zora: ga_destroy failed ',0, GA_ERR)                 
+     &    'hnd_giaox_zora: ga_destroy failed ',0, GA_ERR)            
 c ---- Destroy stored ga arrays ------ END
 c
 c     Clean up all remaining memory
@@ -2027,6 +2063,8 @@ c +++++++++ NOW: do ddot product to get diagonalized tensor +++ START
      &                   basis,nbf,iat,rtdb)
 c +++++++++ NOW: do ddot product to get diagonalized tensor +++ END
 c ++++++++++ CHECK diagonalization in para hyperfine ++++++++ END
+      if (.not. ga_destroy(g_p10)) call errquit(
+     &  'create_munu4nbo_shield: ga_destroy failed g_p10',0, GA_ERR)
       enddo ! end-loop-iat
         if (ga_nodeid().eq.0)
      &   write(*,*) 'CHCooooooooooooo',
@@ -2072,8 +2110,6 @@ c ------ destroy unnecessary GAs
       if (.not. ga_destroy(g_dens)) call errquit(
      &  'create_munu4nbo: ga_destroy failed ',0, GA_ERR)
       if (.not. ga_destroy(g_dens1)) call errquit(
-     &  'create_munu4nbo: ga_destroy failed ',0, GA_ERR)
-      if (.not. ga_destroy(g_p10)) call errquit(
      &  'create_munu4nbo: ga_destroy failed ',0, GA_ERR)
       if (.not. ga_destroy(g_c1)) call errquit(
      &  'create_munu4nbo: ga_destroy failed ',0, GA_ERR)

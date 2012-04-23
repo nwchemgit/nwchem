@@ -990,9 +990,7 @@ c -------- symmetrize total dia ------------ START
        enddo
       enddo
 c -------- symmetrize total dia ------------ END
-c
 c +++++++++ print-total-pardia-transferred +++ START
-      if (debug_gshift.eq.1) then
        if (ga_nodeid().eq.0) then
         ic=1
         do ix = 1, 3
@@ -1026,16 +1024,14 @@ c +++++++++ print-total-pardia-transferred +++ START
          enddo ! end-loop-iy
         enddo ! end-loop-ix
        endif ! end-if-ga_nodeid-eq-0
-      end if ! debug_gshift
 c +++++++++ print-total-dia-transferred +++ END
-c
        if (.not.ga_destroy(g_rhs)) call 
      &    errquit('hnd_gshift_zora: ga_destroy failed g_rhs',
      &            0,GA_ERR)
        if (.not.ga_destroy(g_rhs0)) call 
      &    errquit('hnd_gshift_zora: ga_destroy failed g_rhs0',
      &            0,GA_ERR)
-       do ispin=1,npol
+       do ispin=1,ndens
         if (.not.ga_destroy(g_dens(ispin))) call 
      &    errquit('hnd_gshift_zora: ga_destroy failed g_dens',
      &    0,GA_ERR)
@@ -1498,17 +1494,17 @@ c ------------ creating ga arrays ---------- END
      &                    pos(1),natoms,oskel)    
 
        blo(1) = 1
-       bhi(1) = nmo
+       bhi(1) = nbf ! nmo-fixing4lineardependency
        blo(2) = 1
-       bhi(2) = nmo
+       bhi(2) = nbf ! nmo-fixing4lineardependency
        blo(3) = 1
        bhi(3) = 3
       do ispin=1,npol  
        disp=3*(ispin-1) 
        alo(1) = 1
-       ahi(1) = nmo
+       ahi(1) = nbf ! nmo-fixing4lineardependency
        alo(2) = 1
-       ahi(2) = nmo
+       ahi(2) = nbf ! nmo-fixing4lineardependency
        alo(3) = disp+1
        ahi(3) = disp+3   
        call nga_copy_patch('n',g_s10_1,blo,bhi,
@@ -1550,15 +1546,15 @@ c ------------ creating ga arrays ---------- END
        disp=3*(ispin-1)
 c     COPY : g_s10 -> g_s10_1 ---------- START
        blo(1) = 1
-       bhi(1) = nmo
+       bhi(1) = nbf ! nmo-fixing4lineardependency
        blo(2) = 1
-       bhi(2) = nmo
+       bhi(2) = nbf ! nmo-fixing4lineardependency
        blo(3) = 1
        bhi(3) = 3
        alo(1) = 1
-       ahi(1) = nmo
+       ahi(1) = nbf ! nmo-fixing4lineardependency
        alo(2) = 1
-       ahi(2) = nmo
+       ahi(2) = nbf ! nmo-fixing4lineardependency
        alo(3) = disp+1
        ahi(3) = disp+3   
        call nga_copy_patch('n',g_s10,alo,ahi,
@@ -1825,15 +1821,15 @@ c     Transfer: g_fock --> g_fck
        alo(1) = shift+1
        ahi(1) = shift+3   
        alo(2) = 1
-       ahi(2) = nmo
+       ahi(2) = nbf ! nmo-fixing4lineardependency
        alo(3) = 1
-       ahi(3) = nmo
+       ahi(3) = nbf ! nmo-fixing4lineardependency
        blo(1) = 1
        bhi(1) = 3
        blo(2) = 1
-       bhi(2) = nmo
+       bhi(2) = nbf ! nmo-fixing4lineardependency
        blo(3) = 1
-       bhi(3) = nmo
+       bhi(3) = nbf ! nmo-fixing4lineardependency
         call nga_copy_patch('n',g_fock,alo,ahi,
      &                           g_fck,blo,bhi) 
 c       if (ga_nodeid().eq.0)
@@ -2076,17 +2072,17 @@ c ++++++++++++ COSMO-added-07-13-11+++++++++++++ END
 c     Transform H10 to MO and add to g_rhs
 c     Copy: g_s10_1 --> g_s10
        blo(1) = 1
-       bhi(1) = nmo
+       bhi(1) = nbf ! nmo-fixing4lineardependency
        blo(2) = 1
-       bhi(2) = nmo
+       bhi(2) = nbf ! nmo-fixing4lineardependency
        blo(3) = 1
        bhi(3) = 3
       do ispin=1,npol   
        shift=3*(ispin-1)
        alo(1) = 1
-       ahi(1) = nmo
+       ahi(1) = nbf ! nmo-fixing4lineardependency
        alo(2) = 1
-       ahi(2) = nmo
+       ahi(2) = nbf ! nmo-fixing4lineardependency
        alo(3) = shift+1
        ahi(3) = shift+3   
        call nga_copy_patch('n',g_s10_1,blo,bhi,
@@ -2671,12 +2667,12 @@ c ------ for shield  NLMO analysis --------- END
      &     errquit('g_p1_ov: nga_create failed g_p1_ov',0,GA_ERR)
        call ga_zero(g_p1_ov)
 c ------ For debugging ---- START
-       if (debug_p10 .eq.1) then
-        if (.not.nga_create(MT_DBL,3,ahi,'g_p1-b matrix',
-     &      alo,g_p1)) call 
-     &     errquit('g_p1: nga_create failed g_p1',0,GA_ERR)
-        call ga_zero(g_p1)
-       endif
+c       if (debug_p10 .eq.1) then
+c        if (.not.nga_create(MT_DBL,3,ahi,'g_p1-b matrix',
+c     &      alo,g_p1)) call 
+c     &     errquit('g_p1: nga_create failed g_p1',0,GA_ERR)
+c        call ga_zero(g_p1)
+c       endif
 c ------ For debugging ---- END
 c +++++++++ store g_u for NMLO analysis +++++++++ START
         if (type_NMR.eq.1 .or. type_NMR.eq.3) then ! store only if Hyperfine calc.
@@ -3112,12 +3108,12 @@ c -------- g_c1 --> file ----------END
         call ga_print(g_p1_ov)
         if (ga_nodeid().eq.0) 
      &    write(*,*) '------g_p1-2---------- END'
-       if (ga_nodeid().eq.0) 
-     &    write(*,*) '------g_p1-tot---------- START'
-        call ga_add(1.0d0,g_p1_oo,1.0d0,g_p1_ov,g_p1)
-        call ga_print(g_p1)
-       if (ga_nodeid().eq.0) 
-     &    write(*,*) '------g_p1-tot---------- END'
+c       if (ga_nodeid().eq.0) 
+c     &    write(*,*) '------g_p1-tot---------- START'
+c        call ga_add(1.0d0,g_p1_oo,1.0d0,g_p1_ov,g_p1)
+c        call ga_print(g_p1)
+c       if (ga_nodeid().eq.0) 
+c     &    write(*,*) '------g_p1-tot---------- END'
        endif
 
        if (.not.ga_destroy(g_d1_oo)) call 
@@ -3693,62 +3689,62 @@ c ------ for shield  NLMO analysis --------- END
        ahi(1) = nbf
        ahi(2) = nbf
        ahi(3) = 3
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',alo,g_d1_oo)) call 
+       if (.not.nga_create(MT_DBL,3,ahi,'d1oo matrix',alo,g_d1_oo)) call 
      &     errquit('g_d1_oo: nga_create failed g_d1_oo',0,GA_ERR)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',alo,g_p1_oo)) call 
+       if (.not.nga_create(MT_DBL,3,ahi,'p1oo matrix',alo,g_p1_oo)) call 
      &     errquit('g_p1_oo: nga_create failed g_p1_oo',0,GA_ERR)
        call ga_zero(g_p1_oo)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',alo,g_d1_ov)) call 
+       if (.not.nga_create(MT_DBL,3,ahi,'d1ov matrix',alo,g_d1_ov)) call 
      &     errquit('g_d1_ov: nga_create failed g_d1_ov',0,GA_ERR)
 
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'d1ov_Coul matrix',
      &     alo,g_d1_ov_Coul)) call 
      &     errquit('g_d1_ovJ: nga_create failed g_d1_ovJ',0,GA_ERR)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'d1ov_Exch matrix',
      &     alo,g_d1_ov_Exch)) call 
      &     errquit('g_d1_ovK: nga_create failed g_d1_ovK',0,GA_ERR)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'d1ov_noJK matrix',
      &     alo,g_d1_ov_noJK)) call 
      &     errquit('g_d1_ovnJK: nga_create failed g_d1_ovnJK',
      &     0,GA_ERR)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'d1ov_1e matrix',
      &     alo,g_d1_ov_1e)) call 
      &     errquit('g_d1_ovnJK: nga_create failed g_d1_ov1e',
      &     0,GA_ERR)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'d1ov_eSji matrix',
      &     alo,g_d1_ov_eSji)) call 
      &     errquit('g_d1_ovnJK: nga_create failed g_d1_oveSji',
      &     0,GA_ERR)
 
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',alo,g_p1_ov)) call 
+       if (.not.nga_create(MT_DBL,3,ahi,'p1ov matrix',alo,g_p1_ov)) call 
      &     errquit('g_p1_ov: nga_create failed g_p1_ov',0,GA_ERR)
        call ga_zero(g_p1_ov)
 
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'p1ov_Coul matrix',
      &     alo,g_p1_ov_Coul)) call 
      &     errquit('g_p1_ovJ: nga_create failed g_p1_ovJ',0,GA_ERR)
        call ga_zero(g_p1_ov_Coul)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'p1ov_Exch matrix',
      &     alo,g_p1_ov_Exch)) call 
      &     errquit('g_p1_ovK: nga_create failed g_p1_ovK',0,GA_ERR)
        call ga_zero(g_p1_ov_Exch)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'p1ov_noJK matrix',
      &     alo,g_p1_ov_noJK)) call 
      &     errquit('g_p1_ovnJK: nga_create failed g_p1_ovnJK',
      &     0,GA_ERR)
        call ga_zero(g_p1_ov_noJK)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'p1ov_1e matrix',
      &     alo,g_p1_ov_1e)) call 
      &     errquit('g_p1_ov1e: nga_create failed g_p1_ov1e',
      &     0,GA_ERR)
        call ga_zero(g_p1_ov_1e)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',
+       if (.not.nga_create(MT_DBL,3,ahi,'p1ov_eSji matrix',
      &     alo,g_p1_ov_eSji)) call 
      &     errquit('g_p1_oveSji: nga_create failed g_p1_oveSji',
      &     0,GA_ERR)
        call ga_zero(g_p1_ov_eSji)
 c ------ For debugging ---- START
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',alo,g_p1)) call 
+       if (.not.nga_create(MT_DBL,3,ahi,'p1 matrix',alo,g_p1)) call 
      &     errquit('g_p1: nga_create failed g_p1',0,GA_ERR)
        call ga_zero(g_p1)
 c ------ For debugging ---- END
@@ -4288,7 +4284,8 @@ c -------- g_c1 --> file ----------END
        if (ga_nodeid().eq.0) 
      &    write(*,*) '------g_p1-tot---------- END'
        endif
-
+       if (.not.ga_destroy(g_p1)) call 
+     &    errquit('get_p1: ga_destroy failed g_p1',0,GA_ERR)   
        if (.not.ga_destroy(g_d1_oo)) call 
      &    errquit('get_d1: ga_destroy failed g_d1_oo',0,GA_ERR)   
        if (.not.ga_destroy(g_d1_ov)) call 
@@ -4348,7 +4345,7 @@ c Debugging routines ----------------------------------------START
      &        dlo(3), dhi(3)
       integer natoms
       double precision pos(3*natoms)
-      double precision eval(nmo*npol),toscl
+      double precision eval(nbf*npol),toscl
       integer basis ! basis handle
       integer vectors(npol)
       logical oskel
@@ -4401,21 +4398,31 @@ c     Get S10 in GA and transform to MO set (virt,occ)
        call ga_zero(g_s10)
 
 c ------------ creating ga arrays ---------- END
+c       call int_giao_1ega(basis,basis,g_s10_1,'s10',
+c     &                    pos(1),natoms,oskel)    
        call int_giao_1ega(basis,basis,g_s10_1,'s10',
-     &                    pos(1),natoms,oskel)    
+     &                    pos,natoms,oskel)   
+
+      if (debug_prelim.eq.1) then
+       if (ga_nodeid().eq.0) 
+     &  write(*,*) ' ---gprelim: ---- g_s10_1 ----START'
+        call ga_print(g_s10_1)
+       if (ga_nodeid().eq.0) 
+     &  write(*,*) ' ---gprelim: ---- g_s10_1 ----END'
+      endif
 
        blo(1) = 1
-       bhi(1) = nmo
+       bhi(1) = nbf ! nmo-fixing4lineardependency
        blo(2) = 1
-       bhi(2) = nmo
+       bhi(2) = nbf ! nmo-fixing4lineardependency
        blo(3) = 1
        bhi(3) = 3
       do ispin=1,npol  
        disp=3*(ispin-1) 
        alo(1) = 1
-       ahi(1) = nmo
+       ahi(1) = nbf ! nmo-fixing4lineardependency
        alo(2) = 1
-       ahi(2) = nmo
+       ahi(2) = nbf ! nmo-fixing4lineardependency
        alo(3) = disp+1
        ahi(3) = disp+3   
        call nga_copy_patch('n',g_s10_1,blo,bhi,
@@ -4431,15 +4438,20 @@ c ------------ creating ga arrays ---------- END
       endif
 
       call giao_aotomo(g_s10,vectors,nocc,nvirt,npol,3,nbf)
+
       if (debug_prelim.eq.1) then
-       if (ga_nodeid().eq.0) 
-     &  write(*,*) ' ----------- g_d2------------ START'
         do ispin=1,npol
+          if (ga_nodeid().eq.0) 
+     &     write(*,*) '-------- MO vect(',ispin,')----START'
          call ga_print(vectors(ispin))
+          if (ga_nodeid().eq.0) 
+     &     write(*,*) '-------- MO vect(',ispin,')----END'
         enddo
+       if (ga_nodeid().eq.0) 
+     &  write(*,*) ' ----gprelim: ---- MO:g_s10 ---- START'
        call ga_print(g_s10)
        if (ga_nodeid().eq.0) 
-     &  write(*,*) ' ---gprelim: ---- MO:g_s10 ----END'
+     &  write(*,*) ' ----gprelim: ---- MO:g_s10 ---- END'
       endif
 
       do ispin=1,npol ! ++++++  START-loop-ispin
@@ -4457,15 +4469,15 @@ c ------------ creating ga arrays ---------- END
        disp=3*(ispin-1)
 c     COPY : g_s10 -> g_s10_1 ---------- START
        blo(1) = 1
-       bhi(1) = nmo
+       bhi(1) = nbf ! nmo-fixing4lineardependency
        blo(2) = 1
-       bhi(2) = nmo
+       bhi(2) = nbf ! nmo-fixing4lineardependency
        blo(3) = 1
        bhi(3) = 3
        alo(1) = 1
-       ahi(1) = nmo
+       ahi(1) = nbf ! nmo-fixing4lineardependency
        alo(2) = 1
-       ahi(2) = nmo
+       ahi(2) = nbf ! nmo-fixing4lineardependency
        alo(3) = disp+1
        ahi(3) = disp+3   
        call nga_copy_patch('n',g_s10,alo,ahi,
@@ -4756,19 +4768,25 @@ c ----------- Create scratch ga-arrays ------- START
        call ga_zero(g_s10)
 
       if (.not.(do_zora)) then ! do: HF or DFT (norel calc.)
+c        call int_giao_1ega(basis,basis,g_s10_1,
+c     &                     'l10' ,pos(1),natoms,oskel)
         call int_giao_1ega(basis,basis,g_s10_1,
-     &                     'l10' ,pos(1),natoms,oskel)
+     &                     'l10' ,pos,natoms,oskel)
         NoKinetic=0 ! =0 DO-kinetic, =1 SKIP-kinetic
+c        call int_giao_1ega(basis,basis,g_s10_1,
+c     &                     'tv10',pos(1),natoms,oskel)
         call int_giao_1ega(basis,basis,g_s10_1,
-     &                     'tv10',pos(1),natoms,oskel)
+     &                     'tv10',pos,natoms,oskel)
       else                            ! do: zora (relativistic calc.)
 c ----------- Create scratch ga-arrays ------- END
         NoKinetic=1 ! =0 DO-kinetic, =1 SKIP-kinetic
+c        call int_giao_1ega(basis,basis,g_s10_1,
+c     &                     'tv10',pos(1),natoms,oskel)
         call int_giao_1ega(basis,basis,g_s10_1,
-     &                     'tv10',pos(1),natoms,oskel)
+     &                     'tv10',pos,natoms,oskel)
         call ga_add(1.0d0,g_s10_1,
-     &              1.0d0, ga_Fji, ! update g_s10_1 with ga_Fji
-     &              g_s10_1)       ! out
+     &              1.0d0,ga_Fji, ! update g_s10_1 with ga_Fji
+     &                    g_s10_1)! out
       endif
 c ++++++++++++ COSMO-added-07-13-11+++++++++++++ START
 c     Get external and cosmo bq contribution
@@ -4789,17 +4807,17 @@ c ++++++++++++ COSMO-added-07-13-11+++++++++++++ END
 c     Transform H10 to MO and add to g_rhs
 c     Copy: g_s10_1 --> g_s10
        blo(1) = 1
-       bhi(1) = nmo
+       bhi(1) = nbf ! nmo-fixing4lineardependency
        blo(2) = 1
-       bhi(2) = nmo
+       bhi(2) = nbf ! nmo-fixing4lineardependency
        blo(3) = 1
        bhi(3) = 3
       do ispin=1,npol   
        shift=3*(ispin-1)
        alo(1) = 1
-       ahi(1) = nmo
+       ahi(1) = nbf ! nmo-fixing4lineardependency
        alo(2) = 1
-       ahi(2) = nmo
+       ahi(2) = nbf ! nmo-fixing4lineardependency
        alo(3) = shift+1
        ahi(3) = shift+3   
        call nga_copy_patch('n',g_s10_1,blo,bhi,
@@ -4930,9 +4948,7 @@ c ----- out: g_rhs_1e ------- END
      &         get_P10_JK_AorB
       integer debug_gshift
       integer shift,disp
-c
-      debug_gshift = 0
-c
+
       if (.not. ma_push_get(mt_dbl,9*sh_atom,'sh para',l_para,k_para)) 
      &    call errquit('hnd_gshift: ma_push_get failed k_para',0,MA_ERR)
       if (.not. ma_push_get(mt_dbl,9*sh_atom,'sh dia',l_dia,k_dia)) call
@@ -5073,9 +5089,7 @@ c ---- STORE: ga_dia_epr --> dbl_mb(k_dia)
       ld(1)=3
       ld(2)=3 
       call nga_get(ga_dia_epr_AB,alo,ahi,dbl_mb(k_dia),ld)
-c
 c +++++++++ print-total-pardia-transferred +++ START
-      if (debug_gshift.eq.1) then
        if (ga_nodeid().eq.0) then
         ic=1
         do ix = 1, 3
@@ -5113,8 +5127,6 @@ c +++++++++ print-total-pardia-transferred +++ START
          enddo ! end-loop-iy
         enddo ! end-loop-ix
        endif ! ---- END-if-ga_nodeid-eq-0
-      end if ! debug_gshift
-c
 c ----- destroy created GA arrays in get_P10_JK ---- START
        if (.not.ga_destroy(g_d1_oo)) call 
      &  errquit('gprelim_fock: ga_destroy failed g_s10',0,GA_ERR)

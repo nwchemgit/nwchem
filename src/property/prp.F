@@ -228,15 +228,26 @@ c
 c     === deallocate used ga's ===
       if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
      &   ipol=1
-c
-      if (nogshift.eq.0 .or. nogiao.eq.0 .or. nospin.eq.0) then
+
+      if (nogshift.eq.0 .or. nogiao  .eq.0 .or.
+     &    nospin  .eq.0 .or. noelfgZ4.eq.0) then
        if (do_zora) then 
         do i=1,ipol
+           if (.not. ga_destroy(g_zora_Kinetic(i))) call errquit(
+     &          'prp: ga_destroy failed g_zora_K',0, GA_ERR)
            if (.not. ga_destroy(g_Cifull(i))) call errquit(
      &         'prp: ga_destroy failed ',0, GA_ERR)
         enddo ! ipol
+c Do not destroy g_AtNr if doing g-shift because it was not created!!
+        status=rtdb_get(rtdb,'prop:gshift'      ,MT_INT,1,nogshift) 
+        if (nogshift.ne.0) then
+         if (.not. ga_destroy(g_AtNr)) call errquit( ! defined in dft_zora_NMR.F
+     &    'prp: ga_destroy failed g_AtNr',0, GA_ERR)   
+        endif
+       if (.not. ga_destroy(g_Ci)) call errquit( ! defined in dft_zora_utils.F
+     &    'prp: ga_destroy failed g_Ci',0, GA_ERR)                 
        end if
-      end if ! check
+      end if ! check-nogshift-nogiao-nospin-noelfgZ4
 c
 c     ----- stone's distributed multipole analysis -----
 c

@@ -520,17 +520,15 @@ c ------- Destroy ga arrays -----------
      &  'hnd_efgmap_z4: ga_destroy failed ',0, GA_ERR)
       if (.not. ga_destroy(g_rhoS)) call errquit(
      &  'hnd_efgmap_z4: ga_destroy failed ',0, GA_ERR)
-      efgfile=0 ! not doing NLMO analysis by default
-      status=rtdb_get(rtdb,'prop:efgfile',mt_int,1,efgfile) ! for NLMO analysis
-      if (efgfile.eq.0) then ! ONLY destroy if not doing NLMO analysis
-         if(.not.rtdb_get(rtdb,'zora:skip_efgz4AOev',
-     &             mt_log,1,skip_efgz4AOev)) then      
-            if (.not. ga_destroy(g_AtNr)) call errquit(
-     &         'hnd_efgmap_z4: ga_destroy failed ',0, GA_ERR)
-         endif
-        if (.not. ga_destroy(g_Ci)) call errquit(
-     &    'hnd_efgmap_z4: ga_destroy failed ',0, GA_ERR)
-      endif
+c     efgfile=0 ! not doing NLMO analysis by default
+c     status=rtdb_get(rtdb,'prop:efgfile',mt_int,1,efgfile) ! for NLMO analysis
+c     if (efgfile.eq.0) then ! ONLY destroy if not doing NLMO analysis
+c        if(.not.rtdb_get(rtdb,'zora:skip_efgz4AOev',
+c    &             mt_log,1,skip_efgz4AOev)) then      
+c           if (.not. ga_destroy(g_AtNr)) call errquit(
+c    &         'hnd_efgmap_z4: ga_destroy failed ',0, GA_ERR)
+c        endif
+c     endif
 c ------- Deallocate MA memory ------
        if (.not.ma_free_heap(l_rhoS)) call
      &     errquit('hnd_efgmap_z4: ma_free_heap l_rhoS',0, MA_ERR)
@@ -868,6 +866,8 @@ c ------ destroy unnecessary GAs
      &  'create_munu4nbo-7: ga_destroy failed ',0, GA_ERR)
       if (.not. ga_destroy(g_ov1)) call errquit(
      &  'create_munu4nbo-3: ga_destroy failed ',0, GA_ERR)
+      if (.not. ga_destroy(g_dens)) call errquit(
+     &  'create_munu4nbo: ga_destroy failed ',0, GA_ERR)
       if (.not. ga_destroy(g_dens1)) call errquit(
      &  'create_munu4nbo: ga_destroy failed ',0, GA_ERR)
 

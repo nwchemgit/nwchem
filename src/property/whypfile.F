@@ -268,13 +268,13 @@ c ++++++++++++ HYP printout ++++++++++ START
            if (dbl_mb(indq) .ne. 0.0d0)
      &      dbl_mb(indq)=dbl_mb(indq)-1.0d0
 
-          if (ga_nodeid().eq.0) then
-           write(*,7) i,j,
-     &                dbl_mb(indq),1.0d0/(1.0d0+dbl_mb(indq)),
-     &                1.0d0/(1.0d0+dbl_mb(indq))**0.5d0
-  7        format('whypfile::qscal(',i4,',',i4,')=(',f15.8,',',
-     &             f15.8,',',f15.8,')')
-          endif
+c          if (ga_nodeid().eq.0) then
+c           write(*,7) i,j,
+c     &                dbl_mb(indq),1.0d0/(1.0d0+dbl_mb(indq)),
+c     &                1.0d0/(1.0d0+dbl_mb(indq))**0.5d0
+c  7        format('whypfile::qscal(',i4,',',i4,')=(',f15.8,',',
+c     &             f15.8,',',f15.8,')')
+c          endif
           count_qscal=count_qscal+1
           indx=indx+indx_inc
          enddo ! end-loop-j
@@ -429,9 +429,6 @@ c ... Fredy: here we write more detailed NBO input if requested.
 c ... jochen end
       endif   ! ------ if-ga_nodeid-1--- END
 c ------- Destroy ga arrays -----------
-c      if (.not. ga_destroy(g_Ci)) call errquit( ! destroy GA - FA
-c     &  'whypfile: ga_destroy failed ',0, GA_ERR)
-c
 c>>>  End $GENNBO and $NBO keylist data.
 c
 c>>>  Begin $COORD keylist.

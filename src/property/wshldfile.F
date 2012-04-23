@@ -238,11 +238,11 @@ c ++++++++++++ HYP printout ++++++++++ START
         if (.not.ma_alloc_get(mt_dbl,nocc,'qscal',l_qscal,k_qscal)) 
      &     call errquit('wgshldffile: ma failed',0,MA_ERR)
 
-        if (ga_nodeid().eq.0)
-     &   write(*,*) '-------g_Ci---------- START'
-        call ga_print(g_Ci)
-        if (ga_nodeid().eq.0)
-     &   write(*,*) '-------g_Ci---------- END'
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) '-------g_Ci---------- START'
+c        call ga_print(g_Ci)
+c        if (ga_nodeid().eq.0)
+c     &   write(*,*) '-------g_Ci---------- END'
 
         call ga_get(g_Ci,1,nset,1,nocc,dbl_mb(k_Ci),nset)
         if (nset.eq.1) then
@@ -262,13 +262,13 @@ c ++++++++++++ HYP printout ++++++++++ START
            if (dbl_mb(indq) .ne. 0.0d0)
      &      dbl_mb(indq)=dbl_mb(indq)-1.0d0
 
-          if (ga_nodeid().eq.0) then
-           write(*,7) i,j,
-     &                dbl_mb(indq),1.0d0/(1.0d0+dbl_mb(indq)),
-     &                1.0d0/(1.0d0+dbl_mb(indq))**0.5d0
-  7        format('wshldfile::qscal(',i4,',',i4,')=(',f15.8,',',
-     &             f15.8,',',f15.8,')')
-          endif
+c          if (ga_nodeid().eq.0) then
+c           write(*,7) i,j,
+c     &                dbl_mb(indq),1.0d0/(1.0d0+dbl_mb(indq)),
+c     &                1.0d0/(1.0d0+dbl_mb(indq))**0.5d0
+c  7        format('wshldfile::qscal(',i4,',',i4,')=(',f15.8,',',
+c     &             f15.8,',',f15.8,')')
+c          endif
           count_qscal=count_qscal+1
           indx=indx+indx_inc
          enddo ! end-loop-j

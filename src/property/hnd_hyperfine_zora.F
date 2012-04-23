@@ -65,10 +65,10 @@ c ----- Definitions for NLMO analysis ---- END
      &         dft_zoraCPHF_write,dft_zoraCPHF_read
 
       integer ntot,ispin,indA,indB,nocc(2),nind_jk
-      integer debug_hyperfine
+      integer debug_giaox
       logical skip_cphf_ev_hyp
 
-      debug_hyperfine=0 ! =1 for debugging print outs of matrices
+      debug_giaox=0 ! =1 for debugging print outs of matrices
       if (ga_nodeid().eq.0) then
         write(LuOut,*)
         call util_print_centered(LuOut,
@@ -183,7 +183,7 @@ c     & write(*,*) 'npol=',npol
        nocc(1)=nopen(1)   
        nocc(2)=nopen(2)     
       endif
-      if (debug_hyperfine.eq.1) then
+      if (debug_giaox.eq.1) then
        write(*,10) nocc(1),nocc(2),
      &             nopen(1),nopen(2),
      &             nclosed(1),nclosed(2),
@@ -247,19 +247,19 @@ c     Get Unperturbed Density Matrix
      &   call errquit('hnd_gshift: ga_create failed g_rhs',0,GA_ERR)
       call ga_zero(g_rhs)
 
-       if (debug_hyperfine.eq.1) then
+       if (debug_giaox.eq.1) then
         write(*,*) 'after-creating g_rhs ...'
         write(*,102)npol,nocc(1),nocc(2),
      &              nclosed(1),nclosed(2),
-     &              nvirt(1),nvirt(2),scftyp
+     &              nvirt(1),nvirt(2),scftyp,ndens
  102   format('BEF pre-fock::npol=',i3,' nocc=(',i3,',',i3,') ',
      &       'nclos=(',i3,',',i3,') ',
-     &       'nvirt=(',i3,',',i3,') scftyp=',a,')')
+     &       'nvirt=(',i3,',',i3,') scftyp=',a,',ndens=',i3,')')
        endif
        call add_H10_hfine(g_rhs, ! out: ga_rhs(a,i)=ga_rhs(a,i)+H10(a,i)
      &                    ga_Fji_hfine,vectors, 
      &                    basis,nbf,nmo,npol,nocc,nvirt) 
-       if (debug_hyperfine.eq.1) then
+       if (debug_giaox.eq.1) then
         if (ga_nodeid().eq.0) then
          write(*,*) 'Aft. add_H10()'
          write(*,*) '---- g_rhs-aft-add_H10 -------- START'
@@ -283,7 +283,7 @@ c -------free allocated memory -------------- START
       if (.not.ma_pop_stack(l_occ)) call
      &    errquit('hnd_gshift: ma_pop_stack failed k_occ',0,MA_ERR)
 c -------free allocated memory -------------- END
-      if (debug_hyperfine.eq.1) then
+      if (debug_giaox.eq.1) then
        if (ga_nodeid().eq.0)
      &  write(*,*) '---- Reading INPUT-cphf: g_rhs -------- START'
        call ga_print(g_rhs)
@@ -378,7 +378,7 @@ c     &   write(*,*) '---------- g_rhs-hyp--read --------- END'
 
  123  continue ! SKIPPING cphf
 
-      if (debug_hyperfine.eq.1) then
+      if (debug_giaox.eq.1) then
        if (ga_nodeid().eq.0)
      &  write(*,*) '---- Reading sol-cphf: g_rhs -------- START'
       call ga_print(g_rhs)
@@ -422,9 +422,8 @@ c     integrals. They were terminated by the cphf.
      &                   coeffpol,
      &                   basis,nbf,nat_slc,rtdb)
 c +++++++++ print-total-pardia-transferred +++ START
-
-      if (debug_hyperfine.eq.1 .and. ga_nodeid().eq.0 ) then
-        write(*,105) nat_slc
+      if (ga_nodeid().eq.0)      
+     &   write(*,105) nat_slc
  105     format('NATOMS=',i3) 
       ic=1
       do iatom = 1, nat_slc
@@ -444,10 +443,8 @@ c +++++++++ print-total-pardia-transferred +++ START
         enddo ! end-loop-iy
        enddo ! end-loop-ix
       enddo ! end-loop-iatom
-      end if ! debug_hyperfine & ga_nodeid()
-c
 c +++++++++ print-total-dia-transferred +++ END
-       do ispin=1,npol
+       do ispin=1,ndens 
         if (.not.ga_destroy(g_dens(ispin))) call 
      &    errquit('hnd_hfine_zora: ga_destroy failed g_dens',
      &    0,GA_ERR)
@@ -655,6 +652,8 @@ c     Clean up all remaining memory
      &    errquit('hnd_hyperfine_zora: ga_destroy failed vectors',
      &             0,GA_ERR)
       enddo
+        if (.not. ga_destroy(g_AtNr1)) call errquit(
+     &    'hnd_giaox_zora: ga_destroy failed ',0, GA_ERR)   
       if (.not.ma_pop_stack(l_zan)) call
      &    errquit('hnd_hyperfine_zora: ma_pop_stack failed k_zan',
      &             0,MA_ERR)
@@ -1391,6 +1390,8 @@ c +++++++++ NOW: do ddot product to get diagonalized tensor +++ START
      &                   basis,nbf,iat,rtdb)
 c +++++++++ NOW: do ddot product to get diagonalized tensor +++ END
 c ++++++++++ CHECK diagonalization in para hyperfine ++++++++ END
+      if (.not. ga_destroy(g_p10)) call errquit(
+     &  'create_munu4nbo: ga_destroy failed ',0, GA_ERR)
       enddo ! end-loop-iat
         if (ga_nodeid().eq.0)
      &   write(*,*) 'CHCooooooooooooo',
@@ -1429,8 +1430,6 @@ c ------ destroy unnecessary GAs
       if (.not. ga_destroy(g_sdens)) call errquit(
      &  'create_munu4nbo: ga_destroy failed ',0, GA_ERR)
       if (.not. ga_destroy(g_sdens1)) call errquit(
-     &  'create_munu4nbo: ga_destroy failed ',0, GA_ERR)
-      if (.not. ga_destroy(g_p10)) call errquit(
      &  'create_munu4nbo: ga_destroy failed ',0, GA_ERR)
       if (.not. ga_destroy(g_c1)) call errquit(
      &  'create_munu4nbo: ga_destroy failed ',0, GA_ERR)
@@ -1535,9 +1534,11 @@ c ------ for Hyperfine NMLO analysis --------- END
        ahi(1) = nbf
        ahi(2) = nbf
        ahi(3) = 3
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',alo,g_d1)) call 
+       if (.not.nga_create(MT_DBL,3,ahi,'get_P10_rot: g_d1 matrix',
+     &                    alo,g_d1)) call 
      &     errquit('g_d1: nga_create failed g_d1',0,GA_ERR)
-       if (.not.nga_create(MT_DBL,3,ahi,'D10 matrix',alo,g_p1)) call 
+       if (.not.nga_create(MT_DBL,3,ahi,'get_P10_rot: g_p1 matrix',
+     &                     alo,g_p1)) call 
      &     errquit('g_p1: nga_create failed g_p1',0,GA_ERR)
        call ga_zero(g_p1)
       do ispin=1,npol
