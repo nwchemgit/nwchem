@@ -165,9 +165,9 @@ c -- execute this code for EFGSRZ4+NLMO analysis is requested -- END
      &    call errquit(
      &          'dft_zora_utils: cannot allocate vec aux',911,MA_ERR)
       g_orb     = ga_create_atom_blocked(geom, ao_bas_han, 'orbs')
-      g_dens_sf = ga_create_atom_blocked(geom, ao_bas_han,'orbs dens')
+      g_dens_sf = ga_create_atom_blocked(geom, ao_bas_han,'g_dens_sf')
       do i=1,3 ! for scaled density matrix used in NMR-shieldigns,hyperfine,gshift,EFGZ4
-       g_densZ4(i)=ga_create_atom_blocked(geom,ao_bas_han,'orbs dens')
+       g_densZ4(i)=ga_create_atom_blocked(geom,ao_bas_han,'densZ4')
        call ga_zero(g_densZ4(i))
       end do
 c
@@ -343,14 +343,10 @@ c     deallocate memory
      &  'zora_scale_evals: ga_destroy failed ',0, GA_ERR)
       if (.not. ga_destroy(g_dens_sf)) call errquit(
      &  'zora_scale_evals: ga_destroy failed ',0, GA_ERR)
-      do i=1,ipol
+      do i=1,3
         if (.not. ga_destroy(g_densZ4(i))) call errquit(
      &    'dft_zora_utils: ga_destroy failed ',0, GA_ERR)
       enddo
-      if (ipol.eq.2) then
-        if (.not. ga_destroy(g_densZ4(3))) call errquit(
-     &    'dft_zora_utils: ga_destroy failed ',0, GA_ERR)
-      endif
 c
       do_zora_get_correction=do_zgc_old   ! restore value
 c

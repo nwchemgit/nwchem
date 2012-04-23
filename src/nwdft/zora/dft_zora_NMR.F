@@ -1029,6 +1029,8 @@ c ---Destroying ga arrays ----- START
        if (.not. ga_destroy(g_Lk)) call errquit(
      &    'gFij: ga_destroy failed ',0, GA_ERR)
        do i=1,3
+        if (.not. ga_destroy(g_v(i))) call errquit(
+     &    'gFij: ga_destroy failed g_v',0, GA_ERR) 
         if (.not. ga_destroy(g_nmr(i))) call errquit(
      &    'gFij: ga_destroy failed ',0, GA_ERR) 
         if (.not. ga_destroy(g_nmr3(i))) call errquit(

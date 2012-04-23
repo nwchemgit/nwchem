@@ -466,9 +466,9 @@ c     Author : Fredy Aquino
 
       if (.not. bas_numbf(basis,nbf)) call
      &    errquit('get_densZ4: could not get nbf',0, BASIS_ERR)      
-      g_dens_sf=ga_create_atom_blocked(geom,basis,'orbs dens')
+      g_dens_sf=ga_create_atom_blocked(geom,basis,'sf-1')
       do ii=1,3
-       g_densZ4(ii)=ga_create_atom_blocked(geom,basis,'orbs dens')
+       g_densZ4(ii)=ga_create_atom_blocked(geom,basis,'densZ4-1')
       end do
       call hnd_prp_get_vecs(rtdb,geom,basis,prpvectors,scftyp,
      &                      nclosed,nopen,nvirt)

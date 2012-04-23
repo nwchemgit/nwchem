@@ -143,8 +143,8 @@ c ---- Destroy stored ga arrays ------ START
      &    'get_NMRHFine_ZORA: ga_destroy failed ',0, GA_ERR)   
         if (.not. ga_destroy(ga_Fji_hfine)) call errquit(
      &    'get_NMRHFine_ZORA: ga_destroy failed ',0, GA_ERR)   
-        if (.not. ga_destroy(g_AtNr)) call errquit(
-     &    'get_NMRHFine_ZORA: ga_destroy failed ',0, GA_ERR)              
+c        if (.not. ga_destroy(g_AtNr)) call errquit(
+c     &    'get_NMRHFine_ZORA: ga_destroy failed ',0, GA_ERR)              
 c ---- Destroy stored ga arrays ------ END
        if (.not.ma_free_heap(l_AtNr)) call
      &     errquit('get_NMRHFine_ZORA: ma_free_heap l_AtNr',0,MA_ERR)    
