@@ -288,8 +288,12 @@ c Find nroot smallest eigenvalue differences
 c ------------------------------------------
 c
       if (lecut) then
+       if (necut.eq.0) call errquit
+     1  ('tddft_iguess: no excitations in energy window',necut,CALC_ERR)
        if (nroots.gt.necut) nroots = necut
       else if (lowin) then
+       if (nowin.eq.0) call errquit
+     1  ('tddft_iguess: no excitations in window',nowin,CALC_ERR)
        if (nroots.gt.nowin) nroots = nowin
       endif
 c
@@ -342,10 +346,11 @@ c
           enddo
          enddo
         enddo
+c
         if (.not.found) call errquit
      1    ('tddft_iguess: too many roots requested',nroots, INPUT_ERR)
         dbl_mb(k_ediff+int_mb(k_sorta+m-1)-1)=huge+huge
-      enddo
+      enddo  ! loop over n
 c
 c ---------------------------------------------------
 c Print the smallest eigenvalue differences for debug
