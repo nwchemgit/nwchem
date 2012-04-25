@@ -929,8 +929,8 @@ endif
     FOPTIONS += -pg
     LDOPTIONS += -pg
   endif
-  LDOPTIONS += -bloadmap:nwchem.ibm64map -bbigtoc
-  LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x80000000 # needed because of bigtoc
+  LDOPTIONS += -bloadmap:nwchem.ibm64map -bbigtoc # bigtoc requires bmaxdata
+  LDOPTIONS += -bmaxstack:0x80000000 -bmaxdata:0x200000000 # this limits MA to 8GB
   ifeq ($(LAPACK_LIB),)
      CORE_LIBS += -llapack
   endif
