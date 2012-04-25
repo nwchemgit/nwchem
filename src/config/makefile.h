@@ -1358,6 +1358,15 @@ endif
 
   DEFINES = -DLINUX
 
+      ifeq ($(FC),gfortran)
+        FOPTIONS   = -Wextra -ffast-math #-Wunused  
+        FOPTIMIZE  = -O2 -ffast-math -Wuninitialized
+        _FC=gfortran
+        DEFINES  += -DGFORTRAN
+      endif
+      COPTIONS   = -Wall
+      COPTIMIZE  = -g -O2
+
 ifeq ($(LINUXCPU),x86) 
   ifeq ($(TARGET),CYGNUS)
     DEFINES += -DCYGNUS
@@ -1373,7 +1382,6 @@ ifeq ($(LINUXCPU),x86)
 
     ifeq ($(_CPU),i686)
      _GOTSSE2= $(shell cat /proc/cpuinfo | egrep sse2 | tail -n 1 | awk ' /sse2/  {print "Y"}')
-     _PENTIUM_M= $(shell cat /proc/cpuinfo | egrep " M processor" | tail -n 1 | awk ' /M/  {print "Y"}')
       ifeq ($(_GOTSSE2),Y) 
         _CPU=i786
       endif
@@ -1448,10 +1456,6 @@ ifeq ($(LINUXCPU),x86)
  ifeq ($(FC),ifort)
      _FC=ifc
  endif
- ifeq ($(FC),gfortran)
-   _FC=gfortran
-       DEFINES  += -DGFORTRAN
-  endif
   ifeq ($(_FC),ifc)
   FOPTIONS   =  -align    -mp1 -w -g -vec-report1
   ifdef  USE_GPROF
@@ -1476,15 +1480,7 @@ ifeq ($(LINUXCPU),x86)
       FOPTIMIZE +=  -tpp6 -xK   # this are for PentiumIII
     endif
     ifeq ($(_CPU),i786)
-      ifeq ($(_PENTIUM_M),Y)
-        ifneq ($(_IFCV7),Y)
-          FOPTIMIZE +=  -tpp7 -xB    # this are for Pentium M (aka Centrino)
-        else
-          FOPTIMIZE +=  -tpp7 -xW    # this are for PentiumIV
-        endif
-      else
-        FOPTIMIZE +=  -tpp7 -xW    # this are for PentiumIV
-      endif
+      FOPTIMIZE +=  -tpp7 -xW    # this are for PentiumIV
     endif
     DEFINES   += -DIFCLINUX
     ifneq ($(_IFCV7),Y)
@@ -1494,8 +1490,6 @@ ifeq ($(LINUXCPU),x86)
       ifeq ($(_FC),gfortran)
 #gcc version 4.1.0 20050525 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
-        FOPTIONS   = -Wextra -ffast-math #-Wunused  
-        FOPTIMIZE  = -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
           FOPTIONS += -march=pentium4 -mtune=pentium4
           FVECTORIZE = $(FOPTIMIZE) -O3 -ftree-vectorize 
