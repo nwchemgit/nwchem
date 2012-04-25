@@ -32,7 +32,7 @@ c
 #else
       integer iargc
 #endif
-#if !(defined(IFCV8) || defined(HPUX)||defined(__GFORTRAN__)) 
+#if !(defined(IFCV8) || defined(HPUX)|| ( __GNUC__ >= 4))
       external iargc
 #endif
 c     

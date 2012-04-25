@@ -1,4 +1,4 @@
-#ifdef __GFORTRAN__
+#if ( __GNUC__ >= 4)
 #else
       integer function ishft(i,j)
 *
