@@ -24,7 +24,7 @@ c
 #define __UTIL_CPUSEC__
       real*4 tarray(2)
       real*4 etime
-#ifndef GCC4
+#ifndef __GFORTRAN__
       external etime
 #endif
 c

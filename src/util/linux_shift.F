@@ -1,4 +1,4 @@
-#ifdef GCC4
+#ifdef __GFORTRAN__
 #else
       integer function ishft(i,j)
 *

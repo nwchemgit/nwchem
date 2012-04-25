@@ -8,7 +8,7 @@
 #include "errquit.fh"
       integer iarg_in
       character*(*) arg
-#if defined(EXT_INT) && !defined(GCC4)
+#if defined(EXT_INT) && !defined(__GFORTRAN__)
       integer*4 iarg
 #else
       integer iarg
