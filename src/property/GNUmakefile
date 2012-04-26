@@ -33,6 +33,7 @@
          hnd_gshift_zora.o \
          hnd_giaox_zora.o \
          int_giao_1ega.o \
+         giao_aotomo.o \
          hnd_diag.o \
          hnd_spinspin.o \
          hnd_sdfc.o \
