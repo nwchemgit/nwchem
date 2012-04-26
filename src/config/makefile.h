@@ -1549,7 +1549,8 @@ endif
       DEFINES  +=   -DXLFLINUX
       CPP=/usr/bin/cpp  -P -C -traditional
       FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
-    else
+    endif
+    ifeq ($(FC),g77)
       FOPTIONS   = -fno-second-underscore -fno-globals -Wno-globals
       FOPTIMIZE  = -g -O2
     endif
