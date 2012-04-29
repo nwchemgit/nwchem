@@ -1261,7 +1261,7 @@ c     &  write(*,*) '---- BEF scaling g_rhs -------- END'
      &          i8,']')               
        endif
        do ispin=1,npol 
-         disp=nmo*(ispin-1)
+         disp=nmo*(ispin-1)  ! needs to be nbf*(ispin-1)
          disp1=nocc(1)*nvirt(1)*(ispin-1)
          do ivirt = 1, nvirt(ispin)
           do iocc = 1, nocc(ispin)
@@ -1351,7 +1351,7 @@ c     &  write(*,*) '---- BEF scaling g_rhs -------- END'
      &          i8,']')               
        endif
        do ispin=1,npol 
-         disp=nmo*(ispin-1)
+         disp=nmo*(ispin-1)  ! needs to be nbf*(ispin-1)
          disp1=nocc(1)*nvirt(1)*(ispin-1)
          do ivirt = 1, nvirt(ispin)
           do iocc = 1, nocc(ispin)
@@ -1578,8 +1578,8 @@ c     Scale (occ,virt) block g_s10 with - (minus) eigenvalues
        ahi(1) = nmo
        alo(3) = 1
        ahi(3) = 3
-       disp=nmo*(ispin-1)
-
+       disp=nbf*(ispin-1)
+c
        if (debug_prelim.eq.1) then
          if (ga_nodeid().eq.0) 
      &    write(*,*) ' ---gprelim: ---- BEF-scl:g_s10_1 ----START'
@@ -1587,7 +1587,7 @@ c     Scale (occ,virt) block g_s10 with - (minus) eigenvalues
          if (ga_nodeid().eq.0) 
      &    write(*,*) ' ---gprelim: ---- BEF-scl:g_s10_1 ----END'    
        endif
-
+c
         do iocc = 1, nocc(ispin)
          alo(2) = iocc
          ahi(2) = iocc
@@ -4501,8 +4501,9 @@ c     Scale (occ,virt) block g_s10 with - (minus) eigenvalues
        ahi(1) = nmo
        alo(3) = 1
        ahi(3) = 3
-       disp=nmo*(ispin-1)
-
+c
+       disp=nbf*(ispin-1)
+c
        if (debug_prelim.eq.1) then
          if (ga_nodeid().eq.0) 
      &    write(*,*) ' ---gprelim: ---- BEF-scl:g_s10_1 ----START'
@@ -4510,7 +4511,7 @@ c     Scale (occ,virt) block g_s10 with - (minus) eigenvalues
          if (ga_nodeid().eq.0) 
      &    write(*,*) ' ---gprelim: ---- BEF-scl:g_s10_1 ----END'    
        endif
-
+c
         do iocc = 1, nocc(ispin)
          alo(2) = iocc
          ahi(2) = iocc
