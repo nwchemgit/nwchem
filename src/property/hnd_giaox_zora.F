@@ -642,13 +642,13 @@ c ------- Store g_rhs without Coulomb and Exchange ---- END
      &                    g_rhs_1e,
      &                    g_rhs_eSji,
      &                    dbl_mb(k_eval), ! IN: energy eigenvalues
-     &                    nocc,nvirt,nmo,npol)
+     &                    nocc,nvirt,nmo,nbf,npol)
       else
        if (ga_nodeid().eq.0)
      &   write(*,*) 'WARNING : Using skip_cphf ...'
             call skip_cphf(g_rhs,          ! IN/OUT
      &                     dbl_mb(k_eval), ! IN: energy eigenvalues
-     &                     nocc,nvirt,nmo,npol)
+     &                     nocc,nvirt,nmo,nbf,npol)
        endif
       endif
 

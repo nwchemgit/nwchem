@@ -641,13 +641,13 @@ c ----> SKIPPING CPHF ------------------ START
      &                    g_rhs_1e,
      &                    g_rhs_eSji,
      &                    dbl_mb(k_eval), ! IN: energy eigenvalues
-     &                    nocc,nvirt,nmo,npol)
+     &                    nocc,nvirt,nmo,nbf,npol)
        else
          if (ga_nodeid().eq.0)
      &     write(*,*) 'WARNING : Using skip_cphf ...'
            call skip_cphf(g_rhs,          ! IN/OUT
      &                    dbl_mb(k_eval), ! IN: energy eigenvalues
-     &                    nocc,nvirt,nmo,npol)
+     &                    nocc,nvirt,nmo,nbf,npol)
        endif
       endif ! END-skip-cphf
 c ----> SKIPPING CPHF ------------------ END
@@ -1217,6 +1217,7 @@ c
      &                     nocc,  ! IN: nr. occupied MOs
      &                     nvirt, ! IN: nr. virtual  MOs
      &                     nmo,   ! IN: nr. MOs
+     &                     nbf,   ! number of basis functions
      &                     npol)  ! IN: nr. polarizations  
 c     Purpose : Avoid usage of cphf() routine in
 c               the case of BP functionals.
@@ -1236,7 +1237,7 @@ c -------- Calculation g_rhs/(ej-ei) ----- START
       integer g_rhs
       integer disp,disp1,iocc,ivirt,ind
       integer ispin,alo(3),ahi(3) 
-      integer nmo,npol,nocc(2),nvirt(2)
+      integer nmo,npol,nocc(2),nvirt(2),nbf
       double precision eval(nmo*npol),tosclji,coeff
 
       if (npol.eq.1) then
@@ -1261,7 +1262,7 @@ c     &  write(*,*) '---- BEF scaling g_rhs -------- END'
      &          i8,']')               
        endif
        do ispin=1,npol 
-         disp=nmo*(ispin-1)  ! needs to be nbf*(ispin-1)
+         disp=nbf*(ispin-1)
          disp1=nocc(1)*nvirt(1)*(ispin-1)
          do ivirt = 1, nvirt(ispin)
           do iocc = 1, nocc(ispin)
@@ -1303,6 +1304,7 @@ c ------ For testing Coulomb,Exchange contrib ----- START
      &                     nocc,  ! IN: nr. occupied MOs
      &                     nvirt, ! IN: nr. virtual  MOs
      &                     nmo,   ! IN: nr. MOs
+     &                     nbf,   ! number of basis functions
      &                     npol)  ! IN: nr. polarizations  
 c     Purpose : Avoid usage of cphf() routine in
 c               the case of BP functionals.
@@ -1323,7 +1325,7 @@ c -------- Calculation g_rhs/(ej-ei) ----- START
      &        g_rhs_1e,g_rhs_eSji
       integer disp,disp1,iocc,ivirt,ind
       integer ispin,alo(3),ahi(3) 
-      integer nmo,npol,nocc(2),nvirt(2)
+      integer nmo,npol,nocc(2),nvirt(2),nbf
       double precision eval(nmo*npol),tosclji,coeff
       logical debug_skip
 
@@ -1351,7 +1353,7 @@ c     &  write(*,*) '---- BEF scaling g_rhs -------- END'
      &          i8,']')               
        endif
        do ispin=1,npol 
-         disp=nmo*(ispin-1)  ! needs to be nbf*(ispin-1)
+         disp=nbf*(ispin-1)
          disp1=nocc(1)*nvirt(1)*(ispin-1)
          do ivirt = 1, nvirt(ispin)
           do iocc = 1, nocc(ispin)
