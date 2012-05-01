@@ -1,0 +1,106 @@
+echo
+
+start mo3
+
+title "mo3co b3p86 http://dx.doi.org/10.1002/jcc.20912"
+geometry mo3co 
+mo       0.86013301    -0.96881412    -0.50326261
+mo      -1.09277865     0.30984886    -0.65875097
+mo       0.31701420     1.39524897     0.64430503
+c       -0.18258410    -2.04157098     0.67567139
+o       -0.83513670    -2.72011378     1.43131265
+end
+geometry mo3 noautosym
+mo      0.86013301    -0.96881412    -0.50326261
+mo     -1.09277865     0.30984886    -0.65875097
+mo      0.31701420     1.39524897     0.64430503
+end
+geometry co  noautosym
+c      -0.18258410    -2.04157098     0.67567139
+o      -0.83513670    -2.72011378     1.43131265
+end
+
+ecp
+mo library "Stuttgart RSC 1997 ECP"
+end
+
+basis #spherical
+mo library  "Stuttgart RSC 1997 ECP"
+C    S
+   4232.6100000              0.0020290        
+    634.8820000              0.0155350        
+    146.0970000              0.0754110        
+     42.4974000              0.2571210        
+     14.1892000              0.5965550        
+      1.9666000              0.2425170        
+C    S
+      5.1477000              1.0000000        
+C    S
+      0.4962000              1.0000000        
+C    S
+      0.1533000              1.0000000        
+C    P
+     18.1557000              0.0185340        
+      3.9864000              0.1154420        
+      1.1429000              0.3862060        
+      0.3594000              0.6400890        
+C    P
+      0.1146000              1.0000000        
+#BASIS SET: (9s,5p) -> [4s,2p]
+O    S
+   7816.5400000              0.0020310        
+   1175.8200000              0.0154360        
+    273.1880000              0.0737710        
+     81.1696000              0.2476060        
+     27.1836000              0.6118320        
+      3.4136000              0.2412050        
+O    S
+      9.5322000              1.0000000        
+O    S
+      0.9398000              1.0000000        
+O    S
+      0.2846000              1.0000000        
+O    P
+     35.1832000              0.0195800        
+      7.9040000              0.1241890        
+      2.3051000              0.3947270        
+      0.7171000              0.6273750        
+O    P
+      0.2137000              1.0000000        
+end
+
+dft
+ xc vwn_1_rpa 1.  perdew86 nonlocal 0.81 HFexch 0.20  slater 0.80 becke88 nonlocal 0.72 # b3p86
+ odft
+ smear 1d-5
+ direct
+ tolerances tight
+end
+driver
+ clear
+end
+set dft:spinset t
+set geometry co
+
+dft
+mult 1
+vectors input atomic output co.mos
+end
+
+task dft ignore
+
+set geometry mo3
+dft
+mult 3
+vectors input atomic output mo3.mos
+end
+task dft ignore
+
+set geometry mo3co
+dft
+mult 3
+iterations 99
+vectors input fragment mo3.mos co.mos output mo3co.mos
+end
+
+task dft optimize
