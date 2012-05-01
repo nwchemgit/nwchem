@@ -1,0 +1,28 @@
+echo
+
+start dft_si2cb3p86
+
+title "si2c with b3p86 cfr http://dx.doi.org/10.1016/0009-2614(96)00480-0"
+
+geometry noautoz 
+ si  1.69 0.  0.
+ c   0.   0.  0.
+si  -1.69 0.  0.
+end
+
+basis spherical
+ * library 6-311g*
+end
+
+dft
+ xc  vwn_1_rpa 1.  perdew86 nonlocal 0.81 HFexch 0.20  slater 0.80 becke88 nonlocal 0.72 # b3p86
+ decomp
+ convergence energy 1d-8
+end
+
+driver
+ tight
+ clear
+end
+
+task dft optimize
