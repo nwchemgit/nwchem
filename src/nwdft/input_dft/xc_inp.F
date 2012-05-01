@@ -296,15 +296,15 @@ c
       goto 10
 c
 c     b3p86; A*Ex(HF) + (1-A)*Ex(S) + B*Ex(B88(nl)) + 
-c            C*Ec(Perdew86(total)) + (1-C)*Ec(VWN_1_RPA)
+c            C*Ec(Perdew86(total)) + Ec(VWN_1_RPA)
 c            
 c            A=0.20, B=0.72, C=0.81               
 c             
  8532 xccomb(49) = .true.
         cfac(4)  = 0.81d0
-       lcfac(4)  = .true.
+       lcfac(4)  = .false.
       nlcfac(4)  = .true.
-        cfac(7)  = 0.19d0
+        cfac(7)  = 1d0
        lcfac(7)  = .true.
       nlcfac(7)  = .false.
         xfac(1)  = 0.20d0
@@ -320,17 +320,17 @@ c
       goto 10
 c
 c     b3pw91; A*Ex(HF) + (1-A)*Ex(S) + B*Ex(B88(nl)) + 
-c            C*Ec(PW91(total)) + (1-C)*Ec(VWN_1_RPA)
+c            C*Ec(PW91(nl)) + 1*Ec(pw91lda)
 c            
 c            A=0.20, B=0.72, C=0.81               
 c             
  8533 xccomb(50) = .true.
         cfac(5)  = 0.81d0
-       lcfac(5)  = .true.
+       lcfac(5)  = .false.
       nlcfac(5)  = .true.
-        cfac(7)  = 0.19d0
-       lcfac(7)  = .true.
-      nlcfac(7)  = .false.
+        cfac(6)  = 1d0
+       lcfac(6)  = .true.
+      nlcfac(6)  = .false.
         xfac(1)  = 0.20d0
        lxfac(1)  = .true.
       nlxfac(1)  = .true.
