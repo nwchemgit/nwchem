@@ -894,9 +894,15 @@ c     **** n-plane ****
                   r0    = meta_collective(int_mb(indxmeta(1)+s1),
      >                                    dbl_mb(parammeta(1)+s2))
                   sigma = dbl_mb(parammeta(1)+s2+1)
+                  if (pmeta(d).eq.0) then
                   x = dbl_mb(ameta(1)+d-1) 
      >              + j(d)*(dbl_mb(bmeta(1)+d-1)-dbl_mb(ameta(1)+d-1))
      >                    /dble(int_mb(nxmeta(1)+d-1)-1)
+                  else
+                     x = dbl_mb(ameta(1)+d-1) 
+     >                + j(d)*(dbl_mb(bmeta(1)+d-1)-dbl_mb(ameta(1)+d-1))
+     >                      /dble(int_mb(nxmeta(1)+d-1))
+                  end if
                   r = x-r0
                   ww = ww * dexp(-0.5d0*(r/sigma)**2)
                end do
@@ -1187,9 +1193,15 @@ c               close(53)
             do i=1,nxmeta_all
                ww = 0.0d0
                do d=1,nmeta
-                  x = dbl_mb(ameta(1)+d-1) 
-     >              + j(d)*(dbl_mb(bmeta(1)+d-1)-dbl_mb(ameta(1)+d-1))
-     >                    /dble(int_mb(nxmeta(1)+d-1)-1)
+                  if (pmeta(d).eq.0) then
+                     x = dbl_mb(ameta(1)+d-1) 
+     >                + j(d)*(dbl_mb(bmeta(1)+d-1)-dbl_mb(ameta(1)+d-1))
+     >                      /dble(int_mb(nxmeta(1)+d-1)-1)
+                  else
+                     x = dbl_mb(ameta(1)+d-1) 
+     >                + j(d)*(dbl_mb(bmeta(1)+d-1)-dbl_mb(ameta(1)+d-1))
+     >                      /dble(int_mb(nxmeta(1)+d-1))
+                  end if
                   ra= dbl_mb(ameta(1)+d-1)
                   rb= dbl_mb(bmeta(1)+d-1)
                   wa = dexp(-0.5d0*((x-ra)/bsigma)**2)
