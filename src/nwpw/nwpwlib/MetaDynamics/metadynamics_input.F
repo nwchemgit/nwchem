@@ -1020,6 +1020,11 @@ c
           value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metaraycount)
           rtdb_name = 'metadynamics_tempered'
           value=value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,1,dTtempered)
+
+          rtdb_name = 'metadynamics_ymeta'
+          value=value.and.
+     >       rtdb_put(rtdb,rtdb_name,mt_dbl,nxmeta_all,dbl_mb(ymeta(1)))
+
           if (.not. value) call errquit(
      >    'metadynamics_input:writing potential_filename',0,RTDB_ERR)
 
