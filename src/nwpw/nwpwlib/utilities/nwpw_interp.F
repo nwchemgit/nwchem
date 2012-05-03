@@ -154,9 +154,9 @@
 *     *          nwpw_interp          *
 *     *                               *
 *     *********************************
-      real*8 function nwpw_interp(ndim,N,a,b,mesh,x)
+      real*8 function nwpw_interp(ndim,N,a,b,p,mesh,x)
       implicit none
-      integer ndim,N(*)
+      integer ndim,N(*),p(*)
       real*8  a(*),b(*),mesh(*),x(*)
 
 #include "mafdecls.fh"
@@ -251,9 +251,9 @@
 *     *          nwpw_dinterp         *
 *     *                               *
 *     *********************************
-      subroutine nwpw_dinterp(ndim,N,a,b,mesh,x,df)
+      subroutine nwpw_dinterp(ndim,N,a,b,p,mesh,x,df)
       implicit none
-      integer ndim,N(*)
+      integer ndim,N(*),p(*)
       real*8  a(*),b(*),mesh(*),x(*),df(*)
 
 #include "mafdecls.fh"
