@@ -447,6 +447,7 @@ c     **********************************************
             value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
      >                        nxmeta_all,dbl_mb(ymeta(1)))
 
+            value = value.and.MA_free_heap(pmeta(2))
             value = value.and.MA_free_heap(ameta(2))
             value = value.and.MA_free_heap(bmeta(2))
             value = value.and.MA_free_heap(nxmeta(2))
