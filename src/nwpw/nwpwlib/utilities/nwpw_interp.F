@@ -205,14 +205,14 @@
             xp = a(d) + ip*(b(d)-a(d))/dble(N(d)-1)
             xtilde = (2.0d0*x(d) - xp - xm)/(xp-xm)
          else
-            xm = a(d) + im*(b(d)-a(d))/dble(N(d)-1)
-            xp = a(d) + ip*(b(d)-a(d))/dble(N(d)-1)
+            xm = a(d) + im*(b(d)-a(d))/dble(N(d))
+            xp = a(d) + ip*(b(d)-a(d))/dble(N(d))
             xtilde = (2.0d0*x(d) - xp - xm)/(xp-xm)
-            do while (xtilde<a(d)) 
-               xtilde = xtilde+(b(d)-a(d))
+            do while (xtilde.ge.1.0d0)
+               xtilde = xtilde-2.0d0
             end do
-            do while (xtilde>b(d)) 
-               xtilde = xtilde-(b(d)-a(d))
+            do while (xtilde.lt.-1.0d0)
+               xtilde = xtilde+2.0d0
             end do
          end if
          jm(d) = im
@@ -312,14 +312,14 @@
             xp = a(d) + ip*(b(d)-a(d))/dble(N(d)-1)
             xtilde = (2.0d0*x(d) - xp - xm)/(xp-xm)
          else
-            xm = a(d) + im*(b(d)-a(d))/dble(N(d)-1)
-            xp = a(d) + ip*(b(d)-a(d))/dble(N(d)-1)
+            xm = a(d) + im*(b(d)-a(d))/dble(N(d))
+            xp = a(d) + ip*(b(d)-a(d))/dble(N(d))
             xtilde = (2.0d0*x(d) - xp - xm)/(xp-xm)
-            do while (xtilde<a(d)) 
-               xtilde = xtilde+(b(d)-a(d))
+            do while (xtilde.ge.1.0d0)
+               xtilde = xtilde-2.0d0
             end do
-            do while (xtilde>b(d)) 
-               xtilde = xtilde-(b(d)-a(d))
+            do while (xtilde.lt.-1.0d0)
+               xtilde = xtilde+2.0d0
             end do
          end if
          dx = 2.0d0/(xp-xm)
