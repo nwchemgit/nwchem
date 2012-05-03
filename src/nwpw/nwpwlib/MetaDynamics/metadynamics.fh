@@ -5,7 +5,7 @@ c $Id$
       integer metaprintcount,maxmetaprintcount
       integer metaraycount,metarayshift
 
-      integer ameta(2),bmeta(2),nxmeta(2),ymeta(2)
+      integer pmeta(2),ameta(2),bmeta(2),nxmeta(2),ymeta(2)
       integer indxmeta(2),parammeta(2)
       integer sindxmeta(2),sparammeta(2)
       integer nmeta,nxmeta_all,nindxmeta,nparammeta
@@ -13,7 +13,7 @@ c $Id$
       real*8  dTtempered
 
       common / metacommon / dTtempered,
-     >                      ameta,bmeta,nxmeta,ymeta,
+     >                      pmeta,ameta,bmeta,nxmeta,ymeta,
      >                      indxmeta,parammeta,sindxmeta,sparammeta,
      >                      nmeta,nxmeta_all,nindxmeta,nparammeta,
      >                      metacount,maxmetacount,

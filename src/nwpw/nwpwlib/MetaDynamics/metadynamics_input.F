@@ -20,8 +20,8 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 13)
-      character*15 dirs(num_dirs)
+      parameter (num_dirs = 14)
+      character*18 dirs(num_dirs)
       data dirs / 'update',
      >            'print_shift',
      >            'bond',
@@ -34,6 +34,7 @@ c
      >            'z',
      >            'tempered',
      >            'boundary',
+     >            'potential_filename',
      >            'end'/
 
       integer num_dirs2          ! No. of known directives
@@ -71,7 +72,7 @@ c
       integer nka,nkb,nkc,nkd,nka_gs,nkb_gs,nkc_gs,nkd_gs
 
       integer sindx(50),index_start1(2),index_start2(2)
-      integer ameta(2),bmeta(2),indxmeta(2),sindxmeta(2)
+      integer pmeta(2),ameta(2),bmeta(2),indxmeta(2),sindxmeta(2)
       integer nxmeta(2),parammeta(2),sparammeta(2)
       real*8  sdist(50)
 
@@ -107,6 +108,11 @@ c
      >   call errquit('cannot allocate stack for metadynamics_input',0,
      >                MA_ERR)
 
+      if (.not.MA_push_get(mt_int,10,'pmmeta',
+     >                    pmeta(2),pmeta(1)))
+     >   call errquit('cannot allocate stack for metadynamics_input',2,
+     >                MA_ERR)
+
       if (.not.MA_push_get(mt_dbl,10,'ammeta',
      >                    ameta(2),ameta(1)))
      >   call errquit('cannot allocate stack for metadynamics_input',2,
@@ -134,6 +140,7 @@ c
      >  'metadynamics_input: unknown_directive',ind,INPUT_ERR)
 
       goto ( 100, 150, 200, 300, 400, 500, 600, 701,702,703, 800,900,
+     >      1000,
      >      9999) ind
       call errquit(
      >     'metadynamics_input: unimplemented directive',ind,INPUT_ERR)
@@ -224,6 +231,7 @@ c
       int_mb(nxmeta(1)+nmeta) = sindx(3)
       dbl_mb(ameta(1)+nmeta)  = sdist(3)
       dbl_mb(bmeta(1)+nmeta)  = sdist(4)
+      int_mb(pmeta(1)+nmeta)  = 0
 
       nmeta = nmeta + 1
 
@@ -249,6 +257,9 @@ c
       rtdb_name = 'metadynamics_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
+      rtdb_name = 'metadynamics_pmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
       rtdb_name = 'metadynamics_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
@@ -326,6 +337,7 @@ c
       int_mb(nxmeta(1)+nmeta) = sindx(4)
       dbl_mb(ameta(1)+nmeta)  = sdist(3)
       dbl_mb(bmeta(1)+nmeta)  = sdist(4)
+      int_mb(pmeta(1)+nmeta)  = 0
 
       nmeta = nmeta + 1
 
@@ -351,6 +363,9 @@ c
       rtdb_name = 'metadynamics_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
+      rtdb_name = 'metadynamics_pmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
       rtdb_name = 'metadynamics_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
@@ -431,6 +446,7 @@ c
       int_mb(nxmeta(1)+nmeta) = sindx(5)
       dbl_mb(ameta(1)+nmeta)  = sdist(3)
       dbl_mb(bmeta(1)+nmeta)  = sdist(4)
+      int_mb(pmeta(1)+nmeta)  = 0
 
       nmeta = nmeta + 1
 
@@ -456,6 +472,9 @@ c
       rtdb_name = 'metadynamics_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
+      rtdb_name = 'metadynamics_pmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
       rtdb_name = 'metadynamics_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
@@ -598,6 +617,7 @@ c
       int_mb(nxmeta(1)+nmeta) = sindx(1)
       dbl_mb(ameta(1)+nmeta)  = sdist(7)
       dbl_mb(bmeta(1)+nmeta)  = sdist(8)
+      int_mb(pmeta(1)+nmeta)  = 0
 
       nmeta = nmeta + 1
 
@@ -623,6 +643,9 @@ c
       rtdb_name = 'metadynamics_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
+      rtdb_name = 'metadynamics_pmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
       rtdb_name = 'metadynamics_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
@@ -723,6 +746,7 @@ c
       int_mb(nxmeta(1)+nmeta) = sindx(2)
       dbl_mb(ameta(1)+nmeta)  = sdist(6)
       dbl_mb(bmeta(1)+nmeta)  = sdist(7)
+      int_mb(pmeta(1)+nmeta)  = 0
 
       nmeta = nmeta + 1
 
@@ -748,6 +772,9 @@ c
       rtdb_name = 'metadynamics_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
+      rtdb_name = 'metadynamics_pmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
       rtdb_name = 'metadynamics_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
@@ -828,6 +855,7 @@ c
       int_mb(nxmeta(1)+nmeta) = sindx(3)
       dbl_mb(ameta(1)+nmeta)  = sdist(3)
       dbl_mb(bmeta(1)+nmeta)  = sdist(4)
+      int_mb(pmeta(1)+nmeta)  = 0
 
       nmeta = nmeta + 1
 
@@ -853,6 +881,9 @@ c
       rtdb_name = 'metadynamics_bmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
+      rtdb_name = 'metadynamics_pmeta'
+      value = value.and.
+     >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
       rtdb_name = 'metadynamics_nxmeta'
       value = value.and.
      >        rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
@@ -890,6 +921,52 @@ c
      >                 0,RTDB_ERR)
       goto 10
 
+c
+c  potential_filename
+c
+ 1000  if (inp_a(rtdb_name)) then
+c               call util_file_name_noprefix(rtdb_name,.false.,
+c     >                                      .false.,
+c     >                                      test)
+c               open(unit=53,file=full_filename,form='formatted')
+c
+c               do d=1,nmeta
+c                  j(d) = 0
+c               end do
+c               do i=1,nxmeta_all
+c                  do d=1,nmeta
+c                     x(d) = dbl_mb(ameta(1)+d-1)
+c     >                + j(d)*(dbl_mb(bmeta(1)+d-1)-dbl_mb(ameta(1)+d-1))
+c     >                      /dble(int_mb(nxmeta(1)+d-1)-1)
+c                  end do
+c                  write(53,'(12F15.6)')
+c     >                 (x(d),d=1,nmeta),dbl_mb(ymeta(1)+i-1)*fac
+c
+c                  j(1) = j(1) + 1
+c
+c                  if (j(1).ge.int_mb(nxmeta(1))) then
+c                     write(53,*)
+c                  end if
+c
+c                  do d=1,nmeta-1
+c                     if (j(d).ge.int_mb(nxmeta(1)+d-1)) then
+c                        j(d) = 0
+c                        j(d+1) = j(d+1)+1
+c                     end if
+c                  end do
+c               end do
+c
+c               close(53)
+c
+c         rtdb_name='metadynamics_potential_filename'
+c         j = index(test,' ')-1
+c         if (.not.rtdb_cput(rtdb,rtdb_name,1,test(1:j)))
+c     >      call errquit(
+c     >           'metadynamics_input:failed writing potential_filename',
+c     >           0,RTDB_ERR)
+      end if
+      goto 10
+
  9999 continue
       
 *     **** pop stack ****
@@ -901,6 +978,9 @@ c
      >                MA_ERR)
       if (.not.MA_pop_stack(ameta(2)))
      >   call errquit('cannot pop stack for metadynamics_input',2,
+     >                MA_ERR)
+      if (.not.MA_pop_stack(pmeta(2)))
+     >   call errquit('cannot pop stack for metadynamics_input',0,
      >                MA_ERR)
       if (.not.MA_pop_stack(indxmeta(2)))
      >   call errquit('cannot pop stack for metadynamics_input',0,

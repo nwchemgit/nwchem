@@ -20,15 +20,17 @@ c     **********************************************
       logical value,cnmeta_read
       integer d,i,j,n1,n2,s1,s2,yshift,ntype
       real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,n,m,sigma,w,r0
-      real*8 boundary(2)
-      character*80 rtdb_name
+      real*8 boundary(2),temp,fac
+      character*80 rtdb_name,potential_filename
       character*4 celement1,celement2
 
 *     **** external functions ****
-      real*8      lattice_unita
+      logical     control_Nose
+      real*8      lattice_unita,ion_Temperature,control_Nose_Tr
       character*7 c_index_name
       integer     control_it_out
-      external    lattice_unita
+      external    control_Nose
+      external    lattice_unita,ion_Temperature,control_Nose_Tr
       external    c_index_name
       external    control_it_out
 
@@ -127,7 +129,9 @@ c     **********************************************
             end if
 
 
-*           ***** allocate and read ameta,bmeta,parammeta, and ymeta ****
+*           ***** allocate and read pmeta,ameta,bmeta,parammeta, and ymeta ****
+            value = value.and.
+     >              MA_alloc_get(mt_int,nmeta,'pmeta',pmeta(2),pmeta(1))
             value = value.and.
      >              MA_alloc_get(mt_dbl,nmeta,'ameta',ameta(2),ameta(1))
             value = value.and.
@@ -139,6 +143,13 @@ c     **********************************************
      >              MA_alloc_get(mt_dbl,nxmeta_all,
      >                           'ymeta',ymeta(2),ymeta(1))
 
+            rtdb_name = 'metadynamics_pmeta'
+            if (.not.rtdb_get(rtdb,rtdb_name,mt_int,nmeta,
+     >                        int_mb(pmeta(1)))) then
+               do d=1,nmeta
+                  int_mb(pmeta(1)+d-1) = 0
+               end do
+            end if
             rtdb_name = 'metadynamics_ameta'
             if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,nmeta,
      >                        dbl_mb(ameta(1)))) then
@@ -181,12 +192,16 @@ c     **********************************************
                s1 = int_mb(sindxmeta(1) +d-1)
                if ((int_mb(indxmeta(1)+s1).eq.1).or.
      >             (int_mb(indxmeta(1)+s1).eq.5)) then
+                  if (int_mb(pmeta(1)+d-1).lt.0)
+     >               int_mb(pmeta(1)+d-1) = 0
                   if (dbl_mb(ameta(1)+d-1).lt.0.0d0) 
      >               dbl_mb(ameta(1)+d-1) = 0.0d0
                   if (dbl_mb(bmeta(1)+d-1).lt.0.0d0)
      >               dbl_mb(bmeta(1)+d-1) = rmax
                end if
                if (int_mb(indxmeta(1)+s1).eq.2) then
+                  if (int_mb(pmeta(1)+d-1).lt.0)
+     >               int_mb(pmeta(1)+d-1) = 0
                   if (dbl_mb(ameta(1)+d-1).lt.(-99.0d0))
      >               dbl_mb(ameta(1)+d-1) = 0.0d0
                   if (dbl_mb(bmeta(1)+d-1).lt.(-99.0d0))
@@ -210,7 +225,24 @@ c     **********************************************
             end if
          else
             if (taskid.eq.MASTER) 
-     >         write(*,*) "  ... reading bond metadynamics data"
+     >         write(*,*) "  ... reading metadynamics data from rtdb"
+
+            !*** re-scale tempered ***
+            fac = 1.0d0
+            if (dTtempered.gt.0.0d0) then
+               if (taskid.eq.MASTER) 
+     >            write(*,*) 
+     >            "  ... re-scaling to be consistent with tempering"
+               if (control_Nose()) then
+                  temp = control_Nose_Tr()
+               else
+                  temp = ion_Temperature()
+               end if
+               fac = dTtempered/(temp+dTtempered)
+            end if
+            do i=1,nxmeta_all
+               dbl_mb(ymeta(1)+i-1) = fac*dbl_mb(ymeta(1)+i-1)
+            end do
          end if
 
 
@@ -238,21 +270,23 @@ c     **********************************************
             if (ntype.eq.1) then
              write(*,'(A,5x,2I4,
      >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5)')
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
      >       "   - Bond Parameters =  ",
      >           (int_mb(indxmeta(1)+s1+j),j=1,2),
      >           'w=',w,'sigma=',sigma,
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1)
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1) 
 
             else if (ntype.eq.2) then
              write(*,'(A,3I4,4x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5)')
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
      >       "   - Angle Parameters =  ",
      >           (int_mb(indxmeta(1)+s1+j),j=1,3),
      >           'w=',w,'sigma=',sigma,
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1)
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1) 
 
             else if (ntype.eq.4) then
              n1 = int_mb(indxmeta(1)+s1+1)
@@ -267,13 +301,15 @@ c     **********************************************
      >                   /6x,A,F11.6,4x,A,F11.6,
      >                   /6x,A,F11.6,
      >                   /6x,A,F11.6,F11.6,
-     >                   /6x,A,I5)')
+     >                   /6x,A,I5,
+     >                   /6x,A,I2)')
      >       "  - Coordination Number Parameters: ",
      >           'n= ',n,'m=       ',m,
      >           'w= ',w,'sigma=   ',sigma,
      >           'r0=',r0,
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'ngrid=  ',int_mb(nxmeta(1)+d-1)
+     >           'ngrid=  ',int_mb(nxmeta(1)+d-1),
+     >           'periodix=  ',int_mb(pmeta(1)+d-1)
               if (dbl_mb(parammeta(1)+s2+5).lt.0) then
                  write(*,'(6x,A)') '- LJ function form'
               else
@@ -287,7 +323,7 @@ c     **********************************************
              write(*,'(A,5x,
      >                /6x,A,F11.6,F11.6,F11.6,
      >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5)')
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
      >       "  - n-plane Parameters =  ",
      >           'normal=',
      >           dbl_mb(parammeta(1)+s2+2),
@@ -295,36 +331,40 @@ c     **********************************************
      >           dbl_mb(parammeta(1)+s2+4),
      >           'w=',w,'sigma=',sigma,
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1)
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic= ',int_mb(pmeta(1)+d-1)
             else if (ntype.eq.6) then
 
              if (int_mb(indxmeta(1)+s1+1).eq.1) then
              write(*,'(A,5x,I4,
      >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5)')
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
      >       "   - X Parameters =  ",
      >           int_mb(indxmeta(1)+s1+2),
      >           'w=',w,'sigma=',sigma,
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1)
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic= ',int_mb(pmeta(1)+d-1)
              else if (int_mb(indxmeta(1)+s1+1).eq.2) then
              write(*,'(A,5x,I4,
      >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5)')
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
      >       "   - Y Parameters =  ",
      >           int_mb(indxmeta(1)+s1+2),
      >           'w=',w,'sigma=',sigma,
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1)
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic= ',int_mb(pmeta(1)+d-1)
              else 
              write(*,'(A,5x,I4,
      >                /6x,A,F11.6,4x,A,F11.6,
-     >                /6x,A,F11.6,F11.6,4x,A,I5)')
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
      >       "   - Z Parameters =  ",
      >           int_mb(indxmeta(1)+s1+2),
      >           'w=',w,'sigma=',sigma,
      >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
-     >           'nrange= ',int_mb(nxmeta(1)+d-1)
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic= ',int_mb(pmeta(1)+d-1)
              end if
 
             end if
@@ -360,13 +400,17 @@ c     **********************************************
 
       logical value
       integer i,j,yshift,k
-      real*8 r
+      real*8 temp,fac
       character*80 filename,rtdb_name
       character*255 full_filename
 
 *     **** external functions ****
+      logical  control_Nose
+      external control_Nose
       character*7 c_index_name
       external    c_index_name
+      real*8   control_Nose_Tr,ion_Temperature
+      external control_Nose_Tr,ion_Temperature
 
       call Parallel_taskid(taskid)
 
@@ -383,6 +427,20 @@ c     **********************************************
          value= value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metaraycount)
 
          if (nmeta.gt.0) then
+
+            !*** un-scale tempered ***
+            fac = 1.0d0
+            if (dTtempered.gt.0.0d0) then
+               if (control_Nose()) then
+                  temp = control_Nose_Tr()
+               else
+                  temp = ion_Temperature()
+               end if
+               fac = (temp+dTtempered)/dTtempered
+            end if
+            do i=1,nxmeta_all
+               dbl_mb(ymeta(1)+i-1) = fac*dbl_mb(ymeta(1)+i-1)
+            end do 
 
 *           **** write out current spline fits ****
             rtdb_name = 'metadynamics_ymeta'
@@ -902,6 +960,7 @@ c     **** n-plane ****
 
             call nwpw_dinterp(nmeta,int_mb(nxmeta(1)),
      >                        dbl_mb(ameta(1)),dbl_mb(bmeta(1)),
+     >                        int_mb(pmeta(1)),
      >                        dbl_mb(ymeta(1)),r,dv)
 
             do d=1,nmeta
@@ -951,6 +1010,7 @@ c     **** n-plane ****
             end do
             v = nwpw_interp(nmeta,int_mb(nxmeta(1)),
      >                      dbl_mb(ameta(1)),dbl_mb(bmeta(1)),
+     >                      int_mb(pmeta(1)),
      >                      dbl_mb(ymeta(1)),r)
 
          end if
@@ -1036,6 +1096,11 @@ c     **********************************************
      >                                      full_filename)
                open(unit=53,file=full_filename,form='formatted')
 
+               write(53,*) "#",nxmeta_all,nmeta,
+     >                     (int_mb(nxmeta(1)+i-1),i=1,nmeta),
+     >                     (dbl_mb(ameta(1)+i-1),i=1,nmeta),
+     >                     (dbl_mb(bmeta(1)+i-1),i=1,nmeta),
+     >                     (int_mb(pmeta(1)+i-1),i=1,nmeta)
                do d=1,nmeta
                   j(d) = 0
                end do
