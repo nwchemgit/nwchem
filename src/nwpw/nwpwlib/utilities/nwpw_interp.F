@@ -192,17 +192,29 @@
       do d=1,ndim
          im = (N(d)-1)*(x(d)-a(d))/(b(d)-a(d)) - ishift
          ip = im+norder_max-1
-         if (im<0) then
-            im=0 
-            ip=im+norder_max-1
+         if (p(d).eq.0) then
+            if (im<0) then
+               im=0 
+               ip=im+norder_max-1
+            end if
+            if (ip>(N(d)-1)) then
+               ip=(N(d)-1)
+               im=ip-norder_max+1
+            end if
+            xm = a(d) + im*(b(d)-a(d))/dble(N(d)-1)
+            xp = a(d) + ip*(b(d)-a(d))/dble(N(d)-1)
+            xtilde = (2.0d0*x(d) - xp - xm)/(xp-xm)
+         else
+            xm = a(d) + im*(b(d)-a(d))/dble(N(d)-1)
+            xp = a(d) + ip*(b(d)-a(d))/dble(N(d)-1)
+            xtilde = (2.0d0*x(d) - xp - xm)/(xp-xm)
+            do while (xtilde<a(d)) 
+               xtilde = xtilde+(b(d)-a(d))
+            end do
+            do while (xtilde>b(d)) 
+               xtilde = xtilde-(b(d)-a(d))
+            end do
          end if
-         if (ip>(N(d)-1)) then
-            ip=(N(d)-1)
-            im=ip-norder_max+1
-         end if
-         xm = a(d) + im*(b(d)-a(d))/dble(N(d)-1)
-         xp = a(d) + ip*(b(d)-a(d))/dble(N(d)-1)
-         xtilde = (2.0d0*x(d) - xp - xm)/(xp-xm)
          jm(d) = im
          do i=0,norder_max-1
             dbl_mb(pbasis(1)+i+(d-1)*norder_max) 
@@ -221,9 +233,9 @@
       f = 0.0d0
       do i=1,n1
          nn1 = N(1)
-         ii = jm(1)+j(1)
+         ii = mod(jm(1)+j(1)+N(1),N(1))
          do d=2,ndim
-            ii = ii + (jm(d)+j(d))*nn1
+            ii = ii + mod(jm(d)+j(d)+N(d),N(d))*nn1
             nn1 = nn1*N(d)
          end do
          fi=1.0d0
@@ -287,17 +299,29 @@
       do d=1,ndim
          im = (N(d)-1)*(x(d)-a(d))/(b(d)-a(d)) - ishift
          ip = im+norder_max-1
-         if (im<0) then
-            im=0
-            ip=im+norder_max-1
+         if (p(d).eq.0) then
+            if (im<0) then
+               im=0
+               ip=im+norder_max-1
+            end if
+            if (ip>(N(d)-1)) then
+               ip=(N(d)-1)
+               im=ip-norder_max+1
+            end if
+            xm = a(d) + im*(b(d)-a(d))/dble(N(d)-1)
+            xp = a(d) + ip*(b(d)-a(d))/dble(N(d)-1)
+            xtilde = (2.0d0*x(d) - xp - xm)/(xp-xm)
+         else
+            xm = a(d) + im*(b(d)-a(d))/dble(N(d)-1)
+            xp = a(d) + ip*(b(d)-a(d))/dble(N(d)-1)
+            xtilde = (2.0d0*x(d) - xp - xm)/(xp-xm)
+            do while (xtilde<a(d)) 
+               xtilde = xtilde+(b(d)-a(d))
+            end do
+            do while (xtilde>b(d)) 
+               xtilde = xtilde-(b(d)-a(d))
+            end do
          end if
-         if (ip>(N(d)-1)) then
-            ip=(N(d)-1)
-            im=ip-norder_max+1
-         end if
-         xm = a(d) + im*(b(d)-a(d))/dble(N(d)-1)
-         xp = a(d) + ip*(b(d)-a(d))/dble(N(d)-1)
-         xtilde = (2.0d0*x(d) - xp - xm)/(xp-xm)
          dx = 2.0d0/(xp-xm)
          jm(d) = im
          do i=0,norder_max-1
@@ -321,9 +345,9 @@
 
       do i=1,n1
          nn1 = N(1)
-         ii = jm(1)+j(1)
+         ii = mod(jm(1)+j(1)+N(1),N(1))
          do d=2,ndim
-            ii = ii + (jm(d)+j(d))*nn1
+            ii = ii + mod(jm(d)+j(d)+N(d),N(d))*nn1
             nn1 = nn1*N(d)
          end do
          do d=0,ndim-1
