@@ -68,13 +68,14 @@ c
 
       integer metaindexmax
       integer nmeta,nxmeta_all,nindxmeta,nparammeta
-      integer j,jstart,jlast,jstride,n1,n2
+      integer maxmetacount,metacount,metarayshift,metaraycount
+      integer j,jstart,jlast,jstride,n1,n2,i,d,jj(10)
       integer nka,nkb,nkc,nkd,nka_gs,nkb_gs,nkc_gs,nkd_gs
 
       integer sindx(50),index_start1(2),index_start2(2)
       integer pmeta(2),ameta(2),bmeta(2),indxmeta(2),sindxmeta(2)
-      integer nxmeta(2),parammeta(2),sparammeta(2)
-      real*8  sdist(50)
+      integer nxmeta(2),parammeta(2),sparammeta(2),ymeta(2)
+      real*8  sdist(50),dTtempered
 
 *     **** external functions ****
       character*7 c_index_name
@@ -925,45 +926,106 @@ c
 c  potential_filename
 c
  1000  if (inp_a(rtdb_name)) then
-c               call util_file_name_noprefix(rtdb_name,.false.,
-c     >                                      .false.,
-c     >                                      test)
-c               open(unit=53,file=full_filename,form='formatted')
-c
-c               do d=1,nmeta
-c                  j(d) = 0
-c               end do
-c               do i=1,nxmeta_all
-c                  do d=1,nmeta
-c                     x(d) = dbl_mb(ameta(1)+d-1)
-c     >                + j(d)*(dbl_mb(bmeta(1)+d-1)-dbl_mb(ameta(1)+d-1))
-c     >                      /dble(int_mb(nxmeta(1)+d-1)-1)
-c                  end do
-c                  write(53,'(12F15.6)')
-c     >                 (x(d),d=1,nmeta),dbl_mb(ymeta(1)+i-1)*fac
-c
-c                  j(1) = j(1) + 1
-c
-c                  if (j(1).ge.int_mb(nxmeta(1))) then
-c                     write(53,*)
-c                  end if
-c
-c                  do d=1,nmeta-1
-c                     if (j(d).ge.int_mb(nxmeta(1)+d-1)) then
-c                        j(d) = 0
-c                        j(d+1) = j(d+1)+1
-c                     end if
-c                  end do
-c               end do
-c
-c               close(53)
-c
-c         rtdb_name='metadynamics_potential_filename'
-c         j = index(test,' ')-1
-c         if (.not.rtdb_cput(rtdb,rtdb_name,1,test(1:j)))
-c     >      call errquit(
-c     >           'metadynamics_input:failed writing potential_filename',
-c     >           0,RTDB_ERR)
+          call util_file_name_noprefix(rtdb_name,.false.,
+     >                                 .false.,
+     >                                 test)
+          write(*,'(A,A)') 
+     >      "....Reading metadynamics potential_filename=",rtdb_name
+          open(unit=53,file=test,form='formatted')
+ 
+          read(53,*) test
+          read(53,*) test,nmeta
+          read(53,*) test,(int_mb(nxmeta(1)+i-1),i=1,nmeta)
+          read(53,*) test,(int_mb(sindxmeta(1)+i-1),i=1,nmeta)
+          read(53,*) test,(int_mb(sparammeta(1)+i-1),i=1,nmeta)
+          read(53,*) test,(dbl_mb(ameta(1)+i-1),i=1,nmeta)
+          read(53,*) test,(dbl_mb(bmeta(1)+i-1),i=1,nmeta)
+          read(53,*) test,(int_mb(pmeta(1)+i-1),i=1,nmeta)
+          read(53,*) test,nindxmeta
+          read(53,*) test,(int_mb(indxmeta(1)+i-1),i=1,nindxmeta)
+          read(53,*) test,nparammeta
+          read(53,*) test,(dbl_mb(parammeta(1)+i-1),i=1,nparammeta)
+          read(53,*) test,maxmetacount
+          read(53,*) test,metacount
+          read(53,*) test,metarayshift
+          read(53,*) test,metaraycount
+          read(53,*) test,dTtempered
+          read(53,*) test,nxmeta_all
+
+          if (.not.MA_push_get(mt_dbl,nxmeta_all,'ymmeta',
+     >                         ymeta(2),ymeta(1)))
+     >    call errquit('cannot allocate stack, metadynamics_input',22,
+     >                 MA_ERR)
+
+          do d=1,nmeta
+             jj(d) = 0
+          end do
+          do i=1,nxmeta_all
+             read(53,'(12F15.6)')
+     >            (sdist(d),d=1,nmeta),dbl_mb(ymeta(1)+i-1)
+
+             jj(1) = jj(1) + 1
+             if (jj(1).ge.int_mb(nxmeta(1))) then
+                read(53,*)
+             end if
+             do d=1,nmeta-1
+                if (jj(d).ge.int_mb(nxmeta(1)+d-1)) then
+                   jj(d) = 0
+                   jj(d+1) = jj(d+1)+1
+                end if
+             end do
+          end do
+          close(53)
+
+          rtdb_name = 'metadynamics_nindxmeta'
+          value =           rtdb_put(rtdb,rtdb_name,mt_int,1,nindxmeta)
+          rtdb_name = 'metadynamics_sindxmeta'
+          value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                 nmeta,int_mb(sindxmeta(1)))
+          rtdb_name = 'metadynamics_indxmeta'
+          value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                     nindxmeta,int_mb(indxmeta(1)))
+          rtdb_name = 'metadynamics_nparammeta'
+          value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nparammeta)
+          rtdb_name = 'metadynamics_sparammeta'
+          value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,
+     >                     nmeta,int_mb(sparammeta(1)))
+          rtdb_name = 'metadynamics_parammeta'
+          value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,
+     >                     nparammeta,dbl_mb(parammeta(1)))
+          rtdb_name = 'metadynamics_ameta'
+          value = value.and.
+     >            rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(ameta(1)))
+          rtdb_name = 'metadynamics_bmeta'
+          value = value.and.
+     >            rtdb_put(rtdb,rtdb_name,mt_dbl,nmeta,dbl_mb(bmeta(1)))
+          rtdb_name = 'metadynamics_pmeta'
+          value = value.and.
+     >            rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(pmeta(1)))
+          rtdb_name = 'metadynamics_nxmeta'
+          value = value.and.
+     >           rtdb_put(rtdb,rtdb_name,mt_int,nmeta,int_mb(nxmeta(1)))
+          rtdb_name = 'metadynamics_nmeta'
+          value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nmeta)
+          rtdb_name = 'metadynamics_nxmeta_all'
+          value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,nxmeta_all)
+
+          rtdb_name = 'metadynamics_update'
+          value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,maxmetacount)
+          rtdb_name = 'metadynamics_metacount'
+          value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metacount)
+          rtdb_name = 'metadynamics_print_shift'
+          value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metarayshift)
+          rtdb_name = 'metadynamics_metaraycount'
+          value=value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,metaraycount)
+          rtdb_name = 'metadynamics_tempered'
+          value=value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,1,dTtempered)
+          if (.not. value) call errquit(
+     >    'metadynamics_input:writing potential_filename',0,RTDB_ERR)
+
+          if (.not.MA_pop_stack(ymeta(2)))
+     >    call errquit('cannot pop stack for metadynamics_input',22,
+     >                 MA_ERR)
       end if
       goto 10
 

@@ -1102,11 +1102,33 @@ c     **********************************************
      >                                      full_filename)
                open(unit=53,file=full_filename,form='formatted')
 
-               write(53,*) "#",nxmeta_all,nmeta,
-     >                     (int_mb(nxmeta(1)+i-1),i=1,nmeta),
-     >                     (dbl_mb(ameta(1)+i-1),i=1,nmeta),
-     >                     (dbl_mb(bmeta(1)+i-1),i=1,nmeta),
-     >                     (int_mb(pmeta(1)+i-1),i=1,nmeta)
+               write(53,'(A,A)') "#metadynamics filename=",filename
+               write(53,'(A,I6)') "#nmeta ",nmeta
+               write(53,'(A,10I6)') "#nxmeta ",
+     >                              (int_mb(nxmeta(1)+i-1),i=1,nmeta) 
+               write(53,'(A,10I6)') "#sindxmeta ",
+     >                     (int_mb(sindxmeta(1)+i-1),i=1,nmeta) 
+               write(53,'(A,10I6)') "#sparammeta ",
+     >                     (int_mb(sparammeta(1)+i-1),i=1,nmeta) 
+               write(53,'(A,10F18.12)') "#ameta ",
+     >                                 (dbl_mb(ameta(1)+i-1),i=1,nmeta)
+               write(53,'(A,10F18.12)') "#bmeta ",
+     >                                (dbl_mb(bmeta(1)+i-1),i=1,nmeta)
+               write(53,'(A,10I3)') "#pmeta ",
+     >                              (int_mb(pmeta(1)+i-1),i=1,nmeta)
+               write(53,'(A,I8)') "#nindxmeta ",nindxmeta
+               write(53,'(A,500I6)') "#indxmeta ",
+     >                     (int_mb(indxmeta(1)+i-1),i=1,nindxmeta) 
+               write(53,'(A,I8)') "#nparammeta ",nparammeta
+               write(53,'(A,500F18.12)') "#parammeta ",
+     >                     (dbl_mb(parammeta(1)+i-1),i=1,nparammeta)
+               write(53,'(A,I8)') "#maxmetacount ",maxmetacount
+               write(53,'(A,I8)') "#metacount ",metacount
+               write(53,'(A,I8)') "#metarayshift ",metarayshift
+               write(53,'(A,I8)') "#metaraycount ",metaraycount
+               write(53,'(A,F18.12)') "#dTempered ",dTtempered
+               write(53,'(A,I8)') "#nxmeta_all ",nxmeta_all
+
                do d=1,nmeta
                   j(d) = 0
                end do
@@ -1118,13 +1140,10 @@ c     **********************************************
                   end do
                   write(53,'(12F15.6)') 
      >                 (x(d),d=1,nmeta),dbl_mb(ymeta(1)+i-1)*fac
-
                   j(1) = j(1) + 1
-
                   if (j(1).ge.int_mb(nxmeta(1))) then
                      write(53,*)
                   end if
-
                   do d=1,nmeta-1
                      if (j(d).ge.int_mb(nxmeta(1)+d-1)) then
                         j(d) = 0
