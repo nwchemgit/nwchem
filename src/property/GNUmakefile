@@ -59,7 +59,8 @@
          ao_1prdm_read.o \
 	 task_raman.o \
 	 raman_input.o \
-	 raman.o
+	 raman.o \
+	 prop_grid.o
 
 #   OBJ = aoresponse_giao_rhs.o
 

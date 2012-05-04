@@ -1,0 +1,35 @@
+c
+c $Id: 
+c
+      integer ngrid(3)
+      integer npoints
+      integer i_rx,h_rx
+      integer i_ry,h_ry
+      integer i_rz,h_rz
+      integer i_r,h_r
+      double precision step(3)
+      double precision rmin(3)
+      double precision rmax(3)
+      double precision pad(3)
+
+      double precision cnm2au,cau2ang,cau2nm,cau2kj,cnm2ang
+      parameter(cnm2au=1.88972598786d+01)
+      parameter(cau2ang = 0.529177249d00)
+      parameter(cau2nm=5.29177249d-02)
+      parameter(cau2kj=2.625499962d+03)
+      parameter(cnm2ang=10.0d00)
+
+
+
+      common/grid_data/ ngrid,
+     &                  npoints,
+     &                  i_rx,h_rx,
+     &                  i_ry,h_ry,
+     &                  i_rz,h_rz,
+     &                  i_r,h_r,
+     &                  step,
+     &                  rmax,rmin,
+     &                  pad
+
+
+

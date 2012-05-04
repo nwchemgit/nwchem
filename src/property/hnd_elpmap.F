@@ -30,6 +30,7 @@ c
       double precision xp, yp, zp, xn, yn, zn, zan
       double precision elpotn
       double precision rr
+      double precision enuc
 c     bq variables (MV)
       logical dobq
       integer bq_ncent
@@ -50,6 +51,8 @@ c
       external ga_create_atom_blocked
       logical ao_1prdm_read
       external ao_1prdm_read
+      logical ocube
+      integer nsp(3)
 c
 c
 c     Initialize integrals
@@ -113,11 +116,30 @@ c
      &     dbl_mb(k_zanpt+iat-1))) call
      &     errquit('hnd_elpmap: geom_cent_get',911,GEOM_ERR)
    30 continue
-c     
+c
+      if(.not.rtdb_get(rtdb,'prop:cubefile',mt_log,1,ocube)) 
+     +     ocube = .false.
+
+      write(*,*) "GEOMTERYU"
+         do i = 1,nat
+            xn  = dbl_mb(k_xyzpt  +3*(i-1)) 
+            yn  = dbl_mb(k_xyzpt+1+3*(i-1)) 
+            zn  = dbl_mb(k_xyzpt+2+3*(i-1)) 
+            zan = dbl_mb(k_zanpt+i-1)
+            write(*,'(4F6.3)') xn,yn,zn,zan
+         end do
+cc     
 c     define points for the calculation now 
 c     either custom grid or (default) nuclei positions (M.V.)
 c     -------------------------------------------------
-      if(rtdb_get_info(rtdb, "prop:xyz", ma_prp_type, 
+      ocube = .true.
+      nsp = 30
+      if(ocube) then
+         call grid_initialize(rtdb,nat,dbl_mb(k_xyzpt),nsp)
+         call grid_get_r_ptr(nprp,i_prp_c)
+         do_points = .true.
+         write(*,*) (dbl_mb(i_prp_c+i)*0.529,i=0,6)
+      else if(rtdb_get_info(rtdb, "prop:xyz", ma_prp_type, 
      >                 nprp, prp_date)) then
         nprp = nprp/3
         if (.not. ma_push_get(mt_dbl,3*nprp,'prop:xyz',h_prp_c,i_prp_c))
@@ -174,6 +196,7 @@ c     ----- add nuclear contribution -----
 c
          elpotn = -dbl_mb(k_epot+iat-1)
          elpotbq = 0.0d0
+         enuc = 0.0
          do 210 i = 1,nat
             xn  = dbl_mb(k_xyzpt  +3*(i-1)) - xp
             yn  = dbl_mb(k_xyzpt+1+3*(i-1)) - yp
@@ -182,6 +205,7 @@ c
             rr =  sqrt(xn*xn + yn*yn + zn*zn)
             if (rr.lt.1.0d-3) go to 210
             elpotn = elpotn + zan/rr
+            enuc = enuc + zan/rr
   210    continue
 c
 c     ----- form -efc- contribution -----
@@ -247,7 +271,7 @@ c
              write(luout,9991) iat,symbol,xp,yp,zp,elpotn,
      &                         dbl_mb(k_epot+iat-1),elpotbq
            else
-             write(luout,9995) iat,symbol,xp,yp,zp,elpotn,
+             write(luout,9995) iat,symbol,xp,yp,zp,enuc,
      &                         dbl_mb(k_epot+iat-1)
            end if
          else
@@ -275,6 +299,7 @@ c
 c     ----- release memory block -----
 c
   300 call ga_sync()
+      call grid_write_cube(geom,nprp,dbl_mb(k_tepot))
 c
 c     if custom grid is requested save final electric 
 c     into rtdb(M.V.)
@@ -291,8 +316,10 @@ c
      &   ('hnd_elpmap, ma_pop_stack of l_tepot failed',911,MA_ERR)
       if (.not.ma_pop_stack(l_epot)) call errquit
      &   ('hnd_elpmap, ma_pop_stack of l_epot failed',911,MA_ERR)
-      if (.not.ma_pop_stack(h_prp_c)) call errquit
-     &   ('hnd_elpmap, ma_pop_stack of h_prp_c failed',911,MA_ERR)
+      if(.not.ocube)  then
+        if (.not.ma_pop_stack(h_prp_c)) call errquit
+     &      ('hnd_elpmap, ma_pop_stack of h_prp_c failed',911,MA_ERR)
+      endif
       if (.not.ma_pop_stack(l_zanpt)) call errquit
      &   ('hnd_elpmap, ma_pop_stack of l_zanpt failed',911,MA_ERR)
       if (.not.ma_pop_stack(l_xyzpt)) call errquit
