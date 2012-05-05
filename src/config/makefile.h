@@ -1358,9 +1358,10 @@ endif
 
   DEFINES = -DLINUX
 
+      FOPTIMIZE  = -O2 
       ifeq ($(FC),gfortran)
         FOPTIONS   = -Wextra -ffast-math #-Wunused  
-        FOPTIMIZE  = -O2 -ffast-math -Wuninitialized
+        FOPTIMIZE  = -ffast-math -Wuninitialized
         _FC=gfortran
         DEFINES  += -DGFORTRAN
       endif
@@ -1376,9 +1377,29 @@ ifeq ($(LINUXCPU),x86)
   endif
   
   _CPU = $(shell uname -m  )
+ FC  = g77
   _G77V33= $(shell g77 -v  2>&1|egrep spec|head -n 1|awk ' /3.3/  {print "Y"}')
 
-# FC  = g77
+      ifeq ($(FC),g77)
+  FOPTIONS   += -fno-second-underscore   
+  FOPTIONS   += -fno-f90  -ffixed-line-length-72 -ffixed-form
+  FOPTIMIZE  +=  -O2  -malign-double -finline-functions 
+  COPTIONS   += -Wall  -malign-double 
+  COPTIMIZE  += -g -O2
+    FOPTIONS  +=  -malign-double -fno-globals -Wno-globals  -fno-silent #-Wunused  
+    FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
+    FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs 
+    FOPTIMIZE += -fforce-addr 
+# see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13037
+#  for atomscf/orderd.f  (bug report by Kirill Smelkov)
+    ifeq ($(_G77V33),Y)
+      FOPTIONS += -fno-force-mem 
+      FOPTIMIZE += -fno-force-mem 
+    else
+      FOPTIMIZE += -fforce-mem 
+    endif
+endif
+
 
     ifeq ($(_CPU),i686)
      _GOTSSE2= $(shell cat /proc/cpuinfo | egrep sse2 | tail -n 1 | awk ' /sse2/  {print "Y"}')
@@ -1396,7 +1417,7 @@ ifeq ($(LINUXCPU),x86)
         FOPTIMIZE +=-march=pentium4 -mcpu=pentium4# -msse2 -mfpmath=sse 
 #        FOPTIMIZE +=-fprefetch-loop-arrays -minline-all-stringops -fexpensive-optimizations
       else
-        FOPTIMIZE  +=  -march=i686
+        FOPTIMIZE  += -march=i686
         COPTIONS   = -Wall -march=i686 -malign-double 
       endif
     else
@@ -1415,23 +1436,6 @@ ifeq ($(LINUXCPU),x86)
         FOPTIONS += -march=k6
         COPTIONS += -march=k6
        endif
-    endif
-  FOPTIONS   += -fno-second-underscore   
-  FOPTIONS   += -fno-f90  -ffixed-line-length-72 -ffixed-form
-  FOPTIMIZE  +=  -O2  -malign-double -finline-functions 
-  COPTIONS   += -Wall  -malign-double 
-  COPTIMIZE  += -g -O2
-    FOPTIONS  +=  -malign-double -fno-globals -Wno-globals  -fno-silent #-Wunused  
-    FOPTIMIZE += -Wuninitialized -ffast-math -funroll-loops -fstrength-reduce 
-    FOPTIMIZE += -fno-move-all-movables -fno-reduce-all-givs 
-    FOPTIMIZE += -fforce-addr 
-# see http://gcc.gnu.org/bugzilla/show_bug.cgi?id=13037
-#  for atomscf/orderd.f  (bug report by Kirill Smelkov)
-    ifeq ($(_G77V33),Y)
-      FOPTIONS += -fno-force-mem 
-      FOPTIMIZE += -fno-force-mem 
-    else
-      FOPTIMIZE += -fforce-mem 
     endif
 
   ifeq ($(FC),pgf77)
