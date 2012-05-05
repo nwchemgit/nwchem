@@ -13,4 +13,6 @@
 # This script has been designed to be run in the $NWCHEM_TOP directory,
 # and producing a directory with documentation in $NWCHEM_TOP/srcdoc.
 #
+date
 doxygen ./contrib/doxygen/doxygen.rc
+date
