@@ -279,7 +279,7 @@ c
 c     
 c     bhlyp; 0.5*Ex(HF)+0.5*Ex(LSDA)+0.5*Ex(B88(nl)+Ec(LYP(total)) 
 c             
- 8531 xccomb(48) = .true.
+ 8531 xccomb(55) = .true.
         xfac(1)  = 0.5d0
        lxfac(1)  = .true.
       nlxfac(1)  = .true.
@@ -300,7 +300,7 @@ c            C*Ec(Perdew86(total)) + Ec(VWN_1_RPA)
 c            
 c            A=0.20, B=0.72, C=0.81               
 c             
- 8532 xccomb(49) = .true.
+ 8532 xccomb(56) = .true.
         cfac(4)  = 0.81d0
        lcfac(4)  = .false.
       nlcfac(4)  = .true.
@@ -324,7 +324,7 @@ c            C*Ec(PW91(nl)) + 1*Ec(pw91lda)
 c            
 c            A=0.20, B=0.72, C=0.81               
 c             
- 8533 xccomb(50) = .true.
+ 8533 xccomb(57) = .true.
         cfac(5)  = 0.81d0
        lcfac(5)  = .false.
       nlcfac(5)  = .true.
@@ -345,7 +345,7 @@ c
 c
 c     PBE96; xpbe96 + cpbe96
 c             
- 8534 xccomb(51) = .true.
+ 8534 xccomb(58) = .true.
         xfac(7)  =  1.0d0
        lxfac(7)  = .true.
       nlxfac(7)  = .true.
