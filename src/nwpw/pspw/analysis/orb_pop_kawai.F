@@ -17,7 +17,7 @@ c
       complex*16 c2(npack1,*)
 
       integer lmax(*)
-      real*8  B0(0:5,*)
+      real*8  b0(0:5,*)
       real*8  a(36,nemax,*)
       real*8  sum(*)
 
@@ -31,7 +31,7 @@ c
       integer i,k,l,n,ll,l1,l2
       integer llmax,nfft3d
       real*8  omega,w,pi,twopi
-      real*8  f0,f1,f2,f21,f22,f23,f24,f25
+      real*8  f0,f1,f2,f3,f21,f22,f23,f24,f25
       integer n1(2),n2(2),q,pj,nnn,taskid_j
 
 *     *** MA Arrays ****
@@ -56,7 +56,7 @@ c
 
       value = MA_push_get(mt_dcpl, npack1,'cw',cw(2),cw(1))
       value = value.and.
-     >        MA_push_get(mt_dcpl, nfft3d,'exr',exr(2),exr(1))
+     >        MA_push_get(mt_dcpl, npack1,'exr',exr(2),exr(1))
       value = value.and.
      >        MA_push_get(mt_dbl, nfft3d,'Gx',Gx(2),Gx(1))
       value = value.and.
@@ -83,6 +83,7 @@ c
       F0=dsqrt(4.0d0*PI/omega)
       F1=F0*dsqrt(3.0d0)
       F2=F0*dsqrt(15.0d0)
+      F3=F0*dsqrt(105.0d0)
 
       F21=dsqrt(PI/5.0d0/omega)/3.0d0
       F22=dsqrt(2.d0*PI/15.d0/omega)
@@ -97,8 +98,8 @@ c
       do i=1,ion_nion_qm()
 
 *       **** get the structure factor ****
-        call strfac(i,dcpl_mb(exr(1)))
-        call Pack_c_pack(1,dcpl_mb(exr(1)))
+        call strfac_pack(1,i,dcpl_mb(exr(1)))
+c        call Pack_c_pack(1,dcpl_mb(exr(1)))
 
 
         DO spin=1,ispin
@@ -115,7 +116,7 @@ c
 
 * S-COMPONENT
             call Pack_cc_idot(1,dcpl_mb(exr(1)),c2(1,q),w)
-            A(1,N,I)=F0/B0(0,ion_katm_qm(I))*w
+            A(1,N,I)=F0/b0(0,ion_katm_qm(I))*w
 
 
 * P-COMPONENT
@@ -123,19 +124,11 @@ c
 
 *             **** px component ****
               do k=1,npack1
-                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
+                dcpl_mb(CW(1)+K-1)=dcpl_mb(exr(1)+K-1)
      >                            *DCMPLX(0.0d0,-dbl_mb(gx(1)+K-1))
               end do
               call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
-              A(2,N,I)=F1/B0(1,ion_katm_qm(I))*w
-
-*             **** py component ****
-              do k=1,npack1
-                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
-     >                            *DCMPLX(0.0d0,-dbl_mb(gy(1)+K-1))
-              end do
-              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
-              A(3,N,I)=F1/B0(1,ion_katm_qm(I))*w
+              A(2,N,I)=F1/b0(1,ion_katm_qm(I))*w
 
 *             **** pz component ****
               do k=1,npack1
@@ -143,58 +136,138 @@ c
      >                            *DCMPLX(0.0d0,-dbl_mb(gz(1)+K-1))
               end do
               call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
-              A(4,N,I)=F1/B0(1,ion_katm_qm(I))*w
+              A(3,N,I)=F1/b0(1,ion_katm_qm(I))*w
+
+*             **** py component ****
+              do k=1,npack1
+                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
+     >                            *DCMPLX(0.0d0,-dbl_mb(gy(1)+K-1))
+              end do
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
+              A(4,N,I)=F1/b0(1,ion_katm_qm(I))*w
             ENDIF
+
 
 * D-COMPONENT
             IF(lmax(ion_katm_qm(I)).GE.2) THEN
 
-*             **** dzz component ****
-              do k=1,npack1
-c               CW(K)=EXR(K)*(3.0d0*g(K,3)**2-1.0)/(2.0d0*dsqrt(3.0d0)
-                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
-     >            *(3.0d0*dbl_mb(gz(1)+k-1)**2 - 1.0d0)
-     >            /(2.0d0*dsqrt(3.0d0))
-              end do
-              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
-              A(5,N,I)=F2/B0(2,ion_katm_qm(I))*w
-
 *             **** dx2-y2 component ****
               do k=1,npack1
-c               CW(K)=EXR(K)*(g(K,1)**2-g(K,2)**2)/(2.0d0)
                 dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
      >            *( dbl_mb(gx(1)+k-1)**2
      >             - dbl_mb(gy(1)+k-1)**2)/(2.0d0)
               end do
               call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
-              A(6,N,I)=F2/B0(2,ion_katm_qm(I))*w
-
-*             **** dxy component ****
-              do k=1,npack1
-c               CW(K)=EXR(K)*g(K,1)*g(K,2)
-                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
-     >            *( dbl_mb(gx(1)+k-1)*dbl_mb(gy(1)+k-1)**2)
-              end do
-              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
-              A(7,N,I)=F2/B0(2,ion_katm_qm(I))*w
-
-*             **** dyz component ****
-              do k=1,npack1
-c               CW(K)=EXR(K)*g(K,2)*g(K,3)
-                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
-     >            *( dbl_mb(gy(1)+k-1)*dbl_mb(gz(1)+k-1)**2)
-              end do
-              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
-              A(8,N,I)=F2/B0(2,ion_katm_qm(I))*w
+              A(5,N,I)=F2/b0(2,ion_katm_qm(I))*w
 
 *             **** dzx component ****
               do k=1,npack1
-c               CW(K)=EXR(K)*g(K,3)*g(K,1)
                 dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
-     >            *( dbl_mb(gz(1)+k-1)*dbl_mb(gx(1)+k-1)**2)
+     >            *( dbl_mb(gz(1)+k-1)*dbl_mb(gx(1)+k-1))
               end do
               call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
-              A(9,N,I)=F2/B0(2,ion_katm_qm(I))*w
+              A(6,N,I)=F2/b0(2,ion_katm_qm(I))*w
+
+*             **** d3z2-1 component ****
+              do k=1,npack1
+                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
+     >            *(3.0d0*dbl_mb(gz(1)+k-1)**2 - 1.0d0)
+     >            /(2.0d0*dsqrt(3.0d0))
+              end do
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
+              A(7,N,I)=F2/b0(2,ion_katm_qm(I))*w
+
+*             **** dyz component ****
+              do k=1,npack1
+                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
+     >            *dbl_mb(gy(1)+k-1)*dbl_mb(gz(1)+k-1)
+              end do
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
+              A(8,N,I)=F2/b0(2,ion_katm_qm(I))*w
+
+*             **** dxy component ****
+              do k=1,npack1
+                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
+     >            *( dbl_mb(gx(1)+k-1)*dbl_mb(gy(1)+k-1))
+              end do
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
+              A(9,N,I)=F2/b0(2,ion_katm_qm(I))*w
+            ENDIF 
+
+* F-COMPONENT
+            IF(lmax(ion_katm_qm(I)).GE.3) THEN
+
+*             **** fx(x2-3y2) component ****
+              do k=1,npack1
+                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
+     >            *dcmplx(0.0d0, dbl_mb(gx(1)+k-1)
+     >            *( 4.0d0*dbl_mb(gx(1)+k-1)**2 
+     >             - 3.0d0*(1.0d0-dbl_mb(gz(1)+k-1)**2)))
+     >            /(dsqrt(24.0d0))
+              end do
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
+              A(10,N,I)=F3/b0(3,ion_katm_qm(I))*w
+
+*             **** fz(x2-y2) component ****
+              do k=1,npack1
+                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
+     >            *dcmplx(0.0d0,dbl_mb(gz(1)+k-1)
+     >            *(dbl_mb(gx(1)+k-1)**2 - dbl_mb(gy(1)+k-1)**2))
+     >            /(2.0d0)
+              end do
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
+              A(11,N,I)=F3/b0(3,ion_katm_qm(I))*w
+
+*             **** fx(5z2-1) component ****
+              do k=1,npack1
+                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
+     >            *dcmplx(0.0d0,dbl_mb(gx(1)+k-1)
+     >            *(5.0d0*dbl_mb(gz(1)+k-1)**2 - 1.0d0))
+     >            /(dsqrt(40.0d0))
+              end do
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
+              A(12,N,I)=F3/b0(3,ion_katm_qm(I))*w
+
+*             **** fz(5z2-3) component ****
+              do k=1,npack1
+                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
+     >            *dcmplx(0.0d0,dbl_mb(gz(1)+k-1)
+     >            *(5.0d0*dbl_mb(gz(1)+k-1)**2 - 3.0d0))
+     >            /(dsqrt(60.0d0))
+              end do
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
+              A(13,N,I)=F3/b0(3,ion_katm_qm(I))*w
+
+*             **** fy(5z2-1) component ****
+              do k=1,npack1
+                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
+     >            *dcmplx(0.0d0,dbl_mb(gy(1)+k-1)
+     >            *(3.0d0*dbl_mb(gz(1)+k-1)**2 - 1.0d0))
+     >            /(dsqrt(40.0d0))
+              end do
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
+              A(14,N,I)=F3/b0(3,ion_katm_qm(I))*w
+
+*             **** fxyz component ****
+              do k=1,npack1
+                dcpl_mb(CW(1)+K-1)=dcpl_mb(EXR(1)+K-1)
+     >            *dcmplx(0.0d0,dbl_mb(gx(1)+k-1)
+     >                    *dbl_mb(gy(1)+k-1)*dbl_mb(gz(1)+k-1))
+              end do
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
+              A(15,N,I)=F3/b0(3,ion_katm_qm(I))*w
+
+*             **** fy(3x2-y2) component ****
+              do k=1,npack1
+                dcpl_mb(CW(1)+k-1)=dcpl_mb(EXR(1)+k-1)
+     >            *dcmplx(0.0d0,dbl_mb(gy(1)+k-1)
+     >            *(3.0d0*(1.0d0-dbl_mb(gz(1)+k-1)**2) 
+     >             -4.0d0*dbl_mb(gy(1)+k-1)**2))
+     >            /(dsqrt(24.0d0))
+              end do
+              call Pack_cc_idot(1,dcpl_mb(cw(1)),c2(1,q),w)
+              A(16,N,I)=F3/b0(3,ion_katm_qm(I))*w
+
             ENDIF 
 
           end if
@@ -207,21 +280,21 @@ c               CW(K)=EXR(K)*g(K,3)*g(K,1)
          call D3dB_Vector_SumAll(nnn,A)
       end if
  
-      DO SPIN=1,ISPIN
-        DO N=N1(SPIN),N2(SPIN)
-          SUM(N)=0.0d0
+      DO spin=1,ispin
+        DO n=n1(spin),n2(spin)
+          sum(n)=0.0d0
 
-          DO I=1,ion_nion_qm()
-            LLMAX=(lmax(ion_katm_qm(I))+1)**2
-            DO LL=1,LLMAX
-              SUM(N)=SUM(N)+A(LL,N,I)**2
+          DO i=1,ion_nion_qm()
+            llmax=(lmax(ion_katm_qm(i))+1)**2
+            DO ll=1,llmax
+              sum(n)=sum(n)+A(ll,n,i)**2
             END DO
           END DO
 
-          DO I=1,ion_nion_qm()
-            LLMAX=(lmax(ion_katm_qm(I))+1)**2
-            DO LL=1,LLMAX
-              A(LL,N,I)=A(LL,N,I)/DSQRT(SUM(N))
+          DO i=1,ion_nion_qm()
+            llmax=(lmax(ion_katm_qm(I))+1)**2
+            DO ll=1,llmax
+              A(ll,n,i)=A(ll,n,i)/dsqrt(sum(n))
             END DO
           END DO
 

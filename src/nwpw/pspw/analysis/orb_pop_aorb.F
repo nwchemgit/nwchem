@@ -87,19 +87,19 @@ c
             IF(lmax(ion_katm_qm(i)).GE.1) THEN
 
 *             **** px component ****
-              jj=aorbs_get_basis_number(i,4)
+              jj=aorbs_get_basis_number(i,2)
               call aorbs_aorb(jj,dcpl_mb(phi(1)))
               call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
               A(2,N,I)=w
 
-*             **** py component ****
+*             **** pz component ****
               jj=aorbs_get_basis_number(i,3)
               call aorbs_aorb(jj,dcpl_mb(phi(1)))
               call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
               A(3,N,I)=w
 
-*             **** pz component ****
-              jj=aorbs_get_basis_number(i,2)
+*             **** py component ****
+              jj=aorbs_get_basis_number(i,4)
               call aorbs_aorb(jj,dcpl_mb(phi(1)))
               call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
               A(4,N,I)=w
@@ -108,36 +108,82 @@ c
 * D-COMPONENT
             IF(lmax(ion_katm_qm(I)).GE.2) THEN
 
-*             **** dzz component ****
-              jj=aorbs_get_basis_number(i,9)
-              call aorbs_aorb(jj,dcpl_mb(phi(1)))
-              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
-              A(5,N,I)=w
-
 *             **** dx2-y2 component ****
               jj=aorbs_get_basis_number(i,5)
               call aorbs_aorb(jj,dcpl_mb(phi(1)))
               call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
-              A(6,N,I)=w
-
-*             **** dxy component ****
-              jj=aorbs_get_basis_number(i,8)
-              call aorbs_aorb(jj,dcpl_mb(phi(1)))
-              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
-              A(7,N,I)=w
-
-*             **** dyz component ****
-              jj=aorbs_get_basis_number(i,7)
-              call aorbs_aorb(jj,dcpl_mb(phi(1)))
-              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
-              A(8,N,I)=w
+              A(5,N,I)=w
 
 *             **** dzx component ****
               jj=aorbs_get_basis_number(i,6)
               call aorbs_aorb(jj,dcpl_mb(phi(1)))
               call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
+              A(6,N,I)=w
+
+*             **** d3z2-1 component ****
+              jj=aorbs_get_basis_number(i,7)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
+              A(7,N,I)=w
+
+*             **** dyz component ****
+              jj=aorbs_get_basis_number(i,8)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
+              A(8,N,I)=w
+
+*             **** dxy component ****
+              jj=aorbs_get_basis_number(i,9)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
               A(9,N,I)=w
             ENDIF 
+
+* F-COMPONENT
+            IF(lmax(ion_katm_qm(I)).GE.3) THEN
+
+*             **** fx(x2-3y2) component ****
+              jj=aorbs_get_basis_number(i,10)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
+              A(10,N,I)=w
+
+*             **** fz(x2-y2) component ****
+              jj=aorbs_get_basis_number(i,11)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
+              A(11,N,I)=w
+
+*             **** fx(5z2-1) component ****
+              jj=aorbs_get_basis_number(i,12)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
+              A(12,N,I)=w
+
+*             **** fz(5z2-3) component ****
+              jj=aorbs_get_basis_number(i,13)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
+              A(13,N,I)=w
+
+*             **** fy(5z2-1) component ****
+              jj=aorbs_get_basis_number(i,14)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
+              A(14,N,I)=w
+
+*             **** fxyz component ****
+              jj=aorbs_get_basis_number(i,15)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
+              A(15,N,I)=w
+
+*             **** fy(3x2-y2) component ****
+              jj=aorbs_get_basis_number(i,16)
+              call aorbs_aorb(jj,dcpl_mb(phi(1)))
+              call Pack_cc_idot(1,dcpl_mb(phi(1)),c2(1,q),w)
+              A(16,N,I)=w
+            ENDIF
 
             end if
           end do
@@ -149,21 +195,21 @@ c
          call D3dB_Vector_SumAll(nnn,A)
       end if
  
-      DO SPIN=1,ISPIN
-        DO N=N1(SPIN),N2(SPIN)
-          SUM(N)=0.0d0
+      DO spin=1,ispin
+        DO n=n1(spin),n2(spin)
+          sum(n)=0.0d0
 
-          DO I=1,ion_nion_qm()
-            LLMAX=(lmax(ion_katm_qm(I))+1)**2
-            DO LL=1,LLMAX
-              SUM(N)=SUM(N)+A(LL,N,I)**2
+          DO i=1,ion_nion_qm()
+            llmax=(lmax(ion_katm_qm(I))+1)**2
+            DO ll=1,llmax
+              sum(n)=sum(n)+A(ll,n,i)**2
             END DO
           END DO
 
           DO I=1,ion_nion_qm()
-            LLMAX=(lmax(ion_katm_qm(I))+1)**2
-            DO LL=1,LLMAX
-              A(LL,N,I)=A(LL,N,I)/DSQRT(SUM(N))
+            llmax=(lmax(ion_katm_qm(i))+1)**2
+            DO ll=1,llmax
+              A(ll,n,i)=A(ll,n,i)/dsqrt(sum(n))
             END DO
           END DO
 

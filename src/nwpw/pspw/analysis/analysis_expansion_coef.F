@@ -33,6 +33,7 @@ c
         read(82,*) dum,dum,lmax
         read(82,*)
         read(82,*) nrho,dum
+        read(82,*)
         do i=1,nrho
           read(82,*)
         end do
@@ -42,10 +43,11 @@ c
       close(82)
       if (lorb.lt.0) lorb = lmax-1
 
+
       do i=0,lorb
           Y2=U2(i)/X2**(i+1)
           Y3=U3(i)/X3**(i+1)
-          B0(i)=Y2-X2*(Y2-Y3)/(X2-X3)
+          b0(i)=Y2-X2*(Y2-Y3)/(X2-X3)
       end do
 
       WRITE(6,*)

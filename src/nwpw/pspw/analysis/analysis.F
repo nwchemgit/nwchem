@@ -269,7 +269,7 @@ c1315 FORMAT('==                    dzz, dx2-y2, dxy, dyz, dzx ==')
             WRITE(6,1510) N,SPN(SPIN),dbl_mb(sum(1)+N-1),eig(n),
      >                    eig(n)*27.2116d0
           ELSE
-            WRITE(6,1515) N,dbl_mb(SUM(1)+N-1),eig(n),
+            WRITE(6,1515) N,dbl_mb(sum(1)+N-1),eig(n),
      >                    eig(n)*27.2116d0
           ENDIF
           !write(6,1519)
@@ -318,20 +318,18 @@ c1315 FORMAT('==                    dzz, dx2-y2, dxy, dyz, dzx ==')
      >       ' E=',E12.5,' (',F8.3,'eV)'/)
  1515 FORMAT('*** ORBITAL=',I4,'***  SPIN=BOTH',4X,'SUM=',E12.5,
      >       ' E=',E12.5,' (',F8.3,'eV)'/)
- 1516 FORMAT(30x,'  s')
- 1517 FORMAT(30x,' px         py         pz')
- 1518 FORMAT(27x,'d3z2-1        dxy        dyz        dzx     dx2-y2')
- 1519 FORMAT(30x,' f1         f2         f3         f4         f5',
-     >           '         f6         f7',
-     >      /27x,' x(3x2  y(3(1-z2)   z(x2-y2)        xyz   x(5z2-1)',
-     >           '   y(5z2-1)   z(5z2-3)'
-     >      /24x,'-3(1-z2))      -4y2)' ) 
+ 1516 FORMAT(27x,' s')
+ 1517 FORMAT(27x,' px         pz         py')
+ 1518 FORMAT(27x,' dx2-y2     dzx        d3z2-1     dyz        dxy')
+ 1519 FORMAT(27x,
+     > ' fx(x2-3y2) fz(5z2-1)  fx(5z2-1)  fz(5z2-3)  fy(5z2-1) ',
+     > ' fxyz       fy(3x2-y2)')
 
 c 1519 FORMAT(30x,'  s',
 c     >      /30x,' px         py        pz '
 c     >      /27x,'d3z2-1        dxy        dyz        dzx     dx2-y2',
-c     >      /30x,' f1         f2        f3          f4         f5', 
-c     >           '         f6         f7')
+c     >      /30x,' fy(3x2-y2) fxyz      fy(5z2-1)   fz(5z2-3)  fx(5z2-1)', 
+c     >           '  fz(5z2-1)  fx(x2-3y2)')
 
  1520 FORMAT(A2,2X,A4,2X,A1,2X,A10)
  1530 FORMAT(I2,3X,A4,3X,I1,8F11.5)

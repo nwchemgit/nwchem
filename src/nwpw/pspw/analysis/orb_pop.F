@@ -13,9 +13,6 @@ c
      >                        lmax,b0,a,sum)
       
       implicit none
-#include "errquit.fh"
-
-
       integer    iunit,flag
       integer    ispin,ne(2)
       integer    npack1,nemax
@@ -27,6 +24,7 @@ c
       real*8  sum(*)
 
 #include "mafdecls.fh"
+#include "errquit.fh"
 
 *     **** parallel variables ****
       integer  taskid
