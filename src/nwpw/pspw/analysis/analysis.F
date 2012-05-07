@@ -15,7 +15,7 @@ c
 #include "msgtypesf.h"
 #include "rtdb.fh"
 #include "errquit.fh"
-
+#include "stdio.fh"
 
 
 * ================================================
@@ -46,7 +46,7 @@ c
       integer h_actlist,l_actlist,nactive_atoms,ma_type
       integer npoints,ii,lmax
       integer weight(2)
-      real*8 emin,emax,alpha
+      real*8 emin,emax,alpha,lmbda,rcut
       character*255 filename
 
       logical value,mulliken_kawai,fixatoms
@@ -79,11 +79,17 @@ c
       external ion_rion
       real*8      lattice_omega,lattice_ecut,lattice_unita
       external    lattice_omega,lattice_ecut,lattice_unita
+      real*8   control_mulliken_rcut,control_mulliken_lmbda
+      external control_mulliken_rcut,control_mulliken_lmbda
+      real*8   aorbs_rcut,aorbs_lmbda
+      external aorbs_rcut,aorbs_lmbda
 
 
       call Parallel_taskid(taskid)
       call Pack_npack(1,npack1)
       mulliken_kawai = control_mulliken_kawai()
+      lmbda = control_mulliken_lmbda()
+      rcut  = control_mulliken_rcut()
 
       npsp = ion_nkatm_qm()
       nion = ion_nion_qm()
@@ -116,7 +122,7 @@ c
          ind = index(DD,' ') - 1
          test = DD(1:ind)//'.psp1'
          if (.not.nwpw_filefind(test))
-     >      call aorbs_formatter_auto(ion_atom_qm(k))
+     >      call aorbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
        end do
 
 *      ****************************************
@@ -165,6 +171,18 @@ c
          value = aorbs_init()
          value = value.and.aorbs_readall()
          if (.not.value) go to 1901
+
+         value = .true.
+         do k=1,npsp
+            call control_mullikenparameters(ion_atom_qm(k),rcut,lmbda)
+            if ((dabs(aorbs_rcut(k)-rcut).gt.1.0d-6).or.
+     >          (dabs(aorbs_lmbda(k)-lmbda).gt.1.0d-6)) then
+               call aorbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
+               value = .false.
+            end if
+         end do
+         if (.not.value) value = aorbs_readall()
+         if (.not.value) go to 1901
       end if
 
 
@@ -172,10 +190,10 @@ c
       if (taskid.eq.MASTER) then
          call util_date(DD)
  
-         WRITE(6,*)
-         WRITE(6,*)
-         WRITE(6,*)
-         WRITE(6,*) 
+         WRITE(luout,*)
+         WRITE(luout,*)
+         WRITE(luout,*)
+         WRITE(luout,*) 
      >  '*************************************************************'
          WRITE(6,*) 
      >  '**                                                         **'
@@ -206,18 +224,30 @@ c     **** ouput xyz format ****
 
       if (taskid.eq.MASTER) then
          if (mulliken_kawai) then
-         WRITE(6,1300)
-         WRITE(6,1305) 'ATOM ','S','P','D','F'
-         DO k=1,npsp
-           WRITE(6,1310) ion_atom_qm(K),
+            WRITE(luout,1300)
+            WRITE(luout,1305) 'ATOM ','S','P','D','F'
+            DO k=1,npsp
+              WRITE(luout,1306) ion_atom_qm(K),
      >                  (dbl_mb(b0(1)+l+(k-1)*6), 
      >                   l=0,int_mb(lorb(1)+k-1))
-         END DO
-         call util_flush(6)
-         end if
+            END DO
+         call util_flush(luout)
  1300    FORMAT(//'== Kawai Expansion Coefficients =='/)
  1305    FORMAT(A5,6X,A,12X,A,12X,A,12X,A)
- 1310    FORMAT(A4,' : ',4E13.5)
+ 1306    FORMAT(A4,' : ',4E13.5)
+         else
+           write(luout,1307)
+           do k=1,npsp
+             call control_mullikenparameters(ion_atom_qm(k),rcut,lmbda)
+             if (lmbda.gt.0.0d0) then
+                write(luout,1308) ion_atom_qm(k),"damping",rcut,lmbda
+             else
+                write(luout,*) ion_atom_qm(k)," nodamping"
+             end if
+           end do
+ 1307    FORMAT(//'== Atomic Orbital Expansion =='/)
+ 1308    FORMAT(A5,A10,4x,"rcut=",F8.3,2x,"lmbda=",F8.3)
+         end if
       end if
  
 
@@ -240,8 +270,8 @@ c     **** ouput xyz format ****
 
 
       if (taskid.eq.MASTER) then
-      WRITE(6,*)
-      WRITE(6,*)
+      WRITE(luout,*)
+      WRITE(luout,*)
       WRITE(6,*) '====================================================='
       if (flag.eq.0)
      >WRITE(6,*) '| POPULATION ANALYSIS OF FILLED MOLECULAR ORBITALS  |'
