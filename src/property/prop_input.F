@@ -360,6 +360,8 @@ c ==========================================
          efield          = 0
       elseif ( inp_compare(.false., 'esp', test)) then
          esp             = 0
+      elseif ( inp_compare(.false., 'grid', test)) then
+         call prop_grid_input(rtdb)
       elseif ( inp_compare(.false., 'spinpopulation', test)) then
          spinpopulation  = 0
          spinpopulation  = 1
@@ -684,3 +686,104 @@ c
       call errquit('prop_input: error in input file', 0, INPUT_ERR)
 c       
       end
+
+      subroutine prop_grid_input(rtdb)
+c
+      implicit none
+#include "errquit.fh"
+c
+#include "stdio.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "rtdb.fh"
+#include "util_params.fh"
+c
+      integer rtdb
+c
+      character*32 tag
+      character*32 pname
+      character*255 token
+      character*255 token0
+      integer i,ic
+      double precision f3(3),f
+      integer itok,itok3(3)
+c
+      pname = "prop_input_grid"
+c
+600   continue
+      if(.not.inp_a(token)) goto 20
+      if (inp_compare(.false.,'pad',token)) then
+        ic = 0
+        do i=1,3
+          if(.not.inp_f(f3(i))) exit
+          ic = ic + 1
+        end do
+        if(ic.eq.1) then
+          f3 = f3(1)
+        else if(ic.ne.3) then
+           call errquit(pname//'need 1 or 3 floats '//token,
+     >                  0, INPUT_ERR)
+        end if
+        tag="prop:grid:pad"
+        f3 = f3*cang2au
+        write(*,*) "read pad",f3
+        if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3)) 
+     >       goto 999
+      else if (inp_compare(.false.,'rmin',token)) then
+        ic = 0
+        do i=1,3
+          if(.not.inp_f(f3(i))) exit
+          ic = ic + 1
+        end do
+        if(ic.ne.3) then
+           call errquit(pname//'need 3 floats '//token,0, INPUT_ERR)
+        end if
+        write(*,*) "read rmax",f3
+        tag="prop:grid:rmax"
+        f3 = f3*cang2au
+        if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3)) 
+     >       goto 999
+      else if (inp_compare(.false.,'rmax',token)) then
+        ic = 0
+        do i=1,3
+          if(.not.inp_f(f3(i))) exit
+          ic = ic + 1
+        end do
+        if(ic.ne.3) then
+           call errquit(pname//'need 3 floats '//token,0, INPUT_ERR)
+        end if
+        write(*,*) "read rmin",f3
+        tag="prop:grid:rmin"
+        f3 = f3*cang2au
+        if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3)) 
+     >       goto 999
+       else if (inp_compare(.false.,'ngrid',token)) then
+        ic = 0
+        do i=1,3
+          if(.not.inp_i(itok3(i))) exit
+          ic = ic + 1
+        end do
+        if(ic.eq.1) then
+          itok3 = itok3(1)
+        else if(ic.ne.3) then
+           call errquit(pname//'need 1/3 integers '//token,0, INPUT_ERR)
+        end if
+        write(*,*) "read ngrid",itok3
+        tag="prop:grid:ngrid"
+        if(.not.rtdb_put(rtdb,tag,mt_int,3,itok3)) 
+     >       goto 999
+      else
+        goto 997
+      end if
+      goto 600
+20    continue
+      return
+998   call errquit(pname//'no token found '//token,0,
+     >        RTDB_ERR)
+999   call errquit(pname//'failed to store '//tag,0,
+     >        RTDB_ERR)
+997   call errquit(pname//'invalid token '//token,0,
+     >        RTDB_ERR)
+
+      end
+c $Id$

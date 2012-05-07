@@ -23,18 +23,18 @@ c     ------------------------
 c     SET UP INPUT PARAMETERS
 c     ------------------------
 c     limits of grid
-      if(.not.rtdb_get(rtdb,'prop:pad',MT_DBL,3,pad)) then
+      if(.not.rtdb_get(rtdb,'prop:grid:pad',MT_DBL,3,pad)) then
          pad = 4.0
       end if
-      if(.not.rtdb_get(rtdb,'prop:rmin',MT_DBL,3,rmin)) then
+      if(.not.rtdb_get(rtdb,'prop:grid:rmin',MT_DBL,3,rmin)) then
          rmin = MINVAL(c,2)-pad
       end if
-      if(.not.rtdb_get(rtdb,'prop:rmax',MT_DBL,3,rmax)) then
+      if(.not.rtdb_get(rtdb,'prop:grid:rmax',MT_DBL,3,rmax)) then
          rmax = MAXVAL(c,2)+pad
       end if
 
 c     number of grid points from rtdb or computed
-      if(.not.rtdb_get(rtdb,'prop:ngrid',MT_INT,3,ngrid)) then
+      if(.not.rtdb_get(rtdb,'prop:grid:ngrid',MT_INT,3,ngrid)) then
          step  = 0.2
          ngrid = CEILING((rmax-rmin)/step)+1
       end if
