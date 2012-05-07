@@ -63,6 +63,7 @@
       P2=DSQRT(15.0d0*FORPI)
       P3=DSQRT(105.0d0*FORPI)
 
+
 *======================  Fourier transformation  ======================
       call dcopy(lmmax*nfft3d,0.0d0,0,aorbs,1)
       task_count = -1
@@ -88,9 +89,11 @@
         END DO
 
         lcount = lmmax+1
-        GO TO (500,400,300,200), LMAX+1
+        GO TO (500,400,300,200,100), LMAX+1
 
 
+*::::::::::::::::::::::::::::::  g-wave  ::::::::::::::::::::::::::::::
+  100   CONTINUE
 *::::::::::::::::::::::::::::::  f-wave  ::::::::::::::::::::::::::::::
   200   CONTINUE
         if (locp.ne.3) then
@@ -102,50 +105,41 @@
            end do
            D=P3*SIMP(NRHO,F,DRHO)/Q
 
+*          **** fy(3x2-y2) component ****
            lcount = lcount-1
            aorbs(k1,k2,k3,lcount)=D*GY*(3.0d0*(1.0d0-GZ*GZ)-4.0d0*GY*GY)
      >                          /dsqrt(24.0d0)
+
+*          **** fxyz component ****
            lcount = lcount-1
            aorbs(k1,k2,k3,lcount)=D*GX*GY*GZ
+
+*             **** fy(5z2-1) component ****
            lcount = lcount-1
            aorbs(k1,k2,k3,lcount)=D*GY*(5.0d0*GZ*GZ-1.0d0)
      >                          /dsqrt(40.0d0)
+
+*          **** fz(5z2-3) component ****
            lcount = lcount-1
            aorbs(k1,k2,k3,lcount)=D*GZ*(5.0d0*GZ*GZ-3.0d0)
      >                          /dsqrt(60.0d0)
+
+*          **** fx(5z2-1) component ****
            lcount = lcount-1
            aorbs(k1,k2,k3,lcount)=D*GX*(5.0d0*GZ*GZ-1.0d0)
      >                          /dsqrt(40.0d0)
+
+*          **** fz(x2-y2) component ****
            lcount = lcount-1
            aorbs(k1,k2,k3,lcount)=D*GZ*(GX*GX - GY*GY)
      >                          /2.0d0
+
+*          **** fx(x2-3y2) component ****
            lcount = lcount-1
            aorbs(k1,k2,k3,lcount)=D*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
      >                          /dsqrt(24.0d0)
 
-c           lcount = lcount-1
-c           aorbs(k1,k2,k3,lcount)=D*GX*(4.0d0*GX*GX-3.0d0*(1.0d0-GZ*GZ))
-c     >                          /dsqrt(24.0d0)
-c           lcount = lcount-1
-c           aorbs(k1,k2,k3,lcount)=D*GY*(3.0d0*(1.0d0-GZ*GZ)-4.0d0*GY*GY)
-c     >                          /dsqrt(24.0d0)
-c           lcount = lcount-1
-c           aorbs(k1,k2,k3,lcount)=D*GZ*(GX*GX - GY*GY)
-c     >                          /2.0d0
-c           lcount = lcount-1
-c           aorbs(k1,k2,k3,lcount)=D*GX*GY*GZ
-c           lcount = lcount-1
-c           aorbs(k1,k2,k3,lcount)=D*GX*(5.0d0*GZ*GZ-1.0d0)
-c     >                          /dsqrt(40.0d0)
-c           lcount = lcount-1
-c           aorbs(k1,k2,k3,lcount)=D*GY*(5.0d0*GZ*GZ-1.0d0)
-c     >                          /dsqrt(40.0d0)
-c           lcount = lcount-1
-c           aorbs(k1,k2,k3,lcount)=D*GZ*(5.0d0*GZ*GZ-3.0d0)
-c     >                          /dsqrt(60.0d0)
         end if
-
-
 
 *::::::::::::::::::::::::::::::  d-wave  ::::::::::::::::::::::::::::::
   300   CONTINUE
@@ -157,29 +151,26 @@ c     >                          /dsqrt(60.0d0)
           END DO
           D=P2*SIMP(NRHO,F,DRHO)/Q
 
+*         **** dxy component ****
           lcount = lcount-1
           aorbs(k1,k2,k3,lcount)=D*GX*GY
+
+*         **** dyz component ****
           lcount = lcount-1
           aorbs(k1,k2,k3,lcount)=D*GY*GZ
+
+*         **** d3z2-1 component ****
           lcount = lcount-1
           aorbs(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
      >                          /(2.0d0*dsqrt(3.0d0))
+
+*         **** dzx component ****
           lcount = lcount-1
           aorbs(k1,k2,k3,lcount)=D*GZ*GX
+
+*         **** dx2-y2 component ****
           lcount = lcount-1
           aorbs(k1,k2,k3,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
-
-c          lcount = lcount-1
-c          aorbs(k1,k2,k3,lcount)=D*(3.0d0*GZ*GZ-1.0d0)
-c     >                          /(2.0d0*dsqrt(3.0d0))
-c          lcount = lcount-1
-c          aorbs(k1,k2,k3,lcount)=D*GX*GY
-c          lcount = lcount-1
-c          aorbs(k1,k2,k3,lcount)=D*GY*GZ
-c          lcount = lcount-1
-c          aorbs(k1,k2,k3,lcount)=D*GZ*GX
-c          lcount = lcount-1
-c          aorbs(k1,k2,k3,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
         end if
 
 *::::::::::::::::::::::::::::::  p-wave  ::::::::::::::::::::::::::::::
@@ -190,10 +181,16 @@ c          aorbs(k1,k2,k3,lcount)=D*(GX*GX-GY*GY)/(2.0d0)
              F(I)=(SN(I)/(Q*RHO(I))-CS(I))*WP(I,1)
            END DO
            P=P1*SIMP(NRHO,F,DRHO)/Q
+
+*          **** py component ****
            lcount = lcount-1
            aorbs(k1,k2,k3,lcount)=P*GY
+
+*          **** pz component ****
            lcount = lcount-1
            aorbs(k1,k2,k3,lcount)=P*GZ
+
+*          **** px component ****
            lcount = lcount-1
            aorbs(k1,k2,k3,lcount)=P*GX
         end if

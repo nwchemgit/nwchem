@@ -113,7 +113,6 @@ c      call Parallel_Init()
       locp = lmax
 
       
-      
 
 *     **** allocate rho, vp, and wp ****
       value = MA_alloc_get(mt_dbl,nrho,
@@ -167,6 +166,8 @@ c      call Parallel_Init()
       value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
      >                        'G',G_hndl, G_indx)
 
+c      call damp_kbpp_orb(nrho,lmax,3.5d0,1.0d0,
+c     >                   dbl_mb(rho_indx),dbl_mb(wp_indx))
 
 *     **** preparation of constants ****
       nfft1=ngrid(1)
@@ -295,6 +296,22 @@ c      call Parallel_Init()
 
  9999 call errquit('Error reading psp_filename',0, DISK_ERR)
 
+      kbpp_orb = .FALSE.
       END
 
 
+      subroutine damp_kbpp_orb(nrho,lmax,lmbda,rcut,rho,w)
+      implicit none
+      integer nrho,lmax
+      real*8 lmbda,rcut,rho(nrho),w(nrho,0:lmax)
+
+      integer i,l
+
+      do l=0,lmax
+         do i=1,nrho
+           w(i,l) = w(i,l)*exp(-(rho(i)/rcut)**lmbda)
+         end do
+      end do
+      return
+      end 
+  
