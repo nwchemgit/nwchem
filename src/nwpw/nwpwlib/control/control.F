@@ -2660,6 +2660,61 @@ c      end
       return
       end
 
+*     **********************************
+*     *                                *
+*     *     control_Mulliken_lmbda     *
+*     *                                *
+*     **********************************
+      real*8 function control_Mulliken_lmbda()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "control.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+*     ***** local variables ****
+      real*8 lmbda
+
+      if (.not.rtdb_get(rtdb,'nwpw:mulliken:lmbda',mt_dbl,1,lmbda))
+     >   lmbda = 0.0d0
+
+      control_Mulliken_lmbda = lmbda
+      return
+      end
+
+
+
+*     **********************************
+*     *                                *
+*     *     control_Mulliken_rcut      *
+*     *                                *
+*     **********************************
+      real*8 function control_Mulliken_rcut()
+      implicit none
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "control.fh"
+
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+
+*     ***** local variables ****
+      real*8 tcut
+
+      if (.not.rtdb_get(rtdb,'nwpw:mulliken:rcut',mt_dbl,1,tcut))
+     >   tcut = 1.0d0
+
+      control_Mulliken_rcut = tcut
+      return
+      end
+
+
 
 
 
@@ -3201,6 +3256,47 @@ c      end
       
       return
       end
+
+*     **********************************
+*     *                                *              
+*     *   control_mullikenparameters   *
+*     *                                *
+*     **********************************
+      subroutine control_mullikenparameters(atom,rcut,lmbda)
+      implicit none
+      character*4 atom
+      real*8 rcut,lmbda
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+      
+*     **** control_rtdb common block ****
+      integer rtdb
+      common / control_rtdb1 / rtdb
+      
+      integer l,k
+      character*5  element
+      character*50 rtdb_name
+      
+      element = '     '
+      element = atom     
+      l = index(element,' ') - 1
+      rtdb_name = '                   '
+      rtdb_name       = element(1:l)//':mulliken:rcut'
+      k = index(rtdb_name,' ') - 1
+      if (.not.rtdb_get(rtdb,rtdb_name(1:k),mt_dbl,1,rcut))
+     >  rcut = 1.0d0
+
+      rtdb_name = '                   '
+      rtdb_name       = element(1:l)//':mulliken:lmbda'
+      k = index(rtdb_name,' ') - 1
+      if (.not.rtdb_get(rtdb,rtdb_name(1:k),mt_dbl,1,lmbda))
+     >  lmbda = 0.0d0
+           
+      return
+      end
+         
+
 
 
 *     ***************************
@@ -4818,6 +4914,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       control_psputerm = value
       return
       end
+
 *     ***********************************
 *     *                                 *
 *     *        control_pspnuterms       *
