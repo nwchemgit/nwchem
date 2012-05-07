@@ -88,8 +88,6 @@ c
       call Parallel_taskid(taskid)
       call Pack_npack(1,npack1)
       mulliken_kawai = control_mulliken_kawai()
-      lmbda = control_mulliken_lmbda()
-      rcut  = control_mulliken_rcut()
 
       npsp = ion_nkatm_qm()
       nion = ion_nion_qm()
@@ -121,6 +119,7 @@ c
          DD = ion_atom_qm(k)
          ind = index(DD,' ') - 1
          test = DD(1:ind)//'.psp1'
+         call control_mullikenparameters(ion_atom_qm(k),rcut,lmbda)
          if (.not.nwpw_filefind(test))
      >      call aorbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
        end do
@@ -195,33 +194,34 @@ c
          WRITE(luout,*)
          WRITE(luout,*) 
      >  '*************************************************************'
-         WRITE(6,*) 
+         WRITE(luout,*) 
      >  '**                                                         **'
-         WRITE(6,*) 
+         WRITE(luout,*) 
      >  '**                  PSPW Mulliken analysis                 **'
-         WRITE(6,*) 
+         WRITE(luout,*) 
      >  '**                                                         **'
          if (flag.eq.1)
-     >   WRITE(6,*)
+     >   WRITE(luout,*)
      >  '**                   (Virtual Orbitals)                    **'
-         WRITE(6,*) 
+         WRITE(luout,*) 
      >  '** Population analysis algorithm devloped by Ryoichi Kawai **'
-         WRITE(6,*) 
+         WRITE(luout,*) 
      >  '**                                                         **'
-         WRITE(6,1000) DD
+         WRITE(luout,1000) DD
  1000    FORMAT(
      >  ' **                   ',A16,'                      **')
-         WRITE(6,*)
+         WRITE(luout,*)
      >   '**                                                         **'
-         WRITE(6,*) 
+         WRITE(luout,*) 
      >  '*************************************************************'
       end if
 
 
 c     **** ouput xyz format ****
-      call ion_Print_XYZ(6)
+      call ion_Print_XYZ(luout)
 
 
+      value = rtdb_parallel(.false.)
       if (taskid.eq.MASTER) then
          if (mulliken_kawai) then
             WRITE(luout,1300)
@@ -245,10 +245,12 @@ c     **** ouput xyz format ****
                 write(luout,*) ion_atom_qm(k)," nodamping"
              end if
            end do
+           call util_flush(luout)
  1307    FORMAT(//'== Atomic Orbital Expansion =='/)
  1308    FORMAT(A5,A10,4x,"rcut=",F8.3,2x,"lmbda=",F8.3)
          end if
       end if
+      value = rtdb_parallel(.true.)
  
 
  
@@ -272,16 +274,20 @@ c     **** ouput xyz format ****
       if (taskid.eq.MASTER) then
       WRITE(luout,*)
       WRITE(luout,*)
-      WRITE(6,*) '====================================================='
+      WRITE(luout,*) 
+     > '====================================================='
       if (flag.eq.0)
-     >WRITE(6,*) '| POPULATION ANALYSIS OF FILLED MOLECULAR ORBITALS  |'
+     >WRITE(luout,*) 
+     > '| POPULATION ANALYSIS OF FILLED MOLECULAR ORBITALS  |'
       if (flag.eq.1)
-     >WRITE(6,*) '| POPULATION ANALYSIS OF VIRTUAL MOLECULAR ORBITALS |'
-      WRITE(6,*) '====================================================='
+     >WRITE(luout,*) 
+     > '| POPULATION ANALYSIS OF VIRTUAL MOLECULAR ORBITALS |'
+      WRITE(luout,*) 
+     > '====================================================='
       if (.not.mulliken_kawai) then
-        WRITE(6,1311)
+        WRITE(luout,1311)
       else
-        WRITE(6,1312)
+        WRITE(luout,1312)
       end if
 c     WRITE(6,1313)
 c     WRITE(6,1314)
@@ -325,22 +331,22 @@ c1315 FORMAT('==                    dzz, dx2-y2, dxy, dyz, dzx ==')
               if (l.eq.1) write(6,1517)
               if (l.eq.2) write(6,1518)
               if (l.eq.3) write(6,1519)
-              WRITE(6,1530) I,ion_atom_qm(ion_katm_qm(I)),L,SUBTTL,
+              WRITE(luout,1530) I,ion_atom_qm(ion_katm_qm(I)),L,SUBTTL,
      >               (dbl_mb(A(1)+LL-1+(N-1)*36+(I-1)*36*nemax),
      >                        LL=L1,L2)
 
             END DO
           END DO
 
-          WRITE(6,1540)
-          WRITE(6,1550) (I,ion_atom_qm(ion_katm_qm(I)),
+          WRITE(luout,1540)
+          WRITE(luout,1550) (I,ion_atom_qm(ion_katm_qm(I)),
      >                   dbl_mb(TOTAL(1)+I-1),I=1,nion)
-          WRITE(6,1555)
-          WRITE(6,1560)  's','p','d','f'
-          WRITE(6,1570)  (dbl_mb(SUBTL(1)+L),L=0,3)
+          WRITE(luout,1555)
+          WRITE(luout,1560)  's','p','d','f'
+          WRITE(luout,1570)  (dbl_mb(SUBTL(1)+L),L=0,3)
         END DO
       END DO
-      call util_flush(6)
+      call util_flush(luout)
 
  1500 FORMAT(//'------------------------------------------------',
      >         '------------------------------'//)
