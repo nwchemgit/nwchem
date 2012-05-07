@@ -9,7 +9,7 @@
 
       logical function kbpp_orb(oprint_in,version,
      >                  psp_filename,formatted_filename,
-     >                  ngrid,unita,locp,lmax)
+     >                  ngrid,unita,locp,lmax,rcut,lmbda)
       implicit none
       logical          oprint_in
       integer          version
@@ -17,6 +17,7 @@
       integer          ngrid(3)
       double precision unita(3,3)
       integer locp,lmax
+      real*8 rcut,lmbda
 
 #include "errquit.fh"
 #include "mafdecls.fh"
@@ -166,8 +167,8 @@ c      call Parallel_Init()
       value = value.and.MA_alloc_get(mt_dbl,nsize*(3),
      >                        'G',G_hndl, G_indx)
 
-c      call damp_kbpp_orb(nrho,lmax,3.5d0,1.0d0,
-c     >                   dbl_mb(rho_indx),dbl_mb(wp_indx))
+      call damp_kbpp_orb(nrho,lmax,rcut,lmbda,
+     >                   dbl_mb(rho_indx),dbl_mb(wp_indx))
 
 *     **** preparation of constants ****
       nfft1=ngrid(1)
@@ -212,6 +213,8 @@ c     >                   dbl_mb(rho_indx),dbl_mb(wp_indx))
       write(luout,*) "  highest angular component      :",lmax0
       write(luout,*) "  highest angular component used :",lmax
       write(luout,*) "  local potential used           :",locp
+      write(luout,*) "  Mulliken rcut   used           :",rcut
+      write(luout,*) "  Mulliken lmbda  used           :",lmbda
 
       write(luout,*)
       write(luout,*) "Simulation Cell"
@@ -272,6 +275,8 @@ c     >                   dbl_mb(rho_indx),dbl_mb(wp_indx))
          call cwrite(2,atom,2)
          call iwrite(2,lmax,1)
          call iwrite(2,locp,1)
+         call dwrite(2,rcut,1)
+         call dwrite(2,lmbda,1)
          call dwrite(2,dbl_mb(aorbs_indx),nsize*lmmax)
       call closefile(2)
       end if
@@ -300,18 +305,20 @@ c     >                   dbl_mb(rho_indx),dbl_mb(wp_indx))
       END
 
 
-      subroutine damp_kbpp_orb(nrho,lmax,lmbda,rcut,rho,w)
+      subroutine damp_kbpp_orb(nrho,lmax,rcut,lmbda,rho,w)
       implicit none
       integer nrho,lmax
-      real*8 lmbda,rcut,rho(nrho),w(nrho,0:lmax)
+      real*8 rcut,lmbda,rho(nrho),w(nrho,0:lmax)
 
       integer i,l
 
-      do l=0,lmax
-         do i=1,nrho
-           w(i,l) = w(i,l)*exp(-(rho(i)/rcut)**lmbda)
+      if (lmbda.gt.0.0d0) then
+         do l=0,lmax
+            do i=1,nrho
+              w(i,l) = w(i,l)*dexp(-(rho(i)/rcut)**lmbda)
+            end do
          end do
-      end do
+      end if
       return
       end 
   

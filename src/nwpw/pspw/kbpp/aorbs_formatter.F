@@ -3,13 +3,14 @@ c $Id$
 c
 
 *     ***************************************
-*     *										*
-*     *			aorbs_formatter_auto			*
-*     *										*
+*     *					*
+*     *		aorbs_formatter_auto	*
+*     *	  				*
 *     ***************************************
-      subroutine aorbs_formatter_auto(atom)
+      subroutine aorbs_formatter_auto(atom,rcut,lmbda)
       implicit none
       character*4  atom
+      real*8 rcut,lmbda
 
 #include "errquit.fh"
 
@@ -72,7 +73,7 @@ c
       value = value.and.
      >     kbpp_orb(.false.,
      >            version,psp_filename,formatted_filename,ngrid,unita,
-     >            locp,lmax)
+     >            locp,lmax,rcut,lmbda)
 *     *** exit if error found ***
       if(.not. value) call errquit('aorb_formatter_auto: error',0,
      &       CALC_ERR)
