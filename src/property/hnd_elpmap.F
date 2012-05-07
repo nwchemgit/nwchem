@@ -43,6 +43,7 @@ c     property grid points variables (MV)
       integer nprp
       character*26 prp_date
       logical do_points
+      logical do_output
       integer l_tepot,k_tepot
 c
       character*30 theory
@@ -53,6 +54,7 @@ c
       external ao_1prdm_read
       logical ocube
       integer nsp(3)
+      character*255 cube_name
 c
 c
 c     Initialize integrals
@@ -90,12 +92,7 @@ c
       endif
 c
 c
-c
-c     ----- calculate electrostatic potential -----
-c
-      if (ga_nodeid().eq.0) write(luout,9999)
-      if (ga_nodeid().eq.0) write(luout,9994)
-c
+
        call ecce_print_module_entry('Elpoten')
 c
 c     ----- define points for calculation -----
@@ -120,25 +117,19 @@ c
       if(.not.rtdb_get(rtdb,'prop:cubefile',mt_log,1,ocube)) 
      +     ocube = .false.
 
-      write(*,*) "GEOMTERYU"
-         do i = 1,nat
-            xn  = dbl_mb(k_xyzpt  +3*(i-1)) 
-            yn  = dbl_mb(k_xyzpt+1+3*(i-1)) 
-            zn  = dbl_mb(k_xyzpt+2+3*(i-1)) 
-            zan = dbl_mb(k_zanpt+i-1)
-            write(*,'(4F6.3)') xn,yn,zn,zan
-         end do
+      if(ocube) then
+        if (.not. rtdb_cget(rtdb, "prop:grid:output",1,cube_name))
+     >     cube_name = "junk.cube"
+      end if
 cc     
 c     define points for the calculation now 
 c     either custom grid or (default) nuclei positions (M.V.)
 c     -------------------------------------------------
-      ocube = .true.
-      nsp = 30
       if(ocube) then
-         call grid_initialize(rtdb,nat,dbl_mb(k_xyzpt),nsp)
-         call grid_get_r_ptr(nprp,i_prp_c)
-         do_points = .true.
-         write(*,*) (dbl_mb(i_prp_c+i)*0.529,i=0,6)
+         call prop_grid_initialize(rtdb,nat,dbl_mb(k_xyzpt))
+         call prop_grid_get_r_ptr(nprp,i_prp_c)
+         do_points = .false.
+         do_output = .false.
       else if(rtdb_get_info(rtdb, "prop:xyz", ma_prp_type, 
      >                 nprp, prp_date)) then
         nprp = nprp/3
@@ -148,12 +139,14 @@ c     -------------------------------------------------
      >                      3*nprp,dbl_mb(i_prp_c)))
      &    call errquit('hnd_elfmap: prop:xyz failed',911,RTDB_ERR)
         do_points = .true.
+        do_output = .true.
       else
         nprp = nat
         if (.not. ma_push_get(mt_dbl,3*nat,'prop:xyz',h_prp_c,i_prp_c))
      &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
         call dcopy(3*nat,dbl_mb(k_xyzpt),1,dbl_mb(i_prp_c),1)
         do_points = .false.
+        do_output = .true.
       end if
 c
       if (.not. ma_push_get(mt_dbl,nprp,'epot pnt',l_epot,k_epot))
@@ -182,10 +175,18 @@ c     ----- collect and output results of all points -----
 c
       if (ga_nodeid().gt.0) goto 300
 c
-      if(dobq) then
-        write(luout,9992)
-      else
-        write(luout,9997)
+c     ----- calculate electrostatic potential -----
+c
+      if(do_output) then
+        if (ga_nodeid().eq.0) write(luout,9999)
+        if (ga_nodeid().eq.0) write(luout,9994)
+c
+c
+        if(dobq) then
+          write(luout,9992)
+        else
+          write(luout,9997)
+        end if
       end if
       do 230  iat=1,nprp
          xp = dbl_mb(i_prp_c  +3*(iat-1))
@@ -251,8 +252,10 @@ c        ----------------------------------
             end do
          end if
          elpotn = elpotn + elpotbq
+         dbl_mb(k_tepot+iat-1) = elpotn
 c        end of external bq contributions
 c        -------------------------------
+         if(do_output) then
          if(.not.do_points) then
          if (.not. geom_cent_tag(geom,iat,at_tag)) call
      &      errquit('hnd_elfmap: geom_cent_tag failed',0,GEOM_ERR)
@@ -264,7 +267,6 @@ c        -----------------------------------------------------
          end if
          end if
 c
-         dbl_mb(k_tepot+iat-1) = elpotn
          if(do_points) then
            symbol = "pt"
            if(dobq) then
@@ -283,6 +285,7 @@ c
      &                         dbl_mb(k_epot+iat-1)
            end if
          end if
+         end if
 c
 c        ----- store ecce data -----
 c
@@ -299,7 +302,13 @@ c
 c     ----- release memory block -----
 c
   300 call ga_sync()
-      call grid_write_cube(geom,nprp,dbl_mb(k_tepot))
+
+      if(ga_nodeid().eq.0.and.ocube) then
+        call util_print_centered(luout, 
+     >    "writing esp potential to "//cube_name,.true.,.true.)
+        call prop_grid_write_cube(geom,nprp,dbl_mb(k_tepot),cube_name)
+      end if
+
 c
 c     if custom grid is requested save final electric 
 c     into rtdb(M.V.)
@@ -319,6 +328,8 @@ c
       if(.not.ocube)  then
         if (.not.ma_pop_stack(h_prp_c)) call errquit
      &      ('hnd_elpmap, ma_pop_stack of h_prp_c failed',911,MA_ERR)
+      else
+         call prop_grid_destroy()
       endif
       if (.not.ma_pop_stack(l_zanpt)) call errquit
      &   ('hnd_elpmap, ma_pop_stack of l_zanpt failed',911,MA_ERR)

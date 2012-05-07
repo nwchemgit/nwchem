@@ -360,6 +360,10 @@ c ==========================================
          efield          = 0
       elseif ( inp_compare(.false., 'esp', test)) then
          esp             = 0
+         if (inp_a(test)) then
+           if( inp_compare(.false., 'grid', test))
+     >          call prop_grid_input(rtdb)
+         end if
       elseif ( inp_compare(.false., 'grid', test)) then
          call prop_grid_input(rtdb)
       elseif ( inp_compare(.false., 'spinpopulation', test)) then
@@ -703,12 +707,17 @@ c
       character*32 tag
       character*32 pname
       character*255 token
+      character*255 buffer
       character*255 token0
       integer i,ic
       double precision f3(3),f
       integer itok,itok3(3)
 c
       pname = "prop_input_grid"
+c
+      tag = 'prop:cubefile'
+      if(.not.rtdb_put(rtdb,tag,mt_log,1,.true.)) 
+     >    goto 999
 c
 600   continue
       if(.not.inp_a(token)) goto 20
@@ -726,7 +735,6 @@ c
         end if
         tag="prop:grid:pad"
         f3 = f3*cang2au
-        write(*,*) "read pad",f3
         if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3)) 
      >       goto 999
       else if (inp_compare(.false.,'rmin',token)) then
@@ -738,7 +746,6 @@ c
         if(ic.ne.3) then
            call errquit(pname//'need 3 floats '//token,0, INPUT_ERR)
         end if
-        write(*,*) "read rmax",f3
         tag="prop:grid:rmax"
         f3 = f3*cang2au
         if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3)) 
@@ -752,7 +759,6 @@ c
         if(ic.ne.3) then
            call errquit(pname//'need 3 floats '//token,0, INPUT_ERR)
         end if
-        write(*,*) "read rmin",f3
         tag="prop:grid:rmin"
         f3 = f3*cang2au
         if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3)) 
@@ -768,9 +774,14 @@ c
         else if(ic.ne.3) then
            call errquit(pname//'need 1/3 integers '//token,0, INPUT_ERR)
         end if
-        write(*,*) "read ngrid",itok3
         tag="prop:grid:ngrid"
         if(.not.rtdb_put(rtdb,tag,mt_int,3,itok3)) 
+     >       goto 999
+      else if (inp_compare(.false.,'output',token)) then
+        if(.not.inp_a(buffer)) 
+     >       goto 997
+        tag="prop:grid:output"
+        if (.not. rtdb_cput(rtdb, tag,1, trim(buffer)))
      >       goto 999
       else
         goto 997

@@ -1,4 +1,4 @@
-      subroutine grid_initialize(rtdb,nat,c,nsp)
+      subroutine prop_grid_initialize(rtdb,nat,c)
 c
 c $Id: hnd_elpmap.F 19707 2010-10-29 17:59:36Z d3y133 $
 c
@@ -15,9 +15,10 @@ c
       integer rtdb      ! [Input] rtdb        
       integer nat
       double precision c(3,nat)
-      integer nsp(3)
       integer iat
       integer igrid,ix,iy,iz
+      integer nsp(3)
+      character*256 buffer
 
 c     ------------------------
 c     SET UP INPUT PARAMETERS
@@ -43,14 +44,13 @@ c     number of grid points from rtdb or computed
     
 c     recalculate step
       step = (rmax-rmin)/nsp
-
-      WRITE(*,*) "------PARAMETERS of gaussian cube file----------"
-      WRITE(*,'(A,T12,":",3F6.3)') "step",step
-      write(*,'(A,T12,":",3I3)') "ngrid",ngrid
-      write(*,'(A,T12,":",I9)') "npoints",npoints
-      write(*,'(A,T12,":",3I3)') "nsp",nsp
-      write(*,'(A,T12,":",3(F6.3,4X))') "rmax",rmax*cau2ang
-      write(*,'(A,T12,":",3(F6.3,4X))') "rmin",rmin*cau2ang
+      buffer = "PARAMETERS of gaussian cube file"
+      call util_print_centered(luout, trim(buffer),.true., .true.)
+      WRITE(*,'(1X,A,T12,":",3F6.3)') "step",step
+      write(*,'(1X,A,T12,":",3I3)') "ngrid",ngrid
+      write(*,'(1X,A,T12,":",I9)') "npoints",npoints
+      write(*,'(1X,A,T12,":",3(F6.3,4X))') "rmax",rmax*cau2ang
+      write(*,'(1X,A,T12,":",3(F6.3,4X))') "rmin",rmin*cau2ang
       write(*,*) "------------------------------------------------"
 c     ---------------------------
 c     MEMORY ALLOCATION FOR GRID
@@ -77,7 +77,26 @@ c     ---------------------------
        
       end
 
-      subroutine grid_write_cube(geom,n,v)
+      subroutine prop_grid_destroy()
+c
+c $Id: hnd_elpmap.F 19707 2010-10-29 17:59:36Z d3y133 $
+c
+      implicit none
+#include "prop_grid_data.fh"
+#include "errquit.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "nwc_const.fh"
+#include "stdio.fh"
+#include "geom.fh"
+#include "rtdb.fh"
+
+      if(.not.ma_free_heap(h_r) ) call errquit(
+     &      'unable to deallocate heap space',
+     &      0, MA_ERR)
+      end
+
+      subroutine prop_grid_write_cube(geom,n,v,fname)
 c
 c
 c
@@ -94,6 +113,7 @@ c
       integer geom
       double precision v(n)
       integer n
+      character*(*) fname
       integer i,ii
 
       integer ix,iy,iz
@@ -106,12 +126,20 @@ c
       double precision nuc_charge
       double precision c(3)
       character*30 pname
+      logical util_get_io_unit
+      external util_get_io_unit
 
       pname = "grid_write_cube"
+      if(.not.util_get_io_unit(un))
+     >    call errquit(pname//"no free file unit",0,0)
+
+      open(unit=un,file=fname,
+     >       form='formatted',status='unknown')
       if(n.ne.npoints) 
+
      + call errquit(pname//'incompatible grid size',911,GEOM_ERR)
       charge = 0.0d0
-      un = 54
+c      un = 54
 
       if (.not.geom_ncent(geom,nat)) call
      &    errquit('hnd_elpmap: geom_ncent',911,GEOM_ERR)
@@ -147,9 +175,10 @@ c      write(un,1000) (v(i),i=1,n)
         write(un,1000) (v(i+ii),ii=0,ngrid(3)-1)
       end do
 1000  format(6E13.5)       
+      close(un)
       end subroutine
 
-      subroutine grid_get_r_ptr(nr,i_r_out)
+      subroutine prop_grid_get_r_ptr(nr,i_r_out)
 c
 c $Id: hnd_elpmap.F 19707 2010-10-29 17:59:36Z d3y133 $
 c
