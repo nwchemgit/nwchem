@@ -189,7 +189,8 @@ endif
     LIBRARY = libnwcutil.a
     HEADERS = util.fh itri.fh msgids.fh  numerical_constants.fh stdio.fh \
               printlevels.fh bitops.fh bitops_decls.fh bitops_funcs.fh \
-              bgj.fh bgj_common.fh nwc_const.fh errquit.fh util_sgroup.fh
+              bgj.fh bgj_common.fh nwc_const.fh errquit.fh util_sgroup.fh \
+	      util_params.fh
 
     USES_BLAS = util.fh ga_it_lsolve.F ga_maxelt.F ga_mix.F ga_iter_diag.F \
                 ga_orthog.F dabsmax.F ga_normf.F corr_mk_ref.F ga_it2.F util_file_name.F dgefa.f util_patch_test.F stpr_sjacobi.F
