@@ -21,13 +21,14 @@ More information on Doxygen can be found at:
 Experience so far has been mixed:
 - Doxygen requires the right configuration settings to deal with Fortran
   code.
-- Doxygen does not recognize .F files as Fortran.
 - Doxygen's EXTENSION_MAPPING does not work for files with capitals in their
   extension.
-- Doxygen requires source code modifications to work with NWChem. See details
-  below.
 - Doxygen generates about 4 GB of documentation for the NWChem source tree
   in about 1 hour and 20 minutes.
+Currently I am guessing that we will need multiple Doxygen configuration files
+and allow a developer to select one with a command line option on the 
+run_doxygen command line. Different options would then select more or less
+extensive documentation at different compile time and disk space requirements.
 
 INSTALLING DOXYGEN FOR NWCHEM
 =============================
@@ -39,13 +40,11 @@ I tried Doxygen with graphviz-2.28.0.
 
 Installing Doxygen itself is relatively straightforward. Download the Doxygen
 package of your choice (the version with which I have tested this setup is
-listed at the top of doxygen.rc). To have Doxygen recognize .F files do the
-following:
+listed at the top of doxygen.rc). With Doxygen 1.7.6.1 Fortran files with the
+.F extension were not recognized properly. In Doxygen 1.8.0 this problem has
+been fixed. So to install Doxygen 1.8.0 only the usual steps are required:
 
-	cd doxygen-<version>/src/.
-	vi util.cpp
-	- search for: updateLanguageMapping(".f", "fortran");
-	- add the line: updateLanguageMapping(".F", "fortran");
+	cd doxygen-<version>/.
 	./configure --prefix <install dir>
 	make
 	make install
