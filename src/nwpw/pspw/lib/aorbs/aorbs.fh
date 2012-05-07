@@ -8,7 +8,7 @@ c     real*8     aorbs(nfft3d,16,nkatmx)
 c     integer    norbs(nkatmx)
 
       integer    aorbs(2)
-      integer    lmmax(2),lmax(2),locp(2)
+      integer    lmmax(2),lmax(2),locp(2),rcut(2),lmbda(2)
       integer    lmaorb(2)
       integer    iaaorb(2)
       integer    iiaorb(2)
@@ -16,7 +16,7 @@ c     integer    norbs(nkatmx)
       integer    ibasis
       integer    nkatmx
 
-      common / aorbs_block / aorbs,lmmax,lmax,locp,
+      common / aorbs_block / aorbs,lmmax,lmax,locp,rcut,lmbda,
      >                       lmaorb,iaaorb,iiaorb,basisaorb,
      >                       ibasis,nkatmx
       integer norbs_max

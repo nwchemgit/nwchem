@@ -39,8 +39,10 @@
      >        MA_alloc_get(mt_int,(nkatmx),'lmax',lmax(2),lmax(1))
       value = value.and.
      >        MA_alloc_get(mt_int,(nkatmx),'locp',locp(2),locp(1))
-
-
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(nkatmx),'rcut',rcut(2),rcut(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,(nkatmx),'lmbda',lmbda(2),lmbda(1))
 
       value = value.and.
      >        MA_alloc_get(mt_int,(nion*norbs_max),
@@ -81,6 +83,8 @@
       value = value.and.MA_free_heap(lmmax(2))
       value = value.and.MA_free_heap(lmax(2))
       value = value.and.MA_free_heap(locp(2))
+      value = value.and.MA_free_heap(rcut(2))
+      value = value.and.MA_free_heap(lmbda(2))
       value = value.and.MA_free_heap(lmaorb(2))
       value = value.and.MA_free_heap(iaaorb(2))
       value = value.and.MA_free_heap(iiaorb(2))
@@ -145,6 +149,40 @@
       aorbs_lmax = int_mb(lmax(1)+ia-1)-1
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *              aorbs_rcut         *
+*     *                                 *
+*     ***********************************
+      real*8 function aorbs_rcut(ia)
+      implicit none
+      integer  ia
+
+#include "mafdecls.fh"
+#include "aorbs.fh"
+
+      aorbs_rcut = dbl_mb(rcut(1)+ia-1)
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *           aorbs_lmbda           *
+*     *                                 *
+*     ***********************************
+      real*8 function aorbs_lmbda(ia)
+      implicit none
+      integer  ia
+
+#include "mafdecls.fh"
+#include "aorbs.fh"
+
+      aorbs_lmbda = dbl_mb(lmbda(1)+ia-1)
+      return
+      end
+
 
 *     ***********************************
 *     *                                 *
@@ -373,7 +411,7 @@ c     >                          + (ia-1)*npack1*norbs_max))
      >                      version,
      >                       nfft,unita,
      >						 atom,
-     >                       lmmax,lmax,locp,
+     >                       lmmax,lmax,locp,rcut,lmbda,
      >                       npack1,aorbs,
      >                       tmp,tmp2,
      >                       ierr)
@@ -384,6 +422,7 @@ c     >                          + (ia-1)*npack1*norbs_max))
       real*8  unita(3,3)
       character*2 atom
       integer lmmax,lmax,locp
+      real*8 rcut,lmbda
       integer npack1
       real*8 aorbs(npack1,*)
       complex*16 tmp(*)
@@ -433,6 +472,8 @@ c     >                          + (ia-1)*npack1*norbs_max))
          call cread(5,atom,2)
          call iread(5,lmax,1)
          call iread(5,locp,1)
+         call dread(5,rcut,1)
+         call dread(5,lmbda,1)
          lmmax=(lmax+1)**2 - (2*locp+1)
       end if
 
@@ -454,6 +495,8 @@ c     >                          + (ia-1)*npack1*norbs_max))
       msglen = 1
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,lmax)
       call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,locp)
+      call Parallela_Brdcst_values(com_p,MASTER,msglen,rcut)
+      call Parallela_Brdcst_values(com_p,MASTER,msglen,lmbda)
       lmmax=(lmax+1)**2 - (2*locp+1)
 
 
@@ -553,6 +596,8 @@ c       close(11)
      >                  int_mb(lmmax(1)+ia-1),
      >                  int_mb(lmax(1)+ia-1),
      >                  int_mb(locp(1)+ia-1),
+     >                  dbl_mb(rcut(1)+ia-1),
+     >                  dbl_mb(lmbda(1)+ia-1),
      >                  npack1,
      >                  dbl_mb(aorbs(1)+ (ia-1)*npack1*norbs_max),
      >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
@@ -591,7 +636,7 @@ c       close(11)
 
 *        **** generate formatted pseudopotential atom.aorb *****
          if (.not.found) then
-             call aorbs_formatter_auto(ion_atom_qm(ia))
+             call aorbs_formatter_auto(ion_atom_qm(ia),0.0d0,0.0d0)
          end if
 
        end do !***do while ****
