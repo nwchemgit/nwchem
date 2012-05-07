@@ -2660,63 +2660,6 @@ c      end
       return
       end
 
-*     **********************************
-*     *                                *
-*     *     control_Mulliken_lmbda     *
-*     *                                *
-*     **********************************
-      real*8 function control_Mulliken_lmbda()
-      implicit none
-
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "control.fh"
-
-*     **** control_rtdb common block ****
-      integer rtdb
-      common / control_rtdb1 / rtdb
-
-*     ***** local variables ****
-      real*8 lmbda
-
-      if (.not.rtdb_get(rtdb,'nwpw:mulliken:lmbda',mt_dbl,1,lmbda))
-     >   lmbda = 0.0d0
-
-      control_Mulliken_lmbda = lmbda
-      return
-      end
-
-
-
-*     **********************************
-*     *                                *
-*     *     control_Mulliken_rcut      *
-*     *                                *
-*     **********************************
-      real*8 function control_Mulliken_rcut()
-      implicit none
-
-#include "mafdecls.fh"
-#include "rtdb.fh"
-#include "control.fh"
-
-*     **** control_rtdb common block ****
-      integer rtdb
-      common / control_rtdb1 / rtdb
-
-*     ***** local variables ****
-      real*8 tcut
-
-      if (.not.rtdb_get(rtdb,'nwpw:mulliken:rcut',mt_dbl,1,tcut))
-     >   tcut = 1.0d0
-
-      control_Mulliken_rcut = tcut
-      return
-      end
-
-
-
-
 
 *     *****************************
 *     *                	 	  *
@@ -3274,6 +3217,7 @@ c      end
       integer rtdb
       common / control_rtdb1 / rtdb
       
+      logical value
       integer l,k
       character*5  element
       character*50 rtdb_name
