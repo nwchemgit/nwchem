@@ -406,32 +406,33 @@
       integer ierr
 
 *    *** local variables ***
-      logical pio
-      integer MASTER,taskid,taskid_i,taskid_p,com_p
+      logical mprint,value
+      integer MASTER,taskid,taskid_k
       parameter(MASTER=0)
-      integer n,l
+      integer n,l,nbirllioun
       integer msglen
       integer iatom(2)
       character*255 full_filename
+      real*8 kv(3)
+      
 
-      logical  control_parallel_io
-      external control_parallel_io
-
+*     ***** external functions ****
+      integer  brillioun_nbrillioun,cpsp_projector_alloc
+      external brillioun_nbrillioun,cpsp_projector_alloc
+      integer  brillioun_nbrillq
+      external brillioun_nbrillq
+      real*8   brillioun_all_k
+      external brillioun_all_k
+      logical  control_print
+      external control_print
 
       call Parallel_taskid(taskid)
-      call Parallel2d_taskid_i(taskid_i)
+      call Parallel3d_taskid_k(taskid_k)
+      mprint = (taskid.eq.MASTER).and.control_print(print_medium)
 
-      pio = control_parallel_io()
-      if (pio) then
-         taskid_p = taskid_i
-         com_p = 1
-      else
-         taskid_p = taskid
-         com_p = 0
-      end if
 
 *     **** open fname binary file ****
-      if (taskid_p.eq.MASTER) then
+      if (taskid.eq.MASTER) then
          call util_file_name_noprefix(fname,.false.,
      >                             .false.,
      >                       full_filename)
@@ -443,50 +444,84 @@
          call cread(5,atom,2)
          call iread(5,lmax,1)
          call iread(5,locp,1)
-         call iread(5,nbrillioun,1)
          call dread(5,rcut,1)
          call dread(5,lmbda,1)
-         lmmax=(lmax+1)**2 - (2*locp+1)
+
+         call iread(5,nbrillioun,1)
+         ierr = 0
+         if (nbrillioun.eq.brillioun_nbrillioun()) then
+           do nb=1,nbrillioun
+               call dread(5,kv,3)
+               if ((brillioun_all_k(1,nb).ne.kv(1)).or.
+     >             (brillioun_all_k(2,nb).ne.kv(2)).or.
+     >             (brillioun_all_k(3,nb).ne.kv(3)))
+     >          ierr = 1
+           end do
+           if (ierr.eq.1) then
+              if (mprint) then
+                 write(*,*)"Brillioun Zone Vectors do not match!"
+                 call flush(6)
+              end if
+           end if
+         else
+           if (mprint) then
+           write(*,*)"Brillioun Zone Points do not match!"
+           write(*,*)"NB = ",nbrillioun," not equal ",
+     >       brillioun_nbrillioun()
+           call flush(6)
+           end if
+           ierr = 1
+         end if
       end if
+
+      msglen = 1
+      call Parallel_Brdcst_ivalues(MASTER,msglen,ierr)
+      if (ierr.ne.0) then
+         if (taskid.eq.MASTER) call closefile(5)
+         return
+      end if
+
 
 *     **** send header data to all processors ****
       msglen = 1
-      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,version)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
       msglen = 3
-      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,nfft)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nfft)
       msglen = 9
-      call Parallela_Brdcst_values(com_p,MASTER,msglen,unita)
+      call Parallel_Brdcst_values(MASTER,msglen,unita)
 
       iatom(1) = ichar(atom(1:1))
       iatom(2) = ichar(atom(2:2))
       msglen = 2
-      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,iatom)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,iatom)
       atom(1:1) = char(iatom(1))
       atom(2:2) = char(iatom(2))
 
       msglen = 1
-      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,lmax)
-      call Parallela_Brdcst_ivalues(com_p,MASTER,msglen,locp)
-      call Parallela_Brdcst_values(com_p,MASTER,msglen,rcut)
-      call Parallela_Brdcst_values(com_p,MASTER,msglen,lmbda)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,lmax)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,locp)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nbrillioun)
+      call Parallel_Brdcst_values(MASTER,msglen,rcut)
+      call Parallel_Brdcst_values(MASTER,msglen,lmbda)
       lmmax=(lmax+1)**2 - (2*locp+1)
 
 
+
 *     **** read in borb 3d blocks ****
-      do n=1,lmmax
-         if (pio) then
-            call D3dB_t_read_pio(1,5,tmp2,tmp,-1)
-         else
-            call D3dB_t_read(1,5,tmp2,tmp,-1)
-         end if
-         call Pack_t_pack(1,tmp2)
-         call Pack_t_Copy(1,tmp2,borbs(1,n))
+      borb_tag = cpsp_projector_alloc(brillioun_nbrillq(),lmmax,npack1)
+      do nb=1,brillioun_nbrillioun()
+         call K1dB_ktoqp(nb,nbq,pk)
+         do n=1,lmmax
+            call C3dB_r_read(1,5,tmp2,tmp,-1,pk)
+            if (pk.eq.taskid_k) then
+               call Cram_r_pack(nbq,tmp2)
+               call cpsp_projector_add(borb_tag,nbq,n,tmp2)
+            end if
+         end do
       end do
 
-
 *     *** close fname binary file ***
-      if (taskid_p.eq.MASTER) then
-c       close(11)
+      if (taskid.eq.MASTER) then
          call closefile(5)
       end if
 
@@ -499,7 +534,6 @@ c       close(11)
 *     *	 	  borbs_readall		*
 *     *					*
 *     ***********************************
-
       logical function borbs_readall()
       implicit none
       
@@ -534,15 +568,15 @@ c       close(11)
       integer      ion_nion_qm,ion_katm_qm
       external     ion_nion_qm,ion_katm_qm
       
-
-      call D3dB_nfft3d(1,nfft3d)
-      call Pack_npack(1,npack1)
+      call C3dB_nfft3d(1,nfft3d)
+      call Cram_npack(0,npack0)
+      call Cram_max_npack(npack1)
       call Parallel_taskid(taskid)
 
-      value = MA_push_get(mt_dbl,(2*nfft3d),'tmp',tmp(2),tmp(1))
+      value = MA_push_get(mt_dbl,(4*nfft3d),'tmp',tmp(2),tmp(1))
       if (.not. value) go to 9000
 
-      value = MA_push_get(mt_dbl,(nfft3d),'tmp2',tmp2(2),tmp2(1))
+      value = MA_push_get(mt_dbl,(2*nfft3d),'tmp2',tmp2(2),tmp2(1))
       if (.not. value) go to 9000
 
 *     **** read pseudopotentials ****
@@ -569,7 +603,7 @@ c       close(11)
      >                  dbl_mb(rcut(1)+ia-1),
      >                  dbl_mb(lmbda(1)+ia-1),
      >                  npack1,
-     >                  dbl_mb(borbs(1)+ (ia-1)*npack1*norbs_max),
+     >                  int_mb(borbs(1)+ ia-1),
      >                  dbl_mb(tmp(1)),dbl_mb(tmp2(1)),
      >                  ierr)
 
