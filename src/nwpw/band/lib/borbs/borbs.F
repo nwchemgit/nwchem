@@ -27,9 +27,9 @@
       nion   = ion_nion_qm()
       nkatmx = ion_nkatm_qm()
 
-*     **** allocate projector tag lists ****
+*     **** allocate borb datastructure  and borb tag lists****
+      call borb_projector_init(2*nkatmx)
       value = MA_alloc_get(mt_int,(nkatmx),'borbs',borbs(2),borbs(1))
-
 
       value = value.and.
      >        MA_alloc_get(mt_int,(nkatmx),'lmmax',lmmax(2),lmmax(1))
@@ -74,6 +74,9 @@
 
 *     **** local variables ****
       logical value
+
+*     **** deallocate projector data ****
+      call borb_projector_end()
 
       value = MA_free_heap(borbs(2))
       value = value.and.MA_free_heap(lmmax(2))
@@ -254,25 +257,20 @@
       integer n,lm,ia,npack1
       real*8  sum
 
-      call Pack_npack(1,npack1)
+      nbrillq = Pneb_nbrillq()
 
 *     **** Normalize atomic orbitals in k space *****
-      do n=1,ibasis
-         lm = int_mb(lmborb(1)+n-1)
-         ia = int_mb(iaborb(1)+n-1)
-         call Pack_tt_dot(1,
-     >                    dbl_mb(borbs(1) 
-     >                          + (lm-1)*npack1
-     >                          + (ia-1)*npack1*norbs_max),
-     >                    dbl_mb(borbs(1) 
-     >                          + (lm-1)*npack1
-     >                          + (ia-1)*npack1*norbs_max),
-     >                    sum)
+      do nbq=1,nbrillq
+         do ia=1,nkatmx
+         do lm=1,int_mb(lmmax(1)+ia-1)
+         
+         shift = borb_projector_get_ptr(int_mb(borbs(1)+ia-1),nbq,lm)
+
+         call Cram_rr_dot(nbq,dbl_mb(shift),dbl_mb(shift),sum)
          sum = 1.0d0/dsqrt(sum)
-         call Pack_t_SMul1(1,sum,
-     >                    dbl_mb(borbs(1) 
-     >                          + (lm-1)*npack1
-     >                          + (ia-1)*npack1*norbs_max))
+         call Cram_r_SMul1(nbq,sum,dbl_mb(shift))
+         end do
+         end do
       end do
 
       return
@@ -312,8 +310,9 @@
 *     *					*
 *     ***********************************
 
-      subroutine borbs_borb(n,borb)
+      subroutine borbs_borb(nbq,n,borb)
       implicit none
+      integer nbq
       integer n          ! basis number
       complex*16 borb(*) ! return orbital
 
@@ -332,10 +331,10 @@
       external is_sORd
 
 
-      call D3dB_nfft3d(1,nfft3d)
-      call Pack_npack(1,npack1)
+      call C3dB_nfft3d(1,nfft3d)
+      call Cram_npack(nbq,npack1)
 
-      value = MA_push_get(mt_dcpl,nfft3d,'exi', exi(2), exi(1))
+      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
       if (.not. value) call errquit('borbs_borb:out of heap memory',0,
      &       MA_ERR)
 
@@ -343,8 +342,12 @@
       lm = int_mb(lmborb(1)+n-1)
       ia = int_mb(iaborb(1)+n-1)
       ii = int_mb(iiborb(1)+n-1)
-      call strfac(ii,dcpl_mb(exi(1)))
-      call Pack_c_pack(1,dcpl_mb(exi(1)))
+      call cstrfac_pack(nbq,ii,dcpl_mb(exi(1)))
+      call cstrfac_k(ii,nbq,cxr)
+      call zscal(npack1,cxr,dcpl_mb(exi(1)),1)
+
+      shift = borb_projector_get_ptr(int_mb(borbs(1)+ia-1),nbq,lm)
+
 
 *     **** phase factor does not matter therefore ****
 *     **** (-i)^l is the same as (i)^l in the     ****
@@ -354,19 +357,11 @@
       if (is_sORd(lm,int_mb(lmax(1)+ia-1),
      >                   int_mb(locp(1)+ia-1))
      >        ) then
-         call Pack_tc_Mul(1,dbl_mb(borbs(1) 
-     >                          + (lm-1)*npack1
-     >                          + (ia-1)*npack1*norbs_max),
-     >                   dcpl_mb(exi(1)),
-     >                   borb)
+         call Cram_rc_Mul(nbq,dbl_mb(shift),dcpl_mb(exi(1)),borb)
 
 *     *** current function is p or f ****
       else
-         call Pack_itc_Mul(1,dbl_mb(borbs(1)
-     >                           +(lm-1)*npack1
-     >                           +(ia-1)*npack1*norbs_max),
-     >                   dcpl_mb(exi(1)),
-     >                   borb)
+         call Cram_irc_Mul(nbq,dbl_mb(shift),dcpl_mb(exi(1)),borb)
       end if
 
 
@@ -417,8 +412,8 @@
       
 
 *     ***** external functions ****
-      integer  brillioun_nbrillioun,cpsp_projector_alloc
-      external brillioun_nbrillioun,cpsp_projector_alloc
+      integer  brillioun_nbrillioun,borb_projector_alloc
+      external brillioun_nbrillioun,borb_projector_alloc
       integer  brillioun_nbrillq
       external brillioun_nbrillq
       real*8   brillioun_all_k
@@ -508,14 +503,14 @@
 
 
 *     **** read in borb 3d blocks ****
-      borb_tag = cpsp_projector_alloc(brillioun_nbrillq(),lmmax,npack1)
+      borb_tag = borb_projector_alloc(brillioun_nbrillq(),lmmax,npack1)
       do nb=1,brillioun_nbrillioun()
          call K1dB_ktoqp(nb,nbq,pk)
          do n=1,lmmax
             call C3dB_r_read(1,5,tmp2,tmp,-1,pk)
             if (pk.eq.taskid_k) then
                call Cram_r_pack(nbq,tmp2)
-               call cpsp_projector_add(borb_tag,nbq,n,tmp2)
+               call borb_projector_add(borb_tag,nbq,n,tmp2)
             end if
          end do
       end do
