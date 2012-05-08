@@ -7,17 +7,17 @@
 # documentation can be enriched by providing more details in comment lines.
 # Doxygen is the defacto standard approach to documenting C-code. 
 #
-# This script has been designed to be run in the $NWCHEM_TOP directory,
-# and producing a directory with documentation in $NWCHEM_TOP/srcdoc.
-#
 function usage()
 {
    echo
    echo " Usage: $0 [-h] [-g] [-t] [-m] [-u] [-v]"
    echo
    cat <<EOF
- This script runs doxygen building a particular version of the NWChem
- source code documentation. The command line flags are:
+ This script runs doxygen building a particular version of the NWChem source
+ code documentation. The command can be run in any directory and produces the
+ documentation in the directory ./doxydocs .
+
+ The command line flags are:
 
  -h Show this information
 
@@ -44,6 +44,7 @@ function usage()
 
 EOF
 }
+path="`dirname \"$0\"`"
 task="text"
 if [ $# -gt 1 ] ; then
   usage
@@ -65,22 +66,22 @@ if [ "$task" == "help" ] ; then
   exit 0
 elif [ "$task" == "graph" ] ; then
   date
-  doxygen ./contrib/doxygen/doxygen.rc
+  doxygen "$path/doxygen.rc"
   date
 elif [ "$task" == "text" ] ; then
   date
-  doxygen ./contrib/doxygen/doxygen-text.rc
+  doxygen "$path/doxygen-text.rc"
   date
 elif [ "$task" == "man" ] ; then
   date
-  doxygen ./contrib/doxygen/doxygen-manpage.rc
+  doxygen "$path/doxygen-manpage.rc"
   date
 elif [ "$task" == "update" ] ; then
-  doxygen -u ./contrib/doxygen/doxygen.rc
-  doxygen -u ./contrib/doxygen/doxygen-text.rc
-  doxygen -u ./contrib/doxygen/doxygen-manpage.rc
+  doxygen -u "$path/doxygen.rc"
+  doxygen -u "$path/doxygen-text.rc"
+  doxygen -u "$path/doxygen-manpage.rc"
 elif [ "$task" == "version" ] ; then
-  grep Doxyfile ./contrib/doxygen/*.rc
+  grep Doxyfile "$path"/*.rc
   echo -n "Doxygen "; doxygen --version
   dot -V 2>&1 cat
 else
