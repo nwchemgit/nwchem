@@ -34,7 +34,8 @@
 		print_elapsed_time.o \
 		log_integrate.o \
 		nwpw_parse.o \
-		nwpw_matrix_invert.o
+		nwpw_matrix_invert.o \
+		analysis_expansion_coef.o
 
 	  OBJ = 
 
