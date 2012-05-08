@@ -44,6 +44,7 @@ c     number of grid points from rtdb or computed
     
 c     recalculate step
       step = (rmax-rmin)/nsp
+      if(ga_nodeid().eq.0) then
       buffer = "PARAMETERS of gaussian cube file"
       call util_print_centered(luout, trim(buffer),.true., .true.)
       WRITE(*,'(1X,A,T12,":",3F6.3)') "step",step
@@ -52,6 +53,7 @@ c     recalculate step
       write(*,'(1X,A,T12,":",3(F6.3,4X))') "rmax",rmax*cau2ang
       write(*,'(1X,A,T12,":",3(F6.3,4X))') "rmin",rmin*cau2ang
       write(*,*) "------------------------------------------------"
+      end if
 c     ---------------------------
 c     MEMORY ALLOCATION FOR GRID
 c     --------------------------
