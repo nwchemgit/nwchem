@@ -95,27 +95,36 @@ if (! $?NWPARSE) then
 endif
 
 if ($NPROC) then
-# find mpirun  
+#  find mpirun  
    if ($?MPIRUN_PATH) then   
       set MPIRUN = "$MPIRUN_PATH "
    else 
-      echo " mpirun assumed in your current path"
-      echo " if this is not the case then :"
-      echo " setenv MPIRUN_PATH /home/guido/bagheria/bin/mpirun "
-      echo " make sure you have the right mpirun for your system"
-      set MPIRUN = mpirun
+      set MPIRUN = `which mpirun`
+      if (! -f $MPIRUN) then
+         echo " Mpirun is not in your current path. Please do:"
+         echo " setenv MPIRUN_PATH /home/guido/bagheria/bin/mpirun "
+         echo " Please make sure you have the right mpirun for your system."
+         exit 2
+      endif
    endif
-endif
-# find the -np option ??
+#  find the -np option ??
    if ($?MPIRUN_NPOPT) then   
       set NPOPT = "$MPIRUN_NPOPT "
    else 
-      echo " mpirun processor definition option assumed to be"
-      echo "   -np "
-      echo " if this is not the case then :"
-      echo " setenv MPIRUN_NPOPT -n "
-      echo " where -n is the option for your mpirun"
-      set NPOPT = -np
+      if ($NONSTD_MPI) then
+#        you are on your own anyway...
+      else
+         set NPOPT = -np
+         $MPIRUN $NPOPT 1 "echo > /dev/null"
+         if ($status) then
+            echo " Mpirun number of processors option is assumed to be:"
+            echo "   -np "
+            echo " If this is not the case then please do:"
+            echo " setenv MPIRUN_NPOPT <nproc_opt> "
+            echo " where <nproc_opt> is the number of processors option for"
+            echo " your mpirun."
+         endif
+      endif
    endif
 endif
 # Run the tests one at a time
