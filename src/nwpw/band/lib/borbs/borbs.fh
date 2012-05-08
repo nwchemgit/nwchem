@@ -1,0 +1,20 @@
+*
+* $Id: borbs.fh 22394 2012-05-07 22:46:38Z bylaska $
+*
+
+*     **** BORBS common block ****
+      integer    borbs(2)
+      integer    lmmax(2),lmax(2),locp(2),rcut(2),lmbda(2)
+      integer    lmborb(2)
+      integer    iaborb(2)
+      integer    iiborb(2)
+      integer    basisborb(2)
+      integer    ibasis
+      integer    nkatmx
+
+      common / borbs_block / borbs,lmmax,lmax,locp,rcut,lmbda,
+     >                       lmborb,iaborb,iiborb,basisborb,
+     >                       ibasis,nkatmx
+      integer norbs_max
+      parameter (norbs_max=16)
+
