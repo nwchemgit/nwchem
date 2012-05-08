@@ -12,7 +12,8 @@
 #
 function usage()
 {
-   echo " Usage: $0 [-h] [-g] [-t] [-m] [-u]"
+   echo
+   echo " Usage: $0 [-h] [-g] [-t] [-m] [-u] [-v]"
    echo
    cat <<EOF
  This script runs doxygen building a particular version of the NWChem
@@ -24,31 +25,38 @@ function usage()
     as call trees, include trees, caller trees, etc. This is most useful
     when information about how the code is put together is required.
     This level of documentation takes the longest to generate and requires
-    the most disk space (around 4 GB).
+    the most disk space (about 80 minutes and generating around 4 GB of HTML).
 
- -t Generate text only NWChem documentation. No graphs are generated but
-    headers and comments are included. This level of documentation is useful
-    when the information about how to use a module is required.
+ -t (Default) Generate text only NWChem documentation. No graphs are generated
+    but headers and comments are included. This level of documentation is
+    useful when the information about how to use a module is required.
+    (Takes about 15 minutes and generates 300 MB of HTML).
 
  -m Generate NWChem manpages. This is similar to the text only documentation
     except that this documentation is formatted as UNIX manpages. This 
-    documentation is relatively compact at around 200 MB.
+    documentation is relatively compact (takes about 10 minutes and generates
+    around 200 MB).
 
  -u Update the Doxygen configurations files to a newer version of Doxygen.
+
+ -v Print the version information from the configuration files, Doxygen,
+    and the GraphViz dot program.
+
 EOF
 }
 task="text"
-if [ $# -gt 2 ] ; then
+if [ $# -gt 1 ] ; then
   usage
   exit 1
 fi
-while [ $# -gt 1 ] ; do
+while [ $# -ge 1 ] ; do
   case $1 in
     -h) task="help" ; shift 1 ;;
     -g) task="graph" ; shift 1 ;;
     -t) task="text" ; shift 1 ;;
     -m) task="man" ; shift 1 ;;
     -u) task="update" ; shift 1 ;;
+    -v) task="version" ; shift 1 ;;
     *)  task="usage" ; shift 1 ;;
   esac
 done
@@ -65,12 +73,16 @@ elif [ "$task" == "text" ] ; then
   date
 elif [ "$task" == "man" ] ; then
   date
-  doxygen ./contrib/doxygen/doxygen-man.rc
+  doxygen ./contrib/doxygen/doxygen-manpage.rc
   date
 elif [ "$task" == "update" ] ; then
   doxygen -u ./contrib/doxygen/doxygen.rc
   doxygen -u ./contrib/doxygen/doxygen-text.rc
-  doxygen -u ./contrib/doxygen/doxygen-man.rc
+  doxygen -u ./contrib/doxygen/doxygen-manpage.rc
+elif [ "$task" == "version" ] ; then
+  grep Doxyfile ./contrib/doxygen/*.rc
+  echo -n "Doxygen "; doxygen --version
+  dot -V 2>&1 cat
 else
   usage
   exit 1
