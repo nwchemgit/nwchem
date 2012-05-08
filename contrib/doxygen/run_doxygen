@@ -7,12 +7,72 @@
 # documentation can be enriched by providing more details in comment lines.
 # Doxygen is the defacto standard approach to documenting C-code. 
 #
-# Experience on NWChem so far has shown that this is challenging with 
-# Doxygen generating many error messages and even seg-faulting.
-#
 # This script has been designed to be run in the $NWCHEM_TOP directory,
 # and producing a directory with documentation in $NWCHEM_TOP/srcdoc.
 #
-date
-doxygen ./contrib/doxygen/doxygen.rc
-date
+function usage()
+{
+   echo " Usage: $0 [-h] [-g] [-t] [-m] [-u]"
+   echo
+   cat <<EOF
+ This script runs doxygen building a particular version of the NWChem
+ source code documentation. The command line flags are:
+
+ -h Show this information
+
+ -g Generate the full NWChem documentation, including various graphs such
+    as call trees, include trees, caller trees, etc. This is most useful
+    when information about how the code is put together is required.
+    This level of documentation takes the longest to generate and requires
+    the most disk space (around 4 GB).
+
+ -t Generate text only NWChem documentation. No graphs are generated but
+    headers and comments are included. This level of documentation is useful
+    when the information about how to use a module is required.
+
+ -m Generate NWChem manpages. This is similar to the text only documentation
+    except that this documentation is formatted as UNIX manpages. This 
+    documentation is relatively compact at around 200 MB.
+
+ -u Update the Doxygen configurations files to a newer version of Doxygen.
+EOF
+}
+task="text"
+if [ $# -gt 2 ] ; then
+  usage
+  exit 1
+fi
+while [ $# -gt 1 ] ; do
+  case $1 in
+    -h) task="help" ; shift 1 ;;
+    -g) task="graph" ; shift 1 ;;
+    -t) task="text" ; shift 1 ;;
+    -m) task="man" ; shift 1 ;;
+    -u) task="update" ; shift 1 ;;
+    *)  task="usage" ; shift 1 ;;
+  esac
+done
+if [ "$task" == "help" ] ; then
+  usage
+  exit 0
+elif [ "$task" == "graph" ] ; then
+  date
+  doxygen ./contrib/doxygen/doxygen.rc
+  date
+elif [ "$task" == "text" ] ; then
+  date
+  doxygen ./contrib/doxygen/doxygen-text.rc
+  date
+elif [ "$task" == "man" ] ; then
+  date
+  doxygen ./contrib/doxygen/doxygen-man.rc
+  date
+elif [ "$task" == "update" ] ; then
+  doxygen -u ./contrib/doxygen/doxygen.rc
+  doxygen -u ./contrib/doxygen/doxygen-text.rc
+  doxygen -u ./contrib/doxygen/doxygen-man.rc
+else
+  usage
+  exit 1
+fi
+exit 0
