@@ -44,7 +44,16 @@ function usage()
 
 EOF
 }
-path="`dirname \"$0\"`"
+if [ -f "$0" ] ; then
+   # The first item on the command line is an actual file so it must have
+   # been specified including the path.
+   path="`dirname \"$0\"`"
+else
+   # The first item on the command line is not a file so it must have been
+   # found in PATH.
+   path="`which \"$0\"`"
+   path="`dirname \"$path\"`"
+fi
 task="text"
 if [ $# -gt 1 ] ; then
   usage
