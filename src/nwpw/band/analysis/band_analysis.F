@@ -70,8 +70,8 @@ c
       external ion_rion
       real*8      lattice_omega,lattice_ecut,lattice_unita
       external    lattice_omega,lattice_ecut,lattice_unita
-      real*8   borbs_rcut,borbs_lmbda
-      external borbs_rcut,borbs_lmbda
+      real*8   borbs_rcut,borbs_lmbda,ddot
+      external borbs_rcut,borbs_lmbda,ddot
       integer  cpsi_data_alloc,cpsi_data_get_chnk
       external cpsi_data_alloc,cpsi_data_get_chnk
 
@@ -98,13 +98,13 @@ c
      >        MA_alloc_get(mt_dbl,6*3,'subtl',subtl(2),subtl(1))
 
       value = value.and.
-     >        MA_alloc_get(mt_dbl,36*nemax*nion,'a',a(2),a(1))
+     >        MA_alloc_get(mt_dcpl,36*nemax*nion,'a',a(2),a(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,nemax,'sum',sum(2),sum(1))
       value = value.and.
      >        MA_alloc_get(mt_dbl,nemax,'eig',eig(2),eig(1))
 
-      A_tag   = cpsi_data_alloc(nbrillq,36*nemax*nion,1)
+      A_tag   = cpsi_data_alloc(nbrillq,2*36*nemax*nion,1)
       sum_tag = cpsi_data_alloc(nbrillq,nemax,1)
 
 
@@ -285,7 +285,7 @@ c     WRITE(6,1315)
       do nb=1,nbrill
          call dcopy(nemax,0.0d0,0,dbl_mb(eig(1)),1)
          call dcopy(nemax,0.0d0,0,dbl_mb(sum(1)),1)
-         call dcopy(36*nion*nemax,0.0d0,0,dbl_mb(a(1)),1)
+         call dcopy(2*36*nion*nemax,0.0d0,0,dbl_mb(a(1)),1)
 
          call K1dB_ktoqp(nb,nbq,pk)
          if (pk.eq.taskid_k) then
@@ -294,11 +294,12 @@ c     WRITE(6,1315)
             sum_shift = cpsi_data_get_chnk(sum_tag,nbq)
             call dcopy(nemax,dbl_mb(eig_shift),1,dbl_mb(eig(1)),1)
             call dcopy(nemax,dbl_mb(sum_shift),1,dbl_mb(sum(1)),1)
-            call dcopy(36*nion*nemax,dbl_mb(A_shift),1,dbl_mb(a(1)),1)
+            call dcopy(2*36*nion*nemax,dbl_mb(A_shift),1,
+     >                                 dcpl_mb(a(1)),1)
          end if
          call K1dB_Vector_SumAll(nemax,dbl_mb(eig(1)))
          call K1dB_Vector_SumAll(nemax,dbl_mb(sum(1)))
-         call K1dB_Vector_SumAll(36*nion*nemax,dbl_mb(a(1)))
+         call K1dB_Vector_SumAll(2*36*nion*nemax,dcpl_mb(a(1)))
 
          if (taskid.eq.MASTER) then
          DO SPIN=1,ISPIN
@@ -325,19 +326,23 @@ c     WRITE(6,1315)
               L1=L**2+1
               L2=(L+1)**2
               SUBTTL=0.0d0
-              DO LL=L1,L2
-                dbl_mb(TOTAL(1)+I-1)=dbl_mb(TOTAL(1)+I-1)+
-     >                dbl_mb(a(1)+LL-1+(N-1)*36+(I-1)*36*nemax)**2
-                SUBTTL=SUBTTL+
-     >                dbl_mb(a(1)+LL-1+(N-1)*36+(I-1)*36*nemax)**2
-              END DO
+              SUBTTL = ddot(2*(L2-L1+1),
+     >                     dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
+     >                     dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1)
+              dbl_mb(TOTAL(1)+I-1)=dbl_mb(TOTAL(1)+I-1)+SUBTTL
+c              DO LL=L1,L2
+c                dbl_mb(TOTAL(1)+I-1)=dbl_mb(TOTAL(1)+I-1)+
+c     >                dbl_mb(a(1)+LL-1+(N-1)*36+(I-1)*36*nemax)**2
+c                SUBTTL=SUBTTL+
+c     >                dbl_mb(a(1)+LL-1+(N-1)*36+(I-1)*36*nemax)**2
+c              END DO
               dbl_mb(SUBTL(1)+L)=dbl_mb(SUBTL(1)+L)+SUBTTL
               if (l.eq.0) write(luout,1516)
               if (l.eq.1) write(luout,1517)
               if (l.eq.2) write(luout,1518)
               if (l.eq.3) write(luout,1519)
               WRITE(luout,1530) I,ion_atom_qm(ion_katm_qm(I)),L,SUBTTL,
-     >               (dbl_mb(a(1)+LL-1+(N-1)*36+(I-1)*36*nemax),
+     >               (dcpl_mb(a(1)+LL-1+(N-1)*36+(I-1)*36*nemax),
      >                        LL=L1,L2)
 
             END DO
@@ -377,7 +382,7 @@ c     >      /30x,' fy(3x2-y2) fxyz      fy(5z2-1)   fz(5z2-3)  fx(5z2-1)',
 c     >           '  fz(5z2-1)  fx(x2-3y2)')
 
  1520 FORMAT(A2,2X,A4,2X,A1,2X,A10)
- 1530 FORMAT(I2,3X,A4,3X,I1,8F11.5)
+ 1530 FORMAT(I2,3X,A4,3X,I1,8(F6.3,'+i',F6.3))
  1531 FORMAT(8F11.5)
  1540 FORMAT(//'=== DISTRIBUTION ==='/)
  1550 FORMAT(4(I6,'(',A4,')',F9.4))
