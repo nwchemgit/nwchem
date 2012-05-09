@@ -70,8 +70,8 @@ c
       external ion_rion
       real*8      lattice_omega,lattice_ecut,lattice_unita
       external    lattice_omega,lattice_ecut,lattice_unita
-      real*8   borbs_rcut,borbs_lmbda,ddot
-      external borbs_rcut,borbs_lmbda,ddot
+      real*8   borbs_rcut,borbs_lmbda,ddot,brillioun_weight
+      external borbs_rcut,borbs_lmbda,ddot,brillioun_weight
       integer  cpsi_data_alloc,cpsi_data_get_chnk
       external cpsi_data_alloc,cpsi_data_get_chnk
 
@@ -405,75 +405,100 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
       WRITE(6,1610) 'NO','ATOM','SPIN','TOTAL','s','p','d','f'
       end if
 
-c      DO I=1,nion
-c        TTL1=0.0d0
-c        TTL2=0.0d0
+      DO I=1,nion
+        TTL1=0.0d0
+        TTL2=0.0d0
+
+        call dcopy(ispin*6*int_mb(lorb(1)+ion_katm_qm(I)-1),
+     >             0.0d0,0,dbl_mb(SUBTL(1)),1)
+        do nbq=1,nbrillq
+          A_shift   = cpsi_data_get_chnk(A_tag,nbq)
+          call dcopy(2*36*nion*nemax,dbl_mb(A_shift),1,
+     >                                 dcpl_mb(a(1)),1)
+          DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
+            DO ms=1,ispin
+            DO N=N1(ms),N2(ms)
+                L1=L**2+1
+                L2=(L+1)**2
+                dbl_mb(SUBTL(1)+L+(ms-1)*6) =
+     >          dbl_mb(SUBTL(1)+L+(ms-1)*6) +
+     >          brillioun_weight(nbq)*
+     >          ddot(2*(L2-L1+1),
+     >                  dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
+     >                  dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax))
+c                DO LL=L1,L2
+c                 dbl_mb(SUBTL(1)+L+(ms-1)*6)=
+c     >             dbl_mb(SUBTL(1)+L+(ms-1)*6) +
+c     >             dbl_mb(a(1)+LL-1+(N-1)*36+(I-1)*36*nemax)**2
 c
-c        DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
-c          DO ms=1,ISPIN
-c            dbl_mb(SUBTL(1)+L+(ms-1)*6)=0.0d0
-c            DO N=N1(ms),N2(ms)
-c              L1=L**2+1
-c              L2=(L+1)**2
-c              DO LL=L1,L2
-c                dbl_mb(SUBTL(1)+L+(ms-1)*6)=
-c     >            dbl_mb(SUBTL(1)+L+(ms-1)*6) +
-c     >            dbl_mb(A(1)+LL-1+(N-1)*36+(I-1)*36*nemax)**2
-c
-c              END DO
-c            END DO
-c          END DO
-c        END DO
-c     
-c        TTL1=0.0d0
-c        DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
-c          TTL1=TTL1+dbl_mb(SUBTL(1)+L)
-c        END DO
-c        WRITE(luout,1620) I,ion_atom_qm(ion_katm_qm(I)),SPN(1),TTL1,
-c     >                 ( dbl_mb(SUBTL(1)+L),
-c     >                   L=0,int_mb(lorb(1)+ion_katm_qm(I)-1) )
-c        TTL1=0.0d0
-c        DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
-c          TTL1=TTL1+dbl_mb(SUBTL(1)+L+(ispin-1)*6)
-c        END DO
-c        WRITE(luout,1620) I,ion_atom_qm(ion_katm_qm(I)),SPN(2),TTL1,
-c     >                 ( dbl_mb(SUBTL(1)+L+(ispin-1)*6),
-c     >                   L=0,int_mb(lorb(1)+ion_katm_qm(I)-1) )
-c
-c      END DO
-c      call util_flush(luout)
+c                END DO
+            END DO
+            END DO
+          END DO
+        end do
+        call K1dB_Vector_SumAll(
+     >            ispin*6*int_mb(lorb(1)+ion_katm_qm(I)-1),
+     >            dbl_mb(SUBTL(1)))
+     
+        if (taskid.eq.MASTER) then
+          TTL1=0.0d0
+          DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
+          TTL1=TTL1+dbl_mb(SUBTL(1)+L)
+          END DO
+          WRITE(luout,1620) I,ion_atom_qm(ion_katm_qm(I)),SPN(1),TTL1,
+     >                 ( dbl_mb(SUBTL(1)+L),
+     >                   L=0,int_mb(lorb(1)+ion_katm_qm(I)-1) )
+          TTL1=0.0d0
+          DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
+          TTL1=TTL1+dbl_mb(SUBTL(1)+L+(ispin-1)*6)
+          END DO
+          WRITE(luout,1620) I,ion_atom_qm(ion_katm_qm(I)),SPN(2),TTL1,
+     >                 ( dbl_mb(SUBTL(1)+L+(ispin-1)*6),
+     >                   L=0,int_mb(lorb(1)+ion_katm_qm(I)-1) )
+        end if
+      END DO
+      if (taskid.eq.MASTER) call util_flush(luout)
 
  1610 FORMAT(A2,2X,A4,2X,A4,4X,A5,7X,A,10X,A,10X,A,10X,A)
  1620 FORMAT(I2,3X,A4,3X,A4,5F11.5)
  
-c      DO L=0,3
-c        dbl_mb(SUBTL(1)+L)  =0.0d0
-c        dbl_mb(SUBTL(1)+L+6)=0.0d0
-c      END DO
-c      DO I=1,nion
-c        DO SPIN=1,ISPIN
-c          DO N=N1(SPIN),N2(SPIN)
-c            DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
-c              L1=L**2+1
-c              L2=(L+1)**2
+      call dcopy(18,0.0d0,0,dbl_mb(SUBTL(1)),1)
+      do nbq=1,nbrillq
+          A_shift   = cpsi_data_get_chnk(A_tag,nbq)
+          call dcopy(2*36*nion*nemax,dbl_mb(A_shift),1,
+     >                                 dcpl_mb(a(1)),1)
+         DO I=1,nion
+         DO SPIN=1,ISPIN
+         DO N=N1(SPIN),N2(SPIN)
+            DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
+              L1=L**2+1
+              L2=(L+1)**2
+              dbl_mb(SUBTL(1)+L+(SPIN-1)*6)=
+     >        dbl_mb(SUBTL(1)+L+(SPIN-1)*6)+
+     >        brillioun_weight(nbq)*
+     >        ddot(2*(L2-L1+1),
+     >             dcpl_mb(A(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
+     >             dcpl_mb(A(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1)
 c              DO LL=L1,L2
 c                dbl_mb(SUBTL(1)+L+(SPIN-1)*6)=
 c     >          dbl_mb(SUBTL(1)+L+(SPIN-1)*6)+
 c     >          dbl_mb(A(1)+LL-1+(N-1)*36+(I-1)*36*nemax)**2
 c              END DO
-c            END DO
-c          END DO
-c        END DO
-c      END DO
-c
-c      DO L=0,3
-c        dbl_mb(SUBTL(1)+L+2*6)=
-c     >  (dbl_mb(SUBTL(1)+L)+dbl_mb(SUBTL(1)+L+(ISPIN-1)*6))
-c     >   *100.d0/(NE(1)+NE(ISPIN))
-c        dbl_mb(SUBTL(1)+L)=dbl_mb(SUBTL(1)+L)*100.0d0/dble(NE(1))
-c        IF((ISPIN.EQ.2).and.(NE(2).gt.0)) 
-c     >    dbl_mb(SUBTL(1)+L+6)=dbl_mb(SUBTL(1)+L+6)*100.0d0/dble(NE(2))
-c      END DO
+            END DO
+         END DO
+         END DO
+         END DO
+      end do
+      call K1dB_Vector_SumAll(18,dbl_mb(SUBTL(1)))
+
+      DO L=0,3
+        dbl_mb(SUBTL(1)+L+2*6)=
+     >  (dbl_mb(SUBTL(1)+L)+dbl_mb(SUBTL(1)+L+(ISPIN-1)*6))
+     >   *100.d0/(NE(1)+NE(ISPIN))
+        dbl_mb(SUBTL(1)+L)=dbl_mb(SUBTL(1)+L)*100.0d0/dble(NE(1))
+        IF((ISPIN.EQ.2).and.(NE(2).gt.0)) 
+     >    dbl_mb(SUBTL(1)+L+6)=dbl_mb(SUBTL(1)+L+6)*100.0d0/dble(NE(2))
+      END DO
 
       if (taskid.eq.MASTER) then
       WRITE(luout,1700)
@@ -487,7 +512,6 @@ c      END DO
  1710 FORMAT(A6,6X,A1,3(11X,A1))
  1720 FORMAT(A6,4(F10.2,'% '))
       end if
- 
 
 
 *     ***********************************************
