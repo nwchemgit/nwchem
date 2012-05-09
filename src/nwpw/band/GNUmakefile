@@ -1,7 +1,7 @@
 #
 # $Id$
 #
-      SUBDIRS = minimizer structure cpsd cell_optimize kbpp makepsi lib dplot
+      SUBDIRS = minimizer structure cpsd cell_optimize kbpp makepsi lib dplot analysis
 
 		OBJ_OPTIMIZE = 	task_band.o \
 				band_energy.o \

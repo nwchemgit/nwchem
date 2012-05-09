@@ -575,29 +575,30 @@ c     **** nothing to do ****
 #include "errquit.fh"
 
 *     **** local variables ****
-      integer nb2
+      integer nbq2
       real*8 kv1(3),kv2(3)
 
 *     **** external functions ****
       integer  cpsi_data_get_chnk
       external cpsi_data_get_chnk
-      real*8   brillioun_weight,brillioun_k
-      external brillioun_weight,brillioun_k
+      real*8   brillioun_weight,brillioun_k,brillioun_all_k
+      external brillioun_weight,brillioun_k,brillioun_all_k
 
       if ((norbs(ms1).ne.0).and.relaxed) then
          call dcopy(2*nfft3d,0.0d0,0,Horb_r,1)
-         kv1(1) = brillioun_k(1,nb1)
-         kv1(2) = brillioun_k(2,nb1)
-         kv1(3) = brillioun_k(3,nb1)
-         do nb2=1,nbrillq
-            kv2(1) = brillioun_k(1,nb2)
-            kv2(2) = brillioun_k(2,nb2)
-            kv2(3) = brillioun_k(3,nb2)
+         kv1(1) = brillioun_all_k(1,nb1)
+         kv1(2) = brillioun_all_k(2,nb1)
+         kv1(3) = brillioun_all_k(3,nb1)
+         do nbq2=1,nbrillq
+            kv2(1) = brillioun_k(1,nbq2)
+            kv2(2) = brillioun_k(2,nbq2)
+            kv2(3) = brillioun_k(3,nbq2)
             call c_coulomb_screened_set(kv1,kv2)
-            call band_potential_HFX_orb_sub(ms1,brillioun_weight(nb2),
-     >               dbl_mb(cpsi_data_get_chnk(psi_r_tag,nb2)),
+            call band_potential_HFX_orb_sub(ms1,brillioun_weight(nbq2),
+     >               dbl_mb(cpsi_data_get_chnk(psi_r_tag,nbq2)),
      >               orb_r,Horb_r)
          end do
+         call K1dB_Vector_SumAll(2*nfft3d,Horb_r)
 
       end if
       return

@@ -88,11 +88,11 @@
       character*12 control_boundry
       external     control_boundry
 
-      logical  brillioun_print
+      logical  brillioun_print,control_Mulliken
       integer  brillioun_nbrillioun,brillioun_nbrillq
       real*8   brillioun_weight_brdcst,brillioun_ks_brdcst
       real*8   brillioun_k_brdcst,brillioun_weight
-      external brillioun_print
+      external brillioun_print,control_Mulliken
       external brillioun_nbrillioun,brillioun_nbrillq
       external brillioun_weight_brdcst,brillioun_ks_brdcst 
       external brillioun_k_brdcst,brillioun_weight
@@ -621,6 +621,10 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 cc      call band_kp_structure(rtdb)
 
 *     **** calculate Mulliken Populations ***
+      if (control_Mulliken()) then
+         call cpsi_Mulliken(rtdb)
+      end if
+
 
 *     **** write geometry to rtdb ****
       call ion_write(rtdb)
