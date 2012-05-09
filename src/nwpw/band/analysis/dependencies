@@ -1,2 +1,0 @@
-$(LIBRARY_PATH)(band_analysis.o):	$(INCDIR)/stdio.fh $(INCDIR)/rtdb.fh $(INCDIR)/errquit.fh 
-$(LIBRARY_PATH)(orb_pop_borb.o):	$(INCDIR)/errquit.fh 
