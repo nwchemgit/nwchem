@@ -254,8 +254,13 @@
 #include "borbs.fh"
 
 *     **** local variables ****
-      integer n,lm,ia,npack1
+      integer lm,ia,npack1,nbrillq,nbq,shift
       real*8  sum
+
+*     **** external functions ****
+      integer  Pneb_nbrillq,borb_projector_get_ptr
+      external Pneb_nbrillq,borb_projector_get_ptr
+
 
       nbrillq = Pneb_nbrillq()
 
@@ -264,11 +269,10 @@
          do ia=1,nkatmx
          do lm=1,int_mb(lmmax(1)+ia-1)
          
-         shift = borb_projector_get_ptr(int_mb(borbs(1)+ia-1),nbq,lm)
-
-         call Cram_rr_dot(nbq,dbl_mb(shift),dbl_mb(shift),sum)
-         sum = 1.0d0/dsqrt(sum)
-         call Cram_r_SMul1(nbq,sum,dbl_mb(shift))
+            shift = borb_projector_get_ptr(int_mb(borbs(1)+ia-1),nbq,lm)
+            call Cram_rr_dot(nbq,dbl_mb(shift),dbl_mb(shift),sum)
+            sum = 1.0d0/dsqrt(sum)
+            call Cram_r_SMul1(nbq,sum,dbl_mb(shift))
          end do
          end do
       end do
@@ -323,13 +327,15 @@
 *     **** local variables ****
       logical value
       integer lm,ia,ii
-      integer nfft3d,npack1
+      integer nfft3d,npack1,shift
       integer exi(2)
+      complex*16 cxr
 
 *     **** external functions ****
       logical  is_sORd
       external is_sORd
-
+      integer  borb_projector_get_ptr
+      external borb_projector_get_ptr
 
       call C3dB_nfft3d(1,nfft3d)
       call Cram_npack(nbq,npack1)
@@ -400,11 +406,15 @@
       real*8     tmp2(*)
       integer ierr
 
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "util.fh"
+
 *    *** local variables ***
       logical mprint,value
       integer MASTER,taskid,taskid_k
       parameter(MASTER=0)
-      integer n,l,nbirllioun
+      integer n,l,nbrillioun,nb,nbq,pk
       integer msglen
       integer iatom(2)
       character*255 full_filename
@@ -503,14 +513,14 @@
 
 
 *     **** read in borb 3d blocks ****
-      borb_tag = borb_projector_alloc(brillioun_nbrillq(),lmmax,npack1)
+      borbs_tag = borb_projector_alloc(brillioun_nbrillq(),lmmax,npack1)
       do nb=1,brillioun_nbrillioun()
          call K1dB_ktoqp(nb,nbq,pk)
          do n=1,lmmax
             call C3dB_r_read(1,5,tmp2,tmp,-1,pk)
             if (pk.eq.taskid_k) then
                call Cram_r_pack(nbq,tmp2)
-               call borb_projector_add(borb_tag,nbq,n,tmp2)
+               call borb_projector_add(borbs_tag,nbq,n,tmp2)
             end if
          end do
       end do
@@ -564,7 +574,6 @@
       external     ion_nion_qm,ion_katm_qm
       
       call C3dB_nfft3d(1,nfft3d)
-      call Cram_npack(0,npack0)
       call Cram_max_npack(npack1)
       call Parallel_taskid(taskid)
 
