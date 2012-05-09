@@ -2980,3 +2980,52 @@ c     *****  read initial wavefunctions into psi1  ****
       end
 
 
+
+
+*     ***********************
+*     *                     *
+*     *     cpsi_Mulliken   *
+*     *                     * 
+*     ***********************
+
+      subroutine cpsi_Mulliken(rtdb)
+      implicit none
+      integer rtdb
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+
+*     **** Lubin Water Analysis ****
+
+*     **** Atom Analysis ****
+
+*     **** Mulliken Analysis ****
+      call band_analysis(0,rtdb,ispin,ne,nbrillioun,nbrillq,
+     >                   psi1_tag,eig_tag)
+
+      return
+      end
+
+
+*     ***********************
+*     *                     *
+*     *    ecpsi_Mulliken    *
+*     *                     *
+*     ***********************
+
+      subroutine ecpsi_Mulliken(rtdb)
+      implicit none
+      integer rtdb
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+      call band_analysis(1,rtdb,ispin,ne_excited,nbrillioun,nbrillq,
+     >                   psi1_excited_tag,eig_excited_tag)
+
+      return
+      end
+
