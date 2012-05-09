@@ -342,7 +342,10 @@ c              END DO
               if (l.eq.2) write(luout,1518)
               if (l.eq.3) write(luout,1519)
               WRITE(luout,1530) I,ion_atom_qm(ion_katm_qm(I)),L,SUBTTL,
-     >               (dcpl_mb(a(1)+LL-1+(N-1)*36+(I-1)*36*nemax),
+     >               (dble(dcpl_mb(a(1)+LL-1+(N-1)*36+(I-1)*36*nemax)),
+     >                        LL=L1,L2)
+              WRITE(luout,1532) 
+     >               (dimag(dcpl_mb(a(1)+LL-1+(N-1)*36+(I-1)*36*nemax)),
      >                        LL=L1,L2)
 
             END DO
@@ -369,11 +372,11 @@ c              END DO
      >       4X,'SUM=',E12.5,
      >       ' E=',E12.5,' (',F8.3,'eV)'/)
  1516 FORMAT(27x,' s')
- 1517 FORMAT(27x,' px         pz         py')
- 1518 FORMAT(27x,' dx2-y2     dzx        d3z2-1     dyz        dxy')
+ 1517 FORMAT(27x,' px          pz          py')
+ 1518 FORMAT(27x,' dx2-y2      dzx         d3z2-1      dyz         dxy')
  1519 FORMAT(27x,
-     > ' fx(x2-3y2) fz(5z2-1)  fx(5z2-1)  fz(5z2-3)  fy(5z2-1) ',
-     > ' fxyz       fy(3x2-y2)')
+     > ' fx(x2-3y2)  fz(5z2-1)   fx(5z2-1)   fz(5z2-3)   fy(5z2-1)  ',
+     > ' fxyz        fy(3x2-y2)')
 
 c 1519 FORMAT(30x,'  s',
 c     >      /30x,' px         py        pz '
@@ -382,8 +385,9 @@ c     >      /30x,' fy(3x2-y2) fxyz      fy(5z2-1)   fz(5z2-3)  fx(5z2-1)',
 c     >           '  fz(5z2-1)  fx(x2-3y2)')
 
  1520 FORMAT(A2,2X,A4,2X,A1,2X,A10)
- 1530 FORMAT(I2,3X,A4,3X,I1,8(F6.3,'+i',F6.3))
+ 1530 FORMAT(I2,3X,A4,3X,I1,F11.5,8(F11.5,1x))
  1531 FORMAT(8F11.5)
+ 1532 FORMAT(24x,8(F11.5,'i'))
  1540 FORMAT(//'=== DISTRIBUTION ==='/)
  1550 FORMAT(4(I6,'(',A4,')',F9.4))
  1555 FORMAT(//'== ANGULAR MOMENTUM POPULATIONS ==='/)
