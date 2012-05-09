@@ -34,7 +34,7 @@ c
       integer h_actlist,l_actlist,nactive_atoms,ma_type
       integer npoints,ii,lmax
       integer weight(2)
-      real*8 emin,emax,alpha,lmbda,rcut
+      real*8 emin,emax,alpha,lmbda,rcut,bweight,kvec(3),ksvec(3)
       character*255 filename
 
       logical value,fixatoms
@@ -72,6 +72,10 @@ c
       external    lattice_omega,lattice_ecut,lattice_unita
       real*8   borbs_rcut,borbs_lmbda,ddot,brillioun_weight
       external borbs_rcut,borbs_lmbda,ddot,brillioun_weight
+      real*8   brillioun_weight_brdcst
+      external brillioun_weight_brdcst
+      real*8   brillioun_k_brdcst,brillioun_ks_brdcst
+      external brillioun_k_brdcst,brillioun_ks_brdcst
       integer  cpsi_data_alloc,cpsi_data_get_chnk
       external cpsi_data_alloc,cpsi_data_get_chnk
 
@@ -285,7 +289,14 @@ c     WRITE(6,1315)
       do nb=1,nbrill
          call dcopy(nemax,0.0d0,0,dbl_mb(eig(1)),1)
          call dcopy(nemax,0.0d0,0,dbl_mb(sum(1)),1)
-         call dcopy(2*36*nion*nemax,0.0d0,0,dbl_mb(a(1)),1)
+         call dcopy(2*36*nion*nemax,0.0d0,0,dcpl_mb(a(1)),1)
+         bweight = brillioun_weight_brdcst(nb)
+         kvec(1) = brillioun_k_brdcst(1,nb)
+         kvec(2) = brillioun_k_brdcst(2,nb)
+         kvec(3) = brillioun_k_brdcst(3,nb)
+         ksvec(1) = brillioun_ks_brdcst(1,nb)
+         ksvec(2) = brillioun_ks_brdcst(2,nb)
+         ksvec(3) = brillioun_ks_brdcst(3,nb)
 
          call K1dB_ktoqp(nb,nbq,pk)
          if (pk.eq.taskid_k) then
@@ -305,12 +316,13 @@ c     WRITE(6,1315)
          DO SPIN=1,ISPIN
          DO N=N1(SPIN),N2(SPIN)
           WRITE(luout,1500)
+          write(luout,1508) nb,bweight,ksvec,kvec
           IF(ISPIN.EQ.2) THEN
-            WRITE(luout,1510) nb,N,SPN(SPIN),dbl_mb(sum_shift+N-1),
+            WRITE(luout,1510) N,SPN(SPIN),dbl_mb(sum_shift+N-1),
      >                    dbl_mb(eig(1)+n-1),
      >                    dbl_mb(eig(1)+n-1)*27.2116d0
           ELSE
-            WRITE(luout,1515) nb,N,dbl_mb(sum(1)+N-1),
+            WRITE(luout,1515) N,dbl_mb(sum(1)+N-1),
      >                   dbl_mb(eig(1)+n-1),
      >                   dbl_mb(eig(1)+n-1)*27.2116d0
           ENDIF
@@ -365,10 +377,14 @@ c              END DO
 
  1500 FORMAT(//'------------------------------------------------',
      >         '------------------------------'//)
- 1510 FORMAT('*** NB=',I4,' ORBITAL=',I4,'***  SPIN=',A4,
+ 1508 FORMAT( '*** Brillouin zone point: ',i6,
+     >       /'*** weight=',f10.6,
+     >       /'*** k     =<',3f8.3,'> . <b1,b2,b3> ',
+     >       /'***       =<',3f8.3,'>')
+ 1510 FORMAT('*** ORBITAL=',I4,' ***  SPIN=',A4,
      >       4X,'SUM=',E12.5,
      >       ' E=',E12.5,' (',F8.3,'eV)'/)
- 1515 FORMAT('*** NB=',I4,' ORBITAL=',I4,'***  SPIN=BOTH',
+ 1515 FORMAT('*** ORBITAL=',I4,' ***  SPIN=BOTH',
      >       4X,'SUM=',E12.5,
      >       ' E=',E12.5,' (',F8.3,'eV)'/)
  1516 FORMAT(27x,' s')
@@ -425,7 +441,7 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
      >          brillioun_weight(nbq)*
      >          ddot(2*(L2-L1+1),
      >                  dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
-     >                  dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax))
+     >                  dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1)
 c                DO LL=L1,L2
 c                 dbl_mb(SUBTL(1)+L+(ms-1)*6)=
 c     >             dbl_mb(SUBTL(1)+L+(ms-1)*6) +
