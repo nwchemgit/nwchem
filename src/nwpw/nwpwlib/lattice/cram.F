@@ -323,12 +323,12 @@
 
       subroutine Cram_r_pack(nb,A)
       implicit none
-#include "errquit.fh"
       integer nb
       real*8  A(*)
 
 #include "mafdecls.fh"
 #include "cram_common.fh"
+#include "errquit.fh"
 
       
 *     **** local variables ****
