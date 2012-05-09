@@ -116,11 +116,11 @@ c      call Cnex_init(ispin,nexcited,control_mapping1d())
 
 
 *     **** calculate Density of States ***
-c      rtdb = control_rtdb()
-c      if (control_DOS()) call epsi_DOS(rtdb)
+      rtdb = control_rtdb()
+      if (control_DOS()) call ecpsi_DOS(rtdb)
 
 *     **** calculate Mulliken Populations ***
-c      if (control_Mulliken()) call epsi_Mulliken(rtdb)
+      if (control_Mulliken()) call ecpsi_Mulliken(rtdb)
 
 
 *     **** write out excited wavefunctions ***

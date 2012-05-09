@@ -19,7 +19,7 @@
       parameter (MASTER=0)
 
       logical stalled,mprint
-      integer taskid,minimizer
+      integer taskid,minimizer,rtdb
       integer i,k,neall,NN,nb
       integer it_in,it_out,icount,bfgscount
       real*8  EV,virial
@@ -58,6 +58,10 @@
       external cpsi_spin_orbit,control_fractional,band_hfx
       real*8   cpsi_smearfermi
       external cpsi_smearfermi
+      integer  control_rtdb
+      external control_rtdb
+      logical  control_DOS
+      external control_DOS
 
       call Parallel_taskid(taskid)
 
@@ -301,6 +305,9 @@ c          if (mprint) write(luout,1511)
       else
          if (mprint) write(luout,1501) 
       endif
+
+      rtdb = control_rtdb()
+      if (control_DOS()) call cpsi_DOS(rtdb)
 
       c_cgsd_energy = E(1)
       return
