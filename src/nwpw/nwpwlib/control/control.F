@@ -2655,6 +2655,11 @@ c      end
      >     value = .false.
       end if
 
+      if ((code.eq.5).or.(code.eq.11)) then
+        if (.not.rtdb_get(rtdb,'band:mulliken',mt_log,1,value))
+     >     value = .false.
+      end if
+
 
       control_Mulliken = value
       return
