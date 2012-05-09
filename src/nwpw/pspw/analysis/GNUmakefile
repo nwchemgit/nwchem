@@ -6,7 +6,6 @@
 
  OBJ_OPTIMIZE = \
 		analysis_input.o \
-		analysis_expansion_coef.o \
 		analysis.o \
                 orb_pop.o \
                 orb_pop_kawai.o \

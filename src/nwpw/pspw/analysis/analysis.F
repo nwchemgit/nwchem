@@ -119,8 +119,9 @@ c
          DD = ion_atom_qm(k)
          ind = index(DD,' ') - 1
          test = DD(1:ind)//'.psp1'
+         id   = DD(1:ind)//'.aorb'
          call control_mullikenparameters(ion_atom_qm(k),rcut,lmbda)
-         if (.not.nwpw_filefind(test))
+         if ((.not.nwpw_filefind(test)).or.(.not.nwpw_filefind(id)))
      >      call aorbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
        end do
 
