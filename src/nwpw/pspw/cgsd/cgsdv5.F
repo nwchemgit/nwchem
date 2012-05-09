@@ -217,6 +217,7 @@
       minimizer = control_minimizer()
       mapping   = control_mapping()
 
+
 *     **** initialize psi_data ****
       call psi_data_init(20)
 
