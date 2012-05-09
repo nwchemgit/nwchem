@@ -21,10 +21,11 @@
 
 #include "errquit.fh"
 #include "mafdecls.fh"
-#include "tcgmsg.fh"
-#include "msgtypesf.h"
 #include "util.fh"
 #include "stdio.fh"
+
+c#include "tcgmsg.fh"
+c#include "msgtypesf.h"
 
       character*255 full_filename
 
@@ -91,16 +92,17 @@ c      call Parallel_Init()
       end if
 
       msglen = 1
-      call BRDCST(9+MSGDBL,zv,mdtob(msglen),MASTER)
-      call BRDCST(9+MSGDBL,amass,mdtob(msglen),MASTER)
-      call BRDCST(9+MSGINT,lmax0,mitob(msglen),MASTER)
-      call BRDCST(9+MSGINT,lmax1,mitob(msglen),MASTER)
-      msglen = lmax0+1
-      call BRDCST(9+MSGDBL,rc,mdtob(msglen),MASTER)
-      msglen = 1
-      call BRDCST(9+MSGINT,nrho,mitob(msglen),MASTER)
-      call BRDCST(9+MSGDBL,drho,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,zv)
+      call Parallel_Brdcst_values(MASTER,msglen,amass)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,lmax0)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,lmax1)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,locp1)
 
+      msglen = lmax0+1
+      call Parallel_Brdcst_values(MASTER,msglen,rc)
+      msglen = 1
+      call Parallel_Brdcst_ivalues(MASTER,msglen,nrho)
+      call Parallel_Brdcst_values(MASTER,msglen,drho)
 
 *     **** set the maximum angular momentum ****
 *      if (lmax.eq.-1)    lmax = lmax1
@@ -134,17 +136,17 @@ c      call Parallel_Init()
       end if
 
       msglen = nrho
-      call BRDCST(9+MSGDBL,dbl_mb(rho_indx),mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(rho_indx))
       msglen = nrho*(lmax+1)
-      call BRDCST(9+MSGDBL,dbl_mb(vp_indx),mdtob(msglen),MASTER)
-      call BRDCST(9+MSGDBL,dbl_mb(wp_indx),mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(vp_indx))
+      call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(wp_indx))
 
       msglen = 1
-      call BRDCST(9+MSGINT,isemicore,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,isemicore)
       semicore = (isemicore.eq.1)
       if (semicore) then
       msglen = 2*nrho
-      call BRDCST(9+MSGDBL,dbl_mb(sc_r_indx),mdtob(msglen),MASTER)
+      call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(sc_r_indx))
       else
          rcore = 0.0d0
       end if
@@ -175,7 +177,6 @@ c      call Parallel_Init()
       nfft2=ngrid(2)
       nfft3=ngrid(3)
       call setup_kbpp(nfft1,nfft2,nfft3,unita,unitg,dbl_mb(G_indx))
-
 
       call integrate_kbpp_orb(version,
      >                      nrho,drho,lmax,locp,
