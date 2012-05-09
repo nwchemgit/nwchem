@@ -3029,3 +3029,237 @@ c     *****  read initial wavefunctions into psi1  ****
       return
       end
 
+
+
+*     ***********************
+*     *                     *
+*     *     cpsi_DOS        *
+*     *                     *
+*     ***********************
+
+      subroutine cpsi_DOS(rtdb)
+      implicit none
+      integer rtdb
+
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+
+*     **** local variables ****
+      logical value
+      integer npoints,ii,ms,nbq
+      integer weight(2),dstates(2),nemax
+      real*8 emin,emax,alpha,eig_shift
+      character*255 filename
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+      real*8   brillioun_weight
+      external brillioun_weight
+
+      nemax = ne(1)
+      value = MA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
+      if (.not. value)
+     >  call errquit('cpsi_dos:out of stack memory',0, MA_ERR)
+      call dcopy(nemax,1.0d0,0,dbl_mb(weight(1)),1)
+
+
+      if (.not.rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
+        alpha = 0.05d0/27.2116d0
+      end if
+
+      if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
+        npoints = 500
+      end if
+      value = MA_push_get(mt_dbl,(2*npoints),
+     >                    'dstates',dstates(2),dstates(1))
+      if (.not. value)
+     >  call errquit('cpsi_dos:out of stack memory',0,MA_ERR)
+
+
+      if (.not.rtdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
+         emin = 99999.0d0
+         do nbq=1,nbrillq
+            eig_shift = cpsi_data_get_chnk(eig_tag,nbq)
+            do ii=1,ne(1)+ne(2)
+               if (dbl_mb(eig_shift+ii-1).lt.emin) 
+     >            emin = dbl_mb(eig_shift+ii-1)
+            end do 
+         end do
+         call K1dB_MinAll(emin)
+         emin = emin - 0.1d0
+      end if
+
+      if (.not.rtdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
+         emax = -99999.0d0
+         do nbq=1,nbrillq
+            eig_shift = cpsi_data_get_chnk(eig_tag,nbq)
+            do ii=1,ne(1)+ne(2)
+               if (dbl_mb(eig_shift+ii-1).gt.emax) 
+     >            emax = dbl_mb(eig_shift+ii-1)
+            end do
+         end do
+         call K1dB_MaxAll(emin)
+         emax = emax + 0.1d0
+      end if
+
+*     **** generate DENSITY OF STATES *****
+      call dcopy(2*npoints,0.0d0,0,dbl_mb(dstates(1)),1)
+      do nbq=1,nbrillq
+         eig_shift = cpsi_data_get_chnk(eig_tag,nbq)
+         do ms=1,ispin
+            call adddensityofstates(
+     >                dbl_mb(eig_shift+(ms-1)*ne(1)),
+     >                dbl_mb(weight(1)),ne(ms),
+     >                (3-2*ms)*brillioun_weight(nbq),
+     >                alpha,npoints,emin,emax,
+     >                dbl_mb(dstates(1)+(ms-1)*npoints))
+         end do
+      end do
+      call K1dB_Vector_SumAll(2*npoints,dbl_mb(dstates(1)))
+
+      if (ispin.eq.1) then
+        filename = "DOS_both"
+        call writedensityofstates(filename,
+     >                     1.0d0,alpha,npoints,emin,emax,
+     >                     dbl_mb(dstates(1)))
+      end if
+
+      if (ispin.eq.2) then
+        filename = "DOS_alpha"
+        call writedensityofstates(filename,
+     >                     1.0d0,alpha,npoints,emin,emax,
+     >                     dbl_mb(dstates(1)))
+        filename = "DOS_beta"
+        call writedensityofstates(filename,
+     >               -1.0d0,alpha,npoints,emin,emax,
+     >                dbl_mb(dstates(1)+npoints))
+      end if
+
+      value =           MA_pop_stack(dstates(2))
+      value = value.and.MA_pop_stack(weight(2))
+      if (.not. value)
+     >  call errquit('cpsi_dos: error freeing stack',0, MA_ERR)
+
+      return
+      end
+
+
+*     ***********************
+*     *                     *
+*     *     ecpsi_DOS       *
+*     *                     *
+*     ***********************
+
+      subroutine ecpsi_DOS(rtdb)
+      implicit none
+      integer rtdb
+
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+
+*     **** local variables ****
+      logical value
+      integer npoints,ii,ms,nbq
+      integer weight(2),dstates(2),nemax
+      real*8 emin,emax,alpha,eig_shift
+      character*255 filename
+
+*     **** external functions ****
+      integer  cpsi_data_get_chnk
+      external cpsi_data_get_chnk
+      real*8   brillioun_weight
+      external brillioun_weight
+
+      nemax = ne_excited(1)
+      value = MA_push_get(mt_dbl,(nemax),'weight',weight(2),weight(1))
+      if (.not. value)
+     >  call errquit('ecpsi_dos:out of stack memory',0, MA_ERR)
+      call dcopy(nemax,1.0d0,0,dbl_mb(weight(1)),1)
+
+
+      if (.not.rtdb_get(rtdb,'dos:alpha',mt_dbl,1,alpha)) then
+        alpha = 0.05d0/27.2116d0
+      end if
+
+      if (.not.rtdb_get(rtdb,'dos:npoints',mt_int,1,npoints)) then
+        npoints = 500
+      end if
+      value = MA_push_get(mt_dbl,(2*npoints),
+     >                    'dstates',dstates(2),dstates(1))
+      if (.not. value)
+     >  call errquit('ecpsi_dos:out of stack memory',0,MA_ERR)
+
+
+      if (.not.rtdb_get(rtdb,'dos:emin',mt_dbl,1,emin)) then
+         emin = 99999.0d0
+         do nbq=1,nbrillq
+            eig_shift = cpsi_data_get_chnk(eig_excited_tag,nbq)
+            do ii=1,ne_excited(1)+ne_excited(2)
+               if (dbl_mb(eig_shift+ii-1).lt.emin) 
+     >            emin = dbl_mb(eig_shift+ii-1)
+            end do 
+         end do
+         call K1dB_MinAll(emin)
+         emin = emin - 0.1d0
+      end if
+
+      if (.not.rtdb_get(rtdb,'dos:emax',mt_dbl,1,emax)) then
+         emax = -99999.0d0
+         do nbq=1,nbrillq
+            eig_shift = cpsi_data_get_chnk(eig_excited_tag,nbq)
+            do ii=1,ne_excited(1)+ne_excited(2)
+               if (dbl_mb(eig_shift+ii-1).gt.emax) 
+     >            emax = dbl_mb(eig_shift+ii-1)
+            end do
+         end do
+         call K1dB_MaxAll(emin)
+         emax = emax + 0.1d0
+      end if
+
+*     **** generate DENSITY OF STATES *****
+      call dcopy(2*npoints,0.0d0,0,dbl_mb(dstates(1)),1)
+      do nbq=1,nbrillq
+         eig_shift = cpsi_data_get_chnk(eig_excited_tag,nbq)
+         do ms=1,ispin
+            call adddensityofstates(
+     >                dbl_mb(eig_shift+(ms-1)*ne_excited(1)),
+     >                dbl_mb(weight(1)),ne_excited(ms),
+     >                (3-2*ms)*brillioun_weight(nbq),
+     >                alpha,npoints,emin,emax,
+     >                dbl_mb(dstates(1)+(ms-1)*npoints))
+         end do
+      end do
+      call K1dB_Vector_SumAll(2*npoints,dbl_mb(dstates(1)))
+
+      if (ispin.eq.1) then
+        filename = "VDOS_both"
+        call writedensityofstates(filename,
+     >                     1.0d0,alpha,npoints,emin,emax,
+     >                     dbl_mb(dstates(1)))
+      end if
+      if (ispin.eq.2) then
+        filename = "VDOS_alpha"
+        call writedensityofstates(filename,
+     >                     1.0d0,alpha,npoints,emin,emax,
+     >                     dbl_mb(dstates(1)))
+        filename = "VDOS_beta"
+        call writedensityofstates(filename,
+     >               -1.0d0,alpha,npoints,emin,emax,
+     >                dbl_mb(dstates(1)+npoints))
+      end if
+
+      value =           MA_pop_stack(dstates(2))
+      value = value.and.MA_pop_stack(weight(2))
+      if (.not. value)
+     >  call errquit('ecpsi_dos: error freeing stack',0, MA_ERR)
+      return
+      end
+
+
