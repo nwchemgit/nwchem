@@ -697,9 +697,7 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = ./src/include \
-                         ./src/config \
-                         ./src/tools/ga-5-1/ga++/src 
+EXCLUDE                = 
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -714,7 +712,11 @@ EXCLUDE_SYMLINKS       = NO
 # for example use the pattern */test/*
 
 EXCLUDE_PATTERNS       = */graveyard/* \
-                         */.svn/*
+                         */.svn/* \
+                         */contrib/* \
+                         */include/* \
+                         */config/* \
+                         */ga++/*
 
 # */
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
