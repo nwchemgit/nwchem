@@ -616,13 +616,13 @@ c              END DO
 
       do L=0,lmax
 
-         call dcopy(nemax,0.0d0,0,dbl_mb(weight(1)),1)
          call dcopy(2*npoints,0.0d0,0,dbl_mb(dstates(1)),1)
          do nbq=1,nbrillq
             A_shift   = cpsi_data_get_chnk(A_tag,nbq)
             eig_shift = cpsi_data_get_chnk(eig_tag,nbq)
             call dcopy(2*36*nion*nemax,dbl_mb(A_shift),1,
      >                                   dcpl_mb(a(1)),1)
+            call dcopy(nemax,0.0d0,0,dbl_mb(weight(1)),1)
             if (.not.fixatoms) then
                DO I=1,nion
                DO SPIN=1,ISPIN
@@ -632,7 +632,6 @@ c              END DO
                  L2=(L+1)**2
                  dbl_mb(weight(1)+n-1)=
      >           dbl_mb(weight(1)+n-1)+
-     >           brillioun_weight(nbq)*
      >           ddot(2*(L2-L1+1),
      >                dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
      >                dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1)
@@ -655,7 +654,6 @@ c                 END DO
                   L2=(L+1)**2
                   dbl_mb(weight(1)+n-1)=
      >            dbl_mb(weight(1)+n-1)+
-     >            brillioun_weight(nbq)*
      >            ddot(2*(L2-L1+1),
      >                 dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
      >                 dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1)
@@ -671,19 +669,19 @@ c                  END DO
             end if
             if (ispin.eq.1) then
               call adddensityofstates(
-     >                        dbl_mb(eig_shift),dbl_mb(weight(1)),ne(1),
-     >                        1.0d0,alpha,npoints,emin,emax,
-     >                        dbl_mb(dstates(1)))
+     >                    dbl_mb(eig_shift),dbl_mb(weight(1)),ne(1),
+     >                    brillioun_weight(nbq),alpha,npoints,emin,emax,
+     >                    dbl_mb(dstates(1)))
             end if
             if (ispin.eq.2) then
               call adddensityofstates(
-     >                        dbl_mb(eig_shift),dbl_mb(weight(1)),ne(1),
-     >                        1.0d0,alpha,npoints,emin,emax,
-     >                        dbl_mb(dstates(1)))
+     >                    dbl_mb(eig_shift),dbl_mb(weight(1)),ne(1),
+     >                    brillioun_weight(nbq),alpha,npoints,emin,emax,
+     >                    dbl_mb(dstates(1)))
               call adddensityofstates(
      >                  dbl_mb(eig_shift+ne(1)),
      >                  dbl_mb(weight(1)+ne(1)),ne(2),
-     >                  -1.0d0,alpha,npoints,emin,emax,
+     >                 -brillioun_weight(nbq),alpha,npoints,emin,emax,
      >                   dbl_mb(dstates(1)+npoints))
             end if
          end do
@@ -711,13 +709,13 @@ c
       end do
 
 *     **** combined angular momentum decomposition *****
-         call dcopy(nemax,0.0d0,0,dbl_mb(weight(1)),1)
          call dcopy(2*npoints,0.0d0,0,dbl_mb(dstates(1)),1)
          do nbq=1,nbrillq
             A_shift   = cpsi_data_get_chnk(A_tag,nbq)
             eig_shift = cpsi_data_get_chnk(eig_tag,nbq)
             call dcopy(2*36*nion*nemax,dbl_mb(A_shift),1,
      >                                   dcpl_mb(a(1)),1)
+            call dcopy(nemax,0.0d0,0,dbl_mb(weight(1)),1)
             if (.not.fixatoms) then
             DO I=1,nion
             DO SPIN=1,ISPIN
@@ -727,7 +725,6 @@ c
               L2=(L+1)**2
               dbl_mb(weight(1)+n-1)=
      >        dbl_mb(weight(1)+n-1)+
-     >        brillioun_weight(nbq)*
      >        ddot(2*(L2-L1+1),
      >             dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
      >             dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1)
@@ -750,7 +747,6 @@ c              END DO
               L2=(L+1)**2
               dbl_mb(weight(1)+n-1)=
      >        dbl_mb(weight(1)+n-1)+
-     >        brillioun_weight(nbq)*
      >        ddot(2*(L2-L1+1),
      >             dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
      >             dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1)
@@ -766,19 +762,19 @@ c              END DO
             end if
             if (ispin.eq.1) then
               call adddensityofstates(
-     >                        dbl_mb(eig_shift),dbl_mb(weight(1)),ne(1),
-     >                        1.0d0,alpha,npoints,emin,emax,
-     >                        dbl_mb(dstates(1)))
+     >                    dbl_mb(eig_shift),dbl_mb(weight(1)),ne(1),
+     >                    brillioun_weight(nbq),alpha,npoints,emin,emax,
+     >                    dbl_mb(dstates(1)))
             end if
             if (ispin.eq.2) then
               call adddensityofstates(
-     >                        dbl_mb(eig_shift),dbl_mb(weight(1)),ne(1),
-     >                        1.0d0,alpha,npoints,emin,emax,
-     >                        dbl_mb(dstates(1)))
+     >                    dbl_mb(eig_shift),dbl_mb(weight(1)),ne(1),
+     >                    brillioun_weight(nbq),alpha,npoints,emin,emax,
+     >                    dbl_mb(dstates(1)))
               call adddensityofstates(
      >                   dbl_mb(eig_shift+ne(1)),
      >                   dbl_mb(weight(1)+ne(1)),ne(2),
-     >                  -1.0d0,alpha,npoints,emin,emax,
+     >                  -brillioun_weight(nbq),alpha,npoints,emin,emax,
      >                   dbl_mb(dstates(1)+npoints))
             end if
          end do
