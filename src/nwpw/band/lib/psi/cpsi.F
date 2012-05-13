@@ -3050,8 +3050,8 @@ c     *****  read initial wavefunctions into psi1  ****
 *     **** local variables ****
       logical value
       integer npoints,ii,ms,nbq
-      integer weight(2),dstates(2),nemax
-      real*8 emin,emax,alpha,eig_shift
+      integer weight(2),dstates(2),nemax,eig_shift
+      real*8 emin,emax,alpha
       character*255 filename
 
 *     **** external functions ****
@@ -3167,8 +3167,8 @@ c     *****  read initial wavefunctions into psi1  ****
 *     **** local variables ****
       logical value
       integer npoints,ii,ms,nbq
-      integer weight(2),dstates(2),nemax
-      real*8 emin,emax,alpha,eig_shift
+      integer weight(2),dstates(2),nemax,eig_shift
+      real*8 emin,emax,alpha
       character*255 filename
 
 *     **** external functions ****
