@@ -850,14 +850,15 @@ c              END DO
 *                                      angular momenentum.
 *
       subroutine band_projecteddos_analysis(flag,rtdb,ispin,ne,
-     >                         nbrill,nbrillq,psi_tag,
-     >                         pweight)
+     >                         nbrillq,psi_tag,
+     >                         pweight,lmax)
       implicit none
       integer flag
       integer rtdb
-      integer ispin,ne(2),nbrill,nbrillq
+      integer ispin,ne(2),nbrillq
       integer psi_tag
       real*8 pweight(ne(1)+ne(2),nbrillq,*)
+      integer lmax
 
 #include "mafdecls.fh"
 #include "rtdb.fh"
@@ -878,7 +879,7 @@ c              END DO
       real*8  ttl1,ttl2,subttl
 
       integer h_actlist,l_actlist,nactive_atoms,ma_type
-      integer npoints,ii,lmax
+      integer npoints,ii
       real*8 lmbda,rcut,bweight,kvec(3),ksvec(3)
 
       logical value,fixatoms
@@ -955,7 +956,7 @@ c              END DO
 
 
 *      ***********************************************
-*      **** create psp1 files if they don't exist ****
+*      **** always generate new borb files        ****
 *      ***********************************************
        do k=1,npsp
          DD = '                          '
@@ -964,8 +965,7 @@ c              END DO
          test = DD(1:ind)//'.psp1'
          id   = DD(1:ind)//'.borb'
          call control_mullikenparameters(ion_atom_qm(k),rcut,lmbda)
-         if ((.not.nwpw_filefind(test)).or.(.not.nwpw_filefind(id)))
-     >      call borbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
+         call borbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
        end do
 
 *      ****************************************
@@ -1027,12 +1027,13 @@ c              END DO
       if (.not.value) value = borbs_readall()
       if (.not.value) go to 1901
 
+
       do nbq=1,nbrillq
         psi_shift = cpsi_data_get_chnk(psi_tag,nbq)
         A_shift   = cpsi_data_get_chnk(A_tag,nbq)
         sum_shift = cpsi_data_get_chnk(sum_tag,nbq)
 
-        call Orb_pop_borb(flag,nbq,ispin,ne,
+        call Orb_pop_borb(0,nbq,ispin,ne,
      >                  npack1,nemax,dbl_mb(psi_shift),
      >                  int_mb(lorb(1)),
      >                  dbl_mb(A_shift),dbl_mb(sum_shift))
@@ -1058,6 +1059,7 @@ c              END DO
         if (lmax.le.int_mb(lorb(1)+k-1)) lmax = int_mb(lorb(1)+k-1)
       end do
 
+      call dcopy((lmax+1)*(ne(1)+ne(2))*nbrillq,0.0d0,0,pweight,1)
       do L=0,lmax
 
          do nbq=1,nbrillq
@@ -1071,7 +1073,7 @@ c              END DO
                if (L.le.int_mb(lorb(1)+ion_katm_qm(I)-1)) then
                  L1=L**2+1
                  L2=(L+1)**2
-                 pweight(n,nbq,L) = pweight(n,nbq,L) +
+                 pweight(n,nbq,L+1) = pweight(n,nbq,L+1) +
      >           ddot(2*(L2-L1+1),
      >                dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
      >                dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1)
@@ -1087,7 +1089,7 @@ c              END DO
                 if (L.le.int_mb(lorb(1)+ion_katm_qm(I)-1)) then
                   L1=L**2+1
                   L2=(L+1)**2
-                  pweight(n,L,nbq) = pweight(n,L,nbq) + 
+                  pweight(n,nbq,L+1) = pweight(n,nbq,L+1) + 
      >            ddot(2*(L2-L1+1),
      >                 dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
      >                 dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1)
@@ -1112,6 +1114,7 @@ c              END DO
       call borbs_end()
       call cpsi_data_dealloc(A_tag)
       call cpsi_data_dealloc(sum_tag)
+
       value = MA_free_heap(a(2))
       value = value.and.MA_free_heap(sum(2))
       value = value.and.MA_free_heap(lorb(2))
