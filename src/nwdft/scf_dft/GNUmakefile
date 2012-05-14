@@ -38,7 +38,8 @@
 	dft_diagn.o \
 	dft_dump_info.o \
 	dft_fant.o\
-        dft_frac_mo.o
+        dft_frac_mo.o\
+	dft_vspec.o
 
      LIBRARY = libnwdft.a
 _PDSYEVR = $(shell cat ${NWCHEM_TOP}/src/tools/build/config.h | awk ' /HAVE_PDSYEVR\ 1/ {print "Y"}')

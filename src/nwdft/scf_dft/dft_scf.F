@@ -1,4 +1,6 @@
-
+c
+c     main scalar DFT driver
+c
       logical function dft_scf(rtdb, Etold, Enuc, iVcoul_opt, iVxc_opt, 
      &                         iter, g_dens, g_dens_at, g_movecs, g_vxc,
      &                         g_fock, g_svecs, svals, g_xcinv, g_s,
@@ -124,7 +126,6 @@ c
       integer ilo, ihi          ! For printing movecs analysis
       double precision eval_pr_tol_lo, eval_pr_tol_hi
       parameter (eval_pr_tol_lo = -1.5d0, eval_pr_tol_hi=0.5)
-C
 c
       double precision dft_dencvg, dft_time
       external dft_dencvg
@@ -170,7 +171,7 @@ c
       external util_statldb
       integer ndisrst
 c
-c     for vdw contrib
+c     vdw contrib
       double precision dum
       logical xc_chkdispauto
       external xc_chkdispauto
@@ -186,13 +187,18 @@ c     == zora related ==
       integer icalczora
       logical ofinite,status,Knucl ! FA-added-09-26-11
 c
+c     virtual spectrum
+      logical lvspec
+      integer owstart(2), owend(2)
+      character*255 vspecfilename
+c
 c     timings 
       double precision time1,time2
-c -----FA: 04-21-11: for Gaussian Nuclear Model --- START
+
+c     for Gaussian Nuclear Model
       integer iatom,l_zetanuc, k_zetanuc
       external get_zetanuc_arr
-c -----FA: 04-21-11: for Gaussian Nuclear Model --- END
-
+c
       gotsmear(ss)=abs(ss).gt.1d-9
 c
 c     misc
@@ -200,7 +206,6 @@ c
       logical debug_fon
 c
 c     =========================================================================
-c
 c
       k_3cERI  = 0
       k_3cwhat = 0
@@ -269,7 +274,7 @@ c
             endif
          endif
       endif
-
+c
 c     check for FON in rtdb:
       if (rtdb_get(rtdb, 'dft:fon', mt_log, 1, fon)) then
 
@@ -293,8 +298,7 @@ c     check for FON in rtdb:
          fon=.false.
          debug_fon = .false.
       endif
-
-
+c
       if (.not.rtdb_get(rtdb, 'dft:reorth', mt_log, 1,
      &   reorth))reorth=.false.
 c
@@ -1864,7 +1868,6 @@ c
       if (.not.rtdb_put(rtdb, 'dft:fractional_occup', mt_log, 1,
      &   .true.))call errquit('dftscf: cannot write rtdb',1, DISK_ERR)
       endif
-
 c     
 c     computation of moments
 c
@@ -1881,7 +1884,22 @@ c
 c     
       call dft_prevals('final',me,oprint_eval,oprint_vecs,
      ,     g_movecs,dbl_mb(k_eval(1)),dbl_mb(k_occ))
-c     
+c
+c     calculate virtual spectrum
+c
+      lvspec = .false.
+      if (.not.rtdb_get(rtdb,'dft:lvspec',mt_log,1,lvspec)) 
+     &         lvspec=.false.
+      if (.not. rtdb_get(rtdb,'dft:owstart',mt_int,2,owstart)) 
+     &         lvspec=.false.
+      if (.not. rtdb_get(rtdb,'dft:owend',mt_int,2,owend)) 
+     &         lvspec=.false.
+      if (lvspec) then
+       call util_file_name('vspec',.false.,.false.,vspecfilename)
+       call dft_vspec(rtdb, ao_bas_han, vspecfilename, ipol, nmo, 
+     &    nbf_ao, noc, g_movecs, k_eval, owstart, owend)
+      endif
+c
 c     ECCE printout
 c     
       call movecs_ecce(nbf_ao, nmo, 1, nmo(1), dbl_mb(k_eval(1)),
