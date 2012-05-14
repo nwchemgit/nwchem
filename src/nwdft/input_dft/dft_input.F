@@ -1,13 +1,10 @@
-      subroutine dft_input(rtdb)
-c
-c     $Id$
 c
 c     The main purpose of this subroutine is to parse the input
 c     and place any "found" parameters into the rtdb.
 c
-c ... jochen: here and elsewhere I changed the 'fon' variables from integer
-c     to double precision, to allow for calculations with fractional
-c     charges
+      subroutine dft_input(rtdb)
+c
+c     $Id$
 c
       implicit none
 c
@@ -30,7 +27,7 @@ c
       logical status
       integer ind               ! Index of matched directive
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 45)
+      parameter (num_dirs = 46)
       character*12 dirs(num_dirs)
       character*255 test
       logical disp
@@ -63,6 +60,8 @@ c
       double precision efield_y
       double precision efield_z
       integer maxiter
+      logical lvspec
+      integer owstart(2), owend(2)
 c
       data dirs /'convergence','decomp','dft','direct','semidirect',
      $         'ecp','grid','vectors','incore','iterations', 
@@ -71,7 +70,7 @@ c
      $         'smear','fon','lb94','cs00','cdft','cam','disp',
      $         'dftmp2','molden','noscf','steric','efield','swapab',
      $         'frozemb','cgmin','nocgmin','tol2e','ri-scf','lock',
-     $         'rodft','fukui','maxiter','end'/
+     $         'rodft','fukui','maxiter','vspec','end'/
 c
 c Qin / cdft
       integer nconstr
@@ -87,15 +86,21 @@ c
       status = rtdb_delete(rtdb,'dft:converged')
       if (.not. rtdb_get(rtdb, 'dft:ipol', mt_int, 1, ipol))
      &   ipol=1
+c
+c     Initialization
+c
       nel_fon(1)=0d0
       nmo_fon(1)=0
       nel_fon(2)=0d0
       nmo_fon(2)=0
       ncore_fon(1) = 0
       ncore_fon(2) = 0
+      owstart(1) = 0
+      owend(1) = 0
+      owstart(2) = 0
+      owend(2) = 0
 c
 c     Lebedev on by default
-c
 c
  10   if (.not. inp_read()) call errquit
      $     ('dft_input: inp_read failed', 0, INPUT_ERR)
@@ -110,7 +115,8 @@ c
      $      900, 1000, 1100, 1200, 1300, 1400, 1500, 1600, 1700,
      $     1800, 1900, 2000, 2100, 2200, 2300, 2400, 2500, 2600, 
      $     2700, 2800, 2900, 3000, 3100, 3200, 3300, 3400, 3500, 
-     $     3600, 3600, 3700, 3800, 3900, 4000, 4100, 4200, 9999) ind
+     $     3600, 3600, 3700, 3800, 3900, 4000, 4100, 4200, 4300,
+     $     9999) ind
 
       call errquit('dft_input: unimplemented directive', ind,
      &       INPUT_ERR)
@@ -327,7 +333,7 @@ c
          smear_sigma = 1.d-3
       endif
       if (.not.rtdb_put(rtdb, 'dft:smear_sigma',mt_dbl,1,smear_sigma))
-     &   call errquit('dft_inp: rtdb_put failed', 2200, RTDB_ERR)
+     &   call errquit('dft_input: rtdb_put failed', 2200, RTDB_ERR)
 c
       if (.not. inp_a(test)) test = 'nofixsz'
       if (inp_compare(.false.,test,'nofixsz')) then
@@ -337,21 +343,21 @@ c       this is a valid subdirective
       else
 c       this is an invalid subdirective
         if (ga_nodeid().eq.0) then 
-          write(*,*)'dft_inp: smear: subdirective "',
+          write(*,*)'dft_input: smear: subdirective "',
      &              test(1:inp_strlen(test)),'"'
         endif
-        call errquit('dft_inp: smear: unknown subdirective',0,INPUT_ERR)
+        call errquit('dft_input: smear: unknown subdirective',0,
+     &  INPUT_ERR)
       endif
       status = inp_compare(.false.,test,'fixsz')
       if (.not.rtdb_put(rtdb, 'dft:spinset', mt_log, 1, status))
-     &   call errquit('dft_inp: rtdb_put failed', 2201, RTDB_ERR)
+     &   call errquit('dft_input: rtdb_put failed', 2201, RTDB_ERR)
       goto 10
 c
-c     fon: fractional occupation
+c     fon
 c
  2300 continue
       ispin=1
-c
  2301 if (inp_a(test)) then
          if (inp_compare(.false.,'alpha', test)) then
             ispin=1
@@ -377,18 +383,17 @@ c
             goto 2301
          endif
       endif
-c
       if (.not.rtdb_put(rtdb, 'dft:nmo_fon', mt_int, 2,
-     & nmo_fon)) call errquit('dft_inp: rtdb_put failed', 2300,
+     & nmo_fon)) call errquit('dft_input: rtdb_put failed', 2300,
      &       RTDB_ERR)
       if (.not.rtdb_put(rtdb, 'dft:ncore_fon', mt_int, 2,
-     & ncore_fon)) call errquit('dft_inp: rtdb_put failed', 2300,
+     & ncore_fon)) call errquit('dft_input: rtdb_put failed', 2300,
      &       RTDB_ERR)
       if (.not.rtdb_put(rtdb, 'dft:nel_fon', mt_dbl, 2,
-     & nel_fon)) call errquit('dft_inp: rtdb_put failed', 2300,
+     & nel_fon)) call errquit('dft_input: rtdb_put failed', 2300,
      &       RTDB_ERR)
       if (.not.rtdb_put(rtdb, 'dft:fon', mt_log, 1,
-     & .true.)) call errquit('dft_inp: rtdb_put failed', 2300,
+     & .true.)) call errquit('dft_input: rtdb_put failed', 2300,
      &       RTDB_ERR)
       goto 10
 c
@@ -411,7 +416,7 @@ c
          shift = 1.0d99
       endif
       if (.not.rtdb_put(rtdb,'dft:delta_ac',mt_dbl,1,shift))
-     &   call errquit('dft_inp: rtdb_put failed', 2500, RTDB_ERR)
+     &   call errquit('dft_input: rtdb_put failed', 2500, RTDB_ERR)
 c
       goto 10
 c
@@ -452,7 +457,7 @@ c     persist the information in the runtime database
       if (.not.inp_f(cam_omega)) cam_omega = 0.5d0
 c           write(luout,*) "cam_omega:",cam_omega
       if (.not.rtdb_put(rtdb,'dft:cam_omega',mt_dbl,1,cam_omega))
-     &   call errquit('dft_inp: rtdb_put failed cam_omega', 2700, 
+     &   call errquit('dft_input: rtdb_put failed cam_omega', 2700, 
      &     RTDB_ERR)
 c
  2710 if (.not. inp_a(test)) goto 10
@@ -707,7 +712,7 @@ c
 c
       goto 10
 c
-c     maxiter; alternate to iterations
+c     maxiter: same as iterations
 c             
  4200 if (.not. inp_i(maxiter)) then
          write(LuOut,*)' dft_input: maxiter value not found;',
@@ -717,6 +722,36 @@ c
       iterations = maxiter
       if (.not. rtdb_put(rtdb, 'dft:iterations', mt_int, 1, iterations))
      &   call errquit('dft_input: rtdb_put failed', 4200, RTDB_ERR)
+c
+      goto 10
+c
+c     vspec: virtual spectrum
+c
+ 4300 continue
+      ispin=1
+      lvspec=.true.
+ 4301 if (inp_a(test)) then
+        if (inp_compare(.false.,'alpha',test)) then
+          ispin=1
+          if (.not.inp_i(owstart(ispin))) owstart(ispin) = 0
+          if (.not.inp_i(owend(ispin))) owend(ispin) = 0
+          goto 4301
+        else if (inp_compare(.false.,'beta',test)) then
+          ispin=2 
+          if (.not.inp_i(owstart(ispin))) owstart(ispin) = 0
+          if (.not.inp_i(owend(ispin))) owend(ispin) = 0
+          goto 4301
+        else  
+          call errquit('dft_input: vspec: unknown subdirective',0,
+     & INPUT_ERR)
+        endif
+      endif
+      if (.not.rtdb_put(rtdb,'dft:lvspec',mt_log,1,lvspec))
+     &  call errquit('dft_input: rtdb_put failed',4300,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'dft:owstart',mt_int,2,owstart))
+     &  call errquit('dft_input: rtdb_put failed',4300,RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'dft:owend',mt_int,2,owend))
+     &  call errquit('dft_input: rtdb_put failed',4300,RTDB_ERR)
 c
       goto 10
 c
