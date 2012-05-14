@@ -137,7 +137,9 @@ c     Transform to MO basis - Right now this code assumes that
 c     nbf_mo = 2*nbf_ao
 c
       mpone=nbf_mo/2+1
-c     x-coponent term 1
+c
+c     X-component: Term 1
+c
 c     alpha real * M * alpha real
       call ga_matmul_patch('n','n',1.0d0,0.0d0,g_dpx_ao,1,nbf_ao,
      &  1,nbf_ao,g_moso(1),1,nbf_ao,1,nbf_mo,g_dp_wk,1,nbf_ao,
@@ -166,7 +168,8 @@ c     beta imag * M * beta imag
       call ga_matmul_patch('t','n',1.0d0,1.0d0,g_moso(2),1,nbf_mo,
      &  mpone,nbf_mo,g_dp_wk,1,nbf_ao,1,nbf_mo,g_dpx_mo(1),1,nbf_mo,
      &  1,nbf_mo)
-c     term 2 
+c
+c     X-component: Term 2
 c     
 c     + alpha real^t * M * alpha imag
       call ga_matmul_patch('n','n',1.0d0,0.0d0,g_dpx_ao,1,nbf_ao,
@@ -197,7 +200,7 @@ c     - beta imag * M * beta real
      &  mpone,nbf_mo,g_dp_wk,1,nbf_ao,1,nbf_mo,g_dpx_mo(2),1,nbf_mo,
      &  1,nbf_mo)
 c
-c     y-coponent term 1
+c     Y-component: Term 1
 c
       call ga_matmul_patch('n','n',1.0d0,0.0d0,g_dpy_ao,1,nbf_ao,
      &  1,nbf_ao,g_moso(1),1,nbf_ao,1,nbf_mo,g_dp_wk,1,nbf_ao,
@@ -226,8 +229,8 @@ c
       call ga_matmul_patch('t','n',1.0d0,1.0d0,g_moso(2),1,nbf_mo,
      &  mpone,nbf_mo,g_dp_wk,1,nbf_ao,1,nbf_mo,g_dpy_mo(1),1,nbf_mo,
      &  1,nbf_mo)
-c     term 2 
-c     
+c
+c     Y-component: Term 2
 c
       call ga_matmul_patch('n','n',1.0d0,0.0d0,g_dpy_ao,1,nbf_ao,
      &  1,nbf_ao,g_moso(2),1,nbf_ao,1,nbf_mo,g_dp_wk,1,nbf_ao,
@@ -257,7 +260,7 @@ c
      &  mpone,nbf_mo,g_dp_wk,1,nbf_ao,1,nbf_mo,g_dpy_mo(2),1,nbf_mo,
      &  1,nbf_mo)
 c
-c     z-coponent term 1
+c     Z-component: Term 1
 c
       call ga_matmul_patch('n','n',1.0d0,0.0d0,g_dpz_ao,1,nbf_ao,
      &  1,nbf_ao,g_moso(1),1,nbf_ao,1,nbf_mo,g_dp_wk,1,nbf_ao,
@@ -286,7 +289,8 @@ c
       call ga_matmul_patch('t','n',1.0d0,1.0d0,g_moso(2),1,nbf_mo,
      &  mpone,nbf_mo,g_dp_wk,1,nbf_ao,1,nbf_mo,g_dpz_mo(1),1,nbf_mo,
      &  1,nbf_mo)
-c     term 2 
+c
+c     Z-component: Term 2
 c     
       call ga_matmul_patch('n','n',1.0d0,0.0d0,g_dpz_ao,1,nbf_ao,
      &  1,nbf_ao,g_moso(2),1,nbf_ao,1,nbf_mo,g_dp_wk,1,nbf_ao,
@@ -321,7 +325,7 @@ c
       if (nodezero) then
         open(unitno, status='unknown', form='formatted',file=filename)
         write(unitno, 1000)
-        write(unitno, 1400) nbf_ao, nbf_mo,owstart,owend,nelec, nexcite
+        write(unitno, 1400) nbf_ao,nbf_mo,owstart,owend,nelec,nexcite
       endif
 c
 c      if (nodezero) then
@@ -369,11 +373,11 @@ c
  1000 format('== Spin-Orbit DFT Virtual Spectrum =='/)
 c
  1400 format(/,'Number of AO basis functions: ',i5,
-     1       /,'Number of MOs:                ',i5,
+     1       /,'Total Number of MOs:          ',i5,
      3       /,'Occupied Win Start:           ',i5,
      4       /,'Occupied Win End:             ',i5,
-     5       /,'Num Occ. Orbitals:            ',i5,
-     6       /,'Num of Excitations:           ',i5,/)
+     5       /,'Number of Occupied MOs:       ',i5,
+     6       /,'Number of Excitations:        ',i5,/)
  1600 format(/,'Dipole spectrum for Koopman Excitation from orbital '
      &        ,i5,/)
  1700 format(3x,'N',7x,'Energy',11x,'<x>**2',11x,'<y>**2',11x,'<z>**2',
