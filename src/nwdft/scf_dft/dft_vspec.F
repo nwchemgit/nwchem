@@ -291,22 +291,22 @@ c
  1000 format('== Scalar DFT Virtual Spectrum =='/)
 c
  1400 format(/,'Number of basis functions in AO basis: ',i5,
-     1       /,'Number of Alpha MOs: ',i5,
-     2       /,'Number of Beta Mos: ',i5,
-     3       /,'Occupied Win Start Alpha: ',i5,
-     4       /,'Occupied Win Start Beta:  ',i5,
-     5       /,'Occupied Win End   Alpha: ',i5,
-     5       /,'Occupied Win End   Beta:  ',i5,
-     6       /,'Num of Occupied Alpha Orbs: ',i5,
-     6       /,'Num of Occupied Beta Orbs : ',i5,
-     7       /,'Number of Excitations: ',i5,/)
+     1       /,'Number of Alpha MOs:                   ',i5,
+     2       /,'Number of Beta Mos:                    ',i5,
+     3       /,'Occupied Win Start Alpha:              ',i5,
+     4       /,'Occupied Win Start Beta:               ',i5,
+     5       /,'Occupied Win End   Alpha:              ',i5,
+     5       /,'Occupied Win End   Beta:               ',i5,
+     6       /,'Number of Occupied Alpha MOs:          ',i5,
+     6       /,'Number of Occupied Beta MOs :          ',i5,
+     7       /,'Number of Excitations:                 ',i5,/)
 c
  1401 format(/,'Number of basis functions in AO basis: ',i5,
-     1       /,'Number of Alpha MOs: ',i5,
-     3       /,'Occupied Win Start Alpha: ',i5,
-     5       /,'Occupied Win End   Alpha: ',i5,
-     6       /,'Num of Occupied Alpha Orbs: ',i5,
-     7       /,'Number of Excitations: ',i5,/)
+     1       /,'Number of Alpha MOs:                   ',i5,
+     3       /,'Occupied Win Start Alpha:              ',i5,
+     5       /,'Occupied Win End   Alpha:              ',i5,
+     6       /,'Number of Occupied Alpha MOs:          ',i5,
+     7       /,'Number of Excitations:                 ',i5,/)
 c
  1600 format(/,x,'N',7x,'Energy',13x,'<x>',14x,'<y>',14x,'<z>',14x,
      &       'fosc',/)
