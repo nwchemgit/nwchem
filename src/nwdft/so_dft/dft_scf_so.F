@@ -55,7 +55,7 @@ c
 c     so
       double precision rho_n, toll_s
 c     
-c     == zora related ==
+c     zora related
       double precision ener_scal, ener_kin
       double precision numelecs
       integer ncanorg
@@ -64,7 +64,12 @@ c     == zora related ==
       integer icalczora
       logical do_purescalar
 c
-c     == vdw contrib ==
+c     virtual spectrum
+      logical lvspec
+      integer owstart(2), owend(2)
+      character*255 vspecfilename
+c
+c     vdw contrib
       double precision dum
       logical xc_chkdispauto
       external xc_chkdispauto
@@ -190,7 +195,7 @@ c     !!! BGJ
       integer g_oep
 c     integer ijk
 c     
-c     == zora related ==
+c     zora related
       logical dft_zora_read_so, dft_zora_write_so
       external dft_zora_read_so, dft_zora_write_so
 
@@ -460,31 +465,20 @@ c
 cso
 cso   allocate Fock matrix and movecs 
 cso
-c
 c     real molecular orbital vectors
       if(.not.ga_create(mt_dbl,nbf_mo,nbf_mo,'Movecs Re',0,0, 
      &     g_moso(1)))     
      &     call errquit('dft_scf_so: error creating Movecs Re',0,
      &       GA_ERR)
-c     if(.not.ga_create(mt_dbl,nbf_ao,nbf_ao,'Movecs Re',0,0, 
-c    &     g_gmovecs(1)))     
-c    &     call errquit('dft_scf_so: error creating Movecs Re',0,
-c    &       GA_ERR)
 c
 c     imaginary molecular orbital vectors
       if(.not.ga_create(mt_dbl,nbf_mo, nbf_mo,'Movecs Im',0,0, 
      &     g_moso(2)))
      &     call errquit('dft_scf_so: error creating Movecs Im',0,
      &       GA_ERR)
-c     if(.not.ga_create(mt_dbl,nbf_ao, nbf_ao,'Movecs Im',0,0, 
-c    &     g_gmovecs(2)))
-c    &     call errquit('dft_scf_so: error creating Movecs Im',0,
-c    &       GA_ERR)
 c
       call ga_zero(g_moso(1))
       call ga_zero(g_moso(2))
-c     call ga_zero(g_gmovecs(1))
-c     call ga_zero(g_gmovecs(2))
 c
       call ga_sync() 
 c
@@ -2209,6 +2203,21 @@ c     computation of multipole moments
 c
       if (natoms .gt. 1)
      &   call dft_mpole(rtdb, ao_bas_han, ipol, g_dens(1), g_dens(2))
+c
+c     calculate virtual spectrum
+c
+      lvspec = .false.
+      if (.not.rtdb_get(rtdb,'dft:lvspec',mt_log,1,lvspec))
+     &         lvspec=.false.
+      if (.not. rtdb_get(rtdb,'dft:owstart',mt_int,2,owstart))
+     &         lvspec=.false.
+      if (.not. rtdb_get(rtdb,'dft:owend',mt_int,2,owend))
+     &         lvspec=.false.
+      if (lvspec) then
+       call util_file_name('vspec',.false.,.false.,vspecfilename)
+       call dft_vspec_so(rtdb,ao_bas_han,vspecfilename,nbf_ao,nbf_mo, 
+     &    noc,g_moso, k_eval, owstart, owend)
+      endif
 c     
 c     print stolen for uhf.F
 c     
