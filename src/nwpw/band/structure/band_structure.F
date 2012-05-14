@@ -644,7 +644,6 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
       call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
       value = cpsi_initialize(ortho)
-      nbrillq = Pneb_nbrillq()
 
 c      if (flag.eq.2) call cpsi_dospsi_read(k)
 
@@ -831,6 +830,12 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
      >  call c_electron_gen_weighted_density(2,
      >                               dbl_mb(weight_dos(1)+ii),
      >                               dbl_mb(rho(1)+nfft3d))
+      end if
+
+*     **** set pweight_dos ****
+      if ((flag.eq.1).and.mulliken) then
+         call cpsi_projected_dos_weights(rtdb,dosgrid,k,
+     >                                   dbl_mb(pweight_dos(1)))
       end if
 
 
