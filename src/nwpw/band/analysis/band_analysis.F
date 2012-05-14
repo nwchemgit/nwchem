@@ -836,3 +836,292 @@ c              END DO
       end
  
 
+
+*     *********************************************************
+*     *                                                       *
+*     *             band_projecteddos_analysis                *
+*     *                                                       *
+*     *********************************************************
+*
+*    Used by band_structure code to calculate projected density of states.
+*    Calculates the projected weights, pweight, for each of the orbitals
+*
+*     pweight(ne(1)+ne(2),nbrillq,l) - weight for each orbital for each
+*                                      angular momenentum.
+*
+      subroutine band_projecteddos_analysis(flag,rtdb,ispin,ne,
+     >                         nbrill,nbrillq,psi_tag,
+     >                         pweight)
+      implicit none
+      integer flag
+      integer rtdb
+      integer ispin,ne(2),nbrill,nbrillq
+      integer psi_tag
+      real*8 pweight(ne(1)+ne(2),nbrillq,*)
+
+#include "mafdecls.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+
+*     **** parallel variables ****
+      integer  taskid,taskid_k
+      integer  MASTER
+      parameter(MASTER=0)
+
+*     **** electronic variables ****
+      integer npack1
+      integer n1(2),n2(2)
+    
+*     **** local variables ****
+      integer i,k,l,n,ms,l1,l2,j,nbq,nb,pk
+      integer ll,spin,ind
+      real*8  ttl1,ttl2,subttl
+
+      integer h_actlist,l_actlist,nactive_atoms,ma_type
+      integer npoints,ii,lmax
+      real*8 lmbda,rcut,bweight,kvec(3),ksvec(3)
+
+      logical value,fixatoms
+      character*28 DD
+      character*255 id,test
+      integer npsp,nion,nemax
+      integer lorb(2)    ! integer lorb(npsp)
+      integer b0(2)      ! real*8 b0(0:5,npsp)
+      integer total(2)   ! real*8 total(nion)
+      integer subtl(2)   ! real*8 subtl(0:5,3)
+      integer a(2)       ! real*8 a(36,nemax,nion)
+      integer sum(2)     ! real*8 sum(nemax)
+      integer eig(2)     ! real*8 sum(nemax)
+      integer A_tag,sum_tag
+      integer A_shift,sum_shift,psi_shift
+ 
+      character*4 spn(2)
+      DATA SPN / 'UP  ', 'DOWN' /
+
+
+*     **** external functions ****
+      logical  control_DOS,nwpw_filefind
+      logical  borbs_init,borbs_readall
+      external control_DOS,nwpw_filefind
+      external borbs_init,borbs_readall
+      character   spdf_name
+      external    spdf_name
+      character*4 ion_atom_qm
+      external    ion_atom_qm
+      integer  ion_nion_qm,ion_katm_qm,ion_nkatm_qm
+      external ion_nion_qm,ion_katm_qm,ion_nkatm_qm
+      real*8   ion_rion
+      external ion_rion
+      real*8      lattice_omega,lattice_ecut,lattice_unita
+      external    lattice_omega,lattice_ecut,lattice_unita
+      real*8   borbs_rcut,borbs_lmbda,ddot,brillioun_weight
+      external borbs_rcut,borbs_lmbda,ddot,brillioun_weight
+      real*8   brillioun_weight_brdcst
+      external brillioun_weight_brdcst
+      real*8   brillioun_k_brdcst,brillioun_ks_brdcst
+      external brillioun_k_brdcst,brillioun_ks_brdcst
+      integer  cpsi_data_alloc,cpsi_data_get_chnk
+      external cpsi_data_alloc,cpsi_data_get_chnk
+
+
+      call Parallel_taskid(taskid)
+      call Parallel3d_taskid_k(taskid_k)
+      call Cram_max_npack(npack1)
+
+      npsp = ion_nkatm_qm()
+      nion = ion_nion_qm()
+      nemax = ne(1)+ne(2)
+
+      n1(1) = 1
+      n2(1) = ne(1)
+      n1(2) = ne(1)+1
+      n2(2) = ne(1)+ne(2)
+
+      value = MA_alloc_get(mt_int,npsp,'lorb',lorb(2),lorb(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,6*npsp,'b0',b0(2),b0(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,nion,'total',total(2),total(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,6*3,'subtl',subtl(2),subtl(1))
+
+      value = value.and.
+     >        MA_alloc_get(mt_dcpl,36*nemax*nion,'a',a(2),a(1))
+      value = value.and.
+     >        MA_alloc_get(mt_dbl,nemax,'sum',sum(2),sum(1))
+
+      A_tag   = cpsi_data_alloc(nbrillq,2*36*nemax*nion,1)
+      sum_tag = cpsi_data_alloc(nbrillq,nemax,1)
+
+
+*      ***********************************************
+*      **** create psp1 files if they don't exist ****
+*      ***********************************************
+       do k=1,npsp
+         DD = '                          '
+         DD = ion_atom_qm(k)
+         ind = index(DD,' ') - 1
+         test = DD(1:ind)//'.psp1'
+         id   = DD(1:ind)//'.borb'
+         call control_mullikenparameters(ion_atom_qm(k),rcut,lmbda)
+         if ((.not.nwpw_filefind(test)).or.(.not.nwpw_filefind(id)))
+     >      call borbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
+       end do
+
+*      ****************************************
+*      **** read in expansion coefficients ****
+*      ****************************************
+       do k=1,npsp
+          id = 'analysis:lorb'//ion_atom_qm(k)
+          if (.not. rtdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1))) then
+            DD = '                          '
+            DD = ion_atom_qm(k)
+            ind = index(DD,' ') - 1
+            test = DD(1:ind)//'.psp1'
+
+            !write(*,*) "test:",test,ind
+            value = rtdb_parallel(.false.)
+            if (taskid.eq.MASTER) then
+            ind = index(test,' ') - 1
+            !write(*,*) "test:",test,ind
+            call analysis_expansion_coef(test,-1,rtdb)
+            end if
+            value = rtdb_parallel(.true.)
+            call ga_sync()
+
+            if (.not. rtdb_get(rtdb,id,mt_int,1,int_mb(lorb(1)+k-1)))
+     >        call errquit(
+     >        'analysis: rtdb_get lorb failed', 0, RTDB_ERR)
+          end if
+
+          id = 'analysis:expansion'//ion_atom_qm(k)
+          if (.not. rtdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
+     >                                  dbl_mb(b0(1)+(k-1)*6))) then
+            DD = '                          '
+            DD = ion_atom_qm(k)
+            ind = index(DD,' ') -1
+            test = DD(1:ind)//'.psp1'
+            call analysis_expansion_coef(test,-1,rtdb)
+
+            if (.not. rtdb_get(rtdb,id,mt_dbl,(int_mb(lorb(1)+k-1)+1),
+     >                                       dbl_mb(b0(1)+(k-1)*6)))
+     >       call errquit(
+     >       'analysis: rtdb_get failed', 0, RTDB_ERR)
+          end if
+       end do
+
+
+      value = borbs_init()
+      value = value.and.borbs_readall()
+      if (.not.value) go to 1901
+
+      value = .true.
+      do k=1,npsp
+         call control_mullikenparameters(ion_atom_qm(k),rcut,lmbda)
+         if ((dabs(borbs_rcut(k)-rcut).gt.1.0d-6).or.
+     >       (dabs(borbs_lmbda(k)-lmbda).gt.1.0d-6)) then
+            call borbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
+            value = .false.
+         end if
+      end do
+      if (.not.value) value = borbs_readall()
+      if (.not.value) go to 1901
+
+      do nbq=1,nbrillq
+        psi_shift = cpsi_data_get_chnk(psi_tag,nbq)
+        A_shift   = cpsi_data_get_chnk(A_tag,nbq)
+        sum_shift = cpsi_data_get_chnk(sum_tag,nbq)
+
+        call Orb_pop_borb(flag,nbq,ispin,ne,
+     >                  npack1,nemax,dbl_mb(psi_shift),
+     >                  int_mb(lorb(1)),
+     >                  dbl_mb(A_shift),dbl_mb(sum_shift))
+      end do
+
+ 
+*     **** explicit number of atoms have been requested ****
+      fixatoms = .false.
+      if (rtdb_ma_get(rtdb, 'nwpw:dos:actlist', ma_type,
+     >        nactive_atoms, h_actlist)) then
+
+         if (.not.MA_get_index(h_actlist,l_actlist))
+     >      call errquit(
+     >       'analysis: ma_get_index failed for actlist',911,
+     &       MA_ERR)
+
+           fixatoms = .true.
+      end if
+
+*     **** angular momentum decomposition *****
+      lmax = -1
+      do k=1,npsp
+        if (lmax.le.int_mb(lorb(1)+k-1)) lmax = int_mb(lorb(1)+k-1)
+      end do
+
+      do L=0,lmax
+
+         do nbq=1,nbrillq
+            A_shift   = cpsi_data_get_chnk(A_tag,nbq)
+            call dcopy(2*36*nion*nemax,dbl_mb(A_shift),1,
+     >                                   dcpl_mb(a(1)),1)
+            if (.not.fixatoms) then
+               DO I=1,nion
+               DO SPIN=1,ISPIN
+               DO N=N1(SPIN),N2(SPIN)
+               if (L.le.int_mb(lorb(1)+ion_katm_qm(I)-1)) then
+                 L1=L**2+1
+                 L2=(L+1)**2
+                 pweight(n,nbq,L) = pweight(n,nbq,L) +
+     >           ddot(2*(L2-L1+1),
+     >                dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
+     >                dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1)
+               end if
+               END DO
+               END DO
+               END DO
+            else
+               DO j=1,nactive_atoms
+               I=int_mb(l_actlist+j-1)
+               DO SPIN=1,ISPIN
+               DO N=N1(SPIN),N2(SPIN)
+                if (L.le.int_mb(lorb(1)+ion_katm_qm(I)-1)) then
+                  L1=L**2+1
+                  L2=(L+1)**2
+                  pweight(n,L,nbq) = pweight(n,L,nbq) + 
+     >            ddot(2*(L2-L1+1),
+     >                 dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
+     >                 dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1)
+                end if
+               END DO
+               END DO
+               END DO
+            end if
+         end do
+      end do
+
+
+*     *** free heap ***
+      if(fixatoms) then
+        if (.not. MA_free_heap(h_actlist))
+     >   call errquit('h_actlist:error freeing heap memory',0, MA_ERR)
+      end if
+
+
+*     **** free heap space ****
+ 1901 continue
+      call borbs_end()
+      call cpsi_data_dealloc(A_tag)
+      call cpsi_data_dealloc(sum_tag)
+      value = MA_free_heap(a(2))
+      value = value.and.MA_free_heap(sum(2))
+      value = value.and.MA_free_heap(lorb(2))
+      value = value.and.MA_free_heap(b0(2))
+      value = value.and.MA_free_heap(total(2))
+      value = value.and.MA_free_heap(subtl(2))
+      if (.not. value)
+     >  call errquit('analysis: error freeing heap',0,MA_ERR)
+
+      return
+      end
+ 
+
