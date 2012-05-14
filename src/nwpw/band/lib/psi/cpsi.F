@@ -3009,6 +3009,74 @@ c     *****  read initial wavefunctions into psi1  ****
       end
 
 
+
+*     ***********************************
+*     *                                 *
+*     *     cpsi_projected_dos_weights  *
+*     *                                 * 
+*     ***********************************
+
+      subroutine cpsi_projected_dos_weights(rtdb,dosgrid,k,pweight)
+      implicit none
+      integer rtdb,dosgrid(3),k
+      real*8  pweight(*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "cpsi_common.fh"
+
+*     **** local variables ****
+      logical value
+      integer l,n,p,nb,nbq,indx,nnmax,lmax,taskid_k
+      integer weight(2),tmp(2)
+
+      call Parallel3d_taskid_k(taskid_k)
+
+      nnmax = (ne(1)+ne(2))*nbrillq*4
+      value = MA_push_get(mt_dbl,(nnmax),'eweight',weight(2),weight(1))
+      value = value.and.
+     >        MA_push_get(mt_dbl,(ne(1)+ne(2)),'tmp',tmp(2),tmp(1))
+      if (.not. value)
+     >  call errquit(
+     >         'cpsi_projected_dos_weighs:out of stack memory',0,MA_ERR)
+      call dcopy(nnmax,0.0d0,0,dbl_mb(weight(1)),1)
+
+
+*     **** Mulliken Analysis ****
+      call band_projecteddos_analysis(0,rtdb,ispin,ne,nbrillq,
+     >                                psi1_tag,dbl_mb(weight(1)),lmax)
+
+      do l=0,lmax
+      do nb=1,nbrillioun
+         call K1dB_ktoqp(nb,nbq,p)
+         if (p.eq.taskid_k) then
+            indx = (nbq-1)*(ne(1)+ne(2)) + l*(ne(1)+ne(2))*nbrillq
+            call dcopy(ne(1)+ne(2),
+     >                 dbl_mb(weight(1)+indx),1,
+     >                 dbl_mb(tmp(1)),1)
+         else
+            call dcopy(ne(1)+ne(2),0.0d0,0,dbl_mb(tmp(1)),1)
+         end if
+         call K1dB_Vector_SumAll(ne(1)+ne(2),dbl_mb(tmp(1)))
+
+         do n=1,ne(1)+ne(2)
+            indx = 1 + (k+nb-2) 
+     >         + (n-1)*dosgrid(1)*dosgrid(2)*dosgrid(3)
+     >         +     l*dosgrid(1)*dosgrid(2)*dosgrid(3)*(ne(1)+ne(2))
+            pweight(indx) = dbl_mb(tmp(1)+n-1)
+         end do
+      end do
+      end do
+
+      value =           MA_pop_stack(tmp(2))
+      value = value.and.MA_pop_stack(weight(2))
+      if (.not. value)
+     >  call errquit(
+     >       'cpsi_projected_dos_weights:error freeing stack',0,MA_ERR)
+      return
+      end
+
+
 *     ***********************
 *     *                     *
 *     *    ecpsi_Mulliken    *
