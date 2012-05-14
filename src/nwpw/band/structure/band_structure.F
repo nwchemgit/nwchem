@@ -43,28 +43,26 @@
       real*8  dipole(3)
       real*8  stress(3,3)
 
-      integer eigs_dos(2),dosgrid(3),weight_dos(2)
+      integer eigs_dos(2),dosgrid(3),weight_dos(2),pweight_dos(2)
 
 *     **** gradient variables ****
       integer fion(2)
 
 *     **** error variables ****
-      logical value,ortho
+      logical value,ortho,mulliken
       integer ierr
 
 *     **** local variables ****
       logical newpsi,grid3d,spin_orbit,lprint,mprint,hprint
       real*8  gx,gy,gz,cx,cy,cz
       real*8  EV,pi,e1,e2,f0,f1,f2,f3,f4,f5,f6
-      real*8  pathlength,dist,kold(3),emin,emax
+      real*8  pathlength,dist,kold(3),emin,emax,lmbda,rcut
       integer ii,jj,kk,ll,i,k,ia,nion,vers,nbrillioun,icharge,isize,indx
-      integer npoints,nbrillall,if1,if2
+      integer npoints,nbrillall,if1,if2,nbrillq
       integer mapping,tmp(2)
       character*255 full_filename
       character*50 filename
       character*72 cube_comment
-
-
 
 
 *     **** external functions ****
@@ -101,11 +99,11 @@
       external     control_boundry
 
       logical  brillioun_print
-      integer  brillioun_nbrillioun
+      integer  brillioun_nbrillioun,Pneb_nbrillq
       real*8   brillioun_weight_brdcst
       real*8   brillioun_ks_brdcst,brillioun_k_brdcst
       external brillioun_print
-      external brillioun_nbrillioun
+      external brillioun_nbrillioun,Pneb_nbrillq
       external brillioun_weight_brdcst
       external brillioun_ks_brdcst,brillioun_k_brdcst
       integer  c_electron_count,linesearch_count
@@ -140,12 +138,11 @@
       external control_mapping,control_np_dimensions
       integer  control_num_kvectors_structure,control_excited_ne
       external control_num_kvectors_structure,control_excited_ne
-      logical  band_dplot_iteration_check
-      external band_dplot_iteration_check
+      logical  band_dplot_iteration_check,control_Mulliken
+      external band_dplot_iteration_check,control_Mulliken
       integer  cpsi_iptr_psi, cpsi_iptr_dn, c_electron_iptr_psir
       external cpsi_iptr_psi, cpsi_iptr_dn, c_electron_iptr_psir
-
-
+    
 *****************************|  PROLOGUE  |****************************
 
       value = .true.
@@ -169,6 +166,7 @@
       lprint = ((taskid.eq.MASTER).and.(control_print(print_low)))
       mprint = ((taskid.eq.MASTER).and.(control_print(print_medium)))
       hprint = ((taskid.eq.MASTER).and.(control_print(print_high)))
+      mulliken = control_Mulliken()
 
 *     ***** print out header ****
       if (mprint) then
@@ -532,7 +530,7 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
        !**** get eigs_dos from rtdb ****
         if (.not.rtdb_get(rtdb,'dos:eigs_dos',mt_dbl,
      >                    isize,dbl_mb(eigs_dos(1)))) then
-         call errquit('band_structure:cannot read eig_dos from rtdb',
+         call errquit('band_structure:cannot read eigs_dos from rtdb',
      >                0,RTDB_ERR)
         end if
 
@@ -646,17 +644,22 @@ c     **** print brillioun zone - extra logic for distributed kpoints ****
 
       call Pneb_init(ispin,ne,nbrillioun,spin_orbit)
       value = cpsi_initialize(ortho)
+      nbrillq = Pneb_nbrillq()
 
 c      if (flag.eq.2) call cpsi_dospsi_read(k)
 
 
-*     **** allocate eigs_dos if first iteration ****
+*     **** allocate eigs_dos if first iteration and band structure calculation ****
       if ((flag.eq.1).and.(k.eq.1)) then
         isize = dosgrid(1)*dosgrid(2)*dosgrid(3)*(cpsi_ne(1)+cpsi_ne(2))
         value = MA_alloc_get(mt_dbl,isize,
      >                       'eigs_dos',eigs_dos(2),eigs_dos(1))
+        if (mulliken) then
+           value = value.and.MA_alloc_get(mt_dbl,isize*4,
+     >                      'pweight_dos',pweight_dos(2),pweight_dos(1))
+        end if
         if (.not. value)
-     >   call errquit('band_structure:out of stack memory',0, MA_ERR)
+     >   call errquit('band_structure:out of heap memory',0, MA_ERR)
       end if
 
 
@@ -903,7 +906,7 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
         !**** put eigs_dos on rtdb for use by task band dos_dplot ***
         if (.not.rtdb_put(rtdb,'dos:eigs_dos',mt_dbl,
      >                    isize,dbl_mb(eigs_dos(1)))) then
-         call errquit('band_structure:cannot write eig_dosto rtdb',
+         call errquit('band_structure:cannot write eigs_dos to rtdb',
      >                0,RTDB_ERR)
         end if
       end if
@@ -964,8 +967,14 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
 *     **** deallocate heap memory ****
 
       value = MA_free_heap(vall(2)) 
-      if (flag.eq.1)      ! deallocate eigs_dos
-     >  value = value.and.MA_free_heap(eigs_dos(2)) 
+
+      !*** deallocate eigs_dos and pweight_dos ****
+      if (flag.eq.1)  then 
+         value = value.and.MA_free_heap(eigs_dos(2)) 
+         if (mulliken) then
+            value = value.and.MA_free_heap(pweight_dos(2)) 
+         end if
+      end if
 
       if (flag.eq.2) then
         value = value.and.MA_free_heap(weight_dos(2)) 
