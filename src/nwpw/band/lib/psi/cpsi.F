@@ -3016,10 +3016,11 @@ c     *****  read initial wavefunctions into psi1  ****
 *     *                                 * 
 *     ***********************************
 
-      subroutine cpsi_projected_dos_weights(rtdb,dosgrid,k,pweight)
+      subroutine cpsi_projected_dos_weights(rtdb,dosgrid,k,pweight,lmax)
       implicit none
       integer rtdb,dosgrid(3),k
       real*8  pweight(*)
+      integer lmax
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -3027,7 +3028,7 @@ c     *****  read initial wavefunctions into psi1  ****
 
 *     **** local variables ****
       logical value
-      integer l,n,p,nb,nbq,indx,nnmax,lmax,taskid_k
+      integer l,n,p,nb,nbq,indx,nnmax,taskid_k
       integer weight(2),tmp(2)
 
       call Parallel3d_taskid_k(taskid_k)
@@ -3079,7 +3080,7 @@ c     *****  read initial wavefunctions into psi1  ****
 
 *     ***********************
 *     *                     *
-*     *    ecpsi_Mulliken    *
+*     *    ecpsi_Mulliken   *
 *     *                     *
 *     ***********************
 
@@ -3190,21 +3191,28 @@ c     *****  read initial wavefunctions into psi1  ****
       call K1dB_Vector_SumAll(2*npoints,dbl_mb(dstates(1)))
 
       if (ispin.eq.1) then
-        filename = "DOS_both"
+        filename = "smear_dos_both"
         call writedensityofstates(filename,
      >                     1.0d0,alpha,npoints,emin,emax,
      >                     dbl_mb(dstates(1)))
       end if
 
       if (ispin.eq.2) then
-        filename = "DOS_alpha"
+        filename = "smear_dos_alpha"
         call writedensityofstates(filename,
      >                     1.0d0,alpha,npoints,emin,emax,
      >                     dbl_mb(dstates(1)))
-        filename = "DOS_beta"
+        filename = "smear_dos_beta"
         call writedensityofstates(filename,
      >               -1.0d0,alpha,npoints,emin,emax,
      >                dbl_mb(dstates(1)+npoints))
+
+        filename = "smear_dos_both"
+        call daxpy(npoints,-1.0d0,dbl_mb(dstates(1)+npoints),1,
+     >                            dbl_mb(dstates(1)),1)
+        call writedensityofstates(filename,
+     >                     1.0d0,alpha,npoints,emin,emax,
+     >                     dbl_mb(dstates(1)))
       end if
 
       value =           MA_pop_stack(dstates(2))
@@ -3307,20 +3315,26 @@ c     *****  read initial wavefunctions into psi1  ****
       call K1dB_Vector_SumAll(2*npoints,dbl_mb(dstates(1)))
 
       if (ispin.eq.1) then
-        filename = "VDOS_both"
+        filename = "smear_vdos_both"
         call writedensityofstates(filename,
      >                     1.0d0,alpha,npoints,emin,emax,
      >                     dbl_mb(dstates(1)))
       end if
       if (ispin.eq.2) then
-        filename = "VDOS_alpha"
+        filename = "smear_vdos_alpha"
         call writedensityofstates(filename,
      >                     1.0d0,alpha,npoints,emin,emax,
      >                     dbl_mb(dstates(1)))
-        filename = "VDOS_beta"
+        filename = "smear_vdos_beta"
         call writedensityofstates(filename,
      >               -1.0d0,alpha,npoints,emin,emax,
      >                dbl_mb(dstates(1)+npoints))
+        filename = "smear_vdos_both"
+        call daxpy(npoints,-1.0d0,dbl_mb(dstates(1)+npoints),1,
+     >                            dbl_mb(dstates(1)),1)
+        call writedensityofstates(filename,
+     >                     1.0d0,alpha,npoints,emin,emax,
+     >                     dbl_mb(dstates(1)))
       end if
 
       value =           MA_pop_stack(dstates(2))
