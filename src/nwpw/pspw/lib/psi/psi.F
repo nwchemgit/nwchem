@@ -6275,18 +6275,18 @@ c      end if
 
 *     **** generate DENSITY OF STATES *****
       if (ispin.eq.1) then
-        filename = "DOS_both"
+        filename = "smear_dos_both"
         call densityofstates(filename,
      >                     dbl_mb(eig(1)),dbl_mb(weight(1)),ne(1),
      >                     1.0d0,alpha,npoints,emin,emax)
       end if
 
       if (ispin.eq.2) then
-        filename = "DOS_alpha"
+        filename = "smear_dos_alpha"
         call densityofstates(filename,
      >                     dbl_mb(eig(1)),dbl_mb(weight(1)),ne(1),
      >                     1.0d0,alpha,npoints,emin,emax)
-        filename = "DOS_beta"
+        filename = "smear_dos_beta"
         call densityofstates(filename,
      >               dbl_mb(eig(1)+ne(1)),dbl_mb(weight(1)),ne(2),
      >               -1.0d0,alpha,npoints,emin,emax)
@@ -6357,7 +6357,7 @@ c      end if
 
 *     **** generate DENSITY OF STATES *****
       if (ispin.eq.1) then
-        filename = "VDOS_both"
+        filename = "smear_vdos_both"
         call densityofstates(filename,
      >                     dbl_mb(eig_excited(1)),dbl_mb(weight(1)),
      >                     ne_excited(1),
@@ -6365,12 +6365,12 @@ c      end if
       end if
 
       if (ispin.eq.2) then
-        filename = "VDOS_alpha"
+        filename = "smear_vdos_alpha"
         call densityofstates(filename,
      >                     dbl_mb(eig_excited(1)),dbl_mb(weight(1)),
      >                     ne_excited(1),
      >                     1.0d0,alpha,npoints,emin,emax)
-        filename = "VDOS_beta"
+        filename = "smear_vdos_beta"
         call densityofstates(filename,
      >           dbl_mb(eig_excited(1)+ne_excited(1)),dbl_mb(weight(1)),
      >           ne_excited(2),
