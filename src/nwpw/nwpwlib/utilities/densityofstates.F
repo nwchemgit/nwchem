@@ -31,7 +31,7 @@ c
       parameter (MASTER=0)
 
       integer j,n,l
-      real*8  f,e,de,sf
+      real*8  f,e,de,sf,ff
       character*255 full_filename,prefilename
 
       integer  control_rtdb
@@ -57,6 +57,7 @@ c
       open(unit=19,file=full_filename,form='formatted')
 
        
+      ff = 0.0d0
       sf = alpha/(4.0d0*datan(1.0d0))
       de = (emax-emin)/dble(npoints-1)
       do j=1,npoints
@@ -68,7 +69,13 @@ c
         end do
         f = sf*f
 
-        write(19,1310) e,f*sign
+        if ((j.eq.1).or.(j.eq.npoints)) then
+           ff = ff + 0.5d0*f*de
+        else
+           ff = ff + f*de
+        end if
+
+        write(19,1310) e,f*sign,ff*sign
       end do
       close(19)
       end if
@@ -80,7 +87,7 @@ c
      >       /' sign=',F8.2,
      >       ', alpha=',F8.4,', (emin:emax)= (',F10.4,':',F10.4,
      >       '), npoints=',I5)
- 1310 FORMAT(2E15.5)
+ 1310 FORMAT(3E15.5)
 
       end
 
@@ -111,7 +118,7 @@ c
       parameter (MASTER=0)
 
       integer j,n,l
-      real*8  f,e,de
+      real*8  f,e,de,ff
       character*255 full_filename,prefilename
 
       integer  control_rtdb
@@ -137,10 +144,17 @@ c
       open(unit=19,file=full_filename,form='formatted')
 
        
+      ff = 0.0d0
       de = (emax-emin)/dble(npoints-1)
       do j=1,npoints
         e = emin + (j-1)*de
-        write(19,1310) e,dstates(j)
+       
+        if ((j.eq.1).or.(j.eq.npoints)) then
+           ff = ff + 0.5d0*dstates(j)*de
+        else
+           ff = ff + dstates(j)*de
+        end if
+        write(19,1310) e,dstates(j),ff
       end do
       close(19)
       end if
@@ -152,7 +166,7 @@ c
      >       /' sign=',F8.2,
      >       ', alpha=',F8.4,', (emin:emax)= (',F10.4,':',F10.4,
      >       '), npoints=',I5)
- 1310 FORMAT(2E15.5)
+ 1310 FORMAT(3E15.5)
 
       end
 
