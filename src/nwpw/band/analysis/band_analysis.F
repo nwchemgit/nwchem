@@ -688,20 +688,20 @@ c                  END DO
          call K1dB_Vector_SumAll(2*npoints,dbl_mb(dstates(1)))
 c
          if (ispin.eq.1) then
-           if (flag.eq.0) filename = "DOS_both_"//spdf_name(l)
-           if (flag.eq.1) filename = "VDOS_both_"//spdf_name(l)
+           if (flag.eq.0) filename = "mulliken_dos_both_"//spdf_name(l)
+           if (flag.eq.1) filename = "mulliken_vdos_both_"//spdf_name(l)
            call writedensityofstates(filename,
      >                     1.0d0,alpha,npoints,emin,emax,
      >                     dbl_mb(dstates(1)))
          end if
          if (ispin.eq.2) then
-           if (flag.eq.0) filename = "DOS_alpha_"//spdf_name(l)
-           if (flag.eq.1) filename = "VDOS_alpha_"//spdf_name(l)
+           if (flag.eq.0) filename= "mulliken_dos_alpha_"//spdf_name(l)
+           if (flag.eq.1) filename= "mulliken_vdos_alpha_"//spdf_name(l)
            call writedensityofstates(filename,
      >                     1.0d0,alpha,npoints,emin,emax,
      >                     dbl_mb(dstates(1)))
-           if (flag.eq.0) filename = "DOS_beta_"//spdf_name(l)
-           if (flag.eq.1) filename = "VDOS_beta_"//spdf_name(l)
+           if (flag.eq.0) filename = "mulliken_dos_beta_"//spdf_name(l)
+           if (flag.eq.1) filename = "mulliken_vdos_beta_"//spdf_name(l)
            call writedensityofstates(filename,
      >               -1.0d0,alpha,npoints,emin,emax,
      >                dbl_mb(dstates(1)+npoints))
@@ -781,20 +781,20 @@ c              END DO
          call K1dB_Vector_SumAll(2*npoints,dbl_mb(dstates(1)))
 
          if (ispin.eq.1) then
-           if (flag.eq.0) filename = "DOS_both_all"
-           if (flag.eq.1) filename = "VDOS_both_all"
+           if (flag.eq.0) filename = "mulliken_dos_both_all"
+           if (flag.eq.1) filename = "mulliken_vdos_both_all"
            call writedensityofstates(filename,
      >                     1.0d0,alpha,npoints,emin,emax,
      >                     dbl_mb(dstates(1)))
          end if
          if (ispin.eq.2) then
-           if (flag.eq.0) filename = "DOS_alpha_all"
-           if (flag.eq.1) filename = "VDOS_alpha_all"
+           if (flag.eq.0) filename = "mulliken_dos_alpha_all"
+           if (flag.eq.1) filename = "mulliken_vdos_alpha_all"
            call writedensityofstates(filename,
      >                     1.0d0,alpha,npoints,emin,emax,
      >                     dbl_mb(dstates(1)))
-           if (flag.eq.0) filename = "DOS_beta_all"
-           if (flag.eq.1) filename = "VDOS_beta_all"
+           if (flag.eq.0) filename = "mulliken_dos_beta_all"
+           if (flag.eq.1) filename = "mulliken_vdos_beta_all"
            call writedensityofstates(filename,
      >               -1.0d0,alpha,npoints,emin,emax,
      >                dbl_mb(dstates(1)+npoints))
@@ -813,8 +813,6 @@ c              END DO
      >  call errquit('analysis: error freeing stack',0, MA_ERR)
 
       end if !*** control_DOS ***
-
-
 
 
 *     **** free heap space ****
