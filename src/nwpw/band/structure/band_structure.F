@@ -1635,7 +1635,7 @@ c      end do
         f = f*(VT/VG)
         g = g*(VT/VG)
 
-        write(unit,1310) e,f*sign,g
+        write(unit,1310) e,f*sign,g*sign
       end do
 
 
@@ -2192,7 +2192,7 @@ c      end do
       integer id,d1(4),d2(4)
       integer itetra(4,6)
       real*8  VT,VG
-      real*8  B(3,3),unitg(3,3),e,ecube(8),pcube(8),f,g,de
+      real*8  B(3,3),unitg(3,3),e,ecube(8),pcube(8),f,g,de,ff
       real*8  k1,k2,k3,kx,ky,kz,kkx,kky,kkz,r,rmax
 
 *     **** external functions ****
@@ -2424,6 +2424,7 @@ c      do i=1,6
 c        write(unit,*) id,"tetra :",i,"(",(itetra(j,i),j=1,4),")"
 c      end do
 
+      ff = 0.0d0
       de = (emax-emin)/dble(npoints-1)
       do k=1,npoints
         e = emin + (k-1)*de
@@ -2460,15 +2461,21 @@ c      end do
      
            
             f = f + Dstates_Cube_projected(e,itetra,ecube,pcube)
-            g = g + Nstates_Cube_projected(e,itetra,ecube,pcube)
+            !g = g + Nstates_Cube_projected(e,itetra,ecube,pcube)
           end do
         end do
         end do
         end do
         f = f*(VT/VG)
-        g = g*(VT/VG)
+        !g = g*(VT/VG)
+        if ((k.eq.1).or.(k.eq.npoints)) then
+           ff = ff + 0.5d0*f*de
+        else
+           ff = ff + f*de
+        end if
 
-        write(unit,1310) e,f*sign,g
+        !write(unit,1310) e,f*sign,g
+        write(unit,1310) e,f*sign,ff*sign
       end do
 
 
