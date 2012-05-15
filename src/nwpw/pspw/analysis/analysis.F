@@ -573,20 +573,20 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
          end if
 
          if (ispin.eq.1) then
-           if (flag.eq.0) filename = "DOS_both_"//spdf_name(l)
-           if (flag.eq.1) filename = "VDOS_both_"//spdf_name(l)
+           if (flag.eq.0) filename = "mulliken_dos_both_"//spdf_name(l)
+           if (flag.eq.1) filename = "mulliken_vdos_both_"//spdf_name(l)
            call densityofstates(filename,
      >                     eig,dbl_mb(weight(1)),ne(1),
      >                     1.0d0,alpha,npoints,emin,emax)
          end if
          if (ispin.eq.2) then
-           if (flag.eq.0) filename = "DOS_alpha_"//spdf_name(l)
-           if (flag.eq.1) filename = "VDOS_alpha_"//spdf_name(l)
+           if (flag.eq.0) filename= "mulliken_dos_alpha_"//spdf_name(l)
+           if (flag.eq.1) filename= "mulliken_vdos_alpha_"//spdf_name(l)
            call densityofstates(filename,
      >                     eig,dbl_mb(weight(1)),ne(1),
      >                     1.0d0,alpha,npoints,emin,emax)
-           if (flag.eq.0) filename = "DOS_beta_"//spdf_name(l)
-           if (flag.eq.1) filename = "VDOS_beta_"//spdf_name(l)
+           if (flag.eq.0) filename = "mulliken_dos_beta_"//spdf_name(l)
+           if (flag.eq.1) filename = "mulliken_vdos_beta_"//spdf_name(l)
            call densityofstates(filename,
      >               eig(1+ne(1)),dbl_mb(weight(1)+ne(1)),ne(2),
      >               -1.0d0,alpha,npoints,emin,emax)
@@ -631,20 +631,20 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
          end if
 
          if (ispin.eq.1) then
-           if (flag.eq.0) filename = "DOS_both_all"
-           if (flag.eq.1) filename = "VDOS_both_all"
+           if (flag.eq.0) filename = "mulliken_dos_both_all"
+           if (flag.eq.1) filename = "mulliken_vdos_both_all"
            call densityofstates(filename,
      >                     eig,dbl_mb(weight(1)),ne(1),
      >                     1.0d0,alpha,npoints,emin,emax)
          end if
          if (ispin.eq.2) then
-           if (flag.eq.0) filename = "DOS_alpha_all"
-           if (flag.eq.1) filename = "VDOS_alpha_all"
+           if (flag.eq.0) filename = "mulliken_dos_alpha_all"
+           if (flag.eq.1) filename = "mulliken_vdos_alpha_all"
            call densityofstates(filename,
      >                     eig,dbl_mb(weight(1)),ne(1),
      >                     1.0d0,alpha,npoints,emin,emax)
-           if (flag.eq.0) filename = "DOS_beta_all"
-           if (flag.eq.1) filename = "VDOS_beta_all"
+           if (flag.eq.0) filename = "mulliken_dos_beta_all"
+           if (flag.eq.1) filename = "mulliken_vdos_beta_all"
            call densityofstates(filename,
      >               eig(1+ne(1)),dbl_mb(weight(1)+ne(1)),ne(2),
      >               -1.0d0,alpha,npoints,emin,emax)
