@@ -44,6 +44,7 @@
       real*8  stress(3,3)
 
       integer eigs_dos(2),dosgrid(3),weight_dos(2),pweight_dos(2)
+      integer pweight_lmax
 
 *     **** gradient variables ****
       integer fion(2)
@@ -142,6 +143,8 @@
       external band_dplot_iteration_check,control_Mulliken
       integer  cpsi_iptr_psi, cpsi_iptr_dn, c_electron_iptr_psir
       external cpsi_iptr_psi, cpsi_iptr_dn, c_electron_iptr_psir
+      character   spdf_name
+      external    spdf_name
     
 *****************************|  PROLOGUE  |****************************
 
@@ -835,7 +838,8 @@ c      if (flag.eq.2) call cpsi_dospsi_read(k)
 *     **** set pweight_dos ****
       if ((flag.eq.1).and.mulliken) then
          call cpsi_projected_dos_weights(rtdb,dosgrid,k,
-     >                                   dbl_mb(pweight_dos(1)))
+     >                                   dbl_mb(pweight_dos(1)),
+     >                                   pweight_lmax)
       end if
 
 
@@ -903,10 +907,83 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
      >                    full_filename)
         open(unit=58,file=full_filename,form='formatted')
         call band_dos_generate(58,dosgrid(1),dosgrid(2),dosgrid(3),
-     >                           dbl_mb(eigs_dos(1)),ne(1),
-     >                           (1.0d0),
+     >                           dbl_mb(eigs_dos(1)),ne(1)+ne(2),
+     >                           (2.0d0*(3-ispin)),
      >                           npoints,emin,emax)
         close(58)
+
+        if (ispin.eq.2) then
+           call util_file_name('dos_alpha',
+     >                       .false.,
+     >                       .false.,
+     >                       full_filename)
+           open(unit=58,file=full_filename,form='formatted')
+           call band_dos_generate(58,dosgrid(1),dosgrid(2),dosgrid(3),
+     >                              dbl_mb(eigs_dos(1)),ne(1),
+     >                              (1.0d0),
+     >                              npoints,emin,emax)
+           close(58)
+           call util_file_name('dos_beta',
+     >                       .false.,
+     >                       .false.,
+     >                       full_filename)
+           open(unit=58,file=full_filename,form='formatted')
+           ii = dosgrid(1)*dosgrid(2)*dosgrid(3)*ne(1)
+           call band_dos_generate(58,dosgrid(1),dosgrid(2),dosgrid(3),
+     >                              dbl_mb(eigs_dos(1)+ii),ne(2),
+     >                              (-1.0d0),
+     >                              npoints,emin,emax)
+           close(58)
+        end if
+
+        if (mulliken) then
+        do ll=0,pweight_lmax
+           call util_file_name('dos_both_'//spdf_name(ll),
+     >                       .false.,
+     >                       .false.,
+     >                       full_filename)
+           open(unit=58,file=full_filename,form='formatted')
+           jj=dosgrid(1)*dosgrid(2)*dosgrid(3)*(ne(1)+ne(2))*ll
+           call band_projected_dos_generate(58,
+     >                           dosgrid(1),dosgrid(2),dosgrid(3),
+     >                           dbl_mb(eigs_dos(1)),
+     >                           dbl_mb(pweight_dos(1)+jj),ne(1)+ne(2),
+     >                           (1.0d0*(3-ispin)),
+     >                           npoints,emin,emax)
+           close(58)
+
+           if (ispin.eq.2) then
+              call util_file_name('dos_alpha_'//spdf_name(ll),
+     >                       .false.,
+     >                       .false.,
+     >                       full_filename)
+              open(unit=58,file=full_filename,form='formatted')
+              jj=dosgrid(1)*dosgrid(2)*dosgrid(3)*(ne(1)+ne(2))*ll
+              call band_projected_dos_generate(58,
+     >                              dosgrid(1),dosgrid(2),dosgrid(3),
+     >                              dbl_mb(eigs_dos(1)),
+     >                              dbl_mb(pweight_dos(1)+jj),ne(1),
+     >                              (1.0d0),
+     >                              npoints,emin,emax)
+              close(58)
+              call util_file_name('dos_beta_'//spdf_name(ll),
+     >                       .false.,
+     >                       .false.,
+     >                       full_filename)
+              open(unit=58,file=full_filename,form='formatted')
+              ii = dosgrid(1)*dosgrid(2)*dosgrid(3)*ne(1)
+              jj=dosgrid(1)*dosgrid(2)*dosgrid(3)*(ne(1)+ne(2))*ll + ii
+              call band_projected_dos_generate(58,
+     >                              dosgrid(1),dosgrid(2),dosgrid(3),
+     >                              dbl_mb(eigs_dos(1)+ii),
+     >                              dbl_mb(pweight_dos(1)+jj),ne(2),
+     >                              (-1.0d0),
+     >                              npoints,emin,emax)
+              close(58)
+           end if
+        end do
+        end if
+
 
         !**** put eigs_dos on rtdb for use by task band dos_dplot ***
         if (.not.rtdb_put(rtdb,'dos:eigs_dos',mt_dbl,
@@ -2083,6 +2160,603 @@ c      end do
         wcube(itetra(4,k)) = wcube(itetra(4,k)) + 0.25d0*ds
       end do
 
+      return
+      end
+
+
+
+*     *********************************************
+*     *                                           *
+*     *            band_projected_dos_generate    *
+*     *                                           *
+*     *********************************************
+
+      subroutine band_projected_dos_generate(
+     >                             unit,idx,idy,idz,eigs,pweight,neigs,
+     >                             sign,npoints,emin,emax)
+      implicit none
+      integer unit
+      integer idx,idy,idz
+      real*8 eigs(idx,idy,idz,*)
+      real*8 pweight(idx,idy,idz,*)
+      integer neigs
+      real*8  sign
+      integer npoints
+      real*8 emin,emax
+
+*     **** local variables ****
+      integer dosgrid(3)
+      integer i,j,k,ii,jj,kk,ncubes,ntetra,count
+      integer ishft,jshft,kshft
+      integer k1_d(4),k2_d(4),k3_d(4),k1_dd(4),k2_dd(4),k3_dd(4)
+      integer id,d1(4),d2(4)
+      integer itetra(4,6)
+      real*8  VT,VG
+      real*8  B(3,3),unitg(3,3),e,ecube(8),pcube(8),f,g,de
+      real*8  k1,k2,k3,kx,ky,kz,kkx,kky,kkz,r,rmax
+
+*     **** external functions ****
+      real*8   lattice_unitg
+      real*8   Dstates_Cube_projected,Nstates_Cube_projected
+      external lattice_unitg
+      external Dstates_Cube_projected,Nstates_Cube_projected
+
+      dosgrid(1) = idx
+      dosgrid(2) = idy
+      dosgrid(3) = idz
+
+      do j=1,3
+      do i=1,3
+        B(i,j) = lattice_unitg(i,j)
+      end do  
+      end do  
+
+*     **** volume of reciprocal unit cell, VG ****
+      unitg(1,1) = B(2,2)*B(3,3) - B(3,2)*B(2,3)
+      unitg(2,1) = B(3,2)*B(1,3) - B(1,2)*B(3,3)
+      unitg(3,1) = B(1,2)*B(2,3) - B(2,2)*B(1,3)
+
+      unitg(1,2) = B(2,3)*B(3,1) - B(3,3)*B(2,1)
+      unitg(2,2) = B(3,3)*B(1,1) - B(1,3)*B(3,1)
+      unitg(3,2) = B(1,3)*B(2,1) - B(2,3)*B(1,1)
+
+      unitg(1,3) = B(2,1)*B(3,2) - B(3,1)*B(2,2)
+      unitg(2,3) = B(3,1)*B(1,2) - B(1,1)*B(3,2)
+      unitg(3,3) = B(1,1)*B(2,2) - B(2,1)*B(1,2)
+      VG = B(1,1)*unitg(1,1)
+     >   + B(2,1)*unitg(2,1)
+     >   + B(3,1)*unitg(3,1)
+      
+      ncubes = dosgrid(1)*dosgrid(2)*dosgrid(3)
+      ntetra = ncubes*6
+      VT = VG/dble(ntetra)
+
+
+*     ********************************
+*     **** find shortest diagonal ****
+*     ********************************
+
+*     **** (000) ---- (111) ****
+      k1_d(1) = 0
+      k2_d(1) = 0
+      k3_d(1) = 0
+      k1_dd(1) = 1
+      k2_dd(1) = 1
+      k3_dd(1) = 1
+      d1(1) = 0
+      d2(1) = 7
+
+*     **** (001) ---- (110) ****
+      k1_d(2) = 1
+      k2_d(2) = 0
+      k3_d(2) = 0
+      k1_dd(2) = 0
+      k2_dd(2) = 1
+      k3_dd(2) = 1
+      d1(2) = 1
+      d2(2) = 6
+
+*     **** (010) ---- (101) ****
+      k1_d(3) = 0
+      k2_d(3) = 1
+      k3_d(3) = 0
+      k1_dd(3) = 1
+      k2_dd(3) = 0
+      k3_dd(3) = 1
+      d1(3) = 2
+      d2(3) = 5
+
+*     **** (011) ---- (100) ****
+      k1_d(4) = 1
+      k2_d(4) = 1
+      k3_d(4) = 0
+      k1_dd(4) = 0
+      k2_dd(4) = 0
+      k3_dd(4) = 1
+      d1(4) = 3
+      d2(4) = 4
+
+      id = 1
+      rmax = 9.99d9
+      do i=1,4
+         kx = k1_d(i)*B(1,1) + k2_d(i)*B(1,2) + k3_d(i)*B(1,3)
+         ky = k1_d(i)*B(2,1) + k2_d(i)*B(2,2) + k3_d(i)*B(2,3)
+         kz = k1_d(i)*B(3,1) + k2_d(i)*B(3,2) + k3_d(i)*B(3,3)
+
+         kkx = k1_dd(i)*B(1,1) + k2_dd(i)*B(1,2) + k3_dd(i)*B(1,3)
+         kky = k1_dd(i)*B(2,1) + k2_dd(i)*B(2,2) + k3_dd(i)*B(2,3)
+         kkz = k1_dd(i)*B(3,1) + k2_dd(i)*B(3,2) + k3_dd(i)*B(3,3)
+         r = (kx-kkx)**2 + (ky-kky)**2 + (kz-kkz)**2
+         !write(unit,*) "diagonal distance:",i,r,rmax
+         if (r.lt.rmax) then
+           rmax = r
+           id = i
+         end if
+      end do
+
+      !write(unit,*) "diagonal d1,d2 =",d1(id),d2(id)
+
+*     **** define six tetradrons - clunky but don't know defn of cOR in fortran ****
+      if (id.eq.1) then
+        itetra(1,1) = 0   +1
+        itetra(2,1) = 7   +1
+        itetra(3,1) = 1   +1
+        itetra(4,1) = 3   +1
+
+        itetra(1,2) = 0   +1
+        itetra(2,2) = 7   +1
+        itetra(3,2) = 1   +1
+        itetra(4,2) = 5   +1
+
+        itetra(1,3) = 0   +1
+        itetra(2,3) = 7   +1
+        itetra(3,3) = 2   +1
+        itetra(4,3) = 3   +1
+
+        itetra(1,4) = 0   +1
+        itetra(2,4) = 7   +1
+        itetra(3,4) = 2   +1
+        itetra(4,4) = 6   +1
+
+        itetra(1,5) = 0   +1
+        itetra(2,5) = 7   +1
+        itetra(3,5) = 4   +1
+        itetra(4,5) = 5   +1
+
+        itetra(1,6) = 0   +1
+        itetra(2,6) = 7   +1
+        itetra(3,6) = 4   +1
+        itetra(4,6) = 6   +1
+      else if (id.eq.2) then
+        itetra(1,1) = 1   +1
+        itetra(2,1) = 6   +1
+        itetra(3,1) = 0   +1
+        itetra(4,1) = 2   +1
+
+        itetra(1,2) = 1   +1
+        itetra(2,2) = 6   +1
+        itetra(3,2) = 0   +1
+        itetra(4,2) = 4   +1
+
+        itetra(1,3) = 1   +1
+        itetra(2,3) = 6   +1
+        itetra(3,3) = 3   +1
+        itetra(4,3) = 2   +1
+
+        itetra(1,4) = 1   +1
+        itetra(2,4) = 6   +1
+        itetra(3,4) = 3   +1
+        itetra(4,4) = 7   +1
+
+        itetra(1,5) = 1   +1
+        itetra(2,5) = 6   +1
+        itetra(3,5) = 5   +1
+        itetra(4,5) = 4   +1
+
+        itetra(1,6) = 1   +1
+        itetra(2,6) = 6   +1
+        itetra(3,6) = 5   +1
+        itetra(4,6) = 7   +1
+      else if (id.eq.3) then
+        itetra(1,1) = 2   +1
+        itetra(2,1) = 5   +1
+        itetra(3,1) = 3   +1
+        itetra(4,1) = 1   +1
+
+        itetra(1,2) = 2   +1
+        itetra(2,2) = 5   +1
+        itetra(3,2) = 3   +1
+        itetra(4,2) = 7   +1
+
+        itetra(1,3) = 2   +1
+        itetra(2,3) = 5   +1
+        itetra(3,3) = 0   +1
+        itetra(4,3) = 1   +1
+
+        itetra(1,4) = 2   +1
+        itetra(2,4) = 5   +1
+        itetra(3,4) = 0   +1
+        itetra(4,4) = 4   +1
+
+        itetra(1,5) = 2   +1
+        itetra(2,5) = 5   +1
+        itetra(3,5) = 6   +1
+        itetra(4,5) = 7   +1
+
+        itetra(1,6) = 2   +1
+        itetra(2,6) = 5   +1
+        itetra(3,6) = 6   +1
+        itetra(4,6) = 4   +1
+      else if (id.eq.4) then
+        itetra(1,1) = 3   +1
+        itetra(2,1) = 4   +1
+        itetra(3,1) = 2    +1
+        itetra(4,1) = 0   +1
+
+        itetra(1,2) = 3   +1
+        itetra(2,2) = 4   +1
+        itetra(3,2) = 2   +1
+        itetra(4,2) = 6   +1
+
+        itetra(1,3) = 3   +1
+        itetra(2,3) = 4   +1
+        itetra(3,3) = 1   +1
+        itetra(4,3) = 0   +1
+
+        itetra(1,4) = 3   +1
+        itetra(2,4) = 4   +1
+        itetra(3,4) = 1   +1
+        itetra(4,4) = 5   +1
+
+        itetra(1,5) = 3   +1
+        itetra(2,5) = 4   +1
+        itetra(3,5) = 7   +1
+        itetra(4,5) = 6   +1
+
+        itetra(1,6) = 3   +1
+        itetra(2,6) = 4   +1
+        itetra(3,6) = 7   +1
+        itetra(4,6) = 5   +1
+      end if
+
+
+c      do i=1,6
+c        write(unit,*) id,"tetra :",i,"(",(itetra(j,i),j=1,4),")"
+c      end do
+
+      de = (emax-emin)/dble(npoints-1)
+      do k=1,npoints
+        e = emin + (k-1)*de
+
+        f = 0.0d0
+        g = 0.0d0
+        do kk=1,dosgrid(3)
+        do jj=1,dosgrid(2)
+        do ii=1,dosgrid(1)
+          ishft = ii+1
+          jshft = jj+1
+          kshft = kk+1
+          if (ishft.gt.dosgrid(1)) ishft=1
+          if (jshft.gt.dosgrid(2)) jshft=1
+          if (kshft.gt.dosgrid(3)) kshft=1
+          do i=1,neigs
+            ecube(1) = eigs(ii,       jj,    kk, i)  ! (000)
+            ecube(2) = eigs(ishft,    jj,    kk, i)  ! (001)
+            ecube(3) = eigs(ii,    jshft,    kk, i)  ! (010)
+            ecube(4) = eigs(ishft, jshft,    kk, i)  ! (011)
+            ecube(5) = eigs(ii,       jj, kshft, i)  ! (100)
+            ecube(6) = eigs(ishft,    jj, kshft, i)  ! (101)
+            ecube(7) = eigs(   ii, jshft, kshft, i)  ! (110)
+            ecube(8) = eigs(ishft, jshft, kshft, i)  ! (111)
+
+            pcube(1) = pweight(ii,       jj,    kk, i)  ! (000)
+            pcube(2) = pweight(ishft,    jj,    kk, i)  ! (001)
+            pcube(3) = pweight(ii,    jshft,    kk, i)  ! (010)
+            pcube(4) = pweight(ishft, jshft,    kk, i)  ! (011)
+            pcube(5) = pweight(ii,       jj, kshft, i)  ! (100)
+            pcube(6) = pweight(ishft,    jj, kshft, i)  ! (101)
+            pcube(7) = pweight(   ii, jshft, kshft, i)  ! (110)
+            pcube(8) = pweight(ishft, jshft, kshft, i)  ! (111)
+     
+           
+            f = f + Dstates_Cube_projected(e,itetra,ecube,pcube)
+            g = g + Nstates_Cube_projected(e,itetra,ecube,pcube)
+          end do
+        end do
+        end do
+        end do
+        f = f*(VT/VG)
+        g = g*(VT/VG)
+
+        write(unit,1310) e,f*sign,g
+      end do
+
+
+      return
+ 1310 FORMAT(3E15.5)
+ 3508 FORMAT(/' Brillouin zone point: ',i5,
+     >       /'    k     =<',3f8.3,'> . <b1,b2,b3> ',
+     >       /'          =<',3f8.3,'>')
+      end
+
+
+      real*8 function Dstates_Cube_projected(e,itetra,ecube,pcube)
+      implicit none
+      real*8  e
+      integer itetra(4,6)
+      real*8  ecube(8),pcube(8)
+
+*     **** local variables ****
+      integer i,j,k
+      real*8 ds,etetra(4),ptetra(4),swap
+
+      real*8   Dstates_Tetra_projected
+      external Dstates_Tetra_projected
+
+*     **** sum over 6 tetrahedrons ****
+      ds = 0.0d0
+      do k=1,6
+        etetra(1) = ecube(itetra(1,k))
+        etetra(2) = ecube(itetra(2,k))
+        etetra(3) = ecube(itetra(3,k))
+        etetra(4) = ecube(itetra(4,k))
+
+        ptetra(1) = pcube(itetra(1,k))
+        ptetra(2) = pcube(itetra(2,k))
+        ptetra(3) = pcube(itetra(3,k))
+        ptetra(4) = pcube(itetra(4,k))
+
+*       **** bubble sort ****
+        do j=1,3
+        do i=j+1,4
+          if (etetra(j).gt.etetra(i)) then
+            swap      = etetra(i)
+            etetra(i) = etetra(j)
+            etetra(j) = swap
+            swap      = ptetra(i)
+            ptetra(i) = ptetra(j)
+            ptetra(j) = swap
+          end if
+        end do
+        end do
+        ds = ds + Dstates_Tetra_projected(e,etetra,ptetra)
+      end do
+
+      Dstates_cube_projected = ds
+      return
+      end
+
+
+      real*8 function Dstates_Tetra_projected(e,ee,pp)
+      implicit none
+      real*8 e
+      real*8 ee(4),pp(4)
+
+*     **** local variables ****
+      real*8 ds
+      real*8 e1,e2,e4
+      real*8 e21,e31,e41,e32,e42,e43
+      real*8 points(3,3)
+
+*     **** external functions ****
+      real*8   Dstate_triangle
+      external Dstate_triangle
+
+      if ((ee(1).le.e).and.(e.lt.ee(2))) then
+c        e1 = e-ee(1)
+c        e21 = ee(2) - ee(1)
+c        e31 = ee(3) - ee(1)
+c        e41 = ee(4) - ee(1)
+c        ds = 3.0d0*e1*e1/(e21*e31*e41)
+        points(1,1) = (e-ee(1))/(ee(2)-ee(1))
+        points(2,1) = 0.0d0
+        points(3,1) = 0.0d0
+        points(1,2) = 0.0d0
+        points(2,2) = (e-ee(1))/(ee(3)-ee(1))
+        points(3,2) = 0.0d0
+        points(1,3) = 0.0d0 
+        points(2,3) = 0.0d0
+        points(3,3) = (e-ee(1))/(ee(4)-ee(1))
+        ds = Dstate_triangle(points,ee,pp)
+
+      else if ((ee(2).le.e).and.(e.lt.ee(3))) then
+c        e2 = e-ee(2) 
+c        e21 = ee(2) - ee(1) 
+c        e31 = ee(3) - ee(1) 
+c        e41 = ee(4) - ee(1) 
+c        e32 = ee(3) - ee(2) 
+c        e42 = ee(4) - ee(2) 
+c        ds = (3.0d0*e21+6.0d0*e2-3.0d0*(e31+e42)*e2*e2/(e32*e42))
+c     >       /(e31*e41)
+        points(1,1) = 0.0d0
+        points(2,1) = (e-ee(1))/(ee(3)-ee(1))
+        points(3,1) = 0.0d0
+        points(1,2) = 1.0d0 - (e-ee(2))/(ee(3)-ee(2))
+        points(2,2) =         (e-ee(2))/(ee(3)-ee(2))
+        points(3,2) = 0.0d0
+        points(1,3) = 0.0d0
+        points(2,3) = 0.0d0
+        points(3,3) = (e-ee(1))/(ee(4)-ee(1))
+        ds = Dstate_triangle(points,ee,pp)
+        points(1,1) = 1.0d0 - (e-ee(2))/(ee(4)-ee(2))
+        points(2,1) = 0.0d0
+        points(3,1) =         (e-ee(2))/(ee(4)-ee(2))
+        points(1,2) = 1.0d0 - (e-ee(2))/(ee(3)-ee(2))
+        points(2,2) = (e-ee(2))/(ee(3)-ee(2))
+        points(3,2) = 0.0d0
+        points(1,3) = 0.0d0
+        points(2,3) = 0.0d0
+        points(3,3) = (e-ee(1))/(ee(4)-ee(1))
+        ds = ds + Dstate_triangle(points,ee,pp)
+
+      else if ((ee(3).le.e).and.(e.lt.ee(4))) then
+c        e4 = ee(4)-e 
+c        e41 = ee(4) - ee(1) 
+c        e42 = ee(4) - ee(2) 
+c        e43 = ee(4) - ee(3) 
+c        ds = 3.0d0*e4*e4/(e41*e42*e43)
+        points(1,1) = 1.0d0 - (e-ee(2))/(ee(4)-ee(2))
+        points(2,1) = 0.0d0
+        points(3,1) = (e-ee(2))/(ee(4)-ee(2))
+        points(1,2) = 0.0d0
+        points(2,2) = 1.0d0 - (e-ee(3))/(ee(4)-ee(3)) 
+        points(3,2) = (e-ee(3))/(ee(4)-ee(3))
+        points(1,3) = 0.0d0
+        points(2,3) = 0.0d0
+        points(3,3) = (e-ee(1))/(ee(4)-ee(1))
+        ds = Dstate_triangle(points,ee,pp)
+
+      else
+        ds = 0.0d0
+      end if
+
+
+      Dstates_Tetra_projected = ds
+      return
+      end
+
+
+
+*     ******************************************
+*     *                                        *
+*     *          Dstate_triangle               *
+*     *                                        *
+*     ******************************************
+      real*8 function Dstate_triangle(points,ee,ff)
+      implicit none
+      real*8 points(3,3)
+      real*8 ee(4),ff(4)
+
+      real*8 p13x,p13y,p13z,p23x,p23y,p23z
+      real*8 f0,f1,f2,e10,e20,e30,nde,n2
+      real*8 n(3)
+
+      p13x = points(1,1) - points(1,3)
+      p13y = points(2,1) - points(2,3)
+      p13z = points(3,1) - points(3,3)
+
+      p23x = points(1,2) - points(1,3)
+      p23y = points(2,2) - points(2,3)
+      p23z = points(3,2) - points(3,3)
+
+      n(1) = p13y*p23z - p13z*p23y
+      n(2) = p13z*p23x - p13x*p23z
+      n(3) = p13x*p23y - p13y*p23x
+      n2 = n(1)*n(1) + n(2)*n(2) + n(3)*n(3)
+
+      e10 = ee(2)-ee(1)
+      e20 = ee(3)-ee(1)
+      e30 = ee(4)-ee(1)
+      nde = dabs(e10*n(1) + e20*n(2) + e30*n(3))
+
+      f0  = ff(1) + (ff(2)-ff(1))*points(1,3)
+     >            + (ff(3)-ff(1))*points(2,3)
+     >            + (ff(4)-ff(1))*points(3,3)
+
+      f1 = (ff(2)-ff(1))*(points(1,1)-points(1,3))
+     >   + (ff(3)-ff(1))*(points(2,1)-points(2,3))
+     >   + (ff(4)-ff(1))*(points(3,1)-points(3,3))
+
+      f2 = (ff(2)-ff(1))*(points(1,2)-points(1,3))
+     >   + (ff(3)-ff(1))*(points(2,2)-points(2,3))
+     >   + (ff(4)-ff(1))*(points(3,2)-points(3,3))
+
+      Dstate_triangle = 6.0d0*(n2/nde)*(f0/2.0d0 + f1/6.0d0 + f2/6.0d0)
+      return
+      end
+
+
+
+      
+
+      real*8 function Nstates_Cube_projected(e,itetra,ecube,pcube)
+      implicit none
+      real*8  e
+      integer itetra(4,6)
+      real*8  ecube(8),pcube(8)
+
+*     **** local variables ****
+      integer i,j,k
+      real*8 ds,etetra(4),ptetra(4),swap
+
+      real*8   Nstates_Tetra_projected
+      external Nstates_Tetra_projected
+
+*     **** sum over 6 tetrahedrons ****
+      ds = 0.0d0
+      do k=1,6
+        etetra(1) = ecube(itetra(1,k))
+        etetra(2) = ecube(itetra(2,k))
+        etetra(3) = ecube(itetra(3,k))
+        etetra(4) = ecube(itetra(4,k))
+        ptetra(1) = pcube(itetra(1,k))
+        ptetra(2) = pcube(itetra(2,k))
+        ptetra(3) = pcube(itetra(3,k))
+        ptetra(4) = pcube(itetra(4,k))
+
+*       **** bubble sort ****
+        do j=1,3
+        do i=j+1,4
+          if (etetra(j).gt.etetra(i)) then
+            swap      = etetra(i)
+            etetra(i) = etetra(j)
+            etetra(j) = swap
+            swap      = ptetra(i)
+            ptetra(i) = ptetra(j)
+            ptetra(j) = swap
+          end if
+        end do
+        end do
+        ds = ds + Nstates_Tetra_projected(e,etetra,ptetra)
+      end do
+
+      Nstates_cube_projected = ds
+      return
+      end
+
+
+      real*8 function Nstates_Tetra_projected(e,ee,pp)
+      implicit none
+      real*8 e
+      real*8 ee(4),pp(4)
+
+*     **** local variables ****
+      real*8 ds
+      real*8 e1,e2,e4
+      real*8 e21,e31,e41,e32,e42,e43
+
+      if ((ee(1).le.e).and.(e.lt.ee(2))) then
+        e1 = e-ee(1)
+        e21 = ee(2) - ee(1)
+        e31 = ee(3) - ee(1)
+        e41 = ee(4) - ee(1)
+        ds = e1*e1*e1/(e21*e31*e41)
+      else if ((ee(2).le.e).and.(e.lt.ee(3))) then
+        e2 = e-ee(2) 
+        e21 = ee(2) - ee(1) 
+        e31 = ee(3) - ee(1) 
+        e41 = ee(4) - ee(1) 
+        e32 = ee(3) - ee(2) 
+        e42 = ee(4) - ee(2) 
+        ds = (e21*e21 
+     >        + 3.0d0*e21*e2
+     >        + 3.0d0*e2*e2
+     >        - (e31+e42)*e2*e2*e2/(e32*e42))
+     >       /(e31*e41)
+      else if ((ee(3).le.e).and.(e.lt.ee(4))) then
+        e4 = ee(4)-e 
+        e41 = ee(4) - ee(1) 
+        e42 = ee(4) - ee(2) 
+        e43 = ee(4) - ee(3) 
+        ds = 1.0d0 - e4*e4*e4/(e41*e42*e43)
+      else if (e.ge.ee(4)) then
+        ds = 1.0d0
+      else
+        ds = 0.0d0
+      end if
+
+
+      Nstates_Tetra_projected = ds
       return
       end
 
