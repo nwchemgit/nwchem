@@ -50,9 +50,9 @@ c
       integer nelec
       double precision esav, sort
       double precision two, three
-      double precision tmpx1, tmpx2
-      double precision tmpy1, tmpy2
-      double precision tmpz1, tmpz2
+      double precision tmpx1, tmpx2, tmpx12
+      double precision tmpy1, tmpy2, tmpy12
+      double precision tmpz1, tmpz2, tmpz12
       double precision fosc, exen
 c
       double precision scal 
@@ -352,12 +352,15 @@ c       write orbital header
           call ga_get(g_dpy_mo(2),i,i,j,j,tmpy2,1)
           call ga_get(g_dpz_mo(1),i,i,j,j,tmpz1,1)
           call ga_get(g_dpz_mo(2),i,i,j,j,tmpz2,1)
-          tmpx1 = (tmpx1*tmpx1+tmpx2*tmpx2)*scal
-          tmpy1 = (tmpy1*tmpy1+tmpy2*tmpy2)*scal
-          tmpz1 = (tmpz1*tmpz1+tmpz2*tmpz2)*scal
-          fosc = two/three*exen*(tmpx1+tmpy1+tmpz1)
+c          tmpx1 = (tmpx1*tmpx1+tmpx2*tmpx2)*scal
+c          tmpy1 = (tmpy1*tmpy1+tmpy2*tmpy2)*scal
+c          tmpz1 = (tmpz1*tmpz1+tmpz2*tmpz2)*scal
+          tmpx12 = (tmpx1*tmpx1)*scal   ! imag part doesn't contribute
+          tmpy12 = (tmpy1*tmpy1)*scal   ! imag part doesn't contribute
+          tmpz12 = (tmpz1*tmpz1)*scal   ! imag part doesn't contribute
+          fosc = two/three*exen*(tmpx12+tmpy12+tmpz12)
           if (nodezero) then
-            write(unitno,1800) nindex, exen, tmpx1, tmpy1, tmpz1, fosc
+            write(unitno,1800)nindex, exen, tmpx12, tmpy12, tmpz12, fosc
           endif
           nindex=nindex+1
         enddo
@@ -380,7 +383,7 @@ c
      6       /,'Number of Excitations:        ',i5,/)
  1600 format(/,'Dipole spectrum for Koopman Excitation from orbital '
      &        ,i5,/)
- 1700 format(3x,'N',7x,'Energy',11x,'<x>**2',11x,'<y>**2',11x,'<z>**2',
+ 1700 format(3x,'N',7x,'Energy',11x,'<x>   ',11x,'<y>   ',11x,'<z>   ',
      &       11x,'fosc',/,'-------------------------------------------',
      &       '--------------------------------------------')
  1800 format(i5,2x,f12.7,5x,f12.7,5x,f12.7,5x,f12.7,5x,f12.7)
