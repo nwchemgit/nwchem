@@ -1,6 +1,7 @@
 *
 * $Id$
 *
+      program numbers
       implicit integer (a-z)
 c
       maxdiff = 0
