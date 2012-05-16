@@ -384,7 +384,7 @@ c
       else
          basissum = ' '
          geomsum  = ' '
-         bqsum = ' '
+         bqsum    = ' '
          date     = ' '
       endif
       scftype20 = scftype
@@ -922,7 +922,7 @@ c        is detected from the filebqsum value which we set to something
 c        unusual so it will not match anything obvious.
 c
  2001    continue
-         filebqsum = "HuubvanDam_hack"
+         filebqsum = " "
          rewind(unitno, err=1001)
          read(unitno, end=1001, err=1001)
      $     filebasissum, filegeomsum, filescftype, filedate
