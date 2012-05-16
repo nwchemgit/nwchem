@@ -171,7 +171,12 @@ c
 
       value = borbs_init()
       value = value.and.borbs_readall()
-      if (.not.value) go to 1901
+      if (.not.value) then
+         do k=1,npsp
+            call control_mullikenparameters(ion_atom_qm(k),rcut,lmbda)
+            call borbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
+         end do
+      end if
 
       value = .true.
       do k=1,npsp
