@@ -1,0 +1,5 @@
+#!/bin/bash
+head -1 util_version.F  > new.F
+tail -1 util_version.F  >>new.F
+mv util_version.F bigv.F
+mv new.F util_version.F
