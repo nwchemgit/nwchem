@@ -703,6 +703,10 @@ c
  4000 rodft = .true.
       if (.not.rtdb_put(rtdb,'dft:rodft', mt_log, 1, rodft))
      &   call errquit('dft_input: rtdb_put failed', 4000, RTDB_ERR)
+c we enforce cgmin since diis breaks loose in the gradients
+      cgmin=.true.
+      if (.not.rtdb_put(rtdb,'dft:cgmin', mt_log, 1, cgmin))
+     &   call errquit('dft_input: rtdb_put failed', 3600, RTDB_ERR)
 c
 c     fukui indices
 c
