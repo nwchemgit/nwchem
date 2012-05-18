@@ -188,9 +188,9 @@ c
               if (.not.ma_push_get(mt_dbl,nbf*nbf,'AO multipole',
      1          l_aom1,k_aom1)) call errquit('tce_mom1: MA problem',1,
      2          MA_ERR)
-              if (nodezero) write(6,*) 'before ga_get g_aom1'
+ccx              if (nodezero) write(6,*) 'before ga_get g_aom1'
               call ga_get(g_aom1(axis),1,nbf,1,nbf,dbl_mb(k_aom1),nbf)
-              if (nodezero) write(6,*) 'after ga_get g_aom1'
+ccx              if (nodezero) write(6,*) 'after ga_get g_aom1'
               call dgemm('T','N',range_g1,nbf,nbf,1.0d0,
      1          dbl_mb(k_movecs_sorted+offset_g1),nbf,dbl_mb(k_aom1),
      2          nbf,0.0d0,dbl_mb(k_work),range_g1)
@@ -211,13 +211,13 @@ c
             endif
           enddo
         enddo
-        if (nodezero) write(6,*) 'before put_block d_mom1'
+ccx        if (nodezero) write(6,*) 'before put_block d_mom1'
         call put_block(d_mom1(axis),dbl_mb(k_mom1),sf_size,0)
-        if (nodezero) write(6,*) 'after put_block d_mom1'
+ccx        if (nodezero) write(6,*) 'after put_block d_mom1'
         if (.not.ma_pop_stack(l_mom1))
      1    call errquit('tce_mom1: MA problem',6,MA_ERR)
-        if (nodezero.and.util_print('mom1',print_debug))
-     1    call sf_print(d_mom1(axis),sf_size)
+ccx        if (nodezero.and.util_print('mom1',print_debug))
+ccx     1    call sf_print(d_mom1(axis),sf_size)
       enddo
       do axis = 1,axes
         if (.not.ga_destroy(g_aom1(axis)))
