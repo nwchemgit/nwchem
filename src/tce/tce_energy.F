@@ -3514,37 +3514,6 @@ c
           wall = - util_wallsec()
           call tce_filename('e',filename)
           call createfile(filename,d_e,size_e)
-          call lr_ccsd_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
-     1                   d_f1,k_f1_offset,d_v2,k_v2_offset,
-     2                   d_e,k_e_offset,
-     3                   pt3_1,pt3_2,pt3_3,pt3_4,pt3_5,pt3_6,
-     4                   size_t1)
-          call deletefile(d_e)
-c
-          cpu = cpu + util_cpusec()
-          wall = wall + util_wallsec()
-          if (nodezero) then
-            write(LuOut,*)
-            write(LuOut,9070) "LR-CCSD(T)IA",corr+pt3_1
-            write(LuOut,9080) "LR-CCSD(T)IA",ref+corr+pt3_1
-            write(LuOut,*)
-            write(LuOut,9070) "LR-CCSD(T)IB",corr+pt3_2
-            write(LuOut,9080) "LR-CCSD(T)IB",ref+corr+pt3_2
-            write(LuOut,*)
-            write(LuOut,9070) "LR-CCSD(T)IIA",corr+pt3_3
-            write(LuOut,9080) "LR-CCSD(T)IIA",ref+corr+pt3_3
-            write(LuOut,*)
-            write(LuOut,9070) "LR-CCSD(T)IIB",corr+pt3_4
-            write(LuOut,9080) "LR-CCSD(T)IIB",ref+corr+pt3_4
-            write(LuOut,*)
-            write(LuOut,9070) "LR-CCSD(T)IIIA",corr+pt3_5
-            write(LuOut,9080) "LR-CCSD(T)IIIA",ref+corr+pt3_5
-            write(LuOut,*)
-            write(LuOut,9070) "LR-CCSD(T)IIIB",corr+pt3_6
-          cpu = - util_cpusec()
-          wall = - util_wallsec()
-          call tce_filename('e',filename)
-          call createfile(filename,d_e,size_e)
           call ccsd2_t(d_t1,k_t1_offset,d_t2,k_t2_offset,
      1                 d_f1,k_f1_offset,d_v2,k_v2_offset,
      2                 d_lambda1,k_l1_offset,d_lambda2,k_l2_offset,
@@ -3570,7 +3539,7 @@ c
           endif
           corr = corr + pt3_1
         endif
-       endif
+ccx       endif
       !JEFFendif
       if ((model.eq.'lccsd').or.do_lccsd) then
 c -------------
