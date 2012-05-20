@@ -1,5 +1,5 @@
 c
-c $Id: band_analysis.F 22397 2012-05-07 23:08:15Z bylaska $
+c $Id$
 c
 
       subroutine band_analysis(flag,rtdb,ispin,ne,

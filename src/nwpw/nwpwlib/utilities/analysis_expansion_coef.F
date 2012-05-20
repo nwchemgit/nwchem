@@ -1,5 +1,5 @@
 c
-c $Id: analysis_expansion_coef.F 22388 2012-05-07 16:32:57Z bylaska $
+c $Id$
 c
       subroutine analysis_expansion_coef(filename,lorb0,rtdb)
       implicit none

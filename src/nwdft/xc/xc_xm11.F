@@ -4,7 +4,7 @@
 
 
 c   
-c$Id: xc_xm11.F,v 1.0 2011/12/24 20:21:53 bert Exp $
+c$Id$
 c
 c
 c

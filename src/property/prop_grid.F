@@ -1,6 +1,6 @@
       subroutine prop_grid_initialize(rtdb,nat,c)
 c
-c $Id: hnd_elpmap.F 19707 2010-10-29 17:59:36Z d3y133 $
+c $Id$
 c
       implicit none
 #include "prop_grid_data.fh"
@@ -81,7 +81,7 @@ c     ---------------------------
 
       subroutine prop_grid_destroy()
 c
-c $Id: hnd_elpmap.F 19707 2010-10-29 17:59:36Z d3y133 $
+c $Id$
 c
       implicit none
 #include "prop_grid_data.fh"
@@ -182,7 +182,7 @@ c      write(un,1000) (v(i),i=1,n)
 
       subroutine prop_grid_get_r_ptr(nr,i_r_out)
 c
-c $Id: hnd_elpmap.F 19707 2010-10-29 17:59:36Z d3y133 $
+c $Id$
 c
       implicit none
 #include "prop_grid_data.fh"

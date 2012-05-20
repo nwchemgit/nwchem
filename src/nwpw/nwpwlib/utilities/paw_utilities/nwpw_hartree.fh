@@ -1,4 +1,4 @@
-c $Id: nwpw_hartree.fh 21509 2011-11-11 03:30:21Z bylaska $
+c $Id$
 
       integer nindx_hartree(2)
       integer shift_hartree(2)

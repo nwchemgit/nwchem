@@ -108,4 +108,4 @@ c 1        format('(sf,scl)(',i5,',',i5,')=(',f15.8,',',f15.8,')')
       enddo
       return
       end
-c $Id: calc_zora_sf.F 21176 2011-10-10 06:35:49Z d3y133 $
+c $Id$

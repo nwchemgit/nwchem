@@ -1,5 +1,5 @@
 *
-* $Id: nwpw_xc_vosko.F 20366 2011-05-20 21:00:25Z d3p852 $
+* $Id$
 *
 
       subroutine nwpw_vosko(n2ft3d,ng,ispin,dn,xce,xcp,x)

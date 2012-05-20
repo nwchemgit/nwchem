@@ -3,7 +3,7 @@ c     xc utility functions
 c
       logical function xc_chkgrad()
 *
-* $Id: xc_chkgrad.F 21746 2012-01-11 08:15:11Z niri $
+* $Id$
 *
       implicit none
 c
@@ -150,7 +150,7 @@ c
 c
       logical function xc_chktau()
 C
-C $Id: xc_chktau.F 20594 2011-06-17 22:55:57Z niri $ 
+C $Id$ 
 C
       implicit none
  

@@ -144,4 +144,4 @@ c ----- Free memory
 c
        return
        end
-c $Id: dft_scaleMO_so.F 21176 2011-10-10 06:35:49Z d3y133 $
+c $Id$

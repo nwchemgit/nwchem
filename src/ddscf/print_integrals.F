@@ -2,7 +2,7 @@ c
 c     wrapper utility function to print ao integrals
       subroutine print_integrals(basis, oskel)
 c     
-C$Id: nwdft.F 20195 2011-04-14 17:33:50Z niri $
+C$Id$
 c
       implicit none
 c     

@@ -1,5 +1,5 @@
 c
-c     $Id: xc_vdw.F 22087 2012-03-06 21:23:47Z niri $
+c     $Id$
 c
 
 c      Interpolation of C6 to account for coordination number dependence

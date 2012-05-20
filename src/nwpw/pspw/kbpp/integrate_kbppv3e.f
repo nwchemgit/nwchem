@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbppv3e.f 21512 2011-11-12 01:20:37Z bylaska $
+* $Id$
 *
 
       subroutine integrate_kbppv3e(version,rlocal,

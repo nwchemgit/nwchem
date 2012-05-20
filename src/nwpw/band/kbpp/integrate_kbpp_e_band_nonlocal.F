@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_e_band_nonlocal.F 19707 2010-10-29 17:59:36Z d3y133 $
+* $Id$
 *
       subroutine integrate_kbpp_e_band_nonlocal(version,kvec,
      >                            nrho,drho,lmax,locp,nmax,

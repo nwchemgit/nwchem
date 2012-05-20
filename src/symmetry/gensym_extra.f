@@ -1,4 +1,4 @@
-C$Id: gensym.f 19708 2010-10-29 18:04:21Z d3y133 $
+C$Id$
 
 cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 c

@@ -410,3 +410,4 @@ c
      &  ('dft_vspec_so: failed to destroy g_dp_wk',0,GA_ERR)
 c
       end 
+c $Id$

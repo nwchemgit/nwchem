@@ -1,4 +1,4 @@
-C $Id: grid_eaf.F 21764 2012-01-12 10:05:06Z edo $
+C $Id$
 c
       double  precision uenuc   ! grinfo enuc
       integer uvect(4) ! grinfo contents

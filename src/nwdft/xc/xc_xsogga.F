@@ -2,7 +2,7 @@
      &                     Amat, Cmat, nq, ipol, Ex, 
      &                     qwght, ldew, func, ijzy)
 c   
-c$Id: xc_xsogga.F,v 1.0 2011/12/24 20:21:53 bert Exp $
+c$Id$
 c
 c
 c

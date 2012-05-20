@@ -1,5 +1,5 @@
 *
-* $Id: integrate_kbpp_e_band_local_new.F 19707 2010-10-29 17:59:36Z d3y133 $
+* $Id$
 *
       subroutine integrate_kbpp_e_band_local_new(version,
      >                            nrho,drho,lmax,locp,nmax,

@@ -1,5 +1,5 @@
 *
-* $Id: cpsdv5.F 21106 2011-09-18 00:31:02Z bylaska $
+* $Id$
 *
 
       logical function lcaov1(rtdb)

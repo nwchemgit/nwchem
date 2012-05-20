@@ -1,5 +1,5 @@
 c
-c     $Id: xc_vdw_main.F 22355 2012-04-28 04:32:36Z jhammond $
+c     $Id$
 c
       subroutine xc_vdw_der(s6,s8,sr6,sr8,n,x,z,force)
 c
