@@ -1,8 +1,6 @@
 echo
 start h2o_frozemb
 
-memory global 40 mb stack 23 mb heap 5 mb
-
 geometry units angstrom noautoz nocenter noautosym
 O         0.00000000000000      0.00000000000000     -0.26192472620000
 H         0.00000000000000      0.77162768440000      0.34261631290000

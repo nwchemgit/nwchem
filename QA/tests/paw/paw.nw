@@ -33,7 +33,7 @@ end
 ################ periodic testing ##################
 nwpw
 
-   time_step 15.8   
+#  time_step 15.8   
    ewald_rcut 1.50
    tolerances 1.0d-11 1.0d-11 
 end

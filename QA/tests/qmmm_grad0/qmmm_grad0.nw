@@ -1,8 +1,6 @@
 echo
 Title "QM/MM Ala-Ser-Ala: Ser sidechain in QM"
 
-memory noverify  heap 25 mb   stack 86 mb  global 86 mb
-
 start asa 
 
 #prepare

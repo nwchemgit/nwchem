@@ -1,4 +1,5 @@
  argument  1 = ptatom.nw
+All connections between all procs tested: SUCCESS
 
 
 
@@ -6,11 +7,18 @@
 echo
 start ptatom
 
-memory global 40 mb stack 23 mb heap 5 mb
-
-geometry units au
+geometry pt units au
  symmetry oh
  Pt 0       0        0
+end
+
+geometry pt-bq units au
+#symmetry oh
+ Pt  0       0        0
+ bq  0       7        0   charge -0.25
+ bq  0      -7        0   charge -0.25
+ bq  7       0        0   charge -0.25
+ bq -7       0        0   charge -0.25
 end
 
 BASIS "ao basis" PRINT
@@ -83,6 +91,20 @@ dft
  iterations 1000
 end
 
+set geometry pt-bq
+charge -1
+dft
+  vectors input atomic output pt.mos
+end
+
+task dft
+
+set geometry pt
+charge 0
+dft
+  vectors input pt.mos
+end
+
 task dft
 ================================================================================
 
@@ -91,7 +113,7 @@ task dft
                                          
 
 
-              Northwest Computational Chemistry Package (NWChem) 6.0
+              Northwest Computational Chemistry Package (NWChem) 6.1
               ------------------------------------------------------
 
 
@@ -124,18 +146,18 @@ task dft
            Job information
            ---------------
 
-    hostname      = arcen
-    program       = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../bin/LINUX64/nwchem
-    date          = Tue Oct 26 20:12:37 2010
+    hostname      = cu0login1
+    program       = ../../../bin/LINUX64/nwchem
+    date          = Sat Mar 17 16:07:23 2012
 
-    compiled      = Tue_Oct_26_14:47:56_2010
-    source        = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev
-    nwchem branch = Development
+    compiled      = Sat_Mar_17_00:24:21_2012
+    source        = /home/d3y133/nwchem-6.1-patches
+    nwchem branch = 6.1
     input         = ptatom.nw
     prefix        = ptatom.
-    data base     = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/ptatom.db
+    data base     = ./ptatom.db
     status        = startup
-    nproc         =        4
+    nproc         =        1
     time left     =     -1s
 
 
@@ -143,10 +165,10 @@ task dft
            Memory information
            ------------------
 
-    heap     =     655361 doubles =      5.0 Mbytes
-    stack    =    3014657 doubles =     23.0 Mbytes
-    global   =    5242880 doubles =     40.0 Mbytes (distinct from heap & stack)
-    total    =    8912898 doubles =     68.0 Mbytes
+    heap     =  104857601 doubles =    800.0 Mbytes
+    stack    =  104857601 doubles =    800.0 Mbytes
+    global   =  209715200 doubles =   1600.0 Mbytes (distinct from heap & stack)
+    total    =  419430402 doubles =   3200.0 Mbytes
     verify   = yes
     hardfail = no 
 
@@ -154,8 +176,8 @@ task dft
            Directory information
            ---------------------
 
-  0 permanent = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
-  0 scratch   = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir
+  0 permanent = .
+  0 scratch   = .
 
 
 
@@ -166,8 +188,8 @@ task dft
 
 
 
-                             Geometry "geometry" -> ""
-                             -------------------------
+                                Geometry "pt" -> ""
+                                -------------------
 
  Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
 
@@ -205,12 +227,93 @@ task dft
             XYZ format geometry
             -------------------
      1
- geometry
+ pt
  Pt                    0.00000000     0.00000000     0.00000000
 
-  library name resolved from: .nwchemrc
-  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
-  
+ D4H symmetry detected
+
+          ------
+          auto-z
+          ------
+  Looking for out-of-plane bends
+
+
+                             Geometry "pt-bq" -> "  "
+                             ------------------------
+
+ Output coordinates in a.u. (scale by  1.000000000 to convert to a.u.)
+
+  No.       Tag          Charge          X              Y              Z
+ ---- ---------------- ---------- -------------- -------------- --------------
+    1 Pt                  78.0000     0.00000000     0.00000000     0.00000000
+    2 bq                  -0.2500     7.00000000     0.00000000     0.00000000
+    3 bq                  -0.2500    -7.00000000     0.00000000     0.00000000
+    4 bq                  -0.2500     0.00000000    -7.00000000     0.00000000
+    5 bq                  -0.2500     0.00000000     7.00000000     0.00000000
+
+      Atomic Mass 
+      ----------- 
+
+      Pt               194.964800
+
+
+ Effective nuclear repulsion energy (a.u.)     -11.1428571429
+
+            Nuclear Dipole moment (a.u.) 
+            ----------------------------
+        X                 Y               Z
+ ---------------- ---------------- ----------------
+     0.0000000000     0.0000000000     0.0000000000
+
+      Symmetry information
+      --------------------
+
+ Group name             D4h       
+ Group number             28
+ Group order              16
+ No. of unique centers     2
+
+      Symmetry unique atoms
+
+     1    2
+
+
+
+                                Z-matrix (autoz)
+                                -------- 
+
+ Units are Angstrom for bonds and degrees for angles
+
+      Type          Name      I     J     K     L     M      Value
+      ----------- --------  ----- ----- ----- ----- ----- ----------
+    1 Stretch                  1     2                       3.70424
+    2 Stretch                  1     3                       3.70424
+    3 Stretch                  1     4                       3.70424
+    4 Stretch                  1     5                       3.70424
+    5 Bend                     2     1     4                90.00000
+    6 Bend                     2     1     5                90.00000
+    7 Bend                     3     1     4                90.00000
+    8 Bend                     3     1     5                90.00000
+    9 Torsion                  2     1     4     3         180.00000
+   10 Torsion                  2     1     5     3         180.00000
+   11 Torsion                  2     4     1     3         180.00000
+   12 Torsion                  2     5     1     3         180.00000
+   13 Torsion                  4     1     2     5         180.00000
+   14 Torsion                  4     1     3     5         180.00000
+   15 Torsion                  4     2     1     5         180.00000
+   16 Torsion                  4     3     1     5         180.00000
+
+
+            XYZ format geometry
+            -------------------
+     5
+ pt-bq
+ Pt                    0.00000000     0.00000000     0.00000000
+ bq                    3.70424074     0.00000000     0.00000000
+ bq                   -3.70424074     0.00000000     0.00000000
+ bq                    0.00000000    -3.70424074     0.00000000
+ bq                    0.00000000     3.70424074     0.00000000
+
                       Basis "ao basis" -> "" (cartesian)
                       -----
   Pt (Platinum)
@@ -261,14 +364,11 @@ task dft
  Pt                      user specified             14       39   6s5p3d
 
 
-  library name resolved from: .nwchemrc
-  library file name is: </home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/../src/basis/libraries/>
-  
 
  **** WARNING Zero Coefficient **** on atom "              Pt"
  angular momentum value:-1  standard basis set name: "user specified"
  input line that generated warning:
-    57: 2      1.000000000            0.000000000
+    64: 2      1.000000000            0.000000000
   
  Local ECP potential is zero and ignored
   
@@ -292,6 +392,731 @@ task dft
   5 U-g      2.00        5.277289     -24.218675
 
   pbe96 is a nonlocal functional; adding pw91lda local functional. 
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  spin polarized.
+          No. of atoms     :     5
+          No. of electrons :    18
+           Alpha electrons :    10
+            Beta electrons :     8
+          Charge           :    -1
+          Spin multiplicity:     3
+          Use of symmetry is: on ; symmetry adaption is: on 
+          Maximum number of iterations: ***
+          AO basis - number of functions:    39
+                     number of shells:    14
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+          PerdewBurkeErnzerhof Exchange Functional  1.000          
+            Perdew 1991 LDA Correlation Functional  1.000 local    
+           PerdewBurkeErnz. Correlation Functional  1.000 non-local
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          Pt                  1.35      123          13.0       590
+          bq                  0.00        0           0.0         0
+          Grid pruning is: on 
+          Number of quadrature shells:   123
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters        *** iters           *** iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:        -133.10370649
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =    -117.892808
+ 1-e energy   =    -204.383063
+ 2-e energy   =      89.061683
+ HOMO         =      -0.261325
+ LUMO         =      -0.164717
+
+
+   Symmetry analysis of molecular orbitals - initial alpha
+   -------------------------------------------------------
+
+  Numbering of irreducible representations: 
+
+     1 a1g         2 a1u         3 a2g         4 a2u         5 b1g     
+     6 b1u         7 b2g         8 b2u         9 eg         10 eu      
+
+  Orbital symmetries:
+
+     1 a1g         2 a2u         3 eu          4 eu          5 a1g     
+     6 eg          7 eg          8 b2g         9 b1g        10 a1g     
+    11 a1g        12 a2u        13 eu         14 eu         15 a1g     
+    16 eg         17 eg         18 b2g        19 a1g        20 a2u     
+
+
+   Symmetry analysis of molecular orbitals - initial beta
+   ------------------------------------------------------
+
+  Numbering of irreducible representations: 
+
+     1 a1g         2 a1u         3 a2g         4 a2u         5 b1g     
+     6 b1u         7 b2g         8 b2u         9 eg         10 eu      
+
+  Orbital symmetries:
+
+     1 a1g         2 a2u         3 eu          4 eu          5 a1g     
+     6 eg          7 eg          8 b2g         9 b1g        10 a1g     
+    11 a1g        12 a2u        13 eu         14 eu         15 a1g     
+    16 eg         17 eg         18 b2g        19 a1g        20 a2u     
+
+   Time after variat. SCF:      0.2
+   Time prior to 1st pass:      0.2
+
+ Integral file          = ./ptatom.aoints.0
+ Record size in doubles =    65536    No. of integs per rec  =    43688
+ Max. records in memory =        2    Max. records in file   =  9293621
+ No. of bits per label  =        8    No. of bits per value  =       64
+
+
+ #quartets = 5.565D+03 #integrals = 5.177D+04 #direct =  0.0% #cached =100.0%
+
+
+ Grid_pts file          = ./ptatom.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     27        Max. recs in file   =  49561950
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):      104.38           104380694
+          Stack Space remaining (MW):      104.86           104857130
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1   -119.2667884537 -1.17D+02  2.49D-02  6.19D-02     0.5
+                                                     2.26D-02  4.96D-02
+ d= 0,ls=0.5,diis     2   -119.2362089300  3.06D-02  7.80D-03  1.46D-01     0.6
+                                                     7.07D-03  1.21D-01
+ d= 0,ls=0.5,diis     3   -119.2848451610 -4.86D-02  4.12D-03  2.14D-02     0.7
+                                                     3.47D-03  1.71D-02
+ d= 0,ls=0.5,diis     4   -119.2944870532 -9.64D-03  1.57D-03  2.74D-03     0.8
+                                                     1.33D-03  2.13D-03
+ d= 0,ls=0.5,diis     5   -119.2959983418 -1.51D-03  8.01D-04  6.22D-04     0.9
+                                                     7.21D-04  4.75D-04
+ d= 0,ls=0.5,diis     6   -119.2963804758 -3.82D-04  4.94D-04  2.09D-04     0.9
+                                                     4.53D-04  1.56D-04
+ d= 0,ls=0.5,diis     7   -119.2965155698 -1.35D-04  3.17D-04  7.89D-05     1.0
+                                                     2.84D-04  5.77D-05
+ d= 0,ls=0.5,diis     8   -119.2965682711 -5.27D-05  2.04D-04  3.04D-05     1.1
+                                                     1.78D-04  2.20D-05
+ d= 0,ls=0.5,diis     9   -119.2965894731 -2.12D-05  1.33D-04  1.20D-05     1.2
+                                                     1.12D-04  8.67D-06
+ d= 0,ls=0.5,diis    10   -119.2965984093 -8.94D-06  8.66D-05  4.90D-06     1.3
+                                                     7.27D-05  3.56D-06
+ d= 0,ls=0.5,diis    11   -119.2966024174 -4.01D-06  5.84D-05  2.02D-06     1.3
+                                                     4.99D-05  1.55D-06
+ d= 0,ls=0.5,diis    12   -119.2966043727 -1.96D-06  4.01D-05  8.83D-07     1.4
+                                                     3.75D-05  7.58D-07
+ d= 0,ls=0.5,diis    13   -119.2966054673 -1.09D-06  3.48D-05  3.94D-07     1.5
+                                                     3.38D-05  4.33D-07
+ d= 0,ls=0.5,diis    14   -119.2966061499 -6.83D-07  2.24D-05  2.88D-07     1.6
+                                                     2.85D-05  3.42D-07
+ d= 0,ls=0.5,diis    15   -119.2966066737 -5.24D-07  1.53D-05  2.08D-07     1.7
+                                                     2.67D-05  2.80D-07
+ d= 0,ls=0.5,diis    16   -119.2966071180 -4.44D-07  1.82D-05  1.47D-07     1.8
+                                                     2.81D-05  2.41D-07
+ d= 0,ls=0.5,diis    17   -119.2966074675 -3.50D-07  1.46D-05  2.26D-07     1.8
+                                                     2.65D-05  2.52D-07
+ d= 0,ls=0.5,diis    18   -119.2966077870 -3.19D-07  8.86D-06  2.94D-07     1.9
+                                                     2.52D-05  2.59D-07
+ d= 0,ls=0.5,diis    19   -119.2966081129 -3.26D-07  1.03D-05  2.97D-07     2.0
+                                                     2.54D-05  2.46D-07
+ d= 0,ls=0.5,diis    20   -119.2966083948 -2.82D-07  4.98D-06  3.61D-07     2.1
+                                                     2.38D-05  2.52D-07
+ d= 0,ls=0.5,diis    21   -119.2966086992 -3.04D-07  2.00D-05  3.36D-07     2.2
+                                                     2.66D-05  2.34D-07
+ d= 0,ls=0.5,diis    22   -119.2966088435 -1.44D-07  7.75D-06  6.30D-07     2.2
+                                                     2.29D-05  3.09D-07
+ d= 0,ls=0.5,diis    23   -119.2966090868 -2.43D-07  3.29D-06  6.49D-07     2.3
+                                                     2.22D-05  2.99D-07
+ d= 0,ls=0.5,diis    24   -119.2966093533 -2.67D-07  2.41D-06  6.10D-07     2.4
+                                                     2.16D-05  2.78D-07
+ d= 0,ls=0.5,diis    25   -119.2966096400 -2.87D-07  7.73D-06  5.19D-07     2.5
+                                                     2.25D-05  2.48D-07
+ d= 0,ls=0.5,diis    26   -119.2966098224 -1.82D-07  1.96D-06  6.25D-07     2.6
+                                                     2.02D-05  2.73D-07
+ d= 0,ls=0.5,diis    27   -119.2966100841 -2.62D-07  3.76D-06  5.33D-07     2.6
+                                                     2.07D-05  2.43D-07
+ d= 0,ls=0.5,diis    28   -119.2966102829 -1.99D-07  3.18D-06  5.62D-07     2.7
+                                                     1.94D-05  2.45D-07
+ d= 0,ls=0.5,diis    29   -119.2966105347 -2.52D-07  1.58D-06  4.56D-07     2.8
+                                                     1.96D-05  2.11D-07
+ d= 0,ls=0.5,diis    30   -119.2966107332 -1.99D-07  1.28D-05  4.47D-07     2.9
+                                                     2.06D-05  2.04D-07
+ d= 0,ls=0.5,diis    31   -119.2966108132 -8.00D-08  5.87D-06  6.50D-07     3.0
+                                                     1.83D-05  2.55D-07
+ d= 0,ls=0.5,diis    32   -119.2966109562 -1.43D-07  3.94D-06  6.81D-07     3.0
+                                                     1.80D-05  2.54D-07
+ d= 0,ls=0.5,diis    33   -119.2966111038 -1.48D-07  3.66D-06  6.96D-07     3.1
+                                                     1.77D-05  2.53D-07
+ d= 0,ls=0.5,diis    34   -119.2966112448 -1.41D-07  2.17D-06  7.13D-07     3.2
+                                                     1.70D-05  2.50D-07
+ d= 0,ls=0.5,diis    35   -119.2966113934 -1.49D-07  1.12D-06  7.02D-07     3.3
+                                                     1.66D-05  2.41D-07
+ d= 0,ls=0.5,diis    36   -119.2966115465 -1.53D-07  7.34D-07  6.73D-07     3.4
+                                                     1.62D-05  2.29D-07
+ d= 0,ls=0.5,diis    37   -119.2966116935 -1.47D-07  9.39D-07  6.44D-07     3.4
+                                                     1.58D-05  2.19D-07
+ d= 0,ls=0.5,diis    38   -119.2966118298 -1.36D-07  4.88D-07  6.23D-07     3.5
+                                                     1.53D-05  2.10D-07
+ d= 0,ls=0.5,diis    39   -119.2966119642 -1.34D-07  7.56D-07  5.94D-07     3.6
+                                                     1.50D-05  2.00D-07
+ d= 0,ls=0.5,diis    40   -119.2966120886 -1.24D-07  2.52D-06  5.73D-07     3.7
+                                                     1.43D-05  1.92D-07
+ d= 0,ls=0.5,diis    41   -119.2966122375 -1.49D-07  1.70D-06  4.94D-07     3.8
+                                                     1.45D-05  1.69D-07
+ d= 0,ls=0.5,diis    42   -119.2966123390 -1.01D-07  1.12D-06  5.02D-07     3.8
+                                                     1.38D-05  1.70D-07
+ d= 0,ls=0.5,diis    43   -119.2966124419 -1.03D-07  1.08D-06  4.91D-07     3.9
+                                                     1.35D-05  1.64D-07
+ d= 0,ls=0.5,diis    44   -119.2966125398 -9.80D-08  5.24D-07  4.78D-07     4.0
+                                                     1.30D-05  1.59D-07
+ d= 0,ls=0.5,diis    45   -119.2966126372 -9.74D-08  3.81D-07  4.57D-07     4.1
+                                                     1.27D-05  1.51D-07
+ d= 0,ls=0.5,diis    46   -119.2966127304 -9.32D-08  3.04D-07  4.37D-07     4.2
+                                                     1.24D-05  1.44D-07
+ d= 0,ls=0.5,diis    47   -119.2966128196 -8.92D-08  1.02D-07  4.16D-07     4.2
+                                                     1.20D-05  1.37D-07
+ d= 0,ls=0.5,diis    48   -119.2966129061 -8.65D-08  1.09D-07  3.93D-07     4.3
+                                                     1.17D-05  1.29D-07
+ d= 0,ls=0.5,diis    49   -119.2966129872 -8.11D-08  1.50D-07  3.74D-07     4.4
+                                                     1.14D-05  1.23D-07
+ d= 0,ls=0.5,diis    50   -119.2966130635 -7.63D-08  1.17D-06  3.56D-07     4.5
+                                                     1.13D-05  1.16D-07
+ d= 0,ls=0.5,diis    51   -119.2966131281 -6.46D-08  5.69D-07  3.54D-07     4.6
+                                                     1.07D-05  1.15D-07
+ d= 0,ls=0.5,diis    52   -119.2966132022 -7.41D-08  2.05D-07  3.26D-07     4.6
+                                                     1.06D-05  1.06D-07
+ d= 0,ls=0.5,diis    53   -119.2966132674 -6.52D-08  6.34D-07  3.11D-07     4.7
+                                                     1.02D-05  1.01D-07
+ d= 0,ls=0.5,diis    54   -119.2966133327 -6.54D-08  5.35D-07  2.89D-07     4.8
+                                                     9.88D-06  9.43D-08
+
+
+         Total DFT energy =     -119.296613394918
+      One electron energy =     -205.731946993838
+           Coulomb energy =      100.678759481036
+    Exchange-Corr. energy =      -11.671997310688
+ Nuclear repulsion energy =       -2.571428571429
+
+ Numeric. integr. density =       18.000000019166
+
+     Total iterative time =      4.6s
+
+
+
+                  Occupations of the irreducible representations
+                  ----------------------------------------------
+
+                     irrep           alpha         beta
+                     --------     --------     --------
+                     a1g               3.0          2.0
+                     a1u               0.0          0.0
+                     a2g               0.0          0.0
+                     a2u               1.0          1.0
+                     b1g               1.0          0.0
+                     b1u               0.0          0.0
+                     b2g               1.0          1.0
+                     b2u               0.0          0.0
+                     eg                2.0          2.0
+                     eu                2.0          2.0
+
+
+                    DFT Final Alpha Molecular Orbital Analysis
+                    ------------------------------------------
+
+ Vector    1  Occ=1.000000D+00  E=-3.636484D+00  Symmetry=a1g
+              MO Center=  0.0D+00,  0.0D+00, -6.4D-33, r^2= 2.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      1.007372  1 Pt s                  1      0.629629  1 Pt s          
+     3      0.328625  1 Pt s          
+
+ Vector    2  Occ=1.000000D+00  E=-1.935903D+00  Symmetry=eu
+              MO Center= -2.7D-16, -6.6D-17, -3.4D-16, r^2= 4.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.896216  1 Pt py                14      0.260241  1 Pt py         
+     8      0.247206  1 Pt py         
+
+ Vector    3  Occ=1.000000D+00  E=-1.935903D+00  Symmetry=eu
+              MO Center=  3.9D-16,  1.1D-16,  4.2D-16, r^2= 4.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.896216  1 Pt px                13      0.260241  1 Pt px         
+     7      0.247206  1 Pt px         
+
+ Vector    4  Occ=1.000000D+00  E=-1.887091D+00  Symmetry=a2u
+              MO Center= -1.7D-33, -1.2D-33, -1.2D-31, r^2= 4.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.895585  1 Pt pz                15      0.260531  1 Pt pz         
+     9      0.246940  1 Pt pz         
+
+ Vector    5  Occ=1.000000D+00  E=-1.365816D-01  Symmetry=b1g
+              MO Center= -2.2D-16, -8.0D-17,  1.7D-29, r^2= 9.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22     -0.727900  1 Pt dxx               25      0.727900  1 Pt dyy        
+    28     -0.236428  1 Pt dxx               31      0.236428  1 Pt dyy        
+
+ Vector    6  Occ=1.000000D+00  E=-1.073104D-01  Symmetry=b2g
+              MO Center=  3.7D-16, -9.1D-17,  1.4D-30, r^2= 9.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      1.432070  1 Pt dxy               29      0.498939  1 Pt dxy        
+
+ Vector    7  Occ=1.000000D+00  E=-9.259480D-02  Symmetry=a1g
+              MO Center= -1.3D-16,  1.0D-17, -4.7D-16, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.605571  1 Pt dzz                4     -0.457900  1 Pt s          
+    22     -0.371455  1 Pt dxx               25     -0.371455  1 Pt dyy        
+     5     -0.331959  1 Pt s                  3      0.301828  1 Pt s          
+     2      0.275088  1 Pt s                 33      0.265792  1 Pt dzz        
+     1      0.170335  1 Pt s          
+
+ Vector    8  Occ=1.000000D+00  E=-9.114356D-02  Symmetry=eg
+              MO Center=  3.1D-17,  3.4D-17,  8.6D-16, r^2= 1.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      1.037792  1 Pt dyz               24      0.967923  1 Pt dxz        
+    32      0.373780  1 Pt dyz               30      0.348616  1 Pt dxz        
+
+ Vector    9  Occ=1.000000D+00  E=-9.114356D-02  Symmetry=eg
+              MO Center= -1.0D-17,  9.7D-18,  6.0D-16, r^2= 1.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      1.037792  1 Pt dxz               26     -0.967923  1 Pt dyz        
+    30      0.373780  1 Pt dxz               32     -0.348616  1 Pt dyz        
+
+ Vector   10  Occ=1.000000D+00  E=-7.344171D-02  Symmetry=a1g
+              MO Center= -3.3D-18,  1.7D-18, -6.3D-29, r^2= 2.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.544695  1 Pt dzz                4      0.529005  1 Pt s          
+     5      0.468428  1 Pt s                  3     -0.373840  1 Pt s          
+     2     -0.314133  1 Pt s                  1     -0.198131  1 Pt s          
+    22     -0.194257  1 Pt dxx               25     -0.194257  1 Pt dyy        
+    33      0.153603  1 Pt dzz        
+
+ Vector   11  Occ=0.000000D+00  E= 9.077019D-02  Symmetry=a2u
+              MO Center=  9.6D-19,  5.5D-19,  3.2D-16, r^2= 9.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.717629  1 Pt pz                18      0.376315  1 Pt pz         
+    12     -0.202172  1 Pt pz         
+
+ Vector   12  Occ=0.000000D+00  E= 1.034831D-01  Symmetry=eu
+              MO Center=  1.6D-16, -1.4D-16, -6.5D-15, r^2= 7.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      0.567056  1 Pt py                17      0.538755  1 Pt py         
+    11     -0.246957  1 Pt py         
+
+ Vector   13  Occ=0.000000D+00  E= 1.034831D-01  Symmetry=eu
+              MO Center=  1.1D-16, -3.0D-15, -1.6D-17, r^2= 7.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      0.567056  1 Pt px                16      0.538755  1 Pt px         
+    10     -0.246957  1 Pt px         
+
+ Vector   14  Occ=0.000000D+00  E= 1.118512D-01  Symmetry=a1g
+              MO Center= -4.1D-17,  1.4D-16,  6.7D-30, r^2= 2.8D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      2.274665  1 Pt s                 34     -0.726826  1 Pt dxx        
+    37     -0.726826  1 Pt dyy                4     -0.650938  1 Pt s          
+    39     -0.567441  1 Pt dzz                5      0.434197  1 Pt s          
+    33     -0.208209  1 Pt dzz               28     -0.167008  1 Pt dxx        
+    31     -0.167008  1 Pt dyy        
+
+ Vector   15  Occ=0.000000D+00  E= 2.081995D-01  Symmetry=a1g
+              MO Center= -2.6D-16, -1.8D-16,  1.8D-13, r^2= 1.7D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      2.401196  1 Pt s                 39     -2.147425  1 Pt dzz        
+     6      1.910053  1 Pt s                 34     -1.211502  1 Pt dxx        
+    37     -1.211502  1 Pt dyy                4     -0.606609  1 Pt s          
+     3     -0.482614  1 Pt s                 28     -0.425695  1 Pt dxx        
+    31     -0.425695  1 Pt dyy               33     -0.283913  1 Pt dzz        
+
+ Vector   16  Occ=0.000000D+00  E= 2.149338D-01  Symmetry=a2u
+              MO Center= -2.2D-17, -4.5D-17, -1.8D-13, r^2= 1.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      1.319090  1 Pt pz                21     -1.120841  1 Pt pz         
+    12     -0.274033  1 Pt pz         
+
+ Vector   17  Occ=0.000000D+00  E= 2.213765D-01  Symmetry=eg
+              MO Center=  2.0D-20, -2.1D-21,  1.0D-13, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36      1.816212  1 Pt dxz               24     -0.337825  1 Pt dxz        
+    30     -0.243940  1 Pt dxz               38     -0.194186  1 Pt dyz        
+
+ Vector   18  Occ=0.000000D+00  E= 2.213765D-01  Symmetry=eg
+              MO Center= -1.3D-21, -1.2D-20, -6.4D-14, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38      1.816212  1 Pt dyz               26     -0.337825  1 Pt dyz        
+    32     -0.243940  1 Pt dyz               36      0.194186  1 Pt dxz        
+
+ Vector   19  Occ=0.000000D+00  E= 2.270074D-01  Symmetry=eu
+              MO Center= -1.5D-15,  8.9D-15, -9.8D-14, r^2= 1.3D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      1.246960  1 Pt px                19     -1.200819  1 Pt px         
+    10     -0.263319  1 Pt px         
+
+ Vector   20  Occ=0.000000D+00  E= 2.270074D-01  Symmetry=eu
+              MO Center= -3.7D-14, -6.2D-15,  6.6D-14, r^2= 1.3D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      1.246960  1 Pt py                20     -1.200819  1 Pt py         
+    11     -0.263319  1 Pt py         
+
+ Vector   21  Occ=0.000000D+00  E= 2.311980D-01  Symmetry=b2g
+              MO Center=  3.7D-14, -5.7D-15,  1.8D-28, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35      1.817052  1 Pt dxy               23     -0.336504  1 Pt dxy        
+    29     -0.215964  1 Pt dxy        
+
+ Vector   22  Occ=0.000000D+00  E= 2.390622D-01  Symmetry=a1g
+              MO Center= -5.5D-17,  3.2D-16, -1.4D-16, r^2= 1.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.542379  1 Pt s                 34     -1.413005  1 Pt dxx        
+    37     -1.413005  1 Pt dyy                6      1.099131  1 Pt s          
+     3     -0.348077  1 Pt s                 33     -0.347601  1 Pt dzz        
+     4     -0.282203  1 Pt s                 28     -0.199007  1 Pt dxx        
+    31     -0.199007  1 Pt dyy               39     -0.152683  1 Pt dzz        
+
+ Vector   23  Occ=0.000000D+00  E= 2.558020D-01  Symmetry=b1g
+              MO Center=  1.5D-15,  6.2D-15,  2.7D-29, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    34      0.894263  1 Pt dxx               37     -0.894263  1 Pt dyy        
+    22     -0.173394  1 Pt dxx               25      0.173394  1 Pt dyy        
+
+ Vector   24  Occ=0.000000D+00  E= 4.879584D-01  Symmetry=a1g
+              MO Center=  1.9D-15,  7.5D-16, -8.0D-15, r^2= 1.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      9.783254  1 Pt s                  4     -4.577435  1 Pt s          
+    34     -2.648513  1 Pt dxx               37     -2.648513  1 Pt dyy        
+    39     -2.645461  1 Pt dzz                6      1.597824  1 Pt s          
+    28     -1.223176  1 Pt dxx               31     -1.223176  1 Pt dyy        
+    33     -1.178869  1 Pt dzz                2      0.584093  1 Pt s          
+
+ Vector   25  Occ=0.000000D+00  E= 7.041860D-01  Symmetry=b1g
+              MO Center=  2.9D-17, -1.8D-17,  1.6D-33, r^2= 4.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    28      1.136021  1 Pt dxx               31     -1.136021  1 Pt dyy        
+    22     -0.654211  1 Pt dxx               25      0.654211  1 Pt dyy        
+    34     -0.525080  1 Pt dxx               37      0.525080  1 Pt dyy        
+
+
+                     DFT Final Beta Molecular Orbital Analysis
+                     -----------------------------------------
+
+ Vector    1  Occ=1.000000D+00  E=-3.613527D+00  Symmetry=a1g
+              MO Center=  4.3D-18, -4.8D-19, -1.0D-16, r^2= 2.9D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     2      1.011616  1 Pt s                  1      0.630844  1 Pt s          
+     3      0.325977  1 Pt s          
+
+ Vector    2  Occ=1.000000D+00  E=-1.901339D+00  Symmetry=eu
+              MO Center= -1.0D-16,  3.3D-16, -4.4D-16, r^2= 4.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11      0.898700  1 Pt py                14      0.254153  1 Pt py         
+     8      0.247410  1 Pt py         
+
+ Vector    3  Occ=1.000000D+00  E=-1.901339D+00  Symmetry=eu
+              MO Center= -2.5D-16,  6.7D-17,  1.3D-16, r^2= 4.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.898700  1 Pt px                13      0.254153  1 Pt px         
+     7      0.247410  1 Pt px         
+
+ Vector    4  Occ=1.000000D+00  E=-1.877165D+00  Symmetry=a2u
+              MO Center=  1.4D-16, -5.9D-17, -2.1D-16, r^2= 4.0D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.898487  1 Pt pz                15      0.257783  1 Pt pz         
+     9      0.247532  1 Pt pz         
+
+ Vector    5  Occ=1.000000D+00  E=-8.604632D-02  Symmetry=b2g
+              MO Center=  1.7D-16,  1.6D-16, -2.0D-32, r^2= 9.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    23      1.445316  1 Pt dxy               29      0.478285  1 Pt dxy        
+
+ Vector    6  Occ=1.000000D+00  E=-6.501337D-02  Symmetry=eg
+              MO Center=  2.8D-17, -7.0D-17,  2.8D-16, r^2= 1.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    26      1.329720  1 Pt dyz               24     -0.529056  1 Pt dxz        
+    32      0.456434  1 Pt dyz               30     -0.181602  1 Pt dxz        
+
+ Vector    7  Occ=1.000000D+00  E=-6.501337D-02  Symmetry=eg
+              MO Center= -3.3D-16, -1.3D-16, -9.6D-16, r^2= 1.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    24      1.329720  1 Pt dxz               26      0.529056  1 Pt dyz        
+    30      0.456434  1 Pt dxz               32      0.181602  1 Pt dyz        
+
+ Vector    8  Occ=1.000000D+00  E=-5.647226D-02  Symmetry=a1g
+              MO Center= -1.3D-16, -1.7D-16,  1.4D-15, r^2= 1.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    27      0.820374  1 Pt dzz               22     -0.414873  1 Pt dxx        
+    25     -0.414873  1 Pt dyy               33      0.286005  1 Pt dzz        
+
+ Vector    9  Occ=0.000000D+00  E=-6.058687D-02  Symmetry=b1g
+              MO Center=  4.2D-16, -1.2D-16, -8.1D-30, r^2= 9.7D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    22      0.722677  1 Pt dxx               25     -0.722677  1 Pt dyy        
+    28      0.238553  1 Pt dxx               31     -0.238553  1 Pt dyy        
+
+ Vector   10  Occ=0.000000D+00  E=-4.265506D-02  Symmetry=a1g
+              MO Center= -3.1D-17, -7.1D-17,  8.6D-17, r^2= 2.9D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.627247  1 Pt s                  5      0.623435  1 Pt s          
+     3     -0.447996  1 Pt s                  2     -0.416074  1 Pt s          
+     1     -0.255350  1 Pt s          
+
+ Vector   11  Occ=0.000000D+00  E= 1.105191D-01  Symmetry=a2u
+              MO Center=  1.9D-16,  1.4D-16, -2.5D-16, r^2= 9.7D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    21      0.771750  1 Pt pz                18      0.311339  1 Pt pz         
+    12     -0.187024  1 Pt pz         
+
+ Vector   12  Occ=0.000000D+00  E= 1.201601D-01  Symmetry=a1g
+              MO Center=  3.9D-18, -7.1D-18, -5.0D-18, r^2= 2.9D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      2.395820  1 Pt s                 34     -0.819816  1 Pt dxx        
+    37     -0.819816  1 Pt dyy                4     -0.692953  1 Pt s          
+    39     -0.680838  1 Pt dzz                5      0.574794  1 Pt s          
+    33     -0.229308  1 Pt dzz               28     -0.194184  1 Pt dxx        
+    31     -0.194184  1 Pt dyy        
+
+ Vector   13  Occ=0.000000D+00  E= 1.293802D-01  Symmetry=eu
+              MO Center=  1.3D-16,  6.7D-18, -1.4D-15, r^2= 8.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    20      0.662419  1 Pt py                17      0.435832  1 Pt py         
+    11     -0.216829  1 Pt py         
+
+ Vector   14  Occ=0.000000D+00  E= 1.293802D-01  Symmetry=eu
+              MO Center=  2.8D-17,  3.9D-16,  7.3D-15, r^2= 8.4D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    19      0.662419  1 Pt px                16      0.435832  1 Pt px         
+    10     -0.216829  1 Pt px         
+
+ Vector   15  Occ=0.000000D+00  E= 2.244733D-01  Symmetry=a1g
+              MO Center=  5.2D-17, -1.3D-16,  2.3D-14, r^2= 1.6D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      2.488926  1 Pt s                 39     -2.147088  1 Pt dzz        
+     6      1.795807  1 Pt s                 34     -1.189483  1 Pt dxx        
+    37     -1.189483  1 Pt dyy                4     -0.616322  1 Pt s          
+     3     -0.483437  1 Pt s                 28     -0.429155  1 Pt dxx        
+    31     -0.429155  1 Pt dyy               33     -0.280856  1 Pt dzz        
+
+ Vector   16  Occ=0.000000D+00  E= 2.364120D-01  Symmetry=a2u
+              MO Center=  2.8D-14,  9.1D-14, -1.7D-14, r^2= 1.1D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    18      1.338273  1 Pt pz                21     -1.085058  1 Pt pz         
+    12     -0.278587  1 Pt pz         
+
+ Vector   17  Occ=0.000000D+00  E= 2.393955D-01  Symmetry=eg
+              MO Center= -1.7D-14, -9.3D-14,  2.7D-14, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    38      1.799926  1 Pt dyz               26     -0.329667  1 Pt dyz        
+    36      0.328481  1 Pt dxz               32     -0.248170  1 Pt dyz        
+
+ Vector   18  Occ=0.000000D+00  E= 2.393955D-01  Symmetry=eg
+              MO Center= -1.1D-14,  2.0D-15, -1.6D-14, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    36      1.799926  1 Pt dxz               24     -0.329667  1 Pt dxz        
+    38     -0.328481  1 Pt dyz               30     -0.248170  1 Pt dxz        
+
+ Vector   19  Occ=0.000000D+00  E= 2.484683D-01  Symmetry=b2g
+              MO Center= -1.6D-16, -3.8D-16, -1.2D-29, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    35      1.819241  1 Pt dxy               23     -0.330324  1 Pt dxy        
+    29     -0.219477  1 Pt dxy        
+
+ Vector   20  Occ=0.000000D+00  E= 2.514975D-01  Symmetry=eu
+              MO Center=  2.6D-14, -2.0D-15,  1.9D-14, r^2= 1.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    16      1.286835  1 Pt px                19     -1.144895  1 Pt px         
+    10     -0.267079  1 Pt px         
+
+ Vector   21  Occ=0.000000D+00  E= 2.514975D-01  Symmetry=eu
+              MO Center= -4.7D-16, -6.7D-15, -2.9D-14, r^2= 1.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    17      1.286835  1 Pt py                20     -1.144895  1 Pt py         
+    11     -0.267079  1 Pt py         
+
+ Vector   22  Occ=0.000000D+00  E= 2.594933D-01  Symmetry=a1g
+              MO Center= -5.9D-18, -3.1D-17, -1.1D-14, r^2= 1.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.745088  1 Pt s                 34     -1.456908  1 Pt dxx        
+    37     -1.456908  1 Pt dyy                6      1.090865  1 Pt s          
+    33     -0.371120  1 Pt dzz                3     -0.361749  1 Pt s          
+     4     -0.355691  1 Pt s                 28     -0.217617  1 Pt dxx        
+    31     -0.217617  1 Pt dyy               39     -0.206352  1 Pt dzz        
+
+ Vector   23  Occ=0.000000D+00  E= 2.801038D-01  Symmetry=b1g
+              MO Center= -2.5D-14,  9.4D-15,  8.3D-30, r^2= 1.0D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    34     -0.902321  1 Pt dxx               37      0.902321  1 Pt dyy        
+    22      0.175701  1 Pt dxx               25     -0.175701  1 Pt dyy        
+
+ Vector   24  Occ=0.000000D+00  E= 5.079795D-01  Symmetry=a1g
+              MO Center=  2.3D-17, -3.2D-17,  3.2D-15, r^2= 1.2D+01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      9.819973  1 Pt s                  4     -4.545658  1 Pt s          
+    34     -2.629359  1 Pt dxx               37     -2.629359  1 Pt dyy        
+    39     -2.636533  1 Pt dzz                6      1.567710  1 Pt s          
+    28     -1.254415  1 Pt dxx               31     -1.254415  1 Pt dyy        
+    33     -1.211287  1 Pt dzz                2      0.602371  1 Pt s          
+
+
+   alpha - beta orbital overlaps 
+   ----------------------------- 
+
+
+   alpha      1      2      3      4      5      6      7      8      9     10
+    beta      1      2      3      4      9      5      8      7      6     10
+ overlap   1.000  0.996  0.996  1.000  1.000  1.000  0.799  0.904  0.904  0.800
+
+
+   alpha     11     12     13     14     15     16     17     18     19     20
+    beta     11     13     14     12     15     16     18     17     20     21
+ overlap   0.999  0.992  0.992  0.998  0.998  0.999  0.997  0.997  0.990  0.990
+
+
+   alpha     21     22     23     24     25     26     27     28     29     30
+    beta     19     22     23     24     29     25     26     27     28     30
+ overlap   1.000  0.999  1.000  1.000  1.000  1.000  0.934  0.934  1.000  1.000
+
+
+   alpha     31     32     33     34     35     36     37     38     39
+    beta     31     32     33     34     35     37     36     38     39
+ overlap   1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000  1.000
+
+     --------------------------
+     Expectation value of S2:  
+     --------------------------
+      <S2> =      2.0007 (Exact =     2.0000)
+
+
+ center of mass
+ --------------
+ x =   0.00000000 y =   0.00000000 z =   0.00000000
+
+ moments of inertia (a.u.)
+ ------------------
+           0.000000000000           0.000000000000           0.000000000000
+           0.000000000000           0.000000000000           0.000000000000
+           0.000000000000           0.000000000000           0.000000000000
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0      0.000000    -10.000000     -8.000000     18.000000
+
+     1   1 0 0      0.000000      0.000000      0.000000      0.000000
+     1   0 1 0      0.000000      0.000000      0.000000      0.000000
+     1   0 0 1      0.000000      0.000000      0.000000      0.000000
+
+     2   2 0 0    -17.062588    -10.897869     -6.164719      0.000000
+     2   1 1 0      0.000000      0.000000      0.000000      0.000000
+     2   1 0 1      0.000000      0.000000      0.000000      0.000000
+     2   0 2 0    -17.062588    -10.897869     -6.164719      0.000000
+     2   0 1 1      0.000000      0.000000      0.000000      0.000000
+     2   0 0 2    -18.486866    -11.250522     -7.236345      0.000000
+
+
+ Parallel integral file used       2 records with       0 large values
+
+
+ Task  times  cpu:        4.9s     wall:        8.2s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
 
                                  NWChem DFT Module
                                  -----------------
@@ -359,30 +1184,20 @@ task dft
           Schwarz screening/accCoul: 1.00D-08
 
 
-      Superposition of Atomic Density Guess
-      -------------------------------------
+ Loading old vectors from job with title :
 
- Sum of atomic energies:        -215.51935882
 
-      Non-variational initial energy
-      ------------------------------
-
- Total energy =     166.383694
- 1-e energy   =      77.163327
- 2-e energy   =      89.220368
- HOMO         =      -0.748423
- LUMO         =      -0.575774
 
 
    Symmetry analysis of molecular orbitals - initial alpha
    -------------------------------------------------------
 
 
- !! scf_movecs_sym_adapt:   14 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:   11 vectors were symmetry contaminated
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:    1 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:    8 vectors were symmetry contaminated
 
   Numbering of irreducible representations: 
 
@@ -391,21 +1206,21 @@ task dft
 
   Orbital symmetries:
 
-     1 a1g         2 t1u         3 t1u         4 t1u         5 t2g     
-     6 t2g         7 t2g         8 eg          9 eg         10 a1g     
-    11 t1u        12 t1u        13 t1u        14 a1g        15 t2g     
-    16 t2g        17 t2g        18 eg         19 eg         20 a1g     
+     1 a1g         2 t1u         3 t1u         4 t1u         5 eg      
+     6 t2g         7 eg          8 t2g         9 t2g        10 a1g     
+    11 t1u        12 t1u        13 t1u        14 a1g        15 a1g     
+    16 t1u        17 t2g        18 t2g        19 t1u        20 t1u     
 
 
    Symmetry analysis of molecular orbitals - initial beta
    ------------------------------------------------------
 
 
- !! scf_movecs_sym_adapt:   14 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:   11 vectors were symmetry contaminated
 
   Symmetry fudging
 
- !! scf_movecs_sym_adapt:    1 vectors were symmetry contaminated
+ !! scf_movecs_sym_adapt:    7 vectors were symmetry contaminated
 
   Numbering of irreducible representations: 
 
@@ -416,496 +1231,487 @@ task dft
 
      1 a1g         2 t1u         3 t1u         4 t1u         5 t2g     
      6 t2g         7 t2g         8 eg          9 eg         10 a1g     
-    11 t1u        12 t1u        13 t1u        14 a1g        15 t2g     
-    16 t2g        17 t2g        18 eg         19 eg         20 a1g     
+    11 t1u        12 a1g        13 t1u        14 t1u        15 a1g     
+    16 t1u        17 t2g        18 t2g        19 t2g        20 t1u     
 
-   Time after variat. SCF:      0.1
-   Time prior to 1st pass:      0.1
+   Time after variat. SCF:      5.0
+   Time prior to 1st pass:      5.0
+
+ Integral file          = ./ptatom.aoints.0
+ Record size in doubles =    65536    No. of integs per rec  =    43688
+ Max. records in memory =        2    Max. records in file   =  9293461
+ No. of bits per label  =        8    No. of bits per value  =       64
+
 
  #quartets = 5.565D+03 #integrals = 5.177D+04 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/ptatom.aoints.0
- Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  20842
- No. of bits per label  =      8        No. of bits per value  =     64
-
-
-File balance: exchanges=     0  moved=     0  time=   0.0
-
-
- Grid_pts file          = /home/d3y133/nwchem-releases/nwchem-merge/nwchem-dev/QA/scratchdir/ptatom.gridpts.0
+ Grid_pts file          = ./ptatom.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =      8        Max. recs in file   =    111154
+ Max. records in memory =     27        Max. recs in file   =  49561099
 
- Warning: spatial symmetry breaking in UKS:  beta =  2.42D-01
+ Grid integrated density:      18.460473502285
+ Requested integration accuracy:   0.10E-05
+ Warning: spatial symmetry breaking in UKS:  beta =  3.05D-01
 
            Memory utilization after 1st SCF pass: 
-           Heap Space remaining (MW):        0.41              412029
-          Stack Space remaining (MW):        3.01             3014242
+           Heap Space remaining (MW):      104.38           104380778
+          Stack Space remaining (MW):      104.86           104857186
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1   -118.8004648000 -1.19D+02  1.17D-01  2.01D+00     0.3
-                                                     7.29D-02  1.82D+00
- Warning: spatial symmetry breaking in UKS:  beta =  3.42D-01
- d= 0,ls=0.5,diis     2   -118.7682899781  3.22D-02  3.84D-02  1.20D+00     0.3
-                                                     3.33D-02  8.52D-01
- Warning: spatial symmetry breaking in UKS:  beta =  3.42D-01
- d= 0,ls=0.5,diis     3   -119.2688714047 -5.01D-01  9.50D-03  5.36D-02     0.4
-                                                     7.82D-03  4.55D-02
- Warning: spatial symmetry breaking in UKS:  beta =  3.38D-01
- d= 0,ls=0.5,diis     4   -119.2909040139 -2.20D-02  4.60D-03  5.63D-03     0.4
-                                                     3.91D-03  3.73D-03
- Warning: spatial symmetry breaking in UKS:  beta =  3.37D-01
- d= 0,ls=0.5,diis     5   -119.2948626806 -3.96D-03  2.21D-03  6.95D-04     0.5
-                                                     1.83D-03  4.02D-04
- Warning: spatial symmetry breaking in UKS:  beta =  3.36D-01
- d= 0,ls=0.5,diis     6   -119.2957075954 -8.45D-04  1.14D-03  1.88D-04     0.5
-                                                     9.44D-04  1.14D-04
- Warning: spatial symmetry breaking in UKS:  beta =  3.36D-01
- d= 0,ls=0.5,diis     7   -119.2959688277 -2.61D-04  6.56D-04  7.73D-05     0.5
-                                                     5.25D-04  4.81D-05
- Warning: spatial symmetry breaking in UKS:  beta =  3.36D-01
- d= 0,ls=0.5,diis     8   -119.2960628942 -9.41D-05  3.75D-04  3.52D-05     0.6
-                                                     2.97D-04  2.18D-05
- Warning: spatial symmetry breaking in UKS:  beta =  3.37D-01
- d= 0,ls=0.5,diis     9   -119.2960986728 -3.58D-05  2.19D-04  1.61D-05     0.6
-                                                     1.71D-04  9.91D-06
- Warning: spatial symmetry breaking in UKS:  beta =  3.37D-01
- d= 0,ls=0.5,diis    10   -119.2961128772 -1.42D-05  1.31D-04  7.14D-06     0.7
-                                                     1.00D-04  4.28D-06
- Warning: spatial symmetry breaking in UKS:  beta =  3.37D-01
- d= 0,ls=0.5,diis    11   -119.2961185814 -5.70D-06  8.13D-05  3.10D-06     0.7
-                                                     5.96D-05  1.79D-06
- Warning: spatial symmetry breaking in UKS:  beta =  3.37D-01
- d= 0,ls=0.5,diis    12   -119.2961209424 -2.36D-06  5.16D-05  1.25D-06     0.8
-                                                     3.58D-05  6.90D-07
- Warning: spatial symmetry breaking in UKS:  beta =  3.37D-01
- d= 0,ls=0.5,diis    13   -119.2961218938 -9.51D-07  3.34D-05  5.06D-07     0.8
-                                                     2.16D-05  2.64D-07
- Warning: spatial symmetry breaking in UKS:  beta =  3.37D-01
- d= 0,ls=0.5,diis    14   -119.2961222814 -3.88D-07  2.19D-05  2.05D-07     0.9
-                                                     1.30D-05  1.01D-07
- Warning: spatial symmetry breaking in UKS:  beta =  3.37D-01
- d= 0,ls=0.5,diis    15   -119.2961224407 -1.59D-07  1.46D-05  8.49D-08     0.9
-                                                     7.90D-06  3.86D-08
- Warning: spatial symmetry breaking in UKS:  beta =  3.37D-01
- d= 0,ls=0.5,diis    16   -119.2961225076 -6.69D-08  9.77D-06  3.54D-08     1.0
-                                                     4.79D-06  1.48D-08
+ d= 0,ls=0.0,diis     1   -119.5682838308 -1.20D+02  3.12D-03  9.69D-04     5.4
+                                                     2.08D-02  2.02D-04
+ Warning: spatial symmetry breaking in UKS:  beta =  3.06D-01
+ d= 0,ls=0.5,diis     2   -119.2960472971  2.72D-01  4.67D-04  9.12D-05     5.5
+                                                     5.02D-04  1.63D-04
+ Warning: spatial symmetry breaking in UKS:  beta =  3.07D-01
+ d= 0,ls=0.5,diis     3   -119.2961072209 -5.99D-05  1.49D-04  8.21D-06     5.5
+                                                     1.73D-04  1.03D-05
+ Warning: spatial symmetry breaking in UKS:  beta =  3.07D-01
+ d= 0,ls=0.5,diis     4   -119.2961187951 -1.16D-05  5.46D-05  8.13D-07     5.6
+                                                     9.21D-05  2.09D-06
+ Warning: spatial symmetry breaking in UKS:  beta =  3.08D-01
+ d= 0,ls=0.5,diis     5   -119.2961214545 -2.66D-06  2.70D-05  2.66D-07     5.7
+                                                     5.37D-05  5.58D-07
+ Warning: spatial symmetry breaking in UKS:  beta =  3.08D-01
+ d= 0,ls=0.5,diis     6   -119.2961222041 -7.50D-07  1.97D-05  8.79D-08     5.8
+                                                     3.13D-05  1.50D-07
+ Warning: spatial symmetry breaking in UKS:  beta =  3.08D-01
+ d= 0,ls=0.5,diis     7   -119.2961224290 -2.25D-07  1.29D-05  3.56D-08     5.9
+                                                     1.85D-05  5.41D-08
+ Warning: spatial symmetry breaking in UKS:  beta =  3.08D-01
+ d= 0,ls=0.5,diis     8   -119.2961225072 -7.82D-08  8.35D-06  1.77D-08     6.0
+                                                     1.10D-05  2.17D-08
+ Warning: spatial symmetry breaking in UKS:  beta =  3.08D-01
+ d= 0,ls=0.5,diis     9   -119.2961225374 -3.02D-08  5.41D-06  8.51D-09     6.1
+                                                     6.58D-06  8.52D-09
 
 
-         Total DFT energy =     -119.296122536012
-      One electron energy =     -208.342104303468
-           Coulomb energy =      100.710272298246
-    Exchange-Corr. energy =      -11.664290530790
+         Total DFT energy =     -119.296122549249
+      One electron energy =     -208.343837499532
+           Coulomb energy =      100.712183914198
+    Exchange-Corr. energy =      -11.664468963915
  Nuclear repulsion energy =        0.000000000000
 
- Numeric. integr. density =       18.000000000071
+ Numeric. integr. density =       18.000000000068
 
-     Total iterative time =      0.8s
+     Total iterative time =      1.1s
 
+
+
+                  Occupations of the irreducible representations
+                  ----------------------------------------------
+
+                     irrep           alpha         beta
+                     --------     --------     --------
+                     a1g               2.0          1.0
+                     a1u               0.0          0.0
+                     a2g               0.0          0.0
+                     a2u               0.0          0.0
+                     eg                2.0          1.0
+                     eu                0.0          0.0
+                     t1g               0.0          0.0
+                     t1u               3.0          3.0
+                     t2g               3.0          3.0
+                     t2u               0.0          0.0
 
 
                     DFT Final Alpha Molecular Orbital Analysis
                     ------------------------------------------
 
- Vector    1  Occ=1.000000D+00  E=-3.776030D+00  Symmetry=a1g
-              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.9D-01
+ Vector    1  Occ=1.000000D+00  E=-3.776031D+00  Symmetry=a1g
+              MO Center=  3.5D-18,  1.0D-17, -1.6D-18, r^2= 2.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     2     -1.007361  1 Pt s                  1     -0.629688  1 Pt s          
-     3     -0.328717  1 Pt s          
+     2      1.007362  1 Pt s                  1      0.629688  1 Pt s          
+     3      0.328717  1 Pt s          
 
- Vector    2  Occ=1.000000D+00  E=-2.059559D+00  Symmetry=t1u
-              MO Center= -1.0D-16,  2.2D-17,  3.0D-18, r^2= 4.0D-01
+ Vector    2  Occ=1.000000D+00  E=-2.059560D+00  Symmetry=t1u
+              MO Center= -1.2D-16,  2.5D-17, -2.0D-16, r^2= 4.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10     -0.895750  1 Pt px                13     -0.260492  1 Pt px         
-     7     -0.247061  1 Pt px         
+    10      0.704082  1 Pt px                12      0.542062  1 Pt pz         
+    13      0.204753  1 Pt px                 7      0.194196  1 Pt px         
+    15      0.157636  1 Pt pz         
 
- Vector    3  Occ=1.000000D+00  E=-2.059559D+00  Symmetry=t1u
-              MO Center= -4.6D-18, -1.6D-16,  7.9D-17, r^2= 4.0D-01
+ Vector    3  Occ=1.000000D+00  E=-2.059560D+00  Symmetry=t1u
+              MO Center=  9.5D-18, -6.3D-17, -4.5D-17, r^2= 4.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11     -0.855311  1 Pt py                12      0.266197  1 Pt pz         
-    14     -0.248732  1 Pt py                 8     -0.235907  1 Pt py         
+    12      0.708343  1 Pt pz                10     -0.548242  1 Pt px         
+    15      0.205993  1 Pt pz                 9      0.195371  1 Pt pz         
+    13     -0.159434  1 Pt px                 7     -0.151213  1 Pt px         
 
- Vector    4  Occ=1.000000D+00  E=-2.059559D+00  Symmetry=t1u
-              MO Center= -2.5D-16, -2.4D-16, -1.0D-16, r^2= 4.0D-01
+ Vector    4  Occ=1.000000D+00  E=-2.059560D+00  Symmetry=t1u
+              MO Center=  1.1D-16, -1.1D-16,  4.3D-17, r^2= 4.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12     -0.855437  1 Pt pz                11     -0.266114  1 Pt py         
-    15     -0.248769  1 Pt pz                 9     -0.235942  1 Pt pz         
+    11      0.888393  1 Pt py                14      0.258353  1 Pt py         
+     8      0.245032  1 Pt py         
 
- Vector    5  Occ=1.000000D+00  E=-2.517043D-01  Symmetry=eg
-              MO Center= -1.2D-15,  5.4D-17,  4.4D-16, r^2= 9.8D-01
+ Vector    5  Occ=1.000000D+00  E=-2.517044D-01  Symmetry=eg
+              MO Center=  8.5D-17,  2.1D-18,  2.8D-18, r^2= 9.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      0.776809  1 Pt dxx               27     -0.636353  1 Pt dzz        
-    28      0.269040  1 Pt dxx               33     -0.220394  1 Pt dzz        
+    22      0.813350  1 Pt dxx               25     -0.540467  1 Pt dyy        
+    28      0.281700  1 Pt dxx               27     -0.272884  1 Pt dzz        
+    31     -0.187188  1 Pt dyy        
 
- Vector    6  Occ=1.000000D+00  E=-2.517043D-01  Symmetry=eg
-              MO Center= -2.7D-16,  1.4D-16, -2.6D-16, r^2= 9.8D-01
+ Vector    6  Occ=1.000000D+00  E=-2.369654D-01  Symmetry=t2g
+              MO Center= -2.0D-18,  4.3D-17,  6.2D-18, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      0.815889  1 Pt dyy               27     -0.529583  1 Pt dzz        
-    22     -0.286306  1 Pt dxx               31      0.282575  1 Pt dyy        
-    33     -0.183416  1 Pt dzz        
+    26      1.320390  1 Pt dyz               23      0.524364  1 Pt dxy        
+    32      0.472631  1 Pt dyz               29      0.187695  1 Pt dxy        
 
- Vector    7  Occ=1.000000D+00  E=-2.369652D-01  Symmetry=t2g
-              MO Center=  2.2D-16, -1.7D-16, -8.7D-17, r^2= 1.0D+00
+ Vector    7  Occ=1.000000D+00  E=-2.517044D-01  Symmetry=eg
+              MO Center=  8.8D-17, -1.5D-16,  2.5D-17, r^2= 9.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      1.238094  1 Pt dxy               24      0.689031  1 Pt dxz        
-    29      0.443166  1 Pt dxy               30      0.246633  1 Pt dxz        
+    27      0.781627  1 Pt dzz               25     -0.627138  1 Pt dyy        
+    33      0.270713  1 Pt dzz               31     -0.217206  1 Pt dyy        
+    22     -0.154489  1 Pt dxx        
 
- Vector    8  Occ=1.000000D+00  E=-2.369652D-01  Symmetry=t2g
-              MO Center=  5.6D-16, -1.6D-15,  1.3D-15, r^2= 1.0D+00
+ Vector    8  Occ=1.000000D+00  E=-2.369654D-01  Symmetry=t2g
+              MO Center= -6.3D-17,  1.6D-17,  2.6D-17, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26     -0.928121  1 Pt dyz               24      0.898506  1 Pt dxz        
-    23     -0.596103  1 Pt dxy               32     -0.332214  1 Pt dyz        
-    30      0.321613  1 Pt dxz               29     -0.213371  1 Pt dxy        
+    23      1.314300  1 Pt dxy               26     -0.529314  1 Pt dyz        
+    29      0.470451  1 Pt dxy               32     -0.189467  1 Pt dyz        
 
- Vector    9  Occ=1.000000D+00  E=-2.369652D-01  Symmetry=t2g
-              MO Center=  3.8D-17,  1.9D-16, -3.6D-16, r^2= 1.0D+00
+ Vector    9  Occ=1.000000D+00  E=-2.369654D-01  Symmetry=t2g
+              MO Center= -1.2D-16, -1.7D-17, -1.5D-16, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26      1.070622  1 Pt dyz               24      0.861385  1 Pt dxz        
-    32      0.383221  1 Pt dyz               23     -0.368573  1 Pt dxy        
-    30      0.308326  1 Pt dxz        
+    24      1.414863  1 Pt dxz               30      0.506447  1 Pt dxz        
 
- Vector   10  Occ=1.000000D+00  E=-2.220448D-01  Symmetry=a1g
-              MO Center=  6.8D-17,  1.7D-16, -3.9D-17, r^2= 2.8D+00
+ Vector   10  Occ=1.000000D+00  E=-2.220445D-01  Symmetry=a1g
+              MO Center=  1.6D-16,  1.8D-16,  1.2D-16, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4     -0.697878  1 Pt s                  5     -0.579855  1 Pt s          
-     3      0.480813  1 Pt s                  2      0.416251  1 Pt s          
-     1      0.260838  1 Pt s          
+     4      0.698016  1 Pt s                  5      0.580079  1 Pt s          
+     3     -0.480877  1 Pt s                  2     -0.416311  1 Pt s          
+     1     -0.260874  1 Pt s          
 
- Vector   11  Occ=0.000000D+00  E=-3.935382D-02  Symmetry=t1u
-              MO Center=  5.6D-16,  9.0D-16, -8.5D-16, r^2= 7.4D+00
+ Vector   11  Occ=0.000000D+00  E=-3.935284D-02  Symmetry=t1u
+              MO Center=  1.5D-16,  2.0D-15, -8.8D-17, r^2= 7.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20     -0.443322  1 Pt py                17     -0.431320  1 Pt py         
-    19      0.327840  1 Pt px                16      0.318964  1 Pt px         
-    11      0.190686  1 Pt py         
+    19      0.549335  1 Pt px                16      0.534482  1 Pt px         
+    10     -0.236291  1 Pt px         
 
- Vector   12  Occ=0.000000D+00  E=-3.935382D-02  Symmetry=t1u
-              MO Center=  3.3D-16,  2.1D-15,  3.5D-15, r^2= 7.4D+00
+ Vector   12  Occ=0.000000D+00  E=-3.935284D-02  Symmetry=t1u
+              MO Center=  6.2D-17,  6.5D-17, -1.6D-17, r^2= 7.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      0.453896  1 Pt px                16      0.441607  1 Pt px         
-    20      0.330766  1 Pt py                17      0.321811  1 Pt py         
-    10     -0.195234  1 Pt px         
+    20      0.551569  1 Pt py                17      0.536655  1 Pt py         
+    11     -0.237252  1 Pt py         
 
- Vector   13  Occ=0.000000D+00  E=-3.935382D-02  Symmetry=t1u
-              MO Center=  3.1D-15,  3.5D-16, -2.0D-16, r^2= 7.4D+00
+ Vector   13  Occ=0.000000D+00  E=-3.935284D-02  Symmetry=t1u
+              MO Center= -3.5D-14, -2.0D-14, -1.8D-14, r^2= 7.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21     -0.551012  1 Pt pz                18     -0.536095  1 Pt pz         
-    12      0.237006  1 Pt pz         
+    21      0.559665  1 Pt pz                18      0.544533  1 Pt pz         
+    12     -0.240734  1 Pt pz         
 
- Vector   14  Occ=0.000000D+00  E= 4.454509D-03  Symmetry=a1g
-              MO Center=  2.5D-17,  1.7D-16,  1.4D-16, r^2= 2.3D+01
+ Vector   14  Occ=0.000000D+00  E= 4.458380D-03  Symmetry=a1g
+              MO Center= -3.9D-18,  5.4D-18,  5.2D-17, r^2= 2.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6     -1.763394  1 Pt s                  4      0.463032  1 Pt s          
-    34      0.259048  1 Pt dxx               39      0.259048  1 Pt dzz        
-    37      0.259048  1 Pt dyy                5      0.252407  1 Pt s          
+     6      1.763359  1 Pt s                  4     -0.462758  1 Pt s          
+    34     -0.259028  1 Pt dxx               37     -0.259028  1 Pt dyy        
+    39     -0.259028  1 Pt dzz                5     -0.252221  1 Pt s          
 
- Vector   15  Occ=0.000000D+00  E= 9.290723D-02  Symmetry=t2g
-              MO Center= -2.2D-13, -2.7D-13,  1.2D-13, r^2= 1.0D+01
+ Vector   15  Occ=0.000000D+00  E= 9.827611D-02  Symmetry=a1g
+              MO Center= -3.7D-16,  1.2D-15,  2.3D-16, r^2= 2.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    38     -1.165595  1 Pt dyz               35      1.101183  1 Pt dxy        
-    36     -0.849363  1 Pt dxz               26      0.224328  1 Pt dyz        
-    23     -0.211931  1 Pt dxy               24      0.163466  1 Pt dxz        
+     6      2.540369  1 Pt s                  5      2.381490  1 Pt s          
+    34     -1.785950  1 Pt dxx               37     -1.785950  1 Pt dyy        
+    39     -1.785950  1 Pt dzz                4     -0.596365  1 Pt s          
+     3     -0.539309  1 Pt s                 28     -0.399963  1 Pt dxx        
+    31     -0.399963  1 Pt dyy               33     -0.399963  1 Pt dzz        
 
- Vector   16  Occ=0.000000D+00  E= 9.290723D-02  Symmetry=t2g
-              MO Center= -7.9D-14,  8.8D-15,  6.2D-15, r^2= 1.0D+01
+ Vector   16  Occ=0.000000D+00  E= 9.199829D-02  Symmetry=t1u
+              MO Center=  5.7D-12,  3.8D-12, -2.6D-12, r^2= 1.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    36      1.478097  1 Pt dxz               35      1.049030  1 Pt dxy        
-    24     -0.284471  1 Pt dxz               23     -0.201894  1 Pt dxy        
-    30     -0.174887  1 Pt dxz        
+    16      1.035941  1 Pt px                19     -0.999808  1 Pt px         
+    17      0.692034  1 Pt py                20     -0.667897  1 Pt py         
+    10     -0.216727  1 Pt px         
 
- Vector   17  Occ=0.000000D+00  E= 9.290723D-02  Symmetry=t2g
-              MO Center=  2.2D-13, -3.2D-13,  1.5D-13, r^2= 1.0D+01
+ Vector   17  Occ=0.000000D+00  E= 9.290852D-02  Symmetry=t2g
+              MO Center=  1.0D-14,  4.9D-15,  4.6D-14, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    38     -1.388028  1 Pt dyz               35     -0.989730  1 Pt dxy        
-    36      0.621648  1 Pt dxz               26      0.267136  1 Pt dyz        
-    23      0.190481  1 Pt dxy               32      0.164230  1 Pt dyz        
+    38      1.672526  1 Pt dyz               36     -0.696330  1 Pt dxz        
+    26     -0.321824  1 Pt dyz               32     -0.197865  1 Pt dyz        
 
- Vector   18  Occ=0.000000D+00  E= 9.217272D-02  Symmetry=eg
-              MO Center=  4.6D-14,  2.3D-13,  3.8D-13, r^2= 1.0D+01
+ Vector   18  Occ=0.000000D+00  E= 9.290852D-02  Symmetry=t2g
+              MO Center= -2.9D-14, -4.5D-14, -4.1D-14, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    39     -1.044984  1 Pt dzz               34      0.559941  1 Pt dxx        
-    37      0.485044  1 Pt dyy               27      0.197481  1 Pt dzz        
+    35      1.426202  1 Pt dxy               36      1.063917  1 Pt dxz        
+    38      0.355903  1 Pt dyz               23     -0.274427  1 Pt dxy        
+    24     -0.204717  1 Pt dxz               29     -0.168724  1 Pt dxy        
 
- Vector   19  Occ=0.000000D+00  E= 9.217272D-02  Symmetry=eg
-              MO Center=  6.1D-14, -3.7D-13, -1.3D-14, r^2= 1.0D+01
+ Vector   19  Occ=0.000000D+00  E= 9.199829D-02  Symmetry=t1u
+              MO Center=  2.6D-13,  1.2D-13,  4.4D-13, r^2= 1.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    37      0.926604  1 Pt dyy               34     -0.883362  1 Pt dxx        
-    25     -0.175109  1 Pt dyy               22      0.166937  1 Pt dxx        
+    18      1.245747  1 Pt pz                21     -1.202297  1 Pt pz         
+    12     -0.260620  1 Pt pz         
 
- Vector   20  Occ=0.000000D+00  E= 9.199598D-02  Symmetry=t1u
-              MO Center= -4.1D-16,  2.3D-13, -4.3D-13, r^2= 1.3D+01
+ Vector   20  Occ=0.000000D+00  E= 9.199829D-02  Symmetry=t1u
+              MO Center= -6.7D-17,  1.7D-16,  8.3D-19, r^2= 1.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17      1.209743  1 Pt py                20     -1.167540  1 Pt py         
-    18     -0.295699  1 Pt pz                21      0.285384  1 Pt pz         
-    11     -0.253088  1 Pt py         
+    17      1.036748  1 Pt py                20     -1.000588  1 Pt py         
+    16     -0.691994  1 Pt px                19      0.667858  1 Pt px         
+    11     -0.216896  1 Pt py         
 
- Vector   21  Occ=0.000000D+00  E= 9.199598D-02  Symmetry=t1u
-              MO Center= -7.9D-14,  1.1D-13, -4.6D-14, r^2= 1.3D+01
+ Vector   21  Occ=0.000000D+00  E= 9.290852D-02  Symmetry=t2g
+              MO Center= -1.6D-12, -2.0D-12,  2.9D-12, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.226125  1 Pt px                19     -1.183350  1 Pt px         
-    10     -0.256515  1 Pt px                18      0.199195  1 Pt pz         
-    21     -0.192246  1 Pt pz         
+    36      1.294544  1 Pt dxz               35     -1.117214  1 Pt dxy        
+    38      0.607148  1 Pt dyz               24     -0.249094  1 Pt dxz        
+    23      0.214972  1 Pt dxy               30     -0.153148  1 Pt dxz        
 
- Vector   22  Occ=0.000000D+00  E= 9.199598D-02  Symmetry=t1u
-              MO Center=  5.3D-14,  3.9D-13, -1.6D-13, r^2= 1.3D+01
+ Vector   22  Occ=0.000000D+00  E= 9.217409D-02  Symmetry=eg
+              MO Center= -4.0D-12, -2.1D-12, -7.0D-13, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18     -1.194486  1 Pt pz                21      1.152815  1 Pt pz         
-    17     -0.282104  1 Pt py                20      0.272263  1 Pt py         
-    12      0.249896  1 Pt pz                16      0.218023  1 Pt px         
-    19     -0.210417  1 Pt px         
+    39      1.043301  1 Pt dzz               34     -0.585205  1 Pt dxx        
+    37     -0.458096  1 Pt dyy               27     -0.197150  1 Pt dzz        
 
- Vector   23  Occ=0.000000D+00  E= 9.827317D-02  Symmetry=a1g
-              MO Center=  5.5D-17,  3.4D-16,  3.5D-16, r^2= 2.3D+01
+ Vector   23  Occ=0.000000D+00  E= 9.217409D-02  Symmetry=eg
+              MO Center= -3.9D-13,  2.8D-13,  3.3D-15, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      2.540344  1 Pt s                  5      2.381571  1 Pt s          
-    39     -1.785960  1 Pt dzz               34     -1.785960  1 Pt dxx        
-    37     -1.785960  1 Pt dyy                4     -0.596345  1 Pt s          
-     3     -0.539337  1 Pt s                 31     -0.399970  1 Pt dyy        
-    28     -0.399970  1 Pt dxx               33     -0.399970  1 Pt dzz        
+    37      0.940218  1 Pt dyy               34     -0.866832  1 Pt dxx        
+    25     -0.177671  1 Pt dyy               22      0.163803  1 Pt dxx        
 
- Vector   24  Occ=0.000000D+00  E= 3.557829D-01  Symmetry=a1g
-              MO Center= -8.8D-17,  8.7D-16, -9.7D-17, r^2= 1.3D+01
+ Vector   24  Occ=0.000000D+00  E= 3.557846D-01  Symmetry=a1g
+              MO Center= -2.6D-16,  1.4D-15,  2.1D-16, r^2= 1.3D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      9.809661  1 Pt s                  4     -4.638215  1 Pt s          
-    39     -2.713172  1 Pt dzz               34     -2.713172  1 Pt dxx        
-    37     -2.713172  1 Pt dyy                6      1.719046  1 Pt s          
-    31     -1.193448  1 Pt dyy               28     -1.193448  1 Pt dxx        
-    33     -1.193448  1 Pt dzz                2      0.574867  1 Pt s          
+     5      9.809660  1 Pt s                  4     -4.638221  1 Pt s          
+    34     -2.713178  1 Pt dxx               37     -2.713178  1 Pt dyy        
+    39     -2.713178  1 Pt dzz                6      1.719055  1 Pt s          
+    28     -1.193446  1 Pt dxx               31     -1.193446  1 Pt dyy        
+    33     -1.193446  1 Pt dzz                2      0.574867  1 Pt s          
 
- Vector   25  Occ=0.000000D+00  E= 5.659216D-01  Symmetry=eg
-              MO Center= -3.5D-16,  5.8D-17, -7.9D-17, r^2= 4.0D+00
+ Vector   25  Occ=0.000000D+00  E= 5.659221D-01  Symmetry=eg
+              MO Center=  1.2D-16, -6.5D-17,  7.8D-18, r^2= 4.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    31      1.279801  1 Pt dyy               33     -0.865981  1 Pt dzz        
-    25     -0.754354  1 Pt dyy               37     -0.570899  1 Pt dyy        
-    27      0.510436  1 Pt dzz               28     -0.413820  1 Pt dxx        
-    39      0.386301  1 Pt dzz               22      0.243918  1 Pt dxx        
-    34      0.184598  1 Pt dxx        
+    28      1.265375  1 Pt dxx               31     -0.913132  1 Pt dyy        
+    22     -0.745853  1 Pt dxx               34     -0.564465  1 Pt dxx        
+    25      0.538229  1 Pt dyy               37      0.407335  1 Pt dyy        
+    33     -0.352243  1 Pt dzz               27      0.207623  1 Pt dzz        
+    39      0.157131  1 Pt dzz        
 
 
                      DFT Final Beta Molecular Orbital Analysis
                      -----------------------------------------
 
  Vector    1  Occ=1.000000D+00  E=-3.754385D+00  Symmetry=a1g
-              MO Center=  4.0D-18,  2.7D-19,  1.6D-18, r^2= 2.9D-01
+              MO Center=  0.0D+00,  0.0D+00,  0.0D+00, r^2= 2.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     2     -1.011047  1 Pt s                  1     -0.630652  1 Pt s          
-     3     -0.326404  1 Pt s          
+     2      1.011048  1 Pt s                  1      0.630652  1 Pt s          
+     3      0.326404  1 Pt s          
 
- Vector    2  Occ=1.000000D+00  E=-2.034648D+00  Symmetry=t1u
-              MO Center=  4.4D-26, -1.8D-27,  7.6D-27, r^2= 4.0D-01
+ Vector    2  Occ=1.000000D+00  E=-2.034649D+00  Symmetry=t1u
+              MO Center=  1.8D-17,  2.8D-17,  2.8D-17, r^2= 4.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      0.885853  1 Pt px                13      0.252280  1 Pt px         
-     7      0.243972  1 Pt px                12      0.155031  1 Pt pz         
+    10      0.897581  1 Pt px                13      0.255620  1 Pt px         
+     7      0.247202  1 Pt px         
 
- Vector    3  Occ=1.000000D+00  E=-2.034648D+00  Symmetry=t1u
-              MO Center= -5.0D-18, -3.3D-17,  2.6D-17, r^2= 4.0D-01
+ Vector    3  Occ=1.000000D+00  E=-2.034649D+00  Symmetry=t1u
+              MO Center=  7.6D-18, -2.4D-16,  6.2D-17, r^2= 4.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12     -0.885689  1 Pt pz                15     -0.252234  1 Pt pz         
-     9     -0.243927  1 Pt pz                10      0.156395  1 Pt px         
+    11      0.747079  1 Pt py                12     -0.499630  1 Pt pz         
+    14      0.212759  1 Pt py                 8      0.205752  1 Pt py         
 
- Vector    4  Occ=1.000000D+00  E=-2.034648D+00  Symmetry=t1u
-              MO Center= -6.7D-17, -1.3D-16,  6.6D-19, r^2= 4.0D-01
+ Vector    4  Occ=1.000000D+00  E=-2.034649D+00  Symmetry=t1u
+              MO Center=  7.8D-34, -1.5D-33, -1.8D-33, r^2= 4.0D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      0.898667  1 Pt py                14      0.255929  1 Pt py         
-     8      0.247501  1 Pt py         
+    12      0.745807  1 Pt pz                11      0.501736  1 Pt py         
+    15      0.212397  1 Pt pz                 9      0.205402  1 Pt pz         
 
  Vector    5  Occ=1.000000D+00  E=-2.130745D-01  Symmetry=t2g
-              MO Center=  3.0D-17, -1.5D-17, -3.5D-17, r^2= 9.9D-01
+              MO Center=  2.2D-18, -2.8D-17,  3.7D-18, r^2= 9.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24     -1.073495  1 Pt dxz               23     -0.909879  1 Pt dxy        
-    30     -0.364882  1 Pt dxz               29     -0.309269  1 Pt dxy        
-    26      0.286518  1 Pt dyz        
+    23      1.398943  1 Pt dxy               29      0.475514  1 Pt dxy        
+    26      0.277100  1 Pt dyz               24     -0.169202  1 Pt dxz        
 
  Vector    6  Occ=1.000000D+00  E=-2.130745D-01  Symmetry=t2g
-              MO Center= -3.3D-17,  8.3D-17, -6.7D-17, r^2= 9.9D-01
+              MO Center=  1.6D-16,  2.3D-20,  6.1D-17, r^2= 9.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      1.107002  1 Pt dxy               24     -0.907560  1 Pt dxz        
-    29      0.376271  1 Pt dxy               30     -0.308481  1 Pt dxz        
+    24      1.421871  1 Pt dxz               30      0.483308  1 Pt dxz        
+    23      0.187012  1 Pt dxy        
 
  Vector    7  Occ=1.000000D+00  E=-2.130745D-01  Symmetry=t2g
-              MO Center= -1.5D-17, -7.3D-17,  1.5D-17, r^2= 9.9D-01
+              MO Center= -8.8D-20, -6.3D-19,  6.3D-19, r^2= 9.9D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    26     -1.402507  1 Pt dyz               32     -0.476714  1 Pt dyz        
-    24     -0.293782  1 Pt dxz        
+    26      1.407092  1 Pt dyz               32      0.478284  1 Pt dyz        
+    23     -0.265406  1 Pt dxy        
 
- Vector    8  Occ=1.000000D+00  E=-2.019728D-01  Symmetry=eg
-              MO Center=  1.1D-17,  1.5D-17, -3.2D-17, r^2= 1.0D+00
+ Vector    8  Occ=1.000000D+00  E=-2.019731D-01  Symmetry=eg
+              MO Center=  1.3D-18,  2.9D-17,  2.9D-17, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    27     -0.824805  1 Pt dzz               25      0.483380  1 Pt dyy        
-    22      0.341425  1 Pt dxx               33     -0.279384  1 Pt dzz        
-    31      0.163734  1 Pt dyy        
+    27      0.793550  1 Pt dzz               25     -0.604099  1 Pt dyy        
+    33      0.268810  1 Pt dzz               31     -0.204635  1 Pt dyy        
+    22     -0.189450  1 Pt dxx        
 
- Vector    9  Occ=0.000000D+00  E=-2.019728D-01  Symmetry=eg
-              MO Center= -1.9D-17,  2.9D-17, -6.4D-18, r^2= 1.0D+00
+ Vector    9  Occ=0.000000D+00  E=-2.019731D-01  Symmetry=eg
+              MO Center= -7.3D-17,  1.7D-16, -4.7D-17, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22     -0.755290  1 Pt dxx               25      0.673331  1 Pt dyy        
-    28     -0.255841  1 Pt dxx               31      0.228079  1 Pt dyy        
+    22      0.806935  1 Pt dxx               25     -0.567537  1 Pt dyy        
+    28      0.273335  1 Pt dxx               27     -0.239398  1 Pt dzz        
+    31     -0.192243  1 Pt dyy        
 
- Vector   10  Occ=0.000000D+00  E=-1.843913D-01  Symmetry=a1g
-              MO Center= -7.6D-18,  1.5D-16,  7.1D-17, r^2= 2.9D+00
+ Vector   10  Occ=0.000000D+00  E=-1.843916D-01  Symmetry=a1g
+              MO Center=  1.3D-19,  2.2D-17, -2.1D-17, r^2= 2.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4     -0.632326  1 Pt s                  5     -0.628591  1 Pt s          
-     3      0.449018  1 Pt s                  2      0.417441  1 Pt s          
-     1      0.256013  1 Pt s          
+     4      0.632327  1 Pt s                  5      0.628589  1 Pt s          
+     3     -0.449018  1 Pt s                  2     -0.417441  1 Pt s          
+     1     -0.256013  1 Pt s          
 
- Vector   11  Occ=0.000000D+00  E=-1.468901D-02  Symmetry=t1u
-              MO Center=  1.5D-16, -9.0D-16, -1.4D-15, r^2= 8.2D+00
+ Vector   11  Occ=0.000000D+00  E=-1.468982D-02  Symmetry=t1u
+              MO Center= -5.3D-21,  6.9D-20,  1.3D-18, r^2= 8.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    19      0.601083  1 Pt px                16      0.431913  1 Pt px         
-    21     -0.217883  1 Pt pz                10     -0.204151  1 Pt px         
-    18     -0.156561  1 Pt pz         
+    20      0.632174  1 Pt py                17      0.454243  1 Pt py         
+    11     -0.214708  1 Pt py         
 
- Vector   12  Occ=0.000000D+00  E=-1.468901D-02  Symmetry=t1u
-              MO Center= -7.1D-17,  1.4D-15, -7.6D-16, r^2= 8.2D+00
+ Vector   12  Occ=0.000000D+00  E= 1.482087D-02  Symmetry=a1g
+              MO Center=  1.9D-18,  3.7D-18, -2.4D-18, r^2= 2.5D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    21      0.604204  1 Pt pz                18      0.434155  1 Pt pz         
-    19      0.213746  1 Pt px                12     -0.205211  1 Pt pz         
-    16      0.153589  1 Pt px         
+     6      1.971802  1 Pt s                  4     -0.508966  1 Pt s          
+    34     -0.404622  1 Pt dxx               37     -0.404622  1 Pt dyy        
+    39     -0.404622  1 Pt dzz        
 
- Vector   13  Occ=0.000000D+00  E=-1.468901D-02  Symmetry=t1u
-              MO Center=  8.7D-16,  2.6D-17,  6.9D-17, r^2= 8.2D+00
+ Vector   13  Occ=0.000000D+00  E=-1.468982D-02  Symmetry=t1u
+              MO Center= -2.7D-16, -5.1D-16, -1.8D-15, r^2= 8.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    20      0.637530  1 Pt py                17      0.458102  1 Pt py         
-    11     -0.216530  1 Pt py         
+    19      0.636226  1 Pt px                16      0.457155  1 Pt px         
+    10     -0.216084  1 Pt px         
 
- Vector   14  Occ=0.000000D+00  E= 1.482184D-02  Symmetry=a1g
-              MO Center=  6.5D-19,  5.6D-18,  1.4D-18, r^2= 2.5D+01
+ Vector   14  Occ=0.000000D+00  E=-1.468982D-02  Symmetry=t1u
+              MO Center=  4.2D-15,  4.1D-15, -3.4D-15, r^2= 8.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6     -1.971815  1 Pt s                  4      0.508974  1 Pt s          
-    34      0.404634  1 Pt dxx               39      0.404634  1 Pt dzz        
-    37      0.404634  1 Pt dyy        
+    21      0.636644  1 Pt pz                18      0.457456  1 Pt pz         
+    12     -0.216226  1 Pt pz         
 
- Vector   15  Occ=0.000000D+00  E= 1.110102D-01  Symmetry=t2g
-              MO Center= -4.3D-14,  1.3D-14,  3.3D-14, r^2= 1.0D+01
+ Vector   15  Occ=0.000000D+00  E= 1.137016D-01  Symmetry=a1g
+              MO Center=  3.5D-17, -1.7D-18,  3.6D-18, r^2= 2.1D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    35      1.200263  1 Pt dxy               36      1.148371  1 Pt dxz        
-    38     -0.737736  1 Pt dyz               23     -0.226238  1 Pt dxy        
-    24     -0.216457  1 Pt dxz        
+     5      2.624460  1 Pt s                  6      2.416015  1 Pt s          
+    34     -1.817707  1 Pt dxx               37     -1.817707  1 Pt dyy        
+    39     -1.817707  1 Pt dzz                4     -0.649260  1 Pt s          
+     3     -0.556945  1 Pt s                 28     -0.418208  1 Pt dxx        
+    31     -0.418208  1 Pt dyy               33     -0.418208  1 Pt dzz        
 
- Vector   16  Occ=0.000000D+00  E= 1.110102D-01  Symmetry=t2g
-              MO Center= -1.1D-14, -5.0D-14, -2.7D-15, r^2= 1.0D+01
+ Vector   16  Occ=0.000000D+00  E= 1.147249D-01  Symmetry=t1u
+              MO Center=  3.9D-14,  1.5D-14, -6.2D-14, r^2= 1.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    38      1.659797  1 Pt dyz               35      0.583149  1 Pt dxy        
-    36      0.456787  1 Pt dxz               26     -0.312855  1 Pt dyz        
-    32     -0.201200  1 Pt dyz        
+    18      1.147290  1 Pt pz                21     -1.037364  1 Pt pz         
+    16      0.581215  1 Pt px                19     -0.525527  1 Pt px         
+    12     -0.237366  1 Pt pz         
 
- Vector   17  Occ=0.000000D+00  E= 1.110102D-01  Symmetry=t2g
-              MO Center=  2.9D-14, -6.1D-15,  9.1D-15, r^2= 1.0D+01
+ Vector   17  Occ=0.000000D+00  E= 1.110088D-01  Symmetry=t2g
+              MO Center=  8.8D-15,  1.0D-14, -3.4D-14, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    36      1.332754  1 Pt dxz               35     -1.234078  1 Pt dxy        
-    24     -0.251211  1 Pt dxz               23      0.232611  1 Pt dxy        
-    30     -0.161556  1 Pt dxz        
+    36      1.722946  1 Pt dxz               38      0.521269  1 Pt dyz        
+    24     -0.324627  1 Pt dxz               35     -0.251801  1 Pt dxy        
+    30     -0.208813  1 Pt dxz        
 
- Vector   18  Occ=0.000000D+00  E= 1.135790D-01  Symmetry=eg
-              MO Center=  6.6D-14,  2.9D-14,  1.2D-13, r^2= 1.0D+01
+ Vector   18  Occ=0.000000D+00  E= 1.110088D-01  Symmetry=t2g
+              MO Center=  3.2D-15, -1.2D-14,  3.3D-16, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    39      1.045756  1 Pt dzz               37     -0.612869  1 Pt dyy        
-    34     -0.432886  1 Pt dxx               27     -0.197308  1 Pt dzz        
+    38      1.729673  1 Pt dyz               36     -0.482104  1 Pt dxz        
+    26     -0.325894  1 Pt dyz               35      0.281915  1 Pt dxy        
+    32     -0.209628  1 Pt dyz        
 
- Vector   19  Occ=0.000000D+00  E= 1.147259D-01  Symmetry=t1u
-              MO Center= -9.3D-15,  4.5D-14, -9.7D-14, r^2= 1.2D+01
+ Vector   19  Occ=0.000000D+00  E= 1.110088D-01  Symmetry=t2g
+              MO Center=  7.3D-14, -5.6D-14, -1.8D-14, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    18      1.277574  1 Pt pz                21     -1.155171  1 Pt pz         
-    12     -0.264321  1 Pt pz         
+    35      1.777861  1 Pt dxy               23     -0.334973  1 Pt dxy        
+    36      0.320471  1 Pt dxz               29     -0.215468  1 Pt dxy        
+    38     -0.200446  1 Pt dyz        
 
- Vector   20  Occ=0.000000D+00  E= 1.147259D-01  Symmetry=t1u
-              MO Center= -6.2D-14, -2.4D-14, -1.4D-14, r^2= 1.2D+01
+ Vector   20  Occ=0.000000D+00  E= 1.147249D-01  Symmetry=t1u
+              MO Center=  1.5D-12,  1.3D-13,  7.5D-13, r^2= 1.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    16      1.194741  1 Pt px                19     -1.080274  1 Pt px         
-    17      0.460585  1 Pt py                20     -0.416457  1 Pt py         
-    10     -0.247183  1 Pt px         
+    16      0.983748  1 Pt px                19     -0.889492  1 Pt px         
+    17     -0.683149  1 Pt py                20      0.617694  1 Pt py         
+    18     -0.470911  1 Pt pz                21      0.425792  1 Pt pz         
+    10     -0.203531  1 Pt px         
 
- Vector   21  Occ=0.000000D+00  E= 1.147259D-01  Symmetry=t1u
-              MO Center=  3.1D-14, -9.1D-15, -4.4D-14, r^2= 1.2D+01
+ Vector   21  Occ=0.000000D+00  E= 1.147249D-01  Symmetry=t1u
+              MO Center= -3.0D-13,  1.7D-14, -1.5D-13, r^2= 1.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    17     -1.194993  1 Pt py                20      1.080502  1 Pt py         
-    16      0.469944  1 Pt px                19     -0.424919  1 Pt px         
-    11      0.247236  1 Pt py         
+    17      1.089675  1 Pt py                20     -0.985270  1 Pt py         
+    16      0.592148  1 Pt px                19     -0.535412  1 Pt px         
+    18     -0.343771  1 Pt pz                21      0.310834  1 Pt pz         
+    11     -0.225446  1 Pt py         
 
- Vector   22  Occ=0.000000D+00  E= 1.135790D-01  Symmetry=eg
-              MO Center= -3.4D-16,  7.1D-16,  6.7D-16, r^2= 1.0D+01
+ Vector   22  Occ=0.000000D+00  E= 1.135778D-01  Symmetry=eg
+              MO Center= -2.2D-13,  8.3D-13, -3.5D-13, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    34     -0.957609  1 Pt dxx               37      0.853696  1 Pt dyy        
-    22      0.180638  1 Pt dxx               25     -0.161037  1 Pt dyy        
+    39      1.006116  1 Pt dzz               37     -0.765937  1 Pt dyy        
+    34     -0.240179  1 Pt dxx               27     -0.189779  1 Pt dzz        
 
- Vector   23  Occ=0.000000D+00  E= 1.137026D-01  Symmetry=a1g
-              MO Center= -1.5D-17,  4.0D-16, -7.0D-16, r^2= 2.1D+01
+ Vector   23  Occ=0.000000D+00  E= 1.135778D-01  Symmetry=eg
+              MO Center= -1.1D-12, -9.4D-13, -1.3D-13, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5     -2.624455  1 Pt s                  6     -2.416005  1 Pt s          
-    37      1.817704  1 Pt dyy               34      1.817704  1 Pt dxx        
-    39      1.817704  1 Pt dzz                4      0.649253  1 Pt s          
-     3      0.556947  1 Pt s                 33      0.418207  1 Pt dzz        
-    28      0.418207  1 Pt dxx               31      0.418207  1 Pt dyy        
+    34      1.023094  1 Pt dxx               37     -0.719548  1 Pt dyy        
+    39     -0.303546  1 Pt dzz               22     -0.192991  1 Pt dxx        
 
- Vector   24  Occ=0.000000D+00  E= 3.752962D-01  Symmetry=a1g
-              MO Center=  1.4D-18, -2.5D-17, -1.4D-17, r^2= 1.2D+01
+ Vector   24  Occ=0.000000D+00  E= 3.752956D-01  Symmetry=a1g
+              MO Center=  3.8D-18,  2.3D-17, -1.7D-17, r^2= 1.2D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5     -9.854106  1 Pt s                  4      4.605824  1 Pt s          
-    37      2.696437  1 Pt dyy               34      2.696437  1 Pt dxx        
-    39      2.696437  1 Pt dzz                6     -1.681561  1 Pt s          
-    28      1.226559  1 Pt dxx               33      1.226559  1 Pt dzz        
-    31      1.226559  1 Pt dyy                2     -0.593260  1 Pt s          
+     5      9.854109  1 Pt s                  4     -4.605823  1 Pt s          
+    34     -2.696437  1 Pt dxx               37     -2.696437  1 Pt dyy        
+    39     -2.696437  1 Pt dzz                6      1.681561  1 Pt s          
+    28     -1.226560  1 Pt dxx               31     -1.226560  1 Pt dyy        
+    33     -1.226560  1 Pt dzz                2      0.593261  1 Pt s          
 
- Vector   25  Occ=0.000000D+00  E= 5.981594D-01  Symmetry=t2g
-              MO Center=  3.1D-16, -3.5D-16,  9.7D-18, r^2= 4.0D+00
+ Vector   25  Occ=0.000000D+00  E= 5.981590D-01  Symmetry=t2g
+              MO Center= -1.0D-15,  3.8D-16, -5.6D-16, r^2= 4.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    30      1.473711  1 Pt dxz               32      1.374300  1 Pt dyz        
-    29     -1.028863  1 Pt dxy               24     -0.867021  1 Pt dxz        
-    26     -0.808535  1 Pt dyz               36     -0.649644  1 Pt dxz        
-    38     -0.605821  1 Pt dyz               23      0.605306  1 Pt dxy        
-    35      0.453545  1 Pt dxy        
+    29      2.168802  1 Pt dxy               23     -1.275962  1 Pt dxy        
+    35     -0.956053  1 Pt dxy               32      0.473086  1 Pt dyz        
+    30     -0.437686  1 Pt dxz               26     -0.278329  1 Pt dyz        
+    24      0.257502  1 Pt dxz               38     -0.208546  1 Pt dyz        
+    36      0.192941  1 Pt dxz        
 
 
    alpha - beta orbital overlaps 
@@ -913,23 +1719,23 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
    alpha      1      2      3      4      5      6      7      8      9     10
-    beta      1      2      4      3      9      8      5      6      7     10
- overlap   1.000  0.984  0.941  0.927  0.713  0.713  0.931  0.774  0.842  1.000
+    beta      1      2      4      3      9      7      8      5      6     10
+ overlap   1.000  0.825  0.697  0.870  0.999  0.837  0.999  0.839  0.997  1.000
 
 
    alpha     11     12     13     14     15     16     17     18     19     20
-    beta     13     11     12     14     17     15     16     18     22     21
- overlap   0.858  0.826  0.904  0.996  0.779  0.916  0.787  0.990  0.990  0.931
+    beta     13     11     14     12     15     21     18     19     16     20
+ overlap   0.944  0.939  0.992  0.996  0.996  0.860  0.988  0.851  0.905  0.868
 
 
    alpha     21     22     23     24     25     26     27     28     29     30
-    beta     20     19     23     24     28     29     27     26     25     30
- overlap   0.925  0.959  0.996  1.000  0.957  0.957  0.750  0.984  0.737  1.000
+    beta     17     22     23     24     29     26     27     27     28     30
+ overlap   0.858  0.935  0.935  1.000  1.000  0.828  0.690  0.693  1.000  1.000
 
 
    alpha     31     32     33     34     35     36     37     38     39
-    beta     31     33     32     34     35     36     37     38     39
- overlap   0.988  0.999  0.989  1.000  1.000  0.959  0.898  0.938  1.000
+    beta     33     31     32     34     35     37     38     36     39
+ overlap   0.993  0.998  0.992  1.000  1.000  0.910  0.992  0.915  1.000
 
      --------------------------
      Expectation value of S2:  
@@ -937,10 +1743,16 @@ File balance: exchanges=     0  moved=     0  time=   0.0
       <S2> =      2.0004 (Exact =     2.0000)
 
 
- Parallel integral file used       4 records with       0 large values
+ Parallel integral file used       2 records with       0 large values
 
 
- Task  times  cpu:        1.0s     wall:        1.1s
+ Task  times  cpu:        1.3s     wall:        2.0s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -951,11 +1763,12 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  765      765     1.63e+04 6880     2742        0        0      235     
-number of processes/call 1.03e+00 1.08e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             2.55e+07 9.06e+06 3.34e+07 0.00e+00 0.00e+00 1.88e+03
-bytes remote:            2.88e+06 1.54e+06 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 766584 bytes
+calls: 2478     2478     1.83e+05 6.75e+04 1.05e+04    0        0        0     
+number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
+bytes total:             1.87e+08 5.42e+07 1.27e+08 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 790920 bytes
+
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -966,16 +1779,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        43	        52
 	current total bytes		         0	         0
-	maximum total bytes		   1946656	  22511912
-	maximum total K-bytes		      1947	     22512
-	maximum total M-bytes		         2	        23
-
-
-                                NWChem Input Module
-                                -------------------
-
-
-
+	maximum total bytes		   3815256	  22512456
+	maximum total K-bytes		      3816	     22513
+	maximum total M-bytes		         4	        23
 
 
                                      CITATION
@@ -995,11 +1801,11 @@ MA usage statistics:
                               ----------------------
       E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T. P. Straatsma,
      M. Valiev, H. J. J. van Dam, D. Wang, E. Apra, T. L. Windus, J. Hammond,
-     J. Autschbach, P. Nichols, S. Hirata, M. T. Hackler, Y. Zhao, P.-D. Fan,
-      R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann, J. Nieplocha,
-      V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen, M. Swart,
-      Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown,
-             G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
+    J. Autschbach, F. Aquino, J. Mullin, P. Nichols, S. Hirata, M. T. Hackler,
+   Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupuis, D. M. A. Smith, K. Glaesemann,
+    J. Nieplocha, V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L. Jensen,
+      M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby,
+        E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao,
         R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell,
        D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Deegan,
         K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaffe,
@@ -1007,4 +1813,4 @@ MA usage statistics:
     X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, G. Sandrone,
        M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.
 
- Total times  cpu:        1.0s     wall:        1.2s
+ Total times  cpu:        6.2s     wall:       12.6s

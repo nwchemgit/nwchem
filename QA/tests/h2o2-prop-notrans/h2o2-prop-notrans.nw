@@ -3,7 +3,6 @@ start h2o2-prop-notrans
 
 title h2o2-prop-notrans
 
-memory 128 mb
 
 geometry units angstrom nocenter
 symmetry c1

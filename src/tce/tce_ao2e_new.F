@@ -21,6 +21,7 @@ c
 #include "errquit.fh"
 #include "tce.fh"
 #include "tce_main.fh"
+#include "inp.fh"
       integer rtdb                 ! Run-time database
       logical nodezero             ! True if node zero
       integer d_ao2e               ! AO integrals
@@ -152,7 +153,7 @@ c#endif
  9000 format(1x,'2-e (intermediate) file size = ',i15)
       call tce_filename('v2i',filename)
       if (nodezero.and.util_print('mo1e',print_default))
-     1  write(LuOut,9010) filename(1:20)
+     1  write(LuOut,9010) filename(1:inp_strlen(filename))
  9010 format(1x,'2-e (intermediate) file name = ',A)
       call createfile(filename,d_ao2e,sf_size_pq*sf_size_kl)
 c

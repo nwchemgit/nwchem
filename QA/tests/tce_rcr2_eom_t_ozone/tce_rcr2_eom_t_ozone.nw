@@ -2,8 +2,6 @@ start tce_rcr2_eom_t_ozone
 
 echo
 
-##memory 3500 mb
-
 geometry units bohr
   symmetry c2v
 O   0.0000000000        0.0000000000        0.0000000000

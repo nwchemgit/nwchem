@@ -172,8 +172,6 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np tropt-ch3nh2
 ./runtests.mpi.unix procs $np h3tr1 h3_dirdyvtst
 ./runtests.mpi.unix procs $np h2o_zts
-./runtests.mpi.unix procs $np ch4_zts
-./runtests.mpi.unix procs $np ch4cl_zts
 ./runtests.mpi.unix procs $np geom_load_xyz
 ./runtests.mpi.unix procs $np dft_sicperth2o
 ./runtests.mpi.unix procs $np h2o_hcons
@@ -184,6 +182,7 @@ echo "qmmm frequency  test  may  fail"
 ./runtests.mpi.unix procs $np hess_ch4
 ./runtests.mpi.unix procs $np h2o_frozemb
 ./runtests.mpi.unix procs $np cho_bp_props
+./runtests.mpi.unix procs $np cho_bp_zora_finite
 ./runtests.mpi.unix procs $np h2o-ssb-d-b3lyp
 ./runtests.mpi.unix procs $np cu2_m06-l
 ./runtests.mpi.unix procs $np ch3_m06-hf
@@ -217,3 +216,6 @@ endif
 echo 'This test requires 16 processors to run quickly'
 ./runtests.mpi.unix procs $np tce_polar_ccsd_big
 ./runtests.mpi.unix procs $np hess_biph
+echo 'The following 2 tests require few processors but a lot of time'
+./runtests.mpi.unix procs $np ch4_zts
+./runtests.mpi.unix procs $np ch4cl_zts

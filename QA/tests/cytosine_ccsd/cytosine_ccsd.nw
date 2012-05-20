@@ -1,6 +1,5 @@
 # $Id$
 start cytosine
-memory 1024 mb 
 
 echo
 

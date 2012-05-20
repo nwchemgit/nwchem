@@ -19,7 +19,7 @@
 # For development tree 
 RELEASE := 
 # For current release tree
-#RELEASE := 6.1
+#RELEASE := 6.1.1
 
 #
 
@@ -72,11 +72,11 @@ ifeq (,$(RELEASE))
      TOPDIR := $(NWCHEM_TOP)
      CODE_BRANCH := Development
 else
-ifeq (,$(findstring $(RELEASE),$(NWCHEM_TOP)))
-     TOPDIR := $(NWCHEM_TOP)-$(RELEASE)
-else
-     TOPDIR := $(NWCHEM_TOP)
-endif
+     ifeq (,$(findstring $(RELEASE),$(NWCHEM_TOP)))
+          TOPDIR := $(NWCHEM_TOP)-$(RELEASE)
+     else
+          TOPDIR := $(NWCHEM_TOP)
+     endif
      CODE_BRANCH := $(RELEASE)
 endif
 
@@ -141,7 +141,6 @@ NW_CORE_SUBDIRS = tools include basis geom inp input  \
 	pstat rtdb task symmetry util peigs perfm bq cons $(CORE_SUBDIRS_EXTRA)
 
 # Include the modules to build defined by 'make nwchem_config' at top level
-
 
 include $(CNFDIR)/nwchem_config.h
 #
@@ -1168,7 +1167,7 @@ endif
         FOPTIONS   = -Wextra #-Wunused #-ffast-math
         FOPTIMIZE  = -O2 -ffast-math -Wuninitialized 
         DEFINES  += -DGFORTRAN
-        _GCC46= $(shell gcc -dumpversion  2>&1|awk ' /4.6./ {print "Y";exit};/4.7./ {print "Y";exit};{print "N"}')
+        _GCC46= $(shell gfortran -dumpversion  2>&1|awk ' /4.6./ {print "Y";exit};/4.7./ {print "Y";exit};{print "N"}')
         ifeq ($(_GCC46),Y) 
         DEFINES  += -DGCC46
     endif
@@ -1297,7 +1296,7 @@ endif
          FVECTORIZE=-O3 -ffast-math -mtune=native -mfpmath=sse -msse3 -ftree-vectorize -ftree-vectorizer-verbose=1   -fprefetch-loop-arrays  -funroll-all-loops 
 #         FOPTIMIZE=-O1
 #         FVECTORIZE=-O1
-       _GCC46= $(shell gcc -dumpversion  2>&1|awk ' /4.6./ {print "Y";exit};/4.7./ {print "Y";exit};{print "N"}')
+       _GCC46= $(shell gfortran -dumpversion  2>&1|awk ' /4.6./ {print "Y";exit};/4.7./ {print "Y";exit};{print "N"}')
        ifeq ($(_GCC46),Y) 
          DEFINES  += -DGCC46
        endif
@@ -1460,6 +1459,10 @@ endif
  ifeq ($(FC),ifort)
      _FC=ifc
  endif
+  ifeq ($(FC),gfortran)
+       _FC=gfortran
+       DEFINES  += -DGFORTRAN
+  endif
   ifeq ($(_FC),ifc)
   FOPTIONS   =  -align    -mp1 -w -g -vec-report1
   ifdef  USE_GPROF
@@ -1494,6 +1497,8 @@ endif
       ifeq ($(_FC),gfortran)
 #gcc version 4.1.0 20050525 (experimental)
         LINK.f = gfortran  $(LDFLAGS) 
+        FOPTIONS   = -Wextra -ffast-math #-Wunused  
+        FOPTIMIZE  = -O2 -ffast-math -Wuninitialized
         ifeq ($(_CPU),i786)
           FOPTIONS += -march=pentium4 -mtune=pentium4
           FVECTORIZE = $(FOPTIMIZE) -O3 -ftree-vectorize 
@@ -1883,12 +1888,19 @@ endif
           FOPTIONS += -pg
           COPTIONS += -pg
           LDOPTIONS += -pg
+          LDFLAGS += -pg
         endif
      endif
 
       ifeq ($(_FC),gfortran)
      _GOT3DNOW= $(shell cat /proc/cpuinfo | egrep 3dnowext | tail -n 1 | awk ' /3dnowext/  {print "Y"}')
 #gcc version 4.1.0 20050525 (experimental)
+       ifdef  USE_GPROF
+          FOPTIONS += -pg
+          COPTIONS += -pg
+          LDOPTIONS += -pg
+          LDFLAGS += -pg
+        endif
         LINK.f = gfortran  $(LDFLAGS) 
         FOPTIONS   += -Wextra -Wuninitialized #-Wunused
         FOPTIMIZE   = -O3 
@@ -1901,7 +1913,7 @@ endif
           FOPTIONS +=  -ff2c -fno-second-underscore
         endif
         DEFINES  += -DCHKUNDFLW -DGCC4
-        _GCC46= $(shell gcc -dumpversion  2>&1|awk ' /4.6./ {print "Y";exit};/4.7./ {print "Y";exit};{print "N"}')
+        _GCC46= $(shell gfortran -dumpversion  2>&1|awk ' /4.6./ {print "Y";exit};/4.7./ {print "Y";exit};{print "N"}')
         ifeq ($(_GCC46),Y) 
           DEFINES  += -DGCC46
         endif
@@ -2116,7 +2128,7 @@ ifeq ($(TARGET),cray-sv2)
 #end of sv2
 endif
 
-ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP))
+ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP BGQ))
 #
    CORE_SUBDIRS_EXTRA = lapack blas
    ARFLAGS = urs
@@ -2126,35 +2138,52 @@ ifeq ($(TARGET),$(findstring $(TARGET),BGL BGP))
    FCONVERT = $(CPP) $(CPPFLAGS) $< > $*.f
    LDOPTIONS =  -Wl,--relax
 
-   DEFINES = -DLINUX -DXLFLINUX
-   FDEBUG  = -g -O2
-   COPTIMIZE = -g -O3 -qstrict
-   FOPTIMIZE = -g -O3 -qnoipa -qfloat=rsqrt:fltint
-   FOPTIONS = -qEXTNAME -qxlf77=leadzero -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
+   DEFINES   = -DLINUX
+   FDEBUG    = -g
+   COPTIMIZE = -g
+   FOPTIMIZE = -g
+   FOPTIONS  = -g
 
 #for BGL
-#   ifeq ($(FC),blrts_xlf)
    ifeq ($(TARGET),BGL)
-    CC     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-gcc
-    AR     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ar
-    AS     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-as
-    RANLIB = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ranlib
-    DEFINES += -DBGL
-    FOPTIMIZE += -qarch=440 -qtune=440
+    DEFINES   += -DBGML -DBGL
+    FC         = blrts_xlf
+    CC         = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-gcc
+    AR         = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ar
+    AS         = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-as
+    RANLIB     = $(BGCOMPILERS)/powerpc-bgl-blrts-gnu-ranlib
+    DEFINES   += -DXLFLINUX -DBGL
+    FOPTIMIZE += -qarch=440 -qtune=440 -qfloat=rsqrt:fltint
+    FOPTIONS   = -qEXTNAME -qxlf77=leadzero -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
    endif
 
 #for BGP
-#   ifeq ($(FC),$(findstring $(FC),bgxlf bgxlf_r))
    ifeq ($(TARGET),BGP)
-    CC     = $(BGCOMPILERS)/powerpc-bgp-linux-gcc
-    AR     = $(BGCOMPILERS)/powerpc-bgp-linux-ar
-    AS     = $(BGCOMPILERS)/powerpc-bgp-linux-as
-    RANLIB = $(BGCOMPILERS)/powerpc-bgp-linux-ranlib
-    DEFINES  += -DDCMF -DBGP -DNOFSCHECK
-    FOPTIONS += -qthreaded -qnosave -qalign=4k
-    FOPTIMIZE += -qarch=450d -qtune=450
-    COPTIMIZE += -qarch=450 -qtune=450
+    DEFINES += -DDCMF -DBGP
+    FC     = mpixlf77_r
+    CC     = mpicc
+    AR     = powerpc-bgp-linux-ar
+    AS     = powerpc-bgp-linux-as
+    RANLIB = powerpc-bgp-linux-ranlib
+    DEFINES += -DXLFLINUX
+    FOPTIONS = -qEXTNAME -qxlf77=leadzero -NQ40000 -NT80000 -NS2048 -qmaxmem=8192
+    FOPTIONS += -O3 -qstrict -qthreaded -qnosave -qalign=4k
+    FOPTIMIZE += -O3 -qarch=450d -qtune=450 -qcache=auto -qunroll=auto -qfloat=rsqrt:fltint
+    XLF11 = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
+   endif
 
+#for BGQ
+   ifeq ($(TARGET),BGQ)
+    DEFINES   += -DPAMI -DBGQ 
+    FC         = mpixlf77_r
+    CC         = mpicc
+    AR         = powerpc64-bgq-linux-ar
+    AS         = powerpc64-bgq-linux-as
+    RANLIB     = powerpc64-bgq-linux-ranlib
+    DEFINES   += -DXLFLINUX
+    FOPTIONS   = -qEXTNAME -qxlf77=leadzero -NQ40000 -NT80000 -NS2048 -qmaxmem=65536
+    FOPTIONS  += -O3 -qstrict -qthreaded -qnosave -qalign=4k -qintsize=8 
+    FOPTIMIZE += -O3 -qnoipa -qhot -qintsize=8 -qsimd=auto -qarch=qp -qtune=qp -qcache=auto -qunroll=auto -qfloat=rsqrt:fltint
     XLF11 = $(shell bgxlf -qversion  2>&1|grep Version|head -1| awk ' / 11./ {print "Y"}')
    endif
 

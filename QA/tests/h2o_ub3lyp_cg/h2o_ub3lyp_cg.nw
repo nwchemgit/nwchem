@@ -1,8 +1,6 @@
 echo
 start h2o_ub3lyp_cg
 
-memory global 40 mb stack 23 mb heap 5 mb
-
 charge 1
 
 geometry units au

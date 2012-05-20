@@ -468,7 +468,7 @@ c     For molecules, apply requested conversion of units after we have
 c     all of the information
 c     
  30   continue
-ccc      write(*,*) "ncenter=",ncenter
+cccc      write(*,*) "ncenter=",ncenter
 
 *     **** do cartesian to frac conversion here ****
       if (ecce_periodic) then
@@ -841,7 +841,7 @@ c
       do i=1,ns
         write(*,*) isel(2*i-1),isel(2*i)
       end do
-      stop
+c      stop
 #endif
       return
 998   call errquit(pname//message(1:inp_strlen(message)),
@@ -894,7 +894,9 @@ c
 c      
       if(.not.util_get_io_unit(fn))
      >  call errquit("cannot get file number",0,0)
-      open(unit=fn,status="old",form="formatted",file=filename)
+      message = "cannot open file"
+      open(unit=fn,status="old",form="formatted",file=filename,
+     &     ERR=40)
 c     initial frame counter
       ifr0 = 0
 10    continue !restart point for frame rewinding
@@ -940,6 +942,9 @@ c       process selections here
      +                          lsel)
 
         if(.not.lsel) n=n-1
+#ifdef MARAT_DEBUG      
+          write(*,*) "atom accepted",i,lsel
+#endif
       end do
 #ifdef MARAT_DEBUG      
       write(*,*) "n=",n
@@ -951,7 +956,9 @@ c       process selections here
       close(fn)
       return
 40    continue
-      call errquit(message(1:inp_strlen(message)+1)//pname,0,0)
+      call errquit(pname(1:inp_strlen(pname))//": "//
+     +             message(1:inp_strlen(message))//": "//
+     +             filename(1:inp_strlen(filename))//":",0,0)
       end
 
       subroutine geom_read_file_pdb(filename,
@@ -1090,6 +1097,140 @@ c
       integer  ifr0
       integer  is,ilo,ihi
       character*16 asel0,atag,artag
+      logical lnot
+      logical otest
+c
+      pname = "geom_selection"
+#ifdef MARAT_DEBUG      
+      write(*,*) "in test "//pname
+      write(*,*) "id,resi,tag,rtag",
+     >            id,resi,tag,rtag
+#endif      
+      atag = tag
+      artag = rtag
+      lsel = .true.
+      if(ns.eq.0) return
+c     first we check for id 
+      do is=1,ns
+      asel0=asel(is)
+      lnot = asel0(1:1).eq."-"
+      asel0=asel0(2:)
+      if(asel0.eq."id") then
+        ilo = isel(2*is-1)
+        ihi = isel(2*is)
+        if(id.ge.ilo.and.id.le.ihi) then
+          lsel = .not.lnot
+        else
+          lsel = lnot
+        end if
+        if(lsel) exit
+#ifdef MARAT_DEBUG      
+        write(*,*) "should not be here if ", lsel
+        write(*,*) "id,ilo,ihi,lsel",id,ilo,ihi,lsel
+        write(*,*) "new lsel",lsel
+#endif      
+      end if
+      end do
+      if(.not.lsel) return
+
+      do is=1,ns
+      asel0=asel(is)
+      lnot = asel0(1:1).eq."-"
+      asel0=asel0(2:)
+      if(asel0.eq."resi") then
+        ilo = isel(2*is-1)
+        ihi = isel(2*is)
+#ifdef MARAT_DEBUG      
+        write(*,*) "resi,ilo,ihi,lsel",resi,ilo,ihi,lnot
+#endif      
+        if(resi.ge.ilo.and.resi.le.ihi) then
+          lsel=.not.lnot
+        else
+          lsel = lnot
+        end if
+        if(lsel) exit
+#ifdef MARAT_DEBUG      
+        write(*,*) "new lsel",lsel
+#endif      
+      end if
+      end do
+
+      if(.not.lsel) return
+
+      do is=1,ns
+      asel0=asel(is)
+      lnot = asel0(1:1).eq."-"
+      asel0=asel0(2:)
+      if(asel0(1:5).eq."aname") then
+        if(atag.eq.asel0(6:)) then
+          lsel=.not.lnot
+        else
+          lsel = lnot
+        end if
+      end if
+      if(lsel) exit
+      message = 'lsel.and.otest 1183'
+      end do
+
+      if(.not.lsel) return
+
+      do is=1,ns
+      asel0=asel(is)
+      lnot = asel0(1:1).eq."-"
+      asel0=asel0(2:)
+      if(asel0(1:5).eq."rname") then
+        if(artag.eq.asel0(6:)) then
+          lsel=.not.lnot
+        else
+          lsel = lnot
+        end if
+      end if
+      message = 'lsel.and.otest 1201'
+      if(lsel) exit
+      end do
+
+#ifdef MARAT_DEBUG      
+      write(*,*) "out "//pname
+#endif      
+      return
+40    continue
+      call errquit(message(1:inp_strlen(message)+1)//pname,0,0)
+      end
+c
+      subroutine geom_selection1(id,
+     +                          resi,
+     +                          tag,
+     +                          rtag,
+     +                          ns,
+     +                          asel,
+     +                          isel,
+     +                          lsel)
+
+      implicit none
+#include "errquit.fh"
+#include "mafdecls.fh"
+#include "inp.fh"
+#include "util.fh"
+      integer  id
+      integer  resi
+      character*(*) tag
+      character*(*) rtag
+      integer ns
+      character*(*) asel(ns)
+      integer isel(2*ns)
+      logical lsel
+c
+      integer i
+      integer  in
+      integer na
+      integer fn
+      character*180 buffer
+      character*1 b1
+      character*72 message
+      character*30 pname
+      integer  ifr0
+      integer  is,ilo,ihi
+      character*16 asel0,atag,artag
 c
       pname = "geom_selection"
 #ifdef MARAT_DEBUG      
@@ -1115,9 +1256,15 @@ c
       else if(asel0.eq."resi") then
         ilo = isel(2*is-1)
         ihi = isel(2*is)
+#ifdef MARAT_DEBUG      
+        write(*,*) "resi,ilo,ihi,lsel",resi,ilo,ihi,lsel
+#endif      
         if(resi.ge.ilo.and.resi.le.ihi) then
           lsel=.not.lsel
         end if
+#ifdef MARAT_DEBUG      
+        write(*,*) "new lsel",lsel
+#endif      
       else if(asel0.eq."id") then
         ilo = isel(2*is-1)
         ihi = isel(2*is)
@@ -1125,7 +1272,8 @@ c
           lsel=.not.lsel
         end if
       end if
-      if(.not.lsel) exit
+      message = '.not.lsel 1289'
+      if(.not.lsel) goto 40
       end do
 #ifdef MARAT_DEBUG      
       write(*,*) "out "//pname

@@ -9,6 +9,7 @@
 #include "global.fh"
 #include "inp.fh"
 #include "util.fh"
+#include "stdio.fh"
       integer rtdb
 c
 c     Generic NWChem interface to compute the analytic hessian.  
@@ -40,6 +41,7 @@ c
 c
       double precision cpu, wall, delta_pass
       logical status
+      logical lcgmin
       character*80 prefix
       character*(nw_max_path_len) filehess
 c
@@ -49,6 +51,31 @@ c
 c
       cpu  = util_cpusec()
       wall = util_wallsec()
+c
+      if (.not.rtdb_get(rtdb, 'dft:cgmin', mt_log, 1, lcgmin))
+     &    lcgmin = .false.
+      if (lcgmin.and.(ga_nodeid().eq.0)) then
+        write(luout,*)'ERROR:'
+        write(luout,*)'======'
+        write(luout,*)
+        write(luout,*)'At present the use of the quasi Newton-Raphson'
+        write(luout,*)'solver is incompatible with Hessian'
+        write(luout,*)'calculations. Please use the following approach'
+        write(luout,*)'instead:'
+        write(luout,*)
+        write(luout,*)'   dft'
+        write(luout,*)'     cgmin'
+        write(luout,*)'   end'
+        write(luout,*)'   task dft energy'
+        write(luout,*)
+        write(luout,*)'   dft'
+        write(luout,*)'     nocgmin'
+        write(luout,*)'   end'
+        write(luout,*)'   task dft hessian'
+        call util_flush(luout)
+        call errquit('task hessian incompatible with cgmin',
+     &               0,CAPMIS_ERR)
+      endif
 c
 c     Right now only have a QM component
 c     but the calculation might be called with *doit as

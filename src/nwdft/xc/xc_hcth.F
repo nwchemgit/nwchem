@@ -682,9 +682,11 @@ Cfah with the various powers of u.
       rho = rhoa + rhob
 
       s_a2=0.d0
-      if(za.gt.tol_rho) s_a2 = za**2.D0 / rhoa**(8.D0/3.D0)
+      if(za.gt.tol_rho.and.rhoa.gt.tol_rho)
+     +   s_a2 = za**2.D0 / rhoa**(8.D0/3.D0)
       s_b2=0.d0
-      if(zb.gt.tol_rho) s_b2 = zb**2.D0 / rhob**(8.D0/3.D0)
+      if(zb.gt.tol_rho.and.rhob.gt.tol_rho)
+     +   s_b2 = zb**2.D0 / rhob**(8.D0/3.D0)
       s_avg2 = 0.5D0*(s_a2 + s_b2)
 
       u_caa = 0.2D0*s_a2/(1.D0+0.2D0*s_a2) 

@@ -272,8 +272,8 @@ c
              if(eaf_size_in_mb.ne.0) then
                 eaftype=1000000+eaf_size_in_mb*1024*1024
              else
-                eaftype=1000000+inntsize*max(1024d0,k_file_size)*
-     *          11/10
+                eaftype=1000000+(inntsize*max(1024d0,k_file_size)*
+     *          11)/10
              endif
 #else
              eaftype=EAF_RW

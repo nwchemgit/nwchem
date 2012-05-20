@@ -12,7 +12,7 @@ function usage()
  variables (see section ENVIRONMENT VARIABLES). On most platforms it should
  be enough to load modules for the compilers, and MPI libraries.
 
- The script should be run in the top level NWChem directory (e.g. nwchem-6.1,
+ The script should be run in the top level NWChem directory (e.g. nwchem-6.1.1,
  put differently the top level directory contains the directories src and
  contrib) and takes at most one argument. This way you can use it to build
  NWChem by simply invoking 
@@ -39,7 +39,7 @@ function usage()
  control:
 
  NWCHEM_TOP        -- The top level NWChem directory.
-                      Example: /home/mydir/nwchem-6.1.
+                      Example: /home/mydir/nwchem-6.1.1.
 
  NWCHEM_TARGET     -- The platform for which NWChem should be compiled. It
                       should end in "64" if the machine provides a 64-bit
@@ -50,7 +50,7 @@ function usage()
                       Examples: "all", "qm", "qmandpw md", "all python".
 
  NWCHEM_EXECUTABLE -- The full name of the NWChem executable.
-                      Example: /home/mydir/nwchem-6.1/bin/LINUX64/nwchem.
+                      Example: /home/mydir/nwchem-6.1.1/bin/LINUX64/nwchem.
 
  NWCHEM_NOVERSION  -- By default a routine listing the version numbers of all
                       source code files will be included in the file
@@ -114,7 +114,7 @@ function usage()
  to have the same value, either 4 or 8, to successfully build NWChem.
 
  Huub van Dam
- \$Id: build_nwchem 22155 2012-03-14 21:03:15Z d3y133 $
+ \$Id: build_nwchem 22329 2012-04-25 00:24:32Z d3y133 $
 EOF
 }
 declare -a LIST_COMPFLAGS
@@ -142,9 +142,9 @@ function get_mpi_include ()
    fi
    if [ ${result} -ne 0 ] ; then
      #
-     # MPICH2 and MVAPICH2 support -compile-info
+     # MPICH2 and MVAPICH2 support -link-info
      #
-     inlist="`mpif90 -show`"
+     inlist="`mpif90 -link-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
@@ -170,9 +170,9 @@ function get_mpi_link ()
    # and returns them as a list for a link line.
    # E.g.: /usr/lib -L/usr/local/lib
    #
-   # MPICH2 and MVAPICH2 support -link-info
+   # most support -show
    #
-   inlist="`mpif90 -link-info`"
+   inlist="`mpif90 -show`"
    result=$?
    if [ ${result} -ne 0 ] ; then
      #
@@ -183,9 +183,9 @@ function get_mpi_link ()
    fi
    if [ ${result} -ne 0 ] ; then
      #
-     # HPMPI supports -show
+     # Otherwise try -link-info
      #
-     inlist="`mpif90 -show`"
+     inlist="`mpif90 -link-info`"
      result=$?
    fi
    if [ ${result} -ne 0 ] ; then
@@ -1031,9 +1031,26 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
     fi
   fi
 fi
+if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
+  if [ -d /dev/infiniband ] ; then
+    # There seems to be an infiniband network on this machine
+    export ARMCI_NETWORK="OPENIB"
+  fi
+fi
 if [ "${ARMCI_NETWORK}" == "OPENIB" ] ; then
   if [ ${#IB_LIB} -eq 0 ]; then
-    export IB_LIB="-libverbs"
+    if [ -f /usr/lib64/libibverbs.so ] ; then
+      export IB_LIB="/usr/lib64"
+    elif [ -f /usr/lib/libibverbs.so ] ; then
+      export IB_LIB="/usr/lib"
+    elif [ -f /usr/lib64/libibverbs.a ] ; then
+      export IB_LIB="/usr/lib64"
+    elif [ -f /usr/lib/libibverbs.a ] ; then
+      export IB_LIB="/usr/lib"
+    else
+      echo "ERROR: Infiniband library files not in expected location"
+      exit 1
+    fi
   fi
   if [ ${#IB_INCLUDE} -eq 0 ]; then
     if [ -d /usr/include/infiniband ] ; then
@@ -1043,18 +1060,8 @@ if [ "${ARMCI_NETWORK}" == "OPENIB" ] ; then
       exit 1
     fi
   fi
-fi
-if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
-  if [ -d /dev/infiniband ] ; then
-    # There seems to be an infiniband network on this machine
-    export ARMCI_NETWORK="OPENIB"
-    export IB_LIB="-libverbs"
-    if [ -d /usr/include/infiniband ] ; then
-      export IB_INCLUDE="/usr/include/infiniband"
-    else
-      echo "ERROR: Infiniband include files not in expected location"
-      exit 1
-    fi
+  if [ ${#IB_LIB_NAME} -eq 0 ]; then
+    export IB_LIB_NAME="-libverbs"
   fi
 fi
 if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
@@ -1084,7 +1091,7 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
   result=$?
   if [ ${result} -ne 0 ] ; then
     # Compiling with multi-threaded support did not work, so no hope here
-    export ARMCI_NETWORK=""
+    export ARMCI_NETWORK=SOCKETS
   else
     output=`./mpi_threads$$.x`
     result=$?
@@ -1130,7 +1137,6 @@ if [ ${#LIBMPI} -eq 0 ] ; then
   if [ $? -ne 0 ] ; then
     unset LIBMPI
   fi
-  LIBMPI="${LIBMPI} ${IB_LIB}"
 fi
 if [ ${#MPI_F90} -eq 0 ] ; then
   MPI_F90=`get_mpi_fortran`
@@ -1176,6 +1182,8 @@ if [ ${#NWCHEM_OS} -eq 0 ] ; then
       export NWCHEM_OS=MACX
       export BLAS_LIB=" " # At present Mac BLAS/LAPACK libraries fail for large matrices so we switch the code to use the internal implementations
       export LAPACK_LIB=" " # At present Mac BLAS/LAPACK libraries fail for large matrices so we switch the code to use the internal implementations
+      echo "BLAS and LAPACK libraries for MACX fail for large matrices apparently."
+      echo "Hence use internal source code for these libraries."
     elif [ ${NWCHEM_OS} == "AIX" ] ; then
       export NWCHEM_OS=IBM
     elif [ `expr match ${NWCHEM_OS} CYGWIN` != "0" ] ; then
@@ -1307,11 +1315,18 @@ fi
 # Work out whether BLAS, LAPACK and SCALAPACK are compatible and based on that
 # what we are actually going to use.
 #
+echo "=== Initial guesses for linear algebra libraries ==="
+echo "BLAS      = " ${BLAS_LIB} " integer-size = " ${BLAS_SIZE}
+echo "LAPACK    = " ${LAPACK_LIB} " integer-size = " ${LAPACK_SIZE}
+echo "SCALAPACK = " ${SCALAPACK_LIB} " integer-size = " ${SCALAPACK_SIZE}
+echo "=== Working out how to proceed ====================="
 if [ ${#SCALAPACK_LIB} -eq 0 ] ; then
   # No ScaLAPACK found so worry only about BLAS and LAPACK
+  echo "No ScaLAPACK found, so no ScaLAPACK will be used"
   if [ ${LAPACK_SIZE} -ne ${BLAS_SIZE} ] ; then
     # So at least one of LAPACK and BLAS has to fall back to source code
     # and integer*8.
+    echo "BLAS and LAPACK integer sizes do not match, dropping the integer size 4 library"
     if [ ${BLAS_SIZE} -eq 4 ] ; then
       export BLAS_LIB=""
       export BLAS_SIZE=8
@@ -1320,9 +1335,12 @@ if [ ${#SCALAPACK_LIB} -eq 0 ] ; then
       export LAPACK_LIB=""
       export LAPACK_SIZE=8
     fi
+  else
+    echo "BLAS and LAPACK are OK"
   fi
 else
   if [[ ( ${LAPACK_SIZE} -ne ${BLAS_SIZE} ) || ( ${SCALAPACK_SIZE} -ne ${BLAS_SIZE} ) ]] ; then
+    echo "BLAS, LAPACK and ScaLAPACK integer sizes do not match, dropping the integer size 4 libraries"
     if [ ${BLAS_SIZE} -eq 4 ] ; then
       export BLAS_LIB=""
       export BLAS_SIZE=8
@@ -1335,6 +1353,8 @@ else
       export SCALAPACK_LIB=""
       export SCALAPACK_SIZE=8
     fi
+  else
+    echo "BLAS, LAPACK and ScaLAPACK are OK"
   fi
 fi
 if [ "${BLAS_LIB}" == " " ] ; then
@@ -1381,6 +1401,7 @@ else
 fi
 echo "NWCHEM_TOP    =" ${NWCHEM_TOP}
 echo "NWCHEM_TARGET =" ${NWCHEM_TARGET}
+echo "USE_MPI       =" ${USE_MPI}
 echo "MPI_INCLUDE   =" ${MPI_INCLUDE}
 echo "MPI_LIB       =" ${MPI_LIB}
 echo "LIBMPI        =" ${LIBMPI}
@@ -1388,8 +1409,15 @@ echo "MPI_F90       =" ${MPI_F90}
 echo "MPI_CC        =" ${MPI_CC}
 echo "MPI_CXX       =" ${MPI_CXX}
 echo "ARMCI_NETWORK =" ${ARMCI_NETWORK}
+echo "MSG_COMMS     =" ${MSG_COMMS}
 if [ ${#IB_INCLUDE} -ne 0 ] ; then
   echo "IB_INCLUDE    =" ${IB_INCLUDE}
+fi
+if [ ${#IB_LIB} -ne 0 ] ; then
+  echo "IB_LIB        =" ${IB_LIB}
+fi
+if [ ${#IB_LIB_NAME} -ne 0 ] ; then
+  echo "IB_LIB_NAME   =" ${IB_LIB_NAME}
 fi
 if [ ${#BLASOPT} -ne 0 ] ; then
   echo "BLASOPT       =" ${BLASOPT} 
@@ -1607,6 +1635,8 @@ if [ ${#BLASOPT} -eq 0 ] ; then
   fi
   echo "BLASOPT from GA = " ${BLASOPT}
 fi
+echo "=== before    NWChem ==="
+echo "BLASOPT =" ${BLASOPT}
 echo "=== configure NWChem ==="
 if [ "x${option}" != "xrealclean" ]; then
   make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" nwchem_config

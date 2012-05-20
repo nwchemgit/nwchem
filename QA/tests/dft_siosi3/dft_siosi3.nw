@@ -1,7 +1,6 @@
 title siosi3
 
 start siosi3_64
-memory 140 mb
 echo
 
 geometry units au

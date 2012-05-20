@@ -1,8 +1,6 @@
 echo
 start h2o_diag_to_cg_dat
 
-memory global 40 mb stack 23 mb heap 5 mb
-
 geometry units au
  O 0       0        0
  H 0       1.430   -1.107

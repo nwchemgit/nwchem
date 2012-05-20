@@ -1184,6 +1184,7 @@ c For * input, directly check exceptions list
 c For aa*, first check if tag_to_add matches star tag itself
 c For Bq, if B* is used and geometry tag is Bq, skip, only when Bq* 
 c is used we need to go on
+c Skip and do not load a basis for dummy center X
 c
               if (inp_contains(.true.,'*',star_tag(istar),ilen)) then
                  if (ilen .gt. 1) then
@@ -1192,6 +1193,9 @@ c
                  endif
                  if (inp_compare(.false.,'Bq',tag_to_add(1:2)).and..not.
      &               inp_compare(.false.,'Bq',star_tag(istar)(1:2))) 
+     &               goto 00011
+                 if (inp_compare(.false.,'X',tag_to_add(1:1)).and..not.
+     &               inp_compare(.false.,'Xe',tag_to_add(1:2))) 
      &               goto 00011
               endif
 c

@@ -2,8 +2,6 @@ start tce_cr_eom_t_ch_rohf
 
 echo
 
-##memory 1824 mb
-
 geometry units angstrom
 symmetry c2v
 C   0.0000000000   0.0000000000   0.0000000000

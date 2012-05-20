@@ -2,8 +2,6 @@ echo
 
 start tce_benzene_2emet_1
 
-#memory stack 1700 mb heap 300 mb global 1700 mb
-
 geometry units angstrom
  symmetry d2h
  C               0.000    1.390    0.000

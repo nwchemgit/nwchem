@@ -3,8 +3,6 @@ title "h2o ssb-d-dft and b3lyp"
 echo
 start h2o-ssb-d-b3lyp
 
-memory 500 mb
-
 geometry units au
  O 0       0        0
  H 0       1.430   -1.107

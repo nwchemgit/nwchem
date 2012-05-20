@@ -1,11 +1,18 @@
 echo
 start ptatom
 
-memory global 40 mb stack 23 mb heap 5 mb
-
-geometry units au
+geometry pt units au
  symmetry oh
  Pt 0       0        0
+end
+
+geometry pt-bq units au
+#symmetry oh
+ Pt  0       0        0
+ bq  0       7        0   charge -0.25
+ bq  0      -7        0   charge -0.25
+ bq  7       0        0   charge -0.25
+ bq -7       0        0   charge -0.25
 end
 
 BASIS "ao basis" PRINT
@@ -76,6 +83,20 @@ dft
  odft
  xc xpbe96 cpbe96
  iterations 1000
+end
+
+set geometry pt-bq
+charge -1
+dft
+  vectors input atomic output pt.mos
+end
+
+task dft
+
+set geometry pt
+charge 0
+dft
+  vectors input pt.mos
 end
 
 task dft

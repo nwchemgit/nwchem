@@ -1,9 +1,6 @@
 echo
 title "GGA testing - fails on Bassi"
 
-
-#memory 950 mb
-
 start ch3cl.pspw
 
 charge 0

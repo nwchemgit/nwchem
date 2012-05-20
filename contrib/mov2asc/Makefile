@@ -41,8 +41,11 @@ else
 endif
 LDFLAGS = -L../../src/tools/install/lib -lga -larmci	# Needs MA library
 ifeq ($(USE_MPI),y)
-LDFLAGS += $(patsubst -L-L%,-L%,${MPI_LIB} ${LIBMPI})
 LDFLAGS += -L../../lib/${NWCHEM_TARGET} -lnwcutil
+LDFLAGS += $(patsubst -L-L%,-L%,-L${MPI_LIB} ${LIBMPI})
+endif
+ifneq ($(IB_LIB),)
+LDFLAGS += $(patsubst -L-L%,-L%,-L${IB_LIB} ${IB_LIB_NAME})
 endif
 
 all:    mov2asc asc2mov

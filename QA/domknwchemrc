@@ -23,7 +23,7 @@ export NWCHEM_NWPW_LIBRARY="${here}/../src/nwpw/libraryps/"
 export NWCHEM_BASIS_LIBRARY="${here}/../src/basis/libraries/"
 export NWCHEM_SCRATCH_DIR="${here}/scratchdir"
 export NWCHEM_PERMANENT_DIR="${here}/scratchdir"
-export NWCHEM_MEMORY_TOTAL=65536000 # 500 MB
+#export NWCHEM_MEMORY_TOTAL=65536000 # 500 MB
 echo "# By default use AMBER force field"                   >> ~/.nwchemrc
 echo "ffield amber"                                         >> ~/.nwchemrc
 echo "# For both AMBER and CHARMM :"                        >> ~/.nwchemrc

@@ -375,6 +375,8 @@ ifneq ($(LAPACK_LIB),)
     else
         MAYBE_LAPACK = --with-lapack="$(strip $(LAPACK_LIB))"
     endif
+else
+    MAYBE_LAPACK = --without-lapack
 endif
 
 ifneq ($(SCALAPACK_LIB),)
@@ -390,6 +392,12 @@ ifneq ($(SCALAPACK),)
         MAYBE_SCALAPACK = --with-scalapack8="$(strip $(SCALAPACK))"
     else
         MAYBE_SCALAPACK = --with-scalapack="$(strip $(SCALAPACK))"
+    endif
+endif
+
+ifeq ($(SCALAPACK_LIB),)
+    ifeq ($(SCALAPACK),)
+        MAYBE_SCALAPACK = --without-scalapack
     endif
 endif
 

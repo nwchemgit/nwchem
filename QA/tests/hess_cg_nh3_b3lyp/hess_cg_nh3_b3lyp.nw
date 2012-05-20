@@ -29,5 +29,4 @@ dft
   mult 1
 end
 
-task dft hessian
-
+task dft freq

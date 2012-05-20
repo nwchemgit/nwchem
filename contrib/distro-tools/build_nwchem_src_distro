@@ -52,15 +52,15 @@ fi
 # Make sure we include the Global Arrays
 #
 echo -n "Check for Global Arrays... "
-if [ -d ${target}/src/tools/global ] ; then
+if [ -d ${target}/src/tools/ga-5-1 ] ; then
   echo "OK"
 else
   echo "No Global Arrays."
   echo "Running get-tools to get them..."
-  pushd ${target}/src/tools/global
+  pushd ${target}/src/tools/ga-5-1
   ./get-tools
   popd
-  if [ -d ${target}/src/tools/global ] ; then
+  if [ -d ${target}/src/tools/ga-5-1 ] ; then
     echo "Retrieved Global Arrays"
   else
     echo "Failed to get Global Arrays. Aborting..."

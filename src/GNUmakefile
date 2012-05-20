@@ -1,6 +1,8 @@
 
 # $Id$
 TARGET = $(NWCHEM_TARGET)
+include ./tools/armci/config/makecoms.h  
+include ./tools/armci/config/makemp.h  
 include config/makefile.h
 
   SUBDIRS =  $(NWSUBDIRS)
@@ -152,14 +154,9 @@ cleanDEP:
 	done
 	@/bin/rm -f dependencies
 
-sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64: 
-ifeq ($@,64_to_32)
-	-$(RM) 32_to_64
-endif
-ifeq ($@,32_to_64)
-	-$(RM) 64_to_32
-endif
+sngl_to_dbl dbl_to_sngl 64_to_32 32_to_64:
 	@$(MAKE) directories
+	@$(MAKE) clear_$@
 	for dir in $(SUBDIRS); do \
 		$(MAKE)	-C $$dir $@ || exit 1 ;  \
 	done
@@ -170,6 +167,18 @@ ifeq ($(TARGET),CRAY-T3D)
 	$(MAKE) cleanDEP
 endif        
 	touch $@
+
+clear_64_to_32:
+	-$(RM) 32_to_64
+
+clear_32_to_64:
+	-$(RM) 64_to_32
+
+clear_sngl_to_dbl:
+	-$(RM) dbl_to_sngl
+
+clear_dbl_to_sngl:
+	-$(RM) sngl_to_dbl
 #
 # This rule to make necessary subdirectories in lib and bin (normally)
 #

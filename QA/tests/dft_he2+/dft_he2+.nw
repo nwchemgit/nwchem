@@ -2,9 +2,6 @@ echo
 
 title "he2+ hcth functional"
 
-memory 128 mb
-#memory global 73 mb stack 20 mb heap 5 mb
-
 start he2+
 
 geometry units angstrom print

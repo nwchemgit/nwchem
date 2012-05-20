@@ -1,0 +1,33 @@
+
+echo
+start cho_bp_zora_finite
+title cho_bp_zora_finite
+
+memory total 800 stack 400 heap 50 global 350 mb
+
+geometry noautoz units angstrom nocenter nucleus finite
+symmetry c1
+  C    +10.00000000    +20.00000000    +30.00000000
+  O    +11.18337200    +20.00000000    +30.00000000
+  H     +9.36848179    +20.94387462    +30.00000000
+end
+
+basis
+"*" library 6-311G**
+end
+
+charge 0
+
+relativistic
+  zora on
+  zora:cutoff 1d-30
+end
+
+dft
+odft
+mult 2
+direct
+xc becke88 perdew86
+end
+
+task dft

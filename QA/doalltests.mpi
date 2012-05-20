@@ -18,6 +18,9 @@ export NWCHEM_TARGET=LINUX64
 export NWCHEM_TEST=${NWCHEM_TOP}/QA/tests
 export NWCHEM_EXECUTABLE=$NWCHEM_TOP/bin/$NWCHEM_TARGET/nwchem
 nproc=4
+if [ "$1" != "" ] ; then
+  nproc=$1
+fi
 . ./domknwchemrc
 status=$?
 if [[ $status != 0 ]]; then

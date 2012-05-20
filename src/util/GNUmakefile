@@ -172,6 +172,7 @@ endif
               nw_inp_from_file.o \
               bgj.o movecs_ecce.o\
               get_density.o moeig_read.o\
+              util_file_copy.o \
               util_debug.o \
               util_erf.o  \
               ga_it2.o \
@@ -271,7 +272,7 @@ smallversion:	../config/nwchem_config.h
 		awk -f ids.awk > util_version.F
 	smallversion.pl
 shortversion:	../config/nwchem_config.h
-	./shortsrc
+	-$(RM) util_version.F
 
 speechserver:	speechserver.c udp.c
 	$(CC) $(LDFLAGS) -o $@ $^ $(LIBS)
@@ -323,3 +324,6 @@ jobtime_pbs.pl:
 $(BINDIR)/jobtime_pbs.pl:	jobtime_pbs.pl
 	/bin/cp $^ $@
 endif
+
+clean:
+	-$(RM) util_version.F

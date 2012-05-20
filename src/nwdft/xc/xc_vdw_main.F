@@ -1,5 +1,5 @@
 c
-c     $Id: xc_vdw.F 21530 2011-11-15 17:52:06Z d3p852 $
+c     $Id: xc_vdw_main.F 22355 2012-04-28 04:32:36Z jhammond $
 c
       subroutine xc_vdw_der(s6,s8,sr6,sr8,n,x,z,force)
 c
@@ -39,24 +39,24 @@ c
             force(1,A)=0d0
             force(2,A)=0d0
             force(3,A)=0d0
-            if(z(A).ne.0) then
-            do j=1,n
-               if(A.ne.j) then
-                  rAj=sqrt(
+            if (Z(A).ne.0) then
+              do j=1,n
+                 if(A.ne.j) then
+                    rAj=sqrt(
      +                 (x(1,A)-x(1,j))**2 +
      +                 (x(2,A)-x(2,j))**2 +
      +                 (x(3,A)-x(3,j))**2)
-                  r0aj=r0(z(A))+r0(z(j))
-                  ff= fdmp(rAj,r0aj)
-                  ff1= f1dmp(rAj,r0aj,ff)
-                  rr=c6ij_sk(A,j,z)/(rAj**6)*
-     *             ((-6d0*ff/rAj)+ff1)
-                  do i=1,3
-                     drAjdxa=(x(i,A)-x(i,j))/rAj
-                     force(i,A)=force(i,A)-rr*drAjdxa
-                  enddo
-               endif
-            enddo
+                    r0aj=r0(z(A))+r0(z(j))
+                    ff= fdmp(rAj,r0aj)
+                    ff1= f1dmp(rAj,r0aj,ff)
+                    rr=c6ij_sk(A,j,z)/(rAj**6)*
+     *               ((-6d0*ff/rAj)+ff1)
+                    do i=1,3
+                       drAjdxa=(x(i,A)-x(i,j))/rAj
+                       force(i,A)=force(i,A)-rr*drAjdxa
+                    enddo
+                 endif
+              enddo
             endif
          enddo
          if(abs(s6-1d0).gt.1d-9) 
@@ -76,11 +76,11 @@ c
          call crd_nr_der(n,x,z,dbl_mb(k_cnij),dbl_mb(k_cnijk))
 c
          do A=1,n
-            force(1,A)=0.0d0
-            force(2,A)=0.0d0
-            force(3,A)=0.0d0
-            if(z(A).ne.0) then
-            do j=1,n
+           force(1,A)=0.0d0
+           force(2,A)=0.0d0
+           force(3,A)=0.0d0
+           if (Z(A).ne.0) then
+             do j=1,n
                if(A.ne.j) then      
                   dxAj=x(1,A)-x(1,j)
                   dyAj=x(2,A)-x(2,j)
@@ -148,12 +148,12 @@ c
      $              -3.0d0*fdmp8*s8*grad_c6(3)*Qfac/(rAj**4.0d0)
  901              continue
                endif
-            enddo
+             enddo
 c
-c           Three center derivatives. Grimme uses aggressive screening
-c           to get this N^3 contribution back to N^2
+c            Three center derivatives. Grimme uses aggressive screening
+c            to get this N^3 contribution back to N^2
 c
-            do j=2,n
+             do j=2,n
                if(A.ne.j) then      
                   rAj=sqrt(
      +                 (x(1,A)-x(1,j))**2 +
@@ -211,8 +211,8 @@ c
                   enddo
  910           continue
                endif
-            enddo
-            endif
+             enddo
+           endif
          enddo
          if (.not.ma_pop_stack(l_cnijk))
      $      call errquit('xcvdw cnijk: cannot pop cnijk',4, MA_ERR)
@@ -251,8 +251,8 @@ c
 c DFT-D1 / DFT-D2
 c
       if (ivdw.le.2) then
-         do i=1,n-1
-            if(z(i).ne.0) then
+        do i=1,n-1
+          if (Z(i).ne.0) then
             do j=i+1,n
                rij=dsqrt(
      +            (x(1,i)-x(1,j))**2 +
@@ -262,15 +262,15 @@ c
      *            fdmp(rij,r0(z(i))+r0(z(j)))*
      *            (rij)**(-6.0d0)
             enddo
-            endif
-         enddo
-         xc_vdw_e=xc_vdw_e*s6
+          endif
+        enddo
+        xc_vdw_e=xc_vdw_e*s6
 c
 c DFT-D3
 c
       else if (ivdw.eq.3) then
-         do i=1,n-1
-            if(z(i).ne.0) then
+        do i=1,n-1
+          if (Z(i).ne.0) then
             do j=i+1,n
                rij=dsqrt(
      +            (x(1,i)-x(1,j))**2 +
@@ -285,9 +285,9 @@ c
                e8=e8-c8*fdmp3(rij,r0AB(z(i),z(j))*sr8,alpha+2.0d0)*
      *            (rij)**(-8.0d0)
             enddo
-            endif
-         enddo
-         xc_vdw_e=e6*s6+e8*s8
+          endif
+        enddo
+        xc_vdw_e=e6*s6+e8*s8
       endif
       return
       end
@@ -614,14 +614,13 @@ c
       return
 99900 continue
       write(luout,*)'hess_file => ',filehess
-      call errquit('hess_read: error opening file: "filehess"',911)
+      call errquit('xc_vdw_hess 99900', 911, DISK_ERR)
 99901 continue
       write(luout,*)'hess_file => ',filehess
-      call errquit('hess_read: error reading file: "filehess"',911)
+      call errquit('xc_vdw_hess 99901', 911, DISK_ERR)
 99902 continue
       write(luout,*)'hess_file => ',filehess
-      call errquit
-     & ('hess_read: unexpected EOF when reading file: "filehess"',911)
+      call errquit('xc_vdw_hess 99902', 911, DISK_ERR)
       end
 c
       subroutine xc_vdw_to_hessian(rtdb)

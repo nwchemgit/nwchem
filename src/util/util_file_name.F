@@ -478,9 +478,9 @@ c
       call util_set_default_scratch_dir(scratch_dir)
       call util_set_default_permanent_dir(permanent_dir)
       iocheckk=.true.
-#if defined(CRAYXT) || defined(BGP)
+#if defined(CRAYXT) || defined(BGP) || defined(BGQ)
 c     on catamount all fs are parallel, therefore we need only node0
-c     on BGP all fs are parallel, therefore we need only node0
+c     on BGP/BGQ all fs are parallel, therefore we need only node0
       iocheckk=ga_nodeid().eq.0
 #endif     
 c

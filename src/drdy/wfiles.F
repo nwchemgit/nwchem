@@ -10,12 +10,14 @@ C
 #include "nwc_drdyP.fh"
 #include "inp.fh"
 #include "rtdb.fh"
+#include "stdio.fh"
 C
       Integer i,nstrs,ilen
       Character*1 chsval(5),schar(6),char2(255)
       Character*32 theory
       Character*255 cmd,cmd1
       Character*255 dummy_file
+      Character*255 filein,fileout
       Double Precision absswf
 C
       Integer util_system
@@ -65,42 +67,28 @@ C
      &       RTDB_ERR)
                call drdy_get_movecname(my_rtdb,theory,dummy_file)
                ilen = inp_strlen(dummy_file)
-               cmd = 'cp '
-               write(cmd1,'(a,'' '',a,'' '',a,''.'')') 
-     *           cmd(1:inp_strlen(cmd)),dummy_file(1:ilen),
-     *           dummy_file(1:ilen)
-               cmd = cmd1
-               ilen = inp_strlen(cmd)
+               filein = dummy_file(1:ilen)
+               fileout = dummy_file(1:ilen)//"."
+               ilen = inp_strlen(fileout)
                do i=1,nstrs
-                 char2(i+ilen) = schar(i)
+                 fileout(i+ilen:i+ilen) = schar(i)
                enddo
-               if (util_system (cmd) .eq. 0) then
-                  Write (fu6,600) cmd
-               else
-                  Write (fu6,601) cmd
-                  call errquit('drdy_wfiles: problem with system call',
-     *                          555, UNKNOWN_ERR)
-               endif
+               write(luout,*)'copy '//filein(1:inp_strlen(filein))//
+     +                       ' --> '//fileout(1:inp_strlen(fileout))
+               call util_file_copy(filein,fileout)
             endif
             if(lgs(38).ge.2) then
                call util_file_name('hess',  .false., .false.,dummy_file)
                ilen = inp_strlen(dummy_file)
-               cmd = 'cp '
-               write(cmd1,'(a,'' '',a,'' '',a,''.'')')
-     *           cmd(1:inp_strlen(cmd)),dummy_file(1:ilen),
-     *           dummy_file(1:ilen)
-               cmd = cmd1
-               ilen = inp_strlen(cmd)
+               filein = dummy_file(1:ilen)
+               fileout = dummy_file(1:ilen)//"."
+               ilen = inp_strlen(fileout)
                do i=1,nstrs
-                 char2(i+ilen) = schar(i)
+                 fileout(i+ilen:i+ilen) = schar(i)
                enddo
-               if (util_system (cmd) .eq. 0) then
-                  Write (fu6,600) cmd
-               else
-                  Write (fu6,601) cmd
-                  call errquit('drdy_wfiles: problem with system call',
-     *                          555, UNKNOWN_ERR)
-               endif
+               write(luout,*)'copy '//filein(1:inp_strlen(filein))//
+     +                       ' --> '//fileout(1:inp_strlen(fileout))
+               call util_file_copy(filein,fileout)
             endif
          else
             if(.not.rtdb_cget(my_rtdb,'drdy:sptheory',1,theory))
@@ -108,22 +96,15 @@ C
      &       RTDB_ERR)
             call drdy_get_movecname(my_rtdb,theory,dummy_file)
             ilen = inp_strlen(dummy_file)
-            cmd = 'cp '
-               write(cmd1,'(a,'' '',a,'' '',a,''.sp.'')')
-     *           cmd(1:inp_strlen(cmd)),dummy_file(1:ilen),
-     *           dummy_file(1:ilen)
-               cmd = cmd1
-               ilen = inp_strlen(cmd)
-               do i=1,nstrs
-                 char2(i+ilen) = schar(i)
-               enddo
-            if (util_system (cmd) .eq. 0) then
-               Write (fu6,600) cmd
-            else
-               Write (fu6,601) cmd
-               call errquit('drdy_wfiles: problem with system call',
-     *                       555, INPUT_ERR)
-            endif
+            filein = dummy_file(1:ilen)
+            fileout = dummy_file(1:ilen)//".sp."
+            ilen = inp_strlen(fileout)
+            do i=1,nstrs
+              fileout(i+ilen:i+ilen) = schar(i)
+            enddo
+            write(luout,*)'copy '//filein(1:inp_strlen(filein))//
+     +                    ' --> '//fileout(1:inp_strlen(fileout))
+            call util_file_copy(filein,fileout)
          endif
       endif
 C

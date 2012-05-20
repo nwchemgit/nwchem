@@ -7,7 +7,7 @@ c routine to give a random number [0,1]
 c
 c     iseed is an integer seed when non-zero used to initialize the sequence     
 c
-#if defined(IBM) || defined(SP1)
+#if defined(IBM) || defined(SP1) || defined(BGQ)
 #define SET_RANDOM
       integer iseed
       if(iseed.gt.0) call srand(dble(iseed))

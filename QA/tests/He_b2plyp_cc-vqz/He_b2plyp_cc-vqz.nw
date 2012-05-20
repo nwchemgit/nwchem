@@ -9,8 +9,6 @@ echo
 
 start He_b2plyp_cc-vqz
 
-memory total 1000 mb
-
 geometry
  He     0.0 0.0 0.0
 end

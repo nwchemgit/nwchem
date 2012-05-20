@@ -3,8 +3,6 @@ title "h2o ssb-d-dft"
 echo
 start h2o-ssb-d
 
-memory global 40 mb stack 23 mb heap 5 mb
-
 geometry units au
  O 0       0        0
  H 0       1.430   -1.107
