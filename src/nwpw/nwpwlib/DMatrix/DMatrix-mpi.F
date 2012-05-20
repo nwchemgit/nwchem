@@ -1360,10 +1360,16 @@ c        **** add to current rows of C ****
             jj = 1
          end if
       end do
+#ifdef MPI4
       stupid_msglen = 7*7
       call MPI_AllReduce(VV,VV2,stupid_msglen,
      >                      stupid_double,stupid_sum,
      >                      stupid_world,stupid_ierr)
+#else
+      call MPI_AllReduce(VV,VV2,7*7,
+     >                   MPI_DOUBLE_PRECISION,MPI_SUM,
+     >                   MPI_COMM_WORLD,ierr)
+#endif
       
       if ((taskid_i.eq.0).and.(taskid_j.eq.0)) then
          write(*,*) "jcol=",jcol,"  V="
@@ -1399,10 +1405,16 @@ c        **** add to current rows of C ****
             jj = 1
          end if
       end do
+#ifdef MPI4
       stupid_msglen = 7*7
       call MPI_AllReduce(VV,VV2,stupid_msglen,
      >                      stupid_double,stupid_sum,
      >                      stupid_world,stupid_ierr)
+#else
+      call MPI_AllReduce(VV,VV2,7*7,
+     >                   MPI_DOUBLE_PRECISION,MPI_SUM,
+     >                   MPI_COMM_WORLD,ierr)
+#endif
       
 
 
@@ -2274,10 +2286,15 @@ c        **** add to current rows of C ****
      >      "crossing:",ii,jj,icur,jcur,ma(icur+1),na(jcur+1)
 
             if (jcur.eq.taskid_j) then
+#ifdef MPI4
                stupid_msglen = kk-1
                stupid_taskid = icur
                call MPI_Bcast(work1,stupid_msglen,stupid_double,
      >               stupid_taskid,stupid_comm_i,stupid_ierr)
+#else
+               call MPI_Bcast(work1,kk-1,MPI_DOUBLE_PRECISION,
+     >               icur,comm_i,ierr)
+#endif
 
                do ll=1,kk-1
                   do iwrk=1,ma(taskid_i+1)
@@ -2328,10 +2345,16 @@ c        **** add to current rows of C ****
             jj = 1
          end if
       end do
+#ifdef MPI4
       stupid_msglen = 7*7
       call MPI_AllReduce(VV,VV2,stupid_msglen,
      >                      stupid_double,stupid_sum,
      >                      stupid_world,stupid_ierr)
+#else
+      call MPI_AllReduce(VV,VV2,7*7,
+     >                      MPI_DOUBLE_PRECISION,MPI_SUM,
+     >                      MPI_COMM_WORLD,ierr)
+#endif
       
       if ((taskid_i.eq.0).and.(taskid_j.eq.0)) then
          write(*,*) "jcol=",jcol,"  V*ones(7)="
@@ -2367,10 +2390,16 @@ c        **** add to current rows of C ****
             jj = 1
          end if
       end do
+#ifdef MPI4
       stupid_msglen = 7*7
       call MPI_AllReduce(VV,VV2,stupid_msglen,
      >                      stupid_double,stupid_sum,
      >                      stupid_world,stupid_ierr)
+#else
+      call MPI_AllReduce(VV,VV2,7*7,
+     >                   MPI_DOUBLE_PRECISION,MPI_SUM,
+     >                   MPI_COMM_WORLD,ierr)
+#endif
       
 
 
