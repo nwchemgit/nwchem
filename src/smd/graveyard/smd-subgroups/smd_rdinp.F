@@ -35,3 +35,4 @@ c      call smd_pot_init(namespace,namespace,rtdb)
       return
       end
 
+c $Id$

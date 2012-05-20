@@ -156,3 +156,4 @@ c
       ignore = rtdb_get(rtdb,"smd:iend",mt_int,1,smd_iend)
       ignore = rtdb_get(rtdb,"smd:nproc",mt_int,1,smd_nproc)
       end 
+c $Id$

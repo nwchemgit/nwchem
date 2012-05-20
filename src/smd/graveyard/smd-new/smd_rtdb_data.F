@@ -168,3 +168,4 @@ c
 
       write(*,*) "found istart in srtdb",smd_istart
       end 
+c $Id$

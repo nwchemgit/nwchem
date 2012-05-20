@@ -183,3 +183,4 @@ c      call smd_end(rtdb)
 c      task_smd_energy_groups = .true.
 c      return
 c      END
+c $Id$

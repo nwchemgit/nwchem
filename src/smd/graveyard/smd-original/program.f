@@ -58,3 +58,4 @@ c       if(istep.le.nequl)call md_scle(ntshel)
       write(output,'(/,a,f20.3)')'Total CPU time : ',(etime2-etime1)
 
       END
+c $Id$

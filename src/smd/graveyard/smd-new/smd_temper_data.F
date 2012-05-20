@@ -75,3 +75,4 @@ c
       ke = degfree*t*boltzmann*0.5
 
       end 
+c $Id$

@@ -571,3 +571,4 @@ c
       ga_handle = smd_charge_ga
       return
       end
+c $Id$

@@ -76,3 +76,4 @@ c      call smd_charge_ga_set(im)
 
       return
       end function
+c $Id$

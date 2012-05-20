@@ -159,3 +159,4 @@ c      write(*,*) "in "//pname
       call smd_pot_compute()
       return
       end
+c $Id$

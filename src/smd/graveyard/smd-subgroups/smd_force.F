@@ -180,3 +180,4 @@ c
       call smd_pot_compute()
       return
       end
+c $Id$

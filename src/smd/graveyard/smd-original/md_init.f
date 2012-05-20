@@ -71,3 +71,4 @@ c Self-interaction energy
       return
 
       END
+c $Id$

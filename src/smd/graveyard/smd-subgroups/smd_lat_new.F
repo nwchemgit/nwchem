@@ -477,3 +477,4 @@ c     -------------------------
      &      int(FCAT_smd_lat_counter(i)+0.1)
           end do
        end subroutine FCAT_smd_lat_rep
+c $Id$
