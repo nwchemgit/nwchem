@@ -63,6 +63,7 @@ endif
 	@echo '>>> making Global Arrays library <<< '
 	(cd ./global; $(MAKE) DIAG=PAR )
 	(cd ./pario; $(MAKE))
+	(../util/util_ga_version.bash ga-4-3)
 
 lib/$(TARGET):
 	$(MKDIR) -p $@
@@ -466,6 +467,7 @@ $(BUILDDIR)/config.status: $(GA_DIR)/configure $(STAMP_FC) $(STAMP_CC) $(STAMP_D
 	@echo ''
 	@echo '*** Configuring Parallel Tools ****'
 	@echo ''
+	@(../util/util_ga_version.bash $(GA_DIR))
 	@(test -d $(BUILDDIR)) || mkdir $(BUILDDIR);
 	@(cd $(BUILDDIR) && echo $(CONFIGURE_PATH) $(CONFIGURE_ARGS) && $(CONFIGURE_PATH) $(CONFIGURE_ARGS)) || exit 1
 

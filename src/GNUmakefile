@@ -187,6 +187,7 @@ directories:
 	test \! -f 64_to_32 -o \! -f 32_to_64 || rm -f 64_to_32 32_to_64
 	test -d $(LIBDIR) || $(MKDIR) -p $(LIBDIR)
 	test -d $(BINDIR) || $(MKDIR) -p $(BINDIR)
+	./util/util_nwchem_version.bash
 
 auxiliary:
 	$(MAKE) -C nwaprep targets
