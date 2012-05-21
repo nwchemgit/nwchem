@@ -496,4 +496,4 @@ c
 20    length = i 
       end 
 
-c $Id: smd_pdb.F 21413 2011-11-05 06:53:49Z d3y133 $
+c $Id$

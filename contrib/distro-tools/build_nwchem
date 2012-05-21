@@ -114,7 +114,7 @@ function usage()
  to have the same value, either 4 or 8, to successfully build NWChem.
 
  Huub van Dam
- \$Id: build_nwchem 22329 2012-04-25 00:24:32Z d3y133 $
+ \$Id$
 EOF
 }
 declare -a LIST_COMPFLAGS
