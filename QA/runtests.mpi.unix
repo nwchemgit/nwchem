@@ -115,7 +115,7 @@ else
 #        you are on your own anyway...
       else
          set NPOPT = -np
-         $MPIRUN $NPOPT 1 "echo > /dev/null"
+         $MPIRUN $NPOPT 1 "echo"
          if ($status) then
             echo " Mpirun number of processors option is assumed to be:"
             echo "   -np "
