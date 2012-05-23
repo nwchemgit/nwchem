@@ -10,6 +10,7 @@
 #include "mafdecls.fh"
 #include "rtdb.fh"
 #include "util.fh"
+#include "errquit.fh"
 
 c     
 *     **** local variables ****     
@@ -287,6 +288,9 @@ c
       value = value.and.MA_free_heap(g0(2))
       value = value.and.MA_free_heap(e1(2))      
       if (.not.value) call errquit('neb failed',4,0)
+
+      if (.not.rtdb_put(rtdb,'neb:nebnew',mt_log,1,.false.))
+     > call errquit('setting neb:nebnew failed',4,RTDB_ERR)
 
       call ga_sync()
       neb = .true. 

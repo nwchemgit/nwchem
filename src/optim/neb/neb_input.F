@@ -10,7 +10,7 @@ c
       integer rtdb
       character*255 test
       integer nbeads
-      double precision timestep
+      double precision timestep,kbeads
 
       call banner(6, 
      & "Processing input for NEB module", 
@@ -30,16 +30,16 @@ c     -------------------
 c
       goto 100
 c
-c     time step
+c     stepsize
 c     ----------------------------
-      else if (inp_compare(.false.,'timestep', test)) then
+      else if (inp_compare(.false.,'stepsize', test)) then
        if(.not. inp_f(timestep))
      &    call errquit('neb_input: timestep',911,
      &    INPUT_ERR)
-       if (.not. rtdb_put(rtdb,'neb:timestep',mt_dbl,1,timestep))
+       if (.not. rtdb_put(rtdb,'neb:stepsize',mt_dbl,1,timestep))
      $     call errquit('driver_input: rtdb put failed',0,
      &     RTDB_ERR)
-       write(6,*) 'neb:timestep',timestep
+       write(6,*) 'neb:stepsize',timestep
 
       goto 100
 
@@ -56,6 +56,31 @@ c     ----------------------------
        write(6,*) 'neb:nbeads',nbeads
 
       goto 100
+
+c
+c     kbeads - neb spring constant
+c     ----------------------------
+      else if (inp_compare(.false.,'kbeads', test)) then
+       if(.not. inp_i(nbeads))
+     &    call errquit('neb_input: kbeads',911,
+     &    INPUT_ERR)
+       if (.not. rtdb_put(rtdb,'neb:kbeads',mt_dbl,1,kbeads))
+     $     call errquit('driver_input: rtdb put failed',0,
+     &     RTDB_ERR)
+       write(6,*) 'neb:kbeads',kbeads
+
+      goto 100
+
+c
+c     reset  
+c     ----------------------------
+      else if (inp_compare(.false.,'reset', test)) then
+       if (.not. rtdb_put(rtdb,'neb:nebnew',mt_log,1,.true.))
+     $     call errquit('driver_input: rtdb put failed',0,
+     &     RTDB_ERR)
+
+      goto 100
+
 c
 c     end of input block
 c     -------------------
