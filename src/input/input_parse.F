@@ -160,6 +160,8 @@ c
                call prop_input(rtdb)
             else if (inp_compare(.false.,test,'speech')) then
                call speech_input(rtdb)
+            else if (inp_compare(.false.,test,'neb')) then
+               call neb_input(rtdb)
             else if (inp_compare(.false.,test,'pspw')) then
                call nwpw_input(rtdb)
             else if (inp_compare(.false.,test,'nwpw')) then
