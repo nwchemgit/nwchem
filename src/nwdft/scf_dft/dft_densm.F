@@ -475,6 +475,7 @@ c
       logical debug
       integer nfilled
       logical do_avg_fon
+      logical do_core_fon
 c
       debug = .false.
       if (rtdb_get(rtdb, 'dft:debugfon', mt_log, 1, debug)) 
@@ -484,6 +485,11 @@ c     do average fractional occupation by default
       do_avg_fon = .true.
       if (.not.rtdb_get(rtdb,'dft:avg_fon',mt_log,1,do_avg_fon))
      &     do_avg_fon = .true.
+c
+c     do average occupation starting with core orbitals
+      do_core_fon = .false.
+      if (.not.rtdb_get(rtdb,'dft:core_fon',mt_log,1,do_core_fon))
+     &     do_core_fon = .false.
 c
       if (me.eq.0 .and. debug) then
         write (luout,*) 'FON: ipol, noc, ntotel',ipol,noc(:),ntotel
@@ -505,30 +511,59 @@ c       initialize
           focc(i,ispin) = 0.0
         end do   
 c
-c       fully filled molecular orbitals
-        do i = 1,nfilled
-          if (i>nbf) call errquit(
-     &     'dft_densm:fon focc index exceeds nbf',1,INPUT_ERR)
-          focc(i,ispin) = 2d0/ipol
-          ncheck = ncheck + focc(i,ispin)
-          if (me.eq.0 .and. debug) 
+c       fill the molecular orbitals either starting from the core or valence states
+        if (do_core_fon) then
+c
+c         partially filled molecular orbitals
+          do i = 1,nmo_fon(ispin)   
+            if (i > nbf) call errquit(
+     &       'dft_densm:fon focc index exceeds nbf',1,INPUT_ERR)
+            if (do_avg_fon) then
+             focc(i,ispin) = avg_fon  ! assign average occupation
+            else
+             focc(i,ispin) = nel_fon(ispin) ! assign given fractional electron
+            end if ! do_avg_fon
+            ncheck = ncheck + focc(i,ispin)
+            if (me.eq.0 .and. debug) 
      &        write(luout,*) i,ispin,focc(i,ispin)
-        end do
+          end do
 c
-c       partially filled molecular orbitals
-        do i = 1,nmo_fon(ispin)   
-          if (i+nfilled > nbf) call errquit(
-     &     'dft_densm:fon focc index exceeds nbf',1,INPUT_ERR)         
-          if (do_avg_fon) then
+c         fully filled molecular orbitals        
+          do i = 1,nfilled
+            if (i+nmo_fon(ispin)>nbf) call errquit(
+     &       'dft_densm:fon focc index exceeds nbf',1,INPUT_ERR)
+            focc(i+nmo_fon(ispin),ispin) = 2d0/ipol
+            ncheck = ncheck + focc(i+nmo_fon(ispin),ispin)
+            if (me.eq.0 .and. debug) 
+     &        write(luout,*) i,ispin,focc(i+nmo_fon(ispin),ispin)
+          end do
+
+        else
+c
+c         fully filled molecular orbitals
+          do i = 1,nfilled
+            if (i>nbf) call errquit(
+     &       'dft_densm:fon focc index exceeds nbf',1,INPUT_ERR)
+            focc(i,ispin) = 2d0/ipol
+            ncheck = ncheck + focc(i,ispin)
+            if (me.eq.0 .and. debug) 
+     &        write(luout,*) i,ispin,focc(i,ispin)
+          end do
+c
+c         partially filled molecular orbitals
+          do i = 1,nmo_fon(ispin)   
+            if (i+nfilled > nbf) call errquit(
+     &       'dft_densm:fon focc index exceeds nbf',1,INPUT_ERR)
+            if (do_avg_fon) then
              focc(i+nfilled,ispin) = avg_fon  ! assign average occupation
-          else
+            else
              focc(i+nfilled,ispin) = nel_fon(ispin) ! assign given fractional electron
-          end if ! do_avg_fon
-c
-          ncheck = ncheck + focc(i+nfilled,ispin)
-          if (me.eq.0 .and. debug) 
+            end if ! do_avg_fon
+            ncheck = ncheck + focc(i+nfilled,ispin)
+            if (me.eq.0 .and. debug) 
      &        write(luout,*) i,ispin,focc(i+nfilled,ispin)
-        end do
+          end do
+       end if  ! do_core_fon
       end do                    ! ispin
 c
       if (me.eq.0 .and. debug) then
