@@ -99,7 +99,7 @@ c
       value = value.and.
      >        MA_alloc_get(mt_dbl,nion,'total',total(2),total(1))
       value = value.and.
-     >        MA_alloc_get(mt_dbl,6*3,'subtl',subtl(2),subtl(1))
+     >        MA_alloc_get(mt_dbl,50,'subtl',subtl(2),subtl(1))
 
       value = value.and.
      >        MA_alloc_get(mt_dcpl,36*nemax*nion,'a',a(2),a(1))
@@ -335,7 +335,7 @@ c     WRITE(6,1315)
           WRITE(luout,1520) 'NO','ATOM','L','POPULATION'
 
           DO L=0,5
-            dbl_mb(SUBTL(1)+L)=0.0d0
+            dbl_mb(subtl(1)+L)=0.0d0
           END DO
           DO I=1,nion
             dbl_mb(TOTAL(1)+I-1)=0.0d0
@@ -353,7 +353,7 @@ c     >                dbl_mb(a(1)+LL-1+(N-1)*36+(I-1)*36*nemax)**2
 c                SUBTTL=SUBTTL+
 c     >                dbl_mb(a(1)+LL-1+(N-1)*36+(I-1)*36*nemax)**2
 c              END DO
-              dbl_mb(SUBTL(1)+L)=dbl_mb(SUBTL(1)+L)+SUBTTL
+              dbl_mb(subtl(1)+L)=dbl_mb(subtl(1)+L)+SUBTTL
               if (l.eq.0) write(luout,1516)
               if (l.eq.1) write(luout,1517)
               if (l.eq.2) write(luout,1518)
@@ -373,7 +373,7 @@ c              END DO
      >                   dbl_mb(TOTAL(1)+I-1),I=1,nion)
           WRITE(luout,1555)
           WRITE(luout,1560)  's','p','d','f'
-          WRITE(luout,1570)  (dbl_mb(SUBTL(1)+L),L=0,3)
+          WRITE(luout,1570)  (dbl_mb(subtl(1)+L),L=0,3)
         END DO
         END DO
         call util_flush(luout)
@@ -431,7 +431,7 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
         TTL2=0.0d0
 
         call dcopy(ispin*6*int_mb(lorb(1)+ion_katm_qm(I)-1),
-     >             0.0d0,0,dbl_mb(SUBTL(1)),1)
+     >             0.0d0,0,dbl_mb(subtl(1)),1)
         do nbq=1,nbrillq
           A_shift   = cpsi_data_get_chnk(A_tag,nbq)
           call dcopy(2*36*nion*nemax,dbl_mb(A_shift),1,
@@ -441,15 +441,15 @@ c     >           '  fz(5z2-1)  fx(x2-3y2)')
             DO N=N1(ms),N2(ms)
                 L1=L**2+1
                 L2=(L+1)**2
-                dbl_mb(SUBTL(1)+L+(ms-1)*6) =
-     >          dbl_mb(SUBTL(1)+L+(ms-1)*6) +
+                dbl_mb(subtl(1)+L+(ms-1)*6) =
+     >          dbl_mb(subtl(1)+L+(ms-1)*6) +
      >          brillioun_weight(nbq)*
      >          ddot(2*(L2-L1+1),
      >                  dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
      >                  dcpl_mb(a(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1)
 c                DO LL=L1,L2
-c                 dbl_mb(SUBTL(1)+L+(ms-1)*6)=
-c     >             dbl_mb(SUBTL(1)+L+(ms-1)*6) +
+c                 dbl_mb(subtl(1)+L+(ms-1)*6)=
+c     >             dbl_mb(subtl(1)+L+(ms-1)*6) +
 c     >             dbl_mb(a(1)+LL-1+(N-1)*36+(I-1)*36*nemax)**2
 c
 c                END DO
@@ -459,22 +459,22 @@ c                END DO
         end do
         call K1dB_Vector_SumAll(
      >            ispin*6*int_mb(lorb(1)+ion_katm_qm(I)-1),
-     >            dbl_mb(SUBTL(1)))
+     >            dbl_mb(subtl(1)))
      
         if (taskid.eq.MASTER) then
           TTL1=0.0d0
           DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
-          TTL1=TTL1+dbl_mb(SUBTL(1)+L)
+          TTL1=TTL1+dbl_mb(subtl(1)+L)
           END DO
           WRITE(luout,1620) I,ion_atom_qm(ion_katm_qm(I)),SPN(1),TTL1,
-     >                 ( dbl_mb(SUBTL(1)+L),
+     >                 ( dbl_mb(subtl(1)+L),
      >                   L=0,int_mb(lorb(1)+ion_katm_qm(I)-1) )
           TTL1=0.0d0
           DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
-          TTL1=TTL1+dbl_mb(SUBTL(1)+L+(ispin-1)*6)
+          TTL1=TTL1+dbl_mb(subtl(1)+L+(ispin-1)*6)
           END DO
           WRITE(luout,1620) I,ion_atom_qm(ion_katm_qm(I)),SPN(2),TTL1,
-     >                 ( dbl_mb(SUBTL(1)+L+(ispin-1)*6),
+     >                 ( dbl_mb(subtl(1)+L+(ispin-1)*6),
      >                   L=0,int_mb(lorb(1)+ion_katm_qm(I)-1) )
         end if
       END DO
@@ -483,7 +483,7 @@ c                END DO
  1610 FORMAT(A2,2X,A4,2X,A4,4X,A5,7X,A,10X,A,10X,A,10X,A)
  1620 FORMAT(I2,3X,A4,3X,A4,5F11.5)
  
-      call dcopy(18,0.0d0,0,dbl_mb(SUBTL(1)),1)
+      call dcopy(18,0.0d0,0,dbl_mb(subtl(1)),1)
       do nbq=1,nbrillq
           A_shift   = cpsi_data_get_chnk(A_tag,nbq)
           call dcopy(2*36*nion*nemax,dbl_mb(A_shift),1,
@@ -494,15 +494,15 @@ c                END DO
             DO L=0,int_mb(lorb(1)+ion_katm_qm(I)-1)
               L1=L**2+1
               L2=(L+1)**2
-              dbl_mb(SUBTL(1)+L+(SPIN-1)*6)=
-     >        dbl_mb(SUBTL(1)+L+(SPIN-1)*6)+
+              dbl_mb(subtl(1)+L+(SPIN-1)*6)=
+     >        dbl_mb(subtl(1)+L+(SPIN-1)*6)+
      >        brillioun_weight(nbq)*
      >        ddot(2*(L2-L1+1),
      >             dcpl_mb(A(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1,
      >             dcpl_mb(A(1)+L1-1+(N-1)*36+(I-1)*36*nemax),1)
 c              DO LL=L1,L2
-c                dbl_mb(SUBTL(1)+L+(SPIN-1)*6)=
-c     >          dbl_mb(SUBTL(1)+L+(SPIN-1)*6)+
+c                dbl_mb(subtl(1)+L+(SPIN-1)*6)=
+c     >          dbl_mb(subtl(1)+L+(SPIN-1)*6)+
 c     >          dbl_mb(A(1)+LL-1+(N-1)*36+(I-1)*36*nemax)**2
 c              END DO
             END DO
@@ -510,24 +510,24 @@ c              END DO
          END DO
          END DO
       end do
-      call K1dB_Vector_SumAll(18,dbl_mb(SUBTL(1)))
+      call K1dB_Vector_SumAll(18,dbl_mb(subtl(1)))
 
       DO L=0,3
-        dbl_mb(SUBTL(1)+L+2*6)=
-     >  (dbl_mb(SUBTL(1)+L)+dbl_mb(SUBTL(1)+L+(ISPIN-1)*6))
+        dbl_mb(subtl(1)+L+2*6)=
+     >  (dbl_mb(subtl(1)+L)+dbl_mb(subtl(1)+L+(ISPIN-1)*6))
      >   *100.d0/(NE(1)+NE(ISPIN))
-        dbl_mb(SUBTL(1)+L)=dbl_mb(SUBTL(1)+L)*100.0d0/dble(NE(1))
+        dbl_mb(subtl(1)+L)=dbl_mb(subtl(1)+L)*100.0d0/dble(NE(1))
         IF((ISPIN.EQ.2).and.(NE(2).gt.0)) 
-     >    dbl_mb(SUBTL(1)+L+6)=dbl_mb(SUBTL(1)+L+6)*100.0d0/dble(NE(2))
+     >    dbl_mb(subtl(1)+L+6)=dbl_mb(subtl(1)+L+6)*100.0d0/dble(NE(2))
       END DO
 
       if (taskid.eq.MASTER) then
       WRITE(luout,1700)
       WRITE(luout,1710) ' SPIN ','s','p','d','f'
-      WRITE(luout,1720) SPN(1),(dbl_mb(SUBTL(1)+L),L=0,3)
+      WRITE(luout,1720) SPN(1),(dbl_mb(subtl(1)+L),L=0,3)
       WRITE(luout,1720) SPN(ISPIN),
-     >                  (dbl_mb(SUBTL(1)+L+(ISPIN-1)*6),L=0,3)
-      WRITE(luout,1720) ' TOTAL',(dbl_mb(SUBTL(1)+L+(3-1)*6),L=0,3)
+     >                  (dbl_mb(subtl(1)+L+(ISPIN-1)*6),L=0,3)
+      WRITE(luout,1720) ' TOTAL',(dbl_mb(subtl(1)+L+(3-1)*6),L=0,3)
       call util_flush(luout)
  1700 FORMAT(///'=== TOTAL ANGULAR MOMENTUM POPULATION ==='/)
  1710 FORMAT(A6,6X,A1,3(11X,A1))
