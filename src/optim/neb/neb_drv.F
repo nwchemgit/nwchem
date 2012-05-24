@@ -21,7 +21,7 @@ c
       integer i,it,nbeads,nion,ng,iterNEB,nebsteps
       integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2)
       integer mass(2),dti(2)
-      real*8  path_energy,path_distance,norm,norm0,time_step
+      real*8  path_energy,path_distance,norm,norm0,time_step,kbeads
       real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0
 
 *     **** external functions ****
@@ -36,6 +36,9 @@ c
 
       if (.not.rtdb_get(rtdb,'neb:stepsize',mt_dbl,1,time_step))
      >  time_step = 10.0d0
+
+      if (.not.rtdb_get(rtdb,'neb:kbeads',mt_dbl,1,kbeads))
+     >  kbeads = 0.1d0
 
 
 *  RRR only initialize if this is a new neb chain!
