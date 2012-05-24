@@ -47,8 +47,10 @@ c
       double precision util_erfc
       external util_erfc
       integer nocsave(2)
-      logical dft_checkdg
-      external dft_checkdg
+c
+      logical dft_fon
+      external dft_fon
+c
       double precision undovl
       parameter(undovl=-20d0*2.3025d0)
       parameter (zero=0.d0,toll=1.d-9,one=1.d0,
@@ -79,7 +81,7 @@ c
 c
 c       average fractional occupations (leading orbitals)
         if (fon) then
-          status = dft_checkdg(rtdb,nmo_fon,ncore_fon,nel_fon,
+          status = dft_fon(rtdb,nmo_fon,ncore_fon,nel_fon,
      .       nbf,ntotel,focc,noc,ipol,me)
           do isp=1,ipol
             call dft_focdm(focc(1+(isp-1)*nbf),noc(isp),geom,
@@ -448,7 +450,7 @@ c
 c
 c     determine fractional occupations for fon calculations
 c
-      logical function dft_checkdg(rtdb,nmo_fon,ncore_fon,nel_fon,
+      logical function dft_fon(rtdb,nmo_fon,ncore_fon,nel_fon,
      .     nbf,ntotel,focc,noc,ipol,me)
 c
       implicit none
@@ -573,9 +575,9 @@ c
       end if   
 c
       if(abs(ncheck-dble(ntotel)).gt.1d-3 .and. me.eq.0) then
-         dft_checkdg=.false.
+         dft_fon=.false.
       else
-         dft_checkdg=.true.
+         dft_fon=.true.
       endif
 c
       return
