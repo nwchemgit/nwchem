@@ -1,4 +1,11 @@
 c $Id$
+
+*     *************************************
+*     *                                   *
+*     *           neb_input               *
+*     *                                   *
+*     *************************************
+
       subroutine neb_input(rtdb)
       implicit none
 #include "errquit.fh"
@@ -29,6 +36,7 @@ c     -------------------
          call util_print_input(rtdb, "neb")
 c
       goto 100
+
 c
 c     stepsize
 c     ----------------------------
@@ -42,6 +50,35 @@ c     ----------------------------
        write(6,*) 'neb:stepsize',timestep
 
       goto 100
+
+c
+c     maxiter
+c     ----------------------------
+      else if (inp_compare(.false.,'maxiter', test)) then
+       if(.not. inp_i(nbeads))
+     &    call errquit('neb_input: maxiter',911,
+     &    INPUT_ERR)
+       if (.not. rtdb_put(rtdb,'neb:steps',mt_int,1,nbeads))
+     $     call errquit('driver_input: rtdb put failed',0,
+     &     RTDB_ERR)
+       write(6,*) 'neb:steps',nbeads
+
+      goto 100
+
+c
+c     steps
+c     ----------------------------
+      else if (inp_compare(.false.,'nbeads', test)) then
+       if(.not. inp_i(nbeads))
+     &    call errquit('neb_input: nbeads',911,
+     &    INPUT_ERR)
+       if (.not. rtdb_put(rtdb,'neb:nbeads',mt_int,1,nbeads))
+     $     call errquit('driver_input: rtdb put failed',0,
+     &     RTDB_ERR)
+       write(6,*) 'neb:nbeads',nbeads
+
+      goto 100
+
 
 c
 c     number of beads
@@ -61,7 +98,7 @@ c
 c     kbeads - neb spring constant
 c     ----------------------------
       else if (inp_compare(.false.,'kbeads', test)) then
-       if(.not. inp_i(nbeads))
+       if(.not. inp_f(kbeads))
      &    call errquit('neb_input: kbeads',911,
      &    INPUT_ERR)
        if (.not. rtdb_put(rtdb,'neb:kbeads',mt_dbl,1,kbeads))
