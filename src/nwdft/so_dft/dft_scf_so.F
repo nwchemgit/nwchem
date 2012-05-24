@@ -41,6 +41,7 @@ c     declarations for fractional occupation
 c
       integer nmo_fon  ! number of fractionally occupied orbitals
       integer ncore_fon ! number of fully occupied orbitals
+      integer nfilled, ilow, ihigh
       double precision nel_fon  ! fractional electron number
       double precision avg_fon  ! fractional occupancy (averaged)
       integer nTotOcc           ! nTotOcc: no. of (occupied maybe f.o.) mo's 
@@ -210,6 +211,7 @@ c     zora related
       double precision Ezora_sf
       integer switch_focc
       logical do_avg_fon
+      logical do_core_fon
 c
       logical spinor
       logical dft_mem3c
@@ -237,6 +239,11 @@ c     do average fractional occupation by default
       do_avg_fon = .true.
       if (.not.rtdb_get(rtdb,'dft:avg_fon',mt_log,1,do_avg_fon))
      &     do_avg_fon = .true.
+c
+c     do average occupation starting with core orbitals
+      do_core_fon = .false.
+      if (.not.rtdb_get(rtdb,'dft:core_fon',mt_log,1,do_core_fon))
+     &     do_core_fon = .false.
 c
       call ecce_print_module_entry('dft')
       dft_scf_so = .false.
@@ -863,50 +870,85 @@ c       initialization
           dbl_mb(i-1+k_occ) = 0.d0
         end do
 c
-c       fully filled molecular orbitals
         ncheck = 0d0
-        do i = 1, ncore_fon
-          if (i> 2*nbf_ao) call errquit(
+        nfilled = ncore_fon ! number of filled orbitals
+c
+c       partially fill molecular orbitals either from the core or valence
+        if (do_core_fon) then       
+c
+c         partially filled core molecular orbitals
+          do i = 1, nmo_fon
+            if (i> 2*nbf_ao) call errquit(
      &       'dft_densm:fon focc index exceeds 2nbf error 1',
      &       i, INPUT_ERR)
-          dbl_mb(i-1+k_occ) = 1d0
-          ncheck = ncheck + 1d0
-        end do
+            if (do_avg_fon) then
+             dbl_mb(i-1+k_occ) = avg_fon
+            else
+             dbl_mb(i-1+k_occ) = nel_fon
+            end if  ! do_avg_fon
+            ncheck = ncheck + dbl_mb(i-1+k_occ)
+          end do
 c
-c       partially filled molecular orbitals
-        do i = ncore_fon + 1, ncore_fon + nmo_fon
-          if (i> 2*nbf_ao) call errquit(
+c         fully filled outer orbitals
+          do i = nmo_fon + 1, nmo_fon + nfilled
+            if (i> 2*nbf_ao) call errquit(
+     &       'dft_densm:fon focc index exceeds 2nbf error 2',
+     &       i, INPUT_ERR)
+            dbl_mb(i-1+k_occ) = 1d0
+            ncheck = ncheck + dbl_mb(i-1+k_occ)
+          end do
+c
+        else   ! don't do core_fon
+c
+c         fully filled core molecular orbitals
+          do i = 1, nfilled
+            if (i> 2*nbf_ao) call errquit(
+     &       'dft_densm:fon focc index exceeds 2nbf error 1',
+     &       i, INPUT_ERR)
+            dbl_mb(i-1+k_occ) = 1d0
+            ncheck = ncheck + dbl_mb(i-1+k_occ)
+          end do
+c
+c         partially filled outer molecular orbitals
+          do i = nfilled + 1, nfilled + nmo_fon
+            if (i> 2*nbf_ao) call errquit(
      &       'dft_densm:fon focc index exceeds 2nbf error 2',
      &       i, INPUT_ERR)
 c
-          if (do_avg_fon) then
+            if (do_avg_fon) then
              dbl_mb(i-1+k_occ) = avg_fon
-          else
+            else
              dbl_mb(i-1+k_occ) = nel_fon
-          end if  ! do_avg_fon
+            end if  ! do_avg_fon
+            ncheck = ncheck + dbl_mb(i-1+k_occ)
+          end do
 c
-          ncheck = ncheck + dbl_mb(i-1+k_occ)
-        end do
+        endif ! do_core_fon
 c
-        if(abs(ncheck-dble(nTotEl)).gt.1d-3 .and. me.eq.0) then
-          write(luout,*) ' frac. electrons ',ncheck,' vs ',nTotEl
-        end if
-c
+          if(abs(ncheck-dble(nTotEl)).gt.1d-3 .and. me.eq.0) then
+            write(luout,*) ' frac. electrons ',ncheck,' vs ',nTotEl
+          end if
       endif ! fon
 c
 c     the fractionally occupied mo's are scaled by the sqrt of the fon
 c     
       if (fon) then 
-         do i = ncore_fon + 1, ncore_fon + nmo_fon
-           if (i> nbf_mo) call errquit(
+         if (do_core_fon) then
+          ilow = 1
+          ihigh = nmo_fon
+         else
+          ilow = nfilled +1
+          ihigh = nfilled + nmo_fon
+         end if
+c
+         do i = ilow,ihigh
+          if (i> nbf_mo) call errquit(
      &        'dft_densm:fon g_moso index exceeds nbf_mo',
      &        i, INPUT_ERR)
            scale = sqrt(dbl_mb(i-1+k_occ)) ! sqrt(occupation number)
-           call ga_scale_patch(g_moso(1), 
-     &        1, nbf_mo, i, i, scale)
-           call ga_scale_patch(g_moso(2), 
-     &        1, nbf_mo, i, i, scale)
-         end do
+           call ga_scale_patch(g_moso(1),1,nbf_mo,i,i,scale)
+           call ga_scale_patch(g_moso(2),1,nbf_mo,i,i,scale)
+         end do ! i loop
          if(me.eq.0) write(luout,'(5x,a)')  'FON applied'
       end if ! fon
 c
@@ -923,18 +965,25 @@ c
 c     restore the scaled mo's
 c
       if (fon) then 
-         do i = ncore_fon + 1, ncore_fon + nmo_fon
+         if (do_core_fon) then
+          ilow = 1
+          ihigh = nmo_fon
+         else
+          ilow = nfilled + 1
+          ihigh = nfilled + nmo_fon
+         end if
+c
+         do i = ilow,ihigh
            if (i> nbf_mo) call errquit(
      &        'dft_densm:fon g_moso index exceeds nbf_mo',
      &        i, INPUT_ERR)
            if (dbl_mb(i-1+k_occ) < 1d-4) call errquit(
-     &        'dft_densm:fon frac occup < 1E-4. Aborting suspisciously',
+     &        'dft_densm:fon frac occup < 1E-4. Aborting',
      &        i, INPUT_ERR)           
+c
            scale = 1d0/sqrt(dbl_mb(i-1+k_occ)) ! 1/sqrt(occupation number)
-           call ga_scale_patch(g_moso(1), 
-     &        1, nbf_mo, i, i, scale)
-           call ga_scale_patch(g_moso(2), 
-     &        1, nbf_mo, i, i, scale)
+           call ga_scale_patch(g_moso(1),1,nbf_mo, i, i, scale)
+           call ga_scale_patch(g_moso(2),1,nbf_mo, i, i, scale)
          end do
        end if ! fon
 c      
@@ -1556,16 +1605,20 @@ c
 c     the fractionally occupied mo's are scaled by the sqrt of the fon
 c     
       if(fon)then 
-c         scale = sqrt(avg_fon)
-         do i = ncore_fon + 1, ncore_fon + nmo_fon
+         if (do_core_fon) then
+          ilow = 1
+          ihigh = nmo_fon
+         else
+          ilow = nfilled + 1
+          ihigh = nfilled + nmo_fon
+         end if
+         do i = ilow, ihigh
            if (i> nbf_mo) call errquit(
      &        'dft_densm:fon g_moso index exceeds nbf_mo',
      &        i, INPUT_ERR)
            scale = sqrt(dbl_mb(i-1+k_occ)) ! sqrt(occupation number)
-           call ga_scale_patch(g_moso(1), 
-     &        1, nbf_mo, i, i, scale)
-           call ga_scale_patch(g_moso(2), 
-     &        1, nbf_mo, i, i, scale)
+           call ga_scale_patch(g_moso(1),1,nbf_mo,i,i,scale)
+           call ga_scale_patch(g_moso(2),1,nbf_mo,i,i,scale)
          end do
       end if ! fon
 c
@@ -1582,19 +1635,23 @@ c
 c     restore the scaled mo's
 c     
       if (fon) then 
-c         scale = sqrt(avg_fon)
-         do i = ncore_fon + 1, ncore_fon + nmo_fon
+         if (do_core_fon) then
+          ilow = 1
+          ihigh = nmo_fon
+         else
+          ilow = nfilled + 1
+          ihigh = nfilled + nmo_fon
+         end if
+         do i = ilow,ihigh
            if (i> nbf_mo) call errquit(
      &        'dft_densm:fon g_moso index exceeds nbf_mo',
      &        i, INPUT_ERR)
            if (dbl_mb(i-1+k_occ) < 1d-4) call errquit(
-     &        'dft_densm:fon frac occup < 1E-4. Aborting suspisciously',
+     &        'dft_densm:fon frac occup < 1E-4. Aborting',
      &        i, INPUT_ERR)           
            scale = 1d0/sqrt(dbl_mb(i-1+k_occ)) ! 1/sqrt(occupation number)
-           call ga_scale_patch(g_moso(1), 
-     &        1, nbf_mo, i, i, scale)
-           call ga_scale_patch(g_moso(2), 
-     &        1, nbf_mo, i, i, scale)
+           call ga_scale_patch(g_moso(1),1,nbf_mo,i,i,scale)
+           call ga_scale_patch(g_moso(2),1,nbf_mo,i,i,scale)
          end do
        end if ! fon
 cso
