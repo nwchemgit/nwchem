@@ -19,9 +19,6 @@ c
       integer nbeads
       double precision timestep,kbeads
 
-      call banner(6, 
-     & "Processing input for NEB module", 
-     & "*",.true.,.true.,.true.)
 c
  100  if (.not. inp_read()) call errquit('neb_input: inp_read failed',0,
      &       0)
@@ -47,7 +44,6 @@ c     ----------------------------
        if (.not. rtdb_put(rtdb,'neb:stepsize',mt_dbl,1,timestep))
      $     call errquit('driver_input: rtdb put failed',0,
      &     RTDB_ERR)
-       write(6,*) 'neb:stepsize',timestep
 
       goto 100
 
@@ -61,12 +57,11 @@ c     ----------------------------
        if (.not. rtdb_put(rtdb,'neb:steps',mt_int,1,nbeads))
      $     call errquit('driver_input: rtdb put failed',0,
      &     RTDB_ERR)
-       write(6,*) 'neb:steps',nbeads
 
       goto 100
 
 c
-c     steps
+c     nbeads - number of beads
 c     ----------------------------
       else if (inp_compare(.false.,'nbeads', test)) then
        if(.not. inp_i(nbeads))
@@ -75,22 +70,6 @@ c     ----------------------------
        if (.not. rtdb_put(rtdb,'neb:nbeads',mt_int,1,nbeads))
      $     call errquit('driver_input: rtdb put failed',0,
      &     RTDB_ERR)
-       write(6,*) 'neb:nbeads',nbeads
-
-      goto 100
-
-
-c
-c     number of beads
-c     ----------------------------
-      else if (inp_compare(.false.,'nbeads', test)) then
-       if(.not. inp_i(nbeads))
-     &    call errquit('neb_input: nbeads',911,
-     &    INPUT_ERR)
-       if (.not. rtdb_put(rtdb,'neb:nbeads',mt_int,1,nbeads))
-     $     call errquit('driver_input: rtdb put failed',0,
-     &     RTDB_ERR)
-       write(6,*) 'neb:nbeads',nbeads
 
       goto 100
 
@@ -104,7 +83,6 @@ c     ----------------------------
        if (.not. rtdb_put(rtdb,'neb:kbeads',mt_dbl,1,kbeads))
      $     call errquit('driver_input: rtdb put failed',0,
      &     RTDB_ERR)
-       write(6,*) 'neb:kbeads',kbeads
 
       goto 100
 
@@ -117,6 +95,105 @@ c     ----------------------------
      &     RTDB_ERR)
 
       goto 100
+
+c
+c     gmax - neb spring constant
+c     ----------------------------
+      else if (inp_compare(.false.,'gmax', test)) then
+       if(.not. inp_f(kbeads))
+     &    call errquit('neb_input: gmax',911,
+     &    INPUT_ERR)
+       if (.not. rtdb_put(rtdb,'neb:gmax',mt_dbl,1,kbeads))
+     $     call errquit('driver_input: rtdb put failed',0,
+     &     RTDB_ERR)
+      goto 100
+c
+c     grms - neb spring constant
+c     ----------------------------
+      else if (inp_compare(.false.,'grms', test)) then
+       if(.not. inp_f(kbeads))
+     &    call errquit('neb_input: gmax',911,
+     &    INPUT_ERR)
+       if (.not. rtdb_put(rtdb,'neb:grms',mt_dbl,1,kbeads))
+     $     call errquit('driver_input: rtdb put failed',0,
+     &     RTDB_ERR)
+      goto 100
+c
+c     xmax - neb spring constant
+c     ----------------------------
+      else if (inp_compare(.false.,'xmax', test)) then
+       if(.not. inp_f(kbeads))
+     &    call errquit('neb_input: xmax',911,
+     &    INPUT_ERR)
+       if (.not. rtdb_put(rtdb,'neb:xmax',mt_dbl,1,kbeads))
+     $     call errquit('driver_input: rtdb put failed',0,
+     &     RTDB_ERR)
+      goto 100
+c
+c     xrms - neb spring constant
+c     ----------------------------
+      else if (inp_compare(.false.,'xrms', test)) then
+       if(.not. inp_f(kbeads))
+     &    call errquit('neb_input: xrms',911,
+     &    INPUT_ERR)
+       if (.not. rtdb_put(rtdb,'neb:xrms',mt_dbl,1,kbeads))
+     $     call errquit('driver_input: rtdb put failed',0,
+     &     RTDB_ERR)
+      goto 100
+
+c
+c    loose - 
+c     ----------------------------
+      else if (inp_compare(.false.,'loose', test)) then
+       if (.not. rtdb_put(rtdb,'neb:gmax',mt_dbl,0.0045d0))
+     >     call errquit('driver_input: rtdb put failed',0,
+     >     RTDB_ERR)
+       if (.not. rtdb_put(rtdb,'neb:grms',mt_dbl,0.0030d0))
+     >     call errquit('driver_input: rtdb put failed',0,
+     >     RTDB_ERR)
+       if (.not. rtdb_put(rtdb,'neb:xmax',mt_dbl,0.0054d0))
+     >     call errquit('driver_input: rtdb put failed',0,
+     >     RTDB_ERR)
+       if (.not. rtdb_put(rtdb,'neb:xrms',mt_dbl,0.0036d0))
+     >     call errquit('driver_input: rtdb put failed',0,
+     >     RTDB_ERR)
+      goto 100
+c
+c    default -
+c     ----------------------------
+      else if (inp_compare(.false.,'default', test)) then
+       if (.not. rtdb_put(rtdb,'neb:gmax',mt_dbl,0.00045d0))
+     >     call errquit('driver_input: rtdb put failed',0,
+     >     RTDB_ERR)
+       if (.not. rtdb_put(rtdb,'neb:grms',mt_dbl,0.00030d0))
+     >     call errquit('driver_input: rtdb put failed',0,
+     >     RTDB_ERR)
+       if (.not. rtdb_put(rtdb,'neb:xmax',mt_dbl,0.0018d0))
+     >     call errquit('driver_input: rtdb put failed',0,
+     >     RTDB_ERR)
+       if (.not. rtdb_put(rtdb,'neb:xrms',mt_dbl,0.0012d0))
+     >     call errquit('driver_input: rtdb put failed',0,
+     >     RTDB_ERR)
+      goto 100
+c
+c    tight -
+c     ----------------------------
+      else if (inp_compare(.false.,'tight', test)) then
+       if (.not. rtdb_put(rtdb,'neb:gmax',mt_dbl,0.00015d0))
+     >     call errquit('driver_input: rtdb put failed',0,
+     >     RTDB_ERR)
+       if (.not. rtdb_put(rtdb,'neb:grms',mt_dbl,0.00001d0))
+     >     call errquit('driver_input: rtdb put failed',0,
+     >     RTDB_ERR)
+       if (.not. rtdb_put(rtdb,'neb:xmax',mt_dbl,0.00006d0))
+     >     call errquit('driver_input: rtdb put failed',0,
+     >     RTDB_ERR)
+       if (.not. rtdb_put(rtdb,'neb:xrms',mt_dbl,0.00004d0))
+     >     call errquit('driver_input: rtdb put failed',0,
+     >     RTDB_ERR)
+      goto 100
+
+
 
 c
 c     end of input block

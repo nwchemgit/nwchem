@@ -61,9 +61,10 @@
       return
       end
 
-      subroutine neb_gradient_get(bead_list,c,e,t,g)
+      subroutine neb_gradient_get(bead_list,kbeads,c,e,t,g)
       implicit none
       character*(*) bead_list
+      real*8 kbeads
       real*8 c(*)
       real*8 e(*)
       real*8 t(*)
@@ -80,7 +81,7 @@
       external ddot
 
 
-      k = 0.1d0 !*** what's a good value?
+      k = kbeads
 
       nbeads = size_bead_list(bead_list)
       nion   = nion_bead_list(bead_list,1)
@@ -228,11 +229,12 @@
 *     *** RRR CHANGE COMBINE PROJECTION and sforce
 *     *** RRR addition into one subroutine
 
-      subroutine neb_gradient_get1(bead_list,c,e,t,g)
+      subroutine neb_gradient_get1(bead_list,kbeads,c,e,t,g)
 
 
       implicit none
       character*(*) bead_list
+      real*8 kbeads
       real*8 c(*)
       real*8 e(*)
       real*8 t(*)
@@ -255,25 +257,7 @@
       external size_bead_list,nion_bead_list
       external ddot
 
-*    *** RRR SET SPRING CONSTANT HERE
-*    *** user-supplied k, default 0.1d0
-*    *** currently not working
-*    *** use default
-*      ispring = rtdb_get(rtdb, 'spring', mt_dbl,1,spring)
-*      write(*,*)'is spring constant set? =',ispring,spring
-*      if(ispring) then
-*         k = spring
-*         write(*,*)'NEB spring constant set to  =',k
-*      else
-         k = 0.1d0
-*         write(*,*)'NEB default springs =',k
-*      endif      
-*      stop
-
-
-
-
-
+      k = kbeads
       nbeads = size_bead_list(bead_list)
       nion   = nion_bead_list(bead_list,1)
 
@@ -552,35 +536,9 @@ c
 c     This routine initializes the common /coptopt/ and
 c     also creates and returns the geometry handle
 c     
-c      integer i, j, num, ma_type, nactive_atoms, l_actlist
       integer nbeads
-c      logical ignore
-      logical oprint
-      character*80 title,neb_movecs
+      character*80 neb_movecs
       logical custom_path
-c     
-      oprint = util_print('information', print_low)
-     $     .and. (ga_nodeid() .eq. 0)
-c
-      if (oprint) then
-         write(6,*)
-         write(6,*)
-         call util_print_centered(6,
-     $        'NWChem Minimum Energy Pathway Program',
-     $        40,.true.)
-         write(6,*)
-         write(6,*)
-      endif
-c
-      if (rtdb_cget(rtdb,'title',1,title)) then
-         if (oprint) then
-            write(6,*)
-            write(6,*)
-            call util_print_centered(6, title, 40, .false.)
-            write(6,*)
-            write(6,*)
-         endif
-      endif
 
       if (.not.rtdb_cget(rtdb,'neb:movecs',1,neb_movecs)) then
          call util_file_prefix('movecs',neb_movecs)
@@ -592,23 +550,6 @@ c
       if (.not.rtdb_get(rtdb,'neb:nbeads',mt_int,1,nbeads)) then
          nbeads = 5
       end if
-      if (oprint) then
-         write(6,1) 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
-     >              0,nbeads,
-     >              neb_movecs
- 1       format(
-     $        ' maximum gradient threshold         (gmax) = ', f10.6,/,
-     $        ' rms gradient threshold             (grms) = ', f10.6,/,
-     $        ' maximum cartesian step threshold   (xmax) = ', f10.6,/,
-     $        ' rms cartesian step threshold       (xrms) = ', f10.6,/,
-     $        ' fixed trust radius                (trust) = ', f10.6,/,
-     $        ' energy precision                  (eprec) = ', 1p,d9.1,
-     $        0p,/,
-     $        ' maximum number of steps          (nptopt) = ', i4,/,
-     $        ' number of images in path         (nbeads) = ', i4,/,
-     $        ' NEB movecs filename                       = ', a)
-      end if
-
 
 *     **** create bead_list *** 
       call init_bead_list(rtdb,bead_list,neb_movecs)
@@ -756,44 +697,45 @@ c
       end
 
       subroutine neb_cg_direction(ng,g0,g1,s)
-        integer ng
-        double precision g0(*)
-        double precision g1(*)
-        double precision s(*)
+      integer ng
+      double precision g0(*)
+      double precision g1(*)
+      double precision s(*)
 
-        integer i
-        double precision gamma1
-        double precision gamma2
-        double precision sn
+      integer i
+      double precision gamma1
+      double precision gamma2
+      double precision sn
 
-c       *** choosing Polac-Ribiere coeff ***        
-        gamma1=0.0d0
-        gamma2=0.0d0
-        do i=1,ng
-           gamma1 = gamma1 + (g1(i)-g0(i))*g1(i)
-           gamma2 = gamma2 + g0(i)*g0(i)
-        end do
+c     *** choosing Polac-Ribiere coeff ***        
+      gamma1=0.0d0
+      gamma2=0.0d0
+      do i=1,ng
+         gamma1 = gamma1 + (g1(i)-g0(i))*g1(i)
+         gamma2 = gamma2 + g0(i)*g0(i)
+      end do
 
-        do i=1,ng
-           s(i) = -g1(i) + s(i)*gamma1/gamma2
-        end do
+      do i=1,ng
+         s(i) = -g1(i) + s(i)*gamma1/gamma2
+      end do
         
+      return
       end
 
       subroutine neb_move(ng,dt,c0,c1,s)
-        integer ng
-        double precision dt
-        double precision c0(*)
-        double precision c1(*)
-        double precision s(*)
+      integer ng
+      double precision dt
+      double precision c0(*)
+      double precision c1(*)
+      double precision s(*)
 
-        integer i
+      integer i
 
+      do i=1,ng
+          c1(i) = c0(i)+dt*s(i)
+      end do
 
-        do i=1,ng
-            c1(i) = c0(i)+dt*s(i)
-        end do
-
+      return
       end
 
       subroutine neb_calc_convergence(ng,g1,c0,c1,Gmax,Grms,Xmax,Xrms)
