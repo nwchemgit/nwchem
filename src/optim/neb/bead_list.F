@@ -63,6 +63,46 @@ c
       return
       end
 
+      subroutine set_rtdb_bead_list(rtdb)
+      implicit none
+      integer rtdb
+
+      integer bead_rtdb
+      common /bead_list/ bead_rtdb
+
+      bead_rtdb = rtdb
+      return
+      end
+      
+
+      subroutine reset_bead_list(tag)
+      implicit none
+      integer       rtdb
+      character*(*) tag
+
+#include "rtdb.fh"
+#include "mafdecls.fh"
+
+*     ***** local variables ****
+      logical value
+      integer size,taglen
+      character*255 rtdb_name
+
+      integer bead_rtdb
+      common /bead_list/ bead_rtdb
+
+*     **** external functions ****
+      integer  inp_strlen
+      external inp_strlen
+
+      taglen    = inp_strlen(tag)
+      size = 0
+      rtdb_name = tag(1:taglen)//':size'
+      value = rtdb_put(bead_rtdb,rtdb_name,mt_int,1,size) 
+
+      return
+      end
+
 c     ***************************************************
 c     *                                                 *
 c     *                add_bead_list                    *
@@ -171,6 +211,8 @@ c
       rtdb_name = tag(1:taglen)//':size'
       value = rtdb_get(bead_rtdb,rtdb_name,mt_int,1,size) 
       if (i.gt.size) return
+
+      value = value.and.rtdb_get(bead_rtdb,rtdb_name,mt_int,1,size-1) 
 
       do j=i,size-1
 
@@ -356,7 +398,6 @@ c
       call util_file_name_resolve(perm_name, .false.)
       permlen = inp_strlen(perm_name)
 
-      
       rtdb_name = tag(1:taglen)//':size'
       value = value.and.
      >        rtdb_get(bead_rtdb,rtdb_name,mt_int,1,size) 
@@ -391,8 +432,7 @@ c
 *     *** run gradient task ***
       if(.not.rtdb_put(bead_rtdb,"neb:ibead",mt_int,1,i))
      >  call errquit('neb:ibead put',0,0)
-      if(ga_nodeid().eq.0) 
-     > write(*,*) "neb: running bead ",i
+      if(ga_nodeid().eq.0) write(*,*) "neb: running bead ",i
       value=value.and.task_gradient_gen(bead_rtdb)
       if (.not.value) call errquit('run_bead_list failed',1,0)
 
@@ -822,8 +862,9 @@ c
 c     Entry - tag: name of bead list
 c
 c 
-      subroutine create_xyz_file_bead_list(tag)
+      subroutine create_xyz_file_bead_list(luout,tag)
       implicit none
+      integer luout
       character*(*) tag
   
 #include "rtdb.fh"
@@ -850,9 +891,9 @@ c
 
     
       if (ga_nodeid().eq.0) then
-         write(*,*)
-         write(*,*) 'XYZ FILE for bead_list:',tag
-         write(*,*) '------------------------------------------'
+         write(luout,*)
+         write(luout,*) 'XYZ FILE for bead_list:',tag
+         write(luout,*) '------------------------------------------'
       end if
       taglen    = inp_strlen(tag)
       nbeads    = size_bead_list(tag)
@@ -871,8 +912,8 @@ c
          value = value.and.geom_ncent(geom,nion)
  
          if (ga_nodeid().eq.0) then
-         write(*,*) nion
-         write(*,*) 'energy=',energy
+         write(luout,*) nion
+         write(luout,*) 'energy=',energy
          end if
          do ii=1,nion       
             value = value.and.geom_cent_get(geom,ii,t,rxyz,q)
@@ -881,14 +922,14 @@ c
             rxyz(2)= rxyz(2)*0.529177d0
             rxyz(3)= rxyz(3)*0.529177d0
             if (ga_nodeid().eq.0) then
-            write(*,'(A2,6x,3F12.6)') symbol,rxyz
+            write(luout,'(A2,6x,3F12.6)') symbol,rxyz
             end if
          end do
       end do
       value = value.and.geom_destroy(geom)
  
       if (ga_nodeid().eq.0) then
-         write(*,*) 
+         write(luout,*) 
       end if
 
       if (.not.value) 

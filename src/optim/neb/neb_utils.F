@@ -1,6 +1,12 @@
 *
 * $Id$
 *
+
+*     ***********************************************
+*     *                                             *
+*     *             neb_path_energy                 *
+*     *                                             *
+*     ***********************************************
       subroutine neb_path_energy(bead_list,dpath,epath)
       implicit none
       character*(*) bead_list
@@ -61,6 +67,11 @@
       return
       end
 
+*     ***********************************************
+*     *                                             *
+*     *             neb_gradient_get                *
+*     *                                             *
+*     ***********************************************
       subroutine neb_gradient_get(bead_list,kbeads,c,e,t,g)
       implicit none
       character*(*) bead_list
@@ -106,6 +117,11 @@
       return
       end
 
+*     ***********************************************
+*     *                                             *
+*     *             neb_add_spring_gradient         *
+*     *                                             *
+*     ***********************************************
       subroutine neb_add_spring_gradient(nbeads,nion,c,t,k,gs)
       implicit none
       integer nbeads,nion
@@ -152,6 +168,11 @@
       return
       end
 
+*     ***********************************************
+*     *                                             *
+*     *             neb_tangent                     *
+*     *                                             *
+*     ***********************************************
       subroutine neb_tangent(nbeads,nion,c,e,t)
       implicit none
       integer nbeads,nion
@@ -223,6 +244,11 @@
       return
       end
 
+*     ***********************************************
+*     *                                             *
+*     *             neb_gradient_get1               *
+*     *                                             *
+*     ***********************************************
 
 *     *** RRR SUBRT TO GET AND ADJUST GRADIENT ***
 *     *** RRR CHANGE TO INCLUDE CLIBING IMAGE ***
@@ -334,6 +360,11 @@
       return
       end
 
+*     ***********************************************
+*     *                                             *
+*     *             neb_tangent1                    *
+*     *                                             *
+*     ***********************************************
 
 *    *** RRR GET TANGENT TO BEAD PATH
 *    *** RRR  DEFINE TANGENT AS THE VECTOR
@@ -415,6 +446,12 @@
       return
       end
 
+*     ***********************************************
+*     *                                             *
+*     *             neb_energies_get                *
+*     *                                             *
+*     ***********************************************
+
       subroutine neb_energies_get(bead_list,e)
       implicit none
       character*(*) bead_list
@@ -438,6 +475,11 @@
       return
       end
 
+*     ***********************************************
+*     *                                             *
+*     *             neb_coords_get                  *
+*     *                                             *
+*     ***********************************************
       subroutine neb_coords_get(bead_list,c)
       implicit none
       character*(*) bead_list
@@ -461,6 +503,11 @@
       return
       end
 
+*     ***********************************************
+*     *                                             *
+*     *             neb_coords_set                  *
+*     *                                             *
+*     ***********************************************
       subroutine neb_coords_set(bead_list,c)
       implicit none
       character*(*) bead_list
@@ -480,11 +527,14 @@
         index = (i-1)*3*nion+1
         call coords_set_bead_list(bead_list,i,c(index))
       end do
-
-
       return
       end
 
+*     ***********************************************
+*     *                                             *
+*     *             neb_masses_get                  *
+*     *                                             *
+*     ***********************************************
       subroutine  neb_masses_get(rtdb,m)
       implicit none
       integer rtdb
@@ -516,9 +566,14 @@
       if (.not.value) call errquit('neb_masses failed',0,0)
 
       call dscal(nion,1822.89d0,m,1)
-
       return
       end
+
+*     ***********************************************
+*     *                                             *
+*     *             neb_initialize                  *
+*     *                                             *
+*     ***********************************************
 
       subroutine neb_initialize(rtdb, bead_list)
       implicit none
@@ -561,6 +616,12 @@ c
 
       return
       end
+
+*     ***********************************************
+*     *                                             *
+*     *             neb_initial_path                *
+*     *                                             *
+*     ***********************************************
 
       subroutine neb_initial_path(rtdb,bead_list,nbeads)
       implicit none
@@ -632,6 +693,11 @@ c
       return
       end
 
+*     ***********************************************
+*     *                                             *
+*     *             neb_initial_path_custom         *
+*     *                                             *
+*     ***********************************************
       subroutine neb_initial_path_custom(rtdb,bead_list,nbeads)
       implicit none
       integer rtdb
@@ -666,6 +732,12 @@ c
 
       return
       end
+
+*     ***********************************************
+*     *                                             *
+*     *             neb_verlet_update               *
+*     *                                             *
+*     ***********************************************
 
       subroutine neb_verlet_update(ng,c0,c1,v1,dti,g1)
         integer ng
@@ -777,3 +849,161 @@ c     *** choosing Polac-Ribiere coeff ***
 
       return
       end
+
+
+*     *****************************************
+*     *                                       *
+*     *             neb_lmbfgs                *
+*     *                                       *
+*     *****************************************
+      subroutine neb_lmbfgs(n,m,x,g,hg)
+      implicit none
+      integer n,m
+      real*8 x(n,m)
+      real*8 g(n,m)
+      real*8 hg(n)
+
+*     **** local variables ****
+      integer k
+      real*8 rho(25),alpha(25),beta(25)
+      real*8 tmp
+
+*     **** external functions ****
+      real*8   ddot
+      external ddot
+
+*     **** compute rho(k) = 1/y(:,k)' * s(:,k) ****
+      do k=1,m-1
+         tmp =       ddot(n,x(1,k+1),1,g(1,k+1),1)
+         tmp = tmp - ddot(n,x(1,k+1),1,g(1,k),  1)
+         tmp = tmp - ddot(n,x(1,k),  1,g(1,k+1),1)
+         tmp = tmp + ddot(n,x(1,k),  1,g(1,k),  1)
+         if (dabs(tmp).gt.1.0d-9) then
+             rho(k) = 1.0d0/tmp
+         else
+             rho(k) = 0.0d0
+         end if
+      end do
+
+      call dcopy(n,g(1,m),1,hg,1)
+
+      do k = (m-1),1,-1
+        alpha(k) = rho(k)
+     >            *(ddot(n,x(1,k+1),1,hg,1) - ddot(n,x(1,k),1,hg,1))
+
+        call daxpy(n,(-alpha(k)),g(1,k+1),1,hg,1)
+        call daxpy(n,( alpha(k)),g(1,k),  1,hg,1)
+      end do
+
+      do k = 1,(m-1)
+        beta(k) = rho(k)
+     >           *(ddot(n,g(1,k+1),1,hg,1) - ddot(n,g(1,k),1,hg,1))
+
+        call daxpy(n,(alpha(k)-beta(k)),x(1,k+1),1,hg,1)
+        call daxpy(n,(beta(k)-alpha(k)),x(1,k),  1,hg,1)
+      end do
+
+      return
+      end
+
+
+*     ***********************************************
+*     *                                             *
+*     *             neb_resize_path                 *
+*     *                                             *
+*     ***********************************************
+      subroutine neb_resize_path(rtdb,bead_list,nbeads1,nbeads2)
+      implicit none
+      integer rtdb
+      character*(*) bead_list
+      integer nbeads1
+      integer nbeads2
+
+#include "mafdecls.fh"
+#include "geom.fh"
+
+*     **** local variables ****
+      logical value
+      integer i,geom,geomlen,movecslen,nion
+      integer j1,j2,shift
+      integer r1(2),r2(2),r3(2),c(2)
+      real*8  t,t1,t2,t3
+      character*255 geom_name,movecs_name
+
+*     **** external functions ****
+      integer     inp_strlen
+      character*7 bead_index_name
+      external    inp_strlen
+      external    bead_index_name
+
+      value = geom_create(geom,'neb_tmp')
+      value = value.and.geom_rtdb_load(rtdb,geom,'neb_start')
+      value = value.and.geom_ncent(geom,nion)
+      value = value.and.geom_destroy(geom)
+      if (.not.value) call errquit('neb_resize_path failed',0,0)
+
+
+      value = value.and.MA_push_get(mt_dbl,(3*nion*nbeads1),
+     >                              'c',c(2),c(1))
+      value = value.and.MA_push_get(mt_dbl,(3*nion),'r1',r1(2),r1(1))
+      value = value.and.MA_push_get(mt_dbl,(3*nion),'r2',r2(2),r2(1))
+      value = value.and.MA_push_get(mt_dbl,(3*nion),'r3',r3(2),r3(1))
+      if (.not.value) call errquit('neb_resize_path failed',1,0)
+
+      value = value.and.geom_create(geom,'neb_tmp')
+      value = value.and.geom_rtdb_load(rtdb,geom,'neb_start')
+      value = value.and.geom_cart_coords_get(geom,dbl_mb(r3(1)))
+      if (.not.value) call errquit('neb_resize_path failed',2,0)
+
+      do i=1,nbeads1
+         shift = (i-1)*3*nion
+         call coords_get_bead_list(bead_list,i,dbl_mb(c(1)+shift))
+      end do
+      call reset_bead_list(bead_list)
+
+      do i=1,nbeads2
+        t = (i-1)/dble(nbeads2-1)
+
+        j1 = t*(nbeads1-1) + 1
+        j2 = j1+1
+        t1 = (j1-1)/dble(nbeads1-1)
+        t2 = (j2-1)/dble(nbeads1-1)
+        t3 = (t-t1)/(t2-t1)
+
+        if (j2.gt.nbeads1) then
+           t3 = 0.0d0
+           j2=nbeads1
+        end if
+
+        shift = (j1-1)*3*nion
+        call dcopy(3*nion,dbl_mb(c(1)+shift),1,dbl_mb(r1(1)),1)
+
+        shift = (j2-1)*3*nion
+        call dcopy(3*nion,dbl_mb(c(1)+shift),1,dbl_mb(r2(1)),1)
+
+        call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(r3(1)),1)
+        call dscal(3*nion,(1.0d0-t3),dbl_mb(r3(1)),1)
+        call daxpy(3*nion,t3,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
+
+        geom_name   = 'neb_bead'//bead_index_name(i)//':geom'
+        movecs_name = 'neb_bead'//bead_index_name(i)//'.movecs'
+        geomlen     = inp_strlen(geom_name)
+        movecslen   = inp_strlen(movecs_name)
+        value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
+        value = value.and.geom_rtdb_store(rtdb,geom,
+     >                                    geom_name(1:geomlen))
+
+        call add_bead_list(bead_list,
+     >                     movecs_name(1:movecslen),
+     >                     geom_name(1:geomlen))
+
+      end do
+      value = value.and.geom_destroy(geom)
+      value = value.and.MA_pop_stack(r3(2))
+      value = value.and.MA_pop_stack(r2(2))
+      value = value.and.MA_pop_stack(r1(2))
+      value = value.and.MA_pop_stack(c(2))
+      if (.not.value) call errquit('neb_new_path failed',3,0)
+      return
+      end
+
