@@ -14,10 +14,15 @@ c $Id$
 #include "rtdb.fh"
 #include "util.fh"
 c     
+      logical impose
       integer rtdb
-      character*255 test
+      character*255 test,test2
       integer nbeads
       double precision timestep,kbeads
+
+*     **** external functions ****
+      logical  neb_parse_boolean
+      external neb_parse_boolean
 
 c
  100  if (.not. inp_read()) call errquit('neb_input: inp_read failed',0,
@@ -218,7 +223,17 @@ c     ----------------------------
      >     RTDB_ERR)
       goto 100
 
-
+c
+c    impose 
+c     ----------------------------
+      else if (inp_compare(.false.,'impose', test)) then
+         impose = .true.
+         if(inp_a(test2)) impose = neb_parse_boolean(test2,.true.)
+         if (.not. rtdb_put(rtdb,'neb:impose',mt_log,1,impose))
+     >     call errquit('neb_input: rtdb put failed',0,
+     >     RTDB_ERR)
+      
+      goto 100
 
 c
 c     end of input block
@@ -233,4 +248,35 @@ c
       return
       end
 c
+
+
+
+*     *********************************************
+*     *                                           *
+*     *          neb_parse_boolean                *
+*     *                                           *  
+*     *********************************************  
+      logical function neb_parse_boolean(word,default)
+      implicit none
+      character*(*) word
+      logical default
+
+#include "inp.fh"
+#include "errquit.fh"
+      
+      logical value
+      value = default
+      if (inp_compare(.false.,word,'on'))      value = .true.
+      if (inp_compare(.false.,word,'yes'))     value = .true.
+      if (inp_compare(.false.,word,'.true.'))  value = .true.
+      if (inp_compare(.false.,word,'T'))       value = .true.
+      if (inp_compare(.false.,word,'off'))     value = .false.
+      if (inp_compare(.false.,word,'no'))      value = .false.
+      if (inp_compare(.false.,word,'.false.')) value = .false.
+      if (inp_compare(.false.,word,'F'))       value = .false.
+      if (inp_compare(.false.,word,'fix'))     value = .false.
+
+      neb_parse_boolean = value
+      return
+      end 
 

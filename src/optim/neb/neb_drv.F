@@ -137,6 +137,7 @@ c
             tmp = "not implemented"
          end if
          
+         write(luout,*)
          write(luout,1) nebgmax,nebgrms,nebxmax,nebxrms,
      >                  time_step,nebsteps,nbeads,m,kbeads,
      >                  neb_algorithm,tmp,
@@ -154,7 +155,8 @@ c
      >        ' number of images in path         (nbeads) = ', i4,/,
      >        ' number of histories               (nhist) = ', i4,/,
      >        ' NEB spring constant in a.u.      (kbeads) = ', f10.6,/,
-     >        ' NEB algorithmn                (algorithm) = ', i4,1x,a,/,
+     >        ' NEB algorithmn                (algorithm) = ', i4,
+     >                                                   1x,'(',a30,')'/,
      >        ' NEB movecs filename                       = ', a)
       end if
 

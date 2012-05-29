@@ -629,14 +629,19 @@ c
       character*(*) bead_list
       integer nbeads
 
-#include "mafdecls.fh"
 #include "geom.fh"
+#include "rtdb.fh"
+#include "util.fh"
+#include "global.fh"
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "stdio.fh"
 
 *     **** local variables ****
-      logical value
-      integer i,geom,geomlen,movecslen,nion
-      integer r1(2),r2(2),r3(2)
-      real*8  t
+      logical value,impose,oprint
+      integer i,geom,geomlen,movecslen,nion,nfit
+      integer r1(2),r2(2),r3(2),ifit(2),wfit(2)
+      real*8  t,rms1,rms2
       character*255 geom_name,movecs_name
 
 *     **** external functions ****
@@ -644,6 +649,15 @@ c
       character*7 bead_index_name
       external    inp_strlen
       external    bead_index_name
+
+      oprint = (ga_nodeid().eq.0)
+      if (oprint) then
+         write(luout,*) 
+     >   " - Generating initial path by linear interpolation"
+         write(luout,'(A,I4)') "    + number images = ",nbeads
+         write(luout,'(A)')    
+     >   "    + neb_start geometry --> neb_end geometry"
+      end if
 
       value = geom_create(geom,'neb_tmp')
       value = value.and.geom_rtdb_load(rtdb,geom,'neb_start')
@@ -662,6 +676,29 @@ c
       value = value.and.geom_rtdb_load(rtdb,geom,'neb_start')
       value = value.and.geom_cart_coords_get(geom,dbl_mb(r1(1)))
       if (.not.value) call errquit('neb_initial_path failed',2,0)
+
+      if (.not.rtdb_get(rtdb,'neb:impose',mt_log,1,impose))
+     >   impose = .false.
+
+      if (impose) then
+         value =  MA_push_get(mt_int,(2*nion),'ifit',ifit(2),ifit(1))
+         value = value.and.
+     >            MA_push_get(mt_dbl,(nion),'wfit',wfit(2),wfit(1))
+         if(.not.value) call errquit('neb_initial_path failed',3,MA_ERR)
+
+         call neb_impose(nion,dbl_mb(r1(1)),dbl_mb(r2(1)),
+     >                   nfit,int_mb(ifit(1)),dbl_mb(wfit(1)),rms1,rms2)
+         if (oprint) then
+            write(luout,*) 
+     >      " - Imposing neb_end geometry onto neb_start geometry"
+            write(luout,'(A,F10.6)') "    + initial rmsq = ",rms1
+            write(luout,'(A,F10.6)') "    + imposed rmsq = ",rms2
+         end if
+
+         value =           MA_pop_stack(wfit(2))
+         value = value.and.MA_pop_stack(ifit(2))
+         if(.not.value) call errquit('neb_initial_path failed',4,MA_ERR)
+      end if
 
       do i=1,nbeads
         t = (i-1)/dble(nbeads-1)
@@ -1007,3 +1044,445 @@ c     *** choosing Polac-Ribiere coeff ***
       return
       end
 
+
+*     ***********************************************
+*     *                                             *
+*     *             neb_impose                      *
+*     *                                             *
+*     ***********************************************
+c     subroutine neb_impose  --  superimpose two coordinate sets
+c
+c     "impose" performs the least squares best superposition
+c     of two atomic coordinate sets via a quaternion method;
+c     upon return, the first coordinate set is unchanged while
+c     the second set is translated and rotated to give best fit;
+c     the final root mean square fit is returned in "rmsvalue"
+c
+      subroutine neb_impose(nion,rion1,rion2,nfit,ifit,wfit,rms1,rms2)
+      implicit none
+      integer nion
+      real*8 rion1(3,*),rion2(3,*)
+      integer nfit,ifit(2,*)
+      real*8  wfit(*)
+      real*8 rms1,rms2
+
+*     **** local variables ****
+      integer i
+      real*8 xmid,ymid,zmid
+
+*     **** external functions ****
+      real*8   neb_rmsfit
+      external neb_rmsfit
+
+      nfit = nion
+      do i=1,nfit
+         ifit(1,i) = i
+         ifit(2,i) = i
+         wfit(i)   = 1.0d0
+      end do
+      rms1 = neb_rmsfit(nfit,ifit,wfit,rion1,rion2)
+c
+c     superimpose the centroids of active atom pairs
+c
+      call neb_center(nion,rion1,rion2,
+     >                      nfit,ifit,wfit,
+     >                      xmid,ymid,zmid)
+
+c
+c     use a quaternion method to achieve the superposition
+c
+      call neb_quatfit(nion,rion1,rion2,nfit,ifit,wfit)
+c
+c     translate both coordinate sets so as to return
+c     the first set to its original position
+c
+      do i = 1, nion
+         rion1(1,i) = rion1(1,i) + xmid
+         rion1(2,i) = rion1(2,i) + ymid
+         rion1(3,i) = rion1(3,i) + zmid
+      end do
+      do i = 1, nion
+         rion2(1,i) = rion2(1,i) + xmid
+         rion2(2,i) = rion2(2,i) + ymid
+         rion2(3,i) = rion2(3,i) + zmid
+      end do
+      rms2 = neb_rmsfit(nfit,ifit,wfit,rion1,rion2)
+
+      return
+      end
+
+*     ***********************************************
+*     *                                             *
+*     *             neb_rmsfit                      *
+*     *                                             *
+*     ***********************************************
+c     function neb_rmsfit  --  rms deviation for paired atoms
+c     "rmsfit" computes the rms fit of two coordinate sets
+c
+      real*8 function neb_rmsfit(nfit,ifit,wfit,rion1,rion2)
+      implicit none
+      integer nfit,ifit(2,*),wfit(*)
+      real*8 rion1(3,*),rion2(3,*)
+
+      integer i,i1,i2
+      real*8 rmsterm,rmsfit
+      real*8 xr,yr,zr,dist2
+      real*8 weight,norm
+c
+c     compute the rms fit over superimposed atom pairs
+c
+      rmsfit = 0.0d0
+      norm = 0.0d0
+      do i = 1, nfit
+         i1 = ifit(1,i)
+         i2 = ifit(2,i)
+         weight = wfit(i)
+         xr = rion1(1,i1) - rion2(1,i2)
+         yr = rion1(2,i1) - rion2(2,i2)
+         zr = rion1(3,i1) - rion2(3,i2)
+         dist2 = xr**2 + yr**2 + zr**2
+         norm = norm + weight
+         rmsterm = dist2 * weight
+         rmsfit = rmsfit + rmsterm
+      end do
+      neb_rmsfit = sqrt(rmsfit/norm)
+      return
+      end
+
+
+*     ***********************************************
+*     *                                             *
+*     *             neb_center                      *
+*     *                                             *
+*     ***********************************************
+c     subroutine neb_center  --  superimpose structure centroids 
+c
+c     "center" moves the weighted centroid of each coordinate
+c     set to the origin during least squares superposition
+
+      subroutine neb_center(nion,rion1,rion2,
+     >                      nfit,ifit,wfit,
+     >                      xmid,ymid,zmid)
+      implicit none
+      integer nion
+      real*8 rion1(3,*),rion2(3,*)
+      integer nfit,ifit(2,*)
+      real*8  wfit(*)
+      real*8 xmid,ymid,zmid
+
+*     **** local variables ****
+      integer i,k
+      real*8 weight,norm
+c
+c
+c     find the weighted centroid of the second
+c     structure and translate it to the origin
+c
+      xmid = 0.0d0
+      ymid = 0.0d0
+      zmid = 0.0d0
+      norm = 0.0d0
+      do i = 1, nfit
+         k = ifit(2,i)
+         weight = wfit(i)
+         xmid = xmid + rion2(1,k)*weight
+         ymid = ymid + rion2(2,k)*weight
+         zmid = zmid + rion2(3,k)*weight
+         norm = norm + weight
+      end do
+
+      xmid = xmid / norm
+      ymid = ymid / norm
+      zmid = zmid / norm
+      do i = 1, nion
+         rion2(1,i) = rion2(1,i) - xmid
+         rion2(2,i) = rion2(2,i) - ymid
+         rion2(3,i) = rion2(3,i) - zmid
+      end do
+c
+c     now repeat for the first structure, note
+c     that this centroid position gets returned
+c
+      xmid = 0.0d0
+      ymid = 0.0d0
+      zmid = 0.0d0
+      norm = 0.0d0
+      do i = 1, nfit
+         k = ifit(1,i)
+         weight = wfit(i)
+         xmid = xmid + rion1(1,k)*weight
+         ymid = ymid + rion1(2,k)*weight
+         zmid = zmid + rion1(3,k)*weight
+         norm = norm + weight
+      end do
+
+      xmid = xmid / norm
+      ymid = ymid / norm
+      zmid = zmid / norm
+      do i = 1, nion
+         rion1(1,i) = rion1(1,i) - xmid
+         rion1(2,i) = rion1(2,i) - ymid
+         rion1(3,i) = rion1(3,i) - zmid
+      end do
+
+      return
+      end
+
+
+*     ***********************************************
+*     *                                             *
+*     *             neb_quatfit                     *
+*     *                                             *
+*     ***********************************************
+c     subroutine quatfit  --  quaternion superposition of coords
+c
+c     "quatfit" uses a quaternion-based method to achieve the best
+c     fit superposition of two sets of coordinates
+c
+c     literature reference:
+c
+c     S. J. Kearsley, "An Algorithm for the Simultaneous Superposition
+c     of a Structural Series", Journal of Computational Chemistry,
+c     11, 1187-1192 (1990)
+c
+c     adapted from an original program written by David J. Heisterberg,
+c     Ohio Supercomputer Center, Columbus, OH
+c
+      subroutine neb_quatfit(nion,rion1,rion2,nfit,ifit,wfit)
+      implicit none
+      integer nion
+      real*8 rion1(3,*),rion2(3,*)
+      integer nfit
+      integer ifit(2,*)
+      integer wfit(*)
+
+
+      integer i,i1,i2,n1,n2
+      real*8  weight,xrot,yrot,zrot
+      real*8  xxyx,xxyy,xxyz,xyyx,xyyy
+      real*8  xyyz,xzyx,xzyy,xzyz
+      real*8  rot(3,3),temp1(4),temp2(4)
+      real*8  q(4),d(4),c(4,4),v(4,4)
+c
+c     build the upper triangle of the quadratic form matrix
+c
+      xxyx = 0.0d0
+      xxyy = 0.0d0
+      xxyz = 0.0d0
+      xyyx = 0.0d0
+      xyyy = 0.0d0
+      xyyz = 0.0d0
+      xzyx = 0.0d0
+      xzyy = 0.0d0
+      xzyz = 0.0d0
+      do i = 1, nfit
+         i1 = ifit(1,i)
+         i2 = ifit(2,i)
+         weight = wfit(i)
+         xxyx = xxyx + weight*rion1(1,i1)*rion2(1,i2)
+         xxyy = xxyy + weight*rion1(2,i1)*rion2(1,i2)
+         xxyz = xxyz + weight*rion1(3,i1)*rion2(1,i2)
+         xyyx = xyyx + weight*rion1(1,i1)*rion2(2,i2)
+         xyyy = xyyy + weight*rion1(2,i1)*rion2(2,i2)
+         xyyz = xyyz + weight*rion1(3,i1)*rion2(2,i2)
+         xzyx = xzyx + weight*rion1(1,i1)*rion2(3,i2)
+         xzyy = xzyy + weight*rion1(2,i1)*rion2(3,i2)
+         xzyz = xzyz + weight*rion1(3,i1)*rion2(3,i2)
+      end do
+      c(1,1) = xxyx + xyyy + xzyz
+      c(1,2) = xzyy - xyyz
+      c(2,2) = xxyx - xyyy - xzyz
+      c(1,3) = xxyz - xzyx
+      c(2,3) = xxyy + xyyx
+      c(3,3) = xyyy - xzyz - xxyx
+      c(1,4) = xyyx - xxyy
+      c(2,4) = xzyx + xxyz
+      c(3,4) = xyyz + xzyy
+      c(4,4) = xzyz - xxyx - xyyy
+c
+c     diagonalize the quadratic form matrix
+c
+      call neb_jacobi4(4,4,c,d,v,temp1,temp2)
+c
+c     extract the desired quaternion
+c
+      q(1) = v(1,4)
+      q(2) = v(2,4)
+      q(3) = v(3,4)
+      q(4) = v(4,4)
+c
+c     assemble rotation matrix that superimposes the molecules
+c
+      rot(1,1) = q(1)**2 + q(2)**2 - q(3)**2 - q(4)**2
+      rot(2,1) = 2.0d0 * (q(2) * q(3) - q(1) * q(4))
+      rot(3,1) = 2.0d0 * (q(2) * q(4) + q(1) * q(3))
+      rot(1,2) = 2.0d0 * (q(3) * q(2) + q(1) * q(4))
+      rot(2,2) = q(1)**2 - q(2)**2 + q(3)**2 - q(4)**2
+      rot(3,2) = 2.0d0 * (q(3) * q(4) - q(1) * q(2))
+      rot(1,3) = 2.0d0 * (q(4) * q(2) - q(1) * q(3))
+      rot(2,3) = 2.0d0 * (q(4) * q(3) + q(1) * q(2))
+      rot(3,3) = q(1)**2 - q(2)**2 - q(3)**2 + q(4)**2
+c
+c     rotate second molecule to best fit with first molecule
+c
+      do i=1,nion
+        xrot=rion2(1,i)*rot(1,1)+rion2(2,i)*rot(1,2)+rion2(3,i)*rot(1,3)
+        yrot=rion2(1,i)*rot(2,1)+rion2(2,i)*rot(2,2)+rion2(3,i)*rot(2,3)
+        zrot=rion2(1,i)*rot(3,1)+rion2(2,i)*rot(3,2)+rion2(3,i)*rot(3,3)
+        rion2(1,i) = xrot
+        rion2(2,i) = yrot
+        rion2(3,i) = zrot
+      end do
+
+      return
+      end
+
+
+*     ***********************************************
+*     *                                             *
+*     *             neb_jacobi4                     *
+*     *                                             *
+*     ***********************************************
+c     subroutine neb_jacobi4  --  jacobi matrix diagonalization
+c
+c
+c     "jacobi" performs a matrix diagonalization of a real
+c     symmetric matrix by the method of Jacobi rotations
+c
+c     n    logical dimension of the matrix to be diagonalized
+c     np   physical dimension of the matrix storage area
+c     a    input with the matrix to be diagonalized; only
+c             the upper triangle and diagonal are required
+c     d    returned with the eigenvalues in ascending order
+c     v    returned with the eigenvectors of the matrix
+c     b    temporary work vector
+c     z    temporary work vector
+c
+      subroutine neb_jacobi4(n,np,a,d,v,b,z)
+      implicit none
+      integer i,j,k,ip,iq,n,np,nrot,maxrot
+      real*8  sm,tresh,s,c,t,theta,tau,h,g,p
+      real*8  a(np,np),d(np),v(np,np),b(np),z(np)
+c
+c
+c     setup and initialization
+c
+      maxrot = 100
+      nrot = 0
+      do ip = 1, n
+         do iq = 1, n
+            v(ip,iq) = 0.0d0
+         end do
+         v(ip,ip) = 1.0d0
+      end do
+      do ip = 1, n
+         b(ip) = a(ip,ip)
+         d(ip) = b(ip)
+         z(ip) = 0.0d0
+      end do
+c
+c     perform the jacobi rotations
+c
+      do i = 1, maxrot
+         sm = 0.0d0
+         do ip = 1, n-1
+            do iq = ip+1, n
+               sm = sm + abs(a(ip,iq))
+            end do
+         end do
+         if (sm .eq. 0.0d0)  goto 10
+         if (i .lt. 4) then
+            tresh = 0.2d0*sm / n**2
+         else
+            tresh = 0.0d0
+         end if
+         do ip = 1, n-1
+            do iq = ip+1, n
+               g = 100.0d0 * abs(a(ip,iq))
+               if (i.gt.4 .and. abs(d(ip))+g.eq.abs(d(ip))
+     &                    .and. abs(d(iq))+g.eq.abs(d(iq))) then
+                  a(ip,iq) = 0.0d0
+               else if (abs(a(ip,iq)) .gt. tresh) then
+                  h = d(iq) - d(ip)
+                  if (abs(h)+g .eq. abs(h)) then
+                     t = a(ip,iq) / h
+                  else
+                     theta = 0.5d0*h / a(ip,iq)
+                     t = 1.0d0 / (abs(theta)+sqrt(1.0d0+theta**2))
+                     if (theta .lt. 0.0d0)  t = -t
+                  end if
+                  c = 1.0d0 / sqrt(1.0d0+t**2)
+                  s = t * c
+                  tau = s / (1.0d0+c)
+                  h = t * a(ip,iq)
+                  z(ip) = z(ip) - h
+                  z(iq) = z(iq) + h
+                  d(ip) = d(ip) - h
+                  d(iq) = d(iq) + h
+                  a(ip,iq) = 0.0d0
+                  do j = 1, ip-1
+                     g = a(j,ip)
+                     h = a(j,iq)
+                     a(j,ip) = g - s*(h+g*tau)
+                     a(j,iq) = h + s*(g-h*tau)
+                  end do
+                  do j = ip+1, iq-1
+                     g = a(ip,j)
+                     h = a(j,iq)
+                     a(ip,j) = g - s*(h+g*tau)
+                     a(j,iq) = h + s*(g-h*tau)
+                  end do
+                  do j = iq+1, n
+                     g = a(ip,j)
+                     h = a(iq,j)
+                     a(ip,j) = g - s*(h+g*tau)
+                     a(iq,j) = h + s*(g-h*tau)
+                  end do
+                  do j = 1, n
+                     g = v(j,ip)
+                     h = v(j,iq)
+                     v(j,ip) = g - s*(h+g*tau)
+                     v(j,iq) = h + s*(g-h*tau)
+                  end do
+                  nrot = nrot + 1
+               end if
+            end do
+         end do
+         do ip = 1, n
+            b(ip) = b(ip) + z(ip)
+            d(ip) = b(ip)
+            z(ip) = 0.0d0
+         end do
+      end do
+c
+c     print warning if not converged
+c
+   10 continue
+      if (nrot.eq.maxrot) then
+         write(*,20)
+   20    format (/,' JACOBI4 -- Matrix Diagonalization not Converged')
+      end if
+c
+c     sort the eigenvalues and vectors
+c
+      do i = 1, n-1
+         k = i
+         p = d(i)
+         do j = i+1, n
+            if (d(j) .lt. p) then
+               k = j
+               p = d(j)
+            end if
+         end do
+         if (k .ne. i) then
+            d(k) = d(i)
+            d(i) = p
+            do j = 1, n
+               p = v(j,i)
+               v(j,i) = v(j,k)
+               v(j,k) = p
+            end do
+         end if
+      end do
+      return
+      end
