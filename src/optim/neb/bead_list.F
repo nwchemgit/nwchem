@@ -862,10 +862,11 @@ c
 c     Entry - tag: name of bead list
 c
 c 
-      subroutine create_xyz_file_bead_list(luout,tag)
+      subroutine create_xyz_file_bead_list(luout,tag,header)
       implicit none
       integer luout
       character*(*) tag
+      logical header
   
 #include "rtdb.fh"
 #include "mafdecls.fh"
@@ -890,7 +891,7 @@ c
       external    bead_index_name
 
     
-      if (ga_nodeid().eq.0) then
+      if ((ga_nodeid().eq.0).and.(header)) then
          write(luout,*)
          write(luout,*) 'XYZ FILE for bead_list:',tag
          write(luout,*) '------------------------------------------'
@@ -928,7 +929,7 @@ c
       end do
       value = value.and.geom_destroy(geom)
  
-      if (ga_nodeid().eq.0) then
+      if ((ga_nodeid().eq.0).and.(header)) then
          write(luout,*) 
       end if
 

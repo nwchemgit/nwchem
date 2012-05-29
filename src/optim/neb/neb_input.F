@@ -236,6 +236,18 @@ c     ----------------------------
       goto 100
 
 c
+c    hasmiddle
+c     ----------------------------
+      else if (inp_compare(.false.,'hasmiddle', test)) then
+         impose = .true.
+         if(inp_a(test2)) impose = neb_parse_boolean(test2,.true.)
+         if (.not. rtdb_put(rtdb,'neb:hasmiddle',mt_log,1,impose))
+     >     call errquit('neb_input: rtdb put failed',0,
+     >     RTDB_ERR)
+      
+      goto 100
+
+c
 c     end of input block
 c     -------------------
       else if (inp_compare(.false.,'end', test)) then

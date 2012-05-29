@@ -638,9 +638,9 @@ c
 #include "stdio.fh"
 
 *     **** local variables ****
-      logical value,impose,oprint
-      integer i,geom,geomlen,movecslen,nion,nfit
-      integer r1(2),r2(2),r3(2),ifit(2),wfit(2)
+      logical value,impose,oprint,hasmiddle
+      integer i,geom,geomlen,movecslen,nion,nfit,i2,i3
+      integer r1(2),r2(2),r3(2),rmid(2),ifit(2),wfit(2)
       real*8  t,rms1,rms2
       character*255 geom_name,movecs_name
 
@@ -651,13 +651,6 @@ c
       external    bead_index_name
 
       oprint = (ga_nodeid().eq.0)
-      if (oprint) then
-         write(luout,*) 
-     >   " - Generating initial path by linear interpolation"
-         write(luout,'(A,I4)') "    + number images = ",nbeads
-         write(luout,'(A)')    
-     >   "    + neb_start geometry --> neb_end geometry"
-      end if
 
       value = geom_create(geom,'neb_tmp')
       value = value.and.geom_rtdb_load(rtdb,geom,'neb_start')
@@ -668,6 +661,8 @@ c
       value = value.and.MA_push_get(mt_dbl, (3*nion), 'r1',r1(2),r1(1))
       value = value.and.MA_push_get(mt_dbl, (3*nion), 'r2',r2(2),r2(1))
       value = value.and.MA_push_get(mt_dbl, (3*nion), 'r3',r3(2),r3(1))
+      value = value.and.MA_push_get(mt_dbl, (3*nion),
+     >                              'rmid',rmid(2),rmid(1))
       if (.not.value) call errquit('neb_initial_path failed',1,0)
 
       value = value.and.geom_create(geom,'neb_tmp')
@@ -676,6 +671,35 @@ c
       value = value.and.geom_rtdb_load(rtdb,geom,'neb_start')
       value = value.and.geom_cart_coords_get(geom,dbl_mb(r1(1)))
       if (.not.value) call errquit('neb_initial_path failed',2,0)
+
+      if (.not.rtdb_get(rtdb,'neb:hasmiddle',mt_log,1,hasmiddle))
+     >   hasmiddle = .false.
+
+      if (hasmiddle) then
+         if (.not.geom_rtdb_load(rtdb,geom,'neb_middle')) then
+            hasmiddle = .false.
+         else
+            if (.not.geom_cart_coords_get(geom,dbl_mb(rmid(1))))
+     >      call errquit('neb_initial_path failed',2,0)
+         end if
+      end if
+
+      if (oprint) then
+         write(luout,*) 
+     >   " - Generating initial path by linear interpolation"
+         write(luout,'(A,I4)') "    + number images = ",nbeads
+         if (hasmiddle) then
+            write(luout,'(3A)')    
+     >      "    + neb_start geometry -->",
+     >      " neb_middle geometry -->",
+     >      " neb_end geometry"
+         else
+            write(luout,'(A)')    
+     >      "    + neb_start geometry --> neb_end geometry"
+         end if
+      end if
+
+
 
       if (.not.rtdb_get(rtdb,'neb:impose',mt_log,1,impose))
      >   impose = .false.
@@ -686,41 +710,102 @@ c
      >            MA_push_get(mt_dbl,(nion),'wfit',wfit(2),wfit(1))
          if(.not.value) call errquit('neb_initial_path failed',3,MA_ERR)
 
-         call neb_impose(nion,dbl_mb(r1(1)),dbl_mb(r2(1)),
+         if (hasmiddle) then
+            call neb_impose(nion,dbl_mb(r1(1)),dbl_mb(rmid(1)),
      >                   nfit,int_mb(ifit(1)),dbl_mb(wfit(1)),rms1,rms2)
-         if (oprint) then
+            if (oprint) then
+            write(luout,*) 
+     >      " - Imposing neb_mid geometry onto neb_start geometry"
+            write(luout,'(A,F10.6)') "    + initial rmsq = ",rms1
+            write(luout,'(A,F10.6)') "    + imposed rmsq = ",rms2
+            end if
+
+            call neb_impose(nion,dbl_mb(rmid(1)),dbl_mb(r2(1)),
+     >                   nfit,int_mb(ifit(1)),dbl_mb(wfit(1)),rms1,rms2)
+            if (oprint) then
+            write(luout,*) 
+     >      " - Imposing neb_end geometry onto neb_mid geometry"
+            write(luout,'(A,F10.6)') "    + initial rmsq = ",rms1
+            write(luout,'(A,F10.6)') "    + imposed rmsq = ",rms2
+            end if
+         else
+            call neb_impose(nion,dbl_mb(r1(1)),dbl_mb(r2(1)),
+     >                   nfit,int_mb(ifit(1)),dbl_mb(wfit(1)),rms1,rms2)
+            if (oprint) then
             write(luout,*) 
      >      " - Imposing neb_end geometry onto neb_start geometry"
             write(luout,'(A,F10.6)') "    + initial rmsq = ",rms1
             write(luout,'(A,F10.6)') "    + imposed rmsq = ",rms2
+            end if
          end if
 
          value =           MA_pop_stack(wfit(2))
          value = value.and.MA_pop_stack(ifit(2))
          if(.not.value) call errquit('neb_initial_path failed',4,MA_ERR)
       end if
+      if (hasmiddle) then
+        i2 = nbeads/2+1
+        do i=1,i2
+          t = (i-1)/dble(i2-1)
+          call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(r3(1)),1)
+          call dscal(3*nion,(1.0d0-t),dbl_mb(r3(1)),1)
+          call daxpy(3*nion,t,dbl_mb(rmid(1)),1,dbl_mb(r3(1)),1)
 
-      do i=1,nbeads
-        t = (i-1)/dble(nbeads-1)
+          geom_name   = 'neb_bead'//bead_index_name(i)//':geom'
+          movecs_name = 'neb_bead'//bead_index_name(i)//'.movecs'
+          geomlen     = inp_strlen(geom_name)
+          movecslen   = inp_strlen(movecs_name)
+          value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
+          value = value.and.geom_rtdb_store(rtdb,geom,
+     >                                    geom_name(1:geomlen))
+          call add_bead_list(bead_list,
+     >                     movecs_name(1:movecslen),
+     >                     geom_name(1:geomlen))
+        end do
 
-        call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(r3(1)),1)
-        call dscal(3*nion,(1.0d0-t),dbl_mb(r3(1)),1)
-        call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
+        i3 = nbeads-i2
+        do i=1,i3
+          t = i/dble(i3)
+          call dcopy(3*nion,dbl_mb(rmid(1)),1,dbl_mb(r3(1)),1)
+          call dscal(3*nion,(1.0d0-t),dbl_mb(r3(1)),1)
+          call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
 
-        geom_name   = 'neb_bead'//bead_index_name(i)//':geom'
-        movecs_name = 'neb_bead'//bead_index_name(i)//'.movecs'
-        geomlen     = inp_strlen(geom_name)
-        movecslen   = inp_strlen(movecs_name)
-        value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
-        value = value.and.geom_rtdb_store(rtdb,geom,
+          geom_name   = 'neb_bead'//bead_index_name(i+i2)//':geom'
+          movecs_name = 'neb_bead'//bead_index_name(i+i2)//'.movecs'
+          geomlen     = inp_strlen(geom_name)
+          movecslen   = inp_strlen(movecs_name)
+          value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
+          value = value.and.geom_rtdb_store(rtdb,geom,
+     >                                    geom_name(1:geomlen))
+          call add_bead_list(bead_list,
+     >                     movecs_name(1:movecslen),
+     >                     geom_name(1:geomlen))
+        end do
+
+      else
+        do i=1,nbeads
+          t = (i-1)/dble(nbeads-1)
+
+          call dcopy(3*nion,dbl_mb(r1(1)),1,dbl_mb(r3(1)),1)
+          call dscal(3*nion,(1.0d0-t),dbl_mb(r3(1)),1)
+          call daxpy(3*nion,t,dbl_mb(r2(1)),1,dbl_mb(r3(1)),1)
+
+          geom_name   = 'neb_bead'//bead_index_name(i)//':geom'
+          movecs_name = 'neb_bead'//bead_index_name(i)//'.movecs'
+          geomlen     = inp_strlen(geom_name)
+          movecslen   = inp_strlen(movecs_name)
+          value = value.and.geom_cart_coords_set(geom,dbl_mb(r3(1)))
+          value = value.and.geom_rtdb_store(rtdb,geom,
      >                                    geom_name(1:geomlen))
 
-        call add_bead_list(bead_list,
+          call add_bead_list(bead_list,
      >                     movecs_name(1:movecslen),
      >                     geom_name(1:geomlen))
 
-      end do
+        end do
+      end if
       value = value.and.geom_destroy(geom)
+      value = value.and.MA_pop_stack(rmid(2))
       value = value.and.MA_pop_stack(r3(2))
       value = value.and.MA_pop_stack(r2(2))
       value = value.and.MA_pop_stack(r1(2))
@@ -1052,7 +1137,7 @@ c     *** choosing Polac-Ribiere coeff ***
 *     ***********************************************
 c     subroutine neb_impose  --  superimpose two coordinate sets
 c
-c     "impose" performs the least squares best superposition
+c     This routine performs the least squares best superposition
 c     of two atomic coordinate sets via a quaternion method;
 c     upon return, the first coordinate set is unchanged while
 c     the second set is translated and rotated to give best fit;
@@ -1117,7 +1202,8 @@ c
 *     *                                             *
 *     ***********************************************
 c     function neb_rmsfit  --  rms deviation for paired atoms
-c     "rmsfit" computes the rms fit of two coordinate sets
+c
+c     This routine computes the rms fit of two coordinate sets
 c
       real*8 function neb_rmsfit(nfit,ifit,wfit,rion1,rion2)
       implicit none
@@ -1157,7 +1243,7 @@ c
 *     ***********************************************
 c     subroutine neb_center  --  superimpose structure centroids 
 c
-c     "center" moves the weighted centroid of each coordinate
+c     This routine moves the weighted centroid of each coordinate
 c     set to the origin during least squares superposition
 
       subroutine neb_center(nion,rion1,rion2,
@@ -1236,7 +1322,7 @@ c
 *     ***********************************************
 c     subroutine quatfit  --  quaternion superposition of coords
 c
-c     "quatfit" uses a quaternion-based method to achieve the best
+c     This routine uses a quaternion-based method to achieve the best
 c     fit superposition of two sets of coordinates
 c
 c     literature reference:
@@ -1346,7 +1432,7 @@ c
 c     subroutine neb_jacobi4  --  jacobi matrix diagonalization
 c
 c
-c     "jacobi" performs a matrix diagonalization of a real
+c     This routine performs a matrix diagonalization of a real
 c     symmetric matrix by the method of Jacobi rotations
 c
 c     n    logical dimension of the matrix to be diagonalized

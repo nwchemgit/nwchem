@@ -235,7 +235,7 @@ c
          end do
          write(luout,*)
       end if
-      call create_xyz_file_bead_list(luout,bead_list)
+      call create_xyz_file_bead_list(luout,bead_list,.true.)
 
       norm = dsqrt(ddot(ng,dbl_mb(g1(1)),1,dbl_mb(g1(1)),1))
       if (oprint) write(luout,*) "Path Energy, Path Distance, |G_neb|:",
@@ -416,7 +416,7 @@ c
             end do
             write(luout,*)
          end if
-         call create_xyz_file_bead_list(luout,bead_list)
+         call create_xyz_file_bead_list(luout,bead_list,.true.)
 
          path_energy0 = path_energy
          call neb_path_energy(bead_list,
@@ -454,9 +454,6 @@ c
      >        a4,i5,f17.8,1p,d9.1,0p,4f9.5,f9.1,/,
      >        1x,5x,17x,9x,4a9,/)
 
-
-
-
          endif
 
         converged =               (Gmax.le.nebgmax)
@@ -467,35 +464,45 @@ c
   
       end do
 
-      if (converged) then
-         call util_file_prefix('neb_final_epath',filename)
-         call util_file_name_noprefix(filename,.false.,
-     >                                .false.,
-     >                                full_filename)
-         if (oprint) then
-            open(unit=19,file=full_filename,form='formatted')
-            write(19,*) 
+
+*     **** write out final path energies ****
+      call util_file_prefix('neb_final_epath',filename)
+      call util_file_name_noprefix(filename,.false.,
+     >                             .false.,
+     >                             full_filename)
+      if (oprint) then
+         open(unit=19,file=full_filename,form='formatted')
+         write(19,*) 
      > "#-------------------------------------------------------"
-            write(19,*)  "# NEB Path"
-            write(19,*)  "# algorithm     = ",neb_algorithm
-            write(19,*)  "# nbeads        = ",nbeads
-            write(19,*)  "# kbeads        = ",kbeads
-            write(19,*)  "# path energy   = ",path_energy
-            write(19,*)  "# path distance = ",path_distance
-            write(19,*)  "# dE            = ",dE
-            write(19,*)  "# Gmax          = ",Gmax
-            write(19,*)  "# Grms          = ",Grms
-            write(19,*)  "# Xmax          = ",Xmax
-            write(19,*)  "# Xrms          = ",Xrms
-            write(19,*) 
+         write(19,*)  "# NEB Path"
+         write(19,*)  "# algorithm     = ",neb_algorithm
+         write(19,*)  "# nbeads        = ",nbeads
+         write(19,*)  "# kbeads        = ",kbeads
+         write(19,*)  "# path energy   = ",path_energy
+         write(19,*)  "# path distance = ",path_distance
+         write(19,*)  "# dE            = ",dE
+         write(19,*)  "# Gmax          = ",Gmax
+         write(19,*)  "# Grms          = ",Grms
+         write(19,*)  "# Xmax          = ",Xmax
+         write(19,*)  "# Xrms          = ",Xrms
+         write(19,*) 
      > "#-------------------------------------------------------"
-            do i=1,nbeads
-               t = (i-1)/dble(nbeads-1)
-               write(19,*) t,dbl_mb(e1(1)+i-1)
-            end do
-            close(19)
-         end if
+         do i=1,nbeads
+            t = (i-1)/dble(nbeads-1)
+            write(19,*) t,dbl_mb(e1(1)+i-1)
+         end do
+         close(19)
       end if
+
+*     **** write out final xyz movies energies ****
+      call util_file_prefix('neb_final.xyz',filename)
+      call util_file_name_noprefix(filename,.false.,
+     >                             .false.,
+     >                             full_filename)
+       if (oprint) open(unit=19,file=full_filename,form='formatted')
+       call create_xyz_file_bead_list(19,bead_list,.false.)
+       if (oprint) close(19)
+
 
       value = value.and.MA_free_heap(cs(2))
       value = value.and.MA_free_heap(gs(2))
