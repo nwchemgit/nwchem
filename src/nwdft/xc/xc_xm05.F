@@ -153,7 +153,6 @@ c
              
             tauN = tau(n,1)
             tauu=tauN 
-            if (taun.lt.sqrt(DTol)) goto 10
             Gamma2 = delrho(n,1,1)*delrho(n,1,1) +
      &              delrho(n,2,1)*delrho(n,2,1) +
      &              delrho(n,3,1)*delrho(n,3,1)
@@ -262,6 +261,7 @@ c
      &              delrho(n,3,1)*delrho(n,3,1)
             Gamma2 = Four*Gamma2
             Gamma = dsqrt(Gamma2)
+            if (gamma.lt.DTol) goto 25
 
             s      = Cs*Gamma/rho43
             s2     = s*s
@@ -344,6 +344,7 @@ c
      &              delrho(n,3,2)*delrho(n,3,2)
             Gamma2 = Four*Gamma2
             Gamma = dsqrt(Gamma2)
+            if (gamma.lt.DTol) goto 20
             s      = Cs*Gamma/rho43
             s2     = s*s
             En     = C1*s2
