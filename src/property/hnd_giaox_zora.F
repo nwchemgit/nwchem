@@ -1,6 +1,7 @@
       subroutine hnd_giaox_zora(rtdb,basis,geom)
 c $Id$
       implicit none
+c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -14,6 +15,9 @@ c $Id$
 #include "bgj.fh"
 #include "case.fh"
 #include "zora.fh"  
+#include "util.fh"
+#include "inp.fh"
+c
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
       integer geom    ! [input] geometry handle
@@ -943,8 +947,7 @@ c --------- allocating array for NLMO analysis --------------- START
       status=rtdb_get(rtdb,'prop:shldfile',mt_int,1,shldfile) ! for NLMO analysis
       if (shldfile.eq.1) then
        if (.not. ma_alloc_get(mt_dbl,nat_slc*9,'tvec',l_tvec,k_tvec)) 
-     &    call
-     &    errquit('hnd_giaox_zora: ma_push_get failed tvec',0,MA_ERR)   
+     &  call errquit('hnd_giaox_zora: ma_push_get failed tvec',0,MA_ERR)   
       endif ! end-if-shldfile
 c --------- allocating array for NLMO analysis --------------- END
 c
@@ -954,12 +957,15 @@ c     Print out tensor information, and write to Ecce file if necessary
       acc_vec=0 ! For NMLO analysis
       call ecce_print_module_entry('nmr')
       do iatom = 1, nat_slc
-         ioff = (iatom-1)*9
-         if (.not. geom_cent_get(geom, int_mb(k_AtNr+iatom-1), tag, 
-     &       dbl_mb(k_xyz), dbl_mb(k_zan))) call 
-     &       errquit('hnd_giaox: geom_cent_tag failed',0,GEOM_ERR)
-         if (.not. geom_tag_to_element(tag, symbol, element, atn)) call
-     &       errquit('hnd_giaox: geom_tag_to_element failed',0,GEOM_ERR)
+        ioff = (iatom-1)*9
+        if (.not. geom_cent_get(geom, int_mb(k_AtNr+iatom-1), tag, 
+     &    dbl_mb(k_xyz), dbl_mb(k_zan))) call 
+     &    errquit('hnd_giaox: geom_cent_tag failed',0,GEOM_ERR)
+        if (.not. geom_tag_to_element(tag, symbol, element, atn)) then
+         if (.not. inp_compare(0,tag(1:2),'bq')) 
+     &    call errquit('hnd_giaox_zora: geom_tag_to_element failed',
+     & 0,GEOM_ERR)
+        end if  ! tag check
 c
 c      Print tensor pieces and sum for total shielding tensor
          if (ga_nodeid().eq.0) then
@@ -1124,6 +1130,7 @@ c Note.- Adaptation of hnd_giaox.F to hold
 c        - Nonrel(HF or DFT)   in unrestricted/restricted calculations.
 c        - Relativistic (zora) in unrestricted/restricted calculations.
       implicit none
+c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1134,7 +1141,8 @@ c        - Relativistic (zora) in unrestricted/restricted calculations.
 #include "bgj.fh"
 #include "bas.fh"
 #include "stdio.fh"
-#include "zora.fh"  ! for num NMRCS-Z4
+#include "zora.fh"  
+c
 c      Global arrays variables defined in zora.fh
 c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       integer rtdb
@@ -1359,6 +1367,7 @@ c Note.- Adaptation of hnd_giaox.F to hold
 c        - Nonrel(HF or DFT)   in unrestricted/restricted calculations.
 c        - Relativistic (zora) in unrestricted/restricted calculations.
       implicit none
+c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1369,7 +1378,8 @@ c        - Relativistic (zora) in unrestricted/restricted calculations.
 #include "bgj.fh"
 #include "bas.fh"
 #include "stdio.fh"
-#include "zora.fh"  ! for num NMRCS-Z4
+#include "zora.fh"
+c
       integer rtdb
       integer basis
       integer alo(3), ahi(3), blo(3), bhi(3)
@@ -1588,6 +1598,7 @@ c Note.- Adaptation of hnd_giaox.F to hold
 c        - Nonrel(HF or DFT)   in unrestricted/restricted calculations.
 c        - Relativistic (zora) in unrestricted/restricted calculations.
       implicit none
+c
 #include "errquit.fh"
 #include "global.fh"
 #include "mafdecls.fh"
@@ -1598,7 +1609,8 @@ c        - Relativistic (zora) in unrestricted/restricted calculations.
 #include "prop.fh"
 #include "bgj.fh"
 #include "stdio.fh"
-#include "zora.fh"  ! for num NMRCS-Z4
+#include "zora.fh"
+c
 c      Global arrays variables defined in zora.fh
 c      --> ga_dia,ga_para1,ga_Fji,ga_h01_num
       integer rtdb
@@ -1718,6 +1730,7 @@ c -------------- for shieldings NMLO analysis ----------------- START
      &             nmo)     ! in: nr. MO
 
       implicit none
+c
 #include "nwc_const.fh"
 #include "errquit.fh"
 #include "global.fh" 
@@ -1729,6 +1742,7 @@ c -------------- for shieldings NMLO analysis ----------------- START
 #include "cosmo.fh"
 #include "msgids.fh" 
 #include "zora.fh"   
+c
 c FA: Revised on 06-22-11
 c ------Main outputs -------- START
       integer g_munu_rot,         ! hyp-FCSD  dia  part
