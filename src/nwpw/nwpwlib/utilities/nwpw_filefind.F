@@ -34,7 +34,8 @@
          if (found) idum = 1
       end if
       msglen = 1
-      call BRDCST(9+MSGINT,idum,mitob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,idum)
+      
 
       if (idum.eq.1) then
          found = .true.
