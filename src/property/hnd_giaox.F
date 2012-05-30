@@ -13,6 +13,8 @@ c $Id$
 #include "prop.fh"
 #include "bgj.fh"
 #include "case.fh"
+#include "util.fh"
+#include "inp.fh"
 c
       integer rtdb    ! [input] rtdb handle
       integer basis   ! [input] basis handle
@@ -765,10 +767,12 @@ c
       do iatom = 1, sh_atom
          ioff = (iatom-1)*9
          if (.not. geom_cent_get(geom, int_mb(k_tmp+iatom-1), tag, 
-     &       dbl_mb(k_xyz), dbl_mb(k_zan))) call 
-     &       errquit('hnd_giaox: geom_cent_tag failed',0,GEOM_ERR)
-         if (.not. geom_tag_to_element(tag, symbol, element, atn)) call
-     &       errquit('hnd_giaox: geom_tag_to_element failed',0,GEOM_ERR)
+     &     dbl_mb(k_xyz), dbl_mb(k_zan))) call 
+     &     errquit('hnd_giaox: geom_cent_tag failed',0,GEOM_ERR)
+         if (.not. geom_tag_to_element(tag, symbol, element, atn)) then
+           if (.not. inp_compare(0,tag(1:2),'bq')) call ! check for bq as a fall back
+     &     errquit('hnd_giaox: geom_tag_to_element failed',0,GEOM_ERR)
+         end if  ! tag check
 c
 c     Symmetrize the diamagnetic and paramagnetic tensors
 c
@@ -829,7 +833,8 @@ c
             call ecce_print2('shielding eigenvectors',MT_DBL,axs,
      &                       3,3,3)
          endif
-      enddo
+      enddo ! iatom
+c
       call ecce_print_module_exit('nmr','ok')
 c
       call ga_sync()
