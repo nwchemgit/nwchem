@@ -23,11 +23,11 @@ c
      + cfac(2)  + cfac(4)  + cfac(5)  + cfac(12) +
      + cfac(13) + cfac(14) + cfac(15) + cfac(16) + cfac(17)+cfac(18)+
      + cfac(19) + cfac(20) + cfac(21) + cfac(22) + cfac(23) + cfac(24) +
-     + xfac(25) + cfac(25) + cfac(26) + xfac(20) + xfac(21)+cfac(27) +
-     + xfac(26) + xfac(27) + xfac(28) + xfac(29) + cfac(31) + 
+     + xfac(25) + cfac(25) + cfac(26) + xfac(20) + xfac(21) + cfac(27) +
+     + xfac(26) + xfac(27) + xfac(28) + xfac(29) + cfac(31) + xfac(32) +
      + cfac(32) + cfac(33) + cfac(34) + cfac(35) + cfac(36) +
      + xfac(34) + xfac(35) + xfac(36) + xfac(37) +
-     + cfac(30) + cfac(38) + cfac(39) + cfac(40) + cfac(41) +
+     + cfac(30) + cfac(38) + cfac(39) + cfac(40) + cfac(41) + cfac(42) +
      + xfac(46) + cfac(46) + xfac(47) + cfac(47) + xfac(40) + xfac(41) +
      + xfac(48) + xfac(49) + xfac(50) + xfac(51) +
      + cfac(48) + cfac(49) + cfac(50) + cfac(51) +
@@ -101,6 +101,7 @@ c
      .     xfac(22).ne.0d0.or.
      .     xfac(28).ne.0d0.or.
      .     xfac(29).ne.0d0.or.
+     .     xfac(32).ne.0d0.or.
      .     xfac(33).ne.0d0.or.
      .     xfac(34).ne.0d0.or.
      .     xfac(35).ne.0d0.or.
@@ -136,6 +137,7 @@ c
      .     cfac(38).ne.0d0.or.
      .     cfac(39).ne.0d0.or.
      .     cfac(40).ne.0d0.or.
+     .     cfac(42).ne.0d0.or.
      .     cfac(48).ne.0d0.or.
      .     cfac(49).ne.0d0.or.
      .     cfac(50).ne.0d0.or.
@@ -166,7 +168,7 @@ c
      +       + xfac(28) + xfac(29) + xfac(33) + xfac(34) + xfac(35)
      +       + xfac(36) + cfac(29) + cfac(31) + cfac(32) + cfac(33) 
      +       + cfac(34) + cfac(35) + cfac(30) + cfac(38)
-     +       + cfac(39) + cfac(40)
+     +       + cfac(39) + cfac(40) + xfac(32) + cfac(42)
      +       + cfac(48) + cfac(49) + cfac(50) + cfac(51)
 c
       if (abs(tot).gt.eps)then

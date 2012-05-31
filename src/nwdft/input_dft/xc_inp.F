@@ -89,6 +89,7 @@ c     mp2       => 8500
 c     b2plyp    => 8510
 c     xcamlsd   => 8520
 c     xwpbe     => 8530
+c     dldf      => 9300
 c
 c     m08-HX   => 8600
 c     xm08-HX  => 8610
@@ -119,7 +120,7 @@ c     xsogga11-x => 9210
 c     csogga11-x => 9220
 
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=125)
+      parameter (num_dirs=126)
 
       character*15 dirs(num_dirs)
       character*255 test
@@ -164,7 +165,7 @@ c
      &     'xbnl07',
      &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
      &     'xcamlsd','xwpbe','ssb-d','kt1','kt2','bhlyp','b3p86',
-     &     'b3pw91','pbe96'/
+     &     'b3pw91','pbe96','dldf'/
 c     becke97-d, ssb-d
       logical disp
 c
@@ -206,7 +207,7 @@ c
      &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8900,8910,8920,
      &  9000,9010,9020,9100,9110,9120,9200,9210,9220,
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
-     &  8532,8533,8534,1999) ind
+     &  8532,8533,8534,9300,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -3366,6 +3367,21 @@ c MP2
      2                  0,RTDB_ERR)
 c
       goto 10
+
+c     dlDF      
+9300  xccomb(31) = .true.
+        xfac(32) = 0.3855871d0
+       lxfac(32) = .true.
+      nlxfac(32) = .true.
+        cfac(42) = 1.0d0
+       lcfac(42) = .true.
+      nlcfac(42) = .true.
+         xfac(1) = 0.6144129d0
+        lxfac(1) = .true.
+       nlxfac(1) = .true.
+c
+      goto 10
+
 c
 c     gill96; Gill '96 functional for exchange
 c     

@@ -621,6 +621,18 @@ c
          endif
       endif
 c
+c dlDF    meta GGA Exchange
+c      
+      if (abs(xfac(32)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_xdldf(tol_rho, xfac(32), lxfac(32), nlxfac(32),
+     &           rho, delrho, Amat, Cmat, nq, ipol,
+     &           Ex, qwght,ldew, func,ttau,Mmat)
+         else
+            call xc_xdldf_d2()
+         endif
+      endif
+c
 c VSXC   meta GGA Exchange
 c
       if (abs(xfac(33)).gt.eps)then
@@ -1028,6 +1040,26 @@ c
 
          else
             call xc_cm05_d2()
+         endif
+      endif
+c
+c     dlDF Correlation
+c
+c     cdldf is special in that the GGA part is
+c     defined to be dependent on
+c     the E(LDA) ...
+c     the decision has been made to use the PW91-LDA as the
+c     LDA-correlation.  at present, this LDA  cannot be
+c     set by the user
+c
+      if (abs(cfac(42)).gt.eps)then
+         if (.not. do_2nd) then
+            call xc_cdldf(tol_rho, cfac(42), lcfac(42), nlcfac(42),
+     &           rho, delrho,  nq, ipol,
+     &           Ec, qwght, ldew,func,ttau,Amat,Cmat,Mmat)
+
+         else
+            call xc_cdldf_d2()
          endif
       endif
 c

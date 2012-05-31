@@ -347,6 +347,8 @@ c            if (.not. inp_a(tag)) goto 1688
 !     $     call errquit
 !     &    ('grid_inp: tag does not refer to an atom', 0)
       ngridin=ngridin+1
+clowercase
+      call inp_lcase(test)
       grtagin(ngridin)=test
       if (.not. inp_i(nradpts)) then
          write(LuOut,*)' grid_inp: nradpts value not found. '
