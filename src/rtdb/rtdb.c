@@ -30,6 +30,13 @@ static int me;
 static int par_mode[MAX_RTDB] = {INACTIVE,INACTIVE,INACTIVE,INACTIVE,INACTIVE};
 static int parallel_mode=PARALLEL; /* Current mode SEQUENTIAL/PARALLEL */
 
+/**
+\defgroup rtdb RunTime DataBase
+
+\ingroup rtdb 
+@{
+*/
+
 int rtdb_parallel(const int mode)
 /*
   Set the parallel access mode of all databases to mode and
@@ -573,3 +580,7 @@ void rtdb_print_usage()
     hdbm_print_usage();
 #endif
 }
+
+/**
+@}
+*/

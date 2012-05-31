@@ -25,35 +25,47 @@
       integer*4 io_code
 #endif
 c
-c     $Id$
+c  $Id$
 c
-c      ======================================================================================================
-c      Northwest Computational Chemistry Package (NWChem) 6.1.1
+c  ======================================================================================================
+C> \mainpage Northwest Computational Chemistry Package (NWChem) 6.1.1
+C>
+C> NWChem is an open-source computational chemistry package distributed under the terms of
+C> the Educational Community License (ECL) 2.0
+C>
+C> This software and its documentation were developed at the EMSL at Pacific Northwest National Laboratory,
+C> a multiprogram national laboratory, operated for the U.S. Department of Energy by Battelle under
+C> Contract Number DE-AC05-76RL01830. Support for this work was provided by the Department of Energy
+C> Office of Biological and Environmental Research, Office of Basic Energy Science, and the Office of
+C> Advanced Scientific Computing.
+C>
+C> Licensed under the Educational Community License, Version 2.0 (the "License"); you may
+C> not use this file except in compliance with the License. You may obtain a copy of the
+C> License at <a href="http://www.osedu.org/licenses/ECL-2.0">http://www.osedu.org/licenses/ECL-2.0</a>.
+C>
+C> Unless required by applicable law or agreed to in writing, software distributed under the
+C> License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
+C> either express or implied. See the License for the specific language governing
+C> permissions and limitations under the License.
+C>
+C> Further information, including user documentation and forums, may be found at
+C> <a href="http://www.nwchem-sw.org/">http://www.nwchem-sw.org/</a>. Alternatively,
+C> the paper
+C>
+C> * M. Valiev, E.J. Bylaska, N. Govind, K. Kowalski, T.P. Straatsma, H.J.J. Van Dam,
+C>   D. Wang, J. Nieplocha, E. Apra, T.L. Windus, W.A. de Jong (2010)<br>
+C>   "NWChem: A comprehensive and scalable open-source solution for large scale molecular simulations"<br>
+C>   <I>Computer Physics Communications</I>, <b>181</b>, 1477–1489, DOI: <a href="http://dx.doi.org/10.1016/j.cpc.2010.04.018">10.1016/j.cpc.2010.04.018</a>
+C>
+C> provides details on the codes capabilities.
+C>
+C> Copyright (c) 1994-2012 Pacific Northwest National Laboratory, Batelle Memorial Institute
+C>
+C> Environmental Molecular Sciences Laboratory (EMSL)<br>
+C> Pacific Northwest National Laboratory<br>
+C> Richland, WA 99352
 c
-c      Environmental Molecular Sciences Laboratory (EMSL)
-c      Pacific Northwest National Laboratory
-c      Richland, WA 99352
-c
-c      NWChem is an open-source computational chemistry package distributed under the terms of
-c      the Educational Community License (ECL) 2.0
-c
-c      Copyright (c) 1994-2010 Pacific Northwest National Laboratory, Batelle Memorial Institute
-c
-c      This software and its documentation were developed at the EMSL at Pacific Northwest National Laboratory,
-c      a multiprogram national laboratory, operated for the U.S. Department of Energy by Battelle under
-c      Contract Number DE-AC05-76RL01830. Support for this work was provided by the Department of Energy
-c      Office of Biological and Environmental Research, Office of Basic Energy Science, and the Office of
-c      Advanced Scientific Computing.
-c
-c      Licensed under the Educational Community License, Version 2.0 (the "License"); you may
-c      not use this file except in compliance with the License. You may obtain a copy of the
-c      License at http://www.osedu.org/licenses/ECL-2.0
-c
-c      Unless required by applicable law or agreed to in writing, software distributed under the
-c      License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND,
-c      either express or implied. See the License for the specific language governing
-c      permissions and limitations under the License.
-c      ======================================================================================================
+c  ======================================================================================================
 c
       character*(nw_max_path_len) input_filename, rtdb_name
       double precision total_wall, total_cpu
