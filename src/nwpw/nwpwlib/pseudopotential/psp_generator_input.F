@@ -773,9 +773,9 @@ c        *** revPBE ***
       call ga_sync()
 
       msglen = 1
-      call BRDCST(9+MSGINT,lmax,mitob(msglen),MASTER)
-      call BRDCST(9+MSGINT,locp,mitob(msglen),MASTER)
-      call BRDCST(9+MSGDBL,rlocal,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,lmax)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,locp)
+      call Parallel_Brdcst_values(MASTER,msglen,rlocal)
 
       return
       end
@@ -976,8 +976,9 @@ c           write(99,*) '<correlation> off   <end>'
       call ga_sync()
 
       msglen = 1
-      call BRDCST(9+MSGINT,lmax,mitob(msglen),MASTER)
-      call BRDCST(9+MSGINT,locp,mitob(msglen),MASTER)
-      call BRDCST(9+MSGDBL,rlocal,mdtob(msglen),MASTER)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,lmax)
+      call Parallel_Brdcst_ivalues(MASTER,msglen,locp)
+      call Parallel_Brdcst_values(MASTER,msglen,rlocal)
+
       return
       end
