@@ -820,6 +820,7 @@ c     implicit none
 
 
 
+
 *     ***********************************
 *     *                                 *
 *     *      Parallel_Brdcst_values     *
@@ -853,6 +854,48 @@ c     implicit none
 
       if (np.gt.1) then
          call MPI_Bcast(sum,nsize,MPI_DOUBLE_PRECISION,
+     >                  psend,comm_world,ierr)
+      end if
+#endif
+
+      return
+      end
+
+*     ***********************************
+*     *                                 *
+*     *      Parallel_Brdcst_ivalue     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Brdcst_ivalue(psend,isum)
+      implicit none
+      integer psend
+      integer isum
+
+#include "Parallel.fh"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+
+#ifdef MPI4
+      integer*4 tpsend,isum4
+
+      if (np.gt.1) then
+         stupid_msglen = 1
+         tpsend        = psend
+         isum4 = isum
+         call MPI_Bcast(isum4,stupid_msglen,stupid_integer,
+     >                  tpsend,stupid_world,stupid_ierr)
+         isum = isum4
+      end if
+#else
+      integer ierr
+
+      if (np.gt.1) then
+         call MPI_Bcast(isum,1,MPI_DOUBLE_PRECISION,
      >                  psend,comm_world,ierr)
       end if
 #endif
@@ -1444,10 +1487,59 @@ c     implicit none
 
 
 
+*     ***********************************
+*     *                                 *
+*     *      Parallela_Brdcst_ivalue    *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallela_Brdcst_ivalue(ic,psend,isum)
+      implicit none
+      integer ic,psend
+      integer isum
+
+#include "Parallel.fh"
+#ifdef MPI4
+#include "stupid_mpi4.fh"
+#else
+#include "mpif.h"
+#endif
+
+
+#ifdef MPI4
+      integer*4 tpsend,isum4
+      integer*4 getcomm
+      external  getcomm
+
+      if (np.gt.1) then
+         stupid_msglen = 1
+         tpsend        = psend
+         isum4         = isum
+         call MPI_Bcast(isum4,stupid_msglen,stupid_double,
+     >                  tpsend,getcomm(ic),stupid_ierr)
+         isum         = isum4
+      end if
+#else
+      integer ierr
+      integer  getcomm
+      external getcomm
+
+      if (np.gt.1) then
+         call MPI_Bcast(isum,1,MPI_DOUBLE_PRECISION,
+     >                  psend,getcomm(ic),ierr)
+      end if
+#endif
+
+      return
+      end
+
+
+
+
 
 *     ***********************************
 *     *                                 *
-*     *      Parallela_Brdcst_ivalues    *
+*     *      Parallela_Brdcst_ivalues   *
 *     *                                 *
 *     ***********************************
 
@@ -1571,8 +1663,9 @@ c     implicit none
      >                  stupid_taskid,
      >                  stupid_type,getcomm(ic),
      >                  stupid_request,stupid_ierr)
-            request(1) = stupid_request
+            request(1) = 0
             request(3) = 1
+            request(1) = stupid_request
          else
             request(3) = 0
          end if
@@ -1586,8 +1679,9 @@ c     implicit none
      >                  stupid_taskid,
      >                  stupid_type,getcomm(ic),
      >                  stupid_request,stupid_ierr)
-            request(2) = stupid_request
+            request(2) = 0
             request(4) = 1
+            request(2) = stupid_request
          else
             request(4) = 0
          end if
@@ -1693,11 +1787,14 @@ c     implicit none
             stupid_msglen = nsize2
             stupid_type   = msgtype0
             stupid_taskid = proc_from
+      write(*,*) "irecv, mytaskid,stupid_taskid,msglen=",mytaskid,
+     >           stupid_taskid,stupid_msglen,IA2(1)
             call MPI_IRECV(IA2,
      >                  stupid_msglen,stupid_integer,
      >                  stupid_taskid,
      >                  stupid_type,getcomm(ic),
      >                  stupid_request,stupid_ierr)
+            request(1) = 0
             request(1) = stupid_request
             request(3) = 1
          else
@@ -1708,11 +1805,14 @@ c     implicit none
             stupid_msglen = nsize1
             stupid_type   = msgtype0
             stupid_taskid = proc_to
+      write(*,*) "isend, mytaskid,stupid_taskid,msglen=",mytaskid,
+     >           stupid_taskid,stupid_msglen,IA1(1)
             call MPI_ISEND(IA1,
      >                  stupid_msglen,stupid_integer,
      >                  stupid_taskid,
      >                  stupid_type,getcomm(ic),
      >                  stupid_request,stupid_ierr)
+            request(2) = 0
             request(2) = stupid_request
             request(4) = 1
          else

@@ -450,6 +450,35 @@ c     implicit none
       return
       end
 
+*     ***********************************
+*     *                                 *
+*     *      Parallel_Brdcst_ivalue     *
+*     *                                 *
+*     ***********************************
+
+      subroutine Parallel_Brdcst_ivalue(psend,isum)
+      implicit none
+      integer psend
+      integer isum
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+*     **** local variables ****
+      integer msglen
+
+      if (np.gt.1) then
+         msglen = 1
+         call BRDCST(9+MSGINT,isum,mitob(msglen),psend)
+      end if
+
+      return
+      end
+
+
 
 *     ***********************************
 *     *                                 *
@@ -718,6 +747,46 @@ c     implicit none
 
       return
       end
+
+
+
+*     ***********************************
+*     *                                 *
+*     *      Parallela_Brdcst_ivalue    *
+*     *                                 *
+*     ***********************************
+      subroutine Parallela_Brdcst_ivalue(ic,psend,isum)
+      implicit none
+      integer ic
+      integer psend
+      integer isum
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "tcgmsg.fh"
+#include "msgtypesf.h"
+#include "Parallel.fh"
+
+*     **** local variables ****
+      integer msglen
+
+      if (np.gt.1) then
+         msglen = 1
+         if (ic.eq.1) then
+         call GA_PGROUP_BRDCST(comm_i,9+MSGINT,isum,mitob(msglen),psend)
+         else if (ic.eq.2) then
+         call GA_PGROUP_BRDCST(comm_j,9+MSGINT,isum,mitob(msglen),psend)
+         else if (ic.eq.3) then
+         call GA_PGROUP_BRDCST(comm_k,9+MSGINT,isum,mitob(msglen),psend)
+         else
+         call GA_BRDCST(9+MSGINT,sum,mitob(msglen),psend)
+         end if
+      end if
+
+      return
+      end
+
+
 
 
 *     ***********************************
