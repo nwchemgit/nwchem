@@ -1,0 +1,33 @@
+
+echo
+
+start h2o-occup-2
+
+memory 1000 mb
+
+geometry units au noautosym noautoz
+ O  0.00000000     0.00000000     0.23766060
+ H -1.43910775     0.00000000    -0.89373030
+ H  1.43910775     0.00000000    -0.89373030
+end
+
+basis
+ O library 6-31g*
+ H library 6-31g*
+end
+
+occup 6 5 # alpha and beta occupancy
+ 1.0  1.0
+ 1.0  1.0
+ 1.0  1.0
+ 1.0  1.0
+ 0.5  1.0
+ 0.5 
+end
+
+dft
+ print "final vectors analysis"
+ odft
+ xc xpbe96 cpbe96
+end
+task dft 
