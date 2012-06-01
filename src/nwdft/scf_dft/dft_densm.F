@@ -480,8 +480,8 @@ c
       logical do_core_fon
 c
       debug = .false.
-      if (rtdb_get(rtdb, 'dft:debugfon', mt_log, 1, debug)) 
-     &     continue
+      if (.not. rtdb_get(rtdb, 'dft:debugfon', mt_log, 1, debug)) 
+     &     debug = .false.
 c
 c     do average fractional occupation by default
       do_avg_fon = .true.
@@ -528,7 +528,7 @@ c         partially filled molecular orbitals
             ncheck = ncheck + focc(i,ispin)
             if (me.eq.0 .and. debug) 
      &        write(luout,*) i,ispin,focc(i,ispin)
-          end do
+          end do  ! nmo_fon
 c
 c         fully filled molecular orbitals        
           do i = 1,nfilled
@@ -538,7 +538,7 @@ c         fully filled molecular orbitals
             ncheck = ncheck + focc(i+nmo_fon(ispin),ispin)
             if (me.eq.0 .and. debug) 
      &        write(luout,*) i,ispin,focc(i+nmo_fon(ispin),ispin)
-          end do
+          end do  ! nfilled
 
         else
 c
@@ -550,7 +550,7 @@ c         fully filled molecular orbitals
             ncheck = ncheck + focc(i,ispin)
             if (me.eq.0 .and. debug) 
      &        write(luout,*) i,ispin,focc(i,ispin)
-          end do
+          end do  ! nfilled
 c
 c         partially filled molecular orbitals
           do i = 1,nmo_fon(ispin)   
@@ -564,7 +564,7 @@ c         partially filled molecular orbitals
             ncheck = ncheck + focc(i+nfilled,ispin)
             if (me.eq.0 .and. debug) 
      &        write(luout,*) i,ispin,focc(i+nfilled,ispin)
-          end do
+          end do  ! nmo_fon
        end if  ! do_core_fon
       end do                    ! ispin
 c

@@ -41,7 +41,7 @@ c      get the user defined occupations
          nfocc_in(i) = 0
        end do
 c
-       loccup = rtdb_get(rtdb,'focc:occup',mt_int,npol,nfocc_in)
+       loccup = rtdb_get(rtdb,'focc:occup',mt_int,2,nfocc_in) ! read both nfocc_in(1) and nfocc_in(2)
        if (.not. loccup) return
        if (npol.eq.1) then
           nfocc=nfocc_in(1)
