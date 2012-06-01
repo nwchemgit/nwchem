@@ -1,0 +1,39 @@
+echo
+
+title "carbon core fractional occupation"
+
+memory 128 mb
+
+start carbon-core-fon
+
+geometry units angstrom nocenter
+symmetry c1
+  C   0.0 0.0 0.0
+end
+
+basis
+  * library 6-31G*
+end
+
+# set fractional occupation in the core
+set dft:core_fon .true.
+
+dft
+ print "final vectors analysis"
+ direct
+ fon partial 2 electrons 2.0 filled 2
+ xc pbe0
+ convergence energy 1d-8 
+end
+task dft
+
+dft
+ print "final vectors analysis"
+ odft
+ direct
+ fon alpha partial 2 electrons 1.0 filled 2
+ fon beta partial 2 electrons 1.0 filled 2
+ xc pbe0
+ convergence energy 1d-8 
+end
+task dft
