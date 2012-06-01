@@ -114,20 +114,20 @@ c      call Parallel_Init()
 
 
       msglen = 1
-      call Parallel_Brdcst_values(MASTER,msglen,zv)
-      call Parallel_Brdcst_values(MASTER,msglen,amass)
-      call Parallel_Brdcst_values(MASTER,msglen,rlocal1)
-      call Parallel_Brdcst_ivalues(MASTER,msglen,lmax0)
-      call Parallel_Brdcst_ivalues(MASTER,msglen,lmax1)
-      call Parallel_Brdcst_ivalues(MASTER,msglen,locp1)
-      call Parallel_Brdcst_ivalues(MASTER,msglen,ihasae)
+      call Parallel_Brdcst_value(MASTER,zv)
+      call Parallel_Brdcst_value(MASTER,amass)
+      call Parallel_Brdcst_value(MASTER,rlocal1)
+      call Parallel_Brdcst_ivalue(MASTER,lmax0)
+      call Parallel_Brdcst_ivalue(MASTER,lmax1)
+      call Parallel_Brdcst_ivalue(MASTER,locp1)
+      call Parallel_Brdcst_ivalue(MASTER,ihasae)
 
 
       msglen = lmax0+1
       call Parallel_Brdcst_values(MASTER,msglen,rc)
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,nrho)
-      call Parallel_Brdcst_values(MASTER,msglen,drho)
+      call Parallel_Brdcst_ivalue(MASTER,nrho)
+      call Parallel_Brdcst_value(MASTER,drho)
 
 
 *     **** set the maximum angular momentum ****
@@ -185,7 +185,7 @@ c      call Parallel_Init()
      >   call Parallel_Brdcst_values(MASTER,msglen,dbl_mb(up_indx))
 
       msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,isemicore)
+      call Parallel_Brdcst_ivalue(MASTER,isemicore)
       semicore = (isemicore.eq.1)
       if (semicore) then
       msglen = 2*nrho
