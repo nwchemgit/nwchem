@@ -100,6 +100,7 @@ double  Z;
 void  end_LogGrid()
 {
      dealloc_Grid(rgrid);
+     end_Grids();
 }
 
 

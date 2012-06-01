@@ -46,6 +46,30 @@ int	Np;
 
 } /* init_Grids */
 
+/********************************
+ *				*
+ *        end_Grids		*
+ *				*
+ ********************************/
+void	end_Grids()
+{
+    Grids_List_Type node;
+
+    while (using_grids_list != NIL)
+    {
+        Pop_Stack(using_grids_list,node);
+        free(node->grid);
+        free(node);
+    }
+
+    while (unused_grids_stack != NIL)
+    {
+        Pop_Stack(unused_grids_stack,node);
+        free(node->grid);
+        free(node);
+    }
+}
+
 
 /********************************
  *				*
@@ -82,6 +106,7 @@ double	*alloc_Grid()
 
     return grid_return;
 } /* alloc_Grid */
+
 
 
 /********************************
