@@ -59,8 +59,7 @@ static int Solver_Type = Pauli;
  *				*
  ********************************/
 
-void
-init_Atom (char *filename)
+void init_Atom (char *filename)
 {
   int i, Ngrid, nx, lx, ncvh;
   double *rgrid, fillx;
@@ -128,15 +127,15 @@ init_Atom (char *filename)
       lmax = 0;
       for (i = 0; i < Ncv; ++i)
 	{
-	  fscanf (fp, "%d %d %le", &n[i], &l[i], &fill[i]);
+	  fscanf(fp, "%d %d %le", &n[i], &l[i], &fill[i]);
 	  if (l[i] > lmax)
 	    lmax = l[i];
 	}
 
       /* set up logarithmic grid */
-      init_LogGrid (Zion);
-      Ngrid = N_LogGrid ();
-      rgrid = r_LogGrid ();
+      init_LogGrid(Zion);
+      Ngrid = N_LogGrid();
+      rgrid = r_LogGrid();
 
 
       /* allocate the necessary memory */
@@ -145,8 +144,8 @@ init_Atom (char *filename)
       r_psi_prime = (double **) malloc ((Ncv + 1) * sizeof (double *));
       for (i = 0; i < (Ncv + 1); ++i)
 	{
-	  r_psi[i] = alloc_LogGrid ();
-	  r_psi_prime[i] = alloc_LogGrid ();
+	  r_psi[i] = alloc_LogGrid();
+	  r_psi_prime[i] = alloc_LogGrid();
 	}
     }
   else
@@ -226,6 +225,46 @@ init_Atom (char *filename)
 
   /* initialize DFT stuff */
   init_DFT(filename);
+}
+
+/********************************
+ *				*
+ *	  end_Atom		*
+ *				*
+ ********************************/
+void end_Atom()
+{
+   int i;
+
+   dealloc_LogGrid(Vion);
+   dealloc_LogGrid(Vall);
+   dealloc_LogGrid(rho);
+   dealloc_LogGrid(rho_core);
+   dealloc_LogGrid(rho_valence);
+
+  if (Solver_Type != Dirac && Solver_Type!=ZORA)
+      for (i=0; i<(Ncv+1);++i)
+      {
+          dealloc_LogGrid(r_psi[i]);
+          dealloc_LogGrid(r_psi_prime[i]);
+      }
+   else
+      for (i=0; i<(Ncv+2);++i)
+      {
+          dealloc_LogGrid(r_psi[i]);
+          dealloc_LogGrid(r_psi_prime[i]);
+      }
+   free(eigenvalue);
+   free(r_psi);
+   free(r_psi_prime);
+   free(peak);
+   free(turning_point);
+   free(fill);
+   free(s2);
+   free(l);
+   free(n);
+
+   end_LogGrid();
 }
 
 
@@ -777,7 +816,7 @@ double peak_Atom(int i)
 }
 
 int
-turning_point_Atom (int i)
+turning_point_Atom(int i)
 {
   return turning_point[i];
 }
@@ -795,7 +834,7 @@ Amass_Atom ()
 }
 
 int
-state_Atom (int nt, int lt)
+state_Atom(int nt, int lt)
 {
   int i;
   i = 0;
@@ -810,7 +849,7 @@ state_Atom (int nt, int lt)
 }
 
 int
-state_RelAtom (int nt, int lt, int st)
+state_RelAtom(int nt, int lt, int st)
 {
   int i;
   i = 0;

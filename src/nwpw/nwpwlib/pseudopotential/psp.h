@@ -12,6 +12,7 @@
 #define Vanderbilt      -8403
 
 extern void	init_Psp(char*);
+extern void	end_Psp();
 extern void	solve_Psp();
 extern void	print_Psp();
 extern double	E_Psp();

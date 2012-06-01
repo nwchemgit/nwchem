@@ -13,6 +13,7 @@
 #define ZORA            -8004
 /* atom.c */
 extern void init_Atom(char *filename);
+extern void end_Atom();
 extern void Thomas_Fermi(double Z, double Vtmp[]);
 extern void solve_Atom(void);
 extern void solve_Scattering_State_Atom(int nt, int lt, 

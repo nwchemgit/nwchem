@@ -116,9 +116,9 @@ void FATR pspsolve_
   
   over_fourpi = 1.0 / (16.0 * atan (1.0));
 
-  set_debug_print (debug);
-  init_Atom (infile);
-  solve_Atom ();
+  set_debug_print(debug);
+  init_Atom(infile);
+  solve_Atom();
   if (debug)
     print_Atom (stdout);
 
@@ -603,4 +603,8 @@ void FATR pspsolve_
   free(rhol);
   end_Linear();
   fflush(stdout);
+
+  end_Psp();
+  end_Atom();
+
 }				/* main */

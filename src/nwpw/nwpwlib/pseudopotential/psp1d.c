@@ -461,11 +461,60 @@ void	init_Psp(char *filename)
       }
    }
 
-
-
-   
 } /* init_Psp */
 
+/********************************
+ *				*
+ *	  end_Psp 		*
+ *				*
+ ********************************/
+void	end_Psp()
+{
+   int p;
+
+   if (kb_extra>0)
+   {
+      for (p=0; p<kb_extra; ++p)
+      {
+         dealloc_LogGrid(r_psi_extra[p]);
+         dealloc_LogGrid(r_psi_prime_extra[p]);
+      }
+      free(r_psi_extra);
+      free(r_psi_prime_extra);
+   }
+
+   if (Solver_Type==Vanderbilt)
+   {
+      dealloc_LogGrid(Vlocal);
+      for (p=0; p<npsp_states; ++p)
+         dealloc_LogGrid(r_hard_psi[p]);
+      free(r_hard_psi);
+      free(D0);
+      free(q);
+   } 
+
+   dealloc_LogGrid(rho);
+   dealloc_LogGrid(rho_semicore);
+   dealloc_LogGrid(drho_semicore);
+   for (p=0; p<npsp_states; ++p)
+   {
+      dealloc_LogGrid(r_psi[p]);
+      dealloc_LogGrid(r_psi_prime[p]);
+      dealloc_LogGrid(V_psp[p]);
+   }
+   free(r_psi);
+   free(r_psi_prime);
+   free(V_psp);
+   
+   free(n);
+   free(l);
+   free(kb_expansion);
+   free(fill);
+   free(rcut);
+   free(peak);
+   free(eigenvalue);
+
+}
 
 
 /********************************

@@ -20,6 +20,7 @@ with the grid points defined by:
 
 
 extern void     init_LogGrid();
+extern void     end_LogGrid();
 extern double  *alloc_LogGrid();
 extern void	dealloc_LogGrid();
 extern double  *r_LogGrid();
