@@ -89,16 +89,16 @@ c      call Parallel_init()
       l = index(full_filename,' ') - 1
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
-      read(11,'(I2)',ERR=9999,END=9999) ihasae
-      read(11,'(A2)',ERR=9999,END=9999) atom
-      read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
-      read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
+      read(11,'(I2)') ihasae
+      read(11,'(A2)') atom
+      read(11,*) zv,amass,lmax0,lmax1,locp1,rlocal1
+      read(11,*) (rc(i),i=0,lmax0)
 
-      read(11,*,ERR=9999,END=9999) n_extra
-      read(11,*,ERR=9999,END=9999) (n_expansion(i),i=0,lmax0)
+      read(11,*) n_extra
+      read(11,*) (n_expansion(i),i=0,lmax0)
 
-      read(11,*,ERR=9999,END=9999) nrho,drho
-      read(11,'(A)',ERR=9999,END=9999) comment
+      read(11,*) nrho,drho
+      read(11,'(A)') comment
       end if
 
       msglen = 1

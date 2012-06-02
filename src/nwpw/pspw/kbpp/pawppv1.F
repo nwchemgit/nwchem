@@ -91,17 +91,17 @@
       l = index(full_filename,' ') - 1
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
-      read(11,*,ERR=9999,END=9999) psp_type
-      read(11,'(A)',ERR=9999,END=9999) atom
-      read(11,*,ERR=9999,END=9999) zv
-      read(11,*,ERR=9999,END=9999) r1
-      read(11,*,ERR=9999,END=9999) rmax
-      read(11,*,ERR=9999,END=9999) n1dgrid
-      read(11,*,ERR=9999,END=9999) nbasis
-      read(11,*,ERR=9999,END=9999) (rc(i),i=1,nbasis)
-      read(11,*,ERR=9999,END=9999) icut
-      read(11,'(A)',ERR=9999,END=9999) comment
-      read(11,*,ERR=9999,END=9999) core_kin_energy
+      read(11,*) psp_type
+      read(11,'(A)') atom
+      read(11,*) zv
+      read(11,*) r1
+      read(11,*) rmax
+      read(11,*) n1dgrid
+      read(11,*) nbasis
+      read(11,*) (rc(i),i=1,nbasis)
+      read(11,*) icut
+      read(11,'(A)') comment
+      read(11,*) core_kin_energy
       end if
 
       msglen = 1
@@ -158,34 +158,34 @@
 
 
       if (taskid.eq.MASTER) then
-         read(11,*,ERR=9999,END=9999) (int_mb(nae(1)+j),
+         read(11,*) (int_mb(nae(1)+j),
      >                                 dbl_mb(eig(1)+j),
      >                                 int_mb(nps(1)+j),
      >                                 int_mb(lps(1)+j),j=0,nbasis-1)
-         read(11,*,ERR=9999,END=9999) ((dbl_mb(phi_ae(1)+i+j*n1dgrid),
+         read(11,*) ((dbl_mb(phi_ae(1)+i+j*n1dgrid),
      >                                  i=0,n1dgrid-1),
      >                                  j=0,nbasis-1)
-         read(11,*,ERR=9999,END=9999) ((dbl_mb(dphi_ae(1)+i+j*n1dgrid), 
+         read(11,*) ((dbl_mb(dphi_ae(1)+i+j*n1dgrid), 
      >                                  i=0,n1dgrid-1),
      >                                  j=0,nbasis-1)
-         read(11,*,ERR=9999,END=9999) ((dbl_mb(phi_ps(1)+i+j*n1dgrid), 
+         read(11,*) ((dbl_mb(phi_ps(1)+i+j*n1dgrid), 
      >                                  i=0,n1dgrid-1),
      >                                  j=0,nbasis-1)
-         read(11,*,ERR=9999,END=9999) ((dbl_mb(dphi_ps(1)+i+j*n1dgrid), 
+         read(11,*) ((dbl_mb(dphi_ps(1)+i+j*n1dgrid), 
      >                                  i=0,n1dgrid-1),
      >                                  j=0,nbasis-1)
-         read(11,*,ERR=9999,END=9999) ((dbl_mb(prj_ps(1)+i+j*n1dgrid), 
+         read(11,*) ((dbl_mb(prj_ps(1)+i+j*n1dgrid), 
      >                                  i=0,n1dgrid-1),
      >                                  j=0,nbasis-1)
-         read(11,*,ERR=9999,END=9999) (dbl_mb(core_ae(1)+i),
+         read(11,*) (dbl_mb(core_ae(1)+i),
      >                                 i=0,n1dgrid-1)
-         read(11,*,ERR=9999,END=9999) (dbl_mb(core_ps(1)+i),
+         read(11,*) (dbl_mb(core_ps(1)+i),
      >                                 i=0,n1dgrid-1)
-         read(11,*,ERR=9999,END=9999) (dbl_mb(v_ps(1)+i),
+         read(11,*) (dbl_mb(v_ps(1)+i),
      >                                 i=0,n1dgrid-1)
-         read(11,*,ERR=9999,END=9999) sigma
-         read(11,*,ERR=9999,END=9999) zion
-         read(11,*,ERR=9999,END=9999) ((dbl_mb(prj_ps0(1)+i+j*n1dgrid),
+         read(11,*) sigma
+         read(11,*) zion
+         read(11,*) ((dbl_mb(prj_ps0(1)+i+j*n1dgrid),
      >                                  i=0,n1dgrid-1),
      >                                  j=0,nbasis-1)
          close(11)

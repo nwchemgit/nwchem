@@ -82,20 +82,20 @@ c      call Parallel_init()
          l = index(full_filename,' ') - 1
          open(unit=11,file=full_filename(1:l),
      >                status='old',form='formatted')
-         read(11,*,ERR=9999,END=9999) psp_type
-         read(11,'(A2)',ERR=9999,END=9999) atom
-         read(11,*,ERR=9999,END=9999) Zion
-         read(11,*,ERR=9999,END=9999) lmax
-         read(11,*,ERR=9999,END=9999) rloc,C1,C2,C3,C4
+         read(11,*) psp_type
+         read(11,'(A2)') atom
+         read(11,*) Zion
+         read(11,*) lmax
+         read(11,*) rloc,C1,C2,C3,C4
 
          if (lmax.ge.0) then
-            read(11,*,ERR=9999,END=9999) r(0),H(1,0),H(2,0),H(3,0)
+            read(11,*) r(0),H(1,0),H(2,0),H(3,0)
             do l=1,lmax
-              read(11,*,ERR=9999,END=9999) r(l),H(1,l),H(2,l),H(3,l)
-              read(11,*,ERR=9999,END=9999)      K(1,l),K(2,l),K(3,l)
+              read(11,*) r(l),H(1,l),H(2,l),H(3,l)
+              read(11,*)      K(1,l),K(2,l),K(3,l)
             end do
          end if
-         read(11,'(A)',ERR=9999,END=9999) comment
+         read(11,'(A)') comment
          close(11)
 
 
