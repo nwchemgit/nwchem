@@ -75,8 +75,8 @@
       external         simp
       integer  kbpp_calc_nray
       external kbpp_calc_nray
-      integer  G_indx
-      external G_indx
+      integer  G_indx,convert_psp_type
+      external G_indx,convert_psp_type
 
 
 c      call Parallel_Init()
@@ -95,21 +95,15 @@ c      call Parallel_Init()
       l = index(full_filename,' ') - 1
       open(unit=11,file=full_filename(1:l),
      >             status='old',form='formatted')
-      read(11,12,ERR=14,END=14) ihasae
-      write(*,*) "File contains ae orbitals, ihasae=",ihasae
-   12 format(i2)
-      goto 15
-   14 ihasae = 0
-      close(unit=11)
-      open(unit=11,file=full_filename(1:l),
-     >             status='old',form='formatted')
 
-   15 continue
-      read(11,'(A2)',ERR=9999,END=9999) atom
-      read(11,*,ERR=9999,END=9999) zv,amass,lmax0,lmax1,locp1,rlocal1
-      read(11,*,ERR=9999,END=9999) (rc(i),i=0,lmax0)
-      read(11,*,ERR=9999,END=9999) nrho,drho
-      read(11,'(A)',ERR=9999,END=9999) comment
+      read(11,'(A2)') atom
+      ihasae = convert_psp_type(atom)
+      if (ihasae.gt.0) read(11,'(A2)') atom
+
+      read(11,*) zv,amass,lmax0,lmax1,locp1,rlocal1
+      read(11,*) (rc(i),i=0,lmax0)
+      read(11,*) nrho,drho
+      read(11,'(A)') comment
       end if
 
 
