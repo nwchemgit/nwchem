@@ -18,7 +18,6 @@
 
       integer MASTER,taskid
       parameter(MASTER=0)
-      integer msglen
 
 
 *     ***** local functions ****
@@ -40,8 +39,7 @@
       end if
 
 c     **** send header to all nodes ****
-      msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
+      call Parallel_Brdcst_ivalue(MASTER,version)
 
 
       psi_get_version = version
@@ -66,7 +64,6 @@ c     **** send header to all nodes ****
          
       integer MASTER,taskid
       parameter(MASTER=0)
-      integer msglen
          
            
 *     ***** local functions ****
@@ -88,8 +85,7 @@ c     **** send header to all nodes ****
       end if
 
 c     **** send header to all nodes ****
-      msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,version)
+      call Parallel_Brdcst_ivalue(MASTER,version)
         
         
       epsi_get_version = version
