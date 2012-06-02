@@ -3,9 +3,9 @@
 *
 
 *     ***********************************
-*     *									*
-*     *	 	  nwpw_filefind 				*
-*     *									*
+*     *					*
+*     *	 	  nwpw_filefind 	*
+*     *					*
 *     ***********************************
 
       logical function nwpw_filefind(fname)
@@ -20,7 +20,7 @@
       parameter(MASTER=0)
 
       logical found
-      integer idum,msglen
+      integer idum
       character*255 full_filename
 
       call Parallel_taskid(taskid)
@@ -33,8 +33,7 @@
          idum = 0
          if (found) idum = 1
       end if
-      msglen = 1
-      call Parallel_Brdcst_ivalues(MASTER,msglen,idum)
+      call Parallel_Brdcst_ivalue(MASTER,idum)
       
 
       if (idum.eq.1) then
