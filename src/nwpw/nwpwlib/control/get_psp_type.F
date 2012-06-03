@@ -66,5 +66,7 @@ c     **** send header to all nodes ****
       if (test(1:1).eq.'7') psp_type = 7
       if (test(1:1).eq.'8') psp_type = 8
       if (test(1:1).eq.'9') psp_type = 9
+
+      convert_psp_type = psp_type
       return
       end
