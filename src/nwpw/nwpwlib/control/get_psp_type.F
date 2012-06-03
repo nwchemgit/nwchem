@@ -54,7 +54,9 @@ c     **** send header to all nodes ****
       integer function convert_psp_type(test)
       implicit none
       character*(*) test
+
       integer psp_type
+
       psp_type = 0
       if (test(1:1).eq.'0') psp_type = 0
       if (test(1:1).eq.'1') psp_type = 1
