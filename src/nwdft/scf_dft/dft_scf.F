@@ -1045,11 +1045,11 @@ c    Get the final multipliers.
           if (.not.rtdb_put(rtdb, 'dft:multipliers', mt_dbl, nconstr,
      &         multipliers0))
      $     call errquit('dft_scf: failed to put multipliers',0,RTDB_ERR)
-         endif
+         endif  ! lcdft
 c Constrained dft
 
          goto 2000
-      endif
+      endif  ! last_time_energy
 c     
 c     == Symmetrize the Fock matrix ==
       if (oskel) then
@@ -1288,12 +1288,13 @@ c
      .               fon, nel_fon,nmo_fon,ncore_fon,
      .               spinset.or.n_rabuck.ne.0,           
      &               rtdb) ! FA-03-02-11 for occupations keyword
+c
       if(oprint_info) then
          pstrace=ga_ddot(g_dens,g_s)
          if(ga_nodeid().eq.0) write (luout,'(5x,a,1x,e15.7)')
      &      'tr(P*S): ',pstrace 
       endif
-
+c
       if (oprint_time)
      &     call dft_tstamp(' called densm ')
       diisreset=.false.
@@ -1818,7 +1819,7 @@ c
 c     
 c     Shut down DIIS.
 c     
-      if (icall(1).gt.0)then
+      if (icall(1).gt.0 .or. noscf)then
          call diis_driver(toll_s, derr(1),  ipol, icall, nfock, 
      &                 nbf_ao, geom, ao_bas_han, g_focks, g_dens(1), 
      &                    g_tmp, g_svecs, svals, diising, nodiis,
