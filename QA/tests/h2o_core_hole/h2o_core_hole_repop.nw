@@ -1,0 +1,27 @@
+
+echo
+start h2o_core_hole_repop
+
+memory 1000 mb
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+# read in core-hole optimized vectors
+# repopulate occupancy and orthonormalize virtuals with filled
+
+dft
+ xc beckehandh
+ vectors input core-hole.movecs output repop.movecs
+ noscf
+end
+task dft
