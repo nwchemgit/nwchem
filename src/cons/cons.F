@@ -582,6 +582,8 @@ c     --------------------
 
         do i=1,nfa
           id = int_mb(i_tmp_id+i-1)
+          if(id.gt.nat) call errquit(
+     $         ' cons: fixed atom not existing ',id,INPUT_ERR)
           log_mb(i_active+id-1)=.false.
         end do
 
