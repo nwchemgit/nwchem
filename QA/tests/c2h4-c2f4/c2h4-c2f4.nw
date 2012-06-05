@@ -1,0 +1,40 @@
+echo
+start c2h4-c2f4
+
+title "c2h4--c2f4 dimer"
+
+memory stack 512 mb heap 512 mb global 1024 mb
+
+geometry
+C           0.670604    0.000000    0.000000
+C          -0.670604    0.000000    0.000000
+H           1.249222    0.929447    0.000000
+H           1.249222   -0.929447    0.000000
+H          -1.249222    0.929447    0.000000
+H          -1.249222   -0.929447    0.000000
+C           0.669726    0.000000    5.000000
+C          -0.669726    0.000000    5.000000
+F           1.401152    1.122634    5.000000
+F           1.401152   -1.122634    5.000000
+F          -1.401152   -1.122634    5.000000
+F          -1.401152    1.122634    5.000000
+end
+
+basis spherical
+ * library "sto-3g"
+end
+
+dft
+ grid fine
+ xc xwpbe 1.00 cpbe96 1.0 hfexch 1.00
+ cam 0.3 cam_alpha 0.00 cam_beta 1.00
+ direct
+end
+
+tddft
+ cis
+ nroots 10
+ notriplet
+ algorithm 3
+end
+task tddft energy
