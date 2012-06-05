@@ -779,7 +779,7 @@ c     implicit none
          else if (ic.eq.3) then
          call GA_PGROUP_BRDCST(comm_k,9+MSGINT,isum,mitob(msglen),psend)
          else
-         call GA_BRDCST(9+MSGINT,sum,mitob(msglen),psend)
+         call GA_BRDCST(9+MSGINT,isum,mitob(msglen),psend)
          end if
       end if
 
