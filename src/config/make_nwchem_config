@@ -81,7 +81,7 @@ EXP_ver2 = prepar gradients mp2_grad stepper vib mcscf \
 #plane_wave ... broken? RJH
 EXP_qmandpw = nwpw NWints atomscf ddscf gradients moints nwdft rimp2 hessian bq cons \
           optim stepper driver ccsd vib mcscf property selci dplot mp2_grad esp etrans vscf 
-EXP_tps = prepar argos nwmd analyz diana
+EXP_tps = prepar nwmd analyz diana
 EXP_md  = prepar nwmd analyz ddscf nwdft gradients esp
 EXP_classical  = prepar nwmd analyz
 EXP_venus = NWints atomscf ddscf gradients moints nwdft rimp2 hessian \
@@ -295,7 +295,7 @@ STUBROUTINES := $(patsubst smd,task_smd smd_input task_smd_energy task_smd_dynam
 STUBROUTINES := $(patsubst uccsdt,uccsdt moints_screen,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst nbo,task_nbo nbo_input,$(STUBROUTINES) )
 STUBROUTINES := $(patsubst ccca,task_ccca task_ccca_energy ccca_input,$(STUBROUTINES) )
-STUBROUTINES := $(patsubst optim,tropt neb task_mepgs mepgs_input task_string string_input tropt_input,$(STUBROUTINES) )
+STUBROUTINES := $(patsubst optim,tropt neb neb_input task_mepgs mepgs_input task_string string_input tropt_input,$(STUBROUTINES) )
 #STUBROUTINES := $(patsubst cons, cons_end cons_input cons_add_egrad cons_add_energy cons_init cons_print_summary cons_active,$(STUBROUTINES) )
 STUBROUTINES := $(strip $(STUBROUTINES))
 STUBROUTINES := $(sort $(STUBROUTINES))
