@@ -23,7 +23,7 @@ c
 c     
 c     The definition for the *generalized* Fock
 c     elements is defined as twice the normal Fock elements 
-c     (see Siegbahn et al.) and therefore the gradient 
+c     (see Siegbahn et al. [1]) and therefore the gradient 
 c     is twice the generalized Fock element. This routine
 c     follows this convention, i.e.,
 c     
@@ -41,6 +41,14 @@ c
 c     F   =  0      for p not open-shell
 c     pt
 c     
+c     [1] P.E.M. Siegbahn, J. Almlof, A. Heiberg, B.O. Roos,
+c         "The complete active space SCF (CASSCF) method in a 
+c          Newton-Raphson formulation with application to the HNO
+c          molecule", J. Chem. Phys. 74 (1981),
+c         pp 2384-2396, DOI:10.1063/1.441359. 
+c         (Note this reference was not given originally in the comments
+c          above. However, it seems to match the subject matter best of
+c          whatever I could find. HvD)
 c     
       integer geom, basis       ! [input] Geometry and basis handles
       integer nbf               ! [input] Number of basis functions
