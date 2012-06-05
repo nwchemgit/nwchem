@@ -3,6 +3,9 @@ start c2h4-c2f4
 
 title "c2h4--c2f4 dimer"
 
+# energy:-545.9695833751
+# first excitation :7.5601
+
 memory stack 512 mb heap 512 mb global 1024 mb
 
 geometry
