@@ -8,15 +8,17 @@ c
       double precision scale
       character*(*) aunit
 c
-      character*5 test
+      character*3 test
 
       test = aunit
       select case (test)
-      case('au','angst','bohr')
+      case('au','boh')
+        scale = 1.0d0
+      case('ang')
         scale = cang2au
-      case('nm','nanom')
+      case('nm','nan')
         scale = cnm2au
-      case('pm','picom')
+      case('pm','pic')
         scale = cpm2au
       case default
         call errquit("unknown units: "//test,0,-1)
