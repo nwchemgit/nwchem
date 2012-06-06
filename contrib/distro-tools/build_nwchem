@@ -1412,6 +1412,12 @@ fi
 echo "NWCHEM_TOP    =" ${NWCHEM_TOP}
 echo "NWCHEM_TARGET =" ${NWCHEM_TARGET}
 echo "USE_MPI       =" ${USE_MPI}
+if [ ${#USE_MPIF} -ne 0 ] ; then
+  echo "USE_MPIF      =" ${USE_MPIF}
+fi
+if [ ${#USE_MPIF4} -ne 0 ] ; then
+  echo "USE_MPIF4     =" ${USE_MPIF4}
+fi
 echo "MPI_INCLUDE   =" ${MPI_INCLUDE}
 echo "MPI_LIB       =" ${MPI_LIB}
 echo "LIBMPI        =" ${LIBMPI}
