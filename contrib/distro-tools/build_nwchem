@@ -1047,6 +1047,14 @@ if [ "${ARMCI_NETWORK}" == "OPENIB" ] ; then
       export IB_LIB="/usr/lib64"
     elif [ -f /usr/lib/libibverbs.a ] ; then
       export IB_LIB="/usr/lib"
+    elif [ -f /usr/local/ofed/lib64/libibverbs.so ] ; then
+      export IB_LIB="/usr/local/ofed/lib64"
+    elif [ -f /usr/local/ofed/lib/libibverbs.so ] ; then
+      export IB_LIB="/usr/local/ofed/lib"
+    elif [ -f /usr/local/ofed/lib64/libibverbs.a ] ; then
+      export IB_LIB="/usr/local/ofed/lib64"
+    elif [ -f /usr/local/ofed/lib/libibverbs.a ] ; then
+      export IB_LIB="/usr/local/ofed/lib"
     else
       echo "ERROR: Infiniband library files not in expected location"
       exit 1
@@ -1054,7 +1062,9 @@ if [ "${ARMCI_NETWORK}" == "OPENIB" ] ; then
   fi
   if [ ${#IB_INCLUDE} -eq 0 ]; then
     if [ -d /usr/include/infiniband ] ; then
-      export IB_INCLUDE="/usr/include/infiniband"
+      export IB_INCLUDE="/usr/include"
+    elif [ -d /usr/local/ofed/include/infiniband ] ; then
+      export IB_INCLUDE="/usr/local/ofed/include"
     else
       echo "ERROR: Infiniband include files not in expected location"
       exit 1
