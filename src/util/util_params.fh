@@ -3,11 +3,12 @@ c $Id$
 c
 c     conversion parameters
 c     -------------------
-      double precision cnm2au,cau2ang,cau2nm,cau2kj,cnm2ang
+      double precision cnm2au,cau2ang,cpm2au,cau2nm,cau2kj,cnm2ang
       double precision cang2au
       parameter(cnm2au=1.88972598786d+01)
       parameter(cau2ang = 0.529177249d00)
       parameter(cang2au = 1.889725988d00)
+      parameter(cpm2au = 1.889725988d-2)
       parameter(cau2nm=5.29177249d-02)
       parameter(cau2kj=2.625499962d+03)
       parameter(cnm2ang=10.0d00)

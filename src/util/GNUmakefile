@@ -177,6 +177,7 @@ endif
               util_file_copy.o \
               util_debug.o \
               util_erf.o  \
+              util_length_scale.o  \
               ga_it2.o \
               ma_print.o freeze_input.o ga_extra.o \
               util_test.o util_ga_test.o util.o util_patch_test.o \
