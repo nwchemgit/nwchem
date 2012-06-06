@@ -9,7 +9,19 @@ c
 c     $Id$
 c     
       implicit none
+c
 #include "errquit.fh"
+#include "bas.fh"
+#include "geom.fh"
+#include "mafdecls.fh"
+#include "stdio.fh"
+#include "rtdb.fh"
+#include "cdft.fh"
+#include "global.fh"
+#include "msgids.fh"
+#include "util.fh"
+#include "zora.fh"  ! zora contribution
+#include "case.fh"  ! coulomb attenuation
 c     
       integer rtdb              ! [input]
       double precision Etold, Enuc, trace
@@ -52,6 +64,7 @@ c
       integer kfon_occ, lfon_occ
       logical debug_fon, det_eng 
       integer iswap,jswap
+      logical noscf
 c
 c     so
       double precision rho_n, toll_s
@@ -76,17 +89,6 @@ c     vdw contrib
       external xc_chkdispauto
       logical disp
 c
-#include "bas.fh"
-#include "geom.fh"
-#include "mafdecls.fh"
-#include "stdio.fh"
-#include "rtdb.fh"
-#include "cdft.fh"
-#include "global.fh"
-#include "msgids.fh"
-#include "util.fh"
-#include "zora.fh"  ! zora contribution
-#include "case.fh"  ! coulomb attenuation
 c     
       Logical movecs_write_so, movecs_converged
       External movecs_write_so, movecs_converged
@@ -113,7 +115,7 @@ c      integer nva
       Integer l_eval
       integer k_eval(2)
       integer natoms, nTotEl
-
+c
       integer l_occ, k_occ
       integer i, j,  i1, jstart 
       integer me, nproc
@@ -811,7 +813,7 @@ c
      $           g_moso(1),1+nbf_ao,nbf_mo,2*(i-1)+2,2*(i-1)+2)
          enddo
       endif  !if not spinor
-
+c
       if(spinor)then 
 c     
 c     read spinors from files 
@@ -824,7 +826,6 @@ c     $        call errquit('dft_scf_so: DFT MO vectors not defined',0)
      $        scftype1, nbf1)
 c     
 c     Should check much more info than just nbf for consistency
-c     
 c     
 c     get mo eigevectors
 c     
@@ -845,10 +846,18 @@ c
      &       DISK_ERR)
          endif
 c     
-         call movecs_swap_so(rtdb,'dft',scftype,g_moso,
-     &        dbl_mb(k_occ),dbl_mb(k_eval(1)))
       endif  !spinor
-c     
+c
+c     Apply any swaps of orbitals
+c
+      call movecs_swap_so(rtdb,'dft',scftype,g_moso,
+     &        dbl_mb(k_occ),dbl_mb(k_eval(1)))
+c
+c     Orthogonalize all input/guess vectors
+c     Do not mix the occupied with the virtuals
+c
+      call ga_orthog_mos_so(ao_bas_han, g_moso)
+c
 c     Form Re and Im of density matrix
 c     
 c     applying fractional occupations
@@ -1334,7 +1343,16 @@ c
          Etnew = Ecore + Ecoul + Exc(1) + Exc(2)
          if(det_eng)goto 2001
       endif
-
+c
+c     == is this a oneshot "noscf" type calculation, no diagonalization ==
+      noscf = .false.
+      if (.not.rtdb_get(rtdb, 'dft:noscf', mt_log, 1, noscf)) 
+     &   noscf=.false.
+      if (noscf) then
+        last_time_energy = .true.
+        converged = .true.
+      end if
+c
       if (last_time_energy)then
 c     
 c     If open shell put the total density matrix back in 

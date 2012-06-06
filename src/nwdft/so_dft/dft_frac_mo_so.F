@@ -7,11 +7,12 @@ c          occA-X  occB-nB
 c          occA-nA
 c      end
 c
+c
        subroutine dft_frac_mo_so(rtdb,           ! IN
      &                           g_moso,         ! IN     : MO vectors
-     &                           focc,            ! IN/OUt : occupancies
+     &                           focc,           ! IN/OUT : occupancies
      &                           g_densso,       ! OUT    : spin-orbit density matrix
-     &                           nbf,         ! IN     : nr. basis functions
+     &                           nbf,            ! IN     : nr. basis functions
      &                           ntot_occ)       ! IN     : nr. occ
 c
        implicit none
@@ -29,12 +30,12 @@ c
        double precision focc(nbf) ! occupancies
        integer g_densso(2)     ! spin-orbit density matrix
        integer g_moso(2)       ! input/output
-       integer g_moso1(2) ! scratch ga array
+       integer g_moso_tmp(2) ! scratch ga array
        integer i,ispin,iorb,iorb1,ntot_occ,nbf_ao
        logical status
        integer l_occ,k_occ,nfocc_in(2), 
      &         nfocc,ind_min,ind_max               
-       double precision ac_occ,diff_occ,error_occ 
+       double precision user_occ,diff_occ,error_occ 
        logical loccup,loccup_list
        external dft_densm_so
 c
@@ -59,16 +60,17 @@ c      get user occupation list
        if (.not.loccup_list) return
 c 
        do i=1,2
-        if(.not.ga_create(mt_dbl,nbf,nbf,'Movecs Re',0,0,g_moso1(i)))
+        if(.not.ga_create(mt_dbl,nbf,nbf,'Movecs Re',0,0,g_moso_tmp(i)))
      &  call errquit('scaleMO_so: error creating Movecs Re',0,GA_ERR)
-        call ga_copy(g_moso(i),g_moso1(i))
+        call ga_copy(g_moso(i),g_moso_tmp(i))
        enddo
 c
-       ac_occ=0.0d0
+c      tally up user occupation
+       user_occ=0.0d0
        do i=1,nfocc
-         ac_occ=ac_occ+dbl_mb(k_occ+i-1)
+         user_occ=user_occ+dbl_mb(k_occ+i-1)
        enddo
-       diff_occ=abs(ntot_occ*1.0d0-ac_occ)
+       diff_occ=abs(ntot_occ*1.0d0-user_occ)
 c
        do i=1,nfocc
         dbl_mb(k_occ+i-1)=sqrt(dbl_mb(k_occ+i-1))
@@ -88,60 +90,43 @@ c
        do ispin=1,2
         iorb=ispin
         do i=1,nfocc_in(ind_min)
-         call ga_scale_patch(g_moso1(1),1,nbf,iorb,iorb,
+         call ga_scale_patch(g_moso_tmp(1),1,nbf,iorb,iorb,
      &                      dbl_mb(k_occ+iorb-1))
-         call ga_scale_patch(g_moso1(2),1,nbf,iorb,iorb,
+         call ga_scale_patch(g_moso_tmp(2),1,nbf,iorb,iorb,
      &                      dbl_mb(k_occ+iorb-1))
          focc(iorb)=dbl_mb(k_occ+iorb-1)*dbl_mb(k_occ+iorb-1) ! update occ
          iorb=iorb+2
         enddo ! end-loop-i
       end do   ! ispin-loop   
 c
-c ---- Storing the unpaired electrons ---- START
-        iorb=2*nfocc_in(ind_min)+1 
-        iorb1=iorb
-        if (nfocc_in(1).lt.nfocc_in(2)) then
-         iorb1=iorb+1
-        endif
-        do i=1,nfocc_in(ind_max)-nfocc_in(ind_min)
-c        if (ga_nodeid().eq.0) then
-c         write(*,151) i,iorb,iorb1,dbl_mb(k_occ+iorb-1)
-c151      format('CHECK-RTDB-occ:occ-1(',
-c    &           i3,',',i3,',',i3,')=',f15.8)
-c        endif
-         call ga_scale_patch(g_moso1(1),1,nbf,iorb1,iorb1,
+c     unpaired electrons
+      iorb=2*nfocc_in(ind_min)+1 
+      iorb1=iorb
+      if (nfocc_in(1).lt.nfocc_in(2)) iorb1=iorb+1
+c
+      do i=1,nfocc_in(ind_max)-nfocc_in(ind_min)
+         call ga_scale_patch(g_moso_tmp(1),1,nbf,iorb1,iorb1,
      &                       dbl_mb(k_occ+iorb-1))
-         call ga_scale_patch(g_moso1(2),1,nbf,iorb1,iorb1,
+         call ga_scale_patch(g_moso_tmp(2),1,nbf,iorb1,iorb1,
      &                       dbl_mb(k_occ+iorb-1))
          focc(iorb1)=dbl_mb(k_occ+iorb-1)*dbl_mb(k_occ+iorb-1) ! update occ -unpaired electron
          iorb=iorb+1
          iorb1=iorb1+2
-        enddo ! end-loop-i
-c ---- Storing the unpaired electrons ---- END
-c ---- Calculate spin-orbit density matrix
-       nbf_ao=nbf/2
-c      if (ga_nodeid().eq.0)
-c    &  write(*,*) 'nbf_ao=',nbf_ao
-       call dft_densm_so(g_densso,g_moso1,nbf_ao,ntot_occ)    
-c----- Update occupations ----------- START
-c      if (ga_nodeid().eq.0) then
-c        write(*,*) 'AFT. updating occupations:'
-c        do i=1,nbf
-c         write(*,2) i,occ(i)
-c 2       format('occ(',i3,')=',f15.8)
-c        enddo
-c      endif
-c----- Update occupations ----------- END
-c ----- Free memory
-          if (.not.ma_pop_stack(l_occ)) call
-     &    errquit('dft_scaleMO_so: ma_pop_stack l_occ',0, MA_ERR)
-        do i=1,2
-          if (.not. ga_destroy(g_moso1(i))) 
-     &       call errquit
-     &       ('scaleMO_so: could not destroy g_moso_tmp',
-     &        0, GA_ERR)
-        enddo
+      enddo ! end-loop-i
 c
-       return
-       end
+c     calculate spin-orbit density matrix
+      nbf_ao=nbf/2
+      call dft_densm_so(g_densso,g_moso_tmp,nbf_ao,ntot_occ)    
+c
+c     clean up
+      if (.not.ma_pop_stack(l_occ)) 
+     &  call errquit('dft_scaleMO_so: ma_pop_stack l_occ',0, MA_ERR)
+       do i=1,2
+        if (.not. ga_destroy(g_moso_tmp(i))) 
+     &   call errquit('scaleMO_so: could not destroy g_moso_tmp',
+     &   0,GA_ERR)
+      enddo
+c
+      return
+      end
 c $Id$
