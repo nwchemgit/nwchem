@@ -86,7 +86,7 @@ c     ------------------
            goto 30
 
          else if (inp_compare(.false., 'load', field)) then
-            call  bq_input_load(rtdb,max_nbq,ncenter,
+            call  bq_input_load(aunit,max_nbq,ncenter,
      &                       dbl_mb(i_qbq),
      &                       dbl_mb(i_cbq))
             goto 20
@@ -112,9 +112,9 @@ c     ------------------
             if (.not. status) 
      &         call errquit('bq_input: inp_read failed',0,0)
            dbl_mb(i_qbq+ncenter) = q
-           dbl_mb(i_cbq+3*ncenter)   = x
-           dbl_mb(i_cbq+3*ncenter+1) = y
-           dbl_mb(i_cbq+3*ncenter+2) = z
+           dbl_mb(i_cbq+3*ncenter)   = x*scale
+           dbl_mb(i_cbq+3*ncenter+1) = y*scale   
+           dbl_mb(i_cbq+3*ncenter+2) = z*scale
            ncenter = ncenter + 1
            status = ncenter .le. max_nbq 
            if (.not. status) 
@@ -124,8 +124,6 @@ c     ------------------
       end if
       end if
  30   continue
-
-      call dscal(3*ncenter, scale, dbl_mb(i_cbq), 1)
 
       if(.not.bq_create(namespace,handle))   
      &       call errquit('bq_create failed',0,0)
@@ -165,7 +163,7 @@ c     -----------------------------------
 911   call errquit(message,0,-1)
       end
 
-      subroutine bq_input_load(rtdb,nmax,n,q,c)
+      subroutine bq_input_load(aunit,nmax,n,q,c)
       implicit none
 #include "errquit.fh"
 #include "inp.fh"
@@ -176,7 +174,7 @@ c     -----------------------------------
 #include "bq_params.fh"
 #include "bq.fh"
 c     
-      integer rtdb
+      character*(*) aunit
       integer nmax,n
       double precision q(nmax),c(3,nmax)
       character*255 message
@@ -187,7 +185,8 @@ c
       logical oscale
       integer iloc(4)
       double precision charge_scale
-      integer i,k,n0
+      integer i,k,n0,ipos
+      double precision scale
 
       
       iloc = [2,3,4,5]
@@ -199,15 +198,17 @@ c
 10    continue
       if (inp_a(field)) then
         message = "processing field "//trim(field)
-        write(*,*) trim(message)
         if (inp_compare(.false., 'coords', field)) then
            if (.not.inp_a(afile_coords)) goto 998
              goto 10
+        else if (inp_contains(.false.,'unit',field,ipos)) then
+          message = "reading units"
+          if (.not. inp_a(aunit)) goto 998
+          goto 10
         else if (inp_compare(.false., 'charges', field)) then
            if (.not.inp_a(afile_charges)) goto 998
              goto 10
         else if (inp_compare(.false., 'format', field)) then
-           write(*,*) "found format"
            do k=1,4
              if (.not.inp_i(iloc(k))) goto 998
            end do
@@ -222,16 +223,15 @@ c
         goto 10
       end if
 
+      n0=n
       if(afile_coords.ne." "
      >   .and. 
      >   afile_charges.ne." ") then
-        n0=n
         call bq_load_xyz(afile_coords,nmax,n,iloc(1:3),c)
         n = n0
         call bq_load_q(afile_charges,nmax,n,iloc(4),q)
       else if (afile.ne." ") then
 #ifdef MARAT_DEBUG
-        write(*,*) "loading from ", trim(afile)
 #endif
         call bq_load(afile,nmax,n,iloc,q,c)
       else
@@ -239,18 +239,27 @@ c
         goto 998
       end if
 
+c     scale and convert as needed
+c      write(*,*) "scaling"
+c      do i=n0+1,n
+c        write(*,*) i,c(:,i),scale*c(:,i)
+c        c(:,i) = scale*c(:,i)
+c      end do
+c      write(*,*) "end scaling"
+      call util_length_scale(aunit,scale)
+      call dscal(3*(n-n0), scale, c(:,n0+1:n), 1)
       if(oscale) then
-        call dscal(n, charge_scale, q, 1)
+        call dscal(n-n0, charge_scale, q(n0+1:n), 1)
       end if
 
-c      do i=1,n
-c       write(*,*) c(1,i),c(2,i),c(3,i),q(i)
-c      end do
-c      write(*,*) "oscale ",oscale
-c      write(*,*) "scale ",charge_scale
-c      write(*,*) "afile ",afile
-c      write(*,*) "afile_coords ",afile_coords
-c      write(*,*) "afile_charges ",afile_charges
+      do i=1,n
+       write(*,*) c(1,i),c(2,i),c(3,i),q(i)
+      end do
+      write(*,*) "oscale ",oscale
+      write(*,*) "scale ",charge_scale
+      write(*,*) "afile ",afile
+      write(*,*) "afile_coords ",afile_coords
+      write(*,*) "afile_charges ",afile_charges
 
       return
 
@@ -526,7 +535,6 @@ c
 c      
       iloc_max = maxval(iloc)
 c      
-      write(*,*) "iloc",iloc
       call inp_init(fn,LuOut)
 10    continue
       if (.not.inp_read()) goto 30
@@ -535,6 +543,7 @@ c
       if(n.gt.nmax) goto 911
       message = "reading coordinates"
       call inp_outrec()
+      write(*,*) iloc
       do k=1,3
         call inp_set_field(iloc(k)-1) 
         if (.not.inp_f(f4(k))) goto 10
@@ -543,6 +552,7 @@ c
       call inp_set_field(iloc(k)-1) 
       if (.not.inp_f(f4(k))) goto 10
       n=n+1
+      write(*,*) f4
       c(:,n) = f4(1:3)
       q(n) = f4(4)
       goto 10

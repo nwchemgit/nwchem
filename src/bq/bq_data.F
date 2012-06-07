@@ -488,6 +488,7 @@ c        == tally up bq charges ==
          bq_charge_total = 0.d0
          do i=1,bq_ncent(handle)
            write(6,FMT=9000)
+c     >           i,(dbl_mb(i_c+3*(i-1)+k-1),k=1,3),
      >           i,(dbl_mb(i_c+3*(i-1)+k-1)*0.529177249d00,k=1,3),
      >           dbl_mb(i_q+i-1)
            bq_charge_total = bq_charge_total + dbl_mb(i_q+i-1)
