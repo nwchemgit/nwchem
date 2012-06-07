@@ -1,0 +1,209 @@
+start w1
+
+
+BASIS "ao basis" PRINT
+* library "3-21G"
+END
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+
+geometry nocenter noautosym units angstrom noautoz print
+O          2.045   1.011  -1.505    
+H1         1.912   0.062  -1.314    
+H2         1.119   1.318  -1.544    
+Bq         2.384   1.738   1.380 charge -0.9
+Bq         2.448   1.608   0.416 charge  0.45   
+Bq         1.560   1.268   1.608 charge  0.45   
+end
+
+task dft energy
+
+geometry nocenter noautosym units angstrom noautoz print
+O          2.045   1.011  -1.505    
+H1         1.912   0.062  -1.314    
+H2         1.119   1.318  -1.544    
+end
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+
+task dft energy
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+
+
+
+bq
+2.384   1.738   1.380  -0.9
+2.448   1.608   0.416   0.45
+1.560   1.268   1.608   0.45
+end
+
+task dft energy
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+
+
+bq
+load bq.xyz format 1 2 3 4
+end
+task dft energy
+
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+
+
+bq
+load coords bq.xyz charges bq.xyz format 1 2 3 4
+end
+task dft energy
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+
+
+bq
+load coords bq.xyz charges bq-charges.xyz format 1 2 3 2
+end
+task dft energy
+
+
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+bq
+load bq-1.xyz format 2 3 4 5
+end
+task dft energy
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+bq
+load bqO.xyz format 2 3 4 6
+load bqH.xyz format 1 2 3 4
+end
+task dft energy
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+bq
+load bqO.xyz format 2 3 4 6
+2.448   1.608   0.416   0.45
+1.560   1.268   1.608   0.45
+end
+task dft energy
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+bq
+load bq-au.xyz format 3 4 5 7 units au
+end
+task dft energy
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+bq units au
+  4.50510676     3.28434377     2.60782186     -0.90000000
+  4.62604922     3.03867939     0.78612601      0.45000000
+  2.94797254     2.39617255     3.03867939      0.45000000
+end
+task dft energy
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+bq units au
+  4.50510676     3.28434377     2.60782186     -0.90000000
+  load bqH-au.xyz format 3 4 5 7 units au
+end
+task dft energy
+
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+bq units au
+  clear
+  4.50510676     3.28434377     2.60782186     -0.90000000
+  load bqH.xyz format 1 2 3 4 units ang
+end
+task dft energy
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+bq units au 
+  4.50510676     3.28434377     2.60782186     -0.90000000
+  load bqH.xyz format 1 2 3 4 units ang
+end
+task dft energy
+bq
+clear
+end
+task dft energy
+
