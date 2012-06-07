@@ -115,6 +115,38 @@ c      local variables
        return
        end
 
+      subroutine bq_rtdb_delete(irtdb,namespace)
+      implicit none
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "rtdb.fh"
+       integer irtdb
+       character*(*) namespace
+c      local variables
+       character*(32) pname
+       character*(255) tag
+       logical ignore
+
+       pname = "bq_rtdb_delete"
+
+       call bq_tag_ncent(namespace,tag)
+       ignore = rtdb_delete(irtdb,tag)
+       
+       call bq_tag_coord(namespace,tag)
+       ignore = rtdb_delete(irtdb,tag)
+
+       call bq_tag_charge(namespace,tag)
+       ignore = rtdb_delete(irtdb,tag)
+
+       if(rtdb_cget(irtdb,"bq" , 1,tag)) then
+         if(tag.eq.namespace) then
+          ignore = rtdb_delete(irtdb,"bq")
+         end if
+       end if
+ 
+       return
+       end
+
       function bq_rtdb_load(irtdb,handle)
       implicit none
 #include "mafdecls.fh"

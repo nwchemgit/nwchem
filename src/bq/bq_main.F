@@ -25,6 +25,7 @@ c
         write(*,*) "no namespace"
         return
       end if
+      write(*,*) "NAMESPACE=",namespace
  
       if(.not.bq_create(namespace,handle)) then
          call errquit(pname//'failed to create bq',

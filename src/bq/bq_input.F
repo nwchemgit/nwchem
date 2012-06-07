@@ -83,7 +83,9 @@ c     ------------------
 
          if (inp_compare(.false., 'end', field)) then
            goto 30
-
+         else if (inp_compare(.false., 'clear', field)) then
+            call bq_rtdb_delete(rtdb,namespace)
+            goto 20
          else if (inp_compare(.false., 'load', field)) then
             call  bq_input_load(aunit,max_nbq,ncenter,
      &                       dbl_mb(i_qbq),
@@ -178,18 +180,19 @@ c
       double precision q(nmax),c(3,nmax)
       character*255 message
       character*255 field
-      character*255 afile_coords 
+c      character*255 afile_coords 
       character*255 afile_charges
       character*255 afile
       logical oscale
       integer iloc(4)
       double precision charge_scale
       integer i,k,n0,ipos
+      integer dn
       double precision scale
 
       
       iloc = [2,3,4,5]
-      afile_coords  = " "
+c      afile_coords  = " "
       afile_charges = " "
       afile = " "
       oscale = .false.
@@ -198,7 +201,7 @@ c
       if (inp_a(field)) then
         message = "processing field "//trim(field)
         if (inp_compare(.false., 'coords', field)) then
-           if (.not.inp_a(afile_coords)) goto 998
+           if (.not.inp_a(afile)) goto 998
              goto 10
         else if (inp_contains(.false.,'unit',field,ipos)) then
           message = "reading units"
@@ -217,29 +220,33 @@ c
              oscale = .true.
              goto 10
         else
-          if(afile_coords.eq. " " ) afile_coords = field 
+          if(afile.eq. " " ) afile = field 
         end if
         goto 10
       end if
 
       n0=n
-      if(afile_coords.ne." "
+      if(afile.eq." "
      >   .and. 
      >   afile_charges.ne." ") then
-        call bq_load_xyz(afile_coords,nmax,n,iloc(1:3),c)
+         message = "no files to load ;("
+         goto 998
+      end if
+      if(afile_charges.ne." ") then
+        call bq_load_xyz(afile,nmax,n,iloc(1:3),c)
+        dn = n - n0
+        message = "check format, no coords were found in "//afile
+        if (dn.eq.0) goto 998
         n = n0
         call bq_load_q(afile_charges,nmax,n,iloc(4),q)
-      else if (afile.ne." ") then
-#ifdef MARAT_DEBUG
-#endif
+        message = "error reading charges "//afile_charges
+        if (dn.ne.n-n0) goto 998
+      else 
         call bq_load(afile,nmax,n,iloc,q,c)
-      else
-        message = "give me some files now"
-        goto 998
+        message = "error reading coords and charges "//afile
+        if (n0.eq.n) goto 998
       end if
 
-      message = "no Bq's in the file "//afile
-      if(n0.eq.n) goto 998
 c     scale and convert as needed
       call util_length_scale(aunit,scale)
       call dscal(3*(n-n0), scale, c(:,n0+1:n), 1)
