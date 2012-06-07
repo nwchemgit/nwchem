@@ -1,3 +1,4 @@
+#define MARAT_DEBUG
 c $Id$
 
       subroutine bq_input(rtdb)
@@ -158,7 +159,6 @@ c     -----------------------------------
      &      'failed to free scratch space '//pname,
      &      max_nbq, MA_ERR)
  
-      stop
       return
 998   call errquit('no token found '//field,0,
      >        RTDB_ERR)
@@ -199,6 +199,7 @@ c
 10    continue
       if (inp_a(field)) then
         message = "processing field "//trim(field)
+        write(*,*) trim(message)
         if (inp_compare(.false., 'coords', field)) then
            if (.not.inp_a(afile_coords)) goto 998
              goto 10
@@ -206,6 +207,7 @@ c
            if (.not.inp_a(afile_charges)) goto 998
              goto 10
         else if (inp_compare(.false., 'format', field)) then
+           write(*,*) "found format"
            do k=1,4
              if (.not.inp_i(iloc(k))) goto 998
            end do
@@ -215,8 +217,9 @@ c
              oscale = .true.
              goto 10
         else
-          afile = field 
+          if(afile.eq. " " ) afile = field 
         end if
+        goto 10
       end if
 
       if(afile_coords.ne." "
@@ -227,6 +230,9 @@ c
         n = n0
         call bq_load_q(afile_charges,nmax,n,iloc(4),q)
       else if (afile.ne." ") then
+#ifdef MARAT_DEBUG
+        write(*,*) "loading from ", trim(afile)
+#endif
         call bq_load(afile,nmax,n,iloc,q,c)
       else
         message = "give me some files now"
@@ -520,6 +526,7 @@ c
 c      
       iloc_max = maxval(iloc)
 c      
+      write(*,*) "iloc",iloc
       call inp_init(fn,LuOut)
 10    continue
       if (.not.inp_read()) goto 30
@@ -527,6 +534,7 @@ c
       message = "checking for bounds"
       if(n.gt.nmax) goto 911
       message = "reading coordinates"
+      call inp_outrec()
       do k=1,3
         call inp_set_field(iloc(k)-1) 
         if (.not.inp_f(f4(k))) goto 10
