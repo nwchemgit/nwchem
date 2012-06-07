@@ -1,4 +1,3 @@
-#define MARAT_DEBUG
 c $Id$
 
       subroutine bq_input(rtdb)
@@ -218,7 +217,7 @@ c
              oscale = .true.
              goto 10
         else
-          if(afile.eq. " " ) afile = field 
+          if(afile_coords.eq. " " ) afile_coords = field 
         end if
         goto 10
       end if
@@ -239,163 +238,29 @@ c
         goto 998
       end if
 
+      message = "no Bq's in the file "//afile
+      if(n0.eq.n) goto 998
 c     scale and convert as needed
-c      write(*,*) "scaling"
-c      do i=n0+1,n
-c        write(*,*) i,c(:,i),scale*c(:,i)
-c        c(:,i) = scale*c(:,i)
-c      end do
-c      write(*,*) "end scaling"
       call util_length_scale(aunit,scale)
       call dscal(3*(n-n0), scale, c(:,n0+1:n), 1)
       if(oscale) then
         call dscal(n-n0, charge_scale, q(n0+1:n), 1)
       end if
 
-      do i=1,n
-       write(*,*) c(1,i),c(2,i),c(3,i),q(i)
-      end do
-      write(*,*) "oscale ",oscale
-      write(*,*) "scale ",charge_scale
-      write(*,*) "afile ",afile
-      write(*,*) "afile_coords ",afile_coords
-      write(*,*) "afile_charges ",afile_charges
+c      do i=1,n
+c       write(*,*) c(1,i),c(2,i),c(3,i),q(i)
+c      end do
+c      write(*,*) "oscale ",oscale
+c      write(*,*) "scale ",charge_scale
+c      write(*,*) "afile ",afile
+c      write(*,*) "afile_coords ",afile_coords
+c      write(*,*) "afile_charges ",afile_charges
 
       return
 
 998   call errquit("error "//message,0,
      >        -1)
 
-      end
-
-*     *************************************************
-*     *                                               *
-*     *               bq_get_scalefrominput           *
-*     *                                               *
-*     *************************************************
-      subroutine bq_get_scalefrominput(scale)
-      implicit none
-      double precision scale
-
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-
-*     **** local variables ***
-      double precision bohr,ang2au,newang2au
-      parameter (bohr=0.529177249d0)
-      parameter (ang2au = 1.0d0/bohr)   ! ang2au =1.88972598858d0
-
-      integer ind,unit_ind
-      integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 3)
-      character*22 dirs(num_dirs)
-      character*255 test
-
-      integer nunits
-      parameter (nunits=9)
-      character*10 units(nunits)
-
-      data dirs / 'units',
-     >            'angstrom_to_au','ang2au' /
-
-      data units / 'au','atomic','bohr',
-     >             'angstroms', 'an',
-     >             'nanometers','nm',
-     >             'picometers','pm' /
-
-
-
-
-      unit_ind  = 4 !*** default scale is angstroms ***
-      newang2au = ang2au
-      call inp_set_field(1)
- 40   if (inp_a(test)) then
-
-         if (inp_match(num_dirs, .false., test, dirs, ind)) then
-            goto (41,42,42) ind
-
-*           **** units ****
-  41        if (.not. inp_a(test)) call errquit
-     >       ('simulation_cell_input: error reading units', 0,
-     &       INPUT_ERR)
-            if (.not.inp_match(nunits, .false., test, units, unit_ind))
-     >       call errquit('simulation_cell_input: error reading units',
-     $       0,INPUT_ERR)
-            goto 40
-
-*           **** angstrom_to_au ****
-  42        if (.not. inp_f(newang2au)) newang2au = ang2au
-            goto 40
-         end if
-      end if
-
-*     **** set the scale ****
-      goto ( 52,52,52,53,53,54,54,55,55 ) unit_ind
-  52  scale = 1.0d0 !**** atomic units ****
-      goto 60
-  53  scale = 1.0d0*newang2au !**** angstrom units ****
-      goto 60
-  54  scale = 10.0d0*newang2au !**** nanometer units ****
-      goto 60
-  55  scale = 1.0d0*newang2au/100.0d0 !**** picometer units ****
-      goto 60
-
-  60  continue
-      return
-      end
-
-      subroutine bq_get_length_scale(aunit,scale)
-      implicit none
-      double precision scale
-      character*(*) aunit
-
-#include "inp.fh"
-#include "mafdecls.fh"
-#include "errquit.fh"
-
-*     **** local variables ***
-      double precision bohr,ang2au,newang2au
-      parameter (bohr=0.529177249d0)
-      parameter (ang2au = 1.0d0/bohr)   ! ang2au =1.88972598858d0
-
-      integer ind,unit_ind
-      integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 3)
-      character*22 dirs(num_dirs)
-      character*10 test
-      character*255 message
-
-      integer nunits
-      parameter (nunits=9)
-      character*10 units(nunits)
-
-      data units / 'au','atomic','bohr',
-     >             'angstroms', 'an',
-     >             'nanometers','nm',
-     >             'picometers','pm' /
-
-
-       test = aunit
-
-       message = "matching unit "//test
-       if (.not.inp_match(nunits, .false., test, units, unit_ind))
-     >    goto 59
-
-*     **** set the scale ****
-      goto ( 52,52,52,53,53,54,54,55,55 ) unit_ind
-  52  scale = 1.0d0 !**** atomic units ****
-      goto 60
-  53  scale = 1.0d0*newang2au !**** angstrom units ****
-      goto 60
-  54  scale = 10.0d0*newang2au !**** nanometer units ****
-      goto 60
-  55  scale = 1.0d0*newang2au/100.0d0 !**** picometer units ****
-      goto 60
-
-  59  call errquit(trim(message),0,-1) 
-  60  continue
-      return
       end
 
       subroutine bq_load_xyz(filename,nmax,n,iloc,c)
@@ -542,8 +407,7 @@ c
       message = "checking for bounds"
       if(n.gt.nmax) goto 911
       message = "reading coordinates"
-      call inp_outrec()
-      write(*,*) iloc
+c      call inp_outrec()
       do k=1,3
         call inp_set_field(iloc(k)-1) 
         if (.not.inp_f(f4(k))) goto 10
@@ -552,7 +416,6 @@ c
       call inp_set_field(iloc(k)-1) 
       if (.not.inp_f(f4(k))) goto 10
       n=n+1
-      write(*,*) f4
       c(:,n) = f4(1:3)
       q(n) = f4(4)
       goto 10
@@ -563,49 +426,7 @@ c
 911   call errquit("error "//trim(message),0,
      >        -1)
       end
-c      
-      subroutine bq_readfile(filename,ncenter,q,c)
-      implicit none
-#include "util.fh"
-#include "errquit.fh"
-#include "inp.fh"
-      character*(*) filename
-      integer       ncenter
-      double precision   q(ncenter)
-      double precision   c(3,ncenter)
 
-c
-      integer fn,fn1,k,i,ipos
-      character*180 buffer
-      character*30 pname,atag
-c
-      logical util_io_unit
-      external util_io_unit
-c
-      pname = "bq_readfile"
-c
-      if(.not.util_io_unit(80,90,fn))
-     +  call errquit(pname//"cannot get io unit",0,0)
-      open(unit=fn,file=filename,status='old',form="formatted")
-      i=0
-10    continue        
-       read(fn,'(A180)',ERR=30,END=30) buffer
-       if(inp_contains(.false.,"bq",buffer,ipos)) then
-         i=i+1
-         if(i.gt.ncenter)
-     +     call errquit(pname//"increase bq stack",i,0)
-         read(buffer,*) atag,(c(k,i),k=1,3),q(i)
-       end if
-      goto 10
-  30  close(fn)
-      ncenter = i
-      return
-      end
-*     *************************************************
-*     *                                               *
-*     *               bq_fromrtdb                     *
-*     *                                               *
-*     *************************************************
       subroutine bq_fromrtdb(rtdb,rtdb_charge_tag,rtdb_coord_tag,
      &                      ncenter,charge,coord)
       implicit none
