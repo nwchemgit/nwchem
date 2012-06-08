@@ -200,10 +200,10 @@ c      afile_coords  = " "
 10    continue
       if (inp_a(field)) then
         message = "processing field "//trim(field)
-        if (inp_compare(.false., 'coords', field)) then
-           if (.not.inp_a(afile)) goto 998
-             goto 10
-        else if (inp_contains(.false.,'unit',field,ipos)) then
+c        if (inp_compare(.false., 'coords', field)) then
+c           if (.not.inp_a(afile)) goto 998
+c             goto 10
+        if (inp_contains(.false.,'unit',field,ipos)) then
           message = "reading units"
           if (.not. inp_a(aunit)) goto 998
           goto 10
@@ -297,7 +297,8 @@ c
       if(.not.util_io_unit(80,90,fn))
      +  call errquit(pname//"cannot get io unit",0,0)
       call util_file_name_resolve(filename, .false.)
-      open(unit=fn,file=filename,status='old',form="formatted")
+      message = "loading coordinates from "//filename
+      open(unit=fn,file=filename,status='old',form="formatted",ERR=911)
 c      
       iloc_max = maxval(iloc)
 c      
@@ -351,7 +352,8 @@ c
       if(.not.util_io_unit(80,90,fn))
      +  call errquit(pname//"cannot get io unit",0,0)
       call util_file_name_resolve(filename, .false.)
-      open(unit=fn,file=filename,status='old',form="formatted")
+      message = "loading charges from "//filename
+      open(unit=fn,file=filename,status='old',form="formatted",ERR=911)
 c      
       iloc_max = iloc
 c      
@@ -403,7 +405,8 @@ c
       if(.not.util_io_unit(80,90,fn))
      +  call errquit(pname//"cannot get io unit",0,0)
       call util_file_name_resolve(filename, .false.)
-      open(unit=fn,file=filename,status='old',form="formatted")
+      message = "loading charges and coordinates from "//filename
+      open(unit=fn,file=filename,status='old',form="formatted",ERR=911)
 c      
       iloc_max = maxval(iloc)
 c      
