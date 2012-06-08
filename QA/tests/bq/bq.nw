@@ -86,7 +86,7 @@ end
 
 
 bq
-load coords bq.xyz charges bq.xyz format 1 2 3 4
+load   bq.xyz charges bq.xyz format 1 2 3 4
 end
 task dft energy
 
@@ -99,10 +99,36 @@ end
 
 
 bq
-load coords bq.xyz charges bq-charges.xyz format 1 2 3 2
+load   bq.xyz charges bq-charges.xyz format 1 2 3 2
 end
 task dft energy
 
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+
+
+bq
+load bq.xyz charges bq-charges-zero.xyz format 1 2 3 2
+end
+task dft energy
+
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+
+
+bq
+load bq.xyz charges bq-charges.xyz format 1 2 3 2 scale 0.0
+end
+task dft energy
 
 
 dft
@@ -202,8 +228,26 @@ bq units au
   load bqH.xyz format 1 2 3 4 units ang
 end
 task dft energy
+
 bq
 clear
 end
+task dft energy
+
+dft
+ mult 1
+ XC b3lyp
+ iterations 5000
+ vectors input atomic
+end
+bq units au marat
+  4.50510676     3.28434377     2.60782186     -0.90000000
+  load bqH.xyz format 1 2 3 4 units ang
+end
+task dft energy
+
+
+set bq marat
+
 task dft energy
 

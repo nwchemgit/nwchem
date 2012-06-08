@@ -1,6 +1,6 @@
 executing mpirun -np 2 /home/marat/codes/nwchem/bin/LINUX64/nwchem bq.nw < /dev/null >  bq.out
 ****************************************
-Date: Thu Jun 7 11:23:03 PDT 2012
+Date: Fri Jun 8 11:03:59 PDT 2012
 Machine: swift
 Number of CPU: 2
 ****************************************
@@ -44,16 +44,16 @@ Number of CPU: 2
 
     hostname        = swift
     program         = /home/marat/codes/nwchem/bin/LINUX64/nwchem
-    date            = Thu Jun  7 11:23:04 2012
+    date            = Fri Jun  8 11:04:00 2012
 
-    compiled        = Thu_Jun_07_11:08:25_2012
+    compiled        = Fri_Jun_08_10:17:32_2012
     source          = /home/marat/codes/nwchem
     nwchem branch   = Development
     nwchem revision = 22561M
     ga revision     = 10007
     input           = bq.nw
     prefix          = w1.
-    data base       = .//w1.db
+    data base       = ./w1.db
     status          = startup
     nproc           =        2
     time left       =     -1s
@@ -74,8 +74,8 @@ Number of CPU: 2
            Directory information
            ---------------------
 
-  0 permanent = ./
-  0 scratch   = ./data
+  0 permanent = .
+  0 scratch   = .
 
 
 
@@ -318,18 +318,18 @@ Number of CPU: 2
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88908
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474141
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -338,21 +338,21 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -75.9366238571 -8.53D+01  5.47D-02  3.67D-01     0.2
- d= 0,ls=0.0,diis     2    -75.9447960750 -8.17D-03  2.47D-02  3.93D-01     0.3
- d= 0,ls=0.0,diis     3    -75.9780526148 -3.33D-02  2.30D-03  7.29D-03     0.3
- d= 0,ls=0.0,diis     4    -75.9786012245 -5.49D-04  2.00D-04  2.45D-05     0.4
- d= 0,ls=0.0,diis     5    -75.9786038191 -2.59D-06  1.64D-05  1.07D-08     0.5
- d= 0,ls=0.0,diis     6    -75.9786038228 -3.71D-09  1.20D-06  8.78D-11     0.6
+ d= 0,ls=0.0,diis     1    -75.9366238609 -8.53D+01  5.47D-02  3.67D-01     0.2
+ d= 0,ls=0.0,diis     2    -75.9447960042 -8.17D-03  2.47D-02  3.93D-01     0.2
+ d= 0,ls=0.0,diis     3    -75.9780526096 -3.33D-02  2.30D-03  7.29D-03     0.3
+ d= 0,ls=0.0,diis     4    -75.9786012265 -5.49D-04  2.00D-04  2.45D-05     0.4
+ d= 0,ls=0.0,diis     5    -75.9786038210 -2.59D-06  1.64D-05  1.07D-08     0.5
+ d= 0,ls=0.0,diis     6    -75.9786038248 -3.71D-09  1.20D-06  8.78D-11     0.6
 
 
-         Total DFT energy =      -75.978603822817
-      One electron energy =     -122.746486595459
-           Coulomb energy =       46.782435532127
-    Exchange-Corr. energy =       -9.346793824902
+         Total DFT energy =      -75.978603824756
+      One electron energy =     -122.746486595611
+           Coulomb energy =       46.782435532236
+    Exchange-Corr. energy =       -9.346793826800
  Nuclear repulsion energy =        9.332241065418
 
- Numeric. integr. density =       10.000001046102
+ Numeric. integr. density =       10.000001066790
 
      Total iterative time =      0.5s
 
@@ -397,7 +397,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
      9      0.615661  1 O  pz                 5      0.519662  1 O  pz         
 
- Vector    6  Occ=0.000000D+00  E= 6.892151D-02
+ Vector    6  Occ=0.000000D+00  E= 6.892150D-02
               MO Center=  1.5D+00,  6.5D-01, -1.4D+00, r^2= 2.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -656,18 +656,18 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88908
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474141
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -853,7 +853,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Total Bq charge:   1.110223024625157E-016
 
 
- NAMESPACE=default                                                                                                                                                                                                                                                        
 
 
 
@@ -954,9 +953,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88908
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -965,9 +964,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474141
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -1168,7 +1167,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Total Bq charge:   1.110223024625157E-016
 
 
- NAMESPACE=default                                                                                                                                                                                                                                                        
 
 
 
@@ -1269,9 +1267,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88906
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -1280,9 +1278,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474130
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -1294,7 +1292,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  d= 0,ls=0.0,diis     1    -75.9366235633 -8.53D+01  5.47D-02  3.67D-01     1.9
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     2    -75.9447956529 -8.17D-03  2.47D-02  3.93D-01     2.0
+ d= 0,ls=0.0,diis     2    -75.9447956529 -8.17D-03  2.47D-02  3.93D-01     1.9
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
  d= 0,ls=0.0,diis     3    -75.9780523013 -3.33D-02  2.30D-03  7.29D-03     2.0
@@ -1483,7 +1481,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Total Bq charge:   1.110223024625157E-016
 
 
- NAMESPACE=default                                                                                                                                                                                                                                                        
 
 
 
@@ -1584,9 +1581,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88906
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -1595,9 +1592,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474130
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -1621,7 +1618,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     2.8
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     6    -75.9786035180 -3.71D-09  1.20D-06  8.78D-11     2.8
+ d= 0,ls=0.0,diis     6    -75.9786035180 -3.71D-09  1.20D-06  8.78D-11     2.9
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
 
@@ -1798,7 +1795,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Total Bq charge:   1.110223024625157E-016
 
 
- NAMESPACE=default                                                                                                                                                                                                                                                        
 
 
 
@@ -1899,9 +1895,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88906
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -1910,9 +1906,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474130
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -1930,7 +1926,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  d= 0,ls=0.0,diis     3    -75.9780523013 -3.33D-02  2.30D-03  7.29D-03     3.2
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     4    -75.9786009197 -5.49D-04  2.00D-04  2.45D-05     3.2
+ d= 0,ls=0.0,diis     4    -75.9786009197 -5.49D-04  2.00D-04  2.45D-05     3.3
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
  d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     3.3
@@ -2096,7 +2092,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Parallel integral file used       2 records with       0 large values
 
 
- Task  times  cpu:        0.6s     wall:        1.1s
+ Task  times  cpu:        0.6s     wall:        0.7s
 
 
                                 NWChem Input Module
@@ -2107,13 +2103,12 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                    ------------------------------------
  Name: default                                                                 
  Number of centers:                     3
-    1  Bq         2.38400000     1.73800000     1.38000000   charge       -0.90000000
-    2  Bq         2.44800000     1.60800000     0.41600000   charge        0.45000000
-    3  Bq         1.56000000     1.26800000     1.60800000   charge        0.45000000
- Total Bq charge:   1.110223024625157E-016
+    1  Bq         2.38400000     1.73800000     1.38000000   charge        0.00000000
+    2  Bq         2.44800000     1.60800000     0.41600000   charge        0.00000000
+    3  Bq         1.56000000     1.26800000     1.60800000   charge        0.00000000
+ Total Bq charge:    0.00000000000000     
 
 
- NAMESPACE=default                                                                                                                                                                                                                                                        
 
 
 
@@ -2188,46 +2183,46 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           Schwarz screening/accCoul: 1.00D-08
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
+ Bq nuclear interaction energy =   0.00000000000000     
 
       Superposition of Atomic Density Guess
       -------------------------------------
 
  Sum of atomic energies:         -75.36108718
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
+ Bq nuclear interaction energy =   0.00000000000000     
 
       Non-variational initial energy
       ------------------------------
 
- Total energy =     -75.501436
- 1-e energy   =    -121.495395
+ Total energy =     -75.501451
+ 1-e energy   =    -121.183751
  2-e energy   =      36.661717
- HOMO         =      -0.467324
- LUMO         =       0.132432
+ HOMO         =      -0.431792
+ LUMO         =       0.157326
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
-   Time after variat. SCF:      3.4
-   Time prior to 1st pass:      3.4
+ Bq nuclear interaction energy =   0.00000000000000     
+   Time after variat. SCF:      3.5
+   Time prior to 1st pass:      3.5
 
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88906
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
+ Bq nuclear interaction energy =   0.00000000000000     
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474130
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -2236,33 +2231,33 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -75.9366235633 -8.53D+01  5.47D-02  3.67D-01     3.6
+ d= 0,ls=0.0,diis     1    -75.9307607827 -8.50D+01  5.53D-02  3.64D-01     3.6
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     2    -75.9447956529 -8.17D-03  2.47D-02  3.93D-01     3.6
+ Bq nuclear interaction energy =   0.00000000000000     
+ d= 0,ls=0.0,diis     2    -75.9389829531 -8.22D-03  2.50D-02  3.92D-01     3.7
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     3    -75.9780523013 -3.33D-02  2.30D-03  7.29D-03     3.7
+ Bq nuclear interaction energy =   0.00000000000000     
+ d= 0,ls=0.0,diis     3    -75.9722466648 -3.33D-02  2.33D-03  7.42D-03     3.7
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     4    -75.9786009197 -5.49D-04  2.00D-04  2.45D-05     3.8
+ Bq nuclear interaction energy =   0.00000000000000     
+ d= 0,ls=0.0,diis     4    -75.9728063673 -5.60D-04  2.06D-04  2.55D-05     3.8
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     3.9
+ Bq nuclear interaction energy =   0.00000000000000     
+ d= 0,ls=0.0,diis     5    -75.9728090742 -2.71D-06  1.71D-05  1.11D-08     3.9
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     6    -75.9786035180 -3.71D-09  1.20D-06  8.78D-11     4.0
+ Bq nuclear interaction energy =   0.00000000000000     
+ d= 0,ls=0.0,diis     6    -75.9728090781 -3.93D-09  1.24D-06  9.29D-11     4.0
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
+ Bq nuclear interaction energy =   0.00000000000000     
 
 
-         Total DFT energy =      -75.978603518035
-      One electron energy =     -122.746486180613
-           Coulomb energy =       46.782435057945
-    Exchange-Corr. energy =       -9.346793460798
- Nuclear repulsion energy =        9.332241065431
+         Total DFT energy =      -75.972809078103
+      One electron energy =     -122.409678985156
+           Coulomb energy =       46.761478124934
+    Exchange-Corr. energy =       -9.345190842071
+ Nuclear repulsion energy =        9.020582624190
 
- Numeric. integr. density =       10.000000234918
+ Numeric. integr. density =       10.000000229980
 
      Total iterative time =      0.5s
 
@@ -2271,113 +2266,112 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
 
- Vector    1  Occ=2.000000D+00  E=-1.903138D+01
+ Vector    1  Occ=2.000000D+00  E=-1.900198D+01
               MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.982205  1 O  s          
 
- Vector    2  Occ=2.000000D+00  E=-1.017737D+00
+ Vector    2  Occ=2.000000D+00  E=-9.879940D-01
               MO Center=  1.8D+00,  8.9D-01, -1.5D+00, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.680158  1 O  s                  1     -0.225218  1 O  s          
-     2      0.215083  1 O  s          
+     6      0.677888  1 O  s                  1     -0.224988  1 O  s          
+     2      0.215515  1 O  s          
 
- Vector    3  Occ=2.000000D+00  E=-5.218168D-01
-              MO Center=  1.8D+00,  8.8D-01, -1.5D+00, r^2= 8.2D-01
+ Vector    3  Occ=2.000000D+00  E=-4.942756D-01
+              MO Center=  1.8D+00,  8.8D-01, -1.5D+00, r^2= 8.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.344588  1 O  py                 8      0.290641  1 O  py         
-    10     -0.233625  2 H  s                 12      0.233755  3 H  s          
-     3     -0.217865  1 O  px                11     -0.207423  2 H  s          
-    13      0.207239  3 H  s                  7     -0.183661  1 O  px         
+     4      0.343514  1 O  py                 8      0.288519  1 O  py         
+    10     -0.233994  2 H  s                 12      0.234099  3 H  s          
+     3     -0.217161  1 O  px                11     -0.211224  2 H  s          
+    13      0.211014  3 H  s                  7     -0.182295  1 O  px         
 
- Vector    4  Occ=2.000000D+00  E=-3.628755D-01
-              MO Center=  2.1D+00,  1.1D+00, -1.5D+00, r^2= 6.5D-01
+ Vector    4  Occ=2.000000D+00  E=-3.339892D-01
+              MO Center=  2.1D+00,  1.1D+00, -1.5D+00, r^2= 6.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.484590  1 O  s                  7      0.396940  1 O  px         
-     3      0.369971  1 O  px                 8      0.246569  1 O  py         
-     4      0.229037  1 O  py         
+     6      0.489527  1 O  s                  7      0.395397  1 O  px         
+     3      0.368858  1 O  px                 8      0.239519  1 O  py         
+     4      0.223400  1 O  py         
 
- Vector    5  Occ=2.000000D+00  E=-2.924151D-01
+ Vector    5  Occ=2.000000D+00  E=-2.593117D-01
               MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 5.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.615661  1 O  pz                 5      0.519662  1 O  pz         
+     9      0.611607  1 O  pz                 5      0.520037  1 O  pz         
 
- Vector    6  Occ=0.000000D+00  E= 6.892151D-02
+ Vector    6  Occ=0.000000D+00  E= 9.361691D-02
               MO Center=  1.5D+00,  6.5D-01, -1.4D+00, r^2= 2.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.966960  1 O  s                 11     -0.811915  2 H  s          
-    13     -0.809797  3 H  s                  7     -0.403240  1 O  px         
-     8     -0.245608  1 O  py                 3     -0.225726  1 O  px         
+     6      0.967703  1 O  s                 11     -0.812554  2 H  s          
+    13     -0.810027  3 H  s                  7     -0.405146  1 O  px         
+     8     -0.246747  1 O  py                 3     -0.226252  1 O  px         
 
- Vector    7  Occ=0.000000D+00  E= 1.599208D-01
+ Vector    7  Occ=0.000000D+00  E= 1.834468D-01
               MO Center=  1.5D+00,  7.0D-01, -1.4D+00, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11     -1.076280  2 H  s                 13      1.079443  3 H  s          
-     8     -0.608001  1 O  py                 7      0.384909  1 O  px         
-     4     -0.308367  1 O  py                 3      0.195162  1 O  px         
+    11     -1.078853  2 H  s                 13      1.082296  3 H  s          
+     8     -0.609680  1 O  py                 7      0.386068  1 O  px         
+     4     -0.307893  1 O  py                 3      0.194925  1 O  px         
 
- Vector    8  Occ=0.000000D+00  E= 8.814022D-01
+ Vector    8  Occ=0.000000D+00  E= 9.067459D-01
               MO Center=  1.6D+00,  7.6D-01, -1.4D+00, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      0.943087  2 H  s                 12     -0.938264  3 H  s          
-    11     -0.827718  2 H  s                 13      0.823819  3 H  s          
-     8      0.238270  1 O  py                 4      0.158716  1 O  py         
-     7     -0.150847  1 O  px         
+    10      0.943250  2 H  s                 12     -0.938402  3 H  s          
+    11     -0.824606  2 H  s                 13      0.820704  3 H  s          
+     8      0.239029  1 O  py                 4      0.160732  1 O  py         
+     7     -0.151312  1 O  px         
 
- Vector    9  Occ=0.000000D+00  E= 9.840678D-01
+ Vector    9  Occ=0.000000D+00  E= 1.011234D+00
               MO Center=  1.5D+00,  6.9D-01, -1.4D+00, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.951450  3 H  s                 10      0.945796  2 H  s          
-    13     -0.554547  3 H  s                 11     -0.551196  2 H  s          
-     3      0.298366  1 O  px                 4      0.182087  1 O  py         
+    12      0.951230  3 H  s                 10      0.945551  2 H  s          
+    13     -0.554154  3 H  s                 11     -0.550792  2 H  s          
+     3      0.298484  1 O  px                 4      0.180159  1 O  py         
 
- Vector   10  Occ=0.000000D+00  E= 1.402378D+00
+ Vector   10  Occ=0.000000D+00  E= 1.437202D+00
               MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 7.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      1.004076  1 O  pz                 9     -0.948161  1 O  pz         
-     4      0.206503  1 O  py                 8     -0.197296  1 O  py         
+     5      1.004901  1 O  pz                 9     -0.951946  1 O  pz         
+     4      0.198939  1 O  py                 8     -0.188455  1 O  py         
 
- Vector   11  Occ=0.000000D+00  E= 1.503252D+00
+ Vector   11  Occ=0.000000D+00  E= 1.531762D+00
               MO Center=  2.2D+00,  1.1D+00, -1.5D+00, r^2= 7.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      1.017395  1 O  px                 3     -0.827235  1 O  px         
-     8      0.610851  1 O  py                 4     -0.496315  1 O  py         
-    10      0.350813  2 H  s                 12      0.351035  3 H  s          
-     6     -0.181966  1 O  s                  9     -0.162941  1 O  pz         
-     2     -0.154895  1 O  s          
+     7      1.017622  1 O  px                 3     -0.827895  1 O  px         
+     8      0.614260  1 O  py                 4     -0.500161  1 O  py         
+    10      0.350819  2 H  s                 12      0.351039  3 H  s          
+     6     -0.181375  1 O  s                  2     -0.155221  1 O  s          
 
- Vector   12  Occ=0.000000D+00  E= 1.607671D+00
+ Vector   12  Occ=0.000000D+00  E= 1.635329D+00
               MO Center=  2.1D+00,  1.0D+00, -1.5D+00, r^2= 9.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      1.183223  1 O  py                 4     -0.866805  1 O  py         
-     7     -0.746174  1 O  px                 3      0.546469  1 O  px         
-    11      0.500789  2 H  s                 13     -0.501364  3 H  s          
-     9     -0.216602  1 O  pz                10      0.166832  2 H  s          
-    12     -0.165642  3 H  s                  5      0.158662  1 O  pz         
+     8      1.182656  1 O  py                 4     -0.866981  1 O  py         
+     7     -0.745907  1 O  px                 3      0.546653  1 O  px         
+    11      0.498461  2 H  s                 13     -0.499072  3 H  s          
+     9     -0.216588  1 O  pz                10      0.167751  2 H  s          
+    12     -0.166582  3 H  s                  5      0.158780  1 O  pz         
 
- Vector   13  Occ=0.000000D+00  E= 2.718054D+00
+ Vector   13  Occ=0.000000D+00  E= 2.748435D+00
               MO Center=  1.9D+00,  9.1D-01, -1.5D+00, r^2= 7.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      1.973358  1 O  s                  2     -1.633256  1 O  s          
-     7     -0.447227  1 O  px                11     -0.346835  2 H  s          
-    13     -0.347969  3 H  s                 10     -0.305156  2 H  s          
-    12     -0.305267  3 H  s                  8     -0.271651  1 O  py         
+     6      1.972931  1 O  s                  2     -1.633160  1 O  s          
+     7     -0.446968  1 O  px                11     -0.345724  2 H  s          
+    13     -0.346860  3 H  s                 10     -0.305923  2 H  s          
+    12     -0.306027  3 H  s                  8     -0.270095  1 O  py         
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
+ Bq nuclear interaction energy =   0.00000000000000     
 
  center of mass
  --------------
@@ -2396,16 +2390,16 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      -   - - -        -----         -----         ----         -------
      0   0 0 0      0.000000     -5.000000     -5.000000     10.000000
 
-     1   1 0 0     -0.778760    -18.711218    -18.711218     36.643677
-     1   0 1 0     -0.473471     -9.182698     -9.182698     17.891926
-     1   0 0 1      0.101336     14.127237     14.127237    -28.153138
+     1   1 0 0     -0.765258    -18.704467    -18.704467     36.643677
+     1   0 1 0     -0.463343     -9.177634     -9.177634     17.891926
+     1   0 0 1      0.109724     14.131431     14.131431    -28.153138
 
-     2   2 0 0     -9.683519    -73.342103    -73.342103    137.000686
-     2   1 1 0     -3.577979    -34.166662    -34.166662     64.755345
-     2   1 0 1      2.626953     52.847334     52.847334   -103.067715
-     2   0 2 0     -5.275132    -20.346360    -20.346360     35.417587
-     2   0 1 1      1.230135     26.128358     26.128358    -51.026581
-     2   0 0 2     -5.585040    -42.486207    -42.486207     79.387374
+     2   2 0 0     -9.604560    -73.302623    -73.302623    137.000686
+     2   1 1 0     -3.508506    -34.131926    -34.131926     64.755345
+     2   1 0 1      2.618725     52.843220     52.843220   -103.067715
+     2   0 2 0     -5.266089    -20.341838    -20.341838     35.417587
+     2   0 1 1      1.222365     26.124473     26.124473    -51.026581
+     2   0 0 2     -5.630986    -42.509180    -42.509180     79.387374
 
 
  Parallel integral file used       2 records with       0 large values
@@ -2422,13 +2416,12 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                    ------------------------------------
  Name: default                                                                 
  Number of centers:                     3
-    1  Bq         2.38400000     1.73800000     1.38000000   charge       -0.90000000
-    2  Bq         2.44800000     1.60800000     0.41600000   charge        0.45000000
-    3  Bq         1.56000000     1.26800000     1.60800000   charge        0.45000000
- Total Bq charge:   1.110223024625157E-016
+    1  Bq         2.38400000     1.73800000     1.38000000   charge        0.00000000
+    2  Bq         2.44800000     1.60800000     0.41600000   charge        0.00000000
+    3  Bq         1.56000000     1.26800000     1.60800000   charge        0.00000000
+ Total Bq charge:    0.00000000000000     
 
 
- NAMESPACE=default                                                                                                                                                                                                                                                        
 
 
 
@@ -2503,46 +2496,46 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           Schwarz screening/accCoul: 1.00D-08
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
+ Bq nuclear interaction energy =   0.00000000000000     
 
       Superposition of Atomic Density Guess
       -------------------------------------
 
  Sum of atomic energies:         -75.36108718
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
+ Bq nuclear interaction energy =   0.00000000000000     
 
       Non-variational initial energy
       ------------------------------
 
- Total energy =     -75.501436
- 1-e energy   =    -121.495395
+ Total energy =     -75.501451
+ 1-e energy   =    -121.183751
  2-e energy   =      36.661717
- HOMO         =      -0.467324
- LUMO         =       0.132432
+ HOMO         =      -0.431792
+ LUMO         =       0.157326
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
+ Bq nuclear interaction energy =   0.00000000000000     
    Time after variat. SCF:      4.0
    Time prior to 1st pass:      4.0
 
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88906
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
+ Bq nuclear interaction energy =   0.00000000000000     
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474130
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -2551,33 +2544,33 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -75.9366235458 -8.53D+01  5.47D-02  3.67D-01     4.1
+ d= 0,ls=0.0,diis     1    -75.9307607827 -8.50D+01  5.53D-02  3.64D-01     4.2
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     2    -75.9447956649 -8.17D-03  2.47D-02  3.93D-01     4.2
+ Bq nuclear interaction energy =   0.00000000000000     
+ d= 0,ls=0.0,diis     2    -75.9389829531 -8.22D-03  2.50D-02  3.92D-01     4.2
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     3    -75.9780523044 -3.33D-02  2.30D-03  7.29D-03     4.3
+ Bq nuclear interaction energy =   0.00000000000000     
+ d= 0,ls=0.0,diis     3    -75.9722466648 -3.33D-02  2.33D-03  7.42D-03     4.3
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     4    -75.9786009216 -5.49D-04  2.00D-04  2.45D-05     4.4
+ Bq nuclear interaction energy =   0.00000000000000     
+ d= 0,ls=0.0,diis     4    -75.9728063673 -5.60D-04  2.06D-04  2.55D-05     4.4
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     5    -75.9786035162 -2.59D-06  1.64D-05  1.07D-08     4.5
+ Bq nuclear interaction energy =   0.00000000000000     
+ d= 0,ls=0.0,diis     5    -75.9728090742 -2.71D-06  1.71D-05  1.11D-08     4.5
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     6    -75.9786035199 -3.71D-09  1.20D-06  8.78D-11     4.5
+ Bq nuclear interaction energy =   0.00000000000000     
+ d= 0,ls=0.0,diis     6    -75.9728090781 -3.93D-09  1.24D-06  9.29D-11     4.6
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
+ Bq nuclear interaction energy =   0.00000000000000     
 
 
-         Total DFT energy =      -75.978603519877
-      One electron energy =     -122.746486176861
-           Coulomb energy =       46.782435053643
-    Exchange-Corr. energy =       -9.346793462092
- Nuclear repulsion energy =        9.332241065431
+         Total DFT energy =      -75.972809078103
+      One electron energy =     -122.409678985156
+           Coulomb energy =       46.761478124934
+    Exchange-Corr. energy =       -9.345190842071
+ Nuclear repulsion energy =        9.020582624190
 
- Numeric. integr. density =       10.000000253828
+ Numeric. integr. density =       10.000000229980
 
      Total iterative time =      0.5s
 
@@ -2586,113 +2579,112 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
 
- Vector    1  Occ=2.000000D+00  E=-1.903138D+01
+ Vector    1  Occ=2.000000D+00  E=-1.900198D+01
               MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      1      0.982205  1 O  s          
 
- Vector    2  Occ=2.000000D+00  E=-1.017737D+00
+ Vector    2  Occ=2.000000D+00  E=-9.879940D-01
               MO Center=  1.8D+00,  8.9D-01, -1.5D+00, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.680158  1 O  s                  1     -0.225218  1 O  s          
-     2      0.215083  1 O  s          
+     6      0.677888  1 O  s                  1     -0.224988  1 O  s          
+     2      0.215515  1 O  s          
 
- Vector    3  Occ=2.000000D+00  E=-5.218168D-01
-              MO Center=  1.8D+00,  8.8D-01, -1.5D+00, r^2= 8.2D-01
+ Vector    3  Occ=2.000000D+00  E=-4.942756D-01
+              MO Center=  1.8D+00,  8.8D-01, -1.5D+00, r^2= 8.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     4      0.344588  1 O  py                 8      0.290641  1 O  py         
-    10     -0.233625  2 H  s                 12      0.233755  3 H  s          
-     3     -0.217865  1 O  px                11     -0.207423  2 H  s          
-    13      0.207239  3 H  s                  7     -0.183661  1 O  px         
+     4      0.343514  1 O  py                 8      0.288519  1 O  py         
+    10     -0.233994  2 H  s                 12      0.234099  3 H  s          
+     3     -0.217161  1 O  px                11     -0.211224  2 H  s          
+    13      0.211014  3 H  s                  7     -0.182295  1 O  px         
 
- Vector    4  Occ=2.000000D+00  E=-3.628755D-01
-              MO Center=  2.1D+00,  1.1D+00, -1.5D+00, r^2= 6.5D-01
+ Vector    4  Occ=2.000000D+00  E=-3.339892D-01
+              MO Center=  2.1D+00,  1.1D+00, -1.5D+00, r^2= 6.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.484590  1 O  s                  7      0.396940  1 O  px         
-     3      0.369971  1 O  px                 8      0.246569  1 O  py         
-     4      0.229037  1 O  py         
+     6      0.489527  1 O  s                  7      0.395397  1 O  px         
+     3      0.368858  1 O  px                 8      0.239519  1 O  py         
+     4      0.223400  1 O  py         
 
- Vector    5  Occ=2.000000D+00  E=-2.924151D-01
+ Vector    5  Occ=2.000000D+00  E=-2.593117D-01
               MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 5.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      0.615661  1 O  pz                 5      0.519662  1 O  pz         
+     9      0.611607  1 O  pz                 5      0.520037  1 O  pz         
 
- Vector    6  Occ=0.000000D+00  E= 6.892151D-02
+ Vector    6  Occ=0.000000D+00  E= 9.361691D-02
               MO Center=  1.5D+00,  6.5D-01, -1.4D+00, r^2= 2.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.966960  1 O  s                 11     -0.811915  2 H  s          
-    13     -0.809797  3 H  s                  7     -0.403240  1 O  px         
-     8     -0.245608  1 O  py                 3     -0.225726  1 O  px         
+     6      0.967703  1 O  s                 11     -0.812554  2 H  s          
+    13     -0.810027  3 H  s                  7     -0.405146  1 O  px         
+     8     -0.246747  1 O  py                 3     -0.226252  1 O  px         
 
- Vector    7  Occ=0.000000D+00  E= 1.599208D-01
+ Vector    7  Occ=0.000000D+00  E= 1.834468D-01
               MO Center=  1.5D+00,  7.0D-01, -1.4D+00, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11     -1.076280  2 H  s                 13      1.079443  3 H  s          
-     8     -0.608001  1 O  py                 7      0.384909  1 O  px         
-     4     -0.308367  1 O  py                 3      0.195162  1 O  px         
+    11     -1.078853  2 H  s                 13      1.082296  3 H  s          
+     8     -0.609680  1 O  py                 7      0.386068  1 O  px         
+     4     -0.307893  1 O  py                 3      0.194925  1 O  px         
 
- Vector    8  Occ=0.000000D+00  E= 8.814022D-01
+ Vector    8  Occ=0.000000D+00  E= 9.067459D-01
               MO Center=  1.6D+00,  7.6D-01, -1.4D+00, r^2= 1.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      0.943087  2 H  s                 12     -0.938264  3 H  s          
-    11     -0.827718  2 H  s                 13      0.823819  3 H  s          
-     8      0.238270  1 O  py                 4      0.158716  1 O  py         
-     7     -0.150847  1 O  px         
+    10      0.943250  2 H  s                 12     -0.938402  3 H  s          
+    11     -0.824606  2 H  s                 13      0.820704  3 H  s          
+     8      0.239029  1 O  py                 4      0.160732  1 O  py         
+     7     -0.151312  1 O  px         
 
- Vector    9  Occ=0.000000D+00  E= 9.840678D-01
+ Vector    9  Occ=0.000000D+00  E= 1.011234D+00
               MO Center=  1.5D+00,  6.9D-01, -1.4D+00, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      0.951450  3 H  s                 10      0.945796  2 H  s          
-    13     -0.554547  3 H  s                 11     -0.551196  2 H  s          
-     3      0.298366  1 O  px                 4      0.182087  1 O  py         
+    12      0.951230  3 H  s                 10      0.945551  2 H  s          
+    13     -0.554154  3 H  s                 11     -0.550792  2 H  s          
+     3      0.298484  1 O  px                 4      0.180159  1 O  py         
 
- Vector   10  Occ=0.000000D+00  E= 1.402378D+00
+ Vector   10  Occ=0.000000D+00  E= 1.437202D+00
               MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 7.3D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     5      1.004076  1 O  pz                 9     -0.948161  1 O  pz         
-     4      0.206503  1 O  py                 8     -0.197296  1 O  py         
+     5      1.004901  1 O  pz                 9     -0.951946  1 O  pz         
+     4      0.198939  1 O  py                 8     -0.188455  1 O  py         
 
- Vector   11  Occ=0.000000D+00  E= 1.503252D+00
+ Vector   11  Occ=0.000000D+00  E= 1.531762D+00
               MO Center=  2.2D+00,  1.1D+00, -1.5D+00, r^2= 7.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      1.017395  1 O  px                 3     -0.827235  1 O  px         
-     8      0.610851  1 O  py                 4     -0.496315  1 O  py         
-    10      0.350813  2 H  s                 12      0.351035  3 H  s          
-     6     -0.181966  1 O  s                  9     -0.162941  1 O  pz         
-     2     -0.154895  1 O  s          
+     7      1.017622  1 O  px                 3     -0.827895  1 O  px         
+     8      0.614260  1 O  py                 4     -0.500161  1 O  py         
+    10      0.350819  2 H  s                 12      0.351039  3 H  s          
+     6     -0.181375  1 O  s                  2     -0.155221  1 O  s          
 
- Vector   12  Occ=0.000000D+00  E= 1.607671D+00
+ Vector   12  Occ=0.000000D+00  E= 1.635329D+00
               MO Center=  2.1D+00,  1.0D+00, -1.5D+00, r^2= 9.2D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      1.183223  1 O  py                 4     -0.866805  1 O  py         
-     7     -0.746174  1 O  px                 3      0.546469  1 O  px         
-    11      0.500789  2 H  s                 13     -0.501364  3 H  s          
-     9     -0.216602  1 O  pz                10      0.166832  2 H  s          
-    12     -0.165642  3 H  s                  5      0.158662  1 O  pz         
+     8      1.182656  1 O  py                 4     -0.866981  1 O  py         
+     7     -0.745907  1 O  px                 3      0.546653  1 O  px         
+    11      0.498461  2 H  s                 13     -0.499072  3 H  s          
+     9     -0.216588  1 O  pz                10      0.167751  2 H  s          
+    12     -0.166582  3 H  s                  5      0.158780  1 O  pz         
 
- Vector   13  Occ=0.000000D+00  E= 2.718054D+00
+ Vector   13  Occ=0.000000D+00  E= 2.748435D+00
               MO Center=  1.9D+00,  9.1D-01, -1.5D+00, r^2= 7.4D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      1.973358  1 O  s                  2     -1.633256  1 O  s          
-     7     -0.447227  1 O  px                11     -0.346835  2 H  s          
-    13     -0.347969  3 H  s                 10     -0.305156  2 H  s          
-    12     -0.305267  3 H  s                  8     -0.271651  1 O  py         
+     6      1.972931  1 O  s                  2     -1.633160  1 O  s          
+     7     -0.446968  1 O  px                11     -0.345724  2 H  s          
+    13     -0.346860  3 H  s                 10     -0.305923  2 H  s          
+    12     -0.306027  3 H  s                  8     -0.270095  1 O  py         
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658441241840     
+ Bq nuclear interaction energy =   0.00000000000000     
 
  center of mass
  --------------
@@ -2711,16 +2703,16 @@ File balance: exchanges=     0  moved=     0  time=   0.0
      -   - - -        -----         -----         ----         -------
      0   0 0 0      0.000000     -5.000000     -5.000000     10.000000
 
-     1   1 0 0     -0.778760    -18.711218    -18.711218     36.643677
-     1   0 1 0     -0.473471     -9.182698     -9.182698     17.891926
-     1   0 0 1      0.101336     14.127237     14.127237    -28.153138
+     1   1 0 0     -0.765258    -18.704467    -18.704467     36.643677
+     1   0 1 0     -0.463343     -9.177634     -9.177634     17.891926
+     1   0 0 1      0.109724     14.131431     14.131431    -28.153138
 
-     2   2 0 0     -9.683519    -73.342103    -73.342103    137.000686
-     2   1 1 0     -3.577979    -34.166662    -34.166662     64.755345
-     2   1 0 1      2.626953     52.847334     52.847334   -103.067715
-     2   0 2 0     -5.275132    -20.346360    -20.346360     35.417587
-     2   0 1 1      1.230135     26.128358     26.128358    -51.026581
-     2   0 0 2     -5.585040    -42.486207    -42.486207     79.387374
+     2   2 0 0     -9.604560    -73.302623    -73.302623    137.000686
+     2   1 1 0     -3.508506    -34.131926    -34.131926     64.755345
+     2   1 0 1      2.618725     52.843220     52.843220   -103.067715
+     2   0 2 0     -5.266089    -20.341838    -20.341838     35.417587
+     2   0 1 1      1.222365     26.124473     26.124473    -51.026581
+     2   0 0 2     -5.630986    -42.509180    -42.509180     79.387374
 
 
  Parallel integral file used       2 records with       0 large values
@@ -2743,7 +2735,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Total Bq charge:   1.110223024625157E-016
 
 
- NAMESPACE=default                                                                                                                                                                                                                                                        
 
 
 
@@ -2844,9 +2835,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88906
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -2855,9 +2846,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474130
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -2875,10 +2866,10 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  d= 0,ls=0.0,diis     3    -75.9780523013 -3.33D-02  2.30D-03  7.29D-03     4.9
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     4    -75.9786009197 -5.49D-04  2.00D-04  2.45D-05     4.9
+ d= 0,ls=0.0,diis     4    -75.9786009197 -5.49D-04  2.00D-04  2.45D-05     5.0
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
- d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     5.0
+ d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     5.1
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658441241840     
  d= 0,ls=0.0,diis     6    -75.9786035180 -3.71D-09  1.20D-06  8.78D-11     5.1
@@ -3055,10 +3046,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     1  Bq         2.38400000     1.73800000     1.38000000   charge       -0.90000000
     2  Bq         2.44800000     1.60800000     0.41600000   charge        0.45000000
     3  Bq         1.56000000     1.26800000     1.60800000   charge        0.45000000
- Total Bq charge:    0.00000000000000     
+ Total Bq charge:   1.110223024625157E-016
 
 
- NAMESPACE=default                                                                                                                                                                                                                                                        
 
 
 
@@ -3133,14 +3123,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           Schwarz screening/accCoul: 1.00D-08
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
 
       Superposition of Atomic Density Guess
       -------------------------------------
 
  Sum of atomic energies:         -75.36108718
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
 
       Non-variational initial energy
       ------------------------------
@@ -3152,27 +3142,27 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  LUMO         =       0.132432
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
-   Time after variat. SCF:      5.1
-   Time prior to 1st pass:      5.1
+ Bq nuclear interaction energy =  0.311658441241840     
+   Time after variat. SCF:      5.2
+   Time prior to 1st pass:      5.2
 
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88906
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474130
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -3183,29 +3173,29 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  ---------------- ----- ----------------- --------- --------- ---------  ------
  d= 0,ls=0.0,diis     1    -75.9366235633 -8.53D+01  5.47D-02  3.67D-01     5.3
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
- d= 0,ls=0.0,diis     2    -75.9447956529 -8.17D-03  2.47D-02  3.93D-01     5.3
+ Bq nuclear interaction energy =  0.311658441241840     
+ d= 0,ls=0.0,diis     2    -75.9447956529 -8.17D-03  2.47D-02  3.93D-01     5.4
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
- d= 0,ls=0.0,diis     3    -75.9780523013 -3.33D-02  2.30D-03  7.29D-03     5.4
+ Bq nuclear interaction energy =  0.311658441241840     
+ d= 0,ls=0.0,diis     3    -75.9780523013 -3.33D-02  2.30D-03  7.29D-03     5.5
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
  d= 0,ls=0.0,diis     4    -75.9786009197 -5.49D-04  2.00D-04  2.45D-05     5.5
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
  d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     5.6
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
  d= 0,ls=0.0,diis     6    -75.9786035180 -3.71D-09  1.20D-06  8.78D-11     5.7
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
 
 
-         Total DFT energy =      -75.978603518009
-      One electron energy =     -122.746486179880
-           Coulomb energy =       46.782435057825
-    Exchange-Corr. energy =       -9.346793460789
- Nuclear repulsion energy =        9.332241064835
+         Total DFT energy =      -75.978603518035
+      One electron energy =     -122.746486180613
+           Coulomb energy =       46.782435057945
+    Exchange-Corr. energy =       -9.346793460798
+ Nuclear repulsion energy =        9.332241065431
 
  Numeric. integr. density =       10.000000234918
 
@@ -3322,7 +3312,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     12     -0.305267  3 H  s                  8     -0.271651  1 O  py         
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
 
  center of mass
  --------------
@@ -3370,10 +3360,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     1  Bq         2.38400000     1.73800000     1.38000000   charge       -0.90000000
     2  Bq         2.44800000     1.60800000     0.41600000   charge        0.45000000
     3  Bq         1.56000000     1.26800000     1.60800000   charge        0.45000000
- Total Bq charge:    0.00000000000000     
+ Total Bq charge:   1.110223024625157E-016
 
 
- NAMESPACE=default                                                                                                                                                                                                                                                        
 
 
 
@@ -3448,14 +3437,14 @@ File balance: exchanges=     0  moved=     0  time=   0.0
           Schwarz screening/accCoul: 1.00D-08
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
 
       Superposition of Atomic Density Guess
       -------------------------------------
 
  Sum of atomic energies:         -75.36108718
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
 
       Non-variational initial energy
       ------------------------------
@@ -3467,27 +3456,27 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  LUMO         =       0.132432
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
    Time after variat. SCF:      5.7
    Time prior to 1st pass:      5.7
 
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88906
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474130
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -3496,33 +3485,33 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -75.9366235633 -8.53D+01  5.47D-02  3.67D-01     5.8
+ d= 0,ls=0.0,diis     1    -75.9366235458 -8.53D+01  5.47D-02  3.67D-01     5.9
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
- d= 0,ls=0.0,diis     2    -75.9447956529 -8.17D-03  2.47D-02  3.93D-01     5.9
+ Bq nuclear interaction energy =  0.311658441241840     
+ d= 0,ls=0.0,diis     2    -75.9447956649 -8.17D-03  2.47D-02  3.93D-01     6.0
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
- d= 0,ls=0.0,diis     3    -75.9780523013 -3.33D-02  2.30D-03  7.29D-03     6.0
+ Bq nuclear interaction energy =  0.311658441241840     
+ d= 0,ls=0.0,diis     3    -75.9780523044 -3.33D-02  2.30D-03  7.29D-03     6.0
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
- d= 0,ls=0.0,diis     4    -75.9786009197 -5.49D-04  2.00D-04  2.45D-05     6.1
+ Bq nuclear interaction energy =  0.311658441241840     
+ d= 0,ls=0.0,diis     4    -75.9786009216 -5.49D-04  2.00D-04  2.45D-05     6.1
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
- d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     6.2
+ Bq nuclear interaction energy =  0.311658441241840     
+ d= 0,ls=0.0,diis     5    -75.9786035162 -2.59D-06  1.64D-05  1.07D-08     6.2
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
- d= 0,ls=0.0,diis     6    -75.9786035180 -3.71D-09  1.20D-06  8.78D-11     6.2
+ Bq nuclear interaction energy =  0.311658441241840     
+ d= 0,ls=0.0,diis     6    -75.9786035199 -3.71D-09  1.20D-06  8.78D-11     6.3
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
 
 
-         Total DFT energy =      -75.978603518009
-      One electron energy =     -122.746486179880
-           Coulomb energy =       46.782435057825
-    Exchange-Corr. energy =       -9.346793460789
- Nuclear repulsion energy =        9.332241064835
+         Total DFT energy =      -75.978603519877
+      One electron energy =     -122.746486176861
+           Coulomb energy =       46.782435053643
+    Exchange-Corr. energy =       -9.346793462092
+ Nuclear repulsion energy =        9.332241065431
 
- Numeric. integr. density =       10.000000234918
+ Numeric. integr. density =       10.000000253828
 
      Total iterative time =      0.5s
 
@@ -3637,7 +3626,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
     12     -0.305267  3 H  s                  8     -0.271651  1 O  py         
 
  Nuclear repulsion energy =   9.02058262418951     
- Bq nuclear interaction energy =  0.311658440645273     
+ Bq nuclear interaction energy =  0.311658441241840     
 
  center of mass
  --------------
@@ -3688,7 +3677,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Total Bq charge:    0.00000000000000     
 
 
- NAMESPACE=default                                                                                                                                                                                                                                                        
 
 
 
@@ -3789,9 +3777,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88906
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -3800,9 +3788,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440645273     
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474130
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -3823,10 +3811,638 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  d= 0,ls=0.0,diis     4    -75.9786009197 -5.49D-04  2.00D-04  2.45D-05     6.7
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440645273     
- d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     6.7
+ d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     6.8
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440645273     
- d= 0,ls=0.0,diis     6    -75.9786035180 -3.71D-09  1.20D-06  8.78D-11     6.8
+ d= 0,ls=0.0,diis     6    -75.9786035180 -3.71D-09  1.20D-06  8.78D-11     6.9
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+
+
+         Total DFT energy =      -75.978603518009
+      One electron energy =     -122.746486179880
+           Coulomb energy =       46.782435057825
+    Exchange-Corr. energy =       -9.346793460789
+ Nuclear repulsion energy =        9.332241064835
+
+ Numeric. integr. density =       10.000000234918
+
+     Total iterative time =      0.5s
+
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    1  Occ=2.000000D+00  E=-1.903138D+01
+              MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 1.5D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.982205  1 O  s          
+
+ Vector    2  Occ=2.000000D+00  E=-1.017737D+00
+              MO Center=  1.8D+00,  8.9D-01, -1.5D+00, r^2= 5.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.680158  1 O  s                  1     -0.225218  1 O  s          
+     2      0.215083  1 O  s          
+
+ Vector    3  Occ=2.000000D+00  E=-5.218168D-01
+              MO Center=  1.8D+00,  8.8D-01, -1.5D+00, r^2= 8.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.344588  1 O  py                 8      0.290641  1 O  py         
+    10     -0.233625  2 H  s                 12      0.233755  3 H  s          
+     3     -0.217865  1 O  px                11     -0.207423  2 H  s          
+    13      0.207239  3 H  s                  7     -0.183661  1 O  px         
+
+ Vector    4  Occ=2.000000D+00  E=-3.628755D-01
+              MO Center=  2.1D+00,  1.1D+00, -1.5D+00, r^2= 6.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.484590  1 O  s                  7      0.396940  1 O  px         
+     3      0.369971  1 O  px                 8      0.246569  1 O  py         
+     4      0.229037  1 O  py         
+
+ Vector    5  Occ=2.000000D+00  E=-2.924151D-01
+              MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 5.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.615661  1 O  pz                 5      0.519662  1 O  pz         
+
+ Vector    6  Occ=0.000000D+00  E= 6.892151D-02
+              MO Center=  1.5D+00,  6.5D-01, -1.4D+00, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.966960  1 O  s                 11     -0.811915  2 H  s          
+    13     -0.809797  3 H  s                  7     -0.403240  1 O  px         
+     8     -0.245608  1 O  py                 3     -0.225726  1 O  px         
+
+ Vector    7  Occ=0.000000D+00  E= 1.599208D-01
+              MO Center=  1.5D+00,  7.0D-01, -1.4D+00, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11     -1.076280  2 H  s                 13      1.079443  3 H  s          
+     8     -0.608001  1 O  py                 7      0.384909  1 O  px         
+     4     -0.308367  1 O  py                 3      0.195162  1 O  px         
+
+ Vector    8  Occ=0.000000D+00  E= 8.814022D-01
+              MO Center=  1.6D+00,  7.6D-01, -1.4D+00, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.943087  2 H  s                 12     -0.938264  3 H  s          
+    11     -0.827718  2 H  s                 13      0.823819  3 H  s          
+     8      0.238270  1 O  py                 4      0.158716  1 O  py         
+     7     -0.150847  1 O  px         
+
+ Vector    9  Occ=0.000000D+00  E= 9.840678D-01
+              MO Center=  1.5D+00,  6.9D-01, -1.4D+00, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.951450  3 H  s                 10      0.945796  2 H  s          
+    13     -0.554547  3 H  s                 11     -0.551196  2 H  s          
+     3      0.298366  1 O  px                 4      0.182087  1 O  py         
+
+ Vector   10  Occ=0.000000D+00  E= 1.402378D+00
+              MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 7.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.004076  1 O  pz                 9     -0.948161  1 O  pz         
+     4      0.206503  1 O  py                 8     -0.197296  1 O  py         
+
+ Vector   11  Occ=0.000000D+00  E= 1.503252D+00
+              MO Center=  2.2D+00,  1.1D+00, -1.5D+00, r^2= 7.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      1.017395  1 O  px                 3     -0.827235  1 O  px         
+     8      0.610851  1 O  py                 4     -0.496315  1 O  py         
+    10      0.350813  2 H  s                 12      0.351035  3 H  s          
+     6     -0.181966  1 O  s                  9     -0.162941  1 O  pz         
+     2     -0.154895  1 O  s          
+
+ Vector   12  Occ=0.000000D+00  E= 1.607671D+00
+              MO Center=  2.1D+00,  1.0D+00, -1.5D+00, r^2= 9.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      1.183223  1 O  py                 4     -0.866805  1 O  py         
+     7     -0.746174  1 O  px                 3      0.546469  1 O  px         
+    11      0.500789  2 H  s                 13     -0.501364  3 H  s          
+     9     -0.216602  1 O  pz                10      0.166832  2 H  s          
+    12     -0.165642  3 H  s                  5      0.158662  1 O  pz         
+
+ Vector   13  Occ=0.000000D+00  E= 2.718054D+00
+              MO Center=  1.9D+00,  9.1D-01, -1.5D+00, r^2= 7.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.973358  1 O  s                  2     -1.633256  1 O  s          
+     7     -0.447227  1 O  px                11     -0.346835  2 H  s          
+    13     -0.347969  3 H  s                 10     -0.305156  2 H  s          
+    12     -0.305267  3 H  s                  8     -0.271651  1 O  py         
+
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+
+ center of mass
+ --------------
+ x =   3.75250649 y =   1.84262517 z =  -2.82796449
+
+ moments of inertia (a.u.)
+ ------------------
+           3.629583308154           0.705798697731          -0.070966528601
+           0.705798697731           3.055985774710           0.675790923823
+          -0.070966528601           0.675790923823           6.421335976460
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0      0.000000     -5.000000     -5.000000     10.000000
+
+     1   1 0 0     -0.778760    -18.711218    -18.711218     36.643677
+     1   0 1 0     -0.473471     -9.182698     -9.182698     17.891926
+     1   0 0 1      0.101336     14.127237     14.127237    -28.153138
+
+     2   2 0 0     -9.683519    -73.342103    -73.342103    137.000686
+     2   1 1 0     -3.577979    -34.166662    -34.166662     64.755345
+     2   1 0 1      2.626953     52.847334     52.847334   -103.067715
+     2   0 2 0     -5.275132    -20.346360    -20.346360     35.417587
+     2   0 1 1      1.230135     26.128358     26.128358    -51.026581
+     2   0 0 2     -5.585040    -42.486207    -42.486207     79.387374
+
+
+ Parallel integral file used       2 records with       0 large values
+
+
+ Task  times  cpu:        0.6s     wall:        0.7s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                   Bq Structure Information (Angstroms)
+                   ------------------------------------
+ Name: default                                                                 
+ Number of centers:                     3
+    1  Bq         2.38400000     1.73800000     1.38000000   charge       -0.90000000
+    2  Bq         2.44800000     1.60800000     0.41600000   charge        0.45000000
+    3  Bq         1.56000000     1.26800000     1.60800000   charge        0.45000000
+ Total Bq charge:    0.00000000000000     
+
+
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations: ***
+          AO basis - number of functions:    13
+                     number of shells:     9
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                         B3LYP Method XC Potential
+                     Hartree-Fock (Exact) Exchange  0.200          
+                        Slater Exchange Functional  0.800 local    
+                    Becke 1988 Exchange Functional  0.720 non-local
+              Lee-Yang-Parr Correlation Functional  0.810          
+                  VWN I RPA Correlation Functional  0.190 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60       49           5.0       434
+          H1                  0.35       45           6.0       434
+          H2                  0.35       45           6.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   139
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters        *** iters           *** iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:         -75.36108718
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =     -75.501436
+ 1-e energy   =    -121.495395
+ 2-e energy   =      36.661717
+ HOMO         =      -0.467324
+ LUMO         =       0.132432
+
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+   Time after variat. SCF:      6.9
+   Time prior to 1st pass:      6.9
+
+ #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./w1.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  88860
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+
+ Grid_pts file          = ./w1.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     12        Max. recs in file   =    473887
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.83            12827469
+          Stack Space remaining (MW):       13.11            13107011
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1    -75.9366235633 -8.53D+01  5.47D-02  3.67D-01     7.0
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+ d= 0,ls=0.0,diis     2    -75.9447956529 -8.17D-03  2.47D-02  3.93D-01     7.1
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+ d= 0,ls=0.0,diis     3    -75.9780523013 -3.33D-02  2.30D-03  7.29D-03     7.2
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+ d= 0,ls=0.0,diis     4    -75.9786009197 -5.49D-04  2.00D-04  2.45D-05     7.3
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+ d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     7.3
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+ d= 0,ls=0.0,diis     6    -75.9786035180 -3.71D-09  1.20D-06  8.78D-11     7.4
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+
+
+         Total DFT energy =      -75.978603518009
+      One electron energy =     -122.746486179880
+           Coulomb energy =       46.782435057825
+    Exchange-Corr. energy =       -9.346793460789
+ Nuclear repulsion energy =        9.332241064835
+
+ Numeric. integr. density =       10.000000234918
+
+     Total iterative time =      0.5s
+
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    1  Occ=2.000000D+00  E=-1.903138D+01
+              MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 1.5D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.982205  1 O  s          
+
+ Vector    2  Occ=2.000000D+00  E=-1.017737D+00
+              MO Center=  1.8D+00,  8.9D-01, -1.5D+00, r^2= 5.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.680158  1 O  s                  1     -0.225218  1 O  s          
+     2      0.215083  1 O  s          
+
+ Vector    3  Occ=2.000000D+00  E=-5.218168D-01
+              MO Center=  1.8D+00,  8.8D-01, -1.5D+00, r^2= 8.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.344588  1 O  py                 8      0.290641  1 O  py         
+    10     -0.233625  2 H  s                 12      0.233755  3 H  s          
+     3     -0.217865  1 O  px                11     -0.207423  2 H  s          
+    13      0.207239  3 H  s                  7     -0.183661  1 O  px         
+
+ Vector    4  Occ=2.000000D+00  E=-3.628755D-01
+              MO Center=  2.1D+00,  1.1D+00, -1.5D+00, r^2= 6.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.484590  1 O  s                  7      0.396940  1 O  px         
+     3      0.369971  1 O  px                 8      0.246569  1 O  py         
+     4      0.229037  1 O  py         
+
+ Vector    5  Occ=2.000000D+00  E=-2.924151D-01
+              MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 5.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.615661  1 O  pz                 5      0.519662  1 O  pz         
+
+ Vector    6  Occ=0.000000D+00  E= 6.892151D-02
+              MO Center=  1.5D+00,  6.5D-01, -1.4D+00, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.966960  1 O  s                 11     -0.811915  2 H  s          
+    13     -0.809797  3 H  s                  7     -0.403240  1 O  px         
+     8     -0.245608  1 O  py                 3     -0.225726  1 O  px         
+
+ Vector    7  Occ=0.000000D+00  E= 1.599208D-01
+              MO Center=  1.5D+00,  7.0D-01, -1.4D+00, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11     -1.076280  2 H  s                 13      1.079443  3 H  s          
+     8     -0.608001  1 O  py                 7      0.384909  1 O  px         
+     4     -0.308367  1 O  py                 3      0.195162  1 O  px         
+
+ Vector    8  Occ=0.000000D+00  E= 8.814022D-01
+              MO Center=  1.6D+00,  7.6D-01, -1.4D+00, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.943087  2 H  s                 12     -0.938264  3 H  s          
+    11     -0.827718  2 H  s                 13      0.823819  3 H  s          
+     8      0.238270  1 O  py                 4      0.158716  1 O  py         
+     7     -0.150847  1 O  px         
+
+ Vector    9  Occ=0.000000D+00  E= 9.840678D-01
+              MO Center=  1.5D+00,  6.9D-01, -1.4D+00, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.951450  3 H  s                 10      0.945796  2 H  s          
+    13     -0.554547  3 H  s                 11     -0.551196  2 H  s          
+     3      0.298366  1 O  px                 4      0.182087  1 O  py         
+
+ Vector   10  Occ=0.000000D+00  E= 1.402378D+00
+              MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 7.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.004076  1 O  pz                 9     -0.948161  1 O  pz         
+     4      0.206503  1 O  py                 8     -0.197296  1 O  py         
+
+ Vector   11  Occ=0.000000D+00  E= 1.503252D+00
+              MO Center=  2.2D+00,  1.1D+00, -1.5D+00, r^2= 7.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      1.017395  1 O  px                 3     -0.827235  1 O  px         
+     8      0.610851  1 O  py                 4     -0.496315  1 O  py         
+    10      0.350813  2 H  s                 12      0.351035  3 H  s          
+     6     -0.181966  1 O  s                  9     -0.162941  1 O  pz         
+     2     -0.154895  1 O  s          
+
+ Vector   12  Occ=0.000000D+00  E= 1.607671D+00
+              MO Center=  2.1D+00,  1.0D+00, -1.5D+00, r^2= 9.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      1.183223  1 O  py                 4     -0.866805  1 O  py         
+     7     -0.746174  1 O  px                 3      0.546469  1 O  px         
+    11      0.500789  2 H  s                 13     -0.501364  3 H  s          
+     9     -0.216602  1 O  pz                10      0.166832  2 H  s          
+    12     -0.165642  3 H  s                  5      0.158662  1 O  pz         
+
+ Vector   13  Occ=0.000000D+00  E= 2.718054D+00
+              MO Center=  1.9D+00,  9.1D-01, -1.5D+00, r^2= 7.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.973358  1 O  s                  2     -1.633256  1 O  s          
+     7     -0.447227  1 O  px                11     -0.346835  2 H  s          
+    13     -0.347969  3 H  s                 10     -0.305156  2 H  s          
+    12     -0.305267  3 H  s                  8     -0.271651  1 O  py         
+
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+
+ center of mass
+ --------------
+ x =   3.75250649 y =   1.84262517 z =  -2.82796449
+
+ moments of inertia (a.u.)
+ ------------------
+           3.629583308154           0.705798697731          -0.070966528601
+           0.705798697731           3.055985774710           0.675790923823
+          -0.070966528601           0.675790923823           6.421335976460
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0      0.000000     -5.000000     -5.000000     10.000000
+
+     1   1 0 0     -0.778760    -18.711218    -18.711218     36.643677
+     1   0 1 0     -0.473471     -9.182698     -9.182698     17.891926
+     1   0 0 1      0.101336     14.127237     14.127237    -28.153138
+
+     2   2 0 0     -9.683519    -73.342103    -73.342103    137.000686
+     2   1 1 0     -3.577979    -34.166662    -34.166662     64.755345
+     2   1 0 1      2.626953     52.847334     52.847334   -103.067715
+     2   0 2 0     -5.275132    -20.346360    -20.346360     35.417587
+     2   0 1 1      1.230135     26.128358     26.128358    -51.026581
+     2   0 0 2     -5.585040    -42.486207    -42.486207     79.387374
+
+
+ Parallel integral file used       2 records with       0 large values
+
+
+ Task  times  cpu:        0.6s     wall:        0.7s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                   Bq Structure Information (Angstroms)
+                   ------------------------------------
+ Name: default                                                                 
+ Number of centers:                     3
+    1  Bq         2.38400000     1.73800000     1.38000000   charge       -0.90000000
+    2  Bq         2.44800000     1.60800000     0.41600000   charge        0.45000000
+    3  Bq         1.56000000     1.26800000     1.60800000   charge        0.45000000
+ Total Bq charge:    0.00000000000000     
+
+
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations: ***
+          AO basis - number of functions:    13
+                     number of shells:     9
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                         B3LYP Method XC Potential
+                     Hartree-Fock (Exact) Exchange  0.200          
+                        Slater Exchange Functional  0.800 local    
+                    Becke 1988 Exchange Functional  0.720 non-local
+              Lee-Yang-Parr Correlation Functional  0.810          
+                  VWN I RPA Correlation Functional  0.190 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60       49           5.0       434
+          H1                  0.35       45           6.0       434
+          H2                  0.35       45           6.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   139
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters        *** iters           *** iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:         -75.36108718
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =     -75.501436
+ 1-e energy   =    -121.495395
+ 2-e energy   =      36.661717
+ HOMO         =      -0.467324
+ LUMO         =       0.132432
+
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+   Time after variat. SCF:      7.5
+   Time prior to 1st pass:      7.5
+
+ #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./w1.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  88860
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+
+ Grid_pts file          = ./w1.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     12        Max. recs in file   =    473887
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.83            12827469
+          Stack Space remaining (MW):       13.11            13107011
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1    -75.9366235633 -8.53D+01  5.47D-02  3.67D-01     7.6
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+ d= 0,ls=0.0,diis     2    -75.9447956529 -8.17D-03  2.47D-02  3.93D-01     7.7
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+ d= 0,ls=0.0,diis     3    -75.9780523013 -3.33D-02  2.30D-03  7.29D-03     7.8
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+ d= 0,ls=0.0,diis     4    -75.9786009197 -5.49D-04  2.00D-04  2.45D-05     7.8
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+ d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     7.9
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440645273     
+ d= 0,ls=0.0,diis     6    -75.9786035180 -3.71D-09  1.20D-06  8.78D-11     8.0
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440645273     
 
@@ -4003,7 +4619,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Total Bq charge:  -6.661338147750939E-016
 
 
- NAMESPACE=default                                                                                                                                                                                                                                                        
 
 
 
@@ -4098,15 +4713,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
-   Time after variat. SCF:      6.8
-   Time prior to 1st pass:      6.8
+   Time after variat. SCF:      8.1
+   Time prior to 1st pass:      8.1
 
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88906
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -4115,9 +4730,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474130
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -4126,22 +4741,22 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -75.9366235633 -8.53D+01  5.47D-02  3.67D-01     7.0
+ d= 0,ls=0.0,diis     1    -75.9366235633 -8.53D+01  5.47D-02  3.67D-01     8.2
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
- d= 0,ls=0.0,diis     2    -75.9447956529 -8.17D-03  2.47D-02  3.93D-01     7.1
+ d= 0,ls=0.0,diis     2    -75.9447956529 -8.17D-03  2.47D-02  3.93D-01     8.3
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
- d= 0,ls=0.0,diis     3    -75.9780523013 -3.33D-02  2.30D-03  7.29D-03     7.1
+ d= 0,ls=0.0,diis     3    -75.9780523013 -3.33D-02  2.30D-03  7.29D-03     8.3
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
- d= 0,ls=0.0,diis     4    -75.9786009197 -5.49D-04  2.00D-04  2.45D-05     7.2
+ d= 0,ls=0.0,diis     4    -75.9786009197 -5.49D-04  2.00D-04  2.45D-05     8.4
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
- d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     7.3
+ d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     8.5
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
- d= 0,ls=0.0,diis     6    -75.9786035180 -3.71D-09  1.20D-06  8.78D-11     7.4
+ d= 0,ls=0.0,diis     6    -75.9786035180 -3.71D-09  1.20D-06  8.78D-11     8.6
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
 
@@ -4318,7 +4933,6 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Total Bq charge:  -6.661338147750939E-016
 
 
- NAMESPACE=default                                                                                                                                                                                                                                                        
 
 
 
@@ -4413,15 +5027,15 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
-   Time after variat. SCF:      7.4
-   Time prior to 1st pass:      7.4
+   Time after variat. SCF:      8.6
+   Time prior to 1st pass:      8.6
 
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88906
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
@@ -4430,9 +5044,9 @@ File balance: exchanges=     0  moved=     0  time=   0.0
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474130
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -4441,33 +5055,33 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -75.9366235457 -8.53D+01  5.47D-02  3.67D-01     7.5
+ d= 0,ls=0.0,diis     1    -75.9366235633 -8.53D+01  5.47D-02  3.67D-01     8.8
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
- d= 0,ls=0.0,diis     2    -75.9447956649 -8.17D-03  2.47D-02  3.93D-01     7.6
+ d= 0,ls=0.0,diis     2    -75.9447956529 -8.17D-03  2.47D-02  3.93D-01     8.8
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
- d= 0,ls=0.0,diis     3    -75.9780523044 -3.33D-02  2.30D-03  7.29D-03     7.7
+ d= 0,ls=0.0,diis     3    -75.9780523013 -3.33D-02  2.30D-03  7.29D-03     8.9
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
- d= 0,ls=0.0,diis     4    -75.9786009215 -5.49D-04  2.00D-04  2.45D-05     7.8
+ d= 0,ls=0.0,diis     4    -75.9786009197 -5.49D-04  2.00D-04  2.45D-05     9.0
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
- d= 0,ls=0.0,diis     5    -75.9786035161 -2.59D-06  1.64D-05  1.07D-08     7.9
+ d= 0,ls=0.0,diis     5    -75.9786035143 -2.59D-06  1.64D-05  1.07D-08     9.1
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
- d= 0,ls=0.0,diis     6    -75.9786035198 -3.71D-09  1.20D-06  8.78D-11     7.9
+ d= 0,ls=0.0,diis     6    -75.9786035180 -3.71D-09  1.20D-06  8.78D-11     9.2
  Nuclear repulsion energy =   9.02058262418951     
  Bq nuclear interaction energy =  0.311658440729201     
 
 
-         Total DFT energy =      -75.978603519845
-      One electron energy =     -122.746486176180
-           Coulomb energy =       46.782435053496
-    Exchange-Corr. energy =       -9.346793462081
+         Total DFT energy =      -75.978603518002
+      One electron energy =     -122.746486179932
+           Coulomb energy =       46.782435057798
+    Exchange-Corr. energy =       -9.346793460787
  Nuclear repulsion energy =        9.332241064919
 
- Numeric. integr. density =       10.000000253828
+ Numeric. integr. density =       10.000000234918
 
      Total iterative time =      0.5s
 
@@ -4700,24 +5314,24 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
 
-   Time after variat. SCF:      8.0
-   Time prior to 1st pass:      8.0
+   Time after variat. SCF:      9.2
+   Time prior to 1st pass:      9.2
 
  #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
 
 
- Integral file          = ./data/w1.aoints.0
+ Integral file          = ./w1.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =      2        Max. records in file   =  88906
+ Max. records in memory =      2        Max. records in file   =  88860
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
 File balance: exchanges=     0  moved=     0  time=   0.0
 
 
- Grid_pts file          = ./data/w1.gridpts.0
+ Grid_pts file          = ./w1.gridpts.0
  Record size in doubles =  12289        No. of grid_pts per rec  =   3070
- Max. records in memory =     12        Max. recs in file   =    474130
+ Max. records in memory =     12        Max. recs in file   =    473887
 
 
            Memory utilization after 1st SCF pass: 
@@ -4726,20 +5340,20 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
- d= 0,ls=0.0,diis     1    -75.9726882158 -8.50D+01  2.23D-03  7.33D-04     8.1
- d= 0,ls=0.0,diis     2    -75.9727966206 -1.08D-04  7.41D-04  1.43D-04     8.2
- d= 0,ls=0.0,diis     3    -75.9728001371 -3.52D-06  3.22D-04  1.12D-04     8.2
- d= 0,ls=0.0,diis     4    -75.9728090740 -8.94D-06  1.48D-05  4.53D-08     8.3
- d= 0,ls=0.0,diis     5    -75.9728090799 -5.96D-09  1.80D-06  2.94D-10     8.4
+ d= 0,ls=0.0,diis     1    -75.9726882139 -8.50D+01  2.23D-03  7.33D-04     9.3
+ d= 0,ls=0.0,diis     2    -75.9727966188 -1.08D-04  7.41D-04  1.43D-04     9.4
+ d= 0,ls=0.0,diis     3    -75.9728001352 -3.52D-06  3.22D-04  1.12D-04     9.5
+ d= 0,ls=0.0,diis     4    -75.9728090721 -8.94D-06  1.48D-05  4.53D-08     9.6
+ d= 0,ls=0.0,diis     5    -75.9728090781 -5.96D-09  1.80D-06  2.94D-10     9.6
 
 
-         Total DFT energy =      -75.972809079914
-      One electron energy =     -122.409641499528
-           Coulomb energy =       46.761436388262
-    Exchange-Corr. energy =       -9.345186592838
+         Total DFT energy =      -75.972809078073
+      One electron energy =     -122.409641502601
+           Coulomb energy =       46.761436391793
+    Exchange-Corr. energy =       -9.345186591455
  Nuclear repulsion energy =        9.020582624190
 
- Numeric. integr. density =       10.000000248785
+ Numeric. integr. density =       10.000000229977
 
      Total iterative time =      0.5s
 
@@ -4784,7 +5398,7 @@ File balance: exchanges=     0  moved=     0  time=   0.0
   ----- ------------  ---------------      ----- ------------  ---------------
      9      0.611607  1 O  pz                 5      0.520037  1 O  pz         
 
- Vector    6  Occ=0.000000D+00  E= 9.361713D-02
+ Vector    6  Occ=0.000000D+00  E= 9.361714D-02
               MO Center=  1.5D+00,  6.5D-01, -1.4D+00, r^2= 2.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
@@ -4886,6 +5500,586 @@ File balance: exchanges=     0  moved=     0  time=   0.0
 
 
  Task  times  cpu:        0.5s     wall:        0.6s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+                   Bq Structure Information (Angstroms)
+                   ------------------------------------
+ Name: marat                                                                   
+ Number of centers:                     3
+    1  Bq         2.38400000     1.73800000     1.38000000   charge       -0.90000000
+    2  Bq         2.44800000     1.60800000     0.41600000   charge        0.45000000
+    3  Bq         1.56000000     1.26800000     1.60800000   charge        0.45000000
+ Total Bq charge:  -6.661338147750939E-016
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations: ***
+          AO basis - number of functions:    13
+                     number of shells:     9
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                         B3LYP Method XC Potential
+                     Hartree-Fock (Exact) Exchange  0.200          
+                        Slater Exchange Functional  0.800 local    
+                    Becke 1988 Exchange Functional  0.720 non-local
+              Lee-Yang-Parr Correlation Functional  0.810          
+                  VWN I RPA Correlation Functional  0.190 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60       49           5.0       434
+          H1                  0.35       45           6.0       434
+          H2                  0.35       45           6.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   139
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters        *** iters           *** iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+
+      Superposition of Atomic Density Guess
+      -------------------------------------
+
+ Sum of atomic energies:         -75.36108718
+
+      Non-variational initial energy
+      ------------------------------
+
+ Total energy =     -75.501451
+ 1-e energy   =    -121.183751
+ 2-e energy   =      36.661717
+ HOMO         =      -0.431792
+ LUMO         =       0.157326
+
+   Time after variat. SCF:      9.7
+   Time prior to 1st pass:      9.7
+
+ #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./w1.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  88860
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+
+ Grid_pts file          = ./w1.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     12        Max. recs in file   =    473887
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.83            12827481
+          Stack Space remaining (MW):       13.11            13107011
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1    -75.9307607652 -8.50D+01  5.53D-02  3.64D-01     9.8
+ d= 0,ls=0.0,diis     2    -75.9389829653 -8.22D-03  2.50D-02  3.92D-01     9.9
+ d= 0,ls=0.0,diis     3    -75.9722466679 -3.33D-02  2.33D-03  7.42D-03    10.0
+ d= 0,ls=0.0,diis     4    -75.9728063691 -5.60D-04  2.06D-04  2.55D-05    10.1
+ d= 0,ls=0.0,diis     5    -75.9728090760 -2.71D-06  1.71D-05  1.11D-08    10.1
+ d= 0,ls=0.0,diis     6    -75.9728090799 -3.93D-09  1.24D-06  9.29D-11    10.2
+
+
+         Total DFT energy =      -75.972809079943
+      One electron energy =     -122.409678981463
+           Coulomb energy =       46.761478120702
+    Exchange-Corr. energy =       -9.345190843372
+ Nuclear repulsion energy =        9.020582624190
+
+ Numeric. integr. density =       10.000000248785
+
+     Total iterative time =      0.5s
+
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    1  Occ=2.000000D+00  E=-1.900198D+01
+              MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 1.5D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.982205  1 O  s          
+
+ Vector    2  Occ=2.000000D+00  E=-9.879940D-01
+              MO Center=  1.8D+00,  8.9D-01, -1.5D+00, r^2= 5.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.677888  1 O  s                  1     -0.224988  1 O  s          
+     2      0.215515  1 O  s          
+
+ Vector    3  Occ=2.000000D+00  E=-4.942756D-01
+              MO Center=  1.8D+00,  8.8D-01, -1.5D+00, r^2= 8.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.343514  1 O  py                 8      0.288519  1 O  py         
+    10     -0.233994  2 H  s                 12      0.234099  3 H  s          
+     3     -0.217161  1 O  px                11     -0.211224  2 H  s          
+    13      0.211014  3 H  s                  7     -0.182295  1 O  px         
+
+ Vector    4  Occ=2.000000D+00  E=-3.339892D-01
+              MO Center=  2.1D+00,  1.1D+00, -1.5D+00, r^2= 6.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.489527  1 O  s                  7      0.395397  1 O  px         
+     3      0.368858  1 O  px                 8      0.239519  1 O  py         
+     4      0.223400  1 O  py         
+
+ Vector    5  Occ=2.000000D+00  E=-2.593117D-01
+              MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 5.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.611607  1 O  pz                 5      0.520037  1 O  pz         
+
+ Vector    6  Occ=0.000000D+00  E= 9.361691D-02
+              MO Center=  1.5D+00,  6.5D-01, -1.4D+00, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.967703  1 O  s                 11     -0.812554  2 H  s          
+    13     -0.810027  3 H  s                  7     -0.405146  1 O  px         
+     8     -0.246747  1 O  py                 3     -0.226252  1 O  px         
+
+ Vector    7  Occ=0.000000D+00  E= 1.834468D-01
+              MO Center=  1.5D+00,  7.0D-01, -1.4D+00, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11     -1.078853  2 H  s                 13      1.082296  3 H  s          
+     8     -0.609680  1 O  py                 7      0.386068  1 O  px         
+     4     -0.307893  1 O  py                 3      0.194925  1 O  px         
+
+ Vector    8  Occ=0.000000D+00  E= 9.067459D-01
+              MO Center=  1.6D+00,  7.6D-01, -1.4D+00, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.943250  2 H  s                 12     -0.938402  3 H  s          
+    11     -0.824606  2 H  s                 13      0.820704  3 H  s          
+     8      0.239029  1 O  py                 4      0.160732  1 O  py         
+     7     -0.151312  1 O  px         
+
+ Vector    9  Occ=0.000000D+00  E= 1.011234D+00
+              MO Center=  1.5D+00,  6.9D-01, -1.4D+00, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.951230  3 H  s                 10      0.945551  2 H  s          
+    13     -0.554154  3 H  s                 11     -0.550792  2 H  s          
+     3      0.298484  1 O  px                 4      0.180159  1 O  py         
+
+ Vector   10  Occ=0.000000D+00  E= 1.437202D+00
+              MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 7.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.004901  1 O  pz                 9     -0.951946  1 O  pz         
+     4      0.198939  1 O  py                 8     -0.188455  1 O  py         
+
+ Vector   11  Occ=0.000000D+00  E= 1.531762D+00
+              MO Center=  2.2D+00,  1.1D+00, -1.5D+00, r^2= 7.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      1.017622  1 O  px                 3     -0.827895  1 O  px         
+     8      0.614260  1 O  py                 4     -0.500161  1 O  py         
+    10      0.350819  2 H  s                 12      0.351039  3 H  s          
+     6     -0.181375  1 O  s                  2     -0.155221  1 O  s          
+
+ Vector   12  Occ=0.000000D+00  E= 1.635329D+00
+              MO Center=  2.1D+00,  1.0D+00, -1.5D+00, r^2= 9.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      1.182656  1 O  py                 4     -0.866981  1 O  py         
+     7     -0.745907  1 O  px                 3      0.546653  1 O  px         
+    11      0.498461  2 H  s                 13     -0.499072  3 H  s          
+     9     -0.216588  1 O  pz                10      0.167751  2 H  s          
+    12     -0.166582  3 H  s                  5      0.158780  1 O  pz         
+
+ Vector   13  Occ=0.000000D+00  E= 2.748435D+00
+              MO Center=  1.9D+00,  9.1D-01, -1.5D+00, r^2= 7.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.972931  1 O  s                  2     -1.633160  1 O  s          
+     7     -0.446968  1 O  px                11     -0.345724  2 H  s          
+    13     -0.346860  3 H  s                 10     -0.305923  2 H  s          
+    12     -0.306027  3 H  s                  8     -0.270095  1 O  py         
+
+
+ center of mass
+ --------------
+ x =   3.75250649 y =   1.84262517 z =  -2.82796449
+
+ moments of inertia (a.u.)
+ ------------------
+           3.629583308154           0.705798697731          -0.070966528601
+           0.705798697731           3.055985774710           0.675790923823
+          -0.070966528601           0.675790923823           6.421335976460
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0      0.000000     -5.000000     -5.000000     10.000000
+
+     1   1 0 0     -0.765258    -18.704467    -18.704467     36.643677
+     1   0 1 0     -0.463343     -9.177634     -9.177634     17.891926
+     1   0 0 1      0.109724     14.131431     14.131431    -28.153138
+
+     2   2 0 0     -9.604560    -73.302623    -73.302623    137.000686
+     2   1 1 0     -3.508506    -34.131926    -34.131926     64.755345
+     2   1 0 1      2.618725     52.843220     52.843220   -103.067715
+     2   0 2 0     -5.266089    -20.341838    -20.341838     35.417587
+     2   0 1 1      1.222365     26.124473     26.124473    -51.026581
+     2   0 0 2     -5.630986    -42.509180    -42.509180     79.387374
+
+
+ Parallel integral file used       2 records with       0 large values
+
+
+ Task  times  cpu:        0.6s     wall:        0.9s
+
+
+                                NWChem Input Module
+                                -------------------
+
+
+
+
+
+                                 NWChem DFT Module
+                                 -----------------
+
+
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440729201     
+  Caching 1-el integrals 
+
+            General Information
+            -------------------
+          SCF calculation type: DFT
+          Wavefunction type:  closed shell.
+          No. of atoms     :     3
+          No. of electrons :    10
+           Alpha electrons :     5
+            Beta electrons :     5
+          Charge           :     0
+          Spin multiplicity:     1
+          Use of symmetry is: off; symmetry adaption is: off
+          Maximum number of iterations: ***
+          AO basis - number of functions:    13
+                     number of shells:     9
+          Convergence on energy requested: 1.00D-06
+          Convergence on density requested: 1.00D-05
+          Convergence on gradient requested: 5.00D-04
+
+              XC Information
+              --------------
+                         B3LYP Method XC Potential
+                     Hartree-Fock (Exact) Exchange  0.200          
+                        Slater Exchange Functional  0.800 local    
+                    Becke 1988 Exchange Functional  0.720 non-local
+              Lee-Yang-Parr Correlation Functional  0.810          
+                  VWN I RPA Correlation Functional  0.190 local    
+
+             Grid Information
+             ----------------
+          Grid used for XC integration:  medium    
+          Radial quadrature: Mura-Knowles        
+          Angular quadrature: Lebedev. 
+          Tag              B.-S. Rad. Rad. Pts. Rad. Cut. Ang. Pts.
+          ---              ---------- --------- --------- ---------
+          O                   0.60       49           5.0       434
+          H1                  0.35       45           6.0       434
+          H2                  0.35       45           6.0       434
+          Grid pruning is: on 
+          Number of quadrature shells:   139
+          Spatial weights used:  Erf1
+
+          Convergence Information
+          -----------------------
+          Convergence aids based upon iterative change in 
+          total energy or number of iterations. 
+          Levelshifting, if invoked, occurs when the 
+          HOMO/LUMO gap drops below (HL_TOL): 1.00D-02
+          DIIS, if invoked, will attempt to extrapolate 
+          using up to (NFOCK): 10 stored Fock matrices.
+
+                    Damping( 0%)  Levelshifting(0.5)       DIIS
+                  --------------- ------------------- ---------------
+          dE  on:    start            ASAP                start   
+          dE off:    2 iters        *** iters           *** iters 
+
+
+      Screening Tolerance Information
+      -------------------------------
+          Density screening/tol_rho: 1.00D-10
+          AO Gaussian exp screening on grid/accAOfunc:  14
+          CD Gaussian exp screening on grid/accCDfunc:  20
+          XC Gaussian exp screening on grid/accXCfunc:  20
+          Schwarz screening/accCoul: 1.00D-08
+
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440729201     
+
+ Loading old vectors from job with title :
+
+
+
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440729201     
+   Time after variat. SCF:     10.2
+   Time prior to 1st pass:     10.2
+
+ #quartets = 1.035D+03 #integrals = 3.715D+03 #direct =  0.0% #cached =100.0%
+
+
+ Integral file          = ./w1.aoints.0
+ Record size in doubles =  65536        No. of integs per rec  =  43688
+ Max. records in memory =      2        Max. records in file   =  88860
+ No. of bits per label  =      8        No. of bits per value  =     64
+
+
+File balance: exchanges=     0  moved=     0  time=   0.0
+
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440729201     
+
+ Grid_pts file          = ./w1.gridpts.0
+ Record size in doubles =  12289        No. of grid_pts per rec  =   3070
+ Max. records in memory =     12        Max. recs in file   =    473887
+
+
+           Memory utilization after 1st SCF pass: 
+           Heap Space remaining (MW):       12.83            12827445
+          Stack Space remaining (MW):       13.11            13107011
+
+   convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
+ ---------------- ----- ----------------- --------- --------- ---------  ------
+ d= 0,ls=0.0,diis     1    -75.9784823388 -8.53D+01  2.22D-03  7.34D-04    10.4
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440729201     
+ d= 0,ls=0.0,diis     2    -75.9785911529 -1.09D-04  7.33D-04  1.42D-04    10.5
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440729201     
+ d= 0,ls=0.0,diis     3    -75.9785946861 -3.53D-06  3.18D-04  1.11D-04    10.5
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440729201     
+ d= 0,ls=0.0,diis     4    -75.9786035123 -8.83D-06  1.42D-05  4.35D-08    10.6
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440729201     
+ d= 0,ls=0.0,diis     5    -75.9786035180 -5.69D-09  1.71D-06  2.62D-10    10.7
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440729201     
+
+
+         Total DFT energy =      -75.978603517978
+      One electron energy =     -122.746503068628
+           Coulomb energy =       46.782453606944
+    Exchange-Corr. energy =       -9.346795121213
+ Nuclear repulsion energy =        9.332241064919
+
+ Numeric. integr. density =       10.000000234918
+
+     Total iterative time =      0.5s
+
+
+
+                       DFT Final Molecular Orbital Analysis
+                       ------------------------------------
+
+ Vector    1  Occ=2.000000D+00  E=-1.903138D+01
+              MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 1.5D-02
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     1      0.982205  1 O  s          
+
+ Vector    2  Occ=2.000000D+00  E=-1.017737D+00
+              MO Center=  1.8D+00,  8.9D-01, -1.5D+00, r^2= 5.1D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.680158  1 O  s                  1     -0.225218  1 O  s          
+     2      0.215083  1 O  s          
+
+ Vector    3  Occ=2.000000D+00  E=-5.218168D-01
+              MO Center=  1.8D+00,  8.8D-01, -1.5D+00, r^2= 8.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     4      0.344588  1 O  py                 8      0.290640  1 O  py         
+    10     -0.233625  2 H  s                 12      0.233755  3 H  s          
+     3     -0.217865  1 O  px                11     -0.207424  2 H  s          
+    13      0.207239  3 H  s                  7     -0.183661  1 O  px         
+
+ Vector    4  Occ=2.000000D+00  E=-3.628753D-01
+              MO Center=  2.1D+00,  1.1D+00, -1.5D+00, r^2= 6.5D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.484590  1 O  s                  7      0.396939  1 O  px         
+     3      0.369971  1 O  px                 8      0.246569  1 O  py         
+     4      0.229037  1 O  py         
+
+ Vector    5  Occ=2.000000D+00  E=-2.924149D-01
+              MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 5.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     9      0.615661  1 O  pz                 5      0.519662  1 O  pz         
+
+ Vector    6  Occ=0.000000D+00  E= 6.892147D-02
+              MO Center=  1.5D+00,  6.5D-01, -1.4D+00, r^2= 2.0D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      0.966960  1 O  s                 11     -0.811915  2 H  s          
+    13     -0.809797  3 H  s                  7     -0.403240  1 O  px         
+     8     -0.245608  1 O  py                 3     -0.225726  1 O  px         
+
+ Vector    7  Occ=0.000000D+00  E= 1.599208D-01
+              MO Center=  1.5D+00,  7.0D-01, -1.4D+00, r^2= 2.1D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    11     -1.076280  2 H  s                 13      1.079442  3 H  s          
+     8     -0.608001  1 O  py                 7      0.384909  1 O  px         
+     4     -0.308367  1 O  py                 3      0.195162  1 O  px         
+
+ Vector    8  Occ=0.000000D+00  E= 8.814021D-01
+              MO Center=  1.6D+00,  7.6D-01, -1.4D+00, r^2= 1.6D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    10      0.943086  2 H  s                 12     -0.938265  3 H  s          
+    11     -0.827718  2 H  s                 13      0.823819  3 H  s          
+     8      0.238270  1 O  py                 4      0.158716  1 O  py         
+     7     -0.150847  1 O  px         
+
+ Vector    9  Occ=0.000000D+00  E= 9.840677D-01
+              MO Center=  1.5D+00,  6.9D-01, -1.4D+00, r^2= 1.2D+00
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+    12      0.951450  3 H  s                 10      0.945796  2 H  s          
+    13     -0.554546  3 H  s                 11     -0.551196  2 H  s          
+     3      0.298366  1 O  px                 4      0.182087  1 O  py         
+
+ Vector   10  Occ=0.000000D+00  E= 1.402378D+00
+              MO Center=  2.0D+00,  1.0D+00, -1.5D+00, r^2= 7.3D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     5      1.004076  1 O  pz                 9     -0.948161  1 O  pz         
+     4      0.206502  1 O  py                 8     -0.197296  1 O  py         
+
+ Vector   11  Occ=0.000000D+00  E= 1.503252D+00
+              MO Center=  2.2D+00,  1.1D+00, -1.5D+00, r^2= 7.6D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     7      1.017395  1 O  px                 3     -0.827235  1 O  px         
+     8      0.610851  1 O  py                 4     -0.496315  1 O  py         
+    10      0.350813  2 H  s                 12      0.351035  3 H  s          
+     6     -0.181966  1 O  s                  9     -0.162940  1 O  pz         
+     2     -0.154895  1 O  s          
+
+ Vector   12  Occ=0.000000D+00  E= 1.607671D+00
+              MO Center=  2.1D+00,  1.0D+00, -1.5D+00, r^2= 9.2D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     8      1.183223  1 O  py                 4     -0.866805  1 O  py         
+     7     -0.746174  1 O  px                 3      0.546469  1 O  px         
+    11      0.500789  2 H  s                 13     -0.501364  3 H  s          
+     9     -0.216602  1 O  pz                10      0.166832  2 H  s          
+    12     -0.165643  3 H  s                  5      0.158662  1 O  pz         
+
+ Vector   13  Occ=0.000000D+00  E= 2.718054D+00
+              MO Center=  1.9D+00,  9.1D-01, -1.5D+00, r^2= 7.4D-01
+   Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
+  ----- ------------  ---------------      ----- ------------  ---------------
+     6      1.973358  1 O  s                  2     -1.633256  1 O  s          
+     7     -0.447227  1 O  px                11     -0.346835  2 H  s          
+    13     -0.347969  3 H  s                 10     -0.305155  2 H  s          
+    12     -0.305267  3 H  s                  8     -0.271651  1 O  py         
+
+ Nuclear repulsion energy =   9.02058262418951     
+ Bq nuclear interaction energy =  0.311658440729201     
+
+ center of mass
+ --------------
+ x =   3.75250649 y =   1.84262517 z =  -2.82796449
+
+ moments of inertia (a.u.)
+ ------------------
+           3.629583308154           0.705798697731          -0.070966528601
+           0.705798697731           3.055985774710           0.675790923823
+          -0.070966528601           0.675790923823           6.421335976460
+
+     Multipole analysis of the density
+     ---------------------------------
+
+     L   x y z        total         alpha         beta         nuclear
+     -   - - -        -----         -----         ----         -------
+     0   0 0 0      0.000000     -5.000000     -5.000000     10.000000
+
+     1   1 0 0     -0.778759    -18.711218    -18.711218     36.643677
+     1   0 1 0     -0.473471     -9.182698     -9.182698     17.891926
+     1   0 0 1      0.101336     14.127237     14.127237    -28.153138
+
+     2   2 0 0     -9.683517    -73.342101    -73.342101    137.000686
+     2   1 1 0     -3.577977    -34.166661    -34.166661     64.755345
+     2   1 0 1      2.626952     52.847334     52.847334   -103.067715
+     2   0 2 0     -5.275132    -20.346360    -20.346360     35.417587
+     2   0 1 1      1.230134     26.128358     26.128358    -51.026581
+     2   0 0 2     -5.585042    -42.486208    -42.486208     79.387374
+
+
+ Parallel integral file used       2 records with       0 large values
+
+
+ Task  times  cpu:        0.5s     wall:        0.6s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -4896,23 +6090,23 @@ File balance: exchanges=     0  moved=     0  time=   0.0
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls: 1680     1680     2.79e+04 8811     1.71e+04    0        0     2167     
+calls: 2114     2114     3.45e+04 1.09e+04 2.11e+04    0        0     2772     
 number of processes/call 1.01e+00 1.02e+00 1.01e+00 0.00e+00 0.00e+00
-bytes total:             7.74e+06 2.02e+06 3.84e+06 0.00e+00 0.00e+00 1.73e+04
-bytes remote:            1.43e+05 8.83e+04 1.02e+05 0.00e+00 0.00e+00 0.00e+00
+bytes total:             9.62e+06 2.54e+06 4.79e+06 0.00e+00 0.00e+00 2.22e+04
+bytes remote:            1.79e+05 1.11e+05 1.29e+05 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 51272 bytes
 MA_summarize_allocated_blocks: starting scan ...
-heap block 'bqdata q', handle 1, address 0x1e2b94e0:
+heap block 'bqdata q', handle 16, address 0x11dc14e0:
 	type of elements:		double precision
 	number of elements:		0
-	address of client space:	0x1e2b9538
-	index for client space:		43888080
+	address of client space:	0x11dc1538
+	index for client space:		18070968
 	total number of bytes:		96
-heap block 'bqdata c', handle 0, address 0x1e2b9480:
+heap block 'bqdata c', handle 15, address 0x11dc1480:
 	type of elements:		double precision
 	number of elements:		0
-	address of client space:	0x1e2b94d8
-	index for client space:		43888068
+	address of client space:	0x11dc14d8
+	index for client space:		18070956
 	total number of bytes:		96
 MA_summarize_allocated_blocks: scan completed: 2 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -4921,7 +6115,7 @@ MA usage statistics:
 					      heap	     stack
 					      ----	     -----
 	current number of blocks	         2	         0
-	maximum number of blocks	        25	        47
+	maximum number of blocks	        27	        47
 	current total bytes		       192	         0
 	maximum total bytes		   2238104	  22510448
 	maximum total K-bytes		      2239	     22511
@@ -4965,16 +6159,4 @@ MA usage statistics:
           G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                 A. Wong, Z. Zhang.
 
- Total times  cpu:        8.4s     wall:       12.1s
- NAMESPACE=default                                                                                                                                                                                                                                                        
- NAMESPACE=default                                                                                                                                                                                                                                                        
- NAMESPACE=default                                                                                                                                                                                                                                                        
- NAMESPACE=default                                                                                                                                                                                                                                                        
- NAMESPACE=default                                                                                                                                                                                                                                                        
- NAMESPACE=default                                                                                                                                                                                                                                                        
- NAMESPACE=default                                                                                                                                                                                                                                                        
- NAMESPACE=default                                                                                                                                                                                                                                                        
- NAMESPACE=default                                                                                                                                                                                                                                                        
- NAMESPACE=default                                                                                                                                                                                                                                                        
- NAMESPACE=default                                                                                                                                                                                                                                                        
- NAMESPACE=default                                                                                                                                                                                                                                                        
+ Total times  cpu:       10.7s     wall:       14.4s
