@@ -35,7 +35,7 @@ c
       integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2)
       integer mass(2),dti(2),cs(2),gs(2)
       real*8  path_energy,path_distance,norm,norm0,time_step,kbeads
-      real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0,emid,emax
+      real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0,emid,emax,emin
       real*8  nebGmax,nebGrms,nebXmax,nebXrms,nebdE,t
 
 *     **** external functions ****
@@ -436,10 +436,13 @@ c
      >                                dbl_mb(c1(1)),
      >                                Gmax,Grms,Xmax,Xrms)
 
+         emin = +99.0d99
          emax = -99.0d99
          do i=1,nbeads
              if (dbl_mb(e1(1)+i-1)>emax) 
      >          emax = dbl_mb(e1(1)+i-1)
+             if (dbl_mb(e1(1)+i-1)<emin) 
+     >          emin = dbl_mb(e1(1)+i-1)
          end do
          i = nbeads/2
          if (i.lt.1) i = 1
@@ -460,17 +463,18 @@ c
            write(luout,10) mark, mark
            mark = '@neb'
            write(luout,11) mark, it, path_energy/path_distance, 
-     >       emid,emax,
+     >       emid,emin,emax,
      >       Gmax, Grms, Xrms, Xmax, util_wallsec(),
      >       cvg1,cvg2,cvg3,cvg4
  10        format(
-     >        /,a4,' Step    Intrinsic E       Middle E ',
-     >        '     Maximum E   Gmax',
+     >        /,a4,' Step    Intrinsic E    Mid-Point E ',
+     >        '     Minimum E      Maximum E   Gmax',
      >        '     Grms     Xrms     Xmax   Walltime',
      >        /,a4,' ---- -------------- -------------- --------------',
+     >        ' --------------',
      >        ' -------- -------- -------- -------- --------')
  11        format(
-     >        a4,i5,3f15.6,1p,4f9.5,f9.1,/,
+     >        a4,i5,4f15.6,1p,4f9.5,f9.1,/,
      >        1x,5x,17x,9x,4a9,/)
 
          endif
