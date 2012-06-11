@@ -21,6 +21,7 @@
 c     
 *     **** local variables ****     
       logical value,newchain,svalue,verlet,oprint,done,converged,found
+      logical ostress
       character*9 cvg1,cvg2,cvg3,cvg4
       character*4    mark
       character*50 bead_list,filename
@@ -29,12 +30,12 @@ c
       character*255 full_filename
       character ch_tmp
       integer ii,shift
-      integer i,it,nbeads,nion,ng,m,nebsteps,neb_algorithm
+      integer i,it,nbeads,nion,nionall,ng,m,nebsteps,neb_algorithm
       integer nbeads1,nbeads2
       integer e1(2),g0(2),g1(2),s(2),t1(2),v1(2),c0(2),c1(2)
       integer mass(2),dti(2),cs(2),gs(2)
       real*8  path_energy,path_distance,norm,norm0,time_step,kbeads
-      real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0
+      real*8  Gmax,Grms,Xmax,Xrms,dE,path_energy0,emid,emax
       real*8  nebGmax,nebGrms,nebXmax,nebXrms,nebdE,t
 
 *     **** external functions ****
@@ -97,6 +98,11 @@ c
      >                             .false.,
      >                             full_filename)
 
+*     **** includestress? ****
+      if (.not. rtdb_get(rtdb,'includestress',mt_log,1,ostress))
+     >   ostress = .false.
+
+
 
 *  RRR only initialize if this is a new neb chain!
 *     **** initialize neb list ****
@@ -142,6 +148,8 @@ c
      >                  time_step,nebsteps,nbeads,m,kbeads,
      >                  neb_algorithm,tmp,
      >                  neb_movecs
+         if (ostress) 
+     >      write(luout,*) ' INCLUDING STRESS !!!!!!!!!!!!!!!!'
          write(luout,*)
          write(luout,*)
  1       format(
@@ -428,6 +436,15 @@ c
      >                                dbl_mb(c1(1)),
      >                                Gmax,Grms,Xmax,Xrms)
 
+         emax = -99.0d99
+         do i=1,nbeads
+             if (dbl_mb(e1(1)+i-1)>emax) 
+     >          emax = dbl_mb(e1(1)+i-1)
+         end do
+         i = nbeads/2
+         if (i.lt.1) i = 1
+         emid = dbl_mb(e1(1)+i-1)
+
          if (oprint) then
            cvg1 = ' '
            cvg2 = ' '
@@ -442,16 +459,18 @@ c
            if (it .gt. 1) mark = ' '
            write(luout,10) mark, mark
            mark = '@neb'
-           write(luout,11) mark, it, path_energy, dE,
+           write(luout,11) mark, it, path_energy/path_distance, 
+     >       emid,emax,
      >       Gmax, Grms, Xrms, Xmax, util_wallsec(),
      >       cvg1,cvg2,cvg3,cvg4
  10        format(
-     >        /,a4,' Step     Path Energy   Delta E   Gmax',
+     >        /,a4,' Step    Intrinsic E       Middle E ',
+     >        '     Maximum E   Gmax',
      >        '     Grms     Xrms     Xmax   Walltime',
-     >        /,a4,' ---- ---------------- -------- --------',
-     >        ' -------- -------- -------- --------')
+     >        /,a4,' ---- -------------- -------------- --------------',
+     >        ' -------- -------- -------- -------- --------')
  11        format(
-     >        a4,i5,f17.8,1p,d9.1,0p,4f9.5,f9.1,/,
+     >        a4,i5,3f15.6,1p,4f9.5,f9.1,/,
      >        1x,5x,17x,9x,4a9,/)
 
          endif

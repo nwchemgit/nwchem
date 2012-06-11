@@ -127,6 +127,7 @@ c
       logical value
       integer size,taglen,movecslen,geomlen
       character*255 rtdb_name
+      real*8 stress(9)
 
       integer bead_rtdb
       common /bead_list/ bead_rtdb
@@ -162,6 +163,11 @@ c
       value = value.and.
      >        rtdb_put(bead_rtdb,rtdb_name,mt_dbl,1,0.0d0)
 
+      call dcopy(9,0.0d0,0,stress,1)
+      rtdb_name = tag(1:taglen)//bead_index_name(size)//':stress'
+      value = value.and.
+     >        rtdb_put(bead_rtdb,rtdb_name,mt_dbl,9,stress)
+
       if (.not.value) call errquit('add_bead_list failed',0,0)
 
       return
@@ -193,7 +199,7 @@ c
 *     ***** local variables ****
       logical value
       integer size,taglen,tmplen,j
-      real*8  energy
+      real*8  energy,stress(9)
       character*255 rtdb_name,tmp_name
 
       integer bead_rtdb
@@ -238,6 +244,13 @@ c
         rtdb_name = tag(1:taglen)//bead_index_name(j)//':energy'
         value = value.and.
      >          rtdb_put(bead_rtdb,rtdb_name,mt_dbl,1,energy)
+
+        rtdb_name = tag(1:taglen)//bead_index_name(j+1)//':stress'
+        value = value.and.
+     >          rtdb_get(bead_rtdb,rtdb_name,mt_dbl,9,stress)
+        rtdb_name = tag(1:taglen)//bead_index_name(j)//':stress'
+        value = value.and.
+     >          rtdb_put(bead_rtdb,rtdb_name,mt_dbl,9,stress)
 
       end do
 
@@ -312,7 +325,7 @@ c
 #include "geom.fh"
 
 *     ***** local variables ****
-      logical value
+      logical value,ostress
       integer size,taglen,nion,geom,geomlen
       character*255 rtdb_name,geom_name
 
@@ -320,8 +333,10 @@ c
       common /bead_list/ bead_rtdb
 
 *     **** external functions ****
+      logical     bead_includestress
       integer     inp_strlen,size_bead_list
       character*7 bead_index_name
+      external    bead_includestress
       external    inp_strlen,size_bead_list
       external    bead_index_name
 
@@ -343,6 +358,8 @@ c
       value = value.and.geom_ncent(geom,nion)
       value = value.and.geom_destroy(geom)
       if (.not.value) call errquit('nion_bead_list failed',0,0)
+
+      if (bead_includestress()) nion = nion + 3
     
       nion_bead_list = nion
       return
@@ -370,20 +387,22 @@ c
 #include "mafdecls.fh"
 #include "geom.fh"
 #include "global.fh"
+#include "errquit.fh"
 
 *     ***** local variables ****
       logical value,status
       integer geom,gradient(2),nion,nelem
       integer size,taglen,permlen,movecslen,geomlen
-      real*8  energy
+      real*8  energy,stress(9)
       character*255 rtdb_name,perm_name,movecs_name,geom_name
+      character*32 theory
 
       integer bead_rtdb
       common /bead_list/ bead_rtdb
 
 *     **** external functions ****
-      logical     task_gradient_gen
-      external    task_gradient_gen
+      logical     task_gradient_gen,bead_includestress
+      external    task_gradient_gen,bead_includestress
       character*7 bead_index_name
       integer     inp_strlen
       external    bead_index_name
@@ -467,7 +486,6 @@ c
       value = value.and.
      >         rtdb_get(bead_rtdb,'task:gradient',mt_dbl,(3*nion),
      >                  dbl_mb(gradient(1)))
-     
 
       value = value.and.geom_vel_set(geom,dbl_mb(gradient(1)))
       value = value.and.MA_pop_stack(gradient(2))
@@ -475,6 +493,33 @@ c
       value = value.and.geom_rtdb_store(bead_rtdb,geom,'geometry')
       value = value.and.geom_destroy(geom)
       if (.not.value) call errquit('run_bead_list failed',4,0)
+
+
+*     ***** set the stresses ******
+      if (bead_includestress()) then
+
+         if (.not.rtdb_cget(bead_rtdb, 'task:theory', 1, theory))
+     >   call errquit('run_bead_list: stress theory not specified',
+     >                0,RTDB_ERR)
+         if (theory.eq.'pspw') then
+          if (.not.rtdb_get(bead_rtdb, 'pspw:stress', mt_dbl, 9,stress))
+     >      call errquit('run_bead_list: could not get stress',0,0)
+         else if (theory.eq.'band') then
+          if (.not.rtdb_get(bead_rtdb, 'band:stress', mt_dbl, 9,stress))
+     >       call errquit('run_bead_list: could not get stress',0,0)
+         else if (theory.eq.'paw') then
+          if (.not.rtdb_get(bead_rtdb, 'paw:stress', mt_dbl, 9,stress))
+     >       call errquit('run_bead_list: could not get stress',0,0)
+         else
+           call errquit('run_bead_list: no stress in theory',0,RTDB_ERR)
+         end if
+
+         rtdb_name = tag(1:taglen)//bead_index_name(i)//':stress'
+         value = value.and.
+     >        rtdb_put(bead_rtdb,rtdb_name,mt_dbl,9,stress)
+         if (.not.value) call errquit('run_bead_list failed',2,0)
+      end if
+
       if(ga_nodeid().eq.0) then 
        write(*,*) "neb: finished bead ",i
        write(*,*) "neb: final energy",energy
@@ -634,8 +679,10 @@ c
       common /bead_list/ bead_rtdb
 
 *     **** external functions ****
+      logical     bead_includestress,geom_grad_cart_to_frac
       character*7 bead_index_name
       integer     inp_strlen,size_bead_list
+      external    bead_includestress,geom_grad_cart_to_frac
       external    bead_index_name
       external    inp_strlen,size_bead_list
 
@@ -653,6 +700,18 @@ c
      >                                 geom_name(1:geomlen))
       value = value.and.geom_ncent(geom,nion)
       value = value.and.geom_cart_coords_get(geom,c)
+
+      if (bead_includestress()) then
+
+*        **** put gradient into fractional ****
+        if (.not. geom_grad_cart_to_frac(geom,c))
+     $  call errquit('coords_get_bead_list: cart_to_frac?',0,0)
+
+*        **** get stress part of gradient ***
+         if (.not. geom_amatrix_get(geom,c(1,nion+1)))
+     >   call errquit('coords_get_bead_list:failed to get amatrix',0,0)
+      end if
+
       value = value.and.geom_destroy(geom)
       if (.not.value) call errquit('coords_get_bead_list failed',0,0)
     
@@ -694,8 +753,10 @@ c
       common /bead_list/ bead_rtdb
 
 *     **** external functions ****
+      logical     bead_includestress,geom_amatrix_set
       character*7 bead_index_name
       integer     inp_strlen,size_bead_list
+      external    bead_includestress,geom_amatrix_set
       external    bead_index_name
       external    inp_strlen,size_bead_list
 
@@ -712,12 +773,24 @@ c
       value = value.and.geom_rtdb_load(bead_rtdb,geom,
      >                                 geom_name(1:geomlen))
       value = value.and.geom_ncent(geom,nion)
+
+      if (bead_includestress()) then
+
+        if (.not. geom_frac_to_cart(geom, c))
+     $  call errquit('coords_set_bead_list: frac_to_cart?',0,0)
+
+        if (.not. geom_amatrix_set(geom,c(1,nion+1)))
+     $  call errquit('coords_set_bead_list:failed to set amatrix',0,0)
+
+
+      end if
+
       value = value.and.geom_cart_coords_set(geom,c)
       value = value.and.geom_rtdb_delete(bead_rtdb,geom_name(1:geomlen))
       value = value.and.geom_rtdb_store(bead_rtdb,geom,
      >                                  geom_name(1:geomlen))
       value = value.and.geom_destroy(geom)
-      if (.not.value) call errquit('coords_get_bead_list failed',0,0)
+      if (.not.value) call errquit('coords_set_bead_list failed',0,0)
     
       return
       end
@@ -757,8 +830,10 @@ c
       common /bead_list/ bead_rtdb
 
 *     **** external functions ****
+      logical     bead_includestress
       character*7 bead_index_name
       integer     inp_strlen,size_bead_list
+      external    bead_includestress
       external    bead_index_name
       external    inp_strlen,size_bead_list
 
@@ -778,6 +853,12 @@ c
       value = value.and.geom_vel_get(geom,c)
       value = value.and.geom_destroy(geom)
       if (.not.value) call errquit('gradient_get_bead_list failed',0,0)
+
+      if (bead_includestress()) then
+         rtdb_name = tag(1:taglen)//bead_index_name(i)//':stress'
+         value = value.and.
+     >           rtdb_get(bead_rtdb,rtdb_name,mt_dbl,9,c(1,nion+1))
+      end if
     
       return
       end
@@ -817,8 +898,10 @@ c
       common /bead_list/ bead_rtdb
 
 *     **** external functions ****
+      logical     bead_includestress
       character*7 bead_index_name
       integer     inp_strlen,size_bead_list
+      external    bead_includestress
       external    bead_index_name
       external    inp_strlen,size_bead_list
 
@@ -841,6 +924,13 @@ c
       value = value.and.geom_rtdb_store(bead_rtdb,
      >                                  geom,geom_name(1:geomlen))
       value = value.and.geom_destroy(geom)
+
+      if (bead_includestress()) then
+         rtdb_name = tag(1:taglen)//bead_index_name(i)//':stress'
+         value = value.and.
+     >           rtdb_put(bead_rtdb,rtdb_name,mt_dbl,9,c(1,nion+1))
+
+      end if
       if (.not.value) call errquit('gradient_get_bead_list failed',0,0)
     
       return
@@ -940,8 +1030,11 @@ c
       end
 
 
-
-
+c     ***********************************************
+c     *                                             *
+c     *            bead_index_name                  *
+c     *                                             *
+c     ***********************************************
       character*7 function bead_index_name(i)
       integer i
 
@@ -972,3 +1065,28 @@ c
       bead_index_name = name
       return
       end
+
+c     ***************************************************
+c     *                                                 *
+c     *            bead_includestress                   *
+c     *                                                 *
+c     ***************************************************
+      logical function bead_includestress()
+      implicit none
+
+#include "rtdb.fh"
+#include "mafdecls.fh"
+#include "geom.fh"
+
+*     ***** local variables ****
+      logical ostress
+
+      integer bead_rtdb
+      common /bead_list/ bead_rtdb
+
+      if (.not.rtdb_get(bead_rtdb,'includestress',mt_log,1,ostress))
+     >   ostress = .false.
+
+      bead_includestress = ostress
+      return
+      end 
