@@ -98,6 +98,9 @@ c
       integer owstart(2)
       integer owend(2)
 c
+      logical cam_exch
+      double precision cam_alpha, cam_beta, cam_omega
+c
       logical int_normalize
       external int_normalize
       logical movecs_read,movecs_read_header
@@ -481,6 +484,7 @@ c -------------
      1      write(LuOut,9400)
         endif
       endif
+c
       if (nodezero.and.util_print('xc information',print_default)) then
         write(LuOut,*)
         call util_print_centered
@@ -508,6 +512,22 @@ c -------------
             write(LuOut,9310) cname(n),cfac(n),'non-local'
           endif
         enddo
+c
+c       == Coulomb Attenuation Method (CAM/LC) parameters ==
+        if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch))
+     &   cam_exch=.false.
+        if (.not.rtdb_get(rtdb, 'dft:cam_omega', mt_dbl, 1,cam_omega))
+     &   cam_omega=0.d0
+        if (.not.rtdb_get(rtdb, 'dft:cam_alpha', mt_dbl, 1,cam_alpha))
+     &   cam_alpha=0.d0
+        if (.not.rtdb_get(rtdb, 'dft:cam_beta', mt_dbl, 1, cam_beta))
+     &   cam_beta=0.d0
+
+        if (cam_exch) then
+              write(LuOut,*)
+              write(LuOut,9500)cam_alpha,cam_beta,cam_omega
+        end if ! cam_exch
+c
         if (cs00) then
           if (shift.gt.1.0d90) then
           write(LuOut,*)
@@ -523,8 +543,9 @@ c -------------
           write(LuOut,*)
           write(LuOut,9330)
      1    '         van Leeuwen-Baerends correction    '
-        endif
-      endif
+        endif ! cs00
+      endif ! nodezero
+c
       if (nodezero.and.util_print('xc information',print_default)) then
         write(LuOut,*)
         call util_print_centered
@@ -568,6 +589,7 @@ c -------------
         endif
         write(LuOut,9110) thresh
       endif
+c
       if (nodezero) call util_flush(LuOut)
  9000 format(3x,'       Calculation type : ',a18)
  9080 format(3x,'      Wavefunction type : Restricted singlets')
@@ -606,6 +628,9 @@ c -------------
  9330 format(3x,a44)
  9400 format(/,2x,
      1  '!! WARNING !! The number of MO is less than the number of AO')
+ 9500 format(10x,' Alpha           :',f6.2,/,
+     &       10x,' Beta            :',f6.2,/,
+     &       10x,' Gamma           :',f6.2)
 c
 c Return
 c
