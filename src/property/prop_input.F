@@ -746,7 +746,7 @@ c
         if(ic.ne.3) then
            call errquit(pname//'need 3 floats '//token,0, INPUT_ERR)
         end if
-        tag="prop:grid:rmax"
+        tag="prop:grid:rmin"
         f3 = f3*cang2au
         if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3)) 
      >       goto 999
@@ -759,7 +759,7 @@ c
         if(ic.ne.3) then
            call errquit(pname//'need 3 floats '//token,0, INPUT_ERR)
         end if
-        tag="prop:grid:rmin"
+        tag="prop:grid:rmax"
         f3 = f3*cang2au
         if(.not.rtdb_put(rtdb,tag,mt_dbl,3,f3)) 
      >       goto 999
