@@ -36,8 +36,10 @@ c     limits of grid
 
 c     number of grid points from rtdb or computed
       if(.not.rtdb_get(rtdb,'prop:grid:ngrid',MT_INT,3,ngrid)) then
-         step  = 0.2
-         ngrid = CEILING((rmax-rmin)/step)+1
+         step  = 0.2/cau2ang
+         ngrid(1) = min(CEILING((rmax(1)-rmin(1))/step(1))+1,50)  
+         ngrid(2) = min(CEILING((rmax(2)-rmin(2))/step(1))+1,50)
+         ngrid(3) = min(CEILING((rmax(3)-rmin(3))/step(1))+1,50)
       end if
       npoints = PRODUCT(ngrid)
       nsp = ngrid -1

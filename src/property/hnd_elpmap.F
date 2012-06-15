@@ -118,8 +118,10 @@ c
      +     ocube = .false.
 
       if(ocube) then
-        if (.not. rtdb_cget(rtdb, "prop:grid:output",1,cube_name))
-     >     cube_name = "junk.cube"
+        call util_file_name("elp.cube",
+     >                      .false.,.false.,cube_name)
+c        if (.not. rtdb_cget(rtdb, "prop:grid:output",1,cube_name))
+c     >     cube_name = "junk.cube"
       end if
 cc     
 c     define points for the calculation now 
