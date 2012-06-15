@@ -23,6 +23,7 @@ c
       character*16 element, at_tag
       integer iat, atn, nat, i
       integer l_xyzpt, k_xyzpt, l_zanpt, k_zanpt, l_efld, k_efld
+      integer l_tefldm, k_tefldm
       integer nefc, l_efcc, k_efcc, l_efcz, k_efcz
       integer g_dens(3),ndens,nclosed(2),nopen(2),nvirt(2)
       character*3 scftyp
@@ -47,6 +48,9 @@ c->d3p975
       logical ao_1prdm_read
       external ao_1prdm_read
 c<-d3p975
+      logical ocube
+      logical do_output
+      character*255 cube_name
 c
       if(.not.rtdb_get(rtdb,'bqforceprint',mt_log,1,bqprint))
      + bqprint = .false.
@@ -111,11 +115,28 @@ c
      &     dbl_mb(k_zanpt+iat-1))) call
      &     errquit('hnd_elfmap: geom_cent_get',911,GEOM_ERR)
    30 continue
+c
+      if(.not.rtdb_get(rtdb,'prop:cubefile',mt_log,1,ocube)) 
+     +     ocube = .false.
+
+      if(ocube) then
+        if (.not. rtdb_cget(rtdb, "prop:grid:output",1,cube_name))
+     >     cube_name = "junk.cube"
+      end if
+cc     
+
+
+
 c     
 c     define points for the calculation now 
 c     either custom grid or (default) nuclei positions (M.V.)
 c     -------------------------------------------------
-      if(rtdb_get_info(rtdb, "prop:xyz", ma_prp_type, 
+      if(ocube) then
+         call prop_grid_initialize(rtdb,nat,dbl_mb(k_xyzpt))
+         call prop_grid_get_r_ptr(nprp,i_prp_c)
+         do_points = .false.
+         do_output = .false.
+      else if(rtdb_get_info(rtdb, "prop:xyz", ma_prp_type, 
      >                 nprp, prp_date)) then
         nprp = nprp/3
         if (.not. ma_push_get(mt_dbl,3*nprp,'prop:xyz',h_prp_c,i_prp_c))
@@ -124,20 +145,26 @@ c     -------------------------------------------------
      >                      3*nprp,dbl_mb(i_prp_c)))
      &    call errquit('hnd_elfmap: prop:xyz failed',911,RTDB_ERR)
         do_points = .true.
+        do_output = .true.
       else
         nprp = nat
         if (.not. ma_push_get(mt_dbl,3*nat,'prop:xyz',h_prp_c,i_prp_c))
      &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
         call dcopy(3*nat,dbl_mb(k_xyzpt),1,dbl_mb(i_prp_c),1)
         do_points = .false.
+        do_output = .true.
       end if
 c
-      if (.not. ma_push_get(mt_dbl,6*nprp,'efld pnt',l_efld,k_efld))
+c      if (.not. ma_push_get(mt_dbl,6*nprp,'efld pnt',l_efld,k_efld))
+c     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+      if (.not. ma_push_get(mt_dbl,3*nprp,'efld pnt',l_efld,k_efld))
      &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
 c
 c     total electric field array (M.V.)
 c     --------------------------------
       if (.not. ma_push_get(mt_dbl,3*nprp,'tot field',l_tefld,k_tefld))
+     &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
+      if (.not. ma_push_get(mt_dbl,nprp,'efield mag',l_tefldm,k_tefldm))
      &    call errquit('hnd_elfmap: ma failed',911,MA_ERR)
 c
 c     ----- calculate electronic contribution at all points -----
@@ -149,7 +176,9 @@ c     ----- collect and output results of all points -----
 c
       if (ga_nodeid().gt.0) goto 300
 c
-      write(luout,9997)
+      if(do_output) then
+        write(luout,9997)
+      end if
       do 230  iat=1,nprp
          xp = dbl_mb(i_prp_c  +3*(iat-1))
          yp = dbl_mb(i_prp_c+1+3*(iat-1))
@@ -223,6 +252,8 @@ c
          dbl_mb(k_tefld+2+3*(iat-1)) = elf(3)
 
          elfld   = sqrt(elf(1)*elf(1) + elf(2)*elf(2) + elf(3)*elf(3))
+         dbl_mb(k_tefldm+iat-1) = elfld
+         if(do_output) then
          if(do_points.and.bqprint) then
 c
 c        skipping printout due to potentially large number of points
@@ -239,6 +270,7 @@ c        -----------------------------------------------------------
            end if
            write(luout,9995) iat,symbol,xp,yp,zp,elf(1),elf(2),elf(3),
      &                       elfld
+           end if
 c
 c          ----- store ecce data -----
 c
@@ -257,6 +289,13 @@ c     ----- release memory block -----
 c
   300 call ga_sync()
 
+      if(ga_nodeid().eq.0.and.ocube) then
+        call util_print_centered(luout, 
+     >    "writing esp potential to "//cube_name,.true.,.true.)
+        call prop_grid_write_cube(geom,nprp,dbl_mb(k_tefldm),cube_name)
+      end if
+
+
 c
 c     if custom grid is requested save final electric 
 c     into rtdb(M.V.)
@@ -268,18 +307,9 @@ c     -----------------------------------------------
       end if
 c
 c     ------- Deallocate MA memory ------
-c
-      if (.not.ma_pop_stack(l_tefld)) call errquit
-     &   ('hnd_elfmap, ma_pop_stack of l_efld failed',911,MA_ERR)
-      if (.not.ma_pop_stack(l_efld)) call errquit
-     &   ('hnd_elfmap, ma_pop_stack of l_efld failed',911,MA_ERR)
-      if (.not.ma_pop_stack(h_prp_c)) call errquit
-     &   ('hnd_elfmap, ma_pop_stack of l_xyzpt failed',911,MA_ERR)
-      if (.not.ma_pop_stack(l_zanpt)) call errquit
-     &   ('hnd_elfmap, ma_pop_stack of l_zanpt failed',911,MA_ERR)
-      if (.not.ma_pop_stack(l_xyzpt)) call errquit
-     &   ('hnd_elfmap, ma_pop_stack of l_xyzpt failed',911,MA_ERR)
-c
+      if (.not.ma_chop_stack(l_xyzpt)) call errquit
+     &   ('hnd_elfmap, ma_chop_stack failed',911,MA_ERR)
+
       do i = 1, ndens
          if (.not.ga_destroy(g_dens(i))) call
      &       errquit('elfmap: ga_destroy failed g_dens',0,GA_ERR)
