@@ -310,6 +310,10 @@ c     ------- Deallocate MA memory ------
       if (.not.ma_chop_stack(l_xyzpt)) call errquit
      &   ('hnd_elfmap, ma_chop_stack failed',911,MA_ERR)
 
+      if(ocube)  then
+         call prop_grid_destroy()
+      endif
+ 
       do i = 1, ndens
          if (.not.ga_destroy(g_dens(i))) call
      &       errquit('elfmap: ga_destroy failed g_dens',0,GA_ERR)
