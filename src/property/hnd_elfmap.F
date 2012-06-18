@@ -120,8 +120,9 @@ c
      +     ocube = .false.
 
       if(ocube) then
+c        call util_file_prefix("elf.cube",cube_name)
         if (.not. rtdb_cget(rtdb, "prop:grid:output",1,cube_name))
-     >     cube_name = "junk.cube"
+     >     call util_file_prefix("elf.cube",cube_name)
       end if
 cc     
 
@@ -291,7 +292,7 @@ c
 
       if(ga_nodeid().eq.0.and.ocube) then
         call util_print_centered(luout, 
-     >    "writing esp potential to "//cube_name,.true.,.true.)
+     >    "writing total electric field to "//cube_name,.true.,.true.)
         call prop_grid_write_cube(geom,nprp,dbl_mb(k_tefldm),cube_name)
       end if
 

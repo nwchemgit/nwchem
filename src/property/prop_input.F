@@ -777,6 +777,8 @@ c
         tag="prop:grid:ngrid"
         if(.not.rtdb_put(rtdb,tag,mt_int,3,itok3)) 
      >       goto 999
+c      disabling filename for now
+c      --------------------------
       else if (inp_compare(.false.,'output',token)) then
         if(.not.inp_a(buffer)) 
      >       goto 997
