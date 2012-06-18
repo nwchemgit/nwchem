@@ -4,7 +4,7 @@
 *
       implicit none
 #include "y64.fh"
-      double precision dx(*),dy(*),dtemp
+      double precision dx(*),dy(*)
       integer incx,incy,n
 c
       INTGR4 incx4,incy4,n4
