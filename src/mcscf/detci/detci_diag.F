@@ -238,6 +238,8 @@ c
       implicit none
 #include "tcgmsg.fh"
 #include "global.fh"
+#include "stdio.fh"
+#include "errquit.fh"
 #include "util.fh"
       external mxv                            ! [input] matrix-vector product routine
       external precon                         ! [input] preconditioner routine
@@ -270,7 +272,6 @@ c
 c
 c  Initialize
 c
-
       odebugpr = (ga_nodeid().eq.0).and.
      $           (util_print('davidson',print_debug))
       if ((ga_nodeid().eq.0).and.(oprint)) write(6,880) tol
@@ -299,8 +300,18 @@ c
 c
 c
       call dsyev( 'V', 'L', ibas, b, ibas, e, z, nz, info )
-c
-c
+      if (ga_nodeid().eq.0) then
+        if (info.lt.0) then
+          write(luout,*)'detci_dvddiag0: dsyev failed: argument ',
+     &                  -info,' had an illegal value'
+          call errquit('detci_dvddiag0: dsyev called incorrectly',
+     &                 -info,UERR)
+        else if (info.gt.0) then
+          write(luout,*)'detci_dvddiag0: dsyev failed to converge'
+          call errquit('detci_dvddiag0: dsyev failed to converge',
+     &                 info,UERR)
+        endif
+      endif
 c
 c  Residue
 c
@@ -312,7 +323,6 @@ c
 c
 c  Print info
 c
-
       rnorm = sqrt(ga_ddot(g_x,g_x))
       rnormscal = rnorm/sqrt(abs(e(1)))
       tx = util_cpusec() - tx
@@ -324,7 +334,6 @@ c
       endif
       tx = util_cpusec()
       if (rnorm.lt.tol) goto 199
-C      if (rnormscal.lt.tol) goto 199
 c
 c  Contract basis (if necessary)
 c
@@ -338,7 +347,9 @@ c
         enddo
         xx = sqrt( ga_ddot( g_w(1), g_w(1) ))
         call ga_dscal( g_w(1), (1.d0/xx) )
+        call ga_dscal( g_w(mxbas+1), (1.d0/xx) )
         ibas = 1
+c
       endif
 c
 c  Preconditioner
@@ -347,15 +358,46 @@ c
       call ga_zero( g_w(ibas) )
       call precon( g_x, g_w(ibas) )
 c
-c  Add new basis vector and orthonormalize
+c     Add new basis vector and orthonormalize
+c
+c     Use repeated modified Gramm-Schmidt as that is much more
+c     accurate than Gramm-Schmidt. Projection based orthonormalization
+c     methods like Gramm-Schmidt become inaccurate if the vectors are
+c     nearly linearly dependent (reflection and rotation based methods
+c     like Householder or Givens do not have this problem). For details
+c     see:
+c
+c       G.H. Golub and C.F. van Loan
+c       "Matrix computations"
+c       2nd edition, pp 218,
+c       (John Hopkins University Press, 2715 North Charles Street,
+c        Baltimore, Maryland) ISBN 0-8018-3739-1.
+c
+c     Obviously, normally one would not expect linear dependencies
+c     to cause problems in regular Davidson diagonalizers. Nevertheless
+c     the modified Gramm-Schmidt does do the repeat loop occasionally,
+c     so I guess it is better to go for the numerically more stable
+c     option.
 c
       call ga_copy( g_x, g_w(ibas) )
-      do i=1,ibas-1
-        xx = ga_ddot( g_x, g_w(i) )
-        call ga_dadd( -xx, g_w(i), 1.d0, g_w(ibas), g_w(ibas) )
+      info = 0
+      xx = 0.0d0
+      do while (xx.lt.0.5d0.and.info.le.1)
+        info = info + 1
+        xx = sqrt( ga_ddot( g_w(ibas), g_w(ibas) ))
+        call ga_dscal( g_w(ibas), (1.d0/xx) )
+        do i=1,ibas-1
+          xx = ga_ddot( g_w(ibas), g_w(i) )
+          call ga_dadd( -xx, g_w(i), 1.d0, g_w(ibas), g_w(ibas) )
+        enddo
+        xx = sqrt( ga_ddot( g_w(ibas), g_w(ibas) ))
+        call ga_dscal( g_w(ibas), (1.d0/xx) )
       enddo
-      xx = sqrt( ga_ddot( g_w(ibas), g_w(ibas) ))
-      call ga_dscal( g_w(ibas), (1.d0/xx) )
+      if (ga_nodeid().eq.0.and.xx.lt.0.5d0.and.info.ge.2) then
+        write(luout,*)'WARNING: detci_dvddiag0: orthonormalization '//
+     +                'failed: xx = ',xx
+      endif
+      info = 0
       call ga_zero( g_w(mxbas+ibas) )
       eold = energy
       if (iter.lt.maxiter) goto 101
@@ -370,9 +412,26 @@ c
       enddo
       eval = e(1)
 c
+c     If the Davidson did not converge something is fishy. Either
+c     the convergence has been slowed down due to degeneracies, or
+c     the subspace expansion vectors are all useless. So better print
+c     some information for diagnostics.
+c
+      if (ga_nodeid().eq.0.and.iter.ge.maxiter) then
+        write(luout,'(1x,"WARNING: detci_dvddiag0: Davidson diagonaliz",
+     +"ation failed to converge in ",i6," iterations")')maxiter
+        write(luout,*)'Approximate state energies:'
+        do i = 1, ibas
+          write(luout,'(i4,f16.8)')i,e(i)
+        enddo
+        write(luout,*)'Ground state subspace expansion coefficients:'
+        do i = 1, ibas
+          write(luout,'(i4,f16.8)')i,b(i)
+        enddo
+      endif
+c
 c  Check:  E = x.H.x
 c
-
       return
       end
 
