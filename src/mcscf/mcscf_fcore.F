@@ -75,9 +75,12 @@ c
            endif
          enddo
        enddo
-       
 c
+c  Properly synchronize
 c
+       call ga_sync()
+c
+c  Done
 c
        return
        end
