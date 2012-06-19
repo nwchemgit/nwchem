@@ -745,9 +745,8 @@ c          ti     it     ti
 c
 *ga:1:0
 c
-c      THIS IS A BUG - ga_create will fail when nclosed is zero
-c
-       if (.not.ga_create(MT_DBL,nact,nclosed,'crap',nact,0,g_tmp))
+       if (.not.ga_create(MT_DBL,nact,max(1,nclosed),'crap',nact,
+     $                    0,g_tmp))
      $      call errquit('mcscf_gfock2grad: cannot allocate',0, GA_ERR)
        call ga_copy_patch('t', g_gfock, 1, nclosed, aoff, aend,
      $                         g_tmp, 1, nact, 1, nclosed )

@@ -337,11 +337,14 @@ c
 c     
 c     Create conjugacy vectors
 c     
+c     - If we use the MCSCF as a FullCI program orlen will be 0
+c       causing ga_create to fail. So we need to be at bit creative...
 *ga:1:0
-      if (.not.ga_create(MT_DBL,orlen,1,'Conj',0,0,g_conj))
+      if (.not.ga_create(MT_DBL,max(1,orlen),1,'Conj',0,0,g_conj))
      $     call errquit('mcscf: cannot allocate',0, GA_ERR)
 *ga:1:0
-      if (.not.ga_create(MT_DBL,orlen,1,'Old Gradient',0,0,g_gradold))
+      if (.not.ga_create(MT_DBL,max(1,orlen),1,'Old Gradient',0,0,
+     $                   g_gradold))
      $     call errquit('mcscf: cannot allocate',0, GA_ERR)
       call ga_zero(g_conj)
       call ga_zero(g_gradold)

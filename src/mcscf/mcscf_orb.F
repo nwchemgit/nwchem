@@ -171,19 +171,19 @@ c
 c  Allocate gradient vectors
 c
 *ga:1:0
-       if (.not.ga_create(MT_DBL,vlen,1,'Gradient',0,0,g_grad))
+       if (.not.ga_create(MT_DBL,max(1,vlen),1,'Gradient',0,0,g_grad))
      $      call errquit('mcscf_orbsolve: cannot allocate',0,
      &       GA_ERR)
 *ga:1:0
-       if (.not.ga_create(MT_DBL,vlen,1,'K vector',0,0,g_kvec))
+       if (.not.ga_create(MT_DBL,max(1,vlen),1,'K vector',0,0,g_kvec))
      $      call errquit('mcscf_orbsolve: cannot allocate',0,
      &       GA_ERR)
 *ga:1:0
-       if (.not.ga_create(MT_DBL,vlen,1,'Search',0,0,g_srch))
+       if (.not.ga_create(MT_DBL,max(1,vlen),1,'Search',0,0,g_srch))
      $      call errquit('mcscf_orbsolve: cannot allocate',0,
      &       GA_ERR)
 *ga:1:0
-       if (.not.ga_create(MT_DBL,vlen,1,'Hess Diag',0,0,g_hdiag))
+       if (.not.ga_create(MT_DBL,max(1,vlen),1,'Hess Diag',0,0,g_hdiag))
      $      call errquit('mcscf_orbsolve: cannot allocate',0, GA_ERR)
        call ga_zero(g_kvec)
        call ga_zero(g_srch)
