@@ -124,6 +124,8 @@ c        ocons = .false.
 c      end if
       if(ocons)  call cons_add_egrad(rtdb,energy,nelem,gradient)
 c
+      call bq_force(rtdb)
+c
       if (status) then
          call geom_print_rtdb_ecce(rtdb)
          call ecce_print1('total energy', mt_dbl, energy, 1)
