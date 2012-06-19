@@ -97,8 +97,6 @@ c
 c
 c     ----- calculate electric field -----
 c
-      if (ga_nodeid().eq.0) write(luout,9999)
-      if (ga_nodeid().eq.0) write(luout,9994)
 c
        call ecce_print_module_entry('EField')
 c
@@ -146,7 +144,7 @@ c     -------------------------------------------------
      >                      3*nprp,dbl_mb(i_prp_c)))
      &    call errquit('hnd_elfmap: prop:xyz failed',911,RTDB_ERR)
         do_points = .true.
-        do_output = .true.
+        do_output = .false.
       else
         nprp = nat
         if (.not. ma_push_get(mt_dbl,3*nat,'prop:xyz',h_prp_c,i_prp_c))
@@ -178,6 +176,8 @@ c
       if (ga_nodeid().gt.0) goto 300
 c
       if(do_output) then
+        if (ga_nodeid().eq.0) write(luout,9999)
+        if (ga_nodeid().eq.0) write(luout,9994)
         write(luout,9997)
       end if
       do 230  iat=1,nprp
@@ -255,20 +255,19 @@ c
          elfld   = sqrt(elf(1)*elf(1) + elf(2)*elf(2) + elf(3)*elf(3))
          dbl_mb(k_tefldm+iat-1) = elfld
          if(do_output) then
-         if(do_points.and.bqprint) then
-c
-c        skipping printout due to potentially large number of points
-c        -----------------------------------------------------------
-           write(luout,9995) iat,"point",xp,yp,zp,elf(1),elf(2),elf(3),
+           if(do_points) then
+             write(luout,9995) iat,"point",xp,yp,zp,
+     &                       elf(1),elf(2),elf(3),
      &                       elfld
-         else if (.not.do_points) then
-           if (.not. geom_cent_tag(geom,iat,at_tag)) call
-     &        errquit('hnd_elfmap: geom_cent_tag failed',0,GEOM_ERR)
-           if (.not.geom_tag_to_element(at_tag,symbol,element,atn)) then
-             if(symbol.ne."bq") call
-     &         errquit('hnd_elfmap: geom_tag_to_element failed',
-     &                 0,GEOM_ERR)
-           end if
+           else 
+             if (.not. geom_cent_tag(geom,iat,at_tag)) call
+     &          errquit('hnd_elfmap: geom_cent_tag failed',0,GEOM_ERR)
+             if (.not.
+     &            geom_tag_to_element(at_tag,symbol,element,atn)) then
+               if(symbol.ne."bq") call
+     &           errquit('hnd_elfmap: geom_tag_to_element failed',
+     &                   0,GEOM_ERR)
+             end if
            write(luout,9995) iat,symbol,xp,yp,zp,elf(1),elf(2),elf(3),
      &                       elfld
            end if
