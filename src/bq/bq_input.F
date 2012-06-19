@@ -86,6 +86,20 @@ c     ------------------
          else if (inp_compare(.false., 'clear', field)) then
             call bq_rtdb_delete(rtdb,namespace)
             goto 20
+         else if (inp_compare(.false.,'force',field)) then
+            message = "reading force flag"
+            if(.not. rtdb_put(rtdb,"bq:force",mt_log,1,.true.)) 
+     >        goto 911
+            if (inp_a(field)) then
+              if(.not. rtdb_cput(rtdb,"bq:force_filename",1,field)) 
+     >          goto 911
+            end if
+            goto 20
+         else if (inp_compare(.false.,'noforce',field)) then
+            message = "reading force flag"
+            if(.not. rtdb_put(rtdb,"bq:force",mt_log,1,.false.)) 
+     >        goto 911
+            goto 20
          else if (inp_compare(.false., 'load', field)) then
             call  bq_input_load(aunit,max_nbq,ncenter,
      &                       dbl_mb(i_qbq),

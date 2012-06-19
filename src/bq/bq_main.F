@@ -42,9 +42,6 @@ c
       end if
 
 
-      if(ga_nodeid().eq.0) 
-     +   call bq_print_xyz(handle,91)
-
       end
 
       function bq_end()

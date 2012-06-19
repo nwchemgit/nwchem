@@ -637,6 +637,30 @@ c      local variables
        return
        end
 
+      subroutine bq_force_status(rtdb,ostatus)
+      implicit none
+#include "mafdecls.fh"
+#include "bq_data.fh"
+#include "rtdb.fh"
+#include "errquit.fh"
+       integer rtdb
+       logical ostatus
+c       
+       external bq_on
+       logical bq_on
+c      local variables
+       integer i
+
+       ostatus = .false.
+
+       if(.not.bq_on()) return
+       if(.not. rtdb_get(rtdb,"bq:force",mt_log,1,ostatus)) 
+     >        ostatus = .false.
+        
+       return
+       end
+
+
       function bq_on()
       implicit none
 #include "bq_data.fh"
