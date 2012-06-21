@@ -120,7 +120,7 @@ EOF
 declare -a LIST_COMPFLAGS
 declare -a LIST_LINLIBS
 LIST_COMPFLAGS=( ' ' '-q64' )
-LIST_LINLIBS=( '-lmkl' '-lacml' '-lcxml' '-lscs' '-lcomplib.sgimath' '-lsunmath' '-latlas' '-lgoto' '-lessl' '-lscalapack' '-llapack' '-lcblas' '-lblas' '-lf77blas' )
+LIST_LINLIBS=( '-lmkl' '-lacml' '-lcxml' '-lscs' '-lcomplib.sgimath' '-lsunmath' '-latlas' '-lgoto2' '-lgoto' '-lessl' '-lscalapack' '-llapack' '-lcblas' '-lblas' '-lf77blas' )
 export LIST_COMPFLAGS
 export LIST_LINLIBS
 function get_mpi_include ()
