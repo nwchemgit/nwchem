@@ -98,8 +98,8 @@ c
       integer owstart(2)
       integer owend(2)
 c
-      logical cam_exch
-      double precision cam_alpha, cam_beta, cam_omega
+c     logical cam_exch
+c     double precision cam_alpha, cam_beta, cam_omega
 c
       logical int_normalize
       external int_normalize
@@ -514,19 +514,19 @@ c
         enddo
 c
 c       == Coulomb Attenuation Method (CAM/LC) parameters ==
-        if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch))
-     &   cam_exch=.false.
-        if (.not.rtdb_get(rtdb, 'dft:cam_omega', mt_dbl, 1,cam_omega))
-     &   cam_omega=0.d0
-        if (.not.rtdb_get(rtdb, 'dft:cam_alpha', mt_dbl, 1,cam_alpha))
-     &   cam_alpha=0.d0
-        if (.not.rtdb_get(rtdb, 'dft:cam_beta', mt_dbl, 1, cam_beta))
-     &   cam_beta=0.d0
-
-        if (cam_exch) then
-              write(LuOut,*)
-              write(LuOut,9500)cam_alpha,cam_beta,cam_omega
-        end if ! cam_exch
+c       if (.not.rtdb_get(rtdb,'dft:cam_exch',mt_log,1,cam_exch))
+c     &   cam_exch=.false.
+c       if (.not.rtdb_get(rtdb,'dft:cam_omega',mt_dbl,1,cam_omega))
+c     &   cam_omega=0.d0
+c       if (.not.rtdb_get(rtdb,'dft:cam_alpha',mt_dbl,1,cam_alpha))
+c     &   cam_alpha=0.d0
+c       if (.not.rtdb_get(rtdb,'dft:cam_beta',mt_dbl,1,cam_beta))
+c     &   cam_beta=0.d0
+c
+c       if (cam_exch) then
+c              write(LuOut,*)
+c              write(LuOut,9500)cam_alpha,cam_beta,cam_omega
+c       end if ! cam_exch
 c
         if (cs00) then
           if (shift.gt.1.0d90) then
@@ -591,6 +591,7 @@ c
       endif
 c
       if (nodezero) call util_flush(LuOut)
+c
  9000 format(3x,'       Calculation type : ',a18)
  9080 format(3x,'      Wavefunction type : Restricted singlets')
  9090 format(3x,'      Wavefunction type : Restricted triplets')
@@ -628,11 +629,9 @@ c
  9330 format(3x,a44)
  9400 format(/,2x,
      1  '!! WARNING !! The number of MO is less than the number of AO')
- 9500 format(10x,' Alpha           :',f6.2,/,
-     &       10x,' Beta            :',f6.2,/,
-     &       10x,' Gamma           :',f6.2)
-c
-c Return
+c 9500 format(10x,' Alpha           :',f6.2,/,
+c     &       10x,' Beta            :',f6.2,/,
+c     &       10x,' Gamma           :',f6.2)
 c
       return
       end
