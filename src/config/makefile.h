@@ -1621,7 +1621,6 @@ ifeq ($(TARGET),$(findstring $(TARGET),LINUX64 CATAMOUNT))
 	@exit 1
    endif
       _FC=noifc
-      FC=gfortran
        ifdef USE_I4FLAGS
            ifneq ($(FC),gfortran)
              FOPTIONS += -i4 
