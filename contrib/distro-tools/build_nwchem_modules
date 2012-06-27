@@ -21,6 +21,9 @@ export NWCHEM_MODULES=qmandpw
 export NWCHEM_MODULES=qm
 ./contrib/distro-tools/build_nwchem 2>&1 | tee build_nwchem.${DATE}.${NWCHEM_MODULES}.log
 ./contrib/distro-tools/build_nwchem realclean
+export NWCHEM_MODULES=smallqm
+./contrib/distro-tools/build_nwchem 2>&1 | tee build_nwchem.${DATE}.${NWCHEM_MODULES}.log
+./contrib/distro-tools/build_nwchem realclean
 export NWCHEM_MODULES=all
 ./contrib/distro-tools/build_nwchem 2>&1 | tee build_nwchem.${DATE}.${NWCHEM_MODULES}.log
 if [ ${#NWCHEM_MODULES_SAVE} -ne 0 ] ; then
