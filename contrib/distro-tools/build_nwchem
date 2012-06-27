@@ -52,12 +52,15 @@ function usage()
  NWCHEM_EXECUTABLE -- The full name of the NWChem executable.
                       Example: /home/mydir/nwchem-6.1.1/bin/LINUX64/nwchem.
 
- NWCHEM_NOVERSION  -- By default a routine listing the version numbers of all
+ NWCHEM_VERSION    -- If set a routine listing the version numbers of all
                       source code files will be included in the file
-                      util_version.F. Occasionally compilers run into trouble
-                      if they try and optimize this routine. For those cases
-                      this environment variable may be set (any value will do)
-                      and the version routine will be replaced by a stub.
+                      util_version.F. The generation of this routine used to 
+                      be the default but now the code prints SVN revision
+                      numbers which in essence makes the old approach obsolete.
+                      The only place when the old approach is still useful is
+                      on machines without SVN. For those cases this environment
+                      variable may be set (any value will do) and the version
+                      routine will be generated.
                       Examples: y, yes.
 
  ARMCI_NETWORK     -- The communication infra-structure the ARMCI library in
@@ -1660,7 +1663,7 @@ fi
 cd $NWCHEM_TOP/src/util
 echo "=== build NWChem version table ==="
 if [ "x${option}" != "xrealclean" ]; then
-  if [ ${#NWCHEM_NOVERSION} -eq 0 ] ; then
+  if [ ${#NWCHEM_VERSION} -ne 0 ] ; then
     make DIAG=PAR FC=$MPI_F90 CC=$MPI_CC CXX=$MPI_CXX LDOPTIONS="$LDOPTIONS" version
   else
     rm -f util_version.F
