@@ -28,7 +28,7 @@ c
       integer lentit
       integer lenbas
       integer ok, i, guess_nbf, NArgs, jset, j, k_vecs, l_vecs
-      character*32 geomsum, basissum
+      character*32 geomsum, basissum, bqsum
       character*26 date
       character*20 scftype20
 C
@@ -87,9 +87,10 @@ C
 C
 C Record on convergence and scftype
 C
-      read(binlu) basissum, geomsum, scftype20, date
+      read(binlu) basissum, geomsum, bqsum, scftype20, date
       write(asclu,'(a32)') basissum
       write(asclu,'(a32)') geomsum
+      write(asclu,'(a32)') bqsum
       write(asclu,'(a20)') scftype20
       write(asclu,'(a26)') date
 c

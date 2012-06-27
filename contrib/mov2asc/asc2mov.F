@@ -8,6 +8,9 @@ C
 C     guess_nbf must be at least as large as the NBF in the file to be
 C     translated.
 C
+C     The format of the ASCII file is exactly as the companion program
+C     mov2asc writes it. 
+C
 C     $Id$
 C
 #include "mafdecls.fh"
@@ -28,7 +31,7 @@ c
       integer lentit
       integer lenbas
       integer ok, i, guess_nbf, NArgs, jset, j, k_vecs, l_vecs
-      character*32 geomsum, basissum
+      character*32 geomsum, basissum, bqsum
       character*26 date
       character*20 scftype20
 C
@@ -85,9 +88,10 @@ C
 c
       read(asclu,'(a32)') basissum
       read(asclu,'(a32)') geomsum
+      read(asclu,'(a32)') bqsum
       read(asclu,'(a20)') scftype20
       read(asclu,'(a26)') date
-      write(binlu) basissum, geomsum, scftype20, date
+      write(binlu) basissum, geomsum, bqsum, scftype20, date
 c
       read(asclu,'(a20)') scftype20
       write(binlu) scftype20
