@@ -22,6 +22,8 @@ GA_STABLE_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-5-1 # Comment this li
    GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/tags/ga-4-3     # For GA release 4.3
    GA_OLD_SVN=https://svn.pnl.gov/svn/hpctools/branches/ga-4-3 # Comment this line out for NWChem releases
        GA_OLD=ga-4-3
+   GA_EXP_SVN=https://svn.pnl.gov/svn/hpctools/branches/exp1
+       GA_EXP=ga-exp1
 
 # If OLD_GA is set at all in the user's environment then it means 'yes'
 if test "x$OLD_GA" != x
@@ -40,6 +42,10 @@ if test "x$DEV_GA" != x
 then
     GA_SVN=$GA_DEV_SVN
     GA_DIRNAME=$GA_DEV
+elif test "x$EXP_GA" != x
+then
+    GA_SVN=$GA_EXP_SVN
+    GA_DIRNAME=$GA_EXP
 else
     GA_SVN=$GA_STABLE_SVN
     GA_DIRNAME=$GA_STABLE

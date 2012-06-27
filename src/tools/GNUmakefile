@@ -427,9 +427,13 @@ endif
 # End conversion of env vars to configure options
 
 ifdef DEV_GA
-GA_DIR = ga-dev
+    GA_DIR = ga-dev
 else
-GA_DIR = ga-5-1
+    ifdef EXP_GA
+        GA_DIR = ga-exp1
+    else
+        GA_DIR = ga-5-1
+    endif
 endif
 BUILDDIR = build
 INSTALLDIR = install
