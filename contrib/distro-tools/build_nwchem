@@ -1672,12 +1672,18 @@ fi
 cd $NWCHEM_TOP/src
 echo "=== do NWChem code conversion ==="
 if [ "x${option}" != "xrealclean" ]; then
-  make directories
+  #
+  # For some reason a Fortran compiler must be specified (even though none is
+  # used in the code conversion) otherwise an error message is generated and
+  # corresponding make operation fails.
+  #
+  make FC=$MPI_F90 directories
   if [ ${#USE_64TO32} -eq 0 ] ; then
-     make 32_to_64
+     make FC=$MPI_F90 32_to_64
   else
-     make 64_to_32
+     make FC=$MPI_F90 64_to_32
   fi
+  #
   # The make 32_to_64 or 64_to_32 forced the dependencies to be created
   # However, at this time the Global Arrays have not been built yet and
   # therefore the nwchem/src/tools/install/include directory does not exist,
@@ -1685,6 +1691,7 @@ if [ "x${option}" != "xrealclean" ]; then
   # all the dependencies involving GA include files are bogus and wrong.
   # So delete the time stamps that protect these dependencies so that new
   # dependencies can be recorded at the right moment in the following make.
+  #
   if [[ ! ( -d $NWCHEM_TOP/src/tools/install/include || \
             -d $NWCHEM_TOP/src/tools/include ) ]] ; then
     find . -name include_stamp -exec rm -f {} \; -print
