@@ -458,7 +458,6 @@ c
       logical status
       integer i,j
       integer n0
-      integer n
       integer h_tmp_id,i_tmp_id 
 
       character*255 tag_id
@@ -469,17 +468,16 @@ c
 
       
       if(.not.rtdb_get(rtdb,tag_n,mt_int,1,n0)) then
-         n=0
+         n0=0
       end if
-      if(n.eq.0) then
+      if(n0.eq.0) then
          return
       end if
-      n = n0
 
-      if ( .not. ma_push_get( MT_INT, n, 'h_tmp_id',
+      if ( .not. ma_push_get( MT_INT, n0, 'h_tmp_id',
      &      h_tmp_id, i_tmp_id) ) call errquit(
      &      'cons_add_fixed_atoms: unable to allocate scratch space',
-     &      n, MA_ERR)
+     &      n0, MA_ERR)
 
         status = rtdb_get(rtdb,tag_id,
      >     mt_int,n0,int_mb(i_tmp_id)) 
@@ -509,12 +507,12 @@ c
        end do
 
 
-       status = rtdb_put(rtdb,tag_n,mt_int,1,n-j)
+       status = rtdb_put(rtdb,tag_n,mt_int,1,n0-j)
        status = status . and. rtdb_put(rtdb,tag_id,
-     >     mt_int,n-j,int_mb(i_tmp_id+j)) 
+     >     mt_int,n0-j,int_mb(i_tmp_id+j)) 
         if(.not.status) call errquit(
      >     'cons_add_fixed_atoms: unable to get prior harm bonds',
-     >      n, MA_ERR)
+     >      n0, MA_ERR)
 
       if (.not. ma_pop_stack(h_tmp_id) ) call errquit(
      &    'cons_add_fixed_atoms: unable to free h_tmp_id',
