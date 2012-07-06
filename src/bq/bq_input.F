@@ -308,11 +308,7 @@ c
 c
       pname = "bq_load_xyz"
 c
-      if(.not.util_io_unit(80,90,fn))
-     +  call errquit(pname//"cannot get io unit",0,0)
-      call util_file_name_resolve(filename, .false.)
-      message = "loading coordinates from "//filename
-      open(unit=fn,file=filename,status='old',form="formatted",ERR=911)
+      call bq_open_file(filename,fn)
 c      
       iloc_max = maxval(iloc)
 c      
@@ -363,11 +359,7 @@ c
 c
       pname = "bq_load_q"
 c
-      if(.not.util_io_unit(80,90,fn))
-     +  call errquit(pname//"cannot get io unit",0,0)
-      call util_file_name_resolve(filename, .false.)
-      message = "loading charges from "//filename
-      open(unit=fn,file=filename,status='old',form="formatted",ERR=911)
+      call bq_open_file(filename,fn)
 c      
       iloc_max = iloc
 c      
@@ -386,6 +378,43 @@ c
 30    continue
       call inp_init(LuIn,LuOut)
       close(fn)
+      return
+911   call errquit("error "//trim(message),0,
+     >        -1)
+      end
+
+      subroutine bq_open_file(filename,fn)
+      implicit none
+#include "util.fh"
+#include "errquit.fh"
+#include "inp.fh"
+#include "stdio.fh"
+      character*(*) filename
+      integer       fn
+c
+      character*180 buffer
+      character*180 message
+      character*30 pname,atag
+c
+      logical util_io_unit
+      external util_io_unit
+c
+      pname = "bq_open_file"
+c
+      if(.not.util_io_unit(80,90,fn))
+     +  call errquit(pname//"cannot get io unit",0,0)
+c     first try to open file in the run directory
+      buffer = filename
+      message = "loading bq information from "//buffer
+      open(unit=fn,file=buffer,status='old',form="formatted",ERR=10)
+      goto 800
+10    continue
+c     now try perm directory
+      call util_file_name_resolve(buffer, .false.)
+      message = "loading bq information from "//buffer
+      open(unit=fn,file=buffer,status='old',form="formatted",ERR=911)
+800   continue
+      write(luout,*) "success "//trim(message)
       return
 911   call errquit("error "//trim(message),0,
      >        -1)
@@ -416,11 +445,7 @@ c
 c
       pname = "bq_load"
 c
-      if(.not.util_io_unit(80,90,fn))
-     +  call errquit(pname//"cannot get io unit",0,0)
-      call util_file_name_resolve(filename, .false.)
-      message = "loading charges and coordinates from "//filename
-      open(unit=fn,file=filename,status='old',form="formatted",ERR=911)
+      call bq_open_file(filename,fn)
 c      
       iloc_max = maxval(iloc)
 c      
