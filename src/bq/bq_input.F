@@ -205,7 +205,7 @@ c      character*255 afile_coords
       double precision scale
 
       
-      iloc = [1,2,3,4]
+      iloc = [2,3,4,5]
 c      afile_coords  = " "
       afile_charges = " "
       afile = " "
