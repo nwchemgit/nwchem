@@ -327,6 +327,3 @@ jobtime_pbs.pl:
 $(BINDIR)/jobtime_pbs.pl:	jobtime_pbs.pl
 	/bin/cp $^ $@
 endif
-
-clean:
-	-$(RM) util_version.F
