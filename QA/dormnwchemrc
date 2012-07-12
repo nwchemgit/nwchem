@@ -1,9 +1,0 @@
-#!/bin/csh -f
-#
-# $Id$
-#
-#---   restore original nwchemrc file
-#
-if (-f ~/nwchemrc-backup) then
-  mv -f ~/nwchemrc-backup ~/.nwchemrc 
-endif

@@ -1,0 +1,14 @@
+#!/bin/bash
+#
+# $Id: domknwchemrc 22501 2012-05-20 06:00:35Z d3y133 $
+#
+#---   Set the appropriate environment variables for the tests.
+#---   Environment variables are preferred to avoid clashes with other 
+#---   calculation on the same machine so where possible we will use those
+#
+here="`pwd`"
+export NWCHEM_NWPW_LIBRARY="${here}/../src/nwpw/libraryps/"
+export NWCHEM_BASIS_LIBRARY="${here}/../src/basis/libraries/"
+export NWCHEM_SCRATCH_DIR="${here}/scratchdir"
+export NWCHEM_PERMANENT_DIR="${here}/scratchdir"
+#export NWCHEM_MEMORY_TOTAL=65536000 # 500 MB
