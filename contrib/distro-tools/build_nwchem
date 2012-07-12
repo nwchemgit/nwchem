@@ -1109,11 +1109,18 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
     output=`./mpi_threads$$.x`
     result=$?
     if [ ${result} -ne 0 ] ; then
-      # Testing multi-threaded support did not work, so hope for the best
-      # (the sysadmin may have blocked MPI applications from running
-      #  interactively, we hope that systems with such rigorous controls have
-      #  advanced MPI libraries...)
-      export ARMCI_NETWORK="MPI-MT"
+      # Testing multi-threaded support did not work, so we have only two options
+      # If the experimental GA branch is being used we can use the MPI 
+      # two-sided interface at this point, otherwise our only option might be
+      # to hope for the best (essentially assuming that the sysops did not let
+      # us run the mpi_threads tests which might happen on a computer service).
+      if [ "x${EXP_GA}" != "x" ] ; then
+        # use two-sided over MPI
+        export ARMCI_NETWORK="MPI_TS"
+      else
+        # hope and pray...
+        export ARMCI_NETWORK="MPI-MT"
+      fi
     else
       if [ "${output}" == "multithreaded" ] ; then
         # We have confirmed multi-threaded support!

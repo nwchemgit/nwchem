@@ -287,6 +287,7 @@ else
 endif
 endif # LAPI
 
+# ARMCI over MPI using MPI-Spawn to create the extra data server process
 ifeq ($(ARMCI_NETWORK),MPI-SPAWN)
     MAYBE_ARMCI = --with-mpi-spawn
 endif # MPI-SPAWN
@@ -295,6 +296,15 @@ endif # MPI-SPAWN
 ifeq ($(ARMCI_NETWORK),MPI-MT) 
     MAYBE_ARMCI = --with-mpi-mt
 endif # MPI-MT
+
+# ARMCI over MPI without data server
+ifeq ($(ARMCI_NETWORK),MPI_TS) 
+    ifneq ($(EXP_GA),)
+        MAYBE_ARMCI = --with-mpi-ts
+    else
+        MAYBE_ARMCI = --with-mpi-mt
+    endif
+endif # MPI_TS
 
 ifdef USE_MPI
     MPI_COMBINED =
