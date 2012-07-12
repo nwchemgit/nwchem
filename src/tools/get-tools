@@ -35,7 +35,13 @@ if grep "^\s*OLD_GA\s*=" $CONFIG >/dev/null 2>&1
 then
     OLD_GA=yes
 fi
+# If EXP_GA is set at all in the user's environment then it means 'yes'
+if test "x$EXP_GA" != x
+then
+    EXP_GA=yes
+fi
 echo "OLD_GA=$OLD_GA"
+echo "EXP_GA=$EXP_GA"
 
 # If DEV_GA is set at all in the user's environment then it means 'yes'
 if test "x$DEV_GA" != x
