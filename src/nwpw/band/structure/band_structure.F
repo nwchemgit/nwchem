@@ -1170,7 +1170,7 @@ cccc      if (flag.eq.1) call cpsi_dospsi_write(k)
  1246 FORMAT(5x,'             b3=<',3f8.3,' >')
 
  1249 FORMAT(/' computational grids:')
- 1250 FORMAT(5X,' density     cutoff=',F7.3,'  fft=',I4,'x',I4,'x',I4,
+ 1250 FORMAT(5X,' density      cutoff=',F7.3,'  fft=',I4,'x',I4,'x',I4,
      &       '( ',I8,' waves ',I8,' per task)')
  1251 FORMAT(5X,' wavefnc ',I4,' cutoff=',F7.3,
      &        '  fft=',I4,'x',I4,'x',I4,
