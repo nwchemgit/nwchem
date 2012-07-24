@@ -109,10 +109,10 @@ c
 c     
       integer ld, ni, ulo, uhi, nu
       double precision 
-     $     vecs(ulo:(ulo+ld-1),1:ni), ! [input/output] Local patch of vectors
-     $     o(1:nu,ulo:(ulo+ld-1)), ! [input] metric matrix if (ometric)
-     $     s(ni),               ! [scratch] workspace for making overlap
-     $     w(nu)                ! [scratch] workspace for making overlap
+     $     vecs(ulo:(ulo+ld-1),1:2*ni), ! [input/output] Local patch of vectors
+     $     o(1:2*nu,ulo:(ulo+ld-1)), ! [input] metric matrix if (ometric)
+     $     s(2*ni),               ! [scratch] workspace for making overlap
+     $     w(2*nu)                ! [scratch] workspace for making overlap
       logical ometric
 c     
       integer i, j, u, npass
@@ -129,11 +129,11 @@ c     If have a metric then first form overlap*vec(i)
 c     
          if (ometric) then
             call dfill(2*nu, 0.0d0, w, 1)
- 	    if ((uhi-ulo+1) .gt. 0) 
+            if ((uhi-ulo+1) .gt. 0) 
      $           call dgemv('n', nu, (uhi-ulo+1), 1.0d0, o, nu,
      $           vecs(ulo,i), 1, 0.0d0, w, 1)
             call ga_dgop(msg_orthog_1, w, nu, '+') ! Actually only need ulo:hi l
- 	    if ((uhi-ulo+1) .gt. 0) 
+            if ((uhi-ulo+1) .gt. 0) 
      $           call dgemv('n', nu, (uhi-ulo+1), 1.0d0, o, nu,
      $           vecs(ulo,ni+i), 1, 0.0d0, w(nu+1), 1)
             call ga_dgop(msg_orthog_1, w(nu+1), nu, '+') ! Actually only need ulo:hi local
@@ -146,7 +146,7 @@ c
 c     
 c     Now form overlap between vector i and vectors 1...i
 c     
-         call dfill(i, 0.0d0, s, 1)
+         call dfill(2*ni, 0.0d0, s, 1)
          if ((uhi-ulo+1) .gt. 0) 
      $        call dgemv('t', (uhi-ulo+1), i, 1.0d0,
      $        vecs(ulo,1), ld, w(ulo), 1, 0.0d0, s(1), 1)
