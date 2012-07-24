@@ -1419,43 +1419,44 @@ else
   echo "==============="
   echo
 fi
-echo "NWCHEM_TOP    =" ${NWCHEM_TOP}
-echo "NWCHEM_TARGET =" ${NWCHEM_TARGET}
-echo "USE_MPI       =" ${USE_MPI}
+echo "NWCHEM_TOP     =" ${NWCHEM_TOP}
+echo "NWCHEM_TARGET  =" ${NWCHEM_TARGET}
+echo "NWCHEM_MODULES =" ${NWCHEM_MODULES}
+echo "USE_MPI        =" ${USE_MPI}
 if [ ${#USE_MPIF} -ne 0 ] ; then
-  echo "USE_MPIF      =" ${USE_MPIF}
+  echo "USE_MPIF       =" ${USE_MPIF}
 fi
 if [ ${#USE_MPIF4} -ne 0 ] ; then
-  echo "USE_MPIF4     =" ${USE_MPIF4}
+  echo "USE_MPIF4      =" ${USE_MPIF4}
 fi
-echo "MPI_INCLUDE   =" ${MPI_INCLUDE}
-echo "MPI_LIB       =" ${MPI_LIB}
-echo "LIBMPI        =" ${LIBMPI}
-echo "MPI_F90       =" ${MPI_F90}
-echo "MPI_CC        =" ${MPI_CC}
-echo "MPI_CXX       =" ${MPI_CXX}
-echo "ARMCI_NETWORK =" ${ARMCI_NETWORK}
-echo "MSG_COMMS     =" ${MSG_COMMS}
+echo "MPI_INCLUDE    =" ${MPI_INCLUDE}
+echo "MPI_LIB        =" ${MPI_LIB}
+echo "LIBMPI         =" ${LIBMPI}
+echo "MPI_F90        =" ${MPI_F90}
+echo "MPI_CC         =" ${MPI_CC}
+echo "MPI_CXX        =" ${MPI_CXX}
+echo "ARMCI_NETWORK  =" ${ARMCI_NETWORK}
+echo "MSG_COMMS      =" ${MSG_COMMS}
 if [ ${#IB_INCLUDE} -ne 0 ] ; then
-  echo "IB_INCLUDE    =" ${IB_INCLUDE}
+  echo "IB_INCLUDE     =" ${IB_INCLUDE}
 fi
 if [ ${#IB_LIB} -ne 0 ] ; then
-  echo "IB_LIB        =" ${IB_LIB}
+  echo "IB_LIB         =" ${IB_LIB}
 fi
 if [ ${#IB_LIB_NAME} -ne 0 ] ; then
-  echo "IB_LIB_NAME   =" ${IB_LIB_NAME}
+  echo "IB_LIB_NAME    =" ${IB_LIB_NAME}
 fi
 if [ ${#BLASOPT} -ne 0 ] ; then
-  echo "BLASOPT       =" ${BLASOPT} 
+  echo "BLASOPT        =" ${BLASOPT} 
 fi
 if [ ${#BLAS_LIB} -ne 0 ] ; then
-  echo "BLAS_LIB      =" ${BLAS_LIB} " integer-size = " ${BLAS_SIZE}
+  echo "BLAS_LIB       =" ${BLAS_LIB} " integer-size = " ${BLAS_SIZE}
 fi
 if [ ${#LAPACK_LIB} -ne 0 ] ; then
-  echo "LAPACK_LIB    =" ${LAPACK_LIB} " integer-size = " ${LAPACK_SIZE}
+  echo "LAPACK_LIB     =" ${LAPACK_LIB} " integer-size = " ${LAPACK_SIZE}
 fi
 if [ ${#SCALAPACK_LIB} -ne 0 ] ; then
-  echo "SCALAPACK_LIB =" ${SCALAPACK_LIB} " integer-size = " ${SCALAPACK_SIZE}
+  echo "SCALAPACK_LIB  =" ${SCALAPACK_LIB} " integer-size = " ${SCALAPACK_SIZE}
 fi
 #
 # Stop if we find essential information missing.
