@@ -2457,7 +2457,7 @@ c    ** external **
          if (spin_orbit) then
            indx=eig_shift+i-1
          else
-           indx=eig_shift+i-1+(ms-1)*ne(1)
+           indx=eig_shift+i-1+(ms-1)*ne_excited(1)
          end if
          e = dbl_mb(indx)
       end if
