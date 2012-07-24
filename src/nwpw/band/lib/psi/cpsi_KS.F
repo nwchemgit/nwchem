@@ -2879,8 +2879,8 @@ c      end if
         !*** Bubble sort ***
         do ii=1,ne_excited(ms)
          do jj=ii+1,ne_excited(ms)
-           i = ii + (ms-1)*ne(1)
-           j = jj + (ms-1)*ne(1)
+           i = ii + (ms-1)*ne_excited(1)
+           j = jj + (ms-1)*ne_excited(1)
            ei = dbl_mb(eig_shift+i-1)
            ej = dbl_mb(eig_shift+j-1)
 
