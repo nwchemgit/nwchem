@@ -126,6 +126,8 @@ c
      >      call borbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
        end do
 
+       call ga_sync()
+
 *      ****************************************
 *      **** read in expansion coefficients ****
 *      ****************************************
@@ -168,6 +170,7 @@ c
           end if
        end do
 
+      call ga_sync()
 
       value = borbs_init()
       value = value.and.borbs_readall()
@@ -177,6 +180,7 @@ c
             call borbs_formatter_auto(ion_atom_qm(k),rcut,lmbda)
          end do
       end if
+      call ga_sync()
 
       value = .true.
       do k=1,npsp
@@ -187,8 +191,13 @@ c
             value = .false.
          end if
       end do
+
+      call ga_sync()
+      
       if (.not.value) value = borbs_readall()
       if (.not.value) go to 1901
+      call ga_sync()
+      
 
 
       if (taskid.eq.MASTER) then
