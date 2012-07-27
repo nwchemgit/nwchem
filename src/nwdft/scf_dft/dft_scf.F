@@ -458,7 +458,7 @@ c
          if (.not.MA_alloc_Get(MT_DBL,nfock*nconstr,
      ,        'ga handle for diis',l_mdiis,k_mdiis))
      ,        call errquit('dft_scf: cannot allocate mdiis',0, MA_ERR)
-         if (.not.MA_alloc_Get(MT_DBL,nfock*nconstr,
+         if (.not.MA_alloc_Get(MT_DBL,max(nfock,nconstr)*nconstr,
      ,        'ga handle for diis',l_hess,k_hess))
      ,        call errquit('dft_scf: cannot allocate mdiis',0, MA_ERR)
       endif
