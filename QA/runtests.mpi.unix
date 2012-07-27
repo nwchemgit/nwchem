@@ -100,11 +100,12 @@ if ($NPROC) then
       set MPIRUN = "$MPIRUN_PATH "
    else 
       set MPIRUN = `which mpirun`
-      if (! -f $MPIRUN) then
+      if (! -f "$MPIRUN") then
          echo " Mpirun is not in your current path. Please do:"
          echo " setenv MPIRUN_PATH /home/guido/bagheria/bin/mpirun "
          echo " Please make sure you have the right mpirun for your system."
          exit 2
+      endif
    endif
 endif
 # find the -np option ??
