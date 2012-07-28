@@ -24,6 +24,7 @@
       character*255 full_filename
 
       call Parallel_taskid(taskid)
+      idum = 0
       if (taskid.eq.MASTER) then
          call util_file_name_noprefix(fname,.false.,
      >                             .false.,
