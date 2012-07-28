@@ -180,19 +180,51 @@ c     >                    'Gijl',Gijl(2),Gijl(1))
          value = value.and.
      >   MA_alloc_get(mt_int,pspnuterms,'psputerm_l',
      >                psputerm_l(2),psputerm_l(1))
+
          value = value.and.
-     >   MA_alloc_get(mt_dbl,pspnuterms,'psputerm_scale',
-     >                psputerm_scale(2),psputerm_scale(1))
+     >   MA_alloc_get(mt_dbl,pspnuterms,'psputerm_uscale',
+     >                psputerm_uscale(2),psputerm_uscale(1))
+         value = value.and.
+     >   MA_alloc_get(mt_dbl,pspnuterms,'psputerm_jscale',
+     >                psputerm_jscale(2),psputerm_jscale(1))
          value = value.and.
      >   MA_alloc_get(mt_log,nion*pspnuterms,'psputerm_ions',
      >                psputerm_ions(2),psputerm_ions(1))
+
+         value = value.and.
+     >   MA_alloc_get(mt_int,pspnuterms,'psputerm_vstart',
+     >                psputerm_vstart(2),psputerm_vstart(1))
          if (.not. value)
      >   call errquit('psp_init:out of heap memory',0, MA_ERR)
 
          call control_set_psputerm(nion,pspnuterms,
      >                             int_mb(psputerm_l(1)),
-     >                             dbl_mb(psputerm_scale(1)),
+     >                             dbl_mb(psputerm_uscale(1)),
+     >                             dbl_mb(psputerm_jscale(1)),
      >                             log_mb(psputerm_ions(1)))
+
+         psputerm_vcount = 0
+         do i=1,pspnuterms
+            int_mb(psputerm_vstart(1)+i-1) = psputerm_vcount
+            psputerm_vcount = psputerm_vcount 
+     >                      + (2*int_mb(psputerm_l(1)+i-1)+1)**4
+         end do
+
+         value = 
+     >   MA_alloc_get(mt_dbl,psputerm_vcount,'psputerm_vmmmm',
+     >                psputerm_vmmmm(2),psputerm_vmmmm(1))
+         if (.not. value)
+     >   call errquit('psp_init:out of heap memory',0, MA_ERR)
+
+         do i=1,pspnuterms
+             call psputerm_gen_vmmmm(int_mb(psputerm_l(1)+i-1),
+     >                               2*int_mb(psputerm_l(1)+i-1)+1,
+     >                               dbl_mb(psputerm_uscale(1)+i-1),
+     >                               dbl_mb(psputerm_jscale(1)+i-1),
+     >                               dbl_mb(psputerm_vmmmm(1)
+     >                               +int_mb(psputerm_vstart(1)+i-1)))
+         end do
+
       end if
 
       if (.not. value) 
@@ -358,8 +390,11 @@ c     value = value.and.MA_free_heap(vnlnrm(2))
       end if
       if (psputerm) then
          value = value.and.MA_free_heap(psputerm_l(2))
-         value = value.and.MA_free_heap(psputerm_scale(2))
+         value = value.and.MA_free_heap(psputerm_uscale(2))
+         value = value.and.MA_free_heap(psputerm_jscale(2))
          value = value.and.MA_free_heap(psputerm_ions(2))
+         value = value.and.MA_free_heap(psputerm_vstart(2))
+         value = value.and.MA_free_heap(psputerm_vmmmm(2))
       end if
 
       if (.not. value) 
@@ -1294,13 +1329,14 @@ ccccccc#include "frac_occ.fh"
 
 
 *     *** local variables ***
-      integer G(3),npack1,nion
+      integer G(3),npack1,nion,nu
       integer i,ii,ia,l,n,nn
       integer k,shift,l_prj,nproj,Gijl_indx
       real*8  omega,scal,ff(3)
       complex*16 ctmp
-      integer exi(2),xtmp(2),sw1(2),sw2(2),sum(2)
+      integer exi(2),xtmp(2),sw1(2),sw2(2),sw3(2),sum(2)
       logical value,sd_function
+      real*8 l_density(50),vmm(50)
 
 *     **** external functions ****
       logical  is_sORd
@@ -1324,6 +1360,10 @@ ccccccc#include "frac_occ.fh"
      >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
       value = value.and.
      >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
+      if (psputerm) then
+         value = value.and.
+     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw3',sw3(2),sw3(1))
+      end if
       if (.not.value) 
      >  call errquit('v_nonlocal: out of stack',0, MA_ERR)
 
@@ -1426,6 +1466,40 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
      >                         dbl_mb(Gijl_indx),
      >                         dbl_mb(sw1(1)),
      >                         dbl_mb(sw2(1)))
+
+        if (psputerm) then
+           do nu=1,pspnuterms
+           if (log_mb(psputerm_ions(1)+ii-1+(nu-1)*nion)) then
+              call psputerm_gen_l_density(ispin,ne,nproj,
+     >                     int_mb(l_projector(1)
+     >                            +(ia-1)*(nmax_max*lmmax_max)),
+     >                     int_mb(m_projector(1)
+     >                           +(ia-1)*(nmax_max*lmmax_max)),
+     >                     int_mb(psputerm_l(1)+nu-1),
+     >                     2*int_mb(psputerm_l(1)+nu-1)+1,
+     >                     l_density)
+              call psputerm_gen_vmm(ispin,
+     >                     int_mb(psputerm_l(1)+nu-1),
+     >                     2*int_mb(psputerm_l(1)+nu-1)+1,
+     >                     dbl_mb(psputerm_uscale(1)+nu-1),
+     >                     dbl_mb(psputerm_jscale(1)+nu-1),
+     >                     dbl_mb(psputerm_vmmmm(1)
+     >                           +int_mb(psputerm_vstart(1)+nu-1)),
+     >                     l_density,vmm)
+              call psputerm_add_upotential(ispin,ne,nproj,
+     >                     int_mb(l_projector(1)
+     >                            +(ia-1)*(nmax_max*lmmax_max)),
+     >                     int_mb(m_projector(1)
+     >                           +(ia-1)*(nmax_max*lmmax_max)),
+     >                     int_mb(psputerm_l(1)+nu-1),
+     >                     2*int_mb(psputerm_l(1)+nu-1)+1,
+     >                     vmm,dbl_mb(sw2(1)),dbl_mb(sw3(1)))
+              call dcopy(nproj*(ne(1)+ne(2)),
+     >                   dbl_mb(sw3(1)),1,dbl_mb(sw2(1)),1)
+
+           end if
+           end do
+        end if
         
 *       **** do Kleinman-Bylander Multiplication ****
         !scal = 1.0d0/(omega)
@@ -1526,6 +1600,7 @@ c        call Pack_c_pack(1,dcpl_mb(exi(1)))
       value = value.and.MA_pop_stack(sum(2))
       value = value.and.MA_pop_stack(xtmp(2))
       end if
+      if (psputerm) value = value.and.MA_pop_stack(sw3(2))
       value = value.and.MA_pop_stack(sw2(2))
       value = value.and.MA_pop_stack(sw1(2))
       value = value.and.MA_pop_stack(exi(2))
@@ -2744,3 +2819,228 @@ c               write(*,*)
 
       return
       end 
+
+*     ****************************************************
+*     *                                                  *
+*     *                psputerm_gen_vmmmm                *
+*     *                                                  *
+*     ****************************************************
+      subroutine psputerm_gen_vmmmm(l,lm,U,J,vmmmm)
+      implicit none
+      integer l,lm
+      real*8 U,J
+      real*8 vmmmm(lm,lm,lm,lm)
+
+*     **** local variables ****
+      integer m1,m2,m3,m4,k,q,kk
+      real*8 F(4),fourpi,aterm
+
+*     **** external functions ****
+      real*8   nwpw_gaunt
+      external nwpw_gaunt
+
+      fourpi = 16.0d0*datan(1.0d0)
+
+      if (l.eq.0) then
+        F(1) = U
+        F(2) = 0.0d0
+        F(3) = 0.0d0
+        F(4) = 0.0d0
+      end if
+      if (l.eq.1) then
+        F(1) = U
+        F(2) = 5*J
+        F(3) = 0.0d0
+        F(4) = 0.0d0
+      end if
+      if (l.eq.2) then
+        F(1) = U
+        F(2) = 112.0d0/13.0d0*J
+        F(3) =   70.d0/13.0d0*J
+        F(4) = 0.0d0
+      end if
+      if (l.eq.3) then
+        F(1) = U
+        F(2) = 4125.0d0/346.0d0*J
+        F(3) = 5511.0d0/692.0d0*J
+        F(4) = 8151.0d0/13840d0*J
+      end if
+
+      do m1=-l,l
+      do m3=-l,l
+      do m2=-l,l
+      do m4=-l,l
+         vmmmm(m1+l+1,m2+l+1,m3+l+1,m4+l+1) = 0.0d0
+
+         do kk=1,4
+            k = 2*(kk-1)
+            aterm = 0.0d0
+            do q=-k,k
+               aterm = aterm + nwpw_gaunt(.true.,k,q,l,m1,l,m2)
+     >                        *nwpw_gaunt(.true.,k,q,l,m4,l,m3)
+            end do
+            aterm = aterm*fourpi/dble(2*k+1)
+
+            vmmmm(m1+l+1,m2+l+1,m3+l+1,m4+l+1) 
+     >         = vmmmm(m1+l+1,m2+l+1,m3+l+1,m4+l+1)
+     >         +  F(kk)*aterm
+         end do
+      end do
+      end do
+      end do
+      end do
+
+      return
+      end 
+
+*     ****************************************************
+*     *                                                  *
+*     *                psputerm_gen_vmm                  *
+*     *                                                  *
+*     ****************************************************
+      subroutine psputerm_gen_vmm(ispin,l,lm,U,J,vmmmm,l_density,vmm)
+      implicit none
+      integer ispin,l,lm
+      real*8 U,J
+      real*8 vmmmm(lm,lm,lm,lm)
+      real*8 l_density(lm,lm,ispin)
+      real*8 vmm(lm,lm,ispin)
+
+*     *** local variables ****
+      integer ms,m1,m2,m3,m4,n1,n2,n3,n4
+      real*8  density_total,density(2)
+
+      do ms=1,ispin
+         density(ms) = 0.0d0
+         do n1=1,lm
+            density(ms) = density(ms) + l_density(n1,n1,ms)
+         end do
+      end do
+      density_total = density(1)+density(ispin)
+  
+      do ms=1,ispin
+      do m1=-l,l
+      do m2=-l,l
+         n1=m1+l+1
+         n2=m2+l+1
+         vmm(n1,n2,ms)=0.0d0
+         do m3=-l,l
+         do m4=-l,l
+            n3 = m3+l+1
+            n4 = m4+l+1
+            
+            vmm(n1,n2,ms) = vmm(n1,n2,ms)
+     >                    + (vmmmm(n1,n3,n2,n4)-vmmmm(n1,n3,n4,n2))
+     >                     *l_density(n3,n4,ms)
+            vmm(n1,n2,ms) = vmm(n1,n2,ms)
+     >                    + vmmmm(n1,n3,n2,n4)
+     >                     *l_density(n3,n4,ispin+1-ms)
+         end do
+         end do
+         if(m1==m2)  then
+            vmm(n1,n2,ms)=vmm(n1,n2,ms)-U*(density_total-0.5d0)
+            vmm(n1,n2,ms)=vmm(n1,n2,ms)+J*(density(ms)  -0.5d0)
+         end if
+
+      end do
+      end do
+      end do
+
+      return 
+      end 
+      
+
+*     ****************************************************
+*     *                                                  *
+*     *                psputerm_gen_l_density            *
+*     *                                                  *
+*     ****************************************************
+      subroutine psputerm_gen_l_density(ispin,ne,nprj,l_prj,m_prj,sw2,
+     >                                  l,lm,l_density)
+      implicit none
+      integer ispin,ne(2),nprj
+      integer l_prj(nprj),m_prj(nprj)
+      real*8  sw2(ne(1)+ne(2),nprj)
+      integer l,lm
+      real*8  l_density(lm,lm,ispin)
+
+*     **** local variables ****
+      real*8  omega
+      integer a,b,c,s,k,ma,mb,ms,n,n1(2),n2(2)
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+
+      omega = lattice_omega()
+      n1(1) = 1
+      n1(2) = ne(1)+1
+      n2(1) = ne(1)
+      n2(2) = ne(1)+ne(2)
+
+      call dcopy(lm*lm*ispin,0.0d0,0,l_density,1)
+      do a=1,nprj
+      do b=1,nprj
+      if ((l_prj(a).eq.l).and.(l_prj(b).eq.l)) then
+         mb = m_prj(b)+l+1
+         ma = m_prj(a)+l+1
+         do ms=1,ispin
+         do n=n1(ms),n2(ms)
+            l_density(ma,mb,ms) = l_density(ma,mb,ms)
+     >                          + sw2(n,a)*sw2(n,b)/omega
+         end do
+         end do
+      end if
+      end do
+      end do
+
+      return
+      end 
+
+*     ****************************************************
+*     *                                                  *
+*     *                psputerm_add_upotential           *
+*     *                                                  *
+*     ****************************************************
+      subroutine psputerm_add_upotential(ispin,ne,nprj,l_prj,m_prj,
+     >                                   l,lm,vmm,sw2,sw3)
+      implicit none
+      integer ispin,ne(2),nprj
+      integer l_prj(nprj),m_prj(nprj)
+      integer l,lm
+      real*8  vmm(lm,lm,ispin)
+      real*8  sw2(ne(1)+ne(2),nprj)
+      real*8  sw3(ne(1)+ne(2),nprj)
+
+*     **** local variables ****
+      integer a,b,ms,i,ma,mb,n1(2),n2(2)
+      real*8 omega
+
+*     **** external functions ****
+      real*8   lattice_omega
+      external lattice_omega
+  
+      omega = lattice_omega()
+      n1(1) = 1
+      n1(2) = ne(1)+1
+      n2(1) = ne(1)
+      n2(2) = ne(1)+ne(2)
+
+      call dcopy((ne(1)+ne(2))*nprj,sw2,1,sw3,1)
+      do ms =1,ispin
+      do i=n1(ms),n2(ms)
+         do a=1,nprj
+         do b=1,nprj
+            if ((l_prj(a).eq.l).and.(l_prj(b).eq.l)) then
+               mb = m_prj(b)+l+1
+               ma = m_prj(a)+l+1
+               sw3(i,a) = sw3(i,a)
+     >                  + sw2(i,b)*vmm(ma,mb,ms)/sqrt(omega)
+            end if
+         end do
+         end do
+      end do
+      end do
+
+      return 
+      end

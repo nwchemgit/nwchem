@@ -95,8 +95,14 @@
 *     **** common block for psputerm ****
       logical psputerm
       integer pspnuterms
+      integer psputerm_vcount
       integer psputerm_l(2)
-      integer psputerm_scale(2)
+      integer psputerm_uscale(2)
+      integer psputerm_jscale(2)
       integer psputerm_ions(2)
-      common / psputerm_block / psputerm_scale,psputerm_l,psputerm_ions,
-     >                          pspnuterms,psputerm
+      integer psputerm_vstart(2)
+      integer psputerm_vmmmm(2)
+      common / psputerm_block / psputerm_uscale,psputerm_jscale,
+     >                          psputerm_l,psputerm_ions,
+     >                          psputerm_vmmmm,psputerm_vstart,
+     >                          psputerm_vcount,pspnuterms,psputerm
