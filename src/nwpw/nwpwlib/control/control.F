@@ -4895,10 +4895,10 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 *     *        control_set_psputerm     *
 *     *                                 *
 *     ***********************************
-      subroutine control_set_psputerm(nion,nuterms,l,scale,ions)
+      subroutine control_set_psputerm(nion,nuterms,l,uscale,jscale,ions)
       implicit none
       integer nion,nuterms,l(nuterms)
-      real*8 scale(nuterms)
+      real*8 uscale(nuterms),jscale(nuterms)
       logical ions(nion,nuterms)
 
 #include "mafdecls.fh"
@@ -4925,8 +4925,12 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       do nu=1,nuterms
 
           rtdb_name = 'nwpw:uterm_scale:'//c_index_name(nu)
-         if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,scale(nu)))
-     >      scale(nu) = 0.0d0
+          if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,uscale(nu)))
+     >      uscale(nu) = 0.0d0
+
+          rtdb_name = 'nwpw:jterm_scale:'//c_index_name(nu)
+          if (.not.rtdb_get(rtdb,rtdb_name,mt_dbl,1,jscale(nu)))
+     >      jscale(nu) = 0.0d0
 
           rtdb_name = 'nwpw:uterm_l:'//c_index_name(nu)
           if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,l(nu)))
@@ -4936,7 +4940,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
             ions(i,nu) = .false.
          end do
 
-         if (taskid.eq.MASTER) write(*,3301) l(nu),scale(nu)
+         if (taskid.eq.MASTER) write(*,3301) l(nu),uscale(nu),jscale(nu)
 
           rtdb_name = 'nwpw:uterm_ions:'//c_index_name(nu)
          if (rtdb_ma_get(rtdb, rtdb_name,ma_type,
@@ -4962,7 +4966,7 @@ ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       end do
 
  3300 format(/1x,"Hubbard Uterm Function Input:")
- 3301 format(2x," - uterm: l =",I2,"  U-J =",F8.3)
+ 3301 format(2x," - uterm: l =",I2,"  U=",F8.3," J=",F8.3)
  3302 format(2x," - uterm: ion indexes  =",10I5)
       return
       end
