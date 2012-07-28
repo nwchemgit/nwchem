@@ -1231,9 +1231,9 @@ c
 c
 c  metadynamics
 c
-
  6700 call metadynamics_input(rtdb)
       goto 10
+
 
 c
 c  pspspin up d scale atom_indexes
@@ -1398,10 +1398,14 @@ c
      >           rtdb_put(rtdb,'nwpw:nuterms',mt_int,1,nuterms)
 
 
-         if (inp_f(emax)) then
+         if (inp_f(emax).and.inp_f(emin)) then
                cell_name = 'nwpw:uterm_scale:'//c_index_name(nuterms)
                value = value.and.
      >         rtdb_put(rtdb,cell_name,mt_dbl,1,emax)
+               cell_name = 'nwpw:jterm_scale:'//c_index_name(nuterms)
+               value = value.and.
+     >         rtdb_put(rtdb,cell_name,mt_dbl,1,emin)
+
                nx = -1
                if (inp_compare(.false.,zone_name,'s')) nx = 0
                if (inp_compare(.false.,zone_name,'p')) nx = 1
