@@ -1566,7 +1566,7 @@ c      call ga_sync()
       return
       end
 
-      subroutine C3dB_r_Read(nb,iunit,A,tmp,jcol,kcol)
+      subroutine C3dB_r_read(nb,iunit,A,tmp,jcol,kcol)
       implicit none 
       integer nb
       integer iunit
