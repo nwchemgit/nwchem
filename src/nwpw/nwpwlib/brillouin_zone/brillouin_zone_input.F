@@ -428,6 +428,29 @@ c
      >             'simple-orthorhombic',
      >             'bct' /
 
+c CUB,FCC,BCC,TET,BCT1,BCT2,ORC,ORCF1,ORCF2,ORCF3,ORCI,ORCC,HEX,RHL1,RHL2,MCL,
+c MCLC1,MCLC2,MCLC3,MCLC4,MCLC5,TRI1a,TRI2a,TRI1b,TRI2b
+c FCCconventional,BCCconventional,BCT1conventional,BCT2conventional
+c ORCF1conventional,ORCF2conventional,ORCF3conventional,ORCIconventional
+c ORCCconventional
+c MCLC1conventional,MCLC2conventional,MCLC3conventional,MCLC4conventional,MCLC5conventional
+c
+c Standard unit cell types
+c Simple cubic
+c Face-centered cubic - primitive,conventional
+c Body-centered cubic - primitive,conventional
+c Tetragonal
+c Body-centered tegragonal - primitive,conventional
+c Orthorhombic
+c Face-centered orthorhombic - primitive,conventional
+c Body-centered orthorhombic - primitive,conventional
+c C-centered orthorhombic - primitive,conventional
+c Hexagonal
+c Rhombohedral
+c Monoclinic
+c C-centered monoclinic - primitive,conventional
+c Triclinic
+
       integer pcount,  plist(100)
       integer pcount2, plist2(100)
       real*8  kvector(4),kvector1(4),kvector2(4),dist,dk
@@ -648,9 +671,9 @@ c
         goodpoint = .true.
       end if
       if (p.eq.13) then   !n
-        kvector(1) = 0.5d0
+        kvector(1) = 0.0d0
         kvector(2) = 0.0d0
-        kvector(3) = 0.0d0
+        kvector(3) = 0.5d0
         goodpoint = .true.
       end if
       if (p.eq.14) then   !p
