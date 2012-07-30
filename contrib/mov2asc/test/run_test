@@ -1,0 +1,9 @@
+#!/bin/bash
+if [ ${#NWCHEM_EXECUTABLE} -eq 0 ] ; then
+  export NWCHEM_EXECUTABLE=`find ../../../bin -name nwchem`
+fi
+${NWCHEM_EXECUTABLE} h2o_1.nw 2>&1 > h2o_1.out
+../mov2asc 19 h2o_1.movec h2o.ascii
+../asc2mov 19 h2o.ascii h2o_2.movec
+${NWCHEM_EXECUTABLE} h2o_2.nw 2>&1 > h2o_2.out
+

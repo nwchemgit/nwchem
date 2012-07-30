@@ -1,0 +1,24 @@
+echo
+start h2o_1_dat
+title "h2o mov2asc start up"
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+scf
+ rohf
+ singlet
+ vectors output h2o_1.movec
+end
+
+task scf gradient
+

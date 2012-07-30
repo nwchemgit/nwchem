@@ -1,0 +1,24 @@
+echo
+start h2o_2_dat
+title "asc2mov verify movec file"
+
+geometry units au
+ O 0       0        0
+ H 0       1.430   -1.107
+ H 0      -1.430   -1.107
+end
+
+
+basis
+  O library 6-31g*
+  H library 6-31g*
+end
+
+scf
+ rohf
+ singlet
+ vectors input h2o_2.movec output h2o.movec
+end
+
+task scf gradient
+
