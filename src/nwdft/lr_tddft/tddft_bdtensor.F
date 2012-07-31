@@ -116,8 +116,13 @@ c     here
 
 c     step 2: the symmetrized rotatory strength tensor
       
-      rmat(:,:) = zero
-      
+c     rmat(:,:) = zero  ! comment out implicit
+      do i = 1,3
+        do j = 1,3
+          rmat(i,j) = zero
+        end do
+      end do
+c      
       do i = 1,3
         do j = 1,i
           rmat(i,j) =
@@ -179,16 +184,22 @@ c     also output the orientation-dependent rotatory strength
         trace = trace + rmat(i,i)
       end do
 
-      rmat(:,:) = -half * rmat(:,:)
+c     rmat(:,:) = -half * rmat(:,:) ! comment out implicit
+      do i = 1,3
+        do j = 1,3
+          rmat(i,j) = -half * rmat(i,j)
+        end do
+      end do
+c
       do i = 1,3
         rmat(i,i) = rmat(i,i) + half * trace
       end do
-
+c
       trace = zero
       do i = 1,3
         trace = trace + rmat(i,i)
       end do
-      
+c      
       if (nodezero) then
         write (luout,'(/5x,a)')
      &     'Rotatory strength tensor'
