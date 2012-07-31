@@ -31,15 +31,23 @@
 #
 # Huub van Dam, July 30, 2012.
 #
-export MAFDECLS=../../src/tools/ga-5-1/ma/mafdecls.fh.in
-export GLOBAL=../../src/tools/ga-5-1/global/src/global.fh.in
+if [ ${#DEV_GA} -ne 0 ] ; then
+  export MAFDECLS=../../src/tools/ga-dev/ma/mafdecls.fh.in
+  export GLOBAL=../../src/tools/ga-dev/global/src/global.fh.in
+elif [ ${#EXP_GA} -ne 0 ] ; then
+  export MAFDECLS=../../src/tools/ga-exp1/ma/mafdecls.fh.in
+  export GLOBAL=../../src/tools/ga-exp1/global/src/global.fh.in
+else
+  export MAFDECLS=../../src/tools/ga-5-1/ma/mafdecls.fh.in
+  export GLOBAL=../../src/tools/ga-5-1/global/src/global.fh.in
+fi
 #
 # Do the MA include file
 #
 grep interface ${MAFDECLS}
 status=$?
 if [ ${status} -ne 0 ] ; then
-  grep -i -v ma_alloc_get | grep -i -v ma_get_index | grep -i -v ma_push_get > /tmp/mafdecls.$$
+  grep -i -v ma_alloc_get ${MAFDECLS} | grep -i -v ma_get_index | grep -i -v ma_push_get > /tmp/mafdecls.$$
   cat << EOF >> /tmp/mafdecls.$$
       interface
         logical function MA_alloc_get(itype,n,name,handle,index)
