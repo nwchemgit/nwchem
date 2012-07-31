@@ -1,0 +1,81 @@
+#!/bin/bash
+#
+# $Id$
+#
+# We have introduced a macro MAPOINTER to explicitly define the Fortran
+# data type for an MA/GA index. On 64-bit platforms these indeces need to be
+# of type integer*8, whereas on 32-bit platforms these need to be integer*4. 
+# The reason for this is that the MA library allocates memory returning offsets
+# with respect to arrays in a common block. These offsets are computed from the
+# difference of 2 C-language pointers. The corresponding Fortran data types
+# must be large enough to hold the resulting integer values.
+#
+# When this whole operation is done NWChem will be using 2 different kinds of
+# integers. Explicitly declared integers (either integer*8 or integer*4) for
+# the MA indeces and default type integers for everything else. The problem with
+# this is that mistakes will be hard to detect unless we get some help from the
+# compiler. 
+#
+# With Fortran90 compiler help is easily organized with interface blocks. 
+# However, we do not want to force the whole code to become Fortran90 forever.
+# So we do not want include the interface blocks permanently in the GA include
+# files. 
+#
+# This script looks for the appropriate GA include files and modifies them to
+# include the interface blocks we need to ensure we have the index data types
+# right. Running this script requires a subsequence "make realclean" to ensure
+# that GA regenerates all its include files (the files we will change are
+# typically files that will be pre-processed to generate the real include
+# files). Hopefully, with this tool in place the transition will be smooth
+# (famous last words...).
+#
+# Huub van Dam, July 30, 2012.
+#
+export MAFDECLS=../../src/tools/ga-5-1/ma/mafdecls.fh.in
+export GLOBAL=../../src/tools/ga-5-1/global/src/global.fh.in
+#
+# Do the MA include file
+#
+grep interface ${MAFDECLS}
+status=$?
+if [ ${status} -ne 0 ] ; then
+  grep -i -v ma_alloc_get | grep -i -v ma_get_index | grep -i -v ma_push_get > /tmp/mafdecls.$$
+  cat << EOF >> /tmp/mafdecls.$$
+      interface
+        logical function MA_alloc_get(itype,n,name,handle,index)
+          integer itype, n, handle
+          character*(*) name
+          MA_ACCESS_INDEX_TYPE index
+        end function MA_alloc_get
+        logical function MA_get_index(handle,index)
+          integer handle
+          MA_ACCESS_INDEX_TYPE index
+        end function MA_get_index
+        logical function MA_push_get(itype,n,name,handle,index)
+          integer itype, n, handle
+          character*(*) name
+          MA_ACCESS_INDEX_TYPE index
+        end function MA_push_get
+      end interface
+EOF
+  mv /tmp/mafdecls.$$ ${MAFDECLS}
+fi
+#
+# Do the GA include file
+#
+grep interface ${GLOBAL}
+status=$?
+if [ ${status} -ne 0 ] ; then
+  cat << EOF >> ${GLOBAL}
+      interface
+        subroutine GA_access(g_a,ilo,ihi,jlo,jhi,index,ld)
+          integer g_a,ilo,ihi,jlo,jhi,ld
+          GA_ACCESS_INDEX_TYPE index
+        end subroutine GA_access
+        subroutine NGA_access(g_a,lo,hi,index,ld)
+          integer g_a,lo(:),hi(:),ld(:)
+          GA_ACCESS_INDEX_TYPE index
+        end subroutine NGA_access
+      end interface
+EOF
+fi

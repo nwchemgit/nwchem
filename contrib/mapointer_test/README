@@ -1,0 +1,7 @@
+README fix_include_files
+========================
+
+The script fix_include_files is supposed to be run from this directory. 
+It modifies include files in the GA adding Fortran90 interface blocks so that
+the compiler can check whether critical routines are called with the correct
+data types. More comments on the how and why are included in the script itself.
