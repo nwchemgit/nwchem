@@ -162,9 +162,9 @@ c
      $     call errquit('moints: failed to alloc evals ',nbf, MA_ERR)
       if (.not. ma_push_get(MT_DBL, nbf, 'Occs', l_occ, k_occ))
      $     call errquit('moints: failed to alloc occs ',nbf, MA_ERR)
-      if (.not. ma_push_get(MT_INT, nmo, 'Irs', l_irs, k_irs))
+      if (.not. ma_push_get(MT_INT, nmo(1), 'Irs', l_irs, k_irs))
      $     call errquit('moints: failed to alloc irs ',nmo, MA_ERR)
-      if (.not. ma_push_get(MT_INT, nmo, 'Irs', l_map, k_map))
+      if (.not. ma_push_get(MT_INT, nmo(1), 'Irs', l_map, k_map))
      $     call errquit('moints: failed to alloc map ',nmo, MA_ERR)
 *ga:1:0
       if (.not. ga_create(MT_DBL, nbf, nmo, 'MOs',
