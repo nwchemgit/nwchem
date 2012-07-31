@@ -569,6 +569,7 @@ c
           write (LuOut, 9180) owstart(1), owend(1)
           write (LuOut, 9190) owstart(2), owend(2)
         endif
+        if (lecut) write (LuOut, 9195) ecut
         if (symmetry) then
           write(LuOut,9160) 'on '
         else
@@ -623,6 +624,7 @@ c
  9140 format(3x,'              Algorithm : ',a)
  9180 format(3x,'           Alpha Window :',2x,i4,2x,i4)
  9190 format(3x,'            Beta Window :',2x,i4,2x,i4)
+ 9195 format(3x,'          Energy Cutoff :',d8.2)
  9300 format(3x,a40)
  9310 format(3x,a40,1x,f6.2,1x,a9)
  9320 format(3x,a44,1x,f10.6,1x,a2)
