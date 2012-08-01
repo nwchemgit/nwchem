@@ -1034,6 +1034,7 @@ c     yes it should be one
         read(buffer,*,ERR=40,END=40) a16,id,tags(n),
      +     resn,ir
 c     +     resn,ir,c(1,n),c(2,n),c(3,n)
+        read(buffer(13:14),*) tags(n)
         read(buffer(31:38),*) c(1,n)
         read(buffer(39:46),*) c(2,n)
         read(buffer(47:54),*) c(3,n)
