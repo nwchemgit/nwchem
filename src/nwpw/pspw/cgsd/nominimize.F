@@ -64,8 +64,8 @@ c
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
 *     ***** pspw_SIC and pspw_HFX external functions ****
-      logical  pspw_SIC,pspw_HFX
-      external pspw_SIC,pspw_HFX
+      logical  pspw_SIC,pspw_HFX,psp_U_psputerm
+      external pspw_SIC,pspw_HFX,psp_U_psputerm
 
 *     ***** PAW functions ****
       logical  psp_pawexist
@@ -154,6 +154,13 @@ c      call psi_1toelectron()
          call electron_HFX_energies(ehfx,phfx)
          E(26) = ehfx
          E(27) = phfx
+      end if
+
+*     **** HFX terms ****
+      if (psp_U_psputerm()) then
+         call electron_U_energies(ehfx,phfx)
+         E(29) = ehfx
+         E(30) = phfx
       end if
 
 

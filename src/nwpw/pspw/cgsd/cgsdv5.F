@@ -304,6 +304,9 @@ c     value = psi_initialize()
       call pspw_init_SIC(rtdb,ne)
       call pspw_init_HFX(rtdb,psi_ispin(),ne)
 
+*     **** initialize DFT+U ****
+      call psp_U_init()
+
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
 
@@ -641,6 +644,7 @@ c     end if
       call mask_end()
       call Pack_end()
       call G_end()
+      call psp_U_end()
       call pspw_end_SIC()
       call pspw_end_HFX()
       call pspw_end_APC()

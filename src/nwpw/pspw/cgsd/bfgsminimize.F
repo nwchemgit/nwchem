@@ -100,8 +100,10 @@ c
       external control_time_step,control_fake_mass
       integer  control_lmbfgs_size
       external control_lmbfgs_size
-      logical  control_precondition,pspw_HFX
-      external control_precondition,pspw_HFX
+      logical  control_precondition,pspw_HFX,psp_U_psputerm
+      external control_precondition,pspw_HFX,psp_U_psputerm
+      real*8   psp_U_psputerm_ehfx, psp_U_psputerm_phfx
+      external psp_U_psputerm_ehfx, psp_U_psputerm_phfx
 
 
       dt = control_time_step()
@@ -313,6 +315,13 @@ c     call psi_check()
          call electron_HFX_energies(ehfx,phfx)
          E(26) = ehfx
          E(27) = phfx
+      end if
+
+*     **** DFT+U terms ****
+      if (psp_U_psputerm()) then
+         call electron_U_energies(ehfx,phfx)
+         E(29) =  ehfx
+         E(30) =  phfx
       end if
 
       return

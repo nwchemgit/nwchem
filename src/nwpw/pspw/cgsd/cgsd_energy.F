@@ -37,7 +37,7 @@ c#include "rtdb.fh"
 
 *     **** external functions ****
       logical     psp_semicore,pspw_charge_found,pspw_qmmm_found
-      logical     psp_pawexist
+      logical     psp_pawexist,psp_U_psputerm
       logical     control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
       logical     control_print,control_psi_tmp,control_fractional
       character*4 ion_aname
@@ -48,7 +48,7 @@ c#include "rtdb.fh"
       real*8      ion_rion,psi_eigenvalue,psi_hml,ion_amass
       real*8      psi_smearfermi
       external psp_semicore,pspw_charge_found,pspw_qmmm_found
-      external psp_pawexist
+      external psp_pawexist,psp_U_psputerm
       external control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
       external ion_aname
       external control_it_in, control_it_out,control_minimizer
@@ -313,6 +313,9 @@ c      else if (.not.control_fractional()) then
          if (pspw_HFX()) then
            write(luout,1457) E(26),E(26)/neall
          end if
+         if (psp_U_psputerm()) then
+           write(luout,1458) E(29),E(29)/neall
+         end if
          write(luout,1470) E(5),E(5)/ion_nion()
          if (control_fractional()) write(luout,1471) E(28),E(28)/neall
 
@@ -336,6 +339,9 @@ c        end if
          end if
          if (pspw_HFX())  then
            write(luout,1502) E(27),E(27)/neall
+         end if
+         if (psp_U_psputerm()) then
+           write(luout,1503) E(30),E(30)/neall
          end if
 
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
@@ -535,6 +541,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1455 FORMAT( ' SIC-hartree energy  :',E19.10,' (',E15.5,'/electron)')
  1456 FORMAT( ' SIC-exc-corr energy :',E19.10,' (',E15.5,'/electron)')
  1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
+ 1458 FORMAT( ' DFT+U     energy    :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1471 FORMAT( ' smearing  energy    :',E19.10,' (',E15.5,'/electron)')
@@ -547,11 +554,13 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1499 FORMAT( ' K.S. SIC-hartree energy  :',E19.10,
      >        ' (',E15.5,'/electron)')
+ 1500 FORMAT(/' orbital energies:')
  1501 FORMAT( ' K.S. SIC-exc-corr energy :',E19.10,
      >        ' (',E15.5,'/electron)')
  1502 FORMAT( ' K.S. HFX energy     :',E19.10,
      >        ' (',E15.5,'/electron)')
- 1500 FORMAT(/' orbital energies:')
+ 1503 FORMAT( ' K.S. DFT+U energy   :',E19.10,
+     >        ' (',E15.5,'/electron)')
  1507 FORMAT(/' Fermi energy =',2(E18.7,' (',F8.3,'eV)'))
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',F5.3))
