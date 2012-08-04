@@ -364,11 +364,11 @@ c      end
       real*8  total_energy
 
 *     **** external functions *****
-      logical  pspw_SIC,pspw_SIC_relaxed
+      logical  pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm
       logical  pspw_HFX,pspw_HFX_relaxed
       integer  control_version
       real*8   lattice_omega,coulomb_e,electron_ehartree2
-      external pspw_SIC,pspw_SIC_relaxed
+      external pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm
       external pspw_HFX,pspw_HFX_relaxed
       external control_version
       external lattice_omega,coulomb_e,electron_ehartree2
@@ -466,6 +466,12 @@ c      end
      >                        phfx)
          total_energy = total_energy + ehfx - phfx
       end if
+      end if
+
+*     **** DFT+U energy ****
+      if (psp_U_psputerm()) then
+         call psp_U_psputerm_energy(edftu,pdftu)
+         total_energy = total_energy + edftu - pdftu
       end if
 
 *     **** total energy ****
@@ -887,6 +893,26 @@ c      end
 
       ehfx0 = ehfx
       phfx0 = phfx
+      return
+      end
+
+
+*     ***********************************
+*     *                                 *
+*     *     electron_U_energies         *
+*     *                                 *
+*     ***********************************
+
+      subroutine electron_U_energies(edftu0,pdftu0)
+      implicit none
+      real*8 edftu0,pdftu0
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+
+      edftu0 = edftu
+      pdftu0 = pdftu
       return
       end
 

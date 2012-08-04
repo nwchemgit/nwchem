@@ -50,7 +50,7 @@
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical dosic,dohfx
+      logical dosic,dohfx,dodftu
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz
       real*8  scal1,scal2
@@ -65,15 +65,16 @@ c     complex*16 vpsi(nfft3d)
 
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
-      logical  pspw_HFX,pspw_HFX_relaxed
+      logical  pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm
       real*8   lattice_omega
       external pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
-      external pspw_HFX,pspw_HFX_relaxed
+      external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm
       external lattice_omega
 
 
       dosic = (pspw_SIC().and.pspw_SIC_relaxed()) 
       dohfx = (pspw_HFX().and.pspw_HFX_relaxed()) 
+      dodftu = psp_U_psputerm()
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -113,6 +114,14 @@ c     complex*16 vpsi(nfft3d)
 *     **** add non-local psp - Hpsi_k = Hpsi_k + Vnl*psi_k ****
 *     *********************************************************
       call v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion,fractional,occ)
+
+*     *********************************************************
+*     **** add DFT+U correction -                             *
+*     *********************************************************
+      if (dodftu) then
+         call psp_U_v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion,
+     >                         fractional,occ)
+      end if
 
 
 *     *******************************************************
