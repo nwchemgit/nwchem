@@ -9,14 +9,15 @@
 	    paw.o \
             psp_stress.o \
 	    semicore.o \
-	    semicore_force.o
+	    semicore_force.o \
+            psp_U.o \
 
 
 	  OBJ = 
 
       LIBRARY = libpspw.a
 
-    USES_BLAS = psp.F paw.F semicore.F semicore_force.F psp_stress.F semicore_force_a.F semicore_force_b.F
+    USES_BLAS = psp.F paw.F semicore.F semicore_force.F psp_stress.F semicore_force_a.F semicore_force_b.F psp_U.F
 
   LIB_DEFINES = 
 
