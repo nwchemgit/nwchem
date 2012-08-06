@@ -338,7 +338,7 @@ c
             endif
 c            
          endif
-      endif
+      endif   ! goto 10
 c     
 c     End SCF minimisation
 c     
@@ -376,6 +376,8 @@ c
       endif
       if (ga_nodeid().eq.0) call util_flush(6)
       call ga_sync()
+
+      if (.not.noscf) then  ! bypass for noscf
 c     
 c     *ALWAYS* return canonical MOs ... don't do aufbau
 c     
@@ -411,6 +413,8 @@ c
 
          call rohf_lagr()
       endif
+
+      endif ! noscf
 c     
 c     Free globals
 c     
