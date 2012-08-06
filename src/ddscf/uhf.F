@@ -403,6 +403,8 @@ c
 c     End SCF minimisation
 c     
       if (ga_nodeid().eq.0) call util_flush(6)
+c
+      if (.not.noscf) then  ! bypass for noscf
 c     
 c     *ALWAYS* return canonical MOs ... do not do aufbau
 c     
@@ -417,6 +419,8 @@ c
       call movecs_fix_phase(g_movecs(2))
       if (olock) call scf_movecs_lock
       call scf_movecs_write(rtdb)
+c
+      end if  ! bypass for noscf
 c     
 c     Free globals
 c     
