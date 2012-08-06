@@ -71,7 +71,7 @@ c
       integer i, nprint
       character*255 title_vecs, bas_vecs
       integer nbf_vecs, nsets, nmo_vecs(2)
-      logical status
+      logical status, fon
       double precision tolguess, zero, one, two
       character*20 file_scftype
       character*255 string
@@ -106,6 +106,12 @@ c
       if (.not. rtdb_get(rtdb, 'dft:smear_sigma', mt_dbl, 1,
      &   ssmear)) then
          ssmear=0.d0
+      endif
+c
+c     check if fon is on
+c
+      if (.not. rtdb_get(rtdb, 'dft:fon', mt_log, 1, fon)) then
+         fon=.false.
       endif
 c
 c     Analyze linear dependence ... put eigenvectors of S into g_movecs
@@ -421,7 +427,7 @@ c
          call ga_orthog_mos(basis, g_movecs)
          if (scftype .eq. 'UHF') call ga_orthog_mos(basis, g_movecs(2))
       endif
-      if(ssmear.lt.1.e-9) then
+      if(ssmear.lt.1.e-9 .and. (.not. fon)) then
 c
 c     Generate correct occupation numbers
 c
