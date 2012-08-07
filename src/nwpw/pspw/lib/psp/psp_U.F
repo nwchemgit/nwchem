@@ -92,7 +92,6 @@
                end if
             end do
          end do
-         write(*,*) "psputerm_ld_count=",psputerm_ld_count
 
          value = 
      >   MA_alloc_get(mt_dbl,psputerm_vcount,'psputerm_vmmmm',
@@ -181,7 +180,7 @@
 *         parallel efficiency.
 *
       subroutine psp_U_v_nonlocal(ispin,ne,psi1,psi2,move,fion,
-     >                            fractional,occ)
+     >                            fractional,occ,ld_update)
       implicit none
       integer    ispin,ne(2)
       complex*16 psi1(*)
@@ -190,6 +189,7 @@
       real*8 fion(3,*)
       logical fractional
       real*8 occ(*)
+      logical ld_update
 
 #include "mafdecls.fh"
 #include "psp.fh"
@@ -318,15 +318,17 @@
            if (log_mb(psputerm_ions(1)+ii-1+(nu-1)*nion)) then
               ld_ptr =psputerm_ld(1)+int_mb(psputerm_ld_start(1)+j)
               j = j + 1
-              call psputerm_gen_l_density(ispin,ne,nproj,
-     >                     int_mb(l_projector(1)
-     >                            +(ia-1)*(nmax_max*lmmax_max)),
-     >                     int_mb(m_projector(1)
-     >                           +(ia-1)*(nmax_max*lmmax_max)),
-     >                     dbl_mb(sw2(1)),
-     >                     int_mb(psputerm_l(1)+nu-1),
-     >                     2*int_mb(psputerm_l(1)+nu-1)+1,
-     >                     dbl_mb(ld_ptr))
+              if (ld_update) then
+                 call psputerm_gen_l_density(ispin,ne,nproj,
+     >                        int_mb(l_projector(1)
+     >                               +(ia-1)*(nmax_max*lmmax_max)),
+     >                        int_mb(m_projector(1)
+     >                              +(ia-1)*(nmax_max*lmmax_max)),
+     >                        dbl_mb(sw2(1)),
+     >                        int_mb(psputerm_l(1)+nu-1),
+     >                        2*int_mb(psputerm_l(1)+nu-1)+1,
+     >                        dbl_mb(ld_ptr))
+              end if
               call psputerm_gen_vmm(ispin,
      >                     int_mb(psputerm_l(1)+nu-1),
      >                     2*int_mb(psputerm_l(1)+nu-1)+1,
@@ -346,15 +348,29 @@
      >                     vmm,dbl_mb(sw2(1)),dbl_mb(sw3(1)))
            end if
            end do
+
+           call Multiply_Gijl_sw1(nn,
+     >                         nproj,
+     >                         int_mb(nmax(1)+ia-1),
+     >                         int_mb(lmax(1)+ia-1),
+     >                         int_mb(n_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(l_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(m_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         dbl_mb(Gijl_indx),
+     >                         dbl_mb(sw3(1)),
+     >                         dbl_mb(sw2(1)))
         
 *          **** do Kleinman-Bylander Multiplication ****
            call dscal(nn*int_mb(nprj(1)+ia-1)*nprj_mult,
-     >                scal,dbl_mb(sw3(1)),1)
+     >                scal,dbl_mb(sw2(1)),1)
 
           call DGEMM('N','T',2*npack1,nn,int_mb(nprj(1)+ia-1)*nprj_mult,
      >               (1.0d0),
      >               dcpl_mb(prjtmp(1)), 2*npack1,
-     >               dbl_mb(sw3(1)),     nn,
+     >               dbl_mb(sw2(1)),     nn,
      >               (1.0d0),
      >               psi2,               2*npack1)
 
@@ -363,8 +379,8 @@
         do l=1,nproj
              do n=1,nn
                 if (ispin.eq.1) 
-     >            dbl_mb(sw3(1)+n-1+(l-1)*nn)
-     >            =2.0d0*dbl_mb(sw3(1)+n-1+(l-1)*nn) !// change
+     >            dbl_mb(sw2(1)+n-1+(l-1)*nn)
+     >            =2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
 
 #ifndef CRAY
 !DIR$ ivdep
@@ -399,17 +415,17 @@
              ff(2) = 0.0d0
              ff(3) = 0.0d0
              do n=1,nn
-                ff(1) = ff(1) + 2.0d0*dbl_mb(sw3(1)+n-1+(l-1)*nn) !// change
+                ff(1) = ff(1) + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
      >                               *dbl_mb(asum(1)+  3*(n-1))
-                ff(2) = ff(2) + 2.0d0*dbl_mb(sw3(1)+n-1+(l-1)*nn) !// change
+                ff(2) = ff(2) + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
      >                               *dbl_mb(asum(1)+1+3*(n-1))
-                ff(3) = ff(3) + 2.0d0*dbl_mb(sw3(1)+n-1+(l-1)*nn) !// change
+                ff(3) = ff(3) + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
      >                               *dbl_mb(asum(1)+2+3*(n-1))
              end do
              call D1dB_Vector_SumAll(3,ff)
-             fion(1,ii) = fion(1,ii)  + ff(1)
-             fion(2,ii) = fion(2,ii)  + ff(2)
-             fion(3,ii) = fion(3,ii)  + ff(3)
+             fion(1,ii) = fion(1,ii)  - ff(1)
+             fion(2,ii) = fion(2,ii)  - ff(2)
+             fion(3,ii) = fion(3,ii)  - ff(3)
        
         end do !** l **
         end if !** move **
@@ -433,6 +449,276 @@
 
       return 
       end
+
+
+*     ***********************************
+*     *					*
+*     *	      f_psp_U_v_nonlocal	*
+*     *					*
+*     ***********************************
+
+*    This routine computes the Kleinman-Bylander non-local 
+* pseudopotential projection.
+*
+*  Note - This routine was restructured 5-13-2002 to improve
+*         parallel efficiency.
+*
+      subroutine f_psp_U_v_nonlocal(ispin,ne,psi1,fion,
+     >                            fractional,occ,ld_update)
+      implicit none
+      integer    ispin,ne(2)
+      complex*16 psi1(*)
+      real*8 fion(3,*)
+      logical fractional
+      real*8 occ(*)
+      logical ld_update
+
+#include "mafdecls.fh"
+#include "psp.fh"
+#include "errquit.fh"
+
+*     *** local variables ***
+      integer G(3),npack1,nion,nu
+      integer i,j,ii,ia,l,n,nn
+      integer k,shift,l_prj,nproj,Gijl_indx
+      real*8  omega,scal,ff(3)
+      complex*16 ctmp
+      integer exi(2),xtmp(2),sw1(2),sw2(2),sw3(2),asum(2)
+      logical value,sd_function
+      real*8 vmm(50)
+      integer ld_ptr
+
+*     **** external functions ****
+      logical  is_sORd
+      integer  ion_nion,ion_katm,Pack_G_indx
+      integer  psi_data_get_ptr,psi_data_get_chnk
+      real*8   lattice_omega
+      external is_sORd
+      external ion_nion,ion_katm,Pack_G_indx
+      external psi_data_get_ptr,psi_data_get_chnk
+      external lattice_omega
+
+      call nwpw_timing_start(6) 
+
+*     **** allocate local memory ****
+      nion = ion_nion()
+      nn = ne(1)+ne(2)
+      call Pack_npack(1,npack1)
+
+      value = MA_push_get(mt_dcpl,npack1,'exi', exi(2), exi(1))
+      value = value.and.
+     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw1',sw1(2),sw1(1))
+      value = value.and.
+     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw2',sw2(2),sw2(1))
+      value = value.and.
+     >   MA_push_get(mt_dbl,nn*nprj_max*nprj_mult,'sw3',sw3(2),sw3(1))
+      if (.not.value) 
+     >  call errquit('v_nonlocal: out of stack',0, MA_ERR)
+
+      value = value.and.MA_push_get(mt_dbl,npack1,
+     >                               'xtmp',xtmp(2),xtmp(1))
+      value = value.and.MA_push_get(mt_dbl,3*nn,'asum',asum(2),asum(1))
+      if (.not. value) 
+     > call errquit('v_nonlocal:out of stack memory',1,MA_ERR)
+
+      G(1)  = Pack_G_indx(1,1)
+      G(2)  = Pack_G_indx(1,2)
+      G(3)  = Pack_G_indx(1,3)
+
+      omega = lattice_omega()
+      scal = 1.0d0/omega
+
+      j = 0
+      psputerm_edftu = 0.0d0
+      psputerm_pdftu = 0.0d0
+      do ii=1,nion
+        value = .false.
+        do nu=1,pspnuterms
+           value=value.or.log_mb(psputerm_ions(1)+ii-1+(nu-1)*nion)
+        end do
+        if (value) then
+           ia=ion_katm(ii)
+           nproj = int_mb(nprj(1)+ia-1)
+
+*          **** structure factor and local pseudopotential ****
+           call strfac_pack(1,ii,dcpl_mb(exi(1)))
+
+*          **** generate sw1's and projectors ****
+           do l=1,nproj
+              shift = psi_data_get_ptr(int_mb(vnl(1)+ia-1),l)
+              l_prj = int_mb(l_projector(1)+(l-1) 
+     >                                  + (ia-1)*(nmax_max*lmmax_max))
+
+#ifdef GCC4
+              k = iand(l_prj,1)
+#else
+              k = and(l_prj,1)
+#endif
+              sd_function = (k.eq.0)
+
+*             *** current function is s or d ****
+              if (sd_function) then
+                 call Pack_tc_Mul(1,dbl_mb(shift),
+     >                              dcpl_mb(exi(1)),
+     >                              dcpl_mb(prjtmp(1)+(l-1)*npack1))
+
+*             *** current function is p or f ****
+              else
+                 call Pack_tc_iMul(1,dbl_mb(shift),
+     >                              dcpl_mb(exi(1)),
+     >                              dcpl_mb(prjtmp(1)+(l-1)*npack1))
+
+              end if
+              call Pack_cc_indot(1,nn,
+     >                      psi1,
+     >                      dcpl_mb(prjtmp(1)+(l-1)*npack1),
+     >                      dbl_mb(sw1(1)+(l-1)*nn))
+           end do
+           call D3dB_Vector_SumAll((nn*nproj*nprj_mult),dbl_mb(sw1(1)))
+
+*          **** sw2 = Gijl*sw1 ******
+           Gijl_indx = psi_data_get_ptr(int_mb(Gijl(1)+ia-1),1)
+           call Multiply_Gijl_sw1(nn,
+     >                         nproj,
+     >                         int_mb(nmax(1)+ia-1),
+     >                         int_mb(lmax(1)+ia-1),
+     >                         int_mb(n_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(l_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(m_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         dbl_mb(Gijl_indx),
+     >                         dbl_mb(sw1(1)),
+     >                         dbl_mb(sw2(1)))
+
+           call dcopy(nn*nproj,0.0d0,0,dbl_mb(sw3(1)),1)
+           do nu=1,pspnuterms
+           if (log_mb(psputerm_ions(1)+ii-1+(nu-1)*nion)) then
+              ld_ptr =psputerm_ld(1)+int_mb(psputerm_ld_start(1)+j)
+              j = j + 1
+              if (ld_update) then
+                 call psputerm_gen_l_density(ispin,ne,nproj,
+     >                        int_mb(l_projector(1)
+     >                               +(ia-1)*(nmax_max*lmmax_max)),
+     >                        int_mb(m_projector(1)
+     >                              +(ia-1)*(nmax_max*lmmax_max)),
+     >                        dbl_mb(sw2(1)),
+     >                        int_mb(psputerm_l(1)+nu-1),
+     >                        2*int_mb(psputerm_l(1)+nu-1)+1,
+     >                        dbl_mb(ld_ptr))
+              end if
+              call psputerm_gen_vmm(ispin,
+     >                     int_mb(psputerm_l(1)+nu-1),
+     >                     2*int_mb(psputerm_l(1)+nu-1)+1,
+     >                     dbl_mb(psputerm_uscale(1)+nu-1),
+     >                     dbl_mb(psputerm_jscale(1)+nu-1),
+     >                     dbl_mb(psputerm_vmmmm(1)
+     >                           +int_mb(psputerm_vstart(1)+nu-1)),
+     >                     dbl_mb(ld_ptr),vmm,
+     >                     psputerm_edftu,psputerm_pdftu)
+              call psputerm_add_upotential(ispin,ne,nproj,
+     >                     int_mb(l_projector(1)
+     >                            +(ia-1)*(nmax_max*lmmax_max)),
+     >                     int_mb(m_projector(1)
+     >                           +(ia-1)*(nmax_max*lmmax_max)),
+     >                     int_mb(psputerm_l(1)+nu-1),
+     >                     2*int_mb(psputerm_l(1)+nu-1)+1,
+     >                     vmm,dbl_mb(sw2(1)),dbl_mb(sw3(1)))
+           end if
+           end do
+
+           call Multiply_Gijl_sw1(nn,
+     >                         nproj,
+     >                         int_mb(nmax(1)+ia-1),
+     >                         int_mb(lmax(1)+ia-1),
+     >                         int_mb(n_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(l_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         int_mb(m_projector(1)
+     >                                + (ia-1)*(nmax_max*lmmax_max)),
+     >                         dbl_mb(Gijl_indx),
+     >                         dbl_mb(sw3(1)),
+     >                         dbl_mb(sw2(1)))
+        
+*          **** do Kleinman-Bylander Multiplication ****
+           call dscal(nn*int_mb(nprj(1)+ia-1)*nprj_mult,
+     >                scal,dbl_mb(sw2(1)),1)
+
+
+        do l=1,nproj
+             do n=1,nn
+                if (ispin.eq.1) 
+     >            dbl_mb(sw2(1)+n-1+(l-1)*nn)
+     >            =2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
+
+#ifndef CRAY
+!DIR$ ivdep
+#endif
+                do i=1,npack1
+                   ctmp = psi1(i+(n-1)*npack1)
+     >                  *dconjg(dcpl_mb(prjtmp(1)+(l-1)*npack1 + i-1))
+                   dbl_mb(xtmp(1)+i-1) = dimag(ctmp)
+                end do
+                call Pack_tt_idot(1,dbl_mb(G(1)),dbl_mb(xtmp(1)),
+     >                            dbl_mb(asum(1)+3*(n-1)))
+                call Pack_tt_idot(1,dbl_mb(G(2)),dbl_mb(xtmp(1)),
+     >                            dbl_mb(asum(1)+1+3*(n-1)))
+                call Pack_tt_idot(1,dbl_mb(G(3)),dbl_mb(xtmp(1)),
+     >                            dbl_mb(asum(1)+2+3*(n-1)))
+
+             end do
+
+             call D3dB_Vector_SumAll(3*(nn),dbl_mb(asum(1)))
+
+             !**** fractional weighting ****
+             if (fractional) then
+             do n=1,nn
+              call Dneall_qton(n,i)
+              dbl_mb(asum(1)  +3*(n-1))=dbl_mb(asum(1)  +3*(n-1))*occ(i)
+              dbl_mb(asum(1)+1+3*(n-1))=dbl_mb(asum(1)+1+3*(n-1))*occ(i)
+              dbl_mb(asum(1)+2+3*(n-1))=dbl_mb(asum(1)+2+3*(n-1))*occ(i)
+             end do
+             end if
+  
+             ff(1) = 0.0d0
+             ff(2) = 0.0d0
+             ff(3) = 0.0d0
+             do n=1,nn
+                ff(1) = ff(1) + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
+     >                               *dbl_mb(asum(1)+  3*(n-1))
+                ff(2) = ff(2) + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
+     >                               *dbl_mb(asum(1)+1+3*(n-1))
+                ff(3) = ff(3) + 2.0d0*dbl_mb(sw2(1)+n-1+(l-1)*nn) !// change
+     >                               *dbl_mb(asum(1)+2+3*(n-1))
+             end do
+             call D1dB_Vector_SumAll(3,ff)
+             fion(1,ii) = fion(1,ii)  - ff(1)
+             fion(2,ii) = fion(2,ii)  - ff(2)
+             fion(3,ii) = fion(3,ii)  - ff(3)
+       
+        end do !** l **
+
+
+        end if !** if nproj>0 **
+      end do !** ii **
+
+      value = .true.
+      value = value.and.MA_pop_stack(asum(2))
+      value = value.and.MA_pop_stack(xtmp(2))
+      value = value.and.MA_pop_stack(sw3(2))
+      value = value.and.MA_pop_stack(sw2(2))
+      value = value.and.MA_pop_stack(sw1(2))
+      value = value.and.MA_pop_stack(exi(2))
+      if (.not.value) call errquit('v_nonlocal: popping stack',3,
+     &       MA_ERR)
+      call nwpw_timing_end(6)
+
+      return 
+      end
+
+
 
 
 
@@ -551,10 +837,10 @@
                n4 = m4+l+1
             
                vmm(n1,n2,ms) = vmm(n1,n2,ms)
-     >                       + (vmmmm(n1,n3,n2,n4)-vmmmm(n1,n3,n4,n2))
+     >                       + (vmmmm(n1,n2,n3,n4)-vmmmm(n1,n4,n3,n2))
      >                        *l_density(n3,n4,ms)
                vmm(n1,n2,ms) = vmm(n1,n2,ms)
-     >                       + vmmmm(n1,n3,n2,n4)
+     >                       + vmmmm(n1,n2,n3,n4)
      >                        *l_density(n3,n4,ispin+1-ms)
             end do
             end do
@@ -576,6 +862,7 @@
       end if
       edftu = edftu + edftu1
       pdftu = pdftu + pdftu1
+
 
       return 
       end 
@@ -625,17 +912,6 @@
       end do
       end do
 
-      do ms=1,ispin
-      write(*,*) "ldensity,ms=",ms," --->"
-      trace = 0.0d0
-      do ma=1,lm
-         write(*,*) (l_density(ma,mb,ms),mb=1,lm)
-         trace = trace + l_density(ma,ma,ms)
-      end do
-      write(*,*) "ms=",ms,"  trace=",trace
-      write(*,*)
-      end do
-
       return
       end 
 
@@ -676,7 +952,7 @@
                mb = m_prj(b)+l+1
                ma = m_prj(a)+l+1
                sw3(i,a) = sw3(i,a)
-     >                  + sw2(i,b)*vmm(ma,mb,ms)/dsqrt(omega)
+     >                  - sw2(i,b)*vmm(ma,mb,ms)
             end if
          end do
          end do
