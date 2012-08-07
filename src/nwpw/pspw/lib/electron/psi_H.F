@@ -120,7 +120,7 @@ c     complex*16 vpsi(nfft3d)
 *     *********************************************************
       if (dodftu) then
          call psp_U_v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion,
-     >                         fractional,occ)
+     >                         fractional,occ,.true.)
       end if
 
 
@@ -422,7 +422,7 @@ c     >                      dcpl_mb(vpsi(1)))
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical dohfx
+      logical dohfx,dodftu
       integer nne(2)
       integer nx,ny,nz
       real*8  scal1,fion(3,1)
@@ -435,14 +435,15 @@ c     >                      dcpl_mb(vpsi(1)))
 
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed
-      logical  pspw_HFX,pspw_HFX_relaxed
+      logical  pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm
       real*8   lattice_omega
       external pspw_SIC,pspw_SIC_relaxed
-      external pspw_HFX,pspw_HFX_relaxed
+      external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm
       external lattice_omega
 
 
       dohfx = pspw_HFX().and.pspw_HFX_relaxed().and.hfxon
+      dodftu = psp_U_psputerm().and.hfxon
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -482,6 +483,11 @@ c     >                      dcpl_mb(vpsi(1)))
 *     *********************************************************
       call v_nonlocal(ispin,nne,orb_k,Horb_k,
      >                .false.,fion,.false.,fion)
+
+      if (dodftu) then
+         call psp_U_v_nonlocal(ispin,nne,orb_k,Horb_k,
+     >                .false.,fion,.false.,fion,.false.)
+      end if
 
 *     ***************************
 *     **** SIC corrections?? ****

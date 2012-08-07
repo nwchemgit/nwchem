@@ -4122,6 +4122,8 @@ c     >                 dbl_mb(tmp_L(1)),ierr)
 *     **** external functions ****
       integer  control_version
       external control_version
+      logical  psp_U_psputerm
+      external psp_U_psputerm
 
 c     call electron_gen_psi_r(dcpl_mb(psi1(1)))
 c     call electron_gen_densities(dcpl_mb(psi1(1)),
@@ -4157,6 +4159,14 @@ c    >                            dcpl_mb(dng1(1)))
      >                 dcpl_mb(psi1(1)),
      >                 fion,
      >                 occupation_on,dbl_mb(occ1(1)))
+
+      if (psp_U_psputerm()) then
+         call f_psp_U_v_nonlocal(ispin,
+     >                 neq,
+     >                 dcpl_mb(psi1(1)),
+     >                 fion,
+     >                 occupation_on,dbl_mb(occ1(1)),.true.)
+      end if
       return
       end
 
@@ -4234,6 +4244,34 @@ c    >                            dcpl_mb(dng1(1)))
       return
       end
 
+
+*     ***********************************
+*     *                                 *
+*     *   psi_1force_psp_U_v_nonlocal   *
+*     *                                 *
+*     ***********************************
+      subroutine psi_1force_psp_U_v_nonlocal(fion)
+      implicit none
+      real*8 fion(3,*)
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "psi.fh"
+
+c     **** external functions ****
+      logical  psp_U_psputerm
+      external psp_U_psputerm
+
+      if (psp_U_psputerm()) then
+         call f_psp_U_v_nonlocal(ispin,
+     >                 neq,
+     >                 dcpl_mb(psi1(1)),
+     >                 fion,
+     >                 occupation_on,dbl_mb(occ1(1)),.true.)
+      end if
+
+      return
+      end
 
 
 
