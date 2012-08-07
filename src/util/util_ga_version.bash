@@ -35,7 +35,7 @@ fi
 my_svnversion=`which svnversion`
 ga_dir="$1"
 cd "$path"
-if [ -f ${my_svnversion} ] ; then
+if [ -f "${my_svnversion}" ] ; then
   # svnversion exists, but does .svn?
   if [ -d "../tools/${ga_dir}/.svn" ] ; then
     # .svn exists too

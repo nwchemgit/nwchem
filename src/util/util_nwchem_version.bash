@@ -31,7 +31,7 @@ else
 fi
 my_svnversion=`which svnversion`
 cd "$path"
-if [ -f ${my_svnversion} ] ; then
+if [ -f "${my_svnversion}" ] ; then
   # svnversion exists, but does .svn?
   if [ -d ../../.svn ] ; then
     # .svn exists too
