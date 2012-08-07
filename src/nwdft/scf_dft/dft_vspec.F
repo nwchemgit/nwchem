@@ -282,12 +282,6 @@ c
        close(unitno)
       endif
 c
-c     Broadcast status to other nodes
-c
-      ok = 1
- 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
-      call ga_sync()
-c
  1000 format('== Scalar DFT Virtual Spectrum =='/)
 c
  1400 format(/,'Number of basis functions in AO basis: ',i5,
