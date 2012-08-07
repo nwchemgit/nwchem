@@ -1025,6 +1025,7 @@ c     == is this a oneshot "noscf" type calculation, no diagonalization ==
       if (noscf) then 
         last_time_energy = .true. 
         converged = .true.
+        levelshifting = .false.  ! turn off levelshifting for noscf
       end if
 c
 c     == is this the last energy evaluation ? ==
