@@ -1,3 +1,7 @@
+C> \defgroup geom Geometry Objects
+c
+C> \ingroup geom
+C> @{
       block data geom_data
 C$Id$
       implicit none
@@ -477,6 +481,13 @@ c
       geom_rtdb_ncent = rtdb_get(rtdb, tmp, mt_int, 1, ncent)
 c
       end
+c
+C> \brief Load a geometry from the RTDB
+c
+C> Load a geometry from the RTDB with a specified name.
+C> The name is used also to define the name of the geometry.
+C> If loading storing the geometry was successful return .true., return .false.
+C> otherwise.
       logical function geom_rtdb_load(rtdb, geom, name)
       implicit none
 #include "errquit.fh"
@@ -490,9 +501,9 @@ c
 #include "stdio.fh"
 *     integer node
 c     
-      integer rtdb              ! [input]
-      integer geom              ! [input]
-      character*(*) name        ! [input]
+      integer rtdb              !< [Input] the RTDB handle
+      integer geom              !< [Input] the geometry handle
+      character*(*) name        !< [Input] the name of the geometry
 c     
       double precision scale
       character*256 tmp
@@ -947,6 +958,12 @@ c
       call geom_compute_values(geom)
 c
       end
+c
+C> \brief Store a geometry on the RTDB
+c
+C> Store a geometry onto the RTDB with a specified key, if no key is specified
+C> a key will be constructed from the current geometry name.
+C> If storing the geometry was successful return .true., return .false. otherwise.
       logical function geom_rtdb_store(rtdb, geom, name)
       implicit none
 #include "nwc_const.fh"
@@ -958,9 +975,9 @@ c
 ***** #include "context.fh"
 #include "inp.fh"
 c     
-      integer rtdb              ! [input]
-      character*(*) name        ! [input] ... if blank use current name
-      integer geom              ! [input]
+      integer rtdb              !< [Input] the RTDB handle
+      character*(*) name        !< [Input] the geometry RTDB key
+      integer geom              !< [Input] the geometry handle
       logical geom_check_handle, geom_rtdb_add, geom_rtdb_delete
       external geom_check_handle, geom_rtdb_add, geom_rtdb_delete
       logical s
@@ -1243,6 +1260,12 @@ c
       geom_rtdb_store = .true.
 c     
       end
+c
+C> \brief Delete a geometry from the RTDB
+c
+C> Delete a geometry with a given name from the RTDB.
+C> Return .true. if the geometry was successfully deleted,
+C> return .false. otherwise.
       logical function geom_rtdb_delete(rtdb, name)
       implicit none
 #include "errquit.fh"
@@ -1252,8 +1275,8 @@ c
 #include "inp.fh"
 #include "global.fh"
 c
-      integer rtdb              ! [input]
-      character*(*) name        ! [input]
+      integer rtdb              !< [Input] the RTDB handle
+      character*(*) name        !< [Input] the geometry name
       character*256 translation, tmp, test
       integer lt, geom, geom2, k
       logical status, mode
@@ -1346,6 +1369,13 @@ c
       end do
 c
       end
+c
+C> \brief Destroy a geometry instance
+c
+C> Destroys a geometry instance. After this operation the geometry handle is
+C> no longer valid.
+C> Returns .true. if the instance was successfully destroyed,
+C> returns .false. otherwise
       logical function geom_destroy(geom)
       implicit none
 #include "errquit.fh"
@@ -1353,7 +1383,7 @@ c
 #include "geomP.fh"
 #include "mafdecls.fh"
 c
-      integer geom              ! [input]
+      integer geom              !< [Input] the geometry handle
       integer i
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
@@ -1931,13 +1961,19 @@ c
       call geom_compute_values(geom)
 c
       end
+c
+C> \brief Get the number of centers of a geometry
+c
+C> Query a geometry for the number of centers in it.
+C> The function returns .true. if geom holds a valid handle,
+C> it returns .false. otherwise.
       logical function geom_ncent(geom, ncent)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom              ! [input]
-      integer ncent             ! [output]
+      integer geom              !< [input] the geometry handle
+      integer ncent             !< [output] the number of centers
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c
@@ -1946,13 +1982,19 @@ c
       ncent = ncenter(geom)
 c      
       end
+c
+C> \brief Set the number of centers of a geometry
+c
+C> Define the number of centers in a geometry.
+C> The function returns .true. if geom holds a valid handle,
+C> it returns .false. otherwise.
       logical function geom_ncent_set(geom, ncent)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom              ! [input]
-      integer ncent             ! [output]
+      integer geom              !< [input] the geometry handle
+      integer ncent             !< [input] the number of centers
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c
@@ -6210,6 +6252,12 @@ C data for 97-103 RA Kendall
       rcoval = rcoval*angstrom_to_au
       geom_get_def_rcov = .true.
       end
+c
+C> \brief Create an new geometry instance
+c
+C> Create a new geometry instance with the specified name.
+C> Return .true. if the instance was successfully created, 
+C> return .false. otherwise.
       logical function geom_create(geom, name)
       implicit none
 #include "nwc_const.fh"
@@ -6217,8 +6265,8 @@ C data for 97-103 RA Kendall
 #include "inp.fh"
 #include "stdio.fh"
 c     
-      integer geom              ! [output]
-      character*(*) name        ! [input]
+      integer geom              !< [Output] the handle of the new geometry
+      character*(*) name        !< [Input] the geometry name
 c
       integer i,j
       external geom_data  ! This for T3D linker
@@ -7192,4 +7240,5 @@ C**********************************************************************
       geom_get_group_number = group_number(geom)
       return
       end
+C> @}
 
