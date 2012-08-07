@@ -55,7 +55,6 @@ c
 c
       integer unitno
       parameter (unitno = 77)
-      integer inntsize,ddblsize
 c
       double precision scal
       double precision two, three
@@ -64,8 +63,6 @@ c
       parameter (au2ev=27.211396)
 c
 c     Preliminaries
-c
-      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       nodezero=(ga_nodeid().eq.0)
 c
 c     Defaults
