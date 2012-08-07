@@ -37,6 +37,19 @@ static int parallel_mode=PARALLEL; /* Current mode SEQUENTIAL/PARALLEL */
 @{
 */
 
+/**
+  \brief Change the RTDB access mode
+
+  The RTDB can be accessed in a serial or parallel mode. In either case only
+  process rank 0 actually interacts with the RTDB. In parallel mode accesses
+  to the RTDB behave as collective operations. I.e. all processes block on 
+  rtdb_put operations in addition on rtdb_get operations all processes receive
+  the same data. In serial mode only process rank 0 should make RTDB calls.
+
+  \param mode [Input] the new access mode (valid values SEQUENTIAL, PARALLEL)
+
+  \return the old access mode value
+*/
 int rtdb_parallel(const int mode)
 /*
   Set the parallel access mode of all databases to mode and
@@ -83,6 +96,19 @@ static void rtdb_broadcast(const int msg_type, const int ma_type,
   GA_Brdcst(data, len, from);
 }
 
+/**
+  \brief Open an RTDB stored on a given file
+
+  The RTDB is stored on a file. Before the RTDB can be accessed in the program
+  the file needs to be opened. To access the RTDB a handle is associated with
+  with the file and this handle is used in the actual access routines.
+
+  \param filename [Input] the name of the file holding the RTDB
+  \param mode     [Input] the initial access mode of the RTDB
+  \param handle   [Output] the RTBD handle
+
+  \return The return value of the file open command
+*/
 int rtdb_open(const char *filename, const char *mode, int *handle)
 {
   int status;
@@ -108,6 +134,17 @@ int rtdb_open(const char *filename, const char *mode, int *handle)
   return status;
 }
 
+/**
+  \brief Clone the RTDB creating a new file
+
+  Take the filename from the specified RTDB and create a new filename with
+  the specified suffix. Then copy the current RTDB to the new file.
+
+  \param handle [Input] the RTDB handle
+  \param suffix [Input] the suffix for the new RTDB file
+
+  \return the status of the file copy operation
+*/
 int rtdb_clone(const int handle, const char *suffix)
 {
   int status;
@@ -186,6 +223,16 @@ int rtdb_getfname(const int handle,
   return status;
 }
 
+/**
+  \brief Close the RTDB
+
+  Close the specified RTDB, the handle is no longer valid after this operation.
+  \param handle [Input] the RTDB handle
+  \param mode   [Input] the access mode on close, this has to match the actual
+  current access mode
+
+  \return the status from the file close operation
+*/
 int rtdb_close(const int handle, const char *mode)
 {
   int status;
@@ -223,6 +270,20 @@ int rtdb_close(const int handle, const char *mode)
   return status;
 }
 
+/**
+  \brief Store data on the RTDB
+
+  Store data on the specified RTDB. The data is stored with a key by which it
+  can be reference for retrieval.
+
+  \param handle  [Input] the RTDB handle
+  \param name    [Input] the key for the data
+  \param ma_type [Input] the type of the data specified by one of the MA data types (see mafdecls.fh)
+  \param nelem   [Input] the number of elements of the specified type
+  \param array   [Input] the actual data
+
+  \return the status of the write operation
+*/
 int rtdb_put(const int handle, const char *name, const int ma_type,
 	     const int nelem, const void *array)
 {
@@ -260,6 +321,20 @@ int rtdb_put(const int handle, const char *name, const int ma_type,
   return status;
 }
 
+/**
+  \brief Retrieve data from the RTDB
+
+  Retrieve the data associated with the specified key from the RTDB and 
+  return it in the provided array.
+
+  \param handle  [Input] the RTDB handle
+  \param name    [Input] the key for the data
+  \param ma_type [Input] the type of the data specified by one of the MA data types (see mafdecls.fh)
+  \param nelem   [Input] the number of elements of the specified type
+  \param array   [Output] the actual data retrieved
+
+  \return the status of the read operation
+*/
 int rtdb_get(const int handle, const char *name, const int ma_type,
 		 const int nelem, void *array)
 {
@@ -348,6 +423,23 @@ int rtdb_get_info(const int handle,
   return status;
 }
 
+/**
+  \brief Retrieve data from the RTDB of unknown size
+
+  Retrieve the data associated with the specified key from the RTDB. 
+  In this case the size of the data is not known a priory. Hence the size is
+  retrieved from the RTDB as well, an array of the appropriate size is
+  allocated, and the MA handle as well as the size are returned. The calling
+  program is responsible for deallocating the memory.
+
+  \param handle  [Input] the RTDB handle
+  \param name    [Input] the key for the data
+  \param ma_type [Input] the type of the data specified by one of the MA data types (see mafdecls.fh)
+  \param nelem   [Output] the number of elements of the specified type
+  \param array   [Output] the actual data retrieved
+
+  \return the status of the read operation
+*/
 int rtdb_ma_get(const int handle, const char *name, int *ma_type,
 		    int *nelem, int *ma_handle)
 {
@@ -498,7 +590,18 @@ int rtdb_next(const int handle, const int namelen, char *name)
 
   return status;
 }
+/**
+  \brief Print contents of the RTDB
 
+  Prints the contents of the specified RTDB. An additional flag specifies
+  whether only the keys should be printed, or the keys and their values.
+
+  \param handle [Input] the RTDB handle
+  \param print_values [Input] if TRUE print the keys and the values, otherwise
+  just print the keys
+
+  \return the status of the print operation
+*/
 int rtdb_print(const int handle, const int print_values)
 {
   int status;
@@ -534,6 +637,14 @@ int rtdb_print(const int handle, const int print_values)
   return status;
 }
 
+/**
+  \brief Delete the data associated with a key from the RTDB
+
+  \param handle [Input] the RTDB handle
+  \param name   [Input] the key 
+
+  \return the status of the delete operation
+*/
 int rtdb_delete(const int handle, const char *name)
 {
   int status;
