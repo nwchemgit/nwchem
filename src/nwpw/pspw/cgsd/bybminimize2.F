@@ -94,10 +94,10 @@ c
 
 *     ***** pspw_charge external functions ****
       logical  pspw_charge_found,control_precondition,pspw_HFX
-      logical  pspw_HFX_relaxed
+      logical  pspw_HFX_relaxed,psp_U_psputerm
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_found,control_precondition,pspw_HFX
-      external pspw_HFX_relaxed
+      external pspw_HFX_relaxed,psp_U_psputerm
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
       real*8   psi_1_noupdate_energy,psi_eigenvalue
@@ -396,6 +396,13 @@ c      call psi_check()
          call electron_HFX_energies(ehfx,phfx)
          E(26) = ehfx
          E(27) = phfx
+      end if
+
+*     **** DFT+U terms ****
+      if (psp_U_psputerm()) then
+         call electron_U_energies(ehfx,phfx)
+         E(29) =  ehfx
+         E(30) =  phfx
       end if
 
       if (control_fractional()) then

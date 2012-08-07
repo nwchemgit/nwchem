@@ -343,6 +343,7 @@ c            end do
       value = value.and.rtdb_put(rtdb,'pspw:E_hsic',    mt_dbl,1,E(22))
       value = value.and.rtdb_put(rtdb,'pspw:E_xcsic',   mt_dbl,1,E(23))
       value = value.and.rtdb_put(rtdb,'pspw:E_hfx',     mt_dbl,1,E(26))
+      value = value.and.rtdb_put(rtdb,'pspw:E_dftu',    mt_dbl,1,E(29))
       if (.not. value) call errquit(
      >   'cgsd_noit_energy: numerical stress - error writing rtdb',0,
      >       RTDB_ERR)

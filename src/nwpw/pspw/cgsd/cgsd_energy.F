@@ -660,6 +660,10 @@ c      call write_force(nion,G1,"LJ ")
 c      call dcopy(3*nion,0.0d0,0,G1,1)
 c      if (pspw_qmmm_found()) call pspw_qmmm_Q_fion(G1)
 c      call write_force(nion,G1,"Q ")
+
+      call dcopy(3*nion,0.0d0,0,G1,1)
+      call psi_1force_psp_U_v_nonlocal(G1)
+      call write_force(nion,G1,"psp_U_v_nonlocal")
 c*     **** debug ****
       
       call dcopy(3*nion,0.0d0,0,G1,1)

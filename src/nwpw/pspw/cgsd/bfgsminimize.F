@@ -102,8 +102,6 @@ c
       external control_lmbfgs_size
       logical  control_precondition,pspw_HFX,psp_U_psputerm
       external control_precondition,pspw_HFX,psp_U_psputerm
-      real*8   psp_U_psputerm_ehfx, psp_U_psputerm_phfx
-      external psp_U_psputerm_ehfx, psp_U_psputerm_phfx
 
 
       dt = control_time_step()

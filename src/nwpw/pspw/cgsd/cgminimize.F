@@ -96,8 +96,8 @@ c      complex*16 G1(nfft3d,nemax)
       external pspw_charge_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
-      logical  control_precondition,pspw_HFX
-      external control_precondition,pspw_HFX
+      logical  control_precondition,pspw_HFX,psp_U_psputerm
+      external control_precondition,pspw_HFX,psp_U_psputerm
        
   
       call Pack_npack(1,npack1)
@@ -340,6 +340,14 @@ c     call psi_check()
          E(26) = ehfx
          E(27) = phfx
       end if
+
+*     **** DFT+U terms ****
+      if (psp_U_psputerm()) then
+         call electron_U_energies(ehfx,phfx)
+         E(29) =  ehfx
+         E(30) =  phfx
+      end if
+
 
       value = MA_free_heap(G1(2))
       value = value.and.MA_free_heap(G0(2))

@@ -99,6 +99,8 @@ c
 
       real*8   psi_1_noupdate_energy,psi_eigenvalue
       external psi_1_noupdate_energy,psi_eigenvalue
+      logical  psp_U_psputerm
+      external psp_U_psputerm
    
       Ein = E(1)
       call Parallel_taskid(taskid)
@@ -386,6 +388,13 @@ c      call psi_check()
          call electron_HFX_energies(ehfx,phfx)
          E(26) = ehfx
          E(27) = phfx
+      end if
+
+*     **** DFT+U terms ****
+      if (psp_U_psputerm()) then
+         call electron_U_energies(ehfx,phfx)
+         E(29) =  ehfx
+         E(30) =  phfx
       end if
 
       failed = (sd_count.ge.MAX_SD_COUNT)

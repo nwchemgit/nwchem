@@ -97,8 +97,8 @@ c
       integer  control_lmbfgs_size
       external control_lmbfgs_size
    
-      logical  pspw_HFX
-      external pspw_HFX
+      logical  pspw_HFX,psp_U_psputerm
+      external pspw_HFX,psp_U_psputerm
   
 
       dt = control_time_step()
@@ -273,6 +273,14 @@ c     call psi_check()
          E(26) = ehfx
          E(27) = phfx
       end if
+
+*     **** DFT+U terms ****
+      if (psp_U_psputerm()) then
+         call electron_U_energies(ehfx,phfx)
+         E(29) =  ehfx
+         E(30) =  phfx
+      end if
+
 
       return
       end
