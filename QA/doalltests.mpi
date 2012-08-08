@@ -28,5 +28,7 @@ if [[ $status != 0 ]]; then
   echo "ERROR: The script domknwchemrc failed. Exiting."
   exit $status
 fi
+date
 ./domdtests.mpi $nproc
 ./doqmtests.mpi $nproc fast
+date
