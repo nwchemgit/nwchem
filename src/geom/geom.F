@@ -206,14 +206,24 @@ c
       data isystype / max_geom*0/
 c     
       end
+c
+C> \brief Check whether a given handle corresponds to a valid geometry instance
+c
+C> Checks whether a given handle corresponds to a valid and active geometry. If
+C> not a message will be printed on the output.
+c
+C> \return Returns .true. is the handle corresponds to a valid geometry, 
+C> and .false. otherwise.
+c
       logical function geom_check_handle(geom, msg)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "stdio.fh"
 c     
-      integer geom              ! [input]
-      character*(*) msg         ! [input]
+      integer geom              !< [Input] the geometry handle
+      character*(*) msg         !< [Input] the message to be included in the error
+                                !< error message
 c     
       geom_check_handle = geom.gt.0 .and. geom.le.max_geom
       if (geom_check_handle) geom_check_handle = geom_check_handle

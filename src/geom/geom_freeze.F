@@ -5,13 +5,27 @@ C     freeze_orbitals -- freeze number of orbitals in the molecule
 C     atom, return true if successfull, and false if not
 C
 C SYNOPSIS
+C> \ingroup geom
+C> @{
+c
+C> \brief Retrieve the number of frozen core orbitals
+C
+C> Retrieves the number of frozen core orbitals for the specified
+C> geometry instance to be used in a particular code module. I.e. in
+C> an SCF calculation frozen orbitals are never used, but non-zero 
+C> numbers of frozen orbitals are routinely used in many-body methods,
+C> such as MP2 or CCSD(T).
+c
+C> \return The function returns .true. if this number is found, and
+C> .false. otherwise.
+c
       Logical Function geom_freeze (rtdb, geom, module, ncore)
 
       Implicit NONE
-      Integer rtdb                       ! [in] database handle
-      Integer geom                       ! [in] geometry handle for geom_num_core 
-      Character*(*) module               ! [in] name of module
-      Integer ncore                      ! [out] number of frozen core                       
+      Integer rtdb                       !< [Input] the RTDB handle
+      Integer geom                       !< [Input] the geometry handle
+      Character*(*) module               !< [Input] the name of the code module
+      Integer ncore                      !< [Output] the number of frozen core orbitals
       Character*255 a_name               ! freeze by atoms
       Character*255 c_name               ! freeze by core
       Logical status                     ! status variable for rtdb
@@ -45,6 +59,4 @@ C:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
       Return
       End      
-    
-     
-     
+C> @}

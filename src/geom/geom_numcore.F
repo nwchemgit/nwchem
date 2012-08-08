@@ -4,7 +4,19 @@ C     geom_num_core -- return the number of orbitals considered to be
 C     in the "core" in a system
 C
 C SYNOPSIS
-      Logical Function Geom_Num_Core(rtdb, Geom, module, NCore)
+C> \ingroup geom
+C> @{
+c
+C> \brief Calculate the number of core orbitals in a geometry
+C
+C> Determines the number of core orbitals in a system based
+C> simply on the constituent atoms and the standard general chemistry
+C> ideas of core and valence orbitals.
+C
+C> \return Returns .true. if a valid geometry is provided, and
+C> .false. otherwise.
+c
+      logical function geom_num_core(rtdb, geom, module, ncore)
 *
 * $Id$
 *
@@ -21,6 +33,12 @@ C     assume the physical 5d, 7f shells, but if the calculation is
 c     done with cartesian representations of these shells, this approach
 c     will underestimate the actual number of core orbitals in the
 c     calculation.
+C     HvD: I do not believe this is a problem. The way how the physical
+c          orbitals are represented does not impact on which orbitals
+c          are occupied and which ones are not. The only case this fails
+c          is if you limit the basis set so severely that electrons
+c          are forced into the contaminant orbitals. But by that point
+c          you have left any sense of physics well behind anyway...
 C
 C INCLUDE FILES
 #include "nwc_const.fh"
@@ -43,11 +61,11 @@ C LOCAL VARIABLES
       Integer num_elem
       Integer tagfrz(60)
       Integer numfrz(60)
-      Integer Geom     ! [in]  Geometry handle
-      Integer NCore    ! [out] Number of orbitals considered core
-      Integer rtdb     ! [in]  Runtime database handle
+      Integer rtdb         !< [Input] the RTDB handle
+      Integer Geom         !< [Input] the geometry handle
+      character*(*) module !< [Input] the code module
+      Integer NCore        !< [Output] the number of core orbitals
       Integer tag
-      character*(*) module
       character*80 key 
       character*20 space
       Integer mlen
@@ -114,3 +132,4 @@ C
 C
       Return
       End
+C> @}
