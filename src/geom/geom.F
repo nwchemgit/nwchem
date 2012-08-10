@@ -256,6 +256,12 @@ c
       end if
 c     
       end
+c
+C> \brief Prints summary information about every geometry in the RTDB
+c
+C> This routine extracts information about all geometries from the RTDB.
+C> The information is summarized and printed on standard output.
+c
       subroutine geom_print_known_geoms(rtdb)
       implicit none
 #include "nwc_const.fh"
@@ -266,7 +272,7 @@ c
 #include "global.fh"
 #include "stdio.fh"
 c     
-      integer rtdb              ! [input]
+      integer rtdb              !< [Input] the RTDB handle
 c     
       integer geom, ma_type, natom, nelem
       character*26 date
@@ -468,14 +474,25 @@ c
       end if
 c     
       end
+c
+C> \brief Extract the number of centers directly from the RTDB
+c
+C> For a named geometry this function extracts the number of centers
+C> directly from the RTDB. I.e. this routine bypasses all of the usual
+C> geometry infra-structure and directly exploits the stored data 
+C> format.
+c
+C> \return Return .true. if the number of centers was found
+C> successfully, and .false. otherwise.
+c
       logical function geom_rtdb_ncent(rtdb, name, ncent)
       implicit none
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "inp.fh"
-      integer rtdb              ! [input]
-      character*(*) name        ! [input]
-      integer ncent             ! [output]
+      integer rtdb              !< [Input] the RTDB handle
+      character*(*) name        !< [Input] the geometry name
+      integer ncent             !< [Output] the number of centers
 c
 c     Return the number of atoms in a geometry that is
 c     stored on the database ... a convenience routine.
@@ -861,6 +878,14 @@ c
       
 c     
       end
+c
+C> \brief Compute and store the nuclear repulsion and nuclear dipole -
+C> external field energies
+c
+C> Compute and store the energies that depend on the atomic positions,
+C> such as the nuclear - nuclear repulsion energy, and the nuclear
+C> dipole - external field interaction energy.
+c
       subroutine geom_compute_values(geom)
       implicit none
 #include "nwc_const.fh"
@@ -868,7 +893,7 @@ c
 #include "util.fh"
 #include "inp.fh"
 #include "stdio.fh"
-      integer geom              ! [input]
+      integer geom !< [Input] the geometry handle
 c
 c     compute effective nuclear repulsion energy, dipole and
 c     interaction with external fields
@@ -939,12 +964,24 @@ c
       endif
 c
       end
+c
+C> \brief Look up whether Bq - Bq interactions should be calculated
+c
+C> Point charges (Bq centers) have many uses in quantum chemistry
+C> models. In some applications Bq - Bq interactions are an important
+C> component of the energy expression, in other applications these
+C> interactions should be omitted. This function returns what has been
+C> specified for this interaction in this geometry instance.
+c
+C> \return Return .true. if Bq - Bq interactions should be evaluated,
+C> and .false. otherwise.
+c
       logical function geom_include_bqbq(geom)
       implicit none
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
-      integer geom
+      integer geom !< [Input] the geometry handle
       logical geom_check_handle
       external geom_check_handle
 c
@@ -1444,14 +1481,24 @@ c        try car file style names
       endif
 c
       end
-      
+c
+C> \brief Define velocities for the centers
+c
+C> In dynamics simulations the centers in the system move with a
+C> velocity. This function allows these velocities to be stored in 
+C> a geometry instance. It is assumed that the number of centers in 
+C> the geometry has already been defined.
+c
+C> \return Returns .true. if the velocities were stored successfully,
+C> and .false. otherwise.
+c
       logical function geom_vel_set(geom, vel)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom              ! [input]
-      double precision vel(3, *) ! [input]
+      integer geom               !< [Input] the geometry handle
+      double precision vel(3, *) !< [Input] the velocities
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c
@@ -1461,13 +1508,22 @@ c
       call dcopy(3*ncenter(geom), vel, 1, velocities(1,1,geom), 1)
 c
       end
+c
+C> \brief Retrieve the velocities of the centers
+c
+C> Retrieves the velocities of the centers in the specified geometry
+C> instance.
+c
+C> \return Return .true. if the velocities we found successfully,
+C> and .false. otherwise.
+c
       logical function geom_vel_get(geom, vel)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom              ! [input]
-      double precision vel(3, *) ! [input]
+      integer geom               !< [Input] the geometry handle
+      double precision vel(3, *) !< [Output] the center velocities
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c
@@ -2046,13 +2102,21 @@ c
       ncenter(geom) = ncent
 c      
       end
+c
+C> \brief Extracts the number of symmetry unique centers
+c
+C> This function extracts the number of symmetry unique centers from
+C> a geometry instance.
+c
+C> \return Returns .true. if successfull, and .false. otherwise.
+c
       logical function geom_ncent_unique(geom, ncent)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom              ! [input]
-      integer ncent             ! [output]
+      integer geom              !< [Input] the geometry handle
+      integer ncent             !< [Output] the number of unique centers
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c
@@ -2087,14 +2151,21 @@ c
       geom_isbq = inp_compare(0,tag,'bq')
 c
       end
+c
+C> \brief Look the tag of a specific center up
+c
+C> Extracts the tag of a specified center from the geometry instance.
+c
+C> \return Return .true. if the tag was found, and .false. otherwise.
+c
       logical function geom_cent_tag(geom, icent, tag)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom              ! [input]
-      integer icent             ! [input]
-      character*16 tag          ! [output]
+      integer geom              !< [Input] the geometry handle
+      integer icent             !< [Input] the center rank
+      character*16 tag          !< [Output] the center tag
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c
@@ -2147,6 +2218,16 @@ c
       endif
       geom_efield_get = .true.
       end
+c
+C> \brief Print the geometry in XYZ format
+c
+C> Write the specified geometry in ASCII to the specified file. The
+C> geometry is written in the usual XYZ format. This implies converting
+C> the units of the coordinates to Angstrom.
+c
+C> \return Returns .true. if the geometry was successfully printed,
+C> and .false. otherwise.
+c
       logical function geom_print_xyzq(geom, unit)
       implicit none
 #include "nwc_const.fh"
@@ -2154,7 +2235,8 @@ c
 #include "util.fh"
 #include "inp.fh"
 #include "stdio.fh"
-      integer geom, unit
+      integer geom !< [Input] the geometry handle
+      integer unit !< [Input] the file unit number
       integer j, icent
       double precision scale
       logical geom_check_handle
@@ -3276,6 +3358,15 @@ c
 c
       end
 c
+C> \brief Tests for super imposed atoms
+c
+C> A common error in geometries is to have two atoms essentially on
+C> top of eachother. Usually this leads to problems in calculations.
+C> This routine checks for such occurances.
+c
+C> \return Return .true. if no atoms are on top of eachother,
+C> and .false. otherwise.
+c
       logical function geom_verify_coords(geom)
       implicit none
 #include "errquit.fh"
@@ -3287,7 +3378,7 @@ c::functions
       external geom_ncent
       external geom_cent_get
 c::passed
-      integer geom ! geometry handle
+      integer geom !< [input] the geometry handle
 c::local
       integer nat, iat, jat, num2compare, atomi, atomj
       integer i,j
@@ -3356,11 +3447,19 @@ c
 c---> new functions added on incorporation on symmetry and solid state codes
 c
 c
+C> \brief Retrieve the system type for a given geometry
+c
+C> The system type indicates the number of dimensions in which the
+C> system is periodic. 
+c
+C> \return Return .true. if the system type was found successfully, and
+C> .false. otherwise.
+c
       logical function geom_systype_get(geom, itype)
 #include "nwc_const.fh"
 #include "geomP.fh"
-      integer geom              ! [input]
-      integer itype
+      integer geom              !< [Input] the geometry handle
+      integer itype             !< [Output] the system type
       logical geom_check_handle
       external geom_check_handle
 
@@ -3618,14 +3717,24 @@ c
       return
       end
 
-
+c
+C> \brief Retrieve the fractional to Cartesian transformation matrix
+c
+C> Look up the transformation matrix that transforms fractional to
+C> Cartesian coordinates for a geometry instance. The matrix is a simple
+C> 3x3 matrix.
+c
+C> \return Return .true. if the matrix was successfully found, and
+C> .false. otherwise.
+c
       logical function geom_amatrix_get(geom,amat)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom,i,j               ! [input]
-      double precision amat(3,3)     ! [output]
+      integer geom               !< [Input] the geometry handle
+      double precision amat(3,3) !< [Output] the transformation matrix
+      integer i,j
       logical geom_check_handle
       external geom_check_handle
 
@@ -3638,14 +3747,27 @@ c
         end do
       end do
       end
+c
+C> \brief Set the fractional to Cartesian transformation matrix
+c
+C> Stores the transformation matrix that transforms fractional to
+C> Cartesian coordinates in a geometry instance. This matrix is a
+C> simple 3x3 matrix. In addition the inverse transformation is
+C> calculated and stored as well, and the lattice parameters are
+C> updated.
+c
+C> \return Return .true. when the transformation was stored
+C> successfully, and .false. otherwise
+c
       logical function geom_amatrix_set(geom,amat)
       implicit none
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom,i,j               ! [input]
-      double precision amat(3,3)     ! [output]
+      integer geom               !< [Input] the geometry handle
+      double precision amat(3,3) !< [Input] the transformation matrix
+      integer i,j
       logical geom_check_handle, geom_get_user_scale
       external geom_check_handle
 c
@@ -3837,13 +3959,16 @@ c
          unique_cent(i,geom)=uniquecent(i)
       enddo
       end
+c
+C> \brief Retrieve the conversion factor from user units to atomic units
+C> \return Return .true. if successfull, and .false. otherwise
       logical function geom_get_user_scale(geom, scale)
       implicit none
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
-      integer geom              ! [input]
-      double precision scale    ! [output] Conversion from user units to A.U.
+      integer geom           !< [Input] the geometry handle
+      double precision scale !< [Output] the unit conversion factor
       logical geom_check_handle
       external geom_check_handle
 c
@@ -3877,12 +4002,24 @@ c
       user_units(geom) = units
 c
       end
+c
+C> \brief Retrieves the unit of the coordinates specified by the user
+c
+C> Internally the code always uses atomic units to store the
+C> coordinates. However, in the input file the user may choose different
+C> units, such as Angstrom, or nm. This function retrieves which units
+C> the user used to specify the geometry. This allows, e.g. the 
+C> geometry to be printed in the same units it was specified in.
+c
+C> \return Return .true. if the function was successfull, and .false.
+C> otherwise.
+c
       logical function geom_get_user_units(geom, units)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
-      integer geom
-      character*(*) units       ! [output] 
+      integer geom        !< [Input] the geometry handle
+      character*(*) units !< [Output] the user units
       logical geom_check_handle
       external geom_check_handle
 c
@@ -4017,14 +4154,23 @@ c
       enddo
 c
       end      
+c
+C> \brief Retrieve the masses of the centers
+c
+C> Retrieves the masses associated with the centers in a geometry
+C> instance.
+c
+C> \return Return .true. if the function was successfull, and .false.
+C> otherwise.
+c
       logical function geom_masses_get(geom, ncent, masses)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c
-      integer geom                   ! [input] geometry handle
-      integer ncent                  ! [input] number of centers
-      double precision masses(ncent) ! [output] mass on each center
+      integer geom                   ! [Input] the geometry handle
+      integer ncent                  ! [Output] the number of centers
+      double precision masses(ncent) ! [Output] the mass on each center
 c
       integer i
 c
@@ -6710,11 +6856,24 @@ c
      &       MA_ERR)
       return
       end
+c
+C> \brief Converts center coordinates from Cartesian to fractional
+C> coordinates
+c
+C> In finite systems Cartesian coordinates are in common use whereas
+C> in crystal structures fractional coordinates are used. This routine
+C> converts a set of Cartesian coordinates into the corresponding 
+C> fractional coordinates based on a transformation that is stored
+C> within the geometry instance.
+c
+C> \return Return .true. if the conversion was successful, and .false.
+C> otherwise.
+c
       logical function geom_cart_to_frac(geom, c)
       implicit none
 #include "errquit.fh"
-      integer geom
-      double precision c(3,*)
+      integer geom            !< [Input] the geometry handle
+      double precision c(3,*) !< [Input|Output] the center coordinates
 c
       integer iat, nat, i, j
       logical geom_check_handle, geom_amatinv_get, geom_ncent
@@ -6745,11 +6904,24 @@ c
       end do
 c
       end
+c
+C> \brief Converts center coordinates from fractional to Cartesian
+C> coordinates
+c
+C> In finite systems Cartesian coordinates are in common use whereas
+C> in crystal structures fractional coordinates are used. This routine
+C> converts a set of fractional coordinates into the corresponding 
+C> Cartesian coordinates based on a transformation that is stored
+C> within the geometry instance.
+c
+C> \return Return .true. if the conversion was successful, and .false.
+C> otherwise.
+c
       logical function geom_frac_to_cart(geom, c)
       implicit none
 #include "errquit.fh"
-      integer geom
-      double precision c(3,*)
+      integer geom            !< [Input] the geometry handle
+      double precision c(3,*) !< [Input|Output] the center coordinates
 c
       integer iat, nat, i, j
       logical geom_check_handle, geom_amatrix_get, geom_ncent
