@@ -1803,13 +1803,21 @@ c
 c
       end
 c
+C> \brief Extracts the coordinates of all centers in a geometry
+c
+C> Extracts the coordinates of all centers in a geometry assuming
+C> that the caller has made sure the buffer is big enough. If the
+C> buffer is too small the results are undefined.
+c
+C> \return Returns .true. if the function was successfull,
+C> and .false. otherwise.
       logical function geom_cart_coords_get(geom, c)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom              ! [input]
-      double precision c(3, *) ! [output]
+      integer geom             !< [Input] the geometry handle
+      double precision c(3, *) !< [Output] the Cartesian coordinates
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
       integer i, ncent
@@ -1826,13 +1834,22 @@ c
       end do
 c
       end
+c
+C> \brief Defines the coordinates of all centers in a geometry
+c
+C> Defines the coordinates of all centers in a geometry assuming
+C> that the caller has previously defined how many centers there
+C> are (see e.g. geom_ncent_set). 
+c
+C> \return Returns .true. if the function was successfull,
+C> and .false. otherwise.
       logical function geom_cart_coords_set(geom, c)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom              ! [input]
-      double precision c(3, *) ! [output]
+      integer geom             !< [Input] the geometry handle
+      double precision c(3, *) !< [Input] the coordinates
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
       integer i, ncent
@@ -1849,16 +1866,24 @@ c
       end do
 c
       end
+c
+C> \brief Look up data of a specific atom
+c
+C> Extracts the data, such as the tag, coordinates and charge, of a
+C> specific center of a geometry instance. The center of interest is
+C> given by the rank of the center.
+c
+C> \return Returns .true. if the function was successful, .false. otherwise.
       logical function geom_cent_get(geom, icent, t, c, q)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom              ! [input]
-      integer icent             ! [input]
-      character*16 t            ! [output]
-      double precision c(3)     ! [output]
-      double precision q        ! [output]
+      integer geom              !< [Input] the geometry handle
+      integer icent             !< [Input] the center rank
+      character*16 t            !< [Output] the center tag
+      double precision c(3)     !< [Output] the center coordinates
+      double precision q        !< [Output] the center charge
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c
@@ -1876,16 +1901,24 @@ c
       geom_cent_get = .true.
 c
       end
+c
+C> \brief Set the data of a specific atom
+c
+C> Defines the data, such as the tag, coordinates and charge, of a
+C> specific center of a geometry instance. The center of interest is
+C> given by the rank of the center.
+c
+C> \return Returns .true. if the function was successful, .false. otherwise.
       logical function geom_cent_set(geom, icent, t, c, q)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom              ! [input]
-      integer icent             ! [input]
-      character*16 t            ! [input]
-      double precision c(3)     ! [input]
-      double precision q        ! [input]
+      integer geom              !< [Input] the geometry handle
+      integer icent             !< [Input] the center rank
+      character*16 t            !< [Input] the center tag
+      double precision c(3)     !< [Input] the center coordinates
+      double precision q        !< [Input] the center charge
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c
@@ -2271,6 +2304,15 @@ c
       end do
 c
       end
+c
+C> \brief Print the contents of a geometry instance
+c
+C> Prints the contents of a geometry instance, irrespective
+C> of whether it is a molecule or a crystal structure.
+C> The output is always provided on standard output.
+c
+C> \return Return .true. if the structure could be printed,
+C> and .false. otherwise.
       logical function geom_print(geom)
       implicit none
 #include "errquit.fh"
@@ -2283,7 +2325,7 @@ c
 c     Basic printing of cartesian geometry 
 c     needs support for internal coords, different formats, ...
 c     
-      integer geom              ! [input]
+      integer geom              !< [Input] the geometry handle
       integer icent, jcent
       integer i
       double precision scale, tmp(3),twopi
@@ -2550,6 +2592,19 @@ c
       geom_tag_to_covalent_radius = geom_get_def_rcov(atn, radius)
 c
       end
+c
+C> \brief Converts an atom tag into a chemical element
+c
+C> Tags are names used to identify atoms in geometries. These tags allow
+C> for considerable flexibility to specify centers, e.g. valid tags for
+C> a Carbon atom are: Carbon, C, C14, C_alpha. However, in a chemistry
+C> code at some point we just need to know that we are dealing with a
+C> Carbon atom. This routine analyses a given tag and returns the
+C> element it specifies.
+c
+C> \return Returns .true. if the chemical element could be established,
+C> and .false. otherwise.
+c
       logical function geom_tag_to_element(tag, symbol, element, atn)
       implicit none
 #include "inp.fh"
@@ -2557,10 +2612,10 @@ c
 #include "geomP.fh"
       character*2 symbols(nelements)
       character*16 elements(nelements)
-      character*16 tag          ! [input]
-      character*(*) symbol      ! [output]
-      character*(*) element     ! [output]
-      integer atn               ! [output]
+      character*16 tag          !< [Input] the tag, e.g. He232
+      character*(*) symbol      !< [Output] the chemical symbol, e.g. He
+      character*(*) element     !< [Output] the element, e.g. Helium
+      integer atn               !< [Output] the nuclear charge, e.g. 2
 c
 c     attempt to figure out which element a tag refers to
 c     and return the symbol, name and atomic no.
@@ -6796,7 +6851,11 @@ c
       geom_makec1 = .true.
       return
       end  
-
+c
+C> \brief Returns whether there is an active external Bq instance.
+c
+C> \return Returns .true. if there is an active external Bq instance,
+C> and .false. otherwise.
       function geom_extbq_on()
       implicit none
 #include "bq.fh"
@@ -6804,7 +6863,20 @@ c
       geom_extbq_on = bq_on() 
       return
       end
-
+c
+C> \brief Look up the number of centers in the external Bq instance
+c
+C> A problem with geometries is that the maximum number of centers is
+C> fixed. In particular for QM/MM calculations this is problematic 
+C> as the embedding requires up to thousands of point charges. To 
+C> address this issue the point charges can be stored in an instance
+C> outside of the geometry. These external Bq instances require an
+C> interface of their own to interact with them. This particular
+C> function extracts the number of Bq centers in the active
+C> external Bq instance.
+C
+C> \returns The number of Bq centers in the active external Bq 
+C> instance.
       function geom_extbq_ncenter()
       implicit none
 #include "bq.fh"
@@ -6827,6 +6899,16 @@ c
       return
       end
 
+c
+C> \brief Look up the index of the array holding the Bq charges
+c
+C> The charges of the Bq centers are stored in an array that can
+C> be accessed through an offset in a common block (array dbl_mb in 
+C> mafdecls.fh). This function returns that offset for active 
+C> external Bq instance.
+c
+C> \returns The offset of the Bq charges for the currently
+C> active Bq instance.
       function geom_extbq_charge()
       implicit none
 #include "bq.fh"
@@ -6847,7 +6929,16 @@ c
       geom_extbq_charge = i_qbq
       return
       end
-
+c
+C> \brief Look up the index of the array holding the Bq coordinates
+c
+C> The coordinates of the Bq centers are stored in an array that can
+C> be accessed through an offset in a common block (array dbl_mb in 
+C> mafdecls.fh). This function returns that offset for active 
+C> external Bq instance.
+c
+C> \returns The offset of the Bq coordinates for the currently
+C> active Bq instance.
       function geom_extbq_coord()
       implicit none
 #include "bq.fh"
