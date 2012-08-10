@@ -10,6 +10,7 @@ c $Id$
 #include "global.fh"
 #include "bq_params.fh"
 #include "bq.fh"
+#include "stdio.fh"
 c     
       integer rtdb
 c
@@ -31,14 +32,18 @@ c
       integer handle
       double precision  scale 
       double precision  charge_scale
-
 c
       pname = "bq_input"
 
       call util_print_get_level(print_level)
       hprint = (ga_nodeid().eq.0).and.(print_high.le.print_level)
 c
-      max_nbq = 25000  ! temporary limit for now
+      max_nbq = 25000  ! default number
+      if (.not. rtdb_get(rtdb, 'bq:max_nbq', mt_int, 1, max_nbq))
+     $  max_nbq = 25000
+c
+      if (max_nbq .le. 0) 
+     $  call errquit('bq_input: max_nbq',max_nbq, MA_ERR)
 c
       if ( .not. ma_push_get( MT_DBL, 3*max_nbq, 
      &      'cbq scratch',
@@ -405,16 +410,17 @@ c
      +  call errquit(pname//"cannot get io unit",0,0)
 c     first try to open file in the run directory
       buffer = filename
-      message = "loading bq information from "//buffer
+      message = "loaded bq information from "//buffer
       open(unit=fn,file=buffer,status='old',form="formatted",ERR=10)
       goto 800
 10    continue
 c     now try perm directory
       call util_file_name_resolve(buffer, .false.)
-      message = "loading bq information from "//buffer
+      message = "loaded bq information from "//buffer
       open(unit=fn,file=buffer,status='old',form="formatted",ERR=911)
 800   continue
-      write(luout,*) "success "//trim(message)
+      write(luout,*) "Successfully "//trim(message)
+      write(luout,*)
       return
 911   call errquit("error "//trim(message),0,
      >        -1)
