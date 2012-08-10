@@ -1,7 +1,6 @@
 c
 c     Calculates dipole spectrum between occupied orbitals
 c     specified by the vspec keyword and all virtuals
-c     BVK & NG - 2012
 c
       subroutine dft_vspec(rtdb, ao_bas_han,filename,ipol,nmo,nbf_ao,
      &  nocc, g_movecs,k_eval,owstart,owend)
@@ -41,6 +40,8 @@ c
       integer l_exen,k_exen      ! MA handles for excitation energies 
       integer l_amo,k_amo        ! MA handle of virtual orbs
       integer l_imo,k_imo        ! MA handle of occupied orb
+      integer l_ex_occ, k_ex_occ
+      integer l_ex_virt, k_ex_virt
       integer l_dpx,k_dpx
       integer l_dpy,k_dpy
       integer l_dpz,k_dpz
@@ -51,10 +52,12 @@ c
       logical nodezero
       integer i,j,k,l,nn,jsav,kend,nindex
       double precision esav, sort
+      integer sort_int
       integer ok
 c
       integer unitno
       parameter (unitno = 77)
+      integer inntsize,ddblsize
 c
       double precision scal
       double precision two, three
@@ -63,6 +66,8 @@ c
       parameter (au2ev=27.211396)
 c
 c     Preliminaries
+c
+      inntsize=MA_sizeof(MT_INT,1,MT_BYTE)
       nodezero=(ga_nodeid().eq.0)
 c
 c     Defaults
@@ -70,6 +75,24 @@ c
       do i=1,ipol
         if (owstart(i).le.0) owstart(i) = 1 ! avoids failing
         if (owend(i).le.0) owend(i) = 1  ! avoids failing
+      enddo
+C
+C     Check that user didnt ask for excitations from virtuals, i.e.,
+C     that owstart and owend both correspond to occupied orbitals.
+C
+      do i = 1,ipol
+         if ( (owstart(i).gt.nocc(i)) .or.
+     $        (owend(i).gt.nocc(i)) )
+     $        call errquit("dft_vspec: cannot calculate excitations "//
+     $        "from virtual orbitals, please adjust vspec input",0,0)
+      enddo
+C
+C     Check that starting orbital less than ending one.
+C
+      do i = 1, ipol
+         if (owstart(i).gt.owend(i))
+     $        call errquit ("dft_vspec: invalid orbital range: "//
+     $        "start > end?",0,0)
       enddo
 c
 c     Get oscillator strength scale factor
@@ -132,6 +155,12 @@ c
      &  (mt_dbl,nexcite,'excitation energies',l_exen,k_exen))
      &  call errquit('dft_vspec: failed exen alloc',0,MA_ERR)
       if (.not.ma_push_get
+     &  (mt_int,nexcite,'occupied',l_ex_occ,k_ex_occ))
+     &  call errquit('dft_vspec: failed ex_occ',0,MA_ERR)
+      if (.not.ma_push_get
+     &  (mt_int,nexcite,'virtuals',l_ex_virt,k_ex_virt))
+     &  call errquit('dft_vspec: failed ex_virt',0,MA_ERR)
+      if (.not.ma_push_get
      &  (mt_dbl,nexcite,'x dipoles',l_dpx,k_dpx))
      &  call errquit('dft_vspec: failed dpx alloc',0,MA_ERR)
       if (.not.ma_push_get
@@ -187,6 +216,8 @@ c       account for case when beta but no alpha excitations
               nn=nn+1
               ea = dbl_mb(k_eval(i)+k-1)
               dbl_mb(k_exen+nn-1) = ea-ei
+              int_mb(k_ex_occ+nn-1) = j  !occupied MO for excitation i
+              int_mb(k_ex_virt+nn-1) = k !virtual MO for excitation i
             enddo
           endif
         enddo
@@ -265,19 +296,40 @@ c         fosc
           sort=dbl_mb(k_fosc+i-1)
           dbl_mb(k_fosc+i-1)=dbl_mb(k_fosc+jsav-1)
           dbl_mb(k_fosc+jsav-1)=sort
+c         sort occupied orbitals
+          sort=int_mb(k_ex_occ+i-1)
+          int_mb(k_ex_occ+i-1)=int_mb(k_ex_occ+jsav-1)
+          int_mb(k_ex_occ+jsav-1)=sort
+c         sort virtual orbitals
+          sort=int_mb(k_ex_virt+i-1)
+          int_mb(k_ex_virt+i-1)=int_mb(k_ex_virt+jsav-1)
+          int_mb(k_ex_virt+jsav-1)=sort
         enddo ! sorting
       endif
 c
 c     Output results
 c
       if (nodezero) then
-       write(unitno, 1600)
+         write (unitno, "(1x,a)")
+     $        "      N   Occ  Virt       Energy [eV]        "//
+     $        "<x> [au]          <y> [au]          <z> [au]    "//
+     $        "     fosc [au] "
+         write (unitno, *) ""
        do i=1,nexcite
-        write(unitno,1700) i,dbl_mb(k_exen+i-1)*au2ev,dbl_mb(k_dpx+i-1),
-     &     dbl_mb(k_dpy+i-1),dbl_mb(k_dpz+i-1),dbl_mb(k_fosc+i-1)
+          write (unitno, "(i8,2i6,5e18.6)")
+     $         i, int_mb(k_ex_occ+i-1), int_mb(k_ex_virt+i-1),
+     $         dbl_mb(k_exen+i-1)*au2ev,
+     $         dbl_mb(k_dpx+i-1), dbl_mb(k_dpy+i-1), dbl_mb(k_dpz+i-1),
+     $         dbl_mb(k_fosc+i-1)
        enddo
        close(unitno)
       endif
+c
+c     Broadcast status to other nodes
+c
+      ok = 1
+ 10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
+      call ga_sync()
 c
  1000 format('== Scalar DFT Virtual Spectrum =='/)
 c
@@ -314,6 +366,10 @@ c
      &  ('dft_vspec: failed to deallocate dpy',0,MA_ERR)
       if (.not.ma_pop_stack(l_dpx)) call errquit
      &  ('dft_vspec: failed to deallocate dpx',0,MA_ERR)
+      if (.not.ma_pop_stack(l_ex_virt)) call errquit
+     &  ('dft_vspec: failed to deallocate ex_virt',0,MA_ERR)
+      if (.not.ma_pop_stack(l_ex_occ)) call errquit
+     &  ('dft_vspec: failed to deallocate ex_occ',0,MA_ERR)
       if (.not.ma_pop_stack(l_exen)) call errquit
      &  ('dft_vspec: failed to deallocate exen',0,MA_ERR)
 c
