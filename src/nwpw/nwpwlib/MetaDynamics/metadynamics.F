@@ -367,6 +367,18 @@ c     **********************************************
      >           'periodic= ',int_mb(pmeta(1)+d-1)
              end if
 
+            else if (ntype.eq.7) then
+             write(*,'(A,5x,A,I4,4x,A,I4,
+     >                /6x,A,F11.6,4x,A,F11.6,
+     >                /6x,A,F11.6,F11.6,4x,A,I5,4x,A,I2)')
+     >       "   - local_density_trace Parameters =  ",
+     >           'atom index=',int_mb(indxmeta(1)+s1+1),
+     >           'l=',int_mb(indxmeta(1)+s1+2),
+     >           'w=',w,'sigma=',sigma,
+     >           'range=  ',dbl_mb(ameta(1)+d-1),dbl_mb(bmeta(1)+d-1),
+     >           'nrange= ',int_mb(nxmeta(1)+d-1),
+     >           'periodic=',int_mb(pmeta(1)+d-1) 
+
             end if
 
          end do
@@ -471,10 +483,12 @@ c     *                                            *
 c     *            meta_collective                 *
 c     *                                            *
 c     **********************************************
-      real*8 function meta_collective(indx,param)
+      real*8 function meta_collective(indx,param,ispin,ne,psi1)
       implicit none
       integer indx(*)
       real*8  param(*)
+      integer ispin,ne(2)
+      real*8  psi1
 
 *     **** local variables ****
       integer i,j,ntype,n1,n2
@@ -483,8 +497,8 @@ c     **********************************************
       real*8 nx,ny,nz
 
 *     **** external functions ****
-      real*8   ion_rion
-      external ion_rion
+      real*8   ion_rion,psp_ld_trace
+      external ion_rion,psp_ld_trace
 
       ntype = indx(1)
 
@@ -614,6 +628,12 @@ c     **** n-plane ****
          else
             f = ion_rion(3,indx(3))
          end if
+
+*     **** ld_trace ****
+      else if (ntype.eq.7) then
+         f =  psp_ld_trace(indx(2),indx(3),ispin,ne,psi1)
+
+
       end if
 
       meta_collective = f
@@ -625,16 +645,21 @@ c     *                                            *
 c     *           meta_collective_force            *
 c     *                                            *
 c     **********************************************
-      subroutine meta_collective_force(indx,param,dv,fmeta)
+      subroutine meta_collective_force(indx,param,dv,
+     >                                 ispin,ne,psi1,fmeta_psi1,
+     >                                 fmeta)
       implicit none
       integer indx(*)
-      real*8 param(*),dv,fmeta(3,*)
+      real*8 param(*),dv
+      integer ispin,ne(2)
+      real*8 psi1(*),fmeta_psi1(*)
+      real*8 fmeta(3,*)
 
 *     **** local variables ****
       integer i,j,ntype,n1,n2
       real*8 x1,y1,z1,r1,vx1,vx2,vy1,vy2,vz1,vz2
       real*8 x2,y2,z2,aa,a11,a12,a22,r,df,n,m,r0,rn,rm
-      real*8 x3,y3,z3,r3,ctheta,stheta,denom
+      real*8 x3,y3,z3,r3,ctheta,stheta,denom,ld
       real*8 dx,dy,dz,dx1,dy1,dz1,dx3,dy3,dz3,nx,ny,nz
 
 *     **** external functions ****
@@ -834,6 +859,14 @@ c     **** n-plane ****
          else
             fmeta(3,indx(3)) = fmeta(3,indx(3)) - dv
          end if
+
+c     **** ld_trace ***
+      else if (ntype.eq.7) then
+         call psp_ld_trace_gradient(indx(2),indx(3),ispin,ne,psi1,
+     >                                 .false.,param,
+     >                                 ld,fmeta_psi1,fmeta(1,indx(2)))
+
+
       end if
 
       return
@@ -846,8 +879,10 @@ c     **** n-plane ****
 *     *              meta_update                    *
 *     *                                             *
 *     ***********************************************
-      subroutine meta_update()
+      subroutine meta_update(ispin,ne,psi1)
       implicit none
+      integer ispin,ne(2)
+      real*8 psi1(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -893,7 +928,8 @@ c     **** n-plane ****
                   s1 = int_mb(sindxmeta(1) +d-1)
                   s2 = int_mb(sparammeta(1)+d-1)
                   r0    = meta_collective(int_mb(indxmeta(1)+s1),
-     >                                    dbl_mb(parammeta(1)+s2))
+     >                                    dbl_mb(parammeta(1)+s2),
+     >                                    ispin,ne,psi1)
                   sigma = dbl_mb(parammeta(1)+s2+1)
                   if (pmeta(d).eq.0) then
                      x = dbl_mb(ameta(1)+d-1) 
@@ -939,8 +975,10 @@ c     **** n-plane ****
 *     *              meta_force                     *
 *     *                                             *
 *     ***********************************************
-      subroutine meta_force(fmeta)
+      subroutine meta_force(ispin,ne,psi1,fmeta_psi1,fmeta)
       implicit none
+      integer ispin,ne(2)
+      real*8 psi1(*),fmeta_psi1(*)
       real*8 fmeta(3,*)
 
 #include "mafdecls.fh"
@@ -962,7 +1000,8 @@ c     **** n-plane ****
                s1 = int_mb(sindxmeta(1) +d-1)
                s2 = int_mb(sparammeta(1)+d-1)
                r(d) = meta_collective(int_mb(indxmeta(1)+s1),
-     >                                dbl_mb(parammeta(1)+s2))
+     >                                dbl_mb(parammeta(1)+s2),
+     >                                ispin,ne,psi1)
             end do
 
             call nwpw_dinterp(nmeta,int_mb(nxmeta(1)),
@@ -975,7 +1014,9 @@ c     **** n-plane ****
                s2 = int_mb(sparammeta(1)+d-1)
                call meta_collective_force(int_mb(indxmeta(1) +s1),
      >                                    dbl_mb(parammeta(1)+s2),
-     >                                    dv(d),fmeta)
+     >                                    dv(d),
+     .                                    ispin,ne,psi1,fmeta_psi1,
+     >                                    fmeta)
             end do
          end if
 
@@ -990,8 +1031,10 @@ c     **** n-plane ****
 *     *              meta_energy                    *
 *     *                                             *
 *     ***********************************************
-      real*8 function meta_energy()
+      real*8 function meta_energy(ispin,ne,psi1)
       implicit none
+      integer ispin,ne(2)
+      real*8 psi1(*)
 
 #include "mafdecls.fh"
 #include "errquit.fh"
@@ -1013,7 +1056,8 @@ c     **** n-plane ****
                s1 = int_mb(sindxmeta(1) +d-1)
                s2 = int_mb(sparammeta(1)+d-1)
                r(d) = meta_collective(int_mb(indxmeta(1)+s1),
-     >                                dbl_mb(parammeta(1)+s2))
+     >                                dbl_mb(parammeta(1)+s2),
+     >                                ispin,ne,psi1)
             end do
             v = nwpw_interp(nmeta,int_mb(nxmeta(1)),
      >                      dbl_mb(ameta(1)),dbl_mb(bmeta(1)),
