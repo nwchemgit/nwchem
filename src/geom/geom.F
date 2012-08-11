@@ -235,15 +235,24 @@ c
       end if
 c     
       end
+c
+C> \brief Check whether center rank is valid
+c
+C> Tests whether a given center rank is a valid rank for a given
+C> geometry instance. If it is not an error message is generated
+C> on standard output.
+c
+C> \return Return .true. if the rank is valid, and .false.
+C> otherwise.
       logical function geom_check_cent(geom, msg, icent)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "stdio.fh"
 c     
-      integer geom              ! [input]
-      character*(*) msg         ! [input]
-      integer icent             ! [input]
+      integer geom      !< [Input] the geometry handle
+      character*(*) msg !< [Input] the message string
+      integer icent     !< [Input] the center rank
       logical status, geom_print
       external geom_print
 c     
@@ -1311,7 +1320,8 @@ c
 C> \brief Delete a geometry from the RTDB
 c
 C> Delete a geometry with a given name from the RTDB.
-C> Return .true. if the geometry was successfully deleted,
+c
+C> \return Return .true. if the geometry was successfully deleted,
 C> return .false. otherwise.
       logical function geom_rtdb_delete(rtdb, name)
       implicit none
@@ -1379,6 +1389,14 @@ c
       geom_rtdb_delete = .true.
 c
       end
+c
+C> \brief Reset the symmetry to C1 for a given geometry instance
+c
+C> Resets the symmetry information to C1 for the specified geometry
+C> instance. This also frees any associated in-core data structures.
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function geom_strip_sym(geom)
       implicit none
 #include "errquit.fh"
@@ -1389,7 +1407,7 @@ c
 c     Reset the given geometry to have just C1 symmetry, freeing
 c     any associated in-core data structures.
 c
-      integer geom              ! [input]
+      integer geom              !< [Input] the geometry handle
       integer i
       logical geom_check_handle
       external geom_check_handle
@@ -1451,14 +1469,23 @@ c
       end if
 c
       end
+c
+C> \brief Set the point group symmetry for a geometry instance
+c
+C> Sets the point group or space group for a given geometry instance.
+C> Whether the point group or the space group is used depends on the
+C> type of geometry under consideration.
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function geom_group_set(geom, group)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "inp.fh"
 c     
-      integer geom              ! [input]
-      character*(*) group       ! [input]
+      integer geom              !< [Input] the geometry handle
+      character*(*) group       !< [Input] the point/space group
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c
@@ -1717,15 +1744,21 @@ c
       end do
 c
       end
+c
+C> \brief Extract only the coordinates and charges from a geometry
+C> instance
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function geom_efc_cart_get(geom, ncent, c, q)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c
-      integer geom              ! [input]
-      integer ncent             ! [output]
-      double precision c(3, ncent) ! [output]
-      double precision q(ncent) ! [output]
+      integer geom                 ! [Input] the geometry handle
+      integer ncent                ! [Output] the number of centers
+      double precision c(3, ncent) ! [Output] the coordinates
+      double precision q(ncent)    ! [Output] the charges
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
       integer i
@@ -1743,15 +1776,21 @@ c
       geom_efc_cart_get = .true.
 c
       end
+c
+C> \brief Define only the coordinates and charges of a geometry
+C> instance
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function geom_efc_cart_set(geom, ncent, c, q)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c
-      integer geom              ! [input]
-      integer ncent             ! [output]
-      double precision c(3, ncent) ! [output]
-      double precision q(ncent) ! [output]
+      integer geom                 ! [Input] the geometry handle
+      integer ncent                ! [Input] the number of centers
+      double precision c(3, ncent) ! [Input] the coordinates
+      double precision q(ncent)    ! [Input] the charges
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
       integer i
@@ -1769,15 +1808,20 @@ c
       geom_efc_cart_set = .true.
 c
       end
+c
+C> \brief Extract the charges from a geometry instance
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       function geom_cart_get_charges(geom, ncent,q)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
       logical geom_cart_get_charges
-      integer geom              ! [input]
-      integer ncent             ! [output]
-      double precision q(ncent) ! [output]
+      integer geom              !< [Input] the geometry handle
+      integer ncent             !< [Output] the number of centers
+      double precision q(ncent) !< [Output] the charges
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
       integer i
@@ -1792,17 +1836,22 @@ c
 c
       end
 c
+C> \brief Extract the tags, coordinates and charges from a geometry
+C> instance
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       function geom_cart_get(geom, ncent, t, c, q)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
       logical geom_cart_get
-      integer geom              ! [input]
-      integer ncent             ! [output]
-      character*16 t(ncent)     ! [output]
-      double precision c(3, ncent) ! [output]
-      double precision q(ncent) ! [output]
+      integer geom                 !< [Input] the geometry handle
+      integer ncent                !< [Output] the number of centers
+      character*16 t(ncent)        !< [Output] the tags
+      double precision c(3, ncent) !< [Output] the coordinates
+      double precision q(ncent)    !< [Output] the charges
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
       integer i
@@ -1821,6 +1870,17 @@ c
 c
       end
 c
+c
+C> \brief Extract the tags, coordinates, charges and atomic numbers from
+C> a geometry instance
+c
+C> Extracts the tags, coordinates, and charges from the geometry by
+C> simply copying the data. The atomic numbers are based on a
+C> translation of the tags. If the tag does not correspond to a chemical
+C> element, e.g. 'X' or 'Bq', the atomic number is 0.
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       function geom_cart_get2(geom, ncent, t, c, q, atnum)
       implicit none
 #include "nwc_const.fh"
@@ -1828,12 +1888,12 @@ c
 c
       logical geom_cart_get2
       logical status_tagi
-      integer geom              ! [input]
-      integer ncent             ! [output]
-      character*16 t(ncent)     ! [output]
-      double precision c(3, ncent) ! [output]
-      double precision q(ncent) ! [output]
-      integer atnum(ncent)      ! [output]
+      integer geom                 !< [Input] the geometry handle
+      integer ncent                !< [Output] the number of centers
+      character*16 t(ncent)        !< [Output] the tags
+      double precision c(3, ncent) !< [Output] the coordinates
+      double precision q(ncent)    !< [Output] the charges
+      integer atnum(ncent)         !< [Output] the atomic numbers
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
       integer i
@@ -1995,17 +2055,26 @@ c
       call geom_compute_values(geom)
 c
       end
+c
+C> \brief Look up data of a specific atom, including velocity
+c
+C> Extracts the data, such as the tag, coordinates, velocity and charge,
+C> of a specific center of a geometry instance. The center of interest
+C> is given by the rank of the center.
+c
+C> \return Returns .true. if the function was successful, .false. otherwise.
+c
       logical function geom_centv_get(geom, icent, t, c, v, q)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom              ! [input]
-      integer icent             ! [input]
-      character*16 t            ! [output]
-      double precision c(3)     ! [output]
-      double precision v(3)     ! [output]
-      double precision q        ! [output]
+      integer geom          !< [Input] the geometry handle
+      integer icent         !< [Input] the center rank
+      character*16 t        !< [Output] the center tag
+      double precision c(3) !< [Output] the center coordinates
+      double precision v(3) !< [Output] the center velocity
+      double precision q    !< [Output] the center charge
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c
@@ -2026,17 +2095,26 @@ c
       geom_centv_get = .true.
 c
       end
+c
+C> \brief Store the data of a specific atom, including velocity
+c
+C> Stores the data, such as the tag, coordinates, velocity and charge,
+C> of a specific center of a geometry instance. The center of interest
+C> is given by the rank of the center.
+c
+C> \return Returns .true. if the function was successful, .false. otherwise.
+c
       logical function geom_centv_set(geom, icent, t, c, v, q)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom              ! [input]
-      integer icent             ! [input]
-      character*16 t            ! [input]
-      double precision c(3)     ! [input]
-      double precision v(3)     ! [input]
-      double precision q        ! [input]
+      integer geom          !< [Input] the geometry handle
+      integer icent         !< [Input] the center rank
+      character*16 t        !< [Input] the center tag
+      double precision c(3) !< [Input] the center coordinates
+      double precision v(3) !< [Input] the center velocity
+      double precision q    !< [Input] the center charge
       logical geom_check_handle, geom_check_cent
       external geom_check_handle, geom_check_cent
 c
@@ -2125,14 +2203,20 @@ c
       ncent = ncenter_unique(geom)
 c      
       end
+c
+C> \brief Checks whether a given center is a point charge
+c
+C> \return Returns .true. if the center is a point charge, and .false.
+C> otherwise.
+c
       logical function geom_isbq(geom, icent)
       implicit none
 #include "nwc_const.fh"
 #include "inp.fh"
 #include "geomP.fh"
 c     
-      integer geom              ! [input]
-      integer icent             ! [input]
+      integer geom              !< [Input] the geometry handle
+      integer icent             !< [Input] the center rank
       logical status
       character*16 tag          
       logical geom_check_handle, geom_check_cent
@@ -2219,10 +2303,11 @@ c
       geom_efield_get = .true.
       end
 c
-C> \brief Print the geometry in XYZ format
+C> \brief Print the geometry in XYZ + charge format
 c
 C> Write the specified geometry in ASCII to the specified file. The
-C> geometry is written in the usual XYZ format. This implies converting
+C> geometry is written in the usual XYZ format but with explicit
+C> charges added. This also implies converting
 C> the units of the coordinates to Angstrom.
 c
 C> \return Returns .true. if the geometry was successfully printed,
@@ -2269,6 +2354,14 @@ c
       end do
 c
       end
+c
+C> \brief Print a geometry in PDB format 
+c
+C> Write a geometry as ASCII and in PDB format to the specified
+C> output unit.
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function geom_print_pdb(geom, unit)
       implicit none
 #include "nwc_const.fh"
@@ -2276,7 +2369,8 @@ c
 #include "util.fh"
 #include "inp.fh"
 #include "stdio.fh"
-      integer geom, unit
+      integer geom !< [Input] the geometry handle
+      integer unit !< [Input] the file unit number
       integer j, icent
       double precision scale
       logical geom_check_handle
@@ -2305,6 +2399,16 @@ c
       end do
 c
       end
+c
+C> \brief Print the geometry in XYZ format
+c
+C> Write the specified geometry in ASCII to the specified file. The
+C> geometry is written in the usual XYZ format. This implies converting
+C> the units of the coordinates to Angstrom.
+c
+C> \return Returns .true. if the geometry was successfully printed,
+C> and .false. otherwise.
+c
       logical function geom_print_xyz(geom, unit)
       implicit none
 #include "nwc_const.fh"
@@ -2312,7 +2416,8 @@ c
 #include "util.fh"
 #include "inp.fh"
 #include "stdio.fh"
-      integer geom, unit
+      integer geom !< [Input] the geometry handle
+      integer unit !< [Input] the file unit number
       integer j, icent
       double precision scale
       logical geom_check_handle
@@ -2636,6 +2741,11 @@ c
       endif
 c
       end
+c
+C> \brief Convert an atom tag to a covalent radius
+c
+C> \return Returns .true. when successfull, and .false. otherwise.
+c
       logical function geom_tag_to_covalent_radius(tag,radius)
       implicit none
 #include "inp.fh"
@@ -2643,8 +2753,8 @@ c
 c     Try to decode a tag and return the covalent radius (a.u.) for
 c     the corresponding atom.
 c
-      character*16 tag          ! [input]
-      double precision radius   ! [output]
+      character*16 tag          !< [Input] the atom tag
+      double precision radius   !< [Output] the atom covalent radius
 c
       character*2 symbol
       character*16 element, ttag
@@ -3204,6 +3314,7 @@ c
       return
 c
       end
+c
       logical function geom_charge_center(geom)
       implicit none
 #include "nwc_const.fh"
@@ -3240,12 +3351,18 @@ c
       call geom_compute_values(geom)
 c
       end
+c
+C> \brief Extracts the center of charge from a geometry instance
+c
+C> \return Returns .true. if the center of charge was successfully
+C> established, and .false. otherwise.
+c
       logical function geom_center_of_charge(geom, center)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
-      integer geom              ! [input]
-      double precision center(3)! [output] 
+      integer geom               !< [Input] the geometry handle
+      double precision center(3) !< [Output] the center of charge
       integer i, k
       double precision qsum
       logical geom_check_handle
@@ -3274,13 +3391,19 @@ c
 c
       geom_center_of_charge=.true.
       end
+c
+C> \brief Extracts the center of mass from a geometry instance
+c
+C> \return Returns .true. if the center of mass was successfully
+C> established, and .false. otherwise.
+c
       logical function geom_center_of_mass(geom, center)
       implicit none
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "geomP.fh"
-      integer geom               ! [input] geometry handle
-      double precision center(3) ! [output] center of mass
+      integer geom               !< [Input] the geometry handle
+      double precision center(3) !< [Output] the center of mass
       logical geom_ncent, geom_mass_get
       external geom_ncent, geom_mass_get
 c
@@ -3312,12 +3435,17 @@ c
       geom_center_of_mass=.true.
       return
       end
+c
+C> \brief Extracts the nuclear repulsion energy from a geometry instance
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function geom_nuc_rep_energy(geom, energy)
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "errquit.fh"
-      integer geom              ! [input]
-      double precision energy   ! [output]
+      integer geom            !< [Input] the geometry handle
+      double precision energy !< [Output] the nuclear repulsion energy
       logical bq_add_nuc_rep_energy
       external bq_add_nuc_rep_energy
       logical geom_check_handle
@@ -3337,11 +3465,16 @@ c
       end if
 c
       end
+c
+C> \brief Extracts the total nuclear charge of a geometry instance
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function geom_nuc_charge(geom, total_charge)
 #include "nwc_const.fh"
 #include "geomP.fh"
-      integer geom              ! [input]
-      double precision total_charge ! [output]
+      integer geom                  !< [Input] the geometry handle
+      double precision total_charge !< [Output] the accumulated nuclear charge
       logical geom_check_handle
       external geom_check_handle
       integer i
@@ -3472,13 +3605,19 @@ c
 c
       geom_systype_get = .true.
       end
+c
+C> \brief Extracts the lattice vectors of a geometry instance
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function geom_latvec_get(geom,vectors)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom,i              ! [input]
-      double precision vectors(3) ! [output]
+      integer geom                !< [Input] the geometry handle
+      double precision vectors(3) !< [Output] the lattice vectors
+      integer i
       logical geom_check_handle
       external geom_check_handle
 c
@@ -3490,13 +3629,19 @@ c
       end do
       geom_latvec_get = .true.
       end
+c
+C> \brief Extracts the lattice angles of a geometry instance
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function geom_latang_get(geom,angles)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom,i              ! [input]
-      double precision angles(3) ! [output]
+      integer geom               !< [Input] the geometry handle
+      double precision angles(3) !< [Output] the lattice angles
+      integer i
       logical geom_check_handle
       external geom_check_handle
 
@@ -3508,13 +3653,19 @@ c
       end do
       geom_latang_get = .true. 
       end
+c
+C> \brief Extracts the reciprocal lattice vectors of a geometry instance
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function geom_recipvec_get(geom,rvectors)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom,i               ! [input]
-      double precision rvectors(3) ! [output]
+      integer geom                 !< [Input] the geometry handle
+      double precision rvectors(3) !< [Output] the reciprocal lattice vectors
+      integer i
       logical geom_check_handle
       external geom_check_handle
 c
@@ -3526,13 +3677,19 @@ c
       end do
       geom_recipvec_get = .true.
       end
+c
+C> \brief Extracts the reciprocal lattice angles of a geometry instance
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function geom_recipang_get(geom,rangles)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c
-      integer geom,i               ! [input]
-      double precision rangles(3) ! [output]
+      integer geom                !< [Input] the geometry handle
+      double precision rangles(3) !< [Output] the reciprocal lattice angles
+      integer i
       logical geom_check_handle
       external geom_check_handle
 c
@@ -3923,13 +4080,19 @@ c
         end do
       end do
       end
+c
+C> \brief Extract the symmetry unique centers from a geometry instance
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function geom_uniquecent_get(geom,ncent,uniquecent)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom,ncent             ! [input]
-      integer uniquecent(ncent)      ! [output] indicies of unique centers
+      integer geom              !< [Input] the geometry handle
+      integer ncent             !< [Input] the number of unique centers
+      integer uniquecent(ncent) !< [Output] the indicies of unique centers
       integer i
       logical geom_check_handle
       external geom_check_handle
@@ -3941,13 +4104,19 @@ c
          uniquecent(i)=unique_cent(i,geom)
       enddo
       end
+c
+C> \brief Define the symmetry unique centers of a geometry instance
+c
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function geom_uniquecent_set(geom,ncent,uniquecent)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c     
-      integer geom,ncent             ! [input]
-      integer uniquecent(ncent)      ! [output] indicies of unique centers
+      integer geom              !< [Input] the geometry handle
+      integer ncent             !< [Input] the number of unique centers
+      integer uniquecent(ncent) !< [Input] the indicies of unique centers
       integer i
       logical geom_check_handle
       external geom_check_handle
@@ -3988,12 +4157,24 @@ c
       endif
 c
       end
+c
+C> \brief Defines the unit of the coordinates specified by the user
+c
+C> Internally the code always uses atomic units to store the
+C> coordinates. However, in the input file the user may choose different
+C> units, such as Angstrom, or nm. This function stores which units
+C> the user used to specify the geometry. This allows, e.g. the 
+C> geometry to be printed in the same units it was specified in.
+c
+C> \return Return .true. if the function was successfull, and .false.
+C> otherwise.
+c
       logical function geom_set_user_units(geom, units)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
-      integer geom
-      character*(*) units
+      integer geom        !< [Input] the geometry handle
+      character*(*) units !< [Input] the user units
       logical geom_check_handle
       external geom_check_handle
 c
@@ -4056,6 +4237,19 @@ c
       geom_tag_to_default_mass =
      &    geom_atn_to_default_mass(tag_atomic_number,mass)
       end
+c
+C> \brief Converts an atomic number to atomic mass
+c
+C> This routine returns the default atomic mass from based on the atomic
+C> number.  The mass for each element comes from the book "The Elements" 
+C> by John Emsley, Oxford University Press, (C) 1989, ISBN 0-19-855237-8
+C> The specific mass chosen was the most abundant isotope with a known mass. 
+C> When the abundance was equal the isotope with the longest half life was 
+C> used.  
+c
+C> \return Return .true. if the conversion was successfull, and .false. 
+C> otherwise.
+c
       logical function geom_atn_to_default_mass(atn,mass)
 c
 c This routine returns the default atomic mass from based on the atomic
@@ -4076,8 +4270,8 @@ c
 #include "nwc_const.fh"
 #include "geomP.fh"
 c
-      integer atn             ! [input] atomic number of element
-      double precision mass   ! [output] default elemental atomic mass.
+      integer atn           !< [Input] the atomic number of element
+      double precision mass !< [Output] the default elemental atomic mass.
 c
       double precision def_masses(nelements)
 c
@@ -4125,15 +4319,20 @@ c
       geom_atn_to_default_mass = .true.
 c
       end
+c
+C> \brief Define the atomic masses of the centers in a geometry instance
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function geom_masses_set(geom, ncent, masses)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "stdio.fh"
 c
-      integer geom                   ! [input] geometry handle
-      integer ncent                  ! [input] number of centers
-      double precision masses(ncent) ! [input] mass on each center
+      integer geom                   !< [Input] the geometry handle
+      integer ncent                  !< [Input] the number of centers
+      double precision masses(ncent) !< [Input] the mass on each center
 c
       integer i
 c
@@ -6698,12 +6897,20 @@ c
 c
       end      
 ************************************************************************
+c
+C> \brief Are there any finite sized nucleii
+c
+C> Assesses whether there are any finite sized nucleii in the specified
+C> geometry instance.
+c
+C> \return Return .true. if there are finite size nucleii, and .false.
+C> otherwise.
       logical function geom_any_finuc (geom)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 c
-      integer geom
+      integer geom !< [Input] the geometry handle
       integer i
       double precision sum
 c
