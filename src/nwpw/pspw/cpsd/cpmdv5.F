@@ -807,10 +807,9 @@ c      call xyz_write()
 
          eke = eke + E(3)
 
-         !**** calculate pressure ****
 
          !**** metadynamics update ****
-         call meta_update()
+         call meta_update(ispin,neq,dcpl_mb(psi1(1)))
 
          if (taskid.eq.MASTER) then 
 

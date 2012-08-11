@@ -451,7 +451,7 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
         if (fei) 
      >    call dcopy(3*natmx,dbl_mb(fion(1)),1,dbl_mb(ftest(1)),1)
         call ion_FixIon(dbl_mb(fion(1)))
-        if (meta) call meta_force(dbl_mb(fion(1)))
+        if (meta) call meta_force(ispin,neq,psi1,Hpsi,dbl_mb(fion(1)))
 
         !**** center of mass constraint ****
 c        if (.not.allow_translation) then
@@ -756,7 +756,7 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
 
 *     **** metadynamics energy ****
       if (meta) then
-         E(24) = meta_energy()
+         E(24) = meta_energy(ispin,neq,psi1)
          E(1)  = E(1) + E(24)
       end if
 
