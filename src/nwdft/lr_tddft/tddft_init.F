@@ -5,7 +5,7 @@
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult,lecut,ecut,diff_max,
-     7  lowin,owstart,owend)
+     7  lowin,owstart,owend,lewin,ewinl,ewinh)
 c
 c $Id$
 c
@@ -93,6 +93,8 @@ c
       logical dummy
       logical lecut
       double precision ecut
+      logical lewin
+      double precision ewinl,ewinh,etmp
       double precision diff_max
       logical lowin
       integer owstart(2)
@@ -275,6 +277,25 @@ c --------------------------------------------
       end if
       if (.not.rtdb_get(rtdb,'tddft:diff_max',mt_dbl,1,diff_max))
      &   diff_max = 100000.d0
+c
+c --------------------------------------------
+c Get the energy cutoff on the occupied states
+c --------------------------------------------
+      if (.not.rtdb_get(rtdb,'tddft:lewin',mt_log,1,lewin))
+     &   lewin = .false.
+      if (.not.rtdb_get(rtdb,'tddft:ewinl',mt_dbl,1,ewinl)) then
+         ewinl  = 0.d0
+         lewin = .false.
+      end if
+      if (.not.rtdb_get(rtdb,'tddft:ewinh',mt_dbl,1,ewinh)) then
+         ewinh  = 0.d0
+         lewin = .false.
+      end if
+      if (ewinl .gt. ewinh) then
+         etmp = ewinl
+         ewinl = ewinh
+         ewinh = etmp
+      end if
 c
 c ------------------------------------------------
 c Get window of occupied orbitals and set defaults
@@ -570,6 +591,10 @@ c
           write (LuOut, 9190) owstart(2), owend(2)
         endif
         if (lecut) write (LuOut, 9195) ecut
+        if (lewin) then
+          write (LuOut, 9196) ewinl
+          write (LuOut, 9197) ewinh
+        end if
         if (symmetry) then
           write(LuOut,9160) 'on '
         else
@@ -625,6 +650,8 @@ c
  9180 format(3x,'           Alpha Window :',2x,i4,2x,i4)
  9190 format(3x,'            Beta Window :',2x,i4,2x,i4)
  9195 format(3x,'          Energy Cutoff :',d8.2)
+ 9196 format(3x,'    Energy Window Lower :',d8.2)
+ 9197 format(3x,'   Energy Window Higher :',d8.2)
  9300 format(3x,a40)
  9310 format(3x,a40,1x,f6.2,1x,a9)
  9320 format(3x,a44,1x,f10.6,1x,a2)

@@ -71,9 +71,6 @@ c
       integer iproc
       integer ilo,ihi,jlo,jhi
       integer dummy,request
-      double precision ecut,evl_diff
-      logical lecut
-      double precision diff_max
 c
       iproc=ga_nodeid()
       nodezero=(ga_nodeid().eq.0)

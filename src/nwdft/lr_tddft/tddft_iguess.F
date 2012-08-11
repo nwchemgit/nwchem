@@ -1,7 +1,8 @@
       subroutine tddft_iguess(rtdb,geom,nbf_ao,ipol,
      1  nocc,nmo,nfc,nfv,nroots,maxvecs,g_trials,g_buffer1,g_buffer2,
      2  d_trials,g_movecs,evl,ntrials,nproducts,algorithm,targetsym,
-     3  symmetry,l_irs,k_irs,tda,lecut,ecut,lowin,owstart,owend)
+     3  symmetry,l_irs,k_irs,tda,lecut,ecut,lowin,owstart,owend,lewin,
+     4  ewinl,ewinh)
 c
 c $Id$
 c
@@ -79,9 +80,9 @@ C     logical vector_exists
       logical tda_verify
       double precision r
 c
-      integer necut
-      double precision ecut,evl_diff
-      logical lecut,evl_lower 
+      integer necut,newin
+      double precision ecut,evl_diff,ewinl,ewinh
+      logical lecut,evl_lower,lewin, evl_ewin
       logical lowin, in_win
       integer owstart(2), owend(2), nowin
       double precision au2ev   ! Conversion factor from a.u. to eV
@@ -241,26 +242,33 @@ c
       l=0
       necut = 0
       nowin = 0
+      newin = 0
       do i=1,ipol
         do j=nfc(i)+1,nocc(i)
           do k=nocc(i)+1,nmo(i)-nfv(i)
             evl_diff = evl(k,i)-evl(j,i)
             if (lecut) then
-               if (evl(j,i).le.ecut) then
-                  necut=necut+1
-                  l=necut
-                  dbl_mb(k_ediff+l-1)=evl_diff
-               end if
+              if (evl(j,i).le.ecut) then
+                necut=necut+1
+                l=necut
+                dbl_mb(k_ediff+l-1)=evl_diff
+              end if
             else if (lowin) then
               if ((j.ge.owstart(i)).and.(j.le.owend(i))) then
                 nowin = nowin+1
                 l = nowin
                 dbl_mb(k_ediff+l-1)=evl_diff
-              endif
+              end if
+            else if (lewin) then
+              if (evl(j,i).le.ewinh .and. evl(j,i).ge.ewinl) then
+                newin=newin+1
+                l=newin
+                dbl_mb(k_ediff+l-1)=evl_diff
+              end if
             else
                l=l+1
                dbl_mb(k_ediff+l-1)=evl_diff
-            endif  ! lecut and lowin
+            endif  ! lecut,lowin,lewin
           enddo
         enddo
       enddo
@@ -295,6 +303,10 @@ c
        if (nowin.eq.0) call errquit
      1  ('tddft_iguess: no excitations in window',nowin,CALC_ERR)
        if (nroots.gt.nowin) nroots = nowin
+      else if (lewin) then
+       if (newin.eq.0) call errquit
+     1  ('tddft_iguess: no excitations in window',newin,CALC_ERR)
+       if (nroots.gt.newin) nroots = newin
       endif
 c
       n=min(nroots+buf,nov(1)+nov(2))
@@ -304,6 +316,7 @@ c
         l=0
         necut=0
         nowin=0
+        newin=0
         found=.false.
         do i=1,ipol
          do j=nfc(i)+1,nocc(i)
@@ -325,12 +338,19 @@ c
                  nowin=nowin+1
                  l=nowin
                endif
+             else if (lewin) then
+               evl_ewin = .false.
+               if (evl(j,i).le.ewinh .and. evl(j,i).ge.ewinl) then
+                 evl_ewin = .true.
+                 newin=newin+1
+                 l=newin
+               endif
              else
                l=l+1
              endif
 c
-             if (((.not.lecut).and.(.not.lowin))
-     1         .or.evl_lower.or.in_win) then
+             if (((.not.lecut).and.(.not.lowin).and.(.not.lewin))
+     1         .or.evl_lower.or.in_win.or. evl_ewin) then
                if (((.not.symmetry).or.(targetsym.eq.oname))
      1             .and.(dbl_mb(k_ediff+l-1).lt.swap)) then
                    int_mb(k_sorto+m-1)=j
@@ -389,6 +409,8 @@ c
        if (nroots.gt.necut) nroots = necut
       else if (lowin) then
        if (nroots.gt.nowin) nroots = nowin
+      else if (lewin) then
+       if (nroots.gt.newin) nroots = newin
       else if (nroots.gt.nov(1)+nov(2)) then
         if (nodezero.and.util_print('initial guess',print_default))
      1    write(LuOut,9040) nroots,nov(1)+nov(2)

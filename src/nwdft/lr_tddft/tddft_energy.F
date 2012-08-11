@@ -104,6 +104,8 @@ c
 c
       logical lecut   
       double precision ecut
+      logical lewin   
+      double precision ewinl,ewinh
       double precision diff_max
       logical lowin(2)
       integer owstart(2)
@@ -135,7 +137,7 @@ c
      4  tda,singlet,triplet,nroots,maxvecs,tol2e,thresh,
      5  maxiter,target,targetsym,symmetry,algorithm,g_movecs,
      6  l_evl,k_evl,l_occ,k_occ,l_irs,k_irs,mult,lecut,ecut,diff_max,
-     7  lowin, owstart, owend)
+     7  lowin,owstart,owend,lewin,ewinl,ewinh)
 c
 c ----------------------------------------------------
 c Determine memory size and alter maxvecs if necessary
@@ -253,7 +255,7 @@ c
      1      nroots,maxvecs,g_trials,g_buffer1,g_buffer2,d_trials,
      2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm,
      3      targetsym,symmetry,l_irs,k_irs,tda,lecut,ecut,
-     4      lowin, owstart, owend)
+     4      lowin, owstart,owend,lewin,ewinl,ewinh)
           if (util_print('trial vectors',print_debug)) then
             do i=1,ntrials
               call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
@@ -287,7 +289,7 @@ c
      1      nroots,maxvecs,g_trials,g_buffer1,g_buffer2,d_trials,
      2      g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm,
      3      targetsym,symmetry,l_irs,k_irs,tda,lecut,ecut,
-     4      lowin,owstart,owend)
+     4      lowin,owstart,owend,lewin,ewinl,ewinh)
           if (util_print('trial vectors',print_debug)) then
             do i=1,ntrials
               call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,
@@ -321,7 +323,7 @@ c
      1    nroots,maxvecs,g_trials,g_buffer1,g_buffer2,d_trials,
      2    g_movecs,dbl_mb(k_evl),ntrials,nproducts,algorithm,
      3    targetsym,symmetry,l_irs,k_irs,tda,lecut,ecut,
-     4    lowin,owstart,owend)
+     4    lowin,owstart,owend,lewin,ewinl,ewinh)
         if (util_print('trial vectors',print_debug)) then
           do i=1,ntrials
             call tddft_dump(ipol,nocc,nmo,nfc,nfv,g_trials,

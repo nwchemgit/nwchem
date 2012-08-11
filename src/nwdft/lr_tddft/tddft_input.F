@@ -12,6 +12,7 @@ c                 [virtual <integer nfzv default 0>]]
 c        [(CIS||RPA) default RPA]
 c        [NROOTS <integer nroots default 1>]
 c        [ECUT   <not default: double ecut default -ihuge>]
+c        [EWIN]
 c        [AWIN <integer astart> <integer aend>]
 c        [BWIN <integer bstart> <integer bend>]
 c        [MAXVECS <integer maxvecs default 1000>]
@@ -49,6 +50,8 @@ C     character*80 vector
       double precision thresh
       double precision ecut
       logical lecut
+      double precision ewinl,ewinh
+      logical lewin
       logical lowin
       integer owstart(2)
       integer owend(2)
@@ -243,6 +246,24 @@ c
      &    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
         if (.not.rtdb_put(rtdb,'tddft:lecut',mt_log,1,lecut))
+     &    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+c
+c     EWIN (energy window for occupied states)
+c
+      else if (inp_compare(.false.,test,'ewin')) then
+        lewin = .true.
+        lecut = .false.
+        lowin = .false.
+        if (.not.inp_f(ewinl)) lewin = .false.
+        if (.not.inp_f(ewinh)) lewin = .false.
+        if (.not.rtdb_put(rtdb,'tddft:ewinl',mt_dbl,1,ewinl))
+     &    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'tddft:ewinh',mt_dbl,1,ewinh))
+     &    call errquit('tddft_input: failed writing to rtdb',0,
+     &       RTDB_ERR)
+        if (.not.rtdb_put(rtdb,'tddft:lewin',mt_log,1,lewin))
      &    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
 c
@@ -444,7 +465,6 @@ c
         if (.not.rtdb_put(rtdb,'tddft:velocity',mt_log,1,velocity))
      1    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
-
 c
 c     GIAO
 c
@@ -453,7 +473,6 @@ c
         if (.not.rtdb_put(rtdb,'tddft:giao',mt_log,1,lgiao))
      1    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
-
 c
 c     GENERALIZED MULLIKEN-HUSH H_IJ COUPLING
 c

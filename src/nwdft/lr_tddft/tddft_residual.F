@@ -4,7 +4,7 @@
      3  ambvec,residual_1,residual_2,g_residuals_1,g_residuals_2,
      4  thresh,valsav,maxresidual,maxomega,converged,maxvecs,evl,
      5  nconverged,nnewtrials,nresiduals,algorithm,lecut,ecut,
-     6  diff_max,lowin,owstart,owend)
+     6  diff_max,lowin,owstart,owend,lewin,ewinl,ewinh)
 c
 c $Id$
 c
@@ -87,6 +87,8 @@ c
       double precision ecut,evl_diff
       logical lecut
       logical lowin
+      logical lewin
+      double precision ewinl,ewinh
       integer owstart(2)
       integer owend(2)
       double precision diff_max
@@ -868,15 +870,20 @@ c
               j=(l-k+nocc(i))/(nmo(i)-nfv(i)-nocc(i))+nfc(i)+1
               call ga_get(g_residuals_1(i),l,l,n,n,r,1)
               if (lecut) then
-                 evl_diff = diff_max
-                 if (evl(j,i).le.ecut) then
-                    evl_diff = evl(k,i)-evl(j,i)
-                 end if
+                evl_diff = diff_max
+                if (evl(j,i).le.ecut) then
+                  evl_diff = evl(k,i)-evl(j,i)
+                end if
               else if (lowin) then
                 evl_diff = diff_max
                 if ((j.ge.owstart(i)).and.(j.le.owend(i))) then
                   evl_diff = evl(k,i)-evl(j,i)
                 endif
+              else if (lewin) then
+                evl_diff = diff_max
+                if (evl(j,i).le.ewinh .and. evl(j,i).ge.ewinl) then
+                  evl_diff = evl(k,i)-evl(j,i)
+                end if
               else
                 evl_diff = evl(k,i)-evl(j,i)
               endif
@@ -978,6 +985,11 @@ c
                   if((j.ge.owstart(i)).and.(j.le.owend(i))) then
                     evl_diff = evl(k,i)-evl(j,i)
                   endif
+                else if (lewin) then
+                  evl_diff = diff_max
+                  if (evl(j,i).le.ewinh .and. evl(j,i).ge.ewinl) then
+                    evl_diff = evl(k,i)-evl(j,i)
+                  end if
                 else
                   evl_diff = evl(k,i)-evl(j,i)
                 endif
