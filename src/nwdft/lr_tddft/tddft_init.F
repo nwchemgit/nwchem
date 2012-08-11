@@ -427,9 +427,10 @@ c
         if (.not.ma_push_get(mt_int,nbf_ao,'irreps',
      1    l_irs(i),k_irs(i))) call errquit
      2    ('tddft_init: failed to allocate irs',0, MA_ERR)
-        if (.not.ga_duplicate(g_movecs(i),g_work,'Work')) call errquit
-     1    ('tddft_init: failed to duplicate g_movecs',0, GA_ERR)
-        call ga_copy(g_movecs(i),g_work)
+        if(.not.ga_create(MT_DBL,nbf_ao,nmo(i),'Work',nbf_ao,-1,g_work))
+     1    call errquit('tddft_init: failed to allocate work',0,GA_ERR)
+        call ga_copy_patch('n',g_movecs(i),1,nbf_ao,1,nmo(i),
+     1                         g_work,1,nbf_ao,1,nmo(i))
         call sym_movecs_adapt(ao_bas_han,1.0d-8,g_work,
      1    int_mb(k_irs(i)),nmix(i))
         if (.not.ga_destroy(g_work)) call errquit
