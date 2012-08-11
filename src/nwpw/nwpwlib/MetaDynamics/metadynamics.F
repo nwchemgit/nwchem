@@ -659,7 +659,7 @@ c     **********************************************
       integer i,j,ntype,n1,n2
       real*8 x1,y1,z1,r1,vx1,vx2,vy1,vy2,vz1,vz2
       real*8 x2,y2,z2,aa,a11,a12,a22,r,df,n,m,r0,rn,rm
-      real*8 x3,y3,z3,r3,ctheta,stheta,denom,ld
+      real*8 x3,y3,z3,r3,ctheta,stheta,denom
       real*8 dx,dy,dz,dx1,dy1,dz1,dx3,dy3,dz3,nx,ny,nz
 
 *     **** external functions ****
@@ -864,7 +864,7 @@ c     **** ld_trace ***
       else if (ntype.eq.7) then
          call psp_ld_trace_gradient(indx(2),indx(3),ispin,ne,psi1,
      >                                 .false.,param,
-     >                                 ld,fmeta_psi1,fmeta(1,indx(2)))
+     >                                 dv,fmeta_psi1,fmeta(1,indx(2)))
 
 
       end if
