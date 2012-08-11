@@ -1,5 +1,7 @@
 c $Id$
 *
+C> \ingroup nwint
+C> @{
 ***********************************************************************
 c:tex-% part of API Internal Routines
 c:tex-\subsection{cando\_sp}
@@ -91,9 +93,17 @@ c:tex-routine if the two electron integrals over ISH and JSH can be
 c:tex-computed using the McMurchie-Davidson code.
 ***********************************************************************
 c:tex-{\it Syntax:}
-c:tex-\begin{verbatim}
+C> \brief Checks whether the 1-electron shell pair integrals can be
+C> evaluated using the McMurchie-Davidson code
+c
+C> Considering the specified basis set and the shells ISH and JSH
+C> checks whether those integrals can be evaluated using the
+C> McMurchie-Davidson code.
+c
+C> \return Return .true. if the integrals can be evaluated using the 
+C> McMurchie-Davidson code, and .false. otherwise
+c
       logical function cando_nw(basisin,ish,jsh)
-c:tex-\end{verbatim}
       implicit none
 c 
 c:tex-For two electron cases then there are two calls to cando_nw
@@ -114,10 +124,9 @@ c
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::passed
-c:tex-\begin{verbatim}
-      integer basisin  ! [input] basis set handle for identified shells 
-      integer ish,jsh  ! [input] lexical shell index for I and J
-c:tex-\end{verbatim}
+      integer basisin  !< [Input] the basis set handle for identified shells 
+      integer ish      !< [Input] the lexical shell index for I
+      integer jsh      !< [Input] the lexical shell index for J
 c:tex-A zero [i|j]sh means ignore this shell. this allows one function 
 c:tex-for all 2e permutations and multiple basis sets.
 c::local
@@ -365,16 +374,17 @@ c.... check jsh
 c
       end
 ***********************************************************************
-c:tex-% part of API Internal Routines
-c:tex-\subsection{cando\_hnd_\1e}
-c:tex-This routine returns ``.true.'' to the calling integral API
-c:tex-routine if the one electron integrals over ISH and JSH can be
-c:tex-computed using the HONDO code.
-***********************************************************************
-c:tex-{\it Syntax:}
-c:tex-\begin{verbatim}
+C> \brief Checks whether the 1-electron shell pair integrals can be
+C> evaluated using the HONDO code
+c
+C> Considering the specified basis set and the shells ISH and JSH
+C> checks whether those integrals can be evaluated using the HONDO
+C> code.
+c
+C> \return Return .true. if the integrals can be evaluated using the 
+C> HONDO code, and .false. otherwise
+c
       logical function cando_hnd_1e(basisin,ish,jsh)
-c:tex-\end{verbatim}
       implicit none
 c
 c this routine does not check the shell and int_init
@@ -391,10 +401,9 @@ c
 #include "mafdecls.fh"
 #include "bas_ibs_dec.fh"
 c::passed
-c:tex-\begin{verbatim}
-      integer basisin  ! [input] basis set handle for identified shells
-      integer ish,jsh  ! [input] lexical shell index for I and J
-c:tex-\end{verbatim}
+      integer basisin  !< [Input] the basis set handle for identified shells
+      integer ish      !< [Input] the lexical shell index for I
+      integer jsh      !< [Input] the lexical shell index for J
 c:tex-A zero [i|j]sh means ignore this shell. this allows one function
 c:tex-for all 1e permutations and multiple basis sets.
 c::local
@@ -760,3 +769,4 @@ c.... check jsh
       endif
 c
       end
+C> @}

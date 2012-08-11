@@ -1,5 +1,8 @@
 c $Id$
 *
+C> \defgroup nwint Gaussian Integrals
+C> \ingroup nwint
+C> @{
 c:tex-% This is part of the API Standard Integral routines
 c:tex-\subsection{int\_mem}
 c:tex-This routine returns the maximum buffer and scratch array
@@ -390,4 +393,4 @@ c::passed
       call int_mem_dipole_l(maxbuf,maxscr,basisin_i,basisin_j,lval)
       maxbuf = maxbuf * 9  ! (block,xyz,3) 3=atom1, atom2, multipole center
       end
-
+C> @}
