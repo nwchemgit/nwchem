@@ -230,7 +230,7 @@ c
          i1 = idamax(nir, v, 1)
          v1 = v(i1)
          if (v1 .lt. thresh) call errquit
-     $        ('sym_movecs_adapt: no significant component?', 0,
+     $        ('sym_movecs_adapt: no significant component?',i1,
      &       UNKNOWN_ERR)
 c     
 c     Look for mixing
