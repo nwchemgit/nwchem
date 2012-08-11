@@ -142,14 +142,14 @@
 *     ***********************************
       subroutine psp_ld_trace_gradient(ii,ll,ispin,ne,psi1,
      >                                 fractional,occ,
-     >                                 ld,dpsi1,fion)
+     >                                 dv,dpsi1,fion)
       implicit none
       integer    ii,ll
       integer    ispin,ne(2)
       complex*16 psi1(*)
       logical    fractional
       real*8     occ(*)
-      real*8     ld
+      real*8     dv
       complex*16 dpsi1(*)  !*** dld/dpsi1*  ***
       real*8     fion(3,*)   !*** dld/dRii    ***
 
@@ -260,13 +260,6 @@
      >                    dbl_mb(sw1(1)),
      >                    dbl_mb(sw2(1)))
 
-      ld = psp_ld_gen_trace(ispin,ne,nproj,
-     >                      int_mb(l_projector(1)
-     >                               +(ia-1)*(nmax_max*lmmax_max)),
-     >                        int_mb(m_projector(1)
-     >                              +(ia-1)*(nmax_max*lmmax_max)),
-     >                        dbl_mb(sw2(1)),
-     >                        ll)
       call psp_ld_gen_sw3(ispin,ne,nproj,
      >                    int_mb(l_projector(1)
      >                           +(ia-1)*(nmax_max*lmmax_max)),
@@ -290,7 +283,7 @@
 
 *     **** do Kleinman-Bylander Multiplication ****
       call dscal(nn*int_mb(nprj(1)+ia-1)*nprj_mult,
-     >           scal,dbl_mb(sw2(1)),1)
+     >           dv*scal,dbl_mb(sw2(1)),1)
 
       call DGEMM('N','T',2*npack1,nn,int_mb(nprj(1)+ia-1)*nprj_mult,
      >           (1.0d0),
