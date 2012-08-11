@@ -274,14 +274,28 @@
      >                          +(ia-1)*(nmax_max*lmmax_max)),
      >                    ll,dbl_mb(sw2(1)),dbl_mb(sw3(1)))
 
+      call Multiply_Gijl_sw1(nn,
+     >                    nproj,
+     >                    int_mb(nmax(1)+ia-1),
+     >                    int_mb(lmax(1)+ia-1),
+     >                    int_mb(n_projector(1)
+     >                           + (ia-1)*(nmax_max*lmmax_max)),
+     >                    int_mb(l_projector(1)
+     >                           + (ia-1)*(nmax_max*lmmax_max)),
+     >                    int_mb(m_projector(1)
+     >                           + (ia-1)*(nmax_max*lmmax_max)),
+     >                    dbl_mb(Gijl_indx),
+     >                    dbl_mb(sw3(1)),
+     >                    dbl_mb(sw2(1)))
+
 *     **** do Kleinman-Bylander Multiplication ****
       call dscal(nn*int_mb(nprj(1)+ia-1)*nprj_mult,
-     >           scal,dbl_mb(sw3(1)),1)
+     >           scal,dbl_mb(sw2(1)),1)
 
       call DGEMM('N','T',2*npack1,nn,int_mb(nprj(1)+ia-1)*nprj_mult,
      >           (1.0d0),
      >           dcpl_mb(prjtmp(1)), 2*npack1,
-     >           dbl_mb(sw3(1)),     nn,
+     >           dbl_mb(sw2(1)),     nn,
      >           (1.0d0),
      >           dpsi1,              2*npack1)
 
