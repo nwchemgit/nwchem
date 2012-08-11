@@ -314,7 +314,7 @@ c
      $        "      N   Occ  Virt       Energy [eV]        "//
      $        "<x> [au]          <y> [au]          <z> [au]    "//
      $        "     fosc [au] "
-         write (unitno, *) ""
+         write (unitno, "(a,i6)") "<START>",nexcite
        do i=1,nexcite
           write (unitno, "(i8,2i6,5e18.6)")
      $         i, int_mb(k_ex_occ+i-1), int_mb(k_ex_virt+i-1),
@@ -322,6 +322,7 @@ c
      $         dbl_mb(k_dpx+i-1), dbl_mb(k_dpy+i-1), dbl_mb(k_dpz+i-1),
      $         dbl_mb(k_fosc+i-1)
        enddo
+       write (unitno, "(a)") "<END>"
        close(unitno)
       endif
 c
@@ -331,9 +332,9 @@ c
  10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
       call ga_sync()
 c
- 1000 format('== Scalar DFT Virtual Spectrum =='/)
+ 1000 format('== Scalar DFT Virtual Spectrum ==')
 c
- 1400 format(/,'Number of basis functions in AO basis: ',i5,
+ 1400 format(  'Number of basis functions in AO basis: ',i5,
      1       /,'Number of Alpha MOs:                   ',i5,
      2       /,'Number of Beta Mos:                    ',i5,
      3       /,'Occupied Win Start Alpha:              ',i5,
@@ -342,17 +343,17 @@ c
      5       /,'Occupied Win End   Beta:               ',i5,
      6       /,'Number of Occupied Alpha MOs:          ',i5,
      6       /,'Number of Occupied Beta MOs :          ',i5,
-     7       /,'Number of Excitations:                 ',i5,/)
+     7       /,'Number of Excitations:                 ',i5)
 c
  1401 format(/,'Number of basis functions in AO basis: ',i5,
      1       /,'Number of Alpha MOs:                   ',i5,
      3       /,'Occupied Win Start Alpha:              ',i5,
      5       /,'Occupied Win End   Alpha:              ',i5,
      6       /,'Number of Occupied Alpha MOs:          ',i5,
-     7       /,'Number of Excitations:                 ',i5,/)
+     7       /,'Number of Excitations:                 ',i5)
 c
  1600 format(/,x,'N',7x,'Energy',13x,'<x>',14x,'<y>',14x,'<z>',14x,
-     &       'fosc',/)
+     &       'fosc')
 c
  1700 format(i3,2x,f12.7,5x,f12.7,5x,f12.7,5x,f12.7,5x,f12.7)
 c
