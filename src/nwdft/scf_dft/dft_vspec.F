@@ -345,7 +345,7 @@ c
      6       /,'Number of Occupied Beta MOs :          ',i5,
      7       /,'Number of Excitations:                 ',i5)
 c
- 1401 format(/,'Number of basis functions in AO basis: ',i5,
+ 1401 format(  'Number of basis functions in AO basis: ',i5,
      1       /,'Number of Alpha MOs:                   ',i5,
      3       /,'Occupied Win Start Alpha:              ',i5,
      5       /,'Occupied Win End   Alpha:              ',i5,
