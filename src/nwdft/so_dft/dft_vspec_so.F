@@ -328,23 +328,19 @@ c
         write(unitno, 1400) nbf_ao,nbf_mo,owstart,owend,nelec,nexcite
       endif
 c
-c      if (nodezero) then
-c        write(unitno, *) "Matrix Multiplication Complete"
-c      endif
+      if (nodezero) then
+         write (unitno, "(1x,a)")
+     $        "      N   Occ  Virt       Energy [eV]        "//
+     $        "<x> [au]          <y> [au]          <z> [au]    "//
+     $        "     fosc [au] "
+         write (unitno, "(a,i6)") "<START>",nexcite
+      end if
 c
       nindex=1
       do i=owstart,owend
-c       Orbital energy of core
-        ei = dbl_mb(k_eval(1)+i-1)
-c       write orbital header
-        if (nodezero) then
-          write(unitno,1600), i
-        endif
-        if (nodezero) then
-          write(unitno, 1700) 
-        endif
+        ei = dbl_mb(k_eval(1)+i-1) ! orbital energy of the initial state
         do j=nelec+1,nbf_mo
-          ea = dbl_mb(k_eval(1)+j-1)
+          ea = dbl_mb(k_eval(1)+j-1) ! orbital energy of the final state
           exen = (ea-ei)*au2ev
           call ga_get(g_dpx_mo(1),i,i,j,j,tmpx1,1)
           call ga_get(g_dpx_mo(2),i,i,j,j,tmpx2,1)
@@ -352,20 +348,25 @@ c       write orbital header
           call ga_get(g_dpy_mo(2),i,i,j,j,tmpy2,1)
           call ga_get(g_dpz_mo(1),i,i,j,j,tmpz1,1)
           call ga_get(g_dpz_mo(2),i,i,j,j,tmpz2,1)
-c          tmpx1 = (tmpx1*tmpx1+tmpx2*tmpx2)*scal
-c          tmpy1 = (tmpy1*tmpy1+tmpy2*tmpy2)*scal
-c          tmpz1 = (tmpz1*tmpz1+tmpz2*tmpz2)*scal
+c         tmpx1 = (tmpx1*tmpx1+tmpx2*tmpx2)*scal
+c         tmpy1 = (tmpy1*tmpy1+tmpy2*tmpy2)*scal
+c         tmpz1 = (tmpz1*tmpz1+tmpz2*tmpz2)*scal
           tmpx12 = (tmpx1*tmpx1)*scal   ! imag part doesn't contribute
           tmpy12 = (tmpy1*tmpy1)*scal   ! imag part doesn't contribute
           tmpz12 = (tmpz1*tmpz1)*scal   ! imag part doesn't contribute
           fosc = two/three*exen*(tmpx12+tmpy12+tmpz12)
           if (nodezero) then
-            write(unitno,1800)nindex, exen, tmpx12, tmpy12, tmpz12, fosc
+            write (unitno, "(i8,2i6,5e18.6)")
+     $         nindex, i, j, exen, tmpx12, tmpy12, tmpz12, fosc
           endif
           nindex=nindex+1
         enddo
       enddo
-      call ga_sync()
+c
+      if (nodezero) then
+        write (unitno, "(a)") "<END>"
+        close(unitno)
+      end if
 c
 c     Broadcast status to other nodes
 c
@@ -373,14 +374,15 @@ c
  10   call ga_brdcst(Msg_Vec_Stat+MSGINT, ok, inntsize, 0) ! Propagate status
       call ga_sync()
 c
- 1000 format('== Spin-Orbit DFT Virtual Spectrum =='/)
+ 1000 format('== Spin-Orbit DFT Virtual Spectrum ==')
 c
- 1400 format(/,'Number of AO basis functions: ',i5,
+ 1400 format(  'Number of AO basis functions: ',i5,
      1       /,'Total Number of MOs:          ',i5,
      3       /,'Occupied Win Start:           ',i5,
      4       /,'Occupied Win End:             ',i5,
      5       /,'Number of Occupied MOs:       ',i5,
-     6       /,'Number of Excitations:        ',i5,/)
+     6       /,'Number of Excitations:        ',i5)
+c
  1600 format(/,'Dipole spectrum for Koopman Excitation from orbital '
      &        ,i5,/)
  1700 format(3x,'N',7x,'Energy',11x,'<x>   ',11x,'<y>   ',11x,'<z>   ',
