@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_num_grad(rtdb)
       implicit none
 #include "errquit.fh"
@@ -72,6 +74,7 @@ C
      $   theory(1:inp_strlen(theory)), .true.)
 c
       end
+C> @}
       logical function num_grad(rtdb, func, ename, gname, theory,
      $     osavestate)
       implicit none

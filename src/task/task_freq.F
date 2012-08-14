@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_freq(rtdb)
 c     
 c     Central difference calculation of the hessian using
@@ -141,3 +143,4 @@ c
 c
 c
       end
+C> @}

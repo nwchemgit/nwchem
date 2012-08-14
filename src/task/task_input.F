@@ -1,3 +1,16 @@
+C> \ingroup task
+C> @{
+c
+C> \brief Reads the task directive from input and stores associated 
+C> parameters on the RTDB
+c
+C> This routine should be called by the root process only.
+C> The objective of this routine is to parse the task directive and
+C> check for any inconsistencies. The details of the task directive are
+C> stored on the RTDB. The actual task call itself has to be made
+C> elsewhere. In case an inconsistency is found the code will abort with
+C> an error.
+c
       subroutine task_input(rtdb)
 *
 * $Id$
@@ -9,7 +22,7 @@
 #include "inp.fh"
 #include "util.fh"
 #include "mafdecls.fh"
-      integer rtdb              ! [input] data base handle
+      integer rtdb !< [Input] The RTDB handle
 c
 c     Called by process 0 only.  Does nothing but read the input
 c     and set corresponding the database parameters
@@ -329,3 +342,4 @@ c
       call task_delete_state(0,'a')
 c
       end
+C> @}

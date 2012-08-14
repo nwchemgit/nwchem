@@ -1,3 +1,4 @@
+C> \defgroup bas Gaussian Basis Sets
       logical function bas_version()
 c $Id$
 c
@@ -116,6 +117,13 @@ c
       bas_version = .true.
       end
 *.....................................................................
+C> \ingroup bas
+C> @{
+c
+C> \brief Creates a new basis instance
+c
+C> \return Returns .true. if successfull, and .false. otherwise
+c
       logical function bas_create(basis,name)
 c
 c creates a handle and marks it active in the in-core data structure
@@ -134,8 +142,8 @@ c ifill from util
 c dfill from util
 c::passed
 c
-      integer basis             ! [output] returned handle
-      character*(*)name         ! [input] name of basis set.  
+      integer basis     !< [Output] the basis handle
+      character*(*)name !< [Input] the name of basis set  
 c
 *:debug:      integer iiii, jjjj
       integer ii ! dummy loop counter
@@ -215,6 +223,11 @@ c
 c
       end
 *.....................................................................
+c
+C> \brief Destroys a basis instance
+c
+C> \return Returns .true. if successfull, and .false. otherwise
+c
       logical function bas_destroy(basisin)
       implicit none
 c::functions
@@ -223,7 +236,7 @@ c::functions
       logical bas_get_so_handle, so_check_handle
       external bas_get_so_handle, so_check_handle
 c::passed
-      integer basisin
+      integer basisin !< [Input] the basis handle
 c::local
       logical ignore
       integer ecpid, soid
@@ -240,6 +253,7 @@ c
       bas_destroy = bas_destroy .and. bas_do_destroy(basisin)
       end
 *.....................................................................
+C> @}
       logical function bas_do_destroy(basisin)
 c
 c destroys information about an active incore basis
@@ -330,6 +344,14 @@ c
       bas_do_destroy = .true.
       end
 *.....................................................................
+C> \ingroup bas
+C> @{
+c
+C> \brief Checks whether a given handle refers to a valid basis instance
+c
+C> \return Return .true. if basisin is a valid basis instance, and
+C> .false. otherwise
+c
       logical function bas_check_handle(basisin,msg)
 c
 c Checks to see if a basis set handle is valid
@@ -339,8 +361,8 @@ c
 #include "basP.fh"
 #include "stdio.fh"
 c:passed
-      integer basisin           ! [input] handle
-      character*(*) msg         ! [input] error message
+      integer basisin   !< [Input] the basis handle
+      character*(*) msg !< [Input] an error message
 c::local
       integer basis
 c
@@ -358,6 +380,13 @@ c
       return
       end
 *.....................................................................
+c
+C> \brief Checks whether a given handle refers to a valid ECP basis
+C> instance
+c
+C> \return Return .true. if ecpidin is a valid ECP basis instance, and
+C> .false. otherwise
+c
       logical function ecp_check_handle(ecpidin,msg)
 c
 c Checks to see if an ECP basis set handle is valid
@@ -372,8 +401,8 @@ c:functions
       logical bas_check_handle
       external bas_check_handle
 c:passed
-      integer ecpidin           ! [input] handle
-      character*(*) msg         ! [input] error message
+      integer ecpidin   !< [Input] the ECP basis handle
+      character*(*) msg !< [Input] an error message
 c::local
       character*255 newmsg    
 c
@@ -388,6 +417,13 @@ c
       return
       end
 *.....................................................................
+c
+C> \brief Checks whether a given handle refers to a valid spin-orbit
+C> ECP basis instance
+c
+C> \return Return .true. if soidin is a valid spin-orbit ECP basis
+C> instance, and .false. otherwise
+c
       logical function so_check_handle(soidin,msg)
 c
 c Checks to see if an ECP so basis set handle is valid
@@ -402,8 +438,8 @@ c:functions
       logical bas_check_handle
       external bas_check_handle
 c:passed
-      integer soidin           ! [input] handle
-      character*(*) msg         ! [input] error message
+      integer soidin    !< [Input] the spin-orbit ECP basis handle
+      character*(*) msg !< [Input] an error message
 c::local
       character*255 newmsg    
 c
@@ -418,6 +454,11 @@ c
       return
       end
 *.....................................................................
+c
+C> \brief Print a summary of a basis instance
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function bas_summary_print(basisin)
       implicit none
 #include "errquit.fh"
@@ -435,7 +476,7 @@ c::-functions
       integer nbf_from_ucont
       external nbf_from_ucont
 c::-passed
-      integer basisin ! [input] basis set handle
+      integer basisin !< [Input] the basis set handle
 c::-local
       character*16 dum_tag
       character*255 dum_stdtag
@@ -586,6 +627,11 @@ c::-local
 *
       end
 *.....................................................................
+c
+C> \brief Print the contents of a basis instance
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function bas_print(basisin)
 c
 c routine to print unique basis information that is in core
@@ -606,7 +652,7 @@ c
       logical  bas_check_handle, ecp_print, so_print
       external bas_check_handle, ecp_print, so_print
 c:: passed
-      integer basisin  ! [input] basis set handle
+      integer basisin !< [Input] the basis set handle
 c:: local
       integer mytags, myucont, myprim, mycoef, basis
       integer i,j,k,l, ifcont, mygen, mytype, iexptr, icfptr
@@ -746,6 +792,17 @@ c
       return
       end
 *.....................................................................
+c
+C> \brief Load a basis set from the RTDB
+c
+C> Retrieve the basis set from the RTDB using the name specified. 
+C> The data is stored in the basis set instance specified. Furthermore
+C> some tables are constructed linking basis functions to atoms, etc.
+C> For this purpose a geometry needs to be provided as well.
+c
+C> \return Return .true. if the basis was loaded successfully, and
+C> .false. otherwise
+c
       logical function bas_rtdb_load(rtdb, geom, basisin, name)
       implicit none
 #include "errquit.fh"
@@ -772,10 +829,11 @@ c::functions
       external bas_get_so_name, bas_set_so_name, bas_set_so_handle
       external so_set_parent_handle
 c::passed
-      integer rtdb
-      integer geom
-      integer basisin
-      character*(*) name
+      integer rtdb       !< [Input] the RTDB handle
+      integer geom       !< [Input] the geometry handle
+      integer basisin    !< [Input] the basis set handle
+      character*(*) name !< [Input] the name of the basis set on the
+c                        !< RTDB
 c
 c::local
       character*256 ecp_name, so_name
@@ -924,6 +982,7 @@ c
 c
       end
 *.....................................................................
+C> @}
       logical function bas_rtdb_do_load(rtdb, geom, basisin, name)
       implicit none
 #include "errquit.fh"
@@ -1816,6 +1875,13 @@ c
 *
       end
 *.....................................................................
+C> \ingroup bas
+C> @{
+c
+C> \brief Store a basis set on the RTDB under the given name
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function bas_rtdb_store(rtdb, name, basisin)
       implicit none
 c
@@ -1828,9 +1894,9 @@ c
 #include "ecpso_decP.fh"
 #include "bas_starP.fh"
 c::passed
-      integer rtdb              ! [input] handle to database
-      character*(*) name        ! [input] name to use when storing db
-      integer basisin           ! [input] handle to basis set
+      integer rtdb       !< [Input] the RTDB handle
+      character*(*) name !< [Input] the name to use when storing basis
+      integer basisin    !< [Input] the basis set handle
 c::functions
       logical bas_check_handle, bas_rtdb_do_store
       external bas_check_handle, bas_rtdb_do_store
@@ -1871,6 +1937,7 @@ c
      &    star_rel, star_segment)
 c
       end
+C> @}
 *.....................................................................
       logical function bas_rtdb_do_store(rtdb, name, tagsin, 
      &       head_array, tags_array, ucont_array, excfin, ntagsin, 
@@ -2054,6 +2121,8 @@ c..... add diagnostics later
       return
       end
 *.....................................................................
+C> \ingroup bas
+C> @{
       logical function bas_high_angular(basisin,high_angular)
       implicit none
 c
@@ -5056,3 +5125,4 @@ c
 10000 format('bas_do_tags_match:debug: tag ',a16,
      &    ' matched this tag ',a16)
       end
+C> @}

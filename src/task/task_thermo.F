@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_thermo(rtdb)
 *
 * $Id$
@@ -90,4 +92,4 @@ c
       task_thermo = status
 c
       end
-
+C> @}

@@ -1,3 +1,8 @@
+c
+C> \defgroup task Task Interface
+c
+C> \ingroup task
+C> @{
       logical function task_energy(rtdb)
       implicit none
 #include "errquit.fh"
@@ -148,6 +153,7 @@ c
       task_energy = status
 c
       end
+C> @}
       logical function task_energy_doit(rtdb,theory,energy)
 *
 * $Id$

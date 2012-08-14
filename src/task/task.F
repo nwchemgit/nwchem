@@ -1,7 +1,11 @@
+c
+c $Id$
+c
+C> \ingroup task
+C> @{
+c
       subroutine task(rtdb)
-*
-* $Id$
-*
+c
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
@@ -10,7 +14,7 @@
 #include "global.fh"
 #include "mafdecls.fh"
 #include "stdio.fh"
-      integer rtdb              ! [input] data base handle
+      integer rtdb              !< [Input] the RTDB handle
 c
 c     Called by ALL processes.  task_input has read the
 c     task directive and put stuff into the database.  Get the
@@ -499,6 +503,7 @@ c
       integer rtdb
       call util_version()
       task_version = .true.
+      return
       end
       logical function task_shell(rtdb)
       implicit none
@@ -529,7 +534,6 @@ c
      $        task_shell = util_system(command) .eq. 0
       enddo
 c
+      return
       end
-
-
-
+C> @}

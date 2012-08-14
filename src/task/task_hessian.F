@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_hessian(rtdb)
 *
 * $Id$
@@ -126,6 +128,7 @@ c
          call ecce_print_module_exit('task hessian', 'failed')
       endif
       end
+C> @}
 c
       logical function task_hessian_doit(rtdb)
 c

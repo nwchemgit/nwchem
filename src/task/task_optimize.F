@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_optimize(rtdb)
 c     $Id$
       implicit none
@@ -469,3 +471,4 @@ c
       task_neb = status
       return
       end
+C> @}

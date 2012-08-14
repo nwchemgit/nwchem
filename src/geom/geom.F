@@ -4385,15 +4385,20 @@ c
       enddo
 c
       end      
+c
+C> \brief Define the atomic mass of the specified center in a geometry instance
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function geom_mass_set(geom, icent, mass)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "stdio.fh"
 c
-      integer geom            ! [input] geometry handle
-      integer icent           ! [input] number of center for mass
-      double precision mass   ! [input] mass on center icent
+      integer geom            !< [Input] the geometry handle
+      integer icent           !< [Input] the center rank
+      double precision mass   !< [Input] the mass on center icent
 c
       logical geom_check_handle
       external geom_check_handle
@@ -4411,15 +4416,20 @@ c
       geom_mass(icent,geom) = mass
 c
       end      
+c
+C> \brief Retrieve the atomic mass of the specified center in a geometry instance
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function geom_mass_get(geom, icent, mass)
       implicit none
 #include "nwc_const.fh"
 #include "geomP.fh"
 #include "stdio.fh"
 c
-      integer geom            ! [input] geometry handle
-      integer icent           ! [input] number of center for mass
-      double precision mass   ! [output] mass on center icent
+      integer geom            !< [Input] the geometry handle
+      integer icent           !< [Input] the center rank
+      double precision mass   !< [Output] the mass on center icent
 c
       logical geom_check_handle
       external geom_check_handle
@@ -4437,6 +4447,12 @@ c
       mass = geom_mass(icent,geom)
 c
       end      
+c
+C> \brief Set the Angstrom to Bohr conversion factor for a geometry
+C> instance
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function geom_set_ang2au(geom,value)
       implicit none
 #include "nwc_const.fh"
@@ -4445,8 +4461,9 @@ c::functions
       logical geom_check_handle
       external geom_check_handle
 c::passed
-      integer geom               ! [input] geometry handle
-      double precision value     ! [input] converts angstroms to au value ~1.8......
+      integer geom               !< [Input] the geometry handle
+      double precision value     !< [Input] the conversion factor from
+c                                !< angstroms to au value ~1.8...
 c
       geom_set_ang2au = geom_check_handle(geom,'geom_set_ang2au')
       if (.not. geom_set_ang2au) return
@@ -4454,6 +4471,12 @@ c
       angstrom_to_au = value
 c
       end
+c
+C> \brief Retrieve the Angstrom to Bohr conversion factor for a geometry
+C> instance
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function geom_get_ang2au(geom,value)
       implicit none
 #include "nwc_const.fh"
@@ -4462,8 +4485,9 @@ c::functions
       logical geom_check_handle
       external geom_check_handle
 c::passed
-      integer geom               ! [input] geometry handle
-      double precision value     ! [output] converts angstroms to au value ~1.8......
+      integer geom           !< [Input] the geometry handle
+      double precision value !< [Output] the conversion factor from
+c                            !< angstroms to au value ~1.8......
 c
       geom_get_ang2au = geom_check_handle(geom,'geom_get_ang2au')
       if (.not. geom_get_ang2au) return
@@ -4505,6 +4529,11 @@ c
       value = 1.0d00/angstrom_to_au
 c
       end
+c
+C> \brief Define the centers in a geometry instance that have an ECP
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function geom_ecp_allset(geom,ncenter_in,oecp)
       implicit none
 #include "errquit.fh"
@@ -4512,9 +4541,9 @@ c
 #include "nwc_const.fh"
 #include "geomP.fh"
 c
-      integer geom                 ! [input] geometry handle
-      integer ncenter_in           ! [input] number of centers
-      logical oecp(ncenter_in)     ! [input] array of T/F for having ECPs
+      integer geom             ! [Input] the geometry handle
+      integer ncenter_in       ! [Input] the number of centers
+      logical oecp(ncenter_in) ! [Input] array of T/F for having ECPs
 c
       logical geom_check_handle
       external geom_check_handle
@@ -4532,6 +4561,11 @@ c
       enddo
 c
       end
+c
+C> \brief Retrieve the centers in a geometry instance that have an ECP
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function geom_ecp_allget(geom,ncenter_in,oecp)
       implicit none
 #include "errquit.fh"
@@ -4539,9 +4573,9 @@ c
 #include "nwc_const.fh"
 #include "geomP.fh"
 c
-      integer geom                 ! [input] geometry handle
-      integer ncenter_in           ! [input] number of centers
-      logical oecp(ncenter_in)     ! [input] array of T/F for having ECPs
+      integer geom             !< [Input] the geometry handle
+      integer ncenter_in       !< [Input] the number of centers
+      logical oecp(ncenter_in) !< [Output] array of T/F for having ECPs
 c
       logical geom_check_handle
       external geom_check_handle

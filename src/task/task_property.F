@@ -1,3 +1,5 @@
+C> \ingroup task
+C> @{
       logical function task_property(rtdb)
       implicit none
 #include "errquit.fh"
@@ -31,4 +33,5 @@ c
       task_property = status
 c
       end
+C> @}
 c $Id$

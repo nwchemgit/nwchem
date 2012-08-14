@@ -1,6 +1,8 @@
 *
 * $Id$
 *
+C> \ingroup task
+C> @{
       logical function task_vscf(rtdb)
 c     
 c     Also will be hooked up to analytic methods as they are available.
@@ -162,3 +164,4 @@ c
 c
 c
       end
+C> @}
