@@ -38,7 +38,7 @@ C     If inconsistencies are discovered in the memory specification
 C     the lowest priority quantit(y/ies) will be modified to resolve
 C     them.
 C
-C     On input, ?Source = 'U' indicates user-provided input.  All others
+C     On input, Source = 'U' indicates user-provided input.  All others
 C     must be 'N' for "not specified".  On output, notations may be:
 C        N)ot specified
 C        F)ile .nwchemrc

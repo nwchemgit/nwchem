@@ -211,7 +211,7 @@ c assume not a restart
             close(unit=69,status='keep')
             int_restart = 1
           else
-            write(luout,*)'*** Warning continue called for but no   ***'
+            write(luout,*)'*** Warning continue called for but no  ***'
             write(luout,*)'*** fd restart file for nuclear hessian ***'
             write(luout,*)'*** starting from scratch so to speak   ***'
           endif
