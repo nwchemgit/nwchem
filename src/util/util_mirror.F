@@ -25,8 +25,8 @@ c     need to add sanity check on docopy vs dozero
             endif
             return
          endif
-         enddo
-         util_mirrmat=.true.
+      enddo
+      util_mirrmat=.true.
       return
       end
       logical function util_mirrclone(g_a,g_amirr)
