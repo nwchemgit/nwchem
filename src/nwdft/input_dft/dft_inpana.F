@@ -42,7 +42,7 @@ c
       logical odft,rodft
       character*4 scftype
 c
-      logical cam_exch
+      logical cam_exch,cam_srhf
       double precision cam_alpha,cam_beta,cam_omega
 c
       character*9 local_c, nonlocal_c, nineb_c
@@ -88,6 +88,8 @@ c
 c     == Coulomb Attenuation Method (CAM/LC) parameters ==
       if (.not.rtdb_get(rtdb, 'dft:cam_exch', mt_log, 1, cam_exch)) 
      &   cam_exch=.false.
+      if (.not.rtdb_get(rtdb, 'dft:cam_srhf', mt_log, 1, cam_srhf)) 
+     &   cam_srhf=.false.
       if (.not.rtdb_get(rtdb, 'dft:cam_omega', mt_dbl, 1,cam_omega)) 
      &   cam_omega=0.d0
       if (.not.rtdb_get(rtdb, 'dft:cam_alpha', mt_dbl, 1,cam_alpha)) 
@@ -431,7 +433,8 @@ c
 c           Do exact exchange differently.
 c     
             if (lxfac(1).or.nlxfac(1))
-     &           write(LuOut,9224) xname(1), xfac(1), nineb_c
+     &          write(LuOut,9224) xname(1), xfac(1), nineb_c
+c
             do n = 2, numfunc
                if (lxfac(n).and.nlxfac(n))then
                   write(LuOut,9224) xname(n), xfac(n), nineb_c
@@ -517,7 +520,10 @@ c
 c           Print range-separation parameters
             if (cam_exch) then
               write(LuOut,*)
-              write(LuOut,8201)cam_alpha,cam_beta,cam_omega
+               write(LuOut,8202) 
+     &         'Range-Separation Parameters        '
+               write(LuOut,8203) 
+              write(LuOut,8201)cam_alpha,cam_beta,cam_omega,cam_srhf
             end if ! cam_exch
 c
             call util_flush(LuOut)
@@ -733,7 +739,10 @@ c 9139 format(10x,'Spatial weights used: Delley. ')
      &       10x,'Spin multiplicity:',2x,i4)
  8201 format(10x,' Alpha           :',f6.2,/,
      &       10x,' Beta            :',f6.2,/,
-     &       10x,' Gamma           :',f6.2)
+     &       10x,' Gamma           :',f6.2,/,
+     &       10x,' Short-Range HF  :',l6)
+ 8202 format(2x,a44)
+ 8203 format(11x,'---------------------------')
  9372 format(10x,'Density screening/tol_rho: ',1Pd8.2,/,
      &       10x,'AO Gaussian exp screening on grid/accAOfunc: ',i3,/,
      &       10x,'CD Gaussian exp screening on grid/accCDfunc: ',i3,/,

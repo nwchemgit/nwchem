@@ -7,7 +7,7 @@ C$Id$
 #include "mafdecls.fh"
 #include "stdio.fh"
 #include "xc.fh"
-
+c
       integer rtdb
       character*(*) module
 c     
@@ -94,34 +94,36 @@ c
 c     m08-HX   => 8600
 c     xm08-HX  => 8610
 c     cm08-HX  => 8620
-
+c
 c     m08-SO   => 8700
 c     xm08-SO  => 8710
 c     cm08-SO  => 8720
-
+c
 c     m11      => 8800
 c     xm11     => 8810
 c     cm11     => 8820
-
+c
 c     m11-L    => 8900
 c     xm11-L   => 8910
 c     cm11-L   => 8920
-
+c
 c     sogga    => 9000
 c     xsogga   => 9010
 c     csogga   => 9020
-
+c
 c     sogga11  => 9100
 c     xsogga11 => 9110
 c     csogga11 => 9120
-
+c
 c     sogga11-x  => 9200
 c     xsogga11-x => 9210
 c     csogga11-x => 9220
-
+c
+c     srexch ==> 9320
+c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=126)
-
+      parameter (num_dirs=127)
+c
       character*15 dirs(num_dirs)
       character*255 test
 c
@@ -165,10 +167,11 @@ c
      &     'xbnl07',
      &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
      &     'xcamlsd','xwpbe','ssb-d','kt1','kt2','bhlyp','b3p86',
-     &     'b3pw91','pbe96','dldf'/
+     &     'b3pw91','pbe96','dldf','srhfexch'/
 c     becke97-d, ssb-d
       logical disp
 c
+      logical cam_exch,cam_srhf
       double precision cam_omega,cam_alpha,cam_beta
 c
 c     Only these few arrays are initialized (not defaults).
@@ -207,7 +210,7 @@ c
      &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8900,8910,8920,
      &  9000,9010,9020,9100,9110,9120,9200,9210,9220,
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
-     &  8532,8533,8534,9300,1999) ind
+     &  8532,8533,8534,9300,9310,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -2629,8 +2632,6 @@ c
 c
 cM11 suite
 c
-
-c
 c M11
 c
  8800  xccomb(50) = .true.
@@ -2648,7 +2649,8 @@ c     set cam parameters since this is a range-separated functional
       cam_omega = 0.25
       cam_alpha = 0.428
       cam_beta = 0.572
-      call xc_setcamparam(rtdb,cam_omega,cam_alpha,cam_beta)
+      cam_srhf = .false.
+      call xc_setcamparam(rtdb,cam_srhf,cam_omega,cam_alpha,cam_beta)
 c
       goto 10
 c
@@ -3369,7 +3371,7 @@ c
       goto 10
 
 c     dlDF      
-9300  xccomb(31) = .true.
+ 9300 xccomb(31) = .true.
         xfac(32) = 0.3855871d0
        lxfac(32) = .true.
       nlxfac(32) = .true.
@@ -3381,7 +3383,53 @@ c     dlDF
        nlxfac(1) = .true.
 c
       goto 10
-
+c
+c     SRHFexch; Short-Range HF exact exchange
+c
+ 9310 if (inp_a(test) ) then
+         if (inp_compare(.false.,'local', test) ) then
+            write(LuOut,*)' HF exchange is by nature nonlocal',
+     &                ' and cannot be conveniently split'
+            write(LuOut,*)' into local and nonlocal pieces;',
+     &                ' total HF exchange is assumed desired. '
+            lxfac(1) = .true.
+            nlxfac(1) = .true.
+         elseif (inp_compare(.false.,'nonlocal', test) ) then
+            write(LuOut,*)' HF exchange is by nature nonlocal',
+     &                ' and cannot be conveniently split'
+            write(LuOut,*)' into local and nonlocal pieces;',
+     &                ' total HF exchange is assumed desired. '
+            lxfac(1) = .true.
+            nlxfac(1) = .true.
+         else
+c
+c           assume total wanted
+c
+            lxfac(1) = .true.
+            nlxfac(1) = .true.
+            call inp_prev_field()
+         endif
+      else
+c
+c        assume total wanted
+c
+         lxfac(1) = .true.
+         nlxfac(1) = .true.
+      endif
+      if (.not. inp_f(xfac(1)) ) then
+         write(LuOut,*)' xc_inp: hfexch multiplicative factor not ',
+     &                 'found.'
+         xfac(1) = 1.0d0
+      endif
+c
+      cam_exch = .true.
+      cam_srhf = .true.
+      if (.not.rtdb_put(rtdb,'dft:cam_exch', mt_log, 1, cam_exch))
+     & call errquit('xc_inp: rtdb_put failed', 2700, RTDB_ERR)
+      if (.not.rtdb_put(rtdb,'dft:cam_srhf', mt_log, 1, cam_srhf))
+     & call errquit('xc_inp: rtdb_put failed', 2700, RTDB_ERR)
+c
+      goto 10
 c
 c     gill96; Gill '96 functional for exchange
 c     
