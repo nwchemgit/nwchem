@@ -146,8 +146,8 @@ c
       do 145 n = 1,Lr3
         do 140 mr = 1,(NPP*NPQ)
          if (doscreen) then
-           if (cam_srhf) then ! for short-range HF
-             R0(mr,n) = cam_alpha*R(mr,0,n)-cam_beta*Rscr(mr,0,n)
+           if (cam_srhf) then ! for pure short-range HF (1-erf(r)/r)
+             R0(mr,n) = R(mr,0,n)-Rscr(mr,0,n)
            else
              R0(mr,n) = cam_alpha*R(mr,0,n)+cam_beta*Rscr(mr,0,n)
            end if 
