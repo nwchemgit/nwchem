@@ -1,0 +1,41 @@
+echo
+start h2o-hse
+
+geometry units angstrom
+O      0.00000000     0.00000000     0.11726921
+H      0.75698224     0.00000000    -0.46907685
+H     -0.75698224     0.00000000    -0.46907685
+end
+
+basis spherical
+  * library aug-cc-pvdz
+end
+
+# HSE03 functional: 0.25*Ex(HF-SR) - 0.25*Ex(PBE-SR) + Ex(PBE) + Ec(PBE)
+# gamma(HF-SR) = gamma(PBE-SR)
+dft
+  xc hse03
+  iterations 100
+  direct
+end
+task dft energy
+
+# HSE06 functional: 0.25*Ex(HF-SR) - 0.25*Ex(PBE-SR) + Ex(PBE) + Ec(PBE)
+# gamma(HF-SR) = gamma(PBE-SR)
+dft
+  xc xpbe96 1.0 xcampbe96 -0.25 cpbe96 1.0 srhfexch 0.25
+  cam 0.33 cam_alpha 0.0 cam_beta 1.0
+  iterations 100
+  direct
+end
+task dft energy
+
+# HSE06 functional: 0.25*Ex(HF-SR) - 0.25*Ex(PBE-SR) + Ex(PBE) + Ec(PBE)
+# gamma(HF-SR) = gamma(PBE-SR)
+dft
+  xc xpbe96 1.0 xcampbe96 -0.25 cpbe96 1.0 srhfexch 0.25
+  cam 0.11 cam_alpha 0.0 cam_beta 1.0
+  iterations 100
+  direct
+end
+task dft energy
