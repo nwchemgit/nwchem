@@ -200,6 +200,7 @@ c
       implicit none
 c
 #include "cdft.fh"
+#include "case.fh"
 c
       xc_hascam=(
      .     xfac(38).ne.0d0.or.
@@ -210,12 +211,14 @@ c
      .     xfac(50).ne.0d0.or.
      .     xfac(51).ne.0d0)
 c
+      xc_hascam = xc_hascam.or.cam_exch
+c
       return
       end
 c
 c     set cam parameters
 c
-      subroutine xc_setcamparam(rtdb,omega,alpha,beta)
+      subroutine xc_setcamparam(rtdb,dosrhf,omega,alpha,beta)
       implicit none
 c
       integer rtdb
@@ -224,7 +227,7 @@ c
 #include "mafdecls.fh"
 #include "errquit.fh"
 c
-      logical cam_exch
+      logical cam_exch,dosrhf
       double precision omega,alpha,beta
 c
 c     set cam parameters
@@ -232,6 +235,10 @@ c     set cam parameters
 c
 c     set cam flag 
       if (.not.rtdb_put(rtdb,'dft:cam_exch', mt_log, 1, cam_exch))
+     & call errquit('xc_setcamparam: rtdb_put failed', 2700, RTDB_ERR)
+c
+c     set short-range HF (srhf) flag 
+      if (.not.rtdb_put(rtdb,'dft:cam_srhf', mt_log, 1, dosrhf))
      & call errquit('xc_setcamparam: rtdb_put failed', 2700, RTDB_ERR)
 c
 c     set cam_omega
