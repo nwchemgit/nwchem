@@ -141,11 +141,16 @@ c Transfer to R0 array.
 c       write(6,*) "cam_alpha:",cam_alpha
 c       write(6,*) "cam_beta:",cam_beta
 c       write(6,*) "doscreen:",doscreen
-
+c       write(6,*) "cam_srhf:",cam_srhf
+c
       do 145 n = 1,Lr3
         do 140 mr = 1,(NPP*NPQ)
          if (doscreen) then
-           R0(mr,n) = cam_alpha*R(mr,0,n)+cam_beta*Rscr(mr,0,n)
+           if (cam_srhf) then ! for short-range HF
+             R0(mr,n) = cam_alpha*R(mr,0,n)-cam_beta*Rscr(mr,0,n)
+           else
+             R0(mr,n) = cam_alpha*R(mr,0,n)+cam_beta*Rscr(mr,0,n)
+           end if 
          else
            R0(mr,n) = R(mr,0,n)
          end if
