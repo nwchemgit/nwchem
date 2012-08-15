@@ -216,6 +216,19 @@ c
       return
       end
 c
+c     return true for functionals with short-range HF
+c
+      logical function xc_hassrhf()
+      implicit none
+c
+#include "cdft.fh"
+#include "case.fh"
+c
+      xc_hassrhf = cam_srhf
+c
+      return
+      end
+c
 c     set cam parameters
 c
       subroutine xc_setcamparam(rtdb,dosrhf,omega,alpha,beta)
