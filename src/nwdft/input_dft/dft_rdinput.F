@@ -662,6 +662,7 @@ c
       xcname(56)='              B3P86 Method XC Functional'
       xcname(57)='             B3PW91 Method XC Functional'
       xcname(58)='              PBE96 Method XC Functional'
+      xcname(59)='              HSE03 Method XC Functional'
 c     
 c     place character XC parameters in rtdb
 c     

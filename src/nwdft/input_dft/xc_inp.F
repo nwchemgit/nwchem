@@ -119,10 +119,11 @@ c     sogga11-x  => 9200
 c     xsogga11-x => 9210
 c     csogga11-x => 9220
 c
-c     srexch ==> 9320
+c     srexch ==> 9310
+c     hse03 ==> 9320
 c
       integer num_dirs, ind, mlen, iline, n
-      parameter (num_dirs=127)
+      parameter (num_dirs=128)
 c
       character*15 dirs(num_dirs)
       character*255 test
@@ -167,7 +168,7 @@ c
      &     'xbnl07',
      &     'becke97-d','xcamb88','xcampbe96','mp2','b2plyp',
      &     'xcamlsd','xwpbe','ssb-d','kt1','kt2','bhlyp','b3p86',
-     &     'b3pw91','pbe96','dldf','srhfexch'/
+     &     'b3pw91','pbe96','dldf','srhfexch','hse03'/
 c     becke97-d, ssb-d
       logical disp
 c
@@ -210,7 +211,7 @@ c
      &  8600,8610,8620,8700,8710,8720,8800,8810,8820,8900,8910,8920,
      &  9000,9010,9020,9100,9110,9120,9200,9210,9220,
      &  8200,4800,8300,8400,8500,8510,8520,8530,4600,4700,4701,8531,
-     &  8532,8533,8534,9300,9310,1999) ind
+     &  8532,8533,8534,9300,9310,9320,1999) ind
       call errquit('xc_inp: unimplemented directive', ind, INPUT_ERR)
 c     
 c     acm; adiabatic connection method
@@ -2646,6 +2647,7 @@ c
       nlxfac(1) = .true.
 c    
 c     set cam parameters since this is a range-separated functional 
+c
       cam_omega = 0.25
       cam_alpha = 0.428
       cam_beta = 0.572
@@ -3428,6 +3430,44 @@ c
      & call errquit('xc_inp: rtdb_put failed', 2700, RTDB_ERR)
       if (.not.rtdb_put(rtdb,'dft:cam_srhf', mt_log, 1, cam_srhf))
      & call errquit('xc_inp: rtdb_put failed', 2700, RTDB_ERR)
+c
+      goto 10
+c
+c     hse03; HSE03
+c     0.25*Ex(HF-SR) -0.25*Ex(PBE-SR) + Ex(PBE) + Ec(PBE) 
+c
+ 9320 xccomb(59) = .true.
+c
+c       Ex(HF-SR)
+c
+        xfac(1) = 0.25d0
+       lxfac(1) = .true.
+      nlxfac(1) = .true.
+c
+c       Ex(PBE-SR)
+c
+        xfac(41) = -0.25
+       lxfac(41) = .true.
+      nlxfac(41) = .true.
+c
+c       Ex(PBE) + Ec(PBE)
+c
+        xfac(7)  =  1.0d0
+       lxfac(7)  = .true.
+      nlxfac(7)  = .true.
+        cfac(12) =  1.0d0
+       lcfac(12) = .false.
+      nlcfac(12) = .true.
+       lcfac(6) = .true.
+       cfac(6) = 1.0d0
+c    
+c     set cam parameters since this is a range-separated functional 
+c
+      cam_omega = 0.33
+      cam_alpha = 0.d0
+      cam_beta =  1.0
+      cam_srhf = .true. ! for short-range HF
+      call xc_setcamparam(rtdb,cam_srhf,cam_omega,cam_alpha,cam_beta)
 c
       goto 10
 c
