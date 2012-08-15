@@ -36,8 +36,8 @@ c                       2011-06-17 20:00     FA
      $              l_d_kl,  l_d_ik,  l_d_jl,  l_d_il,  l_d_jk, 
      $     l_f_ij,  l_f_ji,  l_f_ik,  l_f_jl,  l_f_il,  l_f_jk
       integer g_loc
-      logical xc_gotxc
-      external xc_gotxc
+      logical xc_gotxc,xc_hassrhf
+      external xc_gotxc,xc_hassrhf
       double precision jloc,kloc,factor_xch
       double precision factor_cam,cam_alpha1,cam_beta1
       integer acc,ind,ispin,nfock(2),coeff(2)
@@ -113,29 +113,27 @@ c     == take care of attenuated or non-attenuated 2e ==
       else
        write(*,*) 'Error in new_giao_2e:: npol=1 or 2 npol=',npol
       endif
-
+c
       do ispin=1,npol
-          call ga_zero(g_fock1) ! reset g_fock1
-
+        call ga_zero(g_fock1) ! reset g_fock1
+c
       if (.not.cam_exch) then ! normal calculations
-c ------ Test : Coulomb + Exchange separate calcs. ----- START
-          call ga_zero(g_loc)
-          call giaofock(basis,geom,g_dens(ntot),g_loc,
+        call ga_zero(g_loc)
+        call giaofock(basis,geom,g_dens(ntot),g_loc,
      $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
      $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
      $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 1.d0, 0.d0) ! get full coulomb
-          call ga_add(1.d0, g_loc, 1.0d0, g_fock1, g_fock1)
-          call ga_zero(g_loc)
-          call giaofock(basis,geom,g_dens(ispin),g_loc,
+        call ga_add(1.d0, g_loc, 1.0d0, g_fock1, g_fock1)
+        call ga_zero(g_loc)
+        call giaofock(basis,geom,g_dens(ispin),g_loc,
      $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
      $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
      $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac) ! get full exchange           
-          call ga_add(factor_xch, g_loc, 1.0d0, g_fock1, g_fock1)
-c ------ Test : Coulomb + Exchange separate calcs. ----- END
+        call ga_add(factor_xch, g_loc, 1.0d0, g_fock1, g_fock1)
       else
         call ga_zero(g_loc)
         call case_setflags(.false.) ! turn off attenuation
@@ -146,6 +144,7 @@ c ------ Test : Coulomb + Exchange separate calcs. ----- END
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
      $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 1.d0, 0.d0)  ! get full coulomb
         call ga_add(1.d0, g_loc, 1.0d0, g_fock1, g_fock1)  ! full Coulomb
+c
         call ga_zero(g_loc)
         call case_setflags(.false.) ! turn off attenuation
         cam_alpha1=factor_cam*cam_alpha
@@ -156,7 +155,13 @@ c ------ Test : Coulomb + Exchange separate calcs. ----- END
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
      $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac) ! get full exchange
-        call ga_add(cam_alpha1, g_loc, 1.0d0, g_fock1, g_fock1)   ! cam_alpha*Exchange
+c
+        if (.not.xc_hassrhf()) then
+           call ga_add(cam_alpha1, g_loc, 1.0d0, g_fock1, g_fock1)   ! cam_alpha*Exchange
+        else
+           call ga_add(1.d0, g_loc, 1.0d0, g_fock1, g_fock1)   ! 1.d0*Exchange
+        end if
+c
         call ga_zero(g_loc)
         call case_setflags(.true.) ! set attenuation
         call giaofock(basis,geom,g_dens(ispin),g_loc,
@@ -165,7 +170,13 @@ c ------ Test : Coulomb + Exchange separate calcs. ----- END
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
      $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac) ! get attenuated exchange
-        call ga_add(cam_beta1, g_loc, 1.0d0, g_fock1, g_fock1)    ! cam_beta*att_Exchange
+c
+        if (.not.xc_hassrhf()) then
+           call ga_add(cam_beta1, g_loc, 1.0d0, g_fock1, g_fock1)    ! cam_beta*att_Exchange
+        else
+           call ga_add(-1.d0, g_loc, 1.0d0, g_fock1, g_fock1)    ! -1.d0*att_Exchange
+        end if
+c
         call case_setflags(.false.) ! turn off attenuation
       end if  ! cam_exch
 
@@ -374,8 +385,10 @@ c $Id$
      $              l_d_kl,  l_d_ik,  l_d_jl,  l_d_il,  l_d_jk, 
      $     l_f_ij,  l_f_ji,  l_f_ik,  l_f_jl,  l_f_il,  l_f_jk
       integer g_loc
-      logical xc_gotxc
-      external xc_gotxc
+c
+      logical xc_gotxc, xc_hassrhf
+      external xc_gotxc, xc_hassrhf
+c
       double precision jloc,kloc,factor_xch,
      &       cam_alpha1,cam_beta1,factor_cam
       integer acc,ind,ispin,nfock(2),coeff(2)
@@ -455,29 +468,29 @@ c ------ create g_fock1 ---------- END
       else
        write(*,*) 'Error in new_giao_2e:: npol=1 or 2 npol=',npol
       endif
+c
 c     == take care of attenuated or non-attenuated 2e ==
       call ga_zero(g_fock)
       do ispin=1,npol
        call ga_zero(g_fock1) ! reset g_fock1
       if (.not.cam_exch) then ! normal calculations
-c ------ Test : Coulomb + Exchange separate calcs. ----- START
-          call ga_zero(g_loc)
-          call giaofock(basis,geom,g_dens(ntot),g_loc,
+        call ga_zero(g_loc)
+        call giaofock(basis,geom,g_dens(ntot),g_loc,
      $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
      $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
      $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 1.d0, 0.d0) ! get full coulomb
-          call ga_add(1.d0, g_loc, 1.0d0, g_fock1, g_fock1)
-          call ga_zero(g_loc)
-          call giaofock(basis,geom,g_dens(ispin),g_loc,
+        call ga_add(1.d0, g_loc, 1.0d0, g_fock1, g_fock1)
+c
+        call ga_zero(g_loc)
+        call giaofock(basis,geom,g_dens(ispin),g_loc,
      $     dbl_mb(k_d_kl), dbl_mb(k_d_ik), dbl_mb(k_d_jl), 
      $     dbl_mb(k_d_il), dbl_mb(k_d_jk), dbl_mb(k_f_ij), 
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
      $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac) ! get full exchange
-          call ga_add(factor_xch, g_loc, 1.0d0, g_fock1, g_fock1)
-c ------ Test : Coulomb + Exchange separate calcs. ----- END
+        call ga_add(factor_xch, g_loc, 1.0d0, g_fock1, g_fock1)
       else
         call ga_zero(g_loc)
         call case_setflags(.false.) ! turn off attenuation
@@ -488,6 +501,7 @@ c ------ Test : Coulomb + Exchange separate calcs. ----- END
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
      $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 1.d0, 0.d0)  ! get full coulomb
         call ga_add(1.d0, g_loc, 1.0d0, g_fock1, g_fock1)  ! full Coulomb
+c
         call ga_zero(g_loc)
         call case_setflags(.false.) ! turn off attenuation
         cam_alpha1=factor_cam*cam_alpha
@@ -498,7 +512,13 @@ c ------ Test : Coulomb + Exchange separate calcs. ----- END
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
      $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac) ! get full exchange
-        call ga_add(cam_alpha1, g_loc, 1.0d0, g_fock1, g_fock1)   ! cam_alpha*Exchange
+c
+        if (.not.xc_hassrhf()) then
+          call ga_add(cam_alpha1, g_loc, 1.0d0, g_fock1, g_fock1)   ! cam_alpha*Exchange
+        else
+          call ga_add(1.d0, g_loc, 1.0d0, g_fock1, g_fock1)   ! 1.d0*Exchange
+        end if
+c
         call ga_zero(g_loc)
         call case_setflags(.true.) ! set attenuation
         call giaofock(basis,geom,g_dens(ispin),g_loc,
@@ -507,7 +527,13 @@ c ------ Test : Coulomb + Exchange separate calcs. ----- END
      $     dbl_mb(k_f_ji), dbl_mb(k_f_ik), dbl_mb(k_f_jl), 
      $     dbl_mb(k_f_il), dbl_mb(k_f_jk), iscrln, dbl_mb(k_scr), 
      $     ngint, dbl_mb(k_eri), tol2e, nshell, blen, 0.d0, kfac) ! get attenuated exchange
-        call ga_add(cam_beta1, g_loc, 1.0d0, g_fock1, g_fock1)    ! cam_beta*att_Exchange
+c
+        if (.not.xc_hassrhf()) then
+          call ga_add(cam_beta1, g_loc, 1.0d0, g_fock1, g_fock1)  ! cam_beta*att_Exchange
+        else
+          call ga_add(-1.d0, g_loc, 1.0d0, g_fock1, g_fock1)  ! -1.d0*att_Exchange
+        end if
+c
         call case_setflags(.false.) ! turn off attenuation
       end if  ! cam_exch
 

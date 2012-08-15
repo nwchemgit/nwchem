@@ -355,7 +355,6 @@ c     Build "first order fock matrix"
 c
 c     Note: Just the exchange: jfac = 0.d0 (see above)
 c
-c ++++ WARNING: skipping cam definitions for the moment ---- START
       if (.not.cam_exch) then
          call shell_fock_build(geom, basis,0,3*npol*2,
      $                         jfac,kfac,tol2e,
@@ -369,7 +368,6 @@ c ++++ WARNING: skipping cam definitions for the moment ---- START
      &                              g_fock,! output
      &                              .false.)
       end if
-c ++++ WARNING: skipping cam definitions for the moment ---- END
  180  continue
  
 c      write(*,104) npol,nocc(1),nocc(2),
