@@ -14,16 +14,28 @@ end
 set int:cando_txs f
 
 dft
-  xc xcampbe96 1.0 cpbe96 1.0 HFexch 1.0
-  cam 0.30 cam_alpha 0.25 cam_beta 0.75
+   xc xpbe96 1.0 xcampbe96 -0.25 cpbe96 1.0 srhfexch 0.25
+   cam 0.33 cam_alpha 0.0 cam_beta 1.0
+#  xc hfexch 1.0 
+#  xc hse
+#  xc xpbe96 1.0 xcampbe96 -0.25 cpbe96 1.0 srhfexch 0.25
+#  xc xpbe96 1.0 xwpbe -0.25 cpbe96 1.0 srhfexch 0.25
+#  xc xcampbe96 1.0 cpbe96 1.0 HFexch 1.0
+#  cam 0.30 cam_alpha 0.25 cam_beta 0.75
   iterations 100
   direct
 end
 task dft energy
 
-property
-  center com
-  dipole
-  aoresponse 1 0.0
+#property
+#  center com
+#  dipole
+#  aoresponse 1 0.0
+#end
+#task dft property
+
+tddft
+ notriplet
+ nroots 10
 end
-task dft property
+task tddft

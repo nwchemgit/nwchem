@@ -23,6 +23,7 @@ end
 
 dft
   xc beckehandh
+  print "final vector analysis"
 end
 task dft optimize
 

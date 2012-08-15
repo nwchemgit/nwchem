@@ -4,12 +4,11 @@ start h2o_core
 
 memory 1000 mb
 
-geometry units au
- O 0       0        0
- H 0       1.430   -1.107
- H 0      -1.430   -1.107
+geometry units au noautosym noautoz
+ O 0.00000000     0.00000000     0.22170860
+ H 0.00000000     1.43758081    -0.88575430
+ H 0.00000000    -1.43758081    -0.88575430
 end
-
 
 basis
   O library 6-31g*
@@ -18,12 +17,15 @@ end
 
 dft
   xc beckehandh
+  print "final vector analysis"
 end
-task dft optimize
+task dft
 
 tddft
-  ecut -10
+#  ewin -20.0 -10.0
+#  ecut -10.0
   nroots 10
   notriplet
+  thresh 1d-03
 end 
 task tddft 

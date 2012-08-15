@@ -17,8 +17,12 @@ end
 set int:cando_txs f
 
 dft
- xc xbnl07 0.90 lyp 1.00 hfexch 1.00
- cam 0.5 cam_alpha 0.0 cam_beta 1.0
+ xc xbnl07 0.90 lyp 0.00 hfexch 1.00
+ cam 100.0 cam_alpha 0.0 cam_beta 1.0
 end
+
+#dft
+#  xc hfexch
+#end
 
 task dft energy

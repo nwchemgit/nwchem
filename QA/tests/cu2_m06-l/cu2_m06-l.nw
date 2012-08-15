@@ -11,15 +11,17 @@ end
 basis
 * library "LANL2DZ ECP"
 end
+
 ecp
 * library "LANL2DZ ECP"
 end
 
 dft
+print "final vectors analysis"
 xc m06-L
 mult 1
 grid fine
- tolerances tight
+tolerances tight
 iterations 40
 end
 
