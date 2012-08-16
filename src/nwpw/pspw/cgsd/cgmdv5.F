@@ -312,6 +312,13 @@
       call pspw_init_SIC(rtdb,ne)
       call pspw_init_HFX(rtdb,psi_ispin(),ne)
 
+*     **** initialize DFT+U ****
+      call psp_U_init()
+
+*     **** initialize metadynamics ****
+      call meta_initialize(rtdb)
+
+
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
 
@@ -1079,12 +1086,15 @@ c      call control_up_print()
       call mask_end()
       call Pack_end()
       call G_end()
+      call psp_U_end()
       call pspw_end_SIC()
       call pspw_end_HFX()
       call pspw_end_APC()
       call pspw_charge_end()
       call pspw_qmmm_end()
 c      call frac_occ_end()
+      call meta_finalize(rtdb)
+
       if (nose) call Nose_end()
       call ion_end()
       call psp_end()

@@ -99,8 +99,8 @@ c
 
       real*8   psi_1_noupdate_energy,psi_eigenvalue
       external psi_1_noupdate_energy,psi_eigenvalue
-      logical  psp_U_psputerm
-      external psp_U_psputerm
+      logical  psp_U_psputerm,meta_found
+      external psp_U_psputerm,meta_found
    
       Ein = E(1)
       call Parallel_taskid(taskid)
@@ -396,6 +396,14 @@ c      call psi_check()
          E(29) =  ehfx
          E(30) =  phfx
       end if
+
+*     **** Metadynamics potential terms ****
+      if (meta_found()) then
+         call electron_meta_energies(ehfx,phfx)
+         E(31) =  ehfx
+         E(32) =  phfx
+      end if
+
 
       failed = (sd_count.ge.MAX_SD_COUNT)
 

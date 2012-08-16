@@ -91,6 +91,8 @@ c
 
       logical  control_precondition,pspw_SIC,pspw_HFX,psp_U_psputerm
       external control_precondition,pspw_SIC,pspw_HFX,psp_U_psputerm
+      logical  meta_found
+      external meta_found
      
   
       call Pack_npack(1,npack1)
@@ -304,6 +306,12 @@ c      call psi_check()
          E(30) =  phfx
       end if
 
+*     **** Metadynamics potential terms ****
+      if (meta_found()) then
+         call electron_meta_energies(ehfx,phfx)
+         E(31) =  ehfx
+         E(32) =  phfx
+      end if
 
       value = MA_free_heap(G1(2))
       value = value.and.MA_free_heap(H0(2))

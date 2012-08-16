@@ -94,10 +94,10 @@ c
 
 *     ***** pspw_charge external functions ****
       logical  pspw_charge_found,control_precondition,pspw_HFX
-      logical  pspw_HFX_relaxed,psp_U_psputerm
+      logical  pspw_HFX_relaxed,psp_U_psputerm,meta_found
       real*8   pspw_charge_Energy_ion,pspw_charge_Energy_charge
       external pspw_charge_found,control_precondition,pspw_HFX
-      external pspw_HFX_relaxed,psp_U_psputerm
+      external pspw_HFX_relaxed,psp_U_psputerm,meta_found
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
       real*8   psi_1_noupdate_energy,psi_eigenvalue
@@ -404,6 +404,14 @@ c      call psi_check()
          E(29) =  ehfx
          E(30) =  phfx
       end if
+
+*     **** Metadynamics potential terms ****
+      if (meta_found()) then
+         call electron_meta_energies(ehfx,phfx)
+         E(31) =  ehfx
+         E(32) =  phfx
+      end if
+
 
       if (control_fractional()) then
         E(28) = psi_smearcorrection()

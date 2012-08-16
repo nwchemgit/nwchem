@@ -97,8 +97,8 @@ c
       integer  control_lmbfgs_size
       external control_lmbfgs_size
    
-      logical  pspw_HFX,psp_U_psputerm
-      external pspw_HFX,psp_U_psputerm
+      logical  pspw_HFX,psp_U_psputerm,meta_found
+      external pspw_HFX,psp_U_psputerm,meta_found
   
 
       dt = control_time_step()
@@ -280,7 +280,19 @@ c     call psi_check()
          E(29) =  ehfx
          E(30) =  phfx
       end if
+*     **** DFT+U terms ****
+      if (psp_U_psputerm()) then
+         call electron_U_energies(ehfx,phfx)
+         E(29) =  ehfx
+         E(30) =  phfx
+      end if
 
+*     **** Metadynamics potential terms ****
+      if (meta_found()) then
+         call electron_meta_energies(ehfx,phfx)
+         E(31) =  ehfx
+         E(32) =  phfx
+      end if
 
       return
       end

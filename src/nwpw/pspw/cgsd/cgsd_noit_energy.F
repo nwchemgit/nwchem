@@ -35,7 +35,7 @@ c     $Id$
       logical     psp_semicore,pspw_charge_found,pspw_qmmm_found
       logical     control_out_of_time,pspw_SIC,control_DOS,pspw_HFX
       logical     control_print,control_psi_tmp,control_fractional
-      logical     psp_U_psputerm
+      logical     psp_U_psputerm,meta_found
       character*4 ion_aname
       integer     control_it_in, control_it_out,control_minimizer
       integer     ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
@@ -49,7 +49,7 @@ c     $Id$
       external ion_nion,ion_katm,psi_ne,psi_ispin,control_rtdb
       external psi_iptr_hml
       external control_print,control_psi_tmp,control_fractional
-      external    psp_U_psputerm
+      external    psp_U_psputerm,meta_found
       external control_tole,control_tolc,psi_occupation
       external ion_rion,psi_eigenvalue,psi_hml,ion_amass
       character*4 psi_ab_irrep_name
@@ -167,6 +167,9 @@ c     $Id$
          if (psp_U_psputerm()) then
            write(luout,1458) E(29),E(29)/neall
          end if
+         if (meta_found()) then
+           write(luout,1459) E(31),E(31)/ion_nion()
+         end if
          write(luout,1470) E(5),E(5)/ion_nion()
          if (control_fractional()) write(luout,1471) E(28),E(28)/neall
 
@@ -185,6 +188,10 @@ c     $Id$
          if (psp_U_psputerm())  then
            write(luout,1503) E(30),E(30)/neall
          end if
+         if (meta_found()) then
+           write(luout,1504) E(32),E(32)/neall
+         end if
+
 
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
@@ -403,6 +410,7 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
  1456 FORMAT( ' SIC-exc-corr energy :',E19.10,' (',E15.5,'/electron)')
  1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
  1458 FORMAT( ' DFT+U     energy    :',E19.10,' (',E15.5,'/electron)')
+ 1459 FORMAT( ' Metadynamics energy :',E19.10,' (',E15.5,'/electron)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1471 FORMAT( ' smearing  energy    :',E19.10,' (',E15.5,'/electron)')
@@ -422,6 +430,8 @@ c1410 FORMAT(10X,'=============  summary of results  =================')
      >        ' (',E15.5,'/electron)')
  1503 FORMAT( ' K.S. DFT+U energy   :',E19.10,
      >        ' (',E15.5,'/electron)')
+ 1504 FORMAT( ' K.S. Metadynamics energy   :',E19.10,
+     >        ' (',E15.5,'/ion)')
  1507 FORMAT(/' Fermi energy =',2(E18.7,' (',F8.3,'eV)'))
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1511 FORMAT(2(E18.7,' (',F8.3,'eV)  occ=',F5.3))

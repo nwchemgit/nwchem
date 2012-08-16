@@ -64,8 +64,8 @@ c
       external pspw_charge_Energy_ion,pspw_charge_Energy_charge
 
 *     ***** pspw_SIC and pspw_HFX external functions ****
-      logical  pspw_SIC,pspw_HFX,psp_U_psputerm
-      external pspw_SIC,pspw_HFX,psp_U_psputerm
+      logical  pspw_SIC,pspw_HFX,psp_U_psputerm,meta_found
+      external pspw_SIC,pspw_HFX,psp_U_psputerm,meta_found
 
 *     ***** PAW functions ****
       logical  psp_pawexist
@@ -161,6 +161,13 @@ c      call psi_1toelectron()
          call electron_U_energies(ehfx,phfx)
          E(29) = ehfx
          E(30) = phfx
+      end if
+
+*     **** Metadynamics potential terms ****
+      if (meta_found()) then
+         call electron_meta_energies(ehfx,phfx)
+         E(31) =  ehfx
+         E(32) =  phfx
       end if
 
 

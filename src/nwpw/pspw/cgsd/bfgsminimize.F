@@ -100,8 +100,8 @@ c
       external control_time_step,control_fake_mass
       integer  control_lmbfgs_size
       external control_lmbfgs_size
-      logical  control_precondition,pspw_HFX,psp_U_psputerm
-      external control_precondition,pspw_HFX,psp_U_psputerm
+      logical  control_precondition,pspw_HFX,psp_U_psputerm,meta_found
+      external control_precondition,pspw_HFX,psp_U_psputerm,meta_found
 
 
       dt = control_time_step()
@@ -321,6 +321,14 @@ c     call psi_check()
          E(29) =  ehfx
          E(30) =  phfx
       end if
+
+*     **** Metadynamics potential terms ****
+      if (meta_found()) then
+         call electron_meta_energies(ehfx,phfx)
+         E(31) =  ehfx
+         E(32) =  phfx
+      end if
+
 
       return
       end

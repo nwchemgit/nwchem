@@ -101,6 +101,8 @@ c
       external control_lmbfgs_size
       logical  control_precondition,pspw_SIC,pspw_HFX,psp_U_psputerm
       external control_precondition,pspw_SIC,pspw_HFX,psp_U_psputerm
+      logical  meta_found
+      external meta_found
 
       dt = control_time_step()
 c     dte = dt/dsqrt(control_fake_mass())
@@ -289,8 +291,12 @@ c     call psi_check()
          E(30) =  phfx
       end if
 
-
-
+*     **** Metadynamics potential terms ****
+      if (meta_found()) then
+         call electron_meta_energies(ehfx,phfx)
+         E(31) =  ehfx
+         E(32) =  phfx
+      end if
 
       return
       end
