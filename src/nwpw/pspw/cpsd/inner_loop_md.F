@@ -53,7 +53,7 @@ ccccccc#include "frac_occ.fh"
 
 
 *     **** local variables ****
-      logical move,fei,meta
+      logical move,fei
       integer n2ft3d,np,np_i,np_j
       integer i,j,ii,jj,n,n1(2),n2(2),it,ms,nn,ierr,gga
       integer nx,ny,nz
@@ -131,7 +131,6 @@ c     real*8     fion(3,natmx)
       call Parallel_np(np)
       call Pack_npack(0,npack0)
 
-      meta = meta_found()
       n2ft3d = 2*nfft3d
       field_exist       = pspw_charge_found()
       sic               = pspw_SIC()
@@ -705,14 +704,14 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
 
 *     **** DFT+U terms ****
       if (psp_U_psputerm()) then
-         call electron_U_energies(ehfx,phfx)
+         call psp_U_psputerm_energy(ehfx,phfx)
          E(29) =  ehfx
          E(30) =  phfx
          E(2)  = E(2) + E(29) - E(30)
       end if
 
 *     **** metadynamics energy ****
-      if (meta) then
+      if (meta_found()) then
          call meta_energypotential(ispin,neq,psi1,E(31),E(32))
          E(2)  = E(2) + E(31) - E(32)
       end if

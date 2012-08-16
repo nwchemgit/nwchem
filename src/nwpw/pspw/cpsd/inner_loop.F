@@ -112,6 +112,9 @@ c     real*8     fion(3,natmx)
       external pspw_charge_found,pspw_qmmm_found
       external pspw_qmmm_LJ_E,pspw_qmmm_Q_E,pspw_qmmm_spring_E
 
+      logical  psp_U_psputerm,meta_found
+      external psp_U_psputerm,meta_found
+
       call Pack_npack(0,npack0)
       n2ft3d = 2*nfft3d
       deltamm = 0.0d0
@@ -585,6 +588,21 @@ c          call Pack_cc_Sum(1,psi2(1,n),psi1(1,n),psi2(1,n))
             E(21) = phfx
          end if
       end if
+
+*     **** DFT+U terms ****
+      if (psp_U_psputerm()) then
+         call psp_U_psputerm_energy(ehfx,phfx)
+         E(29) =  ehfx
+         E(30) =  phfx
+         E(1)  = E(1) + E(29) - E(30)
+      end if
+
+*     **** metadynamics energy ****
+      if (meta_found()) then
+         call meta_energypotential(ispin,ne,psi1,E(31),E(32))
+         E(1)  = E(1) + E(31) - E(32)
+      end if
+
 
 
 *     **** set convergence variables ****
