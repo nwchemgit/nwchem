@@ -365,11 +365,11 @@ c      end
 
 *     **** external functions *****
       logical  pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm
-      logical  pspw_HFX,pspw_HFX_relaxed
+      logical  pspw_HFX,pspw_HFX_relaxed,meta_found
       integer  control_version
       real*8   lattice_omega,coulomb_e,electron_ehartree2
       external pspw_SIC,pspw_SIC_relaxed,psp_U_psputerm
-      external pspw_HFX,pspw_HFX_relaxed
+      external pspw_HFX,pspw_HFX_relaxed,meta_found
       external control_version
       external lattice_omega,coulomb_e,electron_ehartree2
       
@@ -473,6 +473,13 @@ c      end
          call psp_U_psputerm_energy(edftu,pdftu)
          total_energy = total_energy + edftu - pdftu
       end if
+
+*     **** metadynamics energy ****
+      if (meta_found()) then
+         call meta_energypotential(ispin,neq,psi_k,emeta,pmeta)
+         total_energy = total_energy + emeta - pmeta
+      end if
+
 
 *     **** total energy ****
       electron_energy = total_energy
@@ -915,6 +922,27 @@ c      end
       pdftu0 = pdftu
       return
       end
+
+
+*     ***********************************
+*     *                                 *
+*     *     electron_meta_energies      *
+*     *                                 *
+*     ***********************************
+
+      subroutine electron_meta_energies(emeta0,pmeta0)
+      implicit none
+      real*8 emeta0,pmeta0
+
+#include "mafdecls.fh"
+#include "electron_common.fh"
+
+
+      emeta0 = emeta
+      pmeta0 = pmeta
+      return
+      end
+
 
  
 

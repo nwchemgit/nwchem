@@ -20,9 +20,10 @@
       real*8  ehsic,exsic,phsic,pxsic ! SIC energies
       real*8  ehfx,phfx               ! HFX energies
       real*8  edftu,pdftu             ! DFT+U energies
+      real*8  emeta,pmeta             ! Metadynamics potential energies
 
       common / electron_block / ehsic,exsic,phsic,pxsic,ehfx,phfx,
-     >                          edftu,pdftu,
+     >                          edftu,pdftu,emeta,pmeta,
      >                          Hpsi_k,psi_r,
      >                          vl,vl_lr,v_field,vc,xcp,xce,vall,
      >                          dng_cmp,dng_cmp_smooth,vcomp,vh,
