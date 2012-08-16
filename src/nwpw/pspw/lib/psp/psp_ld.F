@@ -142,7 +142,7 @@
 *     ***********************************
       subroutine psp_ld_trace_gradient(ii,ll,ispin,ne,psi1,
      >                                 fractional,occ,
-     >                                 dv,dpsi1,fion)
+     >                                 dv,dpsi1,move,fion)
       implicit none
       integer    ii,ll
       integer    ispin,ne(2)
@@ -151,6 +151,7 @@
       real*8     occ(*)
       real*8     dv
       complex*16 dpsi1(*)  !*** dld/dpsi1*  ***
+      logical    move
       real*8     fion(3,*)   !*** dld/dRii    ***
 
 #include "mafdecls.fh"
@@ -293,6 +294,7 @@
      >           dpsi1,              2*npack1)
 
 
+      if (move) then
       do l=1,nproj
          do n=1,nn
             if (ispin.eq.1) 
@@ -344,6 +346,7 @@
          fion(3,ii) = fion(3,ii)  - ff(3)
 
       end do !** l **
+      end if
 
       value = .true.
       value = value.and.MA_pop_stack(asum(2))
