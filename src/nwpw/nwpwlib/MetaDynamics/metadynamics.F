@@ -647,12 +647,13 @@ c     *                                            *
 c     **********************************************
       subroutine meta_collective_force(indx,param,dv,
      >                                 ispin,ne,psi1,fmeta_psi1,
-     >                                 fmeta)
+     >                                 move,fmeta)
       implicit none
       integer indx(*)
       real*8 param(*),dv
       integer ispin,ne(2)
       real*8 psi1(*),fmeta_psi1(*)
+      logical move
       real*8 fmeta(3,*)
 
 *     **** local variables ****
@@ -667,6 +668,8 @@ c     **********************************************
       external ion_rion
 
       ntype = indx(1)
+
+      if (move) then
 
 c     **** bond distance ***
       if (ntype.eq.1) then
@@ -864,9 +867,19 @@ c     **** ld_trace ***
       else if (ntype.eq.7) then
          call psp_ld_trace_gradient(indx(2),indx(3),ispin,ne,psi1,
      >                                 .false.,param,
-     >                                 dv,fmeta_psi1,fmeta(1,indx(2)))
+     >                                 dv,fmeta_psi1,
+     >                                 move,fmeta(1,indx(2)))
 
+      end if
 
+*     ***** move = .false. ******
+      else
+         if (ntype.eq.7) then
+         call psp_ld_trace_gradient(indx(2),indx(3),ispin,ne,psi1,
+     >                                 .false.,param,
+     >                                 dv,fmeta_psi1,
+     >                                 move,fmeta(1,indx(2)))
+         end if
       end if
 
       return
@@ -975,10 +988,11 @@ c     **** ld_trace ***
 *     *              meta_force                     *
 *     *                                             *
 *     ***********************************************
-      subroutine meta_force(ispin,ne,psi1,fmeta_psi1,fmeta)
+      subroutine meta_force(ispin,ne,psi1,fmeta_psi1,move,fmeta)
       implicit none
       integer ispin,ne(2)
       real*8 psi1(*),fmeta_psi1(*)
+      logical move
       real*8 fmeta(3,*)
 
 #include "mafdecls.fh"
@@ -1016,7 +1030,7 @@ c     **** ld_trace ***
      >                                    dbl_mb(parammeta(1)+s2),
      >                                    dv(d),
      .                                    ispin,ne,psi1,fmeta_psi1,
-     >                                    fmeta)
+     >                                    move,fmeta)
             end do
          end if
 
@@ -1071,6 +1085,71 @@ c     **** ld_trace ***
       meta_energy = v 
       return
       end
+
+
+
+
+
+*     ***********************************************
+*     *                                             *
+*     *              meta_energypotential           *
+*     *                                             *
+*     ***********************************************
+      subroutine meta_energypotential(ispin,ne,psi1,e,p)
+      implicit none
+      integer ispin,ne(2)
+      real*8 psi1(*)
+      real*8 e,p
+
+#include "mafdecls.fh"
+#include "errquit.fh"
+#include "metadynamics.fh"
+
+*     **** local variables ****
+      integer d,s1,s2,ntype
+      real*8 r(10),dv(10),v
+
+*     **** external functions ****
+      real*8   nwpw_interp,meta_collective
+      external nwpw_interp,meta_collective
+
+      e = 0.0d0
+      p = 0.0d0
+      if (metafound) then
+
+         if (nmeta.gt.0) then
+            do d=1,nmeta
+               s1 = int_mb(sindxmeta(1) +d-1)
+               s2 = int_mb(sparammeta(1)+d-1)
+               r(d) = meta_collective(int_mb(indxmeta(1)+s1),
+     >                                dbl_mb(parammeta(1)+s2),
+     >                                ispin,ne,psi1)
+            end do
+            e = nwpw_interp(nmeta,int_mb(nxmeta(1)),
+     >                      dbl_mb(ameta(1)),dbl_mb(bmeta(1)),
+     >                      int_mb(pmeta(1)),
+     >                      dbl_mb(ymeta(1)),r)
+
+            call nwpw_dinterp(nmeta,int_mb(nxmeta(1)),
+     >                        dbl_mb(ameta(1)),dbl_mb(bmeta(1)),
+     >                        int_mb(pmeta(1)),
+     >                        dbl_mb(ymeta(1)),r,dv)
+
+            do d=1,nmeta
+               s1 = int_mb(sindxmeta(1) +d-1)
+               ntype = int_mb(indxmeta(1)+s1)
+               if (ntype.eq.7) then
+                  p = p - r(d)*dv(d)
+               end if
+            end do
+
+         end if
+
+      end if
+
+      return
+      end
+
 
 *     ***********************************************
 *     *                                             *
