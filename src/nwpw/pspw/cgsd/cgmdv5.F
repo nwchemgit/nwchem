@@ -47,7 +47,7 @@
 
 *     ***** energy variables ****
       integer ne(2),ms,ispin
-      real*8  E(30),en(2)
+      real*8  E(40),en(2)
       real*8  dipole(3)
       real*8  stress(3,3),lstress(6)
 

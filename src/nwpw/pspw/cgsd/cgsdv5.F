@@ -307,6 +307,9 @@ c     value = psi_initialize()
 *     **** initialize DFT+U ****
       call psp_U_init()
 
+*     **** initialize metadynamics ****
+      call meta_initialize(rtdb)
+
 *     **** initialize FixIon constraint ****
       call ion_init_FixIon(rtdb)
 
@@ -651,6 +654,8 @@ c     end if
       call pspw_charge_end()
       call pspw_qmmm_end()
 c      call frac_occ_end()
+      call meta_finalize(rtdb)
+
       call ion_end()
       call psp_end()
       call ion_end_FixIon()
