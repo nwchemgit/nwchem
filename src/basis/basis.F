@@ -2123,6 +2123,11 @@ c..... add diagnostics later
 *.....................................................................
 C> \ingroup bas
 C> @{
+c
+C> \brief Retrieve the highest angular momentum in the specified basis
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function bas_high_angular(basisin,high_angular)
       implicit none
 c
@@ -2137,8 +2142,8 @@ c::functions
       logical bas_check_handle
       external bas_check_handle
 c:: passed
-      integer basisin       ! [input] basis set handle
-      integer high_angular  ! [output] high angular momentum of basis
+      integer basisin      !< [Input] the basis set handle
+      integer high_angular !< [Output] the maximum angular momentum
 c:local
       integer basis, i, myang
       integer myutag
@@ -2168,6 +2173,7 @@ c
       bas_high_angular = .true.
       return
       end
+C> @}
 *.....................................................................
       logical function gbs_map_clear(basisin)
       implicit none
@@ -2376,6 +2382,18 @@ c
       return
       end
 *.....................................................................
+C> \ingroup bas
+C> @{
+c
+C> \brief Store the names of all current basis set instances on the RTDB
+c
+C> Write the number of current basis set instances and the names
+C> of all basis set instances to the RTDB. No actual contents of the
+C> basis sets is stored by this function. The bas_rtdb_store routine
+C> can be used to store the actual basis set data instead.
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function bas_rtdb_out(rtdb)
 c     
 c     output to rtdb info about known basis sets
@@ -2388,7 +2406,7 @@ c
 #include "stdio.fh"
 c     
 c::passed
-      integer rtdb ! [input] run time data base handle
+      integer rtdb !< [Input] the RTDB handle
 c
       bas_rtdb_out  =
      &     rtdb_put(rtdb, 'basis:nbasis',
@@ -2401,6 +2419,15 @@ c
 c     
       end
 *.....................................................................
+c
+C> \brief Add another basis set name to the list of known basis sets on 
+C> the RTDB
+c
+C> Just add another name to the list of known basis set instances. No
+C> actual basis set data is stored.
+c
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function bas_rtdb_add(rtdb, name)
       implicit none
 c
@@ -2413,8 +2440,8 @@ c
 #include "inp.fh"
 #include "stdio.fh"
 c     
-      integer rtdb              ! [input] run time data base handle
-      character*(*) name        ! [input] name of basis set to add
+      integer rtdb       !< [Input] the RTDB handle
+      character*(*) name !< [Input] the name of basis set to add
       integer basis
       logical status
       integer ln
@@ -2453,6 +2480,11 @@ c
 c     
       end
 *.....................................................................
+c
+C> \brief Print contents of all current basis set instances
+c
+C> \return Return .true. if successful, and .false. otherwise
+c
       logical function bas_print_all()
 c
 c routine to print active all basis set(s) information
@@ -2476,6 +2508,11 @@ c
 c
       return
       end
+c
+C> \brief Print the names of all basis set instances on the RTDB
+c
+C> \return Return .true. if successful, and .false. otherwise
+c
       subroutine bas_print_known_bases(rtdb)
       implicit none
 #include "mafdecls.fh"
@@ -2486,7 +2523,7 @@ c
 #include "inp.fh"
 #include "global.fh"
 #include "stdio.fh"
-      integer rtdb     ! [input] run time data base handle
+      integer rtdb !< [Input] the RTDB handle
 c     
 c     Print list of known basis sets
 c     
@@ -2551,6 +2588,7 @@ c
       endif
 c     
       end
+C> @}
 *.....................................................................
       logical function bas_rtdb_in(rtdb)
 c     
@@ -2585,6 +2623,17 @@ c
       return
       end
 *.....................................................................
+C> \ingroup bas
+C> @{
+c
+C> \brief Retrieve the center rank of a given shell in a basis set
+c
+C> After the basis set has been mapped to a geometry a complete list
+C> of shells (or contractions) is available. This routine retrieves
+C> the center rank of a shell from the complete list of shells.
+c
+C> \return Return .true. if successful, and .false. otherwise.
+c
       logical function bas_cn2ce(basisin,cont,center)
       implicit none
 c
@@ -2600,9 +2649,9 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin   ! [input] basis set handle
-      integer cont      ! [input] mapped contraction index
-      integer center    ! [output] center index
+      integer basisin !< [Input] the basis set handle
+      integer cont    !< [Input] the mapped contraction index
+      integer center  !< [Output] the center rank
 c::local
       integer basis
 #include "bas_ibs_sfn.fh"
@@ -2623,6 +2672,17 @@ c
       return
       end
 *.....................................................................
+c
+C> \brief Retrieve the rank of the symmetry unique center of a shell in
+C> a basis set
+c
+C> After the basis set has been mapped to a geometry a complete list
+C> of shells (or contractions) is available. This routine retrieves
+C> the center rank of the symmetry unique center of a shell from the
+C> complete list of shells.
+c
+C> \return Return .true. if successful, and .false. otherwise.
+c
       logical function bas_cn2uce(basisin,cont,ucenter)
       implicit none
 c
@@ -2638,9 +2698,9 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin   ! [input] basis set handle
-      integer cont      ! [input] mapped contraction index
-      integer ucenter    ! [output] center index
+      integer basisin !< [Input] the basis set handle
+      integer cont    !< [Input] the mapped contraction index
+      integer ucenter !< [Output] the symmetry unique center rank
 c::local
       integer basis
 #include "bas_ibs_sfn.fh"
@@ -2662,6 +2722,20 @@ c
 c
       end
 *.....................................................................
+c
+C> \brief Retrieve the range of basis functions corresponding to a shell
+c
+C> A shell (or equivalently contraction) may contain one or more basis
+C> functions. Hence in the total molecular basis a given shell 
+C> corresponds to a range of basis functions. This routine retrieve
+C> such a range of basis functions in that it
+C>
+C> - stores the first basis function of a shell in ifirst
+C>
+C> - stores the last basis function of a shell in ilast
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function bas_cn2bfr(basisin,cont,ifirst,ilast)
 c
 c returns the first basis function index of a mapped contraction 
@@ -2678,10 +2752,10 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin   ! [input] basis set handle
-      integer cont      ! [input] mapped contraction index
-      integer ifirst    ! [output] first basis function
-      integer ilast     ! [output] last basis function     
+      integer basisin !< [Input] the basis set handle
+      integer cont    !< [Input] the mapped contraction index
+      integer ifirst  !< [Output] the first basis function
+      integer ilast   !< [Output] the last basis function     
 c::local 
       integer basis
 c
@@ -2708,15 +2782,37 @@ c
       return
       end
 *.....................................................................
+c
+C> \brief Retrieve the range of basis functions corresponding to a
+C> center
+c
+C> A center may contain zero or more basis functions. Hence in the total
+C> molecular basis a given center corresponds to a range of basis
+C> functions. This routine retrieves such a range of basis functions in
+C> that it
+C>
+C> - stores the first basis function of a center in ibflo
+C>
+C> - stores the last basis function of a center in ibfhi
+C>
+C> In case that a center does not have any basis functions at all
+C>
+C> - ibflo is set to 0
+C>
+C> - ibfhi is set to -1
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function bas_ce2bfr(basis, icent, ibflo, ibfhi)
 c
 c  returns the basis function range for a given center
 c
       implicit none
 #include "stdio.fh"
-      integer basis ! [input] handle
-      integer icent ! [input] no. of center
-      integer ibflo, ibfhi ! [output] range of functions on center
+      integer basis !< [Input] the basis set handle
+      integer icent !< [Input] the center rank
+      integer ibflo !< [Output] the first basis function on the center
+      integer ibfhi !< [Output] the last basis function on the center
 c
       integer cnlo, cnhi, tmp
       logical status
@@ -2737,6 +2833,22 @@ c
 c
       end
 *.....................................................................
+c
+C> \brief Retrieves the range of shells for a given center
+C>
+C> A center may have zero or more shells (or equivalently contractions)
+C> associated with it. This routine retrieves the range of shells 
+C> associated with a center in that it
+C>
+C> - stores the rank of the first shell in ifirst
+C>
+C> - stores the rank of the last shell in ilast
+C>
+C> In case center does not have any shells (e.g. a point charge) the
+C> results are undefined.
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function bas_ce2cnr(basisin,center,ifirst,ilast)
 c
 c returns the mapped contraction range on a given center
@@ -2753,10 +2865,10 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin  ! [input] basis set handle         
-      integer center   ! [input] center index 
-      integer ifirst   ! [output] first mapped contraction
-      integer ilast    ! [output] last mapped contraction
+      integer basisin !< [Input] the basis set handle         
+      integer center  !< [Input] the center rank 
+      integer ifirst  !< [Output] the first mapped contraction
+      integer ilast   !< [Output] the last mapped contraction
 c::local 
       integer basis, nat
 #include "bas_ibs_sfn.fh"
@@ -2792,6 +2904,15 @@ c
       return
       end
 *.....................................................................
+c
+C> \brief Retrieves the center a given basis function is sited on
+C>
+C> Every Gaussian basis function is sited at one particular expansion
+C> center. This routine routine retrieves the particular center on
+C> which a given basis function is sited.
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function bas_bf2ce(basisin,testbf,center)
 c
 c routine to return the center of a given basis function 
@@ -2808,9 +2929,9 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin ! [input] basis set handle         
-      integer testbf  ! [input] basis function index
-      integer center  ! [output] center index
+      integer basisin !< [Input] the basis set handle         
+      integer testbf  !< [Input] the basis function index
+      integer center  !< [Output] the center rank
 c::local
       integer basis, nat, iat, ibflo, ibfhi, istart, iend
 c
@@ -2846,6 +2967,15 @@ c
 c
       end
 *.....................................................................
+c
+C> \brief Retrieves the shell a given basis function is part off
+C>
+C> Every Gaussian basis function is part of one particular shell
+C> (or equivalently contraction). This routine routine retrieves the
+C> particular shell a given basis function is part off.
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function bas_bf2cn(basisin,testbf,cont)
 c
 c returns the mapped contraction index that contains the given 
@@ -2864,9 +2994,9 @@ c::function
       external bas_numcont
       external bas_check_handle
 c::passed
-      integer basisin ! [input] basis set handle         
-      integer testbf  ! [input] basis function index
-      integer cont    ! [output] mapped contraction index
+      integer basisin !< [Input] the basis set handle         
+      integer testbf  !< [Input] the basis function index
+      integer cont    !< [Output] the mapped shell index
 c::local
       integer basis, icont, ibflo, ibfhi
       integer numcont
@@ -2897,6 +3027,26 @@ c... linear search through contractions
 c
       end
 *.....................................................................
+c
+C> \brief Retrieves the number of basis functions in the molecular
+C> basis set
+C>
+C> The basis set itself contains only the unique definitions of the
+C> combinations of primitive basis functions that generate the actual
+C> basis functions. I.e. it contains only the contraction coefficients,
+C> the exponents and the kind of atom it should be used for. 
+C>
+C> The molecular basis set is constructed from this information by
+C> mapping this specification onto a particular structure. This process
+C> Generates the actual specification of basis functions for the atoms.
+C> In molecular calculations various properties of the molecular basis
+C> set are essential.
+C>
+C> This routine extracts to total number of basis functions in the
+C> molecular basis set.
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function bas_numbf(basisin,nbf)
 c
 c returns the total number of basis functions of the mapped basis set.
@@ -2909,8 +3059,8 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin ! [input] basis set handle         
-      integer nbf     ! [output] number of basis functions
+      integer basisin !< [Input] the basis set handle         
+      integer nbf     !< [Output] the number of basis functions
 c::local
       integer basis 
 c
@@ -2924,6 +3074,21 @@ c
       return
       end
 *.....................................................................
+c
+C> \brief Retrieve the total number of primitive basis functions in the
+C> molecular basis set
+C>
+C> A shell of basis functions consists of a number of contracted 
+C> Gaussians of a particular angular momentum. The total number of basis
+C> functions corresponds to the number of contracted functions. Each
+C> individual Gaussian function in a contraction is referred to as
+C> a primitive function. Clearly then there is a number of primitive
+C> basis functions associated with the molecular basis set as well.
+C> This routine retrieves the latter number of primitive basis functions
+C> from the basis set.
+C>
+C> \return Returns .true. if successfull, and .false. otherwise.
+c
       logical function bas_num_prim(basisin,nprim)
 c
 c returns the total number of primitives of the mapped basis set.
@@ -2936,8 +3101,8 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin ! [input] basis set handle         
-      integer nprim   ! [output] number of primitives in mapped basis
+      integer basisin !< [Input] the basis set handle         
+      integer nprim   !< [Output] the number of primitives in mapped basis
 c::local
       integer basis 
 c
@@ -2951,6 +3116,19 @@ c
       return
       end
 *.....................................................................
+c
+C> \brief Retrieve the total number of contraction coefficients of the
+C> molecular basis set
+C>
+C> Shells consist of contracted Gaussian basis functions. With each
+C> primitive Gaussian there is associated an exponent and at least
+C> one contraction coefficient. 
+C>
+C> This routine retrieves the total number of contraction coefficients
+C> in the molecular basis set.
+C>
+C> \return Returns .true. if successfull, and .false. otherwise.
+c
       logical function bas_num_coef(basisin,ncoef)
 c
 c returns the total number of coeffsof the mapped basis set.
@@ -2963,8 +3141,9 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin ! [input] basis set handle         
-      integer ncoef   ! [output] number of coeffs in mapped basis
+      integer basisin !< [Input] the basis set handle         
+      integer ncoef   !< [Output] the number of contraction coefficients
+                      !< in the mapped basis
 c::local
       integer basis 
 c
@@ -2978,6 +3157,18 @@ c
       return
       end
 *.....................................................................
+c
+C> \brief Retrieve the names of a basis set instance
+C>
+C> Each basis set instance has two names. By one name the basis set
+C> in memory is known. This name is defined at the time the basis set
+C> instance is created. The other name is the one used to store the
+C> basis set on the RTDB. 
+C>
+C> This routine retrieves both basis set names.
+C>
+C> \return Returns .true. if successfull, and .false. otherwise.
+c
       logical function bas_name(basisin,basis_name,trans_name)
 c
 c returns the name and translated name of the basis set
@@ -2991,9 +3182,9 @@ c inp_strlen() from inp
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer       basisin ! [input] basis set handle
-      character*(*) basis_name ! [output] basis set name when loaded
-      character*(*) trans_name ! [output] basis set name in context 
+      integer       basisin    !< [Input] the basis set handle
+      character*(*) basis_name !< [Output] the basis set name when loaded
+      character*(*) trans_name !< [Output] the basis set name in context 
 c::local
       integer basis   ! actual offset into basis arrays
 *      integer lenofit ! length of name
@@ -3012,6 +3203,11 @@ c
 c
       end
 *.....................................................................
+c
+C> \brief Retrieves the tag of a given shell
+C>
+C> \return Returns .true. if successfull, and .false. otherwise.
+c
       logical function bas_cont_tag(basisin,icont,tagout)
       implicit none
 #include "nwc_const.fh"
@@ -3024,9 +3220,9 @@ c::-function
       logical bas_check_handle
       external bas_check_handle
 c::-passed
-      integer basisin
-      integer icont
-      character*(*) tagout
+      integer basisin      !< [Input] the basis set handle
+      integer icont        !< [Input] the shell index
+      character*(*) tagout !< [Output] the shell tag
 c::-local
       integer center, ucenter, basis
       integer len_tagout
@@ -3043,6 +3239,11 @@ c
       tagout = bs_tags(ucenter,basis)(1:len_tagout)
       end
 *.....................................................................
+c
+C> \brief Retrieves generic information of a given shell
+C>
+C> \return Returns .true. if successfull, and .false. otherwise.
+c
       logical function bas_continfo(basisin,icont,
      &       type,nprimo,ngeno,sphcart)
 c
@@ -3060,12 +3261,13 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin           ! [input] basis handle
-      integer icont             ! [input] contraction index
-      integer type              ! [output] type (sp/s/p/d/..)
-      integer nprimo            ! [output] no. of primitives
-      integer ngeno             ! [output] no. of contractions
-      integer sphcart           ! [output] 0/1 for cartesian/shperical
+      integer basisin !< [Input] the basis handle
+      integer icont   !< [Input] the shell index
+      integer type    !< [Output] the shell type (sp/s/p/d/..)
+      integer nprimo  !< [Output] the number of primitives
+      integer ngeno   !< [Output] the number of contractions
+      integer sphcart !< [Output] 0/1 for cartesian/spherical harmonic
+                      !< basis functions
 c::local
       integer basis,myucont,icontmax
 c
@@ -3105,6 +3307,12 @@ c...
       return
       end
 *.....................................................................
+c
+C> \brief Retrieves the total number of shells in the molecular
+C> basis set
+C>
+C> \return Returns .true. if successfull, and .false. otherwise.
+c
       logical function bas_numcont(basisin,numcont)
 c
 c returns the total number of mapped contractions/shells for the 
@@ -3119,8 +3327,8 @@ c::function
       logical bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin   ! [input] basis set handle
-      integer numcont   ! [output] number of mapped contractions
+      integer basisin !< [Input] the basis set handle
+      integer numcont !< [Output] the number of mapped shells
 c::local
       integer basis
 c
