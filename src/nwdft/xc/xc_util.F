@@ -229,9 +229,11 @@ c
       return
       end
 c
-c     set cam parameters
+c     set range-separation parameters
 c
-      subroutine xc_setcamparam(rtdb,dosrhf,omega,alpha,beta)
+      subroutine xc_setcamparam(rtdb,cam_exch,cam_srhf,
+     &   cam_omega,cam_alpha,cam_beta)
+c
       implicit none
 c
       integer rtdb
@@ -240,30 +242,27 @@ c
 #include "mafdecls.fh"
 #include "errquit.fh"
 c
-      logical cam_exch,dosrhf
-      double precision omega,alpha,beta
-c
-c     set cam parameters
-      cam_exch = .true.    
+      logical cam_exch,cam_srhf
+      double precision cam_omega,cam_alpha,cam_beta
 c
 c     set cam flag 
       if (.not.rtdb_put(rtdb,'dft:cam_exch', mt_log, 1, cam_exch))
      & call errquit('xc_setcamparam: rtdb_put failed', 2700, RTDB_ERR)
 c
 c     set short-range HF (srhf) flag 
-      if (.not.rtdb_put(rtdb,'dft:cam_srhf', mt_log, 1, dosrhf))
+      if (.not.rtdb_put(rtdb,'dft:cam_srhf', mt_log, 1, cam_srhf))
      & call errquit('xc_setcamparam: rtdb_put failed', 2700, RTDB_ERR)
 c
 c     set cam_omega
-      if (.not.rtdb_put(rtdb,'dft:cam_omega',mt_dbl,1,omega))
+      if (.not.rtdb_put(rtdb,'dft:cam_omega',mt_dbl,1,cam_omega))
      & call errquit('xc_setcamparam: rtdb_put failed', 2700, RTDB_ERR)
 c
 c     set cam_alpha
-      if (.not.rtdb_put(rtdb,'dft:cam_alpha',mt_dbl,1,alpha))
+      if (.not.rtdb_put(rtdb,'dft:cam_alpha',mt_dbl,1,cam_alpha))
      & call errquit('xc_setcamparam: rtdb_put failed', 2700, RTDB_ERR)
 c
 c     set cam_beta
-      if (.not.rtdb_put(rtdb,'dft:cam_beta',mt_dbl,1,beta))
+      if (.not.rtdb_put(rtdb,'dft:cam_beta',mt_dbl,1,cam_beta))
      & call errquit('xc_setcamparam: rtdb_put failed', 2700, RTDB_ERR)
 c
 c     Force texas integrals to false for CAM calculations

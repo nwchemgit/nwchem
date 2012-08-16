@@ -2651,8 +2651,10 @@ c
       cam_omega = 0.25
       cam_alpha = 0.428
       cam_beta = 0.572
+      cam_exch = .true.
       cam_srhf = .false.
-      call xc_setcamparam(rtdb,cam_srhf,cam_omega,cam_alpha,cam_beta)
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &    cam_beta)
 c
       goto 10
 c
@@ -3466,8 +3468,10 @@ c
       cam_omega = 0.33
       cam_alpha = 0.d0
       cam_beta =  1.0
+      cam_exch = .true.
       cam_srhf = .true. ! for short-range HF
-      call xc_setcamparam(rtdb,cam_srhf,cam_omega,cam_alpha,cam_beta)
+      call xc_setcamparam(rtdb,cam_exch,cam_srhf,cam_omega,cam_alpha,
+     &   cam_beta)
 c
       goto 10
 c
