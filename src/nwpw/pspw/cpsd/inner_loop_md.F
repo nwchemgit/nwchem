@@ -125,10 +125,8 @@ c     real*8     fion(3,natmx)
       logical  Dneall_m_push_get_block,Dneall_m_pop_stack
       external Dneall_m_push_get_block,Dneall_m_pop_stack
 
-      logical  meta_found
-      external meta_found
-      real*8   meta_energy
-      external meta_energy
+      logical  meta_found,psp_U_psputerm
+      external meta_found,psp_U_psputerm
 
       call Parallel_np(np)
       call Pack_npack(0,npack0)
@@ -451,7 +449,7 @@ c           call D3dB_r_SMul(1,0.5d0,dcpl_mb(tmp1(1)),dcpl_mb(tmp1(1)))
         if (fei) 
      >    call dcopy(3*natmx,dbl_mb(fion(1)),1,dbl_mb(ftest(1)),1)
         call ion_FixIon(dbl_mb(fion(1)))
-        if (meta) call meta_force(ispin,neq,psi1,Hpsi,dbl_mb(fion(1)))
+c        if (meta) call meta_force(ispin,neq,psi1,Hpsi,dbl_mb(fion(1)))
 
         !**** center of mass constraint ****
 c        if (.not.allow_translation) then
@@ -705,6 +703,20 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
          end if
       end if
 
+*     **** DFT+U terms ****
+      if (psp_U_psputerm()) then
+         call electron_U_energies(ehfx,phfx)
+         E(29) =  ehfx
+         E(30) =  phfx
+         E(2)  = E(2) + E(29) - E(30)
+      end if
+
+*     **** metadynamics energy ****
+      if (meta) then
+         call meta_energypotential(ispin,neq,psi1,E(31),E(32))
+         E(2)  = E(2) + E(31) - E(32)
+      end if
+
 
 
 *     **** Energy and Energy**2 sum ***
@@ -754,11 +766,6 @@ c         call Pack_c_SMul(1,-h,psi0(1,i),psi0(1,i))
      >                            pressure,p1,p2,stress)
       end if
 
-*     **** metadynamics energy ****
-      if (meta) then
-         E(24) = meta_energy(ispin,neq,psi1)
-         E(1)  = E(1) + E(24)
-      end if
 
 *      **** write ecce data ****
        call ecce_print_module_entry('task car-parrinello')

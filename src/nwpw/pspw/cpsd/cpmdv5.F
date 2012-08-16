@@ -67,7 +67,7 @@ cccc#include "frac_occ.fh"
     
 
 *     ***** energy variables ****
-      real*8  E(30),eke,eave,evar,cv,have,hvar
+      real*8  E(40),eke,eave,evar,cv,have,hvar
 
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
@@ -183,7 +183,8 @@ cccc#include "frac_occ.fh"
       real*8   Dneall_m_value
       external Dneall_m_value
 
-
+      logical  meta_found,psp_U_psputerm
+      external meta_found,psp_U_psputerm
 
 
 *                            |************|
@@ -433,6 +434,9 @@ c      call frac_occ_init(rtdb,ispin,ne)
       call pspw_init_SIC(rtdb,ne)
       call pspw_init_HFX(rtdb,ispin,ne)
 
+
+*     **** initialize DFT+U ****
+      call psp_U_init()
 
 
 *     **** initialize pressure ****
@@ -1099,6 +1103,12 @@ c         end if
          if (pspw_HFX()) then
            write(luout,1457) E(20),E(20)/n2(ispin)
          end if
+         if (psp_U_psputerm()) then
+           write(luout,1458) E(29),E(29)/n2(ispin)
+         end if
+         if (meta_found()) then
+           write(luout,1459) E(31),E(31)/ion_nion()
+         end if
          write(luout,1470) E(8),E(8)/ion_nion()
          write(luout,1471) E(3),E(3)/n2(ispin)
          write(luout,1472) ion_ke(),ion_ke()/ion_nion()
@@ -1234,6 +1244,7 @@ c         end if
       call ion_end()
       call psp_end()
       call ion_end_FixIon()
+      call psp_U_end()
       call pspw_end_SIC()
       call pspw_end_HFX()
       call pspw_qmmm_end()
@@ -1431,6 +1442,8 @@ c      call frac_occ_end()
  1455 FORMAT( ' SIC-hartree energy  :',E19.10,' (',E15.5,'/electron)')
  1456 FORMAT( ' SIC-exc-corr energy :',E19.10,' (',E15.5,'/electron)')
  1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
+ 1458 FORMAT( ' DFT+U     energy    :',E19.10,' (',E15.5,'/ion)')
+ 1459 FORMAT( ' Metadynamics energy :',E19.10,' (',E15.5,'/ion)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1471 FORMAT(/' Kinetic energy (elc)    :',E19.10,' (',E15.5,'/elc)')

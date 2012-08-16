@@ -58,7 +58,7 @@ cccc#include "frac_occ.fh"
     
 
 *     ***** energy variables ****
-      real*8  E(30)
+      real*8  E(40)
 
 *     real*8  eig(2*nemax)
 *     real*8  hml(2*nemax*nemax)
@@ -165,6 +165,8 @@ cccc#include "frac_occ.fh"
       external Dneall_m_value
       character*9 ion_amm
       external    ion_amm
+      logical  psp_U_psputerm,meta_found
+      external psp_U_psputerm,meta_found
 
 
 *                            |************|
@@ -401,6 +403,12 @@ c         end if
 *     **** initialize SIC and HFX  ****
       call pspw_init_SIC(rtdb,ne)
       call pspw_init_HFX(rtdb,ispin,ne)
+
+*     **** initialize DFT+U ****
+      call psp_U_init()
+
+*     **** initialize metadynamics ****
+      call meta_initialize(rtdb)
 
 *     **** initialize QM/MM ****
       call pspw_init_APC(rtdb)
@@ -772,6 +780,13 @@ c         end do
          if (pspw_HFX()) then
            write(luout,1457) E(20),E(20)/n2(ispin)
          end if
+         if (psp_U_psputerm()) then
+           write(luout,1458) E(29),E(29)/n2(ispin)
+         end if
+         if (meta_found()) then
+           write(luout,1459) E(31),E(31)/ion_nion()
+         end if
+
 
          write(luout,1470) E(5),E(5)/ion_nion()
          write(luout,1480) E(6),E(6)/n2(ispin)
@@ -785,6 +800,12 @@ c         end do
          end if
          if (pspw_HFX().and.pspw_HFX_relaxed())  then
            write(luout,1502) E(21),E(21)/n2(ispin)
+         end if
+         if (psp_U_psputerm()) then
+           write(luout,1503) E(30),E(30)/n2(ispin)
+         end if
+         if (meta_found()) then
+           write(luout,1504) E(32),E(32)/n2(ispin)
          end if
          virial = (E(10)+E(9)+E(8)+E(7))/E(6)
          write(luout,1498) virial
@@ -906,10 +927,12 @@ c            write(luout,1706) E(18)
       call ion_end()
       call psp_end()
       call ion_end_FixIon()
+      call psp_U_end()
       call pspw_end_SIC()
       call pspw_end_HFX()
       call pspw_end_APC()
       call pspw_qmmm_end()
+      call meta_finalize(rtdb)
 c      call frac_occ_end()
 
       value = MA_free_heap(psir(2))
@@ -1069,6 +1092,8 @@ c      call frac_occ_end()
  1455 FORMAT( ' SIC-hartree energy  :',E19.10,' (',E15.5,'/electron)')
  1456 FORMAT( ' SIC-exc-corr energy :',E19.10,' (',E15.5,'/electron)')
  1457 FORMAT( ' HF exchange energy  :',E19.10,' (',E15.5,'/electron)')
+ 1458 FORMAT( ' DFT+U     energy    :',E19.10,' (',E15.5,'/electron)')
+ 1459 FORMAT( ' Metadynamics energy :',E19.10,' (',E15.5,'/ion)')
  1460 FORMAT( ' exc-corr  energy    :',E19.10,' (',E15.5,'/electron)')
  1470 FORMAT( ' ion-ion   energy    :',E19.10,' (',E15.5,'/ion)')
  1480 FORMAT(/' K.S. kinetic energy :',E19.10,' (',E15.5,'/electron)')
@@ -1079,11 +1104,13 @@ c      call frac_occ_end()
  1498 FORMAT( ' Virial Coefficient  :',E19.10)
  1499 FORMAT( ' K.S. SIC-hartree energy  :',E19.10,
      >        ' (',E15.5,'/electron)')
+ 1500 FORMAT(/' orbital energies:')
  1501 FORMAT( ' K.S. SIC-exc-corr energy :',E19.10,
      >        ' (',E15.5,'/electron)')
  1502 FORMAT( ' K.S. HFX energy     :',E19.10,
      >        ' (',E15.5,'/electron)')
- 1500 FORMAT(/' orbital energies:')
+ 1503 FORMAT( ' K.S. DFT+U energy   :',E19.10,' (',E15.5,'/electron)')
+ 1504 FORMAT( ' K.S. Metadynamics energy :',E19.10,' (',E15.5,'/ion)')
  1510 FORMAT(2(E18.7,' (',F8.3,'eV)'))
  1511 FORMAT(2(E18.7,' (',F8.3,'eV) occ=',F5.3))
  1600 FORMAT(/' Total PSPW energy   :',E19.10)
