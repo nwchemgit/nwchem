@@ -401,6 +401,7 @@
          end do
       end if
       end do
+      if (ispin.eq.1) ld = ld + ld
 
       psp_ld_gen_trace = ld
       return
@@ -589,6 +590,7 @@
       end if
       end do
       end do
+      if (ispin.eq.1) call dscal(ispin*lm*lm,2.0d0,l_density,1)
 
       return
       end
@@ -607,7 +609,7 @@
       integer ispin,ne(2),nprj
       integer l_prj(nprj),m_prj(nprj)
       integer l
-      real*8  vmm(2*l+1,2*l+1,ispin)
+c      real*8  vmm(2*l+1,2*l+1,ispin)
       real*8  sw2(ne(1)+ne(2),nprj)
       real*8  sw3(ne(1)+ne(2),nprj)
 
