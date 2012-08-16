@@ -56,7 +56,7 @@
 #include "errquit.fh"
 
 *     **** local variables ****
-      logical dosic,dohfx,done,dodftu
+      logical dosic,dohfx,done,dodftu,meta
       integer ms,n,n1(2),n2(2)
       integer nx,ny,nz,indx1,indx2
       real*8  scal1,scal2
@@ -69,16 +69,17 @@
 
 *     **** external functions ****
       logical  pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
-      logical  pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm
+      logical  pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
       real*8   lattice_omega
       external pspw_SIC,pspw_SIC_relaxed,D3dB_rc_pfft3_queue_filled
-      external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm
+      external pspw_HFX,pspw_HFX_relaxed,psp_U_psputerm,meta_found
       external lattice_omega
 
 
-      dosic = (pspw_SIC().and.pspw_SIC_relaxed())
-      dohfx = (pspw_HFX().and.pspw_HFX_relaxed())
+      dosic  = (pspw_SIC().and.pspw_SIC_relaxed())
+      dohfx  = (pspw_HFX().and.pspw_HFX_relaxed())
       dodftu = psp_U_psputerm()
+      meta   = meta_found()
       call Pack_npack(1,npack1)
       
       call D3dB_nx(1,nx)
@@ -126,6 +127,14 @@
          call psp_U_v_nonlocal(ispin,ne,psi_k,Hpsi_k,move,fion,
      >                         fractional,occ,.true.)
       end if
+
+*     *********************************************************
+*     **** add Metadynamics potential                         *
+*     *********************************************************
+      if (meta) then
+         call meta_force(ispin,ne,psi_k,Hpsi_k,move,fion)
+      end if
+
 
 
 *     **********************************************
