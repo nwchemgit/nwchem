@@ -292,7 +292,7 @@ c
 c
 c     == Clean up cosmo stuff, if necessary ==
       if (cosmo_on) then
-         call cosmo_tidy()
+         call cosmo_tidy(rtdb)
          cosmo_on = .false.
          cosmo_phase = 1
       endif

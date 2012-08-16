@@ -1,3 +1,17 @@
+C> \brief Read the COSMO input section
+c
+C> COSMO is a dielectric continuum solvation model proposed by
+C> Klamt et al.:
+C>
+C>   A. Klamt, G. Sch&uuml;&uuml;rman,
+C>   "COSMO: a new approach to dielectric screening in solvents with
+C>    explicit expressions for the screening energy and its gradient",
+C>   <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, 
+C>   <a href="http://dx.doi.org/10.1039/P29930000799">
+C>   10.1039/P29930000799</a>.
+C>
+C> Read the COSMO input section and store the settings in the RTDB.
+c
       subroutine cosmo_input(rtdb)
 *
       implicit none
@@ -9,7 +23,7 @@
 #include "mafdecls.fh"
 #include "global.fh"
 c
-      integer rtdb
+      integer rtdb !< [Input] the RTDB handle
 c
       integer iat, nfield, nrad, irad 
       integer iscren, ifscrn, minbem, maxbem, ificos, lineq
@@ -166,6 +180,11 @@ c
       return
       end
 c
+C> \brief Initialize COSMO data structures
+c
+C> Initialize the COSMO data structures, in particular this involves
+C> computing the positions of the COSMO charges.
+c
       subroutine cosmo_initialize(rtdb,geom,basis,oprint)
       implicit double precision (a-h,o-z)
 #include "errquit.fh"
@@ -180,10 +199,10 @@ c
 #include "bas.fh"
 #include "msgids.fh"
 c
-      integer rtdb
-      integer geom
-      integer basis
-      logical oprint
+      integer rtdb   !< [Input] the RTDB handle
+      integer geom   !< [Input] the geometry handle
+      integer basis  !< [Input] the basis set handle
+      logical oprint !< [Input] a print flag
 c
       logical status
       logical cosmo
@@ -356,6 +375,20 @@ c
       if (.not. geom_create(cosmo_geom_efc, 'cosmo efc geom'))
      $     call errquit('cosmo_initialize: geom_create failed', 0,
      &       GEOM_ERR)
+c
+c     Try and load the COSMO charges. 
+c     1. If loading fails then we hope that this data structure will
+c        be properly initialized later on.
+c     2. If loading succeeds then we avoid problems if the SCF 
+c        wavefunction is converged already. In that case cosmo_charges
+c        is not called and the 'cosmo efc geom' geometry is not 
+c        initialized. This leads to a catastrophic overwrite of the
+c        COSMO geometry. So having it loaded is the best next thing.
+c
+      if (.not. geom_rtdb_load(rtdb,cosmo_geom_efc,'cosmo efc geom'))
+     $then
+c       Hope for the best
+      endif
 c
 c     Get data from the molecule itself
 c
@@ -536,12 +569,23 @@ c
  9981 format(a16,4x,f9.5)
       end
 c
-      subroutine cosmo_tidy()
+C> \brief Tidy up COSMO data structures
+c
+C> This operation currently involves saving the current COSMO charges
+C> on the RTDB, and destroying the COSMO geometry instance.
+c
+      subroutine cosmo_tidy(rtdb)
       implicit none
 #include "errquit.fh"
 #include "prop.fh"
 #include "geom.fh"
+      integer rtdb !< [Input] the RTDB handle
 c
+      if (.not. geom_rtdb_store(rtdb,cosmo_geom_efc,
+     &                          'cosmo efc geom')) then
+         call errquit("cosmo_tidy: could not store COSMO geometry",
+     &                0, GEOM_ERR)
+      endif
       if (.not. geom_destroy(cosmo_geom_efc)) call errquit
      $     ('cosmo_tidy: geom destroy failed', 0, GEOM_ERR)
       return
@@ -1029,9 +1073,16 @@ c
       if(.not.rtdb_put(rtdb,'cosmo:efcs',mt_dbl,  nefc,dbl_mb(k_efcs)))
      $   call errquit('hnd_cossas: rtdb put failed for efcs  ',914,
      &       rtdb_err)
-c     if(.not.rtdb_put(rtdb,'cosmoiatefc',mt_int,nefc,int_mb(k_efciat)))
-c    $   call errquit('hnd_cossas: rtdb put failed for iatefc',915,
-c    &       rtdb_err)
+c
+c     We will need the next bit of information to calculate the analytic
+c     COSMO gradients. This table describes the relationship between
+c     the COSMO charges and the associated atoms. So we better save this
+c     info.
+c
+      if(.not.rtdb_put(rtdb,'cosmo:efciat',mt_int,nefc,
+     $                 int_mb(k_efciat)))
+     $   call errquit('hnd_cossas: rtdb put failed for iatefc',915,
+     &       rtdb_err)
 c     if(.not.rtdb_cput(rtdb,'char variable',nefc,byte_mb(k_efclb)))
 c    $   call errquit('hnd_cossas: rtdb put failed for efclab',916,
 c    &       rtdb_err)
@@ -1746,6 +1797,8 @@ c
      1       /,7x,3f12.8)
  9997 format(' --- dmin = ',f12.8,' --- mface = ',i10)
       end
+c
+C> \brief Compute the COSMO charges
 c
       subroutine cosmo_charges(rtdb,basis,geom,ecos,some,itype_wfn,
      1                         vectors,nclosed,nopen,nbf,nmo)
@@ -2848,4 +2901,5 @@ c
       if(a(n,n).eq.zero) a(n,n)=tiny
       return
       end
+
 c $Id$

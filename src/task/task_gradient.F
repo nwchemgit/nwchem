@@ -300,7 +300,6 @@ c     Currently cosmo does not work with analytic gradients
 c
       if (.not. rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo))
      $     ocosmo = .false.
-c     if (ocosmo) numerical = .true.
 c
 c     Actually do the deed
 c

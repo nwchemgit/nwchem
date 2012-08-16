@@ -414,6 +414,9 @@ c
       integer msg_grad_kin
       integer msg_grad_2el
       integer msg_grad_so 
+      integer msg_grad_nucq
+      integer msg_grad_elq
+      integer msg_grad_qq
       integer msg_gapss_xcijr      
       integer msg_gapss_lat_tran
       integer msg_gapss_pijr_ef
@@ -762,6 +765,9 @@ C
       parameter (msg_grad_kin = msg_ftn_base - 196 )
       parameter (msg_grad_2el = msg_ftn_base - 197 )
       parameter (msg_grad_so = msg_ftn_base - 796  )
+      parameter (msg_grad_nucq = msg_ftn_base - 797  )
+      parameter (msg_grad_elq = msg_ftn_base - 798  )
+      parameter (msg_grad_qq = msg_ftn_base - 799  )
 C
       parameter (msg_gapss_xcijr = msg_ftn_base - 198 )    ! gapss: gap_xcijr
       parameter (msg_gapss_lat_tran = msg_ftn_base - 199 ) ! gapss: gap_lat_tran

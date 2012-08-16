@@ -20,6 +20,7 @@ OBJ_ENERGY = \
 
 OBJ_GRAD = \
       rel_oneld.o \
+      rel_oneld_cosmo.o \
       rel_2e4cd_sf.o \
       rel_LLSSd.o \
       rel_SSLLd.o \

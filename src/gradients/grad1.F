@@ -141,13 +141,12 @@ C               idatom(1).ge.0 <=> idatom(2).ge.0 (no check necessary)
 
 C               1el. derivatives
                 if(.not.dobq) then
-                call intd_1eh1(basis,ish1,basis,ish2,lscr,scr,
-     &               lbuf,H)
+                  call intd_1eh1(basis,ish1,basis,ish2,lscr,scr,
+     &                 lbuf,H)
                 else
-                call intd_1epot(basis,ish1,basis,ish2,lscr,scr,
-     &               lbuf,H)
+                  call intd_1epot(basis,ish1,basis,ish2,lscr,scr,
+     &                 lbuf,H)
                 end if
-                  
 
 C     D x H
 
@@ -250,44 +249,69 @@ c
 
       return
       end
+c
+C> \brief calculate the gradient terms due to the interaction with the 
+C> COSMO charges
       subroutine grad_hnd_cos ( H, lbuf, scr, lscr, 
-     $                   dens, wdens, frc_nuc,
-     $                   frc_kin, frc_wgh, g_force,
-     $                   g_dens, g_wdens, basis, geom, nproc, nat, 
+     $                   dens, frc_cos_nucq, frc_cos_elq,
+     $                   frc_cos_qq, 
+     $                   g_dens, basis, geom, nproc, nat, 
      $                   max_at_bf, rtdb, oskel )
 c$Id$
 
-C     one electron contribution to RHF, ROHF and UHF gradients
-C     now also UMP2
+C     COSMO one electron contribution to RHF, ROHF and UHF gradients
+C     now also UMP2 ??? unlikely as that requires solutions to the
+c     CPHF equation???
+c
+c     Terms included in this subroutine are:
+c     1. Electron - COSMO charge interactions
+c     2. Nuclear - COSMO charge interactions
+c     3. COSMO charge - COSMO charge interactions
+c
+c     Terms NOT included are:
+c     1. All regular QM derivatives
 
       implicit none
 
+#include "nwc_const.fh"
 #include "mafdecls.fh"
+#include "errquit.fh"
 #include "global.fh"
+#include "geomP.fh"
 #include "geom.fh"
 #include "bas.fh"
 #include "rtdb.fh"
 #include "sym.fh"
 #include "stdio.fh"
+#include "prop.fh"
 
 C-------------------------parameters--------------------------------
-      integer lbuf, lscr,
-     $     g_dens,        ! density matrix (summed if ROHF, UHF)
-     $     g_wdens,       ! weighted density (Lagrangian)
-     $     g_force,       ! global force array
-     $     basis, geom, nproc, nat, max_at_bf, rtdb
+      integer g_dens !< [Input] the total electron density matrix GA
+      integer basis  !< [Input] the basis set handle
+      integer geom   !< [Input] the geometry handle
+      integer rtdb   !< [Input] the RTDB handle
+      integer lbuf   !< [Input] the length of the integral buffer
+      integer lscr,  !< [Input] the length of the scratch space
+     $     nproc, nat, max_at_bf
 
-      double precision H, ! integral derivatives
-     $     scr, 
-     $     dens,          ! local density block
-     $     wdens,         ! local weighted density block
-     $     frc_nuc, frc_kin, frc_wgh   ! forces arrays
-
-      dimension H ( lbuf ), frc_nuc(3, nat), frc_kin(3, nat),
-     $          frc_wgh(3, nat), scr(lscr),
-     $          dens(max_at_bf,max_at_bf), wdens(max_at_bf,max_at_bf)
+      double precision frc_cos_nucq(3,nat) !< [Output] the forces due
+                                           !< nuclear-COSMO charge 
+                                           !< interaction
+      double precision frc_cos_elq(3,nat)  !< [Output] the forces due
+                                           !< electron-COSMO charge 
+                                           !< interaction
+      double precision frc_cos_qq(3,nat)   !< [Output] the forces due
+                                           !< COSMO charge-COSMO charge 
+                                           !< interaction
+      double precision H(lbuf)   !< [Scratch] the derivative integrals
+      double precision scr(lscr) !< [Scratch] scratch space
+      double precision dens(max_at_bf,max_at_bf) !< [Scratch] local
+                                                 !< density block
 
       logical oskel   ! symmetry?
+c
+      double precision dielec, screen, rsolv
+      common/hnd_cospar/dielec, screen ,rsolv
 
 C-------------------------local variables--------------------------
 
@@ -295,8 +319,16 @@ C-------------------------local variables--------------------------
      $     iab1f, iab1l, iab2f, iab2l, iac1f, iac1l, iac2f, iac2l,
      $     if1, il1, if2, il2,
      $     icart, ic, nint, ip1, ip2
+      integer ich1, ich2
 
-      double precision dE, qfac
+      integer nefc        ! the number of COSMO charges
+      integer l_efciat    ! the handle of the COSMO charge-atom map
+      integer k_efciat    ! the index of the COSMO charge-atom map
+      integer nefcl       ! the number of COSMO charge for a given atom
+      integer iefc        ! counter over COSMO charges
+
+      double precision dE, qfac, fact, dx, dy, dz
+      double precision invscreen
 
       logical status, pointforce
 
@@ -314,8 +346,25 @@ c
 
       task_size = 1
       status = rtdb_parallel(.true.) ! Broadcast reads to all processes
-
+c
       pointforce = geom_include_bqbq(geom)
+      if (.not.geom_create(cosmo_geom_efc,'cosmo efc geom'))
+     $   call errquit("grad_hnd_cos: geom_create on cosmo failed",
+     $                0,GEOM_ERR)
+      if (.not.geom_rtdb_load(rtdb,cosmo_geom_efc,
+     $                        'cosmo efc geom'))
+     $   call errquit("grad_hnd_cos: geom_rtdb_load on cosmo failed",
+     $                0,RTDB_ERR)
+      if (.not.geom_ncent(cosmo_geom_efc,nefc))
+     $  call errquit("grad_hnd_cos: could not establish number of "//
+     $               "COSMO charges",cosmo_geom_efc,GEOM_ERR)
+      if (.not.ma_push_get(MT_INT,nefc,"efciat",l_efciat,k_efciat))
+     $  call errquit("grad_hnd_cos: could not allocate efciat",
+     $               ma_sizeof(MT_BYTE,nefc,MT_INT),MA_ERR)
+      if(.not.rtdb_get(rtdb,'cosmo:efciat',mt_int,nefc,
+     $                 int_mb(k_efciat)))
+     $   call errquit('grad_hnd_cos: rtdb get failed for iatefc',915,
+     $                rtdb_err)
 
       call hf_print_set(1)
 
@@ -343,12 +392,12 @@ c
             else
                qfac = 1.0d0
             endif
+            qfac = -qfac
 
             status = bas_ce2cnr(basis,iat1,iac1f,iac1l)
             status = bas_ce2cnr(basis,iat2,iac2f,iac2l)
 
             call ga_get (g_dens, iab1f,iab1l,iab2f,iab2l,dens,max_at_bf)
-            call ga_get(g_wdens,iab1f,iab1l,iab2f,iab2l,wdens,max_at_bf)
 
             do 70, ish1 = iac1f, iac1l
               if ( iat1.eq.iat2 ) iac2l = ish1
@@ -364,39 +413,84 @@ C               shell block in atomic (D/Dw)-matrix block
 
                 nint = ( il1 - if1 + 1 ) * ( il2 - if2 + 1 )
 
-                ic=1
-                do iat3 = 1, nat
-                  do icart = 1, 3
-                    do ip1 = if1, il1
-                      do ip2 = if2, il2
-                        H(ic)=0.D0
-                        ic = ic + 1
+                do iefc = 1, nefc
+
+                  ic=1
+c                 do iat3 = 1, nat+nefc
+                  do iat3 = 1, 3 ! centers A, B, and C
+                    do icart = 1, 3
+                      do ip1 = if1, il1
+                        do ip2 = if2, il2
+                          H(ic)=0.D0
+                          ic = ic + 1
+                        enddo
                       enddo
                     enddo
                   enddo
-                enddo
 
-C               1el. -cosmo- derivatives
-c-              call intd_1eh1(basis,ish1,basis,ish2,lscr,scr,
-c-   &               lbuf,H)
+C                 1el. -cosmo- derivatives
+c                 Currently calculated on for every COSMO charge
+c                 separately.
+                  call intd_1epot_cosmo(basis,ish1,basis,ish2,lscr,scr,
+     &                 lbuf,H,coords(1,iefc,cosmo_geom_efc),
+     &                 charge(iefc,cosmo_geom_efc),1)
 
 C     D x H
-
-                ic=1
-                do 50, iat3 = 1, nat
-                  do 40, icart = 1, 3
+c
+c                 Do center A (associated with ish1)
+c
+                  ic=1
+                  do icart = 1, 3
                     dE = 0.D0
-                    do 31, ip1 = if1, il1
-                      do 30, ip2 = if2, il2
+                    do ip1 = if1, il1
+                      do ip2 = if2, il2
                         dE = dE + dens(ip1,ip2) * H(ic)
                         ic = ic + 1
- 30                   continue
- 31                 continue
+                      enddo
+                    enddo
                     if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
                     dE = dE * qfac
-                    frc_kin(icart,iat3) = frc_kin(icart,iat3) + dE
- 40               continue
- 50             continue
+                    frc_cos_elq(icart,iat1)
+     &              = frc_cos_elq(icart,iat1) - dE
+                  enddo
+c
+c                 Do center B (associated with ish2)
+c
+                  do icart = 1, 3
+                    dE = 0.D0
+                    do ip1 = if1, il1
+                      do ip2 = if2, il2
+                        dE = dE + dens(ip1,ip2) * H(ic)
+                        ic = ic + 1
+                      enddo
+                    enddo
+                    if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) then
+                      dE = dE + dE
+                    else
+                      dE = 0.0d0
+                    endif
+                    dE = dE * qfac
+                    frc_cos_elq(icart,iat2)
+     &              = frc_cos_elq(icart,iat2) - dE
+                  enddo
+c
+c                 Do center C, i.e. the Cosmo charge
+c
+                  do icart = 1, 3
+                    dE = 0.D0
+                    do ip1 = if1, il1
+                      do ip2 = if2, il2
+                        dE = dE + dens(ip1,ip2) * H(ic)
+                        ic = ic + 1
+                      enddo
+                    enddo
+                    if ( iat1.ne.iat2 .or. ish1.ne.ish2 ) dE = dE + dE
+                    dE = dE * qfac
+                    frc_cos_elq(icart,int_mb(k_efciat+iefc-1))
+     &              = frc_cos_elq(icart,int_mb(k_efciat+iefc-1)) - dE
+                  enddo
+
+                enddo
 
  60           continue
  70         continue
@@ -409,6 +503,74 @@ C     D x H
  80     continue
  90   continue
       next = nxtask(-nproc,task_size)
+c
+      if (ga_nodeid().eq.0) then
+c
+c       Do the Nuclear - Cosmo charge part
+c
+        do iat1 = 1, nat
+          do ich1 = 1, nefc
+            dx = coords(1,iat1,geom) - coords(1,ich1,cosmo_geom_efc)
+            dy = coords(2,iat1,geom) - coords(2,ich1,cosmo_geom_efc)
+            dz = coords(3,iat1,geom) - coords(3,ich1,cosmo_geom_efc)
+            fact = -charge(iat1,geom)*charge(ich1,cosmo_geom_efc) / 
+     $             sqrt(dx*dx+dy*dy+dz*dz)**3
+            dE = dx * fact
+            frc_cos_nucq(1,iat1) = frc_cos_nucq(1,iat1) + dE
+            frc_cos_nucq(1,int_mb(k_efciat+ich1-1)) 
+     $      = frc_cos_nucq(1,int_mb(k_efciat+ich1-1)) - dE
+            dE = dy * fact
+            frc_cos_nucq(2,iat1) = frc_cos_nucq(2,iat1) + dE
+            frc_cos_nucq(2,int_mb(k_efciat+ich1-1)) 
+     $      = frc_cos_nucq(2,int_mb(k_efciat+ich1-1)) - dE
+            dE = dz * fact
+            frc_cos_nucq(3,iat1) = frc_cos_nucq(3,iat1) + dE
+            frc_cos_nucq(3,int_mb(k_efciat+ich1-1)) 
+     $      = frc_cos_nucq(3,int_mb(k_efciat+ich1-1)) - dE
+          enddo
+        enddo
+c
+c       Do cosmo charge - cosmo charge interaction
+c
+        invscreen = 1.0d0/(1.0d0*screen)
+        do ich1 = 1, nefc
+          do ich2 = 1, ich1-1
+            if (ich1.ne.ich2) then
+              dx = coords(1,ich1,cosmo_geom_efc)
+     $           - coords(1,ich2,cosmo_geom_efc)
+              dy = coords(2,ich1,cosmo_geom_efc)
+     $           - coords(2,ich2,cosmo_geom_efc)
+              dz = coords(3,ich1,cosmo_geom_efc)
+     $           - coords(3,ich2,cosmo_geom_efc)
+              fact = -invscreen*charge(ich1,cosmo_geom_efc)
+     $             * charge(ich2,cosmo_geom_efc) / 
+     $               sqrt(dx*dx+dy*dy+dz*dz)**3
+              dE = dx * fact
+              frc_cos_qq(1,int_mb(k_efciat+ich1-1)) 
+     $        = frc_cos_qq(1,int_mb(k_efciat+ich1-1)) + dE
+              frc_cos_qq(1,int_mb(k_efciat+ich2-1)) 
+     $        = frc_cos_qq(1,int_mb(k_efciat+ich2-1)) - dE
+              dE = dy * fact
+              frc_cos_qq(2,int_mb(k_efciat+ich1-1)) 
+     $        = frc_cos_qq(2,int_mb(k_efciat+ich1-1)) + dE
+              frc_cos_qq(2,int_mb(k_efciat+ich2-1)) 
+     $        = frc_cos_qq(2,int_mb(k_efciat+ich2-1)) - dE
+              dE = dz * fact
+              frc_cos_qq(3,int_mb(k_efciat+ich1-1)) 
+     $        = frc_cos_qq(3,int_mb(k_efciat+ich1-1)) + dE
+              frc_cos_qq(3,int_mb(k_efciat+ich2-1)) 
+     $        = frc_cos_qq(3,int_mb(k_efciat+ich2-1)) - dE
+            endif
+          enddo
+        enddo
+      endif
+c
+      if (.not.ma_pop_stack(l_efciat))
+     $   call errquit("grad_hnd_cos: could not deallocate l_efciat",
+     $                0,MA_ERR)
+      if (.not.geom_destroy(cosmo_geom_efc))
+     $   call errquit("grad_hnd_cos: geom_destroy on cosmo failed",
+     $                0,GEOM_ERR)
 
       return
       end

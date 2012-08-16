@@ -97,6 +97,8 @@ c
      $     k_frc_wgh, k_frc_cd, l_frc_nuc, l_frc_kin, l_frc_2el, 
      $     l_frc_2el_j, l_frc_2el_k,
      $     l_frc_wgh, l_frc_cd, l_frc_mp2, k_frc_mp2
+      integer l_frc_cos_nucq, l_frc_cos_elq, l_frc_cos_qq
+      integer k_frc_cos_nucq, k_frc_cos_elq, k_frc_cos_qq
 
 c     pdm2d is now used by all methods.  pdm2/a/b/c only by MCSCF
       integer l_pdm2, l_pdm2a, l_pdm2b, l_pdm2c, l_pdm2d ! MCSCF 2-pdm
@@ -207,6 +209,9 @@ c
 
       if (.not. rtdb_cget(rtdb, 'task:theory', 1, theory))
      $     call errquit('grad: failed getting theory',0, RTDB_ERR)
+      if (.not. rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+        ocosmo = .false.
+      endif
 
 C     get SCF MO vectors for density
 
@@ -389,6 +394,21 @@ c
      $        k_frc_cd)) call errquit
      &      ('grad:could not allocate l_force',lforce, MA_ERR)
       end if
+c
+      if (ocosmo) then
+         if (.not. ma_push_get(mt_dbl,lforce,'cos_nucq',l_frc_cos_nucq,
+     $        k_frc_cos_nucq)) call errquit
+     &      ('grad_force:could not allocate l_frc_cos_nucq',
+     &       lforce, MA_ERR)
+         if (.not. ma_push_get(mt_dbl,lforce,'cos_elq',l_frc_cos_elq,
+     $        k_frc_cos_elq)) call errquit
+     &      ('grad_force:could not allocate l_frc_cos_elq',
+     &       lforce, MA_ERR)
+         if (.not. ma_push_get(mt_dbl,lforce,'cos_qq',l_frc_cos_qq,
+     $        k_frc_cos_qq)) call errquit
+     &      ('grad_force:could not allocate l_frc_cos_qq',
+     &       lforce, MA_ERR)
+      end if
 
 C     global density
       do i=1, ndens
@@ -503,6 +523,11 @@ C     initialize for integral gradients
          call dfill(lforce, 0.0D0, dbl_mb(k_frc_2el_j), 1)
          call dfill(lforce, 0.0D0, dbl_mb(k_frc_2el_k), 1)
       end if
+      if (ocosmo) then
+         call dfill(lforce, 0.0D0, dbl_mb(k_frc_cos_nucq), 1)
+         call dfill(lforce, 0.0D0, dbl_mb(k_frc_cos_elq), 1)
+         call dfill(lforce, 0.0D0, dbl_mb(k_frc_cos_qq), 1)
+      endif
       call int_mem(max1e, max2e, mscratch_1e, mscratch_2e)
       call intb_mem_2e4c(max2e, mscratch_2e) ! blocking algorithm
       max2e = max(max2e,1296*100)          ! 100 D quartets 
@@ -553,7 +578,7 @@ c     ----- cosmo contribution -----
 c
       odbug=.false.
       odbug=odbug.and.ga_nodeid().eq.0
-      if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,ocosmo)) then
+      if (ocosmo) then
          if(odbug) then
             write(luout,*) '-cosmo- ... found in -gradients-',
      $                     ocosmo,ga_nodeid()
@@ -575,10 +600,11 @@ c     .....
 c
             call grad_hnd_cos( dbl_mb(k_buf), lbuf, dbl_mb(k_scr), 
      $           lscratch,
-     $           dbl_mb(k_dens), dbl_mb(k_wdens), dbl_mb(k_frc_nuc),
-     $           dbl_mb(k_frc_kin), dbl_mb(k_frc_wgh), g_force,
-     $           g_dens, g_wdens, basis, geom, nproc, nat, max_at_bf,
+     $           dbl_mb(k_dens),dbl_mb(k_frc_cos_nucq),
+     $           dbl_mb(k_frc_cos_elq), dbl_mb(k_frc_cos_qq), 
+     $           g_dens, basis, geom, nproc, nat, max_at_bf,
      $           rtdb, oskel)
+c
          else
             if(odbug) then
                write(luout,*) '-cosmo- ... found but .false.',
@@ -963,6 +989,11 @@ C
         call ga_dgop(msg_grad_nuc, dbl_mb(k_frc_2el_j), 3*nat, '+')
         call ga_dgop(msg_grad_nuc, dbl_mb(k_frc_2el_k), 3*nat, '+')
       end if
+      if (ocosmo) then
+        call ga_dgop(msg_grad_nucq, dbl_mb(k_frc_cos_nucq), 3*nat, '+')
+        call ga_dgop(msg_grad_elq, dbl_mb(k_frc_cos_elq), 3*nat, '+')
+        call ga_dgop(msg_grad_qq, dbl_mb(k_frc_cos_qq), 3*nat, '+')
+      endif
 c
       call ga_sync()
 c     
@@ -988,6 +1019,15 @@ c
             do i=0, 3*nat-1
                dbl_mb(k_force+i) = dbl_mb(k_force+i) + 
      $              dbl_mb(k_frc_cd+i) 
+            end do
+         endif
+c
+         if (ocosmo) then
+            do i=0, 3*nat-1
+               dbl_mb(k_force+i) = dbl_mb(k_force+i)
+     $            + dbl_mb(k_frc_cos_nucq+i) 
+     $            + dbl_mb(k_frc_cos_elq+i) 
+     $            + dbl_mb(k_frc_cos_qq+i) 
             end do
          endif
 c
@@ -1040,6 +1080,15 @@ C     symmetrize
             if (odft) write(luout,2200) theory(1:inp_strlen(theory)),
      $           ' ', 'CD+XC gradient',
      $           ((dbl_mb(k_frc_cd+i-1+3*(j-1)),i=1,3),j=1,nat)
+            if (ocosmo) then
+              write(luout,2200)'nuclear-cosmo charge gradient',' ',' ',
+     $             ((dbl_mb(k_frc_cos_nucq+i-1+3*(j-1)),i=1,3),j=1,nat)
+              write(luout,2200)'electron-cosmo charge gradient',' ',' ',
+     $             ((dbl_mb(k_frc_cos_elq+i-1+3*(j-1)),i=1,3),j=1,nat)
+              write(luout,2200)'cosmo charge-cosmo charge gradient',
+     $             ' ',' ',
+     $             ((dbl_mb(k_frc_cos_qq+i-1+3*(j-1)),i=1,3),j=1,nat)
+            endif
             write(luout,2200) 'total ',
      $           theory(1:inp_strlen(theory)), ' gradient',
      $           ((dbl_mb(k_force+i-1+3*(j-1)),i=1,3),j=1,nat)

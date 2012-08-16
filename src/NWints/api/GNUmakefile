@@ -37,6 +37,7 @@ endif
           int_giaoh01.o  int_giaoh11.o  int_giaol10.o int_giaos10.o \
           int_giaotv10.o int_giaobq10.o int_giao_2e.o  int_pso.o	\
   	  int_dso.o intd_1epot.o \
+          intd_1epot_cosmo.o \
           int_veloc.o    int_angmom.o   int_giaos100.o
 
     OBJ_OPTIMIZE = int_hf1sp.o int_l2e4c.o intb_init4c.o intb_2e4c.o \
@@ -46,7 +47,7 @@ endif
    LIBRARY = libnwints.a
 
  USES_BLAS = int_1e3ov.F int_hf1sp.F int_lgen1e.F intb_2e4c.F intbd_2e4c.F intd_1e3ov.F \
-             intd_1eh1.F intd_2e2c.F intd_2e4c.F intd_mpolel.F intp_txyz.F intpd_mpolel.F  intbdd_2e4c.F  int_2e4c.F intdd_2e2c.F intdd_2e3c.F intd_2e3c.F intdd_2e4c.F intd_1epot.F \
+             intd_1eh1.F intd_2e2c.F intd_2e4c.F intd_mpolel.F intp_txyz.F intpd_mpolel.F  intbdd_2e4c.F  int_2e4c.F intdd_2e2c.F intdd_2e3c.F intd_2e3c.F intdd_2e4c.F intd_1epot.F intd_1epot_cosmo.F \
 intpd_1eov.F intpd_2e3c.F intpd_1eke.F intpd_2e2c.F intpd_2e3ct.F
 
 
