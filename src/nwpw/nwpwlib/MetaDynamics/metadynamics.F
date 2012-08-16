@@ -906,7 +906,7 @@ c     **** ld_trace ***
       parameter (kb=3.16679d-6)
 
       integer d,i,j(10),s1,s2
-      real*8  r0,r,x,w,ww,sigma,v,expv
+      real*8  r0(10),r,x,w,ww,sigma,v,expv
 
 *     **** external functions ****
       real*8   meta_collective,meta_energy
@@ -929,7 +929,11 @@ c     **** ld_trace ***
          if (nmeta.gt.0) then
             w = 1.0d0
             do d=1,nmeta
-               s2 =   int_mb(sparammeta(1)+d-1)
+               s1 = int_mb(sindxmeta(1) +d-1)
+               s2 = int_mb(sparammeta(1)+d-1)
+               r0(d) = meta_collective(int_mb(indxmeta(1)+s1),
+     >                                 dbl_mb(parammeta(1)+s2),
+     >                                 ispin,ne,psi1)
                w  = w*dbl_mb(parammeta(1)+s2)
                j(d) = 0
             end do
@@ -940,9 +944,9 @@ c     **** ld_trace ***
                do d=1,nmeta
                   s1 = int_mb(sindxmeta(1) +d-1)
                   s2 = int_mb(sparammeta(1)+d-1)
-                  r0    = meta_collective(int_mb(indxmeta(1)+s1),
-     >                                    dbl_mb(parammeta(1)+s2),
-     >                                    ispin,ne,psi1)
+c                  r0    = meta_collective(int_mb(indxmeta(1)+s1),
+c     >                                    dbl_mb(parammeta(1)+s2),
+c     >                                    ispin,ne,psi1)
                   sigma = dbl_mb(parammeta(1)+s2+1)
                   if (pmeta(d).eq.0) then
                      x = dbl_mb(ameta(1)+d-1) 
@@ -953,7 +957,7 @@ c     **** ld_trace ***
      >                + j(d)*(dbl_mb(bmeta(1)+d-1)-dbl_mb(ameta(1)+d-1))
      >                      /dble(int_mb(nxmeta(1)+d-1))
                   end if
-                  r = x-r0
+                  r = x-r0(d)
                   ww = ww * dexp(-0.5d0*(r/sigma)**2)
                end do
             
