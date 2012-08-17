@@ -533,7 +533,7 @@ c     ----- cosmo cleanup and reset -----
 c
       if ( rtdb_get(rtdb,'slv:cosmo',mt_log,1,cosmo_on)) then
          if(cosmo_on) then
-           call cosmo_tidy()
+           call cosmo_tidy(rtdb)
            cosmo_on = .false.
            cosmo_phase = 1
          endif
