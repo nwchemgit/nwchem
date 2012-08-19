@@ -867,7 +867,7 @@ c     **** ld_trace ***
       else if (ntype.eq.7) then
          call psp_ld_trace_gradient(indx(2),indx(3),ispin,ne,psi1,
      >                                 .false.,param,
-     >                                 dv,fmeta_psi1,
+     >                                 (-dv),fmeta_psi1,
      >                                 move,fmeta(1,indx(2)))
 
       end if
@@ -877,7 +877,7 @@ c     **** ld_trace ***
          if (ntype.eq.7) then
          call psp_ld_trace_gradient(indx(2),indx(3),ispin,ne,psi1,
      >                                 .false.,param,
-     >                                 dv,fmeta_psi1,
+     >                                 (-dv),fmeta_psi1,
      >                                 move,fmeta(1,indx(2)))
          end if
       end if
