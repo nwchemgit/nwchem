@@ -1143,7 +1143,7 @@ c     >                                    ispin,ne,psi1)
                s1 = int_mb(sindxmeta(1) +d-1)
                ntype = int_mb(indxmeta(1)+s1)
                if (ntype.eq.7) then
-                  p = p - r(d)*dv(d)
+                  p = p + r(d)*dv(d)
                end if
             end do
 
