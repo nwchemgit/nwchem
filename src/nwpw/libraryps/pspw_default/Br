@@ -7,8 +7,8 @@ Comment: by E.J. Bylaska, somewhat based on Khein and Allens' TM database
 Comment: relativistic TM, quadratic semicore
 
 
-[lmax] 1
-[locp] 1
+[lmax] 2
+[locp] 2
 [rlocal] 1.0
 [cutoff] 20.0
 
@@ -29,6 +29,7 @@ Br
 <rcut> 
    0   1.8351264
    1   1.8351264
+   2   1.8351264
 <end>
 
 <semicore> 1.16   <end>

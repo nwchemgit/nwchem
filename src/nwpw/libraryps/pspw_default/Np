@@ -1,8 +1,8 @@
 #
-# $Id$
+# $Id: Np 21338 2011-10-30 00:13:59Z bylaska $
 #
 
-Comment: Pu pseudopotential parameters
+Comment: Np pseudopotential parameters
 Comment: relativistic TM
 
 [lmax] 3
@@ -13,8 +13,8 @@ Comment: relativistic TM
 <comment> Parameterized (8/20/2012 by EJB) Troullier-Martins psp <end>
 
  <atom>
- Pu 
-  0.940000E+02  238.0000   13 4
+ Np 
+  0.930000E+02  237.0000   13 4
       1 0 2.0
       2 0 2.0
       2 1 6.0
@@ -30,16 +30,16 @@ Comment: relativistic TM
       5 2 10.0
       6 0 2.0
       6 1 6.0
-      5 3 4.0
+      5 3 3.0
       6 2 1.0
  <end>
  <solver> pauli			        <end>
  <pseudopotential> troullier-martins	<end>
 <rcut>
-      0 1.60000
-      1 1.80000
-      2 2.50000
-      3 1.30000
+      0 1.42088
+      1 1.60200
+      2 2.40000
+      3 1.35000
 <end>
 
 <screening_cut> 0.10 <end>
