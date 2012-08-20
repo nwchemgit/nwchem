@@ -9,7 +9,6 @@ Comment: Lubin, Bylaska, and Weare(2000), Chem.Phys.Lett., vol 322, page 447.
 [locp] -1
 [rlocal] 1.0
 [cutoff] 35.0
-[efg_type] 0
 
 <atom>
 H
