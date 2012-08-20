@@ -1,0 +1,35 @@
+#
+# $Id: Br 19707 2010-10-29 17:59:36Z d3y133 $
+#
+Comment: Br pseudopotential parameters
+Comment: Fitted 12-28-04
+Comment: by E.J. Bylaska, somewhat based on Khein and Allens' TM database
+Comment: relativistic TM, quadratic semicore
+
+
+[lmax] 1
+[locp] 1
+[rlocal] 1.0
+[cutoff] 20.0
+
+<atom>
+Br
+35.0 80.0 6 2
+1  0      2.00
+2  0      2.00
+2  1      6.00
+3  0      2.00
+3  1      6.00
+3  2     10.00
+4  0      2.00
+4  1      5.00
+<end>
+<solver>          pauli         <end>
+<pseudopotential> troullier-martins    <end>
+<rcut> 
+   0   1.8351264
+   1   1.8351264
+<end>
+
+<semicore> 1.16   <end>
+<semicore_type> quadratic <end>
