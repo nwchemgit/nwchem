@@ -868,7 +868,7 @@ c     **** ld_trace ***
          call psp_ld_trace_gradient(indx(2),indx(3),ispin,ne,psi1,
      >                                 .false.,param,
      >                                 (-dv),fmeta_psi1,
-     >                                 move,fmeta(1,indx(2)))
+     >                                 move,fmeta)
 
       end if
 
@@ -878,7 +878,7 @@ c     **** ld_trace ***
          call psp_ld_trace_gradient(indx(2),indx(3),ispin,ne,psi1,
      >                                 .false.,param,
      >                                 (-dv),fmeta_psi1,
-     >                                 move,fmeta(1,indx(2)))
+     >                                 move,fmeta)
          end if
       end if
 
