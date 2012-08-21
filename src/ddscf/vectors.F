@@ -533,7 +533,7 @@ ccheck if we want the mix rotation
          pi=acos(-1d0)
          cosa=cos(mixang*pi/180d0)
          sina=sin(mixang*pi/180d0)
-         write(6,*) ' nseeeet ',nset
+c         write(6,*) ' nseeeet ',nset
       else
          dorot=.false.
       endif
