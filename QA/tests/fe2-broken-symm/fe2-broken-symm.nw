@@ -1,0 +1,73 @@
+echo
+
+start fe2-broken-symm
+
+title fe2-broken-symm
+
+memory 1000 mb noverify
+
+geometry Fe1Fe2 units angstrom noautoz nocenter noautosym
+ Fe         0.0000000000000000       0.0000000000000000       1.9960449949999999
+ Fe         0.0000000000000000       0.0000000000000000       4.9372102169999996
+end
+
+geometry Fe1 units angstrom noautoz nocenter
+ Fe         0.0000000000000000       0.0000000000000000       1.9960449949999999
+end
+
+geometry Fe2 units angstron noautoz nocenter
+ Fe         0.0000000000000000       0.0000000000000000       4.9372102169999996
+end
+
+basis 
+* library 6-31G*
+end
+
+set geometry Fe1
+dft
+ xc b3lyp
+ odft
+ mult 5
+ mulliken
+ vectors input atomic output Fe1.mos
+ noscf
+ print "final vectors analysis"
+end
+task dft 
+
+set geometry Fe2
+dft
+ xc b3lyp
+ odft
+ mult -5
+ mulliken
+ vectors input atomic output Fe2.mos
+ noscf
+ print "final vectors analysis"
+end
+task dft
+
+set geometry Fe1Fe2
+dft
+ xc b3lyp
+ odft
+ mult 1
+ mulliken
+ vectors input fragment Fe1.mos Fe2.mos output Fe1Fe2.mos
+ print "final vectors analysis"
+ noscf
+end
+task dft
+
+unset dft:noscf
+dft
+ xc b3lyp
+ odft
+ mult 1
+ mulliken
+ vectors input Fe1Fe2.mos output Fe1Fe2b3lyp.mos
+ maxiter 100
+ print "final vectors analysis"
+ convergence nolevelshifting
+end
+task dft
