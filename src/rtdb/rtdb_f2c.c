@@ -355,6 +355,23 @@ Logical FATR rtdb_print_(const Integer *handle, const Logical *print_values)
     return FORTRAN_FALSE;
 }
 
+/**
+\ingroup rtdb
+@{
+*/
+
+/** 
+  \brief Store a character string on the RTDB
+
+  This function is supposed to be called from a Fortran code.
+
+  \param handle [Input] the RTDB handle
+  \param name   [Input] the key
+  \param nelem  [Input] the length of the character buffer
+  \param array  [Input] the value of the string
+
+  \return Return FORTRAN_TRUE if successfull, and FORTRAN_FALSE otherwise.
+*/
 #if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 Logical FATR rtdb_cput_(const Integer *handle, _fcd name,
 		   const Integer *nelem,
@@ -429,7 +446,22 @@ Logical FATR rtdb_cput_(const Integer *handle, const char *name,
 }
 
 /*MV*/
+/** 
+  \brief Retrieve the length of a character string on the RTDB
 
+  When a character string is stored on the RTDB it is not necessarily obvious
+  how long the string is. Hence it is useful to be able to check the length of
+  the string before attempting to retrieve it to make sure that a buffer of
+  sufficient length is provided.
+
+  This function is supposed to be called from a Fortran code.
+
+  \param handle [Input] the RTDB handle
+  \param name   [Input] the key
+  \param nelem  [Output] the number of characters
+
+  \return Return FORTRAN_TRUE if successfull, and FORTRAN_FALSE otherwise.
+*/
 #if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 Logical FATR rtdb_cget_size_(const Integer *handle, _fcd name,
 		   const Integer *nelem)
@@ -485,6 +517,22 @@ Logical FATR rtdb_cget_size_(const Integer *handle, const char *name,
 
 
 /*MV*/
+/** 
+  \brief Retrieve a character string from the RTDB
+
+  Retrieve a character string from the RTDB and return it in the character
+  buffer provided. The buffer must be large enough to hold the value otherwise
+  the function will fail.
+
+  This function is supposed to be called from a Fortran code.
+
+  \param handle [Input] the RTDB handle
+  \param name   [Input] the key
+  \param nelem  [Input] the length of the character buffer
+  \param array  [Output] the value of the string
+
+  \return Return FORTRAN_TRUE if successfull, and FORTRAN_FALSE otherwise.
+*/
 #if (defined(CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 Logical FATR rtdb_cget_(const Integer *handle, _fcd name,
 		   const Integer *nelem,
@@ -563,6 +611,9 @@ Logical FATR rtdb_cget_(const Integer *handle, const char *name,
   return FORTRAN_TRUE;
 }
 
+/**
+@}
+*/
 
 #if (defined(_CRAY) || defined(USE_FCD)) && !defined(__crayx1)
 Logical FATR rtdb_first_(const Integer *handle, _fcd name)
