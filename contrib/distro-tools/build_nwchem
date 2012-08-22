@@ -814,7 +814,7 @@ function get_scalapack_integer()
    echo "      end" >> ./testscalapack$$.f
    $fcomp -o testscalapack$$.x testscalapack$$.f ${blaslapacksca} > /dev/null
    result=`./testscalapack$$.x`
-   out=`expr "${result}" : '*4'`
+   out=`expr "${result}" : '.*\(4\)'`
    if [ ${#out} -eq 0 ] ; then
      out=8
    else
@@ -1287,7 +1287,7 @@ if [ ${#BLAS_SIZE} -eq 0 ] ; then
     # In this case we will build the BLAS from source
     BLAS_SIZE=8
   else
-    BLAS_SIZE=`get_blas_integer ${MPI_F90} ${BLAS_LIB}`
+    BLAS_SIZE=`get_blas_integer ${MPI_F90} "${BLAS_LIB}"`
     if [ $? -ne 0 ] ; then
       BLAS_SIZE=8
     fi
