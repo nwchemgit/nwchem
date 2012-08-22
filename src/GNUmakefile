@@ -30,6 +30,9 @@ NWBINNAME = nwchem
 # This should be the first target so that a simple make builds
 # the entire world
 #
+ifdef USE_GPROF
+   LINK.f += -pg
+endif
 
 .PHONY:	nwchem_config
 
