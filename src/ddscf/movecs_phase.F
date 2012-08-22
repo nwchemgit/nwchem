@@ -8,7 +8,8 @@
 #include "global.fh"
       integer g_vecs
 c
-      integer l_x, k_x, n, m, i, j, type
+      integer l_x, k_x, n, m, i, j, k, type
+      double precision v
       integer idamax
       external idamax
 c
@@ -24,8 +25,22 @@ c
 c
       do i = ga_nodeid()+1,m, ga_nnodes()
          call ga_get(g_vecs, 1, n, i, i, dbl_mb(k_x), 1)
-         j = idamax(n, dbl_mb(k_x), 1)
-         if (dbl_mb(k_x+j-1) .lt. 0.0d0) then
+         v = 0.0d0
+         k = 0
+         do j = 0, n-1
+c
+c          The next if-statement deals with coefficients that should
+c          be equally large, e.g. due to symmetry, but in practice
+c          are not exactly equally large. Now a coefficient has to be
+c          at least 10% larger than the previously largest one to be 
+c          considered larger.
+c
+           if (abs(dbl_mb(k_x+j)).gt.(v*1.1d0)) then
+             v = abs(dbl_mb(k_x+j))
+             k = j
+           endif
+         enddo
+         if (dbl_mb(k_x+k) .lt. 0.0d0) then
             call dscal(n, -1.0d0, dbl_mb(k_x), 1)
             call ga_put(g_vecs, 1, n, i, i, dbl_mb(k_x), 1)
          endif
