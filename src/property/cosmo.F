@@ -3,10 +3,10 @@ c
 C> COSMO is a dielectric continuum solvation model proposed by
 C> Klamt et al.:
 C>
-C>   A. Klamt, G. Sch&uuml;&uuml;rman,
+C>   A. Klamt, G. Sch&uuml;&uuml;rmann,
 C>   "COSMO: a new approach to dielectric screening in solvents with
 C>    explicit expressions for the screening energy and its gradient",
-C>   <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, 
+C>   <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
 C>   <a href="http://dx.doi.org/10.1039/P29930000799">
 C>   10.1039/P29930000799</a>.
 C>
@@ -544,6 +544,11 @@ c
      & 911,MA_ERR)
       if(.not.ma_pop_stack(l_rad)) call
      & errquit('cosmo_initialize,ma_pop_stack l_rad failed',911,MA_ERR)
+c
+c     Wipe the raw COSMO charges as we potentially have changed the
+c     number of charges, the atoms they are associated with, etc.
+c
+      status = rtdb_delete(rtdb,'cosmo:qraw')
 c
       return
  9999 format(/,10x,15(1h-),
@@ -1955,9 +1960,110 @@ c
      2       /,10X,15(1H-))
       end
 c
+C> \brief Calculate the screened COSMO charges
+c
+C> In the COSMO model [1] the charges to represent the solvation effects
+C> are obtained from solving a linear system of equations \f$ Ax=b \f$.
+C> In this system \f$ b \f$ is the electrostatic potential at the 
+C> point charge positions. The matrix \f$ A \f$ consists of the 
+C> electrostatic interaction between two unit charges at the point
+C> charge position, i.e.
+C> \f{eqnarray*}{
+C>   A_{\mu\nu} &=& ||t_\mu - t_\nu||^{-1} \\\\
+C>   A_{\mu\mu} &=& 3.8 |S_\mu|^{-1/2}
+C> \f}
+C> where \f$ S_\mu \f$ is the surface area associated with the COSMO
+C> charge.
+C>
+C> Solving these equations gives the "raw" COSMO charges \f$ x \f$.
+C> These charges should sum up to the total charge contained within 
+C> the Solvent Accessible Surface. For 2 reasons that will be in
+C> practice not be exactly true:
+C>
+C> - The discretization of the SAS is not perfect
+C>
+C> - The electron distribution being represented with Gaussian functions
+C>   extends beyond the SAS
+C>
+C> Therefore the raw COSMO charges are corrected by adding corrections
+C> equally to all charges, as suggested in [2] Eq. (23). 
+C>
+C> Previously this correction was implemented by scaling the raw COSMO
+C> charges. However, this led to complications with neutral molecules
+C> where the correct integrated surface charge is 0. Hence the 
+C> correction factor would be 0 as well, eliminating the COSMO charges
+C> and hence all solvation effects. This problem had been patched by
+C> calculating the COSMO charges for the nucleii and the electrons 
+C> separately. This led to a cumbersome and expensive algorithm. So
+C> shifting the charges is a solution that is preferred over scaling
+C> the charges. The difference between the two approaches should be
+C> small provided the discretization is fine enough.
+C>
+C> In the COSMO model [1] it is realized that dielectric screening
+C> scales as
+C> \f{eqnarray*}{
+C>   f(\epsilon) &= \frac{\epsilon-1}{\epsilon+a}, & 0\le a \le 2
+C> \f}
+C> Klamt and Sch&uuml;&uuml;rmann suggested to use \f$ a = 1/2 \f$, 
+C> essentially based on an argument that the true value should not 
+C> exceed 1 (see appendix A). Stevanovich and Truong [3] realized that
+C> the screened charges should be such that the Gauss theorem holds,
+C> which requires \f$ a = 0 \f$ (see Eq. (5)). Based on this physical
+C> motivation the latter value is used by default.
+C>
+C> The linear system of equations to be solved may be tackled in 2
+C> different ways. For small systems a direct solver is appriopriate,
+C> whereas for large systems an iterative solver is used. These solvers
+C> have different implications. If \f$ N \f$ is the number of COSMO
+C> charges then
+C>
+C> - the direct solver uses \f$ O(N^2) \f$ memory and \f$ O(N^3) \f$
+C>   instructions
+C>
+C> - the iterative solver uses \f$ O(N) \f$ memory and \f$ k*O(N^2) \f$
+C>   instructions (\f$ k \f$ is the number of iterations to convergence)
+C>
+C> The costs are based on the assumptions that for the direct solver
+C> the matrix is stored explicitly and the inverse is not stored but
+C> recalculated every time. For the iterative solver only a 
+C> matrix-vector multiplication is implemented that regenerates the
+C> matrix elements every time, and the number of iterations is roughly
+C> independent from the values of the matrix. 
+C>
+C> Based on these assumptions the iterative solver is optimal for large
+C> systems both with respect to memory requirements as well as compute
+C> requirements. The case for the iterative solver can be improved 
+C> further by parallelizing the matrix-vector multiplication which
+C> reduces the compute cost per processor to \f$ k*O(N^2)/N_{proc} \f$.
+C> Furthermore if we start the iterative solver in each SCF cycle with
+C> the solution from the previous iteration rather than \f$ x=0 \f$ then
+C> \f$ k \f$ may be reduced as well. In practice \f$ k \f$ does not
+C> depend strongly on the initial value of \f$ x \f$, reduction by at
+C> most a factor 2 are seen when the SCF is nearly converged.
+C>
+C>   [1] A. Klamt, G. Sch&uuml;&uuml;rmann,
+C>   "COSMO: a new approach to dielectric screening in solvents with
+C>    explicit expressions for the screening energy and its gradient",
+C>   <i>J. Chem. Soc., Perkin Trans. 2</i>, 1993, pp 799-805, DOI:
+C>   <a href="http://dx.doi.org/10.1039/P29930000799">
+C>   10.1039/P29930000799</a>.
+C>
+C>   [2] M.A. Aguilar, F.J. Olivares del Valle, J. Tomasi,
+C>   "Nonequilibrium solvation: Ab ab initio quantummechanical method
+C>    in the continuum cavity model approximation",
+C>   <i>J. Chem. Phys.</i> (1993) <b>98</b>, pp 7375-7384, DOI:
+C>   <a href="http://dx.doi.org/10.1063/1.464728">
+C>   10.1063/1.464728</a>.
+C>
+C>   [3] E.V. Stefanovich, T.N. Truong,
+C>   "Optimized atomic radii for quantum dielectric continuum solvation
+C>    models", <i>Chem. Phys. Lett.</i> (1995) <b>244</b>, pp 65-74,
+C>   DOI: <a href="http://dx.doi.org/10.1016/0009-2614(95)00898-E">
+C>   10.1016/0009-2614(95)00898-E</a>.
+c
       subroutine hnd_coschg(g_dens,ndens,rtdb,geom,basis,nefc,
      &                      efcc,efcs,efcz,ecos)
-      implicit double precision (a-h,o-z)
+      implicit none
 #include "errquit.fh"
 #include "global.fh"
 #include "rtdb.fh"
@@ -1968,26 +2074,86 @@ c
 #include "prop.fh"
 #include "util.fh"
 c
-      integer  rtdb
-      integer  geom
-      integer  basis
+      integer ndens         !< [Input] the number of density matrices
+      integer g_dens(ndens) !< [Input] the handle for the density
+                            !< matrices
+      integer rtdb          !< [Input] the RTDB handle
+      integer geom          !< [Input] the molecular geometry handle
+      integer basis         !< [Input] the molecular basis set handle
+      integer nefc          !< [Input] the number of COSMO charges
+c
+      double precision efcc(3,nefc) !< [Input] the COSMO charge
+                                    !< coordinates
+      double precision efcs(nefc)   !< [Input] the COSMO charge
+                                    !< surface area
+c
+      double precision efcz(nefc)   !< [Output] the COSMO charges
+      double precision ecos !< [Output] the energy contribution due to
+                            !< the COSMO charges
       logical  status
 c
       logical  dbug,more,out,direct,noall,all,elec,nucl,iefc_done
       character*16 at_tag
       character*255 cosmo_file
       integer fn
+      integer lineq ! if 1 use iterative solver, otherwise direct solver
+      integer minbem 
+      integer maxbem 
+      integer ificos ! 0 use octahedron, 1 use icosahedron tesselation
+      integer ifscrn ! do screening/correction?
+      integer nat ! the number of atoms
+      integer iat ! counter over atoms
+      integer jef ! counter over COSMO charges
+      integer i10, i11, i12, i20, i21, i22 ! memory offsets
+      integer i30, i40, i50, i60, i70, i80 ! memory offsets
+      integer i,ipt,ief ! counters
+      integer i_init ! number of ints in memory requirement vector
+      integer init ! memory requirement vector
+      integer ierr ! error flag
+      integer iep ! memory offset of b from Ax=b
+      integer nodcmp ! flag specifying how to handle errors
+      integer need ! the amount of memory needed
+c
+      integer l_epot, l_xyzpt, l_zanpt ! memory handles
+      integer k_epot, k_xyzpt, k_zanpt ! memory offsets
+c
+      double precision adiag
+      double precision dsurf
+      double precision dvol
+      double precision srfmol
+      double precision volmol
+      double precision dielec ! dielectric constant
+      double precision screen ! dielectric screening factor
+      double precision rsolv
       common/hnd_cosmod/lineq,minbem,maxbem,ificos,ifscrn
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
       common/hnd_cospar/dielec,screen,rsolv
-      dimension efcc(3,nefc),efcz(nefc),efcs(nefc)
-      dimension x(1)
+      double precision charge ! the total QM region charge
+      double precision chgfac ! scale factor for COSMO charges
+      double precision chgcos ! the total COSMO surface charge
+      double precision chgcvg ! the convergence of the COSMO charges
+      double precision corcos ! the COSMO charge correction
+      double precision errcos ! the COSMO charge error
+      double precision delchg ! charge difference
+      double precision aii,aij,bij,chgief,dij,deta,dum,oldief
+      double precision atmefc ! atom - COSMO charge interaction
+      double precision efcefc ! COSMO charge - COSMO charge interaction
+      double precision elcefc ! electron - COSMO charge interaction
+      double precision allefc ! total QM - COSMO charge interaction
+      double precision zan ! charges
+      double precision xi, xj, xn, xp ! X-coordinates
+      double precision yi, yj, yn, yp ! Y-coordinates
+      double precision zi, zj, zn, zp ! Z-coordinates
+      double precision qi, qj ! charges
+      double precision rr ! distance
+      double precision solnrg ! solvation energy
+      double precision x(1)
       equivalence (x(1),dbl_mb(1))
+      double precision zero, pt5, one, two ! constants
       data zero   /0.0d+00/
       data pt5    /0.5d+00/
       data one    /1.0d+00/
       data two    /2.0d+00/
-      integer g_dens(ndens)
       double precision bohr
       parameter (bohr=0.529177249d0)
 c
@@ -2040,13 +2206,16 @@ c
 c
 c     ----- get electrostatic potential at surface points -----
 c
-      i10=init
-      i11=i10+nefc
-      i12=i11+nefc
+      i10=init      ! total field
+      i11=i10+nefc  ! nuclear field
+      i12=i11+nefc  ! electron field
 c
 c     ----- calculate electronic contribution at all points -----
 c
       call hnd_elfcon(basis,geom,g_dens(ndens),efcc,nefc,x(i12),0)
+      do ipt=1,nefc
+         x(i12+ipt-1) = -x(i12+ipt-1)
+      enddo
 c
 c     ----- nuclear contribution -----
 c
@@ -2058,53 +2227,27 @@ c
      &    call errquit('hnd_coschg: ma failed',911,MA_ERR)
       if (.not. ma_push_get(mt_dbl,nat,'zan pnt',l_zanpt,k_zanpt))
      &    call errquit('hnd_coschg: ma failed',911,MA_ERR)
-      do 30 iat=1,nat
+      do iat=1,nat
         if(.not.geom_cent_get(geom,iat,at_tag,dbl_mb(k_xyzpt+3*(iat-1)),
      &     dbl_mb(k_zanpt+iat-1))) call
      &     errquit('hnd_coschg: geom_cent_get',911,GEOM_ERR)
-   30 continue
+      enddo ! iat
 c
-      do 230  ipt=1,nefc
+      do ipt=1,nefc
          xp = efcc(1,ipt)
          yp = efcc(2,ipt)
          zp = efcc(3,ipt)
          x(i11+ipt-1) = 0.0d0
-         do 210 i = 1,nat
+         do i = 1,nat
             xn  = dbl_mb(k_xyzpt  +3*(i-1)) - xp
             yn  = dbl_mb(k_xyzpt+1+3*(i-1)) - yp
             zn  = dbl_mb(k_xyzpt+2+3*(i-1)) - zp
             zan = dbl_mb(k_zanpt+i-1)
             rr =  sqrt(xn*xn + yn*yn + zn*zn)
             x(i11+ipt-1) = x(i11+ipt-1) + zan/rr
-  210    continue
-         x(i12+ipt-1) = -x(i12+ipt-1)
+         enddo ! i
          x(i10+ipt-1) = x(i11+ipt-1) + x(i12+ipt-1)
-  230 continue
-c
-c     ----- ( nucl, elec, all ) passes ... -----
-c
-      if(ifscrn.ne.2) then
-         noall=.true.
-      else
-         noall=.false.
-      endif
-
-      if(noall) then
-         all =.true.
-         elec=.false.
-         nucl=.false.
-      else
-         all  =.false.
-         elec =.false.
-         nucl =.true.
-      endif
-c
-   10 continue
-
-      if(out) then
-         write(luout,*) 'in -coschg- ... noall, all, elec, nucl = ',
-     1                                noall, all, elec, nucl
-      endif
+      enddo ! ipt
 c
 c     ----- get surface charges -----
 c
@@ -2126,17 +2269,7 @@ c
             write(luout,*) '-lineq- in memory'
          endif
 
-         if(all) then
-            iep=i10
-         elseif(nucl) then
-            iep=i11
-         elseif(elec) then
-            iep=i12
-         else
-            write(luout,*)'... should not be here ... all,elec,nucl = ',
-     1                                              all,elec,nucl
-            call errquit('hnd_coschg: should not be here...',911,UERR)
-         endif
+         iep=i10
 
          do ief=1,nefc
             x(ief+i20-1)=x(ief+iep-1)
@@ -2184,25 +2317,29 @@ c
             write(luout,*) 'iterative -lineq-'
          endif
 c
-         do ief=1,nefc
-            x(ief+i20-1)=zero
-         enddo
+         if (.not.rtdb_get(rtdb,'cosmo:qraw',mt_int,nefc,x(i20))) then
+c
+c           If no raw COSMO charges were found initialize x=0
+c
+            do ief=1,nefc
+               x(ief+i20-1)=zero
+            enddo
+         endif
 c
          direct=.true.
 c
 c     ----- solve ... -----
 c
-         if(all) then
-            iep=i10
-         elseif(nucl) then
-            iep=i11
-         elseif(elec) then
-            iep=i12
-         endif
+         iep=i10
 
          call hnd_cosequ(x(iep),x(i20),x(i30),nefc,
      1                   x(i40),x(i50),x(i60),x(i70),
      2                   efcc,efcs)
+c
+         if (.not.rtdb_put(rtdb,'cosmo:qraw',mt_int,nefc,x(i20))) then
+            call errquit('hnd_coschg: could not store raw COSMO charge',
+     1                   nefc,RTDB_ERR)
+         endif
       endif
 c
 c     ----- debug check -----
@@ -2230,97 +2367,36 @@ c
          enddo
       endif
 c
-c     ----- charge screening issue ... -----
+c     ----- correct the COSMO charges ... -----
 c
       chgcos=zero
       do ief=1,nefc
-         chgief=-one*x(ief+i20-1)
+         chgief=x(ief+i20-1)
          chgcos=chgcos+chgief
       enddo
-      chgscr=chgcos*screen
-      if(out) then
-         write(luout,*) '-cosmo- charge screening issue ...'
-         write(luout,*) ' cosmo  charge un-screened    = ',chgcos
-         write(luout,*) '                  screening   = ',screen
-         write(luout,*) ' cosmo  charge    screened    = ',chgscr
-      endif
-c
-c     ----- number of electrons and charge from rtdb ... -----
-c     Figure out the number of electrons from the required total
-c     charge and the sum of nuclear charges
-c
       if (.not. rtdb_get(rtdb, 'charge', MT_DBL, 1, charge))
      $     charge = 0.0d0
-      if (.not. geom_nuc_charge(geom, charge_nuclear))
-     $     call errquit('scf: geom_nuc_charge failed', 0, GEOM_ERR)
-      nelec = nint(charge_nuclear - charge)
-      if (nelec .le. 0) call errquit
-     $     ('scf: negative no. of electrons ?', nelec, INPUT_ERR)
-      if (abs(charge_nuclear - charge - dble(nelec)) .gt. 1d-8)
-     $     call errquit('scf: non-integral no. of electrons ?', 0,
-     &       INPUT_ERR)
-
-      if(out) then
-         write(luout,*) 'from -rtdb- nelec  = ',nelec
-         write(luout,*) 'from -rtdb- charge = ',charge
-         write(luout,*) 'from -rtdb- charge_nuclear = ',charge_nuclear
+      errcos=chgcos-charge
+      corcos=-errcos/nefc
+      if (ifscrn.ne.1) then
+         do ief=1,nefc
+            x(ief+i20-1)=x(ief+i20-1)+corcos
+         enddo
       endif
-
-      ne=nelec
-
-      if(all) then
-         chggss=(         -charge)*screen
-      elseif(elec) then
-         chggss=( dble(ne)       )*screen
-      elseif(nucl) then
-         chggss=(-charge_nuclear )*screen
-      endif
-      errcos=chgcos-chggss
-      errscr=chgscr-chggss
-      if(out) then
-         if(all) then
-            write(luout,*) ' solute total charge          = ',
-     $                  charge
-         elseif(elec) then
-            write(luout,*) ' solute total electron charge = ',
-     $                 -dble(ne)
-         elseif(nucl) then
-            write(luout,*) ' solute total nuclear  charge = ',
-     $                  charge_nuclear
-         endif
-         write(luout,*) ' gauss  charge                = ',chggss
-         write(luout,*) ' error  (un-screened - gauss) = ',errcos
-         write(luout,*) ' error  (   screened - gauss) = ',errscr
-         write(luout,*) ' ratio  (gauss / un-screened) = ',chggss/chgcos
-         write(luout,*) ' ratio  (gauss /    screened) = ',chggss/chgscr
-      endif
+c
+c     ----- charge screening due to the dielectric medium -----
 c
 c     ----- set screening factor -----
 c
-      if(all) then
-         if(ifscrn.eq.0) then
-            chgfac=one
-         elseif(ifscrn.eq.1) then
-            chgfac=screen
-            chgfac=one
-         elseif(ifscrn.eq.2) then
-            chgfac=chggss/chgcos
-            chgfac=one
-         else
-            write(luout,*) 'illegal -ifscrn- ... stop. = ',ifscrn
-            call errquit('hnd_coschg: illegal -ifscrn-...',911,UERR)
-         endif
+      if(ifscrn.eq.0) then
+         chgfac=one
+      elseif(ifscrn.eq.1) then
+         chgfac=screen
+      elseif(ifscrn.eq.2) then
+         chgfac=screen
       else
-         if(ifscrn.eq.0) then
-            chgfac=one
-         elseif(ifscrn.eq.1) then
-            chgfac=screen
-         elseif(ifscrn.eq.2) then
-            chgfac=chggss/chgcos
-         else
-            write(luout,*) 'illegal -ifscrn- ... stop. = ',ifscrn
-            call errquit('hnd_coschg: illegal -ifscrn-...',911,UERR)
-         endif
+         write(luout,*) 'illegal -ifscrn- ... stop. = ',ifscrn
+         call errquit('hnd_coschg: illegal -ifscrn-...',911,UERR)
       endif
 
       if(out) then
@@ -2331,58 +2407,22 @@ c
 c     ----- apply screening factor -----
 c
       do ief=1,nefc
-         x(ief+i20-1)=(-chgfac)*x(ief+i20-1)
+         x(ief+i20-1)=-chgfac*x(ief+i20-1)
       enddo
-      if(nucl) then
-         do ief=1,nefc
-            x(ief+i21-1)=x(ief+i20-1)
-         enddo
-      endif
-      if(elec) then
-         do ief=1,nefc
-            x(ief+i22-1)=x(ief+i20-1)
-         enddo
-      endif
 c
 c     ----- store effective charges in -efcz- ... -----
 c           check convergence ...
 c
-      if(iefc_done) then
-         if(all) then
-            chgcvg=zero
-            do ief=1,nefc
-               oldief=efcz(ief)
-               chgief=   x(ief+i20-1)
-               delchg=abs(chgief-oldief)
-               if(delchg.gt.chgcvg) then
-                  chgcvg=delchg
-               endif
-               efcz(ief)=chgief
-            enddo
-         else
-            do ief=1,nefc
-               efcz(ief)=x(ief+i20-1)
-            enddo
+      chgcvg=zero
+      do ief=1,nefc
+         oldief=efcz(ief)
+         chgief=   x(ief+i20-1)
+         delchg=abs(chgief-oldief)
+         if(delchg.gt.chgcvg) then
+            chgcvg=delchg
          endif
-      else
-         if(all) then
-            chgcvg=zero
-            do ief=1,nefc
-               oldief=   zero
-               chgief=   x(ief+i20-1)
-               delchg=abs(chgief-oldief)
-               if(delchg.gt.chgcvg) then
-                  chgcvg=delchg
-               endif
-               efcz(ief)=chgief
-            enddo
-            iefc_done=.true.
-         else
-            do ief=1,nefc
-               efcz(ief)=x(ief+i20-1)
-            enddo
-         endif
-      endif
+         efcz(ief)=chgief
+      enddo
 
       if(all) then
          if(out) then
@@ -2438,7 +2478,7 @@ c
       elcefc= allefc-atmefc
       solnrg= allefc+efcefc
       ecos  = atmefc+efcefc
-      if(out) then
+      if (out) then
          write(luout,9991) atmefc
          write(luout,9990) elcefc
          write(luout,9995) efcefc
@@ -2464,91 +2504,19 @@ c
       enddo
       solnrg= pt5* allefc
       ecos  = pt5*(atmefc-elcefc)
-      if(out) then
+      if (out) then
          write(luout,9991) atmefc
          write(luout,9990) elcefc
          write(luout,9989) allefc
          write(luout,9988) solnrg
          write(luout,9994) ecos
       endif
-c
-c     ----- after 'elec' pass, get the total ... -----
-c
-      if(nucl) then
-         atmefcn=atmefc
-         elcefcn=elcefc
-         efcefcn=efcefc
-         allefcn=allefc
-         solnrgn=solnrg
-           ecosn=  ecos
-      endif
-      if(elec) then
-         atmefce=atmefc
-         elcefce=elcefc
-         efcefce=efcefc
-         allefce=allefc
-         solnrge=solnrg
-           ecose=  ecos
-         atmefct=atmefcn+atmefce
-         elcefct=elcefcn+elcefce
-         allefct=allefcn+allefce
-         solnrgt=solnrgn+solnrge
-           ecost=  ecosn+  ecose
-         if(out) then
-            write(luout,*) '-atmefc (nucl     )  - = ',atmefcn
-            write(luout,*) '-atmefc (     elec)  - = ',atmefce
-            write(luout,*) '-atmefc (nucl+elec)  - = ',atmefct
-            write(luout,*) '-elcefc (nucl     )  - = ',elcefcn
-            write(luout,*) '-elcefc (     elec)  - = ',elcefce
-            write(luout,*) '-elcefc (nucl+elec)  - = ',elcefct
-            write(luout,*) '-allefc (nucl     )  - = ',allefcn
-            write(luout,*) '-allefc (     elec)  - = ',allefce
-            write(luout,*) '-allefc (nucl+elec)  - = ',allefct
-            write(luout,*) '-solnrg (nucl     )  - = ',solnrgn
-            write(luout,*) '-solnrg (     elec)  - = ',solnrge
-            write(luout,*) '-solnrg (nucl+elec)  - = ',solnrgt
-            write(luout,*) '-  ecos (nucl     )  - = ',  ecosn
-            write(luout,*) '-  ecos (     elec)  - = ',  ecose
-            write(luout,*) '-  ecos (nucl+elec)  - = ',  ecost
-            write(luout,*) '-efcefc (nucl     )  - = ',efcefcn
-            write(luout,*) '-efcefc (     elec)  - = ',efcefce
-         endif
-      endif
-c
-c     ----- after 'all' pass, reset charges and energy ... -----
-c
-      if(.not.noall.and.all) then
-         atmefc=atmefct
-         elcefc=elcefct
-         solnrg=solnrgt
-           ecos=  ecost
-         efcefc=zero
-         do ief=1,nefc
-            efcz(ief)=x(ief+i21-1)+x(ief+i22-1)
-         enddo
 
-         if(dbug) then
-            write(luout,9998)
-            do ief=1,nefc
-               write(luout,9997) ief,(efcc(i,ief),i=1,3),efcz(ief)
-            enddo
-         endif
-      endif
-c
-c     ----- -nucl- first, -elec- second, then -all- ... -----
-c
-      if(.not.all) then
-         if(.not.elec) then
-            elec=.true.
-            nucl=.false.
-            go to 10
-         else
-            if(.not.noall) then
-               all =.true.
-               elec=.false.
-               go to 10
-            endif
-         endif
+      if(dbug) then
+         write(luout,9998)
+         do ief=1,nefc
+            write(luout,9997) ief,(efcc(i,ief),i=1,3),efcz(ief)
+         enddo
       endif
 c
       if(out) then
@@ -2633,17 +2601,22 @@ c
 c
       subroutine hnd_cosaxd(a,x,ax,n,efcc,efcs)
       implicit real*8 (a-h,o-z)
+#include "global.fh"
       parameter (zero=0.0d+00, one=1.0d+00)
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
       dimension efcc(3,n), efcs(n)
       dimension a(n),x(n),ax(n)
+c
+c     Introduced a trivial replicated data parallelization of this
+c     matrix-vector multiplication
 c
       b(i,j)=one/sqrt((efcc(1,i)-efcc(1,j))**2+
      1                (efcc(2,i)-efcc(2,j))**2+
      2                (efcc(3,i)-efcc(3,j))**2)
       d(i  )=adiag/sqrt(efcs(i))
 c
-      do i=1,n
+      call dfill(n,0.0d0,ax,1)
+      do i=ga_nodeid()+1,n,ga_nnodes()
          dum=zero
          do j=1,n
             if(j.eq.i) then
@@ -2656,23 +2629,29 @@ c
          enddo
          ax(i)=dum
       enddo
+      call ga_dgop(msg_cosaxd,ax,n,'+')
 c
       return
       end
 c
       subroutine hnd_cosxad(a,x,xa,n,efcc,efcs)
       implicit real*8 (a-h,o-z)
+#include "global.fh"
       parameter (zero=0.0d+00, one=1.0d+00)
       common/hnd_cosdat/adiag,dsurf,dvol,srfmol,volmol 
       dimension efcc(3,n), efcs(n)
       dimension a(n),x(n),xa(n)
+c
+c     Introduced a trivial replicated data parallelization of this
+c     matrix-vector multiplication
 c
       b(i,j)=one/sqrt((efcc(1,i)-efcc(1,j))**2+
      1                (efcc(2,i)-efcc(2,j))**2+
      2                (efcc(3,i)-efcc(3,j))**2)
       d(i  )=adiag/sqrt(efcs(i))
 c
-      do i=1,n
+      call dfill(n,0.0d0,xa,1)
+      do i=ga_nodeid()+1,n,ga_nnodes()
          dum=zero
          do j=1,n
             if(j.eq.i) then
@@ -2685,6 +2664,7 @@ c
          enddo
          xa(i)=dum
       enddo
+      call ga_dgop(msg_cosxad,xa,n,'+')
 c
       return
       end
@@ -2721,44 +2701,44 @@ c
       call hnd_cosaxd(a,x,xi,n,efcc,efcs)
       rp=zero
       bsq=zero
-      do 11 j=1,n
+      do j=1,n
          bsq=bsq+b(j)*b(j)
          xi(j)=xi(j)-b(j)
          rp=rp+xi(j)*xi(j)
-   11 continue
+      enddo ! j
       call hnd_cosxad(a,xi,g,n,efcc,efcs)
-      do 12 j=1,n
-      g(j)=-g(j)
-      h(j)= g(j)
-   12 continue
-      do 19 iter=1,10*n
+      do j=1,n
+         g(j)=-g(j)
+         h(j)= g(j)
+      enddo ! j
+      do iter=1,10*n
          call hnd_cosaxd(a,h,xi,n,efcc,efcs)
          anum=zero
          aden=zero
-         do 13 j=1,n
+         do j=1,n
             anum=anum+g(j)*h(j)
             aden=aden+xi(j)*xi(j)
-   13    continue
+         enddo ! j
          if(aden.eq.zero) then
             write(luout,*) 'very singular matrix'
             call errquit('hnd_cosequ: singular matrix',911,UERR)
          endif
          anum=anum/aden
-         do 14 j=1,n
+         do j=1,n
             xi(j)=x(j)
             x(j)=x(j)+anum*h(j)
-   14    continue
+         enddo ! j
          call hnd_cosaxd(a,x,xj,n,efcc,efcs)
          rsq=zero
-         do 15 j=1,n
+         do j=1,n
             xj(j)=xj(j)-b(j)
             rsq=rsq+xj(j)*xj(j)
-   15    continue
+         enddo ! j
          if(rsq.eq.rp.or.rsq.le.bsq*eps2) return
          if(rsq.gt.rp) then
-            do 16 j=1,n
+            do j=1,n
                x(j)=xi(j)
-   16       continue
+            enddo ! j
             if(irst.ge.3) return
             go to 10
          endif
@@ -2766,17 +2746,17 @@ c
          call hnd_cosxad(a,xj,xi,n,efcc,efcs)
          gg=zero
          dgg=zero
-         do 17 j=1,n
+         do j=1,n
             gg=gg+g(j)*g(j)
             dgg=dgg+(xi(j)+g(j))*xi(j)
-   17    continue
+         enddo ! j
          if(gg.eq.zero) return
          gam=dgg/gg
-         do 18 j=1,n
+         do j=1,n
             g(j)=-xi(j)
             h(j)=g(j)+gam*h(j)
-   18    continue
-   19 continue
+         enddo ! j
+      enddo ! iter
       write(luout,*) 'too many iterations'
       call errquit('hnd_cosequ: too many iters',911,UERR)
       return
