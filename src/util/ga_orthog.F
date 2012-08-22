@@ -9,7 +9,8 @@ C$Id$
       logical ometric
 c
       integer ulo, uhi, type, ni, nu, uchunk, ld
-      integer l_tmp, k_tmp, k_s, l_s, l_over, k_over, l_w, k_w
+      integer l_tmp, l_s, l_over, l_w
+      MAPOINTER k_tmp, k_s, k_over, k_w
 c     
 c     Redistribute the input matrix ... block the leading
 c     dimension, leave second dimension undistributed
@@ -115,7 +116,7 @@ c     If have a metric then first form overlap*vec(i)
 c     
          if (ometric) then
             call dfill(nu, 0.0d0, w, 1)
- 	    if ((uhi-ulo+1) .gt. 0) 
+            if ((uhi-ulo+1) .gt. 0) 
      $           call dgemv('n', nu, (uhi-ulo+1), 1.0d0, o, nu,
      $           vecs(ulo,i), 1, 0.0d0, w, 1)
 
