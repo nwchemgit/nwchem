@@ -404,7 +404,7 @@ c
       call util_print_centered(LuOut,'Richland, WA 99352',
      $     40, .false.)
       write(LuOut,*)
-      call util_print_centered(LuOut,'Copyright (c) 1994-2010',
+      call util_print_centered(LuOut,'Copyright (c) 1994-2012',
      $     40, .false.)
       call util_print_centered(LuOut,
      $     'Pacific Northwest National Laboratory',
