@@ -517,6 +517,7 @@ c
       integer msg_efgs_col
       integer msg_perfm_sum,msg_perfm_max,msg_perfm_min
       integer msg_cosmo0,msg_cosmo1,msg_cosmo2
+      integer msg_cosaxd,msg_cosxad
       integer msg_frq,msg_eigv,msg_ns1,msg_ns2,msg_ns3
       integer msg_dntmc0, msg_dntmc1, msg_dntmc2, msg_dntmc3
       integer msg_dntmc4, msg_dntmc5, msg_dntmc6, msg_dntmc7
@@ -1196,6 +1197,8 @@ c
       parameter(msg_cosmo1=msg_ftn_base-900)
       parameter(msg_cosmo2=msg_ftn_base-901)
       parameter(msg_cosmo0=msg_ftn_base-902)
+      parameter(msg_cosaxd=msg_ftn_base-903)
+      parameter(msg_cosxad=msg_ftn_base-904)
 c
       parameter(msg_dntmc0=msg_ftn_base-903)
       parameter(msg_dntmc1=msg_ftn_base-904)
