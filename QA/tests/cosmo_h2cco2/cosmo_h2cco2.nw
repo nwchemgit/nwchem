@@ -1,0 +1,30 @@
+echo
+
+start h2cco2_dat
+
+geometry
+    symmetry c1
+    o      0.00000000    -1.11909860    -0.09529177
+    o      0.00000000     1.11909860    -0.09529177
+    c      0.00000000     0.00000000     0.66838924
+    c      0.00000000     0.00000000     1.99717688
+    h      0.00000000    -0.92756722     2.53578926
+    h      0.00000000     0.92756722     2.53578926
+end
+
+charge -2
+
+basis 
+  * library 6-31g*
+end
+
+cosmo
+# minbem 3
+# maxbem 5
+end
+
+scf
+  print forces
+end
+
+task scf gradient
