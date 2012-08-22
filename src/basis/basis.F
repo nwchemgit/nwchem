@@ -3344,6 +3344,16 @@ c
       return
       end
 *.....................................................................
+c
+C> \brief Retrieves the maximum number of basis functions in any shell
+C>
+C> This function scans through all the shells in a basis set and finds
+C> the maximum number of basis functions. It deals with Cartesian and
+C> spherical harmonic basis functions as well as segmented and 
+C> generally contracted basis sets.
+C>
+C> \return Returns .true. if successful, and .false. otherwise
+c
       logical function bas_nbf_cn_max(basisin,nbf_max)
       implicit none
 c
@@ -3360,9 +3370,9 @@ c::functions
       integer nbf_from_ucont
       external nbf_from_ucont
 c:: passed
-      integer basisin ! [input] basis set handle
-      integer nbf_max ! [output] largest basis function block on any 
-*. . . . . . . . . . .           shell in the given basis set.
+      integer basisin !< [Input]  the basis set handle
+      integer nbf_max !< [Output] the maximum number of basis functions
+                      !< in any shell
 c:local
       integer basis, myucont, i, mynbf
 c
@@ -3452,6 +3462,15 @@ c
       return
       end
 *.....................................................................
+c
+C> \brief Retrieve the geometry that was specified when loading the
+C> basis
+C>
+C> Simply look up the geometry that was stored with the basis set when
+C> the basis set was loaded from the RTDB.
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function bas_geom(basisin,geom)	
       implicit none 
 #include "errquit.fh"
@@ -3463,9 +3482,9 @@ c::functions
       logical bas_check_handle
       external bas_check_handle
 c:: passed
-      integer basisin       ! [input] basis set handle
+      integer basisin !< [Input]  the basis set handle
       integer basis
-      integer geom          ! [output] geometry used to load basis set
+      integer geom    !< [Output] the geometry used to load basis set
 c
       if (.not.bas_check_handle(basisin,'bas_geom'))
      & call errquit('bas_geom: handle invalid',911, BASIS_ERR)
@@ -3475,15 +3494,28 @@ c
       geom = ibs_geom(basis)
       bas_geom = .true.
       end
-*.....................................................................
+*...............................................
+c
+C> \brief Retrieve the maximum number of contraction coefficients
+C> associated with any shell
+C>
+C> This function scans through all shells in a basis set and checks
+C> the number of contraction coefficients for each. It takes into
+C> account segmented and generally contracted shells. The maximum
+C> number of contraction coefficients for any shell is passed back to
+C> the calling routine.
+C>
+C> \return Return .true. if successfull, .false. otherwise.
+c
       logical function bas_ncoef_cn_max(basisin, ncoef_max)
       implicit none
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
-      integer basisin   ! [input] basis set handle
-      integer ncoef_max ! [output] maximum number of coefs
+      integer basisin   !< [Input]  the basis set handle
+      integer ncoef_max !< [Output] the maximum number of contraction 
+                        !< coefficients
 c
       integer basis
       integer nu_cont, iu_cont, my_prim, my_gen
@@ -3501,15 +3533,26 @@ c
       bas_ncoef_cn_max = .true.
       end
 *.....................................................................
+c
+C> \brief Retrieve the maximum number of primitive basis functions
+C> associated with any shell
+C>
+C> This function scans through all shells in a basis set and checks
+C> the number of primitive basis functions (or equivalently the
+C> number of exponents) for each. The maximum number of primitive basis
+C> basis functions for any shell is passed back to the calling routine.
+C>
+C> \return Return .true. if successfull, .false. otherwise.
+c
       logical function bas_nprim_cn_max(basisin, nprim_max)
       implicit none
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
 #include "basdeclsP.fh"
-      integer basisin   ! [input] basis set handle
-      integer nprim_max ! [output] maximum number of prims in any 
-*. . . . . . . . . . . .           contraction
+      integer basisin   !< [Input]  the basis set handle
+      integer nprim_max !< [Output] the maximum number of primitives in
+                        !< any shell
 c
       integer basis
       integer nu_cont, iu_cont, my_prim
