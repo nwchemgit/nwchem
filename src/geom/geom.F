@@ -522,8 +522,16 @@ C> \brief Load a geometry from the RTDB
 c
 C> Load a geometry from the RTDB with a specified name.
 C> The name is used also to define the name of the geometry.
-C> If loading storing the geometry was successful return .true., return .false.
-C> otherwise.
+C>
+C> If no part of a geometry is found the code assumes that the geometry
+C> simply is not stored on the RTDB. If some part of a geometry is 
+C> present on the RTDB but not all parts then the code assumes the
+C> RTDB has been corrupted and an additional message to that effect is
+C> printed on standard output.
+C>
+C> If loading storing the geometry was successful return .true.,
+C> return .false. otherwise.
+C>
       logical function geom_rtdb_load(rtdb, geom, name)
       implicit none
 #include "errquit.fh"
@@ -573,6 +581,20 @@ c
       tmp(k:) = ' ' 
       tmp(k:) = ':ncenter'
       s = s .and. rtdb_get(rtdb, tmp, mt_int, 1, ncenter(geom))
+      geom_rtdb_load = s
+      if (.not.s) then
+c
+c       Even the first item is not present on the RTDB so this geometry
+c       is simply not present. Return this information to the caller.
+c
+        return
+      else
+c
+c       At least some information about this geometry is stored on the
+c       RTDB. So a complete geometry specification must be found from
+c       hereon, otherwise the RTDB is corrupt.
+c
+      endif
       tmp(k:) = ' ' 
       tmp(k:) = ':coords'
       s = s .and. rtdb_get(rtdb, tmp, mt_dbl, max_cent*3, 
@@ -825,7 +847,7 @@ c
 c     
       if (.not. s) then
         if (ga_nodeid().eq.0) then
-          write(LuOut,*)' geom_rtdb_load: not found or rtdb corrupt: ',
+          write(LuOut,*)' geom_rtdb_load: rtdb corrupt: ',
      $                  names(geom)(1:lenn(geom)), ' -> ',
      $                  trans(geom)(1:lent(geom))
           call geom_err_info('geom_rtdb_load')
