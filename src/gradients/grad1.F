@@ -338,7 +338,7 @@ C-------------------------local variables--------------------------
 c     ---- -cosmo- gradient term -----
       logical odbug
 
-      odbug=.true.
+      odbug=.false.
       if(odbug) then
          write(Luout,*) 'in -grad1_hnd_cos- ...'
       endif
