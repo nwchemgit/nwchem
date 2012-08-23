@@ -22,6 +22,7 @@ c     **********************************************
       real*8 x,y,z,r,rmax,dr,pi,da,maxcoord,a,b,n,m,sigma,w,r0
       real*8 boundary(2),temp,fac
       character*80 rtdb_name,potential_filename
+      character*60 gauss_filename
       character*4 celement1,celement2
 
 *     **** external functions ****
@@ -252,6 +253,16 @@ c     **********************************************
      >    call errquit('cannot allocate heap memory for metadynamics',0,
      >       MA_ERR)
 
+
+*        **** iniitialize meta_gauss_write ****
+         rtdb_name = 'metadynamics_gaussian_filename'
+         gauss_filename = 
+     >   '                                                           '
+         if(.not.rtdb_cget(rtdb,rtdb_name,1,gauss_filename))
+     >      call util_file_prefix('meta_gaussians',gauss_filename)
+         call meta_gauss_write_init(gauss_filename)
+
+
 *     **** write out header info ****
       call Parallel_taskid(taskid)
       if (taskid.eq.MASTER) then
@@ -469,6 +480,7 @@ c     **********************************************
             value = value.and.MA_free_heap(sparammeta(2))
             value = value.and.MA_free_heap(ymeta(2))
             call nwpw_interp_end()
+            call meta_gauss_write_end()
 
          end if
 
@@ -906,7 +918,7 @@ c     **** ld_trace ***
       parameter (kb=3.16679d-6)
 
       integer d,i,j(10),s1,s2
-      real*8  r0(10),r,x,w,ww,sigma,v,expv
+      real*8  r0(10),sigma0(10),r,x,w,ww,sigma,v,expv
 
 *     **** external functions ****
       real*8   meta_collective,meta_energy
@@ -934,6 +946,7 @@ c     **** ld_trace ***
                r0(d) = meta_collective(int_mb(indxmeta(1)+s1),
      >                                 dbl_mb(parammeta(1)+s2),
      >                                 ispin,ne,psi1)
+               sigma0(d) = dbl_mb(parammeta(1)+s2+1)
                w  = w*dbl_mb(parammeta(1)+s2)
                j(d) = 0
             end do
@@ -971,6 +984,7 @@ c     >                                    ispin,ne,psi1)
                   end if
                end do
             end do
+            call meta_gauss_write(nmeta,r0,sigma0,w*expv)
          end if
 
          end if
@@ -1370,3 +1384,160 @@ c               close(53)
       end if
       return
       end
+
+
+
+*     ***********************************************
+*     *                                             *
+*     *          meta_gauss_write_init              *
+*     *                                             *
+*     ***********************************************
+      subroutine meta_gauss_write_init(filename)
+      implicit none
+      character*(*) filename
+
+#include "mafdecls.fh"
+#include "metadynamics.fh"
+
+      integer   MASTER
+      parameter (MASTER=0)
+
+      logical found,found_bak
+      integer taskid,l1,l2,i
+      character*255 full_filename,full_bak
+
+      call Parallel_taskid(taskid)
+
+
+*     **** produce META-GAUSS FILE ****
+      if (taskid.eq.MASTER) then
+
+         call util_file_name_noprefix(filename,.false.,
+     >                                .false.,
+     >                       full_filename)
+
+*        **** check for backup file ***
+         call util_file_name_noprefix('META_GAUSS99-bak',.false.,
+     >                                  .false.,
+     >                                  full_bak)
+         inquire(file=full_bak,exist=found_bak)
+         if (found_bak) then
+            write(*,*)
+            write(*,*) "META-GAUSS99-bak exists:"
+            l1=index(full_bak,' ')
+            l2=index(full_filename,' ')
+            write(*,*) "   Copying ",full_bak(1:l2),
+     >                 " to ",full_filename(1:l2)
+            write(*,*)
+            call util_file_copy(full_bak,full_filename)
+         end if
+         inquire(file=full_filename,exist=found)
+         if (found) then
+
+*           **** make a new backup file ***
+            call util_file_copy(full_filename,full_bak)
+
+           open(unit=54,file=full_filename,form='formatted',
+     >          status='old')
+           do while (found)
+             read(54,*,end=100)
+           end do
+  100      continue
+#if defined(FUJITSU_SOLARIS) || defined(SOLARIS) || defined(__crayx1) || defined(GCC46)
+           backspace 54
+#endif
+         else
+           open(unit=54,file=full_filename,form='formatted',
+     >           status='new')
+
+           write(54,'(A,A40)') 
+     >        "#metadynamics gaussian filename=",filename
+           write(54,'(A,I6)') "#nmeta ",nmeta
+           write(54,'(A,10I6)') "#nxmeta ",
+     >                          (int_mb(nxmeta(1)+i-1),i=1,nmeta) 
+           write(54,'(A,10I6)') "#sindxmeta ",
+     >                 (int_mb(sindxmeta(1)+i-1),i=1,nmeta) 
+           write(54,'(A,10I6)') "#sparammeta ",
+     >                 (int_mb(sparammeta(1)+i-1),i=1,nmeta) 
+           write(54,'(A,10F18.12)') "#ameta ",
+     >                             (dbl_mb(ameta(1)+i-1),i=1,nmeta)
+           write(54,'(A,10F18.12)') "#bmeta ",
+     >                            (dbl_mb(bmeta(1)+i-1),i=1,nmeta)
+           write(54,'(A,10I3)') "#pmeta ",
+     >                          (int_mb(pmeta(1)+i-1),i=1,nmeta)
+           write(54,'(A,I8)') "#nindxmeta ",nindxmeta
+           write(54,'(A,500I6)') "#indxmeta ",
+     >                 (int_mb(indxmeta(1)+i-1),i=1,nindxmeta) 
+           write(54,'(A,I8)') "#nparammeta ",nparammeta
+           write(54,'(A,500F18.12)') "#parammeta ",
+     >                 (dbl_mb(parammeta(1)+i-1),i=1,nparammeta)
+           write(54,'(A,I8)') "#maxmetacount ",maxmetacount
+           write(54,'(A,I8)') "#metacount ",metacount
+           write(54,'(A,I8)') "#metarayshift ",metarayshift
+           write(54,'(A,I8)') "#metaraycount ",metaraycount
+         end if
+      end if
+
+      return
+      end
+
+
+
+
+*     ***********************************************
+*     *                                             *
+*     *          meta_gauss_write_end               *
+*     *                                             *
+*     ***********************************************
+      subroutine meta_gauss_write_end()
+      implicit none
+
+      integer   MASTER
+      parameter (MASTER=0)
+
+      integer taskid
+      character*255 full_bak
+
+      call Parallel_taskid(taskid)
+
+      if (taskid.eq.MASTER) then
+         close(unit=54)
+
+*        **** remove backup file ***
+         call util_file_name_noprefix('META-GAUSS-bak',.false.,
+     >                                .false.,
+     >                                full_bak)
+         call util_file_unlink(full_bak)
+      end if
+
+
+      return
+      end
+
+*     ***********************************************
+*     *                                             *
+*     *          meta_gauss_write                   *
+*     *                                             *
+*     ***********************************************
+      subroutine meta_gauss_write(n,r,sigma,w)
+      implicit none
+      integer n
+      real*8 r(*),sigma(*),w
+
+*     **** local variables ****
+      integer MASTER,taskid
+      parameter (MASTER=0)
+
+      integer i
+
+      call Parallel_taskid(taskid)
+
+      if (taskid.eq.MASTER) then
+         write(54,111) (r(i),i=1,n),(sigma(i),i=1,n),w
+         call util_flush(54)
+      end if
+  111 format(99e14.6)
+
+      return
+      end
+
