@@ -235,7 +235,12 @@ include_stamp:	$(HEADERS)
 ifdef SUBDIRS
 	$(MAKESUBDIRS)
 endif
+ifdef USE_CPPRESERVE
+	cp --preserve=timestamp $(HEADERS) $(INCDIR)
+else
 	cp -p $(HEADERS) $(INCDIR)
+endif
+
 	touch include_stamp
 
 # The below dependency has now been superceded by the complete
