@@ -74,19 +74,19 @@ task scf gradient
            ---------------
 
     hostname        = arcen
-    program         = ../../../bin/LINUX64/nwchem
-    date            = Wed Aug 22 15:45:26 2012
+    program         = /home/d3y133/nwchem-dev/nwchem-trunk/QA/../bin/LINUX64/nwchem
+    date            = Thu Aug 23 13:43:28 2012
 
-    compiled        = Wed_Aug_22_15:40:36_2012
+    compiled        = Thu_Aug_23_13:38:11_2012
     source          = /home/d3y133/nwchem-dev/nwchem-trunk
     nwchem branch   = Development
-    nwchem revision = 22761
+    nwchem revision = 22762:22774M
     ga revision     = 10078M
     input           = cosmo_h2cco2mg.nw
     prefix          = h2cco2mg_dat.
-    data base       = ./h2cco2mg_dat.db
+    data base       = /home/d3y133/nwchem-dev/nwchem-trunk/QA/scratchdir/h2cco2mg_dat.db
     status          = startup
-    nproc           =        1
+    nproc           =        4
     time left       =     -1s
 
 
@@ -105,8 +105,8 @@ task scf gradient
            Directory information
            ---------------------
 
-  0 permanent = .
-  0 scratch   = .
+  0 permanent = /home/d3y133/nwchem-dev/nwchem-trunk/QA/scratchdir
+  0 scratch   = /home/d3y133/nwchem-dev/nwchem-trunk/QA/scratchdir
 
 
 
@@ -266,6 +266,9 @@ task scf gradient
 
 
 
+  library name resolved from: environment
+  library file name is: </home/d3y133/nwchem-dev/nwchem-trunk/QA/../src/basis/libraries/>
+  
 
 
  Summary of "ao basis" -> "" (cartesian)
@@ -388,18 +391,12 @@ task scf gradient
  h                           6-31g*                  2        2   2s
 
 
-  geom_rtdb_load: not found or rtdb corrupt: cosmo efc geom -> cosmo efc geom
- geom_rtdb_load: open geometies:  2
-  1 geom_rtdb_load: "geometry" -> "geometry"
-  2 geom_rtdb_load: "cosmo efc geom" -> "cosmo efc geom"
- geom_rtdb_load: geometries in last accessed data base:  1
- geometry
 
           ---------------
           -cosmo- solvent
           ---------------
  dielectric constant -eps-  =  78.40
- charge screening approach  =   2
+ charge screening approach  =   1
  screen = (eps-1)/(eps    ) =   0.98724
  -lineq- algorithm          =   1
  -bem- low  level           =   2
@@ -458,7 +455,7 @@ task scf gradient
   charge          =   0.00
   wavefunction    = RHF 
   input vectors   = atomic
-  output vectors  = ./h2cco2mg_dat.movecs
+  output vectors  = /home/d3y133/nwchem-dev/nwchem-trunk/QA/scratchdir/h2cco2mg_dat.movecs
   use symmetry    = F
   symmetry adapt  = F
 
@@ -474,7 +471,7 @@ task scf gradient
 
 
 
- Forming initial guess at       0.1s
+ Forming initial guess at       1.1s
 
 
       Superposition of Atomic Density Guess
@@ -492,7 +489,7 @@ task scf gradient
  LUMO         =      -0.132064
 
 
- Starting SCF solution at       1.4s
+ Starting SCF solution at       1.5s
 
 
 
@@ -506,302 +503,305 @@ task scf gradient
 
      COSMO gas phase
 
- Integral file          = ./h2cco2mg_dat.aoints.0
+ Integral file          = /home/d3y133/nwchem-dev/nwchem-trunk/QA/scratchdir/h2cco2mg_dat.aoints.0
  Record size in doubles =  65536        No. of integs per rec  =  43688
- Max. records in memory =    191        Max. records in file   =   3238
+ Max. records in memory =     49        Max. records in file   =    805
  No. of bits per label  =      8        No. of bits per value  =     64
 
 
  #quartets = 2.075D+05 #integrals = 2.990D+06 #direct =  0.0% #cached =100.0%
 
 
+File balance: exchanges=     2  moved=     4  time=   0.0
+
+
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -426.0737989481  1.44D+00  3.56D-01      4.2
-                 2     -426.1819998327  3.49D-01  8.43D-02      4.3
-                 3     -426.1937022197  2.40D-02  8.05D-03      4.6
-                 4     -426.1938268495  4.66D-04  1.25D-04      4.9
-                 5     -426.1938268931  7.29D-06  2.44D-06      5.3
+                 1     -426.0737989481  1.44D+00  3.56D-01      1.2
+                 2     -426.1819998327  3.49D-01  8.43D-02      1.3
+                 3     -426.1937022197  2.40D-02  8.05D-03      1.4
+                 4     -426.1938268495  4.66D-04  1.25D-04      1.6
+                 5     -426.1938268931  7.29D-06  2.44D-06      1.7
      COSMO solvation phase
 
               iter       energy          gnorm     gmax       time
              ----- ------------------- --------- --------- --------
-                 1     -426.3057021073  3.26D-01  1.20D-01      5.8
-                 2     -426.3244155979  1.46D-01  3.01D-02      7.0
-                 3     -426.3262981100  1.01D-02  6.28D-03      7.7
-                 4     -426.3263232091  2.49D-03  1.48D-03      8.6
-                 5     -426.3263244965  6.40D-04  3.70D-04      9.6
-                 6     -426.3263245182  1.64D-04  9.49D-05     10.5
-                 7     -426.3263245686  4.26D-05  2.65D-05     11.3
+                 1     -426.3055763370  3.25D-01  1.19D-01      1.9
+                 2     -426.3242723827  1.46D-01  3.00D-02      2.3
+                 3     -426.3261429617  1.00D-02  6.24D-03      2.6
+                 4     -426.3261681118  2.48D-03  1.47D-03      2.9
+                 5     -426.3261695214  6.37D-04  3.68D-04      3.3
+                 6     -426.3261696004  1.63D-04  9.45D-05      3.7
+                 7     -426.3261696668  4.24D-05  2.64D-05      4.0
  
                   COSMO solvation results
                   -----------------------
  
                  gas phase energy =      -426.1938268931
-                 sol phase energy =      -426.3263245686
- (electrostatic) solvation energy =         0.1324976755 (   83.14 kcal/mol)
+                 sol phase energy =      -426.3261696668
+ (electrostatic) solvation energy =         0.1323427737 (   83.05 kcal/mol)
 
 
        Final RHF  results 
        ------------------ 
 
-         Total SCF energy =   -426.326324568617
-      One-electron energy =   -969.359552083698
-      Two-electron energy =    353.511566025793
+         Total SCF energy =   -426.326169666786
+      One-electron energy =   -969.190562904842
+      Two-electron energy =    353.509762784664
  Nuclear repulsion energy =    189.800454619100
 
-        Time for solution =      9.9s
+        Time for solution =      3.5s
 
 
              Final eigenvalues
              -----------------
 
               1      
-    1  -48.9971
-    2  -20.5010
-    3  -20.5010
-    4  -11.3125
-    5  -11.1563
-    6   -3.7410
-    7   -2.2644
-    8   -2.2617
-    9   -2.2616
-   10   -1.3538
-   11   -1.2378
-   12   -0.9628
-   13   -0.7016
-   14   -0.6134
-   15   -0.6128
-   16   -0.5622
-   17   -0.5084
-   18   -0.4693
-   19   -0.4302
-   20   -0.4290
-   21   -0.2904
-   22    0.0603
-   23    0.1041
-   24    0.1162
-   25    0.1380
-   26    0.2730
-   27    0.2733
-   28    0.3205
-   29    0.3325
-   30    0.3537
-   31    0.3971
+    1  -48.9933
+    2  -20.4971
+    3  -20.4970
+    4  -11.3085
+    5  -11.1522
+    6   -3.7373
+    7   -2.2607
+    8   -2.2580
+    9   -2.2578
+   10   -1.3498
+   11   -1.2338
+   12   -0.9587
+   13   -0.6976
+   14   -0.6094
+   15   -0.6088
+   16   -0.5582
+   17   -0.5043
+   18   -0.4654
+   19   -0.4263
+   20   -0.4251
+   21   -0.2863
+   22    0.0631
+   23    0.1069
+   24    0.1190
+   25    0.1412
+   26    0.2761
+   27    0.2773
+   28    0.3246
+   29    0.3364
+   30    0.3572
+   31    0.4005
 
                        ROHF Final Molecular Orbital Analysis
                        -------------------------------------
 
- Vector   10  Occ=2.000000D+00  E=-1.353783D+00
-              MO Center= -3.2D-09, -9.3D-08,  4.2D-02, r^2= 1.2D+00
+ Vector   10  Occ=2.000000D+00  E=-1.349815D+00
+              MO Center=  2.5D-09,  3.2D-08,  4.2D-02, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      0.317785  2 O  s                 40      0.317785  3 O  s          
-    21      0.285814  2 O  s                 36      0.285814  3 O  s          
-    51      0.214360  4 C  s          
+    25      0.317799  2 O  s                 40      0.317799  3 O  s          
+    21      0.285836  2 O  s                 36      0.285836  3 O  s          
+    51      0.214340  4 C  s          
 
- Vector   11  Occ=2.000000D+00  E=-1.237787D+00
-              MO Center= -3.8D-09,  8.2D-08, -2.4D-02, r^2= 1.5D+00
+ Vector   11  Occ=2.000000D+00  E=-1.233831D+00
+              MO Center=  2.9D-09, -2.8D-08, -2.4D-02, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    25      0.401737  2 O  s                 40     -0.401737  3 O  s          
-    21      0.330715  2 O  s                 36     -0.330715  3 O  s          
-    53     -0.178601  4 C  py                20     -0.156518  2 O  s          
-    35      0.156518  3 O  s          
+    25      0.401765  2 O  s                 40     -0.401765  3 O  s          
+    21      0.330724  2 O  s                 36     -0.330724  3 O  s          
+    53     -0.178575  4 C  py                20     -0.156522  2 O  s          
+    35      0.156522  3 O  s          
 
- Vector   12  Occ=2.000000D+00  E=-9.628329D-01
-              MO Center=  6.1D-09, -1.6D-09,  1.4D+00, r^2= 1.3D+00
+ Vector   12  Occ=2.000000D+00  E=-9.587304D-01
+              MO Center= -4.5D-09,  1.1D-09,  1.4D+00, r^2= 1.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    70      0.327556  5 C  s                 66      0.315420  5 C  s          
-    54      0.230874  4 C  pz                51      0.213398  4 C  s          
-    65     -0.175752  5 C  s          
+    70      0.327427  5 C  s                 66      0.315433  5 C  s          
+    54      0.230854  4 C  pz                51      0.213483  4 C  s          
+    65     -0.175742  5 C  s          
 
- Vector   13  Occ=2.000000D+00  E=-7.015815D-01
-              MO Center= -4.9D-09, -7.0D-08,  8.0D-01, r^2= 3.0D+00
+ Vector   13  Occ=2.000000D+00  E=-6.975984D-01
+              MO Center=  4.4D-09,  2.7D-08,  8.0D-01, r^2= 3.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    51     -0.259147  4 C  s                 25      0.238674  2 O  s          
-    40      0.238674  3 O  s                 23     -0.207174  2 O  py         
-    38      0.207174  3 O  py                55     -0.201354  4 C  s          
-    69      0.197575  5 C  pz         
+    51     -0.259078  4 C  s                 25      0.238697  2 O  s          
+    40      0.238697  3 O  s                 23     -0.207361  2 O  py         
+    38      0.207361  3 O  py                55     -0.200936  4 C  s          
+    69      0.197309  5 C  pz         
 
- Vector   14  Occ=2.000000D+00  E=-6.134076D-01
-              MO Center= -2.9D-10, -1.2D-06,  9.3D-01, r^2= 2.6D+00
+ Vector   14  Occ=2.000000D+00  E=-6.094048D-01
+              MO Center=  8.9D-10,  5.1D-07,  9.3D-01, r^2= 2.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    54      0.303616  4 C  pz                69     -0.281905  5 C  pz         
-    23     -0.257070  2 O  py                38      0.257070  3 O  py         
-    27     -0.181142  2 O  py                42      0.181141  3 O  py         
+    54      0.303513  4 C  pz                69     -0.282012  5 C  pz         
+    23     -0.256928  2 O  py                38      0.256928  3 O  py         
+    27     -0.181114  2 O  py                42      0.181115  3 O  py         
 
- Vector   15  Occ=2.000000D+00  E=-6.128320D-01
-              MO Center= -2.4D-09,  1.2D-06,  6.6D-01, r^2= 2.7D+00
+ Vector   15  Occ=2.000000D+00  E=-6.087986D-01
+              MO Center=  1.8D-09, -5.0D-07,  6.6D-01, r^2= 2.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    53      0.288590  4 C  py                24     -0.259637  2 O  pz         
-    39      0.259637  3 O  pz                68      0.247637  5 C  py         
-    28     -0.180696  2 O  pz                43      0.180696  3 O  pz         
+    53      0.288789  4 C  py                24     -0.259840  2 O  pz         
+    39      0.259840  3 O  pz                68      0.247303  5 C  py         
+    28     -0.180865  2 O  pz                43      0.180865  3 O  pz         
 
- Vector   16  Occ=2.000000D+00  E=-5.621938D-01
-              MO Center= -5.7D-09, -9.0D-08,  1.7D-01, r^2= 1.8D+00
+ Vector   16  Occ=2.000000D+00  E=-5.582041D-01
+              MO Center=  5.6D-09,  3.5D-08,  1.7D-01, r^2= 1.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      0.335325  2 O  px                37      0.335325  3 O  px         
-    52      0.275909  4 C  px                26      0.243883  2 O  px         
-    41      0.243883  3 O  px         
+    22      0.335382  2 O  px                37      0.335382  3 O  px         
+    52      0.275855  4 C  px                26      0.243943  2 O  px         
+    41      0.243943  3 O  px         
 
- Vector   17  Occ=2.000000D+00  E=-5.083798D-01
-              MO Center= -2.7D-09,  8.7D-09,  1.4D+00, r^2= 2.8D+00
+ Vector   17  Occ=2.000000D+00  E=-5.043021D-01
+              MO Center=  2.1D-09, -6.0D-09,  1.4D+00, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    68      0.339693  5 C  py                80     -0.204404  6 H  s          
-    82      0.204404  7 H  s                 53     -0.194542  4 C  py         
-    81     -0.182064  6 H  s                 83      0.182064  7 H  s          
-    24      0.171831  2 O  pz                39     -0.171831  3 O  pz         
-    72      0.169594  5 C  py                23      0.167828  2 O  py         
+    68      0.339998  5 C  py                80     -0.204518  6 H  s          
+    82      0.204518  7 H  s                 53     -0.194192  4 C  py         
+    81     -0.182267  6 H  s                 83      0.182267  7 H  s          
+    24      0.171440  2 O  pz                39     -0.171440  3 O  pz         
+    72      0.169484  5 C  py                23      0.167846  2 O  py         
 
- Vector   18  Occ=2.000000D+00  E=-4.693336D-01
-              MO Center=  4.8D-09, -1.0D-07,  2.3D-01, r^2= 2.3D+00
+ Vector   18  Occ=2.000000D+00  E=-4.653645D-01
+              MO Center= -3.1D-09,  3.6D-08,  2.3D-01, r^2= 2.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    24      0.365114  2 O  pz                39      0.365114  3 O  pz         
-    28      0.287811  2 O  pz                43      0.287811  3 O  pz         
-    69      0.236445  5 C  pz                54     -0.228936  4 C  pz         
-     6     -0.191177  1 Mg s          
+    24      0.365063  2 O  pz                39      0.365063  3 O  pz         
+    28      0.287730  2 O  pz                43      0.287730  3 O  pz         
+    69      0.236505  5 C  pz                54     -0.228986  4 C  pz         
+     6     -0.191249  1 Mg s          
 
- Vector   19  Occ=2.000000D+00  E=-4.301830D-01
-              MO Center=  1.0D-07,  6.6D-08, -1.2D-01, r^2= 1.9D+00
+ Vector   19  Occ=2.000000D+00  E=-4.262500D-01
+              MO Center= -5.2D-08, -2.0D-08, -1.2D-01, r^2= 1.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    22      0.436500  2 O  px                37     -0.436500  3 O  px         
-    26      0.375344  2 O  px                41     -0.375344  3 O  px         
+    22      0.436501  2 O  px                37     -0.436501  3 O  px         
+    26      0.375327  2 O  px                41     -0.375327  3 O  px         
 
- Vector   20  Occ=2.000000D+00  E=-4.290055D-01
-              MO Center= -9.1D-08,  2.1D-07, -2.0D-02, r^2= 2.2D+00
+ Vector   20  Occ=2.000000D+00  E=-4.250628D-01
+              MO Center=  4.6D-08, -6.9D-08, -2.0D-02, r^2= 2.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    23      0.371030  2 O  py                38      0.371031  3 O  py         
-    27      0.331270  2 O  py                42      0.331270  3 O  py         
-    24     -0.250126  2 O  pz                39      0.250126  3 O  pz         
-    28     -0.199630  2 O  pz                43      0.199630  3 O  pz         
+    23      0.370954  2 O  py                38      0.370954  3 O  py         
+    27      0.331200  2 O  py                42      0.331200  3 O  py         
+    24     -0.250206  2 O  pz                39      0.250206  3 O  pz         
+    28     -0.199650  2 O  pz                43      0.199650  3 O  pz         
 
- Vector   21  Occ=2.000000D+00  E=-2.903856D-01
-              MO Center= -2.6D-08,  2.5D-08,  1.3D+00, r^2= 2.1D+00
+ Vector   21  Occ=2.000000D+00  E=-2.863205D-01
+              MO Center=  2.3D-08, -1.1D-08,  1.3D+00, r^2= 2.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    71      0.438408  5 C  px                67      0.422618  5 C  px         
-    52      0.220661  4 C  px                22     -0.209436  2 O  px         
-    37     -0.209436  3 O  px                26     -0.197312  2 O  px         
-    41     -0.197312  3 O  px         
+    71      0.438371  5 C  px                67      0.422581  5 C  px         
+    52      0.220844  4 C  px                22     -0.209364  2 O  px         
+    37     -0.209364  3 O  px                26     -0.197266  2 O  px         
+    41     -0.197266  3 O  px         
 
- Vector   22  Occ=0.000000D+00  E= 6.029402D-02
-              MO Center= -6.2D-07, -3.1D-07, -2.7D+00, r^2= 5.3D+00
+ Vector   22  Occ=0.000000D+00  E= 6.313557D-02
+              MO Center=  4.1D-07,  1.7D-07, -2.8D+00, r^2= 5.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      1.144523  1 Mg s                 13     -0.427485  1 Mg pz         
-     2     -0.184266  1 Mg s          
+    10      1.143684  1 Mg s                 13     -0.433491  1 Mg pz         
+     2     -0.183776  1 Mg s          
 
- Vector   23  Occ=0.000000D+00  E= 1.040952D-01
-              MO Center=  2.5D-07, -1.0D-08, -1.7D+00, r^2= 9.3D+00
+ Vector   23  Occ=0.000000D+00  E= 1.069455D-01
+              MO Center= -1.4D-07,  5.6D-09, -1.7D+00, r^2= 9.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.128633  1 Mg px                56     -0.156642  4 C  px         
+    11      1.129817  1 Mg px                56     -0.156543  4 C  px         
 
- Vector   24  Occ=0.000000D+00  E= 1.161563D-01
-              MO Center= -1.7D-08,  6.8D-08, -1.8D+00, r^2= 9.7D+00
+ Vector   24  Occ=0.000000D+00  E= 1.189758D-01
+              MO Center=  1.1D-08, -4.0D-08, -1.8D+00, r^2= 9.7D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.217940  1 Mg py                 8     -0.211082  1 Mg py         
+    12      1.218978  1 Mg py                 8     -0.212866  1 Mg py         
 
- Vector   25  Occ=0.000000D+00  E= 1.379649D-01
-              MO Center=  3.5D-07,  2.0D-07, -8.2D-01, r^2= 1.0D+01
+ Vector   25  Occ=0.000000D+00  E= 1.411661D-01
+              MO Center= -2.5D-07, -1.1D-07, -8.1D-01, r^2= 1.0D+01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    13      1.376316  1 Mg pz                10      1.102670  1 Mg s          
-    55     -0.480171  4 C  s                  6     -0.427048  1 Mg s          
-    70     -0.323151  5 C  s                  9     -0.269446  1 Mg pz         
-    25     -0.227933  2 O  s                 40     -0.227933  3 O  s          
-    58      0.168991  4 C  pz         
+    13      1.376037  1 Mg pz                10      1.106452  1 Mg s          
+    55     -0.481398  4 C  s                  6     -0.426777  1 Mg s          
+    70     -0.323142  5 C  s                  9     -0.271200  1 Mg pz         
+    25     -0.227159  2 O  s                 40     -0.227159  3 O  s          
+    58      0.170665  4 C  pz         
 
- Vector   26  Occ=0.000000D+00  E= 2.730177D-01
-              MO Center= -2.0D-06, -1.1D-07, -2.4D+00, r^2= 4.9D+00
+ Vector   26  Occ=0.000000D+00  E= 2.761233D-01
+              MO Center=  4.8D-07,  6.3D-08, -2.4D+00, r^2= 4.9D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10     -1.504618  1 Mg s                  6      1.456420  1 Mg s          
-     9     -0.667424  1 Mg pz                13      0.364386  1 Mg pz         
-    14      0.203017  1 Mg dxx               58     -0.192196  4 C  pz         
+    10     -1.502966  1 Mg s                  6      1.454872  1 Mg s          
+     9     -0.668070  1 Mg pz                13      0.362835  1 Mg pz         
+    14      0.203169  1 Mg dxx               58     -0.192004  4 C  pz         
 
- Vector   27  Occ=0.000000D+00  E= 2.733164D-01
-              MO Center=  1.7D-06, -2.7D-09,  9.9D-01, r^2= 2.4D+00
+ Vector   27  Occ=0.000000D+00  E= 2.773158D-01
+              MO Center= -3.0D-07, -2.3D-09,  9.9D-01, r^2= 2.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    56      0.839274  4 C  px                71     -0.700764  5 C  px         
-    52      0.488163  4 C  px                26     -0.300591  2 O  px         
-    41     -0.300591  3 O  px                67     -0.242535  5 C  px         
-     7     -0.196512  1 Mg px                22     -0.189639  2 O  px         
-    37     -0.189639  3 O  px                11      0.161553  1 Mg px         
+    56      0.839188  4 C  px                71     -0.700869  5 C  px         
+    52      0.488148  4 C  px                26     -0.300396  2 O  px         
+    41     -0.300396  3 O  px                67     -0.242537  5 C  px         
+     7     -0.197900  1 Mg px                22     -0.189440  2 O  px         
+    37     -0.189440  3 O  px                11      0.161776  1 Mg px         
 
- Vector   28  Occ=0.000000D+00  E= 3.205350D-01
-              MO Center= -6.9D-09,  8.6D-08,  2.5D+00, r^2= 3.8D+00
+ Vector   28  Occ=0.000000D+00  E= 3.245872D-01
+              MO Center=  3.6D-09, -9.4D-08,  2.5D+00, r^2= 3.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    70      2.056546  5 C  s                 81     -1.569444  6 H  s          
-    83     -1.569444  7 H  s                 73      0.884365  5 C  pz         
-    13      0.221899  1 Mg pz                69      0.209093  5 C  pz         
-    55      0.184434  4 C  s          
+    70      2.058982  5 C  s                 81     -1.569573  6 H  s          
+    83     -1.569573  7 H  s                 73      0.882915  5 C  pz         
+    13      0.220378  1 Mg pz                69      0.209084  5 C  pz         
+    55      0.182176  4 C  s          
 
- Vector   29  Occ=0.000000D+00  E= 3.325129D-01
-              MO Center= -6.6D-09, -7.3D-08,  2.0D+00, r^2= 5.3D+00
+ Vector   29  Occ=0.000000D+00  E= 3.364436D-01
+              MO Center=  4.3D-09,  9.0D-08,  2.0D+00, r^2= 5.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    81      1.679573  6 H  s                 83     -1.679573  7 H  s          
-    72      1.633886  5 C  py                 8      0.517153  1 Mg py         
-    12     -0.302458  1 Mg py                68      0.282250  5 C  py         
-    57     -0.273522  4 C  py                53      0.169468  4 C  py         
+    81      1.677913  6 H  s                 83     -1.677913  7 H  s          
+    72      1.632443  5 C  py                 8      0.520680  1 Mg py         
+    12     -0.303887  1 Mg py                68      0.281781  5 C  py         
+    57     -0.273348  4 C  py                53      0.169564  4 C  py         
 
- Vector   30  Occ=0.000000D+00  E= 3.537457D-01
-              MO Center=  1.1D-07, -3.8D-08, -1.6D+00, r^2= 4.4D+00
+ Vector   30  Occ=0.000000D+00  E= 3.571725D-01
+              MO Center= -6.6D-08,  2.0D-08, -1.6D+00, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      1.410236  1 Mg px                11     -0.829260  1 Mg px         
-     3     -0.271469  1 Mg px                16     -0.181397  1 Mg dxz        
+     7      1.409619  1 Mg px                11     -0.827724  1 Mg px         
+     3     -0.271444  1 Mg px                16     -0.183228  1 Mg dxz        
 
- Vector   31  Occ=0.000000D+00  E= 3.970920D-01
-              MO Center= -7.3D-08,  2.7D-08, -1.4D+00, r^2= 6.3D+00
+ Vector   31  Occ=0.000000D+00  E= 4.005471D-01
+              MO Center=  4.7D-08, -1.4D-08, -1.4D+00, r^2= 6.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      1.274520  1 Mg py                72     -0.804578  5 C  py         
-    81     -0.778162  6 H  s                 83      0.778162  7 H  s          
-    12     -0.764263  1 Mg py                18     -0.631805  1 Mg dyz        
-    57      0.424587  4 C  py                25      0.262732  2 O  s          
-    40     -0.262732  3 O  s                  4     -0.223997  1 Mg py         
+     8      1.272249  1 Mg py                72     -0.809198  5 C  py         
+    81     -0.782787  6 H  s                 83      0.782787  7 H  s          
+    12     -0.762208  1 Mg py                18     -0.633030  1 Mg dyz        
+    57      0.425276  4 C  py                25      0.262242  2 O  s          
+    40     -0.262242  3 O  s                  4     -0.223708  1 Mg py         
 
- Vector   32  Occ=0.000000D+00  E= 4.585139D-01
-              MO Center=  8.8D-08, -1.3D-08, -1.4D+00, r^2= 4.3D+00
+ Vector   32  Occ=0.000000D+00  E= 4.620585D-01
+              MO Center= -5.7D-08,  6.9D-09, -1.4D+00, r^2= 4.3D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     9      1.016259  1 Mg pz                55      0.909042  4 C  s          
-    14      0.733968  1 Mg dxx               13     -0.715350  1 Mg pz         
-    70     -0.675759  5 C  s                  6      0.651948  1 Mg s          
-    10     -0.596771  1 Mg s                 19     -0.426714  1 Mg dzz        
-    73      0.326445  5 C  pz                25     -0.182440  2 O  s          
+     9      1.014363  1 Mg pz                55      0.903372  4 C  s          
+    14      0.734290  1 Mg dxx               13     -0.714665  1 Mg pz         
+    70     -0.669799  5 C  s                  6      0.652437  1 Mg s          
+    10     -0.597350  1 Mg s                 19     -0.428408  1 Mg dzz        
+    73      0.321618  5 C  pz                25     -0.181910  2 O  s          
 
- Vector   33  Occ=0.000000D+00  E= 4.926293D-01
-              MO Center=  3.2D-09,  2.0D-09,  1.6D+00, r^2= 4.0D+00
+ Vector   33  Occ=0.000000D+00  E= 4.965730D-01
+              MO Center= -3.9D-09, -3.4D-09,  1.6D+00, r^2= 4.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    55      4.268144  4 C  s                 70     -2.923289  5 C  s          
-    73      2.622844  5 C  pz                58      1.655101  4 C  pz         
-    25     -0.591418  2 O  s                 40     -0.591418  3 O  s          
-    27     -0.304581  2 O  py                42      0.304581  3 O  py         
-    17      0.302075  1 Mg dyy               28     -0.268080  2 O  pz         
+    55      4.267316  4 C  s                 70     -2.920577  5 C  s          
+    73      2.621765  5 C  pz                58      1.653335  4 C  pz         
+    25     -0.592454  2 O  s                 40     -0.592454  3 O  s          
+    17      0.303759  1 Mg dyy               27     -0.304991  2 O  py         
+    42      0.304991  3 O  py                28     -0.267409  2 O  pz         
 
- Vector   34  Occ=0.000000D+00  E= 5.240462D-01
-              MO Center=  6.7D-08,  4.7D-08, -1.6D+00, r^2= 2.8D+00
+ Vector   34  Occ=0.000000D+00  E= 5.276190D-01
+              MO Center= -4.2D-08, -2.6D-08, -1.6D+00, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    15      1.839514  1 Mg dxy               26      0.183517  2 O  px         
-    41     -0.183517  3 O  px         
+    15      1.839566  1 Mg dxy               26      0.183607  2 O  px         
+    41     -0.183607  3 O  px         
 
 
  center of mass
@@ -836,17 +836,17 @@ task scf gradient
 
      1   1 0 0      0.000000      0.000000      0.000000
      1   0 1 0      0.000000      0.000000      0.000000
-     1   0 0 1     -5.351068      0.000000      0.000000
+     1   0 0 1     -5.348168      0.000000      0.000000
 
-     2   2 0 0    -22.486772      0.000000      0.000000
+     2   2 0 0    -22.488235      0.000000      0.000000
      2   1 1 0      0.000000      0.000000      0.000000
-     2   1 0 1      0.000001      0.000000      0.000000
-     2   0 2 0    -29.311456      0.000000     77.702320
+     2   1 0 1     -0.000001      0.000000      0.000000
+     2   0 2 0    -29.315123      0.000000     77.702320
      2   0 1 1      0.000000      0.000000      0.000000
-     2   0 0 2     -8.056035      0.000000    243.895748
+     2   0 0 2     -8.059284      0.000000    243.895748
 
 
- Parallel integral file used      69 records with       0 large values
+ Parallel integral file used      70 records with       0 large values
 
                               NWChem Gradients Module
                               -----------------------
@@ -855,7 +855,6 @@ task scf gradient
 
   wavefunction    =   RHF     
 
- in -grad1_hnd_cos- ...
 nuclear repulsion gradient  
      0.000000     0.000000    18.766246
      0.000000    15.786782     0.374146
@@ -866,67 +865,67 @@ nuclear repulsion gradient
      0.000000    -1.659115    -1.746625
 
 weighted density gradient  
-     0.000000     0.000000     0.011504
-     0.000000     0.237622     0.129322
-     0.000000    -0.237622     0.129322
-     0.000000     0.000000     0.069379
-     0.000000     0.000000    -0.171556
-     0.000000     0.165228    -0.083986
-     0.000000    -0.165228    -0.083986
+     0.000000     0.000000     0.011782
+     0.000000     0.237475     0.129258
+     0.000000    -0.237475     0.129258
+     0.000000     0.000000     0.068387
+     0.000000     0.000000    -0.171728
+     0.000000     0.164309    -0.083478
+     0.000000    -0.164309    -0.083478
 
 kinetic energy gradient  
-     0.000000     0.000000   -34.538524
-     0.000000   -32.449563    -1.618042
-     0.000000    32.449563    -1.618042
-     0.000000     0.000000     5.951775
-     0.000001     0.000000    23.620638
-     0.000000    -4.788302     4.101098
-     0.000000     4.788302     4.101098
+     0.000000     0.000000   -34.540159
+     0.000000   -32.450060    -1.615640
+     0.000000    32.450060    -1.615640
+     0.000000     0.000000     5.936350
+    -0.000001     0.000000    23.633581
+     0.000000    -4.787158     4.100753
+     0.000000     4.787158     4.100753
 
 2-electron gradient  
-     0.000000     0.000000    15.757360
-     0.000000    16.414210     1.119729
-     0.000000   -16.414210     1.119729
-     0.000000     0.000000    -0.016651
-    -0.000001     0.000000   -13.418117
-     0.000000     2.980952    -2.281025
-     0.000000    -2.980952    -2.281025
+     0.000000     0.000000    15.758946
+     0.000000    16.414648     1.117398
+     0.000000   -16.414647     1.117398
+     0.000000     0.000000    -0.002104
+     0.000001     0.000000   -13.430235
+     0.000000     2.979852    -2.280702
+     0.000000    -2.979852    -2.280702
 
 nuclear-cosmo charge gradient  
-     0.000000     0.000000    -0.535490
-     0.000000     0.233973     0.334733
-     0.000000    -0.233973     0.334733
-     0.000000     0.000000     0.083956
-     0.000000     0.000000    -0.209950
-     0.000000     0.002595    -0.003991
-     0.000000    -0.002595    -0.003991
+     0.000000     0.000000    -0.540993
+     0.000000     0.229794     0.333337
+     0.000000    -0.229794     0.333337
+     0.000000     0.000000     0.084319
+     0.000000     0.000000    -0.205547
+     0.000000     0.001125    -0.002227
+     0.000000    -0.001125    -0.002227
 
 electron-cosmo charge gradient  
-     0.000000     0.000000     0.613009
-     0.000000    -0.227612    -0.385023
-     0.000000     0.227612    -0.385023
-     0.000000     0.000000    -0.094454
-     0.000000     0.000000     0.227061
-     0.000000    -0.018489     0.012215
-     0.000000     0.018489     0.012215
+     0.000000     0.000000     0.617996
+     0.000000    -0.223181    -0.383397
+     0.000000     0.223181    -0.383397
+     0.000000     0.000000    -0.093102
+     0.000000     0.000000     0.221953
+     0.000000    -0.016081     0.009974
+     0.000000     0.016081     0.009974
 
 cosmo charge-cosmo charge gradient  
-     0.000000     0.000000    -0.021660
-     0.000000    -0.002171     0.010658
-     0.000000     0.002171     0.010658
-     0.000000     0.000000     0.001795
-     0.000000     0.000000    -0.001473
-     0.000000    -0.000017     0.000011
-     0.000000     0.000017     0.000011
+     0.000000     0.000000    -0.021382
+     0.000000    -0.002200     0.010497
+     0.000000     0.002200     0.010497
+     0.000000     0.000000     0.001719
+     0.000000     0.000000    -0.001390
+     0.000000    -0.000032     0.000029
+     0.000000     0.000032     0.000029
 
 total RHF gradient
-     0.000000     0.000000     0.052444
-     0.000000    -0.006758    -0.034477
-     0.000000     0.006758    -0.034477
-     0.000000     0.000000     0.032714
-     0.000000     0.000000    -0.011598
-     0.000000     0.001083    -0.002303
-     0.000000    -0.001083    -0.002303
+     0.000000     0.000000     0.052437
+     0.000000    -0.006743    -0.034400
+     0.000000     0.006743    -0.034400
+     0.000000     0.000000     0.032483
+     0.000000     0.000000    -0.011567
+     0.000000     0.001130    -0.002276
+     0.000000    -0.001130    -0.002276
 
 
 
@@ -934,23 +933,23 @@ total RHF gradient
 
     atom               coordinates                        gradient
                  x          y          z           x          y          z
-   1 mg      0.000000   0.000000  -2.966741    0.000000   0.000000   0.052444
-   2 o       0.000000  -2.114790  -0.224240    0.000000  -0.006758  -0.034477
-   3 o       0.000000   2.114790  -0.224240    0.000000   0.006758  -0.034477
-   4 c       0.000000   0.000000   1.218908    0.000000   0.000000   0.032714
-   5 c       0.000000   0.000000   3.729953    0.000000   0.000000  -0.011598
-   6 h       0.000000  -1.752848   4.747782    0.000000   0.001083  -0.002303
-   7 h       0.000000   1.752848   4.747782    0.000000  -0.001083  -0.002303
+   1 mg      0.000000   0.000000  -2.966741    0.000000   0.000000   0.052437
+   2 o       0.000000  -2.114790  -0.224240    0.000000  -0.006743  -0.034400
+   3 o       0.000000   2.114790  -0.224240    0.000000   0.006743  -0.034400
+   4 c       0.000000   0.000000   1.218908    0.000000   0.000000   0.032483
+   5 c       0.000000   0.000000   3.729953    0.000000   0.000000  -0.011567
+   6 h       0.000000  -1.752848   4.747782    0.000000   0.001130  -0.002276
+   7 h       0.000000   1.752848   4.747782    0.000000  -0.001130  -0.002276
 
                  ----------------------------------------
                  |  Time  |  1-e(secs)   |  2-e(secs)   |
                  ----------------------------------------
-                 |  CPU   |       0.57   |      11.49   |
+                 |  CPU   |       0.15   |       2.97   |
                  ----------------------------------------
-                 |  WALL  |       0.57   |      11.51   |
+                 |  WALL  |       0.15   |       2.98   |
                  ----------------------------------------
 
- Task  times  cpu:       23.4s     wall:       23.5s
+ Task  times  cpu:        7.1s     wall:        7.9s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -961,11 +960,11 @@ total RHF gradient
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  776      776     1.15e+05 6522     9855        0        0        0     
-number of processes/call 1.00e+00 1.00e+00 1.00e+00 0.00e+00 0.00e+00
-bytes total:             4.97e+07 2.75e+07 8.54e+06 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00 0.00e+00
-Max memory consumed for GA by this process: 745992 bytes
+calls:  776      776     3.18e+04 2704     7764        0        0        0     
+number of processes/call 1.18e+00 1.36e+00 1.09e+00 0.00e+00 0.00e+00
+bytes total:             3.44e+07 1.42e+07 8.22e+06 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            1.33e+07 2.38e+06 4.50e+06 0.00e+00 0.00e+00 0.00e+00
+Max memory consumed for GA by this process: 294824 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
 MA usage statistics:
@@ -976,9 +975,9 @@ MA usage statistics:
 	current number of blocks	         0	         0
 	maximum number of blocks	        18	        31
 	current total bytes		         0	         0
-	maximum total bytes		 100166232	  31327736
-	maximum total K-bytes		    100167	     31328
-	maximum total M-bytes		       101	        32
+	maximum total bytes		  25717336	  31327736
+	maximum total K-bytes		     25718	     31328
+	maximum total M-bytes		        26	        32
 
 
                                 NWChem Input Module
@@ -1018,4 +1017,4 @@ MA usage statistics:
           G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                 A. Wong, Z. Zhang.
 
- Total times  cpu:       23.4s     wall:       23.6s
+ Total times  cpu:        7.1s     wall:        9.0s

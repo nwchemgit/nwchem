@@ -83,12 +83,12 @@ task dft property
 
     hostname        = arcen
     program         = /home/d3y133/nwchem-dev/nwchem-trunk/QA/../bin/LINUX64/nwchem
-    date            = Thu Aug 23 08:32:34 2012
+    date            = Thu Aug 23 13:42:45 2012
 
-    compiled        = Wed_Aug_22_23:25:59_2012
+    compiled        = Thu_Aug_23_13:38:11_2012
     source          = /home/d3y133/nwchem-dev/nwchem-trunk
     nwchem branch   = Development
-    nwchem revision = 22762:22764M
+    nwchem revision = 22762:22774M
     ga revision     = 10078M
     input           = cosmo_h2o_dft.nw
     prefix          = cosmo_h2o_dft.
@@ -211,18 +211,12 @@ task dft property
                                    cosmo_h2o_dft
 
 
-  geom_rtdb_load: not found or rtdb corrupt: cosmo efc geom -> cosmo efc geom
- geom_rtdb_load: open geometies:  2
-  1 geom_rtdb_load: "geometry" -> "geometry"
-  2 geom_rtdb_load: "cosmo efc geom" -> "cosmo efc geom"
- geom_rtdb_load: geometries in last accessed data base:  1
- geometry
 
           ---------------
           -cosmo- solvent
           ---------------
  dielectric constant -eps-  =  78.40
- charge screening approach  =   2
+ charge screening approach  =   1
  screen = (eps-1)/(eps    ) =   0.98724
  -lineq- algorithm          =   1
  -bem- low  level           =   2
@@ -333,7 +327,7 @@ task dft property
      COSMO gas phase
  d= 0,ls=0.0,diis     1    -75.9504799104 -8.51D+01  2.93D-02  3.18D-01     0.0
  d= 0,ls=0.0,diis     2    -75.9768470171 -2.64D-02  1.00D-02  9.03D-02     0.0
- d= 0,ls=0.0,diis     3    -75.9847782865 -7.93D-03  1.82D-03  9.54D-04     0.0
+ d= 0,ls=0.0,diis     3    -75.9847782865 -7.93D-03  1.82D-03  9.54D-04     0.1
  d= 0,ls=0.0,diis     4    -75.9849420290 -1.64D-04  3.64D-04  2.14D-05     0.1
  d= 0,ls=0.0,diis     5    -75.9849470684 -5.04D-06  6.65D-05  4.82D-07     0.1
  d= 0,ls=0.0,diis     6    -75.9849472001 -1.32D-07  6.19D-06  4.10D-09     0.1
@@ -346,18 +340,18 @@ task dft property
    convergence    iter        energy       DeltaE   RMS-Dens  Diis-err    time
  ---------------- ----- ----------------- --------- --------- ---------  ------
      COSMO solvation phase
- d= 0,ls=0.0,diis     1    -75.9994716215 -1.45D-02  5.77D-03  4.10D-03     0.1
- d= 0,ls=0.0,diis     2    -76.0005713585 -1.10D-03  2.36D-03  8.38D-04     0.1
- d= 0,ls=0.0,diis     3    -76.0007443796 -1.73D-04  1.11D-03  1.46D-04     0.1
- d= 0,ls=0.0,diis     4    -76.0007784647 -3.41D-05  2.78D-04  4.53D-06     0.1
- d= 0,ls=0.0,diis     5    -76.0007801031 -1.64D-06  3.54D-05  1.04D-07     0.2
- d= 0,ls=0.0,diis     6    -76.0007801434 -4.04D-08  5.67D-06  2.78D-09     0.2
+ d= 0,ls=0.0,diis     1    -75.9995010990 -1.46D-02  5.78D-03  4.12D-03     0.1
+ d= 0,ls=0.0,diis     2    -76.0005993386 -1.10D-03  2.36D-03  8.40D-04     0.1
+ d= 0,ls=0.0,diis     3    -76.0007715940 -1.72D-04  1.11D-03  1.47D-04     0.1
+ d= 0,ls=0.0,diis     4    -76.0008048948 -3.33D-05  2.78D-04  4.54D-06     0.1
+ d= 0,ls=0.0,diis     5    -76.0008064229 -1.53D-06  3.54D-05  1.04D-07     0.1
+ d= 0,ls=0.0,diis     6    -76.0008064577 -3.49D-08  5.67D-06  2.78D-09     0.2
 
 
-         Total DFT energy =      -76.000780143443
-      One electron energy =     -123.137453416997
-           Coulomb energy =       46.859778596213
-    Exchange-Corr. energy =       -8.958772061043
+         Total DFT energy =      -76.000806457723
+      One electron energy =     -123.127601687400
+           Coulomb energy =       46.859827986281
+    Exchange-Corr. energy =       -8.958771127849
  Nuclear repulsion energy =        9.162801653904
 
  Numeric. integr. density =        0.000000000000
@@ -369,120 +363,120 @@ task dft property
                   -----------------------
   
                  gas phase energy =       -75.9849472013
-                 sol phase energy =       -76.0007801434
- (electrostatic) solvation energy =         0.0158329421 (    9.94 kcal/mol)
+                 sol phase energy =       -76.0008064577
+ (electrostatic) solvation energy =         0.0158592564 (    9.95 kcal/mol)
 
                        DFT Final Molecular Orbital Analysis
                        ------------------------------------
 
- Vector    1  Occ=2.000000D+00  E=-2.055174D+01
+ Vector    1  Occ=2.000000D+00  E=-2.055075D+01
               MO Center= -5.3D-01, -1.6D+00,  2.6D+00, r^2= 1.5D-02
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
      3      0.995763  2 O  s          
 
- Vector    2  Occ=2.000000D+00  E=-1.342243D+00
+ Vector    2  Occ=2.000000D+00  E=-1.341239D+00
               MO Center= -4.3D-01, -1.5D+00,  2.6D+00, r^2= 5.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      0.493094  2 O  s                  4      0.471244  2 O  s          
-     3     -0.214695  2 O  s          
+     8      0.493102  2 O  s                  4      0.471249  2 O  s          
+     3     -0.214697  2 O  s          
 
- Vector    3  Occ=2.000000D+00  E=-7.215586D-01
+ Vector    3  Occ=2.000000D+00  E=-7.205544D-01
               MO Center= -4.2D-01, -1.5D+00,  2.6D+00, r^2= 7.8D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      0.361247  2 O  pz                 5     -0.324335  2 O  px         
-     1     -0.255820  1 H  s                 12      0.254084  3 H  s          
-    11      0.202538  2 O  pz                 9     -0.181598  2 O  px         
-     6      0.151923  2 O  py         
+     7      0.361252  2 O  pz                 5     -0.324343  2 O  px         
+     1     -0.255805  1 H  s                 12      0.254069  3 H  s          
+    11      0.202548  2 O  pz                 9     -0.181613  2 O  px         
+     6      0.151924  2 O  py         
 
- Vector    4  Occ=2.000000D+00  E=-5.515100D-01
+ Vector    4  Occ=2.000000D+00  E=-5.505305D-01
               MO Center= -5.9D-01, -1.7D+00,  2.6D+00, r^2= 6.6D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     6      0.444053  2 O  py                10      0.344108  2 O  py         
-     5      0.333777  2 O  px                 9      0.258328  2 O  px         
-     8     -0.255104  2 O  s          
+     6      0.444055  2 O  py                10      0.344121  2 O  py         
+     5      0.333779  2 O  px                 9      0.258339  2 O  px         
+     8     -0.255080  2 O  s          
 
- Vector    5  Occ=2.000000D+00  E=-5.006510D-01
+ Vector    5  Occ=2.000000D+00  E=-4.996588D-01
               MO Center= -5.3D-01, -1.6D+00,  2.6D+00, r^2= 6.1D-01
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     7      0.428517  2 O  pz                11      0.349675  2 O  pz         
-     6     -0.344981  2 O  py                 5      0.315669  2 O  px         
-    10     -0.281828  2 O  py                 9      0.257929  2 O  px         
+     7      0.428515  2 O  pz                11      0.349681  2 O  pz         
+     6     -0.344978  2 O  py                 5      0.315663  2 O  px         
+    10     -0.281832  2 O  py                 9      0.257931  2 O  px         
 
- Vector    6  Occ=0.000000D+00  E= 2.273527D-01
+ Vector    6  Occ=0.000000D+00  E= 2.283323D-01
               MO Center= -1.5D-01, -1.1D+00,  2.7D+00, r^2= 2.6D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      1.189180  2 O  s                 13     -1.002021  3 H  s          
-     2     -0.989895  1 H  s                 10      0.341239  2 O  py         
-     9      0.253045  2 O  px                 6      0.152710  2 O  py         
+     8      1.189221  2 O  s                 13     -1.002069  3 H  s          
+     2     -0.989893  1 H  s                 10      0.341259  2 O  py         
+     9      0.253050  2 O  px                 6      0.152674  2 O  py         
 
- Vector    7  Occ=0.000000D+00  E= 3.264358D-01
+ Vector    7  Occ=0.000000D+00  E= 3.274051D-01
               MO Center= -1.2D-01, -1.1D+00,  2.7D+00, r^2= 2.8D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     2      1.373248  1 H  s                 13     -1.350835  3 H  s          
-    11      0.594226  2 O  pz                 9     -0.532433  2 O  px         
-    10      0.250486  2 O  py                 7      0.235476  2 O  pz         
-     5     -0.210487  2 O  px         
+     2      1.373297  1 H  s                 13     -1.350847  3 H  s          
+    11      0.594240  2 O  pz                 9     -0.532449  2 O  px         
+    10      0.250487  2 O  py                 7      0.235449  2 O  pz         
+     5     -0.210469  2 O  px         
 
- Vector    8  Occ=0.000000D+00  E= 1.121687D+00
+ Vector    8  Occ=0.000000D+00  E= 1.122678D+00
               MO Center= -5.1D-01, -1.5D+00,  2.7D+00, r^2= 1.5D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    12      1.093590  3 H  s                  1     -0.913109  1 H  s          
-    11     -0.604482  2 O  pz                 9      0.539536  2 O  px         
-    13     -0.461210  3 H  s                  2      0.349648  1 H  s          
-    10     -0.264197  2 O  py         
+    12      1.093587  3 H  s                  1     -0.913117  1 H  s          
+    11     -0.604497  2 O  pz                 9      0.539598  2 O  px         
+    13     -0.461161  3 H  s                  2      0.349602  1 H  s          
+    10     -0.264200  2 O  py         
 
- Vector    9  Occ=0.000000D+00  E= 1.149758D+00
+ Vector    9  Occ=0.000000D+00  E= 1.150770D+00
               MO Center= -1.2D-01, -1.2D+00,  2.6D+00, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     1      1.090123  1 H  s                 12      0.898876  3 H  s          
-     2     -0.526763  1 H  s                 13     -0.479980  3 H  s          
-     4     -0.278384  2 O  s                  9     -0.248929  2 O  px         
-    10     -0.207496  2 O  py                 6     -0.195160  2 O  py         
+     1      1.090101  1 H  s                 12      0.898857  3 H  s          
+     2     -0.526772  1 H  s                 13     -0.480006  3 H  s          
+     4     -0.278401  2 O  s                  9     -0.248892  2 O  px         
+    10     -0.207321  2 O  py                 6     -0.195309  2 O  py         
 
- Vector   10  Occ=0.000000D+00  E= 1.160574D+00
+ Vector   10  Occ=0.000000D+00  E= 1.161560D+00
               MO Center= -5.3D-01, -1.6D+00,  2.6D+00, r^2= 1.1D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11     -0.699070  2 O  pz                 7      0.651444  2 O  pz         
-    10      0.564091  2 O  py                 6     -0.527393  2 O  py         
-     9     -0.510790  2 O  px                 5      0.480847  2 O  px         
+    11     -0.699082  2 O  pz                 7      0.651451  2 O  pz         
+    10      0.564090  2 O  py                 6     -0.527368  2 O  py         
+     9     -0.510767  2 O  px                 5      0.480873  2 O  px         
 
- Vector   11  Occ=0.000000D+00  E= 1.187928D+00
+ Vector   11  Occ=0.000000D+00  E= 1.188891D+00
               MO Center= -6.9D-01, -1.9D+00,  2.5D+00, r^2= 1.0D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    10      0.882527  2 O  py                 6     -0.738715  2 O  py         
-     9      0.659655  2 O  px                 5     -0.562848  2 O  px         
-     4      0.262584  2 O  s                 11      0.228364  2 O  pz         
-     7     -0.183519  2 O  pz                 2     -0.150366  1 H  s          
+    10      0.882529  2 O  py                 6     -0.738695  2 O  py         
+     9      0.659642  2 O  px                 5     -0.562828  2 O  px         
+     4      0.262693  2 O  s                 11      0.228355  2 O  pz         
+     7     -0.183499  2 O  pz                 2     -0.150261  1 H  s          
 
- Vector   12  Occ=0.000000D+00  E= 1.387447D+00
+ Vector   12  Occ=0.000000D+00  E= 1.388420D+00
               MO Center= -5.0D-01, -1.6D+00,  2.6D+00, r^2= 1.4D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-    11      1.140744  2 O  pz                 9     -1.013059  2 O  px         
-     2      0.927323  1 H  s                 13     -0.913176  3 H  s          
-     7     -0.739450  2 O  pz                 5      0.659671  2 O  px         
-    10      0.487708  2 O  py                 6     -0.313137  2 O  py         
+    11      1.140718  2 O  pz                 9     -1.013025  2 O  px         
+     2      0.927297  1 H  s                 13     -0.913156  3 H  s          
+     7     -0.739459  2 O  pz                 5      0.659673  2 O  px         
+    10      0.487703  2 O  py                 6     -0.313143  2 O  py         
 
- Vector   13  Occ=0.000000D+00  E= 1.674053D+00
+ Vector   13  Occ=0.000000D+00  E= 1.675048D+00
               MO Center= -3.5D-01, -1.4D+00,  2.7D+00, r^2= 1.2D+00
    Bfn.  Coefficient  Atom+Function         Bfn.  Coefficient  Atom+Function  
   ----- ------------  ---------------      ----- ------------  ---------------
-     8      2.719754  2 O  s                  4     -1.701342  2 O  s          
-     2     -0.663518  1 H  s                 13     -0.648271  3 H  s          
-    10      0.559118  2 O  py                 9      0.425315  2 O  px         
-    12     -0.331598  3 H  s                  1     -0.327400  1 H  s          
-     6     -0.157026  2 O  py         
+     8      2.719737  2 O  s                  4     -1.701326  2 O  s          
+     2     -0.663502  1 H  s                 13     -0.648245  3 H  s          
+    10      0.559160  2 O  py                 9      0.425354  2 O  px         
+    12     -0.331627  3 H  s                  1     -0.327431  1 H  s          
+     6     -0.157050  2 O  py         
 
 
  center of mass
@@ -502,16 +496,16 @@ task dft property
      -   - - -        -----         -----         ----         -------
      0   0 0 0      0.000000     -5.000000     -5.000000     10.000000
 
-     1   1 0 0      0.627030      4.704293      4.704293     -8.781557
-     1   0 1 0      0.833852     15.159624     15.159624    -29.485395
-     1   0 0 1      0.210139    -24.675852    -24.675852     49.561844
+     1   1 0 0      0.627108      4.704332      4.704332     -8.781557
+     1   0 1 0      0.833944     15.159669     15.159669    -29.485395
+     1   0 0 1      0.210153    -24.675845    -24.675845     49.561844
 
-     2   2 0 0     -5.147084     -7.624722     -7.624722     10.102359
-     2   1 1 0     -2.796229    -14.257333    -14.257333     25.718437
-     2   1 0 1      1.764783     23.594910     23.594910    -45.425038
-     2   0 2 0     -9.630087    -48.974677    -48.974677     88.319266
-     2   0 1 1      4.211625     74.552687     74.552687   -144.893749
-     2   0 0 2     -1.882509   -124.961113   -124.961113    248.039717
+     2   2 0 0     -5.147179     -7.624769     -7.624769     10.102359
+     2   1 1 0     -2.796551    -14.257494    -14.257494     25.718437
+     2   1 0 1      1.765083     23.595061     23.595061    -45.425038
+     2   0 2 0     -9.630631    -48.974948    -48.974948     88.319266
+     2   0 1 1      4.212076     74.552912     74.552912   -144.893749
+     2   0 0 2     -1.882318   -124.961018   -124.961018    248.039717
 
 
           --------------
@@ -523,11 +517,11 @@ task dft property
    Atom       X         Y         Z                        Electric field (a.u.)
                                               X              Y              Z           Field
   ------------------------------------------------------------------------------------------------
-    1 H    0.54802  -2.79302   4.03079       0.086235       0.012009      -0.053769       0.102332
-    2 O   -0.99400  -3.10293   4.91707      -0.131790      -0.172695      -0.042223       0.221303
-    3 H   -1.37761  -1.86894   6.19452      -0.025048       0.061288       0.068110       0.094988
+    1 H    0.54802  -2.79302   4.03079       0.086231       0.012023      -0.053764       0.102327
+    2 O   -0.99400  -3.10293   4.91707      -0.131760      -0.172659      -0.042217       0.221256
+    3 H   -1.37761  -1.86894   6.19452      -0.025023       0.061297       0.068108       0.094985
 
- Task  times  cpu:        0.2s     wall:        0.6s
+ Task  times  cpu:        0.2s     wall:        0.4s
  Summary of allocated global arrays
 -----------------------------------
   No active global arrays
@@ -538,10 +532,10 @@ task dft property
                          ------------------------------
 
        create   destroy   get      put      acc     scatter   gather  read&inc
-calls:  195      195     1105      270      652        0        0        0     
-number of processes/call 1.89e+00 1.29e+00 1.58e+00 0.00e+00 0.00e+00
-bytes total:             5.28e+05 1.63e+05 2.73e+05 0.00e+00 0.00e+00 0.00e+00
-bytes remote:            1.31e+05 1.62e+04 8.51e+04 0.00e+00 0.00e+00 0.00e+00
+calls:  195      195     1065      270      572        0        0        0     
+number of processes/call 1.92e+00 1.29e+00 1.66e+00 0.00e+00 0.00e+00
+bytes total:             5.26e+05 1.63e+05 2.68e+05 0.00e+00 0.00e+00 0.00e+00
+bytes remote:            1.30e+05 1.62e+04 8.38e+04 0.00e+00 0.00e+00 0.00e+00
 Max memory consumed for GA by this process: 39368 bytes
 MA_summarize_allocated_blocks: starting scan ...
 MA_summarize_allocated_blocks: scan completed: 0 heap blocks, 0 stack blocks
@@ -595,4 +589,4 @@ MA usage statistics:
           G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,
                                 A. Wong, Z. Zhang.
 
- Total times  cpu:        0.2s     wall:        1.7s
+ Total times  cpu:        0.2s     wall:        1.5s
