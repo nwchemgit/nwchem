@@ -252,12 +252,12 @@ c     **********************************************
      >    call errquit('cannot allocate heap memory for metadynamics',0,
      >       MA_ERR)
 
-*        **** iniitialize meta_gauss_write ****
-         rtdb_name = 'metadynamics_gaussian_filename'
-         if(.not.rtdb_cget(rtdb,rtdb_name,
-     >                  1,gauss_filename))
-     >      call util_file_prefix('meta_gaussians',gauss_filename)
-         call meta_gauss_write_init(gauss_filename)
+c*        **** iniitialize meta_gauss_write ****
+c         rtdb_name = 'metadynamics_gaussian_filename'
+c         if(.not.rtdb_cget(rtdb,rtdb_name,
+c     >                  1,gauss_filename))
+c     >      call util_file_prefix('meta_gaussians',gauss_filename)
+c         call meta_gauss_write_init(gauss_filename)
 
 *     **** write out header info ****
       call Parallel_taskid(taskid)
@@ -476,7 +476,7 @@ c     **********************************************
             value = value.and.MA_free_heap(sparammeta(2))
             value = value.and.MA_free_heap(ymeta(2))
             call nwpw_interp_end()
-            call meta_gauss_write_end()
+c            call meta_gauss_write_end()
 
          end if
 
@@ -981,8 +981,8 @@ c     >                                    ispin,ne,psi1)
                end do
             end do
 
-*           **** writeout gaussian data ***
-            call meta_gauss_write(nmeta,r0,sigma0,w)
+c*           **** writeout gaussian data ***
+c            call meta_gauss_write(nmeta,r0,sigma0,w)
          end if
 
          end if
