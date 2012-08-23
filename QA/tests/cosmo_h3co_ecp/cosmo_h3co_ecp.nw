@@ -23,8 +23,12 @@ ecp
 end
 
 cosmo
-  minbem 3
-  maxbem 5
+  minbem 2
+  maxbem 4
+  # ifscrn 1: do not correct the total surface charge
+  #           this improves the convergence of the geometry
+  #           optimization significantly
+  ifscrn 1
 end
 
 task scf optimize
