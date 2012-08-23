@@ -16,8 +16,9 @@ basis
 end
 
 cosmo
-  minbem 3
-  maxbem 5
+  minbem 2
+  maxbem 4
+  ifscrn 1
 end
 
 task scf optimize
