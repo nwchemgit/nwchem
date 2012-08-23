@@ -631,9 +631,6 @@ crestrict to 5M to avoid OOMs
          lenk=lenk/2
          goto 1
       endif
-chack
-chack      lenk=lenk/3 -3
-chackend
 c     round it to the nearest multiple of lnov
       lenk=(lenk/lnov)*lnov
       iptr=1
@@ -647,7 +644,7 @@ c     round it to the nearest multiple of lnov
      A     dbl_mb(k_kk),djka)
       if(start-1.ne.end)then
          if(failed)
-     A     call errquit('getdjka:craaap ', 0, 0)
+     A     call errquit('getdjka:error ', 0, 0)
          lenk=end-start+1
          goto 2
       endif
