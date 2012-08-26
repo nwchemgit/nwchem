@@ -13,7 +13,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 14)
+      parameter (num_dirs = 15)
       character*30 dirs(num_dirs)
       data dirs / 'lj_ion_parameters:',
      >            'lj_ion_parameters',
@@ -28,6 +28,7 @@ c
      >            'qmmm_lambda',
      >            'enable',
      >            'disable',
+     >            'lj_ion_ion_parameters',
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
@@ -61,10 +62,11 @@ c
      >             'sprik'/
 c
       logical       value
-      character*4   element
+      character*4   element,element2
       character*16  tag
       character*80  rtdb_name
-      integer       element_length,basis_length,tmp(2),geom
+      integer       element_length,element2_length
+      integer       basis_length,tmp(2),geom
       integer       ni,nkf,nfrag,frag_size,index_start(2)
       integer       nknf,nnonfrag
       real*8        se(2),alpha,Rin,Rout,scal
@@ -106,6 +108,7 @@ c
 
 
       goto ( 100,100,200,300,400,500,600,700,800,900,1000,1100,1200,
+     >       150,
      >      9999) ind
       call errquit(
      >      'pspw_qmmm_input: unimplemented directive', ind, INPUT_ERR)
@@ -129,6 +132,39 @@ c
      > 'pspw_qmmm_input:failed reading LJ ion parameters:',0, INPUT_ERR)
       
       goto 10
+
+c
+c  LJ Ion-Ion parameters -
+c
+ 150  element = '    '
+      value = inp_a(element)
+      value = value.and.inp_a(element2)
+      value = value.and.inp_f(se(1))
+      value = value.and.inp_f(se(2))
+      if (.not. value)
+     >  call errquit(
+     >   'pspw_qmmm_input:failed reading lj_ion_ion_parameters:',
+     >    0, INPUT_ERR)
+
+      element_length  = index(element,' ') - 1
+      element2_length = index(element2,' ') - 1
+      rtdb_name = 'pspw_LJ_param_ion_ion:'
+     >             //element(1:element_length)
+     >            //element2(1:element2_length)
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,2,se)
+      rtdb_name = 'pspw_LJ_param_ion_ion:'
+     >             //element2(1:element2_length)
+     >             //element(1:element_length)
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,2,se)
+
+      if (.not. value)
+     >  call errquit(
+     >    'pspw_qmmm_input:failed reading LJ ion-ion parameters:',
+     >     0,INPUT_ERR)
+
+      goto 10
+
+
 
 c
 c  LJ MM parameters - used by model potential and model charge
