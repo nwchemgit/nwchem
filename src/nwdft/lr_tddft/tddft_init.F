@@ -99,6 +99,7 @@ c
       logical lowin
       integer owstart(2)
       integer owend(2)
+      integer itmp, owtmp
 c
 c     logical cam_exch
 c     double precision cam_alpha, cam_beta, cam_omega
@@ -283,39 +284,63 @@ c Get the energy cutoff on the occupied states
 c --------------------------------------------
       if (.not.rtdb_get(rtdb,'tddft:lewin',mt_log,1,lewin))
      &   lewin = .false.
-      if (.not.rtdb_get(rtdb,'tddft:ewinl',mt_dbl,1,ewinl)) then
+c
+      if (lewin) then
+       if (.not.rtdb_get(rtdb,'tddft:ewinl',mt_dbl,1,ewinl)) then
          ewinl  = 0.d0
          lewin = .false.
-      end if
-      if (.not.rtdb_get(rtdb,'tddft:ewinh',mt_dbl,1,ewinh)) then
+       end if
+       if (.not.rtdb_get(rtdb,'tddft:ewinh',mt_dbl,1,ewinh)) then
          ewinh  = 0.d0
          lewin = .false.
-      end if
-      if (ewinl .gt. ewinh) then
+       end if
+c
+c      switch order if lower is greater
+       if (ewinl .gt. ewinh) then
          etmp = ewinl
          ewinl = ewinh
          ewinh = etmp
-      end if
+c        store the changes
+         if (.not.rtdb_put(rtdb,'tddft:ewinl',mt_dbl,1,ewinl))
+     &      call errquit('tddft_init: failed to write ewinl',0,RTDB_ERR)
+         if (.not.rtdb_put(rtdb,'tddft:ewinh',mt_dbl,1,ewinh))
+     &      call errquit('tddft_init: failed to write ewinh',0,RTDB_ERR)
+       end if
+      end if ! lewin check
 c
 c ------------------------------------------------
 c Get window of occupied orbitals and set defaults
 c ------------------------------------------------
       if (.not.rtdb_get(rtdb,'tddft:lowin',mt_log,1,lowin))
      &  lowin = .false.
-      if (.not.rtdb_get(rtdb,'tddft:owstart',mt_int,2,owstart)) then
+c
+      if (lowin) then
+       if (.not.rtdb_get(rtdb,'tddft:owstart',mt_int,2,owstart)) then
+        lowin = .false.
         owstart(1) = 0
         owstart(2) = 0
-      endif
-      if (.not.rtdb_get(rtdb,'tddft:owend',mt_int,2,owend)) then
+       endif
+       if (.not.rtdb_get(rtdb,'tddft:owend',mt_int,2,owend)) then
+        lowin = .false.
         owend(1) = nocc(1)
         owend(2) = nocc(2)
-      endif
-      if (owend(1).eq.-1)
-     &  owend(1) = nocc(1)
-      if (owend(2).eq.-1)
-     &  owend(2) = nocc(2)
-      if (.not.rtdb_put(rtdb,'tddft:owend',mt_int,2,owend))
-     &  call errquit('tddft_init: failed to write owend',0,RTDB_ERR)
+       endif
+c      
+c      switch order if lower is greater
+       do itmp = 1, 2
+        if (owstart(itmp).gt.owend(itmp)) then
+         owtmp = owstart(itmp)
+         owstart(itmp) = owend(itmp)
+         owend(itmp) = owtmp
+c        store the changes
+         if (.not.rtdb_put(rtdb,'tddft:owstart',mt_int,2,owstart))
+     &    call errquit('tddft_init: failed to write owstart',0,RTDB_ERR)
+         if (.not.rtdb_put(rtdb,'tddft:owend',mt_int,2,owend))
+     &    call errquit('tddft_init: failed to write owend',0,RTDB_ERR)
+        end if ! comparison check
+       end do ! itmp
+      end if !lowin check
+c
 c
 c ----------------------
 c 2-e integral tolerance

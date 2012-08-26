@@ -13,8 +13,8 @@ c        [(CIS||RPA) default RPA]
 c        [NROOTS <integer nroots default 1>]
 c        [ECUT   <not default: double ecut default -ihuge>]
 c        [EWIN]
-c        [AWIN <integer astart> <integer aend>]
-c        [BWIN <integer bstart> <integer bend>]
+c        [ALPHA <integer astart> <integer aend>]
+c        [BETA <integer bstart> <integer bend>]
 c        [MAXVECS <integer maxvecs default 1000>]
 c        [(SINGLET||NOSINGLET) default SINGLET]
 c        [(TRIPLET||NOTRIPLET) default TRIPLET]
@@ -279,9 +279,9 @@ c
      &    call errquit('tddft_input: failed writing to rtdb',0,
      &       RTDB_ERR)
 c
-c     AWIN
+c     ALPHA: alpha orbital window
 c
-      else if (inp_compare(.false.,test,'awin')) then
+      else if (inp_compare(.false.,test,'alpha')) then
         lowin = .true.
         if (lecut) then
           write(LuOut,*) 'tddft_input: cannot use energy cutoff and ',
@@ -292,14 +292,11 @@ c
      &    call errquit('tddft_input: failed reading rtdb',0,RTDB_ERR)
         if (.not.rtdb_get(rtdb,'tddft:owend',mt_int,2,owend))
      &    call errquit('tddft_input: failed reading rtdb',0,RTDB_ERR)
-        if (.not.inp_i(owstart(1))) then
-          write(LuOut,*) 'failed to find astart'
-          owstart(1) = 0
-        endif
-        if (.not.inp_i(owend(1))) then
-          write(LuOut,*) 'failed to find aend'
-          owend(1) = -1
-        endif
+c
+c       Set defaults
+        if (.not.inp_i(owstart(1))) owstart(1) = 1
+        if (.not.inp_i(owend(1))) owend(1) = 1
+c
         if (.not.rtdb_put(rtdb,'tddft:lowin',mt_log,1,lowin))
      &    call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
         if (.not.rtdb_put(rtdb,'tddft:owstart',mt_int,2,owstart))
@@ -307,9 +304,9 @@ c
         if (.not.rtdb_put(rtdb,'tddft:owend',mt_int,2,owend))
      &    call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
 c
-c     BWIN
+c     BETA: beta orbital window
 c
-      else if (inp_compare(.false.,test,'bwin')) then
+      else if (inp_compare(.false.,test,'beta')) then
         lowin = .true.
         if (lecut) then
           write(LuOut,*) 'tddft_input: cannot use energy cutoff and ',
@@ -320,14 +317,11 @@ c
      &    call errquit('tddft_input: failed reading rtdb',0,RTDB_ERR)
         if (.not.rtdb_get(rtdb,'tddft:owend',mt_int,2,owend))
      &    call errquit('tddft_input: failed reading rtdb',0,RTDB_ERR)
-        if (.not.inp_i(owstart(2))) then
-          write(LuOut,*) 'failed to find astart'
-          owstart(2) = 0
-        endif
-        if (.not.inp_i(owend(2))) then
-          write(LuOut,*) 'failed to find aend'
-          owend(2) = -1
-        endif
+c
+c       Set defaults
+        if (.not.inp_i(owstart(2))) owstart(2) = 1
+        if (.not.inp_i(owend(2))) owend(2) = 1
+c
         if (.not.rtdb_put(rtdb,'tddft:lowin',mt_log,1,lowin))
      &    call errquit('tddft_input: failed writing to rtdb',0,RTDB_ERR)
         if (.not.rtdb_put(rtdb,'tddft:owstart',mt_int,2,owstart))
