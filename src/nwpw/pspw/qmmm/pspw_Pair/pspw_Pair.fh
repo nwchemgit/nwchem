@@ -1,0 +1,14 @@
+c
+c $Id: pspw_Pair.fh 19707 2010-10-29 17:59:36Z d3y133 $
+c
+
+*     ***** pspw_Pair common block ************************************
+      integer npair_all(2),pair_start(2),type_all(2), param_all(2)
+      integer npairs
+      logical include_qm
+      common / pspw_Pair /   npair_all,
+     >                       pair_start,
+     >                       type_all,
+     >                       param_all,
+     >                       npairs,include_qm
+*     ******************************************************************
