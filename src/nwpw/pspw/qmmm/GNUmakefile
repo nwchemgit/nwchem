@@ -1,7 +1,7 @@
 #
 # $Id$
 #
- SUBDIRS = pspw_LJ pspw_Q mmq
+ SUBDIRS = pspw_LJ pspw_Q pspw_Pair mmq
  OBJ_OPTIMIZE = \
                 pspw_qmmm_input.o \
                 pspw_qmmm.o \

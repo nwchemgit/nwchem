@@ -79,15 +79,14 @@ c
             si = dbl_mb(sigma_atom(1)  +i-1) 
 
             rtdbname='pspw_LJ_param_ion_ion:'//ion_atom(i)//ion_atom(j)
-            l = index(rtdbname,' ')-1
-            value = rtdb_get(rtdb,rtdbname(1:l),mt_dbl,2,sigma_epsilon)
+            value = rtdb_get(rtdb,rtdbname,mt_dbl,2,sigma_epsilon)
             if (.not. value) then
-               dbl_mb(epsilon_all(1)+(j-1)*nkatm+(i-1)) = dsqrt(ei*ej)
                dbl_mb(sigma_all(1)  +(j-1)*nkatm+(i-1)) = 0.5d0*(si+sj)
+               dbl_mb(epsilon_all(1)+(j-1)*nkatm+(i-1)) = dsqrt(ei*ej)
             else
-               dbl_mb(epsilon_all(1)+(j-1)*nkatm+(i-1)) 
+               dbl_mb(sigma_all(1)+(j-1)*nkatm+(i-1)) 
      >         = sigma_epsilon(1)/0.529177d0
-               dbl_mb(sigma_all(1)  +(j-1)*nkatm+(i-1)) 
+               dbl_mb(epsilon_all(1)  +(j-1)*nkatm+(i-1)) 
      >         = sigma_epsilon(2)/(23.06d0*27.2116d0)
             end if
          end do

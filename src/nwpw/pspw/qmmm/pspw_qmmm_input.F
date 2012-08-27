@@ -13,7 +13,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 15)
+      parameter (num_dirs = 16)
       character*30 dirs(num_dirs)
       data dirs / 'lj_ion_parameters:',
      >            'lj_ion_parameters',
@@ -29,6 +29,7 @@ c
      >            'enable',
      >            'disable',
      >            'lj_ion_ion_parameters',
+     >            'pair_ion_ion_parameters',
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
@@ -65,11 +66,11 @@ c
       character*4   element,element2
       character*16  tag
       character*80  rtdb_name
-      integer       element_length,element2_length
+      integer       element_length,element2_length,npair
       integer       basis_length,tmp(2),geom
       integer       ni,nkf,nfrag,frag_size,index_start(2)
-      integer       nknf,nnonfrag
-      real*8        se(2),alpha,Rin,Rout,scal
+      integer       nknf,nnonfrag,l
+      real*8        se(20),alpha,Rin,Rout,scal
       integer       nsigma
       real*8        charge,rcut
       real*8        rxyz(3),q
@@ -108,7 +109,7 @@ c
 
 
       goto ( 100,100,200,300,400,500,600,700,800,900,1000,1100,1200,
-     >       150,
+     >       150,160,
      >      9999) ind
       call errquit(
      >      'pspw_qmmm_input: unimplemented directive', ind, INPUT_ERR)
@@ -136,8 +137,9 @@ c
 c
 c  LJ Ion-Ion parameters -
 c
- 150  element = '    '
-      value = inp_a(element)
+ 150  element  = '    '
+      element2 = '    '
+      value =           inp_a(element)
       value = value.and.inp_a(element2)
       value = value.and.inp_f(se(1))
       value = value.and.inp_f(se(2))
@@ -146,15 +148,12 @@ c
      >   'pspw_qmmm_input:failed reading lj_ion_ion_parameters:',
      >    0, INPUT_ERR)
 
-      element_length  = index(element,' ') - 1
-      element2_length = index(element2,' ') - 1
       rtdb_name = 'pspw_LJ_param_ion_ion:'
-     >             //element(1:element_length)
-     >            //element2(1:element2_length)
+     >             //element//element2
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,2,se)
       rtdb_name = 'pspw_LJ_param_ion_ion:'
-     >             //element2(1:element2_length)
-     >             //element(1:element_length)
+     >             //element2
+     >             //element
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,2,se)
 
       if (.not. value)
@@ -164,6 +163,63 @@ c
 
       goto 10
 
+c
+c  Pair Ion-Ion parameters - Aij*(rij-Cij)^Bij, Aij*exp(-rij/Bij)
+c
+ 160  element  = '    '
+      element2 = '    '
+      value =           inp_a(element)
+      value = value.and.inp_a(element2)
+      value = value.and.inp_i(ni)   !* pair type 1-Power, 2-Born-Mayer
+      value = value.and.inp_f(se(1))   !* Aij
+      value = value.and.inp_f(se(2))   !* Bij
+      value = value.and.inp_f(se(3))   !* Cij
+      if (.not. value)
+     >  call errquit(
+     >  'pspw_qmmm_input:failed reading pair_ion_ion_parameters:',
+     >    0, INPUT_ERR)
+
+
+      rtdb_name = 'pspw_Pair_ion_ion_npair:'
+     >             //element
+     >             //element2
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,npair)) npair = 0
+      npair = npair + 1
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,npair)
+
+      rtdb_name = 'pspw_Pair_ion_ion_type:'//c_index_name(npair)
+     >             //element
+     >             //element2
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ni)
+
+      rtdb_name = 'pspw_Pair_ion_ion_param:'//c_index_name(npair)
+     >             //element
+     >             //element2
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,3,se)
+
+
+      rtdb_name = 'pspw_Pair_ion_ion_npair:'
+     >             //element2
+     >             //element
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,npair)) npair = 0
+      npair = npair + 1
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,npair)
+
+      rtdb_name = 'pspw_Pair_ion_ion_type:'//c_index_name(npair)
+     >             //element2
+     >             //element 
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ni)
+
+      rtdb_name = 'pspw_Pair_ion_ion_param:'//c_index_name(npair)
+     >             //element2
+     >             //element
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,3,se)
+
+      if (.not. value)
+     >  call errquit(
+     >  'pspw_qmmm_input:failed reading Pair ion-ion parameters:',
+     >     0,INPUT_ERR)
+      goto 10
 
 
 c
