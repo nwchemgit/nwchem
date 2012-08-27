@@ -533,6 +533,11 @@ function get_blas_lib()
        rm -f ./testblas$$.f
      fi
    done
+   if [ ${#lib} -eq 0 ] ; then
+     # We have not found anything suitable
+     echo ${lib}
+     return 1
+   fi
    echo ${lib}
 }
 function get_blas_integer()
@@ -586,9 +591,19 @@ function get_blas_integer()
    result=`./testblas$$.x`
    status=$?
    if [ ${status} -ne 0 ] ; then
-     result=8
-   elif [ "${result}" != "4" ] ; then
-     result=8
+     result="8"
+   else
+     out=`expr "${result}" : '.*\(4\)'`
+     if [ "${out}" == "4" ] ; then
+       result="4"
+     else
+       out=`expr "${result}" : '.*\(8\)'`
+       if [ "${out}" == "8" ] ; then
+         result="8"
+       else
+         result="0"
+       fi
+     fi
    fi
    rm -f ./testblas$$.f
    rm -f ./testblas$$.x
@@ -644,6 +659,11 @@ function get_lapack_lib()
        rm -f ./testlapack$$.f
      fi
    done
+   if [ ${#lib} -eq 0 ] ; then
+     # We have not found anything suitable
+     echo ${lib}
+     return 1
+   fi
    echo ${lib}
 }
 function get_lapack_integer()
@@ -757,6 +777,11 @@ function get_scalapack_lib()
        rm -f ./testscalapack$$.f
      fi
    done
+   if [ ${#lib} -eq 0 ] ; then
+     # We have not found anything suitable
+     echo ${lib}
+     return 1
+   fi
    echo ${lib}
 }
 function get_scalapack_integer()
@@ -815,10 +840,11 @@ function get_scalapack_integer()
    $fcomp -o testscalapack$$.x testscalapack$$.f ${blaslapacksca} > /dev/null
    result=`./testscalapack$$.x`
    out=`expr "${result}" : '.*\(4\)'`
-   if [ ${#out} -eq 0 ] ; then
-     out=8
-   else
-     out=4
+   if [ "${out}" != "4" ] ; then
+     out=`expr "${result}" : '.*\(8\)'`
+     if [ "${out}" != "8" ] ; then
+       out="0"
+     fi
    fi
    rm -f ./testscalapack$$.x
    rm -f ./testscalapack$$.o
@@ -1347,11 +1373,11 @@ if [ ${#SCALAPACK_LIB} -eq 0 ] ; then
     # So at least one of LAPACK and BLAS has to fall back to source code
     # and integer*8.
     echo "BLAS and LAPACK integer sizes do not match, dropping the integer size 4 library"
-    if [ ${BLAS_SIZE} -eq 4 ] ; then
+    if [[ ( ${BLAS_SIZE} -eq 4 ) || ( ${BLAS_SIZE} -eq 0 ) ]] ; then
       export BLAS_LIB=""
       export BLAS_SIZE=8
     fi
-    if [ ${LAPACK_SIZE} -eq 4 ] ; then
+    if [[ ( ${LAPACK_SIZE} -eq 4 ) || ( ${LAPACK_SIZE} -eq 0 ) ]] ; then
       export LAPACK_LIB=""
       export LAPACK_SIZE=8
     fi
@@ -1361,15 +1387,15 @@ if [ ${#SCALAPACK_LIB} -eq 0 ] ; then
 else
   if [[ ( ${LAPACK_SIZE} -ne ${BLAS_SIZE} ) || ( ${SCALAPACK_SIZE} -ne ${BLAS_SIZE} ) ]] ; then
     echo "BLAS, LAPACK and ScaLAPACK integer sizes do not match, dropping the integer size 4 libraries"
-    if [ ${BLAS_SIZE} -eq 4 ] ; then
+    if [[ ( ${BLAS_SIZE} -eq 4 ) || ( ${BLAS_SIZE} -eq 0 ) ]] ; then
       export BLAS_LIB=""
       export BLAS_SIZE=8
     fi
-    if [ ${LAPACK_SIZE} -eq 4 ] ; then
+    if [[ ( ${LAPACK_SIZE} -eq 4 ) || ( ${LAPACK_SIZE} -eq 0 ) ]] ; then
       export LAPACK_LIB=""
       export LAPACK_SIZE=8
     fi
-    if [ ${SCALAPACK_SIZE} -eq 4 ] ; then
+    if [[ ( ${SCALAPACK_SIZE} -eq 4 ) || ( ${SCALAPACK_SIZE} -eq 0 ) ]] ; then
       export SCALAPACK_LIB=""
       export SCALAPACK_SIZE=8
     fi
