@@ -37,44 +37,45 @@ c
       character*80 chr01,chr02,chr03,chr04,chr05,chr06,chr07,chr08
       character*80 chr09,chr10,chr11,chr12,chr13,chr14
       data chr01/
-     +'E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski, T.
-     + P. Straatsma,'/
+     +'E. Apra, E. J. Bylaska, W. A. de Jong, N. Govind, K. Kowalski,'/
       data chr02/
-     +'M. Valiev, H. J. J. van Dam, D. Wang, T. L. Windus, J. Hammond,'/
+     +'T. P. Straatsma, M. Valiev, H. J. J. van Dam, D. Wang, T. L. Wind
+     +us,'/
       data chr03/
-     +'J. Autschbach, F. Aquino, S. Hirata, M. T. Hackler, J. Mullin, P.
-     + Nichols, '/
+     +'J. Hammond, J. Autschbach, F. Aquino, S. Hirata, M. T. Hackler, K
+     +. Lopata,'/
       data chr04/
-     +'R. Peverati, Y. Zhao, P.-D. Fan, R. J. Harrison, M. Dupuis, D. M.
-     + A. Smith,'/
+     +'J. Mullin, P. Nichols, R. Peverati, Y. Zhao, P.-D. Fan, R. J. Har
+     +rison,'/
       data chr05/
-     +'J. Nieplocha, V. Tipparaju, M. Krishnan, A. Vazquez-Mayagoitia, L
-     +. Jensen,'/
+     +'M. Dupuis, D. M. A. Smith, J. Nieplocha, V. Tipparaju, M. Krishna
+     +n,'/
       data chr06/
-     +'M. Swart, Q. Wu, T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Cr
-     +osby,'/
+     +'B. E. Van Kuiken, A. Vazquez-Mayagoitia, L. Jensen, M. Swart, Q. 
+     +Wu,'/
       data chr07/
-     +'E. Brown, G. Cisneros, G. I. Fann, H. Fruchtl, J. Garza, K. Hirao
-     +,'/
+     +'T. Van Voorhis, A. A. Auer, M. Nooijen, L. D. Crosby, E. Brown, G
+     +. Cisneros,'/
       data chr08/
-     +'R. Kendall, J. A. Nichols, K. Tsemekhman, K. Wolinski, J. Anchell
-     +,'/
+     +'G. I. Fann, H. Fruchtl, J. Garza, K. Hirao, R. Kendall, J. A. Nic
+     +hols,'/
       data chr09/
-     +'D. Bernholdt, P. Borowski, T. Clark, D. Clerc, H. Dachsel, M. Dee
-     +gan,'/
+     +'K. Tsemekhman, K. Wolinski, J. Anchell, D. Bernholdt, P. Borowski
+     +,'/
       data chr10/
-     +'K. Dyall, D. Elwood, E. Glendening, M. Gutowski, A. Hess, J. Jaff
-     +e,'/
+     +'T. Clark, D. Clerc, H. Dachsel, M. Deegan, K. Dyall, D. Elwood, E
+     +. Glendening,'/
       data chr11/
-     +'B. Johnson, J. Ju, R. Kobayashi, R. Kutteh, Z. Lin, R. Littlefiel
-     +d,'/
+     +'M. Gutowski, A. Hess, J. Jaffe, B. Johnson, J. Ju, R. Kobayashi,'
+     +/
       data chr12/
-     +'X. Long, B. Meng, T. Nakajima, S. Niu, L. Pollack, M. Rosing, K. 
-     +Glaesemann,'/
+     +'R. Kutteh, Z. Lin, R. Littlefield, X. Long, B. Meng, T. Nakajima,
+     + S. Niu,'/
       data chr13/
-     +'G. Sandrone, M. Stave, H. Taylor, G. Thomas, J. H. van Lenthe,'/
+     +'L. Pollack, M. Rosing, K. Glaesemann, G. Sandrone, M. Stave, H. T
+     +aylor,'/
       data chr14/
-     +'A. Wong, Z. Zhang.'/
+     +'G. Thomas, J. H. van Lenthe, A. Wong, Z. Zhang.'/
 c
 c     == default ==
       write(luout,*)
