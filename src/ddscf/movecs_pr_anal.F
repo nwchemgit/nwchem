@@ -316,7 +316,7 @@ c
       integer lmax              ! Maximum value of L = 2
 c
       if (.not. bas_geom(basis, geom)) call errquit
-     $     ('multiplole: bad basis', 0, BASIS_ERR)
+     $     ('multipole: bad basis', 0, BASIS_ERR)
       if (.not. bas_numcont(basis, nshell)) call errquit
      $     ('xlm_pole: bas_numcont failed for basis', basis, BASIS_ERR)
       if (.not. bas_nbf_cn_max(basis,nbf_max)) call errquit(
