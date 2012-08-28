@@ -3568,6 +3568,7 @@ c
 00100 continue
       bas_nprim_cn_max = .true.
       end
+C> @}
 *.....................................................................
       logical function bas_norm_get(basisin,norm_id)
       implicit none
@@ -3638,6 +3639,13 @@ c
       endif
       end
 *.....................................................................
+C> \ingroup bas
+C> @{
+C>
+C> \brief Print unique in core ECP information
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function ecp_print(ecpidin)
 c
 c routine to print unique ecpid information that is in core
@@ -3657,7 +3665,7 @@ c
       logical ecp_check_handle
       external ecp_check_handle
 c:: passed
-      integer ecpidin ! [input] basis set handle
+      integer ecpidin !< [Input] the basis set handle
 c:: local
       integer mytags, myucont, myprim, mycoef, ecpid
       integer i,j,k,l, ifcont, mygen, mytype, irexptr, iexptr, icfptr
@@ -3785,6 +3793,11 @@ c
  7          format(1x,i2,1x,a3,1x,f9.2,2x,f14.6,20f15.6)
       end
 *.....................................................................
+C>
+C> \brief Print unique in core spin-orbit basis set information
+C>
+C> \return Return .true. if successfull, and .false. otherwise.
+c
       logical function so_print(soidin)
 c
 c routine to print unique soid information that is in core
@@ -3804,7 +3817,7 @@ c
       logical so_check_handle
       external so_check_handle
 c:: passed
-      integer soidin ! [input] basis set handle
+      integer soidin !< [Input] the basis set handle
 c:: local
       integer mytags, myucont, myprim, mycoef, soid
       integer i,j,k,l, ifcont, mygen, mytype, irexptr, iexptr, icfptr
@@ -3927,72 +3940,102 @@ c
  7    format(1x,i2,1x,a3,1x,f9.2,2x,f14.6,20f15.6)
       end
 *.....................................................................
+C>
+C> \brief Set the name of the ECP for a basis set
+C>
+C> \return Return .true. when successfull, and .false. otherwise
+c
       logical function bas_set_ecp_name(basisin,ecp_name)
       implicit none
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer basisin
-      character*(*) ecp_name
+      integer basisin        !< [Input] the basis set handle
+      character*(*) ecp_name !< [Input] the ECP name
 c
       name_assoc(1,(basisin+Basis_Handle_Offset)) =
      &    ecp_name
       bas_set_ecp_name = .true.
       end
 *.....................................................................
+C>
+C> \brief Set the name of the spin-orbit set for a basis set
+C>
+C> \return Return .true. when successfull, and .false. otherwise
+c
       logical function bas_set_so_name(basisin,so_name)
       implicit none
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer basisin
-      character*(*) so_name
+      integer basisin        !< [Input] the basis set handle
+      character*(*) so_name  !< [Input] the spin-orbit name
 c
       name_assoc(2,(basisin+Basis_Handle_Offset)) =
      &    so_name
       bas_set_so_name = .true.
       end
 *.....................................................................
+C>
+C> \brief Retrieve the name of the ECP of a basis set
+C>
+C> \return Return .true. when successfull, and .false. otherwise
+c
       logical function bas_get_ecp_name(basisin,ecp_name)
       implicit none
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer basisin
-      character*(*) ecp_name
+      integer basisin        !< [Input] the basis set handle
+      character*(*) ecp_name !< [Output] the ECP name
 c
       ecp_name =
      &    name_assoc(1,(basisin+Basis_Handle_Offset)) 
       bas_get_ecp_name = .true.
       end
 *.....................................................................
+C>
+C> \brief Retrieve the name of the spin-orbit set of a basis set
+C>
+C> \return Return .true. when successfull, and .false. otherwise
+c
       logical function bas_get_so_name(basisin,so_name)
       implicit none
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer basisin
-      character*(*) so_name
+      integer basisin       !< [Input] the basis set handle
+      character*(*) so_name !< [Output] the spin-orbit name
 c
       so_name =
      &    name_assoc(2,(basisin+Basis_Handle_Offset)) 
       bas_get_so_name = .true.
       end
 *.....................................................................
+C>
+C> \brief Associate an ECP with a given basis set
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
       logical function bas_set_ecp_handle(basisin,ecp_handle)
       implicit none
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer basisin
-      integer ecp_handle
+      integer basisin    !< [Input] the molecular basis set handle
+      integer ecp_handle !< [Input] the EPC handle
 c
       handle_assoc(1,(basisin+Basis_Handle_Offset)) =
      &    ecp_handle
       bas_set_ecp_handle = .true.
       end
 *.....................................................................
+C>
+C> \brief Retrieve an ECP of a given basis set
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
       logical function bas_get_ecp_handle(basisin,ecp_handle)
       implicit none
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer basisin
-      integer ecp_handle
+      integer basisin    !< [Input] the molecular basis set handle
+      integer ecp_handle !< [Output] the ECP handle
 c
       ecp_handle =
      &    handle_assoc(1,(basisin+Basis_Handle_Offset)) 
@@ -4003,13 +4046,18 @@ c
       endif
       end
 *.....................................................................
+C>
+C> \brief Set the molecular basis set for an ECP
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
       logical function ecp_set_parent_handle(ecp_handle,basis_handle)
       implicit none
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer ecp_handle
-      integer basis_handle
+      integer ecp_handle   !< [Input] the ECP handle
+      integer basis_handle !< [Input] the molecular basis set handle
 c
       logical bas_check_handle, ecp_check_handle
       external bas_check_handle, ecp_check_handle
@@ -4030,13 +4078,18 @@ c
       ecp_set_parent_handle = .true.
       end
 *.....................................................................
+C>
+C> \brief Retrieve the molecular basis set of an ECP
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
       logical function ecp_get_parent_handle(ecp_handle,basis_handle)
       implicit none
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer ecp_handle
-      integer basis_handle
+      integer ecp_handle   !< [Input] the ECP handle
+      integer basis_handle !< [Output] the molecular basis set handle
 c
       logical bas_check_handle, ecp_check_handle
       external bas_check_handle, ecp_check_handle
@@ -4057,24 +4110,34 @@ c
      &       BASIS_ERR)
       end
 *.....................................................................
+C>
+C> \brief Set the spin-orbit basis for a molecular basis set
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
       logical function bas_set_so_handle(basisin,so_handle)
       implicit none
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer basisin
-      integer so_handle
+      integer basisin   !< [Input] the molecular basis set handle
+      integer so_handle !< [Input] the spin-orbit basis set handle
 c
       handle_assoc(2,(basisin+Basis_Handle_Offset)) =
      &    so_handle
       bas_set_so_handle = .true.
       end
 *.....................................................................
+C>
+C> \brief Retrieve the spin-orbit basis of a molecular basis set
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
       logical function bas_get_so_handle(basisin,so_handle)
       implicit none
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer basisin
-      integer so_handle
+      integer basisin   !< [Input] the molecular basis set handle
+      integer so_handle !< [Output] the spin-orbit basis set handle
 c
       so_handle =
      &    handle_assoc(2,(basisin+Basis_Handle_Offset)) 
@@ -4085,13 +4148,18 @@ c
       endif
       end
 *.....................................................................
+C>
+C> \brief Set the molecular basis set for a spin-orbit basis set
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
       logical function so_set_parent_handle(so_handle,basis_handle)
       implicit none
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer so_handle
-      integer basis_handle
+      integer so_handle    !< [Input] the spin-orbit basis set handle
+      integer basis_handle !< [Input] the molecular basis set handle
 c
       logical bas_check_handle, so_check_handle
       external bas_check_handle, so_check_handle
@@ -4111,13 +4179,18 @@ c
       so_set_parent_handle = .true.
       end
 *.....................................................................
+C>
+C> \brief Retrieve the molecular basis set of a spin-orbit basis set
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C>
       logical function so_get_parent_handle(so_handle,basis_handle)
       implicit none
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer so_handle
-      integer basis_handle
+      integer so_handle    !< [Input] the spin-orbit basis set handle
+      integer basis_handle !< [Output] the molecular basis set handle
 c
       logical bas_check_handle, so_check_handle
       external bas_check_handle, so_check_handle
