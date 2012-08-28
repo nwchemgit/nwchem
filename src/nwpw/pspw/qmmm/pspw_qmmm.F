@@ -791,13 +791,9 @@ c
          end if
 
 
-
-
-
-
 *       ***** initialize Model, LJ, Pol, VIB, and CAV ****
         if (.not.auxiliary_only) then
-           call pspw_LJ_init(rtdb)
+           !call pspw_LJ_init(rtdb)
            call pspw_Pair_init(rtdb)
         end if
 
@@ -1151,7 +1147,7 @@ c
 
         if (pspw_2qmmm_found())  call pspw_2qmmm_end()
         if ((.not.auxiliary_only).and.(nfrag.gt.0)) then
-            call pspw_LJ_end()
+            !call pspw_LJ_end()
             call pspw_Pair_end()
         end if
       end if
@@ -1239,18 +1235,18 @@ c     **** external functions ***
       if (auxiliary_only) then
          pspw_qmmm_LJ_E = 0.0d0
       else
-         pspw_qmmm_LJ_E = pspw_LJ_E(ion_nion(),
-     >                              ion_nion_qm(),
-     >                              int_mb(ion_katm_ptr()),
-     >                              nfrag,
-     >                              int_mb(indx_frag_start(1)),
-     >                              int_mb(size_frag(1)),
-     >                              int_mb(kfrag(1)),
-     >                              log_mb(self_interaction(1)),
-     >                              qmmm_lmbda,
-     >                              nshl3d,dbl_mb(rcell(1)),
-     >                              dbl_mb(ion_rion_ptr()))
-     >                  + pspw_Pair_E(ion_nion(),
+c         pspw_qmmm_LJ_E = pspw_LJ_E(ion_nion(),
+c     >                              ion_nion_qm(),
+c     >                              int_mb(ion_katm_ptr()),
+c     >                              nfrag,
+c     >                              int_mb(indx_frag_start(1)),
+c     >                              int_mb(size_frag(1)),
+c     >                              int_mb(kfrag(1)),
+c     >                              log_mb(self_interaction(1)),
+c     >                              qmmm_lmbda,
+c     >                              nshl3d,dbl_mb(rcell(1)),
+c     >                              dbl_mb(ion_rion_ptr()))
+         pspw_qmmm_LJ_E = pspw_Pair_E(ion_nion(),
      >                              ion_nion_qm(),
      >                              int_mb(ion_katm_ptr()),
      >                              nfrag,
@@ -1647,17 +1643,17 @@ c     **** external functions ***
       external ion_nion,ion_nion_qm,ion_katm_ptr,ion_rion_ptr
 
       if (.not.auxiliary_only) then
-         call  pspw_LJ_fion(ion_nion(),
-     >                      ion_nion_qm(),
-     >                      int_mb(ion_katm_ptr()),
-     >                      nfrag,
-     >                      int_mb(indx_frag_start(1)),
-     >                      int_mb(size_frag(1)),
-     >                      int_mb(kfrag(1)),
-     >                      log_mb(self_interaction(1)),
-     >                      qmmm_lmbda,
-     >                      nshl3d,dbl_mb(rcell(1)),
-     >                      dbl_mb(ion_rion_ptr()),fion)
+c         call  pspw_LJ_fion(ion_nion(),
+c     >                      ion_nion_qm(),
+c     >                      int_mb(ion_katm_ptr()),
+c     >                      nfrag,
+c     >                      int_mb(indx_frag_start(1)),
+c     >                      int_mb(size_frag(1)),
+c     >                      int_mb(kfrag(1)),
+c     >                      log_mb(self_interaction(1)),
+c     >                      qmmm_lmbda,
+c     >                      nshl3d,dbl_mb(rcell(1)),
+c     >                      dbl_mb(ion_rion_ptr()),fion)
          call  pspw_Pair_fion(ion_nion(),
      >                      ion_nion_qm(),
      >                      int_mb(ion_katm_ptr()),
