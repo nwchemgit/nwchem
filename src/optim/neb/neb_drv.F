@@ -163,7 +163,7 @@ c
      >        ' number of images in path         (nbeads) = ', i4,/,
      >        ' number of histories               (nhist) = ', i4,/,
      >        ' NEB spring constant in a.u.      (kbeads) = ', f10.6,/,
-     >        ' NEB algorithmn                (algorithm) = ', i4,
+     >        ' NEB algorithm                 (algorithm) = ', i4,
      >                                                   1x,'(',a30,')'/,
      >        ' NEB movecs filename                       = ', a)
       end if
