@@ -164,7 +164,7 @@ c
       goto 10
 
 c
-c  Pair Ion-Ion parameters - Aij*(rij-Cij)^Bij, Aij*exp(-rij/Bij)
+c  Pair Ion-Ion parameters - 4*Aij*((Bij/rij)**12-(Bij/rij)**6), Aij*(rij-Cij)^Bij, Aij*exp(-rij/Bij)
 c
  160  element  = '    '
       element2 = '    '
