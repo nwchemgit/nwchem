@@ -23,8 +23,11 @@ c
       integer MASTER
       parameter(MASTER=0)
 
+      logical include_lj_qm
       integer i,j,l,k,nn,npair
       integer nkatm,nkatm_qm
+      integer sigma_atom(2),epsilon_atom(2)
+      real*8 ei,ej,e,si,sj,s,A,B,s6,sigma_epsilon(2)
       character*50 rtdbname
 
 *     **** external functions ****
@@ -40,13 +43,53 @@ c
       nkatm    = ion_nkatm()
       nkatm_qm = ion_nkatm_qm()
 
-*     **** allocate Pair parameters ****
       value = rtdb_parallel(.true.)
 
+*     **** allocate and read in LJ atom parameters ***
+      value = MA_Push_get(mt_dbl,nkatm,
+     >                 'sigma_atom',sigma_atom(2),sigma_atom(1))
+      value = value.and.
+     >        MA_Push_get(mt_dbl,nkatm,
+     >                 'epsilon_atom',epsilon_atom(2),epsilon_atom(1))
+      if (.not. value) 
+     >   call errquit('pspw_Pair_init:out of stack memory',0,MA_ERR)
+
+      do i=1,nkatm
+         rtdbname = 'pspw_LJ_param_ion:'//ion_atom(i)
+         k = index(rtdbname,' ')-1
+         if (.not.rtdb_get(rtdb,rtdbname(1:k),mt_dbl,2,sigma_epsilon))
+     >      call dcopy(2,0.0d0,0,sigma_epsilon,1)
+
+        dbl_mb(sigma_atom(1)+i-1)  =sigma_epsilon(1)/(0.529177d0)
+        dbl_mb(epsilon_atom(1)+i-1)=sigma_epsilon(2)/(23.06d0*27.2116d0)
+      end do
+
+*     **** check for LJ include_qm option ****
+      if (.not.rtdb_get(rtdb,'pspw_LJ_include_qm',
+     >                  mt_log,1,include_lj_qm))
+     >   include_lj_qm = .false.
+
+
+*     **** determine the npairs ****
       include_qm = .false.
       npairs = 0
       do j=1,nkatm
          do i=1,nkatm
+
+*           **** check for LJ atom potentials ***
+            if ( ((i.gt.nkatm_qm).or.(j.gt.nkatm_qm)) .or.
+     >           (include_lj_qm))                      then
+               ei = dbl_mb(epsilon_atom(1)+i-1)
+               ej = dbl_mb(epsilon_atom(1)+j-1)
+               e = dsqrt(ei*ej)
+               if (dabs(e).gt.1.0d-12) then
+                 npairs = npairs + 2
+                 if ((i.le.nkatm_qm).and.(j.le.nkatm_qm)) 
+     >             include_qm = .true.
+               end if
+            end if
+
+*          **** check for standard pair potentials ****
            rtdbname='pspw_Pair_ion_ion_npair:'//ion_atom(i)//ion_atom(j)
             if (rtdb_get(rtdb,rtdbname,mt_int,1,npair)) then
                 npairs = npairs + npair
@@ -57,13 +100,15 @@ c
       end do
 
       if (npairs.gt.0) then
-         value = value.and.
-     >        MA_alloc_get(mt_int,nkatm*nkatm,
+
+*        **** allocate Pair parameters ****
+         value = MA_alloc_get(mt_int,nkatm*nkatm,
      >                 'npair_all',npair_all(2),npair_all(1))
          value = value.and.
      >        MA_alloc_get(mt_int,nkatm*nkatm,
      >                 'pair_start',pair_start(2),pair_start(1))
-
+         if (.not. value) 
+     >   call errquit('pspw_Pair_init:out of heap memory',1, MA_ERR)
          call icopy(nkatm*nkatm,0,0,int_mb(npair_all(1)),1)
          call icopy(nkatm*nkatm,0,0,int_mb(pair_start(1)),1)
 
@@ -74,14 +119,14 @@ c
      >        MA_alloc_get(mt_dbl,3*npairs,
      >                 'param_all',param_all(2),param_all(1))
          if (.not. value) 
-     >   call errquit('pspw_Pair_init:out of heap memory',0, MA_ERR)
+     >   call errquit('pspw_Pair_init:out of heap memory',2, MA_ERR)
 
-      
-
-*        **** read in Pair potential parameters ****
+*        **** Generate Pair potential parameters ****
          nn = 0
          do j=1,nkatm
             do i=1,nkatm
+
+*              **** read and add standard pair potentials ****
                rtdbname='pspw_Pair_ion_ion_npair:'
      >                  //ion_atom(i)//ion_atom(j)
                if (.not.rtdb_get(rtdb,rtdbname,mt_int,1,npair))
@@ -106,11 +151,57 @@ c
                   nn = nn + 1
                end do
 
+
+*              **** add LJ potentials from LJ atom parameters ***
+               if ( ((i.gt.nkatm_qm).or.(j.gt.nkatm_qm)) .or.
+     >              (include_lj_qm))                      then
+                  ei = dbl_mb(epsilon_atom(1)+i-1)
+                  ej = dbl_mb(epsilon_atom(1)+j-1)
+                  si = dbl_mb(sigma_atom(1)+i-1)
+                  sj = dbl_mb(sigma_atom(1)+j-1)
+                  e = dsqrt(ei*ej)
+                  s = 0.5d0*(si+sj)
+                  if (dabs(e).gt.1.0d-12) then
+                     s6 = s*s*s*s*s*s
+                     A = 4.0d0*e*(s6*s6)
+                     B = -4.0d0*e*(s6)
+
+                     int_mb(npair_all(1)+(j-1)*nkatm+(i-1))  = npair + 2
+
+                     int_mb(type_all(1)+nn) = 1
+                     dbl_mb(param_all(1)+3*nn) = A
+                     dbl_mb(param_all(1)+3*nn+1) = 0.0d0
+                     dbl_mb(param_all(1)+3*nn+2) = -12.0d0
+                     nn = nn + 1
+
+                     int_mb(type_all(1)+nn) = 1
+                     dbl_mb(param_all(1)+3*nn) = B
+                     dbl_mb(param_all(1)+3*nn+1) = 0.0d0
+                     dbl_mb(param_all(1)+3*nn+2) = -6.0d0
+                     nn = nn + 1
+                  end if
+               end if
+
             end do
          end do
 
+*        **** write out Pair potential data ****
          call Parallel_taskid(taskid)
          if (taskid.eq.MASTER) then
+             write(luout,*)
+             write(luout,*) 'Ion LJ Atom Parameters:'
+             if (include_lj_qm)
+     >          write(luout,*) '- including QM/QM LJ atom interactions'
+             do i=1,nkatm
+               write(luout,'(A4,4x,A12,E10.3,A9,A12,E10.3,A9)')
+     >          ion_atom(i),
+     >          'sigma:',
+     >          dbl_mb(sigma_atom(1)+i-1)*(0.529177d0),
+     >          'Angstrom',
+     >          'epsilon:',
+     >          dbl_mb(epsilon_atom(1)+i-1)*(23.06d0*27.2116d0),
+     >          'kcal/mol'
+             end do
              write(luout,*)
              write(luout,*) 'Pair Ion-Ion Parameters (units=a.u.):'
              if (include_qm)
@@ -123,7 +214,7 @@ c
                   write(luout,'(A4,1x,A4)') ion_atom(i),ion_atom(j)
                   do k=1,npair
                      if (int_mb(type_all(1)+nn+k-1).eq.1) then
-                        write(luout,'(4x,A30,E10.3,A3,E10.3,A3,E10.3)')
+                        write(luout,'(4x,A30,E14.6,A3,E14.6,A3,E14.6)')
      >                    '- Potential = A*(rij-B)**C, A:',  
      >                    dbl_mb(param_all(1)+3*(nn+k-1)),
      >                    ' B:',  
@@ -131,7 +222,7 @@ c
      >                    ' C:',  
      >                    dbl_mb(param_all(1)+3*(nn+k-1)+2)
                      else
-                        write(luout,'(4x,A30,E10.3,A3,E10.3)') 
+                        write(luout,'(4x,A30,E14.6,A3,E14.6)') 
      >                    '- Potential = A*exp(rij/B), A:',  
      >                    dbl_mb(param_all(1)+3*(nn+k-1)),
      >                    ' B:',  
@@ -144,7 +235,14 @@ c
              write(luout,*)
          end if
 
-      end if
+      end if !*** npairs.gt.0 ****
+
+*     **** deallocate memory for LJ atom data ****
+      value =           MA_Pop_stack(epsilon_atom(2))
+      value = value.and.MA_Pop_stack(sigma_atom(2))
+      if (.not. value) 
+     >   call errquit('pspw_Pair_init:popping stack',3,MA_ERR)
+
       return
       end
 
@@ -220,6 +318,7 @@ c     *************************************
       E = 0.0d0
 
       if (npairs.gt.0) then
+
       call Parallel_np(np)
       call Parallel_taskid(taskid)
       nkatm = ion_nkatm()
@@ -364,7 +463,8 @@ c     **** MM/MM VPair image energy ****
 
       if (np.gt.1) call Parallel_SumAll(E)
 
-      end if
+      end if !*** npairs.gt.0 ***
+
       call nwpw_timing_end(40)
 
       pspw_Pair_E = E
@@ -575,6 +675,9 @@ c     *************************************
       external ion_nkatm
 
       call nwpw_timing_start(40)
+
+      if (npairs.gt.0) then
+
       call Parallel_np(np)
       call Parallel_taskid(taskid)
       nkatm = ion_nkatm()
@@ -703,7 +806,9 @@ c     **** MM/MM Pair image energy ****
          dutask = mod(dutask+1,np)
       end do
 
-      end if
+      end if !*** nshl3d.gt.1 ***
+
+      end if !*** npairs.gt.0 ***
 
 
       call nwpw_timing_end(40)
