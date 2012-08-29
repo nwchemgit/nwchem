@@ -319,6 +319,7 @@ C-------------------------local variables--------------------------
      $     iab1f, iab1l, iab2f, iab2l, iac1f, iac1l, iac2f, iac2l,
      $     if1, il1, if2, il2,
      $     icart, ic, nint, ip1, ip2
+      integer im1, im2, nprim, ngen, sphcart, ityp1, ityp2
       integer ich1, ich2
 
       integer nefc        ! the number of COSMO charges
@@ -407,21 +408,44 @@ C               shell block in atomic (D/Dw)-matrix block
                 status = bas_cn2bfr(basis,ish1,if1,il1)
                 if1 = if1 - iab1f + 1
                 il1 = il1 - iab1f + 1
+c
+c               Work out the number of Cartesian basis functions
+c               The integrals are evaluated in the Cartesian basis set
+c               and then transformed to spherical harmonics. So the
+c               buffer size depends on the number of Cartesian functions
+c
+                status = bas_continfo(basis,ish1,ityp1,nprim,ngen,
+     +                                sphcart)
+                if (sphcart.eq.1.and.ityp1.ge.2) then
+                  im1 = if1 + (ityp1+1)*(ityp1+2)/2 - 1
+                else
+                  im1 = il1
+                endif
                 status = bas_cn2bfr(basis,ish2,if2,il2)
                 if2 = if2 - iab2f + 1
                 il2 = il2 - iab2f + 1
+c
+c               Same Cartesian vs spherical harmonic catastrophy as
+c               for ish1.
+c
+                status = bas_continfo(basis,ish2,ityp2,nprim,ngen,
+     +                                sphcart)
+                if (sphcart.eq.1.and.ityp2.ge.2) then
+                  im2 = if2 + (ityp2+1)*(ityp2+2)/2 - 1
+                else
+                  im2 = il2
+                endif
 
-                nint = ( il1 - if1 + 1 ) * ( il2 - if2 + 1 )
+                nint = ( im1 - if1 + 1 ) * ( im2 - if2 + 1 )
 
                 do iefc = 1, nefc
 
                   ic=1
-c                 do iat3 = 1, nat+nefc
                   do iat3 = 1, 3 ! centers A, B, and C
                     do icart = 1, 3
-                      do ip1 = if1, il1
-                        do ip2 = if2, il2
-                          H(ic)=0.D0
+                      do ip1 = if1, im1
+                        do ip2 = if2, im2
+                          H(ic)=0.0D0
                           ic = ic + 1
                         enddo
                       enddo

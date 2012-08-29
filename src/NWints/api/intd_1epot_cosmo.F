@@ -104,18 +104,18 @@ c::functions
       integer int_nint_cart
       external int_nint_cart
 c::passed
-      integer i_basis   ! [input] ish basis set handle
-      integer ish       ! [input] ``i'' contraction index
-      integer j_basis   ! [input] jsh basis set handle
-      integer jsh       ! [input] ``j'' contraction index
-      integer lscr      ! [input] length of scratch space
-      integer lH1a      ! [input] number of h1 integral derivatives in shells ish and jsh
-c                       ! NOTE: nint*3 integral derivatives returned per unique center
-      integer nefc      ! [input] the number of COSMO charges
-      double precision efc_c(3,nefc) ! [input] COSMO charge coordinates
-      double precision efc_q(nefc) ! [input] COSMO charges
-      double precision scr(lscr) ! [input] scratch array
-      double precision H1a(*)    ! [output] derivative integrals
+      integer i_basis   !< [Input] ish basis set handle
+      integer ish       !< [Input] ``i'' contraction index
+      integer j_basis   !< [Input] jsh basis set handle
+      integer jsh       !< [Input] ``j'' contraction index
+      integer lscr      !< [Input] length of scratch space
+      integer lH1a      !< [Input] number of h1 integral derivatives in shells ish and jsh
+c                       !< NOTE: nint*3 integral derivatives returned per unique center
+      integer nefc      !< [Input] the number of COSMO charges
+      double precision efc_c(3,nefc) !< [Input] COSMO charge coordinates
+      double precision efc_q(nefc) !< [Input] COSMO charges
+      double precision scr(lscr) !< [Input] scratch array
+      double precision H1a(*)    !< [Output] derivative integrals
 c
 c::local
       integer nint, offset, scrsize, nat
@@ -369,10 +369,6 @@ c     call dcopy(1,geom_invnucexp(iatom,igeom),1,dbl_mb(i_xbq0),1)
 c     call dcopy(1,geom_invnucexp(jatom,igeom),1,dbl_mb(i_xbq0+1),1)
 c        
       if (orel) then
-cDEBUG
-c       call errquit('grad_hnd_cos: rel_oneld not done yet',
-c    &               0,CAPMIS_ERR)
-cDEBUG
         call rel_oneld_cosmo (
      &      coords(1,iatom,igeom),
      &      dbl_mb(mb_exndcf(iexp,ibas)),

@@ -716,6 +716,16 @@ c
       enddo
       end
 *.......................................................................
+C>
+C> \brief Transform a block of 1-electron integrals with angular 
+C> momentum <i>ls</i>
+C>
+C> This routine transforms integrals of a specific angular momentum 
+C> <i>ls</i>, where <i>ls</i> specifies the leading dimension. As the
+C> required transformation is different for different angular momenta
+C> this routine essentially figures out which transformation routine to
+C> call for the given angular momentum.
+C>
       subroutine spcart_s_a(blockin, blockout, ndima,
      &      ls, ngls, in_place, print_info)
       implicit none
@@ -728,17 +738,18 @@ c
 #include "spcartP.fh"
 c
 c: passed
-      integer ndima  ! [input] leading dimension of block
-      integer ls     ! [input] angular momentum of block
-      integer ngls   ! [input] general contraction length of ls block
+      integer ndima  !< [Input] leading dimension of block
+      integer ls     !< [Input] angular momentum of block
+      integer ngls   !< [Input] general contraction length of ls block
       double precision
-     &      blockin (((ls+1)*(ls+2)/2),ngls,ndima) ! [input] matrix 
+     &      blockin (((ls+1)*(ls+2)/2),ngls,ndima) !< [Input] Cartesian
+                                                   !< integrals
       double precision
-     &      blockout(-ls:ls,ngls,ndima) ! [output] matrix 
-      logical
-     &      in_place     ! [input] true if blockin and block out are 
-*                                  the same pointer
-      logical print_info ! [input] print info
+     &      blockout(-ls:ls,ngls,ndima) !< [Output] spherical harmonic
+                                        !< integrals 
+      logical in_place   !< [Input] true if blockin and block out are 
+                         !< the same pointer
+      logical print_info !< [Input] print info
 c: local
       integer i,j,k,g
       integer L2s
@@ -1048,6 +1059,13 @@ c  spint( 2) = cint(1)*dtrans(1,2,2) + cint(4)*dtrans(4,2,2)
 11111 format(1x,a,1pd20.10,i5,i5)
       end
 *.......................................................................
+C>
+C> \brief Transforms a block of 1-electron integrals of D-functions
+C>
+C> This routine transforms a block of integrals where the functions
+C> corresponding to the leading dimension are Cartesian D-functions
+C> on input and spherical harmonic D-functions on output.
+C>
       subroutine spcart_sd_a(blockin, blockout, ndima, ngls,
      &    in_place, print_info)
       implicit none
@@ -1060,14 +1078,13 @@ c
 #include "spcartP.fh"
 c
 c: passed
-      integer ndima  ! [input] leading dimension of block
-      integer ngls   ! [input] general contraction length of ls block
-      double precision blockin (6,ngls,ndima)    ! [input] matrix 
-      double precision blockout(-2:2,ngls,ndima) ! [output] matrix 
-      logical
-     &      in_place     ! [input] true if blockin and block out are 
-*                                  the same pointer
-      logical print_info ! [input] print info
+      integer ndima  !< [Input] leading dimension of block
+      integer ngls   !< [Input] general contraction length of ls block
+      double precision blockin (6,ngls,ndima)    !< [Input] matrix 
+      double precision blockout(-2:2,ngls,ndima) !< [Output] matrix 
+      logical in_place   !< [Input] true if blockin and block out are 
+                         !< the same pointer
+      logical print_info !< [Input] print info
 c: local
       integer i,g
 *rak:      integer ls     ! [fixed at 2] angular momentum of block
@@ -2502,6 +2519,16 @@ c
       enddo
       end
 *.......................................................................
+C>
+C> \brief Transform 1-electron integrals from Cartesian to spherical
+C> harmonic basis functions
+C>
+C> Even if a basis set is specified as spherical harmonic in the input
+C> the code actually calculates the integrals in terms of Cartesian
+C> functions. Hence an additional transformation step is needed to 
+C> obtain the specified integrals in spherical harmonics. This routine
+C> controls that transformation for various angular momenta.
+C>
       subroutine spcart_tran1e(
      &    buf, scr,
      &    nbf_xr,nbf_xc,type_r,ngen_r,
@@ -2530,15 +2557,19 @@ c are mixed   i_bas is spherical and j_bas is not dimensions
 c are not based on type only actions.
 c
 c      
-      integer nbf_xr, nbf_xc  ! [input] size of cartesian block
-      integer nbf_sr, nbf_sc  ! [input] size of spherical block
-      integer ngen_r, ngen_c  ! [input] general contraction length for r and c
-      integer type_r, type_c  ! [input] angular momentem for r and c
-      double precision buf(*) ! [input/output] cartesian block on input
-*.............................!   and spherical block on output      
-      double precision scr(*) ! [scratch] use to hold half transformed block
-      logical print           ! [input] print integrals at each stage of the
-*.............................!   transformation (cart/half/spherical)
+      integer nbf_xr !< [input] number of rows of cartesian block
+      integer nbf_xc !< [input] number of columns of cartesian block
+      integer nbf_sr !< [input] number of rows of spherical block
+      integer nbf_sc !< [input] number of columns of spherical block
+      integer ngen_r !< [input] general contraction length for rows
+      integer ngen_c !< [input] general contraction length for columns
+      integer type_r !< [input] angular momentem for rows
+      integer type_c !< [input] angular momentem for columns
+      double precision buf(*) !< [input/output] cartesian block on input
+                              !< and spherical block on output      
+      double precision scr(*) !< [scratch] use to hold half transformed block
+      logical print           !< [input] print integrals at each stage of the
+                              !< transformation (cart/half/spherical)
 c:: local
       integer ngen_rc
       logical problem_sp

@@ -904,11 +904,11 @@ c
       endif
 c  End of lcdft
 
- 3000 continue
       if (ipol.gt.1)then
        if(.not.ga_duplicate(g_fock, g_focks(2), ' beta fock'))
      &    call errquit('dft_scf:failed duplicate',g_fock, GA_ERR)
       endif
+ 3000 continue
 c
 c     ----- dft scf proper -----
 c
@@ -1202,7 +1202,7 @@ c
             if(nmo(ispin).ne.0) then
                if (.not. ga_create(mt_dbl, nbf_ao, nmo(ispin),
      ,           'movad', nbf_ao, 0, g_movad)) call errquit(
-     '           'dft_scf: gacreate failed ',0, GA_ERR)
+     +           'dft_scf: gacreate failed ',0, GA_ERR)
                call ga_copy_patch('n', g_movecs(ispin), 1, nbf_ao, 
      .            1, nmo(ispin),
      ,            g_movad, 1,nbf_ao,1,nmo(ispin))
