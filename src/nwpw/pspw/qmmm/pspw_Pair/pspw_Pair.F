@@ -116,7 +116,7 @@ c
      >        MA_alloc_get(mt_int,npairs,
      >                 'type_all',type_all(2),type_all(1))
          value = value.and.
-     >        MA_alloc_get(mt_dbl,3*npairs,
+     >        MA_alloc_get(mt_dbl,4*npairs,
      >                 'param_all',param_all(2),param_all(1))
          if (.not. value) 
      >   call errquit('pspw_Pair_init:out of heap memory',2, MA_ERR)
@@ -146,8 +146,8 @@ c
      >                     //c_index_name(k)
      >                     //ion_atom(i)//ion_atom(j)
                   value = value.and.
-     >                    rtdb_get(rtdb,rtdbname,mt_dbl,3,
-     >                             dbl_mb(param_all(1)+3*nn))
+     >                    rtdb_get(rtdb,rtdbname,mt_dbl,4,
+     >                             dbl_mb(param_all(1)+4*nn))
                   nn = nn + 1
                end do
 
@@ -165,8 +165,8 @@ c
 
                      int_mb(npair_all(1)+(j-1)*nkatm+(i-1))  = npair + 1
                      int_mb(type_all(1)+nn) = 1
-                     dbl_mb(param_all(1)+3*nn)   = e
-                     dbl_mb(param_all(1)+3*nn+1) = s
+                     dbl_mb(param_all(1)+4*nn)   = e
+                     dbl_mb(param_all(1)+4*nn+1) = s
                      nn = nn + 1
 
                   end if
@@ -206,39 +206,49 @@ c
                      if (int_mb(type_all(1)+nn+k-1).eq.1) then
                         write(luout,'(4x,A46,E14.6,A3,E14.6)') 
      >              '- Potential = 4*e*((s/rij)**12-(s/rij)**6), e:',
-     >                    dbl_mb(param_all(1)+3*(nn+k-1)),
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)),
      >                    ' s:',  
-     >                    dbl_mb(param_all(1)+3*(nn+k-1)+1)
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)+1)
                      else if (int_mb(type_all(1)+nn+k-1).eq.2) then
                         write(luout,'(4x,A46,E14.6,A5,E14.6,A3,E14.6)')
      >              '- Potential = A*exp(-rij/rho) - C/rij**6, A:',  
-     >                    dbl_mb(param_all(1)+3*(nn+k-1)),
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)),
      >                    ' rho:',  
-     >                    dbl_mb(param_all(1)+3*(nn+k-1)+1),
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)+1),
      >                    ' C:',  
-     >                    dbl_mb(param_all(1)+3*(nn+k-1)+2)
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)+2)
                      else if (int_mb(type_all(1)+nn+k-1).eq.3) then
+                write(luout,'(4x,A49,E14.6,A5,E14.6,A3,E14.6,A3,E14.6)')
+     >              '- Potential=A*exp(-rij/rho)-C/rij**6-D/rij**8, A:',  
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)),
+     >                    ' rho:',  
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)+1),
+     >                    ' C:',  
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)+2),
+     >                    ' D:',  
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)+3)
+                     else if (int_mb(type_all(1)+nn+k-1).eq.4) then
                         write(luout,'(4x,A46,E14.6,A3,E14.6,A3,E14.6)')
      >                    '- Potential = A*(rij-B)**C, A:',  
-     >                    dbl_mb(param_all(1)+3*(nn+k-1)),
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)),
      >                    ' B:',  
-     >                    dbl_mb(param_all(1)+3*(nn+k-1)+1),
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)+1),
      >                    ' C:',  
-     >                    dbl_mb(param_all(1)+3*(nn+k-1)+2)
-                     else if (int_mb(type_all(1)+nn+k-1).eq.4) then
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)+2)
+                     else if (int_mb(type_all(1)+nn+k-1).eq.5) then
                         write(luout,'(4x,A46,E14.6,A5,E14.6)') 
      >                    '- Potential = A*exp(-rij/rho), A:',  
-     >                    dbl_mb(param_all(1)+3*(nn+k-1)),
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)),
      >                    ' rho:',  
-     >                    dbl_mb(param_all(1)+3*(nn+k-1)+1)
-                     else if (int_mb(type_all(1)+nn+k-1).eq.5) then
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)+1)
+                     else if (int_mb(type_all(1)+nn+k-1).eq.6) then
                         write(luout,'(4x,A46,E14.6,A3,E14.6,A4,E14.6)')
      >              '- Potential = De*(1-exp(-a*(rij-re)) )**2, De:',  
-     >                    dbl_mb(param_all(1)+3*(nn+k-1)),
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)),
      >                    ' a:',  
-     >                    dbl_mb(param_all(1)+3*(nn+k-1)+1),
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)+1),
      >                    ' re:',  
-     >                    dbl_mb(param_all(1)+3*(nn+k-1)+2)
+     >                    dbl_mb(param_all(1)+4*(nn+k-1)+2)
                      end if
                   end do
                endif
@@ -349,7 +359,7 @@ c     **** QM/QM VPower energy ****
                if (npair.gt.0)
      >            E = E + pspw_VPair_E_periodic(npair,
      >                           int_mb(type_all(1) +istart),
-     >                           dbl_mb(param_all(1)+3*istart),
+     >                           dbl_mb(param_all(1)+4*istart),
      >                           rion(1,i),rion(1,j),
      >                           nshl3d,rcell)
             end do
@@ -369,7 +379,7 @@ c     **** QM/MM VPower energy ****
             if (npair.gt.0)
      >         E = E + pspw_VPair_E_periodic(npair,
      >                        int_mb(type_all(1) +istart),
-     >                        dbl_mb(param_all(1)+3*istart),
+     >                        dbl_mb(param_all(1)+4*istart),
      >                        rion(1,i),rion(1,j),
      >                        nshl3d,rcell)
          end do
@@ -394,7 +404,7 @@ c     **** MM/MM VPower 1 cell energy ****
                if (npair.gt.0) 
      >            E = E + pspw_VPair_E_onecell(npair,
      >                        int_mb(type_all(1) +istart),
-     >                        dbl_mb(param_all(1)+3*istart),
+     >                        dbl_mb(param_all(1)+4*istart),
      >                        rion(1,kk1),rion(1,kk2))
                kk2 = kk2 + 1
             end do
@@ -422,7 +432,7 @@ c     **** MM/MM VPower self energy ****
                if (npair.gt.0)
      >            E = E + pspw_VPair_E_onecell(npair,
      >                        int_mb(type_all(1) +istart),
-     >                        dbl_mb(param_all(1)+3*istart),
+     >                        dbl_mb(param_all(1)+4*istart),
      >                        rion(1,kk1),rion(1,kk2))
                kk2 = kk2 + 1
              end do
@@ -444,7 +454,7 @@ c     **** MM/MM VPair self image energy ****
          if (npair.gt.0)
      >      E = E + pspw_VPair_E_periodic_image(npair,
      >                  int_mb(type_all(1) +istart),
-     >                  dbl_mb(param_all(1)+3*istart),
+     >                  dbl_mb(param_all(1)+4*istart),
      >                  nshl3d,rcell)
 
        end if
@@ -463,7 +473,7 @@ c     **** MM/MM VPair image energy ****
             if (npair.gt.0)
      >         E = E + pspw_VPair_E_periodic_self(npair,
      >                  int_mb(type_all(1) +istart),
-     >                  dbl_mb(param_all(1)+3*istart),
+     >                  dbl_mb(param_all(1)+4*istart),
      >                  rion(1,i),rion(1,j),
      >                  nshl3d,rcell)
          end do
@@ -494,7 +504,7 @@ c     *********************************************
       real*8 function pspw_VPair_E_onecell(n,t,p,r1,r2)
       implicit none
       integer n,t(*)
-      real*8 p(3,*)
+      real*8 p(4,*)
       real*8 r1(3)
       real*8 r2(3)
 
@@ -518,10 +528,12 @@ c     *********************************************
          else if (t(k).eq.2) then
             E = E + p(1,k)*dexp(-r/p(2,k)) - p(3,k)/r**6
          else if (t(k).eq.3) then
-            E = E + p(1,k)*( (r-p(2,k))**p(3,k) )
+            E = E + p(1,k)*dexp(-r/p(2,k)) - p(3,k)/r**6 - p(4,k)/r**8
          else if (t(k).eq.4) then
-            E = E + p(1,k)*dexp(-r/p(2,k))
+            E = E + p(1,k)*( (r-p(2,k))**p(3,k) )
          else if (t(k).eq.5) then
+            E = E + p(1,k)*dexp(-r/p(2,k))
+         else if (t(k).eq.6) then
             E = E + p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))**2
          endif
       end do
@@ -541,7 +553,7 @@ c     *********************************************
      >                                    nshl3d,rcell)
       implicit none
       integer n,t(*)
-      real*8  p(3,*)
+      real*8  p(4,*)
       real*8  r1(3)
       real*8  r2(3)
       integer nshl3d
@@ -571,10 +583,12 @@ c     *********************************************
             else if (t(k).eq.2) then
                E = E + p(1,k)*dexp(-r/p(2,k)) - p(3,k)/r**6
             else if (t(k).eq.3) then
-                E = E + p(1,k)*( (r-p(2,k))**p(3,k) )
+               E = E+ p(1,k)*dexp(-r/p(2,k)) - p(3,k)/r**6 - p(4,k)/r**8
             else if (t(k).eq.4) then
-                E = E + p(1,k)*dexp(-r/p(2,k))
+                E = E + p(1,k)*( (r-p(2,k))**p(3,k) )
             else if (t(k).eq.5) then
+                E = E + p(1,k)*dexp(-r/p(2,k))
+            else if (t(k).eq.6) then
                 E = E + p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))**2
             endif
          end do
@@ -593,7 +607,7 @@ c     *********************************************
      >                                         nshl3d,rcell)
       implicit none
       integer n,t(*)
-      real*8 p(3,*)
+      real*8 p(4,*)
       real*8 r1(3)
       real*8 r2(3)
       integer nshl3d
@@ -623,10 +637,12 @@ c     *********************************************
             else if (t(k).eq.2) then
                E = E + p(1,k)*dexp(-r/p(2,k)) - p(3,k)/r**6
             else if (t(k).eq.3) then
-               E = E + p(1,k)*( (r-p(2,k))**p(3,k) )
+               E = E+ p(1,k)*dexp(-r/p(2,k)) - p(3,k)/r**6 - p(4,k)/r**8
             else if (t(k).eq.4) then
-               E = E + p(1,k)*dexp(-r/p(2,k))
+               E = E + p(1,k)*( (r-p(2,k))**p(3,k) )
             else if (t(k).eq.5) then
+               E = E + p(1,k)*dexp(-r/p(2,k))
+            else if (t(k).eq.6) then
                 E = E + p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))**2
             endif
          end do
@@ -644,7 +660,7 @@ c     *********************************************
       real*8 function pspw_VPair_E_periodic_image(n,t,p,nshl3d,rcell)
       implicit none
       integer n,t(*)
-      real*8 p(3,*)
+      real*8 p(4,*)
       integer nshl3d
       real*8  rcell(nshl3d,3)
 
@@ -670,12 +686,14 @@ c     *********************************************
                !E = E + p(1,k)*dexp(-r/p(2,k)) - p(3,k)/r**6
                E = E + 0.5d0*p(1,k)*dexp(-r/p(2,k)) - p(3,k)/r**6
             else if (t(k).eq.3) then
+               E=E+0.5d0*p(1,k)*dexp(-r/p(2,k))-p(3,k)/r**6-p(4,k)/r**8
+            else if (t(k).eq.4) then
                !E = E +p(1,k)*( (r-p(2,k))**p(3,k) )
                E = E + 0.5d0*p(1,k)*( (r-p(2,k))**p(3,k) )
-            else if (t(k).eq.4) then
+            else if (t(k).eq.5) then
                !E = E + p(1,k)*dexp( r/p(2,k) )
                E = E + 0.5d0*p(1,k)*dexp(-r/p(2,k))
-            else if (t(k).eq.5) then
+            else if (t(k).eq.6) then
                 E = E+0.50d0*p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))**2
             endif
          end do
@@ -746,7 +764,7 @@ c     **** QM/QM Pair force ****
                if (npair.gt.0) 
      >            call pspw_VPair_fion_periodic(npair,
      >                             int_mb(type_all(1)+istart),
-     >                             dbl_mb(param_all(1)+3*istart),
+     >                             dbl_mb(param_all(1)+4*istart),
      >                             rion(1,i),fion(1,i),
      >                             rion(1,j),fion(1,j),
      >                             nshl3d,rcell)
@@ -767,7 +785,7 @@ c     **** QM/MM LJ energy ****
             if (npair.gt.0) 
      >         call pspw_VPair_fion_periodic(npair,
      >                             int_mb(type_all(1) +istart),
-     >                             dbl_mb(param_all(1)+3*istart),
+     >                             dbl_mb(param_all(1)+4*istart),
      >                             rion(1,i),fion(1,i),
      >                             rion(1,j),fion(1,j),
      >                             nshl3d,rcell)
@@ -793,7 +811,7 @@ c     **** MM/MM LJ 1 cell energy ****
                if (npair.gt.0) 
      >            call pspw_VPair_fion_onecell(npair,
      >                             int_mb(type_all(1) +istart),
-     >                             dbl_mb(param_all(1)+3*istart),
+     >                             dbl_mb(param_all(1)+4*istart),
      >                             rion(1,kk1),fion(1,kk1),
      >                             rion(1,kk2),fion(1,kk2))
                kk2 = kk2 + 1
@@ -822,7 +840,7 @@ c     **** MM/MM Pair self energy ****
                if (npair.gt.0) 
      >            call pspw_VPair_fion_onecell(npair,
      >                             int_mb(type_all(1) +istart),
-     >                             dbl_mb(param_all(1)+3*istart),
+     >                             dbl_mb(param_all(1)+4*istart),
      >                             rion(1,kk1),fion(1,kk1),
      >                             rion(1,kk2),fion(1,kk2))
                kk2 = kk2 + 1
@@ -848,7 +866,7 @@ c     **** MM/MM Pair image energy ****
             if (npair.gt.0) 
      >         call pspw_VPair_fion_periodic_self(npair,
      >                             int_mb(type_all(1) +istart),
-     >                             dbl_mb(param_all(1)+3*istart),
+     >                             dbl_mb(param_all(1)+4*istart),
      >                             rion(1,i),fion(1,i),
      >                             rion(1,j),fion(1,j),
      >                             nshl3d,rcell)
@@ -877,7 +895,7 @@ c     *********************************************
      >                                  nshl3d,rcell)
       implicit none
       integer n,t(*)
-      real*8 p(3,*)
+      real*8 p(4,*)
       real*8 r1(3),f1(3)
       real*8 r2(3),f2(3)
       integer nshl3d
@@ -906,10 +924,13 @@ c     *********************************************
             else if (t(k).eq.2) then
                dVPair= -p(1,k)/p(2,k)*dexp(-r/p(2,k))+6.0d0*p(3,k)/r**7
             else if (t(k).eq.3) then
-               dVPair =  p(1,k)*p(3,k)*( (r-p(2,k))**(p(3,k)-1.0d0) )
+               dVPair= -p(1,k)/p(2,k)*dexp(-r/p(2,k))+6.0d0*p(3,k)/r**7
+     >                                               +8.0d0*p(4,k)/r**9
             else if (t(k).eq.4) then
-               dVPair = -p(1,k)/p(2,k)*dexp(-r/p(2,k))
+               dVPair =  p(1,k)*p(3,k)*( (r-p(2,k))**(p(3,k)-1.0d0) )
             else if (t(k).eq.5) then
+               dVPair = -p(1,k)/p(2,k)*dexp(-r/p(2,k))
+            else if (t(k).eq.6) then
                dVpair = 2.0d0*p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))
      >                       *p(2,k)*dexp(-p(2,k)*(r-p(3,k)))
             else
@@ -939,7 +960,7 @@ c     *********************************************
      >                                       nshl3d,rcell)
       implicit none
       integer n,t(*)
-      real*8  p(3,*)
+      real*8  p(4,*)
       real*8 r1(3),f1(3)
       real*8 r2(3),f2(3)
       integer nshl3d
@@ -968,10 +989,13 @@ c     *********************************************
             else if (t(k).eq.2) then
                dVPair= -p(1,k)/p(2,k)*dexp(-r/p(2,k))+6.0d0*p(3,k)/r**7
             else if (t(k).eq.3) then
-               dVPair = p(1,k)*p(3,k)*( (r-p(2,k))**(p(3,k)-1.0d0) )
+               dVPair= -p(1,k)/p(2,k)*dexp(-r/p(2,k))+6.0d0*p(3,k)/r**7
+     >                                               +8.0d0*p(4,k)/r**9
             else if (t(k).eq.4) then
-               dVPair = -p(1,k)/p(2,k)*dexp(-r/p(2,k))
+               dVPair = p(1,k)*p(3,k)*( (r-p(2,k))**(p(3,k)-1.0d0) )
             else if (t(k).eq.5) then
+               dVPair = -p(1,k)/p(2,k)*dexp(-r/p(2,k))
+            else if (t(k).eq.6) then
                dVpair = 2.0d0*p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))
      >                       *p(2,k)*dexp(-p(2,k)*(r-p(3,k)))
             else
@@ -998,7 +1022,7 @@ c     *********************************************
       subroutine pspw_VPair_fion_onecell(n,t,p,r1,f1,r2,f2)
       implicit none
       integer n,t(*)
-      real*8 p(3,*)
+      real*8 p(4,*)
       real*8 r1(3),f1(3)
       real*8 r2(3),f2(3)
 
@@ -1020,10 +1044,13 @@ c     *********************************************
          else if (t(k).eq.2) then
             dVPair= -p(1,k)/p(2,k)*dexp(-r/p(2,k))+6.0d0*p(3,k)/r**7
          else if (t(k).eq.3) then
-            dVPair =  p(1,k)*p(3,k)*( (r-p(2,k))**(p(3,k)-1.0d0) )
+            dVPair= -p(1,k)/p(2,k)*dexp(-r/p(2,k))+6.0d0*p(3,k)/r**7
+     >                                            +8.0d0*p(4,k)/r**9
          else if (t(k).eq.4) then
-            dVPair = -p(1,k)/p(2,k)*dexp(-r/p(2,k))
+            dVPair =  p(1,k)*p(3,k)*( (r-p(2,k))**(p(3,k)-1.0d0) )
          else if (t(k).eq.5) then
+            dVPair = -p(1,k)/p(2,k)*dexp(-r/p(2,k))
+         else if (t(k).eq.6) then
             dVpair = 2.0d0*p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))
      >                    *p(2,k)*dexp(-p(2,k)*(r-p(3,k)))
          else
