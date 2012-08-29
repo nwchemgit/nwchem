@@ -196,8 +196,8 @@ c
              write(luout,*) 'Pair Ion-Ion Parameters (units=a.u.):'
              if (include_qm)
      >          write(luout,*) '- including QM/QM Pair interactions'
-             do j=1,nkatm
              do i=1,nkatm
+             do j=i,nkatm
                npair = int_mb(npair_all(1)+(j-1)*nkatm+(i-1))
                nn    = int_mb(pair_start(1)+(j-1)*nkatm+(i-1))
                if (npair.gt.0) then
@@ -209,21 +209,36 @@ c
      >                    dbl_mb(param_all(1)+3*(nn+k-1)),
      >                    ' s:',  
      >                    dbl_mb(param_all(1)+3*(nn+k-1)+1)
-
                      else if (int_mb(type_all(1)+nn+k-1).eq.2) then
-                        write(luout,'(4x,A30,E14.6,A3,E14.6,A3,E14.6)')
+                        write(luout,'(4x,A46,E14.6,A5,E14.6,A3,E14.6)')
+     >              '- Potential = A*exp(-rij/rho) - C/rij**6, A:',  
+     >                    dbl_mb(param_all(1)+3*(nn+k-1)),
+     >                    ' rho:',  
+     >                    dbl_mb(param_all(1)+3*(nn+k-1)+1),
+     >                    ' C:',  
+     >                    dbl_mb(param_all(1)+3*(nn+k-1)+2)
+                     else if (int_mb(type_all(1)+nn+k-1).eq.3) then
+                        write(luout,'(4x,A46,E14.6,A3,E14.6,A3,E14.6)')
      >                    '- Potential = A*(rij-B)**C, A:',  
      >                    dbl_mb(param_all(1)+3*(nn+k-1)),
      >                    ' B:',  
      >                    dbl_mb(param_all(1)+3*(nn+k-1)+1),
      >                    ' C:',  
      >                    dbl_mb(param_all(1)+3*(nn+k-1)+2)
-                     else if (int_mb(type_all(1)+nn+k-1).eq.3) then
-                        write(luout,'(4x,A30,E14.6,A3,E14.6)') 
-     >                    '- Potential = A*exp(rij/B), A:',  
+                     else if (int_mb(type_all(1)+nn+k-1).eq.4) then
+                        write(luout,'(4x,A46,E14.6,A5,E14.6)') 
+     >                    '- Potential = A*exp(-rij/rho), A:',  
      >                    dbl_mb(param_all(1)+3*(nn+k-1)),
-     >                    ' B:',  
+     >                    ' rho:',  
      >                    dbl_mb(param_all(1)+3*(nn+k-1)+1)
+                     else if (int_mb(type_all(1)+nn+k-1).eq.5) then
+                        write(luout,'(4x,A46,E14.6,A3,E14.6,A4,E14.6)')
+     >              '- Potential = De*(1-exp(-a*(rij-re)) )**2, De:',  
+     >                    dbl_mb(param_all(1)+3*(nn+k-1)),
+     >                    ' a:',  
+     >                    dbl_mb(param_all(1)+3*(nn+k-1)+1),
+     >                    ' re:',  
+     >                    dbl_mb(param_all(1)+3*(nn+k-1)+2)
                      end if
                   end do
                endif
@@ -501,9 +516,13 @@ c     *********************************************
             u12 = u6**2
             E = E + 4.0d0*p(1,k)*(u12-u6)
          else if (t(k).eq.2) then
-            E = E + p(1,k)*( (r-p(2,k))**p(3,k) )
+            E = E + p(1,k)*dexp(-r/p(2,k)) - p(3,k)/r**6
          else if (t(k).eq.3) then
-            E = E + p(1,k)*dexp( r/p(2,k) )
+            E = E + p(1,k)*( (r-p(2,k))**p(3,k) )
+         else if (t(k).eq.4) then
+            E = E + p(1,k)*dexp(-r/p(2,k))
+         else if (t(k).eq.5) then
+            E = E + p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))**2
          endif
       end do
 
@@ -550,9 +569,13 @@ c     *********************************************
                u12 = u6**2
                E = E + 4.0d0*p(1,k)*(u12-u6)
             else if (t(k).eq.2) then
-                E = E + p(1,k)*( (r-p(2,k))**p(3,k) )
+               E = E + p(1,k)*dexp(-r/p(2,k)) - p(3,k)/r**6
             else if (t(k).eq.3) then
-                E = E + p(1,k)*dexp( r/p(2,k) )
+                E = E + p(1,k)*( (r-p(2,k))**p(3,k) )
+            else if (t(k).eq.4) then
+                E = E + p(1,k)*dexp(-r/p(2,k))
+            else if (t(k).eq.5) then
+                E = E + p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))**2
             endif
          end do
       end do
@@ -598,9 +621,13 @@ c     *********************************************
                u12 = u6**2
                E = E + 4.0d0*p(1,k)*(u12-u6)
             else if (t(k).eq.2) then
-               E = E + p(1,k)*( (r-p(2,k))**p(3,k) )
+               E = E + p(1,k)*dexp(-r/p(2,k)) - p(3,k)/r**6
             else if (t(k).eq.3) then
-               E = E + p(1,k)*dexp( r/p(2,k) )
+               E = E + p(1,k)*( (r-p(2,k))**p(3,k) )
+            else if (t(k).eq.4) then
+               E = E + p(1,k)*dexp(-r/p(2,k))
+            else if (t(k).eq.5) then
+                E = E + p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))**2
             endif
          end do
       end do
@@ -640,11 +667,16 @@ c     *********************************************
                !E = E + 4.0d0*p(1,k)*(u12-u6)
                E = E + 2.0d0*p(1,k)*(u12-u6)
             else if (t(k).eq.2) then
+               !E = E + p(1,k)*dexp(-r/p(2,k)) - p(3,k)/r**6
+               E = E + 0.5d0*p(1,k)*dexp(-r/p(2,k)) - p(3,k)/r**6
+            else if (t(k).eq.3) then
                !E = E +p(1,k)*( (r-p(2,k))**p(3,k) )
                E = E + 0.5d0*p(1,k)*( (r-p(2,k))**p(3,k) )
-            else if (t(k).eq.3) then
+            else if (t(k).eq.4) then
                !E = E + p(1,k)*dexp( r/p(2,k) )
-               E = E + 0.5d0*p(1,k)*dexp( r/p(2,k) )
+               E = E + 0.5d0*p(1,k)*dexp(-r/p(2,k))
+            else if (t(k).eq.5) then
+                E = E+0.50d0*p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))**2
             endif
          end do
       end do
@@ -872,9 +904,14 @@ c     *********************************************
                u12 = u6**2
                dVPair = -(4.0d0*p(1,k)/r)*(12.0d0*u12-6.0d0*u6)
             else if (t(k).eq.2) then
-               dVPair =  p(1,k)*p(3,k)*( (r-p(2,k))**(p(3,k)-1.0d0) )
+               dVPair= -p(1,k)/p(2,k)*dexp(-r/p(2,k))+6.0d0*p(3,k)/r**7
             else if (t(k).eq.3) then
-               dVPair =  p(1,k)/p(2,k) * dexp( r/p(2,k) )
+               dVPair =  p(1,k)*p(3,k)*( (r-p(2,k))**(p(3,k)-1.0d0) )
+            else if (t(k).eq.4) then
+               dVPair = -p(1,k)/p(2,k)*dexp(-r/p(2,k))
+            else if (t(k).eq.5) then
+               dVpair = 2.0d0*p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))
+     >                       *p(2,k)*dexp(-p(2,k)*(r-p(3,k)))
             else
                dVPair = 0.0d0
             endif
@@ -929,9 +966,14 @@ c     *********************************************
                u12 = u6**2
                dVPair = -(4.0d0*p(1,k)/r)*(12.0d0*u12-6.0d0*u6)
             else if (t(k).eq.2) then
+               dVPair= -p(1,k)/p(2,k)*dexp(-r/p(2,k))+6.0d0*p(3,k)/r**7
+            else if (t(k).eq.3) then
                dVPair = p(1,k)*p(3,k)*( (r-p(2,k))**(p(3,k)-1.0d0) )
-            else if (t(k).eq.2) then
-               dVPair = p(1,k)/p(2,k) * dexp( r/p(2,k) )
+            else if (t(k).eq.4) then
+               dVPair = -p(1,k)/p(2,k)*dexp(-r/p(2,k))
+            else if (t(k).eq.5) then
+               dVpair = 2.0d0*p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))
+     >                       *p(2,k)*dexp(-p(2,k)*(r-p(3,k)))
             else
                dVPair = 0.0d0
             endif
@@ -976,9 +1018,14 @@ c     *********************************************
             u12 = u6**2
             dVPair = -(4.0d0*p(1,k)/r)*(12.0d0*u12-6.0d0*u6)
          else if (t(k).eq.2) then
-            dVPair =  p(1,k)*p(3,k)*( (r-p(2,k))**(p(3,k)-1.0d0) )
+            dVPair= -p(1,k)/p(2,k)*dexp(-r/p(2,k))+6.0d0*p(3,k)/r**7
          else if (t(k).eq.3) then
-            dVPair =  p(1,k)/p(2,k) * dexp( r/p(2,k) )
+            dVPair =  p(1,k)*p(3,k)*( (r-p(2,k))**(p(3,k)-1.0d0) )
+         else if (t(k).eq.4) then
+            dVPair = -p(1,k)/p(2,k)*dexp(-r/p(2,k))
+         else if (t(k).eq.5) then
+            dVpair = 2.0d0*p(1,k)*(1.0d0-dexp(-p(2,k)*(r-p(3,k))))
+     >                    *p(2,k)*dexp(-p(2,k)*(r-p(3,k)))
          else
             dVpair = 0.0d0
          endif

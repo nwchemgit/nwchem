@@ -13,7 +13,7 @@ c
 c
 
       integer num_dirs          ! No. of known directives
-      parameter (num_dirs = 16)
+      parameter (num_dirs = 17)
       character*30 dirs(num_dirs)
       data dirs / 'lj_ion_parameters:',
      >            'lj_ion_parameters',
@@ -30,6 +30,7 @@ c
      >            'disable',
      >            'lj_ion_ion_parameters',
      >            'pair_ion_ion_parameters',
+     >            'buckingham_ion_ion_parameters',
      >            'end'/
 
       integer num_fdirs          ! No. of known directives
@@ -109,7 +110,7 @@ c
 
 
       goto ( 100,100,200,300,400,500,600,700,800,900,1000,1100,1200,
-     >       150,160,
+     >       150,160,170,
      >      9999) ind
       call errquit(
      >      'pspw_qmmm_input: unimplemented directive', ind, INPUT_ERR)
@@ -143,18 +144,45 @@ c
       value = value.and.inp_a(element2)
       value = value.and.inp_f(se(1))
       value = value.and.inp_f(se(2))
+      se(3) = 0.0d0
+      ni = 1
       if (.not. value)
      >  call errquit(
      >   'pspw_qmmm_input:failed reading lj_ion_ion_parameters:',
      >    0, INPUT_ERR)
 
-      rtdb_name = 'pspw_LJ_param_ion_ion:'
-     >             //element//element2
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,2,se)
-      rtdb_name = 'pspw_LJ_param_ion_ion:'
+      rtdb_name = 'pspw_Pair_ion_ion_npair:'
+     >             //element
+     >             //element2
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,npair)) npair = 0
+      npair = npair + 1
+
+      rtdb_name = 'pspw_Pair_ion_ion_type:'//c_index_name(npair)
+     >             //element
+     >             //element2
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ni)
+
+      rtdb_name = 'pspw_Pair_ion_ion_param:'//c_index_name(npair)
+     >             //element
+     >             //element2
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,3,se)
+
+      rtdb_name = 'pspw_Pair_ion_ion_npair:'
      >             //element2
      >             //element
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,2,se)
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,npair)) npair = 0
+      npair = npair + 1
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,npair)
+
+      rtdb_name = 'pspw_Pair_ion_ion_type:'//c_index_name(npair)
+     >             //element2
+     >             //element 
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ni)
+
+      rtdb_name = 'pspw_Pair_ion_ion_param:'//c_index_name(npair)
+     >             //element2
+     >             //element
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,3,se)
 
       if (.not. value)
      >  call errquit(
@@ -164,7 +192,11 @@ c
       goto 10
 
 c
-c  Pair Ion-Ion parameters - 4*Aij*((Bij/rij)**12-(Bij/rij)**6), Aij*(rij-Cij)^Bij, Aij*exp(-rij/Bij)
+c  Pair Ion-Ion parameters - 1 - 4*Aij*((Bij/rij)**12-(Bij/rij)**6), 
+c                            2 - Aij*exp(-rij/Bij) - Cij/rij**6, 
+c                            3 - Aij*(rij-Cij)^Bij, 
+c                            4 - Aij*exp(-rij/Bij)
+c                            5 - Aij*(1-exp(-Bij*(rij-Cij)))**2
 c
  160  element  = '    '
       element2 = '    '
@@ -220,6 +252,64 @@ c
      >  'pspw_qmmm_input:failed reading Pair ion-ion parameters:',
      >     0,INPUT_ERR)
       goto 10
+
+c
+c  Buckingham Ion-Ion parameters -
+c
+ 170  element  = '    '
+      element2 = '    '
+      value =           inp_a(element)
+      value = value.and.inp_a(element2)
+      value = value.and.inp_f(se(1))
+      value = value.and.inp_f(se(2))
+      value = value.and.inp_f(se(3))
+      ni = 2
+      if (.not. value)
+     >  call errquit(
+     >  'pspw_qmmm_input:failed reading buckingham_ion_ion_parameters:',
+     >  0,INPUT_ERR)
+
+      rtdb_name = 'pspw_Pair_ion_ion_npair:'
+     >             //element
+     >             //element2
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,npair)) npair = 0
+      npair = npair + 1
+
+      rtdb_name = 'pspw_Pair_ion_ion_type:'//c_index_name(npair)
+     >             //element
+     >             //element2
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ni)
+
+      rtdb_name = 'pspw_Pair_ion_ion_param:'//c_index_name(npair)
+     >             //element
+     >             //element2
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,3,se)
+
+      rtdb_name = 'pspw_Pair_ion_ion_npair:'
+     >             //element2
+     >             //element
+      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,npair)) npair = 0
+      npair = npair + 1
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,npair)
+
+      rtdb_name = 'pspw_Pair_ion_ion_type:'//c_index_name(npair)
+     >             //element2
+     >             //element
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ni)
+
+      rtdb_name = 'pspw_Pair_ion_ion_param:'//c_index_name(npair)
+     >             //element2
+     >             //element
+      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,3,se)
+
+      if (.not. value)
+     >  call errquit(
+     >  'pspw_qmmm_input:failed reading Buckingham ion-ion parameters:',
+     >  0,INPUT_ERR)
+
+      goto 10
+
+
 
 
 c
