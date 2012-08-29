@@ -44,9 +44,8 @@ ifeq ($(USE_MPI),y)
 LDFLAGS += -L../../lib/${NWCHEM_TARGET} -lnwcutil
 LDFLAGS += $(patsubst -L-L%,-L%,-L${MPI_LIB} ${LIBMPI})
 endif
-ifneq ($(IB_LIB),)
-LDFLAGS += $(patsubst -L-L%,-L%,-L${IB_LIB} ${IB_LIB_NAME})
-endif
+COMM_LIBS=  $(shell grep ARMCI_NETWORK_LIBS\ = ${NWCHEM_TOP}/src/tools/build/Makefile | cut -b 22-)
+LDFLAGS += $(COMM_LIBS)
 
 all:    mov2asc asc2mov
 
