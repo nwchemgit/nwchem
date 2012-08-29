@@ -419,9 +419,9 @@ c
 *.....................................................................
 c
 C> \brief Checks whether a given handle refers to a valid spin-orbit
-C> ECP basis instance
+C> potential instance
 c
-C> \return Return .true. if soidin is a valid spin-orbit ECP basis
+C> \return Return .true. if soidin is a valid spin-orbit potential
 C> instance, and .false. otherwise
 c
       logical function so_check_handle(soidin,msg)
@@ -3402,6 +3402,11 @@ c
       return
       end
 *.....................................................................
+C>
+C> \brief Retrieves the maximum number of basis functions on any center
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function bas_nbf_ce_max(basisin,nbf_max)
       implicit none
 c
@@ -3420,9 +3425,9 @@ c::functions
       logical bas_check_handle
       external bas_check_handle
 c:: passed
-      integer basisin       ! [input] basis set handle
-      integer nbf_max       ! [output] largest nbf block on an 
-c                           !          atom in the given basis.
+      integer basisin  !< [Input] the basis set handle
+      integer nbf_max  !< [Output] the maximum number of basis functions
+                       !< on any center
 c:local
       integer basis, mynat, iat, mylo, myhi, mynbf
       integer myclo, mychi, mynumcont
@@ -3794,7 +3799,7 @@ c
       end
 *.....................................................................
 C>
-C> \brief Print unique in core spin-orbit basis set information
+C> \brief Print unique in core spin-orbit potential information
 C>
 C> \return Return .true. if successfull, and .false. otherwise.
 c
@@ -3958,7 +3963,7 @@ c
       end
 *.....................................................................
 C>
-C> \brief Set the name of the spin-orbit set for a basis set
+C> \brief Set the name of the spin-orbit potential for a basis set
 C>
 C> \return Return .true. when successfull, and .false. otherwise
 c
@@ -3967,7 +3972,7 @@ c
 #include "nwc_const.fh"
 #include "basP.fh"
       integer basisin        !< [Input] the basis set handle
-      character*(*) so_name  !< [Input] the spin-orbit name
+      character*(*) so_name  !< [Input] the spin-orbit potential name
 c
       name_assoc(2,(basisin+Basis_Handle_Offset)) =
      &    so_name
@@ -3992,7 +3997,7 @@ c
       end
 *.....................................................................
 C>
-C> \brief Retrieve the name of the spin-orbit set of a basis set
+C> \brief Retrieve the name of the spin-orbit potential of a basis set
 C>
 C> \return Return .true. when successfull, and .false. otherwise
 c
@@ -4001,7 +4006,7 @@ c
 #include "nwc_const.fh"
 #include "basP.fh"
       integer basisin       !< [Input] the basis set handle
-      character*(*) so_name !< [Output] the spin-orbit name
+      character*(*) so_name !< [Output] the spin-orbit potential name
 c
       so_name =
      &    name_assoc(2,(basisin+Basis_Handle_Offset)) 
@@ -4111,7 +4116,7 @@ c
       end
 *.....................................................................
 C>
-C> \brief Set the spin-orbit basis for a molecular basis set
+C> \brief Set the spin-orbit potential for a molecular basis set
 C>
 C> \return Return .true. if successfull, and .false. otherwise
 C>
@@ -4120,7 +4125,7 @@ C>
 #include "nwc_const.fh"
 #include "basP.fh"
       integer basisin   !< [Input] the molecular basis set handle
-      integer so_handle !< [Input] the spin-orbit basis set handle
+      integer so_handle !< [Input] the spin-orbit potential handle
 c
       handle_assoc(2,(basisin+Basis_Handle_Offset)) =
      &    so_handle
@@ -4128,7 +4133,7 @@ c
       end
 *.....................................................................
 C>
-C> \brief Retrieve the spin-orbit basis of a molecular basis set
+C> \brief Retrieve the spin-orbit potential of a molecular basis set
 C>
 C> \return Return .true. if successfull, and .false. otherwise
 C>
@@ -4137,7 +4142,7 @@ C>
 #include "nwc_const.fh"
 #include "basP.fh"
       integer basisin   !< [Input] the molecular basis set handle
-      integer so_handle !< [Output] the spin-orbit basis set handle
+      integer so_handle !< [Output] the spin-orbit potential handle
 c
       so_handle =
      &    handle_assoc(2,(basisin+Basis_Handle_Offset)) 
@@ -4149,7 +4154,7 @@ c
       end
 *.....................................................................
 C>
-C> \brief Set the molecular basis set for a spin-orbit basis set
+C> \brief Set the molecular basis set for a spin-orbit potential
 C>
 C> \return Return .true. if successfull, and .false. otherwise
 C>
@@ -4158,7 +4163,7 @@ C>
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer so_handle    !< [Input] the spin-orbit basis set handle
+      integer so_handle    !< [Input] the spin-orbit potential handle
       integer basis_handle !< [Input] the molecular basis set handle
 c
       logical bas_check_handle, so_check_handle
@@ -4180,7 +4185,7 @@ c
       end
 *.....................................................................
 C>
-C> \brief Retrieve the molecular basis set of a spin-orbit basis set
+C> \brief Retrieve the molecular basis set of a spin-orbit potential
 C>
 C> \return Return .true. if successfull, and .false. otherwise
 C>
@@ -4189,7 +4194,7 @@ C>
 #include "errquit.fh"
 #include "nwc_const.fh"
 #include "basP.fh"
-      integer so_handle    !< [Input] the spin-orbit basis set handle
+      integer so_handle    !< [Input] the spin-orbit potential handle
       integer basis_handle !< [Output] the molecular basis set handle
 c
       logical bas_check_handle, so_check_handle
@@ -4210,6 +4215,9 @@ c
      &      ('so_get_parent_handle: stored basis_handle invalid',911,
      &       BASIS_ERR)
       end
+C
+C> \brief Summarize the internal data structures
+C
       subroutine bas_print_allocated_info(msg)
       implicit none
 #include "stdio.fh"
@@ -4220,7 +4228,7 @@ c
 #include "global.fh"
 #include "bas_ibs_dec.fh"
 #include "bas_exndcf_dec.fh"
-      character*(*) msg
+      character*(*) msg !< [Input] A message to identify the print
       integer basis
       integer me, nproc, inode
       integer inode_use
@@ -4271,6 +4279,18 @@ c
         endif
       enddo
       end
+c
+C> \brief Matches a tag from the geometry to a tag in the basis set
+C>
+C> Associated with a shell of basis functions is a tag identifying the
+C> kind of center the shell should reside on. These centers should of
+C> course appear in the geometry. This routine takes a tag from the
+C> geometry and matches it to a tag from the basis set. The index of
+C> the first tag in the basis set that matches the geometry tag is
+C> retrieved.
+C>
+C> \return Return .true. when a match was found, and .false. otherwise
+c
       logical function bas_match_tags(tag_from_geom,basisin,btag)
       implicit none
 #include "errquit.fh"
@@ -4291,9 +4311,9 @@ c::functions
       logical geom_tag_to_element
       external geom_tag_to_element
 c::passed
-      character*(*) tag_from_geom ! [input] geometry tag
-      integer basisin             ! [input] basis set handle
-      integer btag                ! [output] lexical basis set tag index
+      character*(*) tag_from_geom !< [Input] the geometry tag
+      integer basisin             !< [Input] the basis set handle
+      integer btag                !< [Output] lexical basis set tag index
 *     bas_match_tags              ! [output] true if they match
 c::local
       integer basis           ! lexical basis index
@@ -4453,10 +4473,20 @@ c
 10000 format('bas_match_tags:debug: geometry tag ',a16,
      &    ' matched basis set tag ',a16)
       end
+c
+C> \brief Work out whether multipoles can be calculated for a basis set
+C>
+C> The multipole code can expand the molecular potential in multipoles.
+C> However, it cannot handle all basis sets. In particular it cannot
+C> handle generally contracted or SP shells.
+C>
+C> \return Return .true. if this basis set is compatible with the 
+C> multipole code, and .false. otherwise
+c
       logical function bas_cando_mpoles(basis)
       implicit none
 #include "errquit.fh"
-      integer basis             ! [input]
+      integer basis !< [Input] the basis set handle
 c
 c     Return true if it's possible to compute multipoles for this basis
 c
@@ -4480,6 +4510,17 @@ c
       bas_cando_mpoles = .true.
 c
       end
+c
+C> \brief Lookup whether a basis set consists of spherical harmonic
+C> functions
+C>
+C> At present cartesian and spherical harmonic basis sets are supported.
+C> This routine looks up whether the specified basis set is a spherical
+C> harmonic basis set.
+C>
+C> \return Return .true. if the basis set consists of spherical 
+C> harmonic functions, and .false. otherwise
+C
       logical function bas_is_spherical(basisin)
       implicit none
 #include "errquit.fh"
@@ -4487,7 +4528,7 @@ c
 #include "basP.fh"      
 #include "stdio.fh"
 *::passed
-      integer basisin ! [input] basis set handle
+      integer basisin !< [Input] the basis set handle
 *::local
       integer basis   ! lexical index of basis set handle
 *::functions
@@ -4504,6 +4545,7 @@ c
       return 
 *      
       end
+C> @}
       subroutine bas_dump_info(msg)
       implicit none
 #include "stdio.fh"
@@ -4583,6 +4625,17 @@ c
 00001 format(1x,80('='))
       end
 *.....................................................................
+C> \ingroup bas
+C> @{
+C>
+C> \brief Find the length of the longest contraction in a basis set
+C>
+C> Retrieves the length of the longest contraction (i.e. the maximum
+C> number of Gaussian primitive terms) in the specified basis set,
+C> for any contraction/shell, atom, etc.
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C
       Logical function bas_ncontr_cn_max( basis_hand, ncontr_max )
 c    
 c     returns the largest number of contractions, i.e., columns of 
@@ -4593,8 +4646,8 @@ c
       logical bas_numcont, bas_continfo
       external bas_numcont, bas_continfo
 c::args
-      integer basis_hand ! nwchem basis handle
-      integer ncontr_max  ! max no of contractions for any contraction set
+      integer basis_hand !< [Input] the basis set handle
+      integer ncontr_max !< [Output] the maximum contraction length
 c::locals
       logical LResult
       integer itype, nprimo, isphcart
@@ -4620,6 +4673,11 @@ c
       return 
       end 
 *----------------------------------------------------------------------
+C> \brief Retrieve the number of centers with either ECPs or spin-orbit
+C> potentials
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function ecpso_ncent(geom,soidin,ecpidin,num_cent)
       implicit none
 #include "errquit.fh"
@@ -4632,10 +4690,10 @@ c
       logical bas_match_tags
       external bas_match_tags
 *::passed
-      integer geom     ! [input] geometry handle
-      integer soidin   ! [input] so pot. handle
-      integer ecpidin  ! [input] ecp handle
-      integer num_cent ! [output] number of ecp/so centers
+      integer geom     !< [Input] the geometry handle
+      integer soidin   !< [Input] the spin-orbit potential (so) handle
+      integer ecpidin  !< [Input] the ECP handle
+      integer num_cent !< [Output] the number of ECP/so centers
 *::local
       integer ntotal            ! total number of centers in goemetry
       integer ic                ! loop counter for centers
@@ -4659,6 +4717,8 @@ c
       enddo
       end
 *----------------------------------------------------------------------
+C> \brief Retrieve the number of centers with spin-orbit potentials
+C> \return Return .true. if successfull, and .false. otherwise
       logical function so_ncent(geom,soidin,num_cent)
       implicit none
 #include "errquit.fh"
@@ -4671,9 +4731,9 @@ c
       logical bas_match_tags
       external bas_match_tags
 *::passed
-      integer geom     ! [input] geometry handle
-      integer soidin   ! [input] so pot. handle
-      integer num_cent ! [output] number of ecp/so centers
+      integer geom     !< [Input] the geometry handle
+      integer soidin   !< [Input] the spin-orbit potential (so) handle
+      integer num_cent !< [Output] the number of so centers
 *::local
       integer ntotal            ! total number of centers in goemetry
       integer ic                ! loop counter for centers
@@ -4695,6 +4755,8 @@ c
       enddo
       end
 *----------------------------------------------------------------------
+C> \brief Retrieve the number of centers with ECPs
+C> \return Return .true. if successfull, and .false. otherwise
       logical function ecp_ncent(geom,ecpidin,num_cent)
       implicit none
 #include "errquit.fh"
@@ -4707,9 +4769,9 @@ c
       logical bas_match_tags
       external bas_match_tags
 *::passed
-      integer geom     ! [input] geometry handle
-      integer ecpidin  ! [input] ecp handle
-      integer num_cent ! [output] number of ecp centers
+      integer geom     !< [Input] the geometry handle
+      integer ecpidin  !< [Input] the ECP handle
+      integer num_cent !< [Output] the number of ECP centers
 *::local
       integer ntotal            ! total number of centers in goemetry
       integer ic                ! loop counter for centers
@@ -4731,6 +4793,11 @@ c
       enddo
       end
 *----------------------------------------------------------------------
+C> \brief Retrieve the list of centers with either ECP or spin-orbit
+C> potentials
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function ecpso_list_ncent(geom,soidin,ecpidin,
      &    num_cent,ecpso_list)
       implicit none
@@ -4744,11 +4811,11 @@ c
       logical bas_match_tags
       external bas_match_tags
 *::passed
-      integer geom          ! [input] geometry handle
-      integer soidin        ! [input] so pot. handle
-      integer ecpidin       ! [input] ecp handle
-      integer num_cent      ! [output] number of ecp/so centers
-      integer ecpso_list(*) ![output] list of ecp/so centers
+      integer geom          !< [Input] the geometry handle
+      integer soidin        !< [Input] the spin-orbit potential handle
+      integer ecpidin       !< [Input] the ECP handle
+      integer num_cent      !< [Output] the number of ECP/so centers
+      integer ecpso_list(*) !< [Output] the list of ECP/so centers
 *::local
       integer ntotal            ! total number of centers in goemetry
       integer ic                ! loop counter for centers
@@ -4775,6 +4842,11 @@ c
       enddo
       end
 *----------------------------------------------------------------------
+C> \brief Retrieve the list of centers with spin-orbit
+C> potentials
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function so_list_ncent(geom,soidin,
      &    num_cent,so_list)
       implicit none
@@ -4788,10 +4860,10 @@ c
       logical bas_match_tags
       external bas_match_tags
 *::passed
-      integer geom          ! [input] geometry handle
-      integer soidin        ! [input] so pot. handle
-      integer num_cent      ! [output] number of so centers
-      integer so_list(*) ![output] list of so centers
+      integer geom       !< [Input] the geometry handle
+      integer soidin     !< [Input] the spin-orbit potential (so) handle
+      integer num_cent   !< [Output] the number of so centers
+      integer so_list(*) !< [Output] the list of so centers
 *::local
       integer ntotal            ! total number of centers in goemetry
       integer ic                ! loop counter for centers
@@ -4816,6 +4888,11 @@ c
       enddo
       end
 *----------------------------------------------------------------------
+C> \brief Retrieve the list of centers with ECP 
+C> potentials
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function ecp_list_ncent(geom,ecpidin,
      &    num_cent,ecp_list)
       implicit none
@@ -4829,10 +4906,10 @@ c
       logical bas_match_tags
       external bas_match_tags
 *::passed
-      integer geom          ! [input] geometry handle
-      integer ecpidin       ! [input] ecp handle
-      integer num_cent      ! [output] number of ecp centers
-      integer ecp_list(*)   ! [output] list of ecp centers
+      integer geom        !< [Input] the geometry handle
+      integer ecpidin     !< [Input] the ECP handle
+      integer num_cent    !< [Output] the number of ECP centers
+      integer ecp_list(*) !< [Output] the list of ECP centers
 *::local
       integer ntotal            ! total number of centers in goemetry
       integer ic                ! loop counter for centers
@@ -4857,6 +4934,11 @@ c
       enddo
       end
 *----------------------------------------------------------------------
+C> \brief Retrieve the coordinates of all centers that have either
+C> an ECP or spin-orbit potential
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C
       logical function ecpso_get_coords(geom,soidin,ecpidin,
      &    nxyz,xyz)
       implicit none
@@ -4870,11 +4952,11 @@ c
       logical bas_match_tags
       external bas_match_tags
 *::passed
-      integer geom          ! [input] geometry handle
-      integer soidin        ! [input] so pot. handle
-      integer ecpidin       ! [input] ecp handle
-      integer nxyz          ! [input] size of xyz array (trailing dimension)
-      double precision xyz(3,nxyz)  ! [output] coordinates
+      integer geom    !< [Input] the geometry handle
+      integer soidin  !< [Input] the spin-orbit potential handle
+      integer ecpidin !< [Input] the ecp handle
+      integer nxyz    !< [Input] the size of xyz array
+      double precision xyz(3,nxyz) !< [Output] the coordinates
 *::local      
       integer ntotal            ! total number of centers in goemetry
       integer ic                ! loop counter for centers
@@ -4907,6 +4989,11 @@ c
       enddo
       end
 *----------------------------------------------------------------------
+C> \brief Retrieve the coordinates of all centers that have 
+C> a spin-orbit potential
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C
       logical function so_get_coords(geom,soidin,
      &    nxyz,xyz)
       implicit none
@@ -4920,10 +5007,10 @@ c
       logical bas_match_tags
       external bas_match_tags
 *::passed
-      integer geom          ! [input] geometry handle
-      integer soidin        ! [input] so pot. handle
-      integer nxyz          ! [input] size of xyz array (trailing dimension)
-      double precision xyz(3,nxyz)  ! [output] coordinates
+      integer geom   !< [Input] the geometry handle
+      integer soidin !< [Input] the spin-orbit potential handle
+      integer nxyz   !< [Input] the size of xyz array 
+      double precision xyz(3,nxyz) !< [Output] the coordinates
 *::local      
       integer ntotal            ! total number of centers in goemetry
       integer ic                ! loop counter for centers
@@ -4954,6 +5041,11 @@ c
       enddo
       end
 *----------------------------------------------------------------------
+C> \brief Retrieve the coordinates of all centers that have
+C> an ECP
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C
       logical function ecp_get_coords(geom,ecpidin,
      &    nxyz,xyz)
       implicit none
@@ -4967,10 +5059,10 @@ c
       logical bas_match_tags
       external bas_match_tags
 *::passed
-      integer geom          ! [input] geometry handle
-      integer ecpidin       ! [input] ecp handle
-      integer nxyz          ! [input] size of xyz array (trailing dimension)
-      double precision xyz(3,nxyz)  ! [output] coordinates
+      integer geom    !< [Input] the geometry handle
+      integer ecpidin !< [Input] the ecp handle
+      integer nxyz    !< [Input] the size of xyz array
+      double precision xyz(3,nxyz) !< [Output] the coordinates
 *::local      
       integer ntotal            ! total number of centers in goemetry
       integer ic                ! loop counter for centers
