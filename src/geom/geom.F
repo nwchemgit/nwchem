@@ -1604,12 +1604,18 @@ c
       integer k
       character*16 atag
 c
-      geom_cart_set_gen = geom_check_handle(geom, 'geom_cart_set')
+      geom_cart_set_gen = geom_check_handle(geom, 'geom_cart_set_gen')
       if (.not. geom_cart_set_gen) return
 c
-      if (ncent.le.0 .or. ncent.gt.max_cent) then
-         write(LuOut,*) ' geom_cart_set: too many centers ',ncent,
+      if (ncent.le.0) then
+         write(LuOut,*) ' geom_cart_set_gen: too few centers ',ncent,
      $        names(geom)(1:lenn(geom))
+         geom_cart_set_gen = .false.
+         return
+      else if (ncent.gt.max_cent) then
+         write(LuOut,*) ' geom_cart_set_gen: too many centers ',ncent,
+     $        names(geom)(1:lenn(geom))
+         geom_cart_set_gen = .false.
          return
       end if
 c
@@ -1658,9 +1664,15 @@ c
       geom_cart_set_gen1 = geom_check_handle(geom, 'geom_cart_set')
       if (.not. geom_cart_set_gen1) return
 c
-      if (ncent.le.0 .or. ncent.gt.max_cent) then
+      if (ncent.le.0) then
+         write(LuOut,*) ' geom_cart_set: too few centers ',ncent,
+     $        names(geom)(1:lenn(geom))
+         geom_cart_set_gen1 = .false.
+         return
+      else if (ncent.gt.max_cent) then
          write(LuOut,*) ' geom_cart_set: too many centers ',ncent,
      $        names(geom)(1:lenn(geom))
+         geom_cart_set_gen1 = .false.
          return
       end if
 c
@@ -1706,9 +1718,15 @@ c
       geom_cart_set1 = geom_check_handle(geom, 'geom_cart_set')
       if (.not. geom_cart_set1) return
 c
-      if (ncent.le.0 .or. ncent.gt.max_cent) then
+      if (ncent.le.0) then
+         write(LuOut,*) ' geom_cart_set: too few centers ',ncent,
+     $        names(geom)(1:lenn(geom))
+         geom_cart_set1 = .false.
+         return
+      else if (ncent.gt.max_cent) then
          write(LuOut,*) ' geom_cart_set: too many centers ',ncent,
      $        names(geom)(1:lenn(geom))
+         geom_cart_set1 = .false.
          return
       end if
 c
@@ -1746,9 +1764,15 @@ c
       geom_cart_set = geom_check_handle(geom, 'geom_cart_set')
       if (.not. geom_cart_set) return
 c
-      if (ncent.le.0 .or. ncent.gt.max_cent) then
+      if (ncent.le.0) then
+         write(LuOut,*) ' geom_cart_set: too few centers ',ncent,
+     $        names(geom)(1:lenn(geom))
+         geom_cart_set = .false.
+         return
+      else if (ncent.gt.max_cent) then
          write(LuOut,*) ' geom_cart_set: too many centers ',ncent,
      $        names(geom)(1:lenn(geom))
+         geom_cart_set = .false.
          return
       end if
 c
@@ -4364,9 +4388,15 @@ c
       geom_masses_set = geom_check_handle(geom, 'geom_masses_set')
       if (.not. geom_masses_set) return
 c
-      if (ncent.le.0 .or. ncent.gt.max_cent) then
+      if (ncent.le.0) then
+         write(LuOut,*) ' geom_masses_set: too few centers ',ncent,
+     $        names(geom)(1:lenn(geom))
+         geom_masses_set = .false.
+         return
+      else if (ncent.gt.max_cent) then
          write(LuOut,*) ' geom_masses_set: too many centers ',ncent,
      $        names(geom)(1:lenn(geom))
+         geom_masses_set = .false.
          return
       end if
 c
@@ -6839,7 +6869,12 @@ c
       geom_nucexps_set = geom_check_handle(geom, 'geom_nucexps_set')
       if (.not. geom_nucexps_set) return
 c
-      if (ncent.le.0 .or. ncent.gt.max_cent) then
+      if (ncent.le.0) then
+         write(luout,*) ' geom_nucexps_set: too few centers ',ncent,
+     $        names(geom)(1:lenn(geom))
+         geom_nucexps_set = .false.
+         return
+      else if (ncent.gt.max_cent) then
          write(luout,*) ' geom_nucexps_set: too many centers ',ncent,
      $        names(geom)(1:lenn(geom))
          geom_nucexps_set = .false.
