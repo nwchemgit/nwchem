@@ -158,6 +158,7 @@ c
      >             //element2
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,npair)) npair = 0
       npair = npair + 1
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,npair)
 
       rtdb_name = 'pspw_Pair_ion_ion_type:'//c_index_name(npair)
      >             //element
@@ -169,6 +170,7 @@ c
      >             //element2
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,4,se)
 
+      if (element.ne.element2) then
       rtdb_name = 'pspw_Pair_ion_ion_npair:'
      >             //element2
      >             //element
@@ -185,6 +187,7 @@ c
      >             //element2
      >             //element
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,4,se)
+      end if
 
       if (.not. value)
      >  call errquit(
@@ -234,22 +237,24 @@ c
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,4,se)
 
 
-      rtdb_name = 'pspw_Pair_ion_ion_npair:'
+      if (element.ne.element2) then
+         rtdb_name = 'pspw_Pair_ion_ion_npair:'
      >             //element2
      >             //element
-      if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,npair)) npair = 0
-      npair = npair + 1
-      value = rtdb_put(rtdb,rtdb_name,mt_int,1,npair)
+         if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,npair)) npair = 0
+         npair = npair + 1
+         value = rtdb_put(rtdb,rtdb_name,mt_int,1,npair)
 
-      rtdb_name = 'pspw_Pair_ion_ion_type:'//c_index_name(npair)
+         rtdb_name = 'pspw_Pair_ion_ion_type:'//c_index_name(npair)
      >             //element2
      >             //element 
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ni)
+         value = value.and.rtdb_put(rtdb,rtdb_name,mt_int,1,ni)
 
-      rtdb_name = 'pspw_Pair_ion_ion_param:'//c_index_name(npair)
+         rtdb_name = 'pspw_Pair_ion_ion_param:'//c_index_name(npair)
      >             //element2
      >             //element
-      value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,4,se)
+         value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,4,se)
+      end if
 
       if (.not. value)
      >  call errquit(
@@ -279,6 +284,7 @@ c
      >             //element2
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,npair)) npair = 0
       npair = npair + 1
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,npair)
 
       rtdb_name = 'pspw_Pair_ion_ion_type:'//c_index_name(npair)
      >             //element
@@ -337,6 +343,7 @@ c
      >             //element2
       if (.not.rtdb_get(rtdb,rtdb_name,mt_int,1,npair)) npair = 0
       npair = npair + 1
+      value = rtdb_put(rtdb,rtdb_name,mt_int,1,npair)
 
       rtdb_name = 'pspw_Pair_ion_ion_type:'//c_index_name(npair)
      >             //element
@@ -348,6 +355,8 @@ c
      >             //element2
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,4,se)
 
+ 
+      if (element.ne.element2) then
       rtdb_name = 'pspw_Pair_ion_ion_npair:'
      >             //element2
      >             //element
@@ -364,6 +373,7 @@ c
      >             //element2
      >             //element
       value = value.and.rtdb_put(rtdb,rtdb_name,mt_dbl,4,se)
+      end if
 
       if (.not. value)
      >  call errquit(
