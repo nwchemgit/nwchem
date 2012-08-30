@@ -200,7 +200,7 @@ c
 c  Pair Ion-Ion parameters - 1 - 4*Aij*((Bij/rij)**12-(Bij/rij)**6), 
 c                            2 - Aij*exp(-rij/Bij) - Cij/rij**6, 
 c                            3 - Aij*exp(-rij/Bij) - Cij/rij**6 - Dij/rij**8
-c                            4 - Aij*(rij-Cij)^Bij, 
+c                            4 - Aij*(rij-Bij)^Cij, 
 c                            5 - Aij*exp(-rij/Bij)
 c                            6 - Aij*(1-exp(-Bij*(rij-Cij)))**2
 c
