@@ -232,8 +232,15 @@ c
             d1d(1) = adp*d1z(1)
             d1d(2) = adp*d1z(2)
 #ifdef SECOND_DERIV
-            d2dt12 = FIVE3*TWO3*0.25d0*(
+            if ((1.d0-zeta).lt.tol_rho) then
+              d2dt12 = FIVE3*TWO3*0.25d0*(((ONE+zeta)*.5d0)**(-ONE3))
+            else if ((1.d0+zeta).lt.tol_rho) then
+              d2dt12 = FIVE3*TWO3*0.25d0*(((ONE-zeta)*.5d0)**(-ONE3))
+            else
+              d2dt12 = FIVE3*TWO3*0.25d0*(
      &         ((ONE+zeta)*.5d0)**(-ONE3) + ((ONE-zeta)*.5d0)**(-ONE3) )
+            end if
+c
             dpp =-0.5d0*adp/dt12*d1dt12
      &        + 2.d0**(-TWO3)*d2dt12/dsqrt(dt12)
             d2d(1) = dpp*d1z(1)*d1z(1) + adp*d2z(1)
@@ -422,7 +429,15 @@ c
             d1rs = -ONE3*rs/rhoval
 #ifdef SECOND_DERIV
             d2rs = -FOUR3*d1rs/rhoval
-            d2fz = d2fzeta(zeta)
+            if ((1.d0-zeta).lt.tol_rho) then
+              d2fz = (1.d0+zeta)**(-TWO3)
+            else if ((1.d0+zeta).lt.tol_rho) then
+              d2fz = (1.d0-zeta)**(-TWO3)
+            else
+              d2fz = (1.d0+zeta)**(-TWO3) + (1.d0-zeta)**(-TWO3)
+            end if
+            d2fz = d2fz*ONE3*FOUR3/(2.d0**FOUR3-2.d0)
+c
             rrho2 = 2.d0/(rhoval*rhoval)
 c           1 = aa, 2 = ab, 3 = bb
             d2zeta(1) =-rrho2*(1.d0-zeta)
