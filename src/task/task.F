@@ -4,6 +4,9 @@ c
 C> \ingroup task
 C> @{
 c
+C> \brief the main task driver called when the task keyword appears
+C> in the input file
+c
       subroutine task(rtdb)
 c
       implicit none
@@ -498,20 +501,30 @@ c
       return
 c
       end
+c
+C> \brief Performs the "task version" operation
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function task_version(rtdb)
       implicit none
-      integer rtdb
+      integer rtdb !< [Input] the RTDB handle
       call util_version()
       task_version = .true.
       return
       end
+c
+C> \brief Performs the "task shell" operation
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+c
       logical function task_shell(rtdb)
       implicit none
 #include "errquit.fh"
 #include "rtdb.fh"
 #include "mafdecls.fh"
 #include "global.fh"
-      integer rtdb
+      integer rtdb !< [Input] the RTDB handle
 c
       integer i
       character*1023 command
