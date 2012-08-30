@@ -5093,6 +5093,15 @@ C
       enddo
       end
 *----------------------------------------------------------------------
+C> \brief Check whether a given center from the geometry is known to
+C> the basis set by that name
+C>
+C> This routine looks the tag of the specified center up in the 
+C> geometry and queries the basis set with that tag.
+C>
+C> \return Return .true. if the basis set knows of such centers, and
+C> .false. otherwise
+C
       logical function bas_isce(geom,basisin,center)
       implicit none
 #include "errquit.fh"
@@ -5106,9 +5115,9 @@ C
       logical bas_match_tags
       external bas_match_tags
 *::passed
-      integer geom     ! [input] geometry handle
-      integer basisin  ! [input] basis set handle
-      integer center   ! [input] lexical geometry index of center
+      integer geom    !< [Input] the geometry handle
+      integer basisin !< [Input] the basis set handle
+      integer center  !< [Input] the lexical geometry index of center
 *::local
       integer tag_indx          ! basis set unique center index for tag
       character*16 gtag         ! geometry tag 
@@ -5121,6 +5130,12 @@ C
 *      write(LuOut,*)' center = ',center,' gtag:<',gtag,'>'
       bas_isce  = bas_match_tags(gtag,basisin,tag_indx)
       end
+C
+C> \brief Retrieve the largest exponent any primitive function in the
+C> basis set
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C
       logical function bas_large_exponent(basisin,exponent)
       implicit none
 #include "errquit.fh"
@@ -5139,8 +5154,8 @@ c::functions
       logical  bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin
-      double precision exponent
+      integer basisin           !< [Input] the basis set handle
+      double precision exponent !< [Output] the maximum exponent
 c::local
       integer basis
       integer num_cont
@@ -5174,6 +5189,13 @@ c
       enddo
 *      write(luout,*)' largest exponent ',exponent
       end
+C
+C> \brief Checks whether the basis set contains any generally contracted 
+C> or SP shells
+C>
+C> \return Return .true. if any generally contracted or SP shells are
+C> present, and .false. otherwise
+C
       logical function bas_any_gcorsp(basisin)
       implicit none
 #include "errquit.fh"
@@ -5188,7 +5210,7 @@ c::functions
       logical  bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin
+      integer basisin !< [Input] the basis set handle
 c::local
       integer basis
       bas_any_gcorsp =
@@ -5200,12 +5222,15 @@ c::local
       basis = basisin + Basis_Handle_Offset 
       bas_any_gcorsp = bas_any_gc(basis).or.bas_any_sp_shell(basis)
       end
+C
+C> \brief Retrieves the largest exponent in the specified shell in the
+C> basis set
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C
       logical function bas_cont_large_exponent(basisin,incont,exponent)
       implicit none
 #include "errquit.fh"
-c
-c returns the largest primitive exponent in the given basis set
-c
 #include "stdio.fh"
 #include "mafdecls.fh"
 #include "nwc_const.fh"
@@ -5218,9 +5243,9 @@ c::functions
       logical  bas_check_handle
       external bas_check_handle
 c::passed
-      integer basisin
-      integer incont
-      double precision exponent
+      integer basisin           !< [Input] the basis set handle
+      integer incont            !< [Input] the shell rank
+      double precision exponent !< [Output] the maximum exponent
 c::local
       integer basis
       integer num_cont
@@ -5254,9 +5279,20 @@ c
 *      write(luout,*)' largest exponent ',exponent
       end
 *.....................................................................
+C
+C> \brief Checks whether a relativistic basis set exists on the RTDB
+C>
+C> This routine checks for a relativistic basis set by looking for
+C> the name of the small component basis functions on the RTDB.
+C> The name of the small component basis is pulled from a common block
+C> and hence not visible to the caller.
+C>
+C> \return Return .true. if the basis set exists on the RTDB, and
+C> .false. otherwise
+c
       logical function bas_rel_exists (rtdb)
       implicit none
-      integer rtdb
+      integer rtdb !< [Input] the RTDB handle
 #include "nwc_const.fh"
 #include "rel_nwc.fh"
       logical  bas_name_exist_rtdb
@@ -5265,9 +5301,15 @@ c
      &    .or. bas_name_exist_rtdb(rtdb,auto_small_cmpt_name)
       end
 *.....................................................................
+C> \brief Check whether a basis set is a (part of) a relativistic
+C> basis set
+C>
+C> \return Return .true. if the basis set is a relativistic basis set,
+C> and .false. otherwise
+C
       logical function basis_is_rel (basisin)
       implicit none
-      integer basisin
+      integer basisin !< [Input] the basis set handle
 #include "nwc_const.fh"
 #include "rel_nwc.fh"
       character*32 basis_name,trans_name
@@ -5282,11 +5324,16 @@ c
       end if
       end
 *.....................................................................
+C> \brief Retrieves the handle of the basis set with the name 
+C> "ao basis"
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C
       logical function bas_get_ao_handle (basis,nbas,ao_handle)
       implicit none
-      integer nbas        ! [input] number of basis sets
-      integer basis(nbas) ! [input] array of basis set handles
-      integer ao_handle   ! [output] ao basis set handle
+      integer nbas        !< [Input] the number of basis sets
+      integer basis(nbas) !< [Input] the array of basis set handles
+      integer ao_handle   !< [Output] the ao basis set handle
 c
 c   Returns handle of "ao basis"
 c
@@ -5310,11 +5357,16 @@ c
       return
       end
 *.....................................................................
+C> \brief Checks whether the basis set contains any relativistic shells
+C>
+C> \return Return .true. if there are any relativistic shell present,
+C> and .false. otherwise
+C
       logical function bas_any_rel_shells (basisin)
       implicit none
 #include "errquit.fh"
 c
-      integer basisin ! [input] basis set handle
+      integer basisin !< [Input] the basis set handle
 #include "nwc_const.fh"
 #include "basdeclsP.fh"
 #include "basP.fh"
@@ -5341,6 +5393,11 @@ c
       return
       end
 *.....................................................................
+C> \brief Retrieve the highest angular momentum of all relativistic
+C> shells in a basis set
+C>
+C> \return Return .true. if successfull, and .false. otherwise
+C
       logical function bas_rel_high_ang(basisin,high_angular)
       implicit none
 c
@@ -5355,8 +5412,8 @@ c::functions
       logical bas_check_handle
       external bas_check_handle
 c:: passed
-      integer basisin       ! [input] basis set handle
-      integer high_angular  ! [output] highest angular momentum of basis
+      integer basisin      !< [Input] the basis set handle
+      integer high_angular !< [Output] the highest angular momentum
 c:local
       integer basis, i, myang
       integer ucont
@@ -5380,6 +5437,16 @@ c
       bas_rel_high_ang = .true.
       return
       end
+C
+C> \brief Checks whether two tags match
+C>
+C> This routine matches two input tags using the geometry/basis set 
+C> tags matching mechanism, in such a way that "H34" matches "H" or 
+C> "hydrogen" or "h" if "H34" is one of the tags. "H" will however 
+C> not match "h" i.e., case sensitivity is preserved.
+C>
+C> \return Return .true. if the tags match, and .false. otherwise
+C
       logical function bas_do_tags_match(tag_one,tag_two)
       implicit none
 #include "errquit.fh"
@@ -5397,9 +5464,9 @@ c::functions
       logical geom_tag_to_element
       external geom_tag_to_element
 c::passed
-      character*(*) tag_one   ! [input] geometry/basis tag
-      character*(*) tag_two   ! [input] geometry/basis tag
-*     bas_do_tags_match       ! [output] true if they match
+      character*(*) tag_one !< [Input] a geometry/basis tag
+      character*(*) tag_two !< [Input] another geometry/basis tag
+*     bas_do_tags_match     ! [output] true if they match
 c::local
       character*16 one16      ! geometry or basis tags can only be *16
       character*16 two16      ! geometry or basis tags can only be *16
