@@ -204,21 +204,21 @@ c
                   write(luout,'(A4,1x,A4)') ion_atom(i),ion_atom(j)
                   do k=1,npair
                      if (int_mb(type_all(1)+nn+k-1).eq.1) then
-                        write(luout,'(4x,A46,E14.6,A3,E14.6)') 
-     >              '- Potential = 4*e*((s/rij)**12-(s/rij)**6), e:',
+                        write(luout,'(4x,A49,E14.6,A5,E14.6)') 
+     >              '- Potential=4*e*((s/rij)**12-(s/rij)**6),      e:',
      >                    dbl_mb(param_all(1)+4*(nn+k-1)),
      >                    ' s:',  
      >                    dbl_mb(param_all(1)+4*(nn+k-1)+1)
                      else if (int_mb(type_all(1)+nn+k-1).eq.2) then
-                        write(luout,'(4x,A46,E14.6,A5,E14.6,A3,E14.6)')
-     >              '- Potential = A*exp(-rij/rho) - C/rij**6, A:',  
+                        write(luout,'(4x,A49,E14.6,A5,E14.6,A5,E14.6)')
+     >              '- Potential=A*exp(-rij/rho) - C/rij**6,        A:',  
      >                    dbl_mb(param_all(1)+4*(nn+k-1)),
      >                    ' rho:',  
      >                    dbl_mb(param_all(1)+4*(nn+k-1)+1),
      >                    ' C:',  
      >                    dbl_mb(param_all(1)+4*(nn+k-1)+2)
                      else if (int_mb(type_all(1)+nn+k-1).eq.3) then
-                write(luout,'(4x,A49,E14.6,A5,E14.6,A3,E14.6,A3,E14.6)')
+                write(luout,'(4x,A49,E14.6,A5,E14.6,A5,E14.6,A5,E14.6)')
      >              '- Potential=A*exp(-rij/rho)-C/rij**6-D/rij**8, A:',  
      >                    dbl_mb(param_all(1)+4*(nn+k-1)),
      >                    ' rho:',  
@@ -228,22 +228,22 @@ c
      >                    ' D:',  
      >                    dbl_mb(param_all(1)+4*(nn+k-1)+3)
                      else if (int_mb(type_all(1)+nn+k-1).eq.4) then
-                        write(luout,'(4x,A46,E14.6,A3,E14.6,A3,E14.6)')
-     >                    '- Potential = A*(rij-B)**C, A:',  
+                        write(luout,'(4x,A49,E14.6,A5,E14.6,A5,E14.6)')
+     >              '- Potential=A*(rij-B)**C,                      A:',  
      >                    dbl_mb(param_all(1)+4*(nn+k-1)),
      >                    ' B:',  
      >                    dbl_mb(param_all(1)+4*(nn+k-1)+1),
      >                    ' C:',  
      >                    dbl_mb(param_all(1)+4*(nn+k-1)+2)
                      else if (int_mb(type_all(1)+nn+k-1).eq.5) then
-                        write(luout,'(4x,A46,E14.6,A5,E14.6)') 
-     >                    '- Potential = A*exp(-rij/rho), A:',  
+                        write(luout,'(4x,A49,E14.6,A5,E14.6)') 
+     >              '- Potential=A*exp(-rij/rho),                   A:',  
      >                    dbl_mb(param_all(1)+4*(nn+k-1)),
      >                    ' rho:',  
      >                    dbl_mb(param_all(1)+4*(nn+k-1)+1)
                      else if (int_mb(type_all(1)+nn+k-1).eq.6) then
-                        write(luout,'(4x,A46,E14.6,A3,E14.6,A4,E14.6)')
-     >              '- Potential = De*(1-exp(-a*(rij-re)) )**2, De:',  
+                        write(luout,'(4x,A49,E14.6,A5,E14.6,A5,E14.6)')
+     >              '- Potential=De*(1-exp(-a*(rij-re)) )**2,      De:',  
      >                    dbl_mb(param_all(1)+4*(nn+k-1)),
      >                    ' a:',  
      >                    dbl_mb(param_all(1)+4*(nn+k-1)+1),
