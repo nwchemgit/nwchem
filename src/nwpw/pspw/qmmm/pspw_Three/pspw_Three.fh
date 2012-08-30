@@ -1,0 +1,14 @@
+c
+c $Id: pspw_Three.fh 19707 2010-10-29 17:59:36Z d3y133 $
+c
+
+*     ***** pspw_Three common block ************************************
+      integer ntriple_all(2),triple_start(2),type_all(2), param_all(2)
+      integer ntriples
+      logical include_qm
+      common / pspw_Pair /   ntriple_all,
+     >                       triple_start,
+     >                       type_all,
+     >                       param_all,
+     >                       ntriples,include_qm
+*     ******************************************************************
