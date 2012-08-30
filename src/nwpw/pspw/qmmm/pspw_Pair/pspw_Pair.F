@@ -788,7 +788,7 @@ c     **** QM/MM LJ energy ****
      >                             dbl_mb(param_all(1)+4*istart),
      >                             rion(1,i),fion(1,i),
      >                             rion(1,j),fion(1,j),
-     >                             nshl3d,rcell)
+     >                             nshl3d,rcell,lmbda)
          end do
          end if
          dutask = mod(dutask+1,np)
@@ -892,7 +892,7 @@ c     *                                           *
 c     *********************************************
       subroutine pspw_VPair_fion_periodic(n,t,p,
      >                                  r1,f1,r2,f2,
-     >                                  nshl3d,rcell)
+     >                                  nshl3d,rcell,lmbda)
       implicit none
       integer n,t(*)
       real*8 p(4,*)
@@ -900,6 +900,7 @@ c     *********************************************
       real*8 r2(3),f2(3)
       integer nshl3d
       real*8  rcell(nshl3d,3)
+      real*8 lmbda
 
 *     **** local variables ****
       integer l,k
@@ -936,12 +937,12 @@ c     *********************************************
             else
                dVPair = 0.0d0
             endif
-            f1(1) = f1(1) - (x/r)*dVPair
-            f1(2) = f1(2) - (y/r)*dVPair
-            f1(3) = f1(3) - (z/r)*dVPair
-            f2(1) = f2(1) + (x/r)*dVPair
-            f2(2) = f2(2) + (y/r)*dVPair
-            f2(3) = f2(3) + (z/r)*dVPair
+            f1(1) = f1(1) - (x/r)*dVPair*lmbda
+            f1(2) = f1(2) - (y/r)*dVPair*lmbda
+            f1(3) = f1(3) - (z/r)*dVPair*lmbda
+            f2(1) = f2(1) + (x/r)*dVPair*lmbda
+            f2(2) = f2(2) + (y/r)*dVPair*lmbda
+            f2(3) = f2(3) + (z/r)*dVPair*lmbda
          end do
       end do
 
