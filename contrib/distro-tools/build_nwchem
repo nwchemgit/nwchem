@@ -1238,6 +1238,18 @@ if [ ${#NWCHEM_OS} -eq 0 ] ; then
         # There is no CYGWIN64 target so set NWCHEM_TARGET here
         export NWCHEM_TARGET=${NWCHEM_OS}
       fi
+      # If the user did not specify any compilers and we have not been able
+      # to find them in the CYGWIN environment, then we will try and use the
+      # regular GNU compilers
+      if [ ${#MPI_F90} -eq 0 ] ; then
+        export MPI_F90=gfortran
+      fi
+      if [ ${#MPI_CC} -eq 0 ] ; then
+        export MPI_CC=gcc
+      fi
+      if [ ${#MPI_CXX} -eq 0 ] ; then
+        export MPI_CXX=gCC
+      fi
     elif [ `expr match ${NWCHEM_OS} CYGNUS` != "0" ] ; then
       export NWCHEM_OS=CYGNUS
       if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
