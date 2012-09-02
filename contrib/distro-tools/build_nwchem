@@ -983,20 +983,6 @@ if [ ${#LARGE_FILES} -eq 0 ] ; then
   # then why are we keeping this option?
   export LARGE_FILES=y
 fi
-if [ ${#USE_MPI} -eq 0 ] ; then
-  export USE_MPI=y
-fi
-if [ ${#USE_MPI} -ne 0 ] ; then
-  if [ ${#USE_MPIF} -eq 0 ] ; then
-    export USE_MPIF=y
-  fi
-  if [ ${#USE_MPIF4} -eq 0 ] ; then
-    export USE_MPIF4=y
-  fi
-fi
-if [ ${#MSG_COMMS} -eq 0 ] ; then
-  export MSG_COMMS=MPI
-fi
 export LDOPTIONS=" "
 #export USE_SUBGROUPS=y # disables parallel diag, do not set for release
 #export DEV_GA=y        # do not set this for the release
@@ -1025,6 +1011,9 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
       echo "  module list"
       # There seems to be a Gemini interconnect on this Cray machine
       export ARMCI_NETWORK="GEMINI"
+      if [ ${#USE_MPI} -eq 0 ] ; then
+        export USE_MPI=y
+      fi
       if [ ${#MPI_F90} -eq 0 ] ; then
         export MPI_F90=ftn
       fi
@@ -1046,6 +1035,9 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
   if [ -f /proc/portals/meminfo ] ; then
     # There seems to be a portals infrastructure on this machine
     export ARMCI_NETWORK="PORTALS"
+    if [ ${#USE_MPI} -eq 0 ] ; then
+      export USE_MPI=y
+    fi
     if [ ${#MPI_F90} -eq 0 ] ; then
       export MPI_F90=ftn
     fi
@@ -1064,6 +1056,9 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
   if [ -d /dev/infiniband ] ; then
     # There seems to be an infiniband network on this machine
     export ARMCI_NETWORK="OPENIB"
+    if [ ${#USE_MPI} -eq 0 ] ; then
+      export USE_MPI=y
+    fi
   fi
 fi
 if [ "${ARMCI_NETWORK}" == "OPENIB" ] ; then
@@ -1132,6 +1127,9 @@ if [ ${#ARMCI_NETWORK} -eq 0 ] ; then
     # Compiling with multi-threaded support did not work, so no hope here
     export ARMCI_NETWORK=SOCKETS
   else
+    if [ ${#USE_MPI} -eq 0 ] ; then
+      export USE_MPI=y
+    fi
     output=`./mpi_threads$$.x`
     result=$?
     if [ ${result} -ne 0 ] ; then
@@ -1250,6 +1248,11 @@ if [ ${#NWCHEM_OS} -eq 0 ] ; then
       if [ ${#MPI_CXX} -eq 0 ] ; then
         export MPI_CXX=gCC
       fi
+      # I am not aware of any MPI implementations for CYGWIN so we assume to
+      # be using TCGMSG.
+      if [ ${#MSG_COMMS} -eq 0 ] ; then
+        export MSG_COMMS=TCGMSG
+      fi
     elif [ `expr match ${NWCHEM_OS} CYGNUS` != "0" ] ; then
       export NWCHEM_OS=CYGNUS
       if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
@@ -1263,6 +1266,17 @@ if [ ${#NWCHEM_OS} -eq 0 ] ; then
         export NWCHEM_TARGET=${NWCHEM_OS}
       fi
     fi
+  fi
+fi
+if [ ${#MSG_COMMS} -eq 0 ] ; then
+  export MSG_COMMS=MPI
+fi
+if [ ${#USE_MPI} -ne 0 ] ; then
+  if [ ${#USE_MPIF} -eq 0 ] ; then
+    export USE_MPIF=y
+  fi
+  if [ ${#USE_MPIF4} -eq 0 ] ; then
+    export USE_MPIF4=y
   fi
 fi
 if [ ${#NWCHEM_TARGET} -eq 0 ] ; then
