@@ -1,0 +1,13 @@
+c
+c $Id: pspw_cosmo.fh 19707 2010-10-29 17:59:36Z d3y133 $
+c
+
+*     ***** pspw_cosmo common block ************************************
+      logical cosmo_found
+      integer nq_total
+      integer nq_ion(2)
+      common / pspw_cosmo / 
+     > nq_ion,                    ! numnber of cosmo charges per atom
+     > nq_total,                  ! total number of cosmo charges
+     > cosmo_found
+*     ******************************************************************
