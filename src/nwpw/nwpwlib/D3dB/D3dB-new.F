@@ -3832,7 +3832,7 @@ c      call Parallel2d_np_i(np)
       integer i
 
       do i=1,n2ft3d_map(nb)
-         B(i) = B(i) + alpha* B(i)
+         B(i) = B(i) + alpha* A(i)
       end do
 
       return
