@@ -232,6 +232,13 @@ c     *************************************
       nijk(2) = ijkmax(2)-ijkmin(2)+1
       nijk(3) = ijkmax(3)-ijkmin(3)+1
 
+      do k=ijkmin(3),ijkmax(3)
+         do j=ijkmin(2),ijkmax(2)
+            do i=ijkmin(1),ijkmax(1)
+            end do
+         end do
+      end do
+
       return
       end
 
