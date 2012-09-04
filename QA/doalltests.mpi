@@ -16,7 +16,7 @@
 export NWCHEM_TOP=`pwd`/..
 export NWCHEM_TARGET=LINUX64
 export NWCHEM_TEST=${NWCHEM_TOP}/QA/tests
-export NWCHEM_EXECUTABLE=${NWCHEM_TOP}/bin/${NWCHEM_TARGET}/nwchem
+export NWCHEM_EXECUTABLE=`find "${NWCHEM_TOP}/bin" -executable -name "nwchem*"`
 nproc=4
 if [ "$1" != "" ] ; then
   nproc=$1

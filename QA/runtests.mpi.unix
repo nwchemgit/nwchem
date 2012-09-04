@@ -104,14 +104,16 @@ if ($NPROC) then
          echo " Mpirun is not in your current path. Please do:"
          echo " setenv MPIRUN_PATH /home/guido/bagheria/bin/mpirun "
          echo " Please make sure you have the right mpirun for your system."
+         echo " Alternatively set the number of processors to 0."
          exit 2
       endif
    endif
 endif
 # find the -np option ??
-if ($?MPIRUN_NPOPT) then   
-   set NPOPT = "$MPIRUN_NPOPT "
-else 
+if ($NPROC) then
+   if ($?MPIRUN_NPOPT) then   
+      set NPOPT = "$MPIRUN_NPOPT "
+   else 
       if ($NONSTD_MPI) then
 #        you are on your own anyway...
       else
@@ -235,11 +237,11 @@ foreach TEST ($args_2_use)
     continue
   endif
   if(! $md_test_run) then
-  if (! -f $TESTDIR/$OUTPUTFILE) then
-    echo failed: Could not find verified output file $TESTDIR/$OUTPUTFILE
-    set overall_status  = 1
-    continue
-  endif
+    if (! -f $TESTDIR/$OUTPUTFILE) then
+      echo failed: Could not find verified output file $TESTDIR/$OUTPUTFILE
+      set overall_status  = 1
+      continue
+    endif
   endif
 
   cp $TESTDIR/$INPUTFILE $SCRATCHDIR
