@@ -1344,7 +1344,7 @@ c
 
 
       integer i,i1,i2,n1,n2
-      real*8  weight,xrot,yrot,zrot
+      real*8  weight,xrot,drot,zrot
       real*8  xxyx,xxyy,xxyz,xyyx,xyyy
       real*8  xyyz,xzyx,xzyy,xzyz
       real*8  rot(3,3),temp1(4),temp2(4)
@@ -1413,10 +1413,10 @@ c     rotate second molecule to best fit with first molecule
 c
       do i=1,nion
         xrot=rion2(1,i)*rot(1,1)+rion2(2,i)*rot(1,2)+rion2(3,i)*rot(1,3)
-        yrot=rion2(1,i)*rot(2,1)+rion2(2,i)*rot(2,2)+rion2(3,i)*rot(2,3)
+        drot=rion2(1,i)*rot(2,1)+rion2(2,i)*rot(2,2)+rion2(3,i)*rot(2,3)
         zrot=rion2(1,i)*rot(3,1)+rion2(2,i)*rot(3,2)+rion2(3,i)*rot(3,3)
         rion2(1,i) = xrot
-        rion2(2,i) = yrot
+        rion2(2,i) = drot
         rion2(3,i) = zrot
       end do
 
