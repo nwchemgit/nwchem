@@ -1207,7 +1207,8 @@ c     This routine computes the rms fit of two coordinate sets
 c
       real*8 function neb_rmsfit(nfit,ifit,wfit,rion1,rion2)
       implicit none
-      integer nfit,ifit(2,*),wfit(*)
+      integer nfit,ifit(2,*)
+      real*8 wfit(*)
       real*8 rion1(3,*),rion2(3,*)
 
       integer i,i1,i2
@@ -1340,7 +1341,7 @@ c
       real*8 rion1(3,*),rion2(3,*)
       integer nfit
       integer ifit(2,*)
-      integer wfit(*)
+      real*8 wfit(*)
 
 
       integer i,i1,i2,n1,n2

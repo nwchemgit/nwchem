@@ -15,7 +15,7 @@ c $Id$
 #include "util.fh"
 c     
       logical impose
-      integer rtdb
+      integer rtdb,ind
       character*255 test,test2
       integer nbeads
       double precision timestep,kbeads
@@ -47,7 +47,7 @@ c     ----------------------------
      &    call errquit('neb_input: algorithm',911,
      &    INPUT_ERR)
        if (.not. rtdb_put(rtdb,'neb:algorithm',mt_int,1,nbeads))
-     $     call errquit('neb_input: rtdb put failed',0,
+     $     call errquit('neb_input: rtdb put failed',1,
      &     RTDB_ERR)
       goto 100
 
@@ -59,7 +59,7 @@ c     ----------------------------
      &    call errquit('neb_input: algorithm',911,
      &    INPUT_ERR)
        if (.not. rtdb_put(rtdb,'neb:m',mt_int,1,nbeads))
-     $     call errquit('neb_input: rtdb put failed',0,
+     $     call errquit('neb_input: rtdb put failed',2,
      &     RTDB_ERR)
       goto 100
 
@@ -72,7 +72,7 @@ c     ----------------------------
      &    call errquit('neb_input: timestep',911,
      &    INPUT_ERR)
        if (.not. rtdb_put(rtdb,'neb:stepsize',mt_dbl,1,timestep))
-     $     call errquit('neb_input: rtdb put failed',0,
+     $     call errquit('neb_input: rtdb put failed',3,
      &     RTDB_ERR)
 
       goto 100
@@ -85,7 +85,7 @@ c     ----------------------------
      &    call errquit('neb_input: maxiter',911,
      &    INPUT_ERR)
        if (.not. rtdb_put(rtdb,'neb:steps',mt_int,1,nbeads))
-     $     call errquit('neb_input: rtdb put failed',0,
+     $     call errquit('neb_input: rtdb put failed',4,
      &     RTDB_ERR)
 
       goto 100
@@ -98,7 +98,7 @@ c     ----------------------------
      &    call errquit('neb_input: nbeads',911,
      &    INPUT_ERR)
        if (.not. rtdb_put(rtdb,'neb:nbeads',mt_int,1,nbeads))
-     $     call errquit('neb_input: rtdb put failed',0,
+     $     call errquit('neb_input: rtdb put failed',5,
      &     RTDB_ERR)
 
       goto 100
@@ -111,7 +111,7 @@ c     ----------------------------
      &    call errquit('neb_input: kbeads',911,
      &    INPUT_ERR)
        if (.not. rtdb_put(rtdb,'neb:kbeads',mt_dbl,1,kbeads))
-     $     call errquit('neb_input: rtdb put failed',0,
+     $     call errquit('neb_input: rtdb put failed',6,
      &     RTDB_ERR)
 
       goto 100
@@ -121,7 +121,7 @@ c     reset
 c     ----------------------------
       else if (inp_compare(.false.,'reset', test)) then
        if (.not. rtdb_put(rtdb,'neb:nebnew',mt_log,1,.true.))
-     $     call errquit('neb_input: rtdb put failed',0,
+     $     call errquit('neb_input: rtdb put failed',7,
      &     RTDB_ERR)
 
       goto 100
@@ -134,7 +134,7 @@ c     ----------------------------
      &    call errquit('neb_input: gmax',911,
      &    INPUT_ERR)
        if (.not. rtdb_put(rtdb,'neb:gmax',mt_dbl,1,kbeads))
-     $     call errquit('neb_input: rtdb put failed',0,
+     $     call errquit('neb_input: rtdb put failed',8,
      &     RTDB_ERR)
       goto 100
 c
@@ -145,7 +145,7 @@ c     ----------------------------
      &    call errquit('neb_input: gmax',911,
      &    INPUT_ERR)
        if (.not. rtdb_put(rtdb,'neb:grms',mt_dbl,1,kbeads))
-     $     call errquit('neb_input: rtdb put failed',0,
+     $     call errquit('neb_input: rtdb put failed',9,
      &     RTDB_ERR)
       goto 100
 c
@@ -156,7 +156,7 @@ c     ----------------------------
      &    call errquit('neb_input: xmax',911,
      &    INPUT_ERR)
        if (.not. rtdb_put(rtdb,'neb:xmax',mt_dbl,1,kbeads))
-     $     call errquit('neb_input: rtdb put failed',0,
+     $     call errquit('neb_input: rtdb put failed',10,
      &     RTDB_ERR)
       goto 100
 c
@@ -167,7 +167,7 @@ c     ----------------------------
      &    call errquit('neb_input: xrms',911,
      &    INPUT_ERR)
        if (.not. rtdb_put(rtdb,'neb:xrms',mt_dbl,1,kbeads))
-     $     call errquit('neb_input: rtdb put failed',0,
+     $     call errquit('neb_input: rtdb put failed',11,
      &     RTDB_ERR)
       goto 100
 
@@ -176,16 +176,16 @@ c    loose -
 c     ----------------------------
       else if (inp_compare(.false.,'loose', test)) then
        if (.not. rtdb_put(rtdb,'neb:gmax',mt_dbl,1,0.0045d0))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',12,
      >     RTDB_ERR)
        if (.not. rtdb_put(rtdb,'neb:grms',mt_dbl,1,0.0030d0))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',13,
      >     RTDB_ERR)
        if (.not. rtdb_put(rtdb,'neb:xmax',mt_dbl,1,0.0054d0))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',14,
      >     RTDB_ERR)
        if (.not. rtdb_put(rtdb,'neb:xrms',mt_dbl,1,0.0036d0))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',15,
      >     RTDB_ERR)
       goto 100
 c
@@ -193,16 +193,16 @@ c    default -
 c     ----------------------------
       else if (inp_compare(.false.,'default', test)) then
        if (.not. rtdb_put(rtdb,'neb:gmax',mt_dbl,1,0.00045d0))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',16,
      >     RTDB_ERR)
        if (.not. rtdb_put(rtdb,'neb:grms',mt_dbl,1,0.00030d0))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',17,
      >     RTDB_ERR)
        if (.not. rtdb_put(rtdb,'neb:xmax',mt_dbl,1,0.0018d0))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',18,
      >     RTDB_ERR)
        if (.not. rtdb_put(rtdb,'neb:xrms',mt_dbl,1,0.0012d0))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',19,
      >     RTDB_ERR)
       goto 100
 c
@@ -210,16 +210,16 @@ c    tight -
 c     ----------------------------
       else if (inp_compare(.false.,'tight', test)) then
        if (.not. rtdb_put(rtdb,'neb:gmax',mt_dbl,1,0.00015d0))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',20,
      >     RTDB_ERR)
        if (.not. rtdb_put(rtdb,'neb:grms',mt_dbl,1,0.00001d0))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',21,
      >     RTDB_ERR)
        if (.not. rtdb_put(rtdb,'neb:xmax',mt_dbl,1,0.00006d0))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',22,
      >     RTDB_ERR)
        if (.not. rtdb_put(rtdb,'neb:xrms',mt_dbl,1,0.00004d0))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',23,
      >     RTDB_ERR)
       goto 100
 
@@ -230,7 +230,7 @@ c     ----------------------------
          impose = .true.
          if(inp_a(test2)) impose = neb_parse_boolean(test2,.true.)
          if (.not. rtdb_put(rtdb,'neb:impose',mt_log,1,impose))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',24,
      >     RTDB_ERR)
       
       goto 100
@@ -242,8 +242,21 @@ c     ----------------------------
          impose = .true.
          if(inp_a(test2)) impose = neb_parse_boolean(test2,.true.)
          if (.not. rtdb_put(rtdb,'neb:hasmiddle',mt_log,1,impose))
-     >     call errquit('neb_input: rtdb put failed',0,
+     >     call errquit('neb_input: rtdb put failed',25,
      >     RTDB_ERR)
+      
+      goto 100
+
+c
+c    xyz_path
+c     ----------------------------
+      else if (inp_compare(.false.,'xyz_path', test)) then
+         if(inp_a(test2)) then
+            ind = index(test2,' ') -1
+            if (.not. rtdb_cput(rtdb,'neb:xyz_path',1,test2(1:ind)))
+     >         call errquit('neb_input: rtdb put failed',26,
+     >         RTDB_ERR)
+         end if
       
       goto 100
 
